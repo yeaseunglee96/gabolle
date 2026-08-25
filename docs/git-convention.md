@@ -33,7 +33,8 @@ feature/back/S15P21E201-124-search-api
 fix/front/S15P21E201-125-date-picker
 refactor/back/S15P21E201-126-recommendation-service
 chore/common/S15P21E201-127-project-settings
-chore/infra/S15P21E201-128-nginx-config
+chore/front/S15P21E201-128-nginx-config
+chore/back/S15P21E201-129-jenkins-pipeline
 ```
 
 `type`은 아래 값만 사용한다.
@@ -68,15 +69,17 @@ git switch -c feature/front/S15P21E201-123-search-page
 ### 파트 안정화와 배포
 
 ```text
-feature/front/* → front/dev → front/main ┐
-                                          ├→ main → Jenkins 배포
-feature/back/*  → back/dev  → back/main  ┘
+feature/front/* → front/dev (FE CI/CD) → front/main ┐
+                                                     ├→ main
+feature/back/*  → back/dev  (BE CI/CD) → back/main  ┘
 ```
 
 - `dev → 파트 main`: 파트 단위 테스트가 통과한 배포 후보만 병합한다.
 - `파트 main → main`: FE·BE 연동 확인 후 배포 MR을 생성한다.
 - `main` 배포 시 `v0.1.0` 형식으로 태그한다.
-- 공용 문서와 루트 설정은 `chore/common/*`, 배포 설정은 `chore/infra/*`에서 작업한다. 병합 후 변경을 각 파트 브랜치에 동기화한다.
+- `front/dev`, `back/dev`를 기준으로 각 파트의 CI/CD를 실행한다.
+- FE 빌드·Nginx 설정은 `frontend/`, BE 빌드·Jenkins 설정은 `backend/`에서 관리한다.
+- 공용 문서와 루트 설정은 `chore/common/*`에서 작업하고, 병합 후 변경을 각 파트 브랜치에 동기화한다.
 - `hotfix/*`는 `main`에서 생성한다. 수정 후 `main`에 병합하고 관련 파트의 `main`, `dev`에도 반영한다.
 
 ## 4. 커밋 메시지
@@ -91,11 +94,12 @@ feature/back/*  → back/dev  → back/main  ┘
 [S15P21E201-123] feat(front): 여행 검색 화면 추가
 [S15P21E201-124] feat(back): 여행지 검색 API 추가
 [S15P21E201-125] fix(front): 날짜 선택 범위 오류 수정
-[S15P21E201-128] chore(infra): Nginx 프록시 설정 추가
+[S15P21E201-128] chore(front): Nginx 프록시 설정 추가
+[S15P21E201-129] chore(back): Jenkins 파이프라인 설정 추가
 ```
 
 - `type`: `feat`, `fix`, `refactor`, `test`, `docs`, `chore`
-- `scope`: `front`, `back`, `infra`, `common`
+- `scope`: `front`, `back`, `common`
 - 한 커밋에는 하나의 논리적인 변경만 담는다.
 - 파일을 확인하지 않은 채 `git add .`로 전부 올리지 않는다.
 - 공유한 작업 브랜치와 보호 브랜치에는 force push하지 않는다.

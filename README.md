@@ -6,7 +6,6 @@
 
 - `backend/`: Spring Boot + Gradle, Java 18
 - `frontend/`: React + TypeScript, npm
-- `infra/nginx/`: Nginx 및 배포 관련 설정
 - `docs/`: 협업·설계·운영 문서
 
 ```text

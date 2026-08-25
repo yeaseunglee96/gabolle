@@ -25,7 +25,7 @@
 ```text
 [Feat][Front] 여행 검색 화면 구현
 [Feat][Back] 여행지 검색 API 구현
-[Chore][Infra] Jenkins 배포 파이프라인 구성
+[Chore][Back] Jenkins 배포 파이프라인 구성
 [Docs][Common] Git 협업 규칙 작성
 ```
 
