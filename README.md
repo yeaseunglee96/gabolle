@@ -1,4 +1,26 @@
-# axMap
+# S15P21E201
+
+4인 팀의 여행 추천 서비스와 팀 공용 개발 도구를 함께 관리하는 저장소입니다.
+
+## 여행 서비스 작업 영역
+
+- `backend/`: Spring Boot + Gradle, Java 18
+- `frontend/`: React + TypeScript, npm
+- `docs/`: 협업·설계·운영 문서
+
+```text
+main
+├─ front/main → front/dev → feature/front/{JIRA-KEY}-{description}
+└─ back/main  → back/dev  → feature/back/{JIRA-KEY}-{description}
+```
+
+협업 규칙은 [`docs/git-convention.md`](docs/git-convention.md)와 [`docs/jira-convention.md`](docs/jira-convention.md)를 따릅니다.
+
+명세 확정 후 실행 방법과 환경변수 목록을 추가합니다. 비밀값은 커밋하지 않고 `.env.example`에 변수명만 기록합니다.
+
+---
+
+## 공용 개발 도구: axMap
 
 **여러 AI 에이전트가 한 저장소에서 동시에 일할 때,
 사람이 그 작업을 이해하고 통제할 수 있게 하는 도구.**
