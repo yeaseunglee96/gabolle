@@ -1,0 +1,4 @@
+# core.autocrlf 값과 무관하게 체크아웃을 LF 로 고정한다.
+# demo/*.sh 가 CRLF 로 체크아웃되면 bash 가 `$'\r': command not found` 로 죽고,
+# 검증 수단 4개 중 3개(demo, demo:compare, demo:chaos)가 통째로 못 돌아간다.
+* text=auto eol=lf

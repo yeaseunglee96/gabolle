@@ -1,0 +1,93 @@
+# axMap CI
+#
+# 두 가지만 한다.
+#   1. 검증  — main / func / dev 와 모든 MR 에서 돈다
+#   2. 버전  — main / func / dev 에 들어온 것에 태그를 붙인다
+#
+# ── 🔴 팀의 합의는 권한이 아니라 여기에 넣는다 ────────────────────────────────
+#
+# lab.ssafy.com 은 GitLab Community Edition 이다. 보호 브랜치의 "Allowed to merge"
+# 를 **개인 단위로 지정하는 것은 Premium 기능**이고, CE 에는 역할 단위(No one /
+# Maintainers / Developers)밖에 없다. 그래서 "봇만 머지한다" 는 규칙을 권한으로는
+# 만들 수 없다 — 봇도 Maintainer 라 사람 Maintainer 와 구분되지 않는다.
+#
+# CE 에서 Maintainer 까지 실제로 묶는 장치는 하나뿐이다: **Pipelines must succeed.**
+# (Settings → Merge requests → Merge checks) 이걸 켜면 아래 verify 가 빨간 동안은
+# 누구도 — 규칙을 만든 사람도 — 머지 버튼을 누를 수 없다.
+#
+# 권한은 가진 사람이 언제든 우회할 수 있지만 필수 파이프라인은 모두에게 똑같이 걸린다.
+# 그래서 지켜야 할 것은 전부 잡(job)으로 만든다.
+
+default:
+  image: node:20-alpine
+  before_script:
+    - apk add --no-cache git bash
+
+stages: [verify, release]
+
+# ── 검증 ────────────────────────────────────────────────────────────────────
+#
+# CLAUDE.md 의 "## 검증" 절과 같은 목록이다. 개수를 여기에 적지 않는다 —
+# 판정은 언제나 종료 코드다.
+verify:
+  stage: verify
+  script:
+    - npm test
+    - npm run demo
+    - npm run demo:compare
+    - npm run demo:chaos
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH =~ /(^|\/)(main|func|dev)$/
+
+# 화면 검사는 헤드리스 크롬이 필요해 이미지가 다르다.
+#
+# 🔴 이것을 verify 에 합치지 않는 이유: `npm test` 는 브라우저 코드를 실행하지 않으므로
+#    화면이 죽어도 초록이다. 실제로 하룻밤에 두 번 겪었다 — 주석 안의 `*/` 가 파일을
+#    닫았고, `let` 이 첫 사용처보다 아래에 있어 TDZ 로 부트스트랩이 통째로 죽었다.
+#    둘 다 문법 검사와 단위 테스트를 전부 통과했다.
+verify:screen:
+  stage: verify
+  image: node:20
+  before_script:
+    - apt-get update -qq && apt-get install -y -qq chromium git
+    - export CHROME_PATH=$(command -v chromium)
+  script:
+    - npm run smoke
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes: [app/web/**/*, app/*.mjs, app/lib/**/*]
+    - if: $CI_COMMIT_BRANCH =~ /(^|\/)(main|func|dev)$/
+      changes: [app/web/**/*, app/*.mjs, app/lib/**/*]
+
+# ── 버전 ────────────────────────────────────────────────────────────────────
+#
+# dev 에 들어오면 patch, func 에 들어오면 minor, main 에 들어오면 major.
+# 계산은 tools/version.mjs 가 하고 근거는 docs/VERSIONING.md 에 있다.
+#
+# 🔴 태그를 push 하려면 쓰기 권한이 있는 토큰이 필요하다. CI 기본 토큰
+#    (CI_JOB_TOKEN)은 저장소에 push 할 수 없다. 프로젝트 Access Token 을 만들어
+#    CI/CD 변수 AXMAP_BOT_TOKEN (Masked + Protected) 에 넣는다.
+#    없으면 이 잡은 **조용히 건너뛰지 않고** 계산만 하고 알린다 — 버전이 안 올라간
+#    것을 아무도 모르는 상태가 제일 나쁘다.
+version:
+  stage: release
+  script:
+    - git fetch --tags --quiet
+    - |
+      if [ -z "${AXMAP_BOT_TOKEN:-}" ]; then
+        echo "AXMAP_BOT_TOKEN 이 없습니다. 태그를 만들지 않고 계산만 합니다."
+        node tools/version.mjs next --branch "$CI_COMMIT_BRANCH"
+        echo ""
+        echo "설정하려면: Settings -> Access Tokens 에서 Role=Maintainer, scope=api 로"
+        echo "토큰을 만들고 Settings -> CI/CD -> Variables 의 AXMAP_BOT_TOKEN"
+        echo "(Masked + Protected) 에 붙여넣습니다."
+        exit 0
+      fi
+      git remote set-url origin "https://oauth2:${AXMAP_BOT_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git"
+      git config user.name  "axmap-bot"
+      git config user.email "axmap-bot@noreply.${CI_SERVER_HOST}"
+      node tools/version.mjs bump --branch "$CI_COMMIT_BRANCH" --push
+  rules:
+    # MR 에서는 올리지 않는다. 머지되어 브랜치에 들어온 것만 버전을 갖는다.
+    - if: $CI_COMMIT_BRANCH =~ /(^|\/)(main|func|dev)$/

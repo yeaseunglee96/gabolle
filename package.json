@@ -1,0 +1,25 @@
+{
+  "name": "axmap",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "axMap — AI Experience 의 지도이자 개발 환경의 AI Transformation. AI 에이전트들이 서로의 작업 영역을 침범하지 않도록, 코드 충돌 대신 의도 충돌을 먼저 터뜨리는 git 위의 선점 프로토콜",
+  "bin": {
+    "axmap": "bin/axmap.mjs"
+  },
+  "scripts": {
+    "test": "node tools/run-tests.mjs",
+    "demo": "bash demo/run-demo.sh",
+    "demo:compare": "bash demo/conflict-vs-parser.sh",
+    "demo:chaos": "bash demo/chaos.sh",
+    "app": "node app/server.mjs",
+    "smoke": "node tools/smoke.mjs",
+    "desktop": "npm --prefix desktop start",
+    "desktop:smoke": "npm --prefix desktop run selftest",
+    "dist": "npm --prefix desktop run dist",
+    "shortcut": "node tools/shortcut.mjs --dev"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
