@@ -22,7 +22,7 @@
 
 ### 2. 도로명주소 전자지도 (실폭도로) — 심사가 있다
 
-대상 구역에서 OSM 의 `width` 태그는 **0.2%** 다. 폭 판정의 유일한 근거가 이것이다.
+부산 전역에서 OSM 의 `width` 태그는 **0.6%** 다. 폭 판정의 유일한 근거가 이것이다.
 계산으로 만들 수 없으므로 **안 받으면 기능이 사라진다.**
 
 - https://business.juso.go.kr → 신청서 작성 → 본인인증 → "도로명주소 전자지도"
@@ -47,18 +47,25 @@
 ### 5. 소상공인 상가(상권)정보 — 리뷰 대신 쓸 신호
 
 - https://www.data.go.kr/data/15083033/fileData.do → 로그인 → CSV
-- 부산만 약 20만 건. `data/raw/poi/` 에 둔다
+- 부산 약 20만 건. `data/raw/poi/` 에 둔다
 - 여기서 **영업 지속기간**이 나온다 — 조작할 수 없는 신호
 
 ---
 
 ## 인증 없이 되는 것 (이미 받아둠)
 
+작업 범위는 **부산 전역**이다.
+
 | | 라이선스 | 명령 |
 |---|---|---|
-| Geofabrik 전국 OSM 285MB | ODbL 1.0 | `npm run collect:osm` |
-| Overpass 대상 구역 8개 주제 | ODbL 1.0 | `npm run collect:overpass` |
-| AWS Terrain Tiles 고도 | 공개 데이터 | `npm run collect:terrain` |
+| Geofabrik 전국 OSM 286MB | ODbL 1.0 | `npm run collect:osm` |
+| ↳ **거기서 뽑은 부산 전역** (way 68,765) | ODbL 1.0 | `npm run collect:extract` |
+| AWS Terrain Tiles 고도 3,127타일 | 공개 데이터 | `npm run collect:terrain` |
+| Overpass — focus 구역(중구·동구) | ODbL 1.0 | `npm run collect:overpass` |
+
+> 🔴 **전역을 Overpass 로 긁지 않는다.** 공용 서버에 241배 부하다.
+> 전역은 PBF 에서 뽑는다 — 네트워크를 안 쓰고 64초에 끝난다.
+> `overpass.mjs` 에 면적 상한 200km2 가 코드로 걸려 있어 전역을 부르면 거부한다.
 
 **ODbL** — 출처를 밝히고, 이 데이터로 만든 DB 를 배포하면 같은 라이선스로 열어야 하는
 조건. 우리는 서비스만 하고 DB 를 배포하지 않으므로 **출처 표기**만 지키면 된다.

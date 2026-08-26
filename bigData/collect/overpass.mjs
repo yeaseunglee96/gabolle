@@ -7,6 +7,14 @@
  * 🔴 공용 서버다. 순차 실행하고 사이에 쉰다. 병렬로 때리면 IP 가 막히고,
  *    막히면 팀 전체가 몇 시간 못 쓴다.
  *
+ * 🔴 이 스크립트는 focus 구역(중구·동구)만 받는다. 전역이 아니다.
+ *    작업 범위는 부산 전역이지만 그것을 Overpass 로 긁으면 안 된다 —
+ *    241배 부하이고, 그러라고 있는 서버가 아니다. 전역은 이미 받아둔 PBF 에서
+ *    뽑는다: collect/pbf_extract.py. 여기는 PBF 파이프라인을 검증할 때 쓰는
+ *    작고 빠른 대조군이다.
+ *
+ *    --area target 으로 억지로 전역을 부를 수는 있지만 면적 상한에 걸린다.
+ *
  * 이어서 받는다 — 이미 있는 주제는 건너뛴다. --force 로 다시 받는다.
  *
  *   node collect/overpass.mjs
@@ -27,7 +35,9 @@ const ENDPOINTS = [
 const args    = process.argv.slice(2)
 const FORCE   = args.includes('--force')
 const ONLY    = args.includes('--only') ? args[args.indexOf('--only') + 1] : null
+const AREA    = args.includes('--area') ? args[args.indexOf('--area') + 1] : 'focus'
 const PAUSE_MS = 8000     // 질의 사이 휴식. 줄이지 말 것
+const MAX_KM2  = 200      // 이보다 넓으면 거부한다. 공용 서버에 대한 예의다
 
 /** 주제별 질의. bbox 는 {{bbox}} 로 두면 아래에서 치환한다. */
 const TOPICS = {
@@ -148,10 +158,22 @@ async function ask(query, topic) {
 async function main() {
   await mkdir(OUT, { recursive: true })
   const area = JSON.parse(await readFile(join(ROOT, 'config/area.json'), 'utf8'))
-  const b = area.target.bbox
+  const sel = area[AREA]
+  if (!sel) { console.error(`config/area.json 에 '${AREA}' 가 없습니다`); process.exit(1) }
+  const b = sel.bbox
   const bbox = `${b.south},${b.west},${b.north},${b.east}`   // Overpass 는 S,W,N,E 순서다
 
-  log(`대상: ${area.target.name}  bbox=${bbox}`)
+  // 🔴 면적 상한. 전역을 공용 서버에 묻는 사고를 코드가 막는다
+  const km2 = (b.north - b.south) * 111 * (b.east - b.west) * 111
+            * Math.cos((b.north + b.south) / 2 * Math.PI / 180)
+  if (km2 > MAX_KM2) {
+    console.error(`🔴 ${sel.name} 은 약 ${km2.toFixed(0)} km2 로 상한 ${MAX_KM2} km2 를 넘습니다.`)
+    console.error('   Overpass 는 공용 서버입니다. 넓은 범위는 PBF 에서 뽑으세요:')
+    console.error('     py collect/pbf_extract.py')
+    process.exit(2)
+  }
+
+  log(`대상: ${sel.name} (${AREA})  약 ${km2.toFixed(0)} km2  bbox=${bbox}`)
 
   const topics = ONLY ? [ONLY] : Object.keys(TOPICS)
   const summary = []

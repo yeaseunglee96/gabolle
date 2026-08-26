@@ -1,46 +1,66 @@
 {
   "//": "데이터 출처 레지스트리. 라이선스가 없는 출처는 여기에 못 들어온다.",
   "//규칙": "auth 가 none 이 아니면 사람이 신청해야 한다. 스크립트가 대신 못 한다.",
-
   "sources": [
     {
       "id": "osm-korea-pbf",
       "name": "Geofabrik 대한민국 OSM 추출본",
-      "gives": ["도로망", "보행로", "계단", "건물", "정류장", "POI"],
+      "gives": [
+        "도로망",
+        "보행로",
+        "계단",
+        "건물",
+        "정류장",
+        "POI"
+      ],
       "license": "ODbL 1.0",
       "licenseNote": "출처 표기 필수. 파생 DB 를 배포하면 같은 라이선스로 열어야 한다.",
       "auth": "none",
       "url": "https://download.geofabrik.de/asia/south-korea-latest.osm.pbf",
       "script": "collect/osm-pbf.mjs",
-      "status": "받는 중"
+      "status": "받음 (286MB)",
+      "note": "부산 전역의 주 입력원. collect/pbf_extract.py 가 여기서 부산을 뽑는다 (64초). Overpass 로 전역을 긁지 않는 이유가 이것이다.",
+      "derived": "data/raw/pbf/*.ndjson"
     },
     {
       "id": "overpass",
       "name": "Overpass API — 대상 구역 주제별 추출",
-      "gives": ["incline(경사) 태그", "width(폭) 태그", "surface(노면)", "계단 단수", "정류장"],
+      "gives": [
+        "incline(경사) 태그",
+        "width(폭) 태그",
+        "surface(노면)",
+        "계단 단수",
+        "정류장"
+      ],
       "license": "ODbL 1.0",
       "auth": "none",
       "url": "https://overpass-api.de/api/interpreter",
       "script": "collect/overpass.mjs",
-      "status": "바로 됨",
-      "note": "공용 서버라 예의가 필요하다. 순차 실행 + 백오프. 병렬로 때리지 않는다."
+      "status": "받음 (focus 구역만)",
+      "note": "공용 서버라 예의가 필요하다. 순차 실행 + 백오프. 전역은 PBF 에서 뽑는다.",
+      "scope": "focus (중구·동구) 전용 — 면적 상한 200km2 가 코드에 걸려 있다"
     },
     {
       "id": "terrain-tiles",
       "name": "AWS Terrain Tiles (elevation-tiles-prod)",
-      "gives": ["고도 ~30m"],
+      "gives": [
+        "고도 ~30m"
+      ],
       "license": "출처별 상이 (SRTM/ASTER 등 공개 데이터)",
       "auth": "none",
       "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png",
       "script": "collect/terrain.mjs",
-      "status": "바로 됨",
+      "status": "받음 (부산 전역 3,127타일)",
       "note": "임시. 국가 5m DEM 이 오면 교체한다. 30m 로는 골목 경사가 뭉개진다."
     },
-
     {
       "id": "bims-realtime",
       "name": "부산 BIMS 실시간 버스 위치",
-      "gives": ["실측 배차간격", "정류장간 소요시간 분포", "정시성 편차"],
+      "gives": [
+        "실측 배차간격",
+        "정류장간 소요시간 분포",
+        "정시성 편차"
+      ],
       "license": "공공누리 (data.go.kr 이용약관)",
       "auth": "apikey",
       "envVar": "DATA_GO_KR_KEY",
@@ -52,7 +72,12 @@
     {
       "id": "sbiz-poi",
       "name": "소상공인시장진흥공단 상가(상권)정보",
-      "gives": ["상호", "업종 대/중/소분류", "좌표", "개업 시점 추정"],
+      "gives": [
+        "상호",
+        "업종 대/중/소분류",
+        "좌표",
+        "개업 시점 추정"
+      ],
       "license": "공공누리",
       "auth": "login",
       "applyUrl": "https://www.data.go.kr/data/15083033/fileData.do",
@@ -63,7 +88,11 @@
     {
       "id": "juso-road",
       "name": "도로명주소 전자지도 (실폭도로)",
-      "gives": ["실제 도로 폭 폴리곤", "도로구간", "출입구"],
+      "gives": [
+        "실제 도로 폭 폴리곤",
+        "도로구간",
+        "출입구"
+      ],
       "license": "이용목적 심사 후 제공",
       "auth": "application",
       "applyUrl": "https://business.juso.go.kr/",
@@ -74,7 +103,9 @@
     {
       "id": "ngii-dem",
       "name": "국토지리정보원 5m DEM",
-      "gives": ["고도 5m 격자 → 구간별 경사도"],
+      "gives": [
+        "고도 5m 격자 → 구간별 경사도"
+      ],
       "license": "공공누리",
       "auth": "login",
       "applyUrl": "https://map.ngii.go.kr/",
@@ -85,7 +116,11 @@
     {
       "id": "mapillary",
       "name": "Mapillary 거리 이미지",
-      "gives": ["조망 점수", "계단/보도 존재", "그늘"],
+      "gives": [
+        "조망 점수",
+        "계단/보도 존재",
+        "그늘"
+      ],
       "license": "CC BY-SA 4.0",
       "licenseNote": "다운로드·AI 처리 가능. 출처 표기 + 동일조건 변경허락.",
       "auth": "token",
@@ -98,7 +133,11 @@
     {
       "id": "tourapi",
       "name": "한국관광공사 TourAPI",
-      "gives": ["관광지", "무장애 여행 정보", "다국어 설명"],
+      "gives": [
+        "관광지",
+        "무장애 여행 정보",
+        "다국어 설명"
+      ],
       "license": "공공누리",
       "auth": "apikey",
       "envVar": "DATA_GO_KR_KEY",
@@ -107,7 +146,6 @@
       "status": "키 대기"
     }
   ],
-
   "banned": [
     {
       "id": "naver-map",

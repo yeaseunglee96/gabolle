@@ -6,11 +6,12 @@
   "description": "부산 이동성 온톨로지 — 수집·처리",
   "scripts": {
     "collect:osm": "node collect/osm-pbf.mjs",
+    "collect:extract": "py collect/pbf_extract.py",
     "collect:overpass": "node collect/overpass.mjs",
     "collect:terrain": "node collect/terrain.mjs",
     "collect:bims": "node collect/bims-poll.mjs",
-    "slope": "node process/slope.mjs",
     "calibrate": "node process/calibrate-slope.mjs",
+    "slope": "node --max-old-space-size=4096 process/slope.mjs",
     "verify": "node test/verify.mjs"
   }
 }

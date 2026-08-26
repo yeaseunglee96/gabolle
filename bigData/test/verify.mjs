@@ -44,6 +44,19 @@ await t('스크립트 문법', async () => {
     }
     ok(`${d}/ 전부 통과`)
   }
+  // .py 는 파이썬이 있을 때만 본다. CI 이미지(node:20-alpine)에는 없다 —
+  // 없다고 실패시키면 CI 를 위해 이미지를 무겁게 만들게 된다. 로컬에서 잡는다.
+  let py = null
+  for (const c of ['py', 'python3', 'python']) {
+    try { execFileSync(c, ['--version'], { stdio: 'pipe' }); py = c; break } catch {}
+  }
+  if (!py) return ok('python 없음 — .py 문법 검사 건너뜀')
+  for (const f of await readdir(join(ROOT, 'collect'))) {
+    if (!f.endsWith('.py')) continue
+    execFileSync(py, ['-c', `import ast,io,sys;ast.parse(io.open(sys.argv[1],encoding='utf-8').read())`,
+                       join(ROOT, 'collect', f)], { stdio: 'pipe' })
+  }
+  ok(`collect/*.py 문법 통과 (${py})`)
 })
 
 await t('PNG 디코더 (terrarium 고도)', async () => {
@@ -62,14 +75,33 @@ await t('PNG 디코더 (terrarium 고도)', async () => {
 })
 
 await t('경사 기준선 보정 불변식', async () => {
-  if (!await has('data/staged/_slope-summary.json')) return ok('경사 미계산 — 건너뜀 (npm run slope)')
+  if (!await has('data/staged/_calibration.json'))
+    return ok('보정 미실행 — 건너뜀 (npm run calibrate)')
+  const c = JSON.parse(await readFile(join(ROOT, 'data/staged/_calibration.json'), 'utf8'))
+
+  // 🔴 어느 기준선에서도 평지 거짓양성이 1% 아래로 안 내려가면 DEM 이 못 쓸 것이다
+  if (c.recommendedBaselineM == null)
+    throw new Error('어느 기준선에서도 거짓양성이 1% 아래로 안 내려간다 — DEM 을 교체해야 한다')
+  const row = c.rows.find(r => r.baselineM === c.recommendedBaselineM)
+  if (!row) throw new Error('권장 기준선이 측정표에 없다')
+  if (row.flatFalsePositive > 0.01)
+    throw new Error(`권장 기준선 ${row.baselineM}m 의 평지 거짓양성 ${(row.flatFalsePositive*100).toFixed(1)}% — 1% 를 넘는다`)
+  // 잡음만 죽고 신호도 같이 죽으면 의미가 없다
+  if (row.hillyOver8 < 0.2)
+    throw new Error(`산지 신호가 ${(row.hillyOver8*100).toFixed(0)}% 로 무너졌다 — 기준선이 너무 길다`)
+  ok(`권장 기준선 ${row.baselineM}m — 평지 거짓양성 ${(row.flatFalsePositive*100).toFixed(1)}%, 산지 신호 ${(row.hillyOver8*100).toFixed(0)}%`)
+  ok(`대조군 평지 ${c.control.flatWays.toLocaleString()}개 / 산지 ${c.control.hillyWays.toLocaleString()}개`)
+
+  if (!await has('data/staged/_slope-summary.json'))
+    return ok('경사 미계산 — 건너뜀 (npm run slope)')
   const s = JSON.parse(await readFile(join(ROOT, 'data/staged/_slope-summary.json'), 'utf8'))
-  // 🔴 평지 대조군의 거짓 양성이 0 이 아니면 기준선이 틀린 것이다
-  const fp = s.calibration?.falsePositiveAt8pct?.[`${s.baselineM}m`]
-  if (fp == null) throw new Error('보정 기록이 없다')
-  if (fp > 0.01) throw new Error(`기준선 ${s.baselineM}m 의 거짓 양성 ${(fp*100).toFixed(0)}% — 100m 이상으로 올려라`)
-  ok(`기준선 ${s.baselineM}m, 평지 거짓 양성 ${(fp*100).toFixed(0)}%`)
-  if (s.representativeStat?.startsWith('max')) throw new Error('대표값이 최댓값이다 — 잡음에 끌려간다')
+
+  // 🔴 계산에 쓴 기준선과 보정이 권장한 기준선이 어긋나면, 숫자는 그럴듯한데 틀린 것이다
+  if (s.baselineM !== c.recommendedBaselineM)
+    throw new Error(`계산 기준선 ${s.baselineM}m ≠ 보정 권장 ${c.recommendedBaselineM}m`)
+  ok(`계산이 권장 기준선을 따랐다 (${s.baselineM}m)`)
+  if (s.representativeStat?.startsWith('max'))
+    throw new Error('대표값이 최댓값이다 — 잡음 표본 하나에 끌려간다')
   ok(`대표값 ${s.representativeStat.split(' ')[0]}`)
 })
 

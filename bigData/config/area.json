@@ -1,18 +1,18 @@
 {
-  "//": "대상 구역. 부산 전체는 기간 안에 불가능하므로 외국인 실동선부터 시작한다.",
-  "//근거": "부산역 도착 직후 동선이고, 산복도로 경사가 극단적이라 걷기 판정이 실제로 유의미하다.",
+  "//": "작업 범위 = 부산 전역.",
+
+  "//bbox주의": "bbox 는 3,040 km2 로 부산 실면적(770 km2)의 4배다. 바다와 김해·양산 일부가 들어간다. 고도 타일은 bbox 로 받고, OSM 은 boundary.geojson 폴리곤으로 잘라낸다.",
 
   "target": {
-    "name": "부산 중구·동구",
-    "reason": "부산역 → 초량 이바구길 → 자갈치 → 국제시장. 외국인 최다 동선 + 산복도로 경사",
-    "bbox": { "south": 35.085, "west": 129.015, "north": 35.150, "east": 129.075 },
-    "osmRelations": { "중구": 2323076, "동구": 2323077 },
-    "//osmRelations주의": "이 relation ID 는 collect/boundary.mjs 가 실제 조회해서 검증한다. 손으로 믿지 않는다."
+    "name": "부산광역시 전역",
+    "bbox": { "south": 34.880, "west": 128.740, "north": 35.400, "east": 129.320 },
+    "clipTo": "config/boundary.geojson",
+    "osmRelationHint": "boundary=administrative, admin_level=4, name=부산광역시 — collect/boundary.mjs 가 실제 조회해서 검증한다"
   },
 
-  "full": {
-    "name": "부산광역시 전체",
-    "note": "2단계. 파이프라인이 target 에서 끝까지 돈 뒤에만 켠다.",
-    "bbox": { "south": 34.880, "west": 128.740, "north": 35.400, "east": 129.320 }
+  "//focus": "전역을 다루되 데모·검증은 여기서 먼저 본다. 외국인 실동선이고 산복도로 경사가 극단적이라 판정이 눈에 보인다.",
+  "focus": {
+    "name": "부산 중구·동구",
+    "bbox": { "south": 35.085, "west": 129.015, "north": 35.150, "east": 129.075 }
   }
 }
