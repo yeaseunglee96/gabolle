@@ -28,12 +28,23 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const OUT  = join(ROOT, 'data/raw/transit')
 
 const DRY = process.argv.includes('--dry-run')
-const INTERVAL_MS = Number(process.env.BIMS_INTERVAL_MS || 30000)   // 30초
 
-// 🔴 엔드포인트는 신청한 오퍼레이션에 따라 다르다. 활용신청 화면의 "요청주소" 를
-//    그대로 .env 의 BIMS_ENDPOINT 에 넣는다. 지어내지 않는다.
-const ENDPOINT = process.env.BIMS_ENDPOINT
-  || 'http://apis.data.go.kr/6260000/BusanBIMSBusLocation/busLocationList'
+/**
+ * 🔴 이 둘은 **`loadEnv()` 뒤에** 정해야 한다. 모듈 로드 시점에 정하면 안 된다.
+ *
+ * 예전에는 여기서 `const ENDPOINT = process.env.BIMS_ENDPOINT || '...'` 로 정했다.
+ * 그런데 `.env` 를 읽는 `loadEnv()` 는 `main()` 안에서 **나중에** 돈다. 그래서
+ * `.env` 에 넣은 값이 한 번도 반영되지 않고 **아래 기본값이 늘 이겼다.**
+ *
+ * 하필 그 기본값이 지어낸 주소다 — 위 주석이 "지어내지 않는다" 고 못 박은 바로
+ * 그것이다. 그래서 증상이 "키를 넣었는데 API 오류" 로 나타나고, 사람은 키를 의심한다.
+ * 값은 맞았고 읽는 순서가 틀렸던 것이다.
+ *
+ * 기본값도 없앤다. 못 정하면 **멈추고 물어본다** — 지어낸 주소로 조용히 실패하는
+ * 것보다 낫다.
+ */
+let INTERVAL_MS = 30000
+let ENDPOINT = null
 
 const log = (...a) => console.log(new Date().toISOString().slice(0, 19), ...a)
 
@@ -94,9 +105,21 @@ async function pollOnce(key, routeIds) {
 
 async function main() {
   await loadEnv()
+  // 🔴 여기서 정한다. 위 선언부의 주석을 보라 — 순서가 이 파일의 버그였다.
+  INTERVAL_MS = Number(process.env.BIMS_INTERVAL_MS || 30000)
+  ENDPOINT = process.env.BIMS_ENDPOINT || null
+
   await mkdir(OUT, { recursive: true })
   const key = process.env.DATA_GO_KR_KEY
   const routeIds = await routes()
+
+  if (!ENDPOINT) {
+    log('🔴 BIMS_ENDPOINT 가 없습니다. 요청주소를 지어내지 않습니다.')
+    log('   data.go.kr 마이페이지 → 활용신청 상세의 End Point 와 오퍼레이션 경로를 합쳐')
+    log('   bigData/.env 의 BIMS_ENDPOINT 에 그대로 넣으십시오.')
+    log('   예) https://apis.data.go.kr/6260000/BusanBIMS/busInfoByRouteId')
+    process.exit(2)
+  }
 
   log('BIMS 폴링')
   log(`  엔드포인트 ${ENDPOINT}`)

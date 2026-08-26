@@ -12,6 +12,8 @@
     "collect:bims": "node collect/bims-poll.mjs",
     "calibrate": "node process/calibrate-slope.mjs",
     "slope": "node --max-old-space-size=4096 process/slope.mjs",
-    "verify": "node test/verify.mjs"
+    "verify": "node test/verify.mjs",
+    "choice:design": "node process/choice-design.mjs",
+    "choice:fit": "node process/choice-fit.mjs"
   }
 }
