@@ -1,0 +1,18 @@
+services:
+  server:
+    build: { context: ., dockerfile: server/Dockerfile }
+    environment:
+      DATABASE_URL: file:/data/local-route.db
+      CORS_ORIGINS: http://localhost:5173,http://localhost:8080
+      BOOKING_WEBHOOK_SECRET: ${BOOKING_WEBHOOK_SECRET:-change-before-production}
+      KAKAO_REST_API_KEY: ${KAKAO_REST_API_KEY:-}
+    volumes: [local_route_data:/data]
+    ports: ["4000:4000"]
+    restart: unless-stopped
+  web:
+    build: { context: ., dockerfile: web/Dockerfile }
+    depends_on: [server]
+    ports: ["8080:80"]
+    restart: unless-stopped
+volumes:
+  local_route_data:
