@@ -95,7 +95,23 @@ mr:gates:
   stage: verify
   before_script: []
   script:
-    - echo "대상 브랜치 : ${CI_MERGE_REQUEST_TARGET_BRANCH_NAME:-?}"
+    # 🔴 이 줄은 **반드시 작은따옴표로 감싼다.** 지우지 마라.
+    #
+    #    안 감싸면 YAML 이 이 항목을 plain scalar(따옴표 없는 값)로 읽는데, 그 안에
+    #    콜론+공백이 있으면 거기서 끊어 "키: 값" 매핑으로 해석한다. 그러면 script 의
+    #    원소 하나가 문자열이 아니라 map 이 되고 **설정 파일 전체가 무효**가 된다.
+    #
+    #    무서운 것은 실패하는 방식이다. 설정이 무효면 GitLab 은 잡을 **하나도 만들지
+    #    않고** 파이프라인만 failed 로 찍는다. 화면에는 "어느 잡이 실패했는지" 가
+    #    없다 — 실패한 잡이 없으니까. 원인을 찾을 단서가 어디에도 안 남는다.
+    #
+    #    2026-08-26 17:31(6cddf63 머지)부터 이 줄 하나로 저장소 전체 CI 가 멈췄다
+    #    (S15P21E201-22). main 도, 그 뒤의 모든 MR 도 잡 0개로 빨갰다.
+    #
+    #    고친 뒤에는 GitLab 에게 직접 물어 확인한다 (npm test 로는 안 잡힌다):
+    #      Settings 옆 CI/CD → Editor → Validate,  또는
+    #      POST /api/v4/projects/:id/ci/lint  { "content": "<파일 내용>" }
+    - 'echo "대상 브랜치 : ${CI_MERGE_REQUEST_TARGET_BRANCH_NAME:-?}"'
     - echo ""
     - echo "이 MR 에 걸리는 문은 아래 잡들의 결과로 확인하세요."
     - echo "  ref/ 만 바꾼 MR 은 정족수·선점·사본 검사를 건너뜁니다 (ref/README.md)."
