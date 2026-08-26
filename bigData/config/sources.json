@@ -1,0 +1,128 @@
+{
+  "//": "데이터 출처 레지스트리. 라이선스가 없는 출처는 여기에 못 들어온다.",
+  "//규칙": "auth 가 none 이 아니면 사람이 신청해야 한다. 스크립트가 대신 못 한다.",
+
+  "sources": [
+    {
+      "id": "osm-korea-pbf",
+      "name": "Geofabrik 대한민국 OSM 추출본",
+      "gives": ["도로망", "보행로", "계단", "건물", "정류장", "POI"],
+      "license": "ODbL 1.0",
+      "licenseNote": "출처 표기 필수. 파생 DB 를 배포하면 같은 라이선스로 열어야 한다.",
+      "auth": "none",
+      "url": "https://download.geofabrik.de/asia/south-korea-latest.osm.pbf",
+      "script": "collect/osm-pbf.mjs",
+      "status": "받는 중"
+    },
+    {
+      "id": "overpass",
+      "name": "Overpass API — 대상 구역 주제별 추출",
+      "gives": ["incline(경사) 태그", "width(폭) 태그", "surface(노면)", "계단 단수", "정류장"],
+      "license": "ODbL 1.0",
+      "auth": "none",
+      "url": "https://overpass-api.de/api/interpreter",
+      "script": "collect/overpass.mjs",
+      "status": "바로 됨",
+      "note": "공용 서버라 예의가 필요하다. 순차 실행 + 백오프. 병렬로 때리지 않는다."
+    },
+    {
+      "id": "terrain-tiles",
+      "name": "AWS Terrain Tiles (elevation-tiles-prod)",
+      "gives": ["고도 ~30m"],
+      "license": "출처별 상이 (SRTM/ASTER 등 공개 데이터)",
+      "auth": "none",
+      "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png",
+      "script": "collect/terrain.mjs",
+      "status": "바로 됨",
+      "note": "임시. 국가 5m DEM 이 오면 교체한다. 30m 로는 골목 경사가 뭉개진다."
+    },
+
+    {
+      "id": "bims-realtime",
+      "name": "부산 BIMS 실시간 버스 위치",
+      "gives": ["실측 배차간격", "정류장간 소요시간 분포", "정시성 편차"],
+      "license": "공공누리 (data.go.kr 이용약관)",
+      "auth": "apikey",
+      "envVar": "DATA_GO_KR_KEY",
+      "applyUrl": "https://www.data.go.kr/dataset/15001114/openapi.do",
+      "script": "collect/bims-poll.mjs",
+      "status": "키 대기 — 최우선",
+      "//최우선인이유": "실시간 데이터는 소급 수집이 안 된다. 오늘 안 모으면 한 달 뒤에 한 달치가 없다."
+    },
+    {
+      "id": "sbiz-poi",
+      "name": "소상공인시장진흥공단 상가(상권)정보",
+      "gives": ["상호", "업종 대/중/소분류", "좌표", "개업 시점 추정"],
+      "license": "공공누리",
+      "auth": "login",
+      "applyUrl": "https://www.data.go.kr/data/15083033/fileData.do",
+      "script": "collect/sbiz-poi.mjs",
+      "status": "로그인 후 사람이 CSV 다운로드",
+      "note": "리뷰 대신 쓰는 신호의 뼈대. 영업 지속기간이 여기서 나온다."
+    },
+    {
+      "id": "juso-road",
+      "name": "도로명주소 전자지도 (실폭도로)",
+      "gives": ["실제 도로 폭 폴리곤", "도로구간", "출입구"],
+      "license": "이용목적 심사 후 제공",
+      "auth": "application",
+      "applyUrl": "https://business.juso.go.kr/",
+      "script": null,
+      "status": "신청 필요 — 심사 소요, 빨리 넣을수록 좋다",
+      "note": "OSM width 태그는 결측이 많다. 폭 판정의 진짜 근거는 이것이다."
+    },
+    {
+      "id": "ngii-dem",
+      "name": "국토지리정보원 5m DEM",
+      "gives": ["고도 5m 격자 → 구간별 경사도"],
+      "license": "공공누리",
+      "auth": "login",
+      "applyUrl": "https://map.ngii.go.kr/",
+      "script": null,
+      "status": "사람이 다운로드 (대용량 전송 SW 필요, Windows)",
+      "note": "산복도로 경사 판정의 근거. terrain-tiles 30m 를 이걸로 교체한다."
+    },
+    {
+      "id": "mapillary",
+      "name": "Mapillary 거리 이미지",
+      "gives": ["조망 점수", "계단/보도 존재", "그늘"],
+      "license": "CC BY-SA 4.0",
+      "licenseNote": "다운로드·AI 처리 가능. 출처 표기 + 동일조건 변경허락.",
+      "auth": "token",
+      "envVar": "MAPILLARY_TOKEN",
+      "applyUrl": "https://www.mapillary.com/developer",
+      "script": "collect/mapillary.mjs",
+      "status": "토큰 대기 + 부산 커버리지 확인 필요",
+      "note": "커버리지가 비면 팀이 직접 촬영해서 올린다. 직접 찍은 것은 제약이 없다."
+    },
+    {
+      "id": "tourapi",
+      "name": "한국관광공사 TourAPI",
+      "gives": ["관광지", "무장애 여행 정보", "다국어 설명"],
+      "license": "공공누리",
+      "auth": "apikey",
+      "envVar": "DATA_GO_KR_KEY",
+      "applyUrl": "https://www.data.go.kr/",
+      "script": "collect/tourapi.mjs",
+      "status": "키 대기"
+    }
+  ],
+
+  "banned": [
+    {
+      "id": "naver-map",
+      "why": "약관상 응답 데이터 저장 금지. 지도·로드뷰 모두 표시만 허용.",
+      "insteadUse": "표시는 공식 SDK 로. 분석 데이터는 osm-korea-pbf + mapillary."
+    },
+    {
+      "id": "kakao-map",
+      "why": "Local API 응답 별도 저장 금지, 로드뷰 이미지 수집·재배포 금지 (카카오 공식 답변).",
+      "insteadUse": "로드뷰는 SDK 임베드로 화면에만. 저장하지 않는다."
+    },
+    {
+      "id": "naver-review",
+      "why": "리뷰 이벤트로 오염되어 신호가 아니다. 약관 문제 이전에 품질 문제.",
+      "insteadUse": "sbiz-poi 영업 지속기간 + 유동인구 + 카드매출."
+    }
+  ]
+}
