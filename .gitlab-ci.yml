@@ -1,8 +1,20 @@
 # axMap CI
 #
-# 두 가지만 한다.
-#   1. 검증  — main / func / dev 와 모든 MR 에서 돈다
-#   2. 버전  — main / func / dev 에 들어온 것에 태그를 붙인다
+# 네 가지를 한다.
+#   1. 사본   — ci/axmap 이 손으로 바뀌지 않았는가   (ci:vendor)
+#   2. 선점   — claim 없이 고친 것이 들어왔는가      (claims)
+#   3. 자리   — MR 이 한 칸씩 올라가는가             (verify:mr-target)
+#   4. 합의   — 정족수를 채웠는가                    (governance)
+#   그리고 머지된 것을 위로 올리고 태그를 붙인다      (promote · version)
+#
+# 1~4 는 모든 MR 에서, 승격과 버전은 머지된 뒤와 스케줄에서 돈다.
+#
+# 🔴 axMap 자기 테스트(npm test · demo · smoke)는 여기 없다. axMap 은 자기
+#    저장소에 있고 그쪽 CI 가 돌린다. 이 저장소에는 **돌아가는 사본**만 있다.
+#    여행 서비스 파트(frontend/ · backend/)의 검증은 각 파트가 여기 더한다.
+#
+# 자세한 배경 — 러너가 무엇이고 왜 없으면 pending 인지, 봇 토큰이 왜 필요한지,
+# 켜는 순서를 왜 틀리면 안 되는지 — 는 docs/CI.md 에 있다.
 #
 # ── 🔴 팀의 합의는 권한이 아니라 여기에 넣는다 ────────────────────────────────
 #
@@ -25,40 +37,126 @@ default:
 
 stages: [verify, release]
 
-# ── 검증 ────────────────────────────────────────────────────────────────────
+# ── 복사본이 손으로 바뀌지 않았는가 ──────────────────────────────────────────
 #
-# CLAUDE.md 의 "## 검증" 절과 같은 목록이다. 개수를 여기에 적지 않는다 —
-# 판정은 언제나 종료 코드다.
-verify:
+# 🔴 `ci/axmap/` 은 axMap 저장소에서 **복사해 온 사본**이다 (벤더링 — 남의 코드를
+#    내 저장소 안에 복사해 두고 그 사본으로 돌리는 것). 아래 잡들이 부르는 것이
+#    전부 그 사본이라, 누가 사본을 직접 고치면 팀 CI 의 동작이 조용히 갈라진다.
+#
+#    이 잡은 그것을 **막지는 못하고 보이게 만든다.** manifest 까지 다시 만들면
+#    통과하지만, 그때는 SOURCE.json 과 manifest.sha256 이 diff 에 떠서 리뷰어가
+#    "업스트림 커밋은 그대로인데 사본만 바뀌었다" 를 본다.
+#    거버넌스 층과 같은 태도다 — 강제 장치가 아니라 부인 불가능성 장치다.
+#
+#    고치는 올바른 방법은 axMap 저장소에서 고치고 vendor 명령을 다시 돌리는 것이다.
+ci:vendor:
   stage: verify
+  before_script: []
   script:
-    - npm test
-    - npm run demo
-    - npm run demo:compare
-    - npm run demo:chaos
+    - node ci/verify-vendor.mjs
   rules:
+    # ref/ 만 바뀐 MR 에서는 돌지 않는다 — 참고 자료는 사본과 무관하다 (ref/README.md)
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes: ['ci/**/*']
     - if: $CI_COMMIT_BRANCH =~ /(^|\/)(main|func|dev)$/
 
-# 화면 검사는 헤드리스 크롬이 필요해 이미지가 다르다.
+# ── 선점 없이 고친 것이 들어왔는가 ───────────────────────────────────────────
 #
-# 🔴 이것을 verify 에 합치지 않는 이유: `npm test` 는 브라우저 코드를 실행하지 않으므로
-#    화면이 죽어도 초록이다. 실제로 하룻밤에 두 번 겪었다 — 주석 안의 `*/` 가 파일을
-#    닫았고, `let` 이 첫 사용처보다 아래에 있어 TDZ 로 부트스트랩이 통째로 죽었다.
-#    둘 다 문법 검사와 단위 테스트를 전부 통과했다.
-verify:screen:
+# 장부(`axmap/claims` 브랜치)의 이력을 처음부터 재생하면서, 어느 시점에도
+# 아무도 잡고 있지 않던 파일이 고쳐진 적이 있는지 본다.
+#
+# 🔴 왜 이 잡이 필요한가. claim 강제는 지금까지 **각자 PC 의 커밋 훅**뿐이었다.
+#    setup 을 안 돌린 사람, `--no-verify` 를 쓴 사람, 웹 IDE 로 고친 사람에게는
+#    아무 보호가 없다. 훅은 "설치했는가" 에 달려 있고, 한 사람이 안 하면 그날의
+#    보호가 사라진다. **이 잡만은 설치 여부와 무관하다.**
+#
+# 🔴 GIT_DEPTH: 0 — 장부 이력을 처음부터 재생하므로 얕은 클론이면 못 센다.
+claims:
   stage: verify
-  image: node:20
-  before_script:
-    - apt-get update -qq && apt-get install -y -qq chromium git
-    - export CHROME_PATH=$(command -v chromium)
+  variables:
+    GIT_DEPTH: 0
   script:
-    - npm run smoke
+    - node ci/axmap/bin/axmap.mjs audit --fetch
+  rules:
+    # ref/ 만 바뀐 MR 에서는 돌지 않는다 (ref/README.md)
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes: ['frontend/**/*', 'backend/**/*', 'ci/**/*', 'governance/**/*',
+                'docs/**/*', '.gitlab-ci.yml', 'CLAUDE.md', 'setup.sh', 'setup.ps1']
+
+# ── 파이프라인이 존재하게 한다 ───────────────────────────────────────────────
+#
+# 🔴 이 잡이 없으면 `ref/` 만 바꾼 MR 은 **잡이 하나도 안 돌아 파이프라인 자체가
+#    안 만들어진다.** 그런데 `Pipelines must succeed` 는 "파이프라인이 없으면"
+#    머지를 막는다 — 검사를 면제해 줬더니 오히려 못 머지하는 상태가 된다.
+#
+#    그래서 아무 MR 에서나 도는 싼 잡을 하나 둔다. 하는 일은 무엇이 걸렸고
+#    무엇이 건너뛰어졌는지 사람이 읽게 찍는 것뿐이다.
+mr:gates:
+  stage: verify
+  before_script: []
+  script:
+    - echo "대상 브랜치 : ${CI_MERGE_REQUEST_TARGET_BRANCH_NAME:-?}"
+    - echo ""
+    - echo "이 MR 에 걸리는 문은 아래 잡들의 결과로 확인하세요."
+    - echo "  ref/ 만 바꾼 MR 은 정족수·선점·사본 검사를 건너뜁니다 (ref/README.md)."
+    - echo "  dev 로 올리는 MR 은 정족수를 요구하지 않습니다 — 진짜 관문은 dev 에서 나갈 때입니다."
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-      changes: [app/web/**/*, app/*.mjs, app/lib/**/*]
-    - if: $CI_COMMIT_BRANCH =~ /(^|\/)(main|func|dev)$/
-      changes: [app/web/**/*, app/*.mjs, app/lib/**/*]
+
+# ── MR 이 한 칸씩 올라가는가 ─────────────────────────────────────────────────
+#
+# 기능 브랜치 → 파트 dev → 파트 브랜치 → 최상위 main. 건너뛰면 막는다.
+#
+# 🔴 왜 설정이 아니라 잡인가. Community Edition(무료판)에는 **"이 브랜치로는 MR 을
+#    못 연다" 는 설정이 아예 없다.** 있는 것은 기본 대상 브랜치를 정해 두는 것뿐이고,
+#    그건 사람이 드롭다운에서 바꾸면 그만이다.
+#
+# 🔴 이 잡은 제일 싸다 — 컨테이너를 띄우고 node 한 번 부르는 게 전부다.
+#    그래서 `before_script` 의 apk 설치도 건너뛴다. 규칙 위반은 테스트가 3분 돌기
+#    전에 알려주는 편이 낫다.
+verify:mr-target:
+  stage: verify
+  before_script: []
+  script:
+    - node ci/axmap/tools/mr-target.mjs
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+
+# ── 합의 ────────────────────────────────────────────────────────────────────
+#
+# "이 변경은 정족수(통과에 필요한 최소 찬성 수)를 채웠는가" 하나만 묻는다.
+# 판정 근거와 지키는 성질(G1~G5)은 axmap/governance/GOVERNANCE.md 에 있다.
+#
+# 종료 코드: 0 충족 · 2 미달(사람이 투표하면 풀린다) · 1 판정 불가(환경을 고친다)
+#           · 4 정책 자체가 깨짐
+#
+# 🔴 GIT_DEPTH: 0 이 필요하다. GitLab 은 기본으로 얕은 클론(**최근 몇 커밋만
+#    받아오는 것**)을 하는데, 게이트는 소스와 타깃의 **갈림점**(merge-base)을
+#    구해야 한다. 얕으면 갈림점이 받아온 범위 밖에 있어 "바뀐 파일" 이 통째로
+#    틀리고, 그러면 문턱을 엉뚱한 규칙에서 고른다.
+#
+# 🔴 이 잡이 붙기 전까지 거버넌스 층은 아무것도 막지 않았다. 지금부터는
+#    `Pipelines must succeed` 가 켜져 있는 동안 표가 모자라면 머지 버튼이 안 열린다.
+governance:
+  stage: verify
+  variables:
+    GIT_DEPTH: 0
+  script:
+    - node ci/axmap/governance/gate.mjs
+  rules:
+    # 🔴 dev 로 올리는 MR 에는 표를 요구하지 않는다.
+    #
+    #    dev 는 누구나 직접 push 할 수 있게 열어 둔 자리다. 거기로 가는 MR 에까지
+    #    표를 걸면 하루 수십 건이 사람 둘을 기다리게 되고, 그러면 팀은 MR 을 안
+    #    쓰고 dev 에 직접 밀어 넣는다 — 문을 세운 결과가 문을 우회하는 것이 된다.
+    #
+    #    진짜 관문은 **dev 에서 나갈 때**다. dev -> 파트 브랜치, 파트 브랜치 -> main.
+    #    그 둘에만 표를 요구한다.
+    #
+    #    되돌리려면 아래 `&&` 뒤를 지운다.
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /(^|\/)(main|func)$/
+      changes: ['frontend/**/*', 'backend/**/*', 'ci/**/*', 'governance/**/*',
+                'docs/**/*', '.gitlab-ci.yml', 'CLAUDE.md', 'setup.sh', 'setup.ps1']
 
 # ── 버전 ────────────────────────────────────────────────────────────────────
 #
@@ -77,17 +175,60 @@ version:
     - |
       if [ -z "${AXMAP_BOT_TOKEN:-}" ]; then
         echo "AXMAP_BOT_TOKEN 이 없습니다. 태그를 만들지 않고 계산만 합니다."
-        node tools/version.mjs next --branch "$CI_COMMIT_BRANCH"
+        node ci/axmap/tools/version.mjs next --branch "$CI_COMMIT_BRANCH"
         echo ""
-        echo "설정하려면: Settings -> Access Tokens 에서 Role=Maintainer, scope=api 로"
-        echo "토큰을 만들고 Settings -> CI/CD -> Variables 의 AXMAP_BOT_TOKEN"
+        echo "설정하려면: Settings -> Access Tokens 에서 Role=Maintainer 로 토큰을"
+        echo "만들고 Settings -> CI/CD -> Variables 의 AXMAP_BOT_TOKEN"
         echo "(Masked + Protected) 에 붙여넣습니다."
+        echo ""
+        echo "scope 는 api 입니다. 태그 push 만이면 write_repository 로 충분하지만,"
+        echo "같은 토큰이 승격 MR 을 만들고 머지하므로 api 가 필요합니다 — docs/CI.md 3절."
+        echo ""
+        echo "🔴 AXMAP_BOT_TOKEN 을 Protected 로 두면 보호 브랜치에서 도는 잡에만"
+        echo "   값이 갑니다. 이 잡이 도는 브랜치가 보호 브랜치가 아니면 토큰이 빈 채로"
+        echo "   여기까지 와서 초록으로 끝납니다 — 지금 보고 있는 이 메시지가 그 상태일"
+        echo "   수 있습니다. 브랜치: ${CI_COMMIT_BRANCH:-?}"
         exit 0
       fi
       git remote set-url origin "https://oauth2:${AXMAP_BOT_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git"
       git config user.name  "axmap-bot"
       git config user.email "axmap-bot@noreply.${CI_SERVER_HOST}"
-      node tools/version.mjs bump --branch "$CI_COMMIT_BRANCH" --push
+      node ci/axmap/tools/version.mjs bump --branch "$CI_COMMIT_BRANCH" --push
   rules:
     # MR 에서는 올리지 않는다. 머지되어 브랜치에 들어온 것만 버전을 갖는다.
     - if: $CI_COMMIT_BRANCH =~ /(^|\/)(main|func|dev)$/
+
+# ── 승격 ────────────────────────────────────────────────────────────────────
+#
+# 봇이 단계를 올린다.  <파트>/dev → <파트>/main → main
+#
+# 🔴 스케줄 파이프라인(**GitLab 이 정해진 시각에 스스로 돌리는 파이프라인**)에서만
+#    돈다. 어느 단계를 올릴지는 스케줄마다 변수 PROMOTE_STEP 으로 준다:
+#
+#      Settings → CI/CD → Schedules 에서 둘을 만든다
+#        매일  0 19 * * 1-5   PROMOTE_STEP = dev-to-part
+#        매주  0 19 * * 5     PROMOTE_STEP = part-to-main
+#
+# 🔴 봇도 정족수를 통과해야 머지한다. 게이트가 미달(2)이면 머지 호출 자체가
+#    일어나지 않고, 잡은 초록으로 끝난다 — "아직 표가 모자람" 은 고장이 아니다.
+#
+# 🔴 머지 호출에는 판정에 쓴 커밋 sha 가 실린다. 판정과 머지 사이에 커밋이 하나
+#    들어오면 GitLab 이 거부하고, 봇은 재시도하지 않는다. 표는 커밋 하나에 묶여
+#    있으므로(G3 — 헤드가 바뀌면 표가 효력을 잃는다) 바뀐 내용은 새로 표를 받아야 한다.
+promote:
+  stage: release
+  variables:
+    GIT_DEPTH: 0
+  script:
+    - |
+      if [ -z "${PROMOTE_STEP:-}" ]; then
+        echo "PROMOTE_STEP 이 없습니다. 무엇을 올릴지 추측하지 않습니다."
+        echo ""
+        echo "Settings -> CI/CD -> Schedules 에서 이 스케줄에 변수를 넣으세요:"
+        echo "  PROMOTE_STEP = dev-to-part   (<파트>/dev -> <파트>/main)"
+        echo "  PROMOTE_STEP = part-to-main  (<파트>/main -> main)"
+        exit 1
+      fi
+    - node ci/axmap/tools/promote.mjs --step "$PROMOTE_STEP"
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"

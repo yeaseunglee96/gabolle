@@ -2,7 +2,9 @@
   "mcpServers": {
     "axmap": {
       "command": "node",
-      "args": ["./mcp/server.mjs"],
+      "args": [
+        "./ci/axmap/mcp/server.mjs"
+      ],
       "env": {
         "AXMAP_ACTOR": "agent",
         "AXMAP_TTL": "45m"
