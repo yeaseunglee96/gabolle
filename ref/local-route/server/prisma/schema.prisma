@@ -1,0 +1,519 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Place {
+  id                 String   @id @default(cuid())
+  nameKo             String
+  nameEn             String?
+  category           String // TOURIST | RESTAURANT | CAFE | LODGING
+  address            String
+  addressEn          String?
+  allergens          String   @default("[]")
+  dietOptions        String   @default("[]")
+  onlineReservation  Boolean  @default(false)
+  lat                Float
+  lng                Float
+  openTime           String // "HH:MM"
+  closeTime          String // "HH:MM"
+  closedDays         String // JSON string array, e.g. ["MON"]
+  recommendedStayMin Int
+  priceTier          Int // 1(free/cheap) ~ 4(expensive)
+  parkingAvailable   Boolean  @default(false)
+  reservationRequired Boolean @default(false)
+  localScore         Float // 0~1, seed value standing in for 12.4장 formula
+  localScoreSource   String   @default("SEED") // SEED | VERIFIED_COMMUNITY
+  localScoreUpdatedAt DateTime?
+  tasteTags          String // JSON string array
+  hasEnglishMenu     Boolean  @default(false)
+  foreignCardPayment Boolean  @default(false)
+  contentId          String?  @unique // TourAPI contentid (수기 시드 데이터는 null)
+  dataSource         String   @default("MANUAL") // MANUAL | TOURAPI
+  imageUrl           String?
+  nightImageUrl      String? // 야경 탭 전용 사진. imageUrl은 다른 탭(자연/산책 등)에서 낮 사진으로 계속 쓰이므로
+                              // 같은 장소라도 야경 탭에는 이 필드가 있을 때만 사진을 보여주고, 없으면 낮 사진 대신 플레이스홀더를 쓴다.
+  kakaoPlaceId       String?  @unique
+  kakaoPlaceUrl      String?
+  kakaoRating        Float?
+  kakaoReviewCount   Int?
+  kakaoPositiveReviewRate Float?
+  kakaoReviewKeywords String  @default("[]")
+  kakaoReviewSource  String?  // LICENSED_IMPORT | MANUAL_VERIFIED
+  kakaoReviewCollectedAt DateTime?
+  items              ItineraryItem[]
+  lodgingTrips       Trip[]   @relation("TripLodging")
+  translations       PlaceTranslation[]
+  visitVerifications VisitVerification[]
+  reviews            Review[]
+  business           Business?
+  adCampaigns        AdCampaign[]
+  bookingPartners    BookingPartner[]
+  eventStartDate     String?
+  eventEndDate       String?
+  playTime           String?
+  isOutdoor          Boolean  @default(false)
+  souvenirItems      String    @default("[]")
+  foreignAssistance  Boolean   @default(false)
+  stories            Story[]
+}
+
+model AnonymousSession {
+  id                 String   @id @default(cuid())
+  tokenHash          String   @unique
+  locale             String   @default("KO")
+  createdAt          DateTime @default(now())
+  lastSeenAt         DateTime @default(now())
+  expiresAt          DateTime
+  visitVerifications VisitVerification[]
+  reviews            Review[]
+  localProfile       LocalProfile?
+  ownedTrips         Trip[]            @relation("TripOwner")
+  tripMemberships    TripMember[]
+  ownedShares        ItineraryShare[]
+  stories            Story[]
+  storyReports       StoryReport[]
+  following          Follow[]          @relation("Follower")
+  followers          Follow[]          @relation("Followee")
+  accountOwner       User?             @relation("UserOwnerSession")
+}
+
+model User {
+  id             String           @id @default(cuid())
+  email          String           @unique
+  name           String
+  passwordHash   String
+  passwordSalt   String
+  emailVerified  Boolean          @default(false)
+  locale         String           @default("KO")
+  nationality    String?
+  dietType       String           @default("NONE")
+  allergies      String           @default("[]")
+  travelStyle    String           @default("BALANCED")
+  defaultTransport String         @default("TRANSIT")
+  avatarImage    String?
+  avatarColor    String           @default("LAVENDER")
+  ownerSession   AnonymousSession @relation("UserOwnerSession", fields: [ownerSessionId], references: [id])
+  ownerSessionId String           @unique
+  sessions       AccountSession[]
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+}
+
+model AccountSession {
+  id         String   @id @default(cuid())
+  tokenHash  String   @unique
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String
+  createdAt  DateTime @default(now())
+  lastSeenAt DateTime @default(now())
+  expiresAt  DateTime
+
+  @@index([userId, expiresAt])
+}
+
+model VisitVerification {
+  id             String           @id @default(cuid())
+  session        AnonymousSession @relation(fields: [sessionId], references: [id])
+  sessionId      String
+  place          Place            @relation(fields: [placeId], references: [id])
+  placeId        String
+  visitDate      String
+  arrivedAt      DateTime
+  departedAt     DateTime
+  latitude       Float
+  longitude      Float
+  gridCell       String?
+  coordinatesSanitizedAt DateTime?
+  distanceM      Int
+  dwellMinutes   Int
+  status         String           @default("VERIFIED") // VERIFIED | REJECTED
+  rejectionCode  String?
+  createdAt      DateTime         @default(now())
+  review         Review?
+
+  @@unique([sessionId, placeId, visitDate])
+  @@index([placeId, status, createdAt])
+}
+
+model Review {
+  id             String            @id @default(cuid())
+  session        AnonymousSession  @relation(fields: [sessionId], references: [id])
+  sessionId      String
+  place          Place             @relation(fields: [placeId], references: [id])
+  placeId        String
+  verification   VisitVerification @relation(fields: [verificationId], references: [id])
+  verificationId String            @unique
+  rating         Int
+  body           String
+  language       String            @default("KO")
+  status         String            @default("PUBLISHED")
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  @@index([placeId, status, createdAt])
+}
+
+model LocalProfile {
+  id                  String           @id @default(cuid())
+  session             AnonymousSession @relation(fields: [sessionId], references: [id])
+  sessionId           String           @unique
+  grade               String           @default("NEWCOMER")
+  verifiedVisitCount  Int              @default(0)
+  uniquePlaceCount    Int              @default(0)
+  repeatVisitCount    Int              @default(0)
+  reviewCount         Int              @default(0)
+  trustScore          Float            @default(0)
+  updatedAt           DateTime         @updatedAt
+}
+
+model EventOutbox {
+  id              String   @id @default(cuid())
+  eventId         String   @unique
+  eventType       String
+  topic           String
+  partitionKey    String
+  actorId         String?
+  entityType      String?
+  entityId        String?
+  language        String?
+  payloadJson     String
+  occurredAt      DateTime
+  receivedAt      DateTime @default(now())
+  publishStatus   String   @default("PENDING") // PENDING | PUBLISHED | LOCAL_COMMITTED | FAILED
+  publishedAt     DateTime?
+  publishAttempts Int      @default(0)
+  lastError       String?
+
+  @@index([topic, publishStatus, receivedAt])
+  @@index([eventType, occurredAt])
+  @@index([entityType, entityId, occurredAt])
+}
+
+model Business {
+  id                String       @id @default(cuid())
+  name              String
+  contactEmail      String
+  ownerSessionHash  String
+  status            String       @default("PENDING") // PENDING | VERIFIED | SUSPENDED
+  subscriptionPlan  String       @default("FREE")
+  place             Place?       @relation(fields: [placeId], references: [id])
+  placeId           String?      @unique
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  campaigns         AdCampaign[]
+}
+
+model AdCampaign {
+  id                String       @id @default(cuid())
+  business          Business     @relation(fields: [businessId], references: [id])
+  businessId        String
+  place             Place        @relation(fields: [placeId], references: [id])
+  placeId           String
+  name              String
+  serviceCategory   String       @default("LODGING") // LODGING | RENTAL_CAR | TRAVEL_INSURANCE | TAXI | AIRPORT_TRANSFER
+  status            String       @default("DRAFT") // DRAFT | ACTIVE | PAUSED | ENDED
+  budget            Float
+  spent             Float        @default(0)
+  bidCpc             Float
+  targetingModes    String       @default("[]")
+  targetingLanguage String?
+  startsAt          DateTime
+  endsAt            DateTime
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  ledger            AdLedger[]
+
+  @@index([status, startsAt, endsAt])
+  @@index([placeId, status])
+}
+
+model AdLedger {
+  id          String     @id @default(cuid())
+  eventId     String     @unique
+  campaign    AdCampaign @relation(fields: [campaignId], references: [id])
+  campaignId  String
+  eventType   String
+  actorId     String?
+  amount      Float      @default(0)
+  createdAt   DateTime   @default(now())
+
+  @@index([campaignId, createdAt])
+}
+
+model BookingPartner {
+  id             String         @id @default(cuid())
+  place          Place          @relation(fields: [placeId], references: [id])
+  placeId        String
+  provider       String
+  bookingUrl     String
+  commissionRate Float          @default(0)
+  active         Boolean        @default(true)
+  createdAt      DateTime       @default(now())
+  events         BookingRecord[]
+
+  @@unique([placeId, provider])
+}
+
+model BookingRecord {
+  id             String         @id @default(cuid())
+  eventId        String         @unique
+  partner        BookingPartner @relation(fields: [partnerId], references: [id])
+  partnerId      String
+  actorId        String?
+  tripId         String?
+  status         String         @default("STARTED")
+  amount         Float?
+  commission     Float?
+  externalRef    String?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  @@index([partnerId, status, createdAt])
+}
+
+model PlaceTranslation {
+  id          String @id @default(cuid())
+  place       Place  @relation(fields: [placeId], references: [id])
+  placeId     String
+  lang        String
+  name        String
+  address     String?
+  description String?
+  source      String @default("STRUCTURED")
+  @@unique([placeId, lang])
+}
+
+model Trip {
+  id            String   @id @default(cuid())
+  origin        String
+  originLat     Float
+  originLng     Float
+  startDate     String // ISO date "YYYY-MM-DD"
+  endDate       String
+  partySize     Int
+  adultCount    Int      @default(1)
+  childCount    Int      @default(0)
+  totalBudget   Float
+  hasCar        Boolean
+  pace          String // RELAXED | NORMAL | PACKED
+  dayStart      String   @default("09:30")
+  dayEnd        String   @default("20:00")
+  maxWalkingKm  Float    @default(8)
+  recommendationMode String @default("LOCAL") // ESSENTIAL | LOCAL | PET_SAFE
+  lodgingPlaceId String?
+  lodgingPlace   Place?   @relation("TripLodging", fields: [lodgingPlaceId], references: [id])
+  status        String   @default("DRAFT")
+  createdAt     DateTime @default(now())
+  ownerSession   AnonymousSession? @relation("TripOwner", fields: [ownerSessionId], references: [id])
+  ownerSessionId String?
+  preference    TripPreference?
+  itineraries   Itinerary[]
+  jobs          ItineraryJob[]
+  members       TripMember[]
+}
+
+model ItineraryJob {
+  id                String   @id @default(cuid())
+  trip              Trip     @relation(fields: [tripId], references: [id])
+  tripId            String
+  idempotencyKey    String?  @unique
+  status            String   @default("QUEUED")
+  stage             String   @default("QUEUED")
+  progress          Int      @default(0)
+  resultItineraryId String?
+  errorCode         String?
+  errorMessage      String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([tripId, createdAt])
+}
+
+model TripPreference {
+  id                  String  @id @default(cuid())
+  trip                Trip    @relation(fields: [tripId], references: [id])
+  tripId              String  @unique
+    tasteTags           String // JSON string array
+    courseCategory      String?
+  mustVisitPlaceIds   String // JSON string array
+  mustVisitAssignments String @default("[]") // JSON: { placeId: string, dayIndex: number }[] - 날짜 지정된 필수 방문 장소
+  excludedPlaceIds    String // JSON string array
+  language            String  @default("KO") // KO | EN
+  needsEnglishMenu    Boolean @default(false)
+  needsForeignCard    Boolean @default(false)
+  allergies           String  @default("[]") // JSON string array
+  dietType             String  @default("NONE") // NONE | VEGETARIAN | VEGAN | HALAL | GLUTEN_FREE
+  needsOnlineReservation Boolean @default(false)
+  maxTransferCount     Int     @default(2)
+  landmarkRatio        Int     @default(30)
+  localRatio           Int     @default(50)
+  easyRatio            Int     @default(20) // 초행 외국인 안심 비중(구 petRatio, v2 13장)
+}
+
+model Itinerary {
+  id           String   @id @default(cuid())
+  trip         Trip     @relation(fields: [tripId], references: [id])
+  tripId       String
+  status       String   @default("DONE")
+  generatedAt  DateTime @default(now())
+  solverSource String   @default("HEURISTIC") // OR_TOOLS | HEURISTIC
+  mode         String   @default("LOCAL") // ESSENTIAL | LOCAL | PET_SAFE
+  version      Int      @default(1)
+  days         ItineraryDay[]
+  revisions    ItineraryRevision[]
+  shares       ItineraryShare[]
+  stories      Story[]
+
+  @@index([tripId, mode, generatedAt])
+}
+
+model ItineraryRevision {
+  id           String   @id @default(cuid())
+  itinerary    Itinerary @relation(fields: [itineraryId], references: [id])
+  itineraryId  String
+  dayIndex     Int
+  action       String
+  beforeJson   String
+  afterJson    String
+  createdAt    DateTime @default(now())
+  undoneAt     DateTime?
+
+  @@index([itineraryId, createdAt])
+}
+
+model ItineraryDay {
+  id           String   @id @default(cuid())
+  itinerary    Itinerary @relation(fields: [itineraryId], references: [id])
+  itineraryId  String
+  dayIndex     Int
+  visitDate    String
+  dayBudget    Float
+  startTravelMin       Int?
+  startDistanceM       Int?
+  startTravelIsEstimate Boolean @default(true)
+  returnTravelMin       Int?
+  returnDistanceM       Int?
+  returnTravelIsEstimate Boolean @default(true)
+  lockedBySessionId String?
+  lockedUntil DateTime?
+  items        ItineraryItem[]
+}
+
+model ItineraryItem {
+  id                 String   @id @default(cuid())
+  day                ItineraryDay @relation(fields: [dayId], references: [id])
+  dayId              String
+  place              Place    @relation(fields: [placeId], references: [id])
+  placeId            String
+  seqOrder           Int
+  plannedArrival     String // "HH:MM"
+  stayMinutes        Int
+  estCost            Float
+  travelMinToNext    Int?
+  distanceToNextM    Int?
+  travelIsEstimate   Boolean  @default(true)
+  travelSource       String   @default("HAVERSINE") // KAKAO_MOBILITY | HAVERSINE
+  recommendReason    String
+  isPinned           Boolean  @default(false)
+  version            Int      @default(1)
+  stories            Story[]
+
+  // 페이스 러닝: 계획(plannedArrival/stayMinutes)과 짝을 이루는 실측값.
+  // 같은 행에 계획과 실제가 함께 있어야 "얼마나 밀렸는지"와 "이 사람의 체류 리듬"을 한 번에 계산할 수 있다.
+  actualArrival      String?  // "HH:MM" - 실제 도착 시각
+  actualDeparture    String?  // "HH:MM" - 실제 출발 시각
+  actualStayMinutes  Int?     // 실측 체류 시간(분)
+}
+
+model TripMember {
+  id          String           @id @default(cuid())
+  trip        Trip             @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  tripId      String
+  session     AnonymousSession? @relation(fields: [sessionId], references: [id])
+  sessionId   String?
+  role        String           @default("VIEWER") // EDITOR | VIEWER
+  inviteTokenHash String?      @unique
+  invitedAt   DateTime         @default(now())
+  expiresAt   DateTime?
+  joinedAt    DateTime?
+  revokedAt   DateTime?
+
+  @@unique([tripId, sessionId])
+  @@index([tripId, role, revokedAt])
+}
+
+model ItineraryShare {
+  id             String           @id @default(cuid())
+  itinerary      Itinerary        @relation(fields: [itineraryId], references: [id], onDelete: Cascade)
+  itineraryId    String
+  owner           AnonymousSession @relation(fields: [ownerSessionId], references: [id])
+  ownerSessionId String
+  shareSlug       String           @unique
+  visibility      String           @default("LINK")
+  viewCount       Int              @default(0)
+  cloneCount      Int              @default(0)
+  expiresAt       DateTime
+  revokedAt       DateTime?
+  createdAt       DateTime         @default(now())
+
+  @@index([itineraryId, expiresAt])
+}
+
+model Story {
+  id              String           @id @default(cuid())
+  author          AnonymousSession @relation(fields: [authorSessionId], references: [id])
+  authorSessionId String
+  place           Place            @relation(fields: [placeId], references: [id])
+  placeId         String
+  itinerary       Itinerary?       @relation(fields: [itineraryId], references: [id])
+  itineraryId     String?
+  itineraryItem   ItineraryItem?   @relation(fields: [itineraryItemId], references: [id])
+  itineraryItemId String?
+  content         String
+  imageDataJson   String           @default("[]")
+  rating          Int?
+  visibility      String           @default("PUBLIC") // PUBLIC | FOLLOWERS | PRIVATE
+  visitVerified   Boolean          @default(false)
+  areaLabel       String
+  publishAt       DateTime
+  moderationStatus String          @default("PUBLISHED") // PUBLISHED | REVIEW | HIDDEN | REMOVED
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  reports         StoryReport[]
+
+  @@index([authorSessionId, publishAt])
+  @@index([placeId, moderationStatus, publishAt])
+}
+
+model StoryReport {
+  id          String           @id @default(cuid())
+  story       Story            @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  storyId     String
+  reporter    AnonymousSession @relation(fields: [reporterSessionId], references: [id])
+  reporterSessionId String
+  reason      String
+  status      String           @default("PENDING") // PENDING | RESOLVED | DISMISSED
+  createdAt   DateTime         @default(now())
+  resolvedAt  DateTime?
+
+  @@unique([storyId, reporterSessionId])
+  @@index([status, createdAt])
+}
+
+model Follow {
+  id                String           @id @default(cuid())
+  follower          AnonymousSession @relation("Follower", fields: [followerSessionId], references: [id])
+  followerSessionId String
+  followee          AnonymousSession @relation("Followee", fields: [followeeSessionId], references: [id])
+  followeeSessionId String
+  status            String           @default("ACTIVE")
+  createdAt         DateTime         @default(now())
+
+  @@unique([followerSessionId, followeeSessionId])
+  @@index([followeeSessionId, status])
+}
