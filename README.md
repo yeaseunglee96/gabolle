@@ -1,22 +1,34 @@
 # S15P21E201
 
-4인 팀의 여행 추천 서비스와 팀 공용 개발 도구를 함께 관리하는 저장소입니다.
+6인 팀의 여행 추천 서비스와 팀 공용 개발 도구를 함께 관리하는 저장소입니다.
 
 ## 여행 서비스 작업 영역
 
-- `backend/`: Spring Boot + Gradle, Java 18
-- `frontend/`: React + TypeScript, npm
-- `docs/`: 협업·설계·운영 문서
+| 폴더 | 무엇 |
+|---|---|
+| `frontend/` | React + TypeScript, npm — 화면 |
+| `backend/` | Spring Boot + Gradle, Java 18 — 서버 |
+| `bigData/` | 부산 이동성 데이터 — 공개 데이터 수집과 경사·소요시간 계산 |
+| `docs/` | 협업·설계·운영 문서 |
+| `ci/` · `governance/` | 파이프라인이 부르는 것과 팀의 합의 데이터 (연장통이지 주인이 아니다) |
 
 ```text
 main
-├─ front/main → front/dev → feature/front/{JIRA-KEY}-{description}
-└─ back/main  → back/dev  → feature/back/{JIRA-KEY}-{description}
+├─ front/main   → front/dev   → feat/front/{JIRA-KEY}-{설명}
+├─ back/main    → back/dev    → fix/back/{JIRA-KEY}-{설명}
+├─ bigData/main → bigData/dev → feat/bigData/{JIRA-KEY}-{설명}
+└─ common/main  → common/dev  → chore/common/{JIRA-KEY}-{설명}
 ```
 
-협업 규칙은 [`docs/git-convention.md`](docs/git-convention.md)와 [`docs/jira-convention.md`](docs/jira-convention.md)를 따릅니다.
+> 🔴 **한 칸씩만 올라갑니다.** 건너뛰는 MR 은 CI 가 빨갛게 만듭니다
+> (`verify:mr-target` 잡). 예외는 `hotfix/…` 하나뿐이고, 그것도
+> **`main` 자신이 고장 났을 때**를 위한 것입니다 — 이유는
+> [docs/CI-RESILIENCE.md](docs/CI-RESILIENCE.md) 원칙 3.
 
-명세 확정 후 실행 방법과 환경변수 목록을 추가합니다. 비밀값은 커밋하지 않고 `.env.example`에 변수명만 기록합니다.
+협업 규칙은 [`docs/git-convention.md`](docs/git-convention.md)와 [`docs/jira-convention.md`](docs/jira-convention.md)를 따릅니다.
+처음이면 [`docs/ONBOARDING.md`](docs/ONBOARDING.md) 부터 읽습니다.
+
+비밀값은 커밋하지 않고 `.env.example` 에 변수명만 기록합니다.
 
 ---
 
@@ -190,32 +202,49 @@ npm run smoke         # 🔴 화면이 실제로 뜨는지 헤드리스 크롬�
 
 ## 문서
 
+### 이 저장소
+
 | | |
 |---|---|
 | [CLAUDE.md](CLAUDE.md) | 작업 규칙 (사람에게도 AI 에게도 같다) |
-| [docs/ONBOARD-TEAM.md](docs/ONBOARD-TEAM.md) | 팀원용 5분 안내 |
-| [docs/DECISIONS.md](docs/DECISIONS.md) | 제품 결정 D1~D15 와 **아직 못 정한 것들** |
-| [docs/WHY-CORPUS.md](docs/WHY-CORPUS.md) | 코퍼스가 왜 필요한가 |
-| [docs/PERSONA-LOOP.md](docs/PERSONA-LOOP.md) | 시각화가 실제로 일하는지 재는 법과 결과 |
-| [docs/SPEC.md](docs/SPEC.md) | 프로토콜 규격 |
-| [docs/INVARIANTS.md](docs/INVARIANTS.md) | 지키기로 한 성질 I1~I7 |
+| [docs/ONBOARDING.md](docs/ONBOARDING.md) | clone 부터 첫 작업까지 |
+| [docs/HANDOVER.md](docs/HANDOVER.md) | 다른 PC·다른 사람이 이어받을 때 |
+| [docs/CI.md](docs/CI.md) | 파이프라인·러너·봇 토큰 |
+| [docs/CI-RESILIENCE.md](docs/CI-RESILIENCE.md) | **MR 이 한 달 내내 도는 조건** — 2026-08-26 사고에서 나온 원칙 |
+| [docs/git-convention.md](docs/git-convention.md) · [docs/jira-convention.md](docs/jira-convention.md) | 브랜치·커밋·이슈 규약 |
+| [bigData/CLAUDE.md](bigData/CLAUDE.md) | 부산 이동성 데이터 — 하지 않는 것부터 |
+| [bigData/docs/FIELD-STUDY.md](bigData/docs/FIELD-STUDY.md) | 현장 실험 설계 — 투표인가 텔레메트리인가, 모델은 언제 |
+
+### axMap 저장소로 나간 문서
+
+`SPEC` · `DECISIONS` · `INVARIANTS` · `WHY-CORPUS` · `PERSONA-LOOP` 는
+2026-08-26 에 axMap 이 분리되면서 함께 나갔다 —
+[`rleaderjoon/axmap`](https://lab.ssafy.com/rleaderjoon/axmap) 의 `docs/` 에 있다.
+**이 저장소에 있는 것은 돌아가는 사본뿐**이다 ([CLAUDE.md](CLAUDE.md) 0.3).
 
 ---
 
 ## 아직 안 된 것 (숨기지 않는다)
 
-- **시각화 형식이 미정이다.** 두 번의 벤치마크가 "지금 그래프는 값을 못 한다" 로
-  나왔다 — 신입들이 그림이 아니라 옆에 적힌 글을 읽고 답했다. 2차원 트리·활동 지도
-  같은 후보를 같은 방식으로 재서 정할 것이다.
-- **파서가 14개 언어를 읽는다** — 5개에서 늘렸다. 어느 언어를 먼저 할지는
-  코퍼스가 정했다(커버리지 4~12% 인 것부터). 마지막이 swift 였고, 그것이
-  새 구멍을 하나 드러냈다 — **모듈이 상한보다 크면 선을 안 그린다.**
-  안 그리는 것은 맞지만 안 그렸다고 **말하지 않으면** 화면이 "결합 없음" 으로
-  읽힌다. 지금은 말한다. 같은 구멍이 다른 언어에도 있는지는 아직 안 봤다.
-- **기준을 떼어놓고 검증(held-out)** 한 적이 없다. 그게 있어야 "관찰" 이
-  "검증된 지침" 이 된다.
-- **상관이지 인과가 아니다.** *"긴 파일이 버그를 만든다"* 가 아니라
-  *"긴 파일이 더 자주 고쳐졌다"* 다.
+**2026-08-27 기준.** axMap 쪽 미해결은 [그 저장소](https://lab.ssafy.com/rleaderjoon/axmap)에 있다.
+
+- 🔴 **`Pipelines must succeed` 가 꺼져 있다.** 그래서 CI 검사 넷은 지금
+  **아무것도 막지 않는다.** 켜는 순서와 조건은
+  [docs/CI-RESILIENCE.md](docs/CI-RESILIENCE.md) 원칙 6.
+- 🔴 **러너가 한 대뿐이고 개인 PC 에 있다.** 그 PC 가 꺼지면 CI 가 멈춘다.
+  각자 `bash ci/runner-up.sh` 로 하나씩 띄우는 것이 목표다.
+- **`bigData` 파트가 아직 `main` 에 없다.** `feat/S15P21E201-9-bigdata-bootstrap`
+  이 axMap 벤더링 **이전**에서 갈라져 있어 `ci/axmap` 이 없다. 올릴 때 `main` 을
+  먼저 머지해야 한다.
+- **현장 실험 응답이 아직 0건이다.** 문항과 추정기는 있고 검사도 통과하지만,
+  계수는 사람에게 물어야 나온다 — [bigData/docs/FIELD-STUDY.md](bigData/docs/FIELD-STUDY.md).
+- **BIMS 폴링이 노선 5개뿐이다.** 일일 트래픽 한도에서 역산한 수이고, 고른 기준은
+  배차간격이다. focus(중구·동구)를 실제로 지나는 노선으로 좁히는 것은 아직 안 했다.
+- **고도 타일 738개를 못 읽었다** (`tilesMissing`). 받기는 3,127개 다 받았는데
+  경사 계산에서 1,842개만 로드됐다. 왜 벌어진 차이인지 아직 안 봤다.
+- **팀원 셋이 아직 `governance/policy.json` 명단에 없다.** 이 저장소에 커밋이
+  없어 이메일을 모른다 — 투표는 커밋 저자 이메일로 대조하므로 **지어내면 그 사람이
+  영영 투표를 못 한다.** 첫 커밋 뒤에 추가한다.
 
 ---
 
