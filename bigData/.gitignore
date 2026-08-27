@@ -9,3 +9,8 @@ data/
 .env
 
 node_modules/
+
+# 예외 하나. data/raw/transit/*.ndjson 은 LFS 로 커밋한다.
+# 여기 규칙은 그대로 두고 `git add -f` 로 넣었다 — 한 번 추적되면 .gitignore 와
+# 무관하게 따라오므로, 규칙을 뒤집는 것보다 이쪽이 사고가 적다.
+# 왜 이 파일만 예외인지는 루트 .gitattributes 의 주석에 있다.

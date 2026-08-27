@@ -2,3 +2,18 @@
 # demo/*.sh 가 CRLF 로 체크아웃되면 bash 가 `$'\r': command not found` 로 죽고,
 # 검증 수단 4개 중 3개(demo, demo:compare, demo:chaos)가 통째로 못 돌아간다.
 * text=auto eol=lf
+
+# BIMS 실시간 수집본만 LFS 로 보낸다.
+#
+# bigData/.gitignore 가 data/ 를 통째로 막는 것은 여전히 맞다 — OSM 285MB 는
+# collect/ 가 언제든 다시 만들 수 있으므로 넣을 이유가 없다. 이 파일들만 다르다.
+# **BIMS 는 소급 수집이 안 된다.** 지나간 시각의 버스 위치는 어떤 스크립트로도
+# 못 만든다. 다시 만들 수 없는 것과 만들 수 있는 것을 같은 규칙으로 다루면 안 된다.
+#
+# LFS 를 쓰는 이유는 크기가 아니라 **clone 이다.** 평범한 커밋으로 넣으면 이력에
+# 영구히 박혀 모두의 clone 이 무거워지고 되돌리려면 전원이 다시 받아야 한다.
+# LFS 는 이력에 포인터(작은 텍스트)만 남기므로 그 일이 안 생긴다.
+#
+# -text 가 붙은 것에 주의한다. 위의 `* text=auto eol=lf` 가 이 파일에도 걸리면
+# 줄바꿈을 바꿔 쓰게 되고, 그러면 내용이 달라져 LFS 해시가 어긋난다.
+bigData/data/raw/transit/*.ndjson filter=lfs diff=lfs merge=lfs -text
