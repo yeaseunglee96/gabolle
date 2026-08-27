@@ -33,7 +33,10 @@ function gitCommit(cwd) {
 }
 
 /**
- * 산출물 옆에 `_run.json` 을 쓴다.
+ * 산출물 옆에 `_run-<단계>.json` 을 쓴다.
+ *
+ * 🔴 단계 이름이 파일 이름에 들어간다. 여러 단계가 같은 폴더를 쓰므로 고정 이름이면
+ *    서로를 덮는다. step 을 안 주면 예전처럼 `_run.json` 이지만, **주는 편이 맞다.**
  *
  * @param {string} outDir  산출물 폴더
  * @param {{step:string, inputs?:string[], params?:object, result?:object}} o
@@ -49,6 +52,13 @@ export function stamp(outDir, o) {
     params: o.params ?? null,
     result: o.result ?? null,
   }
-  fs.writeFileSync(path.join(outDir, '_run.json'), JSON.stringify(rec, null, 1))
+  // 🔴 파일 이름에 단계를 넣는다. 예전에는 `_run.json` 한 칸에 썼는데, 여러 단계가
+  //    같은 폴더(data/staged/)에 산출물을 넣으므로 **마지막에 돈 것만 남고 앞의 실행
+  //    지문이 지워졌다.** 재현 불가를 막으려고 만든 장치가 자기들끼리 서로를 지운 것이다.
+  //    실제로 vista 가 choice-design 의 지문을 덮은 적이 있다.
+  //    단계별 파일로 나누면 덮을 수가 없고, 병렬로 돌아도 경합이 없다.
+  const slug = String(rec.step ?? '').replace(/[^A-Za-z0-9._-]+/g, '-').replace(/^-+|-+$/g, '')
+  const name = slug ? `_run-${slug}.json` : '_run.json'
+  fs.writeFileSync(path.join(outDir, name), JSON.stringify(rec, null, 1))
   return rec
 }
