@@ -53,7 +53,7 @@ v6 이 도입한 표기를 그대로 쓴다. **검증된 것과 아직 아닌 �
 | 그 선언이 언제 들어왔나 | 2026-08-25, `[S15P21E201-6] 프로젝트 초기 구조` (박재현) |
 | LOCAL ROUTE 참고 코드 위치 | `ref/local-route/` — 2026-08-26 `[S15P21E201-11]` (이예승) |
 | 그 참고 코드 규모 | 서버 31파일 · 웹 90파일 · Prisma 모델 26개 · Python 솔버 1개 |
-| 원격 파트 브랜치 | `front/main` `front/dev` · `back/main` `back/dev` · `bigData/main` `bigData/dev` · `common/main` `common/dev` |
+| 원격 파트 브랜치 | `front/main` `front/dev` · `back/main` `back/dev` · `bigData/main` `bigData/dev` · `common/dev` — 🔴 **`common/main` 은 원격에 없다** (2026-08-27 재실측) |
 | MR 대상을 실제로 막는 코드 | `ci/axmap/src/mrtarget.mjs` |
 | 정족수 정책 | `governance/policy.json` — 문턱 **2표**. 투표권자 명단은 그 파일이 진실이다 (사람이 늘고 있어 여기 숫자를 적지 않는다) |
 
@@ -167,7 +167,7 @@ v6 이 도입한 표기를 그대로 쓴다. **검증된 것과 아직 아닌 �
 > 자리(`backend/`)에 넣었다면 지금 걷어내는 일이 생겼을 것이다.
 
 > 🔴 **그러나 "코드를 안 쓴다"가 "가치가 없다"는 뜻은 아니다.** 저 견본이 없었으면
-> 기능 56개와 화면 44개를 **처음부터 상상해야 했다.** 우리는 그것을 이미 한 번 만들어
+> 기능 65개와 화면 44개를 **처음부터 상상해야 했다.** 우리는 그것을 이미 한 번 만들어
 > 본 결과에서 읽는다. 그게 이 참고 자료의 값이다.
 
 ### 2.6 🔴 디자인 시스템 — 아직 안 정했다 [미정]
@@ -264,9 +264,25 @@ chore/common/S15P21E201-145-gradle-ci
 | --- | --- | --- | --- |
 | `front` | `frontend/` — 웹 화면 | `front/main` · `front/dev` | 원격에 있다 |
 | `back` | `backend/` — Spring 서버 | `back/main` · `back/dev` | 원격에 있다 |
-| `common` | 루트 문서 · CI · 공용 설정 | `common/main` · `common/dev` | 원격에 있다 |
+| `common` | 루트 문서 · CI · 공용 설정 | `common/dev` **만** | 🔴 **`common/main` 이 없다** — 아래 |
 | **`ml`** | 최적화 엔진 · 데이터 분석 | **[미정]** | 아래 |
 
+> 🔴 **2026-08-27 정정 — `common/main` 이 원격에 없다. 앞의 [실측] 표기가 틀렸다.**
+>
+> `git ls-remote --heads origin` 에 `front/main` · `back/main` 은 있는데 `common/main` 만 없다.
+> 예전에는 있었다 — 커밋 `191f42a`(`Merge branch 'common/main' into 'main'`)가 그 흔적이고,
+> 한 번 쓰이고 지워졌다.
+>
+> **이게 왜 문제인가.** 판정 코드(`ci/axmap/src/mrtarget.mjs` 의 `checkTarget`)는
+> `<파트>/dev` 를 **같은 파트의 파트 브랜치로만** 보낸다. `common/dev → main` 은
+> `dev-must-target-part` 로 거부된다. 즉 **지금 `common/dev` 에 있는 이 문서들이
+> `main` 까지 올라갈 길이 없다.** 사다리의 가운데 칸이 비어 있다.
+>
+> **그런데 정말 만들어야 하는지는 따로 정할 일이다.** `common` 은 제품 파트가 아니라
+> 문서·CI·공용 설정 자리인데, `ci/axmap/src/version.mjs` 의 `levelOf` 는 이름의 마지막 칸만
+> 보므로 `common/main` 을 **파트 브랜치(minor)** 로 판정한다. 문서만 고쳐도 제품의
+> minor 버전이 오른다는 뜻이다. **[미정] 로 남긴다 — 10.1절 목록에 넣었다.**
+>
 > 🔴 **`ml` 과 `bigData` 가 같은 것인지 정해야 한다.** 원격에는 이미 `bigData/main` ·
 > `bigData/dev` 가 있고 거기서 실제 작업이 돌고 있다(버스 실시간 수집·경사 계산·현장 실험).
 > 그런데 팀이 부르는 파트 이름은 `ml` 이다.
@@ -949,6 +965,7 @@ node ci/axmap/bin/axmap.mjs doctor   # 이 PC 에서 선점이 실제로 도는�
 | 7 | **역할별 담당자 배정** (5.1) | 팀 전체 | 세 분 합류 직후 | 물어볼 사람이 없다 |
 | 8 | **`verify:branch-name` 잡을 만드나** (3.5) | INFRA | 4장 리뷰 규칙과 함께 | 이름 규칙이 계속 갈라진다 |
 | 9 | **일하는 방식** (5.5) — 기능 단위 + 아침 스크럼 + 선점. **제안 상태다** | 팀 전체 | 첫 스크럼 | 일자별 계획으로 돌아가고, 그건 안 지켜진다 |
+| 10 | 🔴 **`common/main` 을 만들 것인가** (3.3) — 지금 원격에 **없다** | 팀 전체·INFRA | **이 문서가 `main` 으로 가기 전** | 문서가 `common/dev` 에 갇힌다. 만들면 문서 머지마다 제품 minor 가 오른다 |
 
 ### 10.2 문서를 고쳐야 하는 자리 [실측]
 
