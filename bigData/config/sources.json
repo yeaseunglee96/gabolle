@@ -217,6 +217,75 @@
       "url": "https://www.data.go.kr/data/15058453/openapi.do",
       "status": "미확인 — 부산에 실제로 몇 구역이 있는지 안 봤다",
       "note": "국가가 \"여기는 걷기 좋게 만들었다\" 고 지정한 구역. 계산으로는 만들 수 없는 종류의 신호다. 보행 관련 오픈API 42개를 훑었으나 나머지는 대부분 어린이·노인 **사고 통계**이고 지역도 경기·강원·성남이라 우리 질문(\"이 길이 걸을 만한가\")에는 맞지 않았다."
+    },
+    {
+      "id": "btc-elevator",
+      "name": "부산교통공사_엘리베이터 정보",
+      "gives": ["호선", "역명", "출입구번호", "상세위치", "시작층/종료층"],
+      "license": "이용허락범위 제한 없음",
+      "auth": "none",
+      "url": "https://www.data.go.kr/data/15119875/fileData.do",
+      "script": "collect/subway.mjs",
+      "status": "받음 (448행 / CP949)",
+      "note": "🔴 출입구번호가 있어서 OSM 의 railway=subway_entrance 태그 ref 와 붙는다. 좌표는 이쪽에 없고 OSM 이 댄다 — 출구 778개 중 ref 보유율이 99.6% 라 조인이 성립한다. 448행 중 173행은 출입구번호가 공란(역 내부 엘리베이터)이라 출구가 아니라 역에 붙였다.",
+      "derived": "data/staged/subway-entrance.ndjson"
+    },
+    {
+      "id": "btc-station-facility",
+      "name": "부산교통공사_역사 편의시설현황",
+      "gives": ["에스컬레이터", "외부경사로", "엘리베이터 내부/외부", "휠체어리프트", "시각장애인 유도로"],
+      "license": "이용허락범위 제한 없음",
+      "auth": "none",
+      "url": "https://www.data.go.kr/data/15052664/fileData.do",
+      "script": "collect/subway.mjs",
+      "status": "받음 (114행 / CP949)",
+      "note": "🔴 역 단위 집계다. 출구가 아니라 역에 붙는다 — 산출물에서 필드 이름을 station* 으로 구분한다. 부산은 한 역의 출구끼리 수백 m 떨어진 곳이 있어서 역과 출구를 같은 것으로 취급하면 걷는 거리가 어긋난다."
+    },
+    {
+      "id": "btc-station-info",
+      "name": "부산교통공사_도시철도역사정보",
+      "gives": ["역번호", "역사명", "노선", "역 위경도", "환승역구분", "도로명주소"],
+      "license": "이용허락범위 제한 없음",
+      "auth": "none",
+      "url": "https://www.data.go.kr/data/15043686/fileData.do",
+      "script": "collect/subway.mjs",
+      "status": "받음 (114행 / UTF-16LE 탭구분, 확장자만 .csv)",
+      "note": "🔴 조인 안전장치다. 역 중심 좌표에서 1,200m 를 넘으면 조인을 거부한다 — 이 검사가 실제로 물었다: 동해선 좌천역(1호선 좌천역에서 약 26km)이 1호선의 엘리베이터를 물려받는 것을 막았다. 동명이역은 이름만으로 붙이면 조용히 틀린다."
+    },
+    {
+      "id": "btc-ridership",
+      "name": "부산교통공사_시간대별 승하차인원",
+      "gives": ["역번호", "일자", "요일", "승/하차", "시간대별 인원"],
+      "license": "이용허락범위 제한 없음",
+      "auth": "none",
+      "url": "https://www.data.go.kr/data/3057229/fileData.do",
+      "script": "collect/subway.mjs",
+      "status": "받음 (40,544행 / CP949, 2026-01~06)",
+      "note": "역 혼잡. 조작할 수 없는 관측 신호다 (CLAUDE.md 2절 — 리뷰 별점을 안 쓰는 것과 같은 이유)."
+    },
+    {
+      "id": "btc-timetable",
+      "name": "부산교통공사_부산도시철도 열차시각표 조회 서비스",
+      "gives": ["첫차", "막차", "열차별 시각"],
+      "license": "이용허락범위 제한 없음",
+      "auth": "apikey",
+      "envVar": "DATA_GO_KR_KEY",
+      "applyUrl": "https://www.data.go.kr/data/15158990/openapi.do",
+      "script": null,
+      "status": "🔴 못 받음 — 활용신청(로그인) 필요. 심의는 자동승인",
+      "//2026-08-28-실측": "🔴 앞선 조사가 지목한 데이터셋 번호 15000522 는 **존재하지 않는다** (fileData·openapi·standard 전부 HTTP 404 확인). 실제 시각표는 이 오픈API 하나뿐이고 파일데이터가 없다. 엔드포인트 주소는 로그인 전에 안 보이므로 지어내지 않았다.",
+      "note": "이것이 오는 순간 산출물의 stationFirstTrain / stationLastTrain 이 채워진다. 지금은 전부 null 이다."
+    },
+    {
+      "id": "btc-transfer-walk",
+      "name": "부산 도시철도 환승 통로 도보거리",
+      "gives": ["환승역 내부 도보 거리·소요시간"],
+      "license": "해당 없음",
+      "auth": "none",
+      "url": null,
+      "script": null,
+      "status": "🔴 공개 데이터가 없다 (2026-08-28 확인)",
+      "note": "서울교통공사는 환승 도보거리를 공개하는데(1.2m/s 기준) 부산 대응물이 없고, 부산교통공사는 역사 시설안내도를 **이미지로만** 공개한다. 환승역이 서면·연산·수영·덕천·미남·동래·사상 7곳뿐이라 손으로 재면 되는 크기다. 산출물의 transferWalkMeters 는 전부 null 로 열어 두었다 — 🔴 추정해서 채우지 않았다. 걷는 비용을 재는 제품에서 환승 도보 거리를 지어내면 그게 곧 틀린 판정이 된다."
     }
   ],
   "banned": [
