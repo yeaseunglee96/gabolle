@@ -14,8 +14,13 @@
  *   5. 🔴 선호 가중치 숫자가 파일에 박혀 있지 않은가
  *   6. 🔴 미수집 출처에 지어낸 필드 이름이 없는가
  *   7. 수집됨이라고 적은 필드가 실제 파일에 있는가 (파일이 없으면 건너뛴다)
+ *   8. 여행 상위 개념(장소·이동·일정·여행자·이동수단·역·출입구)이 전부 있는가
+ *   9. 🔴 장소와 정류장·지하철 출입구의 관계가 정해 둔 대로인가
+ *  10. 🔴 bm:Leg 이 시각을 갖는가 — 없으면 시각별 층이 붙을 자리가 없다
+ *  11. 🔴 일정 → 이동 → 구간으로 내려가는 길이 실제로 이어지는가
+ *  12. 🔴 장소 갈래의 태그가 실제 poi 파일에서 관측되는가 (파일이 없으면 건너뛴다)
  *
- * 7번은 데이터가 없는 clone 직후에도 돌아야 하므로 파일이 없으면 통과한다 —
+ * 7·12번은 데이터가 없는 clone 직후에도 돌아야 하므로 파일이 없으면 통과한다 —
  * test/verify.mjs 가 DEM·보정 검사에서 쓰는 것과 같은 태도다.
  *
  * JSON-LD(Linked Data 를 JSON 으로 쓰는 W3C 표준 — @context 가 짧은 이름을 URI 로
@@ -270,7 +275,7 @@ section('참조 무결성')
 {
   let n = 0
   const linkPreds = [S('broader'), S('inScheme'), S('topConceptOf'),
-    B('onClass'), B('derivedFrom'), B('appliesToProfile'), B('property'), B('parameter')]
+    B('onClass'), B('rangeClass'), B('derivedFrom'), B('appliesToProfile'), B('property'), B('parameter')]
   for (const node of all)
     for (const p of linkPreds)
       for (const target of ids(node, p))
@@ -352,6 +357,129 @@ section('가능판정 규칙')
     if (!covered) { bad(`${short(p['@id'])}: 이 프로파일에 적용되는 규칙이 하나도 없다`); m++ }
   }
   if (!m) ok('네 프로파일 전부 최소 하나의 규칙에 덮인다 (상위 프로파일 상속 포함)')
+}
+
+// ── 여기부터가 여행 상위 개념 층이다 ──────────────────────────────────────────
+// 구간 단위 값(경사·그늘·경치)은 그것만으로는 여행이 되지 않는다. 어디를 가고
+// 언제 가는가가 없으면 전부 떠 있다. 아래 검사들은 그 접착제가 실제로 붙어
+// 있는지만 본다 — 좋다/싫다는 여전히 이 파일이 담지 않는다.
+
+section('여행 상위 개념')
+{
+  let n = 0
+  for (const s of ['Waypoint', 'Place', 'PlaceCategory', 'TravelMode',
+    'Traveler', 'Itinerary', 'Leg', 'Station', 'StationEntrance']) {
+    const node = byId.get(B(s))
+    if (!node) { bad(`bm:${s} 가 없다 — 여행 상위 개념이 빠졌다`); n++; continue }
+    if (!isType(node, S('Concept'))) { bad(`bm:${s} 가 skos:Concept 이 아니다`); n++; continue }
+    const pl = langs(node, S('prefLabel')), df = langs(node, S('definition'))
+    for (const l of ['ko', 'en']) if (!pl[l]) { bad(`bm:${s}: prefLabel 에 ${l} 가 없다`); n++ }
+    if (!df.ko) { bad(`bm:${s}: definition 에 ko 가 없다`); n++ }
+  }
+  if (!n) ok('장소 · 갈래 · 이동수단 · 여행자 · 일정 · 이동 · 역 · 출입구가 전부 있고 이름과 뜻을 갖는다')
+}
+
+section('🔴 장소와 정류장·출입구의 관계')
+{
+  let n = 0
+  // 정류장과 지하철 출입구는 길의 요소이면서 동시에 갈 수 있는 지점이다.
+  // 정체는 bm:NetworkElement 에 남기고 역할만 bm:Waypoint 로 공유한다 — docs/ONTOLOGY.md 2.1.
+  for (const s of ['Place', 'BusStop', 'StationEntrance'])
+    if (!under(B(s), B('Waypoint'))) {
+      bad(`bm:${s} 가 bm:Waypoint 아래에 없다 — 이동 한 토막의 끝점이 될 수 없게 된다`); n++
+    }
+  for (const s of ['BusStop', 'StationEntrance'])
+    if (under(B(s), B('Place'))) {
+      bad(`bm:${s} 가 bm:Place 아래에 있다 — 길의 요소와 여행 목적지를 같은 것으로 뭉갠 것이다`); n++
+    }
+  if (under(B('Station'), B('Waypoint'))) {
+    bad('bm:Station 이 bm:Waypoint 아래에 있다 — 역 중심점을 이동의 끝점으로 삼으면 출구가 수백 m 벌어진 역에서 거리가 매번 틀린다. 끝점은 bm:StationEntrance 다'); n++
+  }
+  if (!n) ok('정류장·출입구는 길의 요소로 남고 끝점 역할만 bm:Place 와 공유한다 (역 자체는 끝점이 아니다)')
+}
+
+section('🔴 Leg 이 시각을 갖는가')
+{
+  const legAttrs = attributes.filter(a => ids(a, B('onClass')).includes(B('Leg')))
+  const temporal = legAttrs.filter(a => lits(a, B('isTemporal')).includes(true))
+  if (!legAttrs.length) bad('bm:Leg 에 붙은 속성이 하나도 없다')
+  else if (!temporal.length) {
+    bad('bm:Leg 에 isTemporal: true 인 속성이 없다 — 시각이 없으면 건물 그림자·영업시간·첫차막차·기온이 붙을 자리가 없다')
+  } else ok(`bm:Leg 이 시각을 갖는다 (${temporal.map(a => short(a['@id'])).join(' · ')})`)
+
+  for (const a of attributes)
+    if (lits(a, B('isTemporal')).includes(true) && !has(a, B('unit')) && !has(a, B('valueRange')))
+      bad(`${short(a['@id'])}: 시각 속성인데 단위도 값 범위도 없다 — 형식을 모르면 다음 사람이 반드시 잘못 읽는다`)
+}
+
+section('🔴 일정 → 이동 → 구간')
+{
+  // onClass → rangeClass 를 간선으로 보고 실제로 내려갈 수 있는지 본다.
+  const edges = new Map()
+  for (const a of attributes)
+    for (const from of ids(a, B('onClass')))
+      for (const to of ids(a, B('rangeClass'))) {
+        if (!edges.has(from)) edges.set(from, [])
+        edges.get(from).push({ to, via: a['@id'] })
+      }
+  const pathBetween = (from, to) => {
+    const q = [[from, []]], seen = new Set([from])
+    while (q.length) {
+      const [cur, trail] = q.shift()
+      if (cur === to) return trail
+      for (const e of edges.get(cur) ?? [])
+        if (!seen.has(e.to)) { seen.add(e.to); q.push([e.to, [...trail, e]]) }
+    }
+    return null
+  }
+  const toLeg = pathBetween(B('Itinerary'), B('Leg'))
+  const toSeg = pathBetween(B('Leg'), B('Segment'))
+  if (!toLeg) bad('bm:Itinerary 에서 bm:Leg 으로 내려가는 rangeClass 관계가 없다 — 하루 일정이 이동을 갖지 못한다')
+  if (!toSeg) bad('bm:Leg 에서 bm:Segment 로 내려가는 rangeClass 관계가 없다 — 구간별로 만든 경사·그늘 값이 이동에 붙지 못한다')
+  if (toLeg && toSeg) {
+    const trail = [...toLeg, ...toSeg].map(e => short(e.via)).join(' → ')
+    ok(`bm:Itinerary → bm:Leg → bm:Segment 가 이어진다 (${trail})`)
+  }
+}
+
+section('🔴 장소 갈래가 실제 태그에서 왔는가')
+{
+  let n = 0
+  const cats = concepts.filter(c => ids(c, S('broader')).includes(B('PlaceCategory')))
+  if (!cats.length) { bad('bm:PlaceCategory 아래에 갈래가 하나도 없다'); n++ }
+  const wanted = new Map()                       // "키=값" → 그것을 적은 갈래들
+  for (const c of cats) {
+    const codes = lits(c, B('codeList'))
+    if (!codes.length) { bad(`${short(c['@id'])}: 갈래인데 codeList 가 비었다 — 무엇을 묶는지 말하지 않는다`); n++; continue }
+    for (const code of codes) {
+      if (typeof code !== 'string' || !/^[a-z_]+=[^=]+$/.test(code)) {
+        bad(`${short(c['@id'])}: codeList 값 "${code}" 가 OSM 태그의 키=값 형식이 아니다`); n++; continue
+      }
+      if (!wanted.has(code)) wanted.set(code, [])
+      wanted.get(code).push(short(c['@id']))
+    }
+  }
+  const POI = join(ROOT, 'data/raw/pbf/poi.ndjson')
+  if (!await exists(POI)) {
+    ok('data/raw/pbf/poi.ndjson 없음 — 갈래의 태그 대조는 건너뜀')
+    if (!n) ok('장소 갈래가 전부 형식에 맞는 codeList 를 갖는다')
+  } else {
+    const seen = new Set()
+    const stream = createReadStream(POI)
+    const rl = createInterface({ input: stream, crlfDelay: Infinity })
+    for await (const line of rl) {
+      if (!line.trim()) continue
+      let o
+      try { o = JSON.parse(line) } catch { continue }
+      for (const [k, v] of Object.entries(o.tags ?? {})) seen.add(`${k}=${v}`)
+    }
+    rl.close(); stream.destroy()
+    for (const [code, owners] of wanted)
+      if (!seen.has(code)) {
+        bad(`${owners.join(' · ')}: "${code}" 가 poi.ndjson 에 없다 — 갈래는 실제 태그에서만 만든다`); n++
+      }
+    if (!n) ok('장소 갈래의 모든 태그가 data/raw/pbf/poi.ndjson 에서 실제로 관측된다')
+  }
 }
 
 section('🔴 선호 가중치가 새어 들어왔는가')
