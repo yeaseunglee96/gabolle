@@ -1,0 +1,43 @@
+{
+  "name": "server",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc -p tsconfig.json",
+    "test": "node --import tsx --test test/*.test.ts",
+    "start": "node dist/index.js",
+    "seed": "tsx prisma/seed.ts",
+    "import:tourapi": "tsx prisma/import-tourapi.ts",
+    "import:kakao-reviews": "tsx prisma/import-kakao-reviews.ts",
+    "seed:translations": "tsx prisma/ensure-translations.ts",
+    "seed:commerce": "tsx prisma/ensure-commerce.ts",
+    "seed:v2": "tsx prisma/ensure-v2-features.ts",
+    "seed:discover-tags": "tsx prisma/ensure-discover-tags.ts",
+    "events:dispatch": "tsx src/workers/event-dispatcher.ts",
+    "privacy:cleanup": "tsx src/workers/privacy-cleanup.ts",
+    "load:test": "tsx scripts/load-test.ts",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev --name init"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.20.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.0",
+    "express-rate-limit": "^7.5.0",
+    "helmet": "^8.1.0",
+    "kafkajs": "^2.2.4"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/node": "^22.7.4",
+    "@types/supertest": "^6.0.3",
+    "prisma": "^5.20.0",
+    "supertest": "^7.1.4",
+    "tsx": "^4.19.1",
+    "typescript": "^5.6.2"
+  }
+}

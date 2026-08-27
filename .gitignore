@@ -56,3 +56,8 @@ Thumbs.db
 
 # Logs
 *.log
+
+# axMap 은 이제 별도 저장소에 있다 (rleaderjoon/axmap).
+# 분리 전에 clone 한 PC 에는 이 폴더가 디스크에 남아 있는데, 추적하지 않는다.
+# 사본은 ci/axmap/ 이고 그건 vendor 명령이 만든다.
+/axmap/

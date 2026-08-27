@@ -1,0 +1,13 @@
+ALTER TABLE "PlacePetPolicy" ADD COLUMN "carrierRequired" BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE "PlacePetPolicy" ADD COLUMN "strollerAllowed" BOOLEAN NOT NULL DEFAULT true;
+ALTER TABLE "PlacePetPolicy" ADD COLUMN "maxPetCount" INTEGER;
+ALTER TABLE "PlacePetPolicy" ADD COLUMN "weightLimitKg" REAL;
+ALTER TABLE "PlacePetPolicy" ADD COLUMN "leashRequired" BOOLEAN NOT NULL DEFAULT true;
+ALTER TABLE "PlacePetPolicy" ADD COLUMN "waterBowl" BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE "PlacePetPolicy" ADD COLUMN "wasteBags" BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE "PlacePetPolicy" ADD COLUMN "verifiedCount" INTEGER NOT NULL DEFAULT 1;
+ALTER TABLE "PlacePetPolicy" ADD COLUMN "lastVerifiedAt" DATETIME NOT NULL DEFAULT '2026-08-24 00:00:00';
+ALTER TABLE "PlacePetPolicy" ADD COLUMN "source" TEXT NOT NULL DEFAULT 'INITIAL_RESEARCH';
+ALTER TABLE "ItineraryDay" ADD COLUMN "petBreaksJson" TEXT NOT NULL DEFAULT '[]';
+CREATE TABLE "PetPolicyReport" ("id" TEXT NOT NULL PRIMARY KEY,"policyId" TEXT NOT NULL,"reportType" TEXT NOT NULL,"note" TEXT,"createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,"status" TEXT NOT NULL DEFAULT 'PENDING',CONSTRAINT "PetPolicyReport_policyId_fkey" FOREIGN KEY("policyId") REFERENCES "PlacePetPolicy"("id") ON DELETE RESTRICT ON UPDATE CASCADE);
+CREATE INDEX "PetPolicyReport_policyId_createdAt_idx" ON "PetPolicyReport"("policyId","createdAt");

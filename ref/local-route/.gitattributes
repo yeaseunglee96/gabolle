@@ -1,0 +1,26 @@
+# 줄바꿈 정책
+#
+# 저장소에는 항상 LF 로 보관하고, 체크아웃할 때만 각 OS 기본값으로 변환한다.
+#   Windows → CRLF,  Linux/macOS → LF
+#
+# 개발자마다 다른 core.autocrlf 설정에 의존하면 같은 파일이 사람에 따라 LF/CRLF 로 갈리고,
+# 일부 줄만 바뀐 혼재 상태가 생겨 무의미한 diff 가 쌓인다. 저장소 차원에서 고정한다.
+* text=auto
+
+# 리눅스 컨테이너·인터프리터가 직접 읽는 파일은 OS 와 무관하게 LF 로 체크아웃한다.
+# CRLF 가 섞이면 도커 빌드나 스크립트 실행이 알아보기 어려운 형태로 깨진다.
+*.sh          text eol=lf
+*.py          text eol=lf
+Dockerfile    text eol=lf
+*.Dockerfile  text eol=lf
+
+# 바이너리 - 줄바꿈 변환과 diff 대상에서 제외한다.
+*.docx  binary
+*.db    binary
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.ico   binary
+*.woff  binary
+*.woff2 binary

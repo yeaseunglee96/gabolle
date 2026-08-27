@@ -1,0 +1,202 @@
+{
+  "$comment": "LOCAL ROUTE 코스 카테고리 설정. 코드는 이 파일을 단일 진실 원천으로 읽는다.",
+  "version": "1.0",
+  "baseWeights": {
+    "$comment": "합계 100. 카테고리 multiplier 적용 후 반드시 100으로 재정규화한다.",
+    "tasteMatch": 25,
+    "localScore": 20,
+    "travelEfficiency": 30,
+    "budgetFit": 10,
+    "foreignerEase": 10,
+    "freshness": 5
+  },
+  "modes": [
+    { "code": "MUST_SEE", "nameKo": "관광 필수 코스", "ratio": { "landmark": 70, "local": 20, "easy": 10 } },
+    { "code": "LOCAL", "nameKo": "현지인 코스", "ratio": { "landmark": 10, "local": 80, "easy": 10 } },
+    { "code": "EASY", "nameKo": "초행 외국인 안심 코스", "ratio": { "landmark": 10, "local": 30, "easy": 60 } }
+  ],
+  "categories": [
+    {
+      "code": "ZERO_WON", "nameKo": "무일푼 코스", "nameEn": "Zero-Won Day", "axis": "BUDGET",
+      "summaryKo": "입장료 없는 곳만으로 채우는 하루",
+      "enabled": true,
+      "budgetPerPersonPerDay": { "min": 0, "max": 20000 },
+      "hardFilters": [
+        { "field": "isFree", "op": "eq", "value": true }
+      ],
+      "weightMultipliers": { "budgetFit": 2.0, "travelEfficiency": 1.5 },
+      "scheduleParams": { "pace": "NORMAL", "placesPerDay": [4, 5], "transport": "WALK_FIRST", "stayMinutesScale": 1.0 },
+      "relaxationLadder": [
+        { "step": 1, "action": "EXPAND_RADIUS", "value": 1.5 },
+        { "step": 2, "action": "ALLOW_PRICE_LEVEL", "value": 1, "maxPlacesPerDay": 1,
+          "noticeKo": "무료 장소가 부족해 저가 장소 1곳을 포함했습니다" },
+        { "step": 3, "action": "SUGGEST_ALTERNATIVE_CATEGORY", "value": "BEST_BANG" }
+      ]
+    },
+    {
+      "code": "BEST_BANG", "nameKo": "갓성비 코스", "nameEn": "Best Bang", "axis": "BUDGET",
+      "summaryKo": "낸 돈 대비 만족이 가장 큰 곳",
+      "enabled": true, "disabledReason": "DATA_NOT_READY_SATISFACTION",
+      "budgetPerPersonPerDay": { "min": 50000, "max": 80000 },
+      "hardFilters": [
+        { "field": "priceLevel", "op": "lte", "value": 2 }
+      ],
+      "weightMultipliers": { "localScore": 1.5, "budgetFit": 1.5 },
+      "customScore": {
+        "name": "valueScore",
+        "formulaKo": "localScore / normalize(priceLevel)",
+        "fallbackKo": "만족도 데이터 축적 전에는 localScore 단독으로 근사",
+        "weight": 25
+      },
+      "scheduleParams": { "pace": "NORMAL", "placesPerDay": [4, 5], "transport": "CAR_OR_WALK", "stayMinutesScale": 1.0 },
+      "relaxationLadder": [
+        { "step": 1, "action": "EXPAND_RADIUS", "value": 1.5 },
+        { "step": 2, "action": "ALLOW_PRICE_LEVEL", "value": 3 }
+      ]
+    },
+    {
+      "code": "SPLURGE", "nameKo": "럭셔리 코스", "nameEn": "Splurge", "axis": "BUDGET",
+      "summaryKo": "가격을 보지 않고 최고만",
+      "enabled": true, "disabledReason": "INVENTORY_UNVERIFIED_BUSAN",
+      "budgetPerPersonPerDay": { "min": 200000, "max": null },
+      "hardFilters": [
+        { "field": "priceLevel", "op": "gte", "value": 4 }
+      ],
+      "weightMultipliers": { "foreignerEase": 1.3, "travelEfficiency": 0.8 },
+      "budgetFitMode": "INVERSE",
+      "scheduleParams": { "pace": "RELAXED", "placesPerDay": [3, 4], "transport": "CAR_OR_TAXI", "stayMinutesScale": 1.3 },
+      "relaxationLadder": [
+        { "step": 1, "action": "ALLOW_PRICE_LEVEL", "value": 3 },
+        { "step": 2, "action": "SUGGEST_ALTERNATIVE_CATEGORY", "value": "BEST_BANG" }
+      ]
+    },
+    {
+      "code": "OLD_TOWN", "nameKo": "구수한 코스", "nameEn": "Old Town Flavors", "axis": "MOOD",
+      "summaryKo": "오래된 가게와 정겨운 골목",
+      "enabled": true,
+      "budgetPerPersonPerDay": { "min": 40000, "max": 70000 },
+      "hardFilters": [
+        { "field": "touristDensity", "op": "lte", "value": 0.6 }
+      ],
+      "weightMultipliers": { "localScore": 2.0, "tasteMatch": 1.2, "travelEfficiency": 1.2 },
+      "landmarkPenalty": 0.5,
+      "scheduleParams": { "pace": "NORMAL", "placesPerDay": [4, 5], "transport": "WALK_FIRST", "stayMinutesScale": 1.0,
+                          "forbidTimeRange": { "after": "20:00", "reasonKo": "시장·노포는 야간 영업이 드묾" } },
+      "relaxationLadder": [
+        { "step": 1, "action": "RAISE_TOURIST_DENSITY", "value": 0.8 },
+        { "step": 2, "action": "EXPAND_RADIUS", "value": 1.5 }
+      ]
+    },
+    {
+      "code": "NATURE_FIX", "nameKo": "자연인 코스", "nameEn": "Nature Fix", "axis": "THEME",
+      "summaryKo": "바다·산·숲에서 보내는 하루",
+      "enabled": true,
+      "budgetPerPersonPerDay": { "min": 30000, "max": 60000 },
+      "hardFilters": [
+        { "field": "outdoorRatioPerDay", "op": "gte", "value": 0.7, "scope": "DAY" }
+      ],
+      "weightMultipliers": { "tasteMatch": 1.5 },
+      "boostTasteTags": ["nature", "rest", "photo"],
+      "scheduleParams": { "pace": "RELAXED", "placesPerDay": [3, 4], "transport": "CAR", "stayMinutesScale": 1.4,
+                          "maxWalkDistanceScale": 1.5 },
+      "relaxationLadder": [
+        { "step": 1, "action": "LOWER_OUTDOOR_RATIO", "value": 0.5 },
+        { "step": 2, "action": "EXPAND_RADIUS", "value": 1.5 }
+      ]
+    },
+    {
+      "code": "PICTURE_PERFECT", "nameKo": "인생샷 코스", "nameEn": "Picture Perfect", "axis": "THEME",
+      "summaryKo": "사진이 가장 잘 나오는 순간에 맞춰",
+      "enabled": true, "disabledReason": "DATA_NOT_READY_PHOTO_TIME_WINDOW",
+      "budgetPerPersonPerDay": { "min": 50000, "max": 90000 },
+      "hardFilters": [
+        { "field": "hasPhotoTag", "op": "eq", "value": true },
+        { "field": "thumbnail", "op": "notNull" }
+      ],
+      "weightMultipliers": { "tasteMatch": 1.5, "travelEfficiency": 0.7 },
+      "boostTasteTags": ["photo", "night_view"],
+      "timeWindowRule": {
+        "$comment": "photoTimeWindow가 SUNSET인 장소는 일몰시각 기준으로 고정 배치한다.",
+        "field": "photoTimeWindow",
+        "map": {
+          "SUNSET": { "anchor": "SUNSET", "offsetMinutes": [-30, 30] },
+          "GOLDEN_HOUR": { "anchor": "SUNSET", "offsetMinutes": [-90, -30] },
+          "NIGHT": { "anchor": "SUNSET", "offsetMinutes": [30, 180] }
+        },
+        "hard": true
+      },
+      "scheduleParams": { "pace": "NORMAL", "placesPerDay": [4, 5], "transport": "CAR", "stayMinutesScale": 1.0 },
+      "relaxationLadder": [
+        { "step": 1, "action": "WIDEN_TIME_WINDOW", "value": 60 },
+        { "step": 2, "action": "DROP_TIME_WINDOW", "noticeKo": "일몰 시간대 배치를 보장하지 못했습니다" }
+      ]
+    },
+    {
+      "code": "CAR_FREE", "nameKo": "뚜벅이 코스", "nameEn": "Car-Free", "axis": "MOBILITY",
+      "summaryKo": "차 없이 걸어서 완결되는 하루",
+      "enabled": true,
+      "budgetPerPersonPerDay": { "min": 40000, "max": 70000 },
+      "hardFilters": [
+        { "field": "walkClusterRadiusM", "op": "lte", "value": 1200, "scope": "DAY",
+          "$comment": "하루 일정의 모든 장소가 반경 1.2km 클러스터 안에 있어야 한다" }
+      ],
+      "weightMultipliers": { "travelEfficiency": 2.0, "foreignerEase": 1.3 },
+      "scheduleParams": { "pace": "NORMAL", "placesPerDay": [3, 4], "transport": "WALK_ONLY",
+                          "maxWalkDistanceScale": 1.5, "stayMinutesScale": 1.1 },
+      "relaxationLadder": [
+        { "step": 1, "action": "EXPAND_CLUSTER_RADIUS", "value": 2000 },
+        { "step": 2, "action": "ALLOW_TRANSIT_DEEPLINK", "noticeKo": "일부 구간은 대중교통이 필요합니다" }
+      ]
+    },
+    {
+      "code": "EASY_PACE", "nameKo": "효도 코스", "nameEn": "Easy Pace", "axis": "COMPANION",
+      "summaryKo": "부모님과 무리 없이",
+      "enabled": true, "disabledReason": "DATA_NOT_READY_STEP_FREE",
+      "budgetPerPersonPerDay": { "min": 60000, "max": 100000 },
+      "hardFilters": [
+        { "field": "stepFree", "op": "eq", "value": true },
+        { "field": "hasSeating", "op": "eq", "value": true }
+      ],
+      "weightMultipliers": { "travelEfficiency": 1.5 },
+      "scheduleParams": { "pace": "RELAXED", "placesPerDay": [3, 4], "transport": "CAR",
+                          "maxTravelMinutesBetween": 20, "stayMinutesScale": 1.2,
+                          "regularMealTimes": true },
+      "relaxationLadder": [
+        { "step": 1, "action": "DROP_FIELD", "value": "hasSeating" },
+        { "step": 2, "action": "SUGGEST_ALTERNATIVE_CATEGORY", "value": "RAINY_DAY" }
+      ]
+    },
+    {
+      "code": "SOLO_FRIENDLY", "nameKo": "혼행 코스", "nameEn": "Solo Friendly", "axis": "COMPANION",
+      "summaryKo": "혼자여도 어색하지 않은 곳",
+      "enabled": true, "disabledReason": "DATA_NOT_READY_SOLO_FLAG",
+      "budgetPerPersonPerDay": { "min": 40000, "max": 70000 },
+      "hardFilters": [
+        { "field": "soloFriendly", "op": "eq", "value": true },
+        { "field": "requiresGroupBooking", "op": "eq", "value": false }
+      ],
+      "weightMultipliers": { "travelEfficiency": 1.2 },
+      "nightSafetyPenalty": { "after": "21:00", "multiplier": 0.5 },
+      "scheduleParams": { "pace": "NORMAL", "placesPerDay": [4, 5], "transport": "WALK_OR_TRANSIT",
+                          "stayMinutesScale": 0.9, "dayEndTimeCap": "21:00" },
+      "relaxationLadder": [
+        { "step": 1, "action": "DROP_FIELD", "value": "requiresGroupBooking" }
+      ]
+    },
+    {
+      "code": "RAINY_DAY", "nameKo": "비 오는 날 코스", "nameEn": "Rainy Day", "axis": "SITUATION",
+      "summaryKo": "비가 와도 무너지지 않는 실내 중심",
+      "enabled": true,
+      "budgetPerPersonPerDay": { "min": 50000, "max": 80000 },
+      "hardFilters": [
+        { "field": "indoorRatioPerDay", "op": "gte", "value": 0.9, "scope": "DAY" }
+      ],
+      "weightMultipliers": { "travelEfficiency": 1.5 },
+      "scheduleParams": { "pace": "NORMAL", "placesPerDay": [3, 4], "transport": "CAR_OR_TAXI", "stayMinutesScale": 1.2 },
+      "isFallbackFor": "WEATHER_ALERT",
+      "relaxationLadder": [
+        { "step": 1, "action": "LOWER_INDOOR_RATIO", "value": 0.7 }
+      ]
+    }
+  ]
+}
