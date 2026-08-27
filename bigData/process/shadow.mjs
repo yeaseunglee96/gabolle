@@ -12,7 +12,13 @@
  *    그늘 점수가 아니라 시각대별 점수**를 낸다 — 여행 일정에는 시간표가 있다.
  *
  * 입력
- *   data/raw/pbf/building.ndjson      {id, topic, levels, heightTag, areaM2, ring:[[lat,lon],…]}
+ *   data/raw/building/gis-building.ndjson  ⭐ 우선. GIS건물통합정보(도형+건축물대장)
+ *     {id, topic, levels, heightTag, areaM2, ring:[[lat,lon],…], useName, …}
+ *     앞 6개 키가 아래 OSM 추출본과 같은 스키마라 나머지 계산은 그대로 돈다.
+ *   data/raw/pbf/building.ndjson      ↩︎ 되돌아갈 곳. GIS 파일이 없을 때만 쓴다
+ *     {id, topic, levels, heightTag, areaM2, ring:[[lat,lon],…]}  ← useName 이 없다
+ *   data/staged/_height-calibration.json   층당 높이 실측 보정 (용도 × 층수구간)
+ *     없으면 2.8m 상수로 되돌아간다 — 조용히가 아니라 로그와 요약에 남기고.
  *   data/staged/segment-slope.ndjson  구간 목록 (id·topic·length·p90Slope…)
  *   data/raw/pbf/{road,walk,stairs}.ndjson   구간 id → 실제 선형(geometry)
  *     ↑ segment-slope.ndjson 에는 좌표가 없다. 그래서 원본 추출본에서 id 로 붙인다.
@@ -28,7 +34,7 @@
  * 종료 코드
  *   0  정상        1  불변식 위반 (그럴듯한데 틀린 숫자)      2  입력이 없다
  */
-import { createReadStream, existsSync } from 'node:fs'
+import { createReadStream, existsSync, readFileSync } from 'node:fs'
 import { createInterface } from 'node:readline'
 import { open, mkdir, writeFile } from 'node:fs/promises'
 import { join, dirname } from 'node:path'
@@ -40,7 +46,12 @@ const dataArg = process.argv.find(a => a.startsWith('--data='))
 const DATA    = dataArg ? dataArg.slice('--data='.length) : join(ROOT, 'data')
 const PBF     = join(DATA, 'raw/pbf')
 const STAGED  = join(DATA, 'staged')
-const BUILDINGS = join(PBF, 'building.ndjson')
+// 🔴 건물 입력은 둘이다. GIS건물통합정보가 있으면 그것을 쓰고, 없으면 OSM 추출본으로
+//    되돌아간다. 되돌아갈 길을 지우지 않는 이유: GIS 원본은 이 저장소에 없고(.gitignore)
+//    받는 데 사람 손이 든다. 없는 날에도 그늘 계산은 돌아야 한다.
+const BUILDINGS_GIS = join(DATA, 'raw/building/gis-building.ndjson')
+const BUILDINGS_OSM = join(PBF, 'building.ndjson')
+const CALIBRATION   = join(STAGED, '_height-calibration.json')
 const SLOPE     = join(STAGED, 'segment-slope.ndjson')
 const OUT_NDJSON  = join(STAGED, 'segment-shadow.ndjson')
 const OUT_SUMMARY = join(STAGED, '_shadow-summary.json')
@@ -60,8 +71,12 @@ const SLOT_WHY = {
   17: 'WALKABILITY.md 2.2 가 기준으로 삼은 "해 30°" 시각대 — 같은 건물의 그림자가 정오의 7배가 된다',
   18: '저녁 산책 — 그림자가 가장 길다. 이 시각에도 그늘이 없으면 정말 없는 길이다',
 }
-// 층당 높이. 🔴 아래 heightOf() 주석이 왜 낮은 쪽인지를 설명한다
-const FLOOR_H_M   = 2.8
+// 층당 높이. 보정 파일이 없을 때만 쓰는 되돌림 상수다 — 아래 loadCalibration() 주석.
+const FLOOR_H_FALLBACK_M = 2.8
+// 1층 칸에만 대는 자의 상한. 그 칸의 값은 층고가 아니라 **건물 높이 자체**라
+// 2~6m 를 넘는 것이 정상이다 (창고 5.1m, 공장은 더 높다). 그래도 무한히 열어두지
+// 않는다 — 1층짜리가 15m 를 넘으면 그건 지하층수가 지상층수 자리에 들어간 것이다.
+const BAND1_MAX_M = 15
 const SAMPLE_M    = 20     // 구간을 이 간격으로 찍어 각 점이 그늘인지 본다
 const RAY_STEP_M  = 10     // 해 쪽으로 광선을 이 간격으로 전진시킨다
 const MAX_REACH_M = 400    // 그보다 먼 건물의 그림자는 중간 건물·지형에 이미 먹힌다
@@ -157,31 +172,91 @@ export const shadowLengthM = (heightM, altDeg) =>
 const kst = (hour, minute = 0) =>
   new Date(Date.UTC(REF_DATE.y, REF_DATE.m - 1, REF_DATE.d, hour - TZ_OFFSET_H, minute))
 
+// ── 층당 높이 보정 ──────────────────────────────────────────────────────────
+/**
+ * `data/staged/_height-calibration.json` 을 읽는다.
+ *
+ * 🔴 왜 상수 2.8m 를 버렸나.
+ *    전에는 입력 스키마에 **용도를 가를 태그가 아예 없어서** 아파트(≈2.8m)와
+ *    상가(≈4m)를 나눌 수 없었다. 가를 수 없을 때 두 방향의 오류는 값이 다르다 —
+ *      과대평가 → "여기는 그늘이다" 라고 잘못 말한다 → 사용자를 뙤약볕에 보낸다
+ *      과소평가 → "그늘이 없다" 고 잘못 말한다 → 사용자가 손해를 안 본다
+ *    그래서 낮은 쪽을 눌러 썼다. GIS건물통합정보가 `useName`(건축물용도명)을
+ *    들고 오면서 **그 제약이 풀렸다.**
+ *
+ * 🔴 그런데 용도만으로 가르면 아직 틀린다.
+ *    같은 용도 안에서도 층당 높이가 층수에 따라 크게 다르다 (단독주택 1층 4.00m /
+ *    4-5층 2.98m). 저층에서는 지붕·파라펫이 "한 층" 에 통째로 실리기 때문이다 —
+ *    1층 건물의 (높이 ÷ 1) 은 층고가 아니라 **건물 높이 자체**다. 용도별 값 하나
+ *    (`recommend`)를 쓰면 그 저층 성분이 고층까지 딸려 올라가 **고층을 위로
+ *    부풀린다.** 그게 원래 2.8m 로 눌러 두며 피하려던 방향이다.
+ *    그래서 **`recommendByLevels`(용도 × 층수구간)** 를 쓴다.
+ *
+ * 구간 경계는 여기 하드코딩하지 않고 파일의 `overall.byLevels[].minLevels` 에서
+ * 읽는다 — 보정이 구간을 바꾸면 이 코드가 따라가야 하고, 두 곳에 적으면 갈린다.
+ *
+ * @returns {{mode:'calibrated'|'fallback', …}} 못 읽으면 mode:'fallback' —
+ *   2.8m 로 되돌아가되 **왜** 되돌아갔는지를 들고 온다. 조용히 다른 값을 쓰지 않는다.
+ */
+function loadCalibration(path) {
+  const fb = why => ({ mode: 'fallback', file: path, why, floorHeightM: FLOOR_H_FALLBACK_M })
+  if (!existsSync(path)) return fb('보정 파일이 없다 (npm run height-calibrate 를 아직 안 돌렸다)')
+  let j
+  try { j = JSON.parse(readFileSync(path, 'utf8')) } catch (e) { return fb(`보정 파일 JSON 을 못 읽었다: ${e.message}`) }
+  const table = j.recommendByLevels
+  if (!table || typeof table !== 'object' || !table._default_)
+    return fb('보정 파일에 recommendByLevels._default_ 가 없다')
+  const src = Array.isArray(j.overall?.byLevels) ? j.overall.byLevels : []
+  const bands = src
+    .filter(b => typeof b.band === 'string' && Number.isFinite(b.minLevels))
+    .map(b => ({ key: b.band, min: b.minLevels }))
+    .sort((a, b) => b.min - a.min)          // 큰 층수부터 — bandOf 가 첫 일치를 쓴다
+  if (!bands.length) return fb('보정 파일에 층수 구간 경계(overall.byLevels[].minLevels)가 없다')
+  const sane = Array.isArray(j.params?.saneRangeM) && j.params.saneRangeM.length === 2
+    ? j.params.saneRangeM.map(Number) : [2, 6]
+  return {
+    mode: 'calibrated', file: path, at: j.at ?? null, table, bands,
+    bandKeys: bands.map(b => b.key).slice().reverse(),
+    oneLevelBand: bands.find(b => b.min === 1)?.key ?? null,
+    saneRangeM: sane,
+    license: j.source?.license ?? null,
+  }
+}
+const CAL = loadCalibration(CALIBRATION)
+
+/** 층수 → 보정표의 구간 키. bands 는 min 내림차순이라 첫 일치가 답이다. */
+const bandOf = lv => CAL.mode === 'calibrated' ? (CAL.bands.find(b => lv >= b.min)?.key ?? null) : null
+
 // ── 건물 높이 ───────────────────────────────────────────────────────────────
+/** 층당 높이 조회 결과 집계. 무엇으로 높이를 정했는지가 요약의 핵심이라 센다. */
+const floorStat = { byUseBand: 0, byDefaultBand: 0, byConstant: 0, bandHits: new Map() }
+
 /**
  * 건물 한 채의 높이(m). 못 정하면 null — **없는 값을 지어내지 않는다.**
  *
- * 1) `heightTag`(OSM 의 height 태그, 미터)가 있으면 그것이 우선이다. 실측값이다.
- * 2) 없고 `levels`(building:levels, 층수)만 있으면 층당 높이를 곱한다.
- *
- * 🔴 층당 높이를 2.8m 로 고정한 이유.
- *    WALKABILITY.md 2.2 는 "한국 아파트 층당 약 2.8m, 상가 약 4m" 라고 적었다.
- *    그런데 이 단계의 입력 스키마에는 **용도를 가를 태그가 아예 없다**
- *    (id·levels·heightTag·areaM2·ring 뿐이다). 면적으로 "넓고 낮으면 상가" 라고
- *    추정할 수는 있지만, 그 추정이 틀리면 높이가 **위로** 튀고 그림자가 커진다.
- *
- *    두 방향의 오류는 값이 다르다.
- *      과대평가 → "여기는 그늘이다" 라고 잘못 말한다 → 사용자를 뙤약볕에 보낸다
- *      과소평가 → "그늘이 없다" 고 잘못 말한다 → 사용자가 손해를 안 본다
- *    그래서 가를 수 없을 때는 **낮은 쪽(2.8m)** 을 쓴다. 비대칭한 손실에는
- *    비대칭하게 대응하는 것이 맞다. 용도 태그가 입력에 생기면 그때 나눈다.
+ * 1) `heightTag`(실측 높이, 미터)가 있으면 **무조건 우선**이다. 실측값이다.
+ * 2) 없고 `levels`(지상 층수)만 있으면 용도 × 층수구간 보정값을 곱한다.
+ * 3) 둘 다 없으면 null — 제외한다.
  */
 function heightOf(b) {
   const ht = b.heightTag
   if (typeof ht === 'number' && Number.isFinite(ht) && ht > 0 && ht < 500) return ht
   const lv = b.levels
-  if (typeof lv === 'number' && Number.isFinite(lv) && lv >= 1 && lv <= 150) return lv * FLOOR_H_M
-  return null
+  if (!(typeof lv === 'number' && Number.isFinite(lv) && lv >= 1 && lv <= 150)) return null
+
+  if (CAL.mode !== 'calibrated') { floorStat.byConstant++; return lv * FLOOR_H_FALLBACK_M }
+  const band = bandOf(lv)
+  // 🔴 조회 순서: recommendByLevels[useName]?.[band] → recommendByLevels._default_[band]
+  //    용도별 표는 칸이 비어 있을 수 있다 (표본 100채 미만이면 보정이 값을 안 낸다).
+  //    그 빈 칸을 용도별 값 하나로 메우면 다시 고층이 부푼다 — 같은 층수구간의
+  //    전체 중위수로 메우는 것이 맞다.
+  const own = band === null ? undefined : CAL.table[b.useName]?.[band]
+  const def = band === null ? undefined : CAL.table._default_[band]
+  const f = [own, def].find(v => typeof v === 'number' && Number.isFinite(v) && v > 0)
+  if (f === undefined) { floorStat.byConstant++; return lv * FLOOR_H_FALLBACK_M }
+  if (own !== undefined && own === f) floorStat.byUseBand++; else floorStat.byDefaultBand++
+  floorStat.bandHits.set(band, (floorStat.bandHits.get(band) ?? 0) + 1)
+  return lv * f
 }
 
 // ── 건물 격자 색인 ──────────────────────────────────────────────────────────
@@ -211,7 +286,7 @@ function pointInRing(ring, lat, lon) {
 async function loadBuildings(path) {
   const rings = [], heights = []
   const cellMaxH = new Map(), cellList = new Map()
-  const stat = { lines: 0, byHeightTag: 0, byLevels: 0, noHeight: 0, badGeom: 0, badJson: 0 }
+  const stat = { lines: 0, withUseName: 0, byHeightTag: 0, byLevels: 0, noHeight: 0, badGeom: 0, badJson: 0 }
   let hmax = 0
   const hs = []
 
@@ -221,6 +296,7 @@ async function loadBuildings(path) {
     stat.lines++
     let b
     try { b = JSON.parse(line) } catch { stat.badJson++; continue }
+    if (typeof b.useName === 'string' && b.useName) stat.withUseName++
     const h = heightOf(b)
     if (h === null) { stat.noHeight++; continue }
     const ring = normalizeRing(b.ring)
@@ -362,7 +438,40 @@ function checkInvariants() {
   add('오전 09시 해는 동쪽(방위 < 180°)', am.azDeg < 180, +am.azDeg.toFixed(1), '< 180 °')
   add('오후 17시 해는 서쪽(방위 > 180°)', pm.azDeg > 180, +pm.azDeg.toFixed(1), '> 180 °')
 
+  // (4) 층당 높이 보정값이 상식 범위 안인가.
+  //     🔴 이 검사는 **보정 파일이 나중에 바뀌었을 때** 를 위한 것이다. 지하층수가
+  //     지상층수 자리에 들어가거나 높이 단위가 섞이면 층당 높이가 통째로 튀는데,
+  //     그 다음에 나오는 그늘 비율은 여전히 0~1 이라 눈으로는 못 잡는다.
+  //     1층 칸만 자가 다르다 — 그 값은 층고가 아니라 건물 높이 자체라서다
+  //     (_height-calibration.json 의 caveat.saneRangeAppliesTo. 보정을 만드는
+  //      process/height-calibrate.mjs 도 1층 칸에는 같은 예외를 둔다).
+  const [saneLo, saneHi] = CAL.mode === 'calibrated' ? CAL.saneRangeM : [2, 6]
+  const bad = []
+  let cells = 0
+  if (CAL.mode === 'calibrated') {
+    for (const [use, row] of Object.entries(CAL.table)) {
+      if (!row || typeof row !== 'object') continue
+      for (const [band, v] of Object.entries(row)) {
+        cells++
+        const hi = band === CAL.oneLevelBand ? BAND1_MAX_M : saneHi
+        if (!(typeof v === 'number' && Number.isFinite(v) && v >= saneLo && v <= hi))
+          bad.push(`${use}/${band}층=${v}m`)
+      }
+    }
+  } else {
+    cells = 1
+    if (!(FLOOR_H_FALLBACK_M >= saneLo && FLOOR_H_FALLBACK_M <= saneHi))
+      bad.push(`되돌림 상수=${FLOOR_H_FALLBACK_M}m`)
+  }
+  add(`층당 높이 보정값이 상식 범위 안 (${saneLo}~${saneHi}m · 1층 칸만 ${saneLo}~${BAND1_MAX_M}m)`,
+      bad.length === 0,
+      bad.length ? bad.slice(0, 6).join(', ') + (bad.length > 6 ? ` …외 ${bad.length - 6}칸` : '')
+                 : `${cells}칸 전부 통과`,
+      '위반 0칸')
+
   return {
+    floorHeight: { mode: CAL.mode, saneRangeM: [saneLo, saneHi], band1MaxM: BAND1_MAX_M,
+                   cellsChecked: cells, violations: bad },
     checks: out,
     noon: { atKst: `${String(Math.floor(noonMin / 60)).padStart(2, '0')}:${String(noonMin % 60).padStart(2, '0')}`,
             altDeg: +noon.altDeg.toFixed(2), azDeg: +noon.azDeg.toFixed(2) },
@@ -374,6 +483,13 @@ function checkInvariants() {
 // ── 본체 ────────────────────────────────────────────────────────────────────
 async function main() {
   const t0 = Date.now()
+
+  // 🔴 덮어쓰기 전에 지난 요약을 손에 쥔다. "건물이 9배로 늘었는데 그늘이 안 늘었다"
+  //    는 조인이나 좌표가 어긋났다는 신호인데, 비교 대상을 안 남기면 못 본다.
+  let prev = null
+  if (existsSync(OUT_SUMMARY)) {
+    try { prev = JSON.parse(readFileSync(OUT_SUMMARY, 'utf8')) } catch { prev = null }
+  }
 
   // 불변식을 **입력보다 먼저** 본다. 데이터가 없는 날에도 계산은 검증된다.
   const inv = checkInvariants()
@@ -387,6 +503,24 @@ async function main() {
   }
   console.log('')
 
+  // 🔴 어느 건물 입력을 쓰는지 **먼저 정하고 소리 내어 말한다.** 조용히 갈아타면
+  //    나중에 요약의 숫자가 왜 달라졌는지 아무도 못 되짚는다.
+  const gisAvailable = existsSync(BUILDINGS_GIS)
+  const BUILDINGS = gisAvailable ? BUILDINGS_GIS : BUILDINGS_OSM
+  const buildingSource = gisAvailable
+    ? { kind: 'gis', label: 'GIS건물통합정보 (도형 + 건축물대장 · 용도명 있음)', path: BUILDINGS_GIS }
+    : { kind: 'osm', label: 'OSM PBF 추출본 (용도명 없음 — 되돌아간 경로)', path: BUILDINGS_OSM,
+        why: `${BUILDINGS_GIS} 가 없어서 OSM 으로 되돌아갔다` }
+  log(`건물 입력: ${buildingSource.label}`)
+  log(`  → ${buildingSource.path}`)
+  if (!gisAvailable) log(`  ⚠️ ${buildingSource.why}`)
+
+  // 층당 높이 보정도 마찬가지다 — 되돌아갔으면 되돌아갔다고 말한다
+  if (CAL.mode === 'calibrated')
+    log(`층당 높이: 실측 보정 (용도 × 층수구간 ${CAL.bandKeys.join('·')}) ← ${CAL.file}`)
+  else
+    log(`⚠️ 층당 높이: 보정 없이 ${FLOOR_H_FALLBACK_M}m 상수로 되돌아갔다 — ${CAL.why}`)
+
   // 입력 확인 — 없으면 조용히 통과하지 않는다
   const missing = []
   if (!existsSync(BUILDINGS)) missing.push(BUILDINGS)
@@ -396,7 +530,8 @@ async function main() {
   if (missing.length) {
     console.error('🔴 입력이 없습니다. 그늘을 계산할 수 없습니다.')
     for (const m of missing) console.error(`   없음: ${m}`)
-    console.error('   building.ndjson  ← PBF 추출 (collect 단계에서 건물 topic 을 뽑아야 한다)')
+    console.error(`   건물  ← ${BUILDINGS_GIS} (GIS건물통합정보) 또는`)
+    console.error(`         ${BUILDINGS_OSM} (PBF 추출)`)
     console.error('   segment-slope.ndjson ← npm run slope')
     process.exit(2)
   }
@@ -405,11 +540,16 @@ async function main() {
   log('건물 읽는 중…')
   const B = await loadBuildings(BUILDINGS)
   log(`건물 ${B.stat.lines.toLocaleString()}줄 · 높이 있음 ${B.rings.length.toLocaleString()} ` +
-      `(height 태그 ${B.stat.byHeightTag.toLocaleString()} / 층수 환산 ${B.stat.byLevels.toLocaleString()}) ` +
-      `· 최고 ${B.hmax.toFixed(1)}m`)
+      `(실측 높이 ${B.stat.byHeightTag.toLocaleString()} / 층수×보정 ${B.stat.byLevels.toLocaleString()} / ` +
+      `제외 ${B.stat.noHeight.toLocaleString()}) · 용도명 ${B.stat.withUseName.toLocaleString()} · 최고 ${B.hmax.toFixed(1)}m`)
+  if (CAL.mode === 'calibrated')
+    log(`  층당 높이 조회 — 용도×구간 적중 ${floorStat.byUseBand.toLocaleString()} / ` +
+        `구간 전체값으로 대체 ${floorStat.byDefaultBand.toLocaleString()} / ` +
+        `상수 ${FLOOR_H_FALLBACK_M}m 로 대체 ${floorStat.byConstant.toLocaleString()}`)
   if (!B.rings.length) {
     console.error('🔴 높이를 정할 수 있는 건물이 하나도 없습니다. 입력 스키마가 어긋났을 가능성이 큽니다.')
-    console.error('   기대: {"id":…,"topic":"building","levels":…,"heightTag":…,"areaM2":…,"ring":[[lat,lon],…]}')
+    console.error('   기대: {"id":…,"topic":"building","levels":…,"heightTag":…,"areaM2":…,"ring":[[lat,lon],…],"useName":…}')
+    console.error(`   읽은 파일: ${BUILDINGS}`)
     process.exit(1)
   }
 
@@ -536,16 +676,40 @@ async function main() {
       '17시는 WALKABILITY.md 2.2 가 기준으로 삼은 "해 30°" 시각대, 9시와 18시는 양 끝이다. ' +
       '여행 일정에는 시간표가 있으므로 이 성질이 오히려 잘 맞는다.',
     params: {
-      floorHeightM: FLOOR_H_M,
-      floorHeightNote:
-        '입력 스키마에 건물 용도 태그가 없어 아파트(2.8m)와 상가(4m)를 가를 수 없다. ' +
-        '가를 수 없으면 낮은 쪽을 쓴다 — 그림자를 과대평가하면 "그늘이 있다" 고 잘못 말해 ' +
-        '사용자를 뙤약볕에 보내지만, 과소평가는 그 반대라 손해가 작다.',
+      floorHeight: CAL.mode === 'calibrated' ? {
+        mode: 'calibrated',
+        source: CAL.file,
+        calibratedAt: CAL.at,
+        license: CAL.license,
+        lookup: 'recommendByLevels[useName]?.[band] ?? recommendByLevels._default_[band] ' +
+                '— band 는 층수 구간이고 경계는 보정 파일의 overall.byLevels[].minLevels 가 정한다',
+        bands: CAL.bandKeys,
+        why:
+          '용도별 값 하나(recommend)를 쓰지 않는다. 같은 용도 안에서도 저층은 지붕·파라펫이 ' +
+          '"한 층" 에 통째로 실려 층당 높이가 부풀고, 그 성분이 고층까지 딸려 올라가면 ' +
+          '높이를 위로 부풀린다 — 그림자 과대평가는 "그늘이 있다" 고 잘못 말해 사용자를 ' +
+          '뙤약볕에 보내므로 손실이 비대칭이다. 그래서 용도 × 층수구간 표를 쓴다.',
+        saneRangeM: CAL.saneRangeM,
+        band1MaxM: BAND1_MAX_M,
+        band1Note: '1층 칸은 층고가 아니라 건물 높이 자체라 2~6m 자를 대지 않는다 ' +
+                   '(보정 파일의 caveat.saneRangeAppliesTo). 대신 상한만 둔다.',
+        fallbackM: FLOOR_H_FALLBACK_M,
+      } : {
+        mode: 'fallback',
+        floorHeightM: FLOOR_H_FALLBACK_M,
+        expected: CAL.file,
+        why: CAL.why,
+        note: '🔴 실측 보정 없이 2.8m 상수로 되돌아갔다. 용도별로 가를 수 없을 때는 낮은 쪽을 ' +
+              '쓴다 — 과대평가는 "그늘이 있다" 고 잘못 말해 사용자를 뙤약볕에 보내지만, ' +
+              '과소평가는 그 반대라 손해가 작다. 이 값은 실제보다 낮게 잡혀 있다.',
+      },
       sampleM: SAMPLE_M, rayStepM: RAY_STEP_M, maxReachM: MAX_REACH_M, cellDeg: CELL_DEG,
       minAltDeg: MIN_ALT_DEG,
     },
+    buildingSource,
     buildings: {
       lines: B.stat.lines,
+      withUseName: B.stat.withUseName,
       usedForShadow: B.rings.length,
       fromHeightTag: B.stat.byHeightTag,
       fromLevels: B.stat.byLevels,
@@ -555,6 +719,27 @@ async function main() {
       maxHeightM: +B.hmax.toFixed(1),
       p50HeightM: +pct(hsorted, 0.5).toFixed(1),
       p90HeightM: +pct(hsorted, 0.9).toFixed(1),
+      floorHeightLookup: {
+        byUseAndBand: floorStat.byUseBand,
+        byBandDefault: floorStat.byDefaultBand,
+        byConstantFallback: floorStat.byConstant,
+        perBand: Object.fromEntries([...floorStat.bandHits].sort((a, b) => b[1] - a[1])),
+      },
+    },
+    previousRun: prev && {
+      at: prev.at ?? null,
+      buildingSource: prev.buildingSource?.kind ?? 'osm(추정 — 이전 요약에 출처 칸이 없었다)',
+      usedForShadow: prev.buildings?.usedForShadow ?? null,
+      fromHeightTag: prev.buildings?.fromHeightTag ?? null,
+      meanShadowRatioByHour: Object.fromEntries(
+        SLOT_HOURS.map(h => [h, prev.byHour?.[h]?.meanShadowRatio ?? null])),
+      deltaMeanShadowRatio: Object.fromEntries(
+        SLOT_HOURS.map(h => {
+          const p = prev.byHour?.[h]?.meanShadowRatio
+          return [h, typeof p === 'number' ? +(byHour[h].meanShadowRatio - p).toFixed(3) : null]
+        })),
+      note: '🔴 건물이 늘었는데 그늘이 안 늘었으면 조인이나 좌표가 어긋난 것이다. ' +
+            '값이 줄었으면 줄었다고 그대로 남긴다.',
     },
     segments: {
       inSlopeFile: segs.size,
@@ -578,11 +763,17 @@ async function main() {
 
   stamp(RUN_DIR, {
     step: 'shadow',
-    inputs: [BUILDINGS, SLOPE, ...geomFiles],
-    params: { date: summary.date, slotHours: SLOT_HOURS, floorHeightM: FLOOR_H_M,
+    // 🔴 보정 파일도 입력이다. 지문에 안 넣으면 "같은 코드인데 숫자가 다르다" 를 못 푼다.
+    inputs: [BUILDINGS, ...(CAL.mode === 'calibrated' ? [CAL.file] : []), SLOPE, ...geomFiles],
+    params: { date: summary.date, slotHours: SLOT_HOURS,
+              buildingSource: buildingSource.kind,
+              floorHeight: CAL.mode === 'calibrated'
+                ? { mode: 'calibrated', bands: CAL.bandKeys, saneRangeM: CAL.saneRangeM }
+                : { mode: 'fallback', floorHeightM: FLOOR_H_FALLBACK_M },
               sampleM: SAMPLE_M, rayStepM: RAY_STEP_M, maxReachM: MAX_REACH_M },
-    result: { segments: done, buildingsUsed: B.rings.length, samples: samplesTotal,
-              invariantFailures: 0 },
+    result: { segments: done, buildingsUsed: B.rings.length,
+              buildingsFromHeightTag: B.stat.byHeightTag, buildingsFromLevels: B.stat.byLevels,
+              samples: samplesTotal, invariantFailures: 0 },
   })
 
   log(`구간 ${done.toLocaleString()}개 · 표본 ${samplesTotal.toLocaleString()}개 · ${elapsed.toFixed(1)}초`)
@@ -594,6 +785,16 @@ async function main() {
                 `${String(r.shadowOf60mBuildingM).padStart(9)} m  ` +
                 `${r.p10ShadowRatio.toFixed(2).padStart(5)}  ${r.p50ShadowRatio.toFixed(2).padStart(5)}  ` +
                 `${r.p90ShadowRatio.toFixed(2).padStart(5)}  ${String(r.segmentsOverHalfShaded).padStart(8)}`)
+  }
+  if (summary.previousRun) {
+    const d = summary.previousRun.deltaMeanShadowRatio
+    console.log(`\n📐 지난 실행과의 차이 (평균 그늘 비율)  · 건물 ` +
+                `${summary.previousRun.usedForShadow?.toLocaleString() ?? '?'} → ${B.rings.length.toLocaleString()}채 ` +
+                `· 실측 높이 ${summary.previousRun.fromHeightTag?.toLocaleString() ?? '?'} → ${B.stat.byHeightTag.toLocaleString()}채`)
+    console.log('  ' + SLOT_HOURS.map(h => {
+      const v = d[h]
+      return `${h}시 ${v === null ? '?' : (v > 0 ? '+' : '') + v.toFixed(3)}`
+    }).join('   '))
   }
   console.log(`\n  → ${OUT_NDJSON}`)
   console.log(`  → ${OUT_SUMMARY}`)
