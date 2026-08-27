@@ -1,0 +1,1078 @@
+{
+  "//": "부산 이동성(걷기·버스) 온톨로지 골격. 기계가 읽는 판이다. 사람용 설명은 docs/ONTOLOGY.md.",
+  "//가능과선호": "이 파일은 '가능/불가'(feasibility)만 담는다. '좋다/싫다'(preference)의 가중치는 담지 않는다 — docs/FIELD-STUDY.md 가 짝 비교 실험으로 추정하기로 정했다. 속성에는 '비용함수의 입력이다'(role: cost)라는 사실만 표시하고 계수 자리는 coefficientStatus: 미추정 으로 비워 둔다.",
+  "//네임스페이스": "bm: 의 URI 는 지금 브라우저로 열리지 않는다(dereferenceable 하지 않다). 이름이 겹치지 않게 하는 것이 목적이고, 어떤 스크립트도 이 URI 를 가져오지 않는다.",
+
+  "@context": {
+    "bm":      "https://lab.ssafy.com/s15-bigdata-dist-sub1/S15P21E201/ns/mobility#",
+    "skos":    "http://www.w3.org/2004/02/skos/core#",
+    "rdf":     "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "rdfs":    "http://www.w3.org/2000/01/rdf-schema#",
+    "owl":     "http://www.w3.org/2002/07/owl#",
+    "xsd":     "http://www.w3.org/2001/XMLSchema#",
+    "dcterms": "http://purl.org/dc/terms/",
+    "qudt":    "http://qudt.org/schema/qudt/",
+    "qunit":   "http://qudt.org/vocab/unit/",
+
+    "prefLabel":    { "@id": "skos:prefLabel",   "@container": "@language" },
+    "definition":   { "@id": "skos:definition",  "@container": "@language" },
+    "note":         { "@id": "skos:note",        "@container": "@language" },
+    "broader":      { "@id": "skos:broader",     "@type": "@id" },
+    "inScheme":     { "@id": "skos:inScheme",    "@type": "@id" },
+    "topConceptOf": { "@id": "skos:topConceptOf","@type": "@id" },
+
+    "onClass":      { "@id": "bm:onClass",       "@type": "@id" },
+    "derivedFrom":  { "@id": "bm:derivedFrom",   "@type": "@id" },
+    "unit":            "bm:unit",
+    "unitIri":      { "@id": "bm:unitIri",       "@type": "@id" },
+    "valueRange":      "bm:valueRange",
+    "codeList":        "bm:codeList",
+    "codeListOpen":    "bm:codeListOpen",
+    "kind":            "bm:kind",
+    "nullable":        "bm:nullable",
+    "minInclusive":    "bm:minInclusive",
+    "maxInclusive":    "bm:maxInclusive",
+    "role":            "bm:role",
+    "status":          "bm:status",
+    "coefficientStatus": "bm:coefficientStatus",
+    "coefficientSource": "bm:coefficientSource",
+
+    "sourceField":     "bm:sourceField",
+    "dataset":         "bm:dataset",
+    "field":           "bm:field",
+    "xmlElement":      "bm:xmlElement",
+    "fieldCandidate":  "bm:fieldCandidate",
+    "candidateSource": "bm:candidateSource",
+    "expectedFrom":    "bm:expectedFrom",
+
+    "appliesTo":    { "@id": "bm:appliesToProfile", "@type": "@id" },
+    "condition":       "bm:condition",
+    "property":     { "@id": "bm:property",      "@type": "@id" },
+    "parameter":    { "@id": "bm:parameter",     "@type": "@id" },
+    "operator":        "bm:operator",
+    "constant":        "bm:constant",
+    "verdict":         "bm:verdict",
+    "evidenceStatus":  "bm:evidenceStatus",
+
+    "value":           "bm:value",
+    "valueBasis":      "bm:valueBasis",
+    "valueStatus":     "bm:valueStatus"
+  },
+
+  "@graph": [
+
+    {
+      "@id": "bm:MobilityScheme",
+      "@type": "skos:ConceptScheme",
+      "prefLabel": { "ko": "부산 이동성 어휘", "en": "Busan Mobility Vocabulary" },
+      "definition": {
+        "ko": "부산에서 '이 길을 걸을 만한가 / 버스를 탈 만한가' 를 판정하기 위한 개념·속성·가능판정 규칙의 모음.",
+        "en": "Concepts, attributes and feasibility rules used to judge whether a Busan route is walkable or bus-servable."
+      },
+      "note": {
+        "ko": "가능/불가만 담는다. 좋다/싫다의 가중치는 짝 비교 실험이 정한다 (docs/FIELD-STUDY.md)."
+      },
+      "dcterms:license": "OSM 파생분은 ODbL 1.0. 출처별 라이선스는 config/sources.json 에 있다."
+    },
+
+    {
+      "@id": "bm:NetworkElement",
+      "@type": ["skos:Concept", "rdfs:Class"],
+      "inScheme": "bm:MobilityScheme",
+      "topConceptOf": "bm:MobilityScheme",
+      "prefLabel": { "ko": "이동 네트워크 요소", "en": "Network element" },
+      "definition": {
+        "ko": "경로 탐색 그래프를 이루는 것. 사람이 그 위를 지나가거나 그 위에서 갈아탄다.",
+        "en": "A thing that forms the routing graph — travelled along or transferred at."
+      }
+    },
+    {
+      "@id": "bm:Segment",
+      "@type": ["skos:Concept", "rdfs:Class"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:NetworkElement",
+      "prefLabel": { "ko": "길 구간", "en": "Segment" },
+      "definition": {
+        "ko": "OSM way 하나에 대응하는 길의 한 토막. 경사·길이·계단 같은 값이 이 단위로 붙는다.",
+        "en": "One stretch of way corresponding to a single OSM way; slope, length and step values attach at this granularity."
+      },
+      "note": { "ko": "data/staged/segment-slope.ndjson 의 한 줄이 이 클래스의 한 개체다." },
+      "status": "수집됨"
+    },
+    {
+      "@id": "bm:BusRoute",
+      "@type": ["skos:Concept", "rdfs:Class"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:NetworkElement",
+      "prefLabel": { "ko": "버스 노선", "en": "Bus route" },
+      "definition": {
+        "ko": "정류장을 순서대로 잇는 운행 계통. BIMS 실시간 응답이 노선 단위로 온다.",
+        "en": "A service line joining stops in order; BIMS realtime responses arrive per route."
+      },
+      "note": { "ko": "폴링 중인 노선만 있다. 부산 전 노선이 아니다 — config/routes.json 이 대상을 정한다." },
+      "status": "부분수집",
+      "expectedFrom": "bims-realtime (config/routes.json 이 정한 노선만)"
+    },
+    {
+      "@id": "bm:BusStop",
+      "@type": ["skos:Concept", "rdfs:Class"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:NetworkElement",
+      "prefLabel": { "ko": "버스 정류장", "en": "Bus stop" },
+      "definition": {
+        "ko": "버스를 타고 내리는 지점. 걷기 구간과 버스 노선이 여기서 이어진다.",
+        "en": "A boarding point where walking segments and bus routes meet."
+      },
+      "status": "부분수집",
+      "expectedFrom": "bims-realtime (폴링한 노선의 정류장만)"
+    },
+    {
+      "@id": "bm:Barrier",
+      "@type": ["skos:Concept", "rdfs:Class"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:NetworkElement",
+      "prefLabel": { "ko": "차단물", "en": "Barrier" },
+      "definition": {
+        "ko": "지나가는 것을 물리적으로 막거나 제한하는 것 — 계단·차량차단봉·문·요금소·턱.",
+        "en": "Something that physically blocks or restricts passage — steps, bollards, gates, toll booths, kerbs."
+      },
+      "note": {
+        "ko": "원시 수집분은 data/raw/pbf/barrier.ndjson 에 있으나 구간에 붙인 staged 산출물이 아직 없다. 계단은 bm:Segment 쪽에서 topic=stairs 로 이미 다뤄진다."
+      },
+      "status": "부분수집",
+      "expectedFrom": "osm-korea-pbf (data/raw/pbf/barrier.ndjson — staged 산출물 없음)"
+    },
+
+    {
+      "@id": "bm:EnvironmentFeature",
+      "@type": ["skos:Concept", "rdfs:Class"],
+      "inScheme": "bm:MobilityScheme",
+      "topConceptOf": "bm:MobilityScheme",
+      "prefLabel": { "ko": "주변 환경 요소", "en": "Environment feature" },
+      "definition": {
+        "ko": "구간 위에 있지 않지만 걷는 경험을 바꾸는 것. 경로 그래프의 일부는 아니다.",
+        "en": "Something not on the segment itself but which changes the walking experience; not part of the routing graph."
+      }
+    },
+    {
+      "@id": "bm:Building",
+      "@type": ["skos:Concept", "rdfs:Class"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:EnvironmentFeature",
+      "prefLabel": { "ko": "건물", "en": "Building" },
+      "definition": {
+        "ko": "높이(또는 층수)를 가진 구조물. 태양 고도와 함께 쓰면 그림자 길이가 나온다.",
+        "en": "A structure with a height (or storey count); combined with solar elevation it yields shadow length."
+      },
+      "note": {
+        "ko": "OSM 원본에 height·building:levels 가 일부 있다는 것은 실측했다(docs/WALKABILITY.md 2.2). 다만 부산 건물을 뽑은 staged 산출물이 아직 없다."
+      },
+      "status": "부분수집",
+      "expectedFrom": "osm-korea-pbf (height·building:levels 태그) / molit-gis-building"
+    },
+    {
+      "@id": "bm:ShadeSource",
+      "@type": ["skos:Concept", "rdfs:Class"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:EnvironmentFeature",
+      "prefLabel": { "ko": "그늘 원천", "en": "Shade source" },
+      "definition": {
+        "ko": "구간에 그늘을 만드는 것. 여름 부산에서 그늘 유무는 쾌적함이 아니라 걷느냐 마느냐를 가른다.",
+        "en": "Anything that casts shade onto a segment; in a Busan summer this decides whether people walk at all."
+      },
+      "status": "미수집",
+      "expectedFrom": "busan-street-trees, molit-gis-building"
+    },
+    {
+      "@id": "bm:StreetTreeSection",
+      "@type": ["skos:Concept", "rdfs:Class"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:ShadeSource",
+      "prefLabel": { "ko": "가로수 구간", "en": "Street tree section" },
+      "definition": {
+        "ko": "한 도로의 시점~종점 사이에 가로수가 심긴 구간. 수종과 그루 수가 함께 온다.",
+        "en": "A stretch of one road, from start point to end point, planted with street trees, with species and counts."
+      },
+      "note": {
+        "ko": "🔴 아직 받지 않았다. 필드 이름을 지어내지 않는다 — 실제 응답을 받은 뒤에 field 를 채운다. docs/WALKABILITY.md 2.1 이 포털 화면에서 적어둔 후보만 fieldCandidate 로 남겨 둔다. 계산으로는 절대 못 만드는 데이터다."
+      },
+      "status": "미수집",
+      "expectedFrom": "busan-street-trees",
+      "fieldCandidate": ["loc_nm", "sec_timepoint", "sec_endpoint", "plant_distance", "total"],
+      "candidateSource": "docs/WALKABILITY.md 2.1 (포털 화면 기록 — 실제 응답으로 확인되지 않았다)"
+    },
+    {
+      "@id": "bm:BuildingShadow",
+      "@type": ["skos:Concept", "rdfs:Class"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:ShadeSource",
+      "prefLabel": { "ko": "건물 그림자", "en": "Building shadow" },
+      "definition": {
+        "ko": "건물 높이와 태양 고도로 계산되는 그늘. 시각에 따라 답이 달라진다 — 같은 구간이 정오에는 뙤약볕, 늦은 오후에는 그늘이다.",
+        "en": "Shade computed from building height and solar elevation; the answer changes with time of day."
+      },
+      "note": { "ko": "계산으로 만든다. 사진이 필요 없다. 아직 구현하지 않았다." },
+      "status": "미수집",
+      "expectedFrom": "molit-gis-building (없으면 OSM building:levels 로 시작)"
+    },
+
+    {
+      "@id": "bm:UserProfile",
+      "@type": ["skos:Concept", "rdfs:Class"],
+      "inScheme": "bm:MobilityScheme",
+      "topConceptOf": "bm:MobilityScheme",
+      "prefLabel": { "ko": "이동 제약 프로파일", "en": "Mobility constraint profile" },
+      "definition": {
+        "ko": "이동 능력의 묶음. 이 온톨로지에서 프로파일은 '무엇이 불가능한가' 만 정하고 '무엇을 더 좋아하는가' 는 정하지 않는다.",
+        "en": "A bundle of mobility capability; here a profile declares only what is impossible, never what is preferred."
+      },
+      "note": {
+        "ko": "이 프로파일에 직접 붙은 규칙은 네 하위 프로파일 전부에 적용된다."
+      }
+    },
+    {
+      "@id": "bm:Wheelchair",
+      "@type": ["skos:Concept"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:UserProfile",
+      "prefLabel": { "ko": "휠체어", "en": "Wheelchair" },
+      "definition": {
+        "ko": "바퀴로 이동하며 단차를 넘을 수 없는 이용자. 계단은 통과 불가이고 경사와 유효폭에 상한이 있다.",
+        "en": "A wheeled user who cannot cross a step; stairs are impassable and slope and clear width are capped."
+      }
+    },
+    {
+      "@id": "bm:Stroller",
+      "@type": ["skos:Concept"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:UserProfile",
+      "prefLabel": { "ko": "유모차", "en": "Stroller" },
+      "definition": {
+        "ko": "유모차를 밀고 걷는 이용자. 들어 올리면 계단을 넘을 수 있으나 판정에서는 불가로 둔다 — 통과 가능 여부가 동반자 수에 달려 있어 우리가 관측할 수 없다.",
+        "en": "A user pushing a stroller; steps are treated as infeasible because passability depends on companions we cannot observe."
+      }
+    },
+    {
+      "@id": "bm:Elderly",
+      "@type": ["skos:Concept"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:UserProfile",
+      "prefLabel": { "ko": "고령자", "en": "Elderly" },
+      "definition": {
+        "ko": "계단과 오르막을 오를 수는 있으나 누적량에 상한이 있는 이용자. 계단은 '있다/없다' 가 아니라 '몇 단인가' 로 걸린다.",
+        "en": "A user who can climb but only up to a cumulative limit; steps matter by count, not by presence."
+      }
+    },
+    {
+      "@id": "bm:Default",
+      "@type": ["skos:Concept"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:UserProfile",
+      "prefLabel": { "ko": "기본", "en": "Default" },
+      "definition": {
+        "ko": "특별한 이동 제약을 선언하지 않은 이용자. 물리적으로 보행이 금지된 곳(자동차 전용도로)만 불가이고, 경사와 계단은 불가가 아니라 비용이다.",
+        "en": "A user with no declared constraint; only pedestrian-banned ways are infeasible, while slope and steps are costs rather than blocks."
+      },
+      "note": {
+        "ko": "이 프로파일의 유일한 불가 조건은 bm:UserProfile 에 붙은 bm:RuleMotorFootBan 이다. 그것이 설계 의도다 — 기본 이용자에게는 '싫다' 를 '못 간다' 로 바꾸지 않는다."
+      }
+    },
+
+    {
+      "@id": "bm:Attribute",
+      "@type": ["skos:Concept"],
+      "inScheme": "bm:MobilityScheme",
+      "topConceptOf": "bm:MobilityScheme",
+      "prefLabel": { "ko": "속성", "en": "Attribute" },
+      "definition": {
+        "ko": "클래스의 개체가 갖는 값. 값을 갖는 것은 전부 단위 또는 값 범위를 함께 선언한다 — 단위 없는 숫자는 다음 사람이 반드시 잘못 읽는다.",
+        "en": "A value held by an instance; every value-bearing attribute declares a unit or a value range."
+      }
+    },
+
+    {
+      "@id": "bm:osmWayId",
+      "@type": ["skos:Concept", "rdf:Property"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:Attribute",
+      "onClass": "bm:Segment",
+      "prefLabel": { "ko": "OSM way 식별자", "en": "OSM way id" },
+      "definition": { "ko": "이 구간의 원본 OpenStreetMap way 번호. 재수집해도 같은 구간을 다시 찾을 수 있는 유일한 열쇠다." },
+      "valueRange": { "kind": "정수", "minInclusive": 1, "nullable": false },
+      "role": "identifier",
+      "status": "수집됨",
+      "sourceField": [{ "dataset": "data/staged/segment-slope.ndjson", "field": "id" }]
+    },
+    {
+      "@id": "bm:networkTopic",
+      "@type": ["skos:Concept", "rdf:Property"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:Attribute",
+      "onClass": "bm:Segment",
+      "prefLabel": { "ko": "네트워크 분류", "en": "Network topic" },
+      "definition": { "ko": "구간을 어느 추출 주제에서 뽑았는가. PBF 추출 단계가 붙인 값이고 OSM 태그가 아니다." },
+      "codeList": ["road", "walk", "stairs"],
+      "codeListOpen": false,
+      "role": "feasibility",
+      "status": "수집됨",
+      "sourceField": [{ "dataset": "data/staged/segment-slope.ndjson", "field": "topic" }]
+    },
+    {
+      "@id": "bm:osmHighwayClass",
+      "@type": ["skos:Concept", "rdf:Property"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:Attribute",
+      "onClass": "bm:Segment",
+      "prefLabel": { "ko": "OSM 도로 등급", "en": "OSM highway class" },
+      "definition": { "ko": "OSM highway 태그의 값. 보행 금지 판정의 유일한 근거이며 지금 staged 에 실제로 들어 있는 값이다." },
+      "codeList": ["motorway", "motorway_link", "trunk", "trunk_link", "primary", "secondary", "tertiary", "residential", "unclassified", "service", "living_street", "pedestrian", "footway", "path", "steps", "track", "cycleway", "corridor", "elevator", "busway", "construction", "proposed"],
+      "codeListOpen": true,
+      "note": { "ko": "codeList 는 관측된 값이고 허용 목록이 아니다 — OSM 은 새 값을 계속 만든다. null 도 관측된다." },
+      "role": "feasibility",
+      "status": "수집됨",
+      "sourceField": [{ "dataset": "data/staged/segment-slope.ndjson", "field": "highway" }]
+    },
+    {
+      "@id": "bm:roadName",
+      "@type": ["skos:Concept", "rdf:Property"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:Attribute",
+      "onClass": "bm:Segment",
+      "prefLabel": { "ko": "도로명", "en": "Road name" },
+      "definition": { "ko": "구간의 이름. 사람에게 경로를 설명할 때만 쓰고 판정에는 쓰지 않는다." },
+      "valueRange": { "kind": "자유 문자열", "nullable": true },
+      "role": "descriptive",
+      "status": "수집됨",
+      "sourceField": [{ "dataset": "data/staged/segment-slope.ndjson", "field": "name" }]
+    },
+    {
+      "@id": "bm:lengthM",
+      "@type": ["skos:Concept", "rdf:Property"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:Attribute",
+      "onClass": "bm:Segment",
+      "prefLabel": { "ko": "구간 길이", "en": "Segment length" },
+      "definition": { "ko": "구간을 이루는 좌표열의 지표면 거리 합. 대권거리로 계산한 실제 도상거리다." },
+      "unit": "m",
+      "unitIri": "qunit:M",
+      "valueRange": { "minInclusive": 0, "kind": "실수" },
+      "role": "cost",
+      "coefficientStatus": "미추정",
+      "coefficientSource": "process/choice-fit.mjs (짝 비교 응답이 있을 때)",
+      "status": "수집됨",
+      "sourceField": [{ "dataset": "data/staged/segment-slope.ndjson", "field": "length" }]
+    },
+    {
+      "@id": "bm:slopeP90",
+      "@type": ["skos:Concept", "rdf:Property"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:Attribute",
+      "onClass": "bm:Segment",
+      "prefLabel": { "ko": "경사 90분위", "en": "Slope p90" },
+      "definition": { "ko": "구간을 따라 잰 경사 표본의 90분위값. 이 구간의 대표 경사다." },
+      "note": {
+        "ko": "🔴 대표값은 최댓값이 아니라 p90 이다 — 최댓값은 잡음 표본 하나에 끌려간다 (bigData/CLAUDE.md 7절). 어떤 기준선(baseline)으로 쟀는지는 data/staged/_slope-summary.json 이 갖고 있고, 그 기준선은 손으로 정하지 않고 process/calibrate-slope.mjs 가 실측으로 정한다."
+      },
+      "unit": "ratio",
+      "valueRange": { "minInclusive": 0, "kind": "무차원 비 (수직/수평). 0.0833 이면 8.33% 다" },
+      "role": "cost",
+      "coefficientStatus": "미추정",
+      "coefficientSource": "process/choice-fit.mjs (짝 비교 응답이 있을 때)",
+      "status": "수집됨",
+      "sourceField": [{ "dataset": "data/staged/segment-slope.ndjson", "field": "p90Slope" }]
+    },
+    {
+      "@id": "bm:slopeP50",
+      "@type": ["skos:Concept", "rdf:Property"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:Attribute",
+      "onClass": "bm:Segment",
+      "prefLabel": { "ko": "경사 중앙값", "en": "Slope median" },
+      "definition": { "ko": "구간을 따라 잰 경사 표본의 중앙값. 구간 전체가 고르게 오르막인지 한쪽만 급한지를 p90 과 비교해 알 수 있다." },
+      "unit": "ratio",
+      "valueRange": { "minInclusive": 0, "kind": "무차원 비 (수직/수평)" },
+      "role": "cost",
+      "coefficientStatus": "미추정",
+      "coefficientSource": "process/choice-fit.mjs (짝 비교 응답이 있을 때)",
+      "status": "수집됨",
+      "sourceField": [{ "dataset": "data/staged/segment-slope.ndjson", "field": "p50Slope" }]
+    },
+    {
+      "@id": "bm:slopeMax",
+      "@type": ["skos:Concept", "rdf:Property"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:Attribute",
+      "onClass": "bm:Segment",
+      "prefLabel": { "ko": "경사 최댓값", "en": "Slope max" },
+      "definition": { "ko": "구간에서 나온 가장 급한 경사 표본. 기록으로 남기는 값이다." },
+      "note": {
+        "ko": "🔴 판정에 쓰지 않는다. DEM 수직 오차 한 점이 그대로 최댓값이 되기 때문이다 — 실제 데이터에 1 을 넘는(=100% 경사) 값이 교량 구간에서 관측된다. 그것이 대표값을 p90 으로 바꾼 이유다."
+      },
+      "unit": "ratio",
+      "valueRange": { "minInclusive": 0, "kind": "무차원 비 (수직/수평)" },
+      "role": "descriptive",
+      "status": "수집됨",
+      "sourceField": [{ "dataset": "data/staged/segment-slope.ndjson", "field": "maxSlope" }]
+    },
+    {
+      "@id": "bm:ascentM",
+      "@type": ["skos:Concept", "rdf:Property"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:Attribute",
+      "onClass": "bm:Segment",
+      "prefLabel": { "ko": "누적 오름", "en": "Cumulative ascent" },
+      "definition": { "ko": "구간을 한 방향으로 지날 때 올라가는 높이의 합. 방향이 있는 값이라 반대로 지나면 내림과 바뀐다." },
+      "unit": "m",
+      "unitIri": "qunit:M",
+      "valueRange": { "minInclusive": 0, "kind": "실수" },
+      "role": "cost",
+      "coefficientStatus": "미추정",
+      "coefficientSource": "process/choice-fit.mjs (짝 비교 응답이 있을 때)",
+      "status": "수집됨",
+      "sourceField": [{ "dataset": "data/staged/segment-slope.ndjson", "field": "ascent" }]
+    },
+    {
+      "@id": "bm:descentM",
+      "@type": ["skos:Concept", "rdf:Property"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:Attribute",
+      "onClass": "bm:Segment",
+      "prefLabel": { "ko": "누적 내림", "en": "Cumulative descent" },
+      "definition": { "ko": "구간을 한 방향으로 지날 때 내려가는 높이의 합." },
+      "unit": "m",
+      "unitIri": "qunit:M",
+      "valueRange": { "minInclusive": 0, "kind": "실수" },
+      "role": "cost",
+      "coefficientStatus": "미추정",
+      "coefficientSource": "process/choice-fit.mjs (짝 비교 응답이 있을 때)",
+      "status": "수집됨",
+      "sourceField": [{ "dataset": "data/staged/segment-slope.ndjson", "field": "descent" }]
+    },
+    {
+      "@id": "bm:stepCountTagged",
+      "@type": ["skos:Concept", "rdf:Property"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:Attribute",
+      "onClass": "bm:Segment",
+      "prefLabel": { "ko": "계단 단수(태그)", "en": "Step count (tagged)" },
+      "definition": { "ko": "OSM step_count 태그를 그대로 옮긴 값. 사람이 적어 넣은 것이라 있으면 가장 믿을 만하다." },
+      "note": { "ko": "보유율이 극히 낮다 — 이 태그만 믿으면 계단이 거의 없는 부산이 된다. 그래서 추정값을 따로 둔다." },
+      "unit": "count",
+      "valueRange": { "minInclusive": 0, "kind": "정수", "nullable": true },
+      "role": "feasibility",
+      "status": "수집됨",
+      "sourceField": [{ "dataset": "data/staged/segment-slope.ndjson", "field": "stepCount" }]
+    },
+    {
+      "@id": "bm:stepCountEstimated",
+      "@type": ["skos:Concept", "rdf:Property"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:Attribute",
+      "onClass": "bm:Segment",
+      "prefLabel": { "ko": "계단 단수(추정)", "en": "Step count (estimated)" },
+      "definition": { "ko": "고도차를 표준 단높이로 나눠 추정한 단수. 태그가 없을 때 쓰는 값이다." },
+      "note": { "ko": "추정값과 태그값이 같은 구간에서 크게 어긋날 수 있다. 어긋남 자체가 DEM 품질의 신호이므로 둘을 합치지 않고 나란히 남긴다." },
+      "unit": "count",
+      "valueRange": { "minInclusive": 0, "kind": "정수", "nullable": true },
+      "role": "feasibility",
+      "status": "수집됨",
+      "sourceField": [{ "dataset": "data/staged/segment-slope.ndjson", "field": "stepEst" }]
+    },
+    {
+      "@id": "bm:stepCountTotal",
+      "@type": ["skos:Concept", "rdf:Property"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:Attribute",
+      "onClass": "bm:Segment",
+      "prefLabel": { "ko": "계단 단수(판정용)", "en": "Step count (effective)" },
+      "definition": { "ko": "판정에 쓰는 단수. 태그값이 있으면 그것, 없으면 추정값, 둘 다 없으면 0 이다." },
+      "derivedFrom": ["bm:stepCountTagged", "bm:stepCountEstimated"],
+      "unit": "count",
+      "valueRange": { "minInclusive": 0, "kind": "정수" },
+      "role": "feasibility",
+      "status": "파생"
+    },
+    {
+      "@id": "bm:hasSteps",
+      "@type": ["skos:Concept", "rdf:Property"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:Attribute",
+      "onClass": "bm:Segment",
+      "prefLabel": { "ko": "계단 있음", "en": "Has steps" },
+      "definition": { "ko": "이 구간에 단차를 넘어야 하는 곳이 있는가. 바퀴 이용자의 통과 가능 여부를 가르는 단 하나의 값이다." },
+      "note": { "ko": "networkTopic 이 stairs 이거나, osmHighwayClass 가 steps 이거나, stepCountTotal 이 0 보다 크면 참이다." },
+      "derivedFrom": ["bm:networkTopic", "bm:osmHighwayClass", "bm:stepCountTotal"],
+      "codeList": [true, false],
+      "codeListOpen": false,
+      "role": "feasibility",
+      "status": "파생"
+    },
+    {
+      "@id": "bm:osmInclineTagRaw",
+      "@type": ["skos:Concept", "rdf:Property"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:Attribute",
+      "onClass": "bm:Segment",
+      "prefLabel": { "ko": "OSM 경사 태그(원문)", "en": "OSM incline tag (raw)" },
+      "definition": { "ko": "OSM incline 태그를 손대지 않고 옮긴 문자열. 경사 판정에는 쓰지 않는다." },
+      "note": {
+        "ko": "🔴 값이 방향(up/down)과 백분율과 yes 가 섞여 있어 숫자로 쓸 수 없고, 보유율도 낮다. 그래서 경사는 태그가 아니라 DEM 에서 계산했다 (bigData/CLAUDE.md 6절). 이 필드는 계산 결과를 눈으로 대조할 때만 쓴다."
+      },
+      "codeList": ["up", "down", "yes", "0", "0%", "10%", "15%", "20%"],
+      "codeListOpen": true,
+      "valueRange": { "kind": "자유 문자열", "nullable": true },
+      "role": "descriptive",
+      "status": "수집됨",
+      "sourceField": [{ "dataset": "data/staged/segment-slope.ndjson", "field": "inclineTag" }]
+    },
+    {
+      "@id": "bm:osmWidthTagRaw",
+      "@type": ["skos:Concept", "rdf:Property"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:Attribute",
+      "onClass": "bm:Segment",
+      "prefLabel": { "ko": "OSM 폭 태그(원문)", "en": "OSM width tag (raw)" },
+      "definition": { "ko": "OSM width 태그를 손대지 않고 옮긴 문자열. 단위가 붙지 않은 맨 숫자와 한국어 자유서식이 섞여 있다." },
+      "note": {
+        "ko": "🔴 관측값에 '약 60cm' 처럼 숫자로 파싱할 수 없는 것이 섞여 있고 보유율도 낮다. 그래서 폭 판정의 근거는 이 태그가 아니라 도로명주소 실폭도로다 (bm:widthM). 이 필드를 그대로 미터로 읽으면 안 된다."
+      },
+      "valueRange": { "kind": "자유 문자열 (단위 미정규화)", "nullable": true },
+      "role": "descriptive",
+      "status": "수집됨",
+      "sourceField": [{ "dataset": "data/staged/segment-slope.ndjson", "field": "widthTag" }]
+    },
+    {
+      "@id": "bm:widthM",
+      "@type": ["skos:Concept", "rdf:Property"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:Attribute",
+      "onClass": "bm:Segment",
+      "prefLabel": { "ko": "유효 통행폭", "en": "Effective clear width" },
+      "definition": { "ko": "실제로 지나갈 수 있는 폭. 바퀴 이용자의 통과 가능 여부를 가르는 두 번째 값이다." },
+      "note": {
+        "ko": "🔴 아직 받지 않았다. 계산으로도 만들 수 없다 — 도로명주소 실폭도로가 필수다. 필드 이름을 지어내지 않는다. 이것이 없어서 폭 관련 규칙 두 개가 evidenceStatus: 입력미수집 으로 멈춰 있다."
+      },
+      "unit": "m",
+      "unitIri": "qunit:M",
+      "valueRange": { "minInclusive": 0, "kind": "실수" },
+      "role": "feasibility",
+      "status": "미수집",
+      "expectedFrom": "juso-road"
+    },
+    {
+      "@id": "bm:shadeScore",
+      "@type": ["skos:Concept", "rdf:Property"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:Attribute",
+      "onClass": "bm:Segment",
+      "prefLabel": { "ko": "그늘 점수", "en": "Shade score" },
+      "definition": { "ko": "구간이 그늘에 덮인 정도. 가로수의 수종·그루 수·식재거리와 건물 그림자에서 만든다." },
+      "note": {
+        "ko": "🔴 아직 받지 않았다. 수종 가중치도 이 파일에 박지 않는다 — 그것도 측정이 정할 값이다. 시각에 따라 답이 달라지는 값이므로 하나의 상수가 아니라 시각의 함수다."
+      },
+      "valueRange": { "minInclusive": 0, "maxInclusive": 1, "kind": "무차원 지수" },
+      "role": "cost",
+      "coefficientStatus": "미추정",
+      "coefficientSource": "process/choice-fit.mjs (짝 비교 응답이 있을 때)",
+      "status": "미수집",
+      "expectedFrom": "busan-street-trees, molit-gis-building"
+    },
+    {
+      "@id": "bm:buildingHeightM",
+      "@type": ["skos:Concept", "rdf:Property"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:Attribute",
+      "onClass": "bm:Building",
+      "prefLabel": { "ko": "건물 높이", "en": "Building height" },
+      "definition": { "ko": "지면에서 건물 최상부까지의 높이. 태양 고도와 함께 쓰면 그림자 길이가 나온다." },
+      "note": { "ko": "OSM 원본에 height 태그가 일부 있다는 것은 실측했으나 부산 건물을 뽑은 staged 산출물이 아직 없다. 층수에서 환산할 수도 있고, 층당 높이는 이 파일에 박지 않는다." },
+      "unit": "m",
+      "unitIri": "qunit:M",
+      "valueRange": { "minInclusive": 0, "kind": "실수" },
+      "role": "cost",
+      "coefficientStatus": "미추정",
+      "coefficientSource": "process/choice-fit.mjs (짝 비교 응답이 있을 때)",
+      "status": "부분수집",
+      "expectedFrom": "osm-korea-pbf (height 태그) / molit-gis-building"
+    },
+    {
+      "@id": "bm:buildingLevels",
+      "@type": ["skos:Concept", "rdf:Property"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:Attribute",
+      "onClass": "bm:Building",
+      "prefLabel": { "ko": "건물 층수", "en": "Building levels" },
+      "definition": { "ko": "지상 층수. 높이 태그보다 훨씬 흔해서 그림자 계산의 실질적 입력이 된다." },
+      "unit": "count",
+      "valueRange": { "minInclusive": 0, "kind": "정수", "nullable": true },
+      "role": "descriptive",
+      "status": "부분수집",
+      "expectedFrom": "osm-korea-pbf (building:levels 태그)"
+    },
+    {
+      "@id": "bm:barrierKind",
+      "@type": ["skos:Concept", "rdf:Property"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:Attribute",
+      "onClass": "bm:Barrier",
+      "prefLabel": { "ko": "차단물 종류", "en": "Barrier kind" },
+      "definition": { "ko": "무엇이 길을 막고 있는가. 종류에 따라 보행자는 지나가고 바퀴는 못 지나가는 경우가 갈린다." },
+      "note": { "ko": "원시 수집분 data/raw/pbf/barrier.ndjson 의 tags 안에 barrier·kerb·tactile_paving 으로 들어 있다. 구간에 붙인 staged 산출물이 아직 없어 규칙에서 참조하지 않는다." },
+      "codeList": ["gate", "toll_booth", "bollard", "lift_gate", "height_restrictor", "block", "jersey_barrier", "kerb", "turnstile"],
+      "codeListOpen": true,
+      "role": "feasibility",
+      "status": "부분수집",
+      "sourceField": [{ "dataset": "data/raw/pbf/barrier.ndjson", "field": "tags" }]
+    },
+
+    {
+      "@id": "bm:bimsRouteId",
+      "@type": ["skos:Concept", "rdf:Property"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:Attribute",
+      "onClass": "bm:BusRoute",
+      "prefLabel": { "ko": "BIMS 노선 식별자", "en": "BIMS route id" },
+      "definition": { "ko": "부산 BIMS 가 노선에 붙인 번호. 우리가 폴링할 때 보내는 열쇠이자 응답을 되찾는 열쇠다." },
+      "valueRange": { "kind": "문자열", "nullable": false },
+      "role": "identifier",
+      "status": "수집됨",
+      "sourceField": [{ "dataset": "data/raw/transit/bims-2026-08-27.ndjson", "field": "routeId" }]
+    },
+    {
+      "@id": "bm:observedAtEpochMs",
+      "@type": ["skos:Concept", "rdf:Property"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:Attribute",
+      "onClass": "bm:BusRoute",
+      "prefLabel": { "ko": "관측 시각", "en": "Observed at" },
+      "definition": { "ko": "이 응답을 받은 시각. 실시간 데이터는 소급 수집이 안 되므로 이 값이 표본의 유일한 좌표다." },
+      "unit": "ms",
+      "valueRange": { "minInclusive": 0, "kind": "정수 (epoch 밀리초)" },
+      "role": "descriptive",
+      "status": "수집됨",
+      "sourceField": [{ "dataset": "data/raw/transit/bims-2026-08-27.ndjson", "field": "ts" }]
+    },
+    {
+      "@id": "bm:headwayMin",
+      "@type": ["skos:Concept", "rdf:Property"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:Attribute",
+      "onClass": "bm:BusRoute",
+      "prefLabel": { "ko": "배차간격", "en": "Headway" },
+      "definition": { "ko": "같은 노선의 다음 차가 오기까지의 간격. 지금은 노선 정보에 실려 온 공표값이고, 실측 분포는 BIMS 관측에서 따로 만든다." },
+      "unit": "min",
+      "unitIri": "qunit:MIN",
+      "valueRange": { "minInclusive": 0, "kind": "실수" },
+      "role": "cost",
+      "coefficientStatus": "미추정",
+      "coefficientSource": "process/choice-fit.mjs (짝 비교 응답이 있을 때)",
+      "status": "수집됨",
+      "sourceField": [{ "dataset": "config/routes.json", "field": "detail[0].headway" }]
+    },
+    {
+      "@id": "bm:lowFloorAvailable",
+      "@type": ["skos:Concept", "rdf:Property"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:Attribute",
+      "onClass": "bm:BusRoute",
+      "prefLabel": { "ko": "저상버스 여부", "en": "Low-floor availability" },
+      "definition": { "ko": "이 차에 휠체어가 탈 수 있는가. 버스는 노선이 아니라 차량 단위로 갈린다." },
+      "note": {
+        "ko": "🔴 필드 이름(lowplate)은 실제 응답에서 확인했지만 값의 의미는 BIMS 규격 문서로 확인하지 못했다. 그래서 이것을 참조하는 규칙은 evidenceStatus: 검증필요 다. 확인 전에 이 값으로 '탈 수 없다' 를 사용자에게 말하면 안 된다."
+      },
+      "codeList": [true, false],
+      "codeListOpen": false,
+      "role": "feasibility",
+      "status": "부분수집",
+      "sourceField": [{ "dataset": "data/raw/transit/bims-2026-08-27.ndjson", "field": "raw", "xmlElement": "lowplate" }]
+    },
+    {
+      "@id": "bm:bimsNodeId",
+      "@type": ["skos:Concept", "rdf:Property"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:Attribute",
+      "onClass": "bm:BusStop",
+      "prefLabel": { "ko": "BIMS 정류장 식별자", "en": "BIMS stop node id" },
+      "definition": { "ko": "부산 BIMS 가 정류장에 붙인 번호. 정류장을 OSM 정류장과 맞붙일 때의 왼쪽 열쇠다." },
+      "valueRange": { "kind": "문자열", "nullable": false },
+      "role": "identifier",
+      "status": "부분수집",
+      "sourceField": [{ "dataset": "data/raw/transit/bims-2026-08-27.ndjson", "field": "raw", "xmlElement": "nodeid" }]
+    },
+    {
+      "@id": "bm:arsNo",
+      "@type": ["skos:Concept", "rdf:Property"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:Attribute",
+      "onClass": "bm:BusStop",
+      "prefLabel": { "ko": "정류소 안내번호", "en": "Stop ARS number" },
+      "definition": { "ko": "정류장 표지판에 적혀 있는 번호. 사람이 눈으로 확인할 수 있는 유일한 식별자라 검증에 쓴다." },
+      "valueRange": { "kind": "문자열", "nullable": true },
+      "role": "identifier",
+      "status": "부분수집",
+      "sourceField": [{ "dataset": "data/raw/transit/bims-2026-08-27.ndjson", "field": "raw", "xmlElement": "arsno" }]
+    },
+    {
+      "@id": "bm:stopName",
+      "@type": ["skos:Concept", "rdf:Property"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:Attribute",
+      "onClass": "bm:BusStop",
+      "prefLabel": { "ko": "정류장 이름", "en": "Stop name" },
+      "definition": { "ko": "정류장의 한국어 이름. 사람에게 보여줄 때만 쓴다." },
+      "valueRange": { "kind": "자유 문자열", "nullable": false },
+      "role": "descriptive",
+      "status": "부분수집",
+      "sourceField": [{ "dataset": "data/raw/transit/bims-2026-08-27.ndjson", "field": "raw", "xmlElement": "bstopnm" }]
+    },
+    {
+      "@id": "bm:stopSequence",
+      "@type": ["skos:Concept", "rdf:Property"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:Attribute",
+      "onClass": "bm:BusStop",
+      "prefLabel": { "ko": "정류장 순번", "en": "Stop sequence" },
+      "definition": { "ko": "노선 안에서 이 정류장이 몇 번째인가. 두 정류장 사이 소요시간을 만들 때 순서의 근거가 된다." },
+      "unit": "count",
+      "valueRange": { "minInclusive": 1, "kind": "정수" },
+      "role": "descriptive",
+      "status": "부분수집",
+      "sourceField": [{ "dataset": "data/raw/transit/bims-2026-08-27.ndjson", "field": "raw", "xmlElement": "bstopidx" }]
+    },
+
+    {
+      "@id": "bm:Parameter",
+      "@type": ["skos:Concept"],
+      "inScheme": "bm:MobilityScheme",
+      "topConceptOf": "bm:MobilityScheme",
+      "prefLabel": { "ko": "이름 있는 임계 파라미터", "en": "Named threshold parameter" },
+      "definition": {
+        "ko": "가능판정 규칙이 참조하는 임계값의 자리. 규칙 안에 숫자를 박지 않고 이름으로 가리키게 해서, 값이 바뀔 때 규칙을 건드리지 않게 한다.",
+        "en": "A named slot for a feasibility threshold; rules refer to the name so changing the value never touches the rule."
+      },
+      "note": {
+        "ko": "🔴 여기 값은 설계기준·물리 한계에서 온다. 짝 비교 실험으로 추정하지 않는다 — 그 실험이 재는 것은 '얼마나 싫은가'(선호)이고 이 값은 '되는가 안 되는가'(가능)다. 둘을 섞으면 다수가 싫어하는 길이 통행 불가가 된다."
+      }
+    },
+    {
+      "@id": "bm:maxSlopeWheelchair",
+      "@type": ["skos:Concept"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:Parameter",
+      "prefLabel": { "ko": "휠체어 최대 경사", "en": "Wheelchair max slope" },
+      "definition": { "ko": "휠체어가 자력으로 오를 수 있는 경사의 상한. 이 값을 넘는 구간은 통과 불가로 판정한다." },
+      "unit": "ratio",
+      "valueRange": { "minInclusive": 0, "maxInclusive": 1, "kind": "무차원 비" },
+      "value": 0.0833,
+      "valueBasis": "휠체어 경사로 설계기준 1:12 (수평 12 에 수직 1). 무장애 설계에서 널리 쓰는 값이다.",
+      "valueStatus": "설계기준"
+    },
+    {
+      "@id": "bm:minWidthWheelchairM",
+      "@type": ["skos:Concept"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:Parameter",
+      "prefLabel": { "ko": "휠체어 최소 유효폭", "en": "Wheelchair min clear width" },
+      "definition": { "ko": "휠체어가 지나갈 수 있는 최소 유효폭. 이 값 미만이면 통과 불가로 판정한다." },
+      "unit": "m",
+      "unitIri": "qunit:M",
+      "valueRange": { "minInclusive": 0, "kind": "실수" },
+      "valueStatus": "미정",
+      "valueBasis": "🔴 아직 근거를 확인하지 못했다. 국내 무장애 설계기준의 보도 유효폭 조항을 확인해야 한다. 입력(bm:widthM)도 미수집이라 지금 값을 넣어도 쓸 데가 없다."
+    },
+    {
+      "@id": "bm:maxSlopeStroller",
+      "@type": ["skos:Concept"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:Parameter",
+      "prefLabel": { "ko": "유모차 최대 경사", "en": "Stroller max slope" },
+      "definition": { "ko": "유모차를 밀고 오를 수 있는 경사의 상한." },
+      "unit": "ratio",
+      "valueRange": { "minInclusive": 0, "maxInclusive": 1, "kind": "무차원 비" },
+      "valueStatus": "미정",
+      "valueBasis": "🔴 표준이 없다. 실측이나 문헌으로 정해야 한다. 짝 비교 계수로 정하지 않는다 — 그것은 선호다."
+    },
+    {
+      "@id": "bm:minWidthStrollerM",
+      "@type": ["skos:Concept"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:Parameter",
+      "prefLabel": { "ko": "유모차 최소 유효폭", "en": "Stroller min clear width" },
+      "definition": { "ko": "유모차가 지나갈 수 있는 최소 유효폭." },
+      "unit": "m",
+      "unitIri": "qunit:M",
+      "valueRange": { "minInclusive": 0, "kind": "실수" },
+      "valueStatus": "미정",
+      "valueBasis": "🔴 근거 미확인. 입력(bm:widthM)도 미수집이다."
+    },
+    {
+      "@id": "bm:maxSlopeElderly",
+      "@type": ["skos:Concept"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:Parameter",
+      "prefLabel": { "ko": "고령자 최대 경사", "en": "Elderly max slope" },
+      "definition": { "ko": "고령자에게 통행 불가로 판정할 경사의 상한. 힘들다가 아니라 못 간다의 선이다." },
+      "unit": "ratio",
+      "valueRange": { "minInclusive": 0, "maxInclusive": 1, "kind": "무차원 비" },
+      "valueStatus": "미정",
+      "valueBasis": "🔴 표준이 없고, '힘들다'와 '못 간다'의 경계가 사람마다 다르다. 값을 지어내면 그 순간 선호를 가능판정으로 위장하는 것이 된다. 확인될 때까지 이 규칙은 evidenceStatus: 임계미정 으로 멈춰 있다."
+    },
+    {
+      "@id": "bm:maxStepCountElderly",
+      "@type": ["skos:Concept"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:Parameter",
+      "prefLabel": { "ko": "고령자 최대 계단 단수", "en": "Elderly max step count" },
+      "definition": { "ko": "한 구간에서 고령자에게 통행 불가로 판정할 누적 계단 단수의 상한." },
+      "unit": "count",
+      "valueRange": { "minInclusive": 0, "kind": "정수" },
+      "valueStatus": "미정",
+      "valueBasis": "🔴 근거 미확인. 부산에는 한 구간에 수백 단인 계단이 실제로 있으므로 상한이 존재하는 것은 분명하지만, 몇 단인지는 아직 정할 근거가 없다."
+    },
+    {
+      "@id": "bm:motorFootBanClasses",
+      "@type": ["skos:Concept"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:Parameter",
+      "prefLabel": { "ko": "보행 금지 도로 등급", "en": "Pedestrian-banned highway classes" },
+      "definition": { "ko": "보행자가 들어갈 수 없는 OSM 도로 등급의 목록. 이용자가 누구든 통과 불가다." },
+      "note": {
+        "ko": "trunk 는 넣지 않았다 — 국내 OSM 에서 자동차전용도로와 일반 간선에 섞여 쓰이기 때문이다. 넣으면 걸을 수 있는 큰길이 전부 막힌다. 확정하려면 foot·access 태그를 함께 봐야 한다."
+      },
+      "codeList": ["motorway", "motorway_link", "busway"],
+      "codeListOpen": false,
+      "valueStatus": "잠정",
+      "valueBasis": "OSM 등급 정의상 보행 불가인 것만 담았다. foot·access 태그로 확인하면 넓힐 수 있다."
+    },
+
+    {
+      "@id": "bm:FeasibilityRule",
+      "@type": ["skos:Concept"],
+      "inScheme": "bm:MobilityScheme",
+      "topConceptOf": "bm:MobilityScheme",
+      "prefLabel": { "ko": "가능판정 규칙", "en": "Feasibility rule" },
+      "definition": {
+        "ko": "어떤 프로파일이 어떤 대상을 지날 수 있는가를 결정하는 딱딱한 규칙(hard rule). 결과는 가능 또는 불가 둘 중 하나이고 점수가 아니다.",
+        "en": "A hard rule deciding whether a profile can pass a thing; the outcome is feasible or infeasible, never a score."
+      },
+      "note": {
+        "ko": "🔴 이 온톨로지가 담는 것은 여기까지다. '좋다/싫다' 는 규칙이 아니라 비용함수의 계수이고, 그것은 짝 비교 실험이 사람에게서 추정한다 (docs/FIELD-STUDY.md). 규칙으로 선호를 표현하면 경로가 아예 사라져서 사용자가 그 이유를 볼 수 없게 된다."
+      }
+    },
+    {
+      "@id": "bm:RuleMotorFootBan",
+      "@type": ["skos:Concept"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:FeasibilityRule",
+      "prefLabel": { "ko": "자동차 전용도로 보행 금지", "en": "Pedestrian ban on motor-only ways" },
+      "definition": { "ko": "보행 금지 등급의 도로는 어떤 프로파일도 걸어서 지날 수 없다." },
+      "appliesTo": "bm:UserProfile",
+      "onClass": "bm:Segment",
+      "condition": [{ "property": "bm:osmHighwayClass", "operator": "in", "parameter": "bm:motorFootBanClasses" }],
+      "verdict": "infeasible",
+      "evidenceStatus": "적용가능"
+    },
+    {
+      "@id": "bm:RuleWheelchairSteps",
+      "@type": ["skos:Concept"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:FeasibilityRule",
+      "prefLabel": { "ko": "휠체어 — 계단 통과 불가", "en": "Wheelchair — steps impassable" },
+      "definition": { "ko": "계단이 있는 구간은 휠체어가 지날 수 없다. 단수와 무관하게 한 단만 있어도 불가다." },
+      "appliesTo": "bm:Wheelchair",
+      "onClass": "bm:Segment",
+      "condition": [{ "property": "bm:hasSteps", "operator": "eq", "constant": true }],
+      "verdict": "infeasible",
+      "evidenceStatus": "적용가능"
+    },
+    {
+      "@id": "bm:RuleWheelchairSlope",
+      "@type": ["skos:Concept"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:FeasibilityRule",
+      "prefLabel": { "ko": "휠체어 — 경사 상한 초과", "en": "Wheelchair — slope over limit" },
+      "definition": { "ko": "대표 경사가 휠체어 상한을 넘는 구간은 지날 수 없다." },
+      "note": { "ko": "대표값으로 p90 을 쓴다. 최댓값을 쓰면 DEM 오차 한 점이 멀쩡한 길을 통행 불가로 만든다." },
+      "appliesTo": "bm:Wheelchair",
+      "onClass": "bm:Segment",
+      "condition": [{ "property": "bm:slopeP90", "operator": "gte", "parameter": "bm:maxSlopeWheelchair" }],
+      "verdict": "infeasible",
+      "evidenceStatus": "적용가능"
+    },
+    {
+      "@id": "bm:RuleWheelchairWidth",
+      "@type": ["skos:Concept"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:FeasibilityRule",
+      "prefLabel": { "ko": "휠체어 — 유효폭 미달", "en": "Wheelchair — width below minimum" },
+      "definition": { "ko": "유효 통행폭이 휠체어 최소폭 미만인 구간은 지날 수 없다." },
+      "appliesTo": "bm:Wheelchair",
+      "onClass": "bm:Segment",
+      "condition": [{ "property": "bm:widthM", "operator": "lt", "parameter": "bm:minWidthWheelchairM" }],
+      "verdict": "infeasible",
+      "evidenceStatus": "입력미수집"
+    },
+    {
+      "@id": "bm:RuleWheelchairBusLowFloor",
+      "@type": ["skos:Concept"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:FeasibilityRule",
+      "prefLabel": { "ko": "휠체어 — 저상버스 아님", "en": "Wheelchair — not a low-floor bus" },
+      "definition": { "ko": "저상버스가 아닌 차량은 휠체어가 탈 수 없다." },
+      "appliesTo": "bm:Wheelchair",
+      "onClass": "bm:BusRoute",
+      "condition": [{ "property": "bm:lowFloorAvailable", "operator": "eq", "constant": false }],
+      "verdict": "infeasible",
+      "evidenceStatus": "검증필요"
+    },
+    {
+      "@id": "bm:RuleStrollerSteps",
+      "@type": ["skos:Concept"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:FeasibilityRule",
+      "prefLabel": { "ko": "유모차 — 계단 통과 불가", "en": "Stroller — steps impassable" },
+      "definition": { "ko": "계단이 있는 구간은 유모차가 지날 수 없다." },
+      "appliesTo": "bm:Stroller",
+      "onClass": "bm:Segment",
+      "condition": [{ "property": "bm:hasSteps", "operator": "eq", "constant": true }],
+      "verdict": "infeasible",
+      "evidenceStatus": "적용가능"
+    },
+    {
+      "@id": "bm:RuleStrollerWidth",
+      "@type": ["skos:Concept"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:FeasibilityRule",
+      "prefLabel": { "ko": "유모차 — 유효폭 미달", "en": "Stroller — width below minimum" },
+      "definition": { "ko": "유효 통행폭이 유모차 최소폭 미만인 구간은 지날 수 없다." },
+      "appliesTo": "bm:Stroller",
+      "onClass": "bm:Segment",
+      "condition": [{ "property": "bm:widthM", "operator": "lt", "parameter": "bm:minWidthStrollerM" }],
+      "verdict": "infeasible",
+      "evidenceStatus": "입력미수집"
+    },
+    {
+      "@id": "bm:RuleStrollerSlope",
+      "@type": ["skos:Concept"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:FeasibilityRule",
+      "prefLabel": { "ko": "유모차 — 경사 상한 초과", "en": "Stroller — slope over limit" },
+      "definition": { "ko": "대표 경사가 유모차 상한을 넘는 구간은 지날 수 없다." },
+      "appliesTo": "bm:Stroller",
+      "onClass": "bm:Segment",
+      "condition": [{ "property": "bm:slopeP90", "operator": "gte", "parameter": "bm:maxSlopeStroller" }],
+      "verdict": "infeasible",
+      "evidenceStatus": "임계미정"
+    },
+    {
+      "@id": "bm:RuleElderlySteps",
+      "@type": ["skos:Concept"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:FeasibilityRule",
+      "prefLabel": { "ko": "고령자 — 계단 단수 초과", "en": "Elderly — too many steps" },
+      "definition": { "ko": "누적 계단 단수가 상한을 넘는 구간은 고령자가 지날 수 없다. 계단의 유무가 아니라 단수로 판정한다." },
+      "appliesTo": "bm:Elderly",
+      "onClass": "bm:Segment",
+      "condition": [{ "property": "bm:stepCountTotal", "operator": "gt", "parameter": "bm:maxStepCountElderly" }],
+      "verdict": "infeasible",
+      "evidenceStatus": "임계미정"
+    },
+    {
+      "@id": "bm:RuleElderlySlope",
+      "@type": ["skos:Concept"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:FeasibilityRule",
+      "prefLabel": { "ko": "고령자 — 경사 상한 초과", "en": "Elderly — slope over limit" },
+      "definition": { "ko": "대표 경사가 고령자 상한을 넘는 구간은 지날 수 없다." },
+      "appliesTo": "bm:Elderly",
+      "onClass": "bm:Segment",
+      "condition": [{ "property": "bm:slopeP90", "operator": "gte", "parameter": "bm:maxSlopeElderly" }],
+      "verdict": "infeasible",
+      "evidenceStatus": "임계미정"
+    },
+
+    {
+      "@id": "bm:MetaProperty",
+      "@type": ["skos:Concept"],
+      "inScheme": "bm:MobilityScheme",
+      "topConceptOf": "bm:MobilityScheme",
+      "prefLabel": { "ko": "메타 술어", "en": "Meta property" },
+      "definition": {
+        "ko": "이 파일 자체를 기술하는 술어. 각 술어의 @id 가 곧 그 술어의 URI 이므로, 여기 적힌 codeList 는 검사기가 실제 사용값을 대조하는 데 그대로 쓰인다.",
+        "en": "A predicate describing this document itself; each node's @id is the predicate URI, so its codeList is what the checker enforces."
+      }
+    },
+    {
+      "@id": "bm:role",
+      "@type": ["skos:Concept", "rdf:Property"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:MetaProperty",
+      "prefLabel": { "ko": "속성의 쓰임", "en": "Attribute role" },
+      "definition": { "ko": "이 속성이 판정에서 무엇으로 쓰이는가. feasibility 는 가능/불가를 가르고, cost 는 비용함수의 입력이며 계수는 이 파일에 없다." },
+      "codeList": ["identifier", "feasibility", "cost", "descriptive"],
+      "codeListOpen": false
+    },
+    {
+      "@id": "bm:status",
+      "@type": ["skos:Concept", "rdf:Property"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:MetaProperty",
+      "prefLabel": { "ko": "수집 상태", "en": "Collection status" },
+      "definition": { "ko": "이 개념의 실제 데이터가 지금 있는가. 미수집이면 필드 이름을 적지 않는다 — 지어낸 이름은 실제 응답과 어긋나고 그것이 이 파트에서 가장 나쁜 실패다." },
+      "codeList": ["수집됨", "부분수집", "미수집", "파생"],
+      "codeListOpen": false
+    },
+    {
+      "@id": "bm:unit",
+      "@type": ["skos:Concept", "rdf:Property"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:MetaProperty",
+      "prefLabel": { "ko": "단위", "en": "Unit" },
+      "definition": { "ko": "값의 단위 코드. 단위가 없는 속성은 대신 valueRange 나 codeList 를 갖는다." },
+      "note": { "ko": "unitIri 는 QUDT 로 확실히 대응되는 단위에만 붙였다. ms 처럼 IRI 를 확인하지 못한 것은 코드만 남기고 IRI 를 비웠다 — 틀린 IRI 를 적는 것보다 낫다." },
+      "codeList": ["m", "km", "ratio", "count", "min", "ms"],
+      "codeListOpen": false
+    },
+    {
+      "@id": "bm:operator",
+      "@type": ["skos:Concept", "rdf:Property"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:MetaProperty",
+      "prefLabel": { "ko": "비교 연산자", "en": "Comparison operator" },
+      "definition": { "ko": "규칙 조건이 속성값과 임계값을 어떻게 비교하는가. in 은 값이 목록에 들어 있는지를 본다." },
+      "codeList": ["eq", "lt", "lte", "gt", "gte", "in"],
+      "codeListOpen": false
+    },
+    {
+      "@id": "bm:verdict",
+      "@type": ["skos:Concept", "rdf:Property"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:MetaProperty",
+      "prefLabel": { "ko": "판정", "en": "Verdict" },
+      "definition": { "ko": "규칙이 맞았을 때의 결론. 점수가 아니라 둘 중 하나다." },
+      "codeList": ["infeasible", "feasible"],
+      "codeListOpen": false
+    },
+    {
+      "@id": "bm:evidenceStatus",
+      "@type": ["skos:Concept", "rdf:Property"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:MetaProperty",
+      "prefLabel": { "ko": "규칙 가동 상태", "en": "Rule readiness" },
+      "definition": { "ko": "이 규칙을 지금 돌릴 수 있는가. 적용가능이 아니면 무엇이 없어서 못 돌리는지를 이름이 말한다 — 입력미수집은 데이터가, 임계미정은 파라미터 값이, 검증필요는 필드 의미가 없다는 뜻이다." },
+      "codeList": ["적용가능", "임계미정", "입력미수집", "검증필요"],
+      "codeListOpen": false
+    },
+    {
+      "@id": "bm:coefficientStatus",
+      "@type": ["skos:Concept", "rdf:Property"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:MetaProperty",
+      "prefLabel": { "ko": "선호 계수 상태", "en": "Preference coefficient status" },
+      "definition": { "ko": "비용함수 입력 속성의 계수 자리. 코드가 미추정 하나뿐인 것은 의도다 — 이 파일에 계수 숫자를 넣을 수 없게 만든 것이다." },
+      "note": { "ko": "🔴 계수는 손으로 정하지 않고 사람에게서 추정한다 (docs/FIELD-STUDY.md). 여기에 숫자를 박으면 그 결정을 뒤집는 것이고, test/verify-ontology.mjs 가 종료 코드 1 로 막는다." },
+      "codeList": ["미추정"],
+      "codeListOpen": false
+    }
+  ]
+}
