@@ -9,9 +9,13 @@
 #   3. 커밋 훅을 심는다           (axmap hook install)
 #   4. (전역 CLI 사용자를 위한 안내를 찍는다)
 #
-# Claude Code 는 4번이 필요 없다. `.mcp.json` 이 저장소에 들어 있어 이 폴더를 열 때
-# 스스로 발견하고 승인을 묻는다. 그 편의가 Claude Code 전용이라서 나머지 CLI
-# (Codex, Antigravity `agy`)는 각자의 설정 파일에 적어 줘야 하고, 그걸 4번이 한다.
+# 4번이 안내만 하는 이유 — MCP 등록은 이 저장소가 아니라 **각자의 PC 에 설치한
+# axMap** 이 한다. `npm i -g axmap-cli` 뒤 `axmap setup` 을 한 번 돌리면 Claude
+# Code · Codex · Antigravity 가 전부 각자의 홈 설정에 붙는다.
+#
+# 🔴 2026-08-31 이전에는 저장소에 `.mcp.json` 이 있어서 Claude Code 만 clone 으로
+#    붙었다. 그 파일을 뺐다 (S15P21E201-509) — 같은 이름 `axmap` 이 저장소와 홈
+#    두 곳에 잡혀 저장소 쪽이 홈을 이겼고, npm 판을 깔아도 여기서는 안 쓰였다.
 
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -80,12 +84,12 @@ node "$ROOT/ci/axmap/bin/axmap.mjs" hook install || warn "훅을 심지 못했�
 # [!] 실패해도 여기서 멈추지 않는다. 장부와 훅이 본체고 MCP 는 편의다.
 #     못 붙어도 사람이 CLI 로 claim 할 수 있으니 설치 전체를 무를 이유가 없다.
 #     대신 무엇이 붙고 무엇이 안 붙었는지는 화면에 그대로 나온다.
-# 🔴 예전에는 여기서 mcp-register.mjs 를 불렀다. 그 파일은 axMap 저장소로 나갔고
-#    사본에는 없다. 그리고 이 저장소에서는 필요 없다 — .mcp.json 이 사본의 서버를
-#    가리키고 있어서 Claude Code 는 clone 만으로 붙는다.
-#    Codex·Antigravity 처럼 저장소의 .mcp.json 을 안 읽는 도구를 쓴다면
-#    axMap 을 전역에 한 번 설치한다 (axMap 저장소의 mcp/SETUP-FOR-AI.md).
-say "MCP: .mcp.json 이 ci/axmap/mcp/server.mjs 를 가리킵니다. AI CLI 를 껐다 켜세요." 
+# 🔴 여기서 등록을 대신하지 않는다. 등록기(mcp-register.mjs)는 axMap 저장소에 있고
+#    팀 사본에는 없다. 사본에 다시 넣으면 벤더 지문(ci/axmap/manifest.sha256)이
+#    어긋나 ci:vendor 잡이 빨개진다. 그래서 이 자리는 **안내만** 한다.
+say "MCP: 이 저장소에는 등록 설정이 없습니다. 각자 한 번 돌리세요 —"
+say "       npm i -g axmap-cli   그리고   axmap setup"
+say "     claude · codex · agy 가 각자의 홈 설정에 붙습니다. 그 뒤 AI CLI 를 껐다 켜세요."
 
 # --- 6. 스스로 확인 ----------------------------------------------------------
 #
@@ -121,7 +125,7 @@ cat <<'MSG'
   다른 CLI 면 같은 일을 시키는 문장이 docs/ONBOARDING.md 3.5 절 표에 있습니다.
 
   언제든 다시 확인:  node ci/axmap/bin/axmap.mjs doctor
-  MCP 가 안 뜨면:    AI CLI 를 껐다 켠다 (.mcp.json 은 켤 때 한 번만 읽힌다)
+  MCP 가 안 뜨면:    axmap setup 을 한 번 돌리고 AI CLI 를 껐다 켠다
   자세히:            docs/ONBOARDING.md  ("Claude Code 가 아닌 AI CLI 를 쓴다면" 절)
 
 MSG
