@@ -40,7 +40,7 @@
 
 표를 부탁하는 쪽지는 이미 모두에게 보내 뒀다 (`axmap/bus`, 2026-08-31).
 
-### 🔴 axMap npm 판 — `axmap update` 가 Windows 에서 죽는다
+### 🔴 axMap npm 판 — `axmap update` 가 Windows 에서 죽는다 (`S15P21E201-510`)
 
 npm 최신은 **`axmap-cli@0.3.0`** 이다. 그런데 `axmap update` 가 값은 맞게 찍고
 **끝나면서 죽는다** — `Assertion failed: !(handle->flags & UV_HANDLE_CLOSING),
