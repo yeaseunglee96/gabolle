@@ -22,7 +22,7 @@
 > (**벤더링** vendoring — 남의 코드를 내 저장소 안에 복사해 두고 그 사본으로 돌리는 것).
 > axMap 의 단위 테스트·데모·화면 스모크는 **저쪽 저장소의 CI** 가 돌린다.
 > 여기 남은 잡들은 전부 **팀의 규칙을 검사하는 것**이지 axMap 을 검사하는 것이 아니다.
-> 배경은 [`CLAUDE.md`](../CLAUDE.md) 0.3 절.
+> 배경은 [`CONTRIBUTING.md`](../CONTRIBUTING.md) 0.3 절.
 
 > 이 문서와 화면(웹으로 공유된 같은 내용)이 어긋나면 **이 파일이 기준**이다.
 > 그리고 이 문서와 `.gitlab-ci.yml` 이 어긋나면 **`.gitlab-ci.yml` 이 기준**이다 —
@@ -373,7 +373,7 @@ default:
 저장소에는 없는 코드가 팀 파이프라인에서 도는 상태가 된다.
 
 이 잡은 `ci/axmap/manifest.sha256`(파일마다의 지문 목록)과 실제 파일을 대조한다.
-지문이 어긋나면 빨개진다. 고치는 올바른 길은 [`CLAUDE.md`](../CLAUDE.md) 0.3 절에 있다 —
+지문이 어긋나면 빨개진다. 고치는 올바른 길은 [`CONTRIBUTING.md`](../CONTRIBUTING.md) 0.3 절에 있다 —
 **axMap 저장소에서 고치고 벤더 명령을 다시 돌린다.**
 
 > 🔴 **이 잡은 막지 못한다. 보이게 만들 뿐이다.** `manifest.sha256` 까지 다시 만들면
@@ -516,7 +516,7 @@ node ci/axmap/tools/mr-target.mjs --source front/dev --target back/main
 |---|---|
 | [`.gitlab-ci.yml`](../.gitlab-ci.yml) | 실제로 도는 것. 이 문서와 어긋나면 저쪽이 기준이다 |
 | [`ci/axmap/README.md`](../ci/axmap/README.md) | 사본을 왜 두는지, 고쳐야 할 때 어떻게 하는지 |
-| [`CLAUDE.md`](../CLAUDE.md) | 팀 전체 규칙. 0.3 절이 사본, 3절이 "머지를 막는 것은 권한이 아니라 파이프라인이다" |
+| [`CONTRIBUTING.md`](../CONTRIBUTING.md) | 팀 전체 규칙. 0.3 절이 사본, 3절이 "머지를 막는 것은 권한이 아니라 파이프라인이다" |
 | [`docs/HANDOVER.md`](HANDOVER.md) | 아직 안 정한 것 전부 (4절) |
 | axMap 저장소 `https://lab.ssafy.com/rleaderjoon/axmap` | 버전 규칙의 전문(`docs/VERSIONING.md`)과 도구 자체의 테스트가 있는 곳 |
 </content>

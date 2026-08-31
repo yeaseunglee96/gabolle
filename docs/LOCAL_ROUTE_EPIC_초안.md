@@ -10,7 +10,7 @@
 > **Epic**(에픽 — 여러 Story 를 묶는 제일 큰 작업 단위)은 이 Jira 에서
 > `Epic ➔ Story ➔ Task` 위계의 맨 위다. **하위 작업(Sub-task)은 쓰지 않는다.**
 > Task 의 상위 업무에는 Epic 만 넣을 수 있고, Story 와의 관계는 `Relates` 이슈 링크로 쓴다
-> (루트 `CLAUDE.md` 2절).
+> (루트 `CONTRIBUTING.md` 2절).
 
 ---
 

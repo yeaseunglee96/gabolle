@@ -196,7 +196,7 @@ npx astryx template CardWithInnerLayout  # 그걸 쓴 진짜 코드
 데모 화면을 만들 때 `Banner` 에 `endContent` 가 있는지, `Item` 에 `marker` 가 있는지를
 전부 이 명령으로 확인하고 썼다. 추측은 한 번도 하지 않았다.
 
-이 규칙은 `CLAUDE.md` 5절(백그라운드 에이전트에 넘기기 전에 판단이 갈릴 지점을
+이 규칙은 `CONTRIBUTING.md` 5절(백그라운드 에이전트에 넘기기 전에 판단이 갈릴 지점을
 미리 박는다)과 같은 방향이다 — **에이전트가 지어낼 여지를 없앤다.**
 
 ---

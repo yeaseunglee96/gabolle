@@ -206,7 +206,7 @@ npm run smoke         # 🔴 화면이 실제로 뜨는지 헤드리스 크롬�
 
 | | |
 |---|---|
-| [CLAUDE.md](CLAUDE.md) | 작업 규칙 (사람에게도 AI 에게도 같다) |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | 작업 규칙 (사람에게도 AI 에게도 같다) |
 | [docs/ONBOARDING.md](docs/ONBOARDING.md) | clone 부터 첫 작업까지 |
 | [docs/HANDOVER.md](docs/HANDOVER.md) | 다른 PC·다른 사람이 이어받을 때 |
 | [docs/CI.md](docs/CI.md) | 파이프라인·러너·봇 토큰 |
@@ -220,7 +220,7 @@ npm run smoke         # 🔴 화면이 실제로 뜨는지 헤드리스 크롬�
 `SPEC` · `DECISIONS` · `INVARIANTS` · `WHY-CORPUS` · `PERSONA-LOOP` 는
 2026-08-26 에 axMap 이 분리되면서 함께 나갔다 —
 [`rleaderjoon/axmap`](https://lab.ssafy.com/rleaderjoon/axmap) 의 `docs/` 에 있다.
-**이 저장소에 있는 것은 돌아가는 사본뿐**이다 ([CLAUDE.md](CLAUDE.md) 0.3).
+**이 저장소에 있는 것은 돌아가는 사본뿐**이다 ([CONTRIBUTING.md](CONTRIBUTING.md) 0.3).
 
 ---
 

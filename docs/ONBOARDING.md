@@ -24,7 +24,7 @@
 > 실제로 부르는 파일만 복사해 뒀다 — **벤더링**(vendoring — 남의 코드를 내 저장소
 > 안에 복사해 두고 그 사본으로 돌리는 것). 쓰는 데는 아무 차이가 없다.
 > **다만 `ci/axmap/` 아래를 손으로 고치면 안 된다** — 왜인지는
-> [../CLAUDE.md](../CLAUDE.md) 0.3 절에 있다.
+> [../CONTRIBUTING.md](../CONTRIBUTING.md) 0.3 절에 있다.
 
 ---
 
@@ -246,7 +246,7 @@ IDE 쪽 경로로 보인다. 그래서 전역 파일만 쓴다.
 
 > `ax_brief` · `ax_status` · `ax_claim` 같은 것이 **MCP 도구 이름**이다.
 > 사람이 직접 부르는 명령이 아니라 AI 가 부르는 것이고, 위처럼 이름을 대 주면
-> AI 가 그걸 골라 쓴다. 무엇이 있는지는 [../CLAUDE.md](../CLAUDE.md) 1절 표에 있고,
+> AI 가 그걸 골라 쓴다. 무엇이 있는지는 [../CONTRIBUTING.md](../CONTRIBUTING.md) 1절 표에 있고,
 > 각 도구의 인자까지 보려면 **axMap 저장소**(`https://lab.ssafy.com/rleaderjoon/axmap`)
 > 의 `mcp/README.md` 를 본다.
 
@@ -309,7 +309,7 @@ git commit -m "[S15P21E201-144] feat: [FE] 여행 상세 화면 구현"
 
 브랜치는 `feat/S15P21E201-144-trip-detail` 처럼 만든다.
 MR 은 `main` 이 아니라 **자기 파트의 `dev`** 로 올린다.
-전체 규칙은 [../CLAUDE.md](../CLAUDE.md) 에 있다.
+전체 규칙은 [../CONTRIBUTING.md](../CONTRIBUTING.md) 에 있다.
 
 ---
 
@@ -329,7 +329,7 @@ AI 에게: `작업이 끝났으니 ax_release 로 반납해줘.`
 ## 막히면
 
 1. `node ci/axmap/bin/axmap.mjs doctor` — 대부분 여기서 답이 나온다
-2. [../CLAUDE.md](../CLAUDE.md) — 팀 전체 규칙 (0.3 절이 "사본을 왜 손으로 고치면 안 되나")
+2. [../CONTRIBUTING.md](../CONTRIBUTING.md) — 팀 전체 규칙 (0.3 절이 "사본을 왜 손으로 고치면 안 되나")
 3. [HANDOVER.md](HANDOVER.md) — 지금 무엇이 열려 있고 무엇이 고장 나 있는지 (4.6 절)
 4. 도구 **자체**를 고쳐야 한다면 axMap 저장소로 간다 —
    `https://lab.ssafy.com/rleaderjoon/axmap`. **이 저장소의 `ci/axmap/` 을 고치는

@@ -1459,7 +1459,7 @@ v5의 KPI 중 측정 불가·통제 불가 항목을 걷어내고, **측정 방�
 | `LOCAL_ROUTE_실행계획_v7.md` | **누가 언제 어떻게** — 스택 · 브랜치 · 리뷰 · 역할 · DB · 캐시 · 일정 |
 | `LOCAL_ROUTE_상세설계서_v2.md` | **어떻게 생겼나** — 기능 65개 · 화면 44개의 구성·상태·오류 처리 |
 | `LOCAL_ROUTE_문서검토보고서.md` | v5 에서 무엇을 왜 고쳤는지의 기록 |
-| 루트 `CLAUDE.md` | 팀 전체 규칙. **이 문서보다 위다** |
+| 루트 `CONTRIBUTING.md` | 팀 전체 규칙. **이 문서보다 위다** |
 | `docs/git-convention.md` · `docs/jira-convention.md` | 브랜치 · 커밋 · 이슈 규칙 |
 | `ref/local-route/` | **참고 코드.** 제품 코드가 아니다 (실행계획 1장) |
 

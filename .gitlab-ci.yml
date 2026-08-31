@@ -81,7 +81,7 @@ claims:
     # ref/ 만 바뀐 MR 에서는 돌지 않는다 (ref/README.md)
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
       changes: ['frontend/**/*', 'backend/**/*', 'ci/**/*', 'governance/**/*',
-                'docs/**/*', '.gitlab-ci.yml', 'CLAUDE.md', 'setup.sh', 'setup.ps1']
+                'docs/**/*', '.gitlab-ci.yml', 'CONTRIBUTING.md', 'CLAUDE.md', 'AGENTS.md', 'setup.sh', 'setup.ps1']
 
 # ── 파이프라인이 존재하게 한다 ───────────────────────────────────────────────
 #
@@ -172,7 +172,7 @@ governance:
     #    되돌리려면 아래 `&&` 뒤를 지운다.
     - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /(^|\/)(main|func)$/
       changes: ['frontend/**/*', 'backend/**/*', 'ci/**/*', 'governance/**/*',
-                'docs/**/*', '.gitlab-ci.yml', 'CLAUDE.md', 'setup.sh', 'setup.ps1']
+                'docs/**/*', '.gitlab-ci.yml', 'CONTRIBUTING.md', 'CLAUDE.md', 'AGENTS.md', 'setup.sh', 'setup.ps1']
 
 # ── 버전 ────────────────────────────────────────────────────────────────────
 #

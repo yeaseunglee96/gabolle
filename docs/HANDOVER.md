@@ -77,7 +77,7 @@ ax_brief 로 이 저장소를 파악하고, ax_status 로 지금 누가 뭘 잡�
 
 ```
 /
-├── CLAUDE.md            팀 전체 규칙. 0절이 "용어를 그 자리에서 설명한다", 0.3 이 사본
+├── CONTRIBUTING.md            팀 전체 규칙. 0절이 "용어를 그 자리에서 설명한다", 0.3 이 사본
 ├── README.md            3분 시작
 ├── docs/
 │   ├── ONBOARDING.md    clone 부터 첫 작업까지 (다른 AI CLI 안내 포함)
@@ -189,7 +189,7 @@ node ci/axmap/governance/gate.mjs     # 표가 충분한가 (0 충족 · 2 미�
 
 **axMap 자체의 테스트·데모·화면 스모크는 이 저장소에서 안 돈다.** axMap 저장소와
 그쪽 CI 의 몫이다. 여행 서비스 파트(`frontend/` · `backend/`)의 검증은 각 파트가
-자기 폴더의 `CLAUDE.md` 에 적고 `.gitlab-ci.yml` 에 잡으로 더한다.
+자기 폴더의 `CONTRIBUTING.md` 에 적고 `.gitlab-ci.yml` 에 잡으로 더한다.
 
 **개수를 적지 않는다.** 판정은 언제나 종료 코드(0이면 성공)다.
 
