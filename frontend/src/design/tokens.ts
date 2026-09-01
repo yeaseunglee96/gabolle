@@ -1,23 +1,34 @@
 // Figma 에서 실측한 디자인 토큰이다. 화면에서 색·숫자를 직접 하드코딩하지 않고
 // 반드시 이 파일을 거쳐서 쓴다 — 나중에 값이 바뀌어도 여기 한 곳만 고치면 되게 하기 위해서다.
 //
-// brandDeep · tint 는 Figma 실측 과정에서 값이 두 개로 갈렸다(예: brandDeep #176b91 / #0d7aad).
-// 어느 쪽이 최종인지 아직 확인되지 않아 둘 다 남겨두고, 화면에서는 우선 첫 번째 값(Alt 가 안 붙은 쪽)을 쓴다.
-// 확인되면 Alt 값을 지우고 하나로 합친다.
+// 🔴 값이 두 개로 갈린 자리는 "둘 중 하나가 맞는 것" 이 아니라 **서로 다른 용도**였다.
+//    Figma 노드 이름과 요소 폭을 직접 뒤져서 확인했다. 빈도만 세면 이걸 놓친다.
+//
+//      #176b91  CTA_다음 · CTA_로그인 · CTA_계정 만들기 · 수정      폭 중앙값 277px → 버튼 배경
+//      #0d7aad  Header/Eyebrow · Stats/*/value · Timeline/*/time   폭 중앙값 106px → 강조 텍스트
+//      #d6e8ed  이메일_field · 비밀번호_field · track(슬라이더)      폭 중앙값 336px → 입력·트랙
+//      #c7e0eb  Place/Card · Stats/* · Feedback/* · CTA/Share       폭 중앙값 106px → 카드·칩
+//
+//    그래서 brandDeep/tint 같은 **색 이름 대신 역할 이름**을 쓴다. 색 이름을 두면
+//    다음 사람이 두 값 중 아무거나 고르고, 그러면 버튼과 본문이 같은 색이 된다.
 
 export const color = {
   brand: '#1689be',
   brandBright: '#2994c7',
-  brandDeep: '#176b91',
-  brandDeepAlt: '#0d7aad',
+  /** CTA 버튼 배경. 전폭 버튼에 쓴다 */
+  actionBg: '#176b91',
+  /** 강조 텍스트(눈썹 문구·수치·시각). 배경으로 쓰지 않는다 */
+  accentText: '#0d7aad',
   bg: {
     0: '#0b161b',
     1: '#121f2e',
     2: '#14293d',
     3: '#152238',
   },
-  tint: '#c7e0eb',
-  tintAlt: '#d6e8ed',
+  /** 입력 필드·슬라이더 트랙 배경 */
+  surfaceField: '#d6e8ed',
+  /** 카드·칩 배경 */
+  surfaceCard: '#c7e0eb',
   text: {
     hi: '#ffffff',
     mid: '#81929a',
