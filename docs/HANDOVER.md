@@ -1,5 +1,12 @@
 # 인수인계 — 여기까지 왔고, 여기서부터다
 
+> 🔴 **2026-09-01 정정 — 사본(`ci/axmap/`)은 없어졌다.**
+> axMap 은 이제 npm 꾸러미 `axmap-cli` 를 `npx` 로 부른다. 그래서 아래에서
+> **`ci:vendor` 잡 · `ci/verify-vendor.mjs` · `SOURCE.json` · `manifest.sha256` 을
+> 말하는 대목은 전부 옛말**이다. 지금 규칙은 `CONTRIBUTING.md` 0.3 절에 있다.
+>
+> 낡은 실측을 지우지 않고 남긴다 — 다음 사람이 같은 것을 다시 재보지 않게.
+
 **마지막 갱신 2026-08-31** (아래 "2026-08-31 이어서 할 것" 절).
 그 절 아래의 0절부터는 **2026-08-26 기준이라 일부 낡았다** — 어긋난 자리를 실측해서
 고치는 일은 Jira `S15P21E201-503` 에 따로 열려 있다.
@@ -119,8 +126,7 @@ cd S15P21E201
 git checkout chore/S15P21E201-15-axmap-split   # ← 작업은 여기 있다. main 이 아니다
 
 bash setup.sh                             # Windows: powershell -ExecutionPolicy Bypass -File .\setup.ps1
-node ci/verify-vendor.mjs                 # 사본이 온전한가 (종료 코드 0)
-node ci/axmap/bin/axmap.mjs doctor        # 아래 두 경고 말고는 전부 OK 여야 한다
+npx -y axmap-cli@latest doctor            # 아래 두 경고 말고는 전부 OK 여야 한다
 ```
 
 > 🔴 **`setup.sh` 의 마지막 MCP 등록 단계는 지금 `!!` 경고를 낸다** (2026-08-26 실측).
@@ -132,7 +138,7 @@ node ci/axmap/bin/axmap.mjs doctor        # 아래 두 경고 말고는 전부 O
 > **`setup.sh` · `setup.ps1` 을 고치는 것이 남은 일이다** (4.6절).
 
 > 🔴 **이 저장소를 전부터 쓰던 PC 라면 `doctor` 의 `커밋 훅` 줄에서도 `!!` 가 난다.**
-> 훅이 옛 경로를 박아 두고 있다. `node ci/axmap/bin/axmap.mjs hook install` 한 줄로
+> 훅이 옛 경로를 박아 두고 있다. `npx -y axmap-cli@latest hook install` 한 줄로
 > 고친다 — **안 고치면 선점 강제가 이 PC 에서 사라진다** (3절 ②).
 
 그 다음 AI CLI 를 열고 첫 마디로 이렇게 친다.
@@ -298,7 +304,7 @@ claim 은 `AXMAP_AGENT=X` 로 해 놓고 커밋을 그 변수 없는 셸에서 �
 `doctor` 가 이 줄을 내고 **종료 코드 1로 끝난다.** 고치는 것은 한 줄이다.
 
 ```bash
-node ci/axmap/bin/axmap.mjs hook install
+npx -y axmap-cli@latest hook install
 ```
 
 **안 고치면 선점 강제가 이 PC 에서 사라진다** — 훅이 못 도니 claim 없이 고친 파일도
@@ -599,7 +605,7 @@ npm 이 설치하지 못한다"* 가 근거였는데, **axMap 이 저장소 루�
 |---|---|---|
 | **`setup.sh` · `setup.ps1` 이 죽은 경로를 부른다** | 마지막 MCP 등록 단계가 `axmap/tools/mcp-register.mjs` 를 부르는데 그 파일이 없다. `!!` 경고를 내고 넘어가므로 **설치가 성공한 것처럼 보인다** | **이 저장소** — 다만 그 등록 도구를 어디서 가져올지(사본에 넣을지, axMap 저장소에서 돌리게 할지)를 먼저 정해야 한다 |
 | ~~**`ax_inbox` · `ax_send` 가 죽는다**~~ | ✅ **2026-08-26 해결** (S15P21E201-21). 원인은 셋이었다 — `bus.mjs` 누락(S15P21E201-15 가 해결), `ax_inbox` 가 받는 사람을 `AGENT` 가 아니라 `ACTOR` 로 물은 것, `bus.mjs` 가 프로그램 위치로 데이터를 찾은 것. 함께 쪽지를 고아 브랜치 `axmap/bus` 로 옮겨 커밋·MR 없이 즉시 가게 했다 | — |
-| **커밋 훅이 옛 경로를 가리킨다** | 3절 ②. 분리 전에 setup 을 돌린 모든 PC 에서 `doctor` 가 종료 코드 1을 낸다 | **각자 PC** — `node ci/axmap/bin/axmap.mjs hook install` 한 줄. **팀에 공지해야 한다** |
+| **커밋 훅이 옛 경로를 가리킨다** | 3절 ②. 분리 전에 setup 을 돌린 모든 PC 에서 `doctor` 가 종료 코드 1을 낸다 | **각자 PC** — `npx -y axmap-cli@latest hook install` 한 줄. **팀에 공지해야 한다** |
 
 > 🔴 **`ci/axmap/README.md` 는 이 구멍을 이미 예고하고 있었다.**
 > *"CI 진입점에서 import 로 닿지 않는 파일은 복사되지 않습니다"* 라고 적혀 있고,

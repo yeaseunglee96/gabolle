@@ -70,14 +70,14 @@ ok "이름: $WHO  (git config user.name)"
 # --- 3. 장부 ----------------------------------------------------------------
 echo
 echo "장부를 준비합니다..."
-node "$ROOT/ci/axmap/bin/axmap.mjs" init || fail "장부를 만들지 못했습니다. 위 메시지를 읽고 고친 뒤 다시 실행하세요."
+npx -y axmap-cli@latest init || fail "장부를 만들지 못했습니다. 위 메시지를 읽고 고친 뒤 다시 실행하세요."
 
 # --- 4. 훅 ------------------------------------------------------------------
 #
 # [!] 훅이 없으면 이 프로토콜은 권고 사항에 불과하다. claim 하지 않은 파일도
 #     그냥 커밋되고, 그러면 아무도 규칙을 지킬 이유가 없어진다.
 echo
-node "$ROOT/ci/axmap/bin/axmap.mjs" hook install || warn "훅을 심지 못했습니다. 나중에 'node ci/axmap/bin/axmap.mjs hook install' 을 직접 실행하세요."
+npx -y axmap-cli@latest hook install || warn "훅을 심지 못했습니다. 나중에 'npx -y axmap-cli@latest hook install' 을 직접 실행하세요."
 
 # --- 5. 다른 AI CLI 에 MCP 등록 ----------------------------------------------
 #
@@ -97,7 +97,7 @@ say "     claude · codex · agy 가 각자의 홈 설정에 붙습니다. 그 �
 #     이 도구의 실패는 대부분 조용해서, 오류가 안 났다는 것이 정상이라는 뜻이 아니다.
 echo
 echo "확인합니다..."
-node "$ROOT/ci/axmap/bin/axmap.mjs" doctor || fail "위의 !! 줄을 고친 뒤 다시 실행하세요."
+npx -y axmap-cli@latest doctor || fail "위의 !! 줄을 고친 뒤 다시 실행하세요."
 
 # --- 7. 안내 ----------------------------------------------------------------
 #
@@ -124,7 +124,7 @@ cat <<'MSG'
   Claude Code 면 /ax 로 보고 /ax-done 으로 반납합니다.
   다른 CLI 면 같은 일을 시키는 문장이 docs/ONBOARDING.md 3.5 절 표에 있습니다.
 
-  언제든 다시 확인:  node ci/axmap/bin/axmap.mjs doctor
+  언제든 다시 확인:  npx -y axmap-cli@latest doctor
   MCP 가 안 뜨면:    axmap setup 을 한 번 돌리고 AI CLI 를 껐다 켠다
   자세히:            docs/ONBOARDING.md  ("Claude Code 가 아닌 AI CLI 를 쓴다면" 절)
 
