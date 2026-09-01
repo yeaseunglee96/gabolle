@@ -2,12 +2,15 @@
 //
 // kakao variant 는 04 로그인에 있었지만 로그인 수단이 Google 하나로 확정되면서 걷어냈다
 // (카카오는 지도·리뷰 API 로만 쓴다). 나중에 다시 필요해지면 그때 복원한다.
+//
+// secondary·field 는 16~23(여행 준비 이후 화면들) 실측에서 추가했다 — 그 화면들의 전폭 CTA 가
+// action.primary 와 다른 파랑(action.secondary·action.field)을 쓴다(tokens.ts 주석 참고).
 import { Pressable, StyleSheet, type PressableProps, type StyleProp, type ViewStyle } from 'react-native';
 
 import { color, radius, spacing } from '@/design/tokens';
 import { Text } from './Text';
 
-type ButtonVariant = 'primary' | 'ghost';
+type ButtonVariant = 'primary' | 'secondary' | 'field' | 'ghost';
 
 export type ButtonProps = Omit<PressableProps, 'style'> & {
   label: string;
@@ -18,6 +21,8 @@ export type ButtonProps = Omit<PressableProps, 'style'> & {
 
 const LABEL_COLOR: Record<ButtonVariant, string> = {
   primary: color.text.onAction,
+  secondary: color.text.onAction,
+  field: color.text.onAction,
   ghost: color.action.primary,
 };
 
@@ -29,6 +34,8 @@ export function Button({ label, variant = 'primary', disabled, containerStyle, .
       style={({ pressed }) => [
         styles.base,
         variant === 'primary' && styles.primary,
+        variant === 'secondary' && styles.secondary,
+        variant === 'field' && styles.field,
         variant === 'ghost' && styles.ghost,
         disabled && styles.disabled,
         pressed && !disabled && styles.pressed,
@@ -52,6 +59,12 @@ const styles = StyleSheet.create({
   },
   primary: {
     backgroundColor: color.action.primary,
+  },
+  secondary: {
+    backgroundColor: color.action.secondary,
+  },
+  field: {
+    backgroundColor: color.action.field,
   },
   ghost: {
     backgroundColor: color.surface.card,
