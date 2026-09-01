@@ -1,13 +1,15 @@
-# S15P21E201
+# GABOLLE (가볼래)
 
-6인 팀의 여행 추천 서비스와 팀 공용 개발 도구를 함께 관리하는 저장소입니다.
+6인 팀의 부산 초개인화 여행 추천 서비스 GABOLLE(가볼래)와 팀 공용 개발 도구를 함께 관리하는 저장소입니다.
+
+> 서비스 구현 기준은 [`docs/gabolle/`](docs/gabolle/)의 v1.1 문서 6종입니다. 과거 `LOCAL_ROUTE_*` 문서는 형식과 검토 이력을 위한 참고 자료이며, 서비스명·DB·인증·개인정보 정책의 기준으로 사용하지 않습니다.
 
 ## 여행 서비스 작업 영역
 
 | 폴더 | 무엇 |
 |---|---|
 | `frontend/` | React + TypeScript, npm — 화면 |
-| `backend/` | Spring Boot + Gradle, Java 18 — 서버 |
+| `backend/` | Spring Boot + Gradle, Java 18, PostgreSQL — 서버 |
 | `bigData/` | 부산 이동성 데이터 — 공개 데이터 수집과 경사·소요시간 계산 |
 | `docs/` | 협업·설계·운영 문서 |
 | `ci/` · `governance/` | 파이프라인이 부르는 것과 팀의 합의 데이터 (연장통이지 주인이 아니다) |
