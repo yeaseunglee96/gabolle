@@ -82,7 +82,6 @@ Maintainer(**저장소 관리자 — 보호된 브랜치에 직접 push 하고 M
 ├── README.md          3분 시작
 ├── docs/              팀 문서 — ONBOARDING(처음) · CI(파이프라인) · HANDOVER(이어받을 때)
 ├── setup.sh · .ps1    clone 한 뒤 한 번 실행
-├── .mcp.json          AI 도구가 선점 장치를 자동으로 붙이는 설정
 ├── .gitlab-ci.yml     올릴 때마다 자동으로 도는 검사
 │
 ├── ci/
