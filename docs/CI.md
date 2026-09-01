@@ -248,8 +248,9 @@ npx -y axmap-cli@latest version bump --branch back/dev --push   # 원격까지 �
 | 보호 브랜치 | 상태 | |
 |---|---|---|
 | `main` | ✅ 등록됨 | merge=Maintainers · push=No one |
+| `til` | ✅ 원래 등록됨 | 배운 것을 적는 자리 |
 | `*/dev` | ✅ **이날 등록함** | 5개 브랜치. merge·push 둘 다 **Developers + Maintainers** 로 두어 **지금 동작이 하나도 안 바뀐다** — 목적은 Protected 변수를 여기까지 오게 하는 것뿐이다 |
-| `*/main` (파트) | 🔴 **아직** | 그대로 두면 **파트 승격 때 minor 태그가 조용히 안 붙는다** — 초록인데 태그만 없는 바로 그 모양이다 |
+| `*/main` (파트) | ✅ **이날 등록함** | 5개 브랜치. `*/dev` 와 같은 설정이다. 이걸 안 하면 **파트 승격 때 minor 태그가 조용히 안 붙는다** — 초록인데 태그만 없는 그 모양이다 |
 
 > 보호 브랜치를 만든다고 **꼭 잠그는 것은 아니다.** `Allowed to push and merge` 를
 > `Developers + Maintainers` 로 두면 **누구나 밀어 넣을 수 있는 상태 그대로**이면서
