@@ -1505,3 +1505,6 @@ v6 은 *"화면 44개 중 23개 완료 · API 66개 동작"* 이라고 적었다
 ---
 
 *LOCAL ROUTE 통합 서비스 기획서 v7.0 · 2026-08-27*
+> # ⚠️ GABOLLE 전환 이후 참고 문서
+>
+> 이 문서는 LOCAL_ROUTE 단계의 과거 기획·검토 기록입니다. 현재 서비스명, PostgreSQL, Google/Naver/Kakao 인증, 개인화 OFF, 위치 수집 범위 및 추천 책임 기준은 `docs/gabolle/GABOLLE_통합_서비스_기획서_v1.1.docx`와 `GABOLLE_API_명세서_v1.1.docx`를 따릅니다.

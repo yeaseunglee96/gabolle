@@ -82,6 +82,9 @@ claims:
         RANGE="${CI_COMMIT_BEFORE_SHA}..${CI_COMMIT_SHA}"
       fi
       echo "코드 대조 구간: $RANGE"
+      # axmap 1.0.0 audit 내부의 git show가 기본 quote 설정을 따르므로,
+      # 한글 파일명이 8진수 escape 경로로 바뀌어 claim과 불일치하지 않게 한다.
+      git config core.quotepath false
       npx -y axmap-cli@$AXMAP_VERSION audit --fetch --code "$RANGE"
   rules:
     # ref/ 만 바뀐 MR 에서는 돌지 않는다 (ref/README.md)

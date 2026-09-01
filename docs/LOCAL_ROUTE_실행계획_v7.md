@@ -1076,3 +1076,6 @@ node ci/axmap/bin/axmap.mjs doctor   # 이 PC 에서 선점이 실제로 도는�
 ---
 
 *LOCAL ROUTE 실행계획 v7.0 · 2026-08-27*
+> # ⚠️ GABOLLE 전환 이후 참고 문서
+>
+> 이 문서의 MySQL·과거 서비스 범위는 현재 구현 기준이 아닙니다. GABOLLE는 PostgreSQL을 사용하며, 제품·요구사항·API 기준은 `docs/gabolle/`의 v1.1 문서 6종을 따릅니다.
