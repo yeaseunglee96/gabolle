@@ -291,7 +291,16 @@ promote:
       fi
     - npx -y axmap-cli@$AXMAP_VERSION promote --step "$PROMOTE_STEP"
   rules:
-    - if: $CI_PIPELINE_SOURCE == "schedule"
+    # 🔴 PROMOTE_STEP 이 있는 스케줄에서만 돈다.
+    #
+    #    예전에는 "스케줄이면 돈다" 였다. 그런데 스케줄은 승격만 쓰는 것이 아니다 —
+    #    2026-09-01 에 vote:recheck 스케줄이 생기자 이 잡이 같이 깨어났고,
+    #    PROMOTE_STEP 이 없으니 위 script 가 의도대로 exit 1 을 냈다.
+    #    그래서 **10분마다 파이프라인이 빨개졌다** (#176479).
+    #
+    #    script 의 "무엇을 올릴지 추측하지 않는다" 는 맞다. 너무 넓었던 것은 rule 이다.
+    #    스케줄이 늘어날 때마다 이 잡이 깨어나는 구조 자체를 막는다.
+    - if: $CI_PIPELINE_SOURCE == "schedule" && $PROMOTE_STEP
 
 # ── 표가 찼는데 화면이 아직 빨간 MR ─────────────────────────────────────────
 #
