@@ -68,6 +68,9 @@ export const color = {
     warningBg: '#fff3d7',
     /** "보통" 배지 글자색 */
     warning: '#a46700',
+    /** danger 배지 배경 (13 화면 "부산 로컬 음식" 태그, Figma 실측 #fff0ee).
+     *  success/warning 은 배경+글자 색이 한 쌍인데 danger 만 배경이 없어 짝을 맞춘다 */
+    dangerBg: '#fff0ee',
   },
 } as const;
 
