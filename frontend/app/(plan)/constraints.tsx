@@ -108,7 +108,7 @@ export default function Constraints() {
         })}
       </View>
 
-      <Button label="다음" containerStyle={styles.cta} onPress={() => router.push('/generating')} />
+      <Button label="다음" containerStyle={styles.cta} onPress={() => router.push('/confirm')} />
     </Screen>
   );
 }

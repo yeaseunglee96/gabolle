@@ -76,7 +76,7 @@ export default function Basics() {
         </View>
       </View>
 
-      <Button label="다음" containerStyle={styles.cta} onPress={() => router.push('/constraints')} />
+      <Button label="다음" containerStyle={styles.cta} onPress={() => router.push('/taste')} />
     </Screen>
   );
 }
