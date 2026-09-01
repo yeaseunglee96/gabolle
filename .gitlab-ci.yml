@@ -4,7 +4,8 @@
 #   1. 선점   — claim 없이 고친 것이 들어왔는가      (claims)
 #   2. 자리   — MR 이 한 칸씩 올라가는가             (verify:mr-target)
 #   3. 합의   — 정족수를 채웠는가                    (governance)
-#   그리고 머지된 것을 위로 올리고 태그를 붙인다      (promote · version)
+#   그리고 머지된 것을 위로 올리고 태그를 붙이고      (promote · version)
+#   Jira 카드를 옮긴다                              (jira)
 #
 # 1~3 은 모든 MR 에서, 승격과 버전은 머지된 뒤와 스케줄에서 돈다.
 #
@@ -233,6 +234,28 @@ version:
       npx -y axmap-cli@$AXMAP_VERSION version bump --branch "$CI_COMMIT_BRANCH" --push
   rules:
     # MR 에서는 올리지 않는다. 머지되어 브랜치에 들어온 것만 버전을 갖는다.
+    - if: $CI_COMMIT_BRANCH =~ /(^|\/)(main|func|dev)$/
+
+# ── Jira ────────────────────────────────────────────────────────────────────
+#
+# 머지되면 카드가 스스로 움직인다. 파트 dev·파트 브랜치는 진행 중, 최상위 main 은 완료.
+# 왜 dev 에서 "완료" 를 안 찍는지, 왜 뒤로 안 가는지는 ci/jira-transition.mjs 머리말에 있다.
+#
+# 🔴 allow_failure 다. Jira 가 죽은 날 팀의 머지까지 막을 이유가 없다 —
+#    이것은 게이트가 아니라 기록이다. 실패하면 노랗게 뜨고 그때는 손으로 옮긴다.
+#
+# 🔴 GIT_DEPTH: 0 이 필요하다. 기본은 얕은 클론이라 CI_COMMIT_BEFORE_SHA 가 받아온
+#    범위 밖이면 git log 가 구간을 못 푼다. 그러면 카드를 하나도 못 찾는다.
+jira:
+  stage: release
+  variables:
+    GIT_DEPTH: 0
+  allow_failure: true
+  before_script:
+    - apk add --no-cache git
+  script:
+    - node ci/jira-transition.mjs
+  rules:
     - if: $CI_COMMIT_BRANCH =~ /(^|\/)(main|func|dev)$/
 
 # ── 승격 ────────────────────────────────────────────────────────────────────
