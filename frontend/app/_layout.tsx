@@ -11,7 +11,7 @@ export default function RootLayout() {
       <Stack
         screenOptions={{
           headerShown: false,
-          contentStyle: { backgroundColor: color.bg[0] },
+          contentStyle: { backgroundColor: color.canvas },
         }}
       />
     </SafeAreaProvider>

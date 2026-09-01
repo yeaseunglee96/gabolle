@@ -29,7 +29,7 @@ export function ScreenStub({ number, title, specId }: ScreenStubProps) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: color.bg[0],
+    backgroundColor: color.canvas,
   },
   card: {
     flex: 1,
@@ -39,19 +39,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing[6],
   },
   number: {
-    color: color.text.low,
+    color: color.text.muted,
     fontFamily: 'Inter',
     fontSize: type.caption.size,
     lineHeight: type.caption.lineHeight,
   },
   title: {
-    color: color.text.hi,
+    color: color.text.heading,
     fontFamily: 'NotoSansKR',
     fontSize: type.title.size,
     lineHeight: type.title.lineHeight,
   },
   specId: {
-    color: color.text.mid,
+    color: color.text.muted,
     fontFamily: 'Inter',
     fontSize: type.caption.size,
     lineHeight: type.caption.lineHeight,
