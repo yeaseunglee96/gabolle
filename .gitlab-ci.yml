@@ -39,7 +39,11 @@ default:
   before_script:
     - apk add --no-cache git bash
     # 🔴 어느 판이 돌았는지 남긴다. 빨개졌을 때 '어제와 판이 다르네' 를 3초에 안다.
-    - npx -y axmap-cli@$AXMAP_VERSION --version
+    #
+    #    axmap --version 을 쓰지 않는다 — 그 명령은 버전이 아니라 도움말을 찍는다
+    #    (종료 코드는 0이라 조용히 쓸모없는 줄이 남는다. 실측 2026-09-01).
+    #    창고에 물어보면 latest 가 오늘 무엇으로 풀렸는지가 정확히 나온다.
+    - echo "axmap-cli = $(npm view axmap-cli@$AXMAP_VERSION version)"
 
 stages: [verify, release]
 
