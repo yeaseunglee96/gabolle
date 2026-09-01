@@ -39,6 +39,10 @@ export const color = {
     secondary: '#2994c7',
     /** 브랜드 아이콘·작은 강조 (폭중앙 24px) */
     brand: '#1689be',
+    /** 16·17·18·19(여행 준비·현장 말하기·방문 인증·여행 기록) 화면의 전폭 CTA (폭중앙 342px,
+     *  #148cb8 로 네 화면 전부 정확히 일치). 사전 계획 화면들의 action.primary(#176b91)와
+     *  눈으로 구분되는 별개 파랑이라 같은 값으로 합치지 않고 새로 추가한다. */
+    field: '#148cb8',
   },
 
   text: {
@@ -71,6 +75,9 @@ export const color = {
     /** danger 배지 배경 (13 화면 "부산 로컬 음식" 태그, Figma 실측 #fff0ee).
      *  success/warning 은 배경+글자 색이 한 쌍인데 danger 만 배경이 없어 짝을 맞춘다 */
     dangerBg: '#fff0ee',
+    /** 별점 색 (18 방문 인증·만족도 화면 실측 #ffa11f). success/warning/danger 어느 색과도
+     *  가깝지 않은 금색이라 새로 추가한다 — 평점용으로만 쓴다. */
+    rating: '#ffa11f',
   },
 } as const;
 
