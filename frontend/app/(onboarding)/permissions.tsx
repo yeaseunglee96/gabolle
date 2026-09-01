@@ -62,7 +62,8 @@ export default function Permissions() {
   });
 
   function continueTo(path: string) {
-    // 04 로그인으로 잇는다 — Figma 번호 순서상 다음 화면이다.
+    // 02 홈으로 잇는다. Figma 흐름도는 02 → 03 순서지만 명세(v1.1)는 S-03 온보딩 → S-04 홈 이고,
+    // 로그인이 01 안으로 들어가면서 그 앞 순서가 무의미해졌다. 명세를 따른다.
     router.push(path);
   }
 
@@ -146,13 +147,13 @@ export default function Permissions() {
         </View>
       </View>
 
-      <Pressable onPress={() => continueTo('/sign-in')}>
+      <Pressable onPress={() => continueTo('/home')}>
         <Text variant="caption" weight="bold" color={color.text.muted} style={styles.laterLink}>
           나중에 설정
         </Text>
       </Pressable>
 
-      <Button label="선택한 권한으로 계속" containerStyle={styles.cta} onPress={() => continueTo('/sign-in')} />
+      <Button label="선택한 권한으로 계속" containerStyle={styles.cta} onPress={() => continueTo('/home')} />
     </Screen>
   );
 }

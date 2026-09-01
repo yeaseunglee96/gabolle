@@ -104,6 +104,24 @@ export default function Home() {
         })}
       </ScrollView>
 
+      {/* 🔴 Figma 02 메인 홈에는 계획으로 들어가는 입구가 없다. 그런데 명세 v1.1 의 S-04 는
+          홈의 기능을 "Editor's Pick, **계획 만들기**, 지금 갈 곳, 최근 여행" 으로 못박는다.
+          Figma 가 빠뜨린 쪽으로 보고 명세를 따라 넣는다 — 이게 없으면 06~12 화면이
+          앱 안에서 도달 불가능한 화면이 된다. */}
+      <Pressable style={styles.planCta} onPress={() => router.push('/basics')}>
+        <View>
+          <Text variant="body" weight="bold" color={color.text.onAction}>
+            여행 계획 만들기
+          </Text>
+          <Text variant="caption" color={color.text.onAction}>
+            조건을 알려주면 갈 수 있는 곳만 골라 드려요
+          </Text>
+        </View>
+        <Text variant="title" weight="bold" color={color.text.onAction}>
+          →
+        </Text>
+      </Pressable>
+
       {/* Editor's Pick 성격의 카드. 실제 데이터가 오기 전까지 송도 케이블카로 고정한다. */}
       {/* TODO: GET /api/v1/feed/editorial-picks */}
       <Pressable style={styles.featured} onPress={() => router.push('/place/songdo-cablecar')}>
@@ -230,6 +248,16 @@ const styles = StyleSheet.create({
   },
   categoryScroll: {
     marginTop: spacing[4],
+  },
+  planCta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: spacing[3],
+    marginTop: spacing[6],
+    padding: spacing[4],
+    borderRadius: radius.md,
+    backgroundColor: color.action.primary,
   },
   categoryChip: {
     flexDirection: 'row',

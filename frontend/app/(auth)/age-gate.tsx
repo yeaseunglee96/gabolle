@@ -35,7 +35,7 @@ export default function AgeGate() {
           <Text variant="body">만 14세 이상이며, 위 내용을 확인했어요.</Text>
         </Pressable>
 
-        <Button label="계속" disabled={!checked} onPress={() => router.replace('/basics')} />
+        <Button label="계속" disabled={!checked} onPress={() => router.replace('/permissions')} />
       </View>
     </Screen>
   );

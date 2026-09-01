@@ -39,7 +39,7 @@ export default function SignIn() {
       </View>
 
       {/* Figma 에는 이 버튼 다음 화면이 없어서, 계획 만들기 흐름(06 기본 조건 설정)으로 잇는다. */}
-      <Button label="Continue with Google" containerStyle={styles.cta} onPress={() => router.push('/basics')} />
+      <Button label="Continue with Google" containerStyle={styles.cta} onPress={() => router.push('/age-gate')} />
 
       <Card tinted style={styles.security}>
         <Text variant="body" weight="bold" color={color.text.eyebrow}>
