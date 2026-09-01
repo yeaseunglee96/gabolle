@@ -1,10 +1,13 @@
 // CTA_다음 · CTA_로그인 · 수정 등 전폭 버튼을 하나로 통일한다. variant 로 배경·글자색만 바뀐다.
+//
+// kakao variant 는 04 로그인에 있었지만 로그인 수단이 Google 하나로 확정되면서 걷어냈다
+// (카카오는 지도·리뷰 API 로만 쓴다). 나중에 다시 필요해지면 그때 복원한다.
 import { Pressable, StyleSheet, type PressableProps, type StyleProp, type ViewStyle } from 'react-native';
 
-import { color, radius, spacing, thirdPartyBrand } from '@/design/tokens';
+import { color, radius, spacing } from '@/design/tokens';
 import { Text } from './Text';
 
-type ButtonVariant = 'primary' | 'kakao' | 'ghost';
+type ButtonVariant = 'primary' | 'ghost';
 
 export type ButtonProps = Omit<PressableProps, 'style'> & {
   label: string;
@@ -15,7 +18,6 @@ export type ButtonProps = Omit<PressableProps, 'style'> & {
 
 const LABEL_COLOR: Record<ButtonVariant, string> = {
   primary: color.text.onAction,
-  kakao: thirdPartyBrand.kakaoText,
   ghost: color.action.primary,
 };
 
@@ -27,7 +29,6 @@ export function Button({ label, variant = 'primary', disabled, containerStyle, .
       style={({ pressed }) => [
         styles.base,
         variant === 'primary' && styles.primary,
-        variant === 'kakao' && styles.kakao,
         variant === 'ghost' && styles.ghost,
         disabled && styles.disabled,
         pressed && !disabled && styles.pressed,
@@ -51,9 +52,6 @@ const styles = StyleSheet.create({
   },
   primary: {
     backgroundColor: color.action.primary,
-  },
-  kakao: {
-    backgroundColor: thirdPartyBrand.kakaoBg,
   },
   ghost: {
     backgroundColor: color.surface.card,

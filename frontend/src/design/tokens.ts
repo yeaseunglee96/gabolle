@@ -71,14 +71,6 @@ export const color = {
   },
 } as const;
 
-// 카카오 로그인 버튼(04 로그인)은 우리 팔레트가 아니라 카카오 브랜드 가이드가 고정한 색이다.
-// 그래도 화면 파일에 hex 를 직접 쓰지 않고 한 곳에 모아 둔다 — 규칙은 "우리 색만 여기" 가 아니라
-// "화면에는 hex 를 안 쓴다" 이기 때문이다.
-export const thirdPartyBrand = {
-  kakaoBg: '#ffe529',
-  kakaoText: '#1f1708',
-} as const;
-
 // 한글은 Noto Sans KR, 숫자·영문은 Inter 를 쓰기로 했다.
 // 폰트 파일이 아직 저장소에 없어서 지금은 이름만 넣어둔다 —
 // RN 은 못 찾는 fontFamily 를 시스템 폰트로 조용히 대체하므로 화면이 깨지진 않는다.
