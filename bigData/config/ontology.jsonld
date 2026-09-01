@@ -1866,6 +1866,122 @@
       "note": { "ko": "🔴 계수는 손으로 정하지 않고 사람에게서 추정한다 (docs/FIELD-STUDY.md). 여기에 숫자를 박으면 그 결정을 뒤집는 것이고, test/verify-ontology.mjs 가 종료 코드 1 로 막는다." },
       "codeList": ["미추정"],
       "codeListOpen": false
+    },
+    {
+      "@id": "bm:ModeRentalCar",
+      "@type": ["skos:Concept"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:TravelMode",
+      "prefLabel": { "ko": "렌터카", "en": "Rental car" },
+      "definition": { "ko": "빌린 차로 가는 것. 외국인 이용자에게는 운전면허 인정 여부가 먼저 걸린다." },
+      "note": { "ko": "🔴 ModeTaxi 와 같다 — 열거값만 열어 둔다. 요금·소요시간 데이터가 없으므로 지어내지 않는다." }
+    },
+    {
+      "@id": "bm:DriverForeignPermit",
+      "@type": ["skos:Concept"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:UserProfile",
+      "prefLabel": { "ko": "외국 면허 운전자", "en": "Driver with a foreign permit" },
+      "definition": {
+        "ko": "국내 면허가 없고 본국 면허나 국제운전면허증(IDP)으로 운전하려는 이용자.",
+        "en": "A user driving on a foreign licence or International Driving Permit rather than a Korean licence."
+      },
+      "note": { "ko": "이동 능력이 아니라 자격으로 갈리는 프로파일이다. 휠체어·유모차와 축이 다르므로 함께 켤 수 있다." }
+    },
+    {
+      "@id": "bm:permitRecognizedKR",
+      "@type": ["skos:Concept", "rdf:Property"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:Attribute",
+      "onClass": "bm:Leg",
+      "prefLabel": { "ko": "국내 면허 인정 여부", "en": "Permit recognised in Korea" },
+      "definition": { "ko": "이 이용자가 가진 운전 자격이 대한민국에서 인정되는가." },
+      "note": {
+        "ko": "🔴 값을 정하는 것은 이용자의 면허 발급국과 협약 가입 여부다. 대한민국은 1949년 제네바협약 IDP 를 인정하고 1968년 비엔나협약 IDP 는 인정하지 않는다고 알려져 있으나, 국가별 목록은 아직 확보하지 않았다. 목록은 이 파일이 아니라 데이터로 간다 — 협약 가입국은 바뀌기 때문이다."
+      },
+      "valueRange": { "kind": "코드 — recognized · notRecognized · unknown" },
+      "role": "feasibility"
+    },
+    {
+      "@id": "bm:RuleRentalCarPermitUnrecognized",
+      "@type": ["skos:Concept"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:FeasibilityRule",
+      "prefLabel": { "ko": "렌터카 — 면허 미인정", "en": "Rental car — permit not recognised" },
+      "definition": { "ko": "운전 자격이 국내에서 인정되지 않으면 렌터카로 가는 구간은 성립하지 않는다." },
+      "note": {
+        "ko": "🔴 이것은 취향이 아니라 자격이다. 빌려주지 않으므로 누가 물어도 답이 같다 — 계단 앞의 휠체어와 같은 자리다. 그리고 현지에서 해결할 수 없다(IDP 는 본국에서만 발급된다). 그래서 여행 계획 단계에서 미리 말해 줘야 값이 있다."
+      },
+      "appliesTo": "bm:DriverForeignPermit",
+      "onClass": "bm:Leg",
+      "condition": [{ "property": "bm:permitRecognizedKR", "operator": "eq", "constant": "notRecognized" }],
+      "verdict": "infeasible",
+      "evidenceStatus": "입력미수집"
+    },
+    {
+      "@id": "bm:transferWindowMin",
+      "@type": ["skos:Concept"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:Parameter",
+      "prefLabel": { "ko": "환승 할인 시간창", "en": "Transfer discount window" },
+      "definition": { "ko": "앞 교통수단에서 내린 뒤 이 시간 안에 다시 타야 환승 할인이 적용된다." },
+      "unit": "min",
+      "valueRange": { "minInclusive": 0, "kind": "분" },
+      "valueStatus": "미정",
+      "valueBasis": "🔴 여행 안내 글에서 30분이라는 값을 보았을 뿐, 부산시·부산교통공사의 공식 요금 규정으로 확인하지 못했다. 시간대별로 다를 수 있다는 이야기도 있어 한 값으로 박을 수 없다. 확인 전에는 비워 둔다.",
+      "note": {
+        "ko": "🔴 이 값으로 가능판정 규칙을 만들지 않았다. 환승 할인을 놓치는 것은 돈을 더 내는 일이지 지나갈 수 없는 일이 아니다. bm:verdict 는 infeasible·feasible 둘뿐이고, 요금 손해를 infeasible 로 적으면 0절에서 그은 선을 넘는다. 이 값은 비용 계산이 쓴다."
+      }
+    },
+    {
+      "@id": "bm:DietScheme",
+      "@type": "skos:ConceptScheme",
+      "prefLabel": { "ko": "부산 식이 제약 어휘", "en": "Busan Dietary Constraint Vocabulary" },
+      "definition": {
+        "ko": "'이 가게에서 먹을 수 있는가' 를 판정하기 위한 개념·속성·가능판정 규칙의 모음.",
+        "en": "Concepts, attributes and feasibility rules used to judge whether a user can eat at a place."
+      },
+      "note": {
+        "ko": "🔴 이동성 어휘와 같은 선을 긋는다 — 먹을 수 있나 없나만 담고, 맛있나 없나는 담지 않는다. 알레르기·종교 제약은 취향이 아니라 제약이다. 지금은 알레르기만 들어 있다. 할랄·채식은 같은 자리에 같은 모양으로 들어갈 수 있게 열어 둔 것이고, 아직 넣지 않았다 — 인증 명부를 확보하지 못했다."
+      }
+    },
+    {
+      "@id": "bm:AllergySensitive",
+      "@type": ["skos:Concept"],
+      "inScheme": "bm:DietScheme",
+      "broader": "bm:UserProfile",
+      "prefLabel": { "ko": "알레르기 이용자", "en": "User with a food allergy" },
+      "definition": { "ko": "특정 성분을 먹으면 건강에 해가 되는 이용자. 성분을 확인할 수 없는 가게는 선택지가 되지 못한다." }
+    },
+    {
+      "@id": "bm:allergenLabel",
+      "@type": ["skos:Concept", "rdf:Property"],
+      "inScheme": "bm:DietScheme",
+      "broader": "bm:Attribute",
+      "onClass": "bm:Place",
+      "prefLabel": { "ko": "알레르기 성분 표시", "en": "Allergen labelling" },
+      "definition": { "ko": "이 가게가 알레르기 유발 성분을 표시하고 있는가." },
+      "note": {
+        "ko": "🔴 소규모 식당·제과점은 표시 의무 대상이 아니라 미표시가 흔하다. 그래서 '표시가 없다' 는 '성분이 없다' 가 아니라 '알 수 없다' 이다. 이 둘을 같은 값으로 뭉개면 안 된다 — 그래서 코드가 셋이다."
+      },
+      "valueRange": { "kind": "코드 — labelled · unlabelled · unknown" },
+      "role": "feasibility"
+    },
+    {
+      "@id": "bm:RuleAllergenUnlabelled",
+      "@type": ["skos:Concept"],
+      "inScheme": "bm:DietScheme",
+      "broader": "bm:FeasibilityRule",
+      "prefLabel": { "ko": "알레르기 — 성분 미표시", "en": "Allergy — allergens not labelled" },
+      "definition": { "ko": "알레르기 성분 표시가 없는 가게는 알레르기 이용자에게 선택지가 되지 못한다." },
+      "note": {
+        "ko": "🔴 '맛이 없다' 가 아니라 '확인할 수 없다' 라서 막는 것이다. 애매하면 거부한다는 이 저장소의 원칙이 음식에서 특히 그렇다 — 잘못 통과시키면 사람이 다친다. 참기름·참깨가 널리 쓰이고 육수·젓갈처럼 숨은 성분도 많아 눈으로 판단할 수 없다."
+      },
+      "appliesTo": "bm:AllergySensitive",
+      "onClass": "bm:Place",
+      "condition": [{ "property": "bm:allergenLabel", "operator": "eq", "constant": "unlabelled" }],
+      "verdict": "infeasible",
+      "evidenceStatus": "입력미수집"
     }
   ]
 }
