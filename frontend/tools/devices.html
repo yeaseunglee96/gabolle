@@ -1,0 +1,52 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>GABOLLE 기기별 확인</title>
+<style>
+  :root { color-scheme: light; }
+  body { margin: 0; padding: 16px; background: #1b1f24; color: #e6edf3;
+         font: 12px/1.4 -apple-system, "Segoe UI", system-ui, sans-serif; }
+  h1 { font-size: 14px; margin: 0 0 4px; font-weight: 700; }
+  .hint { color: #8b98a5; margin-bottom: 14px; }
+  .grid { display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-start; }
+  figure { margin: 0; }
+  figcaption { margin-bottom: 6px; white-space: nowrap; }
+  figcaption b { color: #7fd1f2; }
+  .dim { color: #8b98a5; }
+  .box { border: 1px solid #39424d; border-radius: 6px; overflow: hidden; background: #fff;
+         transform-origin: top left; }
+  iframe { border: 0; display: block; }
+</style>
+<h1>GABOLLE — 기기별 화면 확인</h1>
+<div class="hint">
+  각 칸이 실제 기기 폭의 iframe 이다. iframe 안에서는 <code>window.innerWidth</code> 가 그 폭이 되므로
+  <code>useWindowDimensions</code> 가 진짜 기기처럼 반응한다. 화면에 다 들어오도록 축소해서 보여준다.
+  <br>경로를 바꾸려면 주소 끝의 <code>#/경로</code> 를 고친다. 기본값은 <code>/demo-trip/map</code>.
+</div>
+<div class="grid" id="g"></div>
+<script>
+  // dp 는 각 기기의 CSS 픽셀(논리 해상도) 기준이다. 물리 해상도가 아니다.
+  const DEVICES = [
+    ['갤럭시 폴드8 · 접힘', 374, 918],
+    ['갤럭시 폴드8 · 펼침', 717, 795],
+    ['갤럭시 S24',          360, 780],
+    ['갤럭시 S24 Ultra',    384, 824],
+    ['갤럭시 A54',          360, 800],
+    ['iPhone SE',           375, 667],
+    ['iPhone 15',           393, 852],
+    ['iPhone 15 Pro Max',   430, 932],
+    ['Pixel 8',             412, 915],
+    ['iPad mini',           744, 1133],
+  ];
+  const SCALE = 0.42;
+  const route = location.hash.slice(1) || '/demo-trip/map';
+  document.getElementById('g').innerHTML = DEVICES.map(([name, w, h]) => {
+    const kind = Math.min(w, h) >= 600 ? 'tablet' : 'phone';
+    return `<figure>
+      <figcaption><b>${name}</b> <span class="dim">${w}×${h} · ${kind}</span></figcaption>
+      <div class="box" style="width:${w * SCALE}px;height:${h * SCALE}px">
+        <iframe src="http://localhost:8081${route}" width="${w}" height="${h}"
+                style="transform:scale(${SCALE});transform-origin:top left"></iframe>
+      </div>
+    </figure>`;
+  }).join('');
+</script>

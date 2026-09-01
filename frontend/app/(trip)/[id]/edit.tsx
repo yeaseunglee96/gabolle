@@ -14,6 +14,8 @@ import { color, radius, spacing } from '@/design/tokens';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { Button } from '@/components/Button';
+import { Card } from '@/components/Card';
+import { Split } from '@/layout/Split';
 
 type ScheduleItem = {
   key: string;
@@ -40,6 +42,10 @@ export default function Edit() {
   const [viewMode, setViewMode] = useState<ViewMode>('전체');
   const [schedule, setSchedule] = useState(INITIAL_SCHEDULE);
   const [excluded, setExcluded] = useState<Set<string>>(new Set());
+  // 태블릿 detail 패널("선택 항목 편집")에 띄울 항목. 기본값을 첫 항목으로 둔 이유는
+  // result.tsx 와 같다 — 펼쳤을 때 detail 패널이 빈 채로 시작하지 않게 하기 위해서다.
+  const [selectedKey, setSelectedKey] = useState(INITIAL_SCHEDULE[0].key);
+  const selected = schedule.find((item) => item.key === selectedKey) ?? schedule[0];
 
   function toggleExclude(key: string) {
     setExcluded((prev) => {
@@ -59,7 +65,7 @@ export default function Edit() {
   }
 
   return (
-    <Screen scroll>
+    <Screen scroll wide>
       <Text variant="display" weight="bold">
         일정 편집
       </Text>
@@ -91,40 +97,81 @@ export default function Edit() {
         </Pressable>
       </View>
 
-      <View style={styles.list}>
-        {schedule.map((item) => {
-          const isExcluded = excluded.has(item.key);
-          const canToggle = item.action === '제외';
-          return (
-            <View key={item.key} style={[styles.card, isExcluded && styles.cardExcluded]}>
-              <Text variant="caption" weight="bold" color={color.action.secondary}>
-                {item.time}
-              </Text>
-              <View style={styles.cardBody}>
-                <Text variant="body" weight="bold">
-                  {item.title}
-                </Text>
-                <Text variant="caption" style={styles.cardNote}>
-                  {item.note}
-                </Text>
-              </View>
-              <Pressable
-                disabled={!canToggle}
-                onPress={() => toggleExclude(item.key)}
-                style={styles.cardAction}
-              >
-                <Text
-                  variant="caption"
-                  weight="bold"
-                  color={item.action === '순서' ? color.state.danger : color.action.secondary}
+      <Split
+        master={
+          <View style={styles.list}>
+            {schedule.map((item) => {
+              const isExcluded = excluded.has(item.key);
+              const canToggle = item.action === '제외';
+              const isSelected = item.key === selectedKey;
+              return (
+                <Pressable
+                  key={item.key}
+                  onPress={() => setSelectedKey(item.key)}
+                  style={[styles.card, isExcluded && styles.cardExcluded, isSelected && styles.cardSelected]}
                 >
-                  {canToggle && isExcluded ? '포함' : item.action}
-                </Text>
-              </Pressable>
-            </View>
-          );
-        })}
-      </View>
+                  <Text variant="caption" weight="bold" color={color.action.secondary}>
+                    {item.time}
+                  </Text>
+                  <View style={styles.cardBody}>
+                    <Text variant="body" weight="bold">
+                      {item.title}
+                    </Text>
+                    <Text variant="caption" style={styles.cardNote}>
+                      {item.note}
+                    </Text>
+                  </View>
+                  <Pressable
+                    disabled={!canToggle}
+                    onPress={() => toggleExclude(item.key)}
+                    style={styles.cardAction}
+                  >
+                    <Text
+                      variant="caption"
+                      weight="bold"
+                      color={item.action === '순서' ? color.state.danger : color.action.secondary}
+                    >
+                      {canToggle && isExcluded ? '포함' : item.action}
+                    </Text>
+                  </Pressable>
+                </Pressable>
+              );
+            })}
+          </View>
+        }
+        detail={
+          // 🔴 "선택 항목 편집" 도 Figma·명세에 없는 새 화면이다. 시간·제목을 바꾸는 입력
+          // 폼은 이번 레이아웃 작업 범위 밖이라 만들지 않았고, 지금 있는 유일한 실제 동작
+          // (제외 토글)을 오른쪽 패널에서 더 크게 다시 보여주는 선에서 멈췄다. 사람 검토 필요.
+          <Card tinted style={styles.detailCard}>
+            <Text variant="caption" weight="bold" color={color.text.eyebrow}>
+              선택 항목 편집
+            </Text>
+            <Text variant="caption" weight="bold" color={color.action.secondary}>
+              {selected.time}
+            </Text>
+            <Text variant="title" weight="bold">
+              {selected.title}
+            </Text>
+            <Text variant="body" style={styles.cardNote}>
+              {selected.note}
+            </Text>
+            <Pressable
+              disabled={selected.action !== '제외'}
+              onPress={() => toggleExclude(selected.key)}
+              style={styles.detailAction}
+            >
+              <Text
+                variant="body"
+                weight="bold"
+                color={selected.action === '순서' ? color.state.danger : color.action.secondary}
+              >
+                {selected.action === '제외' && excluded.has(selected.key) ? '포함' : selected.action}
+              </Text>
+            </Pressable>
+          </Card>
+        }
+      />
 
       <View style={styles.delayCard}>
         <Text variant="caption" weight="bold" style={styles.delayText}>
@@ -177,6 +224,9 @@ const styles = StyleSheet.create({
   cardExcluded: {
     opacity: 0.5,
   },
+  cardSelected: {
+    backgroundColor: color.surface.tint,
+  },
   cardBody: {
     flex: 1,
     gap: spacing[1],
@@ -187,6 +237,12 @@ const styles = StyleSheet.create({
   cardAction: {
     paddingVertical: spacing[1],
     paddingHorizontal: spacing[1],
+  },
+  detailCard: {
+    gap: spacing[1],
+  },
+  detailAction: {
+    marginTop: spacing[2],
   },
   delayCard: {
     marginTop: spacing[4],

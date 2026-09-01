@@ -9,6 +9,7 @@ import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { Card } from '@/components/Card';
 import { Button } from '@/components/Button';
+import { Split } from '@/layout/Split';
 
 type Pace = '여유' | '보통';
 
@@ -48,9 +49,13 @@ export default function Result() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const tripId = id ?? 'demo-trip';
   const [day, setDay] = useState<'DAY 1' | 'DAY 2'>('DAY 1');
+  // 태블릿 detail 패널에 보여줄 선택 항목. 기본값을 첫 항목으로 둔 이유는 폴드8 을 펼쳤을 때
+  // detail 패널이 빈 채로 시작하지 않게 하기 위해서다(Figma 에 이 상태의 디자인은 없다).
+  const [selectedTime, setSelectedTime] = useState(DAY1[0].time);
+  const selectedItem = DAY1.find((item) => item.time === selectedTime) ?? DAY1[0];
 
   return (
-    <Screen scroll>
+    <Screen scroll wide>
       <View style={styles.headerRow}>
         <View>
           <Text variant="caption">나의 부산 여행</Text>
@@ -95,24 +100,48 @@ export default function Result() {
       </View>
 
       {day === 'DAY 1' ? (
-        <View style={styles.timeline}>
-          {DAY1.map((item) => (
-            <View key={item.time} style={styles.timelineRow}>
-              <Text variant="body" weight="bold" color={color.text.accent} style={styles.timelineTime}>
-                {item.time}
-              </Text>
-              <Card style={styles.timelineCard}>
-                <Text variant="body" weight="bold">
-                  {item.title}
-                </Text>
-                <Text variant="caption" style={styles.timelineSubtitle}>
-                  {item.subtitle}
-                </Text>
-                <PaceTag pace={item.pace} />
-              </Card>
+        <Split
+          master={
+            <View style={styles.timeline}>
+              {DAY1.map((item) => (
+                <Pressable
+                  key={item.time}
+                  onPress={() => setSelectedTime(item.time)}
+                  style={styles.timelineRow}
+                >
+                  <Text variant="body" weight="bold" color={color.text.accent} style={styles.timelineTime}>
+                    {item.time}
+                  </Text>
+                  <Card tinted={item.time === selectedTime} style={styles.timelineCard}>
+                    <Text variant="body" weight="bold">
+                      {item.title}
+                    </Text>
+                    <Text variant="caption" style={styles.timelineSubtitle}>
+                      {item.subtitle}
+                    </Text>
+                    <PaceTag pace={item.pace} />
+                  </Card>
+                </Pressable>
+              ))}
             </View>
-          ))}
-        </View>
+          }
+          detail={
+            // 🔴 "선택한 장소 요약" 은 Figma·명세 어디에도 없다 — 태블릿에서 detail 칸을 채우려고
+            // 이번 작업에서 새로 만든 화면이다. 사람 검토가 필요하다.
+            <Card tinted style={styles.placeSummaryCard}>
+              <Text variant="caption" weight="bold" color={color.text.eyebrow}>
+                선택한 장소
+              </Text>
+              <Text variant="title" weight="bold" style={styles.placeSummaryTitle}>
+                {selectedItem.title}
+              </Text>
+              <Text variant="caption" style={styles.timelineSubtitle}>
+                {selectedItem.time} · {selectedItem.subtitle}
+              </Text>
+              <PaceTag pace={selectedItem.pace} />
+            </Card>
+          }
+        />
       ) : (
         <Text variant="caption" style={styles.day2Placeholder}>
           DAY 2 일정은 아직 준비 중이에요.
@@ -197,6 +226,12 @@ const styles = StyleSheet.create({
   },
   day2Placeholder: {
     marginTop: spacing[4],
+  },
+  placeSummaryCard: {
+    gap: spacing[1],
+  },
+  placeSummaryTitle: {
+    marginTop: spacing[1],
   },
   mapCta: {
     marginTop: spacing[8],

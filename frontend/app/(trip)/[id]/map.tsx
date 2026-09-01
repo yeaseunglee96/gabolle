@@ -12,6 +12,7 @@ import { color, radius, spacing } from '@/design/tokens';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { Card } from '@/components/Card';
+import { Split } from '@/layout/Split';
 
 type RouteStatus = 'pass' | 'fail' | 'neutral';
 
@@ -99,56 +100,85 @@ function ComparisonCard({ route }: { route: RouteComparison }) {
 
 export default function Map() {
   return (
-    <Screen scroll>
+    <Screen scroll wide>
       <Text variant="caption">DAY 1 · 4곳</Text>
       <Text variant="display" weight="bold" style={styles.title}>
         여행 지도
       </Text>
 
-      <View style={styles.mapPlaceholder}>
-        {/* TODO: 실제 지도 SDK 연동 전까지 자리표시자로 둔다 (지도 공급자 미정). */}
-        <Text variant="body" weight="bold" color={color.text.muted}>
-          지도 자리 — SDK 미정
-        </Text>
-        <Text variant="caption" style={styles.mapPlaceholderSub}>
-          실제 서비스에서는 여기에 동선이 표시됩니다.
-        </Text>
-
-        <View style={styles.stopsRow}>
-          {STOPS.map((stop) => (
-            <View key={stop.number} style={styles.stop}>
-              <View style={styles.stopMarker}>
-                <Text variant="caption" weight="bold" color={color.text.onAction}>
-                  {stop.number}
+      <Split
+        master={
+          // 🔴 기존 지도 placeholder 안의 동그란 마커 행(stopsRow)은 "지도 위 핀" 을 흉내
+          // 내는 것이라 그대로 두고, 여기 별도의 세로 목록을 새로 만들었다 — Figma·명세에
+          // 없는 화면이라 phone 에서는(순차 배치) 같은 정보가 두 번 보인다. 실제 지도 SDK가
+          // 들어오면 지도 안 마커는 지도가 대신하고 이 목록만 남기면 된다. 사람 검토 필요.
+          <View style={styles.stopsList}>
+            <Text variant="title" weight="bold" style={styles.masterTitle}>
+              동선 목록
+            </Text>
+            {STOPS.map((stop) => (
+              <View key={stop.number} style={styles.stopRow}>
+                <View style={styles.stopMarker}>
+                  <Text variant="caption" weight="bold" color={color.text.onAction}>
+                    {stop.number}
+                  </Text>
+                </View>
+                <Text variant="body" weight="bold">
+                  {stop.name}
                 </Text>
               </View>
-              <Text variant="caption">{stop.name}</Text>
+            ))}
+          </View>
+        }
+        detail={
+          <>
+            <View style={styles.mapPlaceholder}>
+              {/* TODO: 실제 지도 SDK 연동 전까지 자리표시자로 둔다 (지도 공급자 미정). */}
+              <Text variant="body" weight="bold" color={color.text.muted}>
+                지도 자리 — SDK 미정
+              </Text>
+              <Text variant="caption" style={styles.mapPlaceholderSub}>
+                실제 서비스에서는 여기에 동선이 표시됩니다.
+              </Text>
+
+              <View style={styles.stopsRow}>
+                {STOPS.map((stop) => (
+                  <View key={stop.number} style={styles.stop}>
+                    <View style={styles.stopMarker}>
+                      <Text variant="caption" weight="bold" color={color.text.onAction}>
+                        {stop.number}
+                      </Text>
+                    </View>
+                    <Text variant="caption">{stop.name}</Text>
+                  </View>
+                ))}
+              </View>
+
+              <Text variant="caption" style={styles.attribution}>
+                © OpenStreetMap contributors
+              </Text>
             </View>
-          ))}
-        </View>
 
-        <Text variant="caption" style={styles.attribution}>
-          © OpenStreetMap contributors
-        </Text>
-      </View>
+            <Text variant="title" weight="bold" style={styles.sectionTitle}>
+              실측 경로 비교
+            </Text>
 
-      <Text variant="title" weight="bold" style={styles.sectionTitle}>
-        실측 경로 비교
-      </Text>
+            <View style={styles.comparisons}>
+              <ComparisonCard route={SHADE_ROUTE} />
+              <ComparisonCard route={WHEELCHAIR_ROUTE} />
+            </View>
 
-      <View style={styles.comparisons}>
-        <ComparisonCard route={SHADE_ROUTE} />
-        <ComparisonCard route={WHEELCHAIR_ROUTE} />
-      </View>
-
-      <View style={styles.unknownNote}>
-        <Text variant="caption" weight="bold" color={color.text.muted}>
-          UNKNOWN
-        </Text>
-        <Text variant="caption" style={styles.unknownBody}>
-          일부 구간은 데이터가 없어 판정하지 않았습니다. 모르는 것을 아는 척하지 않습니다.
-        </Text>
-      </View>
+            <View style={styles.unknownNote}>
+              <Text variant="caption" weight="bold" color={color.text.muted}>
+                UNKNOWN
+              </Text>
+              <Text variant="caption" style={styles.unknownBody}>
+                일부 구간은 데이터가 없어 판정하지 않았습니다. 모르는 것을 아는 척하지 않습니다.
+              </Text>
+            </View>
+          </>
+        }
+      />
     </Screen>
   );
 }
@@ -171,6 +201,17 @@ const styles = StyleSheet.create({
   },
   mapPlaceholderSub: {
     textAlign: 'center',
+  },
+  stopsList: {
+    gap: spacing[3],
+  },
+  masterTitle: {
+    marginBottom: spacing[1],
+  },
+  stopRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing[3],
   },
   stopsRow: {
     flexDirection: 'row',
