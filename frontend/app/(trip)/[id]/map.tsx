@@ -100,7 +100,7 @@ function ComparisonCard({ route }: { route: RouteComparison }) {
 
 export default function Map() {
   return (
-    <Screen scroll>
+    <Screen scroll wide>
       <Text variant="caption">DAY 1 · 4곳</Text>
       <Text variant="display" weight="bold" style={styles.title}>
         여행 지도

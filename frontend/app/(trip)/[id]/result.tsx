@@ -55,7 +55,7 @@ export default function Result() {
   const selectedItem = DAY1.find((item) => item.time === selectedTime) ?? DAY1[0];
 
   return (
-    <Screen scroll>
+    <Screen scroll wide>
       <View style={styles.headerRow}>
         <View>
           <Text variant="caption">나의 부산 여행</Text>

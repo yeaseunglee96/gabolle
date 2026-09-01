@@ -65,7 +65,7 @@ export default function Edit() {
   }
 
   return (
-    <Screen scroll>
+    <Screen scroll wide>
       <Text variant="display" weight="bold">
         일정 편집
       </Text>
