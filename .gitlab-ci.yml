@@ -292,3 +292,26 @@ promote:
     - npx -y axmap-cli@$AXMAP_VERSION promote --step "$PROMOTE_STEP"
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
+
+# ── 표가 찼는데 화면이 아직 빨간 MR ─────────────────────────────────────────
+#
+# 표는 MR 밖(axmap/votes 브랜치)으로 들어온다. 그래서 표가 도착해도 GitLab 은
+# 파이프라인을 다시 돌리지 않고, 화면에는 "0표" 로 판정한 옛 결과가 남는다.
+# 2026-09-01 에 MR !31 이 정확히 그것으로 막혔다 — 표는 2/2 인데 판정은 5시간 전 것.
+#
+# 🔴 표 push 를 직접 트리거로 쓰지 않는다. axmap/votes 는 고아 브랜치라
+#    .gitlab-ci.yml 이 없고, GitLab 은 push 된 브랜치에서 설정을 읽으므로
+#    파이프라인이 아예 안 생긴다. 거기에 설정을 심으면 되기는 하지만, 그 브랜치는
+#    MR 없이 push 되는 곳이라 **누구든 리뷰 없이 CI 가 돌릴 코드를 바꿀 수 있게**
+#    된다. 3절이 정한 것과 정면으로 충돌한다. 즉시성 몇 분과 바꾸지 않는다.
+#
+#    Settings → CI/CD → Schedules 에 하나 만든다
+#      */5 * * * *     SCHEDULE_KIND = vote-recheck
+vote:recheck:
+  stage: release
+  variables:
+    GIT_DEPTH: 0
+  script:
+    - node ci/vote-recheck.mjs
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_KIND == "vote-recheck"
