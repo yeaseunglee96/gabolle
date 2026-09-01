@@ -21,8 +21,17 @@ app.use((req, res, next) => { const traceId = req.header("x-request-id")?.slice(
 app.use(helmet({ contentSecurityPolicy: false, strictTransportSecurity: process.env.NODE_ENV === "production" ? undefined : false }));
 app.use(cors({ origin(origin, callback) { callback(null, !origin || allowedOrigins.has(origin)); }, methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"], allowedHeaders: ["Content-Type", "Authorization", "Idempotency-Key", "X-Request-Id", "X-Session-Token", "X-Booking-Webhook-Secret", "X-Admin-Token"] }));
 app.use("/api/stories", express.json({ limit: "3mb" }));
+app.use("/api/v1/stories", express.json({ limit: "3mb" }));
 app.use(express.json({ limit: "256kb" }));
 app.use("/api/auth/login", rateLimit({
+  windowMs: 15 * 60_000,
+  limit: 10,
+  standardHeaders: "draft-7",
+  legacyHeaders: false,
+  skipSuccessfulRequests: true,
+  message: { error_code: "LOGIN_RATE_LIMITED", message: "로그인 시도가 너무 많습니다. 15분 후 다시 시도해 주세요." },
+}));
+app.use("/api/v1/auth/login", rateLimit({
   windowMs: 15 * 60_000,
   limit: 10,
   standardHeaders: "draft-7",
@@ -44,6 +53,23 @@ if (process.env.NODE_ENV === "production") {
 }
 
 app.get("/health", (_req, res) => res.json({ status: "ok" }));
+const v1Router = express.Router();
+v1Router.use((req, res, next) => {
+  const json = res.json.bind(res);
+  res.json = ((body: unknown) => {
+    const requestId = String(res.locals.traceId);
+    const meta = { requestId, timestamp: new Date().toISOString() };
+    if (body && typeof body === "object" && "data" in body && "meta" in body) return json(body);
+    if (res.statusCode >= 400) {
+      const source = body && typeof body === "object" ? body as Record<string, unknown> : {};
+      return json({ data: null, error: { code: source.error_code ?? "REQUEST_FAILED", messageKey: `error.${String(source.error_code ?? "request_failed").toLowerCase()}`, details: source }, meta });
+    }
+    return json({ data: body ?? null, error: null, meta });
+  }) as typeof res.json;
+  next();
+});
+v1Router.use(tripsRouter, accountRouter, communityRouter, analyticsRouter, commerceRouter, experienceRouter, collaborationRouter, socialRouter);
+app.use("/api/v1", v1Router);
 app.use("/api", tripsRouter);
 app.use("/api", accountRouter);
 app.use("/api", communityRouter);
@@ -61,4 +87,4 @@ app.use((err: any, _req: express.Request, res: express.Response, _next: express.
 });
 
 const port = Number(process.env.PORT ?? 4000);
-if (process.env.NODE_ENV !== "test") app.listen(port, () => { console.log(`LOCAL ROUTE server listening on http://localhost:${port}`); });
+if (process.env.NODE_ENV !== "test") app.listen(port, () => { console.log(`GABOLLE server listening on http://localhost:${port}`); });

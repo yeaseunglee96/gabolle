@@ -4,6 +4,7 @@ import { deriveForeignConvenience } from "../src/lib/foreignConvenience.js";
 import { haversineDistanceM } from "../src/services/kakao.js";
 import {
   fetchAreaBasedList,
+  fetchDetailCommon,
   fetchDetailIntro,
   fetchEnglishName,
   parseClosedDays,
@@ -69,7 +70,7 @@ async function main() {
   console.log(`   MANUAL 장소 ${manualPlaces.length}곳`);
 
   const seenContentIds = new Set<string>();
-  let created = 0;
+  let synced = 0;
   let skippedDuplicate = 0;
   let skippedNoCoords = 0;
 
@@ -114,6 +115,10 @@ async function main() {
       }
 
       const nameEn = await fetchEnglishName(item.contentid);
+      const detail = await fetchDetailCommon(item.contentid).catch(() => null);
+      const description = detail?.overview
+        ? detail.overview.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 4000)
+        : null;
 
       const { englishMenu, cardPayment } = deriveForeignConvenience({
         category,
@@ -122,8 +127,7 @@ async function main() {
         nameKo: item.title,
       });
 
-      await prisma.place.create({
-        data: {
+      const placeData = {
           nameKo: item.title,
           nameEn,
           category,
@@ -145,14 +149,29 @@ async function main() {
           contentId: item.contentid,
           dataSource: "TOURAPI",
           imageUrl: item.firstimage || null,
+      };
+      const place = await prisma.place.upsert({
+        where: { contentId: item.contentid },
+        create: placeData,
+        update: {
+          ...placeData,
+          // TourAPI가 이번 응답에서 사진을 생략해도 이전에 확보한 대표 사진은 지우지 않는다.
+          imageUrl: item.firstimage || undefined,
         },
       });
-      created++;
+      if (description) {
+        await prisma.placeTranslation.upsert({
+          where: { placeId_lang: { placeId: place.id, lang: "KO" } },
+          create: { placeId: place.id, lang: "KO", name: item.title, address: item.addr1, description, source: "TOURAPI" },
+          update: { name: item.title, address: item.addr1, description, source: "TOURAPI" },
+        });
+      }
+      synced++;
     }
   }
 
   console.log("\n=== 임포트 완료 ===");
-  console.log(`생성: ${created}건`);
+  console.log(`신규·갱신: ${synced}건`);
   console.log(`MANUAL과 중복으로 스킵: ${skippedDuplicate}건`);
   console.log(`좌표 없음으로 스킵: ${skippedNoCoords}건`);
 }
