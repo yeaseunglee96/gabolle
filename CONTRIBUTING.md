@@ -84,6 +84,9 @@ Maintainer(**저장소 관리자 — 보호된 브랜치에 직접 push 하고 M
 ├── setup.sh · .ps1    clone 한 뒤 한 번 실행
 ├── .gitlab-ci.yml     올릴 때마다 자동으로 도는 검사
 │
+├── ci/
+│   └── jira-transition.mjs  머지되면 Jira 카드를 옮긴다 (dev=진행 중 · main=완료)
+│
 ├── governance/
 │   └── policy.json    누가 투표권자인가. 도구가 아니라 **팀의 데이터**라 여기 남았다
 │
