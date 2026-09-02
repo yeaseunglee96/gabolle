@@ -1,0 +1,8 @@
+apache-airflow-providers-postgres
+apache-airflow-providers-celery
+apache-airflow-providers-redis
+apache-airflow-providers-fab
+mlflow==2.16.2
+psycopg2-binary
+boto3
+lightgbm
