@@ -46,6 +46,11 @@ x-airflow-common: &airflow-common
   volumes:
     - ./airflow/dags:/opt/airflow/dags
     - airflow_logs:/opt/airflow/logs
+  logging:
+    driver: json-file
+    options:
+      max-size: "10m"
+      max-file: "3"
   depends_on:
     postgres:
       condition: service_healthy
