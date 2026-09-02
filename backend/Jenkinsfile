@@ -1,0 +1,113 @@
+// backend-deploy 파이프라인 (S15P21E201-575)
+//
+// Jenkins Job 설정:
+//  - Definition: Pipeline script from SCM
+//  - SCM: Git, branch back/dev, credentialsId gitlab-pat
+//  - Script Path: backend/Jenkinsfile
+//  - Triggers: Generic Webhook Trigger, token = backend-deploy
+//    (GitLab Webhook의 Wildcard pattern을 back/dev 로 제한해서 등록)
+//
+// 필요한 Jenkins Credentials:
+//  - gitlab-pat            (Username with password) — GitLab 저장소 체크아웃
+//  - mattermost-webhook    (Secret text) — 빌드 결과 알림용 MatterMost Incoming Webhook URL
+
+pipeline {
+    agent any
+
+    environment {
+        HEALTH_URL = 'https://j15e201.p.ssafy.io/api/actuator/health'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'back/dev',
+                    credentialsId: 'gitlab-pat',
+                    url: 'https://lab.ssafy.com/s15-bigdata-dist-sub1/S15P21E201.git'
+            }
+        }
+
+        stage('Build Image') {
+            steps {
+                dir('backend') {
+                    sh 'docker build -t local-route-backend .'
+                }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                sh 'docker stop backend || true'
+                sh 'docker rm backend || true'
+                sh 'docker run -d --name backend -p 8080:8080 local-route-backend'
+            }
+        }
+
+        stage('Health Check') {
+            steps {
+                script {
+                    def healthy = false
+                    for (int i = 0; i < 12; i++) {
+                        def code = sh(script: "curl -s -o /dev/null -w '%{http_code}' ${HEALTH_URL}", returnStdout: true).trim()
+                        if (code == '200') {
+                            healthy = true
+                            break
+                        }
+                        sleep 5
+                    }
+                    if (!healthy) {
+                        error 'Health check failed after retries'
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            script {
+                sendMMNotify(true, [
+                    commit: sh(script: "git log -1 --pretty='%an: %s'", returnStdout: true).trim(),
+                    buildUrl: env.BUILD_URL
+                ])
+            }
+        }
+        failure {
+            script {
+                sendMMNotify(false, [
+                    commit: sh(script: "git log -1 --pretty='%an: %s'", returnStdout: true).trim(),
+                    buildUrl: env.BUILD_URL,
+                    details: 'Console Output 을 확인하세요'
+                ])
+            }
+        }
+    }
+}
+
+// MatterMost 알림 전송
+def sendMMNotify(boolean success, Map info) {
+    def titleLine = success
+        ? '#### :white_check_mark: 백엔드(back/dev) 배포 성공'
+        : '#### :x: 백엔드(back/dev) 배포 실패'
+
+    def lines = []
+    if (info.commit)   lines << "**커밋**: ${info.commit}"
+    if (info.buildUrl) lines << "**빌드 상세**: [Details](${info.buildUrl})"
+    if (!success && info.details) lines << "**참고**: ${info.details}"
+
+    def text = lines ? "${titleLine}\n" + lines.join("\n") : titleLine
+
+    writeFile file: 'mm_payload.json', text: groovy.json.JsonOutput.toJson([
+        text: text,
+        username: 'Jenkins',
+        icon_emoji: ':jenkins7:'
+    ])
+
+    withCredentials([string(credentialsId: 'mattermost-webhook', variable: 'MM_WEBHOOK')]) {
+        sh '''
+            curl -sS -f -X POST -H 'Content-Type: application/json' \
+                --data-binary @mm_payload.json \
+                "$MM_WEBHOOK" || true
+        '''
+    }
+}
