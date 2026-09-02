@@ -1,16 +1,27 @@
 // 신규 화면 — Figma 23 화면 표에 없다. 원본 요청서에서 새로 추가된 자리라 최대한 단순하게 만든다.
 import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { color, radius, spacing } from '@/design/tokens';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { Button } from '@/components/Button';
+import { parseLanguage, parseMobility, useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
 
 export default function AgeGate() {
   const router = useRouter();
+  const params = useLocalSearchParams<{ language?: string; mobility?: string }>();
+  const { setPreferences } = useOnboardingPreferences();
   const [checked, setChecked] = useState(false);
+
+  const language = parseLanguage(params.language);
+  const mobility = parseMobility(params.mobility);
+
+  function continueOnboarding() {
+    setPreferences(language, mobility);
+    router.replace('/permissions');
+  }
 
   return (
     <Screen>
@@ -35,7 +46,7 @@ export default function AgeGate() {
           <Text variant="body">만 14세 이상이며, 위 내용을 확인했어요.</Text>
         </Pressable>
 
-        <Button label="계속" disabled={!checked} onPress={() => router.replace('/permissions')} />
+        <Button label="계속" disabled={!checked} onPress={continueOnboarding} />
       </View>
     </Screen>
   );

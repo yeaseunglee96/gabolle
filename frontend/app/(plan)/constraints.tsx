@@ -14,6 +14,7 @@ import { Text } from '@/components/Text';
 import { ProgressBar } from '@/components/ProgressBar';
 import { Button } from '@/components/Button';
 import { LanguageBadge } from '@/components/LanguageBadge';
+import { useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
 
 type ConstraintKey = 'budget' | 'walking' | 'diet' | 'accessibility' | 'companions';
 
@@ -35,8 +36,9 @@ const ITEMS: ConstraintItem[] = [
 
 export default function Constraints() {
   const router = useRouter();
+  const { mobility } = useOnboardingPreferences();
   const [selected, setSelected] = useState<Set<ConstraintKey>>(
-    () => new Set(['diet', 'accessibility']),
+    () => new Set(mobility === 'none' ? ['diet'] : ['diet', 'accessibility']),
   );
 
   function toggle(key: ConstraintKey) {
@@ -69,6 +71,17 @@ export default function Constraints() {
       <Text variant="caption" style={styles.subtitle}>
         더 편안한 일정을 위해 필요한 항목만 선택해요.
       </Text>
+
+      {mobility !== 'none' && (
+        <View style={styles.welcomePreference}>
+          <Text variant="caption" weight="bold" color={color.text.eyebrow}>
+            첫 화면에서 선택한 이동 조건
+          </Text>
+          <Text variant="body" weight="bold">
+            {mobility === 'wheelchair' ? '휠체어' : mobility === 'stroller' ? '유아차' : '천천히 걷기'}
+          </Text>
+        </View>
+      )}
 
       <View style={styles.cards}>
         {ITEMS.map((item) => {
@@ -130,6 +143,13 @@ const styles = StyleSheet.create({
   cards: {
     marginTop: spacing[6],
     gap: spacing[3],
+  },
+  welcomePreference: {
+    marginTop: spacing[4],
+    backgroundColor: color.surface.soft,
+    borderRadius: radius.md,
+    padding: spacing[4],
+    gap: spacing[1],
   },
   card: {
     flexDirection: 'row',
