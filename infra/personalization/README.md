@@ -205,7 +205,8 @@ crontab -e
 
 ```bash
 # J15E201A 에서 임의의 daily 덤프 하나를 골라 새 컨테이너에 복구해본다
-docker run --rm -e POSTGRES_PASSWORD=temp -d --name restore-test postgres:15
+# (운영 중인 버전과 맞춘다 — compose.yaml 의 postgres 이미지 태그 참고)
+docker run --rm -e POSTGRES_PASSWORD=temp -d --name restore-test postgres:16.4
 docker cp /opt/backups/local-route/postgres/app_db_daily_<날짜>.dump restore-test:/tmp/app_db.dump
 docker exec restore-test createdb -U postgres app_db_restored
 docker exec restore-test pg_restore -U postgres -d app_db_restored /tmp/app_db.dump
@@ -246,3 +247,55 @@ docker rm -f restore-test
 - 탈퇴 요청이 들어오면, BE가 익명화/하드삭제를 실행한 **이후** 첫 백업부터
   그 결과가 반영된다는 점을 팀에 공유해 둔다 — 요청 당일 백업에는 아직
   옛 데이터가 남아있을 수 있다는 뜻이다
+
+---
+
+## 배포 · 롤백 · 장애 대응 (S15P21E201-579, 문서 12절)
+
+### 12.1 일반 배포
+
+```bash
+cd /opt/local-route/repository/infra/personalization
+docker compose --env-file /etc/local-route/personalization.env config --quiet
+docker compose pull <service>                      # postgres/redis/minio 등 공식 이미지
+IMAGE_TAG=<git SHA> docker compose --env-file /etc/local-route/personalization.env build <service>   # mlflow/airflow 커스텀 빌드
+IMAGE_TAG=<git SHA> docker compose --env-file /etc/local-route/personalization.env up -d --no-deps <service>
+docker compose ps
+docker compose logs --tail=100 <service>
+```
+
+이 흐름은 `Jenkinsfile`이 그대로 자동화한다 — 사람이 위 명령을 직접 칠 일은
+Jenkins Job이 아직 연결 안 됐을 때의 수동 배포나, 디버깅 시 로그 확인 정도다.
+
+### 12.2 롤백 원칙
+
+문서 원문의 5가지 원칙을 우리 compose 구조에 맞게 적용한 것이다.
+
+| 원칙 | 우리 환경에서의 적용 |
+|---|---|
+| 이미지는 직전 commit SHA 태그로 되돌리고 service 단위로 재기동 | `mlflow`/`airflow`는 커스텀 빌드라 `compose.yaml`에 `image: ...:${IMAGE_TAG}` 필드를 추가했다. `Jenkinsfile`의 `ROLLBACK_TAG` 파라미터에 이전 커밋의 짧은 SHA를 넣고 재실행하면, 재빌드 없이 이미 로컬에 있는 그 태그의 이미지로 `up -d --no-deps`만 한다 |
+| DB migration은 자동 downgrade에 의존하지 않는다 | `scripts/backup-postgres.sh`(문서 11절)로 배포 직전 백업을 항상 남긴다. migration 실패 시 배포를 멈추고, 필요하면 11.2절의 복구 절차로 되돌린다 |
+| 모델은 MLflow Production alias만 이전 버전으로 되돌린다 | MLflow UI 또는 CLI(`mlflow models set-alias`)로 alias만 옮긴다 — 모델 파일 자체를 지우거나 새로 배포하지 않는다 |
+| Redis key는 `feature:vN`으로 버전 분리 | 이미 구현되어 있다 — `airflow/dags/sample_personalization_pipeline.py`가 `feature:v1:user:{user_id}` 형태로 쓴다. 신규 버전 배포가 실패해도 이전 버전 키가 그대로 남아 있어 API가 읽을 수 있다 |
+| DAG rollback은 이전 릴리스의 DAG artifact를 재배포 | DAG 파일은 git으로 버전 관리된다 — 서버에서 이전 커밋으로 `git checkout`하면 `airflow-dag-processor`가 마운트된 `airflow/dags/`의 변경을 자동으로 다시 읽는다. 재기동은 필요 없다. 중복 실행 여부는 Airflow UI의 DAG 실행 이력에서 확인한다 |
+
+**실제 배포 → 롤백 리허설 (2026-09-02)**: 서버(J15E201)에서 `mlflow`, `airflow-scheduler`
+이미지를 두 개의 서로 다른 `IMAGE_TAG`(현재 커밋 SHA, 이전 커밋 SHA)로 각각 빌드하고,
+`docker compose up -d --no-deps mlflow`로 태그를 번갈아 전환하며 컨테이너가 지정한
+태그의 이미지로 정확히 뜨는 것을 `docker inspect --format '{{.Config.Image}}'`로 확인했다.
+자세한 명령과 결과는 아래 표에 남긴다.
+
+| 날짜 | 대상 | 방법 | 결과 |
+|---|---|---|---|
+| _(서버 검증 후 채움)_ | | | |
+
+### 12.3 대표 장애 대응
+
+| 증상 | 우선 확인 | 조치 |
+|---|---|---|
+| OOM/컨테이너 재시작 | `docker inspect`, host memory/swap | 무거운 DAG 중지, concurrency 축소 |
+| Airflow task 적체 | scheduler heartbeat, worker, pool | Worker 재기동 전 DB/queue 연결과 task 멱등성 확인 |
+| MLflow artifact 실패 | MinIO bucket/credential/용량 | credential rotation 여부 확인, DB run과 artifact 불일치 기록 |
+| Redis miss 급증 | TTL, evicted_keys, feature freshness | rebuild DAG 실행, API fallback 활성화 |
+| DB 용량 급증 | raw partition, vacuum, long query | 보존정책에 따른 파티션 정리, 임의 DELETE 금지 |
+| 추천 품질 급락 | input drift, data delay, model version | 모델 alias 롤백, 비개인화 fallback, 원인 분석 |
