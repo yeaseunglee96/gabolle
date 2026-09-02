@@ -29,6 +29,35 @@ http://localhost:8080/actuator/health
 
 현재 기본 profile은 PostgreSQL 없이 서버와 health endpoint를 실행할 수 있는 뼈대 상태입니다. DB를 사용하는 기능을 붙일 때 로컬·배포 profile에 PostgreSQL 연결과 migration 실행 조건을 추가합니다.
 
+## Docker Compose 실행
+
+`docker compose`는 PostgreSQL과 Spring Boot를 함께 실행하고, 컨테이너 시작 시 Flyway migration을 적용합니다.
+
+```powershell
+cd backend
+Copy-Item .env.example .env
+# .env에서 POSTGRES_PASSWORD와 GABOLLE_JWT_SECRET을 실제 값으로 변경
+docker compose up --build -d
+docker compose logs -f backend
+```
+
+health 확인:
+
+```text
+http://localhost:8080/actuator/health
+```
+
+웹 로컬 개발에서는 `.env`의 `GABOLLE_CORS_ALLOWED_ORIGINS`에 Vite origin(예: `http://localhost:5173`)을 추가하고, HTTP이므로 `GABOLLE_WEB_REFRESH_COOKIE_SECURE=false`로 둡니다. 웹 로그인/OAuth 요청에는 `X-Client-Platform: WEB`을 보내고 fetch/axios에 `credentials: "include"`를 지정합니다. refresh token은 브라우저 저장소에 저장하지 않고 다음 API를 사용합니다.
+
+로그인 요청에 `deviceId`를 넣어 기기 바인딩을 활성화한 경우 `/web/refresh`에도 같은 값을 `X-Device-Id` 헤더로 전송합니다.
+
+```text
+POST /api/v1/auth/web/refresh  # HttpOnly cookie를 보내 access token 재발급
+POST /api/v1/auth/web/logout   # cookie 삭제 및 refresh session 폐기
+```
+
+실제 배포에서는 `.env`를 저장소에 넣지 않고 Jenkins Credentials 또는 Secret Store에서 주입합니다. Google OAuth가 동작하려면 Google Console의 redirect URI, `GABOLLE_GOOGLE_CLIENT_ID`, `GABOLLE_GOOGLE_CLIENT_SECRET`, Nginx HTTPS/SPA fallback/App Link 설정이 모두 같은 값이어야 합니다.
+
 ## 기능 단위 패키지
 
 패키지 간 의존성은 `common`으로만 우회하지 말고 각 기능의 application/domain 경계를 유지합니다. Controller에서 다른 기능의 Repository를 직접 호출하지 않습니다.
