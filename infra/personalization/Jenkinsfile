@@ -85,10 +85,49 @@ pipeline {
 
     post {
         success {
-            echo '배포 성공'
+            script {
+                sendMMNotify(true, [
+                    commit: sh(script: "git log -1 --pretty='%an: %s'", returnStdout: true).trim(),
+                    buildUrl: env.BUILD_URL
+                ])
+            }
         }
         failure {
-            echo '배포 실패 — 이전 이미지 태그로 서비스 단위 롤백을 검토한다 (문서 12.2절)'
+            script {
+                sendMMNotify(false, [
+                    commit: sh(script: "git log -1 --pretty='%an: %s'", returnStdout: true).trim(),
+                    buildUrl: env.BUILD_URL,
+                    details: '이전 이미지 태그로 서비스 단위 롤백을 검토한다 (문서 12.2절)'
+                ])
+            }
         }
+    }
+}
+
+// MatterMost 알림 전송 (Jenkins Credentials: mattermost-webhook, Secret text)
+def sendMMNotify(boolean success, Map info) {
+    def titleLine = success
+        ? '#### :white_check_mark: 개인화 인프라(common/dev) 배포 성공'
+        : '#### :x: 개인화 인프라(common/dev) 배포 실패'
+
+    def lines = []
+    if (info.commit)   lines << "**커밋**: ${info.commit}"
+    if (info.buildUrl) lines << "**빌드 상세**: [Details](${info.buildUrl})"
+    if (!success && info.details) lines << "**참고**: ${info.details}"
+
+    def text = lines ? "${titleLine}\n" + lines.join("\n") : titleLine
+
+    writeFile file: 'mm_payload.json', text: groovy.json.JsonOutput.toJson([
+        text: text,
+        username: 'Jenkins',
+        icon_emoji: ':jenkins7:'
+    ])
+
+    withCredentials([string(credentialsId: 'mattermost-webhook', variable: 'MM_WEBHOOK')]) {
+        sh '''
+            curl -sS -f -X POST -H 'Content-Type: application/json' \
+                --data-binary @mm_payload.json \
+                "$MM_WEBHOOK" || true
+        '''
     }
 }
