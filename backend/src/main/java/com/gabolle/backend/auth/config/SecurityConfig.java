@@ -20,11 +20,14 @@ public class SecurityConfig {
 
 	private final ObjectProvider<HmacJwtAuthenticationFilter> jwtFilter;
 	private final AuthProperties properties;
+	private final ApiAuthenticationEntryPoint authenticationEntryPoint;
 
 	@Autowired
-	public SecurityConfig(ObjectProvider<HmacJwtAuthenticationFilter> jwtFilter, AuthProperties properties) {
+	public SecurityConfig(ObjectProvider<HmacJwtAuthenticationFilter> jwtFilter, AuthProperties properties,
+			ApiAuthenticationEntryPoint authenticationEntryPoint) {
 		this.jwtFilter = jwtFilter;
 		this.properties = properties;
+		this.authenticationEntryPoint = authenticationEntryPoint;
 	}
 
 	@Bean
@@ -32,6 +35,7 @@ public class SecurityConfig {
 		http
 			.csrf(csrf -> csrf.disable())
 			.cors(Customizer.withDefaults())
+			.exceptionHandling(exceptions -> exceptions.authenticationEntryPoint(authenticationEntryPoint))
 			.authorizeHttpRequests(authorize -> authorize
 				.requestMatchers("/actuator/health").permitAll()
 				.requestMatchers(
