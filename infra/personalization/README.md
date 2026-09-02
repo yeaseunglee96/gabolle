@@ -20,9 +20,16 @@ infra/personalization/
 
 ## 서버에 배포하는 법 (지금은 손으로, 9절에서 Jenkins로 자동화)
 
+> 🔴 **배포 위치는 git clone 자체(`/opt/local-route/repository`)다.** 예전에는
+> `/opt/local-route/personalization`이라는 별도 배포 디렉터리를 두려 했지만
+> (git 저장소가 아닌 채로), Jenkinsfile의 `git pull`이 실제로는 한 번도
+> 실행된 적이 없어서 그 디렉터리와 git clone이 어긋나 있었다 (S15P21E201-579
+> 에서 발견). `compose.yaml`의 `name:` 필드가 볼륨·네트워크 이름을 고정하므로,
+> 실행 위치를 옮겨도 기존 데이터/컨테이너에는 영향이 없다.
+
 ```bash
-cd /opt/local-route/personalization
-git pull   # 또는 이 디렉터리 내용을 최신으로 맞춤
+cd /opt/local-route/repository/infra/personalization
+git pull origin common/dev
 
 docker compose --env-file /etc/local-route/personalization.env config --quiet
 docker compose up -d postgres redis minio
@@ -184,11 +191,12 @@ docker compose exec airflow-api-server airflow config get-value api_auth jwt_sec
 
 **서버에 배포하는 법** (최초 1회):
 
+스크립트는 별도로 복사하지 않는다 — git clone(`/opt/local-route/repository`)
+안의 것을 그대로 cron/Jenkins가 실행한다. 실행 권한만 한 번 준다.
+
 ```bash
 # J15E201 (메인 서버) 에서
-sudo mkdir -p /opt/local-route/personalization/scripts
-sudo cp infra/personalization/scripts/*.sh /opt/local-route/personalization/scripts/
-sudo chmod +x /opt/local-route/personalization/scripts/*.sh
+chmod +x /opt/local-route/repository/infra/personalization/scripts/*.sh
 
 # J15E201A(백업 서버)로 rsync 할 SSH 키가 없다면 새로 만들고,
 # 공개키를 J15E201A의 ubuntu 계정 authorized_keys 에 등록한다
@@ -197,8 +205,8 @@ ssh-copy-id -i ~/.ssh/backup_to_j15e201a.pub ubuntu@j15e201a.p.ssafy.io
 
 # crontab 에 매일 새벽 등록 (예: 04:00 postgres, 04:30 minio)
 crontab -e
-# 0 4 * * *  /opt/local-route/personalization/scripts/backup-postgres.sh >> /var/log/local-route/backup-postgres.log 2>&1
-# 30 4 * * * /opt/local-route/personalization/scripts/backup-minio.sh >> /var/log/local-route/backup-minio.log 2>&1
+# 0 4 * * *  /opt/local-route/repository/infra/personalization/scripts/backup-postgres.sh >> /var/log/local-route/backup-postgres.log 2>&1
+# 30 4 * * * /opt/local-route/repository/infra/personalization/scripts/backup-minio.sh >> /var/log/local-route/backup-minio.log 2>&1
 ```
 
 **복구 리허설**: 실제로 백업 파일이 복구 가능한지, 한 번은 직접 검증해야 한다.

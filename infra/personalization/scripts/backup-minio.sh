@@ -18,7 +18,6 @@
 
 set -euo pipefail
 
-COMPOSE_DIR="/opt/local-route/personalization"
 ENV_FILE="/etc/local-route/personalization.env"
 NETWORK="local-route-personalization_data_net"
 LOCAL_MIRROR="/var/backups/local-route/minio"

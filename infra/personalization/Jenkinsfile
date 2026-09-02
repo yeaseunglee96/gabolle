@@ -7,11 +7,16 @@
 //    Script Path를 infra/personalization/Jenkinsfile 로 지정한다
 //  - GitLab Webhook의 Wildcard pattern을 common/dev 로 제한한다
 //
-// 백업 스크립트(scripts/backup-postgres.sh, scripts/backup-minio.sh)는 서버의
-// /opt/local-route/personalization/scripts/ 에 배포되어 있어야 하고, 실행 권한과
+// 백업 스크립트(scripts/backup-postgres.sh, scripts/backup-minio.sh)는
+// COMPOSE_PROJECT_DIR(git clone 안, 별도 복사 없음)에 실행 권한이 있어야 하고,
 // 백업 서버(J15E201A) 접속용 SSH 키(~/.ssh/backup_to_j15e201a)가 미리 준비되어
 // 있어야 한다 (문서 11절, S15P21E201-578). 이 파이프라인은 배포 직전에 그 자리에서
 // 한 번 더 최신 백업을 남기는 안전망이다 — 매일 cron으로도 별도로 돈다.
+//
+// COMPOSE_PROJECT_DIR은 별도 배포 디렉터리가 아니라 서버의 git clone
+// (`/opt/local-route/repository`) 안의 infra/personalization 이다 — 예전에는
+// git이 아닌 별도 디렉터리를 두려 했지만 실제로 동기화가 안 맞아 있었다
+// (S15P21E201-579에서 발견, README.md 참고).
 //
 // 이미지 태그와 롤백 (문서 12절, S15P21E201-579):
 //  - mlflow/airflow는 커스텀 빌드라, 매번 같은 이름(latest)으로 덮어쓰면 이전
@@ -34,7 +39,7 @@ pipeline {
     }
 
     environment {
-        COMPOSE_PROJECT_DIR = '/opt/local-route/personalization'
+        COMPOSE_PROJECT_DIR = '/opt/local-route/repository/infra/personalization'
         ENV_FILE = '/etc/local-route/personalization.env'
         DEPLOY_SERVICES = 'postgres redis minio mlflow airflow-broker airflow-scheduler airflow-dag-processor airflow-api-server airflow-worker'
     }
