@@ -18,7 +18,12 @@ infra/personalization/
   airflow/dags/            DAG 파일 위치 (8절 샘플 파이프라인에서 채움)
 ```
 
-## 서버에 배포하는 법 (지금은 손으로, 9절에서 Jenkins로 자동화)
+## 서버에 배포하는 법
+
+**평소에는 자동이다.** `common/dev`에 머지되면 GitLab Webhook이 Jenkins Job
+`infra-personalization-deploy`를 트리거하고, `Jenkinsfile`이 이미지 빌드·백업·
+배포·헬스체크까지 전부 처리한다 (S15P21E201-573, 12.1절 참고). 아래는 Jenkins
+없이 손으로 처음 셋업하거나 디버깅할 때만 쓴다.
 
 > 🔴 **배포 위치는 git clone 자체(`/opt/local-route/repository`)다.** 예전에는
 > `/opt/local-route/personalization`이라는 별도 배포 디렉터리를 두려 했지만
@@ -272,8 +277,9 @@ docker compose ps
 docker compose logs --tail=100 <service>
 ```
 
-이 흐름은 `Jenkinsfile`이 그대로 자동화한다 — 사람이 위 명령을 직접 칠 일은
-Jenkins Job이 아직 연결 안 됐을 때의 수동 배포나, 디버깅 시 로그 확인 정도다.
+이 흐름은 Jenkins Job `infra-personalization-deploy`가 그대로 자동화한다
+(S15P21E201-573) — 사람이 위 명령을 직접 칠 일은 Jenkins 없이 급하게 손으로
+배포해야 할 때나, 디버깅 시 로그 확인 정도다.
 
 ### 12.2 롤백 원칙
 
@@ -304,6 +310,15 @@ http://127.0.0.1:5000/health`로 서비스 정상 동작까지 확인했다.
 > 통일해 고쳤다 (12.1절 명령, `Jenkinsfile`, 백업 스크립트, cron 전부 이 경로
 > 기준으로 갱신함). 옛 디렉터리는 파일 내용이 git과 동일함을 `diff`로 확인한
 > 뒤 삭제했다.
+
+**실제 Jenkins Job으로 한 번 더 검증 (2026-09-02, S15P21E201-573)**: 위 리허설은
+사람이 명령을 직접 흉내 낸 것이었다. 이후 Jenkins Job `infra-personalization-deploy`를
+실제로 만들어 GitLab Webhook과 연결하고, `common/dev` 머지를 실제로 트리거해서
+Checkout → 이미지 태그 결정 → Compose Config Check → Sync → Build Images →
+Backup → Deploy → Health Check까지 **자동으로** 전부 초록으로 통과하는 것을
+확인했다 (build #4, "Generic Cause"). 이 과정에서 SSH Agent 플러그인 미설치와
+`deploy-ssh-key` Credential 미등록(둘 다 이번이 Job 최초 실행이라 여태 검증된
+적 없었음), Health Check에 재시도 로직이 없던 문제를 추가로 발견해 고쳤다.
 
 | 날짜 | 대상 | 방법 | 결과 |
 |---|---|---|---|

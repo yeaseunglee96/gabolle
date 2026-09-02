@@ -202,9 +202,14 @@ E201봇채널로 자동 알림된다.
 ## 7. 앞으로 남은 것
 
 - 실제 `frontend/` 코드/Dockerfile 작성 (현재는 placeholder 상태)
-- `infra/personalization/Jenkinsfile`을 실제 Jenkins Job에 연결 (지금은 저장소에만
-  있고 Job 미생성 — S15P21E201-573)
-- 문서 11~13절(모니터링·백업·개인정보, 배포·롤백, 완료 체크리스트)
+- 문서 13절(단계별 실행 일정과 완료 체크리스트) — 지금까지 한 것을 인수 조건에
+  맞춰 최종 점검
+
+`infra/personalization/Jenkinsfile`은 Jenkins Job `infra-personalization-deploy`로
+실제 연결됐다 — GitLab Webhook(Push events, Wildcard pattern `common/dev`)이
+자동으로 트리거하고, SHA 태깅 빌드·백업·배포·헬스체크까지 전 과정이 초록으로
+통과하는 것까지 확인됨 (S15P21E201-573). 문서 11·12절(모니터링·백업·개인정보,
+배포·롤백)도 완료됨.
 
 ---
 
