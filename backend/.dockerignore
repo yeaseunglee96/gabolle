@@ -1,0 +1,9 @@
+.gradle/
+build/
+.env
+.env.*
+!.env.example
+.idea/
+*.iml
+README.md
+Dockerfile
