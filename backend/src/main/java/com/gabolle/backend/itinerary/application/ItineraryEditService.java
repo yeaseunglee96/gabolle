@@ -47,11 +47,11 @@ public class ItineraryEditService {
         Itinerary itinerary = repository.findById(itineraryId)
                 .orElseThrow(() -> new NoSuchElementException("일정을 찾을 수 없습니다: " + itineraryId));
 
-        // ① 흔한 경우를 빨리 걸러낸다. 진짜 보장은 ③ 의 DB UNIQUE 제약이 한다.
-        itinerary.assertEditableFrom(baseVersion);
+        // ① 검증하고 다음 번호를 정한다. 번호는 latestVersion 이 아니라
+        //    검증된 baseVersion 에서 나온다 — 아래 ③ 과 짝이 맞아야 한다.
+        int next = itinerary.nextVersionFrom(baseVersion);
 
         // ② 새 판을 만든다. 기존 판은 건드리지 않는다.
-        int next = itinerary.nextVersion();
         ItineraryVersion candidate = new ItineraryVersion(
                 UUID.randomUUID().toString(),
                 itineraryId,

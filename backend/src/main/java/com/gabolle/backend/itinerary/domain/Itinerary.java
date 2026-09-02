@@ -40,12 +40,26 @@ public class Itinerary {
     }
 
     /**
-     * 다음 판 번호.
+     * 검증하고 다음 판 번호를 돌려준다.
      *
-     * <p>편집이 성공하면 이 번호로 새 {@link ItineraryVersion} 을 만든다.
+     * <p>🔴 <b>번호를 latestVersion 이 아니라 검증된 baseVersion 에서 만든다.</b>
+     * 이게 중요한 이유 — 두 요청이 동시에 들어왔을 때 다음 순서가 가능하다.
+     *
+     * <pre>
+     * A: 검증(5) 통과          B: 검증(5) 통과        ← 둘 다 latest=5 를 읽음
+     * A: 6번 저장, latest=6
+     * B: latest 를 다시 읽으면 6 → 7번을 만든다 → 저장 성공   🔴 둘 다 통과
+     * </pre>
+     *
+     * <p>B 가 5번을 바탕으로 7번을 만들었고 409 가 안 났다. 판이 하나 건너뛰어졌다.
+     * baseVersion + 1 로 고정하면 둘 다 6번을 시도하고, 저장 시점의
+     * UNIQUE 제약이 하나만 통과시킨다.
+     *
+     * @throws StaleItineraryVersionException 그 사이에 누가 고쳤을 때
      */
-    public int nextVersion() {
-        return latestVersion + 1;
+    public int nextVersionFrom(int baseVersion) {
+        assertEditableFrom(baseVersion);
+        return baseVersion + 1;
     }
 
     /** 새 판이 저장된 뒤 포인터를 옮긴다. */
