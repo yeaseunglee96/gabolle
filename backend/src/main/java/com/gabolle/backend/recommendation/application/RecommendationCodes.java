@@ -1,0 +1,86 @@
+package com.gabolle.backend.recommendation.application;
+
+import com.gabolle.backend.recommendation.domain.ConstraintSeverity;
+
+/** 문자열로 흩어지면 오타가 조용히 통과하는 값들을 한군데 모은다. */
+public final class RecommendationCodes {
+
+	/**
+	 * 이벤트 종류. S15P21E201-544 의 노출 이벤트가 이 요청과 짝을 이룬다.
+	 *
+	 * <p>P0 데이터 명세 8.1 이 이 이벤트의 필수 데이터로 <b>전체 버전</b>을 요구하므로,
+	 * 버전을 구하기 전에 끝난 요청에는 이 이벤트를 만들 수 없다. 그런 요청은
+	 * {@link #EVENT_RECOMMENDATION_FAILED} 로 남는다.
+	 */
+	public static final String EVENT_RECOMMENDATION_REQUESTED = "recommendation_requested";
+
+	/**
+	 * 추천이 실패했다. <b>모든</b> 실패에 대해 만들어진다.
+	 *
+	 * <p>🔴 이 이벤트가 왜 따로 있는가. {@code recommendation_requested} 는 버전 넷을 필수로
+	 * 요구하는데, 엔진이 꺼져 있거나 버전을 못 받은 실패에는 그 값이 존재하지 않는다. 그래서
+	 * 그런 요청은 이벤트 스트림에서 <b>통째로 사라졌고</b>, 실패율을 재면 서비스가 제일 안 좋았던
+	 * 순간이 통계에서 빠졌다. 반쪽 envelope 을 내보내는 대신 버전을 요구하지 않는 이벤트를
+	 * 하나 더 둔다.
+	 *
+	 * <p>🔴 생산자는 <b>BE Outbox</b> 다. 클라이언트 계측이 아니므로 FE·APP 은 손댈 것이 없다.
+	 * 다만 이벤트 사전은 DATA 소유이므로(개발계획서 3.3, 9/3 12:00 고정) 소비자 쪽에 알려야 한다.
+	 */
+	public static final String EVENT_RECOMMENDATION_FAILED = "recommendation_failed";
+
+	/** Outbox 의 aggregate 종류. */
+	public static final String AGGREGATE_TYPE = "recommendation";
+
+	/**
+	 * 제약을 확인하지 못했다. 🔴 PASS 로 바꾼 것이 아니고, 기본 정책에서는 <b>제외하지도
+	 * 않는다</b> — 경고만 붙여 내보낸다 (기능·화면 상세설계서 FR-REC-02).
+	 */
+	public static final String WARNING_CONSTRAINT_UNKNOWN = "CONSTRAINT_UNKNOWN";
+
+	/**
+	 * 🔴 확인하지 못한 제약의 등급이 기준선을 넘어 결과에서 뺐다.
+	 * {@link #WARNING_CONSTRAINT_UNKNOWN} 과 함께 붙는다 — 그것은 "모른다", 이것은
+	 * "몰라서 뺐다" 다. 어느 등급 때문이었는지는 {@link #warningForSeverity} 가 함께 남긴다.
+	 */
+	public static final String WARNING_UNKNOWN_CONSTRAINT_EXCLUDED = "UNKNOWN_CONSTRAINT_EXCLUDED";
+
+	/**
+	 * 어느 등급의 제약을 확인하지 못해 뺐는지. 제외율을 등급별로 셀 수 있어야 "데이터가
+	 * 부족해서 빠진 것" 과 "정책이 빡빡해서 빠진 것" 을 나중에 구분할 수 있다.
+	 */
+	public static String warningForSeverity(ConstraintSeverity severity) {
+		return "UNKNOWN_SEVERITY_" + severity.name();
+	}
+
+	/** 점수가 없어 순위를 매기지 못했다. 순위를 붙이는 대신 이 경고를 남긴다. */
+	public static final String WARNING_SCORE_MISSING = "SCORE_MISSING";
+
+	/**
+	 * 반환할 후보가 하나도 없다. GB-API-001 5장의 오류 코드이며 공개 API 는 <b>422</b> 로 낸다.
+	 *
+	 * <p>🔴 이때 하드 제약을 자동으로 완화해 억지로 결과를 만들지 않는다. 알레르기 조건을
+	 * 슬쩍 풀어 채운 목록은, 빈 목록보다 나쁘다.
+	 */
+	public static final String ERROR_NO_FEASIBLE_RESULT = "RECOMMENDATION_NO_FEASIBLE_RESULT";
+
+	/** 엔진 호출 자체가 실패했다. */
+	public static final String ERROR_ENGINE_UNAVAILABLE = "ENGINE_UNAVAILABLE";
+
+	/**
+	 * 🔴 이 배포에 {@code RecommendationEnginePort} 구현이 붙어 있지 않다.
+	 *
+	 * <p>이 코드가 있는 이유: 추천 엔진이 없다고 <b>애플리케이션 전체가 못 뜨면</b> 안 된다.
+	 * 다른 도메인이 DB 를 켜려다 추천 때문에 막히는 일이 실제로 생겼다. 그래서 기동은 하되,
+	 * 추천을 실제로 부르면 이 코드로 <b>시끄럽게</b> 실패하고 Job 이 FAILED 로 남는다.
+	 */
+	public static final String ERROR_ENGINE_NOT_CONFIGURED = "ENGINE_NOT_CONFIGURED";
+
+	/** 후보에 일반 로그로 남길 수 없는 값이 섞여 있었다. 저장하지 않고 실패로 남긴다. */
+	public static final String ERROR_SENSITIVE_DATA_REJECTED = "SENSITIVE_DATA_REJECTED";
+
+	/** 후보를 저장 가능한 형태로 만들지 못했다. 예: 같은 place_id 가 두 번 왔다. */
+	public static final String ERROR_CANDIDATE_ASSEMBLY_FAILED = "CANDIDATE_ASSEMBLY_FAILED";
+
+	private RecommendationCodes() {
+	}
+}
