@@ -201,15 +201,21 @@ E201봇채널로 자동 알림된다.
 
 ## 7. 앞으로 남은 것
 
-- 실제 `frontend/` 코드/Dockerfile 작성 (현재는 placeholder 상태)
-- 문서 13절(단계별 실행 일정과 완료 체크리스트) — 지금까지 한 것을 인수 조건에
-  맞춰 최종 점검
+문서 5~13절(개인화 인프라 구축 가이드)은 전부 끝났다 (10절 Kafka는 팀 결정으로
+범위 제외). `infra/personalization/Jenkinsfile`은 Jenkins Job
+`infra-personalization-deploy`로 실제 연결됐고, GitLab Webhook(Push events,
+Wildcard pattern `common/dev`)이 자동으로 트리거해 SHA 태깅 빌드·백업·배포·
+헬스체크까지 전 과정이 초록으로 통과하는 것까지 확인됨 (S15P21E201-573).
 
-`infra/personalization/Jenkinsfile`은 Jenkins Job `infra-personalization-deploy`로
-실제 연결됐다 — GitLab Webhook(Push events, Wildcard pattern `common/dev`)이
-자동으로 트리거하고, SHA 태깅 빌드·백업·배포·헬스체크까지 전 과정이 초록으로
-통과하는 것까지 확인됨 (S15P21E201-573). 문서 11·12절(모니터링·백업·개인정보,
-배포·롤백)도 완료됨.
+실제로 아직 안 된 것:
+
+- 실제 `frontend/` 코드/Dockerfile 작성 (현재는 `README.md` 하나뿐인 placeholder
+  상태 — 서비스 명세와 화면 코드가 나온 뒤에 진행하기로 함)
+- 개인화 인프라 자체의 세부 gap(healthcheck 4개 누락, Jenkins UI 포트 노출,
+  모델/피처/DAG 롤백 미리허설 등)은 여기 나열하지 않는다 — 항목이 늘어날
+  때마다 이 줄이 낡기 때문이다. 최신 목록은 항상
+  [`infra/personalization/README.md`](../infra/personalization/README.md)
+  13절을 본다
 
 ---
 
