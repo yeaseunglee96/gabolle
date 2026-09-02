@@ -174,6 +174,14 @@ docker compose exec airflow-api-server airflow config get-value api_auth jwt_sec
 매일 `cron`으로 돌리고, Jenkins 배포 파이프라인의 `Backup` 단계에서도 배포
 직전에 한 번 더 실행한다 (`Jenkinsfile` 참고).
 
+> **실제 서버 배포 확인 (2026-09-02)**: 두 스크립트 모두 J15E201에서 직접 실행해
+> `pg_dump`/`mc mirror` → J15E201A로 `rsync` 전송까지 끝까지 성공했다. 최초
+> 실행에서 `backup-postgres.sh`의 로테이션 부분이 weekly 스냅샷이 하나도 없는
+> 상태에서 `ls`가 exit code 2를 내고 `pipefail` 때문에 `set -e`가 스크립트를
+> 조용히 죽이는 버그가 나왔고(rsync 전송 전 단계에서 멈춤), 로테이션 파이프라인에
+> `|| true`를 붙여 고쳤다 — 자세한 원인은 스크립트 내 주석 참고. cron은
+> `0 4 * * *`(postgres), `30 4 * * *`(minio)로 등록했다.
+
 **서버에 배포하는 법** (최초 1회):
 
 ```bash
@@ -209,7 +217,7 @@ docker rm -f restore-test
 
 | 날짜 | 대상 | 방법 | 결과 |
 |---|---|---|---|
-| _(배포 후 채움)_ | | | |
+| 2026-09-02 | `app_db_daily_20260902.dump` (J15E201A에서 다시 가져온 사본) | 메인 서버(J15E201)에서 `postgres:16.4` 임시 컨테이너에 `pg_restore`로 복구, `\dt`와 `count(*)`로 확인 | 성공 — `raw_event`(300행)·`staging_event`(300행)·`user_feature`(20행) 테이블 3개 전부 복구됨. `ALTER TABLE ... OWNER TO app_user`/`GRANT` 관련 에러 4건은 테스트 컨테이너에 `app_user` 계정이 없어서 난 것으로, 실제 서버 복구 시에는 해당 계정이 이미 있어 발생하지 않는다(`errors ignored on restore` 표시로 pg_restore가 계속 진행함을 확인) |
 
 ### 11.3 개인정보 삭제 절차 (회원 탈퇴 시)
 
