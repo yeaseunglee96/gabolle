@@ -2,21 +2,27 @@ package com.gabolle.backend.auth.api;
 
 import com.gabolle.backend.auth.domain.AuthProvider;
 import com.gabolle.backend.auth.service.AuthCommands;
+import com.gabolle.backend.auth.service.AuthException;
 import com.gabolle.backend.auth.service.AuthTokenService;
+import com.gabolle.backend.auth.service.CurrentUserService;
 import com.gabolle.backend.auth.service.LocalAuthService;
-import com.gabolle.backend.auth.service.OAuthLoginService;
-import com.gabolle.backend.auth.service.OAuthChallengeService;
 import com.gabolle.backend.auth.service.OAuthAccountService;
+import com.gabolle.backend.auth.service.OAuthChallengeService;
+import com.gabolle.backend.auth.service.OAuthLoginService;
 import com.gabolle.backend.auth.service.PasswordResetService;
+import com.gabolle.backend.auth.service.WebAuthCookieService;
 import com.gabolle.backend.common.api.ApiResponse;
-import jakarta.validation.Valid;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import java.util.Locale;
 import java.util.UUID;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,9 +30,6 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.context.annotation.Profile;
-import com.gabolle.backend.auth.service.AuthException;
-import com.gabolle.backend.auth.service.WebAuthCookieService;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -39,16 +42,28 @@ public class AuthController {
 	private final OAuthLoginService oAuthLoginService;
 	private final OAuthChallengeService oAuthChallengeService;
 	private final WebAuthCookieService webAuthCookieService;
+	private final CurrentUserService currentUserService;
 
 	public AuthController(LocalAuthService localAuthService, PasswordResetService passwordResetService,
 			AuthTokenService tokenService, OAuthLoginService oAuthLoginService,
-			OAuthChallengeService oAuthChallengeService, WebAuthCookieService webAuthCookieService) {
+			OAuthChallengeService oAuthChallengeService, WebAuthCookieService webAuthCookieService,
+			CurrentUserService currentUserService) {
 		this.localAuthService = localAuthService;
 		this.passwordResetService = passwordResetService;
 		this.tokenService = tokenService;
 		this.oAuthLoginService = oAuthLoginService;
 		this.oAuthChallengeService = oAuthChallengeService;
 		this.webAuthCookieService = webAuthCookieService;
+		this.currentUserService = currentUserService;
+	}
+
+	@GetMapping("/me")
+	public ApiResponse<AuthUserResponse> me(Authentication authentication,
+			@RequestHeader(value = "X-Request-Id", required = false) String requestId) {
+		UUID userId = authenticatedUserId(authentication);
+		CurrentUserService.CurrentUser currentUser = currentUserService.get(userId);
+		return ApiResponse.success(AuthUserResponse.from(currentUser.user(), currentUser.email()),
+				resolveRequestId(requestId));
 	}
 
 	@PostMapping("/signup")
@@ -158,6 +173,18 @@ public class AuthController {
 
 	private String resolveRequestId(String requestId) {
 		return requestId == null || requestId.isBlank() ? UUID.randomUUID().toString() : requestId;
+	}
+
+	private UUID authenticatedUserId(Authentication authentication) {
+		if (authentication == null || authentication.getName() == null) {
+			throw new AuthException("AUTHENTICATION_REQUIRED", "로그인이 필요합니다.", HttpStatus.UNAUTHORIZED);
+		}
+		try {
+			return UUID.fromString(authentication.getName());
+		} catch (IllegalArgumentException exception) {
+			throw new AuthException("INVALID_AUTHENTICATION", "인증 정보가 올바르지 않습니다.",
+					HttpStatus.UNAUTHORIZED);
+		}
 	}
 
 	private AuthTokenResponse writeWebCookieIfNeeded(AuthTokenService.IssuedTokens tokens, String clientPlatform,
