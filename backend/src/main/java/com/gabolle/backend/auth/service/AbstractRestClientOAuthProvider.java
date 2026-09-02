@@ -1,7 +1,5 @@
 package com.gabolle.backend.auth.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gabolle.backend.auth.domain.AuthProvider;
 import java.time.Duration;
 import org.springframework.http.MediaType;
@@ -9,6 +7,9 @@ import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 abstract class AbstractRestClientOAuthProvider implements OAuthProviderClient {
 
@@ -57,7 +58,7 @@ abstract class AbstractRestClientOAuthProvider implements OAuthProviderClient {
 						org.springframework.http.HttpStatus.BAD_GATEWAY);
 			}
 			return new TokenResponse(accessToken, idToken);
-		} catch (RestClientException | java.io.IOException exception) {
+		} catch (RestClientException | JacksonException exception) {
 			throw new AuthException("OAUTH_TOKEN_EXCHANGE_FAILED", "소셜 인증 코드 교환에 실패했습니다.",
 					org.springframework.http.HttpStatus.BAD_GATEWAY);
 		}
@@ -71,7 +72,7 @@ abstract class AbstractRestClientOAuthProvider implements OAuthProviderClient {
 			String body = restClient.get().uri(userInfoUri).header("Authorization", "Bearer " + accessToken)
 					.retrieve().body(String.class);
 			return objectMapper.readTree(body);
-		} catch (RestClientException | java.io.IOException exception) {
+		} catch (RestClientException | JacksonException exception) {
 			throw new AuthException("OAUTH_USERINFO_FAILED", "소셜 사용자 정보를 받지 못했습니다.",
 					org.springframework.http.HttpStatus.BAD_GATEWAY);
 		}

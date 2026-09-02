@@ -1,7 +1,5 @@
 package com.gabolle.backend.auth.config;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gabolle.backend.auth.domain.AuthSession;
 import com.gabolle.backend.auth.repository.AuthSessionRepository;
 import com.gabolle.backend.user.domain.UserStatus;
@@ -24,6 +22,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 @Component
 @Profile({"db", "dev"})
