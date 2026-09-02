@@ -20,6 +20,13 @@ test("없는 API는 일관된 오류 코드와 추적 ID를 반환한다", async
   assert.equal(response.body.traceId, response.headers["x-request-id"]);
 });
 
+test("v1 공개 API는 data/error/meta 공통 응답 구조를 사용한다", async () => {
+  const response = await request(app).get("/api/v1/routes/directions").query({ startLat: 35.1152, startLng: 129.0403, endLat: 35.1587, endLng: 129.1604, mode: "TRANSIT" }).expect(200);
+  assert.equal(response.body.error, null);
+  assert.equal(response.body.meta.requestId, response.headers["x-request-id"]);
+  assert.ok(response.body.data.durationMin > 0);
+});
+
 test("256KB를 넘는 JSON 요청을 거부한다", async () => {
   const response = await request(app).post("/api/events").set("Content-Type", "application/json").send({ payload: "x".repeat(300_000) }).expect(413);
   assert.equal(response.body.error_code, "PAYLOAD_TOO_LARGE");
