@@ -192,6 +192,27 @@ npx -y axmap-cli@latest version bump --branch back/dev --push   # 원격까지 �
 | 토큰 문자열 | **한 번만 보인다.** 그 자리에서 복사한다 |
 | `Settings → CI/CD → Variables` | Key `AXMAP_BOT_TOKEN` · **Masked**(로그에 값이 안 찍히게 가리는 표시) + **Protected**(보호 브랜치에서 도는 잡에만 값을 내려주는 표시) |
 
+#### 🔴 넣을 변수는 하나가 아니라 **넷**이다 (2026-09-01 기준)
+
+`jira` 잡과 `vote:recheck` 잡이 생기면서 늘었다. **Type 은 `Variable`, Environments 는
+`All` 그대로** 두고 아래만 채운다.
+
+| Key | Value | Visibility | Protect |
+|---|---|---|---|
+| `AXMAP_BOT_TOKEN` | 위에서 만든 토큰 | **Masked** | ✅ |
+| `JIRA_BASE_URL` | `https://ssafy.atlassian.net` | **Visible** | ✅ |
+| `JIRA_EMAIL` | 토큰을 만든 계정 메일 | **Visible** | ✅ |
+| `JIRA_TOKEN` | `id.atlassian.com` → Security → API tokens | **Masked** | ✅ |
+
+- 🔴 **`Masked and hidden` 을 고르지 않는다.** 저장 뒤로는 값을 **다시 볼 수 없어서**
+  잘못 넣으면 지우고 새로 만드는 수밖에 없다
+- 주소와 메일은 **`Visible`** 로 둔다. `Masked` 는 값에 형식 조건이 있어 **저장이
+  거부될 수 있고**, 그 둘은 애초에 비밀이 아니다
+- 🔴 **`AXMAP_BOT_TOKEN` 의 scope 는 `api` 여야 한다.** 표 트리거(`vote:recheck`)가
+  **GitLab API 로 MR 파이프라인을 만들기** 때문이다. `read_api` 로는 그것을 못 한다
+
+**이 넷이 들어가면 셋이 함께 산다** — 버전 태그 · Jira 자동 전환 · 표 트리거.
+
 ### 토큰이 없으면 — 조용히 건너뛰지 않는다
 
 의도적인 설계다. 토큰이 없으면 `version` 잡은 **다음 버전이 무엇이었을지 계산해 로그에
@@ -219,6 +240,22 @@ npx -y axmap-cli@latest version bump --branch back/dev --push   # 원격까지 �
 곳에서는** 잡이 "토큰이 없습니다" 경로로 빠져 **초록으로 끝난다. 빨갛지 않다.**
 
 → 토큰을 넣을 때 **그 브랜치들이 전부 보호 브랜치인지 함께 확인해야 한다.**
+
+##### 2026-09-01 실측 — 지금 어디까지 채워졌나
+
+*"확인해야 한다"* 만 있고 *"지금 어떤가"* 가 없으면 다음 사람이 같은 것을 다시 잰다.
+
+| 보호 브랜치 | 상태 | |
+|---|---|---|
+| `main` | ✅ 등록됨 | merge=Maintainers · push=No one |
+| `til` | ✅ 원래 등록됨 | 배운 것을 적는 자리 |
+| `*/dev` | ✅ **이날 등록함** | 5개 브랜치. merge·push 둘 다 **Developers + Maintainers** 로 두어 **지금 동작이 하나도 안 바뀐다** — 목적은 Protected 변수를 여기까지 오게 하는 것뿐이다 |
+| `*/main` (파트) | ✅ **이날 등록함** | 5개 브랜치. `*/dev` 와 같은 설정이다. 이걸 안 하면 **파트 승격 때 minor 태그가 조용히 안 붙는다** — 초록인데 태그만 없는 그 모양이다 |
+
+> 보호 브랜치를 만든다고 **꼭 잠그는 것은 아니다.** `Allowed to push and merge` 를
+> `Developers + Maintainers` 로 두면 **누구나 밀어 넣을 수 있는 상태 그대로**이면서
+> GitLab 이 그 브랜치를 "보호됨" 으로 취급한다. `*/dev` 를 그렇게 열어 둔 이유가
+> 이것이다 — `dev` 는 일부러 연 자리다(`.gitlab-ci.yml` 의 `governance` 잡 주석).
 
 #### 토큰 만료일이 곧 자동화의 수명이다
 
