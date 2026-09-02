@@ -287,15 +287,27 @@ Jenkins Job이 아직 연결 안 됐을 때의 수동 배포나, 디버깅 시 �
 | Redis key는 `feature:vN`으로 버전 분리 | 이미 구현되어 있다 — `airflow/dags/sample_personalization_pipeline.py`가 `feature:v1:user:{user_id}` 형태로 쓴다. 신규 버전 배포가 실패해도 이전 버전 키가 그대로 남아 있어 API가 읽을 수 있다 |
 | DAG rollback은 이전 릴리스의 DAG artifact를 재배포 | DAG 파일은 git으로 버전 관리된다 — 서버에서 이전 커밋으로 `git checkout`하면 `airflow-dag-processor`가 마운트된 `airflow/dags/`의 변경을 자동으로 다시 읽는다. 재기동은 필요 없다. 중복 실행 여부는 Airflow UI의 DAG 실행 이력에서 확인한다 |
 
-**실제 배포 → 롤백 리허설 (2026-09-02)**: 서버(J15E201)에서 `mlflow`, `airflow-scheduler`
-이미지를 두 개의 서로 다른 `IMAGE_TAG`(현재 커밋 SHA, 이전 커밋 SHA)로 각각 빌드하고,
-`docker compose up -d --no-deps mlflow`로 태그를 번갈아 전환하며 컨테이너가 지정한
-태그의 이미지로 정확히 뜨는 것을 `docker inspect --format '{{.Config.Image}}'`로 확인했다.
-자세한 명령과 결과는 아래 표에 남긴다.
+**실제 배포 → 롤백 리허설 (2026-09-02)**: 서버(J15E201)에서 `mlflow` 이미지로
+검증했다 (`airflow-common`도 같은 `image:`/`IMAGE_TAG` 메커니즘을 공유하므로
+동일하게 동작한다 — 4개 서비스가 셋 다 무거워서 빠른 서비스인 mlflow로만
+1회 리허설했다). 태그 v1(`6a950edcce75`, 실제 커밋 SHA)으로 빌드·배포 →
+태그 v2-test(가상 배포)로 다시 빌드·배포 → **재빌드 없이** `IMAGE_TAG=6a950edcce75`로
+`up -d --no-deps`만 실행해 v1으로 롤백. 매 단계 `docker inspect --format
+'{{.Config.Image}}'`로 실제 태그를 확인했고, 롤백 후 `curl -f
+http://127.0.0.1:5000/health`로 서비스 정상 동작까지 확인했다.
+
+> 🔴 **리허설 중 별도로 발견한 문제**: 배포 디렉터리로 쓰려던
+> `/opt/local-route/personalization`이 git 저장소가 아니었다 — Jenkinsfile의
+> "Sync Repository on Server"(`git pull`) 단계가 Jenkins Job이 아직 연결된 적
+> 없어 한 번도 실행되지 않았고, 그래서 이 어긋남이 지금까지 안 드러났었다.
+> 배포 위치를 git clone 자체(`/opt/local-route/repository/infra/personalization`)로
+> 통일해 고쳤다 (12.1절 명령, `Jenkinsfile`, 백업 스크립트, cron 전부 이 경로
+> 기준으로 갱신함). 옛 디렉터리는 파일 내용이 git과 동일함을 `diff`로 확인한
+> 뒤 삭제했다.
 
 | 날짜 | 대상 | 방법 | 결과 |
 |---|---|---|---|
-| _(서버 검증 후 채움)_ | | | |
+| 2026-09-02 | `mlflow` 이미지 (v1 `6a950edcce75` → v2-test → v1 롤백) | `IMAGE_TAG`를 바꿔가며 `docker compose build`/`up -d --no-deps mlflow` 실행, 매 단계 `docker inspect`로 태그 확인, 롤백 후 `/health` 확인 | 성공 — v1 빌드·배포, v2-test 빌드·배포, v1으로 **재빌드 없이** 롤백까지 전부 태그가 의도대로 전환됐고 롤백 후 헬스체크도 `OK` |
 
 ### 12.3 대표 장애 대응
 
