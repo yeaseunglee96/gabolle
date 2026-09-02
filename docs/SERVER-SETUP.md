@@ -93,6 +93,37 @@ sudo nginx -t              # 문법 검증
 sudo systemctl reload nginx
 ```
 
+### 요청 비율 제한 (rate limiting) — S15P21E201-581
+
+HTTPS는 적용돼 있었지만, 짧은 시간에 대량 요청이 들어오는 것을 막는 장치가
+없었다. `/etc/nginx/sites-available/default` 맨 위(파일 전체가 `http {}`
+컨텍스트 안에 include되므로 `server {}` 밖에 있으면 http 컨텍스트다)에 zone을
+정의하고, `/api/` location 안에 적용했다.
+
+```nginx
+# 파일 맨 위, 아무 server {} 블록 밖에
+limit_req_zone $binary_remote_addr zone=api_limit:10m rate=10r/s;
+
+server {
+    ...
+    location /api/ {
+        limit_req zone=api_limit burst=20 nodelay;
+        proxy_pass http://localhost:8080/;
+        ...
+    }
+}
+```
+
+- `rate=10r/s`: IP 하나당 초당 10개 요청까지 정상 처리
+- `burst=20 nodelay`: 순간적으로 몰리는 20개까지는 즉시 처리하고, 그 이상은
+  큐잉 없이 바로 거부(기본 `503`)한다 — API 응답성을 위해 지연 큐잉 대신
+  즉시 거부를 택함
+
+**검증**: 정상적인 순차 요청(초당 몇 건 수준)은 전부 `200`으로 그대로
+통과했다. 40개 요청을 **동시에** 보내자 일부가 `503`으로 거부되는 것을
+확인했다 (`curl ... & done; wait`로 병렬 발사 — 순차 반복문은 각 요청 사이
+TLS 핸드셰이크 시간 때문에 초당 10건을 안 넘어서 재현 안 됨).
+
 ---
 
 ## 4. Docker
