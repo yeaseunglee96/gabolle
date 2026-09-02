@@ -6,7 +6,7 @@ import type { CreateTripRequest } from "../types";
 import { useAppShell } from "../routes/AppShell";
 import { paths } from "../routes/paths";
 
-const STEP_SLUGS = ["basic", "taste", "confirm"] as const;
+const STEP_SLUGS = ["basic", "taste", "constraints", "confirm"] as const;
 type StepSlug = (typeof STEP_SLUGS)[number];
 
 /**

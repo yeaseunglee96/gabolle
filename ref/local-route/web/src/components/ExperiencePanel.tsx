@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { addFestival, getActivities, getEvents, getNatureSpots, getNightViews, getSouvenirShops, getWalkTrails } from "../api/client";
 import type { ActivitySpot, Festival, ItineraryOutput, SouvenirShop } from "../types";
+import { PlacePhoto } from "./PlacePhoto";
 
 type SpotTab = "ACTIVITY" | "WALK" | "NATURE" | "NIGHT_VIEW";
 type DiscoveryTab = "FESTIVAL" | "NIGHT_MARKET" | "TRADITIONAL_MARKET" | SpotTab | "SOUVENIR";
@@ -43,7 +44,7 @@ export function ExperiencePanel({ itinerary, canEdit = true }: { itinerary: Itin
     return <div className="discovery-content" role="region" aria-label={`${labels[type].title} 목록`}>
       {visible.length === 0 && <p className="discovery-empty">{type === "FESTIVAL" ? "여행 기간에 확인된 축제가" : type === "NIGHT_MARKET" ? "확인된 야시장이" : "확인된 전통시장이"} 없습니다.</p>}
       {visible.map((event) => <article className="discovery-card" key={event.placeId}>
-        {event.imageUrl ? <img src={event.imageUrl} alt={`${event.title} 이미지`} /> : <div className="discovery-art" aria-hidden="true"><span>{type === "NIGHT_MARKET" ? "NIGHT" : type === "TRADITIONAL_MARKET" ? "MARKET" : "LOCAL"}</span></div>}
+        <PlacePhoto placeId={event.placeId} imageUrl={event.imageUrl} alt={`${event.title} 이미지`} category="FESTIVAL" />
         <div className="discovery-card-copy"><span className="discovery-type">{type === "NIGHT_MARKET" ? "LOCAL NIGHT MARKET" : type === "TRADITIONAL_MARKET" ? "LOCAL TRADITIONAL MARKET" : "LOCAL FESTIVAL"}</span><h3>{event.title}</h3><p>{type === "FESTIVAL" ? `${event.startDate} – ${event.endDate}${event.playTime ? ` · ${event.playTime}` : ""}` : event.playTime}</p><small>{event.address}</small>{type === "NIGHT_MARKET" && event.officialUrl && <a className="discovery-source-link" href={event.officialUrl} target="_blank" rel="noreferrer">공식 운영정보 확인</a>}{type === "FESTIVAL" && canEdit && <button type="button" onClick={async () => { try { await addFestival(itinerary.itineraryId, event.placeId); setNotice(`${event.title}을 일정에 추가했습니다.`); } catch (error) { setNotice(error instanceof Error ? error.message : "일정에 추가하지 못했습니다."); } }}>일정에 추가</button>}</div>
       </article>)}
     </div>;
@@ -51,7 +52,7 @@ export function ExperiencePanel({ itinerary, canEdit = true }: { itinerary: Itin
 
   const renderShops = () => <div className="discovery-content" role="region" aria-label="기념품샵 목록">
     {shops.length === 0 && <p className="discovery-empty">출발지 주변에서 확인된 기념품샵이 없습니다.</p>}
-    {shops.map((shop) => <article className="discovery-card souvenir-card" key={shop.id}>{shop.imageUrl ? <img src={shop.imageUrl} alt={`${shop.nameKo} 이미지`} /> : <div className="discovery-art" aria-hidden="true"><span>SOUVENIR</span></div>}<div className="discovery-card-copy"><span className="discovery-type">LOCAL SOUVENIR</span><h3>{shop.nameKo}</h3><p>{shop.items.join(" · ")}</p><small>{shop.address}<br />운영 {shop.openTime}–{shop.closeTime}</small></div></article>)}
+    {shops.map((shop) => <article className="discovery-card souvenir-card" key={shop.id}><PlacePhoto placeId={shop.id} imageUrl={shop.imageUrl} alt={`${shop.nameKo} 이미지`} category="SOUVENIR" /><div className="discovery-card-copy"><span className="discovery-type">LOCAL SOUVENIR</span><h3>{shop.nameKo}</h3><p>{shop.items.join(" · ")}</p><small>{shop.address}<br />운영 {shop.openTime}–{shop.closeTime}</small></div></article>)}
   </div>;
 
   const renderSpots = (type: SpotTab) => {
@@ -59,7 +60,7 @@ export function ExperiencePanel({ itinerary, canEdit = true }: { itinerary: Itin
     return <div className="discovery-content" role="region" aria-label={`${labels[type].title} 목록`}>
       {visible.length === 0 && <p className="discovery-empty">{SPOT_EMPTY_TEXT[type]}</p>}
       {visible.map((spot) => <article className="discovery-card" key={spot.id}>
-        {spot.imageUrl ? <img src={spot.imageUrl} alt={`${spot.nameKo} 이미지`} /> : <div className="discovery-art" aria-hidden="true"><span>{type}</span></div>}
+        <PlacePhoto placeId={spot.id} imageUrl={spot.imageUrl} alt={`${spot.nameKo} 이미지`} category="TOURIST" />
         <div className="discovery-card-copy">
           <span className="discovery-type">{SPOT_TAB_LABEL[type]}</span>
           <h3>{spot.nameKo}</h3>
