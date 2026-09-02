@@ -139,3 +139,102 @@ docker compose exec airflow-api-server airflow config get-value api_auth jwt_sec
 두 값이 다르면 그게 원인이다. 어느 섹션 소속인지 모르겠으면
 `airflow config list`(섹션 헤더 `[api_auth]` 포함 전체 출력)에서 줄 번호로
 대조하면 된다.
+
+---
+
+## 백업 · 최소 모니터링 · 개인정보 삭제 절차 (S15P21E201-578, 문서 11절)
+
+### 11.1 최소 모니터링
+
+지금은 별도 모니터링 스택(Prometheus/Grafana 등)을 두지 않는다. 아래 최소
+지표만 SSH로 접속해 손으로 확인한다 — 자동화는 필요해지면 후속 작업으로 넣는다.
+
+| 확인할 것 | 명령 |
+|---|---|
+| 컨테이너 전부 살아있는가 | `docker compose ps` (모든 서비스가 `Up`) |
+| Airflow DAG 실패 여부 | Airflow UI (`127.0.0.1:8082`, SSH 터널) → DAGs 목록의 최근 실행 상태 |
+| 디스크 여유 공간 | `df -h /var/lib/docker /var/backups` (백업이 쌓이는 두 경로) |
+| MLflow 응답 | `curl -f http://127.0.0.1:5000/health` |
+
+### 11.2 백업
+
+**대상과 정책** (팀 확정, 2026-09-01):
+
+| 대상 | 정책 | 이유 |
+|---|---|---|
+| PostgreSQL (`app_db`/`airflow_db`/`mlflow_db`) | 일 7개 + 주 2개 로테이션 | 같은 데이터의 사본이라 오래된 것은 지워도 된다. 주 2개인 이유는 용량이 아니라 일정 — M4 완료가 2026-09-23이라 프로젝트 전체가 4주가 안 되고, 그래서 주 4개는 애초에 만들어질 수 없다 |
+| MinIO 모델 아티팩트 (`mlflow-artifacts` 버킷) | 로테이션 없이 전체 미러링 | 배포된 적 있는 버전은 프로젝트 종료까지 보존해야 롤백이 가능하다(DR-09). "실험 중간 산출물만 최근 5개로 줄인다"는 세부 규칙은 MLflow Model Registry의 배포/실험 태깅 체계가 아직 없어서, 그게 생긴 뒤 후속 작업으로 넣는다. 그때까지는 아무것도 안 지우는 쪽이 안전하다 |
+| 원본 이벤트(raw event) | 90일 보관 후 삭제 | 실제 `app_db` 이벤트 테이블은 아직 없다 — 스키마가 생기면 BE/Data 쪽에서 로테이션 잡을 추가한다. 여기 적힌 것은 INFRA가 지켜야 할 상한이다 |
+
+**저장 위치**: 로컬(EC2 `J15E201`)에서 `/var/backups/local-route/{postgres,minio}/`로
+백업한 뒤, 별도 EC2 `J15E201A`(백업 전용 서버)로 `rsync` 전송한다. 같은 서버
+안에만 있으면 그 서버가 죽었을 때 백업도 같이 사라지기 때문이다.
+
+**스크립트**: `scripts/backup-postgres.sh`, `scripts/backup-minio.sh`.
+매일 `cron`으로 돌리고, Jenkins 배포 파이프라인의 `Backup` 단계에서도 배포
+직전에 한 번 더 실행한다 (`Jenkinsfile` 참고).
+
+**서버에 배포하는 법** (최초 1회):
+
+```bash
+# J15E201 (메인 서버) 에서
+sudo mkdir -p /opt/local-route/personalization/scripts
+sudo cp infra/personalization/scripts/*.sh /opt/local-route/personalization/scripts/
+sudo chmod +x /opt/local-route/personalization/scripts/*.sh
+
+# J15E201A(백업 서버)로 rsync 할 SSH 키가 없다면 새로 만들고,
+# 공개키를 J15E201A의 ubuntu 계정 authorized_keys 에 등록한다
+ssh-keygen -t ed25519 -f ~/.ssh/backup_to_j15e201a -N ""
+ssh-copy-id -i ~/.ssh/backup_to_j15e201a.pub ubuntu@j15e201a.p.ssafy.io
+
+# crontab 에 매일 새벽 등록 (예: 04:00 postgres, 04:30 minio)
+crontab -e
+# 0 4 * * *  /opt/local-route/personalization/scripts/backup-postgres.sh >> /var/log/local-route/backup-postgres.log 2>&1
+# 30 4 * * * /opt/local-route/personalization/scripts/backup-minio.sh >> /var/log/local-route/backup-minio.log 2>&1
+```
+
+**복구 리허설**: 실제로 백업 파일이 복구 가능한지, 한 번은 직접 검증해야 한다.
+
+```bash
+# J15E201A 에서 임의의 daily 덤프 하나를 골라 새 컨테이너에 복구해본다
+docker run --rm -e POSTGRES_PASSWORD=temp -d --name restore-test postgres:15
+docker cp /opt/backups/local-route/postgres/app_db_daily_<날짜>.dump restore-test:/tmp/app_db.dump
+docker exec restore-test createdb -U postgres app_db_restored
+docker exec restore-test pg_restore -U postgres -d app_db_restored /tmp/app_db.dump
+docker exec restore-test psql -U postgres -d app_db_restored -c '\dt'   # 테이블 목록이 보이면 성공
+docker rm -f restore-test
+```
+
+> 리허설 결과는 이 표에 기록한다 — 언제, 무엇을, 어떻게 확인했는지.
+
+| 날짜 | 대상 | 방법 | 결과 |
+|---|---|---|---|
+| _(배포 후 채움)_ | | | |
+
+### 11.3 개인정보 삭제 절차 (회원 탈퇴 시)
+
+**정책** (팀 확정, 2026-09-01):
+
+- **완전 삭제(hard delete)**: 계정, 인증 정보, 프로필, 좋아요/즐겨찾기 등 기능
+  데이터 — 탈퇴 즉시
+- **익명화(anonymize, 삭제 아님)**: 추천 모델 학습에 쓰인 행동 이벤트
+  (조회·클릭 등) — `userId`를 잘라내고, 위치를 넓은 구역 단위로 뭉개고,
+  타임스탬프를 반올림한다. 완전히 지우지 않는 이유는 NFR-08(오프라인 평가
+  재현성)을 지키기 위해서다 — 그 이벤트가 없으면 과거 모델 성능을 다시 계산할
+  방법이 없어진다
+- **공개 SLA**: 삭제 요청 시 즉시 처리 시작, 백업까지 포함한 완전 삭제는 최대
+  30일 이내 완료
+
+**INFRA가 담당하는 부분과 아닌 부분**:
+
+- 🔴 실제 익명화 SQL과 애플리케이션 로직은 **BE/Data 쪽 작업**이다 — 지금은
+  실제 `app_db` 이벤트 스키마 자체가 없어서 INFRA가 미리 만들 수 없다. 스키마가
+  생기면 그쪽 티켓에서 익명화 배치 잡을 추가해야 한다
+- INFRA가 지금 보장하는 것은 **백업 로테이션이 30일 SLA를 넘기지 않는다는 것**
+  이다 — PostgreSQL 백업은 최대 7일(daily) + 최근 2주(weekly)만 보관하므로,
+  삭제 요청이 들어온 시점 이후 새로 도는 백업부터는 자동으로 반영된다.
+  `rsync --delete`(로컬에서 지워진 파일은 원격에서도 지운다)를 쓰기 때문에
+  백업 서버(J15E201A) 쪽도 로컬 로테이션을 그대로 따라간다
+- 탈퇴 요청이 들어오면, BE가 익명화/하드삭제를 실행한 **이후** 첫 백업부터
+  그 결과가 반영된다는 점을 팀에 공유해 둔다 — 요청 당일 백업에는 아직
+  옛 데이터가 남아있을 수 있다는 뜻이다
