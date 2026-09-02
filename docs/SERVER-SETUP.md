@@ -186,22 +186,31 @@ docker run -d \
 
 ---
 
-## 6. 지금 남아있는 연습용 리소스 (실제 배포 전 정리 대상)
+## 6. 연습용 리소스 — 정리 완료 (S15P21E201-531·574·575)
 
-| 리소스 | 위치 | 처리 방법 |
-|---|---|---|
-| `hello-test` 컨테이너 | EC2, 포트 8080 | 실제 백엔드 컨테이너로 교체 |
-| `~/hello-test/` (Dockerfile 등) | EC2 홈 디렉터리 | Dockerfile 템플릿으로 참고 후 삭제 가능. 이 Git 저장소와는 무관한 로컬 파일 |
-| Jenkins Job `hello-test-pipeline` | Jenkins | 실제 `docker build`/`docker run` 단계로 스크립트 교체 |
+`hello-test`는 실제 백엔드(`back/dev`, Spring Boot)로 교체됐다. 지금 8080 포트에는
+`backend` 컨테이너가 떠 있고, Jenkins Job `backend-deploy`는 저장소의
+`backend/Jenkinsfile`을 읽는 "Pipeline script from SCM" 방식이며, GitLab
+Webhook은 `back/dev` 브랜치로 제한되어 있다. 빌드 성공/실패는 MatterMost
+E201봇채널로 자동 알림된다.
+
+`~/hello-test/`(EC2 홈 디렉터리의 연습용 파일)는 참고용으로만 남겨뒀다 — 지워도
+무방하다.
 
 ---
 
 ## 7. 앞으로 남은 것
 
-- 실제 `backend/`, `frontend/` 코드/Dockerfile 작성 (현재는 placeholder 상태)
-- Jenkins Webhook의 브랜치 제한을 `All branches`에서 파트별 브랜치
-  (`front/dev`, `back/dev` 등, [git-convention.md](git-convention.md))로 좁히고
-  파트별 Job 분리
-- Jenkinsfile을 저장소에 커밋해 버전 관리 (현재는 Jenkins UI에 직접 입력한 상태
-  — "Pipeline script from SCM" 방식으로 전환 권장)
-- (선택) MatterMost 빌드 알림 연동
+- 실제 `frontend/` 코드/Dockerfile 작성 (현재는 placeholder 상태)
+- `infra/personalization/Jenkinsfile`을 실제 Jenkins Job에 연결 (지금은 저장소에만
+  있고 Job 미생성 — S15P21E201-573)
+- 문서 11~13절(모니터링·백업·개인정보, 배포·롤백, 완료 체크리스트)
+
+---
+
+## 8. 개인화 인프라 — 별도 문서
+
+PostgreSQL·Redis·MinIO·MLflow·Airflow로 구성된 개인화 추천 인프라는
+`infra/personalization/`에 있고, 구축 절차와 **여기서 겪은 문제 해결 기록**은
+[`infra/personalization/README.md`](../infra/personalization/README.md)에 정리했다
+(S15P21E201-573·576).
