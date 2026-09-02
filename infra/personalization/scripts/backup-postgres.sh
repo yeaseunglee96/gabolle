@@ -41,9 +41,16 @@ if [ "$DOW" = "7" ]; then
 fi
 
 # 로테이션 — DB별로 daily 는 최근 7개, weekly 는 최근 2개만 남긴다
+#
+# 🔴 ls 는 매칭되는 파일이 하나도 없으면(예: weekly 스냅샷이 아직 한 번도
+#   안 만들어졌을 때) exit code 2 를 낸다. 2>/dev/null 은 에러 "메시지"만
+#   지울 뿐 exit code 는 그대로라서, pipefail 때문에 파이프 전체가 실패로
+#   처리되고 set -e 가 여기서 스크립트를 조용히 죽인다 (rsync 까지 못 감).
+#   그래서 파이프 전체를 || true 로 감싼다 — "지울 게 없으면 그냥 넘어간다"는
+#   정상 상황이지 에러가 아니다.
 for db in "${DATABASES[@]}"; do
-    ls -1t "$BACKUP_DIR/${db}_daily_"*.dump 2>/dev/null | tail -n +8 | xargs -r rm -f
-    ls -1t "$BACKUP_DIR/${db}_weekly_"*.dump 2>/dev/null | tail -n +3 | xargs -r rm -f
+    ls -1t "$BACKUP_DIR/${db}_daily_"*.dump 2>/dev/null | tail -n +8 | xargs -r rm -f || true
+    ls -1t "$BACKUP_DIR/${db}_weekly_"*.dump 2>/dev/null | tail -n +3 | xargs -r rm -f || true
 done
 
 echo "[backup-postgres] syncing to backup server (${REMOTE_HOST})"
