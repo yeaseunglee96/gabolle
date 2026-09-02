@@ -334,3 +334,57 @@ Backup → Deploy → Health Check까지 **자동으로** 전부 초록으로 �
 | Redis miss 급증 | TTL, evicted_keys, feature freshness | rebuild DAG 실행, API fallback 활성화 |
 | DB 용량 급증 | raw partition, vacuum, long query | 보존정책에 따른 파티션 정리, 임의 DELETE 금지 |
 | 추천 품질 급락 | input drift, data delay, model version | 모델 alias 롤백, 비개인화 fallback, 원인 분석 |
+
+---
+
+## 단계별 실행 일정과 완료 체크리스트 (S15P21E201-580, 문서 13절)
+
+**규칙 하나**: 아래 체크는 실제로 확인한 것만 켠다. 확인 안 됐거나 범위 밖인
+항목은 켜지 않고 이유를 적는다 — 근거 없는 체크는 다음 사람이 믿고 넘어갔다가
+나중에 아니었음을 알게 되는 것보다 나쁘다.
+
+### 단계별 진행 상황
+
+| 단계 | INFRA 작업 | 완료 증거 | 상태 |
+|---|---|---|---|
+| 0. 준비 | 디렉터리, Secret, Compose 규칙 | `docker compose config --quiet` 통과 — 매 배포마다 Jenkins가 자동으로 재확인함 | ✅ 완료 |
+| 1. Core | PostgreSQL, Redis, MinIO, MLflow | 전부 `Up (healthy)` (mlflow만 healthcheck 없음, 아래 참고), 8절 샘플 DAG가 MLflow에 run/artifact를 실제로 남긴 것으로 스모크 테스트 대체 | ✅ 완료 |
+| 2. Airflow | 최소 구성, DB migration, UI 터널 | 8절 샘플 DAG(`sample_personalization_pipeline.py`)가 Import Errors 없이 Airflow UI에 로드됨 | ✅ 완료 |
+| 3. E2E | DAG 배포, 네트워크, Secret | 8절에서 Raw Event → Staging → Feature → MLflow → Redis 전 구간 합성 데이터로 검증 | ✅ 완료 |
+| 4. CI/CD | Job 분리, SCM Jenkinsfile, 브랜치 필터 | `infra-personalization-deploy` Job이 `Pipeline script from SCM` + Wildcard pattern(`common/dev`)으로 동작, SHA 태깅 배포·롤백 리허설을 Jenkins 자동 실행으로 실제 확인(build #4, #6) | ✅ 완료 |
+| 5. 확장 | Kafka, Prometheus/Grafana | — | ⬜ 범위 밖 — 팀이 이번 구축에서 Kafka(문서 10절)를 명시적으로 제외하기로 결정함. Prometheus/Grafana도 미도입. 필요해지면 별도 티켓으로 시작 |
+
+### 인프라 인수 조건
+
+| 조건 | 상태 | 근거 / 남은 일 |
+|---|---|---|
+| 외부 공개 포트는 80/443와 승인된 SSH 포트뿐이다 | ⚠️ 부분 | `sudo ufw status`로 확인 — 22/80/443 외에 **8081(Jenkins 웹 UI)도 열려 있다.** 실수가 아니라 5절에서 팀원이 Jenkins 접근을 위해 의도적으로 연 것. 원칙과는 어긋나므로, 언젠가 Nginx 뒤로 숨기거나 IP 제한을 걸 필요가 있다면 별도 티켓으로 다룬다 |
+| 운영 UI는 loopback/SSH 터널로만 접근된다 | ✅ 충족 | MinIO Console(9001)·MLflow(5000)·Airflow API Server(8082) 전부 `127.0.0.1` 바인딩 (포트 표 참고). Jenkins(8081)는 이 항목이 가리키는 "개인화 인프라 운영 UI" 범위 밖으로 본다 — 위 항목에서 별도로 다룸 |
+| 모든 이미지 태그와 Python 패키지 버전이 고정됐다 | ✅ 충족 | `compose.yaml`의 이미지는 전부 태그 고정(`postgres:16.4` 등). `airflow/requirements.txt`는 이번에 `mlflow`만 고정돼 있던 것을 서버 실제 설치 버전(`pip freeze`)으로 전부 고정함 |
+| 모든 서비스에 healthcheck, restart, resource limit, log rotation이 있다 | ⚠️ 부분 | restart·resource limit·log rotation은 전부 있음(`airflow-init`은 1회성 작업이라 resource limit 없음 — 의도적). **healthcheck가 없는 서비스가 4개 남아있다: `mlflow`, `airflow-scheduler`, `airflow-dag-processor`, `airflow-worker`.** Airflow 3.x는 서비스별로 다른 헬스체크 명령(`airflow jobs check --job-type ...`, celery `inspect ping`)이 필요해서 이번에는 넣지 않았다 — 잘못된 명령을 넣었다가 정상 컨테이너를 비정상으로 오판정하는 게 더 위험하다고 판단함. 후속 티켓 필요 |
+| PostgreSQL/MinIO 백업이 자동화되고 restore 리허설 기록이 있다 | ✅ 충족 | 문서 11절 — cron 자동화, 복구 리허설 결과 기록됨 |
+| Jenkins Job별 브랜치 제한과 Pipeline script from SCM이 적용됐다 | ✅ 충족 | `infra-personalization-deploy`가 SCM 방식 + Wildcard pattern `common/dev`로 확인됨 |
+| Secret이 Git, 이미지 layer, Jenkins console log에 노출되지 않는다 | ✅ 충족 | `.env`는 저장소에 없음(심볼릭 링크만). Jenkins는 `--env-file`로 서버의 실제 파일을 참조하므로 값이 명령줄에 안 찍힘. MatterMost/GitLab 자격증명은 `withCredentials`로 마스킹됨 (콘솔 로그에서 직접 확인) |
+| 샘플 이벤트가 Raw→Feature→MLflow→Redis→추천 API까지 흐른다 | ⚠️ 부분 | Raw→Feature→MLflow→Redis는 8절에서 검증됨. **"추천 API"는 아직 없다** — 백엔드에 개인화 추천 엔드포인트 자체가 아직 구현 안 됨. INFRA 범위 밖, BE 쪽 작업 필요 |
+| 모델/피처/DAG/서비스 각각의 이전 버전 롤백이 검증됐다 | ⚠️ 부분 | **서비스(mlflow 이미지) 롤백만 실제로 리허설했다** (12.2절, 재빌드 없이 태그 전환 확인). 모델(MLflow Production alias 전환)·피처(`feature:vN` 신버전 실패 시 구버전 fallback)·DAG(이전 릴리스 재배포) 롤백은 **원칙만 문서화했고 실제 리허설은 안 했다** — 지금은 배포된 모델/버전이 8절 샘플 실험 하나뿐이라 의미 있는 리허설 대상이 아직 없다. 실제 모델이 배포되면 리허설 필요 |
+| 개인정보 opt-out/삭제 Runbook과 담당자가 지정됐다 | ⚠️ 부분 | Runbook은 있다(11.3절). **담당자는 아직 사람 이름으로 지정되지 않았다** — "BE/Data가 익명화 로직을 담당한다"는 역할 수준까지만 정해져 있고, 실제 앱 이벤트 스키마가 없어 담당자를 특정할 단계가 아니었다 |
+
+### 인프라 담당자가 팀 채널에 전달할 요청문
+
+문서 원문의 요청문을 지금 상태에 맞게 다듬었다. 실제로 채널에 올리는 것은
+이 문서의 범위가 아니다 — 인프라 담당자가 직접 판단해서 보낸다.
+
+> 개인화 인프라(PostgreSQL·Redis·MinIO·MLflow·Airflow)는 구축·배포 자동화·
+> 백업·롤백까지 검증을 마쳤습니다. 남은 진짜 의존성은 이겁니다.
+>
+> - **Personalization/Data 팀**: 실제 이벤트 스키마, DAG/SQL, 피처 TTL과
+>   품질 기준을 주셔야 8절 샘플 파이프라인을 실제 파이프라인으로 바꿀 수
+>   있습니다.
+> - **AI 팀**: MLflow에 기록할 metric과 모델 등록/승격(Production alias)
+>   조건을 정해주셔야 12.2절의 모델 롤백을 실제로 리허설할 수 있습니다.
+> - **BE 팀**: EventOutbox 테이블·추천 API·Redis key contract(`feature:vN`
+>   과의 관계)를 확정해주셔야 인수 조건의 "Raw→...→추천 API" 항목을 채울
+>   수 있고, 회원 탈퇴 시 개인정보 익명화 로직의 실제 담당자도 정해집니다.
+>
+> 각 팀은 자신의 브랜치와 Jenkins Job에서 테스트를 통과한 artifact만
+> 배포해 주세요.
