@@ -1,5 +1,10 @@
 name: local-route-personalization
 
+# IMAGE_TAG: mlflow/airflow는 커스텀 빌드라 롤백하려면 "이전 태그로 다시
+# 기동"이 가능해야 한다 (S15P21E201-579, 문서 12절). Jenkinsfile이 git commit
+# SHA를 IMAGE_TAG로 넘겨 빌드·배포하고, 롤백 시에는 재빌드 없이 이전 SHA
+# 태그로만 up -d 한다. 사람이 손으로 돌릴 때는 안 넘기면 latest로 동작한다.
+
 networks:
   data_net:
     driver: bridge
@@ -12,6 +17,7 @@ volumes:
 
 x-airflow-common: &airflow-common
   build: ./airflow
+  image: local-route-personalization-airflow:${IMAGE_TAG:-latest}
   restart: unless-stopped
   networks:
     - data_net
@@ -134,6 +140,7 @@ services:
 
   mlflow:
     build: ./mlflow
+    image: local-route-personalization-mlflow:${IMAGE_TAG:-latest}
     restart: unless-stopped
     networks:
       - data_net

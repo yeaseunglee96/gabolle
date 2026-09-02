@@ -20,9 +20,16 @@ infra/personalization/
 
 ## 서버에 배포하는 법 (지금은 손으로, 9절에서 Jenkins로 자동화)
 
+> 🔴 **배포 위치는 git clone 자체(`/opt/local-route/repository`)다.** 예전에는
+> `/opt/local-route/personalization`이라는 별도 배포 디렉터리를 두려 했지만
+> (git 저장소가 아닌 채로), Jenkinsfile의 `git pull`이 실제로는 한 번도
+> 실행된 적이 없어서 그 디렉터리와 git clone이 어긋나 있었다 (S15P21E201-579
+> 에서 발견). `compose.yaml`의 `name:` 필드가 볼륨·네트워크 이름을 고정하므로,
+> 실행 위치를 옮겨도 기존 데이터/컨테이너에는 영향이 없다.
+
 ```bash
-cd /opt/local-route/personalization
-git pull   # 또는 이 디렉터리 내용을 최신으로 맞춤
+cd /opt/local-route/repository/infra/personalization
+git pull origin common/dev
 
 docker compose --env-file /etc/local-route/personalization.env config --quiet
 docker compose up -d postgres redis minio
@@ -184,11 +191,12 @@ docker compose exec airflow-api-server airflow config get-value api_auth jwt_sec
 
 **서버에 배포하는 법** (최초 1회):
 
+스크립트는 별도로 복사하지 않는다 — git clone(`/opt/local-route/repository`)
+안의 것을 그대로 cron/Jenkins가 실행한다. 실행 권한만 한 번 준다.
+
 ```bash
 # J15E201 (메인 서버) 에서
-sudo mkdir -p /opt/local-route/personalization/scripts
-sudo cp infra/personalization/scripts/*.sh /opt/local-route/personalization/scripts/
-sudo chmod +x /opt/local-route/personalization/scripts/*.sh
+chmod +x /opt/local-route/repository/infra/personalization/scripts/*.sh
 
 # J15E201A(백업 서버)로 rsync 할 SSH 키가 없다면 새로 만들고,
 # 공개키를 J15E201A의 ubuntu 계정 authorized_keys 에 등록한다
@@ -197,15 +205,16 @@ ssh-copy-id -i ~/.ssh/backup_to_j15e201a.pub ubuntu@j15e201a.p.ssafy.io
 
 # crontab 에 매일 새벽 등록 (예: 04:00 postgres, 04:30 minio)
 crontab -e
-# 0 4 * * *  /opt/local-route/personalization/scripts/backup-postgres.sh >> /var/log/local-route/backup-postgres.log 2>&1
-# 30 4 * * * /opt/local-route/personalization/scripts/backup-minio.sh >> /var/log/local-route/backup-minio.log 2>&1
+# 0 4 * * *  /opt/local-route/repository/infra/personalization/scripts/backup-postgres.sh >> /var/log/local-route/backup-postgres.log 2>&1
+# 30 4 * * * /opt/local-route/repository/infra/personalization/scripts/backup-minio.sh >> /var/log/local-route/backup-minio.log 2>&1
 ```
 
 **복구 리허설**: 실제로 백업 파일이 복구 가능한지, 한 번은 직접 검증해야 한다.
 
 ```bash
 # J15E201A 에서 임의의 daily 덤프 하나를 골라 새 컨테이너에 복구해본다
-docker run --rm -e POSTGRES_PASSWORD=temp -d --name restore-test postgres:15
+# (운영 중인 버전과 맞춘다 — compose.yaml 의 postgres 이미지 태그 참고)
+docker run --rm -e POSTGRES_PASSWORD=temp -d --name restore-test postgres:16.4
 docker cp /opt/backups/local-route/postgres/app_db_daily_<날짜>.dump restore-test:/tmp/app_db.dump
 docker exec restore-test createdb -U postgres app_db_restored
 docker exec restore-test pg_restore -U postgres -d app_db_restored /tmp/app_db.dump
@@ -246,3 +255,67 @@ docker rm -f restore-test
 - 탈퇴 요청이 들어오면, BE가 익명화/하드삭제를 실행한 **이후** 첫 백업부터
   그 결과가 반영된다는 점을 팀에 공유해 둔다 — 요청 당일 백업에는 아직
   옛 데이터가 남아있을 수 있다는 뜻이다
+
+---
+
+## 배포 · 롤백 · 장애 대응 (S15P21E201-579, 문서 12절)
+
+### 12.1 일반 배포
+
+```bash
+cd /opt/local-route/repository/infra/personalization
+docker compose --env-file /etc/local-route/personalization.env config --quiet
+docker compose pull <service>                      # postgres/redis/minio 등 공식 이미지
+IMAGE_TAG=<git SHA> docker compose --env-file /etc/local-route/personalization.env build <service>   # mlflow/airflow 커스텀 빌드
+IMAGE_TAG=<git SHA> docker compose --env-file /etc/local-route/personalization.env up -d --no-deps <service>
+docker compose ps
+docker compose logs --tail=100 <service>
+```
+
+이 흐름은 `Jenkinsfile`이 그대로 자동화한다 — 사람이 위 명령을 직접 칠 일은
+Jenkins Job이 아직 연결 안 됐을 때의 수동 배포나, 디버깅 시 로그 확인 정도다.
+
+### 12.2 롤백 원칙
+
+문서 원문의 5가지 원칙을 우리 compose 구조에 맞게 적용한 것이다.
+
+| 원칙 | 우리 환경에서의 적용 |
+|---|---|
+| 이미지는 직전 commit SHA 태그로 되돌리고 service 단위로 재기동 | `mlflow`/`airflow`는 커스텀 빌드라 `compose.yaml`에 `image: ...:${IMAGE_TAG}` 필드를 추가했다. `Jenkinsfile`의 `ROLLBACK_TAG` 파라미터에 이전 커밋의 짧은 SHA를 넣고 재실행하면, 재빌드 없이 이미 로컬에 있는 그 태그의 이미지로 `up -d --no-deps`만 한다 |
+| DB migration은 자동 downgrade에 의존하지 않는다 | `scripts/backup-postgres.sh`(문서 11절)로 배포 직전 백업을 항상 남긴다. migration 실패 시 배포를 멈추고, 필요하면 11.2절의 복구 절차로 되돌린다 |
+| 모델은 MLflow Production alias만 이전 버전으로 되돌린다 | MLflow UI 또는 CLI(`mlflow models set-alias`)로 alias만 옮긴다 — 모델 파일 자체를 지우거나 새로 배포하지 않는다 |
+| Redis key는 `feature:vN`으로 버전 분리 | 이미 구현되어 있다 — `airflow/dags/sample_personalization_pipeline.py`가 `feature:v1:user:{user_id}` 형태로 쓴다. 신규 버전 배포가 실패해도 이전 버전 키가 그대로 남아 있어 API가 읽을 수 있다 |
+| DAG rollback은 이전 릴리스의 DAG artifact를 재배포 | DAG 파일은 git으로 버전 관리된다 — 서버에서 이전 커밋으로 `git checkout`하면 `airflow-dag-processor`가 마운트된 `airflow/dags/`의 변경을 자동으로 다시 읽는다. 재기동은 필요 없다. 중복 실행 여부는 Airflow UI의 DAG 실행 이력에서 확인한다 |
+
+**실제 배포 → 롤백 리허설 (2026-09-02)**: 서버(J15E201)에서 `mlflow` 이미지로
+검증했다 (`airflow-common`도 같은 `image:`/`IMAGE_TAG` 메커니즘을 공유하므로
+동일하게 동작한다 — 4개 서비스가 셋 다 무거워서 빠른 서비스인 mlflow로만
+1회 리허설했다). 태그 v1(`6a950edcce75`, 실제 커밋 SHA)으로 빌드·배포 →
+태그 v2-test(가상 배포)로 다시 빌드·배포 → **재빌드 없이** `IMAGE_TAG=6a950edcce75`로
+`up -d --no-deps`만 실행해 v1으로 롤백. 매 단계 `docker inspect --format
+'{{.Config.Image}}'`로 실제 태그를 확인했고, 롤백 후 `curl -f
+http://127.0.0.1:5000/health`로 서비스 정상 동작까지 확인했다.
+
+> 🔴 **리허설 중 별도로 발견한 문제**: 배포 디렉터리로 쓰려던
+> `/opt/local-route/personalization`이 git 저장소가 아니었다 — Jenkinsfile의
+> "Sync Repository on Server"(`git pull`) 단계가 Jenkins Job이 아직 연결된 적
+> 없어 한 번도 실행되지 않았고, 그래서 이 어긋남이 지금까지 안 드러났었다.
+> 배포 위치를 git clone 자체(`/opt/local-route/repository/infra/personalization`)로
+> 통일해 고쳤다 (12.1절 명령, `Jenkinsfile`, 백업 스크립트, cron 전부 이 경로
+> 기준으로 갱신함). 옛 디렉터리는 파일 내용이 git과 동일함을 `diff`로 확인한
+> 뒤 삭제했다.
+
+| 날짜 | 대상 | 방법 | 결과 |
+|---|---|---|---|
+| 2026-09-02 | `mlflow` 이미지 (v1 `6a950edcce75` → v2-test → v1 롤백) | `IMAGE_TAG`를 바꿔가며 `docker compose build`/`up -d --no-deps mlflow` 실행, 매 단계 `docker inspect`로 태그 확인, 롤백 후 `/health` 확인 | 성공 — v1 빌드·배포, v2-test 빌드·배포, v1으로 **재빌드 없이** 롤백까지 전부 태그가 의도대로 전환됐고 롤백 후 헬스체크도 `OK` |
+
+### 12.3 대표 장애 대응
+
+| 증상 | 우선 확인 | 조치 |
+|---|---|---|
+| OOM/컨테이너 재시작 | `docker inspect`, host memory/swap | 무거운 DAG 중지, concurrency 축소 |
+| Airflow task 적체 | scheduler heartbeat, worker, pool | Worker 재기동 전 DB/queue 연결과 task 멱등성 확인 |
+| MLflow artifact 실패 | MinIO bucket/credential/용량 | credential rotation 여부 확인, DB run과 artifact 불일치 기록 |
+| Redis miss 급증 | TTL, evicted_keys, feature freshness | rebuild DAG 실행, API fallback 활성화 |
+| DB 용량 급증 | raw partition, vacuum, long query | 보존정책에 따른 파티션 정리, 임의 DELETE 금지 |
+| 추천 품질 급락 | input drift, data delay, model version | 모델 alias 롤백, 비개인화 fallback, 원인 분석 |

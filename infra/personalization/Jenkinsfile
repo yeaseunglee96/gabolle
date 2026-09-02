@@ -7,21 +7,39 @@
 //    Script Path를 infra/personalization/Jenkinsfile 로 지정한다
 //  - GitLab Webhook의 Wildcard pattern을 common/dev 로 제한한다
 //
-// 백업 스크립트(scripts/backup-postgres.sh, scripts/backup-minio.sh)는 서버의
-// /opt/local-route/personalization/scripts/ 에 배포되어 있어야 하고, 실행 권한과
+// 백업 스크립트(scripts/backup-postgres.sh, scripts/backup-minio.sh)는
+// COMPOSE_PROJECT_DIR(git clone 안, 별도 복사 없음)에 실행 권한이 있어야 하고,
 // 백업 서버(J15E201A) 접속용 SSH 키(~/.ssh/backup_to_j15e201a)가 미리 준비되어
 // 있어야 한다 (문서 11절, S15P21E201-578). 이 파이프라인은 배포 직전에 그 자리에서
 // 한 번 더 최신 백업을 남기는 안전망이다 — 매일 cron으로도 별도로 돈다.
+//
+// COMPOSE_PROJECT_DIR은 별도 배포 디렉터리가 아니라 서버의 git clone
+// (`/opt/local-route/repository`) 안의 infra/personalization 이다 — 예전에는
+// git이 아닌 별도 디렉터리를 두려 했지만 실제로 동기화가 안 맞아 있었다
+// (S15P21E201-579에서 발견, README.md 참고).
+//
+// 이미지 태그와 롤백 (문서 12절, S15P21E201-579):
+//  - mlflow/airflow는 커스텀 빌드라, 매번 같은 이름(latest)으로 덮어쓰면 이전
+//    버전으로 되돌릴 방법이 없다. 그래서 이 Job은 git commit SHA를 IMAGE_TAG로
+//    써서 이미지를 빌드한다 (compose.yaml의 image: 필드가 이 값을 받는다).
+//  - 롤백할 때는 ROLLBACK_TAG 파라미터에 이전 커밋의 짧은 SHA를 넣고 이 Job을
+//    다시 실행한다 — 그러면 재빌드 없이(이미 로컬에 있는 이전 태그 이미지로)
+//    서비스만 재기동한다. 값이 비어 있으면 평소처럼 지금 커밋으로 새로 빌드한다.
+//  - 🔴 오래된 태그 이미지를 자동으로 정리하지 않는다 — 디스크가 부족해지면
+//    `docker image prune`으로 손으로 정리한다. 자동 정리는 "몇 개까지 남길지"를
+//    아직 팀이 정하지 않아서, 잘못 지웠다가 롤백을 못 하는 쪽이 디스크 낭비보다
+//    위험하다고 판단해 지금은 안전한 쪽(안 지움)을 기본값으로 했다.
 
 pipeline {
     agent any
 
     parameters {
         string(name: 'DEPLOY_HOST', defaultValue: 'j15e201.p.ssafy.io', description: '배포 대상 서버 도메인')
+        string(name: 'ROLLBACK_TAG', defaultValue: '', description: '비워두면 지금 커밋으로 새로 빌드해 배포한다. 이전 커밋의 짧은 SHA(예: a1b2c3d4e5f6)를 넣으면 재빌드 없이 그 태그의 기존 이미지로 재기동만 한다 — 롤백용')
     }
 
     environment {
-        COMPOSE_PROJECT_DIR = '/opt/local-route/personalization'
+        COMPOSE_PROJECT_DIR = '/opt/local-route/repository/infra/personalization'
         ENV_FILE = '/etc/local-route/personalization.env'
         DEPLOY_SERVICES = 'postgres redis minio mlflow airflow-broker airflow-scheduler airflow-dag-processor airflow-api-server airflow-worker'
     }
@@ -33,12 +51,27 @@ pipeline {
             }
         }
 
+        stage('Resolve Image Tag') {
+            steps {
+                script {
+                    if (params.ROLLBACK_TAG?.trim()) {
+                        env.IMAGE_TAG = params.ROLLBACK_TAG.trim()
+                        env.IS_ROLLBACK = 'true'
+                    } else {
+                        env.IMAGE_TAG = sh(script: 'git rev-parse --short=12 HEAD', returnStdout: true).trim()
+                        env.IS_ROLLBACK = 'false'
+                    }
+                    echo "IMAGE_TAG=${env.IMAGE_TAG} (rollback=${env.IS_ROLLBACK})"
+                }
+            }
+        }
+
         stage('Compose Config Check') {
             steps {
                 sshagent(credentials: ['deploy-ssh-key']) {
                     sh """
                         ssh -o StrictHostKeyChecking=no ubuntu@${params.DEPLOY_HOST} \
-                          'cd ${COMPOSE_PROJECT_DIR} && docker compose --env-file ${ENV_FILE} config --quiet'
+                          'cd ${COMPOSE_PROJECT_DIR} && IMAGE_TAG=${IMAGE_TAG} docker compose --env-file ${ENV_FILE} config --quiet'
                     """
                 }
             }
@@ -50,6 +83,20 @@ pipeline {
                     sh """
                         ssh -o StrictHostKeyChecking=no ubuntu@${params.DEPLOY_HOST} \
                           'cd ${COMPOSE_PROJECT_DIR} && git fetch origin && git checkout common/dev && git pull origin common/dev'
+                    """
+                }
+            }
+        }
+
+        stage('Build Images') {
+            when {
+                expression { env.IS_ROLLBACK == 'false' }
+            }
+            steps {
+                sshagent(credentials: ['deploy-ssh-key']) {
+                    sh """
+                        ssh -o StrictHostKeyChecking=no ubuntu@${params.DEPLOY_HOST} \
+                          'cd ${COMPOSE_PROJECT_DIR} && IMAGE_TAG=${IMAGE_TAG} docker compose --env-file ${ENV_FILE} build mlflow airflow-scheduler'
                     """
                 }
             }
@@ -71,7 +118,7 @@ pipeline {
                 sshagent(credentials: ['deploy-ssh-key']) {
                     sh """
                         ssh -o StrictHostKeyChecking=no ubuntu@${params.DEPLOY_HOST} \
-                          'cd ${COMPOSE_PROJECT_DIR} && docker compose --env-file ${ENV_FILE} up -d --no-deps ${DEPLOY_SERVICES}'
+                          'cd ${COMPOSE_PROJECT_DIR} && IMAGE_TAG=${IMAGE_TAG} docker compose --env-file ${ENV_FILE} up -d --no-deps ${DEPLOY_SERVICES}'
                     """
                 }
             }
@@ -96,7 +143,9 @@ pipeline {
             script {
                 sendMMNotify(true, [
                     commit: sh(script: "git log -1 --pretty='%an: %s'", returnStdout: true).trim(),
-                    buildUrl: env.BUILD_URL
+                    buildUrl: env.BUILD_URL,
+                    imageTag: env.IMAGE_TAG,
+                    isRollback: env.IS_ROLLBACK
                 ])
             }
         }
@@ -105,7 +154,9 @@ pipeline {
                 sendMMNotify(false, [
                     commit: sh(script: "git log -1 --pretty='%an: %s'", returnStdout: true).trim(),
                     buildUrl: env.BUILD_URL,
-                    details: '이전 이미지 태그로 서비스 단위 롤백을 검토한다 (문서 12.2절)'
+                    imageTag: env.IMAGE_TAG,
+                    isRollback: env.IS_ROLLBACK,
+                    details: '이 Job을 ROLLBACK_TAG=이전 커밋 SHA 로 다시 실행하면 재빌드 없이 이전 버전으로 되돌릴 수 있다 (문서 12.2절)'
                 ])
             }
         }
@@ -120,6 +171,7 @@ def sendMMNotify(boolean success, Map info) {
 
     def lines = []
     if (info.commit)   lines << "**커밋**: ${info.commit}"
+    if (info.imageTag) lines << "**이미지 태그**: `${info.imageTag}`" + (info.isRollback == 'true' ? ' (롤백)' : '')
     if (info.buildUrl) lines << "**빌드 상세**: [Details](${info.buildUrl})"
     if (!success && info.details) lines << "**참고**: ${info.details}"
 

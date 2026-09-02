@@ -11,7 +11,7 @@
 
 set -euo pipefail
 
-COMPOSE_DIR="/opt/local-route/personalization"
+COMPOSE_DIR="/opt/local-route/repository/infra/personalization"
 BACKUP_DIR="/var/backups/local-route/postgres"
 ENV_FILE="/etc/local-route/personalization.env"
 REMOTE_HOST="j15e201a.p.ssafy.io"
