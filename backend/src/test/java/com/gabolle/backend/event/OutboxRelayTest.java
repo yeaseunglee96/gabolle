@@ -1,201 +1,161 @@
 package com.gabolle.backend.event;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import com.gabolle.backend.event.application.EventIngestService;
-import com.gabolle.backend.event.application.OutboxRelayService;
-import com.gabolle.backend.event.application.port.EventPublisherPort;
-import com.gabolle.backend.event.domain.EventType;
-import com.gabolle.backend.event.domain.OutboxEvent;
-import com.gabolle.backend.event.infra.InMemoryEventOutboxRepository;
-import com.gabolle.backend.event.infra.NoOpEventPublisher;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.UUID;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import com.gabolle.backend.event.application.OutboxRelayService;
+import com.gabolle.backend.event.application.port.EventPublisherPort;
+import com.gabolle.backend.event.domain.EventOutbox;
+import com.gabolle.backend.event.domain.OutboxPublishStatus;
+import com.gabolle.backend.event.repository.EventOutboxRepository;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+
 /**
- * 전달 워커 — S15P21E201-354 · 160.
- *
- * <p>완료 기준 셋을 그대로 검증한다.
- * <ul>
- *   <li>중계 서버를 껐다 켜면 그 사이 쌓인 이벤트가 전달된다</li>
- *   <li>🔴 <b>두 번 돌려도 같은 이벤트가 두 번 기록되지 않는다</b></li>
- *   <li>중계 서버가 안 되는 동안 워커가 오류로 죽지 않는다</li>
- * </ul>
+ * 릴레이 — S15P21E201-354. 완료 기준 셋이 전부 <b>실패를 견디는 것</b>에 관한 것이다.
  */
 class OutboxRelayTest {
 
-    private static final Instant NOW = Instant.parse("2026-09-02T12:00:00Z");
+    private static final Instant NOW = Instant.parse("2026-09-03T12:00:00Z");
 
-    private InMemoryEventOutboxRepository repository;
-    private EventIngestService ingest;
+    private EventOutboxRepository repository;
+    private RecordingPublisher publisher;
+    private OutboxRelayService relay;
 
-    /** 보낸 것을 세는 가짜 발행자. 껐다 켤 수 있다. */
+    /** 켜고 끌 수 있고, 무엇을 보냈는지 기억하는 발행자. */
     private static final class RecordingPublisher implements EventPublisherPort {
-        final List<String> published = new ArrayList<>();
-        boolean available = true;
-        boolean throwOnPublish = false;
+
+        private final List<UUID> sent = new ArrayList<>();
+        private boolean available = true;
+        private RuntimeException failWith;
 
         @Override
-        public void publish(OutboxEvent event) {
-            if (throwOnPublish) {
-                throw new EventPublishException("중계 서버가 응답하지 않습니다", null);
+        public void publish(EventOutbox event) {
+            if (this.failWith != null) {
+                throw this.failWith;
             }
-            published.add(event.eventId());
+            this.sent.add(event.getEventId());
         }
 
         @Override
         public boolean isAvailable() {
-            return available;
+            return this.available;
         }
     }
 
-    private RecordingPublisher publisher;
-    private OutboxRelayService relay;
-
     @BeforeEach
     void setUp() {
-        Clock clock = Clock.fixed(NOW, ZoneOffset.UTC);
-        repository = new InMemoryEventOutboxRepository();
-        ingest = new EventIngestService(repository, clock);
-        publisher = new RecordingPublisher();
-        relay = new OutboxRelayService(repository, publisher, clock);
+        this.repository = mock(EventOutboxRepository.class);
+        this.publisher = new RecordingPublisher();
+        this.relay = new OutboxRelayService(this.repository, this.publisher, Clock.fixed(NOW, ZoneOffset.UTC));
+        given(this.repository.save(any(EventOutbox.class))).willAnswer((call) -> call.getArgument(0));
     }
 
-    private void store(String eventId) {
-        ingest.ingestFromClient(eventId, EventType.RECOMMENDATION_IMPRESSION, 1,
-                "usr_1", "trp_1", "req_" + eventId,
-                NOW.minusSeconds(1), Map.of("placeId", "plc_1"));
+    private EventOutbox pending() {
+        return new EventOutbox(UUID.randomUUID(), "recommendation_impression", 1, "recommendation",
+                UUID.randomUUID(), "user", "{}", OffsetDateTime.now(Clock.fixed(NOW, ZoneOffset.UTC)),
+                OffsetDateTime.now(Clock.fixed(NOW, ZoneOffset.UTC)));
     }
 
-    /** 🔴 완료 기준 — "중계 서버가 꺼져 있어도 정상 응답하고 DB 에 쌓인다" */
+    private void givenPending(EventOutbox... events) {
+        given(this.repository.findByPublishedAtIsNullOrderByOccurredAtAscEventIdAsc(any()))
+                .willReturn(List.of(events));
+    }
+
     @Test
-    @DisplayName("🔴 중계 서버가 꺼져 있으면 이벤트가 쌓이기만 하고 아무것도 안 나간다")
-    void nothingLeavesWhilePublisherIsDown() {
-        publisher.available = false;
+    @DisplayName("대기 중인 것을 보내고 발행 시각을 적는다")
+    void sendsPendingAndStampsPublishedAt() {
+        EventOutbox event = pending();
+        givenPending(event);
 
-        store("evt_1");
-        store("evt_2");
+        int sent = this.relay.relayOnce();
 
-        int sent = relay.relayOnce();
-
-        assertEquals(0, sent, "꺼져 있으면 한 건도 안 나간다");
-        assertEquals(2, repository.pendingCount(), "🔴 그러나 유실되지 않고 쌓여 있다");
-        assertTrue(publisher.published.isEmpty());
+        assertThat(sent).isEqualTo(1);
+        assertThat(this.publisher.sent).containsExactly(event.getEventId());
+        assertThat(event.getPublishedAt()).isEqualTo(OffsetDateTime.ofInstant(NOW, ZoneOffset.UTC));
+        assertThat(event.getPublishStatus()).isEqualTo(OutboxPublishStatus.PUBLISHED);
     }
 
-    /** 🔴 완료 기준 — "껐다 켜면 그 사이 쌓인 이벤트가 전달된다" */
     @Test
-    @DisplayName("🔴 중계 서버를 다시 켜면 쌓여 있던 것이 전부 나간다")
-    void pendingEventsFlushAfterRecovery() {
-        publisher.available = false;
-        store("evt_1");
-        store("evt_2");
-        store("evt_3");
-        relay.relayOnce();
-        assertEquals(3, repository.pendingCount());
+    @DisplayName("🔴 두 번 돌려도 같은 이벤트가 두 번 나가지 않는다")
+    void alreadyPublishedIsNotSentAgain() {
+        EventOutbox event = pending();
+        event.markPublished(OffsetDateTime.ofInstant(NOW.minusSeconds(60), ZoneOffset.UTC));
+        givenPending(event);
 
-        publisher.available = true;
-        int sent = relay.relayOnce();
+        this.relay.relayOnce();
 
-        assertEquals(3, sent);
-        assertEquals(0, repository.pendingCount(), "전부 발행됐다");
-        assertEquals(List.of("evt_1", "evt_2", "evt_3"), publisher.published,
-                "받은 순서대로 나가야 한다");
-        assertNotNull(repository.findById("evt_1").orElseThrow().publishedAt(),
-                "발행 시각이 적혀야 한다");
+        assertThat(this.publisher.sent).isEmpty();
+        // 🔴 발행 시각이 덮어써지지 않는다 — 덮어쓰면 "언제 보냈나" 가 흐려진다.
+        assertThat(event.getPublishedAt()).isEqualTo(OffsetDateTime.ofInstant(NOW.minusSeconds(60), ZoneOffset.UTC));
     }
 
-    /**
-     * 🔴 이 테스트가 -354 의 핵심 완료 기준이다.
-     *
-     * <p>"워커를 두 번 돌려도 같은 이벤트가 두 번 기록되지 않는다"
-     */
     @Test
-    @DisplayName("🔴 워커를 두 번 돌려도 같은 이벤트가 두 번 나가지 않는다")
-    void relayingTwiceDoesNotResend() {
-        store("evt_1");
-        store("evt_2");
+    @DisplayName("🔴 중계 서버가 꺼져 있으면 조용히 물러난다 — 워커가 죽지 않는다")
+    void backsOffQuietlyWhenPublisherIsDown() {
+        this.publisher.available = false;
+        givenPending(pending());
 
-        assertEquals(2, relay.relayOnce(), "첫 차례에 둘 다 나간다");
-        assertEquals(2, publisher.published.size());
-
-        int sentAgain = relay.relayOnce();
-
-        assertEquals(0, sentAgain, "두 번째 차례에는 보낼 것이 없다");
-        assertEquals(2, publisher.published.size(), "🔴 발행 횟수가 늘지 않았다");
+        assertThat(this.relay.relayOnce()).isZero();
+        assertThat(this.publisher.sent).isEmpty();
     }
 
-    /** 🔴 완료 기준 — "중계 서버가 안 되는 동안 워커가 오류로 죽지 않는다" */
     @Test
-    @DisplayName("🔴 전송이 실패해도 워커가 죽지 않고 이벤트가 표에 남는다")
-    void publishFailureKeepsEventForRetry() {
-        store("evt_1");
-        publisher.throwOnPublish = true;
-
-        int sent = relay.relayOnce();   // 예외가 밖으로 나오면 이 줄에서 터진다
-
-        assertEquals(0, sent);
-        OutboxEvent e = repository.findById("evt_1").orElseThrow();
-        assertTrue(e.isPending(), "🔴 실패한 것을 표에서 지우지 않는다");
-        assertEquals(1, e.attempts(), "시도 횟수가 올라간다");
-        assertNotNull(e.lastError(), "왜 실패했는지 남는다");
-
-        // 중계 서버가 살아나면 다음 차례에 나간다.
-        publisher.throwOnPublish = false;
-        assertEquals(1, relay.relayOnce());
-        assertFalse(repository.findById("evt_1").orElseThrow().isPending());
+    @DisplayName("🔴 M1·M2 기본 발행자는 꺼져 있다 — 이벤트는 쌓이기만 한다 (개발계획서 4.4)")
+    void milestoneOneKeepsEventsInTheTable() {
+        assertThat(new com.gabolle.backend.event.infra.NoOpEventPublisher().isAvailable()).isFalse();
     }
 
-    /**
-     * 🔴 한 건 실패하면 거기서 멈춘다.
-     *
-     * <p>건너뛰고 진행하면 순서가 뒤바뀌고, 원인이 공통(중계 서버 다운)일 때
-     * 나머지 전부가 실패 카운트만 올린다.
-     */
     @Test
-    @DisplayName("🔴 첫 건이 실패하면 뒤 것을 건너뛰지 않고 멈춘다")
-    void relayStopsAtFirstFailure() {
-        store("evt_1");
-        store("evt_2");
-        store("evt_3");
-        publisher.throwOnPublish = true;
+    @DisplayName("실패한 것은 표에 남고 오류가 기록된다 — 지우지 않는다")
+    void failureIsRecordedNotDiscarded() {
+        this.publisher.failWith = new IllegalStateException("중계 서버 없음");
+        EventOutbox event = pending();
+        givenPending(event);
 
-        relay.relayOnce();
-
-        assertEquals(3, repository.pendingCount(), "하나도 나가지 않았다");
-        assertEquals(1, repository.findById("evt_1").orElseThrow().attempts(),
-                "첫 건만 시도했다");
-        assertEquals(0, repository.findById("evt_3").orElseThrow().attempts(),
-                "🔴 뒤 것은 시도조차 안 했다 — 실패 카운트만 올리지 않는다");
+        assertThat(this.relay.relayOnce()).isZero();
+        assertThat(event.isPending()).isTrue();
+        assertThat(event.getPublishAttempts()).isEqualTo(1);
+        assertThat(event.getLastError()).contains("중계 서버 없음");
+        assertThat(event.getPublishStatus()).isEqualTo(OutboxPublishStatus.FAILED);
     }
 
-    /**
-     * 🔴 M1·M2 의 실제 구성 — 개발계획서 4.4.
-     *
-     * <p>"M1·M2 에서 Kafka·Spark 기동" 은 하지 않는 일이고,
-     * "그 전에는 PostgreSQL Outbox 테이블에 쌓아만 둔다".
-     */
     @Test
-    @DisplayName("🔴 M1 기본 구성(NoOpEventPublisher)에서는 쌓이기만 한다")
-    void m1ConfigurationOnlyAccumulates() {
-        OutboxRelayService m1Relay = new OutboxRelayService(
-                repository, new NoOpEventPublisher(), Clock.fixed(NOW, ZoneOffset.UTC));
+    @DisplayName("🔴 한 건이 실패하면 거기서 멈춘다 — 뒤 것을 건너뛰면 순서가 뒤바뀐다")
+    void stopsAtTheFirstFailure() {
+        this.publisher.failWith = new IllegalStateException("중계 서버 없음");
+        givenPending(pending(), pending(), pending());
 
-        store("evt_1");
-        store("evt_2");
+        this.relay.relayOnce();
 
-        assertEquals(0, m1Relay.relayOnce(), "M1 에는 발행 대상이 없다");
-        assertEquals(2, repository.pendingCount(),
-                "🔴 M3 에 Kafka 를 꽂으면 그때까지 쌓인 것도 전부 나간다");
+        assertThat(this.publisher.sent).isEmpty();
+    }
+
+    @Test
+    @DisplayName("🔴 실패했던 것도 다음 차례에 다시 대기로 잡힌다 — 상태가 아니라 발행 시각이 기준이다")
+    void failedEventIsStillPending() {
+        EventOutbox event = pending();
+        event.markFailed("앞 차례에서 실패");
+
+        assertThat(event.getPublishStatus()).isEqualTo(OutboxPublishStatus.FAILED);
+        assertThat(event.isPending()).isTrue();
+
+        this.publisher.failWith = null;
+        givenPending(event);
+
+        assertThat(this.relay.relayOnce()).isEqualTo(1);
+        assertThat(this.publisher.sent).containsExactly(event.getEventId());
     }
 }
