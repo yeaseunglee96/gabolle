@@ -40,6 +40,7 @@ export default function SignIn() {
 
       {/* Figma 에는 이 버튼 다음 화면이 없어서, 계획 만들기 흐름(06 기본 조건 설정)으로 잇는다. */}
       <Button label="Continue with Google" containerStyle={styles.cta} onPress={() => router.push('/age-gate')} />
+      <Button label="이메일로 회원가입" variant="ghost" containerStyle={styles.signupCta} onPress={() => router.push('/sign-up')} />
 
       <Card tinted style={styles.security}>
         <Text variant="body" weight="bold" color={color.text.eyebrow}>
@@ -71,6 +72,9 @@ const styles = StyleSheet.create({
     marginBottom: spacing[6],
   },
   cta: {
+    marginBottom: spacing[2],
+  },
+  signupCta: {
     marginBottom: spacing[6],
   },
   security: {
