@@ -26,3 +26,16 @@ export function adaptRecommendationResult(dto: RecommendationJobResultDto): Reco
 }
 
 export const unavailableRecommendations = (): RecommendationViewModel => ({ state: 'unavailable', courses: [], conflicts: [], message: '아직 생성된 추천이 없어요. 여행 조건을 확인하고 생성을 시작해 주세요.', itineraryId: null });
+
+export async function loadRecommendationResult(jobId: string, accessToken: string | null): Promise<RecommendationViewModel> {
+  try {
+    return adaptRecommendationResult(await apiRequest<RecommendationJobResultDto>(`/api/v1/recommendation-jobs/${encodeURIComponent(jobId)}`, { accessToken }));
+  } catch (error) {
+    if (error instanceof ApiClientError && (error.status === 0 || error.code === 'NETWORK_ERROR')) {
+      return { state: 'offline', courses: [], conflicts: [], message: error.message, itineraryId: null };
+    }
+    if (error instanceof ApiClientError && (error.status === 404 || error.status === 501)) return unavailableRecommendations();
+    return { state: 'error', courses: [], conflicts: [], message: error instanceof Error ? error.message : '추천 결과를 불러오지 못했어요.', itineraryId: null };
+  }
+}
+import { apiRequest, ApiClientError } from '@/api/client';
