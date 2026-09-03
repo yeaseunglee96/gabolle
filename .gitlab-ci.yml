@@ -93,14 +93,40 @@ claims:
 #
 #    그래서 여기서만 Gradle 빌드를 검사로 추가한다. `backend/` 를 건드리지 않는
 #    MR 은 돌지 않는다.
+#
+# 🔴 `services:` 와 건너뜀 검사가 없으면 이 잡은 **거짓말을 한다** (고지혁,
+#    S15P21E201-266 후속). PostgreSQL 이 없으면 `PostgresAvailableCondition`
+#    (backend/src/test/.../support)이 DB 테스트 클래스를 실패가 아니라
+#    **건너뜀**으로 표시하고, `gradlew build`는 건너뛴 테스트를 실패로 안 본다 —
+#    잡은 그대로 초록이다. 실측: DB 없이 137개 중 51개 건너뜀, 진짜 Postgres로
+#    137개 전부 실행. 이 상태에서 실제로 놓친 결함이 하나 있었다 — 품질 게이트가
+#    `gabolle` schema를 못 찾는 버그가 있었는데 테스트는 `public`에 표를 만들어서
+#    187개 전부 초록이었다 (fix/back/S15P21E201-546).
 backend:build:
   stage: verify
   image: eclipse-temurin:17-jdk
+  services:
+    - name: postgres:16-alpine
+      alias: postgres
+  variables:
+    POSTGRES_DB: gabolle_test
+    POSTGRES_USER: gabolle
+    POSTGRES_PASSWORD: gabolle_ci
+    GABOLLE_TEST_DB_URL: jdbc:postgresql://postgres:5432/gabolle_test
+    GABOLLE_TEST_DB_USERNAME: gabolle
+    GABOLLE_TEST_DB_PASSWORD: gabolle_ci
   before_script: []
   script:
     - cd backend
     - chmod +x gradlew
     - ./gradlew build --no-daemon
+    # 🔴 아래가 이 잡의 절반이다 — DB 서비스가 안 뜨는 날 테스트가 전부
+    #    건너뛰고도 초록이 되는 것을, 여기서 빨갛게 만든다.
+    - |
+      skipped=$(grep -ho 'skipped="[0-9]*"' build/test-results/test/*.xml \
+                | grep -o '[0-9]*' | awk '{s+=$1} END {print s+0}')
+      echo "건너뜀: $skipped"
+      [ "$skipped" -eq 0 ] || { echo "🔴 건너뛴 테스트가 있다 — 이 초록은 아무것도 뜻하지 않는다"; exit 1; }
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
       changes: ['backend/**/*']
