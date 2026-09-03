@@ -1,0 +1,331 @@
+package com.gabolle.backend.personalization;
+
+import java.time.LocalDate;
+import java.util.UUID;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.jdbc.core.JdbcTemplate;
+
+import com.gabolle.backend.recommendation.support.PersonalizationFixture;
+import com.gabolle.backend.recommendation.support.PostgresIntegrationTest;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+/**
+ * 개인화 입력(여행 조건 · 취향 · 제약)을 애플리케이션을 우회해서 넣어도 DB 가 막는가.
+ *
+ * <p>🔴 여기서 하는 일은 정상 동작 확인이 아니라 <b>일부러 고장을 내는 것</b>이다.
+ * 수집 명세(S15P21E201-542) 2.1 이 요구하는 "값과 응답 상태를 분리한다" 는 규칙은
+ * 애플리케이션 코드로만 지키면 배치 작업이나 손으로 쓴 SQL 이 그 옆으로 걸어 들어온다.
+ * 그래서 원시 SQL 로 넣어 보고, DB 가 거부하는지를 본다.
+ *
+ * <p>이 표들의 엔티티(자바 클래스)는 없다 — S15P21E201-461(모진성) 자리다. 엔티티 없이
+ * 표만 검증할 수 있어야 하므로 {@link JdbcTemplate} 로 직접 넣는다.
+ */
+class PersonalizationInputSchemaTest extends PostgresIntegrationTest {
+
+	@Autowired
+	private JdbcTemplate jdbcTemplate;
+
+	private PersonalizationFixture.Ids references;
+
+	@BeforeEach
+	void insertReferences() {
+		this.references = PersonalizationFixture.insert(this.jdbcTemplate);
+	}
+
+	// ── 취향: 값과 응답 상태 ──────────────────────────────────────────────────
+
+	@Test
+	@DisplayName("🔴 고른 답(SELECTED)에 값이 없으면 DB 가 거부한다")
+	void databaseRefusesSelectedWithoutValue() {
+		assertThatThrownBy(() -> insertPreferenceAnswer("CATEGORY", null, "SELECTED"))
+				.isInstanceOf(DataIntegrityViolationException.class);
+	}
+
+	@Test
+	@DisplayName("🔴 건너뛴 답(SKIPPED)이 값을 싣고 있으면 DB 가 거부한다 — 이것이 0 으로 새어 들어오는 경로다")
+	void databaseRefusesSkippedCarryingAValue() {
+		assertThatThrownBy(() -> insertPreferenceAnswer("CATEGORY", "{\"codes\": []}", "SKIPPED"))
+				.isInstanceOf(DataIntegrityViolationException.class);
+
+		// 값이 없는 건너뜀은 정상이다. "안 좋아한다" 가 아니라 "안 골랐다" 로 남는다.
+		assertThatCode(() -> insertPreferenceAnswer("ATMOSPHERE", null, "SKIPPED"))
+				.doesNotThrowAnyException();
+	}
+
+	@Test
+	@DisplayName("명세에 없는 취향 차원은 DB 가 거부한다")
+	void databaseRefusesUnknownPreferenceDimension() {
+		assertThatThrownBy(() -> insertPreferenceAnswer("PET_FRIENDLINESS", "{\"v\": 1}", "SELECTED"))
+				.isInstanceOf(DataIntegrityViolationException.class);
+	}
+
+	@Test
+	@DisplayName("같은 스냅샷에 같은 차원이 두 번 들어오면 DB 가 거부한다")
+	void databaseRefusesDuplicateDimension() {
+		insertPreferenceAnswer("LOCALITY", "{\"v\": 1}", "SELECTED");
+		assertThatThrownBy(() -> insertPreferenceAnswer("LOCALITY", "{\"v\": 2}", "SELECTED"))
+				.isInstanceOf(DataIntegrityViolationException.class);
+	}
+
+	// ── 제약: 알레르기는 하드다 ───────────────────────────────────────────────
+
+	@Test
+	@DisplayName("🔴 알레르기를 hard=false 로 저장하려 하면 DB 가 거부한다 — 안전 제약이 점수로 상쇄될 수 없다")
+	void databaseRefusesSoftAllergy() {
+		assertThatThrownBy(() -> insertConstraintAnswer("ALLERGY", "PEANUT",
+				"{\"severity\": \"HARD\"}", false, "SELECTED"))
+				.isInstanceOf(DataIntegrityViolationException.class);
+
+		assertThatCode(() -> insertConstraintAnswer("ALLERGY", "PEANUT",
+				"{\"severity\": \"HARD\"}", true, "SELECTED"))
+				.doesNotThrowAnyException();
+	}
+
+	@Test
+	@DisplayName("🔴 제약에 SKIPPED 는 없다 — 없으면 NONE 을 명시해야 한다")
+	void databaseRefusesSkippedConstraint() {
+		assertThatThrownBy(() -> insertConstraintAnswer("DIET", "HALAL", null, false, "SKIPPED"))
+				.isInstanceOf(DataIntegrityViolationException.class);
+
+		// "해당 없음" 은 값 없이 NONE 으로 남는다. 안 물어본 것(UNKNOWN)과 구분된다.
+		assertThatCode(() -> insertConstraintAnswer("DIET", "HALAL", null, false, "NONE"))
+				.doesNotThrowAnyException();
+		assertThatCode(() -> insertConstraintAnswer("DIET", "VEGAN", null, false, "UNKNOWN"))
+				.doesNotThrowAnyException();
+	}
+
+	@Test
+	@DisplayName("🔴 자유 입력 알레르기 암호문만 있고 키 판 번호가 없으면 DB 가 거부한다 — 그건 저장이 아니라 유실이다")
+	void databaseRefusesCiphertextWithoutKeyVersion() {
+		assertThatThrownBy(() -> this.jdbcTemplate.update("""
+				INSERT INTO constraint_answer (
+				    constraint_answer_id, constraint_snapshot_id, constraint_type, constraint_key,
+				    value, hard, answer_status, other_allergy_ciphertext, created_at)
+				VALUES (?, ?, 'ALLERGY', 'OTHER', '{"free": true}'::jsonb, TRUE, 'SELECTED', ?, now())
+				""", UUID.randomUUID(), this.references.constraintSnapshotId(), "cipher".getBytes()))
+				.isInstanceOf(DataIntegrityViolationException.class);
+	}
+
+	@Test
+	@DisplayName("보행 상한이 숫자가 아니면 DB 가 거부한다")
+	void databaseRefusesNonNumericWalkingLimit() {
+		assertThatThrownBy(() -> insertConstraintAnswer("MOBILITY", "MAX_WALKING_METERS",
+				"{\"meters\": \"많이\"}", true, "SELECTED"))
+				.isInstanceOf(DataIntegrityViolationException.class);
+
+		assertThatCode(() -> insertConstraintAnswer("MOBILITY", "MAX_WALKING_METERS",
+				"{\"meters\": 1500}", true, "SELECTED"))
+				.doesNotThrowAnyException();
+	}
+
+	@Test
+	@DisplayName("이동 제약이 아닌 이름은 DB 가 거부한다 — 경사·그늘은 취향 쪽이다")
+	void databaseRefusesUnknownMobilityKey() {
+		assertThatThrownBy(() -> insertConstraintAnswer("MOBILITY", "SHADE_PREFERENCE",
+				"{\"v\": 1}", false, "SELECTED"))
+				.isInstanceOf(DataIntegrityViolationException.class);
+	}
+
+	// ── 스냅샷: 판 번호와 적용 범위 ───────────────────────────────────────────
+
+	@Test
+	@DisplayName("🔴 같은 여행에 같은 판 번호가 두 번 들어오면 DB 가 거부한다")
+	void databaseRefusesDuplicateTripVersion() {
+		assertThatThrownBy(() -> this.jdbcTemplate.update("""
+				INSERT INTO preference_snapshot (
+				    preference_snapshot_id, user_id, trip_id, version, scope, created_at)
+				VALUES (?, ?, ?, 1, 'TRIP', now())
+				""", UUID.randomUUID(), this.references.userId(), this.references.tripId()))
+				.isInstanceOf(DataIntegrityViolationException.class);
+	}
+
+	@Test
+	@DisplayName("🔴 계정 기본값(scope=USER)도 판 번호가 겹치면 거부된다 — 부분 색인이 실제로 도는지 본다")
+	void databaseRefusesDuplicateUserScopedVersion() {
+		UUID userId = PersonalizationFixture.insertUser(this.jdbcTemplate);
+		insertUserScopedSnapshot(userId, 1);
+
+		// NULL 을 서로 다르게 보는 PostgreSQL 특성 때문에, 조건 없는 UNIQUE 제약이었다면
+		// 이 두 번째 행이 조용히 들어간다. 그것을 막는 것이 부분 색인이다.
+		assertThatThrownBy(() -> insertUserScopedSnapshot(userId, 1))
+				.isInstanceOf(DataIntegrityViolationException.class);
+
+		assertThatCode(() -> insertUserScopedSnapshot(userId, 2)).doesNotThrowAnyException();
+	}
+
+	@Test
+	@DisplayName("scope 와 trip_id 가 어긋나면 DB 가 거부한다")
+	void databaseRefusesScopeMismatch() {
+		// TRIP 인데 여행이 없다.
+		assertThatThrownBy(() -> this.jdbcTemplate.update("""
+				INSERT INTO preference_snapshot (
+				    preference_snapshot_id, user_id, trip_id, version, scope, created_at)
+				VALUES (?, ?, NULL, 9, 'TRIP', now())
+				""", UUID.randomUUID(), this.references.userId()))
+				.isInstanceOf(DataIntegrityViolationException.class);
+
+		// USER 인데 여행이 붙어 있다.
+		assertThatThrownBy(() -> this.jdbcTemplate.update("""
+				INSERT INTO preference_snapshot (
+				    preference_snapshot_id, user_id, trip_id, version, scope, created_at)
+				VALUES (?, ?, ?, 9, 'USER', now())
+				""", UUID.randomUUID(), this.references.userId(), this.references.tripId()))
+				.isInstanceOf(DataIntegrityViolationException.class);
+	}
+
+	// ── 여행 조건 ─────────────────────────────────────────────────────────────
+
+	@Test
+	@DisplayName("끝나는 날이 시작하는 날보다 빠르면 DB 가 거부한다")
+	void databaseRefusesReversedDates() {
+		assertThatThrownBy(() -> insertTrip(LocalDate.of(2026, 9, 11), LocalDate.of(2026, 9, 10),
+				"ARRAY['WALK']::VARCHAR(30)[]"))
+				.isInstanceOf(DataIntegrityViolationException.class);
+	}
+
+	@Test
+	@DisplayName("🔴 명세에 없는 이동 수단이 배열에 섞여 있으면 DB 가 거부한다")
+	void databaseRefusesUnknownTravelMode() {
+		assertThatThrownBy(() -> insertTrip(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 11),
+				"ARRAY['WALK', 'HELICOPTER']::VARCHAR(30)[]"))
+				.isInstanceOf(DataIntegrityViolationException.class);
+	}
+
+	@Test
+	@DisplayName("여행 상태는 정해진 넷뿐이다 — 🔴 DELETED 는 없다. 삭제는 deleted_at 이 말한다")
+	void databaseRefusesUnknownTripStatus() {
+		assertThatThrownBy(() -> this.jdbcTemplate.update("""
+				INSERT INTO trip (
+				    trip_id, owner_user_id, start_date, end_date, status, created_at, updated_at)
+				VALUES (?, ?, ?, ?, 'DELETED', now(), now())
+				""", UUID.randomUUID(), this.references.userId(),
+				LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 11)))
+				.isInstanceOf(DataIntegrityViolationException.class);
+
+		assertThatCode(() -> this.jdbcTemplate.update("""
+				INSERT INTO trip (
+				    trip_id, owner_user_id, start_date, end_date, status, created_at, updated_at)
+				VALUES (?, ?, ?, ?, 'IN_PROGRESS', now(), now())
+				""", UUID.randomUUID(), this.references.userId(),
+				LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 11)))
+				.doesNotThrowAnyException();
+	}
+
+	@Test
+	@DisplayName("좌표가 한쪽만 있으면 DB 가 거부한다 — 반쪽 좌표는 오류가 아니라 틀린 답을 만든다")
+	void databaseRefusesHalfCoordinate() {
+		assertThatThrownBy(() -> this.jdbcTemplate.update("""
+				INSERT INTO trip (
+				    trip_id, owner_user_id, start_date, end_date, origin_lat, created_at, updated_at)
+				VALUES (?, ?, ?, ?, 35.1587, now(), now())
+				""", UUID.randomUUID(), this.references.userId(),
+				LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 11)))
+				.isInstanceOf(DataIntegrityViolationException.class);
+	}
+
+	// ── S15P21E201-543 이 남긴 자리: 외래키 ──────────────────────────────────
+
+	@Test
+	@DisplayName("🔴 없는 스냅샷을 가리키는 추천 Job 은 DB 가 거부한다 — 543 이 이름만 맞춰 두고 남긴 자리다")
+	void databaseRefusesJobPointingAtMissingSnapshot() {
+		assertThatThrownBy(() -> this.jdbcTemplate.update("""
+				INSERT INTO recommendation_job (
+				    job_id, request_id, user_id, job_type, job_status,
+				    preference_snapshot_id, constraint_snapshot_id,
+				    model_version, feature_version, ontology_version, policy_version, dataset_version,
+				    service_version, deployment_environment, created_at)
+				VALUES (?, ?, ?, 'ITINERARY_GENERATION', 'SUCCEEDED', ?, ?,
+				        'm', 'f', 'o', 'p', 'd', 's', 'test', now())
+				""", UUID.randomUUID(), UUID.randomUUID(), this.references.userId(),
+				UUID.randomUUID(), UUID.randomUUID()))
+				.isInstanceOf(DataIntegrityViolationException.class);
+	}
+
+	@Test
+	@DisplayName("후보 → 노출을 잇는 축이 실제로 조인된다 — 명세 14장 마지막 항목")
+	void candidateJoinsBackToItsInputSnapshot() {
+		UUID requestId = UUID.randomUUID();
+		this.jdbcTemplate.update("""
+				INSERT INTO recommendation_job (
+				    job_id, request_id, user_id, trip_id, trip_version, job_type, job_status,
+				    preference_snapshot_id, constraint_snapshot_id,
+				    model_version, feature_version, ontology_version, policy_version, dataset_version,
+				    service_version, deployment_environment, created_at)
+				VALUES (?, ?, ?, ?, ?, 'ITINERARY_GENERATION', 'SUCCEEDED', ?, ?,
+				        'm', 'f', 'o', 'p', 'd', 's', 'test', now())
+				""", UUID.randomUUID(), requestId, this.references.userId(), this.references.tripId(),
+				this.references.tripVersion(), this.references.preferenceSnapshotId(),
+				this.references.constraintSnapshotId());
+
+		UUID placeId = UUID.randomUUID();
+		this.jdbcTemplate.update("""
+				INSERT INTO recommendation_candidate (
+				    candidate_id, request_id, place_id, candidate_source, candidate_stage,
+				    eligible, constraint_verdict, final_score, final_rank, returned, created_at)
+				VALUES (?, ?, ?, 'ONTOLOGY_SEED', 'RETURNED', TRUE, 'PASS', 0.9, 1, TRUE, now())
+				""", UUID.randomUUID(), requestId, placeId);
+
+		insertPreferenceAnswer("CATEGORY", "{\"codes\": [\"SEA\", \"ALLEY\"]}", "SELECTED");
+		insertPreferenceAnswer("QUIETNESS", null, "SKIPPED");
+
+		// (request_id, place_id) 에서 그 요청을 만든 취향 답까지 한 번에 닿는다.
+		// 🔴 건너뛴 답도 함께 나와야 한다 — 분석에서 "안 물어봤다" 를 세려면 그 행이 있어야 한다.
+		Integer joinedAnswers = this.jdbcTemplate.queryForObject("""
+				SELECT count(*)
+				FROM recommendation_candidate c
+				JOIN recommendation_job j ON j.request_id = c.request_id
+				JOIN preference_snapshot ps ON ps.preference_snapshot_id = j.preference_snapshot_id
+				JOIN preference_answer pa ON pa.preference_snapshot_id = ps.preference_snapshot_id
+				WHERE c.request_id = ? AND c.place_id = ?
+				""", Integer.class, requestId, placeId);
+
+		assertThat(joinedAnswers).isEqualTo(2);
+	}
+
+	// ── 넣는 도구들 ───────────────────────────────────────────────────────────
+
+	private void insertPreferenceAnswer(String dimension, String valueJson, String answerStatus) {
+		this.jdbcTemplate.update("""
+				INSERT INTO preference_answer (
+				    preference_answer_id, preference_snapshot_id, dimension, value, answer_status, created_at)
+				VALUES (?, ?, ?, CAST(? AS jsonb), ?, now())
+				""", UUID.randomUUID(), this.references.preferenceSnapshotId(), dimension, valueJson,
+				answerStatus);
+	}
+
+	private void insertConstraintAnswer(String type, String key, String valueJson, boolean hard,
+			String answerStatus) {
+		this.jdbcTemplate.update("""
+				INSERT INTO constraint_answer (
+				    constraint_answer_id, constraint_snapshot_id, constraint_type, constraint_key,
+				    value, hard, answer_status, created_at)
+				VALUES (?, ?, ?, ?, CAST(? AS jsonb), ?, ?, now())
+				""", UUID.randomUUID(), this.references.constraintSnapshotId(), type, key, valueJson, hard,
+				answerStatus);
+	}
+
+	private void insertUserScopedSnapshot(UUID userId, int version) {
+		this.jdbcTemplate.update("""
+				INSERT INTO preference_snapshot (
+				    preference_snapshot_id, user_id, trip_id, version, scope, created_at)
+				VALUES (?, ?, NULL, ?, 'USER', now())
+				""", UUID.randomUUID(), userId, version);
+	}
+
+	private void insertTrip(LocalDate startDate, LocalDate endDate, String travelModesSql) {
+		this.jdbcTemplate.update("""
+				INSERT INTO trip (
+				    trip_id, owner_user_id, start_date, end_date, travel_modes, created_at, updated_at)
+				VALUES (?, ?, ?, ?, %s, now(), now())
+				""".formatted(travelModesSql), UUID.randomUUID(), this.references.userId(), startDate,
+				endDate);
+	}
+}

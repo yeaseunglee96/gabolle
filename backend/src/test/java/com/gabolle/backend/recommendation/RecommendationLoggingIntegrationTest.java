@@ -9,6 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 import com.gabolle.backend.event.domain.EventOutbox;
 import com.gabolle.backend.event.repository.EventOutboxRepository;
@@ -33,6 +34,7 @@ import com.gabolle.backend.recommendation.domain.RecommendationJob;
 import com.gabolle.backend.recommendation.repository.RecommendationCandidateRepository;
 import com.gabolle.backend.recommendation.repository.RecommendationJobRepository;
 import com.gabolle.backend.recommendation.support.FakeRecommendationEngine;
+import com.gabolle.backend.recommendation.support.PersonalizationFixture;
 import com.gabolle.backend.recommendation.support.PostgresIntegrationTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -60,12 +62,20 @@ class RecommendationLoggingIntegrationTest extends PostgresIntegrationTest {
 	@Autowired
 	private EventOutboxRepository outboxRepository;
 
+	@Autowired
+	private JdbcTemplate jdbcTemplate;
+
+	private PersonalizationFixture.Ids references;
+
 	@BeforeEach
 	void clean() {
 		this.candidateRepository.deleteAllInBatch();
 		this.jobRepository.deleteAllInBatch();
 		this.outboxRepository.deleteAllInBatch();
 		this.engine.reset();
+		// 🔴 S15P21E201-554 가 외래키를 붙였으므로 요청이 가리키는 사용자·여행·스냅샷은
+		//    실제 행이어야 한다. 전에는 임의 UUID 였다.
+		this.references = PersonalizationFixture.insert(this.jdbcTemplate);
 	}
 
 	@Test
@@ -445,8 +455,10 @@ class RecommendationLoggingIntegrationTest extends PostgresIntegrationTest {
 	}
 
 	private RecommendationCommand command(int topK) {
-		return new RecommendationCommand(UUID.randomUUID(), JobType.ITINERARY_GENERATION, UUID.randomUUID(), 3,
-				UUID.randomUUID(), UUID.randomUUID(), null, null, null, "app-1.0.0", topK);
+		return new RecommendationCommand(this.references.userId(), JobType.ITINERARY_GENERATION,
+				this.references.tripId(), this.references.tripVersion(),
+				this.references.preferenceSnapshotId(), this.references.constraintSnapshotId(),
+				null, null, null, "app-1.0.0", topK);
 	}
 
 	private RecommendationCandidate findByPlace(UUID requestId, UUID placeId) {

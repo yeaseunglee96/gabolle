@@ -13,6 +13,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import com.gabolle.backend.recommendation.domain.CandidateStage;
 import com.gabolle.backend.recommendation.domain.ConstraintVerdict;
 import com.gabolle.backend.recommendation.domain.RecommendationCandidate;
+import com.gabolle.backend.recommendation.support.PersonalizationFixture;
 import com.gabolle.backend.recommendation.support.PostgresIntegrationTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,10 +42,15 @@ class RecommendationCandidateConstraintTest extends PostgresIntegrationTest {
 
 	private UUID requestId;
 
+	private PersonalizationFixture.Ids references;
+
 	@BeforeEach
 	void insertJob() {
 		this.jdbcTemplate.update("DELETE FROM recommendation_candidate");
 		this.jdbcTemplate.update("DELETE FROM recommendation_job");
+		// 🔴 S15P21E201-554 가 외래키를 붙였으므로 사용자·여행·스냅샷은 실제 행이어야 한다.
+		//    전에는 임의 UUID 였고, 아무것도 그것을 검사하지 않아 통과했다.
+		this.references = PersonalizationFixture.insert(this.jdbcTemplate);
 		this.requestId = UUID.randomUUID();
 		insertJob(this.requestId);
 	}
@@ -58,7 +64,8 @@ class RecommendationCandidateConstraintTest extends PostgresIntegrationTest {
 				    service_version, deployment_environment, created_at)
 				VALUES (?, ?, ?, 'ITINERARY_GENERATION', 'SUCCEEDED', ?, ?,
 				        'm', 'f', 'o', 'p', 'd', 's', 'test', now())
-				""", UUID.randomUUID(), requestId, UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID());
+				""", UUID.randomUUID(), requestId, this.references.userId(),
+				this.references.preferenceSnapshotId(), this.references.constraintSnapshotId());
 	}
 
 	@Test
