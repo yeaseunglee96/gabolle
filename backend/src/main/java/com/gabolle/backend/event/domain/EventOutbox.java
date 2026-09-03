@@ -69,12 +69,39 @@ public class EventOutbox {
 	@Column(name = "last_error", columnDefinition = "text")
 	private String lastError;
 
+	/**
+	 * 🔴 aggregate_type 이 recommendation 이면 항상 null 이다 — 그 이벤트의 요청 축은
+	 * aggregateId 가 이미 들고 있다(2026-09-03 결정, S15P21E201-352-event-outbox-join-axes).
+	 */
+	@Column(name = "request_id", updatable = false)
+	private UUID requestId;
+
+	@Column(name = "user_id", updatable = false)
+	private UUID userId;
+
+	@Column(name = "trip_id", updatable = false)
+	private UUID tripId;
+
+	/** CLIENT · SERVER (DR-13). */
+	@Enumerated(EnumType.STRING)
+	@Column(name = "producer", length = 16, updatable = false)
+	private Producer producer;
+
+	/**
+	 * 🔴 DB 가 BIGSERIAL 로 채운다 — 여기서 값을 넣지 않는다({@code insertable = false}).
+	 * 발행 대기 조회가 이 값으로 정렬한다({@code EventOutboxRepository}) —
+	 * occurred_at 만으로는 같은 시각의 순서가 확정되지 않는다(S15P21E201-354 실측).
+	 */
+	@Column(name = "seq", insertable = false, updatable = false)
+	private Long seq;
+
 	protected EventOutbox() {
 		// JPA 전용
 	}
 
 	public EventOutbox(UUID eventId, String eventType, int eventVersion, String aggregateType, UUID aggregateId,
-			String partitionKey, String payload, OffsetDateTime occurredAt, OffsetDateTime receivedAt) {
+			String partitionKey, String payload, OffsetDateTime occurredAt, OffsetDateTime receivedAt,
+			UUID requestId, UUID userId, UUID tripId, Producer producer) {
 		this.eventId = eventId;
 		this.eventType = eventType;
 		this.eventVersion = eventVersion;
@@ -84,6 +111,10 @@ public class EventOutbox {
 		this.payload = payload;
 		this.occurredAt = occurredAt;
 		this.receivedAt = receivedAt;
+		this.requestId = requestId;
+		this.userId = userId;
+		this.tripId = tripId;
+		this.producer = producer;
 		this.publishStatus = OutboxPublishStatus.PENDING;
 	}
 
@@ -174,5 +205,25 @@ public class EventOutbox {
 
 	public String getLastError() {
 		return lastError;
+	}
+
+	public UUID getRequestId() {
+		return requestId;
+	}
+
+	public UUID getUserId() {
+		return userId;
+	}
+
+	public UUID getTripId() {
+		return tripId;
+	}
+
+	public Producer getProducer() {
+		return producer;
+	}
+
+	public Long getSeq() {
+		return seq;
 	}
 }

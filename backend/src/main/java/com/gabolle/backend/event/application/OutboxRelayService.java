@@ -63,7 +63,7 @@ public class OutboxRelayService {
 		}
 
 		List<EventOutbox> pending = this.repository
-			.findByPublishedAtIsNullOrderByOccurredAtAscEventIdAsc(PageRequest.of(0, BATCH_SIZE));
+			.findByPublishedAtIsNullOrderBySeqAsc(PageRequest.of(0, BATCH_SIZE));
 		int sent = 0;
 
 		for (EventOutbox event : pending) {

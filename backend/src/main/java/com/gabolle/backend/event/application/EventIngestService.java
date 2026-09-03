@@ -2,8 +2,6 @@ package com.gabolle.backend.event.application;
 
 import java.time.Clock;
 import java.time.OffsetDateTime;
-import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -33,6 +31,12 @@ import com.gabolle.backend.event.domain.Producer;
  * <p>메모리 구현을 지우고 {@link OutboxService} 하나로 합쳤다. 그래야 개인정보 검사
  * ({@code SensitivePayloadGuard}) 와 envelope 규칙과 멱등 처리가 한 군데에만 있다.
  *
+ * <h2>🔴 2026-09-03 — request_id·user_id·trip_id·producer 를 payload 대신 실컬럼으로</h2>
+ * 고지혁 님이 S15P21E201-352-event-outbox-join-axes 에서 {@code event_outbox} 에
+ * 네 컬럼을 추가했다. 그 전까지 이 서비스는 그 네 값을 payload(JSONB) 안에 문자열로
+ * 욱여넣고 있었다({@code withEnvelopeFields}, 이제 지웠다) — S15P21E201-542 14장의
+ * "후보 → 노출을 request_id + place_id 로 조인" 을 못 쓰는 원인이었다. 이제 칸으로 간다.
+ *
  * <h2>🔴 no-db 프로필에는 이 빈이 없다</h2>
  * {@code application.properties} 가 정한 팀 규칙 그대로다 — "DB 를 쓰는 추천·Outbox 빈은
  * 인증과 같은 방식으로 {@code @Profile({"db","dev"})} 가 가른다".
@@ -41,10 +45,9 @@ import com.gabolle.backend.event.domain.Producer;
  *
  * <h2>🔴 아직 못 하는 것 — 탈퇴 익명화 (NFR-08)</h2>
  * 탈퇴 정책은 "계정은 삭제, 이벤트는 익명화" 다. 지우면 과거 추천 평가를 재현할 수 없다.
- * 익명화는 {@code UPDATE event_outbox SET user_id = NULL WHERE user_id = ?} 한 줄이어야 하는데,
- * <b>{@code user_id} 가 아직 컬럼이 아니라 JSONB 안에 있어서 그 한 줄을 쓸 수 없다.</b>
- * 메모리 구현에 있던 {@code anonymizeUser} 는 <b>어느 탈퇴 흐름에도 연결돼 있지 않았고</b>
- * DB 로 옮길 수 없어 함께 지웠다. 컬럼이 생기면 여기 다시 만든다.
+ * {@code user_id} 가 이제 실컬럼이라 {@code UPDATE event_outbox SET user_id = NULL WHERE
+ * user_id = ?} 를 쓸 수는 있게 됐지만, 아직 어느 탈퇴 흐름도 이걸 부르지 않는다 —
+ * 별도 티켓이 필요하다.
  *
  * <p>🔴 이 표에는 {@code user_id} 외래키를 걸지 않는다. FK 가 있으면 CASCADE 로 이벤트가 같이
  * 지워지거나 RESTRICT 로 계정 삭제가 막힌다 — 둘 다 정책 위반이다.
@@ -52,18 +55,6 @@ import com.gabolle.backend.event.domain.Producer;
 @Service
 @Profile({ "db", "dev" })
 public class EventIngestService {
-
-	/**
-	 * 🔴 envelope 축인데 {@code event_outbox} 에 <b>아직 컬럼이 없어서</b> payload 로 넣는 것들.
-	 *
-	 * <p>{@code request_id} 가 실컬럼이 아니면 S15P21E201-542 체크리스트의 "후보 → 노출을
-	 * {@code request_id + place_id} 로 조인하는 검증 쿼리" 를 쓸 수 없다. JSONB 에서 뽑아
-	 * 조인하면 타입이 없고 색인도 못 탄다.
-	 *
-	 * <p>{@code ALTER TABLE} 은 고지혁 님(S15P21E201-554) 자리다. 컬럼이 생기면
-	 * <b>이 상수를 지우고 {@link OutboxAppendCommand} 에 칸으로 옮긴다.</b>
-	 */
-	static final List<String> ENVELOPE_KEYS_STILL_IN_PAYLOAD = List.of("request_id", "user_id", "trip_id", "producer");
 
 	private final OutboxService outboxService;
 
@@ -141,8 +132,12 @@ public class EventIngestService {
 				type.aggregateType(),
 				aggregateId,
 				partitionKeyOf(userId, aggregateId),
-				withEnvelopeFields(payload, requestId, userId, tripId, producer),
-				occurredAt);
+				payload,
+				occurredAt,
+				requestIdColumnOf(type, requestId),
+				userId,
+				tripId,
+				producer);
 
 		return this.outboxService.appendReportingDuplicate(command).created();
 	}
@@ -172,6 +167,19 @@ public class EventIngestService {
 	}
 
 	/**
+	 * {@code event_outbox.request_id} 실컬럼에 넣을 값 — 축에 따라 다르다.
+	 *
+	 * <p>🔴 추천 이벤트는 요청 축이 이미 {@code aggregateId} 다. 여기서 또 채우면 같은 값이
+	 * 두 칸에 있고, 나중에 하나만 고쳐지면 둘이 어긋난다(2026-09-03 결정,
+	 * {@link OutboxAppendCommand} 가 이 규칙을 다시 한 번 강제한다). 그래서 추천 이벤트는
+	 * {@code null} 을 보낸다 — requestId 파라미터 자체는 여전히 필수다(API-07, 위 검사),
+	 * 다만 그 값이 <b>가는 칸이</b> aggregate_id 냐 request_id 냐가 달라질 뿐이다.
+	 */
+	private UUID requestIdColumnOf(EventType type, UUID requestId) {
+		return type.aggregateAxis() == EventType.AggregateAxis.RECOMMENDATION_REQUEST ? null : requestId;
+	}
+
+	/**
 	 * 브로커로 보낼 때 순서를 지켜야 하는 단위.
 	 *
 	 * <p>기본은 사용자다 — 한 사람의 행동은 순서대로 읽혀야 한다. 🔴 비로그인 이벤트는
@@ -180,33 +188,5 @@ public class EventIngestService {
 	 */
 	private String partitionKeyOf(UUID userId, UUID aggregateId) {
 		return (userId != null ? userId : aggregateId).toString();
-	}
-
-	/**
-	 * envelope 축을 payload 에 얹는다 — 🔴 <b>컬럼이 생길 때까지의 임시 자리다.</b>
-	 *
-	 * <p>부르는 쪽 payload 에 같은 키가 이미 있으면 <b>덮어쓰지 않고 거부한다.</b> 조용히
-	 * 덮어쓰면 두 값 중 어느 것이 맞는지 나중에 알 수 없고, 그 행은 멀쩡해 보인다.
-	 */
-	private Map<String, Object> withEnvelopeFields(Map<String, Object> payload, UUID requestId, UUID userId,
-			UUID tripId, Producer producer) {
-
-		Map<String, Object> merged = new LinkedHashMap<>();
-		if (payload != null) {
-			for (String reserved : ENVELOPE_KEYS_STILL_IN_PAYLOAD) {
-				if (payload.containsKey(reserved)) {
-					throw new IllegalArgumentException(
-							"payload 에 envelope 키가 들어 있다: " + reserved + ". 이 값은 칸으로 받는다");
-				}
-			}
-			merged.putAll(payload);
-		}
-
-		// 🔴 null 이어도 키를 지우지 않는다. 키가 없으면 "안 보냈다" 와 "없었다" 를 구분할 수 없다.
-		merged.put("request_id", requestId.toString());
-		merged.put("user_id", userId == null ? null : userId.toString());
-		merged.put("trip_id", tripId == null ? null : tripId.toString());
-		merged.put("producer", producer.name());
-		return merged;
 	}
 }

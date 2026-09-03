@@ -4,7 +4,6 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -18,6 +17,7 @@ import com.gabolle.backend.event.application.OutboxAppendCommand;
 import com.gabolle.backend.event.application.OutboxService;
 import com.gabolle.backend.event.domain.EventOutbox;
 import com.gabolle.backend.event.domain.EventType;
+import com.gabolle.backend.event.domain.Producer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -151,11 +151,13 @@ class EventIngestServiceTest {
         assertThat(captureCommand().partitionKey()).isEqualTo(requestId.toString());
     }
 
-    // ── 컬럼이 생기기 전까지 payload 에 실리는 축 ───────────────────
+    // ── 2026-09-03 — request_id·user_id·trip_id·producer 는 이제 실컬럼이다 ─────
+    //    (고지혁 님이 S15P21E201-352-event-outbox-join-axes 에서 컬럼을 추가했다.
+    //    payload 에 욱여넣던 옛 방식은 지웠다 — 아래는 그 실컬럼 배선을 검증한다.)
 
     @Test
-    @DisplayName("request_id · user_id · trip_id · producer 는 payload 에 실린다 (컬럼 생기면 옮긴다)")
-    void envelopeFieldsRideInPayloadForNow() {
+    @DisplayName("user_id · trip_id · producer 는 커맨드의 실컬럼으로 간다 — payload 에 안 실린다")
+    void userIdTripIdProducerGoToRealColumnsNotPayload() {
         UUID userId = UUID.randomUUID();
         UUID tripId = UUID.randomUUID();
         UUID requestId = UUID.randomUUID();
@@ -163,36 +165,39 @@ class EventIngestServiceTest {
         this.service.ingestFromClient(UUID.randomUUID(), EventType.RECOMMENDATION_IMPRESSION, 1,
                 userId, tripId, requestId, at("2026-09-03T11:59:00Z"), Map.of("rank", 3));
 
-        Map<String, Object> payload = captureCommand().payload();
-        assertThat(payload).containsEntry("request_id", requestId.toString())
-                .containsEntry("user_id", userId.toString())
-                .containsEntry("trip_id", tripId.toString())
-                .containsEntry("producer", "CLIENT")
-                .containsEntry("rank", 3);
+        OutboxAppendCommand command = captureCommand();
+        assertThat(command.userId()).isEqualTo(userId);
+        assertThat(command.tripId()).isEqualTo(tripId);
+        assertThat(command.producer()).isEqualTo(Producer.CLIENT);
+        assertThat(command.payload()).containsEntry("rank", 3)
+                .doesNotContainKeys("request_id", "user_id", "trip_id", "producer");
     }
 
     @Test
-    @DisplayName("🔴 비로그인이어도 user_id 키는 남는다 — '안 보냈다' 와 '없었다' 를 구분해야 한다")
-    void nullEnvelopeFieldsKeepTheirKeys() {
+    @DisplayName("🔴 추천 이벤트는 request_id 컬럼이 null 이다 — 요청 축은 이미 aggregate_id 다")
+    void recommendationEventLeavesRequestIdColumnNull() {
+        UUID requestId = UUID.randomUUID();
+
         this.service.ingestFromClient(UUID.randomUUID(), EventType.RECOMMENDATION_IMPRESSION, 1,
-                null, null, UUID.randomUUID(), at("2026-09-03T11:59:00Z"), Map.of());
+                UUID.randomUUID(), UUID.randomUUID(), requestId, at("2026-09-03T11:59:00Z"), Map.of());
 
-        Map<String, Object> payload = captureCommand().payload();
-        assertThat(payload).containsKey("user_id").containsKey("trip_id");
-        assertThat(payload.get("user_id")).isNull();
+        OutboxAppendCommand command = captureCommand();
+        assertThat(command.aggregateId()).isEqualTo(requestId);
+        assertThat(command.requestId()).isNull();
     }
 
     @Test
-    @DisplayName("🔴 payload 가 envelope 키를 덮어쓰려 하면 거부한다")
-    void payloadCannotOverrideEnvelopeKeys() {
-        Map<String, Object> hostile = new HashMap<>();
-        hostile.put("request_id", "남의 요청");
+    @DisplayName("🔴 여행 축 이벤트는 request_id 컬럼을 채운다 — aggregate_id 와 다른 값이다")
+    void tripAxisEventFillsRequestIdColumn() {
+        UUID tripId = UUID.randomUUID();
+        UUID requestId = UUID.randomUUID();
 
-        assertThatThrownBy(() -> this.service.ingestFromClient(UUID.randomUUID(),
-                EventType.RECOMMENDATION_IMPRESSION, 1, null, null, UUID.randomUUID(),
-                at("2026-09-03T11:59:00Z"), hostile))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("request_id");
+        this.service.recordFromServer(UUID.randomUUID(), EventType.TRIP_CREATED, 1,
+                UUID.randomUUID(), tripId, requestId, Map.of());
+
+        OutboxAppendCommand command = captureCommand();
+        assertThat(command.aggregateId()).isEqualTo(tripId);
+        assertThat(command.requestId()).isEqualTo(requestId);
     }
 
     // ── 입구에서 막는 것 ─────────────────────────────────────────

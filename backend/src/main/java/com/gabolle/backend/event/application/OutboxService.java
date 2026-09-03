@@ -96,7 +96,11 @@ public class OutboxService {
 				command.partitionKey(),
 				this.jsonPayloads.writeObject(command.payload()),
 				command.occurredAt(),
-				receivedAt);
+				receivedAt,
+				command.requestId(),
+				command.userId(),
+				command.tripId(),
+				command.producer());
 		return new AppendResult(this.repository.save(event), true);
 	}
 }
