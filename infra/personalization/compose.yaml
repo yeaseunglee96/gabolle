@@ -161,6 +161,11 @@ services:
       --port 5000
     ports:
       - "127.0.0.1:5000:5000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:5000/health').status==200 else 1)"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     depends_on:
       postgres:
         condition: service_healthy
@@ -229,6 +234,11 @@ services:
   airflow-scheduler:
     <<: *airflow-common
     command: scheduler
+    healthcheck:
+      test: ["CMD-SHELL", "airflow jobs check --job-type SchedulerJob --hostname \"$(hostname)\""]
+      interval: 30s
+      timeout: 10s
+      retries: 5
     depends_on:
       airflow-init:
         condition: service_completed_successfully
@@ -240,6 +250,11 @@ services:
   airflow-dag-processor:
     <<: *airflow-common
     command: dag-processor
+    healthcheck:
+      test: ["CMD-SHELL", "airflow jobs check --job-type DagProcessorJob --hostname \"$(hostname)\""]
+      interval: 30s
+      timeout: 10s
+      retries: 5
     depends_on:
       airflow-init:
         condition: service_completed_successfully
@@ -269,6 +284,11 @@ services:
   airflow-worker:
     <<: *airflow-common
     command: celery worker
+    healthcheck:
+      test: ["CMD-SHELL", "celery -A airflow.providers.celery.executors.celery_executor.app inspect ping -d \"celery@$(hostname)\" -t 10"]
+      interval: 30s
+      timeout: 15s
+      retries: 5
     depends_on:
       airflow-init:
         condition: service_completed_successfully
