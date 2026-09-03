@@ -217,22 +217,57 @@ docker volume create jenkins_home
 docker run -d \
   --name jenkins \
   --restart unless-stopped \
-  -p 8081:8080 \
+  -p 127.0.0.1:8081:8080 \
   -p 50000:50000 \
   -v jenkins_home:/var/jenkins_home \
   -v /var/run/docker.sock:/var/run/docker.sock \
+  --group-add 987 \
+  -e JENKINS_OPTS="--prefix=/jenkins" \
   jenkins/jenkins:lts
 ```
 
 - 컨테이너 내부는 8080(Jenkins 기본 포트)이지만, 앱 배포용 8080과 겹치지 않게
-  **호스트 쪽은 8081**로 노출했다.
-- 접속: `http://j15e201.p.ssafy.io:8081`
+  예전엔 호스트 쪽을 8081로 열었었다. **2026-09-03부터 `127.0.0.1:8081`로 막고
+  nginx 뒤로 옮겼다** — 아래 "443 서브패스 이전" 참고.
+- 접속: `https://j15e201.p.ssafy.io/jenkins/`
 - 초기 비밀번호: `docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword`
-- `/var/run/docker.sock` 을 마운트해 두어, 나중에 파이프라인이 호스트의 Docker를
-  직접 호출(`docker build`/`docker run`)할 수 있게 준비해 두었다.
+- `/var/run/docker.sock` 을 마운트해, 파이프라인이 호스트의 Docker를
+  직접 호출(`docker build`/`docker run`)할 수 있게 했다.
+- `--group-add 987` — 호스트의 `docker` 그룹 GID(`getent group docker`로 실측,
+  서버마다 다를 수 있다). 이게 없으면 컨테이너 안의 `jenkins` 사용자가
+  마운트된 `docker.sock`에 `permission denied`를 받는다.
 
 설치 후 "Install suggested plugins" → **로그인 필수인 관리자 계정 생성**까지
 마쳤다 (로그인 없이 쓰는 상태로 두면 안 된다).
+
+### 🔴 컨테이너를 재생성할 때마다 사라지는 것 셋 — 매번 다시 해야 한다
+
+**2026-09-03, 443 서브패스로 옮기며 두 번 재생성했고 세 번 다 이걸 잊어서 배포가
+막혔다.** `docker run`이 만드는 이미지 레이어 밖의 상태는 재생성 순간 전부
+초기화된다. `jenkins_home`(named volume)에 안 들어가는 것들이라 위 `docker run`
+명령에 넣지 않으면 아무리 여러 번 재생성해도 계속 빠진다.
+
+1. **`docker` CLI 자체** — `jenkins/jenkins:lts` 이미지엔 기본으로 없다.
+   `docker.sock`은 마운트돼 있어도 명령어가 없으면 `docker: not found`.
+   ```bash
+   docker exec -u root jenkins apt-get update
+   docker exec -u root jenkins apt-get install -y docker.io
+   ```
+2. **`docker.sock` 그룹 권한** — 위 `--group-add 987`로 `docker run` 시점에
+   넣어야 한다. 이미 떠 있는 컨테이너에 `usermod`로 나중에 추가해도 Jenkins
+   프로세스가 이미 그 그룹 없이 시작돼서 반영이 안 된다 — 컨테이너를 다시
+   만들어야 한다.
+3. **`local-route-personalization_data_net` 네트워크 연결** — `backend`
+   컨테이너와 이름으로 통신하려면 필요하다. 컨테이너 인스턴스에 붙는 것이라
+   재생성마다 다시 붙여야 한다:
+   ```bash
+   docker network connect local-route-personalization_data_net jenkins
+   ```
+
+**재생성 뒤에는 이 셋 다 됐는지 `docker exec jenkins docker ps`로 한 번에
+확인한다** — 에러 없이 (빈 목록이라도) 나오면 1·2번은 된 것이고, 3번은
+`backend-deploy`를 한 번 돌려서 Health Check가 `000`(연결 자체 실패)이 아니라
+실제 응답 코드를 받는지로 확인한다.
 
 ### GitLab Webhook 연동
 
@@ -243,7 +278,7 @@ docker run -d \
 3. GitLab 저장소 → **Settings → Webhooks** (Maintainer 권한 필요할 수 있음)
    → URL 등록:
    ```
-   http://j15e201.p.ssafy.io:8081/generic-webhook-trigger/invoke?token=<TOKEN>
+   https://j15e201.p.ssafy.io/jenkins/generic-webhook-trigger/invoke?token=<TOKEN>
    ```
    → Trigger: `Push events`
 4. GitLab의 **Test → Push events** 버튼으로 테스트 →
@@ -254,8 +289,49 @@ docker run -d \
 > 🔴 **파이프라인 스크립트 안에서 `localhost`는 Jenkins 컨테이너 자기 자신을
 > 가리킨다.** 다른 컨테이너(예: 8080의 앱)와는 별개의 네트워크 네임스페이스라서,
 > `curl http://localhost:8080/...`을 파이프라인 안에서 호출하면 Jenkins 자신의
-> 웹 UI(로그인 페이지)가 응답한다. 실제 배포 스크립트를 작성할 때는 호스트 IP나
-> 공용 Docker 네트워크를 통해 접근해야 한다.
+> 웹 UI(로그인 페이지)가 응답한다. 실제 배포 스크립트를 작성할 때는 컨테이너
+> 이름(`http://backend:8080/...`, 같은 도커 네트워크에 있을 때)으로 접근해야 한다.
+
+### Jenkins UI를 443 서브패스로 옮김 (2026-09-03, S15P21E201-201)
+
+**전**: `http://j15e201.p.ssafy.io:8081` — 평문(HTTP), UFW로 8081을 인터넷에
+직접 열어 둠. Jenkins 컨테이너에 `docker.sock`이 마운트돼 있어 뚫리면 EC2 호스트
+전체(DB 비밀번호·JWT 시크릿·배포 SSH 키 포함)가 뚫리는 구조였는데, 로그인이
+평문이고 rate limit도 없었다.
+
+**후**: `https://j15e201.p.ssafy.io/jenkins/` — nginx 뒤(443)로 들어가 TLS를
+타고, UFW는 22·80·443 셋만 남았다.
+
+바꾼 것 셋:
+
+1. Jenkins 컨테이너: `-p 127.0.0.1:8081:8080`(loopback만) +
+   `JENKINS_OPTS="--prefix=/jenkins"` — 위 `docker run` 참고
+2. nginx 443 서버 블록에 `location /jenkins/` 추가 (`location /` **위쪽**,
+   `/etc/nginx/sites-available/default`):
+   ```nginx
+   location /jenkins/ {
+           proxy_pass http://127.0.0.1:8081/jenkins/;
+           proxy_http_version 1.1;
+           proxy_set_header Host $host;
+           proxy_set_header X-Real-IP $remote_addr;
+           proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+           proxy_set_header X-Forwarded-Proto $scheme;
+           proxy_redirect off;
+   }
+   ```
+3. Jenkins 자체 설정 — Manage Jenkins → System → Jenkins Location → Jenkins URL을
+   `https://j15e201.p.ssafy.io/jenkins/`로 변경 (끝 슬래시 포함)
+
+GitLab Webhook 2개(`backend-deploy`, `infra-personalization-deploy`)의 URL도
+새 경로로 바꿨다 — 위 "GitLab Webhook 연동" 참고. 전환 뒤 GitLab **Test → Push
+events**로 실제 Jenkins Build History에 빌드가 생기는 것까지 확인했다.
+
+> 🔴 **컨테이너 재생성이 두 번 필요했다** — 처음엔 `--prefix`만 넣고 만들었는데
+> "컨테이너를 재생성할 때마다 사라지는 것 셋" 중 docker CLI가 없어서 빌드가
+> 죽었고, 다시 설치한 뒤 이번엔 `docker.sock` 권한이 없어서 또 죽었다.
+> `--group-add`는 `docker run` 시점에만 먹으므로 두 번째 재생성이 필요했다.
+> 이 문서의 `docker run` 명령에는 처음부터 셋 다 넣어 뒀으니, **다음에 재생성할
+> 사람은 이 문서의 명령을 그대로 쓰면 두 번 겪지 않는다.**
 
 ---
 
@@ -332,8 +408,9 @@ Wildcard pattern `common/dev`)이 자동으로 트리거해 SHA 태깅 빌드·�
 실제로 아직 안 된 것:
 
 - frontend Jenkins Job 자동 배포 연결 (지금은 수동 빌드, 7절 참고)
-- Jenkins UI(8081) 포트가 80/443/SSH 외에 추가로 노출된 것 — Nginx 뒤로
-  옮기는 안을 검토했으나(팀 전체 URL 변경 필요) 아직 보류 중
+- ✅ **2026-09-03 — Jenkins UI를 443 서브패스로 옮김.** 8081은 UFW에서
+  닫았고, 이제 22·80·443만 열려 있다. 5절 "Jenkins UI를 443 서브패스로 옮김"
+  참고
 - 개인화 인프라 자체의 세부 gap(모델/피처/DAG 롤백 미리허설 등)은 여기
   나열하지 않는다 — 항목이 늘어날 때마다 이 줄이 낡기 때문이다. 최신 목록은
   항상 [`infra/personalization/README.md`](../infra/personalization/README.md)
