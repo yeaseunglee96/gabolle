@@ -16,6 +16,7 @@ import com.gabolle.backend.event.application.OutboxRelayService;
 import com.gabolle.backend.event.application.port.EventPublisherPort;
 import com.gabolle.backend.event.domain.EventOutbox;
 import com.gabolle.backend.event.domain.OutboxPublishStatus;
+import com.gabolle.backend.event.domain.Producer;
 import com.gabolle.backend.event.repository.EventOutboxRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -66,11 +67,12 @@ class OutboxRelayTest {
     private EventOutbox pending() {
         return new EventOutbox(UUID.randomUUID(), "recommendation_impression", 1, "recommendation",
                 UUID.randomUUID(), "user", "{}", OffsetDateTime.now(Clock.fixed(NOW, ZoneOffset.UTC)),
-                OffsetDateTime.now(Clock.fixed(NOW, ZoneOffset.UTC)));
+                OffsetDateTime.now(Clock.fixed(NOW, ZoneOffset.UTC)),
+                null, null, null, Producer.CLIENT);
     }
 
     private void givenPending(EventOutbox... events) {
-        given(this.repository.findByPublishedAtIsNullOrderByOccurredAtAscEventIdAsc(any()))
+        given(this.repository.findByPublishedAtIsNullOrderBySeqAsc(any()))
                 .willReturn(List.of(events));
     }
 
