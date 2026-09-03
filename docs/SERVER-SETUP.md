@@ -259,7 +259,7 @@ docker run -d \
 
 ---
 
-## 6. 연습용 리소스 — 정리 완료 (S15P21E201-531·574·575)
+## 6. 연습용 리소스 — 정리 완료 (S15P21E201-531·574·575·583)
 
 `hello-test`는 실제 백엔드(`back/dev`, Spring Boot)로 교체됐다. 지금 8080 포트에는
 `backend` 컨테이너가 떠 있고, Jenkins Job `backend-deploy`는 저장소의
@@ -267,8 +267,15 @@ docker run -d \
 Webhook은 `back/dev` 브랜치로 제한되어 있다. 빌드 성공/실패는 MatterMost
 E201봇채널로 자동 알림된다.
 
-`~/hello-test/`(EC2 홈 디렉터리의 연습용 파일)는 참고용으로만 남겨뒀다 — 지워도
-무방하다.
+**2026-09-03, 완전히 정리함** — `backend-deploy`·`infra-personalization-deploy`가
+둘 다 실제로 도는 것까지 확인된 뒤, 연습용 잔재를 전부 지웠다.
+
+- Jenkins Job `hello-test-pipeline` 삭제 — GitLab Webhook이 "All branches"로
+  걸려 있어서 이번 세션에 올린 수십 개 브랜치 push마다 반응해 `#350`까지
+  불필요하게 쌓여 있었다
+- GitLab Webhook의 `hello-test-deploy` 토큰 항목 삭제
+- EC2의 `~/hello-test/` 디렉터리 삭제 (여기서 배운 내용은 4절에 명령어까지
+  전부 문서로 남아 있어서, 파일 자체가 없어도 기록은 살아있다)
 
 ---
 
