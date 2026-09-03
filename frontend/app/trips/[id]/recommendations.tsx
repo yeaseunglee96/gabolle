@@ -1,12 +1,13 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Image, Pressable, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useAuth } from '@/auth/AuthProvider';
 import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
 import { TabBar } from '@/components/TabBar';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
-import { type RecommendationCourse, type RecommendationViewModel, unavailableRecommendations } from '@/plan/recommendations';
+import { loadRecommendationResult, type RecommendationCourse, type RecommendationViewModel, unavailableRecommendations } from '@/plan/recommendations';
 
 const STATUS = { VERIFIED: '확인됨', ESTIMATED: '추정', UNKNOWN: '미확인' } as const;
 const CROWD = { LOW: '여유', MEDIUM: '보통', HIGH: '혼잡' } as const;
@@ -17,15 +18,21 @@ function CourseCard({ course, onAction }: { course: RecommendationCourse; onActi
 }
 
 export default function Recommendations() {
-  const router = useRouter(); const { id } = useLocalSearchParams<{ id: string }>();
-  const [view, setView] = useState<RecommendationViewModel>(unavailableRecommendations());
+  const router = useRouter(); const { accessToken } = useAuth(); const { id, jobId } = useLocalSearchParams<{ id: string; jobId?: string }>();
+  const [view, setView] = useState<RecommendationViewModel>(() => jobId ? { ...unavailableRecommendations(), state: 'loading', message: '추천 결과를 확인하고 있어요.' } : unavailableRecommendations());
+  const reload = useCallback(async () => {
+    if (!jobId) { setView(unavailableRecommendations()); return; }
+    setView((current) => ({ ...current, state: 'loading', message: '추천 결과를 확인하고 있어요.' }));
+    setView(await loadRecommendationResult(jobId, accessToken));
+  }, [accessToken, jobId]);
+  useEffect(() => { void reload(); }, [reload]);
   const updateAction = (courseId: string, actionState: RecommendationCourse['actionState']) => setView((current) => ({ ...current, courses: current.courses.map((course) => course.id === courseId ? { ...course, actionState } : course) }));
   const unavailable = view.state === 'unavailable' || view.state === 'empty-conflict';
   return <View style={styles.shell}><Screen scroll wide style={styles.canvas}><View style={styles.nav}><Pressable accessibilityRole="button" accessibilityLabel="뒤로 가기" onPress={() => router.canGoBack() ? router.back() : router.replace('/plan/confirm')} style={styles.back}><Text variant="title">‹</Text></Pressable><View style={styles.dots}><View style={styles.dot} /><View style={styles.dot} /><View style={styles.activeDot} /></View></View><Text variant="caption" weight="bold" color={color.brand.orange}>추천 일정 요약</Text><Text variant="display" weight="bold" style={styles.heading}>{view.state === 'success' || view.state === 'partial' || view.state === 'fallback' ? `${view.courses.length}가지 코스를 골라봤어요.` : '추천 결과'}</Text>
       {view.state === 'loading' && <View accessibilityLiveRegion="polite" style={styles.stateCard}><Text variant="title" weight="bold">추천을 불러오고 있어요</Text><Text color={color.text.body}>확인된 결과만 표시합니다.</Text></View>}
       {(view.state === 'partial' || view.state === 'fallback') && <View style={styles.notice}><Text accessibilityRole="alert" variant="caption" weight="bold">{view.message}</Text></View>}
-      {(view.state === 'error' || view.state === 'offline') && <View style={styles.stateCard}><Text variant="title" weight="bold">{view.state === 'offline' ? '인터넷 연결을 확인해 주세요' : '추천을 불러오지 못했어요'}</Text><Text color={color.text.body}>{view.message}</Text><Button accessibilityRole="button" label="다시 시도" variant="ghost" onPress={() => setView(unavailableRecommendations())} /></View>}
-      {unavailable && <View style={styles.stateCard}><View style={styles.emptyMark}><Text variant="display">⌁</Text></View><Text variant="title" weight="bold">{view.state === 'empty-conflict' ? '조건을 만족하는 코스가 없어요' : '아직 생성된 추천이 없어요'}</Text><Text color={color.text.body}>{view.message}</Text>{view.conflicts.map((item) => <Text key={item} accessibilityRole="alert" variant="caption" color={color.state.danger}>• {item}</Text>)}<Button accessibilityRole="button" label="조건 수정하기" variant="ghost" onPress={() => router.push('/plan/confirm')} /><Button accessibilityRole="button" label="다시 확인" variant="ghost" onPress={() => setView(unavailableRecommendations())} /></View>}
+      {(view.state === 'error' || view.state === 'offline') && <View style={styles.stateCard}><Text variant="title" weight="bold">{view.state === 'offline' ? '인터넷 연결을 확인해 주세요' : '추천을 불러오지 못했어요'}</Text><Text color={color.text.body}>{view.message}</Text><Button accessibilityRole="button" label="다시 시도" variant="ghost" onPress={() => void reload()} /></View>}
+      {unavailable && <View style={styles.stateCard}><View style={styles.emptyMark}><Text variant="display">⌁</Text></View><Text variant="title" weight="bold">{view.state === 'empty-conflict' ? '조건을 만족하는 코스가 없어요' : '아직 생성된 추천이 없어요'}</Text><Text color={color.text.body}>{view.message}</Text>{view.conflicts.map((item) => <Text key={item} accessibilityRole="alert" variant="caption" color={color.state.danger}>• {item}</Text>)}<Button accessibilityRole="button" label="조건 수정하기" variant="ghost" onPress={() => router.push('/plan/confirm')} />{jobId && <Button accessibilityRole="button" label="다시 확인" variant="ghost" onPress={() => void reload()} />}</View>}
       <View style={styles.list}>{view.courses.map((course) => <CourseCard key={course.id} course={course} onAction={(state) => updateAction(course.id, state)} />)}</View>
       <Button accessibilityRole="button" accessibilityState={{ disabled: !view.itineraryId }} label="이 일정으로 보기" disabled={!view.itineraryId} containerStyle={styles.cta} onPress={() => { if (view.itineraryId) router.push(`/${view.itineraryId}/result`); }} />
       {!view.itineraryId && <Text variant="caption" color={color.text.muted} style={styles.reason}>완성된 일정이 생기면 상세 일정으로 이동할 수 있어요.</Text>}
