@@ -58,7 +58,11 @@ class ItineraryEditControllerTest {
                 .andExpect(jsonPath("$.data.createdBy").value("usr_a"))
                 .andExpect(jsonPath("$.data.lockedItemId").value("item_1"))
                 // API 명세 2.1 — 공통 envelope 에 meta.requestId 가 있어야 한다
-                .andExpect(jsonPath("$.meta.requestId").exists());
+                .andExpect(jsonPath("$.meta.requestId").exists())
+                // 🔴 2026-09-03 — 팀 공용 ApiResponse 로 바꾼 뒤: 성공이면 error 는 명시적으로 null,
+                //    시각은 meta(칸 없음)가 아니라 data.createdAt 에 실린다.
+                .andExpect(jsonPath("$.error").doesNotExist())
+                .andExpect(jsonPath("$.data.createdAt").exists());
     }
 
     /** 🔴 이 테스트가 M1 완료 조건 ② 를 증명한다. */
