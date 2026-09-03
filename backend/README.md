@@ -86,10 +86,27 @@ src/main/java/com/gabolle/backend/
 ## MR 빌드 검사 (S15P21E201-266)
 
 `backend/`가 바뀐 MR에서는 `.gitlab-ci.yml`의 `backend:build` 잡이 자동으로
-`./gradlew build`(테스트 포함)를 돌립니다. 로컬에서 같은 걸 미리 확인하려면:
+`./gradlew build`(테스트 포함)를 돌립니다. CI는 PostgreSQL 서비스 컨테이너를
+같이 띄우고, DB 테스트가 하나라도 건너뛰면(스킵) 잡을 실패로 처리합니다 —
+도커/DB가 없어 조용히 건너뛰고 초록이 되는 것을 막기 위해서입니다
+(`PostgresAvailableCondition`, 고지혁).
+
+로컬에서 같은 걸 미리 확인하려면 도커가 있으면 그냥:
 
 ```bash
 cd backend
+./gradlew build
+```
+
+Testcontainers가 도커로 PostgreSQL을 알아서 띄웁니다. 도커가 없으면 팀 서버나
+다른 PostgreSQL을 가리켜서 돌립니다 (DB 이름에 `test`가 없으면 시작하지 않습니다 —
+이 테스트는 표를 지웁니다):
+
+```bash
+cd backend
+GABOLLE_TEST_DB_URL=jdbc:postgresql://localhost:5432/gabolle_test \
+GABOLLE_TEST_DB_USERNAME=gabolle \
+GABOLLE_TEST_DB_PASSWORD=... \
 ./gradlew build
 ```
 
