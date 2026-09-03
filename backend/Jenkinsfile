@@ -10,6 +10,15 @@
 // 필요한 Jenkins Credentials:
 //  - gitlab-pat            (Username with password) — GitLab 저장소 체크아웃
 //  - mattermost-webhook    (Secret text) — 빌드 결과 알림용 MatterMost Incoming Webhook URL
+//  - gabolle-db-url        (Secret text) — jdbc:postgresql://postgres:5432/app_db
+//  - gabolle-db-username   (Secret text) — app_user
+//  - gabolle-db-password   (Secret text)
+//  - gabolle-jwt-secret    (Secret text) — 32자 이상 운영용 값
+//
+// DB는 infra/personalization의 PostgreSQL(app_db, S15P21E201-581)을 그대로
+// 쓴다 — 그래서 컨테이너를 그 Docker 네트워크(local-route-personalization_data_net)에
+// 같이 붙여야 "postgres" 호스트명이 풀린다. 이 컨테이너가 그 compose 프로젝트
+// 소속은 아니지만, 네트워크 이름으로 조인만 하면 같은 DNS를 쓸 수 있다.
 
 pipeline {
     agent any
@@ -37,9 +46,26 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                sh 'docker stop backend || true'
-                sh 'docker rm backend || true'
-                sh 'docker run -d --name backend -p 8080:8080 local-route-backend'
+                withCredentials([
+                    string(credentialsId: 'gabolle-db-url', variable: 'GABOLLE_DB_URL'),
+                    string(credentialsId: 'gabolle-db-username', variable: 'GABOLLE_DB_USERNAME'),
+                    string(credentialsId: 'gabolle-db-password', variable: 'GABOLLE_DB_PASSWORD'),
+                    string(credentialsId: 'gabolle-jwt-secret', variable: 'GABOLLE_JWT_SECRET')
+                ]) {
+                    sh 'docker stop backend || true'
+                    sh 'docker rm backend || true'
+                    sh '''
+                        docker run -d --name backend \
+                            --network local-route-personalization_data_net \
+                            -p 8080:8080 \
+                            -e SPRING_PROFILES_ACTIVE=dev \
+                            -e GABOLLE_DB_URL="$GABOLLE_DB_URL" \
+                            -e GABOLLE_DB_USERNAME="$GABOLLE_DB_USERNAME" \
+                            -e GABOLLE_DB_PASSWORD="$GABOLLE_DB_PASSWORD" \
+                            -e GABOLLE_JWT_SECRET="$GABOLLE_JWT_SECRET" \
+                            local-route-backend
+                    '''
+                }
             }
         }
 
