@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { setUnauthorizedHandler } from '@/api/client';
 import { getMe, login, logoutMobileSession, logoutWebSession, refreshWebSession, type AuthTokens, type AuthUser } from './authApi';
 
-type AuthContextValue = { accessToken: string | null; user: AuthUser | null; ready: boolean; signIn: (email: string, password: string) => Promise<void>; acceptTokens: (tokens: AuthTokens) => Promise<void>; signOut: () => Promise<void> };
+type AuthContextValue = { accessToken: string | null; user: AuthUser | null; ready: boolean; signIn: (email: string, password: string) => Promise<void>; acceptTokens: (tokens: AuthTokens) => Promise<void>; clearSession: () => void; signOut: () => Promise<void> };
 const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
@@ -20,7 +20,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     void refreshWebSession().then(async (tokens) => ({ tokens, currentUser: await getMe(tokens.accessToken) })).then(({ tokens, currentUser }) => { if (active) { setAccessToken(tokens.accessToken); setUser(currentUser); } }).catch(() => {}).finally(() => { if (active) setReady(true); });
     return () => { active = false; };
   }, []);
-  const value = useMemo<AuthContextValue>(() => ({ accessToken, user, ready,
+  const value = useMemo<AuthContextValue>(() => ({ accessToken, user, ready, clearSession,
     signIn: async (email, password) => { const tokens = await login(email, password); const currentUser = await getMe(tokens.accessToken); setAccessToken(tokens.accessToken); setRefreshToken(tokens.refreshToken); setUser(currentUser); },
     acceptTokens: async (tokens) => { const currentUser = await getMe(tokens.accessToken); setAccessToken(tokens.accessToken); setRefreshToken(tokens.refreshToken); setUser(currentUser); },
     signOut: async () => { try { if (Platform.OS === 'web') await logoutWebSession(); else if (refreshToken) await logoutMobileSession(refreshToken); } finally { clearSession(); router.replace('/sign-in'); } },

@@ -19,9 +19,9 @@ function errorMessage(cause: unknown) {
   return cause instanceof ApiClientError ? cause.message : '로그인하지 못했어요.';
 }
 export default function SignIn() {
-  const router = useRouter(); const { returnTo } = useLocalSearchParams<{ returnTo?: string }>(); const { signIn, acceptTokens } = useAuth();
+  const router = useRouter(); const { returnTo, passwordReset } = useLocalSearchParams<{ returnTo?: string; passwordReset?: string }>(); const { signIn, acceptTokens } = useAuth();
   const [email, setEmail] = useState(''); const [password, setPassword] = useState(''); const [show, setShow] = useState(false);
-  const [busy, setBusy] = useState(false); const [provider, setProvider] = useState<OAuthProvider | null>(null); const [feedback, setFeedback] = useState<{ danger: boolean; text: string } | null>(null);
+  const [busy, setBusy] = useState(false); const [provider, setProvider] = useState<OAuthProvider | null>(null); const [feedback, setFeedback] = useState<{ danger: boolean; text: string } | null>(passwordReset === 'success' ? { danger: false, text: '비밀번호가 변경됐어요. 새 비밀번호로 로그인해 주세요.' } : null);
   const eligible = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()) && password.length > 0;
   async function submit() { if (!eligible || busy || provider) return; setBusy(true); setFeedback(null); try { await signIn(email, password); router.replace(safeReturnTo(returnTo)); } catch (e) { setFeedback({ danger: true, text: errorMessage(e) }); } finally { setBusy(false); } }
   async function social(next: OAuthProvider) { if (busy || provider) return; setProvider(next); setFeedback(null); try { const tokens = await loginWithOAuth(next); await acceptTokens(tokens); router.replace(safeReturnTo(returnTo)); } catch (e) { setFeedback({ danger: true, text: errorMessage(e) }); } finally { setProvider(null); } }
@@ -32,7 +32,7 @@ export default function SignIn() {
     <View style={styles.form}>
       <View style={styles.field}><Text variant="caption" weight="bold">이메일</Text><TextInput accessibilityLabel="이메일" autoCapitalize="none" autoComplete="email" keyboardType="email-address" value={email} onChangeText={setEmail} placeholder="name@example.com" placeholderTextColor={color.text.muted} style={styles.input} /></View>
       <View style={styles.field}><Text variant="caption" weight="bold">비밀번호</Text><View style={styles.passwordRow}><TextInput accessibilityLabel="비밀번호" autoCapitalize="none" autoComplete="current-password" secureTextEntry={!show} value={password} onChangeText={setPassword} onSubmitEditing={() => void submit()} placeholder="비밀번호" placeholderTextColor={color.text.muted} style={styles.passwordInput} /><Pressable accessibilityRole="button" accessibilityLabel={show ? '비밀번호 숨기기' : '비밀번호 보이기'} accessibilityState={{ selected: show }} onPress={() => setShow(!show)} style={styles.eye}><Text variant="caption">{show ? '숨김' : '보기'}</Text></Pressable></View></View>
-      <Pressable accessibilityRole="button" style={styles.forgot} onPress={() => setFeedback({ danger: false, text: '비밀번호 재설정 기능은 준비 중이에요.' })}><Text variant="caption" color={color.action.primary}>비밀번호를 잊으셨나요?</Text></Pressable>
+      <Pressable accessibilityRole="link" style={styles.forgot} onPress={() => router.push('/forgot-password')}><Text variant="caption" color={color.action.primary}>비밀번호를 잊으셨나요?</Text></Pressable>
       {feedback && <Card><Text accessibilityRole="alert" variant="caption" color={feedback.danger ? color.state.danger : color.text.body}>{feedback.text}</Text></Card>}
       <Button accessibilityRole="button" accessibilityState={{ disabled: !eligible || busy || !!provider, busy }} label={busy ? '로그인 중…' : '로그인'} disabled={!eligible || busy || !!provider} onPress={() => void submit()} />
     </View>
