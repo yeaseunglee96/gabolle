@@ -272,7 +272,49 @@ E201봇채널로 자동 알림된다.
 
 ---
 
-## 7. 앞으로 남은 것
+## 7. 프론트엔드 — Expo 웹 미리보기 (S15P21E201-583)
+
+`frontend/`는 React+TS 웹이 아니라 **Expo(React Native) 앱**이다 — 실제 iOS/
+Android 배포는 EAS Build(Expo 클라우드)를 통하고, 우리 EC2와는 무관하다.
+그래도 팀원들이 물리 디바이스 없이 브라우저로 바로 확인할 수 있도록, Expo의
+웹 export 결과물만 우리 서버에서 Nginx로 서빙한다.
+
+```bash
+cd /opt/local-route/repository/frontend
+docker build -t local-route-frontend .
+docker run -d --name frontend --restart unless-stopped -p 3000:80 local-route-frontend
+```
+
+`frontend/Dockerfile`이 `npx expo export --platform web`으로 정적 번들을
+만들고 `nginx:alpine`으로 서빙한다. expo-router는 클라이언트 사이드
+라우팅이라, `frontend/nginx.conf`에 `try_files ... /index.html` fallback이
+있어야 새로고침이나 직접 URL 접속에서 404가 안 난다.
+
+메인 Nginx의 443 서버 블록에서 `location /`이 이 컨테이너(포트 3000)를
+가리키도록 프록시한다 — `location /api/`와 같은 자리, 같은 방식이다.
+
+```nginx
+location / {
+    limit_req zone=api_limit burst=20 nodelay;
+    proxy_pass http://localhost:3000;
+    proxy_http_version 1.1;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+}
+```
+
+**검증**: 서버에서 직접 빌드·실행 후 `https://j15e201.p.ssafy.io/`에서 실제
+GABOLLE 화면(`<title>GABOLLE</title>`)과 임의 하위 경로의 라우팅 fallback을
+확인했다.
+
+> 아직 Jenkins Job으로 자동화되지 않았다 — 지금은 backend 초기와 같은
+> 수동 `docker build`/`docker run` 단계다. 자동 배포는 후속 작업.
+
+---
+
+## 8. 앞으로 남은 것
 
 문서 5~13절(개인화 인프라 구축 가이드)은 전부 끝났다 (10절 Kafka는 팀 결정으로
 범위 제외). `infra/personalization/Jenkinsfile`은 Jenkins Job
@@ -282,17 +324,17 @@ Wildcard pattern `common/dev`)이 자동으로 트리거해 SHA 태깅 빌드·�
 
 실제로 아직 안 된 것:
 
-- 실제 `frontend/` 코드/Dockerfile 작성 (현재는 `README.md` 하나뿐인 placeholder
-  상태 — 서비스 명세와 화면 코드가 나온 뒤에 진행하기로 함)
-- 개인화 인프라 자체의 세부 gap(healthcheck 4개 누락, Jenkins UI 포트 노출,
-  모델/피처/DAG 롤백 미리허설 등)은 여기 나열하지 않는다 — 항목이 늘어날
-  때마다 이 줄이 낡기 때문이다. 최신 목록은 항상
-  [`infra/personalization/README.md`](../infra/personalization/README.md)
+- frontend Jenkins Job 자동 배포 연결 (지금은 수동 빌드, 7절 참고)
+- Jenkins UI(8081) 포트가 80/443/SSH 외에 추가로 노출된 것 — Nginx 뒤로
+  옮기는 안을 검토했으나(팀 전체 URL 변경 필요) 아직 보류 중
+- 개인화 인프라 자체의 세부 gap(모델/피처/DAG 롤백 미리허설 등)은 여기
+  나열하지 않는다 — 항목이 늘어날 때마다 이 줄이 낡기 때문이다. 최신 목록은
+  항상 [`infra/personalization/README.md`](../infra/personalization/README.md)
   13절을 본다
 
 ---
 
-## 8. 개인화 인프라 — 별도 문서
+## 9. 개인화 인프라 — 별도 문서
 
 PostgreSQL·Redis·MinIO·MLflow·Airflow로 구성된 개인화 추천 인프라는
 `infra/personalization/`에 있고, 구축 절차와 **여기서 겪은 문제 해결 기록**은
