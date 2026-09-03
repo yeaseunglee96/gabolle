@@ -83,6 +83,16 @@ src/main/java/com/gabolle/backend/
 
 각 기능은 API·entity·service·repository·test를 같은 기능 패키지 안에 두고, 다른 기능의 Repository를 직접 호출하지 않습니다. 공통 계약이나 DB migration을 바꿀 때는 두 담당자가 함께 확인합니다.
 
+## MR 빌드 검사 (S15P21E201-266)
+
+`backend/`가 바뀐 MR에서는 `.gitlab-ci.yml`의 `backend:build` 잡이 자동으로
+`./gradlew build`(테스트 포함)를 돌립니다. 로컬에서 같은 걸 미리 확인하려면:
+
+```bash
+cd backend
+./gradlew build
+```
+
 ## 참고 기준
 
 - 공개 API: 저장소 밖 개인 컨텍스트의 GABOLLE API 명세
