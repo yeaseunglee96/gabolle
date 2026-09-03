@@ -1,132 +1,52 @@
-// 09 최종 확인 — Figma 09_최종 확인 실측 그대로.
-//
-// 🔴 이 화면도 taste.tsx 와 같은 이유로 지금은 어디서도 안 들어온다(08 제약·접근성이
-// 이미 10 AI 일정 생성으로 바로 넘어가게 커밋돼 있다 — 이 작업 범위 밖이라 안 건드린다).
-// 각 항목의 "수정" 링크는 result.tsx 의 기존 "일정 수정" 버튼과 같은 이유로 아직 연결하지
-// 않는다 — 눌러서 이동할 화면(날짜/인원 수정 등)이 명세에 없어 임의로 잇지 않는다.
-import { useEffect } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
-
-import { color, radius, spacing } from '@/design/tokens';
-import { Screen } from '@/components/Screen';
-import { Eyebrow } from '@/components/Eyebrow';
-import { Text } from '@/components/Text';
-import { Card } from '@/components/Card';
 import { Button } from '@/components/Button';
-import { LanguageBadge } from '@/components/LanguageBadge';
+import { BrandLogoLink } from '@/components/BrandLogoLink';
+import { useAuth } from '@/auth/AuthProvider';
+import { Screen } from '@/components/Screen';
+import { Text } from '@/components/Text';
+import { color, radius, spacing } from '@/design/tokens';
+import { useLayout } from '@/layout/useLayout';
 import { PlanStepHeader } from '@/plan/PlanStepHeader';
+import { PlanDesktopShell } from '@/plan/PlanDesktopShell';
 import { usePlan } from '@/plan/PlanProvider';
+import { type RecommendationJobSnapshot, unavailableRecommendationJobAdapter } from '@/plan/recommendationJob';
 
-type SummaryItem = {
-  label: string;
-  value: string;
+const LABEL: Record<string, string> = {
+  SEA_BEACH: '바다 & 해변', CITY: '도심 탐험', CAFE_HEALING: '카페 & 힐링', CULTURE_TEMPLE: '문화 & 사찰', FOOD: '맛집 & 먹거리', NATURE_WALK: '자연 & 산책',
+  LIVELY: '활기찬', RELAXED: '여유로운', SENTIMENTAL: '감성적인', ROMANTIC: '낭만적인',
+  SEAFOOD: '해산물', PORK_SOUP: '돼지국밥', MILMYEON: '밀면', CAFE_DESSERT: '카페·디저트', MARKET: '시장 먹거리', VEGETARIAN: '채식',
+  PEANUT: '땅콩', TREE_NUT: '견과류', SHELLFISH_CRUSTACEAN: '갑각류', SHELLFISH: '갑각류', FISH: '생선', EGG: '달걀', MILK_DAIRY: '우유·유제품', MILK: '우유·유제품', WHEAT: '밀', SOY: '대두',
+  VEGAN: '비건', HALAL: '할랄', GLUTEN_FREE: '글루텐 프리', PESCATARIAN: '페스코', seedHotteok: '씨앗호떡',
 };
+const names = (values: string[], empty = '해당 없음') => values.map((value) => LABEL[value] ?? value).join(' · ') || empty;
 
-function SummaryRow({ label, value, onPress }: SummaryItem & { onPress: () => void }) {
-  return (
-    <Card style={styles.summaryCard}>
-      <View style={styles.summaryText}>
-        <Text variant="caption" weight="medium" color={color.text.body}>
-          {label}
-        </Text>
-        <Text variant="body" weight="bold" style={styles.summaryValue}>
-          {value}
-        </Text>
-      </View>
-      <Button label="수정" variant="ghost" onPress={onPress} />
-    </Card>
-  );
-}
+function Row({ label, value }: { label: string; value: string }) { return <View style={styles.row}><Text variant="caption" color={color.text.muted}>{label}</Text><Text weight="bold" style={styles.value}>{value}</Text></View>; }
+function Section({ title, path, hard, children }: { title: string; path: '/plan/basic' | '/plan/taste' | '/plan/conditions'; hard?: boolean; children: React.ReactNode }) { const router = useRouter(); return <View style={[styles.card, hard && styles.hardCard]}><View style={styles.cardHeader}><View style={styles.cardTitle}>{hard && <View style={styles.dot} />}<Text variant="title" weight="bold">{title}</Text></View><Pressable accessibilityRole="button" accessibilityLabel={`${title} 수정`} onPress={() => router.push(path)} style={styles.edit}><Text variant="caption" weight="bold" color={color.text.eyebrow}>수정</Text></Pressable></View>{children}</View>; }
 
 export default function Confirm() {
-  const router = useRouter();
-  const { draft, basicComplete } = usePlan();
-  useEffect(() => {
-    if (!basicComplete) router.replace('/plan/basic');
-  }, [basicComplete, router]);
-  const summary: (SummaryItem & { path: '/plan/basic' | '/plan/taste' | '/plan/conditions' })[] = [
-    { label: '여행 일정', value: `${draft.startDate || '미입력'} ~ ${draft.endDate || '미입력'}`, path: '/plan/basic' },
-    { label: '인원·출발', value: `${draft.travelers}명 · ${draft.origin || '미입력'}`, path: '/plan/basic' },
-    { label: '이동 수단', value: ({ TRANSIT: '대중교통', WALK: '도보 위주', CAR: '렌터카' } as const)[draft.transport], path: '/plan/basic' },
-    { label: '선택 취향', value: draft.preferences.map((value) => ({ sea: '바다', alley: '골목·로컬', food: '미식', nature: '자연·힐링', night: '야경', photo: '사진 명소' }[value] ?? value)).join(' · ') || '미선택', path: '/plan/taste' },
-    { label: '먹고 싶은 음식', value: draft.foods.join(' · ') || '없음', path: '/plan/taste' },
-    { label: '1인 예산', value: `${draft.budgetPerPerson.toLocaleString()}원`, path: '/plan/conditions' },
-    { label: '걷기 강도', value: ({ LOW: '여유롭게', MEDIUM: '보통', HIGH: '활동적' } as const)[draft.walkingLevel], path: '/plan/conditions' },
-    { label: '동반 유형', value: ({ SOLO: '혼자', COUPLE: '커플', FRIENDS: '친구', FAMILY: '가족' } as const)[draft.companionType], path: '/plan/conditions' },
-    { label: '접근성', value: draft.accessibilityNeeds.join(' · ') || '없음', path: '/plan/conditions' },
-    { label: '알레르기', value: draft.allergies.join(' · ') || '해당 없음', path: '/plan/conditions' },
-  ];
-
-  return (
-    <Screen scroll>
-      <LanguageBadge />
-      <View style={styles.headerRow}>
-        <Eyebrow>09 · 최종 확인</Eyebrow>
-        <Text variant="eyebrow" weight="bold">
-          4/4
-        </Text>
-      </View>
-      <Text variant="display" weight="bold" style={styles.title}>
-        입력한 정보를 확인해 주세요
-      </Text>
-
-      <PlanStepHeader current={4} />
-
-      <View style={styles.summaryList}>
-        {summary.map((item) => (
-          <SummaryRow key={item.label} {...item} onPress={() => router.push(item.path)} />
-        ))}
-      </View>
-
-      <Card tinted style={styles.notice}>
-        <Text variant="caption" weight="bold" color={color.text.eyebrow}>
-          AI가 현지 정보·혼잡도·이동 부담을 함께 고려해요.
-        </Text>
-      </Card>
-
-      <Button
-        label="이 조건으로 일정 만들기"
-        containerStyle={styles.cta}
-        disabled={!basicComplete || draft.preferences.length === 0}
-        onPress={() => router.push('/generating')}
-      />
-    </Screen>
-  );
+  const router = useRouter(); const { kind } = useLayout(); const { user, ready: authReady } = useAuth(); const { draft, basicComplete } = usePlan(); const [job, setJob] = useState<RecommendationJobSnapshot | null>(null);
+  useEffect(() => { if (!basicComplete) router.replace('/plan/basic'); }, [basicComplete, router]);
+  const allergy = draft.allergyStatus === 'UNKNOWN' ? '미확인' : draft.allergyStatus === 'NONE' ? '해당 없음' : names(draft.allergies);
+  const diet = draft.dietStatus === 'UNKNOWN' ? '미확인' : draft.dietStatus === 'NONE' ? '해당 없음' : names(draft.dietTypes);
+  const hardUnknown = draft.allergyStatus === 'UNKNOWN' || draft.dietStatus === 'UNKNOWN' || (draft.allergyStatus === 'VALUES' && !draft.allergies.length) || (draft.dietStatus === 'VALUES' && !draft.dietTypes.length);
+  const environment = [draft.maxWalkingDistanceM === null ? '보행거리 미확인' : draft.maxWalkingDistanceM === 0 ? '보행거리 제한 없음' : `최대 ${draft.maxWalkingDistanceM.toLocaleString()}m`, draft.slopeConstraint === 'AVOID' ? '경사 피하기' : draft.slopeConstraint === 'ALLOW' ? '경사 허용' : '경사 미확인', draft.stairsConstraint === 'AVOID' ? '계단 피하기' : draft.stairsConstraint === 'ALLOW' ? '계단 허용' : '계단 미확인', draft.shadePreference === 'PREFER' ? '그늘길 우선' : draft.shadePreference === 'NO_PREFERENCE' ? '그늘 무관' : '그늘 미확인'].join(' · ');
+  const assists = [draft.wheelchair === null ? '휠체어 미확인' : draft.wheelchair ? '휠체어 있음' : null, draft.stroller === null ? '유아차 미확인' : draft.stroller ? '유아차 있음' : null, draft.luggage === null ? '큰 짐 미확인' : draft.luggage ? '큰 짐 있음' : null].filter(Boolean).join(' · ') || '해당 없음';
+  const conflict = draft.transport === 'WALK' && draft.maxWalkingDistanceM !== null && draft.maxWalkingDistanceM > 0 && draft.maxWalkingDistanceM <= 500;
+  return <PlanDesktopShell><Screen scroll wide style={styles.canvas}>
+    {kind === 'phone' && <View style={styles.top}><Pressable accessibilityRole="button" accessibilityLabel="뒤로 가기" onPress={() => router.canGoBack() ? router.back() : router.replace('/plan/conditions')} style={styles.back}><Text variant="title">‹</Text></Pressable><BrandLogoLink imageStyle={styles.logo} /><View style={styles.pill}><Text variant="caption" weight="bold" color={color.brand.ivory}>4 / 4</Text></View></View>}
+    <PlanStepHeader current={4} /><Text variant="display" weight="bold" style={styles.title}>여행 조건을 확인해 주세요</Text><Text color={color.text.body} style={styles.subtitle}>일정을 만들기 전에 입력한 내용을 한 번 더 확인해요.</Text>
+    <View style={[styles.grid, kind === 'tablet' && styles.gridWide]}>
+      <Section title="기본 정보" path="/plan/basic"><Row label="여행 날짜" value={`${draft.startDate || '미입력'} ~ ${draft.endDate || '미입력'}`} /><Row label="인원 · 출발지" value={`${draft.adults}명 성인 · ${draft.children}명 어린이 · ${draft.origin || '미입력'}`} /><Row label="예산 · 교통" value={`${draft.budgetKrw === null ? '예산 미입력' : `${draft.budgetKrw.toLocaleString()}원 (숙박비 제외)`} · ${{ TRANSIT: '대중교통', WALK: '도보 위주', CAR: '자차' }[draft.transport]}`} /></Section>
+      <Section title="여행 취향" path="/plan/taste"><Row label="카테고리" value={names(draft.preferences, '선택 안 함')} /><Row label="분위기" value={names(draft.atmospheres, '선택 안 함')} /><Row label="음식" value={names(draft.foods, '선택 안 함')} /></Section>
+      <Section title="반드시 지킬 조건" path="/plan/conditions" hard><Row label="알레르기" value={allergy} /><Row label="식단" value={diet} /><Row label="보행 · 길 환경" value={environment} /><Row label="이동 보조 · 짐" value={assists} />{hardUnknown && <Pressable accessibilityRole="button" onPress={() => router.push('/plan/conditions')} style={styles.warning}><Text accessibilityRole="alert" variant="caption" weight="bold" color={color.state.danger}>미확인 필수 조건이 있어요. 제약 조건을 확인해 주세요 →</Text></Pressable>}</Section>
+    </View>
+    {conflict && <View style={styles.conflict}><Text accessibilityRole="alert" variant="caption" weight="bold" color={color.state.warning}>도보 위주 이동과 500m 이하 보행 제한이 함께 선택됐어요. 생성 전에 이동수단을 확인해 주세요.</Text></View>}
+    <View style={styles.notice}><Text variant="caption" color={color.text.body}>장소 운영시간·접근성·혼잡도는 최신 정보가 아닐 수 있어요. 최종 방문 전 공식 정보를 확인해 주세요.</Text></View>
+    <View style={styles.nextSteps}><Text weight="bold">이후 진행 단계</Text><Text variant="caption" color={color.text.body}>조건 검토 → 추천 장소 구성 → 이동 동선 확인 → 일정 완성</Text></View>
+    {job?.state === 'unavailable' && <View style={styles.unavailable}><Text accessibilityRole="alert" variant="caption" style={styles.generateNotice}>{job.errorMessage}</Text><Button accessibilityRole="button" label="조건 다시 확인" variant="ghost" onPress={() => router.push('/plan/conditions')} /></View>}
+    <Button accessibilityRole="button" accessibilityState={{ disabled: !basicComplete || hardUnknown || !authReady, busy: job?.state === 'submitting' }} accessibilityHint={hardUnknown ? '미확인 제약 조건을 먼저 확인해 주세요.' : user ? '일정 생성 연결 상태를 확인합니다.' : '로그인 후 입력한 조건으로 일정 생성을 계속합니다.'} label={!authReady ? '로그인 상태 확인 중…' : job?.state === 'submitting' ? '요청 확인 중…' : user ? '이 조건으로 일정 만들기' : '로그인하고 일정 만들기'} disabled={!basicComplete || hardUnknown || !authReady || job?.state === 'submitting'} containerStyle={styles.cta} onPress={async () => { if (!user) { router.push({ pathname: '/sign-in', params: { returnTo: '/plan/confirm' } }); return; } setJob({ state: 'submitting', jobId: null, progress: null, stage: null, canCancel: false, errorMessage: null, resultRef: null }); setJob(await unavailableRecommendationJobAdapter.submit()); }} />
+  </Screen></PlanDesktopShell>;
 }
-
-const styles = StyleSheet.create({
-  headerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: spacing[2],
-  },
-  title: {
-    marginTop: spacing[1],
-    marginBottom: spacing[4],
-  },
-  summaryList: {
-    marginTop: spacing[6],
-    gap: spacing[3],
-  },
-  summaryCard: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    borderRadius: radius.lg,
-  },
-  summaryText: {
-    flex: 1,
-    gap: spacing[1],
-  },
-  summaryValue: {
-    marginTop: spacing[1],
-  },
-  notice: {
-    marginTop: spacing[6],
-  },
-  cta: {
-    marginTop: spacing[8],
-  },
-});
+const styles = StyleSheet.create({ canvas: { backgroundColor: color.brand.ivory }, top: { minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }, back: { width: 44, height: 44, borderRadius: radius.full, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center' }, logo: { width: 88, height: 28 }, pill: { borderRadius: radius.full, backgroundColor: color.brand.navy, paddingHorizontal: spacing[3], paddingVertical: spacing[1] }, title: { marginTop: spacing[4] }, subtitle: { marginTop: spacing[1], marginBottom: spacing[4] }, grid: { gap: spacing[4] }, gridWide: { flexDirection: 'row', flexWrap: 'wrap' }, card: { minWidth: '48%', flexGrow: 1, gap: spacing[3], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card, borderWidth: 1, borderColor: '#e8e4dd' }, hardCard: { borderColor: '#f3c9b9', backgroundColor: '#fffaf7' }, cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }, cardTitle: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] }, dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: color.brand.orange }, edit: { minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' }, row: { gap: spacing[1], paddingBottom: spacing[2], borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: '#e8e4dd' }, value: { flexShrink: 1 }, warning: { minHeight: 44, justifyContent: 'center', padding: spacing[2], borderRadius: radius.sm, backgroundColor: color.state.dangerBg }, conflict: { marginTop: spacing[4], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.state.warningBg }, notice: { marginTop: spacing[3], padding: spacing[3], borderRadius: radius.md, backgroundColor: '#ede9e0' }, nextSteps: { marginTop: spacing[3], gap: spacing[1], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.card }, unavailable: { marginTop: spacing[3], gap: spacing[2], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.state.warningBg }, generateNotice: { color: color.text.eyebrow, textAlign: 'center' }, cta: { minHeight: 54, marginTop: spacing[3], backgroundColor: color.brand.navy } });

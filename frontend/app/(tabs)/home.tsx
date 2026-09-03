@@ -108,7 +108,7 @@ export default function Home() {
           홈의 기능을 "Editor's Pick, **계획 만들기**, 지금 갈 곳, 최근 여행" 으로 못박는다.
           Figma 가 빠뜨린 쪽으로 보고 명세를 따라 넣는다 — 이게 없으면 06~12 화면이
           앱 안에서 도달 불가능한 화면이 된다. */}
-      <Pressable style={styles.planCta} onPress={() => router.push('/basics')}>
+      <Pressable accessibilityRole="button" accessibilityLabel="여행 계획 만들기" style={styles.planCta} onPress={() => router.push('/plan/basic')}>
         <View>
           <Text variant="body" weight="bold" color={color.text.onAction}>
             여행 계획 만들기
