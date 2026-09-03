@@ -1,5 +1,6 @@
 package com.gabolle.backend.dataquality;
 
+import java.time.Clock;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -8,7 +9,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
+import com.gabolle.backend.common.privacy.SensitivePayloadGuard;
 import com.gabolle.backend.recommendation.support.PersonalizationFixture;
 import com.gabolle.backend.recommendation.support.PostgresIntegrationTest;
 
@@ -38,6 +42,15 @@ class EventQualityGateTest extends PostgresIntegrationTest {
 
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
+
+	@Autowired
+	private SensitivePayloadGuard guard;
+
+	@Autowired
+	private Clock clock;
+
+	@Autowired
+	private PlatformTransactionManager transactionManager;
 
 	private PersonalizationFixture.Ids references;
 
@@ -233,6 +246,49 @@ class EventQualityGateTest extends PostgresIntegrationTest {
 				        3, 0, 0, 0, 0, TRUE, now())
 				""", UUID.randomUUID()))
 				.isInstanceOf(org.springframework.dao.DataIntegrityViolationException.class);
+	}
+
+	// ── schema 분리 (S15P21E201-583) ─────────────────────────────────────────
+
+	@Test
+	@DisplayName("🔴 설정된 schema 의 표를 읽는다 — 운영에서 gabolle 대신 public 을 보던 결함")
+	void honorsConfiguredSchema() {
+		UUID placeId = UUID.randomUUID();
+		insertCandidate(placeId, "PASS", 1, true);
+		insertImpression(placeId, 1, fullVersions());
+
+		// schema 설정이 없으면 지금까지처럼 기본 경로(public)를 본다.
+		assertThat(this.gate.measure(DATASET).eventsTotal()).isEqualTo(1);
+
+		// probe schema 에 event_outbox 를 하나 더 둔다. 행은 없다.
+		// 🔴 search_path 가 실제로 바뀌면 이 빈 표를 읽어 0 이 나온다. 안 바뀌면 public 을
+		//    읽어 1 이 나온다. 그 차이가 이 테스트의 전부다.
+		this.jdbcTemplate.execute("CREATE SCHEMA IF NOT EXISTS probe");
+		this.jdbcTemplate.execute("""
+				CREATE TABLE IF NOT EXISTS probe.event_outbox (
+				    event_id UUID PRIMARY KEY, event_type VARCHAR(64), payload JSONB)
+				""");
+
+		EventQualityGate scoped = new EventQualityGate(this.jdbcTemplate, this.guard, this.clock, "probe");
+
+		// 🔴 SET LOCAL 은 트랜잭션 안에서만 듣는다. 직접 만든 객체는 프록시를 안 거치므로
+		//    트랜잭션이 없어서, 여기서 손으로 하나 열어 준다. 스프링 빈으로 부를 때는
+		//    @Transactional 이 그 일을 한다.
+		long eventsInProbe = new TransactionTemplate(this.transactionManager)
+				.execute((status) -> scoped.measure("probe-" + DATASET).eventsTotal());
+
+		assertThat(eventsInProbe).isZero();
+	}
+
+	@Test
+	@DisplayName("schema 이름에 쓸 수 없는 값이 설정되면 조용히 넘기지 않고 던진다")
+	void rejectsUnsafeSchemaName() {
+		EventQualityGate unsafe = new EventQualityGate(this.jdbcTemplate, this.guard, this.clock,
+				"gabolle; DROP SCHEMA public CASCADE");
+
+		assertThatThrownBy(() -> unsafe.measure(DATASET))
+				.isInstanceOf(IllegalStateException.class)
+				.hasMessageContaining("schema 이름으로 쓸 수 없는 값");
 	}
 
 	// ── 넣는 도구들 ───────────────────────────────────────────────────────────
