@@ -32,6 +32,14 @@ public class SensitivePayloadGuard {
 			"phone", "phone_number", "mobile", "tel", "telephone",
 			"address", "road_address", "jibun_address", "detail_address",
 			"lat", "lon", "lng", "latitude", "longitude", "location", "current_location",
+			// 🔴 2026-09-03 추가 (S15P21E201-546) — 위의 "lat" 은 완전일치라서 currentLat 을
+			//    못 잡고, 조각 목록의 "latitude" 도 currentlat 과 안 맞는다. 즉 API 명세가
+			//    실제로 쓰는 이름(REC-01 context.currentLat/currentLng)이 그대로 통과했다.
+			//    조각에 "lat" 을 넣는 것은 안 된다 — translate · latency · plate 가 걸린다.
+			//    그래서 실제로 쓰이는 이름만 완전일치로 더한다.
+			"currentlat", "currentlng", "currentlon", "current_lat", "current_lng", "current_lon",
+			"originlat", "originlng", "origin_lat", "origin_lng",
+			"pickuplat", "pickuplng", "pickup_lat", "pickup_lng",
 			"coord", "coords", "coordinate", "coordinates", "point", "geo",
 			"track", "trace", "trajectory", "path_points",
 			"ad_id", "adid", "idfa", "gaid", "advertising_id", "device_id",

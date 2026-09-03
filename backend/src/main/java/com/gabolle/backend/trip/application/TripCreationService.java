@@ -1,21 +1,25 @@
 package com.gabolle.backend.trip.application;
 
-import com.gabolle.backend.trip.domain.PreferenceSnapshot;
-import com.gabolle.backend.trip.domain.Trip;
-import com.gabolle.backend.trip.domain.TripConstraint;
-import com.gabolle.backend.trip.domain.TripMember;
-import com.gabolle.backend.trip.domain.TripRepository;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HexFormat;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.gabolle.backend.trip.domain.PersonalizationScope;
+import com.gabolle.backend.trip.domain.PreferenceSnapshot;
+import com.gabolle.backend.trip.domain.Trip;
+import com.gabolle.backend.trip.domain.TripConstraint;
+import com.gabolle.backend.trip.domain.TripMember;
+import com.gabolle.backend.trip.domain.TripRepository;
 
 /**
  * 여행 생성 — S15P21E201-461 · TRIP-01.
@@ -64,12 +68,15 @@ public class TripCreationService {
 
         // ② 제약. 🔴 민감 종류(알레르기 등)에 값이 들어오면 생성자가 거부한다 —
         //    M1 에는 암호화 경로가 없고, 평문으로 한 번 저장하면 그 데이터가 남는다.
+        //    scope 는 TRIP 으로 고정한다 — TRIP-01 이 만드는 제약은 항상 이번 여행
+        //    전용이다(PersonalizationScope 문서 참고).
         List<TripConstraint> constraints = new ArrayList<>();
         List<String> constraintIds = new ArrayList<>();
         for (Command.ConstraintInput c : command.constraints()) {
             String id = UUID.randomUUID().toString();
             constraints.add(new TripConstraint(id, tripId, c.type(), c.severity(),
-                    c.operator(), c.value(), c.threshold(), c.evidenceStatus()));
+                    c.operator(), c.value(), c.threshold(), c.evidenceStatus(),
+                    c.answerStatus(), PersonalizationScope.TRIP));
             constraintIds.add(id);
         }
 
@@ -77,10 +84,11 @@ public class TripCreationService {
         TripMember owner = TripMember.owner(UUID.randomUUID().toString(), tripId, command.userId(), now);
 
         // ④ 선호 스냅샷 v1. 계정 취향을 복사해 굳힌다 — 나중에 계정 취향이 바뀌어도
-        //    이 여행이 무엇으로 만들어졌는지는 안 바뀐다 (NFR-08).
+        //    이 여행이 무엇으로 만들어졌는지는 안 바뀐다 (NFR-08). scope 는 TRIP 고정 —
+        //    위 제약과 같은 이유다.
         PreferenceSnapshot snapshot = new PreferenceSnapshot(
                 UUID.randomUUID().toString(), tripId, 1,
-                command.preferences(), constraintIds, now);
+                command.preferences(), PersonalizationScope.TRIP, constraintIds, now);
 
         // ⑤ 🔴 키 확보와 저장을 한 동작으로 한다.
         //    나누면 같은 키로 동시에 온 요청이 전부 여행을 만든다 — 테스트가 잡았다.
@@ -106,10 +114,10 @@ public class TripCreationService {
                 String.valueOf(c.timeWindow()), String.valueOf(c.timezone()),
                 String.valueOf(c.preferences()), String.valueOf(c.constraints()));
         try {
-            byte[] digest = MessageDigest.getInstance("SHA-256")
-                    .digest(raw.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            byte[] digest = MessageDigest.getInstance("SHA-256").digest(raw.getBytes(StandardCharsets.UTF_8));
             return HexFormat.of().formatHex(digest);
-        } catch (java.security.NoSuchAlgorithmException e) {
+        }
+        catch (NoSuchAlgorithmException e) {
             throw new IllegalStateException("SHA-256 이 없다", e);
         }
     }
@@ -125,7 +133,7 @@ public class TripCreationService {
             int partySize,
             String timeWindow,
             String timezone,
-            Map<String, String> preferences,
+            List<PreferenceSnapshot.PreferenceAnswer> preferences,
             List<ConstraintInput> constraints) {
 
         public record ConstraintInput(
@@ -134,7 +142,8 @@ public class TripCreationService {
                 String operator,
                 String value,
                 Double threshold,
-                TripConstraint.EvidenceStatus evidenceStatus) {}
+                TripConstraint.EvidenceStatus evidenceStatus,
+                TripConstraint.AnswerStatus answerStatus) {}
     }
 
     /** {@code created=false} 면 재시도였고 기존 여행을 돌려준 것이다. */

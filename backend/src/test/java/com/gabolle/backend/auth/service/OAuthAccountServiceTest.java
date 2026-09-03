@@ -1,5 +1,6 @@
 package com.gabolle.backend.auth.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -29,6 +30,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 @ExtendWith(MockitoExtension.class)
 class OAuthAccountServiceTest {
@@ -46,6 +48,25 @@ class OAuthAccountServiceTest {
 		service = new OAuthAccountService(identityRepository, credentialRepository, userRepository, consentRepository,
 				tokenService, new AuthProperties(), new ConsentPolicy(),
 				Clock.fixed(Instant.parse("2026-01-01T00:00:00Z"), ZoneOffset.UTC));
+	}
+
+	@Test
+	void springCreatesServiceUsingConfiguredConstructor() {
+		try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext()) {
+			context.getEnvironment().setActiveProfiles("dev");
+			context.registerBean(AuthIdentityRepository.class, () -> mock(AuthIdentityRepository.class));
+			context.registerBean(LocalCredentialRepository.class, () -> mock(LocalCredentialRepository.class));
+			context.registerBean(AppUserRepository.class, () -> mock(AppUserRepository.class));
+			context.registerBean(UserConsentRepository.class, () -> mock(UserConsentRepository.class));
+			context.registerBean(AuthTokenService.class, () -> mock(AuthTokenService.class));
+			context.registerBean(AuthProperties.class, AuthProperties::new);
+			context.registerBean(ConsentPolicy.class, ConsentPolicy::new);
+			context.register(OAuthAccountService.class);
+
+			context.refresh();
+
+			assertThat(context.getBean(OAuthAccountService.class)).isNotNull();
+		}
 	}
 
 	@Test

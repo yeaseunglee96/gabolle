@@ -1,12 +1,11 @@
 package com.gabolle.backend.recommendation;
 
-import java.util.UUID;
-
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 
@@ -18,6 +17,7 @@ import com.gabolle.backend.recommendation.domain.JobStatus;
 import com.gabolle.backend.recommendation.domain.JobType;
 import com.gabolle.backend.recommendation.domain.RecommendationJob;
 import com.gabolle.backend.recommendation.repository.RecommendationJobRepository;
+import com.gabolle.backend.recommendation.support.PersonalizationFixture;
 import com.gabolle.backend.recommendation.support.PostgresAvailableCondition;
 import com.gabolle.testslice.RecommendationSliceApplication;
 import com.gabolle.backend.recommendation.support.TestDatabase;
@@ -58,6 +58,9 @@ class RecommendationEngineMissingIntegrationTest {
 	@Autowired
 	private RecommendationJobRepository jobRepository;
 
+	@Autowired
+	private JdbcTemplate jdbcTemplate;
+
 	@Test
 	@DisplayName("🔴 엔진 구현이 없어도 애플리케이션은 뜬다")
 	void theApplicationStartsWithoutARecommendationEngine() {
@@ -67,8 +70,11 @@ class RecommendationEngineMissingIntegrationTest {
 	@Test
 	@DisplayName("엔진이 없을 때 추천을 부르면 조용히 넘어가지 않고 ENGINE_NOT_CONFIGURED 로 기록된다")
 	void callingWithoutAnEngineFailsLoudlyAndIsRecorded() {
-		RecommendationCommand command = new RecommendationCommand(UUID.randomUUID(),
-				JobType.ITINERARY_GENERATION, UUID.randomUUID(), 1, UUID.randomUUID(), UUID.randomUUID(),
+		// 🔴 S15P21E201-554 가 외래키를 붙였다. 임의 UUID 로는 Job 이 저장되지 않는다.
+		PersonalizationFixture.Ids references = PersonalizationFixture.insert(this.jdbcTemplate);
+		RecommendationCommand command = new RecommendationCommand(references.userId(),
+				JobType.ITINERARY_GENERATION, references.tripId(), references.tripVersion(),
+				references.preferenceSnapshotId(), references.constraintSnapshotId(),
 				null, null, null, "app-1.0.0", 5);
 
 		assertThatThrownBy(() -> this.recommendationService.recommend(command))

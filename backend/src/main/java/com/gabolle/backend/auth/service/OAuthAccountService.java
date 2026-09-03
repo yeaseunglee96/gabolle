@@ -17,6 +17,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.Locale;
 import java.util.Map;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -35,6 +36,7 @@ public class OAuthAccountService {
 	private final ConsentPolicy consentPolicy;
 	private final Clock clock;
 
+	@Autowired
 	public OAuthAccountService(AuthIdentityRepository identityRepository, LocalCredentialRepository credentialRepository,
 			AppUserRepository userRepository, UserConsentRepository consentRepository, AuthTokenService tokenService,
 			AuthProperties properties, ConsentPolicy consentPolicy) {
