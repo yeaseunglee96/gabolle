@@ -83,6 +83,28 @@ claims:
       changes: ['frontend/**/*', 'backend/**/*', 'ci/**/*', 'governance/**/*',
                 'docs/**/*', '.gitlab-ci.yml', 'CLAUDE.md', 'setup.sh', 'setup.ps1']
 
+# ── 백엔드가 실제로 빌드되는가 ───────────────────────────────────────────────
+#
+# 🔴 위의 claims·verify:mr-target·governance 는 전부 axMap(선점·합의) 층이라
+#    Spring Boot 코드 자체가 컴파일되는지·테스트를 통과하는지는 아무것도 보지
+#    않는다. 이번 세션에서 배포가 세 번 연속 실패했다 — Flyway 스키마 충돌,
+#    RestClient.Builder 빈 누락, GoogleIdTokenVerifier 기본 생성자 없음 — 셋 다
+#    로컬에서 `./gradlew build` 한 번이면 머지 전에 잡혔을 문제였다 (S15P21E201-266).
+#
+#    그래서 여기서만 Gradle 빌드를 검사로 추가한다. `backend/` 를 건드리지 않는
+#    MR 은 돌지 않는다.
+backend:build:
+  stage: verify
+  image: eclipse-temurin:17-jdk
+  before_script: []
+  script:
+    - cd backend
+    - chmod +x gradlew
+    - ./gradlew build --no-daemon
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes: ['backend/**/*']
+
 # ── 파이프라인이 존재하게 한다 ───────────────────────────────────────────────
 #
 # 🔴 이 잡이 없으면 `ref/` 만 바꾼 MR 은 **잡이 하나도 안 돌아 파이프라인 자체가
