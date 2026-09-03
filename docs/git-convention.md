@@ -6,11 +6,24 @@
 main
 ├─ front/main
 │  └─ front/dev
-│     └─ feature/front/{JIRA-KEY}-{short-description}
-└─ back/main
-   └─ back/dev
-      └─ feature/back/{JIRA-KEY}-{short-description}
+│     └─ feat/front/{JIRA-KEY}-{short-description}
+├─ back/main
+│  └─ back/dev
+│     └─ feat/back/{JIRA-KEY}-{short-description}
+├─ bigData/main
+│  └─ bigData/dev
+│     └─ feat/bigData/{JIRA-KEY}-{short-description}
+└─ common/dev
+   └─ chore/common/{JIRA-KEY}-{short-description}
 ```
+
+> 🔴 **정정 (2026-09-03) — 이 절은 `feature`로 적혀 있었는데, 실제로 도는 것은
+> `feat`이다.** `docs/LOCAL_ROUTE_실행계획_v7.md` 10.2절이 이 어긋남을 먼저
+> 실측했고, 루트 `CONTRIBUTING.md`(이 문서보다 위)가 `feat`를 쓰므로 이쪽을
+> 고친다. 낡은 실측은 지우지 않고 정정 날짜를 남긴다.
+>
+> `common`은 `common/main`이 없다 — 버전 축과 파트 사다리에서 뺐다
+> (실행계획_v7 3.3절, 2026-08-27 결정). `common/dev`가 `main`으로 바로 간다.
 
 - `main`: FE와 BE가 통합되어 배포 가능한 상태만 유지한다.
 - `front/main`, `back/main`: 각 파트의 배포 후보를 관리한다.
@@ -28,8 +41,9 @@ main
 예시:
 
 ```text
-feature/front/S15P21E201-123-search-page
-feature/back/S15P21E201-124-search-api
+feat/front/S15P21E201-123-search-page
+feat/back/S15P21E201-124-search-api
+feat/bigData/S15P21E201-9-bigdata-bootstrap
 fix/front/S15P21E201-125-date-picker
 refactor/back/S15P21E201-126-recommendation-service
 chore/common/S15P21E201-127-project-settings
@@ -39,7 +53,7 @@ chore/back/S15P21E201-129-jenkins-pipeline
 
 `type`은 아래 값만 사용한다.
 
-- `feature`: 기능 추가
+- `feat`: 기능 추가
 - `fix`: 버그 수정
 - `refactor`: 동작 변경 없는 구조 개선
 - `test`: 테스트 추가 또는 수정
@@ -63,15 +77,16 @@ chore/back/S15P21E201-129-jenkins-pipeline
 ```bash
 git switch front/dev
 git pull --ff-only origin front/dev
-git switch -c feature/front/S15P21E201-123-search-page
+git switch -c feat/front/S15P21E201-123-search-page
 ```
 
 ### 파트 안정화와 배포
 
 ```text
-feature/front/* → front/dev (FE CI/CD) → front/main ┐
-                                                     ├→ main
-feature/back/*  → back/dev  (BE CI/CD) → back/main  ┘
+feat/front/*   → front/dev   (FE CI/CD)   → front/main   ┐
+feat/back/*    → back/dev    (BE CI/CD)   → back/main    ├→ main
+feat/bigData/* → bigData/dev (Data CI/CD) → bigData/main ┘
+chore/common/* → common/dev ─────────────────────────────┘
 ```
 
 - `dev → 파트 main`: 파트 단위 테스트가 통과한 배포 후보만 병합한다.
@@ -115,11 +130,16 @@ feature/back/*  → back/dev  (BE CI/CD) → back/main  ┘
 
 ## 6. 보호 브랜치
 
-아래 브랜치는 직접 push, force push, 삭제를 금지하고 MR로만 변경한다.
+아래는 직접 push, force push, 삭제를 금지하고 MR로만 변경한다.
 
 - `main`
-- `front/main`, `front/dev`
-- `back/main`, `back/dev`
+- `*/main` — 모든 파트의 파트 브랜치 (`front/main`, `back/main`, `bigData/main`, …)
+- `*/dev` — 모든 파트의 dev 브랜치 (`front/dev`, `back/dev`, `bigData/dev`, `common/dev`, …)
+
+> 🔴 **정정 (2026-09-03)** — 예전엔 `front`·`back`만 나열돼 있었다. 파트가 늘 때마다
+> 이 목록을 손으로 갱신해야 하는 것이 문제라, GitLab 설정 자체를 와일드카드
+> (`*/dev`, `*/main`)로 바꿨다 — 실측: `GET /projects/:id/protected_branches`.
+> 새 파트가 생겨도 이 절을 고칠 필요가 없다.
 
 `main`은 배포 담당자 또는 Maintainer만 병합한다. 파트 브랜치는 해당 파트 구성원이 병합할 수 있으나 본인 MR에는 다른 팀원의 승인이 필요하다.
 
