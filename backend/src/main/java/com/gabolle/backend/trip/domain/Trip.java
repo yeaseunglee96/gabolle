@@ -90,6 +90,73 @@ public class Trip {
         this.updatedAt = createdAt;
     }
 
+    /**
+     * 저장소가 읽어온 값 그대로 되살린다 — S15P21E201-461 JPA 저장소 전용.
+     *
+     * <p>{@link Builder} 를 쓴다. 생성 시점 이후 업무 규칙({@link #markReady(Instant)}·
+     * {@link #markDeleted(Instant)})을 거치며 바뀐 {@code status}·{@code updatedAt}·
+     * {@code deletedAt} 을 그대로 받아야 하는데, 그 규칙들은 "한 번만 반영한다" 같은
+     * 부작용을 갖고 있어서 다시 태우면 값이 틀어질 수 있다. 이미 규칙을 통과해 저장된
+     * 값이므로 재검증하지 않는다.
+     */
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static final class Builder {
+        private String tripId;
+        private String createdBy;
+        private LocalDate startDate;
+        private LocalDate finishDate;
+        private Double originLat;
+        private Double originLng;
+        private Integer budgetKrw;
+        private int partySize;
+        private String timeWindow;
+        private String timezone;
+        private Status status;
+        private Instant createdAt;
+        private Instant updatedAt;
+        private Instant deletedAt;
+
+        private Builder() {
+        }
+
+        public Builder tripId(String tripId) { this.tripId = tripId; return this; }
+        public Builder createdBy(String createdBy) { this.createdBy = createdBy; return this; }
+        public Builder startDate(LocalDate startDate) { this.startDate = startDate; return this; }
+        public Builder finishDate(LocalDate finishDate) { this.finishDate = finishDate; return this; }
+        public Builder originLat(Double originLat) { this.originLat = originLat; return this; }
+        public Builder originLng(Double originLng) { this.originLng = originLng; return this; }
+        public Builder budgetKrw(Integer budgetKrw) { this.budgetKrw = budgetKrw; return this; }
+        public Builder partySize(int partySize) { this.partySize = partySize; return this; }
+        public Builder timeWindow(String timeWindow) { this.timeWindow = timeWindow; return this; }
+        public Builder timezone(String timezone) { this.timezone = timezone; return this; }
+        public Builder status(Status status) { this.status = status; return this; }
+        public Builder createdAt(Instant createdAt) { this.createdAt = createdAt; return this; }
+        public Builder updatedAt(Instant updatedAt) { this.updatedAt = updatedAt; return this; }
+        public Builder deletedAt(Instant deletedAt) { this.deletedAt = deletedAt; return this; }
+
+        /**
+         * 🔴 생성 규칙(status=PLANNING·updatedAt=createdAt)을 먼저 태우고, 저장소가
+         * 읽어온 실제 값이 있으면 그 위에 덮는다 — {@code new Trip(...)} 하나만으로는
+         * status·updatedAt·deletedAt 을 지정할 방법이 없어서다(그 생성자는 항상
+         * PLANNING·createdAt 으로 시작하도록 만들어졌다, TRIP-01).
+         */
+        public Trip build() {
+            Trip trip = new Trip(tripId, createdBy, startDate, finishDate, originLat, originLng,
+                    budgetKrw, partySize, timeWindow, timezone, createdAt);
+            if (status != null) {
+                trip.status = status;
+            }
+            if (updatedAt != null) {
+                trip.updatedAt = updatedAt;
+            }
+            trip.deletedAt = deletedAt;
+            return trip;
+        }
+    }
+
     /** 며칠짜리 여행인가. 당일치기는 1이다. */
     public int nights() {
         return (int) java.time.temporal.ChronoUnit.DAYS.between(startDate, finishDate);
