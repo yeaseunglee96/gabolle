@@ -19,6 +19,8 @@ export type Registration = {
 };
 export type AuthUser = { userId: string; email: string; displayName: string; language: string; status: string };
 export type AuthTokens = { accessToken: string; refreshToken: string | null; expiresIn: number; sessionId: string; user: AuthUser };
+export type OAuthProvider = 'google' | 'naver' | 'kakao';
+export type OAuthChallenge = { state: string; nonce: string; expiresAt: string };
 
 export function signup(input: SignupInput) {
   return apiRequest<Registration>('/api/v1/auth/signup', { method: 'POST', body: {
@@ -39,6 +41,23 @@ export function resendEmailVerification(email: string) {
   return apiRequest<void>('/api/v1/auth/email-verification/resend', { method: 'POST', body: { email: email.trim() } });
 }
 export function login(email: string, password: string) { return apiRequest<AuthTokens>('/api/v1/auth/login', { method: 'POST', body: { email: email.trim(), password }, skipUnauthorizedHandling: true }); }
+export function createOAuthChallenge(provider: OAuthProvider, redirectUri: string, codeChallenge: string) {
+  return apiRequest<OAuthChallenge>(`/api/v1/auth/oauth/${provider}/challenge`, {
+    method: 'POST', body: { redirectUri, codeChallenge, codeChallengeMethod: 'S256' }, skipUnauthorizedHandling: true,
+  });
+}
+export function completeOAuth(provider: OAuthProvider, input: {
+  authorizationCode: string; redirectUri: string; codeVerifier: string; state: string; nonce: string;
+}) {
+  return apiRequest<AuthTokens>(`/api/v1/auth/oauth/${provider}`, {
+    method: 'POST', skipUnauthorizedHandling: true, body: {
+      ...input,
+      ageGateAccepted: true,
+      consents: { TERMS_OF_SERVICE: true, PRIVACY_POLICY: true },
+      behaviorPersonalizationEnabled: false,
+    },
+  });
+}
 export function getMe(accessToken: string) { return apiRequest<AuthUser>('/api/v1/auth/me', { accessToken }); }
 export function refreshWebSession() { return apiRequest<AuthTokens>('/api/v1/auth/web/refresh', { method: 'POST', skipUnauthorizedHandling: true }); }
 export function logoutWebSession() { return apiRequest<void>('/api/v1/auth/web/logout', { method: 'POST', skipUnauthorizedHandling: true }); }
