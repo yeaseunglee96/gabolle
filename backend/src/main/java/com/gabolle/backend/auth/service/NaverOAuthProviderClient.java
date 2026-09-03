@@ -3,6 +3,7 @@ package com.gabolle.backend.auth.service;
 import com.gabolle.backend.auth.domain.AuthProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
+import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import tools.jackson.databind.JsonNode;
@@ -23,6 +24,13 @@ public class NaverOAuthProviderClient extends AbstractRestClientOAuthProvider {
 		this.clientSecret = clientSecret;
 	}
 
+	NaverOAuthProviderClient(RestClient.Builder restClientBuilder, ObjectMapper objectMapper, String clientId,
+			String clientSecret, ClientHttpRequestFactory requestFactory) {
+		super(restClientBuilder, objectMapper, requestFactory);
+		this.clientId = clientId;
+		this.clientSecret = clientSecret;
+	}
+
 	@Override
 	public AuthProvider provider() {
 		return AuthProvider.NAVER;
@@ -32,7 +40,7 @@ public class NaverOAuthProviderClient extends AbstractRestClientOAuthProvider {
 	public OAuthUserProfile exchangeAuthorizationCode(String authorizationCode, String redirectUri,
 			String codeVerifier, String state, String nonce) {
 		String accessToken = exchangeAccessToken("https://nid.naver.com/oauth2.0/token", clientId, clientSecret,
-				authorizationCode, redirectUri, null, false);
+				authorizationCode, redirectUri, null, false, state);
 		JsonNode response = fetchUser("https://openapi.naver.com/v1/nid/me", accessToken).path("response");
 		String subject = response.path("id").asText(null);
 		if (subject == null || subject.isBlank()) {

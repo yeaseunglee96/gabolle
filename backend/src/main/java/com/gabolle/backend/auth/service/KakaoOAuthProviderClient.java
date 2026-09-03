@@ -3,6 +3,7 @@ package com.gabolle.backend.auth.service;
 import com.gabolle.backend.auth.domain.AuthProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
+import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import tools.jackson.databind.JsonNode;
@@ -23,6 +24,13 @@ public class KakaoOAuthProviderClient extends AbstractRestClientOAuthProvider {
 		this.clientSecret = clientSecret;
 	}
 
+	KakaoOAuthProviderClient(RestClient.Builder restClientBuilder, ObjectMapper objectMapper, String clientId,
+			String clientSecret, ClientHttpRequestFactory requestFactory) {
+		super(restClientBuilder, objectMapper, requestFactory);
+		this.clientId = clientId;
+		this.clientSecret = clientSecret;
+	}
+
 	@Override
 	public AuthProvider provider() {
 		return AuthProvider.KAKAO;
@@ -32,7 +40,7 @@ public class KakaoOAuthProviderClient extends AbstractRestClientOAuthProvider {
 	public OAuthUserProfile exchangeAuthorizationCode(String authorizationCode, String redirectUri,
 			String codeVerifier, String state, String nonce) {
 		String accessToken = exchangeAccessToken("https://kauth.kakao.com/oauth/token", clientId, clientSecret,
-				authorizationCode, redirectUri, codeVerifier, true);
+				authorizationCode, redirectUri, codeVerifier, true, state);
 		JsonNode user = fetchUser("https://kapi.kakao.com/v2/user/me", accessToken);
 		String subject = user.path("id").asText(null);
 		if (subject == null || subject.isBlank()) {
