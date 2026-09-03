@@ -1,151 +1,87 @@
-import { useState } from 'react';
-import { Modal, Pressable, StyleSheet, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { Image, ImageBackground, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Button } from '@/components/Button';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useLayout } from '@/layout/useLayout';
-import { type LanguageCode, type MobilityCode, useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
+import { type LanguageCode, useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
 
-type SheetKind = 'language' | 'mobility' | null;
-
-const LANGUAGES: { code: LanguageCode; label: string }[] = [
-  { code: 'ko', label: '한국어' },
-  { code: 'en', label: 'English' },
-  { code: 'ja', label: '日本語' },
-  { code: 'zh-Hans', label: '简体中文' },
-  { code: 'zh-Hant', label: '繁體中文' },
-];
-
-const MOBILITIES: { code: MobilityCode; label: string; sentence: string }[] = [
-  { code: 'none', label: '해당 없음', sentence: '누구나 갈 수 있는 곳으로' },
-  { code: 'wheelchair', label: '휠체어', sentence: '휠체어로 편하게 갈 수 있는 곳으로' },
-  { code: 'stroller', label: '유아차', sentence: '유아차로 편하게 갈 수 있는 곳으로' },
-  { code: 'slow', label: '천천히', sentence: '천천히 걸어도 좋은 곳으로' },
-];
-
-const MAX_CONTENT_WIDTH = 520;
+const logo = require('../assets/brand/gabolle-logo-figma.png');
+const welcomeImage = require('../assets/images/welcome-busan.png');
+type WelcomeLanguage = { code: Extract<LanguageCode, 'ko' | 'en'>; label: string; glyph: string };
+const LANGUAGES: WelcomeLanguage[] = [{ code: 'ko', label: '한국어', glyph: '가' }, { code: 'en', label: 'English', glyph: 'A' }];
+const FEATURES = [
+  { icon: '✦', eyebrow: 'AI 맞춤 추천', title: '취향을 읽는 여행', body: '좋아하는 분위기와 동행 조건을 반영해 나만의 부산 코스를 만들어요.' },
+  { icon: '⌁', eyebrow: '실시간 경로', title: '길 위에서도 유연하게', body: '날씨와 현재 위치에 맞춰 다음 장소와 이동 흐름을 한눈에 확인해요.' },
+  { icon: '◎', eyebrow: '설명 가능한 추천', title: '이유를 아는 선택', body: '왜 이 장소가 어울리는지 확인하고 내 기준에 맞게 다시 선택해요.' },
+] as const;
 
 export default function Welcome() {
   const router = useRouter();
-  const { kind } = useLayout();
-  const { setPreferences } = useOnboardingPreferences();
-  const [language, setLanguage] = useState<LanguageCode>('ko');
-  const [mobility, setMobility] = useState<MobilityCode>('none');
-  const [sheet, setSheet] = useState<SheetKind>(null);
+  const { width } = useLayout();
+  const { language, mobility, setPreferences } = useOnboardingPreferences();
+  const isDesktop = width >= 1120;
 
-  const languageLabel = LANGUAGES.find((item) => item.code === language)!.label;
-  const mobilitySentence = MOBILITIES.find((item) => item.code === mobility)!.sentence;
-  const options = sheet === 'language' ? LANGUAGES : MOBILITIES;
+  const chooseLanguage = (next: WelcomeLanguage['code']) => {
+    setPreferences(next, mobility);
+  };
+  const start = (next: WelcomeLanguage['code'] = language === 'en' ? 'en' : 'ko') => {
+    chooseLanguage(next);
+    router.push({ pathname: '/age-gate', params: { language: next, mobility } });
+  };
 
-  function continueWithGoogle() {
-    setPreferences(language, mobility);
-    router.push({ pathname: '/age-gate', params: { language, mobility } });
+  if (!isDesktop) {
+    return <ImageBackground source={welcomeImage} resizeMode="cover" style={styles.mobileScreen}>
+      <StatusBar style="light" />
+      <SafeAreaView edges={['top', 'bottom']} style={styles.mobileSafeArea}>
+        <View style={styles.mobileBrand}><Pressable accessibilityRole="button" accessibilityLabel="GABOLLE 시작하기" accessibilityHint="연령 확인 화면으로 이동합니다" onPress={() => start()} style={({ pressed }) => [styles.logoLink, pressed && styles.pressed]}><Image source={logo} resizeMode="contain" style={styles.mobileLogo} /></Pressable><Text variant="display" weight="bold" color={color.brand.orange}>부산 가볼래?</Text></View>
+        <View accessibilityRole="radiogroup" accessibilityLabel="시작할 언어 선택" style={styles.languageList}>{LANGUAGES.map((item) => <LanguageButton key={item.code} item={item} selected={language === item.code} onPress={() => start(item.code)} />)}</View>
+      </SafeAreaView>
+    </ImageBackground>;
   }
 
-  return (
-    <View style={styles.screen}>
-      <SafeAreaView style={[styles.frame, kind === 'tablet' && styles.frameTablet]}>
-        <View style={styles.brandRow}>
-          <View style={styles.brandMark}>
-            <Text variant="title" weight="bold" color={color.text.onAction}>가</Text>
-          </View>
-          <Text variant="body" weight="bold">GABOLLE · 가볼래</Text>
-        </View>
-
-        <View style={styles.hero}>
-          <Text variant="eyebrow" weight="bold" color={color.text.eyebrow}>부산을 내 방식대로 걷는 여행</Text>
-          <Text variant="hero" weight="bold" style={styles.sentence}>
-            <TextSlot label={`${languageLabel}로`} onPress={() => setSheet('language')} />
-            {',\n'}
-            <TextSlot label={mobilitySentence} onPress={() => setSheet('mobility')} />
-            {'\n'}부산을 걸을 거예요.
-          </Text>
-          <Text variant="body" color={color.text.body} style={styles.description}>
-            언어와 이동 조건을 먼저 알려주면, 갈 수 있는 장소부터 일정에 담아드려요.
-          </Text>
-        </View>
-
-        <View style={styles.footer}>
-          <View style={styles.factCard}>
-            <Text variant="body" weight="bold" color={color.text.heading}>6.7만 개</Text>
-            <Text variant="caption" color={color.text.body}>부산 보행 구간을 직접 비교해 골라요</Text>
-          </View>
-          <Button label="Google로 시작하기" onPress={continueWithGoogle} />
-          <Text variant="caption" style={styles.footerNote}>선택한 언어와 이동 조건은 다음 화면에도 이어져요.</Text>
-        </View>
-      </SafeAreaView>
-
-      <Modal visible={sheet !== null} transparent animationType="slide" onRequestClose={() => setSheet(null)}>
-        <Pressable style={styles.backdrop} onPress={() => setSheet(null)}>
-          <Pressable style={styles.modalContent} onPress={(event) => event.stopPropagation()}>
-            <View style={styles.handle} />
-            <Text variant="title" weight="bold">
-              {sheet === 'language' ? '어떤 언어로 여행할까요?' : '어떻게 걷는 여행인가요?'}
-            </Text>
-            <Text variant="caption" color={color.text.body}>
-              {sheet === 'language' ? '앱 전체 안내에 적용돼요.' : '갈 수 있는 장소와 이동 부담을 판단해요.'}
-            </Text>
-            <View style={styles.optionList} accessibilityRole="radiogroup">
-              {options.map((item) => {
-                const selected = sheet === 'language' ? item.code === language : item.code === mobility;
-                return (
-                  <Pressable
-                    key={item.code}
-                    accessibilityRole="radio"
-                    accessibilityState={{ selected }}
-                    onPress={() => {
-                      if (sheet === 'language') setLanguage(item.code as LanguageCode);
-                      if (sheet === 'mobility') setMobility(item.code as MobilityCode);
-                      setSheet(null);
-                    }}
-                    style={[styles.option, selected && styles.optionSelected]}
-                  >
-                    <Text variant="body" weight={selected ? 'bold' : 'medium'}>{item.label}</Text>
-                    <View style={[styles.radio, selected && styles.radioSelected]}>
-                      {selected && <View style={styles.radioDot} />}
-                    </View>
-                  </Pressable>
-                );
-              })}
-            </View>
-          </Pressable>
-        </Pressable>
-      </Modal>
+  return <ScrollView style={styles.webScreen} contentContainerStyle={styles.webContent}>
+    <StatusBar style="dark" />
+    <SafeAreaView edges={['top']} style={styles.webHeader}>
+      <Pressable accessibilityRole="button" accessibilityLabel="GABOLLE 시작하기" accessibilityHint="연령 확인 화면으로 이동합니다" onPress={() => start()} style={({ pressed }) => [styles.logoLink, pressed && styles.pressed]}><Image source={logo} resizeMode="contain" style={styles.webLogo} /></Pressable>
+      <View style={styles.webNav}><NavItem label="홈" onPress={() => start()} /><NavItem label="여행 만들기" onPress={() => start()} /><NavItem label="내 여행" onPress={() => router.push('/sign-in')} /><NavItem label="여행지 둘러보기" onPress={() => start()} /></View>
+      <View style={styles.accountActions}>
+        <Pressable accessibilityRole="button" accessibilityLabel={`언어를 ${language === 'ko' ? 'English' : '한국어'}로 변경`} onPress={() => chooseLanguage(language === 'ko' ? 'en' : 'ko')} style={styles.localeButton}><Text variant="caption" weight="bold">{language.toUpperCase()}</Text></Pressable>
+        <Pressable accessibilityRole="button" onPress={() => router.push('/sign-in')} style={styles.loginButton}><Text variant="caption" weight="bold">로그인</Text></Pressable>
+        <Pressable accessibilityRole="button" onPress={() => start()} style={styles.signupButton}><Text variant="caption" weight="bold" color={color.text.onAction}>회원가입</Text></Pressable>
+      </View>
+    </SafeAreaView>
+    <View style={styles.heroSection}>
+      <View style={styles.heroCopy}><View style={styles.heroInner}>
+        <View style={styles.heroBadge}><Text variant="caption" weight="bold" color={color.text.onAction}>AI TRAVEL PLANNER · BUSAN</Text></View>
+        <Text variant="hero" weight="bold" color={color.text.onAction} style={styles.heroTitle}>부산의 모든 여행,{`\n`}가볼래?</Text>
+        <Text variant="body" color="rgba(255,255,255,0.78)" style={styles.heroDescription}>취향과 이동 조건을 반영해 당신만의 부산 여행을 만들어요.</Text>
+        <View style={styles.heroActions}><Pressable accessibilityRole="button" onPress={() => start()} style={styles.primaryCta}><Text variant="body" weight="bold" color={color.text.onAction}>여행 계획 시작하기</Text></Pressable><Pressable accessibilityRole="button" onPress={() => start()} style={styles.secondaryCta}><Text variant="body" weight="bold" color={color.text.onAction}>여행지 둘러보기</Text></Pressable></View>
+        <View style={styles.heroChips}><HeroChip dot="#64d68a" label="맞춤 일정" /><HeroChip dot="#5ba5ff" label="지금 갈 곳" /><HeroChip dot="#ff976f" label="설명 가능한 추천" /></View>
+      </View></View>
+      <ImageBackground source={welcomeImage} resizeMode="cover" style={styles.heroVisual}><View style={styles.heroVisualShade} /></ImageBackground>
     </View>
-  );
+    <View style={styles.featureSection}>
+      <View style={styles.featureHeadingRow}><View><Text variant="eyebrow" weight="bold">— EXCLUSIVE FEATURES</Text><Text variant="display" weight="bold" style={styles.featureHeading}>똑똑하고 아름답게{`\n`}설계되는 맞춤형 여정</Text></View><Pressable accessibilityRole="button" onPress={() => start()} style={styles.allFeaturesButton}><Text variant="caption" weight="bold" color={color.text.onAction}>모든 기능 보기 →</Text></Pressable></View>
+      <View style={styles.featureGrid}>{FEATURES.map((feature) => <View key={feature.title} style={styles.featureCard}><View style={styles.featureIcon}><Text variant="title" weight="bold" color={color.brand.orange}>{feature.icon}</Text></View><Text variant="eyebrow" weight="bold">{feature.eyebrow}</Text><Text variant="title" weight="bold">{feature.title}</Text><Text variant="body">{feature.body}</Text></View>)}</View>
+    </View>
+  </ScrollView>;
 }
 
-function TextSlot({ label, onPress }: { label: string; onPress: () => void }) {
-  return (
-    <Text variant="hero" weight="bold" color={color.text.eyebrow} accessibilityRole="button" onPress={onPress} style={styles.slot}>
-      {label}
-    </Text>
-  );
+function LanguageButton({ item, selected, onPress }: { item: WelcomeLanguage; selected: boolean; onPress: () => void }) {
+  return <Pressable accessibilityRole="radio" accessibilityState={{ selected }} accessibilityLabel={`${item.label}로 시작하기`} onPress={onPress} style={({ pressed }) => [styles.languageButton, selected && styles.languageButtonSelected, pressed && styles.pressed]}><View style={styles.languageLeft}><View style={styles.languageGlyph}><Text variant="caption" weight="bold">{item.glyph}</Text></View><Text variant="title" weight="bold" color={color.text.onAction}>{item.label}</Text></View><Text variant="title" weight="medium" color={color.text.onAction}>→</Text></Pressable>;
 }
+function NavItem({ label, onPress }: { label: string; onPress: () => void }) { return <Pressable accessibilityRole="link" onPress={onPress} style={styles.navItem}><Text variant="caption" weight="medium">{label}</Text></Pressable>; }
+function HeroChip({ dot, label }: { dot: string; label: string }) { return <View style={styles.heroChip}><View style={[styles.chipDot, { backgroundColor: dot }]} /><Text variant="caption" color="rgba(255,255,255,0.78)">{label}</Text></View>; }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: color.canvas },
-  frame: { flex: 1, width: '100%', paddingHorizontal: spacing[6], paddingBottom: spacing[4] },
-  frameTablet: { alignSelf: 'center', maxWidth: MAX_CONTENT_WIDTH },
-  brandRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], paddingTop: spacing[2] },
-  brandMark: { width: 34, height: 34, borderRadius: radius.md, backgroundColor: color.action.primary, alignItems: 'center', justifyContent: 'center' },
-  hero: { flex: 1, justifyContent: 'center' },
-  sentence: { marginTop: spacing[3], color: color.text.heading },
-  slot: { textDecorationLine: 'underline', textDecorationStyle: 'dotted' },
-  description: { marginTop: spacing[4], maxWidth: 410 },
-  footer: { gap: spacing[3] },
-  factCard: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], backgroundColor: color.surface.soft, borderRadius: radius.md, padding: spacing[3] },
-  footerNote: { textAlign: 'center' },
-  backdrop: { flex: 1, justifyContent: 'flex-end', alignItems: 'center', backgroundColor: 'rgba(21, 34, 56, 0.38)' },
-  modalContent: { width: '100%', maxWidth: MAX_CONTENT_WIDTH, backgroundColor: color.surface.card, borderTopLeftRadius: radius.lg, borderTopRightRadius: radius.lg, paddingHorizontal: spacing[6], paddingTop: spacing[3], paddingBottom: spacing[8], gap: spacing[2] },
-  handle: { width: 42, height: 4, alignSelf: 'center', borderRadius: radius.full, backgroundColor: color.surface.field, marginBottom: spacing[3] },
-  optionList: { marginTop: spacing[3], gap: spacing[2] },
-  option: { minHeight: 52, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.field, paddingHorizontal: spacing[4] },
-  optionSelected: { backgroundColor: color.surface.tint, borderColor: color.action.primary },
-  radio: { width: 22, height: 22, borderRadius: radius.full, borderWidth: 1.5, borderColor: color.text.muted, alignItems: 'center', justifyContent: 'center' },
-  radioSelected: { borderColor: color.action.primary },
-  radioDot: { width: 10, height: 10, borderRadius: radius.full, backgroundColor: color.action.primary },
+  pressed: { opacity: 0.78 }, logoLink: { borderRadius: radius.sm }, mobileScreen: { flex: 1, backgroundColor: color.brand.navy },
+  mobileSafeArea: { flex: 1, justifyContent: 'space-between', paddingHorizontal: spacing[6], paddingTop: 172, paddingBottom: spacing[8] }, mobileBrand: { alignItems: 'center', gap: spacing[3] }, mobileLogo: { width: 280, height: 72 },
+  languageList: { alignSelf: 'center', width: '100%', maxWidth: 328, gap: spacing[3] }, languageButton: { minHeight: 56, borderRadius: radius.lg, borderWidth: 1, borderColor: 'rgba(255,255,255,0.32)', backgroundColor: 'rgba(11,29,58,0.20)', paddingHorizontal: spacing[4], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }, languageButtonSelected: { borderColor: color.text.onAction, backgroundColor: 'rgba(11,29,58,0.38)' }, languageLeft: { flexDirection: 'row', alignItems: 'center', gap: spacing[3] }, languageGlyph: { width: 32, height: 32, borderRadius: radius.sm, backgroundColor: color.text.onAction, alignItems: 'center', justifyContent: 'center' },
+  webScreen: { flex: 1, backgroundColor: color.brand.ivory }, webContent: { minHeight: '100%' }, webHeader: { minHeight: 76, paddingHorizontal: spacing[8], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: color.brand.ivory }, webLogo: { width: 116, height: 36 }, webNav: { flexDirection: 'row', alignItems: 'center', gap: spacing[8] }, navItem: { paddingVertical: spacing[3] }, accountActions: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
+  localeButton: { minWidth: 38, height: 38, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: '#f6efe6' }, loginButton: { minWidth: 76, minHeight: 38, borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing[4] }, signupButton: { minWidth: 82, minHeight: 38, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing[4], backgroundColor: color.brand.navy },
+  heroSection: { minHeight: 510, flexDirection: 'row', backgroundColor: color.brand.navy }, heroCopy: { width: '46%', minWidth: 480, justifyContent: 'center', paddingHorizontal: spacing[8] }, heroInner: { width: '100%', maxWidth: 560, alignSelf: 'flex-end' }, heroBadge: { alignSelf: 'flex-start', borderWidth: 1, borderColor: 'rgba(255,255,255,0.26)', borderRadius: radius.full, backgroundColor: 'rgba(255,255,255,0.10)', paddingHorizontal: spacing[3], paddingVertical: spacing[1] }, heroTitle: { marginTop: spacing[6], fontSize: 58, lineHeight: 64, letterSpacing: -2.2 }, heroDescription: { marginTop: spacing[6], fontSize: 17 }, heroActions: { flexDirection: 'row', gap: spacing[3], marginTop: spacing[6] }, primaryCta: { minHeight: 52, borderRadius: radius.full, backgroundColor: color.brand.orange, paddingHorizontal: spacing[6], alignItems: 'center', justifyContent: 'center' }, secondaryCta: { minHeight: 52, borderRadius: radius.full, borderWidth: 1, borderColor: 'rgba(255,255,255,0.28)', backgroundColor: 'rgba(255,255,255,0.10)', paddingHorizontal: spacing[6], alignItems: 'center', justifyContent: 'center' }, heroChips: { flexDirection: 'row', gap: spacing[2], marginTop: spacing[6] }, heroChip: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], borderRadius: radius.full, backgroundColor: 'rgba(255,255,255,0.09)', paddingHorizontal: spacing[3], paddingVertical: spacing[2] }, chipDot: { width: 6, height: 6, borderRadius: radius.full }, heroVisual: { flex: 1, minWidth: 0, overflow: 'hidden' }, heroVisualShade: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, backgroundColor: 'rgba(10,29,58,0.08)' },
+  featureSection: { paddingHorizontal: spacing[8], paddingTop: spacing[8], paddingBottom: 72, maxWidth: 1440, width: '100%', alignSelf: 'center' }, featureHeadingRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' }, featureHeading: { marginTop: spacing[2], fontSize: 34, lineHeight: 42 }, allFeaturesButton: { minHeight: 44, borderRadius: radius.full, backgroundColor: color.brand.navy, justifyContent: 'center', paddingHorizontal: spacing[6] }, featureGrid: { flexDirection: 'row', gap: spacing[6], marginTop: spacing[8] }, featureCard: { flex: 1, minHeight: 210, gap: spacing[3], borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.lg, backgroundColor: color.surface.card, padding: spacing[6] }, featureIcon: { width: 44, height: 44, borderRadius: radius.md, backgroundColor: '#fff0e8', alignItems: 'center', justifyContent: 'center' },
 });
