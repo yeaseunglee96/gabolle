@@ -107,14 +107,14 @@ public class EventOutbox {
 		this.eventVersion = eventVersion;
 		this.aggregateType = aggregateType;
 		this.aggregateId = aggregateId;
-		this.partitionKey = partitionKey;
-		this.payload = payload;
-		this.occurredAt = occurredAt;
-		this.receivedAt = receivedAt;
 		this.requestId = requestId;
 		this.userId = userId;
 		this.tripId = tripId;
 		this.producer = producer;
+		this.partitionKey = partitionKey;
+		this.payload = payload;
+		this.occurredAt = occurredAt;
+		this.receivedAt = receivedAt;
 		this.publishStatus = OutboxPublishStatus.PENDING;
 	}
 
@@ -175,6 +175,26 @@ public class EventOutbox {
 		return aggregateId;
 	}
 
+	public UUID getRequestId() {
+		return requestId;
+	}
+
+	public UUID getUserId() {
+		return userId;
+	}
+
+	public UUID getTripId() {
+		return tripId;
+	}
+
+	public Producer getProducer() {
+		return producer;
+	}
+
+	public Long getSeq() {
+		return seq;
+	}
+
 	public String getPartitionKey() {
 		return partitionKey;
 	}
@@ -205,25 +225,5 @@ public class EventOutbox {
 
 	public String getLastError() {
 		return lastError;
-	}
-
-	public UUID getRequestId() {
-		return requestId;
-	}
-
-	public UUID getUserId() {
-		return userId;
-	}
-
-	public UUID getTripId() {
-		return tripId;
-	}
-
-	public Producer getProducer() {
-		return producer;
-	}
-
-	public Long getSeq() {
-		return seq;
 	}
 }

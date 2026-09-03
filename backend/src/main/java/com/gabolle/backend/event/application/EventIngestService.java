@@ -3,6 +3,7 @@ package com.gabolle.backend.event.application;
 import java.time.Clock;
 import java.time.OffsetDateTime;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.context.annotation.Profile;
@@ -55,6 +56,14 @@ import com.gabolle.backend.event.domain.Producer;
 @Service
 @Profile({ "db", "dev" })
 public class EventIngestService {
+
+	/**
+	 * 🔴 envelope 축으로 쓰는 실컬럼 이름. payload에는 중복 저장하지 않는다.
+	 *
+	 * <p>이 값들은 {@code event_outbox} 실컬럼으로 저장한다. payload 안에 같은 키를 허용하면
+	 * 컬럼과 JSON 값이 서로 달라질 수 있으므로 입구에서 거부한다.
+	 */
+	static final Set<String> ENVELOPE_KEYS = Set.of("request_id", "user_id", "trip_id", "producer");
 
 	private final OutboxService outboxService;
 
@@ -132,7 +141,7 @@ public class EventIngestService {
 				type.aggregateType(),
 				aggregateId,
 				partitionKeyOf(userId, aggregateId),
-				payload,
+				withoutEnvelopeFields(payload),
 				occurredAt,
 				requestIdColumnOf(type, requestId),
 				userId,
@@ -188,5 +197,18 @@ public class EventIngestService {
 	 */
 	private String partitionKeyOf(UUID userId, UUID aggregateId) {
 		return (userId != null ? userId : aggregateId).toString();
+	}
+
+	/** envelope 값이 JSON payload에 중복 저장되지 않도록 검사한다. */
+	private Map<String, Object> withoutEnvelopeFields(Map<String, Object> payload) {
+		if (payload != null) {
+			for (String reserved : ENVELOPE_KEYS) {
+				if (payload.containsKey(reserved)) {
+					throw new IllegalArgumentException(
+							"payload 에 envelope 키가 들어 있다: " + reserved + ". 이 값은 컬럼으로 받는다");
+				}
+			}
+		}
+		return payload;
 	}
 }

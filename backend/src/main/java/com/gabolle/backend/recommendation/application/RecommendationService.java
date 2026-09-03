@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import com.gabolle.backend.common.privacy.SensitiveDataInPayloadException;
 import com.gabolle.backend.event.application.OutboxAppendCommand;
+import com.gabolle.backend.event.domain.Producer;
 import com.gabolle.backend.recommendation.adapter.EngineCandidateBatch;
 import com.gabolle.backend.recommendation.adapter.EngineRequest;
 import com.gabolle.backend.recommendation.adapter.EngineVersions;
@@ -262,11 +263,8 @@ public class RecommendationService {
 	 */
 	private OutboxAppendCommand buildRequestedEvent(RecommendationJob job, OffsetDateTime occurredAt) {
 		Map<String, Object> payload = new LinkedHashMap<>();
-		payload.put("request_id", job.getRequestId());
 		payload.put("job_id", job.getJobId());
 		payload.put("job_type", job.getJobType());
-		payload.put("user_id", job.getUserId());
-		payload.put("trip_id", job.getTripId());
 		payload.put("trip_version", job.getTripVersion());
 		payload.put("itinerary_id", job.getItineraryId());
 		payload.put("preference_snapshot_id", job.getPreferenceSnapshotId());
@@ -291,7 +289,11 @@ public class RecommendationService {
 				job.getRequestId(),
 				job.getUserId().toString(),
 				payload,
-				occurredAt);
+				occurredAt,
+				null,
+				job.getUserId(),
+				job.getTripId(),
+				Producer.SERVER);
 	}
 
 	/**
@@ -305,11 +307,8 @@ public class RecommendationService {
 	 */
 	private OutboxAppendCommand buildFailedEvent(RecommendationJob job, OffsetDateTime occurredAt) {
 		Map<String, Object> payload = new LinkedHashMap<>();
-		payload.put("request_id", job.getRequestId());
 		payload.put("job_id", job.getJobId());
 		payload.put("job_type", job.getJobType());
-		payload.put("user_id", job.getUserId());
-		payload.put("trip_id", job.getTripId());
 		payload.put("itinerary_id", job.getItineraryId());
 		payload.put("requested_at", job.getCreatedAt());
 		payload.put("error_code", job.getErrorCode());
@@ -338,7 +337,11 @@ public class RecommendationService {
 				job.getRequestId(),
 				job.getUserId().toString(),
 				payload,
-				occurredAt);
+				occurredAt,
+				null,
+				job.getUserId(),
+				job.getTripId(),
+				Producer.SERVER);
 	}
 
 	private long elapsedMs(long startedNanos) {
