@@ -20,23 +20,32 @@ export class ApiClientError extends Error {
   }
 }
 
-export async function apiRequest<T>(path: string, body: unknown): Promise<T> {
+type RequestOptions = Omit<RequestInit, 'body'> & { body?: unknown; accessToken?: string | null; skipUnauthorizedHandling?: boolean };
+let unauthorizedHandler: (() => void) | null = null;
+export function setUnauthorizedHandler(handler: (() => void) | null) { unauthorizedHandler = handler; }
+
+export async function apiRequest<T>(path: string, options: RequestOptions = {}): Promise<T> {
+  const { body, accessToken, headers, skipUnauthorizedHandling, ...requestOptions } = options;
   let response: Response;
   try {
     response = await fetch(`${API_BASE_URL}${path}`, {
-      method: 'POST',
+      ...requestOptions,
+      method: requestOptions.method ?? 'GET',
       credentials: Platform.OS === 'web' ? 'include' : undefined,
       headers: {
         Accept: 'application/json',
-        'Content-Type': 'application/json',
+        ...(body === undefined ? {} : { 'Content-Type': 'application/json' }),
         'X-Client-Platform': Platform.OS === 'web' ? 'WEB' : 'MOBILE',
+        ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+        ...headers,
       },
-      body: JSON.stringify(body),
+      body: body === undefined ? undefined : JSON.stringify(body),
     });
   } catch {
     throw new ApiClientError('서버에 연결할 수 없어요. 잠시 후 다시 시도해 주세요.', 'NETWORK_ERROR', 0);
   }
 
+  if (response.status === 401 && !skipUnauthorizedHandling) unauthorizedHandler?.();
   if (response.status === 204) return undefined as T;
 
   const isJson = (response.headers.get('content-type') ?? '').includes('application/json');
