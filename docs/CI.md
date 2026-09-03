@@ -533,6 +533,36 @@ npx -y axmap-cli@latest mr-target --source front/dev --target back/main
 - **밤에는 머지가 필요 없다는 것을 팀이 받아들인다** — 받아들이는 것도 결정이다.
   다만 **말해 두지 않으면** 밤 11시에 막힌 사람이 CI 가 고장 난 줄 알고 설정을 끈다
 
+> ✅ **2026-09-03 — 2대로 늘리고 실제로 껐다 켰다 확인했다** (S15P21E201-201·441).
+>
+> `ci/runner-up.sh` 한 줄(`AXMAP_RUNNER_TOKEN=glrt-xxxx bash ci/runner-up.sh`)로
+> 이예승 로컬 PC에 두 번째 러너(id 2064)를 띄웠다. 등록 절차는 API로도 된다 —
+> `POST /user/runners`(project_type, `run_untagged: true`)가 `Maintainer` 가 아닌
+> Developer 권한으로도 됐다. 위 표의 "박재현" 담당은 낡았다 — 이제 아무나 할 수 있다.
+>
+> **검증**: 원래 러너(2037)를 API로 잠깐 멈추고(`paused: true`) `common/dev`에
+> 파이프라인을 하나 새로 띄웠더니, `claims`·`version`·`jira` 세 잡이 전부 2064로만
+> 배정돼 pending 없이 끝까지 성공했다. 2037을 다시 켠 뒤 정상 복귀 확인.
+>
+> ✅ **같은 날, 세 번째 러너를 EC2 백업 서버(`j15e201a.p.ssafy.io`)에 올려서
+> "상시 켜져 있는 서버" 쪽도 채웠다** (id 2065, `axmap-runner-j15e201a-backup`).
+> 절차는 위와 같다 — `ci/runner-up.sh` 그대로, Docker만 새로 설치
+> (`sudo apt install docker.io`).
+>
+> **더 강한 검증**: 2037·2064(노트북 둘)를 **동시에** 멈추고 `common/dev`에
+> 파이프라인을 새로 띄웠더니, `claims`·`version`·`jira` 세 잡 전부 **2065(EC2)
+> 단독으로** pending 없이 성공했다. 즉 이제 노트북이 **둘 다** 꺼져도 CI가 안 멈춘다.
+>
+> 지금 상태: 2037(위치 미상) · 2064(이예승 로컬) · 2065(j15e201a, 상시 가동) —
+> 3대. 셋 중 상시 가동은 2065 하나뿐이라, 나머지 둘이 다 꺼져도 안전망은 있지만
+> **평상시 CI 속도**는 노트북들이 켜져 있을 때 더 빠르다(잡이 여러 러너로 분산).
+>
+> 🔴 **정정 (같은 날) — 2064는 제거했다.** 개인 작업용 PC가 켜져 있을 때마다
+> 팀원 아무나 올린 코드의 Docker 빌드·테스트가 그 PC에서 조용히 도는 것이
+> (예상 못 한 리소스 소모·디스크 점유) 상시 가동 러너(2065)를 확보한 뒤로는
+> 이득보다 부담이 컸다. `docker rm -f gitlab-runner` + GitLab에서 러너 삭제
+> (`DELETE /runners/2064`)로 정리했다. **최종 상태: 2037 · 2065 두 대.**
+
 ---
 
 ## 6. 지금 열려 있는 것
@@ -542,7 +572,7 @@ npx -y axmap-cli@latest mr-target --source front/dev --target back/main
 
 | 무엇 | 지금 상태 | 누가 |
 |---|---|---|
-| **러너 등록** (1절) | 🔴 **2026-08-26 실측: 인스턴스·그룹·프로젝트 러너가 전부 0대다.** `shared_runners_enabled` 는 켜져 있는데 실제로 붙은 러너가 없다 — 화면만 보면 "공유 러너 켜짐" 으로 보이고 파이프라인은 영원히 `pending` 이다. **직접 등록하는 것 말고는 길이 없다.** 등록할 때 ☑ `Run untagged jobs` 를 반드시 켠다 — 우리 잡에는 태그가 없어서 안 켜면 영원히 안 잡힌다 | 박재현 |
+| **러너 등록** (1절) | ✅ **2026-09-03 실측: 프로젝트 러너 2대, 전부 online.** (id 2037 — 위치 미상, id 2065 — EC2 백업 서버 `j15e201a`, 상시 가동). 중간에 로컬 PC 러너(2064)도 잠깐 띄워 노트북 둘 다 꺼져도 CI가 안 멈추는 것까지 확인했다가(5절), 상시 가동 러너를 확보한 뒤 개인 PC 부담을 줄이려 제거했다 | 이예승 |
 | **`AXMAP_BOT_TOKEN` 만들기** (3절) | 아직 없다. 없으면 `version` 잡이 계산만 하고 알린다 — 조용히 건너뛰지 않는다 | Maintainer 둘 중 누구든 (`masdf13` · `rleaderjoon`) |
 | **`Pipelines must succeed` 켜기** (5절) | **꺼져 있다.** 안 켜면 `.gitlab-ci.yml` 이 장식이다 — 검사가 빨개도 머지 버튼이 눌린다. **러너를 붙인 뒤에** 켠다 | 박재현 |
 | **승격 스케줄 만들기** (4절 표의 `promote`) | 아직 없다. `promote` 잡은 **스케줄 파이프라인에서만** 돌고, 무엇을 올릴지는 변수 `PROMOTE_STEP` 으로 받는다. `Settings → CI/CD → Schedules` 에 둘을 만든다 — 평일 매일 `PROMOTE_STEP=dev-to-part`, 주 1회 `PROMOTE_STEP=part-to-main`. 변수를 안 주면 잡이 **추측하지 않고 빨갛게 멈춘다** | Maintainer 둘 중 누구든 |
