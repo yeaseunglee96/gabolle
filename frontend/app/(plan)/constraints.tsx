@@ -1,193 +1,45 @@
-// 08 제약·접근성 — 이 앱의 차별점. Figma 08_제약·접근성 실측 그대로.
-//
-// 지금은 각 카드를 통째로 탭하면 선택/해제만 되게 한다(값이 실제로 어디 저장되진 않는다).
-// 카드별 세부 옵션 편집기는 범위 밖이라 단순화했다 — 접근성 카드의 tint 배경은 선택 상태가
-// 아니라 Figma 가 이미 고정해 둔 강조라서, 선택 표시(체크)는 tint 와 별도로 얹는다.
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
-
-import { color, radius, spacing } from '@/design/tokens';
-import { Screen } from '@/components/Screen';
-import { Eyebrow } from '@/components/Eyebrow';
-import { Text } from '@/components/Text';
 import { Button } from '@/components/Button';
-import { LanguageBadge } from '@/components/LanguageBadge';
+import { BrandLogoLink } from '@/components/BrandLogoLink';
+import { Screen } from '@/components/Screen';
+import { Text } from '@/components/Text';
+import { color, radius, spacing } from '@/design/tokens';
+import { useLayout } from '@/layout/useLayout';
 import { PlanStepHeader } from '@/plan/PlanStepHeader';
-import { usePlan } from '@/plan/PlanProvider';
+import { PlanDesktopShell } from '@/plan/PlanDesktopShell';
+import { type ConstraintSelectionStatus, type PlanDraft, usePlan } from '@/plan/PlanProvider';
 import { useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
 
-type ConstraintKey = 'budget' | 'walking' | 'diet' | 'accessibility' | 'companions';
+const ALLERGIES = [['PEANUT', '땅콩'], ['TREE_NUT', '견과류'], ['SHELLFISH_CRUSTACEAN', '갑각류'], ['FISH', '생선'], ['EGG', '달걀'], ['MILK_DAIRY', '우유·유제품'], ['WHEAT', '밀'], ['SOY', '대두']] as const;
+const DIETS = [['VEGETARIAN', '채식'], ['VEGAN', '비건'], ['HALAL', '할랄'], ['GLUTEN_FREE', '글루텐 프리'], ['PESCATARIAN', '페스코']] as const;
+const WALK = [[500, '500m 이내'], [1000, '1km 이내'], [2000, '2km 이내'], [0, '제한 없음']] as const;
 
-type ConstraintItem = {
-  key: ConstraintKey;
-  title: string;
-  description: string;
-  /** 08 화면에서 접근성 카드만 배경이 강조돼 있다 — 선택 여부와 무관한 고정값. */
-  tinted?: boolean;
-};
-
-const ITEMS: ConstraintItem[] = [
-  { key: 'budget', title: '예산 범위', description: '1인 50,000원  ─────●──  200,000원' },
-  { key: 'walking', title: '걷기 강도', description: '여유롭게     보통     활동적' },
-  { key: 'diet', title: '식단·알레르기', description: '해산물 제외 · 채식 우선' },
-  { key: 'accessibility', title: '접근성', description: '휠체어 접근 · 유아차 이동', tinted: true },
-  { key: 'companions', title: '동반 유형', description: '혼자 · 커플 · 가족 · 친구' },
-];
+function Card({ title, required, children }: { title: string; required?: boolean; children: React.ReactNode }) { return <View style={styles.card}><View style={styles.cardHeader}><View style={styles.cardTitle}><View style={styles.dot} /><Text weight="bold">{title}</Text></View>{required && <View style={styles.required}><Text variant="caption" weight="bold" color={color.brand.orange}>필수</Text></View>}</View>{children}</View>; }
+function Chip({ label, selected, onPress, radio = false }: { label: string; selected: boolean; onPress: () => void; radio?: boolean }) { return <Pressable accessibilityRole={radio ? 'radio' : 'checkbox'} accessibilityState={radio ? { selected } : { checked: selected }} onPress={onPress} style={[styles.chip, selected && styles.selected]}><Text variant="caption" weight="bold" color={selected ? color.text.onAction : color.text.heading}>{label}</Text></Pressable>; }
+function Status({ label, value, answered, onChange }: { label: string; value: ConstraintSelectionStatus; answered: boolean; onChange: (value: ConstraintSelectionStatus) => void }) { return <View accessibilityRole="radiogroup" accessibilityLabel={`${label} 여부`} style={styles.row}><Chip radio label="해당 없음" selected={answered && value === 'NONE'} onPress={() => onChange('NONE')} /><Chip radio label="조건 선택" selected={answered && value === 'VALUES'} onPress={() => onChange('VALUES')} /></View>; }
+function Binary({ label, value, onChange }: { label: string; value: boolean | null; onChange: (value: boolean) => void }) { return <View style={styles.binary}><Text style={styles.grow} weight="bold">{label}</Text><View accessibilityRole="radiogroup" accessibilityLabel={label} style={styles.row}><Chip radio label="예" selected={value === true} onPress={() => onChange(true)} /><Chip radio label="아니요" selected={value === false} onPress={() => onChange(false)} /></View></View>; }
 
 export default function Constraints() {
-  const router = useRouter();
-  const { mobility } = useOnboardingPreferences();
-  const { draft, update, completeStep } = usePlan();
-  const selected = new Set<ConstraintKey>([
-    ...(draft.dietTypes.length || draft.allergies.length ? ['diet' as const] : []),
-    ...(draft.accessibilityNeeds.length ? ['accessibility' as const] : []),
-  ]);
-
-  useEffect(() => {
-    if (mobility !== 'none' && draft.accessibilityNeeds.length === 0) update({ accessibilityNeeds: [mobility.toUpperCase()] });
-  }, [draft.accessibilityNeeds.length, mobility, update]);
-
-  function toggle(key: ConstraintKey) {
-    if (key === 'accessibility') update({ accessibilityNeeds: draft.accessibilityNeeds.length ? [] : ['WHEELCHAIR_ROUTE'] });
-    if (key === 'diet') update({ dietTypes: draft.dietTypes.length ? [] : ['VEGETARIAN_PREFERRED'] });
-  }
-
-  return (
-    <Screen scroll>
-      <LanguageBadge />
-      <View style={styles.headerRow}>
-        <Eyebrow>08 · 접근성</Eyebrow>
-        <Text variant="eyebrow" weight="bold">
-          선택 설정
-        </Text>
-      </View>
-      <Text variant="display" weight="bold" style={styles.title}>
-        제약 조건을 알려주세요
-      </Text>
-
-      <PlanStepHeader current={3} />
-
-      <Text variant="caption" style={styles.subtitle}>
-        더 편안한 일정을 위해 필요한 항목만 선택해요.
-      </Text>
-
-      {mobility !== 'none' && (
-        <View style={styles.welcomePreference}>
-          <Text variant="caption" weight="bold" color={color.text.eyebrow}>
-            첫 화면에서 선택한 이동 조건
-          </Text>
-          <Text variant="body" weight="bold">
-            {mobility === 'wheelchair' ? '휠체어' : mobility === 'stroller' ? '유아차' : '천천히 걷기'}
-          </Text>
-        </View>
-      )}
-
-      <View style={styles.cards}>
-        {ITEMS.map((item) => {
-          const isSelected = selected.has(item.key);
-          return (
-            <Pressable
-              key={item.key}
-              onPress={() => toggle(item.key)}
-              style={[
-                styles.card,
-                { backgroundColor: item.tinted ? color.surface.tint : color.surface.card },
-                isSelected && styles.cardSelected,
-              ]}
-            >
-              <View style={styles.cardBody}>
-                <Text variant="title" weight="bold">
-                  {item.title}
-                </Text>
-                <Text
-                  variant="caption"
-                  weight="medium"
-                  color={item.tinted ? color.text.eyebrow : color.text.body}
-                  style={styles.cardDescription}
-                >
-                  {item.description}
-                </Text>
-              </View>
-              {isSelected && (
-                <View style={styles.check}>
-                  <Text variant="caption" weight="bold" color={color.text.onAction}>
-                    ✓
-                  </Text>
-                </View>
-              )}
-            </Pressable>
-          );
-        })}
-      </View>
-
-      <View style={styles.allergyBox}>
-        <Text variant="title" weight="bold">알레르기 하드 제약</Text>
-        <Text variant="caption">알레르기는 취향 점수와 섞지 않고 추천 후보에서 제외합니다. 없으면 비워두세요.</Text>
-        <TextInput accessibilityLabel="알레르기" value={draft.allergies.join(', ')} onChangeText={(value) => update({ allergies: value.split(',').map((item) => item.trim()).filter(Boolean) })} placeholder="예: 땅콩, 갑각류" style={styles.input} />
-      </View>
-
-      <Button label="다음" containerStyle={styles.cta} onPress={() => { completeStep(3); router.push('/plan/confirm'); }} />
-    </Screen>
-  );
+  const router = useRouter(); const { kind } = useLayout(); const { mobility } = useOnboardingPreferences();
+  const { draft, ready, update, completeStep } = usePlan(); const [custom, setCustom] = useState(''); const [panelIndex, setPanelIndex] = useState(0);
+  const valid = ready && draft.allergyAnswered && draft.dietAnswered && (draft.allergyStatus !== 'VALUES' || draft.allergies.length > 0) && (draft.dietStatus !== 'VALUES' || draft.dietTypes.length > 0);
+  const safetyReady = valid && draft.allergyStatus !== 'UNKNOWN' && draft.dietStatus !== 'UNKNOWN';
+  useEffect(() => { const patch: Partial<PlanDraft> = {}; if (mobility === 'wheelchair' && draft.wheelchair === null) patch.wheelchair = true; if (mobility === 'stroller' && draft.stroller === null) patch.stroller = true; if (mobility === 'slow' && draft.maxWalkingDistanceM === null) patch.maxWalkingDistanceM = 500; if (Object.keys(patch).length) update(patch); }, [draft.maxWalkingDistanceM, draft.stroller, draft.wheelchair, mobility, update]);
+  const setStatus = (stateKey: 'allergyStatus' | 'dietStatus', listKey: 'allergies' | 'dietTypes', value: ConstraintSelectionStatus) => update({ [stateKey]: value, [stateKey === 'allergyStatus' ? 'allergyAnswered' : 'dietAnswered']: true, ...(value !== 'VALUES' ? { [listKey]: [] } : {}) });
+  const toggle = (key: 'allergies' | 'dietTypes', value: string) => { const next = draft[key].includes(value) ? draft[key].filter((v) => v !== value) : [...draft[key], value]; update({ [key]: next, [key === 'allergies' ? 'allergyStatus' : 'dietStatus']: next.length ? 'VALUES' : 'UNKNOWN' }); };
+  const add = () => { const value = custom.trim(); if (!value) return; update({ allergies: [...new Set([...draft.allergies, value])], allergyStatus: 'VALUES' }); setCustom(''); };
+  return <PlanDesktopShell><Screen scroll wide style={styles.canvas}>
+    {kind === 'phone' && <View style={styles.top}><Pressable accessibilityRole="button" accessibilityLabel="뒤로 가기" onPress={() => router.canGoBack() ? router.back() : router.replace('/plan/taste')} style={styles.back}><Text variant="title">‹</Text></Pressable><BrandLogoLink imageStyle={styles.logo} /><View style={styles.pill}><Text variant="caption" weight="bold" color={color.brand.ivory}>3 / 4</Text></View></View>}
+    <PlanStepHeader current={3} /><Text variant="display" weight="bold" style={styles.title}>제약 조건</Text><Text color={color.text.body} style={styles.subtitle}>AI가 아래 조건을 임의로 완화하지 않습니다.</Text>
+    <View style={[styles.grid, kind === 'tablet' && styles.gridWide]}>
+      {(kind === 'tablet' || panelIndex === 0) && <View style={styles.group}><View style={styles.groupHeading}><Text variant="caption" weight="bold" color={color.brand.orange}>1 / 3 · 안전 조건</Text><Text variant="caption" color={color.text.muted}>두 항목은 반드시 확인해 주세요.</Text></View><Card title="알레르기" required><Text variant="caption" color={color.text.body}>해당 여부를 반드시 알려주세요. 선택한 재료는 추천에서 제외해요.</Text><Status label="알레르기" value={draft.allergyStatus} answered={draft.allergyAnswered} onChange={(v) => setStatus('allergyStatus', 'allergies', v)} />{draft.allergyStatus === 'VALUES' && <><View style={styles.wrap}>{ALLERGIES.map(([code, label]) => <Chip key={code} label={label} selected={draft.allergies.includes(code)} onPress={() => toggle('allergies', code)} />)}</View><View style={styles.row}><TextInput accessibilityLabel="직접 입력할 알레르기" value={custom} onChangeText={setCustom} onSubmitEditing={add} placeholder="직접 입력" placeholderTextColor={color.text.muted} style={styles.input} /><Pressable accessibilityRole="button" accessibilityState={{ disabled: !custom.trim() }} disabled={!custom.trim()} onPress={add} style={[styles.add, !custom.trim() && styles.disabled]}><Text weight="bold" color={color.text.onAction}>추가</Text></Pressable></View><View style={styles.wrap}>{draft.allergies.filter((v) => !ALLERGIES.some(([code]) => code === v)).map((v) => <Chip key={v} label={`${v} ×`} selected onPress={() => toggle('allergies', v)} />)}</View></>}{(!draft.allergyAnswered || (draft.allergyStatus === 'VALUES' && !draft.allergies.length)) && <Text accessibilityRole="alert" variant="caption" color={color.state.danger}>{!draft.allergyAnswered ? '알레르기 유무를 선택해 주세요.' : '알레르기 항목을 하나 이상 선택하거나 입력해 주세요.'}</Text>}</Card><Card title="식단" required><Text variant="caption" color={color.text.body}>적용할 식단이 없다면 ‘해당 없음’을 선택해 주세요.</Text><Status label="식단" value={draft.dietStatus} answered={draft.dietAnswered} onChange={(v) => setStatus('dietStatus', 'dietTypes', v)} />{draft.dietStatus === 'VALUES' && <View style={styles.wrap}>{DIETS.map(([code, label]) => <Chip key={code} label={label} selected={draft.dietTypes.includes(code)} onPress={() => toggle('dietTypes', code)} />)}</View>}{(!draft.dietAnswered || (draft.dietStatus === 'VALUES' && !draft.dietTypes.length)) && <Text accessibilityRole="alert" variant="caption" color={color.state.danger}>{!draft.dietAnswered ? '식단 제한 유무를 선택해 주세요.' : '식단 항목을 하나 이상 선택해 주세요.'}</Text>}</Card></View>}
+      {(kind === 'tablet' || panelIndex === 1) && <View style={styles.group}><View style={styles.groupHeading}><Text variant="caption" weight="bold" color={color.brand.orange}>2 / 3 · 이동 환경</Text><Text variant="caption" color={color.text.muted}>모르면 선택하지 않고 넘어가도 괜찮아요.</Text></View><Card title="최대 보행 거리"><View accessibilityRole="radiogroup" accessibilityLabel="한 번에 걷는 최대 거리" style={styles.wrap}>{WALK.map(([meters, label]) => <Chip radio key={meters} label={label} selected={draft.maxWalkingDistanceM === meters} onPress={() => update({ maxWalkingDistanceM: meters })} />)}</View></Card><Card title="길 환경"><Binary label="가파른 경사 피하기" value={draft.slopeConstraint === null ? null : draft.slopeConstraint === 'AVOID'} onChange={(v) => update({ slopeConstraint: v ? 'AVOID' : 'ALLOW' })} /><Binary label="계단 피하기" value={draft.stairsConstraint === null ? null : draft.stairsConstraint === 'AVOID'} onChange={(v) => update({ stairsConstraint: v ? 'AVOID' : 'ALLOW' })} /><Binary label="그늘길 우선" value={draft.shadePreference === null ? null : draft.shadePreference === 'PREFER'} onChange={(v) => update({ shadePreference: v ? 'PREFER' : 'NO_PREFERENCE' })} /></Card></View>}
+      {(kind === 'tablet' || panelIndex === 2) && <View style={styles.group}><View style={styles.groupHeading}><Text variant="caption" weight="bold" color={color.brand.orange}>3 / 3 · 이동 보조</Text><Text variant="caption" color={color.text.muted}>일정과 이동 경로를 고를 때 반영해요.</Text></View><Card title="이동 보조·짐"><Binary label="휠체어" value={draft.wheelchair} onChange={(wheelchair) => update({ wheelchair })} /><Binary label="유아차" value={draft.stroller} onChange={(stroller) => update({ stroller })} /><Binary label="큰 짐" value={draft.luggage} onChange={(luggage) => update({ luggage })} /></Card></View>}
+    </View>
+    {kind === 'phone' && <View style={styles.panelNav}><Pressable accessibilityRole="button" accessibilityState={{ disabled: panelIndex === 0 }} disabled={panelIndex === 0} onPress={() => setPanelIndex((value) => Math.max(0, value - 1))} style={[styles.panelNavButton, panelIndex === 0 && styles.disabled]}><Text variant="caption" weight="bold">이전</Text></Pressable>{panelIndex === 0 && <Button accessibilityRole="button" label="안전 조건 확인 완료" disabled={!safetyReady} containerStyle={styles.panelCta} onPress={() => setPanelIndex(1)} />}{panelIndex === 1 && <Button accessibilityRole="button" label="이동 환경 확인 완료" containerStyle={styles.panelCta} onPress={() => setPanelIndex(2)} />}</View>}
+    {(kind === 'tablet' || panelIndex === 2) && <><View style={styles.notice}><Text variant="caption" color={color.text.body}>알레르기와 이동 지원 정보는 이 여행을 준비하는 동안에만 사용하며, 기기에 저장하지 않습니다.</Text></View>{!valid && <Text accessibilityRole="alert" variant="caption" style={styles.reason}>알레르기와 식단의 ‘해당 없음’ 또는 적용 조건을 선택해 주세요.</Text>}<Button accessibilityRole="button" accessibilityState={{ disabled: !safetyReady }} accessibilityHint={safetyReady ? '최종 확인 단계로 이동합니다.' : '필수 조건을 먼저 선택해 주세요.'} label="최종 확인으로" disabled={!safetyReady} containerStyle={styles.cta} onPress={() => { completeStep(3); router.push('/plan/confirm'); }} /></>}
+  </Screen></PlanDesktopShell>;
 }
-
-const styles = StyleSheet.create({
-  headerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: spacing[2],
-  },
-  title: {
-    marginTop: spacing[1],
-  },
-  subtitle: {
-    marginTop: spacing[3],
-    color: color.text.body,
-  },
-  cards: {
-    marginTop: spacing[6],
-    gap: spacing[3],
-  },
-  welcomePreference: {
-    marginTop: spacing[4],
-    backgroundColor: color.surface.soft,
-    borderRadius: radius.md,
-    padding: spacing[4],
-    gap: spacing[1],
-  },
-  card: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
-    borderRadius: radius.md,
-    padding: spacing[4],
-    borderWidth: 1.5,
-    borderColor: 'transparent',
-  },
-  cardSelected: {
-    borderColor: color.action.primary,
-  },
-  cardBody: {
-    flex: 1,
-    gap: spacing[1],
-  },
-  cardDescription: {
-    marginTop: spacing[1],
-  },
-  check: {
-    width: 22,
-    height: 22,
-    borderRadius: radius.full,
-    backgroundColor: color.action.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginLeft: spacing[2],
-  },
-  allergyBox: { marginTop: spacing[4], gap: spacing[2], padding: spacing[4], borderRadius: radius.md, backgroundColor: color.surface.card },
-  input: { minHeight: 50, borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.field, paddingHorizontal: spacing[4], color: color.text.heading },
-  cta: {
-    marginTop: spacing[8],
-  },
-});
+const styles = StyleSheet.create({ canvas: { backgroundColor: color.brand.ivory }, top: { minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }, back: { width: 44, height: 44, borderRadius: radius.full, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center' }, logo: { width: 88, height: 28 }, pill: { borderRadius: radius.full, backgroundColor: color.brand.navy, paddingHorizontal: spacing[3], paddingVertical: spacing[1] }, title: { marginTop: spacing[4] }, subtitle: { marginTop: spacing[1], marginBottom: spacing[4] }, grid: { gap: spacing[4] }, gridWide: { flexDirection: 'row', flexWrap: 'wrap' }, group: { width: '100%', gap: spacing[3] }, groupHeading: { gap: spacing[1] }, card: { minWidth: '48%', flexGrow: 1, gap: spacing[3], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card, borderWidth: 1, borderColor: '#f3d8ce', shadowColor: '#5c4430', shadowOpacity: .06, shadowRadius: 12, shadowOffset: { width: 0, height: 4 }, elevation: 2 }, cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }, cardTitle: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] }, dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: color.brand.orange }, required: { borderRadius: radius.full, backgroundColor: color.state.dangerBg, paddingHorizontal: spacing[2], paddingVertical: spacing[1] }, row: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] }, wrap: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] }, chip: { minHeight: 44, paddingHorizontal: spacing[3], borderRadius: radius.full, borderWidth: 1, borderColor: '#d4cebc', backgroundColor: color.brand.ivory, alignItems: 'center', justifyContent: 'center' }, selected: { backgroundColor: color.brand.navy, borderColor: color.brand.navy }, input: { minHeight: 48, flex: 1, minWidth: 160, borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.field, color: color.text.heading, paddingHorizontal: spacing[3], fontSize: 15 }, add: { minWidth: 64, minHeight: 48, borderRadius: radius.md, backgroundColor: color.brand.navy, alignItems: 'center', justifyContent: 'center' }, disabled: { opacity: .4 }, binary: { minHeight: 58, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[2], borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: color.surface.field }, grow: { flex: 1 }, panelNav: { marginTop: spacing[4], flexDirection: 'row', alignItems: 'center', gap: spacing[3] }, panelNavButton: { minWidth: 72, minHeight: 48, paddingHorizontal: spacing[3], borderRadius: radius.full, borderWidth: 1, borderColor: '#d4cebc', backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center' }, panelCta: { flex: 1, marginTop: 0, backgroundColor: color.brand.navy }, notice: { marginTop: spacing[4], padding: spacing[3], borderRadius: radius.md, backgroundColor: '#ede9e0' }, reason: { marginTop: spacing[4], color: color.state.danger, textAlign: 'center' }, cta: { minHeight: 54, marginTop: spacing[3], backgroundColor: color.brand.navy } });

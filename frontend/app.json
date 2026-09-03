@@ -26,7 +26,8 @@
       "expo-router",
       "expo-status-bar",
       "expo-font",
-      "expo-localization"
+      "expo-localization",
+      "@react-native-community/datetimepicker"
     ]
   }
 }

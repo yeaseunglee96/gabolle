@@ -63,7 +63,12 @@ export default function Result() {
             부산 1박 2일 여행
           </Text>
         </View>
-        <Pressable style={styles.editButton}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="일정 수정"
+          onPress={() => router.push(`/${tripId}/edit`)}
+          style={styles.editButton}
+        >
           <Text variant="caption" weight="bold" color={color.action.brand}>
             일정 수정
           </Text>
@@ -85,11 +90,17 @@ export default function Result() {
         <Text variant="title" weight="bold">
           일정 요약
         </Text>
-        <View style={styles.dayToggle}>
+        <View accessibilityRole="tablist" style={styles.dayToggle}>
           {(['DAY 1', 'DAY 2'] as const).map((option) => {
             const selected = option === day;
             return (
-              <Pressable key={option} onPress={() => setDay(option)} style={styles.dayOption}>
+              <Pressable
+                key={option}
+                accessibilityRole="tab"
+                accessibilityState={{ selected }}
+                onPress={() => setDay(option)}
+                style={[styles.dayOption, selected && styles.dayOptionSelected]}
+              >
                 <Text variant="caption" weight="bold" color={selected ? color.action.brand : color.text.muted}>
                   {option}
                 </Text>
@@ -198,6 +209,10 @@ const styles = StyleSheet.create({
   dayOption: {
     paddingHorizontal: spacing[3],
     paddingVertical: spacing[1],
+    borderRadius: radius.full,
+  },
+  dayOptionSelected: {
+    backgroundColor: color.surface.card,
   },
   timeline: {
     marginTop: spacing[4],
