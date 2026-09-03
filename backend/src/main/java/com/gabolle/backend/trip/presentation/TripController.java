@@ -1,0 +1,101 @@
+package com.gabolle.backend.trip.presentation;
+
+import com.gabolle.backend.common.api.ApiResponse;
+import com.gabolle.backend.trip.application.TripCreationService;
+import com.gabolle.backend.trip.domain.TripConstraint;
+import com.gabolle.backend.trip.presentation.dto.CreateTripRequest;
+import com.gabolle.backend.trip.presentation.dto.TripDto;
+import jakarta.validation.Valid;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+/**
+ * 여행 생성 — S15P21E201-461 · TRIP-01.
+ *
+ * <p>🔴 경로와 응답 코드를 발명하지 않았다. API 명세 3.4 가 이미 정의한다 —
+ * {@code POST /trips} → {@code 201 TripDto + preferenceSnapshot}.
+ *
+ * <p>🔴 <b>이 요청은 일정을 계산하지 않는다.</b> 조건만 저장하고 즉시 응답한다.
+ * 계산은 별도 호출({@code REC-01})이 {@code 202 JobDto} 로 시작한다.
+ * 티켓 본문이 두 가지를 한 문장으로 써서 하나로 착각하기 쉬운 자리다.
+ */
+@RestController
+@RequestMapping("/api/v1/trips")
+public class TripController {
+
+    private final TripCreationService service;
+
+    public TripController(TripCreationService service) {
+        this.service = service;
+    }
+
+    /**
+     * 여행 조건을 저장한다.
+     *
+     * <p>🔴 {@code Idempotency-Key} 헤더를 받는다(API-09). 같은 키에 같은 본문이면
+     * <b>기존 여행을 그대로 돌려준다</b> — 지하철에서 응답이 끊긴 앱은 반드시
+     * 재시도하고, 그때 여행이 두 개 생기면 안 된다.
+     *
+     * <p>🔴 <b>아직 없는 것</b> — 인증에서 사용자를 꺼내지 않고 헤더로 받는다.
+     * {@code auth} 패키지에 {@code CurrentUserService} 가 생겼으므로 그것으로
+     * 교체해야 한다. MR 에 적는다.
+     */
+    @PostMapping
+    public ResponseEntity<ApiResponse<TripDto>> create(
+            @Valid @RequestBody CreateTripRequest request,
+            @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey,
+            @RequestHeader(value = "X-User-Id", required = false) String userId) {
+
+        String requestId = "req_" + UUID.randomUUID();
+        String creator = userId != null ? userId : "usr_unknown";
+
+        TripCreationService.Result result =
+                service.create(toCommand(request, creator), idempotencyKey);
+
+        // 🔴 재시도였으면 200, 새로 만들었으면 201. 둘 다 성공이다 —
+        //    재시도에 4xx 를 주면 사용자 화면에 오류가 뜬다.
+        HttpStatus status = result.created() ? HttpStatus.CREATED : HttpStatus.OK;
+
+        return ResponseEntity.status(status)
+                .body(ApiResponse.success(TripDto.of(result.trip(), result.snapshot()), requestId));
+    }
+
+    private TripCreationService.Command toCommand(CreateTripRequest r, String userId) {
+        List<TripCreationService.Command.ConstraintInput> constraints =
+                r.constraints() == null ? List.of()
+                        : r.constraints().stream().map(c ->
+                        new TripCreationService.Command.ConstraintInput(
+                                c.type(),
+                                parseSeverity(c.severity()),
+                                c.operator(),
+                                c.value(),
+                                c.threshold(),
+                                // 사용자가 직접 넣은 값이므로 아직 검증되지 않았다 (NFR-09).
+                                TripConstraint.EvidenceStatus.NEEDS_REVIEW))
+                        .toList();
+
+        return new TripCreationService.Command(
+                userId, r.startDate(), r.finishDate(),
+                r.originLat(), r.originLng(),
+                r.budgetKrw(), r.partySize(),
+                r.timeWindow(), r.timezone(),
+                r.preferences() == null ? Map.of() : r.preferences(),
+                constraints);
+    }
+
+    private TripConstraint.Severity parseSeverity(String raw) {
+        try {
+            return TripConstraint.Severity.valueOf(raw.toUpperCase());
+        } catch (IllegalArgumentException | NullPointerException e) {
+            throw new IllegalArgumentException("severity 는 HARD 또는 SOFT 여야 한다: " + raw);
+        }
+    }
+}
