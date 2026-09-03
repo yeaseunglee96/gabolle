@@ -36,7 +36,9 @@ export default function ForgotPassword() {
   return (
     <Screen>
       <Pressable accessibilityRole="button" accessibilityLabel="뒤로 가기" onPress={() => router.canGoBack() ? router.back() : router.replace('/sign-in')} style={styles.backButton}><Text variant="title">‹</Text></Pressable>
-      <Image source={logo} resizeMode="contain" style={styles.logo} accessibilityLabel="GABOLLE 가볼래" />
+      <Pressable accessibilityRole="link" accessibilityLabel="GABOLLE 시작 화면으로 이동" onPress={() => router.replace('/')} style={({ pressed }) => [styles.logoLink, pressed && styles.pressed]}>
+        <Image source={logo} resizeMode="contain" style={styles.logo} accessibilityIgnoresInvertColors />
+      </Pressable>
       <View style={styles.body}>
         <Text variant="display" weight="bold">비밀번호 찾기</Text>
         <Text variant="body" style={styles.subtitle}>가입할 때 사용한 이메일을 입력해 주세요.</Text>
@@ -63,7 +65,9 @@ export default function ForgotPassword() {
 
 const styles = StyleSheet.create({
   backButton: { width: 40, height: 40, borderRadius: radius.full, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center' },
-  logo: { width: 154, height: 40, marginTop: spacing[8], alignSelf: 'center' },
+  logoLink: { minWidth: 154, minHeight: 44, marginTop: spacing[8], alignSelf: 'center', alignItems: 'center', justifyContent: 'center', borderRadius: radius.sm },
+  logo: { width: 154, height: 40 },
+  pressed: { opacity: 0.75 },
   body: { flex: 1, justifyContent: 'center', gap: spacing[4] },
   subtitle: { color: color.text.body },
   fieldGroup: { gap: spacing[2] },
