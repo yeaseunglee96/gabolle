@@ -40,6 +40,12 @@ export function signup(input: SignupInput) {
 export function resendEmailVerification(email: string) {
   return apiRequest<void>('/api/v1/auth/email-verification/resend', { method: 'POST', body: { email: email.trim() } });
 }
+export function requestPasswordReset(email: string) {
+  return apiRequest<void>('/api/v1/auth/password-reset/request', { method: 'POST', body: { email: email.trim() }, skipUnauthorizedHandling: true });
+}
+export function confirmPasswordReset(token: string, newPassword: string) {
+  return apiRequest<void>('/api/v1/auth/password-reset/confirm', { method: 'POST', body: { token, newPassword }, skipUnauthorizedHandling: true });
+}
 export function login(email: string, password: string) { return apiRequest<AuthTokens>('/api/v1/auth/login', { method: 'POST', body: { email: email.trim(), password }, skipUnauthorizedHandling: true }); }
 export function createOAuthChallenge(provider: OAuthProvider, redirectUri: string, codeChallenge: string) {
   return apiRequest<OAuthChallenge>(`/api/v1/auth/oauth/${provider}/challenge`, {
