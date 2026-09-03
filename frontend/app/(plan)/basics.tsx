@@ -1,18 +1,17 @@
 // 06 기본 조건 설정 — Figma 06_기본 조건 설정 실측 그대로.
-import { useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { color, radius, spacing } from '@/design/tokens';
 import { Screen } from '@/components/Screen';
 import { Eyebrow } from '@/components/Eyebrow';
 import { Text } from '@/components/Text';
-import { ProgressBar } from '@/components/ProgressBar';
 import { Button } from '@/components/Button';
 import { LanguageBadge } from '@/components/LanguageBadge';
+import { PlanStepHeader } from '@/plan/PlanStepHeader';
+import { type Transport, usePlan } from '@/plan/PlanProvider';
 
-type Transport = '대중교통' | '도보 위주' | '렌터카';
-const TRANSPORT_OPTIONS: Transport[] = ['대중교통', '도보 위주', '렌터카'];
+const TRANSPORT_OPTIONS: { key: Transport; label: string }[] = [{ key: 'TRANSIT', label: '대중교통' }, { key: 'WALK', label: '도보 위주' }, { key: 'CAR', label: '렌터카' }];
 
 function FieldRow({ label, value }: { label: string; value: string }) {
   return (
@@ -29,7 +28,7 @@ function FieldRow({ label, value }: { label: string; value: string }) {
 
 export default function Basics() {
   const router = useRouter();
-  const [transport, setTransport] = useState<Transport>('대중교통');
+  const { draft, update, completeStep, basicComplete } = usePlan();
 
   return (
     <Screen scroll>
@@ -37,29 +36,30 @@ export default function Basics() {
       <View style={styles.headerRow}>
         <Eyebrow>06 · 여행 만들기</Eyebrow>
         <Text variant="eyebrow" weight="bold">
-          1/3
+          1/4
         </Text>
       </View>
       <Text variant="display" weight="bold" style={styles.title}>
         기본 조건을 설정해 주세요
       </Text>
 
-      <ProgressBar progress={1 / 3} />
+      <PlanStepHeader current={1} />
 
       <View style={styles.fields}>
-        <FieldRow label="여행 날짜" value="8월 24일(월)  →  8월 25일(화)" />
-        <FieldRow label="여행 인원" value="2명" />
-        <FieldRow label="출발지" value="부산역" />
+        <View style={styles.field}><Text variant="caption">여행 시작일 (YYYY-MM-DD)</Text><TextInput accessibilityLabel="여행 시작일" value={draft.startDate} onChangeText={(startDate) => update({ startDate })} placeholder="2026-09-10" style={styles.input} /></View>
+        <View style={styles.field}><Text variant="caption">여행 종료일 (YYYY-MM-DD)</Text><TextInput accessibilityLabel="여행 종료일" value={draft.endDate} onChangeText={(endDate) => update({ endDate })} placeholder="2026-09-12" style={styles.input} /></View>
+        <View style={styles.field}><Text variant="caption">여행 인원</Text><TextInput accessibilityLabel="여행 인원" value={String(draft.travelers)} keyboardType="number-pad" onChangeText={(value) => update({ travelers: Math.max(1, Number(value) || 1) })} style={styles.input} /></View>
+        <View style={styles.field}><Text variant="caption">출발지</Text><TextInput accessibilityLabel="출발지" value={draft.origin} onChangeText={(origin) => update({ origin })} placeholder="예: 부산역" style={styles.input} /></View>
 
         <View style={styles.field}>
           <Text variant="caption">이동 수단</Text>
           <View style={styles.transportRow}>
             {TRANSPORT_OPTIONS.map((option) => {
-              const selected = option === transport;
+              const selected = option.key === draft.transport;
               return (
                 <Pressable
-                  key={option}
-                  onPress={() => setTransport(option)}
+                  key={option.key}
+                  onPress={() => update({ transport: option.key })}
                   style={[styles.transportChip, selected && styles.transportChipSelected]}
                 >
                   <Text
@@ -67,7 +67,7 @@ export default function Basics() {
                     weight="bold"
                     color={selected ? color.text.eyebrow : color.text.body}
                   >
-                    {option}
+                    {option.label}
                   </Text>
                 </Pressable>
               );
@@ -76,7 +76,7 @@ export default function Basics() {
         </View>
       </View>
 
-      <Button label="다음" containerStyle={styles.cta} onPress={() => router.push('/taste')} />
+      <Button label="다음" disabled={!basicComplete} containerStyle={styles.cta} onPress={() => { completeStep(1); router.push('/plan/taste'); }} />
     </Screen>
   );
 }
@@ -107,6 +107,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing[4],
     paddingVertical: spacing[3],
   },
+  input: { minHeight: 50, backgroundColor: color.surface.card, borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.field, paddingHorizontal: spacing[4], color: color.text.heading },
   transportRow: {
     flexDirection: 'row',
     gap: spacing[2],

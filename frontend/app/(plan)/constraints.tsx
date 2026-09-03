@@ -3,17 +3,18 @@
 // 지금은 각 카드를 통째로 탭하면 선택/해제만 되게 한다(값이 실제로 어디 저장되진 않는다).
 // 카드별 세부 옵션 편집기는 범위 밖이라 단순화했다 — 접근성 카드의 tint 배경은 선택 상태가
 // 아니라 Figma 가 이미 고정해 둔 강조라서, 선택 표시(체크)는 tint 와 별도로 얹는다.
-import { useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { useEffect } from 'react';
+import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { color, radius, spacing } from '@/design/tokens';
 import { Screen } from '@/components/Screen';
 import { Eyebrow } from '@/components/Eyebrow';
 import { Text } from '@/components/Text';
-import { ProgressBar } from '@/components/ProgressBar';
 import { Button } from '@/components/Button';
 import { LanguageBadge } from '@/components/LanguageBadge';
+import { PlanStepHeader } from '@/plan/PlanStepHeader';
+import { usePlan } from '@/plan/PlanProvider';
 import { useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
 
 type ConstraintKey = 'budget' | 'walking' | 'diet' | 'accessibility' | 'companions';
@@ -37,20 +38,19 @@ const ITEMS: ConstraintItem[] = [
 export default function Constraints() {
   const router = useRouter();
   const { mobility } = useOnboardingPreferences();
-  const [selected, setSelected] = useState<Set<ConstraintKey>>(
-    () => new Set(mobility === 'none' ? ['diet'] : ['diet', 'accessibility']),
-  );
+  const { draft, update, completeStep } = usePlan();
+  const selected = new Set<ConstraintKey>([
+    ...(draft.dietTypes.length || draft.allergies.length ? ['diet' as const] : []),
+    ...(draft.accessibilityNeeds.length ? ['accessibility' as const] : []),
+  ]);
+
+  useEffect(() => {
+    if (mobility !== 'none' && draft.accessibilityNeeds.length === 0) update({ accessibilityNeeds: [mobility.toUpperCase()] });
+  }, [draft.accessibilityNeeds.length, mobility, update]);
 
   function toggle(key: ConstraintKey) {
-    setSelected((prev) => {
-      const next = new Set(prev);
-      if (next.has(key)) {
-        next.delete(key);
-      } else {
-        next.add(key);
-      }
-      return next;
-    });
+    if (key === 'accessibility') update({ accessibilityNeeds: draft.accessibilityNeeds.length ? [] : ['WHEELCHAIR_ROUTE'] });
+    if (key === 'diet') update({ dietTypes: draft.dietTypes.length ? [] : ['VEGETARIAN_PREFERRED'] });
   }
 
   return (
@@ -66,7 +66,7 @@ export default function Constraints() {
         제약 조건을 알려주세요
       </Text>
 
-      <ProgressBar progress={0.75} />
+      <PlanStepHeader current={3} />
 
       <Text variant="caption" style={styles.subtitle}>
         더 편안한 일정을 위해 필요한 항목만 선택해요.
@@ -121,7 +121,13 @@ export default function Constraints() {
         })}
       </View>
 
-      <Button label="다음" containerStyle={styles.cta} onPress={() => router.push('/confirm')} />
+      <View style={styles.allergyBox}>
+        <Text variant="title" weight="bold">알레르기 하드 제약</Text>
+        <Text variant="caption">알레르기는 취향 점수와 섞지 않고 추천 후보에서 제외합니다. 없으면 비워두세요.</Text>
+        <TextInput accessibilityLabel="알레르기" value={draft.allergies.join(', ')} onChangeText={(value) => update({ allergies: value.split(',').map((item) => item.trim()).filter(Boolean) })} placeholder="예: 땅콩, 갑각류" style={styles.input} />
+      </View>
+
+      <Button label="다음" containerStyle={styles.cta} onPress={() => { completeStep(3); router.push('/plan/confirm'); }} />
     </Screen>
   );
 }
@@ -179,6 +185,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginLeft: spacing[2],
   },
+  allergyBox: { marginTop: spacing[4], gap: spacing[2], padding: spacing[4], borderRadius: radius.md, backgroundColor: color.surface.card },
+  input: { minHeight: 50, borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.field, paddingHorizontal: spacing[4], color: color.text.heading },
   cta: {
     marginTop: spacing[8],
   },

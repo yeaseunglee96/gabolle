@@ -4,7 +4,6 @@
 // 바로 넘어가게 커밋돼 있어서다(이 작업 범위 밖이라 그 파일은 건드리지 않는다).
 // 04 로그인·09 최종 확인도 같은 상태다 — 화면부터 채우고 전체 흐름을 잇는 건 다음 작업이다.
 // 그래서 이 화면의 CTA 는 Figma 번호 순서상 다음인 08(제약·접근성)로 보낸다.
-import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
@@ -12,9 +11,10 @@ import { color, radius, spacing } from '@/design/tokens';
 import { Screen } from '@/components/Screen';
 import { Eyebrow } from '@/components/Eyebrow';
 import { Text } from '@/components/Text';
-import { ProgressBar } from '@/components/ProgressBar';
 import { Button } from '@/components/Button';
 import { LanguageBadge } from '@/components/LanguageBadge';
+import { PlanStepHeader } from '@/plan/PlanStepHeader';
+import { usePlan } from '@/plan/PlanProvider';
 
 type PreferenceKey = 'sea' | 'alley' | 'food' | 'nature' | 'night' | 'photo';
 
@@ -45,32 +45,33 @@ const FOODS: { key: FoodKey; label: string }[] = [
 
 export default function Taste() {
   const router = useRouter();
-  const [selected, setSelected] = useState<Set<PreferenceKey>>(() => new Set(['sea', 'alley']));
-  const [foods, setFoods] = useState<Set<FoodKey>>(() => new Set(['milmyeon']));
+  const { draft, update, completeStep } = usePlan();
+  const selected = new Set(draft.preferences as PreferenceKey[]);
+  const foods = new Set(draft.foods as FoodKey[]);
 
   function togglePreference(key: PreferenceKey) {
-    setSelected((prev) => {
-      const next = new Set(prev);
+    {
+      const next = new Set(selected);
       if (next.has(key)) {
         next.delete(key);
       } else if (next.size < MAX_PREFERENCES) {
         // 최대 3개 — 이미 3개면 새로 누른 항목은 조용히 무시한다(먼저 하나를 빼야 한다).
         next.add(key);
       }
-      return next;
-    });
+      update({ preferences: [...next] });
+    }
   }
 
   function toggleFood(key: FoodKey) {
-    setFoods((prev) => {
-      const next = new Set(prev);
+    {
+      const next = new Set(foods);
       if (next.has(key)) {
         next.delete(key);
       } else {
         next.add(key);
       }
-      return next;
-    });
+      update({ foods: [...next] });
+    }
   }
 
   return (
@@ -89,7 +90,7 @@ export default function Taste() {
         최대 3개 · 선택에 따라 일정 분위기가 달라져요
       </Text>
 
-      <ProgressBar progress={2 / 4} />
+      <PlanStepHeader current={2} />
 
       <View style={styles.grid}>
         {PREFERENCES.map((item) => {
@@ -142,7 +143,7 @@ export default function Taste() {
         </View>
       </View>
 
-      <Button label="선택 완료 · 다음" containerStyle={styles.cta} onPress={() => router.push('/constraints')} />
+      <Button label="선택 완료 · 다음" disabled={selected.size === 0} containerStyle={styles.cta} onPress={() => { completeStep(2); router.push('/plan/conditions'); }} />
     </Screen>
   );
 }
