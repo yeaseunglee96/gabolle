@@ -23,3 +23,8 @@ Windows 환경에서 사실상 유일한 경로입니다.
 - `src/design/tokens.ts` — 색·타이포·반경·간격 토큰. 화면에서 값을 직접 하드코딩하지 않습니다.
 - `src/layout/` — 폴드8 등 화면비 대응(`useLayout`, `Split`).
 - `src/components/` — 화면 간 공통 컴포넌트.
+
+## MR 빌드 검사 (S15P21E201-269)
+
+`frontend/`가 바뀐 MR에서는 `.gitlab-ci.yml`의 `frontend:build` 잡이 자동으로
+`npx expo export --platform web`을 돌려 웹 번들이 실제로 만들어지는지 확인합니다.

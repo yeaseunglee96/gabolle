@@ -83,6 +83,27 @@ claims:
       changes: ['frontend/**/*', 'backend/**/*', 'ci/**/*', 'governance/**/*',
                 'docs/**/*', '.gitlab-ci.yml', 'CLAUDE.md', 'setup.sh', 'setup.ps1']
 
+# ── 프론트엔드가 실제로 빌드되는가 ─────────────────────────────────────────────
+#
+# 🔴 위의 claims·verify:mr-target·governance 는 전부 axMap(선점·합의) 층이라
+#    Expo 코드 자체가 실제로 웹 번들로 export 되는지는 아무것도 보지 않는다.
+#    `package.json` 에 build/test 스크립트가 없어서(S15P21E201-269), 이미
+#    검증된 `frontend/Dockerfile` 과 같은 명령(`npx expo export --platform web`)을
+#    그대로 검사에 쓴다.
+#
+#    `frontend/` 를 건드리지 않는 MR 은 돌지 않는다.
+frontend:build:
+  stage: verify
+  image: node:20-alpine
+  before_script: []
+  script:
+    - cd frontend
+    - npm ci
+    - npx expo export --platform web
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes: ['frontend/**/*']
+
 # ── 파이프라인이 존재하게 한다 ───────────────────────────────────────────────
 #
 # 🔴 이 잡이 없으면 `ref/` 만 바꾼 MR 은 **잡이 하나도 안 돌아 파이프라인 자체가
