@@ -7,6 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.gabolle.backend.trip.application.TripCreationService;
+import com.gabolle.backend.trip.domain.PersonalizationScope;
+import com.gabolle.backend.trip.domain.PreferenceSnapshot;
 import com.gabolle.backend.trip.domain.TripConstraint;
 import com.gabolle.backend.trip.domain.TripMember;
 import com.gabolle.backend.trip.domain.TripRepository;
@@ -16,7 +18,6 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -26,7 +27,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-/** 여행 생성 — S15P21E201-461 · TRIP-01. 티켓의 완료 기준을 그대로 검증한다. */
+/** 여행 생성 - S15P21E201-461 TRIP-01. 티켓의 완료 기준을 그대로 검증한다. */
 class TripCreationTest {
 
     private static final Instant NOW = Instant.parse("2026-09-03T00:00:00Z");
@@ -47,10 +48,14 @@ class TripCreationTest {
                 35.1587, 129.1604,
                 300000, 2,
                 "MORNING_TO_EVENING", "Asia/Seoul",
-                Map.of("pace", "RELAXED", "theme", "NATURE"),
+                List.of(
+                        new PreferenceSnapshot.PreferenceAnswer(
+                                "pace", "RELAXED", PreferenceSnapshot.AnswerStatus.SELECTED),
+                        new PreferenceSnapshot.PreferenceAnswer(
+                                "theme", "NATURE", PreferenceSnapshot.AnswerStatus.SELECTED)),
                 List.of(new TripCreationService.Command.ConstraintInput(
                         "MOBILITY", TripConstraint.Severity.HARD, "LTE", null, 5000.0,
-                        TripConstraint.EvidenceStatus.NEEDS_REVIEW)));
+                        TripConstraint.EvidenceStatus.NEEDS_REVIEW, TripConstraint.AnswerStatus.SELECTED)));
     }
 
     @Test
@@ -70,14 +75,8 @@ class TripCreationTest {
         assertEquals(1, repository.findConstraints(trip.tripId()).size());
     }
 
-    /**
-     * 🔴 만든 사람이 OWNER 로 들어가야 한다.
-     *
-     * <p>안 들어가면 자기 여행을 못 본다 — 조회 권한 판정이 이 표를 본다(FR-SEC-01).
-     * 별도 호출로 두면 언젠가 빠뜨리므로 생성과 같은 트랜잭션에서 만든다.
-     */
     @Test
-    @DisplayName("🔴 만든 사람이 OWNER 로 자동 등록된다")
+    @DisplayName("만든 사람이 OWNER 로 자동 등록된다")
     void creatorBecomesOwner() {
         var result = service.create(command(), null);
 
@@ -88,30 +87,118 @@ class TripCreationTest {
         assertTrue(members.get(0).role().canEdit());
     }
 
-    /**
-     * 🔴 선호 스냅샷 v1 이 함께 굳는다.
-     *
-     * <p>계정 취향은 계속 바뀌지만 이 여행은 그때의 취향으로 만들어진 것이다.
-     * 복사해 두지 않으면 3주 뒤에 왜 이 일정이 나왔는지 답할 수 없다 (NFR-08).
-     */
     @Test
-    @DisplayName("🔴 선호 스냅샷 v1 이 함께 굳는다 — UUID 와 version 을 둘 다 갖는다")
+    @DisplayName("선호 스냅샷 v1 이 함께 굳는다 - UUID 와 version 을 둘 다 갖는다")
     void preferenceSnapshotIsFrozen() {
         var result = service.create(command(), null);
 
         var snapshot = repository.findLatestSnapshot(result.trip().tripId()).orElseThrow();
         assertEquals(1, snapshot.version(), "REC-01 이 받는 값");
         assertFalse(snapshot.snapshotId().isBlank(), "로그와 이벤트가 가리키는 값");
-        assertEquals("RELAXED", snapshot.dimensions().get("pace"));
+        assertEquals(PersonalizationScope.TRIP, snapshot.scope(), "TRIP-01 이 만드는 스냅샷은 항상 이번 여행 전용이다");
+
+        var pace = snapshot.answers().stream()
+                .filter(a -> a.dimension().equals("pace")).findFirst().orElseThrow();
+        assertEquals("RELAXED", pace.valueJson());
+        assertEquals(PreferenceSnapshot.AnswerStatus.SELECTED, pace.status());
         assertEquals(1, snapshot.constraintIds().size(), "그때의 제약도 함께 굳는다");
 
         assertThrows(UnsupportedOperationException.class,
-                () -> snapshot.dimensions().put("pace", "PACKED"));
+                () -> snapshot.answers().add(new PreferenceSnapshot.PreferenceAnswer(
+                        "x", "y", PreferenceSnapshot.AnswerStatus.SELECTED)));
     }
 
-    /** 🔴 티켓 핵심 완료 기준 — 같은 요청을 두 번 보내도 여행이 하나만. */
+    // 2026-09-03 - SELECTED/SKIPPED/UNKNOWN 구분 (고지혁 님 실측)
+
     @Test
-    @DisplayName("🔴 같은 Idempotency-Key 로 두 번 보내도 여행이 하나만 만들어진다")
+    @DisplayName("건너뛴 취향과 안 물어본 취향이 값 없이 저장되고 서로 구분된다")
+    void skippedAndUnknownPreferencesAreDistinctWithoutValues() {
+        var withSkipAndUnknown = new TripCreationService.Command("usr_1",
+                LocalDate.of(2026, 9, 6), LocalDate.of(2026, 9, 8),
+                null, null, null, 1, null, null,
+                List.of(
+                        new PreferenceSnapshot.PreferenceAnswer("theme", null, PreferenceSnapshot.AnswerStatus.SKIPPED),
+                        new PreferenceSnapshot.PreferenceAnswer("locality", null, PreferenceSnapshot.AnswerStatus.UNKNOWN)),
+                List.of());
+
+        var result = service.create(withSkipAndUnknown, null);
+        var snapshot = repository.findLatestSnapshot(result.trip().tripId()).orElseThrow();
+
+        var theme = snapshot.answers().stream().filter(a -> a.dimension().equals("theme")).findFirst().orElseThrow();
+        var locality = snapshot.answers().stream().filter(a -> a.dimension().equals("locality")).findFirst().orElseThrow();
+        assertEquals(PreferenceSnapshot.AnswerStatus.SKIPPED, theme.status());
+        assertEquals(PreferenceSnapshot.AnswerStatus.UNKNOWN, locality.status());
+        assertNotEquals(theme.status(), locality.status(), "이전에는 둘 다 키 없음으로 뭉개졌다");
+    }
+
+    @Test
+    @DisplayName("SELECTED 인데 값이 없는 취향 답은 거부된다")
+    void selectedPreferenceWithoutValueIsRejected() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new PreferenceSnapshot.PreferenceAnswer("pace", null, PreferenceSnapshot.AnswerStatus.SELECTED));
+    }
+
+    @Test
+    @DisplayName("SKIPPED 인데 값이 있는 취향 답은 거부된다")
+    void skippedPreferenceWithValueIsRejected() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new PreferenceSnapshot.PreferenceAnswer("pace", "RELAXED", PreferenceSnapshot.AnswerStatus.SKIPPED));
+    }
+
+    @Test
+    @DisplayName("제약도 없다와 안 물어봄을 값 없이 구분해 저장한다")
+    void constraintNoneAndUnknownAreDistinctWithoutValues() {
+        var withNoneAndUnknown = new TripCreationService.Command("usr_1",
+                LocalDate.of(2026, 9, 6), LocalDate.of(2026, 9, 8),
+                null, null, null, 1, null, null, List.of(),
+                List.of(
+                        new TripCreationService.Command.ConstraintInput("DIET", TripConstraint.Severity.SOFT,
+                                null, null, null, TripConstraint.EvidenceStatus.NEEDS_REVIEW,
+                                TripConstraint.AnswerStatus.NONE),
+                        new TripCreationService.Command.ConstraintInput("MOBILITY", TripConstraint.Severity.SOFT,
+                                null, null, null, TripConstraint.EvidenceStatus.NEEDS_REVIEW,
+                                TripConstraint.AnswerStatus.UNKNOWN)));
+
+        var result = service.create(withNoneAndUnknown, null);
+        List<TripConstraint> constraints = repository.findConstraints(result.trip().tripId());
+
+        var diet = constraints.stream().filter(c -> c.type().equals("DIET")).findFirst().orElseThrow();
+        var mobility = constraints.stream().filter(c -> c.type().equals("MOBILITY")).findFirst().orElseThrow();
+        assertEquals(TripConstraint.AnswerStatus.NONE, diet.answerStatus());
+        assertEquals(TripConstraint.AnswerStatus.UNKNOWN, mobility.answerStatus());
+    }
+
+    @Test
+    @DisplayName("SELECTED 인데 값도 임계치도 없는 제약은 거부된다")
+    void selectedConstraintWithoutValueOrThresholdIsRejected() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new TripConstraint("c1", "trp_1", "MOBILITY", TripConstraint.Severity.SOFT,
+                        null, null, null, TripConstraint.EvidenceStatus.NEEDS_REVIEW,
+                        TripConstraint.AnswerStatus.SELECTED, PersonalizationScope.TRIP));
+    }
+
+    @Test
+    @DisplayName("NONE 인데 임계치가 있는 제약은 거부된다")
+    void noneConstraintWithThresholdIsRejected() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new TripConstraint("c1", "trp_1", "MOBILITY", TripConstraint.Severity.SOFT,
+                        "LTE", null, 5000.0, TripConstraint.EvidenceStatus.NEEDS_REVIEW,
+                        TripConstraint.AnswerStatus.NONE, PersonalizationScope.TRIP));
+    }
+
+    @Test
+    @DisplayName("알레르기는 SOFT 로 저장할 수 없다 - 항상 HARD 다")
+    void allergyMustBeHard() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new TripConstraint("c1", "trp_1", "ALLERGY", TripConstraint.Severity.SOFT,
+                        null, null, null, TripConstraint.EvidenceStatus.NEEDS_REVIEW,
+                        TripConstraint.AnswerStatus.NONE, PersonalizationScope.TRIP));
+    }
+
+    // 기존 완료 기준
+
+    @Test
+    @DisplayName("같은 Idempotency-Key 로 두 번 보내도 여행이 하나만 만들어진다")
     void sameIdempotencyKeyReturnsSameTrip() {
         var first = service.create(command(), "key_1");
         var second = service.create(command(), "key_1");
@@ -119,12 +206,11 @@ class TripCreationTest {
         assertTrue(first.created(), "첫 요청은 새로 만든다");
         assertFalse(second.created(), "재시도는 기존 것을 돌려준다");
         assertEquals(first.trip().tripId(), second.trip().tripId());
-        assertEquals(1, repository.tripCount(), "🔴 여행은 하나뿐이다");
+        assertEquals(1, repository.tripCount(), "여행은 하나뿐이다");
     }
 
-    /** 🔴 API-09 — 같은 키를 다른 본문으로 재사용하면 409 다. */
     @Test
-    @DisplayName("🔴 같은 키를 다른 조건으로 재사용하면 거부된다")
+    @DisplayName("같은 키를 다른 조건으로 재사용하면 거부된다")
     void sameKeyDifferentBodyIsRejected() {
         service.create(command(), "key_1");
 
@@ -132,7 +218,7 @@ class TripCreationTest {
                 "usr_1",
                 LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 3),
                 35.1587, 129.1604, 300000, 2,
-                "MORNING_TO_EVENING", "Asia/Seoul", Map.of(), List.of());
+                "MORNING_TO_EVENING", "Asia/Seoul", List.of(), List.of());
 
         assertThrows(TripRepository.IdempotencyKeyConflictException.class,
                 () -> service.create(different, "key_1"));
@@ -148,15 +234,8 @@ class TripCreationTest {
         assertEquals(2, repository.tripCount());
     }
 
-    /**
-     * 🔴 같은 키가 동시에 들어와도 하나만 만들어진다.
-     *
-     * <p>먼저 확인하고 넣는 방식만으로는 부족하다 — 확인과 저장 사이에 다른 요청이
-     * 끼어들 수 있다. 마지막 방어선은 putIfAbsent 이고, DB 에서는
-     * UNIQUE (user_id, idempotency_key) 가 그 자리를 대신한다.
-     */
     @Test
-    @DisplayName("🔴 같은 키를 8개가 동시에 보내도 새로 만든 것은 하나뿐이다")
+    @DisplayName("같은 키를 8개가 동시에 보내도 새로 만든 것은 하나뿐이다")
     void concurrentSameKeyCreatesOneTrip() throws Exception {
         int threads = 8;
         CountDownLatch go = new CountDownLatch(1);
@@ -172,7 +251,7 @@ class TripCreationTest {
                             created.incrementAndGet();
                         }
                     } catch (RuntimeException ignored) {
-                        // 경쟁에서 진 쪽 — 여행을 만들지 않았다는 것이 중요하다
+                        // 경쟁에서 진 쪽 - 여행을 만들지 않았다는 것이 중요하다
                     }
                     return null;
                 });
@@ -184,7 +263,7 @@ class TripCreationTest {
             pool.shutdownNow();
         }
 
-        assertEquals(1, created.get(), "🔴 새로 만든 것은 정확히 하나여야 한다");
+        assertEquals(1, created.get(), "새로 만든 것은 정확히 하나여야 한다");
     }
 
     @Test
@@ -192,7 +271,7 @@ class TripCreationTest {
     void finishBeforeStartIsRejected() {
         var bad = new TripCreationService.Command("usr_1",
                 LocalDate.of(2026, 9, 8), LocalDate.of(2026, 9, 6),
-                null, null, null, 1, null, null, Map.of(), List.of());
+                null, null, null, 1, null, null, List.of(), List.of());
 
         assertThrows(IllegalArgumentException.class, () -> service.create(bad, null));
     }
@@ -202,40 +281,34 @@ class TripCreationTest {
     void zeroPartySizeIsRejected() {
         var bad = new TripCreationService.Command("usr_1",
                 LocalDate.of(2026, 9, 6), LocalDate.of(2026, 9, 8),
-                null, null, null, 0, null, null, Map.of(), List.of());
+                null, null, null, 0, null, null, List.of(), List.of());
 
         assertThrows(IllegalArgumentException.class, () -> service.create(bad, null));
     }
 
-    /**
-     * 🔴 민감 제약은 M1 에서 받지 않는다.
-     *
-     * <p>암호화 경로가 없고, 평문으로 한 번 저장하면 그 데이터가 남는다.
-     * 나중에 처리하겠다고 넘기지 않는다.
-     */
     @Test
-    @DisplayName("🔴 알레르기 값을 보내면 거부된다 — 암호화 경로가 없다")
+    @DisplayName("알레르기 값을 보내면 거부된다 - 암호화 경로가 없다")
     void sensitiveConstraintIsRejected() {
         var withAllergy = new TripCreationService.Command("usr_1",
                 LocalDate.of(2026, 9, 6), LocalDate.of(2026, 9, 8),
-                null, null, null, 1, null, null, Map.of(),
+                null, null, null, 1, null, null, List.of(),
                 List.of(new TripCreationService.Command.ConstraintInput(
                         "ALLERGY", TripConstraint.Severity.HARD, "EXCLUDES", "peanut", null,
-                        TripConstraint.EvidenceStatus.NEEDS_REVIEW)));
+                        TripConstraint.EvidenceStatus.NEEDS_REVIEW, TripConstraint.AnswerStatus.SELECTED)));
 
         assertThrows(TripConstraint.SensitiveConstraintNotSupportedException.class,
                 () -> service.create(withAllergy, null));
     }
 
     @Test
-    @DisplayName("HARD 제약에 비교 방법이 없으면 거부된다 — 판정할 수 없다")
+    @DisplayName("HARD 제약에 비교 방법이 없으면 거부된다 - 판정할 수 없다")
     void hardConstraintNeedsOperator() {
         var noOperator = new TripCreationService.Command("usr_1",
                 LocalDate.of(2026, 9, 6), LocalDate.of(2026, 9, 8),
-                null, null, null, 1, null, null, Map.of(),
+                null, null, null, 1, null, null, List.of(),
                 List.of(new TripCreationService.Command.ConstraintInput(
                         "MOBILITY", TripConstraint.Severity.HARD, null, null, 5000.0,
-                        TripConstraint.EvidenceStatus.NEEDS_REVIEW)));
+                        TripConstraint.EvidenceStatus.NEEDS_REVIEW, TripConstraint.AnswerStatus.SELECTED)));
 
         assertThrows(IllegalArgumentException.class, () -> service.create(noOperator, null));
     }

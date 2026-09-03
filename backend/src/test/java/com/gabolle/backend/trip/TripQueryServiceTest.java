@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.gabolle.backend.trip.application.TripCreationService;
 import com.gabolle.backend.trip.application.TripQueryService;
+import com.gabolle.backend.trip.domain.PreferenceSnapshot;
 import com.gabolle.backend.trip.domain.TripConstraint;
 import com.gabolle.backend.trip.infra.InMemoryTripRepository;
 import java.time.Clock;
@@ -13,14 +14,13 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.List;
-import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
- * 여행 조회 — S15P21E201-461 완료 기준
- * <b>"그 식별자로 조회하면 보낸 조건이 그대로 나온다"</b> 를 직접 검증한다.
+ * 여행 조회 - S15P21E201-461 완료 기준
+ * "그 식별자로 조회하면 보낸 조건이 그대로 나온다" 를 직접 검증한다.
  */
 class TripQueryServiceTest {
 
@@ -44,10 +44,11 @@ class TripQueryServiceTest {
                 35.1587, 129.1604,
                 300000, 2,
                 "MORNING_TO_EVENING", "Asia/Seoul",
-                Map.of("pace", "RELAXED"),
+                List.of(new PreferenceSnapshot.PreferenceAnswer(
+                        "pace", "RELAXED", PreferenceSnapshot.AnswerStatus.SELECTED)),
                 List.of(new TripCreationService.Command.ConstraintInput(
                         "MOBILITY", TripConstraint.Severity.HARD, "LTE", null, 5000.0,
-                        TripConstraint.EvidenceStatus.NEEDS_REVIEW)));
+                        TripConstraint.EvidenceStatus.NEEDS_REVIEW, TripConstraint.AnswerStatus.SELECTED)));
     }
 
     @Test
@@ -61,24 +62,21 @@ class TripQueryServiceTest {
         assertEquals(300000, view.trip().budgetKrw());
         assertEquals(1, view.constraints().size());
         assertEquals("MOBILITY", view.constraints().get(0).type());
-        assertEquals("RELAXED", view.snapshot().dimensions().get("pace"));
+
+        var pace = view.snapshot().answers().stream()
+                .filter(a -> a.dimension().equals("pace")).findFirst().orElseThrow();
+        assertEquals("RELAXED", pace.valueJson());
     }
 
     @Test
-    @DisplayName("🔴 없는 여행을 조회하면 TripNotFoundException")
+    @DisplayName("없는 여행을 조회하면 TripNotFoundException")
     void unknownTripIsNotFound() {
         assertThrows(TripQueryService.TripNotFoundException.class,
                 () -> queryService.get("trp_unknown", "usr_1"));
     }
 
-    /**
-     * 🔴 회원이 아닌 사람에게는 "권한 없음" 이 아니라 "없음" 으로 답한다.
-     *
-     * <p>403 을 주면 "이 여행은 있는데 너는 못 본다" 를 확인해 주는 셈이라
-     * 존재 여부 자체가 샌다. 그래서 회원이 아닌 것과 없는 것을 <b>같은 예외</b>로 묶는다.
-     */
     @Test
-    @DisplayName("🔴 회원이 아니면 있어도 TripNotFoundException — 존재를 확인해 주지 않는다")
+    @DisplayName("회원이 아니면 있어도 TripNotFoundException - 존재를 확인해 주지 않는다")
     void nonMemberGetsTheSameNotFoundAsMissing() {
         var created = creationService.create(command(), "key_1");
 
@@ -87,11 +85,11 @@ class TripQueryServiceTest {
     }
 
     @Test
-    @DisplayName("조건 없이 만든 여행을 조회하면 빈 목록이 나온다 — null 이 아니다")
+    @DisplayName("조건 없이 만든 여행을 조회하면 빈 목록이 나온다 - null 이 아니다")
     void tripWithNoConstraintsReturnsEmptyListNotNull() {
         var noConstraints = new TripCreationService.Command("usr_1",
                 LocalDate.of(2026, 9, 6), LocalDate.of(2026, 9, 8),
-                null, null, null, 1, null, null, Map.of(), List.of());
+                null, null, null, 1, null, null, List.of(), List.of());
         var created = creationService.create(noConstraints, null);
 
         var view = queryService.get(created.trip().tripId(), "usr_1");

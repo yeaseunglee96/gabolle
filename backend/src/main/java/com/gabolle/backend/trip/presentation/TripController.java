@@ -1,7 +1,6 @@
 package com.gabolle.backend.trip.presentation;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
@@ -17,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.gabolle.backend.common.api.ApiResponse;
 import com.gabolle.backend.trip.application.TripCreationService;
 import com.gabolle.backend.trip.application.TripQueryService;
+import com.gabolle.backend.trip.domain.PreferenceSnapshot;
 import com.gabolle.backend.trip.domain.TripConstraint;
 import com.gabolle.backend.trip.presentation.dto.CreateTripRequest;
 import com.gabolle.backend.trip.presentation.dto.TripDetailResponse;
@@ -108,15 +108,23 @@ public class TripController {
                                 c.value(),
                                 c.threshold(),
                                 // 사용자가 직접 넣은 값이므로 아직 검증되지 않았다 (NFR-09).
-                                TripConstraint.EvidenceStatus.NEEDS_REVIEW))
+                                TripConstraint.EvidenceStatus.NEEDS_REVIEW,
+                                parseConstraintAnswerStatus(c.answerStatus())))
                         .toList();
+
+        List<PreferenceSnapshot.PreferenceAnswer> preferences =
+                r.preferences() == null ? List.of()
+                        : r.preferences().stream()
+                                .map(p -> new PreferenceSnapshot.PreferenceAnswer(
+                                        p.dimension(), p.value(), parsePreferenceAnswerStatus(p.answerStatus())))
+                                .toList();
 
         return new TripCreationService.Command(
                 userId, r.startDate(), r.finishDate(),
                 r.originLat(), r.originLng(),
                 r.budgetKrw(), r.partySize(),
                 r.timeWindow(), r.timezone(),
-                r.preferences() == null ? Map.of() : r.preferences(),
+                preferences,
                 constraints);
     }
 
@@ -125,6 +133,24 @@ public class TripController {
             return TripConstraint.Severity.valueOf(raw.toUpperCase());
         } catch (IllegalArgumentException | NullPointerException e) {
             throw new IllegalArgumentException("severity 는 HARD 또는 SOFT 여야 한다: " + raw);
+        }
+    }
+
+    private TripConstraint.AnswerStatus parseConstraintAnswerStatus(String raw) {
+        try {
+            return TripConstraint.AnswerStatus.valueOf(raw.toUpperCase());
+        } catch (IllegalArgumentException | NullPointerException e) {
+            throw new IllegalArgumentException(
+                    "제약의 answerStatus 는 SELECTED · NONE · UNKNOWN 중 하나여야 한다: " + raw);
+        }
+    }
+
+    private PreferenceSnapshot.AnswerStatus parsePreferenceAnswerStatus(String raw) {
+        try {
+            return PreferenceSnapshot.AnswerStatus.valueOf(raw.toUpperCase());
+        } catch (IllegalArgumentException | NullPointerException e) {
+            throw new IllegalArgumentException(
+                    "취향의 answerStatus 는 SELECTED · SKIPPED · UNKNOWN 중 하나여야 한다: " + raw);
         }
     }
 }

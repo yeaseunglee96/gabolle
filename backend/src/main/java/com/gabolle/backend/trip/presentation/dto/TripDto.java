@@ -1,8 +1,9 @@
 package com.gabolle.backend.trip.presentation.dto;
 
+import java.util.List;
+
 import com.gabolle.backend.trip.domain.PreferenceSnapshot;
 import com.gabolle.backend.trip.domain.Trip;
-import java.util.Map;
 
 /**
  * 여행 응답 — TRIP-01 은 {@code 201 TripDto + preferenceSnapshot} 을 돌려준다.
@@ -34,11 +35,25 @@ public record TripDto(
      *   <li>{@code snapshotId} — 로그·이벤트가 가리키는 값(S15P21E201-542 3장)</li>
      * </ul>
      * UUID 에는 순서가 없어서 "내가 본 판이 최신인가" 를 판정할 수 없다.
+     *
+     * <p>🔴 2026-09-03 — {@code dimensions: Map<String,String>} 을
+     * {@code answers: List<PreferenceAnswerDto>} 로 바꿨다. Map 은 "값 있음" 과
+     * "값 없음" 만 말할 수 있어서 SKIPPED(건너뜀)와 UNKNOWN(안 물어봄)이 응답에서도
+     * 똑같이 사라졌다. {@code PreferenceSnapshot} 도메인과 같은 이유다.
      */
     public record PreferenceSnapshotDto(
             String snapshotId,
             int version,
-            Map<String, String> dimensions) {
+            String scope,
+            List<PreferenceAnswerDto> answers) {
+    }
+
+    /** 취향 답 하나. {@code valueJson} 은 {@code status == "SELECTED"} 일 때만 있다. */
+    public record PreferenceAnswerDto(String dimension, String valueJson, String status) {
+
+        public static PreferenceAnswerDto of(PreferenceSnapshot.PreferenceAnswer a) {
+            return new PreferenceAnswerDto(a.dimension(), a.valueJson(), a.status().name());
+        }
     }
 
     public static TripDto of(Trip t, PreferenceSnapshot s) {
@@ -50,6 +65,8 @@ public record TripDto(
                 t.timeWindow(), t.timezone(),
                 t.status().name(), t.days(),
                 s == null ? null
-                        : new PreferenceSnapshotDto(s.snapshotId(), s.version(), s.dimensions()));
+                        : new PreferenceSnapshotDto(
+                                s.snapshotId(), s.version(), s.scope().name(),
+                                s.answers().stream().map(PreferenceAnswerDto::of).toList()));
     }
 }
