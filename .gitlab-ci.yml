@@ -104,6 +104,39 @@ frontend:build:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
       changes: ['frontend/**/*']
 
+# ── 화면이 실제로 뜨는가 ───────────────────────────────────────────────────────
+#
+# 🔴 위 frontend:build는 번들이 만들어지는지만 본다 — 문법 검사·타입 검사와
+#    같은 층이라, 브라우저에서 실행돼야만 터지는 문제(예: let 선언이 첫
+#    사용처보다 아래에 있어 부트스트랩이 죽는 것)는 못 잡는다. docs/CI.md가
+#    이걸 실제로 하룻밤에 두 번 겪었다고 적어 뒀다 — 문법 검사·단위 테스트
+#    전부 통과한 채로 흰 화면이 배포될 뻔했다 (S15P21E201-252).
+#
+#    헤드리스 브라우저로 실제로 열어서 (1) 화면에 글자가 그려졌는지
+#    (2) 콘솔에 error가 안 찍혔는지를 본다 — tools/smoke-check.mjs.
+#
+# 🔴 이미지를 Microsoft 공식 Playwright 이미지로 고른 이유. docs/CI.md 3절이
+#    남긴 함정 — "데비안 계열 이미지는 패키지 목록이 비어 있어서
+#    apt-get update 없이 apt-get install을 치면 실패한다" — 이 자체를
+#    피한다. 이 이미지는 크로미움과 필요한 라이브러리가 전부 미리 깔려 있어서
+#    apt-get을 아예 안 부른다. 태그(v1.62.1)는 package.json의 playwright
+#    버전과 반드시 같아야 한다 — 다르면 "browserType.launch: Executable
+#    doesn't exist" 로 죽는다.
+frontend:smoke:
+  stage: verify
+  image: mcr.microsoft.com/playwright:v1.62.1-noble
+  before_script: []
+  script:
+    - cd frontend
+    - npm ci
+    - npx expo export --platform web
+    - npx serve dist -l 3000 &
+    - sleep 2
+    - npm run smoke -- http://localhost:3000
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes: ['frontend/**/*']
+
 # ── 파이프라인이 존재하게 한다 ───────────────────────────────────────────────
 #
 # 🔴 이 잡이 없으면 `ref/` 만 바꾼 MR 은 **잡이 하나도 안 돌아 파이프라인 자체가

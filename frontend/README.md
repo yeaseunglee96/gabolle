@@ -28,3 +28,21 @@ Windows 환경에서 사실상 유일한 경로입니다.
 
 `frontend/`가 바뀐 MR에서는 `.gitlab-ci.yml`의 `frontend:build` 잡이 자동으로
 `npx expo export --platform web`을 돌려 웹 번들이 실제로 만들어지는지 확인합니다.
+
+## MR 화면 스모크 검사 (S15P21E201-252)
+
+`frontend:build`는 번들이 만들어지는지만 봅니다 — 타입 검사·문법 검사와 같은 층이라,
+브라우저에서 실행돼야만 터지는 문제(예: `let` 선언이 첫 사용처보다 아래에 있어
+부트스트랩이 죽는 것)는 못 잡습니다. `frontend:smoke` 잡이 헤드리스 브라우저로
+실제로 화면을 열어서 (1) 텍스트가 그려졌는지 (2) 콘솔에 error가 안 찍혔는지를 봅니다
+(`tools/smoke-check.mjs`). 백엔드 없는 환경이라 API 호출 실패("Failed to load
+resource")는 실패로 안 잡습니다 — 그건 이 검사 환경의 특성이지 앱 버그가 아닙니다.
+
+로컬에서 같은 걸 확인하려면:
+
+```bash
+cd frontend
+npx expo export --platform web
+npx serve dist -l 3000 &
+npm run smoke -- http://localhost:3000
+```
