@@ -1,6 +1,7 @@
 package com.gabolle.backend.auth.service;
 
 import com.gabolle.backend.auth.domain.AuthProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.client.ClientHttpRequestFactory;
@@ -16,6 +17,7 @@ public class NaverOAuthProviderClient extends AbstractRestClientOAuthProvider {
 	private final String clientId;
 	private final String clientSecret;
 
+	@Autowired
 	public NaverOAuthProviderClient(RestClient.Builder restClientBuilder, ObjectMapper objectMapper,
 			@Value("${gabolle.oauth.naver.client-id:}") String clientId,
 			@Value("${gabolle.oauth.naver.client-secret:}") String clientSecret) {
