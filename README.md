@@ -8,17 +8,17 @@
 
 | 폴더 | 무엇 |
 |---|---|
-| `frontend/` | React + TypeScript, npm — 화면 |
-| `backend/` | Spring Boot + Gradle, Java 18, PostgreSQL — 서버 |
+| `frontend/` | Expo(React Native), npm — 화면 |
+| `backend/` | Spring Boot + Gradle, Java 17, PostgreSQL — 서버 |
 | `bigData/` | 부산 이동성 데이터 — 공개 데이터 수집과 경사·소요시간 계산 |
 | `docs/` | 협업·설계·운영 문서 |
 | `ci/` · `governance/` | 파이프라인이 부르는 것과 팀의 합의 데이터 (연장통이지 주인이 아니다) |
 
 ```text
 main
-├─ front/main   → front/dev   → feat/front/{JIRA-KEY}-{설명}
+├─ front/main   → front/dev   → feature/front/{JIRA-KEY}-{설명}
 ├─ back/main    → back/dev    → fix/back/{JIRA-KEY}-{설명}
-├─ bigData/main → bigData/dev → feat/bigData/{JIRA-KEY}-{설명}
+├─ bigData/main → bigData/dev → feature/bigData/{JIRA-KEY}-{설명}
 └─ common/main  → common/dev  → chore/common/{JIRA-KEY}-{설명}
 ```
 
