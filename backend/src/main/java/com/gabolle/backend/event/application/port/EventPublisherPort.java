@@ -1,6 +1,6 @@
 package com.gabolle.backend.event.application.port;
 
-import com.gabolle.backend.event.domain.OutboxEvent;
+import com.gabolle.backend.event.domain.EventOutbox;
 
 /**
  * 이벤트를 밖으로 내보내는 구멍.
@@ -22,7 +22,7 @@ public interface EventPublisherPort {
      *
      * @throws EventPublishException 전송 실패 — 릴레이가 잡아서 재시도 대상으로 남긴다
      */
-    void publish(OutboxEvent event);
+    void publish(EventOutbox event);
 
     /** 지금 내보낼 수 있는 상태인가. false 면 릴레이가 조용히 건너뛴다. */
     boolean isAvailable();

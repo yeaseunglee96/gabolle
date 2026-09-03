@@ -28,10 +28,12 @@ public enum EventType {
      *
      * <p>이 시점에는 서버가 아는 버전 셋(ontology · dataset · policy)만 담는다.
      */
-    RECOMMENDATION_REQUESTED(Producer.SERVER, true, VersionRequirement.RECOMMENDATION),
+    RECOMMENDATION_REQUESTED(Producer.SERVER, true, VersionRequirement.RECOMMENDATION,
+            AggregateAxis.RECOMMENDATION_REQUEST),
 
     /** 🔴 추천 카드가 실제로 화면에 보임. 목록에 들었다는 이유로 만들지 않는다 */
-    RECOMMENDATION_IMPRESSION(Producer.CLIENT, true, VersionRequirement.RECOMMENDATION),
+    RECOMMENDATION_IMPRESSION(Producer.CLIENT, true, VersionRequirement.RECOMMENDATION,
+            AggregateAxis.RECOMMENDATION_REQUEST),
 
     /**
      * 추천 요청이 실패함 — 2026-09-02 DATA 결정으로 추가.
@@ -53,37 +55,83 @@ public enum EventType {
      *
      * <p>필수 필드: {@code request_id · job_id · trip_id · failure_code · failed_stage
      * · fallback_attempted · occurred_at}. 버전은 <b>아는 것만</b> 담는다.
+     *
+     * <p>🔴 {@code occurred_at}(실패 시각) 과 payload 의 {@code requested_at}(요청 시각) 을
+     * <b>둘 다</b> 담는다. 그 차이가 "얼마나 버티다 죽었는가" 이고, 타임아웃 분석에
+     * 그 값이 필요하다 — 2026-09-02 고지혁 님 요청.
      */
-    RECOMMENDATION_FAILED(Producer.SERVER, true, VersionRequirement.BEST_EFFORT),
+    RECOMMENDATION_FAILED(Producer.SERVER, true, VersionRequirement.BEST_EFFORT,
+            AggregateAxis.RECOMMENDATION_REQUEST),
 
     /** 명시 선호 입력 */
-    PREFERENCE_SET(Producer.SERVER, true, VersionRequirement.NONE),
+    PREFERENCE_SET(Producer.SERVER, true, VersionRequirement.NONE, AggregateAxis.TRIP),
     /** 제약 입력 (알레르기·식단·이동) */
-    CONSTRAINT_SET(Producer.SERVER, true, VersionRequirement.NONE),
+    CONSTRAINT_SET(Producer.SERVER, true, VersionRequirement.NONE, AggregateAxis.TRIP),
     /** 여행 생성 */
-    TRIP_CREATED(Producer.SERVER, true, VersionRequirement.NONE),
+    TRIP_CREATED(Producer.SERVER, true, VersionRequirement.NONE, AggregateAxis.TRIP),
 
     // ── 후속 마일스톤 (API 명세 3.1) ────────────────────────────────
-    PLACE_VIEW(Producer.CLIENT, false, VersionRequirement.NONE),
-    PLACE_LIKE(Producer.SERVER, false, VersionRequirement.NONE),
-    PLACE_DISLIKE(Producer.SERVER, false, VersionRequirement.NONE),
-    ITINERARY_LOCK(Producer.SERVER, false, VersionRequirement.NONE),
-    ITINERARY_REMOVE(Producer.SERVER, false, VersionRequirement.NONE),
-    ITINERARY_REPLACE(Producer.CLIENT, false, VersionRequirement.NONE),
-    ROUTE_SKIP(Producer.CLIENT, false, VersionRequirement.NONE),
-    PLACE_VISIT(Producer.SERVER, false, VersionRequirement.NONE),
-    ROUTE_DEVIATION(Producer.CLIENT, false, VersionRequirement.NONE),
-    EDITORIAL_PICK_PUBLISHED(Producer.SERVER, false, VersionRequirement.NONE),
-    FEED_CANDIDATE_PRECOMPUTED(Producer.SERVER, false, VersionRequirement.NONE);
+    //
+    // 🔴 아래 11종의 aggregate 축은 잠정이다. 그 이벤트를 실제로 구현할 때 확정한다.
+    //    지금 확정할 수 없는 둘은 축을 비워 뒀다 — 비워 두면 쓰려는 순간 예외가 나서
+    //    아무도 모르게 틀린 축으로 적히는 일이 없다.
+    PLACE_VIEW(Producer.CLIENT, false, VersionRequirement.NONE, AggregateAxis.TRIP),
+    PLACE_LIKE(Producer.SERVER, false, VersionRequirement.NONE, AggregateAxis.TRIP),
+    PLACE_DISLIKE(Producer.SERVER, false, VersionRequirement.NONE, AggregateAxis.TRIP),
+    ITINERARY_LOCK(Producer.SERVER, false, VersionRequirement.NONE, AggregateAxis.TRIP),
+    ITINERARY_REMOVE(Producer.SERVER, false, VersionRequirement.NONE, AggregateAxis.TRIP),
+    ITINERARY_REPLACE(Producer.CLIENT, false, VersionRequirement.NONE, AggregateAxis.TRIP),
+    ROUTE_SKIP(Producer.CLIENT, false, VersionRequirement.NONE, AggregateAxis.TRIP),
+    PLACE_VISIT(Producer.SERVER, false, VersionRequirement.NONE, AggregateAxis.TRIP),
+    ROUTE_DEVIATION(Producer.CLIENT, false, VersionRequirement.NONE, AggregateAxis.TRIP),
+
+    /** 🔴 축 미정 — 여행에도 추천 요청에도 속하지 않는다. 편집 기획 단위가 필요하다 */
+    EDITORIAL_PICK_PUBLISHED(Producer.SERVER, false, VersionRequirement.NONE, null),
+    /** 🔴 축 미정 — 사전 계산 배치의 단위를 정해야 한다 */
+    FEED_CANDIDATE_PRECOMPUTED(Producer.SERVER, false, VersionRequirement.NONE, null);
 
     private final Producer expectedProducer;
     private final boolean requiredForM1;
     private final VersionRequirement versionRequirement;
+    private final AggregateAxis aggregateAxis;
 
-    EventType(Producer expectedProducer, boolean requiredForM1, VersionRequirement versionRequirement) {
+    EventType(Producer expectedProducer, boolean requiredForM1, VersionRequirement versionRequirement,
+              AggregateAxis aggregateAxis) {
         this.expectedProducer = expectedProducer;
         this.requiredForM1 = requiredForM1;
         this.versionRequirement = versionRequirement;
+        this.aggregateAxis = aggregateAxis;
+    }
+
+    /**
+     * 이 이벤트가 어느 대상에 붙는가 — {@code event_outbox.aggregate_type} · {@code aggregate_id}.
+     *
+     * <p><b>aggregate(집합체)</b> 란 "이 이벤트가 누구에게 일어난 일인가" 의 그 누구다.
+     * 나중에 브로커로 보낼 때 <b>같은 대상의 이벤트는 순서가 지켜져야</b> 하고,
+     * 분석에서 한 대상의 이력을 한 줄로 읽으려면 이 축이 있어야 한다.
+     *
+     * <p>🔴 축이 둘뿐인 이유 — {@code aggregate_id} 컬럼이 {@code UUID NOT NULL} 이라
+     * <b>실제로 UUID 를 갖고 있는 것만</b> 축이 될 수 있다. 지금 그런 것은 추천 요청과
+     * 여행 둘이다. 장소는 UUID 가 payload 안에 있어 축으로 쓸 수 없다.
+     */
+    public enum AggregateAxis {
+
+        /** 추천 요청 한 건. {@code aggregate_id = request_id} */
+        RECOMMENDATION_REQUEST("recommendation"),
+
+        /** 여행 한 건. {@code aggregate_id = trip_id} */
+        TRIP("trip");
+
+        private final String type;
+
+        AggregateAxis(String type) {
+            this.type = type;
+        }
+
+        /** {@code event_outbox.aggregate_type} 에 들어가는 문자열. */
+        public String type() {
+            return type;
+        }
     }
 
     /**
@@ -137,6 +185,29 @@ public enum EventType {
         return versionRequirement;
     }
 
+    /** 축이 정해져 있는가. {@code false} 면 아직 Outbox 에 적을 수 없다. */
+    public boolean hasAggregateAxis() {
+        return aggregateAxis != null;
+    }
+
+    public AggregateAxis aggregateAxis() {
+        return aggregateAxis;
+    }
+
+    /**
+     * {@code event_outbox.aggregate_type} 에 넣을 값.
+     *
+     * <p>🔴 축이 안 정해진 종류면 <b>예외를 던진다.</b> 임의의 기본값("unknown" 같은 것)을
+     * 넣으면 그 행이 어느 대상의 것인지 영영 알 수 없게 되는데 표는 멀쩡해 보인다.
+     */
+    public String aggregateType() {
+        if (aggregateAxis == null) {
+            throw new IllegalStateException(
+                    this + " 의 aggregate 축이 아직 정해지지 않았다. 정하기 전에는 Outbox 에 적을 수 없다");
+        }
+        return aggregateAxis.type();
+    }
+
     /** 이 종류를 그 생산자가 보낼 수 있는가. */
     public boolean allowsProducer(Producer actual) {
         return expectedProducer == actual;
@@ -145,5 +216,18 @@ public enum EventType {
     /** JSON 에 쓰는 소문자 이름. 예: {@code place_like} */
     public String wireName() {
         return name().toLowerCase();
+    }
+
+    /** 소문자 이름을 열거값으로 바꾼다. 모르는 이름은 거부한다. */
+    public static EventType fromWireName(String wireName) {
+        if (wireName == null || wireName.isBlank()) {
+            throw new IllegalArgumentException("eventType 이 비어 있다");
+        }
+        try {
+            return valueOf(wireName.trim().toUpperCase());
+        }
+        catch (IllegalArgumentException ex) {
+            throw new IllegalArgumentException("모르는 이벤트 종류: " + wireName, ex);
+        }
     }
 }

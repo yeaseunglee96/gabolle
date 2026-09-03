@@ -87,6 +87,43 @@ public class EventOutbox {
 		this.publishStatus = OutboxPublishStatus.PENDING;
 	}
 
+	/**
+	 * 아직 안 보냈는가. 릴레이가 이걸로 고른다.
+	 *
+	 * <p>{@code publishedAt} 을 기준으로 본다 — {@code publishStatus} 는 FAILED 로도 갈 수
+	 * 있는데, 실패한 것은 <b>다시 보내야 하므로 여전히 대기</b>다.
+	 */
+	public boolean isPending() {
+		return this.publishedAt == null;
+	}
+
+	/**
+	 * 전송 성공.
+	 *
+	 * <p>🔴 이미 보낸 것을 다시 성공 처리하지 않는다. 릴레이가 두 번 돌아도 발행 시각이
+	 * 덮어써지면 "언제 보냈나" 가 흐려진다.
+	 */
+	public void markPublished(OffsetDateTime at) {
+		if (this.publishedAt != null) {
+			return;
+		}
+		this.publishedAt = at;
+		this.publishStatus = OutboxPublishStatus.PUBLISHED;
+		this.lastError = null;
+	}
+
+	/**
+	 * 전송 실패.
+	 *
+	 * <p>🔴 실패한 것을 표에서 지우지 않는다. 다음 차례에 다시 시도한다 — 행동 기록은
+	 * 나중에 다시 물어볼 수 없는 종류의 데이터다.
+	 */
+	public void markFailed(String error) {
+		this.publishAttempts++;
+		this.publishStatus = OutboxPublishStatus.FAILED;
+		this.lastError = error;
+	}
+
 	public UUID getEventId() {
 		return eventId;
 	}
