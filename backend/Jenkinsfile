@@ -24,7 +24,23 @@ pipeline {
     agent any
 
     environment {
-        HEALTH_URL = 'https://j15e201.p.ssafy.io/api/actuator/health'
+        // 🔴 컨테이너를 직접 본다. nginx 를 지나가지 않는다.
+        //
+        //    이 값은 'https://j15e201.p.ssafy.io/api/actuator/health' 였다. 그 주소는
+        //    200 을 줄 수 없다 — 이 앱에는 context-path 가 없고(설정 없음) 컨트롤러가
+        //    @RequestMapping("/api/v1/...") 로 직접 매핑되어 있다. actuator 는 기본값인
+        //    /actuator 아래에 있으므로 Spring 에서 /api/actuator/health 는 404 다.
+        //    즉 앱이 완전히 정상이어도 Health Check 단계가 12번 재시도 후 실패했고,
+        //    배포가 늘 실패로 표시되며 MatterMost 에도 실패가 갔다.
+        //
+        //    🔴 밖에서 https://j15e201.p.ssafy.io/actuator/health 를 열면 200 이 오는데
+        //    그것은 앱이 아니다. nginx 의 SPA fallback 이 Expo 웹 index.html 을 준다.
+        //    그 200 을 백엔드가 살아 있다는 증거로 쓰면 안 된다.
+        //
+        //    컨테이너를 직접 보면 (1) 프록시·정적 fallback 에 속지 않고 (2) actuator 를
+        //    외부에 노출하지 않아도 된다. Deploy 단계가 -p 8080:8080 으로 띄우므로
+        //    Jenkins 가 도는 같은 호스트에서 이 주소가 곧 이 배포다.
+        HEALTH_URL = 'http://localhost:8080/actuator/health'
     }
 
     stages {
