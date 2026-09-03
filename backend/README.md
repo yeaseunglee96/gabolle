@@ -7,8 +7,8 @@ GABOLLE(가볼래) Spring Boot 백엔드입니다.
 - Spring Boot 4.0.0
 - Java 17
 - Gradle Wrapper
-- PostgreSQL + Spring Data JPA
-- Flyway migration
+- **PostgreSQL 16** + Spring Data JPA — MySQL·SQLite는 쓰지 않습니다 ([docs/DB-STANDARD.md](../docs/DB-STANDARD.md))
+- Flyway migration — 백엔드 표는 `public`이 아니라 **`gabolle` schema**에 만들어집니다
 - Spring Security + OAuth2 Client/Resource Server
 - Actuator health
 
@@ -27,7 +27,11 @@ cd backend
 http://localhost:8080/actuator/health
 ```
 
-현재 기본 profile은 PostgreSQL 없이 서버와 health endpoint를 실행할 수 있는 뼈대 상태입니다. DB를 사용하는 기능을 붙일 때 로컬·배포 profile에 PostgreSQL 연결과 migration 실행 조건을 추가합니다.
+기본 profile(`no-db`)은 PostgreSQL 없이 서버와 health endpoint만 실행합니다 — 컴파일 확인용입니다.
+
+DB를 쓰는 기능은 `db` 또는 `dev` profile로 전환해야 돕니다. 그 profile에는 이미 PostgreSQL 연결과 Flyway가 붙어 있고, 운영에는 migration 6개가 적용된 상태입니다(2026-09-03). 🔴 `@Profile({"db","dev"})`가 붙은 빈은 기본 profile에서 **만들어지지 않습니다** — DB를 쓰는 기능이 안 뜨면 profile을 먼저 확인하십시오.
+
+DB 타입 기준·schema 분리·마이그레이션 규칙은 [docs/DB-STANDARD.md](../docs/DB-STANDARD.md)에 모아 두었습니다. 🔴 특히 **raw SQL을 쓸 때 `gabolle` schema를 못 찾는 함정**이 있어서, `JdbcTemplate`을 쓰기 전에 그 문서 2절을 보십시오.
 
 ## Docker Compose 실행
 
