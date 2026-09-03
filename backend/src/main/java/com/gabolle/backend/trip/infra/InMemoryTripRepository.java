@@ -11,18 +11,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 /**
- * 메모리 여행 저장소 — M1 용.
+ * 메모리 여행 저장소 — {@code no-db} 전용.
  *
- * <p>{@code resources/db/migration} 에 마이그레이션이 생기기 시작했지만
- * ({@code create_auth_schema} · {@code recommendation_logging}) 여행 표는 아직 없다.
- * 그 자리가 정리되기 전에 규칙이 먼저 돌아야 하므로 이것으로 세운다.
+ * <p>🔴 S15P21E201-461 이 {@code trip} 표를 {@link JpaTripRepository} 로 옮기면서
+ * {@code db}·{@code dev} 프로필에는 이 빈을 만들지 않는다 — 인증·이벤트가 이미 쓰는
+ * 방식과 같다({@code @Profile({"db","dev"})}). 둘 다 살아 있으면 {@code TripRepository}
+ * 빈이 둘이 되어 애플리케이션이 못 뜬다.
  *
- * <p>🔴 서버를 끄면 사라진다. 시연·테스트 전용이다.
+ * <p>🔴 서버를 끄면 사라진다. DB 없이 컴파일·헬스 확인만 하는 {@code no-db} 프로필
+ * 전용이다.
  */
 @Repository
+@Profile("!db & !dev")
 public class InMemoryTripRepository implements TripRepository {
 
     private final Map<String, Trip> trips = new ConcurrentHashMap<>();
