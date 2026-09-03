@@ -16,9 +16,9 @@
 
 ```text
 main
-├─ front/main   → front/dev   → feature/front/{JIRA-KEY}-{설명}
+├─ front/main   → front/dev   → feat/front/{JIRA-KEY}-{설명}
 ├─ back/main    → back/dev    → fix/back/{JIRA-KEY}-{설명}
-├─ bigData/main → bigData/dev → feature/bigData/{JIRA-KEY}-{설명}
+├─ bigData/main → bigData/dev → feat/bigData/{JIRA-KEY}-{설명}
 └─ common/main  → common/dev  → chore/common/{JIRA-KEY}-{설명}
 ```
 
