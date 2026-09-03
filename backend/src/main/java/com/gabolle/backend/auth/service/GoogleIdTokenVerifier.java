@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
@@ -26,6 +27,7 @@ public class GoogleIdTokenVerifier {
 	private final String issuer;
 	private final Set<String> allowedAudiences;
 
+	@Autowired
 	public GoogleIdTokenVerifier(
 			@Value("${gabolle.oauth.google.jwk-set-uri:https://www.googleapis.com/oauth2/v3/certs}") String jwkSetUri,
 			@Value("${gabolle.oauth.google.issuer:" + DEFAULT_ISSUER + "}") String issuer,
