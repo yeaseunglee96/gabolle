@@ -1,86 +1,59 @@
-// 04 로그인 — 레이아웃·여백·타이포는 Figma 04_로그인 실측을 그대로 따르지만,
-// 인증 수단은 다르다.
-//
-// 🔴 Figma 는 이메일·비밀번호 입력칸과 "카카오로 계속하기" 버튼을 보여주는데,
-// Figma 가 결정보다 오래된 화면이라 그렇다. 확정된 내용:
-//   - 로그인은 Google OAuth 하나뿐이다. 카카오·네이버·이메일 전부 안 쓴다.
-//   - 카카오는 지도·리뷰 API 로만 쓰고 로그인 수단이 아니다.
-//   - 05 회원가입 화면은 폐기됐다. 비밀번호 찾기도 없다.
-// 그래서 입력칸과 카카오 버튼을 빼고 Continue with Google 하나만 남긴다.
-// 다음 사람이 Figma 를 보고 "빠뜨렸네" 하며 되돌리지 않도록 이 주석을 남긴다.
-import { StyleSheet, View } from 'react-native';
-import { useRouter } from 'expo-router';
-
-import { color, radius, spacing } from '@/design/tokens';
-import { Screen } from '@/components/Screen';
-import { Eyebrow } from '@/components/Eyebrow';
-import { Text } from '@/components/Text';
-import { Card } from '@/components/Card';
+import { useState } from 'react';
+import { ActivityIndicator, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { useLocalSearchParams, useRouter, type Href } from 'expo-router';
+import { ApiClientError } from '@/api/client';
+import { useAuth } from '@/auth/AuthProvider';
 import { Button } from '@/components/Button';
+import { Card } from '@/components/Card';
+import { Screen } from '@/components/Screen';
+import { Text } from '@/components/Text';
+import { color, radius, spacing } from '@/design/tokens';
+
+function safeReturnTo(value: string | undefined): Href {
+  if (!value || !value.startsWith('/') || value.startsWith('//') || value.includes('://') || value.startsWith('/sign-in')) return '/me';
+  return value as Href;
+}
 
 export default function SignIn() {
   const router = useRouter();
-
-  return (
-    <Screen scroll>
-      <Eyebrow>04 · 계정</Eyebrow>
-      <Text variant="display" weight="bold" style={styles.title}>
-        로그인
-      </Text>
-      <Text variant="body" style={styles.subtitle}>
-        여행을 저장하고 어디서든 이어보세요.
-      </Text>
-
-      <View style={styles.hero}>
-        {/* TODO: 실제 부산 사진. 자산이 오기 전까지 브랜드 색 면으로 대체한다. */}
-        <Text variant="title" weight="bold" color={color.text.onAction}>
-          부산 여행, 이어서 시작해요
-        </Text>
-      </View>
-
-      {/* Figma 에는 이 버튼 다음 화면이 없어서, 계획 만들기 흐름(06 기본 조건 설정)으로 잇는다. */}
-      <Button label="Continue with Google" containerStyle={styles.cta} onPress={() => router.push('/age-gate')} />
-      <Button label="이메일로 회원가입" variant="ghost" containerStyle={styles.signupCta} onPress={() => router.push('/sign-up')} />
-
-      <Card tinted style={styles.security}>
-        <Text variant="body" weight="bold" color={color.text.eyebrow}>
-          ✓ 안전하게 보호돼요
-        </Text>
-        <Text variant="caption" style={styles.securityBody}>
-          개인정보와 여행 조건은 암호화해 저장합니다.
-        </Text>
-      </Card>
-    </Screen>
-  );
+  const { returnTo } = useLocalSearchParams<{ returnTo?: string }>();
+  const { signIn } = useAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const eligible = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()) && password.length > 0;
+  async function submit() {
+    if (!eligible || submitting) return;
+    setSubmitting(true); setError(null);
+    try { await signIn(email, password); router.replace(safeReturnTo(returnTo)); }
+    catch (cause) {
+      if (cause instanceof ApiClientError && cause.status === 429) setError('요청이 너무 많아요. 잠시 후 다시 시도해 주세요.');
+      else if (cause instanceof ApiClientError && cause.code === 'NETWORK_ERROR') setError(cause.message);
+      else if (cause instanceof ApiClientError && cause.code === 'EMAIL_NOT_VERIFIED') setError('이메일 인증을 마친 뒤 로그인해 주세요.');
+      else if (cause instanceof ApiClientError && cause.status === 401) setError('이메일 또는 비밀번호가 올바르지 않아요.');
+      else setError(cause instanceof ApiClientError ? cause.message : '로그인하지 못했어요.');
+    } finally { setSubmitting(false); }
+  }
+  return <Screen scroll>
+    <Pressable accessibilityRole="button" accessibilityLabel="뒤로 가기" onPress={() => router.canGoBack() ? router.back() : router.replace('/')} style={styles.back}><Text variant="title">‹</Text></Pressable>
+    <Text variant="display" weight="bold" style={styles.title}>로그인</Text>
+    <Text variant="body">내 여행을 안전하게 이어서 확인하세요.</Text>
+    <View style={styles.form}>
+      <View style={styles.field}><Text variant="caption" weight="bold">이메일</Text><TextInput accessibilityLabel="이메일" autoCapitalize="none" autoComplete="email" keyboardType="email-address" value={email} onChangeText={setEmail} placeholder="name@example.com" placeholderTextColor={color.text.muted} style={styles.input} /></View>
+      <View style={styles.field}><Text variant="caption" weight="bold">비밀번호</Text><TextInput accessibilityLabel="비밀번호" autoCapitalize="none" autoComplete="current-password" secureTextEntry value={password} onChangeText={setPassword} onSubmitEditing={() => void submit()} placeholder="비밀번호" placeholderTextColor={color.text.muted} style={styles.input} /></View>
+      {!eligible && (email.length > 0 || password.length > 0) && <Text variant="caption">올바른 이메일과 비밀번호를 입력해 주세요.</Text>}
+      {error && <Card><Text accessibilityRole="alert" variant="caption" color={color.state.danger}>{error}</Text></Card>}
+      <Button
+        accessibilityRole="button"
+        accessibilityState={{ disabled: !eligible || submitting, busy: submitting }}
+        label={submitting ? '로그인 중…' : '로그인'}
+        disabled={!eligible || submitting}
+        onPress={() => void submit()}
+      />
+      {submitting && <ActivityIndicator accessibilityLabel="로그인 처리 중" color={color.action.primary} />}
+    </View>
+    <View style={styles.links}><Pressable accessibilityRole="link" onPress={() => router.push('/sign-up')}><Text variant="body" weight="bold" color={color.action.primary}>회원가입</Text></Pressable><Text variant="caption">비밀번호 재설정은 별도 기능 준비 중입니다.</Text></View>
+  </Screen>;
 }
-
-const styles = StyleSheet.create({
-  title: {
-    marginTop: spacing[1],
-  },
-  subtitle: {
-    marginTop: spacing[1],
-    marginBottom: spacing[4],
-  },
-  hero: {
-    height: 126,
-    borderRadius: radius.lg,
-    backgroundColor: color.action.primary,
-    alignItems: 'flex-start',
-    justifyContent: 'flex-end',
-    padding: spacing[4],
-    marginBottom: spacing[6],
-  },
-  cta: {
-    marginBottom: spacing[2],
-  },
-  signupCta: {
-    marginBottom: spacing[6],
-  },
-  security: {
-    gap: spacing[1],
-  },
-  securityBody: {
-    color: color.text.body,
-  },
-});
+const styles = StyleSheet.create({ back: { width: 44, height: 44, borderRadius: radius.full, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center' }, title: { marginTop: spacing[6], marginBottom: spacing[2] }, form: { marginTop: spacing[8], gap: spacing[4] }, field: { gap: spacing[2] }, input: { minHeight: 52, borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.card, color: color.text.heading, fontSize: 15, paddingHorizontal: spacing[4] }, links: { marginTop: spacing[6], alignItems: 'center', gap: spacing[3] } });

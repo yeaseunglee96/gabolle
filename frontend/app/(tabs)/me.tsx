@@ -15,6 +15,7 @@ import { Card } from '@/components/Card';
 import { ProgressBar } from '@/components/ProgressBar';
 import { Toggle } from '@/components/Toggle';
 import { TabBar } from '@/components/TabBar';
+import { useAuth } from '@/auth/AuthProvider';
 
 const STATS = [
   { icon: '🧳', value: '4', label: '완료 여행' },
@@ -34,14 +35,16 @@ function SettingsRow({
   value,
   titleColor,
   right,
+  onPress,
 }: {
   title: string;
   value?: string;
   titleColor?: string;
   right?: ReactNode;
+  onPress?: () => void;
 }) {
   return (
-    <Pressable style={styles.settingsRow}>
+    <Pressable accessibilityRole={onPress ? 'button' : undefined} onPress={onPress} style={styles.settingsRow}>
       <Text variant="body" weight="bold" color={titleColor ?? color.text.heading}>
         {title}
       </Text>
@@ -59,6 +62,7 @@ function SettingsRow({
 
 export default function Me() {
   const [personalizationOff, setPersonalizationOff] = useState(false);
+  const { user, signOut } = useAuth();
 
   return (
     <Screen scroll>
@@ -85,7 +89,7 @@ export default function Me() {
           </View>
           <View style={styles.profileInfo}>
             <Text variant="title" weight="bold">
-              진미리
+              {user?.displayName ?? '여행자'}
             </Text>
             <Text variant="caption" style={styles.profileBio}>
               부산 바다와 골목을 좋아하는 여행자
@@ -168,6 +172,7 @@ export default function Me() {
         <SettingsRow title="개인화 데이터 초기화" />
         {/* TODO: 계정 삭제 확인 플로우·화면 미정. 스토어 심사 필수 항목이라 자리만 먼저 둔다. */}
         <SettingsRow title="계정 삭제" titleColor={color.state.danger} />
+        <SettingsRow title="로그아웃" titleColor={color.state.danger} onPress={() => void signOut()} />
       </View>
 
       <View style={styles.tabBarWrap}>

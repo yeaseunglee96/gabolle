@@ -4,19 +4,20 @@ import { Stack } from 'expo-router';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { color } from '@/design/tokens';
+import { AuthProvider } from '@/auth/AuthProvider';
 import { OnboardingPreferencesProvider } from '@/onboarding/OnboardingPreferences';
 
 export default function RootLayout() {
   return (
     <SafeAreaProvider>
-      <OnboardingPreferencesProvider>
+      <AuthProvider><OnboardingPreferencesProvider>
         <Stack
           screenOptions={{
             headerShown: false,
             contentStyle: { backgroundColor: color.canvas },
           }}
         />
-      </OnboardingPreferencesProvider>
+      </OnboardingPreferencesProvider></AuthProvider>
     </SafeAreaProvider>
   );
 }
