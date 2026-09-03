@@ -1,5 +1,5 @@
 // 신규 화면 — Figma 23 화면 표에 없다. 원본 요청서에서 새로 추가된 자리라 최대한 단순하게 만든다.
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
@@ -9,17 +9,34 @@ import { Text } from '@/components/Text';
 import { Button } from '@/components/Button';
 import { parseLanguage, parseMobility, useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
 
+function optionalParse<T>(value: string | string[] | undefined, parse: (candidate: string | string[] | undefined) => T) {
+  try {
+    return parse(value);
+  } catch {
+    return undefined;
+  }
+}
+
 export default function AgeGate() {
   const router = useRouter();
   const params = useLocalSearchParams<{ language?: string; mobility?: string }>();
-  const { setPreferences } = useOnboardingPreferences();
+  const preferences = useOnboardingPreferences();
   const [checked, setChecked] = useState(false);
 
-  const language = parseLanguage(params.language);
-  const mobility = parseMobility(params.mobility);
+  const queryLanguage = optionalParse(params.language, parseLanguage);
+  const queryMobility = optionalParse(params.mobility, parseMobility);
+  const language = queryLanguage ?? preferences.language;
+  const mobility = queryMobility ?? preferences.mobility;
+
+  useEffect(() => {
+    if ((queryLanguage || queryMobility)
+      && (language !== preferences.language || mobility !== preferences.mobility)) {
+      preferences.setPreferences(language, mobility);
+    }
+  }, [language, mobility, preferences, queryLanguage, queryMobility]);
 
   function continueOnboarding() {
-    setPreferences(language, mobility);
+    preferences.setPreferences(language, mobility);
     router.replace('/permissions');
   }
 
