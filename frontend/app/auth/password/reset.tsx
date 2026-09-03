@@ -43,7 +43,9 @@ export default function PasswordReset() {
   return (
     <Screen scroll>
       <Pressable accessibilityRole="button" accessibilityLabel="뒤로 가기" onPress={() => router.replace('/sign-in')} style={styles.backButton}><Text variant="title">‹</Text></Pressable>
-      <Image source={logo} resizeMode="contain" style={styles.logo} accessibilityLabel="GABOLLE 가볼래" />
+      <Pressable accessibilityRole="link" accessibilityLabel="GABOLLE 시작 화면으로 이동" onPress={() => router.replace('/')} style={({ pressed }) => [styles.logoLink, pressed && styles.pressed]}>
+        <Image source={logo} resizeMode="contain" style={styles.logo} accessibilityIgnoresInvertColors />
+      </Pressable>
       <Text variant="display" weight="bold" style={styles.title}>새 비밀번호 설정</Text>
       <Text variant="body" style={styles.subtitle}>다른 서비스에서 사용하지 않는 비밀번호를 권장해요.</Text>
 
@@ -70,7 +72,9 @@ export default function PasswordReset() {
 
 const styles = StyleSheet.create({
   backButton: { width: 40, height: 40, borderRadius: radius.full, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center' },
-  logo: { width: 154, height: 40, marginTop: spacing[6], alignSelf: 'center' },
+  logoLink: { minWidth: 154, minHeight: 44, marginTop: spacing[6], alignSelf: 'center', alignItems: 'center', justifyContent: 'center', borderRadius: radius.sm },
+  logo: { width: 154, height: 40 },
+  pressed: { opacity: 0.75 },
   title: { marginTop: spacing[8] },
   subtitle: { marginTop: spacing[2], color: color.text.body },
   form: { marginTop: spacing[8], gap: spacing[4] },
