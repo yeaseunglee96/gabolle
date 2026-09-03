@@ -8,6 +8,9 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 
 import com.gabolle.backend.auth.domain.AuthProvider;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.MockRestServiceServer;
@@ -15,6 +18,34 @@ import org.springframework.web.client.RestClient;
 import tools.jackson.databind.ObjectMapper;
 
 class KakaoOAuthProviderClientTest {
+
+	@Test
+	void springCreatesClientUsingConfiguredConstructor() {
+		try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext()) {
+			context.getEnvironment().setActiveProfiles("dev");
+			context.register(HttpBeans.class, KakaoOAuthProviderClient.class);
+
+			context.refresh();
+
+			assertThat(context.getBean(KakaoOAuthProviderClient.class).provider())
+					.isEqualTo(AuthProvider.KAKAO);
+		}
+	}
+
+	@Configuration
+	static class HttpBeans {
+
+		@Bean
+		RestClient.Builder restClientBuilder() {
+			return RestClient.builder();
+		}
+
+		@Bean
+		ObjectMapper objectMapper() {
+			return new ObjectMapper();
+		}
+
+	}
 
 	@Test
 	void exchangesKakaoCodeWithRestApiKeySecretStateAndPkce() {
