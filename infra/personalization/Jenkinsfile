@@ -135,17 +135,22 @@ pipeline {
             }
         }
 
+        // 60초(12x5s)로는 부족했다 — airflow 4개 서비스가 동시에 재기동되면
+        // (예: 이 서비스들과 무관한 커밋이라도 Dockerfile/requirements가 바뀌면
+        // 전부 재기동된다) airflow-api-server가 그보다 늦게 준비되는 걸 실제
+        // 배포에서 확인함 (S15P21E201-582). 240초(24x10s)로 늘림 — 그 배포에서
+        // 실제로 healthy가 되기까지 걸린 시간보다 여유 있게 잡음.
         stage('Health Check') {
             steps {
                 sshagent(credentials: ['deploy-ssh-key']) {
                     sh """
                         ssh -o StrictHostKeyChecking=no ubuntu@${params.DEPLOY_HOST} '
-                          for i in \$(seq 1 12); do
+                          for i in \$(seq 1 24); do
                             if curl -sf http://127.0.0.1:5000/health && curl -sf http://127.0.0.1:8082/api/v2/monitor/health; then
                               exit 0
                             fi
-                            echo "health check retry \$i/12..."
-                            sleep 5
+                            echo "health check retry \$i/24..."
+                            sleep 10
                           done
                           exit 1
                         '
