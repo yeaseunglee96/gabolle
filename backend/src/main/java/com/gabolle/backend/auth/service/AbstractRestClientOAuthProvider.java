@@ -3,6 +3,7 @@ package com.gabolle.backend.auth.service;
 import com.gabolle.backend.auth.domain.AuthProvider;
 import java.time.Duration;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.RestClient;
@@ -17,21 +18,46 @@ abstract class AbstractRestClientOAuthProvider implements OAuthProviderClient {
 	private final ObjectMapper objectMapper;
 
 	protected AbstractRestClientOAuthProvider(RestClient.Builder restClientBuilder, ObjectMapper objectMapper) {
+		this(restClientBuilder, objectMapper, timeoutRequestFactory());
+	}
+
+	protected AbstractRestClientOAuthProvider(RestClient.Builder restClientBuilder, ObjectMapper objectMapper,
+			ClientHttpRequestFactory requestFactory) {
+		if (requestFactory != null) {
+			restClientBuilder.requestFactory(requestFactory);
+		}
+		this.restClient = restClientBuilder.build();
+		this.objectMapper = objectMapper;
+	}
+
+	private static ClientHttpRequestFactory timeoutRequestFactory() {
 		SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
 		requestFactory.setConnectTimeout(Duration.ofSeconds(3));
 		requestFactory.setReadTimeout(Duration.ofSeconds(5));
-		this.restClient = restClientBuilder.requestFactory(requestFactory).build();
-		this.objectMapper = objectMapper;
+		return requestFactory;
 	}
 
 	protected String exchangeAccessToken(String tokenUri, String clientId, String clientSecret, String code,
 			String redirectUri, String codeVerifier, boolean includeCodeVerifier) {
-		return exchangeTokens(tokenUri, clientId, clientSecret, code, redirectUri, codeVerifier, includeCodeVerifier, true)
-				.accessToken();
+		return exchangeAccessToken(tokenUri, clientId, clientSecret, code, redirectUri, codeVerifier,
+				includeCodeVerifier, null);
+	}
+
+	protected String exchangeAccessToken(String tokenUri, String clientId, String clientSecret, String code,
+			String redirectUri, String codeVerifier, boolean includeCodeVerifier, String state) {
+		return exchangeTokens(tokenUri, clientId, clientSecret, code, redirectUri, codeVerifier, includeCodeVerifier,
+				true, state).accessToken();
 	}
 
 	protected TokenResponse exchangeTokens(String tokenUri, String clientId, String clientSecret, String code,
 			String redirectUri, String codeVerifier, boolean includeCodeVerifier, boolean clientSecretRequired) {
+		return exchangeTokens(tokenUri, clientId, clientSecret, code, redirectUri, codeVerifier, includeCodeVerifier,
+				clientSecretRequired, null);
+	}
+
+	protected TokenResponse exchangeTokens(String tokenUri, String clientId, String clientSecret, String code,
+			String redirectUri, String codeVerifier, boolean includeCodeVerifier, boolean clientSecretRequired,
+			String state) {
 		if (clientId == null || clientId.isBlank() || (clientSecretRequired && (clientSecret == null || clientSecret.isBlank()))) {
 			throw new AuthException("OAUTH_PROVIDER_NOT_CONFIGURED", provider() + " client 설정이 없습니다.",
 					org.springframework.http.HttpStatus.NOT_IMPLEMENTED);
@@ -44,6 +70,9 @@ abstract class AbstractRestClientOAuthProvider implements OAuthProviderClient {
 		}
 		form.add("code", code);
 		form.add("redirect_uri", redirectUri);
+		if (state != null && !state.isBlank()) {
+			form.add("state", state);
+		}
 		if (includeCodeVerifier && codeVerifier != null && !codeVerifier.isBlank()) {
 			form.add("code_verifier", codeVerifier);
 		}

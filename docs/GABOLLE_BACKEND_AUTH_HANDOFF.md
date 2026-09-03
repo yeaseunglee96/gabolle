@@ -20,26 +20,28 @@
 
 ## 모바일 OAuth 흐름
 
-서버 callback 방식으로 Google code를 직접 받지 않는다. React Native 앱이 시스템 브라우저로 인증을 시작하고, HTTPS App Link/Universal Link로 code를 받은 뒤 백엔드에 전달한다.
+서버 callback 방식으로 provider code를 직접 받지 않는다. React Native 앱이 시스템 브라우저로 인증을 시작하고, HTTPS App Link/Universal Link로 code를 받은 뒤 백엔드에 전달한다.
 
 ```text
 앱: PKCE verifier/challenge 생성
-  -> POST /api/v1/auth/oauth/google/challenge
+  -> POST /api/v1/auth/oauth/{provider}/challenge
   <- state, nonce, expiresAt
-앱: Google authorization endpoint를 시스템 브라우저로 호출
-Google -> 앱 HTTPS redirect URI: code, state
-앱 -> POST /api/v1/auth/oauth/google: code, verifier, state, nonce
-백엔드: challenge/PKCE 검증 -> Google token 교환 -> ID Token 검증
+앱: provider authorization endpoint를 시스템 브라우저로 호출
+provider -> 앱 HTTPS redirect URI: code, state
+앱 -> POST /api/v1/auth/oauth/{provider}: code, verifier, state, nonce
+백엔드: challenge/PKCE 검증 -> provider token 교환 -> 프로필 조회
        -> 사용자 연결/생성 -> GABOLLE access·refresh token 발급
 ```
 
-현재 개발 기준 redirect URI는 다음 값으로 맞춘다. 앱의 App Link 경로가 확정되면 Google Console과 `GABOLLE_OAUTH_ALLOWED_REDIRECT_URIS`를 같은 값으로 변경한다.
+현재 개발 기준 redirect URI는 provider별로 다음 값으로 맞춘다. 앱의 App Link 경로가 확정되면 각 provider 개발자센터와 `GABOLLE_OAUTH_ALLOWED_REDIRECT_URIS`를 같은 값으로 변경한다.
 
 ```text
 https://j15e201.p.ssafy.io/oauth/google/callback
+https://j15e201.p.ssafy.io/oauth/naver/callback
+https://j15e201.p.ssafy.io/oauth/kakao/callback
 ```
 
-`/api/v1/auth/oauth/google/callback`은 현재 서버 callback 엔드포인트가 아니므로 모바일 흐름의 redirect URI로 사용하지 않는다.
+`/api/v1/auth/oauth/{provider}/callback`은 현재 서버 callback 엔드포인트가 아니므로 모바일 흐름의 redirect URI로 사용하지 않는다.
 
 ## 웹 인증 흐름
 
@@ -108,6 +110,11 @@ Content-Type: application/json
 `state`, `nonce`, `redirectUri`, `deviceId`, PKCE가 하나라도 다르면 요청을 거부한다. challenge는 성공적으로 소비되면 재사용할 수 없다.
 최초 소셜 가입자는 로컬 가입과 동일하게 필수 약관 동의가 필요하며, 기존 계정에 동일 이메일이 있으면 자동 연결하지 않고 계정 연결 절차를 안내한다.
 
+### Provider별 설정
+
+- Kakao: `client_id`에는 Kakao Developers의 REST API key를 넣는다. REST API key의 Client secret 기능이 켜져 있으면 Client secret도 함께 넣어야 한다. Kakao Login의 동의 항목에서 이메일을 활성화해야 최초 가입이 가능하다.
+- Naver: Naver Developers에서 발급한 Client ID와 Client Secret이 모두 필요하다. token 교환 요청에는 challenge의 `state`도 전달한다.
+
 ## 환경변수 계약
 
 Spring의 `dev` 프로필에 주입한다.
@@ -121,7 +128,11 @@ GABOLLE_JWT_SECRET=<32자 이상 랜덤값>
 GABOLLE_GOOGLE_CLIENT_ID=...
 GABOLLE_GOOGLE_CLIENT_SECRET=...
 GABOLLE_GOOGLE_ALLOWED_CLIENT_IDS=...
-GABOLLE_OAUTH_ALLOWED_REDIRECT_URIS=https://j15e201.p.ssafy.io/oauth/google/callback
+GABOLLE_NAVER_CLIENT_ID=...
+GABOLLE_NAVER_CLIENT_SECRET=...
+GABOLLE_KAKAO_CLIENT_ID=<Kakao REST API key>
+GABOLLE_KAKAO_CLIENT_SECRET=<Client secret 기능이 켜져 있으면 필수>
+GABOLLE_OAUTH_ALLOWED_REDIRECT_URIS=https://j15e201.p.ssafy.io/oauth/google/callback,https://j15e201.p.ssafy.io/oauth/naver/callback,https://j15e201.p.ssafy.io/oauth/kakao/callback
 GABOLLE_CORS_ALLOWED_ORIGINS=https://j15e201.p.ssafy.io
 GABOLLE_WEB_REFRESH_COOKIE_NAME=gabolle_refresh_token
 GABOLLE_WEB_REFRESH_COOKIE_SECURE=true
@@ -163,7 +174,7 @@ GABOLLE_MAIL_PASSWORD
 5. Nginx의 `/api/` 프록시가 Spring으로 전달되는지 확인
 6. 웹 정적 파일의 SPA fallback이 `/oauth/{provider}/callback` 경로에서도 동작하는지 확인
 7. 웹에서 `credentials: include`로 login → web/refresh → web/logout 순서를 테스트
-8. 모바일 앱에서 challenge → Google → login 순서로 테스트
+8. 모바일 앱에서 각 provider의 challenge → provider → login 순서로 테스트
 
 GitLab CI/CD 변수는 Jenkins로 자동 전달되지 않는다. 배포 주체가 Jenkins로 확정되면 Jenkins Credentials를 기준으로 관리한다.
 

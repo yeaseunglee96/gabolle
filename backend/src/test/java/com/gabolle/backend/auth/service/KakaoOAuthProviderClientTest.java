@@ -1,0 +1,50 @@
+package com.gabolle.backend.auth.service;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
+
+import com.gabolle.backend.auth.domain.AuthProvider;
+import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.client.MockRestServiceServer;
+import org.springframework.web.client.RestClient;
+import tools.jackson.databind.ObjectMapper;
+
+class KakaoOAuthProviderClientTest {
+
+	@Test
+	void exchangesKakaoCodeWithRestApiKeySecretStateAndPkce() {
+		RestClient.Builder builder = RestClient.builder();
+		MockRestServiceServer server = MockRestServiceServer.bindTo(builder).build();
+		KakaoOAuthProviderClient client = new KakaoOAuthProviderClient(builder, new ObjectMapper(), "kakao-rest-key",
+				"kakao-client-secret", null);
+
+		server.expect(requestTo("https://kauth.kakao.com/oauth/token"))
+				.andExpect(method(HttpMethod.POST))
+				.andExpect(content().string(org.hamcrest.Matchers.allOf(
+						org.hamcrest.Matchers.containsString("client_id=kakao-rest-key"),
+						org.hamcrest.Matchers.containsString("client_secret=kakao-client-secret"),
+						org.hamcrest.Matchers.containsString("state=state-1"),
+						org.hamcrest.Matchers.containsString("code_verifier=verifier-1"))))
+				.andRespond(withSuccess("{\"access_token\":\"kakao-access\"}", MediaType.APPLICATION_JSON));
+		server.expect(requestTo("https://kapi.kakao.com/v2/user/me"))
+				.andExpect(method(HttpMethod.GET))
+				.andRespond(withSuccess(
+						"{\"id\":12345,\"kakao_account\":{\"email\":\"traveler@example.com\",\"profile\":{\"nickname\":\"여행자\"}}}",
+						MediaType.APPLICATION_JSON));
+
+		OAuthProviderClient.OAuthUserProfile profile = client.exchangeAuthorizationCode("kakao-code",
+				"https://j15e201.p.ssafy.io/oauth/kakao/callback", "verifier-1", "state-1", "nonce-1");
+
+		assertThat(client.provider()).isEqualTo(AuthProvider.KAKAO);
+		assertThat(profile.subject()).isEqualTo("12345");
+		assertThat(profile.email()).isEqualTo("traveler@example.com");
+		assertThat(profile.displayName()).isEqualTo("여행자");
+		assertThat(profile.language()).isEqualTo("KO");
+		server.verify();
+	}
+}
