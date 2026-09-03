@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import com.gabolle.backend.event.domain.EventOutbox;
+import com.gabolle.backend.event.domain.Producer;
 import com.gabolle.backend.event.repository.EventOutboxRepository;
 import com.gabolle.backend.recommendation.adapter.EngineCandidate;
 import com.gabolle.backend.recommendation.adapter.EngineCandidateBatch;
@@ -224,7 +225,13 @@ class RecommendationLoggingIntegrationTest extends PostgresIntegrationTest {
 				.findByEventTypeOrderByOccurredAtAsc(RecommendationCodes.EVENT_RECOMMENDATION_REQUESTED);
 		assertThat(events).hasSize(1);
 		assertThat(events.get(0).getAggregateId()).isEqualTo(result.requestId());
-		assertThat(events.get(0).getPayload()).contains(result.requestId().toString());
+		// 🔴 request_id 는 payload 에 중복 저장하지 않는다. 추천 축(RECOMMENDATION_REQUEST)에서는
+		//    aggregate_id 가 정본이고(바로 위 assertion), 나머지 envelope 값은 전용 컴럼으로 간다.
+		//    같은 값을 payload 와 컴럼 둘에 두면 나중에 서로 달라지도 어느 짝이 맞는지 알 수 없다.
+		assertThat(events.get(0).getPayload()).doesNotContain("\"request_id\"");
+		assertThat(events.get(0).getUserId()).isEqualTo(this.references.userId());
+		assertThat(events.get(0).getTripId()).isEqualTo(this.references.tripId());
+		assertThat(events.get(0).getProducer()).isEqualTo(Producer.SERVER);
 		// GB-API-001 4.3 이 요구하는 버전 넷이 이벤트 본문에도 실린다.
 		assertThat(events.get(0).getPayload())
 				.contains("model_version", "feature_version", "ontology_version", "policy_version");
