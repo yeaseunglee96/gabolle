@@ -98,9 +98,17 @@ pipeline {
         stage('Health Check') {
             steps {
                 script {
+                    // 🔴 2026-09-03 — curl이 연결 자체에 실패하면(exit 7, 앱이 아직
+                    //    포트를 안 열었을 때 흔하다) sh 스텝이 비정상 종료로 보고
+                    //    재시도 없이 파이프라인을 즉시 죽였다. HEALTH_URL이 nginx나
+                    //    Jenkins 자신을 가리키던 동안은 "연결은 되고 코드만 틀림"만
+                    //    있어서 이 버그가 드러나지 않았는데, 컨테이너를 직접 찌르니
+                    //    (S15P21E201-574) 기동 중 포트가 아직 안 열린 순간 처음
+                    //    드러났다. `|| echo 000`으로 curl 실패도 코드값 하나로
+                    //    바꿔서, 재시도 루프가 진짜로 12번을 다 쓰게 한다.
                     def healthy = false
                     for (int i = 0; i < 12; i++) {
-                        def code = sh(script: "curl -s -o /dev/null -w '%{http_code}' ${HEALTH_URL}", returnStdout: true).trim()
+                        def code = sh(script: "curl -s -o /dev/null -w '%{http_code}' ${HEALTH_URL} || echo 000", returnStdout: true).trim()
                         if (code == '200') {
                             healthy = true
                             break
