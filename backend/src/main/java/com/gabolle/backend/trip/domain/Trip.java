@@ -34,6 +34,18 @@ public class Trip {
 
     private Status status;
     private final Instant createdAt;
+    private Instant updatedAt;
+
+    /**
+     * 🔴 TRIP-05 soft delete. {@code null} 이 아니면 지워진 것이다.
+     *
+     * <p>2026-09-03 이전에는 이걸 {@code Status.DELETED} 로 표현했는데, DB
+     * {@code trip.status} CHECK 제약(S15P21E201-554)이 {@code DELETED} 를 안 받는다 —
+     * "지워졌다" 를 말하는 자리를 {@code deleted_at} 하나로만 두기로 했기 때문이다(고지혁
+     * 님 결정). 두 자리에 같은 뜻을 담으면 둘이 어긋나는 날 어느 쪽이 맞는지 아무도
+     * 모른다. 그래서 이 칸 하나로만 삭제를 말한다.
+     */
+    private Instant deletedAt;
 
     public Trip(String tripId, String createdBy,
                 LocalDate startDate, LocalDate finishDate,
@@ -75,6 +87,7 @@ public class Trip {
         this.timezone = timezone != null ? timezone : "Asia/Seoul";
         this.status = Status.PLANNING;
         this.createdAt = createdAt;
+        this.updatedAt = createdAt;
     }
 
     /** 며칠짜리 여행인가. 당일치기는 1이다. */
@@ -93,28 +106,37 @@ public class Trip {
         READY,
         /** 여행 중 */
         IN_PROGRESS,
-        COMPLETED,
-        /** 🔴 TRIP-05 는 204 soft delete 다. 행을 지우지 않는다 */
-        DELETED;
+        COMPLETED;
 
+        /** 🔴 삭제는 {@link Trip#isDeleted()}(= {@code deletedAt}) 로 따로 본다. 여기 안 넣는다. */
         public boolean isTerminal() {
-            return this == COMPLETED || this == DELETED;
+            return this == COMPLETED;
         }
     }
 
-    /** 🔴 TRIP-05 — soft delete. 행을 지우지 않는 이유는 일정·이벤트가 이 여행을 가리키기 때문이다. */
-    public void markDeleted() {
-        if (status == Status.DELETED) {
+    /**
+     * 🔴 TRIP-05 — soft delete. 행을 지우지 않는 이유는 일정·이벤트가 이 여행을 가리키기
+     * 때문이다. {@code status} 는 안 건드린다 — 지워진 뒤에도 "지워지기 전에 어느
+     * 단계였나"(PLANNING 중 지웠나, READY 상태에서 지웠나)가 남아야 분석에서 구분된다.
+     */
+    public void markDeleted(Instant at) {
+        if (this.deletedAt != null) {
             return;
         }
-        this.status = Status.DELETED;
+        this.deletedAt = at;
+        this.updatedAt = at;
     }
 
-    public void markReady() {
-        if (status.isTerminal()) {
+    public boolean isDeleted() {
+        return this.deletedAt != null;
+    }
+
+    public void markReady(Instant at) {
+        if (isDeleted() || status.isTerminal()) {
             throw new IllegalStateException("끝난 여행은 상태를 바꿀 수 없다: " + status);
         }
         this.status = Status.READY;
+        this.updatedAt = at;
     }
 
     public String tripId()       { return tripId; }
@@ -129,4 +151,6 @@ public class Trip {
     public String timezone()     { return timezone; }
     public Status status()       { return status; }
     public Instant createdAt()   { return createdAt; }
+    public Instant updatedAt()   { return updatedAt; }
+    public Instant deletedAt()   { return deletedAt; }
 }
