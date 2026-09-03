@@ -8,6 +8,8 @@ import static org.mockito.Mockito.when;
 import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.util.TestPropertyValues;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 
@@ -16,6 +18,23 @@ class GoogleIdTokenVerifierTest {
 	private static final String ISSUER = "https://accounts.google.com";
 	private static final String CLIENT_ID = "google-client-id";
 	private static final String NONCE = "nonce-from-challenge";
+
+	@Test
+	void springCreatesVerifierUsingConfiguredConstructor() {
+		try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext()) {
+			context.getEnvironment().setActiveProfiles("dev");
+			TestPropertyValues.of(
+					"gabolle.oauth.google.jwk-set-uri=https://example.com/oauth2/certs",
+					"gabolle.oauth.google.issuer=" + ISSUER,
+					"gabolle.oauth.google.client-id=" + CLIENT_ID)
+				.applyTo(context);
+			context.register(GoogleIdTokenVerifier.class);
+
+			context.refresh();
+
+			assertThat(context.getBean(GoogleIdTokenVerifier.class)).isNotNull();
+		}
+	}
 
 	@Test
 	void acceptsVerifiedGoogleClaimsBoundToAudienceAndNonce() {
