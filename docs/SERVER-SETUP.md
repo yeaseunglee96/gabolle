@@ -93,6 +93,35 @@ sudo nginx -t              # 문법 검증
 sudo systemctl reload nginx
 ```
 
+> 🔴 **`proxy_pass` 끝에 슬래시(`/`)를 붙이면 안 된다 — 붙이면 `/api` 접두사
+> 자체가 사라진다.** `proxy_pass http://localhost:8080/;`처럼 URI 부분이 있는
+> 채로 슬래시로 끝나면, nginx는 `location`이 매칭한 접두사(`/api/`)를 그
+> 슬래시로 **치환**한다. 즉 외부의 `/api/v1/auth/signup`이 백엔드에는
+> `/v1/auth/signup`으로 도착한다. 실제로 이 문서엔 슬래시 없는 버전이 계속
+> 적혀 있었는데, 서버에 배포된 실제 설정에는 슬래시가 붙어 있었던 적이 있다
+> (S15P21E201-581·jaehyeon 리포트 — 회원가입 API가 항상 403/401이 나던 원인).
+> 백엔드 컨트롤러가 `/api/v1/...`을 그대로 기대하기로 정해졌으니(팀 결정),
+> **`/api` 접두사는 백엔드까지 보존돼야 한다** — 그래서 슬래시를 뺀다.
+>
+> 단, `actuator/health`는 예외다. Spring Boot Actuator는 `/actuator/health`에만
+> 매핑돼 있고 `/api` 접두사를 모른다. 그래서 `/api/` 블록보다 먼저 매칭되는
+> **정확히 일치하는(`location =`) 블록**을 따로 둬서, 이 경로만 접두사를 벗겨
+> 내부로 전달한다:
+>
+> ```nginx
+> location = /api/actuator/health {
+>     proxy_pass http://localhost:8080/actuator/health;
+>     proxy_http_version 1.1;
+>     proxy_set_header Host $host;
+>     proxy_set_header X-Real-IP $remote_addr;
+>     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+>     proxy_set_header X-Forwarded-Proto $scheme;
+> }
+> ```
+>
+> `location =`(정확히 일치)는 접두사 매칭인 `location /api/`보다 항상 먼저
+> 선택되므로, 두 블록의 순서는 상관없다.
+
 ### 요청 비율 제한 (rate limiting) — S15P21E201-581
 
 HTTPS는 적용돼 있었지만, 짧은 시간에 대량 요청이 들어오는 것을 막는 장치가
@@ -106,9 +135,15 @@ limit_req_zone $binary_remote_addr zone=api_limit:10m rate=10r/s;
 
 server {
     ...
+    location = /api/actuator/health {
+        limit_req zone=api_limit burst=20 nodelay;
+        proxy_pass http://localhost:8080/actuator/health;
+        ...
+    }
+
     location /api/ {
         limit_req zone=api_limit burst=20 nodelay;
-        proxy_pass http://localhost:8080/;
+        proxy_pass http://localhost:8080;
         ...
     }
 }
@@ -123,6 +158,13 @@ server {
 통과했다. 40개 요청을 **동시에** 보내자 일부가 `503`으로 거부되는 것을
 확인했다 (`curl ... & done; wait`로 병렬 발사 — 순차 반복문은 각 요청 사이
 TLS 핸드셰이크 시간 때문에 초당 10건을 안 넘어서 재현 안 됨).
+
+**추가 수정 (2026-09-03, S15P21E201-581, jaehyeon 리포트)**: 회원가입 API가
+계속 403/401이 나던 원인이 바로 위 `/api` 접두사 문제였다. `/api/` 슬래시를
+빼고 `/api/actuator/health` 예외 블록을 추가한 뒤 실제로 확인했다:
+`/api/actuator/health` → `200` (그대로 유지), `POST /api/v1/auth/signup`
+(빈 JSON) → `500`(경로 문제는 해결됐고, 이제 백엔드의 프로필/DB 설정
+문제만 남음 — Jenkins 환경변수 주입 작업으로 이어짐).
 
 ---
 
