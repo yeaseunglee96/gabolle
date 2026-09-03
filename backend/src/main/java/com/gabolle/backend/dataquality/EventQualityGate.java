@@ -7,9 +7,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -54,16 +56,63 @@ public class EventQualityGate {
 	 */
 	private static final ObjectMapper STRICT_MAPPER = new ObjectMapper();
 
+	/**
+	 * schema 이름으로 허용하는 모양. 🔴 {@code SET search_path} 는 바인딩 파라미터를 받지
+	 * 못해서 이름을 문자열로 이어 붙여야 한다. 설정값이라 사용자 입력은 아니지만, 이어
+	 * 붙이는 SQL 에 검사 없이 값을 넣는 습관을 남기지 않는다.
+	 */
+	private static final Pattern SAFE_SCHEMA = Pattern.compile("^[A-Za-z_][A-Za-z0-9_]*$");
+
 	private final JdbcTemplate jdbcTemplate;
 
 	private final SensitivePayloadGuard sensitivePayloadGuard;
 
 	private final Clock clock;
 
-	public EventQualityGate(JdbcTemplate jdbcTemplate, SensitivePayloadGuard sensitivePayloadGuard, Clock clock) {
+	/**
+	 * 표가 어느 schema 에 있는가. 비어 있으면 아무것도 하지 않는다.
+	 *
+	 * <p>🔴 <b>이 필드가 있는 이유.</b> 운영은 백엔드 표를 {@code gabolle} schema 에 두고
+	 * 개인화 파이프라인의 {@code public} 과 분리한다 (S15P21E201-583, 박재현). 그 설정은
+	 * Flyway 와 Hibernate 에만 걸린다 — <b>{@link JdbcTemplate} 로 던지는 수식 없는 SQL 은
+	 * 그것을 물려받지 않고</b> 연결의 {@code search_path}(기본 {@code "$user", public})를 쓴다.
+	 *
+	 * <p>그래서 이 게이트는 운영에서 표를 못 찾는다. 그리고 <b>테스트로는 안 잡힌다</b> —
+	 * 테스트 데이터소스에는 이 설정이 없어 표가 전부 {@code public} 에 생기고 초록이 뜬다.
+	 * 초록인데 운영에서 깨지는 조합이었다.
+	 *
+	 * <p>🔴 표 이름에 {@code gabolle.} 을 박아서 고치지 않았다. 그러면 schema 이름을 바꾸는
+	 * 날 이 파일을 다시 뒤져야 하고, 팀이 만든 {@code GABOLLE_DB_SCHEMA} 변수가 무의미해진다.
+	 */
+	private final String defaultSchema;
+
+	public EventQualityGate(JdbcTemplate jdbcTemplate, SensitivePayloadGuard sensitivePayloadGuard, Clock clock,
+			@Value("${spring.jpa.properties.hibernate.default_schema:}") String defaultSchema) {
 		this.jdbcTemplate = jdbcTemplate;
 		this.sensitivePayloadGuard = sensitivePayloadGuard;
 		this.clock = clock;
+		this.defaultSchema = (defaultSchema == null) ? "" : defaultSchema.trim();
+	}
+
+	/**
+	 * 이 트랜잭션 안에서만 표를 찾는 순서를 맞춘다.
+	 *
+	 * <p>🔴 {@code SET LOCAL} 이다 — 트랜잭션이 끝나면 되돌아간다. 그냥 {@code SET} 을 쓰면
+	 * <b>연결 풀에 남아서</b> 그 연결을 다음에 빌려 쓰는 남의 코드까지 {@code search_path} 가
+	 * 바뀐 채로 돈다. 그건 이 클래스가 고치려는 것보다 나쁜 고장이다.
+	 *
+	 * <p>{@code public} 을 뒤에 남겨 둔다. PostGIS 함수처럼 {@code public} 에 사는 것을
+	 * 쓰게 되는 날 조용히 깨지지 않게 한다.
+	 */
+	private void alignSearchPath() {
+		if (this.defaultSchema.isEmpty()) {
+			return;
+		}
+		if (!SAFE_SCHEMA.matcher(this.defaultSchema).matches()) {
+			throw new IllegalStateException(
+					"schema 이름으로 쓸 수 없는 값이다 (영문자·숫자·밑줄만): " + this.defaultSchema);
+		}
+		this.jdbcTemplate.execute("SET LOCAL search_path TO \"" + this.defaultSchema + "\", public");
 	}
 
 	/**
@@ -72,6 +121,7 @@ public class EventQualityGate {
 	 */
 	@Transactional
 	public EventQualityReport measure(String datasetVersion) {
+		alignSearchPath();
 		EventQualityReport report = compute(datasetVersion);
 		save(report);
 		return report;
