@@ -8,11 +8,14 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import com.gabolle.backend.event.application.OutboxAppendCommand;
 import com.gabolle.backend.event.application.OutboxService;
+import com.gabolle.backend.event.domain.EventOutbox;
+import com.gabolle.backend.event.domain.Producer;
 import com.gabolle.backend.event.repository.EventOutboxRepository;
 import com.gabolle.backend.recommendation.application.RecommendationCodes;
 import com.gabolle.backend.recommendation.application.RecommendationRecorder;
@@ -54,6 +57,9 @@ class OutboxTransactionIntegrationTest extends PostgresIntegrationTest {
 	@Autowired
 	private TransactionTemplate transactionTemplate;
 
+	@Autowired
+	private JdbcTemplate jdbcTemplate;
+
 	@BeforeEach
 	void clean() {
 		this.candidateRepository.deleteAllInBatch();
@@ -74,6 +80,45 @@ class OutboxTransactionIntegrationTest extends PostgresIntegrationTest {
 
 		assertThat(this.outboxRepository.countByEventType(RecommendationCodes.EVENT_RECOMMENDATION_REQUESTED))
 				.isEqualTo(1);
+	}
+
+	@Test
+	@DisplayName("envelope 값과 DB 수신 순번은 전용 컬럼에 저장된다")
+	void envelopeColumnsAndSequenceArePersisted() {
+		UUID recommendationEventId = UUID.randomUUID();
+		UUID recommendationRequestId = UUID.randomUUID();
+		UUID tripEventId = UUID.randomUUID();
+		UUID tripRequestId = UUID.randomUUID();
+		UUID userId = UUID.randomUUID();
+		UUID tripId = UUID.randomUUID();
+
+		this.transactionTemplate.executeWithoutResult((status) -> {
+			this.outboxService.append(new OutboxAppendCommand(recommendationEventId,
+					RecommendationCodes.EVENT_RECOMMENDATION_REQUESTED, 1, RecommendationCodes.AGGREGATE_TYPE,
+					recommendationRequestId, userId.toString(), Map.of("event_kind", "recommendation-column-test"),
+					OffsetDateTime.now(), null, userId, tripId, Producer.SERVER));
+			this.outboxService.append(new OutboxAppendCommand(tripEventId, "trip_created", 1, "trip", tripId,
+					userId.toString(), Map.of("event_kind", "trip-column-test"), OffsetDateTime.now(), tripRequestId,
+					userId, tripId, Producer.SERVER));
+		});
+
+		EventOutbox recommendation = this.outboxRepository.findById(recommendationEventId).orElseThrow();
+		assertThat(recommendation.getRequestId()).isNull();
+		assertThat(recommendation.getAggregateId()).isEqualTo(recommendationRequestId);
+		assertThat(recommendation.getUserId()).isEqualTo(userId);
+		assertThat(recommendation.getTripId()).isEqualTo(tripId);
+		assertThat(recommendation.getProducer()).isEqualTo(Producer.SERVER);
+
+		EventOutbox trip = this.outboxRepository.findById(tripEventId).orElseThrow();
+		assertThat(trip.getRequestId()).isEqualTo(tripRequestId);
+
+		Map<String, Object> row = this.jdbcTemplate.queryForMap(
+				"SELECT request_id, user_id, trip_id, producer, seq FROM event_outbox WHERE event_id = ?", tripEventId);
+		assertThat(row).containsEntry("request_id", tripRequestId)
+				.containsEntry("user_id", userId)
+				.containsEntry("trip_id", tripId)
+				.containsEntry("producer", "SERVER")
+				.containsKey("seq");
 	}
 
 	@Test
@@ -117,7 +162,8 @@ class OutboxTransactionIntegrationTest extends PostgresIntegrationTest {
 		// 이벤트를 일부러 넣는다. 실패 지점이 트랜잭션 중간이어야 이 테스트가 뜻을 갖는다.
 		OutboxAppendCommand poisoned = new OutboxAppendCommand(UUID.randomUUID(),
 				RecommendationCodes.EVENT_RECOMMENDATION_REQUESTED, 1, RecommendationCodes.AGGREGATE_TYPE,
-				requestId, requestId.toString(), Map.of("contact_email", "someone@example.com"), now);
+				requestId, requestId.toString(), Map.of("contact_email", "someone@example.com"), now, null, null, null,
+				Producer.SERVER);
 
 		assertThatThrownBy(() -> this.recorder.record(job, List.of(candidate), List.of(poisoned)))
 				.isInstanceOf(RuntimeException.class);
@@ -129,7 +175,7 @@ class OutboxTransactionIntegrationTest extends PostgresIntegrationTest {
 
 	private OutboxAppendCommand event(UUID eventId, UUID requestId) {
 		return new OutboxAppendCommand(eventId, RecommendationCodes.EVENT_RECOMMENDATION_REQUESTED, 1,
-				RecommendationCodes.AGGREGATE_TYPE, requestId, requestId.toString(),
-				Map.of("request_id", requestId.toString()), OffsetDateTime.now());
+				RecommendationCodes.AGGREGATE_TYPE, requestId, requestId.toString(), Map.of("event_kind", "test"),
+				OffsetDateTime.now(), null, null, null, Producer.SERVER);
 	}
 }

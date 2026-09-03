@@ -4,6 +4,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -184,6 +185,19 @@ class EventIngestServiceTest {
         OutboxAppendCommand command = captureCommand();
         assertThat(command.aggregateId()).isEqualTo(requestId);
         assertThat(command.requestId()).isNull();
+    }
+
+    @Test
+    @DisplayName("🔴 payload 가 envelope 키를 덮어쓰려 하면 거부한다")
+    void payloadCannotOverrideEnvelopeKeys() {
+        Map<String, Object> hostile = new HashMap<>();
+        hostile.put("request_id", "남의 요청");
+
+        assertThatThrownBy(() -> this.service.ingestFromClient(UUID.randomUUID(),
+                EventType.RECOMMENDATION_IMPRESSION, 1, null, null, UUID.randomUUID(),
+                at("2026-09-03T11:59:00Z"), hostile))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("request_id");
     }
 
     @Test
