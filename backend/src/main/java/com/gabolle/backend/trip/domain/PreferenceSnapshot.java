@@ -2,7 +2,6 @@ package com.gabolle.backend.trip.domain;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 여행이 만들어질 때 복사해 둔 명시 선호 — 🔴 <b>불변</b>이다.
@@ -35,6 +34,13 @@ import java.util.Map;
  *
  * <p>이미 머지된 {@code itinerary_versions} 와 같은 패턴이다 —
  * UUID PK + 여행 안에서 유일한 정수 버전.
+ *
+ * <h2>🔴 2026-09-03 — dimensions(Map)를 answers(List)로 (고지혁 님 실측)</h2>
+ * {@code Map<String, String>} 은 "이 차원에 이 값이 있다" 와 "키가 없다" 둘만
+ * 말할 수 있었다. 그런데 -542 2.1 이 구분하라는 것은 셋이다 — 골랐다(SELECTED) ·
+ * 봤지만 건너뜀(SKIPPED) · 아예 안 물어봄(UNKNOWN). 뒤의 둘이 똑같이 "키 없음" 으로
+ * 뭉개지면 <b>"몇 명이 건너뛰었나" 를 영영 못 센다.</b> {@link PreferenceAnswer} 가
+ * 그 상태를 차원마다 따로 갖는다.
  */
 public class PreferenceSnapshot {
 
@@ -46,8 +52,11 @@ public class PreferenceSnapshot {
     /** 🔴 API 가 주고받는 값. 여행 안에서 1부터 증가한다. */
     private final int version;
 
-    /** 취향 차원 → 값. 예: {@code {"pace":"RELAXED","theme":"NATURE"}} */
-    private final Map<String, String> dimensions;
+    /** 차원마다 하나. 순서는 의미가 없다. */
+    private final List<PreferenceAnswer> answers;
+
+    /** 계정 기본값인가 이번 여행 전용인가 (S15P21E201-542 2.2). */
+    private final PersonalizationScope scope;
 
     /** 이 스냅샷을 만들 때 함께 굳힌 제약 식별자들. */
     private final List<String> constraintIds;
@@ -55,16 +64,20 @@ public class PreferenceSnapshot {
     private final Instant createdAt;
 
     public PreferenceSnapshot(String snapshotId, String tripId, int version,
-                              Map<String, String> dimensions, List<String> constraintIds,
-                              Instant createdAt) {
+                              List<PreferenceAnswer> answers, PersonalizationScope scope,
+                              List<String> constraintIds, Instant createdAt) {
         if (version < 1) {
             throw new IllegalArgumentException("스냅샷 판 번호는 1 이상이어야 한다: " + version);
+        }
+        if (scope == null) {
+            throw new IllegalArgumentException("scope(USER/TRIP)는 필수다");
         }
         this.snapshotId = snapshotId;
         this.tripId = tripId;
         this.version = version;
-        // 🔴 복사본을 만든다. 밖에서 넘긴 Map 을 그대로 들고 있으면 나중에 바뀐다.
-        this.dimensions = dimensions == null ? Map.of() : Map.copyOf(dimensions);
+        // 🔴 복사본을 만든다. 밖에서 넘긴 List 를 그대로 들고 있으면 나중에 바뀐다.
+        this.answers = answers == null ? List.of() : List.copyOf(answers);
+        this.scope = scope;
         this.constraintIds = constraintIds == null ? List.of() : List.copyOf(constraintIds);
         this.createdAt = createdAt;
     }
@@ -74,16 +87,58 @@ public class PreferenceSnapshot {
      *
      * <p>🔴 기존 판을 고치지 않는다. 고치면 그 판으로 만든 일정의 근거가 사라진다.
      */
-    public PreferenceSnapshot next(String newSnapshotId, Map<String, String> newDimensions,
+    public PreferenceSnapshot next(String newSnapshotId, List<PreferenceAnswer> newAnswers,
                                    List<String> newConstraintIds, Instant at) {
         return new PreferenceSnapshot(newSnapshotId, tripId, version + 1,
-                newDimensions, newConstraintIds, at);
+                newAnswers, scope, newConstraintIds, at);
     }
 
-    public String snapshotId()              { return snapshotId; }
-    public String tripId()                  { return tripId; }
-    public int version()                    { return version; }
-    public Map<String, String> dimensions() { return dimensions; }
-    public List<String> constraintIds()     { return constraintIds; }
-    public Instant createdAt()              { return createdAt; }
+    /**
+     * 취향 답 하나 — {@code preference_answer} 표의 한 행.
+     *
+     * <p>🔴 {@code valueJson} 은 {@code (status == SELECTED) 일 때만} 있다. 값을
+     * {@code Map<String,Object>} 가 아니라 JSON 문자열로 두는 이유 — 차원마다 값의
+     * 모양이 다르다(단일 코드·다중 선택·척도값). 여기서 구조를 강제하면 그중 하나만
+     * 편해지고 나머지가 억지로 끼워 맞춰진다. 실제 파싱은 값을 소비하는 쪽(추천 엔진)
+     * 이 차원별로 안다.
+     */
+    public record PreferenceAnswer(String dimension, String valueJson, AnswerStatus status) {
+
+        public PreferenceAnswer {
+            if (dimension == null || dimension.isBlank()) {
+                throw new IllegalArgumentException("차원 이름은 필수다");
+            }
+            if (status == null) {
+                throw new IllegalArgumentException("답변 상태(SELECTED/SKIPPED/UNKNOWN)는 필수다: " + dimension);
+            }
+            boolean hasValue = valueJson != null && !valueJson.isBlank();
+            // constraint_answer 와 같은 모양의 제약 —
+            // ck_preference_answer_value_matches_status 를 그대로 옮겼다.
+            if ((status == AnswerStatus.SELECTED) != hasValue) {
+                throw new IllegalArgumentException(
+                        "status=" + status + " 인데 값 유무가 안 맞는다(valueJson=" + valueJson + "): " + dimension);
+            }
+        }
+    }
+
+    /**
+     * 취향은 제약과 다르게 건너뛰기(SKIPPED)를 허용한다 (-542 2.1) —
+     * {@link TripConstraint.AnswerStatus} 에는 없는 값이다.
+     */
+    public enum AnswerStatus {
+        /** valueJson 이 있다 */
+        SELECTED,
+        /** 화면에 나왔지만 사용자가 건너뛰었다. valueJson 없음 */
+        SKIPPED,
+        /** 아예 안 물어봤다. valueJson 없음 */
+        UNKNOWN
+    }
+
+    public String snapshotId()                  { return snapshotId; }
+    public String tripId()                      { return tripId; }
+    public int version()                        { return version; }
+    public List<PreferenceAnswer> answers()     { return answers; }
+    public PersonalizationScope scope()         { return scope; }
+    public List<String> constraintIds()         { return constraintIds; }
+    public Instant createdAt()                  { return createdAt; }
 }

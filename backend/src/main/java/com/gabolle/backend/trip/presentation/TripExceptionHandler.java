@@ -1,19 +1,22 @@
 package com.gabolle.backend.trip.presentation;
 
-import com.gabolle.backend.common.api.ApiError;
-import com.gabolle.backend.common.api.ApiResponse;
-import com.gabolle.backend.trip.domain.TripConstraint;
-import com.gabolle.backend.trip.domain.TripRepository;
 import java.util.List;
 import java.util.UUID;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import com.gabolle.backend.common.api.ApiError;
+import com.gabolle.backend.common.api.ApiResponse;
+import com.gabolle.backend.trip.application.TripQueryService;
+import com.gabolle.backend.trip.domain.TripConstraint;
+import com.gabolle.backend.trip.domain.TripRepository;
+
 /**
- * 여행 생성의 오류를 HTTP 로 번역한다.
+ * 여행 생성·조회의 오류를 HTTP 로 번역한다.
  *
  * <p>🔴 도메인은 HTTP 를 모른다. 그래야 같은 규칙을 배치나 다른 진입점에서도 쓴다.
  *
@@ -67,6 +70,14 @@ public class TripExceptionHandler {
             TripRepository.IdempotencyKeyConflictException e) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ApiResponse.failure(
                 new ApiError("IDEMPOTENCY_KEY_CONFLICT", "error.idempotency.conflict"),
+                requestId()));
+    }
+
+    /** 없는 여행이거나, 요청자가 그 여행의 회원이 아니다. 둘을 구분해 응답하지 않는다. */
+    @ExceptionHandler(TripQueryService.TripNotFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> handleNotFound(TripQueryService.TripNotFoundException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.failure(
+                new ApiError("TRIP_NOT_FOUND", "error.trip.notFound"),
                 requestId()));
     }
 
