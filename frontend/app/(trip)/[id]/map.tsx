@@ -6,15 +6,14 @@
 // 🔴 비교 카드의 숫자는 실제 측정값이다. 반올림하거나 다듬지 않는다.
 // 🔴 이 앱은 "모르는 것을 아는 척하지 않는다" 는 원칙(PASS/FAIL/UNKNOWN)을 따른다.
 //    그래서 판정이 안 된 구간이 있다는 것도 숨기지 않고 UNKNOWN 으로 그대로 보여준다.
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useRouter } from 'expo-router';
-import { Platform, Pressable, StyleSheet, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 
 import { color, radius, spacing } from '@/design/tokens';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { Card } from '@/components/Card';
-import { Split } from '@/layout/Split';
 import { RouteMap } from '@/map/RouteMap';
 import type { MapStop } from '@/map/types';
 
@@ -74,6 +73,18 @@ const DAY_STOPS: Record<'DAY 1' | 'DAY 2', MapStop[]> = {
   ],
 };
 
+const DAY_COLORS = { 'DAY 1': color.brand.orange, 'DAY 2': color.state.success } as const;
+const EXTRA_STOPS = {
+  souvenir: [
+    { id: 'souvenir-nampo', number: 1, name: '남포동 부산 기념품점', latitude: 35.0979, longitude: 129.0298 },
+    { id: 'souvenir-haeundae', number: 2, name: '해운대 로컬 숍', latitude: 35.1594, longitude: 129.1591 },
+  ],
+  night: [
+    { id: 'night-gwangalli', number: 1, name: '광안대교 야경', latitude: 35.1531, longitude: 129.1189 },
+    { id: 'night-thebay', number: 2, name: '더베이101 야경', latitude: 35.1567, longitude: 129.1522 },
+  ],
+} satisfies Record<string, MapStop[]>;
+
 function ComparisonCard({ route }: { route: RouteComparison }) {
   return (
     <Card tinted style={styles.comparisonCard}>
@@ -111,9 +122,20 @@ function ComparisonCard({ route }: { route: RouteComparison }) {
 
 export default function Map() {
   const router = useRouter();
+  const { width } = useWindowDimensions();
   const [day, setDay] = useState<'DAY 1' | 'DAY 2'>('DAY 1');
+  const [routeScope, setRouteScope] = useState<'selected' | 'all'>('selected');
+  const [showSouvenirs, setShowSouvenirs] = useState(false);
+  const [showNight, setShowNight] = useState(false);
   const stops = DAY_STOPS[day];
   const [selectedId, setSelectedId] = useState(stops[0].id);
+  const routes = useMemo(() => routeScope === 'all'
+    ? (Object.keys(DAY_STOPS) as Array<keyof typeof DAY_STOPS>).map((key) => ({ id: key, color: DAY_COLORS[key], stops: DAY_STOPS[key] }))
+    : [{ id: day, color: DAY_COLORS[day], stops }], [day, routeScope, stops]);
+  const points = useMemo(() => [
+    ...(showSouvenirs ? [{ id: 'souvenir', label: '선물', color: color.text.eyebrow, stops: EXTRA_STOPS.souvenir }] : []),
+    ...(showNight ? [{ id: 'night', label: '야경', color: color.brand.navy, stops: EXTRA_STOPS.night }] : []),
+  ], [showNight, showSouvenirs]);
 
   const selectDay = (nextDay: 'DAY 1' | 'DAY 2') => {
     setDay(nextDay);
@@ -128,6 +150,17 @@ export default function Map() {
       card?.focus({ preventScroll: true });
     });
   }, []);
+
+  const LayerControls = () => <View accessibilityLabel="지도 겹쳐 보기" style={[styles.layerPanel, width <= 599 && styles.layerSheet]}>
+    <View style={styles.layerHeading}><View><Text variant="caption" weight="bold" color={color.text.eyebrow}>겹쳐 보기</Text><Text variant="caption" color={color.text.muted}>지도에 함께 볼 정보를 골라요</Text></View><Text variant="caption" weight="bold">{routeScope === 'all' ? '전체 동선' : day}</Text></View>
+    <View style={styles.layerOptions}>
+      <Pressable accessibilityRole="radio" accessibilityState={{ checked: routeScope === 'selected' }} onPress={() => setRouteScope('selected')} style={[styles.layerChip, routeScope === 'selected' && styles.layerChipActive]}><Text variant="caption" weight="bold" color={routeScope === 'selected' ? color.text.onAction : color.text.body}>선택 날짜만</Text></Pressable>
+      <Pressable accessibilityRole="radio" accessibilityState={{ checked: routeScope === 'all' }} onPress={() => setRouteScope('all')} style={[styles.layerChip, routeScope === 'all' && styles.layerChipActive]}><Text variant="caption" weight="bold" color={routeScope === 'all' ? color.text.onAction : color.text.body}>전체 동선</Text></Pressable>
+      <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: showSouvenirs }} onPress={() => setShowSouvenirs((value) => !value)} style={[styles.layerChip, showSouvenirs && styles.layerChipActive]}><Text variant="caption" weight="bold" color={showSouvenirs ? color.text.onAction : color.text.body}>기념품샵</Text></Pressable>
+      <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: showNight }} onPress={() => setShowNight((value) => !value)} style={[styles.layerChip, showNight && styles.layerChipActive]}><Text variant="caption" weight="bold" color={showNight ? color.text.onAction : color.text.body}>야경 명소</Text></Pressable>
+    </View>
+    {routeScope === 'all' ? <View style={styles.legend}><Text variant="caption" color={DAY_COLORS['DAY 1']}>● DAY 1</Text><Text variant="caption" color={DAY_COLORS['DAY 2']}>● DAY 2</Text></View> : null}
+  </View>;
 
   return (
     <Screen scroll wide>
@@ -145,55 +178,22 @@ export default function Map() {
         </View>
       </View>
 
-      <Split
-        master={
-          // 🔴 기존 지도 placeholder 안의 동그란 마커 행(stopsRow)은 "지도 위 핀" 을 흉내
-          // 내는 것이라 그대로 두고, 여기 별도의 세로 목록을 새로 만들었다 — Figma·명세에
-          // 없는 화면이라 phone 에서는(순차 배치) 같은 정보가 두 번 보인다. 실제 지도 SDK가
-          // 들어오면 지도 안 마커는 지도가 대신하고 이 목록만 남기면 된다. 사람 검토 필요.
-          <View style={styles.stopsList}>
-            <Text variant="title" weight="bold" style={styles.masterTitle}>
-              동선 목록
-            </Text>
-            {stops.map((stop) => (
-              <Pressable nativeID={`map-stop-${stop.id}`} accessibilityRole="button" accessibilityState={{ selected: selectedId === stop.id }} onPress={() => setSelectedId(stop.id)} key={stop.id} style={[styles.stopRow, selectedId === stop.id && styles.stopRowSelected]}>
-                <View style={styles.stopMarker}>
-                  <Text variant="caption" weight="bold" color={color.text.onAction}>
-                    {stop.number}
-                  </Text>
-                </View>
-                <Text variant="body" weight="bold" style={styles.stopName}>
-                  {stop.name}
-                </Text>
-                <Text variant="caption" color={color.text.muted}>장소 보기</Text>
-              </Pressable>
-            ))}
-          </View>
-        }
-        detail={
-          <>
-            <RouteMap stops={stops} selectedId={selectedId} onSelect={selectStopFromMap} onBack={() => router.back()} />
+      <View style={styles.mapStage}>
+        <RouteMap stops={stops} selectedId={selectedId} onSelect={selectStopFromMap} routes={routes} points={points} onBackToList={() => router.back()} height={width <= 599 ? 420 : 600} />
+        {width > 599 ? <View style={styles.floatingLayers}><LayerControls /></View> : null}
+      </View>
+      {width <= 599 ? <LayerControls /> : null}
 
-            <Text variant="title" weight="bold" style={styles.sectionTitle}>
-              실측 경로 비교
-            </Text>
+      <View style={styles.stopsList}>
+        <Text variant="title" weight="bold" style={styles.masterTitle}>선택 날짜 장소</Text>
+        {stops.map((stop) => <Pressable nativeID={`map-stop-${stop.id}`} accessibilityRole="button" accessibilityState={{ selected: selectedId === stop.id }} onPress={() => setSelectedId(stop.id)} key={stop.id} style={[styles.stopRow, selectedId === stop.id && styles.stopRowSelected]}><View style={styles.stopMarker}><Text variant="caption" weight="bold" color={color.text.onAction}>{stop.number}</Text></View><Text variant="body" weight="bold" style={styles.stopName}>{stop.name}</Text><Text variant="caption" color={color.text.muted}>지도에서 보기</Text></Pressable>)}
+      </View>
 
-            <View style={styles.comparisons}>
-              <ComparisonCard route={SHADE_ROUTE} />
-              <ComparisonCard route={WHEELCHAIR_ROUTE} />
-            </View>
+      <Text variant="title" weight="bold" style={styles.sectionTitle}>실측 경로 비교</Text>
 
-            <View style={styles.unknownNote}>
-              <Text variant="caption" weight="bold" color={color.text.muted}>
-                UNKNOWN
-              </Text>
-              <Text variant="caption" style={styles.unknownBody}>
-                일부 구간은 데이터가 없어 판정하지 않았습니다. 모르는 것을 아는 척하지 않습니다.
-              </Text>
-            </View>
-          </>
-        }
-      />
+      <View style={styles.comparisons}><ComparisonCard route={SHADE_ROUTE} /><ComparisonCard route={WHEELCHAIR_ROUTE} /></View>
+
+      <View style={styles.unknownNote}><Text variant="caption" weight="bold" color={color.text.muted}>UNKNOWN</Text><Text variant="caption" style={styles.unknownBody}>일부 구간은 데이터가 없어 판정하지 않았습니다. 모르는 것을 아는 척하지 않습니다.</Text></View>
     </Screen>
   );
 }
@@ -303,4 +303,13 @@ const styles = StyleSheet.create({
     flex: 1,
     color: color.text.body,
   },
+  mapStage: { position: 'relative' },
+  floatingLayers: { position: 'absolute', right: spacing[3], bottom: spacing[3], width: 310, maxWidth: '80%' },
+  layerPanel: { gap: spacing[3], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.field, shadowColor: color.brand.navy, shadowOpacity: 0.16, shadowRadius: 18, shadowOffset: { width: 0, height: 8 }, elevation: 8 },
+  layerSheet: { marginTop: spacing[3], borderBottomLeftRadius: 0, borderBottomRightRadius: 0, shadowOpacity: 0 },
+  layerHeading: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[2] },
+  layerOptions: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] },
+  layerChip: { minHeight: 44, paddingHorizontal: spacing[3], borderRadius: radius.full, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.soft, alignItems: 'center', justifyContent: 'center' },
+  layerChipActive: { backgroundColor: color.brand.navy, borderColor: color.brand.navy },
+  legend: { flexDirection: 'row', gap: spacing[3] },
 });
