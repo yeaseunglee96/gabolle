@@ -18,6 +18,14 @@
 pipeline {
     agent any
 
+    options {
+        // 🔴 S15P21E201-596 — 짧은 간격으로 두 push가 겹치면 두 빌드가 동시에 돌면서
+        //    둘 다 docker run --name frontend를 시도해 컨테이너 이름 충돌로 죽는다
+        //    (backend-deploy build #58/#59에서 실제로 겪음). 뒤에 온 빌드를 앞
+        //    빌드가 끝날 때까지 큐에서 기다리게 해서 막는다.
+        disableConcurrentBuilds()
+    }
+
     environment {
         // 🔴 backend/Jenkinsfile 이 이미 겪은 함정과 같다 — agent any 라 이 스텝도
         //    Jenkins 컨테이너 안에서 돈다. 그 안의 localhost 는 frontend 컨테이너가
