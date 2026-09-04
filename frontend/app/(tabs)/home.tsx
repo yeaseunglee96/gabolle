@@ -1,5 +1,6 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Image, ImageBackground, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Redirect, useRouter } from 'expo-router';
 
 import { BrandLogoLink } from '@/components/BrandLogoLink';
@@ -18,6 +19,7 @@ const bellIcon = require('../../assets/icons/home/bell.png');
 const heartIcon = require('../../assets/icons/home/heart.png');
 const arrowLeftIcon = require('../../assets/icons/home/arrow-left.png');
 const arrowRightIcon = require('../../assets/icons/home/arrow-right.png');
+const SAVED_PLACES_KEY = 'gabolle.saved-home-places';
 
 function RecommendationCard({ item, index, liked, onToggleLike, desktop }: {
   item: (typeof RECOMMENDATIONS)[number]; index: number; liked: boolean; onToggleLike: () => void; desktop: boolean;
@@ -49,9 +51,24 @@ export default function Home() {
   const carouselRef = useRef<ScrollView>(null);
   const dragStartX = useRef(0);
   const [activeCard, setActiveCard] = useState(0);
+  const [saveFeedback, setSaveFeedback] = useState<string | null>(null);
+  useEffect(() => {
+    void AsyncStorage.getItem(SAVED_PLACES_KEY).then((raw) => {
+      if (!raw) return;
+      try {
+        const ids = JSON.parse(raw) as unknown;
+        if (Array.isArray(ids)) setLikedIds(new Set(ids.filter((id): id is string => typeof id === 'string')));
+      } catch {
+        void AsyncStorage.removeItem(SAVED_PLACES_KEY);
+      }
+    });
+  }, []);
   const toggleLike = (id: string) => setLikedIds((current) => {
     const next = new Set(current);
-    next.has(id) ? next.delete(id) : next.add(id);
+    const saved = !next.has(id);
+    saved ? next.add(id) : next.delete(id);
+    void AsyncStorage.setItem(SAVED_PLACES_KEY, JSON.stringify([...next]));
+    setSaveFeedback(saved ? '이 기기에 여행지를 저장했어요.' : '이 기기에서 저장을 해제했어요.');
     return next;
   });
   const goToCard = (index: number) => {
@@ -74,7 +91,6 @@ export default function Home() {
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View accessibilityLabel="부산 날씨 정보 연동 준비 중" style={styles.weatherBar}>
           <Text variant="body" weight="medium" color={color.text.heading}>☀️  부산 날씨 정보 준비 중</Text>
-          <View style={styles.weatherArrow}><Text variant="body" weight="bold" color={color.brand.orange}>›</Text></View>
         </View>
 
         <View style={styles.heading}>
@@ -108,6 +124,7 @@ export default function Home() {
           <Text variant="caption" color={color.text.muted}>{activeCard + 1} / {RECOMMENDATIONS.length} · 한 장씩 넘겨보세요</Text>
           <Pressable accessibilityRole="button" accessibilityLabel="다음 여행지" disabled={activeCard === RECOMMENDATIONS.length - 1} onPress={() => goToCard(activeCard + 1)} style={[styles.carouselButton, activeCard === RECOMMENDATIONS.length - 1 && styles.carouselButtonDisabled]}><Image source={arrowRightIcon} resizeMode="contain" style={styles.swipeArrow} /></Pressable>
         </View>
+        {saveFeedback && <Pressable accessibilityRole="button" accessibilityLabel="저장 안내 닫기" accessibilityLiveRegion="polite" onPress={() => setSaveFeedback(null)} style={styles.saveFeedback}><Text variant="caption" weight="bold" color={color.text.onAction}>{saveFeedback}</Text><Text variant="caption" color={color.text.onAction}>닫기</Text></Pressable>}
       </ScrollView>
 
       <View style={styles.tabBar}><TabBar active="home" /></View>
@@ -122,8 +139,7 @@ const styles = StyleSheet.create({
   bell: { width: 40, height: 40, borderRadius: radius.full, backgroundColor: color.surface.soft, alignItems: 'center', justifyContent: 'center' },
   bellIcon: { width: 20, height: 20 },
   scrollContent: { paddingBottom: spacing[6] },
-  weatherBar: { minHeight: 44, marginTop: spacing[2], paddingLeft: spacing[4], paddingRight: spacing[3], borderRadius: radius.full, backgroundColor: color.state.warningBg, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  weatherArrow: { width: 28, height: 28, borderRadius: radius.full, backgroundColor: color.state.dangerBg, alignItems: 'center', justifyContent: 'center' },
+  weatherBar: { minHeight: 44, marginTop: spacing[2], paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.state.warningBg, flexDirection: 'row', alignItems: 'center' },
   heading: { gap: spacing[1], marginTop: spacing[4], marginHorizontal: spacing[1] },
   headingTitle: { fontSize: 28, lineHeight: 34 },
   carousel: { gap: spacing[3], paddingHorizontal: spacing[1], paddingVertical: spacing[4] },
@@ -143,5 +159,6 @@ const styles = StyleSheet.create({
   swipeArrow: { width: 14, height: 14 },
   carouselButton: { width: 36, height: 36, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.card },
   carouselButtonDisabled: { opacity: 0.35 },
+  saveFeedback: { minHeight: 44, marginHorizontal: spacing[2], marginTop: spacing[4], paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.brand.navy, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   tabBar: { marginHorizontal: -gutter, borderRadius: radius.lg, overflow: 'hidden' },
 });

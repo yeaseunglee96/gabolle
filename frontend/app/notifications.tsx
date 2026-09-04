@@ -11,7 +11,7 @@ export default function Notifications() {
   return (
     <Screen>
       <View style={styles.header}>
-        <Pressable accessibilityRole="button" accessibilityLabel="홈으로 돌아가기" onPress={() => router.back()} style={styles.backButton}>
+        <Pressable accessibilityRole="button" accessibilityLabel="홈으로 돌아가기" onPress={() => router.canGoBack() ? router.back() : router.replace('/home')} style={styles.backButton}>
           <Text variant="title">‹</Text>
         </Pressable>
         <Text variant="title" weight="bold">알림</Text>
