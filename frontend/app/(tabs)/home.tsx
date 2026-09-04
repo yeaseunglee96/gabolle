@@ -173,7 +173,7 @@ const styles = StyleSheet.create({
   carouselButton: { width: 36, height: 36, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.card },
   carouselButtonDisabled: { opacity: 0.35 },
   saveFeedback: { minHeight: 44, marginHorizontal: spacing[2], marginTop: spacing[4], paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.brand.navy, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  assistantButton: { position: 'absolute', right: spacing[2], bottom: 76, minWidth: 44, minHeight: 44, flexDirection: 'row', alignItems: 'center', zIndex: 3 },
+  assistantButton: { position: 'absolute', right: spacing[2], bottom: 94, minWidth: 44, minHeight: 44, flexDirection: 'row', alignItems: 'center', zIndex: 3 },
   assistantButtonPressed: { opacity: 0.78, transform: [{ scale: 0.96 }] },
   assistantLabel: { marginRight: -spacing[2], paddingLeft: spacing[3], paddingRight: spacing[4], paddingVertical: spacing[2], borderRadius: radius.full, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.field, shadowColor: color.brand.navy, shadowOpacity: 0.12, shadowRadius: 8, shadowOffset: { width: 0, height: 3 }, elevation: 3 },
   assistantMascot: { width: 58, height: 58 },
