@@ -103,6 +103,7 @@ public class TripController {
                         : r.constraints().stream().map(c ->
                         new TripCreationService.Command.ConstraintInput(
                                 c.type(),
+                                c.constraintKey(),
                                 parseSeverity(c.severity()),
                                 c.operator(),
                                 c.value(),
