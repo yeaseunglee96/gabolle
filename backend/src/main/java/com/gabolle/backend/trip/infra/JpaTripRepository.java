@@ -138,6 +138,12 @@ public class JpaTripRepository implements TripRepository {
 	}
 
 	@Override
+	public Optional<String> findLatestConstraintSnapshotId(String tripId) {
+		return constraintSnapshotJpaRepository.findTopByTripIdOrderByVersionDesc(UUID.fromString(tripId))
+				.map(e -> e.constraintSnapshotId().toString());
+	}
+
+	@Override
 	@Transactional
 	public SaveOutcome saveWithIdempotency(String userId, String idempotencyKey, String fingerprint,
 			Trip trip, List<TripConstraint> tripConstraints, TripMember owner, PreferenceSnapshot snapshot) {

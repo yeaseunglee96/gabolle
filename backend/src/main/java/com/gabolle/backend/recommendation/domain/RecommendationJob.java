@@ -185,7 +185,7 @@ public class RecommendationJob {
 		this.userId = userId;
 		this.jobType = jobType;
 		this.createdAt = createdAt;
-		this.jobStatus = JobStatus.QUEUED;
+		this.jobStatus = JobStatus.PENDING;
 		this.jobStage = JobStage.CREATED;
 	}
 
@@ -199,6 +199,22 @@ public class RecommendationJob {
 			throw new IllegalArgumentException("jobType 은 필수다 (GB-API-001 4.2 JobDto.type)");
 		}
 		return new RecommendationJob(jobId, requestId, userId, jobType, createdAt);
+	}
+
+	/**
+	 * 대기(PENDING)에서 실행(RUNNING)으로 — S15P21E201-192 비동기 러너가 실제 계산을
+	 * 시작하기 직전에 부른다.
+	 *
+	 * <p>🔴 이 호출과 함께 저장해야 폴링하는 쪽이 "접수는 됐고 지금 도는 중" 을 볼 수 있다.
+	 * 여기서 저장까지 하지 않는 이유는 {@link RecommendationJob} 이 트랜잭션·저장소를
+	 * 몰라야 하기 때문이다(도메인 순수성) — 호출한 쪽이 이어서 저장한다.
+	 */
+	public void markRunning(JobStage stage) {
+		if (this.jobStatus != JobStatus.PENDING) {
+			throw new IllegalStateException("PENDING 상태에서만 RUNNING 으로 갈 수 있다: " + this.jobStatus);
+		}
+		this.jobStatus = JobStatus.RUNNING;
+		this.jobStage = stage;
 	}
 
 	public void applyRequestContext(UUID tripId, Integer tripVersion, UUID preferenceSnapshotId,

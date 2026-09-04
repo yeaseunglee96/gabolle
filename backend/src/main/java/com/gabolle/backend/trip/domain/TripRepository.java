@@ -33,6 +33,16 @@ public interface TripRepository {
     Optional<PreferenceSnapshot> findLatestSnapshot(String tripId);
 
     /**
+     * 가장 최신 제약 스냅샷의 식별자 — S15P21E201-192 가 추천 Job 을 만들 때 쓴다.
+     *
+     * <p>🔴 제약을 하나도 안 답한 여행은 이 값이 없다({@code save} 가 제약이 비어 있으면
+     * constraint_snapshot 행 자체를 안 만들기 때문이다). 그런 여행은 추천을 요청할 수
+     * 없다 — {@link com.gabolle.backend.recommendation.application.RecommendationCommand}
+     * 가 이 값을 필수로 요구한다.
+     */
+    Optional<String> findLatestConstraintSnapshotId(String tripId);
+
+    /**
      * 🔴 멱등 키를 확보하면서 저장한다 — <b>한 동작이어야 한다</b> (API-09).
      *
      * <p>처음에는 "키 조회 → 저장 → 키 묶기" 세 단계로 나눴는데 <b>테스트가 잡았다.</b>

@@ -58,9 +58,12 @@ import com.gabolle.backend.recommendation.domain.RecommendationJob;
  * {@code GET /api/v1/recommendation-jobs/{id}} 는 <b>쓰지 않는다.</b> 컨트롤러를 만드는
  * 사람은 위 경로로 만든다.
  *
- * <p>🔴 컨트롤러는 아직 없다. 만들 때 함께 지켜야 하는 것: {@code data/error/meta.requestId}
- * envelope(API-01), 내부 점수 제거(API-04), {@code Idempotency-Key}(API-09), 그리고
- * {@code tripId} 소유·참여 관계 검증(FR-SEC-01).
+ * <p>🔴 컨트롤러는 {@code recommendation.presentation.RecommendationJobController} 에 있다
+ * (S15P21E201-192). 이 첫 판이 지킨 것 — {@code data/error/meta.requestId} envelope(API-01),
+ * {@code tripId} 소유·참여 관계 검증(FR-SEC-01, {@code TripQueryService} 를 그대로 재사용).
+ * 🔴 <b>아직 안 지킨 것</b> — {@code Idempotency-Key}(API-09). 재시도로 같은 요청이 두 번
+ * 오면 Job 이 두 개 생긴다. {@code TripRepository.saveWithIdempotency} 와 같은 패턴을
+ * 다음 판에 넣는다.
  */
 @Service
 @Profile({ "db", "dev" })
@@ -100,17 +103,46 @@ public class RecommendationService {
 	 *     FAILED 로 이미 저장돼 있고, 후보를 만들었다면 그 후보들도 함께 저장돼 있다
 	 */
 	public RecommendationResult recommend(RecommendationCommand command) {
+		return continueJob(prepare(command), command);
+	}
+
+	/**
+	 * Job 을 만들기만 한다 — 저장하지 않고, 엔진도 부르지 않는다. 빠르고, 실패하지 않는다
+	 * ({@code jobType}·스냅샷 ID 검증은 이미 {@link RecommendationCommand} 생성자가 끝냈다).
+	 *
+	 * <p>🔴 S15P21E201-192 비동기 러너 전용 진입점이다. 러너는 이 job 을 {@code PENDING}
+	 * 으로 먼저 저장하고 클라이언트에게 작업 번호를 즉시 돌려준 뒤, 별도 스레드에서
+	 * {@link #continueJob} 을 불러 이어간다 — {@code recommend} 처럼 한 호출 안에서
+	 * 끝내면 클라이언트가 엔진 계산이 끝날 때까지 기다리게 된다.
+	 */
+	public RecommendationJob prepare(RecommendationCommand command) {
 		// 🔴 서버가 만든다. 클라이언트가 준 값을 쓰지 않는다.
 		UUID requestId = UUID.randomUUID();
 		UUID jobId = UUID.randomUUID();
 		OffsetDateTime createdAt = OffsetDateTime.now(this.clock);
-		long startedNanos = System.nanoTime();
 
 		RecommendationJob job = RecommendationJob.start(jobId, requestId, command.userId(), command.jobType(),
 				createdAt);
 		job.applyRequestContext(command.tripId(), command.tripVersion(), command.preferenceSnapshotId(),
 				command.constraintSnapshotId(), command.itineraryId(), command.itineraryVersion(),
 				command.baseVersion(), command.appVersion());
+		return job;
+	}
+
+	/**
+	 * 이미 만들어진 job 을 이어 실행한다 — 엔진 호출부터 저장까지. {@code recommend} 가 부를
+	 * 때는 방금 만든(아직 저장 안 된) job 이고, 비동기 러너가 부를 때는 이미 {@code PENDING}
+	 * 으로 저장된 job 이다 — 둘 다 여기부터는 같은 길을 간다.
+	 *
+	 * @throws RecommendationFailedException 결과를 만들지 못했을 때. 던지기 전에 Job 은
+	 *     FAILED 로 이미 저장돼 있고, 후보를 만들었다면 그 후보들도 함께 저장돼 있다
+	 */
+	public RecommendationResult continueJob(RecommendationJob job, RecommendationCommand command) {
+		// 🔴 createdAt 은 job 이 처음 만들어진 시각이다 — 지금(실행이 시작되는 시각)이 아니다.
+		//    비동기 러너에서는 이 둘이 다를 수 있다(대기열에 머문 시간만큼). abandon()·이벤트가
+		//    쓰는 "요청 시각" 은 언제나 이 값이어야 한다.
+		OffsetDateTime createdAt = job.getCreatedAt();
+		long startedNanos = System.nanoTime();
 
 		int topK = (command.topK() == null) ? this.properties.defaultTopK() : command.topK();
 
@@ -123,7 +155,7 @@ public class RecommendationService {
 
 		EngineCandidateBatch batch;
 		try {
-			batch = engine.generate(new EngineRequest(requestId, command.userId(), command.tripId(),
+			batch = engine.generate(new EngineRequest(job.getRequestId(), command.userId(), command.tripId(),
 					command.tripVersion(), command.preferenceSnapshotId(), command.constraintSnapshotId(),
 					command.itineraryId(), command.itineraryVersion(), topK));
 		}
@@ -158,7 +190,7 @@ public class RecommendationService {
 
 		CandidateAssembly assembly;
 		try {
-			assembly = this.candidateAssembler.assemble(requestId, batch, topK,
+			assembly = this.candidateAssembler.assemble(job.getRequestId(), batch, topK,
 					this.properties.unknownExclusionThreshold(), this.properties.unspecifiedSeverity(),
 					createdAt);
 		}
@@ -196,14 +228,15 @@ public class RecommendationService {
 			job.markFailed(RecommendationCodes.ERROR_NO_FEASIBLE_RESULT, stage, completedAt, false, false);
 			this.recorder.record(job, assembly.candidates(),
 					List.of(event, buildFailedEvent(job, completedAt)));
-			throw new RecommendationFailedException(requestId, jobId, RecommendationCodes.ERROR_NO_FEASIBLE_RESULT,
+			throw new RecommendationFailedException(job.getRequestId(), job.getJobId(),
+					RecommendationCodes.ERROR_NO_FEASIBLE_RESULT,
 					stage, "반환할 수 있는 후보가 없다 (생성 " + assembly.generatedCount() + "건)", null);
 		}
 
 		job.markCompleted(generatedAt, completedAt, batch.fallbackMode(), batch.fallbackReason());
 		this.recorder.record(job, assembly.candidates(), List.of(event));
 
-		return new RecommendationResult(requestId, jobId, job.getJobType(), job.getJobStatus(),
+		return new RecommendationResult(job.getRequestId(), job.getJobId(), job.getJobType(), job.getJobStatus(),
 				job.getGeneratedAt(), assembly.returnedItems(), assembly.generatedCount(),
 				assembly.eligibleCount(), assembly.returnedCount(), job.getFallbackMode(),
 				job.getFallbackReason(), job.getModelVersion(), job.getFeatureVersion(),

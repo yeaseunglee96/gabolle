@@ -83,6 +83,28 @@ class RecommendationJobTest {
 		assertThat(job.isRetryable()).isFalse();
 	}
 
+	@Test
+	@DisplayName("S15P21E201-192 — 새 Job 은 PENDING 으로 시작하고, RUNNING 으로 넘어가면 단계가 함께 남는다")
+	void newJobIsPendingUntilRunningIsMarked() {
+		RecommendationJob job = newJob();
+		assertThat(job.getJobStatus()).isEqualTo(JobStatus.PENDING);
+
+		job.markRunning(JobStage.CANDIDATE_GENERATION);
+
+		assertThat(job.getJobStatus()).isEqualTo(JobStatus.RUNNING);
+		assertThat(job.getJobStage()).isEqualTo(JobStage.CANDIDATE_GENERATION);
+	}
+
+	@Test
+	@DisplayName("🔴 PENDING 이 아닌 Job 은 다시 RUNNING 으로 못 간다 — 이미 끝난 계산을 또 돌리지 않는다")
+	void runningCanOnlyBeReachedFromPending() {
+		RecommendationJob job = newJob();
+		job.markRunning(JobStage.CANDIDATE_GENERATION);
+
+		assertThatThrownBy(() -> job.markRunning(JobStage.RANKING))
+				.isInstanceOf(IllegalStateException.class);
+	}
+
 	private RecommendationJob newJob() {
 		return RecommendationJob.start(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(),
 				JobType.ITINERARY_GENERATION, this.now);
