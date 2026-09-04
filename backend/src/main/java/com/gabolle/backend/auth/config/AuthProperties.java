@@ -18,6 +18,8 @@ public class AuthProperties {
 	private String ageGatePolicyVersion = "2026-01";
 	private String consentPolicyVersion = "2026-01";
 	private String emailVerificationBaseUrl = "http://localhost:3000/verify-email";
+	private String emailVerificationSuccessRedirectUrl = "http://localhost:3000/sign-in?verified=1";
+	private String emailVerificationFailureRedirectUrl = "http://localhost:3000/sign-in?verified=0";
 	private String passwordResetBaseUrl = "http://localhost:3000/reset-password";
 	private List<String> oauthAllowedRedirectUris = new ArrayList<>();
 	private List<String> corsAllowedOrigins = new ArrayList<>();
@@ -103,6 +105,22 @@ public class AuthProperties {
 
 	public void setEmailVerificationBaseUrl(String emailVerificationBaseUrl) {
 		this.emailVerificationBaseUrl = emailVerificationBaseUrl;
+	}
+
+	public String getEmailVerificationSuccessRedirectUrl() {
+		return emailVerificationSuccessRedirectUrl;
+	}
+
+	public void setEmailVerificationSuccessRedirectUrl(String emailVerificationSuccessRedirectUrl) {
+		this.emailVerificationSuccessRedirectUrl = emailVerificationSuccessRedirectUrl;
+	}
+
+	public String getEmailVerificationFailureRedirectUrl() {
+		return emailVerificationFailureRedirectUrl;
+	}
+
+	public void setEmailVerificationFailureRedirectUrl(String emailVerificationFailureRedirectUrl) {
+		this.emailVerificationFailureRedirectUrl = emailVerificationFailureRedirectUrl;
 	}
 
 	public String getPasswordResetBaseUrl() {

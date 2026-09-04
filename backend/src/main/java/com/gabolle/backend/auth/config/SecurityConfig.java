@@ -40,6 +40,7 @@ public class SecurityConfig {
 				.requestMatchers("/actuator/health").permitAll()
 				.requestMatchers(
 						"/api/v1/auth/signup",
+						"/api/v1/auth/email-verification",
 						"/api/v1/auth/email-verification/confirm",
 						"/api/v1/auth/email-verification/resend",
 						"/api/v1/auth/login",
