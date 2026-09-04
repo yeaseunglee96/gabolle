@@ -1,11 +1,14 @@
 // 03 온보딩·권한 안내 — Figma 03_온보딩·권한 안내 실측 그대로.
 //
 // 🔴 권한을 요청하기 전에 왜 필요한지 먼저 설명하는 화면이다(스토어 심사 항목).
-// 실제 OS 권한 요청 API 는 아직 붙이지 않는다 — 아래 토글은 사용자가 "무엇을 허용할지"
-// 미리 골라두는 화면 안 로컬 상태일 뿐, 누른다고 실제 권한 팝업이 뜨지 않는다.
+// 사용자가 고른 권한만 CTA 시점에 OS에 요청한다. 거부된 항목은 false로 저장하되,
+// 권한 거부 때문에 로그인이나 일정 생성 진입을 막지는 않는다.
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, View } from 'react-native';
+import { Camera } from 'expo-camera';
+import * as Location from 'expo-location';
+import * as Notifications from 'expo-notifications';
 import { useRouter } from 'expo-router';
 
 import { color, radius, spacing } from '@/design/tokens';
@@ -56,8 +59,23 @@ const PERMISSIONS: Permission[] = [
 export default function Permissions() {
   const router = useRouter();
   const [values, setValues] = useState<Record<PermissionKey, boolean>>({ location: true, camera: false, notification: false });
+  const [requesting, setRequesting] = useState(false);
   async function continueTo(path: string, preferences = values) {
-    await AsyncStorage.setItem(PERMISSION_PREFERENCES_KEY, JSON.stringify(preferences));
+    if (requesting) return;
+    setRequesting(true);
+    const granted = { ...preferences };
+    if (Platform.OS !== 'web') {
+      if (preferences.location) {
+        try { granted.location = (await Location.requestForegroundPermissionsAsync()).status === 'granted'; } catch { granted.location = false; }
+      }
+      if (preferences.camera) {
+        try { granted.camera = (await Camera.requestCameraPermissionsAsync()).status === 'granted'; } catch { granted.camera = false; }
+      }
+      if (preferences.notification) {
+        try { granted.notification = (await Notifications.requestPermissionsAsync()).status === 'granted'; } catch { granted.notification = false; }
+      }
+    }
+    await AsyncStorage.setItem(PERMISSION_PREFERENCES_KEY, JSON.stringify(granted));
     router.replace({ pathname: '/sign-in', params: { returnTo: path } });
   }
 
@@ -109,13 +127,13 @@ export default function Permissions() {
         </View>
       </Pressable>
 
-      <Pressable accessibilityRole="button" onPress={() => void continueTo('/home', { location: false, camera: false, notification: false })}>
+      <Pressable accessibilityRole="button" accessibilityState={{ disabled: requesting }} disabled={requesting} onPress={() => void continueTo('/home', { location: false, camera: false, notification: false })}>
         <Text variant="caption" weight="bold" color={color.text.muted} style={styles.laterLink}>
           나중에 설정
         </Text>
       </Pressable>
 
-      <Button label="선택하고 로그인·회원가입으로" containerStyle={styles.cta} onPress={() => void continueTo('/home')} />
+      <Button label={requesting ? '권한 확인 중…' : '선택하고 로그인·회원가입으로'} disabled={requesting} containerStyle={styles.cta} onPress={() => void continueTo('/home')} />
     </Screen>
   );
 }
