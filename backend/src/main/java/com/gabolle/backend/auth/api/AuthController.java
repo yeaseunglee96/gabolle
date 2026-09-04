@@ -10,6 +10,7 @@ import com.gabolle.backend.auth.service.OAuthAccountService;
 import com.gabolle.backend.auth.service.OAuthChallengeService;
 import com.gabolle.backend.auth.service.OAuthLoginService;
 import com.gabolle.backend.auth.service.PasswordResetService;
+import com.gabolle.backend.auth.service.ProfileUpdateService;
 import com.gabolle.backend.auth.service.WebAuthCookieService;
 import com.gabolle.backend.common.api.ApiResponse;
 import jakarta.servlet.http.Cookie;
@@ -23,6 +24,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -44,10 +46,12 @@ public class AuthController {
 	private final WebAuthCookieService webAuthCookieService;
 	private final CurrentUserService currentUserService;
 
+	private final ProfileUpdateService profileUpdateService;
+
 	public AuthController(LocalAuthService localAuthService, PasswordResetService passwordResetService,
 			AuthTokenService tokenService, OAuthLoginService oAuthLoginService,
 			OAuthChallengeService oAuthChallengeService, WebAuthCookieService webAuthCookieService,
-			CurrentUserService currentUserService) {
+			CurrentUserService currentUserService, ProfileUpdateService profileUpdateService) {
 		this.localAuthService = localAuthService;
 		this.passwordResetService = passwordResetService;
 		this.tokenService = tokenService;
@@ -55,6 +59,7 @@ public class AuthController {
 		this.oAuthChallengeService = oAuthChallengeService;
 		this.webAuthCookieService = webAuthCookieService;
 		this.currentUserService = currentUserService;
+		this.profileUpdateService = profileUpdateService;
 	}
 
 	@GetMapping("/me")
@@ -64,6 +69,15 @@ public class AuthController {
 		CurrentUserService.CurrentUser currentUser = currentUserService.get(userId);
 		return ApiResponse.success(AuthUserResponse.from(currentUser.user(), currentUser.email()),
 				resolveRequestId(requestId));
+	}
+
+	@PatchMapping("/me")
+	public ApiResponse<AuthUserResponse> updateMe(Authentication authentication,
+			@Valid @RequestBody UpdateProfileRequest request,
+			@RequestHeader(value = "X-Request-Id", required = false) String requestId) {
+		UUID userId = authenticatedUserId(authentication);
+		AuthUserResponse response = profileUpdateService.update(userId, request);
+		return ApiResponse.success(response, resolveRequestId(requestId));
 	}
 
 	@PostMapping("/signup")

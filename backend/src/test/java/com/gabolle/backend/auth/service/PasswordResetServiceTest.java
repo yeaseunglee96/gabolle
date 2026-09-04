@@ -3,6 +3,7 @@ package com.gabolle.backend.auth.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -20,6 +21,7 @@ import com.gabolle.backend.user.domain.AppUser;
 import com.gabolle.backend.user.domain.PersonalizationMode;
 import com.gabolle.backend.user.domain.UserStatus;
 import java.time.Clock;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.List;
@@ -28,6 +30,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -92,5 +95,76 @@ class PasswordResetServiceTest {
 		assertThat(credential.getPasswordHash()).isEqualTo("new-hash");
 		assertThat(token.getConsumedAt()).isEqualTo(now);
 		assertThat(session.getRevokedAt()).isEqualTo(now);
+	}
+
+	// ── S15P21E201-433 완료 기준 ────────────────────────────────────────────────
+
+	@Test
+	void resetLinkIsValidForThirtyMinutes() {
+		when(credentialRepository.findByEmailForUpdate("traveler@example.com")).thenReturn(Optional.of(credential));
+		when(oneTimeTokenRepository.findTopByLocalCredentialAndPurposeOrderByCreatedAtDesc(
+				credential, AuthTokenPurpose.PASSWORD_RESET)).thenReturn(Optional.empty());
+		when(oneTimeTokenRepository.findAllByLocalCredentialAndPurposeAndConsumedAtIsNull(
+				credential, AuthTokenPurpose.PASSWORD_RESET)).thenReturn(List.of());
+		ArgumentCaptor<AuthOneTimeToken> saved = ArgumentCaptor.forClass(AuthOneTimeToken.class);
+		when(oneTimeTokenRepository.save(saved.capture())).thenAnswer(invocation -> invocation.getArgument(0));
+
+		service.request("traveler@example.com");
+
+		assertThat(saved.getValue().getExpiresAt()).isEqualTo(now.plus(Duration.ofMinutes(30)));
+	}
+
+	/**
+	 * 🔴 링크가 실제로 착지하는 곳을 못 박는다. 기본값이 존재하지 않는 화면
+	 * ({@code localhost:3000/reset-password})이었고, 그래서 메일은 나갔지만 링크는 아무 데도
+	 * 닿지 않았다. 프런트의 실제 화면은 {@code /auth/password/reset} 이고 쿼리 {@code token} 을 읽는다.
+	 */
+	@Test
+	void resetMailLinkPointsAtTheFrontendScreenWithTheToken() {
+		when(credentialRepository.findByEmailForUpdate("traveler@example.com")).thenReturn(Optional.of(credential));
+		when(oneTimeTokenRepository.findTopByLocalCredentialAndPurposeOrderByCreatedAtDesc(
+				credential, AuthTokenPurpose.PASSWORD_RESET)).thenReturn(Optional.empty());
+		when(oneTimeTokenRepository.findAllByLocalCredentialAndPurposeAndConsumedAtIsNull(
+				credential, AuthTokenPurpose.PASSWORD_RESET)).thenReturn(List.of());
+		when(oneTimeTokenRepository.save(any(AuthOneTimeToken.class)))
+				.thenAnswer(invocation -> invocation.getArgument(0));
+		ArgumentCaptor<String> link = ArgumentCaptor.forClass(String.class);
+
+		service.request("traveler@example.com");
+
+		verify(emailSender).sendPasswordReset(eq("traveler@example.com"), link.capture());
+		assertThat(link.getValue()).startsWith(new AuthProperties().getPasswordResetBaseUrl() + "?token=");
+		assertThat(link.getValue()).doesNotContain("localhost");
+	}
+
+	/** 🔴 1회용이다. 한 번 쓴 링크로 다시 바꿀 수 있으면 메일함을 본 사람이 언제든 계정을 가져간다. */
+	@Test
+	void consumedTokenCannotBeUsedAgain() {
+		String rawToken = "reset-token";
+		SessionTokenGenerator tokenGenerator = new SessionTokenGenerator();
+		AuthOneTimeToken token = AuthOneTimeToken.issue(credential, AuthTokenPurpose.PASSWORD_RESET,
+				tokenGenerator.hash(rawToken), now.plus(Duration.ofMinutes(30)));
+		token.consume(now.minusSeconds(1));
+		when(oneTimeTokenRepository.findByTokenHashAndPurpose(tokenGenerator.hash(rawToken),
+				AuthTokenPurpose.PASSWORD_RESET)).thenReturn(Optional.of(token));
+
+		assertThatThrownBy(() -> service.confirm(rawToken, "NewRoute!2026"))
+				.isInstanceOf(AuthException.class)
+				.hasMessageContaining("유효하지 않거나 만료된");
+		verify(passwordEncoder, never()).encode(any());
+	}
+
+	@Test
+	void expiredTokenIsRejected() {
+		String rawToken = "reset-token";
+		SessionTokenGenerator tokenGenerator = new SessionTokenGenerator();
+		AuthOneTimeToken token = AuthOneTimeToken.issue(credential, AuthTokenPurpose.PASSWORD_RESET,
+				tokenGenerator.hash(rawToken), now.minusSeconds(1));
+		when(oneTimeTokenRepository.findByTokenHashAndPurpose(tokenGenerator.hash(rawToken),
+				AuthTokenPurpose.PASSWORD_RESET)).thenReturn(Optional.of(token));
+
+		assertThatThrownBy(() -> service.confirm(rawToken, "NewRoute!2026"))
+				.isInstanceOf(AuthException.class);
+		verify(passwordEncoder, never()).encode(any());
 	}
 }

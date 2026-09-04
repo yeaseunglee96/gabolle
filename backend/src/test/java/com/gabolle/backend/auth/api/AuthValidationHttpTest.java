@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.gabolle.backend.auth.service.AuthTokenService;
 import com.gabolle.backend.auth.service.CurrentUserService;
+import com.gabolle.backend.auth.service.ProfileUpdateService;
 import com.gabolle.backend.auth.service.LocalAuthService;
 import com.gabolle.backend.auth.service.OAuthChallengeService;
 import com.gabolle.backend.auth.service.OAuthLoginService;
@@ -26,7 +27,8 @@ class AuthValidationHttpTest {
 	void setUp() {
 		AuthController controller = new AuthController(mock(LocalAuthService.class), mock(PasswordResetService.class),
 				mock(AuthTokenService.class), mock(OAuthLoginService.class), mock(OAuthChallengeService.class),
-				mock(WebAuthCookieService.class), mock(CurrentUserService.class));
+				mock(WebAuthCookieService.class), mock(CurrentUserService.class),
+				mock(ProfileUpdateService.class));
 		mockMvc = MockMvcBuilders.standaloneSetup(controller)
 				.setControllerAdvice(new AuthExceptionHandler())
 				.build();
