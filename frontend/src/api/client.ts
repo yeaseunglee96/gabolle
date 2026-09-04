@@ -24,6 +24,35 @@ export class ApiClientError extends Error {
   }
 }
 
+export class ApiUnavailableError extends ApiClientError {
+  constructor(
+    message = apiLanguage === 'en'
+      ? 'The server is unavailable. Please try again shortly.'
+      : '서버에 연결할 수 없어요. 잠시 후 다시 시도해 주세요.',
+  ) {
+    super(message, 'NETWORK_ERROR', 0);
+    this.name = 'ApiUnavailableError';
+  }
+}
+
+type ApiAvailabilityListener = (unavailable: boolean) => void;
+const availabilityListeners = new Set<ApiAvailabilityListener>();
+let apiUnavailable = false;
+
+function setApiUnavailable(next: boolean) {
+  if (apiUnavailable === next) return;
+  apiUnavailable = next;
+  availabilityListeners.forEach((listener) => listener(next));
+}
+
+export function subscribeApiAvailability(listener: ApiAvailabilityListener) {
+  availabilityListeners.add(listener);
+  listener(apiUnavailable);
+  return () => {
+    availabilityListeners.delete(listener);
+  };
+}
+
 type RequestOptions = Omit<RequestInit, 'body'> & { body?: unknown; accessToken?: string | null; skipUnauthorizedHandling?: boolean };
 let unauthorizedHandler: (() => void) | null = null;
 export function setUnauthorizedHandler(handler: (() => void) | null) { unauthorizedHandler = handler; }
@@ -55,11 +84,15 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
     });
   } catch {
     if (timedOut) throw new ApiClientError('서버 응답이 늦어 요청을 마쳤어요. 잠시 후 다시 시도해 주세요.', 'REQUEST_TIMEOUT', 0);
-    throw new ApiClientError('서버에 연결할 수 없어요. 잠시 후 다시 시도해 주세요.', 'NETWORK_ERROR', 0);
+    setApiUnavailable(true);
+    throw new ApiUnavailableError();
   } finally {
     clearTimeout(timeout);
     requestOptions.signal?.removeEventListener('abort', abortFromCaller);
   }
+
+  // HTTP 오류여도 서버 자체에는 다시 연결된 상태다.
+  setApiUnavailable(false);
 
   if (response.status === 401 && !skipUnauthorizedHandling) unauthorizedHandler?.();
   if (response.status === 204) return undefined as T;
