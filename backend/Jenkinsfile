@@ -30,6 +30,15 @@
 pipeline {
     agent any
 
+    options {
+        // 🔴 S15P21E201-596 — build #58/#59가 거의 동시에 돌면서(워크스페이스가
+        //    backend-deploy@2로 분리된 게 증거) 둘 다 docker run --name backend를
+        //    시도해 "Conflict. The container name /backend is already in use"로
+        //    #59가 실제로 실패했다. 뒤에 온 빌드를 앞 빌드가 끝날 때까지 큐에서
+        //    기다리게 해서 막는다.
+        disableConcurrentBuilds()
+    }
+
     environment {
         // 🔴 컨테이너를 직접 본다. nginx 를 지나가지 않는다.
         //
