@@ -6,6 +6,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { color } from '@/design/tokens';
 import { AuthProvider } from '@/auth/AuthProvider';
 import { AppErrorBoundary } from '@/components/AppErrorBoundary';
+import { ApiAvailabilityBanner } from '@/components/ApiAvailabilityBanner';
 import { BuildInfoBadge } from '@/components/BuildInfoBadge';
 import { OnboardingPreferencesProvider } from '@/onboarding/OnboardingPreferences';
 import { PlanProvider } from '@/plan/PlanProvider';
@@ -15,6 +16,7 @@ export default function RootLayout() {
     <AppErrorBoundary>
       <SafeAreaProvider>
         <OnboardingPreferencesProvider>
+          <ApiAvailabilityBanner />
           <BuildInfoBadge />
           <AuthProvider>
             <PlanProvider>
