@@ -13,15 +13,18 @@ type ToggleProps = {
 export function Toggle({ value, onValueChange, disabled }: ToggleProps) {
   return (
     <Pressable
+      accessibilityRole="switch"
+      accessibilityState={{ checked: value, disabled }}
       disabled={disabled}
       onPress={() => onValueChange(!value)}
-      style={[
+      style={({ pressed }) => [
         styles.track,
         {
-          backgroundColor: value ? color.action.primary : color.surface.field,
+          backgroundColor: value ? color.brand.orange : '#ddd7cf',
           justifyContent: value ? 'flex-end' : 'flex-start',
         },
         disabled && styles.disabled,
+        pressed && !disabled && styles.pressed,
       ]}
     >
       <View style={styles.knob} />
@@ -47,4 +50,5 @@ const styles = StyleSheet.create({
   disabled: {
     opacity: 0.7,
   },
+  pressed: { opacity: 0.72, transform: [{ scale: 0.96 }] },
 });

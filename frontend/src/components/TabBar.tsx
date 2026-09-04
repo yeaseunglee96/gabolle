@@ -18,6 +18,7 @@ type Tab = {
   route?: string;
 };
 
+// APP 01에서 내보낸 실제 아이콘을 사용한다.
 const TABS: Tab[] = [
   { key: 'home', icon: require('../../assets/icons/home/home.png'), label: '홈', route: '/home' },
   { key: 'schedule', icon: require('../../assets/icons/home/plus.png'), label: '여행 만들기', route: '/plan/basic' },

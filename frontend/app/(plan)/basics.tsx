@@ -50,8 +50,8 @@ export default function Basics() {
   return <PlanDesktopShell>
     <Screen scroll wide style={isDesktop ? styles.desktopCanvas : styles.canvas}>
     {kind === 'phone' && <View style={styles.topBar}>
-      <Pressable accessibilityRole="button" accessibilityLabel="뒤로 가기" onPress={() => router.canGoBack() ? router.back() : router.replace('/home')} style={styles.back}><Text variant="title">‹</Text></Pressable>
-      <BrandLogoLink imageStyle={styles.logo} />
+      <Pressable accessibilityRole="button" accessibilityLabel="홈으로 돌아가기" onPress={() => router.replace('/home')} style={styles.back}><Text variant="title">‹</Text></Pressable>
+      <BrandLogoLink href="/home" imageStyle={styles.logo} />
       <Text variant="caption" weight="bold" color={color.text.eyebrow}>1 / 4</Text>
     </View>}
     <PlanStepHeader current={1} />

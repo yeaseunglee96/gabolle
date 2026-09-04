@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { ApiClientError } from '@/api/client';
 import { resendEmailVerification, signup, type Registration, type SignupLanguage } from '@/auth/authApi';
@@ -11,12 +11,14 @@ import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useLayout } from '@/layout/useLayout';
 import { useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
+import { BrandLogoLink } from '@/components/BrandLogoLink';
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const SPECIAL_CHARACTER_PATTERN = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>/?`~]/;
 
 export default function SignUp() {
   const router = useRouter();
+  const { returnTo } = useLocalSearchParams<{ returnTo?: string }>();
   const { kind } = useLayout();
   const { language: onboardingLanguage } = useOnboardingPreferences();
   const [email, setEmail] = useState('');
@@ -97,7 +99,7 @@ export default function SignUp() {
         </View>
         <View style={styles.resultActions}>
           <Button label={resending ? '재전송 중…' : '인증 메일 다시 보내기'} variant="ghost" disabled={resending} onPress={() => void resend()} />
-          <Button label="이메일 확인 후 로그인" onPress={() => router.replace('/sign-in')} />
+          <Button label="이메일 확인 후 로그인" onPress={() => router.replace({ pathname: '/sign-in', params: returnTo ? { returnTo } : {} })} />
         </View>
       </Screen>
     );
@@ -105,7 +107,7 @@ export default function SignUp() {
 
   return (
     <Screen scroll wide>
-      <Pressable accessibilityRole="button" accessibilityLabel="뒤로 가기" onPress={() => router.back()} style={styles.backLink}><Text variant="body" weight="bold">← 뒤로</Text></Pressable>
+      <View style={styles.topBar}><Pressable accessibilityRole="button" accessibilityLabel="뒤로 가기" onPress={() => router.back()} style={styles.backLink}><Text variant="body" weight="bold">← 뒤로</Text></Pressable><BrandLogoLink href={kind === 'tablet' ? '/' : '/home'} imageStyle={styles.logo} /></View>
       <View style={[styles.columns, kind === 'tablet' && styles.columnsWide]}>
         {kind === 'tablet' && <Card tinted style={styles.introCard}><Text variant="eyebrow" weight="bold">GABOLLE ACCOUNT</Text><Text variant="display" weight="bold">내 여행을 안전하게 저장하세요</Text><Text variant="body">선택한 언어와 여행 조건을 이어서 사용할 수 있어요.</Text></Card>}
         <View style={styles.formColumn}>
@@ -115,7 +117,7 @@ export default function SignUp() {
         <Field label="이메일">
           <TextInput accessibilityLabel="이메일" autoCapitalize="none" autoComplete="email" keyboardType="email-address" onBlur={() => setEmailTouched(true)} onChangeText={(value) => { setEmail(value); setDuplicateEmail(false); }} placeholder="name@example.com" placeholderTextColor={color.text.muted} style={[styles.input, ((emailTouched && !emailValid) || duplicateEmail) && styles.inputError]} value={email} />
           {emailTouched && !emailValid && <ErrorText>올바른 이메일 주소를 입력해 주세요.</ErrorText>}
-          {duplicateEmail && <View style={styles.inlineRow}><ErrorText>이미 가입된 이메일이에요.</ErrorText><Pressable accessibilityRole="link" onPress={() => router.push('/sign-in')}><Text variant="caption" weight="bold" color={color.action.primary}>로그인하기</Text></Pressable></View>}
+          {duplicateEmail && <View style={styles.inlineRow}><ErrorText>이미 가입된 이메일이에요.</ErrorText><Pressable accessibilityRole="link" onPress={() => router.push({ pathname: '/sign-in', params: returnTo ? { returnTo } : {} })}><Text variant="caption" weight="bold" color={color.brand.orange}>로그인하기</Text></Pressable></View>}
         </Field>
 
         <Field label="비밀번호">
@@ -140,14 +142,18 @@ export default function SignUp() {
         <View style={styles.agreements}>
           <CheckRow checked={ageAccepted} label="만 14세 이상입니다." onPress={() => setAgeAccepted((value) => !value)} />
           <CheckRow checked={termsAccepted} label="이용약관에 동의합니다. (필수)" onPress={() => setTermsAccepted((value) => !value)} />
-          <Text variant="caption">이용약관 전문 링크 준비 중</Text>
+          <Pressable accessibilityRole="link" onPress={() => router.push('/legal/terms')} style={styles.policyLink}>
+            <Text variant="caption" weight="bold" color={color.brand.orange}>이용약관 보기 ›</Text>
+          </Pressable>
           <CheckRow checked={privacyAccepted} label="개인정보 처리방침에 동의합니다. (필수)" onPress={() => setPrivacyAccepted((value) => !value)} />
-          <Text variant="caption">개인정보 처리방침 전문 링크 준비 중</Text>
+          <Pressable accessibilityRole="link" onPress={() => router.push('/legal/privacy')} style={styles.policyLink}>
+            <Text variant="caption" weight="bold" color={color.brand.orange}>개인정보 처리 안내 보기 ›</Text>
+          </Pressable>
         </View>
 
         {error && <View accessibilityRole="alert" style={styles.errorBox}><ErrorText>{error}</ErrorText></View>}
         <Button label={submitting ? '가입 중…' : '회원가입'} disabled={!canSubmit} onPress={() => void submit()} />
-        <Pressable accessibilityRole="link" onPress={() => router.replace('/sign-in')} style={styles.loginLink}><Text variant="body">이미 계정이 있나요? <Text variant="body" weight="bold" color={color.action.primary}>로그인</Text></Text></Pressable>
+        <Pressable accessibilityRole="link" onPress={() => router.replace({ pathname: '/sign-in', params: returnTo ? { returnTo } : {} })} style={styles.loginLink}><Text variant="body">이미 계정이 있나요? <Text variant="body" weight="bold" color={color.brand.orange}>로그인</Text></Text></Pressable>
           </View>
         </View>
       </View>
@@ -162,7 +168,9 @@ function CheckRow({ checked, label, onPress }: { checked: boolean; label: string
 
 const styles = StyleSheet.create({
   subtitle: { marginTop: spacing[1] },
-  backLink: { alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center', marginBottom: spacing[2] },
+  topBar: { minHeight: 52, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing[2] },
+  logo: { width: 112, height: 32 },
+  backLink: { alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center' },
   columns: { width: '100%' },
   columnsWide: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[8] },
   introCard: { flex: 1, minHeight: 280, justifyContent: 'center', gap: spacing[4] },
@@ -183,6 +191,7 @@ const styles = StyleSheet.create({
   agreements: { gap: spacing[3], padding: spacing[4], borderRadius: radius.md, backgroundColor: color.surface.card },
   checkRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[3] },
   checkLabel: { flex: 1 },
+  policyLink: { alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center' },
   checkbox: { width: 24, height: 24, alignItems: 'center', justifyContent: 'center', borderRadius: radius.sm, borderWidth: 1.5, borderColor: color.surface.field },
   checkboxChecked: { backgroundColor: color.action.primary, borderColor: color.action.primary },
   errorBox: { padding: spacing[3], borderRadius: radius.md, backgroundColor: color.state.dangerBg },

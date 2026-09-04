@@ -1,302 +1,83 @@
-// 15 내 정보 — Figma 15_내 정보 실측을 기본 골격으로 쓰되, 계정 관련 항목은 명세를 따른다.
-//
-// 🔴 Figma 에는 이메일·비밀번호 관련 항목이 원래 없다(확인 결과 그렇다 — 뺄 것이 없었다).
-// 대신 로그인 수단이 Google OAuth 하나로 확정되면서 명세(FR-ACC-03~09)가 요구하는
-// 항목 중 Figma 에 없는 네 가지를 아래 "계정 관리" 구역에 새로 더한다:
-//   언어 전환(기존 "언어 및 번역" 행이 커버) · 개인화 끄기/초기화 · 연결 계정 · 계정 삭제.
-// 계정 삭제는 스토어 심사 필수 항목이라 동작은 없어도 자리는 반드시 있어야 한다.
-import { type ReactNode, useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 
-import { color, gutter, radius, spacing } from '@/design/tokens';
-import { Screen } from '@/components/Screen';
-import { Text } from '@/components/Text';
-import { Card } from '@/components/Card';
-import { ProgressBar } from '@/components/ProgressBar';
-import { Toggle } from '@/components/Toggle';
-import { TabBar } from '@/components/TabBar';
+import { ApiClientError } from '@/api/client';
 import { useAuth } from '@/auth/AuthProvider';
+import { Button } from '@/components/Button';
+import { Screen } from '@/components/Screen';
+import { TabBar } from '@/components/TabBar';
+import { Text } from '@/components/Text';
+import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 
-const STATS = [
-  { icon: '🧳', value: '4', label: '완료 여행' },
-  { icon: '📍', value: '12', label: '저장 장소' },
-  { icon: '✍️', value: '3', label: '작성 리뷰' },
-];
-
-const TASTE_CHIPS = [
-  { icon: '🌊', label: '바다', tinted: true },
-  { icon: '🏘', label: '골목', tinted: true },
-  { icon: '🍜', label: '미식', tinted: false },
-  { icon: '🌶️', label: '맵기 보통', tinted: false },
-];
-
-function SettingsRow({
-  title,
-  value,
-  titleColor,
-  right,
-  onPress,
-}: {
-  title: string;
-  value?: string;
-  titleColor?: string;
-  right?: ReactNode;
-  onPress?: () => void;
-}) {
-  return (
-    <Pressable accessibilityRole={onPress ? 'button' : undefined} onPress={onPress} style={styles.settingsRow}>
-      <Text variant="body" weight="bold" color={titleColor ?? color.text.heading}>
-        {title}
-      </Text>
-      <View style={styles.settingsRowRight}>
-        {value && <Text variant="caption">{value}</Text>}
-        {right ?? (
-          <Text variant="title" color={color.text.muted}>
-            ›
-          </Text>
-        )}
-      </View>
-    </Pressable>
-  );
+function InfoRow({ label, value, onPress, disabled = false }: { label: string; value: string; onPress?: () => void; disabled?: boolean }) {
+  return <Pressable accessibilityRole={onPress ? 'button' : undefined} accessibilityState={{ disabled }} disabled={disabled || !onPress} onPress={onPress} style={({ pressed }) => [styles.row, pressed && styles.rowPressed, disabled && styles.rowDisabled]}><Text weight="bold">{label}</Text><Text variant="caption" color={disabled ? color.text.muted : color.text.body}>{value}</Text></Pressable>;
 }
 
 export default function Me() {
-  const [personalizationOff, setPersonalizationOff] = useState(false);
-  const { user, signOut } = useAuth();
-  const { language, setLanguage, tx } = useI18n();
-
-  return (
-    <Screen scroll>
-      <View style={styles.headerRow}>
-        <Text variant="display" weight="bold">
-          {tx('내 정보', 'My profile')}
-        </Text>
-        {/* 설정 화면이 따로 없어 지금은 장식만 한다. */}
-        <View style={styles.settingsButton}>
-          <Text variant="title">⚙</Text>
-        </View>
-      </View>
-
-      <Card style={styles.profileCard}>
-        <View style={styles.profileTopRow}>
-          {/* TODO: 실제 프로필 아바타 자산. 자산이 오기 전까지 이모지 원형으로 대체한다. */}
-          <View style={styles.avatar}>
-            <Text variant="display">🐷</Text>
-            <View style={styles.avatarBadge}>
-              <Text variant="caption" weight="bold" color={color.text.onAction}>
-                기본
-              </Text>
-            </View>
-          </View>
-          <View style={styles.profileInfo}>
-            <Text variant="title" weight="bold">
-              {user?.displayName ?? '여행자'}
-            </Text>
-            <Text variant="caption" style={styles.profileBio}>
-              부산 바다와 골목을 좋아하는 여행자
-            </Text>
-            <View style={styles.levelBadge}>
-              <Text variant="caption" weight="bold" color={color.text.accent}>
-                LOCAL Lv.2
-              </Text>
-            </View>
-          </View>
-        </View>
-
-        <View style={styles.completionRow}>
-          <Text variant="caption" weight="bold" color={color.text.accent}>
-            프로필 완성도 80%
-          </Text>
-          <ProgressBar progress={0.8} />
-        </View>
-
-        <Pressable style={styles.avatarChangeButton}>
-          <Text variant="body" weight="bold" color={color.text.accent}>
-            프로필 이미지 변경
-          </Text>
-        </Pressable>
-      </Card>
-
-      <Text variant="caption" style={styles.note}>
-        가입 시 부산 음식 프로필이 자동 배정돼요 · 언제든 변경 가능
-      </Text>
-
-      <View style={styles.statsRow}>
-        {STATS.map((stat) => (
-          <Card key={stat.label} style={styles.statCard}>
-            <Text variant="title">{stat.icon}</Text>
-            <Text variant="title" weight="bold" color={color.text.accent}>
-              {stat.value}
-            </Text>
-            <Text variant="caption">{stat.label}</Text>
-          </Card>
-        ))}
-      </View>
-
-      <Text variant="title" weight="bold" style={styles.sectionTitle}>
-        나의 여행 취향
-      </Text>
-      <View style={styles.tasteGrid}>
-        {TASTE_CHIPS.map((chip) => (
-          <View
-            key={chip.label}
-            style={[styles.tasteChip, { backgroundColor: chip.tinted ? color.surface.soft : color.surface.field }]}
-          >
-            <Text
-              variant="caption"
-              weight="bold"
-              color={chip.tinted ? color.text.accent : color.text.muted}
-            >
-              {chip.icon} {chip.label}
-            </Text>
-          </View>
-        ))}
-      </View>
-
-      <View style={styles.settingsGroup}>
-        <SettingsRow title="여행 조건 관리" value="예산·접근성·알레르기" />
-        <SettingsRow title={tx('언어 및 번역', 'Language & translation')} value={language === 'ko' ? '한국어' : 'English'} onPress={() => setLanguage(language === 'ko' ? 'en' : 'ko')} />
-        <SettingsRow title="오프라인 저장" value="부산 지도 256MB" />
-      </View>
-
-      {/* Figma 에 없는 구역 — 위 파일 머리말 참고. */}
-      <Text variant="title" weight="bold" style={styles.sectionTitle}>
-        계정 관리
-      </Text>
-      <View style={styles.settingsGroup}>
-        <SettingsRow title="연결 계정" value="Google · miri@gmail.com" right={<Text variant="caption" weight="bold" color={color.state.success}>연결됨</Text>} />
-        <SettingsRow
-          title="개인화 추천 끄기"
-          right={<Toggle value={personalizationOff} onValueChange={setPersonalizationOff} />}
-        />
-        {/* TODO: 개인화 데이터 초기화 확인 플로우 미정 — 자리만 둔다. */}
-        <SettingsRow title="개인화 데이터 초기화" />
-        {/* TODO: 계정 삭제 확인 플로우·화면 미정. 스토어 심사 필수 항목이라 자리만 먼저 둔다. */}
-        <SettingsRow title="계정 삭제" titleColor={color.state.danger} />
-        <SettingsRow title={tx('로그아웃', 'Sign out')} titleColor={color.state.danger} onPress={() => void signOut()} />
-      </View>
-
-      <View style={styles.tabBarWrap}>
-        <TabBar active="me" />
-      </View>
-    </Screen>
-  );
+  const { user, signOut, updateProfile } = useAuth();
+  const { language, tx } = useI18n();
+  const [editing, setEditing] = useState(false);
+  const [displayName, setDisplayName] = useState(user?.displayName ?? '');
+  const [profileLanguage, setProfileLanguage] = useState<'KO' | 'EN'>(language === 'ko' ? 'KO' : 'EN');
+  const [saving, setSaving] = useState(false);
+  const [feedback, setFeedback] = useState<{ danger: boolean; text: string } | null>(null);
+  useEffect(() => { setDisplayName(user?.displayName ?? ''); setProfileLanguage(user?.language?.toUpperCase() === 'EN' ? 'EN' : 'KO'); }, [user]);
+  const nameValid = displayName.trim().length >= 1 && displayName.trim().length <= 30;
+  async function saveProfile() {
+    if (!user || !nameValid || saving) return;
+    setSaving(true);
+    setFeedback(null);
+    try {
+      await updateProfile({ displayName: displayName.trim(), language: profileLanguage });
+      setEditing(false);
+      setFeedback({ danger: false, text: tx('프로필을 저장했어요.', 'Your profile was saved.') });
+    } catch (cause) {
+      setFeedback({ danger: true, text: cause instanceof ApiClientError ? cause.message : tx('프로필을 저장하지 못했어요.', 'Could not save your profile.') });
+    } finally {
+      setSaving(false);
+    }
+  }
+  return <View style={styles.shell}><Screen scroll={editing} style={styles.screen}>
+    <View style={styles.heading}><Text variant="caption" weight="bold" color={color.brand.orange}>MY PAGE</Text><Text variant="display" weight="bold">{tx('마이페이지', 'My page')}</Text></View>
+    <View style={styles.profile}><View style={styles.avatar}><Text variant="title" weight="bold" color={color.text.onAction}>{(user?.displayName || '여행자').slice(0, 1)}</Text></View><View style={styles.profileCopy}><Text variant="title" weight="bold">{user?.displayName || tx('여행자', 'Traveler')}</Text><Text variant="caption" color={color.text.muted}>{user?.email || tx('계정 정보를 불러오지 못했어요', 'Account information is unavailable')}</Text><Text variant="caption" color={color.text.muted}>{tx('프로필 사진 변경은 서버 업로드 기능이 연결되면 제공해요.', 'Profile photos will be available after upload support is connected.')}</Text></View>{user && <Pressable accessibilityRole="button" accessibilityState={{ expanded: editing }} onPress={() => { setEditing((value) => !value); setFeedback(null); }} style={({ pressed }) => [styles.editButton, pressed && styles.rowPressed]}><Text variant="caption" weight="bold" color={color.brand.orange}>{editing ? tx('취소', 'Cancel') : tx('수정', 'Edit')}</Text></Pressable>}</View>
+    {editing && <View style={styles.editPanel}>
+      <Text variant="caption" weight="bold">{tx('표시 이름', 'Display name')}</Text>
+      <TextInput accessibilityLabel={tx('표시 이름', 'Display name')} maxLength={30} value={displayName} onChangeText={setDisplayName} style={[styles.input, !nameValid && styles.inputError]} />
+      <Text variant="caption" color={nameValid ? color.text.muted : color.state.danger}>{displayName.trim().length}/30{tx('자', ' characters')}</Text>
+      <Text variant="caption" weight="bold">{tx('언어', 'Language')}</Text>
+      <View accessibilityRole="radiogroup" style={styles.languageRow}>{(['KO', 'EN'] as const).map((value) => { const selected = profileLanguage === value; return <Pressable key={value} accessibilityRole="radio" accessibilityState={{ selected }} onPress={() => setProfileLanguage(value)} style={[styles.languageButton, selected && styles.languageSelected]}><Text weight="bold" color={selected ? color.text.onAction : color.text.heading}>{value === 'KO' ? '한국어' : 'English'}</Text></Pressable>; })}</View>
+      <Button label={saving ? tx('저장 중…', 'Saving…') : tx('프로필 저장', 'Save profile')} disabled={!nameValid || saving} onPress={() => void saveProfile()} />
+    </View>}
+    {feedback && <View accessibilityRole="alert" style={[styles.feedback, feedback.danger && styles.feedbackDanger]}><Text variant="caption" weight="bold" color={feedback.danger ? color.state.danger : color.state.success}>{feedback.text}</Text></View>}
+    <View style={styles.group}>
+      <InfoRow label={tx('언어', 'Language')} value={language === 'ko' ? '한국어' : 'English'} disabled />
+      <InfoRow label={tx('여행 조건 관리', 'Trip preferences')} value={tx('여행 만들기에서 수정', 'Edit while planning')} disabled />
+      <InfoRow label={tx('연결 계정', 'Connected accounts')} value={tx('서버 기능 준비 중', 'Server feature pending')} disabled />
+      <InfoRow label={tx('개인화 데이터 관리', 'Personalization data')} value={tx('서버 기능 준비 중', 'Server feature pending')} disabled />
+    </View>
+    <Text variant="caption" color={color.text.muted} style={styles.notice}>{tx('완료 여행·저장 장소·리뷰 수는 실제 조회 API가 연결된 뒤 표시합니다.', 'Trip, saved-place, and review counts will appear after their APIs are connected.')}</Text>
+    <Button label={tx('로그아웃', 'Sign out')} variant="ghost" onPress={() => void signOut()} containerStyle={styles.logout} />
+  </Screen><TabBar active="me" /></View>;
 }
 
 const styles = StyleSheet.create({
-  headerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  settingsButton: {
-    width: 40,
-    height: 40,
-    borderRadius: radius.full,
-    backgroundColor: color.surface.card,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  profileCard: {
-    marginTop: spacing[4],
-    gap: spacing[4],
-  },
-  profileTopRow: {
-    flexDirection: 'row',
-    gap: spacing[4],
-  },
-  avatar: {
-    width: 88,
-    height: 88,
-    borderRadius: radius.full,
-    backgroundColor: color.state.warningBg,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  avatarBadge: {
-    position: 'absolute',
-    bottom: -spacing[1],
-    alignSelf: 'center',
-    backgroundColor: color.action.brand,
-    borderRadius: radius.full,
-    paddingHorizontal: spacing[2],
-    paddingVertical: 2,
-  },
-  profileInfo: {
-    flex: 1,
-    justifyContent: 'center',
-    gap: spacing[1],
-  },
-  profileBio: {
-    color: color.text.body,
-  },
-  levelBadge: {
-    alignSelf: 'flex-start',
-    backgroundColor: color.surface.soft,
-    borderRadius: radius.md,
-    paddingHorizontal: spacing[2],
-    paddingVertical: 2,
-    marginTop: spacing[1],
-  },
-  completionRow: {
-    gap: spacing[2],
-  },
-  avatarChangeButton: {
-    alignItems: 'center',
-    backgroundColor: color.canvas,
-    borderRadius: radius.md,
-    paddingVertical: spacing[2],
-    borderWidth: 1,
-    borderColor: color.surface.field,
-  },
-  note: {
-    marginTop: spacing[3],
-  },
-  statsRow: {
-    flexDirection: 'row',
-    gap: spacing[3],
-    marginTop: spacing[4],
-  },
-  statCard: {
-    flex: 1,
-    alignItems: 'flex-start',
-    gap: spacing[1],
-  },
-  sectionTitle: {
-    marginTop: spacing[8],
-    marginBottom: spacing[3],
-  },
-  tasteGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing[2],
-  },
-  tasteChip: {
-    width: '48%',
-    borderRadius: radius.md,
-    paddingVertical: spacing[3],
-    alignItems: 'center',
-  },
-  settingsGroup: {
-    gap: spacing[2],
-  },
-  settingsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: color.surface.card,
-    borderRadius: radius.md,
-    paddingHorizontal: spacing[4],
-    paddingVertical: spacing[3],
-  },
-  settingsRowRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing[2],
-  },
-  tabBarWrap: {
-    marginTop: spacing[6],
-    marginHorizontal: -gutter,
-  },
+  shell: { flex: 1, backgroundColor: color.brand.ivory }, screen: { flex: 1, backgroundColor: color.brand.ivory },
+  heading: { gap: spacing[2], marginBottom: spacing[6] },
+  profile: { flexDirection: 'row', alignItems: 'center', gap: spacing[4], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card },
+  avatar: { width: 56, height: 56, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.brand.orange },
+  profileCopy: { flex: 1, gap: spacing[1] },
+  editButton: { minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' },
+  editPanel: { gap: spacing[2], marginTop: spacing[3], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card },
+  input: { minHeight: 48, paddingHorizontal: spacing[3], borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.md, color: color.text.heading, backgroundColor: color.brand.ivory },
+  inputError: { borderColor: color.state.danger },
+  languageRow: { flexDirection: 'row', gap: spacing[2], marginBottom: spacing[2] },
+  languageButton: { flex: 1, minHeight: 44, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.md },
+  languageSelected: { backgroundColor: color.brand.orange, borderColor: color.brand.orange },
+  feedback: { marginTop: spacing[3], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.state.successBg },
+  feedbackDanger: { backgroundColor: color.state.dangerBg },
+  group: { marginTop: spacing[4], overflow: 'hidden', borderRadius: radius.lg, backgroundColor: color.surface.card },
+  row: { minHeight: 62, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[3], paddingHorizontal: spacing[4], borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: '#e8e4dd' },
+  rowPressed: { opacity: 0.7, backgroundColor: color.surface.tint }, rowDisabled: { opacity: 0.58 },
+  notice: { marginTop: spacing[4], lineHeight: 20 }, logout: { marginTop: 'auto', marginBottom: spacing[4], borderColor: color.brand.orange },
 });

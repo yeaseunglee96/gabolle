@@ -1,18 +1,26 @@
 // 03 온보딩·권한 안내 — Figma 03_온보딩·권한 안내 실측 그대로.
 //
 // 🔴 권한을 요청하기 전에 왜 필요한지 먼저 설명하는 화면이다(스토어 심사 항목).
-// 실제 OS 권한 요청 API 는 아직 붙이지 않는다 — 아래 토글은 사용자가 "무엇을 허용할지"
-// 미리 골라두는 화면 안 로컬 상태일 뿐, 누른다고 실제 권한 팝업이 뜨지 않는다.
-import { Fragment, useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+// 사용자가 고른 권한만 CTA 시점에 OS에 요청한다. 거부된 항목은 false로 저장하되,
+// 권한 거부 때문에 로그인이나 일정 생성 진입을 막지는 않는다.
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useState } from 'react';
+import { Platform, Pressable, StyleSheet, View } from 'react-native';
+import { Camera } from 'expo-camera';
+import * as Location from 'expo-location';
+import * as Notifications from 'expo-notifications';
 import { useRouter } from 'expo-router';
 
 import { color, radius, spacing } from '@/design/tokens';
 import { Screen } from '@/components/Screen';
 import { Eyebrow } from '@/components/Eyebrow';
 import { Text } from '@/components/Text';
-import { Toggle } from '@/components/Toggle';
 import { Button } from '@/components/Button';
+import { Toggle } from '@/components/Toggle';
+import { BrandLogoLink } from '@/components/BrandLogoLink';
+import { useLayout } from '@/layout/useLayout';
+
+const PERMISSION_PREFERENCES_KEY = '@gabolle/permission-preferences';
 
 type PermissionKey = 'location' | 'camera' | 'notification';
 
@@ -22,7 +30,7 @@ type Permission = {
   title: string;
   description: string;
   note: string;
-  required?: boolean;
+  recommended?: boolean;
 };
 
 const PERMISSIONS: Permission[] = [
@@ -32,7 +40,7 @@ const PERMISSIONS: Permission[] = [
     title: '위치',
     description: '정확한 경로와 주변 장소 추천',
     note: '앱 사용 중에만 위치를 확인해요',
-    required: true,
+    recommended: true,
   },
   {
     key: 'camera',
@@ -50,51 +58,46 @@ const PERMISSIONS: Permission[] = [
   },
 ];
 
-const STEP_COUNT = 4;
-const ACTIVE_STEP = 1;
-
 export default function Permissions() {
   const router = useRouter();
-  const [values, setValues] = useState<Record<PermissionKey, boolean>>({
-    location: true,
-    camera: false,
-    notification: false,
-  });
-
-  function continueTo(path: string) {
-    // 02 홈으로 잇는다. Figma 흐름도는 02 → 03 순서지만 명세(v1.1)는 S-03 온보딩 → S-04 홈 이고,
-    // 로그인이 01 안으로 들어가면서 그 앞 순서가 무의미해졌다. 명세를 따른다.
-    router.push(path);
+  const { kind } = useLayout();
+  const [values, setValues] = useState<Record<PermissionKey, boolean>>({ location: true, camera: false, notification: false });
+  const [requesting, setRequesting] = useState(false);
+  async function continueTo(path: string, preferences = values) {
+    if (requesting) return;
+    setRequesting(true);
+    const granted = { ...preferences };
+    if (Platform.OS !== 'web') {
+      if (preferences.location) {
+        try { granted.location = (await Location.requestForegroundPermissionsAsync()).status === 'granted'; } catch { granted.location = false; }
+      }
+      if (preferences.camera) {
+        try { granted.camera = (await Camera.requestCameraPermissionsAsync()).status === 'granted'; } catch { granted.camera = false; }
+      }
+      if (preferences.notification) {
+        try { granted.notification = (await Notifications.requestPermissionsAsync()).status === 'granted'; } catch { granted.notification = false; }
+      }
+    }
+    await AsyncStorage.setItem(PERMISSION_PREFERENCES_KEY, JSON.stringify(granted));
+    router.replace({ pathname: '/sign-in', params: { returnTo: path } });
   }
 
   return (
-    <Screen scroll>
-      <Eyebrow>처음 한 번만 확인해요</Eyebrow>
+    <Screen wide style={styles.screen}>
+      <View style={[styles.layout, kind === 'tablet' && styles.layoutWide]}>
+      <View style={[styles.introColumn, kind === 'tablet' && styles.introWide]}>
+      {kind === 'tablet' && <BrandLogoLink href="/" imageStyle={styles.logo} />}
+      <Eyebrow>앱 권한 안내</Eyebrow>
       <Text variant="display" weight="bold" style={styles.title}>
         부산 여행에 꼭 필요한{'\n'}기능을 준비할게요
       </Text>
       <Text variant="caption" style={styles.subtitle}>
         허용하지 않아도 둘러볼 수 있고, 설정에서 언제든 바꿀 수 있어요.
       </Text>
-
-      <View style={styles.stepRow}>
-        {Array.from({ length: STEP_COUNT }, (_, i) => i + 1).map((step, index) => (
-          <Fragment key={step}>
-            <View style={[styles.stepCircle, step === ACTIVE_STEP && styles.stepCircleActive]}>
-              <Text
-                variant="caption"
-                weight="bold"
-                color={step === ACTIVE_STEP ? color.text.onAction : color.text.muted}
-              >
-                {step}
-              </Text>
-            </View>
-            {index < STEP_COUNT - 1 && <View style={styles.stepLine} />}
-          </Fragment>
-        ))}
+      {kind === 'tablet' && <View style={styles.webNote}><Text variant="body" weight="bold">필요한 권한만 직접 선택하세요</Text><Text variant="caption" color={color.text.body}>위치는 정확한 동선 추천에 필요하고 카메라와 알림은 선택 기능이에요. 모든 권한은 나중에 설정에서 변경할 수 있습니다.</Text></View>}
       </View>
 
-      <View style={styles.cards}>
+      <View style={styles.actionColumn}><View style={[styles.cards, kind === 'tablet' && styles.cardsWide]}>
         {PERMISSIONS.map((perm) => (
           <View key={perm.key} style={styles.card}>
             <View style={styles.cardIcon}>
@@ -105,11 +108,7 @@ export default function Permissions() {
                 <Text variant="body" weight="bold">
                   {perm.title}
                 </Text>
-                <Toggle
-                  value={values[perm.key]}
-                  disabled={perm.required}
-                  onValueChange={(next) => setValues((prev) => ({ ...prev, [perm.key]: next }))}
-                />
+                <Toggle value={values[perm.key]} onValueChange={(next) => setValues((current) => ({ ...current, [perm.key]: next }))} />
               </View>
               <Text variant="caption" color={color.text.body}>
                 {perm.description}
@@ -118,24 +117,13 @@ export default function Permissions() {
                 <Text variant="caption" color={color.text.muted} style={styles.cardNote}>
                   {perm.note}
                 </Text>
-                <View
-                  style={[styles.badge, { backgroundColor: perm.required ? color.state.successBg : color.surface.soft }]}
-                >
-                  <Text
-                    variant="caption"
-                    weight="bold"
-                    color={perm.required ? color.state.success : color.text.muted}
-                  >
-                    {perm.required ? '필수' : '선택'}
-                  </Text>
-                </View>
               </View>
             </View>
           </View>
         ))}
       </View>
 
-      <View style={styles.privacyBox}>
+      <Pressable accessibilityRole="link" accessibilityLabel="개인정보 처리 안내 보기" onPress={() => router.push('/legal/privacy')} style={({ pressed }) => [styles.privacyBox, pressed && styles.privacyPressed]}>
         <Text variant="title">🔒</Text>
         <View style={styles.privacyCopy}>
           <Text variant="caption" weight="bold" color={color.text.heading}>
@@ -145,20 +133,30 @@ export default function Permissions() {
             자세한 개인정보 처리방침 보기 ›
           </Text>
         </View>
-      </View>
+      </Pressable>
 
-      <Pressable onPress={() => continueTo('/home')}>
+      <Pressable accessibilityRole="button" accessibilityState={{ disabled: requesting }} disabled={requesting} onPress={() => void continueTo('/home', { location: false, camera: false, notification: false })}>
         <Text variant="caption" weight="bold" color={color.text.muted} style={styles.laterLink}>
           나중에 설정
         </Text>
       </Pressable>
 
-      <Button label="선택한 권한으로 계속" containerStyle={styles.cta} onPress={() => continueTo('/home')} />
+      <Button label={requesting ? '권한 확인 중…' : '선택하고 로그인·회원가입으로'} disabled={requesting} containerStyle={styles.cta} onPress={() => void continueTo('/home')} />
+      </View>
+      </View>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
+  screen: { backgroundColor: color.brand.ivory },
+  layout: { flex: 1 },
+  layoutWide: { flexDirection: 'row', alignItems: 'center', gap: spacing[8] },
+  introColumn: {},
+  introWide: { flex: 1, alignSelf: 'stretch', justifyContent: 'center', padding: spacing[8], borderRadius: radius.lg, backgroundColor: '#fff1e8' },
+  actionColumn: { flex: 1, width: '100%', justifyContent: 'center' },
+  logo: { width: 120, height: 44, marginBottom: spacing[8] },
+  webNote: { marginTop: spacing[8], gap: spacing[2] },
   title: {
     marginTop: spacing[1],
   },
@@ -166,44 +164,26 @@ const styles = StyleSheet.create({
     marginTop: spacing[3],
     color: color.text.body,
   },
-  stepRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: spacing[6],
-  },
-  stepCircle: {
-    width: 22,
-    height: 22,
-    borderRadius: radius.full,
-    backgroundColor: color.surface.field,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  stepCircleActive: {
-    backgroundColor: color.action.brand,
-  },
-  stepLine: {
-    flex: 1,
-    height: 2,
-    backgroundColor: color.surface.field,
-    marginHorizontal: spacing[2],
-  },
   cards: {
-    marginTop: spacing[6],
-    gap: spacing[3],
+    flex: 1,
+    justifyContent: 'center',
+    gap: spacing[2],
   },
+  cardsWide: { flex: 0 },
   card: {
     flexDirection: 'row',
     gap: spacing[3],
     backgroundColor: color.surface.card,
     borderRadius: radius.lg,
-    padding: spacing[4],
+    padding: spacing[3],
+    borderWidth: 1,
+    borderColor: '#eee5da',
   },
   cardIcon: {
     width: 48,
     height: 48,
     borderRadius: radius.md,
-    backgroundColor: color.surface.soft,
+    backgroundColor: '#fff1e8',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -230,22 +210,27 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing[2],
     paddingVertical: 2,
   },
+  recommendedBadge: { backgroundColor: '#fff1e8' },
   privacyBox: {
     flexDirection: 'row',
     gap: spacing[3],
-    backgroundColor: color.surface.soft,
+    backgroundColor: '#fff1e8',
     borderRadius: radius.md,
     padding: spacing[4],
-    marginTop: spacing[6],
+    marginTop: spacing[3],
   },
   privacyCopy: {
     flex: 1,
     gap: spacing[1],
   },
+  privacyPressed: { opacity: 0.72, transform: [{ scale: 0.99 }] },
   laterLink: {
-    marginTop: spacing[6],
+    marginTop: spacing[3],
   },
   cta: {
     marginTop: spacing[3],
+    minHeight: 54,
+    borderRadius: radius.full,
+    backgroundColor: color.brand.orange,
   },
 });
