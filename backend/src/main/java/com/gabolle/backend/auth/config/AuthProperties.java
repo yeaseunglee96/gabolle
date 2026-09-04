@@ -21,6 +21,18 @@ public class AuthProperties {
 	private Duration passwordResetTtl = Duration.ofMinutes(30);
 	private Duration oneTimeTokenRequestCooldown = Duration.ofSeconds(60);
 	private Duration oauthChallengeTtl = Duration.ofMinutes(5);
+	/**
+	 * 연속으로 이만큼 틀리면 잠근다 (S15P21E201-421). 티켓이 5회로 정했다.
+	 */
+	private int loginFailureThreshold = 5;
+	/**
+	 * 잠금이 유지되는 시간.
+	 *
+	 * <p>🔴 티켓에 값이 정해져 있지 않아 여기서 정했다. 5분이면 자동 시도가 시간당 60번으로 묶여
+	 * 사실상 뚫을 수 없고, 진짜 주인은 잠깐 기다렸다 다시 하면 된다. 그리고 남의 계정을 일부러
+	 * 잠가 괴롭히는 것도 5분짜리 성가심에 그친다 — 길게 잡을수록 그 공격이 강해진다.
+	 */
+	private Duration loginLockoutDuration = Duration.ofMinutes(5);
 	private String ageGatePolicyVersion = "2026-01";
 	private String consentPolicyVersion = "2026-01";
 	private String emailVerificationBaseUrl = "http://localhost:3000/verify-email";
@@ -97,6 +109,22 @@ public class AuthProperties {
 
 	public void setOauthChallengeTtl(Duration oauthChallengeTtl) {
 		this.oauthChallengeTtl = oauthChallengeTtl;
+	}
+
+	public int getLoginFailureThreshold() {
+		return loginFailureThreshold;
+	}
+
+	public void setLoginFailureThreshold(int loginFailureThreshold) {
+		this.loginFailureThreshold = loginFailureThreshold;
+	}
+
+	public Duration getLoginLockoutDuration() {
+		return loginLockoutDuration;
+	}
+
+	public void setLoginLockoutDuration(Duration loginLockoutDuration) {
+		this.loginLockoutDuration = loginLockoutDuration;
 	}
 
 	public String getAgeGatePolicyVersion() {

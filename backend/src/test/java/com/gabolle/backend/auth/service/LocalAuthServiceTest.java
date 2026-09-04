@@ -55,6 +55,8 @@ class LocalAuthServiceTest {
 	@Mock
 	private EmailSender emailSender;
 
+	@Mock private LoginAttemptGuard loginAttemptGuard;
+
 	private LocalAuthService service;
 
 	@BeforeEach
@@ -62,7 +64,7 @@ class LocalAuthServiceTest {
 		AuthProperties properties = new AuthProperties();
 		service = new LocalAuthService(userRepository, consentRepository, credentialRepository, oneTimeTokenRepository, passwordEncoder,
 				new SessionTokenGenerator(), authTokenService, emailSender, properties,
-				new ConsentPolicy(),
+				new ConsentPolicy(), loginAttemptGuard,
 				Clock.fixed(Instant.parse("2026-01-01T00:00:00Z"), ZoneOffset.UTC));
 	}
 
