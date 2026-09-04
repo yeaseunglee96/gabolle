@@ -134,6 +134,62 @@ class PersonalizationInputSchemaTest extends PostgresIntegrationTest {
 				.isInstanceOf(DataIntegrityViolationException.class);
 	}
 
+	// ── 제약 값은 종류마다 필요 여부가 다르다 (S15P21E201-554 후속) ───────────
+
+	@Test
+	@DisplayName("🔴 알레르기·식단은 값 없이 저장된다 — 코드가 constraint_key 에 있고 value 는 담을 것이 없다")
+	void allergyAndDietAreStoredWithoutValue() {
+		// 고친 것이 이 자리다. 전에는 SELECTED 면 value 를 강요해서, 담을 것이 없는데도
+		// 아무 JSON 이나 채워 넣어야 했다. 자리를 채운 값은 나중에 진짜 데이터와 구별되지 않는다.
+		assertThatCode(() -> insertConstraintAnswer("ALLERGY", "PEANUT", null, true, "SELECTED"))
+				.doesNotThrowAnyException();
+		assertThatCode(() -> insertConstraintAnswer("DIET", "HALAL", null, false, "SELECTED"))
+				.doesNotThrowAnyException();
+	}
+
+	@Test
+	@DisplayName("🔴 이동 제약은 여전히 값을 요구한다 — 보행 상한에 숫자가 없으면 제약이 아니다")
+	void mobilityStillRequiresValue() {
+		assertThatThrownBy(() -> insertConstraintAnswer("MOBILITY", "MAX_WALKING_METERS", null, true, "SELECTED"))
+				.isInstanceOf(DataIntegrityViolationException.class);
+
+		assertThatCode(() -> insertConstraintAnswer("MOBILITY", "MAX_WALKING_METERS",
+				"{\"meters\": 1500}", true, "SELECTED")).doesNotThrowAnyException();
+	}
+
+	@Test
+	@DisplayName("🔴 안 고른 답은 여전히 값을 실을 수 없다 — 이쪽 규칙은 완화하지 않았다")
+	void unselectedStillCannotCarryValue() {
+		assertThatThrownBy(() -> insertConstraintAnswer("DIET", "VEGAN", "{\"x\": 1}", false, "NONE"))
+				.isInstanceOf(DataIntegrityViolationException.class);
+		assertThatThrownBy(() -> insertConstraintAnswer("DIET", "KOSHER", "{\"x\": 1}", false, "UNKNOWN"))
+				.isInstanceOf(DataIntegrityViolationException.class);
+	}
+
+	// ── 여행 시간대 프리셋 (S15P21E201-461 이 버리고 있던 값) ─────────────────
+
+	@Test
+	@DisplayName("시간대 프리셋 원본이 저장된다 — 시각 두 칸이 비어 있어도 사용자가 고른 것은 남는다")
+	void timeWindowPresetIsPreservedWithoutDerivedTimes() {
+		UUID tripId = UUID.randomUUID();
+		this.jdbcTemplate.update("""
+				INSERT INTO trip (
+				    trip_id, owner_user_id, start_date, end_date, time_window_preset, created_at, updated_at)
+				VALUES (?, ?, ?, ?, 'MORNING_TO_EVENING', now(), now())
+				""", tripId, this.references.userId(), LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 11));
+
+		String preset = this.jdbcTemplate.queryForObject(
+				"SELECT time_window_preset FROM trip WHERE trip_id = ?", String.class, tripId);
+		assertThat(preset).isEqualTo("MORNING_TO_EVENING");
+
+		// 파생값은 아직 비어 있다. 프리셋 목록이 확정되면 그때 채운다 — 비어 있는 것이 정상이다.
+		Integer derived = this.jdbcTemplate.queryForObject("""
+				SELECT count(*) FROM trip
+				WHERE trip_id = ? AND time_window_start IS NULL AND time_window_end IS NULL
+				""", Integer.class, tripId);
+		assertThat(derived).isEqualTo(1);
+	}
+
 	// ── 스냅샷: 판 번호와 적용 범위 ───────────────────────────────────────────
 
 	@Test
