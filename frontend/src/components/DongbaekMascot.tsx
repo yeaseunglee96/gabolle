@@ -9,7 +9,7 @@ const sources = {
 
 export type GabolleMascotState = keyof typeof sources;
 
-export function GabolleMascot({ state = 'idle', style }: { state?: GabolleMascotState; style?: StyleProp<ImageStyle> }) {
+export function GabolleMascot({ state = 'idle', style, delay = 0 }: { state?: GabolleMascotState; style?: StyleProp<ImageStyle>; delay?: number }) {
   const y = useRef(new Animated.Value(0)).current;
   const rotate = useRef(new Animated.Value(0)).current;
 
@@ -23,8 +23,13 @@ export function GabolleMascot({ state = 'idle', style }: { state?: GabolleMascot
         ]))
       : state === 'open'
         ? Animated.sequence([
+            Animated.delay(delay),
             Animated.timing(y, { toValue: -9, duration: 150, easing: Easing.out(Easing.quad), useNativeDriver: true }),
             Animated.spring(y, { toValue: 0, speed: 18, bounciness: 10, useNativeDriver: true }),
+            Animated.loop(Animated.sequence([
+              Animated.timing(y, { toValue: -5, duration: 1050, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+              Animated.timing(y, { toValue: 1, duration: 1050, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+            ])),
           ])
         : Animated.loop(Animated.sequence([
             Animated.timing(rotate, { toValue: -1, duration: 90, useNativeDriver: true }),
@@ -35,7 +40,7 @@ export function GabolleMascot({ state = 'idle', style }: { state?: GabolleMascot
 
     animation.start();
     return () => animation.stop();
-  }, [rotate, state, y]);
+  }, [delay, rotate, state, y]);
 
   return (
     <Animated.View style={{ transform: [{ translateY: y }, { rotate: rotate.interpolate({ inputRange: [-1, 1], outputRange: ['-2deg', '2deg'] }) }] }}>

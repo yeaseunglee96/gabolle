@@ -14,7 +14,7 @@ export default function Chat() {
     <Screen>
       <View style={styles.header}>
         <View style={styles.identity}>
-          <GabolleMascot state="open" style={styles.avatarImage} />
+          <GabolleMascot state="open" delay={180} style={styles.avatarImage} />
           <View><Text variant="title" weight="bold">가볼래</Text><Text variant="caption" color={color.text.body}>부산 여행 AI 도우미</Text></View>
         </View>
         <Pressable accessibilityRole="button" accessibilityLabel="가볼래 화면 닫기" onPress={() => router.canGoBack() ? router.back() : router.replace('/home')} style={({ pressed }) => [styles.closeButton, pressed && styles.pressed]}>
