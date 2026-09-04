@@ -53,3 +53,7 @@ export async function forgetSavedTrip(id: string): Promise<void> {
   const current = await loadSavedTrips();
   await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(current.filter((trip) => trip.id !== id)));
 }
+
+export async function clearSavedTrips(): Promise<void> {
+  await AsyncStorage.removeItem(STORAGE_KEY);
+}
