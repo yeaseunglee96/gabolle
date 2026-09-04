@@ -5,6 +5,7 @@ import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useLayout } from '@/layout/useLayout';
 import { usePlan } from './PlanProvider';
+import { useI18n } from '@/i18n';
 
 const STEPS = [
   { label: '기본', path: '/plan/basic' },
@@ -17,8 +18,9 @@ export function PlanStepHeader({ current }: { current: number }) {
   const router = useRouter();
   const { draft } = usePlan();
   const { kind } = useLayout();
+  const { language, tx } = useI18n();
   if (kind === 'phone') {
-    return <View accessibilityRole="progressbar" accessibilityValue={{ min: 1, max: 4, now: current }} accessibilityLabel={`여행 만들기 ${current}단계`} style={styles.progressTrack}>
+    return <View accessibilityRole="progressbar" accessibilityValue={{ min: 1, max: 4, now: current }} accessibilityLabel={tx(`여행 만들기 ${current}단계`, `Create trip, step ${current} of 4`)} style={styles.progressTrack}>
       <View style={[styles.progressValue, { width: `${current * 25}%` }]} />
     </View>;
   }
@@ -30,7 +32,7 @@ export function PlanStepHeader({ current }: { current: number }) {
         return (
           <Pressable key={step.path} disabled={!enabled || number === current} onPress={() => router.push(step.path)} style={styles.step}>
             <View style={[styles.circle, number <= current && styles.activeCircle]}><Text variant="caption" weight="bold" color={number <= current ? color.text.onAction : color.text.muted}>{number}</Text></View>
-            <Text variant="caption" weight={number === current ? 'bold' : 'regular'} color={number === current ? color.brand.orange : color.text.muted}>{step.label}</Text>
+            <Text variant="caption" weight={number === current ? 'bold' : 'regular'} color={number === current ? color.brand.orange : color.text.muted}>{language === 'ko' ? step.label : ['Basics', 'Taste', 'Needs', 'Review'][index]}</Text>
           </Pressable>
         );
       })}

@@ -8,6 +8,7 @@ import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { Button } from '@/components/Button';
 import { parseLanguage, parseMobility, useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
+import { useI18n } from '@/i18n';
 
 function optionalParse<T>(value: string | string[] | undefined, parse: (candidate: string | string[] | undefined) => T) {
   try {
@@ -21,6 +22,7 @@ export default function AgeGate() {
   const router = useRouter();
   const params = useLocalSearchParams<{ language?: string; mobility?: string }>();
   const preferences = useOnboardingPreferences();
+  const { tx } = useI18n();
   const [checked, setChecked] = useState(false);
 
   const queryLanguage = optionalParse(params.language, parseLanguage);
@@ -44,10 +46,10 @@ export default function AgeGate() {
     <Screen>
       <View style={styles.body}>
         <Text variant="display" weight="bold">
-          만 14세 이상이신가요?
+          {tx('만 14세 이상이신가요?', 'Are you 14 or older?')}
         </Text>
         <Text variant="body" style={styles.description}>
-          생년월일은 묻지 않아요. 이 확인 사실 외에는 아무것도 저장하지 않습니다.
+          {tx('생년월일은 묻지 않아요. 이 확인 사실 외에는 아무것도 저장하지 않습니다.', 'We do not ask for your date of birth. Only this confirmation is saved.')}
         </Text>
       </View>
 
@@ -60,10 +62,10 @@ export default function AgeGate() {
               </Text>
             )}
           </View>
-          <Text variant="body">만 14세 이상이며, 위 내용을 확인했어요.</Text>
+          <Text variant="body">{tx('만 14세 이상이며, 위 내용을 확인했어요.', 'I am 14 or older and understand the information above.')}</Text>
         </Pressable>
 
-        <Button label="계속" disabled={!checked} onPress={continueOnboarding} />
+        <Button label={tx('계속', 'Continue')} disabled={!checked} onPress={continueOnboarding} />
       </View>
     </Screen>
   );

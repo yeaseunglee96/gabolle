@@ -1,6 +1,8 @@
 import { Platform } from 'react-native';
 
 export const API_BASE_URL = (process.env.EXPO_PUBLIC_API_BASE_URL ?? 'http://localhost:8080').replace(/\/$/, '');
+let apiLanguage: 'ko' | 'en' = 'ko';
+export function setApiLanguage(language: 'ko' | 'en') { apiLanguage = language; }
 
 type ApiEnvelope<T> = {
   data: T | null;
@@ -34,6 +36,7 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
       credentials: Platform.OS === 'web' ? 'include' : undefined,
       headers: {
         Accept: 'application/json',
+        'Accept-Language': apiLanguage,
         ...(body === undefined ? {} : { 'Content-Type': 'application/json' }),
         'X-Client-Platform': Platform.OS === 'web' ? 'WEB' : 'MOBILE',
         ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
