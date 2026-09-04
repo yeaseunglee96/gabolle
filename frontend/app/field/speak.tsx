@@ -1,9 +1,11 @@
 // 17 현장 말하기·택시 카드 — Figma 17_현장 말하기·택시 카드 실측 그대로.
 //
-// 번역·음성 API 업체가 아직 안 정해졌다(Jira S15P21E201-77). 그래서 "말하기" 탭의
-// 재생 버튼은 실제 TTS 를 부르지 않고 눌린 상태만 로컬로 바꾼다 — UI 와 목업 데이터만 있다.
+// 번역 업체 계약과 무관하게 기기 TTS·클립보드·지도 링크로 완결할 수 있는 현장 기능은
+// Expo 네이티브 API로 실제 동작시킨다.
 import { useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Linking, Pressable, StyleSheet, View } from 'react-native';
+import * as Clipboard from 'expo-clipboard';
+import * as Speech from 'expo-speech';
 
 import { color, radius, spacing } from '@/design/tokens';
 import { Screen } from '@/components/Screen';
@@ -12,7 +14,14 @@ import { Text } from '@/components/Text';
 type Tab = 'speak' | 'taxi';
 type PlaySpeed = 'normal' | 'slow' | null;
 
-const MAP_APPS = ['카카오맵', 'Google', 'Apple 지도'];
+const MAP_APPS = ['카카오맵', 'Google', 'Apple 지도'] as const;
+const KOREAN_PHRASE = '사진 한 장 부탁드려도 될까요?';
+const TAXI_ADDRESS = '부산 영도구 영선동4가 605-3';
+const MAP_URLS: Record<(typeof MAP_APPS)[number], string> = {
+  카카오맵: `https://map.kakao.com/link/search/${encodeURIComponent(TAXI_ADDRESS)}`,
+  Google: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(TAXI_ADDRESS)}`,
+  'Apple 지도': `https://maps.apple.com/?q=${encodeURIComponent(TAXI_ADDRESS)}`,
+};
 
 export default function Speak() {
   const [tab, setTab] = useState<Tab>('speak');
@@ -20,12 +29,13 @@ export default function Speak() {
   const [copied, setCopied] = useState(false);
 
   function play(speed: PlaySpeed) {
-    // TODO: 실제 TTS 재생 미착수(업체 미정) — 버튼 상태만 바꾼다.
+    Speech.stop();
     setPlaying(speed);
+    Speech.speak(KOREAN_PHRASE, { language: 'ko-KR', rate: speed === 'slow' ? 0.65 : 0.95, onDone: () => setPlaying(null), onStopped: () => setPlaying(null), onError: () => setPlaying(null) });
   }
 
-  function copyAddress() {
-    // TODO: 클립보드 복사는 별도 패키지가 필요하다(새 의존성 추가 금지 방침이라 보류) — 확인 표시만 한다.
+  async function copyAddress() {
+    await Clipboard.setStringAsync(TAXI_ADDRESS);
     setCopied(true);
   }
 
@@ -69,12 +79,12 @@ export default function Speak() {
             sajin han jang butakdeuryeodo doelkkayo?
           </Text>
           <View style={styles.playRow}>
-            <Pressable style={styles.playButton} onPress={() => play('normal')}>
+            <Pressable accessibilityRole="button" accessibilityLabel="한국어 문장 일반 속도로 듣기" style={styles.playButton} onPress={() => play('normal')}>
               <Text variant="body" weight="bold" color={color.text.onAction}>
                 {playing === 'normal' ? '▶ 재생 중' : '▶  일반 속도'}
               </Text>
             </Pressable>
-            <Pressable style={styles.slowButton} onPress={() => play('slow')}>
+            <Pressable accessibilityRole="button" accessibilityLabel="한국어 문장 천천히 듣기" style={styles.slowButton} onPress={() => play('slow')}>
               <Text variant="body" weight="bold" color={color.action.field}>
                 {playing === 'slow' ? '½× 재생 중' : '½×  천천히'}
               </Text>
@@ -91,9 +101,9 @@ export default function Speak() {
           </Text>
           <View style={styles.taxiAddressRow}>
             <Text variant="body" weight="medium" style={styles.taxiAddress}>
-              부산 영도구 영선동4가 605-3
+              {TAXI_ADDRESS}
             </Text>
-            <Pressable onPress={copyAddress}>
+            <Pressable accessibilityRole="button" accessibilityLabel="주소 복사" onPress={() => void copyAddress()}>
               <Text variant="caption" weight="bold" color={color.text.accent}>
                 {copied ? '복사됨 ✓' : '주소 복사'}
               </Text>
@@ -110,12 +120,11 @@ export default function Speak() {
       </Text>
       <View style={styles.mapAppsRow}>
         {MAP_APPS.map((app) => (
-          // TODO: 지도 앱 딥링크 URL 스킴 미정 — 지금은 눌러도 이동하지 않는다.
-          <View key={app} style={styles.mapAppButton}>
+          <Pressable accessibilityRole="link" accessibilityLabel={`${app}에서 목적지 열기`} key={app} onPress={() => void Linking.openURL(MAP_URLS[app])} style={({ pressed }) => [styles.mapAppButton, pressed && styles.pressed]}>
             <Text variant="body" weight="bold" color={color.action.field}>
               {app}
             </Text>
-          </View>
+          </Pressable>
         ))}
       </View>
     </Screen>
@@ -213,4 +222,5 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     paddingVertical: spacing[3],
   },
+  pressed: { opacity: 0.72, transform: [{ scale: 0.98 }] },
 });

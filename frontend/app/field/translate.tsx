@@ -21,6 +21,7 @@ type Tool = {
   desc: string;
   tinted?: boolean;
   onPress?: () => void;
+  pending?: boolean;
 };
 
 export default function Translate() {
@@ -33,14 +34,14 @@ export default function Translate() {
       title: '메뉴판 카메라 번역',
       desc: '사진을 찍으면 음식명·가격·알레르기를 번역',
       tinted: true,
-      // TODO: 번역 업체 미정(S15P21E201-77) — 카메라 진입이 아직 없다.
+      pending: true,
     },
     {
       key: 'voice',
       icon: '◉',
       title: '양방향 음성 통역',
       desc: '한국어 ↔ English 실시간 대화',
-      // TODO: 실시간 음성 통역 업체 미정(S15P21E201-77).
+      pending: true,
     },
     {
       key: 'phrase',
@@ -72,8 +73,10 @@ export default function Translate() {
           <Pressable
             key={tool.key}
             disabled={!tool.onPress}
+            accessibilityRole={tool.onPress ? 'button' : undefined}
+            accessibilityState={{ disabled: !tool.onPress }}
             onPress={tool.onPress}
-            style={[styles.card, tool.tinted && styles.cardTinted]}
+            style={[styles.card, tool.tinted && styles.cardTinted, tool.pending && styles.cardPending]}
           >
             <View style={[styles.iconBox, tool.tinted ? styles.iconBoxDark : styles.iconBoxLight]}>
               <Text variant="title" weight="bold" color={tool.tinted ? color.text.onAction : color.action.secondary}>
@@ -88,15 +91,12 @@ export default function Translate() {
                 {tool.desc}
               </Text>
             </View>
-            <Text variant="title" weight="bold" color={color.action.secondary}>
-              ›
-            </Text>
+            {tool.pending ? <Text variant="caption" weight="bold" color={color.text.muted}>API 협의 중</Text> : <Text variant="title" weight="bold" color={color.action.secondary}>›</Text>}
           </Pressable>
         ))}
       </View>
 
-      {/* TODO: 번역 업체 미정(S15P21E201-77) — 카메라 진입이 아직 없다. */}
-      <Button label="카메라로 메뉴판 번역 시작" variant="secondary" containerStyle={styles.cta} />
+      <Button label="번역 API 연결 후 사용할 수 있어요" variant="secondary" disabled containerStyle={styles.cta} />
     </Screen>
   );
 }
@@ -121,6 +121,7 @@ const styles = StyleSheet.create({
   cardTinted: {
     backgroundColor: color.surface.tint,
   },
+  cardPending: { opacity: 0.64 },
   iconBox: {
     width: 50,
     height: 50,
