@@ -9,6 +9,7 @@ import { TabBar } from '@/components/TabBar';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { loadItinerary, setItineraryItemLocked, type ItineraryDto, type ItineraryItemDto, type ItineraryLoadResult } from '@/plan/itinerary';
+import { rememberItinerary } from '@/trip/tripLibrary';
 
 function formatTime(value: string) {
   const date = new Date(value);
@@ -40,7 +41,10 @@ export default function ItineraryScreen() {
     setLoading(true); setConflict(null);
     const next = await loadItinerary(itineraryId, accessToken);
     setResult(next); setLoading(false);
-    if (next.state === 'success') setSelectedDay((current) => Math.min(current, Math.max(0, next.itinerary.days.length - 1)));
+    if (next.state === 'success') {
+      setSelectedDay((current) => Math.min(current, Math.max(0, next.itinerary.days.length - 1)));
+      void rememberItinerary(next.itinerary);
+    }
   }, [accessToken, itineraryId]);
 
   useEffect(() => { void reload(); }, [reload]);
