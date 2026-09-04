@@ -11,9 +11,9 @@ import { color, radius, spacing } from '@/design/tokens';
 const INTRO_SEEN_KEY = '@gabolle/app-intro-seen';
 const logo = require('../assets/brand/gabolle-logo-figma.png');
 const PAGES = [
-  { eyebrow: 'AI TRAVEL', title: '내 취향으로 만드는\n부산 여행', description: '날짜와 관심사를 알려주면 조건에 맞는 여행 후보를 구성해요.' },
-  { eyebrow: 'SAFE ROUTE', title: '이동 부담과 안전 조건도\n꼼꼼하게', description: '보행 거리와 경사, 알레르기처럼 반드시 지켜야 할 조건을 함께 확인해요.' },
-  { eyebrow: 'READY TO GO', title: '확인하고 떠나는\n나만의 일정', description: '추천 이유와 이동 순서를 확인하고 부산 여행을 시작해 보세요.' },
+  { eyebrow: 'AI TRAVEL', title: '조건만 알려주면\n일정을 만들어요', description: '날짜와 취향, 이동 조건을 반영해 나만의 부산 여행을 구성해요.' },
+  { eyebrow: 'MENU TRANSLATE', title: '메뉴판을 찍고\n바로 이해해요', description: '카메라를 쓰기 직전에 이유를 설명하고, 허용한 경우에만 촬영해요.' },
+  { eyebrow: 'FIELD TALK', title: '여행지에서 필요한 말을\n바로 보여주고 들려줘요', description: '식당과 택시에서 쓸 문장을 크게 보여주거나 한국어 음성으로 들려줘요.' },
 ] as const;
 
 export default function AppIntro() {
@@ -55,8 +55,8 @@ export default function AppIntro() {
 
 function FeaturePreview({ index }: { index: number }) {
   if (index === 0) return <View style={styles.preview}><Text variant="caption" weight="bold" color={color.text.muted}>어떤 여행을 좋아하세요?</Text><View style={styles.chips}><View style={styles.selectedChip}><Text variant="caption" weight="bold" color={color.text.onAction}>바다</Text></View><View style={styles.chip}><Text variant="caption" weight="bold">미식</Text></View><View style={styles.chip}><Text variant="caption" weight="bold">골목</Text></View></View><View style={styles.progress}><View style={styles.progressFill} /></View></View>;
-  if (index === 1) return <View style={styles.preview}><Text variant="caption" weight="bold" color={color.text.muted}>반드시 지킬 조건</Text><View style={styles.previewRow}><Text weight="bold">알레르기</Text><Text variant="caption" color={color.brand.orange}>확인 완료</Text></View><View style={styles.previewRow}><Text weight="bold">보행 거리</Text><Text variant="caption">1km 이내</Text></View><View style={styles.previewRow}><Text weight="bold">경사·계단</Text><Text variant="caption">피하기</Text></View></View>;
-  return <View style={styles.ticket}><View style={styles.ticketTop}><Text variant="caption" weight="bold" color={color.text.onAction}>GABOLLE TRIP PASS</Text><Text variant="title" weight="bold" color={color.text.onAction}>부산 1일 여행</Text></View><View style={styles.ticketBody}><Text variant="caption" color={color.text.muted}>오늘의 일정</Text><Text weight="bold">해변 → 골목 → 저녁 식사</Text><View style={styles.dash} /><Text variant="caption" color={color.text.body}>선택한 조건을 반영해 추천 이유와 동선을 확인해요.</Text></View></View>;
+  if (index === 1) return <View style={styles.preview}><Text variant="caption" weight="bold" color={color.text.muted}>메뉴판 카메라 번역</Text><View style={styles.menuFrame}><Text variant="title">📷</Text><Text weight="bold">메뉴를 화면 안에 맞춰주세요</Text></View><Text variant="caption" color={color.text.body}>사진은 번역에만 사용하고 기기에 저장하지 않아요.</Text></View>;
+  return <View style={styles.ticket}><View style={styles.ticketTop}><Text variant="caption" weight="bold" color={color.text.onAction}>현장 말하기</Text><Text variant="title" weight="bold" color={color.text.onAction}>사진 한 장 부탁드려도 될까요?</Text></View><View style={styles.ticketBody}><Text variant="caption" color={color.text.muted}>sajin han jang butakdeuryeodo doelkkayo?</Text><View style={styles.dash} /><Text weight="bold" color={color.action.field}>▶ 한국어로 듣기</Text></View></View>;
 }
 
 const styles = StyleSheet.create({
@@ -69,6 +69,7 @@ const styles = StyleSheet.create({
   chips: { flexDirection: 'row', gap: spacing[2] }, chip: { paddingHorizontal: spacing[4], paddingVertical: spacing[2], borderRadius: radius.full, borderWidth: 1, borderColor: '#e3ddd4' }, selectedChip: { paddingHorizontal: spacing[4], paddingVertical: spacing[2], borderRadius: radius.full, backgroundColor: color.brand.orange },
   progress: { height: 6, overflow: 'hidden', borderRadius: radius.full, backgroundColor: '#eee9e1' }, progressFill: { width: '64%', height: 6, borderRadius: radius.full, backgroundColor: color.brand.orange },
   previewRow: { minHeight: 42, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: '#e8e2d9' },
+  menuFrame: { minHeight: 112, alignItems: 'center', justifyContent: 'center', gap: spacing[2], borderRadius: radius.md, borderWidth: 2, borderStyle: 'dashed', borderColor: color.action.secondary, backgroundColor: color.surface.soft },
   ticket: { minHeight: 210, overflow: 'hidden', borderRadius: 28, backgroundColor: color.surface.card, shadowColor: color.brand.navy, shadowOpacity: 0.08, shadowRadius: 16, shadowOffset: { width: 0, height: 8 }, elevation: 4 }, ticketTop: { gap: spacing[2], padding: spacing[6], backgroundColor: color.brand.navy }, ticketBody: { flex: 1, gap: spacing[3], padding: spacing[6] }, dash: { borderTopWidth: 1, borderStyle: 'dashed', borderColor: '#c9c3bb' },
   copy: { gap: spacing[3], marginTop: spacing[6] }, title: { fontSize: 30, lineHeight: 38 }, description: { maxWidth: 330, lineHeight: 24 },
   footer: { position: 'absolute', left: spacing[6], right: spacing[6], bottom: spacing[6], gap: spacing[4] },

@@ -6,8 +6,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useState } from 'react';
 import { Platform, Pressable, StyleSheet, View } from 'react-native';
-import { Camera } from 'expo-camera';
-import * as Location from 'expo-location';
 import * as Notifications from 'expo-notifications';
 import { useRouter } from 'expo-router';
 
@@ -16,69 +14,24 @@ import { Screen } from '@/components/Screen';
 import { Eyebrow } from '@/components/Eyebrow';
 import { Text } from '@/components/Text';
 import { Button } from '@/components/Button';
-import { Toggle } from '@/components/Toggle';
 import { BrandLogoLink } from '@/components/BrandLogoLink';
 import { useLayout } from '@/layout/useLayout';
 
 const PERMISSION_PREFERENCES_KEY = '@gabolle/permission-preferences';
 
-type PermissionKey = 'location' | 'camera' | 'notification';
-
-type Permission = {
-  key: PermissionKey;
-  icon: string;
-  title: string;
-  description: string;
-  note: string;
-  recommended?: boolean;
-};
-
-const PERMISSIONS: Permission[] = [
-  {
-    key: 'location',
-    icon: '📍',
-    title: '위치',
-    description: '정확한 경로와 주변 장소 추천',
-    note: '앱 사용 중에만 위치를 확인해요',
-    recommended: true,
-  },
-  {
-    key: 'camera',
-    icon: '📷',
-    title: '카메라·번역',
-    description: '메뉴와 안내문을 바로 번역',
-    note: '촬영한 이미지는 저장하지 않아요',
-  },
-  {
-    key: 'notification',
-    icon: '🔔',
-    title: '알림',
-    description: '일정 변경과 혼잡도 알림',
-    note: '중요한 여행 알림만 보내드려요',
-  },
-];
-
 export default function Permissions() {
   const router = useRouter();
   const { kind } = useLayout();
-  const [values, setValues] = useState<Record<PermissionKey, boolean>>({ location: true, camera: false, notification: false });
+  const [notification, setNotification] = useState(false);
   const [requesting, setRequesting] = useState(false);
-  async function continueTo(path: string, preferences = values) {
+  async function continueTo(path: string, requestNotification = notification) {
     if (requesting) return;
     setRequesting(true);
-    const granted = { ...preferences };
-    if (Platform.OS !== 'web') {
-      if (preferences.location) {
-        try { granted.location = (await Location.requestForegroundPermissionsAsync()).status === 'granted'; } catch { granted.location = false; }
-      }
-      if (preferences.camera) {
-        try { granted.camera = (await Camera.requestCameraPermissionsAsync()).status === 'granted'; } catch { granted.camera = false; }
-      }
-      if (preferences.notification) {
-        try { granted.notification = (await Notifications.requestPermissionsAsync()).status === 'granted'; } catch { granted.notification = false; }
-      }
+    let notificationGranted = false;
+    if (Platform.OS !== 'web' && requestNotification) {
+      try { notificationGranted = (await Notifications.requestPermissionsAsync()).status === 'granted'; } catch { notificationGranted = false; }
     }
-    await AsyncStorage.setItem(PERMISSION_PREFERENCES_KEY, JSON.stringify(granted));
+    await AsyncStorage.setItem(PERMISSION_PREFERENCES_KEY, JSON.stringify({ notification: notificationGranted }));
     router.replace({ pathname: '/sign-in', params: { returnTo: path } });
   }
 
@@ -94,33 +47,29 @@ export default function Permissions() {
       <Text variant="caption" style={styles.subtitle}>
         허용하지 않아도 둘러볼 수 있고, 설정에서 언제든 바꿀 수 있어요.
       </Text>
-      {kind === 'tablet' && <View style={styles.webNote}><Text variant="body" weight="bold">필요한 권한만 직접 선택하세요</Text><Text variant="caption" color={color.text.body}>위치는 정확한 동선 추천에 필요하고 카메라와 알림은 선택 기능이에요. 모든 권한은 나중에 설정에서 변경할 수 있습니다.</Text></View>}
+      {kind === 'tablet' && <View style={styles.webNote}><Text variant="body" weight="bold">알림은 지금 선택할 수 있어요</Text><Text variant="caption" color={color.text.body}>위치와 카메라는 실제 기능을 처음 사용할 때 이유를 먼저 안내한 뒤 요청합니다.</Text></View>}
       </View>
 
       <View style={styles.actionColumn}><View style={[styles.cards, kind === 'tablet' && styles.cardsWide]}>
-        {PERMISSIONS.map((perm) => (
-          <View key={perm.key} style={styles.card}>
+          <View style={styles.card}>
             <View style={styles.cardIcon}>
-              <Text variant="title">{perm.icon}</Text>
+              <Text variant="title">🔔</Text>
             </View>
             <View style={styles.cardBody}>
               <View style={styles.cardTopRow}>
-                <Text variant="body" weight="bold">
-                  {perm.title}
-                </Text>
-                <Toggle value={values[perm.key]} onValueChange={(next) => setValues((current) => ({ ...current, [perm.key]: next }))} />
+                <Text variant="body" weight="bold">여행 알림 받기</Text>
+                <Pressable accessibilityRole="switch" accessibilityState={{ checked: notification }} onPress={() => setNotification((current) => !current)} style={[styles.choice, notification && styles.choiceActive]}><Text variant="caption" weight="bold" color={notification ? color.text.onAction : color.text.body}>{notification ? '받을게요' : '나중에'}</Text></Pressable>
               </View>
               <Text variant="caption" color={color.text.body}>
-                {perm.description}
+                일정 변경과 출발 시간을 놓치지 않도록 알려드려요.
               </Text>
               <View style={styles.cardBottomRow}>
                 <Text variant="caption" color={color.text.muted} style={styles.cardNote}>
-                  {perm.note}
+                  광고 알림 없이 중요한 여행 안내만 보내요.
                 </Text>
               </View>
             </View>
           </View>
-        ))}
       </View>
 
       <Pressable accessibilityRole="link" accessibilityLabel="개인정보 처리 안내 보기" onPress={() => router.push('/legal/privacy')} style={({ pressed }) => [styles.privacyBox, pressed && styles.privacyPressed]}>
@@ -135,7 +84,7 @@ export default function Permissions() {
         </View>
       </Pressable>
 
-      <Pressable accessibilityRole="button" accessibilityState={{ disabled: requesting }} disabled={requesting} onPress={() => void continueTo('/home', { location: false, camera: false, notification: false })}>
+      <Pressable accessibilityRole="button" accessibilityState={{ disabled: requesting }} disabled={requesting} onPress={() => void continueTo('/home', false)}>
         <Text variant="caption" weight="bold" color={color.text.muted} style={styles.laterLink}>
           나중에 설정
         </Text>
@@ -196,6 +145,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+  choice: { minHeight: 36, justifyContent: 'center', paddingHorizontal: spacing[3], borderRadius: radius.full, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.card },
+  choiceActive: { borderColor: color.brand.orange, backgroundColor: color.brand.orange },
   cardBottomRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',

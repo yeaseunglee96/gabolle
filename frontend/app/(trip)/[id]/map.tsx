@@ -6,9 +6,10 @@
 // 🔴 비교 카드의 숫자는 실제 측정값이다. 반올림하거나 다듬지 않는다.
 // 🔴 이 앱은 "모르는 것을 아는 척하지 않는다" 는 원칙(PASS/FAIL/UNKNOWN)을 따른다.
 //    그래서 판정이 안 된 구간이 있다는 것도 숨기지 않고 UNKNOWN 으로 그대로 보여준다.
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'expo-router';
-import { Platform, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { AppState, Platform, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
+import * as Location from 'expo-location';
 
 import { color, radius, spacing } from '@/design/tokens';
 import { Screen } from '@/components/Screen';
@@ -16,6 +17,7 @@ import { Text } from '@/components/Text';
 import { Card } from '@/components/Card';
 import { RouteMap } from '@/map/RouteMap';
 import type { MapStop } from '@/map/types';
+import { PermissionRationale } from '@/components/PermissionRationale';
 
 type RouteStatus = 'pass' | 'fail' | 'neutral';
 
@@ -129,6 +131,30 @@ export default function Map() {
   const [showNight, setShowNight] = useState(false);
   const stops = DAY_STOPS[day];
   const [selectedId, setSelectedId] = useState(stops[0].id);
+  const [locationPermission, setLocationPermission] = useState<'checking' | 'undetermined' | 'granted' | 'denied'>(Platform.OS === 'web' ? 'granted' : 'checking');
+  const [requestingLocation, setRequestingLocation] = useState(false);
+
+  useEffect(() => {
+    if (Platform.OS === 'web') return;
+    const refreshPermission = () => void Location.getForegroundPermissionsAsync()
+      .then((result) => setLocationPermission(result.granted ? 'granted' : result.status === 'denied' ? 'denied' : 'undetermined'))
+      .catch(() => setLocationPermission('undetermined'));
+    refreshPermission();
+    const subscription = AppState.addEventListener('change', (state) => { if (state === 'active') refreshPermission(); });
+    return () => subscription.remove();
+  }, []);
+
+  async function requestLocation() {
+    setRequestingLocation(true);
+    try {
+      const result = await Location.requestForegroundPermissionsAsync();
+      setLocationPermission(result.granted ? 'granted' : 'denied');
+    } catch {
+      setLocationPermission('denied');
+    } finally {
+      setRequestingLocation(false);
+    }
+  }
   const routes = useMemo(() => routeScope === 'all'
     ? (Object.keys(DAY_STOPS) as Array<keyof typeof DAY_STOPS>).map((key) => ({ id: key, color: DAY_COLORS[key], stops: DAY_STOPS[key] }))
     : [{ id: day, color: DAY_COLORS[day], stops }], [day, routeScope, stops]);
@@ -177,6 +203,18 @@ export default function Map() {
           ))}
         </View>
       </View>
+
+      {locationPermission !== 'granted' && (
+        <PermissionRationale
+          icon="📍"
+          title="현재 위치로 길을 안내할까요?"
+          description="여행 중 가까운 장소와 출발 경로를 안내할 때만 위치를 사용해요. 허용하지 않아도 일정 지도는 볼 수 있어요."
+          denied={locationPermission === 'denied'}
+          busy={locationPermission === 'checking' || requestingLocation}
+          actionLabel="현재 위치 사용"
+          onRequest={() => void requestLocation()}
+        />
+      )}
 
       <View style={styles.mapStage}>
         <RouteMap stops={stops} selectedId={selectedId} onSelect={selectStopFromMap} routes={routes} points={points} onBackToList={() => router.back()} height={width <= 599 ? 420 : 600} />
