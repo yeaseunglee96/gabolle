@@ -92,7 +92,7 @@ export default function Welcome() {
     <StatusBar style="dark" />
     <SafeAreaView edges={['top']} style={styles.webHeader}>
       <Pressable accessibilityRole="link" accessibilityLabel="GABOLLE 홈" onPress={() => router.replace('/')} style={({ pressed }) => [styles.logoLink, pressed && styles.pressed]}><Image source={logo} resizeMode="contain" style={styles.webLogo} /></Pressable>
-      <View style={styles.webNav}><NavItem label={tx('홈', 'Home')} onPress={() => router.replace('/')} /><NavItem label={tx('여행 만들기', 'Plan a trip')} onPress={() => start()} /><NavItem label={tx('내 여행', 'My trips')} onPress={() => router.push('/sign-in')} /><NavItem label={tx('여행지 둘러보기', 'Explore')} onPress={() => start()} /></View>
+      <View style={styles.webNav}><NavItem label={tx('홈', 'Home')} onPress={() => router.replace('/')} /><NavItem label={tx('여행 만들기', 'Plan a trip')} onPress={() => start()} /><NavItem label={tx('내 여행', 'My trips')} onPress={() => router.push('/sign-in')} /><NavItem label={tx('부산 축제', 'Festivals')} onPress={() => router.push('/festivals')} /></View>
       <View style={styles.accountActions}>
         <Pressable accessibilityRole="button" accessibilityLabel={`언어를 ${language === 'ko' ? 'English' : '한국어'}로 변경`} onPress={() => chooseLanguage(language === 'ko' ? 'en' : 'ko')} style={styles.localeButton}><Text variant="caption" weight="bold">{language.toUpperCase()}</Text></Pressable>
         <Pressable accessibilityRole="button" onPress={() => router.push('/sign-in')} style={styles.loginButton}><Text variant="caption" weight="bold">{tx('로그인', 'Sign in')}</Text></Pressable>
@@ -106,7 +106,7 @@ export default function Welcome() {
         <View style={styles.heroBadge}><Text variant="caption" weight="bold" color={color.text.onAction}>AI TRAVEL PLANNER · BUSAN</Text></View>
         <Text variant="hero" weight="bold" color={color.text.onAction} style={styles.heroTitle}>{tx(`부산의 모든 여행,\n가볼래?`, `Every side of Busan,\nyours to explore.`)}</Text>
         <Text variant="body" color="rgba(255,255,255,0.78)" style={styles.heroDescription}>{tx('취향과 이동 조건을 반영해 당신만의 부산 여행을 만들어요.', 'Build a Busan trip around your taste and mobility needs.')}</Text>
-        <View style={styles.heroActions}><Pressable accessibilityRole="button" onPress={() => start()} style={styles.primaryCta}><Text variant="body" weight="bold" color={color.text.onAction}>{tx('여행 계획 시작하기', 'Start planning')}</Text></Pressable><Pressable accessibilityRole="button" onPress={() => start()} style={styles.secondaryCta}><Text variant="body" weight="bold" color={color.text.onAction}>{tx('여행지 둘러보기', 'Explore Busan')}</Text></Pressable></View>
+        <View style={styles.heroActions}><Pressable accessibilityRole="button" onPress={() => start()} style={styles.primaryCta}><Text variant="body" weight="bold" color={color.text.onAction}>{tx('여행 계획 시작하기', 'Start planning')}</Text></Pressable><Pressable accessibilityRole="button" onPress={() => router.push('/festivals')} style={styles.secondaryCta}><Text variant="body" weight="bold" color={color.text.onAction}>{tx('부산 축제 보기', 'Explore festivals')}</Text></Pressable></View>
         <View style={styles.heroChips}><HeroChip dot="#64d68a" label="맞춤 일정" /><HeroChip dot="#5ba5ff" label="지금 갈 곳" /><HeroChip dot="#ff976f" label="설명 가능한 추천" /></View>
       </View></View>
     </ImageBackground>

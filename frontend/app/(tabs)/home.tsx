@@ -90,9 +90,9 @@ export default function Home() {
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        <View accessibilityLabel="부산 날씨 정보 연동 준비 중" style={styles.weatherBar}>
-          <Text variant="body" weight="medium" color={color.text.heading}>☀️  부산 날씨 정보 준비 중</Text>
-        </View>
+        <Pressable accessibilityRole="button" accessibilityLabel="부산 축제 찾아보기" onPress={() => router.push('/festivals')} style={({ pressed }) => [styles.weatherBar, pressed && styles.weatherBarPressed]}>
+          <Text variant="body" weight="medium" color={color.text.heading}>🌺  내 날짜에 열리는 부산 축제 찾기</Text><Text weight="bold" color={color.brand.orange}>›</Text>
+        </Pressable>
 
         <View style={styles.heading}>
           <Text variant="display" weight="bold" color={color.text.heading} style={styles.headingTitle}>오늘 어디 가볼래?</Text>
@@ -151,7 +151,8 @@ const styles = StyleSheet.create({
   bell: { width: 40, height: 40, borderRadius: radius.full, backgroundColor: color.surface.soft, alignItems: 'center', justifyContent: 'center' },
   bellIcon: { width: 20, height: 20 },
   scrollContent: { paddingBottom: spacing[6] },
-  weatherBar: { minHeight: 44, marginTop: spacing[2], paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.state.warningBg, flexDirection: 'row', alignItems: 'center' },
+  weatherBar: { minHeight: 44, marginTop: spacing[2], paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.state.warningBg, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  weatherBarPressed: { opacity: 0.78, transform: [{ scale: 0.99 }] },
   heading: { gap: spacing[1], marginTop: spacing[4], marginHorizontal: spacing[1] },
   headingTitle: { fontSize: 28, lineHeight: 34 },
   carousel: { gap: spacing[3], paddingHorizontal: spacing[1], paddingVertical: spacing[4] },
