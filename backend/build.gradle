@@ -54,6 +54,25 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
+// 자바 소스를 어떤 인코딩으로 읽을지를 빌드를 돌리는 기계의 기본값에 맡기지 않는다.
+// 윈도우 개발 기계는 보통 MS949 로 읽고 CI 의 리눅스 컨테이너는 UTF-8 로 읽는다. 그 차이를
+// 두면 같은 소스가 기계마다 다르게 컴파일되고, 한국어 문자열이 깨진 채로도 컴파일은
+// 통과해서 실행할 때서야 드러난다.
+//
+// 2026-09-04 에 같은 계열의 문제가 설정 파일 쪽에서 실제로 터졌다. 메일 발신자 이름이
+// 수신함에서 깨져 나갔고, 원인은 .properties 를 ISO-8859-1 로 읽는 자바 규격이었다
+// (DEC-CONFIG-001). 이 설정은 그 사건의 소스 파일 쪽 대응이다.
+//
+// withType 을 쓰는 이유는 compileJava 와 compileTestJava 를 한 번에 덮기 위해서다.
+// 테스트 소스가 빠지면 회귀 테스트 자체가 깨져서 거짓 초록을 낸다.
+tasks.withType(JavaCompile).configureEach {
+	options.encoding = 'UTF-8'
+}
+
+tasks.withType(Javadoc).configureEach {
+	options.encoding = 'UTF-8'
+}
+
 tasks.named('test') {
 	useJUnitPlatform()
 }
