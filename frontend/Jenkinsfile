@@ -77,6 +77,9 @@ pipeline {
                             docker build -t local-route-frontend \
                                 --build-arg EXPO_PUBLIC_API_BASE_URL="$EXPO_PUBLIC_API_BASE_URL" \
                                 --build-arg EXPO_PUBLIC_OAUTH_CALLBACK_BASE_URL="$EXPO_PUBLIC_OAUTH_CALLBACK_BASE_URL" \
+                                --build-arg EXPO_PUBLIC_BUILD_SHA="$(git rev-parse HEAD)" \
+                                --build-arg EXPO_PUBLIC_BUILD_REF="front/dev" \
+                                --build-arg EXPO_PUBLIC_SHOW_BUILD_INFO="0" \
                                 --build-arg EXPO_PUBLIC_GOOGLE_CLIENT_ID="$GOOGLE_CLIENT_ID" \
                                 --build-arg EXPO_PUBLIC_NAVER_CLIENT_ID="$NAVER_CLIENT_ID" \
                                 --build-arg EXPO_PUBLIC_KAKAO_CLIENT_ID="$KAKAO_CLIENT_ID" \
