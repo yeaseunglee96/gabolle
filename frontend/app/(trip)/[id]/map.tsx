@@ -1,18 +1,21 @@
 // 12 지도·동선 — 발표의 핵심 화면.
 //
-// 지도 SDK 가 아직 안 정해져서(Jira 미결) 실제 지도 대신 자리표시자를 두고, 그 아래에
-// 실측 데이터 비교 카드를 놓는다 — 이게 발표에서 보여줄 내용이다.
+// 웹은 카카오 지도 JavaScript SDK를 사용하고, 앱은 SDK 결정 전까지 목록과 동선 요약을
+// 유지한다. 지도 키가 없거나 SDK 로딩에 실패해도 흰 화면 대신 같은 목록을 계속 제공한다.
 //
 // 🔴 비교 카드의 숫자는 실제 측정값이다. 반올림하거나 다듬지 않는다.
 // 🔴 이 앱은 "모르는 것을 아는 척하지 않는다" 는 원칙(PASS/FAIL/UNKNOWN)을 따른다.
 //    그래서 판정이 안 된 구간이 있다는 것도 숨기지 않고 UNKNOWN 으로 그대로 보여준다.
-import { StyleSheet, View } from 'react-native';
+import { useState } from 'react';
+import { Pressable, StyleSheet, View } from 'react-native';
 
 import { color, radius, spacing } from '@/design/tokens';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { Card } from '@/components/Card';
 import { Split } from '@/layout/Split';
+import { RouteMap } from '@/map/RouteMap';
+import type { MapStop } from '@/map/types';
 
 type RouteStatus = 'pass' | 'fail' | 'neutral';
 
@@ -56,12 +59,19 @@ const STATUS_COLOR: Record<RouteStatus, string> = {
   neutral: color.text.body,
 };
 
-const STOPS = [
-  { number: 1, name: '송도' },
-  { number: 2, name: '남포동' },
-  { number: 3, name: '흰여울' },
-  { number: 4, name: '광안리' },
-];
+const DAY_STOPS: Record<'DAY 1' | 'DAY 2', MapStop[]> = {
+  'DAY 1': [
+    { id: 'songdo', number: 1, name: '송도 해상 케이블카', latitude: 35.0764, longitude: 129.0239 },
+    { id: 'nampo', number: 2, name: '남포동 로컬 맛집', latitude: 35.0987, longitude: 129.0304 },
+    { id: 'huinnyeoul', number: 3, name: '흰여울문화마을', latitude: 35.0788, longitude: 129.0444 },
+    { id: 'gwangalli', number: 4, name: '광안리 해수욕장', latitude: 35.1532, longitude: 129.1187 },
+  ],
+  'DAY 2': [
+    { id: 'haeundae', number: 1, name: '해운대 해수욕장', latitude: 35.1587, longitude: 129.1604 },
+    { id: 'blueline', number: 2, name: '해운대 블루라인파크', latitude: 35.1611, longitude: 129.171 },
+    { id: 'centum', number: 3, name: '센텀시티', latitude: 35.1699, longitude: 129.1291 },
+  ],
+};
 
 function ComparisonCard({ route }: { route: RouteComparison }) {
   return (
@@ -99,12 +109,30 @@ function ComparisonCard({ route }: { route: RouteComparison }) {
 }
 
 export default function Map() {
+  const [day, setDay] = useState<'DAY 1' | 'DAY 2'>('DAY 1');
+  const stops = DAY_STOPS[day];
+  const [selectedId, setSelectedId] = useState(stops[0].id);
+
+  const selectDay = (nextDay: 'DAY 1' | 'DAY 2') => {
+    setDay(nextDay);
+    setSelectedId(DAY_STOPS[nextDay][0].id);
+  };
+
   return (
     <Screen scroll wide>
-      <Text variant="caption">DAY 1 · 4곳</Text>
-      <Text variant="display" weight="bold" style={styles.title}>
-        여행 지도
-      </Text>
+      <View style={styles.headerRow}>
+        <View>
+          <Text variant="caption">{day} · {stops.length}곳</Text>
+          <Text variant="display" weight="bold" style={styles.title}>여행 지도</Text>
+        </View>
+        <View accessibilityRole="tablist" style={styles.dayToggle}>
+          {(['DAY 1', 'DAY 2'] as const).map((option) => (
+            <Pressable key={option} accessibilityRole="tab" accessibilityState={{ selected: day === option }} onPress={() => selectDay(option)} style={[styles.dayOption, day === option && styles.dayOptionSelected]}>
+              <Text variant="caption" weight="bold" color={day === option ? color.text.onAction : color.text.muted}>{option}</Text>
+            </Pressable>
+          ))}
+        </View>
+      </View>
 
       <Split
         master={
@@ -116,48 +144,24 @@ export default function Map() {
             <Text variant="title" weight="bold" style={styles.masterTitle}>
               동선 목록
             </Text>
-            {STOPS.map((stop) => (
-              <View key={stop.number} style={styles.stopRow}>
+            {stops.map((stop) => (
+              <Pressable accessibilityRole="button" accessibilityState={{ selected: selectedId === stop.id }} onPress={() => setSelectedId(stop.id)} key={stop.id} style={[styles.stopRow, selectedId === stop.id && styles.stopRowSelected]}>
                 <View style={styles.stopMarker}>
                   <Text variant="caption" weight="bold" color={color.text.onAction}>
                     {stop.number}
                   </Text>
                 </View>
-                <Text variant="body" weight="bold">
+                <Text variant="body" weight="bold" style={styles.stopName}>
                   {stop.name}
                 </Text>
-              </View>
+                <Text variant="caption" color={color.text.muted}>장소 보기</Text>
+              </Pressable>
             ))}
           </View>
         }
         detail={
           <>
-            <View style={styles.mapPlaceholder}>
-              {/* TODO: 실제 지도 SDK 연동 전까지 자리표시자로 둔다 (지도 공급자 미정). */}
-              <Text variant="body" weight="bold" color={color.text.muted}>
-                지도 자리 — SDK 미정
-              </Text>
-              <Text variant="caption" style={styles.mapPlaceholderSub}>
-                실제 서비스에서는 여기에 동선이 표시됩니다.
-              </Text>
-
-              <View style={styles.stopsRow}>
-                {STOPS.map((stop) => (
-                  <View key={stop.number} style={styles.stop}>
-                    <View style={styles.stopMarker}>
-                      <Text variant="caption" weight="bold" color={color.text.onAction}>
-                        {stop.number}
-                      </Text>
-                    </View>
-                    <Text variant="caption">{stop.name}</Text>
-                  </View>
-                ))}
-              </View>
-
-              <Text variant="caption" style={styles.attribution}>
-                © OpenStreetMap contributors
-              </Text>
-            </View>
+            <RouteMap stops={stops} selectedId={selectedId} onSelect={setSelectedId} />
 
             <Text variant="title" weight="bold" style={styles.sectionTitle}>
               실측 경로 비교
@@ -186,21 +190,26 @@ export default function Map() {
 const styles = StyleSheet.create({
   title: {
     marginTop: spacing[1],
+  },
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: spacing[4],
   },
-  mapPlaceholder: {
-    height: 260,
-    borderRadius: radius.lg,
+  dayToggle: {
+    flexDirection: 'row',
     backgroundColor: color.surface.soft,
-    borderWidth: 1,
-    borderColor: color.surface.field,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing[1],
-    padding: spacing[4],
+    borderRadius: radius.full,
+    padding: spacing[1],
   },
-  mapPlaceholderSub: {
-    textAlign: 'center',
+  dayOption: {
+    paddingHorizontal: spacing[3],
+    paddingVertical: spacing[2],
+    borderRadius: radius.full,
+  },
+  dayOptionSelected: {
+    backgroundColor: color.brand.orange,
   },
   stopsList: {
     gap: spacing[3],
@@ -212,29 +221,25 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing[3],
+    padding: spacing[3],
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: color.surface.field,
   },
-  stopsRow: {
-    flexDirection: 'row',
-    gap: spacing[4],
-    marginTop: spacing[4],
+  stopRowSelected: {
+    borderColor: color.brand.orange,
+    backgroundColor: color.state.dangerBg,
   },
-  stop: {
-    alignItems: 'center',
-    gap: spacing[1],
+  stopName: {
+    flex: 1,
   },
   stopMarker: {
     width: 28,
     height: 28,
     borderRadius: radius.full,
-    backgroundColor: color.action.brand,
+    backgroundColor: color.brand.orange,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  attribution: {
-    position: 'absolute',
-    bottom: spacing[2],
-    left: spacing[2],
-    color: color.text.muted,
   },
   sectionTitle: {
     marginTop: spacing[8],
