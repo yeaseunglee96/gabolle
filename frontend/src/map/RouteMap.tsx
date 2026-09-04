@@ -2,6 +2,7 @@ import { createElement, useEffect, useRef, useState } from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
 
 import { Text } from '@/components/Text';
+import { Button } from '@/components/Button';
 import { color, radius, spacing } from '@/design/tokens';
 import type { MapStop } from './types';
 
@@ -9,7 +10,7 @@ declare global { interface Window { kakao?: any } }
 
 const SDK_ID = 'kakao-map-sdk';
 
-export function RouteMap({ stops, selectedId, onSelect }: { stops: MapStop[]; selectedId: string; onSelect: (id: string) => void }) {
+export function RouteMap({ stops, selectedId, onSelect, onBack }: { stops: MapStop[]; selectedId: string; onSelect: (id: string) => void; onBack: () => void }) {
   const hostRef = useRef<HTMLElement | null>(null);
   const mapRef = useRef<any>(null);
   const overlaysRef = useRef<any[]>([]);
@@ -58,7 +59,7 @@ export function RouteMap({ stops, selectedId, onSelect }: { stops: MapStop[]; se
     return (
       <View style={styles.webShell}>
         {createElement('div', { ref: hostRef, style: { width: '100%', height: 340 }, 'aria-label': '여행 동선 지도' })}
-        {error ? <View style={styles.webFallback}><Text variant="title" weight="bold">지도 없이 동선을 확인하고 있어요</Text><Text variant="body" style={styles.description}>{error}</Text></View> : null}
+        {error ? <View style={styles.webFallback}><Text variant="title" weight="bold">지도 없이 동선을 확인하고 있어요</Text><Text variant="body" style={styles.description}>{error}</Text><Button label="목록으로 돌아가기" variant="ghost" onPress={onBack} /></View> : null}
       </View>
     );
   }
@@ -67,6 +68,7 @@ export function RouteMap({ stops, selectedId, onSelect }: { stops: MapStop[]; se
     <View style={styles.fallback}>
       <Text variant="title" weight="bold">앱 지도 연동을 준비하고 있어요</Text>
       <Text variant="body" style={styles.description}>방문 순서와 장소 목록은 그대로 확인할 수 있습니다. 앱용 지도 SDK가 확정되면 이 영역에 동선을 표시해요.</Text>
+      <Button label="목록으로 돌아가기" variant="ghost" onPress={onBack} />
       <View style={styles.routePreview}>
         {stops.map((stop, index) => (
           <View key={stop.id} style={styles.routeItem}>

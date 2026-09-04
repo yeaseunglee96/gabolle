@@ -6,8 +6,9 @@
 // 🔴 비교 카드의 숫자는 실제 측정값이다. 반올림하거나 다듬지 않는다.
 // 🔴 이 앱은 "모르는 것을 아는 척하지 않는다" 는 원칙(PASS/FAIL/UNKNOWN)을 따른다.
 //    그래서 판정이 안 된 구간이 있다는 것도 숨기지 않고 UNKNOWN 으로 그대로 보여준다.
-import { useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { useCallback, useState } from 'react';
+import { useRouter } from 'expo-router';
+import { Platform, Pressable, StyleSheet, View } from 'react-native';
 
 import { color, radius, spacing } from '@/design/tokens';
 import { Screen } from '@/components/Screen';
@@ -109,6 +110,7 @@ function ComparisonCard({ route }: { route: RouteComparison }) {
 }
 
 export default function Map() {
+  const router = useRouter();
   const [day, setDay] = useState<'DAY 1' | 'DAY 2'>('DAY 1');
   const stops = DAY_STOPS[day];
   const [selectedId, setSelectedId] = useState(stops[0].id);
@@ -117,6 +119,15 @@ export default function Map() {
     setDay(nextDay);
     setSelectedId(DAY_STOPS[nextDay][0].id);
   };
+  const selectStopFromMap = useCallback((id: string) => {
+    setSelectedId(id);
+    if (Platform.OS !== 'web') return;
+    requestAnimationFrame(() => {
+      const card = document.getElementById(`map-stop-${id}`);
+      card?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      card?.focus({ preventScroll: true });
+    });
+  }, []);
 
   return (
     <Screen scroll wide>
@@ -145,7 +156,7 @@ export default function Map() {
               동선 목록
             </Text>
             {stops.map((stop) => (
-              <Pressable accessibilityRole="button" accessibilityState={{ selected: selectedId === stop.id }} onPress={() => setSelectedId(stop.id)} key={stop.id} style={[styles.stopRow, selectedId === stop.id && styles.stopRowSelected]}>
+              <Pressable nativeID={`map-stop-${stop.id}`} accessibilityRole="button" accessibilityState={{ selected: selectedId === stop.id }} onPress={() => setSelectedId(stop.id)} key={stop.id} style={[styles.stopRow, selectedId === stop.id && styles.stopRowSelected]}>
                 <View style={styles.stopMarker}>
                   <Text variant="caption" weight="bold" color={color.text.onAction}>
                     {stop.number}
@@ -161,7 +172,7 @@ export default function Map() {
         }
         detail={
           <>
-            <RouteMap stops={stops} selectedId={selectedId} onSelect={setSelectedId} />
+            <RouteMap stops={stops} selectedId={selectedId} onSelect={selectStopFromMap} onBack={() => router.back()} />
 
             <Text variant="title" weight="bold" style={styles.sectionTitle}>
               실측 경로 비교
