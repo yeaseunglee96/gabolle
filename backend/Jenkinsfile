@@ -16,6 +16,21 @@
 //  - gabolle-jwt-secret    (Secret text) — 32자 이상 운영용 값
 //  - gabolle-mail-username (Secret text) — 인증·재설정 메일 발신 계정 (SMTP 사용자)
 //  - gabolle-mail-password (Secret text) — 그 계정의 앱 비밀번호. 로그인 비밀번호가 아니다
+//  - gabolle-google-client-id     (Secret text) — Google OAuth 클라이언트 ID
+//  - gabolle-google-client-secret (Secret text)
+//  - gabolle-kakao-client-id      (Secret text) — Kakao 는 REST API 키가 client_id 다
+//  - gabolle-kakao-client-secret  (Secret text) — Kakao Developers 에서 Client secret 을 켜 둔 경우 필요하다
+//  - gabolle-naver-client-id      (Secret text)
+//  - gabolle-naver-client-secret  (Secret text)
+//
+// 소셜 항목은 여섯 개인데 컨테이너로 넣는 환경변수는 일곱 개다.
+// GABOLLE_GOOGLE_ALLOWED_CLIENT_IDS 는 Credential 을 따로 만들지 않고 Google client ID 를
+// 그대로 재사용한다. 비밀값이 아니라, 구글이 서명해서 주는 ID Token(로그인한 사람이
+// 누구인지 담긴 토큰) 의 aud 칸에 들어와도 되는 client ID 목록이다. 비워 두면
+// 키를 넣어도 GoogleIdTokenVerifier 가 501 OAUTH_PROVIDER_NOT_CONFIGURED 를 낸다.
+// 플랫폼별로 client ID 를 따로 발급하면 그것들을 콤마로 이어 넣을 자리다.
+//
+// 환경변수 이름의 정본은 backend/src/main/resources/application-dev.properties 다.
 //
 // 메일을 켜는 스위치는 GABOLLE_MAIL_ENABLED 다. 위 둘을 Jenkins 에 넣기 전에는
 // false 로 두어야 한다 — true 인데 발신 계정이 비어 있으면 SmtpEmailSender 가
@@ -94,7 +109,13 @@ pipeline {
                     string(credentialsId: 'gabolle-db-password', variable: 'GABOLLE_DB_PASSWORD'),
                     string(credentialsId: 'gabolle-jwt-secret', variable: 'GABOLLE_JWT_SECRET'),
                     string(credentialsId: 'gabolle-mail-username', variable: 'GABOLLE_MAIL_USERNAME'),
-                    string(credentialsId: 'gabolle-mail-password', variable: 'GABOLLE_MAIL_PASSWORD')
+                    string(credentialsId: 'gabolle-mail-password', variable: 'GABOLLE_MAIL_PASSWORD'),
+                    string(credentialsId: 'gabolle-google-client-id', variable: 'GABOLLE_GOOGLE_CLIENT_ID'),
+                    string(credentialsId: 'gabolle-google-client-secret', variable: 'GABOLLE_GOOGLE_CLIENT_SECRET'),
+                    string(credentialsId: 'gabolle-kakao-client-id', variable: 'GABOLLE_KAKAO_CLIENT_ID'),
+                    string(credentialsId: 'gabolle-kakao-client-secret', variable: 'GABOLLE_KAKAO_CLIENT_SECRET'),
+                    string(credentialsId: 'gabolle-naver-client-id', variable: 'GABOLLE_NAVER_CLIENT_ID'),
+                    string(credentialsId: 'gabolle-naver-client-secret', variable: 'GABOLLE_NAVER_CLIENT_SECRET')
                 ]) {
                     sh 'docker stop backend || true'
                     sh 'docker rm backend || true'
@@ -110,6 +131,13 @@ pipeline {
                             -e GABOLLE_MAIL_ENABLED=true \
                             -e GABOLLE_MAIL_USERNAME="$GABOLLE_MAIL_USERNAME" \
                             -e GABOLLE_MAIL_PASSWORD="$GABOLLE_MAIL_PASSWORD" \
+                            -e GABOLLE_GOOGLE_CLIENT_ID="$GABOLLE_GOOGLE_CLIENT_ID" \
+                            -e GABOLLE_GOOGLE_CLIENT_SECRET="$GABOLLE_GOOGLE_CLIENT_SECRET" \
+                            -e GABOLLE_GOOGLE_ALLOWED_CLIENT_IDS="$GABOLLE_GOOGLE_CLIENT_ID" \
+                            -e GABOLLE_KAKAO_CLIENT_ID="$GABOLLE_KAKAO_CLIENT_ID" \
+                            -e GABOLLE_KAKAO_CLIENT_SECRET="$GABOLLE_KAKAO_CLIENT_SECRET" \
+                            -e GABOLLE_NAVER_CLIENT_ID="$GABOLLE_NAVER_CLIENT_ID" \
+                            -e GABOLLE_NAVER_CLIENT_SECRET="$GABOLLE_NAVER_CLIENT_SECRET" \
                             local-route-backend
                     '''
                 }
