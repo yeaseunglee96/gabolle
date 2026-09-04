@@ -392,8 +392,31 @@ location / {
 GABOLLE 화면(`<title>GABOLLE</title>`)과 임의 하위 경로의 라우팅 fallback을
 확인했다.
 
-> 아직 Jenkins Job으로 자동화되지 않았다 — 지금은 backend 초기와 같은
-> 수동 `docker build`/`docker run` 단계다. 자동 배포는 후속 작업.
+### 자동 배포 — Jenkins Job `frontend-deploy` (S15P21E201-594)
+
+> 🔴 **2026-09-04 — front/dev가 서버에 34커밋 밀려 있던 것을 실측으로 발견함.**
+> 자동 배포 경로가 아예 없어서, 위 7절의 수동 `docker build`/`docker run`을
+> 딱 한 번 한 뒤로는 아무도 다시 안 돌렸다. 라이브 이미지가 2026-09-03 02:40
+> UTC 빌드였는데 그사이 오늘 머지된 내비게이션(-593)·i18n(-124) 등 34개
+> 커밋이 화면에 하나도 안 보이는 상태였다. SSH로 최신 front/dev를 수동
+> 재배포해 우선 복구하고(200 확인), backend-deploy(S15P21E201-575)와 같은
+> 패턴으로 자동화를 추가한다.
+
+`backend/Jenkinsfile`과 동일한 구조로 `frontend/Jenkinsfile`을 추가했다 —
+Checkout(front/dev) → Build Image → Deploy → Health Check, MatterMost 알림
+포함. 컨테이너는 `local-route-personalization_data_net`에 조인시켜서, Jenkins
+컨테이너가 `http://frontend:80/`으로 이름 조회할 수 있게 했다(backend와 같은
+이유 — 5절의 "localhost는 Jenkins 자기 자신" 함정 참고).
+
+Jenkins Job `frontend-deploy`는 Pipeline script from SCM 방식으로 이미
+만들었다 (Script Path `frontend/Jenkinsfile`, branch `front/dev`, Generic
+Webhook Trigger token `frontend-deploy`).
+
+**아직 안 된 것**: `frontend/Jenkinsfile`이 아직 `front/dev`에 없다 (MR
+대기 중 — 머지되어야 이 Job이 실제로 돈다). GitLab Webhook 등록(URL을
+`.../jenkins/generic-webhook-trigger/invoke?token=frontend-deploy`로,
+Wildcard pattern `front/dev`로 제한)도 Maintainer 권한의 GitLab PAT가
+있어야 해서 아직 안 걸었다 — "GitLab Webhook 연동" 절차를 그대로 따르면 된다.
 
 ---
 
@@ -407,7 +430,8 @@ Wildcard pattern `common/dev`)이 자동으로 트리거해 SHA 태깅 빌드·�
 
 실제로 아직 안 된 것:
 
-- frontend Jenkins Job 자동 배포 연결 (지금은 수동 빌드, 7절 참고)
+- frontend GitLab Webhook 등록 (Jenkins Job `frontend-deploy`는 만들어짐, MR
+  머지와 Webhook 등록이 남음 — 7절 "자동 배포" 참고, S15P21E201-594)
 - ✅ **2026-09-03 — Jenkins UI를 443 서브패스로 옮김.** 8081은 UFW에서
   닫았고, 이제 22·80·443만 열려 있다. 5절 "Jenkins UI를 443 서브패스로 옮김"
   참고
