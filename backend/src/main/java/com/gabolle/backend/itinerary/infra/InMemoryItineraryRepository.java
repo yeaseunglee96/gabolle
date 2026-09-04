@@ -7,21 +7,21 @@ import com.gabolle.backend.itinerary.domain.StaleItineraryVersionException;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 /**
- * 메모리 저장소 — M1 용. PostgreSQL 없이 409 동작을 재현할 수 있게 한다.
+ * 메모리 저장소 — {@code no-db} 전용.
  *
- * <p>왜 이걸 먼저 만드나: 지금 {@code application.properties} 가 DataSource·JPA·Flyway 를
- * 전부 꺼 두었고(뼈대 상태), M1 완료 조건 ② 는 <b>"409 충돌이 실제로 재현된다"</b> 다.
- * DB 를 붙이기 전에 규칙이 도는지 보여줄 수 있어야 한다.
+ * <p>🔴 S15P21E201-313 이 {@code itineraries}·{@code itinerary_versions} 를
+ * {@link JpaItineraryRepository} 로 옮기면서 {@code db}·{@code dev} 프로필에는 이
+ * 빈을 만들지 않는다 — trip 패키지의 {@code InMemoryTripRepository} 와 같은 이유다.
+ * 둘 다 살아 있으면 {@code ItineraryRepository} 빈이 둘이 되어 애플리케이션이 못 뜬다.
  *
- * <p>🔴 이것이 4계층으로 나눈 값이다. {@code domain} 은 이 클래스의 존재를 모르고,
- * 나중에 JPA 구현으로 갈아 끼울 때 {@code domain}·{@code application} 은 한 줄도 안 고친다.
- *
- * <p>서버를 끄면 사라진다. 시연·테스트 전용이다.
+ * <p>서버를 끄면 사라진다. {@code no-db} 프로필 전용이다.
  */
 @Repository
+@Profile("!db & !dev")
 public class InMemoryItineraryRepository implements ItineraryRepository {
 
     private final Map<String, Itinerary> itineraries = new ConcurrentHashMap<>();
