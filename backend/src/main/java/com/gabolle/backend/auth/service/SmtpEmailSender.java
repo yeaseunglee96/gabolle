@@ -16,6 +16,14 @@ public class SmtpEmailSender implements EmailSender {
 
 	public SmtpEmailSender(JavaMailSender mailSender,
 			@org.springframework.beans.factory.annotation.Value("${gabolle.mail.from:${spring.mail.username:}}") String from) {
+		// gabolle.mail.enabled=true 인데 발신 계정이 비어 있으면 여기서 기동을 멈춘다.
+		// 그대로 뜨면 가입은 201 을 주고 인증 메일만 조용히 안 나가서, 사용자는
+		// 로그인 단계의 EMAIL_NOT_VERIFIED 로만 고장을 알게 된다.
+		if (from == null || from.isBlank()) {
+			throw new IllegalStateException(
+					"gabolle.mail.enabled=true 인데 발신 주소가 없습니다. "
+							+ "GABOLLE_MAIL_USERNAME 또는 GABOLLE_MAIL_FROM 을 주입하십시오.");
+		}
 		this.mailSender = mailSender;
 		this.from = from;
 	}

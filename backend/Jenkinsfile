@@ -14,6 +14,13 @@
 //  - gabolle-db-username   (Secret text) — app_user
 //  - gabolle-db-password   (Secret text)
 //  - gabolle-jwt-secret    (Secret text) — 32자 이상 운영용 값
+//  - gabolle-mail-username (Secret text) — 인증·재설정 메일 발신 계정 (SMTP 사용자)
+//  - gabolle-mail-password (Secret text) — 그 계정의 앱 비밀번호. 로그인 비밀번호가 아니다
+//
+// 메일을 켜는 스위치는 GABOLLE_MAIL_ENABLED 다. 위 둘을 Jenkins 에 넣기 전에는
+// false 로 두어야 한다 — true 인데 발신 계정이 비어 있으면 SmtpEmailSender 가
+// 기동을 막는다. 가입만 201 로 되고 인증 메일이 조용히 안 나가는 상태보다,
+// 배포가 그 자리에서 실패하는 쪽이 낫다.
 //
 // DB는 infra/personalization의 PostgreSQL(app_db, S15P21E201-581)을 그대로
 // 쓴다 — 그래서 컨테이너를 그 Docker 네트워크(local-route-personalization_data_net)에
@@ -76,7 +83,9 @@ pipeline {
                     string(credentialsId: 'gabolle-db-url', variable: 'GABOLLE_DB_URL'),
                     string(credentialsId: 'gabolle-db-username', variable: 'GABOLLE_DB_USERNAME'),
                     string(credentialsId: 'gabolle-db-password', variable: 'GABOLLE_DB_PASSWORD'),
-                    string(credentialsId: 'gabolle-jwt-secret', variable: 'GABOLLE_JWT_SECRET')
+                    string(credentialsId: 'gabolle-jwt-secret', variable: 'GABOLLE_JWT_SECRET'),
+                    string(credentialsId: 'gabolle-mail-username', variable: 'GABOLLE_MAIL_USERNAME'),
+                    string(credentialsId: 'gabolle-mail-password', variable: 'GABOLLE_MAIL_PASSWORD')
                 ]) {
                     sh 'docker stop backend || true'
                     sh 'docker rm backend || true'
@@ -89,6 +98,9 @@ pipeline {
                             -e GABOLLE_DB_USERNAME="$GABOLLE_DB_USERNAME" \
                             -e GABOLLE_DB_PASSWORD="$GABOLLE_DB_PASSWORD" \
                             -e GABOLLE_JWT_SECRET="$GABOLLE_JWT_SECRET" \
+                            -e GABOLLE_MAIL_ENABLED=true \
+                            -e GABOLLE_MAIL_USERNAME="$GABOLLE_MAIL_USERNAME" \
+                            -e GABOLLE_MAIL_PASSWORD="$GABOLLE_MAIL_PASSWORD" \
                             local-route-backend
                     '''
                 }
