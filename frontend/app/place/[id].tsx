@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ImageBackground, Linking, Pressable, StyleSheet, View } from 'react-native';
+import { ImageBackground, Linking, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
@@ -19,6 +19,7 @@ const SAVED_PLACES_KEY = 'gabolle.saved-home-places';
 
 export default function Place() {
   const router = useRouter();
+  const { width } = useWindowDimensions();
   const { id } = useLocalSearchParams<{ id?: string }>();
   const place = id && id in PLACES ? PLACES[id as keyof typeof PLACES] : null;
   const [isSaved, setIsSaved] = useState(false);
@@ -69,7 +70,7 @@ export default function Place() {
       </View>
 
       {place ? <>
-        <ImageBackground source={place.image} resizeMode="cover" style={styles.hero} imageStyle={styles.heroImage}>
+        <ImageBackground source={place.image} resizeMode="cover" style={[styles.hero, width >= 760 && styles.heroWide]} imageStyle={styles.heroImage}>
           <View style={styles.shade} />
           <View style={styles.heroCopy}>
             <Text variant="display" weight="bold" color={color.text.onAction}>{place.title}</Text>
@@ -101,7 +102,8 @@ const styles = StyleSheet.create({
   pressed: { opacity: 0.72, transform: [{ scale: 0.96 }] },
   logo: { width: 96, height: 28 },
   spacer: { width: 44 },
-  hero: { height: 360, justifyContent: 'flex-end', overflow: 'hidden', borderRadius: radius.lg },
+  hero: { height: 240, justifyContent: 'flex-end', overflow: 'hidden', borderRadius: radius.lg },
+  heroWide: { height: 360 },
   heroImage: { borderRadius: radius.lg },
   shade: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(8, 27, 53, 0.25)' },
   heroCopy: { gap: spacing[1], padding: spacing[4] },
