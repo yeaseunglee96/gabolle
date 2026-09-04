@@ -18,8 +18,6 @@ type FeedTab = '전체' | '팔로잉';
 
 export default function Feed() {
   const [tab, setTab] = useState<FeedTab>('전체');
-  const [following, setFollowing] = useState(false);
-  const [liked, setLiked] = useState(false);
 
   return (
     <Screen scroll>
@@ -32,13 +30,14 @@ export default function Feed() {
             여행 피드
           </Text>
         </View>
-        {/* TODO: 게시글 작성 화면 미정 — 지금은 장식만 한다. */}
-        <View style={styles.writeButton}>
-          <Text variant="caption" weight="bold" color={color.text.onAction}>
-            ✎ 기록 쓰기
+        <View accessibilityRole="text" style={styles.pendingBadge}>
+          <Text variant="caption" weight="bold" color={color.text.muted}>
+            기록 기능 준비 중
           </Text>
         </View>
       </View>
+
+      <View style={styles.previewNotice}><Text variant="caption" color={color.text.body}>피드 API 연결 전 구성 확인을 위한 예시 화면이에요. 팔로우·공감 수는 실제 데이터가 아닙니다.</Text></View>
 
       <View style={styles.tabsRow}>
         {(['전체', '팔로잉'] as FeedTab[]).map((option) => {
@@ -75,11 +74,7 @@ export default function Feed() {
                 방문 인증 · 18분 전
               </Text>
             </View>
-            <Pressable onPress={() => setFollowing((prev) => !prev)}>
-              <Text variant="caption" weight="bold" color={color.action.secondary}>
-                {following ? '팔로잉' : '팔로우'}
-              </Text>
-            </Pressable>
+            <Text variant="caption" weight="bold" color={color.text.muted}>연동 예정</Text>
           </View>
 
           <View style={styles.photo}>
@@ -101,22 +96,13 @@ export default function Feed() {
           <View style={styles.divider} />
 
           <View style={styles.cardFooter}>
-            <Pressable style={styles.likeRow} onPress={() => setLiked((prev) => !prev)}>
-              <Text variant="caption" weight="medium" color={liked ? color.state.danger : color.text.muted}>
-                {liked ? '♥' : '♡'} {128 + (liked ? 1 : 0)}
-              </Text>
-            </Pressable>
+            <Text variant="caption" weight="medium" color={color.text.muted}>♡ 128</Text>
             <Text variant="caption" weight="medium" color={color.text.muted}>
               도움돼요 34 · 실제로 가봤어요 21
             </Text>
           </View>
 
-          {/* TODO: 일정 데이터 모델 미정 — 지금은 눌러도 담기지 않는다. */}
-          <Pressable style={styles.addToTripRow}>
-            <Text variant="caption" weight="bold" color={color.action.secondary}>
-              내 일정에 담기 ›
-            </Text>
-          </Pressable>
+          <Text variant="caption" weight="bold" color={color.text.muted} style={styles.addToTripRow}>일정 연동 준비 중</Text>
         </View>
       )}
 
@@ -136,12 +122,13 @@ const styles = StyleSheet.create({
   headerTitle: {
     marginTop: spacing[1],
   },
-  writeButton: {
-    backgroundColor: color.action.secondary,
+  pendingBadge: {
+    backgroundColor: color.surface.soft,
     borderRadius: radius.full,
     paddingHorizontal: spacing[4],
     paddingVertical: spacing[3],
   },
+  previewNotice: { marginTop: spacing[4], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.state.warningBg },
   tabsRow: {
     flexDirection: 'row',
     gap: spacing[2],
@@ -211,10 +198,6 @@ const styles = StyleSheet.create({
   cardFooter: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  likeRow: {
-    flexDirection: 'row',
     alignItems: 'center',
   },
   addToTripRow: {
