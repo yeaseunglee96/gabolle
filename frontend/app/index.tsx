@@ -44,6 +44,11 @@ function videosForCurrentTime() {
   return VIDEO_BY_TIME.night;
 }
 
+function shouldUseLightWelcomeLogo() {
+  const hour = new Date().getHours();
+  return hour < 7 || hour >= 17;
+}
+
 function pickWelcomeVideo(previous?: number) {
   const candidates = videosForCurrentTime();
   const alternatives = previous === undefined ? candidates : candidates.filter((source) => source !== previous);
@@ -78,11 +83,12 @@ export default function Welcome() {
   };
 
   if (!isDesktop) {
+    const lightLogo = shouldUseLightWelcomeLogo();
     return <View style={styles.mobileScreen}>
       <ScenicVideo poster={welcomeImage} source={welcomeVideo} />
       <StatusBar style="light" />
       <SafeAreaView edges={['top', 'bottom']} style={styles.mobileSafeArea}>
-        <View style={styles.mobileBrand}><Pressable accessibilityRole="button" accessibilityLabel="GABOLLE 시작하기" accessibilityHint="연령 확인 화면으로 이동합니다" onPress={() => start()} style={({ pressed }) => [styles.logoLink, pressed && styles.pressed]}><Image source={logo} resizeMode="contain" style={styles.mobileLogo} /></Pressable><Text variant="display" weight="bold" color={color.brand.orange}>부산 가볼래?</Text></View>
+        <View style={styles.mobileBrand}><Pressable accessibilityRole="button" accessibilityLabel="GABOLLE 시작하기" accessibilityHint="연령 확인 화면으로 이동합니다" onPress={() => start()} style={({ pressed }) => [styles.logoLink, pressed && styles.pressed]}><Image source={logo} resizeMode="contain" style={[styles.mobileLogo, lightLogo && styles.mobileLogoLight]} /></Pressable><Text variant="display" weight="bold" color={color.brand.orange}>부산 가볼래?</Text></View>
         <View accessibilityRole="radiogroup" accessibilityLabel="시작할 언어 선택" style={styles.languageList}>{LANGUAGES.map((item) => <LanguageButton key={item.code} item={item} selected={language === item.code} onPress={() => start(item.code)} />)}</View>
       </SafeAreaView>
     </View>;
@@ -128,6 +134,7 @@ const styles = StyleSheet.create({
   mobileSafeArea: { flex: 1 },
   mobileBrand: { position: 'absolute', top: '13%', left: 0, right: 0, alignItems: 'center', gap: spacing[3] },
   mobileLogo: { width: 280, height: 70 },
+  mobileLogoLight: { tintColor: '#ffffff' },
   languageList: { position: 'absolute', left: 24, right: 24, bottom: 44, alignSelf: 'center', gap: spacing[3] },
   languageButton: { height: 58, borderRadius: 18, borderWidth: 1, borderColor: 'rgba(255,255,255,0.48)', backgroundColor: 'rgba(11,29,58,0.30)', paddingHorizontal: 20, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   languageButtonSelected: { borderWidth: 2, borderColor: color.brand.orange, backgroundColor: 'rgba(255,253,248,0.96)', shadowColor: color.brand.navy, shadowOpacity: 0.16, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 4 },
