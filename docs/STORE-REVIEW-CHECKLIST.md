@@ -15,21 +15,34 @@
 
 ---
 
-## 0. 지금 바로 막힌 것 — 실측으로 발견한 것 넷
+## 0. 지금 바로 막힌 것 — 실측으로 발견한 것 셋
 
-이 넷은 "확인이 안 됐다" 가 아니라 **아직 존재하지 않는다.** 체크리스트를 돌리기
+이 셋은 "확인이 안 됐다" 가 아니라 **아직 존재하지 않는다.** 체크리스트를 돌리기
 전에 먼저 구현이 필요하다.
 
 | # | 무엇이 없나 | 왜 심사에 걸리나 | 실측 근거 |
 | :-: | --- | --- | --- |
 | 1 | **계정 삭제 API** | Apple 5.1.1(v) — 앱 안에서 계정을 삭제할 수 있어야 한다. Google Play도 데이터 삭제 경로를 요구한다 | `backend/.../auth/api/AuthController.java`에 `DeleteMapping` 이 하나도 없다 (전체 매핑 grep 결과 0건) |
-| 2 | **Sign in with Apple** | Apple 4.8 — 서드파티 소셜 로그인(Google·Kakao)을 제공하면서 Apple 로그인이 없으면 iOS 심사에서 걸린다. `AuthProvider` enum에 `GOOGLE`·`KAKAO`만 있고 `APPLE`이 없다 | `backend/.../auth/domain/AuthProvider.java`, `frontend/app/(auth)/sign-in.tsx`(구글·카카오 버튼 실제로 있음) |
-| 3 | **권한 사용 목적 문구** | iOS는 `Info.plist`에 각 권한의 목적 문구(`NS*UsageDescription`)가 없으면 심사 자체가 안 된다. Android도 목적 없는 권한 선언은 리젝 사유다 | `frontend/app.json`에 `ios.infoPlist`·`android.permissions` 자체가 없다 — 카메라·마이크·위치·사진 중 아무 것도 선언 안 됨 |
-| 4 | **약관·개인정보 처리방침 화면**, **신고 검토 경로(UGC)** | 둘 다 심사 필수 항목 — 방침 URL이 앱 내에도 있어야 하고, 사용자 생성 콘텐츠(여행 기록 등)가 있으면 신고·처리 경로가 있어야 한다 | `frontend/app/` 라우트 전체(`git ls-tree`)에 `legal/terms`·`legal/privacy`·`admin/moderation`류 화면이 없다 |
+| 2 | **권한 사용 목적 문구** | iOS는 `Info.plist`에 각 권한의 목적 문구(`NS*UsageDescription`)가 없으면 심사 자체가 안 된다. Android도 목적 없는 권한 선언은 리젝 사유다 | `frontend/app.json`에 `ios.infoPlist`·`android.permissions` 자체가 없다 — 카메라·마이크·위치·사진 중 아무 것도 선언 안 됨 |
+| 3 | **약관·개인정보 처리방침 화면**, **신고 검토 경로(UGC)** | 둘 다 심사 필수 항목 — 방침 URL이 앱 내에도 있어야 하고, 사용자 생성 콘텐츠(여행 기록 등)가 있으면 신고·처리 경로가 있어야 한다 | `frontend/app/` 라우트 전체(`git ls-tree`)에 `legal/terms`·`legal/privacy`·`admin/moderation`류 화면이 없다 |
 
-**이 넷은 각자 티켓이 있거나 있어야 한다** — S15P21E201-197(약관)·203(개인정보
-처리방침)이 이미 있다. 계정 삭제·Sign in with Apple·권한 문구·신고 경로는 아직
-전용 티켓이 없다면 이 문서를 근거로 새로 낸다.
+**이 셋은 각자 티켓이 있거나 있어야 한다** — S15P21E201-197(약관)·203(개인정보
+처리방침)이 이미 있다. 계정 삭제·권한 문구·신고 경로는 아직 전용 티켓이 없다면
+이 문서를 근거로 새로 낸다.
+
+### 🔴 Apple 로그인 미지원 — gap이 아니라 결정 (2026-09-04, S15P21E201-602)
+
+원래 여기 4번 항목으로 "Sign in with Apple 없음"을 gap으로 적어 뒀었다. 그런데
+`docs/gabolle/GABOLLE_통합_서비스_기획서_v1.1.docx` MVP 결정표를 다시 보니
+**"이메일/Apple 로그인"이 이미 명시적으로 제외 범위였다** — 팀이 실수로 빠뜨린
+게 아니라 원래 정한 것이었다. 그래서 이번에 그대로 확정했고, Apple 로그인은
+**만들지 않는다.**
+
+**남는 위험은 사라지지 않았다.** Google·Kakao 로그인은 있고 Apple 로그인이
+없는 채로 iOS 앱스토어에 제출하면 Apple 가이드라인 4.8 위반으로 반려될 수
+있다. 이번 결정은 그 위험을 **인지한 채로** 받아들인 것이다 — iOS 스토어 제출을
+실제로 진행할 때 이 위험을 다시 마주하게 된다. 그때 가서 "왜 안 만들었지"를
+다시 묻지 않도록 여기 남긴다.
 
 ---
 
@@ -54,7 +67,7 @@
 | 1 | **계정 삭제 기능** (5.1.1(v)) | 앱 내 설정 화면에서 실제로 계정을 삭제해보고, DB에서 해당 사용자 행이 지워지거나 익명화되는지 백엔드 로그·DB 조회로 확인 |
 | 2 | 권한 사용 목적 문구 (`NSCameraUsageDescription` 등) | `frontend/app.json`의 `ios.infoPlist`를 열어 실제 사용하는 권한(카메라·마이크·위치·사진)마다 문구가 있는지, **쓰지 않는 권한은 없는지** 대조 |
 | 3 | 요청하지 않는 권한 미선언 | 위와 같은 파일에서 실제 코드가 부르는 권한 API(`expo-camera`, `expo-location` 등 package.json 의존성)와 선언된 권한 목록을 1:1 대조 |
-| 4 | **Sign in with Apple 대응 (4.8)** | Google·Kakao 로그인이 살아있는 한 필수. `AuthController`의 `oauth/{provider}`가 `apple`을 받는지, 프론트 로그인 화면에 Apple 버튼이 있는지 확인 |
+| 4 | **Sign in with Apple 대응 (4.8)** | 🔴 **2026-09-04 팀 결정으로 만들지 않기로 함**(S15P21E201-602, 0절 참고) — Google·Kakao만 있는 채로 제출하면 이 항목은 실패한다. iOS 제출 직전에 이 결정을 다시 확인하거나(그대로 리젝 감수), 결정을 뒤집어 Apple 로그인을 추가해야 한다 |
 | 5 | 심사 메모·심사용 계정 | App Store Connect 심사 정보란에 실제로 로그인되는 테스트 계정을 넣고, 그 계정으로 핵심 플로우(일정 생성 등)가 끝까지 되는지 직접 재현 |
 | 6 | App Privacy(개인정보 수집 유형) 응답 | 데이터 안전 양식과 동일하게 실제 수집 필드 기준으로 작성 — 두 스토어 답변이 서로 다르면 그 자체가 리스크다 |
 | 7 | 스크린샷·아이콘 규격 | App Store Connect 업로드 화면 자체 검증 |
