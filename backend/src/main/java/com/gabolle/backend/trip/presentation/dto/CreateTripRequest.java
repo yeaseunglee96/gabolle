@@ -68,7 +68,7 @@ public record CreateTripRequest(
     /**
      * 사용자가 반드시(HARD) 또는 가급적(SOFT) 지키길 원하는 조건.
      *
-     * <p>🔴 알레르기·건강 식단은 <b>M1 에서 값을 받지 않는다.</b> 암호화 경로가
+     * <p>🔴 알레르기·필수(REQUIRED) 식단은 <b>M1 에서 값을 받지 않는다.</b> 암호화 경로가
      * 준비되지 않았고, 평문으로 한 번 저장하면 그 데이터가 남는다.
      *
      * <p>🔴 {@code value}·{@code threshold} 는 {@code answerStatus == "SELECTED"}
@@ -84,6 +84,13 @@ public record CreateTripRequest(
             String value,
             Double threshold,
             /** {@code SELECTED} · {@code NONE} · {@code UNKNOWN} */
-            @NotBlank String answerStatus) {
+            @NotBlank String answerStatus,
+            /**
+             * 🔴 2026-09-04 추가. {@code type == "DIET"} 일 때만 채운다 —
+             * {@code REQUIRED}(의료·종교상 필수) · {@code PREFERRED}(선호).
+             * 민감 정보 판정({@code TripConstraint.isSensitive})이 이 값을 본다 —
+             * 없으면(null) 필수 식단이 일반 로그로 새어 나간다(고지혁 님 실측).
+             */
+            String dietRequirement) {
     }
 }

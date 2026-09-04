@@ -55,7 +55,7 @@ class TripCreationTest {
                                 "theme", "NATURE", PreferenceSnapshot.AnswerStatus.SELECTED)),
                 List.of(new TripCreationService.Command.ConstraintInput(
                         "MOBILITY", TripConstraint.Severity.HARD, "LTE", null, 5000.0,
-                        TripConstraint.EvidenceStatus.NEEDS_REVIEW, TripConstraint.AnswerStatus.SELECTED)));
+                        TripConstraint.EvidenceStatus.NEEDS_REVIEW, TripConstraint.AnswerStatus.SELECTED, null)));
     }
 
     @Test
@@ -154,10 +154,10 @@ class TripCreationTest {
                 List.of(
                         new TripCreationService.Command.ConstraintInput("DIET", TripConstraint.Severity.SOFT,
                                 null, null, null, TripConstraint.EvidenceStatus.NEEDS_REVIEW,
-                                TripConstraint.AnswerStatus.NONE),
+                                TripConstraint.AnswerStatus.NONE, null),
                         new TripCreationService.Command.ConstraintInput("MOBILITY", TripConstraint.Severity.SOFT,
                                 null, null, null, TripConstraint.EvidenceStatus.NEEDS_REVIEW,
-                                TripConstraint.AnswerStatus.UNKNOWN)));
+                                TripConstraint.AnswerStatus.UNKNOWN, null)));
 
         var result = service.create(withNoneAndUnknown, null);
         List<TripConstraint> constraints = repository.findConstraints(result.trip().tripId());
@@ -174,7 +174,7 @@ class TripCreationTest {
         assertThrows(IllegalArgumentException.class,
                 () -> new TripConstraint("c1", "trp_1", "MOBILITY", TripConstraint.Severity.SOFT,
                         null, null, null, TripConstraint.EvidenceStatus.NEEDS_REVIEW,
-                        TripConstraint.AnswerStatus.SELECTED, PersonalizationScope.TRIP));
+                        TripConstraint.AnswerStatus.SELECTED, PersonalizationScope.TRIP, null));
     }
 
     @Test
@@ -183,7 +183,7 @@ class TripCreationTest {
         assertThrows(IllegalArgumentException.class,
                 () -> new TripConstraint("c1", "trp_1", "MOBILITY", TripConstraint.Severity.SOFT,
                         "LTE", null, 5000.0, TripConstraint.EvidenceStatus.NEEDS_REVIEW,
-                        TripConstraint.AnswerStatus.NONE, PersonalizationScope.TRIP));
+                        TripConstraint.AnswerStatus.NONE, PersonalizationScope.TRIP, null));
     }
 
     @Test
@@ -192,7 +192,7 @@ class TripCreationTest {
         assertThrows(IllegalArgumentException.class,
                 () -> new TripConstraint("c1", "trp_1", "ALLERGY", TripConstraint.Severity.SOFT,
                         null, null, null, TripConstraint.EvidenceStatus.NEEDS_REVIEW,
-                        TripConstraint.AnswerStatus.NONE, PersonalizationScope.TRIP));
+                        TripConstraint.AnswerStatus.NONE, PersonalizationScope.TRIP, null));
     }
 
     // 기존 완료 기준
@@ -294,10 +294,51 @@ class TripCreationTest {
                 null, null, null, 1, null, null, List.of(),
                 List.of(new TripCreationService.Command.ConstraintInput(
                         "ALLERGY", TripConstraint.Severity.HARD, "EXCLUDES", "peanut", null,
-                        TripConstraint.EvidenceStatus.NEEDS_REVIEW, TripConstraint.AnswerStatus.SELECTED)));
+                        TripConstraint.EvidenceStatus.NEEDS_REVIEW, TripConstraint.AnswerStatus.SELECTED, null)));
 
         assertThrows(TripConstraint.SensitiveConstraintNotSupportedException.class,
                 () -> service.create(withAllergy, null));
+    }
+
+    @Test
+    @DisplayName("2026-09-04 회귀 - DIET+REQUIRED 값을 보내면 거부된다 (HEALTH_DIET 판정 구멍 수정)")
+    void requiredDietConstraintIsRejected() {
+        var withRequiredDiet = new TripCreationService.Command("usr_1",
+                LocalDate.of(2026, 9, 6), LocalDate.of(2026, 9, 8),
+                null, null, null, 1, null, null, List.of(),
+                List.of(new TripCreationService.Command.ConstraintInput(
+                        "DIET", TripConstraint.Severity.HARD, "EXCLUDES", "pork", null,
+                        TripConstraint.EvidenceStatus.NEEDS_REVIEW, TripConstraint.AnswerStatus.SELECTED,
+                        TripConstraint.DietRequirement.REQUIRED)));
+
+        assertThrows(TripConstraint.SensitiveConstraintNotSupportedException.class,
+                () -> service.create(withRequiredDiet, null));
+    }
+
+    @Test
+    @DisplayName("DIET+PREFERRED 는 값을 보내도 저장된다 - 민감하지 않다")
+    void preferredDietConstraintIsAllowed() {
+        var withPreferredDiet = new TripCreationService.Command("usr_1",
+                LocalDate.of(2026, 9, 6), LocalDate.of(2026, 9, 8),
+                null, null, null, 1, null, null, List.of(),
+                List.of(new TripCreationService.Command.ConstraintInput(
+                        "DIET", TripConstraint.Severity.SOFT, "EXCLUDES", "meat", null,
+                        TripConstraint.EvidenceStatus.NEEDS_REVIEW, TripConstraint.AnswerStatus.SELECTED,
+                        TripConstraint.DietRequirement.PREFERRED)));
+
+        var result = service.create(withPreferredDiet, null);
+        var diet = repository.findConstraints(result.trip().tripId()).get(0);
+        assertEquals(TripConstraint.DietRequirement.PREFERRED, diet.dietRequirement());
+    }
+
+    @Test
+    @DisplayName("dietRequirement 는 DIET 가 아니면 거부된다")
+    void dietRequirementOnNonDietTypeIsRejected() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new TripConstraint("c1", "trp_1", "MOBILITY", TripConstraint.Severity.HARD,
+                        "LTE", null, 5000.0, TripConstraint.EvidenceStatus.NEEDS_REVIEW,
+                        TripConstraint.AnswerStatus.SELECTED, PersonalizationScope.TRIP,
+                        TripConstraint.DietRequirement.REQUIRED));
     }
 
     @Test
@@ -308,7 +349,7 @@ class TripCreationTest {
                 null, null, null, 1, null, null, List.of(),
                 List.of(new TripCreationService.Command.ConstraintInput(
                         "MOBILITY", TripConstraint.Severity.HARD, null, null, 5000.0,
-                        TripConstraint.EvidenceStatus.NEEDS_REVIEW, TripConstraint.AnswerStatus.SELECTED)));
+                        TripConstraint.EvidenceStatus.NEEDS_REVIEW, TripConstraint.AnswerStatus.SELECTED, null)));
 
         assertThrows(IllegalArgumentException.class, () -> service.create(noOperator, null));
     }
