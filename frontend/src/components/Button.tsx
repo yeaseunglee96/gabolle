@@ -1,4 +1,5 @@
-// CTA_다음 · CTA_로그인 · 수정 등 전폭 버튼을 하나로 통일한다. variant 로 배경·글자색만 바뀐다.
+// 여행 핵심 화면의 CTA_다음 · CTA_로그인 · 수정 등 전폭 버튼을 하나로 통일한다.
+// 기본 primary 는 피그마 APP/12~13의 길찾기·안내 CTA와 같은 브랜드 네이비를 쓴다.
 //
 // kakao variant 는 04 로그인에 있었지만 로그인 수단이 Google 하나로 확정되면서 걷어냈다
 // (카카오는 지도·리뷰 API 로만 쓴다). 나중에 다시 필요해지면 그때 복원한다.
@@ -23,7 +24,7 @@ const LABEL_COLOR: Record<ButtonVariant, string> = {
   primary: color.text.onAction,
   secondary: color.text.onAction,
   field: color.text.onAction,
-  ghost: color.action.primary,
+  ghost: color.brand.navy,
 };
 
 export function Button({ label, variant = 'primary', disabled, containerStyle, ...rest }: ButtonProps) {
@@ -58,7 +59,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   primary: {
-    backgroundColor: color.action.primary,
+    backgroundColor: color.brand.navy,
   },
   secondary: {
     backgroundColor: color.action.secondary,
