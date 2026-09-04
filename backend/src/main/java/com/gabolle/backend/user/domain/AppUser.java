@@ -68,6 +68,28 @@ public class AppUser {
 		return new AppUser(displayName, language, ageVerifiedAt, ageGatePolicyVersion, personalizationMode, status);
 	}
 
+	/**
+	 * 표시 이름을 바꾼다 (S15P21E201-423).
+	 *
+	 * <p>🔴 빈 이름을 허용하지 않는다. "지운다" 와 "안 바꾼다" 를 구분해야 하는데, 지우는 쪽은
+	 * 이름 없는 계정을 만들기 때문에 제품 결정 없이 열지 않는다. 안 바꾸는 것은 이 메서드를
+	 * 부르지 않는 것으로 표현한다.
+	 */
+	public void rename(String displayName) {
+		if (displayName == null || displayName.isBlank()) {
+			throw new IllegalArgumentException("표시 이름은 비울 수 없다");
+		}
+		this.displayName = displayName;
+	}
+
+	/** 표시 언어를 바꾼다. 값 정규화는 부르는 쪽이 끝낸 뒤 넘긴다. */
+	public void changeLanguage(String language) {
+		if (language == null || language.isBlank()) {
+			throw new IllegalArgumentException("언어는 비울 수 없다");
+		}
+		this.language = language;
+	}
+
 	@PrePersist
 	void initializeTimestamps() {
 		Instant now = Instant.now();

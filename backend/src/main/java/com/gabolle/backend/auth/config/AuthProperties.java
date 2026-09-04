@@ -12,7 +12,13 @@ public class AuthProperties {
 	private Duration accessTokenTtl = Duration.ofMinutes(30);
 	private Duration refreshTokenTtl = Duration.ofDays(14);
 	private Duration emailVerificationTtl = Duration.ofMinutes(30);
-	private Duration passwordResetTtl = Duration.ofMinutes(15);
+	/**
+	 * 🔴 15분이 아니라 30분이다. S15P21E201-433 의 제목과 완료 기준이 "30분 1회용 재설정 링크" 라
+	 * 티켓을 정본으로 삼았다. 이메일 인증 TTL 과도 같아져서 사용자가 두 메일에서 다른 시간을 겪지
+	 * 않는다. 짧게 두는 것이 안전에 유리하지만, 메일이 스팸함에 들어갔다 나오는 시간을 감안하면
+	 * 15분은 실제로 다시 요청하게 만든다 — 재요청마다 이전 토큰이 소비되므로 사용자만 더 헤맨다.
+	 */
+	private Duration passwordResetTtl = Duration.ofMinutes(30);
 	private Duration oneTimeTokenRequestCooldown = Duration.ofSeconds(60);
 	private Duration oauthChallengeTtl = Duration.ofMinutes(5);
 	private String ageGatePolicyVersion = "2026-01";
@@ -20,7 +26,17 @@ public class AuthProperties {
 	private String emailVerificationBaseUrl = "http://localhost:3000/verify-email";
 	private String emailVerificationSuccessRedirectUrl = "http://localhost:3000/sign-in?verified=1";
 	private String emailVerificationFailureRedirectUrl = "http://localhost:3000/sign-in?verified=0";
-	private String passwordResetBaseUrl = "http://localhost:3000/reset-password";
+	/**
+	 * 🔴 재설정 메일의 링크가 실제로 착지하는 곳. 여기에 {@code "?token=" + 원문토큰} 이 붙는다.
+	 *
+	 * <p>기본값이 {@code localhost:3000/reset-password} 였는데 그런 화면은 없다. 프런트의 실제
+	 * 화면은 {@code app/auth/password/reset.tsx} 이고 경로가 {@code /auth/password/reset} 이며
+	 * 쿼리 {@code token} 을 읽는다. 즉 지금까지 나간 재설정 메일의 링크는 아무 데도 닿지 않았다.
+	 *
+	 * <p>배포 도메인을 기본값으로 둔다. OAuth redirect URI 허용 목록이 이미 같은 도메인을 기본값
+	 * 으로 갖고 있어(같은 파일의 {@code oauthAllowedRedirectUris}) 관례가 맞는다.
+	 */
+	private String passwordResetBaseUrl = "https://j15e201.p.ssafy.io/auth/password/reset";
 	private List<String> oauthAllowedRedirectUris = new ArrayList<>();
 	private List<String> corsAllowedOrigins = new ArrayList<>();
 	private String webRefreshCookieName = "gabolle_refresh_token";
