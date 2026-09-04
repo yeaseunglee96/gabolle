@@ -42,7 +42,7 @@ export default function AgeGate() {
 
   function continueOnboarding() {
     preferences.setPreferences(language, mobility);
-    router.replace({ pathname: '/sign-in', params: { returnTo: '/permissions' } });
+    router.replace('/permissions');
   }
 
   return (

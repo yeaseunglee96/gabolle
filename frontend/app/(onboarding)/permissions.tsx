@@ -58,7 +58,7 @@ export default function Permissions() {
   const [values, setValues] = useState<Record<PermissionKey, boolean>>({ location: true, camera: false, notification: false });
   async function continueTo(path: string, preferences = values) {
     await AsyncStorage.setItem(PERMISSION_PREFERENCES_KEY, JSON.stringify(preferences));
-    router.push(path);
+    router.replace({ pathname: '/sign-in', params: { returnTo: path } });
   }
 
   return (
@@ -115,7 +115,7 @@ export default function Permissions() {
         </Text>
       </Pressable>
 
-      <Button label="선택하고 홈으로" containerStyle={styles.cta} onPress={() => void continueTo('/home')} />
+      <Button label="선택하고 로그인·회원가입으로" containerStyle={styles.cta} onPress={() => void continueTo('/home')} />
     </Screen>
   );
 }
