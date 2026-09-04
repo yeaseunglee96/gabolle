@@ -78,6 +78,16 @@ public class InMemoryTripRepository implements TripRepository {
     }
 
     /**
+     * 🔴 이 프로필({@code no-db})에는 추천 기능 자체가 안 붙는다({@code RecommendationService}
+     * 도 {@code @Profile({"db","dev"})} 다) — 그래서 진짜 constraint_snapshot 개념을
+     * 만들지 않는다. 항상 비어 있다.
+     */
+    @Override
+    public Optional<String> findLatestConstraintSnapshotId(String tripId) {
+        return Optional.empty();
+    }
+
+    /**
      * 🔴 키 확보와 저장을 <b>한 동작</b>으로 한다.
      *
      * <p>{@code compute} 는 같은 열쇠에 대해 <b>한 번에 하나의 스레드만</b> 들여보낸다.
