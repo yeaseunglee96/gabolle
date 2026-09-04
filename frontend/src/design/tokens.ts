@@ -35,6 +35,12 @@ export const color = {
     soft: '#f0faff',
     /** 입력 필드·슬라이더 트랙 (폭중앙 336px) */
     field: '#d6e8ed',
+    /** 피그마의 아이보리 계열 보조 입력·칩 바탕을 한 값으로 통일한다. */
+    subtle: '#f6f5f2',
+    /** 브랜드 오렌지를 아주 옅게 쓰는 선택·안내 표면. */
+    warm: '#fff1e8',
+    /** 밝은 카드 사이의 중립 경계선. */
+    border: '#e8e4dd',
   },
 
   action: {
@@ -60,6 +66,8 @@ export const color = {
     muted: '#64748b',
     /** 버튼·이미지 위 글자 */
     onAction: '#ffffff',
+    /** 네이비 표면 위 보조 설명. */
+    onDarkMuted: '#dce5f2',
     /** 눈썹 문구(화면 번호·섹션 라벨). 08 의 "08 · 접근성" 이 이 색 */
     eyebrow: '#176b91',
     /** 수치·시각 강조 (Stats value · Timeline time) */
