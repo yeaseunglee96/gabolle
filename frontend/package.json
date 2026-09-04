@@ -47,7 +47,8 @@
     "build:web": "expo export --platform web",
     "typecheck": "tsc --noEmit",
     "verify": "npm run typecheck && npm run build:web",
-    "smoke": "node tools/smoke-check.mjs"
+    "smoke": "node tools/smoke-check.mjs",
+    "verify:android-target-sdk": "node tools/verify-android-target-sdk.mjs"
   },
   "private": true
 }
