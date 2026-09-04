@@ -11,6 +11,18 @@
 | `GABOLLE_화면흐름_및_정보구조_명세서_v1.1.docx` | FE·APP·기획 | 화면 ID, 전환, API·이벤트 연결 |
 | `GABOLLE_사용자_시나리오_및_인수기준_v1.1.docx` | 전원·QA | 사용자 흐름과 완료 판정 기준 |
 
+### 실행·설계 산출물 (위 6종을 근거로 만든 것 — S15P21E201-533)
+
+`docx`가 원본이고, `md`는 저장소 안에서 바로 읽고 검색하기 위한 사본이다. 둘이
+갈리면 `docx`가 원본이므로 그쪽을 믿는다.
+
+| 문서 | 문서 코드 | 근거 | 역할 |
+|---|---|---|---|
+| `GABOLLE_EPIC_초안.docx`/`.md` | GB-EPIC-001 | GB-SRS-001·GB-UX-001·GB-PLAN-002 | Jira Epic 12개 초안 — 🔴 초안이다, 확정 아니다 |
+| `GABOLLE_6인_개발계획서_및_업무지침서.docx`/`.md` | GB-PLAN-002 | — | 역할별 업무·일자별 계획·스토어 제출 체크리스트 |
+| `GABOLLE_기능_화면_상세설계서.docx`/`.md` | GB-SPEC-001 | — | 기능·화면 단위 구현 명세 |
+| `GABOLLE_개인화_인프라_구축_가이드.docx` | — | `infra/personalization/README.md`와 겹치는 부분이 있을 수 있다 — 확인 전 | 개인화 추천 인프라(PostgreSQL·Redis·MinIO·MLflow·Airflow) 구축 가이드 |
+
 ## 확정 기준
 
 - 서비스명: 가볼래(GABOLLE)
