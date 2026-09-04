@@ -11,16 +11,14 @@ import { PlanProvider } from '@/plan/PlanProvider';
 export default function RootLayout() {
   return (
     <SafeAreaProvider>
-      <AuthProvider><OnboardingPreferencesProvider>
-        <PlanProvider>
+      <OnboardingPreferencesProvider><AuthProvider><PlanProvider>
           <Stack
             screenOptions={{
               headerShown: false,
               contentStyle: { backgroundColor: color.canvas },
             }}
           />
-        </PlanProvider>
-      </OnboardingPreferencesProvider></AuthProvider>
+        </PlanProvider></AuthProvider></OnboardingPreferencesProvider>
     </SafeAreaProvider>
   );
 }

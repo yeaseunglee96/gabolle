@@ -11,6 +11,7 @@ import { useLayout } from '@/layout/useLayout';
 import { PlanStepHeader } from '@/plan/PlanStepHeader';
 import { PlanDesktopShell } from '@/plan/PlanDesktopShell';
 import { type PreferenceDimension, usePlan } from '@/plan/PlanProvider';
+import { useI18n } from '@/i18n';
 
 const CATEGORIES = [
   { key: 'SEA_BEACH', label: '바다 & 해변', image: require('../../assets/taste/sea-beach.png') },
@@ -26,7 +27,7 @@ const LEGACY_CATEGORY: Record<string, string> = { sea: 'SEA_BEACH', alley: 'CITY
 const QUESTION_LABELS = ['카테고리', '분위기', '로컬성', '조용함', '관광지', '음식'] as const;
 
 function Section({ title, description, skipped, wide, onSkip, children }: { title: string; description: string; skipped?: boolean; wide?: boolean; onSkip: () => void; children: React.ReactNode }) {
-  return <View style={[styles.section, wide && styles.sectionWide]}><View style={styles.sectionHeader}><View style={styles.sectionCopy}><Text variant="title" weight="bold">{title}</Text><Text variant="caption" color={color.text.muted}>{description}</Text></View><Pressable accessibilityRole="button" accessibilityState={{ selected: skipped }} onPress={onSkip} style={styles.skip}><Text variant="caption" weight="bold" color={color.text.eyebrow}>{skipped ? '건너뜀 ✓' : '건너뛰기'}</Text></Pressable></View>{children}</View>;
+  const { tx } = useI18n(); return <View style={[styles.section, wide && styles.sectionWide]}><View style={styles.sectionHeader}><View style={styles.sectionCopy}><Text variant="title" weight="bold">{title}</Text><Text variant="caption" color={color.text.muted}>{description}</Text></View><Pressable accessibilityRole="button" accessibilityState={{ selected: skipped }} onPress={onSkip} style={styles.skip}><Text variant="caption" weight="bold" color={color.text.eyebrow}>{skipped ? tx('건너뜀 ✓', 'Skipped ✓') : tx('건너뛰기', 'Skip')}</Text></Pressable></View>{children}</View>;
 }
 function Chips({ options, values, desktop, onChange }: { options: readonly (readonly [string, string])[]; values: string[]; desktop?: boolean; onChange: (values: string[]) => void }) {
   return <View style={styles.chips}>{options.map(([key, label]) => { const selected = values.includes(key); return <Pressable key={key} accessibilityRole="checkbox" accessibilityState={{ checked: selected }} onPress={() => onChange(selected ? values.filter((value) => value !== key) : [...values, key])} style={[styles.chip, desktop && styles.chipDesktop, selected && styles.selected, selected && desktop && styles.selectedDesktop]}><Text weight="bold" color={selected ? (desktop ? color.brand.orange : color.text.onAction) : color.text.heading}>{label}</Text></Pressable>; })}</View>;
@@ -36,7 +37,7 @@ function Scale({ label, value, low, high, desktop, onChange }: { label: string; 
 }
 
 export default function Taste() {
-  const router = useRouter(); const { kind } = useLayout(); const { draft, update, completeStep } = usePlan();
+  const router = useRouter(); const { kind } = useLayout(); const { tx } = useI18n(); const { draft, update, completeStep } = usePlan();
   const [feedback, setFeedback] = useState<string | null>(null);
   const [panelIndex, setPanelIndex] = useState(0);
   const advanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -55,7 +56,7 @@ export default function Taste() {
   useEffect(() => () => { if (advanceTimer.current) clearTimeout(advanceTimer.current); }, []);
   function toggleCategory(key: string) {
     const selected = draft.preferences.includes(key);
-    if (!selected && draft.preferences.length >= 3) { setFeedback('최대 3개까지 선택할 수 있어요. 먼저 하나를 해제해 주세요.'); return; }
+    if (!selected && draft.preferences.length >= 3) { setFeedback(tx('최대 3개까지 선택할 수 있어요. 먼저 하나를 해제해 주세요.', 'You can choose up to 3. Remove one first.')); return; }
     const preferences = selected ? draft.preferences.filter((value) => value !== key) : [...draft.preferences, key];
     update({ preferences, preferenceAnswerStatus: { ...draft.preferenceAnswerStatus, category: preferences.length ? 'SELECTED' : 'UNKNOWN' } }); setFeedback(null);
     if (kind === 'phone' && !selected && preferences.length === 3) advancePanel();
@@ -80,7 +81,7 @@ export default function Taste() {
   return <PlanDesktopShell><Screen scroll wide style={styles.canvas}>
     {kind === 'phone' && <View style={styles.topBar}><Pressable accessibilityRole="button" accessibilityLabel="뒤로 가기" onPress={() => router.canGoBack() ? router.back() : router.replace('/plan/basic')} style={styles.back}><Text variant="title">‹</Text></Pressable><BrandLogoLink imageStyle={styles.logo} /><View style={styles.stepPill}><Text variant="caption" weight="bold">2 / 4</Text></View></View>}
     <PlanStepHeader current={2} />
-    <View style={styles.headingRow}><View><Text variant="display" weight="bold">취향을 알려주세요</Text><Text color={color.text.muted} style={styles.subtitle}>좋아하는 여행 스타일을 선택해 주세요</Text></View><Pressable accessibilityRole="button" onPress={skipAll} style={styles.skipAll}><Text variant="caption" weight="bold">전체 건너뛰기</Text></Pressable></View>
+    <View style={styles.headingRow}><View><Text variant="display" weight="bold">{tx('취향을 알려주세요', 'Tell us your preferences')}</Text><Text color={color.text.muted} style={styles.subtitle}>{tx('좋아하는 여행 스타일을 선택해 주세요', 'Choose the travel styles you enjoy')}</Text></View><Pressable accessibilityRole="button" onPress={skipAll} style={styles.skipAll}><Text variant="caption" weight="bold">{tx('전체 건너뛰기', 'Skip all')}</Text></Pressable></View>
 
     {kind === 'phone' && <View style={styles.questionProgress}>
       <View style={styles.questionMeta}><Text variant="caption" weight="bold" color={color.brand.orange}>취향 {panelIndex + 1} / 6</Text><Text variant="caption" color={color.text.muted}>약 {Math.max(10, (6 - panelIndex) * 10)}초 남음</Text></View>
@@ -90,7 +91,7 @@ export default function Taste() {
 
     <View style={[styles.content, kind === 'tablet' && styles.contentWide]}>
       <Animated.View key={kind === 'phone' ? panelIndex : 'desktop'} entering={kind === 'phone' ? FadeInRight.duration(180).reduceMotion(ReduceMotion.System) : undefined} exiting={kind === 'phone' ? FadeOutLeft.duration(120).reduceMotion(ReduceMotion.System) : undefined} style={[styles.animatedContent, kind === 'tablet' && styles.animatedContentWide]}>
-      {(kind === 'tablet' || panelIndex === 0) && <Section title="여행 카테고리" description="최대 3개까지 선택할 수 있어요." wide={kind === 'tablet'} skipped={draft.preferenceAnswerStatus.category === 'SKIPPED'} onSkip={() => skipAndAdvance('category', { preferences: [] })}>
+      {(kind === 'tablet' || panelIndex === 0) && <Section title={tx('여행 카테고리', 'Travel categories')} description={tx('최대 3개까지 선택할 수 있어요.', 'Choose up to 3.')} wide={kind === 'tablet'} skipped={draft.preferenceAnswerStatus.category === 'SKIPPED'} onSkip={() => skipAndAdvance('category', { preferences: [] })}>
         <View style={styles.imageGrid}>{CATEGORIES.map((item) => { const selected = draft.preferences.includes(item.key); return <Pressable key={item.key} accessibilityRole="checkbox" accessibilityState={{ checked: selected }} onPress={() => toggleCategory(item.key)} style={[styles.imageCard, kind === 'phone' && styles.imageCardPhone, kind === 'tablet' && styles.imageCardWide, selected && styles.imageCardSelected]}><Image source={item.image} resizeMode="cover" accessibilityIgnoresInvertColors style={[styles.cardImage, kind === 'phone' && styles.cardImagePhone]} />{selected && <View style={styles.check}><Text weight="bold" color={color.text.onAction}>✓</Text></View>}<Text variant="caption" weight="bold" color={selected ? color.brand.orange : color.text.heading} style={styles.cardLabel}>{item.label}</Text></Pressable>; })}</View>
         <Text accessibilityRole={feedback ? 'alert' : undefined} variant="caption" color={feedback ? color.state.danger : color.text.muted} style={styles.selectionHint}>{feedback ?? `${draft.preferences.length}개 선택됨 · 최대 3개`}</Text>
       </Section>}
@@ -101,19 +102,19 @@ export default function Taste() {
         {(kind === 'tablet' || panelIndex === 4) && <Section title="관광지 선호" description="유명한 명소와 숨은 곳 중 어느 쪽인가요?" skipped={draft.preferenceAnswerStatus.touristPreference === 'SKIPPED'} onSkip={() => skipAndAdvance('touristPreference', { touristLevel: null })}><Scale label="관광지 선호" value={draft.touristLevel} low="숨은 곳" high="대표 관광지" desktop={kind === 'tablet'} onChange={(touristLevel) => { update({ touristLevel }); setStatus('touristPreference', 'SELECTED'); if (kind === 'phone') advancePanel(); }} /></Section>}
         {(kind === 'tablet' || panelIndex === 5) && <Section title="음식 취향" description="먹고 싶은 음식을 모두 골라주세요." skipped={draft.preferenceAnswerStatus.foodPreference === 'SKIPPED'} onSkip={() => skipAndAdvance('foodPreference', { foods: [] })}><Chips options={FOODS} values={draft.foods} desktop={kind === 'tablet'} onChange={(foods) => { update({ foods }); setStatus('foodPreference', foods.length ? 'SELECTED' : 'UNKNOWN'); }} /></Section>}
         {kind === 'phone' && <View style={styles.detailNav}>
-          <Pressable accessibilityRole="button" accessibilityState={{ disabled: panelIndex === 0 }} disabled={panelIndex === 0} onPress={() => setPanelIndex((value) => Math.max(0, value - 1))} style={[styles.detailNavButton, panelIndex === 0 && styles.detailNavButtonDisabled]}><Text variant="caption" weight="bold">이전</Text></Pressable>
+          <Pressable accessibilityRole="button" accessibilityState={{ disabled: panelIndex === 0 }} disabled={panelIndex === 0} onPress={() => setPanelIndex((value) => Math.max(0, value - 1))} style={[styles.detailNavButton, panelIndex === 0 && styles.detailNavButtonDisabled]}><Text variant="caption" weight="bold">{tx('이전', 'Back')}</Text></Pressable>
           <Text variant="caption" weight="bold" color={color.text.muted}>{panelIndex + 1} / 6</Text>
-          {panelIndex < 5 && <Pressable accessibilityRole="button" onPress={() => setPanelIndex((value) => Math.min(5, value + 1))} style={styles.detailNavButton}><Text variant="caption" weight="bold">다음 항목</Text></Pressable>}
+          {panelIndex < 5 && <Pressable accessibilityRole="button" onPress={() => setPanelIndex((value) => Math.min(5, value + 1))} style={styles.detailNavButton}><Text variant="caption" weight="bold">{tx('다음 항목', 'Next')}</Text></Pressable>}
         </View>}
       </View>
       </Animated.View>
     </View>
     {kind === 'phone' && <View style={styles.mobileActions}>
       <Pressable accessibilityRole="button" accessibilityState={{ disabled: panelIndex === 0 }} disabled={panelIndex === 0} onPress={() => goToPanel(panelIndex - 1)} style={[styles.previousLink, panelIndex === 0 && styles.detailNavButtonDisabled]}><Text variant="caption" weight="bold" color={color.text.muted}>이전 질문</Text></Pressable>
-      {(panelIndex === 0 || panelIndex === 1) && <Button accessibilityRole="button" label="선택 완료" disabled={!multiSelectReady} containerStyle={styles.inlineCta} onPress={() => advancePanel()} />}
-      {panelIndex === 5 && <Button accessibilityRole="button" label="취향 입력 완료" disabled={!multiSelectReady} containerStyle={styles.inlineCta} onPress={next} />}
+      {(panelIndex === 0 || panelIndex === 1) && <Button accessibilityRole="button" label={tx('선택 완료', 'Done')} disabled={!multiSelectReady} containerStyle={styles.inlineCta} onPress={() => advancePanel()} />}
+      {panelIndex === 5 && <Button accessibilityRole="button" label={tx('취향 입력 완료', 'Finish preferences')} disabled={!multiSelectReady} containerStyle={styles.inlineCta} onPress={next} />}
     </View>}
-    {kind === 'tablet' && <Button accessibilityRole="button" label="다음 단계" containerStyle={styles.cta} onPress={next} />}
+    {kind === 'tablet' && <Button accessibilityRole="button" label={tx('다음 단계', 'Continue')} containerStyle={styles.cta} onPress={next} />}
   </Screen></PlanDesktopShell>;
 }
 

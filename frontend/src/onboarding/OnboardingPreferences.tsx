@@ -1,7 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { setApiLanguage } from '@/api/client';
 
-export const LANGUAGE_CODES = ['ko', 'en', 'ja', 'zh-Hans', 'zh-Hant'] as const;
+export const LANGUAGE_CODES = ['ko', 'en'] as const;
 export const MOBILITY_CODES = ['none', 'wheelchair', 'stroller', 'slow'] as const;
 
 export type LanguageCode = (typeof LANGUAGE_CODES)[number];
@@ -10,6 +11,8 @@ export type MobilityCode = (typeof MOBILITY_CODES)[number];
 type OnboardingPreferencesValue = {
   language: LanguageCode;
   mobility: MobilityCode;
+  hydrated: boolean;
+  setLanguage: (language: LanguageCode) => void;
   setPreferences: (language: LanguageCode, mobility: MobilityCode) => void;
 };
 
@@ -59,11 +62,15 @@ export function OnboardingPreferencesProvider({ children }: { children: ReactNod
 
   useEffect(() => {
     if (!hydrated) return;
+    setApiLanguage(language);
     void AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({ language, mobility }));
   }, [hydrated, language, mobility]);
 
   const value = useMemo<OnboardingPreferencesValue>(
-    () => ({ language, mobility, setPreferences: (nextLanguage, nextMobility) => {
+    () => ({ language, mobility, hydrated, setLanguage: (nextLanguage) => {
+      if (!hydrated) changedBeforeHydration.current = true;
+      setLanguage(nextLanguage);
+    }, setPreferences: (nextLanguage, nextMobility) => {
       if (!hydrated) changedBeforeHydration.current = true;
       setLanguage(nextLanguage);
       setMobility(nextMobility);

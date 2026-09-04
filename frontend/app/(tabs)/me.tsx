@@ -16,6 +16,7 @@ import { ProgressBar } from '@/components/ProgressBar';
 import { Toggle } from '@/components/Toggle';
 import { TabBar } from '@/components/TabBar';
 import { useAuth } from '@/auth/AuthProvider';
+import { useI18n } from '@/i18n';
 
 const STATS = [
   { icon: '🧳', value: '4', label: '완료 여행' },
@@ -63,12 +64,13 @@ function SettingsRow({
 export default function Me() {
   const [personalizationOff, setPersonalizationOff] = useState(false);
   const { user, signOut } = useAuth();
+  const { language, setLanguage, tx } = useI18n();
 
   return (
     <Screen scroll>
       <View style={styles.headerRow}>
         <Text variant="display" weight="bold">
-          내 정보
+          {tx('내 정보', 'My profile')}
         </Text>
         {/* 설정 화면이 따로 없어 지금은 장식만 한다. */}
         <View style={styles.settingsButton}>
@@ -154,7 +156,7 @@ export default function Me() {
 
       <View style={styles.settingsGroup}>
         <SettingsRow title="여행 조건 관리" value="예산·접근성·알레르기" />
-        <SettingsRow title="언어 및 번역" value="한국어" />
+        <SettingsRow title={tx('언어 및 번역', 'Language & translation')} value={language === 'ko' ? '한국어' : 'English'} onPress={() => setLanguage(language === 'ko' ? 'en' : 'ko')} />
         <SettingsRow title="오프라인 저장" value="부산 지도 256MB" />
       </View>
 
@@ -172,7 +174,7 @@ export default function Me() {
         <SettingsRow title="개인화 데이터 초기화" />
         {/* TODO: 계정 삭제 확인 플로우·화면 미정. 스토어 심사 필수 항목이라 자리만 먼저 둔다. */}
         <SettingsRow title="계정 삭제" titleColor={color.state.danger} />
-        <SettingsRow title="로그아웃" titleColor={color.state.danger} onPress={() => void signOut()} />
+        <SettingsRow title={tx('로그아웃', 'Sign out')} titleColor={color.state.danger} onPress={() => void signOut()} />
       </View>
 
       <View style={styles.tabBarWrap}>

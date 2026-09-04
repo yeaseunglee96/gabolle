@@ -1,16 +1,17 @@
-// 06·08 화면 우상단에 반복되는 "한국어 · EN" 배지. 언어 전환은 아직 안 붙인다(표시만).
-import { StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet } from 'react-native';
 
 import { color, radius, spacing } from '@/design/tokens';
 import { Text } from './Text';
+import { useI18n } from '@/i18n';
 
 export function LanguageBadge() {
+  const { language, setLanguage, tx } = useI18n();
   return (
-    <View style={styles.badge}>
+    <Pressable accessibilityRole="button" accessibilityLabel={tx('언어를 영어로 변경', 'Change language to Korean')} onPress={() => setLanguage(language === 'ko' ? 'en' : 'ko')} style={({ pressed }) => [styles.badge, pressed && styles.pressed]}>
       <Text variant="caption" weight="bold" color={color.text.accent}>
-        한국어 · EN
+        {language === 'ko' ? '한국어 · EN' : 'English · KO'}
       </Text>
-    </View>
+    </Pressable>
   );
 }
 
@@ -22,4 +23,5 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing[3],
     paddingVertical: spacing[1],
   },
+  pressed: { opacity: 0.7 },
 });
