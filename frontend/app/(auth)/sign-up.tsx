@@ -141,9 +141,11 @@ export default function SignUp() {
         <View style={styles.agreements}>
           <CheckRow checked={ageAccepted} label="만 14세 이상입니다." onPress={() => setAgeAccepted((value) => !value)} />
           <CheckRow checked={termsAccepted} label="이용약관에 동의합니다. (필수)" onPress={() => setTermsAccepted((value) => !value)} />
-          <Text variant="caption">이용약관 전문 링크 준비 중</Text>
+          <Pressable accessibilityRole="link" onPress={() => router.push('/legal/terms')} style={styles.policyLink}>
+            <Text variant="caption" weight="bold" color={color.brand.orange}>이용약관 보기 ›</Text>
+          </Pressable>
           <CheckRow checked={privacyAccepted} label="개인정보 처리방침에 동의합니다. (필수)" onPress={() => setPrivacyAccepted((value) => !value)} />
-          <Pressable accessibilityRole="link" onPress={() => router.push('/privacy')} style={styles.policyLink}>
+          <Pressable accessibilityRole="link" onPress={() => router.push('/legal/privacy')} style={styles.policyLink}>
             <Text variant="caption" weight="bold" color={color.brand.orange}>개인정보 처리 안내 보기 ›</Text>
           </Pressable>
         </View>

@@ -115,7 +115,7 @@ export default function Permissions() {
         ))}
       </View>
 
-      <Pressable accessibilityRole="link" accessibilityLabel="개인정보 처리 안내 보기" onPress={() => router.push('/privacy')} style={({ pressed }) => [styles.privacyBox, pressed && styles.privacyPressed]}>
+      <Pressable accessibilityRole="link" accessibilityLabel="개인정보 처리 안내 보기" onPress={() => router.push('/legal/privacy')} style={({ pressed }) => [styles.privacyBox, pressed && styles.privacyPressed]}>
         <Text variant="title">🔒</Text>
         <View style={styles.privacyCopy}>
           <Text variant="caption" weight="bold" color={color.text.heading}>
