@@ -81,8 +81,8 @@ export default function Place() {
           <Text color={color.text.body} style={styles.noticeCopy}>운영시간·접근성·혼잡도·리뷰는 실제 장소 조회 API가 연결된 뒤 표시합니다. 확인되지 않은 정보는 임의로 보여드리지 않아요.</Text>
         </View>
         <View style={styles.actions}>
-          <Button label={isSaved ? '내 여행 후보에서 빼기' : '내 여행 후보에 저장'} onPress={() => void toggleSaved()} />
-          <Button label="카카오맵에서 위치 확인" variant="ghost" onPress={() => void openMap()} />
+          <Button label={isSaved ? '내 여행 후보에서 빼기' : '내 여행 후보에 저장'} variant="ghost" onPress={() => void toggleSaved()} />
+          <Button label="카카오맵에서 위치 확인" onPress={() => void openMap()} containerStyle={styles.primaryAction} />
           {feedback ? <Text accessibilityLiveRegion="polite" color={color.text.body} style={styles.feedback}>{feedback}</Text> : null}
         </View>
       </> : <View style={styles.notice} accessibilityRole="alert">
@@ -109,5 +109,6 @@ const styles = StyleSheet.create({
   noticeCopy: { lineHeight: 22 },
   actions: { gap: spacing[3], marginTop: spacing[4] },
   feedback: { textAlign: 'center' },
+  primaryAction: { backgroundColor: color.brand.navy },
   recoveryButton: { marginTop: spacing[2] },
 });
