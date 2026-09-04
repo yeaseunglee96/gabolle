@@ -44,6 +44,14 @@
 pipeline {
     agent any
 
+    options {
+        // 🔴 S15P21E201-596 — 짧은 간격으로 두 push가 겹치면 두 빌드가 동시에 돌면서
+        //    같은 compose 프로젝트를 동시에 배포하려다 컨테이너 이름 충돌로 죽을 수
+        //    있다 (backend-deploy build #58/#59에서 실제로 겪음). 뒤에 온 빌드를 앞
+        //    빌드가 끝날 때까지 큐에서 기다리게 해서 막는다.
+        disableConcurrentBuilds()
+    }
+
     parameters {
         string(name: 'DEPLOY_HOST', defaultValue: 'j15e201.p.ssafy.io', description: '배포 대상 서버 도메인')
         string(name: 'ROLLBACK_TAG', defaultValue: '', description: '비워두면 지금 커밋으로 새로 빌드해 배포한다. 이전 커밋의 짧은 SHA(예: a1b2c3d4e5f6)를 넣으면 재빌드 없이 그 태그의 기존 이미지로 재기동만 한다 — 롤백용')
