@@ -1,230 +1,113 @@
-// 13 장소 상세 — Figma 13_장소 상세 실측 그대로.
-//
-// 히어로 이미지가 화면 가장자리까지 채워야 해서(Figma 실측) index.tsx(01 Welcome)와 같은
-// 이유로 공용 Screen 컴포넌트를 쓰지 않는다 — 위쪽은 히어로가, 아래쪽 본문은 직접 좌우
-// 여백(gutter)을 준다.
-//
-// 실제 API 연동 전까지 id 와 무관하게 흰여울문화마을 고정 목업을 보여준다(다른 상세류
-// 화면인 11 여행 결과·12 지도·동선 도 같은 방식이다).
-import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { useEffect, useState } from 'react';
+import { ImageBackground, Linking, Pressable, StyleSheet, View } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 
-import { color, gutter, radius, spacing } from '@/design/tokens';
-import { Text } from '@/components/Text';
-import { Card } from '@/components/Card';
+import { BrandLogoLink } from '@/components/BrandLogoLink';
 import { Button } from '@/components/Button';
+import { Screen } from '@/components/Screen';
+import { Text } from '@/components/Text';
+import { color, radius, spacing } from '@/design/tokens';
 
-const TAGS = [
-  { label: '혼잡 여유', bg: color.state.successBg, fg: color.state.success },
-  { label: '외국어 안내', bg: color.surface.soft, fg: color.action.brand },
-  { label: '부산 로컬 음식', bg: color.state.dangerBg, fg: color.state.danger },
-];
+const PLACES = {
+  haeundae: { title: '해운대 해수욕장', subtitle: '푸른 바다와 도시가 만나는 곳', image: require('../../assets/home/haeundae.png') },
+  gwangalli: { title: '광안리 해수욕장', subtitle: '야경과 함께하는 해변 산책', image: require('../../assets/home/gwangalli.png') },
+  gamcheon: { title: '감천문화마을', subtitle: '형형색색 감성 골목 여행', image: require('../../assets/home/gamcheon.png') },
+} as const;
 
-const INFO_ROWS = [
-  { label: '운영', value: '연중무휴 · 골목 상점 10:00–19:00' },
-  { label: '이동', value: '흰여울 정류장 도보 6분' },
-  { label: '접근성', value: '경사·계단 있음 · 우회 동선 제공' },
-  { label: '언어', value: '한국어·영어·일본어 안내' },
-];
+const SAVED_PLACES_KEY = 'gabolle.saved-home-places';
 
 export default function Place() {
   const router = useRouter();
-  const [liked, setLiked] = useState(false);
+  const { id } = useLocalSearchParams<{ id?: string }>();
+  const place = id && id in PLACES ? PLACES[id as keyof typeof PLACES] : null;
+  const [isSaved, setIsSaved] = useState(false);
+  const [feedback, setFeedback] = useState('');
+
+  useEffect(() => {
+    if (!id || !place) return;
+    void AsyncStorage.getItem(SAVED_PLACES_KEY).then((raw) => {
+      try {
+        const savedIds = raw ? JSON.parse(raw) : [];
+        setIsSaved(Array.isArray(savedIds) && savedIds.includes(id));
+      } catch {
+        void AsyncStorage.removeItem(SAVED_PLACES_KEY);
+      }
+    });
+  }, [id, place]);
+
+  const toggleSaved = async () => {
+    if (!id || !place) return;
+    const raw = await AsyncStorage.getItem(SAVED_PLACES_KEY);
+    let savedIds: string[] = [];
+    try {
+      const parsed = raw ? JSON.parse(raw) : [];
+      savedIds = Array.isArray(parsed) ? parsed : [];
+    } catch {
+      // 손상된 로컬 값은 현재 선택을 기준으로 안전하게 다시 만든다.
+    }
+    const nextSaved = !isSaved;
+    const nextIds = nextSaved ? [...new Set([...savedIds, id])] : savedIds.filter((savedId) => savedId !== id);
+    await AsyncStorage.setItem(SAVED_PLACES_KEY, JSON.stringify(nextIds));
+    setIsSaved(nextSaved);
+    setFeedback(nextSaved ? '내 여행 후보에 저장했어요.' : '저장을 해제했어요.');
+  };
+
+  const openMap = async () => {
+    if (!place) return;
+    await Linking.openURL(`https://map.kakao.com/link/search/${encodeURIComponent(place.title)}`);
+  };
 
   return (
-    <View style={styles.screen}>
-      <ScrollView contentContainerStyle={styles.scrollBody}>
-        <View style={styles.hero}>
-          {/* TODO: 실제 장소 사진. 자산이 오기 전까지 브랜드 색 면으로 대체한다. */}
-          <SafeAreaView edges={['top']} style={styles.heroTopRow}>
-            <Pressable style={styles.heroButton} onPress={() => router.back()}>
-              <Text variant="title" weight="bold" color={color.text.heading}>
-                ‹
-              </Text>
-            </Pressable>
-            <Pressable style={styles.heroButton} onPress={() => setLiked((prev) => !prev)}>
-              <Text variant="title" color={liked ? color.state.danger : color.text.heading}>
-                {liked ? '♥' : '♡'}
-              </Text>
-            </Pressable>
-          </SafeAreaView>
+    <Screen scroll wide style={styles.screen}>
+      <View style={styles.topBar}>
+        <Pressable accessibilityRole="button" accessibilityLabel="이전 화면으로 이동" onPress={() => router.canGoBack() ? router.back() : router.replace('/home')} style={({ pressed }) => [styles.back, pressed && styles.pressed]}>
+          <Text variant="title" weight="bold">‹</Text>
+        </Pressable>
+        <BrandLogoLink href="/home" imageStyle={styles.logo} />
+        <View style={styles.spacer} />
+      </View>
 
+      {place ? <>
+        <ImageBackground source={place.image} resizeMode="cover" style={styles.hero} imageStyle={styles.heroImage}>
+          <View style={styles.shade} />
           <View style={styles.heroCopy}>
-            <Text variant="display" weight="bold" color={color.text.onAction}>
-              흰여울문화마을
-            </Text>
-            <Text variant="body" color={color.text.onAction} style={styles.heroSubtitle}>
-              영도 · 골목 산책 · 바다 전망
-            </Text>
-            {/* Figma 는 별점을 금색(#ffd785)으로 따로 뽑았지만, 히어로 위 글자는 이 화면도
-                제목·부제와 같은 흰색으로 통일한다 — 한 화면에 하나 뿐인 색을 위해 토큰을
-                새로 만들 만큼 무겁지 않다. */}
-            <Text variant="caption" weight="bold" color={color.text.onAction}>
-              ★ 4.8 · 리뷰 1,204
-            </Text>
+            <Text variant="display" weight="bold" color={color.text.onAction}>{place.title}</Text>
+            <Text color={color.text.onAction}>{place.subtitle}</Text>
           </View>
+        </ImageBackground>
+        <View style={styles.notice} accessibilityLiveRegion="polite">
+          <Text variant="title" weight="bold">상세 정보를 준비하고 있어요</Text>
+          <Text color={color.text.body} style={styles.noticeCopy}>운영시간·접근성·혼잡도·리뷰는 실제 장소 조회 API가 연결된 뒤 표시합니다. 확인되지 않은 정보는 임의로 보여드리지 않아요.</Text>
         </View>
-
-        <View style={styles.body}>
-          <View style={styles.tagsRow}>
-            {TAGS.map((tag) => (
-              <View key={tag.label} style={[styles.tag, { backgroundColor: tag.bg }]}>
-                <Text variant="caption" weight="bold" color={tag.fg}>
-                  {tag.label}
-                </Text>
-              </View>
-            ))}
-          </View>
-
-          <Text variant="title" weight="bold" style={styles.sectionTitle}>
-            현지인이 알려주는 포인트
-          </Text>
-          <Card style={styles.tipCard}>
-            <Text variant="body">“오후 4시 이후 절영해안산책로 방향이 가장 예뻐요.”</Text>
-            <Text variant="caption" color={color.text.body}>
-              영도 주민 · 수진 님
-            </Text>
-          </Card>
-
-          <Text variant="title" weight="bold" style={styles.sectionTitle}>
-            방문 정보
-          </Text>
-          <View style={styles.infoList}>
-            {INFO_ROWS.map((row, index) => (
-              <View key={row.label}>
-                <View style={styles.infoRow}>
-                  <Text variant="caption" weight="bold" color={color.text.body} style={styles.infoLabel}>
-                    {row.label}
-                  </Text>
-                  <Text variant="body" color={color.text.heading} style={styles.infoValue}>
-                    {row.value}
-                  </Text>
-                </View>
-                {index < INFO_ROWS.length - 1 && <View style={styles.divider} />}
-              </View>
-            ))}
-          </View>
-
-          {/* 14 동백이 AI 챗봇 화면(app/chat.tsx)이 이미 있어 실제로 잇는다. */}
-          <Pressable style={styles.chatCta} onPress={() => router.push('/chat')}>
-            <Text variant="body" weight="bold" color={color.action.brand}>
-              🌺 동백이에게 이 장소 물어보기
-            </Text>
-          </Pressable>
+        <View style={styles.actions}>
+          <Button label={isSaved ? '내 여행 후보에서 빼기' : '내 여행 후보에 저장'} onPress={() => void toggleSaved()} />
+          <Button label="카카오맵에서 위치 확인" variant="ghost" onPress={() => void openMap()} />
+          {feedback ? <Text accessibilityLiveRegion="polite" color={color.text.body} style={styles.feedback}>{feedback}</Text> : null}
         </View>
-      </ScrollView>
-
-      {/* TODO: 저장·일정 추가는 실제 여행 데이터 모델이 아직 없어 동작하지 않는다. */}
-      <SafeAreaView edges={['bottom']} style={styles.footer}>
-        <View style={styles.footerSave}>
-          <Button label="저장" variant="ghost" />
-        </View>
-        <View style={styles.footerAdd}>
-          <Button label="15:00 일정에 추가" />
-        </View>
-      </SafeAreaView>
-    </View>
+      </> : <View style={styles.notice} accessibilityRole="alert">
+        <Text variant="title" weight="bold">장소를 찾을 수 없어요</Text>
+        <Text color={color.text.body}>목록으로 돌아가 다른 장소를 선택해 주세요.</Text>
+        <Button label="홈으로 돌아가기" onPress={() => router.replace('/home')} containerStyle={styles.recoveryButton} />
+      </View>}
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: color.canvas,
-  },
-  scrollBody: {
-    paddingBottom: spacing[8],
-  },
-  hero: {
-    height: 292,
-    backgroundColor: color.action.primary,
-    justifyContent: 'space-between',
-  },
-  heroTopRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: spacing[4],
-    paddingTop: spacing[2],
-  },
-  heroButton: {
-    width: 40,
-    height: 40,
-    borderRadius: radius.full,
-    backgroundColor: color.surface.card,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  heroCopy: {
-    paddingHorizontal: gutter,
-    paddingBottom: spacing[6],
-    gap: spacing[1],
-  },
-  heroSubtitle: {
-    opacity: 0.92,
-  },
-  body: {
-    paddingHorizontal: gutter,
-    paddingTop: spacing[4],
-  },
-  tagsRow: {
-    flexDirection: 'row',
-    gap: spacing[2],
-  },
-  tag: {
-    flex: 1,
-    borderRadius: radius.full,
-    paddingVertical: spacing[2],
-    alignItems: 'center',
-  },
-  sectionTitle: {
-    marginTop: spacing[8],
-    marginBottom: spacing[3],
-  },
-  tipCard: {
-    gap: spacing[2],
-  },
-  infoList: {
-    backgroundColor: color.surface.card,
-    borderRadius: radius.md,
-    paddingHorizontal: spacing[4],
-  },
-  infoRow: {
-    flexDirection: 'row',
-    paddingVertical: spacing[3],
-    gap: spacing[3],
-  },
-  infoLabel: {
-    width: 60,
-  },
-  infoValue: {
-    flex: 1,
-  },
-  divider: {
-    height: 1,
-    backgroundColor: color.surface.field,
-  },
-  chatCta: {
-    alignItems: 'center',
-    backgroundColor: color.surface.soft,
-    borderRadius: radius.md,
-    paddingVertical: spacing[4],
-    marginTop: spacing[8],
-  },
-  footer: {
-    flexDirection: 'row',
-    gap: spacing[3],
-    paddingHorizontal: gutter,
-    paddingTop: spacing[3],
-    backgroundColor: color.canvas,
-    borderTopWidth: 1,
-    borderTopColor: color.surface.field,
-  },
-  footerSave: {
-    flex: 106,
-  },
-  footerAdd: {
-    flex: 224,
-  },
+  screen: { backgroundColor: color.brand.ivory },
+  topBar: { minHeight: 52, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing[3] },
+  back: { width: 44, height: 44, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.card },
+  pressed: { opacity: 0.72, transform: [{ scale: 0.96 }] },
+  logo: { width: 96, height: 28 },
+  spacer: { width: 44 },
+  hero: { height: 360, justifyContent: 'flex-end', overflow: 'hidden', borderRadius: radius.lg },
+  heroImage: { borderRadius: radius.lg },
+  shade: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(8, 27, 53, 0.25)' },
+  heroCopy: { gap: spacing[1], padding: spacing[4] },
+  notice: { gap: spacing[3], marginTop: spacing[4], padding: spacing[4], borderWidth: 1, borderColor: '#eee5da', borderRadius: radius.lg, backgroundColor: color.surface.card },
+  noticeCopy: { lineHeight: 22 },
+  actions: { gap: spacing[3], marginTop: spacing[4] },
+  feedback: { textAlign: 'center' },
+  recoveryButton: { marginTop: spacing[2] },
 });
