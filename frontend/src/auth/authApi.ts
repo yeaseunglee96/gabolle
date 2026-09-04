@@ -65,6 +65,9 @@ export function completeOAuth(provider: OAuthProvider, input: {
   });
 }
 export function getMe(accessToken: string) { return apiRequest<AuthUser>('/api/v1/auth/me', { accessToken }); }
+export function updateMe(accessToken: string, input: { displayName?: string; language?: SignupLanguage }) {
+  return apiRequest<AuthUser>('/api/v1/auth/me', { method: 'PATCH', accessToken, body: input });
+}
 export function refreshWebSession() { return apiRequest<AuthTokens>('/api/v1/auth/web/refresh', { method: 'POST', skipUnauthorizedHandling: true }); }
 export function refreshMobileSession(refreshToken: string) { return apiRequest<AuthTokens>('/api/v1/auth/refresh', { method: 'POST', body: { refreshToken }, skipUnauthorizedHandling: true }); }
 export function logoutWebSession() { return apiRequest<void>('/api/v1/auth/web/logout', { method: 'POST', skipUnauthorizedHandling: true }); }

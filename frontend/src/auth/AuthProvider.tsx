@@ -3,11 +3,11 @@ import { Platform } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 import { useRouter } from 'expo-router';
 import { setUnauthorizedHandler } from '@/api/client';
-import { getMe, login, logoutMobileSession, logoutWebSession, refreshMobileSession, refreshWebSession, type AuthTokens, type AuthUser } from './authApi';
+import { getMe, login, logoutMobileSession, logoutWebSession, refreshMobileSession, refreshWebSession, updateMe, type AuthTokens, type AuthUser, type SignupLanguage } from './authApi';
 import { useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
 
 const REFRESH_TOKEN_KEY = 'gabolle.refresh-token';
-type AuthContextValue = { accessToken: string | null; user: AuthUser | null; ready: boolean; signIn: (email: string, password: string) => Promise<void>; acceptTokens: (tokens: AuthTokens) => Promise<void>; clearSession: () => void; signOut: () => Promise<void> };
+type AuthContextValue = { accessToken: string | null; user: AuthUser | null; ready: boolean; signIn: (email: string, password: string) => Promise<void>; acceptTokens: (tokens: AuthTokens) => Promise<void>; updateProfile: (input: { displayName: string; language: SignupLanguage }) => Promise<void>; clearSession: () => void; signOut: () => Promise<void> };
 const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
@@ -60,6 +60,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const value = useMemo<AuthContextValue>(() => ({ accessToken, user, ready, clearSession,
     signIn: async (email, password) => { const tokens = await login(email, password); const currentUser = await getMe(tokens.accessToken); setAccessToken(tokens.accessToken); setRefreshToken(tokens.refreshToken); applyUser(currentUser); if (Platform.OS !== 'web' && tokens.refreshToken) await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, tokens.refreshToken); },
     acceptTokens: async (tokens) => { const currentUser = await getMe(tokens.accessToken); setAccessToken(tokens.accessToken); setRefreshToken(tokens.refreshToken); applyUser(currentUser); if (Platform.OS !== 'web' && tokens.refreshToken) await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, tokens.refreshToken); },
+    updateProfile: async (input) => { if (!accessToken) throw new Error('로그인이 필요합니다.'); const currentUser = await updateMe(accessToken, input); applyUser(currentUser); },
     signOut: async () => { try { if (Platform.OS === 'web') await logoutWebSession(); else if (refreshToken) await logoutMobileSession(refreshToken); } finally { clearSession(); router.replace('/sign-in'); } },
   }), [accessToken, preferences, ready, refreshToken, router, user]);
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

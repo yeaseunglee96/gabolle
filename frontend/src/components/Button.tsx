@@ -26,10 +26,12 @@ const LABEL_COLOR: Record<ButtonVariant, string> = {
   ghost: color.action.primary,
 };
 
-export function Button({ label, variant = 'primary', disabled, containerStyle, ...rest }: ButtonProps) {
+export function Button({ label, variant = 'primary', disabled, containerStyle, accessibilityRole, accessibilityState, ...rest }: ButtonProps) {
   return (
     <Pressable
       {...rest}
+      accessibilityRole={accessibilityRole ?? 'button'}
+      accessibilityState={{ ...accessibilityState, disabled: Boolean(disabled) }}
       disabled={disabled}
       style={({ pressed }) => [
         styles.base,
