@@ -1,0 +1,133 @@
+// frontend-deploy 파이프라인 (S15P21E201-594)
+//
+// Jenkins Job 설정:
+//  - Definition: Pipeline script from SCM
+//  - SCM: Git, branch front/dev, credentialsId gitlab-pat
+//  - Script Path: frontend/Jenkinsfile
+//  - Triggers: Generic Webhook Trigger, token = frontend-deploy
+//    (GitLab Webhook의 Wildcard pattern을 front/dev 로 제한해서 등록)
+//
+// 필요한 Jenkins Credentials:
+//  - gitlab-pat            (Username with password) — GitLab 저장소 체크아웃
+//  - mattermost-webhook    (Secret text) — 빌드 결과 알림용 MatterMost Incoming Webhook URL
+//    (backend-deploy와 동일한 Credential을 그대로 재사용한다 — 새로 만들 것 없음)
+//
+// backend/Jenkinsfile(S15P21E201-575)과 같은 구조다. frontend는 Expo 웹 export를
+// nginx:alpine 으로 서빙하는 정적 이미지라 DB 등 런타임 시크릿이 없다.
+
+pipeline {
+    agent any
+
+    environment {
+        // 🔴 backend/Jenkinsfile 이 이미 겪은 함정과 같다 — agent any 라 이 스텝도
+        //    Jenkins 컨테이너 안에서 돈다. 그 안의 localhost 는 frontend 컨테이너가
+        //    아니라 Jenkins 자기 자신이다(별개의 네트워크 네임스페이스). 컨테이너
+        //    이름으로 가리키고, DNS 로 풀리려면 Jenkins 가 frontend 와 같은 도커
+        //    네트워크(local-route-personalization_data_net)에 있어야 한다 — backend
+        //    배포 때 이미 한 번 붙여 뒀다(docker network connect ... jenkins).
+        //    frontend 컨테이너 내부 포트는 nginx:alpine 기본값인 80 이다
+        //    (frontend/Dockerfile — EXPOSE 80).
+        HEALTH_URL = 'http://frontend:80/'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'front/dev',
+                    credentialsId: 'gitlab-pat',
+                    url: 'https://lab.ssafy.com/s15-bigdata-dist-sub1/S15P21E201.git'
+            }
+        }
+
+        stage('Build Image') {
+            steps {
+                dir('frontend') {
+                    sh 'docker build -t local-route-frontend .'
+                }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                sh 'docker stop frontend || true'
+                sh 'docker rm frontend || true'
+                sh '''
+                    docker run -d --name frontend \
+                        --restart unless-stopped \
+                        --network local-route-personalization_data_net \
+                        -p 3000:80 \
+                        local-route-frontend
+                '''
+            }
+        }
+
+        stage('Health Check') {
+            steps {
+                script {
+                    // backend/Jenkinsfile 과 같은 이유로 curl 실패(exit 7)를
+                    // `|| echo 000` 으로 흡수해 재시도 루프가 끝까지 돌게 한다.
+                    def healthy = false
+                    for (int i = 0; i < 12; i++) {
+                        def code = sh(script: "curl -s -o /dev/null -w '%{http_code}' ${HEALTH_URL} || echo 000", returnStdout: true).trim()
+                        if (code == '200') {
+                            healthy = true
+                            break
+                        }
+                        sleep 5
+                    }
+                    if (!healthy) {
+                        error 'Health check failed after retries'
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            script {
+                sendMMNotify(true, [
+                    commit: sh(script: "git log -1 --pretty='%an: %s'", returnStdout: true).trim(),
+                    buildUrl: env.BUILD_URL
+                ])
+            }
+        }
+        failure {
+            script {
+                sendMMNotify(false, [
+                    commit: sh(script: "git log -1 --pretty='%an: %s'", returnStdout: true).trim(),
+                    buildUrl: env.BUILD_URL,
+                    details: 'Console Output 을 확인하세요'
+                ])
+            }
+        }
+    }
+}
+
+// MatterMost 알림 전송
+def sendMMNotify(boolean success, Map info) {
+    def titleLine = success
+        ? '#### :white_check_mark: 프론트엔드(front/dev) 배포 성공'
+        : '#### :x: 프론트엔드(front/dev) 배포 실패'
+
+    def lines = []
+    if (info.commit)   lines << "**커밋**: ${info.commit}"
+    if (info.buildUrl) lines << "**빌드 상세**: [Details](${info.buildUrl})"
+    if (!success && info.details) lines << "**참고**: ${info.details}"
+
+    def text = lines ? "${titleLine}\n" + lines.join("\n") : titleLine
+
+    writeFile file: 'mm_payload.json', text: groovy.json.JsonOutput.toJson([
+        text: text,
+        username: 'Jenkins',
+        icon_emoji: ':jenkins7:'
+    ])
+
+    withCredentials([string(credentialsId: 'mattermost-webhook', variable: 'MM_WEBHOOK')]) {
+        sh '''
+            curl -sS -f -X POST -H 'Content-Type: application/json' \
+                --data-binary @mm_payload.json \
+                "$MM_WEBHOOK" || true
+        '''
+    }
+}
