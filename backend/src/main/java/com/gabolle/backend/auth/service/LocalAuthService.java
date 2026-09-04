@@ -38,6 +38,7 @@ public class LocalAuthService {
 	private final EmailSender emailSender;
 	private final AuthProperties properties;
 	private final ConsentPolicy consentPolicy;
+	private final LoginAttemptGuard loginAttemptGuard;
 	private final Clock clock;
 
 	@Autowired
@@ -45,16 +46,17 @@ public class LocalAuthService {
 			LocalCredentialRepository credentialRepository,
 			AuthOneTimeTokenRepository oneTimeTokenRepository, PasswordEncoder passwordEncoder,
 			SessionTokenGenerator tokenGenerator, AuthTokenService authTokenService, EmailSender emailSender,
-			AuthProperties properties, ConsentPolicy consentPolicy) {
+			AuthProperties properties, ConsentPolicy consentPolicy, LoginAttemptGuard loginAttemptGuard) {
 		this(userRepository, consentRepository, credentialRepository, oneTimeTokenRepository, passwordEncoder, tokenGenerator,
-				authTokenService, emailSender, properties, consentPolicy, Clock.systemUTC());
+				authTokenService, emailSender, properties, consentPolicy, loginAttemptGuard, Clock.systemUTC());
 	}
 
 	LocalAuthService(AppUserRepository userRepository, UserConsentRepository consentRepository,
 			LocalCredentialRepository credentialRepository,
 			AuthOneTimeTokenRepository oneTimeTokenRepository, PasswordEncoder passwordEncoder,
 			SessionTokenGenerator tokenGenerator, AuthTokenService authTokenService, EmailSender emailSender,
-			AuthProperties properties, ConsentPolicy consentPolicy, Clock clock) {
+			AuthProperties properties, ConsentPolicy consentPolicy, LoginAttemptGuard loginAttemptGuard,
+			Clock clock) {
 		this.userRepository = userRepository;
 		this.consentRepository = consentRepository;
 		this.credentialRepository = credentialRepository;
@@ -65,6 +67,7 @@ public class LocalAuthService {
 		this.emailSender = emailSender;
 		this.properties = properties;
 		this.consentPolicy = consentPolicy;
+		this.loginAttemptGuard = loginAttemptGuard;
 		this.clock = clock;
 	}
 
@@ -129,7 +132,19 @@ public class LocalAuthService {
 	public AuthTokenService.IssuedTokens login(AuthCommands.Login command) {
 		LocalCredential credential = credentialRepository.findByEmail(normalizeEmail(command.email()))
 				.orElseThrow(this::invalidCredentials);
+		Instant now = clock.instant();
+
+		// 🔴 비밀번호를 보기 전에 잠금부터 본다. 잠긴 동안에는 맞는 비밀번호도 거부한다 —
+		//    비밀번호가 맞는지 알려 주는 것 자체가 공격자에게 정보이기 때문이다.
+		if (credential.isLoginLocked(now)) {
+			throw loginLocked(credential.getLoginLockedUntil(), now);
+		}
+
 		if (!passwordEncoder.matches(command.password(), credential.getPasswordHash())) {
+			// 🔴 세는 일은 별도 트랜잭션에서 한다. 바로 아래에서 예외를 던지면 이 메서드의
+			//    트랜잭션이 되돌려지는데, 그 안에서 올렸으면 올린 것도 같이 사라진다.
+			//    자세한 이유는 LoginAttemptGuard 의 주석에 있다.
+			loginAttemptGuard.recordFailure(credential.getLocalCredentialId(), now);
 			throw invalidCredentials();
 		}
 		if (credential.getEmailVerifiedAt() == null || credential.getUser().getStatus() == UserStatus.PENDING_EMAIL_VERIFICATION) {
@@ -140,7 +155,25 @@ public class LocalAuthService {
 			throw new AuthException("ACCOUNT_UNAVAILABLE", "사용할 수 없는 계정입니다.",
 					org.springframework.http.HttpStatus.FORBIDDEN);
 		}
+		// 여기까지 왔으면 비밀번호가 맞았다. 세던 것을 지운다. 바깥 트랜잭션이 그대로 커밋되므로
+		// 별도 트랜잭션이 필요 없다.
+		credential.recordSuccessfulLogin();
 		return authTokenService.issue(credential.getUser(), command.deviceId());
+	}
+
+	/**
+	 * 잠겨 있다는 응답.
+	 *
+	 * <p>🔴 이 코드가 비밀번호 틀림({@code INVALID_CREDENTIALS})과 다르다는 것은 <b>그 이메일로 가입한
+	 * 계정이 있다</b>는 사실을 알려 준다. 티켓 완료 기준이 둘을 구분하라고 요구하고(화면이 "잠시 후
+	 * 다시" 를 띄워야 한다), 회원가입이 이미 {@code EMAIL_ALREADY_EXISTS} 로 같은 사실을 알려 주고
+	 * 있어서 여기서 새로 열리는 구멍은 아니다. 알면서 받아들인 것이라 적어 둔다.
+	 */
+	private AuthException loginLocked(Instant lockedUntil, Instant now) {
+		long seconds = Math.max(1, java.time.Duration.between(now, lockedUntil).toSeconds());
+		return new AuthException("TOO_MANY_LOGIN_ATTEMPTS",
+				"로그인 시도가 너무 많습니다. " + ((seconds + 59) / 60) + "분 뒤에 다시 시도해 주세요.",
+				org.springframework.http.HttpStatus.TOO_MANY_REQUESTS);
 	}
 
 	private AuthException invalidCredentials() {
