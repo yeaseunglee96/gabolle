@@ -2,6 +2,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { Button } from '@/components/Button';
+import { DongbaekMascot } from '@/components/DongbaekMascot';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
@@ -13,7 +14,7 @@ export default function Chat() {
     <Screen>
       <View style={styles.header}>
         <View style={styles.identity}>
-          <View style={styles.avatar}><Text variant="title">🌺</Text></View>
+          <DongbaekMascot state="open" style={styles.avatarImage} />
           <View><Text variant="title" weight="bold">동백이</Text><Text variant="caption" color={color.text.body}>부산 여행 AI 도우미</Text></View>
         </View>
         <Pressable accessibilityRole="button" accessibilityLabel="동백이 화면 닫기" onPress={() => router.canGoBack() ? router.back() : router.replace('/home')} style={({ pressed }) => [styles.closeButton, pressed && styles.pressed]}>
@@ -22,7 +23,7 @@ export default function Chat() {
       </View>
 
       <View style={styles.content}>
-        <View style={styles.icon}><Text variant="hero">🌺</Text></View>
+        <View style={styles.icon}><DongbaekMascot state="open" style={styles.heroMascot} /></View>
         <View style={styles.copy}>
           <Text variant="caption" weight="bold" color={color.brand.orange}>기능 준비 중</Text>
           <Text variant="display" weight="bold">동백이가 여행을{`\n`}더 잘 배우고 있어요</Text>
@@ -45,11 +46,12 @@ export default function Chat() {
 const styles = StyleSheet.create({
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   identity: { flexDirection: 'row', alignItems: 'center', gap: spacing[3] },
-  avatar: { width: 44, height: 44, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.tint },
+  avatarImage: { width: 44, height: 44 },
   closeButton: { width: 44, height: 44, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.soft },
   pressed: { opacity: 0.7, transform: [{ scale: 0.96 }] },
   content: { flex: 1, justifyContent: 'center', gap: spacing[6] },
-  icon: { width: 88, height: 88, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.tint },
+  icon: { width: 112, height: 112, alignItems: 'center', justifyContent: 'center' },
+  heroMascot: { width: 112, height: 112 },
   copy: { gap: spacing[3] },
   notice: { gap: spacing[2], borderRadius: radius.md, padding: spacing[4], backgroundColor: color.state.warningBg },
   actions: { gap: spacing[3] },
