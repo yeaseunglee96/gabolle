@@ -4,13 +4,16 @@
 // "양방향 음성 통역" 은 그 업체가 정해져야 만들 수 있어 지금은 눌러도 이동하지 않는다.
 // "장소별 한국어" 는 이미 만든 17 현장 말하기 화면(phrase 카드)과 같은 기능이라 그리로 잇고,
 // "날씨·준비물" 은 16 여행 준비 화면으로 잇는다.
-import { Pressable, StyleSheet, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { AppState, Platform, Pressable, StyleSheet, View } from 'react-native';
+import { Camera } from 'expo-camera';
 import { useRouter } from 'expo-router';
 
 import { color, radius, spacing } from '@/design/tokens';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { Button } from '@/components/Button';
+import { PermissionRationale } from '@/components/PermissionRationale';
 
 const DEMO_TRIP_ID = 'demo-trip';
 
@@ -26,6 +29,30 @@ type Tool = {
 
 export default function Translate() {
   const router = useRouter();
+  const [cameraPermission, setCameraPermission] = useState<'checking' | 'undetermined' | 'granted' | 'denied'>(Platform.OS === 'web' ? 'granted' : 'checking');
+  const [requestingCamera, setRequestingCamera] = useState(false);
+
+  useEffect(() => {
+    if (Platform.OS === 'web') return;
+    const refreshPermission = () => void Camera.getCameraPermissionsAsync()
+      .then((result) => setCameraPermission(result.granted ? 'granted' : result.status === 'denied' ? 'denied' : 'undetermined'))
+      .catch(() => setCameraPermission('undetermined'));
+    refreshPermission();
+    const subscription = AppState.addEventListener('change', (state) => { if (state === 'active') refreshPermission(); });
+    return () => subscription.remove();
+  }, []);
+
+  async function requestCamera() {
+    setRequestingCamera(true);
+    try {
+      const result = await Camera.requestCameraPermissionsAsync();
+      setCameraPermission(result.granted ? 'granted' : 'denied');
+    } catch {
+      setCameraPermission('denied');
+    } finally {
+      setRequestingCamera(false);
+    }
+  }
 
   const tools: Tool[] = [
     {
@@ -34,7 +61,8 @@ export default function Translate() {
       title: '메뉴판 카메라 번역',
       desc: '사진을 찍으면 음식명·가격·알레르기를 번역',
       tinted: true,
-      pending: true,
+      onPress: cameraPermission === 'undetermined' ? () => void requestCamera() : undefined,
+      pending: cameraPermission !== 'undetermined',
     },
     {
       key: 'voice',
@@ -67,6 +95,18 @@ export default function Translate() {
       <Text variant="caption" style={styles.subtitle}>
         여행 중 필요한 기능을 한곳에서 바로 사용해요
       </Text>
+
+      {cameraPermission !== 'granted' && (
+        <PermissionRationale
+          icon="📷"
+          title="메뉴판을 촬영해 번역할까요?"
+          description="카메라는 메뉴와 안내문을 읽을 때만 사용해요. 촬영한 이미지는 사진첩에 저장하지 않아요."
+          denied={cameraPermission === 'denied'}
+          busy={cameraPermission === 'checking' || requestingCamera}
+          actionLabel="카메라 사용"
+          onRequest={() => void requestCamera()}
+        />
+      )}
 
       <View style={styles.list}>
         {tools.map((tool) => (
@@ -109,6 +149,7 @@ const styles = StyleSheet.create({
   },
   list: {
     gap: spacing[3],
+    marginTop: spacing[4],
   },
   card: {
     flexDirection: 'row',

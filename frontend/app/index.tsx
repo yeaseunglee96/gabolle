@@ -79,10 +79,11 @@ export default function Welcome() {
   const chooseLanguage = (next: WelcomeLanguage['code']) => {
     setPreferences(next, mobility);
   };
-  const start = (next: WelcomeLanguage['code'] = language === 'en' ? 'en' : 'ko') => {
+  const startOnboarding = (next: WelcomeLanguage['code'] = language === 'en' ? 'en' : 'ko') => {
     chooseLanguage(next);
     router.push({ pathname: isDesktop ? '/age-gate' : '/app-intro', params: { language: next, mobility } });
   };
+  const startPlanning = () => router.push('/plan/basic');
 
   if (!isDesktop) {
     const lightLogo = shouldUseLightWelcomeLogo();
@@ -90,8 +91,8 @@ export default function Welcome() {
       <ScenicVideo poster={welcomeImage} source={welcomeVideo} />
       <StatusBar style="light" />
       <SafeAreaView edges={['top', 'bottom']} style={styles.mobileSafeArea}>
-        <View style={styles.mobileBrand}><Pressable accessibilityRole="button" accessibilityLabel="GABOLLE 시작하기" accessibilityHint="연령 확인 화면으로 이동합니다" onPress={() => start()} style={({ pressed }) => [styles.logoLink, pressed && styles.pressed]}><Image source={lightLogo ? nightLogo : logo} resizeMode="contain" style={styles.mobileLogo} /></Pressable><Text variant="display" weight="bold" color={color.brand.orange}>부산 가볼래?</Text></View>
-        <View accessibilityRole="radiogroup" accessibilityLabel="시작할 언어 선택" style={styles.languageList}>{LANGUAGES.map((item) => <LanguageButton key={item.code} item={item} selected={language === item.code} onPress={() => start(item.code)} />)}</View>
+        <View style={styles.mobileBrand}><Pressable accessibilityRole="button" accessibilityLabel="GABOLLE 시작하기" accessibilityHint="서비스 소개 화면으로 이동합니다" onPress={() => startOnboarding()} style={({ pressed }) => [styles.logoLink, pressed && styles.pressed]}><Image source={lightLogo ? nightLogo : logo} resizeMode="contain" style={styles.mobileLogo} /></Pressable><Text variant="display" weight="bold" color={color.brand.orange}>부산 가볼래?</Text></View>
+        <View accessibilityRole="radiogroup" accessibilityLabel="시작할 언어 선택" style={styles.languageList}>{LANGUAGES.map((item) => <LanguageButton key={item.code} item={item} selected={language === item.code} onPress={() => startOnboarding(item.code)} />)}</View>
       </SafeAreaView>
     </View>;
   }
@@ -100,11 +101,11 @@ export default function Welcome() {
     <StatusBar style="dark" />
     <SafeAreaView edges={['top']} style={styles.webHeader}>
       <Pressable accessibilityRole="link" accessibilityLabel="GABOLLE 홈" onPress={() => router.replace('/')} style={({ pressed }) => [styles.logoLink, pressed && styles.pressed]}><Image source={logo} resizeMode="contain" style={styles.webLogo} /></Pressable>
-      <View style={styles.webNav}><NavItem label={tx('홈', 'Home')} onPress={() => router.replace('/')} /><NavItem label={tx('여행 만들기', 'Plan a trip')} onPress={() => start()} /><NavItem label={tx('내 여행', 'My trips')} onPress={() => router.push('/sign-in')} /><NavItem label={tx('부산 축제', 'Festivals')} onPress={() => router.push('/festivals')} /></View>
+      <View style={styles.webNav}><NavItem label={tx('홈', 'Home')} onPress={() => router.replace('/')} /><NavItem label={tx('여행 만들기', 'Plan a trip')} onPress={startPlanning} /><NavItem label={tx('내 여행', 'My trips')} onPress={() => router.push('/sign-in')} /><NavItem label={tx('부산 축제', 'Festivals')} onPress={() => router.push('/festivals')} /></View>
       <View style={styles.accountActions}>
         <Pressable accessibilityRole="button" accessibilityLabel={`언어를 ${language === 'ko' ? 'English' : '한국어'}로 변경`} onPress={() => chooseLanguage(language === 'ko' ? 'en' : 'ko')} style={styles.localeButton}><Text variant="caption" weight="bold">{language.toUpperCase()}</Text></Pressable>
         <Pressable accessibilityRole="button" onPress={() => router.push('/sign-in')} style={styles.loginButton}><Text variant="caption" weight="bold">{tx('로그인', 'Sign in')}</Text></Pressable>
-        <Pressable accessibilityRole="button" onPress={() => start()} style={styles.signupButton}><Text variant="caption" weight="bold" color={color.text.onAction}>{tx('회원가입', 'Sign up')}</Text></Pressable>
+        <Pressable accessibilityRole="button" onPress={() => startOnboarding()} style={styles.signupButton}><Text variant="caption" weight="bold" color={color.text.onAction}>{tx('회원가입', 'Sign up')}</Text></Pressable>
       </View>
     </SafeAreaView>
     <ImageBackground source={webHeroImage} resizeMode="cover" style={styles.heroSection}>
@@ -114,7 +115,7 @@ export default function Welcome() {
         <View style={styles.heroBadge}><Text variant="caption" weight="bold" color={color.text.onAction}>AI TRAVEL PLANNER · BUSAN</Text></View>
         <Text variant="hero" weight="bold" color={color.text.onAction} style={styles.heroTitle}>{tx(`부산의 모든 여행,\n가볼래?`, `Every side of Busan,\nyours to explore.`)}</Text>
         <Text variant="body" color="rgba(255,255,255,0.78)" style={styles.heroDescription}>{tx('취향과 이동 조건을 반영해 당신만의 부산 여행을 만들어요.', 'Build a Busan trip around your taste and mobility needs.')}</Text>
-        <View style={styles.heroActions}><Pressable accessibilityRole="button" onPress={() => start()} style={styles.primaryCta}><Text variant="body" weight="bold" color={color.text.onAction}>{tx('여행 계획 시작하기', 'Start planning')}</Text></Pressable><Pressable accessibilityRole="button" onPress={() => router.push('/festivals')} style={styles.secondaryCta}><Text variant="body" weight="bold" color={color.text.onAction}>{tx('부산 축제 보기', 'Explore festivals')}</Text></Pressable></View>
+        <View style={styles.heroActions}><Pressable accessibilityRole="button" accessibilityHint={tx('로그인 없이 여행 조건 입력을 시작합니다.', 'Start entering trip details without signing in.')} onPress={startPlanning} style={styles.primaryCta}><Text variant="body" weight="bold" color={color.text.onAction}>{tx('여행 계획 시작하기', 'Start planning')}</Text></Pressable><Pressable accessibilityRole="button" onPress={() => router.push('/festivals')} style={styles.secondaryCta}><Text variant="body" weight="bold" color={color.text.onAction}>{tx('부산 축제 보기', 'Explore festivals')}</Text></Pressable></View>
         <View style={styles.heroChips}><HeroChip dot="#64d68a" label="맞춤 일정" /><HeroChip dot="#5ba5ff" label="지금 갈 곳" /><HeroChip dot="#ff976f" label="설명 가능한 추천" /></View>
       </View></View>
     </ImageBackground>
