@@ -77,6 +77,14 @@ public record CreateTripRequest(
     public record ConstraintInput(
             /** {@code ALLERGY} · {@code DIET} · {@code MOBILITY} · {@code BUDGET} */
             @NotNull String type,
+            /**
+             * 🔴 2026-09-04 추가. 종류 안에서 무엇에 대한 사실인가 — {@code ALLERGY} 면
+             * 알레르기 코드({@code PEANUT} 등, 자유 입력이면 {@code "OTHER"}),
+             * {@code DIET} 면 식단 코드, {@code MOBILITY} 면 이동 조건 이름
+             * ({@code MAX_WALKING_METERS} 등). 민감 종류는 이 값이 {@code "OTHER"}
+             * 일 때만 거부된다 — 코드로 된 값은 구조화된 정보라 안전하다.
+             */
+            @NotBlank String constraintKey,
             /** {@code HARD} 또는 {@code SOFT} */
             @NotNull String severity,
             /** {@code EXCLUDES} · {@code LTE} · {@code GTE} */

@@ -61,7 +61,7 @@ class TripControllerGetTest {
                   "partySize": 2,
                   "timezone": "Asia/Seoul",
                   "constraints": [
-                    { "type": "MOBILITY", "severity": "HARD", "operator": "LTE", "threshold": 5000.0, "answerStatus": "SELECTED" }
+                    { "type": "MOBILITY", "constraintKey": "MAX_WALKING_METERS", "severity": "HARD", "operator": "LTE", "threshold": 5000.0, "answerStatus": "SELECTED" }
                   ]
                 }""";
 

@@ -47,7 +47,7 @@ class TripQueryServiceTest {
                 List.of(new PreferenceSnapshot.PreferenceAnswer(
                         "pace", "RELAXED", PreferenceSnapshot.AnswerStatus.SELECTED)),
                 List.of(new TripCreationService.Command.ConstraintInput(
-                        "MOBILITY", TripConstraint.Severity.HARD, "LTE", null, 5000.0,
+                        "MOBILITY", "MAX_WALKING_METERS", TripConstraint.Severity.HARD, "LTE", null, 5000.0,
                         TripConstraint.EvidenceStatus.NEEDS_REVIEW, TripConstraint.AnswerStatus.SELECTED, null)));
     }
 

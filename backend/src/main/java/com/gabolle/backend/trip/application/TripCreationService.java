@@ -74,7 +74,7 @@ public class TripCreationService {
         List<String> constraintIds = new ArrayList<>();
         for (Command.ConstraintInput c : command.constraints()) {
             String id = UUID.randomUUID().toString();
-            constraints.add(new TripConstraint(id, tripId, c.type(), c.severity(),
+            constraints.add(new TripConstraint(id, tripId, c.type(), c.constraintKey(), c.severity(),
                     c.operator(), c.value(), c.threshold(), c.evidenceStatus(),
                     c.answerStatus(), PersonalizationScope.TRIP, c.dietRequirement()));
             constraintIds.add(id);
@@ -138,6 +138,7 @@ public class TripCreationService {
 
         public record ConstraintInput(
                 String type,
+                String constraintKey,
                 TripConstraint.Severity severity,
                 String operator,
                 String value,
