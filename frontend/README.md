@@ -2,14 +2,25 @@
 
 **Expo(React Native) 기반** 프론트엔드 작업 영역입니다. (React + TypeScript 웹이 아닙니다.)
 
-## 실행
+## 처음 받은 뒤 한 명령으로 실행
 
 ```bash
-npm install
-npx expo start
+npm run setup:web
 ```
 
-터미널에 뜨는 QR 을 Expo Go 로 스캔하거나, `a`(Android 에뮬레이터) / `w`(웹) 를 누릅니다.
+의존성을 설치한 뒤 웹 개발 서버를 엽니다. 두 번째 실행부터는 설치를 건너뛰고
+`npm run web`을 사용해도 됩니다. 앱으로 확인하려면 `npm run setup:web`을 한 번
+실행한 뒤 `npm run android` 또는 `npm run ios`를 사용합니다.
+
+## 빌드와 타입 검사
+
+```bash
+npm run build:web
+npm run typecheck
+```
+
+두 검사를 한 번에 실행하려면 `npm run verify`를 사용합니다. 프로덕션 웹 결과물은
+`dist/`에 만들어집니다.
 
 ## 왜 Expo 인가
 
