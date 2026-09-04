@@ -136,10 +136,14 @@ class TripPersistenceIntegrationTest {
 		Trip trip = newTrip(tripId, now);
 		TripMember owner = TripMember.owner(UUID.randomUUID().toString(), tripId, userId, now);
 
+		// 🔴 dimension 은 ck_preference_answer_dimension 이 허용하는 8종 중 하나여야
+		//    한다 — "pace" 는 그 목록에 없어 CHECK 위반으로 CI 에서 걸렸다(도커 없는
+		//    로컬에서는 이 테스트가 스킵돼 못 잡았다). value 도 valid JSON 이어야
+		//    한다 — JSONB 컬럼은 따옴표 없는 문자열을 안 받는다.
 		PreferenceSnapshot snapshot = new PreferenceSnapshot(
 				UUID.randomUUID().toString(), tripId, 1,
 				List.of(new PreferenceSnapshot.PreferenceAnswer(
-						"pace", "RELAXED", PreferenceSnapshot.AnswerStatus.SELECTED)),
+						"SLOPE_PREFERENCE", "\"RELAXED\"", PreferenceSnapshot.AnswerStatus.SELECTED)),
 				PersonalizationScope.TRIP, List.of(), now);
 
 		TripConstraint constraint = new TripConstraint(
@@ -152,10 +156,10 @@ class TripPersistenceIntegrationTest {
 
 		PreferenceSnapshot foundSnapshot = tripRepository.findLatestSnapshot(tripId).orElseThrow();
 		assertThat(foundSnapshot.version()).isEqualTo(1);
-		var pace = foundSnapshot.answers().stream()
-				.filter(a -> a.dimension().equals("pace")).findFirst().orElseThrow();
-		assertThat(pace.valueJson()).isEqualTo("RELAXED");
-		assertThat(pace.status()).isEqualTo(PreferenceSnapshot.AnswerStatus.SELECTED);
+		var slope = foundSnapshot.answers().stream()
+				.filter(a -> a.dimension().equals("SLOPE_PREFERENCE")).findFirst().orElseThrow();
+		assertThat(slope.valueJson()).isEqualTo("\"RELAXED\"");
+		assertThat(slope.status()).isEqualTo(PreferenceSnapshot.AnswerStatus.SELECTED);
 
 		List<TripConstraint> foundConstraints = tripRepository.findConstraints(tripId);
 		assertThat(foundConstraints).hasSize(1);
