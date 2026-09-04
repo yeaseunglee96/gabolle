@@ -38,10 +38,13 @@ export function TabBar({ active }: { active: TabKey }) {
         return (
           <Pressable
             key={tab.key}
+            accessibilityRole="tab"
+            accessibilityLabel={language === 'en' ? englishLabels[tab.key] : tab.label}
+            accessibilityState={{ selected, disabled: !tab.route }}
             style={({ pressed }) => [styles.item, pressed && styles.itemPressed]}
             disabled={!tab.route}
             onPress={() => {
-              if (tab.route) router.push(tab.route);
+              if (tab.route) router.replace(tab.route);
             }}
           >
             <View style={[styles.iconWrap, tab.key === 'schedule' && styles.createIconWrap]}><Image source={tab.icon} resizeMode="contain" style={styles.icon} /></View>
