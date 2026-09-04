@@ -1,11 +1,12 @@
 // 02 메인 홈 · 15 내 정보 아래에 반복되는 하단 탭. 이 셸은 아직 React Navigation 의 진짜
 // 탭 내비게이션이 아니라 Stack 하나뿐이라(app/_layout.tsx), 각 화면이 이 바를 직접 그려 붙인다.
-// 홈·내 정보만 대응하는 화면이 있어 그 둘만 누르면 이동한다 — 일정·지도·저장은 이 작업
-// 범위의 화면이 아니라 아직 도착지가 없어 눌러도 아무 일도 안 일어난다.
+// 1차 배포에서는 모든 탭이 유효한 화면으로 이동한다. 서버 데이터가 없어도 각 화면에서
+// 빈 상태와 다음 행동을 안내해 사용자가 막히지 않게 한다.
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { color, spacing } from '@/design/tokens';
+import { useI18n } from '@/i18n';
 import { Text } from './Text';
 
 export type TabKey = 'home' | 'schedule' | 'map' | 'saved' | 'me';
@@ -22,14 +23,16 @@ type Tab = {
 // 두 화면이 같은 글자 아이콘 세트를 공유한다.
 const TABS: Tab[] = [
   { key: 'home', icon: '⌂', label: '홈', route: '/home' },
-  { key: 'schedule', icon: '✓', label: '일정' },
-  { key: 'map', icon: '⌖', label: '지도' },
-  { key: 'saved', icon: '♡', label: '저장' },
+  { key: 'schedule', icon: '✓', label: '일정', route: '/trips' },
+  { key: 'map', icon: '⌖', label: '지도', route: '/map' },
+  { key: 'saved', icon: '♡', label: '저장', route: '/saved' },
   { key: 'me', icon: '●', label: '내 정보', route: '/me' },
 ];
 
 export function TabBar({ active }: { active: TabKey }) {
   const router = useRouter();
+  const { language } = useI18n();
+  const englishLabels: Record<TabKey, string> = { home: 'Home', schedule: 'Trips', map: 'Map', saved: 'Saved', me: 'Profile' };
 
   return (
     <View style={styles.bar}>
@@ -49,7 +52,7 @@ export function TabBar({ active }: { active: TabKey }) {
               {tab.icon}
             </Text>
             <Text variant="caption" weight={selected ? 'bold' : 'regular'} color={tint}>
-              {tab.label}
+              {language === 'en' ? englishLabels[tab.key] : tab.label}
             </Text>
           </Pressable>
         );
