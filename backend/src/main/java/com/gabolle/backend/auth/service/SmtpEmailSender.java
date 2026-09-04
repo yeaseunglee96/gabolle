@@ -22,7 +22,8 @@ public class SmtpEmailSender implements EmailSender {
 
 	public SmtpEmailSender(JavaMailSender mailSender,
 			@Value("${gabolle.mail.from:${spring.mail.username:}}") String from,
-			@Value("${gabolle.mail.from-name:가볼래}") String fromName) {
+			// \uAC00\uBCFC\uB798 = 가볼래. application-dev.properties 와 같은 표기를 쓴다 (그 파일 주석 참고).
+			@Value("${gabolle.mail.from-name:\uAC00\uBCFC\uB798}") String fromName) {
 		// gabolle.mail.enabled=true 인데 발신 계정이 비어 있으면 여기서 기동을 멈춘다.
 		// 그대로 뜨면 가입은 201 을 주고 인증 메일만 조용히 안 나가서, 사용자는
 		// 로그인 단계의 EMAIL_NOT_VERIFIED 로만 고장을 알게 된다.
