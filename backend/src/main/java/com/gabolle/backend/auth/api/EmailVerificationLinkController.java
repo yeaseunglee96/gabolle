@@ -41,10 +41,27 @@ public class EmailVerificationLinkController {
 		this.properties = properties;
 	}
 
+	/**
+	 * {@code token} 을 필수로 걸지 않는다.
+	 *
+	 * <p>필수로 걸면 파라미터가 없을 때 Spring 이
+	 * {@code MissingServletRequestParameterException} 을 던지고, 그것이
+	 * {@link AuthExceptionHandler} 의 {@code @ExceptionHandler(Exception.class)}
+	 * catch-all 에 걸려 500 이 된다. 2026-09-04 배포에서 실측했다.
+	 *
+	 * <p>여기 오는 사람은 메일 링크를 누른 사용자이므로 500 이나 JSON 오류를 보여 줄
+	 * 자리가 아니다. 토큰이 없는 것은 링크가 잘린 것이고, 잘린 링크는 틀린 토큰과
+	 * 결과가 같아야 한다 — 둘 다 실패 화면으로 보낸다.
+	 */
 	@GetMapping("/email-verification")
-	public ResponseEntity<Void> verifyByLink(@RequestParam("token") String token) {
+	public ResponseEntity<Void> verifyByLink(
+			@RequestParam(name = "token", required = false) String token) {
 		String location;
 		try {
+			if (token == null || token.isBlank()) {
+				throw new AuthException("MISSING_VERIFICATION_TOKEN", "인증 토큰이 없습니다.",
+						HttpStatus.BAD_REQUEST);
+			}
 			localAuthService.verifyEmail(token);
 			location = properties.getEmailVerificationSuccessRedirectUrl();
 		}

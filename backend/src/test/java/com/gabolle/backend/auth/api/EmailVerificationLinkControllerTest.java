@@ -77,8 +77,22 @@ class EmailVerificationLinkControllerTest {
 	}
 
 	@Test
-	void missingTokenParameterIsRejected() throws Exception {
+	void missingTokenRedirectsToFailureInsteadOfErroring() throws Exception {
+		// 처음엔 @RequestParam 을 필수로 걸고 이 테스트가 400 을 단정했다. 배포에서
+		// 재 보니 500 이었다 — AuthExceptionHandler 의 Exception catch-all 이
+		// MissingServletRequestParameterException 을 잡는다. 테스트가 advice 없이
+		// 돌아서 실제와 다른 것을 통과시켰다. 잘린 링크도 실패 화면으로 보낸다.
 		mockMvc.perform(get("/api/v1/auth/email-verification"))
-				.andExpect(status().isBadRequest());
+				.andExpect(status().isFound())
+				.andExpect(header().string("Location",
+						"https://example.test/sign-in?verified=0&error=MISSING_VERIFICATION_TOKEN"));
+	}
+
+	@Test
+	void blankTokenRedirectsToFailureToo() throws Exception {
+		mockMvc.perform(get("/api/v1/auth/email-verification").param("token", "   "))
+				.andExpect(status().isFound())
+				.andExpect(header().string("Location",
+						"https://example.test/sign-in?verified=0&error=MISSING_VERIFICATION_TOKEN"));
 	}
 }
