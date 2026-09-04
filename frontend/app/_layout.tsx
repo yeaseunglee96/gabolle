@@ -5,20 +5,29 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { color } from '@/design/tokens';
 import { AuthProvider } from '@/auth/AuthProvider';
+import { AppErrorBoundary } from '@/components/AppErrorBoundary';
+import { BuildInfoBadge } from '@/components/BuildInfoBadge';
 import { OnboardingPreferencesProvider } from '@/onboarding/OnboardingPreferences';
 import { PlanProvider } from '@/plan/PlanProvider';
 
 export default function RootLayout() {
   return (
-    <SafeAreaProvider>
-      <OnboardingPreferencesProvider><AuthProvider><PlanProvider>
-          <Stack
-            screenOptions={{
-              headerShown: false,
-              contentStyle: { backgroundColor: color.canvas },
-            }}
-          />
-        </PlanProvider></AuthProvider></OnboardingPreferencesProvider>
-    </SafeAreaProvider>
+    <AppErrorBoundary>
+      <SafeAreaProvider>
+        <OnboardingPreferencesProvider>
+          <BuildInfoBadge />
+          <AuthProvider>
+            <PlanProvider>
+              <Stack
+                screenOptions={{
+                  headerShown: false,
+                  contentStyle: { backgroundColor: color.canvas },
+                }}
+              />
+            </PlanProvider>
+          </AuthProvider>
+        </OnboardingPreferencesProvider>
+      </SafeAreaProvider>
+    </AppErrorBoundary>
   );
 }

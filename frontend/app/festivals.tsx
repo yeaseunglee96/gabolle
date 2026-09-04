@@ -64,7 +64,7 @@ export default function Festivals() {
     <View style={[styles.filterCard, width >= 760 && styles.filterCardWide]}>
       <View style={styles.dateField}><Text variant="caption" weight="bold">시작일</Text><TextInput accessibilityLabel="축제 조회 시작일" value={from} onChangeText={setFrom} placeholder="YYYY-MM-DD" maxLength={10} style={[styles.input, !dateValid && styles.inputError]} /></View>
       <View style={styles.dateField}><Text variant="caption" weight="bold">종료일</Text><TextInput accessibilityLabel="축제 조회 종료일" value={to} onChangeText={setTo} placeholder="YYYY-MM-DD" maxLength={10} style={[styles.input, !dateValid && styles.inputError]} /></View>
-      <Button label="이 기간으로 조회" disabled={!dateValid || state === 'loading'} onPress={() => void load()} containerStyle={styles.searchButton} />
+      <Button label="이 기간으로 조회" disabled={!dateValid || state === 'loading'} onPress={() => void load()} containerStyle={[styles.searchButton, styles.primaryAction]} />
       {!dateValid && <Text accessibilityRole="alert" variant="caption" color={color.state.danger}>YYYY-MM-DD 형식으로 시작일이 종료일보다 빠르게 입력해 주세요.</Text>}
     </View>
 
@@ -89,7 +89,8 @@ const styles = StyleSheet.create({
   heading: { gap: spacing[2], marginTop: spacing[4], marginBottom: spacing[6] },
   filterCard: { gap: spacing[3], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card }, filterCardWide: { flexDirection: 'row', alignItems: 'flex-end', flexWrap: 'wrap' },
   dateField: { flex: 1, minWidth: 180, gap: spacing[1] }, input: { minHeight: 48, paddingHorizontal: spacing[3], borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.md, color: color.text.heading, backgroundColor: color.brand.ivory }, inputError: { borderColor: color.state.danger }, searchButton: { minWidth: 180, width: undefined },
-  sortRow: { flexDirection: 'row', gap: spacing[2], marginVertical: spacing[4] }, sortButton: { minHeight: 40, justifyContent: 'center', paddingHorizontal: spacing[4], borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.full, backgroundColor: color.surface.card }, sortSelected: { borderColor: color.brand.navy, backgroundColor: color.brand.navy },
+  primaryAction: { backgroundColor: color.brand.navy },
+  sortRow: { flexDirection: 'row', gap: spacing[2], marginVertical: spacing[4] }, sortButton: { minHeight: 40, justifyContent: 'center', paddingHorizontal: spacing[4], borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.full, backgroundColor: color.surface.card }, sortSelected: { borderColor: color.brand.orange, backgroundColor: color.brand.orange },
   stateCard: { gap: spacing[3], padding: spacing[6], borderRadius: radius.lg, backgroundColor: color.surface.card },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[4] }, card: { width: '100%', overflow: 'hidden', borderRadius: radius.lg, backgroundColor: color.surface.card }, cardWide: { width: '48%' }, image: { width: '100%', height: 180 }, imageFallback: { height: 180, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.tint }, cardBody: { gap: spacing[2], padding: spacing[4] },
 });

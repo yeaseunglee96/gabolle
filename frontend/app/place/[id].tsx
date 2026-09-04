@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ImageBackground, Linking, Pressable, StyleSheet, View } from 'react-native';
+import { ImageBackground, Linking, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
@@ -19,6 +19,7 @@ const SAVED_PLACES_KEY = 'gabolle.saved-home-places';
 
 export default function Place() {
   const router = useRouter();
+  const { width } = useWindowDimensions();
   const { id } = useLocalSearchParams<{ id?: string }>();
   const place = id && id in PLACES ? PLACES[id as keyof typeof PLACES] : null;
   const [isSaved, setIsSaved] = useState(false);
@@ -69,7 +70,7 @@ export default function Place() {
       </View>
 
       {place ? <>
-        <ImageBackground source={place.image} resizeMode="cover" style={styles.hero} imageStyle={styles.heroImage}>
+        <ImageBackground source={place.image} resizeMode="cover" style={[styles.hero, width >= 760 && styles.heroWide]} imageStyle={styles.heroImage}>
           <View style={styles.shade} />
           <View style={styles.heroCopy}>
             <Text variant="display" weight="bold" color={color.text.onAction}>{place.title}</Text>
@@ -81,8 +82,8 @@ export default function Place() {
           <Text color={color.text.body} style={styles.noticeCopy}>운영시간·접근성·혼잡도·리뷰는 실제 장소 조회 API가 연결된 뒤 표시합니다. 확인되지 않은 정보는 임의로 보여드리지 않아요.</Text>
         </View>
         <View style={styles.actions}>
-          <Button label={isSaved ? '내 여행 후보에서 빼기' : '내 여행 후보에 저장'} onPress={() => void toggleSaved()} />
-          <Button label="카카오맵에서 위치 확인" variant="ghost" onPress={() => void openMap()} />
+          <Button label={isSaved ? '내 여행 후보에서 빼기' : '내 여행 후보에 저장'} variant="ghost" onPress={() => void toggleSaved()} />
+          <Button label="카카오맵에서 위치 확인" onPress={() => void openMap()} containerStyle={styles.primaryAction} />
           {feedback ? <Text accessibilityLiveRegion="polite" color={color.text.body} style={styles.feedback}>{feedback}</Text> : null}
         </View>
       </> : <View style={styles.notice} accessibilityRole="alert">
@@ -101,7 +102,8 @@ const styles = StyleSheet.create({
   pressed: { opacity: 0.72, transform: [{ scale: 0.96 }] },
   logo: { width: 96, height: 28 },
   spacer: { width: 44 },
-  hero: { height: 360, justifyContent: 'flex-end', overflow: 'hidden', borderRadius: radius.lg },
+  hero: { height: 240, justifyContent: 'flex-end', overflow: 'hidden', borderRadius: radius.lg },
+  heroWide: { height: 360 },
   heroImage: { borderRadius: radius.lg },
   shade: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(8, 27, 53, 0.25)' },
   heroCopy: { gap: spacing[1], padding: spacing[4] },
@@ -109,5 +111,6 @@ const styles = StyleSheet.create({
   noticeCopy: { lineHeight: 22 },
   actions: { gap: spacing[3], marginTop: spacing[4] },
   feedback: { textAlign: 'center' },
+  primaryAction: { backgroundColor: color.brand.navy },
   recoveryButton: { marginTop: spacing[2] },
 });

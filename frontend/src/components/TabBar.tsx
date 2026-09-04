@@ -29,7 +29,7 @@ const TABS: Tab[] = [
 export function TabBar({ active }: { active: TabKey }) {
   const router = useRouter();
   const { language } = useI18n();
-  const englishLabels: Record<TabKey, string> = { home: 'Home', schedule: 'Trips', map: 'Map', saved: 'Saved', me: 'Profile' };
+  const englishLabels: Record<TabKey, string> = { home: 'Home', schedule: 'Create', map: 'My trips', saved: 'Saved', me: 'Profile' };
 
   return (
     <View style={styles.bar}>
@@ -47,7 +47,8 @@ export function TabBar({ active }: { active: TabKey }) {
               if (tab.route) router.replace(tab.route);
             }}
           >
-            <View style={[styles.iconWrap, tab.key === 'schedule' && styles.createIconWrap]}><Image source={tab.icon} resizeMode="contain" style={styles.icon} /></View>
+            {selected && <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={styles.activeMarker} />}
+            <View style={[styles.iconWrap, tab.key === 'schedule' && styles.createIconWrap]}><Image source={tab.icon} resizeMode="contain" style={[styles.icon, tab.key !== 'schedule' && (selected ? styles.iconSelected : styles.iconInactive)]} /></View>
             <Text variant="caption" weight={selected ? 'bold' : 'regular'} color={selected ? color.brand.navy : color.text.muted}>
               {language === 'en' ? englishLabels[tab.key] : tab.label}
             </Text>
@@ -80,6 +81,7 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   item: {
+    position: 'relative',
     flex: 1,
     minHeight: 53,
     alignItems: 'center',
@@ -87,7 +89,10 @@ const styles = StyleSheet.create({
     gap: spacing[1],
   },
   itemPressed: { opacity: 0.72, transform: [{ scale: 0.96 }] },
+  activeMarker: { position: 'absolute', top: 0, width: 18, height: 3, borderRadius: 2, backgroundColor: color.brand.orange },
   iconWrap: { width: 32, height: 32, alignItems: 'center', justifyContent: 'center' },
   createIconWrap: { width: 32, height: 32, borderRadius: 16, backgroundColor: color.brand.orange },
   icon: { width: 20, height: 20 },
+  iconSelected: { tintColor: color.brand.navy },
+  iconInactive: { tintColor: color.text.muted },
 });
