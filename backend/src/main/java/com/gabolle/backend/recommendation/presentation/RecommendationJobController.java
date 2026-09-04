@@ -2,6 +2,7 @@ package com.gabolle.backend.recommendation.presentation;
 
 import java.util.UUID;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,9 +31,15 @@ import com.gabolle.backend.recommendation.presentation.dto.RecommendationJobResp
  *
  * <p>🔴 {@code @Profile({"db","dev"})} — {@link RecommendationJobRunner} 가 그 프로필에만
  * 있다({@code RecommendationService} 와 같은 이유). no-db 프로필에는 이 컨트롤러도 없다.
+ *
+ * <p>🔴 {@code @ConditionalOnBean(RecommendationJobRunner.class)} — {@link RecommendationJobRunner}
+ * 자체도 {@code TripQueryService} 가 없는 배포(추천 전용 테스트 슬라이스)에서는 안 만들어진다
+ * (그 클래스의 javadoc 참고). 그 러너가 없으면 이 컨트롤러도 생기면 안 된다 — 생성자
+ * 주입이 실패해 컨텍스트 전체가 못 뜬다.
  */
 @RestController
 @Profile({ "db", "dev" })
+@ConditionalOnBean(RecommendationJobRunner.class)
 public class RecommendationJobController {
 
 	private final RecommendationJobRunner runner;

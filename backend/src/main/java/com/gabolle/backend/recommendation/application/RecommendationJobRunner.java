@@ -3,6 +3,7 @@ package com.gabolle.backend.recommendation.application;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
@@ -27,9 +28,21 @@ import com.gabolle.backend.trip.domain.TripRepository;
  * 넘긴 뒤)에야 커밋되므로, 다른 스레드가 아직 커밋 안 된 행을 먼저 건드릴 여지가
  * 생긴다. {@code JpaRepository.save()} 는 그 자체로 이미 트랜잭션이라(Spring Data
  * 기본 동작) 여기서 감쌀 필요가 없다 — 그냥 순서대로 부르는 것으로 충분하다.
+ *
+ * <p>🔴 <b>{@code @ConditionalOnBean(TripQueryService.class)}.</b> {@code RecommendationService}
+ * 의 javadoc 은 {@code @ConditionalOnBean} 을 일부러 안 썼다고 적는다 — 그건 <b>같은
+ * {@code @Configuration} 안에서 만들어지는 {@code @Bean}</b>(어댑터) 사이의 평가 순서가
+ * 안 보장되는 문제였다. 여기는 다르다 — {@code TripQueryService} 는 {@code trip} 패키지의
+ * 평범한 {@code @Component} 스캔 빈이라 순서 문제가 없고, Spring Boot 오토컨피규레이션이
+ * 늘 쓰는 표준 패턴이다. 이걸 쓴 이유는 따로 있다 — {@code RecommendationSliceApplication}
+ * (추천 도메인만 스캔하는 테스트 전용 컨텍스트)이 {@code trip} 패키지를 안 스캔해서
+ * {@code TripQueryService} 빈이 없는데, 그 파일이 지금 다른 사람(jaehyeon) claim 중이라
+ * 스캔 범위를 넓히지 못한다. 이 조건이 없으면 그 슬라이스를 쓰는, 추천과 무관한 테스트까지
+ * 전부 컨텍스트 로딩에서 깨진다(2026-09-04 CI 실측).
  */
 @Service
 @Profile({ "db", "dev" })
+@ConditionalOnBean(TripQueryService.class)
 public class RecommendationJobRunner {
 
 	private final TripQueryService tripQueryService;
