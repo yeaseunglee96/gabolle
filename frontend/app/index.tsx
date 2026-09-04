@@ -1,4 +1,5 @@
-import { Image, ImageBackground, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { AppState, Image, ImageBackground, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -14,7 +15,10 @@ const logo = require('../assets/brand/gabolle-logo-figma.png');
 const welcomeImage = require('../assets/images/welcome-busan.png');
 const webHeroImage = require('../assets/home/web-hero.png');
 const mobileWelcomeVideo = require('../assets/video/busan-tram-portrait.mp4');
+const tramLandscapeVideo = require('../assets/video/busan-tram-landscape.mp4');
+const tramSunsetVideo = require('../assets/video/busan-tram-sunset.mp4');
 const webWelcomeVideo = require('../assets/video/busan-coast-sunset.mp4');
+const beachNightVideo = require('../assets/video/busan-beach-night.mp4');
 type WelcomeLanguage = { code: Extract<LanguageCode, 'ko' | 'en'>; label: string };
 const LANGUAGES: WelcomeLanguage[] = [{ code: 'ko', label: '한국어' }, { code: 'en', label: 'English' }];
 const FEATURES = [
@@ -23,12 +27,47 @@ const FEATURES = [
   { icon: require('../assets/icons/home/users.png'), title: '함께 여행 설계', body: '동행자와 조건을 공유하고\n모두에게 맞는 일정을 만들어요.' },
 ] as const;
 
+const VIDEO_BY_TIME = {
+  dawn: [beachNightVideo, mobileWelcomeVideo],
+  morning: [mobileWelcomeVideo, tramLandscapeVideo],
+  day: [tramLandscapeVideo, mobileWelcomeVideo],
+  sunset: [tramSunsetVideo, webWelcomeVideo],
+  night: [beachNightVideo, tramSunsetVideo],
+} as const;
+
+function videosForCurrentTime() {
+  const hour = new Date().getHours();
+  if (hour < 7) return VIDEO_BY_TIME.dawn;
+  if (hour < 11) return VIDEO_BY_TIME.morning;
+  if (hour < 17) return VIDEO_BY_TIME.day;
+  if (hour < 20) return VIDEO_BY_TIME.sunset;
+  return VIDEO_BY_TIME.night;
+}
+
+function pickWelcomeVideo(previous?: number) {
+  const candidates = videosForCurrentTime();
+  const alternatives = previous === undefined ? candidates : candidates.filter((source) => source !== previous);
+  return alternatives[Math.floor(Math.random() * alternatives.length)] ?? candidates[0];
+}
+
 export default function Welcome() {
   const router = useRouter();
   const { width } = useLayout();
   const { language, mobility, setPreferences } = useOnboardingPreferences();
   const { tx } = useI18n();
   const isDesktop = width >= 1120;
+  const [welcomeVideo, setWelcomeVideo] = useState<number>(() => pickWelcomeVideo());
+  const appState = useRef(AppState.currentState);
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (nextState) => {
+      if (appState.current !== 'active' && nextState === 'active') {
+        setWelcomeVideo((current) => pickWelcomeVideo(current));
+      }
+      appState.current = nextState;
+    });
+    return () => subscription.remove();
+  }, []);
 
   const chooseLanguage = (next: WelcomeLanguage['code']) => {
     setPreferences(next, mobility);
@@ -40,7 +79,7 @@ export default function Welcome() {
 
   if (!isDesktop) {
     return <View style={styles.mobileScreen}>
-      <ScenicVideo poster={welcomeImage} source={mobileWelcomeVideo} />
+      <ScenicVideo poster={welcomeImage} source={welcomeVideo} />
       <StatusBar style="light" />
       <SafeAreaView edges={['top', 'bottom']} style={styles.mobileSafeArea}>
         <View style={styles.mobileBrand}><Pressable accessibilityRole="button" accessibilityLabel="GABOLLE 시작하기" accessibilityHint="연령 확인 화면으로 이동합니다" onPress={() => start()} style={({ pressed }) => [styles.logoLink, pressed && styles.pressed]}><Image source={logo} resizeMode="contain" style={styles.mobileLogo} /></Pressable><Text variant="display" weight="bold" color={color.brand.orange}>부산 가볼래?</Text></View>
