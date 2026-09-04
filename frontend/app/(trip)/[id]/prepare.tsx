@@ -56,7 +56,7 @@ export default function Prepare() {
 
       <View style={styles.prepCard}>
         <Text variant="title" weight="bold" style={styles.prepTitle}>
-          동백이가 챙긴 준비물
+          가볼래가 챙긴 준비물
         </Text>
         {PREP_ITEMS.map((item) => (
           <View key={item.name} style={styles.prepRow}>

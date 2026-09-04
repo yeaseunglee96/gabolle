@@ -2,7 +2,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { Button } from '@/components/Button';
-import { DongbaekMascot } from '@/components/DongbaekMascot';
+import { GabolleMascot } from '@/components/DongbaekMascot';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
@@ -14,19 +14,19 @@ export default function Chat() {
     <Screen>
       <View style={styles.header}>
         <View style={styles.identity}>
-          <DongbaekMascot state="open" style={styles.avatarImage} />
-          <View><Text variant="title" weight="bold">동백이</Text><Text variant="caption" color={color.text.body}>부산 여행 AI 도우미</Text></View>
+          <GabolleMascot state="open" style={styles.avatarImage} />
+          <View><Text variant="title" weight="bold">가볼래</Text><Text variant="caption" color={color.text.body}>부산 여행 AI 도우미</Text></View>
         </View>
-        <Pressable accessibilityRole="button" accessibilityLabel="동백이 화면 닫기" onPress={() => router.canGoBack() ? router.back() : router.replace('/home')} style={({ pressed }) => [styles.closeButton, pressed && styles.pressed]}>
+        <Pressable accessibilityRole="button" accessibilityLabel="가볼래 화면 닫기" onPress={() => router.canGoBack() ? router.back() : router.replace('/home')} style={({ pressed }) => [styles.closeButton, pressed && styles.pressed]}>
           <Text variant="title" color={color.text.body}>×</Text>
         </Pressable>
       </View>
 
       <View style={styles.content}>
-        <View style={styles.icon}><DongbaekMascot state="open" style={styles.heroMascot} /></View>
+        <View style={styles.icon}><GabolleMascot state="open" style={styles.heroMascot} /></View>
         <View style={styles.copy}>
           <Text variant="caption" weight="bold" color={color.brand.orange}>기능 준비 중</Text>
-          <Text variant="display" weight="bold">동백이가 여행을{`\n`}더 잘 배우고 있어요</Text>
+          <Text variant="display" weight="bold">가볼래가 여행을{`\n`}더 잘 배우고 있어요</Text>
           <Text variant="body" color={color.text.body}>아직 대화 API가 연결되지 않아 질문을 받거나 일정을 바꾸지는 않아요. 준비되기 전까지 실제 기능처럼 보이는 답변도 만들지 않을게요.</Text>
         </View>
         <View style={styles.notice} accessibilityRole="summary">

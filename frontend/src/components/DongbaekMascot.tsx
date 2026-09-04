@@ -7,9 +7,9 @@ const sources = {
   thinking: require('../../assets/mascot/dongbaek-thinking.png'),
 } as const;
 
-export type DongbaekState = keyof typeof sources;
+export type GabolleMascotState = keyof typeof sources;
 
-export function DongbaekMascot({ state = 'idle', style }: { state?: DongbaekState; style?: StyleProp<ImageStyle> }) {
+export function GabolleMascot({ state = 'idle', style }: { state?: GabolleMascotState; style?: StyleProp<ImageStyle> }) {
   const y = useRef(new Animated.Value(0)).current;
   const rotate = useRef(new Animated.Value(0)).current;
 
@@ -39,7 +39,7 @@ export function DongbaekMascot({ state = 'idle', style }: { state?: DongbaekStat
 
   return (
     <Animated.View style={{ transform: [{ translateY: y }, { rotate: rotate.interpolate({ inputRange: [-1, 1], outputRange: ['-2deg', '2deg'] }) }] }}>
-      <Image accessibilityLabel={`동백이 ${state === 'idle' ? '대기 중' : state === 'open' ? '반갑게 인사하는 중' : '답변을 준비하는 중'}`} source={sources[state]} resizeMode="contain" style={style} />
+      <Image accessibilityLabel={`가볼래 ${state === 'idle' ? '대기 중' : state === 'open' ? '반갑게 인사하는 중' : '답변을 준비하는 중'}`} source={sources[state]} resizeMode="contain" style={style} />
     </Animated.View>
   );
 }
