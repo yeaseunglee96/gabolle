@@ -29,7 +29,14 @@ export default function Constraints() {
   const safetyReady = valid && draft.allergyStatus !== 'UNKNOWN' && draft.dietStatus !== 'UNKNOWN';
   useEffect(() => { const patch: Partial<PlanDraft> = {}; if (mobility === 'wheelchair' && draft.wheelchair === null) patch.wheelchair = true; if (mobility === 'stroller' && draft.stroller === null) patch.stroller = true; if (mobility === 'slow' && draft.maxWalkingDistanceM === null) patch.maxWalkingDistanceM = 500; if (Object.keys(patch).length) update(patch); }, [draft.maxWalkingDistanceM, draft.stroller, draft.wheelchair, mobility, update]);
   const setStatus = (stateKey: 'allergyStatus' | 'dietStatus', listKey: 'allergies' | 'dietTypes', value: ConstraintSelectionStatus) => update({ [stateKey]: value, [stateKey === 'allergyStatus' ? 'allergyAnswered' : 'dietAnswered']: true, ...(value !== 'VALUES' ? { [listKey]: [] } : {}) });
-  const toggle = (key: 'allergies' | 'dietTypes', value: string) => { const next = draft[key].includes(value) ? draft[key].filter((v) => v !== value) : [...draft[key], value]; update({ [key]: next, [key === 'allergies' ? 'allergyStatus' : 'dietStatus']: next.length ? 'VALUES' : 'UNKNOWN' }); };
+  const toggle = (key: 'allergies' | 'dietTypes', value: string) => {
+    const next = draft[key].includes(value) ? draft[key].filter((item) => item !== value) : [...draft[key], value];
+    update({
+      [key]: next,
+      [key === 'allergies' ? 'allergyStatus' : 'dietStatus']: 'VALUES',
+      [key === 'allergies' ? 'allergyAnswered' : 'dietAnswered']: true,
+    });
+  };
   return <PlanDesktopShell><Screen scroll wide style={styles.canvas}>
     {kind === 'phone' && <View style={styles.top}><Pressable accessibilityRole="button" accessibilityLabel="뒤로 가기" onPress={() => router.canGoBack() ? router.back() : router.replace('/plan/taste')} style={styles.back}><Text variant="title">‹</Text></Pressable><BrandLogoLink imageStyle={styles.logo} /><View style={styles.pill}><Text variant="caption" weight="bold" color={color.brand.ivory}>3 / 4</Text></View></View>}
     <PlanStepHeader current={3} /><Text variant="display" weight="bold" style={styles.title}>{tx('제약 조건', 'Travel constraints')}</Text><Text color={color.text.body} style={styles.subtitle}>{tx('AI가 아래 조건을 임의로 완화하지 않습니다.', 'AI will not loosen these conditions without your consent.')}</Text>
