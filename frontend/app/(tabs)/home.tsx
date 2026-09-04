@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Redirect, useRouter } from 'expo-router';
 
 import { BrandLogoLink } from '@/components/BrandLogoLink';
+import { GabolleMascot } from '@/components/DongbaekMascot';
 import { Screen } from '@/components/Screen';
 import { TabBar } from '@/components/TabBar';
 import { Text } from '@/components/Text';
@@ -127,6 +128,17 @@ export default function Home() {
         {saveFeedback && <Pressable accessibilityRole="button" accessibilityLabel="저장 안내 닫기" accessibilityLiveRegion="polite" onPress={() => setSaveFeedback(null)} style={styles.saveFeedback}><Text variant="caption" weight="bold" color={color.text.onAction}>{saveFeedback}</Text><Text variant="caption" color={color.text.onAction}>닫기</Text></Pressable>}
       </ScrollView>
 
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="가볼래 여행 도우미 열기"
+        accessibilityHint="현재 이용할 수 있는 여행 도움 기능을 확인합니다"
+        onPress={() => router.push('/chat')}
+        style={({ pressed }) => [styles.assistantButton, pressed && styles.assistantButtonPressed]}
+      >
+        <View style={styles.assistantLabel}><Text variant="caption" weight="bold" color={color.text.heading}>도움이 필요해?</Text></View>
+        <GabolleMascot state="idle" style={styles.assistantMascot} />
+      </Pressable>
+
       <View style={styles.tabBar}><TabBar active="home" /></View>
     </Screen>
   );
@@ -160,5 +172,9 @@ const styles = StyleSheet.create({
   carouselButton: { width: 36, height: 36, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.card },
   carouselButtonDisabled: { opacity: 0.35 },
   saveFeedback: { minHeight: 44, marginHorizontal: spacing[2], marginTop: spacing[4], paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.brand.navy, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  assistantButton: { position: 'absolute', right: spacing[2], bottom: 76, minWidth: 44, minHeight: 44, flexDirection: 'row', alignItems: 'center', zIndex: 3 },
+  assistantButtonPressed: { opacity: 0.78, transform: [{ scale: 0.96 }] },
+  assistantLabel: { marginRight: -spacing[2], paddingLeft: spacing[3], paddingRight: spacing[4], paddingVertical: spacing[2], borderRadius: radius.full, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.field, shadowColor: color.brand.navy, shadowOpacity: 0.12, shadowRadius: 8, shadowOffset: { width: 0, height: 3 }, elevation: 3 },
+  assistantMascot: { width: 58, height: 58 },
   tabBar: { marginHorizontal: -gutter, borderRadius: radius.lg, overflow: 'hidden' },
 });
