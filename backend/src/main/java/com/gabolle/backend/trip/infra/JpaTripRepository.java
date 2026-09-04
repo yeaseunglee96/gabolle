@@ -3,59 +3,100 @@ package com.gabolle.backend.trip.infra;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.gabolle.backend.trip.domain.PersonalizationScope;
 import com.gabolle.backend.trip.domain.PreferenceSnapshot;
 import com.gabolle.backend.trip.domain.Trip;
 import com.gabolle.backend.trip.domain.TripConstraint;
 import com.gabolle.backend.trip.domain.TripMember;
 import com.gabolle.backend.trip.domain.TripRepository;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+
 /**
- * 여행 저장소 — S15P21E201-461. {@code trip} 표만 실제 PostgreSQL 로 옮겼다.
+ * 여행 저장소 — S15P21E201-461. trip·trip_member·preference_snapshot·preference_answer·
+ * constraint_snapshot·constraint_answer·trip_idempotency 를 전부 PostgreSQL 로 옮겼다.
  *
- * <p>🔴 <b>범위를 일부러 좁혔다.</b> 멤버·취향/제약 스냅샷·멱등 키는 아직 이 표들처럼
- * 트랜잭션 하나로 묶이는 JPA 매핑이 없다 — {@link InMemoryTripRepository} 가 쓰던 것과
- * 같은 메모리 맵을 여기서도 그대로 쓴다. 그래서 <b>서버를 껐다 켜면 여행 조건 자체는
- * 남지만, 멤버·스냅샷·제약·멱등 키는 여전히 사라진다.</b> 다음 단계에서 나머지를
- * 옮긴다 — 한 번에 다 옮기면 리뷰가 안 된다.
+ * 처음엔 trip 표만 옮기고 나머지는 메모리로 남겼는데(리뷰 범위 조절), 고지혁 님이
+ * 운영에서 preference_answer=0 · constraint_answer=0 을 실측해 "여행은 저장되는데
+ * 취향·제약이 조용히 버려진다" 는 것을 찾았다. M1 판정이 오늘이라 이번에 마저 옮긴다.
+ *
+ * evidenceStatus·operator 는 왕복하지 않는다 — constraint_answer 표에 그 두 칸이 없다.
+ * 저장은 그대로 하되, 다시 읽어올 때 evidenceStatus 는 NEEDS_REVIEW 로, operator 는
+ * 종류별 관례값으로 채운다 — ALLERGY·DIET 는 EXCLUDES, MOBILITY 는 LTE. 정직한 손실이다.
+ *
+ * 멱등 키는 SAVEPOINT 대신 ON CONFLICT DO NOTHING 을 쓴다 — JpaItineraryRepository 에서
+ * SAVEPOINT(PROPAGATION_NESTED)가 이 환경의 트랜잭션 매니저에서 실제로 안 먹히는 것을
+ * CI 로 확인했다. 여기서는 처음부터 그 문제를 피한다.
  */
 @Repository
 @Profile({ "db", "dev" })
 public class JpaTripRepository implements TripRepository {
 
 	private final TripJpaRepository tripJpaRepository;
+	private final TripMemberJpaRepository memberJpaRepository;
+	private final PreferenceSnapshotJpaRepository preferenceSnapshotJpaRepository;
+	private final PreferenceAnswerJpaRepository preferenceAnswerJpaRepository;
+	private final ConstraintSnapshotJpaRepository constraintSnapshotJpaRepository;
+	private final ConstraintAnswerJpaRepository constraintAnswerJpaRepository;
 
-	// 🔴 아래 넷은 InMemoryTripRepository 와 똑같은 자리다 — 아직 DB 로 옮기지 않았다.
-	private final Map<String, List<TripConstraint>> constraints = new ConcurrentHashMap<>();
-	private final Map<String, List<TripMember>> members = new ConcurrentHashMap<>();
-	private final Map<String, List<PreferenceSnapshot>> snapshots = new ConcurrentHashMap<>();
-	private final Map<String, Binding> idempotency = new ConcurrentHashMap<>();
+	@PersistenceContext
+	private EntityManager entityManager;
 
-	private record Binding(String fingerprint, String tripId) {
-	}
-
-	public JpaTripRepository(TripJpaRepository tripJpaRepository) {
+	public JpaTripRepository(TripJpaRepository tripJpaRepository,
+			TripMemberJpaRepository memberJpaRepository,
+			PreferenceSnapshotJpaRepository preferenceSnapshotJpaRepository,
+			PreferenceAnswerJpaRepository preferenceAnswerJpaRepository,
+			ConstraintSnapshotJpaRepository constraintSnapshotJpaRepository,
+			ConstraintAnswerJpaRepository constraintAnswerJpaRepository) {
 		this.tripJpaRepository = tripJpaRepository;
+		this.memberJpaRepository = memberJpaRepository;
+		this.preferenceSnapshotJpaRepository = preferenceSnapshotJpaRepository;
+		this.preferenceAnswerJpaRepository = preferenceAnswerJpaRepository;
+		this.constraintSnapshotJpaRepository = constraintSnapshotJpaRepository;
+		this.constraintAnswerJpaRepository = constraintAnswerJpaRepository;
 	}
 
 	@Override
 	@Transactional
 	public Trip save(Trip trip, List<TripConstraint> tripConstraints, TripMember owner, PreferenceSnapshot snapshot) {
+		UUID tripId = UUID.fromString(trip.tripId());
+		UUID ownerUserId = UUID.fromString(owner.userId());
+
 		tripJpaRepository.save(toEntity(trip));
-		constraints.put(trip.tripId(), List.copyOf(tripConstraints));
-		members.put(trip.tripId(), new ArrayList<>(List.of(owner)));
-		snapshots.put(trip.tripId(), new ArrayList<>(List.of(snapshot)));
+		memberJpaRepository.save(toMemberEntity(owner));
+
+		UUID prefSnapshotId = UUID.fromString(snapshot.snapshotId());
+		preferenceSnapshotJpaRepository.save(new PreferenceSnapshotJpaEntity(
+				prefSnapshotId, ownerUserId, tripId, snapshot.version(), snapshot.scope(),
+				toOffset(snapshot.createdAt())));
+		for (PreferenceSnapshot.PreferenceAnswer answer : snapshot.answers()) {
+			preferenceAnswerJpaRepository.save(new PreferenceAnswerJpaEntity(
+					UUID.randomUUID(), prefSnapshotId, answer.dimension(), answer.valueJson(),
+					answer.status(), toOffset(snapshot.createdAt())));
+		}
+
+		if (!tripConstraints.isEmpty()) {
+			UUID constraintSnapshotId = UUID.randomUUID();
+			constraintSnapshotJpaRepository.save(new ConstraintSnapshotJpaEntity(
+					constraintSnapshotId, ownerUserId, tripId, 1, PersonalizationScope.TRIP,
+					toOffset(trip.createdAt())));
+			for (TripConstraint c : tripConstraints) {
+				constraintAnswerJpaRepository.save(new ConstraintAnswerJpaEntity(
+						UUID.fromString(c.constraintId()), constraintSnapshotId, c.type(), c.constraintKey(),
+						valueJsonOf(c), c.severity() == TripConstraint.Severity.HARD, c.answerStatus(),
+						c.dietRequirement(), toOffset(trip.createdAt())));
+			}
+		}
+
 		return trip;
 	}
 
@@ -66,33 +107,36 @@ public class JpaTripRepository implements TripRepository {
 
 	@Override
 	public List<TripConstraint> findConstraints(String tripId) {
-		return constraints.getOrDefault(tripId, List.of());
+		UUID id = UUID.fromString(tripId);
+		List<ConstraintSnapshotJpaEntity> snapshots = constraintSnapshotJpaRepository.findByTripId(id);
+		if (snapshots.isEmpty()) {
+			return List.of();
+		}
+		ConstraintSnapshotJpaEntity snapshot = snapshots.get(0);
+		return constraintAnswerJpaRepository.findByConstraintSnapshotId(snapshot.constraintSnapshotId()).stream()
+				.map(e -> toDomain(e, tripId))
+				.toList();
 	}
 
 	@Override
 	public List<TripMember> findMembers(String tripId) {
-		return members.getOrDefault(tripId, List.of());
+		return memberJpaRepository.findByTripId(UUID.fromString(tripId)).stream()
+				.map(JpaTripRepository::toDomain)
+				.toList();
 	}
 
 	@Override
 	public Optional<PreferenceSnapshot> findSnapshot(String tripId, int version) {
-		return snapshots.getOrDefault(tripId, List.of()).stream()
-				.filter(s -> s.version() == version)
-				.findFirst();
+		return preferenceSnapshotJpaRepository.findByTripIdAndVersion(UUID.fromString(tripId), version)
+				.map(this::toDomain);
 	}
 
 	@Override
 	public Optional<PreferenceSnapshot> findLatestSnapshot(String tripId) {
-		return snapshots.getOrDefault(tripId, List.of()).stream()
-				.max(Comparator.comparingInt(PreferenceSnapshot::version));
+		return preferenceSnapshotJpaRepository.findTopByTripIdOrderByVersionDesc(UUID.fromString(tripId))
+				.map(this::toDomain);
 	}
 
-	/**
-	 * 🔴 InMemoryTripRepository 와 같은 방식(키마다 하나의 스레드만 들여보내는
-	 * {@code compute})으로 경쟁을 막는다 — trip 저장이 DB 로 갔다고 이 규칙이 달라지지
-	 * 않는다. 진짜 DB 트랜잭션 + {@code UNIQUE} 제약으로 이 자리를 대신하는 것은
-	 * 멱등 키 표를 옮기는 다음 단계의 몫이다.
-	 */
 	@Override
 	@Transactional
 	public SaveOutcome saveWithIdempotency(String userId, String idempotencyKey, String fingerprint,
@@ -103,31 +147,38 @@ public class JpaTripRepository implements TripRepository {
 			return new SaveOutcome(trip, snapshot, true);
 		}
 
-		String[] winner = new String[1];
+		int inserted = entityManager.createNativeQuery(
+				"INSERT INTO trip_idempotency (user_id, idempotency_key, request_fingerprint, trip_id, created_at) "
+						+ "VALUES (?1, ?2, ?3, ?4, ?5) ON CONFLICT (user_id, idempotency_key) DO NOTHING")
+				.setParameter(1, UUID.fromString(userId))
+				.setParameter(2, idempotencyKey)
+				.setParameter(3, fingerprint)
+				.setParameter(4, UUID.fromString(trip.tripId()))
+				.setParameter(5, toOffset(trip.createdAt()))
+				.executeUpdate();
 
-		idempotency.compute(keyOf(userId, idempotencyKey), (k, prior) -> {
-			if (prior != null) {
-				if (!prior.fingerprint().equals(fingerprint)) {
-					throw new IdempotencyKeyConflictException(idempotencyKey);
-				}
-				winner[0] = prior.tripId();
-				return prior;
-			}
+		if (inserted == 1) {
 			save(trip, tripConstraints, owner, snapshot);
-			winner[0] = trip.tripId();
-			return new Binding(fingerprint, trip.tripId());
-		});
-
-		boolean created = trip.tripId().equals(winner[0]);
-		if (created) {
 			return new SaveOutcome(trip, snapshot, true);
 		}
-		Trip existing = findById(winner[0]).orElseThrow();
-		return new SaveOutcome(existing, findLatestSnapshot(winner[0]).orElse(null), false);
-	}
 
-	private static String keyOf(String userId, String key) {
-		return userId + "#" + key;
+		Object[] row = (Object[]) entityManager.createNativeQuery(
+				"SELECT request_fingerprint, trip_id FROM trip_idempotency "
+						+ "WHERE user_id = ?1 AND idempotency_key = ?2")
+				.setParameter(1, UUID.fromString(userId))
+				.setParameter(2, idempotencyKey)
+				.getSingleResult();
+
+		String existingFingerprint = (String) row[0];
+		UUID existingTripId = (UUID) row[1];
+
+		if (!existingFingerprint.equals(fingerprint)) {
+			throw new IdempotencyKeyConflictException(idempotencyKey);
+		}
+
+		Trip existingTrip = findById(existingTripId.toString()).orElseThrow();
+		PreferenceSnapshot existingSnapshot = findLatestSnapshot(existingTripId.toString()).orElse(null);
+		return new SaveOutcome(existingTrip, existingSnapshot, false);
 	}
 
 	private static TripJpaEntity toEntity(Trip t) {
@@ -157,6 +208,78 @@ public class JpaTripRepository implements TripRepository {
 				.updatedAt(toInstant(e.updatedAt()))
 				.deletedAt(toInstant(e.deletedAt()))
 				.build();
+	}
+
+	private static TripMemberJpaEntity toMemberEntity(TripMember m) {
+		return new TripMemberJpaEntity(
+				UUID.fromString(m.tripMemberId()), UUID.fromString(m.tripId()), UUID.fromString(m.userId()),
+				m.role(), toOffset(m.joinedAt()));
+	}
+
+	private static TripMember toDomain(TripMemberJpaEntity e) {
+		Instant at = toInstant(e.joinedAt());
+		if (e.role() == TripMember.Role.OWNER) {
+			return TripMember.owner(e.tripMemberId().toString(), e.tripId().toString(), e.userId().toString(), at);
+		}
+		return TripMember.invited(e.tripMemberId().toString(), e.tripId().toString(), e.userId().toString(),
+				e.role(), at);
+	}
+
+	private PreferenceSnapshot toDomain(PreferenceSnapshotJpaEntity e) {
+		List<PreferenceSnapshot.PreferenceAnswer> answers = preferenceAnswerJpaRepository
+				.findByPreferenceSnapshotId(e.preferenceSnapshotId()).stream()
+				.map(a -> new PreferenceSnapshot.PreferenceAnswer(a.dimension(), a.valueJson(), a.answerStatus()))
+				.toList();
+		return new PreferenceSnapshot(e.preferenceSnapshotId().toString(),
+				e.tripId() == null ? null : e.tripId().toString(),
+				e.version(), answers, e.scope(), List.of(), toInstant(e.createdAt()));
+	}
+
+	private static String valueJsonOf(TripConstraint c) {
+		if (c.threshold() != null) {
+			return "{\"meters\":" + c.threshold() + "}";
+		}
+		if (c.value() != null && !c.value().isBlank()) {
+			return "\"" + c.value().replace("\\", "\\\\").replace("\"", "\\\"") + "\"";
+		}
+		return null;
+	}
+
+	private static TripConstraint toDomain(ConstraintAnswerJpaEntity e, String tripId) {
+		return new TripConstraint(
+				e.constraintAnswerId().toString(), tripId, e.constraintType(), e.constraintKey(),
+				e.hard() ? TripConstraint.Severity.HARD : TripConstraint.Severity.SOFT,
+				defaultOperatorFor(e.constraintType()),
+				null, extractMeters(e.valueJson()),
+				TripConstraint.EvidenceStatus.NEEDS_REVIEW,
+				e.answerStatus(), PersonalizationScope.TRIP, e.dietRequirement());
+	}
+
+	private static String defaultOperatorFor(String type) {
+		return "MOBILITY".equalsIgnoreCase(type) ? "LTE" : "EXCLUDES";
+	}
+
+	private static Double extractMeters(String valueJson) {
+		if (valueJson == null) {
+			return null;
+		}
+		int idx = valueJson.indexOf("meters");
+		if (idx < 0) {
+			return null;
+		}
+		StringBuilder digits = new StringBuilder();
+		boolean seenDigit = false;
+		for (int i = idx; i < valueJson.length(); i++) {
+			char c = valueJson.charAt(i);
+			if (Character.isDigit(c) || c == '.') {
+				digits.append(c);
+				seenDigit = true;
+			}
+			else if (seenDigit) {
+				break;
+			}
+		}
+		return digits.length() == 0 ? null : Double.valueOf(digits.toString());
 	}
 
 	private static OffsetDateTime toOffset(Instant instant) {
