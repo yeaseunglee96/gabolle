@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Text } from '@/components/Text';
+import { ScenicVideo } from '@/components/ScenicVideo';
 import { color, radius, spacing } from '@/design/tokens';
 import { useLayout } from '@/layout/useLayout';
 import { type LanguageCode, useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
@@ -12,7 +13,8 @@ import { useI18n } from '@/i18n';
 const logo = require('../assets/brand/gabolle-logo-figma.png');
 const welcomeImage = require('../assets/images/welcome-busan.png');
 const webHeroImage = require('../assets/home/web-hero.png');
-const featureArrowIcon = require('../assets/icons/home/feature-arrow.png');
+const mobileWelcomeVideo = require('../assets/video/busan-tram-portrait.mp4');
+const webWelcomeVideo = require('../assets/video/busan-coast-sunset.mp4');
 type WelcomeLanguage = { code: Extract<LanguageCode, 'ko' | 'en'>; label: string };
 const LANGUAGES: WelcomeLanguage[] = [{ code: 'ko', label: '한국어' }, { code: 'en', label: 'English' }];
 const FEATURES = [
@@ -38,7 +40,7 @@ export default function Welcome() {
 
   if (!isDesktop) {
     return <View style={styles.mobileScreen}>
-      <Image source={welcomeImage} resizeMode="cover" style={styles.mobileBackgroundImage} />
+      <ScenicVideo poster={welcomeImage} source={mobileWelcomeVideo} />
       <StatusBar style="light" />
       <SafeAreaView edges={['top', 'bottom']} style={styles.mobileSafeArea}>
         <View style={styles.mobileBrand}><Pressable accessibilityRole="button" accessibilityLabel="GABOLLE 시작하기" accessibilityHint="연령 확인 화면으로 이동합니다" onPress={() => start()} style={({ pressed }) => [styles.logoLink, pressed && styles.pressed]}><Image source={logo} resizeMode="contain" style={styles.mobileLogo} /></Pressable><Text variant="display" weight="bold" color={color.brand.orange}>부산 가볼래?</Text></View>
@@ -50,8 +52,8 @@ export default function Welcome() {
   return <ScrollView style={styles.webScreen} contentContainerStyle={styles.webContent}>
     <StatusBar style="dark" />
     <SafeAreaView edges={['top']} style={styles.webHeader}>
-      <Pressable accessibilityRole="button" accessibilityLabel="GABOLLE 시작하기" accessibilityHint="연령 확인 화면으로 이동합니다" onPress={() => start()} style={({ pressed }) => [styles.logoLink, pressed && styles.pressed]}><Image source={logo} resizeMode="contain" style={styles.webLogo} /></Pressable>
-      <View style={styles.webNav}><NavItem label={tx('홈', 'Home')} onPress={() => start()} /><NavItem label={tx('여행 만들기', 'Plan a trip')} onPress={() => start()} /><NavItem label={tx('내 여행', 'My trips')} onPress={() => router.push('/sign-in')} /><NavItem label={tx('여행지 둘러보기', 'Explore')} onPress={() => start()} /></View>
+      <Pressable accessibilityRole="link" accessibilityLabel="GABOLLE 홈" onPress={() => router.replace('/')} style={({ pressed }) => [styles.logoLink, pressed && styles.pressed]}><Image source={logo} resizeMode="contain" style={styles.webLogo} /></Pressable>
+      <View style={styles.webNav}><NavItem label={tx('홈', 'Home')} onPress={() => router.replace('/')} /><NavItem label={tx('여행 만들기', 'Plan a trip')} onPress={() => start()} /><NavItem label={tx('내 여행', 'My trips')} onPress={() => router.push('/sign-in')} /><NavItem label={tx('여행지 둘러보기', 'Explore')} onPress={() => start()} /></View>
       <View style={styles.accountActions}>
         <Pressable accessibilityRole="button" accessibilityLabel={`언어를 ${language === 'ko' ? 'English' : '한국어'}로 변경`} onPress={() => chooseLanguage(language === 'ko' ? 'en' : 'ko')} style={styles.localeButton}><Text variant="caption" weight="bold">{language.toUpperCase()}</Text></Pressable>
         <Pressable accessibilityRole="button" onPress={() => router.push('/sign-in')} style={styles.loginButton}><Text variant="caption" weight="bold">{tx('로그인', 'Sign in')}</Text></Pressable>
@@ -60,6 +62,7 @@ export default function Welcome() {
     </SafeAreaView>
     <ImageBackground source={webHeroImage} resizeMode="cover" style={styles.heroSection}>
       <View style={styles.heroBackdrop} />
+      <View style={styles.webVideoFrame}><ScenicVideo poster={webHeroImage} source={webWelcomeVideo} /></View>
       <View style={styles.heroCopy}><View style={styles.heroInner}>
         <View style={styles.heroBadge}><Text variant="caption" weight="bold" color={color.text.onAction}>AI TRAVEL PLANNER · BUSAN</Text></View>
         <Text variant="hero" weight="bold" color={color.text.onAction} style={styles.heroTitle}>{tx(`부산의 모든 여행,\n가볼래?`, `Every side of Busan,\nyours to explore.`)}</Text>
@@ -69,8 +72,8 @@ export default function Welcome() {
       </View></View>
     </ImageBackground>
     <View style={styles.featureSection}>
-      <View style={styles.featureHeadingRow}><View><Text variant="eyebrow" weight="bold">— EXCLUSIVE FEATURES</Text><Text variant="display" weight="bold" style={styles.featureHeading}>똑똑하고 아름답게{`\n`}설계되는 맞춤형 여정</Text></View><Pressable accessibilityRole="button" onPress={() => start()} style={styles.allFeaturesButton}><Text variant="caption" weight="bold" color={color.text.onAction}>모든 기능 보기 →</Text></Pressable></View>
-      <View style={styles.featureGrid}>{FEATURES.map((feature) => <View key={feature.title} style={styles.featureCard}><View style={styles.featureIcon}><Image source={feature.icon} resizeMode="contain" style={styles.featureIconImage} /></View><Text variant="title" weight="bold">{feature.title}</Text><Text variant="body" style={styles.featureBody}>{feature.body}</Text><Pressable accessibilityRole="link" onPress={() => start()} style={styles.featureLink}><Text variant="caption" weight="bold" color={color.brand.orange}>자세히 보기</Text><Image source={featureArrowIcon} resizeMode="contain" style={styles.featureArrow} /></Pressable></View>)}</View>
+      <View style={styles.featureHeadingRow}><View><Text variant="eyebrow" weight="bold">— EXCLUSIVE FEATURES</Text><Text variant="display" weight="bold" style={styles.featureHeading}>똑똑하고 아름답게{`\n`}설계되는 맞춤형 여정</Text></View></View>
+      <View style={styles.featureGrid}>{FEATURES.map((feature) => <View key={feature.title} style={styles.featureCard}><View style={styles.featureIcon}><Image source={feature.icon} resizeMode="contain" style={styles.featureIconImage} /></View><Text variant="title" weight="bold">{feature.title}</Text><Text variant="body" style={styles.featureBody}>{feature.body}</Text></View>)}</View>
     </View>
   </ScrollView>;
 }
@@ -82,9 +85,9 @@ function NavItem({ label, onPress }: { label: string; onPress: () => void }) { r
 function HeroChip({ dot, label }: { dot: string; label: string }) { return <View style={styles.heroChip}><View style={[styles.chipDot, { backgroundColor: dot }]} /><Text variant="caption" color="rgba(255,255,255,0.78)">{label}</Text></View>; }
 
 const styles = StyleSheet.create({
-  pressed: { opacity: 0.78 }, logoLink: { borderRadius: radius.sm }, mobileScreen: { flex: 1, backgroundColor: color.brand.navy }, mobileBackgroundImage: { ...StyleSheet.absoluteFill, width: '100%', height: '100%' },
+  pressed: { opacity: 0.78 }, logoLink: { borderRadius: radius.sm }, mobileScreen: { flex: 1, width: '100%', height: '100%', overflow: 'hidden', backgroundColor: color.brand.navy }, mobileBackgroundImage: { ...StyleSheet.absoluteFill, width: '100%', height: '100%' },
   mobileSafeArea: { flex: 1 },
-  mobileBrand: { position: 'absolute', top: '25%', left: 0, right: 0, alignItems: 'center', gap: spacing[3] },
+  mobileBrand: { position: 'absolute', top: '13%', left: 0, right: 0, alignItems: 'center', gap: spacing[3] },
   mobileLogo: { width: 280, height: 70 },
   languageList: { position: 'absolute', left: 24, right: 24, bottom: 44, alignSelf: 'center', gap: spacing[3] },
   languageButton: { height: 58, borderRadius: 18, borderWidth: 1, borderColor: 'rgba(255,255,255,0.48)', backgroundColor: 'rgba(11,29,58,0.30)', paddingHorizontal: 20, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
@@ -93,6 +96,6 @@ const styles = StyleSheet.create({
   languageActionSelected: { backgroundColor: color.brand.orange },
   webScreen: { flex: 1, backgroundColor: color.brand.ivory }, webContent: { minHeight: '100%' }, webHeader: { minHeight: 72, paddingHorizontal: 72, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: color.brand.ivory, borderBottomWidth: 1, borderBottomColor: '#e8e3da' }, webLogo: { width: 113, height: 28 }, webNav: { flexDirection: 'row', alignItems: 'center', gap: 44 }, navItem: { paddingVertical: spacing[3] }, accountActions: { flexDirection: 'row', alignItems: 'center', gap: spacing[3] },
   localeButton: { minWidth: 38, height: 38, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: '#f6efe6' }, loginButton: { minWidth: 76, minHeight: 38, borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing[4] }, signupButton: { minWidth: 82, minHeight: 38, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing[4], backgroundColor: color.brand.navy },
-  heroSection: { height: 500, justifyContent: 'center', backgroundColor: color.brand.navy }, heroBackdrop: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(11,29,58,0.32)' }, heroCopy: { width: 620, height: '100%', justifyContent: 'center', paddingLeft: 72, paddingRight: 64, backgroundColor: 'rgba(11,29,58,0.72)' }, heroInner: { width: 548 }, heroBadge: { alignSelf: 'flex-start', borderWidth: 1, borderColor: 'rgba(255,255,255,0.20)', borderRadius: radius.full, backgroundColor: 'rgba(255,255,255,0.10)', paddingHorizontal: spacing[4], paddingVertical: 6 }, heroTitle: { marginTop: 28, fontSize: 68, lineHeight: 71, letterSpacing: -2.4 }, heroDescription: { marginTop: 28, fontSize: 18, lineHeight: 29 }, heroActions: { flexDirection: 'row', gap: spacing[4], marginTop: 28 }, primaryCta: { minHeight: 52, borderRadius: radius.full, backgroundColor: color.brand.orange, paddingHorizontal: 40, alignItems: 'center', justifyContent: 'center' }, secondaryCta: { minHeight: 52, borderRadius: radius.full, borderWidth: 1, borderColor: 'rgba(255,255,255,0.20)', backgroundColor: 'rgba(255,255,255,0.08)', paddingHorizontal: 28, alignItems: 'center', justifyContent: 'center' }, heroChips: { flexDirection: 'row', gap: spacing[3], marginTop: 20 }, heroChip: { flexDirection: 'row', alignItems: 'center', gap: 6, borderRadius: radius.full, backgroundColor: 'rgba(255,255,255,0.07)', paddingHorizontal: 14, paddingVertical: 6 }, chipDot: { width: 6, height: 6, borderRadius: radius.full },
-  featureSection: { paddingHorizontal: 72, paddingTop: 80, paddingBottom: 72, maxWidth: 1440, width: '100%', alignSelf: 'center' }, featureHeadingRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' }, featureHeading: { marginTop: spacing[2], fontSize: 38, lineHeight: 46 }, allFeaturesButton: { minHeight: 44, borderRadius: radius.full, backgroundColor: color.brand.navy, justifyContent: 'center', paddingHorizontal: spacing[6] }, featureGrid: { flexDirection: 'row', gap: spacing[6], marginTop: 48 }, featureCard: { flex: 1, minHeight: 250, gap: spacing[3], borderWidth: 1, borderColor: '#ede8df', borderRadius: radius.lg, backgroundColor: color.surface.card, padding: 36 }, featureIcon: { width: 52, height: 52, borderRadius: radius.md, backgroundColor: '#fff0e8', alignItems: 'center', justifyContent: 'center' }, featureIconImage: { width: 26, height: 26 }, featureBody: {}, featureLink: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 'auto' }, featureArrow: { width: 14, height: 14 },
+  heroSection: { height: 500, justifyContent: 'center', backgroundColor: color.brand.navy }, heroBackdrop: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(11,29,58,0.32)' }, webVideoFrame: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 620, overflow: 'hidden', backgroundColor: color.brand.navy }, heroCopy: { width: 620, height: '100%', justifyContent: 'center', paddingLeft: 72, paddingRight: 64, backgroundColor: color.brand.navy }, heroInner: { width: 548 }, heroBadge: { alignSelf: 'flex-start', borderWidth: 1, borderColor: 'rgba(255,255,255,0.20)', borderRadius: radius.full, backgroundColor: 'rgba(255,255,255,0.10)', paddingHorizontal: spacing[4], paddingVertical: 6 }, heroTitle: { marginTop: 28, fontSize: 68, lineHeight: 71, letterSpacing: -2.4 }, heroDescription: { marginTop: 28, fontSize: 18, lineHeight: 29 }, heroActions: { flexDirection: 'row', gap: spacing[4], marginTop: 28 }, primaryCta: { minHeight: 52, borderRadius: radius.full, backgroundColor: color.brand.orange, paddingHorizontal: 40, alignItems: 'center', justifyContent: 'center' }, secondaryCta: { minHeight: 52, borderRadius: radius.full, borderWidth: 1, borderColor: 'rgba(255,255,255,0.20)', backgroundColor: 'rgba(255,255,255,0.08)', paddingHorizontal: 28, alignItems: 'center', justifyContent: 'center' }, heroChips: { flexDirection: 'row', gap: spacing[3], marginTop: 20 }, heroChip: { flexDirection: 'row', alignItems: 'center', gap: 6, borderRadius: radius.full, backgroundColor: 'rgba(255,255,255,0.07)', paddingHorizontal: 14, paddingVertical: 6 }, chipDot: { width: 6, height: 6, borderRadius: radius.full },
+  featureSection: { paddingHorizontal: 72, paddingTop: 80, paddingBottom: 72, maxWidth: 1440, width: '100%', alignSelf: 'center' }, featureHeadingRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' }, featureHeading: { marginTop: spacing[2], fontSize: 38, lineHeight: 46 }, featureGrid: { flexDirection: 'row', gap: spacing[6], marginTop: 48 }, featureCard: { flex: 1, minHeight: 220, gap: spacing[3], borderWidth: 1, borderColor: '#ede8df', borderRadius: radius.lg, backgroundColor: color.surface.card, padding: 36 }, featureIcon: { width: 52, height: 52, borderRadius: radius.md, backgroundColor: '#fff0e8', alignItems: 'center', justifyContent: 'center' }, featureIconImage: { width: 26, height: 26 }, featureBody: {},
 });

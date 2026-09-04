@@ -11,6 +11,7 @@ import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useLayout } from '@/layout/useLayout';
 import { useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
+import { BrandLogoLink } from '@/components/BrandLogoLink';
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const SPECIAL_CHARACTER_PATTERN = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>/?`~]/;
@@ -106,7 +107,7 @@ export default function SignUp() {
 
   return (
     <Screen scroll wide>
-      <Pressable accessibilityRole="button" accessibilityLabel="뒤로 가기" onPress={() => router.back()} style={styles.backLink}><Text variant="body" weight="bold">← 뒤로</Text></Pressable>
+      <View style={styles.topBar}><Pressable accessibilityRole="button" accessibilityLabel="뒤로 가기" onPress={() => router.back()} style={styles.backLink}><Text variant="body" weight="bold">← 뒤로</Text></Pressable><BrandLogoLink href={kind === 'tablet' ? '/' : '/home'} imageStyle={styles.logo} /></View>
       <View style={[styles.columns, kind === 'tablet' && styles.columnsWide]}>
         {kind === 'tablet' && <Card tinted style={styles.introCard}><Text variant="eyebrow" weight="bold">GABOLLE ACCOUNT</Text><Text variant="display" weight="bold">내 여행을 안전하게 저장하세요</Text><Text variant="body">선택한 언어와 여행 조건을 이어서 사용할 수 있어요.</Text></Card>}
         <View style={styles.formColumn}>
@@ -167,7 +168,9 @@ function CheckRow({ checked, label, onPress }: { checked: boolean; label: string
 
 const styles = StyleSheet.create({
   subtitle: { marginTop: spacing[1] },
-  backLink: { alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center', marginBottom: spacing[2] },
+  topBar: { minHeight: 52, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing[2] },
+  logo: { width: 112, height: 32 },
+  backLink: { alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center' },
   columns: { width: '100%' },
   columnsWide: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[8] },
   introCard: { flex: 1, minHeight: 280, justifyContent: 'center', gap: spacing[4] },

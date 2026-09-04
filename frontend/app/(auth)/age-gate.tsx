@@ -46,9 +46,11 @@ export default function AgeGate() {
   }
 
   return (
-    <Screen style={kind === 'tablet' ? styles.webCanvas : styles.canvas}>
+    <Screen wide style={kind === 'tablet' ? styles.webCanvas : styles.canvas}>
       <View style={[styles.panel, kind === 'tablet' && styles.webPanel]}>
-      <View style={styles.header}><BrandLogoLink imageStyle={styles.logo} /><View style={styles.step}><Text variant="caption" weight="bold" color={color.brand.orange}>{tx('가입 전 확인', 'Before you continue')}</Text></View></View>
+      {kind === 'tablet' && <View style={styles.webIntro}><Text variant="eyebrow" weight="bold" color={color.brand.orange}>GABOLLE · BUSAN</Text><Text variant="display" weight="bold" color={color.text.onAction} style={styles.webIntroTitle}>누구나 안심하고{`\n`}부산을 여행하도록</Text><Text variant="body" color="#dce5f2">연령 확인은 안전한 서비스 이용을 위한 최소한의 절차예요. 생년월일은 수집하지 않습니다.</Text><View style={styles.webTrust}><Text variant="caption" weight="bold" color={color.text.onAction}>✓ 생년월일 미수집</Text><Text variant="caption" weight="bold" color={color.text.onAction}>✓ 한 번만 확인</Text></View></View>}
+      <View style={[styles.gateContent, kind === 'tablet' && styles.webGateContent]}>
+      <View style={styles.header}><BrandLogoLink href={kind === 'tablet' ? '/' : '/home'} imageStyle={styles.logo} /><View style={styles.step}><Text variant="caption" weight="bold" color={color.brand.orange}>{tx('가입 전 확인', 'Before you continue')}</Text></View></View>
       <View style={styles.body}>
         <View style={styles.ageMark}><Text variant="title" weight="bold" color={color.brand.orange}>14+</Text></View>
         <Text variant="display" weight="bold" color={color.brand.navy}>
@@ -74,6 +76,7 @@ export default function AgeGate() {
         <Button label={tx('계속', 'Continue')} disabled={!checked} onPress={continueOnboarding} containerStyle={styles.continueButton} />
       </View>
       </View>
+      </View>
     </Screen>
   );
 }
@@ -82,7 +85,12 @@ const styles = StyleSheet.create({
   canvas: { backgroundColor: color.brand.ivory },
   webCanvas: { justifyContent: 'center', backgroundColor: '#f5eee8' },
   panel: { flex: 1 },
-  webPanel: { maxHeight: 620, padding: spacing[8], borderRadius: radius.lg, backgroundColor: color.brand.ivory, shadowColor: color.brand.navy, shadowOpacity: 0.1, shadowRadius: 20, shadowOffset: { width: 0, height: 8 }, elevation: 5 },
+  webPanel: { minHeight: 600, maxHeight: 700, flexDirection: 'row', overflow: 'hidden', borderRadius: radius.lg, backgroundColor: color.brand.ivory, shadowColor: color.brand.navy, shadowOpacity: 0.1, shadowRadius: 20, shadowOffset: { width: 0, height: 8 }, elevation: 5 },
+  gateContent: { flex: 1 },
+  webGateContent: { padding: spacing[8] },
+  webIntro: { width: '44%', justifyContent: 'center', gap: spacing[4], padding: spacing[6], backgroundColor: color.brand.navy },
+  webIntroTitle: { fontSize: 28, lineHeight: 38 },
+  webTrust: { marginTop: spacing[4], gap: spacing[2] },
   header: { minHeight: 52, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   logo: { width: 100, height: 24 },
   step: { paddingHorizontal: spacing[3], paddingVertical: spacing[2], borderRadius: radius.full, backgroundColor: '#fff1e8' },

@@ -17,6 +17,8 @@ import { Eyebrow } from '@/components/Eyebrow';
 import { Text } from '@/components/Text';
 import { Button } from '@/components/Button';
 import { Toggle } from '@/components/Toggle';
+import { BrandLogoLink } from '@/components/BrandLogoLink';
+import { useLayout } from '@/layout/useLayout';
 
 const PERMISSION_PREFERENCES_KEY = '@gabolle/permission-preferences';
 
@@ -58,6 +60,7 @@ const PERMISSIONS: Permission[] = [
 
 export default function Permissions() {
   const router = useRouter();
+  const { kind } = useLayout();
   const [values, setValues] = useState<Record<PermissionKey, boolean>>({ location: true, camera: false, notification: false });
   const [requesting, setRequesting] = useState(false);
   async function continueTo(path: string, preferences = values) {
@@ -80,7 +83,10 @@ export default function Permissions() {
   }
 
   return (
-    <Screen style={styles.screen}>
+    <Screen wide style={styles.screen}>
+      <View style={[styles.layout, kind === 'tablet' && styles.layoutWide]}>
+      <View style={[styles.introColumn, kind === 'tablet' && styles.introWide]}>
+      {kind === 'tablet' && <BrandLogoLink href="/" imageStyle={styles.logo} />}
       <Eyebrow>앱 권한 안내</Eyebrow>
       <Text variant="display" weight="bold" style={styles.title}>
         부산 여행에 꼭 필요한{'\n'}기능을 준비할게요
@@ -88,8 +94,10 @@ export default function Permissions() {
       <Text variant="caption" style={styles.subtitle}>
         허용하지 않아도 둘러볼 수 있고, 설정에서 언제든 바꿀 수 있어요.
       </Text>
+      {kind === 'tablet' && <View style={styles.webNote}><Text variant="body" weight="bold">필요한 권한만 직접 선택하세요</Text><Text variant="caption" color={color.text.body}>위치는 정확한 동선 추천에 필요하고 카메라와 알림은 선택 기능이에요. 모든 권한은 나중에 설정에서 변경할 수 있습니다.</Text></View>}
+      </View>
 
-      <View style={styles.cards}>
+      <View style={styles.actionColumn}><View style={[styles.cards, kind === 'tablet' && styles.cardsWide]}>
         {PERMISSIONS.map((perm) => (
           <View key={perm.key} style={styles.card}>
             <View style={styles.cardIcon}>
@@ -134,12 +142,21 @@ export default function Permissions() {
       </Pressable>
 
       <Button label={requesting ? '권한 확인 중…' : '선택하고 로그인·회원가입으로'} disabled={requesting} containerStyle={styles.cta} onPress={() => void continueTo('/home')} />
+      </View>
+      </View>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
   screen: { backgroundColor: color.brand.ivory },
+  layout: { flex: 1 },
+  layoutWide: { flexDirection: 'row', alignItems: 'center', gap: spacing[8] },
+  introColumn: {},
+  introWide: { flex: 1, alignSelf: 'stretch', justifyContent: 'center', padding: spacing[8], borderRadius: radius.lg, backgroundColor: '#fff1e8' },
+  actionColumn: { flex: 1, width: '100%', justifyContent: 'center' },
+  logo: { width: 120, height: 44, marginBottom: spacing[8] },
+  webNote: { marginTop: spacing[8], gap: spacing[2] },
   title: {
     marginTop: spacing[1],
   },
@@ -152,6 +169,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: spacing[2],
   },
+  cardsWide: { flex: 0 },
   card: {
     flexDirection: 'row',
     gap: spacing[3],
