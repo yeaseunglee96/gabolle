@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.AbstractPlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import com.gabolle.backend.itinerary.domain.Itinerary;
@@ -38,6 +39,13 @@ import com.gabolle.backend.itinerary.domain.StaleItineraryVersionException;
  * <p>그래서 판 INSERT 만 {@link TransactionDefinition#PROPAGATION_NESTED}(진짜 DB
  * SAVEPOINT)로 감싼다 — 그 안에서만 실패하면 그 SAVEPOINT 까지만 되돌아가고, 바깥
  * 트랜잭션은 살아 있어서 {@code itineraries.latest_version} 갱신을 계속할 수 있다.
+ *
+ * <h2>🔴 2026-09-04 — CI 에서 NestedTransactionNotSupportedException (실측)</h2>
+ * Spring Boot 가 자동 설정하는 {@code JpaTransactionManager} 는 중첩 트랜잭션이
+ * <b>기본값 false</b> 다 — 그런 속성을 노출하는 설정 키가 없다. 로컬엔 도커가 없어서
+ * 이 저장소의 통합 테스트가 계속 "건너뜀"으로만 확인됐고, 실제 PostgreSQL 위에서
+ * 처음 돈 것이 CI 였다. 그래서 여기서 직접 {@code setNestedTransactionAllowed(true)}
+ * 를 켠다 — PostgreSQL JDBC 드라이버는 SAVEPOINT 를 지원하므로 이 설정 하나면 된다.
  */
 @Repository
 @Profile({ "db", "dev" })
@@ -54,6 +62,9 @@ public class JpaItineraryRepository implements ItineraryRepository {
 			PlatformTransactionManager transactionManager) {
 		this.itineraryJpaRepository = itineraryJpaRepository;
 		this.versionJpaRepository = versionJpaRepository;
+		if (transactionManager instanceof AbstractPlatformTransactionManager abstractManager) {
+			abstractManager.setNestedTransactionAllowed(true);
+		}
 		this.nestedInsertTemplate = new TransactionTemplate(transactionManager);
 		this.nestedInsertTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_NESTED);
 	}
