@@ -8,10 +8,18 @@ package com.gabolle.backend.trip.domain;
  * (요구사항 3장 · 온톨로지 1장).
  *
  * <h2>🔴 2026-09-03 — answerStatus·scope 추가 (고지혁 님 실측)</h2>
- * 이 필드 둘이 없으면 <b>"알레르기 없음"(NONE)과 "안 물어봄"(UNKNOWN)을 구분할 수
- * 없었다</b> — 둘 다 그냥 행이 없는 것으로 보였다. 알레르기에서 이건 분석 문제가
+ * 이 필드 둘이 없으면 "알레르기 없음"(NONE)과 "안 물어봄"(UNKNOWN)을 구분할 수
+ * 없었다 — 둘 다 그냥 행이 없는 것으로 보였다. 알레르기에서 이건 분석 문제가
  * 아니라 안전 문제다 — 안 물어본 것을 "없다" 로 읽으면 위반 장소가 통과한다.
- * {@code constraint_answer.answer_status} 가 이미 이 셋을 요구하고 있었다.
+ * constraint_answer.answer_status 가 이미 이 셋을 요구하고 있었다.
+ *
+ * <h2>🔴 2026-09-04 — dietRequirement 추가, HEALTH_DIET 판정 구멍 수정 (고지혁 님 실측)</h2>
+ * HEALTH_DIET 는 DB 에 존재한 적이 없는 타입이었다 — 명세(-542 5.2)는 그
+ * 구분을 type 이 아니라 diet_requirement 로 한다(DIET + REQUIRED = 의료·종교상
+ * 필수, DIET + PREFERRED = 선호). 그런데 isSensitiveType 은 문자열 "HEALTH_DIET"
+ * 를 찾고 있었고, 그 값은 DB 에 절대 안 들어오므로 의료상 필수 식단이 민감 정보
+ * 취급을 못 받고 그대로 저장됐다(-542 10장 위반). isSensitive(type, dietRequirement)
+ * 가 type 과 dietRequirement 를 함께 본다.
  */
 public class TripConstraint {
 
@@ -33,7 +41,7 @@ public class TripConstraint {
      * "일반 행동 로그와 분리하고 접근을 통제한다"(요구사항 3장 · S15P21E201-542 10장).
      *
      * <p>🔴 <b>M1 에서는 암호화 키 관리가 정해지지 않았으므로 민감 종류를 아예 받지 않는다.</b>
-     * 평문으로 한 번 저장하면 그 데이터가 남는다. {@link #isSensitiveType(String)} 참고.
+     * 평문으로 한 번 저장하면 그 데이터가 남는다. {@link #isSensitive(String, DietRequirement)} 참고.
      */
     private final String value;
 
@@ -48,10 +56,17 @@ public class TripConstraint {
     /** 계정 기본값인가 이번 여행 전용인가 (S15P21E201-542 2.2). */
     private final PersonalizationScope scope;
 
+    /**
+     * 🔴 type == DIET 일 때만 뜻이 있다. 의료·종교상 반드시 지켜야 하는
+     * 것(REQUIRED)인지 선호(PREFERRED)인지 — 이 값이 민감 여부를 가른다(위 클래스
+     * 주석 참고). ALLERGY·MOBILITY 에는 항상 null 이다.
+     */
+    private final DietRequirement dietRequirement;
+
     public TripConstraint(String constraintId, String tripId, String type, Severity severity,
                           String operator, String value, Double threshold,
                           EvidenceStatus evidenceStatus, AnswerStatus answerStatus,
-                          PersonalizationScope scope) {
+                          PersonalizationScope scope, DietRequirement dietRequirement) {
 
         if (type == null || type.isBlank()) {
             throw new IllegalArgumentException("제약 종류는 필수다");
@@ -65,25 +80,18 @@ public class TripConstraint {
         if (scope == null) {
             throw new IllegalArgumentException("scope(USER/TRIP)는 필수다: " + type);
         }
-        if (isSensitiveType(type) && value != null && !value.isBlank()) {
-            // 🔴 M1 에서는 암호화 경로가 없다. 평문으로 받으면 그대로 남는다.
+        if (!"DIET".equalsIgnoreCase(type) && dietRequirement != null) {
+            throw new IllegalArgumentException("dietRequirement 는 DIET 에만 있을 수 있다: " + type);
+        }
+        if (isSensitive(type, dietRequirement) && value != null && !value.isBlank()) {
             throw new SensitiveConstraintNotSupportedException(type);
         }
-        // 🔴 알레르기는 소프트 취향이 아니라 하드 제약이다 (2026-09-03 진미리 합의).
-        //    hard=false 인 알레르기를 허용하면 점수 계산에 섞여 "덜 좋아함" 으로
-        //    취급된 땅콩이 결과에 남는다. 안전 문제라 여기서 막는다.
-        if (isSensitiveType(type) && severity != Severity.HARD) {
-            throw new IllegalArgumentException("알레르기·건강 식단은 항상 HARD 여야 한다: " + type);
+        if (isSensitive(type, dietRequirement) && severity != Severity.HARD) {
+            throw new IllegalArgumentException("알레르기·필수 식단은 항상 HARD 여야 한다: " + type);
         }
         if (severity == Severity.HARD && operator == null) {
-            // 반드시 지켜야 하는 조건인데 비교 방법이 없으면 판정할 수 없다.
             throw new IllegalArgumentException("HARD 제약에는 비교 방법(operator)이 필요하다: " + type);
         }
-        // 🔴 골랐다면(SELECTED) 값이나 임계치 중 하나는 있어야 하고, 안 골랐다면
-        //    (NONE/UNKNOWN) 값도 임계치도 없어야 한다. constraint_answer 의
-        //    ck_constraint_answer_value_matches_status 를 그대로 옮긴 것이다.
-        //    "값" 은 문자열(value)뿐 아니라 숫자 임계치(threshold)로도 실릴 수 있어서
-        //    (MOBILITY 의 LTE 5000 처럼) 둘 중 하나만 있어도 SELECTED 로 본다.
         boolean hasAnyValue = (value != null && !value.isBlank()) || threshold != null;
         if ((answerStatus == AnswerStatus.SELECTED) != hasAnyValue) {
             throw new IllegalArgumentException(
@@ -101,16 +109,23 @@ public class TripConstraint {
         this.evidenceStatus = evidenceStatus != null ? evidenceStatus : EvidenceStatus.NEEDS_REVIEW;
         this.answerStatus = answerStatus;
         this.scope = scope;
+        this.dietRequirement = dietRequirement;
     }
 
     /**
-     * 민감정보를 담는 제약 종류인가.
+     * 민감정보를 담는 제약인가.
      *
-     * <p>🔴 여기 걸린 종류는 M1 에서 값을 받지 않는다. 암호화 키 관리가 정해지면
-     * {@code encrypted_value} 로 저장하도록 연다.
+     * <p>🔴 2026-09-04 이전에는 type 문자열만 보고 "HEALTH_DIET" 를 찾았는데, DB 에는
+     * 그런 타입이 없다 — 실제로는 DIET 인데 diet_requirement=REQUIRED 인 것이 그
+     * 자리다(고지혁 님 실측). type 만 보면 의료·종교상 필수 식단이 그대로 걸러지지
+     * 않고 저장된다.
+     *
+     * <p>여기 걸리면 M1 에서 값을 받지 않는다. 암호화 키 관리가 정해지면
+     * encrypted_value 로 저장하도록 연다.
      */
-    public static boolean isSensitiveType(String type) {
-        return "ALLERGY".equalsIgnoreCase(type) || "HEALTH_DIET".equalsIgnoreCase(type);
+    public static boolean isSensitive(String type, DietRequirement dietRequirement) {
+        return "ALLERGY".equalsIgnoreCase(type)
+                || ("DIET".equalsIgnoreCase(type) && dietRequirement == DietRequirement.REQUIRED);
     }
 
     public enum Severity {
@@ -140,6 +155,15 @@ public class TripConstraint {
         UNKNOWN
     }
 
+    /**
+     * type == DIET 일 때만 뜻이 있다 — 의료·종교상 반드시 지켜야 하는가,
+     * 선호인가 (-542 5.2). 같은 코드(예: VEGETARIAN)가 사람에 따라 둘 다 될
+     * 수 있어서, 민감 여부는 코드가 아니라 이 값이 정한다(고지혁 님 실측).
+     */
+    public enum DietRequirement {
+        REQUIRED, PREFERRED
+    }
+
     /** M1 에서 민감 제약을 받으려 할 때. 400 으로 응답한다. */
     public static class SensitiveConstraintNotSupportedException extends RuntimeException {
         private final String type;
@@ -163,4 +187,5 @@ public class TripConstraint {
     public EvidenceStatus evidenceStatus()     { return evidenceStatus; }
     public AnswerStatus answerStatus()         { return answerStatus; }
     public PersonalizationScope scope()        { return scope; }
+    public DietRequirement dietRequirement()   { return dietRequirement; }
 }

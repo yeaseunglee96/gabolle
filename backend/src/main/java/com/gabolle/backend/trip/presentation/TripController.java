@@ -109,7 +109,8 @@ public class TripController {
                                 c.threshold(),
                                 // 사용자가 직접 넣은 값이므로 아직 검증되지 않았다 (NFR-09).
                                 TripConstraint.EvidenceStatus.NEEDS_REVIEW,
-                                parseConstraintAnswerStatus(c.answerStatus())))
+                                parseConstraintAnswerStatus(c.answerStatus()),
+                                parseDietRequirement(c.dietRequirement())))
                         .toList();
 
         List<PreferenceSnapshot.PreferenceAnswer> preferences =
@@ -151,6 +152,23 @@ public class TripController {
         } catch (IllegalArgumentException | NullPointerException e) {
             throw new IllegalArgumentException(
                     "취향의 answerStatus 는 SELECTED · SKIPPED · UNKNOWN 중 하나여야 한다: " + raw);
+        }
+    }
+
+    /**
+     * 🔴 2026-09-04 추가. {@code null} 이면 그대로 {@code null} 을 돌려준다 —
+     * {@code DIET} 가 아닌 제약은 이 값이 없는 것이 정상이다({@code TripConstraint}
+     * 생성자가 그 경우를 검증한다).
+     */
+    private TripConstraint.DietRequirement parseDietRequirement(String raw) {
+        if (raw == null) {
+            return null;
+        }
+        try {
+            return TripConstraint.DietRequirement.valueOf(raw.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException(
+                    "dietRequirement 는 REQUIRED · PREFERRED 중 하나여야 한다: " + raw);
         }
     }
 }

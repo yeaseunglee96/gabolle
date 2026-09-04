@@ -66,7 +66,7 @@ public class TripCreationService {
                 command.budgetKrw(), command.partySize(),
                 command.timeWindow(), command.timezone(), now);
 
-        // ② 제약. 🔴 민감 종류(알레르기 등)에 값이 들어오면 생성자가 거부한다 —
+        // ② 제약. 🔴 민감 종류(알레르기·필수 식단)에 값이 들어오면 생성자가 거부한다 —
         //    M1 에는 암호화 경로가 없고, 평문으로 한 번 저장하면 그 데이터가 남는다.
         //    scope 는 TRIP 으로 고정한다 — TRIP-01 이 만드는 제약은 항상 이번 여행
         //    전용이다(PersonalizationScope 문서 참고).
@@ -76,7 +76,7 @@ public class TripCreationService {
             String id = UUID.randomUUID().toString();
             constraints.add(new TripConstraint(id, tripId, c.type(), c.severity(),
                     c.operator(), c.value(), c.threshold(), c.evidenceStatus(),
-                    c.answerStatus(), PersonalizationScope.TRIP));
+                    c.answerStatus(), PersonalizationScope.TRIP, c.dietRequirement()));
             constraintIds.add(id);
         }
 
@@ -143,7 +143,8 @@ public class TripCreationService {
                 String value,
                 Double threshold,
                 TripConstraint.EvidenceStatus evidenceStatus,
-                TripConstraint.AnswerStatus answerStatus) {}
+                TripConstraint.AnswerStatus answerStatus,
+                TripConstraint.DietRequirement dietRequirement) {}
     }
 
     /** {@code created=false} 면 재시도였고 기존 여행을 돌려준 것이다. */
