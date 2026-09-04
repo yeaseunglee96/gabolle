@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Modal, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { useRouter } from 'expo-router';
 
 import { ApiClientError } from '@/api/client';
 import { useAuth } from '@/auth/AuthProvider';
@@ -16,6 +17,7 @@ function InfoRow({ label, value, onPress, disabled = false }: { label: string; v
 }
 
 export default function Me() {
+  const router = useRouter();
   const { user, signOut, updateProfile, deleteAccount } = useAuth();
   const { language, tx } = useI18n();
   const [editing, setEditing] = useState(false);
@@ -80,6 +82,11 @@ export default function Me() {
       <InfoRow label={tx('여행 조건 관리', 'Trip preferences')} value={tx('여행 만들기에서 수정', 'Edit while planning')} disabled />
       <InfoRow label={tx('연결 계정', 'Connected accounts')} value={tx('서버 기능 준비 중', 'Server feature pending')} disabled />
       <InfoRow label={tx('개인화 데이터 관리', 'Personalization data')} value={tx('서버 기능 준비 중', 'Server feature pending')} disabled />
+    </View>
+    <View style={styles.group}>
+      <InfoRow label={tx('이용약관', 'Terms of Service')} value="›" onPress={() => router.push('/legal/terms')} />
+      <InfoRow label={tx('개인정보 처리방침', 'Privacy Policy')} value="›" onPress={() => router.push('/legal/privacy')} />
+      <InfoRow label={tx('오픈소스 고지', 'Open-source notices')} value="›" onPress={() => router.push('/legal/open-source')} />
     </View>
     <Text variant="caption" color={color.text.muted} style={styles.notice}>{tx('완료 여행·저장 장소·리뷰 수는 실제 조회 API가 연결된 뒤 표시합니다.', 'Trip, saved-place, and review counts will appear after their APIs are connected.')}</Text>
     <Button label={tx('로그아웃', 'Sign out')} variant="ghost" onPress={() => void signOut()} containerStyle={styles.logout} />
