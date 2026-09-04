@@ -26,20 +26,23 @@ public interface PlaceFeatureRepository extends JpaRepository<PlaceFeature, UUID
 	List<PlaceFeature> findByPlaceId(UUID placeId);
 
 	/**
-	 * 갈래별 표식과 그 표식을 가진 장소 수 (-473 의 "응답에 건수가 들어 있다").
+	 * 갈래별 표식 원본 행 (-473 의 "응답에 건수가 들어 있다" 를 만드는 재료).
 	 *
-	 * <p>🔴 {@code evidenceStatus <> UNKNOWN} 으로 거른다. 모르는 것을 "있다" 로 세면 건수가
-	 * 거짓말이 된다.
+	 * <p>🔴 예전에는 {@code countPlacesByFeature} 로 DB 에서 바로 세었는데, 그 질의는
+	 * {@code evidenceStatus <> UNKNOWN} 까지만 걸러서 <b>확인된 부재</b>(값이 JSON 리터럴
+	 * {@code false} 인 {@code VERIFIED} 행)를 "있다" 로 세는 결함이 있었다 — JPQL 은
+	 * {@code value}(JSONB) 안의 값을 비교할 수 없다. 그래서 지금은 행을 그대로 돌려주고,
+	 * 최종 판정(있다·없다)은 호출부인 {@code PlaceFacetService} 가
+	 * {@link com.gabolle.backend.place.domain.PlaceFeature#indicatesPresence()} 로 자바에서 한다.
+	 * 경계상자로 좁히고 자바에서 실제 거리를 재는 것과 같은 구조다.
 	 *
 	 * <p>질의는 하나다. 갈래 수나 장소 수만큼 반복하지 않는다.
 	 */
 	@Query("""
-			SELECT f.featureType, f.featureKey, COUNT(DISTINCT f.placeId)
-			FROM PlaceFeature f
+			SELECT f FROM PlaceFeature f
 			WHERE f.featureType IN :featureTypes
 			  AND f.evidenceStatus <> com.gabolle.backend.place.domain.PlaceEvidenceStatus.UNKNOWN
-			GROUP BY f.featureType, f.featureKey
 			ORDER BY f.featureType, f.featureKey
 			""")
-	List<Object[]> countPlacesByFeature(@Param("featureTypes") Collection<String> featureTypes);
+	List<PlaceFeature> findByFeatureTypeIn(@Param("featureTypes") Collection<String> featureTypes);
 }

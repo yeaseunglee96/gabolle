@@ -28,8 +28,11 @@ public record PlaceCandidateRequest(
 		@NotNull @Valid Center center,
 		@NotNull @Min(100) @Max(50_000) Integer radiusM,
 		List<String> categories,
-		List<FeatureMatch> requiredFeatures,
-		List<FeatureMatch> excludedFeatures,
+		// 🔴 @Valid 가 없으면 List 자체는 검증해도 원소(FeatureMatch)는 안 들어가서
+		// FeatureMatch.featureType 의 @NotNull 이 안 돈다 — {"featureType":null} 이 그대로 통과해
+		// 400 대신 빈 목록 취급 200 이 나갔다.
+		List<@Valid FeatureMatch> requiredFeatures,
+		List<@Valid FeatureMatch> excludedFeatures,
 		OffsetDateTime openNowAt,
 		@Min(0) Integer minimumCount,
 		@Min(1) @Max(500) Integer limit) {

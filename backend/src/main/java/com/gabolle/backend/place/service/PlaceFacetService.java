@@ -3,9 +3,13 @@ package com.gabolle.backend.place.service;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.LinkedHashMap;
+import java.util.Set;
+import java.util.UUID;
 
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
@@ -13,6 +17,7 @@ import org.springframework.stereotype.Service;
 import com.gabolle.backend.place.api.PlaceFacetResponse;
 import com.gabolle.backend.place.api.PlaceFacetResponse.FacetItem;
 import com.gabolle.backend.place.api.PlaceFacetResponse.FacetKeyCount;
+import com.gabolle.backend.place.domain.PlaceFeature;
 import com.gabolle.backend.place.domain.UserInputKind;
 import com.gabolle.backend.place.domain.UserPlaceCodeMap;
 import com.gabolle.backend.place.repository.PlaceFeatureRepository;
@@ -63,41 +68,58 @@ public class PlaceFacetService {
 				.distinct()
 				.toList();
 
-		Map<String, List<Object[]>> countsByFeatureType = groupByFeatureType(
-				this.placeFeatureRepository.countPlacesByFeature(featureTypes));
+		// 🔴 여기서 evidenceStatus <> UNKNOWN 까지만 걸러진 행을 받는다. "확인된 부재"
+		// (VERIFIED + 값 false) 를 걸러내는 것은 toFacetItem 의 indicatesPresence() 몫이다 —
+		// PlaceFeatureRepository.findByFeatureTypeIn javadoc 참고.
+		Map<String, List<PlaceFeature>> featuresByType = groupByFeatureType(
+				this.placeFeatureRepository.findByFeatureTypeIn(featureTypes));
 
 		List<FacetItem> items = codeMaps.stream()
 				.map(codeMap -> toFacetItem(codeMap,
-						countsByFeatureType.getOrDefault(codeMap.getPlaceFeatureType(), List.of())))
+						featuresByType.getOrDefault(codeMap.getPlaceFeatureType(), List.of())))
 				.toList();
 
 		return new PlaceFacetResponse(items, OffsetDateTime.now(ZoneOffset.UTC));
 	}
 
-	private Map<String, List<Object[]>> groupByFeatureType(List<Object[]> rows) {
-		Map<String, List<Object[]>> grouped = new LinkedHashMap<>();
-		for (Object[] row : rows) {
-			String featureType = (String) row[0];
-			grouped.computeIfAbsent(featureType, key -> new ArrayList<>()).add(row);
+	private Map<String, List<PlaceFeature>> groupByFeatureType(List<PlaceFeature> rows) {
+		Map<String, List<PlaceFeature>> grouped = new LinkedHashMap<>();
+		for (PlaceFeature feature : rows) {
+			grouped.computeIfAbsent(feature.getFeatureType(), key -> new ArrayList<>()).add(feature);
 		}
 		return grouped;
 	}
 
 	/**
-	 * placeCount 계산 근거는 {@link PlaceFacetResponse.FacetItem} javadoc 에 적었다 — 여기서는
-	 * "featureKey 가 null 인 행의 건수 + 키별 건수의 합" 을 그대로 코드로 옮긴다.
+	 * placeCount 계산 근거는 {@link PlaceFacetResponse.FacetItem} javadoc 에 적었다 — "featureKey 가
+	 * 없는 행의 건수 + 키별 건수의 합" 을 그대로 코드로 옮긴다. 건수를 셀 때 {@code placeId} 로
+	 * distinct 하는 이유는 DB 쪽 {@code COUNT(DISTINCT placeId)} 와 같은 뜻을 자바에서 재현하기
+	 * 위해서다.
+	 *
+	 * <p>🔴 여기서 {@link PlaceFeature#indicatesPresence()} 가 거짓인 행(확인된 부재, 그리고 이미
+	 * 리포지토리 질의에서 빠진 UNKNOWN)은 건너뛴다. 이 필터가 없으면 "휠체어 접근이 안 되는 것으로
+	 * 확인된" 장소가 접근성 갈래 건수에 들어간다.
 	 */
-	private FacetItem toFacetItem(UserPlaceCodeMap codeMap, List<Object[]> rows) {
+	private FacetItem toFacetItem(UserPlaceCodeMap codeMap, List<PlaceFeature> features) {
+		Map<String, Set<UUID>> placeIdsByKey = new LinkedHashMap<>();
+		for (PlaceFeature feature : features) {
+			if (!feature.indicatesPresence()) {
+				continue;
+			}
+			placeIdsByKey.computeIfAbsent(feature.getFeatureKey(), key -> new LinkedHashSet<>())
+					.add(feature.getPlaceId());
+		}
+
 		List<FacetKeyCount> keys = new ArrayList<>();
 		long total = 0;
-		for (Object[] row : rows) {
-			String featureKey = (String) row[1];
-			long count = (Long) row[2];
+		for (Map.Entry<String, Set<UUID>> entry : placeIdsByKey.entrySet()) {
+			long count = entry.getValue().size();
 			total += count;
-			if (featureKey != null) {
-				keys.add(new FacetKeyCount(featureKey, count));
+			if (entry.getKey() != null) {
+				keys.add(new FacetKeyCount(entry.getKey(), count));
 			}
 		}
+		keys.sort(Comparator.comparing(FacetKeyCount::featureKey));
 		return new FacetItem(codeMap.getUserInputCode(), codeMap.getPlaceFeatureType(), codeMap.getMatchKind(),
 				total, keys);
 	}

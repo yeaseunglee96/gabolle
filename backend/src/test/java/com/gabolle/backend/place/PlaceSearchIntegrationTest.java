@@ -15,6 +15,7 @@ import com.gabolle.backend.place.api.PlacePageResponse;
 import com.gabolle.backend.place.api.PlaceSummaryResponse;
 import com.gabolle.backend.place.service.PlaceRequestException;
 import com.gabolle.backend.place.service.PlaceSearchService;
+import com.gabolle.backend.place.service.SearchCursor;
 import com.gabolle.backend.place.support.PlaceFixture;
 import com.gabolle.backend.place.support.PlacePostgresIntegrationTest;
 
@@ -54,6 +55,17 @@ class PlaceSearchIntegrationTest extends PlacePostgresIntegrationTest {
 		PlacePageResponse page = this.placeSearchService.search(this.fixture.prefix() + "감천", null, null, null);
 
 		assertThat(page.items()).extracting(PlaceSummaryResponse::placeId).contains(placeId);
+	}
+
+	@Test
+	@DisplayName("🔴 검색어 앞뒤 공백을 다듬는다 — 안 다듬으면 '  감천  ' 이 빈 결과가 된다")
+	void queryIsTrimmedBeforeMatching() {
+		UUID placeId = this.fixture.insertPlace("감천문화마을", null, "ATTRACTION", 35.0975, 129.0107);
+
+		PlacePageResponse padded = this.placeSearchService.search(
+				"  " + this.fixture.prefix() + "감천  ", null, null, null);
+
+		assertThat(padded.items()).extracting(PlaceSummaryResponse::placeId).contains(placeId);
 	}
 
 	@Test
@@ -136,6 +148,67 @@ class PlaceSearchIntegrationTest extends PlacePostgresIntegrationTest {
 
 		// 같은 커서인데 limit 을 바꿔서 이어받으려 한다 — fingerprint 가 안 맞아야 한다.
 		assertThatThrownBy(() -> this.placeSearchService.search(query, null, 2, firstPage.nextCursor()))
+				.isInstanceOf(PlaceRequestException.class)
+				.satisfies(ex -> assertThat(((PlaceRequestException) ex).getCode()).isEqualTo("INVALID_CURSOR"));
+	}
+
+	@Test
+	@DisplayName("🔴 완료 기준 — 한 페이지보다 많은 행에서도 정확일치가 첫 페이지에 나오고, "
+			+ "어떤 항목도 두 페이지에 걸쳐 나오지 않으며, 전체 항목이 빠짐없이 나온다")
+	void exactMatchSurvivesPagingAcrossManyRowsWithoutDuplicates() {
+		// 🔴 예전 구현은 리포지토리에서 offset+limit+1 개만 먼저 잘라(정렬 없이) 받은 뒤 그
+		// 잘린 집합만 정렬했다 — searchByName 에 ORDER BY 가 없어 DB 반환 순서가 임의였으므로,
+		// 행이 딱 한 페이지 분량(예: 3개)이면 잘림 자체가 안 일어나 이 결함이 재현되지 않았다.
+		// 그래서 여기서는 한 페이지(limit)보다 뚜렷이 많고 MAX_RANKED(500) 보다는 훨씬 적은
+		// 행을 넣어 여러 페이지를 실제로 넘기면서 잰다.
+		String token = this.fixture.token();
+		String exactName = "정렬완료" + token;
+		UUID exactMatch = this.fixture.insertPlace(exactName, null, "ATTRACTION", 35.1, 129.0);
+		List<UUID> prefixMatches = new ArrayList<>();
+		for (int i = 0; i < 24; i++) {
+			prefixMatches.add(this.fixture.insertPlace(exactName + "-" + i, null, "ATTRACTION", 35.1, 129.0));
+		}
+		String query = this.fixture.prefix() + exactName;
+		int limit = 10;
+
+		List<UUID> collected = new ArrayList<>();
+		String cursor = null;
+		boolean firstIteration = true;
+		boolean exactMatchOnFirstPage = false;
+		while (true) {
+			PlacePageResponse page = this.placeSearchService.search(query, null, limit, cursor);
+			List<UUID> pageIds = page.items().stream().map(PlaceSummaryResponse::placeId).toList();
+			if (firstIteration) {
+				exactMatchOnFirstPage = pageIds.contains(exactMatch);
+				firstIteration = false;
+			}
+			collected.addAll(pageIds);
+			if (!page.hasNext()) {
+				break;
+			}
+			cursor = page.nextCursor();
+		}
+
+		assertThat(exactMatchOnFirstPage).isTrue();
+		assertThat(collected).doesNotHaveDuplicates();
+		List<UUID> expectedAll = new ArrayList<>(prefixMatches);
+		expectedAll.add(exactMatch);
+		assertThat(collected).containsExactlyInAnyOrderElementsOf(expectedAll);
+	}
+
+	@Test
+	@DisplayName("🔴 offset 이 상한(10,000)을 넘는 커서는 INVALID_CURSOR 로 거부된다 — "
+			+ "위조된 offset 으로 표 전체를 훑는 것을 막는다")
+	void offsetBeyondMaxIsRejected() {
+		// fingerprint 는 위조 방지가 아니라 조건 일치 확인용이라(SearchCursor 참고) 검색 조건만
+		// 알면 이렇게 유효한 fingerprint 로 임의의 offset 을 만들 수 있다 — 그래서 서비스가
+		// 별도로 상한을 둬야 한다.
+		String query = this.fixture.prefix() + "오프셋상한" + this.fixture.token();
+		int limit = 20;
+		String fingerprint = SearchCursor.fingerprint(query, null, limit);
+		String forgedCursor = SearchCursor.of(fingerprint, 10_001).encode();
+
+		assertThatThrownBy(() -> this.placeSearchService.search(query, null, limit, forgedCursor))
 				.isInstanceOf(PlaceRequestException.class)
 				.satisfies(ex -> assertThat(((PlaceRequestException) ex).getCode()).isEqualTo("INVALID_CURSOR"));
 	}

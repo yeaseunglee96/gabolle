@@ -44,6 +44,16 @@ import com.gabolle.backend.place.repository.PlaceRepository;
  * "기념품샵" 을 {@code place.category} 로 볼지 {@code place_feature} 표식으로 볼지 아직 팀이
  * 정하지 않았다. 여기서 자바 코드로 하나를 못박으면 나중에 다른 쪽으로 정해질 때 배포를 다시
  * 해야 한다. {@link PlaceProperties} 로 빼 두면 그때는 설정값만 바뀐다.
+ *
+ * <h2>🔴 purpose 가 선택값인 이유</h2>
+ *
+ * {@link PlaceProperties#getPurposes()} 의 기본값은 빈 맵이고 {@code application*.properties} 에도
+ * 아직 아무 목적이 없다. {@code purpose} 를 필수로 두면 무엇을 보내도 항상 {@link PlaceRequestException}
+ * ({@code UNKNOWN_PURPOSE})이 나서, 목적이 하나라도 설정되기 전까지는 이 엔드포인트가 어떤 입력으로도
+ * 200 을 낼 수 없었다. 그래서 {@code purpose} 가 없으면 목적 필터를 아예 적용하지 않고 반경 안
+ * 장소를 거리순으로 돌려준다 — {@link NearbyPlaceResponse#purposeApplied()} 로 그 사실을 알린다.
+ * {@code purpose} 를 <b>보냈는데</b> 설정에 없으면 그때는 지금처럼 {@code UNKNOWN_PURPOSE} 로
+ * 거부한다 — 오타를 "필터 없음" 으로 조용히 넘기지 않기 위해서다.
  */
 @Service
 @Profile({ "db", "dev" })
@@ -63,7 +73,10 @@ public class NearbyPlaceService {
 	public NearbyPlaceResponse findNearby(double lat, double lng, String purpose, int limit) {
 		validateCoordinates(lat, lng);
 		validateLimit(limit);
-		PurposeSpec spec = resolvePurpose(purpose);
+		boolean purposeApplied = purpose != null && !purpose.isBlank();
+		// 🔴 purpose 가 없으면 spec 이 null 이고, 그 아래(scanRadius·fetchCandidates·
+		// applyCategoryFilter)는 전부 null 을 "필터 없음" 으로 다룬다.
+		PurposeSpec spec = purposeApplied ? resolvePurpose(purpose) : null;
 
 		List<Integer> ladder = sortedLadder();
 		int requestedRadiusM = ladder.get(0);
@@ -96,7 +109,7 @@ public class NearbyPlaceService {
 				.toList();
 
 		return new NearbyPlaceResponse(items, requestedRadiusM, effectiveRadiusM,
-				expansionSteps > 0, expansionSteps, scanTruncated, limit);
+				expansionSteps > 0, expansionSteps, scanTruncated, limit, purposeApplied);
 	}
 
 	private StepResult scanRadius(double lat, double lng, int radiusMeters, PurposeSpec spec) {
@@ -121,10 +134,16 @@ public class NearbyPlaceService {
 		return new StepResult(matches, truncated);
 	}
 
-	/** {@code featureType} 이 있으면 표식으로 좁히고, 없으면 경계상자만으로 후보를 가져온다. */
+	/**
+	 * {@code featureType} 이 있으면 표식으로 좁히고, 없으면 경계상자만으로 후보를 가져온다.
+	 *
+	 * <p>🔴 {@code spec} 이 {@code null} 이면 목적이 안 온 것이다(purpose 는 선택값 — 클래스
+	 * javadoc "purpose 가 선택값인 이유" 참고) — 이때는 표식 필터를 걸 수 없으니 경계상자만으로
+	 * 가져온다.
+	 */
 	private List<Place> fetchCandidates(GeoDistance.BoundingBox box, PurposeSpec spec, int scanLimit) {
 		Limit limit = Limit.of(scanLimit + 1);
-		if (spec.featureType() != null && !spec.featureType().isBlank()) {
+		if (spec != null && spec.featureType() != null && !spec.featureType().isBlank()) {
 			return this.placeRepository.findWithinBoundingBoxHavingFeature(
 					box.minLat(), box.maxLat(), box.minLng(), box.maxLng(),
 					spec.featureType(), spec.featureKey(), limit);
@@ -137,9 +156,11 @@ public class NearbyPlaceService {
 	 * {@code categories} 가 있으면 한 번 더 거른다. {@code featureType} 으로 이미 좁힌 뒤라도
 	 * 똑같이 적용된다 — "둘 다 있으면 표식으로 조회한 뒤 카테고리로 한 번 더 거른다" 는 요구를
 	 * {@link #fetchCandidates} 와 이 메서드의 조합 하나로 만족시킨다.
+	 *
+	 * <p>{@code spec} 이 {@code null}(목적 없음)이어도 여기서 걸러지지 않는다 — 그대로 반환한다.
 	 */
 	private List<Place> applyCategoryFilter(List<Place> places, PurposeSpec spec) {
-		List<String> categories = spec.categories();
+		List<String> categories = spec == null ? null : spec.categories();
 		if (categories == null || categories.isEmpty()) {
 			return places;
 		}
@@ -157,6 +178,12 @@ public class NearbyPlaceService {
 		return ladder.stream().sorted().toList();
 	}
 
+	/**
+	 * 🔴 {@link #findNearby} 가 {@code purpose} 가 비어 있지 않을 때만 이 메서드를 부른다 — 비어
+	 * 있으면 그 자체는 오류가 아니라 "필터 없음" 이다(클래스 javadoc "purpose 가 선택값인 이유").
+	 * 그래도 방어적으로 null·공백을 다시 확인한다. 여기 도달했다는 것은 값은 있는데 설정에 없다는
+	 * 뜻이라 {@code UNKNOWN_PURPOSE} 로 거부한다.
+	 */
 	private PurposeSpec resolvePurpose(String purpose) {
 		if (purpose == null || purpose.isBlank()) {
 			throw new PlaceRequestException("UNKNOWN_PURPOSE", "지원하지 않는 목적입니다.", List.of("purpose"));

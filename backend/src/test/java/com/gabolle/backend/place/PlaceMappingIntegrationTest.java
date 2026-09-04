@@ -112,7 +112,7 @@ class PlaceMappingIntegrationTest extends PlacePostgresIntegrationTest {
 		assertThat(unknown.getEvidenceStatus()).isEqualTo(PlaceEvidenceStatus.UNKNOWN);
 		// 🔴 DB CHECK 가 강제하는 것 — 모른다에는 값이 없다.
 		assertThat(unknown.getValue()).isNull();
-		assertThat(unknown.isPresentEvidence()).isFalse();
+		assertThat(unknown.indicatesPresence()).isFalse();
 	}
 
 	@Test
@@ -138,13 +138,17 @@ class PlaceMappingIntegrationTest extends PlacePostgresIntegrationTest {
 		UUID b = this.fixture.insertPlace("세는곳나", null, "ATTRACTION", 35.1, 129.0);
 		this.fixture.insertTagFeature(b, "CUISINE_TAG", "SEAFOOD", "UNKNOWN", null);
 
-		long seafood = this.placeFeatureRepository.countPlacesByFeature(List.of("CUISINE_TAG")).stream()
-				.filter(row -> "SEAFOOD".equals(row[1]))
-				.mapToLong(row -> (Long) row[2])
-				.sum();
+		// 🔴 건수는 DB 가 아니라 자바에서 센다. JPQL 로는 JSONB 값을 못 봐서 "확인된 부재" 를
+		//    빼지 못하기 때문이다. 여기서는 그 규칙이 실제로 적용되는지를 본다.
+		List<UUID> counted = this.placeFeatureRepository.findByFeatureTypeIn(List.of("CUISINE_TAG")).stream()
+				.filter(feature -> "SEAFOOD".equals(feature.getFeatureKey()))
+				.filter(PlaceFeature::indicatesPresence)
+				.map(PlaceFeature::getPlaceId)
+				.distinct()
+				.toList();
 
-		// 남이 남긴 행이 있을 수 있어 절대값이 아니라 "확인된 것 하나는 세어졌다" 로 본다.
-		assertThat(seafood).isGreaterThanOrEqualTo(1);
+		// 남이 남긴 행이 있을 수 있어 절대값이 아니라 포함 여부로 본다.
+		assertThat(counted).contains(a).doesNotContain(b);
 		List<Place> having = this.placeRepository.findHavingFeature("CUISINE_TAG", "SEAFOOD", Limit.of(500));
 		assertThat(having).extracting(Place::getPlaceId).contains(a).doesNotContain(b);
 	}

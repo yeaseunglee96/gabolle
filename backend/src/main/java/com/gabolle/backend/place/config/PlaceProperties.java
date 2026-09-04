@@ -28,7 +28,16 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "gabolle.place")
 public class PlaceProperties {
 
-	/** 목적 코드(예: {@code "SOUVENIR"}) → 그 목적을 판별하는 방법. 기본은 빈 맵. */
+	/**
+	 * 목적 코드(예: {@code "SOUVENIR"}) → 그 목적을 판별하는 방법. 기본은 빈 맵.
+	 *
+	 * <p>🔴 빈 맵이라도 근처 조회 엔드포인트 자체는 막히지 않는다. {@code purpose} 요청 파라미터는
+	 * 선택값이라 안 보내면 목적 필터 없이 반경 안 장소를 거리순으로 돌려준다
+	 * ({@code NearbyPlaceService} 참고). {@code purpose} 를 보냈는데 여기 없으면 그때만
+	 * {@code UNKNOWN_PURPOSE} 로 거부한다. 어떤 카테고리 값이 "기념품샵" 같은 목적에 해당하는지는
+	 * 아직 아무도 정하지 않았고, 여기서 값을 지어내면 그 값이 곧 계약이 되어 나중에 실제 값으로
+	 * 바꿀 때 다른 팀의 코드까지 깨진다. 그래서 기본값을 채우지 않고 빈 채로 둔다.
+	 */
 	private Map<String, PurposeSpec> purposes = Map.of();
 
 	/** 근처 조회의 반경 사다리(m). 오름차순이어야 한다 — 아니어도 서비스가 정렬해서 쓴다. */

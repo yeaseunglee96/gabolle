@@ -131,12 +131,44 @@ public class PlaceFeature {
 	}
 
 	/**
-	 * 이 행이 "그 표식이 있다" 는 근거가 되는가.
+	 * 이 행이 <b>"그 표식이 있다"</b> 는 근거가 되는가.
 	 *
-	 * <p>🔴 {@link PlaceEvidenceStatus#UNKNOWN} 은 아니다. 그것은 "모른다" 이지 "있다" 가 아니고,
-	 * 갈래 조회(-473)에서 이 둘을 뭉개면 확인 안 된 장소가 그 갈래에 섞인다.
+	 * <p>두 가지를 다 걸러야 한다.
+	 *
+	 * <ul>
+	 * <li>{@link PlaceEvidenceStatus#UNKNOWN} 은 "모른다" 이지 "있다" 가 아니다. 뭉개면 확인 안 된
+	 *     장소가 그 갈래에 섞인다.</li>
+	 * <li>🔴 확인했는데 결과가 "아니다" 인 경우도 있다 — {@code VERIFIED} 에 값이 {@code false} 인
+	 *     행이다. 휠체어 접근이 <b>안 되는 것으로 확인된</b> 장소가 여기다. 상태만 보고 값을 안 보면
+	 *     그 장소가 "휠체어 접근 가능" 목록에 들어간다.</li>
+	 * </ul>
+	 *
+	 * <p>🔴 값의 모양은 아직 데이터 담당이 확정하지 않았다. 그래서 <b>JSON 리터럴 {@code false}
+	 * 하나만</b> "확인된 해당 없음" 으로 읽는다. {@code {"present": false}} 같은 다른 표현은 인식하지
+	 * 않는다 — 인식하는 척하면 그 모양이 계약인 것처럼 굳는다. 값 모양이 정해지면 이 메서드 하나만
+	 * 고치면 된다.
 	 */
-	public boolean isPresentEvidence() {
-		return evidenceStatus != PlaceEvidenceStatus.UNKNOWN;
+	public boolean indicatesPresence() {
+		return evidenceStatus != PlaceEvidenceStatus.UNKNOWN && !isConfirmedAbsence();
+	}
+
+	/**
+	 * 없다고 <b>단정할 수 없는가</b>. 안전 제약을 거를 때 쓴다.
+	 *
+	 * <p>🔴 {@link #indicatesPresence()} 의 반대가 아니다. 알레르기처럼 위반이면 빼야 하는 조건에서는
+	 * "모른다" 를 통과시키면 안 된다 — 땅콩이 들었는지 확인 안 된 식당을 안전한 것처럼 내보내게 된다.
+	 * 마이그레이션 {@code V20260904020000} 의 대조표 주석이 같은 말을 한다: "정보가 없으면 PASS 로
+	 * 바꾸지 않고 UNKNOWN 으로 둔다".
+	 *
+	 * <p>그래서 <b>확인된 부재만</b> 통과시킨다. 모르는 것은 있는 것으로 취급한다.
+	 */
+	public boolean cannotRuleOutPresence() {
+		return !isConfirmedAbsence();
+	}
+
+	/** 확인했고 결과가 "아니다" 인가. */
+	private boolean isConfirmedAbsence() {
+		return this.evidenceStatus != PlaceEvidenceStatus.UNKNOWN
+				&& this.value != null && "false".equals(this.value.trim());
 	}
 }

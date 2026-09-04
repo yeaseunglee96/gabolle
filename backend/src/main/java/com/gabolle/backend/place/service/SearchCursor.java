@@ -29,6 +29,14 @@ import java.util.Locale;
  * 보내면, 그 offset 은 <b>다른 질의의 몇 번째 결과</b>를 가리키게 된다 — 결과가 조용히
  * 뒤섞인다. fingerprint 로 "이 커서가 어느 조건에서 나왔는가" 를 같이 담아서, 서비스가 지금
  * 조건과 비교해 다르면 거부한다.
+ *
+ * <h2>🔴 fingerprint 는 위조 방지가 아니다</h2>
+ *
+ * fingerprint 는 요청자가 검색어·종류·limit 만 알면 {@link #fingerprint} 로 직접 계산할 수 있는
+ * 값이다. 그래서 "커서를 손으로 조작하지 못하게 막는" 용도가 아니라 <b>조건이 바뀐 채로 이어받는
+ * 실수를 거르는</b> 용도일 뿐이다 — 서명이 아니라 체크섬에 가깝다. 임의로 큰 offset 을 넣어
+ * 표 전체를 훑는 것을 막는 것은 이 클래스가 아니라
+ * {@code PlaceSearchService} 의 {@code MAX_OFFSET} 상한이 한다.
  */
 public final class SearchCursor {
 

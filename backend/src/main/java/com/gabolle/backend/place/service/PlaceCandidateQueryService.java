@@ -19,7 +19,6 @@ import com.gabolle.backend.place.api.PlaceCandidateRequest;
 import com.gabolle.backend.place.api.PlaceCandidateResponse;
 import com.gabolle.backend.place.api.PlaceFeatureView;
 import com.gabolle.backend.place.domain.Place;
-import com.gabolle.backend.place.domain.PlaceEvidenceStatus;
 import com.gabolle.backend.place.domain.PlaceFeature;
 import com.gabolle.backend.place.repository.PlaceFeatureRepository;
 import com.gabolle.backend.place.repository.PlaceRepository;
@@ -42,9 +41,14 @@ import tools.jackson.databind.ObjectMapper;
  * <li>나머지 조건(카테고리, 남은 required, excluded, 반경)은 <b>자바에서</b> 거른다</li>
  * </ol>
  *
- * <p>required 가 여럿이어도 질의를 늘리지 않는 이유가 여기 있다. 첫 번째 것만 DB 에서 거르고
- * 나머지는 이미 읽어 둔 피처로 판정한다. DB 에서 전부 거르면 조건 수만큼 EXISTS 가 붙어 질의문이
- * 조건에 따라 달라지고, 그러면 "질의 두 번" 이라는 계약을 테스트로 지키기 어려워진다.
+ * <p>required 가 여럿이어도 질의를 늘리지 않는 이유가 여기 있다. 첫 번째 것만 DB 에서 <b>좁히고</b>
+ * 판정은 전부 자바에서 한다. DB 에서 전부 거르면 조건 수만큼 EXISTS 가 붙어 질의문이 조건에 따라
+ * 달라지고, 그러면 "질의 두 번" 이라는 계약을 테스트로 지키기 어려워진다.
+ *
+ * <p>🔴 DB 필터를 판정으로 믿지 않는 데는 더 중요한 이유가 있다. JPQL 은 {@code evidence_status}
+ * 까지만 볼 수 있어서 <b>확인된 부재</b>(값이 {@code false} 인 행)를 못 거른다. 그래서 DB 는 후보를
+ * 줄이는 데만 쓰고 있고·없음의 판정은 {@code PlaceFeature.indicatesPresence()} 가 한다. 경계상자로
+ * 좁히고 자바에서 실제 거리를 재는 것과 같은 구조다.
  *
  * <h2>🔴 못 거른 조건을 숨기지 않는다</h2>
  *
@@ -139,9 +143,9 @@ public class PlaceCandidateQueryService {
 		// ── 질의 2. 남은 후보의 피처를 한 번에. 🔴 장소마다 읽지 않는다.
 		Map<UUID, List<PlaceFeature>> featuresByPlace = loadFeatures(withinRadius);
 
-		// 남은 required 와 excluded 는 이미 읽은 피처로 판정한다 — 질의가 늘지 않는다.
-		List<PlaceCandidateRequest.FeatureMatch> remainingRequired =
-				required.isEmpty() ? List.of() : required.subList(1, required.size());
+		// 🔴 required 를 DB 에서 한 번 걸렀어도 자바에서 전부 다시 본다. DB 필터는
+		//    evidence_status <> UNKNOWN 까지만 볼 수 있어서, 확인된 부재(값이 false)를 못 거른다.
+		//    좁히는 것은 DB, 판정은 자바 — 반경 계산과 같은 구조다.
 		List<PlaceCandidateRequest.FeatureMatch> excluded = request.excludedOrEmpty();
 		if (!excluded.isEmpty()) {
 			applied.add("EXCLUDED_FEATURES");
@@ -151,7 +155,7 @@ public class PlaceCandidateQueryService {
 		Set<String> datasetVersions = new LinkedHashSet<>();
 		for (Place place : withinRadius) {
 			List<PlaceFeature> features = featuresByPlace.getOrDefault(place.getPlaceId(), List.of());
-			if (!hasAll(features, remainingRequired) || hasAny(features, excluded)) {
+			if (!hasAll(features, required) || hasAny(features, excluded)) {
 				continue;
 			}
 			if (place.getDatasetVersion() != null) {
@@ -196,40 +200,51 @@ public class PlaceCandidateQueryService {
 	}
 
 	/**
-	 * 🔴 {@code UNKNOWN} 은 "있다" 로 세지 않는다. 모르는 것을 통과시키면 확인 안 된 장소가
-	 * 조건을 만족한 것처럼 후보에 들어간다.
+	 * 요구한 표식을 전부 가졌는가.
+	 *
+	 * <p>🔴 여기서는 <b>확실히 있는 것만</b> 통과시킨다. {@code UNKNOWN} 도, 확인된 부재
+	 * ({@code VERIFIED} + 값 {@code false})도 "있다" 가 아니다.
 	 */
 	private boolean hasAll(List<PlaceFeature> features, List<PlaceCandidateRequest.FeatureMatch> required) {
 		for (PlaceCandidateRequest.FeatureMatch match : required) {
-			if (!matches(features, match)) {
+			if (!hasConfirmedFeature(features, match)) {
 				return false;
 			}
 		}
 		return true;
 	}
 
+	/**
+	 * 빼야 할 표식을 가졌는가.
+	 *
+	 * <p>🔴 요구 쪽과 판정 방향이 <b>다르다.</b> 여기는 알레르기 같은 안전 제약이 지나가는 길이라
+	 * "모른다" 를 통과시키면 안 된다. 확인된 부재만 안전으로 보고, 그 밖에는 전부 뺀다.
+	 */
 	private boolean hasAny(List<PlaceFeature> features, List<PlaceCandidateRequest.FeatureMatch> excluded) {
 		for (PlaceCandidateRequest.FeatureMatch match : excluded) {
-			if (matches(features, match)) {
+			for (PlaceFeature feature : features) {
+				if (sameFeature(feature, match) && feature.cannotRuleOutPresence()) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	private boolean hasConfirmedFeature(List<PlaceFeature> features, PlaceCandidateRequest.FeatureMatch match) {
+		for (PlaceFeature feature : features) {
+			if (sameFeature(feature, match) && feature.indicatesPresence()) {
 				return true;
 			}
 		}
 		return false;
 	}
 
-	private boolean matches(List<PlaceFeature> features, PlaceCandidateRequest.FeatureMatch match) {
-		for (PlaceFeature feature : features) {
-			if (!feature.getFeatureType().equals(match.featureType())) {
-				continue;
-			}
-			if (match.featureKey() != null && !match.featureKey().equals(feature.getFeatureKey())) {
-				continue;
-			}
-			if (feature.getEvidenceStatus() != PlaceEvidenceStatus.UNKNOWN) {
-				return true;
-			}
+	private boolean sameFeature(PlaceFeature feature, PlaceCandidateRequest.FeatureMatch match) {
+		if (!feature.getFeatureType().equals(match.featureType())) {
+			return false;
 		}
-		return false;
+		return match.featureKey() == null || match.featureKey().equals(feature.getFeatureKey());
 	}
 
 	private List<PlaceFeatureView> toViews(List<PlaceFeature> features) {

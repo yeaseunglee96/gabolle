@@ -52,13 +52,10 @@ class PlaceFacetIntegrationTest extends PlacePostgresIntegrationTest {
 	@AfterEach
 	void tearDown() {
 		// 🔴 표를 비우지 않는다 — 다른 통합 테스트가 같은 표(place, place_feature)에 행을 남긴다.
+		// user_place_code_map 도 마찬가지로 건드리지 않는다 — 마이그레이션이 채우고
+		// PlaceFeatureCodeMapTest 가 빠짐을 검사하는 공용 기준 데이터라서, 여기서 행을
+		// 넣었다 지웠다 하면 이 테스트가 죽었을 때 그 표가 어중간하게 남아 남의 테스트를 깬다.
 		this.fixture.cleanUp();
-		// 아래 "여분 매핑" 테스트가 넣었을 수 있는 행을 지운다. 없으면 0건 삭제라 안전하다.
-		this.jdbcTemplate.update("""
-				DELETE FROM user_place_code_map
-				WHERE user_input_kind = 'PREFERENCE' AND user_input_code = 'CATEGORY'
-				  AND place_feature_type = 'ATMOSPHERE_TAG'
-				""");
 	}
 
 	@Test
@@ -112,24 +109,32 @@ class PlaceFacetIntegrationTest extends PlacePostgresIntegrationTest {
 	}
 
 	@Test
-	@DisplayName("🔴 대조표에 매핑을 하나 더 추가하면 코드 변경 없이 응답에 나타난다 (완료 기준의 핵심)")
-	void newlyAddedCodeMapRowAppearsWithoutCodeChange() {
-		// 🔴 ck_user_place_code_map_code 가 이미 정해진 8개 취향 코드만 허용해서, 완전히 새로운
-		// 9번째 차원은 이 테스트에서 넣을 수 없다 — 그건 새 마이그레이션의 몫이고 이 작업
-		// 범위에서는 마이그레이션·도메인 파일을 건드리지 않기로 했다. 대신 이미 허용된 코드에
-		// 지금까지 없던 place_feature_type 짝을 추가해서, "표에 행을 더하면 자바 수정 없이
-		// 반영된다" 는 같은 성질을 검증한다.
-		this.jdbcTemplate.update("""
-				INSERT INTO user_place_code_map
-				    (user_input_kind, user_input_code, place_feature_type, match_kind, note)
-				VALUES ('PREFERENCE', 'CATEGORY', 'ATMOSPHERE_TAG', 'TAG_OVERLAP', 'facet 테스트용 여분 매핑')
-				""");
+	@DisplayName("🔴 완료 기준 — 확인된 부재(VERIFIED + 값 false)만 가진 장소는 갈래 목록과 건수에서 빠진다")
+	void confirmedAbsenceIsExcludedFromFacetListAndCount() {
+		// 🔴 findHavingFeature·findByFeatureTypeIn(옛 countPlacesByFeature)은 evidenceStatus <>
+		// UNKNOWN 까지만 걸러서, "확인했는데 없다" 로 판명된 행(VERIFIED + 값 false)도 그대로
+		// 통과시킨다. 값(JSONB) 안을 보는 것은 JPQL 이 못 하고 PlaceFeature.indicatesPresence() 가
+		// 자바에서 하므로, 그 필터가 실제로 걸리는지를 여기서 확인한다.
+		String token = this.fixture.token();
+		String key = "SEA-" + token;
+		UUID present = this.fixture.insertPlace("확인있음" + token, null, "ATTRACTION", 35.1, 129.0);
+		this.fixture.insertTagFeature(present, "INTEREST_TAG", key, "VERIFIED", "{\"present\": true}");
+		UUID confirmedAbsent = this.fixture.insertPlace("확인부재" + token, null, "ATTRACTION", 35.1, 129.0);
+		this.fixture.insertTagFeature(confirmedAbsent, "INTEREST_TAG", key, "VERIFIED", "false");
+
+		PlacePageResponse page = this.placeSearchService.searchByFacet("INTEREST_TAG", key, null);
+		assertThat(page.items()).extracting(PlaceSummaryResponse::placeId)
+				.contains(present)
+				.doesNotContain(confirmedAbsent);
 
 		PlaceFacetResponse response = this.placeFacetService.facets();
-
-		assertThat(response.facets()).anySatisfy(item -> {
-			assertThat(item.userInputCode()).isEqualTo("CATEGORY");
-			assertThat(item.placeFeatureType()).isEqualTo("ATMOSPHERE_TAG");
-		});
+		FacetItem category = response.facets().stream()
+				.filter(item -> "CATEGORY".equals(item.userInputCode()))
+				.findFirst().orElseThrow();
+		FacetKeyCount keyCount = category.keys().stream()
+				.filter(k -> key.equals(k.featureKey()))
+				.findFirst().orElseThrow();
+		// 확인된 부재 행까지 세었다면 2가 나온다 — 1이어야 그 행이 안 세어졌다는 뜻이다.
+		assertThat(keyCount.placeCount()).isEqualTo(1);
 	}
 }
