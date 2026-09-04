@@ -143,7 +143,9 @@ export default function SignUp() {
           <CheckRow checked={termsAccepted} label="이용약관에 동의합니다. (필수)" onPress={() => setTermsAccepted((value) => !value)} />
           <Text variant="caption">이용약관 전문 링크 준비 중</Text>
           <CheckRow checked={privacyAccepted} label="개인정보 처리방침에 동의합니다. (필수)" onPress={() => setPrivacyAccepted((value) => !value)} />
-          <Text variant="caption">개인정보 처리방침 전문 링크 준비 중</Text>
+          <Pressable accessibilityRole="link" onPress={() => router.push('/privacy')} style={styles.policyLink}>
+            <Text variant="caption" weight="bold" color={color.brand.orange}>개인정보 처리 안내 보기 ›</Text>
+          </Pressable>
         </View>
 
         {error && <View accessibilityRole="alert" style={styles.errorBox}><ErrorText>{error}</ErrorText></View>}
@@ -184,6 +186,7 @@ const styles = StyleSheet.create({
   agreements: { gap: spacing[3], padding: spacing[4], borderRadius: radius.md, backgroundColor: color.surface.card },
   checkRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[3] },
   checkLabel: { flex: 1 },
+  policyLink: { alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center' },
   checkbox: { width: 24, height: 24, alignItems: 'center', justifyContent: 'center', borderRadius: radius.sm, borderWidth: 1.5, borderColor: color.surface.field },
   checkboxChecked: { backgroundColor: color.action.primary, borderColor: color.action.primary },
   errorBox: { padding: spacing[3], borderRadius: radius.md, backgroundColor: color.state.dangerBg },
