@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { ApiClientError } from '@/api/client';
 import { resendEmailVerification, signup, type Registration, type SignupLanguage } from '@/auth/authApi';
@@ -17,6 +17,7 @@ const SPECIAL_CHARACTER_PATTERN = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>/?`~]/;
 
 export default function SignUp() {
   const router = useRouter();
+  const { returnTo } = useLocalSearchParams<{ returnTo?: string }>();
   const { kind } = useLayout();
   const { language: onboardingLanguage } = useOnboardingPreferences();
   const [email, setEmail] = useState('');
@@ -97,7 +98,7 @@ export default function SignUp() {
         </View>
         <View style={styles.resultActions}>
           <Button label={resending ? '재전송 중…' : '인증 메일 다시 보내기'} variant="ghost" disabled={resending} onPress={() => void resend()} />
-          <Button label="이메일 확인 후 로그인" onPress={() => router.replace('/sign-in')} />
+          <Button label="이메일 확인 후 로그인" onPress={() => router.replace({ pathname: '/sign-in', params: returnTo ? { returnTo } : {} })} />
         </View>
       </Screen>
     );
@@ -115,7 +116,7 @@ export default function SignUp() {
         <Field label="이메일">
           <TextInput accessibilityLabel="이메일" autoCapitalize="none" autoComplete="email" keyboardType="email-address" onBlur={() => setEmailTouched(true)} onChangeText={(value) => { setEmail(value); setDuplicateEmail(false); }} placeholder="name@example.com" placeholderTextColor={color.text.muted} style={[styles.input, ((emailTouched && !emailValid) || duplicateEmail) && styles.inputError]} value={email} />
           {emailTouched && !emailValid && <ErrorText>올바른 이메일 주소를 입력해 주세요.</ErrorText>}
-          {duplicateEmail && <View style={styles.inlineRow}><ErrorText>이미 가입된 이메일이에요.</ErrorText><Pressable accessibilityRole="link" onPress={() => router.push('/sign-in')}><Text variant="caption" weight="bold" color={color.action.primary}>로그인하기</Text></Pressable></View>}
+          {duplicateEmail && <View style={styles.inlineRow}><ErrorText>이미 가입된 이메일이에요.</ErrorText><Pressable accessibilityRole="link" onPress={() => router.push({ pathname: '/sign-in', params: returnTo ? { returnTo } : {} })}><Text variant="caption" weight="bold" color={color.brand.orange}>로그인하기</Text></Pressable></View>}
         </Field>
 
         <Field label="비밀번호">
@@ -147,7 +148,7 @@ export default function SignUp() {
 
         {error && <View accessibilityRole="alert" style={styles.errorBox}><ErrorText>{error}</ErrorText></View>}
         <Button label={submitting ? '가입 중…' : '회원가입'} disabled={!canSubmit} onPress={() => void submit()} />
-        <Pressable accessibilityRole="link" onPress={() => router.replace('/sign-in')} style={styles.loginLink}><Text variant="body">이미 계정이 있나요? <Text variant="body" weight="bold" color={color.action.primary}>로그인</Text></Text></Pressable>
+        <Pressable accessibilityRole="link" onPress={() => router.replace({ pathname: '/sign-in', params: returnTo ? { returnTo } : {} })} style={styles.loginLink}><Text variant="body">이미 계정이 있나요? <Text variant="body" weight="bold" color={color.brand.orange}>로그인</Text></Text></Pressable>
           </View>
         </View>
       </View>

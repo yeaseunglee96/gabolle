@@ -75,6 +75,7 @@ const styles = StyleSheet.create({
     opacity: 0.4,
   },
   pressed: {
-    opacity: 0.85,
+    opacity: 0.82,
+    transform: [{ scale: 0.98 }],
   },
 });
