@@ -27,9 +27,20 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 		"com.gabolle.backend.auth",
 		"com.gabolle.backend.user"
 })
+// 🔴 엔티티는 인증 밖의 것도 올린다. 계정 삭제(S15P21E201-425)가 그 사람의 여행·일정·추천 기록을
+//    JPQL 로 지우는데, 엔티티가 이 영속성 단위에 없으면 "그런 엔티티 없다" 로 실행에서 터진다.
+//    운영은 GabolleBackendApplication 이 전부 스캔하므로 그쪽에서는 풀린다 — 즉 이 목록이 좁으면
+//    테스트만 실패하고 운영은 멀쩡한, 방향이 반대인 거짓 경보가 난다.
+//
+//    빈(@Service 등)은 여전히 안 올린다. scanBasePackages 는 그대로라서 남의 미완성 코드에
+//    인질로 잡히지 않는다. 여기서 넓힌 것은 표 매핑뿐이다.
 @EntityScan(basePackages = {
 		"com.gabolle.backend.auth.domain",
-		"com.gabolle.backend.user.domain"
+		"com.gabolle.backend.user.domain",
+		"com.gabolle.backend.trip.infra",
+		"com.gabolle.backend.itinerary.infra",
+		"com.gabolle.backend.recommendation.domain",
+		"com.gabolle.backend.event.domain"
 })
 @EnableJpaRepositories(basePackages = {
 		"com.gabolle.backend.auth.repository",

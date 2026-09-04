@@ -90,6 +90,26 @@ public class AppUser {
 		this.language = language;
 	}
 
+	/**
+	 * 탈퇴한 계정으로 만든다 (S15P21E201-425).
+	 *
+	 * <p>🔴 행을 지우지 않고 비우는 이유가 있다. {@code itinerary_versions.created_by} 가 필수 값이면서
+	 * 이 표를 가리키는데, 이 사람이 동행자의 일정을 편집한 적이 있으면 행을 지울 때 <b>남의 일정
+	 * 편집 이력까지 함께 지워야</b> 한다. 그건 탈퇴한 사람의 권한 밖이다.
+	 *
+	 * <p>대신 로그인에 필요한 것(비밀번호·소셜 연결·세션)과 본인 데이터는 전부 지운다. 이메일이
+	 * 풀려서 같은 주소로 다시 가입할 수 있고, 남는 행에는 개인을 알아볼 값이 없다.
+	 *
+	 * <p>{@code status} 와 {@code deletedAt} 은 원래 이 용도로 만들어져 있던 칸이다.
+	 */
+	public void anonymizeForDeletion(Instant deletedAt) {
+		this.displayName = "탈퇴한 사용자";
+		this.ageVerifiedAt = null;
+		this.personalizationMode = PersonalizationMode.EXPLICIT_ONLY;
+		this.status = UserStatus.DELETED;
+		this.deletedAt = deletedAt;
+	}
+
 	@PrePersist
 	void initializeTimestamps() {
 		Instant now = Instant.now();

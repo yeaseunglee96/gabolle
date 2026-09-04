@@ -4,6 +4,7 @@ import com.gabolle.backend.auth.domain.AuthProvider;
 import com.gabolle.backend.auth.service.AuthCommands;
 import com.gabolle.backend.auth.service.AuthException;
 import com.gabolle.backend.auth.service.AuthTokenService;
+import com.gabolle.backend.auth.service.AccountDeletionService;
 import com.gabolle.backend.auth.service.CurrentUserService;
 import com.gabolle.backend.auth.service.LocalAuthService;
 import com.gabolle.backend.auth.service.OAuthAccountService;
@@ -23,6 +24,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -45,13 +47,15 @@ public class AuthController {
 	private final OAuthChallengeService oAuthChallengeService;
 	private final WebAuthCookieService webAuthCookieService;
 	private final CurrentUserService currentUserService;
+	private final AccountDeletionService accountDeletionService;
 
 	private final ProfileUpdateService profileUpdateService;
 
 	public AuthController(LocalAuthService localAuthService, PasswordResetService passwordResetService,
 			AuthTokenService tokenService, OAuthLoginService oAuthLoginService,
 			OAuthChallengeService oAuthChallengeService, WebAuthCookieService webAuthCookieService,
-			CurrentUserService currentUserService, ProfileUpdateService profileUpdateService) {
+			CurrentUserService currentUserService, ProfileUpdateService profileUpdateService,
+			AccountDeletionService accountDeletionService) {
 		this.localAuthService = localAuthService;
 		this.passwordResetService = passwordResetService;
 		this.tokenService = tokenService;
@@ -59,6 +63,7 @@ public class AuthController {
 		this.oAuthChallengeService = oAuthChallengeService;
 		this.webAuthCookieService = webAuthCookieService;
 		this.currentUserService = currentUserService;
+		this.accountDeletionService = accountDeletionService;
 		this.profileUpdateService = profileUpdateService;
 	}
 
@@ -78,6 +83,19 @@ public class AuthController {
 		UUID userId = authenticatedUserId(authentication);
 		AuthUserResponse response = profileUpdateService.update(userId, request);
 		return ApiResponse.success(response, resolveRequestId(requestId));
+	}
+
+	/**
+	 * 계정과 그 사람의 데이터를 지운다 (S15P21E201-425).
+	 *
+	 * <p>🔴 되돌릴 수 없다. 그래서 비밀번호를 다시 받아 확인하고, 틀리면 아무것도 지우지 않는다.
+	 * 성공하면 본문 없이 204 다 — 지운 뒤에 돌려줄 것이 없다.
+	 */
+	@DeleteMapping("/me")
+	public ResponseEntity<Void> deleteAccount(@Valid @RequestBody DeleteAccountRequest request,
+			Authentication authentication) {
+		accountDeletionService.delete(authenticatedUserId(authentication), request.password());
+		return ResponseEntity.noContent().build();
 	}
 
 	@PostMapping("/signup")
