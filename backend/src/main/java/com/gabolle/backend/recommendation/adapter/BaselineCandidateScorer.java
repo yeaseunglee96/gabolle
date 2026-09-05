@@ -158,14 +158,21 @@ public class BaselineCandidateScorer {
 		}
 		total = Math.max(0.0, total);
 
-		// 🔴 두 번째 안전장치 — gabolle.recommendation.unknown-exclusion-threshold 가
-		// REQUIRED 가 아닌 값(예: NONE)으로 바뀌어도, REQUIRED 등급 미확인 사실이 하나라도
-		// 있으면 preRankScore 를 null 로 둔다. CandidateAssembler 의 "점수 없는 후보에는
-		// 순위를 붙이지 않는다" 불변식이 설정과 무관하게 이 후보를 걸러 낸다 — 장치 둘이
-		// 같은 것(미확인 안전 제약이 새어 나가는 것)을 막는다.
-		boolean hasRequiredUnknown = unknownFacts.stream()
-				.anyMatch(fact -> "REQUIRED".equals(fact.get("severity")));
-		Double preRankScore = hasRequiredUnknown ? null : Double.valueOf(total);
+		// 🔴 미확인 제약을 제외할지 말지는 여기서 정하지 않는다.
+		//
+		// 한 번 여기서 정하게 만들었다가 되돌렸다(2026-09-05). REQUIRED 등급 미확인 사실이
+		// 있으면 preRankScore 를 null 로 둬서, 설정과 무관하게 그 후보가 결과에서 빠지게
+		// 했었다. "설정 한 줄로 안전이 무너지면 안 된다" 는 생각이었는데 전제가 틀렸다 —
+		// gabolle.recommendation.unknown-exclusion-threshold 를 NONE 으로 바꾸는 것은
+		// 사고가 아니라 **계획된 결정 경로**다. application.properties 주석이 그렇게 적어
+		// 뒀고(FR-REC-02 는 "제외하지 않고 경고" 를 요구한다), S15P21E201-539 의 완료
+		// 기준도 "확인 안 된 항목이 제외가 아니라 경고로 나온다" 이다. 여기서 점수를 지우면
+		// 그 레버가 동작하지 않으면서 동작하는 것처럼 보인다.
+		//
+		// 그래서 채점기는 사실만 보고한다 — 무엇이 미확인이고 등급이 무엇인지를
+		// unknownFacts 에 남기고, 제외 여부는 그 값을 아는 CandidateAssembler 가 설정
+		// 임계값과 견줘 정한다. 기본값이 REQUIRED 라 지금 동작은 바뀌지 않는다.
+		Double preRankScore = Double.valueOf(total);
 
 		return new EngineCandidate(candidate.placeId(), CANDIDATE_SOURCE, verdict, violations, unknownFacts,
 				null, featureValues, scoreComponents, preRankScore, reasonCodes, warnings);

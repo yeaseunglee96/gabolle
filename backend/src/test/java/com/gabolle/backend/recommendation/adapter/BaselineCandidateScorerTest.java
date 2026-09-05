@@ -74,14 +74,19 @@ class BaselineCandidateScorerTest {
 	}
 
 	@Test
-	@DisplayName("🔴 REQUIRED 미확인이면 preRankScore 가 null 이다 — 임계값 설정과 무관한 두 번째 안전장치")
-	void required_미확인이면_점수가_널이다() {
+	@DisplayName("🔴 REQUIRED 미확인은 등급까지 사실로 남긴다 — 제외 여부는 채점기가 아니라 임계값 설정이 정한다")
+	void required_미확인은_등급까지_남긴다() {
 		TripConstraint peanutAllergy = allergy("PEANUT");
 		PlaceCandidateResponse.Candidate candidate = candidate(List.of());
 
 		EngineCandidate result = score(candidate, null, List.of(peanutAllergy));
 
-		assertThat(result.preRankScore()).isNull();
+		// 🔴 채점기가 점수를 지워서 후보를 빼지 않는다. 한 번 그렇게 만들었다가 되돌렸다 —
+		//    unknown-exclusion-threshold 를 NONE 으로 두는 것은 사고가 아니라 계획된 결정
+		//    경로(FR-REC-02 · S15P21E201-539)라서, 여기서 지우면 그 레버가 안 먹는다.
+		assertThat(result.preRankScore()).isNotNull();
+		assertThat(result.unknownFacts()).anySatisfy(fact ->
+				assertThat(fact.get("severity")).isEqualTo("REQUIRED"));
 	}
 
 	@Test
@@ -252,7 +257,6 @@ class BaselineCandidateScorerTest {
 				this.preferenceCodeMap, List.of());
 
 		assertThat(result.constraintVerdict()).isEqualTo(ConstraintVerdict.UNKNOWN);
-		assertThat(result.preRankScore()).isNull();
 		assertThat(result.unknownFacts()).anySatisfy(fact -> {
 			assertThat(fact.get("fact")).isEqualTo("ALLERGEN_MAPPING_MISSING");
 			assertThat(fact.get("severity")).isEqualTo("REQUIRED");
