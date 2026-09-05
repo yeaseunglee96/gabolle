@@ -149,7 +149,11 @@ public class PlaceFeature {
 	 * 고치면 된다.
 	 */
 	public boolean indicatesPresence() {
-		return evidenceStatus != PlaceEvidenceStatus.UNKNOWN && !isConfirmedAbsence();
+		// S15P21E201-604 — 판정식은 FeaturePresence 로 옮겼다. 추천 엔진이 PlaceFeatureView
+		// (엔티티가 아닌 조회 응답)에도 같은 판정을 해야 해서, 엔티티 메서드 안에 갇혀 있으면
+		// 그 경로에서 판정을 다시 만들어야 하고 조용히 갈라질 여지가 생긴다.
+		return FeaturePresence.indicatesPresence(
+				this.evidenceStatus == null ? null : this.evidenceStatus.name(), this.value);
 	}
 
 	/**
@@ -163,12 +167,7 @@ public class PlaceFeature {
 	 * <p>그래서 <b>확인된 부재만</b> 통과시킨다. 모르는 것은 있는 것으로 취급한다.
 	 */
 	public boolean cannotRuleOutPresence() {
-		return !isConfirmedAbsence();
-	}
-
-	/** 확인했고 결과가 "아니다" 인가. */
-	private boolean isConfirmedAbsence() {
-		return this.evidenceStatus != PlaceEvidenceStatus.UNKNOWN
-				&& this.value != null && "false".equals(this.value.trim());
+		return FeaturePresence.cannotRuleOutPresence(
+				this.evidenceStatus == null ? null : this.evidenceStatus.name(), this.value);
 	}
 }

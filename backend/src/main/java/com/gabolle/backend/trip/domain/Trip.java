@@ -2,6 +2,8 @@ package com.gabolle.backend.trip.domain;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.Set;
 
 /**
  * 여행 — 사용자가 입력한 조건 묶음 (TRIP-01).
@@ -29,6 +31,22 @@ public class Trip {
     /** 하루 활동 시간대. 예: {@code MORNING_TO_EVENING} */
     private final String timeWindow;
 
+    /**
+     * 🔴 S15P21E201-604 — {@code time_window}(프리셋)과는 <b>다른 칸</b>이다. 같은 사실을
+     * 말하는 칸 둘을 정리하는 것은 별도 티켓이므로 여기서 건드리지 않는다. 추천 엔진이 실제
+     * 활동 시각을 읽으려면 이 칸이 있어야 한다 — 프리셋 이름만으로는 몇 시부터 몇 시까지인지
+     * 계산할 수 없다.
+     */
+    private final LocalTime timeWindowStart;
+    private final LocalTime timeWindowEnd;
+
+    /**
+     * 여행 중 쓸 이동 수단. 값 목록은 마이그레이션 {@code ck_trip_travel_modes} 의 아홉 개가
+     * 정본이다 — DB CHECK 가 먼저 터지면 어느 필드가 문제인지 응답에 안 남으므로 여기서도
+     * 검증한다({@link #validateTravelModes(String[])}).
+     */
+    private final String[] travelModes;
+
     /** 🔴 API-03 — 시간대를 공통 사전으로 고정한다. 안 맞추면 일정이 통째로 밀린다. */
     private final String timezone;
 
@@ -47,11 +65,28 @@ public class Trip {
      */
     private Instant deletedAt;
 
+    /**
+     * 🔴 S15P21E201-604 이전의 생성자를 그대로 남긴다 — {@code TripCreationService}(다른
+     * 작업이 진행 중이라 여기서 열지 않는다)가 이 시그니처를 쓰고 있다. 새 필드
+     * (travelModes·timeWindowStart·timeWindowEnd)는 null/빈 배열로 들어온 것으로 본다.
+     */
     public Trip(String tripId, String createdBy,
                 LocalDate startDate, LocalDate finishDate,
                 Double originLat, Double originLng,
                 Integer budgetKrw, int partySize,
                 String timeWindow, String timezone,
+                Instant createdAt) {
+        this(tripId, createdBy, startDate, finishDate, originLat, originLng, budgetKrw, partySize,
+                timeWindow, timezone, null, null, null, createdAt);
+    }
+
+    /** S15P21E201-604 — 추천 엔진이 읽어야 하는 travelModes·시간대 세 칸을 더한 생성자. */
+    public Trip(String tripId, String createdBy,
+                LocalDate startDate, LocalDate finishDate,
+                Double originLat, Double originLng,
+                Integer budgetKrw, int partySize,
+                String timeWindow, String timezone,
+                String[] travelModes, LocalTime timeWindowStart, LocalTime timeWindowEnd,
                 Instant createdAt) {
 
         if (startDate == null || finishDate == null) {
@@ -84,10 +119,32 @@ public class Trip {
         this.budgetKrw = budgetKrw;
         this.partySize = partySize;
         this.timeWindow = timeWindow;
+        this.timeWindowStart = timeWindowStart;
+        this.timeWindowEnd = timeWindowEnd;
+        this.travelModes = validateTravelModes(travelModes);
         this.timezone = timezone != null ? timezone : "Asia/Seoul";
         this.status = Status.PLANNING;
         this.createdAt = createdAt;
         this.updatedAt = createdAt;
+    }
+
+    /**
+     * 🔴 값 목록은 마이그레이션 {@code ck_trip_travel_modes} 의 아홉 개가 정본이다. DB CHECK 가
+     * 먼저 터지면 어느 필드가 문제인지 응답에 안 나오므로 여기서 먼저 잡는다.
+     */
+    private static final Set<String> ALLOWED_TRAVEL_MODES = Set.of(
+            "WALK", "BUS", "SUBWAY", "TAXI", "PRIVATE_CAR", "RENTAL_CAR", "BICYCLE", "FERRY", "OTHER");
+
+    private static String[] validateTravelModes(String[] travelModes) {
+        if (travelModes == null) {
+            return new String[0];
+        }
+        for (String mode : travelModes) {
+            if (mode == null || !ALLOWED_TRAVEL_MODES.contains(mode)) {
+                throw new IllegalArgumentException("허용되지 않는 travelMode 다: " + mode);
+            }
+        }
+        return travelModes.clone();
     }
 
     /**
@@ -113,6 +170,9 @@ public class Trip {
         private Integer budgetKrw;
         private int partySize;
         private String timeWindow;
+        private LocalTime timeWindowStart;
+        private LocalTime timeWindowEnd;
+        private String[] travelModes;
         private String timezone;
         private Status status;
         private Instant createdAt;
@@ -131,6 +191,9 @@ public class Trip {
         public Builder budgetKrw(Integer budgetKrw) { this.budgetKrw = budgetKrw; return this; }
         public Builder partySize(int partySize) { this.partySize = partySize; return this; }
         public Builder timeWindow(String timeWindow) { this.timeWindow = timeWindow; return this; }
+        public Builder timeWindowStart(LocalTime timeWindowStart) { this.timeWindowStart = timeWindowStart; return this; }
+        public Builder timeWindowEnd(LocalTime timeWindowEnd) { this.timeWindowEnd = timeWindowEnd; return this; }
+        public Builder travelModes(String[] travelModes) { this.travelModes = travelModes; return this; }
         public Builder timezone(String timezone) { this.timezone = timezone; return this; }
         public Builder status(Status status) { this.status = status; return this; }
         public Builder createdAt(Instant createdAt) { this.createdAt = createdAt; return this; }
@@ -145,7 +208,8 @@ public class Trip {
          */
         public Trip build() {
             Trip trip = new Trip(tripId, createdBy, startDate, finishDate, originLat, originLng,
-                    budgetKrw, partySize, timeWindow, timezone, createdAt);
+                    budgetKrw, partySize, timeWindow, timezone, travelModes, timeWindowStart, timeWindowEnd,
+                    createdAt);
             if (status != null) {
                 trip.status = status;
             }
@@ -215,6 +279,10 @@ public class Trip {
     public Integer budgetKrw()   { return budgetKrw; }
     public int partySize()       { return partySize; }
     public String timeWindow()   { return timeWindow; }
+    public LocalTime timeWindowStart() { return timeWindowStart; }
+    public LocalTime timeWindowEnd()   { return timeWindowEnd; }
+    /** 방어적 복사본 — 밖에서 바꿔도 이 여행의 값은 안 바뀐다. */
+    public String[] travelModes() { return travelModes.clone(); }
     public String timezone()     { return timezone; }
     public Status status()       { return status; }
     public Instant createdAt()   { return createdAt; }

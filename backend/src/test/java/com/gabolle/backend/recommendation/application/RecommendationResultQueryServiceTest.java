@@ -1,0 +1,189 @@
+package com.gabolle.backend.recommendation.application;
+
+import java.time.OffsetDateTime;
+import java.util.List;
+import java.util.UUID;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
+import com.gabolle.backend.place.domain.Place;
+import com.gabolle.backend.place.repository.PlaceRepository;
+import com.gabolle.backend.recommendation.domain.CandidateStage;
+import com.gabolle.backend.recommendation.domain.ConstraintVerdict;
+import com.gabolle.backend.recommendation.domain.FallbackMode;
+import com.gabolle.backend.recommendation.domain.JobType;
+import com.gabolle.backend.recommendation.domain.RecommendationCandidate;
+import com.gabolle.backend.recommendation.domain.RecommendationJob;
+import com.gabolle.backend.recommendation.presentation.RecommendationResultController;
+import com.gabolle.backend.recommendation.presentation.dto.RecommendationResultResponse;
+import com.gabolle.backend.recommendation.repository.RecommendationCandidateRepository;
+
+import tools.jackson.databind.ObjectMapper;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+/**
+ * S15P21E201-604 — 결과 DTO 매핑. 실제 값이 없는 칸을 지어내지 않는가와, 반환되지 않은
+ * 후보가 새지 않는가를 본다.
+ */
+class RecommendationResultQueryServiceTest {
+
+	private RecommendationCandidateRepository candidateRepository;
+	private PlaceRepository placeRepository;
+	private RecommendationResultQueryService service;
+
+	private final UUID requestId = UUID.randomUUID();
+	private final UUID placeId = UUID.randomUUID();
+
+	@BeforeEach
+	void setUp() {
+		this.candidateRepository = mock(RecommendationCandidateRepository.class);
+		this.placeRepository = mock(PlaceRepository.class);
+		this.service = new RecommendationResultQueryService(this.candidateRepository, this.placeRepository,
+				new ObjectMapper());
+
+		Place place = mock(Place.class);
+		when(place.getPlaceId()).thenReturn(this.placeId);
+		when(place.getNameKo()).thenReturn("해운대 해수욕장");
+		when(this.placeRepository.findByPlaceIdIn(any())).thenReturn(List.of(place));
+	}
+
+	private RecommendationJob succeededJob(FallbackMode fallbackMode) {
+		RecommendationJob job = RecommendationJob.start(UUID.randomUUID(), this.requestId, UUID.randomUUID(),
+				JobType.ITINERARY_GENERATION, OffsetDateTime.now());
+		job.markCompleted(OffsetDateTime.now(), OffsetDateTime.now(), fallbackMode, null);
+		return job;
+	}
+
+	private RecommendationCandidate.Builder returnedCandidateBuilder() {
+		return RecommendationCandidate.builder()
+				.candidateId(UUID.randomUUID())
+				.requestId(this.requestId)
+				.placeId(this.placeId)
+				.candidateSource("BASELINE")
+				.candidateStage(CandidateStage.RETURNED)
+				.eligible(true)
+				.constraintVerdict(ConstraintVerdict.PASS)
+				.finalScore(1.0)
+				.finalRank(1)
+				.returned(true)
+				.fallbackMode(FallbackMode.BASELINE)
+				.createdAt(OffsetDateTime.now());
+	}
+
+	@Test
+	@DisplayName("🔴 imageUrl·estimatedCostKrw 는 항상 null — place 표에 그 칸이 없다")
+	void imageUrlAndCostAreAlwaysNull() {
+		RecommendationCandidate candidate = returnedCandidateBuilder().build();
+		when(this.candidateRepository.findByRequestIdAndReturnedTrueOrderByFinalRankAsc(this.requestId))
+				.thenReturn(List.of(candidate));
+
+		RecommendationResultResponse response = this.service.buildResult(succeededJob(FallbackMode.BASELINE));
+
+		assertThat(response.items()).hasSize(1);
+		RecommendationResultResponse.Item item = response.items().get(0);
+		assertThat(item.imageUrl()).isNull();
+		assertThat(item.estimatedCostKrw()).isNull();
+		assertThat(item.id()).isEqualTo(this.placeId.toString());
+		assertThat(item.title()).isEqualTo("해운대 해수욕장");
+	}
+
+	@Test
+	@DisplayName("🔴 returned=false 후보는 응답에 없다 — 반환 전용 조회만 쓴다")
+	void onlyReturnedCandidatesQueried() {
+		RecommendationCandidate candidate = returnedCandidateBuilder().build();
+		when(this.candidateRepository.findByRequestIdAndReturnedTrueOrderByFinalRankAsc(this.requestId))
+				.thenReturn(List.of(candidate));
+
+		RecommendationResultResponse response = this.service.buildResult(succeededJob(FallbackMode.BASELINE));
+
+		assertThat(response.items()).hasSize(1);
+		// 하드 제약에 걸려 반환되지 않은 후보까지 섞이는 전체 조회는 아예 부르지 않는다.
+		verify(this.candidateRepository, never()).findByRequestIdOrderByFinalRankAscPlaceIdAsc(any());
+	}
+
+	@Test
+	@DisplayName("crowdLevel — feature_values 에 CROWDING_SCORE 가 없으면 null(기본값 LOW 를 두지 않는다)")
+	void crowdLevelNullWhenNoScore() {
+		RecommendationCandidate candidate = returnedCandidateBuilder().featureValues("{}").build();
+		when(this.candidateRepository.findByRequestIdAndReturnedTrueOrderByFinalRankAsc(this.requestId))
+				.thenReturn(List.of(candidate));
+
+		RecommendationResultResponse response = this.service.buildResult(succeededJob(FallbackMode.BASELINE));
+
+		assertThat(response.items().get(0).crowdLevel()).isNull();
+	}
+
+	@Test
+	@DisplayName("crowdLevel — CROWDING_SCORE 를 구간화한다")
+	void crowdLevelBucketsScore() {
+		RecommendationCandidate low = returnedCandidateBuilder().featureValues("{\"CROWDING_SCORE\":0.1}").build();
+		when(this.candidateRepository.findByRequestIdAndReturnedTrueOrderByFinalRankAsc(this.requestId))
+				.thenReturn(List.of(low));
+
+		assertThat(this.service.buildResult(succeededJob(FallbackMode.BASELINE)).items().get(0).crowdLevel())
+				.isEqualTo("LOW");
+	}
+
+	@Test
+	@DisplayName("dataStatus — constraintVerdict UNKNOWN 인 후보가 있으면 전체 상태가 PARTIAL")
+	void unknownConstraintVerdictMakesStatusPartial() {
+		RecommendationCandidate unknown = returnedCandidateBuilder()
+				.constraintVerdict(ConstraintVerdict.UNKNOWN)
+				.warningCodes(new String[] { "CONSTRAINT_UNKNOWN" })
+				.build();
+		when(this.candidateRepository.findByRequestIdAndReturnedTrueOrderByFinalRankAsc(this.requestId))
+				.thenReturn(List.of(unknown));
+
+		RecommendationResultResponse response = this.service.buildResult(succeededJob(FallbackMode.BASELINE));
+
+		assertThat(response.status()).isEqualTo("PARTIAL");
+		assertThat(response.items().get(0).dataStatus()).isEqualTo("UNKNOWN");
+	}
+
+	@Test
+	@DisplayName("전부 확인된 후보면 COMPLETED")
+	void allVerifiedMeansCompleted() {
+		RecommendationCandidate candidate = returnedCandidateBuilder().build();
+		when(this.candidateRepository.findByRequestIdAndReturnedTrueOrderByFinalRankAsc(this.requestId))
+				.thenReturn(List.of(candidate));
+
+		RecommendationResultResponse response = this.service.buildResult(succeededJob(FallbackMode.BASELINE));
+
+		assertThat(response.status()).isEqualTo("COMPLETED");
+		assertThat(response.items().get(0).dataStatus()).isEqualTo("VERIFIED");
+	}
+
+	@Test
+	@DisplayName("🔴 아직 안 끝난 Job(PENDING) 은 409 로 이어질 예외를 던진다")
+	void pendingJobThrowsNotReady() {
+		RecommendationJob pending = RecommendationJob.start(UUID.randomUUID(), this.requestId, UUID.randomUUID(),
+				JobType.ITINERARY_GENERATION, OffsetDateTime.now());
+
+		assertThatThrownBy(() -> this.service.buildResult(pending))
+				.isInstanceOf(RecommendationResultController.JobNotReadyException.class);
+	}
+
+	@Test
+	@DisplayName("FAILED Job 은 errorCode 를 errorMessage 로 담고 items 는 비어 있다")
+	void failedJobCarriesErrorCode() {
+		RecommendationJob failed = RecommendationJob.start(UUID.randomUUID(), this.requestId, UUID.randomUUID(),
+				JobType.ITINERARY_GENERATION, OffsetDateTime.now());
+		failed.markFailed("ENGINE_TIMEOUT", com.gabolle.backend.recommendation.domain.JobStage.RANKING,
+				OffsetDateTime.now(), true, true);
+
+		RecommendationResultResponse response = this.service.buildResult(failed);
+
+		assertThat(response.status()).isEqualTo("FAILED");
+		assertThat(response.items()).isEmpty();
+		assertThat(response.errorMessage()).isEqualTo("ENGINE_TIMEOUT");
+	}
+}

@@ -311,6 +311,46 @@ public class RecommendationJob {
 		this.retryCount++;
 	}
 
+	/**
+	 * 🔴 S15P21E201-604 — 추천이 실제로 만든 일정을 이 Job 에 붙인다.
+	 *
+	 * <p><b>{@code resourceType}·{@code resourceId} 는 절대 건드리지 않는다.</b> 그 둘은
+	 * "이 요청이 무엇에 대한 것이었나"(입력 — {@link #applyRequestContext} 가 이미 정했다)이지
+	 * 결과 포인터가 아니다. 여기서 덮어쓰면 이 Job 이 원래 여행(TRIP) 대상이었다는 사실이
+	 * 지워지고, 나중에 "이 추천이 무엇에 대한 요청이었나"를 재구성할 수 없게 된다.
+	 *
+	 * <p>{@code itineraryId}·{@code itineraryVersion} 은 {@link #applyRequestContext} 도
+	 * 쓰는 같은 칸이지만 뜻이 다르다 — 거기서는 "이미 있던 일정"(입력)을, 여기서는
+	 * "이번에 새로 만든 일정"(출력)을 적는다. {@code ITINERARY_GENERATION} 은 시작 시점에
+	 * 일정이 없으므로(itineraryId=null) 둘이 부딪히지 않는다.
+	 */
+	public void attachItinerary(String itineraryId, int version) {
+		this.itineraryId = UUID.fromString(itineraryId);
+		this.itineraryVersion = version;
+	}
+
+	/**
+	 * 🔴 {@code SUCCEEDED} 인 {@code ITINERARY_GENERATION} Job 은 반드시 itineraryId·
+	 * itineraryVersion 을 가지고 저장돼야 한다 — {@code ck_recommendation_job_result_present}
+	 * (DB CHECK, V20260905120000)의 자바 쪽 쌍둥이다. {@code RecommendationCandidate
+	 * .validateInvariants()} 와 같은 이유로 애플리케이션에서도 본다 — DB 제약 위반은 스택이
+	 * JDBC 안쪽에서 끊겨 어느 코드가 그랬는지 못 가리킨다.
+	 *
+	 * <p>🔴 이 검사를 {@link #markCompleted} 안에 두지 않았다. 실제 호출 순서
+	 * ({@code RecommendationService.continueJob})는 <b>markCompleted → 일정 조립 →
+	 * attachItinerary → 저장</b> 이라서, markCompleted 시점에는 아직 attachItinerary 가
+	 * 불리지 않아 itineraryId 가 정상적으로 비어 있다. 그때 검사하면 정상 흐름조차 막힌다.
+	 * 그래서 실제 저장 직전({@code RecommendationRecorder.recordWithItinerary})에서만 부른다.
+	 */
+	public void assertItineraryAttachedIfRequired() {
+		if (this.jobType == JobType.ITINERARY_GENERATION && this.jobStatus == JobStatus.SUCCEEDED
+				&& (this.itineraryId == null || this.itineraryVersion == null)) {
+			throw new IllegalStateException(
+					"SUCCEEDED 인 ITINERARY_GENERATION Job 은 itineraryId·itineraryVersion 이 있어야 한다: jobId="
+							+ this.jobId);
+		}
+	}
+
 	public UUID getJobId() {
 		return jobId;
 	}

@@ -3,6 +3,7 @@ package com.gabolle.backend.itinerary.infra;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -11,6 +12,9 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.gabolle.backend.itinerary.domain.Itinerary;
+import com.gabolle.backend.itinerary.domain.ItineraryContent;
+import com.gabolle.backend.itinerary.domain.ItineraryItem;
+import com.gabolle.backend.itinerary.domain.ItineraryLeg;
 import com.gabolle.backend.itinerary.domain.ItineraryRepository;
 import com.gabolle.backend.itinerary.domain.ItineraryVersion;
 import com.gabolle.backend.itinerary.domain.StaleItineraryVersionException;
@@ -23,10 +27,9 @@ import jakarta.persistence.Query;
  * 일정 저장소 — S15P21E201-313. {@code itineraries}·{@code itinerary_versions} 를
  * PostgreSQL 로 옮겼다.
  *
- * <p>🔴 <b>새 일정을 만드는 경로는 여기 없다.</b> {@code InMemoryItineraryRepository} 와
- * 똑같은 범위다 — V150000 마이그레이션이 이미 남긴 말 그대로, "일정을 새로 만드는" 경로가
- * 아직 없고 {@link #append} 는 <b>기존 일정에 판을 더하는 것</b>만 한다. 그 경로가 생기는
- * 티켓이 최초 값을 명시적으로 넣어야 한다.
+ * <p>🔴 <b>새 일정을 만드는 경로 — {@link #create}(S15P21E201-604).</b> V150000 마이그레이션이
+ * "그 경로가 생기는 티켓이 최초 값을 명시적으로 넣어야 한다"고 남긴 자리다. {@link #append} 는
+ * 여전히 <b>기존 일정에 판을 더하는 것</b>만 한다 — 둘의 책임이 갈린다.
  *
  * <h2>🔴 UNIQUE 위반을 409 로 바꾸는 자리 — 왜 예외를 안 쓰는가</h2>
  * PostgreSQL 은 한 트랜잭션 안에서 문장 하나가 실패하면 <b>그 트랜잭션 전체가
@@ -53,9 +56,9 @@ public class JpaItineraryRepository implements ItineraryRepository {
 	private static final String INSERT_VERSION_ON_CONFLICT_DO_NOTHING = """
 			INSERT INTO itinerary_versions
 			    (itinerary_version_id, itinerary_id, version, base_version, operation, created_by,
-			     request_id, model_version, feature_version, ontology_version, policy_version,
-			     dataset_version, created_at)
-			VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13)
+			     request_id, source_request_id, model_version, feature_version, ontology_version,
+			     policy_version, dataset_version, created_at)
+			VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14)
 			ON CONFLICT (itinerary_id, version) DO NOTHING
 			""";
 
@@ -63,13 +66,20 @@ public class JpaItineraryRepository implements ItineraryRepository {
 
 	private final ItineraryVersionJpaRepository versionJpaRepository;
 
+	private final ItineraryItemJpaRepository itemJpaRepository;
+
+	private final ItineraryLegJpaRepository legJpaRepository;
+
 	@PersistenceContext
 	private EntityManager entityManager;
 
 	public JpaItineraryRepository(ItineraryJpaRepository itineraryJpaRepository,
-			ItineraryVersionJpaRepository versionJpaRepository) {
+			ItineraryVersionJpaRepository versionJpaRepository, ItineraryItemJpaRepository itemJpaRepository,
+			ItineraryLegJpaRepository legJpaRepository) {
 		this.itineraryJpaRepository = itineraryJpaRepository;
 		this.versionJpaRepository = versionJpaRepository;
+		this.itemJpaRepository = itemJpaRepository;
+		this.legJpaRepository = legJpaRepository;
 	}
 
 	@Override
@@ -81,24 +91,8 @@ public class JpaItineraryRepository implements ItineraryRepository {
 	@Transactional
 	public ItineraryVersion append(ItineraryVersion version) {
 		UUID itineraryId = UUID.fromString(version.itineraryId());
-		ItineraryVersion.Versions v = version.versions();
 
-		Query insert = entityManager.createNativeQuery(INSERT_VERSION_ON_CONFLICT_DO_NOTHING)
-				.setParameter(1, UUID.fromString(version.itineraryVersionId()))
-				.setParameter(2, itineraryId)
-				.setParameter(3, version.version())
-				.setParameter(4, version.baseVersion())
-				.setParameter(5, version.operation().name())
-				.setParameter(6, UUID.fromString(version.createdBy()))
-				.setParameter(7, version.requestId())
-				.setParameter(8, v != null ? v.modelVersion() : null)
-				.setParameter(9, v != null ? v.featureVersion() : null)
-				.setParameter(10, v != null ? v.ontologyVersion() : null)
-				.setParameter(11, v != null ? v.policyVersion() : null)
-				.setParameter(12, v != null ? v.datasetVersion() : null)
-				.setParameter(13, toOffset(version.createdAt()));
-
-		int inserted = insert.executeUpdate();
+		int inserted = insertVersion(version);
 
 		if (inserted == 0) {
 			// 🔴 충돌 — SQL 오류가 아니라 그냥 0행이 반영된 것이다. 트랜잭션은 멀쩡하다.
@@ -119,10 +113,96 @@ public class JpaItineraryRepository implements ItineraryRepository {
 		return version;
 	}
 
+	/**
+	 * 🔴 일정을 처음 만든다 — S15P21E201-604. {@link #append} 와 달리 이 itineraryId 는
+	 * 이번에 처음 등장하므로(호출자가 매번 새 UUID 를 만든다) 경쟁할 대상이 없다. 그래도
+	 * {@code itinerary_versions} INSERT 는 {@link #insertVersion} 을 그대로 재사용한다 —
+	 * 같은 추천 요청이 두 번 실행되는 경우( {@code uq_itinerary_version_source_request} )는
+	 * 이 경로에서도 여전히 가능하고, 그때는 이 메서드가 던지는 원시 제약 위반을 그대로
+	 * 위로 흘려보낸다. {@link #append} 처럼 409 로 바꿔 줄 "재시도하면 되는 흔한 경쟁"이
+	 * 아니라, 같은 작업이 중복 실행됐다는 이례적인 상황이기 때문이다.
+	 */
+	@Override
+	@Transactional
+	public Itinerary create(Itinerary itinerary, ItineraryVersion firstVersion) {
+		OffsetDateTime createdAt = toOffset(firstVersion.createdAt());
+		ItineraryJpaEntity entity = new ItineraryJpaEntity(
+				UUID.fromString(itinerary.itineraryId()),
+				UUID.fromString(itinerary.tripId()),
+				itinerary.latestVersion(),
+				createdAt);
+		itineraryJpaRepository.save(entity);
+
+		insertVersion(firstVersion);
+
+		return itinerary;
+	}
+
+	@Override
+	@Transactional
+	public void saveContent(String itineraryVersionId, List<ItineraryItem> items, List<ItineraryLeg> legs) {
+		UUID versionId = UUID.fromString(itineraryVersionId);
+
+		List<ItineraryItemJpaEntity> itemEntities = items.stream()
+				.map((item) -> toEntity(versionId, item))
+				.toList();
+		itemJpaRepository.saveAll(itemEntities);
+
+		List<ItineraryLegJpaEntity> legEntities = legs.stream()
+				.map((leg) -> toEntity(versionId, leg))
+				.toList();
+		legJpaRepository.saveAll(legEntities);
+	}
+
+	@Override
+	public Optional<ItineraryContent> findContent(String itineraryId, int version) {
+		return findVersion(itineraryId, version).map((v) -> {
+			UUID versionId = UUID.fromString(v.itineraryVersionId());
+			List<ItineraryItem> items = itemJpaRepository
+					.findByItineraryVersionIdOrderByDayIndexAscSequenceAsc(versionId).stream()
+					.map(JpaItineraryRepository::toDomain)
+					.toList();
+			List<ItineraryLeg> legs = legJpaRepository
+					.findByItineraryVersionIdOrderByDayIndexAscSequenceAsc(versionId).stream()
+					.map(JpaItineraryRepository::toDomain)
+					.toList();
+			return new ItineraryContent(v, items, legs);
+		});
+	}
+
 	@Override
 	public Optional<ItineraryVersion> findVersion(String itineraryId, int version) {
 		return versionJpaRepository.findByItineraryIdAndVersion(UUID.fromString(itineraryId), version)
 				.map(JpaItineraryRepository::toDomain);
+	}
+
+	/**
+	 * {@code itinerary_versions} 한 행을 {@code ON CONFLICT (itinerary_id, version) DO
+	 * NOTHING} 으로 넣는다. {@link #append}·{@link #create} 가 공유한다 — 왜 예외를 안
+	 * 던지는 SQL 을 쓰는지는 클래스 javadoc 을 본다.
+	 *
+	 * @return 실제로 삽입된 행 수. 0이면 (itinerary_id, version) 이 이미 있었다는 뜻이다
+	 */
+	private int insertVersion(ItineraryVersion version) {
+		ItineraryVersion.Versions v = version.versions();
+
+		Query insert = entityManager.createNativeQuery(INSERT_VERSION_ON_CONFLICT_DO_NOTHING)
+				.setParameter(1, UUID.fromString(version.itineraryVersionId()))
+				.setParameter(2, UUID.fromString(version.itineraryId()))
+				.setParameter(3, version.version())
+				.setParameter(4, version.baseVersion())
+				.setParameter(5, version.operation().name())
+				.setParameter(6, UUID.fromString(version.createdBy()))
+				.setParameter(7, version.requestId())
+				.setParameter(8, version.sourceRequestId() != null ? UUID.fromString(version.sourceRequestId()) : null)
+				.setParameter(9, v != null ? v.modelVersion() : null)
+				.setParameter(10, v != null ? v.featureVersion() : null)
+				.setParameter(11, v != null ? v.ontologyVersion() : null)
+				.setParameter(12, v != null ? v.policyVersion() : null)
+				.setParameter(13, v != null ? v.datasetVersion() : null)
+				.setParameter(14, toOffset(version.createdAt()));
+
+		return insert.executeUpdate();
 	}
 
 	private static ItineraryVersion toDomain(ItineraryVersionJpaEntity e) {
@@ -137,11 +217,88 @@ public class JpaItineraryRepository implements ItineraryRepository {
 				e.createdBy().toString(),
 				e.requestId(),
 				versions,
-				toInstant(e.createdAt()));
+				toInstant(e.createdAt()),
+				e.sourceRequestId() != null ? e.sourceRequestId().toString() : null);
 	}
 
 	private static Itinerary toDomain(ItineraryJpaEntity e) {
 		return new Itinerary(e.itineraryId().toString(), e.tripId().toString(), e.latestVersion());
+	}
+
+	private static ItineraryItem toDomain(ItineraryItemJpaEntity e) {
+		return new ItineraryItem(
+				e.itineraryItemId().toString(),
+				e.itineraryVersionId().toString(),
+				e.itemKey().toString(),
+				e.dayIndex(),
+				e.visitDate(),
+				e.sequence(),
+				e.placeId().toString(),
+				e.startTime(),
+				e.endTime(),
+				e.stayMinutes(),
+				e.locked(),
+				e.estimatedCostKrw(),
+				e.dataStatus(),
+				List.of(e.reasonCodes()),
+				List.of(e.warningCodes()),
+				e.sourceRequestId() != null ? e.sourceRequestId().toString() : null,
+				toInstant(e.createdAt()));
+	}
+
+	private static ItineraryItemJpaEntity toEntity(UUID versionId, ItineraryItem item) {
+		return new ItineraryItemJpaEntity(
+				UUID.fromString(item.itineraryItemId()),
+				versionId,
+				UUID.fromString(item.itemKey()),
+				item.dayIndex(),
+				item.visitDate(),
+				item.sequence(),
+				UUID.fromString(item.placeId()),
+				item.startTime(),
+				item.endTime(),
+				item.stayMinutes(),
+				item.locked(),
+				item.estimatedCostKrw(),
+				item.dataStatus(),
+				item.reasonCodes().toArray(String[]::new),
+				item.warningCodes().toArray(String[]::new),
+				item.sourceRequestId() != null ? UUID.fromString(item.sourceRequestId()) : null,
+				toOffset(item.createdAt()));
+	}
+
+	private static ItineraryLeg toDomain(ItineraryLegJpaEntity e) {
+		return new ItineraryLeg(
+				e.itineraryLegId().toString(),
+				e.itineraryVersionId().toString(),
+				e.dayIndex(),
+				e.sequence(),
+				e.fromPlaceId() != null ? e.fromPlaceId().toString() : null,
+				e.toPlaceId().toString(),
+				e.travelMode(),
+				e.distanceM(),
+				e.durationMin(),
+				e.walkingMeters(),
+				e.ascentM(),
+				e.stairSteps(),
+				toInstant(e.createdAt()));
+	}
+
+	private static ItineraryLegJpaEntity toEntity(UUID versionId, ItineraryLeg leg) {
+		return new ItineraryLegJpaEntity(
+				UUID.fromString(leg.itineraryLegId()),
+				versionId,
+				leg.dayIndex(),
+				leg.sequence(),
+				leg.fromPlaceId() != null ? UUID.fromString(leg.fromPlaceId()) : null,
+				UUID.fromString(leg.toPlaceId()),
+				leg.travelMode(),
+				leg.distanceM(),
+				leg.durationMin(),
+				leg.walkingMeters(),
+				leg.ascentM(),
+				leg.stairSteps(),
+				toOffset(leg.createdAt()));
 	}
 
 	private static OffsetDateTime toOffset(Instant instant) {

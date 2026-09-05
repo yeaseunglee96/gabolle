@@ -77,6 +77,25 @@ public class InMemoryTripRepository implements TripRepository {
                 .max(Comparator.comparingInt(PreferenceSnapshot::version));
     }
 
+    @Override
+    public Optional<PreferenceSnapshot> findSnapshotById(String preferenceSnapshotId) {
+        // 🔴 tripId 를 모르는 채로 snapshotId 만 받으므로 전체를 뒤진다 — no-db 프로필은
+        // 여행 몇 건짜리 데모용이라 성능이 문제되지 않는다.
+        return snapshots.values().stream()
+                .flatMap(List::stream)
+                .filter(s -> preferenceSnapshotId.equals(s.snapshotId()))
+                .findFirst();
+    }
+
+    /**
+     * 🔴 이 프로필({@code no-db})에는 추천 기능 자체가 안 붙는다 — {@link #findLatestConstraintSnapshotId}
+     * 와 같은 이유로 constraint_snapshot 개념을 만들지 않으므로 항상 비어 있다.
+     */
+    @Override
+    public List<TripConstraint> findConstraintsBySnapshotId(String constraintSnapshotId) {
+        return List.of();
+    }
+
     /**
      * 🔴 이 프로필({@code no-db})에는 추천 기능 자체가 안 붙는다({@code RecommendationService}
      * 도 {@code @Profile({"db","dev"})} 다) — 그래서 진짜 constraint_snapshot 개념을

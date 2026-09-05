@@ -2,6 +2,7 @@ package com.gabolle.backend.recommendation.application;
 
 import java.util.List;
 
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
@@ -9,6 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.gabolle.backend.event.application.OutboxAppendCommand;
 import com.gabolle.backend.event.application.OutboxService;
+import com.gabolle.backend.recommendation.application.port.ItineraryDraft;
+import com.gabolle.backend.recommendation.application.port.ItineraryDraftPort;
+import com.gabolle.backend.recommendation.application.port.ItineraryHandle;
 import com.gabolle.backend.recommendation.domain.RecommendationCandidate;
 import com.gabolle.backend.recommendation.domain.RecommendationJob;
 import com.gabolle.backend.recommendation.repository.RecommendationCandidateRepository;
@@ -36,11 +40,21 @@ public class RecommendationRecorder {
 
 	private final OutboxService outboxService;
 
+	/**
+	 * 🔴 {@code ObjectProvider} 로 받는다 — {@code RecommendationSliceApplication} 이
+	 * {@code itinerary} 패키지를 스캔하지 않아 그 슬라이스에는 이 포트의 구현({@code
+	 * ItineraryDraftService})이 빈으로 없다. {@code RecommendationService} 가 엔진
+	 * 포트에 대해 이미 쓰고 있는 것과 같은 판단이다 — 이 클래스도 그 판단을 그대로 물려받는다.
+	 */
+	private final ObjectProvider<ItineraryDraftPort> itineraryDraftPort;
+
 	public RecommendationRecorder(RecommendationJobRepository jobRepository,
-			RecommendationCandidateRepository candidateRepository, OutboxService outboxService) {
+			RecommendationCandidateRepository candidateRepository, OutboxService outboxService,
+			ObjectProvider<ItineraryDraftPort> itineraryDraftPort) {
 		this.jobRepository = jobRepository;
 		this.candidateRepository = candidateRepository;
 		this.outboxService = outboxService;
+		this.itineraryDraftPort = itineraryDraftPort;
 	}
 
 	/**
@@ -60,6 +74,36 @@ public class RecommendationRecorder {
 		this.jobRepository.saveAndFlush(job);
 		// 후보도 여기서 내보낸다. 커밋 때까지 미루면 UNIQUE(request_id, place_id) 위반이
 		// 트랜잭션이 끝나는 순간에야 터져서, 스택이 어느 후보 때문인지 못 가리킨다.
+		this.candidateRepository.saveAllAndFlush(candidates);
+		appendAll(events);
+	}
+
+	/**
+	 * 🔴 S15P21E201-604 — 추천이 실제로 일정을 만든 요청의 저장 경로. 일정·Job·후보·Outbox
+	 * 가 <b>한 트랜잭션</b>이다.
+	 *
+	 * <h2>왜 하나로 묶는가</h2>
+	 * 나누면 "{@code recommendation_candidate} 는 N행이고 {@code returned=true} 에 순위·
+	 * 점수까지 다 채워져 있는데 일정이 없다"는 상태가 생긴다. {@code recommendation_candidate}
+	 * 만 보면 <b>완벽한 성공</b>으로 읽히는데 담을 곳이 없다 — {@link #record} javadoc 이
+	 * 경고한 것과 같은 종류의 조용한 거짓이다.
+	 *
+	 * <h2>왜 순서가 일정 → Job → 후보인가</h2>
+	 * {@code ck_recommendation_job_result_present}(V20260905120000)는 CHECK 제약이라
+	 * <b>지연시킬 수 없다</b> — {@code recommendation_job} 행을 쓰는 순간 바로 검사된다.
+	 * 그래서 Job 을 저장하기 전에 일정이 먼저 있어야 {@code itinerary_id} 를 채운 채로
+	 * 저장할 수 있다. 순서를 바꿔 Job 을 먼저 저장하면(itinerary_id 없이) 그 CHECK 가
+	 * 즉시 막는다 — SUCCEEDED + ITINERARY_GENERATION 인데 itinerary_id 가 비어 있기 때문이다.
+	 */
+	@Transactional
+	public void recordWithItinerary(RecommendationJob job, List<RecommendationCandidate> candidates,
+			List<OutboxAppendCommand> events, ItineraryDraft draft) {
+		ItineraryHandle handle = this.itineraryDraftPort.getObject().persist(draft);
+		job.attachItinerary(handle.itineraryId(), handle.version());
+		// 🔴 실제로 저장하기 직전에 본다 — RecommendationJob.assertItineraryAttachedIfRequired()
+		//    javadoc 이 그 이유(호출 순서)를 적어 뒀다.
+		job.assertItineraryAttachedIfRequired();
+		this.jobRepository.saveAndFlush(job);
 		this.candidateRepository.saveAllAndFlush(candidates);
 		appendAll(events);
 	}

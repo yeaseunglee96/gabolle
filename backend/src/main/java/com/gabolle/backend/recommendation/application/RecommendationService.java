@@ -22,8 +22,12 @@ import com.gabolle.backend.recommendation.adapter.EngineVersions;
 import com.gabolle.backend.recommendation.adapter.RecommendationEngineException;
 import com.gabolle.backend.recommendation.adapter.RecommendationEnginePort;
 import com.gabolle.backend.recommendation.adapter.RecommendationVersionsMissingException;
+import com.gabolle.backend.recommendation.application.port.ItineraryDraft;
+import com.gabolle.backend.recommendation.application.port.ItineraryDraftCommand;
+import com.gabolle.backend.recommendation.application.port.ItineraryDraftPort;
 import com.gabolle.backend.recommendation.config.RecommendationProperties;
 import com.gabolle.backend.recommendation.domain.JobStage;
+import com.gabolle.backend.recommendation.domain.JobType;
 import com.gabolle.backend.recommendation.domain.RecommendationJob;
 
 /**
@@ -88,14 +92,23 @@ public class RecommendationService {
 
 	private final Clock clock;
 
+	/**
+	 * 🔴 S15P21E201-604 — {@code RecommendationEnginePort} 와 같은 이유로
+	 * {@code ObjectProvider} 다. {@code RecommendationSliceApplication} 이
+	 * {@code itinerary} 패키지를 스캔하지 않아 그 슬라이스에는 이 포트가 없다.
+	 */
+	private final ObjectProvider<ItineraryDraftPort> itineraryDraftPort;
+
 	public RecommendationService(ObjectProvider<RecommendationEnginePort> enginePort,
 			CandidateAssembler candidateAssembler, RecommendationRecorder recorder,
-			RecommendationProperties properties, Clock clock) {
+			RecommendationProperties properties, Clock clock,
+			ObjectProvider<ItineraryDraftPort> itineraryDraftPort) {
 		this.enginePort = enginePort;
 		this.candidateAssembler = candidateAssembler;
 		this.recorder = recorder;
 		this.properties = properties;
 		this.clock = clock;
+		this.itineraryDraftPort = itineraryDraftPort;
 	}
 
 	/**
@@ -234,7 +247,38 @@ public class RecommendationService {
 		}
 
 		job.markCompleted(generatedAt, completedAt, batch.fallbackMode(), batch.fallbackReason());
-		this.recorder.record(job, assembly.candidates(), List.of(event));
+
+		// 🔴 S15P21E201-604 — ITINERARY_GENERATION 이고 반환할 후보가 있을 때만 일정을 조립한다.
+		//    markCompleted 뒤·recorder 호출 앞이다: Job 상태는 이미 SUCCEEDED 로 정해졌지만
+		//    itineraryId 는 아직 없다(attachItinerary 는 recorder.recordWithItinerary 안에서
+		//    저장 직전에 불린다) — RecommendationJob.assertItineraryAttachedIfRequired() javadoc
+		//    이 이 순서를 자세히 적어 뒀다.
+		ItineraryDraft draft = null;
+		if (job.getJobType() == JobType.ITINERARY_GENERATION) {
+			ItineraryDraftPort port = this.itineraryDraftPort.getIfAvailable();
+			if (port == null) {
+				// 이 배포에 일정 조립기가 없다. 조용히 넘어가지 않는다 — ENGINE_NOT_CONFIGURED 와 같은 판단.
+				throw abandon(job, RecommendationCodes.ERROR_ITINERARY_PORT_NOT_CONFIGURED, JobStage.PERSISTENCE,
+						false, false, createdAt, startedNanos, null);
+			}
+			try {
+				// 🔴 트랜잭션 밖이다. 여기서 실패해도 후보는 이미 assembly 에 담겨 있어
+				//    abandon() 이 recordFailure 로 그것들을 남긴다 — 추천 자체가 성공했다는
+				//    사실은 지워지지 않는다.
+				draft = port.assemble(buildDraftCommand(job, assembly));
+			}
+			catch (RuntimeException ex) {
+				throw abandon(job, RecommendationCodes.ERROR_ITINERARY_ASSEMBLY_FAILED, JobStage.ROUTE_OPTIMIZATION,
+						false, false, createdAt, startedNanos, ex);
+			}
+		}
+
+		if (draft != null) {
+			this.recorder.recordWithItinerary(job, assembly.candidates(), List.of(event), draft);
+		}
+		else {
+			this.recorder.record(job, assembly.candidates(), List.of(event));
+		}
 
 		return new RecommendationResult(job.getRequestId(), job.getJobId(), job.getJobType(), job.getJobStatus(),
 				job.getGeneratedAt(), assembly.returnedItems(), assembly.generatedCount(),
@@ -242,6 +286,22 @@ public class RecommendationService {
 				job.getFallbackReason(), job.getModelVersion(), job.getFeatureVersion(),
 				job.getOntologyVersion(), job.getPolicyVersion(), job.getDatasetVersion(),
 				job.getServiceVersion(), job.getDeploymentEnvironment());
+	}
+
+	/**
+	 * 🔴 {@code assembly.returnedItems()} 는 이미 {@code finalRank} 오름차순이다
+	 * ({@code CandidateAssembler.assemble} 이 순위 매긴 순서대로 담는다) — 여기서 다시
+	 * 정렬하지 않는다.
+	 */
+	private ItineraryDraftCommand buildDraftCommand(RecommendationJob job, CandidateAssembly assembly) {
+		List<ItineraryDraftCommand.PlannedPlace> places = assembly.returnedItems().stream()
+				.map((p) -> new ItineraryDraftCommand.PlannedPlace(p.placeId(), p.finalRank(),
+						p.reasonCodes(), p.warningCodes()))
+				.toList();
+
+		return new ItineraryDraftCommand(job.getRequestId(), job.getTripId().toString(), job.getUserId().toString(),
+				places, job.getModelVersion(), job.getFeatureVersion(), job.getOntologyVersion(),
+				job.getPolicyVersion(), job.getDatasetVersion());
 	}
 
 	private List<String> resolveMissingVersions(EngineVersions versions) {

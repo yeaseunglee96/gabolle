@@ -138,6 +138,28 @@ public class JpaTripRepository implements TripRepository {
 	}
 
 	@Override
+	public Optional<PreferenceSnapshot> findSnapshotById(String preferenceSnapshotId) {
+		// 🔴 S15P21E201-604 — 추천 Job 이 기록해 둔 그 판을 직접 읽는다. findLatestSnapshot 을
+		// 쓰면 Job 이 실행되기 전에 사용자가 취향을 다시 답했을 때 "그때 그 판" 이 아니라
+		// "지금 최신 판" 을 읽게 된다.
+		return preferenceSnapshotJpaRepository.findById(UUID.fromString(preferenceSnapshotId))
+				.map(this::toDomain);
+	}
+
+	@Override
+	public List<TripConstraint> findConstraintsBySnapshotId(String constraintSnapshotId) {
+		// 🔴 findConstraints(tripId) 를 재사용하지 않는다 — 그쪽은 findByTripId(id).get(0) 로
+		// 첫 번째 스냅샷을 집는데, 추천 Job 이 기록해 둔 스냅샷과 다를 수 있다.
+		UUID snapshotId = UUID.fromString(constraintSnapshotId);
+		String tripId = constraintSnapshotJpaRepository.findById(snapshotId)
+				.map(e -> e.tripId() == null ? null : e.tripId().toString())
+				.orElse(null);
+		return constraintAnswerJpaRepository.findByConstraintSnapshotId(snapshotId).stream()
+				.map(e -> toDomain(e, tripId))
+				.toList();
+	}
+
+	@Override
 	public Optional<String> findLatestConstraintSnapshotId(String tripId) {
 		return constraintSnapshotJpaRepository.findTopByTripIdOrderByVersionDesc(UUID.fromString(tripId))
 				.map(e -> e.constraintSnapshotId().toString());
@@ -193,7 +215,8 @@ public class JpaTripRepository implements TripRepository {
 				t.startDate(), t.finishDate(),
 				t.originLat(), t.originLng(),
 				t.budgetKrw() == null ? null : t.budgetKrw().longValue(),
-				t.partySize(), t.timeWindow(), t.timezone(), t.status(),
+				t.partySize(), t.timeWindow(), t.timezone(),
+				t.travelModes(), t.timeWindowStart(), t.timeWindowEnd(), t.status(),
 				toOffset(t.createdAt()), toOffset(t.updatedAt()), toOffset(t.deletedAt()));
 	}
 
@@ -208,6 +231,9 @@ public class JpaTripRepository implements TripRepository {
 				.budgetKrw(e.budgetKrw() == null ? null : e.budgetKrw().intValue())
 				.partySize(e.partySize() == null ? 1 : e.partySize())
 				.timeWindow(e.timeWindow())
+				.timeWindowStart(e.timeWindowStart())
+				.timeWindowEnd(e.timeWindowEnd())
+				.travelModes(e.travelModes())
 				.timezone(e.timezone())
 				.status(e.status())
 				.createdAt(toInstant(e.createdAt()))

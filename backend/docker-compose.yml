@@ -24,6 +24,8 @@ services:
         condition: service_healthy
     environment:
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-dev}
+      GABOLLE_SERVICE_VERSION: ${GABOLLE_SERVICE_VERSION:-local-dev}
+      GABOLLE_DEPLOYMENT_ENVIRONMENT: ${GABOLLE_DEPLOYMENT_ENVIRONMENT:-local}
       GABOLLE_DB_URL: jdbc:postgresql://db:5432/${POSTGRES_DB:-gabolle}
       GABOLLE_DB_USERNAME: ${POSTGRES_USER:-gabolle}
       GABOLLE_DB_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}

@@ -43,9 +43,33 @@ public class ItineraryVersion {
 
     private final Instant createdAt;
 
+    /**
+     * 🔴 이 판을 만든 진짜 추천 요청 — S15P21E201-604. {@code requestId}(VARCHAR, 사용자
+     * 편집의 {@code req_edit_<uuid>} 도 담는다)와 다르다. 이 값이 있으면 UUID 형식 그대로다.
+     *
+     * <p>추천이 일정을 처음 만들 때만(operation=CREATE) 채워진다. 사용자 편집(LOCK_ITEM 등)은
+     * 진짜 추천 요청에서 나온 것이 아니므로 {@code null} 이다. {@code itinerary_versions
+     * .source_request_id}(UNIQUE, V20260905120000)로 저장되어 같은 추천 요청이 두 번
+     * 실행돼도 판이 하나만 생기는 것을 DB 가 보장한다.
+     */
+    private final String sourceRequestId;
+
     public ItineraryVersion(String itineraryVersionId, String itineraryId, int version,
                             Integer baseVersion, Operation operation, String createdBy,
                             String requestId, Versions versions, Instant createdAt) {
+        this(itineraryVersionId, itineraryId, version, baseVersion, operation, createdBy,
+                requestId, versions, createdAt, null);
+    }
+
+    /**
+     * 🔴 추천이 실제로 판을 만든 경로(ItineraryDraftService.persist)가 쓰는 생성자다.
+     * 기존 9-인자 생성자는 이 값을 {@code null} 로 넘기는 것과 같다 — 사용자 편집은
+     * 그대로 그 생성자를 쓴다.
+     */
+    public ItineraryVersion(String itineraryVersionId, String itineraryId, int version,
+                            Integer baseVersion, Operation operation, String createdBy,
+                            String requestId, Versions versions, Instant createdAt,
+                            String sourceRequestId) {
         if (version < 1) {
             throw new IllegalArgumentException("판 번호는 1 이상이어야 한다: " + version);
         }
@@ -63,6 +87,7 @@ public class ItineraryVersion {
         this.requestId = requestId;
         this.versions = versions;
         this.createdAt = createdAt;
+        this.sourceRequestId = sourceRequestId;
     }
 
     /** 어떤 편집으로 이 판이 생겼는가. */
@@ -123,4 +148,5 @@ public class ItineraryVersion {
     public String requestId()          { return requestId; }
     public Versions versions()         { return versions; }
     public Instant createdAt()         { return createdAt; }
+    public String sourceRequestId()    { return sourceRequestId; }
 }

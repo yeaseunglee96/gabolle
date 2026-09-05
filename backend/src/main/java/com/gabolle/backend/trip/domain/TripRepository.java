@@ -33,6 +33,26 @@ public interface TripRepository {
     Optional<PreferenceSnapshot> findLatestSnapshot(String tripId);
 
     /**
+     * 스냅샷 ID 로 <b>그 판</b>을 직접 읽는다 (S15P21E201-604 — 추천 엔진 전용).
+     *
+     * <p>🔴 {@link #findConstraints(String)}·{@link #findLatestSnapshot(String)} 를 재사용하면
+     * 안 된다. 추천 Job 은 시작할 때 스냅샷 ID 를 <b>기록해 두고</b>, 실행은 나중에(비동기) 될 수
+     * 있다. 그 사이 사용자가 취향을 다시 답하면 "최신 판" 은 바뀌지만 Job 이 기록해 둔 판은
+     * 그대로다 — "이 버전으로 만든 결과" 라는 주장이 거짓이 되지 않으려면 반드시 기록된 그 ID로
+     * 읽어야 한다.
+     */
+    Optional<PreferenceSnapshot> findSnapshotById(String preferenceSnapshotId);
+
+    /**
+     * 제약 스냅샷 ID 로 <b>그 판</b>의 제약 전부를 직접 읽는다 (S15P21E201-604 — 추천 엔진 전용).
+     *
+     * <p>🔴 {@link #findConstraints(String)} 를 재사용하면 안 된다. {@code JpaTripRepository}
+     * 구현이 {@code findByTripId(id).get(0)} 로 <b>첫 번째</b> 스냅샷을 집는데, 추천 Job 이
+     * 기록해 둔 스냅샷과 다를 수 있다.
+     */
+    List<TripConstraint> findConstraintsBySnapshotId(String constraintSnapshotId);
+
+    /**
      * 가장 최신 제약 스냅샷의 식별자 — S15P21E201-192 가 추천 Job 을 만들 때 쓴다.
      *
      * <p>🔴 제약을 하나도 안 답한 여행은 이 값이 없다({@code save} 가 제약이 비어 있으면

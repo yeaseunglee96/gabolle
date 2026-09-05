@@ -103,6 +103,16 @@ pipeline {
 
         stage('Deploy') {
             steps {
+                script {
+                    // 🔴 GIT_COMMIT 은 위 Checkout 단계의 git 스텝이 보통 채워 주지만
+                    //    (Jenkins Git 플러그인이 체크아웃 뒤 빌드 환경변수로 심어 준다),
+                    //    혹시 비어 있는 경우를 대비해 직접 구해서 확실히 값이 들어가게
+                    //    한다. service_version 컬럼은 VARCHAR(100)이라 커밋 해시
+                    //    하나(40자)는 넉넉히 들어간다.
+                    if (!env.GIT_COMMIT) {
+                        env.GIT_COMMIT = sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
+                    }
+                }
                 withCredentials([
                     string(credentialsId: 'gabolle-db-url', variable: 'GABOLLE_DB_URL'),
                     string(credentialsId: 'gabolle-db-username', variable: 'GABOLLE_DB_USERNAME'),
@@ -124,6 +134,8 @@ pipeline {
                             --network local-route-personalization_data_net \
                             -p 8080:8080 \
                             -e SPRING_PROFILES_ACTIVE=dev \
+                            -e GABOLLE_SERVICE_VERSION="${GIT_COMMIT}" \
+                            -e GABOLLE_DEPLOYMENT_ENVIRONMENT=dev \
                             -e GABOLLE_DB_URL="$GABOLLE_DB_URL" \
                             -e GABOLLE_DB_USERNAME="$GABOLLE_DB_USERNAME" \
                             -e GABOLLE_DB_PASSWORD="$GABOLLE_DB_PASSWORD" \

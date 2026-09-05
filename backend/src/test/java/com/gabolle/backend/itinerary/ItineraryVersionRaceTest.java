@@ -5,10 +5,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.gabolle.backend.itinerary.application.ItineraryEditService;
 import com.gabolle.backend.itinerary.domain.Itinerary;
+import com.gabolle.backend.itinerary.domain.ItineraryContent;
+import com.gabolle.backend.itinerary.domain.ItineraryItem;
+import com.gabolle.backend.itinerary.domain.ItineraryLeg;
 import com.gabolle.backend.itinerary.domain.ItineraryRepository;
 import com.gabolle.backend.itinerary.domain.ItineraryVersion;
 import com.gabolle.backend.itinerary.domain.StaleItineraryVersionException;
 import com.gabolle.backend.itinerary.infra.InMemoryItineraryRepository;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -82,6 +86,22 @@ class ItineraryVersionRaceTest {
         @Override
         public Optional<ItineraryVersion> findVersion(String itineraryId, int version) {
             return delegate.findVersion(itineraryId, version);
+        }
+
+        @Override
+        public Itinerary create(Itinerary itinerary, ItineraryVersion firstVersion) {
+            // 🔴 이 테스트는 append() 의 경쟁만 본다 — create() 는 관문을 걸지 않는다.
+            return delegate.create(itinerary, firstVersion);
+        }
+
+        @Override
+        public void saveContent(String itineraryVersionId, List<ItineraryItem> items, List<ItineraryLeg> legs) {
+            delegate.saveContent(itineraryVersionId, items, legs);
+        }
+
+        @Override
+        public Optional<ItineraryContent> findContent(String itineraryId, int version) {
+            return delegate.findContent(itineraryId, version);
         }
 
         Itinerary seed(String id, String tripId, int latest) {

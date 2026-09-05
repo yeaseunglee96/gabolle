@@ -56,16 +56,35 @@ class RecommendationCandidateConstraintTest extends PostgresIntegrationTest {
 	}
 
 	private void insertJob(UUID requestId) {
+		// 🔴 V20260905120000 이 ck_recommendation_job_result_present 를 붙였다 —
+		//    SUCCEEDED 인 ITINERARY_GENERATION Job 은 itinerary_id·itinerary_version 이
+		//    있어야 한다. 여기서 쓸 최소 일정 하나를 함께 만든다.
+		UUID itineraryId = insertItinerary(this.references.tripId(), this.references.userId());
+
 		this.jdbcTemplate.update("""
 				INSERT INTO recommendation_job (
 				    job_id, request_id, user_id, job_type, job_status,
-				    preference_snapshot_id, constraint_snapshot_id,
+				    preference_snapshot_id, constraint_snapshot_id, itinerary_id, itinerary_version,
 				    model_version, feature_version, ontology_version, policy_version, dataset_version,
 				    service_version, deployment_environment, created_at)
-				VALUES (?, ?, ?, 'ITINERARY_GENERATION', 'SUCCEEDED', ?, ?,
+				VALUES (?, ?, ?, 'ITINERARY_GENERATION', 'SUCCEEDED', ?, ?, ?, 1,
 				        'm', 'f', 'o', 'p', 'd', 's', 'test', now())
 				""", UUID.randomUUID(), requestId, this.references.userId(),
-				this.references.preferenceSnapshotId(), this.references.constraintSnapshotId());
+				this.references.preferenceSnapshotId(), this.references.constraintSnapshotId(), itineraryId);
+	}
+
+	/** {@code recommendation_job.itinerary_id} 의 FK 대상 — 판 1의 최소 일정 하나. */
+	private UUID insertItinerary(UUID tripId, UUID createdBy) {
+		UUID itineraryId = UUID.randomUUID();
+		this.jdbcTemplate.update(
+				"INSERT INTO itineraries (itinerary_id, trip_id, latest_version, created_at) VALUES (?, ?, 1, now())",
+				itineraryId, tripId);
+		this.jdbcTemplate.update("""
+				INSERT INTO itinerary_versions
+				    (itinerary_version_id, itinerary_id, version, operation, created_by, request_id, created_at)
+				VALUES (?, ?, 1, 'CREATE', ?, ?, now())
+				""", UUID.randomUUID(), itineraryId, createdBy, "req_" + UUID.randomUUID());
+		return itineraryId;
 	}
 
 	@Test
