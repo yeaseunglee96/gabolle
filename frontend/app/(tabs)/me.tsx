@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Modal, Pressable, StyleSheet, TextInput, View } from 'react-native';
-import { useRouter } from 'expo-router';
+import { ActivityIndicator, Image, Modal, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as ImagePicker from 'expo-image-picker';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { ApiClientError } from '@/api/client';
 import { useAuth } from '@/auth/AuthProvider';
@@ -18,10 +20,15 @@ function InfoRow({ label, value, onPress, disabled = false }: { label: string; v
 
 export default function Me() {
   const router = useRouter();
+  const { preview } = useLocalSearchParams<{ preview?: string }>();
   const { user, signOut, updateProfile, deleteAccount } = useAuth();
   const { language, tx } = useI18n();
-  const [editing, setEditing] = useState(false);
-  const [displayName, setDisplayName] = useState(user?.displayName ?? '');
+  const visualPreview = __DEV__ && preview === 'ui';
+  const profileOwner = user?.userId ?? (visualPreview ? 'preview' : null);
+  const [editing, setEditing] = useState(visualPreview);
+  const [displayName, setDisplayName] = useState(user?.displayName ?? (visualPreview ? '진미리' : ''));
+  const [avatarUri, setAvatarUri] = useState<string | null>(null);
+  const [pickingAvatar, setPickingAvatar] = useState(false);
   const [profileLanguage, setProfileLanguage] = useState<'KO' | 'EN'>(language === 'ko' ? 'KO' : 'EN');
   const [saving, setSaving] = useState(false);
   const [feedback, setFeedback] = useState<{ danger: boolean; text: string } | null>(null);
@@ -30,16 +37,44 @@ export default function Me() {
   const [deletePassword, setDeletePassword] = useState('');
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
-  useEffect(() => { setDisplayName(user?.displayName ?? ''); setProfileLanguage(user?.language?.toUpperCase() === 'EN' ? 'EN' : 'KO'); }, [user]);
+  useEffect(() => { setDisplayName(user?.displayName ?? (visualPreview ? '진미리' : '')); setProfileLanguage(user?.language?.toUpperCase() === 'EN' ? 'EN' : 'KO'); }, [user, visualPreview]);
+  useEffect(() => {
+    if (!profileOwner) { setAvatarUri(null); return; }
+    void AsyncStorage.getItem(`gabolle:profile-avatar:${profileOwner}`).then(setAvatarUri);
+  }, [profileOwner]);
   const nameValid = displayName.trim().length >= 1 && displayName.trim().length <= 30;
+  async function chooseAvatar() {
+    if (!profileOwner || pickingAvatar) return;
+    setPickingAvatar(true);
+    setFeedback(null);
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], allowsEditing: true, aspect: [1, 1], quality: 0.55, base64: true });
+      if (result.canceled) return;
+      const asset = result.assets[0];
+      const nextUri = asset.base64 ? `data:${asset.mimeType ?? 'image/jpeg'};base64,${asset.base64}` : asset.uri;
+      await AsyncStorage.setItem(`gabolle:profile-avatar:${profileOwner}`, nextUri);
+      setAvatarUri(nextUri);
+      setFeedback({ danger: false, text: tx('프로필 사진을 이 기기에 저장했어요.', 'Your profile photo was saved on this device.') });
+    } catch {
+      setFeedback({ danger: true, text: tx('사진을 불러오지 못했어요. JPG, PNG 또는 WebP 파일을 선택해 주세요.', 'Could not load the photo. Choose a JPG, PNG, or WebP file.') });
+    } finally {
+      setPickingAvatar(false);
+    }
+  }
+  async function removeAvatar() {
+    if (!profileOwner) return;
+    await AsyncStorage.removeItem(`gabolle:profile-avatar:${profileOwner}`);
+    setAvatarUri(null);
+    setFeedback({ danger: false, text: tx('기본 프로필로 돌아왔어요.', 'Your default profile was restored.') });
+  }
   async function saveProfile() {
-    if (!user || !nameValid || saving) return;
+    if ((!user && !visualPreview) || !nameValid || saving) return;
     setSaving(true);
     setFeedback(null);
     try {
-      await updateProfile({ displayName: displayName.trim(), language: profileLanguage });
+      if (user) await updateProfile({ displayName: displayName.trim(), language: profileLanguage });
       setEditing(false);
-      setFeedback({ danger: false, text: tx('프로필을 저장했어요.', 'Your profile was saved.') });
+      setFeedback({ danger: false, text: visualPreview && !user ? tx('미리보기에서 변경 모습을 확인했어요.', 'Preview changes are displayed.') : tx('프로필을 저장했어요.', 'Your profile was saved.') });
     } catch (cause) {
       setFeedback({ danger: true, text: cause instanceof ApiClientError ? cause.message : tx('프로필을 저장하지 못했어요.', 'Could not save your profile.') });
     } finally {
@@ -67,8 +102,9 @@ export default function Me() {
   }
   return <View style={styles.shell}><Screen scroll={editing} style={styles.screen}>
     <View style={styles.heading}><Text variant="caption" weight="bold" color={color.brand.orange}>MY PAGE</Text><Text variant="display" weight="bold">{tx('마이페이지', 'My page')}</Text></View>
-    <View style={styles.profile}><View style={styles.avatar}><Text variant="title" weight="bold" color={color.text.onAction}>{(user?.displayName || '여행자').slice(0, 1)}</Text></View><View style={styles.profileCopy}><Text variant="title" weight="bold">{user?.displayName || tx('여행자', 'Traveler')}</Text><Text variant="caption" color={color.text.muted}>{user?.email || tx('계정 정보를 불러오지 못했어요', 'Account information is unavailable')}</Text><Text variant="caption" color={color.text.muted}>{tx('프로필 사진 변경은 서버 업로드 기능이 연결되면 제공해요.', 'Profile photos will be available after upload support is connected.')}</Text></View>{user && <Pressable accessibilityRole="button" accessibilityState={{ expanded: editing }} onPress={() => { setEditing((value) => !value); setFeedback(null); }} style={({ pressed }) => [styles.editButton, pressed && styles.rowPressed]}><Text variant="caption" weight="bold" color={color.brand.orange}>{editing ? tx('취소', 'Cancel') : tx('수정', 'Edit')}</Text></Pressable>}</View>
+    <View style={styles.profile}><View style={styles.avatar}>{avatarUri ? <Image source={{ uri: avatarUri }} resizeMode="cover" accessibilityLabel={tx('현재 프로필 사진', 'Current profile photo')} style={styles.avatarPhoto} /> : <Text variant="title" weight="bold" color={color.text.onAction}>{(user?.displayName || displayName || tx('여행자', 'Traveler')).slice(0, 1)}</Text>}</View><View style={styles.profileCopy}><Text variant="title" weight="bold">{user?.displayName || displayName || tx('여행자', 'Traveler')}</Text><Text variant="caption" color={color.text.muted}>{user?.email || (visualPreview ? 'miri@example.com' : tx('계정 정보를 불러오지 못했어요', 'Account information is unavailable'))}</Text><Text variant="caption" color={color.text.muted}>{tx('사진은 현재 기기에, 이름과 언어는 계정에 저장돼요.', 'The photo is stored on this device; name and language are saved to your account.')}</Text></View>{(user || visualPreview) && <Pressable accessibilityRole="button" accessibilityState={{ expanded: editing }} onPress={() => { setEditing((value) => !value); setFeedback(null); }} style={({ pressed }) => [styles.editButton, pressed && styles.rowPressed]}><Text variant="caption" weight="bold" color={color.brand.orange}>{editing ? tx('취소', 'Cancel') : tx('프로필 편집', 'Edit profile')}</Text></Pressable>}</View>
     {editing && <View style={styles.editPanel}>
+      <View style={styles.avatarEditor}><View style={styles.avatarLarge}>{avatarUri ? <Image source={{ uri: avatarUri }} resizeMode="cover" accessibilityLabel={tx('선택한 프로필 사진', 'Selected profile photo')} style={styles.avatarPhoto} /> : <Text variant="display" weight="bold" color={color.text.onAction}>{(displayName || tx('여행자', 'Traveler')).slice(0, 1)}</Text>}</View><View style={styles.avatarEditorCopy}><Text weight="bold">{tx('프로필 사진', 'Profile photo')}</Text><Text variant="caption" color={color.text.muted}>{tx('JPG, PNG, WebP · 정사각형으로 맞춰드려요', 'JPG, PNG, WebP · cropped to a square')}</Text><View style={styles.avatarActions}><Pressable accessibilityRole="button" disabled={pickingAvatar} onPress={() => void chooseAvatar()} style={({ pressed }) => [styles.photoButton, pressed && styles.rowPressed]}><Text variant="caption" weight="bold" color={color.brand.orange}>{pickingAvatar ? tx('불러오는 중…', 'Loading…') : tx('사진 선택', 'Choose photo')}</Text></Pressable>{avatarUri && <Pressable accessibilityRole="button" onPress={() => void removeAvatar()} style={({ pressed }) => [styles.photoButton, pressed && styles.rowPressed]}><Text variant="caption" weight="bold" color={color.text.body}>{tx('기본 이미지', 'Use default')}</Text></Pressable>}</View></View></View>
       <Text variant="caption" weight="bold">{tx('표시 이름', 'Display name')}</Text>
       <TextInput accessibilityLabel={tx('표시 이름', 'Display name')} maxLength={30} value={displayName} onChangeText={setDisplayName} style={[styles.input, !nameValid && styles.inputError]} />
       <Text variant="caption" color={nameValid ? color.text.muted : color.state.danger}>{displayName.trim().length}/30{tx('자', ' characters')}</Text>
@@ -122,10 +158,16 @@ const styles = StyleSheet.create({
   shell: { flex: 1, backgroundColor: color.brand.ivory }, screen: { flex: 1, backgroundColor: color.brand.ivory },
   heading: { gap: spacing[2], marginBottom: spacing[6] },
   profile: { flexDirection: 'row', alignItems: 'center', gap: spacing[4], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card },
-  avatar: { width: 56, height: 56, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.brand.orange },
+  avatar: { width: 56, height: 56, overflow: 'hidden', borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.brand.orange },
+  avatarPhoto: { width: '100%', height: '100%' },
   profileCopy: { flex: 1, gap: spacing[1] },
-  editButton: { minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' },
+  editButton: { minWidth: 72, minHeight: 44, alignItems: 'center', justifyContent: 'center' },
   editPanel: { gap: spacing[2], marginTop: spacing[3], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card },
+  avatarEditor: { flexDirection: 'row', alignItems: 'center', gap: spacing[4], paddingBottom: spacing[4], marginBottom: spacing[2], borderBottomWidth: 1, borderBottomColor: color.surface.border },
+  avatarLarge: { width: 80, height: 80, overflow: 'hidden', borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.brand.orange },
+  avatarEditorCopy: { flex: 1, gap: spacing[2] },
+  avatarActions: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] },
+  photoButton: { minHeight: 40, justifyContent: 'center', paddingHorizontal: spacing[3], borderWidth: 1, borderColor: color.surface.border, borderRadius: radius.sm, backgroundColor: color.surface.card },
   input: { minHeight: 48, paddingHorizontal: spacing[3], borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.md, color: color.text.heading, backgroundColor: color.brand.ivory },
   inputError: { borderColor: color.state.danger },
   languageRow: { flexDirection: 'row', gap: spacing[2], marginBottom: spacing[2] },
