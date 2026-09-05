@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.gabolle.backend.common.api.ApiResponse;
+import com.gabolle.backend.common.security.AuthenticatedUsers;
 import com.gabolle.backend.trip.application.TripCreationService;
 import com.gabolle.backend.trip.application.TripQueryService;
 import com.gabolle.backend.trip.domain.PreferenceSnapshot;
@@ -53,18 +55,15 @@ public class TripController {
      * <b>기존 여행을 그대로 돌려준다</b> — 지하철에서 응답이 끊긴 앱은 반드시
      * 재시도하고, 그때 여행이 두 개 생기면 안 된다.
      *
-     * <p>🔴 <b>아직 없는 것</b> — 인증에서 사용자를 꺼내지 않고 헤더로 받는다.
-     * {@code auth} 패키지에 {@code CurrentUserService} 가 생겼으므로 그것으로
-     * 교체해야 한다. MR 에 적는다.
      */
     @PostMapping
     public ResponseEntity<ApiResponse<TripDto>> create(
             @Valid @RequestBody CreateTripRequest request,
             @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey,
-            @RequestHeader(value = "X-User-Id", required = false) String userId) {
+            Authentication authentication) {
 
         String requestId = "req_" + UUID.randomUUID();
-        String creator = userId != null ? userId : "usr_unknown";
+        String creator = AuthenticatedUsers.requireId(authentication).toString();
 
         TripCreationService.Result result =
                 creationService.create(toCommand(request, creator), idempotencyKey);
@@ -87,9 +86,9 @@ public class TripController {
     @GetMapping("/{tripId}")
     public ApiResponse<TripDetailResponse> get(
             @PathVariable String tripId,
-            @RequestHeader(value = "X-User-Id", required = false) String userId) {
+            Authentication authentication) {
 
-        String requester = userId != null ? userId : "usr_unknown";
+        String requester = AuthenticatedUsers.requireId(authentication).toString();
         TripQueryService.View view = queryService.get(tripId, requester);
 
         return ApiResponse.success(

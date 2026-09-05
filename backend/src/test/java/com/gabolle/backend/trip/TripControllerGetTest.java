@@ -8,11 +8,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
+import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -50,9 +53,20 @@ class TripControllerGetTest {
                 .build();
     }
 
+    /**
+     * 🔴 S15P21E201-610 — 헤더가 아니라 인증 principal 로 사용자를 정한다.
+     * {@code MockMvc.principal(Principal)} 은 Spring MVC 의 기본
+     * {@code PrincipalMethodArgumentResolver} 를 그대로 타므로, Security 필터 체인을
+     * 안 올리는 {@code standaloneSetup} 에서도 {@code Authentication} 파라미터가 채워진다.
+     */
+    private static Authentication asUser(String userId) {
+        return new TestingAuthenticationToken(userId, null);
+    }
+
     @Test
     @DisplayName("만든 사람이 조회하면 200 과 보낸 조건이 그대로 나온다")
     void ownerCanReadTheTripBack() throws Exception {
+        String userId = UUID.randomUUID().toString();
         String body = """
                 {
                   "startDate": "2026-09-06",
@@ -67,14 +81,14 @@ class TripControllerGetTest {
 
         String created = this.mockMvc.perform(post("/api/v1/trips")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-User-Id", "usr_1")
+                        .principal(asUser(userId))
                         .content(body))
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
 
         String tripId = created.split("\"tripId\":\"")[1].split("\"")[0];
 
-        this.mockMvc.perform(get("/api/v1/trips/{tripId}", tripId).header("X-User-Id", "usr_1"))
+        this.mockMvc.perform(get("/api/v1/trips/{tripId}", tripId).principal(asUser(userId)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.trip.tripId").value(tripId))
                 .andExpect(jsonPath("$.data.trip.budgetKrw").value(300000))
@@ -84,7 +98,7 @@ class TripControllerGetTest {
     @Test
     @DisplayName("없는 여행을 조회하면 404 TRIP_NOT_FOUND")
     void unknownTripReturns404() throws Exception {
-        this.mockMvc.perform(get("/api/v1/trips/{tripId}", "trp_unknown").header("X-User-Id", "usr_1"))
+        this.mockMvc.perform(get("/api/v1/trips/{tripId}", "trp_unknown").principal(asUser(UUID.randomUUID().toString())))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error.code").value("TRIP_NOT_FOUND"));
     }
@@ -92,6 +106,8 @@ class TripControllerGetTest {
     @Test
     @DisplayName("🔴 회원이 아닌 사람이 조회해도 404 — 403 이 아니다")
     void nonMemberAlsoGets404NotForbidden() throws Exception {
+        String owner = UUID.randomUUID().toString();
+        String stranger = UUID.randomUUID().toString();
         String body = """
                 {
                   "startDate": "2026-09-06",
@@ -101,14 +117,14 @@ class TripControllerGetTest {
 
         String created = this.mockMvc.perform(post("/api/v1/trips")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-User-Id", "usr_1")
+                        .principal(asUser(owner))
                         .content(body))
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
 
         String tripId = created.split("\"tripId\":\"")[1].split("\"")[0];
 
-        this.mockMvc.perform(get("/api/v1/trips/{tripId}", tripId).header("X-User-Id", "usr_stranger"))
+        this.mockMvc.perform(get("/api/v1/trips/{tripId}", tripId).principal(asUser(stranger)))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error.code").value("TRIP_NOT_FOUND"));
     }
