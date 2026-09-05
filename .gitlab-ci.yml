@@ -129,7 +129,7 @@ claims:checkpoint:
       git config user.email "axmap-bot@noreply.${CI_SERVER_HOST}"
       node ci/axmap/bin/axmap.mjs audit --fetch --checkpoint
   rules:
-    - if: $CI_COMMIT_BRANCH =~ /(^|/)(main|func|dev)$/
+    - if: $CI_COMMIT_BRANCH =~ /(^|\/)(main|func|dev)$/
 
 # ── 백엔드가 실제로 빌드되는가 ───────────────────────────────────────────────
 #
