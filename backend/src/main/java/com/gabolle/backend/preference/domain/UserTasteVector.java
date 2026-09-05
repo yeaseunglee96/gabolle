@@ -9,7 +9,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 /**
- * 사용자 취향을 온톨로지 개념별 숫자로 접어 둔 판 하나 (S15P21E201-580).
+ * 사용자 취향을 온톨로지 개념별 숫자로 접어 둔 판 하나 (S15P21E201-632).
  *
  * <h2>이미 있는 {@code preference_snapshot} 과 무엇이 다른가</h2>
  *

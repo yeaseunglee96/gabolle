@@ -25,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
- * DB 가 <b>직접</b> 막는 것들 (S15P21E201-580).
+ * DB 가 <b>직접</b> 막는 것들 (S15P21E201-632).
  *
  * <p>🔴 여기 있는 검사는 전부 "애플리케이션이 실수해도 막히는가" 를 본다. 같은 규칙을
  * 자바에도 적으면 두 곳이 생기고, 두 곳이 되는 순간 한쪽만 고쳐지는 날이 온다.
