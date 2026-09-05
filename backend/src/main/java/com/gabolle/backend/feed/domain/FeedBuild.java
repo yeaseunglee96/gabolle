@@ -11,7 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 /**
- * 미리 만들어 둔 피드 한 세대 (S15P21E201-580).
+ * 미리 만들어 둔 피드 한 세대 (S15P21E201-632).
  *
  * <h2>이 클래스가 있는 이유 — 다시 만드는 동안의 빈 화면</h2>
  *

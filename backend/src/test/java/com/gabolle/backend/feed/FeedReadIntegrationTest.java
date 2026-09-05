@@ -26,7 +26,7 @@ import com.gabolle.backend.preference.repository.UserTasteVectorRepository;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * 미리 만들어 둔 피드를 읽는 경로 (S15P21E201-580).
+ * 미리 만들어 둔 피드를 읽는 경로 (S15P21E201-632).
  *
  * <p>여기서 확인하는 것은 "무엇이 나오나" 가 아니라 <b>"읽기가 정말 읽기만 하나"</b> 다.
  * 순서를 다시 매기지 않고, 지난 세대를 안 보고, 없을 때와 빌 때를 가른다.

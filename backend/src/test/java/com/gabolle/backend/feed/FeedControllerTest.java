@@ -27,7 +27,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * 조회 API 가 내보내는 <b>모양</b>만 본다 (S15P21E201-580).
+ * 조회 API 가 내보내는 <b>모양</b>만 본다 (S15P21E201-632).
  *
  * <p>🔴 Spring 컨텍스트를 안 띄운다. 여기서 확인할 것은 DB 계약도 인증 설정도 아니라
  * "저장된 값이 앱이 쓸 수 있는 모양으로 나가는가" 하나다. 컨텍스트를 띄우면 그 하나를

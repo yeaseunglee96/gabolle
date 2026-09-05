@@ -22,7 +22,7 @@ import com.gabolle.backend.feed.repository.FeedBuildRepository;
 import com.gabolle.backend.feed.repository.UserFeedRepository;
 
 /**
- * 미리 만들어 둔 피드를 그대로 읽어 준다 (S15P21E201-580).
+ * 미리 만들어 둔 피드를 그대로 읽어 준다 (S15P21E201-632).
  *
  * <h2>🔴 이 클래스가 <b>하지 않는</b> 일이 이 클래스의 정의다</h2>
  *

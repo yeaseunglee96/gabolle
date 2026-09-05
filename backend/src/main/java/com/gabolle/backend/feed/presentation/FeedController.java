@@ -22,7 +22,7 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 /**
- * 미리 만들어 둔 피드 조회 (S15P21E201-580).
+ * 미리 만들어 둔 피드 조회 (S15P21E201-632).
  *
  * <pre>
  *   GET /api/v1/feed/home       앱을 켰을 때 볼 것
