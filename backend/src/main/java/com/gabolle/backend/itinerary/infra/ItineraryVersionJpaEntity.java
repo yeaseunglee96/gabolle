@@ -50,6 +50,13 @@ public class ItineraryVersionJpaEntity {
 	@Column(name = "request_id", nullable = false, length = 64, updatable = false)
 	private String requestId;
 
+	/**
+	 * 🔴 S15P21E201-604 — 추천이 진짜 판을 만들었을 때만 채워진다(V20260905120000).
+	 * {@code requestId}(VARCHAR)와 다른 칸이다 — 여기 주석 참고.
+	 */
+	@Column(name = "source_request_id", updatable = false)
+	private UUID sourceRequestId;
+
 	@Column(name = "model_version", length = 100, updatable = false)
 	private String modelVersion;
 
@@ -73,7 +80,7 @@ public class ItineraryVersionJpaEntity {
 	}
 
 	ItineraryVersionJpaEntity(UUID itineraryVersionId, UUID itineraryId, int version, Integer baseVersion,
-			ItineraryVersion.Operation operation, UUID createdBy, String requestId,
+			ItineraryVersion.Operation operation, UUID createdBy, String requestId, UUID sourceRequestId,
 			String modelVersion, String featureVersion, String ontologyVersion,
 			String policyVersion, String datasetVersion, OffsetDateTime createdAt) {
 		this.itineraryVersionId = itineraryVersionId;
@@ -83,6 +90,7 @@ public class ItineraryVersionJpaEntity {
 		this.operation = operation;
 		this.createdBy = createdBy;
 		this.requestId = requestId;
+		this.sourceRequestId = sourceRequestId;
 		this.modelVersion = modelVersion;
 		this.featureVersion = featureVersion;
 		this.ontologyVersion = ontologyVersion;
@@ -98,6 +106,7 @@ public class ItineraryVersionJpaEntity {
 	ItineraryVersion.Operation operation() { return operation; }
 	UUID createdBy() { return createdBy; }
 	String requestId() { return requestId; }
+	UUID sourceRequestId() { return sourceRequestId; }
 	String modelVersion() { return modelVersion; }
 	String featureVersion() { return featureVersion; }
 	String ontologyVersion() { return ontologyVersion; }

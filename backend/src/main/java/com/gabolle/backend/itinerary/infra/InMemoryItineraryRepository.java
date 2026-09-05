@@ -1,9 +1,13 @@
 package com.gabolle.backend.itinerary.infra;
 
 import com.gabolle.backend.itinerary.domain.Itinerary;
+import com.gabolle.backend.itinerary.domain.ItineraryContent;
+import com.gabolle.backend.itinerary.domain.ItineraryItem;
+import com.gabolle.backend.itinerary.domain.ItineraryLeg;
 import com.gabolle.backend.itinerary.domain.ItineraryRepository;
 import com.gabolle.backend.itinerary.domain.ItineraryVersion;
 import com.gabolle.backend.itinerary.domain.StaleItineraryVersionException;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -29,9 +33,36 @@ public class InMemoryItineraryRepository implements ItineraryRepository {
     /** 열쇠는 "일정id#판번호". DB 의 UNIQUE (itinerary_id, version) 에 해당한다. */
     private final Map<String, ItineraryVersion> versions = new ConcurrentHashMap<>();
 
+    /** 열쇠는 itineraryVersionId. 판마다 항목·구간을 따로 들고 있다(판은 덮어쓰지 않는다). */
+    private final Map<String, List<ItineraryItem>> items = new ConcurrentHashMap<>();
+    private final Map<String, List<ItineraryLeg>> legs = new ConcurrentHashMap<>();
+
     @Override
     public Optional<Itinerary> findById(String itineraryId) {
         return Optional.ofNullable(itineraries.get(itineraryId));
+    }
+
+    @Override
+    public Itinerary create(Itinerary itinerary, ItineraryVersion firstVersion) {
+        // 🔴 DB 구현과 같은 보장 — 같은 itineraryId 로 두 번 create 하면 뒤엣것이 이긴다.
+        //    실제로는 새 UUID 를 매번 만들어 부르므로 이 경로에서 충돌은 생기지 않는다.
+        itineraries.put(itinerary.itineraryId(), itinerary);
+        versions.put(key(firstVersion.itineraryId(), firstVersion.version()), firstVersion);
+        return itinerary;
+    }
+
+    @Override
+    public void saveContent(String itineraryVersionId, List<ItineraryItem> newItems, List<ItineraryLeg> newLegs) {
+        items.put(itineraryVersionId, List.copyOf(newItems));
+        legs.put(itineraryVersionId, List.copyOf(newLegs));
+    }
+
+    @Override
+    public Optional<ItineraryContent> findContent(String itineraryId, int version) {
+        return findVersion(itineraryId, version)
+                .map(v -> new ItineraryContent(v,
+                        items.getOrDefault(v.itineraryVersionId(), List.of()),
+                        legs.getOrDefault(v.itineraryVersionId(), List.of())));
     }
 
     @Override

@@ -131,16 +131,32 @@ public class AccountDeletionService {
 	 */
 	private void deleteTripData(UUID userId, List<UUID> tripIds) {
 		if (!tripIds.isEmpty()) {
+			// 🔴 2026-09-05 (S15P21E201-604) — 일정을 추천 작업보다 <b>먼저</b> 지운다.
+			//    itinerary_item·itinerary_versions 의 source_request_id 가
+			//    recommendation_job.request_id 를 가리키게 되면서, 예전 순서(작업 먼저)로는
+			//    일정을 한 번이라도 만든 사용자의 탈퇴가 외래키 위반으로 통째로 실패한다.
+			//    이 메서드 머리말이 경고한 "순서가 곧 정확성" 이 실제로 걸린 자리다.
 			execute("""
-					DELETE FROM RecommendationCandidate c WHERE c.requestId IN
-					(SELECT j.requestId FROM RecommendationJob j WHERE j.tripId IN :tripIds)
+					DELETE FROM ItineraryLegJpaEntity l WHERE l.itineraryVersionId IN
+					(SELECT v.itineraryVersionId FROM ItineraryVersionJpaEntity v WHERE v.itineraryId IN
+					 (SELECT i.itineraryId FROM ItineraryJpaEntity i WHERE i.tripId IN :tripIds))
 					""", "tripIds", tripIds);
-			execute("DELETE FROM RecommendationJob j WHERE j.tripId IN :tripIds", "tripIds", tripIds);
+			execute("""
+					DELETE FROM ItineraryItemJpaEntity it WHERE it.itineraryVersionId IN
+					(SELECT v.itineraryVersionId FROM ItineraryVersionJpaEntity v WHERE v.itineraryId IN
+					 (SELECT i.itineraryId FROM ItineraryJpaEntity i WHERE i.tripId IN :tripIds))
+					""", "tripIds", tripIds);
 			execute("""
 					DELETE FROM ItineraryVersionJpaEntity v WHERE v.itineraryId IN
 					(SELECT i.itineraryId FROM ItineraryJpaEntity i WHERE i.tripId IN :tripIds)
 					""", "tripIds", tripIds);
 			execute("DELETE FROM ItineraryJpaEntity i WHERE i.tripId IN :tripIds", "tripIds", tripIds);
+
+			execute("""
+					DELETE FROM RecommendationCandidate c WHERE c.requestId IN
+					(SELECT j.requestId FROM RecommendationJob j WHERE j.tripId IN :tripIds)
+					""", "tripIds", tripIds);
+			execute("DELETE FROM RecommendationJob j WHERE j.tripId IN :tripIds", "tripIds", tripIds);
 		}
 
 		// 추천 기록은 여행 없이도 남을 수 있다 (지금 위치 기준 추천 등).

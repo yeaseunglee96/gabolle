@@ -81,6 +81,24 @@ public final class RecommendationCodes {
 	/** 후보를 저장 가능한 형태로 만들지 못했다. 예: 같은 place_id 가 두 번 왔다. */
 	public static final String ERROR_CANDIDATE_ASSEMBLY_FAILED = "CANDIDATE_ASSEMBLY_FAILED";
 
+	/**
+	 * 🔴 S15P21E201-604 — 이 배포에 {@code ItineraryDraftPort} 구현이 붙어 있지 않다.
+	 *
+	 * <p>{@link #ERROR_ENGINE_NOT_CONFIGURED} 와 같은 이유다 — 일정 조립기가 없다고
+	 * 애플리케이션 전체가 못 뜨면 안 된다. 그래서 기동은 하되, {@code ITINERARY_GENERATION}
+	 * 을 실제로 성공시키려는 순간에만 이 코드로 시끄럽게 실패한다.
+	 */
+	public static final String ERROR_ITINERARY_PORT_NOT_CONFIGURED = "ITINERARY_PORT_NOT_CONFIGURED";
+
+	/** 후보를 일정(항목·구간)으로 조립하지 못했다. {@code assemble()} 이 트랜잭션 밖에서 던진 것이다. */
+	public static final String ERROR_ITINERARY_ASSEMBLY_FAILED = "ITINERARY_ASSEMBLY_FAILED";
+
+	/** 조립까지는 됐지만 저장({@code persist()})이 실패했다. */
+	public static final String ERROR_ITINERARY_PERSIST_FAILED = "ITINERARY_PERSIST_FAILED";
+
+	/** 위 코드들로 분류되지 않는, 예상하지 못한 실패. {@code RecommendationJobWorker} 의 마지막 방어선이 쓴다. */
+	public static final String ERROR_UNEXPECTED = "UNEXPECTED";
+
 	private RecommendationCodes() {
 	}
 }

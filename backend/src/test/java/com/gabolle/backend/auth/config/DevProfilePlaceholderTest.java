@@ -37,6 +37,11 @@ class DevProfilePlaceholderTest {
 		env.put("GABOLLE_DB_USERNAME", "app_user");
 		env.put("GABOLLE_DB_PASSWORD", "test-password");
 		env.put("GABOLLE_JWT_SECRET", "0123456789abcdef0123456789abcdef");
+		// S15P21E201-604 — 추천 응답의 서비스 버전 / 배포 환경. Jenkinsfile Deploy
+		// 단계가 GIT_COMMIT 과 고정 문자열 "dev" 를 각각 넣는다 (그 값 자체가
+		// 아니라 "채워진다"는 사실만 이 테스트에 필요하다).
+		env.put("GABOLLE_SERVICE_VERSION", "0123456789abcdef0123456789abcdef01234567");
+		env.put("GABOLLE_DEPLOYMENT_ENVIRONMENT", "dev");
 		return env;
 	}
 
