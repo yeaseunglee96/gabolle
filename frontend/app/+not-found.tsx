@@ -26,7 +26,7 @@ export default function NotFoundScreen() {
             <Text variant="hero" weight="bold" color={color.text.onAction}>
               길을 잠깐{`\n`}벗어났어요
             </Text>
-            <Text variant="body" color="#d8e2ee">
+            <Text variant="body" color={color.text.onDarkMuted}>
               요청한 화면이 없거나 주소가 변경됐어요.{`\n`}안전하게 홈에서 여행을 다시 이어가세요.
             </Text>
           </View>
@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
   routeLine: { flexDirection: 'row', alignItems: 'center' },
   routeDot: { width: 10, height: 10, borderRadius: radius.full, borderWidth: 2, borderColor: color.text.onAction },
   routeDotActive: { backgroundColor: color.brand.orange, borderColor: color.brand.orange },
-  routeDash: { flex: 1, height: 1, marginHorizontal: spacing[2], backgroundColor: '#52647d' },
+  routeDash: { flex: 1, height: 1, marginHorizontal: spacing[2], backgroundColor: color.text.muted },
   actionPanel: { gap: spacing[8], backgroundColor: color.brand.ivory, padding: spacing[6], paddingBottom: spacing[8] },
   desktopActionPanel: { flex: 1, justifyContent: 'center', padding: 48 },
   actionTitle: { marginTop: spacing[2], marginBottom: spacing[3] },

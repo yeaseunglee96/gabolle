@@ -48,7 +48,7 @@ export default function AgeGate() {
   return (
     <Screen wide style={kind === 'tablet' ? styles.webCanvas : styles.canvas}>
       <View style={[styles.panel, kind === 'tablet' && styles.webPanel]}>
-      {kind === 'tablet' && <View style={styles.webIntro}><Text variant="eyebrow" weight="bold" color={color.brand.orange}>GABOLLE · BUSAN</Text><Text variant="display" weight="bold" color={color.text.onAction} style={styles.webIntroTitle}>누구나 안심하고{`\n`}부산을 여행하도록</Text><Text variant="body" color="#dce5f2">연령 확인은 안전한 서비스 이용을 위한 최소한의 절차예요. 생년월일은 수집하지 않습니다.</Text><View style={styles.webTrust}><Text variant="caption" weight="bold" color={color.text.onAction}>✓ 생년월일 미수집</Text><Text variant="caption" weight="bold" color={color.text.onAction}>✓ 한 번만 확인</Text></View></View>}
+      {kind === 'tablet' && <View style={styles.webIntro}><Text variant="eyebrow" weight="bold" color={color.brand.orange}>GABOLLE · BUSAN</Text><Text variant="display" weight="bold" color={color.text.onAction} style={styles.webIntroTitle}>누구나 안심하고{`\n`}부산을 여행하도록</Text><Text variant="body" color={color.text.onDarkMuted}>연령 확인은 안전한 서비스 이용을 위한 최소한의 절차예요. 생년월일은 수집하지 않습니다.</Text><View style={styles.webTrust}><Text variant="caption" weight="bold" color={color.text.onAction}>✓ 생년월일 미수집</Text><Text variant="caption" weight="bold" color={color.text.onAction}>✓ 한 번만 확인</Text></View></View>}
       <View style={[styles.gateContent, kind === 'tablet' && styles.webGateContent]}>
       <View style={styles.header}><BrandLogoLink href={kind === 'tablet' ? '/' : '/home'} imageStyle={styles.logo} /><View style={styles.step}><Text variant="caption" weight="bold" color={color.brand.orange}>{tx('가입 전 확인', 'Before you continue')}</Text></View></View>
       <View style={styles.body}>
