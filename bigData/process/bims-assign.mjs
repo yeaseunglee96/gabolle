@@ -66,7 +66,34 @@ const args = process.argv.slice(2)
 const arg  = k => args.includes(k) ? args[args.indexOf(k) + 1] : null
 const log  = (...a) => console.log(a.join(' '))
 
-const callsPerRoutePerDay = interval => Math.floor(WORK_SECONDS / interval)
+/**
+ * 🔴 노선 하나를 하루에 몇 번 부르는가 — 배정의 모든 산수가 이 숫자 하나에서 나온다.
+ *
+ * 원래는 "근무시간 ÷ 주기" 로만 정했다. 노트북에서 돌리는 것을 전제했기 때문이다.
+ * 서버(AWS)로 옮기면서 전제가 깨졌다 — 서버는 하루 종일 켜져 있고, 시간대마다 주기를
+ * 다르게 줄 수도 있다. 그러면 이 값이 한 줄 나눗셈으로 안 나온다.
+ *
+ * 🔴 그렇다고 배정을 다른 곳에서 새로 계산하지 않는다. 그러면 배정이 두 곳에서 나오고,
+ *    한쪽만 고쳐지는 날 사람마다 겹치는 노선을 돌게 된다 — 겹친 만큼이 그대로 버리는
+ *    예산이다. 그래서 **바뀌는 숫자 하나만 밖에서 받는다.** 나누는 일은 계속 여기서 한다.
+ *
+ *   node process/bims-assign.mjs --members a,b,c,d,e,f --calls-per-route 600
+ *
+ * 600 은 예를 들면 이렇게 나온 값이다: 러시아워 5시간을 60초로(300회) + 그 밖의
+ * 운행시간 15시간을 180초로(300회). 그 시간표는 배포 설정(deploy/)이 갖고 있고,
+ * 이 스크립트는 "하루에 몇 번" 만 알면 된다.
+ */
+const CALLS_OVERRIDE = args.includes('--calls-per-route')
+  ? Number(args[args.indexOf('--calls-per-route') + 1])
+  : null
+
+if (CALLS_OVERRIDE !== null && (!Number.isFinite(CALLS_OVERRIDE) || CALLS_OVERRIDE <= 0)) {
+  console.error('🔴 --calls-per-route 는 1 이상의 수여야 합니다.')
+  process.exit(2)
+}
+
+const callsPerRoutePerDay = interval =>
+  CALLS_OVERRIDE ?? Math.floor(WORK_SECONDS / interval)
 const maxRoutes = interval => Math.floor(BUDGET / callsPerRoutePerDay(interval))
 
 async function main() {
@@ -251,9 +278,18 @@ async function main() {
       '1인예산': BUDGET,
       '노선당 하루 호출': callsPerRoutePerDay(INTERVAL_S),
       '1인 최대 노선수': planA_routes,
+      '노선당 하루 호출은 어디서 왔나': CALLS_OVERRIDE
+        ? `밖에서 받았다 (--calls-per-route ${CALLS_OVERRIDE}). 서버에서 시간대마다 주기가 `
+          + '달라 한 줄 나눗셈으로 안 나오기 때문이다. 실제 시간표는 deploy/ 가 갖고 있고, '
+          + '이 배정은 "하루에 몇 번" 만 알면 된다. 🔴 이 값이 실제 시간표와 어긋나면 '
+          + '한도를 넘기고, 넘긴 키는 그날 남은 시간 동안 아무것도 못 받는다 — 둘을 같이 고친다.'
+        : `근무시간 ÷ 주기 = ${WORK_SECONDS} ÷ ${INTERVAL_S}. 노트북에서 근무시간에만 돌리는 전제다.`,
     },
 
-    산수: `노선수 × (근무초 ÷ 주기초) ≤ 한도 × 안전여유  →  `
+    산수: CALLS_OVERRIDE
+        ? `노선수 × 노선당하루호출 ≤ 한도 × 안전여유  →  `
+        + `노선수 × ${CALLS_OVERRIDE} ≤ ${DAILY_LIMIT} × ${SAFETY}  →  노선수 ≤ ${planA_routes}`
+        : `노선수 × (근무초 ÷ 주기초) ≤ 한도 × 안전여유  →  `
         + `노선수 × (${WORK_SECONDS} ÷ ${INTERVAL_S}) ≤ ${DAILY_LIMIT} × ${SAFETY}  →  `
         + `노선수 × ${callsPerRoutePerDay(INTERVAL_S)} ≤ ${BUDGET}  →  노선수 ≤ ${planA_routes}`,
 
