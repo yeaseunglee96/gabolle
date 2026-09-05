@@ -5,14 +5,15 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.gabolle.backend.common.api.ApiResponse;
+import com.gabolle.backend.common.security.AuthenticatedUsers;
 import com.gabolle.backend.itinerary.application.ItineraryEditService;
 import com.gabolle.backend.itinerary.domain.ItineraryVersion;
 import com.gabolle.backend.itinerary.presentation.dto.LockItemRequest;
@@ -62,18 +63,19 @@ public class ItineraryEditController {
      *
      * <p>🔴 <b>아직 없는 것</b> — 객체 권한 검증(OWNER/EDITOR)이 빠져 있다.
      * 명세 2.1 이 "모든 itineraryId 에 대해 실제 소유·참여 관계를 다시 검증한다" 를
-     * 요구하고 FR-SEC-01 도 같다. {@code trip_members} 표가 아직 없어서 못 한다.
-     * 그전까지는 인증된 사용자면 통과한다 — <b>MR 에 이 사실을 적는다.</b>
+     * 요구하고 FR-SEC-01 도 같다. {@code trip_members} 표는 S15P21E201-461 이 이미
+     * 만들었지만, 이 컨트롤러가 그걸로 멤버십을 확인하는 연결은 아직 없다 — 별도
+     * 티켓이 필요하다. 그전까지는 <b>인증된 사용자면</b> 통과한다(누구인지는 이제
+     * 신뢰할 수 있다 — S15P21E201-610 — 다만 "그 일정의 회원인가" 는 아직 안 본다).
      */
     @PostMapping("/items/{itemId}/lock")
     public ResponseEntity<ApiResponse<Map<String, Object>>> lockItem(
             @PathVariable String itineraryId,
             @PathVariable String itemId,
             @Valid @RequestBody LockItemRequest request,
-            @RequestHeader(value = "X-User-Id", required = false) String userId) {
+            Authentication authentication) {
 
-        // 🔴 M1 임시 — 인증이 아직 없어서 헤더로 받는다. auth 패키지가 서면 교체한다.
-        String editor = userId != null ? userId : "usr_unknown";
+        String editor = AuthenticatedUsers.requireId(authentication).toString();
 
         ItineraryVersion saved = service.edit(
                 itineraryId,

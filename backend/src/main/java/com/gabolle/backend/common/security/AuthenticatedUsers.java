@@ -3,53 +3,50 @@ package com.gabolle.backend.common.security;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 
+import com.gabolle.backend.auth.service.AuthException;
+
 /**
- * 요청자가 누구인지 <b>인증에서만</b> 얻는다.
+ * 요청 컨트롤러가 "누가 요청했는가" 를 얻는 자리 — S15P21E201-610.
  *
- * <h2>왜 이 클래스가 필요한가</h2>
+ * <p>🔴 {@code @RequestHeader("X-User-Id")} 를 쓰지 않는다. {@code SecurityConfig} 가 이미
+ * JWT 로 인증을 요구하는데, 그 뒤에 "누구인가" 를 헤더로 다시 받으면 <b>로그인한 사람이
+ * 남의 ID 를 헤더에 실어 보내는 것만으로 그 사람 행세를 할 수 있다.</b> 인증(로그인 여부)은
+ * 지켜지는데 인가(그 자원이 정말 이 사람 것인가)가 뚫린다 — API 명세서 2.1절이 금지하는
+ * 바로 그 시나리오다.
  *
- * {@code HmacJwtAuthenticationFilter} 가 JWT 의 {@code sub}(사용자 UUID 문자열)를 principal 로
- * 넣어 두고, {@code AuthController.authenticatedUserId} 가 그것을 꺼내 쓴다. 그런데 그 메서드는
- * {@code private} 이라 다른 도메인이 재사용할 수 없었고, 그 결과 {@code trip} 과 {@code itinerary} 의
- * 컨트롤러가 <b>{@code X-User-Id} 요청 헤더</b>로 사용자를 정하고 있다.
+ * <p>대신 {@link Authentication#getName()}(JWT 의 {@code sub} 클레임 — 로그인 처리 과정에서
+ * 서버가 검증해 채운 사용자 UUID 문자열)만 신뢰한다. {@code AuthController.authenticatedUserId}
+ * 가 이미 하던 것을 여러 도메인이 재사용할 수 있게 여기로 뽑았다.
  *
- * <p>🔴 그 방식은 인가 우회다. 인증만 통과하면 남의 ID 를 헤더에 실어 보낼 수 있고, 그러면 소유·참여
- * 검사가 그 주장 값으로 돌아 무력화된다. API 명세 2.1 도 "다른 회원의 ID 를 추측해도 조회·수정할 수
- * 없어야 한다" 고 못 박고 있다. 그래서 새로 만드는 컨트롤러는 <b>처음부터</b> 이것을 쓴다.
+ * <p>🔴 반환형은 {@code UUID} 다 — {@code place} 패키지(S15P21E201-462, 박재현)가
+ * {@link #optionalId} 를 이미 이 모양으로 쓰고 있어 맞췄다.
  *
- * <p>기존 두 컨트롤러는 다른 사람이 진행 중인 범위라 이번에 손대지 않았다. 이 클래스가 그때 쓸
- * 자리를 미리 만들어 둔 것이다.
+ * <p>{@link AuthException} 을 던진다 — {@code AuthExceptionHandler} 가 이미
+ * {@code @RestControllerAdvice}(도메인 제한 없는 전역)라 어느 컨트롤러에서 던져도
+ * 401 로 번역된다.
  */
 public final class AuthenticatedUsers {
 
 	private AuthenticatedUsers() {
 	}
 
-	/**
-	 * 인증된 사용자 ID. 없거나 UUID 로 읽을 수 없으면 예외를 던진다.
-	 *
-	 * <p>🔴 기본값을 만들어 내지 않는다. {@code "usr_unknown"} 같은 값을 넣으면 그 뒤의 권한 검사가
-	 * 전부 그 가짜 사용자 기준으로 돌고, 실패가 401 이 아니라 "그런 자원 없음" 으로 나타나 원인을
-	 * 찾기 어려워진다.
-	 */
+	/** 반드시 로그인한 사용자여야 하는 자리. 없으면 401. */
 	public static UUID requireId(Authentication authentication) {
 		if (authentication == null || authentication.getName() == null) {
-			throw new UnauthenticatedRequestException("AUTHENTICATION_REQUIRED", "로그인이 필요합니다.");
+			throw new AuthException("AUTHENTICATION_REQUIRED", "로그인이 필요합니다.", HttpStatus.UNAUTHORIZED);
 		}
 		try {
 			return UUID.fromString(authentication.getName());
 		}
-		catch (IllegalArgumentException exception) {
-			throw new UnauthenticatedRequestException("INVALID_AUTHENTICATION", "인증 정보가 올바르지 않습니다.");
+		catch (IllegalArgumentException ex) {
+			throw new AuthException("INVALID_AUTHENTICATION", "인증 정보가 올바르지 않습니다.", HttpStatus.UNAUTHORIZED);
 		}
 	}
 
-	/**
-	 * 있으면 사용자 ID, 없으면 비어 있음. 로그인 없이도 열리는 조회에서 "로그인했으면 개인화된 값을
-	 * 얹는다" 같은 자리에 쓴다.
-	 */
+	/** 로그인 여부가 선택인 자리. 없거나 형식이 이상하면 조용히 빈 값. */
 	public static Optional<UUID> optionalId(Authentication authentication) {
 		if (authentication == null || authentication.getName() == null) {
 			return Optional.empty();
@@ -57,7 +54,7 @@ public final class AuthenticatedUsers {
 		try {
 			return Optional.of(UUID.fromString(authentication.getName()));
 		}
-		catch (IllegalArgumentException exception) {
+		catch (IllegalArgumentException ex) {
 			return Optional.empty();
 		}
 	}

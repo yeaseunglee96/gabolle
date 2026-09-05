@@ -12,6 +12,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -44,18 +46,29 @@ class ItineraryEditControllerTest {
                 .build();
     }
 
+    /**
+     * 🔴 S15P21E201-610 — 헤더가 아니라 인증 principal 로 사용자를 정한다.
+     * {@code MockMvc.principal(Principal)} 은 Spring MVC 의 기본
+     * {@code PrincipalMethodArgumentResolver} 를 그대로 타므로, Security 필터 체인을
+     * 안 올리는 {@code standaloneSetup} 에서도 {@code Authentication} 파라미터가 채워진다.
+     */
+    private static Authentication asUser(String userId) {
+        return new TestingAuthenticationToken(userId, null);
+    }
+
     @Test
     @DisplayName("ITN-03 — 최신 판으로 고정하면 201 과 새 판 번호가 온다")
     void lockItemReturns201() throws Exception {
+        String userA = java.util.UUID.randomUUID().toString();
         mockMvc.perform(post("/api/v1/itineraries/{id}/items/{itemId}/lock", "itn_1", "item_1")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-User-Id", "usr_a")
+                        .principal(asUser(userA))
                         .content("{\"baseVersion\":5}"))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.data.version").value(6))
                 .andExpect(jsonPath("$.data.baseVersion").value(5))
                 .andExpect(jsonPath("$.data.operation").value("LOCK_ITEM"))
-                .andExpect(jsonPath("$.data.createdBy").value("usr_a"))
+                .andExpect(jsonPath("$.data.createdBy").value(userA))
                 .andExpect(jsonPath("$.data.lockedItemId").value("item_1"))
                 // API 명세 2.1 — 공통 envelope 에 meta.requestId 가 있어야 한다
                 .andExpect(jsonPath("$.meta.requestId").exists())
@@ -69,17 +82,20 @@ class ItineraryEditControllerTest {
     @Test
     @DisplayName("🔴 ITN-03 — 낡은 판으로 고정하면 409 와 ITINERARY_VERSION_CONFLICT 가 온다")
     void staleBaseVersionReturns409() throws Exception {
+        String userA = java.util.UUID.randomUUID().toString();
+        String userB = java.util.UUID.randomUUID().toString();
+
         // 먼저 한 번 편집해서 최신을 6으로 올린다.
         mockMvc.perform(post("/api/v1/itineraries/{id}/items/{itemId}/lock", "itn_1", "item_1")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-User-Id", "usr_a")
+                        .principal(asUser(userA))
                         .content("{\"baseVersion\":5}"))
                 .andExpect(status().isCreated());
 
         // 화면이 아직 5를 보고 있다고 가정하고 다시 시도한다.
         mockMvc.perform(post("/api/v1/itineraries/{id}/items/{itemId}/lock", "itn_1", "item_2")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-User-Id", "usr_b")
+                        .principal(asUser(userB))
                         .content("{\"baseVersion\":5}"))
                 .andExpect(status().isConflict())
                 // 🔴 명세가 지정한 코드여야 한다. 서버가 임의로 정하면 FE·APP 이 못 받는다.
@@ -97,7 +113,7 @@ class ItineraryEditControllerTest {
     void missingBaseVersionIsRejected() throws Exception {
         mockMvc.perform(post("/api/v1/itineraries/{id}/items/{itemId}/lock", "itn_1", "item_1")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-User-Id", "usr_a")
+                        .principal(asUser(java.util.UUID.randomUUID().toString()))
                         .content("{}"))
                 .andExpect(status().isBadRequest());
     }
