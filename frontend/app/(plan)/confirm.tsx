@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Button } from '@/components/Button';
 import { BrandLogoLink } from '@/components/BrandLogoLink';
 import { useAuth } from '@/auth/AuthProvider';
@@ -27,8 +27,8 @@ function Row({ label, value }: { label: string; value: string }) { return <View 
 function Section({ title, path, hard, children }: { title: string; path: '/plan/basic' | '/plan/taste' | '/plan/conditions'; hard?: boolean; children: React.ReactNode }) { const router = useRouter(); const { tx } = useI18n(); return <View style={[styles.card, hard && styles.hardCard]}><View style={styles.cardHeader}><View style={styles.cardTitle}>{hard && <View style={styles.dot} />}<Text variant="title" weight="bold">{title}</Text></View><Pressable accessibilityRole="button" accessibilityLabel={tx(`${title} 수정`, `Edit ${title}`)} onPress={() => router.push(path)} style={styles.edit}><Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx('수정', 'Edit')}</Text></Pressable></View>{children}</View>; }
 
 export default function Confirm() {
-  const router = useRouter(); const { kind } = useLayout(); const { tx, locale, language } = useI18n(); const { user, accessToken, ready: authReady } = useAuth(); const { draft, basicComplete } = usePlan(); const [job, setJob] = useState<RecommendationJobSnapshot | null>(null);
-  useEffect(() => { if (!basicComplete) router.replace('/plan/basic'); }, [basicComplete, router]);
+  const router = useRouter(); const { preview } = useLocalSearchParams<{ preview?: string }>(); const { kind } = useLayout(); const { tx, locale, language } = useI18n(); const { user, accessToken, ready: authReady } = useAuth(); const { draft, basicComplete } = usePlan(); const [job, setJob] = useState<RecommendationJobSnapshot | null>(preview === 'api-error' ? { state: 'unavailable', jobId: null, progress: null, stage: null, canCancel: false, errorMessage: '여행 생성 서버 연결을 확인하고 있어요. 잠시 후 다시 시도해 주세요.', resultRef: null } : null);
+  useEffect(() => { if (!basicComplete && preview !== 'api-error') router.replace('/plan/basic'); }, [basicComplete, preview, router]);
   const allergy = draft.allergyStatus === 'UNKNOWN' ? '미확인' : draft.allergyStatus === 'NONE' ? '해당 없음' : names(draft.allergies);
   const diet = draft.dietStatus === 'UNKNOWN' ? '미확인' : draft.dietStatus === 'NONE' ? '해당 없음' : names(draft.dietTypes);
   const hardUnknown = draft.allergyStatus === 'UNKNOWN' || draft.dietStatus === 'UNKNOWN' || (draft.allergyStatus === 'VALUES' && !draft.allergies.length) || (draft.dietStatus === 'VALUES' && !draft.dietTypes.length);
@@ -46,15 +46,11 @@ export default function Confirm() {
     {conflict && <View style={styles.conflict}><Text accessibilityRole="alert" variant="caption" weight="bold" color={color.state.warning}>도보 위주 이동과 500m 이하 보행 제한이 함께 선택됐어요. 생성 전에 이동수단을 확인해 주세요.</Text></View>}
     <View style={styles.notice}><Text variant="caption" color={color.text.body}>{tx('장소 운영시간·접근성·혼잡도는 최신 정보가 아닐 수 있어요. 최종 방문 전 공식 정보를 확인해 주세요.', 'Hours, accessibility, and crowd data may change. Check official information before visiting.')}</Text></View>
     <View style={styles.nextSteps}><Text weight="bold">{tx('이후 진행 단계', 'What happens next')}</Text><Text variant="caption" color={color.text.body}>{tx('조건 검토 → 추천 장소 구성 → 이동 동선 확인 → 일정 완성', 'Review constraints → Build recommendations → Check routes → Complete itinerary')}</Text></View>
-    {job?.state === 'unavailable' && <View style={styles.unavailable}><Text accessibilityRole="alert" variant="caption" style={styles.generateNotice}>{job.errorMessage}</Text><Button accessibilityRole="button" label="조건 다시 확인" variant="ghost" onPress={() => router.push('/plan/conditions')} /></View>}
+    {job?.errorMessage && <View style={styles.unavailable}><Text accessibilityRole="alert" variant="caption" style={styles.generateNotice}>{job.errorMessage}</Text><Text variant="caption" color={color.text.body}>{tx('입력한 조건은 그대로 보관돼요. 서버가 준비되면 아래 버튼으로 다시 요청할 수 있어요.', 'Your choices are preserved. Retry below when the server is ready.')}</Text><Button accessibilityRole="button" label={tx('조건 다시 확인', 'Review constraints')} variant="ghost" onPress={() => router.push('/plan/conditions')} /></View>}
     <Button accessibilityRole="button" accessibilityState={{ disabled: !basicComplete || hardUnknown || !authReady, busy: job?.state === 'submitting' }} accessibilityHint={hardUnknown ? '미확인 제약 조건을 먼저 확인해 주세요.' : user ? '일정 생성을 요청합니다.' : '로그인 후 입력한 조건으로 일정 생성을 계속합니다.'} label={!authReady ? '로그인 상태 확인 중…' : job?.state === 'submitting' ? '요청 중…' : user ? '이 조건으로 일정 만들기' : '로그인하고 일정 만들기'} disabled={!basicComplete || hardUnknown || !authReady || job?.state === 'submitting'} containerStyle={styles.cta} onPress={async () => {
       if (!user) { router.push({ pathname: '/sign-in', params: { returnTo: '/plan/confirm' } }); return; }
       setJob({ state: 'submitting', jobId: null, progress: null, stage: null, canCancel: false, errorMessage: null, resultRef: null });
-      const next = await createRecommendationJobAdapter(accessToken).submit({
-        trip: { startDate: draft.startDate, endDate: draft.endDate, partySize: draft.travelers, budgetKrw: draft.budgetKrw, origin: draft.origin, travelMode: draft.transport, timeWindowStart: draft.dayStartTime, timeWindowEnd: draft.dayEndTime },
-        preferences: { categories: draft.preferences, atmospheres: draft.atmospheres, foods: draft.foods, localityLevel: draft.localityLevel, quietLevel: draft.quietLevel, touristLevel: draft.touristLevel },
-        constraints: { allergyStatus: draft.allergyStatus, allergies: draft.allergies, dietStatus: draft.dietStatus, dietTypes: draft.dietTypes, maximumWalkingMeters: draft.maxWalkingDistanceM, slopePreference: draft.slopeConstraint, stairsAvoidance: draft.stairsConstraint === 'AVOID', shadePreference: draft.shadePreference, wheelchair: draft.wheelchair, stroller: draft.stroller, heavyLuggage: draft.luggage },
-      });
+      const next = await createRecommendationJobAdapter(accessToken).submit(draft);
       setJob(next);
       if (next.jobId) router.push({ pathname: '/plan/generating', params: { jobId: next.jobId } });
     }} />

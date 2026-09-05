@@ -1,4 +1,6 @@
 import { apiRequest, ApiClientError } from '@/api/client';
+import { createTripAndRecommendationJob } from '@/api/tripApi';
+import type { PlanDraft } from '@/plan/PlanProvider';
 
 export type RecommendationJobState = 'idle' | 'submitting' | 'accepted' | 'polling' | 'completed' | 'conflict' | 'failed' | 'cancelled' | 'unavailable';
 export type RecommendationJobSnapshot = { state: RecommendationJobState; jobId: string | null; progress: number | null; stage: string | null; canCancel: boolean; errorMessage: string | null; resultRef: string | null };
@@ -21,13 +23,13 @@ export function adaptPolledJob(jobId: string, dto: RecommendationJobPollDto, pre
   const errorMessage = dto.failure ? `${dto.failure.code}${dto.failure.detail ? ` · ${dto.failure.detail}` : ''}` : dto.status === 'EXPIRED' ? '일정 생성 작업이 만료됐어요. 다시 요청해 주세요.' : null;
   return { state, jobId, progress, stage: dto.progress.stage ?? previous?.stage ?? null, canCancel: false, errorMessage, resultRef: previous?.resultRef ?? null };
 }
-export interface RecommendationJobAdapter { submit(payload: unknown): Promise<RecommendationJobSnapshot>; poll(jobId: string, previous?: RecommendationJobSnapshot): Promise<RecommendationJobSnapshot>; }
+export interface RecommendationJobAdapter { submit(draft: PlanDraft): Promise<RecommendationJobSnapshot>; poll(jobId: string, previous?: RecommendationJobSnapshot): Promise<RecommendationJobSnapshot>; }
 function toFailure(error: unknown, jobId: string | null = null): RecommendationJobSnapshot {
   if (error instanceof ApiClientError && (error.status === 404 || error.status === 501 || error.code === 'NETWORK_ERROR')) return { ...unavailableJob(error.message), jobId };
   if (error instanceof ApiClientError && error.status === 409) return { state: 'conflict', jobId, progress: null, stage: null, canCancel: false, errorMessage: error.message, resultRef: null };
   return { state: 'failed', jobId, progress: null, stage: null, canCancel: false, errorMessage: error instanceof Error ? error.message : '일정을 만들지 못했어요. 잠시 후 다시 시도해 주세요.', resultRef: null };
 }
 export function createRecommendationJobAdapter(accessToken: string | null): RecommendationJobAdapter { return {
-  async submit(_payload) { return unavailableJob('서버 여행 생성 계약에 이동수단과 정확한 활동 시간이 아직 없어 입력을 누락하지 않고 기다리고 있어요.'); },
+  async submit(draft) { try { return acceptJob(await createTripAndRecommendationJob(draft, accessToken)); } catch (error) { return toFailure(error); } },
   async poll(jobId, previous) { try { return adaptPolledJob(jobId, await apiRequest<RecommendationJobPollDto>(`/api/v1/jobs/${encodeURIComponent(jobId)}`, { accessToken }), previous); } catch (error) { return toFailure(error, jobId); } },
 }; }
