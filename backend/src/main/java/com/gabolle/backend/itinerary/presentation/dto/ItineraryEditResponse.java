@@ -45,7 +45,9 @@ public record ItineraryEditResponse(
 		String createdAt,
 
 		String myRole,
-		boolean canEdit) {
+		boolean canEdit,
+		/** S15P21E201-284 — operation 이 REVERT 일 때 어느 판으로 돌아갔나. 그 외에는 null. 맨 끝에 붙여 앞 칸을 흔들지 않는다. */
+		Integer revertedFromVersion) {
 
 	public static ItineraryEditResponse of(ItineraryDetailResponse detail, ItineraryVersion saved) {
 		return new ItineraryEditResponse(
@@ -62,6 +64,7 @@ public record ItineraryEditResponse(
 				saved.requestId(),
 				saved.createdAt().toString(),
 				detail.myRole(),
-				detail.canEdit());
+				detail.canEdit(),
+				saved.revertedFromVersion());
 	}
 }
