@@ -308,10 +308,10 @@
         "en": "A point a traveller goes to rather than through — an attraction, restaurant, market or viewpoint."
       },
       "note": {
-        "ko": "원본은 data/raw/pbf/poi.ndjson 에 있고 구간·좌표계에 붙인 staged 산출물이 아직 없다. 그래서 부분수집이다. 🔴 버스 정류장·지하철 출구는 bm:Place 가 아니다 — 같은 bm:Waypoint 역할을 하지만 정체는 길의 요소다."
+        "ko": "원본은 data/raw/pbf/poi.ndjson 에 있고 구간·좌표계에 붙인 staged 산출물이 아직 없다. 그래서 부분수집이다. 🔴 버스 정류장·지하철 출구는 bm:Place 가 아니다 — 같은 bm:Waypoint 역할을 하지만 정체는 길의 요소다. 🔴 2026-09-06 부터 출처가 둘이다. OSM 은 관광지·전망대처럼 지도에 그려진 것에 강하고 상가정보(sbiz-poi)는 가게에 강하다. 같은 가게가 두 출처에 다 있을 수 있으므로 합칠 때 좌표와 이름으로 뭉개지 말고 각자의 식별자(bm:osmPoiId · bm:sbizStoreId)를 남겨 둔다 — 어느 쪽에서 왔는지 못 밝히면 틀린 값을 어디서 고쳐야 하는지 알 수 없다."
       },
       "status": "부분수집",
-      "expectedFrom": "osm-korea-pbf (data/raw/pbf/poi.ndjson — staged 산출물 없음), tourapi (운영정보)"
+      "expectedFrom": "osm-korea-pbf (data/raw/pbf/poi.ndjson — staged 산출물 없음), sbiz-poi (data/raw/poi/sbiz-poi-busan-202606.csv — 받음, staged 산출물 없음), tourapi (운영정보)"
     },
     {
       "@id": "bm:PlaceCategory",
@@ -997,6 +997,79 @@
       "sourceField": [{ "dataset": "data/raw/pbf/poi.ndjson", "field": "id" }]
     },
     {
+      "@id": "bm:sbizStoreId",
+      "@type": ["skos:Concept", "rdf:Property"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:Attribute",
+      "onClass": "bm:Place",
+      "prefLabel": { "ko": "상가업소번호", "en": "Small-business store id" },
+      "definition": {
+        "ko": "소상공인시장진흥공단이 가게마다 붙이는 번호. 분기마다 새로 배포되는 파일에서도 같은 가게는 같은 번호를 유지하므로, 서로 다른 분기를 잇는 열쇠다."
+      },
+      "note": {
+        "ko": "🔴 이 번호가 분기를 잇는다는 점이 이 항목의 값어치다. 파일 한 벌에는 개업일이 없어서 '얼마나 오래 영업했나' 를 알 수 없지만, 이 번호로 옛 분기 파일과 대조하면 만들 수 있다 (bm:businessTenureQuarters)."
+      },
+      "valueRange": { "kind": "문자열 (예: MA0106202201A0010117)", "nullable": false },
+      "role": "identifier",
+      "status": "부분수집",
+      "sourceField": [{ "dataset": "data/raw/poi/sbiz-poi-busan-202606.csv", "field": "상가업소번호" }]
+    },
+    {
+      "@id": "bm:sbizIndustryCode",
+      "@type": ["skos:Concept", "rdf:Property"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:Attribute",
+      "onClass": "bm:Place",
+      "prefLabel": { "ko": "상권업종 소분류 코드", "en": "Small-business industry code" },
+      "definition": {
+        "ko": "가게가 무엇을 파는가를 나타내는 코드. 대분류(예 G2 소매) · 중분류(G214 연료 소매) · 소분류(G21401 주유소) 세 단으로 되어 있고 여기 적는 것은 가장 좁은 소분류다."
+      },
+      "note": {
+        "ko": "🔴 OSM 태그를 대신하는 것이 아니라 보태는 것이다. 가게 쪽은 OSM 태그가 성기고 이 분류가 촘촘하다. bm:placeCategoryOf 를 만들 때 두 번째 입력으로 쓴다. 🔴 소분류 코드값을 여기 옮겨 적지 않았다 — 부산 파일에만 수백 개이고, 옮겨 적는 순간 낡는다. 실제 파일이 정본이다."
+      },
+      "valueRange": { "kind": "문자열 코드 (예: G21401)", "nullable": false },
+      "role": "descriptive",
+      "status": "부분수집",
+      "sourceField": [{ "dataset": "data/raw/poi/sbiz-poi-busan-202606.csv", "field": "상권업종소분류코드" }]
+    },
+    {
+      "@id": "bm:businessTenureQuarters",
+      "@type": ["skos:Concept", "rdf:Property"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:Attribute",
+      "onClass": "bm:Place",
+      "prefLabel": { "ko": "영업 지속 분기 수", "en": "Business tenure in quarters" },
+      "definition": {
+        "ko": "이 가게가 몇 분기 연속으로 상가정보에 나타났는가. 오래 버틴 가게일수록 그 동네에서 실제로 쓰이는 곳이라는 신호로 본다."
+      },
+      "note": {
+        "ko": "🔴 팀 문서(SOURCES.md 5번)는 상가정보에서 '영업 지속기간이 나온다' 고 적었지만, 2026-09-06 에 실제 파일을 열어 보니 39개 칸 어디에도 개업일·영업개시일이 없다. 한 벌로는 만들 수 없다. 만들려면 분기 스냅샷을 둘 이상 받아 bm:sbizStoreId 로 대조해야 한다 — 포털의 '주기성 과거 데이터' 에 옛 분기가 있다. 🔴 리뷰 별점 대신 이 신호를 쓰기로 한 이유는 조작할 수 없기 때문이다(CLAUDE.md 2절). 그 성질은 대조로 만들어도 그대로 유지된다."
+      },
+      "valueRange": { "kind": "분기 수 (정수)", "minInclusive": 1, "nullable": true },
+      "role": "descriptive",
+      "status": "미수집",
+      "expectedFrom": "sbiz-poi (분기 스냅샷 2벌 이상 — 한 벌에는 개업일이 없다)"
+    },
+    {
+      "@id": "bm:placeWheelchairAccessible",
+      "@type": ["skos:Concept", "rdf:Property"],
+      "inScheme": "bm:MobilityScheme",
+      "broader": "bm:Attribute",
+      "onClass": "bm:Place",
+      "prefLabel": { "ko": "장소 휠체어 진입 가능", "en": "Place is wheelchair accessible" },
+      "definition": {
+        "ko": "휠체어로 이 장소 안까지 들어갈 수 있는가. 길을 다 통과해도 문 앞에서 막히면 못 간 것이다."
+      },
+      "note": {
+        "ko": "🔴 이 개념이 없어서 비어 있던 자리가 있다. 지금 휠체어 규칙 여섯 개는 전부 길과 이동에 걸려 있다 — 경사·유효폭·계단·저상버스·역 승강기. 마지막 한 걸음인 '장소 안으로 들어가기' 를 담는 것이 없었다. 🔴 값이 셋이다 — 참·거짓·모름(null). bm:exitElevatorAvailable 과 같은 처리다. 확인 안 된 곳을 거짓으로 접으면 '안 된다' 를 지어내는 것이고, 참으로 접으면 못 들어가는 곳으로 안내하게 된다. 🔴 필드 이름은 적지 않았다. 2026-09-06 에 활용신청이 승인됐을 뿐 한 번도 호출하지 않았다 — 응답을 보기 전에 이름을 적으면 어긋난다."
+      },
+      "codeList": [true, false],
+      "codeListOpen": false,
+      "role": "feasibility",
+      "status": "미수집",
+      "expectedFrom": "tourapi-barrier-free (활용신청 승인 2026-09-06, 아직 호출하지 않음)"
+    },
+    {
       "@id": "bm:latDeg",
       "@type": ["skos:Concept", "rdf:Property"],
       "inScheme": "bm:MobilityScheme",
@@ -1100,7 +1173,7 @@
       "valueRange": { "kind": "요일 → (열림, 닫힘) 시각 구간의 목록", "nullable": true },
       "role": "feasibility",
       "status": "미수집",
-      "expectedFrom": "tourapi (소개정보 조회 — 운영시간·휴무일)"
+      "expectedFrom": "tourapi (소개정보 조회 — 운영시간·휴무일. 활용신청 승인 2026-09-06, 아직 호출하지 않음)"
     },
 
     {
@@ -1187,7 +1260,7 @@
       "valueRange": { "kind": "시각 (형식 미확인)", "nullable": true },
       "role": "feasibility",
       "status": "미수집",
-      "expectedFrom": "btc-timetable (활용신청 필요, 자동승인)"
+      "expectedFrom": "btc-timetable (활용신청 승인 2026-09-06, 아직 호출하지 않음)"
     },
     {
       "@id": "bm:stationLastTrainTime",
@@ -1201,7 +1274,7 @@
       "valueRange": { "kind": "시각 (형식 미확인)", "nullable": true },
       "role": "feasibility",
       "status": "미수집",
-      "expectedFrom": "btc-timetable (활용신청 필요, 자동승인)"
+      "expectedFrom": "btc-timetable (활용신청 승인 2026-09-06, 아직 호출하지 않음)"
     },
 
     {
