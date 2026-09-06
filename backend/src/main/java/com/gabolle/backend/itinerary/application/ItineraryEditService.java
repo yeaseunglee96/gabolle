@@ -101,6 +101,10 @@ public class ItineraryEditService {
                 now);
 
         // ③ 저장 + 포인터 이동. 둘 다 저장소가 한 트랜잭션 안에서 한다.
-        return repository.appendVersion(candidate, draft.items(), draft.legs());
+        // 🔴 S15P21E201-249 — appendVersion 이 exclusions 를 4번째로 받게 되어(제외 목록도
+        //    판마다 복사해야 하므로 항목·구간과 같은 자리에 둔다) 이 호출부도 함께 고쳤다.
+        //    draft.exclusions() 는 ItineraryRevision.setLocked 가 바탕 판의 제외 목록을
+        //    그대로 물려준 것이다 — 고정·해제가 제외 목록을 지우지 않는다.
+        return repository.appendVersion(candidate, draft.items(), draft.legs(), draft.exclusions());
     }
 }

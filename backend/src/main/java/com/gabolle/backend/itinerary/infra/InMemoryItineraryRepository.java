@@ -2,6 +2,7 @@ package com.gabolle.backend.itinerary.infra;
 
 import com.gabolle.backend.itinerary.domain.Itinerary;
 import com.gabolle.backend.itinerary.domain.ItineraryContent;
+import com.gabolle.backend.itinerary.domain.ItineraryExclusion;
 import com.gabolle.backend.itinerary.domain.ItineraryItem;
 import com.gabolle.backend.itinerary.domain.ItineraryLeg;
 import com.gabolle.backend.itinerary.domain.ItineraryRepository;
@@ -40,6 +41,7 @@ public class InMemoryItineraryRepository implements ItineraryRepository {
 
     private final Map<String, List<ItineraryItem>> items = new ConcurrentHashMap<>();
     private final Map<String, List<ItineraryLeg>> legs = new ConcurrentHashMap<>();
+    private final Map<String, List<ItineraryExclusion>> exclusions = new ConcurrentHashMap<>();
 
     @Override
     public Optional<Itinerary> findById(String itineraryId) {
@@ -53,7 +55,7 @@ public class InMemoryItineraryRepository implements ItineraryRepository {
         //    실제로는 새 UUID 를 매번 만들어 부르므로 이 경로에서 충돌은 생기지 않는다.
         itineraries.put(itinerary.itineraryId(), itinerary);
         versions.put(key(firstVersion.itineraryId(), firstVersion.version()), firstVersion);
-        putContent(firstVersion.itineraryVersionId(), newItems, newLegs);
+        putContent(firstVersion.itineraryVersionId(), newItems, newLegs, List.of());
         return itinerary;
     }
 
@@ -62,12 +64,13 @@ public class InMemoryItineraryRepository implements ItineraryRepository {
         return findVersion(itineraryId, version)
                 .map(v -> new ItineraryContent(v,
                         items.getOrDefault(v.itineraryVersionId(), List.of()),
-                        legs.getOrDefault(v.itineraryVersionId(), List.of())));
+                        legs.getOrDefault(v.itineraryVersionId(), List.of()),
+                        exclusions.getOrDefault(v.itineraryVersionId(), List.of())));
     }
 
     @Override
     public ItineraryVersion appendVersion(ItineraryVersion version, List<ItineraryItem> newItems,
-                                          List<ItineraryLeg> newLegs) {
+                                          List<ItineraryLeg> newLegs, List<ItineraryExclusion> newExclusions) {
         String key = key(version.itineraryId(), version.version());
 
         // 🔴 putIfAbsent 는 "없을 때만 넣는다" 를 원자적으로 한다.
@@ -79,7 +82,7 @@ public class InMemoryItineraryRepository implements ItineraryRepository {
             throw stale(version);
         }
 
-        putContent(version.itineraryVersionId(), newItems, newLegs);
+        putContent(version.itineraryVersionId(), newItems, newLegs, newExclusions);
 
         // 🔴 포인터를 여기서 옮긴다. DB 구현의 조건부 UPDATE 와 짝이 되는 자리다.
         //    Itinerary.moveTo 가 "한 칸씩만" 을 검사하므로 같은 불변식이 여기서도 선다.
@@ -110,21 +113,33 @@ public class InMemoryItineraryRepository implements ItineraryRepository {
     }
 
     /**
-     * 시연·테스트용 — 판 하나와 그 내용을 검사 없이 그대로 넣는다.
+     * 시연·테스트용 — 판 하나와 그 내용(제외 목록은 빈 목록)을 검사 없이 그대로 넣는다.
      *
      * <p>🔴 {@link #appendVersion} 과 달리 판 번호 경쟁도 포인터도 건드리지 않는다.
      * {@link #seed} 로 만든 "이미 5번 판까지 와 있는 일정" 에 그 5번 판의 내용을 채워 넣는
      * 용도다 — 편집은 바탕 판의 내용을 복사하므로 바탕이 비어 있으면 검사할 것이 없다.
+     *
+     * <p>🔴 S15P21E201-249 — 제외 목록도 심어야 하는 테스트는 {@link #seedVersion(ItineraryVersion,
+     * List, List, List)} 4-인자를 쓴다. 이 3-인자 오버로드는 기존 호출부(제외 목록을
+     * 모르는 테스트)가 컴파일이 안 깨지도록 남겨 뒀다.
      */
     public void seedVersion(ItineraryVersion version, List<ItineraryItem> newItems, List<ItineraryLeg> newLegs) {
-        versions.put(key(version.itineraryId(), version.version()), version);
-        putContent(version.itineraryVersionId(), newItems, newLegs);
+        seedVersion(version, newItems, newLegs, List.of());
     }
 
-    private void putContent(String itineraryVersionId, List<ItineraryItem> newItems, List<ItineraryLeg> newLegs) {
+    /** {@link #seedVersion(ItineraryVersion, List, List)} 에 제외 목록을 더한 것. */
+    public void seedVersion(ItineraryVersion version, List<ItineraryItem> newItems, List<ItineraryLeg> newLegs,
+            List<ItineraryExclusion> newExclusions) {
+        versions.put(key(version.itineraryId(), version.version()), version);
+        putContent(version.itineraryVersionId(), newItems, newLegs, newExclusions);
+    }
+
+    private void putContent(String itineraryVersionId, List<ItineraryItem> newItems, List<ItineraryLeg> newLegs,
+            List<ItineraryExclusion> newExclusions) {
         assertNoDuplicateSlot(newItems, newLegs);
         items.put(itineraryVersionId, List.copyOf(newItems));
         legs.put(itineraryVersionId, List.copyOf(newLegs));
+        exclusions.put(itineraryVersionId, List.copyOf(newExclusions));
     }
 
     /**

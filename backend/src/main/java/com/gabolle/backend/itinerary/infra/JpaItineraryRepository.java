@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.gabolle.backend.itinerary.domain.Itinerary;
 import com.gabolle.backend.itinerary.domain.ItineraryContent;
+import com.gabolle.backend.itinerary.domain.ItineraryExclusion;
 import com.gabolle.backend.itinerary.domain.ItineraryItem;
 import com.gabolle.backend.itinerary.domain.ItineraryLeg;
 import com.gabolle.backend.itinerary.domain.ItineraryRepository;
@@ -53,12 +54,26 @@ import jakarta.persistence.Query;
 @Profile({ "db", "dev" })
 public class JpaItineraryRepository implements ItineraryRepository {
 
+	/**
+	 * 🔴 S15P21E201-249 — {@code warning_codes}(배열 칸) 을 원시 SQL 에 실을 때는
+	 * {@code CAST(?15 AS varchar[])} 에 <b>PostgreSQL 배열 리터럴 문자열</b>
+	 * (예: {@code "{A,B}"}, 비면 {@code "{}"})을 바인딩한다 — JDBC 드라이버가 {@code String[]}
+	 * 을 이 원시 SQL 파라미터 자리에 그대로 못 받아서다({@code ItineraryItemJpaEntity} 는
+	 * Hibernate 엔티티 매핑을 거치므로 {@code @JdbcTypeCode(SqlTypes.ARRAY)} 로 되지만,
+	 * 여기는 엔티티를 거치지 않는 원시 {@code INSERT} 다).
+	 *
+	 * <p>🔴 이스케이프를 하지 않는다 — {@link #toArrayLiteral} 이 붙이는 값은 전부
+	 * {@link ItineraryVersion.Operation}·경고 코드 같은 <b>코드 상수</b>뿐이고, 쉼표·중괄호·
+	 * 따옴표가 들어올 여지가 있는 사용자 자유 입력(예: {@code operationalReason})은 이
+	 * 칸에 들어오지 않는다. 그 전제가 깨지면(예: 나중에 사용자 문자열을 배열에 담게
+	 * 되면) 이 리터럴 조립도 다시 봐야 한다.
+	 */
 	private static final String INSERT_VERSION_ON_CONFLICT_DO_NOTHING = """
 			INSERT INTO itinerary_versions
 			    (itinerary_version_id, itinerary_id, version, base_version, operation, created_by,
 			     request_id, source_request_id, model_version, feature_version, ontology_version,
-			     policy_version, dataset_version, created_at)
-			VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14)
+			     policy_version, dataset_version, created_at, warning_codes)
+			VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, CAST(?15 AS varchar[]))
 			ON CONFLICT (itinerary_id, version) DO NOTHING
 			""";
 
@@ -86,16 +101,19 @@ public class JpaItineraryRepository implements ItineraryRepository {
 
 	private final ItineraryLegJpaRepository legJpaRepository;
 
+	private final ItineraryExclusionJpaRepository exclusionJpaRepository;
+
 	@PersistenceContext
 	private EntityManager entityManager;
 
 	public JpaItineraryRepository(ItineraryJpaRepository itineraryJpaRepository,
 			ItineraryVersionJpaRepository versionJpaRepository, ItineraryItemJpaRepository itemJpaRepository,
-			ItineraryLegJpaRepository legJpaRepository) {
+			ItineraryLegJpaRepository legJpaRepository, ItineraryExclusionJpaRepository exclusionJpaRepository) {
 		this.itineraryJpaRepository = itineraryJpaRepository;
 		this.versionJpaRepository = versionJpaRepository;
 		this.itemJpaRepository = itemJpaRepository;
 		this.legJpaRepository = legJpaRepository;
+		this.exclusionJpaRepository = exclusionJpaRepository;
 	}
 
 	@Override
@@ -131,7 +149,7 @@ public class JpaItineraryRepository implements ItineraryRepository {
 	@Override
 	@Transactional
 	public ItineraryVersion appendVersion(ItineraryVersion version, List<ItineraryItem> items,
-			List<ItineraryLeg> legs) {
+			List<ItineraryLeg> legs, List<ItineraryExclusion> exclusions) {
 
 		int inserted = insertVersion(version);
 
@@ -140,7 +158,7 @@ public class JpaItineraryRepository implements ItineraryRepository {
 			throw staleFor(version);
 		}
 
-		saveContent(UUID.fromString(version.itineraryVersionId()), items, legs);
+		saveContent(UUID.fromString(version.itineraryVersionId()), items, legs, exclusions);
 
 		int expected = version.baseVersion() != null ? version.baseVersion() : version.version() - 1;
 		int moved = entityManager.createNativeQuery(MOVE_POINTER_IF_UNCHANGED)
@@ -183,12 +201,14 @@ public class JpaItineraryRepository implements ItineraryRepository {
 
 		insertVersion(firstVersion);
 
-		saveContent(UUID.fromString(firstVersion.itineraryVersionId()), items, legs);
+		// 🔴 새로 만드는 일정은 아직 제외할 것이 없다 — 제외는 사용자가 편집으로만 만든다.
+		saveContent(UUID.fromString(firstVersion.itineraryVersionId()), items, legs, List.of());
 
 		return itinerary;
 	}
 
-	private void saveContent(UUID versionId, List<ItineraryItem> items, List<ItineraryLeg> legs) {
+	private void saveContent(UUID versionId, List<ItineraryItem> items, List<ItineraryLeg> legs,
+			List<ItineraryExclusion> exclusions) {
 		List<ItineraryItemJpaEntity> itemEntities = items.stream()
 				.map((item) -> toEntity(versionId, item))
 				.toList();
@@ -198,6 +218,11 @@ public class JpaItineraryRepository implements ItineraryRepository {
 				.map((leg) -> toEntity(versionId, leg))
 				.toList();
 		legJpaRepository.saveAll(legEntities);
+
+		List<ItineraryExclusionJpaEntity> exclusionEntities = exclusions.stream()
+				.map((exclusion) -> toEntity(versionId, exclusion))
+				.toList();
+		exclusionJpaRepository.saveAll(exclusionEntities);
 	}
 
 	/**
@@ -231,7 +256,11 @@ public class JpaItineraryRepository implements ItineraryRepository {
 					.findByItineraryVersionIdOrderByDayIndexAscSequenceAsc(versionId).stream()
 					.map(JpaItineraryRepository::toDomain)
 					.toList();
-			return new ItineraryContent(v, items, legs);
+			List<ItineraryExclusion> exclusions = exclusionJpaRepository
+					.findByItineraryVersionIdOrderByCreatedAtAsc(versionId).stream()
+					.map(JpaItineraryRepository::toDomain)
+					.toList();
+			return new ItineraryContent(v, items, legs, exclusions);
 		});
 	}
 
@@ -265,9 +294,19 @@ public class JpaItineraryRepository implements ItineraryRepository {
 				.setParameter(11, v != null ? v.ontologyVersion() : null)
 				.setParameter(12, v != null ? v.policyVersion() : null)
 				.setParameter(13, v != null ? v.datasetVersion() : null)
-				.setParameter(14, toOffset(version.createdAt()));
+				.setParameter(14, toOffset(version.createdAt()))
+				.setParameter(15, toArrayLiteral(version.warningCodes()));
 
 		return insert.executeUpdate();
+	}
+
+	/**
+	 * 🔴 PostgreSQL 배열 리터럴 문자열로 바꾼다 — {@code {A,B}}, 비어 있으면 {@code {}}.
+	 * 이스케이프를 하지 않는 이유는 {@link #INSERT_VERSION_ON_CONFLICT_DO_NOTHING} javadoc 을
+	 * 본다 — 여기 들어오는 값은 전부 경고 코드 상수라 쉼표·중괄호·따옴표가 들어올 수 없다.
+	 */
+	private static String toArrayLiteral(List<String> values) {
+		return "{" + String.join(",", values) + "}";
 	}
 
 	private static ItineraryVersion toDomain(ItineraryVersionJpaEntity e) {
@@ -283,7 +322,32 @@ public class JpaItineraryRepository implements ItineraryRepository {
 				e.requestId(),
 				versions,
 				toInstant(e.createdAt()),
-				e.sourceRequestId() != null ? e.sourceRequestId().toString() : null);
+				e.sourceRequestId() != null ? e.sourceRequestId().toString() : null,
+				e.warningCodes() == null ? List.of() : List.of(e.warningCodes()));
+	}
+
+	private static ItineraryExclusion toDomain(ItineraryExclusionJpaEntity e) {
+		return new ItineraryExclusion(
+				e.itineraryExclusionId().toString(),
+				e.itineraryVersionId().toString(),
+				e.placeId().toString(),
+				e.itemKey() != null ? e.itemKey().toString() : null,
+				e.excludedBy().toString(),
+				e.reasonCode(),
+				e.operationalReason(),
+				toInstant(e.createdAt()));
+	}
+
+	private static ItineraryExclusionJpaEntity toEntity(UUID versionId, ItineraryExclusion exclusion) {
+		return new ItineraryExclusionJpaEntity(
+				UUID.fromString(exclusion.itineraryExclusionId()),
+				versionId,
+				UUID.fromString(exclusion.placeId()),
+				exclusion.itemKey() != null ? UUID.fromString(exclusion.itemKey()) : null,
+				UUID.fromString(exclusion.excludedBy()),
+				exclusion.reasonCode(),
+				exclusion.operationalReason(),
+				toOffset(exclusion.createdAt()));
 	}
 
 	private static Itinerary toDomain(ItineraryJpaEntity e) {

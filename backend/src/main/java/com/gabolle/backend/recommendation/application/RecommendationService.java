@@ -25,6 +25,8 @@ import com.gabolle.backend.recommendation.adapter.RecommendationVersionsMissingE
 import com.gabolle.backend.recommendation.application.port.ItineraryDraft;
 import com.gabolle.backend.recommendation.application.port.ItineraryDraftCommand;
 import com.gabolle.backend.recommendation.application.port.ItineraryDraftPort;
+import com.gabolle.backend.recommendation.application.port.ItineraryRevisionCommand;
+import com.gabolle.backend.recommendation.application.port.ItineraryRevisionDraft;
 import com.gabolle.backend.recommendation.config.RecommendationProperties;
 import com.gabolle.backend.recommendation.domain.JobStage;
 import com.gabolle.backend.recommendation.domain.JobType;
@@ -228,7 +230,13 @@ public class RecommendationService {
 		//    recommendation_requested 다 — 요청이 일어난 순간이 발생 시각이다.
 		OutboxAppendCommand event = buildRequestedEvent(job, createdAt);
 
-		if (assembly.returnedCount() == 0) {
+		// 🔴 S15P21E201-249 — 편집 Job(ITEM_REMOVE·ITINERARY_RECALCULATE)은 후보가 0건이어도
+		//    실패가 아니다. "제외했더니 그 시간대에 넣을 후보가 없다" 는 정답이고, 조건을 완화해
+		//    억지로 채우지 않는다(요구사항 3.2). 빈 자리는 판 경고 RECALC_NO_CANDIDATE 로 남는다 —
+		//    항목 행이 없어 itinerary_item.warning_codes 에는 붙일 곳이 없다. 새 일정 생성은 그대로
+		//    422 NO_FEASIBLE_RESULT 다 — 빈 일정은 결과가 아니다.
+		boolean editJob = command.isItineraryEdit();
+		if (assembly.returnedCount() == 0 && !editJob) {
 			// 여기부터는 실패지만, 후보는 이미 다 만들어졌다.
 			// 🔴 반환할 것이 없으면 성공이 아니다 — GB-API-001 5장이 422
 			//    RECOMMENDATION_NO_FEASIBLE_RESULT 로 정한다. 하드 제약을 슬쩍 풀어 목록을
@@ -273,8 +281,33 @@ public class RecommendationService {
 			}
 		}
 
+		// 🔴 S15P21E201-249 — 편집 Job 은 새 일정을 만들지 않고 있는 판의 하루만 다시 채운다.
+		//    revise 는 트랜잭션 밖(읽기 + 순수 계산)이고 publish 는 recorder 트랜잭션 안이다 —
+		//    ItineraryDraftPort javadoc 의 "두 쌍" 이 이것이다. 게시 시점의 CAS 충돌
+		//    (ItineraryPublishConflictException)은 여기서 잡지 않는다 — RecommendationJobWorker 가
+		//    받아 ITINERARY_VERSION_CONFLICT 로 남긴다. 계산은 맞았고 저장만 늦은 것이라
+		//    ASSEMBLY_FAILED 와 섞으면 안 된다.
+		ItineraryRevisionDraft revision = null;
+		if (editJob) {
+			ItineraryDraftPort port = this.itineraryDraftPort.getIfAvailable();
+			if (port == null) {
+				throw abandon(job, RecommendationCodes.ERROR_ITINERARY_PORT_NOT_CONFIGURED, JobStage.PERSISTENCE,
+						false, false, createdAt, startedNanos, null);
+			}
+			try {
+				revision = port.revise(buildRevisionCommand(job, command, assembly));
+			}
+			catch (RuntimeException ex) {
+				throw abandon(job, RecommendationCodes.ERROR_ITINERARY_ASSEMBLY_FAILED, JobStage.ROUTE_OPTIMIZATION,
+						false, false, createdAt, startedNanos, ex);
+			}
+		}
+
 		if (draft != null) {
 			this.recorder.recordWithItinerary(job, assembly.candidates(), List.of(event), draft);
+		}
+		else if (revision != null) {
+			this.recorder.recordWithItineraryRevision(job, assembly.candidates(), List.of(event), revision);
 		}
 		else {
 			this.recorder.record(job, assembly.candidates(), List.of(event));
@@ -302,6 +335,27 @@ public class RecommendationService {
 		return new ItineraryDraftCommand(job.getRequestId(), job.getTripId().toString(), job.getUserId().toString(),
 				places, job.getModelVersion(), job.getFeatureVersion(), job.getOntologyVersion(),
 				job.getPolicyVersion(), job.getDatasetVersion());
+	}
+
+	/**
+	 * 🔴 S15P21E201-249 — 편집 Job 의 배치 입력. 순위 풀은 {@link #buildDraftCommand} 와 같은
+	 * 순서(finalRank 오름차순)다. 어느 일정·어느 판·어느 날인지는 요청(command.edit)과
+	 * Job(resource_id·base_version)에 이미 있고, 둘은 {@code RecommendationJobRunner.enqueue}
+	 * 가 같은 값으로 채웠다 — 여기서는 Job 쪽을 정본으로 읽는다. 저장된 값이 나중에 GET 으로
+	 * 보이는 값이라서다.
+	 */
+	private ItineraryRevisionCommand buildRevisionCommand(RecommendationJob job, RecommendationCommand command,
+			CandidateAssembly assembly) {
+		List<ItineraryDraftCommand.PlannedPlace> pool = assembly.returnedItems().stream()
+				.map((p) -> new ItineraryDraftCommand.PlannedPlace(p.placeId(), p.finalRank(),
+						p.reasonCodes(), p.warningCodes()))
+				.toList();
+		RecommendationCommand.ItineraryEdit edit = command.edit();
+		int dayIndex = edit.dayIndex() == null ? -1 : edit.dayIndex();
+		return new ItineraryRevisionCommand(job.getRequestId(), job.getResourceId().toString(),
+				job.getBaseVersion(), job.getUserId().toString(), job.getJobType(), dayIndex, edit.itemKey(),
+				edit.newlyExcludedPlaceIds(), edit.operationalReason(), pool, job.getModelVersion(),
+				job.getFeatureVersion(), job.getOntologyVersion(), job.getPolicyVersion(), job.getDatasetVersion());
 	}
 
 	private List<String> resolveMissingVersions(EngineVersions versions) {

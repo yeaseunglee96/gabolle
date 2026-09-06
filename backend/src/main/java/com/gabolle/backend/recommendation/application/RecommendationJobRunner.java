@@ -109,8 +109,24 @@ public class RecommendationJobRunner {
 				UUID.fromString(constraintSnapshotId),
 				null, null, null, // itineraryId · itineraryVersion · baseVersion — 새 일정 생성이라 없다
 				null, // appVersion — 아직 헤더로 안 받는다(TripController 도 같은 상태)
-				topK);
+				topK,
+				null); // edit — 일정 생성은 편집이 아니다
 
+		return enqueue(command);
+	}
+
+	/**
+	 * 🔴 S15P21E201-249 — 이미 조립된 명령을 받아 접수만 한다. 장소 제외(ITN-08)·재계산
+	 * (ITN-09) 편집 Job 이 쓴다 — 그 경로는 소유권·스냅샷을 {@code itinerary.application
+	 * .ItineraryRecalculationService} 가 이미 확인해 두고 {@link RecommendationCommand} 를
+	 * 조립해 넘기므로, 위 {@link #enqueue(String, String, Integer, Integer)} 처럼 여행을
+	 * 다시 조회할 필요가 없다.
+	 *
+	 * <p>{@code prepare → save → execute} 순서는 그대로다 — {@link #enqueue(String, String,
+	 * Integer, Integer)} 의 마지막 세 줄을 그대로 옮겼다. save 가 커밋된 뒤에만 비동기
+	 * 실행을 넘겨야 하는 이유는 그 메서드의 javadoc(클래스 상단)과 같다.
+	 */
+	public RecommendationJob enqueue(RecommendationCommand command) {
 		RecommendationJob job = this.recommendationService.prepare(command);
 		// 🔴 이 save 가 끝나야(=커밋돼야) 아래 execute 를 부른다. 순서를 바꾸지 않는다.
 		this.jobRepository.save(job);

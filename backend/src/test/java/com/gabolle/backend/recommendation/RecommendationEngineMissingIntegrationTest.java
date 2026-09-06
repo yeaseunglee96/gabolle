@@ -75,7 +75,7 @@ class RecommendationEngineMissingIntegrationTest {
 		RecommendationCommand command = new RecommendationCommand(references.userId(),
 				JobType.ITINERARY_GENERATION, references.tripId(), references.tripVersion(),
 				references.preferenceSnapshotId(), references.constraintSnapshotId(),
-				null, null, null, "app-1.0.0", 5);
+				null, null, null, "app-1.0.0", 5, null);
 
 		assertThatThrownBy(() -> this.recommendationService.recommend(command))
 				.isInstanceOf(RecommendationFailedException.class)

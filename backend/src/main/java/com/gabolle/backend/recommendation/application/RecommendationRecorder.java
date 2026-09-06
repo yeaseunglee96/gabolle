@@ -13,6 +13,8 @@ import com.gabolle.backend.event.application.OutboxService;
 import com.gabolle.backend.recommendation.application.port.ItineraryDraft;
 import com.gabolle.backend.recommendation.application.port.ItineraryDraftPort;
 import com.gabolle.backend.recommendation.application.port.ItineraryHandle;
+import com.gabolle.backend.recommendation.application.port.ItineraryPublishConflictException;
+import com.gabolle.backend.recommendation.application.port.ItineraryRevisionDraft;
 import com.gabolle.backend.recommendation.domain.RecommendationCandidate;
 import com.gabolle.backend.recommendation.domain.RecommendationJob;
 import com.gabolle.backend.recommendation.repository.RecommendationCandidateRepository;
@@ -102,6 +104,29 @@ public class RecommendationRecorder {
 		job.attachItinerary(handle.itineraryId(), handle.version());
 		// 🔴 실제로 저장하기 직전에 본다 — RecommendationJob.assertItineraryAttachedIfRequired()
 		//    javadoc 이 그 이유(호출 순서)를 적어 뒀다.
+		job.assertItineraryAttachedIfRequired();
+		this.jobRepository.saveAndFlush(job);
+		this.candidateRepository.saveAllAndFlush(candidates);
+		appendAll(events);
+	}
+
+	/**
+	 * 🔴 S15P21E201-249 — 있는 일정의 하루를 다시 채운 요청의 저장 경로. 새 판 게시·Job·후보·
+	 * Outbox 가 <b>한 트랜잭션</b>이다. {@link #recordWithItinerary} 의 형제이고 순서도 같다 —
+	 * 게시 → Job → 후보. 이유도 같다({@code ck_recommendation_job_result_present} 가 편집 Job 도
+	 * 본다, V20260906120000).
+	 *
+	 * <p>🔴 {@code publish} 가 {@link ItineraryPublishConflictException} 을 던지면 이 트랜잭션
+	 * 전체가 되돌려진다 — 판도, 항목도, Job 갱신도, 후보도, 이벤트도 아무것도 안 남는다. 그것이
+	 * "재계산 실패 시 이전 판을 유지하고 부분 반영 금지"(FR-REC-09)의 DB 수준 보장이다. 실패
+	 * 기록은 {@code RecommendationJobWorker} 가 {@link #recordFailure}({@code REQUIRES_NEW})로
+	 * 따로 남긴다.
+	 */
+	@Transactional
+	public void recordWithItineraryRevision(RecommendationJob job, List<RecommendationCandidate> candidates,
+			List<OutboxAppendCommand> events, ItineraryRevisionDraft revision) {
+		ItineraryHandle handle = this.itineraryDraftPort.getObject().publish(revision);
+		job.attachItinerary(handle.itineraryId(), handle.version());
 		job.assertItineraryAttachedIfRequired();
 		this.jobRepository.saveAndFlush(job);
 		this.candidateRepository.saveAllAndFlush(candidates);

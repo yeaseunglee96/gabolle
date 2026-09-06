@@ -320,9 +320,18 @@ public class RecommendationJob {
 	 * 지워지고, 나중에 "이 추천이 무엇에 대한 요청이었나"를 재구성할 수 없게 된다.
 	 *
 	 * <p>{@code itineraryId}·{@code itineraryVersion} 은 {@link #applyRequestContext} 도
-	 * 쓰는 같은 칸이지만 뜻이 다르다 — 거기서는 "이미 있던 일정"(입력)을, 여기서는
-	 * "이번에 새로 만든 일정"(출력)을 적는다. {@code ITINERARY_GENERATION} 은 시작 시점에
-	 * 일정이 없으므로(itineraryId=null) 둘이 부딪히지 않는다.
+	 * 쓰는 같은 칸이지만 뜻이 다르다.
+	 * <ul>
+	 *   <li>{@code ITINERARY_GENERATION} — {@link #applyRequestContext} 시점엔 일정이
+	 *       아직 없다(itineraryId=null). 여기서 적는 값이 <b>이번에 새로 만든 일정</b>이고,
+	 *       둘이 부딪히지 않는다</li>
+	 *   <li>🔴 (S15P21E201-249) 편집 Job({@code ITEM_REMOVE}·{@code ITINERARY_RECALCULATE}
+	 *       등) — {@link #applyRequestContext} 의 {@code itineraryId}·{@code baseVersion}
+	 *       은 <b>입력</b>이다("무엇을 보고 편집했나" — 사용자가 화면에서 보던 판).
+	 *       여기서 적는 {@code itineraryVersion} 은 <b>출력</b>이다(실제로 게시된 새 판).
+	 *       {@code itineraryId} 자체는 편집 전후로 같은 일정이므로 두 호출이 같은 값을
+	 *       한 번 더 적는 것과 같다 — 덮어써도 값이 바뀌지 않는다</li>
+	 * </ul>
 	 */
 	public void attachItinerary(String itineraryId, int version) {
 		this.itineraryId = UUID.fromString(itineraryId);
@@ -330,11 +339,16 @@ public class RecommendationJob {
 	}
 
 	/**
-	 * 🔴 {@code SUCCEEDED} 인 {@code ITINERARY_GENERATION} Job 은 반드시 itineraryId·
-	 * itineraryVersion 을 가지고 저장돼야 한다 — {@code ck_recommendation_job_result_present}
-	 * (DB CHECK, V20260905120000)의 자바 쪽 쌍둥이다. {@code RecommendationCandidate
-	 * .validateInvariants()} 와 같은 이유로 애플리케이션에서도 본다 — DB 제약 위반은 스택이
-	 * JDBC 안쪽에서 끊겨 어느 코드가 그랬는지 못 가리킨다.
+	 * 🔴 {@code SUCCEEDED} 인 {@code ITINERARY_GENERATION}·{@code ITEM_REMOVE}·
+	 * {@code ITINERARY_RECALCULATE} Job 은 반드시 itineraryId·itineraryVersion 을 가지고
+	 * 저장돼야 한다 — {@code ck_recommendation_job_result_present}(DB CHECK,
+	 * V20260905120000 이 만들고 V20260906120000 이 셋으로 넓혔다)의 자바 쪽 쌍둥이다.
+	 * {@code RecommendationCandidate.validateInvariants()} 와 같은 이유로 애플리케이션에서도
+	 * 본다 — DB 제약 위반은 스택이 JDBC 안쪽에서 끊겨 어느 코드가 그랬는지 못 가리킨다.
+	 *
+	 * <p>🔴 (S15P21E201-249) 왜 편집 Job 도 같이 보는가 — "제외는 됐다(SUCCEEDED)는데 그
+	 * 결과가 어느 판인지 아무 데도 안 남은" 상태는 일정 생성이 실패하는 것과 같은 종류의
+	 * 결함이다. 재계산도 끝나면 반드시 새 판을 가리켜야 한다.
 	 *
 	 * <p>🔴 이 검사를 {@link #markCompleted} 안에 두지 않았다. 실제 호출 순서
 	 * ({@code RecommendationService.continueJob})는 <b>markCompleted → 일정 조립 →
@@ -343,10 +357,13 @@ public class RecommendationJob {
 	 * 그래서 실제 저장 직전({@code RecommendationRecorder.recordWithItinerary})에서만 부른다.
 	 */
 	public void assertItineraryAttachedIfRequired() {
-		if (this.jobType == JobType.ITINERARY_GENERATION && this.jobStatus == JobStatus.SUCCEEDED
+		boolean requiresItinerary = this.jobType == JobType.ITINERARY_GENERATION
+				|| this.jobType == JobType.ITEM_REMOVE
+				|| this.jobType == JobType.ITINERARY_RECALCULATE;
+		if (requiresItinerary && this.jobStatus == JobStatus.SUCCEEDED
 				&& (this.itineraryId == null || this.itineraryVersion == null)) {
 			throw new IllegalStateException(
-					"SUCCEEDED 인 ITINERARY_GENERATION Job 은 itineraryId·itineraryVersion 이 있어야 한다: jobId="
+					"SUCCEEDED 인 " + this.jobType + " Job 은 itineraryId·itineraryVersion 이 있어야 한다: jobId="
 							+ this.jobId);
 		}
 	}
