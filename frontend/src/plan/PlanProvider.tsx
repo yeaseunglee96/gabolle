@@ -1,6 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 
+import { conflictingFoodCode, foodLabel } from './foodConflicts';
+
 export type Transport = 'TRANSIT' | 'WALK' | 'CAR';
 export type ConstraintSelectionStatus = 'UNKNOWN' | 'NONE' | 'VALUES';
 export type PreferenceAnswerStatus = 'UNKNOWN' | 'SELECTED' | 'SKIPPED';
@@ -67,6 +69,8 @@ type PlanContextValue = {
   completeStep: (step: number) => void;
   clear: () => Promise<void>;
   basicComplete: boolean;
+  foodConflictNotice: string | null;
+  clearFoodConflictNotice: () => void;
 };
 
 const PlanContext = createContext<PlanContextValue | null>(null);
@@ -74,6 +78,7 @@ const PlanContext = createContext<PlanContextValue | null>(null);
 export function PlanProvider({ children }: { children: ReactNode }) {
   const [draft, setDraft] = useState<PlanDraft>(EMPTY_PLAN);
   const [ready, setReady] = useState(false);
+  const [foodConflictNotice, setFoodConflictNotice] = useState<string | null>(null);
   const changedBeforeHydration = useRef(false);
 
   useEffect(() => {
@@ -92,6 +97,19 @@ export function PlanProvider({ children }: { children: ReactNode }) {
     if (ready) void AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({ version: VERSION, draft: { ...draft, ...VOLATILE_CONSTRAINTS } }));
   }, [draft, ready]);
 
+  // 3단계 알레르기·식단(제외 재료)이 바뀔 때마다 2단계에서 이미 고른 음식과 다시 대조한다.
+  // 단계를 오간 뒤에도 매번 다시 계산되도록 draft.foods 는 의존성에 넣지 않는다 — 이 효과 자체가 foods 를 바꾸므로 넣으면 무한 루프가 된다.
+  useEffect(() => {
+    if (!ready) return;
+    const allergies = draft.allergyStatus === 'VALUES' ? draft.allergies : [];
+    const dietTypes = draft.dietStatus === 'VALUES' ? draft.dietTypes : [];
+    const removedKeys = draft.foods.filter((key) => conflictingFoodCode(key, allergies, dietTypes));
+    if (!removedKeys.length) return;
+    setDraft((current) => ({ ...current, foods: current.foods.filter((key) => !removedKeys.includes(key)) }));
+    setFoodConflictNotice(removedKeys.map(foodLabel).join(', '));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [draft.allergyStatus, draft.dietStatus, draft.allergies, draft.dietTypes, ready]);
+
   const value = useMemo<PlanContextValue>(() => ({
     draft,
     ready,
@@ -99,7 +117,9 @@ export function PlanProvider({ children }: { children: ReactNode }) {
     completeStep: (step) => setDraft((current) => ({ ...current, maxCompletedStep: Math.max(current.maxCompletedStep, step) })),
     clear: async () => { setDraft(EMPTY_PLAN); await AsyncStorage.removeItem(STORAGE_KEY); },
     basicComplete: Boolean(draft.startDate && draft.endDate && draft.endDate >= draft.startDate && draft.travelers > 0),
-  }), [draft, ready]);
+    foodConflictNotice,
+    clearFoodConflictNotice: () => setFoodConflictNotice(null),
+  }), [draft, ready, foodConflictNotice]);
 
   return <PlanContext.Provider value={value}>{children}</PlanContext.Provider>;
 }
