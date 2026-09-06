@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import com.gabolle.backend.common.api.ApiError;
 import com.gabolle.backend.common.api.ApiResponse;
 import com.gabolle.backend.trip.application.TripQueryService;
+import com.gabolle.backend.trip.domain.TimeWindows;
+import com.gabolle.backend.trip.domain.TravelModes;
 import com.gabolle.backend.trip.domain.TripConstraint;
 import com.gabolle.backend.trip.domain.TripRepository;
 
@@ -47,6 +49,37 @@ public class TripExceptionHandler {
         return ResponseEntity.badRequest().body(ApiResponse.failure(
                 new ApiError("TRIP_VALIDATION_FAILED", "error.trip.validation",
                         List.of(e.getMessage())),
+                requestId()));
+    }
+
+    /**
+     * 🔴 S15P21E201-664 — timeWindow 가 {@code HH:mm-HH:mm} 범위 모양인데 값이 틀렸다.
+     *
+     * <p>{@link TimeWindows.InvalidTimeWindowException}은 {@link IllegalArgumentException}의
+     * 하위 타입이지만, Spring 은 예외 계층에서 <b>가장 구체적인 타입의 핸들러</b>를 고르므로
+     * 위 {@link #handleIllegalArgument}보다 이 핸들러가 먼저 잡힌다.
+     */
+    @ExceptionHandler(TimeWindows.InvalidTimeWindowException.class)
+    public ResponseEntity<ApiResponse<Void>> handleInvalidTimeWindow(TimeWindows.InvalidTimeWindowException e) {
+        return ResponseEntity.badRequest().body(ApiResponse.failure(
+                new ApiError("INVALID_TIME_WINDOW",
+                        "하루 활동 시간대는 HH:mm-HH:mm 형식이고 끝이 시작보다 뒤여야 해요.",
+                        List.of("timeWindow")),
+                requestId()));
+    }
+
+    /**
+     * 🔴 S15P21E201-664 — transport 취향 값이 {@code WALK/CAR/TRANSIT} 셋 밖이다.
+     *
+     * <p>{@link TravelModes.UnsupportedTravelModeException}도 {@link IllegalArgumentException}의
+     * 하위 타입이라 같은 이유로 {@link #handleIllegalArgument}보다 먼저 잡힌다.
+     */
+    @ExceptionHandler(TravelModes.UnsupportedTravelModeException.class)
+    public ResponseEntity<ApiResponse<Void>> handleUnsupportedTravelMode(
+            TravelModes.UnsupportedTravelModeException e) {
+        return ResponseEntity.badRequest().body(ApiResponse.failure(
+                new ApiError("UNSUPPORTED_TRAVEL_MODE", "지원하지 않는 이동수단이에요.",
+                        List.of("preferences.transport", "value=" + e.code())),
                 requestId()));
     }
 
