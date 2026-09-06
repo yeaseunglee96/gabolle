@@ -1,0 +1,24 @@
+# 이 폴더에서 깃에 올리는 것은 **코드와 작은 산출물뿐**이다.
+# 구운 타일·지형·배포 꾸러미는 807 MB 인데 전부 스크립트로 다시 만들 수 있다.
+# 다시 만드는 방법은 각 스크립트 맨 위 주석에 적혀 있다.
+
+node_modules/
+
+# 부산 전역을 굽고 남은 중간 산출물. busan.geojson 하나가 141 MB 다.
+#   다시 만들기: node night.mjs   (건물 47만 동 → 타일, 땅 높이 축소본)
+work/
+
+# 구운 건물 타일과 땅 높이. 합쳐서 124 MB.
+#   다시 만들기: node night.mjs
+public/tiles/
+public/tiles-busan/
+public/dem-tiles/
+
+# 서버에 올릴 한 폴더로 모은 것. 262 MB, 위의 것들을 복사한 결과다.
+#   다시 만들기: node build-dist.mjs
+dist/
+*.tar.gz
+
+# 확인용 브라우저가 남기는 것
+.playwright-mcp/
+*.png
