@@ -103,13 +103,25 @@ const T0 = performance.now();
 // 화면 오른쪽 위에 판 번호를 띄운다. 폰에서는 사진 한 장으로 어느 판인지 알 수 있어야 한다 —
 // 화면 코드와 바다 코드의 판본이 어긋나 건물이 통째로 사라진 적이 있고, 그때 이게 있었으면
 // 바로 알았을 것이다.
-const BUILD_STAMP = '0906-1344';
+const BUILD_STAMP = '0907-0840';
 document.getElementById('build').textContent = '판 ' + BUILD_STAMP;
 
 // 해를 계산할 기준점과 날짜.
 // 날짜를 팀의 그림자 분석과 같은 날로 맞춰 둔다 — 두 곳이 다른 해를 쓰면 나중에 대조가 안 된다.
 const SITE = { lat: 35.1600, lon: 129.1300 };
 const DATE = [2026, 7, 15];
+
+// 🔴 큰 파일(건물 타일 58 MB · 땅 높이 204 MB)은 깃에 없다.
+//    LFS 도 답이 아니다 — 저장소가 그만큼 무거워지는 건 똑같고, clone 이 느려진다.
+//    대신 **AWS(EC2)에 두고 주소로 부른다.** 서버는 그 자리에 다른 주소에서도
+//    받아 갈 수 있게 열어 두었다.
+//
+//    기본        같은 자리에서 찾는다 (배포본, 또는 직접 구운 로컬)
+//    ?data=aws   AWS 에 올려 둔 것을 쓴다 — **새로 clone 한 사람이 807 MB 를 굽지 않고
+//                바로 볼 수 있다.** 화면 코드만 있으면 된다.
+const DATA = location.search.includes('data=aws')
+  ? 'https://j15e201.p.ssafy.io/city3d'
+  : location.origin + basePath();
 
 const map = new MapLibreMap({
   container: 'map',
@@ -632,7 +644,7 @@ map.on('load', () => {
   step('지형', () => {
   map.addSource('dem', {
     type: 'raster-dem',
-    tiles: [location.origin + basePath() + '/dem/{z}/{x}_{y}.png'],
+    tiles: [DATA + '/dem/{z}/{x}_{y}.png'],
     tileSize: 256,
     encoding: 'terrarium',
     minzoom: 11,
@@ -671,7 +683,7 @@ map.on('load', () => {
   step('건물', () => {
   map.addSource('bld', {
     type: 'vector',
-    tiles: [location.origin + basePath() + '/tiles-busan/{z}/{x}/{y}.pbf'],
+    tiles: [DATA + '/tiles-busan/{z}/{x}/{y}.pbf'],
     minzoom: 12,
     maxzoom: 16,
   });
