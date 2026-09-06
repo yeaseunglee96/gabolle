@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.gabolle.backend.common.api.ApiResponse;
 import com.gabolle.backend.common.security.AuthenticatedUsers;
+import com.gabolle.backend.itinerary.application.ItineraryAccess;
 import com.gabolle.backend.itinerary.application.ItineraryEditService;
 import com.gabolle.backend.itinerary.application.ItineraryQueryService;
 import com.gabolle.backend.itinerary.domain.ItineraryVersion;
@@ -57,9 +58,10 @@ import jakarta.validation.Valid;
  * 됐는가" 를 증명할 수 없었다(인메모리 저장소에 항목이 없었으므로). 실제 PostgreSQL
  * 통합 테스트로 옮겼다.
  *
- * <p>🔴 <b>아직 없는 것</b> — 객체 권한 검증(OWNER/EDITOR). {@code trip_member} 표는
- * 이미 있으므로(V20260904030000) 만들 수 있고, {@code S15P21E201-224} 가 그 티켓이다.
- * 그전까지는 인증된 사용자면 통과한다 — <b>MR 에 이 사실을 적는다.</b>
+ * <p>🔴 <b>2026-09-06 (S15P21E201-224) — 이제 있다.</b> {@link ItineraryAccess#requireEditor}
+ * 가 편집 전에 막는다. 회원이 아니면(또는 그 일정이 없으면) 존재를 감춘 404, 회원이지만
+ * VIEWER 면 403 — 둘을 구분한다. 공유 링크 단계(명세가 말하는 네 번째 역할)는 공유 링크
+ * 개념 자체가 아직 없어 이번 작업에서는 없다.
  */
 @RestController
 @RequestMapping("/api/v1/itineraries/{itineraryId}")
@@ -71,9 +73,13 @@ public class ItineraryEditController {
 
 	private final ItineraryQueryService queryService;
 
-	public ItineraryEditController(ItineraryEditService editService, ItineraryQueryService queryService) {
+	private final ItineraryAccess itineraryAccess;
+
+	public ItineraryEditController(ItineraryEditService editService, ItineraryQueryService queryService,
+			ItineraryAccess itineraryAccess) {
 		this.editService = editService;
 		this.queryService = queryService;
+		this.itineraryAccess = itineraryAccess;
 	}
 
 	/**
@@ -135,6 +141,10 @@ public class ItineraryEditController {
 		//    헤더는 부르는 쪽이 정하는 값이라 검사가 그 주장 위에서 돌고, 앱은 그 헤더를
 		//    보내지도 않는다(Authorization 만 싣는다).
 		String editor = AuthenticatedUsers.requireId(authentication).toString();
+
+		// 🔴 S15P21E201-224 — 편집 전에 막는다. 회원이 아니면 404(존재를 감춘다),
+		//    회원이지만 VIEWER 면 403. 이 호출이 없으면 인증만 되면 남의 일정도 고칠 수 있었다.
+		this.itineraryAccess.requireEditor(itineraryId, editor);
 
 		ItineraryVersion saved = this.editService.setItemLocked(itineraryId, itemKey, locked, baseVersion, editor);
 		ItineraryDetailResponse detail = this.queryService.getDetail(itineraryId, editor);

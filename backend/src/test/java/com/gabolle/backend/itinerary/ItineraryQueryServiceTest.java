@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import com.gabolle.backend.itinerary.application.ItineraryAccess;
 import com.gabolle.backend.itinerary.application.ItineraryQueryService;
 import com.gabolle.backend.itinerary.domain.Itinerary;
 import com.gabolle.backend.itinerary.domain.ItineraryItem;
@@ -22,6 +23,7 @@ import com.gabolle.backend.place.repository.PlaceRepository;
 import com.gabolle.backend.recommendation.repository.RecommendationJobRepository;
 import com.gabolle.backend.trip.application.TripQueryService;
 import com.gabolle.backend.trip.domain.Trip;
+import com.gabolle.backend.trip.domain.TripMember;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -37,11 +39,19 @@ import static org.mockito.Mockito.when;
  * {@link ItineraryRepository} 는 {@link InMemoryItineraryRepository} 를 실제로 쓰고,
  * {@link TripQueryService}·{@link PlaceRepository}·{@link RecommendationJobRepository} 만
  * Mockito 로 대신한다.
+ *
+ * <p>🔴 S15P21E201-224 — {@link ItineraryAccess} 는 <b>진짜</b> 객체를 쓴다(Mockito 로
+ * 대신하지 않는다). 실제 {@link InMemoryItineraryRepository} + 가짜 {@link TripQueryService}
+ * 로 조립하면 "일정을 찾고 → 그 일정의 여행 회원인지 본다" 는 판정 로직 자체가 이 테스트로
+ * 검증된다. {@code stubTripMembership} 이 여전히 {@code tripId} 기준으로 {@code
+ * tripQueryService.get} 을 스텁하는 이유다 — {@code itineraryId} 는 테스트마다 새로 만들어져
+ * 미리 알 수 없지만 {@code tripId} 는 고정값이다.
  */
 class ItineraryQueryServiceTest {
 
 	private InMemoryItineraryRepository itineraryRepository;
 	private TripQueryService tripQueryService;
+	private ItineraryAccess itineraryAccess;
 	private PlaceRepository placeRepository;
 	private RecommendationJobRepository recommendationJobRepository;
 	private ItineraryQueryService service;
@@ -54,9 +64,10 @@ class ItineraryQueryServiceTest {
 	void setUp() {
 		this.itineraryRepository = new InMemoryItineraryRepository();
 		this.tripQueryService = mock(TripQueryService.class);
+		this.itineraryAccess = new ItineraryAccess(this.itineraryRepository, this.tripQueryService);
 		this.placeRepository = mock(PlaceRepository.class);
 		this.recommendationJobRepository = mock(RecommendationJobRepository.class);
-		this.service = new ItineraryQueryService(this.itineraryRepository, this.tripQueryService,
+		this.service = new ItineraryQueryService(this.itineraryRepository, this.itineraryAccess,
 				this.placeRepository, this.recommendationJobRepository);
 
 		Place place = mock(Place.class);
@@ -72,8 +83,13 @@ class ItineraryQueryServiceTest {
 	}
 
 	private void stubTripMembership(Trip trip) {
+		// 🔴 S15P21E201-224 — 이 테스트들은 role 자체를 검사하지 않으므로 기본값으로 OWNER 를 준다.
+		stubTripMembership(trip, TripMember.Role.OWNER);
+	}
+
+	private void stubTripMembership(Trip trip, TripMember.Role role) {
 		when(this.tripQueryService.get(this.tripId, this.requesterId))
-				.thenReturn(new TripQueryService.View(trip, List.of(), null));
+				.thenReturn(new TripQueryService.View(trip, List.of(), null, role));
 	}
 
 	@Test

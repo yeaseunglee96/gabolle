@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.gabolle.backend.common.api.ApiError;
 import com.gabolle.backend.common.api.ApiResponse;
+import com.gabolle.backend.itinerary.application.ItineraryAccess;
 import com.gabolle.backend.itinerary.domain.ItineraryRevision;
 import com.gabolle.backend.itinerary.domain.StaleItineraryVersionException;
 
@@ -72,6 +73,35 @@ public class ItineraryExceptionHandler {
 	public ResponseEntity<ApiResponse<Void>> handleItineraryNotFound(NoSuchElementException e) {
 		return ResponseEntity.status(HttpStatus.NOT_FOUND)
 				.body(ApiResponse.failure(new ApiError("ITINERARY_NOT_FOUND", "일정을 찾을 수 없습니다."), requestId()));
+	}
+
+	/**
+	 * 🔴 S15P21E201-224 — 없는 일정이거나, 있어도 요청자가 그 일정이 속한 여행의 회원이
+	 * 아니다. {@link ItineraryAccess#requireEditor} 가 편집 전에 이 예외를 던진다 — 위
+	 * {@link #handleItineraryNotFound}({@code NoSuchElementException})는 {@code
+	 * ItineraryEditService} 가 편집 도중에 같은 상황을 만났을 때 던지는 것이고, 이 핸들러는
+	 * 편집이 시작되기 <b>전</b> 접근 판정 단계를 담당한다. 응답은 같다 — 존재를 감춘다.
+	 */
+	@ExceptionHandler(ItineraryQueryController.ItineraryNotFoundException.class)
+	public ResponseEntity<ApiResponse<Void>> handleAccessNotFound(
+			ItineraryQueryController.ItineraryNotFoundException e) {
+		return ResponseEntity.status(HttpStatus.NOT_FOUND)
+				.body(ApiResponse.failure(new ApiError("ITINERARY_NOT_FOUND", "일정을 찾을 수 없습니다."), requestId()));
+	}
+
+	/**
+	 * 🔴 S15P21E201-224 — 회원이지만 VIEWER 라 편집 권한이 없다. {@code fields} 에
+	 * {@code "role=VIEWER"} 를 싣는다 — 형식은 위 클래스 javadoc 이 설명하는 계약을 따른다.
+	 * 비회원의 404({@code handleItineraryNotFound})와 <b>다른 코드</b>다 — 존재를
+	 * 감출 필요가 없는 회원에게 굳이 404 를 주면 화면이 "방금 보던 일정이 사라졌다" 로
+	 * 잘못 해석한다.
+	 */
+	@ExceptionHandler(ItineraryAccess.ItineraryForbiddenException.class)
+	public ResponseEntity<ApiResponse<Void>> handleForbidden(ItineraryAccess.ItineraryForbiddenException e) {
+		return ResponseEntity.status(HttpStatus.FORBIDDEN)
+				.body(ApiResponse.failure(
+						new ApiError("ITINERARY_FORBIDDEN", e.getMessage(), List.of("role=" + e.role())),
+						requestId()));
 	}
 
 	/** ITN-04 에 바탕 판이 안 왔다 — 400. */

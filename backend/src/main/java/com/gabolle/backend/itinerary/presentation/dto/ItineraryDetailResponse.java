@@ -25,7 +25,16 @@ public record ItineraryDetailResponse(
 		 * "안 쟀다"는 다르다. */
 		Integer totalWalkingMeters,
 		/** 이 판을 만든 추천 요청의 fallback_mode. 사용자가 손으로 만든 판이면 {@code null}. */
-		FallbackMode fallbackMode) {
+		FallbackMode fallbackMode,
+
+		/**
+		 * 🔴 S15P21E201-224 — 맨 뒤에 더한 칸이다. 앱은 아직 이 칸을 안 읽는다(모르는
+		 * JSON 키는 무시하므로 맨 뒤에 더하는 것이 안전하다). {@code OWNER} · {@code EDITOR}
+		 * · {@code VIEWER} — {@code TripMember.Role} 의 이름 그대로.
+		 */
+		String myRole,
+		/** {@code myRole} 이 {@code OWNER} 나 {@code EDITOR} 면 {@code true} — VIEWER 는 {@code false}. */
+		boolean canEdit) {
 
 	/** 여행 기간의 날짜 하나 — 항목이 0개인 날도 포함된다(빈 {@code items}). */
 	public record Day(String date, List<Item> items) {

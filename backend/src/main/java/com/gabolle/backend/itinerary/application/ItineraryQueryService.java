@@ -51,16 +51,16 @@ public class ItineraryQueryService {
 
 	private final ItineraryRepository itineraryRepository;
 
-	private final TripQueryService tripQueryService;
+	private final ItineraryAccess itineraryAccess;
 
 	private final PlaceRepository placeRepository;
 
 	private final RecommendationJobRepository recommendationJobRepository;
 
-	public ItineraryQueryService(ItineraryRepository itineraryRepository, TripQueryService tripQueryService,
+	public ItineraryQueryService(ItineraryRepository itineraryRepository, ItineraryAccess itineraryAccess,
 			PlaceRepository placeRepository, RecommendationJobRepository recommendationJobRepository) {
 		this.itineraryRepository = itineraryRepository;
-		this.tripQueryService = tripQueryService;
+		this.itineraryAccess = itineraryAccess;
 		this.placeRepository = placeRepository;
 		this.recommendationJobRepository = recommendationJobRepository;
 	}
@@ -74,17 +74,13 @@ public class ItineraryQueryService {
 	 */
 	@Transactional(readOnly = true)
 	public ItineraryDetailResponse getDetail(String itineraryId, String requesterUserId) {
-		Itinerary itinerary = this.itineraryRepository.findById(itineraryId)
-				.orElseThrow(() -> new ItineraryQueryController.ItineraryNotFoundException(itineraryId));
-
-		Trip trip;
-		try {
-			trip = this.tripQueryService.get(itinerary.tripId(), requesterUserId).trip();
-		}
-		catch (TripQueryService.TripNotFoundException e) {
-			// 있는데 너는 못 본다(403)를 알려주지 않는다 — 존재 자체를 감춘다.
-			throw new ItineraryQueryController.ItineraryNotFoundException(itineraryId);
-		}
+		// 🔴 S15P21E201-224 — 예전에는 여기서 itineraryRepository.findById 와
+		// tripQueryService.get 을 각각 부르고 TripNotFoundException 을 손으로 잡아 404 로
+		// 바꿨다. 그 판정을 ItineraryAccess 하나로 모았다 — 편집 경로(ItineraryEditController)
+		// 도 같은 판정을 쓰는데 두 곳에 복사해 두면 언젠가 한 곳을 빠뜨린다.
+		ItineraryAccess.Access access = this.itineraryAccess.requireMember(itineraryId, requesterUserId);
+		Itinerary itinerary = access.itinerary();
+		Trip trip = access.trip();
 
 		int latestVersion = itinerary.latestVersion();
 		ItineraryContent content = this.itineraryRepository.findContent(itineraryId, latestVersion)
@@ -115,7 +111,9 @@ public class ItineraryQueryService {
 				days,
 				totalEstimatedCostKrw,
 				totalWalkingMeters,
-				fallbackMode);
+				fallbackMode,
+				access.role().name(),
+				access.role().canEdit());
 	}
 
 	/**
