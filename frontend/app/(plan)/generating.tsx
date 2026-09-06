@@ -42,7 +42,7 @@ const PREVIEW_ITINERARY: ItineraryDto = {
 };
 
 export default function Generating() {
-  const router = useRouter(); const { kind } = useLayout(); const { tx, language, locale } = useI18n(); const { accessToken } = useAuth(); const { draft } = usePlan();
+  const router = useRouter(); const { kind } = useLayout(); const { tx, language, locale } = useI18n(); const { accessToken } = useAuth(); const { draft, clear } = usePlan();
   const { jobId, preview } = useLocalSearchParams<{ jobId?: string; preview?: string }>();
   const adapter = useMemo(() => createRecommendationJobAdapter(accessToken), [accessToken]);
   const previewJob = __DEV__ && preview === 'completed' ? { state: 'completed', jobId: 'preview', progress: 100, stage: '시간표 배치', canCancel: false, errorMessage: null, resultRef: 'preview-trip' } satisfies RecommendationJobSnapshot : __DEV__ && preview === 'running' ? { state: 'polling', jobId: 'preview', progress: 48, stage: '최적 동선 계산', canCancel: false, errorMessage: null, resultRef: null } satisfies RecommendationJobSnapshot : null;
@@ -81,7 +81,7 @@ export default function Generating() {
       }
       const result = await loadItinerary(recommendation.itineraryId, accessToken);
       if (cancelled) return;
-      if (result.state === 'success') setItinerary(result.itinerary);
+      if (result.state === 'success') { setItinerary(result.itinerary); void clear(); }
       else setItineraryMessage(result.message);
     };
     void load();
