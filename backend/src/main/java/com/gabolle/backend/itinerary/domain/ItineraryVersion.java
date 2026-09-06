@@ -54,11 +54,18 @@ public class ItineraryVersion {
      */
     private final String sourceRequestId;
 
+    /**
+     * 🔴 S15P21E201-249 — 이 판 전체에 대한 경고 코드(예: {@code RECALC_NO_CANDIDATE}).
+     * 항목이 아예 없는 시간대에 대한 경고는 {@link ItineraryItem#warningCodes()} 에 적을
+     * 자리가 없다 — 항목이 있어야만 존재하는 칸이기 때문이다. 그래서 판 전체에 적는다.
+     */
+    private final List<String> warningCodes;
+
     public ItineraryVersion(String itineraryVersionId, String itineraryId, int version,
                             Integer baseVersion, Operation operation, String createdBy,
                             String requestId, Versions versions, Instant createdAt) {
         this(itineraryVersionId, itineraryId, version, baseVersion, operation, createdBy,
-                requestId, versions, createdAt, null);
+                requestId, versions, createdAt, null, List.of());
     }
 
     /**
@@ -70,6 +77,19 @@ public class ItineraryVersion {
                             Integer baseVersion, Operation operation, String createdBy,
                             String requestId, Versions versions, Instant createdAt,
                             String sourceRequestId) {
+        this(itineraryVersionId, itineraryId, version, baseVersion, operation, createdBy,
+                requestId, versions, createdAt, sourceRequestId, List.of());
+    }
+
+    /**
+     * 🔴 S15P21E201-249 — {@code warningCodes} 를 받는 생성자. 기존 9-인자·10-인자
+     * 생성자는 이 값을 빈 목록으로 넘기는 것과 같다 — 경고가 없는 판(대부분의 편집)은
+     * 그대로 옛 생성자를 쓴다.
+     */
+    public ItineraryVersion(String itineraryVersionId, String itineraryId, int version,
+                            Integer baseVersion, Operation operation, String createdBy,
+                            String requestId, Versions versions, Instant createdAt,
+                            String sourceRequestId, List<String> warningCodes) {
         if (version < 1) {
             throw new IllegalArgumentException("판 번호는 1 이상이어야 한다: " + version);
         }
@@ -88,6 +108,7 @@ public class ItineraryVersion {
         this.versions = versions;
         this.createdAt = createdAt;
         this.sourceRequestId = sourceRequestId;
+        this.warningCodes = warningCodes == null ? List.of() : List.copyOf(warningCodes);
     }
 
     /** 어떤 편집으로 이 판이 생겼는가. */
@@ -149,4 +170,5 @@ public class ItineraryVersion {
     public Versions versions()         { return versions; }
     public Instant createdAt()         { return createdAt; }
     public String sourceRequestId()    { return sourceRequestId; }
+    public List<String> warningCodes() { return warningCodes; }
 }

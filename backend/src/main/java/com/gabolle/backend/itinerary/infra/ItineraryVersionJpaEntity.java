@@ -3,6 +3,9 @@ package com.gabolle.backend.itinerary.infra;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -75,6 +78,16 @@ public class ItineraryVersionJpaEntity {
 	@Column(name = "created_at", nullable = false, updatable = false)
 	private OffsetDateTime createdAt;
 
+	/**
+	 * 🔴 S15P21E201-249 — 판 전체에 대한 경고 코드. {@code ItineraryItemJpaEntity
+	 * .reasonCodes}·{@code .warningCodes} 와 같은 방식({@code @JdbcTypeCode(SqlTypes.ARRAY)})
+	 * 으로 매핑한다. 항목이 아예 없는 시간대에 대한 경고는 항목 행에 적을 자리가 없어
+	 * 판에 적는다.
+	 */
+	@JdbcTypeCode(SqlTypes.ARRAY)
+	@Column(name = "warning_codes", nullable = false)
+	private String[] warningCodes;
+
 	protected ItineraryVersionJpaEntity() {
 		// JPA 전용
 	}
@@ -82,7 +95,7 @@ public class ItineraryVersionJpaEntity {
 	ItineraryVersionJpaEntity(UUID itineraryVersionId, UUID itineraryId, int version, Integer baseVersion,
 			ItineraryVersion.Operation operation, UUID createdBy, String requestId, UUID sourceRequestId,
 			String modelVersion, String featureVersion, String ontologyVersion,
-			String policyVersion, String datasetVersion, OffsetDateTime createdAt) {
+			String policyVersion, String datasetVersion, OffsetDateTime createdAt, String[] warningCodes) {
 		this.itineraryVersionId = itineraryVersionId;
 		this.itineraryId = itineraryId;
 		this.version = version;
@@ -97,6 +110,7 @@ public class ItineraryVersionJpaEntity {
 		this.policyVersion = policyVersion;
 		this.datasetVersion = datasetVersion;
 		this.createdAt = createdAt;
+		this.warningCodes = warningCodes;
 	}
 
 	UUID itineraryVersionId() { return itineraryVersionId; }
@@ -113,4 +127,5 @@ public class ItineraryVersionJpaEntity {
 	String policyVersion() { return policyVersion; }
 	String datasetVersion() { return datasetVersion; }
 	OffsetDateTime createdAt() { return createdAt; }
+	String[] warningCodes() { return warningCodes; }
 }

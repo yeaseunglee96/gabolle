@@ -22,6 +22,12 @@ import java.util.Optional;
  * <p>그래서 둘을 합쳤다. 고를 수 없게 만드는 것이 기억해서 지키는 것보다 낫다 —
  * 시그니처를 바꾸면 컴파일러가 호출부를 전부 찾아 준다.
  *
+ * <h2>🔴 2026-09-06 (S15P21E201-249) — exclusions 도 같은 이유로 appendVersion 안에 넣었다</h2>
+ * 제외 목록도 항목·구간과 같은 이유로 판마다 복사돼야 한다({@link ItineraryExclusion}
+ * 클래스 javadoc 참고). 저장 경로를 또 하나 따로 두면 "판은 만들었는데 제외 목록은
+ * 안 옮긴" 판이 생길 수 있다 — 그래서 3-인자 {@code appendVersion} 을 남기지 않고
+ * 4-인자 하나로만 저장한다.
+ *
  * <h2>🔴 최신 판 포인터를 옮기는 주체는 <b>구현체</b>다</h2>
  * 예전에는 JPA 구현이 저장소 안에서 옮기고, 인메모리 구현은 안 옮기는 대신
  * {@code ItineraryEditService} 가 뒤이어 부르는 {@code Itinerary.moveTo} 만이 옮겼다.
@@ -48,10 +54,12 @@ public interface ItineraryRepository {
      * @param items 새 판의 항목 전부. 바뀌지 않은 것도 포함한다 — 판은 덮어쓰지 않는
      *     스냅샷이라 "이전 판을 참고한다" 는 개념이 없다
      * @param legs 새 판의 구간 전부. 같은 이유다
+     * @param exclusions 새 판의 제외 목록 전부. 같은 이유다 — S15P21E201-249
      */
     ItineraryVersion appendVersion(ItineraryVersion version,
                                    List<ItineraryItem> items,
-                                   List<ItineraryLeg> legs);
+                                   List<ItineraryLeg> legs,
+                                   List<ItineraryExclusion> exclusions);
 
     Optional<ItineraryVersion> findVersion(String itineraryId, int version);
 
@@ -69,6 +77,6 @@ public interface ItineraryRepository {
     Itinerary create(Itinerary itinerary, ItineraryVersion firstVersion,
                      List<ItineraryItem> items, List<ItineraryLeg> legs);
 
-    /** 판 하나의 전체 내용(판 + 항목 + 구간). 판이 없으면 비어 있다. */
+    /** 판 하나의 전체 내용(판 + 항목 + 구간 + 제외 목록). 판이 없으면 비어 있다. */
     Optional<ItineraryContent> findContent(String itineraryId, int version);
 }

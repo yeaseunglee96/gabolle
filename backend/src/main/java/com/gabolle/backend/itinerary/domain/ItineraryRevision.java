@@ -35,6 +35,14 @@ import java.util.UUID;
  *       언제 생겼나" 는 옛 판의 행에 그대로 남아 있으므로 잃는 정보가 없다. 원본 시각을
  *       물려주면 {@code created_at} 이 판의 나이와 어긋나 행만 보고는 어느 판 것인지
  *       알 수 없게 된다</li>
+ *   <li>🔴 (S15P21E201-249) {@link ItineraryExclusion 제외 항목}도 판마다 복사된다 —
+ *       {@code itineraryExclusionId}(PK)는 새로 만들고 {@code itineraryVersionId} 는 새
+ *       판을 가리키게 바꾸지만, 나머지(placeId·itemKey·excludedBy·reasonCode·
+ *       operationalReason)는 그대로 물려준다. <b>단, {@code createdAt} 은 항목·구간과
+ *       달리 원본 그대로 물려준다</b> — "언제 그 장소를 뺐는가" 는 판을 복사했다고 다시
+ *       일어난 사건이 아니라 사실 그 자체이기 때문이다. 항목·구간의 {@code createdAt} 은
+ *       "이 행이 언제 생겼나" 를 묻지만, 제외의 {@code createdAt} 은 "언제 제외했나" 를
+ *       묻는다 — 같은 이름, 다른 질문이다</li>
  * </ul>
  */
 public final class ItineraryRevision {
@@ -42,12 +50,16 @@ public final class ItineraryRevision {
     private ItineraryRevision() {
     }
 
-    /** 새 판의 항목·구간. {@link ItineraryRepository#appendVersion} 에 그대로 넘긴다. */
-    public record Draft(List<ItineraryItem> items, List<ItineraryLeg> legs) {
+    /**
+     * 새 판의 항목·구간·제외 목록. {@link ItineraryRepository#appendVersion} 에 그대로 넘긴다.
+     */
+    public record Draft(List<ItineraryItem> items, List<ItineraryLeg> legs,
+            List<ItineraryExclusion> exclusions) {
 
         public Draft {
             items = items == null ? List.of() : List.copyOf(items);
             legs = legs == null ? List.of() : List.copyOf(legs);
+            exclusions = exclusions == null ? List.of() : List.copyOf(exclusions);
         }
     }
 
@@ -73,7 +85,8 @@ public final class ItineraryRevision {
      */
     public static Draft copyOf(ItineraryContent base, String newVersionId, Instant now) {
         return new Draft(copyItems(base.items(), newVersionId, now, null, false),
-                copyLegs(base.legs(), newVersionId, now));
+                copyLegs(base.legs(), newVersionId, now),
+                copyExclusions(base.exclusions(), newVersionId));
     }
 
     /**
@@ -99,7 +112,8 @@ public final class ItineraryRevision {
             throw new ItemNotFoundException(itemKey);
         }
         return new Draft(copyItems(base.items(), newVersionId, now, itemKey, locked),
-                copyLegs(base.legs(), newVersionId, now));
+                copyLegs(base.legs(), newVersionId, now),
+                copyExclusions(base.exclusions(), newVersionId));
     }
 
     /**
@@ -131,6 +145,30 @@ public final class ItineraryRevision {
                     item.warningCodes(),
                     item.sourceRequestId(),
                     now));
+        }
+        return copied;
+    }
+
+    /**
+     * 🔴 S15P21E201-249 — {@code createdAt} 은 원본 그대로 물려준다. {@link #copyItems}·
+     * {@link #copyLegs} 와 달리 {@code now} 를 받지 않는 이유가 그것이다 — "언제 그 장소를
+     * 뺐는가" 는 판을 복사한 지금 다시 일어난 사건이 아니라 사실 그 자체다. 새로 만드는
+     * 것은 PK({@code itineraryExclusionId})와 이 제외가 속한 판({@code itineraryVersionId})
+     * 뿐이다.
+     */
+    private static List<ItineraryExclusion> copyExclusions(List<ItineraryExclusion> exclusions,
+            String newVersionId) {
+        List<ItineraryExclusion> copied = new ArrayList<>(exclusions.size());
+        for (ItineraryExclusion exclusion : exclusions) {
+            copied.add(new ItineraryExclusion(
+                    UUID.randomUUID().toString(),
+                    newVersionId,
+                    exclusion.placeId(),
+                    exclusion.itemKey(),
+                    exclusion.excludedBy(),
+                    exclusion.reasonCode(),
+                    exclusion.operationalReason(),
+                    exclusion.createdAt()));
         }
         return copied;
     }

@@ -87,7 +87,7 @@ class ItineraryPersistenceIntegrationTest {
 
 	@Test
 	void appendMovesLatestVersionPointer() {
-		itineraryRepository.appendVersion(versionCandidate(2, 1), List.of(), List.of());
+		itineraryRepository.appendVersion(versionCandidate(2, 1), List.of(), List.of(), List.of());
 
 		var itinerary = itineraryRepository.findById(itineraryId).orElseThrow();
 		assertThat(itinerary.latestVersion()).isEqualTo(2);
@@ -115,7 +115,7 @@ class ItineraryPersistenceIntegrationTest {
 				UUID.fromString(itineraryId));
 
 		assertThrows(StaleItineraryVersionException.class,
-				() -> itineraryRepository.appendVersion(versionCandidate(2, 1), List.of(), List.of()));
+				() -> itineraryRepository.appendVersion(versionCandidate(2, 1), List.of(), List.of(), List.of()));
 
 		Integer rows = jdbcTemplate.queryForObject(
 				"SELECT count(*) FROM itinerary_versions WHERE itinerary_id = ? AND version = 2",
@@ -126,10 +126,10 @@ class ItineraryPersistenceIntegrationTest {
 
 	@Test
 	void duplicateVersionIsRejectedAsConflict() {
-		itineraryRepository.appendVersion(versionCandidate(2, 1), List.of(), List.of());
+		itineraryRepository.appendVersion(versionCandidate(2, 1), List.of(), List.of(), List.of());
 
 		assertThrows(StaleItineraryVersionException.class,
-				() -> itineraryRepository.appendVersion(versionCandidate(2, 1), List.of(), List.of()));
+				() -> itineraryRepository.appendVersion(versionCandidate(2, 1), List.of(), List.of(), List.of()));
 
 		// 🔴 진 쪽 시도로 포인터가 어긋나지 않는다 — 여전히 2다.
 		assertThat(itineraryRepository.findById(itineraryId).orElseThrow().latestVersion()).isEqualTo(2);

@@ -105,6 +105,23 @@ class RecommendationJobTest {
 				.isInstanceOf(IllegalStateException.class);
 	}
 
+	/**
+	 * 🔴 S15P21E201-249 — {@code ITINERARY_GENERATION} 뿐 아니라 장소 제외(ITEM_REMOVE)도
+	 * 같은 검사를 받는다. "제외는 됐다(SUCCEEDED)는데 그 결과가 어느 판인지 아무 데도 안
+	 * 남은" 상태는 일정 생성이 실패하는 것과 같은 종류의 결함이다.
+	 */
+	@Test
+	@DisplayName("🔴 SUCCEEDED 인 ITEM_REMOVE Job 이 itinerary 없이 assertItineraryAttachedIfRequired 를 부르면 예외")
+	void itemRemoveAlsoRequiresItineraryWhenSucceeded() {
+		RecommendationJob job = RecommendationJob.start(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(),
+				JobType.ITEM_REMOVE, this.now);
+		job.applyCounts(1, 1, 1);
+		job.markCompleted(this.now, this.now, null, null);
+
+		assertThatThrownBy(job::assertItineraryAttachedIfRequired)
+				.isInstanceOf(IllegalStateException.class);
+	}
+
 	private RecommendationJob newJob() {
 		return RecommendationJob.start(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(),
 				JobType.ITINERARY_GENERATION, this.now);

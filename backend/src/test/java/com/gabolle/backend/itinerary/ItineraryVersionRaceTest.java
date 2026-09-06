@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.gabolle.backend.itinerary.application.ItineraryEditService;
 import com.gabolle.backend.itinerary.domain.Itinerary;
 import com.gabolle.backend.itinerary.domain.ItineraryContent;
+import com.gabolle.backend.itinerary.domain.ItineraryExclusion;
 import com.gabolle.backend.itinerary.domain.ItineraryItem;
 import com.gabolle.backend.itinerary.domain.ItineraryLeg;
 import com.gabolle.backend.itinerary.domain.ItineraryRepository;
@@ -77,7 +78,7 @@ class ItineraryVersionRaceTest {
 
         @Override
         public ItineraryVersion appendVersion(ItineraryVersion version, List<ItineraryItem> items,
-                List<ItineraryLeg> legs) {
+                List<ItineraryLeg> legs, List<ItineraryExclusion> exclusions) {
             if (gateArmed) {
                 gateArmed = false;          // 첫 저장만 붙잡는다
                 appendEntered.countDown();
@@ -87,7 +88,7 @@ class ItineraryVersionRaceTest {
                     Thread.currentThread().interrupt();
                 }
             }
-            return delegate.appendVersion(version, items, legs);
+            return delegate.appendVersion(version, items, legs, exclusions);
         }
 
         @Override

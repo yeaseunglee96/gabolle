@@ -465,7 +465,7 @@ class RecommendationLoggingIntegrationTest extends PostgresIntegrationTest {
 		return new RecommendationCommand(this.references.userId(), JobType.ITINERARY_GENERATION,
 				this.references.tripId(), this.references.tripVersion(),
 				this.references.preferenceSnapshotId(), this.references.constraintSnapshotId(),
-				null, null, null, "app-1.0.0", topK);
+				null, null, null, "app-1.0.0", topK, null);
 	}
 
 	private RecommendationCandidate findByPlace(UUID requestId, UUID placeId) {
