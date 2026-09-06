@@ -8,6 +8,7 @@ import com.gabolle.backend.trip.application.TripCreationService;
 import com.gabolle.backend.trip.application.TripQueryService;
 import com.gabolle.backend.trip.domain.PreferenceSnapshot;
 import com.gabolle.backend.trip.domain.TripConstraint;
+import com.gabolle.backend.trip.domain.TripMember;
 import com.gabolle.backend.trip.infra.InMemoryTripRepository;
 import java.time.Clock;
 import java.time.Instant;
@@ -62,6 +63,8 @@ class TripQueryServiceTest {
         assertEquals(300000, view.trip().budgetKrw());
         assertEquals(1, view.constraints().size());
         assertEquals("MOBILITY", view.constraints().get(0).type());
+        // 🔴 S15P21E201-224 — 만든 사람은 trip_member 에 OWNER 로 들어간다(TripCreationService).
+        assertEquals(TripMember.Role.OWNER, view.role());
 
         var pace = view.snapshot().answers().stream()
                 .filter(a -> a.dimension().equals("pace")).findFirst().orElseThrow();

@@ -20,6 +20,7 @@ import com.gabolle.backend.trip.application.TripQueryService;
 import com.gabolle.backend.trip.domain.PersonalizationScope;
 import com.gabolle.backend.trip.domain.PreferenceSnapshot;
 import com.gabolle.backend.trip.domain.Trip;
+import com.gabolle.backend.trip.domain.TripMember;
 import com.gabolle.backend.trip.domain.TripRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -64,7 +65,7 @@ class RecommendationJobRunnerTest {
 		PreferenceSnapshot snapshot = new PreferenceSnapshot(UUID.randomUUID().toString(), this.tripId, 1,
 				List.of(), PersonalizationScope.TRIP, List.of(), Instant.now());
 		when(this.tripQueryService.get(this.tripId, this.userId))
-				.thenReturn(new TripQueryService.View(trip, List.of(), snapshot));
+				.thenReturn(new TripQueryService.View(trip, List.of(), snapshot, TripMember.Role.OWNER));
 	}
 
 	@Test

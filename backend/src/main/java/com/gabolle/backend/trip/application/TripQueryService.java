@@ -41,18 +41,24 @@ public class TripQueryService {
 				.orElseThrow(() -> new TripNotFoundException(tripId));
 
 		List<TripMember> members = this.repository.findMembers(tripId);
-		boolean isMember = members.stream().anyMatch(m -> m.userId().equals(requesterUserId));
-		if (!isMember) {
-			throw new TripNotFoundException(tripId);
-		}
+		TripMember requesterMembership = members.stream()
+				.filter(m -> m.userId().equals(requesterUserId))
+				.findFirst()
+				.orElseThrow(() -> new TripNotFoundException(tripId));
 
 		List<TripConstraint> constraints = this.repository.findConstraints(tripId);
 		PreferenceSnapshot snapshot = this.repository.findLatestSnapshot(tripId).orElse(null);
 
-		return new View(trip, constraints, snapshot);
+		return new View(trip, constraints, snapshot, requesterMembership.role());
 	}
 
-	public record View(Trip trip, List<TripConstraint> constraints, PreferenceSnapshot snapshot) {
+	/**
+	 * 🔴 {@code role} — S15P21E201-224. 요청자가 이미 읽어 둔 {@code members} 목록의
+	 * 어느 자리에 있는지로 정한다. 추가 질의는 없다 — 그 목록을 다시 훑을 뿐이다.
+	 * 이 role 을 일정 접근 판정({@code itinerary.application.ItineraryAccess})이 그대로 쓴다.
+	 */
+	public record View(Trip trip, List<TripConstraint> constraints, PreferenceSnapshot snapshot,
+			TripMember.Role role) {
 	}
 
 	/** 없는 여행이거나, 있어도 요청자가 그 여행의 회원이 아니다. 둘을 구분해 응답하지 않는다. */

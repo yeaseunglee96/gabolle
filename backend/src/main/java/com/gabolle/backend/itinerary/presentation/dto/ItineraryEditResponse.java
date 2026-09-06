@@ -22,7 +22,12 @@ import com.gabolle.backend.recommendation.domain.FallbackMode;
  * 필요하다. 그것을 조회 DTO 에 넣으면 조회 응답까지 편집 메타데이터로 오염된다. 그래서
  * 앞쪽 칸을 겹쳐 놓은 별도 레코드로 둔다 — 두 계약을 동시에 만족하는 유일한 모양이다.
  *
- * <p>뒤쪽 다섯 칸은 앱이 안 읽는다. JSON 은 모르는 키를 무시하므로 더해도 안전하다.
+ * <p>뒤쪽 칸들은 앱이 안 읽는다. JSON 은 모르는 키를 무시하므로 더해도 안전하다.
+ *
+ * <p>🔴 S15P21E201-224 — {@code myRole}·{@code canEdit} 두 칸을 맨 뒤에 더 붙였다.
+ * 이 응답이 나온다는 것 자체가 이미 편집을 성공한 뒤라는 뜻이라 {@code canEdit} 은 항상
+ * {@code true} 다 — VIEWER 였다면 {@code ItineraryAccess.requireEditor} 가 이 지점까지
+ * 오기 전에 403 으로 막는다. 그래도 조회 응답과 모양을 맞추기 위해 그대로 옮겨 싣는다.
  */
 public record ItineraryEditResponse(
 		String id,
@@ -37,7 +42,10 @@ public record ItineraryEditResponse(
 		String operation,
 		String createdBy,
 		String requestId,
-		String createdAt) {
+		String createdAt,
+
+		String myRole,
+		boolean canEdit) {
 
 	public static ItineraryEditResponse of(ItineraryDetailResponse detail, ItineraryVersion saved) {
 		return new ItineraryEditResponse(
@@ -52,6 +60,8 @@ public record ItineraryEditResponse(
 				saved.operation().name(),
 				saved.createdBy(),
 				saved.requestId(),
-				saved.createdAt().toString());
+				saved.createdAt().toString(),
+				detail.myRole(),
+				detail.canEdit());
 	}
 }
