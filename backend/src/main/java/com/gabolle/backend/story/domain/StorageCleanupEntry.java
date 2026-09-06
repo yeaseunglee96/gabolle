@@ -38,7 +38,7 @@ public class StorageCleanupEntry {
 	@Column(name = "attempts", nullable = false)
 	private int attempts;
 
-	@Column(name = "last_error")
+	@Column(name = "last_error", columnDefinition = "text")
 	private String lastError;
 
 	protected StorageCleanupEntry() {

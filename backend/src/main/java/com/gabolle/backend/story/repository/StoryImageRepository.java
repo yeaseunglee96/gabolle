@@ -16,4 +16,7 @@ public interface StoryImageRepository extends JpaRepository<StoryImage, UUID> {
 	List<StoryImage> findByStoryIdInOrderByStoryIdAscPositionAsc(Collection<UUID> storyIds);
 
 	void deleteByStoryId(UUID storyId);
+
+	/** 한 업로드는 한 기록에만 붙는다. DB 의 uq_story_image_upload 가 마지막 방어선이고 이것은 먼저 400 으로 답하는 용도다. */
+	boolean existsByUploadedImageId(UUID uploadedImageId);
 }

@@ -13,6 +13,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.List;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 
 @Configuration
@@ -38,6 +39,10 @@ public class SecurityConfig {
 			.exceptionHandling(exceptions -> exceptions.authenticationEntryPoint(authenticationEntryPoint))
 			.authorizeHttpRequests(authorize -> authorize
 				.requestMatchers("/actuator/health").permitAll()
+				// S15P21E201-216 — 기록 사진은 주소를 아는 사람이 그대로 연다(피드·상세 화면이 <img> 로
+				//    부른다. 그 요청에는 Authorization 헤더가 안 붙는다). 키가 UUID 라 추측할 수 없고,
+				//    올리기(POST /api/v1/uploads/story-image)는 여전히 인증이 필요하다.
+				.requestMatchers(HttpMethod.GET, "/api/v1/uploads/images/**").permitAll()
 				.requestMatchers(
 						"/api/v1/auth/signup",
 						"/api/v1/auth/email-verification",

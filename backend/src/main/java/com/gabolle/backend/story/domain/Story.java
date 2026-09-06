@@ -43,7 +43,7 @@ public class Story {
 	@Column(name = "place_id")
 	private UUID placeId;
 
-	@Column(name = "body", nullable = false)
+	@Column(name = "body", nullable = false, columnDefinition = "text")
 	private String body;
 
 	@Column(name = "region", length = 100)
