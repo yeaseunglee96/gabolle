@@ -94,6 +94,10 @@ export default function Home() {
           <Text variant="body" weight="medium" color={color.text.heading}>🌺  내 날짜에 열리는 부산 축제 찾기</Text><Text weight="bold" color={color.brand.orange}>›</Text>
         </Pressable>
 
+        <Pressable accessibilityRole="button" accessibilityLabel="지금 갈 곳 찾기" onPress={() => router.push('/now')} style={({ pressed }) => [styles.nowBar, pressed && styles.weatherBarPressed]}>
+          <Text variant="body" weight="medium" color={color.text.onAction}>🧭  지금 남는 시간, 갈 곳 찾기</Text><Text weight="bold" color={color.text.onAction}>›</Text>
+        </Pressable>
+
         <View style={styles.heading}>
           <Text variant="display" weight="bold" color={color.text.heading} style={styles.headingTitle}>오늘 어디 가볼래?</Text>
           <Text variant="body" color={color.text.muted}>AI가 취향에 맞는 부산 여행을 제안해드려요</Text>
@@ -153,6 +157,7 @@ const styles = StyleSheet.create({
   scrollContent: { paddingBottom: spacing[6] },
   weatherBar: { minHeight: 44, marginTop: spacing[2], paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.state.warningBg, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   weatherBarPressed: { opacity: 0.78, transform: [{ scale: 0.99 }] },
+  nowBar: { minHeight: 44, marginTop: spacing[2], paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.brand.navy, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   heading: { gap: spacing[1], marginTop: spacing[4], marginHorizontal: spacing[1] },
   headingTitle: { fontSize: 28, lineHeight: 34 },
   carousel: { gap: spacing[3], paddingHorizontal: spacing[1], paddingVertical: spacing[4] },
