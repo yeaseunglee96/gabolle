@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import com.gabolle.backend.common.api.ApiError;
 import com.gabolle.backend.common.api.ApiResponse;
 import com.gabolle.backend.itinerary.application.ItineraryAccess;
+import com.gabolle.backend.itinerary.application.ItineraryEditService;
 import com.gabolle.backend.itinerary.domain.ItineraryRevision;
 import com.gabolle.backend.itinerary.domain.StaleItineraryVersionException;
 
@@ -111,6 +112,29 @@ public class ItineraryExceptionHandler {
 		return ResponseEntity.badRequest()
 				.body(ApiResponse.failure(
 						new ApiError("ITINERARY_BASE_VERSION_REQUIRED", e.getMessage(), List.of("baseVersion")),
+						requestId()));
+	}
+
+	/**
+	 * S15P21E201-284 — 되돌릴 편집이 없다. 오류로 죽지 않고 그 사실을 돌려준다(티켓 요구). 422 다 —
+	 * 요청 모양은 맞는데 이 일정의 상태로는 할 수 없는 일이라서다. 409 는 "판이 낡았다" 에 쓰고 있어
+	 * 섞지 않는다.
+	 */
+	@ExceptionHandler(ItineraryEditService.NothingToRevertException.class)
+	public ResponseEntity<ApiResponse<Void>> handleNothingToRevert(ItineraryEditService.NothingToRevertException e) {
+		return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+				.body(ApiResponse.failure(
+						new ApiError("ITINERARY_NOTHING_TO_REVERT", e.getMessage(),
+								List.of("latestVersion=" + e.latestVersion())),
+						requestId()));
+	}
+
+	@ExceptionHandler(ItineraryEditService.RevertTargetException.class)
+	public ResponseEntity<ApiResponse<Void>> handleRevertTarget(ItineraryEditService.RevertTargetException e) {
+		return ResponseEntity.badRequest()
+				.body(ApiResponse.failure(
+						new ApiError("ITINERARY_REVERT_TARGET_INVALID", e.getMessage(),
+								List.of("toVersion=" + e.toVersion(), "latestVersion=" + e.latestVersion())),
 						requestId()));
 	}
 

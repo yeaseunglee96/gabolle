@@ -79,4 +79,15 @@ public interface ItineraryRepository {
 
     /** 판 하나의 전체 내용(판 + 항목 + 구간 + 제외 목록). 판이 없으면 비어 있다. */
     Optional<ItineraryContent> findContent(String itineraryId, int version);
+
+    /**
+     * 🔴 S15P21E201-284 — 한 일정의 판 목록, <b>최신 판이 먼저</b>(version DESC).
+     * 되돌리기 화면이 "어느 판으로 돌아갈지" 고르는 목록이다.
+     *
+     * <p>{@code ix_itinerary_version_itinerary (itinerary_id, version DESC)}
+     * (V20260903150000)가 이 정렬을 위해 있는 색인이다.
+     *
+     * @return 없는 일정이면 빈 목록
+     */
+    List<ItineraryVersion> findVersions(String itineraryId);
 }

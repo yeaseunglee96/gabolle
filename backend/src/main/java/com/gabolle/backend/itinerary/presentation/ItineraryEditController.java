@@ -25,6 +25,7 @@ import com.gabolle.backend.itinerary.domain.ItineraryVersion;
 import com.gabolle.backend.itinerary.presentation.dto.ItineraryDetailResponse;
 import com.gabolle.backend.itinerary.presentation.dto.ItineraryEditResponse;
 import com.gabolle.backend.itinerary.presentation.dto.LockItemRequest;
+import com.gabolle.backend.itinerary.presentation.dto.RevertRequest;
 import com.gabolle.backend.trip.application.TripQueryService;
 
 import jakarta.validation.Valid;
@@ -134,6 +135,26 @@ public class ItineraryEditController {
 	 * 앱이 받는 것이 "실제로 저장된 것" 이다. 같은 트랜잭션 안에서 만들어 돌려주면
 	 * 저장에 실패해도 성공한 것처럼 보이는 응답을 만들 수 있다.
 	 */
+	/**
+	 * S15P21E201-284 — 되돌리기. 마지막 편집 직전(또는 {@code toVersion})의 내용을 새 판으로 복사한다.
+	 * 명세 3.5 에는 되돌리기 경로가 없어 여기서 정한다 — {@code POST .../revert}, 본문
+	 * {@code {baseVersion, toVersion?}}. 응답은 고정과 같은 모양(일정 전체 + 판 정보)이라 앱이 그대로
+	 * 화면 상태에 넣을 수 있다. 되돌릴 편집이 없으면 422 {@code ITINERARY_NOTHING_TO_REVERT}.
+	 */
+	@PostMapping("/revert")
+	public ResponseEntity<ApiResponse<ItineraryEditResponse>> revert(
+			@PathVariable String itineraryId,
+			@Valid @RequestBody RevertRequest request,
+			Authentication authentication) {
+		String editor = AuthenticatedUsers.requireId(authentication).toString();
+		this.itineraryAccess.requireEditor(itineraryId, editor);
+		ItineraryVersion saved = this.editService.revert(itineraryId, request.baseVersion(), request.toVersion(),
+				editor);
+		ItineraryDetailResponse detail = this.queryService.getDetail(itineraryId, editor);
+		return ResponseEntity.status(HttpStatus.CREATED)
+				.body(ApiResponse.success(ItineraryEditResponse.of(detail, saved), "req_" + UUID.randomUUID()));
+	}
+
 	private ItineraryEditResponse applyLock(String itineraryId, String itemKey, boolean locked,
 			int baseVersion, Authentication authentication) {
 

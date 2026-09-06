@@ -88,6 +88,13 @@ public class ItineraryVersionJpaEntity {
 	@Column(name = "warning_codes", nullable = false)
 	private String[] warningCodes;
 
+	/**
+	 * 🔴 S15P21E201-284 — 되돌리기(operation=REVERT)가 내용을 복사해 온 옛 판.
+	 * REVERT 가 아니면 {@code null}(V20260906140000·{@code ck_itinerary_version_reverted_from}).
+	 */
+	@Column(name = "reverted_from_version", updatable = false)
+	private Integer revertedFromVersion;
+
 	protected ItineraryVersionJpaEntity() {
 		// JPA 전용
 	}
@@ -95,7 +102,8 @@ public class ItineraryVersionJpaEntity {
 	ItineraryVersionJpaEntity(UUID itineraryVersionId, UUID itineraryId, int version, Integer baseVersion,
 			ItineraryVersion.Operation operation, UUID createdBy, String requestId, UUID sourceRequestId,
 			String modelVersion, String featureVersion, String ontologyVersion,
-			String policyVersion, String datasetVersion, OffsetDateTime createdAt, String[] warningCodes) {
+			String policyVersion, String datasetVersion, OffsetDateTime createdAt, String[] warningCodes,
+			Integer revertedFromVersion) {
 		this.itineraryVersionId = itineraryVersionId;
 		this.itineraryId = itineraryId;
 		this.version = version;
@@ -111,6 +119,7 @@ public class ItineraryVersionJpaEntity {
 		this.datasetVersion = datasetVersion;
 		this.createdAt = createdAt;
 		this.warningCodes = warningCodes;
+		this.revertedFromVersion = revertedFromVersion;
 	}
 
 	UUID itineraryVersionId() { return itineraryVersionId; }
@@ -128,4 +137,5 @@ public class ItineraryVersionJpaEntity {
 	String datasetVersion() { return datasetVersion; }
 	OffsetDateTime createdAt() { return createdAt; }
 	String[] warningCodes() { return warningCodes; }
+	Integer revertedFromVersion() { return revertedFromVersion; }
 }

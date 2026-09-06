@@ -8,6 +8,7 @@ import com.gabolle.backend.itinerary.domain.ItineraryVersion;
 import com.gabolle.backend.itinerary.domain.StaleItineraryVersionException;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
@@ -106,5 +107,112 @@ public class ItineraryEditService {
         //    draft.exclusions() 는 ItineraryRevision.setLocked 가 바탕 판의 제외 목록을
         //    그대로 물려준 것이다 — 고정·해제가 제외 목록을 지우지 않는다.
         return repository.appendVersion(candidate, draft.items(), draft.legs(), draft.exclusions());
+    }
+
+    /**
+     * S15P21E201-284 — 되돌리기. 어느 판의 내용을 <b>새 판</b>으로 복사한다(operation {@code REVERT}).
+     *
+     * <h2>별도 스냅샷 표가 없는 이유</h2>
+     * 판 체인이 이미 그것이다. 항목·구간·제외 목록이 판마다 복사되므로 "편집 직전 상태" 는
+     * {@code baseVersion} 판에 그대로 남아 있다. 되돌리기는 그 판을 읽어 새 판으로 복사하는 것이고,
+     * 고정과 같은 복사 규칙({@link ItineraryRevision#copyOf})을 쓴다 — {@code item_key} 가 유지되고
+     * 제외 목록도 그 판의 것으로 돌아간다(뺀 장소가 돌아오면서 제외도 풀린다).
+     *
+     * <h2>어느 판으로 돌아가나</h2>
+     * {@code toVersion} 을 안 주면 <b>최신 판을 만들 때 바탕이 됐던 판</b>({@code latest.baseVersion})이다.
+     * 즉 "마지막 편집 직전으로". 되돌리기 판 자체도 {@code baseVersion} 을 가지므로 되돌리기를 한 번 더
+     * 누르면 되돌리기 직전(= 다시 실행)으로 간다. {@code toVersion} 을 주면 그 판으로 간다 —
+     * {@code GET /versions} 목록에서 고른 경우다.
+     *
+     * <p>덮어쓰지 않는다(FR-ITN-08). 중간 판은 전부 남고 {@code reverted_from_version} 에 어디로
+     * 돌아갔는지 남는다. {@code base_version} 은 누를 때 보고 있던 최신 판이라 대개 다른 값이다.
+     *
+     * @throws NothingToRevertException 최초 판(CREATE) 위에서 {@code toVersion} 없이 눌렀다 — 되돌릴 편집이 없다
+     * @throws RevertTargetException {@code toVersion} 이 1 미만이거나 현재 판 이상이거나 그 판이 없다
+     * @throws StaleItineraryVersionException {@code baseVersion} 이 최신이 아니다 — 409
+     */
+    @Transactional
+    public ItineraryVersion revert(String itineraryId, int baseVersion, Integer toVersion, String editorUserId) {
+        Itinerary itinerary = repository.findById(itineraryId)
+                .orElseThrow(() -> new NoSuchElementException("일정을 찾을 수 없습니다: " + itineraryId));
+        int next = itinerary.nextVersionFrom(baseVersion);
+
+        int target;
+        if (toVersion == null) {
+            ItineraryVersion latest = repository.findVersion(itineraryId, baseVersion)
+                    .orElseThrow(() -> new IllegalStateException(
+                            "최신 판 행이 없습니다: itineraryId=" + itineraryId + ", version=" + baseVersion));
+            if (latest.baseVersion() == null) {
+                // CREATE 판이다 — 그 앞에 아무 편집도 없다. 오류로 죽지 않고 그 사실을 돌려준다.
+                throw new NothingToRevertException(itineraryId, baseVersion);
+            }
+            target = latest.baseVersion();
+        }
+        else {
+            if (toVersion < 1 || toVersion >= baseVersion) {
+                throw new RevertTargetException(itineraryId, toVersion, baseVersion,
+                        "돌아갈 판은 1 이상, 현재 판(" + baseVersion + ") 미만이어야 합니다: " + toVersion);
+            }
+            target = toVersion;
+        }
+
+        ItineraryContent source = repository.findContent(itineraryId, target)
+                .orElseThrow(() -> new RevertTargetException(itineraryId, target, baseVersion,
+                        "돌아갈 판의 내용이 없습니다: version=" + target));
+
+        Instant now = clock.instant();
+        String newVersionId = UUID.randomUUID().toString();
+        ItineraryRevision.Draft draft = ItineraryRevision.copyOf(source, newVersionId, now);
+
+        // 모델·피처 버전 다섯 칸은 비운다 — 엔진을 돌리지 않았다. 어느 판의 내용인지는 revertedFromVersion 이 말한다.
+        ItineraryVersion candidate = new ItineraryVersion(
+                newVersionId,
+                itineraryId,
+                next,
+                baseVersion,
+                ItineraryVersion.Operation.REVERT,
+                editorUserId,
+                "req_edit_" + UUID.randomUUID(),
+                new ItineraryVersion.Versions(null, null, null, null, null),
+                now,
+                null,
+                List.of(),
+                target);
+        return repository.appendVersion(candidate, draft.items(), draft.legs(), draft.exclusions());
+    }
+
+    /** 최초 판 위에서 되돌리기를 눌렀다 — 되돌릴 편집이 없다. 422 로 답할 자리다. */
+    public static class NothingToRevertException extends RuntimeException {
+
+        private final String itineraryId;
+        private final int latestVersion;
+
+        public NothingToRevertException(String itineraryId, int latestVersion) {
+            super("되돌릴 편집이 없습니다. 이 일정은 아직 편집된 적이 없습니다.");
+            this.itineraryId = itineraryId;
+            this.latestVersion = latestVersion;
+        }
+
+        public String itineraryId() { return itineraryId; }
+        public int latestVersion()  { return latestVersion; }
+    }
+
+    /** 돌아갈 판 번호가 범위 밖이거나 그 판이 없다 — 400 으로 답할 자리다. */
+    public static class RevertTargetException extends RuntimeException {
+
+        private final String itineraryId;
+        private final int toVersion;
+        private final int latestVersion;
+
+        public RevertTargetException(String itineraryId, int toVersion, int latestVersion, String message) {
+            super(message);
+            this.itineraryId = itineraryId;
+            this.toVersion = toVersion;
+            this.latestVersion = latestVersion;
+        }
+
+        public String itineraryId() { return itineraryId; }
+        public int toVersion()      { return toVersion; }
+        public int latestVersion()  { return latestVersion; }
     }
 }

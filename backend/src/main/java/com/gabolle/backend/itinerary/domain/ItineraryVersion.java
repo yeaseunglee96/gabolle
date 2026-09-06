@@ -61,11 +61,19 @@ public class ItineraryVersion {
      */
     private final List<String> warningCodes;
 
+    /**
+     * 🔴 S15P21E201-284 — 되돌리기(operation=REVERT)가 내용을 복사해 온 옛 판. REVERT 가
+     * 아니면 {@code null}. {@code base_version}(되돌리기를 누를 때 보고 있던 최신 판)과는
+     * 다른 칸이다 — 5번 판을 보다가 2번으로 되돌리면 {@code baseVersion=5},
+     * {@code revertedFromVersion=2} 로 서로 다른 값이 된다.
+     */
+    private final Integer revertedFromVersion;
+
     public ItineraryVersion(String itineraryVersionId, String itineraryId, int version,
                             Integer baseVersion, Operation operation, String createdBy,
                             String requestId, Versions versions, Instant createdAt) {
         this(itineraryVersionId, itineraryId, version, baseVersion, operation, createdBy,
-                requestId, versions, createdAt, null, List.of());
+                requestId, versions, createdAt, null, List.of(), null);
     }
 
     /**
@@ -78,7 +86,7 @@ public class ItineraryVersion {
                             String requestId, Versions versions, Instant createdAt,
                             String sourceRequestId) {
         this(itineraryVersionId, itineraryId, version, baseVersion, operation, createdBy,
-                requestId, versions, createdAt, sourceRequestId, List.of());
+                requestId, versions, createdAt, sourceRequestId, List.of(), null);
     }
 
     /**
@@ -90,6 +98,24 @@ public class ItineraryVersion {
                             Integer baseVersion, Operation operation, String createdBy,
                             String requestId, Versions versions, Instant createdAt,
                             String sourceRequestId, List<String> warningCodes) {
+        this(itineraryVersionId, itineraryId, version, baseVersion, operation, createdBy,
+                requestId, versions, createdAt, sourceRequestId, warningCodes, null);
+    }
+
+    /**
+     * 🔴 S15P21E201-284 — 되돌리기가 쓰는 생성자. 기존 9·10·11-인자 생성자는 이 값을
+     * {@code null} 로 넘기는 것과 같다 — REVERT 가 아닌 모든 편집은 그대로 옛 생성자를 쓴다.
+     *
+     * <p>검증을 여기서도 하는 이유(DB 의 {@code ck_itinerary_version_reverted_from} 과 같은
+     * 규칙을 자바 쪽에도 둔다): DB 제약 위반은 예외 스택이 JDBC 드라이버 안에서 끊겨
+     * 어느 자바 코드가 잘못된 값을 만들었는지 가리키지 못한다. 여기서 먼저 막으면
+     * {@link IllegalArgumentException} 이 호출부를 그대로 가리킨다.
+     */
+    public ItineraryVersion(String itineraryVersionId, String itineraryId, int version,
+                            Integer baseVersion, Operation operation, String createdBy,
+                            String requestId, Versions versions, Instant createdAt,
+                            String sourceRequestId, List<String> warningCodes,
+                            Integer revertedFromVersion) {
         if (version < 1) {
             throw new IllegalArgumentException("판 번호는 1 이상이어야 한다: " + version);
         }
@@ -97,6 +123,19 @@ public class ItineraryVersion {
             // 새 판은 반드시 바탕이 된 판보다 뒤여야 한다.
             throw new IllegalArgumentException(
                     "baseVersion(" + baseVersion + ") 이 version(" + version + ") 보다 앞이어야 한다");
+        }
+        if (operation == Operation.REVERT) {
+            if (revertedFromVersion == null) {
+                throw new IllegalArgumentException("operation=REVERT 인데 revertedFromVersion 이 없다");
+            }
+            if (revertedFromVersion >= version) {
+                throw new IllegalArgumentException(
+                        "revertedFromVersion(" + revertedFromVersion + ") 이 version(" + version + ") 보다 앞이어야 한다");
+            }
+        }
+        else if (revertedFromVersion != null) {
+            throw new IllegalArgumentException(
+                    "operation=" + operation + " 인데 revertedFromVersion 이 있다: " + revertedFromVersion);
         }
         this.itineraryVersionId = itineraryVersionId;
         this.itineraryId = itineraryId;
@@ -109,6 +148,7 @@ public class ItineraryVersion {
         this.createdAt = createdAt;
         this.sourceRequestId = sourceRequestId;
         this.warningCodes = warningCodes == null ? List.of() : List.copyOf(warningCodes);
+        this.revertedFromVersion = revertedFromVersion;
     }
 
     /** 어떤 편집으로 이 판이 생겼는가. */
@@ -126,7 +166,11 @@ public class ItineraryVersion {
         /** 장소 고정 */
         LOCK_ITEM,
         /** 순서 변경 */
-        REORDER;
+        REORDER,
+        /** 🔴 S15P21E201-284 — 되돌리기. {@code revertedFromVersion} 이 가리키는 옛 판의
+         * 내용을 새 판으로 복사한다. 엔진을 돌리지 않으므로 {@link Versions} 다섯 칸이
+         * 전부 비어 들어온다. */
+        REVERT;
 
         /** 최초 생성만 baseVersion 이 없다. */
         public boolean requiresBaseVersion() {
@@ -171,4 +215,5 @@ public class ItineraryVersion {
     public Instant createdAt()         { return createdAt; }
     public String sourceRequestId()    { return sourceRequestId; }
     public List<String> warningCodes() { return warningCodes; }
+    public Integer revertedFromVersion() { return revertedFromVersion; }
 }
