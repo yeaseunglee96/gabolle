@@ -96,6 +96,14 @@ public final class RecommendationCodes {
 	/** 조립까지는 됐지만 저장({@code persist()})이 실패했다. */
 	public static final String ERROR_ITINERARY_PERSIST_FAILED = "ITINERARY_PERSIST_FAILED";
 
+	/**
+	 * 🔴 S15P21E201-249 — 재계산은 끝났는데 그 사이 다른 사람이 판을 올렸다. 결과를 버렸고 이전 판이
+	 * 그대로 최신이다(FR-ITN-09). {@code retryable=true} — 사용자가 최신 일정을 불러와 다시 요청하면
+	 * 된다. 최신 판 번호는 {@code GET /api/v1/itineraries/{id}} 로 다시 읽는다 — 폴링 응답의
+	 * {@code failure.detail} 은 실패 단계 이름이라 거기 숫자를 섞지 않는다.
+	 */
+	public static final String ERROR_ITINERARY_VERSION_CONFLICT = "ITINERARY_VERSION_CONFLICT";
+
 	/** 위 코드들로 분류되지 않는, 예상하지 못한 실패. {@code RecommendationJobWorker} 의 마지막 방어선이 쓴다. */
 	public static final String ERROR_UNEXPECTED = "UNEXPECTED";
 

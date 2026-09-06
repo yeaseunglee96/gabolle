@@ -6,9 +6,12 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -16,10 +19,15 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import com.gabolle.backend.itinerary.domain.Itinerary;
+import com.gabolle.backend.itinerary.domain.ItineraryContent;
+import com.gabolle.backend.itinerary.domain.ItineraryExclusion;
 import com.gabolle.backend.itinerary.domain.ItineraryItem;
 import com.gabolle.backend.itinerary.domain.ItineraryLeg;
 import com.gabolle.backend.itinerary.domain.ItineraryRepository;
+import com.gabolle.backend.itinerary.domain.ItineraryRevision;
 import com.gabolle.backend.itinerary.domain.ItineraryVersion;
+import com.gabolle.backend.itinerary.domain.ItineraryWarningCodes;
+import com.gabolle.backend.itinerary.domain.StaleItineraryVersionException;
 import com.gabolle.backend.place.domain.Place;
 import com.gabolle.backend.place.repository.PlaceRepository;
 import com.gabolle.backend.place.service.GeoDistance;
@@ -27,6 +35,10 @@ import com.gabolle.backend.recommendation.application.port.ItineraryDraft;
 import com.gabolle.backend.recommendation.application.port.ItineraryDraftCommand;
 import com.gabolle.backend.recommendation.application.port.ItineraryDraftPort;
 import com.gabolle.backend.recommendation.application.port.ItineraryHandle;
+import com.gabolle.backend.recommendation.application.port.ItineraryPublishConflictException;
+import com.gabolle.backend.recommendation.application.port.ItineraryRevisionCommand;
+import com.gabolle.backend.recommendation.application.port.ItineraryRevisionDraft;
+import com.gabolle.backend.recommendation.domain.JobType;
 import com.gabolle.backend.trip.domain.Trip;
 import com.gabolle.backend.trip.domain.TripRepository;
 
@@ -299,5 +311,285 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         this.itineraryRepository.create(itinerary, firstVersion, items, legs);
 
         return new ItineraryHandle(itineraryId, 1);
+    }
+
+    // ------------------------------------------------------------------
+    // S15P21E201-249 — 있는 판의 하루만 다시 채운다
+    // ------------------------------------------------------------------
+
+    /**
+     * {@link #revise} 가 만들고 {@link #publish} 가 받는 초안. 추천 계층에는
+     * {@link ItineraryRevisionDraft} 라는 겉면만 보인다 — 안에 든 것은 전부 일정 도메인 타입이다.
+     *
+     * <p>{@code newVersionId} 를 여기서 미리 정하는 이유 — 항목·구간·제외 행의 부모 키가
+     * 그 값이라 초안을 만드는 시점에 이미 필요하다. 게시가 실패하면 그 id 는 그냥 버려진다.
+     */
+    record RevisionDraft(
+            String itineraryId,
+            int baseVersion,
+            String newVersionId,
+            String userId,
+            String requestId,
+            ItineraryVersion.Operation operation,
+            ItineraryVersion.Versions versions,
+            List<ItineraryItem> items,
+            List<ItineraryLeg> legs,
+            List<ItineraryExclusion> exclusions,
+            List<String> warningCodes,
+            int keptCount,
+            int filledCount) implements ItineraryRevisionDraft {
+    }
+
+    /**
+     * 🔴 순수 계산 + 읽기 — {@link #assemble} 과 같은 자리에서(트랜잭션 밖) 불린다.
+     *
+     * <h2>무엇을 보존하고 무엇을 채우나</h2>
+     * <ul>
+     *   <li><b>다른 날은 그대로 복사한다.</b> {@link ItineraryRevision#copyOf} 가 항목·구간·제외
+     *       목록을 {@code item_key} 를 유지한 채 새 판으로 옮긴다 — 고정 편집과 같은 복사 규칙이다</li>
+     *   <li><b>그 날의 고정 항목은 남긴다.</b> {@code ITEM_REMOVE} 는 지정한 항목 하나만 빼고 나머지를
+     *       전부 남긴다(고정 여부와 무관) — 사용자가 뺀 것은 그 하나다. {@code ITINERARY_RECALCULATE}
+     *       는 고정 항목만 남기고 나머지를 비운다. 기준 항목({@code itemKey})이 주어지면 그 항목보다
+     *       앞선 자리(이미 다녀온 곳)도 남긴다</li>
+     *   <li><b>빈 자리는 순위 풀에서 채운다.</b> 그 날 원래 있던 항목 수를 목표로 한다 — 하루의
+     *       크기를 재계산이 바꾸지 않는다. 원래 비어 있던 날만 {@link #maxItemsPerDay} 를 목표로 한다.
+     *       제외된 장소와 이 일정에 이미 있는 장소는 풀에서 뺀다</li>
+     *   <li><b>모자라면 비워 둔다.</b> 조건을 완화해 억지로 채우지 않는다(요구사항 3.2). 그 사실은 판
+     *       경고({@link ItineraryWarningCodes})로 남는다 — 항목 행이 없어 항목 경고에는 적을 곳이 없다</li>
+     * </ul>
+     *
+     * <h2>제외 목록은 판에 매달린다</h2>
+     * 바탕 판의 제외 목록을 복사한 위에 이번 제외를 더한다. 그래서 "재계산을 몇 번 해도 뺀 장소가
+     * 다시 안 나온다" 는 별도 조회 없이 복사 한 가지로 보장되고, 되돌리기가 제외까지 되돌린다.
+     *
+     * @throws IllegalStateException 바탕 판의 내용이 없다, 여행을 못 찾았다, dayIndex 가 여행 밖이다
+     * @throws ItineraryRevision.ItemNotFoundException 기준 항목이 그 날에 없다
+     */
+    @Override
+    public ItineraryRevisionDraft revise(ItineraryRevisionCommand command) {
+        ItineraryContent base = this.itineraryRepository.findContent(command.itineraryId(), command.baseVersion())
+                .orElseThrow(() -> new IllegalStateException("바탕 판의 내용이 없다: itineraryId="
+                        + command.itineraryId() + ", version=" + command.baseVersion()));
+        Itinerary itinerary = this.itineraryRepository.findById(command.itineraryId())
+                .orElseThrow(() -> new IllegalStateException("일정을 찾을 수 없다: " + command.itineraryId()));
+        Trip trip = this.tripRepository.findById(itinerary.tripId())
+                .orElseThrow(() -> new IllegalStateException("여행을 찾을 수 없다: " + itinerary.tripId()));
+        boolean remove = command.jobType() == JobType.ITEM_REMOVE;
+
+        // 뺄 항목이 어느 날에 있는지는 요청이 아니라 바탕 판이 안다. 요청이 dayIndex 를 같이 줬는데
+        // 판과 다르면 그 요청은 다른 판을 보고 만든 것이다 — 조용히 판을 따르지 않고 거절한다.
+        int dayIndex = command.dayIndex();
+        if (remove) {
+            ItineraryItem target = base.items().stream()
+                    .filter((item) -> item.itemKey().equals(command.itemKey()))
+                    .findFirst()
+                    .orElseThrow(() -> new ItineraryRevision.ItemNotFoundException(command.itemKey()));
+            if (dayIndex >= 0 && dayIndex != target.dayIndex()) {
+                throw new IllegalStateException("항목 " + command.itemKey() + " 은 " + target.dayIndex()
+                        + "일차에 있는데 요청은 " + dayIndex + "일차라고 한다");
+            }
+            dayIndex = target.dayIndex();
+        }
+        if (dayIndex < 0 || dayIndex >= trip.days()) {
+            throw new IllegalStateException("dayIndex " + dayIndex + " 는 " + trip.days() + "일짜리 여행 밖이다");
+        }
+        final int day = dayIndex;
+
+        String newVersionId = UUID.randomUUID().toString();
+        Instant now = this.clock.instant();
+        String requestIdString = command.requestId().toString();
+
+        // 1. 다른 날·제외 목록은 통째로 복사한다. 그 날 항목은 아래서 새로 만든다.
+        ItineraryRevision.Draft copied = ItineraryRevision.copyOf(base, newVersionId, now);
+
+        List<ItineraryItem> dayItems = base.items().stream()
+                .filter((item) -> item.dayIndex() == day)
+                .sorted(Comparator.comparingInt(ItineraryItem::sequence))
+                .toList();
+
+        // 2. 그 날에서 무엇을 남기나.
+        List<ItineraryItem> kept = new ArrayList<>();
+        ItineraryItem removedItem = null;
+        if (remove) {
+            for (ItineraryItem item : dayItems) {
+                if (item.itemKey().equals(command.itemKey())) {
+                    removedItem = item;
+                }
+                else {
+                    kept.add(item);
+                }
+            }
+            if (removedItem == null) {
+                throw new ItineraryRevision.ItemNotFoundException(command.itemKey());
+            }
+        }
+        else {
+            int cutSequence = 0;
+            if (command.itemKey() != null) {
+                cutSequence = dayItems.stream()
+                        .filter((item) -> item.itemKey().equals(command.itemKey()))
+                        .mapToInt(ItineraryItem::sequence)
+                        .findFirst()
+                        .orElseThrow(() -> new ItineraryRevision.ItemNotFoundException(command.itemKey()));
+            }
+            for (ItineraryItem item : dayItems) {
+                if (item.locked() || item.sequence() < cutSequence) {
+                    kept.add(item);
+                }
+            }
+        }
+
+        // 3. 제외 목록 — 바탕 판 것 + 이번에 뺀 것 + 요청이 따로 준 것. 한 판에 같은 장소는 한 번만
+        //    (uq_itinerary_excluded). 뺀 항목의 장소가 요청의 newlyExcludedPlaceIds 에도 들어 있는 것이
+        //    보통이라(ItineraryRecalculationService 가 그렇게 채운다) 여기서 걸러야 한다.
+        List<ItineraryExclusion> exclusions = new ArrayList<>(copied.exclusions());
+        Set<String> excludedPlaceIds = new HashSet<>();
+        for (ItineraryExclusion exclusion : exclusions) {
+            excludedPlaceIds.add(exclusion.placeId());
+        }
+        if (removedItem != null && excludedPlaceIds.add(removedItem.placeId())) {
+            exclusions.add(new ItineraryExclusion(UUID.randomUUID().toString(), newVersionId, removedItem.placeId(),
+                    removedItem.itemKey(), command.userId(), ItineraryExclusion.REASON_USER_REMOVED,
+                    command.operationalReason(), now));
+        }
+        for (UUID placeId : command.newlyExcludedPlaceIds()) {
+            if (excludedPlaceIds.add(placeId.toString())) {
+                exclusions.add(new ItineraryExclusion(UUID.randomUUID().toString(), newVersionId, placeId.toString(),
+                        null, command.userId(), ItineraryExclusion.REASON_USER_REMOVED, command.operationalReason(),
+                        now));
+            }
+        }
+
+        // 4. 풀에서 뺄 장소 — 제외된 것과 이 일정에 이미 있는 것(다른 날 + 남긴 것).
+        Set<String> unavailable = new HashSet<>(excludedPlaceIds);
+        for (ItineraryItem item : copied.items()) {
+            if (item.dayIndex() != dayIndex) {
+                unavailable.add(item.placeId());
+            }
+        }
+        for (ItineraryItem item : kept) {
+            unavailable.add(item.placeId());
+        }
+
+        // 5. 채운다. 목표는 그 날 원래 항목 수 — 재계산이 하루의 크기를 바꾸지 않는다.
+        int target = dayItems.isEmpty() ? this.maxItemsPerDay : dayItems.size();
+        int vacancies = Math.max(0, target - kept.size());
+        List<ItineraryDraftCommand.PlannedPlace> fills = new ArrayList<>(vacancies);
+        for (ItineraryDraftCommand.PlannedPlace candidate : command.rankedPool()) {
+            if (fills.size() >= vacancies) {
+                break;
+            }
+            String placeId = candidate.placeId().toString();
+            if (unavailable.add(placeId)) {
+                fills.add(candidate);
+            }
+        }
+
+        // 6. 그 날 항목을 다시 만든다 — 남긴 것 먼저(원래 순서), 그 뒤에 채운 것(순위 순서).
+        //    시각은 그 날 항목 수로 다시 나눈다(slotFor) — 고정 항목의 시각도 함께 움직인다.
+        int countToday = kept.size() + fills.size();
+        LocalDate visitDate = trip.startDate().plusDays(dayIndex);
+        List<ItineraryItem> dayResult = new ArrayList<>(countToday);
+        boolean lockedTimeMoved = false;
+        int sequence = 1;
+        for (ItineraryItem item : kept) {
+            Slot slot = slotFor(trip, sequence - 1, countToday);
+            if (item.locked() && item.startTime() != null && !item.startTime().equals(slot.start())) {
+                lockedTimeMoved = true;
+            }
+            dayResult.add(new ItineraryItem(UUID.randomUUID().toString(), newVersionId, item.itemKey(),
+                    dayIndex, visitDate, sequence, item.placeId(), slot.start(), slot.end(), slot.stayMinutes(),
+                    item.locked(), item.estimatedCostKrw(), ItineraryItem.DataStatus.valueOf(slot.dataStatus()),
+                    item.reasonCodes(), item.warningCodes(), item.sourceRequestId(), now));
+            sequence++;
+        }
+        for (ItineraryDraftCommand.PlannedPlace fill : fills) {
+            Slot slot = slotFor(trip, sequence - 1, countToday);
+            dayResult.add(new ItineraryItem(UUID.randomUUID().toString(), newVersionId, UUID.randomUUID().toString(),
+                    dayIndex, visitDate, sequence, fill.placeId().toString(), slot.start(), slot.end(),
+                    slot.stayMinutes(), false, null, ItineraryItem.DataStatus.valueOf(slot.dataStatus()),
+                    fill.reasonCodes(), fill.warningCodes(), requestIdString, now));
+            sequence++;
+        }
+
+        // 7. 판 경고.
+        List<String> warningCodes = new ArrayList<>();
+        if (vacancies > 0 && fills.isEmpty()) {
+            warningCodes.add(ItineraryWarningCodes.RECALC_NO_CANDIDATE);
+        }
+        else if (fills.size() < vacancies) {
+            warningCodes.add(ItineraryWarningCodes.RECALC_DAY_PARTIALLY_FILLED);
+        }
+        if (lockedTimeMoved) {
+            warningCodes.add(ItineraryWarningCodes.RECALC_TIMES_RESHUFFLED);
+        }
+
+        // 8. 전체 항목 = 다른 날 복사본 + 그 날 새 항목. 구간은 전부 다시 만든다 — 그 날 구간만
+        //    바꾸면 되지만, 복사한 구간과 새 구간의 만드는 규칙이 갈릴 자리를 남기지 않는다.
+        List<ItineraryItem> items = new ArrayList<>();
+        for (ItineraryItem item : copied.items()) {
+            if (item.dayIndex() != dayIndex) {
+                items.add(item);
+            }
+        }
+        items.addAll(dayResult);
+        items.sort(Comparator.comparingInt(ItineraryItem::dayIndex).thenComparingInt(ItineraryItem::sequence));
+
+        List<List<UUID>> placeIdsByDay = new ArrayList<>(trip.days());
+        for (int d = 0; d < trip.days(); d++) {
+            placeIdsByDay.add(new ArrayList<>());
+        }
+        for (ItineraryItem item : items) {
+            if (item.dayIndex() < trip.days()) {
+                placeIdsByDay.get(item.dayIndex()).add(UUID.fromString(item.placeId()));
+            }
+        }
+        List<ItineraryLeg> legs = new ArrayList<>();
+        for (ItineraryDraft.DraftLeg draftLeg : buildLegs(trip, placeIdsByDay)) {
+            legs.add(new ItineraryLeg(
+                    UUID.randomUUID().toString(), newVersionId, draftLeg.dayIndex(), draftLeg.sequence(),
+                    draftLeg.fromPlaceId() != null ? draftLeg.fromPlaceId().toString() : null,
+                    draftLeg.toPlaceId().toString(), draftLeg.travelMode(), draftLeg.distanceM(),
+                    draftLeg.durationMin(), draftLeg.walkingMeters(), null, null, now));
+        }
+
+        ItineraryVersion.Versions versions = new ItineraryVersion.Versions(
+                command.modelVersion(), command.featureVersion(), command.ontologyVersion(),
+                command.policyVersion(), command.datasetVersion());
+        ItineraryVersion.Operation operation = remove
+                ? ItineraryVersion.Operation.REMOVE_ITEM
+                : ItineraryVersion.Operation.REGENERATE_DAY;
+
+        return new RevisionDraft(command.itineraryId(), command.baseVersion(), newVersionId, command.userId(),
+                requestIdString, operation, versions, items, legs, exclusions, warningCodes,
+                kept.size(), fills.size());
+    }
+
+    /**
+     * 🔴 바깥 트랜잭션 안 — {@code RecommendationRecorder.recordWithItineraryRevision}.
+     *
+     * <p>FR-ITN-09 의 CAS(**내가 읽은 뒤로 바뀐 게 없을 때만 쓴다**)는 저장소가 한다 —
+     * {@code appendVersion} 의 판 번호 UNIQUE 와 포인터 조건부 UPDATE. 여기서는 그 실패
+     * ({@link StaleItineraryVersionException})를 포트 예외로 바꿔 던질 뿐이다. 바깥 트랜잭션이
+     * 되돌려져 이전 판이 그대로 최신으로 남는다.
+     */
+    @Override
+    public ItineraryHandle publish(ItineraryRevisionDraft draft) {
+        if (!(draft instanceof RevisionDraft revision)) {
+            throw new IllegalArgumentException("이 초안은 ItineraryDraftService.revise 가 만든 것이 아니다: "
+                    + (draft == null ? "null" : draft.getClass().getName()));
+        }
+        int newVersion = revision.baseVersion() + 1;
+        ItineraryVersion version = new ItineraryVersion(revision.newVersionId(), revision.itineraryId(), newVersion,
+                revision.baseVersion(), revision.operation(), revision.userId(), revision.requestId(),
+                revision.versions(), this.clock.instant(), revision.requestId(), revision.warningCodes());
+        try {
+            this.itineraryRepository.appendVersion(version, revision.items(), revision.legs(), revision.exclusions());
+        }
+        catch (StaleItineraryVersionException ex) {
+            throw new ItineraryPublishConflictException(revision.itineraryId(), revision.baseVersion(),
+                    ex.latestVersion());
+        }
+        return new ItineraryHandle(revision.itineraryId(), newVersion);
     }
 }

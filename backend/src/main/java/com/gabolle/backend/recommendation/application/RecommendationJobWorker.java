@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
+import com.gabolle.backend.recommendation.application.port.ItineraryPublishConflictException;
 import com.gabolle.backend.recommendation.domain.JobStage;
 import com.gabolle.backend.recommendation.domain.RecommendationJob;
 import com.gabolle.backend.recommendation.repository.RecommendationJobRepository;
@@ -71,6 +72,22 @@ public class RecommendationJobWorker {
 			// 삼키는 것이 맞다. 폴링하는 쪽이 GET /api/v1/jobs/{jobId} 로 실패 사유를 본다.
 			log.warn("추천 Job 이 예상된 사유로 실패했습니다. jobId={}, requestId={}, errorCode={}",
 					job.getJobId(), job.getRequestId(), ex.getErrorCode(), ex);
+		}
+		catch (ItineraryPublishConflictException ex) {
+			// 🔴 S15P21E201-249 — 계산은 끝났는데 그 사이 다른 사람이 판을 올렸다(FR-ITN-09).
+			//    recordWithItineraryRevision 트랜잭션이 통째로 되돌려져 일정은 이전 판 그대로다.
+			//    실패이되 재시도하면 되는 실패라 retryable=true. 여기서 다시 계산하지는 않는다 —
+			//    사용자가 무엇을 보고 다시 요청할지는 사용자 판단이다("409 를 자동 병합하지 않는다").
+			log.info("재계산 결과를 버렸습니다 — 그 사이 판이 올라갔습니다. jobId={}, itineraryId={}, base={}, latest={}",
+					job.getJobId(), ex.itineraryId(), ex.attemptedBaseVersion(), ex.latestVersion());
+			job.markFailed(RecommendationCodes.ERROR_ITINERARY_VERSION_CONFLICT, JobStage.PERSISTENCE,
+					OffsetDateTime.now(this.clock), false, true);
+			try {
+				this.recorder.recordFailure(job, List.of());
+			}
+			catch (RuntimeException recordingFailure) {
+				log.error("재계산 충돌 기록마저 실패했습니다. jobId={}", job.getJobId(), recordingFailure);
+			}
 		}
 		catch (RuntimeException ex) {
 			// 🔴 예상하지 못한 실패 — 여기가 없으면 RUNNING 좀비가 남는다.

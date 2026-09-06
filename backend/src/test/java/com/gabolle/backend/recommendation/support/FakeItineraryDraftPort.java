@@ -12,6 +12,8 @@ import com.gabolle.backend.recommendation.application.port.ItineraryDraft;
 import com.gabolle.backend.recommendation.application.port.ItineraryDraftCommand;
 import com.gabolle.backend.recommendation.application.port.ItineraryDraftPort;
 import com.gabolle.backend.recommendation.application.port.ItineraryHandle;
+import com.gabolle.backend.recommendation.application.port.ItineraryRevisionCommand;
+import com.gabolle.backend.recommendation.application.port.ItineraryRevisionDraft;
 
 /**
  * 테스트용 대역(fake) — S15P21E201-604.
@@ -69,5 +71,21 @@ public class FakeItineraryDraftPort implements ItineraryDraftPort {
 				draft.requestId().toString(), draft.requestId(), now);
 
 		return new ItineraryHandle(itineraryId.toString(), 1);
+	}
+
+	/**
+	 * 🔴 S15P21E201-249 — 추천 슬라이스 테스트는 편집 Job 을 돌리지 않는다. 하루 재계산의 진짜
+	 * 구현은 일정 슬라이스({@code ItineraryRecalculationIntegrationTest})에서 검증한다. 여기서
+	 * 조용히 빈 초안을 돌려주면 그 슬라이스에서 "성공한 것처럼" 보이는 거짓 초록이 생기므로
+	 * 시끄럽게 실패한다.
+	 */
+	@Override
+	public ItineraryRevisionDraft revise(ItineraryRevisionCommand command) {
+		throw new UnsupportedOperationException("FakeItineraryDraftPort 는 하루 재계산을 흉내내지 않는다");
+	}
+
+	@Override
+	public ItineraryHandle publish(ItineraryRevisionDraft draft) {
+		throw new UnsupportedOperationException("FakeItineraryDraftPort 는 하루 재계산을 흉내내지 않는다");
 	}
 }
