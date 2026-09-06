@@ -1,128 +1,168 @@
 package com.gabolle.backend.itinerary.presentation;
 
-import java.util.List;
-import java.util.Map;
+import java.util.UUID;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.gabolle.backend.common.api.ApiResponse;
 import com.gabolle.backend.common.security.AuthenticatedUsers;
 import com.gabolle.backend.itinerary.application.ItineraryEditService;
+import com.gabolle.backend.itinerary.application.ItineraryQueryService;
 import com.gabolle.backend.itinerary.domain.ItineraryVersion;
+import com.gabolle.backend.itinerary.presentation.dto.ItineraryDetailResponse;
+import com.gabolle.backend.itinerary.presentation.dto.ItineraryEditResponse;
 import com.gabolle.backend.itinerary.presentation.dto.LockItemRequest;
+import com.gabolle.backend.trip.application.TripQueryService;
 
 import jakarta.validation.Valid;
 
 /**
- * 일정 편집 — API 명세 ITN-03.
+ * 일정 편집 — API 명세 ITN-03(고정) · ITN-04(해제).
  *
  * <p>🔴 <b>경로와 응답 코드를 발명하지 않았다.</b> 명세 3.5 가 이미 정의하고 있다.
  * 처음에 {@code POST /itineraries/{id}/edits} 를 만들려 했는데, 명세를 확인하니
- * ITN-01~09 가 이미 있었다. 서버가 임의로 경로를 정하면 FE·APP 이 못 붙인다.
+ * ITN-01~09 가 이미 있었다. 서버가 임의로 경로를 정하면 FE·APP 이 못 붙는다.
  *
- * <p>ITN-03 을 먼저 만든 이유 — 응답이 <b>{@code 201 새 ItineraryVersion}</b> 으로
- * 동기다. ITN-06·07·08 은 {@code 202 JobDto} 라 비동기여서 409 를 즉시
- * 보여주기 어렵다. M1 완료 조건 ②("409 충돌이 실제로 재현된다")를 시연하려면
- * 동기 응답이 필요하다.
+ * <h2>🔴 2026-09-06 (S15P21E201-662) — 이 경로가 일정을 지우고 있었다</h2>
+ * 세 가지가 어긋나 있었고 셋 다 배포된 화면에서 드러났다.
+ * <ol>
+ *   <li><b>새 판에 내용이 안 옮겨졌다.</b> 항목·구간의 부모가 판이라 판을 더할 때마다
+ *       내용을 복사해야 하는데 판 행만 만들었다. 조회는 최신 판을 읽으므로 고정 한 번에
+ *       일정이 통째로 비었다. 고친 곳은 {@code ItineraryEditService}·
+ *       {@code ItineraryRepository} 다</li>
+ *   <li><b>응답 모양이 앱 계약과 달랐다.</b> 앱은 이 응답을 일정 전체로 받아 화면 상태에
+ *       그대로 넣는다. 판 메타데이터만 주면 {@code days} 가 없어 렌더가 죽는다.
+ *       지금은 조회와 같은 모양({@link ItineraryEditResponse})을 준다</li>
+ *   <li><b>{@code locked} 를 읽지도 저장하지도 않았다.</b> 앱은 이 경로에
+ *       {@code {locked, baseVersion}} 을 토글로 보내는데 서버는 항상 고정으로 처리했고,
+ *       {@code itinerary_item.locked} 에 {@code true} 를 쓰는 코드가 저장소에 없었다</li>
+ * </ol>
  *
- * <h2>🔴 2026-09-03 — 성공 응답을 손으로 만든 봉투에서 팀 공용 {@link ApiResponse} 로</h2>
- * {@code data}·{@code error}·{@code meta} 를 매번 {@code Map.of} 로 새로 짜고 있었다.
- * {@code ApiResponse} 가 이미 그 모양을 강제하므로 그것을 쓴다.
+ * <p>🔴 그래서 이 컨트롤러가 {@link ItineraryQueryService} 를 쓰게 됐고, 같은
+ * {@code @Profile}·{@code @ConditionalOnBean} 조합이 필요해졌다 —
+ * {@link ItineraryQueryController} 와 같은 이유다. Spring 컨텍스트를 안 띄우는
+ * standalone 테스트로는 더 이상 검증할 수 없고, 애초에 그런 테스트는 "판 복사가
+ * 됐는가" 를 증명할 수 없었다(인메모리 저장소에 항목이 없었으므로). 실제 PostgreSQL
+ * 통합 테스트로 옮겼다.
  *
- * <p>🔴 <b>409 충돌 응답({@link ItineraryExceptionHandler})은 그대로 뒀다.</b>
- * {@code ItineraryConflictResponse} 는 {@code details}(itineraryId·attemptedBaseVersion·
- * latestVersion)라는 <b>구조화된 객체</b>를 담아야 하는데, 팀 공용
- * {@code common.api.ApiError} 는 {@code fields: List<String>} 만 가진다 —
- * 문자열 목록으로 욱여넣으면 FE 가 {@code latestVersion} 을 파싱해서 써야 한다.
- * {@code ApiError} 자체를 확장하는 것은 그 계약을 만든 auth 팀(박재현, S15P21E201-312)
- * 소관이라 이번 범위에서 손대지 않았다. 이미 있는 "이 일정은 못 찾는다" 는 잘못된
- * 오류가 아니라 <b>당장은 두 표현이 공존한다</b> 는 사실이다.
+ * <p>🔴 <b>아직 없는 것</b> — 객체 권한 검증(OWNER/EDITOR). {@code trip_member} 표는
+ * 이미 있으므로(V20260904030000) 만들 수 있고, {@code S15P21E201-224} 가 그 티켓이다.
+ * 그전까지는 인증된 사용자면 통과한다 — <b>MR 에 이 사실을 적는다.</b>
  */
 @RestController
 @RequestMapping("/api/v1/itineraries/{itineraryId}")
+@Profile({ "db", "dev" })
+@ConditionalOnBean(TripQueryService.class)
 public class ItineraryEditController {
 
-    private final ItineraryEditService service;
+	private final ItineraryEditService editService;
 
-    public ItineraryEditController(ItineraryEditService service) {
-        this.service = service;
-    }
+	private final ItineraryQueryService queryService;
 
-    /**
-     * 항목을 고정한다 (ITN-03).
-     *
-     * <p>🔴 {@code baseVersion} 이 최신이 아니면 {@code 409 ITINERARY_VERSION_CONFLICT} 다.
-     * 그 변환은 {@link ItineraryExceptionHandler} 가 한다 — 도메인은 HTTP 를 모른다.
-     *
-     * <p>🔴 <b>아직 없는 것</b> — 객체 권한 검증(OWNER/EDITOR)이 빠져 있다.
-     * 명세 2.1 이 "모든 itineraryId 에 대해 실제 소유·참여 관계를 다시 검증한다" 를
-     * 요구하고 FR-SEC-01 도 같다. {@code trip_members} 표는 S15P21E201-461 이 이미
-     * 만들었지만, 이 컨트롤러가 그걸로 멤버십을 확인하는 연결은 아직 없다 — 별도
-     * 티켓이 필요하다. 그전까지는 <b>인증된 사용자면</b> 통과한다(누구인지는 이제
-     * 신뢰할 수 있다 — S15P21E201-610 — 다만 "그 일정의 회원인가" 는 아직 안 본다).
-     */
-    @PostMapping("/items/{itemId}/lock")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> lockItem(
-            @PathVariable String itineraryId,
-            @PathVariable String itemId,
-            @Valid @RequestBody LockItemRequest request,
-            Authentication authentication) {
+	public ItineraryEditController(ItineraryEditService editService, ItineraryQueryService queryService) {
+		this.editService = editService;
+		this.queryService = queryService;
+	}
 
-        String editor = AuthenticatedUsers.requireId(authentication).toString();
+	/**
+	 * 항목을 고정한다 — ITN-03. 본문에 {@code locked:false} 를 실으면 해제도 된다.
+	 *
+	 * <p>🔴 {@code baseVersion} 이 최신이 아니면 {@code 409 ITINERARY_VERSION_CONFLICT} 다.
+	 * 그 변환은 {@link ItineraryExceptionHandler} 가 한다 — 도메인은 HTTP 를 모른다.
+	 */
+	@PostMapping("/items/{itemId}/lock")
+	public ResponseEntity<ApiResponse<ItineraryEditResponse>> lockItem(
+			@PathVariable String itineraryId,
+			@PathVariable String itemId,
+			@Valid @RequestBody LockItemRequest request,
+			Authentication authentication) {
 
-        ItineraryVersion saved = service.edit(
-                itineraryId,
-                request.baseVersion(),
-                ItineraryVersion.Operation.LOCK_ITEM,
-                editor,
-                // 🔴 사용자 편집은 추천 요청에서 나온 것이 아니라 requestId 가 없다.
-                //    그래도 API-07 이 연결을 요구하므로 편집마다 새로 만든다.
-                "req_edit_" + java.util.UUID.randomUUID(),
-                placeholderVersions());
+		ItineraryEditResponse body = applyLock(itineraryId, itemId,
+				request.lockedOrDefault(), request.baseVersion(), authentication);
 
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success(dataOf(saved, itemId), saved.requestId()));
-    }
+		return ResponseEntity.status(HttpStatus.CREATED)
+				.body(ApiResponse.success(body, "req_" + UUID.randomUUID()));
+	}
 
-    /**
-     * 🔴 M1 임시 — 재계산을 아직 안 붙였으므로 버전 값이 없다.
-     *
-     * <p>{@code Versions.isComplete()} 가 false 인 값을 넣는다. 지어낸 값을 넣으면
-     * 나중에 "이 일정은 어느 판으로 만들었나" 에 거짓으로 답하게 된다 —
-     * S15P21E201-542 3장이 "버전 값을 얻지 못하면 임의의 기본값으로 처리하지 않는다" 고
-     * 못 박았다.
-     */
-    private ItineraryVersion.Versions placeholderVersions() {
-        return new ItineraryVersion.Versions(null, null, null, null, null);
-    }
+	/**
+	 * 고정을 푼다 — ITN-04. 명세가 {@code If-Match} 로 바탕 판을 받는다.
+	 *
+	 * <p>🔴 {@code baseVersion} 쿼리도 함께 받는다. DELETE 에 본문을 싣는 것은 클라이언트
+	 * 라이브러리마다 거동이 달라 믿을 수 없고, 앱은 {@code If-Match} 를 보내지 않는다
+	 * ({@code frontend/src/api/client.ts} 의 헤더 목록에 없다). 둘 중 하나는 있어야 한다 —
+	 * 없으면 400 이다. 화면이 무엇을 보고 있었는지 모르면 덮어쓰기를 막을 수 없다(API-09).
+	 */
+	@DeleteMapping("/items/{itemId}/lock")
+	public ApiResponse<ItineraryEditResponse> unlockItem(
+			@PathVariable String itineraryId,
+			@PathVariable String itemId,
+			@RequestHeader(value = "If-Match", required = false) String ifMatch,
+			@RequestParam(value = "baseVersion", required = false) Integer baseVersionParam,
+			Authentication authentication) {
 
-    /**
-     * 응답 본문 — API 명세 2.1 공통 envelope 의 {@code data} 부분.
-     *
-     * <p>🔴 {@code createdAt} 을 {@code data} 안에 둔다. 예전 코드는 이 값을
-     * {@code meta.timestamp} 에 뒀는데, 팀 공용 {@code ApiMeta} 는
-     * {@code requestId} 한 칸뿐이다({@code common/api/ApiMeta.java}). 칸이 없다고
-     * 정보를 버리지 않고 {@code data} 로 옮겼다 — {@code Trip}·{@code Auth} 응답도
-     * 같은 이유로 시각을 {@code data} 안에 둔다.
-     */
-    private Map<String, Object> dataOf(ItineraryVersion v, String itemId) {
-        return Map.of(
-                "itineraryId", v.itineraryId(),
-                "version", v.version(),
-                "baseVersion", v.baseVersion(),
-                "createdBy", v.createdBy(),
-                "operation", v.operation().name(),
-                "requestId", v.requestId(),
-                "lockedItemId", itemId,
-                "timezone", "Asia/Seoul",
-                "createdAt", v.createdAt().toString(),
-                "warnings", List.of());
-    }
+		Integer baseVersion = baseVersionParam != null ? baseVersionParam : parseIfMatch(ifMatch);
+		if (baseVersion == null) {
+			throw new MissingBaseVersionException();
+		}
+
+		ItineraryEditResponse body = applyLock(itineraryId, itemId, false, baseVersion, authentication);
+		return ApiResponse.success(body, "req_" + UUID.randomUUID());
+	}
+
+	/**
+	 * 편집하고, 그 결과 판을 그대로 읽어 돌려준다.
+	 *
+	 * <p>🔴 편집과 조회를 <b>서로 다른 트랜잭션</b>으로 둔다. 편집이 커밋된 뒤에 읽어야
+	 * 앱이 받는 것이 "실제로 저장된 것" 이다. 같은 트랜잭션 안에서 만들어 돌려주면
+	 * 저장에 실패해도 성공한 것처럼 보이는 응답을 만들 수 있다.
+	 */
+	private ItineraryEditResponse applyLock(String itineraryId, String itemKey, boolean locked,
+			int baseVersion, Authentication authentication) {
+
+		// 🔴 S15P21E201-610 — 요청자를 X-User-Id 헤더가 아니라 인증 주체에서 정한다.
+		//    헤더는 부르는 쪽이 정하는 값이라 검사가 그 주장 위에서 돌고, 앱은 그 헤더를
+		//    보내지도 않는다(Authorization 만 싣는다).
+		String editor = AuthenticatedUsers.requireId(authentication).toString();
+
+		ItineraryVersion saved = this.editService.setItemLocked(itineraryId, itemKey, locked, baseVersion, editor);
+		ItineraryDetailResponse detail = this.queryService.getDetail(itineraryId, editor);
+		return ItineraryEditResponse.of(detail, saved);
+	}
+
+	/** {@code If-Match: "7"} · {@code If-Match: W/"7"} · {@code If-Match: 7} 을 모두 받는다. */
+	private static Integer parseIfMatch(String ifMatch) {
+		if (ifMatch == null || ifMatch.isBlank()) {
+			return null;
+		}
+		String value = ifMatch.trim();
+		if (value.startsWith("W/")) {
+			value = value.substring(2).trim();
+		}
+		value = value.replace("\"", "").trim();
+		try {
+			return Integer.valueOf(value);
+		}
+		catch (NumberFormatException e) {
+			return null;
+		}
+	}
+
+	/** 바탕 판을 안 보냈다 — 400. {@link ItineraryExceptionHandler} 가 번역한다. */
+	public static class MissingBaseVersionException extends RuntimeException {
+		public MissingBaseVersionException() {
+			super("바탕 판 번호가 필요합니다. If-Match 헤더나 baseVersion 쿼리로 보내십시오.");
+		}
+	}
 }

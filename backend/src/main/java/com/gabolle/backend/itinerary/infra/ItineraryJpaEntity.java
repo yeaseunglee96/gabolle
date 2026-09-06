@@ -11,10 +11,12 @@ import jakarta.persistence.Table;
 /**
  * {@code itineraries} 표 매핑 — S15P21E201-313.
  *
- * <p>🔴 {@code latest_version} 을 여기서 직접 갱신한다({@link #updateLatestVersion(int)}).
- * 도메인 {@code Itinerary.moveTo(int)} 와 같은 불변식(한 칸씩만 전진)을 요구하지 않는다 —
- * 그 검증은 {@link JpaItineraryRepository#append} 가 도메인 객체로 이미 통과시킨 값만
- * 여기로 가져오기 때문이다. 이 엔티티는 검증하지 않고 그대로 반영한다.
+ * <p>🔴 <b>이 엔티티로 {@code latest_version} 을 바꾸지 않는다</b>(S15P21E201-662).
+ * 예전에는 {@code updateLatestVersion(int)} 로 여기서 값을 고쳤는데, 그것은 "불러서 ·
+ * 고치고 · 저장" 이라 두 트랜잭션이 같은 값을 읽을 수 있었다. 지금은
+ * {@link JpaItineraryRepository#appendVersion} 이 {@code UPDATE ... WHERE latest_version
+ * = :base} 한 문장으로 옮긴다 — 내가 본 값에서만 움직이는지를 DB 가 판정한다.
+ * 그래서 값을 바꾸는 메서드를 아예 두지 않는다. 있으면 다음 사람이 그 길로 간다.
  */
 @Entity
 @Table(name = "itineraries")
@@ -48,8 +50,4 @@ public class ItineraryJpaEntity {
 	UUID tripId() { return tripId; }
 	int latestVersion() { return latestVersion; }
 	OffsetDateTime createdAt() { return createdAt; }
-
-	void updateLatestVersion(int newVersion) {
-		this.latestVersion = newVersion;
-	}
 }

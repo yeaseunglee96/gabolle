@@ -7,22 +7,28 @@ import com.gabolle.backend.itinerary.domain.ItineraryLeg;
 import com.gabolle.backend.itinerary.domain.ItineraryRepository;
 import com.gabolle.backend.itinerary.domain.ItineraryVersion;
 import com.gabolle.backend.itinerary.domain.StaleItineraryVersionException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 /**
- * 메모리 저장소 — {@code no-db} 전용.
+ * DB 없이 도는 일정 저장소 — {@code no-db} 프로필과 도메인 단위 테스트가 쓴다.
  *
- * <p>🔴 S15P21E201-313 이 {@code itineraries}·{@code itinerary_versions} 를
- * {@link JpaItineraryRepository} 로 옮기면서 {@code db}·{@code dev} 프로필에는 이
- * 빈을 만들지 않는다 — trip 패키지의 {@code InMemoryTripRepository} 와 같은 이유다.
- * 둘 다 살아 있으면 {@code ItineraryRepository} 빈이 둘이 되어 애플리케이션이 못 뜬다.
+ * <p>🔴 <b>이 구현은 DB 구현과 같은 계약을 지켜야 한다.</b> 여기서만 통과하는 코드는
+ * 실제 배포에서 깨진다. 그래서 DB 가 제약으로 막는 것을 이 클래스도 흉내낸다 —
+ * 판 번호 중복({@code uq_itinerary_version}), 같은 판 안의 자리 중복
+ * ({@code uq_itinerary_item_slot}), 그리고 최신 판 포인터 이동.
  *
- * <p>서버를 끄면 사라진다. {@code no-db} 프로필 전용이다.
+ * <p>2026-09-06 (S15P21E201-662) 이전에는 포인터를 이 클래스가 <b>안</b> 옮겼다.
+ * 응용 계층({@code ItineraryEditService})이 뒤이어 부르는 {@code Itinerary.moveTo} 가
+ * 같은 객체를 직접 고쳐서 "저절로" 반영되는 것처럼 보였을 뿐이다(참조 동일성). JPA 는
+ * 조회할 때마다 새 도메인 객체를 만들어 그 트릭이 안 통하므로 저장소가 직접 옮겼다 —
+ * 즉 <b>두 구현이 서로 다른 계약 위에서 돌고 있었다.</b> 지금은 둘 다 저장소가 옮긴다.
  */
 @Repository
 @Profile("!db & !dev")
@@ -30,10 +36,8 @@ public class InMemoryItineraryRepository implements ItineraryRepository {
 
     private final Map<String, Itinerary> itineraries = new ConcurrentHashMap<>();
 
-    /** 열쇠는 "일정id#판번호". DB 의 UNIQUE (itinerary_id, version) 에 해당한다. */
     private final Map<String, ItineraryVersion> versions = new ConcurrentHashMap<>();
 
-    /** 열쇠는 itineraryVersionId. 판마다 항목·구간을 따로 들고 있다(판은 덮어쓰지 않는다). */
     private final Map<String, List<ItineraryItem>> items = new ConcurrentHashMap<>();
     private final Map<String, List<ItineraryLeg>> legs = new ConcurrentHashMap<>();
 
@@ -43,18 +47,14 @@ public class InMemoryItineraryRepository implements ItineraryRepository {
     }
 
     @Override
-    public Itinerary create(Itinerary itinerary, ItineraryVersion firstVersion) {
+    public Itinerary create(Itinerary itinerary, ItineraryVersion firstVersion,
+                            List<ItineraryItem> newItems, List<ItineraryLeg> newLegs) {
         // 🔴 DB 구현과 같은 보장 — 같은 itineraryId 로 두 번 create 하면 뒤엣것이 이긴다.
         //    실제로는 새 UUID 를 매번 만들어 부르므로 이 경로에서 충돌은 생기지 않는다.
         itineraries.put(itinerary.itineraryId(), itinerary);
         versions.put(key(firstVersion.itineraryId(), firstVersion.version()), firstVersion);
+        putContent(firstVersion.itineraryVersionId(), newItems, newLegs);
         return itinerary;
-    }
-
-    @Override
-    public void saveContent(String itineraryVersionId, List<ItineraryItem> newItems, List<ItineraryLeg> newLegs) {
-        items.put(itineraryVersionId, List.copyOf(newItems));
-        legs.put(itineraryVersionId, List.copyOf(newLegs));
     }
 
     @Override
@@ -66,7 +66,8 @@ public class InMemoryItineraryRepository implements ItineraryRepository {
     }
 
     @Override
-    public ItineraryVersion append(ItineraryVersion version) {
+    public ItineraryVersion appendVersion(ItineraryVersion version, List<ItineraryItem> newItems,
+                                          List<ItineraryLeg> newLegs) {
         String key = key(version.itineraryId(), version.version());
 
         // 🔴 putIfAbsent 는 "없을 때만 넣는다" 를 원자적으로 한다.
@@ -75,11 +76,24 @@ public class InMemoryItineraryRepository implements ItineraryRepository {
         //    확인과 저장 사이에 다른 요청이 끼어들 수 있다(경쟁 조건).
         ItineraryVersion existing = versions.putIfAbsent(key, version);
         if (existing != null) {
-            Itinerary it = itineraries.get(version.itineraryId());
-            int latest = it != null ? it.latestVersion() : version.version();
-            throw new StaleItineraryVersionException(
-                    version.itineraryId(), version.baseVersion(), latest);
+            throw stale(version);
         }
+
+        putContent(version.itineraryVersionId(), newItems, newLegs);
+
+        // 🔴 포인터를 여기서 옮긴다. DB 구현의 조건부 UPDATE 와 짝이 되는 자리다.
+        //    Itinerary.moveTo 가 "한 칸씩만" 을 검사하므로 같은 불변식이 여기서도 선다.
+        Itinerary itinerary = itineraries.get(version.itineraryId());
+        if (itinerary != null) {
+            synchronized (itinerary) {
+                if (itinerary.latestVersion() != version.version() - 1) {
+                    // 판 번호는 땄는데 그 사이 포인터가 움직였다 — DB 구현의 0행 반영과 같다.
+                    throw stale(version);
+                }
+                itinerary.moveTo(version.version());
+            }
+        }
+
         return version;
     }
 
@@ -93,6 +107,63 @@ public class InMemoryItineraryRepository implements ItineraryRepository {
         Itinerary it = new Itinerary(itineraryId, tripId, latestVersion);
         itineraries.put(itineraryId, it);
         return it;
+    }
+
+    /**
+     * 시연·테스트용 — 판 하나와 그 내용을 검사 없이 그대로 넣는다.
+     *
+     * <p>🔴 {@link #appendVersion} 과 달리 판 번호 경쟁도 포인터도 건드리지 않는다.
+     * {@link #seed} 로 만든 "이미 5번 판까지 와 있는 일정" 에 그 5번 판의 내용을 채워 넣는
+     * 용도다 — 편집은 바탕 판의 내용을 복사하므로 바탕이 비어 있으면 검사할 것이 없다.
+     */
+    public void seedVersion(ItineraryVersion version, List<ItineraryItem> newItems, List<ItineraryLeg> newLegs) {
+        versions.put(key(version.itineraryId(), version.version()), version);
+        putContent(version.itineraryVersionId(), newItems, newLegs);
+    }
+
+    private void putContent(String itineraryVersionId, List<ItineraryItem> newItems, List<ItineraryLeg> newLegs) {
+        assertNoDuplicateSlot(newItems, newLegs);
+        items.put(itineraryVersionId, List.copyOf(newItems));
+        legs.put(itineraryVersionId, List.copyOf(newLegs));
+    }
+
+    /**
+     * 🔴 {@code uq_itinerary_item_slot}·{@code uq_itinerary_leg_slot} 을 흉내낸다.
+     *
+     * <p>재계산이 항목 순번을 다시 매길 때 같은 자리를 두 번 쓰는 버그가 나면, 이 검사가
+     * 없으면 인메모리에서는 통과하고 DB 에서만 터진다. 실제 DB 없이 도는 테스트가 많은
+     * 저장소일수록 그 차이가 늦게 드러난다.
+     */
+    private static void assertNoDuplicateSlot(List<ItineraryItem> newItems, List<ItineraryLeg> newLegs) {
+        Set<String> itemSlots = new HashSet<>();
+        for (ItineraryItem item : newItems) {
+            if (!itemSlots.add(item.dayIndex() + "#" + item.sequence())) {
+                throw new IllegalArgumentException(
+                        "같은 판에 같은 자리가 두 번 있습니다: dayIndex=" + item.dayIndex()
+                                + ", sequence=" + item.sequence());
+            }
+        }
+        Set<String> itemKeys = new HashSet<>();
+        for (ItineraryItem item : newItems) {
+            if (!itemKeys.add(item.itemKey())) {
+                throw new IllegalArgumentException("같은 판에 같은 itemKey 가 두 번 있습니다: " + item.itemKey());
+            }
+        }
+        Set<String> legSlots = new HashSet<>();
+        for (ItineraryLeg leg : newLegs) {
+            if (!legSlots.add(leg.dayIndex() + "#" + leg.sequence())) {
+                throw new IllegalArgumentException(
+                        "같은 판에 같은 구간 자리가 두 번 있습니다: dayIndex=" + leg.dayIndex()
+                                + ", sequence=" + leg.sequence());
+            }
+        }
+    }
+
+    private StaleItineraryVersionException stale(ItineraryVersion version) {
+        Itinerary it = itineraries.get(version.itineraryId());
+        int latest = it != null ? it.latestVersion() : version.version();
+        int attempted = version.baseVersion() != null ? version.baseVersion() : latest;
+        return new StaleItineraryVersionException(version.itineraryId(), attempted, latest);
     }
 
     private static String key(String itineraryId, int version) {

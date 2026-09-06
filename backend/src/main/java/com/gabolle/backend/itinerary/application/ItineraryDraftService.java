@@ -273,8 +273,6 @@ public class ItineraryDraftService implements ItineraryDraftPort {
                 ItineraryVersion.Operation.CREATE, draft.userId(), requestIdString, versions, now,
                 requestIdString);
 
-        this.itineraryRepository.create(itinerary, firstVersion);
-
         List<ItineraryItem> items = new ArrayList<>(draft.items().size());
         for (ItineraryDraft.DraftItem draftItem : draft.items()) {
             items.add(new ItineraryItem(
@@ -295,7 +293,10 @@ public class ItineraryDraftService implements ItineraryDraftPort {
                     draftLeg.durationMin(), draftLeg.walkingMeters(), null, null, now));
         }
 
-        this.itineraryRepository.saveContent(itineraryVersionId, items, legs);
+        // 🔴 2026-09-06 (S15P21E201-662) — 판과 내용을 한 번에 넘긴다. 예전에는 create 로
+        //    판을 먼저 만들고 saveContent 로 내용을 나중에 넣었는데, 그 두 걸음 사이가
+        //    "판은 있는데 내용이 없는" 상태였다. 저장소 인터페이스에서 그 걸음을 없앴다.
+        this.itineraryRepository.create(itinerary, firstVersion, items, legs);
 
         return new ItineraryHandle(itineraryId, 1);
     }
