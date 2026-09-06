@@ -71,6 +71,24 @@ public final class TestDatabase {
 		// 다시 만들게 해서, 컨테이너를 쓸 때와 같은 상태에서 시작한다.
 		registry.add("spring.flyway.clean-disabled", () -> "false");
 		registry.add("spring.flyway.clean-on-validation-error", () -> "true");
+
+		// 🔴 2026-09-06 (S15P21E201-662) — 컨텍스트당 연결 수를 묶는다.
+		//
+		// Spring 은 테스트 컨텍스트를 캐시하고 JVM 이 끝날 때까지 닫지 않는다. 컨텍스트마다
+		// Hikari(**연결 풀 — DB 연결을 미리 열어 두고 빌려주는 것**) 풀이 하나씩 생기고
+		// 기본 상한이 10 이라, @SpringBootTest 클래스가 열 개를 넘으면 PostgreSQL 의
+		// max_connections(기본 100, 그중 몇은 superuser 몫)를 넘어선다.
+		//
+		// 실제로 통합 테스트 하나를 더했더니 뒤에 도는 컨텍스트가
+		// "remaining connection slots are reserved for roles with the SUPERUSER attribute"
+		// 로 기동에 실패했다. 테스트가 틀린 게 아니라 자리가 없어서 못 뜬 것이라,
+		// 실패 메시지만 봐서는 원인을 찾기 어렵다.
+		//
+		// 테스트는 컨텍스트 하나 안에서 사실상 한 줄로 돌므로 몇 개면 충분하다. 상한을
+		// 낮추면 컨텍스트가 더 늘어도 같은 벽에 부딪히지 않는다.
+		registry.add("spring.datasource.hikari.maximum-pool-size", () -> "4");
+		registry.add("spring.datasource.hikari.minimum-idle", () -> "0");
+		registry.add("spring.datasource.hikari.idle-timeout", () -> "10000");
 	}
 
 	public static synchronized String url() {

@@ -125,8 +125,7 @@ class ItineraryQueryServiceTest {
 		Itinerary itinerary = new Itinerary("itn_broken", this.tripId, 2);
 		ItineraryVersion v1 = new ItineraryVersion(UUID.randomUUID().toString(), "itn_broken", 1, null,
 				ItineraryVersion.Operation.CREATE, this.requesterId, "req_1", null, Instant.now());
-		this.itineraryRepository.create(itinerary, v1);
-		this.itineraryRepository.saveContent(v1.itineraryVersionId(), List.of(), List.of());
+		this.itineraryRepository.create(itinerary, v1, List.of(), List.of());
 
 		assertThatThrownBy(() -> this.service.getDetail("itn_broken", this.requesterId))
 				.isInstanceOf(IllegalStateException.class);
@@ -148,8 +147,7 @@ class ItineraryQueryServiceTest {
 		Itinerary itinerary = new Itinerary(itineraryId, this.tripId, version);
 		ItineraryVersion v = new ItineraryVersion(UUID.randomUUID().toString(), itineraryId, version, null,
 				ItineraryVersion.Operation.CREATE, this.requesterId, "req_1", null, Instant.now());
-		this.itineraryRepository.create(itinerary, v);
-		this.itineraryRepository.saveContent(v.itineraryVersionId(), items, List.of());
+		this.itineraryRepository.create(itinerary, v, items, List.of());
 		return itineraryId;
 	}
 

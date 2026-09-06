@@ -1,40 +1,90 @@
 package com.gabolle.backend.itinerary.presentation;
 
-import com.gabolle.backend.itinerary.domain.StaleItineraryVersionException;
-import com.gabolle.backend.itinerary.presentation.dto.ItineraryConflictResponse;
-import java.time.Instant;
-import java.util.Map;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.UUID;
+
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import com.gabolle.backend.common.api.ApiError;
+import com.gabolle.backend.common.api.ApiResponse;
+import com.gabolle.backend.itinerary.domain.ItineraryRevision;
+import com.gabolle.backend.itinerary.domain.StaleItineraryVersionException;
+
 /**
- * 일정 편집 충돌을 409 로 바꾼다.
+ * {@link ItineraryEditController} 전용 오류 번역기.
  *
- * <p>🔴 도메인 예외를 HTTP 로 번역하는 것은 <b>표현 계층의 일</b>이다.
- * {@link StaleItineraryVersionException} 에는 {@code 409} 라는 숫자가 없다 —
- * 그래야 같은 규칙을 배치나 다른 진입점에서도 쓸 수 있다.
+ * <h2>🔴 2026-09-06 (S15P21E201-662) — 팀 공용 봉투로 바꿨다</h2>
+ * 예전에는 손으로 만든 봉투에 {@code error.details}(객체)를 담았다. 그렇게 한 이유가
+ * 주석에 적혀 있었다 — 팀 공용 {@code ApiError} 는 {@code fields: List<String>} 만 있어서
+ * 구조화된 객체를 못 담는다는 것이었다. <b>그런데 앱은 실제로 그 문자열 목록을 읽는다.</b>
+ * {@code frontend/src/plan/itinerary.ts} 가 {@code error.fields} 에서
+ * {@code /^latestVersion=/} 로 최신 판 번호를 뽑는다. 즉 담을 자리가 없던 게 아니라
+ * 읽는 쪽이 이미 정해 둔 자리를 서버가 안 쓰고 있었다. 읽는 쪽에 맞춘다.
  *
- * <p>개발계획서 4.2 — "하지 않는 일: 세밀한 예외 계층.
- * GB-API-001 5장의 enum 오류 코드만 지킨다." 그래서 이 처리기는 얇다.
+ * <p>그래서 {@code fields} 에 {@code "이름=값"} 문자열을 넣는다. 형식이 계약이므로
+ * 이름을 바꾸면 앱이 못 읽는다 — 그 사실을 회귀 테스트가 지킨다.
+ *
+ * <p>🔴 {@code assignableTypes} 로 이 컨트롤러 하나만 본다. 범위 없는 advice 가 남의
+ * 예외를 가로챈 사고가 이미 있었다({@code ItineraryQueryExceptionHandler}·
+ * {@code PlaceExceptionHandler} 의 같은 실측). {@code @Order} 도 같은 이유다 —
+ * 순서를 안 주면 승자가 컴포넌트 스캔 순서로 정해진다.
+ *
+ * <p>{@code message} 는 한국어 문장이다. 앱이 {@code error.message} 를 그대로 화면에
+ * 띄우는 자리가 있다({@code ItineraryQueryExceptionHandler} 의 같은 실측).
  */
-@RestControllerAdvice
+@RestControllerAdvice(assignableTypes = ItineraryEditController.class)
+@Order(Ordered.HIGHEST_PRECEDENCE)
 public class ItineraryExceptionHandler {
 
-    @ExceptionHandler(StaleItineraryVersionException.class)
-    public ResponseEntity<Map<String, Object>> handleStaleVersion(
-            StaleItineraryVersionException e) {
+	public static final String CONFLICT_CODE = "ITINERARY_VERSION_CONFLICT";
 
-        ItineraryConflictResponse error = ItineraryConflictResponse.of(
-                e.itineraryId(), e.attemptedBaseVersion(), e.latestVersion());
+	@ExceptionHandler(StaleItineraryVersionException.class)
+	public ResponseEntity<ApiResponse<Void>> handleStaleVersion(StaleItineraryVersionException e) {
+		// 🔴 이 두 문자열의 모양이 앱과의 계약이다. 앱은 latestVersion= 뒤의 숫자를 정규식으로 읽는다.
+		List<String> fields = List.of(
+				"latestVersion=" + e.latestVersion(),
+				"attemptedBaseVersion=" + e.attemptedBaseVersion());
 
-        // API 명세 2.1 공통 envelope — 오류일 때 data 는 null 이다.
-        Map<String, Object> body = new java.util.LinkedHashMap<>();
-        body.put("data", null);
-        body.put("error", error);
-        body.put("meta", Map.of("timestamp", Instant.now().toString()));
+		return ResponseEntity.status(HttpStatus.CONFLICT)
+				.body(ApiResponse.failure(
+						new ApiError(CONFLICT_CODE, "다른 변경이 먼저 반영됐습니다. 최신 일정을 불러와 다시 시도해 주세요.", fields),
+						requestId()));
+	}
 
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
-    }
+	/** 바탕 판에 그 항목이 없다 — 404. */
+	@ExceptionHandler(ItineraryRevision.ItemNotFoundException.class)
+	public ResponseEntity<ApiResponse<Void>> handleItemNotFound(ItineraryRevision.ItemNotFoundException e) {
+		return ResponseEntity.status(HttpStatus.NOT_FOUND)
+				.body(ApiResponse.failure(
+						new ApiError("ITINERARY_ITEM_NOT_FOUND", "그 일정 항목을 찾을 수 없습니다.",
+								List.of("itemId=" + e.itemKey())),
+						requestId()));
+	}
+
+	/** 그런 일정이 없다 — 404. 조회와 같은 코드를 쓴다. */
+	@ExceptionHandler(NoSuchElementException.class)
+	public ResponseEntity<ApiResponse<Void>> handleItineraryNotFound(NoSuchElementException e) {
+		return ResponseEntity.status(HttpStatus.NOT_FOUND)
+				.body(ApiResponse.failure(new ApiError("ITINERARY_NOT_FOUND", "일정을 찾을 수 없습니다."), requestId()));
+	}
+
+	/** ITN-04 에 바탕 판이 안 왔다 — 400. */
+	@ExceptionHandler(ItineraryEditController.MissingBaseVersionException.class)
+	public ResponseEntity<ApiResponse<Void>> handleMissingBaseVersion(
+			ItineraryEditController.MissingBaseVersionException e) {
+		return ResponseEntity.badRequest()
+				.body(ApiResponse.failure(
+						new ApiError("ITINERARY_BASE_VERSION_REQUIRED", e.getMessage(), List.of("baseVersion")),
+						requestId()));
+	}
+
+	private String requestId() {
+		return "req_" + UUID.randomUUID();
+	}
 }

@@ -28,14 +28,14 @@ import jakarta.persistence.Query;
  * PostgreSQL 로 옮겼다.
  *
  * <p>🔴 <b>새 일정을 만드는 경로 — {@link #create}(S15P21E201-604).</b> V150000 마이그레이션이
- * "그 경로가 생기는 티켓이 최초 값을 명시적으로 넣어야 한다"고 남긴 자리다. {@link #append} 는
- * 여전히 <b>기존 일정에 판을 더하는 것</b>만 한다 — 둘의 책임이 갈린다.
+ * "그 경로가 생기는 티켓이 최초 값을 명시적으로 넣어야 한다"고 남긴 자리다.
+ * {@link #appendVersion} 은 <b>기존 일정에 판을 더하는 것</b>만 한다 — 둘의 책임이 갈린다.
  *
  * <h2>🔴 UNIQUE 위반을 409 로 바꾸는 자리 — 왜 예외를 안 쓰는가</h2>
  * PostgreSQL 은 한 트랜잭션 안에서 문장 하나가 실패하면 <b>그 트랜잭션 전체가
  * "aborted" 상태</b>가 된다 — 실패를 잡고 계속 진행해도 다음 문장은 전부
- * {@code current transaction is aborted} 로 죽는다. {@link ItineraryEditService#edit}
- * 가 이미 트랜잭션 안이므로(확인·저장·포인터 이동이 한 트랜잭션), 실패를 예외로 받으면
+ * {@code current transaction is aborted} 로 죽는다. 호출자({@code ItineraryEditService})가
+ * 이미 트랜잭션 안이므로(확인·저장·포인터 이동이 한 트랜잭션), 실패를 예외로 받으면
  * 그 뒤 {@code itineraries} 갱신도 함께 죽는다.
  *
  * <p>🔴 2026-09-04 — 처음엔 {@code PROPAGATION_NESTED}(SAVEPOINT)로 이 INSERT 만 감쌌는데,
@@ -60,6 +60,22 @@ public class JpaItineraryRepository implements ItineraryRepository {
 			     policy_version, dataset_version, created_at)
 			VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14)
 			ON CONFLICT (itinerary_id, version) DO NOTHING
+			""";
+
+	/**
+	 * 🔴 최신 판 포인터를 <b>내가 본 값에서만</b> 옮긴다. 그 사이 누가 옮겼으면 0행이
+	 * 반영되고, 그건 409 다. {@link #appendVersion} javadoc 참고.
+	 */
+	private static final String MOVE_POINTER_IF_UNCHANGED = """
+			UPDATE itineraries
+			   SET latest_version = ?1
+			 WHERE itinerary_id = ?2
+			   AND latest_version = ?3
+			""";
+
+	/** 409 응답에 실을 "지금 실제 최신" — 1차 캐시를 거치지 않으려고 원시 SQL 로 읽는다. */
+	private static final String SELECT_LATEST_VERSION = """
+			SELECT latest_version FROM itineraries WHERE itinerary_id = ?1
 			""";
 
 	private final ItineraryJpaRepository itineraryJpaRepository;
@@ -87,44 +103,76 @@ public class JpaItineraryRepository implements ItineraryRepository {
 		return itineraryJpaRepository.findById(UUID.fromString(itineraryId)).map(JpaItineraryRepository::toDomain);
 	}
 
+	/**
+	 * 판 + 내용 + 포인터를 한 트랜잭션으로 —  S15P21E201-662.
+	 *
+	 * <p>순서를 뒤집지 않는다.
+	 * <ol>
+	 *   <li>{@code itinerary_versions} INSERT. 진 쪽은 여기서 끝난다</li>
+	 *   <li>항목·구간 INSERT. 이 판을 가리키는 외래키가 있으므로 판이 먼저여야 한다</li>
+	 *   <li>{@code itineraries.latest_version} 을 <b>조건부로</b> 옮긴다</li>
+	 * </ol>
+	 *
+	 * <h2>🔴 두 방어선이 서로 다른 것을 지킨다 — 둘 다 필요하다</h2>
+	 * <ul>
+	 *   <li>{@code INSERT ... ON CONFLICT (itinerary_id, version) DO NOTHING} 은
+	 *       <b>판 번호</b> 슬롯을 하나만 차지하게 한다</li>
+	 *   <li>{@code UPDATE ... WHERE latest_version = :base} 는 <b>포인터</b>가
+	 *       {@code baseVersion} 에서만 움직이게 한다</li>
+	 * </ul>
+	 * 예전에는 포인터를 "읽고 · 고치고 · 쓰기"(엔티티를 불러 값을 바꾸고 저장)로 옮겼다.
+	 * PostgreSQL 의 기본 격리 수준인 READ COMMITTED(**다른 트랜잭션이 커밋한 것만 보이는
+	 * 수준. 같은 값을 두 트랜잭션이 각자 읽는 것은 막지 않는다**)에서는 두 트랜잭션이 같은
+	 * {@code latest_version} 을 읽을 수 있다. 지금까지는 판 번호 UNIQUE 가 뒤에서 막아
+	 * 드러나지 않았지만, 재계산 작업(느린 비동기)과 고정(빠른 동기)이 섞이기 시작하면
+	 * 포인터만 어긋나는 경우가 생긴다. 조건을 WHERE 에 두면 그 판정을 DB 가 한다 —
+	 * 이것을 CAS(**Compare-And-Swap**, "내가 읽은 뒤로 바뀐 게 없을 때만 쓴다")라고 한다.
+	 */
 	@Override
 	@Transactional
-	public ItineraryVersion append(ItineraryVersion version) {
-		UUID itineraryId = UUID.fromString(version.itineraryId());
+	public ItineraryVersion appendVersion(ItineraryVersion version, List<ItineraryItem> items,
+			List<ItineraryLeg> legs) {
 
 		int inserted = insertVersion(version);
 
 		if (inserted == 0) {
 			// 🔴 충돌 — SQL 오류가 아니라 그냥 0행이 반영된 것이다. 트랜잭션은 멀쩡하다.
-			int latest = itineraryJpaRepository.findById(itineraryId)
-					.map(ItineraryJpaEntity::latestVersion)
-					.orElse(version.version());
-			int attempted = version.baseVersion() != null ? version.baseVersion() : latest;
-			throw new StaleItineraryVersionException(version.itineraryId(), attempted, latest);
+			throw staleFor(version);
 		}
 
-		// 🔴 InMemoryItineraryRepository 에서는 Itinerary.moveTo(next) 가 같은 객체를
-		//    직접 고쳐서 이 반영이 "저절로" 일어난다(참조 동일성). JPA 는 findById 마다
-		//    새 도메인 객체를 만들어 그 트릭이 안 통하므로, 여기서 명시적으로 반영한다.
-		ItineraryJpaEntity itinerary = itineraryJpaRepository.findById(itineraryId).orElseThrow();
-		itinerary.updateLatestVersion(version.version());
-		itineraryJpaRepository.save(itinerary);
+		saveContent(UUID.fromString(version.itineraryVersionId()), items, legs);
+
+		int expected = version.baseVersion() != null ? version.baseVersion() : version.version() - 1;
+		int moved = entityManager.createNativeQuery(MOVE_POINTER_IF_UNCHANGED)
+				.setParameter(1, version.version())
+				.setParameter(2, UUID.fromString(version.itineraryId()))
+				.setParameter(3, expected)
+				.executeUpdate();
+
+		if (moved == 0) {
+			// 판 번호는 땄는데 그 사이 포인터가 움직였다. 이 트랜잭션 전체가 되돌려진다.
+			throw staleFor(version);
+		}
 
 		return version;
 	}
 
 	/**
-	 * 🔴 일정을 처음 만든다 — S15P21E201-604. {@link #append} 와 달리 이 itineraryId 는
+	 * 🔴 일정을 처음 만든다 — S15P21E201-604. {@link #appendVersion} 과 달리 이 itineraryId 는
 	 * 이번에 처음 등장하므로(호출자가 매번 새 UUID 를 만든다) 경쟁할 대상이 없다. 그래도
 	 * {@code itinerary_versions} INSERT 는 {@link #insertVersion} 을 그대로 재사용한다 —
 	 * 같은 추천 요청이 두 번 실행되는 경우( {@code uq_itinerary_version_source_request} )는
 	 * 이 경로에서도 여전히 가능하고, 그때는 이 메서드가 던지는 원시 제약 위반을 그대로
-	 * 위로 흘려보낸다. {@link #append} 처럼 409 로 바꿔 줄 "재시도하면 되는 흔한 경쟁"이
+	 * 위로 흘려보낸다. {@link #appendVersion} 처럼 409 로 바꿔 줄 "재시도하면 되는 흔한 경쟁"이
 	 * 아니라, 같은 작업이 중복 실행됐다는 이례적인 상황이기 때문이다.
+	 *
+	 * <p>포인터는 옮기지 않는다 — 첫 판은 {@code latestVersion = 1} 로 이미 그 값을 들고
+	 * 태어나기 때문이다.
 	 */
 	@Override
 	@Transactional
-	public Itinerary create(Itinerary itinerary, ItineraryVersion firstVersion) {
+	public Itinerary create(Itinerary itinerary, ItineraryVersion firstVersion, List<ItineraryItem> items,
+			List<ItineraryLeg> legs) {
 		OffsetDateTime createdAt = toOffset(firstVersion.createdAt());
 		ItineraryJpaEntity entity = new ItineraryJpaEntity(
 				UUID.fromString(itinerary.itineraryId()),
@@ -135,14 +183,12 @@ public class JpaItineraryRepository implements ItineraryRepository {
 
 		insertVersion(firstVersion);
 
+		saveContent(UUID.fromString(firstVersion.itineraryVersionId()), items, legs);
+
 		return itinerary;
 	}
 
-	@Override
-	@Transactional
-	public void saveContent(String itineraryVersionId, List<ItineraryItem> items, List<ItineraryLeg> legs) {
-		UUID versionId = UUID.fromString(itineraryVersionId);
-
+	private void saveContent(UUID versionId, List<ItineraryItem> items, List<ItineraryLeg> legs) {
 		List<ItineraryItemJpaEntity> itemEntities = items.stream()
 				.map((item) -> toEntity(versionId, item))
 				.toList();
@@ -152,6 +198,25 @@ public class JpaItineraryRepository implements ItineraryRepository {
 				.map((leg) -> toEntity(versionId, leg))
 				.toList();
 		legJpaRepository.saveAll(legEntities);
+	}
+
+	/**
+	 * 지금 실제로 최신인 판 번호를 담은 409 예외를 만든다.
+	 *
+	 * <p>🔴 엔티티가 아니라 원시 SQL 로 읽는다. 이 트랜잭션은 앞서
+	 * {@code findById} 로 {@link ItineraryJpaEntity} 를 이미 불러 뒀을 수 있고, 그
+	 * 사본은 영속성 컨텍스트(**한 트랜잭션 동안 불러온 엔티티를 들고 있는 1차 캐시**)에
+	 * 남아 있어 다른 트랜잭션이 옮긴 값을 반영하지 않는다. 낡은 번호를 응답에 실으면
+	 * 화면이 그 번호로 다시 시도해서 또 409 를 받는다.
+	 */
+	private StaleItineraryVersionException staleFor(ItineraryVersion version) {
+		List<Integer> found = entityManager.createNativeQuery(SELECT_LATEST_VERSION, Integer.class)
+				.setParameter(1, UUID.fromString(version.itineraryId()))
+				.getResultList();
+
+		int latest = found.isEmpty() ? version.version() : found.get(0);
+		int attempted = version.baseVersion() != null ? version.baseVersion() : latest;
+		return new StaleItineraryVersionException(version.itineraryId(), attempted, latest);
 	}
 
 	@Override
@@ -178,7 +243,7 @@ public class JpaItineraryRepository implements ItineraryRepository {
 
 	/**
 	 * {@code itinerary_versions} 한 행을 {@code ON CONFLICT (itinerary_id, version) DO
-	 * NOTHING} 으로 넣는다. {@link #append}·{@link #create} 가 공유한다 — 왜 예외를 안
+	 * NOTHING} 으로 넣는다. {@link #appendVersion}·{@link #create} 가 공유한다 — 왜 예외를 안
 	 * 던지는 SQL 을 쓰는지는 클래스 javadoc 을 본다.
 	 *
 	 * @return 실제로 삽입된 행 수. 0이면 (itinerary_id, version) 이 이미 있었다는 뜻이다

@@ -12,8 +12,12 @@ import com.gabolle.backend.itinerary.domain.ItineraryRepository;
 import com.gabolle.backend.itinerary.domain.ItineraryVersion;
 import com.gabolle.backend.itinerary.domain.StaleItineraryVersionException;
 import com.gabolle.backend.itinerary.infra.InMemoryItineraryRepository;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -52,6 +56,8 @@ class ItineraryVersionRaceTest {
     private static final ItineraryVersion.Versions VERSIONS = new ItineraryVersion.Versions(
             "model-1", "feature-1", "onto-1", "policy-1", "dataset-1");
 
+    private static final String ITEM_KEY = "11111111-1111-4111-8111-111111111111";
+
     /**
      * 저장이 시작되면 신호를 보내고, 놓아 줄 때까지 기다리는 저장소.
      *
@@ -70,7 +76,8 @@ class ItineraryVersionRaceTest {
         }
 
         @Override
-        public ItineraryVersion append(ItineraryVersion version) {
+        public ItineraryVersion appendVersion(ItineraryVersion version, List<ItineraryItem> items,
+                List<ItineraryLeg> legs) {
             if (gateArmed) {
                 gateArmed = false;          // 첫 저장만 붙잡는다
                 appendEntered.countDown();
@@ -80,7 +87,7 @@ class ItineraryVersionRaceTest {
                     Thread.currentThread().interrupt();
                 }
             }
-            return delegate.append(version);
+            return delegate.appendVersion(version, items, legs);
         }
 
         @Override
@@ -89,14 +96,10 @@ class ItineraryVersionRaceTest {
         }
 
         @Override
-        public Itinerary create(Itinerary itinerary, ItineraryVersion firstVersion) {
-            // 🔴 이 테스트는 append() 의 경쟁만 본다 — create() 는 관문을 걸지 않는다.
-            return delegate.create(itinerary, firstVersion);
-        }
-
-        @Override
-        public void saveContent(String itineraryVersionId, List<ItineraryItem> items, List<ItineraryLeg> legs) {
-            delegate.saveContent(itineraryVersionId, items, legs);
+        public Itinerary create(Itinerary itinerary, ItineraryVersion firstVersion,
+                List<ItineraryItem> items, List<ItineraryLeg> legs) {
+            // 🔴 이 테스트는 appendVersion() 의 경쟁만 본다 — create() 는 관문을 걸지 않는다.
+            return delegate.create(itinerary, firstVersion, items, legs);
         }
 
         @Override
@@ -106,6 +109,10 @@ class ItineraryVersionRaceTest {
 
         Itinerary seed(String id, String tripId, int latest) {
             return delegate.seed(id, tripId, latest);
+        }
+
+        void seedVersion(ItineraryVersion version, List<ItineraryItem> items, List<ItineraryLeg> legs) {
+            delegate.seedVersion(version, items, legs);
         }
     }
 
@@ -119,8 +126,19 @@ class ItineraryVersionRaceTest {
     @DisplayName("🔴 A 가 저장하는 중에 B 가 끼어들어도 판이 건너뛰어지지 않는다")
     void interleavedEditDoesNotSkipVersion() throws Exception {
         GatedRepository repo = new GatedRepository();
-        ItineraryEditService service = new ItineraryEditService(repo);
+        ItineraryEditService service = new ItineraryEditService(repo, Clock.systemUTC());
         repo.seed("itn_1", "trp_1", 5);
+
+        // 🔴 바탕 판에 내용이 있어야 한다 — 편집은 그것을 새 판으로 복사한다(S15P21E201-662).
+        String seedVersionId = UUID.randomUUID().toString();
+        repo.seedVersion(
+                new ItineraryVersion(seedVersionId, "itn_1", 5, 4,
+                        ItineraryVersion.Operation.REGENERATE, "usr_seed", "req_seed", VERSIONS, Instant.now()),
+                List.of(new ItineraryItem(UUID.randomUUID().toString(), seedVersionId, ITEM_KEY,
+                        0, LocalDate.of(2026, 9, 10), 1, UUID.randomUUID().toString(),
+                        null, null, null, false, null, ItineraryItem.DataStatus.UNKNOWN,
+                        List.of(), List.of(), null, Instant.now())),
+                List.of());
 
         AtomicReference<Throwable> aError = new AtomicReference<>();
         AtomicReference<Throwable> bError = new AtomicReference<>();
@@ -129,8 +147,7 @@ class ItineraryVersionRaceTest {
 
         Thread a = new Thread(() -> {
             try {
-                ItineraryVersion v = service.edit("itn_1", 5,
-                        ItineraryVersion.Operation.LOCK_ITEM, "usr_a", "req_a", VERSIONS);
+                ItineraryVersion v = service.setItemLocked("itn_1", ITEM_KEY, true, 5, "usr_a");
                 aVersion.set(v.version());
             } catch (Throwable t) {
                 aError.set(t);
@@ -139,8 +156,7 @@ class ItineraryVersionRaceTest {
 
         Thread b = new Thread(() -> {
             try {
-                ItineraryVersion v = service.edit("itn_1", 5,
-                        ItineraryVersion.Operation.REMOVE_ITEM, "usr_b", "req_b", VERSIONS);
+                ItineraryVersion v = service.setItemLocked("itn_1", ITEM_KEY, false, 5, "usr_b");
                 bVersion.set(v.version());
             } catch (Throwable t) {
                 bError.set(t);
