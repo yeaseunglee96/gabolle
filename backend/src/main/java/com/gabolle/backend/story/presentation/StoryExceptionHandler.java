@@ -1,0 +1,100 @@
+package com.gabolle.backend.story.presentation;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+
+import com.gabolle.backend.common.api.ApiError;
+import com.gabolle.backend.common.api.ApiResponse;
+import com.gabolle.backend.story.application.FeedCursor;
+import com.gabolle.backend.story.application.FollowService;
+import com.gabolle.backend.story.application.StoryService;
+import com.gabolle.backend.story.domain.UserFollow;
+
+/**
+ * 기록·팔로우 컨트롤러의 오류 응답. 모양은 팀 공용 {@code ApiResponse.failure(ApiError(code, message, fields))} 다.
+ *
+ * <p>🔴 404 와 403 을 가르는 규칙이 이 파일의 핵심이다. 못 보는 기록(없음·지움·나만 보기·팔로워 전용)은 전부
+ * 404 {@code STORY_NOT_FOUND} 로 같은 응답을 낸다 — 응답이 다르면 어느 쪽인지 알 수 있고 그것이 곧 존재
+ * 사실의 유출이다. 403 {@code STORY_FORBIDDEN} 은 <b>보이는</b> 기록을 남이 고치거나 지우려 할 때만 난다.
+ */
+@RestControllerAdvice(assignableTypes = { StoryController.class, UserSocialController.class })
+@Order(Ordered.HIGHEST_PRECEDENCE)
+public class StoryExceptionHandler {
+
+	@ExceptionHandler(StoryService.StoryNotFoundException.class)
+	public ResponseEntity<ApiResponse<Void>> handleNotFound(StoryService.StoryNotFoundException e) {
+		return ResponseEntity.status(HttpStatus.NOT_FOUND)
+				.body(ApiResponse.failure(new ApiError("STORY_NOT_FOUND", e.getMessage(), List.of()), requestId()));
+	}
+
+	@ExceptionHandler(StoryService.StoryForbiddenException.class)
+	public ResponseEntity<ApiResponse<Void>> handleForbidden(StoryService.StoryForbiddenException e) {
+		return ResponseEntity.status(HttpStatus.FORBIDDEN)
+				.body(ApiResponse.failure(new ApiError("STORY_FORBIDDEN", e.getMessage(), List.of()), requestId()));
+	}
+
+	@ExceptionHandler(StoryService.InvalidReferenceException.class)
+	public ResponseEntity<ApiResponse<Void>> handleInvalidReference(StoryService.InvalidReferenceException e) {
+		return ResponseEntity.badRequest()
+				.body(ApiResponse.failure(new ApiError("STORY_REFERENCE_INVALID", e.getMessage(), List.of(e.field())),
+						requestId()));
+	}
+
+	@ExceptionHandler(FeedCursor.InvalidCursorException.class)
+	public ResponseEntity<ApiResponse<Void>> handleCursor(FeedCursor.InvalidCursorException e) {
+		return ResponseEntity.badRequest()
+				.body(ApiResponse.failure(new ApiError("FEED_CURSOR_INVALID", e.getMessage(), List.of("cursor")),
+						requestId()));
+	}
+
+	@ExceptionHandler(UserFollow.SelfFollowException.class)
+	public ResponseEntity<ApiResponse<Void>> handleSelfFollow(UserFollow.SelfFollowException e) {
+		return ResponseEntity.badRequest()
+				.body(ApiResponse.failure(new ApiError("FOLLOW_SELF", e.getMessage(), List.of("userId")), requestId()));
+	}
+
+	@ExceptionHandler(FollowService.UserNotFoundException.class)
+	public ResponseEntity<ApiResponse<Void>> handleUserNotFound(FollowService.UserNotFoundException e) {
+		return ResponseEntity.status(HttpStatus.NOT_FOUND)
+				.body(ApiResponse.failure(new ApiError("USER_NOT_FOUND", e.getMessage(), List.of()), requestId()));
+	}
+
+	@ExceptionHandler(MethodArgumentNotValidException.class)
+	public ResponseEntity<ApiResponse<Void>> handleValidation(MethodArgumentNotValidException e) {
+		List<String> fields = new ArrayList<>();
+		for (FieldError error : e.getBindingResult().getFieldErrors()) {
+			fields.add(error.getField());
+		}
+		return ResponseEntity.badRequest()
+				.body(ApiResponse.failure(new ApiError("STORY_VALIDATION_FAILED", "요청 값을 확인해 주세요.", fields),
+						requestId()));
+	}
+
+	/**
+	 * 🔴 {@code IllegalArgumentException} 을 여기 넣지 않는다. Spring 은 예외의 <b>원인 사슬</b>까지 훑어 핸들러를
+	 * 고르므로, 저장소 안쪽에서 난 IAE(예: DB 값이 enum 에 없다)가 400 으로 둔갑해 진짜 서버 결함이 "요청이
+	 * 틀렸다" 로 보인다. 이 묶음을 만들다 실제로 그렇게 한 번 속았다. 요청 모양의 문제는 위 두 예외로 충분하다.
+	 */
+	@ExceptionHandler({ HttpMessageNotReadableException.class, MethodArgumentTypeMismatchException.class })
+	public ResponseEntity<ApiResponse<Void>> handleBadInput(Exception e) {
+		return ResponseEntity.badRequest()
+				.body(ApiResponse.failure(new ApiError("STORY_VALIDATION_FAILED", "요청 값을 읽을 수 없습니다.", List.of()),
+						requestId()));
+	}
+
+	private static String requestId() {
+		return "req_" + UUID.randomUUID();
+	}
+}
