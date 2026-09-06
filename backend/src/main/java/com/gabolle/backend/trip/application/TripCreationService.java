@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HexFormat;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -16,7 +17,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.gabolle.backend.trip.domain.PersonalizationScope;
 import com.gabolle.backend.trip.domain.PreferenceSnapshot;
+import com.gabolle.backend.trip.domain.TimeWindows;
 import com.gabolle.backend.trip.domain.Trip;
+import com.gabolle.backend.trip.domain.TravelModes;
 import com.gabolle.backend.trip.domain.TripConstraint;
 import com.gabolle.backend.trip.domain.TripMember;
 import com.gabolle.backend.trip.domain.TripRepository;
@@ -59,12 +62,28 @@ public class TripCreationService {
         Instant now = clock.instant();
         String tripId = UUID.randomUUID().toString();
 
+        // 🔴 S15P21E201-664 — timeWindow·이동수단이 조용히 버려지던 것을 여기서 채운다.
+        //    왜 컨트롤러나 Trip 생성자가 아니라 여기인가 — 컨트롤러는 DTO→Command
+        //    번역만 하고 업무 규칙을 갖지 않는다. Trip 생성자(14-인자)는 저장소가 DB
+        //    값을 그대로 되살릴 때(Trip.builder())도 지나가는 자리라, 거기서 매번
+        //    새로 파생하면 "그때 저장된 travelModes·시각"과 "지금 파싱 규칙으로 다시
+        //    뽑은 값"이 파싱 규칙이 바뀐 날 어긋난다. 생성이 일어나는 이 자리
+        //    한 번에서만 파생해야 DB 값과 파생값이 항상 같다.
+        Optional<TimeWindows.TimeWindow> window = TimeWindows.parseRange(command.timeWindow());
+        String[] travelModes = resolveTravelModes(command.preferences());
+
         // ① 여행. 생성자가 조건을 검증한다 — 종료일이 시작일보다 앞이면 여기서 거부된다.
+        //    timeWindow 원문은 그대로 넘긴다 — fingerprintOf 가 이 원문 기준이라(아래),
+        //    파생값이 아니라 원문을 저장해야 재시도 판정이 안 흔들린다.
         Trip trip = new Trip(tripId, command.userId(),
                 command.startDate(), command.finishDate(),
                 command.originLat(), command.originLng(),
                 command.budgetKrw(), command.partySize(),
-                command.timeWindow(), command.timezone(), now);
+                command.timeWindow(), command.timezone(),
+                travelModes,
+                window.map(TimeWindows.TimeWindow::start).orElse(null),
+                window.map(TimeWindows.TimeWindow::end).orElse(null),
+                now);
 
         // ② 제약. 🔴 민감 종류(알레르기·필수 식단)에 값이 들어오면 생성자가 거부한다 —
         //    M1 에는 암호화 경로가 없고, 평문으로 한 번 저장하면 그 데이터가 남는다.
@@ -86,9 +105,26 @@ public class TripCreationService {
         // ④ 선호 스냅샷 v1. 계정 취향을 복사해 굳힌다 — 나중에 계정 취향이 바뀌어도
         //    이 여행이 무엇으로 만들어졌는지는 안 바뀐다 (NFR-08). scope 는 TRIP 고정 —
         //    위 제약과 같은 이유다.
+        //
+        //    🔴 S15P21E201-664 — "transport" 답은 여기서 뺀다. preference_answer 표의
+        //    dimension 칸은 CHECK(ck_preference_answer_dimension)로 CATEGORY 등
+        //    8종만 허용하고 "transport" 는 그 목록에 없다(마이그레이션
+        //    V20260903120000). transport 값은 이미 위에서 travelModes 로 다 소비했으니,
+        //    그대로 두면 취향 스냅샷 하나 저장하려다 DB CHECK 위반으로 이 트랜잭션
+        //    전체(여행·멤버·제약까지)가 롤백된다 — 그래서 저장 목록에서만 뺀다.
+        //    지문(fingerprintOf)은 원본 command.preferences() 를 그대로 쓰므로
+        //    영향받지 않는다.
+        //
+        //    🔴 대소문자를 구분하지 않고 뺀다("TRANSPORT" 도 걸린다) — 별도 작업에서
+        //    화면이 보내는 소문자 camelCase 차원 이름 전체(category, touristPreference 등)를
+        //    DB CHECK 가 요구하는 대문자로 정규화하는 절차가 컨트롤러 계층에 들어올
+        //    예정이고, 그 정규화를 거치면 이 자리에 "TRANSPORT" 로 들어올 수 있다.
+        List<PreferenceSnapshot.PreferenceAnswer> storedPreferences = command.preferences().stream()
+                .filter(a -> !"transport".equalsIgnoreCase(a.dimension()))
+                .toList();
         PreferenceSnapshot snapshot = new PreferenceSnapshot(
                 UUID.randomUUID().toString(), tripId, 1,
-                command.preferences(), PersonalizationScope.TRIP, constraintIds, now);
+                storedPreferences, PersonalizationScope.TRIP, constraintIds, now);
 
         // ⑤ 🔴 키 확보와 저장을 한 동작으로 한다.
         //    나누면 같은 키로 동시에 온 요청이 전부 여행을 만든다 — 테스트가 잡았다.
@@ -120,6 +156,44 @@ public class TripCreationService {
         catch (NoSuchAlgorithmException e) {
             throw new IllegalStateException("SHA-256 이 없다", e);
         }
+    }
+
+    /**
+     * 취향 답들 중 {@code dimension} 이 {@code "transport"}(대소문자 구분 안 함)인 답을
+     * 찾아 {@code travel_modes} 로 바꾼다.
+     *
+     * <p>🔴 답이 없거나, 있어도 {@code SELECTED} 가 아니면(SKIPPED/UNKNOWN) 빈 배열이다 —
+     * 지금까지의 거동(travelModes 를 못 채운 것)과 같다. 답이 있는데 값을 이해하지
+     * 못하면(9절 참고) 예외를 던진다 — 여기서 조용히 넘기면 이 배선이 지금까지 안
+     * 됐던 것과 똑같은 실패(값이 조용히 버려짐)를 다른 자리에서 반복하는 셈이다.
+     */
+    private String[] resolveTravelModes(List<PreferenceSnapshot.PreferenceAnswer> preferences) {
+        return preferences.stream()
+                .filter(a -> "transport".equalsIgnoreCase(a.dimension()))
+                .findFirst()
+                .filter(a -> a.status() == PreferenceSnapshot.AnswerStatus.SELECTED)
+                .map(a -> TravelModes.fromTransportPreference(unquoteJsonString(a.valueJson())))
+                .orElse(new String[0]);
+    }
+
+    /**
+     * 화면이 {@code JSON.stringify} 해서 보낸 값의 앞뒤 큰따옴표만 벗긴다
+     * (예: {@code "\"TRANSIT\""} → {@code TRANSIT}).
+     *
+     * <p>🔴 값이 단순 문자열 하나뿐이라 이걸로 충분하다. {@code ObjectMapper}(JSON을
+     * 자바 객체로 바꾸는 라이브러리)를 안 쓴 이유 — domain 패키지({@link TravelModes})에
+     * Jackson 의존을 들이지 않으려는 것이라 이 파싱은 여기(application 계층)에 남긴다.
+     * 한계 — 배열 JSON({@code ["BUS","SUBWAY"]})이 오면 앞뒤가 큰따옴표가 아니라서
+     * 이 벗기기가 안 먹고 원문 그대로 {@link TravelModes#fromTransportPreference}에
+     * 넘어간다. 그러면 매핑표 밖의 값이라 거부되는데, 그 형태를 지어내서 해석하지 않고
+     * 그대로 거절하는 것이 맞다 — 배열이 왔다는 것 자체가 계약 밖의 요청이다.
+     */
+    private static String unquoteJsonString(String valueJson) {
+        if (valueJson != null && valueJson.length() >= 2
+                && valueJson.startsWith("\"") && valueJson.endsWith("\"")) {
+            return valueJson.substring(1, valueJson.length() - 1);
+        }
+        return valueJson;
     }
 
     /** 응용 계층 입력. 표현 계층 DTO 를 도메인까지 끌고 들어가지 않는다. */
