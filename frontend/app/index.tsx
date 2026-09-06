@@ -24,9 +24,9 @@ const beachNightVideo = require('../assets/video/busan-beach-night.mp4');
 type WelcomeLanguage = { code: Extract<LanguageCode, 'ko' | 'en'>; label: string };
 const LANGUAGES: WelcomeLanguage[] = [{ code: 'ko', label: '한국어' }, { code: 'en', label: 'English' }];
 const FEATURES = [
-  { icon: require('../assets/icons/home/wand.png'), title: 'AI 일정 만들기', body: 'AI가 위치와 조건을 분석해\n최적의 부산 여행 일정을 제안해요.' },
-  { icon: require('../assets/icons/home/route.png'), title: '실시간 경로 안내', body: '현재 위치와 일정에 맞춰\n다음 이동 경로를 한눈에 확인해요.' },
-  { icon: require('../assets/icons/home/users.png'), title: '함께 여행 설계', body: '동행자와 조건을 공유하고\n모두에게 맞는 일정을 만들어요.' },
+  { icon: require('../assets/icons/home/wand.png'), titleKo: 'AI 일정 만들기', titleEn: 'AI itinerary builder', bodyKo: 'AI가 위치와 조건을 분석해\n최적의 부산 여행 일정을 제안해요.', bodyEn: 'AI analyzes your location and needs\nto suggest the best Busan itinerary.' },
+  { icon: require('../assets/icons/home/route.png'), titleKo: '실시간 경로 안내', titleEn: 'Real-time route guidance', bodyKo: '현재 위치와 일정에 맞춰\n다음 이동 경로를 한눈에 확인해요.', bodyEn: 'See your next route at a glance,\nmatched to your location and schedule.' },
+  { icon: require('../assets/icons/home/users.png'), titleKo: '함께 여행 설계', titleEn: 'Plan together', bodyKo: '동행자와 조건을 공유하고\n모두에게 맞는 일정을 만들어요.', bodyEn: 'Share conditions with companions\nand build a trip that works for everyone.' },
 ] as const;
 
 const VIDEO_BY_TIME = {
@@ -91,8 +91,8 @@ export default function Welcome() {
       <ScenicVideo poster={welcomeImage} source={welcomeVideo} />
       <StatusBar style="light" />
       <SafeAreaView edges={['top', 'bottom']} style={styles.mobileSafeArea}>
-        <View style={styles.mobileBrand}><Pressable accessibilityRole="button" accessibilityLabel="GABOLLE 시작하기" accessibilityHint="서비스 소개 화면으로 이동합니다" onPress={() => startOnboarding()} style={({ pressed }) => [styles.logoLink, pressed && styles.pressed]}><Image source={lightLogo ? nightLogo : logo} resizeMode="contain" style={styles.mobileLogo} /></Pressable><Text variant="display" weight="bold" color={color.brand.orange}>부산 가볼래?</Text></View>
-        <View accessibilityRole="radiogroup" accessibilityLabel="시작할 언어 선택" style={styles.languageList}>{LANGUAGES.map((item) => <LanguageButton key={item.code} item={item} selected={language === item.code} onPress={() => startOnboarding(item.code)} />)}</View>
+        <View style={styles.mobileBrand}><Pressable accessibilityRole="button" accessibilityLabel={tx('GABOLLE 시작하기', 'Start GABOLLE')} accessibilityHint={tx('서비스 소개 화면으로 이동합니다', 'Goes to the service introduction screen')} onPress={() => startOnboarding()} style={({ pressed }) => [styles.logoLink, pressed && styles.pressed]}><Image source={lightLogo ? nightLogo : logo} resizeMode="contain" style={styles.mobileLogo} /></Pressable><Text variant="display" weight="bold" color={color.brand.orange}>{tx('부산 가볼래?', 'Shall we go to Busan?')}</Text></View>
+        <View accessibilityRole="radiogroup" accessibilityLabel={tx('시작할 언어 선택', 'Select a language to start')} style={styles.languageList}>{LANGUAGES.map((item) => <LanguageButton key={item.code} item={item} selected={language === item.code} onPress={() => startOnboarding(item.code)} />)}</View>
       </SafeAreaView>
     </View>;
   }
@@ -100,7 +100,7 @@ export default function Welcome() {
   return <View style={styles.webShell}><ScrollView style={styles.webScreen} contentContainerStyle={styles.webContent}>
     <StatusBar style="dark" />
     <SafeAreaView edges={['top']} style={styles.webHeader}>
-      <Pressable accessibilityRole="link" accessibilityLabel="GABOLLE 홈" onPress={() => router.replace('/')} style={({ pressed }) => [styles.logoLink, pressed && styles.pressed]}><Image source={logo} resizeMode="contain" style={styles.webLogo} /></Pressable>
+      <Pressable accessibilityRole="link" accessibilityLabel={tx('GABOLLE 홈', 'GABOLLE home')} onPress={() => router.replace('/')} style={({ pressed }) => [styles.logoLink, pressed && styles.pressed]}><Image source={logo} resizeMode="contain" style={styles.webLogo} /></Pressable>
       <View style={styles.webNav}><NavItem label={tx('홈', 'Home')} onPress={() => router.replace('/')} /><NavItem label={tx('여행 만들기', 'Plan a trip')} onPress={startPlanning} /><NavItem label={tx('내 여행', 'My trips')} onPress={() => router.push('/sign-in')} /><NavItem label={tx('부산 축제', 'Festivals')} onPress={() => router.push('/festivals')} /></View>
       <View style={styles.accountActions}>
         <Pressable accessibilityRole="button" accessibilityLabel={`언어를 ${language === 'ko' ? 'English' : '한국어'}로 변경`} onPress={() => chooseLanguage(language === 'ko' ? 'en' : 'ko')} style={styles.localeButton}><Text variant="caption" weight="bold">{language.toUpperCase()}</Text></Pressable>
@@ -116,12 +116,12 @@ export default function Welcome() {
         <Text variant="hero" weight="bold" color={color.text.onAction} style={styles.heroTitle}>{tx(`부산의 모든 여행,\n가볼래?`, `Every side of Busan,\nyours to explore.`)}</Text>
         <Text variant="body" color="rgba(255,255,255,0.78)" style={styles.heroDescription}>{tx('취향과 이동 조건을 반영해 당신만의 부산 여행을 만들어요.', 'Build a Busan trip around your taste and mobility needs.')}</Text>
         <View style={styles.heroActions}><Pressable accessibilityRole="button" accessibilityHint={tx('로그인 없이 여행 조건 입력을 시작합니다.', 'Start entering trip details without signing in.')} onPress={startPlanning} style={styles.primaryCta}><Text variant="body" weight="bold" color={color.text.onAction}>{tx('여행 계획 시작하기', 'Start planning')}</Text></Pressable><Pressable accessibilityRole="button" onPress={() => router.push('/festivals')} style={styles.secondaryCta}><Text variant="body" weight="bold" color={color.text.onAction}>{tx('부산 축제 보기', 'Explore festivals')}</Text></Pressable></View>
-        <View style={styles.heroChips}><HeroChip dot={color.state.success} label="맞춤 일정" /><HeroChip dot={color.brand.orange} label="지금 갈 곳" /><HeroChip dot={color.state.rating} label="설명 가능한 추천" /></View>
+        <View style={styles.heroChips}><HeroChip dot={color.state.success} label={tx('맞춤 일정', 'Tailored itinerary')} /><HeroChip dot={color.brand.orange} label={tx('지금 갈 곳', 'Places right now')} /><HeroChip dot={color.state.rating} label={tx('설명 가능한 추천', 'Explainable picks')} /></View>
       </View></View>
     </ImageBackground>
     <View style={styles.featureSection}>
-      <View style={styles.featureHeadingRow}><View><Text variant="eyebrow" weight="bold">— EXCLUSIVE FEATURES</Text><Text variant="display" weight="bold" style={styles.featureHeading}>똑똑하고 아름답게{`\n`}설계되는 맞춤형 여정</Text></View></View>
-      <View style={styles.featureGrid}>{FEATURES.map((feature) => <View key={feature.title} style={styles.featureCard}><View style={styles.featureIcon}><Image source={feature.icon} resizeMode="contain" style={styles.featureIconImage} /></View><Text variant="title" weight="bold">{feature.title}</Text><Text variant="body" style={styles.featureBody}>{feature.body}</Text></View>)}</View>
+      <View style={styles.featureHeadingRow}><View><Text variant="eyebrow" weight="bold">— EXCLUSIVE FEATURES</Text><Text variant="display" weight="bold" style={styles.featureHeading}>{tx('똑똑하고 아름답게\n설계되는 맞춤형 여정', 'A personalized journey,\nsmartly and beautifully designed')}</Text></View></View>
+      <View style={styles.featureGrid}>{FEATURES.map((feature) => <View key={feature.titleKo} style={styles.featureCard}><View style={styles.featureIcon}><Image source={feature.icon} resizeMode="contain" style={styles.featureIconImage} /></View><Text variant="title" weight="bold">{tx(feature.titleKo, feature.titleEn)}</Text><Text variant="body" style={styles.featureBody}>{tx(feature.bodyKo, feature.bodyEn)}</Text></View>)}</View>
     </View>
   </ScrollView>
     <Pressable

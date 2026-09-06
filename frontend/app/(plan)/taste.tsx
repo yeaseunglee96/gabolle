@@ -98,7 +98,7 @@ export default function Taste() {
         ? draft.foods.length > 0
         : true;
   return <PlanDesktopShell><Screen scroll wide style={styles.canvas}>
-    {kind === 'phone' && <View style={styles.topBar}><Pressable accessibilityRole="button" accessibilityLabel="뒤로 가기" onPress={() => router.canGoBack() ? router.back() : router.replace('/plan/basic')} style={styles.back}><Text variant="title">‹</Text></Pressable><BrandLogoLink imageStyle={styles.logo} /><View style={styles.stepPill}><Text variant="caption" weight="bold">2 / 4</Text></View></View>}
+    {kind === 'phone' && <View style={styles.topBar}><Pressable accessibilityRole="button" accessibilityLabel={tx('뒤로 가기', 'Go back')} onPress={() => router.canGoBack() ? router.back() : router.replace('/plan/basic')} style={styles.back}><Text variant="title">‹</Text></Pressable><BrandLogoLink imageStyle={styles.logo} /><View style={styles.stepPill}><Text variant="caption" weight="bold">2 / 4</Text></View></View>}
     <PlanStepHeader current={2} />
     <View style={styles.headingRow}><View><Text variant="display" weight="bold">{tx('취향을 알려주세요', 'Tell us your preferences')}</Text><Text color={color.text.muted} style={styles.subtitle}>{tx('좋아하는 여행 스타일을 선택해 주세요', 'Choose the travel styles you enjoy')}</Text></View><Pressable accessibilityRole="button" onPress={skipAll} style={styles.skipAll}><Text variant="caption" weight="bold">{tx('전체 건너뛰기', 'Skip all')}</Text></Pressable></View>
 
