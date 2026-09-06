@@ -20,7 +20,7 @@ const BUDGETS = [50000, 100000, 150000, 200000] as const;
 // 모바일에서 7개 카드를 한 화면에 몰아두면 설문이 길어 보인다 (taste·constraints 는
 // 이미 화면당 1~2문항으로 쪼개져 있는데 여기만 그대로였다). 같은 패턴으로 4묶음
 // 진행형 UI를 적용한다. 각 묶음이 어떤 필드의 에러를 gating 하는지 여기서 정한다.
-const PANEL_LABELS = ['날짜', '인원·지역', '예산', '출발·이동'] as const;
+const PANEL_LABELS = [['날짜', 'Dates'], ['인원·지역', 'People · Areas'], ['예산', 'Budget'], ['출발·이동', 'Start · Transport']] as const;
 const PANEL_ERROR_KEYS: readonly (keyof TripBasicsErrors)[][] = [
   ['startDate', 'endDate'],
   ['travelers', 'adults', 'children'],
@@ -82,8 +82,8 @@ export default function Basics() {
     <Text color={color.text.body} style={styles.subtitle}>{tx('부산 여행의 기본을 알려주세요', 'Tell us the essentials for your Busan trip')}</Text>
 
     {kind === 'phone' && <View style={styles.questionProgress}>
-      <View style={styles.questionMeta}><Text variant="caption" weight="bold" color={color.brand.orange}>기본정보 {panelIndex + 1} / {PANEL_LABELS.length}</Text><Text variant="caption" color={color.text.muted}>약 {Math.max(8, (PANEL_LABELS.length - panelIndex) * 8)}초 남음</Text></View>
-      <View style={styles.questionDots}>{PANEL_LABELS.map((label, index) => <Pressable key={label} accessibilityRole="button" accessibilityLabel={`${label} 항목으로 이동`} onPress={() => goToPanel(index)} style={[styles.questionDot, index === panelIndex && styles.questionDotCurrent, !panelBlocked(index) && styles.questionDotAnswered]} />)}</View>
+      <View style={styles.questionMeta}><Text variant="caption" weight="bold" color={color.brand.orange}>{tx('기본정보', 'Basics')} {panelIndex + 1} / {PANEL_LABELS.length}</Text><Text variant="caption" color={color.text.muted}>{tx(`약 ${Math.max(8, (PANEL_LABELS.length - panelIndex) * 8)}초 남음`, `About ${Math.max(8, (PANEL_LABELS.length - panelIndex) * 8)}s left`)}</Text></View>
+      <View style={styles.questionDots}>{PANEL_LABELS.map(([ko, en], index) => <Pressable key={ko} accessibilityRole="button" accessibilityLabel={tx(`${ko} 항목으로 이동`, `Go to ${en}`)} onPress={() => goToPanel(index)} style={[styles.questionDot, index === panelIndex && styles.questionDotCurrent, !panelBlocked(index) && styles.questionDotAnswered]} />)}</View>
     </View>}
 
     <View style={[styles.grid, kind === 'tablet' && styles.gridWide]}>
