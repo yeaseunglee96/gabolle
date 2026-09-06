@@ -108,6 +108,13 @@ class ItineraryVersionRaceTest {
             return delegate.findContent(itineraryId, version);
         }
 
+        @Override
+        public List<ItineraryVersion> findVersions(String itineraryId) {
+            // 🔴 S15P21E201-284 — 이 테스트는 appendVersion() 의 경쟁만 본다. 목록 조회는
+            // 관문을 걸지 않고 그대로 위임한다.
+            return delegate.findVersions(itineraryId);
+        }
+
         Itinerary seed(String id, String tripId, int latest) {
             return delegate.seed(id, tripId, latest);
         }

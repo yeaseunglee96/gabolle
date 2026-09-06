@@ -105,6 +105,18 @@ public class InMemoryItineraryRepository implements ItineraryRepository {
         return Optional.ofNullable(versions.get(key(itineraryId, version)));
     }
 
+    /**
+     * 🔴 S15P21E201-284 — 최신 판이 먼저(version DESC). DB 구현({@code
+     * ix_itinerary_version_itinerary (itinerary_id, version DESC)})과 같은 계약이다.
+     */
+    @Override
+    public List<ItineraryVersion> findVersions(String itineraryId) {
+        return versions.values().stream()
+                .filter(v -> v.itineraryId().equals(itineraryId))
+                .sorted((a, b) -> Integer.compare(b.version(), a.version()))
+                .toList();
+    }
+
     /** 시연·테스트용 — 일정 하나를 심어 둔다. */
     public Itinerary seed(String itineraryId, String tripId, int latestVersion) {
         Itinerary it = new Itinerary(itineraryId, tripId, latestVersion);

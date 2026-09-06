@@ -25,6 +25,7 @@ import com.gabolle.backend.itinerary.domain.ItineraryRepository;
 import com.gabolle.backend.itinerary.domain.ItineraryVersion;
 import com.gabolle.backend.itinerary.presentation.ItineraryQueryController;
 import com.gabolle.backend.itinerary.presentation.dto.ItineraryDetailResponse;
+import com.gabolle.backend.itinerary.presentation.dto.ItineraryVersionSummaryResponse;
 import com.gabolle.backend.place.domain.Place;
 import com.gabolle.backend.place.repository.PlaceRepository;
 import com.gabolle.backend.recommendation.domain.FallbackMode;
@@ -114,6 +115,23 @@ public class ItineraryQueryService {
 				fallbackMode,
 				access.role().name(),
 				access.role().canEdit());
+	}
+
+	/**
+	 * 🔴 S15P21E201-284 — 판 목록, API 명세 ITN-02. 되돌리기 화면이 "어느 판으로 돌아갈지"
+	 * 고르는 목록이다. 권한 판정은 {@link #getDetail} 과 <b>똑같이</b>
+	 * {@link ItineraryAccess#requireMember} — 회원이면 누구나(VIEWER 도) 볼 수 있고,
+	 * 회원이 아니면 일정이 없는 것처럼 404 다.
+	 *
+	 * @throws ItineraryQueryController.ItineraryNotFoundException 일정이 없거나, 있어도
+	 *     요청자가 그 일정이 속한 여행의 회원이 아니다
+	 */
+	@Transactional(readOnly = true)
+	public List<ItineraryVersionSummaryResponse> listVersions(String itineraryId, String requesterUserId) {
+		this.itineraryAccess.requireMember(itineraryId, requesterUserId);
+		return this.itineraryRepository.findVersions(itineraryId).stream()
+				.map(ItineraryVersionSummaryResponse::of)
+				.toList();
 	}
 
 	/**

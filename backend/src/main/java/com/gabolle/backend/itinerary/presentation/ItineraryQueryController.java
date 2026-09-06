@@ -1,5 +1,6 @@
 package com.gabolle.backend.itinerary.presentation;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -14,6 +15,7 @@ import com.gabolle.backend.common.api.ApiResponse;
 import com.gabolle.backend.common.security.AuthenticatedUsers;
 import com.gabolle.backend.itinerary.application.ItineraryQueryService;
 import com.gabolle.backend.itinerary.presentation.dto.ItineraryDetailResponse;
+import com.gabolle.backend.itinerary.presentation.dto.ItineraryVersionSummaryResponse;
 import com.gabolle.backend.trip.application.TripQueryService;
 
 /**
@@ -55,6 +57,20 @@ public class ItineraryQueryController {
 		//    앱은 그 헤더를 보내지도 않는다(Authorization 만 싣는다).
 		String requester = AuthenticatedUsers.requireId(authentication).toString();
 		ItineraryDetailResponse response = this.queryService.getDetail(itineraryId, requester);
+		return ApiResponse.success(response, "req_" + UUID.randomUUID());
+	}
+
+	/**
+	 * 🔴 S15P21E201-284 — 판 목록, API 명세 ITN-02. 되돌리기 화면이 "어느 판으로
+	 * 돌아갈지" 고르는 목록을 그린다. 권한 판정은 {@link #get} 과 같다 — 회원이면 누구나
+	 * 볼 수 있고, 회원이 아니면 존재 자체를 404 로 감춘다.
+	 */
+	@GetMapping("/{itineraryId}/versions")
+	public ApiResponse<List<ItineraryVersionSummaryResponse>> versions(@PathVariable String itineraryId,
+			Authentication authentication) {
+
+		String requester = AuthenticatedUsers.requireId(authentication).toString();
+		List<ItineraryVersionSummaryResponse> response = this.queryService.listVersions(itineraryId, requester);
 		return ApiResponse.success(response, "req_" + UUID.randomUUID());
 	}
 

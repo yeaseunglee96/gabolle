@@ -72,8 +72,8 @@ public class JpaItineraryRepository implements ItineraryRepository {
 			INSERT INTO itinerary_versions
 			    (itinerary_version_id, itinerary_id, version, base_version, operation, created_by,
 			     request_id, source_request_id, model_version, feature_version, ontology_version,
-			     policy_version, dataset_version, created_at, warning_codes)
-			VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, CAST(?15 AS varchar[]))
+			     policy_version, dataset_version, created_at, warning_codes, reverted_from_version)
+			VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, CAST(?15 AS varchar[]), ?16)
 			ON CONFLICT (itinerary_id, version) DO NOTHING
 			""";
 
@@ -271,6 +271,17 @@ public class JpaItineraryRepository implements ItineraryRepository {
 	}
 
 	/**
+	 * 🔴 S15P21E201-284 — 최신 판이 먼저(version DESC). {@code ix_itinerary_version_itinerary
+	 * (itinerary_id, version DESC)}(V20260903150000)가 이 정렬을 위해 있는 색인이다.
+	 */
+	@Override
+	public List<ItineraryVersion> findVersions(String itineraryId) {
+		return versionJpaRepository.findByItineraryIdOrderByVersionDesc(UUID.fromString(itineraryId)).stream()
+				.map(JpaItineraryRepository::toDomain)
+				.toList();
+	}
+
+	/**
 	 * {@code itinerary_versions} 한 행을 {@code ON CONFLICT (itinerary_id, version) DO
 	 * NOTHING} 으로 넣는다. {@link #appendVersion}·{@link #create} 가 공유한다 — 왜 예외를 안
 	 * 던지는 SQL 을 쓰는지는 클래스 javadoc 을 본다.
@@ -295,7 +306,8 @@ public class JpaItineraryRepository implements ItineraryRepository {
 				.setParameter(12, v != null ? v.policyVersion() : null)
 				.setParameter(13, v != null ? v.datasetVersion() : null)
 				.setParameter(14, toOffset(version.createdAt()))
-				.setParameter(15, toArrayLiteral(version.warningCodes()));
+				.setParameter(15, toArrayLiteral(version.warningCodes()))
+				.setParameter(16, version.revertedFromVersion());
 
 		return insert.executeUpdate();
 	}
@@ -323,7 +335,8 @@ public class JpaItineraryRepository implements ItineraryRepository {
 				versions,
 				toInstant(e.createdAt()),
 				e.sourceRequestId() != null ? e.sourceRequestId().toString() : null,
-				e.warningCodes() == null ? List.of() : List.of(e.warningCodes()));
+				e.warningCodes() == null ? List.of() : List.of(e.warningCodes()),
+				e.revertedFromVersion());
 	}
 
 	private static ItineraryExclusion toDomain(ItineraryExclusionJpaEntity e) {
