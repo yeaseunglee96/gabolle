@@ -18,6 +18,7 @@ import com.gabolle.backend.common.api.ApiResponse;
 import com.gabolle.backend.common.security.AuthenticatedUsers;
 import com.gabolle.backend.trip.application.TripCreationService;
 import com.gabolle.backend.trip.application.TripQueryService;
+import com.gabolle.backend.trip.domain.PreferenceDimensions;
 import com.gabolle.backend.trip.domain.PreferenceSnapshot;
 import com.gabolle.backend.trip.domain.TripConstraint;
 import com.gabolle.backend.trip.presentation.dto.CreateTripRequest;
@@ -117,7 +118,14 @@ public class TripController {
                 r.preferences() == null ? List.of()
                         : r.preferences().stream()
                                 .map(p -> new PreferenceSnapshot.PreferenceAnswer(
-                                        p.dimension(), p.value(), parsePreferenceAnswerStatus(p.answerStatus())))
+                                        // 🔴 S15P21E201-665 — 앱은 차원 이름을 소문자 camelCase
+                                        //    (category, touristPreference …)로 보내고, preference_answer 의
+                                        //    CHECK 는 대문자(CATEGORY, TOURIST_PREFERENCE …)만 받는다.
+                                        //    그대로 넘겼더니 취향 한 줄이 CHECK 에 걸려 여행 트랜잭션
+                                        //    전체가 롤백됐다 — 실제 앱은 여행을 만들 수 없었다. DTO 문자열을
+                                        //    도메인 어휘로 바꾸는 것은 이 번역 계층의 일이다.
+                                        PreferenceDimensions.normalize(p.dimension()),
+                                        p.value(), parsePreferenceAnswerStatus(p.answerStatus())))
                                 .toList();
 
         return new TripCreationService.Command(
