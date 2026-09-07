@@ -2,7 +2,6 @@ package com.gabolle.backend.auth.service;
 
 import java.time.Clock;
 import java.time.Instant;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -323,8 +322,9 @@ public class OAuthAccountService {
 		return normalized;
 	}
 
+	/** 규칙은 {@link EmailNormalizer} 하나만 쓴다 — 로컬 가입과 소셜 연결이 다르게 정규화하면 같은 사람이 두 계정이 된다. */
 	private String normalizeEmail(String email) {
-		return email.trim().toLowerCase(Locale.ROOT);
+		return EmailNormalizer.normalize(email);
 	}
 
 	private String normalizeDisplayName(String displayName) {

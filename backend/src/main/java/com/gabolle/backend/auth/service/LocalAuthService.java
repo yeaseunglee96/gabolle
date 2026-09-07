@@ -17,7 +17,6 @@ import com.gabolle.backend.user.repository.AppUserRepository;
 import com.gabolle.backend.user.repository.UserConsentRepository;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.Locale;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -221,8 +220,12 @@ public class LocalAuthService {
 				.forEach(token -> token.consume(now));
 	}
 
+	/**
+	 * 정규화 규칙 자체는 {@link EmailNormalizer} 에 있다 — 넣을 때와 찾을 때가 갈라지면 대문자로
+	 * 적은 사람의 계정을 못 찾는다. 이 메서드는 부르는 자리를 짧게 두려고 남긴 껍데기다.
+	 */
 	private String normalizeEmail(String email) {
-		return email.trim().toLowerCase(Locale.ROOT);
+		return EmailNormalizer.normalize(email);
 	}
 
 	private String normalizeLanguage(String language) {
