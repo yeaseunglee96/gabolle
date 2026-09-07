@@ -12,7 +12,13 @@ import jakarta.persistence.Table;
 
 import com.gabolle.backend.trip.domain.TripMember;
 
-/** {@code trip_member} 표 매핑 (V20260904030000) — S15P21E201-461. */
+/**
+ * {@code trip_member} 표 매핑 (V20260904030000, 초대 칸 셋은 V20260907040000) — S15P21E201-461 · -299.
+ *
+ * <p>🔴 {@code role} 은 2026-09-07 부터 바뀔 수 있다(S15P21E201-320, 소유자가 편집자↔열람자를
+ * 바꾼다). 그래서 {@code updatable = false} 를 뗐다. 나머지 칸은 그대로 불변이다 — 누가 언제
+ * 들어왔는지는 사실이고 사실은 고치지 않는다.
+ */
 @Entity
 @Table(name = "trip_member")
 public class TripMemberJpaEntity {
@@ -28,22 +34,39 @@ public class TripMemberJpaEntity {
 	private UUID userId;
 
 	@Enumerated(EnumType.STRING)
-	@Column(name = "role", nullable = false, length = 10, updatable = false)
+	@Column(name = "role", nullable = false, length = 10)
 	private TripMember.Role role;
 
 	@Column(name = "joined_at", nullable = false, updatable = false)
 	private OffsetDateTime joinedAt;
+
+	@Column(name = "trip_invite_id", updatable = false)
+	private UUID tripInviteId;
+
+	@Column(name = "invited_by", updatable = false)
+	private UUID invitedBy;
+
+	@Column(name = "invited_at", updatable = false)
+	private OffsetDateTime invitedAt;
 
 	protected TripMemberJpaEntity() {
 		// JPA 전용
 	}
 
 	TripMemberJpaEntity(UUID tripMemberId, UUID tripId, UUID userId, TripMember.Role role, OffsetDateTime joinedAt) {
+		this(tripMemberId, tripId, userId, role, joinedAt, null, null, null);
+	}
+
+	TripMemberJpaEntity(UUID tripMemberId, UUID tripId, UUID userId, TripMember.Role role, OffsetDateTime joinedAt,
+			UUID tripInviteId, UUID invitedBy, OffsetDateTime invitedAt) {
 		this.tripMemberId = tripMemberId;
 		this.tripId = tripId;
 		this.userId = userId;
 		this.role = role;
 		this.joinedAt = joinedAt;
+		this.tripInviteId = tripInviteId;
+		this.invitedBy = invitedBy;
+		this.invitedAt = invitedAt;
 	}
 
 	UUID tripMemberId() { return tripMemberId; }
@@ -51,4 +74,12 @@ public class TripMemberJpaEntity {
 	UUID userId() { return userId; }
 	TripMember.Role role() { return role; }
 	OffsetDateTime joinedAt() { return joinedAt; }
+	UUID tripInviteId() { return tripInviteId; }
+	UUID invitedBy() { return invitedBy; }
+	OffsetDateTime invitedAt() { return invitedAt; }
+
+	/** S15P21E201-320 — 역할 변경. 소유자 판정은 서비스 몫이고 여기는 값만 바꾼다. */
+	void changeRole(TripMember.Role newRole) {
+		this.role = newRole;
+	}
 }

@@ -1,5 +1,6 @@
 package com.gabolle.backend.itinerary.domain;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -90,4 +91,16 @@ public interface ItineraryRepository {
      * @return 없는 일정이면 빈 목록
      */
     List<ItineraryVersion> findVersions(String itineraryId);
+
+    /**
+     * 한 여행의 일정 전부 — S15P21E201-330(공유 조회) · 협업 화면의 최근 변경이 쓴다.
+     * 지금은 여행마다 일정이 하나지만 표는 여럿을 허용한다({@code ix_itinerary_trip}).
+     */
+    List<Itinerary> findByTripId(String tripId);
+
+    /**
+     * 여러 일정의 판을 <b>만든 시각이 늦은 것부터</b> {@code limit} 개 — 협업 화면의 "누가 언제
+     * 무엇을 바꿨나"(최근 변경). 판 자체가 이력이라 따로 이력 표를 두지 않는다.
+     */
+    List<ItineraryVersion> findRecentVersions(Collection<String> itineraryIds, int limit);
 }

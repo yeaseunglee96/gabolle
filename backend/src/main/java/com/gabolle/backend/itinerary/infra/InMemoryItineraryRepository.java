@@ -9,6 +9,7 @@ import com.gabolle.backend.itinerary.domain.ItineraryRepository;
 import com.gabolle.backend.itinerary.domain.ItineraryVersion;
 import com.gabolle.backend.itinerary.domain.StaleItineraryVersionException;
 import java.util.HashSet;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -114,6 +115,22 @@ public class InMemoryItineraryRepository implements ItineraryRepository {
         return versions.values().stream()
                 .filter(v -> v.itineraryId().equals(itineraryId))
                 .sorted((a, b) -> Integer.compare(b.version(), a.version()))
+                .toList();
+    }
+
+    @Override
+    public List<Itinerary> findByTripId(String tripId) {
+        return itineraries.values().stream()
+                .filter(i -> i.tripId().equals(tripId))
+                .toList();
+    }
+
+    @Override
+    public List<ItineraryVersion> findRecentVersions(Collection<String> itineraryIds, int limit) {
+        return versions.values().stream()
+                .filter(v -> itineraryIds.contains(v.itineraryId()))
+                .sorted((a, b) -> b.createdAt().compareTo(a.createdAt()))
+                .limit(Math.max(limit, 0))
                 .toList();
     }
 

@@ -16,6 +16,7 @@ import com.gabolle.backend.itinerary.infra.InMemoryItineraryRepository;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -113,6 +114,16 @@ class ItineraryVersionRaceTest {
             // 🔴 S15P21E201-284 — 이 테스트는 appendVersion() 의 경쟁만 본다. 목록 조회는
             // 관문을 걸지 않고 그대로 위임한다.
             return delegate.findVersions(itineraryId);
+        }
+
+        @Override
+        public List<Itinerary> findByTripId(String tripId) {
+            return delegate.findByTripId(tripId);
+        }
+
+        @Override
+        public List<ItineraryVersion> findRecentVersions(Collection<String> itineraryIds, int limit) {
+            return delegate.findRecentVersions(itineraryIds, limit);
         }
 
         Itinerary seed(String id, String tripId, int latest) {
