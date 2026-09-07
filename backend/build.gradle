@@ -17,6 +17,13 @@ repositories {
 	mavenCentral()
 }
 
+// S15P21E201-680 — OSV-Scanner(외부 계정 없이 osv.dev 를 조회하는 취약점 스캐너)가
+// 실제 해석된 버전을 보게 하려면 잠금 파일이 있어야 한다. build.gradle 자체는
+// 버전 범위나 BOM 이 껴 있어 스캐너가 직접 못 읽는다.
+dependencyLocking {
+	lockAllConfigurations()
+}
+
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'

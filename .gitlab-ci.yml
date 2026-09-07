@@ -179,6 +179,80 @@ backend:build:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
       changes: ['backend/**/*']
 
+# ── 의존성 취약점 스캔 (OWASP A06) ────────────────────────────────────────────
+#
+# osv.dev(구글이 운영하는 취약점 데이터베이스, 계정·열쇠 필요 없음)에 잠금 파일의
+# 실제 버전을 대조한다. Gradle 은 기본으로 잠금 파일을 안 쓰므로 backend/build.gradle
+# 에 dependencyLocking 을 켜고 backend/gradle.lockfile 을 커밋해 뒀다
+# (S15P21E201-680). frontend 쪽은 npm audit 이 이미 잠금 파일(package-lock.json)을
+# 쓰므로 별도 잠금 설정이 필요 없다 — front/dev 에 같은 rules 로 추가한다.
+#
+# 🔴 심각도 HIGH 미만은 잡지 않는다 — 전부 빨갛게 하면 아무도 안 본다. OSV 결과의
+#    groups[].max_severity(osv-scanner 가 계산해 주는 CVSS 점수 문자열)로 판정한다.
+#    취약점은 있는데 이 필드가 없어서 **판정을 못 하면** — 모르는 것을 통과로
+#    내지 않는다(docs/CI-RESILIENCE.md 원칙 5) — 빨갛게 끝내고 사람이 표를 보게 한다.
+#
+# 🔴 OSV_SCANNER_VERSION 을 latest 로 둔다 — AXMAP_VERSION 과 같은 이유다
+#    (이 파일 머리말 참고). 새 판이 팀을 깨면 이 변수를 CI/CD Variables 에서
+#    구체적인 태그(예: v2.5.1)로 덮어써서 되돌린다.
+backend:dependency-scan:
+  stage: verify
+  variables:
+    OSV_SCANNER_VERSION: "latest"
+  before_script:
+    - apk add --no-cache curl
+  script:
+    - |
+      if [ "$OSV_SCANNER_VERSION" = "latest" ]; then
+        URL="https://github.com/google/osv-scanner/releases/latest/download/osv-scanner_linux_amd64"
+      else
+        URL="https://github.com/google/osv-scanner/releases/download/${OSV_SCANNER_VERSION}/osv-scanner_linux_amd64"
+      fi
+      curl -sSfL "$URL" -o /usr/local/bin/osv-scanner
+      chmod +x /usr/local/bin/osv-scanner
+      osv-scanner --version
+    - osv-scanner scan --lockfile=backend/gradle.lockfile --format json > osv-report.json || true
+    - |
+      cat > /tmp/osv-gate.mjs <<'JS'
+      import { readFileSync } from 'node:fs';
+      const threshold = 7.0;
+      const report = JSON.parse(readFileSync('osv-report.json', 'utf8'));
+      let highCount = 0;
+      let unknownCount = 0;
+      const rows = [];
+      for (const result of report.results || []) {
+        for (const pkg of result.packages || []) {
+          const name = `${pkg.package.name}@${pkg.package.version}`;
+          for (const group of pkg.groups || []) {
+            const raw = group.max_severity;
+            const score = raw === undefined || raw === '' ? null : Number(raw);
+            const ids = (group.ids || []).join(',');
+            if (score === null || Number.isNaN(score)) {
+              unknownCount++;
+              rows.push([name, ids, 'UNKNOWN(' + raw + ')']);
+            } else {
+              rows.push([name, ids, score.toFixed(1)]);
+              if (score >= threshold) highCount++;
+            }
+          }
+        }
+      }
+      console.table(rows.map(([p, i, s]) => ({ package: p, ids: i, severity: s })));
+      console.log('HIGH(>=7.0) 이상:', highCount, '| 판정 불가:', unknownCount);
+      if (highCount > 0) {
+        console.log('🔴 HIGH 이상 취약점이 있다 — S15P21E201-680');
+        process.exit(1);
+      }
+      if (unknownCount > 0) {
+        console.log('🔴 심각도 판정 불가 항목이 있다 — 통과로 내지 않는다');
+        process.exit(1);
+      }
+      JS
+      node /tmp/osv-gate.mjs
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes: ['backend/**/*']
+
 # ── 파이프라인이 존재하게 한다 ───────────────────────────────────────────────
 #
 # 🔴 이 잡이 없으면 `ref/` 만 바꾼 MR 은 **잡이 하나도 안 돌아 파이프라인 자체가
