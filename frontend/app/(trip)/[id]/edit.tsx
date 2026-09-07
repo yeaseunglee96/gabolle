@@ -16,27 +16,37 @@ import { Text } from '@/components/Text';
 import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
 import { Split } from '@/layout/Split';
+import { useI18n } from '@/i18n';
 
 type ScheduleItem = {
   key: string;
   time: string;
-  title: string;
-  note: string;
+  titleKo: string; titleEn: string;
+  noteKo: string; noteEn: string;
   /** 고정·교체·순서는 이번 범위에서 실제 동작이 없다(대체 후보·재정렬 UI 미정). 제외만 로컬로 토글된다. */
   action: '고정' | '교체' | '제외' | '순서';
 };
 
+const ACTION_LABEL: Record<ScheduleItem['action'], [string, string]> = {
+  고정: ['고정', 'Lock'],
+  교체: ['교체', 'Replace'],
+  제외: ['제외', 'Exclude'],
+  순서: ['순서', 'Reorder'],
+};
+const INCLUDE_LABEL: [string, string] = ['포함', 'Include'];
+
 const INITIAL_SCHEDULE: ScheduleItem[] = [
-  { key: 'songdo', time: '10:00', title: '송도 해상 케이블카', note: '고정됨 · 운영 09:00–21:00', action: '고정' },
-  { key: 'nampo', time: '12:30', title: '남포동 로컬 맛집', note: '대체 장소 3곳 있음', action: '교체' },
-  { key: 'huinnyeoul', time: '15:00', title: '흰여울문화마을', note: '도보 12분 · 체류 90분', action: '제외' },
-  { key: 'gwangalli', time: '18:30', title: '광안리 야경', note: '지연 예상 18분', action: '순서' },
+  { key: 'songdo', time: '10:00', titleKo: '송도 해상 케이블카', titleEn: 'Songdo Marine Cable Car', noteKo: '고정됨 · 운영 09:00–21:00', noteEn: 'Locked · Open 09:00–21:00', action: '고정' },
+  { key: 'nampo', time: '12:30', titleKo: '남포동 로컬 맛집', titleEn: 'Nampo-dong local eatery', noteKo: '대체 장소 3곳 있음', noteEn: '3 alternative places available', action: '교체' },
+  { key: 'huinnyeoul', time: '15:00', titleKo: '흰여울문화마을', titleEn: 'Huinnyeoul Culture Village', noteKo: '도보 12분 · 체류 90분', noteEn: '12 min walk · 90 min stay', action: '제외' },
+  { key: 'gwangalli', time: '18:30', titleKo: '광안리 야경', titleEn: 'Gwangalli night view', noteKo: '지연 예상 18분', noteEn: '18 min delay expected', action: '순서' },
 ];
 
 type ViewMode = '전체' | '하루';
 
 export default function Edit() {
   const router = useRouter();
+  const { tx } = useI18n();
   const { id } = useLocalSearchParams<{ id: string }>();
   const tripId = id ?? 'demo-trip';
   const [viewMode, setViewMode] = useState<ViewMode>('전체');
@@ -67,15 +77,15 @@ export default function Edit() {
   return (
     <Screen scroll wide>
       <Text variant="display" weight="bold">
-        일정 편집
+        {tx('일정 편집', 'Edit itinerary')}
       </Text>
       <Text variant="caption" style={styles.subtitle}>
-        DAY 1 · 변경할 장소만 골라 수정해요
+        {tx('DAY 1 · 변경할 장소만 골라 수정해요', 'DAY 1 · Pick only the places you want to change')}
       </Text>
 
       <View style={styles.chipsRow}>
         {(['전체', '하루'] as ViewMode[]).map((mode) => {
-          const label = mode === '전체' ? '전체 보기' : '하루 보기';
+          const label = tx(mode === '전체' ? '전체 보기' : '하루 보기', mode === '전체' ? 'View all' : 'View one day');
           const active = mode === viewMode;
           return (
             <Pressable
@@ -92,7 +102,7 @@ export default function Edit() {
         {/* TODO: 실행 취소 스택 미정 — 지금은 "제외" 로 뺀 항목만 되돌린다. */}
         <Pressable onPress={reset} style={[styles.chip, styles.chipInactive]}>
           <Text variant="caption" weight="bold" color={color.text.heading}>
-            ↶ 되돌리기
+            {tx('↶ 되돌리기', '↶ Undo')}
           </Text>
         </Pressable>
       </View>
@@ -115,10 +125,10 @@ export default function Edit() {
                   </Text>
                   <View style={styles.cardBody}>
                     <Text variant="body" weight="bold">
-                      {item.title}
+                      {tx(item.titleKo, item.titleEn)}
                     </Text>
                     <Text variant="caption" style={styles.cardNote}>
-                      {item.note}
+                      {tx(item.noteKo, item.noteEn)}
                     </Text>
                   </View>
                   <Pressable
@@ -131,7 +141,7 @@ export default function Edit() {
                       weight="bold"
                       color={item.action === '순서' ? color.state.danger : color.action.secondary}
                     >
-                      {canToggle && isExcluded ? '포함' : item.action}
+                      {tx(...(canToggle && isExcluded ? INCLUDE_LABEL : ACTION_LABEL[item.action]))}
                     </Text>
                   </Pressable>
                 </Pressable>
@@ -145,16 +155,16 @@ export default function Edit() {
           // (제외 토글)을 오른쪽 패널에서 더 크게 다시 보여주는 선에서 멈췄다. 사람 검토 필요.
           <Card tinted style={styles.detailCard}>
             <Text variant="caption" weight="bold" color={color.text.eyebrow}>
-              선택 항목 편집
+              {tx('선택 항목 편집', 'Edit selected item')}
             </Text>
             <Text variant="caption" weight="bold" color={color.action.secondary}>
               {selected.time}
             </Text>
             <Text variant="title" weight="bold">
-              {selected.title}
+              {tx(selected.titleKo, selected.titleEn)}
             </Text>
             <Text variant="body" style={styles.cardNote}>
-              {selected.note}
+              {tx(selected.noteKo, selected.noteEn)}
             </Text>
             <Pressable
               disabled={selected.action !== '제외'}
@@ -166,7 +176,7 @@ export default function Edit() {
                 weight="bold"
                 color={selected.action === '순서' ? color.state.danger : color.action.secondary}
               >
-                {selected.action === '제외' && excluded.has(selected.key) ? '포함' : selected.action}
+                {tx(...(selected.action === '제외' && excluded.has(selected.key) ? INCLUDE_LABEL : ACTION_LABEL[selected.action]))}
               </Text>
             </Pressable>
           </Card>
@@ -175,12 +185,12 @@ export default function Edit() {
 
       <View style={styles.delayCard}>
         <Text variant="caption" weight="bold" style={styles.delayText}>
-          ⏱ 현재 속도라면 광안리 도착이 18분 늦어요{'\n'}이 날만 다시 계산하면 다른 날짜는 유지돼요.
+          {tx('⏱ 현재 속도라면 광안리 도착이 18분 늦어요\n이 날만 다시 계산하면 다른 날짜는 유지돼요.', "⏱ At this pace you'll arrive 18 min late to Gwangalli\nRecalculating just this day keeps the other days as they are.")}
         </Text>
       </View>
 
       <Button
-        label="선택한 날짜만 다시 계산"
+        label={tx('선택한 날짜만 다시 계산', 'Recalculate only the selected day')}
         variant="secondary"
         containerStyle={styles.cta}
         onPress={() => router.push(`/${tripId}/result`)}
