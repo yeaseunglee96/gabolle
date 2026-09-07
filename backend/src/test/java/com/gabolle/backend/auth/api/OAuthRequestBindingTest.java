@@ -31,6 +31,7 @@ import com.gabolle.backend.auth.service.PasswordResetService;
 import com.gabolle.backend.auth.service.ProfileUpdateService;
 import com.gabolle.backend.auth.service.WebAuthCookieService;
 import com.gabolle.backend.common.security.GlobalAuthExceptionHandler;
+import com.gabolle.backend.common.security.SecurityEventLogger;
 
 /**
  * S15P21E201-689 · -690 — 앱이 보내는 <b>최소 본문</b>이 실제로 읽히는지 본다.
@@ -60,9 +61,11 @@ class OAuthRequestBindingTest {
 				mock(AccountDeletionService.class), this.accountService);
 		LocalValidatorFactoryBean validator = new LocalValidatorFactoryBean();
 		validator.afterPropertiesSet();
+		// S15P21E201-682 — GlobalAuthExceptionHandler 가 SecurityEventLogger 를 필요로 하게 됐다.
+		// 이 테스트는 요청 바인딩만 보므로 mock 으로 채운다.
 		this.mockMvc = MockMvcBuilders.standaloneSetup(controller)
 				.setValidator(validator)
-				.setControllerAdvice(new AuthExceptionHandler(), new GlobalAuthExceptionHandler())
+				.setControllerAdvice(new AuthExceptionHandler(), new GlobalAuthExceptionHandler(mock(SecurityEventLogger.class)))
 				.build();
 	}
 

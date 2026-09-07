@@ -6,6 +6,7 @@ import com.gabolle.backend.auth.domain.AuthTokenPurpose;
 import com.gabolle.backend.auth.domain.LocalCredential;
 import com.gabolle.backend.auth.repository.AuthOneTimeTokenRepository;
 import com.gabolle.backend.auth.repository.LocalCredentialRepository;
+import com.gabolle.backend.common.security.SecurityEventLogger;
 import com.gabolle.backend.user.domain.AppUser;
 import com.gabolle.backend.user.domain.PersonalizationMode;
 import com.gabolle.backend.user.domain.UserStatus;
@@ -39,6 +40,7 @@ public class LocalAuthService {
 	private final AuthProperties properties;
 	private final ConsentPolicy consentPolicy;
 	private final LoginAttemptGuard loginAttemptGuard;
+	private final SecurityEventLogger securityEventLogger;
 	private final Clock clock;
 
 	@Autowired
@@ -46,9 +48,11 @@ public class LocalAuthService {
 			LocalCredentialRepository credentialRepository,
 			AuthOneTimeTokenRepository oneTimeTokenRepository, PasswordEncoder passwordEncoder,
 			SessionTokenGenerator tokenGenerator, AuthTokenService authTokenService, EmailSender emailSender,
-			AuthProperties properties, ConsentPolicy consentPolicy, LoginAttemptGuard loginAttemptGuard) {
+			AuthProperties properties, ConsentPolicy consentPolicy, LoginAttemptGuard loginAttemptGuard,
+			SecurityEventLogger securityEventLogger) {
 		this(userRepository, consentRepository, credentialRepository, oneTimeTokenRepository, passwordEncoder, tokenGenerator,
-				authTokenService, emailSender, properties, consentPolicy, loginAttemptGuard, Clock.systemUTC());
+				authTokenService, emailSender, properties, consentPolicy, loginAttemptGuard, securityEventLogger,
+				Clock.systemUTC());
 	}
 
 	LocalAuthService(AppUserRepository userRepository, UserConsentRepository consentRepository,
@@ -56,7 +60,7 @@ public class LocalAuthService {
 			AuthOneTimeTokenRepository oneTimeTokenRepository, PasswordEncoder passwordEncoder,
 			SessionTokenGenerator tokenGenerator, AuthTokenService authTokenService, EmailSender emailSender,
 			AuthProperties properties, ConsentPolicy consentPolicy, LoginAttemptGuard loginAttemptGuard,
-			Clock clock) {
+			SecurityEventLogger securityEventLogger, Clock clock) {
 		this.userRepository = userRepository;
 		this.consentRepository = consentRepository;
 		this.credentialRepository = credentialRepository;
@@ -68,6 +72,7 @@ public class LocalAuthService {
 		this.properties = properties;
 		this.consentPolicy = consentPolicy;
 		this.loginAttemptGuard = loginAttemptGuard;
+		this.securityEventLogger = securityEventLogger;
 		this.clock = clock;
 	}
 
@@ -144,7 +149,16 @@ public class LocalAuthService {
 			// 🔴 세는 일은 별도 트랜잭션에서 한다. 바로 아래에서 예외를 던지면 이 메서드의
 			//    트랜잭션이 되돌려지는데, 그 안에서 올렸으면 올린 것도 같이 사라진다.
 			//    자세한 이유는 LoginAttemptGuard 의 주석에 있다.
-			loginAttemptGuard.recordFailure(credential.getLocalCredentialId(), now);
+			int attempts = loginAttemptGuard.recordFailure(credential.getLocalCredentialId(), now);
+			// S15P21E201-682 — 이메일 원문이 아니라 credential.getEmail() 을 넘긴다(이미
+			// 정규화된 값이라 같은 사람의 반복 실패가 같은 해시로 잡힌다). SecurityEventLogger 가
+			// 해시로 바꿔 남기므로 여기서 원문이 로그로 새는 자리는 없다.
+			securityEventLogger.loginFailure(credential.getEmail(), attempts);
+			if (attempts >= properties.getLoginFailureThreshold()) {
+				// 방금 이 실패로 잠겼다. LocalCredential.recordFailedLogin 이 잠글 때 쓰는 것과
+				// 같은 임계치 비교라 판정이 어긋나지 않는다.
+				securityEventLogger.accountLocked(credential.getEmail(), attempts);
+			}
 			throw invalidCredentials();
 		}
 		if (credential.getEmailVerifiedAt() == null || credential.getUser().getStatus() == UserStatus.PENDING_EMAIL_VERIFICATION) {

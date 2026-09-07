@@ -28,6 +28,7 @@ import com.gabolle.backend.auth.service.PasswordResetService;
 import com.gabolle.backend.auth.service.ProfileUpdateService;
 import com.gabolle.backend.auth.service.WebAuthCookieService;
 import com.gabolle.backend.common.security.GlobalAuthExceptionHandler;
+import com.gabolle.backend.common.security.SecurityEventLogger;
 
 /**
  * S15P21E201-698 — {@link AuthException} 이 {@code AuthController} 요청에서도 제 상태 코드로 나가는지 본다.
@@ -60,8 +61,12 @@ class AuthExceptionRoutingTest {
 				mock(WebAuthCookieService.class), mock(CurrentUserService.class), mock(ProfileUpdateService.class),
 				mock(AccountDeletionService.class), mock(OAuthAccountService.class));
 		// 🔴 캐치올을 가진 advice 를 일부러 먼저 준다. @Order 가 없으면 그것이 이긴다.
+		// S15P21E201-682 — GlobalAuthExceptionHandler 가 보안 이벤트 로깅을 위해
+		// SecurityEventLogger 를 생성자로 받게 됐다. 이 테스트의 관심사는 라우팅 순서라
+		// mock 으로 채운다.
 		this.mockMvc = MockMvcBuilders.standaloneSetup(controller)
-				.setControllerAdvice(new AuthExceptionHandler(), new GlobalAuthExceptionHandler())
+				.setControllerAdvice(new AuthExceptionHandler(),
+						new GlobalAuthExceptionHandler(mock(SecurityEventLogger.class)))
 				.build();
 	}
 
