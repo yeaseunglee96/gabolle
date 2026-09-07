@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ImageBackground, Linking, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { ImageBackground, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
@@ -8,6 +8,8 @@ import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
+import { useI18n } from '@/i18n';
+import { listAvailableMapApps, type AvailableMapProvider } from '@/utils/externalMaps';
 
 const PLACES = {
   haeundae: { title: '해운대 해수욕장', subtitle: '푸른 바다와 도시가 만나는 곳', image: require('../../assets/home/haeundae.png') },
@@ -19,11 +21,20 @@ const SAVED_PLACES_KEY = 'gabolle.saved-home-places';
 
 export default function Place() {
   const router = useRouter();
+  const { tx } = useI18n();
   const { width } = useWindowDimensions();
   const { id } = useLocalSearchParams<{ id?: string }>();
   const place = id && id in PLACES ? PLACES[id as keyof typeof PLACES] : null;
   const [isSaved, setIsSaved] = useState(false);
   const [feedback, setFeedback] = useState('');
+  const [mapApps, setMapApps] = useState<AvailableMapProvider[]>([]);
+
+  useEffect(() => {
+    if (!place) return;
+    let active = true;
+    void listAvailableMapApps({ name: place.title }).then((apps) => { if (active) setMapApps(apps); });
+    return () => { active = false; };
+  }, [place]);
 
   useEffect(() => {
     if (!id || !place) return;
@@ -54,11 +65,6 @@ export default function Place() {
     setFeedback(nextSaved ? '내 여행 후보에 저장했어요.' : '저장을 해제했어요.');
   };
 
-  const openMap = async () => {
-    if (!place) return;
-    await Linking.openURL(`https://map.kakao.com/link/search/${encodeURIComponent(place.title)}`);
-  };
-
   return (
     <Screen scroll wide style={styles.screen}>
       <View style={styles.topBar}>
@@ -83,7 +89,7 @@ export default function Place() {
         </View>
         <View style={styles.actions}>
           <Button label={isSaved ? '내 여행 후보에서 빼기' : '내 여행 후보에 저장'} variant="ghost" onPress={() => void toggleSaved()} />
-          <Button label="카카오맵에서 위치 확인" onPress={() => void openMap()} containerStyle={styles.primaryAction} />
+          <View style={styles.mapRow}>{mapApps.map((app) => <Button key={app.key} label={tx(`${app.labelKo}으로 이동`, `Open in ${app.labelEn}`)} onPress={() => void app.open()} containerStyle={styles.mapAction} />)}</View>
           {feedback ? <Text accessibilityLiveRegion="polite" color={color.text.body} style={styles.feedback}>{feedback}</Text> : null}
         </View>
       </> : <View style={styles.notice} accessibilityRole="alert">
@@ -111,6 +117,7 @@ const styles = StyleSheet.create({
   noticeCopy: { lineHeight: 22 },
   actions: { gap: spacing[3], marginTop: spacing[4] },
   feedback: { textAlign: 'center' },
-  primaryAction: { backgroundColor: color.brand.navy },
+  mapRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] },
+  mapAction: { flex: 1, minWidth: 160, backgroundColor: color.brand.navy },
   recoveryButton: { marginTop: spacing[2] },
 });
