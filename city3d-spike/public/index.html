@@ -414,6 +414,10 @@ function skyAt(altDeg) {
 const APT = ['공동주택', '단독주택'];
 const OFFICE = ['업무시설', '판매시설', '문화및집회시설', '숙박시설'];
 const WORKS = ['공장', '창고시설', '위험물저장및처리시설', '운수시설', '자동차관련시설'];
+// 동네 상가. 법에서 가게·식당·학원·미용실을 담는 분류가 이 둘이다.
+// 서면 표본 24,420동 중 4,504동으로 공동주택(4,978)에 맞먹고, **도보 시점에서 눈에 들어오는 것이
+// 대부분 이것들**이다. 색은 지금까지 '그 밖' 취급을 받았고, 무늬는 25 m 문턱 아래라 하나도 안 걸렸다.
+const SHOP = ['제1종근린생활시설', '제2종근린생활시설'];
 
 // day: 낮 팔레트 / night: 밤 팔레트
 const BUILDING_COLORS = {
@@ -524,6 +528,13 @@ function seeded(seed) {
   return () => (seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff;
 }
 
+// 🔴 무늬가 걸리는 가장 낮은 건물 (S15P21E201-726). 밤 창문과 낮 파사드가 **같은 문턱**을 쓴다 —
+//    두 곳에 숫자를 적으면 낮과 밤에 다른 건물이 무늬를 갖게 된다.
+//    전에는 25 m 였고 서면 표본 24,420동 중 19.3% 만 걸렸다. 6 m 는 2층 언저리다.
+const FACADE_MIN_H = 6;
+// 낮 파사드 겹 넷. setHour 가 밤낮을 뒤집을 때 이 목록을 쓴다.
+const DAY_FACADE_LAYERS = ['bld-day-shop', 'bld-day-office', 'bld-day-home', 'bld-day-plain'];
+
 // 아파트 — 세로 8줄 × 가로 12층. 한 세로줄이 한 집이라 같이 켜진다.
 function windowsHome() {
   return makeTexture((rect) => {
@@ -558,6 +569,99 @@ function windowsOffice() {
         rect(Math.round(c * cw), Math.round(r * ch) + 1,
              Math.max(1, Math.round(cw) - 1), Math.max(1, Math.round(ch) - 2),
              on ? [206, 230, 255] : [44, 50, 60]);      // 찬 형광등 / 꺼진 층
+      }
+    }
+  });
+}
+
+// ── 낮 파사드 무늬 (S15P21E201-726) ───────────────────────────────
+// 위의 둘은 **밤에만** 쓴다 — 검은 벽에 켜진 창이라 낮에는 도시가 밤중에 정전된 것처럼 보인다.
+// 낮은 정반대다: **밝은 벽에 어두운 창.** 창이 빛나는 게 아니라 유리가 하늘을 안 비추고 어둡게 보인다.
+//
+// 🔴 이 무늬가 세로로 어디서 시작하는지는 우리가 못 정한다.
+//    벽면 UV 의 세로 자리는 (건물 높이 × 배율)에 **타일마다 다른 값이 더해져서** 정해진다
+//    (MapLibre 세이더 get_pattern_pos). 그래서 "이미지 맨 아랫줄 = 1층" 으로 만들 수 없다 —
+//    타일이 바뀌면 다른 줄이 1층 자리에 온다. **그래서 넷 다 위아래로 고르게** 만든다.
+//    1층만 다르게 하는 것은 무늬 안에서 못 하고, 겹을 따로 세워야 한다 (S15P21E201-728).
+//
+// 🔴 무늬를 켜면 높이별 색이 무늬에 덮여 사라진다. 그래서 이 겹은 **확대 16.5 부터** 서서히
+//    켜진다 (byFadeZoom). 멀리서 보는 화면은 지금처럼 높이 색으로 남고, 도시의 스카이라인이
+//    계속 읽힌다. 가까이 가면 색 대신 층이 읽힌다 — 그 거리에서 필요한 것이 바뀌기 때문이다.
+
+// 🔴 창이 벽보다 넓으면 낮 도시가 어두워진다 — 처음에 그렇게 만들었다가 되돌렸다.
+//    창을 칸의 절반쯤으로 줄이고 톤을 올렸더니 그제야 "볕 든 낮" 으로 읽혔다.
+//    실제 건물도 벽이 창보다 넓다. 창이 벽을 다 덮은 건물은 커튼월 업무동뿐이다.
+//    🔴 지붕에도 같은 그림이 깔린다 (지붕은 타일 좌표를 UV 로 쓴다 — 이건 못 나눈다).
+//       그래서 대비를 낮게 잡는다. 위에서 봤을 때 촘촘한 결로 보이면 되고, 창으로 보이면 안 된다.
+
+// 아파트·단독주택 — 한 집이 세로 한 줄. 창 아래 발코니 난간 줄이 가로로 지나간다.
+function dayHome() {
+  return makeTexture((rect) => {
+    rect(0, 0, SIZE, SIZE, [228, 223, 214]);             // 볕 든 회백 외벽
+    const rnd = seeded(7);                               // 밤 무늬와 같은 씨앗 — 같은 건물이 같은 결을 갖는다
+    const cols = 8, rows = 12;
+    const cw = SIZE / cols, ch = SIZE / rows;
+    for (let r = 0; r < rows; r++) {
+      // 발코니 난간 — 층마다 가로로 한 줄. 이것 하나로 "아파트" 로 읽힌다
+      rect(0, Math.round((r + 1) * ch) - 1, SIZE, 1, [199, 192, 181]);
+      for (let c = 0; c < cols; c++) {
+        const v = Math.round(rnd() * 12);                // 유리마다 반사가 조금씩 다르다
+        rect(Math.round(c * cw) + 2, Math.round(r * ch) + 1,
+             Math.max(1, Math.round(cw) - 4), Math.max(1, Math.round(ch) - 3),
+             [150 + v, 160 + v, 168 + v]);               // 하늘을 못 비추는 유리 = 벽보다 어둡다
+      }
+    }
+  });
+}
+
+// 동네 상가(제1·2종근린생활시설) — 층마다 가로로 긴 창. 기둥이 드물고 유리가 넓다.
+function dayShop() {
+  return makeTexture((rect) => {
+    rect(0, 0, SIZE, SIZE, [214, 207, 196]);
+    const rnd = seeded(41);
+    const rows = 11;                                     // 한 줄 ≈ 한 층
+    const ch = SIZE / rows;
+    for (let r = 0; r < rows; r++) {
+      const y = Math.round(r * ch);
+      const h = Math.max(1, Math.round(ch) - 3);         // 창은 층 높이의 절반쯤
+      const v = Math.round(rnd() * 10);
+      rect(3, y + 1, SIZE - 6, h, [138 + v, 145 + v, 150 + v]);   // 가로로 긴 창
+      // 기둥 둘 — 가게 앞 유리를 나누는 세로 기둥
+      rect(Math.round(SIZE / 3), y + 1, 2, h, [214, 207, 196]);
+      rect(Math.round((SIZE * 2) / 3), y + 1, 2, h, [214, 207, 196]);
+    }
+  });
+}
+
+// 업무시설 — 커튼월. 층 전체가 하나의 가로 띠창이고 얇은 세로 창틀이 지나간다.
+function dayOffice() {
+  return makeTexture((rect) => {
+    rect(0, 0, SIZE, SIZE, [201, 210, 218]);
+    const rows = 14, mullion = 5;                        // 밤 무늬와 같은 14층
+    const ch = SIZE / rows;
+    for (let r = 0; r < rows; r++) {
+      const y = Math.round(r * ch);
+      const h = Math.max(1, Math.round(ch) - 2);
+      rect(0, y, SIZE, h, [132, 148, 163]);              // 띠창
+      for (let x = 0; x < SIZE; x += mullion) rect(x, y, 1, h, [188, 199, 209]);  // 세로 창틀
+      rect(0, y + h, SIZE, Math.max(1, Math.round(ch) - h), [205, 214, 222]);     // 층 사이 벽
+    }
+  });
+}
+
+// 그 밖의 모든 것 — 용도를 모르는 24.5% 를 포함한다. 성격을 지어내지 않고 중립으로 둔다.
+function dayPlain() {
+  return makeTexture((rect) => {
+    rect(0, 0, SIZE, SIZE, [223, 220, 214]);
+    const rnd = seeded(97);
+    const cols = 10, rows = 12;
+    const cw = SIZE / cols, ch = SIZE / rows;
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const v = Math.round(rnd() * 9);
+        rect(Math.round(c * cw) + 2, Math.round(r * ch) + 1,
+             Math.max(1, Math.round(cw) - 4), Math.max(1, Math.round(ch) - 3),
+             [160 + v, 164 + v, 165 + v]);
       }
     }
   });
@@ -833,6 +937,11 @@ function setHour(hour, opt = {}) {
     for (const id of ['bld-win-home', 'bld-win-office']) {
       map.setLayoutProperty(id, 'visibility', night ? 'visible' : 'none');
     }
+    // 낮 파사드는 정반대로 켜진다 (S15P21E201-726). 밤 창문과 같은 벽에 두 무늬가 겹치면
+    // 어느 쪽도 안 읽히므로 **둘 중 하나만** 선다. 확대에 따른 서서히 켜기는 paint 쪽이 맡는다.
+    for (const id of DAY_FACADE_LAYERS) {
+      if (map.getLayer(id)) map.setLayoutProperty(id, 'visibility', night ? 'none' : 'visible');
+    }
   }
   if (map.getLayer('bridge-3d')) map.setPaintProperty('bridge-3d', 'fill-extrusion-color', bridgeColor(night));
   if (map.getLayer('landmark-3d')) {
@@ -1015,6 +1124,10 @@ function buildEverything() {
   step('창문 그림', () => {
     map.addImage('win-home', windowsHome());
     map.addImage('win-office', windowsOffice());
+    map.addImage('day-home', dayHome());
+    map.addImage('day-shop', dayShop());
+    map.addImage('day-office', dayOffice());
+    map.addImage('day-plain', dayPlain());
   });
 
   // 지형 — 그늘 계산하려고 받아 둔 땅 높이 타일이 그대로 쓰인다.
@@ -1090,6 +1203,10 @@ function buildEverything() {
   // 밤에만 켜지는 창문 겹. 낮에는 숨긴다 —
   // 무늬를 쓰면 높이별 색이 사라져서 스카이라인이 안 읽히기 때문이다.
   // 용도에 따라 두 겹으로 나눈다. 켜지는 방식이 다르기 때문이다 (위 설명 참고).
+  //
+  // 🔴 문턱 25 m → 6 m (S15P21E201-726). 25 m 는 서면 표본 24,420동 중 **19.3%** 만 걸렀다.
+  //    나머지 80.7% 는 민무늬 상자로 남았고, **도보에서 바로 옆에 서 있는 건물이 대부분 거기**다.
+  //    6 m 는 2층 언저리다 — 그 아래는 창고·컨테이너·가건물이라 창이 없는 편이 맞다.
   step('야경 창문', () => {
   for (const [id, img, useList, isOffice] of [
     ['bld-win-home', 'win-home', APT, false],
@@ -1102,14 +1219,52 @@ function buildEverything() {
       'source-layer': 'building',
       minzoom: 13,
       filter: isOffice
-        ? ['all', ['>', ['get', 'h'], 25], ['match', ['get', 'use'], useList, true, false], NOT_LANDMARK]
-        : ['all', ['>', ['get', 'h'], 25], ['match', ['get', 'use'], OFFICE, false, true], NOT_LANDMARK],
+        ? ['all', ['>', ['get', 'h'], FACADE_MIN_H], ['match', ['get', 'use'], useList, true, false], NOT_LANDMARK]
+        : ['all', ['>', ['get', 'h'], FACADE_MIN_H], ['match', ['get', 'use'], OFFICE, false, true], NOT_LANDMARK],
       layout: { visibility: 'none' },
       paint: {
         'fill-extrusion-pattern': img,
         'fill-extrusion-height': ['get', 'h'],
         'fill-extrusion-base': 0,
         'fill-extrusion-opacity': 1,
+      },
+    });
+  }
+  });
+
+  // ── 낮 파사드 (S15P21E201-726) ──────────────────────────────────
+  // 야경 창문과 같은 자리에 서지만 **켜지는 때가 정반대**다. 낮에 켜고 밤에 끈다 (setHour).
+  //
+  // 용도로 넷을 가른다. 넷의 조건은 서로 안 겹친다 — 상가를 먼저 집어내고, 업무, 주거,
+  // 나머지 전부가 중립이다. 겹치면 같은 벽에 두 무늬가 겹쳐 지글거린다.
+  //
+  // 🔴 확대에 붙여 서서히 켠다. 무늬가 높이별 색을 덮기 때문이다 —
+  //    멀리서는 색으로 스카이라인을 읽고, 가까이서는 무늬로 층을 읽는다.
+  //    켜지는 구간이 사진이 꺼지는 구간과 **같다**. 사진이 나가고 파사드가 들어온다.
+  step('낮 파사드', () => {
+  const DAY_FACADE = {
+    'bld-day-shop': ['day-shop', ['match', ['get', 'use'], SHOP, true, false]],
+    'bld-day-office': ['day-office', ['match', ['get', 'use'], OFFICE, true, false]],
+    'bld-day-home': ['day-home', ['match', ['get', 'use'], APT, true, false]],
+    'bld-day-plain': ['day-plain', ['match', ['get', 'use'], [...SHOP, ...OFFICE, ...APT], false, true]],
+  };
+  for (const id of DAY_FACADE_LAYERS) {
+    const [img, useFilter] = DAY_FACADE[id];
+    map.addLayer({
+      id,
+      type: 'fill-extrusion',
+      source: 'bld',
+      'source-layer': 'building',
+      minzoom: AERIAL_FADE_START,
+      filter: ['all', ['>', ['get', 'h'], FACADE_MIN_H], useFilter, NOT_LANDMARK],
+      layout: { visibility: 'none' },
+      paint: {
+        'fill-extrusion-pattern': img,
+        'fill-extrusion-height': ['get', 'h'],
+        'fill-extrusion-base': 0,
+        // 아래 bld-3d 가 같은 모양을 단색으로 이미 그려 놨다. 그래서 반투명 구간에도
+        // 뒤가 비치지 않고 **색에서 무늬로 건너간다.**
+        'fill-extrusion-opacity': byFadeZoom(0, 1),
       },
     });
   }
