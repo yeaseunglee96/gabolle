@@ -129,10 +129,21 @@ pipeline {
                 ]) {
                     sh 'docker stop backend || true'
                     sh 'docker rm backend || true'
+                    // 🔴 사진 파일은 컨테이너 안 상대 경로(기본 ./data/uploads)에 있으면
+                    //    재배포 때마다 사라진다(jaehyeon 요청, S15P21E201-231 MR !231).
+                    //    호스트 디스크에 볼륨을 붙여 배포를 넘어 남긴다.
+                    //    🔴 여기서 mkdir을 하면 Jenkins 컨테이너 자기 자신의 파일시스템에
+                    //    폴더를 만드는 것이다 — docker.sock을 통해 부르는 docker run의
+                    //    -v 는 EC2 호스트 경로를 가리키므로(도커 데몬이 호스트에서 돌기
+                    //    때문에), 그 경로는 배포 파이프라인이 아니라 호스트에서 한 번만
+                    //    미리 만들어 둔다. 2026-09-07에 /srv/gabolle/uploads(ubuntu
+                    //    소유)로 이미 만들어 뒀다.
                     sh '''
                         docker run -d --name backend \
                             --network local-route-personalization_data_net \
                             -p 8080:8080 \
+                            -v /srv/gabolle/uploads:/data/uploads \
+                            -e GABOLLE_STORAGE_ROOT=/data/uploads \
                             -e SPRING_PROFILES_ACTIVE=dev \
                             -e GABOLLE_SERVICE_VERSION="${GIT_COMMIT}" \
                             -e GABOLLE_DEPLOYMENT_ENVIRONMENT=dev \
