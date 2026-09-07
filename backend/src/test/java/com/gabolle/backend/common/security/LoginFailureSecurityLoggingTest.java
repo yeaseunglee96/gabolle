@@ -41,6 +41,7 @@ import com.gabolle.backend.user.repository.AppUserRepository;
 import com.gabolle.backend.user.repository.UserConsentRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -76,9 +77,16 @@ class LoginFailureSecurityLoggingTest {
 	private Logger logbackLogger;
 	private ListAppender<ILoggingEvent> appender;
 
+	private Level originalLevel;
+
 	@BeforeEach
 	void setUp() {
 		this.logbackLogger = (Logger) LoggerFactory.getLogger(SecurityEventLogger.class);
+		// 🔴 수준을 명시한다. 전체 빌드에서 이 클래스만 앞선 Spring 테스트의 로그백 재설정에
+		//    걸려 아무것도 안 잡히는 일이 있었다 — 그러면 아래 확인들이 빈 목록을 훑고 조용히
+		//    통과한다. 원래 수준은 tearDown 에서 되돌린다
+		this.originalLevel = this.logbackLogger.getLevel();
+		this.logbackLogger.setLevel(Level.INFO);
 		this.appender = new ListAppender<>();
 		this.appender.start();
 		this.logbackLogger.addAppender(this.appender);
@@ -103,6 +111,7 @@ class LoginFailureSecurityLoggingTest {
 	@AfterEach
 	void tearDown() {
 		this.logbackLogger.detachAppender(this.appender);
+		this.logbackLogger.setLevel(this.originalLevel);
 	}
 
 	@Test
@@ -191,6 +200,66 @@ class LoginFailureSecurityLoggingTest {
 			String message = event.getFormattedMessage();
 			assertThat(message).doesNotContain(EMAIL).doesNotContain("traveler").doesNotContain(WRONG_PASSWORD);
 		});
+	}
+
+	@Test
+	@DisplayName("🔴 가입되지 않은 이메일로 실패해도 로그에 남는다 — 넓게 뿌리는 공격이 여기로 들어온다")
+	void unknownEmailFailureIsLogged() {
+		// 그 이메일로 가입한 계정이 없다
+		when(this.credentialRepository.findByEmail("nobody@example.com")).thenReturn(Optional.empty());
+
+		assertThatThrownBy(() -> this.localAuthService.login(
+				new AuthCommands.Login("nobody@example.com", WRONG_PASSWORD, "device-test")))
+				.isInstanceOfSatisfying(AuthException.class,
+						e -> assertThat(e.getCode()).isEqualTo("INVALID_CREDENTIALS"));
+
+		List<String> messages = this.appender.list.stream().map(ILoggingEvent::getFormattedMessage).toList();
+		assertThat(messages).isNotEmpty();
+		assertThat(messages).anySatisfy(message -> assertThat(message)
+				.contains("event=AUTH_LOGIN_FAILURE")
+				// 🔴 실패 횟수를 지어내지 않는다 — 계정이 없으면 셀 행이 없다
+				.contains("accountExists=false")
+				.doesNotContain("attempts="));
+	}
+
+	@Test
+	@DisplayName("가입되지 않은 이메일도 원문이 로그에 없다 — 해시로만 남는다")
+	void unknownEmailIsHashedInLogs() {
+		when(this.credentialRepository.findByEmail("nobody@example.com")).thenReturn(Optional.empty());
+
+		assertThatThrownBy(() -> this.localAuthService.login(
+				new AuthCommands.Login("nobody@example.com", WRONG_PASSWORD, "device-test")))
+				.isInstanceOf(AuthException.class);
+
+		// 🔴 먼저 무언가 잡혔는지 본다. 이 줄이 없으면 아무것도 안 잡혔을 때 아래 for 문이
+		//    한 번도 안 돌고 조용히 통과한다 — 그건 "개인정보가 없다" 가 아니라 "안 봤다" 다
+		assertThat(this.appender.list).isNotEmpty();
+		for (ILoggingEvent event : this.appender.list) {
+			assertThat(event.getFormattedMessage())
+					.doesNotContain("nobody@example.com")
+					.doesNotContain("nobody")
+					.doesNotContain(WRONG_PASSWORD);
+		}
+	}
+
+	@Test
+	@DisplayName("🔴 응답은 가입된 계정의 실패와 똑같다 — 그 이메일로 가입했는지 응답으로 알려주지 않는다")
+	void responseIsIndistinguishableFromAWrongPassword() {
+		// 없는 계정
+		when(this.credentialRepository.findByEmail("nobody@example.com")).thenReturn(Optional.empty());
+		AuthException unknownAccount = catchThrowableOfType(() -> this.localAuthService.login(
+				new AuthCommands.Login("nobody@example.com", WRONG_PASSWORD, "device-test")), AuthException.class);
+
+		// 있는 계정 + 틀린 비밀번호
+		LocalCredential credential = activeVerifiedCredential();
+		when(this.credentialRepository.findByEmail(EMAIL)).thenReturn(Optional.of(credential));
+		when(this.passwordEncoder.matches(WRONG_PASSWORD, credential.getPasswordHash())).thenReturn(false);
+		AuthException wrongPassword = catchThrowableOfType(() -> login(WRONG_PASSWORD), AuthException.class);
+
+		// 🔴 코드·메시지·상태가 모두 같아야 한다. 로그만 갈라지고 응답은 갈라지지 않는다
+		assertThat(unknownAccount.getCode()).isEqualTo(wrongPassword.getCode());
+		assertThat(unknownAccount.getMessage()).isEqualTo(wrongPassword.getMessage());
+		assertThat(unknownAccount.getStatus()).isEqualTo(wrongPassword.getStatus());
 	}
 
 	private void login(String password) {
