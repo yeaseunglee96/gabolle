@@ -75,6 +75,25 @@ public class Place {
 	@Column(name = "dataset_version", length = 100)
 	private String datasetVersion;
 
+	/**
+	 * 영문 주소 (S15P21E201-217 · -430). 🔴 없으면 응답에서 <b>칸 자체를 뺀다</b> — 빈 문자열을
+	 * 보내면 화면이 "영문 주소가 없다" 와 "있는데 못 불러왔다" 를 구분할 수 없다.
+	 */
+	@Column(name = "address_en", length = 300)
+	private String addressEn;
+
+	/**
+	 * 대표 사진 주소. 🔴 지금은 채우는 경로가 없어 항상 {@code null} 이다 — 외부 사진 검색
+	 * (-146 · -480)이 붙어야 값이 생긴다. 칸을 먼저 만든 이유는 화면이 사진 자리를 비워 두는
+	 * 형태로 미리 만들어질 수 있게 하기 위해서다.
+	 */
+	@Column(name = "photo_url", length = 500)
+	private String photoUrl;
+
+	/** 사진 출처 표기 문구. 저작권 표기 없이 남의 사진을 쓰지 않기 위해 주소와 짝으로 둔다. */
+	@Column(name = "photo_source", length = 100)
+	private String photoSource;
+
 	protected Place() {
 	}
 
@@ -133,5 +152,17 @@ public class Place {
 	/** 좌표가 둘 다 있는가. 거리 계산 전에 이것으로 거른다. */
 	public boolean hasCoordinates() {
 		return lat != null && lng != null;
+	}
+
+	public String getAddressEn() {
+		return this.addressEn;
+	}
+
+	public String getPhotoUrl() {
+		return this.photoUrl;
+	}
+
+	public String getPhotoSource() {
+		return this.photoSource;
 	}
 }
