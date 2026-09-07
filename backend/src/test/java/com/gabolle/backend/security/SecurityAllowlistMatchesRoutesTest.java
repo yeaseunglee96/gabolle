@@ -6,7 +6,9 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
@@ -16,28 +18,35 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
- * S15P21E201-672 — {@code SecurityConfig} 의 허용 목록이 <b>실제로 있는 경로만</b> 열고 있는지 본다.
+ * {@code SecurityConfig} 의 허용 목록과 실제 경로가 <b>양방향으로</b> 맞는지 본다 — `-672`·`-704`.
  *
- * <h2>🔴 무엇을 막는가 — 미래에 조용히 열리는 문</h2>
- * 허용 목록에 있는데 그런 엔드포인트가 <b>아직 없으면</b> 지금은 아무 일도 안 일어난다. 뚫을
- * 것이 없으니 스캐너도 아무 말을 안 한다. 문제는 <b>나중</b>이다. 몇 달 뒤 누가 그 경로로
- * 컨트롤러를 만들면, 그 사람은 인증을 켜거나 끄는 결정을 한 적이 없는데 <b>첫 커밋부터 인증
- * 없이 열려 있다.</b> 리뷰에도 안 보인다 — 그 MR 은 {@code SecurityConfig} 를 건드리지 않았기
- * 때문이다.
+ * <h2>이 파일이 막는 두 가지</h2>
+ * 허용 목록과 컨트롤러 매핑은 <b>서로 다른 두 파일에 나뉘어 있지만 하나의 사실</b>이다. 한쪽만
+ * 보고 다른 쪽을 바꾸면 git 은 서로 다른 줄이라 충돌 없이 합치고, 결과만 틀어진다. 그 어긋남이
+ * 두 방향으로 생긴다.
  *
- * <p>2026-09-07 인가 점검에서 실제로 셋을 찾았다. {@code /api/v1/auth/web/refresh},
- * {@code /api/v1/auth/web/logout}, {@code /api/v1/auth/oauth/*&#47;challenge} 가 허용 목록에
- * 있는데 그 경로를 매핑하는 컨트롤러가 없다. 웹 쿠키 인증과 challenge 발급은 설계 단계에서
- * 목록에 먼저 적히고 구현이 안 왔거나 빠진 것으로 보인다.
+ * <p><b>목록에는 있는데 경로가 없다.</b> 지금은 뚫을 것이 없어 무해하다. 위험은 나중이다 —
+ * 몇 달 뒤 누가 그 경로로 컨트롤러를 만들면 인증을 켤지 끌지 <b>결정한 적도 없이 첫 커밋부터
+ * 열린 상태</b>가 되고, 그 MR 은 이 파일을 건드리지 않으므로 리뷰에도 안 보인다.
+ * {@link #allowlistOnlyOpensExistingRoutes} 가 이쪽이다.
  *
- * <p>그래서 허용 목록에서 <b>고정 경로</b>(경로 변수가 없는 것)를 뽑아 실제 라우트와 대조한다.
- * 없는 것을 열어 두었으면 여기서 실패하고, 열어 둘 이유가 있으면 아래 {@code KNOWN_ABSENT} 에
- * 근거와 함께 적어야 통과한다.
+ * <p>🔴 <b>경로는 있는데 목록에 없다.</b> 이쪽은 <b>지금 당장 기능이 죽는다.</b> 2026-09-07
+ * 저녁에 실제로 그랬다 — 한 작업이 {@code AuthController} 에 소셜 챌린지 매핑을 되살리고
+ * (`-704`), 다른 작업이 같은 시간에 "그 경로를 매핑하는 컨트롤러가 없다" 고 판단해 이 목록에서
+ * 그 줄을 지웠다(`-672`). 두 판단은 각자의 브랜치에서 옳았다. 차례로 머지되자 <b>경로는 있는데
+ * 인증을 요구하는 상태</b>가 됐고, 챌린지 발급이 소셜 로그인의 첫 요청이라 브라우저가 열리기도
+ * 전에 401 이 났다. 앱은 401 을 전부 비밀번호 오류 문구로 바꿔 보여주므로, 사용자에게는 "소셜
+ * 버튼을 눌렀는데 아이디·비밀번호가 틀렸다고 한다" 로 보였다.
+ * {@link #preAuthRoutesAreActuallyOpen} 이 이쪽이고, 이 사고 뒤에 더했다.
  *
- * <h2>왜 경로 변수가 있는 항목은 안 보는가</h2>
- * {@code "/api/v1/auth/oauth/*"} 같은 와일드카드는 여러 실제 경로에 걸리고, 그 대응을 문자열로
- * 정확히 맞추려면 Spring 의 경로 매칭을 여기서 다시 구현해야 한다. 그건 이 검사보다 틀릴 확률이
- * 높다. 와일드카드가 무엇을 여는지는 {@code SecurityConfig} 주석과
+ * <h2>와일드카드를 어떻게 다루는가</h2>
+ * 목록의 {@code *} 는 <b>어떤 한 마디든</b> 덮는다. 그래서 {@code "/api/v1/auth/oauth/*"} 는
+ * {@code /oauth/{provider}} 뿐 아니라 {@code /oauth/signup}·{@code /oauth/link} 까지 연다 —
+ * {@code SecurityConfig} 주석이 경고해 둔 그 동작이다. 마디 수가 다르면 안 덮는다는 것도 같은
+ * 규칙에서 나온다({@code /oauth/*} 는 {@code /oauth/{}/challenge} 를 안 덮는다).
+ *
+ * <p>"목록에 있는데 경로가 없다" 쪽은 <b>고정 경로만</b> 본다. 와일드카드 항목은 실제로 존재하지
+ * 않는 경로까지 덮는 것처럼 보일 수 있어 거짓 실패가 나기 쉽다. 그쪽은
  * {@link RouteAuthorizationRegistryTest} 의 "열린 경로 개수 고정" 이 함께 지킨다.
  */
 class SecurityAllowlistMatchesRoutesTest {
@@ -76,6 +85,70 @@ class SecurityAllowlistMatchesRoutesTest {
 						쓰지 않는 줄이면 SecurityConfig 에서 지우고, 곧 만들 예정이면 이 파일의
 						KNOWN_ABSENT 에 근거와 함께 적어 주세요.""".formatted(String.join("\n", absent)))
 				.isEmpty();
+	}
+
+	@Test
+	@DisplayName("🔴 로그인 전에 부르는 경로가 허용 목록에서 빠지지 않았다 — 빠지면 그 기능이 아예 막힌다")
+	void preAuthRoutesAreActuallyOpen() throws IOException {
+		String source = Files.readString(SECURITY_CONFIG, StandardCharsets.UTF_8);
+
+		List<String> closed = new ArrayList<>();
+		for (String route : RouteAuthorizationRegistryTest.preAuthRoutesForAudit()) {
+			String path = route.substring(route.indexOf(' ') + 1);
+			if (!allowlistCovers(source, path)) {
+				closed.add(route);
+			}
+		}
+
+		assertThat(closed)
+				.withFailMessage("""
+						정책 표에서 PRE_AUTH(로그인 전에 부르는 경로)로 분류했는데 SecurityConfig 의
+						허용 목록에 없습니다. 이대로 배포하면 그 기능이 <b>첫 요청부터 401</b> 입니다.
+
+						%s
+
+						🔴 2026-09-07 에 실제로 그렇게 소셜 로그인이 막혔습니다(-704). 한 작업이
+						AuthController 에 챌린지 매핑을 되살리고, 다른 작업이 같은 시간에 이 목록에서
+						그 줄을 지웠습니다. 서로 다른 파일의 서로 다른 줄이라 git 은 충돌 없이 합쳤고,
+						결과는 "경로는 있는데 인증을 요구하는 상태" 였습니다.
+
+						허용 목록에 그 경로를 넣거나, 로그인 전에 부르는 것이 아니라면 정책 표의
+						분류를 고쳐 주세요.""".formatted(String.join(System.lineSeparator(), closed)))
+				.isEmpty();
+	}
+
+	/**
+	 * 허용 목록의 어느 항목이 이 경로를 덮는가.
+	 *
+	 * <p>와일드카드를 한 마디 대치로 다룬다 — {@code "/api/v1/auth/oauth/*"} 는
+	 * {@code /api/v1/auth/oauth/{}} 를 덮지만 {@code /api/v1/auth/oauth/{}/challenge} 는
+	 * 덮지 않는다. 이 규칙이 이 저장소에서 실제로 문제가 된 자리다 —
+	 * {@code SecurityConfig} 주석이 "두 마디로 두면 조용히 열리지 않는다" 고 적어 두고 있다.
+	 */
+	private static boolean allowlistCovers(String source, String path) {
+		String[] wanted = path.split("/");
+		Matcher matcher = Pattern.compile("\"(/api/[^\"]*)\"").matcher(source);
+		while (matcher.find()) {
+			String[] entry = matcher.group(1).split("/");
+			if (entry.length != wanted.length) {
+				continue;
+			}
+			boolean all = true;
+			for (int i = 0; i < entry.length; i++) {
+				// 🔴 허용 목록의 * 는 <b>어떤 한 마디든</b> 덮는다 — 경로 변수 자리만이 아니다.
+				//    "/oauth/*" 가 /oauth/{provider} 뿐 아니라 /oauth/signup · /oauth/link 까지
+				//    여는 것이 이 저장소가 주석으로 경고해 둔 바로 그 동작이다.
+				boolean wild = entry[i].equals("*");
+				if (!wild && !entry[i].equals(wanted[i])) {
+					all = false;
+					break;
+				}
+			}
+			if (all) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	@Test
