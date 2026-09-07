@@ -12,7 +12,7 @@
 //    그래서 "이름으로 도로를 찾는다" 는 안 되고, 이렇게 해야 한다:
 //      외곽선에서 이름과 위치를 얻는다 → 그 위치 근처의 다리 도로를 줍는다 → 이어 붙인다
 //
-// 만드는 것 셋:
+// 만드는 것 넷:
 //   1) 상판 — 중심선을 폭만큼 부풀린 띠. 조각마다 높이가 다르다
 //   2) 주탑 — 광안대교는 OSM 에 실측이 있다. 점이 아니라 **면**으로 들어 있어서 가운데를 구해 쓴다.
 //      🔴 부산항대교·남항대교의 주탑은 OSM 에 **없다.** 부산 전역에 주탑 요소가 2개뿐이고 둘 다
@@ -21,6 +21,8 @@
 //      현수교(광안대교): 주탑 사이로 **늘어지는 곡선** 하나.
 //      사장교(부산항대교·남항대교): 주탑 꼭대기에서 상판으로 **곧게 뻗는 다발.**
 //      같은 곡선을 쓰면 틀린 그림이 된다. 갈라서 그린다.
+//   4) 고가도로 — OSM 에 bridge=yes 인 도로 전부. 이름난 다리 여섯 말고 나머지 수천 개다.
+//      전에는 평면 지도 위의 선으로만 있었다. 상판 함수(deckChunks)를 그대로 써서 세운다.
 
 import fs from 'node:fs';
 import path from 'node:path';
@@ -65,6 +67,23 @@ const BRIDGES = [
 // 육지에서 순항 높이까지 올라가는 기울기. 실제 고속 교량이 3~4 % 다.
 const GRADE = 0.035;
 const MAIN_ROAD = /^(motorway|trunk|primary|secondary)$/;
+
+// ── 고가도로 (4) — 어떤 도로를 세우고 얼마나 높이·넓게 세우나 ─────────
+// 차가 다니는 길만 세운다. 보행교(footway·steps·path 등 685개)는 이번엔 뺐다 — 개수가 곧 무게다.
+const VIADUCT_ROAD = /^(motorway|trunk|primary|secondary|tertiary|unclassified|residential|living_street|service)(_link)?$/;
+// 이보다 짧은 다리는 안 세운다. 수 m 짜리 배수로 위 다리가 수백 개인데 화면에서 안 보인다.
+const VIADUCT_MIN_M = 30;
+// 조각 길이. 이름난 다리는 80 m 인데 고가도로는 높이가 일정하니 더 길게 잘라도 된다. 개수가 절반이 된다.
+const VIADUCT_CHUNK_M = 120;
+// 상판 윗면 높이 = 층(layer) × 7 m. 고가 한 층은 밑으로 차가 지나야 해서 4.5 m 틈 + 상판 두께다.
+// layer 가 없으면 1층으로 본다. 🔴 이 높이는 **땅에서 잰 것**이다 — 화면이 조각마다 그 자리 땅 높이 위에 올린다.
+const VIADUCT_TOP_PER_LAYER = 7;
+const VIADUCT_THICK = 1.6;
+// 폭. lanes 가 있으면 차로 × 3.5 m, 없으면 도로 등급으로 짐작한다
+const VIADUCT_WIDTH = { motorway: 12, trunk: 12, primary: 12, secondary: 10, tertiary: 8 };
+const VIADUCT_WIDTH_DEFAULT = 6;
+// 이름난 다리와 겹치는 도로는 뺀다. 꼭짓점의 절반 이상이 그 다리 상판에서 이 거리 안이면 같은 다리다.
+const NAMED_OVERLAP_M = 20;
 
 // ── 좌표 계산 ────────────────────────────────────────────────────
 const R = 6378137;
@@ -280,18 +299,28 @@ function ribbon(a, b, widthM) {
 //    그래서 80 m 마다 잘라 조각마다 높이를 준다. 잘라도 수백 개라 비용은 없다시피 하다.
 //    곡선 구간에서 조각 사이에 아주 작은 틈이 생기는데, 폭 25 m 에 길이 80 m 면 안 보인다.
 //
-function deckChunks(line, cfg) {
+// 옵션 (고가도로가 쓴다):
+//   flat   true 면 양 끝에서 올라가지 않고 처음부터 cruise 높이다. OSM 의 bridge 구간은 이미
+//          떠 있는 부분만이라(흙 쌓은 접속부는 다리가 아니다) 올라가는 구간을 넣으면 오히려 틀린다
+//   chunk  조각 길이(m). 기본 80
+//   minM   이보다 짧으면 안 만든다. 기본 60
+//   kind   도형에 적는 종류. 기본 'deck'
+function deckChunks(line, cfg, opt = {}) {
   const cum = [0];
   for (let i = 1; i < line.length; i++) cum.push(cum[i - 1] + distM(line[i - 1], line[i]));
   const total = cum[cum.length - 1];
-  if (total < 60) return null;
+  if (total < (opt.minM ?? 60)) return null;
 
   // 양 끝에서 기울기만큼 올라가다 순항 높이에서 멈춘다. 실제 다리가 이렇게 생겼다.
-  const topAt = (s) => Math.min(cfg.cruise, 2 + Math.min(s, total - s) * GRADE);
+  const topAt = opt.flat
+    ? () => cfg.cruise
+    : (s) => Math.min(cfg.cruise, 2 + Math.min(s, total - s) * GRADE);
 
-  const CHUNK = 80;
+  const CHUNK = opt.chunk ?? 80;
   const feats = [];
   const halfW = cfg.deckM / 2;
+  const props = { kind: opt.kind ?? 'deck' };
+  if (cfg.show) props.name = cfg.show;
 
   for (let s = 0; s < total; s += CHUNK) {
     const e = Math.min(s + CHUNK, total);
@@ -311,7 +340,7 @@ function deckChunks(line, cfg) {
     const top = Math.max(topAt((s + e) / 2), 3);
     feats.push({
       type: 'Feature',
-      properties: { kind: 'deck', name: cfg.show, hb: +Math.max(top - cfg.thick, 0.5).toFixed(1), h: +top.toFixed(1) },
+      properties: { ...props, hb: +Math.max(top - cfg.thick, 0.5).toFixed(1), h: +top.toFixed(1) },
       geometry: {
         type: 'Polygon',
         coordinates: [[off(a, nx, ny), off(b, nx, ny), off(b, -nx, -ny), off(a, -nx, -ny), off(a, nx, ny)]],
@@ -479,6 +508,7 @@ console.log(pylons.map((p) => `  주탑 ${p.at[0].toFixed(5)},${p.at[1].toFixed(
 
 const features = [];
 const report = [];
+const namedParts = [];   // 이름난 다리의 상판 중심선. 고가도로 단계에서 겹치는 도로를 빼는 데 쓴다
 
 for (const cfg of BRIDGES) {
   const row = { 다리: cfg.show };
@@ -529,6 +559,7 @@ for (const cfg of BRIDGES) {
   const built = deckChunks(part, cfg);
   if (!built) { row.상태 = `너무 짧음 (${Math.round(lengthM(part))} m)`; continue; }
   features.push(...built.feats);
+  namedParts.push(part);
 
   row.후보줄 = cands.length;
   row.기준점까지 = nearestM + ' m';
@@ -571,11 +602,41 @@ for (const cfg of BRIDGES) {
     }
   }
 }
+const namedCount = features.length;
+
+// ── 4) 고가도로 — 이름난 다리 밖의 bridge=yes 도로 전부 ───────────
+// 도로마다 조각을 내서 세운다. 높이는 layer 로, 폭은 lanes 나 등급으로 짐작한다.
+const viaductRows = { 후보: 0, 짧아서뺌: 0, 이름난다리와겹쳐뺌: 0, 세움: 0, 조각: 0 };
+for (const w of osm.elements) {
+  if (w.type !== 'way' || !w.geometry || !w.tags) continue;
+  const t = w.tags;
+  if (!t.bridge || t.bridge === 'no' || !VIADUCT_ROAD.test(t.highway ?? '')) continue;
+  if (t.tunnel || +(t.layer ?? 1) < 0) continue;
+  viaductRows.후보++;
+  const line = asXY(w);
+  if (lengthM(line) < VIADUCT_MIN_M) { viaductRows.짧아서뺌++; continue; }
+  // 이름난 다리와 같은 자리면 뺀다 — 그 다리는 위에서 바다 높이로 이미 세웠다
+  const nearNamed = line.filter((p) => namedParts.some((part) => distToLineM(part, p) < NAMED_OVERLAP_M)).length;
+  if (nearNamed * 2 >= line.length) { viaductRows.이름난다리와겹쳐뺌++; continue; }
+
+  const layer = Math.max(1, +(t.layer ?? 1) || 1);
+  const lanes = +t.lanes || 0;
+  const base = t.highway.replace(/_link$/, '');
+  const deckM = lanes ? lanes * 3.5 + 1 : (VIADUCT_WIDTH[base] ?? VIADUCT_WIDTH_DEFAULT);
+  const built = deckChunks(line, { deckM, cruise: layer * VIADUCT_TOP_PER_LAYER, thick: VIADUCT_THICK },
+    { flat: true, chunk: VIADUCT_CHUNK_M, minM: VIADUCT_MIN_M, kind: 'viaduct' });
+  if (!built) continue;
+  features.push(...built.feats);
+  viaductRows.세움++;
+  viaductRows.조각 += built.feats.length;
+}
+report.push({ 고가도로: viaductRows });
+
 fs.writeFileSync(OUT, JSON.stringify({ type: 'FeatureCollection', features }), 'utf8');
 const kb = +(fs.statSync(OUT).size / 1024).toFixed(1);
 
 console.log('\n' + JSON.stringify(report, null, 2));
-console.log(`\n도형 ${features.length} 개 · ${kb} KB → ${path.relative(HERE, OUT)}`);
+console.log(`\n도형 ${features.length} 개 (이름난 다리 ${namedCount} · 고가도로 ${features.length - namedCount}) · ${kb} KB → ${path.relative(HERE, OUT)}`);
 fs.writeFileSync(
   path.join(WORK, '_bridges.json'),
   JSON.stringify({ at: new Date().toISOString(), features: features.length, kb, report }, null, 2),
