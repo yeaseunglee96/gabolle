@@ -272,6 +272,65 @@ const MINIMAL_STYLE_URL = BASEMAP_OFF
   ? URL.createObjectURL(new Blob([JSON.stringify(MINIMAL_STYLE)], { type: 'application/json' }))
   : null;
 
+// ── 🔴 밖에서 넣는 좌표 (S15P21E201-734) ─────────────────────────
+// 여태 이 화면이 보여 주는 코스는 **소스 코드에 박혀 있었다** (아래 DEMOS 셋).
+// 그래서 앱이 이 화면을 열어도 여행자의 일정이 아니라 남의 데모 코스가 떴다.
+// 주소로 좌표를 받는다.
+//
+//   ?lng=129.1187&lat=35.1532    그 한 지점을 본다
+//   ?zoom=16                      확대 (선택). 안 주면 아래 EXT_ZOOM_DEFAULT
+//   ?course=경도,위도;경도,위도;…  여러 지점 — 다 보이게 맞추고 그 위에 선을 그린다
+//
+// 🔴 **손잡이를 하나도 안 주면 지금까지와 똑같이 동작한다** (광안대교 시점).
+//    값이 망가져 있으면(숫자가 아님·위경도 범위 밖) 조용히 기본 화면으로 떨어진다 —
+//    주소 하나 잘못 붙였다고 흰 화면이 되는 것이 제일 나쁘다.
+//
+// 🔴 부산 밖 좌표도 **막지 않는다.** 건물·땅 높이 타일이 부산뿐이라 밖으로 가면
+//    항공사진과 바탕 지도만 남지만, 그것도 지도이고 "아무것도 안 뜬다" 보다 낫다.
+//    범위 밖 안내를 만들 것인지는 사람이 정할 일이다 (아직 안 정해졌다).
+const EXT_ZOOM_DEFAULT = 15.5;
+
+function parseLngLat(text) {
+  const parts = String(text).split(',');
+  if (parts.length !== 2) return null;
+  const lng = Number(parts[0]);
+  const lat = Number(parts[1]);
+  if (!Number.isFinite(lng) || !Number.isFinite(lat)) return null;
+  // 위경도로 말이 되는 범위인가. 웹 메르카토르 지도는 위도 ±85 밖을 못 그린다.
+  if (lng < -180 || lng > 180 || lat < -85 || lat > 85) return null;
+  return [lng, lat];
+}
+
+// 코스. 못 읽는 점은 버리고 읽은 것만 쓴다 — 하나가 깨졌다고 전부 버리지 않는다.
+const EXT_COURSE = (() => {
+  const raw = (Q.get('course') ?? '').trim();
+  if (!raw) return null;
+  const pts = raw.split(';').map((one) => parseLngLat(one.trim())).filter(Boolean);
+  return pts.length ? pts : null;
+})();
+
+// 한 지점. ?course= 가 있으면 그쪽이 이긴다 (더 많이 말해 주는 쪽).
+const EXT_POINT = (() => {
+  if (EXT_COURSE) return null;
+  const lng = (Q.get('lng') ?? '').trim();
+  const lat = (Q.get('lat') ?? '').trim();
+  // 🔴 둘 다 실제로 적혀 있어야 한다. **빈 문자열을 Number() 에 넣으면 0 이 되므로**,
+  //    이걸 안 막으면 손잡이를 하나도 안 준 화면이 위경도 0,0(아프리카 앞바다)으로 간다.
+  //    실제로 그렇게 만들었다가 헤드리스 브라우저로 재 보고 잡았다 (2026-09-08).
+  if (!lng || !lat) return null;
+  return parseLngLat(`${lng},${lat}`);
+})();
+
+// 확대. 안 주면 null 이고, 그때는 아래 gotoExternal 이 스스로 정한다
+// (한 지점이면 EXT_ZOOM_DEFAULT, 코스면 다 들어오는 값).
+const EXT_ZOOM = (() => {
+  const raw = (Q.get('zoom') ?? '').trim();
+  if (!raw) return null;
+  const z = Number(raw);
+  // 지도의 minZoom·maxZoom 밖은 어차피 잘리므로 여기서 맞춰 둔다.
+  return Number.isFinite(z) ? Math.min(20, Math.max(11, z)) : null;
+})();
+
 const map = new MapLibreMap({
   container: 'map',
   style: BASEMAP_OFF ? MINIMAL_STYLE_URL : 'https://tiles.openfreemap.org/styles/positron',
@@ -312,6 +371,49 @@ function goto(name) {
   const v = VIEWS[name];
   map.jumpTo(map.calculateCameraOptionsFromTo(v.from, v.alt, v.to, v.toAlt));
   for (const b of document.querySelectorAll('.view')) b.classList.toggle('on', b.dataset.v === name);
+}
+
+// 주소로 받은 좌표를 본다. 받은 것이 없으면 false 를 돌려주고 아무것도 안 한다 —
+// 부르는 쪽이 그때 기본 시점으로 간다.
+//
+// 🔴 위의 VIEWS 와 정하는 방식이 다르다. VIEWS 는 "저 다리를 이 각도에서" 같은 **경치**라
+//    카메라 자리로 적고 각도를 계산에 맡기는 것이 맞다. 여기는 "이 좌표를 보여 달라" 라서
+//    보는 자리와 확대를 **그대로 준다.** 처음에 VIEWS 와 같은 방식으로 만들었더니
+//    확대 15.5 를 부탁했는데 11.4 가 나왔다 (2026-09-08 실측) — 에둘러 정한 값은 어긋난다.
+function gotoExternal() {
+  const pts = EXT_COURSE ?? (EXT_POINT ? [EXT_POINT] : null);
+  if (!pts) return false;
+
+  let west = Infinity, east = -Infinity, south = Infinity, north = -Infinity;
+  for (const [lng, lat] of pts) {
+    west = Math.min(west, lng); east = Math.max(east, lng);
+    south = Math.min(south, lat); north = Math.max(north, lat);
+  }
+  const midLng = (west + east) / 2;
+  const midLat = (south + north) / 2;
+
+  // 기울기 60도는 지도가 처음 켜질 때와 같은 값이다 — 3D 로 보이면서 아래위가 안 눌린다.
+  const zoom = EXT_ZOOM ?? fitZoom(pts, [west, south, east, north], midLat);
+  map.jumpTo({ center: [midLng, midLat], zoom, pitch: 60, bearing: 0 });
+  // 주소로 온 자리는 미리 박아 둔 시점 중 어느 것도 아니다. 눌린 시점 버튼을 푼다.
+  // 🔴 `[data-v]` 를 반드시 붙인다 — 아래 이동수단 버튼도 같은 `view` 클래스를 쓰고 있어서,
+  //    안 붙이면 켜져 있던 이동수단 버튼까지 같이 꺼진다.
+  for (const b of document.querySelectorAll('.view[data-v]')) b.classList.remove('on');
+  return true;
+}
+
+// 받은 점들이 한 화면에 들어오는 확대를 낸다.
+// 확대 z 에서 화면 1픽셀이 덮는 지상 거리는 156543·cos(위도)/2^z 다 — 거기서 z 를 거꾸로 푼다.
+function fitZoom(pts, [west, south, east, north], midLat) {
+  if (pts.length < 2) return EXT_ZOOM_DEFAULT;
+  const spanM = Math.hypot((east - west) * mPerLon(midLat), (north - south) * M_PER_LAT);
+  if (!(spanM > 0)) return EXT_ZOOM_DEFAULT;
+  const canvas = map.getCanvas();
+  // 🔴 화면을 60도 눕혀 놓고 보므로 세로로는 실제보다 멀리까지 보인다. 가로·세로 중
+  //    짧은 쪽의 70% 에 맞추면 눕힌 상태에서도 점들이 화면 안에 남는다.
+  const fitPx = Math.min(canvas.clientWidth || 800, canvas.clientHeight || 500) * 0.7;
+  const z = Math.log2((156543.03392 * Math.cos((midLat * Math.PI) / 180) * fitPx) / spanM);
+  return Math.min(18, Math.max(11, z));
 }
 
 // ── 바탕 지도 색 ──────────────────────────────────────────────────
@@ -1459,8 +1561,27 @@ function buildEverything() {
 
   step('시각과 시점', () => {
     setHour(+document.getElementById('time').value);
-    goto('광안대교');
+    // 주소로 좌표를 받았으면 그리로 간다. 안 받았으면 지금까지와 똑같다.
+    if (!gotoExternal()) goto('광안대교');
   });
+
+  // 받은 코스를 땅 위에 선으로 긋는다. 받은 것이 없으면 겹 자체를 안 만든다 —
+  // 안 쓰는 소스를 얹으면 지도가 그것 때문에도 다시 그린다.
+  if (EXT_COURSE && EXT_COURSE.length >= 2) {
+    step('받은 코스', () => {
+      map.addSource('ext-course', {
+        type: 'geojson',
+        data: { type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: EXT_COURSE } },
+      });
+      map.addLayer({
+        id: 'ext-course-line',
+        type: 'line',
+        source: 'ext-course',
+        layout: { 'line-cap': 'round', 'line-join': 'round' },
+        paint: { 'line-color': '#ff6a1f', 'line-width': 4, 'line-opacity': 0.95 },
+      });
+    });
+  }
 
   // 🔴 setDemo 는 async 라서 안에서 던지면 step() 의 try 가 **못 잡는다.**
   //    조용한 실패가 되므로 catch 를 직접 붙여 화면의 오류 칸에 띄운다.
@@ -1669,6 +1790,11 @@ const DEMOS = {
   bus: { label: '광안대교 상판', mode: 'bus', bridge: '광안대교', view: '광안대교' },
   car: { label: '부산항대교 상판', mode: 'car', bridge: '부산항대교', view: '부산항' },
 };
+
+// 받은 코스를 이동수단이 걸을 수 있게 등록한다 (S15P21E201-734). 새 장치를 만들지 않고
+// 이미 있는 것(actors.mjs·그늘 띠)이 그대로 쓰게 하는 것이 요점이다.
+//   ?course=…&demo=trip  →  받은 코스 위를 실제 걷는 속도로 표식이 간다
+if (EXT_COURSE && EXT_COURSE.length >= 2) DEMOS.trip = { label: '받은 코스', mode: 'walk', coords: EXT_COURSE };
 
 let demoName = ((v) => (v === 'all' || DEMOS[v] ? v : 'off'))(Q.get('demo') ?? 'off');
 const ACTORS_ON_CLOCK = Q.get('actors') === 'clock';
