@@ -44,6 +44,7 @@ public class AuthController {
 	private final PasswordResetService passwordResetService;
 	private final AuthTokenService tokenService;
 	private final OAuthLoginService oAuthLoginService;
+	private final OAuthAccountService oAuthAccountService;
 	private final OAuthChallengeService oAuthChallengeService;
 	private final WebAuthCookieService webAuthCookieService;
 	private final CurrentUserService currentUserService;
@@ -55,7 +56,7 @@ public class AuthController {
 			AuthTokenService tokenService, OAuthLoginService oAuthLoginService,
 			OAuthChallengeService oAuthChallengeService, WebAuthCookieService webAuthCookieService,
 			CurrentUserService currentUserService, ProfileUpdateService profileUpdateService,
-			AccountDeletionService accountDeletionService) {
+			AccountDeletionService accountDeletionService, OAuthAccountService oAuthAccountService) {
 		this.localAuthService = localAuthService;
 		this.passwordResetService = passwordResetService;
 		this.tokenService = tokenService;
@@ -65,6 +66,7 @@ public class AuthController {
 		this.currentUserService = currentUserService;
 		this.accountDeletionService = accountDeletionService;
 		this.profileUpdateService = profileUpdateService;
+		this.oAuthAccountService = oAuthAccountService;
 	}
 
 	@GetMapping("/me")
@@ -155,51 +157,107 @@ public class AuthController {
 		return ResponseEntity.noContent().build();
 	}
 
+	/**
+	 * 소셜 인증 — S15P21E201-689 (2026-09-07 재설계).
+	 *
+	 * <p>세 갈래로 답한다. 이미 가입한 소셜 계정이면 {@code LOGGED_IN} + 토큰, 처음 보는 계정이면 계정을 만들지 않고
+	 * {@code SIGNUP_REQUIRED} + 가입 티켓과 미리 채울 값, 같은 이메일의 로컬 계정이 있으면 409
+	 * {@code OAUTH_ACCOUNT_LINK_REQUIRED} + 연결 티켓({@code AuthExceptionHandler} 가 싣는다).
+	 *
+	 * <p>🔴 응답 record 가 {@link AuthTokenResponse} 에서 {@link OAuthLoginResponse} 로 바뀌었지만
+	 * {@code accessToken}·{@code refreshToken}·{@code expiresIn}·{@code sessionId}·{@code user} 는 같은 이름·같은 자리다 —
+	 * 지금 배포된 앱은 {@code data.accessToken} 을 읽으므로 그대로 동작한다. 늘어난 칸(status·signupTicket·prefill)은
+	 * 모르는 키라 무시된다.
+	 */
 	@PostMapping("/oauth/{provider}")
-	public ApiResponse<AuthTokenResponse> oauth(@PathVariable String provider, @Valid @RequestBody OAuthLoginRequest request,
+	public ResponseEntity<ApiResponse<OAuthLoginResponse>> oauth(@PathVariable String provider,
+			@Valid @RequestBody OAuthLoginRequest request,
 			@RequestHeader(value = "X-Request-Id", required = false) String requestId,
 			@RequestHeader(value = "X-Client-Platform", defaultValue = "MOBILE") String clientPlatform,
 			HttpServletResponse response) {
 		AuthProvider authProvider = AuthProvider.valueOf(provider.toUpperCase(Locale.ROOT));
-		OAuthAccountService.OAuthAccountResult result = oAuthLoginService.login(authProvider, request);
-		return ApiResponse.success(writeWebCookieIfNeeded(result.tokens(), clientPlatform, response, result.user(), result.email()),
+		OAuthAccountService.Outcome outcome = oAuthLoginService.login(authProvider, request);
+		return oauthResponse(outcome, clientPlatform, response, requestId, HttpStatus.OK);
+	}
+
+	/**
+	 * 소셜 회원가입 완료 — S15P21E201-689. 가입 티켓 + 닉네임·언어·14세 확인·동의로 계정을 만든다.
+	 *
+	 * <p>이메일·비밀번호가 없다는 것만 빼면 {@code POST /auth/signup} 과 받는 것이 같다. 로컬 가입은 이메일 인증을
+	 * 기다리지만 소셜은 provider 가 이미 신원을 확인했으므로 그 자리에서 토큰이 나간다.
+	 */
+	@PostMapping("/oauth/signup")
+	public ResponseEntity<ApiResponse<OAuthLoginResponse>> oauthSignup(@Valid @RequestBody OAuthSignupRequest request,
+			@RequestHeader(value = "X-Request-Id", required = false) String requestId,
+			@RequestHeader(value = "X-Client-Platform", defaultValue = "MOBILE") String clientPlatform,
+			HttpServletResponse response) {
+		OAuthAccountService.Outcome outcome = oAuthAccountService.completeSignup(request.signupTicket(),
+				request.displayName(), request.language(), request.consents(), request.behaviorPersonalizationEnabled(),
+				request.deviceId());
+		// 티켓을 받은 뒤 같은 이메일의 계정이 생겼으면 여기서도 연결 필요(409)가 나올 수 있다.
+		return oauthResponse(outcome, clientPlatform, response, requestId, HttpStatus.CREATED);
+	}
+
+	/**
+	 * 기존 계정에 소셜 계정 연결 — S15P21E201-690. 연결 티켓 + 그 계정의 비밀번호.
+	 *
+	 * <p>이메일이 같다고 자동으로 붙이지 않는 이유는 {@code DEC-AUTH-010} 이 소유한다 — 남의 이메일로 소셜 계정을
+	 * 만든 사람이 기존 계정에 들어갈 수 있기 때문이고, 그래서 비밀번호를 한 번 확인한다.
+	 */
+	@PostMapping("/oauth/link")
+	public ApiResponse<OAuthLoginResponse> oauthLink(@Valid @RequestBody OAuthLinkRequest request,
+			@RequestHeader(value = "X-Request-Id", required = false) String requestId,
+			@RequestHeader(value = "X-Client-Platform", defaultValue = "MOBILE") String clientPlatform,
+			HttpServletResponse response) {
+		OAuthAccountService.LoggedIn result = oAuthAccountService.linkWithPassword(request.linkTicket(),
+				request.password(), request.deviceId());
+		return ApiResponse.success(OAuthLoginResponse.loggedIn(
+				writeWebCookieIfNeeded(result.tokens(), clientPlatform, response, result.user(), result.email())),
 				resolveRequestId(requestId));
 	}
 
-	@PostMapping("/web/refresh")
-	public ApiResponse<AuthTokenResponse> webRefresh(
-			@RequestHeader(value = "X-Request-Id", required = false) String requestId,
-			@RequestHeader(value = "X-Device-Id", required = false) String deviceId,
-			HttpServletRequest request, HttpServletResponse response) {
-		String refreshToken = findCookie(request);
-		if (refreshToken == null || refreshToken.isBlank()) {
-			throw new AuthException("INVALID_REFRESH_TOKEN", "웹 refresh cookie가 없습니다.", HttpStatus.UNAUTHORIZED);
+	/**
+	 * {@link OAuthAccountService.Outcome} 을 HTTP 로 번역한다.
+	 *
+	 * <p>🔴 연결 필요는 <b>409 인데 {@code data} 와 {@code error} 를 함께</b> 싣는다. 코드와 상태를 예전과 같게 둔 이유는
+	 * 지금 배포된 앱이 {@code error.code == "OAUTH_ACCOUNT_LINK_REQUIRED"} 를 보고 안내를 띄우고 있어서다. 새 앱만
+	 * {@code data.linkTicket} 을 읽는다.
+	 */
+	private ResponseEntity<ApiResponse<OAuthLoginResponse>> oauthResponse(OAuthAccountService.Outcome outcome,
+			String clientPlatform, HttpServletResponse response, String requestId, HttpStatus loggedInStatus) {
+		String resolvedRequestId = resolveRequestId(requestId);
+		if (outcome instanceof OAuthAccountService.LoggedIn loggedIn) {
+			OAuthLoginResponse body = OAuthLoginResponse.loggedIn(writeWebCookieIfNeeded(loggedIn.tokens(),
+					clientPlatform, response, loggedIn.user(), loggedIn.email()));
+			return ResponseEntity.status(loggedInStatus).body(ApiResponse.success(body, resolvedRequestId));
 		}
-		AuthTokenService.IssuedTokens tokens = tokenService.refresh(refreshToken, deviceId);
-		response.addHeader("Set-Cookie", webAuthCookieService.issue(tokens.refreshToken()).toString());
-		return ApiResponse.success(webResponse(tokens), resolveRequestId(requestId));
+		if (outcome instanceof OAuthAccountService.SignupRequired signup) {
+			OAuthLoginResponse body = OAuthLoginResponse.signupRequired(signup.signupTicket(), signup.ticketExpiresAt(),
+					new OAuthLoginResponse.Prefill(signup.email(), signup.displayName(), signup.language(),
+							signup.emailProvided()));
+			return ResponseEntity.ok(ApiResponse.success(body, resolvedRequestId));
+		}
+		OAuthAccountService.LinkRequired link = (OAuthAccountService.LinkRequired) outcome;
+		OAuthLoginResponse body = OAuthLoginResponse.linkRequired(link.linkTicket(), link.ticketExpiresAt(),
+				link.maskedEmail(), link.provider().name());
+		return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiResponse<>(body,
+				new com.gabolle.backend.common.api.ApiError("OAUTH_ACCOUNT_LINK_REQUIRED",
+						"이미 가입된 이메일입니다. 비밀번호를 확인하면 이 소셜 계정을 기존 계정에 연결해 드려요."),
+				new com.gabolle.backend.common.api.ApiMeta(resolvedRequestId)));
 	}
 
-	@PostMapping("/web/logout")
-	public ResponseEntity<Void> webLogout(
-			@RequestParam(defaultValue = "false") boolean allDevices,
-			HttpServletRequest request, HttpServletResponse response) {
-		response.addHeader("Set-Cookie", webAuthCookieService.clear().toString());
-		String refreshToken = findCookie(request);
-		if (refreshToken != null && !refreshToken.isBlank()) {
-			tokenService.logout(refreshToken, allDevices);
-		}
-		return ResponseEntity.noContent().build();
-	}
-
-	@PostMapping("/oauth/{provider}/challenge")
-	public ApiResponse<OAuthChallengeService.IssuedChallenge> oauthChallenge(@PathVariable String provider,
-			@Valid @RequestBody OAuthChallengeRequest request,
+	/**
+	 * 로그인한 계정에 소셜 계정 연결 — S15P21E201-690, 설정 화면. 이미 붙어 있으면 {@code alreadyLinked=true} 로 200 이고
+	 * 다른 계정에 붙어 있으면 409 {@code OAUTH_IDENTITY_TAKEN} 이다.
+	 */
+	@PostMapping("/oauth/{provider}/link")
+	public ApiResponse<OAuthIdentityResponse> oauthLinkAuthenticated(@PathVariable String provider,
+			@Valid @RequestBody OAuthLoginRequest request, Authentication authentication,
 			@RequestHeader(value = "X-Request-Id", required = false) String requestId) {
 		AuthProvider authProvider = AuthProvider.valueOf(provider.toUpperCase(Locale.ROOT));
-		return ApiResponse.success(
-				oAuthChallengeService.issue(authProvider, request.redirectUri(), request.codeChallenge(),
-						request.codeChallengeMethod(), request.deviceId()),
+		OAuthAccountService.LinkedIdentity linked = oAuthLoginService.linkForUser(authenticatedUserId(authentication),
+				authProvider, request);
+		return ApiResponse.success(OAuthIdentityResponse.of(linked.identity(), linked.alreadyLinked()),
 				resolveRequestId(requestId));
 	}
 

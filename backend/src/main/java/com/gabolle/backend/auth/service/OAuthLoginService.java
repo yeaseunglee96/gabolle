@@ -1,12 +1,22 @@
 package com.gabolle.backend.auth.service;
 
-import com.gabolle.backend.auth.api.OAuthLoginRequest;
-import com.gabolle.backend.auth.domain.AuthProvider;
 import java.util.List;
+import java.util.UUID;
+
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.context.annotation.Profile;
 
+import com.gabolle.backend.auth.api.OAuthLoginRequest;
+import com.gabolle.backend.auth.domain.AuthProvider;
+
+/**
+ * 소셜 로그인 흐름 조정 — PKCE challenge 소비 → provider 코드 교환 → 계정 판정.
+ *
+ * <p>2026-09-07 (S15P21E201-689) — 14세 확인을 여기서 요구하지 않는다. 예전에는 {@code ageGateAccepted} 가 거짓이면
+ * 돌아온 회원까지 400 으로 막았는데, 14세 확인은 <b>가입</b> 조건이라 가입 단계({@code POST /auth/oauth/signup})가 본다.
+ * 옛 앱이 첫 요청에 실어 보낸 값은 {@link OAuthAccountService#authenticate} 가 "한 번에 가입" 판정에 쓴다.
+ */
 @Service
 @Profile({"db", "dev"})
 public class OAuthLoginService {
@@ -22,10 +32,19 @@ public class OAuthLoginService {
 		this.accountService = accountService;
 	}
 
-	public OAuthAccountService.OAuthAccountResult login(AuthProvider provider, OAuthLoginRequest request) {
-		if (!request.ageGateAccepted()) {
-			throw new AuthException("AGE_GATE_REQUIRED", "14세 이상 확인이 필요합니다.", HttpStatus.BAD_REQUEST);
-		}
+	public OAuthAccountService.Outcome login(AuthProvider provider, OAuthLoginRequest request) {
+		OAuthProviderClient.OAuthUserProfile profile = exchange(provider, request);
+		return accountService.authenticate(provider, profile, request.deviceId(), request.consents(),
+				request.behaviorPersonalizationEnabled(), Boolean.TRUE.equals(request.ageGateAccepted()));
+	}
+
+	/** 로그인한 계정에 소셜 신원을 붙인다 — 설정 화면 (S15P21E201-690). 인증 코드 교환은 로그인과 같다. */
+	public OAuthAccountService.LinkedIdentity linkForUser(UUID userId, AuthProvider provider, OAuthLoginRequest request) {
+		OAuthProviderClient.OAuthUserProfile profile = exchange(provider, request);
+		return accountService.linkAuthenticated(userId, provider, profile);
+	}
+
+	private OAuthProviderClient.OAuthUserProfile exchange(AuthProvider provider, OAuthLoginRequest request) {
 		OAuthProviderClient client = clients.stream().filter(candidate -> candidate.provider() == provider).findFirst()
 				.orElseThrow(() -> new AuthException("OAUTH_PROVIDER_NOT_CONFIGURED", "소셜 로그인 제공자가 아직 설정되지 않았습니다.",
 						HttpStatus.NOT_IMPLEMENTED));
@@ -36,7 +55,6 @@ public class OAuthLoginService {
 		if (profile.subject() == null || profile.subject().isBlank() || profile.subject().length() > 255) {
 			throw new AuthException("OAUTH_SUBJECT_MISSING", "소셜 계정 식별자를 받지 못했습니다.", HttpStatus.BAD_GATEWAY);
 		}
-		return accountService.loginOrRegister(provider, profile, request.deviceId(), request.consents(),
-				request.behaviorPersonalizationEnabled());
+		return profile;
 	}
 }
