@@ -122,7 +122,7 @@ class RouteAuthorizationRegistryTest {
 		//    그 변경이 diff 에 남아 리뷰에서 보인다. 실제로 이 저장소의 SecurityConfig 주석은
 		//    "/oauth/ 아래 한 마디짜리 경로가 전부 열린다" 는 함정을 적어 두고 있다 — 두 마디로
 		//    두지 않으면 새 경로가 의도 없이 열린다.
-		assertThat(open).hasSize(14);
+		assertThat(open).hasSize(17);
 
 		// 표를 아는 사람이 실제로 열린 것과 대조할 수 있게 목록도 고정한다
 		assertThat(routesWith(Policy.PUBLIC_TOKEN)).containsExactlyInAnyOrder(
@@ -193,6 +193,11 @@ class RouteAuthorizationRegistryTest {
 	 * <p>경로 열거를 두 곳에 복사하면 한쪽만 고쳐지는 날이 온다. 열거 방식이 이 파일의
 	 * 관심사이므로 여기서만 만들고 빌려 준다.
 	 */
+	/** 같은 패키지의 허용 목록 검사가 쓰는 창구 — 로그인 전에 부르는 경로만. */
+	static Set<String> preAuthRoutesForAudit() {
+		return routesWith(Policy.PRE_AUTH);
+	}
+
 	static Set<String> discoverRoutesForAudit() {
 		return discoverRoutes();
 	}
@@ -327,6 +332,12 @@ class RouteAuthorizationRegistryTest {
 				"비밀번호 재설정 요청. 존재하는 이메일인지 응답으로 알려주지 않아야 한다");
 		put(m, "POST /api/v1/auth/password-reset/confirm", Policy.PRE_AUTH,
 				"재설정 확정. 보호는 1회용 표다");
+		put(m, "POST /api/v1/auth/web/refresh", Policy.PRE_AUTH,
+				"웹은 리프레시 토큰을 쿠키로 주고받는다. 로그인 전 상태에서 오는 요청이다");
+		put(m, "POST /api/v1/auth/web/logout", Policy.PRE_AUTH,
+				"위와 같다. 남의 세션을 끊으려면 그 쿠키를 가지고 있어야 한다");
+		put(m, "POST /api/v1/auth/oauth/{}/challenge", Policy.PRE_AUTH,
+				"🔴 소셜 로그인의 첫 요청이다. 막으면 브라우저가 열리기도 전에 401 이 난다 (-704)");
 		put(m, "POST /api/v1/auth/oauth/{}", Policy.PRE_AUTH,
 				"소셜 인증. 보호는 provider 가 준 인증 코드와 PKCE 다");
 		put(m, "POST /api/v1/auth/oauth/signup", Policy.PRE_AUTH,
@@ -341,6 +352,8 @@ class RouteAuthorizationRegistryTest {
 				"대상이 경로에 없고 인증 주체로만 정해진다 — 남의 것을 지정할 방법이 없다");
 		put(m, "PATCH /api/v1/auth/me", Policy.OWNED,
 				"위와 같다. 대상이 인증 주체 자신뿐이다");
+		put(m, "GET /api/v1/auth/me/deletion-preview", Policy.OWNED,
+				"탈퇴하면 무엇이 지워지는지 미리 보여준다(-188). 대상이 인증 주체 자신뿐이라 남의 것을 지정할 자리가 없다. AccountDeletionIntegrationTest");
 		put(m, "DELETE /api/v1/auth/me", Policy.OWNED,
 				"탈퇴. 대상이 인증 주체 자신뿐이다. AccountDeletionIntegrationTest");
 
