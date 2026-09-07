@@ -8,17 +8,17 @@ import { usePlan } from './PlanProvider';
 import { useI18n } from '@/i18n';
 
 const STEPS = [
-  { label: '기본', path: '/plan/basic' },
-  { label: '취향', path: '/plan/taste' },
-  { label: '제약', path: '/plan/conditions' },
-  { label: '확인', path: '/plan/confirm' },
+  { labelKo: '기본', labelEn: 'Basics', path: '/plan/basic' },
+  { labelKo: '취향', labelEn: 'Taste', path: '/plan/taste' },
+  { labelKo: '제약', labelEn: 'Needs', path: '/plan/conditions' },
+  { labelKo: '확인', labelEn: 'Review', path: '/plan/confirm' },
 ] as const;
 
 export function PlanStepHeader({ current }: { current: number }) {
   const router = useRouter();
   const { draft } = usePlan();
   const { kind } = useLayout();
-  const { language, tx } = useI18n();
+  const { tx } = useI18n();
   if (kind === 'phone') {
     return <View accessibilityRole="progressbar" accessibilityValue={{ min: 1, max: 4, now: current }} accessibilityLabel={tx(`여행 만들기 ${current}단계`, `Create trip, step ${current} of 4`)} style={styles.progressTrack}>
       <View style={[styles.progressValue, { width: `${current * 25}%` }]} />
@@ -32,7 +32,7 @@ export function PlanStepHeader({ current }: { current: number }) {
         return (
           <Pressable key={step.path} disabled={!enabled || number === current} onPress={() => router.push(step.path)} style={styles.step}>
             <View style={[styles.circle, number <= current && styles.activeCircle]}><Text variant="caption" weight="bold" color={number <= current ? color.text.onAction : color.text.muted}>{number}</Text></View>
-            <Text variant="caption" weight={number === current ? 'bold' : 'regular'} color={number === current ? color.brand.orange : color.text.muted}>{language === 'ko' ? step.label : ['Basics', 'Taste', 'Needs', 'Review'][index]}</Text>
+            <Text variant="caption" weight={number === current ? 'bold' : 'regular'} color={number === current ? color.brand.orange : color.text.muted}>{tx(step.labelKo, step.labelEn)}</Text>
           </Pressable>
         );
       })}

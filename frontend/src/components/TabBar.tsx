@@ -14,22 +14,22 @@ export type TabKey = 'home' | 'schedule' | 'map' | 'saved' | 'me';
 type Tab = {
   key: TabKey;
   icon: number;
-  label: string;
+  labelKo: string;
+  labelEn: string;
   route?: string;
 };
 
 // APP 01에서 내보낸 실제 아이콘을 사용한다.
 const TABS: Tab[] = [
-  { key: 'home', icon: require('../../assets/icons/home/home.png'), label: '홈', route: '/home' },
-  { key: 'schedule', icon: require('../../assets/icons/home/plus.png'), label: '여행 만들기', route: '/plan/basic' },
-  { key: 'map', icon: require('../../assets/icons/home/map.png'), label: '내 여행', route: '/trips' },
-  { key: 'me', icon: require('../../assets/icons/home/user.png'), label: '마이페이지', route: '/me' },
+  { key: 'home', icon: require('../../assets/icons/home/home.png'), labelKo: '홈', labelEn: 'Home', route: '/home' },
+  { key: 'schedule', icon: require('../../assets/icons/home/plus.png'), labelKo: '여행 만들기', labelEn: 'Create', route: '/plan/basic' },
+  { key: 'map', icon: require('../../assets/icons/home/map.png'), labelKo: '내 여행', labelEn: 'My trips', route: '/trips' },
+  { key: 'me', icon: require('../../assets/icons/home/user.png'), labelKo: '마이페이지', labelEn: 'Profile', route: '/me' },
 ];
 
 export function TabBar({ active }: { active: TabKey }) {
   const router = useRouter();
-  const { language } = useI18n();
-  const englishLabels: Record<TabKey, string> = { home: 'Home', schedule: 'Create', map: 'My trips', saved: 'Saved', me: 'Profile' };
+  const { tx } = useI18n();
 
   return (
     <View style={styles.bar}>
@@ -39,7 +39,7 @@ export function TabBar({ active }: { active: TabKey }) {
           <Pressable
             key={tab.key}
             accessibilityRole="tab"
-            accessibilityLabel={language === 'en' ? englishLabels[tab.key] : tab.label}
+            accessibilityLabel={tx(tab.labelKo, tab.labelEn)}
             accessibilityState={{ selected, disabled: !tab.route }}
             style={({ pressed }) => [styles.item, pressed && styles.itemPressed]}
             disabled={!tab.route}
@@ -50,7 +50,7 @@ export function TabBar({ active }: { active: TabKey }) {
             {selected && <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={styles.activeMarker} />}
             <View style={[styles.iconWrap, tab.key === 'schedule' && styles.createIconWrap]}><Image source={tab.icon} resizeMode="contain" style={[styles.icon, tab.key !== 'schedule' && (selected ? styles.iconSelected : styles.iconInactive)]} /></View>
             <Text variant="caption" weight={selected ? 'bold' : 'regular'} color={selected ? color.brand.navy : color.text.muted}>
-              {language === 'en' ? englishLabels[tab.key] : tab.label}
+              {tx(tab.labelKo, tab.labelEn)}
             </Text>
           </Pressable>
         );

@@ -4,6 +4,7 @@ import { Platform, StyleSheet, View } from 'react-native';
 import { Text } from '@/components/Text';
 import { Button } from '@/components/Button';
 import { color, radius, spacing } from '@/design/tokens';
+import { useI18n } from '@/i18n';
 import type { MapStop } from './types';
 
 declare global { interface Window { kakao?: any } }
@@ -24,6 +25,7 @@ type RouteMapProps = {
 };
 
 export function RouteMap({ stops, selectedId, onSelect, routes, points = [], onBackToList, height = 340 }: RouteMapProps) {
+  const { tx } = useI18n();
   const hostRef = useRef<HTMLElement | null>(null);
   const mapRef = useRef<any>(null);
   const overlaysRef = useRef<any[]>([]);
@@ -32,7 +34,7 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = [], onB
 
   useEffect(() => {
     if (Platform.OS !== 'web') return;
-    if (!appKey) { setError('지도 API 키가 없어 목록 모드로 표시합니다.'); return; }
+    if (!appKey) { setError(tx('지도 API 키가 없어 목록 모드로 표시합니다.', 'No map API key, showing list mode instead.')); return; }
     const draw = () => window.kakao?.maps.load(() => {
       if (!hostRef.current || !window.kakao) return;
       const maps = window.kakao.maps;
@@ -50,7 +52,7 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = [], onB
         const pointLayer = points.find((layer) => layer.stops.some((item) => item.id === stop.id));
         const markerColor = pointLayer?.color ?? color.brand.navy;
         content.type = 'button'; content.textContent = pointLayer ? pointLayer.label : String(stop.number);
-        content.setAttribute('aria-label', pointLayer ? `${pointLayer.label} ${stop.name}` : `${stop.number}번 ${stop.name}`);
+        content.setAttribute('aria-label', pointLayer ? `${pointLayer.label} ${stop.name}` : tx(`${stop.number}번 ${stop.name}`, `Stop ${stop.number} ${stop.name}`));
         Object.assign(content.style, { minWidth: '34px', height: '34px', padding: '0 8px', borderRadius: '999px', border: `3px solid ${stop.id === selectedId ? color.brand.orange : markerColor}`, background: color.canvas, color: markerColor, fontWeight: '700', cursor: 'pointer', boxShadow: '0 4px 12px rgba(11,29,58,.18)' });
         content.onclick = () => onSelect(stop.id);
         const overlay = new maps.CustomOverlay({ position, content, yAnchor: 0.5 });
@@ -69,24 +71,24 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = [], onB
     const script = existing ?? document.createElement('script');
     if (!existing) { script.id = SDK_ID; script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${appKey}&autoload=false`; document.head.appendChild(script); }
     script.addEventListener('load', draw);
-    script.addEventListener('error', () => setError('지도를 불러오지 못했어요. 목록은 계속 사용할 수 있습니다.'));
+    script.addEventListener('error', () => setError(tx('지도를 불러오지 못했어요. 목록은 계속 사용할 수 있습니다.', 'Failed to load the map. You can still use the list.')));
     return () => script.removeEventListener('load', draw);
   }, [appKey, onSelect, points, routes, selectedId, stops]);
 
   if (Platform.OS === 'web') {
     return (
       <View style={styles.webShell}>
-        {createElement('div', { ref: hostRef, style: { width: '100%', height }, 'aria-label': '여행 동선 지도' })}
-        {error ? <View style={styles.webFallback}><Text variant="title" weight="bold">지도 없이 동선을 확인하고 있어요</Text><Text variant="body" style={styles.description}>{error}</Text>{onBackToList ? <Button label="목록으로 돌아가기" variant="ghost" onPress={onBackToList} /> : null}</View> : null}
+        {createElement('div', { ref: hostRef, style: { width: '100%', height }, 'aria-label': tx('여행 동선 지도', 'Trip route map') })}
+        {error ? <View style={styles.webFallback}><Text variant="title" weight="bold">{tx('지도 없이 동선을 확인하고 있어요', 'Viewing the route without a map')}</Text><Text variant="body" style={styles.description}>{error}</Text>{onBackToList ? <Button label={tx('목록으로 돌아가기', 'Back to list')} variant="ghost" onPress={onBackToList} /> : null}</View> : null}
       </View>
     );
   }
 
   return (
     <View style={styles.fallback}>
-      <Text variant="title" weight="bold">앱 지도 연동을 준비하고 있어요</Text>
-      <Text variant="body" style={styles.description}>방문 순서와 장소 목록은 그대로 확인할 수 있습니다. 앱용 지도 SDK가 확정되면 이 영역에 동선을 표시해요.</Text>
-      {onBackToList ? <Button label="목록으로 돌아가기" variant="ghost" onPress={onBackToList} /> : null}
+      <Text variant="title" weight="bold">{tx('앱 지도 연동을 준비하고 있어요', 'Preparing app map integration')}</Text>
+      <Text variant="body" style={styles.description}>{tx('방문 순서와 장소 목록은 그대로 확인할 수 있습니다. 앱용 지도 SDK가 확정되면 이 영역에 동선을 표시해요.', 'You can still see the visit order and place list. Once the app map SDK is finalized, the route will show here.')}</Text>
+      {onBackToList ? <Button label={tx('목록으로 돌아가기', 'Back to list')} variant="ghost" onPress={onBackToList} /> : null}
       <View style={styles.routePreview}>
         {stops.map((stop, index) => (
           <View key={stop.id} style={styles.routeItem}>

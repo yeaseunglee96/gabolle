@@ -2,10 +2,12 @@ import { createContext, useContext, useEffect, useMemo, useState, type ReactNode
 import { Platform } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 import { useRouter } from 'expo-router';
-import { setUnauthorizedHandler } from '@/api/client';
+import { getApiLanguage, setUnauthorizedHandler } from '@/api/client';
 import { deleteMe, getMe, login, logoutMobileSession, logoutWebSession, refreshMobileSession, refreshWebSession, updateMe, type AuthTokens, type AuthUser, type SignupLanguage } from './authApi';
 import { useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
 import { clearSavedTrips } from '@/trip/tripLibrary';
+
+const tx = (ko: string, en: string) => (getApiLanguage() === 'en' ? en : ko);
 
 const REFRESH_TOKEN_KEY = 'gabolle.refresh-token';
 type AuthContextValue = { accessToken: string | null; user: AuthUser | null; ready: boolean; signIn: (email: string, password: string) => Promise<void>; acceptTokens: (tokens: AuthTokens) => Promise<void>; updateProfile: (input: { displayName: string; language: SignupLanguage }) => Promise<void>; deleteAccount: (password: string) => Promise<void>; clearSession: () => void; signOut: () => Promise<void> };
@@ -61,10 +63,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const value = useMemo<AuthContextValue>(() => ({ accessToken, user, ready, clearSession,
     signIn: async (email, password) => { const tokens = await login(email, password); const currentUser = await getMe(tokens.accessToken); setAccessToken(tokens.accessToken); setRefreshToken(tokens.refreshToken); applyUser(currentUser); if (Platform.OS !== 'web' && tokens.refreshToken) await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, tokens.refreshToken); },
     acceptTokens: async (tokens) => { const currentUser = await getMe(tokens.accessToken); setAccessToken(tokens.accessToken); setRefreshToken(tokens.refreshToken); applyUser(currentUser); if (Platform.OS !== 'web' && tokens.refreshToken) await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, tokens.refreshToken); },
-    updateProfile: async (input) => { if (!accessToken) throw new Error('로그인이 필요합니다.'); const currentUser = await updateMe(accessToken, input); applyUser(currentUser); },
-    deleteAccount: async (password) => { if (!accessToken) throw new Error('로그인이 필요합니다.'); await deleteMe(accessToken, password); await clearSavedTrips(); clearSession(); router.replace('/'); },
+    updateProfile: async (input) => { if (!accessToken) throw new Error(tx('로그인이 필요합니다.', 'Please sign in.')); const currentUser = await updateMe(accessToken, input); applyUser(currentUser); },
+    deleteAccount: async (password) => { if (!accessToken) throw new Error(tx('로그인이 필요합니다.', 'Please sign in.')); await deleteMe(accessToken, password); await clearSavedTrips(); clearSession(); router.replace('/'); },
     signOut: async () => { try { if (Platform.OS === 'web') await logoutWebSession(); else if (refreshToken) await logoutMobileSession(refreshToken); } finally { clearSession(); router.replace('/sign-in'); } },
   }), [accessToken, preferences, ready, refreshToken, router, user]);
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
-export function useAuth() { const value = useContext(AuthContext); if (!value) throw new Error('useAuth는 AuthProvider 안에서 사용해야 합니다.'); return value; }
+export function useAuth() { const value = useContext(AuthContext); if (!value) throw new Error(tx('useAuth는 AuthProvider 안에서 사용해야 합니다.', 'useAuth must be used inside AuthProvider.')); return value; }

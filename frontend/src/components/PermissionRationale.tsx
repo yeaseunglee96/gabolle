@@ -1,6 +1,7 @@
 import { Linking, Pressable, StyleSheet, View } from 'react-native';
 
 import { color, radius, spacing } from '@/design/tokens';
+import { useI18n } from '@/i18n';
 import { Text } from './Text';
 
 type Props = {
@@ -14,11 +15,12 @@ type Props = {
 };
 
 export function PermissionRationale({ icon, title, description, denied = false, busy = false, actionLabel, onRequest }: Props) {
+  const { tx } = useI18n();
   return (
     <View accessibilityLiveRegion="polite" style={[styles.card, denied && styles.deniedCard]}>
       <View style={styles.icon}><Text variant="title">{icon}</Text></View>
       <View style={styles.copy}>
-        <Text variant="body" weight="bold">{denied ? '권한이 필요합니다' : title}</Text>
+        <Text variant="body" weight="bold">{denied ? tx('권한이 필요합니다', 'Permission needed') : title}</Text>
         <Text variant="caption" color={color.text.body}>{description}</Text>
         <Pressable
           accessibilityRole="button"
@@ -27,7 +29,7 @@ export function PermissionRationale({ icon, title, description, denied = false, 
           style={({ pressed }) => [styles.action, pressed && styles.pressed, busy && styles.busy]}
         >
           <Text variant="caption" weight="bold" color={color.text.accent}>
-            {busy ? '확인 중…' : denied ? '설정 열기 ›' : `${actionLabel} ›`}
+            {busy ? tx('확인 중…', 'Checking…') : denied ? tx('설정 열기 ›', 'Open settings ›') : `${actionLabel} ›`}
           </Text>
         </Pressable>
       </View>
