@@ -3,7 +3,7 @@
 // 쓰는 것과 같은 발상 — 다만 새 의존성 없이 이미 있는 reanimated 만으로 만든다).
 import { useEffect } from 'react';
 import { type DimensionValue, type StyleProp, type ViewStyle } from 'react-native';
-import Animated, { Easing, useAnimatedStyle, useReducedMotion, useSharedValue, withRepeat, withSequence, withTiming } from 'react-native-reanimated';
+import Animated, { Easing, cancelAnimation, useAnimatedStyle, useReducedMotion, useSharedValue, withRepeat, withSequence, withTiming } from 'react-native-reanimated';
 
 import { color, radius } from '@/design/tokens';
 
@@ -19,7 +19,7 @@ export function Skeleton({ width = '100%', height = 16, radius: cornerRadius = r
   const opacity = useSharedValue(reducedMotion ? 0.7 : 0.5);
 
   useEffect(() => {
-    if (reducedMotion) return;
+    if (reducedMotion) { opacity.value = 0.7; return; }
     opacity.value = withRepeat(
       withSequence(
         withTiming(1, { duration: 700, easing: Easing.inOut(Easing.ease) }),
@@ -28,6 +28,9 @@ export function Skeleton({ width = '100%', height = 16, radius: cornerRadius = r
       -1,
       false,
     );
+    // reducedMotion 이 도중에 켜지거나 컴포넌트가 사라질 때 반복 애니메이션을 멈춘다.
+    // 안 멈추면 화면에서 지운 뒤에도 UI 스레드에서 계속 돈다(AI 리뷰 지적).
+    return () => cancelAnimation(opacity);
     // opacity 는 useSharedValue 참조라 렌더마다 안 바뀐다(ref와 같다) — 의존성에
     // 넣으면 "값이 바뀌면 다시 돈다" 는 뜻으로 읽혀 오해를 부른다. reducedMotion 이
     // 바뀔 때만 다시 돌면 된다.
