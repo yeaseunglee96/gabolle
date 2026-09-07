@@ -28,7 +28,10 @@ export function Skeleton({ width = '100%', height = 16, radius: cornerRadius = r
       -1,
       false,
     );
-  }, [opacity, reducedMotion]);
+    // opacity 는 useSharedValue 참조라 렌더마다 안 바뀐다(ref와 같다) — 의존성에
+    // 넣으면 "값이 바뀌면 다시 돈다" 는 뜻으로 읽혀 오해를 부른다. reducedMotion 이
+    // 바뀔 때만 다시 돌면 된다.
+  }, [reducedMotion]);
 
   const animatedStyle = useAnimatedStyle(() => ({ opacity: opacity.value }));
 
