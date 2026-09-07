@@ -1,3 +1,5 @@
+import { apiRequest, ApiClientError, getApiLanguage } from '@/api/client';
+
 export type RecommendationViewState = 'loading' | 'success' | 'partial' | 'fallback' | 'empty-conflict' | 'error' | 'offline' | 'unavailable';
 export type DataStatus = 'VERIFIED' | 'ESTIMATED' | 'UNKNOWN';
 export type FallbackMode = 'MODEL' | 'RULE' | 'BASELINE';
@@ -14,18 +16,26 @@ export type RecommendationJobResultDto = { status: 'COMPLETED' | 'PARTIAL' | 'FA
 export type RecommendationCourse = RecommendationCourseDto & { reasons: string[]; actionState: CourseActionState };
 export type RecommendationViewModel = { state: RecommendationViewState; courses: RecommendationCourse[]; conflicts: string[]; message: string; itineraryId: string | null };
 
-const REASON: Record<string, string> = { BEACH_PREFERENCE: '바다 취향 반영', LOCAL_FOOD: '로컬 음식 선호', LOW_WALKING: '보행 부담 고려', QUIET_PLACE: '조용한 장소 선호', ACCESSIBLE_ROUTE: '이동 제약 고려' };
-export const reasonLabel = (code: string) => REASON[code] ?? '추천 조건 반영';
+const t = (ko: string, en: string) => (getApiLanguage() === 'en' ? en : ko);
+
+const REASON: Record<string, [string, string]> = {
+  BEACH_PREFERENCE: ['바다 취향 반영', 'Matches your beach preference'],
+  LOCAL_FOOD: ['로컬 음식 선호', 'Local food you like'],
+  LOW_WALKING: ['보행 부담 고려', 'Considers walking limits'],
+  QUIET_PLACE: ['조용한 장소 선호', 'Quiet place preference'],
+  ACCESSIBLE_ROUTE: ['이동 제약 고려', 'Considers mobility needs'],
+};
+export const reasonLabel = (code: string) => t(...(REASON[code] ?? ['추천 조건 반영', 'Reflects your conditions']));
 
 export function adaptRecommendationResult(dto: RecommendationJobResultDto): RecommendationViewModel {
-  if (dto.status === 'FAILED') return { state: 'error', courses: [], conflicts: dto.conflicts ?? [], message: dto.errorMessage ?? '추천 결과를 불러오지 못했어요.', itineraryId: null };
+  if (dto.status === 'FAILED') return { state: 'error', courses: [], conflicts: dto.conflicts ?? [], message: dto.errorMessage ?? t('추천 결과를 불러오지 못했어요.', 'Could not load the recommendation result.'), itineraryId: null };
   const courses = (dto.items ?? []).map((item) => ({ ...item, reasons: item.reasonCodes.map(reasonLabel), actionState: 'idle' as const }));
-  if (!courses.length) return { state: 'empty-conflict', courses: [], conflicts: dto.conflicts ?? [], message: '조건을 만족하는 추천을 찾지 못했어요.', itineraryId: null };
+  if (!courses.length) return { state: 'empty-conflict', courses: [], conflicts: dto.conflicts ?? [], message: t('조건을 만족하는 추천을 찾지 못했어요.', 'No recommendations matched your conditions.'), itineraryId: null };
   const state: RecommendationViewState = dto.status === 'PARTIAL' ? 'partial' : (dto.fallbackMode && dto.fallbackMode !== 'MODEL' ? 'fallback' : 'success');
-  return { state, courses, conflicts: dto.conflicts ?? [], message: state === 'partial' ? '일부 정보가 확인되지 않은 결과예요.' : state === 'fallback' ? '기본 추천 방식으로 구성했어요.' : '조건에 맞는 코스를 찾았어요.', itineraryId: dto.itineraryId ?? courses.find((item) => item.itineraryId)?.itineraryId ?? null };
+  return { state, courses, conflicts: dto.conflicts ?? [], message: state === 'partial' ? t('일부 정보가 확인되지 않은 결과예요.', 'Some details in this result are unconfirmed.') : state === 'fallback' ? t('기본 추천 방식으로 구성했어요.', 'We used the baseline recommendation method.') : t('조건에 맞는 코스를 찾았어요.', 'We found courses that match your conditions.'), itineraryId: dto.itineraryId ?? courses.find((item) => item.itineraryId)?.itineraryId ?? null };
 }
 
-export const unavailableRecommendations = (): RecommendationViewModel => ({ state: 'unavailable', courses: [], conflicts: [], message: '아직 생성된 추천이 없어요. 여행 조건을 확인하고 생성을 시작해 주세요.', itineraryId: null });
+export const unavailableRecommendations = (): RecommendationViewModel => ({ state: 'unavailable', courses: [], conflicts: [], message: t('아직 생성된 추천이 없어요. 여행 조건을 확인하고 생성을 시작해 주세요.', "No recommendations have been created yet. Check your trip conditions and start generating."), itineraryId: null });
 
 export async function loadRecommendationResult(jobId: string, accessToken: string | null): Promise<RecommendationViewModel> {
   try {
@@ -35,7 +45,6 @@ export async function loadRecommendationResult(jobId: string, accessToken: strin
       return { state: 'offline', courses: [], conflicts: [], message: error.message, itineraryId: null };
     }
     if (error instanceof ApiClientError && (error.status === 404 || error.status === 501)) return unavailableRecommendations();
-    return { state: 'error', courses: [], conflicts: [], message: error instanceof Error ? error.message : '추천 결과를 불러오지 못했어요.', itineraryId: null };
+    return { state: 'error', courses: [], conflicts: [], message: error instanceof Error ? error.message : t('추천 결과를 불러오지 못했어요.', 'Could not load the recommendation result.'), itineraryId: null };
   }
 }
-import { apiRequest, ApiClientError } from '@/api/client';

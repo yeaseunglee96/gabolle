@@ -11,23 +11,25 @@ import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
+import { useI18n } from '@/i18n';
 import { idleNowResult, requestNowRecommendations, type NowCandidate, type NowViewModel } from '@/plan/nowRecommendations';
 
 const REMAINING_OPTIONS = [30, 60, 90, 120, 180] as const;
-const STATUS_LABEL = { VERIFIED: '확인됨', ESTIMATED: '추정', UNKNOWN: '미확인' } as const;
 
 type LocationState = 'idle' | 'detecting' | 'granted' | 'denied';
 
 function CandidateCard({ candidate, onOpen }: { candidate: NowCandidate; onOpen: () => void }) {
+  const { tx } = useI18n();
+  const STATUS_LABEL = { VERIFIED: tx('확인됨', 'Verified'), ESTIMATED: tx('추정', 'Estimated'), UNKNOWN: tx('미확인', 'Unconfirmed') } as const;
   return (
     <View style={styles.card}>
       <View style={styles.cardTop}>
         <Text variant="title" weight="bold" style={styles.grow}>{candidate.name}</Text>
         <View style={styles.statusChip}><Text variant="caption" weight="bold">{STATUS_LABEL[candidate.dataStatus]}</Text></View>
       </View>
-      <Text variant="body" color={color.text.body}>이동 {candidate.travelMinutes}분</Text>
+      <Text variant="body" color={color.text.body}>{tx(`이동 ${candidate.travelMinutes}분`, `${candidate.travelMinutes} min away`)}</Text>
       <Text variant="body" color={candidate.minutesUntilClose == null ? color.text.muted : color.text.body}>
-        {candidate.minutesUntilClose == null ? '영업 종료 시각 미확인' : `영업 종료까지 ${candidate.minutesUntilClose}분`}
+        {candidate.minutesUntilClose == null ? tx('영업 종료 시각 미확인', 'Closing time unconfirmed') : tx(`영업 종료까지 ${candidate.minutesUntilClose}분`, `${candidate.minutesUntilClose} min until closing`)}
       </Text>
       {candidate.reasons.length > 0 && (
         <View style={styles.tags}>{candidate.reasons.map((reason, index) => (
@@ -35,7 +37,7 @@ function CandidateCard({ candidate, onOpen }: { candidate: NowCandidate; onOpen:
         ))}</View>
       )}
       <Pressable accessibilityRole="button" onPress={onOpen} style={styles.detailLink}>
-        <Text variant="caption" weight="bold" color={color.brand.navy}>자세히 보기 ›</Text>
+        <Text variant="caption" weight="bold" color={color.brand.navy}>{tx('자세히 보기 ›', 'See details ›')}</Text>
       </Pressable>
     </View>
   );
@@ -44,6 +46,7 @@ function CandidateCard({ candidate, onOpen }: { candidate: NowCandidate; onOpen:
 export default function Now() {
   const router = useRouter();
   const { accessToken } = useAuth();
+  const { tx } = useI18n();
   const [locationState, setLocationState] = useState<LocationState>('idle');
   const [coords, setCoords] = useState<{ latitude: number; longitude: number } | null>(null);
   const [manualLocation, setManualLocation] = useState('');
@@ -67,7 +70,7 @@ export default function Now() {
 
   async function search() {
     if (!canSearch || remainingMinutes === null) return;
-    setResult({ state: 'loading', candidates: [], weatherApplied: false, message: '지금 갈 수 있는 곳을 찾고 있어요.' });
+    setResult({ state: 'loading', candidates: [], weatherApplied: false, message: tx('지금 갈 수 있는 곳을 찾고 있어요.', 'Finding places you can go right now.') });
     setResult(await requestNowRecommendations({
       latitude: coords?.latitude ?? null,
       longitude: coords?.longitude ?? null,
@@ -79,49 +82,49 @@ export default function Now() {
   return (
     <Screen scroll>
       <View style={styles.header}>
-        <Pressable accessibilityRole="button" accessibilityLabel="뒤로 가기" onPress={() => router.canGoBack() ? router.back() : router.replace('/home')} style={styles.backButton}>
+        <Pressable accessibilityRole="button" accessibilityLabel={tx('뒤로 가기', 'Go back')} onPress={() => router.canGoBack() ? router.back() : router.replace('/home')} style={styles.backButton}>
           <Text variant="title">‹</Text>
         </Pressable>
-        <Text variant="title" weight="bold">지금 갈 곳</Text>
+        <Text variant="title" weight="bold">{tx('지금 갈 곳', 'Places nearby now')}</Text>
         <View style={styles.headerSpacer} />
       </View>
-      <Text variant="body" color={color.text.muted} style={styles.intro}>남는 시간에 지금 갈 수 있는 곳을 바로 찾아드려요.</Text>
+      <Text variant="body" color={color.text.muted} style={styles.intro}>{tx('남는 시간에 지금 갈 수 있는 곳을 바로 찾아드려요.', 'We find places you can visit right now, in the time you have.')}</Text>
 
       <View style={styles.section}>
-        <Text variant="body" weight="bold">출발 위치</Text>
+        <Text variant="body" weight="bold">{tx('출발 위치', 'Starting point')}</Text>
         {locationState === 'granted' && coords ? (
           <View style={styles.locationDone}>
-            <Text variant="body" color={color.state.success}>현재 위치를 사용해요</Text>
+            <Text variant="body" color={color.state.success}>{tx('현재 위치를 사용해요', 'Using your current location')}</Text>
             <Pressable accessibilityRole="button" onPress={() => { setLocationState('idle'); setCoords(null); }}>
-              <Text variant="caption" weight="bold" color={color.brand.navy}>직접 입력으로 바꾸기</Text>
+              <Text variant="caption" weight="bold" color={color.brand.navy}>{tx('직접 입력으로 바꾸기', 'Switch to manual entry')}</Text>
             </Pressable>
           </View>
         ) : (
           <>
             <Button
-              label={locationState === 'detecting' ? '위치 확인 중…' : '현재 위치 사용'}
+              label={locationState === 'detecting' ? tx('위치 확인 중…', 'Checking location…') : tx('현재 위치 사용', 'Use current location')}
               variant="secondary"
               disabled={locationState === 'detecting'}
               onPress={() => void detectLocation()}
               containerStyle={styles.locationButton}
             />
             {locationState === 'denied' && (
-              <Text variant="caption" color={color.state.danger}>위치 권한이 꺼져 있어요. 출발 위치를 직접 입력해 주세요.</Text>
+              <Text variant="caption" color={color.state.danger}>{tx('위치 권한이 꺼져 있어요. 출발 위치를 직접 입력해 주세요.', 'Location permission is off. Please enter your starting point manually.')}</Text>
             )}
             <TextInput
               value={manualLocation}
               onChangeText={setManualLocation}
-              placeholder="예: 해운대역, OO 호텔"
+              placeholder={tx('예: 해운대역, OO 호텔', 'e.g. Haeundae Station, OO Hotel')}
               placeholderTextColor={color.text.muted}
               style={styles.input}
-              accessibilityLabel="출발 위치 직접 입력"
+              accessibilityLabel={tx('출발 위치 직접 입력', 'Enter starting point manually')}
             />
           </>
         )}
       </View>
 
       <View style={styles.section}>
-        <Text variant="body" weight="bold">남는 시간</Text>
+        <Text variant="body" weight="bold">{tx('남는 시간', 'Time available')}</Text>
         <View style={styles.chipRow}>
           {REMAINING_OPTIONS.map((minutes) => (
             <Pressable
@@ -131,29 +134,29 @@ export default function Now() {
               onPress={() => setRemainingMinutes(minutes)}
               style={[styles.chip, remainingMinutes === minutes && styles.chipSelected]}
             >
-              <Text variant="caption" weight="bold" color={remainingMinutes === minutes ? color.text.onAction : color.text.body}>{minutes}분</Text>
+              <Text variant="caption" weight="bold" color={remainingMinutes === minutes ? color.text.onAction : color.text.body}>{tx(`${minutes}분`, `${minutes} min`)}</Text>
             </Pressable>
           ))}
         </View>
       </View>
 
-      <Button label="지금 갈 곳 찾기" disabled={!canSearch || result.state === 'loading'} onPress={() => void search()} containerStyle={styles.searchButton} />
+      <Button label={tx('지금 갈 곳 찾기', 'Find a place now')} disabled={!canSearch || result.state === 'loading'} onPress={() => void search()} containerStyle={styles.searchButton} />
 
       {result.state === 'loading' && (
         <View style={styles.stateCard}><ActivityIndicator color={color.brand.navy} /><Text color={color.text.body}>{result.message}</Text></View>
       )}
       {result.state === 'unavailable' && (
-        <View style={styles.stateCard}><Text variant="title" weight="bold">아직 연결되지 않았어요</Text><Text color={color.text.body}>{result.message}</Text></View>
+        <View style={styles.stateCard}><Text variant="title" weight="bold">{tx('아직 연결되지 않았어요', 'Not connected yet')}</Text><Text color={color.text.body}>{result.message}</Text></View>
       )}
       {(result.state === 'error' || result.state === 'offline') && (
         <View style={styles.stateCard}>
-          <Text variant="title" weight="bold">{result.state === 'offline' ? '인터넷 연결을 확인해 주세요' : '지금 갈 곳을 찾지 못했어요'}</Text>
+          <Text variant="title" weight="bold">{result.state === 'offline' ? tx('인터넷 연결을 확인해 주세요', 'Please check your internet connection') : tx('지금 갈 곳을 찾지 못했어요', 'Could not find a place to go now')}</Text>
           <Text color={color.text.body}>{result.message}</Text>
-          <Button label="다시 시도" variant="ghost" onPress={() => void search()} />
+          <Button label={tx('다시 시도', 'Try again')} variant="ghost" onPress={() => void search()} />
         </View>
       )}
       {result.state === 'empty' && (
-        <View style={styles.stateCard}><Text variant="title" weight="bold">갈 만한 곳을 찾지 못했어요</Text><Text color={color.text.body}>{result.message}</Text></View>
+        <View style={styles.stateCard}><Text variant="title" weight="bold">{tx('갈 만한 곳을 찾지 못했어요', 'No suitable place found')}</Text><Text color={color.text.body}>{result.message}</Text></View>
       )}
       {(result.state === 'success' || result.state === 'partial') && (
         <View style={styles.results}>

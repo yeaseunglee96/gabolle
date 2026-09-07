@@ -5,6 +5,7 @@ const configuredTimeout = Number(process.env.EXPO_PUBLIC_API_TIMEOUT_MS ?? 12000
 const API_TIMEOUT_MS = Number.isFinite(configuredTimeout) && configuredTimeout > 0 ? configuredTimeout : 12000;
 let apiLanguage: 'ko' | 'en' = 'ko';
 export function setApiLanguage(language: 'ko' | 'en') { apiLanguage = language; }
+export function getApiLanguage() { return apiLanguage; }
 
 type ApiEnvelope<T> = {
   data: T | null;
