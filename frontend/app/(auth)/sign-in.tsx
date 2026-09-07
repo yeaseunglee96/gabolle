@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ActivityIndicator, Image, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { useLocalSearchParams, useRouter, type Href } from 'expo-router';
 import { ApiClientError } from '@/api/client';
 import { useAuth } from '@/auth/AuthProvider';
 import { loginWithOAuth } from '@/auth/oauth';
 import type { OAuthProvider } from '@/auth/authApi';
+import { consumePendingReturnTo, isSafeReturnPath, savePendingReturnTo } from '@/auth/pendingReturnTo';
 import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
 import { Screen } from '@/components/Screen';
@@ -14,7 +15,13 @@ import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { useLayout } from '@/layout/useLayout';
 
-function safeReturnTo(value?: string): Href { return !value || !value.startsWith('/') || value.startsWith('//') || value.includes('://') || value.startsWith('/sign-in') ? '/me' : value as Href; }
+// URL 의 returnTo 가 있으면 그걸 쓰고, 없으면(회원가입 뒤 이메일 인증처럼 앱을 벗어났다
+// 돌아온 경우) 저장해 둔 값으로 대신한다 — pendingReturnTo.ts 참고.
+async function resolveDestination(returnTo?: string): Promise<Href> {
+  if (isSafeReturnPath(returnTo)) return returnTo as Href;
+  const pending = await consumePendingReturnTo();
+  return (pending ?? '/me') as Href;
+}
 function errorMessage(cause: unknown, tx: (ko: string, en: string) => string) {
   if (cause instanceof ApiClientError && cause.status === 429) return tx('요청이 너무 많아요. 잠시 후 다시 시도해 주세요.', 'Too many attempts. Please try again shortly.');
   if (cause instanceof ApiClientError && cause.code === 'EMAIL_NOT_VERIFIED') return tx('이메일 인증을 마친 뒤 로그인해 주세요.', 'Verify your email before signing in.');
@@ -28,7 +35,8 @@ export default function SignIn() {
   const [email, setEmail] = useState(''); const [password, setPassword] = useState(''); const [show, setShow] = useState(false);
   const [busy, setBusy] = useState(false); const [provider, setProvider] = useState<OAuthProvider | null>(null); const [feedback, setFeedback] = useState<{ danger: boolean; text: string } | null>(passwordReset === 'success' ? { danger: false, text: tx('비밀번호가 변경됐어요. 새 비밀번호로 로그인해 주세요.', 'Your password was changed. Sign in with your new password.') } : null);
   const eligible = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()) && password.length > 0;
-  async function submit() { if (!eligible || busy || provider) return; setBusy(true); setFeedback(null); try { await signIn(email, password); router.replace(safeReturnTo(returnTo)); } catch (e) { setFeedback({ danger: true, text: errorMessage(e, tx) }); } finally { setBusy(false); } }
+  useEffect(() => { void savePendingReturnTo(returnTo); }, [returnTo]);
+  async function submit() { if (!eligible || busy || provider) return; setBusy(true); setFeedback(null); try { await signIn(email, password); router.replace(await resolveDestination(returnTo)); } catch (e) { setFeedback({ danger: true, text: errorMessage(e, tx) }); } finally { setBusy(false); } }
   async function social(next: OAuthProvider) {
     if (busy || provider) return;
     setProvider(next);
@@ -37,7 +45,7 @@ export default function SignIn() {
       const result = await loginWithOAuth(next);
       if (result.status === 'LOGGED_IN') {
         await acceptTokens(result);
-        router.replace(safeReturnTo(returnTo));
+        router.replace(await resolveDestination(returnTo));
       } else if (result.status === 'SIGNUP_REQUIRED') {
         router.push({
           pathname: '/oauth-signup',

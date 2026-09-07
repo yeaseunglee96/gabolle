@@ -10,6 +10,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ApiClientError } from '@/api/client';
 import { useAuth } from '@/auth/AuthProvider';
 import { completeOAuthSignup, type OAuthLinkRequiredResult, type OAuthProvider, type SignupLanguage } from '@/auth/authApi';
+import { consumePendingReturnTo, isSafeReturnPath } from '@/auth/pendingReturnTo';
 import { BrandLogoLink } from '@/components/BrandLogoLink';
 import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
@@ -18,7 +19,10 @@ import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 
-function safeReturnTo(value?: string) { return !value || !value.startsWith('/') || value.startsWith('//') || value.includes('://') ? '/me' : value; }
+async function resolveDestination(returnTo?: string) {
+  if (isSafeReturnPath(returnTo)) return returnTo;
+  return (await consumePendingReturnTo()) ?? '/me';
+}
 
 export default function OAuthSignup() {
   const router = useRouter();
@@ -54,7 +58,7 @@ export default function OAuthSignup() {
         privacyAccepted,
       });
       await acceptTokens(result);
-      router.replace(safeReturnTo(params.returnTo) as never);
+      router.replace((await resolveDestination(params.returnTo)) as never);
     } catch (cause) {
       if (cause instanceof ApiClientError && cause.code === 'OAUTH_TICKET_INVALID') {
         setExpired(true);

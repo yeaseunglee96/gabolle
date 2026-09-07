@@ -1,9 +1,10 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { ApiClientError } from '@/api/client';
 import { resendEmailVerification, signup, type Registration, type SignupLanguage } from '@/auth/authApi';
+import { savePendingReturnTo } from '@/auth/pendingReturnTo';
 import { Card } from '@/components/Card';
 import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
@@ -38,6 +39,7 @@ export default function SignUp() {
   const [registration, setRegistration] = useState<Registration | null>(null);
   const [resending, setResending] = useState(false);
   const [resent, setResent] = useState(false);
+  useEffect(() => { void savePendingReturnTo(returnTo); }, [returnTo]);
 
   const passwordChecks = useMemo(() => ({
     length: password.length >= 8 && password.length <= 64,
