@@ -7,6 +7,7 @@ import java.util.UUID;
 import com.gabolle.backend.recommendation.domain.FallbackMode;
 import com.gabolle.backend.recommendation.domain.JobStatus;
 import com.gabolle.backend.recommendation.domain.JobType;
+import com.gabolle.backend.recommendation.domain.SourceMode;
 
 /**
  * 추천 결과 — <b>응용 계층 내부용</b>이다.
@@ -30,6 +31,12 @@ import com.gabolle.backend.recommendation.domain.JobType;
  * @param returnedCandidateCount 실제로 반환된 후보 수
  * @param fallbackMode 무엇이 순위를 매겼는가
  * @param fallbackReason 정상 경로를 못 쓴 이유
+ * @param sourceMode 개인화 추천인가 Editor's Pick 인가 (S15P21E201-555). 🔴
+ *     {@code fallbackMode} 와 다른 질문에 답한다 — 자세한 것은 {@link SourceMode}.
+ *     <b>공개 응답에는 나가지 않는다</b>: {@code RecommendationResultResponse} 는 "필드를
+ *     추가·삭제하지 않는다" 를 원칙으로 두고 있고, -555 의 완료 기준도 "<b>분석에서</b>
+ *     구분할 수 있다" 라서 {@code recommendation_job}·{@code recommendation_candidate} 의
+ *     {@code source_mode} 칸으로 충족된다. 화면이 이 값을 요청하면 그때 넣는다
  */
 public record RecommendationResult(
 		UUID requestId,
@@ -43,6 +50,7 @@ public record RecommendationResult(
 		int returnedCandidateCount,
 		FallbackMode fallbackMode,
 		String fallbackReason,
+		SourceMode sourceMode,
 		String modelVersion,
 		String featureVersion,
 		String ontologyVersion,

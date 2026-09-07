@@ -56,6 +56,19 @@ public final class RecommendationCodes {
 	public static final String WARNING_SCORE_MISSING = "SCORE_MISSING";
 
 	/**
+	 * 보행 한도를 확인하지 못했다 (S15P21E201-555).
+	 *
+	 * <p>🔴 Editor's Pick 기준선에만 붙는다. {@code MAX_WALKING_METERS} 판정은 출발지에서의
+	 * 거리를 봐야 하는데, Pick 은 편집자가 고른 코스라 "출발지에서 몇 m" 라는 값이 없다.
+	 * 거리를 0 으로 채워 넣으면 한도를 설정한 사용자에게 <b>경고가 조용히 사라진다</b> —
+	 * 통과했다는 뜻이 되기 때문이다. 그래서 판정을 건너뛰고 건너뛴 사실을 남긴다.
+	 */
+	public static final String WARNING_WALKING_LIMIT_NOT_CHECKED = "WALKING_LIMIT_NOT_CHECKED";
+
+	/** 이 후보가 편집자가 고른 목록에서 왔다 (S15P21E201-555). */
+	public static final String REASON_EDITORIAL_PICK = "EDITORIAL_PICK";
+
+	/**
 	 * 반환할 후보가 하나도 없다. GB-API-001 5장의 오류 코드이며 공개 API 는 <b>422</b> 로 낸다.
 	 *
 	 * <p>🔴 이때 하드 제약을 자동으로 완화해 억지로 결과를 만들지 않는다. 알레르기 조건을
