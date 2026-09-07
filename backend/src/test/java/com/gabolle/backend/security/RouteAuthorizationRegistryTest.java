@@ -55,6 +55,9 @@ import org.springframework.web.bind.annotation.RestController;
  *   <li>{@code OTHER_USER_OK} — 남의 자원을 보는 것이 <b>기능 자체</b>다(프로필 보기, 팔로우).
  *       여기서 위험은 거부되지 않는 것이 아니라 <b>보여선 안 될 것이 섞이는 것</b>이다</li>
  *   <li>{@code AUTHENTICATED_ONLY} — 로그인만 하면 누구나 같은 답을 받는다. 자원에 주인이 없다</li>
+ *   <li>🔴 {@code ADMIN_ONLY} — 운영자만. 자원의 주인이 <b>요청자가 아닌</b> 유일한 갈래다.
+ *       나머지 다섯은 "내 것인가" 를 묻는데 이것은 "너는 운영자인가" 를 묻는다. 그래서
+ *       {@code OWNED} 로 분류하면 안 된다 — 남의 것을 다루는 것이 기능이기 때문이다</li>
  * </ul>
  *
  * <p>🔴 이 표는 <b>정책이 실제로 지켜지는지</b>를 재지 않는다. 그건 표의 두 번째 칸이 가리키는
@@ -67,7 +70,7 @@ class RouteAuthorizationRegistryTest {
 
 	enum Policy {
 
-		PRE_AUTH, PUBLIC_TOKEN, OWNED, OTHER_USER_OK, AUTHENTICATED_ONLY
+		PRE_AUTH, PUBLIC_TOKEN, OWNED, OTHER_USER_OK, AUTHENTICATED_ONLY, ADMIN_ONLY
 	}
 
 	private static final Map<String, Map.Entry<Policy, String>> POLICY = policies();
@@ -128,6 +131,19 @@ class RouteAuthorizationRegistryTest {
 		assertThat(routesWith(Policy.PUBLIC_TOKEN)).containsExactlyInAnyOrder(
 				"GET /api/v1/shares/{}",
 				"GET /api/v1/uploads/images/{}");
+	}
+
+	@Test
+	@DisplayName("🔴 운영자 경로가 모두 /api/v1/admin/ 아래에 있다 — 경로 규칙 하나로 막기 때문이다")
+	void adminRoutesLiveUnderTheAdminPrefix() {
+		// 🔴 이 저장소는 메서드 보안(@EnableMethodSecurity)이 꺼져 있어서 @PreAuthorize 가
+		//    조용히 무시된다. 그래서 운영자 인가는 SecurityConfig 의
+		//    "/api/v1/admin/**" → hasRole("ADMIN") 경로 규칙 하나가 전부 담당한다.
+		//    그 아래에 없는 운영자 경로는 <b>아무도 막지 않는다.</b>
+		assertThat(routesWith(Policy.ADMIN_ONLY))
+				.isNotEmpty()
+				.allSatisfy(route -> assertThat(route)
+						.contains(" /api/v1/admin/"));
 	}
 
 	@Test
@@ -432,6 +448,24 @@ class RouteAuthorizationRegistryTest {
 				"남을 팔로우하는 것이 기능이다. 주체는 인증에서만 읽어 남의 이름으로 팔로우할 수 없다. FollowIntegrationTest");
 		put(m, "DELETE /api/v1/users/{}/follow", Policy.OTHER_USER_OK,
 				"언팔로우도 같다. 주체는 인증에서만 읽는다. FollowIntegrationTest");
+
+		// ── 신고와 검토 (-254 · -267) ────────────────────────────────────────────
+		put(m, "POST /api/v1/stories/{}/reports", Policy.OTHER_USER_OK,
+				"남의 기록에 신고를 거는 것이 기능이다. 안 보이는 기록은 존재를 감춘 404. 중복 신고는 조용히 성공한다(남의 신고 여부를 흘리지 않기 위해). StoryReportFilingIntegrationTest");
+		put(m, "GET /api/v1/admin/story-reports", Policy.ADMIN_ONLY,
+				"검토 큐. SecurityConfig 의 /api/v1/admin/** → hasRole(ADMIN) 이 막는다. AdminModerationAuthorizationIntegrationTest");
+		put(m, "POST /api/v1/admin/story-reports/{}/remove", Policy.ADMIN_ONLY,
+				"운영자 삭제. 같은 경로 규칙이 막는다. AdminModerationQueueIntegrationTest");
+		put(m, "POST /api/v1/admin/story-reports/{}/dismiss", Policy.ADMIN_ONLY,
+				"운영자 기각. 같은 경로 규칙이 막는다. AdminModerationQueueIntegrationTest");
+
+		// ── 방문 인증과 리뷰 (-279 · -287 · -408) ─────────────────────────────────
+		put(m, "POST /api/v1/places/{}/visit-verifications", Policy.AUTHENTICATED_ONLY,
+				"주체를 인증에서만 읽고 좌표는 저장하지 않으므로 남의 인증을 대신 만들 자리가 없다. VisitVerificationIntegrationTest");
+		put(m, "POST /api/v1/places/{}/reviews", Policy.AUTHENTICATED_ONLY,
+				"본문에 사용자도 인증 여부도 받지 않는다 — 서버가 인증 기록을 조회해 정하므로 남의 리뷰를 쓸 수 없다. PlaceReviewIntegrationTest");
+		put(m, "GET /api/v1/places/{}/reviews", Policy.AUTHENTICATED_ONLY,
+				"장소 하나의 목록이라 주인이 없다. 인증·미인증을 다 보여주고 평균은 인증된 것만으로 낸다. PlaceReviewIntegrationTest");
 
 		// ── 업로드 ──────────────────────────────────────────────────────────────
 		put(m, "POST /api/v1/uploads/story-image", Policy.AUTHENTICATED_ONLY,

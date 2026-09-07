@@ -130,10 +130,20 @@ public class StoryService {
 		return this.assembler.one(story, authorUserId, now);
 	}
 
+	/**
+	 * 🔴 S15P21E201-254 — {@code findVisibleById} 를 쓴다({@code findActiveById} 가 아니다). 신고를
+	 * 받으면 상세에서도 즉시 사라져야 하는데, 그 조건({@code moderation_state = 'VISIBLE'})은 여기서만
+	 * 걸어야 한다 — {@link #requireAuthor}(수정·삭제 경로)까지 같이 걸면 작성자가 신고당한 자기
+	 * 기록을 고치거나 지울 수 없게 된다({@code StoryRepository.findActiveById} 주석 참고).
+	 */
 	@Transactional(readOnly = true)
 	public StoryResponse get(UUID storyId, UUID viewer) {
 		Instant now = this.clock.instant();
-		Story story = requireVisible(storyId, viewer, now);
+		Story story = this.storyRepository.findVisibleById(storyId)
+				.orElseThrow(() -> new StoryNotFoundException(storyId));
+		if (!canView(story, viewer, now)) {
+			throw new StoryNotFoundException(storyId);
+		}
 		return this.assembler.one(story, viewer, now);
 	}
 
