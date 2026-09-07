@@ -12,6 +12,7 @@ import com.gabolle.backend.place.api.PlaceFeatureView;
 import com.gabolle.backend.place.domain.MatchKind;
 import com.gabolle.backend.place.domain.UserPlaceCodeMap;
 import com.gabolle.backend.recommendation.config.BaselineEngineProperties;
+import com.gabolle.backend.recommendation.config.PreferenceAlignmentWeights;
 import com.gabolle.backend.recommendation.domain.ConstraintVerdict;
 import com.gabolle.backend.trip.domain.PersonalizationScope;
 import com.gabolle.backend.trip.domain.PreferenceSnapshot;
@@ -35,6 +36,13 @@ class BaselineCandidateScorerTest {
 
 	private static final BaselineEngineProperties.Weights WEIGHTS =
 			new BaselineEngineProperties.Weights(0.30, 0.20, 0.15, 0.15, 0.10, 0.10);
+
+	/**
+	 * 취향 다섯 차원의 비율 — 전부 기본값(1.0)이다. 비율이 같으면 가중평균은 단순평균과
+	 * 같은 값이라, 아래 기대값들은 S15P21E201-547 이전과 그대로다.
+	 */
+	private static final PreferenceAlignmentWeights ALIGNMENT_WEIGHTS =
+			new PreferenceAlignmentWeights(null, null, null, null, null);
 
 	private final BaselineCandidateScorer scorer = new BaselineCandidateScorer(new ObjectMapper());
 
@@ -254,6 +262,7 @@ class BaselineCandidateScorerTest {
 				candidate(List.of(tag("ALLERGEN_TAG", "PEANUT", "VERIFIED", "false")));
 
 		EngineCandidate result = this.scorer.score(candidate, null, List.of(peanutAllergy), RADIUS_M, WEIGHTS,
+				ALIGNMENT_WEIGHTS,
 				this.preferenceCodeMap, List.of());
 
 		assertThat(result.constraintVerdict()).isEqualTo(ConstraintVerdict.UNKNOWN);
@@ -265,7 +274,8 @@ class BaselineCandidateScorerTest {
 
 	private EngineCandidate score(PlaceCandidateResponse.Candidate candidate, PreferenceSnapshot snapshot,
 			List<TripConstraint> constraints) {
-		return this.scorer.score(candidate, snapshot, constraints, RADIUS_M, WEIGHTS, this.preferenceCodeMap,
+		return this.scorer.score(candidate, snapshot, constraints, RADIUS_M, WEIGHTS, ALIGNMENT_WEIGHTS,
+				this.preferenceCodeMap,
 				this.constraintCodeMap);
 	}
 

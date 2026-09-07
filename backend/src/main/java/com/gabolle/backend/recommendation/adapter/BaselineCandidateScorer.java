@@ -18,6 +18,7 @@ import com.gabolle.backend.place.domain.FeaturePresence;
 import com.gabolle.backend.place.domain.MatchKind;
 import com.gabolle.backend.place.domain.UserPlaceCodeMap;
 import com.gabolle.backend.recommendation.config.BaselineEngineProperties;
+import com.gabolle.backend.recommendation.config.PreferenceAlignmentWeights;
 import com.gabolle.backend.recommendation.domain.ConstraintVerdict;
 import com.gabolle.backend.trip.domain.PreferenceSnapshot;
 import com.gabolle.backend.trip.domain.TripConstraint;
@@ -58,6 +59,10 @@ public class BaselineCandidateScorer {
 	}
 
 	/**
+	 * @param alignmentWeights 점수형 취향 다섯 차원이 {@code weights.preferenceAlignment} 를
+	 *     나누는 비율 (S15P21E201-547). 🔴 빈으로 주입받지 않고 <b>인수로 받는다</b> —
+	 *     {@code weights} 를 인수로 받는 것과 같은 이유다. 한 요청 안에서 설정이 다른 두 벌로
+	 *     같은 후보를 채점해 견주는 것(S15P21E201-560 벤치마크)이 생성자 주입이면 불가능하다
 	 * @param preferenceCodeMap {@code user_place_code_map} 의 {@code PREFERENCE} 행 전부
 	 * @param constraintCodeMap {@code user_place_code_map} 의 {@code CONSTRAINT} 행 전부.
 	 *     {@code MOBILITY} 는 {@code ACCESSIBILITY_TAG}(HARD_FILTER)·{@code STAIRS_PRESENT}
@@ -65,7 +70,7 @@ public class BaselineCandidateScorer {
 	 */
 	public EngineCandidate score(PlaceCandidateResponse.Candidate candidate,
 			PreferenceSnapshot preferenceSnapshot, List<TripConstraint> constraints, int radiusM,
-			BaselineEngineProperties.Weights weights,
+			BaselineEngineProperties.Weights weights, PreferenceAlignmentWeights alignmentWeights,
 			List<UserPlaceCodeMap> preferenceCodeMap, List<UserPlaceCodeMap> constraintCodeMap) {
 
 		List<Map<String, Object>> violations = new ArrayList<>();
@@ -110,6 +115,12 @@ public class BaselineCandidateScorer {
 				featureValues, scoreComponents, reasonCodes);
 
 		// ── 점수형 선호 다섯 — LOCALITY·QUIETNESS·TOURIST_PREFERENCE·SHADE_PREFERENCE·SLOPE_PREFERENCE
+		//
+		// 🔴 이 다섯은 weights.preferenceAlignment(기본 0.10) 하나를 나눠 쓴다. 나누는 방식이
+		//    단순 평균이었다가 가중 평균으로 바뀌었다(S15P21E201-547) — 단순 평균이면 다섯이
+		//    서로를 희석해서, 사용자가 가장 강하게 답한 축조차 총점에 0.10 ÷ 5 = 0.02 밖에
+		//    기여하지 못했다. 거리(0.30)가 그것을 덮는다. 비율과 계산은 모두
+		//    PreferenceAlignmentWeights 에 있다.
 		Map<String, Double> alignments = new LinkedHashMap<>();
 		applyAlignmentDimension(candidate, preferenceSnapshot, preferenceCodeMap, "LOCALITY", "localityScore",
 				false, featureValues, alignments, reasonCodes);
@@ -124,10 +135,13 @@ public class BaselineCandidateScorer {
 		applyAlignmentDimension(candidate, preferenceSnapshot, preferenceCodeMap, "SLOPE_PREFERENCE", "slopePercent",
 				true, featureValues, alignments, reasonCodes);
 
-		Double alignmentAverage = alignments.isEmpty() ? null
-				: alignments.values().stream().mapToDouble(Double::doubleValue).average().orElse(0.0);
-		scoreComponents.put("preferenceAlignment",
-				componentDetail(weights.preferenceAlignment(), alignmentAverage, Map.of("dimensions", alignments)));
+		Double alignmentAverage = alignmentWeights.weightedAverage(alignments);
+		// 🔴 dimensions 옆에 dimensionWeights 를 같이 남긴다. 정렬도만 남기면 "이 장소가 왜 이
+		//    순위인가" 를 되짚을 때 어느 축이 얼마나 셌는지를 알 수 없다 — 설정을 바꿔 실험하는
+		//    쪽에서는 그 두 값이 함께 있어야 결과를 읽는다. S15P21E201-548(추천 이유 코드)이
+		//    읽을 자리이기도 하다.
+		scoreComponents.put("preferenceAlignment", componentDetail(weights.preferenceAlignment(), alignmentAverage,
+				Map.of("dimensions", alignments, "dimensionWeights", alignmentWeights.weightsUsed(alignments))));
 		if (alignmentAverage != null) {
 			total += weights.preferenceAlignment() * alignmentAverage;
 		}
