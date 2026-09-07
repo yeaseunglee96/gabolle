@@ -48,18 +48,29 @@ public class LoginAttemptGuard {
 	}
 
 	/**
-	 * 실패를 한 번 세고, 정해진 횟수에 닿았으면 잠근다.
+	 * 실패를 한 번 세고, 정해진 횟수에 닿았으면 잠근다. 이번 실패까지 포함한 연속 실패 횟수(1부터
+	 * 시작)를 돌려준다 — S15P21E201-682 가 이 값을 로그의 {@code attempts} 에 싣는다.
 	 *
 	 * <p>바깥 트랜잭션의 엔티티를 쓰지 않고 아이디로 다시 읽는다. 새 트랜잭션은 자기만의 영속성
 	 * 컨텍스트(**한 트랜잭션이 읽어 둔 엔티티를 담는 곳**)를 갖기 때문이다.
 	 *
-	 * <p>계정이 그 사이 사라졌으면 아무 일도 하지 않는다. 없는 계정을 세느라 로그인 응답을 실패로
-	 * 바꾸지 않는다.
+	 * <p>계정이 그 사이 사라졌으면 아무 일도 하지 않고 0을 돌려준다. 없는 계정을 세느라 로그인
+	 * 응답을 실패로 바꾸지 않는다.
+	 *
+	 * <p>🔴 반환값을 {@code credential.recordFailedLogin} 호출 <b>전에</b> 미리 계산한다. 그 메서드는
+	 * 임계치에 닿으면 잠그면서 내부 카운터를 곧바로 0으로 되돌리므로(잠금 풀린 직후 한 번만 더
+	 * 틀려도 재잠기는 것을 막기 위해서다 — {@link LocalCredential#recordFailedLogin} 의 주석 참고),
+	 * 호출 뒤에 다시 읽으면 5번째 실패인데도 0이 나온다. "다섯 번째 줄의 attempts가 5" 라는 완료
+	 * 기준을 지키려면 되돌려지기 전 값을 붙잡아야 한다.
 	 */
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
-	public void recordFailure(UUID credentialId, Instant now) {
-		this.credentialRepository.findById(credentialId).ifPresent(credential -> credential.recordFailedLogin(
-				now, this.properties.getLoginFailureThreshold(), this.properties.getLoginLockoutDuration()));
+	public int recordFailure(UUID credentialId, Instant now) {
+		return this.credentialRepository.findById(credentialId).map(credential -> {
+			int attempts = credential.getFailedLoginAttempts() + 1;
+			credential.recordFailedLogin(now, this.properties.getLoginFailureThreshold(),
+					this.properties.getLoginLockoutDuration());
+			return attempts;
+		}).orElse(0);
 	}
 
 	/**

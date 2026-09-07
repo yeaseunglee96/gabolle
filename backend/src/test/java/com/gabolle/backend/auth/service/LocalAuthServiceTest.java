@@ -13,6 +13,7 @@ import com.gabolle.backend.auth.domain.AuthTokenPurpose;
 import com.gabolle.backend.auth.domain.LocalCredential;
 import com.gabolle.backend.auth.repository.AuthOneTimeTokenRepository;
 import com.gabolle.backend.auth.repository.LocalCredentialRepository;
+import com.gabolle.backend.common.security.SecurityEventLogger;
 import com.gabolle.backend.user.domain.AppUser;
 import com.gabolle.backend.user.domain.PersonalizationMode;
 import com.gabolle.backend.user.domain.UserStatus;
@@ -57,6 +58,11 @@ class LocalAuthServiceTest {
 
 	@Mock private LoginAttemptGuard loginAttemptGuard;
 
+	// S15P21E201-682 — LocalAuthService 가 로그인 실패·잠금을 구조화된 로그로 남기도록 이 의존성이
+	// 추가됐다. 로깅 자체는 SecurityEventLoggerTest 등 common/security 쪽 테스트가 검증하므로
+	// 여기서는 생성자 호출을 컴파일되게 유지하는 목적의 mock 이다.
+	@Mock private SecurityEventLogger securityEventLogger;
+
 	private LocalAuthService service;
 
 	@BeforeEach
@@ -64,7 +70,7 @@ class LocalAuthServiceTest {
 		AuthProperties properties = new AuthProperties();
 		service = new LocalAuthService(userRepository, consentRepository, credentialRepository, oneTimeTokenRepository, passwordEncoder,
 				new SessionTokenGenerator(), authTokenService, emailSender, properties,
-				new ConsentPolicy(), loginAttemptGuard,
+				new ConsentPolicy(), loginAttemptGuard, securityEventLogger,
 				Clock.fixed(Instant.parse("2026-01-01T00:00:00Z"), ZoneOffset.UTC));
 	}
 
