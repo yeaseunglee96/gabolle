@@ -1,6 +1,5 @@
 package com.gabolle.backend.auth.api;
 
-import com.gabolle.backend.auth.service.AuthException;
 import com.gabolle.backend.common.api.ApiError;
 import com.gabolle.backend.common.api.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
@@ -15,16 +14,27 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@RestControllerAdvice
+/**
+ * auth 컨트롤러({@link AuthController}·{@link EmailVerificationLinkController})만의 오류 번역.
+ *
+ * <p>🔴 2026-09-07 (S15P21E201-294) — {@code assignableTypes} 를 준다. 예전에는 스코프가
+ * 없어서 <b>이 클래스가 사실상 앱 전역 예외 처리기</b>였다. {@code @ExceptionHandler(Exception.class)}
+ * 캐치올이 다른 도메인(예: {@code RecommendationJobController})이 자기 컨트롤러 전용으로
+ * 등록해 둔 더 구체적인 핸들러를 <b>가로챘다</b> — Spring 은 여러 {@code @ControllerAdvice} 빈
+ * 사이에서 "가장 구체적인 타입" 을 전역으로 찾지 않고, 적용 가능한 advice 빈을 먼저 정한 뒤
+ * 그 안에서만 타입을 맞춘다. 스코프 없는 이 advice 가 모든 컨트롤러에 "적용 가능"했으므로
+ * 다른 곳의 {@code IllegalStateException} 핸들러가 아예 시도되지도 않고 여기 {@code
+ * handleUnexpected} 로 떨어져 500 이 났다(이예승 님이 운영 로그로 확정, S15P21E201-294).
+ *
+ * <p>{@code AuthException} 은 이 클래스에서 뺐다 — 다른 도메인들이({@code
+ * common.security.AuthenticatedUsers} 경유) 그 예외를 공용으로 던진다. 그건
+ * {@link com.gabolle.backend.common.security.GlobalAuthExceptionHandler}(진짜 전역, 캐치올
+ * 없음)가 대신 맡는다.
+ */
+@RestControllerAdvice(assignableTypes = { AuthController.class, EmailVerificationLinkController.class })
 public class AuthExceptionHandler {
 
 	private static final Logger log = LoggerFactory.getLogger(AuthExceptionHandler.class);
-
-	@ExceptionHandler(AuthException.class)
-	public ResponseEntity<ApiResponse<Void>> handleAuth(AuthException exception, HttpServletRequest request) {
-		return ResponseEntity.status(exception.getStatus()).body(ApiResponse.failure(
-				new ApiError(exception.getCode(), exception.getMessage()), requestId(request)));
-	}
 
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	public ResponseEntity<ApiResponse<Void>> handleValidation(MethodArgumentNotValidException exception,
