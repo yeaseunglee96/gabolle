@@ -59,6 +59,18 @@ public record ItineraryDetailResponse(
 			Integer walkingMeters,
 			boolean locked,
 			/** {@code VERIFIED} · {@code ESTIMATED} · {@code UNKNOWN}. */
-			String dataStatus) {
+			String dataStatus,
+
+			/**
+			 * 2026-09-07 추가 — S15P21E201-293. <b>실제로</b> 도착한 시각이다.
+			 * {@code startsAt}(계획)과 다른 사실이라 그 칸을 덮어쓰지 않고 자리를 따로 둔다.
+			 *
+			 * <p>기록이 없으면 {@code null} 이고 <b>그때도 이 칸은 응답에 있다.</b> 칸을 아예
+			 * 빼면 화면은 "아직 안 갔다" 와 "이 서버는 이 기능을 모른다" 를 구분할 수 없다.
+			 * 형식은 {@code startsAt} 과 같은 ISO-8601 + 시간대(Asia/Seoul)다.
+			 */
+			String actualArrivedAt,
+			/** 실제로 출발한 시각. 없으면 {@code null} — 도착만 적고 출발은 안 적을 수 있다. */
+			String actualDepartedAt) {
 	}
 }

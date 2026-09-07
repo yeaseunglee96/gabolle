@@ -418,6 +418,8 @@ class RouteAuthorizationRegistryTest {
 				"재계산 접수는 편집 권한자만. ItineraryRecalculationIntegrationTest");
 		put(m, "POST /api/v1/itineraries/{}/revert", Policy.OWNED,
 				"되돌리기는 편집 권한자만. ItineraryRevertIntegrationTest");
+		put(m, "PUT /api/v1/itineraries/{}/items/{}/actual", Policy.OWNED,
+				"그 여행의 편집자만 자기 일정의 방문 시각을 적는다 — 남의 여행은 존재를 감춘 404, VIEWER 는 403. ItineraryActualTimeIntegrationTest (-293)");
 
 		// ── 추천 작업 ────────────────────────────────────────────────────────────
 		put(m, "GET /api/v1/jobs/{}", Policy.OWNED,
