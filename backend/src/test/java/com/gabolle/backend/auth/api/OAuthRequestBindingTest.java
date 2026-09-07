@@ -22,6 +22,7 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import com.gabolle.backend.auth.service.AccountDeletionService;
 import com.gabolle.backend.auth.service.AuthException;
 import com.gabolle.backend.auth.service.AuthTokenService;
+import com.gabolle.backend.auth.service.ConsentUpdateService;
 import com.gabolle.backend.auth.service.CurrentUserService;
 import com.gabolle.backend.auth.service.LocalAuthService;
 import com.gabolle.backend.auth.service.OAuthAccountService;
@@ -58,7 +59,8 @@ class OAuthRequestBindingTest {
 		AuthController controller = new AuthController(mock(LocalAuthService.class), mock(PasswordResetService.class),
 				mock(AuthTokenService.class), mock(OAuthLoginService.class), mock(OAuthChallengeService.class),
 				mock(WebAuthCookieService.class), mock(CurrentUserService.class), mock(ProfileUpdateService.class),
-				mock(AccountDeletionService.class), this.accountService);
+				mock(AccountDeletionService.class), this.accountService,
+				mock(ConsentUpdateService.class));
 		LocalValidatorFactoryBean validator = new LocalValidatorFactoryBean();
 		validator.afterPropertiesSet();
 		// S15P21E201-682 — GlobalAuthExceptionHandler 가 SecurityEventLogger 를 필요로 하게 됐다.
