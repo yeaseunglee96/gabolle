@@ -134,8 +134,16 @@ public class LocalAuthService {
 
 	@Transactional
 	public AuthTokenService.IssuedTokens login(AuthCommands.Login command) {
-		LocalCredential credential = credentialRepository.findByEmail(normalizeEmail(command.email()))
-				.orElseThrow(this::invalidCredentials);
+		String normalizedEmail = normalizeEmail(command.email());
+		// 🔴 S15P21E201-722 — 가입되지 않은 이메일도 기록한다. 여기 로그가 없으면 유출 목록으로
+		//    넓게 뿌리는 공격이 통째로 안 보인다 — 시도 대부분이 이 경로로 들어온다.
+		//    응답은 아래 비밀번호 불일치와 <b>똑같은</b> 401 INVALID_CREDENTIALS 다. 그 이메일로
+		//    가입했는지를 응답으로 알려주지 않는 것이 의도이므로, 로그만 갈라지고 응답은 같다.
+		LocalCredential credential = credentialRepository.findByEmail(normalizedEmail)
+				.orElseThrow(() -> {
+					this.securityEventLogger.loginFailureForUnknownAccount(normalizedEmail);
+					return invalidCredentials();
+				});
 		Instant now = clock.instant();
 
 		// 🔴 비밀번호를 보기 전에 잠금부터 본다. 잠긴 동안에는 맞는 비밀번호도 거부한다 —

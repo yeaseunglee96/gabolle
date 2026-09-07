@@ -80,6 +80,29 @@ public class SecurityEventLogger {
 		this.alertNotifier.recordAndMaybeAlert(SecurityEvent.AUTH_LOGIN_FAILURE);
 	}
 
+	/**
+	 * 가입되지 않은 이메일로 로그인이 실패한 지점에서 남긴다 (S15P21E201-722).
+	 *
+	 * <h2>🔴 이것이 없으면 무차별 대입의 대부분이 안 보인다</h2>
+	 * 유출된 계정 목록을 들고 하는 공격은 우리에게 <b>없는 주소를 대량으로</b> 시도한다.
+	 * 맞히는 비율이 낮으니 시도 대부분이 이 경로로 들어오고, 여기에 로그가 없으면 급증 경보도
+	 * 안 울린다. 한 계정을 집중적으로 두드리는 공격은 실패 횟수가 쌓여 잠금까지 가므로 잡히지만,
+	 * <b>넓게 뿌리는 쪽</b>은 통째로 사각지대였다.
+	 *
+	 * <h2>{@code attempts} 를 안 싣는 이유</h2>
+	 * 실패 횟수는 {@code local_credential} 행에 센다. 계정이 없으면 셀 행이 없다. 없는 숫자를
+	 * {@code 0} 이나 {@code 1} 로 지어내면 로그를 세는 쪽이 "이 사람의 첫 실패" 로 잘못 읽는다.
+	 * 그래서 그 칸을 아예 안 싣고 {@code accountExists=false} 로 <b>왜 없는지</b>를 밝힌다.
+	 *
+	 * <p>이메일은 여전히 해시로 남긴다 — 같은 주소를 반복 시도하는 것과 여러 주소를 뿌리는 것을
+	 * 구분해야 하고, 그 구분이 이 로그의 유일한 값이다.
+	 */
+	public void loginFailureForUnknownAccount(String attemptedEmail) {
+		log.info("event={} emailHash={} remoteIp={} accountExists=false outcome=REJECTED",
+				SecurityEvent.AUTH_LOGIN_FAILURE, hashEmail(attemptedEmail), resolveRemoteIp());
+		this.alertNotifier.recordAndMaybeAlert(SecurityEvent.AUTH_LOGIN_FAILURE);
+	}
+
 	/** 방금 그 실패로 계정이 잠긴(임계치에 닿은) 판정 지점에서 남긴다. */
 	public void accountLocked(String email, int attempts) {
 		log.warn("event={} emailHash={} remoteIp={} attempts={} outcome=LOCKED", SecurityEvent.AUTH_ACCOUNT_LOCKED,
