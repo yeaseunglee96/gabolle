@@ -104,6 +104,25 @@ frontend:build:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
       changes: ['frontend/**/*']
 
+# ── 의존성 취약점 스캔 (OWASP A06) ────────────────────────────────────────────
+#
+# npm audit은 이미 package-lock.json(잠금 파일)을 쓰므로 backend처럼 별도
+# 잠금 설정이 필요 없다 — S15P21E201-680, 형제 잡은 backend:dependency-scan.
+#
+# --audit-level=high 는 npm 내장 기준이라 HIGH·CRITICAL 에서만 실패한다.
+# 실측(2026-09-07): 현재 MODERATE 14건뿐이라 이 잡은 지금 통과한다.
+frontend:dependency-scan:
+  stage: verify
+  image: node:20-alpine
+  before_script: []
+  script:
+    - cd frontend
+    - npm ci
+    - npm audit --audit-level=high
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes: ['frontend/**/*']
+
 # ── 화면이 실제로 뜨는가 ───────────────────────────────────────────────────────
 #
 # 🔴 위 frontend:build는 번들이 만들어지는지만 본다 — 문법 검사·타입 검사와
