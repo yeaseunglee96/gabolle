@@ -13,6 +13,10 @@ import java.util.List;
  * 거리를 재고 나머지는 안 쟀다는 뜻이다. 오류는 아니지만, 반경 안의 진짜 후보를 놓쳤을 수 있다는
  * 신호다.
  *
+ * <p>{@code facetKeyApplied} 는 요청에 {@code facetKey} 가 와서 <b>여덟 갈래 표식</b>으로 좁혔는지를
+ * 말한다 (S15P21E201-469 · -473). 화면의 "근처 기념품샵" 이 이 길로 온다 — {@code purpose} 설정이
+ * 비어 있어 그 길로는 아무것도 좁힐 수 없었기 때문이다({@code purposeApplied} 설명 참고).
+ *
  * <p>🔴 {@code purposeApplied} 는 요청에 {@code purpose} 가 있어서 목적 필터(카테고리·표식)가
  * 실제로 적용됐는지를 말한다. {@code purpose} 를 안 보내면 이 값은 {@code false} 이고, 그때는
  * 반경 안의 모든 장소가 거리순으로 나온다 — {@code purposes} 설정이 비어 있어도 이 엔드포인트가
@@ -26,5 +30,6 @@ public record NearbyPlaceResponse(
 		int expansionSteps,
 		boolean scanTruncated,
 		int limit,
-		boolean purposeApplied) {
+		boolean purposeApplied,
+		boolean facetKeyApplied) {
 }

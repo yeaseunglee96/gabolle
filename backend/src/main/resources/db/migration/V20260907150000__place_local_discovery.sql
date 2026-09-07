@@ -100,3 +100,20 @@ ALTER TABLE place_feature
 
 COMMENT ON COLUMN place_feature.feature_type IS
     '명세 6.2 의 피처 14종 + 영업시간·예상비용(S15P21E201-476). 태그형은 feature_key 에 코드가 오고 나머지는 키가 없다. 🔴 안쪽 코드값에는 CHECK 를 걸지 않는다 — 화면 옵션과 온톨로지가 확정되면 같은 코드로 고정한다.';
+
+-- ── 4. 일정 편집 종류에 '장소 더하기' 를 더한다 ────────────────────────────────
+--
+-- 축제를 일정에 넣는 경로(S15P21E201-467)가 새 판을 만들 때 그 판의 operation 이 필요하다.
+-- 지금 CHECK 는 여덟 종류만 허용해서 넣을 수 있는 값이 없다.
+--
+-- 🔴 REPLACE_ITEM 을 재사용하지 않는다. 교체는 "있던 것을 다른 것으로 바꿨다" 이고 더하기는
+--    "없던 것이 생겼다" 다. 되돌리기 화면과 최근 변경 목록이 이 값을 읽어 사용자에게 무슨 일이
+--    있었는지 말하므로, 두 사건을 같은 이름으로 부르면 그 설명이 틀린다.
+--
+-- 기존 행은 전부 이 목록 안의 값이므로 NOT VALID 가 필요 없다 — V20260906140000 이 REVERT 를
+-- 더할 때와 같은 상황이다.
+ALTER TABLE itinerary_versions DROP CONSTRAINT ck_itinerary_version_operation;
+
+ALTER TABLE itinerary_versions ADD CONSTRAINT ck_itinerary_version_operation
+    CHECK (operation IN ('CREATE', 'REGENERATE', 'REGENERATE_DAY', 'REPLACE_ITEM',
+                         'REMOVE_ITEM', 'LOCK_ITEM', 'REORDER', 'REVERT', 'ADD_ITEM'));

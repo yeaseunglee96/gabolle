@@ -138,6 +138,34 @@ public class ItineraryExceptionHandler {
 						requestId()));
 	}
 
+	/**
+	 * S15P21E201-467 — 여행 기간을 벗어난 날에 장소를 더하려 했다 — 400.
+	 *
+	 * <p>🔴 표의 CHECK 가 막지 못하는 종류다. {@code itinerary_item.visit_date} 가 여행 기간
+	 * 밖이어도 그 제약은 통과한다 — 표를 건너는 검사라서(마이그레이션 {@code V20260905120000}
+	 * 주석 "막지 못하는 것"). 여기서 막지 않으면 어느 날 화면에도 안 나타나는 항목이 저장된다.
+	 */
+	@ExceptionHandler(ItineraryEditController.DayOutsideTripException.class)
+	public ResponseEntity<ApiResponse<Void>> handleDayOutsideTrip(
+			ItineraryEditController.DayOutsideTripException e) {
+		return ResponseEntity.badRequest()
+				.body(ApiResponse.failure(
+						new ApiError("ITINERARY_DAY_OUTSIDE_TRIP", e.getMessage(),
+								List.of("dayIndex=" + e.dayIndex())),
+						requestId()));
+	}
+
+	/** {@code dayIndex} 가 음수다 — 400. */
+	@ExceptionHandler(ItineraryRevision.DayIndexOutOfRangeException.class)
+	public ResponseEntity<ApiResponse<Void>> handleDayIndexOutOfRange(
+			ItineraryRevision.DayIndexOutOfRangeException e) {
+		return ResponseEntity.badRequest()
+				.body(ApiResponse.failure(
+						new ApiError("INVALID_REQUEST", e.getMessage(),
+								List.of("dayIndex=" + e.dayIndex())),
+						requestId()));
+	}
+
 	private String requestId() {
 		return "req_" + UUID.randomUUID();
 	}

@@ -1,5 +1,6 @@
 package com.gabolle.backend.itinerary.presentation;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -22,6 +23,7 @@ import com.gabolle.backend.itinerary.application.ItineraryAccess;
 import com.gabolle.backend.itinerary.application.ItineraryEditService;
 import com.gabolle.backend.itinerary.application.ItineraryQueryService;
 import com.gabolle.backend.itinerary.domain.ItineraryVersion;
+import com.gabolle.backend.itinerary.presentation.dto.AddItemRequest;
 import com.gabolle.backend.itinerary.presentation.dto.ItineraryDetailResponse;
 import com.gabolle.backend.itinerary.presentation.dto.ItineraryEditResponse;
 import com.gabolle.backend.itinerary.presentation.dto.LockItemRequest;
@@ -101,6 +103,77 @@ public class ItineraryEditController {
 
 		return ResponseEntity.status(HttpStatus.CREATED)
 				.body(ApiResponse.success(body, "req_" + UUID.randomUUID()));
+	}
+
+	/**
+	 * S15P21E201-467 — 사용자가 고른 장소를 그 날의 마지막에 더한다. 축제 화면이 이것을 부른다.
+	 *
+	 * <p>명세 3.5 에 "일정에 장소를 더한다" 경로가 없어 여기서 정한다 —
+	 * {@code POST .../items}, 본문 {@code {placeId, dayIndex, baseVersion}}. 응답은 고정·되돌리기와
+	 * 같은 모양(일정 전체 + 판 정보)이라 앱이 그대로 화면 상태에 넣을 수 있다.
+	 *
+	 * <h2>🔴 더한 뒤 재계산 Job 을 접수하지 않는다 — 화면이 이어서 부른다</h2>
+	 * 시각과 이동 구간은 그 날짜 재계산이 정하는데({@link ItineraryEditService#addPlace} 주석),
+	 * 그 Job 접수를 여기서 함께 하면 <b>이 응답이 두 가지 실패를 섞어 버린다.</b> 판은 만들어졌는데
+	 * Job 접수만 실패한 경우(예: 제약을 하나도 답하지 않은 여행)를 "장소 더하기 실패" 로 답하면
+	 * 화면은 이미 저장된 편집을 없는 것으로 다룬다.
+	 *
+	 * <p>그래서 여기서는 판까지만 만들고, 화면이 응답의 새 판 번호로
+	 * {@code POST .../recalculate} 를 이어 부른다. 재계산이 실패해도 더한 장소는 남고 시각만 비어
+	 * 있다 — 그게 사용자가 요청한 사실에 맞는 상태다.
+	 *
+	 * <p>{@code dayIndex} 가 여행 기간을 벗어나면 400 이다. 여행이 3일인데 5일째에 넣으면 그
+	 * 항목은 어느 날에도 보이지 않는다 — 표의 CHECK 는 이것을 막지 못한다(마이그레이션
+	 * {@code V20260905120000} 주석 "막지 못하는 것").
+	 */
+	@PostMapping("/items")
+	public ResponseEntity<ApiResponse<ItineraryEditResponse>> addItem(
+			@PathVariable String itineraryId,
+			@Valid @RequestBody AddItemRequest request,
+			Authentication authentication) {
+
+		String editor = AuthenticatedUsers.requireId(authentication).toString();
+		ItineraryAccess.Access access = this.itineraryAccess.requireEditor(itineraryId, editor);
+
+		LocalDate visitDate = visitDateOf(access, request.dayIndex());
+
+		ItineraryVersion saved = this.editService.addPlace(itineraryId, request.placeId(),
+				request.dayIndex(), visitDate, request.baseVersion(), editor);
+		ItineraryDetailResponse detail = this.queryService.getDetail(itineraryId, editor);
+
+		return ResponseEntity.status(HttpStatus.CREATED)
+				.body(ApiResponse.success(ItineraryEditResponse.of(detail, saved),
+						"req_" + UUID.randomUUID()));
+	}
+
+	/**
+	 * 며칠째가 실제로 어느 날짜인가. 여행 시작일에 {@code dayIndex} 를 더한다.
+	 *
+	 * <p>🔴 여행 마지막 날을 넘으면 거부한다. 그 항목은 어느 날 화면에도 안 나타나므로
+	 * 사용자에게는 "더했는데 사라졌다" 로 보인다.
+	 */
+	private static LocalDate visitDateOf(ItineraryAccess.Access access, int dayIndex) {
+		LocalDate visitDate = access.trip().startDate().plusDays(dayIndex);
+		if (visitDate.isAfter(access.trip().finishDate())) {
+			throw new DayOutsideTripException(dayIndex, access.trip().startDate(),
+					access.trip().finishDate());
+		}
+		return visitDate;
+	}
+
+	/** {@code dayIndex} 가 여행 기간을 벗어났다 — 400. */
+	public static class DayOutsideTripException extends RuntimeException {
+
+		private final int dayIndex;
+
+		public DayOutsideTripException(int dayIndex, LocalDate start, LocalDate finish) {
+			super("여행 기간(" + start + "~" + finish + ") 밖의 날짜입니다: dayIndex=" + dayIndex);
+			this.dayIndex = dayIndex;
+		}
+
+		public int dayIndex() {
+			return this.dayIndex;
+		}
 	}
 
 	/**
