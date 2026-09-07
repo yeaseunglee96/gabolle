@@ -94,6 +94,20 @@ public class BaselineCandidateTranslator {
 	 * 읽는다 — 자바에 갈래를 하드코딩하지 않는다. 이 대조표가 {@code PREFERENCE/CATEGORY} 를
 	 * 아직 {@code INTEREST_TAG} 와 잇지 않았다면(온톨로지 배선이 안 끝났다면), 존재하지 않는
 	 * 관계를 자바가 지어내 카테고리로 후보를 좁히지 않는다.
+	 *
+	 * <h2>🔴 2026-09-07 — 이 필터가 <b>지금부터 실제로 동작한다</b> (S15P21E201-635)</h2>
+	 *
+	 * 지금까지 {@code PreferenceJson} 이 앱이 보내는 맨 배열을 못 읽어서 이 목록이 <b>언제나
+	 * 비어 있었고</b>, 그래서 카테고리 필터는 사실상 죽어 있었다. 그 결함을 고치면서 필터가
+	 * 살아난다 — 여기 담기는 값은 앱의 코드({@code SEA_BEACH}·{@code CITY}·{@code CAFE_HEALING}·
+	 * {@code CULTURE_TEMPLE}·{@code FOOD}·{@code NATURE_WALK})이고, 그것이 {@code place.category}
+	 * 와 <b>글자 그대로</b> 비교된다.
+	 *
+	 * <p>그러니 <b>{@code place} 를 채우는 쪽이 {@code category} 에 앱과 같은 코드를 넣어야 한다.</b>
+	 * 안 그러면 후보가 0건이 되고, 그 0건은 "조건에 맞는 곳이 없다" 로 보이지 "어휘가 안 맞는다"
+	 * 로는 안 보인다. 지금 적재되는 것은 상가정보 음식 업종뿐이라 {@code category} 는 {@code FOOD}
+	 * 하나이고, <b>나머지 다섯 갈래를 고른 사용자는 후보가 없다</b> — 그 갈래의 장소를 아직 안
+	 * 넣었기 때문이고, 그것은 사실이다 (S15P21E201-636).
 	 */
 	private List<String> extractCategoryCodes(PreferenceSnapshot preferenceSnapshot) {
 		if (preferenceSnapshot == null) {
