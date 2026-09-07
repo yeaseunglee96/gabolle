@@ -9,11 +9,13 @@ import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
+import { useI18n } from '@/i18n';
 
 const logo = require('../../../assets/brand/gabolle-logo-figma.png');
 
 export default function PasswordReset() {
   const router = useRouter();
+  const { tx } = useI18n();
   const { token } = useLocalSearchParams<{ token?: string }>();
   const { clearSession } = useAuth();
   const [password, setPassword] = useState('');
@@ -34,7 +36,7 @@ export default function PasswordReset() {
       clearSession();
       router.replace({ pathname: '/sign-in', params: { passwordReset: 'success' } });
     } catch (cause) {
-      setError(cause instanceof ApiClientError ? cause.message : '비밀번호를 바꾸지 못했어요.');
+      setError(cause instanceof ApiClientError ? cause.message : tx('비밀번호를 바꾸지 못했어요.', 'Could not change your password.'));
     } finally {
       setSubmitting(false);
     }
@@ -42,28 +44,28 @@ export default function PasswordReset() {
 
   return (
     <Screen scroll>
-      <Pressable accessibilityRole="button" accessibilityLabel="뒤로 가기" onPress={() => router.replace('/sign-in')} style={styles.backButton}><Text variant="title">‹</Text></Pressable>
-      <Pressable accessibilityRole="link" accessibilityLabel="GABOLLE 시작 화면으로 이동" onPress={() => router.replace('/')} style={({ pressed }) => [styles.logoLink, pressed && styles.pressed]}>
+      <Pressable accessibilityRole="button" accessibilityLabel={tx('뒤로 가기', 'Go back')} onPress={() => router.replace('/sign-in')} style={styles.backButton}><Text variant="title">‹</Text></Pressable>
+      <Pressable accessibilityRole="link" accessibilityLabel={tx('GABOLLE 시작 화면으로 이동', 'Go to the GABOLLE start screen')} onPress={() => router.replace('/')} style={({ pressed }) => [styles.logoLink, pressed && styles.pressed]}>
         <Image source={logo} resizeMode="contain" style={styles.logo} accessibilityIgnoresInvertColors />
       </Pressable>
-      <Text variant="display" weight="bold" style={styles.title}>새 비밀번호 설정</Text>
-      <Text variant="body" style={styles.subtitle}>다른 서비스에서 사용하지 않는 비밀번호를 권장해요.</Text>
+      <Text variant="display" weight="bold" style={styles.title}>{tx('새 비밀번호 설정', 'Set a new password')}</Text>
+      <Text variant="body" style={styles.subtitle}>{tx('다른 서비스에서 사용하지 않는 비밀번호를 권장해요.', "We recommend a password you don't use on other services.")}</Text>
 
       <View style={styles.form}>
-        {!validToken && <View accessibilityRole="alert" style={styles.errorBox}><Text variant="body" weight="bold" color={color.state.danger}>유효하지 않거나 만료된 재설정 링크예요.</Text></View>}
+        {!validToken && <View accessibilityRole="alert" style={styles.errorBox}><Text variant="body" weight="bold" color={color.state.danger}>{tx('유효하지 않거나 만료된 재설정 링크예요.', 'This reset link is invalid or expired.')}</Text></View>}
         <View style={styles.fieldGroup}>
-          <Text variant="caption" weight="bold" color={color.text.heading}>새 비밀번호</Text>
-          <TextInput accessibilityLabel="새 비밀번호" autoCapitalize="none" autoComplete="new-password" onChangeText={setPassword} placeholder="8자 이상 입력하세요" placeholderTextColor={color.text.muted} secureTextEntry style={styles.input} value={password} />
-          <Text variant="caption" color={password.length > 0 && !validLength ? color.state.danger : validLength ? color.state.success : color.text.muted}>{validLength ? '✓ 8~100자 조건을 충족했어요.' : `8~100자 · 현재 ${password.length}자`}</Text>
+          <Text variant="caption" weight="bold" color={color.text.heading}>{tx('새 비밀번호', 'New password')}</Text>
+          <TextInput accessibilityLabel={tx('새 비밀번호', 'New password')} autoCapitalize="none" autoComplete="new-password" onChangeText={setPassword} placeholder={tx('8자 이상 입력하세요', 'Enter at least 8 characters')} placeholderTextColor={color.text.muted} secureTextEntry style={styles.input} value={password} />
+          <Text variant="caption" color={password.length > 0 && !validLength ? color.state.danger : validLength ? color.state.success : color.text.muted}>{validLength ? tx('✓ 8~100자 조건을 충족했어요.', '✓ Meets the 8-100 character requirement.') : tx(`8~100자 · 현재 ${password.length}자`, `8-100 characters · currently ${password.length}`)}</Text>
         </View>
         <View style={styles.fieldGroup}>
-          <Text variant="caption" weight="bold" color={color.text.heading}>새 비밀번호 확인</Text>
-          <TextInput accessibilityLabel="새 비밀번호 확인" autoCapitalize="none" autoComplete="new-password" onChangeText={setConfirm} onSubmitEditing={() => void submit()} placeholder="한 번 더 입력하세요" placeholderTextColor={color.text.muted} secureTextEntry style={styles.input} value={confirm} />
-          {confirm.length > 0 && <Text variant="caption" color={matches ? color.state.success : color.state.danger}>{matches ? '✓ 비밀번호가 일치해요.' : '비밀번호가 일치하지 않아요.'}</Text>}
+          <Text variant="caption" weight="bold" color={color.text.heading}>{tx('새 비밀번호 확인', 'Confirm new password')}</Text>
+          <TextInput accessibilityLabel={tx('새 비밀번호 확인', 'Confirm new password')} autoCapitalize="none" autoComplete="new-password" onChangeText={setConfirm} onSubmitEditing={() => void submit()} placeholder={tx('한 번 더 입력하세요', 'Enter it once more')} placeholderTextColor={color.text.muted} secureTextEntry style={styles.input} value={confirm} />
+          {confirm.length > 0 && <Text variant="caption" color={matches ? color.state.success : color.state.danger}>{matches ? tx('✓ 비밀번호가 일치해요.', '✓ Passwords match.') : tx('비밀번호가 일치하지 않아요.', 'Passwords do not match.')}</Text>}
         </View>
         {error && <View accessibilityRole="alert" style={styles.errorBox}><Text variant="caption" weight="bold" color={color.state.danger}>{error}</Text></View>}
-        {validToken ? <Button label={submitting ? '변경 중…' : '비밀번호 변경'} disabled={!canSubmit} onPress={() => void submit()} /> : <Button label="재설정 링크 다시 받기" onPress={() => router.replace('/forgot-password')} />}
-        {error && validToken && <Button label="재설정 링크 다시 받기" variant="ghost" onPress={() => router.replace('/forgot-password')} />}
+        {validToken ? <Button label={submitting ? tx('변경 중…', 'Changing…') : tx('비밀번호 변경', 'Change password')} disabled={!canSubmit} onPress={() => void submit()} /> : <Button label={tx('재설정 링크 다시 받기', 'Get a new reset link')} onPress={() => router.replace('/forgot-password')} />}
+        {error && validToken && <Button label={tx('재설정 링크 다시 받기', 'Get a new reset link')} variant="ghost" onPress={() => router.replace('/forgot-password')} />}
         {submitting && <ActivityIndicator color={color.action.secondary} />}
       </View>
     </Screen>

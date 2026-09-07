@@ -7,9 +7,11 @@ import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
+import { useI18n } from '@/i18n';
 
 export default function Notifications() {
   const router = useRouter();
+  const { tx } = useI18n();
   const [permission, setPermission] = useState<'loading' | 'granted' | 'denied' | 'undetermined' | 'unsupported'>('loading');
   const [busy, setBusy] = useState(false);
 
@@ -41,34 +43,34 @@ export default function Notifications() {
   }
 
   const statusCopy = permission === 'granted'
-    ? { label: '알림 허용됨', body: '여행 일정 알림을 받을 준비가 됐어요.', tone: color.state.success }
+    ? { label: tx('알림 허용됨', 'Notifications allowed'), body: tx('여행 일정 알림을 받을 준비가 됐어요.', "You're ready to receive trip schedule alerts."), tone: color.state.success }
     : permission === 'denied'
-      ? { label: '알림 꺼짐', body: '기기 설정에서 언제든 다시 허용할 수 있어요.', tone: color.state.danger }
+      ? { label: tx('알림 꺼짐', 'Notifications off'), body: tx('기기 설정에서 언제든 다시 허용할 수 있어요.', 'You can allow them again anytime in device settings.'), tone: color.state.danger }
       : permission === 'unsupported'
-        ? { label: '앱에서 설정 가능', body: '알림 권한 관리는 iOS·Android 앱에서 제공해요.', tone: color.text.muted }
+        ? { label: tx('앱에서 설정 가능', 'Available in the app'), body: tx('알림 권한 관리는 iOS·Android 앱에서 제공해요.', 'Notification permissions are managed in the iOS/Android app.'), tone: color.text.muted }
         : permission === 'loading'
-          ? { label: '권한 확인 중', body: '기기의 알림 설정을 확인하고 있어요.', tone: color.text.muted }
-          : { label: '알림을 켜볼까요?', body: '허용 여부를 먼저 물어본 뒤에만 알림을 보내요.', tone: color.action.primary };
+          ? { label: tx('권한 확인 중', 'Checking permission'), body: tx('기기의 알림 설정을 확인하고 있어요.', "We're checking your device's notification settings."), tone: color.text.muted }
+          : { label: tx('알림을 켜볼까요?', 'Turn on notifications?'), body: tx('허용 여부를 먼저 물어본 뒤에만 알림을 보내요.', "We'll only send notifications after you allow it."), tone: color.action.primary };
 
   return (
     <Screen>
       <View style={styles.header}>
-        <Pressable accessibilityRole="button" accessibilityLabel="홈으로 돌아가기" onPress={() => router.canGoBack() ? router.back() : router.replace('/home')} style={styles.backButton}>
+        <Pressable accessibilityRole="button" accessibilityLabel={tx('홈으로 돌아가기', 'Back to home')} onPress={() => router.canGoBack() ? router.back() : router.replace('/home')} style={styles.backButton}>
           <Text variant="title">‹</Text>
         </Pressable>
-        <Text variant="title" weight="bold">알림</Text>
+        <Text variant="title" weight="bold">{tx('알림', 'Notifications')}</Text>
         <View style={styles.headerSpacer} />
       </View>
       <View style={styles.empty}>
         <View style={styles.icon}><Text variant="display">🔔</Text></View>
-        <Text variant="title" weight="bold">아직 도착한 알림이 없어요</Text>
-        <Text variant="body" color={color.text.muted} style={styles.description}>여행 일정 생성과 변경 알림 API가 연결되면 이곳에서 확인할 수 있어요.</Text>
+        <Text variant="title" weight="bold">{tx('아직 도착한 알림이 없어요', 'No notifications yet')}</Text>
+        <Text variant="body" color={color.text.muted} style={styles.description}>{tx('여행 일정 생성과 변경 알림 API가 연결되면 이곳에서 확인할 수 있어요.', "Once the trip creation and change alert API is connected, you'll see them here.")}</Text>
         <View accessibilityLiveRegion="polite" style={styles.permissionCard}>
           <View style={[styles.statusDot, { backgroundColor: statusCopy.tone }]} />
           <View style={styles.permissionCopy}><Text variant="body" weight="bold">{statusCopy.label}</Text><Text variant="caption" color={color.text.body}>{statusCopy.body}</Text></View>
         </View>
-        {permission === 'undetermined' && <Button label={busy ? '확인 중…' : '알림 허용하기'} disabled={busy} onPress={() => void requestPermission()} containerStyle={styles.action} />}
-        {permission === 'denied' && <Button label="기기 알림 설정 열기" variant="ghost" onPress={() => void Linking.openSettings()} containerStyle={styles.action} />}
+        {permission === 'undetermined' && <Button label={busy ? tx('확인 중…', 'Checking…') : tx('알림 허용하기', 'Allow notifications')} disabled={busy} onPress={() => void requestPermission()} containerStyle={styles.action} />}
+        {permission === 'denied' && <Button label={tx('기기 알림 설정 열기', 'Open device notification settings')} variant="ghost" onPress={() => void Linking.openSettings()} containerStyle={styles.action} />}
       </View>
     </Screen>
   );
