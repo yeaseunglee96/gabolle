@@ -29,6 +29,38 @@ public interface TripRepository {
     /** 특정 판. 없으면 비어 있다. */
     Optional<PreferenceSnapshot> findSnapshot(String tripId, int version);
 
+    /**
+     * 계정 기본 취향({@code scope=USER})의 최신 판 (S15P21E201-547).
+     *
+     * <p>🔴 <b>여행 스냅샷과 키가 다르다.</b> 여행 스냅샷은 {@code trip_id} 로 찾고 이것은
+     * {@code user_id} 로 찾는다. 스키마가 그렇게 나뉘어 있다 — {@code scope='USER'} 행은
+     * {@code trip_id} 가 NULL 이고, 판 번호의 유일성도 {@code uq_preference_snapshot_user}
+     * ({@code (user_id, version) WHERE trip_id IS NULL})가 따로 본다.
+     *
+     * <p>이 조회가 없어서 <b>계정 기본 취향이 저장되지도 읽히지도 않고 있었다.</b> 같은
+     * 사람이 두 번째 여행을 만들면 알레르기부터 다시 물어야 했다.
+     */
+    Optional<PreferenceSnapshot> findUserDefaults(String userId);
+
+    /**
+     * 계정 기본 취향을 <b>새 판으로</b> 저장한다 (S15P21E201-547).
+     *
+     * <p>🔴 기존 판을 고치지 않는다. {@link PreferenceSnapshot} 이 불변인 것과 같은
+     * 이유다 — 이미 만들어진 여행의 스냅샷이 "그때의 계정 기본값을 복사한 것" 이라고
+     * 주장하려면 그때의 판이 남아 있어야 한다.
+     *
+     * <p>🔴 판 번호는 <b>구현이 정한다</b>(그 사용자의 마지막 판 + 1). 부르는 쪽이 정하게
+     * 하면 동시에 두 번 저장할 때 같은 번호가 나오고, 그 충돌은
+     * {@code uq_preference_snapshot_user} 에서 JDBC 안쪽 예외로 터져 어느 요청이
+     * 문제였는지를 알려주지 못한다.
+     *
+     * @param answers 차원별 답. 이 목록이 그 판의 전부다 — 부분 갱신이 아니다
+     * @return 저장된 판(판 번호와 스냅샷 ID 가 채워져 있다)
+     */
+    PreferenceSnapshot saveUserDefaults(String userId,
+                                        List<PreferenceSnapshot.PreferenceAnswer> answers,
+                                        java.time.Instant at);
+
     /** 가장 최신 판. */
     Optional<PreferenceSnapshot> findLatestSnapshot(String tripId);
 

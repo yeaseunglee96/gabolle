@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.gabolle.backend.trip.application.PreferenceDefaultsService;
 import com.gabolle.backend.trip.application.TripCreationService;
 import com.gabolle.backend.trip.domain.PersonalizationScope;
 import com.gabolle.backend.trip.domain.PreferenceSnapshot;
@@ -38,7 +39,9 @@ class TripCreationTest {
     @BeforeEach
     void setUp() {
         repository = new InMemoryTripRepository();
-        service = new TripCreationService(repository, Clock.fixed(NOW, ZoneOffset.UTC));
+        Clock clock = Clock.fixed(NOW, ZoneOffset.UTC);
+        service = new TripCreationService(repository, clock,
+                new PreferenceDefaultsService(repository, clock));
     }
 
     private TripCreationService.Command command() {

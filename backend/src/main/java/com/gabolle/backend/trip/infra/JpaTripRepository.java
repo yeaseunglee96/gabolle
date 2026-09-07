@@ -142,6 +142,40 @@ public class JpaTripRepository implements TripRepository {
 	}
 
 	@Override
+	public Optional<PreferenceSnapshot> findUserDefaults(String userId) {
+		return preferenceSnapshotJpaRepository
+				.findTopByUserIdAndTripIdIsNullOrderByVersionDesc(UUID.fromString(userId))
+				.map(this::toDomain);
+	}
+
+	@Override
+	@Transactional
+	public PreferenceSnapshot saveUserDefaults(String userId,
+			List<PreferenceSnapshot.PreferenceAnswer> answers, java.time.Instant at) {
+
+		UUID ownerUserId = UUID.fromString(userId);
+		// 🔴 마지막 판 + 1. 동시에 두 번 저장하면 uq_preference_snapshot_user 가 하나를
+		//    거부한다 — 그 거부가 곧 직렬화이고, 여기서 락을 따로 걸지 않는 이유다.
+		int nextVersion = preferenceSnapshotJpaRepository
+				.findTopByUserIdAndTripIdIsNullOrderByVersionDesc(ownerUserId)
+				.map(e -> e.version() + 1)
+				.orElse(1);
+
+		UUID snapshotId = UUID.randomUUID();
+		// 🔴 trip_id 는 null 이다. ck_preference_snapshot_scope_trip 이
+		//    (scope='TRIP') = (trip_id IS NOT NULL) 을 요구하므로 USER 는 반드시 null 이어야 한다.
+		preferenceSnapshotJpaRepository.save(new PreferenceSnapshotJpaEntity(
+				snapshotId, ownerUserId, null, nextVersion, PersonalizationScope.USER, toOffset(at)));
+		for (PreferenceSnapshot.PreferenceAnswer answer : answers) {
+			preferenceAnswerJpaRepository.save(new PreferenceAnswerJpaEntity(
+					UUID.randomUUID(), snapshotId, answer.dimension(), answer.valueJson(),
+					answer.status(), toOffset(at)));
+		}
+		return new PreferenceSnapshot(snapshotId.toString(), null, nextVersion, answers,
+				PersonalizationScope.USER, List.of(), at);
+	}
+
+	@Override
 	public Optional<PreferenceSnapshot> findSnapshotById(String preferenceSnapshotId) {
 		// 🔴 S15P21E201-604 — 추천 Job 이 기록해 둔 그 판을 직접 읽는다. findLatestSnapshot 을
 		// 쓰면 Job 이 실행되기 전에 사용자가 취향을 다시 답했을 때 "그때 그 판" 이 아니라

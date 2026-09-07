@@ -36,9 +36,18 @@ public class TripCreationService {
     private final TripRepository repository;
     private final Clock clock;
 
-    public TripCreationService(TripRepository repository, Clock clock) {
+    /**
+     * 계정 기본 취향을 여행 답에 겹치는 규칙 (S15P21E201-547).
+     *
+     * <p>🔴 계정 기본값이 없으면 아무 일도 하지 않는다 — 지금까지와 똑같이 동작한다.
+     */
+    private final PreferenceDefaultsService preferenceDefaults;
+
+    public TripCreationService(TripRepository repository, Clock clock,
+                               PreferenceDefaultsService preferenceDefaults) {
         this.repository = repository;
         this.clock = clock;
+        this.preferenceDefaults = preferenceDefaults;
     }
 
     /**
@@ -122,9 +131,25 @@ public class TripCreationService {
         List<PreferenceSnapshot.PreferenceAnswer> storedPreferences = command.preferences().stream()
                 .filter(a -> !"transport".equalsIgnoreCase(a.dimension()))
                 .toList();
+
+        // 🔴 S15P21E201-547 — 계정 기본 취향으로 이 여행이 답하지 않은 차원을 채운다.
+        //
+        //    여행에서 답한 값이 항상 이긴다. 채우는 것은 "아예 안 물어봤다"(UNKNOWN)와
+        //    아직 없는 차원뿐이고, 화면에서 보고 **일부러 건너뛴**(SKIPPED) 차원은 그대로
+        //    둔다 — "이번 여행만 이 조건 빼고" 를 기본값으로 되살리면 사용자는 그 이유를
+        //    알 수 없다. 규칙 전체는 PreferenceDefaultsService javadoc 의 표에 있다.
+        //
+        //    🔴 **반대 방향은 없다.** 이 여행의 답을 계정 기본값에 쓰지 않는다. 그것이
+        //    이 티켓의 요구이고(명세 2.2), 그래서 여기서는 읽기만 한다.
+        //
+        //    계정 기본값이 아직 하나도 없으면(지금은 저장하는 경로가 없다) storedPreferences
+        //    가 그대로 나온다 — 즉 이 줄은 동작을 바꾸지 않는다.
+        List<PreferenceSnapshot.PreferenceAnswer> mergedPreferences =
+                preferenceDefaults.overlayDefaults(command.userId(), storedPreferences);
+
         PreferenceSnapshot snapshot = new PreferenceSnapshot(
                 UUID.randomUUID().toString(), tripId, 1,
-                storedPreferences, PersonalizationScope.TRIP, constraintIds, now);
+                mergedPreferences, PersonalizationScope.TRIP, constraintIds, now);
 
         // ⑤ 🔴 키 확보와 저장을 한 동작으로 한다.
         //    나누면 같은 키로 동시에 온 요청이 전부 여행을 만든다 — 테스트가 잡았다.

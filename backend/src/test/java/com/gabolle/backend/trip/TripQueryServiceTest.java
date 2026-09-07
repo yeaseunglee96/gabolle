@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.gabolle.backend.trip.application.PreferenceDefaultsService;
 import com.gabolle.backend.trip.application.TripCreationService;
 import com.gabolle.backend.trip.application.TripQueryService;
 import com.gabolle.backend.trip.domain.PreferenceSnapshot;
@@ -34,7 +35,9 @@ class TripQueryServiceTest {
     @BeforeEach
     void setUp() {
         repository = new InMemoryTripRepository();
-        creationService = new TripCreationService(repository, Clock.fixed(NOW, ZoneOffset.UTC));
+        Clock clock = Clock.fixed(NOW, ZoneOffset.UTC);
+        creationService = new TripCreationService(repository, clock,
+                new PreferenceDefaultsService(repository, clock));
         queryService = new TripQueryService(repository);
     }
 

@@ -19,6 +19,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import com.gabolle.backend.trip.application.PreferenceDefaultsService;
 import com.gabolle.backend.trip.application.TripCreationService;
 import com.gabolle.backend.trip.application.TripQueryService;
 import com.gabolle.backend.trip.infra.InMemoryTripRepository;
@@ -44,7 +45,7 @@ class TripControllerGetTest {
     void setUp() {
         InMemoryTripRepository repository = new InMemoryTripRepository();
         TripCreationService creationService =
-                new TripCreationService(repository, Clock.fixed(Instant.parse("2026-09-03T00:00:00Z"), ZoneOffset.UTC));
+                newCreationService(repository, Clock.fixed(Instant.parse("2026-09-03T00:00:00Z"), ZoneOffset.UTC));
         TripQueryService queryService = new TripQueryService(repository);
 
         TripController controller = new TripController(creationService, queryService);
@@ -127,5 +128,10 @@ class TripControllerGetTest {
         this.mockMvc.perform(get("/api/v1/trips/{tripId}", tripId).principal(asUser(stranger)))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error.code").value("TRIP_NOT_FOUND"));
+    }
+
+    /** S15P21E201-547 — 생성자에 PreferenceDefaultsService 가 붙어 한 자리에 모았다. */
+    private static TripCreationService newCreationService(InMemoryTripRepository repository, Clock clock) {
+        return new TripCreationService(repository, clock, new PreferenceDefaultsService(repository, clock));
     }
 }

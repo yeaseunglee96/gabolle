@@ -18,6 +18,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import com.gabolle.backend.trip.application.PreferenceDefaultsService;
 import com.gabolle.backend.trip.application.TripCreationService;
 import com.gabolle.backend.trip.application.TripQueryService;
 import com.gabolle.backend.trip.domain.TimeWindows;
@@ -49,8 +50,9 @@ class TripCreationValidationTest {
     @BeforeEach
     void setUp() {
         InMemoryTripRepository repository = new InMemoryTripRepository();
-        TripCreationService creationService = new TripCreationService(
-                repository, Clock.fixed(Instant.parse("2026-09-03T00:00:00Z"), ZoneOffset.UTC));
+        Clock clock = Clock.fixed(Instant.parse("2026-09-03T00:00:00Z"), ZoneOffset.UTC);
+        TripCreationService creationService = new TripCreationService(repository, clock,
+                new PreferenceDefaultsService(repository, clock));
         TripQueryService queryService = new TripQueryService(repository);
 
         TripController controller = new TripController(creationService, queryService);
