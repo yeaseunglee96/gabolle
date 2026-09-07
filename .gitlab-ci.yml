@@ -143,6 +143,21 @@ frontend:smoke:
   script:
     - cd frontend
     - npm ci
+    # 🔴 타입 검사를 여기 넣은 이유 — 이건 원래 CI 에 없던 검사다.
+    #    package.json 에 `typecheck: tsc --noEmit` 이 있는데 .gitlab-ci.yml
+    #    어디에서도 안 불렀다(실측 2026-09-07: tsc·typecheck·verify 0건).
+    #    지운 frontend:build 도 expo export 만 했으므로, 타입은 지금까지
+    #    CI 에서 한 번도 안 봤다.
+    #
+    #    Metro 번들러는 **타입 오류를 무시하고 번들을 만든다.** `user.nmae`
+    #    같은 오타는 번들도 되고 화면도 뜨고, 그 값을 쓰는 순간에만 터진다.
+    #    아래 스모크로도 안 잡히는 자리가 있다.
+    #
+    #    별도 잡으로 안 뺀 이유: 그러면 `npm ci`(69~112초)를 한 번 더 돌리고
+    #    러너 슬롯을 하나 더 먹는다. 그게 바로 frontend:build 를 지운 이유다.
+    #    여기 두면 이미 깔아 둔 node_modules 를 그대로 쓰고, 무거운 번들링
+    #    앞에서 싼 검사가 먼저 실패한다.
+    - npx tsc --noEmit
     - npx expo export --platform web
     - npx serve dist -l 3000 &
     - sleep 2
