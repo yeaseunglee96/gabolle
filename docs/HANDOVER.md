@@ -61,7 +61,7 @@ srcwinasync.c, line 94`, **종료 코드 127**. 0.2.0·0.3.0 둘 다, 직접 실
   성공 **0**(0.4초에 정상 종료) · 실패 **1**, 크래시 없음
 - **회귀 테스트는 함수 단위로 못 잡는다** — 끝나는 순간에만 나온다.
   자식 프로세스로 CLI 를 돌려 종료 코드를 보는 항목이 필요하다
-- 이 저장소의 `ci/axmap/` 사본은 **안 걸린다** (벤더링 갈래는 네트워크를 안 탄다)
+- 🔴 **2026-09-01 이후로는 걸린다.** 사본을 버리고 `npx` 로 갈아탔으니 이제 네트워크를 탄다
 
 ### `npm update` 로는 갱신되지 않는다 (설계다)
 
@@ -100,8 +100,8 @@ srcwinasync.c, line 94`, **종료 코드 127**. 0.2.0·0.3.0 둘 다, 직접 실
 
 - 🔴 **axMap 이 이 저장소에서 나갔다 (2026-08-26).** **axMap** 은 에이전트끼리 같은
   파일을 동시에 안 고치게 막는 선점 도구인데, 이제 별도 저장소
-  `https://lab.ssafy.com/rleaderjoon/axmap` 에 산다. 팀 저장소에 남은 것은
-  **CI 와 선점이 실제로 부르는 파일만 복사한 사본** `ci/axmap/` 뿐이다 (2.1절)
+  `https://lab.ssafy.com/rleaderjoon/axmap` 에 산다. 팀 저장소에 남았던 사본
+  `ci/axmap/` 도 2026-09-01 에 없앴다 — [AXMAP-NPM-MIGRATION.md](AXMAP-NPM-MIGRATION.md)
 - **`governance/policy.json`**(누가 투표권자인가)은 루트로 옮겨 **남겼다.**
   도구는 나가고 데이터는 남는다 — axMap 이 어디로 가든 명단은 팀 저장소의 것이다
 - 지금 작업 브랜치는 **`chore/S15P21E201-15-axmap-split`** 이고 `origin/main` 위에 있다.
@@ -165,24 +165,18 @@ ax_brief 로 이 저장소를 파악하고, ax_status 로 지금 누가 뭘 잡�
 ├── README.md            3분 시작
 ├── docs/
 │   ├── ONBOARDING.md    clone 부터 첫 작업까지 (다른 AI CLI 안내 포함)
-│   ├── CI.md            러너 · 버전 · 봇 토큰 · 도커 · 필수 파이프라인 · 잡 여섯
+│   ├── CI.md            러너 · 버전 · 봇 토큰 · 도커 · 필수 파이프라인 · 잡 하나씩
+│   ├── AXMAP-NPM-MIGRATION.md  사본을 왜 버렸나 · 언제 사라지나 · 1.1.0 변경점
 │   ├── HANDOVER.md      이 문서
 │   └── git-convention.md · jira-convention.md   팀원이 main 에 올려 둔 컨벤션
-├── setup.sh · setup.ps1 clone 뒤 한 번
-├── .mcp.json            Claude Code 가 자동으로 발견하는 MCP 설정 → ci/axmap/mcp/server.mjs
-├── .gitlab-ci.yml       잡 여섯 — ci:vendor · claims · verify:mr-target ·
-│                                  governance · version · promote
+├── setup.sh · setup.ps1 clone 뒤 한 번 (npx 로 axmap-cli 를 부른다)
+├── .gitlab-ci.yml       잡 여덟 — claims · mr:gates · verify:mr-target ·
+│                                  governance · version · jira · promote · vote:recheck
 │
-├── ci/
-│   ├── axmap/           🔒 axMap 사본. 손으로 고치지 않는다 (2.1)
-│   │   ├── README.md · SOURCE.json · manifest.sha256   출처와 지문
-│   │   ├── bin/axmap.mjs      CLI (claim · release · status · audit · hook · doctor)
-│   │   ├── src/               순수 판정 — protocol · invariants · version ·
-│   │   │                        governance · mrtarget · promote · repotarget
-│   │   ├── mcp/server.mjs     MCP 서버 (도구 이름은 ax_*)
-│   │   ├── governance/        gate.mjs(정족수를 센다) · vote.mjs(표를 쓴다)
-│   │   └── tools/             mr-target · promote · version
-│   └── verify-vendor.mjs      사본이 손으로 바뀌었는지 검사한다
+├── ci/                  🔴 axMap 사본은 없다 (2026-09-01). npm 꾸러미를 npx 로 부른다
+│   ├── jira-transition.mjs    커밋의 Jira 키로 티켓 상태를 옮긴다
+│   ├── runner-up.sh           러너가 살아 있는지 확인한다
+│   └── vote-recheck.mjs       표가 아직 유효한지 다시 본다
 │
 ├── governance/
 │   └── policy.json      누가 투표권자인가. **팀의 데이터라 여기 남았다**
@@ -265,10 +259,9 @@ node tools/vendor.mjs --to <이 저장소의 루트>
 ### 검증 — 끝내기 전에 전부 통과해야 한다
 
 ```bash
-node ci/verify-vendor.mjs             # 사본이 손으로 안 바뀌었는가
-node ci/axmap/bin/axmap.mjs doctor    # 이 PC 에서 선점이 실제로 도는지
-node ci/axmap/tools/mr-target.mjs --source <내 브랜치> --target <올릴 곳>
-node ci/axmap/governance/gate.mjs     # 표가 충분한가 (0 충족 · 2 미달)
+npx -y axmap-cli@latest doctor        # 이 PC 에서 선점이 실제로 도는지
+npx -y axmap-cli@latest mr-target --source <내 브랜치> --target <올릴 곳>
+npx -y axmap-cli@latest gate          # 표가 충분한가 (0 충족 · 2 미달)
 ```
 
 **axMap 자체의 테스트·데모·화면 스모크는 이 저장소에서 안 돈다.** axMap 저장소와
@@ -581,7 +574,7 @@ axMap 저장소의 `tools/persona-bench.mjs` 가 `?step=1` `?unit=feature` `?wat
 |---|---|
 | **MCP `roots` 를 구현할까** | 안 했다. 버린 것이 아니라 **아직 안 만든 것**이다. `roots` 는 클라이언트가 서버에게 *"지금 열려 있는 폴더는 여기"* 를 알려주는 **MCP 규격의 표준 통로**이고, 넣으면 우리 앱 없이 AI CLI 만 써도 따라간다. 위 `D19` 사다리의 두 번째 칸 |
 | **`ax_init` 에 안전장치를 넣을까** | 전역 등록(**절대경로로 이 PC 의 모든 폴더에서 뜨게 하는 것**)을 하면 **팀 저장소가 아닌 폴더에서도 MCP 가 뜬다.** 장부가 없으니 claim 이 실패하고, 에이전트가 `ax_init` 을 불러 **남의 저장소에 장부를 만든다.** 원격이 팀 저장소가 아니면 `confirm` 없이는 거부하는 안이 후보 |
-| **`.mcp.json` 을 남길까** | 전역 등록으로 옮기면 같은 이름 `axmap` 이 두 곳(저장소 `.mcp.json` + 전역)에 생긴다. 충돌은 안 나지만 **켠 위치에 따라 다른 정의가 뜬다.** 남기면 *clone 만으로 붙는 경로* 가 유지된다. **지금은 남아 있고 `./ci/axmap/mcp/server.mjs` 를 가리킨다** |
+| **`.mcp.json` 을 남길까** | 전역 등록으로 옮기면 같은 이름 `axmap` 이 두 곳(저장소 `.mcp.json` + 전역)에 생긴다. 충돌은 안 나지만 **켠 위치에 따라 다른 정의가 뜬다.** 남기면 *clone 만으로 붙는 경로* 가 유지된다. 🔴 **2026-08-31 에 뺐다 (S15P21E201-509)** — 저장소 쪽이 홈을 이겨서, npm 판을 깔아도 여기서는 안 쓰였다 |
 | **등록 도구에 "스니펫만 찍기" 를 만들까** | 지금 스니펫은 **등록에 실패했을 때만** 나온다. 그리고 안내가 *"셋(claude·agy·codex) 중 하나도 못 찾았을 때"* 조건이라 — **하나라도 찾으면 안 뜬다.** Claude Code 가 깔린 PC 에서 Cursor 로 일하는 사람은 `OK claude` 만 보고 자기 제품은 안 붙은 채 넘어간다. **axMap 저장소 쪽 일이다** |
 | **codex 실물 검증** | 이 PC 에 codex 가 없어 아직 아무도 안 돌려봤다 |
 
@@ -637,12 +630,12 @@ npm 이 설치하지 못한다"* 가 근거였는데, **axMap 이 저장소 루�
 
 ## 6. 이어받은 뒤 첫 한 시간에 하면 좋은 것
 
-1. `node ci/verify-vendor.mjs` — 사본이 온전한지 (종료 코드 0)
-2. `node ci/axmap/bin/axmap.mjs doctor` — 이 PC 에서 선점이 실제로 도는지.
-   **커밋 훅 줄에서 `!!` 가 나오면 3절 ②** 를 본다. 분리 전에 setup 을 돌린 PC 는
-   전부 그 상태다
-3. 2.1 절 **"axMap 은 이제 별도 저장소다"** — 이걸 모르고 `ci/axmap/` 을 고치면
-   `ci:vendor` 잡이 빨개지고 원인을 못 찾는다
+1. `npm i -g axmap-cli` — 저장소 안에는 axMap 이 없다 (2026-09-01)
+2. `npx -y axmap-cli@latest doctor` — 이 PC 에서 선점이 실제로 도는지.
+   **커밋 훅 줄에서 `!!` 가 나오면 3절 ②** 를 본다. 사본을 쓰던 때 setup 을 돌린
+   PC 는 전부 그 상태다
+3. [AXMAP-NPM-MIGRATION.md](AXMAP-NPM-MIGRATION.md) — 사본이 왜 없어졌고
+   내 브랜치에서는 언제 사라지는지
 4. 4.1 절의 **러너와 필수 파이프라인** — 2026-08-26 실측으로 러너는 0대,
    필수 파이프라인은 꺼져 있다. **이게 안 되면 나머지가 전부 장식이다**
 5. 제품 쪽을 이어받는다면: axMap 저장소를 clone 하고 그쪽 `docs/DECISIONS.md` 훑기 —

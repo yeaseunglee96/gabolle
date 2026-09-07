@@ -218,7 +218,7 @@ npx -y axmap-cli@latest release
 메시지에 점유자·작업·남은 시간이 들어 있으니 그걸 읽고 **비어 있는 다른 곳**으로 간다.
 
 선점 프로토콜 자체의 규격과 설계 근거는 **axMap 저장소**
-(`https://lab.ssafy.com/rleaderjoon/axmap`)에 있다. 이 저장소에는 사본만 있다 (0.3).
+(`https://lab.ssafy.com/rleaderjoon/axmap`)에 있다. 이 저장소에는 axMap 이 없다 (0.3).
 
 ---
 

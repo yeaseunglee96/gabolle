@@ -38,7 +38,6 @@ param([switch]$Force)
 
 $ErrorActionPreference = 'Stop'
 $root = $PSScriptRoot
-$AX   = Join-Path $root (Join-Path 'ci' (Join-Path 'axmap' (Join-Path 'bin' 'axmap.mjs')))
 
 
 function Say($m)  { Write-Host $m }
@@ -84,7 +83,7 @@ Ok "이름: $who  (git config user.name)"
 # --- 3. 장부 ----------------------------------------------------------------
 Say ""
 Say "장부를 준비합니다..."
-& node $AX init
+npx -y 'axmap-cli@latest' init
 if ($LASTEXITCODE -ne 0) { Fail "장부를 만들지 못했습니다. 위 메시지를 읽고 고친 뒤 다시 실행하세요." }
 
 # --- 4. 훅 ------------------------------------------------------------------
@@ -93,14 +92,14 @@ if ($LASTEXITCODE -ne 0) { Fail "장부를 만들지 못했습니다. 위 메시
 #     불과하다. claim 하지 않은 파일도 그냥 커밋되고, 그러면 아무도 규칙을 지킬
 #     이유가 없어진다.
 Say ""
-& node $AX hook install
-if ($LASTEXITCODE -ne 0) { Warn "훅을 심지 못했습니다. 나중에 'node ci\axmap\bin\axmap.mjs hook install' 을 직접 실행하세요." }
+npx -y 'axmap-cli@latest' hook install
+if ($LASTEXITCODE -ne 0) { Warn "훅을 심지 못했습니다. 나중에 'npx -y axmap-cli@latest hook install' 을 직접 실행하세요." }
 
 # --- 5. MCP 안내 --------------------------------------------------------------
 #
-# [!] 여기서 등록을 대신하지 않는다. 등록기(mcp-register.mjs)는 axMap 저장소에 있고
-#     팀 사본에는 없다. 사본에 다시 넣으면 벤더 지문(ci\axmap\manifest.sha256)이
-#     어긋나 ci:vendor 잡이 빨개진다. 그래서 이 자리는 안내만 한다.
+# [!] 여기서 등록을 대신하지 않는다. 등록기는 npm 꾸러미 axmap-cli 안에 있고,
+#     그것을 부르는 `axmap setup` 은 저장소가 아니라 **각자의 홈 설정**을 고친다.
+#     저장소가 남의 PC 설정을 대신 고치면 되돌릴 방법이 없다. 그래서 안내만 한다.
 Say "MCP: 이 저장소에는 등록 설정이 없습니다. 각자 한 번 돌리세요 -"
 Say "       npm i -g axmap-cli   그리고   axmap setup"
 Say "     claude / codex / agy 가 각자의 홈 설정에 붙습니다. 그 뒤 AI CLI 를 껐다 켜세요."
@@ -111,7 +110,7 @@ Say "     claude / codex / agy 가 각자의 홈 설정에 붙습니다. 그 뒤
 #     이 도구의 실패는 대부분 조용해서, 오류가 안 났다는 것이 정상이라는 뜻이 아니다.
 Say ""
 Say "확인합니다..."
-& node $AX doctor
+npx -y 'axmap-cli@latest' doctor
 if ($LASTEXITCODE -ne 0) { Fail "위의 !! 줄에 고치는 방법이 함께 적혀 있습니다. 고친 뒤 다시 실행하세요." }
 
 # --- 7. 안내 ----------------------------------------------------------------
@@ -138,7 +137,7 @@ Say "  파일을 고치기 전에 claim -> 끝나면 release. 그게 전부입�
 Say "  Claude Code 면 /ax 로 보고 /ax-done 으로 반납합니다."
 Say "  다른 CLI 면 같은 일을 시키는 문장이 docs\ONBOARDING.md 3.5 절 표에 있습니다."
 Say ""
-Say "  언제든 다시 확인:  node ci\axmap\bin\axmap.mjs doctor"
+Say "  언제든 다시 확인:  npx -y axmap-cli@latest doctor"
 Say "  MCP 가 안 뜨면:    axmap setup 을 한 번 돌리고 AI CLI 를 껐다 켠다"
 Say '  자세히:            docs\ONBOARDING.md  - Claude Code 가 아닌 AI CLI 를 쓴다면 3.5 절'
 Say ""

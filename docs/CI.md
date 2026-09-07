@@ -21,12 +21,11 @@
 | **필요한 것** | 러너 붙이기 → 봇 토큰 만들기 → 필수 파이프라인 켜기 (이 순서로) |
 | **순서가 중요한가** | **그렇다. 필수 파이프라인을 러너보다 먼저 켜면 아무도 머지를 못 한다** — 러너가 없으면 파이프라인이 영원히 `pending` 이고, `pending` 은 초록이 아니다 (5절) |
 | **`Dockerfile`** | **없다. 그리고 지금은 필요 없다** |
-| **잡** | `ci:vendor` · `claims` · `verify:mr-target` · `governance` · `version` · `promote` (4절에 하나씩) |
+| **잡** | `claims` · `mr:gates` · `verify:mr-target` · `governance` · `version` · `jira` · `promote` · `vote:recheck` (4절에 하나씩) |
 
 > 🔴 **여기서 도는 것은 axMap 의 테스트가 아니다.** 선점 장치 axMap 은 2026-08-26 에
 > 별도 저장소(`https://lab.ssafy.com/rleaderjoon/axmap`)로 나갔고, 이 저장소에는
-> CI 가 실제로 부르는 파일만 복사한 **사본** `ci/axmap/` 만 있다
-> (**벤더링** vendoring — 남의 코드를 내 저장소 안에 복사해 두고 그 사본으로 돌리는 것).
+> 이 저장소에는 axMap 이 아예 없다 — CI 는 npm 꾸러미 `axmap-cli` 를 `npx` 로 부른다.
 > axMap 의 단위 테스트·데모·화면 스모크는 **저쪽 저장소의 CI** 가 돌린다.
 > 여기 남은 잡들은 전부 **팀의 규칙을 검사하는 것**이지 axMap 을 검사하는 것이 아니다.
 > 배경은 [`CONTRIBUTING.md`](../CONTRIBUTING.md) 0.3 절.
@@ -121,7 +120,7 @@ sudo gitlab-runner register \
 | **최상위 `main`** (접두사 없음) | major (아래 전부 0) | 1.2.0 → 2.0.0 |
 | `feat/…` 기능 브랜치 | **안 올린다** — 단계가 없다 | |
 
-판정은 `ci/axmap/src/version.mjs` 의 `levelOf()` 가 한다. 규칙은 **브랜치 이름의 마지막
+판정은 npm 꾸러미 `axmap-cli` 안의 `levelOf()` 가 한다 (`npx -y axmap-cli@latest version`). 규칙은 **브랜치 이름의 마지막
 조각**을 본다 — `main`·`master`·`func` 이면 파트 단계(minor), `dev` 면 patch,
 그 외에는 안 올린다. 첫 태그는 단계와 무관하게 `v1.0.0` 이다.
 
@@ -345,7 +344,7 @@ git 이 아니라 GitLab API 를 부르는 일이라 **`api` 가 필요하다.**
 애플리케이션을 `Dockerfile` 로 빌드해 배포하는 것.
 **이 저장소에는 그게 없고, 지금은 필요하지도 않다.**
 
-지금 이 저장소의 CI 가 부르는 것은 **선점 장치의 사본**(`ci/axmap/`)뿐이고, 그건
+지금 이 저장소의 CI 가 부르는 것은 **선점 장치**(npm 꾸러미 `axmap-cli`)뿐이고, 그건
 **배포되는 서비스가 아니라 개발할 때 쓰는 도구**다. 각자 PC 에서
 `npx -y axmap-cli@latest` 로 돌린다. 서버에 올라가지 않으니 이미지를 만들 이유가 없다.
 
@@ -395,12 +394,11 @@ default:
 
 | 잡 | 무엇을 돌리나 | 언제 도나 |
 |---|---|---|
-| `ci:vendor` | `npx -y axmap-cli@latest doctor` — `ci/axmap/` 사본이 손으로 바뀌지 않았는지 | **모든 MR**, 그리고 이름이 `main`·`func`·`dev` 로 끝나는 브랜치의 커밋 |
 | `claims` | `npx -y axmap-cli@latest audit --fetch` — 선점 없이 고친 것이 들어왔는지 | **모든 MR** |
 | `verify:mr-target` | `npx -y axmap-cli@latest mr-target` — MR 이 한 칸씩 올라가는지 | **모든 MR.** 컨테이너를 띄우고 node 를 한 번 부르는 게 전부라 제일 먼저 끝난다 |
 | `governance` | `npx -y axmap-cli@latest gate` — 정족수를 채웠는지 | **모든 MR** |
 | `version` | 버전 태그 계산 · 생성 · push | 이름이 `main`·`func`·`dev` 로 끝나는 브랜치의 커밋. **MR 에서는 안 돈다** |
-| `promote` | `node ci/axmap/tools/promote.mjs --step "$PROMOTE_STEP"` — 봇이 단계를 올린다 | **스케줄 파이프라인**(GitLab 이 정해진 시각에 스스로 돌리는 것)에서만. 6절 |
+| `promote` | `npx -y axmap-cli@latest promote --step "$PROMOTE_STEP"` — 봇이 단계를 올린다 | **스케줄 파이프라인**(GitLab 이 정해진 시각에 스스로 돌리는 것)에서만. 6절 |
 
 `.gitlab-ci.yml` 은 이 조건을 정규식 `/(^|\/)(main|func|dev)$/` 로 적는다 —
 브랜치 이름 전체가 그 셋 중 하나거나, 슬래시 뒤 마지막 조각이 그 셋 중 하나면 걸린다.
@@ -410,20 +408,14 @@ default:
 **얕은 클론**(최근 몇 커밋만 받아오는 것)을 하는데, 이 둘은 이력 전체나 갈림점이
 있어야 판정할 수 있다. 얕으면 틀린 답을 자신 있게 낸다.
 
-### `ci:vendor` — 사본이 손으로 바뀌지 않았는가
+### `ci:vendor` — 없어진 잡 (2026-09-01)
 
-`ci/axmap/` 은 axMap 저장소에서 복사해 온 사본이고, 위 표의 잡들이 부르는 것이 전부
-그 사본이다. 누가 사본을 직접 고치면 **팀 CI 의 동작이 조용히 갈라진다** — axMap
-저장소에는 없는 코드가 팀 파이프라인에서 도는 상태가 된다.
+이 자리에는 **사본이 손으로 바뀌지 않았는지 대조하는 잡**이 있었다. `ci/axmap/` 아래
+파일마다의 지문 목록(`manifest.sha256`)과 실제 파일을 맞춰 보고, 하나라도 어긋나면
+빨개졌다. 사본을 없앴으니 대조할 것도 없어져서 **잡과 검사 프로그램을 함께 뺐다.**
 
-이 잡은 `ci/axmap/manifest.sha256`(파일마다의 지문 목록)과 실제 파일을 대조한다.
-지문이 어긋나면 빨개진다. 고치는 올바른 길은 [`CONTRIBUTING.md`](../CONTRIBUTING.md) 0.3 절에 있다 —
-**axMap 저장소에서 고치고 벤더 명령을 다시 돌린다.**
-
-> 🔴 **이 잡은 막지 못한다. 보이게 만들 뿐이다.** `manifest.sha256` 까지 다시 만들면
-> 통과한다. 다만 그때는 `SOURCE.json` 과 `manifest.sha256` 이 diff 에 떠서 리뷰어가
-> *"업스트림 커밋은 그대로인데 사본만 바뀌었다"* 를 본다.
-> 거버넌스 잡과 같은 태도다 — 강제 장치가 아니라 **부인 불가능성 장치**다.
+왜 사본을 버렸는지, 그리고 각자의 브랜치에서 사본이 언제 사라지는지는
+[AXMAP-NPM-MIGRATION.md](AXMAP-NPM-MIGRATION.md) 에 있다.
 
 ### `claims` — 선점 없이 고친 것이 들어왔는가
 
@@ -488,7 +480,6 @@ npx -y axmap-cli@latest mr-target --source front/dev --target back/main
 
 | 걸리는 것 | 어느 잡이 |
 |---|---|
-| `ci/axmap/` 사본을 손으로 고친 MR | `ci:vendor` |
 | 선점(claim) 없이 파일을 고친 MR | `claims` |
 | 단계를 건너뛴 MR (`feat/… → main` 등) | `verify:mr-target` |
 | 정족수(**통과에 필요한 최소 찬성 수**)를 못 채운 MR | `governance` |
@@ -589,8 +580,8 @@ npx -y axmap-cli@latest mr-target --source front/dev --target back/main
 | | |
 |---|---|
 | [`.gitlab-ci.yml`](../.gitlab-ci.yml) | 실제로 도는 것. 이 문서와 어긋나면 저쪽이 기준이다 |
-| [`ci/axmap/README.md`](../ci/axmap/README.md) | 사본을 왜 두는지, 고쳐야 할 때 어떻게 하는지 |
-| [`CONTRIBUTING.md`](../CONTRIBUTING.md) | 팀 전체 규칙. 0.3 절이 사본, 3절이 "머지를 막는 것은 권한이 아니라 파이프라인이다" |
+| [`AXMAP-NPM-MIGRATION.md`](AXMAP-NPM-MIGRATION.md) | 사본을 왜 버렸는지, 각자의 브랜치에서 언제 사라지는지, 1.1.0 에서 뭐가 달라졌는지 |
+| [`CONTRIBUTING.md`](../CONTRIBUTING.md) | 팀 전체 규칙. 3절이 "머지를 막는 것은 권한이 아니라 파이프라인이다" |
 | [`docs/HANDOVER.md`](HANDOVER.md) | 아직 안 정한 것 전부 (4절) |
 | axMap 저장소 `https://lab.ssafy.com/rleaderjoon/axmap` | 버전 규칙의 전문(`docs/VERSIONING.md`)과 도구 자체의 테스트가 있는 곳 |
 </content>

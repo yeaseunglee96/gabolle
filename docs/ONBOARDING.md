@@ -19,12 +19,15 @@
 코드 충돌이 나기 전에 **의도 충돌**을 먼저 터뜨리는 것이다.
 당신이 할 일은 거의 없다. AI 도구를 쓰면 도구가 알아서 부른다.
 
-> **이 저장소에 있는 것은 그 도구의 사본이다.** axMap 본체는 별도 저장소
-> (`https://lab.ssafy.com/rleaderjoon/axmap`)에 있고, 여기 `ci/axmap/` 에는 팀이
-> 실제로 부르는 파일만 복사해 뒀다 — **벤더링**(vendoring — 남의 코드를 내 저장소
-> 안에 복사해 두고 그 사본으로 돌리는 것). 쓰는 데는 아무 차이가 없다.
-> **다만 `ci/axmap/` 아래를 손으로 고치면 안 된다** — 왜인지는
-> [../CONTRIBUTING.md](../CONTRIBUTING.md) 0.3 절에 있다.
+> 🔴 **2026-09-01 정정 — 이 저장소 안에 axMap 은 없다.** 예전에는 `ci/axmap/` 에
+> 사본을 두고 그걸 불렀다 — **벤더링**(vendoring — 남의 코드를 내 저장소 안에
+> 복사해 두고 그 사본으로 돌리는 것). 그 폴더를 통째로 뺐다.
+> 지금은 **npm 꾸러미 `axmap-cli`** 를 각자 PC 에 한 번 깔아서 쓴다 (1절).
+> 본체는 여전히 별도 저장소(`https://lab.ssafy.com/rleaderjoon/axmap`)에 있다.
+>
+> 낡은 실측은 지우지 않고 정정한 날짜와 함께 남긴다 — 다음 사람이 같은 것을
+> 다시 재보지 않게. 왜 사본을 버렸는지는
+> [AXMAP-NPM-MIGRATION.md](AXMAP-NPM-MIGRATION.md) 에 있다.
 
 ---
 
@@ -71,12 +74,14 @@ npx -y axmap-cli@latest doctor
   OK  node       v20.11.0
   OK  저장소        /home/you/S15P21E201
   OK  내 이름       홍길동  (git config user.name)
+  OK  내 세션       0c01633e…39a4  (CLAUDE_CODE_SESSION_ID)
   OK  장부         .axmap/ledger
   OK  장부 원격      origin  (git config axmap.remote)
   OK  원격 연결      닿습니다
   OK  커밋 훅       심겨 있습니다
-  OK  MCP 설정     ./ci/axmap/mcp/server.mjs  (AI 도구가 승인만 하면 붙습니다)
+  OK  MCP 설정     홈에 등록돼 있습니다 (claude · agy) — 저장소에 파일이 없어도 됩니다
   OK  선점 판정      지금 유효한 claim 이 있습니다
+  OK  버전         1.1.0 — 새 버전이 있는지 물어본 적이 없습니다 (axmap update)
 
 전부 정상입니다. 파일을 고치기 전에 claim 하는 것만 지키면 됩니다.
 ```
@@ -84,8 +89,10 @@ npx -y axmap-cli@latest doctor
 `!!` 가 있으면 그 줄에 **고치는 방법이 함께 적혀 있다.** `~~` 는 알아둘 것이지 오류는 아니다.
 
 > 🔴 **`커밋 훅` 줄에 `!!` 가 나오고 "가리키는 파일이 없습니다" 라고 하면** — 이 저장소를
-> 2026-08-26 이전부터 쓰고 있었다는 뜻이다. 그날 axMap 이 `axmap/` 에서 `ci/axmap/` 으로
-> 자리를 옮겼는데, 훅은 옛 경로를 절대 경로로 박아 두고 있다. 한 줄로 고친다.
+> axMap 이 자리를 옮기기 전부터 쓰고 있었다는 뜻이다. 두 번 옮겼다 —
+> 2026-08-26 에 `axmap/` → `ci/axmap/`, 2026-09-01 에 `ci/axmap/` → **저장소 밖
+> npm 꾸러미**. 훅은 심을 때의 경로를 절대 경로로 박아 두므로 둘 다에서 깨진다.
+> 어느 쪽이든 한 줄로 고친다.
 >
 > ```bash
 > npx -y axmap-cli@latest hook install
@@ -193,7 +200,7 @@ CLI 면 무엇이든 붙는다. 다른 것은 **자동으로 붙느냐**뿐이�
   "mcpServers": {
     "axmap": {
       "command": "node",
-      "args": ["<clone 한 절대경로>/ci/axmap/mcp/server.mjs"],
+      "args": ["<npm root -g 가 알려준 폴더>/axmap-cli/mcp/server.mjs"],
       "env": { "AXMAP_ACTOR": "agent", "AXMAP_TTL": "45m" }
     }
   }
@@ -205,7 +212,7 @@ CLI 면 무엇이든 붙는다. 다른 것은 **자동으로 붙느냐**뿐이�
 ```toml
 [mcp_servers.axmap]
 command = "node"
-args = ["<clone 한 절대경로>/ci/axmap/mcp/server.mjs"]
+args = ["<npm root -g 가 알려준 폴더>/axmap-cli/mcp/server.mjs"]
 env = { AXMAP_ACTOR = "agent", AXMAP_TTL = "45m" }
 ```
 
@@ -214,9 +221,9 @@ env = { AXMAP_ACTOR = "agent", AXMAP_TTL = "45m" }
 
 > `AXMAP_AGENT` 는 **어느 파일에도 적지 않는다** — 바로 아래 절이 그 이유다.
 
-**정해졌다 (2026-08-31)** — 등록 도구는 팀 사본에 넣지 않는다. npm 꾸러미
-`axmap-cli` 안에 함께 오고 각자 `axmap setup` 으로 돌린다. 사본에 넣으면 벤더
-지문(`ci/axmap/manifest.sha256`)이 어긋나 `ci:vendor` 잡이 빨개지기 때문이다.
+**정해졌다 (2026-08-31)** — 등록 도구는 팀 저장소에 넣지 않는다. npm 꾸러미
+`axmap-cli` 안에 함께 오고 각자 `axmap setup` 으로 돌린다. `setup` 은 저장소가
+아니라 **각자의 홈 설정**을 고치는 일이라, 저장소가 대신 해 주면 되돌릴 방법이 없다.
 
 ### 어디에 무엇이 들어가나
 
@@ -351,10 +358,10 @@ AI 에게: `작업이 끝났으니 ax_release 로 반납해줘.`
 ## 막히면
 
 1. `npx -y axmap-cli@latest doctor` — 대부분 여기서 답이 나온다
-2. [../CONTRIBUTING.md](../CONTRIBUTING.md) — 팀 전체 규칙 (0.3 절이 "사본을 왜 손으로 고치면 안 되나")
+2. [../CONTRIBUTING.md](../CONTRIBUTING.md) — 팀 전체 규칙
 3. [HANDOVER.md](HANDOVER.md) — 지금 무엇이 열려 있고 무엇이 고장 나 있는지 (4.6 절)
 4. 도구 **자체**를 고쳐야 한다면 axMap 저장소로 간다 —
-   `https://lab.ssafy.com/rleaderjoon/axmap`. **이 저장소의 `ci/axmap/` 을 고치는
-   것이 아니다**
+   `https://lab.ssafy.com/rleaderjoon/axmap`. 거기서 고치고 npm 에 새 판을 올리면
+   팀은 다음 `npx` 부터 그것을 쓴다. **이 저장소를 고치는 것이 아니다**
 5. 그래도 안 되면 팀에 물어본다. 물어본 내용은 이 문서에 한 줄로 남긴다 —
    **당신이 막힌 곳에서 다음 사람도 막힌다.**
