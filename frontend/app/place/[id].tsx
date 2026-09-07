@@ -4,6 +4,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { ApiClientError } from '@/api/client';
+import { sendAppEvent } from '@/analytics/appEvents';
+import { useAuth } from '@/auth/AuthProvider';
 import { BrandLogoLink } from '@/components/BrandLogoLink';
 import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
@@ -34,6 +36,7 @@ type RemoteState =
 export default function Place() {
   const router = useRouter();
   const { tx } = useI18n();
+  const { accessToken } = useAuth();
   const { width } = useWindowDimensions();
   const { id } = useLocalSearchParams<{ id?: string }>();
   const demoPlace = id && id in PLACES ? PLACES[id as keyof typeof PLACES] : null;
@@ -117,6 +120,8 @@ export default function Place() {
     await AsyncStorage.setItem(SAVED_PLACES_KEY, JSON.stringify(nextIds));
     setIsSaved(nextSaved);
     setFeedback(nextSaved ? tx('내 여행 후보에 저장했어요.', 'Saved to your trip candidates.') : tx('저장을 해제했어요.', 'Removed from saved.'));
+    // 홈 화면 하트와 같은 규칙이다 — 저장할 때만 보낸다. 해제는 "싫다" 가 아니라 "취소" 다.
+    if (nextSaved) sendAppEvent({ type: 'place_like', accessToken, payload: { place_id: id, surface: 'place_detail' } });
   };
 
   const notFound = !demoPlace && remote.status === 'not-found';

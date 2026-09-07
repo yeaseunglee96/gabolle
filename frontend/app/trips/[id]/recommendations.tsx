@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Image, Pressable, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { sendAppEvent } from '@/analytics/appEvents';
 import { useAuth } from '@/auth/AuthProvider';
 import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
@@ -28,7 +29,17 @@ export default function Recommendations() {
     setView(await loadRecommendationResult(jobId, accessToken));
   }, [accessToken, jobId, tx]);
   useEffect(() => { void reload(); }, [reload]);
-  const updateAction = (courseId: string, actionState: RecommendationCourse['actionState']) => setView((current) => ({ ...current, courses: current.courses.map((course) => course.id === courseId ? { ...course, actionState } : course) }));
+  // 저장·제외는 지금까지 화면 상태만 바꿨다. 이제 서버로도 간다 — 노출된 것 중에서 고른 것이라
+  // 가장 깨끗한 취향 신호다. 되돌리기(idle)는 아무 뜻이 아니라 보내지 않는다.
+  //
+  // 🔴 전송은 setView 의 갱신 함수 밖에서 한다. 그 안에서 하면 React 가 갱신 함수를 두 번 부를 때
+  //    이벤트도 두 건 적힌다. 그리고 버튼은 서버 응답을 기다리지 않는다.
+  const updateAction = (courseId: string, actionState: RecommendationCourse['actionState']) => {
+    setView((current) => ({ ...current, courses: current.courses.map((course) => course.id === courseId ? { ...course, actionState } : course) }));
+    if (actionState === 'saved' || actionState === 'excluded') {
+      sendAppEvent({ type: actionState === 'saved' ? 'place_like' : 'place_dislike', accessToken, tripId: id, payload: { place_id: courseId, surface: 'recommendations' } });
+    }
+  };
   const unavailable = view.state === 'unavailable' || view.state === 'empty-conflict';
   return <View style={styles.shell}><Screen scroll wide style={styles.canvas}><View style={styles.nav}><Pressable accessibilityRole="button" accessibilityLabel={tx('뒤로 가기', 'Go back')} onPress={() => router.canGoBack() ? router.back() : router.replace('/plan/confirm')} style={styles.back}><Text variant="title">‹</Text></Pressable><View style={styles.dots}><View style={styles.dot} /><View style={styles.dot} /><View style={styles.activeDot} /></View></View><Text variant="caption" weight="bold" color={color.brand.orange}>{tx('추천 일정 요약', 'Recommendation summary')}</Text><Text variant="display" weight="bold" style={styles.heading}>{view.state === 'success' || view.state === 'partial' || view.state === 'fallback' ? tx(`${view.courses.length}가지 코스를 골라봤어요.`, `We picked ${view.courses.length} courses for you.`) : tx('추천 결과', 'Recommendation result')}</Text>
       {(view.state === 'success' || view.state === 'partial' || view.state === 'fallback') && (view.placeCount !== null || view.estimatedTravelMinutes !== null) && <Text variant="body" color={color.text.muted} style={styles.summary}>{[view.placeCount !== null ? tx(`장소 ${view.placeCount}곳`, `${view.placeCount} places`) : null, view.estimatedTravelMinutes !== null ? tx(`이동 약 ${view.estimatedTravelMinutes}분`, `~${view.estimatedTravelMinutes} min travel`) : null].filter(Boolean).join(' · ')}</Text>}
