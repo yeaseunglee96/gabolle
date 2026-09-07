@@ -6,6 +6,8 @@ import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.gabolle.backend.auth.service.AuthException;
@@ -27,8 +29,21 @@ import com.gabolle.backend.common.api.ApiResponse;
  * advice 에 넓은 타입(특히 {@code Exception}·{@code RuntimeException})을 걸면 다른
  * 도메인의 더 구체적인 핸들러가 시도되지도 못한다. 이 클래스는 딱 {@link AuthException}
  * 하나만 잡는다.
+ *
+ * <p>🔴 <b>2026-09-07 — {@code @Order(HIGHEST_PRECEDENCE)} 를 붙였다. 이것이 없으면 운영에서 500 이 난다.</b>
+ * {@code AuthExceptionHandler} 는 이제 {@code assignableTypes} 로 좁혀졌지만 <b>여전히
+ * {@code @ExceptionHandler(Exception.class)} 캐치올을 갖고 있고</b>, {@code AuthException} 핸들러는 이 클래스로
+ * 옮겨졌다. Spring 은 예외 하나를 처리할 때 <b>advice 단위로</b> 순서대로 훑어 "처리할 메서드가 있는 첫 advice"
+ * 에서 멈춘다 — advice 들 사이에서 가장 구체적인 타입을 고르는 것이 아니다. 그래서 {@code AuthController} 요청의
+ * {@code AuthException} 은 그쪽 캐치올({@code Exception})에 먼저 잡혀 500 {@code INTERNAL_ERROR} 가 됐다.
+ * 배포에서 실측했다 — 없는 이메일로 로그인하면 401 {@code INVALID_CREDENTIALS} 가 아니라 500 이 나갔다.
+ *
+ * <p>순서를 명시하면 이 advice 가 언제나 먼저 시도되므로 {@code AuthException} 은 어느 컨트롤러에서 나와도
+ * 제 상태 코드로 나간다. 스캔 순서에 기대지 않는 것이 요점이다 — 이 저장소는 같은 함정을 이미 세 번 만났다
+ * ({@code TripExceptionHandler} 의 예외 계층, 기록 묶음의 원인 사슬, 그리고 이번 advice 순서).
  */
 @RestControllerAdvice
+@Order(Ordered.HIGHEST_PRECEDENCE)
 public class GlobalAuthExceptionHandler {
 
 	@ExceptionHandler(AuthException.class)
