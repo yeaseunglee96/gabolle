@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 import com.gabolle.backend.common.privacy.SensitiveDataInPayloadException;
 import com.gabolle.backend.event.application.OutboxAppendCommand;
 import com.gabolle.backend.event.domain.Producer;
+import com.gabolle.backend.recommendation.adapter.EditorialPickBaseline;
+import com.gabolle.backend.recommendation.adapter.EditorialPickBaselineProvider;
 import com.gabolle.backend.recommendation.adapter.EngineCandidateBatch;
 import com.gabolle.backend.recommendation.adapter.EngineRequest;
 import com.gabolle.backend.recommendation.adapter.EngineVersions;
@@ -28,6 +30,7 @@ import com.gabolle.backend.recommendation.application.port.ItineraryDraftPort;
 import com.gabolle.backend.recommendation.application.port.ItineraryRevisionCommand;
 import com.gabolle.backend.recommendation.application.port.ItineraryRevisionDraft;
 import com.gabolle.backend.recommendation.config.RecommendationProperties;
+import com.gabolle.backend.recommendation.domain.FallbackMode;
 import com.gabolle.backend.recommendation.domain.JobStage;
 import com.gabolle.backend.recommendation.domain.JobType;
 import com.gabolle.backend.recommendation.domain.RecommendationJob;
@@ -101,16 +104,27 @@ public class RecommendationService {
 	 */
 	private final ObjectProvider<ItineraryDraftPort> itineraryDraftPort;
 
+	/**
+	 * Editor's Pick 기준선 (S15P21E201-555).
+	 *
+	 * <p>🔴 {@code RecommendationEnginePort} 와 같은 이유로 {@code ObjectProvider} 다 —
+	 * 이 배포에 편집 데이터 계층이 없을 수 있고, 그때 <b>기준선이 없다는 이유로 추천
+	 * 전체가 못 뜨면 안 된다.</b> 없으면 지금까지와 똑같이 실패한다.
+	 */
+	private final ObjectProvider<EditorialPickBaselineProvider> editorialPickProvider;
+
 	public RecommendationService(ObjectProvider<RecommendationEnginePort> enginePort,
 			CandidateAssembler candidateAssembler, RecommendationRecorder recorder,
 			RecommendationProperties properties, Clock clock,
-			ObjectProvider<ItineraryDraftPort> itineraryDraftPort) {
+			ObjectProvider<ItineraryDraftPort> itineraryDraftPort,
+			ObjectProvider<EditorialPickBaselineProvider> editorialPickProvider) {
 		this.enginePort = enginePort;
 		this.candidateAssembler = candidateAssembler;
 		this.recorder = recorder;
 		this.properties = properties;
 		this.clock = clock;
 		this.itineraryDraftPort = itineraryDraftPort;
+		this.editorialPickProvider = editorialPickProvider;
 	}
 
 	/**
@@ -163,7 +177,13 @@ public class RecommendationService {
 
 		RecommendationEnginePort engine = this.enginePort.getIfAvailable();
 		if (engine == null) {
-			// 기동은 됐지만 이 배포에는 엔진이 없다. 조용히 빈 결과를 주지 않는다.
+			// 기동은 됐지만 이 배포에는 엔진이 없다. 조용히 빈 결과를 주지 않는다 —
+			// 다만 편집자가 고른 기준선이 있으면 그것을 내보낸다 (S15P21E201-555).
+			RecommendationResult baseline = editorialPickFallback(job, command, topK, createdAt, startedNanos,
+					RecommendationCodes.ERROR_ENGINE_NOT_CONFIGURED);
+			if (baseline != null) {
+				return baseline;
+			}
 			throw abandon(job, RecommendationCodes.ERROR_ENGINE_NOT_CONFIGURED, JobStage.CANDIDATE_GENERATION,
 					false, false, createdAt, startedNanos, null);
 		}
@@ -176,10 +196,24 @@ public class RecommendationService {
 		}
 		catch (RecommendationEngineException ex) {
 			// 엔진이 잠깐 죽었거나 느렸을 수 있다 — 다시 부르면 달라질 여지가 있다.
+			//
+			// 🔴 여기가 콜드스타트가 실제로 걸리는 자리다. 출발지 좌표가 없는 여행은
+			//    ENGINE_ORIGIN_MISSING 으로 여기 온다 — 좌표를 지어내지 않기 때문이다
+			//    (BaselineRecommendationEngine 79~83행). 그 요청에 빈 화면 대신 기준선을 준다.
+			RecommendationResult baseline = editorialPickFallback(job, command, topK, createdAt, startedNanos,
+					ex.getErrorCode());
+			if (baseline != null) {
+				return baseline;
+			}
 			throw abandon(job, ex.getErrorCode(), JobStage.CANDIDATE_GENERATION, ex.isTimeout(), true,
 					createdAt, startedNanos, ex);
 		}
 		catch (RuntimeException ex) {
+			RecommendationResult baseline = editorialPickFallback(job, command, topK, createdAt, startedNanos,
+					RecommendationCodes.ERROR_ENGINE_UNAVAILABLE);
+			if (baseline != null) {
+				return baseline;
+			}
 			throw abandon(job, RecommendationCodes.ERROR_ENGINE_UNAVAILABLE, JobStage.CANDIDATE_GENERATION,
 					false, true, createdAt, startedNanos, ex);
 		}
@@ -316,7 +350,108 @@ public class RecommendationService {
 		return new RecommendationResult(job.getRequestId(), job.getJobId(), job.getJobType(), job.getJobStatus(),
 				job.getGeneratedAt(), assembly.returnedItems(), assembly.generatedCount(),
 				assembly.eligibleCount(), assembly.returnedCount(), job.getFallbackMode(),
-				job.getFallbackReason(), job.getModelVersion(), job.getFeatureVersion(),
+				job.getFallbackReason(), job.getSourceMode(), job.getModelVersion(), job.getFeatureVersion(),
+				job.getOntologyVersion(), job.getPolicyVersion(), job.getDatasetVersion(),
+				job.getServiceVersion(), job.getDeploymentEnvironment());
+	}
+
+	/**
+	 * 개인화 추천을 못 만들었을 때 편집자가 고른 목록으로 결과를 만든다 (S15P21E201-555).
+	 *
+	 * <p>FR-REC-03 · FR-REC-11 · FR-REC-15. 완료 기준 <i>"신규 계정과 취향 전부 SKIPPED
+	 * 계정의 첫 결과가 비어 있지 않다"</i> 와 <i>"추천 서버 장애 시 하드 제약을 지키는
+	 * 기준선 결과가 나온다"</i> 가 이 경로다.
+	 *
+	 * <h2>🔴 어디서 부르고 어디서 안 부르나</h2>
+	 *
+	 * <p><b>엔진 단계의 실패에서만 부른다</b> — 엔진 빈이 없을 때와 엔진이 던졌을 때다.
+	 * 그 두 경우에는 후보가 하나도 만들어지지 않았으므로 기준선으로 갈아탈 여지가 있다.
+	 *
+	 * <p><b>후보를 만들었는데 전부 걸러진 경우(422 NO_FEASIBLE_RESULT)에는 부르지 않는다.</b>
+	 * 이유가 둘이다. 하나는 그 상황의 정답이 "조건에 맞는 곳이 없다" 이고 하드 제약을 슬쩍
+	 * 풀지 않는다는 원칙이 그대로 적용된다는 것이다. 다른 하나는 기록이다 — 그 요청의 후보
+	 * 행들이 "왜 빈손이었나" 를 설명하는 유일한 자료인데, 같은 {@code request_id} 에 Pick
+	 * 후보를 겹쳐 넣으면 {@code uq_recommendation_candidate_request_place} 와 부딪히거나
+	 * (Pick 장소가 후보에도 있었을 때) 탈락 이유가 덮인다.
+	 *
+	 * <p><b>일정 Job 에서도 부르지 않는다.</b> Pick 은 장소 목록이지 시간이 배치된 일정이
+	 * 아니다. {@code ITINERARY_GENERATION} 에 목록만 돌려주면 {@code itineraryId} 없는
+	 * 성공이 되고, {@code RecommendationJob.assertItineraryAttachedIfRequired} 가 요구하는
+	 * 것과 어긋난다.
+	 *
+	 * @param fallbackReason 왜 기준선으로 왔는가. 그대로 {@code fallback_reason} 에 남는다 —
+	 *     신규 계정이라 온 것과 엔진이 죽어서 온 것을 가르는 값이다
+	 * @return 기준선 결과, 또는 만들 수 없으면 {@code null}(부르는 쪽이 원래 실패로 돌아간다)
+	 */
+	private RecommendationResult editorialPickFallback(RecommendationJob job, RecommendationCommand command,
+			int topK, OffsetDateTime createdAt, long startedNanos, String fallbackReason) {
+
+		if (job.getJobType() == JobType.ITINERARY_GENERATION || command.isItineraryEdit()) {
+			return null;
+		}
+		EditorialPickBaselineProvider provider = this.editorialPickProvider.getIfAvailable();
+		if (provider == null) {
+			return null;
+		}
+
+		EditorialPickBaseline baseline;
+		try {
+			baseline = provider.loadGlobalBaseline(command.constraintSnapshotId(), fallbackReason).orElse(null);
+		}
+		catch (RuntimeException ex) {
+			// 🔴 기준선을 만들다 실패한 것이 <b>원래 실패를 덮지 않게</b> 한다. 부르는 쪽이
+			//    abandon 으로 돌아가 진짜 원인(ENGINE_*)을 남긴다 — 여기서 던지면 사용자는
+			//    "기준선 오류" 를 보고 엔진이 죽은 사실은 기록에서 사라진다.
+			return null;
+		}
+		if (baseline == null) {
+			return null;
+		}
+
+		OffsetDateTime generatedAt = OffsetDateTime.now(this.clock);
+		EngineCandidateBatch batch = baseline.batch();
+
+		// 🔴 버전 검사를 건너뛰지 않는다. 기준선도 재현할 수 있어야 하고, 못 하면 결과를
+		//    내보내지 않는 것이 이 저장소의 규칙이다(위 resolveMissingVersions 주석).
+		if (!resolveMissingVersions(batch.versions()).isEmpty()) {
+			return null;
+		}
+		job.applyVersions(batch.versions().modelVersion(), batch.versions().featureVersion(),
+				batch.versions().ontologyVersion(), batch.versions().policyVersion(),
+				batch.versions().datasetVersion(), this.properties.serviceVersion(),
+				this.properties.deploymentEnvironment());
+
+		CandidateAssembly assembly;
+		try {
+			// 🔴 assembleFixedOrder 다 — 편집자가 정한 순서를 점수로 다시 매기지 않는다.
+			//    하드 제약 판정은 개인화 경로와 같은 코드를 지난다.
+			assembly = this.candidateAssembler.assembleFixedOrder(job.getRequestId(), batch, topK,
+					this.properties.unknownExclusionThreshold(), this.properties.unspecifiedSeverity(),
+					createdAt);
+		}
+		catch (RuntimeException ex) {
+			return null;
+		}
+		if (assembly.returnedCount() == 0) {
+			// 🔴 Pick 의 장소가 전부 하드 제약에 걸렸다. 빈 목록을 성공으로 내보내지 않고
+			//    원래 실패로 돌아간다 — 완료 기준이 요구하는 것은 "비어 있지 않은 결과" 다.
+			return null;
+		}
+
+		job.applyCounts(assembly.generatedCount(), assembly.eligibleCount(), assembly.returnedCount());
+		job.applyLatencies(elapsedMs(startedNanos), batch.latencies().candidateGenerationMs(), null, null,
+				null, null);
+		job.fallBackToEditorialPick(baseline.pickId());
+
+		OffsetDateTime completedAt = OffsetDateTime.now(this.clock);
+		job.markCompleted(generatedAt, completedAt, FallbackMode.EDITORIAL_PICK, fallbackReason);
+
+		this.recorder.record(job, assembly.candidates(), List.of(buildRequestedEvent(job, createdAt)));
+
+		return new RecommendationResult(job.getRequestId(), job.getJobId(), job.getJobType(), job.getJobStatus(),
+				job.getGeneratedAt(), assembly.returnedItems(), assembly.generatedCount(),
+				assembly.eligibleCount(), assembly.returnedCount(), job.getFallbackMode(),
+				job.getFallbackReason(), job.getSourceMode(), job.getModelVersion(), job.getFeatureVersion(),
 				job.getOntologyVersion(), job.getPolicyVersion(), job.getDatasetVersion(),
 				job.getServiceVersion(), job.getDeploymentEnvironment());
 	}

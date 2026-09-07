@@ -178,6 +178,52 @@ public class BaselineCandidateScorer {
 				null, featureValues, scoreComponents, preRankScore, reasonCodes, warnings);
 	}
 
+	/**
+	 * <b>제약 판정만</b> 하고 점수는 매기지 않는다 (S15P21E201-555).
+	 *
+	 * <p>Editor's Pick 기준선이 쓴다. Pick 은 순서를 사람이 정했으므로 점수가 필요 없고,
+	 * 필요한 것은 <b>이 장소가 이 사용자의 제약을 어기는가</b> 하나다.
+	 *
+	 * <p>🔴 <b>왜 {@link #score} 를 부르지 않는가.</b> 점수를 함께 계산하면 거리 성분을
+	 * 위해 {@code distanceM} 이 필요하고, Pick 에는 출발지 기준 거리라는 것이 없다. 거기에
+	 * 0 을 넣으면 "출발지에 붙어 있다" 는 뜻이 되고, 그 값이 {@code feature_values} 에
+	 * 그대로 기록돼 나중에 거리 분포를 재는 질의를 오염시킨다. 안 쓰는 값을 지어내지 않기
+	 * 위해 판정만 떼어 부른다.
+	 *
+	 * <p>🔴 판정 자체는 {@link #evaluateConstraints} 를 그대로 쓴다 — 같은 것을 두 번
+	 * 구현하면 한쪽만 고쳐지는 날이 오고, 그 한쪽이 알레르기 필터다.
+	 *
+	 * @param reasonCodes 이 후보에 붙일 이유 코드 (Pick 이면 {@code EDITORIAL_PICK})
+	 * @param extraWarnings 부르는 쪽이 이미 아는 경고. 판정으로 나온 경고와 합쳐진다
+	 * @return {@code preRankScore}·{@code featureValues}·{@code scoreComponents} 가 비어 있는
+	 *     후보. 비어 있는 것이 사실이다 — 우리는 점수를 매기지 않았다
+	 */
+	public EngineCandidate evaluateWithoutScoring(PlaceCandidateResponse.Candidate candidate,
+			List<TripConstraint> constraints, List<UserPlaceCodeMap> constraintCodeMap, String candidateSource,
+			List<String> reasonCodes, List<String> extraWarnings) {
+
+		List<Map<String, Object>> violations = new ArrayList<>();
+		List<Map<String, Object>> unknownFacts = new ArrayList<>();
+		List<String> warnings = new ArrayList<>((extraWarnings == null) ? List.of() : extraWarnings);
+
+		evaluateConstraints(candidate, constraints, constraintCodeMap, violations, unknownFacts, warnings);
+
+		ConstraintVerdict verdict;
+		if (!violations.isEmpty()) {
+			verdict = ConstraintVerdict.FAIL;
+		}
+		else if (!unknownFacts.isEmpty()) {
+			verdict = ConstraintVerdict.UNKNOWN;
+		}
+		else {
+			verdict = ConstraintVerdict.PASS;
+		}
+
+		return new EngineCandidate(candidate.placeId(), candidateSource, verdict, violations, unknownFacts,
+				null, Map.of(), Map.of(), null,
+				(reasonCodes == null) ? List.of() : List.copyOf(reasonCodes), warnings);
+	}
+
 	// ══════════════════════════════════════════════════════════════════════
 	// 제약 판정 — 판정표 그대로
 	// ══════════════════════════════════════════════════════════════════════
