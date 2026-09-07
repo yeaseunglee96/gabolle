@@ -11,16 +11,16 @@ import { useLayout } from '@/layout/useLayout';
 import { PlanStepHeader } from '@/plan/PlanStepHeader';
 import { PlanDesktopShell } from '@/plan/PlanDesktopShell';
 import { type PreferenceDimension, usePlan } from '@/plan/PlanProvider';
-import { CONFLICT_LABEL, conflictingFoodCode, FOODS } from '@/plan/foodConflicts';
+import { CONFLICT_LABEL_PAIR, conflictingFoodCode, FOODS } from '@/plan/foodConflicts';
 import { useI18n } from '@/i18n';
 
 const CATEGORIES = [
-  { key: 'SEA_BEACH', label: '바다 & 해변', image: require('../../assets/taste/sea-beach.png') },
-  { key: 'CITY', label: '도심 탐험', image: require('../../assets/taste/city.png') },
-  { key: 'CAFE_HEALING', label: '카페 & 힐링', image: require('../../assets/taste/cafe.png') },
-  { key: 'CULTURE_TEMPLE', label: '문화 & 사찰', image: require('../../assets/taste/culture.png') },
-  { key: 'FOOD', label: '맛집 & 먹거리', image: require('../../assets/taste/food.png') },
-  { key: 'NATURE_WALK', label: '자연 & 산책', image: require('../../assets/taste/nature.png') },
+  { key: 'SEA_BEACH', labelKo: '바다 & 해변', labelEn: 'Sea & Beach', image: require('../../assets/taste/sea-beach.png') },
+  { key: 'CITY', labelKo: '도심 탐험', labelEn: 'City Exploration', image: require('../../assets/taste/city.png') },
+  { key: 'CAFE_HEALING', labelKo: '카페 & 힐링', labelEn: 'Cafe & Healing', image: require('../../assets/taste/cafe.png') },
+  { key: 'CULTURE_TEMPLE', labelKo: '문화 & 사찰', labelEn: 'Culture & Temples', image: require('../../assets/taste/culture.png') },
+  { key: 'FOOD', labelKo: '맛집 & 먹거리', labelEn: 'Food & Eats', image: require('../../assets/taste/food.png') },
+  { key: 'NATURE_WALK', labelKo: '자연 & 산책', labelEn: 'Nature & Walks', image: require('../../assets/taste/nature.png') },
 ] as const;
 const ATMOSPHERES = [['LIVELY', '활기찬', 'Lively'], ['RELAXED', '여유로운', 'Relaxed'], ['SENTIMENTAL', '감성적인', 'Sentimental'], ['ROMANTIC', '낭만적인', 'Romantic']] as const;
 const LEGACY_CATEGORY: Record<string, string> = { sea: 'SEA_BEACH', alley: 'CITY', food: 'FOOD', nature: 'NATURE_WALK', night: 'CITY', photo: 'CITY' };
@@ -29,7 +29,7 @@ const PACE_OPTIONS = [
   { value: 'BALANCED' as const, ko: '균형 있게', en: 'Balanced', koDesc: '하루 3~4곳, 적당히 머물러요', enDesc: '3-4 places a day, a moderate pace' },
   { value: 'PACKED' as const, ko: '알차게', en: 'Packed', koDesc: '하루 5곳 이상, 짧게짧게 돌아요', enDesc: '5+ places a day, quick visits' },
 ];
-const QUESTION_LABELS = ['카테고리', '분위기', '로컬성', '조용함', '관광지', '음식'] as const;
+const QUESTION_LABELS = [['카테고리', 'Categories'], ['분위기', 'Mood'], ['로컬성', 'Local feel'], ['조용함', 'Quietness'], ['관광지', 'Tourist spots'], ['음식', 'Food']] as const;
 
 function Section({ title, description, skipped, onSkip, children }: { title: string; description: string; skipped?: boolean; onSkip: () => void; children: React.ReactNode }) {
   const { tx } = useI18n(); return <View style={styles.section}><View style={styles.sectionHeader}><View style={styles.sectionCopy}><Text variant="title" weight="bold">{title}</Text><Text variant="caption" color={color.text.muted}>{description}</Text></View><Pressable accessibilityRole="button" accessibilityState={{ selected: skipped }} onPress={onSkip} style={styles.skip}><Text variant="caption" weight="bold" color={color.text.eyebrow}>{skipped ? tx('건너뜀 ✓', 'Skipped ✓') : tx('건너뛰기', 'Skip')}</Text></Pressable></View>{children}</View>;
@@ -37,22 +37,24 @@ function Section({ title, description, skipped, onSkip, children }: { title: str
 function Chips({ options, values, desktop, onChange }: { options: readonly (readonly [string, string])[]; values: string[]; desktop?: boolean; onChange: (values: string[]) => void }) {
   return <View style={styles.chips}>{options.map(([key, label]) => { const selected = values.includes(key); return <Pressable key={key} accessibilityRole="checkbox" accessibilityState={{ checked: selected }} onPress={() => onChange(selected ? values.filter((value) => value !== key) : [...values, key])} style={[styles.chip, desktop && styles.chipDesktop, selected && styles.selected, selected && desktop && styles.selectedDesktop]}><Text weight="bold" color={selected ? (desktop ? color.brand.orange : color.text.onAction) : color.text.heading}>{label}</Text></Pressable>; })}</View>;
 }
-function FoodChips({ options, values, allergies, dietTypes, desktop, onChange }: { options: readonly (readonly [string, string])[]; values: string[]; allergies: string[]; dietTypes: string[]; desktop?: boolean; onChange: (values: string[]) => void }) {
+function FoodChips({ options, values, allergies, dietTypes, desktop, onChange }: { options: readonly (readonly [string, string, string])[]; values: string[]; allergies: string[]; dietTypes: string[]; desktop?: boolean; onChange: (values: string[]) => void }) {
   const { tx } = useI18n();
-  return <View style={styles.chips}>{options.map(([key, label]) => {
+  return <View style={styles.chips}>{options.map(([key, labelKo, labelEn]) => {
     const conflict = conflictingFoodCode(key, allergies, dietTypes);
     const blocked = conflict !== null;
     const selected = values.includes(key);
+    const conflictLabel = conflict ? tx(...CONFLICT_LABEL_PAIR[conflict.code]) : '';
     return <View key={key} style={styles.foodChipWrap}>
       <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: selected, disabled: blocked }} disabled={blocked} onPress={() => onChange(selected ? values.filter((value) => value !== key) : [...values, key])} style={[styles.chip, desktop && styles.chipDesktop, selected && styles.selected, selected && desktop && styles.selectedDesktop, blocked && styles.chipBlocked]}>
-        <Text weight="bold" color={blocked ? color.text.muted : selected ? (desktop ? color.brand.orange : color.text.onAction) : color.text.heading}>{label}</Text>
+        <Text weight="bold" color={blocked ? color.text.muted : selected ? (desktop ? color.brand.orange : color.text.onAction) : color.text.heading}>{tx(labelKo, labelEn)}</Text>
       </Pressable>
-      {conflict && <Text variant="caption" color={color.state.danger}>{tx(`${CONFLICT_LABEL[conflict.code]}${conflict.kind === 'allergy' ? ' 알레르기' : ' 식단'}와 겹쳐요`, `Conflicts with ${CONFLICT_LABEL[conflict.code]}`)}</Text>}
+      {conflict && <Text variant="caption" color={color.state.danger}>{tx(`${conflictLabel}${conflict.kind === 'allergy' ? ' 알레르기' : ' 식단'}와 겹쳐요`, `Conflicts with ${conflictLabel}`)}</Text>}
     </View>;
   })}</View>;
 }
 function Scale({ label, value, low, high, desktop, onChange }: { label: string; value: number | null; low: string; high: string; desktop?: boolean; onChange: (value: number | null) => void }) {
-  return <View accessibilityRole="radiogroup" accessibilityLabel={label} style={styles.scale}><View style={styles.scaleLabels}><Text variant="caption">{low}</Text><Text variant="caption">{high}</Text></View><View style={[styles.scalePoints, desktop && styles.scalePointsDesktop]}>{[1, 2, 3, 4, 5].map((point) => <Pressable key={point} accessibilityRole="radio" accessibilityLabel={`${label} ${point}단계`} accessibilityState={{ selected: value === point }} onPress={() => onChange(point)} style={[styles.scalePoint, value === point && styles.scalePointSelected, value === point && desktop && styles.scalePointSelectedDesktop]}><Text variant="caption" weight="bold" color={value === point ? color.text.onAction : color.text.body}>{point}</Text></Pressable>)}</View></View>;
+  const { tx } = useI18n();
+  return <View accessibilityRole="radiogroup" accessibilityLabel={label} style={styles.scale}><View style={styles.scaleLabels}><Text variant="caption">{low}</Text><Text variant="caption">{high}</Text></View><View style={[styles.scalePoints, desktop && styles.scalePointsDesktop]}>{[1, 2, 3, 4, 5].map((point) => <Pressable key={point} accessibilityRole="radio" accessibilityLabel={tx(`${label} ${point}단계`, `${label} level ${point}`)} accessibilityState={{ selected: value === point }} onPress={() => onChange(point)} style={[styles.scalePoint, value === point && styles.scalePointSelected, value === point && desktop && styles.scalePointSelectedDesktop]}><Text variant="caption" weight="bold" color={value === point ? color.text.onAction : color.text.body}>{point}</Text></Pressable>)}</View></View>;
 }
 
 export default function Taste() {
@@ -103,16 +105,16 @@ export default function Taste() {
     <View style={styles.headingRow}><View><Text variant="display" weight="bold">{tx('취향을 알려주세요', 'Tell us your preferences')}</Text><Text color={color.text.muted} style={styles.subtitle}>{tx('좋아하는 여행 스타일을 선택해 주세요', 'Choose the travel styles you enjoy')}</Text></View><Pressable accessibilityRole="button" onPress={skipAll} style={styles.skipAll}><Text variant="caption" weight="bold">{tx('전체 건너뛰기', 'Skip all')}</Text></Pressable></View>
 
     {kind === 'phone' && <View style={styles.questionProgress}>
-      <View style={styles.questionMeta}><Text variant="caption" weight="bold" color={color.brand.orange}>취향 {panelIndex + 1} / 6</Text><Text variant="caption" color={color.text.muted}>약 {Math.max(10, (6 - panelIndex) * 10)}초 남음</Text></View>
-      <View style={styles.questionDots}>{QUESTION_LABELS.map((label, index) => <Pressable key={label} accessibilityRole="button" accessibilityLabel={`${label} 질문으로 이동`} onPress={() => goToPanel(index)} style={[styles.questionDot, index === panelIndex && styles.questionDotCurrent, answerStatuses[index] !== 'UNKNOWN' && styles.questionDotAnswered]} />)}</View>
-      <View style={styles.answerSummary}>{QUESTION_LABELS.map((label, index) => answerStatuses[index] !== 'UNKNOWN' && <Pressable key={label} accessibilityRole="button" accessibilityLabel={`${label} 답변 수정`} onPress={() => goToPanel(index)} style={styles.answerChip}><Text variant="caption" weight="bold" color={color.text.body}>{label} {answerStatuses[index] === 'SKIPPED' ? '건너뜀' : '완료'} · 수정</Text></Pressable>)}</View>
+      <View style={styles.questionMeta}><Text variant="caption" weight="bold" color={color.brand.orange}>{tx(`취향 ${panelIndex + 1} / 6`, `Preference ${panelIndex + 1} / 6`)}</Text><Text variant="caption" color={color.text.muted}>{tx(`약 ${Math.max(10, (6 - panelIndex) * 10)}초 남음`, `About ${Math.max(10, (6 - panelIndex) * 10)}s left`)}</Text></View>
+      <View style={styles.questionDots}>{QUESTION_LABELS.map(([labelKo, labelEn], index) => <Pressable key={labelKo} accessibilityRole="button" accessibilityLabel={tx(`${labelKo} 질문으로 이동`, `Go to ${labelEn} question`)} onPress={() => goToPanel(index)} style={[styles.questionDot, index === panelIndex && styles.questionDotCurrent, answerStatuses[index] !== 'UNKNOWN' && styles.questionDotAnswered]} />)}</View>
+      <View style={styles.answerSummary}>{QUESTION_LABELS.map(([labelKo, labelEn], index) => answerStatuses[index] !== 'UNKNOWN' && <Pressable key={labelKo} accessibilityRole="button" accessibilityLabel={tx(`${labelKo} 답변 수정`, `Edit ${labelEn} answer`)} onPress={() => goToPanel(index)} style={styles.answerChip}><Text variant="caption" weight="bold" color={color.text.body}>{tx(labelKo, labelEn)} {answerStatuses[index] === 'SKIPPED' ? tx('건너뜀', 'Skipped') : tx('완료', 'Done')} · {tx('수정', 'Edit')}</Text></Pressable>)}</View>
     </View>}
 
     <View style={[styles.content, kind === 'tablet' && styles.contentWide]}>
       <Animated.View key={kind === 'phone' ? panelIndex : 'desktop'} entering={kind === 'phone' ? FadeInRight.duration(180).reduceMotion(ReduceMotion.System) : undefined} exiting={kind === 'phone' ? FadeOutLeft.duration(120).reduceMotion(ReduceMotion.System) : undefined} style={[styles.animatedContent, kind === 'tablet' && styles.animatedContentWide]}>
       {(kind === 'tablet' || panelIndex === 0) && <View style={kind === 'tablet' ? styles.categoryColumn : undefined}>
       <Section title={tx('여행 카테고리', 'Travel categories')} description={tx('최대 3개까지 선택할 수 있어요.', 'Choose up to 3.')} skipped={draft.preferenceAnswerStatus.category === 'SKIPPED'} onSkip={() => skipAndAdvance('category', { preferences: [] })}>
-        <View style={styles.imageGrid}>{CATEGORIES.map((item) => { const selected = draft.preferences.includes(item.key); return <Pressable key={item.key} accessibilityRole="checkbox" accessibilityState={{ checked: selected }} onPress={() => toggleCategory(item.key)} style={[styles.imageCard, kind === 'phone' && styles.imageCardPhone, kind === 'tablet' && styles.imageCardWide, selected && styles.imageCardSelected]}><Image source={item.image} resizeMode="cover" accessibilityIgnoresInvertColors style={[styles.cardImage, kind === 'phone' && styles.cardImagePhone]} />{selected && <View style={styles.check}><Text weight="bold" color={color.text.onAction}>✓</Text></View>}<Text variant="caption" weight="bold" color={selected ? color.brand.orange : color.text.heading} style={styles.cardLabel}>{item.label}</Text></Pressable>; })}</View>
+        <View style={styles.imageGrid}>{CATEGORIES.map((item) => { const selected = draft.preferences.includes(item.key); return <Pressable key={item.key} accessibilityRole="checkbox" accessibilityState={{ checked: selected }} onPress={() => toggleCategory(item.key)} style={[styles.imageCard, kind === 'phone' && styles.imageCardPhone, kind === 'tablet' && styles.imageCardWide, selected && styles.imageCardSelected]}><Image source={item.image} resizeMode="cover" accessibilityIgnoresInvertColors style={[styles.cardImage, kind === 'phone' && styles.cardImagePhone]} />{selected && <View style={styles.check}><Text weight="bold" color={color.text.onAction}>✓</Text></View>}<Text variant="caption" weight="bold" color={selected ? color.brand.orange : color.text.heading} style={styles.cardLabel}>{tx(item.labelKo, item.labelEn)}</Text></Pressable>; })}</View>
         <Text accessibilityRole={feedback ? 'alert' : undefined} variant="caption" color={feedback ? color.state.danger : color.text.muted} style={styles.selectionHint}>{feedback ?? tx(`${draft.preferences.length}개 선택됨 · 최대 3개`, `${draft.preferences.length} selected · up to 3`)}</Text>
       </Section>
       <View style={styles.paceSection}>
