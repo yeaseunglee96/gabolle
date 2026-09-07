@@ -18,9 +18,10 @@ import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 
+// 기본값 /home — sign-in.tsx 의 resolveDestination 과 같은 이유(jaehyeon 님 제안).
 async function resolveDestination(returnTo?: string) {
   if (isSafeReturnPath(returnTo)) return returnTo;
-  return (await consumePendingReturnTo()) ?? '/me';
+  return (await consumePendingReturnTo()) ?? '/home';
 }
 const PROVIDER_LABEL: Record<OAuthProvider, string> = { google: 'Google', naver: 'Naver', kakao: 'Kakao' };
 

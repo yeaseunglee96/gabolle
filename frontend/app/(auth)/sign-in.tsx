@@ -17,10 +17,12 @@ import { useLayout } from '@/layout/useLayout';
 
 // URL 의 returnTo 가 있으면 그걸 쓰고, 없으면(회원가입 뒤 이메일 인증처럼 앱을 벗어났다
 // 돌아온 경우) 저장해 둔 값으로 대신한다 — pendingReturnTo.ts 참고.
+// 🔴 그 둘 다 없을 때의 기본값은 /home 이다. 로그인은 목적지가 아니라 수단이라 — 로그인
+// 자체가 하려던 일이 아니라면 방금 로그인한 사람에게 보여줄 화면은 홈이 맞다 (jaehyeon 님 제안).
 async function resolveDestination(returnTo?: string): Promise<Href> {
   if (isSafeReturnPath(returnTo)) return returnTo as Href;
   const pending = await consumePendingReturnTo();
-  return (pending ?? '/me') as Href;
+  return (pending ?? '/home') as Href;
 }
 // 🔴 401 을 password/social 로 나눠서 말한다. 소셜 버튼에는 애초에 비밀번호가 없으니
 // "비밀번호가 틀렸다" 는 말은 거짓이고, 이 문구 하나가 실제 사고를 가렸다 — 2026-09-07,
