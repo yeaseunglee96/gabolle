@@ -22,16 +22,19 @@ import * as WebBrowser from 'expo-web-browser';
 import { color, spacing } from '@/design/tokens';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
+import { useI18n } from '@/i18n';
 
-const LABEL: Record<string, string> = {
-  google: '구글',
-  naver: '네이버',
-  kakao: '카카오',
+const LABEL: Record<string, { ko: string; en: string }> = {
+  google: { ko: '구글', en: 'Google' },
+  naver: { ko: '네이버', en: 'Naver' },
+  kakao: { ko: '카카오', en: 'Kakao' },
 };
 
 export default function OAuthCallback() {
   const { provider } = useLocalSearchParams<{ provider?: string }>();
-  const label = (provider && LABEL[provider]) ?? '소셜';
+  const { tx } = useI18n();
+  const entry = provider ? LABEL[provider] : undefined;
+  const label = entry ? tx(entry.ko, entry.en) : tx('소셜', 'Social');
 
   useEffect(() => {
     // 팝업을 연 원래 창으로 결과를 넘기고 이 창을 닫는다. 팝업이 아닌 상황
@@ -42,8 +45,8 @@ export default function OAuthCallback() {
   return (
     <Screen>
       <View style={styles.body}>
-        <Text>{label} 로그인을 처리하고 있어요.</Text>
-        <Text>창이 자동으로 닫히지 않으면 닫고 다시 시도해 주세요.</Text>
+        <Text>{tx(`${label} 로그인을 처리하고 있어요.`, `Completing ${label} sign-in.`)}</Text>
+        <Text>{tx('창이 자동으로 닫히지 않으면 닫고 다시 시도해 주세요.', 'If this window does not close automatically, close it and try again.')}</Text>
       </View>
     </Screen>
   );

@@ -12,9 +12,9 @@ import { useI18n } from '@/i18n';
 import { listAvailableMapApps, type AvailableMapProvider } from '@/utils/externalMaps';
 
 const PLACES = {
-  haeundae: { title: '해운대 해수욕장', subtitle: '푸른 바다와 도시가 만나는 곳', image: require('../../assets/home/haeundae.png') },
-  gwangalli: { title: '광안리 해수욕장', subtitle: '야경과 함께하는 해변 산책', image: require('../../assets/home/gwangalli.png') },
-  gamcheon: { title: '감천문화마을', subtitle: '형형색색 감성 골목 여행', image: require('../../assets/home/gamcheon.png') },
+  haeundae: { titleKo: '해운대 해수욕장', titleEn: 'Haeundae Beach', subtitleKo: '푸른 바다와 도시가 만나는 곳', subtitleEn: 'Where the blue sea meets the city', image: require('../../assets/home/haeundae.png') },
+  gwangalli: { titleKo: '광안리 해수욕장', titleEn: 'Gwangalli Beach', subtitleKo: '야경과 함께하는 해변 산책', subtitleEn: 'A beach walk under the night view', image: require('../../assets/home/gwangalli.png') },
+  gamcheon: { titleKo: '감천문화마을', titleEn: 'Gamcheon Culture Village', subtitleKo: '형형색색 감성 골목 여행', subtitleEn: 'A colorful walk through winding alleys', image: require('../../assets/home/gamcheon.png') },
 } as const;
 
 const SAVED_PLACES_KEY = 'gabolle.saved-home-places';
@@ -32,9 +32,9 @@ export default function Place() {
   useEffect(() => {
     if (!place) return;
     let active = true;
-    void listAvailableMapApps({ name: place.title }).then((apps) => { if (active) setMapApps(apps); });
+    void listAvailableMapApps({ name: tx(place.titleKo, place.titleEn) }).then((apps) => { if (active) setMapApps(apps); });
     return () => { active = false; };
-  }, [place]);
+  }, [place, tx]);
 
   useEffect(() => {
     if (!id || !place) return;
@@ -62,13 +62,13 @@ export default function Place() {
     const nextIds = nextSaved ? [...new Set([...savedIds, id])] : savedIds.filter((savedId) => savedId !== id);
     await AsyncStorage.setItem(SAVED_PLACES_KEY, JSON.stringify(nextIds));
     setIsSaved(nextSaved);
-    setFeedback(nextSaved ? '내 여행 후보에 저장했어요.' : '저장을 해제했어요.');
+    setFeedback(nextSaved ? tx('내 여행 후보에 저장했어요.', 'Saved to your trip candidates.') : tx('저장을 해제했어요.', 'Removed from saved.'));
   };
 
   return (
     <Screen scroll wide style={styles.screen}>
       <View style={styles.topBar}>
-        <Pressable accessibilityRole="button" accessibilityLabel="이전 화면으로 이동" onPress={() => router.canGoBack() ? router.back() : router.replace('/home')} style={({ pressed }) => [styles.back, pressed && styles.pressed]}>
+        <Pressable accessibilityRole="button" accessibilityLabel={tx('이전 화면으로 이동', 'Go back')} onPress={() => router.canGoBack() ? router.back() : router.replace('/home')} style={({ pressed }) => [styles.back, pressed && styles.pressed]}>
           <Text variant="title" weight="bold">‹</Text>
         </Pressable>
         <BrandLogoLink href="/home" imageStyle={styles.logo} />
@@ -79,23 +79,23 @@ export default function Place() {
         <ImageBackground source={place.image} resizeMode="cover" style={[styles.hero, width >= 760 && styles.heroWide]} imageStyle={styles.heroImage}>
           <View style={styles.shade} />
           <View style={styles.heroCopy}>
-            <Text variant="display" weight="bold" color={color.text.onAction}>{place.title}</Text>
-            <Text color={color.text.onAction}>{place.subtitle}</Text>
+            <Text variant="display" weight="bold" color={color.text.onAction}>{tx(place.titleKo, place.titleEn)}</Text>
+            <Text color={color.text.onAction}>{tx(place.subtitleKo, place.subtitleEn)}</Text>
           </View>
         </ImageBackground>
         <View style={styles.notice} accessibilityLiveRegion="polite">
-          <Text variant="title" weight="bold">상세 정보를 준비하고 있어요</Text>
-          <Text color={color.text.body} style={styles.noticeCopy}>운영시간·접근성·혼잡도·리뷰는 실제 장소 조회 API가 연결된 뒤 표시합니다. 확인되지 않은 정보는 임의로 보여드리지 않아요.</Text>
+          <Text variant="title" weight="bold">{tx('상세 정보를 준비하고 있어요', 'Details are on the way')}</Text>
+          <Text color={color.text.body} style={styles.noticeCopy}>{tx('운영시간·접근성·혼잡도·리뷰는 실제 장소 조회 API가 연결된 뒤 표시합니다. 확인되지 않은 정보는 임의로 보여드리지 않아요.', 'Hours, accessibility, crowd levels, and reviews will show once the real place lookup API is connected. We never show unverified information.')}</Text>
         </View>
         <View style={styles.actions}>
-          <Button label={isSaved ? '내 여행 후보에서 빼기' : '내 여행 후보에 저장'} variant="ghost" onPress={() => void toggleSaved()} />
+          <Button label={isSaved ? tx('내 여행 후보에서 빼기', 'Remove from candidates') : tx('내 여행 후보에 저장', 'Save to candidates')} variant="ghost" onPress={() => void toggleSaved()} />
           <View style={styles.mapRow}>{mapApps.map((app) => <Button key={app.key} label={tx(`${app.labelKo}으로 이동`, `Open in ${app.labelEn}`)} onPress={() => void app.open()} containerStyle={styles.mapAction} />)}</View>
           {feedback ? <Text accessibilityLiveRegion="polite" color={color.text.body} style={styles.feedback}>{feedback}</Text> : null}
         </View>
       </> : <View style={styles.notice} accessibilityRole="alert">
-        <Text variant="title" weight="bold">장소를 찾을 수 없어요</Text>
-        <Text color={color.text.body}>목록으로 돌아가 다른 장소를 선택해 주세요.</Text>
-        <Button label="홈으로 돌아가기" onPress={() => router.replace('/home')} containerStyle={styles.recoveryButton} />
+        <Text variant="title" weight="bold">{tx('장소를 찾을 수 없어요', 'Place not found')}</Text>
+        <Text color={color.text.body}>{tx('목록으로 돌아가 다른 장소를 선택해 주세요.', 'Go back to the list and choose another place.')}</Text>
+        <Button label={tx('홈으로 돌아가기', 'Back to home')} onPress={() => router.replace('/home')} containerStyle={styles.recoveryButton} />
       </View>}
     </Screen>
   );
