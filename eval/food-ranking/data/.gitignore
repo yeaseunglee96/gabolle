@@ -12,3 +12,7 @@ r2-features.json
 # 라운드3 산출물 — 41MB 라 커밋하지 않는다.
 # node r3-04-features.mjs 로 다시 만든다 (r2-features.json + 해안선, 약 5초).
 r3-features.json
+
+# 라운드4 산출물 — 31MB 라 커밋하지 않는다.
+# node r4-01-pool.mjs 로 다시 만든다 (약 1분).
+r4-pool.json
