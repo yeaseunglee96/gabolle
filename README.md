@@ -222,7 +222,8 @@ npm run smoke         # 🔴 화면이 실제로 뜨는지 헤드리스 크롬�
 `SPEC` · `DECISIONS` · `INVARIANTS` · `WHY-CORPUS` · `PERSONA-LOOP` 는
 2026-08-26 에 axMap 이 분리되면서 함께 나갔다 —
 [`rleaderjoon/axmap`](https://lab.ssafy.com/rleaderjoon/axmap) 의 `docs/` 에 있다.
-**이 저장소에 있는 것은 돌아가는 사본뿐**이다 ([CONTRIBUTING.md](CONTRIBUTING.md) 0.3).
+**이 저장소에는 axMap 이 아예 없다** — npm 꾸러미 `axmap-cli` 를 각자 깔아서 쓴다
+([CONTRIBUTING.md](CONTRIBUTING.md) 0.3 · [docs/AXMAP-NPM-MIGRATION.md](docs/AXMAP-NPM-MIGRATION.md)).
 
 ---
 
@@ -236,8 +237,7 @@ npm run smoke         # 🔴 화면이 실제로 뜨는지 헤드리스 크롬�
 - 🔴 **러너가 한 대뿐이고 개인 PC 에 있다.** 그 PC 가 꺼지면 CI 가 멈춘다.
   각자 `bash ci/runner-up.sh` 로 하나씩 띄우는 것이 목표다.
 - **`bigData` 파트가 아직 `main` 에 없다.** `feat/S15P21E201-9-bigdata-bootstrap`
-  이 axMap 벤더링 **이전**에서 갈라져 있어 `ci/axmap` 이 없다. 올릴 때 `main` 을
-  먼저 머지해야 한다.
+  이 오래된 지점에서 갈라져 있다. 올릴 때 `main` 을 먼저 머지해야 한다.
 - **현장 실험 응답이 아직 0건이다.** 문항과 추정기는 있고 검사도 통과하지만,
   계수는 사람에게 물어야 나온다 — [bigData/docs/FIELD-STUDY.md](bigData/docs/FIELD-STUDY.md).
 - **BIMS 폴링이 노선 5개뿐이다.** 일일 트래픽 한도에서 역산한 수이고, 고른 기준은
