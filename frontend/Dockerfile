@@ -44,6 +44,11 @@ ENV EXPO_PUBLIC_API_BASE_URL=$EXPO_PUBLIC_API_BASE_URL \
     EXPO_PUBLIC_SHOW_BUILD_INFO=$EXPO_PUBLIC_SHOW_BUILD_INFO
 
 COPY . .
+# 🔴 위 ARG 들이 비어 있으면 여기서 **소리 내어 알린다.** 막지는 않는다 (종료 코드 0).
+#    2026-09-07 배포본은 지도 키가 빈 채로 구워졌고, 그 값이 빌드 때 정해지는 값이라
+#    번들러가 지도 코드를 죽은 코드로 보고 통째로 지웠다 — 그런데 빌드 로그에는
+#    아무 흔적도 안 남았다 (S15P21E201-163).
+RUN node tools/check-public-env.mjs
 RUN npx expo export --platform web
 
 FROM nginx:alpine
