@@ -19,7 +19,16 @@ public enum SecurityEvent {
 	AUTH_TOKEN_REJECTED("토큰이 없거나 유효하지 않아 401이 나갔다"),
 
 	/** 인증은 됐는데 권한이 없어 403이 나갔다. */
-	AUTHZ_DENIED("인증은 됐는데 권한이 없어 403이 나갔다");
+	AUTHZ_DENIED("인증은 됐는데 권한이 없어 403이 나갔다"),
+
+	/**
+	 * 🔴 이미 쓴 갱신 표가 <b>유예 시간 안에</b> 다시 와서 도난이 아니라 정상 경쟁으로
+	 * 처리했다 (S15P21E201-723). 세션을 폐기하지 않고 새 표를 다시 발급했다.
+	 *
+	 * <p>이것이 잦아지면 클라이언트가 갱신을 중복 발사하고 있다는 신호다 — 오류는 아니지만
+	 * 봐야 하는 값이라 {@link #AUTH_TOKEN_REJECTED} 와 섞지 않고 따로 둔다.
+	 */
+	AUTH_REFRESH_RACE("이미 쓴 갱신 표가 유예 시간 안에 다시 왔다 — 정상 경쟁으로 처리했다");
 
 	private final String description;
 
