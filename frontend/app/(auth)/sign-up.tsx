@@ -12,6 +12,7 @@ import { color, radius, spacing } from '@/design/tokens';
 import { useLayout } from '@/layout/useLayout';
 import { useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
 import { BrandLogoLink } from '@/components/BrandLogoLink';
+import { useI18n } from '@/i18n';
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const SPECIAL_CHARACTER_PATTERN = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>/?`~]/;
@@ -20,6 +21,7 @@ export default function SignUp() {
   const router = useRouter();
   const { returnTo } = useLocalSearchParams<{ returnTo?: string }>();
   const { kind } = useLayout();
+  const { tx } = useI18n();
   const { language: onboardingLanguage } = useOnboardingPreferences();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -62,7 +64,7 @@ export default function SignUp() {
       if (cause instanceof ApiClientError && cause.code === 'EMAIL_ALREADY_EXISTS') {
         setDuplicateEmail(true);
       } else {
-        setError(cause instanceof ApiClientError ? cause.message : '회원가입을 완료하지 못했어요.');
+        setError(cause instanceof ApiClientError ? cause.message : tx('회원가입을 완료하지 못했어요.', 'Could not complete sign-up.'));
       }
     } finally {
       setSubmitting(false);
@@ -77,7 +79,7 @@ export default function SignUp() {
       await resendEmailVerification(registration.email);
       setResent(true);
     } catch (cause) {
-      setError(cause instanceof ApiClientError ? cause.message : '인증 메일을 다시 보내지 못했어요.');
+      setError(cause instanceof ApiClientError ? cause.message : tx('인증 메일을 다시 보내지 못했어요.', 'Could not resend the verification email.'));
     } finally {
       setResending(false);
     }
@@ -86,20 +88,20 @@ export default function SignUp() {
   if (registration) {
     return (
       <Screen>
-        <Pressable accessibilityRole="button" accessibilityLabel="회원가입 화면으로 돌아가기" onPress={() => setRegistration(null)} style={styles.backLink}><Text variant="body" weight="bold">← 이메일 수정</Text></Pressable>
+        <Pressable accessibilityRole="button" accessibilityLabel={tx('회원가입 화면으로 돌아가기', 'Back to sign-up')} onPress={() => setRegistration(null)} style={styles.backLink}><Text variant="body" weight="bold">{tx('← 이메일 수정', '← Edit email')}</Text></Pressable>
         <View style={styles.resultBody}>
           <View style={styles.resultMark}><Text variant="title" weight="bold" color={color.text.onAction}>✓</Text></View>
-          <Text variant="display" weight="bold">이메일을 확인해 주세요</Text>
+          <Text variant="display" weight="bold">{tx('이메일을 확인해 주세요', 'Please check your email')}</Text>
           <Text variant="body" style={styles.resultCopy}>
-            {registration.email}로 인증 링크를 보냈어요. 링크를 눌러 인증을 마치면 로그인할 수 있습니다.
+            {tx(`${registration.email}로 인증 링크를 보냈어요. 링크를 눌러 인증을 마치면 로그인할 수 있습니다.`, `We sent a verification link to ${registration.email}. Click it to finish verifying and sign in.`)}
           </Text>
-          <Text variant="caption">현재 계정 상태: {registration.status}</Text>
-          {resent && <Text accessibilityRole="alert" variant="caption" color={color.state.success}>인증 메일을 다시 보냈어요.</Text>}
+          <Text variant="caption">{tx(`현재 계정 상태: ${registration.status}`, `Current account status: ${registration.status}`)}</Text>
+          {resent && <Text accessibilityRole="alert" variant="caption" color={color.state.success}>{tx('인증 메일을 다시 보냈어요.', 'Verification email resent.')}</Text>}
           {error && <View accessibilityRole="alert" style={styles.errorBox}><ErrorText>{error}</ErrorText></View>}
         </View>
         <View style={styles.resultActions}>
-          <Button label={resending ? '재전송 중…' : '인증 메일 다시 보내기'} variant="ghost" disabled={resending} onPress={() => void resend()} />
-          <Button label="이메일 확인 후 로그인" onPress={() => router.replace({ pathname: '/sign-in', params: returnTo ? { returnTo } : {} })} />
+          <Button label={resending ? tx('재전송 중…', 'Resending…') : tx('인증 메일 다시 보내기', 'Resend verification email')} variant="ghost" disabled={resending} onPress={() => void resend()} />
+          <Button label={tx('이메일 확인 후 로그인', 'Sign in after verifying')} onPress={() => router.replace({ pathname: '/sign-in', params: returnTo ? { returnTo } : {} })} />
         </View>
       </Screen>
     );
@@ -107,53 +109,53 @@ export default function SignUp() {
 
   return (
     <Screen scroll wide>
-      <View style={styles.topBar}><Pressable accessibilityRole="button" accessibilityLabel="뒤로 가기" onPress={() => router.back()} style={styles.backLink}><Text variant="body" weight="bold">← 뒤로</Text></Pressable><BrandLogoLink href={kind === 'tablet' ? '/' : '/home'} imageStyle={styles.logo} /></View>
+      <View style={styles.topBar}><Pressable accessibilityRole="button" accessibilityLabel={tx('뒤로 가기', 'Go back')} onPress={() => router.back()} style={styles.backLink}><Text variant="body" weight="bold">{tx('← 뒤로', '← Back')}</Text></Pressable><BrandLogoLink href={kind === 'tablet' ? '/' : '/home'} imageStyle={styles.logo} /></View>
       <View style={[styles.columns, kind === 'tablet' && styles.columnsWide]}>
-        {kind === 'tablet' && <Card tinted style={styles.introCard}><Text variant="eyebrow" weight="bold">GABOLLE ACCOUNT</Text><Text variant="display" weight="bold">내 여행을 안전하게 저장하세요</Text><Text variant="body">선택한 언어와 여행 조건을 이어서 사용할 수 있어요.</Text></Card>}
+        {kind === 'tablet' && <Card tinted style={styles.introCard}><Text variant="eyebrow" weight="bold">GABOLLE ACCOUNT</Text><Text variant="display" weight="bold">{tx('내 여행을 안전하게 저장하세요', 'Keep your trips safely saved')}</Text><Text variant="body">{tx('선택한 언어와 여행 조건을 이어서 사용할 수 있어요.', 'Pick up your language and trip details right where you left off.')}</Text></Card>}
         <View style={styles.formColumn}>
-          <Text variant="display" weight="bold">회원가입</Text>
-          <Text variant="body" style={styles.subtitle}>여행을 저장하고 어디서든 이어보세요.</Text>
+          <Text variant="display" weight="bold">{tx('회원가입', 'Sign up')}</Text>
+          <Text variant="body" style={styles.subtitle}>{tx('여행을 저장하고 어디서든 이어보세요.', 'Save your trip and continue it anywhere.')}</Text>
           <View style={styles.form}>
-        <Field label="이메일">
-          <TextInput accessibilityLabel="이메일" autoCapitalize="none" autoComplete="email" keyboardType="email-address" onBlur={() => setEmailTouched(true)} onChangeText={(value) => { setEmail(value); setDuplicateEmail(false); }} placeholder="name@example.com" placeholderTextColor={color.text.muted} style={[styles.input, ((emailTouched && !emailValid) || duplicateEmail) && styles.inputError]} value={email} />
-          {emailTouched && !emailValid && <ErrorText>올바른 이메일 주소를 입력해 주세요.</ErrorText>}
-          {duplicateEmail && <View style={styles.inlineRow}><ErrorText>이미 가입된 이메일이에요.</ErrorText><Pressable accessibilityRole="link" onPress={() => router.push({ pathname: '/sign-in', params: returnTo ? { returnTo } : {} })}><Text variant="caption" weight="bold" color={color.brand.orange}>로그인하기</Text></Pressable></View>}
+        <Field label={tx('이메일', 'Email')}>
+          <TextInput accessibilityLabel={tx('이메일', 'Email')} autoCapitalize="none" autoComplete="email" keyboardType="email-address" onBlur={() => setEmailTouched(true)} onChangeText={(value) => { setEmail(value); setDuplicateEmail(false); }} placeholder="name@example.com" placeholderTextColor={color.text.muted} style={[styles.input, ((emailTouched && !emailValid) || duplicateEmail) && styles.inputError]} value={email} />
+          {emailTouched && !emailValid && <ErrorText>{tx('올바른 이메일 주소를 입력해 주세요.', 'Please enter a valid email address.')}</ErrorText>}
+          {duplicateEmail && <View style={styles.inlineRow}><ErrorText>{tx('이미 가입된 이메일이에요.', 'This email is already registered.')}</ErrorText><Pressable accessibilityRole="link" onPress={() => router.push({ pathname: '/sign-in', params: returnTo ? { returnTo } : {} })}><Text variant="caption" weight="bold" color={color.brand.orange}>{tx('로그인하기', 'Sign in')}</Text></Pressable></View>}
         </Field>
 
-        <Field label="비밀번호">
-          <TextInput accessibilityLabel="비밀번호" autoCapitalize="none" autoComplete="new-password" onChangeText={setPassword} placeholder="영문·숫자·특수문자 포함 8~64자" placeholderTextColor={color.text.muted} secureTextEntry style={styles.input} value={password} />
-          <View style={styles.ruleRow}><Rule ok={passwordChecks.length} label="8~64자" /><Rule ok={passwordChecks.letter} label="영문" /><Rule ok={passwordChecks.number} label="숫자" /><Rule ok={passwordChecks.special} label="특수문자 (!@#$% 등)" /></View>
+        <Field label={tx('비밀번호', 'Password')}>
+          <TextInput accessibilityLabel={tx('비밀번호', 'Password')} autoCapitalize="none" autoComplete="new-password" onChangeText={setPassword} placeholder={tx('영문·숫자·특수문자 포함 8~64자', '8-64 characters with letters, numbers, and symbols')} placeholderTextColor={color.text.muted} secureTextEntry style={styles.input} value={password} />
+          <View style={styles.ruleRow}><Rule ok={passwordChecks.length} label={tx('8~64자', '8-64 characters')} /><Rule ok={passwordChecks.letter} label={tx('영문', 'Letters')} /><Rule ok={passwordChecks.number} label={tx('숫자', 'Numbers')} /><Rule ok={passwordChecks.special} label={tx('특수문자 (!@#$% 등)', 'Symbols (!@#$% etc.)')} /></View>
         </Field>
 
-        <Field label="비밀번호 확인">
-          <TextInput accessibilityLabel="비밀번호 확인" autoCapitalize="none" autoComplete="new-password" onChangeText={setPasswordConfirm} placeholder="한 번 더 입력하세요" placeholderTextColor={color.text.muted} secureTextEntry style={[styles.input, passwordConfirm.length > 0 && !passwordMatches && styles.inputError]} value={passwordConfirm} />
-          {passwordConfirm.length > 0 && <Text variant="caption" color={passwordMatches ? color.state.success : color.state.danger}>{passwordMatches ? '비밀번호가 일치해요.' : '비밀번호가 일치하지 않아요.'}</Text>}
+        <Field label={tx('비밀번호 확인', 'Confirm password')}>
+          <TextInput accessibilityLabel={tx('비밀번호 확인', 'Confirm password')} autoCapitalize="none" autoComplete="new-password" onChangeText={setPasswordConfirm} placeholder={tx('한 번 더 입력하세요', 'Enter it once more')} placeholderTextColor={color.text.muted} secureTextEntry style={[styles.input, passwordConfirm.length > 0 && !passwordMatches && styles.inputError]} value={passwordConfirm} />
+          {passwordConfirm.length > 0 && <Text variant="caption" color={passwordMatches ? color.state.success : color.state.danger}>{passwordMatches ? tx('비밀번호가 일치해요.', 'Passwords match.') : tx('비밀번호가 일치하지 않아요.', 'Passwords do not match.')}</Text>}
         </Field>
 
-        <Field label="이름">
-          <TextInput accessibilityLabel="이름" autoComplete="name" maxLength={30} onChangeText={setDisplayName} placeholder="1~30자" placeholderTextColor={color.text.muted} style={[styles.input, displayName.length > 0 && !nameValid && styles.inputError]} value={displayName} />
-          <Text variant="caption" color={nameValid ? color.state.success : color.text.muted}>{displayName.trim().length}/30자</Text>
+        <Field label={tx('이름', 'Name')}>
+          <TextInput accessibilityLabel={tx('이름', 'Name')} autoComplete="name" maxLength={30} onChangeText={setDisplayName} placeholder={tx('1~30자', '1-30 characters')} placeholderTextColor={color.text.muted} style={[styles.input, displayName.length > 0 && !nameValid && styles.inputError]} value={displayName} />
+          <Text variant="caption" color={nameValid ? color.state.success : color.text.muted}>{tx(`${displayName.trim().length}/30자`, `${displayName.trim().length}/30`)}</Text>
         </Field>
 
-        <Field label="언어">
+        <Field label={tx('언어', 'Language')}>
           <View accessibilityRole="radiogroup" style={styles.languageRow}>{(['KO', 'EN'] as const).map((value) => <Pressable accessibilityRole="radio" accessibilityState={{ selected: language === value }} key={value} onPress={() => setLanguage(value)} style={[styles.language, language === value && styles.languageSelected]}><Text variant="body" weight="bold" color={language === value ? color.text.onAction : color.text.heading}>{value === 'KO' ? '한국어' : 'English'}</Text></Pressable>)}</View>
         </Field>
 
         <View style={styles.agreements}>
-          <CheckRow checked={ageAccepted} label="만 14세 이상입니다." onPress={() => setAgeAccepted((value) => !value)} />
-          <CheckRow checked={termsAccepted} label="이용약관에 동의합니다. (필수)" onPress={() => setTermsAccepted((value) => !value)} />
+          <CheckRow checked={ageAccepted} label={tx('만 14세 이상입니다.', 'I am 14 years of age or older.')} onPress={() => setAgeAccepted((value) => !value)} />
+          <CheckRow checked={termsAccepted} label={tx('이용약관에 동의합니다. (필수)', 'I agree to the Terms of Service. (required)')} onPress={() => setTermsAccepted((value) => !value)} />
           <Pressable accessibilityRole="link" onPress={() => router.push('/legal/terms')} style={styles.policyLink}>
-            <Text variant="caption" weight="bold" color={color.brand.orange}>이용약관 보기 ›</Text>
+            <Text variant="caption" weight="bold" color={color.brand.orange}>{tx('이용약관 보기 ›', 'View Terms of Service ›')}</Text>
           </Pressable>
-          <CheckRow checked={privacyAccepted} label="개인정보 처리방침에 동의합니다. (필수)" onPress={() => setPrivacyAccepted((value) => !value)} />
+          <CheckRow checked={privacyAccepted} label={tx('개인정보 처리방침에 동의합니다. (필수)', 'I agree to the Privacy Policy. (required)')} onPress={() => setPrivacyAccepted((value) => !value)} />
           <Pressable accessibilityRole="link" onPress={() => router.push('/legal/privacy')} style={styles.policyLink}>
-            <Text variant="caption" weight="bold" color={color.brand.orange}>개인정보 처리 안내 보기 ›</Text>
+            <Text variant="caption" weight="bold" color={color.brand.orange}>{tx('개인정보 처리 안내 보기 ›', 'View Privacy Policy ›')}</Text>
           </Pressable>
         </View>
 
         {error && <View accessibilityRole="alert" style={styles.errorBox}><ErrorText>{error}</ErrorText></View>}
-        <Button label={submitting ? '가입 중…' : '회원가입'} disabled={!canSubmit} onPress={() => void submit()} />
-        <Pressable accessibilityRole="link" onPress={() => router.replace({ pathname: '/sign-in', params: returnTo ? { returnTo } : {} })} style={styles.loginLink}><Text variant="body">이미 계정이 있나요? <Text variant="body" weight="bold" color={color.brand.orange}>로그인</Text></Text></Pressable>
+        <Button label={submitting ? tx('가입 중…', 'Signing up…') : tx('회원가입', 'Sign up')} disabled={!canSubmit} onPress={() => void submit()} />
+        <Pressable accessibilityRole="link" onPress={() => router.replace({ pathname: '/sign-in', params: returnTo ? { returnTo } : {} })} style={styles.loginLink}><Text variant="body">{tx('이미 계정이 있나요? ', 'Already have an account? ')}<Text variant="body" weight="bold" color={color.brand.orange}>{tx('로그인', 'Sign in')}</Text></Text></Pressable>
           </View>
         </View>
       </View>
