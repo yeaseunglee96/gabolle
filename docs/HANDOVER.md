@@ -378,7 +378,7 @@ GitLab 에 물어보는 창구**)로 직접 읽은 값이고, **이 표 밖의 G
 | | 결정할 것 | 지금 상태 |
 |---|---|---|
 | **러너 붙이기** | **0대**(실측). 러너가 없으면 `ci:vendor` 도 `claims` 도 `governance` 도 `version` 도 **아예 안 돈다.** 등록할 때 ☑ `Run untagged jobs` 를 반드시 켠다 — 우리 잡에는 태그가 없어서 안 켜면 영원히 안 잡힌다. 박재현 님 담당 |
-| **`axmap-bot` 토큰 만들기** | 아직 없다. 만들면 CI 가 버전 태그를 push 한다. 없으면 `version` 잡이 **계산만 하고 알린다**(조용히 건너뛰지 않는다). Role `Maintainer` → CI/CD 변수 `AXMAP_BOT_TOKEN`. **scope 는 아직 안 정했다** — 태그만 밀면 `write_repository` 로 충분하고, 봇이 승격 MR 을 만들게 하려면 `api` 가 필요하다 (**승격을 봇에게 맡길 것인가** — 4.2 의 남은 결정과 같은 결정이다). 만들 때 **만료일을 이 문서에 적는다** |
+| **`axmap-bot` 토큰 만들기** | 🔴 **끝냄 (2026-09-07, S15P21E201-158).** Project Access Token `axmap-bot` (Role `Maintainer`, scope `api`)은 2026-09-01 에 이미 만들어져 있었는데, CI/CD 변수 `AXMAP_BOT_TOKEN` 에 한 번도 안 붙어 있었다(`last_used_at: null`, 태그 0개 — `version` 잡이 그동안 계속 "토큰 없음" 경로로 조용히 초록이었다). **rotate** 해서 새 값을 `AXMAP_BOT_TOKEN`(Masked + Protected)에 붙였다. **만료일: 2027-03-01.** scope `api`는 이미 그렇게 만들어져 있던 것을 그대로 이었다 — **승격을 봇에게 맡길 것인가**(4.2 의 남은 결정)는 여전히 안 정해졌고, 그 결정이 나기 전까지 `api` scope 는 쓰이지 않는다(아래 "승격 스케줄" 이 없다). 토큰 없을 때 `version` 잡은 이제 계산만 하고 **빨갛게 끝난다**(전에는 `exit 0`) — 머지를 막는 잡이 아니라서 안전하다 |
 | **필수 파이프라인 켜기** (`Pipelines must succeed`) | **꺼져 있다**(실측). 박재현 님이 CI 를 설정한 뒤에 켜기로 미뤘다. 안 켜면 `.gitlab-ci.yml` 이 장식이다 — 검사가 빨개도 머지 버튼이 눌린다. **러너보다 먼저 켜면 팀 전원이 막힌다**(pending 은 초록이 아니다) |
 | **승격 스케줄 만들기** | 아직 없다. `promote` 잡은 **스케줄 파이프라인**(GitLab 이 정해진 시각에 스스로 돌리는 것)에서만 돌고, 무엇을 올릴지는 변수 `PROMOTE_STEP` 으로 받는다. `Settings → CI/CD → Schedules` 에 둘 — 평일 매일 `PROMOTE_STEP=dev-to-part`, 주 1회 `PROMOTE_STEP=part-to-main`. 변수를 안 주면 잡이 **추측하지 않고 빨갛게 멈춘다** |
 | **MR 머지 시점** | 러너가 붙은 뒤에 머지해야 첫 MR 부터 검사를 통과한 것이 된다 |

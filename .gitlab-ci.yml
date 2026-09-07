@@ -207,8 +207,19 @@ governance:
 # 🔴 태그를 push 하려면 쓰기 권한이 있는 토큰이 필요하다. CI 기본 토큰
 #    (CI_JOB_TOKEN)은 저장소에 push 할 수 없다. 프로젝트 Access Token 을 만들어
 #    CI/CD 변수 AXMAP_BOT_TOKEN (Masked + Protected) 에 넣는다.
-#    없으면 이 잡은 **조용히 건너뛰지 않고** 계산만 하고 알린다 — 버전이 안 올라간
-#    것을 아무도 모르는 상태가 제일 나쁘다.
+#
+# 🔴 정정 (2026-09-07, S15P21E201-158) — 예전엔 토큰이 없으면 계산만 하고
+#    `exit 0` 으로 초록 끝냈다. 그런데 이 잡은 머지 뒤(post-merge)에 도는
+#    잡이라 머지를 막지 않는다 — 빨개져도 그날 리뷰·머지는 그대로 된다.
+#    초록으로 끝내는 쪽이 "버전 태그가 안 붙었다" 는 사실을 숨겼다
+#    (docs/CI-RESILIENCE.md 원칙 5 — 검사할 수 없으면 통과로 내지 않는다).
+#    그래서 토큰이 없으면 **계산은 하되 잡은 빨갛게 끝낸다.**
+#
+#    실측 — 이 정정 시점에 `axmap-bot` Project Access Token(scope: api,
+#    access_level: Maintainer)은 2026-09-01 에 만들어져 있었지만 CI/CD
+#    Variables 에 한 번도 붙여진 적이 없었다(last_used_at: null) — 태그가
+#    하나도 없었다(`git tag -l` 가 빈 목록을 냈다). 토큰을 rotate 해서
+#    AXMAP_BOT_TOKEN 으로 붙였다. 만료일은 docs/HANDOVER.md 에 있다.
 version:
   stage: release
   script:
@@ -227,9 +238,12 @@ version:
         echo ""
         echo "🔴 AXMAP_BOT_TOKEN 을 Protected 로 두면 보호 브랜치에서 도는 잡에만"
         echo "   값이 갑니다. 이 잡이 도는 브랜치가 보호 브랜치가 아니면 토큰이 빈 채로"
-        echo "   여기까지 와서 초록으로 끝납니다 — 지금 보고 있는 이 메시지가 그 상태일"
+        echo "   여기까지 와서 빨갛게 끝납니다 — 지금 보고 있는 이 메시지가 그 상태일"
         echo "   수 있습니다. 브랜치: ${CI_COMMIT_BRANCH:-?}"
-        exit 0
+        echo ""
+        echo "이 잡은 머지를 막지 않는다(post-merge) — 빨개져도 리뷰·머지는 그대로"
+        echo "된다. 그래도 초록으로 숨기지 않는다 (S15P21E201-158)."
+        exit 1
       fi
       git remote set-url origin "https://oauth2:${AXMAP_BOT_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git"
       git config user.name  "axmap-bot"
