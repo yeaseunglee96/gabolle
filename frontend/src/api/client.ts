@@ -19,6 +19,8 @@ export class ApiClientError extends Error {
     public readonly code: string,
     public readonly status: number,
     public readonly fields: string[] = [],
+    // 서버가 에러 응답에도 data 를 함께 실어 보내는 경우(예: 409 OAUTH_ACCOUNT_LINK_REQUIRED)를 위한 것.
+    public readonly data: unknown = null,
   ) {
     super(message);
     this.name = 'ApiClientError';
@@ -135,6 +137,7 @@ async function performRequest<T>(path: string, options: RequestOptions, isRetry:
       envelope.error?.code ?? 'REQUEST_FAILED',
       response.status,
       envelope.error?.fields ?? [],
+      envelope.data,
     );
   }
   return envelope.data;

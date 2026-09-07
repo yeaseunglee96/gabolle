@@ -1,7 +1,7 @@
 import * as Crypto from 'expo-crypto';
 import * as WebBrowser from 'expo-web-browser';
 import { ApiClientError } from '@/api/client';
-import { completeOAuth, createOAuthChallenge, type AuthTokens, type OAuthProvider } from './authApi';
+import { completeOAuth, createOAuthChallenge, type OAuthCompleteResult, type OAuthProvider } from './authApi';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -18,7 +18,7 @@ const CALLBACK_BASE_URL = process.env.EXPO_PUBLIC_OAUTH_CALLBACK_BASE_URL ?? 'ht
 function base64Url(value: string) { return value.replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_'); }
 function verifier() { return Array.from(Crypto.getRandomBytes(48), (byte) => byte.toString(16).padStart(2, '0')).join(''); }
 
-export async function loginWithOAuth(provider: OAuthProvider): Promise<AuthTokens> {
+export async function loginWithOAuth(provider: OAuthProvider): Promise<OAuthCompleteResult> {
   const config = PROVIDERS[provider];
   if (!config.clientId) throw new ApiClientError(`${provider.toUpperCase()} 로그인 설정이 필요해요.`, 'OAUTH_NOT_CONFIGURED', 0);
   const redirectUri = `${CALLBACK_BASE_URL}/oauth/${provider}/callback`;

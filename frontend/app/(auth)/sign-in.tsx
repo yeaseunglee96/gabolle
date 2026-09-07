@@ -29,7 +29,40 @@ export default function SignIn() {
   const [busy, setBusy] = useState(false); const [provider, setProvider] = useState<OAuthProvider | null>(null); const [feedback, setFeedback] = useState<{ danger: boolean; text: string } | null>(passwordReset === 'success' ? { danger: false, text: tx('비밀번호가 변경됐어요. 새 비밀번호로 로그인해 주세요.', 'Your password was changed. Sign in with your new password.') } : null);
   const eligible = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()) && password.length > 0;
   async function submit() { if (!eligible || busy || provider) return; setBusy(true); setFeedback(null); try { await signIn(email, password); router.replace(safeReturnTo(returnTo)); } catch (e) { setFeedback({ danger: true, text: errorMessage(e, tx) }); } finally { setBusy(false); } }
-  async function social(next: OAuthProvider) { if (busy || provider) return; setProvider(next); setFeedback(null); try { const tokens = await loginWithOAuth(next); await acceptTokens(tokens); router.replace(safeReturnTo(returnTo)); } catch (e) { setFeedback({ danger: true, text: errorMessage(e, tx) }); } finally { setProvider(null); } }
+  async function social(next: OAuthProvider) {
+    if (busy || provider) return;
+    setProvider(next);
+    setFeedback(null);
+    try {
+      const result = await loginWithOAuth(next);
+      if (result.status === 'LOGGED_IN') {
+        await acceptTokens(result);
+        router.replace(safeReturnTo(returnTo));
+      } else if (result.status === 'SIGNUP_REQUIRED') {
+        router.push({
+          pathname: '/oauth-signup',
+          params: {
+            provider: next,
+            signupTicket: result.signupTicket,
+            email: result.prefill.email ?? '',
+            displayName: result.prefill.displayName,
+            language: result.prefill.language,
+            emailProvided: String(result.prefill.emailProvided),
+            ...(returnTo ? { returnTo } : {}),
+          },
+        });
+      } else {
+        router.push({
+          pathname: '/oauth-link',
+          params: { provider: result.provider, linkTicket: result.linkTicket, maskedEmail: result.maskedEmail, ...(returnTo ? { returnTo } : {}) },
+        });
+      }
+    } catch (e) {
+      setFeedback({ danger: true, text: errorMessage(e, tx) });
+    } finally {
+      setProvider(null);
+    }
+  }
   return <Screen scroll wide style={styles.screen}><View style={[styles.loginLayout, kind === 'tablet' && styles.loginLayoutWide]}>
       {kind === 'tablet' && <View style={styles.webIntro}><Text variant="eyebrow" weight="bold" color={color.brand.orange}>GABOLLE ACCOUNT</Text><Text variant="display" weight="bold" color={color.text.onAction} style={styles.webIntroTitle}>{tx('여행의 설렘은 그대로,\n일정은 안전하게', 'Keep the excitement,\nsave every plan.')}</Text><Text variant="body" color={color.text.onDarkMuted}>{tx('저장한 부산 여행과 동행자 일정을 어디서든 이어보세요.', 'Continue your saved Busan trips and shared plans anywhere.')}</Text></View>}
     <View style={styles.panel}>
