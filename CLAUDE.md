@@ -71,12 +71,7 @@ Maintainer(**저장소 관리자 — 보호된 브랜치에 직접 push 하고 M
 ├── README.md          3분 시작
 ├── docs/              팀 문서 — ONBOARDING(처음) · CI(파이프라인) · HANDOVER(이어받을 때)
 ├── setup.sh · .ps1    clone 한 뒤 한 번 실행
-├── .mcp.json          AI 도구가 선점 장치를 자동으로 붙이는 설정
 ├── .gitlab-ci.yml     올릴 때마다 자동으로 도는 검사
-│
-├── ci/
-│   ├── axmap/             🔒 선점 장치 axMap 의 **사본**. 손으로 고치지 않는다 (0.3)
-│   └── verify-vendor.mjs  그 사본이 손으로 바뀌었는지 검사한다
 │
 ├── governance/
 │   └── policy.json    누가 투표권자인가. 도구가 아니라 **팀의 데이터**라 여기 남았다
@@ -88,41 +83,64 @@ Maintainer(**저장소 관리자 — 보호된 브랜치에 직접 push 하고 M
 **루트는 여행 서비스의 자리다.** `ci/` 와 `governance/` 는 그 옆에 있는 연장통이지
 주인이 아니다. 파트가 늘어나면 각자 폴더를 만들고 그 안에 자기 `CLAUDE.md` 를 둔다.
 
-> 🔴 **`.axmap/`(점으로 시작)은 위 그림에 없고 `ci/axmap/` 과 전혀 다른 것이다.**
+> 🔴 **`.axmap/`(점으로 시작)은 위 그림에 없다. 도구가 아니라 데이터다.**
 > `.axmap/ledger`(누가 무엇을 잡고 있는지 적는 **장부**)와 `.axmap/votes`(합의 **표**)는
 > git worktree(**같은 저장소의 다른 브랜치를 옆 폴더로 펼쳐 둔 것**)다.
 > `.gitignore` 에 들어 있어 커밋되지 않는다. 손으로 지우거나 옮기지 않는다.
 
 ---
 
-## 🔴 0.3. axMap 은 다른 저장소에 있다 — 여기 있는 것은 사본이다
+## 🔴 0.3. axMap 은 다른 저장소에 있다 — 여기서는 **npm 으로 받는다**
 
-선점 장치 **axMap** 의 본체는 이 저장소에 없다. 별도 저장소로 나갔다.
+선점 장치 **axMap** 의 본체는 이 저장소에 없다. 별도 저장소로 나갔고, 우리가 쓰는
+것은 **npm 꾸러미**다.
 
 | | |
 |---|---|
 | axMap 저장소 | `https://lab.ssafy.com/rleaderjoon/axmap` |
-| 이 저장소에 있는 것 | `ci/axmap/` — 팀 CI 와 선점이 실제로 부르는 파일만 골라 복사한 **사본** |
-| 어느 커밋의 사본인가 | `ci/axmap/SOURCE.json` 에 적혀 있다 |
+| npm 꾸러미 | **`axmap-cli`** — 명령 이름은 `axmap` |
+| 이 저장소에 있는 것 | **없다.** CI 가 `npx -y axmap-cli@$AXMAP_VERSION` 으로 그때그때 부른다 |
 
-이렇게 두는 방식을 **벤더링**(vendoring — 남의 코드를 내 저장소 안에 복사해 두고
-그 사본으로 돌리는 것)이라고 한다. CI 가 돌 때마다 axMap 을 내려받게 만들면,
-axMap 이 잠깐 깨지거나 접근 권한이 만료된 날 **팀 코드는 한 줄도 안 바뀌었는데
-팀 파이프라인이 빨개진다.** 사본은 그 연결을 끊는다.
+> **npx**(**깔지 않고 npm 창고의 프로그램을 그 자리에서 한 번 실행하는 명령**).
 
-> 🔴 **`ci/axmap/` 아래를 손으로 고치면 `ci:vendor` 잡이 빨개진다.**
-> 그 잡은 `ci/axmap/manifest.sha256`(파일마다의 지문 목록)과 실제 파일을 대조한다.
-> 지문이 하나라도 어긋나면 거기서 멈춘다. **이걸 모르면 사본을 고쳐 놓고
-> 파이프라인이 왜 빨간지 못 찾는다.**
+### 예전에는 사본을 두었다 — 2026-09-01 에 걷어냈다
 
-고치는 올바른 길은 하나뿐이다.
+`ci/axmap/` 에 **사본**을 두는 방식이었다. 이것을 벤더링(vendoring — 남의 코드를 내
+저장소 안에 복사해 두고 그 사본으로 돌리는 것)이라고 한다. 이유는 *"axMap 이 깨진
+날, 팀 코드는 한 줄도 안 바뀌었는데 팀 파이프라인이 빨개진다"* 였다.
 
-1. **axMap 저장소에서** 고치고 커밋한다
-2. 거기서 `node tools/vendor.mjs --to <이 저장소의 루트>` 를 돌린다 —
-   사본과 `manifest.sha256` · `SOURCE.json` 이 함께 갱신된다
-3. 여기 생긴 변경을 MR 로 올린다
+그런데 **사본은 고칠 때마다 두 곳을 맞춰야 한다.** 한쪽만 고치면 지문 검사가 어긋나
+팀이 멈추고, 실제로 사본의 핀이 며칠씩 뒤처져 **원본에 있는 기능이 팀에는 없었다.**
+npm 에는 그 짝맞추기가 아예 없다.
 
-손으로 확인하려면 `node ci/verify-vendor.mjs` — 종료 코드 0 이면 사본이 온전하다.
+### 🔴 대신 생긴 위험 하나와, 그것을 막는 셋
+
+바깥 창고(npm)에 기대게 된다. `@latest` 를 쓰므로 **새 판이 나오면 팀도 그날 받는다.**
+
+| 막는 것 | 어떻게 |
+|---|---|
+| 도구의 약속 | 검사는 **추가만** 한다. 어제 통과한 것을 오늘 실패로 바꾸는 변경은 **맨 앞자리 번호(major)** 를 올리고 먼저 알린다 |
+| **되돌리는 손잡이** | CI 변수 **`AXMAP_VERSION`**. 평소엔 `latest` 라 아무도 안 건드린다. 새 판이 팀을 깨면 어제 번호로 바꾸는 것만으로 **커밋도 MR 도 없이 1분 안에** 되돌아간다 |
+| 기록 | 잡의 첫 줄이 `npm view axmap-cli@$AXMAP_VERSION version` 을 찍는다. 빨개졌을 때 **"어제와 판이 다르네"** 를 3초에 안다 |
+
+**번호를 박지 않는 이유는 사람이다.** 박으면 새 판마다 팀 저장소에 번호를 올리는
+MR 을 내고 여섯 명이 각자 다시 깔아야 한다. **지켜지지 않는 규칙은 없는 규칙보다
+나쁘다** — 다들 다른 판을 쓰면서 같은 줄 알게 된다.
+
+### 각자 PC 는 한 번만
+
+```bash
+npm i -g axmap-cli@latest
+axmap setup
+```
+
+`axmap update` 가 새 판이 나왔는지 물어본다 — **묻기만 하고 저절로 바뀌지 않는다.**
+자세한 것은 axMap 저장소의 `docs/INSTALL.md`.
+
+> 🔴 **저장소의 `.mcp.json` 도 함께 없앴다.** 그 파일은 사본의
+> `ci/axmap/mcp/server.mjs` 를 가리켰는데 그 사본이 사라졌다. MCP(**AI 도구가 외부
+> 프로그램을 "도구" 로 부를 수 있게 해주는 규격**) 등록은 이제 위의 `axmap setup` 이
+> **각자의 홈 설정**에 한다 — Claude Code · Codex · Antigravity 전부.
 
 ---
 
@@ -167,16 +185,16 @@ AI 도구를 쓰면 도구가 알아서 부른다.
 손으로 쓸 때는 이렇게 한다.
 
 ```bash
-node ci/axmap/bin/axmap.mjs status
-node ci/axmap/bin/axmap.mjs claim FE/src/pages/Trip.tsx --task S15P21E201-144 --intent "여행 상세 화면"
-node ci/axmap/bin/axmap.mjs release
+npx -y axmap-cli@latest status
+npx -y axmap-cli@latest claim FE/src/pages/Trip.tsx --task S15P21E201-144 --intent "여행 상세 화면"
+npx -y axmap-cli@latest release
 ```
 
 **거부당하면 재시도하지 않는다.** 같은 요청은 몇 번을 보내도 같은 답이 온다.
 메시지에 점유자·작업·남은 시간이 들어 있으니 그걸 읽고 **비어 있는 다른 곳**으로 간다.
 
 선점 프로토콜 자체의 규격과 설계 근거는 **axMap 저장소**
-(`https://lab.ssafy.com/rleaderjoon/axmap`)에 있다. 이 저장소에는 사본만 있다 (0.3).
+(`https://lab.ssafy.com/rleaderjoon/axmap`)에 있다. 이 저장소에는 아무것도 없다 (0.3).
 
 ---
 
@@ -257,7 +275,7 @@ GitLab Community Edition(무료판)에는 *"이 브랜치로는 MR 을 못 연�
 손으로 먼저 확인할 수 있다.
 
 ```bash
-node ci/axmap/tools/mr-target.mjs --source feat/S15P21E201-144-login --target main
+npx -y axmap-cli@latest mr-target --source feat/S15P21E201-144-login --target main
 # → 거부. 이 브랜치가 갈 수 있는 곳을 알려준다
 ```
 
@@ -266,7 +284,7 @@ Jira 위계는 `Epic ➔ Story ➔ Task` 이고 **하위 작업(Sub-task)은 쓰
 Epic 만 넣을 수 있고, Story 와의 관계는 `Relates` 이슈 링크로 표현한다.
 
 버전은 브랜치 단계가 정한다 — `dev`→patch, `func`→minor, `main`→major.
-이 저장소에서 그 판정을 실제로 하는 코드는 `ci/axmap/src/version.mjs` 이고,
+그 판정을 실제로 하는 코드는 axMap 의 `src/version.mjs` 이고(`axmap version` 이 부른다),
 왜 날짜가 아니라 병합인지·왜 파일이 아니라 git 태그인지는 [docs/CI.md](docs/CI.md) 2절에 있다.
 규칙의 전문(`docs/VERSIONING.md`)은 **axMap 저장소** 안에 있다 —
 `https://lab.ssafy.com/rleaderjoon/axmap`.
@@ -303,14 +321,12 @@ Epic 만 넣을 수 있고, Story 와의 관계는 `Relates` 이슈 링크로 �
 
 ## 4. 끝내기 전에
 
-이 저장소에서 **누구나 돌릴 수 있는 검사는 둘**이다. 무엇을 고쳤든 이 둘은 통과해야 한다.
+이 저장소에서 **누구나 돌릴 수 있는 검사**다. 무엇을 고쳤든 통과해야 한다.
 
 ```bash
-node ci/verify-vendor.mjs            # 사본이 손으로 바뀌지 않았는가 (0.3)
-node ci/axmap/bin/axmap.mjs doctor   # 이 PC 에서 선점이 실제로 도는가
+npx -y axmap-cli@latest doctor   # 이 PC 에서 선점이 실제로 도는가
 ```
 
-`ci/axmap/` 을 손으로 고쳤다면 그건 검증 대상이 아니라 **되돌릴 대상**이다 — 0.3.
 axMap 자체의 테스트(단위 테스트·데모·화면 스모크)는 이 저장소에서 안 돈다.
 그건 axMap 저장소와 그쪽 CI 의 몫이다.
 
