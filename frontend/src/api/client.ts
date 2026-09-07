@@ -58,7 +58,25 @@ type RequestOptions = Omit<RequestInit, 'body'> & { body?: unknown; accessToken?
 let unauthorizedHandler: (() => void) | null = null;
 export function setUnauthorizedHandler(handler: (() => void) | null) { unauthorizedHandler = handler; }
 
-export async function apiRequest<T>(path: string, options: RequestOptions = {}): Promise<T> {
+// 액세스 토큰이 만료돼 401 을 받으면, 로그아웃시키기 전에 이 핸들러로 한 번 갱신을 시도한다.
+// 여러 요청이 동시에 401 을 받아도 갱신은 한 번만 나가도록 진행 중인 시도를 공유한다.
+type RefreshHandler = () => Promise<string | null>;
+let refreshHandler: RefreshHandler | null = null;
+export function setRefreshHandler(handler: RefreshHandler | null) { refreshHandler = handler; }
+let refreshInFlight: Promise<string | null> | null = null;
+function refreshAccessToken(): Promise<string | null> {
+  if (!refreshHandler) return Promise.resolve(null);
+  if (!refreshInFlight) {
+    refreshInFlight = refreshHandler().catch(() => null).finally(() => { refreshInFlight = null; });
+  }
+  return refreshInFlight;
+}
+
+export function apiRequest<T>(path: string, options: RequestOptions = {}): Promise<T> {
+  return performRequest<T>(path, options, false);
+}
+
+async function performRequest<T>(path: string, options: RequestOptions, isRetry: boolean): Promise<T> {
   const { body, accessToken, headers, skipUnauthorizedHandling, ...requestOptions } = options;
   const controller = new AbortController();
   let timedOut = false;
@@ -95,7 +113,13 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
   // HTTP 오류여도 서버 자체에는 다시 연결된 상태다.
   setApiUnavailable(false);
 
-  if (response.status === 401 && !skipUnauthorizedHandling) unauthorizedHandler?.();
+  if (response.status === 401 && !skipUnauthorizedHandling) {
+    if (!isRetry) {
+      const refreshedToken = await refreshAccessToken();
+      if (refreshedToken) return performRequest<T>(path, { ...options, accessToken: refreshedToken }, true);
+    }
+    unauthorizedHandler?.();
+  }
   if (response.status === 204) return undefined as T;
 
   const isJson = (response.headers.get('content-type') ?? '').includes('application/json');
