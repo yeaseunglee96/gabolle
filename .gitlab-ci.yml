@@ -262,6 +262,52 @@ backend:dependency-scan:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
       changes: ['backend/**/*']
 
+# ── 마이그레이션 버전이 거꾸로 가지 않는가 (S15P21E201-703) ────────────────────
+#
+# 🔴 2026-09-07 새벽 운영이 이걸로 두 번 죽었다. 새 마이그레이션 파일 번호가
+#    대상 브랜치에 이미 있는 최대 번호보다 작은데 나중에 머지되면, Flyway가
+#    "이미 더 큰 번호가 적용된 DB" 에서만 out-of-order 로 기동을 거부한다.
+#
+#    backend:build 는 이걸 구조적으로 못 잡는다 — 매번 빈 DB에 마이그레이션을
+#    처음부터 전부 적용하므로, 순서 역행이 드러나는 건 "이미 앞선 마이그레이션이
+#    적용된 실제 DB" 뿐이다(jaehyeon 실측). 그래서 DB 없이 파일명만 비교한다.
+#
+# 🔴 대상 브랜치의 **지금 이 순간의 tip** 과 비교한다(GIT_DEPTH: 0 으로 받아
+#    fetch) — MR 을 만든 시점의 갈림점이 아니다. 갈림점 이후 다른 MR 이 먼저
+#    머지돼 더 큰 번호가 이미 들어와 있을 수 있고, 실제로 오늘 그렇게 죽었다.
+backend:migration-order:
+  stage: verify
+  variables:
+    GIT_DEPTH: 0
+  before_script: []
+  script:
+    - |
+      git fetch origin "$CI_MERGE_REQUEST_TARGET_BRANCH_NAME" --quiet
+      ADDED=$(git diff --name-only --diff-filter=A "origin/${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}" HEAD -- 'backend/src/main/resources/db/migration/V*.sql')
+      if [ -z "$ADDED" ]; then
+        echo "새로 추가된 마이그레이션 파일 없음 — 통과"
+        exit 0
+      fi
+      MAX_EXISTING=$(git ls-tree -r --name-only "origin/${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}" -- 'backend/src/main/resources/db/migration' \
+        | grep -oE 'V[0-9]+' | grep -oE '[0-9]+' | sort -n | tail -1)
+      MAX_EXISTING=${MAX_EXISTING:-0}
+      echo "대상 브랜치(${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}) 기준 최대 버전: $MAX_EXISTING"
+      FAILED=0
+      for f in $ADDED; do
+        V=$(basename "$f" | grep -oE '^V[0-9]+' | grep -oE '[0-9]+')
+        echo "새 마이그레이션: $f (버전 $V)"
+        if [ "$V" -le "$MAX_EXISTING" ]; then
+          echo "🔴 $f 의 버전($V)이 대상 브랜치의 기존 최대($MAX_EXISTING)보다 작거나 같다"
+          echo "   Flyway가 이 버전을 out-of-order로 거부해 운영 기동이 실패한다."
+          echo "   해결: 파일명 버전을 $((MAX_EXISTING + 10000)) 이후로 바꾼다 (git mv)."
+          FAILED=1
+        fi
+      done
+      [ "$FAILED" -eq 0 ] || exit 1
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes: ['backend/src/main/resources/db/migration/**/*']
+
 # ── 파이프라인이 존재하게 한다 ───────────────────────────────────────────────
 #
 # 🔴 이 잡이 없으면 `ref/` 만 바꾼 MR 은 **잡이 하나도 안 돌아 파이프라인 자체가
