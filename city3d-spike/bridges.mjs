@@ -46,23 +46,61 @@ const BBOX = { s: 34.95, w: 128.80, n: 35.35, e: 129.30 };
 //             h     주탑 꼭대기 높이(m, 해수면 기준)
 //             span  주경간(m) — 두 주탑 사이 거리. 외곽선 가운데에서 양쪽으로 span/2 에 세운다
 //
-// 🔴 남항대교 주탑 높이는 **확인된 문헌값이 없다** (2026-09-07 조사). 아래 105 m 는 **추정**이다.
-//    근거: 상판 40 m + 주경간의 1/5 (사장교 주탑은 대개 상판 위 높이가 주경간의 1/5 안팎이다).
-//    주경간 320 m 도 기억에 의존한 값이라 미확인이다. 부산항대교의 실측 비율(190−63 = 127 m,
-//    127/540 = 0.235)을 그대로 쓰면 40 + 320×0.235 ≈ 115 m 가 나온다. 실측이 나오면 이 숫자를 바꾼다.
+// 🔴🔴 2026-09-07 정정 — **남항대교에는 주탑이 없다.**
+//    전에 이 표는 남항대교를 사장교로 적고 "추정 105 m" 주탑 둘과 사장 케이블 512 조각을 세웠다.
+//    조사해 보니 남항대교는 **강상판 상형교(steel box girder) + 강합성교**다. 위키백과 한국어판·
+//    영어판("girder bridge")·부산역사문화대전 세 곳 어디에도 '주탑'·'케이블'·'사장교' 라는 말이 없다.
+//    화면에 있던 주탑과 케이블은 **자료에 없는 것을 지어낸 것**이었다. 지웠다.
+//    "추정값" 이라고 적어 두었어도, 있지도 않은 구조물을 세운 것은 추정이 아니라 창작이다.
+//      출처: ko.wikipedia '남항대교' · en.wikipedia 'Namhang Bridge' · 부산역사문화대전 GC04213720
+//
+// ── 표 읽는 법 (추가된 칸) ───────────────────────────────────────
+//   pierSpanM   교각 간격(m). 접속교 구간에 이 간격으로 기둥을 세운다
+//   pierEst     true 면 그 간격이 **추정값**이다 (문헌에서 경간 수를 못 찾은 다리)
+//   hangerSpanM 현수교 행어(주케이블에서 상판으로 내려오는 세로 줄) 간격(m). **추정값이다**
 const BRIDGES = [
-  { show: '광안대교', area: '광안대교', reachM: 3900, deckM: 25, cruise: 34, thick: 12, type: 'suspension' },
-  // 부산항대교 — 문헌값: 주탑 190 m · 상판 63 m · 주경간 540 m · 전체 3,331 m · 다이아몬드형 주탑 사장교.
-  // OSM 외곽선(1,120 m)이 사장교 구간(1,114 m)과 맞아서 외곽선 가운데 = 주경간 가운데로 본다.
-  { show: '부산항대교', area: '부산항대교', reachM: 1800, deckM: 22, cruise: 63, thick: 7, type: 'cable-stayed',
-    pylons: { h: 190, span: 540 } },
-  // 남항대교 — 문헌값: 상판 40 m · 전체 1,941 m · 사장교. 주탑 높이는 위 설명대로 **추정 105 m**.
-  { show: '남항대교', area: '남항대교', reachM: 1200, deckM: 20, cruise: 40, thick: 6, type: 'cable-stayed',
-    pylons: { h: 105, span: 320, estimated: true } },
-  { show: '을숙도대교', road: '을숙도대로', reachM: 2700, deckM: 22, cruise: 22, thick: 5 },
-  { show: '영도대교', area: '영도대교', reachM: 220, deckM: 18, cruise: 12, thick: 4 },
-  { show: '부산대교', area: '부산대교', reachM: 260, deckM: 18, cruise: 14, thick: 4 },
+  // 광안대교 — 현수교. 전체 7,420 m · 주경간 500 m(측경간 200 + 500 + 200 = 현수교 900 m) ·
+  //   복층 왕복 8차로(상층 4 · 하층 4) · 상판 폭 25.0 m(유효 20.0 m) · 해면상 형하공간 35 m · **총 110경간**.
+  //   출처: ko.wikipedia '광안대교' · en.wikipedia 'Gwangan Bridge' · 부산역사문화대전 GC04213714
+  //   교각 간격 67 m 는 지어낸 값이 아니라 **7,420 m ÷ 110경간 = 67.5 m** 에서 나왔다.
+  //   🔴 행어 간격 20 m 는 **추정**이다 — 광안대교의 주케이블 개수·행어 간격을 적은 자료를 못 찾았다.
+  //   🔴 주탑 높이는 손으로 안 넣는다. OSM 에 실측 태그(height)가 있어 그것을 쓴다(아래 5-b).
+  //      OSM 은 105 m, en.wikipedia 는 116 m 인데 **둘 다 기준면(해수면인지 상판인지)을 안 밝힌다.**
+  //      11 m 차이를 판정할 근거가 없으므로 우리가 실제로 읽는 데이터(OSM)를 따르고 차이를 여기 남긴다.
+  { show: '광안대교', area: '광안대교', reachM: 3900, deckM: 25, cruise: 34, thick: 12, type: 'suspension',
+    pierSpanM: 67, hangerSpanM: 20 },
+  // 부산항대교(북항대교) — 다이아몬드형 RC 주탑 2기의 강합성 사장교.
+  //   전체 3,368 m (사장교 1,114 m + 접속교 2,254 m) · 주경간 540 m · 주탑 190 m ·
+  //   사장교 구간 상판 폭 28.7 m(6차로) · 항로고(해수면~교량 하면) 63 m.
+  //   출처: 부산항대교 공식 bukhangbr.com/intro/intro_02.php · 부산역사문화대전 GC04213728
+  //   🔴 접속교의 경간 수를 못 찾았다. pierSpanM 은 **추정**이다.
+  { show: '부산항대교', area: '부산항대교', reachM: 1800, deckM: 28.7, cruise: 63, thick: 7, type: 'cable-stayed',
+    pylons: { h: 190, span: 540 }, pierSpanM: 60, pierEst: true },
+  // 남항대교 — **주탑 없는 거더교.** 전체 1,941 m (강상형교 1,015 + 강합성교 832 + 램프 94) ·
+  //   최대 경간장 160 m · 상판 폭 18.5~38.6 m · 왕복 4차로 · 형하고 30 m.
+  //   출처: ko.wikipedia '남항대교' · 부산역사문화대전 GC04213720
+  //   🔴 경간 수를 못 찾았다. 최대 경간 160 m 를 안 넘는 선에서 100 m 로 뒀다 — **추정**이다.
+  { show: '남항대교', area: '남항대교', reachM: 1200, deckM: 20, cruise: 30, thick: 6,
+    pierSpanM: 100, pierEst: true },
+  { show: '을숙도대교', road: '을숙도대로', reachM: 2700, deckM: 22, cruise: 22, thick: 5,
+    pierSpanM: 80, pierEst: true },
+  { show: '영도대교', area: '영도대교', reachM: 220, deckM: 18, cruise: 12, thick: 4,
+    pierSpanM: 55, pierEst: true },
+  { show: '부산대교', area: '부산대교', reachM: 260, deckM: 18, cruise: 14, thick: 4,
+    pierSpanM: 55, pierEst: true },
 ];
+
+// ── 이름난 고가도로 ──────────────────────────────────────────────
+// 여기 적힌 이름의 고가도로에만 **교각을 세운다.** 나머지 수천 개는 안 세운다 —
+// 개수가 곧 무게이고, 실제로 들여다보는 것은 이 몇 개뿐이기 때문이다.
+//   동서고가로(부산제2도시고속도로) 전체 14.04 km · 고가 구간 13.8 km · 왕복 4차로 ·
+//     노폭 19.1~42.4 m · 진출입 램프 10개소. 출처: 부산역사문화대전 GC04213724 · ko.wikipedia
+//   🔴 **교각 높이와 경간 간격은 문헌에서 못 찾았다.** 언론에 "건물 10층 높이" 라는 표현만 있고
+//      수치가 아니다. 그래서 높이는 지어내지 않고 **OSM 의 layer 값**을 그대로 쓰고(고가도로 단계의
+//      규칙 그대로), 교각 간격만 40 m 로 둔다 — 이것도 **추정**이다.
+const NAMED_VIADUCTS = new Map([
+  ['동서고가로', { pierSpanM: 40, pierEst: true }],
+]);
 
 // 육지에서 순항 높이까지 올라가는 기울기. 실제 고속 교량이 3~4 % 다.
 const GRADE = 0.035;
@@ -467,6 +505,103 @@ function stayCables(line, cum, sP, towerTop, deckTopAt, cfg, reachM) {
   return feats;
 }
 
+// ── 교각 (피어) ──────────────────────────────────────────────────
+// 🔴 전에는 상판이 **허공에 떠 있었다.** 옆에서 보면 띠 하나가 바다 위에 걸려 있고 밑에 아무것도
+//    없었다. "닮은 그림" 과 "그것" 이 갈리는 자리가 여기다 — 다리는 상판보다 기둥이 먼저 보인다.
+//
+// 모양은 T형(코핑이 있는 형식): 가운데 기둥 하나 + 그 위에 상판 폭만큼 벌어진 가로보.
+// 접속교 교각의 가장 흔한 모양이고 상자 둘로 만들 수 있다.
+//
+// 🔴 **주경간에는 안 세운다.** 현수교·사장교의 주탑 사이는 기둥 없이 건너는 구간이다.
+//    거기 기둥을 세우면 그 다리의 정체 자체가 틀린 그림이 된다.
+function pierFeatures(line, cum, built, cfg, opt = {}) {
+  const spacing = cfg.pierSpanM;
+  if (!spacing) return [];
+  const skip = opt.skip;                 // [시작 m, 끝 m] — 이 구간엔 안 세운다 (주경간)
+  const kind = opt.kind ?? 'pier';
+  const name = opt.name ?? cfg.show;
+  const feats = [];
+  for (let s = spacing; s < built.total - spacing / 2; s += spacing) {
+    if (skip && s > skip[0] && s < skip[1]) continue;
+    const deckBottom = built.topAt(s) - cfg.thick;
+    // 상판이 낮은 곳은 흙 쌓은 접속부라 기둥이 안 보인다. 세우면 땅에 박힌 상자가 된다.
+    if (deckBottom < 7) continue;
+    const u = headingAt(line, cum, s);
+    const c = pointAt(line, cum, s);
+    const capH = Math.min(2.5, deckBottom * 0.2);
+    const shaftTop = deckBottom - capH;
+    feats.push({
+      type: 'Feature',
+      properties: { kind, name, part: 'shaft', hb: 0, h: +shaftTop.toFixed(1) },
+      // 다리 방향으로 얇고 가로로 넓다. 실제 교각이 그렇다 — 물살과 바람을 덜 받는다
+      geometry: { type: 'Polygon', coordinates: box(c, u, 3.5, Math.min(7, cfg.deckM * 0.3)) },
+    });
+    feats.push({
+      type: 'Feature',
+      properties: { kind, name, part: 'cap', hb: +shaftTop.toFixed(1), h: +deckBottom.toFixed(1) },
+      geometry: { type: 'Polygon', coordinates: box(c, u, 3, cfg.deckM * 0.82) },
+    });
+  }
+  return feats;
+}
+
+// ── 현수교 주탑 ──────────────────────────────────────────────────
+// 🔴 전에는 OSM 의 주탑을 **한 변 15 m 짜리 상자 하나**로 0 에서 꼭대기까지 세웠다.
+//    그건 굴뚝이지 현수교 주탑이 아니다. 현수교 주탑은 **상판을 사이에 두고 기둥 둘이 서고
+//    위아래로 가로보가 그 둘을 잇는 문(portal) 모양**이다. 사장교의 다이아몬드형(기둥이 위에서
+//    하나로 모인다)과 실루엣이 정반대라, 이걸 안 가르면 광안대교와 부산항대교가 같아 보인다.
+function portalPylon(line, cum, sP, topH, deckTop, cfg) {
+  const u = headingAt(line, cum, sP);
+  const c = pointAt(line, cum, sP);
+  const out = cfg.deckM / 2 + 2.5;       // 기둥은 상판 바깥에 선다
+  const f = (coords, hb, h, part) => ({
+    type: 'Feature',
+    properties: { kind: 'pylon', name: cfg.show, part, hb: +hb.toFixed(1), h: +h.toFixed(1) },
+    geometry: { type: 'Polygon', coordinates: coords },
+  });
+  const feats = [];
+  const waist = deckTop + (topH - deckTop) * 0.45;   // 기둥이 가늘어지는 높이
+  for (const side of [-1, 1]) {
+    const at = offsetAt(line, cum, sP, out * side);
+    feats.push(f(box(at, u, 8, 6.5), 0, waist, 'leg-low'));
+    feats.push(f(box(at, u, 6.5, 5), waist, topH, 'leg-high'));
+  }
+  // 아래 가로보 — 상판 바로 밑에서 두 기둥을 잇는다
+  feats.push(f(box(c, u, 4, out * 2 + 6.5), Math.max(deckTop - cfg.thick - 6, 1), deckTop - cfg.thick, 'beam-low'));
+  // 위 가로보 — 주케이블이 얹히는 자리 바로 아래. 현수교 주탑의 '문' 이 여기서 보인다
+  feats.push(f(box(c, u, 4, out * 2 + 5), topH - 16, topH - 9, 'beam-high'));
+  // 꼭대기 — 케이블이 넘어가는 안장(새들)
+  feats.push(f(box(c, u, 5, out * 2 + 5), topH - 3, topH, 'saddle'));
+  return feats;
+}
+
+// ── 행어 (현수교) ────────────────────────────────────────────────
+// 주케이블에서 상판으로 **수직으로** 내려오는 줄. 현수교를 현수교로 보이게 하는 것의 절반이다 —
+// 늘어진 주케이블만 있고 행어가 없으면 케이블이 상판과 아무 관계 없이 떠 있는 그림이 된다.
+// 🔴 간격은 **추정값**이다 (cfg.hangerSpanM). 광안대교의 실제 행어 간격을 적은 자료를 못 찾았다.
+function hangers(line, cum, sA, sB, towerTop, deckTop, cfg) {
+  const spacing = cfg.hangerSpanM;
+  if (!spacing) return [];
+  const s0 = Math.min(sA, sB), s1 = Math.max(sA, sB);
+  const sag = deckTop + 6;               // cables() 와 **같은 식**을 써야 케이블에 정확히 닿는다
+  const half = cfg.deckM / 2 - 2;
+  const feats = [];
+  for (let s = s0 + spacing; s < s1 - spacing / 2; s += spacing) {
+    const t = (s - s0) / (s1 - s0);
+    const y = towerTop + (sag - towerTop) * (1 - (2 * t - 1) ** 2);
+    if (y - deckTop < 2) continue;       // 가운데 근처는 케이블이 상판에 붙어 행어가 없다
+    for (const side of [-1, 1]) {
+      const at = offsetAt(line, cum, s, half * side);
+      feats.push({
+        type: 'Feature',
+        properties: { kind: 'hanger', name: cfg.show, hb: +deckTop.toFixed(1), h: +y.toFixed(1) },
+        geometry: { type: 'Polygon', coordinates: square(at, 0.9) },
+      });
+    }
+  }
+  return feats;
+}
+
 // 점이 선의 어디쯤(시작점에서 몇 m)에 있는지
 function arcLengthAt(line, cum, p) {
   let bestS = 0;
@@ -566,6 +701,9 @@ for (const cfg of BRIDGES) {
   row.길이 = Math.round(built.total) + ' m';
   row.상판조각 = built.feats.length;
 
+  // 주경간(기둥 없이 건너는 구간). 교각을 세울 때 이 구간을 비운다.
+  let mainSpan = null;
+
   if (cfg.pylons) {
     // 5-a) 손으로 넣는 주탑 — 기준점(외곽선 가운데)에서 양쪽으로 주경간의 절반씩 떨어진 곳.
     //      상판 높이는 그 자리의 상판 조각과 같은 함수(topAt)에서 얻는다. 따로 정하면 어긋난다.
@@ -579,27 +717,38 @@ for (const cfg of BRIDGES) {
       features.push(...stayCables(part, built.cum, sP, cfg.pylons.h, built.topAt, cfg, cfg.pylons.span / 2 - 12));
       n++;
     }
-    row.주탑 = `${n}개 · 높이 ${cfg.pylons.h} m${cfg.pylons.estimated ? ' (추정)' : ''} · 간격 ${cfg.pylons.span} m · 손으로 넣음`;
+    mainSpan = [spots[0], spots[1]];
+    row.주탑 = `${n}개 · 높이 ${cfg.pylons.h} m${cfg.pylons.estimated ? ' (추정)' : ''} · 간격 ${cfg.pylons.span} m · 손으로 넣음 (다이아몬드형)`;
     row.케이블 = '사장교 다발';
   } else {
-    // 5-b) OSM 에 있는 주탑 — 중심선에서 60 m 안
+    // 5-b) OSM 에 있는 주탑 — 중심선에서 60 m 안.
+    //      🔴 상자 하나로 세우지 않는다. 현수교 주탑은 기둥 둘 + 가로보의 문(portal) 모양이다.
     const mine = pylons.filter((p) => distToLineM(part, p.at) < 60);
-    for (const p of mine) {
-      features.push({
-        type: 'Feature',
-        properties: { kind: 'pylon', name: cfg.show, hb: 0, h: p.h },
-        geometry: { type: 'Polygon', coordinates: square(p.at, 15) },
-      });
+    const spots = mine.map((p) => ({ p, s: arcLengthAt(part, built.cum, p.at) }));
+    for (const { p, s: sP } of spots) {
+      features.push(...portalPylon(part, built.cum, sP, p.h, built.topAt(sP), cfg));
     }
-    if (mine.length === 2) {
-      const sA = arcLengthAt(part, built.cum, mine[0].at);
-      const sB = arcLengthAt(part, built.cum, mine[1].at);
+    if (spots.length === 2) {
+      const sA = spots[0].s;
+      const sB = spots[1].s;
       features.push(...cables(part, built.cum, sA, sB, mine[0].h, cfg.cruise, cfg));
-      row.주탑 = `2개 · 높이 ${mine[0].h} m · 간격 ${Math.round(distM(mine[0].at, mine[1].at))} m`;
+      // 행어 — 주케이블에서 상판으로 내려오는 세로 줄. 이게 없으면 케이블이 허공에 뜬다
+      const hg = hangers(part, built.cum, sA, sB, mine[0].h, cfg.cruise, cfg);
+      features.push(...hg);
+      mainSpan = [Math.min(sA, sB), Math.max(sA, sB)];
+      row.주탑 = `2개 · 높이 ${mine[0].h} m (OSM height 태그) · 간격 ${Math.round(distM(mine[0].at, mine[1].at))} m · 문(portal)형`;
       row.케이블 = '현수교 곡선';
-    } else if (mine.length) {
-      row.주탑 = `${mine.length}개`;
+      row.행어 = hg.length + '개 · 간격 ' + cfg.hangerSpanM + ' m (추정)';
+    } else if (spots.length) {
+      row.주탑 = `${spots.length}개`;
     }
+  }
+
+  // 6) 교각 — 접속교 구간에 기둥을 세운다. 주경간은 비운다.
+  const pf = pierFeatures(part, built.cum, built, cfg, { skip: mainSpan });
+  features.push(...pf);
+  if (pf.length) {
+    row.교각 = (pf.length / 2) + '기 · 간격 ' + cfg.pierSpanM + ' m' + (cfg.pierEst ? ' (추정)' : ' (경간 수에서 계산)');
   }
 }
 const namedCount = features.length;
@@ -629,6 +778,17 @@ for (const w of osm.elements) {
   features.push(...built.feats);
   viaductRows.세움++;
   viaductRows.조각 += built.feats.length;
+
+  // 이름난 고가도로(동서고가로 등)에는 교각을 세운다. 나머지 수천 개는 안 세운다 —
+  // 전부 세우면 도형이 두 배가 되는데, 화면에서 들여다보는 것은 이 몇 개뿐이다.
+  const named = NAMED_VIADUCTS.get(t.name);
+  if (named) {
+    const pf = pierFeatures(line, built.cum, built, 
+      { deckM, thick: VIADUCT_THICK, pierSpanM: named.pierSpanM, show: t.name },
+      { kind: 'viaduct-pier', name: t.name });
+    features.push(...pf);
+    viaductRows.이름난고가교각 = (viaductRows.이름난고가교각 ?? 0) + pf.length / 2;
+  }
 }
 report.push({ 고가도로: viaductRows });
 

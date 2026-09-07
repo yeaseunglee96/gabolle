@@ -139,3 +139,77 @@ export function shadowLengthM(heightM, altitudeDeg) {
 export function kst(year, month, day, hour = 0, minute = 0) {
   return new Date(Date.UTC(year, month - 1, day, hour - 9, minute));
 }
+
+// ── 일출·일몰·낮 길이 ─────────────────────────────────────────────
+// 왜 필요한가 — 그림자 우선 경로는 "몇 시에 그늘인가" 를 묻는 기능이다. 그런데 해가 떠 있는
+// 시간 자체가 계절마다 3시간 넘게 다르다. 부산의 6월 낮은 14시간 27분, 12월 낮은 9시간 55분이다.
+// 슬라이더를 4~22시로 고정해 두면 겨울에는 슬라이더의 절반이 캄캄한 시각이고,
+// 여름에는 해 뜨는 시각이 슬라이더 밖에 있다. 그래서 그날의 낮에 맞춰 범위를 만든다.
+//
+// 계산 방식 — NOAA Solar Calculator 와 같다.
+//   해의 중심이 지평선 아래 0.833° 에 올 때를 일출/일몰로 본다.
+//   0.833° = 대기 굴절 0.567° + 해의 반지름 0.267° 다. 해의 **윗 가장자리**가 지평선에
+//   걸리는 순간이 우리가 "해가 떴다" 고 부르는 순간이기 때문이다.
+//   기상청·천문연구원의 일출/일몰표도 같은 기준이다.
+const SUNRISE_ZENITH = 90.833;
+
+/**
+ * 그날의 일출·일몰·남중 시각. 전부 **그 지역 시계로 자정부터의 분**이다.
+ * @param {number} year  연 (지역 시각 기준)
+ * @param {number} month 월 1~12
+ * @param {number} day   일
+ * @param {number} latDeg 위도
+ * @param {number} lonDeg 경도
+ * @param {number} tzOffsetHours 시간대 (한국 9)
+ * @returns {{sunriseMin:number|null, sunsetMin:number|null, noonMin:number,
+ *            dayLengthMin:number, polar:'none'|'day'|'night'}}
+ *   극지에서는 해가 안 뜨거나 안 지는 날이 있다. 그때 sunrise/sunset 은 null 이고
+ *   polar 가 'day'(하루 종일 낮) 또는 'night'(하루 종일 밤)이 된다. 부산에서는 안 생기지만,
+ *   좌표를 바꿔 쓸 수 있는 함수라 없는 셈 치지 않는다.
+ */
+export function sunTimes(year, month, day, latDeg, lonDeg, tzOffsetHours = 9) {
+  // 그날의 적위는 하루 안에서 거의 안 변하므로 지역 정오 한 번으로 구한다.
+  const localNoonUTC = new Date(Date.UTC(year, month - 1, day, 12 - tzOffsetHours));
+  const { declination } = sunPosition(localNoonUTC, latDeg, lonDeg);
+  const noonMin = solarNoonMinutes(localNoonUTC, lonDeg, tzOffsetHours);
+
+  const cosH =
+    (Math.cos(rad(SUNRISE_ZENITH)) - Math.sin(rad(latDeg)) * Math.sin(rad(declination))) /
+    (Math.cos(rad(latDeg)) * Math.cos(rad(declination)));
+
+  if (cosH > 1) return { sunriseMin: null, sunsetMin: null, noonMin, dayLengthMin: 0, polar: 'night' };
+  if (cosH < -1) return { sunriseMin: null, sunsetMin: null, noonMin, dayLengthMin: 1440, polar: 'day' };
+
+  // 시간각을 분으로. 한 시간에 15도 도니까 1도 = 4분이다.
+  const halfDayMin = 4 * deg(Math.acos(cosH));
+  return {
+    sunriseMin: noonMin - halfDayMin,
+    sunsetMin: noonMin + halfDayMin,
+    noonMin,
+    dayLengthMin: halfDayMin * 2,
+    polar: 'none',
+  };
+}
+
+/** 자정부터의 분을 'HH:MM' 으로. */
+export function hhmm(minutes) {
+  if (minutes === null || !Number.isFinite(minutes)) return '–';
+  const m = Math.round(minutes);
+  return String(Math.floor(m / 60) % 24).padStart(2, '0') + ':' + String(((m % 60) + 60) % 60).padStart(2, '0');
+}
+
+/**
+ * 지금 한국 날짜. 이 PC 의 시간대가 무엇이든 **부산 현지 날짜**를 준다 —
+ * 브라우저가 UTC 로 맞춰져 있으면 한국의 오전 8시가 전날로 읽히기 때문이다.
+ * @returns {[number, number, number]} [연, 월(1~12), 일]
+ */
+export function todayKST(now = new Date()) {
+  const k = new Date(now.getTime() + 9 * 3600000);
+  return [k.getUTCFullYear(), k.getUTCMonth() + 1, k.getUTCDate()];
+}
+
+/** 지금 한국 시각을 소수 시(예: 14.5 = 14:30)로. 슬라이더의 초기값에 쓴다. */
+export function nowHourKST(now = new Date()) {
+  const k = new Date(now.getTime() + 9 * 3600000);
+  return k.getUTCHours() + k.getUTCMinutes() / 60;
+}

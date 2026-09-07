@@ -42,7 +42,17 @@
   .views { margin-bottom: 9px; flex-wrap: wrap; }
   .view { background: rgba(51,68,63,.09); color: var(--ink); padding: 6px 13px; }
   .view.on { background: var(--ink); color: #fff; }
-  #t-label { min-width: 128px; font-variant-numeric: tabular-nums; }
+  #t-label { min-width: 152px; font-variant-numeric: tabular-nums; }
+  /* 슬라이더와 그늘 띠를 한 칸에 세로로 쌓는다. 띠가 슬라이더와 **가로로 정확히 겹쳐야**
+     "이 시각이 그늘인가" 를 눈으로 읽을 수 있다. 따로 두면 몇 픽셀씩 어긋나 쓸모가 없다. */
+  .tcol { flex: 1; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+  .tcol input[type=range] { width: 100%; margin: 0; }
+  #band { width: 100%; height: 15px; display: block; border-radius: 4px; }
+  #sunline { margin-top: 7px; font-size: 10.5px; opacity: .72; font-variant-numeric: tabular-nums;
+             display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; }
+  #sunline b { font-weight: 600; opacity: .95; }
+  .tag { font-size: 10.5px; opacity: .55; margin-right: 2px; }
+  .swatch { display: inline-block; width: 9px; height: 9px; border-radius: 2px; vertical-align: -1px; margin-right: 3px; }
   #hint {
     position: absolute; top: calc(10px + env(safe-area-inset-top)); left: 10px;
     background: rgba(255,255,255,.9); border-radius: 10px; padding: 7px 11px; font-size: 11.5px;
@@ -82,11 +92,24 @@
     <button class="view" data-v="마린시티">마린시티</button>
     <button class="view" data-v="BIFC">BIFC</button>
   </div>
+  <div class="row views" id="demos">
+    <span class="tag">이동수단</span>
+    <button class="view demo" data-demo="off">끔</button>
+    <button class="view demo" data-demo="walk">도보</button>
+    <button class="view demo" data-demo="bus">버스</button>
+    <button class="view demo" data-demo="car">승용차</button>
+    <button class="view demo" data-demo="all">셋 다</button>
+  </div>
   <div class="row">
     <label id="t-label">낮 12:00</label>
-    <input type="range" id="time" min="4" max="22" step="0.25" value="17" />
+    <div class="tcol">
+      <input type="range" id="time" min="4" max="22" step="0.25" value="17" />
+      <!-- 그늘 띠 — 슬라이더 바로 밑에 같은 가로 자리로. 진한 곳이 그늘이 많은 시각이다 -->
+      <canvas id="band" height="15"></canvas>
+    </div>
     <button id="copy">숫자 복사</button>
   </div>
+  <div id="sunline"></div>
 </div>
 
 <!-- 🔴 브이월드 인증키는 git 에 없다. public/config.local.js (gitignore 대상) 가 window.CITY3D 에 넣어 준다.
@@ -103,7 +126,11 @@ import { Map as MapLibreMap, NavigationControl, addProtocol } from './lib/maplib
 //    파일은 그대로 남겨 뒀다 — 되살리려면 아래 import 를 풀고 '파도' 단계를 되돌린다:
 //      import { makeSeaLayer } from './sea.mjs?v=<판>';
 //    바다 색은 바탕 지도가 계속 칠하므로 파도가 없어도 시각에 따라 바뀐다.
-import { sunPosition, shadowLengthM, kst } from './sun.mjs';
+import { sunPosition, shadowLengthM, kst, sunTimes, hhmm, todayKST, nowHourKST } from './sun.mjs';
+// 이동 수단 — 경로 위를 실제로 움직이는 보행자·버스·승용차. 왜 3D 상자로 골랐는지는 actors.mjs 맨 위에 있다.
+import { MODES, makeRoute, actorCollection, actorColorExpr } from './actors.mjs';
+// 그늘/볕 판정 — "이 자리가 몇 시에 그늘인가". 🔴 못 보는 것(가로수·지형)은 shade.mjs 맨 위에 적혀 있다.
+import { buildIndex, shadeAt, shadeTimeline } from './shade.mjs';
 
 const T0 = performance.now();
 
@@ -114,9 +141,37 @@ const BUILD_STAMP = '0907-1340';
 document.getElementById('build').textContent = '판 ' + BUILD_STAMP;
 
 // 해를 계산할 기준점과 날짜.
-// 날짜를 팀의 그림자 분석과 같은 날로 맞춰 둔다 — 두 곳이 다른 해를 쓰면 나중에 대조가 안 된다.
 const SITE = { lat: 35.1600, lon: 129.1300 };
-const DATE = [2026, 7, 15];
+
+const Q = new URLSearchParams(location.search);
+
+// ── 날짜 — 기본은 **오늘(부산 현지)** ────────────────────────────
+// 🔴 2026-09-07 에 바뀌었다. 전에는 `[2026, 7, 15]` 가 박혀 있었다 (팀의 그림자 분석과 날짜를
+//    맞추려고 그랬다). 그런데 이 화면은 이제 여행자가 **자기 여행 날**의 그늘을 보는 데 쓰인다.
+//    7월 15일의 해로 12월 여행을 보여주면 낮 길이가 2시간 40분 틀리고, 그림자 방향도 틀린다.
+//    분석과 대조할 때는 ?date=2026-07-15 로 그날을 다시 부르면 된다.
+//
+//   ?date=2026-09-12   그날의 해로 본다 (여행은 미래 날짜다)
+//   ?date=today        오늘 (기본값)
+const DATE = (() => {
+  const raw = (Q.get('date') ?? '').trim();
+  const m = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(raw);
+  if (m) {
+    const y = +m[1], mo = +m[2], d = +m[3];
+    // 실제로 있는 날인지 본다. 2026-02-31 을 주면 Date 가 3월 3일로 조용히 굴러가는데,
+    // 조용히 다른 날을 보여주는 것이 오류를 내는 것보다 나쁘다.
+    const probe = new Date(Date.UTC(y, mo - 1, d));
+    if (probe.getUTCFullYear() === y && probe.getUTCMonth() === mo - 1 && probe.getUTCDate() === d) return [y, mo, d];
+  }
+  return todayKST();
+})();
+const DATE_IS_TODAY = DATE.join('-') === todayKST().join('-');
+
+// 그날의 일출·일몰·남중. 슬라이더 범위와 "일몰 후" 표시가 전부 여기서 나온다.
+// 🔴 이 값은 sunrise-sunset.org 의 공개 API 와 대조했다 (2026-09-07, 부산 35.1796/129.0756):
+//    9/7 · 하지 · 동지 · 춘분 네 날 모두 **일출 +1~2분 · 일몰 -1분 · 남중 0~1분** 안에 들었다.
+//    남는 차이는 기준 고도(-0.833°)와 해발고도 보정 유무 때문이다. 분 단위로는 맞다고 본다.
+const SUNT = sunTimes(DATE[0], DATE[1], DATE[2], SITE.lat, SITE.lon, 9);
 
 // 🔴 큰 파일(건물 타일 58 MB · 땅 높이 204 MB)은 깃에 없다.
 //    LFS 도 답이 아니다 — 저장소가 그만큼 무거워지는 건 똑같고, clone 이 느려진다.
@@ -141,7 +196,6 @@ const DATA = location.search.includes('data=aws')
 //   ?roads=auto|on|dim|off 사진 위의 도로선을 해 따라 / 그대로 / 흐리게 / 끈다   (기본: 아래 ROADS_DEFAULT)
 //   ?labels=off       글자를 끈다                                   (기본: 켬)
 //   ?sea=photo|paint|blend  바다를 사진 그대로 / 바탕 지도 색으로 / 반투명으로 겹쳐서 (기본: SEA_DEFAULT)
-const Q = new URLSearchParams(location.search);
 const AERIAL_KEY = String(window.CITY3D?.vworldKey ?? '').trim();
 // 예시 파일을 그대로 복사만 한 경우도 "키 없음" 으로 본다. 자리표시자를 주소에 넣으면 타일마다 오류가 난다.
 const HAS_KEY = AERIAL_KEY.length > 0 && !/여기에|YOUR/i.test(AERIAL_KEY);
@@ -163,9 +217,33 @@ const SEA_MODE = Q.get('sea') ?? SEA_DEFAULT;
 const AERIAL_MAXZOOM_DEFAULT = 17;
 const AERIAL_MAXZOOM = Math.min(19, +(Q.get('photomax') ?? AERIAL_MAXZOOM_DEFAULT) || AERIAL_MAXZOOM_DEFAULT);
 
+// ── 바탕 지도 ─────────────────────────────────────────────────────
+// 평소에는 OpenFreeMap 의 positron 을 쓴다. 그런데 그 주소는 **밖에 있는 서비스**라,
+// 막힌 망(사내망·자동화 브라우저·비행기)에서는 스타일이 통째로 안 온다.
+// 그러면 map 의 'load' 가 영영 안 나고 **건물·다리·그림자가 하나도 안 만들어진다** —
+// 바탕 지도만 못 받은 게 아니라 화면 전체가 빈다. 2026-09-07 에 실제로 그랬다
+// (자동화 브라우저에서 tiles.openfreemap.org 가 차단돼 전송량 0 바이트로 즉시 끊겼다).
+//
+// 그래서 탈출구를 둔다. ?basemap=off 면 **바탕색 한 장짜리 스타일**로 시작한다.
+// 도로선·글자·해안선은 없지만 건물·다리·그림자·항공사진은 전부 우리 서버에서 오므로 그대로 뜬다.
+// 성능을 잴 때도 이쪽이 낫다 — 남의 서버 상태가 숫자에 안 섞인다.
+const BASEMAP_OFF = Q.get('basemap') === 'off';
+// 🔴 스타일을 **객체 그대로 주면 이 MapLibre 판에서는 안 뜬다.** 오류도 안 나고
+//    getStyle() 이 계속 null 이라 'load' 가 영영 안 난다 (2026-09-07 실측).
+//    주소 문자열은 된다. 그래서 객체를 Blob 으로 감싸 blob: 주소로 만들어 넘긴다 —
+//    네트워크를 안 타면서 주소의 모양은 갖춘다.
+const MINIMAL_STYLE = {
+  version: 8,
+  sources: {},
+  layers: [{ id: 'bg', type: 'background', paint: { 'background-color': '#f3f5f1' } }],
+};
+const MINIMAL_STYLE_URL = BASEMAP_OFF
+  ? URL.createObjectURL(new Blob([JSON.stringify(MINIMAL_STYLE)], { type: 'application/json' }))
+  : null;
+
 const map = new MapLibreMap({
   container: 'map',
-  style: 'https://tiles.openfreemap.org/styles/positron',
+  style: BASEMAP_OFF ? MINIMAL_STYLE_URL : 'https://tiles.openfreemap.org/styles/positron',
   center: [129.1380, 35.1560],
   zoom: 13,
   pitch: 60,
@@ -374,8 +452,9 @@ function landmarkColor(night) {
 // 더해져 검은 삼각형으로 뭉친다 — 실제로 그랬다.
 function bridgeColor(night) {
   return night
-    ? ['match', ['get', 'kind'], 'pylon', '#7d6a55', 'cable', '#6b5a48', 'stay', '#8a7a66', 'viaduct', '#3f3d3c', '#5f5750']
-    : ['match', ['get', 'kind'], 'pylon', '#eceeeb', 'cable', '#9ba4a1', 'stay', '#e6eae8', 'viaduct', '#cfd3d0', '#dee2df'];
+    // 교각(pier)은 콘크리트라 상판보다 살짝 어둡고, 행어(hanger)는 강선이라 주케이블과 같은 톤이다.
+    ? ['match', ['get', 'kind'], 'pylon', '#7d6a55', 'cable', '#6b5a48', 'stay', '#8a7a66', 'hanger', '#6b5a48', 'pier', '#6e6252', 'viaduct-pier', '#393735', 'viaduct', '#3f3d3c', '#5f5750']
+    : ['match', ['get', 'kind'], 'pylon', '#eceeeb', 'cable', '#9ba4a1', 'stay', '#e6eae8', 'hanger', '#9ba4a1', 'pier', '#c9ccc7', 'viaduct-pier', '#bcc0bd', 'viaduct', '#cfd3d0', '#dee2df'];
 }
 
 // ── 창문 무늬 ─────────────────────────────────────────────────────
@@ -488,60 +567,22 @@ function convexHull(pts) {
 let shadowTimer = null;
 let lastShadowStat = null;
 
-// 🔴 그림자를 통째로 갈아 끼우면 확대할 때 깜빡인다.
+// 🔴 2026-09-07 에 두 갈래로 나눴다. 전에는 한 함수가 "타일에서 건물을 줍는 일" 과
+//    "해 방향으로 늘여 그림자를 만드는 일" 을 같이 했다. 그래서 해가 1분만 움직여도
+//    **타일을 처음부터 다시 훑어야 했고**, 그 비용 때문에 슬라이더를 끄는 동안에는
+//    그림자를 못 바꿨다 — 손을 떼고 260 ms 뒤에 한 번 바뀌었다.
 //
-//    화면에 보이는 건물은 "지금 로드된 타일" 에서만 나온다. 확대하는 동안에는 타일이
-//    계속 오가므로, 그때마다 처음부터 다시 만들어 통째로 바꾸면 아직 안 온 타일의 그림자가
-//    그 순간 사라진다. 실측했더니 3단계 확대에 **7번 다시 만들고 개수가 1925 → 1516 으로
-//    출렁였다.** 그게 깜빡임이다.
-//
-//    그래서 바꾸지 않고 **쌓는다.** 새로 보인 건물의 그림자만 더한다. 그림자는 위경도로
-//    적혀 있어서 확대해도 자리가 안 변하므로, 한 번 만든 것은 계속 맞다.
-//    해가 움직이면 전부 다시 만들어야 하니 그때만 비운다.
-const shadowCache = new Map();
-let shadowSunKey = '';
+//    건물은 해가 움직여도 그대로다. 그래서 건물은 **쌓아 두고**(buildingCache),
+//    해가 움직이면 쌓아 둔 것에서 **그림자만 다시 만든다.** 타일을 다시 훑지 않는다.
+//    쌓아 두는 이유는 예전 주석 그대로다 — 확대하는 동안 타일이 오가는데, 그때마다
+//    처음부터 만들면 아직 안 온 타일의 그림자가 사라져 깜빡인다.
+const buildingCache = new Map();   // key -> { ring, h }
+const BLD_CAP = 6000;              // 넘치면 오래된 것부터 버린다 (Map 은 넣은 순서를 기억한다)
 
-
-// 🔴 화면이 움직이는 동안에는 그림자 소스를 **아예 안 건드린다.**
-//    소스를 바꾸면 그 도형들을 타일로 다시 만드는데, 지금 9천 개가 넘어서 그 사이가 길다.
-//    그 사이에 확대 단계가 넘어가면 새 단계의 그림자 타일이 아직 없어 화면이 빈다 — 그게 깜빡임이다.
-//    그림자는 위경도로 적혀 있어 확대해도 자리가 안 변하므로, 멈춘 뒤에 채워도 늦지 않다.
-function scheduleShadows() {
-  clearTimeout(shadowTimer);
-  shadowTimer = setTimeout(() => {
-    if (map.isMoving() || map.isZooming() || map.isRotating()) { scheduleShadows(); return; }
-    rebuildShadows();
-  }, 260);
-}
-
-function rebuildShadows() {
-  const src = map.getSource('shadow');
-  if (!src) return;
-  const t0 = performance.now();
-  const empty = { type: 'FeatureCollection', features: [] };
-
-  if (!currentSun || currentSun.altitude < SHADOW_MIN_ALT) {
-    shadowCache.clear();
-    shadowSunKey = '';
-    src.setData(empty);
-    window.lastShadowStat = lastShadowStat = { 개수: 0, 이유: '해가 낮거나 져 있음' };
-    return;
-  }
-
-  // 해가 움직였으면 쌓아 둔 것이 전부 틀렸다. 그때만 비운다.
-  const sunKey = currentSun.azimuth.toFixed(2) + ',' + currentSun.altitude.toFixed(2);
-  if (sunKey !== shadowSunKey) {
-    shadowCache.clear();
-    shadowSunKey = sunKey;
-  }
-
-  const feats = map.querySourceFeatures('bld', { sourceLayer: 'building' });
-  // 그림자가 향하는 쪽 = 해의 반대쪽
-  const dir = ((currentSun.azimuth + 180) * Math.PI) / 180;
-  const east = Math.sin(dir);
-  const north = Math.cos(dir);
-  const perM = 1 / Math.tan((currentSun.altitude * Math.PI) / 180);
-
+function collectBuildings() {
+  let feats;
+  try { feats = map.querySourceFeatures('bld', { sourceLayer: 'building' }); }
+  catch { return { added: 0, seen: 0 }; }
   let added = 0;
   for (const f of feats) {
     const h = f.properties.h;
@@ -551,58 +592,122 @@ function rebuildShadows() {
     for (const ring of rings) {
       if (!ring || ring.length < 4) continue;
       // 타일 경계에 걸친 건물은 여러 번 온다. 첫 점과 높이로 같은 것을 걸러낸다.
-      // 이미 만들어 둔 그림자면 다시 안 만든다 — 쌓아 두는 방식의 핵심이다.
-      const key = `${ring[0][0].toFixed(5)},${ring[0][1].toFixed(5)},${h}`;
-      if (shadowCache.has(key)) continue;
-
-      const L = Math.min(h * perM, SHADOW_MAX_M);
-      const lat = ring[0][1];
-      const dLon = (east * L) / mPerLon(lat);
-      const dLat = (north * L) / M_PER_LAT;
-
-      const pts = new Array(ring.length * 2);
-      for (let i = 0; i < ring.length; i++) {
-        pts[i] = ring[i];
-        pts[i + ring.length] = [ring[i][0] + dLon, ring[i][1] + dLat];
-      }
-      const hull = convexHull(pts);
-      if (hull.length < 3) continue;
-      hull.push(hull[0]);
-      shadowCache.set(key, {
-        type: 'Feature', properties: { sh: h },
-        geometry: { type: 'Polygon', coordinates: [hull] },
-      });
+      const key = ring[0][0].toFixed(5) + ',' + ring[0][1].toFixed(5) + ',' + h;
+      if (buildingCache.has(key)) continue;
+      buildingCache.set(key, { ring, h });
       added++;
     }
   }
-
-  // 새로 생긴 게 없으면 화면에 손대지 않는다. 같은 것을 다시 넣으면 다시 타일로 만드느라
-  // 그 사이에 화면이 한 번 비는데, 그것도 깜빡임으로 보인다.
-  // 🔴 소스가 비어 있으면 예외다 — 이 조건만 두면 캐시는 가득한데 화면은 빈 채로 굳는다.
-  if (added === 0 && map.querySourceFeatures('shadow').length > 0) return;
-
-  // 무한정 쌓이지는 않게 한다. 넘치면 오래된 것부터 버린다 (Map 은 넣은 순서를 기억한다).
-  const CAP = 9000;   // 더 쌓아 봐야 다시 타일로 만드는 시간만 길어진다
-  if (shadowCache.size > CAP) {
-    const drop = shadowCache.size - CAP;
+  if (buildingCache.size > BLD_CAP) {
+    const drop = buildingCache.size - BLD_CAP;
     let i = 0;
-    for (const k of shadowCache.keys()) { if (i++ >= drop) break; shadowCache.delete(k); }
+    for (const k of buildingCache.keys()) { if (i++ >= drop) break; buildingCache.delete(k); }
+  }
+  if (added) shadeIndexDirty = true;   // 그늘 판정용 색인도 다시 만들어야 한다
+  return { added, seen: feats.length };
+}
+
+// 지금 화면에 넣어 둔 그림자가 어떤 해·어떤 기준으로 만든 것인가. 같으면 손대지 않는다.
+let projectedKey = '';
+let projectedCount = 0;
+// 끄는 동안 쓰는 최소 건물 높이. 느려지면 스스로 올라간다 (아래 설명).
+let liveMinH = SHADOW_MIN_H;
+const LIVE_BUDGET_MS = 12;   // 한 프레임 16.7 ms 중 그림자에 줄 수 있는 몫
+
+function rebuildShadows(opt = {}) {
+  const live = !!opt.live;
+  const src = map.getSource('shadow');
+  if (!src) return;
+  const t0 = performance.now();
+
+  // 해가 졌거나 너무 낮으면 그림자를 안 그린다. 왜 그런지를 숫자로 남긴다 —
+  // 화면이 비었을 때 "고장" 인지 "일몰 후" 인지 구분이 돼야 한다.
+  if (!currentSun || currentSun.altitude < SHADOW_MIN_ALT) {
+    if (projectedCount !== 0) src.setData({ type: 'FeatureCollection', features: [] });
+    projectedCount = 0;
+    projectedKey = '';
+    window.lastShadowStat = lastShadowStat = {
+      개수: 0,
+      이유: !currentSun ? '아직 계산 전'
+        : currentSun.altitude <= 0 ? '일몰 후 (해가 지평선 아래)'
+        : '해가 낮아 그림자가 화면 밖까지 뻗음 (' + currentSun.altitude.toFixed(1) + '°)',
+    };
+    return;
   }
 
-  src.setData({ type: 'FeatureCollection', features: [...shadowCache.values()] });
+  // 끄는 동안에는 타일을 다시 안 훑는다. 그게 이 갈래의 요점이다.
+  const added = live ? 0 : collectBuildings().added;
+  const minH = live ? liveMinH : SHADOW_MIN_H;
+  const sunKey = currentSun.azimuth.toFixed(2) + ',' + currentSun.altitude.toFixed(2) + ',' + minH;
+  if (sunKey === projectedKey && added === 0 && projectedCount > 0) return;
+
+  const dir = ((currentSun.azimuth + 180) * Math.PI) / 180;   // 그림자가 향하는 쪽 = 해의 반대쪽
+  const east = Math.sin(dir);
+  const north = Math.cos(dir);
+  const perM = 1 / Math.tan((currentSun.altitude * Math.PI) / 180);
+
+  const features = [];
+  for (const b of buildingCache.values()) {
+    if (b.h < minH) continue;
+    const ring = b.ring;
+    const L = Math.min(b.h * perM, SHADOW_MAX_M);
+    const lat = ring[0][1];
+    const dLon = (east * L) / mPerLon(lat);
+    const dLat = (north * L) / M_PER_LAT;
+    const pts = new Array(ring.length * 2);
+    for (let i = 0; i < ring.length; i++) {
+      pts[i] = ring[i];
+      pts[i + ring.length] = [ring[i][0] + dLon, ring[i][1] + dLat];
+    }
+    const hull = convexHull(pts);
+    if (hull.length < 3) continue;
+    hull.push(hull[0]);
+    features.push({ type: 'Feature', properties: { sh: b.h }, geometry: { type: 'Polygon', coordinates: [hull] } });
+  }
+
+  src.setData({ type: 'FeatureCollection', features });
+  projectedKey = sunKey;
+  projectedCount = features.length;
+  const ms = performance.now() - t0;
+
+  // 🔴 끄는 동안 예산을 넘으면 **낮은 건물부터 뺀다.** 품질을 낮추는 것이 멈추는 것보다 낫다.
+  //    손을 떼면 곧바로 원래 기준(SHADOW_MIN_H)으로 한 번 더 만들므로 최종 화면은 안 상한다.
+  if (live) {
+    if (ms > LIVE_BUDGET_MS) liveMinH = Math.min(120, liveMinH + 10);
+    else if (ms < LIVE_BUDGET_MS / 2) liveMinH = Math.max(SHADOW_MIN_H, liveMinH - 5);
+  }
+
   window.lastShadowStat = lastShadowStat = {
-    개수: shadowCache.size,
-    새로: added,
-    본건물: feats.length,
-    걸린ms: +(performance.now() - t0).toFixed(1),
+    개수: features.length,
+    쌓은건물: buildingCache.size,
+    새건물: added,
+    걸린ms: +ms.toFixed(1),
     해고도: +currentSun.altitude.toFixed(1),
+    끄는중: live,
+    최소건물높이: minH,
   };
+}
+
+
+
+// 🔴 화면이 움직이는 동안에는 그림자 소스를 **아예 안 건드린다.**
+//    소스를 바꾸면 그 도형들을 타일로 다시 만드는데, 지금 9천 개가 넘어서 그 사이가 길다.
+//    그 사이에 확대 단계가 넘어가면 새 단계의 그림자 타일이 아직 없어 화면이 빈다 — 그게 깜빡임이다.
+//    그림자는 위경도로 적혀 있어 확대해도 자리가 안 변하므로, 멈춘 뒤에 채워도 늦지 않다.
+function scheduleShadows(opt = {}) {
+  // 슬라이더를 끄는 중이면 기다리지 않는다. 이미 프레임당 한 번으로 묶여 있다(requestHour).
+  if (opt.live) { rebuildShadows({ live: true }); return; }
+  clearTimeout(shadowTimer);
+  shadowTimer = setTimeout(() => {
+    if (map.isMoving() || map.isZooming() || map.isRotating()) { scheduleShadows(); return; }
+    rebuildShadows();
+  }, 260);
 }
 
 // ── 시각 ──────────────────────────────────────────────────────────
 let currentSun = null;
 
-function setHour(hour) {
+function setHour(hour, opt = {}) {
   const h = Math.floor(hour);
   const m = Math.round((hour - h) * 60);
   const sun = sunPosition(kst(...DATE, h, m), SITE.lat, SITE.lon);
@@ -700,12 +805,24 @@ function setHour(hour) {
     map.setPaintProperty('shadow', 'fill-extrusion-opacity', 0.42 - low * 0.14);
   }
 
-  const label = `${h < 12 ? '오전' : h === 12 ? '낮' : '오후'} ${h <= 12 ? h : h - 12}:${String(m).padStart(2, '0')}`;
-  document.getElementById('t-label').textContent =
-    `${label} · 해 ${sun.altitude < 0 ? '짐' : Math.round(sun.altitude) + '°'}`;
+  // 분이 60 으로 반올림되면 시를 올린다. 안 하면 "오후 3:60" 이 나온다.
+  let hh = h, mm = m;
+  if (mm >= 60) { mm -= 60; hh += 1; }
+  const label = `${hh < 12 ? '오전' : hh === 12 ? '낮' : '오후'} ${hh <= 12 ? hh : hh - 12}:${String(mm).padStart(2, '0')}`;
+  // 🔴 해가 졌으면 그렇다고 적는다. 전에는 '해 짐' 한 마디였는데, 그림자가 없는 이유가
+  //    "해가 졌다" 인지 "고장" 인지 화면에서 갈리지 않았다.
+  const state = sun.altitude <= 0
+    ? '일몰 후 · 그림자 없음'
+    : sun.altitude < SHADOW_MIN_ALT
+      ? `해 ${sun.altitude.toFixed(1)}° · 너무 낮아 그림자 없음`
+      : `해 ${Math.round(sun.altitude)}°`;
+  document.getElementById('t-label').textContent = label + ' · ' + state;
 
-  scheduleShadows();
+  scheduleShadows({ live: opt.live });
   redrape();
+  drawBand();
+  // 슬라이더에 묶어 둔 경우(actors=clock)에는 표식도 시각을 따라 움직여야 한다.
+  if (ACTORS_ON_CLOCK) drawActors();
 }
 
 // 'rgb(1,2,3)' 문자열에서 숫자 셋을 도로 꺼낸다.
@@ -738,7 +855,16 @@ function step(name, fn) {
   }
 }
 
-map.on('load', () => {
+// 🔴 지도 준비를 **'load' 사건 하나에 걸지 않는다.**
+//    2026-09-07 실측: 이 MapLibre 판은 스타일이 다 왔는데도(isStyleLoaded() === true,
+//    areTilesLoaded() === true, WebGL 정상) 'load' 를 **한 번도 안 낸다.**
+//    그러면 아래 준비가 통째로 안 돌아 건물·다리·그림자가 하나도 안 생긴다 —
+//    화면은 바탕색만 남고, 오류도 안 뜨니 무엇이 잘못됐는지 알 방법이 없다.
+//    그래서 'load' 든 'styledata' 든 **먼저 오는 것으로 시작하고**, 자물쇠로 두 번 들어가는 것을 막는다.
+let mapBuilt = false;
+function buildEverything() {
+  if (mapBuilt) return;
+  mapBuilt = true;
   step('바탕 지도 색', repaintBase);
 
   // 항공사진 — 바탕 지도의 땅·바다·공원 **위**, 도로선·글자·건물 **아래**에 끼운다.
@@ -946,7 +1072,11 @@ map.on('load', () => {
 
   // 다리 — 건물 데이터에는 교량이 한 동도 없다. 그건 건축물대장이기 때문이다.
   step('다리', () => {
-  map.addSource('bridge', { type: 'geojson', data: basePath() + '/bridges.geojson' });
+  // 🔴 주소를 그대로 주면 이 파일을 **두 번 받는다.** 지도가 한 번, 이동수단 경로가 한 번.
+  //    1.4 MB 짜리라 그냥 두면 첫 화면에서 2.8 MB 를 쓰고, 그동안 워커가 이 파일을 두 번
+  //    타일로 쪼개느라 **건물 타일 처리가 뒤로 밀린다** (실측: 확대 13 에서 건물이 14초 동안
+  //    한 동도 안 들어왔다). 그래서 받는 곳을 하나로 묶고 그 결과를 둘이 나눠 쓴다.
+  map.addSource('bridge', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
   map.addLayer({
     id: 'bridge-3d',
     type: 'fill-extrusion',
@@ -959,6 +1089,9 @@ map.on('load', () => {
       'fill-extrusion-vertical-gradient': true,
     },
   });
+  loadBridgeGeo()
+    .then((j) => { map.getSource('bridge')?.setData(j); })
+    .catch((e) => console.error('[다리] 데이터를 못 받았다', e));
   });
 
   // 랜드마크 — 층단 있는 다층 상자 (landmarks.mjs 가 만든다). 기본 건물 레이어에서 뺀 아홉 동이 여기서 다시 선다.
@@ -999,9 +1132,39 @@ map.on('load', () => {
     }
   });
 
+  // 이동 수단 — 경로 위를 실제로 움직이는 표식. 도형이 열 개 남짓이라
+  // 매 프레임 통째로 갈아 끼워도 싸다 (그림자는 9,000개다).
+  step('이동수단', () => {
+    map.addSource('actors', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
+    map.addLayer({
+      id: 'actors-3d',
+      type: 'fill-extrusion',
+      source: 'actors',
+      paint: {
+        'fill-extrusion-color': actorColorExpr(),
+        'fill-extrusion-base': ['get', 'hb'],
+        'fill-extrusion-height': ['get', 'h'],
+        'fill-extrusion-opacity': 1,
+        // 작은 상자라 위아래 그라데이션을 주면 색이 뭉개진다.
+        'fill-extrusion-vertical-gradient': false,
+      },
+    });
+  });
+
   step('시각과 시점', () => {
     setHour(+document.getElementById('time').value);
     goto('광안대교');
+  });
+
+  // 🔴 setDemo 는 async 라서 안에서 던지면 step() 의 try 가 **못 잡는다.**
+  //    조용한 실패가 되므로 catch 를 직접 붙여 화면의 오류 칸에 띄운다.
+  step('이동수단 시작', () => {
+    setDemo(demoName).catch((e) => {
+      console.error('[이동수단]', e);
+      const el = document.getElementById('err');
+      el.hidden = false;
+      el.textContent = ERR_HEAD + '이동수단: ' + (e && e.message ? e.message : e);
+    });
   });
 
   // 🔴 그림자는 **건물 타일이 도착한 뒤에** 만들어야 한다.
@@ -1011,7 +1174,14 @@ map.on('load', () => {
   map.on('sourcedata', (e) => {
     if (e.sourceId === 'bld' && e.isSourceLoaded) scheduleShadows();
   });
-});
+  // 화면이 멎으면 그늘 띠를 다시 센다. 건물이 더 왔으면 띠도 달라진다.
+  // computeBand 는 안에서 (경로·날짜·건물수)가 같으면 그냥 돌아가므로 자주 불러도 된다.
+  map.on('idle', () => { try { computeBand(); } catch (e) { console.warn('[그늘 띠]', e); } });
+}
+
+map.on('load', buildEverything);
+map.on('styledata', () => { if (map.isStyleLoaded()) queueMicrotask(buildEverything); });
+if (map.isStyleLoaded()) queueMicrotask(buildEverything);
 
 // 하위 폴더에 올려도 돌게 한다 (예: /city3d/). 서버 설정에 주소를 두 번 적지 않으려고.
 function basePath() {
@@ -1022,7 +1192,379 @@ function basePath() {
 for (const b of document.querySelectorAll('.view')) {
   b.addEventListener('click', () => goto(b.dataset.v));
 }
-document.getElementById('time').addEventListener('input', (e) => setHour(+e.target.value));
+
+// ══════════════════════════════════════════════════════════════════
+// 해 · 그늘 · 이동수단
+// ══════════════════════════════════════════════════════════════════
+
+// ── 슬라이더 범위를 그날의 낮에 맞춘다 ───────────────────────────
+// 🔴 전에는 4시~22시로 박혀 있었다. 그런데 부산의 낮 길이는 하지 14시간 33분,
+//    동지 9시간 47분으로 **4시간 46분이 다르다** (2026년, 이 파일의 계산값).
+//    고정 범위를 쓰면 겨울에는 슬라이더의 절반이 캄캄한 시각이고, 여름에는 해 뜨는
+//    순간이 왼쪽 끝에 눌려 붙는다. 어느 쪽이든 "몇 시에 그늘인가" 를 못 읽는다.
+//    그래서 **일출 1시간 전 ~ 일몰 1시간 후**로 만든다. 앞뒤 1시간은 해가 뜨고 지는
+//    장면 자체를 보기 위한 여유다.
+const SLIDER_PAD_H = 1;
+const SLIDER_MIN = SUNT.sunriseMin === null ? 0 : Math.max(0, SUNT.sunriseMin / 60 - SLIDER_PAD_H);
+const SLIDER_MAX = SUNT.sunsetMin === null ? 24 : Math.min(24, SUNT.sunsetMin / 60 + SLIDER_PAD_H);
+
+const timeEl = document.getElementById('time');
+timeEl.min = SLIDER_MIN.toFixed(4);
+timeEl.max = SLIDER_MAX.toFixed(4);
+// 1분 단위. 그림자 방향은 1분에 약 0.25도 도니까 이 정도면 끄는 동안 매끄럽게 이어진다.
+timeEl.step = (1 / 60).toFixed(6);
+// 오늘이면 지금 시각에서 시작한다 — 여행자가 화면을 열자마자 보는 것이 "지금" 이어야 한다.
+// 다른 날짜를 부른 것이면 남중(해가 가장 높은 때)에서 시작한다.
+timeEl.value = String(
+  Math.min(SLIDER_MAX, Math.max(SLIDER_MIN, DATE_IS_TODAY ? nowHourKST() : SUNT.noonMin / 60))
+);
+
+// 그날 몇 시의 해인가. 그늘 띠와 경로 판정이 모두 이 함수를 쓴다 — 두 곳이 다른 해를 쓰면 안 된다.
+const DAY0 = kst(DATE[0], DATE[1], DATE[2], 0, 0);
+const sunAtHour = (h) => sunPosition(new Date(DAY0.getTime() + h * 3600000), SITE.lat, SITE.lon);
+
+function renderSunLine() {
+  const el = document.getElementById('sunline');
+  const dl = SUNT.dayLengthMin;
+  const dayStr = SUNT.polar === 'none'
+    ? Math.floor(dl / 60) + '시간 ' + Math.round(dl % 60) + '분'
+    : SUNT.polar === 'day' ? '하루 종일 낮' : '하루 종일 밤';
+  el.innerHTML =
+    '<span><b>' + DATE.join('-') + '</b>' + (DATE_IS_TODAY ? ' (오늘)' : ' (date 로 지정한 날)') + '</span>' +
+    '<span>일출 <b>' + hhmm(SUNT.sunriseMin) + '</b></span>' +
+    '<span>남중 <b>' + hhmm(SUNT.noonMin) + '</b></span>' +
+    '<span>일몰 <b>' + hhmm(SUNT.sunsetMin) + '</b></span>' +
+    '<span>낮 <b>' + dayStr + '</b></span>' +
+    '<span><i class="swatch" style="background:#41566b"></i>그늘' +
+    '<i class="swatch" style="background:#f0d38b;margin-left:8px"></i>볕</span>' +
+    '<span id="band-note" style="opacity:.75"></span>';
+}
+renderSunLine();
+
+// ── 그늘 띠 ──────────────────────────────────────────────────────
+// 시간축 위에 "이 시각에 경로의 몇 %가 그늘인가" 를 칠한다.
+// 이게 사용자가 실제로 원하는 것이다 — 경로 요약을 보면서 언제 해를 피할 수 있는지 읽는 것.
+// 🔴 판정 방법과 **못 보는 것**(가로수·지형·안 가 본 곳)은 shade.mjs 맨 위에 적혀 있다.
+let shadeIndex = null;
+let shadeIndexDirty = true;
+function getShadeIndex() {
+  if (shadeIndexDirty || !shadeIndex) {
+    shadeIndex = buildIndex([...buildingCache.values()], { minH: SHADOW_MIN_H });
+    shadeIndexDirty = false;
+  }
+  return shadeIndex;
+}
+
+let bandBins = null;
+let bandKey = '';
+let bandMs = 0;
+const bandEl = document.getElementById('band');
+
+function computeBand() {
+  const route = currentDemoRoute();
+  const note = document.getElementById('band-note');
+  if (!route) {
+    bandBins = null; bandKey = '';
+    if (note) note.textContent = '· 그늘 띠: 이동수단을 고르면 그 경로로 계산한다';
+    drawBand();
+    return;
+  }
+  const idx = getShadeIndex();
+  // 건물이 아직 하나도 안 왔으면 계산해 봐야 전부 "볕" 이다. 그걸 그리면 거짓말이 된다.
+  if (idx.count === 0) {
+    bandBins = null; bandKey = '';
+    if (note) note.textContent = '· 그늘 띠: 주변 건물이 아직 안 왔다 (지도를 그 자리로 옮겨야 한다)';
+    drawBand();
+    return;
+  }
+  const key = demoName + '|' + DATE.join('-') + '|' + idx.count;
+  if (key === bandKey) return;
+  const t0 = performance.now();
+  const res = shadeTimeline(route.coords.map((c) => [c[0], c[1]]), idx, sunAtHour,
+    { fromHour: SLIDER_MIN, toHour: SLIDER_MAX, stepMin: 15, sampleM: 40 });
+  bandMs = performance.now() - t0;
+  bandBins = res.bins;
+  bandKey = key;
+  if (note) {
+    note.textContent = '· 그늘 띠: ' + route.label + ' · 경로 ' + res.samples + '점 · 건물 ' +
+      idx.count + '동 · ' + bandMs.toFixed(0) + ' ms';
+  }
+  drawBand();
+}
+
+function drawBand() {
+  if (!bandEl) return;
+  const dpr = Math.min(2, devicePixelRatio || 1);
+  const w = bandEl.clientWidth || 300;
+  const h = 15;
+  if (bandEl.width !== Math.round(w * dpr)) {
+    bandEl.width = Math.round(w * dpr);
+    bandEl.height = Math.round(h * dpr);
+  }
+  const g = bandEl.getContext('2d');
+  g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  g.clearRect(0, 0, w, h);
+  const x = (hour) => ((hour - SLIDER_MIN) / (SLIDER_MAX - SLIDER_MIN)) * w;
+
+  if (!bandBins) {
+    g.fillStyle = 'rgba(51,68,63,.07)';
+    g.fillRect(0, 0, w, h);
+  } else {
+    for (let i = 0; i < bandBins.length; i++) {
+      const b = bandBins[i];
+      const x0 = x(b.hour);
+      const x1 = i + 1 < bandBins.length ? x(bandBins[i + 1].hour) : w;
+      // 해가 진 시각은 그늘도 볕도 아니다. 회색으로 둔다 — 그늘이라고 칠하면
+      // "밤이라 시원하다" 가 "그늘이 좋다" 로 잘못 읽힌다.
+      if (b.alt <= 0) g.fillStyle = '#5b6470';
+      else if (b.alt < 6) g.fillStyle = '#8a8f93';
+      else {
+        const t = b.shadedRatio;
+        const c = [240 - 175 * t, 211 - 125 * t, 139 - 32 * t];
+        g.fillStyle = 'rgb(' + c.map(Math.round).join(',') + ')';
+      }
+      g.fillRect(x0, 0, Math.max(1, x1 - x0 + 0.6), h);
+    }
+  }
+  // 일출·일몰 눈금
+  g.strokeStyle = 'rgba(0,0,0,.35)';
+  g.lineWidth = 1;
+  for (const m of [SUNT.sunriseMin, SUNT.sunsetMin]) {
+    if (m === null) continue;
+    const px = Math.round(x(m / 60)) + 0.5;
+    g.beginPath(); g.moveTo(px, 0); g.lineTo(px, h); g.stroke();
+  }
+  // 지금 보고 있는 시각
+  const px = Math.round(x(+timeEl.value)) + 0.5;
+  g.strokeStyle = '#b4453a';
+  g.lineWidth = 2;
+  g.beginPath(); g.moveTo(px, 0); g.lineTo(px, h); g.stroke();
+}
+
+// ── 이동 수단 ────────────────────────────────────────────────────
+// 손잡이 (이 파일의 photo=off · roads=on 과 같은 방식으로 주소에 붙인다):
+//   demo=walk | bus | car | all | off   무엇을 움직일 것인가 (기본 off)
+//   actors=clock                        t 를 **시간 슬라이더**에 묶는다.
+//                                       슬라이더를 끌면 표식이 경로 위를 따라 움직인다
+// 화면 아래 버튼으로도 고를 수 있다.
+//
+// 경로 — 다리 둘은 **bridges.geojson 의 상판에서 뽑는다.** 좌표를 여기 베껴 두면
+// 다리 데이터가 바뀔 때 둘이 어긋나고, 그때 표식만 바다 위를 지나게 된다.
+const WALK_COORDS = [
+  // 해운대 해변 산책로 (OpenStreetMap, highway=pedestrian · 885 m). 지면이라 높이는 0 이다.
+  [129.147082, 35.162189], [129.148289, 35.16156], [129.14892, 35.161231], [129.149499, 35.160933],
+  [129.150278, 35.160688], [129.1508, 35.160649], [129.151203, 35.160619], [129.151811, 35.160661],
+  [129.151905, 35.160686], [129.152377, 35.160815], [129.152881, 35.16106], [129.153858, 35.16161],
+  [129.154506, 35.161971], [129.155581, 35.162614],
+];
+
+const DEMOS = {
+  walk: { label: '해운대 해변 산책로', mode: 'walk', coords: WALK_COORDS, view: '해운대' },
+  bus: { label: '광안대교 상판', mode: 'bus', bridge: '광안대교', view: '광안대교' },
+  car: { label: '부산항대교 상판', mode: 'car', bridge: '부산항대교', view: '부산항' },
+};
+
+let demoName = ((v) => (v === 'all' || DEMOS[v] ? v : 'off'))(Q.get('demo') ?? 'off');
+const ACTORS_ON_CLOCK = Q.get('actors') === 'clock';
+// bridges.geojson 을 **딱 한 번만** 받는다. 지도의 다리 레이어와 이동수단 경로가 같은 것을 쓴다.
+let bridgeGeo = null;
+let bridgeGeoPromise = null;
+function loadBridgeGeo() {
+  if (!bridgeGeoPromise) {
+    bridgeGeoPromise = fetch(basePath() + '/bridges.geojson')
+      .then((r) => r.json())
+      .then((j) => { bridgeGeo = j; return j; });
+  }
+  return bridgeGeoPromise;
+}
+const routeCache = new Map();
+
+// 다리 상판 조각의 가운데를 이어 중심선을 만든다.
+// 조각은 파일 안에서 순서대로 있지 않으므로 **가장 먼 두 조각**을 양 끝으로 잡고
+// 거기서부터 가까운 것을 차례로 잇는다.
+function routeFromBridge(name) {
+  if (routeCache.has(name)) return routeCache.get(name);
+  if (!bridgeGeo) return null;
+  const decks = bridgeGeo.features.filter((f) => f.properties.kind === 'deck' && f.properties.name === name);
+  if (decks.length < 3) { routeCache.set(name, null); return null; }
+  const mid = (f) => {
+    const r = f.geometry.coordinates[0];
+    let x = 0, y = 0;
+    const n = r.length - 1;
+    for (let i = 0; i < n; i++) { x += r[i][0]; y += r[i][1]; }
+    return [x / n, y / n, f.properties.h];
+  };
+  const pts = decks.map(mid);
+  const dm = (a, b) => Math.hypot((b[0] - a[0]) * mPerLon(a[1]), (b[1] - a[1]) * M_PER_LAT);
+  let far = [0, 0];
+  let best = -1;
+  for (let i = 0; i < pts.length; i++) {
+    for (let j = i + 1; j < pts.length; j++) {
+      const d = dm(pts[i], pts[j]);
+      if (d > best) { best = d; far = [i, j]; }
+    }
+  }
+  const rest = pts.slice();
+  const out = [rest.splice(far[0], 1)[0]];
+  while (rest.length) {
+    let bi = 0, bd = Infinity;
+    for (let i = 0; i < rest.length; i++) {
+      const d = dm(out[out.length - 1], rest[i]);
+      if (d < bd) { bd = d; bi = i; }
+    }
+    out.push(rest.splice(bi, 1)[0]);
+  }
+  routeCache.set(name, out);
+  return out;
+}
+
+function currentDemoRoute() {
+  const names = demoName === 'all' ? ['walk', 'bus', 'car'] : DEMOS[demoName] ? [demoName] : [];
+  if (!names.length) return null;
+  const d = DEMOS[names[0]];
+  const coords = d.coords ?? routeFromBridge(d.bridge);
+  return coords ? { label: d.label, coords } : null;
+}
+
+let actorRoutes = [];
+let actorRaf = 0;
+let actorT0 = 0;
+
+function buildActorRoutes() {
+  const names = demoName === 'all' ? ['walk', 'bus', 'car'] : DEMOS[demoName] ? [demoName] : [];
+  actorRoutes = [];
+  for (const n of names) {
+    const d = DEMOS[n];
+    const coords = d.coords ?? routeFromBridge(d.bridge);
+    if (!coords) continue;
+    try { actorRoutes.push({ id: n, route: makeRoute(coords, d.mode, { loop: true }), label: d.label }); }
+    catch (e) { console.warn('[이동수단] 경로를 못 만들었다', n, e); }
+  }
+}
+
+function drawActors() {
+  const src = map.getSource('actors');
+  if (!src) return;
+  if (!actorRoutes.length) { src.setData({ type: 'FeatureCollection', features: [] }); return; }
+  // 🔴 확대가 낮으면 안 그린다. 승용차 4.6 m 는 확대 13 에서 1 픽셀도 안 되고,
+  //    안 보이는 것을 매 프레임 계산하는 것은 그냥 낭비다. 경계값은 actors.mjs 의 minZoom.
+  const z = map.getZoom();
+  const list = [];
+  const now = performance.now();
+  for (const a of actorRoutes) {
+    if (z < MODES[a.route.mode].minZoom) continue;
+    // t 는 0~1. 여기가 actors.mjs 와의 계약 지점이다 — 붙이는 쪽은 t 만 주면 된다.
+    const t = ACTORS_ON_CLOCK
+      // 슬라이더에 묶기 — 그날의 낮 전체를 경로 한 바퀴로 본다. 시간 연동의 예시다.
+      ? (+timeEl.value - SLIDER_MIN) / (SLIDER_MAX - SLIDER_MIN)
+      // 실제 속도로 흐르기 — 경로 길이 / 그 수단의 속도만큼 걸려 한 바퀴 돈다
+      : ((now - actorT0) / 1000 / a.route.durationSec) % 1;
+    list.push({ p: a.route.at(t), mode: a.route.mode, id: a.id });
+  }
+  src.setData(actorCollection(list));
+}
+
+function tickActors() {
+  actorRaf = 0;
+  if (!actorRoutes.length || ACTORS_ON_CLOCK) return;
+  drawActors();
+  actorRaf = requestAnimationFrame(tickActors);
+}
+
+async function setDemo(name, opt = {}) {
+  demoName = (name === 'all' || DEMOS[name]) ? name : 'off';
+  for (const b of document.querySelectorAll('.demo')) b.classList.toggle('on', b.dataset.demo === demoName);
+  cancelAnimationFrame(actorRaf);
+  actorRaf = 0;
+
+  const needsBridge = demoName === 'all' || !!DEMOS[demoName]?.bridge;
+  if (needsBridge && !bridgeGeo) {
+    // 지도가 이미 받고 있는 그 약속(promise)을 같이 기다린다. 두 번 받지 않는다.
+    try { await loadBridgeGeo(); } catch (e) { console.warn('[이동수단] 다리 데이터를 못 읽었다', e); }
+  }
+  buildActorRoutes();
+  actorT0 = performance.now();
+  drawActors();
+  if (!ACTORS_ON_CLOCK && actorRoutes.length) actorRaf = requestAnimationFrame(tickActors);
+  bandKey = '';
+  computeBand();
+  // 버튼으로 고른 경우에만 그 자리로 옮긴다. 주소로 준 경우는 보던 자리를 안 뺏는다.
+  if (opt.fly && actorRoutes.length) {
+    const v = DEMOS[demoName === 'all' ? 'bus' : demoName]?.view;
+    if (v && VIEWS[v]) goto(v);
+  }
+}
+
+for (const b of document.querySelectorAll('.demo')) {
+  b.addEventListener('click', () => setDemo(b.dataset.demo, { fly: true }));
+}
+
+// ── 슬라이더 — 끄는 내내 그림자가 따라 움직인다 ──────────────────
+// 🔴 전에는 input 하나로 setHour 만 불렀다. 그런데 setHour 안의 scheduleShadows 가
+//    **260 ms 를 기다렸다가** 그리는데, 끄는 동안에는 그 타이머가 계속 새로 시작되므로
+//    손을 뗄 때까지 그림자가 한 번도 안 바뀌었다. 여행자는 그 사이에 아무것도 못 읽는다.
+//
+//    고친 방법은 둘이다.
+//    1) 프레임마다 한 번만 반영한다 (requestAnimationFrame). 슬라이더는 한 프레임에
+//       input 을 여러 번 낼 수 있는데, 그때마다 그리면 같은 프레임을 여러 번 그리게 된다
+//    2) 끄는 동안에는 타일을 다시 안 훑고, 예산(12 ms)을 넘으면 낮은 건물부터 뺀다
+//       — rebuildShadows 의 live 갈래
+let pendingHour = null;
+let pendingLive = false;
+let hourRaf = 0;
+let dragging = false;
+
+function requestHour(v, live) {
+  pendingHour = v;
+  pendingLive = live;
+  if (hourRaf) return;
+  hourRaf = requestAnimationFrame(() => {
+    hourRaf = 0;
+    setHour(pendingHour, { live: pendingLive });
+  });
+}
+
+timeEl.addEventListener('pointerdown', () => { dragging = true; });
+timeEl.addEventListener('input', (e) => requestHour(+e.target.value, dragging));
+// 손을 떼면 **원래 품질로 한 번 더** 만든다. 끄는 동안 뺐던 낮은 건물이 여기서 돌아온다.
+const endDrag = () => {
+  if (!dragging) return;
+  dragging = false;
+  liveMinH = SHADOW_MIN_H;
+  requestHour(+timeEl.value, false);
+};
+addEventListener('pointerup', endDrag);
+addEventListener('pointercancel', endDrag);
+timeEl.addEventListener('change', () => requestHour(+timeEl.value, false));
+
+addEventListener('resize', () => drawBand());
+
+// ── 밖에서 쓸 수 있는 문 ──────────────────────────────────────────
+// 실제 앱은 이 화면을 통째로 쓰는 게 아니라 **경로를 넣고 결과를 받아** 쓴다.
+// 그래서 필요한 것만 window 에 걸어 둔다. 브라우저 콘솔에서 만져 보는 데도 쓴다.
+//
+//   CITY3D_MAP.route(coords, 'walk')     → t(0~1) 를 주면 위치·방향을 주는 것
+//   CITY3D_MAP.shadeAt(lon, lat, 14.5)   → 그 시각 그 자리가 그늘인가
+//   CITY3D_MAP.timeline(coords)          → 하루 전체의 그늘/볕 띠 데이터
+//   CITY3D_MAP.setDemo('bus')            → 화면의 표식을 바꾼다
+window.CITY3D_MAP = {
+  MODES,
+  route: makeRoute,
+  setDemo,
+  // 시각을 코드에서 바꾼다. 슬라이더를 거치지 않으므로 앱이 자기 시계로 몰 수 있다.
+  setHour: (h, opt) => { const el = timeEl; el.value = String(Math.min(+el.max, Math.max(+el.min, h))); setHour(+el.value, opt || {}); },
+  get routes() { return actorRoutes; },
+  get demo() { return demoName; },
+  get bandBins() { return bandBins; },
+  get buildings() { return buildingCache.size; },
+  sunAtHour,
+  sunTimes: SUNT,
+  date: DATE,
+  shadeAt: (lon, lat, hour) => shadeAt(lon, lat, sunAtHour(hour ?? +timeEl.value), getShadeIndex()),
+  timeline: (coords, opt) => shadeTimeline(coords, getShadeIndex(), sunAtHour,
+    Object.assign({ fromHour: SLIDER_MIN, toHour: SLIDER_MAX }, opt)),
+};
+
 
 // ── 재는 것 ───────────────────────────────────────────────────────
 // 🔴 여태 이 숫자는 내 자체 루프를 센 것이라 **지도가 실제로 다시 그리는지와 무관했다.**
