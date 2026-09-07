@@ -9,37 +9,40 @@ import { color, radius, spacing } from '@/design/tokens';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { Button } from '@/components/Button';
+import { useI18n } from '@/i18n';
 
 const STATS = [
-  { label: '방문 장소', value: '8' },
-  { label: '이동 거리', value: '42.6km' },
-  { label: '사진', value: '23' },
+  { key: 'places', labelKo: '방문 장소', labelEn: 'Places visited', value: '8' },
+  { key: 'distance', labelKo: '이동 거리', labelEn: 'Distance traveled', value: '42.6km' },
+  { key: 'photos', labelKo: '사진', labelEn: 'Photos', value: '23' },
 ];
 
 const TIMELINE = [
-  { time: '10:20', name: '송도 케이블카', desc: '바다 위 첫 풍경' },
-  { time: '15:14', name: '흰여울 골목', desc: '가장 많이 찍은 곳' },
-  { time: '19:08', name: '광안리', desc: '오늘의 베스트' },
+  { time: '10:20', nameKo: '송도 케이블카', nameEn: 'Songdo Cable Car', descKo: '바다 위 첫 풍경', descEn: 'The first view over the sea' },
+  { time: '15:14', nameKo: '흰여울 골목', nameEn: 'Huinnyeoul Alley', descKo: '가장 많이 찍은 곳', descEn: 'Where you took the most photos' },
+  { time: '19:08', nameKo: '광안리', nameEn: 'Gwangalli', descKo: '오늘의 베스트', descEn: "Today's best moment" },
 ];
 
 export default function Log() {
+  const { tx } = useI18n();
+
   function share() {
     // 네트워크 호출 없이 OS 공유 시트만 띄운다(react-native 내장 Share, 새 의존성 아님).
-    Share.share({ message: '부산에서 보낸 2일 — 바다와 골목을 따라, 부산' });
+    Share.share({ message: tx('부산에서 보낸 2일 — 바다와 골목을 따라, 부산', '2 days in Busan — along the sea and the alleys') });
   }
 
   return (
     <Screen scroll>
       <Text variant="eyebrow" weight="bold">
-        여행 후 · 자동 회고
+        {tx('여행 후 · 자동 회고', 'After the trip · Auto recap')}
       </Text>
       <Text variant="display" weight="bold" style={styles.title}>
-        부산에서 보낸 2일
+        {tx('부산에서 보낸 2일', '2 days in Busan')}
       </Text>
 
       <View style={styles.hero}>
         <Text variant="title" weight="bold" color={color.text.onAction}>
-          바다와 골목을 따라, 부산
+          {tx('바다와 골목을 따라, 부산', 'Along the sea and the alleys, Busan')}
         </Text>
         <Text variant="caption" weight="medium" color={color.text.onAction} style={styles.heroDate}>
           2026.08.24 – 08.25
@@ -48,19 +51,19 @@ export default function Log() {
 
       <View style={styles.statsRow}>
         {STATS.map((stat) => (
-          <View key={stat.label} style={styles.statCard}>
+          <View key={stat.key} style={styles.statCard}>
             <Text variant="title" weight="bold" color={color.text.accent}>
               {stat.value}
             </Text>
             <Text variant="caption" style={styles.statLabel}>
-              {stat.label}
+              {tx(stat.labelKo, stat.labelEn)}
             </Text>
           </View>
         ))}
       </View>
 
       <Text variant="title" weight="bold" style={styles.sectionTitle}>
-        기억에 남은 순간
+        {tx('기억에 남은 순간', 'Moments to remember')}
       </Text>
       <View style={styles.timeline}>
         {TIMELINE.map((item) => (
@@ -71,10 +74,10 @@ export default function Log() {
             </Text>
             <View style={styles.timelineBody}>
               <Text variant="body" weight="bold">
-                {item.name}
+                {tx(item.nameKo, item.nameEn)}
               </Text>
               <Text variant="caption" style={styles.timelineDesc}>
-                {item.desc}
+                {tx(item.descKo, item.descEn)}
               </Text>
             </View>
           </View>
@@ -83,14 +86,14 @@ export default function Log() {
 
       <View style={styles.shareCard}>
         <Text variant="caption" weight="bold">
-          공개 범위
+          {tx('공개 범위', 'Visibility')}
         </Text>
         <Text variant="caption" weight="medium" color={color.text.accent} style={styles.shareValue}>
-          친구만 · 위치는 지역 단위로 표시
+          {tx('친구만 · 위치는 지역 단위로 표시', 'Friends only · Location shown by area')}
         </Text>
       </View>
 
-      <Button label="여행 카드 공유하기" variant="field" containerStyle={styles.cta} onPress={share} />
+      <Button label={tx('여행 카드 공유하기', 'Share trip card')} variant="field" containerStyle={styles.cta} onPress={share} />
     </Screen>
   );
 }
