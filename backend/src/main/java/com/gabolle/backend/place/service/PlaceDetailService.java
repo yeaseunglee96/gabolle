@@ -25,7 +25,7 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 /**
- * 장소 하나의 상세 (S15P21E201-476).
+ * 장소 하나의 상세 (S15P21E201-476 · -217 · -430 부분).
  *
  * <p>완료 기준 셋을 각각 이렇게 만족시킨다.
  *
@@ -37,7 +37,10 @@ import tools.jackson.databind.ObjectMapper;
  *     데이터</b>(대조표) 조회라 매번 같은 결과를 돌려준다. 지금은 캐시를 넣지 않는다 — 캐시
  *     무효화가 대조표를 마이그레이션으로만 바꾸는 이 표에는 필요 없는 새 실패 지점을 만든다.
  *     느려지면(대조표가 아주 커지거나 이 API 가 아주 자주 불리면) 그때 캐시를 검토한다.
- *     피처를 종류마다 따로 읽지는 않는다는 점은 그대로다</li>
+ *     피처를 종류마다 따로 읽지는 않는다는 점은 그대로다. {@code openingHours}·{@code priceLevel}
+ *     전용 칸(-476 추가분)도 새 질의 없이 이미 읽은 피처 목록에서 골라낸다 — {@link #featureSlot}
+ *     참고. 언어 선택(-430 부분)도 이미 읽은 {@code Place} 의 {@code nameEn} 만 보므로 질의가
+ *     늘지 않는다</li>
  * <li>"정보 없음과 해당 없음이 구분된다" — {@link PlaceFeatureView} 의 네 상태로 나눈다</li>
  * <li>"일정 포함 여부가 응답에 있다" — {@link ItineraryMembershipPort} 가 답한다. 지금은 담을 표가
  *     없어 "알 수 없음" 이다</li>
@@ -69,6 +72,19 @@ public class PlaceDetailService {
 
 	@Transactional(readOnly = true)
 	public PlaceDetailResponse get(UUID placeId, UUID viewerId) {
+		// Accept-Language 없이 부르는 기존 호출부(컨트롤러 배선 전, 그리고 이 서비스를 직접 부르는
+		// 기존 테스트)를 위해 둔 자리다. 헤더가 없을 때와 같은 경로라 한국어를 우선한다.
+		return get(placeId, viewerId, null);
+	}
+
+	/**
+	 * @param acceptLanguageHeader 요청의 {@code Accept-Language} 값 그대로. 없으면 {@code null} —
+	 *        그 경우 한국어를 우선한다. 🔴 지금 {@code PlaceDetailController} 는 이 값을 넘기지
+	 *        않는다 — 컨트롤러가 이 작업의 수정 대상 목록 밖이라 배선하지 않았다. 보고서에 그
+	 *        컨트롤러가 어떻게 바뀌어야 하는지 적어 뒀다
+	 */
+	@Transactional(readOnly = true)
+	public PlaceDetailResponse get(UUID placeId, UUID viewerId, String acceptLanguageHeader) {
 		Place place = this.placeRepository.findById(placeId)
 				.orElseThrow(() -> new PlaceNotFoundException(placeId));
 
@@ -83,8 +99,32 @@ public class PlaceDetailService {
 				new PlaceDetailResponse.Provenance(place.getSourceType(), place.getSourceId(),
 						place.getCollectedAt(), place.getObservedAt(), place.getDatasetVersion()),
 				features,
-				new PlaceDetailResponse.ItineraryInclusion(inclusion.state(), inclusion.reason()));
+				new PlaceDetailResponse.ItineraryInclusion(inclusion.state(), inclusion.reason()),
+				place.getAddressEn(), place.getPhotoUrl(), place.getPhotoSource(),
+				featureSlot(features, "OPENING_HOURS"),
+				featureSlot(features, "PRICE_LEVEL"),
+				// 이 화면의 주된 값은 이름이라 영문 이름 유무로 판정한다. 어느 필드를 기준으로
+				// 삼는지가 응답마다 다른 이유는 RequestLanguage 주석에 있다
+				RequestLanguage.resolve(acceptLanguageHeader, place.getNameEn() != null));
 	}
+
+	/**
+	 * 이미 만든 {@code features} 목록에서 한 종류를 골라 전용 칸({@link PlaceDetailResponse.FeatureSlot})으로
+	 * 바꾼다. 새 질의를 만들지 않는다.
+	 *
+	 * <p>행이 아예 없어 {@code NOT_COLLECTED} 로 합성된 항목은 "표식이 없다" 로 보고 {@code null}
+	 * 을 돌려준다 — {@code @JsonInclude(NON_NULL)} 이 붙은 record 컴포넌트라 그러면 응답에서
+	 * 키 자체가 빠진다.
+	 */
+	private PlaceDetailResponse.FeatureSlot featureSlot(List<PlaceFeatureView> features, String featureType) {
+		return features.stream()
+				.filter(view -> featureType.equals(view.featureType()))
+				.filter(view -> !"NOT_COLLECTED".equals(view.evidenceStatus()))
+				.findFirst()
+				.map(view -> new PlaceDetailResponse.FeatureSlot(view.value(), view.evidenceStatus()))
+				.orElse(null);
+	}
+
 
 	/**
 	 * 저장된 피처를 그대로 내보내고, <b>행이 아예 없는 종류</b>에는 {@code NOT_COLLECTED} 를 붙인다.
