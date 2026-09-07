@@ -15,7 +15,9 @@ import { color, radius, spacing } from '@/design/tokens';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { Card } from '@/components/Card';
+import { Button } from '@/components/Button';
 import { RouteMap } from '@/map/RouteMap';
+import { city3dUrlForStops, openCity3D } from '@/map/city3d';
 import type { MapStop } from '@/map/types';
 import { PermissionRationale } from '@/components/PermissionRationale';
 import { useI18n } from '@/i18n';
@@ -232,6 +234,22 @@ export default function Map() {
       </View>
       {width <= 599 ? <LayerControls /> : null}
 
+      {/* 3D 도시로 가는 문. 웹 지도가 살아 있든 죽어 있든, 앱이든 웹이든 여기서 열린다.
+          3D 화면은 웹 페이지 한 장이라 앱에 새 부품을 하나도 안 깐다 (S15P21E201-649). */}
+      <Card tinted style={styles.city3dCard}>
+        <Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx('가보기 전에', 'Before you go')}</Text>
+        <Text variant="title" weight="bold">{tx('이 날짜의 장소를 3D 부산에서 보기', "See today's places in 3D Busan")}</Text>
+        <Text variant="caption" color={color.text.muted} style={styles.city3dBody}>
+          {tx('실제 건물과 땅 높이 위에서 봅니다. 해 위치를 옮기면 그 시각의 그림자가 같이 움직여요.', 'Rendered on real buildings and terrain. Move the sun and the shadows for that hour move with it.')}
+        </Text>
+        <Button
+          label={tx('3D 로 보기', 'View in 3D')}
+          variant="secondary"
+          containerStyle={styles.city3dButton}
+          onPress={() => { void openCity3D(city3dUrlForStops(stops)); }}
+        />
+      </Card>
+
       <View style={styles.stopsList}>
         <Text variant="title" weight="bold" style={styles.masterTitle}>{tx('선택 날짜 장소', 'Places for the selected day')}</Text>
         {stops.map((stop) => <Pressable nativeID={`map-stop-${stop.id}`} accessibilityRole="button" accessibilityState={{ selected: selectedId === stop.id }} onPress={() => setSelectedId(stop.id)} key={stop.id} style={[styles.stopRow, selectedId === stop.id && styles.stopRowSelected]}><View style={styles.stopMarker}><Text variant="caption" weight="bold" color={color.text.onAction}>{stop.number}</Text></View><Text variant="body" weight="bold" style={styles.stopName}>{stop.name}</Text><Text variant="caption" color={color.text.muted}>{tx('지도에서 보기', 'View on map')}</Text></Pressable>)}
@@ -269,6 +287,16 @@ const styles = StyleSheet.create({
   },
   dayOptionSelected: {
     backgroundColor: color.brand.orange,
+  },
+  city3dCard: {
+    marginTop: spacing[4],
+    gap: spacing[1],
+  },
+  city3dBody: {
+    marginTop: spacing[1],
+  },
+  city3dButton: {
+    marginTop: spacing[3],
   },
   stopsList: {
     gap: spacing[3],
