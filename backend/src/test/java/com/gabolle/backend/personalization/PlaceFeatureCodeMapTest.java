@@ -40,6 +40,16 @@ class PlaceFeatureCodeMapTest extends PostgresIntegrationTest {
 	 */
 	private static final List<String> UNPAIRED_BY_DESIGN = List.of("POPULARITY_SCORE", "CROWDING_SCORE");
 
+	/**
+	 * 추정값을 저장할 수 없는 피처 — S15P21E201-666.
+	 *
+	 * <p>🔴 이 목록은 마이그레이션 {@code V20260907003000} 의 CHECK 와 <b>같아야 한다.</b>
+	 * 갈리면 대조표에는 하드 필터로 적혀 있는데 추정값이 들어올 수 있는 종류가 생기고,
+	 * 그건 아무 오류도 내지 않는다. 여기 적어 두고 아래 검사가 양쪽을 대조한다.
+	 */
+	private static final List<String> SAFETY_FEATURE_TYPES = List.of("ALLERGEN_TAG", "DIETARY_SUPPORT_TAG",
+			"ACCESSIBILITY_TAG", "STAIRS_PRESENT");
+
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 
@@ -89,7 +99,11 @@ class PlaceFeatureCodeMapTest extends PostgresIntegrationTest {
 		for (String type : types) {
 			// 태그형이면 키가 필요하고, 그 밖은 키가 없어야 한다. CHECK 가 그것을 가른다.
 			boolean tagLike = type.endsWith("_TAG");
-			assertThatCode(() -> insertFeature(placeId, type, tagLike ? "PROBE" : null))
+			// 🔴 안전 피처는 ESTIMATED 로 저장할 수 없다(S15P21E201-666). 그래서 여기서
+			//    "저장할 수 있는가" 를 물을 때도 그 종류만 VERIFIED 로 넣는다 — 안 그러면
+			//    이 검사가 막으려는 것에 스스로 걸린다.
+			String status = SAFETY_FEATURE_TYPES.contains(type) ? "VERIFIED" : "ESTIMATED";
+			assertThatCode(() -> insertFeature(placeId, type, tagLike ? "PROBE" : null, status))
 					.as("대조표에 있는데 저장할 수 없는 피처 종류: " + type)
 					.doesNotThrowAnyException();
 		}
@@ -220,6 +234,56 @@ class PlaceFeatureCodeMapTest extends PostgresIntegrationTest {
 				.isInstanceOf(DataIntegrityViolationException.class);
 	}
 
+	// ── 안전 피처는 추측할 수 없다 (S15P21E201-666) ───────────────────────────
+
+	@Test
+	@DisplayName("🔴 알레르기·식단·접근성·계단을 ESTIMATED 로 저장하면 DB 가 거부한다 — 추측이 안전 판정이 되는 경로")
+	void safetyFeatureCannotBeEstimated() {
+		UUID placeId = insertPlace();
+
+		for (String type : SAFETY_FEATURE_TYPES) {
+			String key = type.endsWith("_TAG") ? "PROBE" : null;
+			assertThatThrownBy(() -> insertFeature(placeId, type, key, "ESTIMATED"))
+					.as("추정값이 저장돼 버리는 안전 피처: " + type
+							+ " — 하드 필터가 이 행을 근거로 후보를 통과시킨다")
+					.isInstanceOf(DataIntegrityViolationException.class);
+		}
+	}
+
+	@Test
+	@DisplayName("🔴 같은 네 종이 VERIFIED·UNKNOWN 은 여전히 받는다 — UNKNOWN 은 지울 상태가 아니라 남길 사실이다")
+	void safetyFeatureStillAcceptsVerifiedAndUnknown() {
+		for (String type : SAFETY_FEATURE_TYPES) {
+			String key = type.endsWith("_TAG") ? "PROBE" : null;
+
+			UUID verifiedPlace = insertPlace();
+			assertThatCode(() -> insertFeature(verifiedPlace, type, key, "VERIFIED"))
+					.as("확인된 안전 정보를 저장할 수 없다 — 제약을 과하게 조였다: " + type)
+					.doesNotThrowAnyException();
+
+			// UNKNOWN 은 값을 실을 수 없다(ck_place_feature_unknown_has_no_value).
+			// 그 규칙과 새 제약이 서로 부딪히지 않는지 함께 본다.
+			UUID unknownPlace = insertPlace();
+			assertThatCode(() -> insertFeatureWithoutValue(unknownPlace, type, key, "UNKNOWN"))
+					.as("모른다는 사실을 저장할 수 없다 — 그건 명세가 요구하는 것의 반대다: " + type)
+					.doesNotThrowAnyException();
+		}
+	}
+
+	@Test
+	@DisplayName("🔴 추정 금지 목록과 대조표의 하드 판정 목록이 갈리지 않는다 — 갈리면 아무 오류도 안 난다")
+	void safetyListMatchesHardJudgedCodeMapEntries() {
+		List<String> hardJudged = this.jdbcTemplate.queryForList("""
+				SELECT DISTINCT place_feature_type FROM user_place_code_map
+				WHERE match_kind IN ('HARD_FILTER', 'FLAG_COMPARE')
+				""", String.class);
+
+		assertThat(hardJudged)
+				.as("대조표가 하드로 판정하는 피처와 추정 금지 목록이 다르다 — "
+						+ "한쪽에만 있는 종류는 하드로 쓰이면서 추측값을 받거나, 반대로 막혀서 못 채운다")
+				.containsExactlyInAnyOrderElementsOf(SAFETY_FEATURE_TYPES);
+	}
+
 	// ── 넣는 도구들 ───────────────────────────────────────────────────────────
 
 	private UUID insertPlace() {
@@ -232,12 +296,33 @@ class PlaceFeatureCodeMapTest extends PostgresIntegrationTest {
 	}
 
 	private void insertFeature(UUID placeId, String featureType, String featureKey) {
+		insertFeature(placeId, featureType, featureKey, "ESTIMATED");
+	}
+
+	/**
+	 * 🔴 {@code evidenceStatus} 를 받는 판. S15P21E201-666 이 안전 피처의 {@code ESTIMATED}
+	 * 를 막으면서 필요해졌다 — 그 전에는 이 도구가 항상 {@code ESTIMATED} 를 넣었고,
+	 * 그래서 안전 피처까지 추정값으로 저장하고 있었다.
+	 */
+	private void insertFeature(UUID placeId, String featureType, String featureKey, String evidenceStatus) {
 		this.jdbcTemplate.update("""
 				INSERT INTO place_feature (
 				    place_feature_id, place_id, feature_type, feature_key, value,
 				    evidence_status, source_type, source_id, observed_at, source_version, created_at)
 				VALUES (?, ?, ?, ?, '{"probe": true}'::jsonb,
-				        'ESTIMATED', 'TOURAPI', 'ta-1', now(), 'v1', now())
-				""", UUID.randomUUID(), placeId, featureType, featureKey);
+				        ?, 'TOURAPI', 'ta-1', now(), 'v1', now())
+				""", UUID.randomUUID(), placeId, featureType, featureKey, evidenceStatus);
+	}
+
+	/** {@code UNKNOWN} 은 값을 실을 수 없다 — {@code ck_place_feature_unknown_has_no_value}. */
+	private void insertFeatureWithoutValue(UUID placeId, String featureType, String featureKey,
+			String evidenceStatus) {
+		this.jdbcTemplate.update("""
+				INSERT INTO place_feature (
+				    place_feature_id, place_id, feature_type, feature_key, value,
+				    evidence_status, source_type, source_id, observed_at, source_version, created_at)
+				VALUES (?, ?, ?, ?, NULL,
+				        ?, 'TOURAPI', 'ta-1', now(), 'v1', now())
+				""", UUID.randomUUID(), placeId, featureType, featureKey, evidenceStatus);
 	}
 }
