@@ -1,6 +1,5 @@
 package com.gabolle.backend.trip.presentation;
 
-import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
@@ -18,10 +17,8 @@ import com.gabolle.backend.common.api.ApiResponse;
 import com.gabolle.backend.common.security.AuthenticatedUsers;
 import com.gabolle.backend.trip.application.TripCreationService;
 import com.gabolle.backend.trip.application.TripQueryService;
-import com.gabolle.backend.trip.domain.PreferenceDimensions;
-import com.gabolle.backend.trip.domain.PreferenceSnapshot;
-import com.gabolle.backend.trip.domain.TripConstraint;
 import com.gabolle.backend.trip.presentation.dto.CreateTripRequest;
+import com.gabolle.backend.trip.presentation.dto.CreateTripRequestMapper;
 import com.gabolle.backend.trip.presentation.dto.TripDetailResponse;
 import com.gabolle.backend.trip.presentation.dto.TripDto;
 
@@ -97,86 +94,12 @@ public class TripController {
                 "req_" + UUID.randomUUID());
     }
 
-    private TripCreationService.Command toCommand(CreateTripRequest r, String userId) {
-        List<TripCreationService.Command.ConstraintInput> constraints =
-                r.constraints() == null ? List.of()
-                        : r.constraints().stream().map(c ->
-                        new TripCreationService.Command.ConstraintInput(
-                                c.type(),
-                                c.constraintKey(),
-                                parseSeverity(c.severity()),
-                                c.operator(),
-                                c.value(),
-                                c.threshold(),
-                                // 사용자가 직접 넣은 값이므로 아직 검증되지 않았다 (NFR-09).
-                                TripConstraint.EvidenceStatus.NEEDS_REVIEW,
-                                parseConstraintAnswerStatus(c.answerStatus()),
-                                parseDietRequirement(c.dietRequirement())))
-                        .toList();
-
-        List<PreferenceSnapshot.PreferenceAnswer> preferences =
-                r.preferences() == null ? List.of()
-                        : r.preferences().stream()
-                                .map(p -> new PreferenceSnapshot.PreferenceAnswer(
-                                        // 🔴 S15P21E201-665 — 앱은 차원 이름을 소문자 camelCase
-                                        //    (category, touristPreference …)로 보내고, preference_answer 의
-                                        //    CHECK 는 대문자(CATEGORY, TOURIST_PREFERENCE …)만 받는다.
-                                        //    그대로 넘겼더니 취향 한 줄이 CHECK 에 걸려 여행 트랜잭션
-                                        //    전체가 롤백됐다 — 실제 앱은 여행을 만들 수 없었다. DTO 문자열을
-                                        //    도메인 어휘로 바꾸는 것은 이 번역 계층의 일이다.
-                                        PreferenceDimensions.normalize(p.dimension()),
-                                        p.value(), parsePreferenceAnswerStatus(p.answerStatus())))
-                                .toList();
-
-        return new TripCreationService.Command(
-                userId, r.startDate(), r.finishDate(),
-                r.originLat(), r.originLng(),
-                r.budgetKrw(), r.partySize(),
-                r.timeWindow(), r.timezone(),
-                preferences,
-                constraints);
-    }
-
-    private TripConstraint.Severity parseSeverity(String raw) {
-        try {
-            return TripConstraint.Severity.valueOf(raw.toUpperCase());
-        } catch (IllegalArgumentException | NullPointerException e) {
-            throw new IllegalArgumentException("severity 는 HARD 또는 SOFT 여야 한다: " + raw);
-        }
-    }
-
-    private TripConstraint.AnswerStatus parseConstraintAnswerStatus(String raw) {
-        try {
-            return TripConstraint.AnswerStatus.valueOf(raw.toUpperCase());
-        } catch (IllegalArgumentException | NullPointerException e) {
-            throw new IllegalArgumentException(
-                    "제약의 answerStatus 는 SELECTED · NONE · UNKNOWN 중 하나여야 한다: " + raw);
-        }
-    }
-
-    private PreferenceSnapshot.AnswerStatus parsePreferenceAnswerStatus(String raw) {
-        try {
-            return PreferenceSnapshot.AnswerStatus.valueOf(raw.toUpperCase());
-        } catch (IllegalArgumentException | NullPointerException e) {
-            throw new IllegalArgumentException(
-                    "취향의 answerStatus 는 SELECTED · SKIPPED · UNKNOWN 중 하나여야 한다: " + raw);
-        }
-    }
-
     /**
-     * 🔴 2026-09-04 추가. {@code null} 이면 그대로 {@code null} 을 돌려준다 —
-     * {@code DIET} 가 아닌 제약은 이 값이 없는 것이 정상이다({@code TripConstraint}
-     * 생성자가 그 경우를 검증한다).
+     * DTO → 명령 번역은 {@link CreateTripRequestMapper} 로 옮겼다(S15P21E201-338) — 공유 일정 복제가
+     * 같은 본문을 받아 같은 규칙(차원 이름 정규화 -665 포함)으로 여행을 만들어야 해서다. 두 곳에
+     * 복사해 두면 정규화 규칙이 바뀐 날 한쪽만 고쳐진다.
      */
-    private TripConstraint.DietRequirement parseDietRequirement(String raw) {
-        if (raw == null) {
-            return null;
-        }
-        try {
-            return TripConstraint.DietRequirement.valueOf(raw.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException(
-                    "dietRequirement 는 REQUIRED · PREFERRED 중 하나여야 한다: " + raw);
-        }
+    private TripCreationService.Command toCommand(CreateTripRequest r, String userId) {
+        return CreateTripRequestMapper.toCommand(r, userId);
     }
 }

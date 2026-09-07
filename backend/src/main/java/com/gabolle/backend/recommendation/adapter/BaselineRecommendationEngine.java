@@ -21,6 +21,7 @@ import com.gabolle.backend.trip.domain.PreferenceSnapshot;
 import com.gabolle.backend.trip.domain.Trip;
 import com.gabolle.backend.trip.domain.TripConstraint;
 import com.gabolle.backend.trip.domain.TripRepository;
+import com.gabolle.backend.trip.domain.TripSeedPlaceRepository;
 
 /**
  * 규칙 기반 BASELINE 추천 엔진 (S15P21E201-604).
@@ -59,16 +60,20 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 
 	private final UserPlaceCodeMapRepository codeMapRepository;
 
+	/** S15P21E201-338 — 복제 씨앗. 보통 여행은 비어 있어 아무 일도 하지 않는다({@link SeedBoost}). */
+	private final TripSeedPlaceRepository seedPlaceRepository;
+
 	public BaselineRecommendationEngine(TripRepository tripRepository,
 			PlaceCandidateQueryService placeCandidateQueryService, BaselineCandidateTranslator translator,
 			BaselineCandidateScorer scorer, BaselineEngineProperties properties,
-			UserPlaceCodeMapRepository codeMapRepository) {
+			UserPlaceCodeMapRepository codeMapRepository, TripSeedPlaceRepository seedPlaceRepository) {
 		this.tripRepository = tripRepository;
 		this.placeCandidateQueryService = placeCandidateQueryService;
 		this.translator = translator;
 		this.scorer = scorer;
 		this.properties = properties;
 		this.codeMapRepository = codeMapRepository;
+		this.seedPlaceRepository = seedPlaceRepository;
 	}
 
 	@Override
@@ -106,6 +111,8 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 			candidates.add(this.scorer.score(candidate, preferenceSnapshot, constraints, this.properties.radiusM(),
 					this.properties.weights(), preferenceCodeMap, constraintCodeMap));
 		}
+		// 🔴 S15P21E201-338 — 복제 씨앗을 앞세운다. 점수만 올리고 제약 판정은 그대로다(SeedBoost 참고).
+		candidates = SeedBoost.apply(candidates, this.seedPlaceRepository.findByTripId(trip.tripId()));
 		long rankingMs = elapsedMs(rankingStart);
 
 		String datasetVersion = resolveDatasetVersion(response.datasetVersions());
