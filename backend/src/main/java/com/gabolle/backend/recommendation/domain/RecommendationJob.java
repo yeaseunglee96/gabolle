@@ -174,6 +174,22 @@ public class RecommendationJob {
 	@Column(name = "fallback_mode", length = 20)
 	private FallbackMode fallbackMode;
 
+	/**
+	 * 이 요청이 개인화 추천으로 끝났는가 Editor's Pick 으로 끝났는가 (S15P21E201-555).
+	 *
+	 * <p>🔴 기본값이 {@link SourceMode#PERSONALIZED} 다. {@link #fallBackToEditorialPick}
+	 * 만 이것을 바꾼다 — 그러지 않으면 Pick 이 개인화로 집계되고, 그쪽이 진짜 위험이다.
+	 *
+	 * <p>🔴 {@link #fallbackMode} 와 다른 질문에 답한다 — 자세한 것은 {@link SourceMode}.
+	 */
+	@Enumerated(EnumType.STRING)
+	@Column(name = "source_mode", nullable = false, length = 20)
+	private SourceMode sourceMode = SourceMode.PERSONALIZED;
+
+	/** 어느 Pick 의 어느 판을 보여줬나. 개인화 추천이면 {@code null} 이다. */
+	@Column(name = "editorial_pick_id")
+	private UUID editorialPickId;
+
 	protected RecommendationJob() {
 		// JPA 전용
 	}
@@ -276,6 +292,12 @@ public class RecommendationJob {
 	 */
 	public void markCompleted(OffsetDateTime generatedAt, OffsetDateTime completedAt, FallbackMode fallbackMode,
 			String fallbackReason) {
+		if (this.sourceMode == null) {
+			// 🔴 JPA 로 올라온 옛 행에는 이 칸이 비어 있을 수 있다. 여기서 채우는 것은
+			//    추측이 아니다 — Pick 은 이 칸이 생긴 뒤에야 존재하므로 비어 있으면
+			//    개인화였던 것이 확실하다.
+			this.sourceMode = SourceMode.PERSONALIZED;
+		}
 		this.generatedAt = generatedAt;
 		this.completedAt = completedAt;
 		this.fallbackMode = fallbackMode;
@@ -283,6 +305,37 @@ public class RecommendationJob {
 		this.jobStatus = JobStatus.SUCCEEDED;
 		this.jobStage = JobStage.COMPLETED;
 		this.progressPercent = 100;
+	}
+
+	/**
+	 * 개인화 추천을 못 만들어 Editor's Pick 을 대신 내보낸다 (S15P21E201-555).
+	 *
+	 * <p>🔴 이 호출만으로는 아직 성공이 아니다. 부르는 쪽이 이어서 {@link #markCompleted}
+	 * 를 {@link FallbackMode#EDITORIAL_PICK} 과 함께 불러야 한다 — 이 메서드를
+	 * {@code markCompleted} 안에 합치지 않은 이유는, Pick 을 골랐지만 그 안의 장소가 전부
+	 * 하드 제약에 걸려 <b>결국 실패로 끝나는 경로</b>가 있기 때문이다. 그때도 "Pick 을
+	 * 시도했다" 는 사실은 남아야 한다.
+	 *
+	 * @param editorialPickId 어느 Pick 의 어느 판이었나. {@code editorial_pick} 은 판마다
+	 *     다른 행이라 이 하나로 이름과 판이 함께 따라온다
+	 */
+	public void fallBackToEditorialPick(UUID editorialPickId) {
+		if (editorialPickId == null) {
+			// 🔴 Pick 으로 대체했다면서 어느 Pick 인지 안 남기면, 나중에 "그때 무엇을
+			//    보여줬나" 에 답할 수 없다. 그것이 이 기록의 목적이므로 여기서 막는다.
+			throw new IllegalArgumentException(
+					"editorialPickId 는 필수다 — 어느 Pick 이었는지 없으면 결과를 되짚을 수 없다");
+		}
+		this.sourceMode = SourceMode.EDITORIAL_PICK;
+		this.editorialPickId = editorialPickId;
+	}
+
+	public SourceMode getSourceMode() {
+		return (this.sourceMode == null) ? SourceMode.PERSONALIZED : this.sourceMode;
+	}
+
+	public UUID getEditorialPickId() {
+		return this.editorialPickId;
 	}
 
 	/**

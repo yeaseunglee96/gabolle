@@ -269,3 +269,39 @@ COMMENT ON COLUMN recommendation_candidate.source_mode IS
 -- 분석 질의가 쓰는 길: Pick 으로 나간 요청만 골라 세기.
 CREATE INDEX ix_recommendation_job_source_mode
     ON recommendation_job (source_mode, created_at);
+
+-- ── 🔴 returned 후보에 점수를 요구하는 CHECK 를 좁게 푼다 ────────────────────
+--
+-- V20260902090000 의 ck_recommendation_candidate_returned_shape 는 이렇게 걸려 있다.
+--
+--   CHECK (NOT returned OR (final_rank IS NOT NULL
+--                           AND final_score IS NOT NULL
+--                           AND candidate_stage = 'RETURNED'))
+--
+-- 개인화 추천에서는 이것이 정확히 맞다. 순위가 점수에서 나오므로 **점수 없이 순위가
+-- 붙었다면 그것은 버그다** — 결측을 순위로 바꾼 것이고, CandidateAssembler 의 불변식
+-- 넷째가 같은 것을 말한다.
+--
+-- 그런데 Editor's Pick 은 **점수가 없는 것이 사실이다.** 순서를 사람이 정했고 우리는
+-- 점수를 매기지 않았다. 그 자리에 숫자를 채우면(예: 1/pick_rank) 없는 것을 있는 것처럼
+-- 만드는 것이고, final_score 로 집계하는 모든 질의가 그 가짜 숫자를 개인화 점수와
+-- 섞어 세게 된다. 그게 CHECK 를 만족시키는 대가라면 CHECK 를 고치는 것이 맞다.
+--
+--   그대로 두는 것  final_rank 가 있어야 한다 · stage 가 RETURNED 여야 한다
+--                   그리고 **개인화 결과에는 여전히 점수를 요구한다**
+--   푸는 것        source_mode = 'EDITORIAL_PICK' 인 행에서만 점수가 없어도 된다
+--
+-- 🔴 하드 제약 보장은 건드리지 않는다. ck_recommendation_candidate_fail_not_returned
+--    (FAIL 은 절대 반환되지 않는다)와 fail_not_eligible 은 그대로다 — Pick 이라고 해서
+--    알레르기가 있는 식당이 통과하지 않는다.
+ALTER TABLE recommendation_candidate
+    DROP CONSTRAINT ck_recommendation_candidate_returned_shape;
+ALTER TABLE recommendation_candidate
+    ADD CONSTRAINT ck_recommendation_candidate_returned_shape
+        CHECK (NOT returned
+               OR (final_rank IS NOT NULL
+                   AND candidate_stage = 'RETURNED'
+                   AND (final_score IS NOT NULL OR source_mode = 'EDITORIAL_PICK')));
+
+COMMENT ON CONSTRAINT ck_recommendation_candidate_returned_shape ON recommendation_candidate IS
+    'S15P21E201-555 — 반환된 후보는 순위와 RETURNED 단계를 반드시 갖는다. 점수는 개인화 결과에만 요구한다: Editor''s Pick 은 사람이 순서를 정했고 점수가 없는 것이 사실이라, 그 자리에 숫자를 채우면 final_score 집계가 가짜 값을 개인화 점수와 섞어 센다.';

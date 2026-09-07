@@ -20,6 +20,7 @@ import com.gabolle.backend.recommendation.domain.CandidateStage;
 import com.gabolle.backend.recommendation.domain.ConstraintSeverity;
 import com.gabolle.backend.recommendation.domain.ConstraintVerdict;
 import com.gabolle.backend.recommendation.domain.RecommendationCandidate;
+import com.gabolle.backend.recommendation.domain.SourceMode;
 import com.gabolle.backend.recommendation.domain.UnknownExclusionThreshold;
 
 /**
@@ -112,7 +113,7 @@ public class CandidateAssembler {
 
 			CandidateStage stage = returned ? CandidateStage.RETURNED : CandidateStage.RANKED;
 			rows.add(toRow(requestId, candidate, stage, true, rank, finalScore, rank, returned, warnings,
-					batch, createdAt));
+					batch, createdAt, SourceMode.PERSONALIZED));
 
 			if (returned) {
 				returnedCount++;
@@ -123,11 +124,103 @@ public class CandidateAssembler {
 
 		for (Filtered exclusion : filtered) {
 			rows.add(toRow(requestId, exclusion.candidate(), exclusion.stage(), false, null, null, null, false,
-					exclusion.warnings(), batch, createdAt));
+					exclusion.warnings(), batch, createdAt, SourceMode.PERSONALIZED));
 		}
 
 		return new CandidateAssembly(List.copyOf(rows), List.copyOf(returnedItems),
 				generated.size(), rankable.size(), returnedCount);
+	}
+
+	/**
+	 * Editor's Pick 을 그대로 결과로 만든다 — <b>순위를 다시 매기지 않는다</b>
+	 * (S15P21E201-555).
+	 *
+	 * <p>🔴 {@link #assemble} 과 <b>별도 메서드로 둔 이유.</b> 두 경로는 순위를 정하는
+	 * 방식이 정반대다. 개인화는 점수 순으로 매기고, Pick 은 사람이 정한 순서를 그대로
+	 * 쓴다. {@code assemble} 에 깃발을 하나 더 받게 만들면 그 클래스가 문서로 약속한
+	 * 불변식 다섯 중 둘이 "깃발에 따라 다르다" 가 되고, 개인화 경로를 읽는 사람이 매번
+	 * 어느 쪽인지 확인해야 한다. 그래서 {@code assemble} 의 계약은 손대지 않았다.
+	 *
+	 * <p>🔴 <b>안전 판정은 나누지 않았다.</b> 제약 판정과 행 만들기는
+	 * {@link #appraise}·{@link #toRow} 를 그대로 쓴다 — 같은 것을 두 번 구현하면 한쪽만
+	 * 고쳐지는 날이 오고, 그 한쪽이 알레르기 필터다. 그래서 Pick 도 FAIL 이면 반환되지
+	 * 않고, 하드 제약이 미확인이면 빠진다. 완료 기준 <i>"추천 서버 장애 시 하드 제약을
+	 * 지키는 기준선 결과가 나온다"</i> 가 이 재사용에서 나온다.
+	 *
+	 * <h2>여기서만 다른 불변식</h2>
+	 *
+	 * <ul>
+	 * <li>🔴 <b>점수가 없어도 순위를 붙인다.</b> {@code assemble} 의 넷째 불변식("결측을
+	 * 순위로 바꾸지 않는다")은 순위가 점수에서 나올 때의 규칙이다. Pick 은 순위가 점수와
+	 * 무관하게 이미 정해져 있으므로, 점수가 없는 것이 결측이 아니라 <b>사실</b>이다.
+	 * 그래서 {@code finalScore} 는 {@code null} 로 남긴다 — 1/rank 같은 숫자를 채우면
+	 * final_score 로 집계하는 질의가 그 가짜 값을 개인화 점수와 섞어 센다</li>
+	 * <li><b>순위는 살아남은 것들로 촘촘하게 다시 붙인다.</b> 편집자가 2위로 적은 곳이
+	 * 하드 제약에 걸려 빠지면 결과는 1·2·3 이 되고 1·3·4 가 아니다. 목록에 구멍을 보여줄
+	 * 이유가 없다. 편집자가 적은 원래 순서는 {@code original_rank} 에 남으므로 무엇이
+	 * 빠졌는지는 그대로 되짚을 수 있다</li>
+	 * </ul>
+	 *
+	 * @param batch 후보가 <b>편집자가 정한 순서대로</b> 들어 있어야 한다. 들어온 순서가
+	 *     곧 순위다 — 여기서 정렬하지 않는다
+	 */
+	public CandidateAssembly assembleFixedOrder(UUID requestId, EngineCandidateBatch batch, int topK,
+			UnknownExclusionThreshold threshold, ConstraintSeverity unspecifiedSeverity,
+			OffsetDateTime createdAt) {
+
+		List<EngineCandidate> generated = batch.candidates();
+		rejectDuplicatePlaces(generated);
+
+		List<Ordered> keepable = new ArrayList<>();
+		List<Filtered> filtered = new ArrayList<>();
+
+		for (int position = 0; position < generated.size(); position++) {
+			EngineCandidate candidate = generated.get(position);
+			List<String> warnings = new ArrayList<>(candidate.warningCodes());
+			Filtered exclusion = appraise(candidate, threshold, unspecifiedSeverity, warnings);
+			if (exclusion != null) {
+				filtered.add(exclusion);
+			}
+			else {
+				// 🔴 점수가 없다고 빼지 않는다 — assemble 과 여기가 갈리는 지점이다.
+				keepable.add(new Ordered(candidate, position + 1));
+			}
+		}
+
+		List<RecommendationCandidate> rows = new ArrayList<>(generated.size());
+		List<RecommendedPlace> returnedItems = new ArrayList<>();
+		int returnedCount = 0;
+
+		for (int index = 0; index < keepable.size(); index++) {
+			Ordered ordered = keepable.get(index);
+			EngineCandidate candidate = ordered.candidate();
+			int rank = index + 1;
+			boolean returned = rank <= topK;
+
+			List<String> warnings = new ArrayList<>(candidate.warningCodes());
+			if (candidate.constraintVerdict() == ConstraintVerdict.UNKNOWN) {
+				warnings.add(RecommendationCodes.WARNING_CONSTRAINT_UNKNOWN);
+			}
+
+			CandidateStage stage = returned ? CandidateStage.RETURNED : CandidateStage.RANKED;
+			// originalRank = 편집자가 적은 자리, finalRank = 살아남은 것들 사이의 자리.
+			rows.add(toRow(requestId, candidate, stage, true, ordered.editorialPosition(), null, rank,
+					returned, warnings, batch, createdAt, SourceMode.EDITORIAL_PICK));
+
+			if (returned) {
+				returnedCount++;
+				returnedItems.add(new RecommendedPlace(candidate.placeId(), rank, null,
+						candidate.reasonCodes(), List.copyOf(warnings)));
+			}
+		}
+
+		for (Filtered exclusion : filtered) {
+			rows.add(toRow(requestId, exclusion.candidate(), exclusion.stage(), false, null, null, null, false,
+					exclusion.warnings(), batch, createdAt, SourceMode.EDITORIAL_PICK));
+		}
+
+		return new CandidateAssembly(List.copyOf(rows), List.copyOf(returnedItems),
+				generated.size(), keepable.size(), returnedCount);
 	}
 
 	/**
@@ -187,7 +280,8 @@ public class CandidateAssembler {
 
 	private RecommendationCandidate toRow(UUID requestId, EngineCandidate candidate, CandidateStage stage,
 			boolean eligible, Integer originalRank, Double finalScore, Integer finalRank, boolean returned,
-			List<String> warnings, EngineCandidateBatch batch, OffsetDateTime createdAt) {
+			List<String> warnings, EngineCandidateBatch batch, OffsetDateTime createdAt,
+			SourceMode sourceMode) {
 
 		verifyNoSensitiveData(candidate);
 
@@ -212,6 +306,7 @@ public class CandidateAssembler {
 				.reasonCodes(candidate.reasonCodes().toArray(String[]::new))
 				.warningCodes(warnings.toArray(String[]::new))
 				.fallbackMode(batch.fallbackMode())
+				.sourceMode(sourceMode)
 				.createdAt(createdAt)
 				.build();
 	}
@@ -245,5 +340,13 @@ public class CandidateAssembler {
 
 	/** 랭킹에서 빠진 후보 하나와 그 사유. 행은 그대로 저장된다. */
 	private record Filtered(EngineCandidate candidate, CandidateStage stage, List<String> warnings) {
+	}
+
+	/**
+	 * Pick 후보 하나와 <b>편집자가 적어 둔 자리</b>. 뒤에서 걸러진 것 때문에 최종 순위가
+	 * 당겨지더라도 원래 자리를 잃지 않으려고 함께 들고 다닌다 — 그 값이
+	 * {@code original_rank} 로 남아 "무엇이 빠졌나" 를 되짚게 해 준다.
+	 */
+	private record Ordered(EngineCandidate candidate, int editorialPosition) {
 	}
 }

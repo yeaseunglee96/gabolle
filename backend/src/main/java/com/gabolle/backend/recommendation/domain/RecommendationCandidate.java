@@ -96,6 +96,18 @@ public class RecommendationCandidate {
 	@Column(name = "fallback_mode", length = 20)
 	private FallbackMode fallbackMode;
 
+	/**
+	 * 이 후보가 개인화 추천인가 Editor's Pick 인가 (S15P21E201-555).
+	 *
+	 * <p>🔴 {@link #fallbackMode} 와 다른 질문에 답한다 — 자세한 것은 {@link SourceMode}.
+	 * 여기에도(요청 행뿐 아니라 후보 행에도) 두는 이유는, 후보만 보고도 집계할 수 있어야
+	 * 하기 때문이다. 매번 recommendation_job 과 조인해야 하면 분석 질의마다 그 조인을
+	 * 잊을 기회가 생긴다.
+	 */
+	@Enumerated(EnumType.STRING)
+	@Column(name = "source_mode", nullable = false, length = 20)
+	private SourceMode sourceMode;
+
 	@Column(name = "created_at", nullable = false, updatable = false)
 	private OffsetDateTime createdAt;
 
@@ -124,6 +136,7 @@ public class RecommendationCandidate {
 		this.reasonCodes = builder.reasonCodes;
 		this.warningCodes = builder.warningCodes;
 		this.fallbackMode = builder.fallbackMode;
+		this.sourceMode = builder.sourceMode;
 		this.createdAt = builder.createdAt;
 		validateInvariants();
 	}
@@ -236,6 +249,10 @@ public class RecommendationCandidate {
 		return fallbackMode;
 	}
 
+	public SourceMode getSourceMode() {
+		return sourceMode;
+	}
+
 	public OffsetDateTime getCreatedAt() {
 		return createdAt;
 	}
@@ -263,6 +280,14 @@ public class RecommendationCandidate {
 		private String[] reasonCodes = new String[0];
 		private String[] warningCodes = new String[0];
 		private FallbackMode fallbackMode;
+
+		/**
+		 * 🔴 기본값이 {@link SourceMode#PERSONALIZED} 다. Pick 경로만 명시적으로 바꾼다 —
+		 * 그러지 않으면 Pick 이 개인화로 집계되고, 그쪽이 진짜 위험이다(장애율과 신규
+		 * 사용자 수가 한 칸에 섞인다).
+		 */
+		private SourceMode sourceMode = SourceMode.PERSONALIZED;
+
 		private OffsetDateTime createdAt;
 
 		private Builder() {
@@ -365,6 +390,11 @@ public class RecommendationCandidate {
 
 		public Builder fallbackMode(FallbackMode value) {
 			this.fallbackMode = value;
+			return this;
+		}
+
+		public Builder sourceMode(SourceMode value) {
+			this.sourceMode = value;
 			return this;
 		}
 
