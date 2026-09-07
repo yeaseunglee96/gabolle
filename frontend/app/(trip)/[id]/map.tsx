@@ -18,41 +18,43 @@ import { Card } from '@/components/Card';
 import { RouteMap } from '@/map/RouteMap';
 import type { MapStop } from '@/map/types';
 import { PermissionRationale } from '@/components/PermissionRationale';
+import { useI18n } from '@/i18n';
 
 type RouteStatus = 'pass' | 'fail' | 'neutral';
 
-type RouteRow = {
-  label: string;
+type RouteRowSeed = {
+  labelKo: string; labelEn: string;
   distance: string;
-  note: string;
+  noteKo: string; noteEn: string;
   status: RouteStatus;
 };
 
-type RouteComparison = {
-  title: string;
-  subtitle: string;
-  rows: RouteRow[];
-  delta: string;
+type RouteComparisonSeed = {
+  titleKo: string; titleEn: string;
+  subtitleKo: string; subtitleEn: string;
+  rows: RouteRowSeed[];
+  deltaKo: string; deltaEn: string;
 };
 
-const SHADE_ROUTE: RouteComparison = {
-  title: '그늘 경로',
-  subtitle: '해운대 → 광안리, 오후 5시 (실측 2026-09-01)',
+// 🔴 아래 숫자는 실제 측정값이다. 번역하며 반올림하거나 다듬지 않는다.
+const SHADE_ROUTE: RouteComparisonSeed = {
+  titleKo: '그늘 경로', titleEn: 'Shaded route',
+  subtitleKo: '해운대 → 광안리, 오후 5시 (실측 2026-09-01)', subtitleEn: 'Haeundae → Gwangalli, 5 PM (measured 2026-09-01)',
   rows: [
-    { label: '최단 경로', distance: '2,703m', note: '그늘 15.9%', status: 'neutral' },
-    { label: '그늘 우선', distance: '2,915m', note: '그늘 30.8%', status: 'pass' },
+    { labelKo: '최단 경로', labelEn: 'Shortest route', distance: '2,703m', noteKo: '그늘 15.9%', noteEn: '15.9% shaded', status: 'neutral' },
+    { labelKo: '그늘 우선', labelEn: 'Shade-first route', distance: '2,915m', noteKo: '그늘 30.8%', noteEn: '30.8% shaded', status: 'pass' },
   ],
-  delta: '212m(5.2%) 더 걸어 그늘이 두 배',
+  deltaKo: '212m(5.2%) 더 걸어 그늘이 두 배', deltaEn: 'Walk 212m (5.2%) more for twice the shade',
 };
 
-const WHEELCHAIR_ROUTE: RouteComparison = {
-  title: '휠체어 경로',
-  subtitle: '좌수영교 → 신세계 센텀시티 (실측)',
+const WHEELCHAIR_ROUTE: RouteComparisonSeed = {
+  titleKo: '휠체어 경로', titleEn: 'Wheelchair route',
+  subtitleKo: '좌수영교 → 신세계 센텀시티 (실측)', subtitleEn: 'Jwasuyeong Bridge → Shinsegae Centum City (measured)',
   rows: [
-    { label: '최단 경로', distance: '1,489m', note: '접근 불가 구간 2개(4m) 포함', status: 'fail' },
-    { label: '휠체어 최선', distance: '1,749m', note: '불가 구간 0개', status: 'pass' },
+    { labelKo: '최단 경로', labelEn: 'Shortest route', distance: '1,489m', noteKo: '접근 불가 구간 2개(4m) 포함', noteEn: 'Includes 2 inaccessible segments (4m)', status: 'fail' },
+    { labelKo: '휠체어 최선', labelEn: 'Best for wheelchair', distance: '1,749m', noteKo: '불가 구간 0개', noteEn: '0 inaccessible segments', status: 'pass' },
   ],
-  delta: '4m 짜리 계단을 피하려고 260m(17%)를 돌아간다',
+  deltaKo: '4m 짜리 계단을 피하려고 260m(17%)를 돌아간다', deltaEn: 'Detours 260m (17%) to avoid a 4m staircase',
 };
 
 const STATUS_COLOR: Record<RouteStatus, string> = {
@@ -61,53 +63,60 @@ const STATUS_COLOR: Record<RouteStatus, string> = {
   neutral: color.text.body,
 };
 
-const DAY_STOPS: Record<'DAY 1' | 'DAY 2', MapStop[]> = {
+type MapStopSeed = { id: string; number: number; nameKo: string; nameEn: string; latitude: number; longitude: number };
+
+const DAY_STOPS_SEED: Record<'DAY 1' | 'DAY 2', MapStopSeed[]> = {
   'DAY 1': [
-    { id: 'songdo', number: 1, name: '송도 해상 케이블카', latitude: 35.0764, longitude: 129.0239 },
-    { id: 'nampo', number: 2, name: '남포동 로컬 맛집', latitude: 35.0987, longitude: 129.0304 },
-    { id: 'huinnyeoul', number: 3, name: '흰여울문화마을', latitude: 35.0788, longitude: 129.0444 },
-    { id: 'gwangalli', number: 4, name: '광안리 해수욕장', latitude: 35.1532, longitude: 129.1187 },
+    { id: 'songdo', number: 1, nameKo: '송도 해상 케이블카', nameEn: 'Songdo Marine Cable Car', latitude: 35.0764, longitude: 129.0239 },
+    { id: 'nampo', number: 2, nameKo: '남포동 로컬 맛집', nameEn: 'Nampo-dong local eatery', latitude: 35.0987, longitude: 129.0304 },
+    { id: 'huinnyeoul', number: 3, nameKo: '흰여울문화마을', nameEn: 'Huinnyeoul Culture Village', latitude: 35.0788, longitude: 129.0444 },
+    { id: 'gwangalli', number: 4, nameKo: '광안리 해수욕장', nameEn: 'Gwangalli Beach', latitude: 35.1532, longitude: 129.1187 },
   ],
   'DAY 2': [
-    { id: 'haeundae', number: 1, name: '해운대 해수욕장', latitude: 35.1587, longitude: 129.1604 },
-    { id: 'blueline', number: 2, name: '해운대 블루라인파크', latitude: 35.1611, longitude: 129.171 },
-    { id: 'centum', number: 3, name: '센텀시티', latitude: 35.1699, longitude: 129.1291 },
+    { id: 'haeundae', number: 1, nameKo: '해운대 해수욕장', nameEn: 'Haeundae Beach', latitude: 35.1587, longitude: 129.1604 },
+    { id: 'blueline', number: 2, nameKo: '해운대 블루라인파크', nameEn: 'Haeundae Blueline Park', latitude: 35.1611, longitude: 129.171 },
+    { id: 'centum', number: 3, nameKo: '센텀시티', nameEn: 'Centum City', latitude: 35.1699, longitude: 129.1291 },
   ],
 };
 
 const DAY_COLORS = { 'DAY 1': color.brand.orange, 'DAY 2': color.state.success } as const;
-const EXTRA_STOPS = {
+const EXTRA_STOPS_SEED = {
   souvenir: [
-    { id: 'souvenir-nampo', number: 1, name: '남포동 부산 기념품점', latitude: 35.0979, longitude: 129.0298 },
-    { id: 'souvenir-haeundae', number: 2, name: '해운대 로컬 숍', latitude: 35.1594, longitude: 129.1591 },
+    { id: 'souvenir-nampo', number: 1, nameKo: '남포동 부산 기념품점', nameEn: 'Nampo-dong Busan souvenir shop', latitude: 35.0979, longitude: 129.0298 },
+    { id: 'souvenir-haeundae', number: 2, nameKo: '해운대 로컬 숍', nameEn: 'Haeundae local shop', latitude: 35.1594, longitude: 129.1591 },
   ],
   night: [
-    { id: 'night-gwangalli', number: 1, name: '광안대교 야경', latitude: 35.1531, longitude: 129.1189 },
-    { id: 'night-thebay', number: 2, name: '더베이101 야경', latitude: 35.1567, longitude: 129.1522 },
+    { id: 'night-gwangalli', number: 1, nameKo: '광안대교 야경', nameEn: 'Gwangan Bridge night view', latitude: 35.1531, longitude: 129.1189 },
+    { id: 'night-thebay', number: 2, nameKo: '더베이101 야경', nameEn: 'The Bay 101 night view', latitude: 35.1567, longitude: 129.1522 },
   ],
-} satisfies Record<string, MapStop[]>;
+} satisfies Record<string, MapStopSeed[]>;
 
-function ComparisonCard({ route }: { route: RouteComparison }) {
+function localizeStops(tx: (ko: string, en: string) => string, seeds: MapStopSeed[]): MapStop[] {
+  return seeds.map((seed) => ({ id: seed.id, number: seed.number, name: tx(seed.nameKo, seed.nameEn), latitude: seed.latitude, longitude: seed.longitude }));
+}
+
+function ComparisonCard({ route }: { route: RouteComparisonSeed }) {
+  const { tx } = useI18n();
   return (
     <Card tinted style={styles.comparisonCard}>
       <Text variant="title" weight="bold">
-        {route.title}
+        {tx(route.titleKo, route.titleEn)}
       </Text>
       <Text variant="caption" style={styles.comparisonSubtitle}>
-        {route.subtitle}
+        {tx(route.subtitleKo, route.subtitleEn)}
       </Text>
 
       <View style={styles.rows}>
         {route.rows.map((row) => (
-          <View key={row.label} style={styles.row}>
+          <View key={row.labelKo} style={styles.row}>
             <Text variant="body" weight="medium" style={styles.rowLabel}>
-              {row.label}
+              {tx(row.labelKo, row.labelEn)}
             </Text>
             <Text variant="body" weight="bold" style={styles.rowDistance}>
               {row.distance}
             </Text>
             <Text variant="caption" weight="bold" color={STATUS_COLOR[row.status]} style={styles.rowNote}>
-              {row.note}
+              {tx(row.noteKo, row.noteEn)}
             </Text>
           </View>
         ))}
@@ -115,7 +124,7 @@ function ComparisonCard({ route }: { route: RouteComparison }) {
 
       <View style={styles.deltaBox}>
         <Text variant="caption" weight="bold" color={color.text.eyebrow}>
-          → {route.delta}
+          → {tx(route.deltaKo, route.deltaEn)}
         </Text>
       </View>
     </Card>
@@ -125,11 +134,12 @@ function ComparisonCard({ route }: { route: RouteComparison }) {
 export default function Map() {
   const router = useRouter();
   const { width } = useWindowDimensions();
+  const { tx } = useI18n();
   const [day, setDay] = useState<'DAY 1' | 'DAY 2'>('DAY 1');
   const [routeScope, setRouteScope] = useState<'selected' | 'all'>('selected');
   const [showSouvenirs, setShowSouvenirs] = useState(false);
   const [showNight, setShowNight] = useState(false);
-  const stops = DAY_STOPS[day];
+  const stops = useMemo(() => localizeStops(tx, DAY_STOPS_SEED[day]), [day, tx]);
   const [selectedId, setSelectedId] = useState(stops[0].id);
   const [locationPermission, setLocationPermission] = useState<'checking' | 'undetermined' | 'granted' | 'denied'>(Platform.OS === 'web' ? 'granted' : 'checking');
   const [requestingLocation, setRequestingLocation] = useState(false);
@@ -156,16 +166,16 @@ export default function Map() {
     }
   }
   const routes = useMemo(() => routeScope === 'all'
-    ? (Object.keys(DAY_STOPS) as Array<keyof typeof DAY_STOPS>).map((key) => ({ id: key, color: DAY_COLORS[key], stops: DAY_STOPS[key] }))
-    : [{ id: day, color: DAY_COLORS[day], stops }], [day, routeScope, stops]);
+    ? (Object.keys(DAY_STOPS_SEED) as Array<keyof typeof DAY_STOPS_SEED>).map((key) => ({ id: key, color: DAY_COLORS[key], stops: localizeStops(tx, DAY_STOPS_SEED[key]) }))
+    : [{ id: day, color: DAY_COLORS[day], stops }], [day, routeScope, stops, tx]);
   const points = useMemo(() => [
-    ...(showSouvenirs ? [{ id: 'souvenir', label: '선물', color: color.text.eyebrow, stops: EXTRA_STOPS.souvenir }] : []),
-    ...(showNight ? [{ id: 'night', label: '야경', color: color.brand.navy, stops: EXTRA_STOPS.night }] : []),
-  ], [showNight, showSouvenirs]);
+    ...(showSouvenirs ? [{ id: 'souvenir', label: tx('선물', 'Souvenirs'), color: color.text.eyebrow, stops: localizeStops(tx, EXTRA_STOPS_SEED.souvenir) }] : []),
+    ...(showNight ? [{ id: 'night', label: tx('야경', 'Night views'), color: color.brand.navy, stops: localizeStops(tx, EXTRA_STOPS_SEED.night) }] : []),
+  ], [showNight, showSouvenirs, tx]);
 
   const selectDay = (nextDay: 'DAY 1' | 'DAY 2') => {
     setDay(nextDay);
-    setSelectedId(DAY_STOPS[nextDay][0].id);
+    setSelectedId(DAY_STOPS_SEED[nextDay][0].id);
   };
   const selectStopFromMap = useCallback((id: string) => {
     setSelectedId(id);
@@ -177,13 +187,13 @@ export default function Map() {
     });
   }, []);
 
-  const LayerControls = () => <View accessibilityLabel="지도 겹쳐 보기" style={[styles.layerPanel, width <= 599 && styles.layerSheet]}>
-    <View style={styles.layerHeading}><View><Text variant="caption" weight="bold" color={color.text.eyebrow}>겹쳐 보기</Text><Text variant="caption" color={color.text.muted}>지도에 함께 볼 정보를 골라요</Text></View><Text variant="caption" weight="bold">{routeScope === 'all' ? '전체 동선' : day}</Text></View>
+  const LayerControls = () => <View accessibilityLabel={tx('지도 겹쳐 보기', 'Map overlays')} style={[styles.layerPanel, width <= 599 && styles.layerSheet]}>
+    <View style={styles.layerHeading}><View><Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx('겹쳐 보기', 'Overlays')}</Text><Text variant="caption" color={color.text.muted}>{tx('지도에 함께 볼 정보를 골라요', 'Choose what to show on the map')}</Text></View><Text variant="caption" weight="bold">{routeScope === 'all' ? tx('전체 동선', 'All routes') : day}</Text></View>
     <View style={styles.layerOptions}>
-      <Pressable accessibilityRole="radio" accessibilityState={{ checked: routeScope === 'selected' }} onPress={() => setRouteScope('selected')} style={[styles.layerChip, routeScope === 'selected' && styles.layerChipActive]}><Text variant="caption" weight="bold" color={routeScope === 'selected' ? color.text.onAction : color.text.body}>선택 날짜만</Text></Pressable>
-      <Pressable accessibilityRole="radio" accessibilityState={{ checked: routeScope === 'all' }} onPress={() => setRouteScope('all')} style={[styles.layerChip, routeScope === 'all' && styles.layerChipActive]}><Text variant="caption" weight="bold" color={routeScope === 'all' ? color.text.onAction : color.text.body}>전체 동선</Text></Pressable>
-      <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: showSouvenirs }} onPress={() => setShowSouvenirs((value) => !value)} style={[styles.layerChip, showSouvenirs && styles.layerChipActive]}><Text variant="caption" weight="bold" color={showSouvenirs ? color.text.onAction : color.text.body}>기념품샵</Text></Pressable>
-      <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: showNight }} onPress={() => setShowNight((value) => !value)} style={[styles.layerChip, showNight && styles.layerChipActive]}><Text variant="caption" weight="bold" color={showNight ? color.text.onAction : color.text.body}>야경 명소</Text></Pressable>
+      <Pressable accessibilityRole="radio" accessibilityState={{ checked: routeScope === 'selected' }} onPress={() => setRouteScope('selected')} style={[styles.layerChip, routeScope === 'selected' && styles.layerChipActive]}><Text variant="caption" weight="bold" color={routeScope === 'selected' ? color.text.onAction : color.text.body}>{tx('선택 날짜만', 'Selected day only')}</Text></Pressable>
+      <Pressable accessibilityRole="radio" accessibilityState={{ checked: routeScope === 'all' }} onPress={() => setRouteScope('all')} style={[styles.layerChip, routeScope === 'all' && styles.layerChipActive]}><Text variant="caption" weight="bold" color={routeScope === 'all' ? color.text.onAction : color.text.body}>{tx('전체 동선', 'All routes')}</Text></Pressable>
+      <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: showSouvenirs }} onPress={() => setShowSouvenirs((value) => !value)} style={[styles.layerChip, showSouvenirs && styles.layerChipActive]}><Text variant="caption" weight="bold" color={showSouvenirs ? color.text.onAction : color.text.body}>{tx('기념품샵', 'Souvenir shops')}</Text></Pressable>
+      <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: showNight }} onPress={() => setShowNight((value) => !value)} style={[styles.layerChip, showNight && styles.layerChipActive]}><Text variant="caption" weight="bold" color={showNight ? color.text.onAction : color.text.body}>{tx('야경 명소', 'Night view spots')}</Text></Pressable>
     </View>
     {routeScope === 'all' ? <View style={styles.legend}><Text variant="caption" color={DAY_COLORS['DAY 1']}>● DAY 1</Text><Text variant="caption" color={DAY_COLORS['DAY 2']}>● DAY 2</Text></View> : null}
   </View>;
@@ -192,8 +202,8 @@ export default function Map() {
     <Screen scroll wide>
       <View style={styles.headerRow}>
         <View>
-          <Text variant="caption">{day} · {stops.length}곳</Text>
-          <Text variant="display" weight="bold" style={styles.title}>여행 지도</Text>
+          <Text variant="caption">{tx(`${day} · ${stops.length}곳`, `${day} · ${stops.length} places`)}</Text>
+          <Text variant="display" weight="bold" style={styles.title}>{tx('여행 지도', 'Trip map')}</Text>
         </View>
         <View accessibilityRole="tablist" style={styles.dayToggle}>
           {(['DAY 1', 'DAY 2'] as const).map((option) => (
@@ -207,11 +217,11 @@ export default function Map() {
       {locationPermission !== 'granted' && (
         <PermissionRationale
           icon="📍"
-          title="현재 위치로 길을 안내할까요?"
-          description="여행 중 가까운 장소와 출발 경로를 안내할 때만 위치를 사용해요. 허용하지 않아도 일정 지도는 볼 수 있어요."
+          title={tx('현재 위치로 길을 안내할까요?', 'Use your location to guide you?')}
+          description={tx('여행 중 가까운 장소와 출발 경로를 안내할 때만 위치를 사용해요. 허용하지 않아도 일정 지도는 볼 수 있어요.', 'We only use your location to guide you to nearby places and starting routes during your trip. You can still view the itinerary map without allowing it.')}
           denied={locationPermission === 'denied'}
           busy={locationPermission === 'checking' || requestingLocation}
-          actionLabel="현재 위치 사용"
+          actionLabel={tx('현재 위치 사용', 'Use current location')}
           onRequest={() => void requestLocation()}
         />
       )}
@@ -223,15 +233,15 @@ export default function Map() {
       {width <= 599 ? <LayerControls /> : null}
 
       <View style={styles.stopsList}>
-        <Text variant="title" weight="bold" style={styles.masterTitle}>선택 날짜 장소</Text>
-        {stops.map((stop) => <Pressable nativeID={`map-stop-${stop.id}`} accessibilityRole="button" accessibilityState={{ selected: selectedId === stop.id }} onPress={() => setSelectedId(stop.id)} key={stop.id} style={[styles.stopRow, selectedId === stop.id && styles.stopRowSelected]}><View style={styles.stopMarker}><Text variant="caption" weight="bold" color={color.text.onAction}>{stop.number}</Text></View><Text variant="body" weight="bold" style={styles.stopName}>{stop.name}</Text><Text variant="caption" color={color.text.muted}>지도에서 보기</Text></Pressable>)}
+        <Text variant="title" weight="bold" style={styles.masterTitle}>{tx('선택 날짜 장소', 'Places for the selected day')}</Text>
+        {stops.map((stop) => <Pressable nativeID={`map-stop-${stop.id}`} accessibilityRole="button" accessibilityState={{ selected: selectedId === stop.id }} onPress={() => setSelectedId(stop.id)} key={stop.id} style={[styles.stopRow, selectedId === stop.id && styles.stopRowSelected]}><View style={styles.stopMarker}><Text variant="caption" weight="bold" color={color.text.onAction}>{stop.number}</Text></View><Text variant="body" weight="bold" style={styles.stopName}>{stop.name}</Text><Text variant="caption" color={color.text.muted}>{tx('지도에서 보기', 'View on map')}</Text></Pressable>)}
       </View>
 
-      <Text variant="title" weight="bold" style={styles.sectionTitle}>실측 경로 비교</Text>
+      <Text variant="title" weight="bold" style={styles.sectionTitle}>{tx('실측 경로 비교', 'Measured route comparison')}</Text>
 
       <View style={styles.comparisons}><ComparisonCard route={SHADE_ROUTE} /><ComparisonCard route={WHEELCHAIR_ROUTE} /></View>
 
-      <View style={styles.unknownNote}><Text variant="caption" weight="bold" color={color.text.muted}>UNKNOWN</Text><Text variant="caption" style={styles.unknownBody}>일부 구간은 데이터가 없어 판정하지 않았습니다. 모르는 것을 아는 척하지 않습니다.</Text></View>
+      <View style={styles.unknownNote}><Text variant="caption" weight="bold" color={color.text.muted}>UNKNOWN</Text><Text variant="caption" style={styles.unknownBody}>{tx('일부 구간은 데이터가 없어 판정하지 않았습니다. 모르는 것을 아는 척하지 않습니다.', "Some segments weren't judged due to missing data. We don't pretend to know what we don't.")}</Text></View>
     </Screen>
   );
 }
