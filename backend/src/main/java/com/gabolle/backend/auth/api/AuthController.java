@@ -274,6 +274,53 @@ public class AuthController {
 				resolveRequestId(requestId));
 	}
 
+	/**
+	 * 🔴 아래 셋은 S15P21E201-689 가 실수로 지웠던 것을 되살린 것이다 (2026-09-07).
+	 *
+	 * <p>지워진 뒤 앱에서 구글·네이버·카카오 버튼을 누르면 첫 요청인 챌린지 발급이 실패해 "이메일 또는
+	 * 비밀번호가 올바르지 않아요" 만 떴다. 매핑이 없으면 Spring 이 /error 로 넘기는데 그 경로는 공개
+	 * 목록에 없어서 404 가 아니라 <b>401 로 나간다</b> — 앱은 401 을 전부 비밀번호 오류로 바꿔
+	 * 보여주므로 원인이 화면에 드러나지 않았다. 웹 세션 갱신·로그아웃도 같이 사라져 있었다.
+	 *
+	 * <p>{@link AuthControllerRoutesPresentTest} 가 이 셋의 존재를 못으로 박는다.
+	 */
+	@PostMapping("/web/refresh")
+	public ApiResponse<AuthTokenResponse> webRefresh(
+			@RequestHeader(value = "X-Request-Id", required = false) String requestId,
+			@RequestHeader(value = "X-Device-Id", required = false) String deviceId,
+			HttpServletRequest request, HttpServletResponse response) {
+		String refreshToken = findCookie(request);
+		if (refreshToken == null || refreshToken.isBlank()) {
+			throw new AuthException("INVALID_REFRESH_TOKEN", "웹 refresh cookie가 없습니다.", HttpStatus.UNAUTHORIZED);
+		}
+		AuthTokenService.IssuedTokens tokens = tokenService.refresh(refreshToken, deviceId);
+		response.addHeader("Set-Cookie", webAuthCookieService.issue(tokens.refreshToken()).toString());
+		return ApiResponse.success(webResponse(tokens), resolveRequestId(requestId));
+	}
+
+	@PostMapping("/web/logout")
+	public ResponseEntity<Void> webLogout(
+			@RequestParam(defaultValue = "false") boolean allDevices,
+			HttpServletRequest request, HttpServletResponse response) {
+		response.addHeader("Set-Cookie", webAuthCookieService.clear().toString());
+		String refreshToken = findCookie(request);
+		if (refreshToken != null && !refreshToken.isBlank()) {
+			tokenService.logout(refreshToken, allDevices);
+		}
+		return ResponseEntity.noContent().build();
+	}
+
+	@PostMapping("/oauth/{provider}/challenge")
+	public ApiResponse<OAuthChallengeService.IssuedChallenge> oauthChallenge(@PathVariable String provider,
+			@Valid @RequestBody OAuthChallengeRequest request,
+			@RequestHeader(value = "X-Request-Id", required = false) String requestId) {
+		AuthProvider authProvider = AuthProvider.valueOf(provider.toUpperCase(Locale.ROOT));
+		return ApiResponse.success(
+				oAuthChallengeService.issue(authProvider, request.redirectUri(), request.codeChallenge(),
+						request.codeChallengeMethod(), request.deviceId()),
+				resolveRequestId(requestId));
+	}
+
 	private String resolveRequestId(String requestId) {
 		return requestId == null || requestId.isBlank() ? UUID.randomUUID().toString() : requestId;
 	}
