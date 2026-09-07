@@ -1,6 +1,6 @@
 plugins {
 	id 'java'
-	id 'org.springframework.boot' version '4.0.0'
+	id 'org.springframework.boot' version '4.0.8'
 	id 'io.spring.dependency-management' version '1.1.7'
 }
 
@@ -23,6 +23,12 @@ repositories {
 dependencyLocking {
 	lockAllConfigurations()
 }
+
+// S15P21E201-680 — Spring Boot 4.0.8 이 관리하는 Tomcat 은 11.0.24 인데, 인증 우회 등
+// CVSS 9.8 짜리 셋(GHSA-9xv2-5v5q-p794 · GHSA-gcx9-497g-6cp6 · GHSA-h3x4-894j-xpx5)이
+// 11.0.25 에서만 고쳐졌다(Maven Central 확인, 2026-09-07). Spring Boot 의 다음 판을
+// 기다리지 않고 이 좌표만 강제로 올린다.
+ext['tomcat.version'] = '11.0.25'
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
