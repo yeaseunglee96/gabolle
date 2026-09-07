@@ -10,14 +10,16 @@ import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { createCompanionInvite, type CompanionInvite, type CompanionRole } from '@/trip/collaboration';
+import { useI18n } from '@/i18n';
 
-const ROLES: { value: CompanionRole; title: string; description: string }[] = [
-  { value: 'EDITOR', title: '함께 편집', description: '일정의 장소와 순서를 같이 바꿀 수 있어요.' },
-  { value: 'VIEWER', title: '보기만 허용', description: '일정을 변경하지 않고 확인만 할 수 있어요.' },
+const ROLES: { value: CompanionRole; titleKo: string; titleEn: string; descriptionKo: string; descriptionEn: string }[] = [
+  { value: 'EDITOR', titleKo: '함께 편집', titleEn: 'Edit together', descriptionKo: '일정의 장소와 순서를 같이 바꿀 수 있어요.', descriptionEn: 'Can change places and order in the itinerary together.' },
+  { value: 'VIEWER', titleKo: '보기만 허용', titleEn: 'View only', descriptionKo: '일정을 변경하지 않고 확인만 할 수 있어요.', descriptionEn: 'Can view the itinerary without changing it.' },
 ];
 
 export default function TripShare() {
   const router = useRouter();
+  const { tx, locale } = useI18n();
   const { id } = useLocalSearchParams<{ id?: string }>();
   const { accessToken, ready } = useAuth();
   const [role, setRole] = useState<CompanionRole>('EDITOR');
@@ -32,27 +34,27 @@ export default function TripShare() {
     try {
       const created = await createCompanionInvite(id, role, accessToken);
       setInvite(created);
-      await NativeShare.share({ title: '가볼래 부산 여행 초대', message: `부산 여행 일정에 초대할게요.\n${created.inviteUrl}`, url: created.inviteUrl });
+      await NativeShare.share({ title: tx('가볼래 부산 여행 초대', 'GABOLLE Busan trip invite'), message: tx(`부산 여행 일정에 초대할게요.\n${created.inviteUrl}`, `You're invited to a Busan trip itinerary.\n${created.inviteUrl}`), url: created.inviteUrl });
     } catch (cause) {
-      setError(cause instanceof ApiClientError ? cause.message : '초대 링크를 만들지 못했어요. 잠시 후 다시 시도해 주세요.');
+      setError(cause instanceof ApiClientError ? cause.message : tx('초대 링크를 만들지 못했어요. 잠시 후 다시 시도해 주세요.', 'Could not create the invite link. Please try again shortly.'));
     } finally {
       setCreating(false);
     }
   }
 
   return <Screen scroll wide style={styles.screen}>
-    <View style={styles.topBar}><Pressable accessibilityRole="button" accessibilityLabel="이전 화면으로 이동" onPress={() => router.canGoBack() ? router.back() : router.replace('/trips')} style={({ pressed }) => [styles.back, pressed && styles.pressed]}><Text variant="title" weight="bold">‹</Text></Pressable><BrandLogoLink href="/home" imageStyle={styles.logo} /><View style={styles.spacer} /></View>
-    <View style={styles.heading}><Text variant="eyebrow" weight="bold">TRIP TOGETHER</Text><Text variant="display" weight="bold">동행자를 초대해요</Text><Text color={color.text.body}>역할을 먼저 고르면 7일 동안 사용할 수 있는 초대 링크를 만들어요.</Text></View>
+    <View style={styles.topBar}><Pressable accessibilityRole="button" accessibilityLabel={tx('이전 화면으로 이동', 'Go back')} onPress={() => router.canGoBack() ? router.back() : router.replace('/trips')} style={({ pressed }) => [styles.back, pressed && styles.pressed]}><Text variant="title" weight="bold">‹</Text></Pressable><BrandLogoLink href="/home" imageStyle={styles.logo} /><View style={styles.spacer} /></View>
+    <View style={styles.heading}><Text variant="eyebrow" weight="bold">TRIP TOGETHER</Text><Text variant="display" weight="bold">{tx('동행자를 초대해요', 'Invite a companion')}</Text><Text color={color.text.body}>{tx('역할을 먼저 고르면 7일 동안 사용할 수 있는 초대 링크를 만들어요.', 'Pick a role first, and we’ll create an invite link valid for 7 days.')}</Text></View>
 
-    {!ready && <View accessibilityLiveRegion="polite" style={styles.stateCard}><Text weight="bold">로그인 상태를 확인하고 있어요.</Text></View>}
-    {ready && !accessToken && <View style={styles.stateCard}><Text variant="title" weight="bold">로그인이 필요한 기능이에요</Text><Text color={color.text.body}>초대 링크는 여행 소유자와 권한을 확인한 뒤 만들 수 있어요.</Text><Button label="로그인하기" onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: `/${id}/share` } })} /></View>}
+    {!ready && <View accessibilityLiveRegion="polite" style={styles.stateCard}><Text weight="bold">{tx('로그인 상태를 확인하고 있어요.', 'Checking sign-in status.')}</Text></View>}
+    {ready && !accessToken && <View style={styles.stateCard}><Text variant="title" weight="bold">{tx('로그인이 필요한 기능이에요', 'Sign-in required for this feature')}</Text><Text color={color.text.body}>{tx('초대 링크는 여행 소유자와 권한을 확인한 뒤 만들 수 있어요.', "We'll verify the trip owner and permissions before creating the invite link.")}</Text><Button label={tx('로그인하기', 'Sign in')} onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: `/${id}/share` } })} /></View>}
 
     {ready && accessToken && <>
-      <View accessibilityRole="radiogroup" accessibilityLabel="초대할 동행자의 역할" style={styles.roleList}>{ROLES.map((item) => { const selected = item.value === role; return <Pressable key={item.value} accessibilityRole="radio" accessibilityState={{ selected }} onPress={() => { setRole(item.value); setInvite(null); setError(''); }} style={({ pressed }) => [styles.roleCard, selected && styles.roleSelected, pressed && styles.pressed]}><View style={[styles.radio, selected && styles.radioSelected]}>{selected && <View style={styles.radioDot} />}</View><View style={styles.roleCopy}><Text variant="title" weight="bold">{item.title}</Text><Text color={color.text.body}>{item.description}</Text></View></Pressable>; })}</View>
-      <View style={styles.notice}><Text variant="caption" weight="bold">초대 전 확인</Text><Text variant="caption" color={color.text.body}>링크를 받은 사람만 참여할 수 있어요. 링크는 7일 뒤 만료되며, 참여자와 최근 변경 내용은 서버 협업 조회 API가 연결되면 표시합니다.</Text></View>
-      <Button label={creating ? '초대 링크 만드는 중…' : `${role === 'EDITOR' ? '편집자' : '열람자'} 초대 링크 만들기`} disabled={creating || !id} onPress={() => void createInvite()} />
-      {error && <View accessibilityRole="alert" style={styles.errorCard}><Text weight="bold" color={color.state.danger}>초대 링크를 만들지 못했습니다</Text><Text color={color.text.body}>{error}</Text><Button label="다시 시도" variant="ghost" onPress={() => void createInvite()} /></View>}
-      {invite && <View accessibilityLiveRegion="polite" style={styles.successCard}><Text weight="bold" color={color.state.success}>초대 링크를 만들었어요</Text><Text selectable color={color.text.body}>{invite.inviteUrl}</Text><Text variant="caption" color={color.text.muted}>만료: {new Date(invite.expiresAt).toLocaleString('ko-KR')}</Text><Button label="공유 창 다시 열기" variant="ghost" onPress={() => void NativeShare.share({ message: invite.inviteUrl, url: invite.inviteUrl })} /></View>}
+      <View accessibilityRole="radiogroup" accessibilityLabel={tx('초대할 동행자의 역할', 'Role for the companion to invite')} style={styles.roleList}>{ROLES.map((item) => { const selected = item.value === role; return <Pressable key={item.value} accessibilityRole="radio" accessibilityState={{ selected }} onPress={() => { setRole(item.value); setInvite(null); setError(''); }} style={({ pressed }) => [styles.roleCard, selected && styles.roleSelected, pressed && styles.pressed]}><View style={[styles.radio, selected && styles.radioSelected]}>{selected && <View style={styles.radioDot} />}</View><View style={styles.roleCopy}><Text variant="title" weight="bold">{tx(item.titleKo, item.titleEn)}</Text><Text color={color.text.body}>{tx(item.descriptionKo, item.descriptionEn)}</Text></View></Pressable>; })}</View>
+      <View style={styles.notice}><Text variant="caption" weight="bold">{tx('초대 전 확인', 'Before you invite')}</Text><Text variant="caption" color={color.text.body}>{tx('링크를 받은 사람만 참여할 수 있어요. 링크는 7일 뒤 만료되며, 참여자와 최근 변경 내용은 서버 협업 조회 API가 연결되면 표시합니다.', 'Only people with the link can join. It expires in 7 days; participants and recent changes will show once the server collaboration API is connected.')}</Text></View>
+      <Button label={creating ? tx('초대 링크 만드는 중…', 'Creating invite link…') : tx(`${role === 'EDITOR' ? '편집자' : '열람자'} 초대 링크 만들기`, `Create ${role === 'EDITOR' ? 'editor' : 'viewer'} invite link`)} disabled={creating || !id} onPress={() => void createInvite()} />
+      {error && <View accessibilityRole="alert" style={styles.errorCard}><Text weight="bold" color={color.state.danger}>{tx('초대 링크를 만들지 못했습니다', 'Could not create the invite link')}</Text><Text color={color.text.body}>{error}</Text><Button label={tx('다시 시도', 'Try again')} variant="ghost" onPress={() => void createInvite()} /></View>}
+      {invite && <View accessibilityLiveRegion="polite" style={styles.successCard}><Text weight="bold" color={color.state.success}>{tx('초대 링크를 만들었어요', 'Invite link created')}</Text><Text selectable color={color.text.body}>{invite.inviteUrl}</Text><Text variant="caption" color={color.text.muted}>{tx(`만료: ${new Date(invite.expiresAt).toLocaleString(locale)}`, `Expires: ${new Date(invite.expiresAt).toLocaleString(locale)}`)}</Text><Button label={tx('공유 창 다시 열기', 'Reopen share sheet')} variant="ghost" onPress={() => void NativeShare.share({ message: invite.inviteUrl, url: invite.inviteUrl })} /></View>}
     </>}
   </Screen>;
 }
