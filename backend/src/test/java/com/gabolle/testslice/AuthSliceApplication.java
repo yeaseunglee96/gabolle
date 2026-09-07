@@ -40,7 +40,11 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 		"com.gabolle.backend.trip.infra",
 		"com.gabolle.backend.itinerary.infra",
 		"com.gabolle.backend.recommendation.domain",
-		"com.gabolle.backend.event.domain"
+		"com.gabolle.backend.event.domain",
+		// 🔴 2026-09-07 (S15P21E201-188) — 계정 삭제 미리보기가 story 도 JPQL 로 센다
+		// (AccountDeletionService.preview). 위 문단이 경고한 바로 그 실패가 실제로 났다 —
+		// CI 가 UnknownEntityException 으로 잡았다.
+		"com.gabolle.backend.story.domain"
 })
 @EnableJpaRepositories(basePackages = {
 		"com.gabolle.backend.auth.repository",
