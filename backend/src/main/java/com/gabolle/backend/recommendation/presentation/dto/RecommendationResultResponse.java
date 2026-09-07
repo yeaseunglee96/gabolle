@@ -28,7 +28,17 @@ public record RecommendationResultResponse(
 		 * 더하지 않고 건너뛴다 — 그래서 이 값은 "적어도 이만큼"이지 정확한 총합이 아닐 수
 		 * 있다. 구간이 하나도 없거나(일정이 아직 없음) 전부 값이 없으면 {@code null}이다.
 		 */
-		Integer estimatedTravelMinutes) {
+		Integer estimatedTravelMinutes,
+		/**
+		 * 🔴 이 결과를 만든 추천 요청의 정본 키 — 2026-09-07 추가 (S15P21E201-735).
+		 *
+		 * <p>이 화면에서 저장·제외를 누르면 앱이 행동 이벤트를 보내는데, 그 이벤트는
+		 * {@code requestId} 로만 "무엇을 보여줬고 그중 무엇을 골랐나" 와 이어진다(-542 14장).
+		 * 이 칸이 없던 동안 앱은 <b>이을 열쇠를 받을 방법이 없는 채로</b> 그 열쇠를 요구받았다.
+		 *
+		 * <p>결과가 실패({@code FAILED})여도 채운다 — 실패한 요청도 그 요청이다.
+		 */
+		String requestId) {
 
 	public record Item(
 			/** {@code place_id}. */

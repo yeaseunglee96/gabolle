@@ -217,8 +217,8 @@ class EventIngestServiceTest {
     // ── 입구에서 막는 것 ─────────────────────────────────────────
 
     @Test
-    @DisplayName("🔴 requestId 가 없으면 거부한다 (API-07)")
-    void requestIdIsMandatory() {
+    @DisplayName("🔴 추천 축 이벤트는 requestId 가 없으면 거부한다 (API-07)")
+    void requestIdIsMandatoryOnTheRecommendationAxis() {
         assertThatThrownBy(() -> this.service.ingestFromClient(UUID.randomUUID(),
                 EventType.RECOMMENDATION_IMPRESSION, 1, null, null, null, at("2026-09-03T11:59:00Z"), Map.of()))
                 .isInstanceOf(IllegalArgumentException.class)

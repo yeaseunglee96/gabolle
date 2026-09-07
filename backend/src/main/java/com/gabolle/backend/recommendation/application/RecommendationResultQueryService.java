@@ -96,7 +96,7 @@ public class RecommendationResultQueryService {
 			String errorMessage = (jobStatus == JobStatus.FAILED) ? job.getErrorCode() : null;
 			return new RecommendationResultResponse(
 					"FAILED", List.of(), itineraryId, job.getFallbackMode(), List.of(), errorMessage,
-					0, null);
+					0, null, job.getRequestId().toString());
 		}
 
 		List<RecommendationCandidate> returnedCandidates = this.candidateRepository
@@ -141,7 +141,7 @@ public class RecommendationResultQueryService {
 
 		return new RecommendationResultResponse(
 				status, items, itineraryId, job.getFallbackMode(), List.copyOf(conflicts), null,
-				items.size(), estimatedTravelMinutes(itineraryId));
+				items.size(), estimatedTravelMinutes(itineraryId), job.getRequestId().toString());
 	}
 
 	/**
