@@ -10,13 +10,21 @@ import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
 import { TabBar } from '@/components/TabBar';
 import { Text } from '@/components/Text';
+import { Toggle } from '@/components/Toggle';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
+import { useBehaviorConsent } from '@/personalization/behaviorConsent';
 import { usePlan } from '@/plan/PlanProvider';
 import { loadTrips } from '@/trip/trips';
 
 function InfoRow({ label, value, onPress, disabled = false }: { label: string; value: string; onPress?: () => void; disabled?: boolean }) {
   return <Pressable accessibilityRole={onPress ? 'button' : undefined} accessibilityState={{ disabled }} disabled={disabled || !onPress} onPress={onPress} style={({ pressed }) => [styles.row, pressed && styles.rowPressed, disabled && styles.rowDisabled]}><Text weight="bold">{label}</Text><Text variant="caption" color={disabled ? color.text.muted : color.text.body}>{value}</Text></Pressable>;
+}
+
+// 처음 켜는 자리는 첫 체크인 화면이고, 여기는 **언제든 끄는 자리**다. 끄는 길이 설정 안쪽
+// 어딘가에만 있으면 사용자는 못 찾고, 못 찾으면 켠 적 없는 사람처럼 취급된다.
+function ConsentRow({ label, description, value, onValueChange }: { label: string; description: string; value: boolean; onValueChange: (next: boolean) => void }) {
+  return <View style={styles.consentRow}><View style={styles.consentCopy}><Text weight="bold">{label}</Text><Text variant="caption" color={color.text.muted}>{description}</Text></View><Toggle value={value} onValueChange={onValueChange} /></View>;
 }
 
 export default function Me() {
@@ -25,6 +33,7 @@ export default function Me() {
   const { user, accessToken, signOut, updateProfile, deleteAccount } = useAuth();
   const { language, tx } = useI18n();
   const plan = usePlan();
+  const { enabled: behaviorPersonalization, setEnabled: setBehaviorPersonalization } = useBehaviorConsent();
   const visualPreview = __DEV__ && preview === 'ui';
   const profileOwner = user?.userId ?? (visualPreview ? 'preview' : null);
   const [editing, setEditing] = useState(visualPreview);
@@ -122,6 +131,12 @@ export default function Me() {
       <InfoRow label={tx('여행 조건 관리', 'Trip preferences')} value={tx('여행 만들기에서 수정', 'Edit while planning')} disabled />
       <InfoRow label={tx('연결 계정', 'Connected accounts')} value={tx('서버 기능 준비 중', 'Server feature pending')} disabled />
       <InfoRow label={tx('개인화 데이터 관리', 'Personalization data')} value={tx('서버 기능 준비 중', 'Server feature pending')} disabled />
+      <ConsentRow
+        label={tx('행동으로 추천 다듬기', 'Tune recommendations from my activity')}
+        description={tx('저장·제외·일정 수정·체크인 후기를 보고 추천 순서를 바꿔요. 이 선택은 이 기기에 저장돼요.', 'We reorder recommendations using your saves, exclusions, itinerary edits, and check-in reviews. This choice is stored on this device.')}
+        value={behaviorPersonalization}
+        onValueChange={setBehaviorPersonalization}
+      />
     </View>
     <View style={styles.group}>
       <InfoRow label={tx('이용약관', 'Terms of Service')} value="›" onPress={() => router.push('/legal/terms')} />
@@ -182,6 +197,8 @@ const styles = StyleSheet.create({
   group: { marginTop: spacing[4], overflow: 'hidden', borderRadius: radius.lg, backgroundColor: color.surface.card },
   row: { minHeight: 62, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[3], paddingHorizontal: spacing[4], borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: '#e8e4dd' },
   rowPressed: { opacity: 0.7, backgroundColor: color.surface.tint }, rowDisabled: { opacity: 0.58 },
+  consentRow: { minHeight: 62, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[3], paddingHorizontal: spacing[4], paddingVertical: spacing[3] },
+  consentCopy: { flex: 1, gap: spacing[1] },
   notice: { marginTop: spacing[4], lineHeight: 20 }, logout: { marginTop: 'auto', marginBottom: spacing[4], borderColor: color.brand.orange },
   dangerZone: { gap: spacing[2], marginBottom: spacing[4], padding: spacing[4], borderWidth: 1, borderColor: color.state.dangerBg, borderRadius: radius.lg, backgroundColor: color.state.dangerBg },
   deleteEntry: { minHeight: 48, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.card },

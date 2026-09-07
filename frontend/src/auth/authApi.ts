@@ -1,4 +1,19 @@
 import { apiRequest, ApiClientError } from '@/api/client';
+import { loadBehaviorConsent } from '@/personalization/behaviorConsent';
+
+// 가입 요청에 실을 행동 개인화 동의. 값을 코드에 박지 않고 사용자가 정한 것을 읽는다.
+//
+// 🔴 서버는 behaviorPersonalizationEnabled 가 true 면 consents 에도
+//    BEHAVIOR_PERSONALIZATION: true 가 있어야 가입을 받는다(ConsentPolicy). 둘을 같이 만든다.
+// 🔴 이 값이 서버로 가는 유일한 순간이 가입이다. 가입 뒤에 토글을 바꾸면 그 변경은
+//    기기에만 남는다 — 서버에 동의를 바꿀 API 가 아직 없다.
+async function behaviorPersonalizationConsent() {
+  const enabled = await loadBehaviorConsent();
+  return {
+    behaviorPersonalizationEnabled: enabled,
+    extraConsents: enabled ? { BEHAVIOR_PERSONALIZATION: true } : {},
+  };
+}
 
 export type SignupLanguage = 'KO' | 'EN';
 
@@ -40,7 +55,8 @@ export type OAuthLinkRequiredResult = {
 };
 export type OAuthCompleteResult = OAuthLoginResult | OAuthSignupRequiredResult | OAuthLinkRequiredResult;
 
-export function signup(input: SignupInput) {
+export async function signup(input: SignupInput) {
+  const { behaviorPersonalizationEnabled, extraConsents } = await behaviorPersonalizationConsent();
   return apiRequest<Registration>('/api/v1/auth/signup', { method: 'POST', body: {
     email: input.email.trim(),
     password: input.password,
@@ -50,8 +66,9 @@ export function signup(input: SignupInput) {
     consents: {
       TERMS_OF_SERVICE: input.termsAccepted,
       PRIVACY_POLICY: input.privacyAccepted,
+      ...extraConsents,
     },
-    behaviorPersonalizationEnabled: false,
+    behaviorPersonalizationEnabled,
   } });
 }
 
@@ -86,10 +103,11 @@ export function completeOAuth(provider: OAuthProvider, input: {
   });
 }
 
-export function completeOAuthSignup(input: {
+export async function completeOAuthSignup(input: {
   signupTicket: string; displayName: string; language: SignupLanguage; ageGateAccepted: boolean;
   deviceId?: string; termsAccepted: boolean; privacyAccepted: boolean;
 }) {
+  const { behaviorPersonalizationEnabled, extraConsents } = await behaviorPersonalizationConsent();
   return apiRequest<OAuthLoginResult>('/api/v1/auth/oauth/signup', {
     method: 'POST', skipUnauthorizedHandling: true, body: {
       signupTicket: input.signupTicket,
@@ -97,8 +115,8 @@ export function completeOAuthSignup(input: {
       language: input.language,
       ageGateAccepted: input.ageGateAccepted,
       deviceId: input.deviceId,
-      consents: { TERMS_OF_SERVICE: input.termsAccepted, PRIVACY_POLICY: input.privacyAccepted },
-      behaviorPersonalizationEnabled: false,
+      consents: { TERMS_OF_SERVICE: input.termsAccepted, PRIVACY_POLICY: input.privacyAccepted, ...extraConsents },
+      behaviorPersonalizationEnabled,
     },
   });
 }
