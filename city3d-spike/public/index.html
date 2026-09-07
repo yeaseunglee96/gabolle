@@ -532,8 +532,10 @@ function seeded(seed) {
 //    두 곳에 숫자를 적으면 낮과 밤에 다른 건물이 무늬를 갖게 된다.
 //    전에는 25 m 였고 서면 표본 24,420동 중 19.3% 만 걸렸다. 6 m 는 2층 언저리다.
 const FACADE_MIN_H = 6;
-// 낮 파사드 겹 넷. setHour 가 밤낮을 뒤집을 때 이 목록을 쓴다.
-const DAY_FACADE_LAYERS = ['bld-day-shop', 'bld-day-office', 'bld-day-home', 'bld-day-plain'];
+// 낮에만 켜지는 겹 전부. setHour 가 밤낮을 뒤집을 때 이 목록을 쓴다.
+const DAY_FACADE_LAYERS = ['bld-day-shop', 'bld-day-office', 'bld-day-home', 'bld-day-plain', 'bld-shopfront'];
+// 1층 상가띠의 높이(m). 한 층 높이다 — 건축물대장의 층별 높이는 타일에 없어서 이 한 값을 쓴다.
+const SHOP_FLOOR_M = 4.2;
 
 // 아파트 — 세로 8줄 × 가로 12층. 한 세로줄이 한 집이라 같이 켜진다.
 function windowsHome() {
@@ -645,6 +647,30 @@ function dayOffice() {
       rect(0, y, SIZE, h, [132, 148, 163]);              // 띠창
       for (let x = 0; x < SIZE; x += mullion) rect(x, y, 1, h, [188, 199, 209]);  // 세로 창틀
       rect(0, y + h, SIZE, Math.max(1, Math.round(ch) - h), [205, 214, 222]);     // 층 사이 벽
+    }
+  });
+}
+
+// 1층 상가띠 (S15P21E201-728) — 동네 상가의 **맨 아래 한 층**에만 따로 얹는 무늬.
+//
+// 🔴 세로로 고르게 만든다. 이 무늬가 덮는 것은 땅에서 4.2 m 까지, 즉 무늬 그림의 아주
+//    얇은 가로 조각 하나다. 그런데 그 조각이 그림의 **어느 높이에서 잘리는지는 우리가
+//    못 정한다** (타일마다 다른 값이 더해진다 — 위 '낮 파사드' 설명). 그래서 위아래가
+//    다른 그림을 넣으면 건물마다 다른 조각이 나온다. 세로로 고르면 어디를 잘라도 같다.
+//
+// 그래서 가로 줄이 아니라 **세로 통유리**로 만든다. 위층은 층마다 가로로 긴 창이고
+// 1층은 바닥부터 천장까지 통유리다 — 실제 상가가 그렇고, 두 무늬가 가로/세로로 갈려서
+// 층 하나만 달라진 것이 눈에 바로 들어온다.
+function shopFront() {
+  return makeTexture((rect) => {
+    rect(0, 0, SIZE, SIZE, [200, 192, 182]);            // 기둥·문틀
+    const rnd = seeded(59);
+    const panes = 9;                                     // 통유리 아홉 짝
+    const pw = SIZE / panes;
+    for (let c = 0; c < panes; c++) {
+      const v = Math.round(rnd() * 16);
+      rect(Math.round(c * pw) + 2, 0, Math.max(1, Math.round(pw) - 3), SIZE,
+           [96 + v, 100 + v, 104 + v]);                  // 안을 들여다보는 유리는 벽보다 훨씬 어둡다
     }
   });
 }
@@ -1128,6 +1154,7 @@ function buildEverything() {
     map.addImage('day-shop', dayShop());
     map.addImage('day-office', dayOffice());
     map.addImage('day-plain', dayPlain());
+    map.addImage('shopfront', shopFront());
   });
 
   // 지형 — 그늘 계산하려고 받아 둔 땅 높이 타일이 그대로 쓰인다.
@@ -1293,7 +1320,7 @@ function buildEverything() {
     'bld-day-home': ['day-home', ['match', ['get', 'use'], APT, true, false]],
     'bld-day-plain': ['day-plain', ['match', ['get', 'use'], [...SHOP, ...OFFICE, ...APT], false, true]],
   };
-  for (const id of DAY_FACADE_LAYERS) {
+  for (const id of Object.keys(DAY_FACADE)) {
     const [img, useFilter] = DAY_FACADE[id];
     map.addLayer({
       id,
@@ -1313,6 +1340,40 @@ function buildEverything() {
       },
     });
   }
+  });
+
+  // ── 1층 상가띠 (S15P21E201-728) ─────────────────────────────────
+  // 도보 시점에서 눈에 들어오는 건물은 대부분 낮은 동네 상가다. 그리고 상가는 1층과 위층이
+  // 전혀 다르게 생겼다 — 1층은 통유리·출입구, 위층은 창문. 무늬 하나를 통째로 바르면
+  // 그 차이가 사라지고, 3층짜리 가게가 3층짜리 사무실과 똑같아 보인다.
+  //
+  // 🔴 **티켓의 설계안(`['step', ['get','lv'], …]` 으로 층수별 무늬 고르기)은 쓰지 않았다.**
+  //    직접 해 봤고 **되기는 된다** — MapLibre 는 fill-extrusion-pattern 에 데이터 기반 식을
+  //    받아 주고, 층수에 따라 건물마다 다른 그림이 실제로 걸렸다 (2026-09-07 실측).
+  //    그런데 그것은 **건물 한 동에 그림 하나**를 고르는 것이지 1층과 위층을 가르지 못한다.
+  //    그림 한 장은 벽을 위아래로 되풀이하며 덮고, 어느 높이에서 시작할지도 우리가 못 정한다.
+  //    "1층만 다르게" 는 무늬 안에서 되는 일이 아니라 **겹을 하나 더 세워야 하는 일**이다.
+  //
+  // 그래서 같은 발자국 위에 땅에서 4.2 m 까지만 올라오는 겹을 하나 더 세운다.
+  // 위층 무늬는 가로줄, 1층 무늬는 세로 통유리라 층 하나만 달라진 것이 바로 읽힌다.
+  step('1층 상가띠', () => {
+    map.addLayer({
+      id: 'bld-shopfront',
+      type: 'fill-extrusion',
+      source: 'bld',
+      'source-layer': 'building',
+      minzoom: AERIAL_FADE_START,
+      filter: ['all', ['>', ['get', 'h'], FACADE_MIN_H], ['match', ['get', 'use'], SHOP, true, false], NOT_LANDMARK],
+      layout: { visibility: 'none' },
+      paint: {
+        'fill-extrusion-pattern': 'shopfront',
+        'fill-extrusion-base': 0,
+        // 지금 조건(h > 6 m)에서는 늘 4.2 지만, 문턱을 더 내리는 날 4 m 짜리 건물 지붕 위로
+        // 띠가 삐져나오지 않게 막아 둔다.
+        'fill-extrusion-height': ['min', SHOP_FLOOR_M, ['get', 'h']],
+        'fill-extrusion-opacity': byFadeZoom(0, 1),
+      },
+    });
   });
 
   // 다리 — 건물 데이터에는 교량이 한 동도 없다. 그건 건축물대장이기 때문이다.
