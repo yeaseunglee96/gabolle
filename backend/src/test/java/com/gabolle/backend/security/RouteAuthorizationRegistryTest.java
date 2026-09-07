@@ -1,0 +1,453 @@
+package com.gabolle.backend.security;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.lang.annotation.Annotation;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.core.annotation.AnnotatedElementUtils;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+/**
+ * S15P21E201-672 — <b>모든 경로가 인가 정책을 명시하고 있는지</b>를 재는 검사.
+ *
+ * <h2>🔴 이 테스트가 막는 것</h2>
+ * 인가는 엔드포인트를 <b>하나 빠뜨리면</b> 뚫린다. 그런데 빠뜨렸다는 사실은 아무 테스트도
+ * 빨갛게 만들지 않는다 — 없는 검사는 실패하지 않기 때문이다. 이 저장소가 실제로 그랬다.
+ * 여행·일정 API 가 {@code X-User-Id} 헤더로 사용자를 정해 인가가 우회되던 것(`-607`·`-610`)은
+ * 사람이 손으로 찔러 보다 발견했고, 그때까지 어떤 테스트도 그것을 잡지 않았다.
+ *
+ * <p>그래서 이 테스트는 기능을 재지 않고 <b>빠뜨림을 재는다.</b> 컨트롤러의 모든 경로를 클래스
+ * 경로에서 열거해 아래 {@code POLICY} 표와 대조하고, 표에 없는 경로가 하나라도 있으면
+ * 실패한다. 새 엔드포인트를 만든 사람은 <b>그 경로의 인가 정책과 근거를 여기에 적어야</b>
+ * 빌드를 통과할 수 있다.
+ *
+ * <h2>왜 Spring 컨텍스트를 띄우지 않는가</h2>
+ * 컨트롤러 대부분에 {@code @Profile({"db","dev"})} 가 붙어 있어서, 프로필과 DB 없이 컨텍스트를
+ * 띄우면 그 경로들이 <b>매핑에 아예 나타나지 않는다.</b> 그러면 이 검사가 "빠진 것이 없다" 고
+ * 말하면서 실제로는 절반을 안 본 상태가 된다 — <b>있는 것만 세는 검사는 없는 것을 못 잡는다.</b>
+ * 그래서 클래스 경로를 직접 훑어 애너테이션을 읽는다. DB 도 프로필도 필요 없고, 프로필 조건과
+ * 무관하게 전부 보인다.
+ *
+ * <h2>정책 다섯 가지</h2>
+ * <ul>
+ *   <li>{@code PRE_AUTH} — 로그인 <b>전에</b> 부르는 인증 흐름 자체. 열려 있는 것이 정상이고
+ *       보호는 안쪽에 있다(연속 실패 잠금, 1회용 티켓, 비밀번호 확인)</li>
+ *   <li>{@code PUBLIC_TOKEN} — 로그인 없이 열려 있고, <b>추측 불가능한 표·키를 아는 사람만</b>
+ *       실제로 무언가를 받는다</li>
+ *   <li>{@code OWNED} — 요청자가 그 자원의 주인(또는 편집 권한자)이어야 한다.
+ *       <b>남의 것을 부르면 2xx 가 나오면 안 된다</b></li>
+ *   <li>{@code OTHER_USER_OK} — 남의 자원을 보는 것이 <b>기능 자체</b>다(프로필 보기, 팔로우).
+ *       여기서 위험은 거부되지 않는 것이 아니라 <b>보여선 안 될 것이 섞이는 것</b>이다</li>
+ *   <li>{@code AUTHENTICATED_ONLY} — 로그인만 하면 누구나 같은 답을 받는다. 자원에 주인이 없다</li>
+ * </ul>
+ *
+ * <p>🔴 이 표는 <b>정책이 실제로 지켜지는지</b>를 재지 않는다. 그건 표의 두 번째 칸이 가리키는
+ * 테스트들이 재고, 이 검사는 "어느 경로도 정책 없이 존재하지 않는다" 하나만 본다. 둘을 섞으면
+ * 이 파일이 거대한 통합 테스트가 되어 아무도 안 고친다.
+ */
+class RouteAuthorizationRegistryTest {
+
+	private static final String BASE_PACKAGE = "com.gabolle.backend";
+
+	enum Policy {
+
+		PRE_AUTH, PUBLIC_TOKEN, OWNED, OTHER_USER_OK, AUTHENTICATED_ONLY
+	}
+
+	private static final Map<String, Map.Entry<Policy, String>> POLICY = policies();
+
+	@Test
+	@DisplayName("🔴 인가 정책이 적혀 있지 않은 경로가 없다 — 새 엔드포인트를 만들면 여기에 적어야 한다")
+	void everyRouteHasAPolicy() {
+		Set<String> unclassified = new TreeSet<>(discoverRoutes());
+		unclassified.removeAll(POLICY.keySet());
+
+		assertThat(unclassified)
+				.withFailMessage("""
+						인가 정책이 없는 경로가 있습니다. 이 파일의 POLICY 표에 경로와 정책, 그리고
+						근거(OWNED 면 남의 것을 거부하는지 재는 테스트 이름)를 적어 주세요.
+						정책 다섯 가지의 뜻은 이 클래스 javadoc 에 있습니다.
+
+						%s""".formatted(String.join("\n", unclassified)))
+				.isEmpty();
+	}
+
+	@Test
+	@DisplayName("표에만 있고 코드에는 없는 경로가 없다 — 지운 엔드포인트가 남아 있으면 근거가 낡는다")
+	void tableHasNoStaleEntries() {
+		Set<String> stale = new TreeSet<>(POLICY.keySet());
+		stale.removeAll(discoverRoutes());
+
+		assertThat(stale)
+				.withFailMessage("코드에 없는 경로가 표에 남아 있습니다. 지워 주세요.%n%s"
+						.formatted(String.join("\n", stale)))
+				.isEmpty();
+	}
+
+	@Test
+	@DisplayName("모든 항목에 근거가 적혀 있다 — 근거 없는 분류는 분류가 아니다")
+	void everyEntryHasRationale() {
+		List<String> missing = new ArrayList<>();
+		POLICY.forEach((route, entry) -> {
+			if (entry.getValue() == null || entry.getValue().isBlank()) {
+				missing.add(route);
+			}
+		});
+		assertThat(missing).isEmpty();
+	}
+
+	@Test
+	@DisplayName("🔴 로그인 없이 열리는 경로의 개수를 고정한다 — 하나 늘리면 이 숫자도 고쳐야 한다")
+	void routesReachableWithoutLoginArePinned() {
+		Set<String> open = routesWith(Policy.PRE_AUTH, Policy.PUBLIC_TOKEN);
+
+		// 🔴 개수를 박아 두는 이유 — 인증 없이 열린 경로가 <b>조용히</b> 늘어나는 것이 이
+		//    시스템에서 가장 비싼 실수다. 숫자를 박아 두면 하나 열 때마다 이 줄을 고치게 되고,
+		//    그 변경이 diff 에 남아 리뷰에서 보인다. 실제로 이 저장소의 SecurityConfig 주석은
+		//    "/oauth/ 아래 한 마디짜리 경로가 전부 열린다" 는 함정을 적어 두고 있다 — 두 마디로
+		//    두지 않으면 새 경로가 의도 없이 열린다.
+		assertThat(open).hasSize(14);
+
+		// 표를 아는 사람이 실제로 열린 것과 대조할 수 있게 목록도 고정한다
+		assertThat(routesWith(Policy.PUBLIC_TOKEN)).containsExactlyInAnyOrder(
+				"GET /api/v1/shares/{}",
+				"GET /api/v1/uploads/images/{}");
+	}
+
+	@Test
+	@DisplayName("주인 검사가 필요한 경로가 절반을 넘는다 — 이 시스템의 기본은 소유 자원이다")
+	void ownedRoutesAreTheMajority() {
+		// 이 확인은 숫자 자체가 목적이 아니라, 누군가 정책을 대충 AUTHENTICATED_ONLY 로
+		// 몰아넣는 것을 눈에 띄게 하려는 것이다. 소유 자원을 그렇게 분류하면 남의 것을
+		// 거부하는지 아무도 안 재게 된다.
+		assertThat(routesWith(Policy.OWNED).size())
+				.isGreaterThan(routesWith(Policy.AUTHENTICATED_ONLY).size());
+	}
+
+	// ---- 경로 열거 ----
+
+	private static Set<String> routesWith(Policy... policies) {
+		Set<Policy> wanted = Set.of(policies);
+		Set<String> result = new TreeSet<>();
+		POLICY.forEach((route, entry) -> {
+			if (wanted.contains(entry.getKey())) {
+				result.add(route);
+			}
+		});
+		return result;
+	}
+
+	/**
+	 * {@code "GET /api/v1/places/nearby"} 모양의 문자열 집합.
+	 *
+	 * <h3>🔴 Spring 의 컴포넌트 스캐너를 쓰지 않는다</h3>
+	 * {@code ClassPathScanningCandidateComponentProvider} 는 찾은 후보에 <b>조건부 애너테이션을
+	 * 평가</b>한다. {@code @Profile} 도 조건이므로, 활성 프로필이 없는 환경에서 그것을 쓰면
+	 * {@code @Profile({"db","dev"})} 가 붙은 컨트롤러가 <b>전부 걸러진다.</b> 그러면 이 검사가
+	 * 경로 0개를 찾고도 "빠진 것이 없다" 며 초록이 된다 — 이 클래스가 막으려는 것과 정확히 같은
+	 * 종류의 침묵이다.
+	 *
+	 * <p>처음 이 파일을 그렇게 만들었고 실제로 그렇게 통과했다. 그래서 조건 평가를 지나지 않는
+	 * 방식으로 바꿨다 — 클래스 파일을 직접 찾아 리플렉션으로 애너테이션만 읽는다.
+	 */
+	private static Set<String> discoverRoutes() {
+		Set<String> routes = new TreeSet<>();
+		for (Class<?> controller : scanForControllers()) {
+			String base = classLevelPath(controller);
+			for (var method : controller.getDeclaredMethods()) {
+				collect(routes, base, method.getAnnotation(GetMapping.class));
+				collect(routes, base, method.getAnnotation(PostMapping.class));
+				collect(routes, base, method.getAnnotation(PutMapping.class));
+				collect(routes, base, method.getAnnotation(PatchMapping.class));
+				collect(routes, base, method.getAnnotation(DeleteMapping.class));
+			}
+		}
+		// 🔴 하나도 못 찾았으면 그것 자체가 실패다. 이 메서드가 조용히 빈 집합을 돌려주면
+		//    위의 모든 확인이 무의미하게 초록이 된다.
+		if (routes.isEmpty()) {
+			throw new IllegalStateException(
+					"컨트롤러를 하나도 못 찾았다 — 이 검사가 아무것도 보지 않고 있다는 뜻이다");
+		}
+		return routes;
+	}
+
+	/**
+	 * 같은 패키지의 {@link SecurityAllowlistMatchesRoutesTest} 가 쓰는 창구.
+	 *
+	 * <p>경로 열거를 두 곳에 복사하면 한쪽만 고쳐지는 날이 온다. 열거 방식이 이 파일의
+	 * 관심사이므로 여기서만 만들고 빌려 준다.
+	 */
+	static Set<String> discoverRoutesForAudit() {
+		return discoverRoutes();
+	}
+
+	/** {@code com.gabolle.backend} 아래의 {@code @RestController} 클래스 전부. */
+	private static List<Class<?>> scanForControllers() {
+		String pattern = "classpath*:" + BASE_PACKAGE.replace('.', '/') + "/**/*.class";
+		List<Class<?>> controllers = new ArrayList<>();
+		try {
+			for (Resource resource : new PathMatchingResourcePatternResolver().getResources(pattern)) {
+				String name = classNameOf(resource);
+				if (name == null) {
+					continue;
+				}
+				Class<?> type = tryLoad(name);
+				if (type != null && type.isAnnotationPresent(RestController.class)) {
+					controllers.add(type);
+				}
+			}
+		}
+		catch (java.io.IOException e) {
+			throw new IllegalStateException("클래스 경로를 훑지 못했다", e);
+		}
+		return controllers;
+	}
+
+	private static String classNameOf(Resource resource) {
+		try {
+			// URL 은 항상 슬래시를 쓴다 — 윈도우 경로 구분자를 신경 쓸 필요가 없다
+			String path = resource.getURL().toString();
+			int at = path.indexOf(BASE_PACKAGE.replace('.', '/'));
+			if (at < 0 || !path.endsWith(".class") || path.contains("$")) {
+				return null;
+			}
+			return path.substring(at, path.length() - ".class".length()).replace('/', '.');
+		}
+		catch (java.io.IOException e) {
+			return null;
+		}
+	}
+
+	/** 못 읽는 클래스는 건너뛴다 — 테스트 전용 의존성이 없는 클래스가 섞일 수 있다. */
+	private static Class<?> tryLoad(String name) {
+		try {
+			return Class.forName(name, false, RouteAuthorizationRegistryTest.class.getClassLoader());
+		}
+		catch (Throwable e) {
+			return null;
+		}
+	}
+
+	private static String classLevelPath(Class<?> controller) {
+		RequestMapping mapping = AnnotatedElementUtils.findMergedAnnotation(controller, RequestMapping.class);
+		return (mapping == null || mapping.value().length == 0) ? "" : mapping.value()[0];
+	}
+
+	private static void collect(Set<String> routes, String base, Annotation annotation) {
+		if (annotation == null) {
+			return;
+		}
+		String verb;
+		String[] value;
+		if (annotation instanceof GetMapping a) {
+			verb = "GET";
+			value = a.value();
+		}
+		else if (annotation instanceof PostMapping a) {
+			verb = "POST";
+			value = a.value();
+		}
+		else if (annotation instanceof PutMapping a) {
+			verb = "PUT";
+			value = a.value();
+		}
+		else if (annotation instanceof PatchMapping a) {
+			verb = "PATCH";
+			value = a.value();
+		}
+		else if (annotation instanceof DeleteMapping a) {
+			verb = "DELETE";
+			value = a.value();
+		}
+		else {
+			throw new IllegalArgumentException("모르는 매핑: " + annotation);
+		}
+
+		if (value.length == 0) {
+			routes.add(verb + " " + normalize(base));
+			return;
+		}
+		for (String sub : value) {
+			routes.add(verb + " " + normalize(base + sub));
+		}
+	}
+
+	/**
+	 * 경로 변수 이름을 지운다 — {@code {tripId}} 든 {@code {id}} 든 같은 자리다.
+	 *
+	 * <p>이름까지 표에 적으면 변수 이름만 바꿔도 이 테스트가 빨개진다. 그건 인가와 무관한
+	 * 변경이라 잡을 이유가 없다.
+	 */
+	private static String normalize(String path) {
+		return path.replaceAll("\\{\\*?[A-Za-z0-9_]+\\}", "{}").replaceAll("//+", "/");
+	}
+
+	// ---- 표 ----
+
+	private static void put(Map<String, Map.Entry<Policy, String>> m, String route, Policy policy,
+			String rationale) {
+		m.put(route, Map.entry(policy, rationale));
+	}
+
+	private static Map<String, Map.Entry<Policy, String>> policies() {
+		Map<String, Map.Entry<Policy, String>> m = new LinkedHashMap<>();
+
+		// ── 인증 흐름 — 로그인 전에 부른다 ─────────────────────────────────────────
+		put(m, "POST /api/v1/auth/signup", Policy.PRE_AUTH,
+				"가입. 보호는 이메일 인증과 중복 검사에 있다");
+		put(m, "POST /api/v1/auth/login", Policy.PRE_AUTH,
+				"로그인. 보호는 LoginAttemptGuard 의 연속 실패 잠금이다 (-421)");
+		put(m, "POST /api/v1/auth/refresh", Policy.PRE_AUTH,
+				"토큰 갱신. 보호는 리프레시 토큰 자체다");
+		put(m, "POST /api/v1/auth/logout", Policy.PRE_AUTH,
+				"로그아웃. 남의 토큰을 무효화하려면 그 토큰을 알아야 한다");
+		put(m, "GET /api/v1/auth/email-verification", Policy.PRE_AUTH,
+				"메일 링크를 눌러 들어오는 자리라 로그인 상태가 아니다. 보호는 1회용 표다. 실측 302");
+		put(m, "POST /api/v1/auth/email-verification/confirm", Policy.PRE_AUTH,
+				"위와 같은 표를 본문으로 받는 경로");
+		put(m, "POST /api/v1/auth/email-verification/resend", Policy.PRE_AUTH,
+				"재발송. 보호는 발송 빈도 제한이어야 한다 — 지금 있는지 미확인, 아래 '남은 위험' 참고");
+		put(m, "POST /api/v1/auth/password-reset/request", Policy.PRE_AUTH,
+				"비밀번호 재설정 요청. 존재하는 이메일인지 응답으로 알려주지 않아야 한다");
+		put(m, "POST /api/v1/auth/password-reset/confirm", Policy.PRE_AUTH,
+				"재설정 확정. 보호는 1회용 표다");
+		put(m, "POST /api/v1/auth/oauth/{}", Policy.PRE_AUTH,
+				"소셜 인증. 보호는 provider 가 준 인증 코드와 PKCE 다");
+		put(m, "POST /api/v1/auth/oauth/signup", Policy.PRE_AUTH,
+				"2단계 소셜 가입 완료. 보호는 10분짜리 1회용 가입 티켓이다 (-689)");
+		put(m, "POST /api/v1/auth/oauth/link", Policy.PRE_AUTH,
+				"소셜 계정을 기존 계정에 연결. 보호는 연결 티켓 + 기존 계정 비밀번호다 (-690)");
+
+		// ── 인증 흐름 — 로그인 상태에서 부른다 ────────────────────────────────────
+		put(m, "POST /api/v1/auth/oauth/{}/link", Policy.OWNED,
+				"로그인 상태에서 내 계정에 소셜을 붙인다. 대상은 언제나 인증 주체 자신이라 남의 것을 지정할 자리가 없다. OAuthTwoStepSignupIntegrationTest");
+		put(m, "GET /api/v1/auth/me", Policy.OWNED,
+				"대상이 경로에 없고 인증 주체로만 정해진다 — 남의 것을 지정할 방법이 없다");
+		put(m, "PATCH /api/v1/auth/me", Policy.OWNED,
+				"위와 같다. 대상이 인증 주체 자신뿐이다");
+		put(m, "DELETE /api/v1/auth/me", Policy.OWNED,
+				"탈퇴. 대상이 인증 주체 자신뿐이다. AccountDeletionIntegrationTest");
+
+		// ── 여행 ────────────────────────────────────────────────────────────────
+		put(m, "POST /api/v1/trips", Policy.AUTHENTICATED_ONLY,
+				"새로 만드는 것이라 기존 자원의 주인 개념이 없다. 소유자는 인증 주체로 박힌다");
+		put(m, "GET /api/v1/trips/{}", Policy.OWNED,
+				"비회원은 존재를 감춘 404. TripControllerGetTest · ItineraryAccessIntegrationTest");
+		put(m, "GET /api/v1/trips/{}/activity", Policy.OWNED,
+				"참여자만. TripActivityIntegrationTest");
+		put(m, "GET /api/v1/trips/{}/members", Policy.OWNED,
+				"참여자만. TripMemberManagementIntegrationTest");
+		put(m, "POST /api/v1/trips/{}/invites", Policy.OWNED,
+				"OWNER·EDITOR 만 발급. TripInviteIntegrationTest");
+		put(m, "PATCH /api/v1/trips/{}/members/{}", Policy.OWNED,
+				"역할 변경은 OWNER 만. TripMemberManagementIntegrationTest");
+		put(m, "DELETE /api/v1/trips/{}/members/{}", Policy.OWNED,
+				"제거는 OWNER 만(자기 탈퇴는 예외). TripMemberManagementIntegrationTest");
+		put(m, "POST /api/v1/trips/{}/share-links", Policy.OWNED,
+				"공유 주소 발급은 참여자만. ShareLinkIntegrationTest");
+		put(m, "POST /api/v1/trips/{}/recommendation-jobs", Policy.OWNED,
+				"내 여행에만 추천을 요청할 수 있다. RecommendationResultAuthorizationTest");
+
+		// ── 초대·공유 ────────────────────────────────────────────────────────────
+		put(m, "POST /api/v1/trip-invites/{}/accept", Policy.AUTHENTICATED_ONLY,
+				"표를 아는 로그인 사용자가 참여자가 되는 것이 기능이다. 보호는 43글자 난수 표와 7일 만료다. TripInviteIntegrationTest");
+		put(m, "GET /api/v1/shares/{}", Policy.PUBLIC_TOKEN,
+				"로그인 없이 열린다. 표가 43글자 난수이고 개인정보 칸이 응답 record 에 아예 없다 (-332). ShareLinkIntegrationTest");
+		put(m, "POST /api/v1/shares/{}/clone", Policy.AUTHENTICATED_ONLY,
+				"표를 아는 로그인 사용자가 자기 여행으로 복제하는 것이 기능이다. 원본은 안 바뀐다. ShareCloneIntegrationTest");
+
+		// ── 일정 ────────────────────────────────────────────────────────────────
+		put(m, "GET /api/v1/itineraries/{}", Policy.OWNED,
+				"참여자만. ItineraryAccessIntegrationTest");
+		put(m, "GET /api/v1/itineraries/{}/versions", Policy.OWNED,
+				"참여자만. ItineraryVersionListingIntegrationTest");
+		put(m, "POST /api/v1/itineraries/{}/items", Policy.OWNED,
+				"장소 더하기는 편집 권한자만. ItineraryAddItemIntegrationTest (-467)");
+		put(m, "POST /api/v1/itineraries/{}/items/{}/lock", Policy.OWNED,
+				"고정은 편집 권한자만. ItineraryAccessIntegrationTest");
+		put(m, "DELETE /api/v1/itineraries/{}/items/{}/lock", Policy.OWNED,
+				"고정 해제도 같다. ItineraryAccessIntegrationTest");
+		put(m, "POST /api/v1/itineraries/{}/items/{}/remove", Policy.OWNED,
+				"항목 제외는 편집 권한자만. ItineraryRecalculationIntegrationTest");
+		put(m, "POST /api/v1/itineraries/{}/recalculate", Policy.OWNED,
+				"재계산 접수는 편집 권한자만. ItineraryRecalculationIntegrationTest");
+		put(m, "POST /api/v1/itineraries/{}/revert", Policy.OWNED,
+				"되돌리기는 편집 권한자만. ItineraryRevertIntegrationTest");
+
+		// ── 추천 작업 ────────────────────────────────────────────────────────────
+		put(m, "GET /api/v1/jobs/{}", Policy.OWNED,
+				"남의 작업 번호와 없는 번호를 같은 404 로 답한다. RecommendationResultAuthorizationTest");
+		put(m, "GET /api/v1/recommendation-jobs/{}", Policy.OWNED,
+				"위와 같은 소유자 검사를 공유한다. RecommendationResultAuthorizationTest");
+
+		// ── 기록·피드·사용자 ─────────────────────────────────────────────────────
+		put(m, "POST /api/v1/stories", Policy.AUTHENTICATED_ONLY,
+				"새로 쓰는 것이라 주인 개념이 없다. 작성자는 인증 주체로 박힌다");
+		put(m, "GET /api/v1/stories", Policy.AUTHENTICATED_ONLY,
+				"내가 볼 수 있는 것만 나오는 목록이다. 공개 범위 판정이 canView 다. StoryFeedIntegrationTest");
+		put(m, "GET /api/v1/stories/{}", Policy.OTHER_USER_OK,
+				"남의 기록을 보는 것이 기능이다. PRIVATE 는 작성자 아닌 사람에게 404. StoryCrudIntegrationTest");
+		put(m, "PATCH /api/v1/stories/{}", Policy.OWNED,
+				"수정은 작성자만 — requireAuthor. StoryCrudIntegrationTest");
+		put(m, "DELETE /api/v1/stories/{}", Policy.OWNED,
+				"삭제는 작성자만 — requireAuthor. StoryCrudIntegrationTest");
+		put(m, "GET /api/v1/feed/home", Policy.AUTHENTICATED_ONLY,
+				"내 피드다. 대상이 인증 주체로만 정해진다. FeedControllerTest");
+		put(m, "GET /api/v1/feed/community", Policy.AUTHENTICATED_ONLY,
+				"공개 기록만 모은 목록이다. FeedControllerTest");
+		put(m, "GET /api/v1/users/{}/profile", Policy.OTHER_USER_OK,
+				"남의 프로필 보기가 기능이다. 위험은 비공개 항목이 섞이는 것. FollowIntegrationTest");
+		put(m, "GET /api/v1/users/{}/stories", Policy.OTHER_USER_OK,
+				"남의 기록 목록 보기가 기능이다. visibleScopesOf 가 팔로우 여부로 범위를 가른다. FollowIntegrationTest");
+		put(m, "PUT /api/v1/users/{}/follow", Policy.OTHER_USER_OK,
+				"남을 팔로우하는 것이 기능이다. 주체는 인증에서만 읽어 남의 이름으로 팔로우할 수 없다. FollowIntegrationTest");
+		put(m, "DELETE /api/v1/users/{}/follow", Policy.OTHER_USER_OK,
+				"언팔로우도 같다. 주체는 인증에서만 읽는다. FollowIntegrationTest");
+
+		// ── 업로드 ──────────────────────────────────────────────────────────────
+		put(m, "POST /api/v1/uploads/story-image", Policy.AUTHENTICATED_ONLY,
+				"새로 올리는 것이라 주인 개념이 없다. 올린 사람은 인증 주체로 박히고, 남이 올린 주소를 자기 기록에 붙이면 400 이다. ImageUploadIntegrationTest");
+		put(m, "GET /api/v1/uploads/images/{}", Policy.PUBLIC_TOKEN,
+				"피드 화면이 <img> 로 부르고 그 요청에는 Authorization 이 안 붙는다. 키가 UUID 라 추측 불가. ImageUploadIntegrationTest");
+
+		// ── 장소·기준 데이터 ─────────────────────────────────────────────────────
+		put(m, "GET /api/v1/places", Policy.AUTHENTICATED_ONLY,
+				"장소는 공용 기준 데이터라 사용자별로 답이 다르지 않다. PlaceSearchIntegrationTest");
+		put(m, "GET /api/v1/places/facets", Policy.AUTHENTICATED_ONLY,
+				"갈래별 건수. 공용 기준 데이터다. PlaceFacetInterestTagIntegrationTest");
+		put(m, "GET /api/v1/places/nearby", Policy.AUTHENTICATED_ONLY,
+				"좌표만으로 답이 정해진다 — 컨트롤러 주석이 그렇게 적고 있다. NearbyFacetAndRadiusTest");
+		put(m, "GET /api/v1/places/{}", Policy.AUTHENTICATED_ONLY,
+				"공용 기준 데이터. 다만 itineraryInclusion 은 요청자별로 갈리므로 그 자리는 인증 주체로만 읽는다. PlaceDetailIntegrationTest");
+		put(m, "GET /api/v1/places/{}/taxi-card", Policy.AUTHENTICATED_ONLY,
+				"장소 하나를 다른 모양으로 보여주는 것이라 주인이 없다. TaxiCardServiceIntegrationTest");
+		put(m, "GET /api/v1/festivals", Policy.AUTHENTICATED_ONLY,
+				"기간으로 거른 공용 기준 데이터. FestivalIntegrationTest");
+		put(m, "POST /api/v1/places/candidates", Policy.AUTHENTICATED_ONLY,
+				"추천 엔진이 쓰는 후보 조회. 조건만으로 답이 정해진다. PlaceCandidateIntegrationTest");
+		put(m, "GET /api/v1/origins", Policy.AUTHENTICATED_ONLY,
+				"출발지 검색. 검색어만으로 답이 정해진다. OriginSearchServiceTest");
+		put(m, "GET /api/v1/events/catalog", Policy.AUTHENTICATED_ONLY,
+				"이벤트 종류 목록. 공용 기준 데이터다");
+		put(m, "POST /api/v1/events", Policy.AUTHENTICATED_ONLY,
+				"행동 이벤트 적재. 주체는 인증에서 읽고 본문의 사용자 값을 신뢰하지 않아야 한다 — 아래 '남은 위험' 참고. EventIngestServiceTest");
+
+		return m;
+	}
+}

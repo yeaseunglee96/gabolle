@@ -46,6 +46,16 @@ public class SecurityConfig {
 				// S15P21E201-330 — 공유 조회는 표(token)를 아는 사람이 로그인 없이 그대로 연다. 표가
 				//    43글자 난수라 추측할 수 없고, 발급(POST)·복제는 여전히 인증이 필요하다.
 				.requestMatchers(HttpMethod.GET, "/api/v1/shares/*").permitAll()
+				// 🔴 S15P21E201-672 — 2026-09-07 인가 점검에서 이 목록에서 줄 셋을 지웠다.
+				//    "/api/v1/auth/web/refresh" · "/api/v1/auth/web/logout" ·
+				//    "/api/v1/auth/oauth/*/challenge" 를 열어 두고 있었는데 <b>그 경로를 매핑하는
+				//    컨트롤러가 없다.</b> 웹 쿠키는 별도 경로가 아니라 아래 /auth/login ·
+				//    /auth/refresh 가 Set-Cookie 로 처리한다(AuthController 참고).
+				//
+				//    지금은 뚫을 것이 없어 무해했지만, 나중에 누가 그 경로로 컨트롤러를 만들면
+				//    인증 여부를 결정한 적도 없이 첫 커밋부터 열린 상태가 된다 — 그 MR 은 이 파일을
+				//    건드리지 않으므로 리뷰에도 안 보인다. SecurityAllowlistMatchesRoutesTest 가
+				//    이제 그것을 막는다.
 				.requestMatchers(
 						"/api/v1/auth/signup",
 						"/api/v1/auth/email-verification",
@@ -56,15 +66,12 @@ public class SecurityConfig {
 						"/api/v1/auth/logout",
 						"/api/v1/auth/password-reset/request",
 						"/api/v1/auth/password-reset/confirm",
-						"/api/v1/auth/web/refresh",
-						"/api/v1/auth/web/logout",
 						// 🔴 이 한 줄이 /oauth/ 아래 한 마디짜리 경로를 <b>전부</b> 연다 — {provider} 뿐 아니라
 						//    S15P21E201-689·-690 이 더한 /oauth/signup·/oauth/link 도 여기 걸린다(그 둘은 아직
 						//    로그인 상태가 아니라서 열려야 맞다. 잠금은 10분짜리 1회용 티켓과, 연결 쪽은 기존
 						//    계정의 비밀번호다). 그러니 /oauth/ 아래에 인증이 필요한 경로를 새로 만들 때는
 						//    /oauth/{provider}/link 처럼 <b>두 마디</b>로 두어야 한다 — 한 마디로 두면 조용히 열린다.
-						"/api/v1/auth/oauth/*",
-						"/api/v1/auth/oauth/*/challenge")
+						"/api/v1/auth/oauth/*")
 				.permitAll()
 				.anyRequest().authenticated());
 		jwtFilter.ifAvailable(filter -> http.addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class));
