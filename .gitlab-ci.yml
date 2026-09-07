@@ -1,16 +1,20 @@
 # axMap CI
 #
-# 네 가지를 한다.
-#   1. 사본   — ci/axmap 이 손으로 바뀌지 않았는가   (ci:vendor)
-#   2. 선점   — claim 없이 고친 것이 들어왔는가      (claims)
-#   3. 자리   — MR 이 한 칸씩 올라가는가             (verify:mr-target)
-#   4. 합의   — 정족수를 채웠는가                    (governance)
+# 세 가지를 한다.
+#   1. 선점   — claim 없이 고친 것이 들어왔는가      (claims)
+#   2. 자리   — MR 이 한 칸씩 올라가는가             (verify:mr-target)
+#   3. 합의   — 정족수를 채웠는가                    (governance)
 #   그리고 머지된 것을 위로 올리고 태그를 붙인다      (promote · version)
 #
-# 1~4 는 모든 MR 에서, 승격과 버전은 머지된 뒤와 스케줄에서 돈다.
+# 1~3 은 모든 MR 에서, 승격과 버전은 머지된 뒤와 스케줄에서 돈다.
+#
+# 🔴 axMap 은 이제 이 저장소 안에 없다. npm 꾸러미 axmap-cli 를 npx 로 부른다.
+#    (npx — 깔지 않고 npm 창고의 프로그램을 그 자리에서 한 번 실행하는 명령)
+#    예전에는 ci/axmap/ 에 사본을 두었는데, 사본은 고칠 때마다 두 곳을 맞춰야 하고
+#    한쪽만 고치면 팀 코드가 한 줄도 안 바뀌었는데 팀이 멈췄다.
 #
 # 🔴 axMap 자기 테스트(npm test · demo · smoke)는 여기 없다. axMap 은 자기
-#    저장소에 있고 그쪽 CI 가 돌린다. 이 저장소에는 **돌아가는 사본**만 있다.
+#    저장소에 있고 그쪽 CI 가 돌린다. 여기서는 npm 판을 부르기만 한다.
 #    여행 서비스 파트(frontend/ · backend/)의 검증은 각 파트가 여기 더한다.
 #
 # 자세한 배경 — 러너가 무엇이고 왜 없으면 pending 인지, 봇 토큰이 왜 필요한지,
@@ -34,31 +38,23 @@ default:
   image: node:20-alpine
   before_script:
     - apk add --no-cache git bash
+    # 🔴 어느 판이 돌았는지 남긴다. 빨개졌을 때 '어제와 판이 다르네' 를 3초에 안다.
+    #
+    #    axmap --version 을 쓰지 않는다 — 그 명령은 버전이 아니라 도움말을 찍는다
+    #    (종료 코드는 0이라 조용히 쓸모없는 줄이 남는다. 실측 2026-09-01).
+    #    창고에 물어보면 latest 가 오늘 무엇으로 풀렸는지가 정확히 나온다.
+    - echo "axmap-cli = $(npm view axmap-cli@$AXMAP_VERSION version)"
 
 stages: [verify, release]
 
-# ── 복사본이 손으로 바뀌지 않았는가 ──────────────────────────────────────────
-#
-# 🔴 `ci/axmap/` 은 axMap 저장소에서 **복사해 온 사본**이다 (벤더링 — 남의 코드를
-#    내 저장소 안에 복사해 두고 그 사본으로 돌리는 것). 아래 잡들이 부르는 것이
-#    전부 그 사본이라, 누가 사본을 직접 고치면 팀 CI 의 동작이 조용히 갈라진다.
-#
-#    이 잡은 그것을 **막지는 못하고 보이게 만든다.** manifest 까지 다시 만들면
-#    통과하지만, 그때는 SOURCE.json 과 manifest.sha256 이 diff 에 떠서 리뷰어가
-#    "업스트림 커밋은 그대로인데 사본만 바뀌었다" 를 본다.
-#    거버넌스 층과 같은 태도다 — 강제 장치가 아니라 부인 불가능성 장치다.
-#
-#    고치는 올바른 방법은 axMap 저장소에서 고치고 vendor 명령을 다시 돌리는 것이다.
-ci:vendor:
-  stage: verify
-  before_script: []
-  script:
-    - node ci/verify-vendor.mjs
-  rules:
-    # ref/ 만 바뀐 MR 에서는 돌지 않는다 — 참고 자료는 사본과 무관하다 (ref/README.md)
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-      changes: ['ci/**/*']
-    - if: $CI_COMMIT_BRANCH =~ /(^|\/)(main|func|dev)$/
+variables:
+  # 🔴 되돌리는 손잡이. 평소에는 latest 라 아무도 안 건드린다.
+  #
+  #    새 판이 팀을 깨면 Settings -> CI/CD -> Variables 에서 AXMAP_VERSION 을
+  #    어제 번호(예: 1.0.0)로 바꾼다. 프로젝트 변수가 여기 적힌 기본값을 이기므로
+  #    커밋도 MR 도 없이 1분 안에 되돌아간다. 고정의 안전을 버리는 것이 아니라
+  #    필요할 때만 꺼내 쓰는 것이다.
+  AXMAP_VERSION: "latest"
 
 # ── 선점 없이 고친 것이 들어왔는가 ───────────────────────────────────────────
 #
@@ -76,7 +72,19 @@ claims:
   variables:
     GIT_DEPTH: 0
   script:
-    - node ci/axmap/bin/axmap.mjs audit --fetch
+    # 🔴 이번에 들어온 커밋만 본다. 이력 전체를 보면 장부가 생기기 전 커밋까지
+    #    위반으로 세어 켠 날부터 영원히 빨갛다.
+    - |
+      if [ -n "${CI_MERGE_REQUEST_DIFF_BASE_SHA:-}" ]; then
+        RANGE="${CI_MERGE_REQUEST_DIFF_BASE_SHA}..${CI_COMMIT_SHA}"
+      else
+        RANGE="${CI_COMMIT_BEFORE_SHA}..${CI_COMMIT_SHA}"
+      fi
+      echo "코드 대조 구간: $RANGE"
+      # axmap audit 내부의 git show 가 기본 quote 설정을 따르므로, 한글 파일명이
+      # 8진수 escape 경로로 바뀌어 claim 과 불일치하지 않게 한다.
+      git config core.quotepath false
+      npx -y axmap-cli@$AXMAP_VERSION audit --fetch --code "$RANGE"
   rules:
     # ref/ 만 바뀐 MR 에서는 돌지 않는다 (ref/README.md)
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
@@ -134,7 +142,7 @@ verify:mr-target:
   stage: verify
   before_script: []
   script:
-    - node ci/axmap/tools/mr-target.mjs
+    - npx -y axmap-cli@$AXMAP_VERSION mr-target
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
 
@@ -158,7 +166,7 @@ governance:
   variables:
     GIT_DEPTH: 0
   script:
-    - node ci/axmap/governance/gate.mjs
+    - npx -y axmap-cli@$AXMAP_VERSION gate
   rules:
     # 🔴 dev 로 올리는 MR 에는 표를 요구하지 않는다.
     #
@@ -209,7 +217,7 @@ version:
     - |
       if [ -z "${AXMAP_BOT_TOKEN:-}" ]; then
         echo "AXMAP_BOT_TOKEN 이 없습니다. 태그를 만들지 않고 계산만 합니다."
-        node ci/axmap/tools/version.mjs next --branch "$CI_COMMIT_BRANCH"
+        npx -y axmap-cli@$AXMAP_VERSION version next --branch "$CI_COMMIT_BRANCH"
         echo ""
         echo "설정하려면: Settings -> Access Tokens 에서 Role=Maintainer 로 토큰을"
         echo "만들고 Settings -> CI/CD -> Variables 의 AXMAP_BOT_TOKEN"
@@ -227,7 +235,7 @@ version:
       git remote set-url origin "https://oauth2:${AXMAP_BOT_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git"
       git config user.name  "axmap-bot"
       git config user.email "axmap-bot@noreply.${CI_SERVER_HOST}"
-      node ci/axmap/tools/version.mjs bump --branch "$CI_COMMIT_BRANCH" --push
+      npx -y axmap-cli@$AXMAP_VERSION version bump --branch "$CI_COMMIT_BRANCH" --push
   rules:
     # MR 에서는 올리지 않는다. 머지되어 브랜치에 들어온 것만 버전을 갖는다.
     - if: $CI_COMMIT_BRANCH =~ /(^|\/)(main|func|dev)$/
@@ -263,6 +271,6 @@ promote:
         echo "  PROMOTE_STEP = part-to-main  (<파트>/main -> main)"
         exit 1
       fi
-    - node ci/axmap/tools/promote.mjs --step "$PROMOTE_STEP"
+    - npx -y axmap-cli@$AXMAP_VERSION promote --step "$PROMOTE_STEP"
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
