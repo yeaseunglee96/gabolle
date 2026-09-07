@@ -15,10 +15,9 @@ import com.gabolle.backend.moderation.domain.StoryReport;
 import com.gabolle.backend.moderation.domain.StoryReportReason;
 import com.gabolle.backend.moderation.presentation.dto.StoryReportRequest;
 import com.gabolle.backend.moderation.repository.StoryReportRepository;
+import com.gabolle.backend.story.application.StoryVisibilityPolicy;
 import com.gabolle.backend.story.domain.Story;
-import com.gabolle.backend.story.domain.UserFollow;
 import com.gabolle.backend.story.repository.StoryRepository;
-import com.gabolle.backend.story.repository.UserFollowRepository;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -61,7 +60,7 @@ public class StoryReportService {
 
 	private final StoryRepository storyRepository;
 
-	private final UserFollowRepository userFollowRepository;
+	private final StoryVisibilityPolicy visibilityPolicy;
 
 	private final Clock clock;
 
@@ -69,10 +68,10 @@ public class StoryReportService {
 	private EntityManager entityManager;
 
 	public StoryReportService(StoryReportRepository storyReportRepository, StoryRepository storyRepository,
-			UserFollowRepository userFollowRepository, Clock clock) {
+			StoryVisibilityPolicy visibilityPolicy, Clock clock) {
 		this.storyReportRepository = storyReportRepository;
 		this.storyRepository = storyRepository;
-		this.userFollowRepository = userFollowRepository;
+		this.visibilityPolicy = visibilityPolicy;
 		this.clock = clock;
 	}
 
@@ -113,32 +112,10 @@ public class StoryReportService {
 			// 이미 운영자가 삭제로 처리했다 — 더 신고할 대상이 없다. 존재를 감춘다(404).
 			throw new StoryNotFoundException(storyId);
 		}
-		if (!canView(story, reporterUserId, now)) {
+		if (!this.visibilityPolicy.canView(story, reporterUserId, now)) {
 			throw new StoryNotFoundException(storyId);
 		}
 		return story;
-	}
-
-	/**
-	 * 🔴 {@code StoryService.canView} 와 같은 규칙이다. 신고 대상도 "볼 수 있는 사람만" 존재를 알 수
-	 * 있어야 한다 — 안 그러면 사적인 기록의 UUID 를 아는 사람이 신고 응답의 200/404 차이로 그 기록이
-	 * 실제로 있는지 알아낼 수 있다. {@code StoryService.canView} 는 그 클래스 안에서만 쓰이는 private
-	 * 메서드라 여기서 재사용할 수 없어(그 파일은 이번 작업의 수정 대상이 아니다) 그대로 옮겨 왔다.
-	 * 두 곳이 갈라질 위험은 있고, 공유 가능한 자리(예: 별도 정책 빈)로 뽑는 것을 후속으로 제안한다.
-	 */
-	private boolean canView(Story story, UUID viewer, Instant now) {
-		if (story.isAuthor(viewer)) {
-			return true;
-		}
-		if (!story.isPublishedAt(now)) {
-			return false;
-		}
-		return switch (story.getVisibility()) {
-			case PUBLIC -> true;
-			case FOLLOWERS ->
-				this.userFollowRepository.existsByKey(new UserFollow.Key(viewer, story.getAuthorUserId()));
-			case PRIVATE -> false;
-		};
 	}
 
 	private boolean insertIgnoringDuplicate(StoryReport report) {
