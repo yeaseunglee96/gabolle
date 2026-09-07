@@ -234,10 +234,16 @@ services:
   airflow-scheduler:
     <<: *airflow-common
     command: scheduler
+    # 🔴 timeout 60s (2026-09-07, S15P21E201-575) — 10s였을 때 scheduler는 실제로
+    #    정상 동작 중인데도(airflow jobs check가 수동으로는 "Found one alive job"
+    #    성공) 계속 unhealthy였다. `airflow jobs check` CLI 자체가 전체 Airflow
+    #    앱 컨텍스트를 콜드스타트로 로딩하는 데 10초를 넘겨서, Docker가 답이
+    #    오기 전에 timeout으로 죽였다 — 기능 장애가 아니라 헬스체크 예산이
+    #    실제 실행 시간보다 짧았던 것(backend Jenkinsfile 헬스체크와 같은 종류).
     healthcheck:
       test: ["CMD-SHELL", "airflow jobs check --job-type SchedulerJob --hostname \"$(hostname)\""]
       interval: 30s
-      timeout: 10s
+      timeout: 60s
       retries: 5
     depends_on:
       airflow-init:
@@ -250,10 +256,12 @@ services:
   airflow-dag-processor:
     <<: *airflow-common
     command: dag-processor
+    # 🔴 timeout 60s — airflow-scheduler와 같은 이유(S15P21E201-575). `airflow
+    #    jobs check`의 콜드스타트가 10초를 넘긴다.
     healthcheck:
       test: ["CMD-SHELL", "airflow jobs check --job-type DagProcessorJob --hostname \"$(hostname)\""]
       interval: 30s
-      timeout: 10s
+      timeout: 60s
       retries: 5
     depends_on:
       airflow-init:
