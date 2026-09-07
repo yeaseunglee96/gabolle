@@ -3,6 +3,8 @@ package com.gabolle.backend.recommendation.application;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
@@ -13,6 +15,9 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.gabolle.backend.itinerary.domain.ItineraryContent;
+import com.gabolle.backend.itinerary.domain.ItineraryLeg;
+import com.gabolle.backend.itinerary.domain.ItineraryRepository;
 import com.gabolle.backend.place.domain.Place;
 import com.gabolle.backend.place.repository.PlaceRepository;
 import com.gabolle.backend.recommendation.domain.ConstraintVerdict;
@@ -54,12 +59,15 @@ public class RecommendationResultQueryService {
 
 	private final PlaceRepository placeRepository;
 
+	private final ItineraryRepository itineraryRepository;
+
 	private final ObjectMapper objectMapper;
 
 	public RecommendationResultQueryService(RecommendationCandidateRepository candidateRepository,
-			PlaceRepository placeRepository, ObjectMapper objectMapper) {
+			PlaceRepository placeRepository, ItineraryRepository itineraryRepository, ObjectMapper objectMapper) {
 		this.candidateRepository = candidateRepository;
 		this.placeRepository = placeRepository;
+		this.itineraryRepository = itineraryRepository;
 		this.objectMapper = objectMapper;
 	}
 
@@ -87,7 +95,8 @@ public class RecommendationResultQueryService {
 			// 않아 늘 null 이다. 그래서 실제 JobStatus.FAILED 일 때만 errorMessage 를 채운다.
 			String errorMessage = (jobStatus == JobStatus.FAILED) ? job.getErrorCode() : null;
 			return new RecommendationResultResponse(
-					"FAILED", List.of(), itineraryId, job.getFallbackMode(), List.of(), errorMessage);
+					"FAILED", List.of(), itineraryId, job.getFallbackMode(), List.of(), errorMessage,
+					0, null);
 		}
 
 		List<RecommendationCandidate> returnedCandidates = this.candidateRepository
@@ -131,7 +140,33 @@ public class RecommendationResultQueryService {
 		String status = anyUnknownData ? "PARTIAL" : "COMPLETED";
 
 		return new RecommendationResultResponse(
-				status, items, itineraryId, job.getFallbackMode(), List.copyOf(conflicts), null);
+				status, items, itineraryId, job.getFallbackMode(), List.copyOf(conflicts), null,
+				items.size(), estimatedTravelMinutes(itineraryId));
+	}
+
+	/**
+	 * 최신 판의 구간(leg) {@code duration_min} 합. 일정이 없거나(itineraryId == null) 구간이
+	 * 하나도 값을 갖지 않으면 {@code null} — 클래스 상단 참고("적어도 이만큼").
+	 */
+	private Integer estimatedTravelMinutes(String itineraryId) {
+		if (itineraryId == null) {
+			return null;
+		}
+		return this.itineraryRepository.findById(itineraryId)
+				.flatMap(itinerary -> this.itineraryRepository.findContent(itineraryId, itinerary.latestVersion()))
+				.map(ItineraryContent::legs)
+				.flatMap(legs -> {
+					boolean anyKnown = legs.stream().anyMatch(leg -> leg.durationMin() != null);
+					if (!anyKnown) {
+						return Optional.<Integer>empty();
+					}
+					int total = legs.stream().map(ItineraryLeg::durationMin)
+							.filter(Objects::nonNull)
+							.mapToInt(Integer::intValue)
+							.sum();
+					return Optional.of(total);
+				})
+				.orElse(null);
 	}
 
 	/**
