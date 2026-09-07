@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useMemo, useState, type ReactNode
 import { Platform } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 import { useRouter } from 'expo-router';
-import { getApiLanguage, setUnauthorizedHandler } from '@/api/client';
+import { getApiLanguage, setRefreshHandler, setUnauthorizedHandler } from '@/api/client';
 import { deleteMe, getMe, login, logoutMobileSession, logoutWebSession, refreshMobileSession, refreshWebSession, updateMe, type AuthTokens, type AuthUser, type SignupLanguage } from './authApi';
 import { useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
 import { clearSavedTrips } from '@/trip/tripLibrary';
@@ -30,7 +30,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const profileLanguage = currentUser.language?.toUpperCase() === 'EN' ? 'en' : currentUser.language?.toUpperCase() === 'KO' ? 'ko' : null;
     if (profileLanguage && profileLanguage !== preferences.language) preferences.setLanguage(profileLanguage);
   };
-  useEffect(() => { setUnauthorizedHandler(() => { clearSession(); router.replace('/sign-in'); }); return () => setUnauthorizedHandler(null); }, [router]);
+  useEffect(() => {
+    setUnauthorizedHandler(() => { clearSession(); router.replace('/sign-in'); });
+    setRefreshHandler(async () => {
+      try {
+        if (Platform.OS === 'web') {
+          const tokens = await refreshWebSession();
+          setAccessToken(tokens.accessToken);
+          applyUser(tokens.user);
+          return tokens.accessToken;
+        }
+        if (!refreshToken) return null;
+        const tokens = await refreshMobileSession(refreshToken);
+        setAccessToken(tokens.accessToken);
+        setRefreshToken(tokens.refreshToken);
+        applyUser(tokens.user);
+        if (tokens.refreshToken) await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, tokens.refreshToken);
+        return tokens.accessToken;
+      } catch {
+        return null;
+      }
+    });
+    return () => { setUnauthorizedHandler(null); setRefreshHandler(null); };
+  }, [router, refreshToken]);
   useEffect(() => {
     let active = true;
     const restore = async () => {
