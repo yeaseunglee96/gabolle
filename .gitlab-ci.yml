@@ -83,26 +83,21 @@ claims:
       changes: ['frontend/**/*', 'backend/**/*', 'ci/**/*', 'governance/**/*',
                 'docs/**/*', '.gitlab-ci.yml', 'CLAUDE.md', 'setup.sh', 'setup.ps1']
 
-# ── 프론트엔드가 실제로 빌드되는가 ─────────────────────────────────────────────
+# ── frontend:build 는 지웠다 (S15P21E201-700) ────────────────────────────────
 #
-# 🔴 위의 claims·verify:mr-target·governance 는 전부 axMap(선점·합의) 층이라
-#    Expo 코드 자체가 실제로 웹 번들로 export 되는지는 아무것도 보지 않는다.
-#    `package.json` 에 build/test 스크립트가 없어서(S15P21E201-269), 이미
-#    검증된 `frontend/Dockerfile` 과 같은 명령(`npx expo export --platform web`)을
-#    그대로 검사에 쓴다.
+# 🔴 다시 넣지 마라. "프론트 빌드 검사가 없네" 로 보이지만 없는 게 아니다.
+#    아래 `frontend:smoke` 가 `npm ci` + `npx expo export --platform web` 을
+#    **똑같이** 하고, 거기에 더해 헤드리스 브라우저로 실제로 열어 본다.
+#    번들이 안 만들어지면 smoke 가 그 자리에서 실패한다 — 검사 강도는 그대로다.
 #
-#    `frontend/` 를 건드리지 않는 MR 은 돌지 않는다.
-frontend:build:
-  stage: verify
-  image: node:20-alpine
-  before_script: []
-  script:
-    - cd frontend
-    - npm ci
-    - npx expo export --platform web
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-      changes: ['frontend/**/*']
+# 왜 지웠나 — 낭비가 아니라 **해로웠다.** 둘 다 stage: verify 라 동시에 돌았고,
+# 4코어 러너에서 Metro 번들러 두 개가 서로를 밀어냈다. 실측(2026-09-07, 잡 4,466개):
+#
+#     러너에 동시 3개일 때  frontend:build 130초
+#     러너에 동시 4개일 때                  247초   ← 정확히 2배
+#     한가한 기계(동시 1개)                 118초
+#
+# 이 잡 하나를 지워 4일치 CI 실행시간의 19.7%(9.4시간)를 회수한다.
 
 # ── 의존성 취약점 스캔 (OWASP A06) ────────────────────────────────────────────
 #
@@ -148,6 +143,21 @@ frontend:smoke:
   script:
     - cd frontend
     - npm ci
+    # 🔴 타입 검사를 여기 넣은 이유 — 이건 원래 CI 에 없던 검사다.
+    #    package.json 에 `typecheck: tsc --noEmit` 이 있는데 .gitlab-ci.yml
+    #    어디에서도 안 불렀다(실측 2026-09-07: tsc·typecheck·verify 0건).
+    #    지운 frontend:build 도 expo export 만 했으므로, 타입은 지금까지
+    #    CI 에서 한 번도 안 봤다.
+    #
+    #    Metro 번들러는 **타입 오류를 무시하고 번들을 만든다.** `user.nmae`
+    #    같은 오타는 번들도 되고 화면도 뜨고, 그 값을 쓰는 순간에만 터진다.
+    #    아래 스모크로도 안 잡히는 자리가 있다.
+    #
+    #    별도 잡으로 안 뺀 이유: 그러면 `npm ci`(69~112초)를 한 번 더 돌리고
+    #    러너 슬롯을 하나 더 먹는다. 그게 바로 frontend:build 를 지운 이유다.
+    #    여기 두면 이미 깔아 둔 node_modules 를 그대로 쓰고, 무거운 번들링
+    #    앞에서 싼 검사가 먼저 실패한다.
+    - npx tsc --noEmit
     - npx expo export --platform web
     - npx serve dist -l 3000 &
     - sleep 2
