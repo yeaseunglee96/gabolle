@@ -43,6 +43,9 @@ public class SecurityConfig {
 				//    부른다. 그 요청에는 Authorization 헤더가 안 붙는다). 키가 UUID 라 추측할 수 없고,
 				//    올리기(POST /api/v1/uploads/story-image)는 여전히 인증이 필요하다.
 				.requestMatchers(HttpMethod.GET, "/api/v1/uploads/images/**").permitAll()
+				// S15P21E201-330 — 공유 조회는 표(token)를 아는 사람이 로그인 없이 그대로 연다. 표가
+				//    43글자 난수라 추측할 수 없고, 발급(POST)·복제는 여전히 인증이 필요하다.
+				.requestMatchers(HttpMethod.GET, "/api/v1/shares/*").permitAll()
 				.requestMatchers(
 						"/api/v1/auth/signup",
 						"/api/v1/auth/email-verification",
