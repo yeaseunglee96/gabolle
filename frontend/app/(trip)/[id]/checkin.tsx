@@ -12,28 +12,34 @@ import { color, radius, spacing } from '@/design/tokens';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { Button } from '@/components/Button';
+import { useI18n } from '@/i18n';
 
 type FeedbackKey = 'sea' | 'alley' | 'photo' | 'local' | 'move' | 'accurate';
 
-const FEEDBACK_OPTIONS: { key: FeedbackKey; label: string }[] = [
-  { key: 'sea', label: '바다 전망' },
-  { key: 'alley', label: '골목 분위기' },
-  { key: 'photo', label: '사진 명소' },
-  { key: 'local', label: '현지 느낌' },
-  { key: 'move', label: '이동 편의' },
-  { key: 'accurate', label: '정보 정확' },
+const FEEDBACK_OPTIONS: { key: FeedbackKey; labelKo: string; labelEn: string }[] = [
+  { key: 'sea', labelKo: '바다 전망', labelEn: 'Sea view' },
+  { key: 'alley', labelKo: '골목 분위기', labelEn: 'Alley atmosphere' },
+  { key: 'photo', labelKo: '사진 명소', labelEn: 'Photo spot' },
+  { key: 'local', labelKo: '현지 느낌', labelEn: 'Local feel' },
+  { key: 'move', labelKo: '이동 편의', labelEn: 'Easy to get around' },
+  { key: 'accurate', labelKo: '정보 정확', labelEn: 'Accurate info' },
 ];
 
-type Accuracy = '정확해요' | '달라졌어요' | '잘 모르겠어요';
-const ACCURACY_OPTIONS: Accuracy[] = ['정확해요', '달라졌어요', '잘 모르겠어요'];
+type Accuracy = 'accurate' | 'changed' | 'unsure';
+const ACCURACY_OPTIONS: { key: Accuracy; labelKo: string; labelEn: string }[] = [
+  { key: 'accurate', labelKo: '정확해요', labelEn: 'Accurate' },
+  { key: 'changed', labelKo: '달라졌어요', labelEn: 'Changed' },
+  { key: 'unsure', labelKo: '잘 모르겠어요', labelEn: 'Not sure' },
+];
 
 const STAR_COUNT = 5;
 
 export default function CheckIn() {
   const router = useRouter();
+  const { tx } = useI18n();
   const [rating, setRating] = useState(5);
   const [feedback, setFeedback] = useState<Set<FeedbackKey>>(() => new Set(['sea', 'alley', 'accurate']));
-  const [accuracy, setAccuracy] = useState<Accuracy>('정확해요');
+  const [accuracy, setAccuracy] = useState<Accuracy>('accurate');
   const [note, setNote] = useState('');
 
   function toggleFeedback(key: FeedbackKey) {
@@ -51,10 +57,10 @@ export default function CheckIn() {
   return (
     <Screen scroll>
       <Text variant="eyebrow" weight="bold">
-        방문 후 · 8월 24일 16:42
+        {tx('방문 후 · 8월 24일 16:42', 'After your visit · Aug 24, 16:42')}
       </Text>
       <Text variant="display" weight="bold" style={styles.title}>
-        여행은 어떠셨나요?
+        {tx('여행은 어떠셨나요?', 'How was your trip?')}
       </Text>
 
       <View style={styles.placeCard}>
@@ -62,19 +68,19 @@ export default function CheckIn() {
         <View style={styles.placeImage} />
         <View style={styles.placeBody}>
           <Text variant="body" weight="bold">
-            흰여울문화마을
+            {tx('흰여울문화마을', 'Huinnyeoul Culture Village')}
           </Text>
           <Text variant="caption" weight="bold" color={color.state.success}>
-            ✓ 위치 기반 방문 인증 완료
+            {tx('✓ 위치 기반 방문 인증 완료', '✓ Location-based visit verified')}
           </Text>
           <Text variant="caption" style={styles.placeTime}>
-            체류 1시간 24분
+            {tx('체류 1시간 24분', 'Stayed 1h 24m')}
           </Text>
         </View>
       </View>
 
       <Text variant="title" weight="bold" style={styles.sectionTitle}>
-        전반적인 만족도
+        {tx('전반적인 만족도', 'Overall satisfaction')}
       </Text>
       <View style={styles.starsRow}>
         {Array.from({ length: STAR_COUNT }, (_, index) => index + 1).map((value) => (
@@ -87,11 +93,12 @@ export default function CheckIn() {
       </View>
 
       <Text variant="title" weight="bold" style={styles.sectionTitle}>
-        어떤 점이 좋았나요?
+        {tx('어떤 점이 좋았나요?', 'What did you like?')}
       </Text>
       <View style={styles.feedbackGrid}>
         {FEEDBACK_OPTIONS.map((option) => {
           const selected = feedback.has(option.key);
+          const label = tx(option.labelKo, option.labelEn);
           return (
             <Pressable
               key={option.key}
@@ -99,7 +106,7 @@ export default function CheckIn() {
               style={[styles.feedbackChip, selected && styles.feedbackChipSelected]}
             >
               <Text variant="caption" weight="bold" color={selected ? color.text.accent : color.text.body}>
-                {selected ? `✓ ${option.label}` : option.label}
+                {selected ? `✓ ${label}` : label}
               </Text>
             </Pressable>
           );
@@ -108,22 +115,22 @@ export default function CheckIn() {
 
       <View style={styles.accuracyCard}>
         <Text variant="body" weight="bold">
-          현장 정보가 실제와 같았나요?
+          {tx('현장 정보가 실제와 같았나요?', 'Did the on-site info match reality?')}
         </Text>
         <Text variant="caption" style={styles.accuracyDesc}>
-          운영시간 · 경사 · 혼잡도
+          {tx('운영시간 · 경사 · 혼잡도', 'Hours · Slope · Crowd level')}
         </Text>
         <View style={styles.accuracyRow}>
           {ACCURACY_OPTIONS.map((option) => {
-            const selected = option === accuracy;
+            const selected = option.key === accuracy;
             return (
               <Pressable
-                key={option}
-                onPress={() => setAccuracy(option)}
+                key={option.key}
+                onPress={() => setAccuracy(option.key)}
                 style={[styles.accuracyOption, selected && styles.accuracyOptionSelected]}
               >
                 <Text variant="caption" weight="bold" color={selected ? color.text.onAction : color.text.body}>
-                  {option}
+                  {tx(option.labelKo, option.labelEn)}
                 </Text>
               </Pressable>
             );
@@ -134,19 +141,19 @@ export default function CheckIn() {
       <View style={styles.noteBox}>
         <TextInput
           style={styles.noteInput}
-          placeholder="다음 여행자에게 도움이 될 한마디"
+          placeholder={tx('다음 여행자에게 도움이 될 한마디', 'A tip for the next traveler')}
           placeholderTextColor={color.text.muted}
           value={note}
           onChangeText={setNote}
           multiline
         />
         <Text variant="caption" weight="medium" color={color.state.success}>
-          여행 종료 전까지 비공개
+          {tx('여행 종료 전까지 비공개', 'Private until the trip ends')}
         </Text>
       </View>
 
       <Button
-        label="후기 저장하기"
+        label={tx('후기 저장하기', 'Save review')}
         variant="field"
         containerStyle={styles.cta}
         onPress={() => router.back()}
