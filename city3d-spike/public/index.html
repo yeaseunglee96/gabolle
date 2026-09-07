@@ -78,6 +78,9 @@
     <button class="view" data-v="광안대교">광안대교</button>
     <button class="view" data-v="해운대">해운대</button>
     <button class="view" data-v="부산항">부산항</button>
+    <button class="view" data-v="남항대교">남항대교</button>
+    <button class="view" data-v="마린시티">마린시티</button>
+    <button class="view" data-v="BIFC">BIFC</button>
   </div>
   <div class="row">
     <label id="t-label">낮 12:00</label>
@@ -103,7 +106,7 @@ const T0 = performance.now();
 // 화면 오른쪽 위에 판 번호를 띄운다. 폰에서는 사진 한 장으로 어느 판인지 알 수 있어야 한다 —
 // 화면 코드와 바다 코드의 판본이 어긋나 건물이 통째로 사라진 적이 있고, 그때 이게 있었으면
 // 바로 알았을 것이다.
-const BUILD_STAMP = '0907-0840';
+const BUILD_STAMP = '0907-1110';
 document.getElementById('build').textContent = '판 ' + BUILD_STAMP;
 
 // 해를 계산할 기준점과 날짜.
@@ -147,6 +150,10 @@ const VIEWS = {
   광안대교: { from: [129.1215, 35.1290], alt: 700, to: [129.1420, 35.1570], toAlt: 80 },
   해운대: { from: [129.1560, 35.1380], alt: 520, to: [129.1600, 35.1650], toAlt: 60 },
   부산항: { from: [129.0480, 35.0700], alt: 900, to: [129.0700, 35.1150], toAlt: 60 },
+  // 랜드마크를 손본 뒤(S15P21E201-685) 그 자리를 바로 확인하려고 셋을 더 뒀다.
+  남항대교: { from: [129.0200, 35.0680], alt: 600, to: [129.0320, 35.0810], toAlt: 40 },
+  마린시티: { from: [129.1500, 35.1450], alt: 500, to: [129.1440, 35.1570], toAlt: 120 },
+  BIFC: { from: [129.0750, 35.1380], alt: 500, to: [129.0665, 35.1469], toAlt: 120 },
 };
 
 function goto(name) {
@@ -291,6 +298,20 @@ function buildingColor(night) {
     130, byUse('high'),
     400, P.top,
   ];
+}
+
+─────────────────────────────────────────────────────
+// 종류(kind)마다 다르다. 주탑은 콘크리트라 밝고, 케이블은 강선이라 조금 어둡다.
+// 광안대교는 밤에 조명이 들어온다. 부산에서 그건 다리가 아니라 랜드마크다.
+// ── 다리 색 ───────────────────────────────────────────────────────
+// 종류(kind)마다 다르다. 주탑은 콘크리트라 밝고, 케이블은 강선이라 조금 어둡다.
+// 광안대교는 밤에 조명이 들어온다. 부산에서 그건 다리가 아니라 랜드마크다.
+// 사장교 케이블(stay)은 흰 피복이라 현수교 주케이블보다 밝다. 어둡게 하면 작은 토막들이 옆면 그늘까지
+// 더해져 검은 삼각형으로 뭉친다 — 실제로 그랬다.
+function bridgeColor(night) {
+  return night
+    ? ['match', ['get', 'kind'], 'pylon', '#7d6a55', 'cable', '#6b5a48', 'stay', '#8a7a66', '#5f5750']
+    : ['match', ['get', 'kind'], 'pylon', '#eceeeb', 'cable', '#9ba4a1', 'stay', '#e6eae8', '#dee2df'];
 }
 
 // ── 창문 무늬 ─────────────────────────────────────────────────────
@@ -580,12 +601,7 @@ function setHour(hour) {
       map.setLayoutProperty(id, 'visibility', night ? 'visible' : 'none');
     }
   }
-  if (map.getLayer('bridge-3d')) {
-    // 광안대교는 밤에 조명이 들어온다. 부산에서 그건 다리가 아니라 랜드마크다.
-    map.setPaintProperty('bridge-3d', 'fill-extrusion-color', night
-      ? ['match', ['get', 'kind'], 'pylon', '#7d6a55', 'cable', '#6b5a48', '#5f5750']
-      : ['match', ['get', 'kind'], 'pylon', '#eceeeb', 'cable', '#9ba4a1', '#dee2df']);
-  }
+  if (map.getLayer('bridge-3d')) map.setPaintProperty('bridge-3d', 'fill-extrusion-color', bridgeColor(night));
   if (map.getLayer('shadow')) {
     // 해가 낮을수록 그림자가 옅고 길어진다 — 빛이 비스듬히 들어와 산란되기 때문이다.
     // 🔴 0.20 으로 시작했더니 화면에서 안 보였다. 밝은 땅색 위에 20% 는 없는 것과 같다.
@@ -744,9 +760,7 @@ map.on('load', () => {
     type: 'fill-extrusion',
     source: 'bridge',
     paint: {
-      'fill-extrusion-color': [
-        'match', ['get', 'kind'], 'pylon', '#eceeeb', 'cable', '#9ba4a1', '#dee2df',
-      ],
+      'fill-extrusion-color': bridgeColor(false),
       'fill-extrusion-base': ['get', 'hb'],
       'fill-extrusion-height': ['get', 'h'],
       'fill-extrusion-opacity': 1,
@@ -755,7 +769,7 @@ map.on('load', () => {
   });
   });
 
-  step('시각과 시점', () => {
+
     setHour(+document.getElementById('time').value);
     goto('광안대교');
   });

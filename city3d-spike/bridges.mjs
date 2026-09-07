@@ -14,8 +14,13 @@
 //
 // 만드는 것 셋:
 //   1) 상판 — 중심선을 폭만큼 부풀린 띠. 조각마다 높이가 다르다
-//   2) 주탑 — OSM 에 실측이 있다. 점이 아니라 **면**으로 들어 있어서 가운데를 구해 쓴다
-//   3) 주케이블 — 주탑 사이로 늘어지는 곡선. 이게 있어야 현수교로 보인다
+//   2) 주탑 — 광안대교는 OSM 에 실측이 있다. 점이 아니라 **면**으로 들어 있어서 가운데를 구해 쓴다.
+//      🔴 부산항대교·남항대교의 주탑은 OSM 에 **없다.** 부산 전역에 주탑 요소가 2개뿐이고 둘 다
+//      광안대교다 (2026-09-07 실측). 그래서 이 둘은 아래 설정에 문헌값을 손으로 박는다.
+//   3) 케이블 — 다리 종류에 따라 모양이 다르다.
+//      현수교(광안대교): 주탑 사이로 **늘어지는 곡선** 하나.
+//      사장교(부산항대교·남항대교): 주탑 꼭대기에서 상판으로 **곧게 뻗는 다발.**
+//      같은 곡선을 쓰면 틀린 그림이 된다. 갈라서 그린다.
 
 import fs from 'node:fs';
 import path from 'node:path';
@@ -34,10 +39,24 @@ const BBOX = { s: 34.95, w: 128.80, n: 35.35, e: 129.30 };
 //   deckM   상판 폭(m)
 //   cruise  바다 위를 지날 때 상판 윗면 높이(m). 배가 지나가야 해서 높다
 //   thick   상판 두께(m). 광안대교는 복층이라 두껍다 — OSM 에도 layer 1·2 가 둘 다 있다
+//   type    'suspension'(현수교) 또는 'cable-stayed'(사장교). 케이블 모양이 갈린다
+//   pylons  OSM 에 주탑이 없는 다리에 손으로 넣는 주탑.
+//             h     주탑 꼭대기 높이(m, 해수면 기준)
+//             span  주경간(m) — 두 주탑 사이 거리. 외곽선 가운데에서 양쪽으로 span/2 에 세운다
+//
+// 🔴 남항대교 주탑 높이는 **확인된 문헌값이 없다** (2026-09-07 조사). 아래 105 m 는 **추정**이다.
+//    근거: 상판 40 m + 주경간의 1/5 (사장교 주탑은 대개 상판 위 높이가 주경간의 1/5 안팎이다).
+//    주경간 320 m 도 기억에 의존한 값이라 미확인이다. 부산항대교의 실측 비율(190−63 = 127 m,
+//    127/540 = 0.235)을 그대로 쓰면 40 + 320×0.235 ≈ 115 m 가 나온다. 실측이 나오면 이 숫자를 바꾼다.
 const BRIDGES = [
-  { show: '광안대교', area: '광안대교', reachM: 3900, deckM: 25, cruise: 34, thick: 12 },
-  { show: '부산항대교', area: '부산항대교', reachM: 1800, deckM: 22, cruise: 60, thick: 7 },
-  { show: '남항대교', area: '남항대교', reachM: 1200, deckM: 20, cruise: 35, thick: 6 },
+  { show: '광안대교', area: '광안대교', reachM: 3900, deckM: 25, cruise: 34, thick: 12, type: 'suspension' },
+  // 부산항대교 — 문헌값: 주탑 190 m · 상판 63 m · 주경간 540 m · 전체 3,331 m · 다이아몬드형 주탑 사장교.
+  // OSM 외곽선(1,120 m)이 사장교 구간(1,114 m)과 맞아서 외곽선 가운데 = 주경간 가운데로 본다.
+  { show: '부산항대교', area: '부산항대교', reachM: 1800, deckM: 22, cruise: 63, thick: 7, type: 'cable-stayed',
+    pylons: { h: 190, span: 540 } },
+  // 남항대교 — 문헌값: 상판 40 m · 전체 1,941 m · 사장교. 주탑 높이는 위 설명대로 **추정 105 m**.
+  { show: '남항대교', area: '남항대교', reachM: 1200, deckM: 20, cruise: 40, thick: 6, type: 'cable-stayed',
+    pylons: { h: 105, span: 320, estimated: true } },
   { show: '을숙도대교', road: '을숙도대로', reachM: 2700, deckM: 22, cruise: 22, thick: 5 },
   { show: '영도대교', area: '영도대교', reachM: 220, deckM: 18, cruise: 12, thick: 4 },
   { show: '부산대교', area: '부산대교', reachM: 260, deckM: 18, cruise: 14, thick: 4 },
@@ -84,6 +103,8 @@ const centroid = (pts) => {
   return [lon, lat];
 };
 const asXY = (el) => el.geometry.map((p) => [p.lon, p.lat]);
+// 파일 크기를 줄인다. 소수 6자리면 약 10 cm 다 — 다리에 그 이상은 필요 없다.
+const r6 = (p) => [+p[0].toFixed(6), +p[1].toFixed(6)];
 
 // ── OSM 에서 받기 (한 번만) ───────────────────────────────────────
 async function fetchOsm() {
@@ -197,6 +218,26 @@ function pointAt(line, cum, s) {
   ];
 }
 
+// 선 위 s 미터 지점에서 다리가 향하는 쪽(단위 벡터, m 단위). 앞뒤로 조금 떨어진 두 점으로 잰다
+function headingAt(line, cum, s, stepM = 4) {
+  const total = cum[cum.length - 1];
+  const a = pointAt(line, cum, Math.max(0, s - stepM));
+  const b = pointAt(line, cum, Math.min(total, s + stepM));
+  const lat = (a[1] + b[1]) / 2;
+  const dx = (b[0] - a[0]) * mPerLon(lat);
+  const dy = (b[1] - a[1]) * M_PER_LAT;
+  const L = Math.hypot(dx, dy) || 1;
+  return [dx / L, dy / L];
+}
+
+// 선 위 s 미터 지점에서 옆으로 lateralM 만큼(왼쪽 +, 오른쪽 −) 비킨 점.
+// 🔴 케이블과 주탑은 전부 이걸로 자리를 잡는다 — 그래야 다리가 휘어도 상판을 따라간다.
+function offsetAt(line, cum, s, lateralM) {
+  const p = pointAt(line, cum, s);
+  const [ux, uy] = headingAt(line, cum, s);
+  return [p[0] + ((-uy * lateralM) / mPerLon(p[1])), p[1] + ((ux * lateralM) / M_PER_LAT)];
+}
+
 const lengthM = (line) => {
   let s = 0;
   for (let i = 1; i < line.length; i++) s += distM(line[i - 1], line[i]);
@@ -212,13 +253,33 @@ function square(center, sizeM) {
     [center[0] - dx, center[1] - dy], [center[0] + dx, center[1] - dy],
     [center[0] + dx, center[1] + dy], [center[0] - dx, center[1] + dy],
     [center[0] - dx, center[1] - dy],
-  ]];
+  ].map(r6)];
+}
+
+// 중심 c 에서 다리 방향(u)으로 alongM, 그 수직으로 acrossM 인 직사각형. 주탑 다리와 가로보에 쓴다
+function box(c, u, alongM, acrossM) {
+  const kx = mPerLon(c[1]);
+  const pt = (a, b) => r6([c[0] + (u[0] * a - u[1] * b) / kx, c[1] + (u[1] * a + u[0] * b) / M_PER_LAT]);
+  const A = alongM / 2, B = acrossM / 2;
+  return [[pt(-A, -B), pt(A, -B), pt(A, B), pt(-A, B), pt(-A, -B)]];
+}
+
+// 두 점 a→b 를 잇는 폭 widthM 의 띠. 케이블 토막 하나가 이것이다
+function ribbon(a, b, widthM) {
+  const lat = (a[1] + b[1]) / 2;
+  const dx = (b[0] - a[0]) * mPerLon(lat);
+  const dy = (b[1] - a[1]) * M_PER_LAT;
+  const L = Math.hypot(dx, dy) || 1;
+  const nx = (-dy / L) * (widthM / 2), ny = (dx / L) * (widthM / 2);
+  const off = (p, sx, sy) => r6([p[0] + sx / mPerLon(lat), p[1] + sy / M_PER_LAT]);
+  return [[off(a, nx, ny), off(b, nx, ny), off(b, -nx, -ny), off(a, -nx, -ny), off(a, nx, ny)]];
 }
 
 // ── 중심선을 폭만큼 부풀려 조각 상판으로 ──────────────────────────
 // 🔴 조각으로 자르는 이유: 화면을 그리는 방식이 도형 하나에 높이 하나만 받는다.
 //    그래서 80 m 마다 잘라 조각마다 높이를 준다. 잘라도 수백 개라 비용은 없다시피 하다.
 //    곡선 구간에서 조각 사이에 아주 작은 틈이 생기는데, 폭 25 m 에 길이 80 m 면 안 보인다.
+//
 function deckChunks(line, cfg) {
   const cum = [0];
   for (let i = 1; i < line.length; i++) cum.push(cum[i - 1] + distM(line[i - 1], line[i]));
@@ -245,7 +306,7 @@ function deckChunks(line, cfg) {
     const L = Math.hypot(dx, dy) || 1;
     const nx = (-dy / L) * halfW;
     const ny = (dx / L) * halfW;
-    const off = (p, sx, sy) => [p[0] + sx / mPerLon(lat), p[1] + sy / M_PER_LAT];
+    const off = (p, sx, sy) => r6([p[0] + sx / mPerLon(lat), p[1] + sy / M_PER_LAT]);
 
     const top = Math.max(topAt((s + e) / 2), 3);
     feats.push({
@@ -257,10 +318,10 @@ function deckChunks(line, cfg) {
       },
     });
   }
-  return { feats, total, cum };
+  return { feats, total, cum, topAt };
 }
 
-// ── 주케이블 ─────────────────────────────────────────────────────
+// ── 주케이블 (현수교) ────────────────────────────────────────────
 // 주탑 두 개 사이로 늘어지는 곡선. 실제 모양은 현수선인데 포물선과 눈으로
 // 구별이 안 되므로 포물선으로 놓는다.
 //
@@ -297,6 +358,81 @@ function cables(line, cum, sA, sB, towerTop, deckTop, cfg) {
         properties: { kind: 'cable', name: cfg.show, hb: +(y - 2.5).toFixed(1), h: +y.toFixed(1) },
         geometry: { type: 'Polygon', coordinates: square(c, 5) },
       });
+    }
+  }
+  return feats;
+}
+
+// ── 주탑 (사장교, 손으로 넣는 것) ────────────────────────────────
+// 다이아몬드형 주탑을 상자 여섯 개로 근사한다. 기울어진 면은 못 세우니 층으로 나눈다:
+//   아래  상판 양옆 바깥에 다리 둘 (0 → 상판 조금 위)
+//   가운데 상판 밑을 받치는 가로보 하나
+//   위   상판 위에서 하나로 모이는 기둥 하나, 꼭대기는 더 가늘게
+// 멀리서 보면 다리가 상판을 감싸고 위로 모이는 실루엣이 나온다. 그게 사장교 주탑의 특징이다.
+function pylonBoxes(line, cum, sP, towerTop, deckTop, cfg) {
+  const u = headingAt(line, cum, sP);
+  const c = pointAt(line, cum, sP);
+  const legOut = cfg.deckM / 2 + 4;           // 상판 가장자리에서 4 m 바깥
+  const kneeH = deckTop + (towerTop - deckTop) * 0.22;   // 다리 둘이 하나로 모이는 높이
+  const f = (coords, hb, h, part) => ({
+    type: 'Feature',
+    properties: { kind: 'pylon', name: cfg.show, part, hb: +hb.toFixed(1), h: +h.toFixed(1) },
+    geometry: { type: 'Polygon', coordinates: coords },
+  });
+  const feats = [];
+  for (const side of [-1, 1]) {
+    feats.push(f(box(offsetAt(line, cum, sP, legOut * side), u, 9, 6), 0, kneeH, 'leg'));
+  }
+  // 가로보 — 상판 바로 밑에서 두 다리를 잇는다
+  feats.push(f(box(c, u, 5, legOut * 2 + 6), Math.max(deckTop - cfg.thick - 5, 1), deckTop - cfg.thick, 'beam'));
+  // 다리가 상판 위에서 모이는 무릎 — 두 다리 폭을 다 덮는 넓은 상자
+  feats.push(f(box(c, u, 8, legOut * 2 + 6), kneeH - 6, kneeH + 4, 'knee'));
+  // 위 기둥 — 하나로 모인 뒤 꼭대기까지
+  feats.push(f(box(c, u, 8, 10), kneeH, towerTop - (towerTop - deckTop) * 0.18, 'mast'));
+  feats.push(f(box(c, u, 6, 7), towerTop - (towerTop - deckTop) * 0.2, towerTop, 'top'));
+  return feats;
+}
+
+// ── 사장교 케이블 ────────────────────────────────────────────────
+// 주탑 위쪽에서 상판 가장자리로 **곧게** 뻗는 다발. 주탑마다 앞뒤 두 방향, 상판 양옆 두 줄.
+// 위에서부터 긴 케이블이 먼 곳에, 짧은 케이블이 가까운 곳에 닿는다(부채꼴).
+//
+// 그리는 방법은 현수교와 같다 — 기울어진 막대를 못 세우니 짧은 토막을 계단으로 잇는다.
+// 토막은 정사각형이 아니라 케이블 방향으로 누운 띠라서 계단이 덜 보인다.
+// 🔴 여기서도 케이블은 상판 경로를 따라간다 (offsetAt). 직선으로 이으면 휘는 구간에서 빠져나간다.
+function stayCables(line, cum, sP, towerTop, deckTopAt, cfg, reachM) {
+  // 🔴 처음엔 8가닥·14 m 토막으로 했더니 검은 삼각형 벽이 됐다. 토막 하나가 14 m 가는 동안 7 m 를
+  //    올라가서 케이블 한 가닥이 7 m 두께의 띠가 되고, 8가닥이 주탑 근처에서 5 m 간격으로 붙어 버렸다.
+  //    그래서 가닥을 줄이고(6), 토막을 짧게(8 m → 두께 4 m), 주탑에 닿는 높이 범위를 넓혔다(0.45).
+  const N = 6;          // 한 방향 한 줄에 케이블 6가닥. 실제는 20가닥 넘지만 멀리서는 6이면 다발로 읽힌다
+  const STEP_M = 8;     // 토막 길이
+  const WIDTH_M = 0.8;  // 토막 폭. 케이블 굵기가 아니라 "멀리서도 보이는 최소 폭" 이다
+  const total = cum[cum.length - 1];
+  const half = cfg.deckM / 2 - 1;
+  const fan = (towerTop - deckTopAt(sP)) * 0.45;   // 케이블이 주탑에 닿는 높이의 범위
+  const feats = [];
+
+  for (const dir of [-1, 1]) {
+    for (let k = 1; k <= N; k++) {
+      const d = (reachM * k) / N;
+      const sEnd = sP + dir * d;
+      if (sEnd < 0 || sEnd > total) continue;
+      const zTop = towerTop - (fan * (N - k)) / N;   // 긴 케이블일수록 위에 닿는다
+      const zEnd = deckTopAt(sEnd);
+      const M = Math.max(3, Math.round(d / STEP_M));
+      for (const side of [-1, 1]) {
+        for (let i = 0; i < M; i++) {
+          const t0 = i / M, t1 = (i + 1) / M;
+          const a = offsetAt(line, cum, sP + dir * d * t0, half * side * t0);
+          const b = offsetAt(line, cum, sP + dir * d * t1, half * side * t1);
+          const z0 = zTop + (zEnd - zTop) * t0, z1 = zTop + (zEnd - zTop) * t1;
+          feats.push({
+            type: 'Feature',
+            properties: { kind: 'stay', name: cfg.show, hb: +Math.min(z0, z1).toFixed(1), h: +(Math.max(z0, z1) + 0.6).toFixed(1) },
+            geometry: { type: 'Polygon', coordinates: ribbon(a, b, WIDTH_M) },
+          });
+        }
+      }
     }
   }
   return feats;
@@ -399,26 +535,42 @@ for (const cfg of BRIDGES) {
   row.길이 = Math.round(built.total) + ' m';
   row.상판조각 = built.feats.length;
 
-  // 5) 이 다리에 속한 주탑 — 중심선에서 150 m 안
-  const mine = pylons.filter((p) => distToLineM(part, p.at) < 60);
-  for (const p of mine) {
-    features.push({
-      type: 'Feature',
-      properties: { kind: 'pylon', name: cfg.show, hb: 0, h: p.h },
-      geometry: { type: 'Polygon', coordinates: square(p.at, 15) },
-    });
-  }
-  if (mine.length === 2) {
-    const sA = arcLengthAt(part, built.cum, mine[0].at);
-    const sB = arcLengthAt(part, built.cum, mine[1].at);
-    features.push(...cables(part, built.cum, sA, sB, mine[0].h, cfg.cruise, cfg));
-    row.주탑 = `2개 · 높이 ${mine[0].h} m · 간격 ${Math.round(distM(mine[0].at, mine[1].at))} m`;
-    row.주케이블 = '있음';
-  } else if (mine.length) {
-    row.주탑 = `${mine.length}개`;
+  if (cfg.pylons) {
+    // 5-a) 손으로 넣는 주탑 — 기준점(외곽선 가운데)에서 양쪽으로 주경간의 절반씩 떨어진 곳.
+    //      상판 높이는 그 자리의 상판 조각과 같은 함수(topAt)에서 얻는다. 따로 정하면 어긋난다.
+    const sMid = arcLengthAt(part, built.cum, anchor);
+    const spots = [sMid - cfg.pylons.span / 2, sMid + cfg.pylons.span / 2];
+    let n = 0;
+    for (const sP of spots) {
+      if (sP < 0 || sP > built.total) continue;
+      features.push(...pylonBoxes(part, built.cum, sP, cfg.pylons.h, built.topAt(sP), cfg));
+      // 케이블은 주경간 쪽으로 주경간의 절반 조금 못 미치게, 반대쪽(측경간)도 같은 길이로
+      features.push(...stayCables(part, built.cum, sP, cfg.pylons.h, built.topAt, cfg, cfg.pylons.span / 2 - 12));
+      n++;
+    }
+    row.주탑 = `${n}개 · 높이 ${cfg.pylons.h} m${cfg.pylons.estimated ? ' (추정)' : ''} · 간격 ${cfg.pylons.span} m · 손으로 넣음`;
+    row.케이블 = '사장교 다발';
+  } else {
+    // 5-b) OSM 에 있는 주탑 — 중심선에서 60 m 안
+    const mine = pylons.filter((p) => distToLineM(part, p.at) < 60);
+    for (const p of mine) {
+      features.push({
+        type: 'Feature',
+        properties: { kind: 'pylon', name: cfg.show, hb: 0, h: p.h },
+        geometry: { type: 'Polygon', coordinates: square(p.at, 15) },
+      });
+    }
+    if (mine.length === 2) {
+      const sA = arcLengthAt(part, built.cum, mine[0].at);
+      const sB = arcLengthAt(part, built.cum, mine[1].at);
+      features.push(...cables(part, built.cum, sA, sB, mine[0].h, cfg.cruise, cfg));
+      row.주탑 = `2개 · 높이 ${mine[0].h} m · 간격 ${Math.round(distM(mine[0].at, mine[1].at))} m`;
+      row.케이블 = '현수교 곡선';
+    } else if (mine.length) {
+      row.주탑 = `${mine.length}개`;
+    }
   }
 }
-
 fs.writeFileSync(OUT, JSON.stringify({ type: 'FeatureCollection', features }), 'utf8');
 const kb = +(fs.statSync(OUT).size / 1024).toFixed(1);
 
