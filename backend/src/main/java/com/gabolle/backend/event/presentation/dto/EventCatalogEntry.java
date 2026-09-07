@@ -18,6 +18,16 @@ public record EventCatalogEntry(
 		/** 이 종류를 만들어야 하는 쪽 (DR-13). */
 		String producer,
 
+		/**
+		 * 🔴 이 종류를 <b>실제로 보내도 되는</b> 쪽 전부 — 2026-09-07 추가 (S15P21E201-735).
+		 *
+		 * <p>{@link #producer} 하나만 내보내던 동안 사전은 사실이 아닌 것을 말하고 있었다.
+		 * {@code place_like} 는 {@code producer = SERVER} 인데 클라이언트도 보낼 수 있다
+		 * (그 이유는 {@code EventType.allowsProducer} 에 적혀 있다). 계측하는 쪽이 사전만 보고
+		 * "우리는 보낼 수 없다" 고 읽으면 그 이벤트는 아무도 안 보내게 된다.
+		 */
+		java.util.List<String> acceptedProducers,
+
 		/** S15P21E201-542 8.1 이 요구하는 M1 필수 이벤트인가. */
 		boolean requiredForM1,
 
@@ -38,6 +48,10 @@ public record EventCatalogEntry(
 		return new EventCatalogEntry(
 				type.wireName(),
 				type.expectedProducer().name(),
+				type.acceptedProducers().stream()
+						.map(Enum::name)
+						.sorted()
+						.toList(),
 				type.requiredForM1(),
 				type.versionRequirement().name(),
 				type.hasAggregateAxis() ? type.aggregateType() : null,

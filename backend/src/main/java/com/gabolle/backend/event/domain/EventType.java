@@ -1,5 +1,8 @@
 package com.gabolle.backend.event.domain;
 
+import java.util.EnumSet;
+import java.util.Set;
+
 /**
  * 이벤트 종류 — 열거값으로 못 박는다.
  *
@@ -83,13 +86,16 @@ public enum EventType {
     //    누른 것도 마찬가지다. 여행과의 관계는 trip_id 실컬럼이 그대로 들고 있으므로
     //    잃는 조인이 없다.
     PLACE_VIEW(Producer.CLIENT, false, VersionRequirement.NONE, AggregateAxis.USER),
-    PLACE_LIKE(Producer.SERVER, false, VersionRequirement.NONE, AggregateAxis.USER),
-    PLACE_DISLIKE(Producer.SERVER, false, VersionRequirement.NONE, AggregateAxis.USER),
+    PLACE_LIKE(Producer.SERVER, false, VersionRequirement.NONE, AggregateAxis.USER,
+            EnumSet.of(Producer.CLIENT, Producer.SERVER)),
+    PLACE_DISLIKE(Producer.SERVER, false, VersionRequirement.NONE, AggregateAxis.USER,
+            EnumSet.of(Producer.CLIENT, Producer.SERVER)),
     ITINERARY_LOCK(Producer.SERVER, false, VersionRequirement.NONE, AggregateAxis.TRIP),
     ITINERARY_REMOVE(Producer.SERVER, false, VersionRequirement.NONE, AggregateAxis.TRIP),
     ITINERARY_REPLACE(Producer.CLIENT, false, VersionRequirement.NONE, AggregateAxis.TRIP),
     ROUTE_SKIP(Producer.CLIENT, false, VersionRequirement.NONE, AggregateAxis.TRIP),
-    PLACE_VISIT(Producer.SERVER, false, VersionRequirement.NONE, AggregateAxis.TRIP),
+    PLACE_VISIT(Producer.SERVER, false, VersionRequirement.NONE, AggregateAxis.TRIP,
+            EnumSet.of(Producer.CLIENT, Producer.SERVER)),
     ROUTE_DEVIATION(Producer.CLIENT, false, VersionRequirement.NONE, AggregateAxis.TRIP),
 
     /** 🔴 축 미정 — 여행에도 추천 요청에도 속하지 않는다. 편집 기획 단위가 필요하다 */
@@ -101,13 +107,21 @@ public enum EventType {
     private final boolean requiredForM1;
     private final VersionRequirement versionRequirement;
     private final AggregateAxis aggregateAxis;
+    private final Set<Producer> acceptedProducers;
 
+    /** 만들어야 하는 쪽이 곧 보낼 수 있는 유일한 쪽인 이벤트 — 대부분이 여기 해당한다. */
     EventType(Producer expectedProducer, boolean requiredForM1, VersionRequirement versionRequirement,
               AggregateAxis aggregateAxis) {
+        this(expectedProducer, requiredForM1, versionRequirement, aggregateAxis, EnumSet.of(expectedProducer));
+    }
+
+    EventType(Producer expectedProducer, boolean requiredForM1, VersionRequirement versionRequirement,
+              AggregateAxis aggregateAxis, Set<Producer> acceptedProducers) {
         this.expectedProducer = expectedProducer;
         this.requiredForM1 = requiredForM1;
         this.versionRequirement = versionRequirement;
         this.aggregateAxis = aggregateAxis;
+        this.acceptedProducers = Set.copyOf(acceptedProducers);
     }
 
     /**
@@ -196,6 +210,10 @@ public enum EventType {
      * <p>실제 노출·상세 조회는 클라이언트가 보내고, 좋아요·일정 편집·방문 판정은
      * 서버 비즈니스 API 와 Outbox 가 만든다. 뒤바뀌면 신뢰할 수 없는 값이 들어온다 —
      * 클라이언트가 보내는 값은 조작될 수 있다.
+     *
+     * <p>🔴 이것은 <b>누가 만드는 것이 맞는가</b>이지 <b>누가 보낼 수 있는가</b>가 아니다.
+     * 실제로 받아 주는 목록은 {@link #acceptedProducers()} 다 — 둘이 갈리는 종류가 셋 있고
+     * 그 이유는 {@link #allowsProducer(Producer)} 에 적어 뒀다.
      */
     public Producer expectedProducer() {
         return expectedProducer;
@@ -232,9 +250,38 @@ public enum EventType {
         return aggregateAxis.type();
     }
 
-    /** 이 종류를 그 생산자가 보낼 수 있는가. */
+    /**
+     * 이 이벤트를 실제로 보내도 되는 쪽 전부.
+     *
+     * <p>대개 {@link #expectedProducer()} 하나뿐이다. 둘인 종류가 셋 있다 —
+     * {@code place_like} · {@code place_dislike} · {@code place_visit} (2026-09-07, -735).
+     */
+    public Set<Producer> acceptedProducers() {
+        return acceptedProducers;
+    }
+
+    /**
+     * 이 종류를 그 생산자가 보낼 수 있는가.
+     *
+     * <h3>🔴 2026-09-07 — 저장·제외·방문을 클라이언트에게도 열었다 (S15P21E201-735)</h3>
+     * DR-13 은 "좋아요·일정 편집·방문 판정은 서버 업무 API 와 Outbox 가 만든다" 고 정했고 그
+     * 설계 의도는 그대로다. 다만 <b>그 업무 API 가 아직 없다.</b> 장소를 저장하는 표도,
+     * 체크인 후기를 받는 표도 없고, 앱의 저장은 기기 안에만 남는다. 그래서 이 규칙은 지금
+     * "서버가 만든다" 를 지키는 것이 아니라 <b>아무도 안 만든다</b> 를 지키고 있었다 —
+     * 앱이 보낸 저장·제외·방문이 전부 거부되고, 그 행동은 어디에도 안 남았다.
+     *
+     * <p>업무 API 를 먼저 만드는 길도 있었다. 안 고른 이유는 <b>넣을 장소 식별자가 없기
+     * 때문</b>이다 — 홈·장소 상세의 {@code place_id} 는 화면에 박아 둔 목업 값이고, 체크인
+     * 화면은 장소 식별자를 아예 안 가지고 있다(MR !326 의 주석이 그 사실을 적어 뒀다).
+     * 그 상태로 표를 만들면 <b>가짜 값이 든 진짜 표</b>가 남는다. 그건 안 만드는 것보다 나쁘다.
+     *
+     * <p>🔴 <b>신뢰 경계는 안 지운다.</b> 누가 만든 이벤트인지는 {@code event_outbox.producer}
+     * 칸에 그대로 남는다. 업무 API 가 생기면 그쪽은 {@code SERVER} 로 적히고, 분석은 그 칸으로
+     * 두 출처를 가른다. 그리고 이벤트의 주체는 인증에서만 읽으므로(-705) 클라이언트가 조작해도
+     * <b>자기 행동밖에</b> 못 만든다.
+     */
     public boolean allowsProducer(Producer actual) {
-        return expectedProducer == actual;
+        return acceptedProducers.contains(actual);
     }
 
     /** JSON 에 쓰는 소문자 이름. 예: {@code place_like} */

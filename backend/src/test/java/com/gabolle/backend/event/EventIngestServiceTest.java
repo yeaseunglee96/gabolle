@@ -225,14 +225,14 @@ class EventIngestServiceTest {
                 .hasMessageContaining("API-07");
     }
 
-    // ── 2026-09-07 (S15P21E201-735) — 여행 밖에서 일어난 장소 이벤트 ────────────
+    // ── 2026-09-07 (S15P21E201-735) — 축이 USER 인 이벤트와 requestId 범위 ──────
 
     @Test
     @DisplayName("🔴 여행 밖 저장은 requestId 없이도 적힌다 — 홈·장소 상세에는 줄 값이 없다")
     void placeEventsAreAcceptedWithoutARequestId() {
         UUID userId = UUID.randomUUID();
 
-        boolean created = this.service.ingestFromClient(UUID.randomUUID(), EventType.PLACE_VIEW, 1,
+        boolean created = this.service.ingestFromClient(UUID.randomUUID(), EventType.PLACE_LIKE, 1,
                 userId, null, null, at("2026-09-03T11:59:00Z"), Map.of("place_id", "seomyeon-1"));
 
         assertThat(created).isTrue();
@@ -244,13 +244,13 @@ class EventIngestServiceTest {
     }
 
     @Test
-    @DisplayName("추천 화면에서 왔으면 requestId 를 그대로 이어 붙인다 — 축은 여전히 사용자다")
+    @DisplayName("추천 화면에서 온 저장은 requestId 를 그대로 이어 붙인다 — 축은 여전히 사용자다")
     void placeEventsKeepTheRequestIdWhenTheAppKnowsIt() {
         UUID userId = UUID.randomUUID();
         UUID tripId = UUID.randomUUID();
         UUID requestId = UUID.randomUUID();
 
-        this.service.ingestFromClient(UUID.randomUUID(), EventType.PLACE_VIEW, 1,
+        this.service.ingestFromClient(UUID.randomUUID(), EventType.PLACE_LIKE, 1,
                 userId, tripId, requestId, at("2026-09-03T11:59:00Z"), Map.of());
 
         OutboxAppendCommand command = captureCommand();
@@ -262,10 +262,34 @@ class EventIngestServiceTest {
     @Test
     @DisplayName("🔴 사용자 축 이벤트인데 userId 가 없으면 거부한다 — 다른 값을 대신 넣지 않는다")
     void userAxisEventWithoutUserIdIsRejected() {
-        assertThatThrownBy(() -> this.service.ingestFromClient(UUID.randomUUID(), EventType.PLACE_VIEW, 1,
+        assertThatThrownBy(() -> this.service.ingestFromClient(UUID.randomUUID(), EventType.PLACE_LIKE, 1,
                 null, null, UUID.randomUUID(), at("2026-09-03T11:59:00Z"), Map.of()))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("userId");
+    }
+
+    @Test
+    @DisplayName("🔴 저장·제외·방문은 클라이언트도 보낼 수 있고, producer 칸에 CLIENT 로 남는다")
+    void placeSignalsAreAcceptedFromTheClientAndStayLabelled() {
+        UUID userId = UUID.randomUUID();
+
+        this.service.ingestFromClient(UUID.randomUUID(), EventType.PLACE_DISLIKE, 1,
+                userId, UUID.randomUUID(), null, at("2026-09-03T11:59:00Z"), Map.of());
+
+        assertThat(captureCommand().producer()).isEqualTo(Producer.CLIENT);
+    }
+
+    @Test
+    @DisplayName("체크인 후기(place_visit)는 여행 축 그대로다 — 방문은 여행 안에서만 일어난다")
+    void visitEventsStayOnTheTripAxis() {
+        UUID tripId = UUID.randomUUID();
+
+        this.service.ingestFromClient(UUID.randomUUID(), EventType.PLACE_VISIT, 1,
+                UUID.randomUUID(), tripId, null, at("2026-09-03T11:59:00Z"), Map.of("rating", 5));
+
+        OutboxAppendCommand command = captureCommand();
+        assertThat(command.aggregateType()).isEqualTo("trip");
+        assertThat(command.aggregateId()).isEqualTo(tripId);
     }
 
     @Test
