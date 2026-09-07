@@ -18,5 +18,14 @@ public record OAuthLoginRequest(
 		Boolean ageGateAccepted,
 		@Size(max = 255) String deviceId,
 		Map<String, Boolean> consents,
-		boolean behaviorPersonalizationEnabled) {
+		/**
+		 * 🔴 {@code Boolean} 이다 — 이유는 {@link OAuthSignupRequest} 의 같은 칸에 적었다. 2단계 흐름에서
+		 * 앱은 이 요청에 동의·14세 확인을 싣지 않으므로 이 키도 함께 빠질 수 있다. 원시형으로 두면 그때
+		 * 본문 자체를 못 읽는다. 비우면 {@code false}.
+		 */
+		Boolean behaviorPersonalizationEnabled) {
+
+	public boolean behaviorPersonalizationEnabledOrFalse() {
+		return Boolean.TRUE.equals(behaviorPersonalizationEnabled);
+	}
 }
