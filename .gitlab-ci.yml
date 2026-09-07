@@ -76,12 +76,60 @@ claims:
   variables:
     GIT_DEPTH: 0
   script:
-    - node ci/axmap/bin/axmap.mjs audit --fetch
+    # 🔴 `--checkpoint` — 통과하면 "장부를 뿌리부터 여기까지 재생했고 깨끗했다" 를
+    #    도장으로 남기고, 다음 감사는 그 뒤부터만 재생한다.
+    #
+    #    장부는 하루 100건씩 늘기만 하는데 감사는 매번 뿌리부터 재생해서, 이 잡 하나가
+    #    17~25초에서 241초가 됐다 (2026-09-04 실측, S15P21E201-600). "최근 N개만 본다"
+    #    로는 못 고친다 — 이 검사가 보장하는 문장이 "어느 시점에도 두 사람이 같은 파일을
+    #    동시에 잡은 적이 없다" 라서, 최근만 보면 사흘 전 겹침이 영영 안 보인다.
+    #    그래서 이력은 하나도 안 버리고 이미 본 구간만 다시 안 본다.
+    #    (axMap 실측: 장부 600건에서 105.7초 → 8.6초, 장부 크기와 무관해진다)
+    #
+    #    🔴 도장을 남기려면 push 권한이 필요하다. 이 잡은 MR 에서만 돌고
+    #       AXMAP_BOT_TOKEN 은 Protected(보호된 브랜치에서 도는 잡에만 값이 간다)라
+    #       여기서는 못 남긴다. 그래서 도장은 아래 claims:checkpoint 가 찍는다.
+    #
+    #    🔴 도장을 못 남겨도 **판정은 그대로다.** 대가는 다음 감사가 느린 것이지
+    #       검사가 헐거워지는 것이 아니다 (장부 push 실패와 정반대다).
+    - node ci/axmap/bin/axmap.mjs audit --fetch --checkpoint
   rules:
     # ref/ 만 바뀐 MR 에서는 돌지 않는다 (ref/README.md)
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
       changes: ['frontend/**/*', 'backend/**/*', 'ci/**/*', 'governance/**/*',
                 'docs/**/*', '.gitlab-ci.yml', 'CLAUDE.md', 'setup.sh', 'setup.ps1']
+
+# ── 도장을 찍는다 — 감사가 같은 구간을 다시 안 보게 ──────────────────────────
+#
+# 위 claims 는 MR 에서만 돌고 거기에는 쓰기 토큰이 오지 않는다 (AXMAP_BOT_TOKEN 이
+# Protected 라 보호된 브랜치에서 도는 잡에만 값이 간다). 그래서 도장은 여기서 찍는다 —
+# 머지되어 dev·main 에 들어온 뒤 도는 파이프라인이다. 도장은 공유 브랜치에 쌓이므로,
+# 그것을 **읽기만** 하는 MR 쪽 감사는 권한 없이도 그만큼 빨라진다.
+#
+# 🔴 왜 claims 를 여기서도 돌리지 않고 잡을 따로 두나. 검사는 **권한이 없어야** 한다 —
+#    누구의 MR 에서나 돌아야 하니까. 도장은 **권한이 있어야** 한다. 한 잡에 섞으면
+#    토큰이 필요한 이유가 검사 쪽으로 번지고, 언젠가 "검사가 토큰 없이는 못 돈다" 가
+#    된다. 그때 잃는 것은 속도가 아니라 강제력이다.
+#
+# 🔴 토큰이 없으면 알리고 **초록으로 끝난다.** 도장을 못 남긴 대가는 다음 감사가 느린
+#    것이지 판정이 헐거워지는 것이 아니다 (장부 push 실패와 정반대다).
+claims:checkpoint:
+  stage: verify
+  variables:
+    GIT_DEPTH: 0
+  script:
+    - |
+      if [ -z "${AXMAP_BOT_TOKEN:-}" ]; then
+        echo "AXMAP_BOT_TOKEN 이 없습니다. 도장을 남기지 않습니다 - 감사는 계속 느립니다."
+        echo "버전 잡이 쓰는 것과 같은 토큰입니다 - Settings 의 CI/CD Variables 를 보세요."
+        exit 0
+      fi
+      git remote set-url origin "https://oauth2:${AXMAP_BOT_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git"
+      git config user.name  "axmap-bot"
+      git config user.email "axmap-bot@noreply.${CI_SERVER_HOST}"
+      node ci/axmap/bin/axmap.mjs audit --fetch --checkpoint
+  rules:
+    - if: $CI_COMMIT_BRANCH =~ /(^|\/)(main|func|dev)$/
 
 # ── 백엔드가 실제로 빌드되는가 ───────────────────────────────────────────────
 #
