@@ -69,6 +69,27 @@ public final class RecommendationCodes {
 	public static final String REASON_EDITORIAL_PICK = "EDITORIAL_PICK";
 
 	/**
+	 * 절대 기여 1위 축의 접두사 — {@code TOP_CONTRIBUTOR_DISTANCE} 처럼 붙는다
+	 * (S15P21E201-548).
+	 *
+	 * <p>🔴 축 이름은 {@code score_components} 의 키를 <b>글자 그대로</b> 붙인다 — 그래서
+	 * {@code TOP_CONTRIBUTOR_preferenceAlignment} 처럼 대문자 규칙이 깨져 보인다. 일부러
+	 * 그렇게 뒀다. 대문자로 바꿔 적으면 코드에 적힌 축 이름과 {@code reasonRanking} 에
+	 * 적힌 축 이름이 서로 달라지고, -205 가 문장을 만들 때 어느 쪽을 믿어야 하는지 알 수
+	 * 없다. 되돌릴 수 있는 이름 하나가 예쁜 이름 둘보다 낫다.
+	 */
+	public static final String REASON_TOP_CONTRIBUTOR_PREFIX = "TOP_CONTRIBUTOR_";
+
+	/**
+	 * 다양성 재정렬로 순위가 <b>실제로 움직인</b> 후보에 붙는다 (S15P21E201-548).
+	 *
+	 * <p>🔴 재정렬을 돌렸다는 사실이 아니라 <b>이 후보의 자리가 바뀌었다</b>는 사실을
+	 * 나타낸다. 돌렸어도 순서가 그대로인 후보에는 안 붙는다 — 붙이면 "왜 내려갔지" 를
+	 * 물을 때 아무것도 걸러 주지 못한다.
+	 */
+	public static final String REASON_DIVERSITY_RERANKED = "DIVERSITY_RERANKED";
+
+	/**
 	 * 반환할 후보가 하나도 없다. GB-API-001 5장의 오류 코드이며 공개 API 는 <b>422</b> 로 낸다.
 	 *
 	 * <p>🔴 이때 하드 제약을 자동으로 완화해 억지로 결과를 만들지 않는다. 알레르기 조건을

@@ -10,11 +10,12 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 /**
  * {@link RecommendationProperties}·{@link BaselineEngineProperties}·
- * {@link PreferenceAlignmentWeights} 를 빈으로 만들고, 비동기 Job 실행기를 연다.
+ * {@link PreferenceAlignmentWeights}·{@link DiversityProperties} 를 빈으로 만들고,
+ * 비동기 Job 실행기를 연다.
  */
 @Configuration
 @EnableConfigurationProperties({ RecommendationProperties.class, BaselineEngineProperties.class,
-		PreferenceAlignmentWeights.class })
+		PreferenceAlignmentWeights.class, DiversityProperties.class })
 @EnableAsync
 public class RecommendationConfiguration {
 
