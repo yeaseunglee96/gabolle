@@ -35,7 +35,7 @@ public class OAuthLoginService {
 	public OAuthAccountService.Outcome login(AuthProvider provider, OAuthLoginRequest request) {
 		OAuthProviderClient.OAuthUserProfile profile = exchange(provider, request);
 		return accountService.authenticate(provider, profile, request.deviceId(), request.consents(),
-				request.behaviorPersonalizationEnabled(), Boolean.TRUE.equals(request.ageGateAccepted()));
+				request.behaviorPersonalizationEnabledOrFalse(), Boolean.TRUE.equals(request.ageGateAccepted()));
 	}
 
 	/** 로그인한 계정에 소셜 신원을 붙인다 — 설정 화면 (S15P21E201-690). 인증 코드 교환은 로그인과 같다. */

@@ -192,7 +192,7 @@ public class AuthController {
 			@RequestHeader(value = "X-Client-Platform", defaultValue = "MOBILE") String clientPlatform,
 			HttpServletResponse response) {
 		OAuthAccountService.Outcome outcome = oAuthAccountService.completeSignup(request.signupTicket(),
-				request.displayName(), request.language(), request.consents(), request.behaviorPersonalizationEnabled(),
+				request.displayName(), request.language(), request.consents(), request.behaviorPersonalizationEnabledOrFalse(),
 				request.deviceId());
 		// 티켓을 받은 뒤 같은 이메일의 계정이 생겼으면 여기서도 연결 필요(409)가 나올 수 있다.
 		return oauthResponse(outcome, clientPlatform, response, requestId, HttpStatus.CREATED);
