@@ -86,6 +86,44 @@ public class PlaceFeature {
 	protected PlaceFeature() {
 	}
 
+	/**
+	 * 외부 자료에서 가져온 사실 하나를 만든다 — S15P21E201-636.
+	 *
+	 * <p>🔴 <b>{@link PlaceEvidenceStatus#UNKNOWN} 으로는 만들지 않는다.</b> "모른다" 는 행을 넣는
+	 * 것이 아니라 <b>행을 안 넣는 것</b>이다 — DB 도 그 조합에 값을 못 넣게 막아 뒀다
+	 * ({@code ck_place_feature_unknown_has_no_value}). 여기서 막지 않으면 "모른다" 가 조용히
+	 * "있다" 로 세어진다.
+	 *
+	 * <p>🔴 안전 항목(알레르기·식단·접근성)은 {@code ESTIMATED} 로 넣을 수 없다 —
+	 * {@code ck_place_feature_safety_never_estimated} 가 DB 에서 막는다. 업종 이름에서 "이 집은
+	 * 땅콩이 없다" 를 추정하는 일이 절대 일어나면 안 되기 때문이다.
+	 *
+	 * @param value JSON 문자열. 태그형은 보통 {@code "true"}, 점수형은 {@code "0.7"} 이나
+	 *     {@code "{\"score\":0.7}"}
+	 */
+	public static PlaceFeature imported(UUID placeFeatureId, UUID placeId, String featureType,
+			String featureKey, String value, PlaceEvidenceStatus evidenceStatus,
+			String sourceType, String sourceId, OffsetDateTime observedAt, String sourceVersion,
+			OffsetDateTime createdAt) {
+		if (evidenceStatus == null || evidenceStatus == PlaceEvidenceStatus.UNKNOWN) {
+			throw new IllegalArgumentException(
+					"UNKNOWN 피처는 넣지 않는다 — 모른다는 것은 행이 없다는 뜻이다: " + featureType);
+		}
+		PlaceFeature feature = new PlaceFeature();
+		feature.placeFeatureId = placeFeatureId;
+		feature.placeId = placeId;
+		feature.featureType = featureType;
+		feature.featureKey = featureKey;
+		feature.value = value;
+		feature.evidenceStatus = evidenceStatus;
+		feature.sourceType = sourceType;
+		feature.sourceId = sourceId;
+		feature.observedAt = observedAt;
+		feature.sourceVersion = sourceVersion;
+		feature.createdAt = createdAt;
+		return feature;
+	}
+
 	public UUID getPlaceFeatureId() {
 		return placeFeatureId;
 	}
