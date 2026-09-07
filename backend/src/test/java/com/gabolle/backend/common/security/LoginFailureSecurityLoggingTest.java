@@ -160,6 +160,34 @@ class LoginFailureSecurityLoggingTest {
 	}
 
 	@Test
+	@DisplayName("🔴 잠긴 뒤에 또 두드리면 AUTH_LOCKED_ACCOUNT_ATTEMPT 가 남는다 — 잠금이 값을 내는지 보려면 이것이 필요하다")
+	void attemptsAfterLockAreRecordedSeparately() {
+		LocalCredential credential = activeVerifiedCredential();
+		when(this.credentialRepository.findByEmail(EMAIL)).thenReturn(Optional.of(credential));
+		when(this.credentialRepository.findById(any())).thenReturn(Optional.of(credential));
+		when(this.passwordEncoder.matches(WRONG_PASSWORD, credential.getPasswordHash())).thenReturn(false);
+
+		// 다섯 번으로 잠그고, 잠긴 뒤에 두 번 더 두드린다.
+		for (int attempt = 1; attempt <= 7; attempt++) {
+			assertThatThrownBy(() -> login(WRONG_PASSWORD)).isInstanceOf(AuthException.class);
+		}
+
+		List<String> lockedAttempts = this.appender.list.stream().map(ILoggingEvent::getFormattedMessage)
+				.filter(message -> message.contains("event=AUTH_LOCKED_ACCOUNT_ATTEMPT")).toList();
+		assertThat(lockedAttempts)
+				.withFailMessage("잠긴 뒤의 시도가 로그에 없습니다 — 잠금이 공격을 막고 있는지 "
+						+ "공격자가 이미 떠났는지 구분할 수 없습니다.")
+				.hasSize(2);
+		assertThat(lockedAttempts.get(0)).contains("lockedForSeconds=").contains("outcome=REJECTED");
+
+		// 🔴 잠긴 뒤의 시도는 실패 횟수를 더 올리지 않으므로 AUTH_LOGIN_FAILURE 는 다섯 줄에서
+		//    멈춰 있어야 한다. 두 사건이 같은 이름으로 섞이면 "몇 번 틀렸나" 를 못 센다.
+		List<String> failures = this.appender.list.stream().map(ILoggingEvent::getFormattedMessage)
+				.filter(message -> message.contains("event=AUTH_LOGIN_FAILURE")).toList();
+		assertThat(failures).hasSize(5);
+	}
+
+	@Test
 	@DisplayName("네 번만 틀리면 아직 AUTH_ACCOUNT_LOCKED 가 없다")
 	void fourFailuresDoNotLogAccountLocked() {
 		LocalCredential credential = activeVerifiedCredential();

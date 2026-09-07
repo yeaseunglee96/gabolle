@@ -20,6 +20,7 @@ import com.gabolle.backend.auth.domain.LocalCredential;
 import com.gabolle.backend.auth.domain.OAuthSignupTicket;
 import com.gabolle.backend.auth.repository.AuthIdentityRepository;
 import com.gabolle.backend.auth.repository.LocalCredentialRepository;
+import com.gabolle.backend.common.security.SecurityEventLogger;
 import com.gabolle.backend.user.domain.AppUser;
 import com.gabolle.backend.user.domain.ConsentStatus;
 import com.gabolle.backend.user.domain.ConsentType;
@@ -66,13 +67,27 @@ public class OAuthAccountService {
 	private final OAuthSignupTicketService ticketService;
 	private final PasswordEncoder passwordEncoder;
 	private final LoginAttemptGuard loginAttemptGuard;
+
+	/**
+	 * 🔴 S15P21E201-682 후속 — 소셜 연결의 비밀번호 확인 실패가 어디에도 안 남고 있었다.
+	 *
+	 * <p>{@code GlobalAuthExceptionHandler} 는 상태 코드로 보고 남기는데, 로그인 전용 코드
+	 * ({@code INVALID_CREDENTIALS}·{@code TOO_MANY_LOGIN_ATTEMPTS})는 "던지는 지점에서 이미
+	 * 더 정확하게 남긴다" 는 이유로 건너뛴다. 그 전제가 {@code LocalAuthService} 에서만 참이었고
+	 * 이 클래스에는 그 로깅이 없어서, 소셜 연결 화면을 통한 비밀번호 시도는 통째로 사각지대였다.
+	 * 그래서 여기서도 같은 방식으로 남긴다 — {@code null} 을 허용하지 않는다. 널을 허용하면
+	 * 배선이 빠진 것을 아무도 모르고, 그것이 정확히 이 필드가 막으려는 상황이다.
+	 */
+	private final SecurityEventLogger securityEventLogger;
+
 	private final Clock clock;
 
 	@Autowired
 	public OAuthAccountService(AuthIdentityRepository identityRepository, LocalCredentialRepository credentialRepository,
 			AppUserRepository userRepository, UserConsentRepository consentRepository, AuthTokenService tokenService,
 			AuthProperties properties, ConsentPolicy consentPolicy, OAuthSignupTicketService ticketService,
-			PasswordEncoder passwordEncoder, LoginAttemptGuard loginAttemptGuard, Clock clock) {
+			PasswordEncoder passwordEncoder, LoginAttemptGuard loginAttemptGuard,
+			SecurityEventLogger securityEventLogger, Clock clock) {
 		this.identityRepository = identityRepository;
 		this.credentialRepository = credentialRepository;
 		this.userRepository = userRepository;
@@ -83,6 +98,7 @@ public class OAuthAccountService {
 		this.ticketService = ticketService;
 		this.passwordEncoder = passwordEncoder;
 		this.loginAttemptGuard = loginAttemptGuard;
+		this.securityEventLogger = securityEventLogger;
 		this.clock = clock;
 	}
 
@@ -200,11 +216,15 @@ public class OAuthAccountService {
 
 		if (credential.isLoginLocked(now)) {
 			long seconds = Math.max(1, java.time.Duration.between(now, credential.getLoginLockedUntil()).toSeconds());
+			securityEventLogger.lockedAccountAttempt(credential.getEmail(), seconds);
 			throw new AuthException("TOO_MANY_LOGIN_ATTEMPTS",
 					"로그인 시도가 너무 많습니다. " + ((seconds + 59) / 60) + "분 뒤에 다시 시도해 주세요.", HttpStatus.TOO_MANY_REQUESTS);
 		}
 		if (!passwordEncoder.matches(password, credential.getPasswordHash())) {
-			loginAttemptGuard.recordFailure(credential.getLocalCredentialId(), now);
+			// 🔴 세는 것과 남기는 것을 같은 자리에서 한다. recordFailure 가 돌려주는 값이
+			//    이번 실패까지 포함한 횟수라, 이 줄이 LocalAuthService 와 같은 정확도를 갖는다.
+			int attempts = loginAttemptGuard.recordFailure(credential.getLocalCredentialId(), now);
+			securityEventLogger.loginFailure(credential.getEmail(), attempts);
 			throw new AuthException("INVALID_CREDENTIALS", "이메일 또는 비밀번호가 올바르지 않습니다.", HttpStatus.UNAUTHORIZED);
 		}
 		if (user.getStatus() != UserStatus.ACTIVE) {

@@ -149,6 +149,11 @@ public class LocalAuthService {
 		// 🔴 비밀번호를 보기 전에 잠금부터 본다. 잠긴 동안에는 맞는 비밀번호도 거부한다 —
 		//    비밀번호가 맞는지 알려 주는 것 자체가 공격자에게 정보이기 때문이다.
 		if (credential.isLoginLocked(now)) {
+			// 🔴 S15P21E201-682 후속 — 잠긴 뒤의 시도는 지금까지 어디에도 안 남았다.
+			//    accountLocked 는 임계치에 닿는 순간 한 번만 남으므로, 이 줄이 없으면
+			//    "잠갔더니 멈췄다" 와 "잠긴 채로 계속 맞고 있다" 를 구분할 수 없다.
+			securityEventLogger.lockedAccountAttempt(credential.getEmail(),
+					java.time.Duration.between(now, credential.getLoginLockedUntil()).toSeconds());
 			throw loginLocked(credential.getLoginLockedUntil(), now);
 		}
 
