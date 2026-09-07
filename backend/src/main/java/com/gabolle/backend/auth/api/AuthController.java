@@ -88,6 +88,19 @@ public class AuthController {
 	}
 
 	/**
+	 * 계정을 지우기 전 안내 화면이 보여줄 실제 영향 수 — S15P21E201-188/195(진미리 님 요청).
+	 *
+	 * <p>🔴 {@code reviewCount}는 응답에 없다. 이 백엔드에 리뷰 도메인이 아직 없어서다 — 자세한
+	 * 내용은 {@link com.gabolle.backend.auth.service.AccountDeletionService#preview} 참고.
+	 */
+	@GetMapping("/me/deletion-preview")
+	public ApiResponse<AccountDeletionPreviewResponse> deletionPreview(Authentication authentication,
+			@RequestHeader(value = "X-Request-Id", required = false) String requestId) {
+		UUID userId = authenticatedUserId(authentication);
+		return ApiResponse.success(accountDeletionService.preview(userId), resolveRequestId(requestId));
+	}
+
+	/**
 	 * 계정과 그 사람의 데이터를 지운다 (S15P21E201-425).
 	 *
 	 * <p>🔴 되돌릴 수 없다. 그래서 비밀번호를 다시 받아 확인하고, 틀리면 아무것도 지우지 않는다.

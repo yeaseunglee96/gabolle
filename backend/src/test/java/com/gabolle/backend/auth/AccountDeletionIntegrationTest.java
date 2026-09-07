@@ -13,6 +13,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import com.gabolle.backend.auth.api.AccountDeletionPreviewResponse;
 import com.gabolle.backend.auth.domain.LocalCredential;
 import com.gabolle.backend.auth.repository.LocalCredentialRepository;
 import com.gabolle.backend.auth.service.AccountDeletionService;
@@ -90,6 +91,9 @@ class AccountDeletionIntegrationTest extends AuthPostgresIntegrationTest {
 	@AfterEach
 	void tearDown() {
 		// 🔴 표를 비우지 않는다. 내가 만든 것만 지운다.
+		for (UUID user : new UUID[] {this.userId, this.otherUserId}) {
+			this.jdbcTemplate.update("DELETE FROM story WHERE author_user_id = ?", user);
+		}
 		for (UUID trip : new UUID[] {this.tripId, this.otherTripId}) {
 			this.jdbcTemplate.update("DELETE FROM trip WHERE trip_id = ?", trip);
 		}
@@ -126,6 +130,23 @@ class AccountDeletionIntegrationTest extends AuthPostgresIntegrationTest {
 		assertThat(remaining.getDeletedAt()).isNotNull();
 		assertThat(remaining.getDisplayName()).isEqualTo("탈퇴한 사용자");
 		assertThat(remaining.getAgeVerifiedAt()).isNull();
+	}
+
+	@Test
+	@DisplayName("🔴 preview — 본인 여행·기록 수를 세되, 삭제는 하지 않는다")
+	void previewCountsWithoutDeleting() {
+		createStory(this.userId);
+		createStory(this.userId);
+		createStory(this.otherUserId);
+
+		AccountDeletionPreviewResponse preview = this.accountDeletionService.preview(this.userId);
+
+		assertThat(preview.ownedTripCount()).isEqualTo(1);
+		assertThat(preview.itineraryCount()).isZero();
+		assertThat(preview.recordCount()).isEqualTo(2);
+		// 🔴 이름 그대로 미리보기다 — 아무것도 지워지면 안 된다.
+		assertThat(tripExists(this.tripId)).isTrue();
+		assertThat(this.credentialRepository.findByUserUserId(this.userId)).isPresent();
 	}
 
 	@Test
@@ -195,6 +216,13 @@ class AccountDeletionIntegrationTest extends AuthPostgresIntegrationTest {
 				VALUES (?, ?, ?, ?, now(), now())
 				""", trip, owner, LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 12));
 		return trip;
+	}
+
+	private void createStory(UUID author) {
+		this.jdbcTemplate.update("""
+				INSERT INTO story (story_id, author_user_id, body, visibility, publish_at, created_at, updated_at)
+				VALUES (?, ?, ?, 'PUBLIC', now(), now(), now())
+				""", UUID.randomUUID(), author, "테스트 기록");
 	}
 
 	private boolean tripExists(UUID trip) {
