@@ -22,10 +22,20 @@ async function resolveDestination(returnTo?: string): Promise<Href> {
   const pending = await consumePendingReturnTo();
   return (pending ?? '/me') as Href;
 }
-function errorMessage(cause: unknown, tx: (ko: string, en: string) => string) {
+// 🔴 401 을 password/social 로 나눠서 말한다. 소셜 버튼에는 애초에 비밀번호가 없으니
+// "비밀번호가 틀렸다" 는 말은 거짓이고, 이 문구 하나가 실제 사고를 가렸다 — 2026-09-07,
+// 백엔드의 challenge/refresh/logout 엔드포인트가 통째로 사라져 소셜 로그인이 전부 401을
+// 받았는데, 화면은 계속 "이메일 또는 비밀번호가 올바르지 않아요" 라고만 보여줬다
+// (jaehyeon 님, -689 사고 보고). Spring 이 없는 경로를 401 로 접는다는 것도 여기 남긴다 —
+// 다음에 소셜 버튼에서 이 문구가 뜨면 비밀번호가 아니라 엔드포인트 존재부터 의심한다.
+function errorMessage(cause: unknown, tx: (ko: string, en: string) => string, context: 'password' | 'social') {
   if (cause instanceof ApiClientError && cause.status === 429) return tx('요청이 너무 많아요. 잠시 후 다시 시도해 주세요.', 'Too many attempts. Please try again shortly.');
   if (cause instanceof ApiClientError && cause.code === 'EMAIL_NOT_VERIFIED') return tx('이메일 인증을 마친 뒤 로그인해 주세요.', 'Verify your email before signing in.');
-  if (cause instanceof ApiClientError && cause.status === 401) return tx('이메일 또는 비밀번호가 올바르지 않아요.', 'The email or password is incorrect.');
+  if (cause instanceof ApiClientError && cause.status === 401) {
+    return context === 'password'
+      ? tx('이메일 또는 비밀번호가 올바르지 않아요.', 'The email or password is incorrect.')
+      : tx('소셜 로그인을 완료하지 못했어요. 잠시 후 다시 시도해 주세요.', 'Could not complete social sign-in. Please try again shortly.');
+  }
   return cause instanceof ApiClientError ? cause.message : tx('로그인하지 못했어요.', 'Unable to sign in.');
 }
 export default function SignIn() {
@@ -36,7 +46,7 @@ export default function SignIn() {
   const [busy, setBusy] = useState(false); const [provider, setProvider] = useState<OAuthProvider | null>(null); const [feedback, setFeedback] = useState<{ danger: boolean; text: string } | null>(passwordReset === 'success' ? { danger: false, text: tx('비밀번호가 변경됐어요. 새 비밀번호로 로그인해 주세요.', 'Your password was changed. Sign in with your new password.') } : null);
   const eligible = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()) && password.length > 0;
   useEffect(() => { void savePendingReturnTo(returnTo); }, [returnTo]);
-  async function submit() { if (!eligible || busy || provider) return; setBusy(true); setFeedback(null); try { await signIn(email, password); router.replace(await resolveDestination(returnTo)); } catch (e) { setFeedback({ danger: true, text: errorMessage(e, tx) }); } finally { setBusy(false); } }
+  async function submit() { if (!eligible || busy || provider) return; setBusy(true); setFeedback(null); try { await signIn(email, password); router.replace(await resolveDestination(returnTo)); } catch (e) { setFeedback({ danger: true, text: errorMessage(e, tx, 'password') }); } finally { setBusy(false); } }
   async function social(next: OAuthProvider) {
     if (busy || provider) return;
     setProvider(next);
@@ -66,7 +76,7 @@ export default function SignIn() {
         });
       }
     } catch (e) {
-      setFeedback({ danger: true, text: errorMessage(e, tx) });
+      setFeedback({ danger: true, text: errorMessage(e, tx, 'social') });
     } finally {
       setProvider(null);
     }
