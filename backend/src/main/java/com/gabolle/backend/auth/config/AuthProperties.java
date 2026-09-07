@@ -11,6 +11,20 @@ public class AuthProperties {
 	private String jwtSecret = "local-development-secret-change-me";
 	private Duration accessTokenTtl = Duration.ofMinutes(30);
 	private Duration refreshTokenTtl = Duration.ofDays(14);
+
+	/**
+	 * 이미 쓴 갱신 표가 이 시간 안에 다시 오면 <b>도난이 아니라 정상 경쟁</b>으로 본다
+	 * (S15P21E201-723).
+	 *
+	 * <p>🔴 브라우저 탭 두 개만으로 재현되는 문제를 막는 값이다. 접속 표가 만료된 상태에서
+	 * 두 곳이 거의 동시에 갱신을 시도하면 하나만 성공하고 나머지는 같은 표를 낸다. 그것을
+	 * 도난으로 보고 세션 계열을 폐기하면 <b>아무도 잘못하지 않았는데 로그아웃된다.</b>
+	 *
+	 * <p>대가가 있다. 표를 훔친 사람이 정당한 사용 직후 이 시간 안에 같은 표를 쓰면 세션이
+	 * 폐기되지 않는다. 그래서 짧게 둔다. <b>{@code 0} 으로 두면 예전 동작(즉시 폐기)과
+	 * 같아진다</b> — 도난 사고가 실제로 생기면 그렇게 되돌린다.
+	 */
+	private Duration refreshReuseGrace = Duration.ofSeconds(30);
 	private Duration emailVerificationTtl = Duration.ofMinutes(30);
 	/**
 	 * 🔴 15분이 아니라 30분이다. S15P21E201-433 의 제목과 완료 기준이 "30분 1회용 재설정 링크" 라
@@ -75,6 +89,14 @@ public class AuthProperties {
 
 	public Duration getRefreshTokenTtl() {
 		return refreshTokenTtl;
+	}
+
+	public Duration getRefreshReuseGrace() {
+		return refreshReuseGrace;
+	}
+
+	public void setRefreshReuseGrace(Duration refreshReuseGrace) {
+		this.refreshReuseGrace = refreshReuseGrace;
 	}
 
 	public void setRefreshTokenTtl(Duration refreshTokenTtl) {

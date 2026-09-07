@@ -93,6 +93,21 @@ public class SecurityEventLogger {
 				resolveRemoteIp(), reasonCode);
 	}
 
+	/**
+	 * 이미 쓴 갱신 표가 유예 시간 안에 다시 와서 정상 경쟁으로 처리했다 (S15P21E201-723).
+	 *
+	 * <p>🔴 급증 경보를 걸지 않는다. 이것은 <b>거부가 아니라 허용</b>이고, 잦아진다는 것은
+	 * 공격이 아니라 클라이언트가 갱신을 중복 발사한다는 뜻이다. 그걸 무차별 대입 경보와 같은
+	 * 채널로 보내면 진짜 경보가 묻힌다.
+	 *
+	 * <p>{@code sinceUsedMs} 는 원래 사용 시각과의 간격이다. 이 값이 유예 시간 상한에 자주
+	 * 붙으면 유예를 늘려야 하는지 판단할 근거가 된다.
+	 */
+	public void refreshRace(long sinceUsedMs) {
+		log.info("event={} remoteIp={} sinceUsedMs={} outcome=ALLOWED", SecurityEvent.AUTH_REFRESH_RACE,
+				resolveRemoteIp(), sinceUsedMs);
+	}
+
 	/** 인증은 됐는데 권한이 없어 403 이 나가는 지점에서 남긴다. */
 	public void authzDenied(String reasonCode) {
 		log.info("event={} remoteIp={} reason={} outcome=REJECTED", SecurityEvent.AUTHZ_DENIED, resolveRemoteIp(),
