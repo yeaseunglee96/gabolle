@@ -8,12 +8,13 @@ import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
+import { useI18n } from '@/i18n';
 
 const logo = require('../../assets/brand/gabolle-logo-figma.png');
-const SAFE_MESSAGE = '입력한 이메일로 가입된 계정이 있다면 비밀번호 재설정 링크를 보내드렸어요.';
 
 export default function ForgotPassword() {
   const router = useRouter();
+  const { tx } = useI18n();
   const [email, setEmail] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [sent, setSent] = useState(false);
@@ -27,7 +28,7 @@ export default function ForgotPassword() {
       await requestPasswordReset(email);
       setSent(true);
     } catch (cause) {
-      setError(cause instanceof ApiClientError ? cause.message : '재설정 메일 요청 중 오류가 발생했어요.');
+      setError(cause instanceof ApiClientError ? cause.message : tx('재설정 메일 요청 중 오류가 발생했어요.', 'Something went wrong while requesting the reset email.'));
     } finally {
       setSubmitting(false);
     }
@@ -35,30 +36,30 @@ export default function ForgotPassword() {
 
   return (
     <Screen>
-      <Pressable accessibilityRole="button" accessibilityLabel="뒤로 가기" onPress={() => router.canGoBack() ? router.back() : router.replace('/sign-in')} style={styles.backButton}><Text variant="title">‹</Text></Pressable>
-      <Pressable accessibilityRole="link" accessibilityLabel="GABOLLE 시작 화면으로 이동" onPress={() => router.replace('/')} style={({ pressed }) => [styles.logoLink, pressed && styles.pressed]}>
+      <Pressable accessibilityRole="button" accessibilityLabel={tx('뒤로 가기', 'Go back')} onPress={() => router.canGoBack() ? router.back() : router.replace('/sign-in')} style={styles.backButton}><Text variant="title">‹</Text></Pressable>
+      <Pressable accessibilityRole="link" accessibilityLabel={tx('GABOLLE 시작 화면으로 이동', 'Go to the GABOLLE start screen')} onPress={() => router.replace('/')} style={({ pressed }) => [styles.logoLink, pressed && styles.pressed]}>
         <Image source={logo} resizeMode="contain" style={styles.logo} accessibilityIgnoresInvertColors />
       </Pressable>
       <View style={styles.body}>
-        <Text variant="display" weight="bold">비밀번호 찾기</Text>
-        <Text variant="body" style={styles.subtitle}>가입할 때 사용한 이메일을 입력해 주세요.</Text>
+        <Text variant="display" weight="bold">{tx('비밀번호 찾기', 'Forgot password')}</Text>
+        <Text variant="body" style={styles.subtitle}>{tx('가입할 때 사용한 이메일을 입력해 주세요.', 'Enter the email address you signed up with.')}</Text>
         {sent ? (
           <View style={styles.sentBox}>
             <Text variant="title">✉</Text>
-            <Text variant="body" weight="bold" style={styles.center}>{SAFE_MESSAGE}</Text>
-            <Text variant="caption" style={styles.center}>메일이 보이지 않으면 스팸함도 확인해 주세요.</Text>
+            <Text variant="body" weight="bold" style={styles.center}>{tx('입력한 이메일로 가입된 계정이 있다면 비밀번호 재설정 링크를 보내드렸어요.', "If that email has an account, we've sent a password reset link.")}</Text>
+            <Text variant="caption" style={styles.center}>{tx('메일이 보이지 않으면 스팸함도 확인해 주세요.', "If you don't see it, please check your spam folder too.")}</Text>
           </View>
         ) : (
           <View style={styles.fieldGroup}>
-            <Text variant="caption" weight="bold" color={color.text.heading}>이메일</Text>
-            <TextInput accessibilityLabel="이메일" autoCapitalize="none" autoComplete="email" keyboardType="email-address" onChangeText={setEmail} onSubmitEditing={() => void submit()} placeholder="name@example.com" placeholderTextColor={color.text.muted} style={styles.input} value={email} />
+            <Text variant="caption" weight="bold" color={color.text.heading}>{tx('이메일', 'Email')}</Text>
+            <TextInput accessibilityLabel={tx('이메일', 'Email')} autoCapitalize="none" autoComplete="email" keyboardType="email-address" onChangeText={setEmail} onSubmitEditing={() => void submit()} placeholder="name@example.com" placeholderTextColor={color.text.muted} style={styles.input} value={email} />
           </View>
         )}
         {error && <View accessibilityRole="alert" style={styles.errorBox}><Text variant="caption" weight="bold" color={color.state.danger}>{error}</Text></View>}
-        {sent ? <Button label={submitting ? '전송 중…' : '메일 다시 보내기'} variant="ghost" disabled={submitting} onPress={() => void submit()} /> : <Button label={submitting ? '전송 중…' : '재설정 링크 받기'} disabled={!email.trim() || submitting} onPress={() => void submit()} />}
+        {sent ? <Button label={submitting ? tx('전송 중…', 'Sending…') : tx('메일 다시 보내기', 'Resend email')} variant="ghost" disabled={submitting} onPress={() => void submit()} /> : <Button label={submitting ? tx('전송 중…', 'Sending…') : tx('재설정 링크 받기', 'Get reset link')} disabled={!email.trim() || submitting} onPress={() => void submit()} />}
         {submitting && <ActivityIndicator color={color.action.secondary} />}
       </View>
-      <Pressable accessibilityRole="link" onPress={() => router.replace('/sign-in')} style={styles.loginLink}><Text variant="body" weight="bold" color={color.action.secondary}>로그인으로 돌아가기</Text></Pressable>
+      <Pressable accessibilityRole="link" onPress={() => router.replace('/sign-in')} style={styles.loginLink}><Text variant="body" weight="bold" color={color.action.secondary}>{tx('로그인으로 돌아가기', 'Back to sign in')}</Text></Pressable>
     </Screen>
   );
 }
