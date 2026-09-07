@@ -238,16 +238,23 @@ class RecommendationCandidateConstraintTest extends PostgresIntegrationTest {
 				.hasMessageContaining("FAIL");
 	}
 
+	/**
+	 * 2026-09-07 — {@code table_schema = current_schema()} 를 더했다. 테스트 DB 하나에 스키마를 여럿 두고
+	 * (JDBC {@code ?currentSchema=}) 격리하면 같은 표가 스키마마다 있어 1행 기대가 7행으로 깨졌다. 이 검사가
+	 * 보려는 것은 "지금 이 연결이 쓰는 스키마" 의 칸 타입이다.
+	 */
 	@Test
 	@DisplayName("JSONB · UUID · VARCHAR[] 컬럼이 PostgreSQL 타입 그대로 살아 있다")
 	void postgresSpecificColumnTypesAreInPlace() {
 		String featureValuesType = this.jdbcTemplate.queryForObject("""
 				SELECT data_type FROM information_schema.columns
 				WHERE table_name = 'recommendation_candidate' AND column_name = 'feature_values'
+				  AND table_schema = current_schema()
 				""", String.class);
 		String reasonCodesType = this.jdbcTemplate.queryForObject("""
 				SELECT data_type FROM information_schema.columns
 				WHERE table_name = 'recommendation_candidate' AND column_name = 'reason_codes'
+				  AND table_schema = current_schema()
 				""", String.class);
 
 		assertThat(featureValuesType).isEqualTo("jsonb");
