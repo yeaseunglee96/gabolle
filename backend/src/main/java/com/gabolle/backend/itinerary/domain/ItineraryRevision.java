@@ -1,6 +1,7 @@
 package com.gabolle.backend.itinerary.domain;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -114,6 +115,93 @@ public final class ItineraryRevision {
         return new Draft(copyItems(base.items(), newVersionId, now, itemKey, locked),
                 copyLegs(base.legs(), newVersionId, now),
                 copyExclusions(base.exclusions(), newVersionId));
+    }
+
+    /**
+     * 항목 하나를 그 날의 <b>마지막에</b> 더한 복사본을 만든다 — S15P21E201-467.
+     *
+     * <p>축제처럼 사용자가 직접 고른 장소를 일정에 넣는 경로다. 나머지 항목은 하나도
+     * 바뀌지 않는다.
+     *
+     * <h2>🔴 더한 항목을 고정(locked)해서 넣는다</h2>
+     * 이 편집 뒤에는 그 날짜 재계산 Job 이 따라온다(시각과 이동 구간을 다시 잡아야 하므로).
+     * 재계산은 그 날을 다시 채우면서 항목을 뺄 수 있는데, 사용자가 방금 명시적으로 고른
+     * 장소가 그때 사라지면 "넣었는데 없어졌다" 가 된다. 고정은 이 저장소에서 <b>"재계산이
+     * 이 장소를 건드리지 마라"</b> 는 뜻이므로({@link #setLocked} 주석) 그 자리에 정확히 맞는
+     * 표시다. 사용자가 나중에 빼고 싶으면 고정된 항목도 직접 뺄 수 있다.
+     *
+     * <h2>시각을 지어내지 않는다</h2>
+     * {@code startTime}·{@code endTime}·{@code stayMinutes} 를 {@code null} 로 두고
+     * {@code dataStatus} 를 {@code UNKNOWN} 으로 넣는다. 앞 항목의 끝 시각에 이어 붙이는 식으로
+     * 여기서 계산하면, 이동 시간을 모르는 상태에서 만든 시각이 화면에 <b>확정된 값처럼</b>
+     * 보인다. 시각은 뒤따르는 재계산이 정한다.
+     *
+     * <p>이동 구간({@link ItineraryLeg})도 이 자리에서 만들지 않는다. 같은 이유다 — 두 장소
+     * 사이의 이동 수단과 소요 시간은 추천 엔진이 안다.
+     *
+     * @param visitDate 그 날의 날짜. 그 날에 항목이 하나도 없을 수 있어(빈 날에 축제를 넣는
+     *     경우) 바탕 판에서 유도할 수 없다. 호출자가 여행 시작일과 {@code dayIndex} 로 계산해 준다
+     * @throws DayIndexOutOfRangeException {@code dayIndex} 가 음수다
+     */
+    public static Draft withAddedItem(ItineraryContent base, String newVersionId, String placeId,
+                                      int dayIndex, LocalDate visitDate, Instant now) {
+
+        if (dayIndex < 0) {
+            throw new DayIndexOutOfRangeException(dayIndex);
+        }
+        if (placeId == null || placeId.isBlank()) {
+            throw new IllegalArgumentException("더할 장소가 없습니다: placeId=" + placeId);
+        }
+
+        List<ItineraryItem> copied = copyItems(base.items(), newVersionId, now, null, false);
+
+        // 🔴 sequence 는 그 날 안에서만 1부터 센다(ck_itinerary_item_sequence). 다른 날의
+        //    항목을 세면 새 항목이 엉뚱한 순번을 갖고, UNIQUE 제약이 있는 날에는 충돌한다.
+        int nextSequence = copied.stream()
+                .filter((item) -> item.dayIndex() == dayIndex)
+                .mapToInt(ItineraryItem::sequence)
+                .max()
+                .orElse(0) + 1;
+
+        List<ItineraryItem> withAdded = new ArrayList<>(copied);
+        withAdded.add(new ItineraryItem(
+                UUID.randomUUID().toString(),
+                newVersionId,
+                // 새 항목이므로 item_key 도 새로 만든다. 이 값이 프론트가 판을 건너 이 항목을
+                // 가리키는 이름이 된다
+                UUID.randomUUID().toString(),
+                dayIndex,
+                visitDate,
+                nextSequence,
+                placeId,
+                null,
+                null,
+                null,
+                true,
+                null,
+                ItineraryItem.DataStatus.UNKNOWN,
+                List.of("USER_ADDED"),
+                List.of(),
+                null,
+                now));
+
+        return new Draft(withAdded, copyLegs(base.legs(), newVersionId, now),
+                copyExclusions(base.exclusions(), newVersionId));
+    }
+
+    /** {@code dayIndex} 가 음수다 — 400. */
+    public static class DayIndexOutOfRangeException extends RuntimeException {
+
+        private final int dayIndex;
+
+        public DayIndexOutOfRangeException(int dayIndex) {
+            super("일정의 몇째 날인지가 올바르지 않습니다: dayIndex=" + dayIndex);
+            this.dayIndex = dayIndex;
+        }
+
+        public int dayIndex() {
+            return this.dayIndex;
+        }
     }
 
     /**

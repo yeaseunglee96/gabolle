@@ -170,7 +170,11 @@ public class ItineraryVersion {
         /** 🔴 S15P21E201-284 — 되돌리기. {@code revertedFromVersion} 이 가리키는 옛 판의
          * 내용을 새 판으로 복사한다. 엔진을 돌리지 않으므로 {@link Versions} 다섯 칸이
          * 전부 비어 들어온다. */
-        REVERT;
+        REVERT,
+        /** 🔴 S15P21E201-467 — 사용자가 고른 장소를 그 날의 마지막에 더한다. 축제를 일정에
+         * 넣는 경로가 이것이다. 더한 항목은 고정된 상태로 들어가고(재계산이 그것을 빼면
+         * 안 되므로) 시각은 뒤따르는 재계산이 정한다 — {@link ItineraryRevision#withAddedItem}. */
+        ADD_ITEM;
 
         /** 최초 생성만 baseVersion 이 없다. */
         public boolean requiresBaseVersion() {

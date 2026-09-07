@@ -36,13 +36,20 @@ public class PlaceDetailController {
 		this.placeDetailService = placeDetailService;
 	}
 
+	/**
+	 * @param acceptLanguage {@code en} 으로 시작하면 영문 이름·주소를 우선한다 (S15P21E201-430,
+	 *        부분). 영문 값이 없으면 한국어로 되돌리고, 응답의 {@code resolvedLanguage} 가 어느
+	 *        언어로 답했는지 알린다 — 그러지 않으면 화면이 받은 값이 번역된 것인지 알 수 없다
+	 */
 	@GetMapping("/{placeId}")
 	public ApiResponse<PlaceDetailResponse> get(@PathVariable UUID placeId,
 			Authentication authentication,
+			@RequestHeader(value = "Accept-Language", required = false) String acceptLanguage,
 			@RequestHeader(value = "X-Request-Id", required = false) String requestId) {
 
 		UUID viewerId = AuthenticatedUsers.optionalId(authentication).orElse(null);
-		return ApiResponse.success(this.placeDetailService.get(placeId, viewerId), resolveRequestId(requestId));
+		return ApiResponse.success(this.placeDetailService.get(placeId, viewerId, acceptLanguage),
+				resolveRequestId(requestId));
 	}
 
 	/** 클라이언트가 준 추적 아이디를 그대로 쓴다. 로그와 응답이 같은 값을 갖게 하려는 것이다. */

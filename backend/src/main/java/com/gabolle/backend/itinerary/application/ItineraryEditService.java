@@ -8,6 +8,7 @@ import com.gabolle.backend.itinerary.domain.ItineraryVersion;
 import com.gabolle.backend.itinerary.domain.StaleItineraryVersionException;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
@@ -106,6 +107,59 @@ public class ItineraryEditService {
         //    판마다 복사해야 하므로 항목·구간과 같은 자리에 둔다) 이 호출부도 함께 고쳤다.
         //    draft.exclusions() 는 ItineraryRevision.setLocked 가 바탕 판의 제외 목록을
         //    그대로 물려준 것이다 — 고정·해제가 제외 목록을 지우지 않는다.
+        return repository.appendVersion(candidate, draft.items(), draft.legs(), draft.exclusions());
+    }
+
+    /**
+     * S15P21E201-467 — 사용자가 고른 장소를 그 날의 마지막에 더한 새 판을 만든다.
+     *
+     * <p>축제 화면이 이것을 부른다. 흐름은 고정과 같다 — 바탕 판을 검증하고, 복사하면서 항목
+     * 하나를 더하고, 새 판으로 저장한다. 다른 점은 <b>시각을 정하지 않는다</b>는 것이다
+     * ({@link ItineraryRevision#withAddedItem} 주석에 이유가 있다). 시각과 이동 구간은 이
+     * 호출 뒤에 접수되는 그 날짜 재계산 Job 이 정한다.
+     *
+     * <h2>🔴 재계산을 여기서 부르지 않는다</h2>
+     * 이 서비스는 판을 만드는 것까지만 한다. 재계산 Job 접수는
+     * {@code ItineraryRecalculationService} 가 하고, 그것을 잇는 것은 컨트롤러의 몫이다. 여기서
+     * 두 일을 같은 트랜잭션에 묶으면 Job 접수가 실패했을 때 판까지 되돌아가는데, 판은 이미
+     * 사용자가 요청한 사실이므로 남아야 한다 — 재계산은 다시 부를 수 있다.
+     *
+     * @param visitDate 그 날의 날짜. 호출자가 여행 시작일 + {@code dayIndex} 로 계산해 준다 —
+     *     빈 날에 넣는 경우 바탕 판에서 유도할 수 없기 때문이다
+     * @throws StaleItineraryVersionException 그 사이 다른 편집이 있었다 (409)
+     * @throws NoSuchElementException 그런 일정이 없다 (404)
+     */
+    @Transactional
+    public ItineraryVersion addPlace(String itineraryId, String placeId, int dayIndex,
+                                     LocalDate visitDate, int baseVersion, String editorUserId) {
+
+        Itinerary itinerary = repository.findById(itineraryId)
+                .orElseThrow(() -> new NoSuchElementException("일정을 찾을 수 없습니다: " + itineraryId));
+
+        int next = itinerary.nextVersionFrom(baseVersion);
+
+        ItineraryContent base = repository.findContent(itineraryId, baseVersion)
+                .orElseThrow(() -> new IllegalStateException(
+                        "바탕 판의 내용이 없습니다: itineraryId=" + itineraryId + ", version=" + baseVersion));
+
+        Instant now = clock.instant();
+        String newVersionId = UUID.randomUUID().toString();
+        ItineraryRevision.Draft draft =
+                ItineraryRevision.withAddedItem(base, newVersionId, placeId, dayIndex, visitDate, now);
+
+        ItineraryVersion candidate = new ItineraryVersion(
+                newVersionId,
+                itineraryId,
+                next,
+                baseVersion,
+                ItineraryVersion.Operation.ADD_ITEM,
+                editorUserId,
+                "req_edit_" + UUID.randomUUID(),
+                // 🔴 엔진을 돌리지 않았으므로 판 값 다섯이 전부 비어 들어온다 — 고정·되돌리기와
+                //    같다. 지어낸 값을 넣으면 "이 일정을 어느 판으로 만들었나" 에 거짓으로 답한다.
+                new ItineraryVersion.Versions(null, null, null, null, null),
+                now);
+
         return repository.appendVersion(candidate, draft.items(), draft.legs(), draft.exclusions());
     }
 

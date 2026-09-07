@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import com.gabolle.backend.place.api.PlaceFacetResponse;
 import com.gabolle.backend.place.api.PlaceFacetResponse.FacetItem;
 import com.gabolle.backend.place.api.PlaceFacetResponse.FacetKeyCount;
+import com.gabolle.backend.place.domain.InterestTagCode;
 import com.gabolle.backend.place.domain.PlaceFeature;
 import com.gabolle.backend.place.domain.UserInputKind;
 import com.gabolle.backend.place.domain.UserPlaceCodeMap;
@@ -99,6 +100,11 @@ public class PlaceFacetService {
 	 * <p>🔴 여기서 {@link PlaceFeature#indicatesPresence()} 가 거짓인 행(확인된 부재, 그리고 이미
 	 * 리포지토리 질의에서 빠진 UNKNOWN)은 건너뛴다. 이 필터가 없으면 "휠체어 접근이 안 되는 것으로
 	 * 확인된" 장소가 접근성 갈래 건수에 들어간다.
+	 *
+	 * <p>keys 를 만드는 규칙은 갈래마다 갈린다({@link #interestTagKeys}, {@link #plainKeys}) —
+	 * INTEREST_TAG(로컬 8갈래, -473)만 여덟 개를 항상 채워야 하고 다른 표식 종류는 지금처럼 데이터가
+	 * 있는 키만 준다. total 은 그 keys 의 건수 합으로 다시 구한다 — INTEREST_TAG 는 0건짜리 키도
+	 * 들어 있어 더해도 값이 그대로고, 다른 갈래는 원래 있던 키만 더해지므로 이전 합산과 같다.
 	 */
 	private FacetItem toFacetItem(UserPlaceCodeMap codeMap, List<PlaceFeature> features) {
 		Map<String, Set<UUID>> placeIdsByKey = new LinkedHashMap<>();
@@ -110,17 +116,51 @@ public class PlaceFacetService {
 					.add(feature.getPlaceId());
 		}
 
+		List<FacetKeyCount> keys = InterestTagCode.FEATURE_TYPE.equals(codeMap.getPlaceFeatureType())
+				? interestTagKeys(placeIdsByKey)
+				: plainKeys(placeIdsByKey);
+		long total = keys.stream().mapToLong(FacetKeyCount::placeCount).sum();
+
+		return new FacetItem(codeMap.getUserInputCode(), codeMap.getPlaceFeatureType(), codeMap.getMatchKind(),
+				total, keys);
+	}
+
+	/**
+	 * 로컬 8갈래(-473)의 keys. {@link InterestTagCode#displayOrder()} 순으로 여덟 개를 먼저 채우고
+	 * (데이터가 없으면 0건), 온톨로지가 아직 확정되지 않아({@code InterestTagCode} 클래스 주석) 이
+	 * 여덟 개 밖의 값이 이미 적재돼 있을 수 있으니 그런 값은 뒤에 그대로 붙인다 — 그러지 않으면
+	 * 기존에 쌓인 데이터가 조회에서 조용히 사라진다.
+	 */
+	private List<FacetKeyCount> interestTagKeys(Map<String, Set<UUID>> placeIdsByKey) {
 		List<FacetKeyCount> keys = new ArrayList<>();
-		long total = 0;
+		Set<String> knownKeys = new LinkedHashSet<>();
+		for (InterestTagCode tag : InterestTagCode.displayOrder()) {
+			knownKeys.add(tag.name());
+			long count = placeIdsByKey.getOrDefault(tag.name(), Set.of()).size();
+			keys.add(new FacetKeyCount(tag.name(), count, tag.labelKo()));
+		}
+
+		List<FacetKeyCount> extras = new ArrayList<>();
 		for (Map.Entry<String, Set<UUID>> entry : placeIdsByKey.entrySet()) {
-			long count = entry.getValue().size();
-			total += count;
+			if (entry.getKey() == null || knownKeys.contains(entry.getKey())) {
+				continue;
+			}
+			extras.add(new FacetKeyCount(entry.getKey(), entry.getValue().size(), null));
+		}
+		extras.sort(Comparator.comparing(FacetKeyCount::featureKey));
+		keys.addAll(extras);
+		return keys;
+	}
+
+	/** 그 밖의 갈래는 지금처럼 데이터가 있는 키만, 이름 순으로 돌려준다. */
+	private List<FacetKeyCount> plainKeys(Map<String, Set<UUID>> placeIdsByKey) {
+		List<FacetKeyCount> keys = new ArrayList<>();
+		for (Map.Entry<String, Set<UUID>> entry : placeIdsByKey.entrySet()) {
 			if (entry.getKey() != null) {
-				keys.add(new FacetKeyCount(entry.getKey(), count));
+				keys.add(new FacetKeyCount(entry.getKey(), entry.getValue().size(), null));
 			}
 		}
 		keys.sort(Comparator.comparing(FacetKeyCount::featureKey));
-		return new FacetItem(codeMap.getUserInputCode(), codeMap.getPlaceFeatureType(), codeMap.getMatchKind(),
-				total, keys);
+		return keys;
 	}
 }

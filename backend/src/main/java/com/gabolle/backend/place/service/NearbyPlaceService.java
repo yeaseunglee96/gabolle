@@ -12,6 +12,7 @@ import com.gabolle.backend.place.api.NearbyPlaceItem;
 import com.gabolle.backend.place.api.NearbyPlaceResponse;
 import com.gabolle.backend.place.config.PlaceProperties;
 import com.gabolle.backend.place.config.PlaceProperties.PurposeSpec;
+import com.gabolle.backend.place.domain.InterestTagCode;
 import com.gabolle.backend.place.domain.Place;
 import com.gabolle.backend.place.repository.PlaceRepository;
 
@@ -45,6 +46,27 @@ import com.gabolle.backend.place.repository.PlaceRepository;
  * 정하지 않았다. 여기서 자바 코드로 하나를 못박으면 나중에 다른 쪽으로 정해질 때 배포를 다시
  * 해야 한다. {@link PlaceProperties} 로 빼 두면 그때는 설정값만 바뀐다.
  *
+ * <h2>🔴 갈래(facetKey)로 좁히는 길을 따로 뒀다</h2>
+ *
+ * {@code purpose} 는 {@code gabolle.place.purposes} 설정이 채워져야 동작하는데 그 설정이 아직
+ * 비어 있다. 즉 "근처 기념품샵" 화면은 이 API 가 있어도 <b>기념품샵으로 좁힐 수 없었다.</b>
+ * 그래서 {@link InterestTagCode} 의 여덟 갈래를 {@code facetKey} 로 직접 받는 길을 뒀다 —
+ * {@code place_feature} 의 {@code INTEREST_TAG} 표식으로 좁힌다.
+ *
+ * <p>이것으로 위 "purpose 판별을 설정으로 뺀 이유" 가 미뤄 뒀던 질문에 답이 났다. "기념품샵" 을
+ * {@code place.category} 로 볼지 표식으로 볼지 — <b>표식으로 본다.</b> 여덟 갈래가 화면의 아코디언
+ * 계약이 되면서 표식 쪽이 정본이 됐다(-473). {@code purpose} 는 지우지 않고 남겨 둔다: 나중에
+ * "점심 먹을 곳" 처럼 여러 갈래와 카테고리를 묶는 목적이 필요해지면 그 자리다.
+ *
+ * <p>🔴 {@code purpose} 와 {@code facetKey} 를 <b>함께 보내면 400 이다.</b> 하나를 조용히 이기게
+ * 하면 요청자는 자기가 보낸 필터가 무시된 것을 모른다.
+ *
+ * <h2>호출자가 반경을 정하면 사다리를 두 칸으로 만든다</h2>
+ *
+ * {@code radiusMeters} 가 오면 설정 사다리를 무시하고 <b>그 반경과 그것의 두 배</b>, 두 칸만 쓴다.
+ * 화면이 "1km 안" 이라고 말해 놓고 5km 결과를 보여줄 수는 없기 때문이다. 두 배까지 넓히는 것은
+ * FE 요청이고, 넓혔다는 사실은 {@code radiusExpanded}·{@code effectiveRadiusM} 로 알린다.
+ *
  * <h2>🔴 purpose 가 선택값인 이유</h2>
  *
  * {@link PlaceProperties#getPurposes()} 의 기본값은 빈 맵이고 {@code application*.properties} 에도
@@ -70,15 +92,34 @@ public class NearbyPlaceService {
 		this.properties = properties;
 	}
 
+	/** 옛 호출자를 위해 남겨 둔다 — 갈래·반경 없이 부르면 예전과 똑같이 동작한다. */
 	public NearbyPlaceResponse findNearby(double lat, double lng, String purpose, int limit) {
+		return findNearby(lat, lng, purpose, null, null, limit);
+	}
+
+	public NearbyPlaceResponse findNearby(double lat, double lng, String purpose, String facetKey,
+			Integer radiusMeters, int limit) {
 		validateCoordinates(lat, lng);
 		validateLimit(limit);
-		boolean purposeApplied = purpose != null && !purpose.isBlank();
-		// 🔴 purpose 가 없으면 spec 이 null 이고, 그 아래(scanRadius·fetchCandidates·
-		// applyCategoryFilter)는 전부 null 을 "필터 없음" 으로 다룬다.
-		PurposeSpec spec = purposeApplied ? resolvePurpose(purpose) : null;
 
-		List<Integer> ladder = sortedLadder();
+		boolean purposeApplied = purpose != null && !purpose.isBlank();
+		boolean facetKeyApplied = facetKey != null && !facetKey.isBlank();
+		if (purposeApplied && facetKeyApplied) {
+			throw new PlaceRequestException("INVALID_REQUEST", "목적과 갈래 중 하나만 지정해 주세요.",
+					List.of("purpose", "facetKey"));
+		}
+
+		// 🔴 purpose 도 facetKey 도 없으면 spec 이 null 이고, 그 아래(scanRadius·fetchCandidates·
+		// applyCategoryFilter)는 전부 null 을 "필터 없음" 으로 다룬다.
+		PurposeSpec spec = null;
+		if (purposeApplied) {
+			spec = resolvePurpose(purpose);
+		}
+		else if (facetKeyApplied) {
+			spec = resolveFacetKey(facetKey);
+		}
+
+		List<Integer> ladder = ladderFor(radiusMeters);
 		int requestedRadiusM = ladder.get(0);
 		int effectiveRadiusM = requestedRadiusM;
 		int expansionSteps = 0;
@@ -86,15 +127,15 @@ public class NearbyPlaceService {
 		List<ScoredPlace> matches = List.of();
 
 		for (int step = 0; step < ladder.size(); step++) {
-			int radiusMeters = ladder.get(step);
-			StepResult result = scanRadius(lat, lng, radiusMeters, spec);
+			int stepRadiusM = ladder.get(step);
+			StepResult result = scanRadius(lat, lng, stepRadiusM, spec);
 			scanTruncated = scanTruncated || result.truncated();
 			matches = result.matches();
-			effectiveRadiusM = radiusMeters;
+			effectiveRadiusM = stepRadiusM;
 			expansionSteps = step;
 
 			boolean lastStep = step == ladder.size() - 1;
-			if (matches.size() >= this.properties.getNearbyMinimumCount() || lastStep) {
+			if (enough(matches.size(), radiusMeters) || lastStep) {
 				break;
 			}
 		}
@@ -109,7 +150,7 @@ public class NearbyPlaceService {
 				.toList();
 
 		return new NearbyPlaceResponse(items, requestedRadiusM, effectiveRadiusM,
-				expansionSteps > 0, expansionSteps, scanTruncated, limit, purposeApplied);
+				expansionSteps > 0, expansionSteps, scanTruncated, limit, purposeApplied, facetKeyApplied);
 	}
 
 	private StepResult scanRadius(double lat, double lng, int radiusMeters, PurposeSpec spec) {
@@ -168,6 +209,61 @@ public class NearbyPlaceService {
 				.filter(place -> place.getCategory() != null
 						&& categories.stream().anyMatch(category -> category.equalsIgnoreCase(place.getCategory())))
 				.toList();
+	}
+
+	/**
+	 * 이 반경에서 멈출 것인가.
+	 *
+	 * <p>🔴 호출자가 반경을 정했을 때와 안 정했을 때 기준이 다르다. 안 정했으면 설정된 최소
+	 * 개수({@code nearbyMinimumCount})를 채울 때까지 넓힌다 — 목록을 보여주는 것이 목적이라
+	 * 한 건만 나오면 화면이 빈약하다. 정했으면 <b>하나라도 있으면 멈춘다</b> — "500m 안" 을
+	 * 요청한 화면은 그 안에 하나만 있어도 그 하나를 원하는 것이고, 개수를 채우려고 반경을
+	 * 넓히면 요청한 숫자를 서버가 무시하는 것이 된다. FE 와 합의한 동작도 "하나도 없으면
+	 * 두 배" 다.
+	 */
+	private boolean enough(int found, Integer radiusMeters) {
+		if (radiusMeters != null) {
+			return found > 0;
+		}
+		return found >= this.properties.getNearbyMinimumCount();
+	}
+
+	/**
+	 * 호출자가 반경을 정했으면 <b>그 반경과 두 배</b>, 두 칸만 쓴다. 안 정했으면 설정 사다리다.
+	 *
+	 * <p>🔴 두 칸으로 끝내는 이유 — 설정 사다리(1km·2km·5km)를 그대로 쓰면 "500m 안" 을 요청한
+	 * 화면에 5km 결과가 갈 수 있다. 반경을 명시한 요청은 그 숫자를 존중해야 하고, 그래도 하나도
+	 * 없을 때 한 번만 넓혀 주는 것이 FE 와 합의한 동작이다.
+	 */
+	private List<Integer> ladderFor(Integer radiusMeters) {
+		if (radiusMeters == null) {
+			return sortedLadder();
+		}
+		validateRadius(radiusMeters);
+		return List.of(radiusMeters, radiusMeters * 2);
+	}
+
+	/**
+	 * 여덟 갈래 코드를 {@code INTEREST_TAG} 표식 필터로 바꾼다 (S15P21E201-473).
+	 *
+	 * <p>🔴 모르는 코드는 400 으로 거부한다 — 조용히 "필터 없음" 으로 넘기면 화면은 기념품샵을
+	 * 요청했는데 온갖 장소가 온 것을 오타 때문이라고 알 수 없다. {@code purpose} 오타를 거부하는
+	 * 것과 같은 판단이다.
+	 */
+	private PurposeSpec resolveFacetKey(String facetKey) {
+		InterestTagCode code = InterestTagCode.from(facetKey)
+				.orElseThrow(() -> new PlaceRequestException("UNKNOWN_FACET_KEY",
+						"지원하지 않는 갈래입니다.", List.of("facetKey")));
+		return new PurposeSpec(null, InterestTagCode.FEATURE_TYPE, code.name());
+	}
+
+	private void validateRadius(int radiusMeters) {
+		// 🔴 상한을 두는 이유 — 반경이 커지면 경계상자가 넓어져 표를 통째로 훑는 질의가 된다.
+		//    20km 는 도시 하나를 덮는 크기라 "근처" 라는 말이 유지되는 상한이다.
+		if (radiusMeters < 100 || radiusMeters > 20000) {
+			throw new PlaceRequestException("INVALID_REQUEST", "반경은 100m에서 20000m 사이여야 합니다.",
+					List.of("radiusMeters"));
+		}
 	}
 
 	private List<Integer> sortedLadder() {

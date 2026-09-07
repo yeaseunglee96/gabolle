@@ -34,14 +34,23 @@ public class NearbyPlaceController {
 		this.nearbyPlaceService = nearbyPlaceService;
 	}
 
+	/**
+	 * @param facetKey 여덟 갈래 코드 하나 (예: {@code SOUVENIR_SHOP}). {@code purpose} 와 함께
+	 *        보내면 400 이다 — 어느 쪽이 이겼는지 요청자가 모르게 되기 때문이다
+	 * @param radiusMeters 시작 반경. 주면 그 반경과 <b>두 배</b>까지만 찾는다. 안 주면 설정
+	 *        사다리를 쓴다 ({@code NearbyPlaceService} 참고)
+	 */
 	@GetMapping("/nearby")
 	public ApiResponse<NearbyPlaceResponse> nearby(
 			@RequestParam double lat,
 			@RequestParam double lng,
 			@RequestParam(required = false) String purpose,
+			@RequestParam(required = false) String facetKey,
+			@RequestParam(required = false) Integer radiusMeters,
 			@RequestParam(defaultValue = "20") int limit,
 			@RequestHeader(value = "X-Request-Id", required = false) String requestId) {
-		NearbyPlaceResponse response = this.nearbyPlaceService.findNearby(lat, lng, purpose, limit);
+		NearbyPlaceResponse response = this.nearbyPlaceService.findNearby(lat, lng, purpose, facetKey,
+				radiusMeters, limit);
 		return ApiResponse.success(response, resolveRequestId(requestId));
 	}
 
