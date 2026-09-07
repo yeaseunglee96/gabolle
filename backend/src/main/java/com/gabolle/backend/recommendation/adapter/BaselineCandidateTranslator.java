@@ -79,7 +79,12 @@ public class BaselineCandidateTranslator {
 				List.of(), // excludedFeatures — 🔴 절대 채우지 않는다
 				null, // openNowAt — 영업시간 필터는 아직 없다
 				null, // minimumCount — 모자라면 모자란 채로 돌려받는다
-				this.properties.candidateLimit());
+				// 🔴 candidateLimit(200) 이었다 (S15P21E201-724). 장소 조회는 점수를 모르므로
+				//    limit 을 "가까운 순" 으로 자른다. 여기에 200 을 주면 채점기는 가까운
+				//    200곳만 보게 되고, 부산에서는 그것이 중앙값 304m 였다 — 반경 5km 를
+				//    잡아 놓고 300m 를 본 셈이다. 채점 대상은 반경 안 전부여야 하고,
+				//    "상위 200" 은 채점을 마친 뒤 BaselineRecommendationEngine 이 자른다.
+				this.properties.candidateScanLimit());
 	}
 
 	/**

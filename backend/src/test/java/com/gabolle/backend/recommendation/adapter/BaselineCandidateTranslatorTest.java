@@ -32,8 +32,10 @@ import static org.mockito.Mockito.when;
  */
 class BaselineCandidateTranslatorTest {
 
+	// 🔴 상한이 둘이다 (S15P21E201-724). 앞의 9000 이 채점 대상(장소 조회에 넘어가는 limit),
+	//    뒤의 150 은 채점을 마친 뒤 남길 수다. 이 변환기는 앞의 것만 쓴다.
 	private static final BaselineEngineProperties PROPERTIES = new BaselineEngineProperties(
-			"rule-v1", "feature-v1", "ontology-v1", "policy-v1", 4000, 150, null);
+			"rule-v1", "feature-v1", "ontology-v1", "policy-v1", 4000, 9000, 150, null);
 
 	private final UserPlaceCodeMapRepository codeMapRepository = mock(UserPlaceCodeMapRepository.class);
 
@@ -41,7 +43,7 @@ class BaselineCandidateTranslatorTest {
 			new BaselineCandidateTranslator(PROPERTIES, this.codeMapRepository, new ObjectMapper());
 
 	@Test
-	@DisplayName("중심 좌표는 Trip.originLat/originLng, 반경·상한은 설정값이다")
+	@DisplayName("중심 좌표는 Trip.originLat/originLng, 반경은 설정값이고 상한은 채점 대상 상한이다")
 	void 중심좌표와_반경은_설정과_여행에서_온다() {
 		categoryIsMapped(true);
 		Trip trip = trip(35.15, 129.05);
@@ -51,7 +53,10 @@ class BaselineCandidateTranslatorTest {
 		assertThat(request.center().lat()).isEqualTo(35.15);
 		assertThat(request.center().lng()).isEqualTo(129.05);
 		assertThat(request.radiusM()).isEqualTo(4000);
-		assertThat(request.limit()).isEqualTo(150);
+		// 🔴 150(=candidateLimit) 이 아니라 9000(=candidateScanLimit) 이어야 한다.
+		//    장소 조회는 점수를 모르므로 limit 을 거리순으로 자른다 — 여기에 150 을 주면
+		//    채점기는 가까운 150곳만 보게 된다 (S15P21E201-724).
+		assertThat(request.limit()).isEqualTo(9000);
 	}
 
 	@Test
