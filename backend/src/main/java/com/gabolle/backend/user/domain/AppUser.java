@@ -41,6 +41,10 @@ public class AppUser {
 	@Column(nullable = false, length = 30)
 	private UserStatus status;
 
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false, length = 20)
+	private UserRole role;
+
 	@Column(name = "created_at", nullable = false)
 	private Instant createdAt;
 
@@ -61,8 +65,13 @@ public class AppUser {
 		this.ageGatePolicyVersion = ageGatePolicyVersion;
 		this.personalizationMode = personalizationMode;
 		this.status = status;
+		this.role = UserRole.USER;
 	}
 
+	/**
+	 * 가입 경로 전부(로컬·OAuth)가 이 팩토리를 거친다 — S15P21E201-686. {@code role} 을 인자로
+	 * 받지 않는 이유: ADMIN 은 가입으로 얻는 값이 아니라 운영자가 DB에서 직접 올리는 값이다.
+	 */
 	public static AppUser register(String displayName, String language, Instant ageVerifiedAt,
 			String ageGatePolicyVersion, PersonalizationMode personalizationMode, UserStatus status) {
 		return new AppUser(displayName, language, ageVerifiedAt, ageGatePolicyVersion, personalizationMode, status);
@@ -148,6 +157,10 @@ public class AppUser {
 
 	public UserStatus getStatus() {
 		return status;
+	}
+
+	public UserRole getRole() {
+		return role;
 	}
 
 	public void activate() {

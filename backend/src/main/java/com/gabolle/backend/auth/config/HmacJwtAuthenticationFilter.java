@@ -2,13 +2,14 @@ package com.gabolle.backend.auth.config;
 
 import com.gabolle.backend.auth.domain.AuthSession;
 import com.gabolle.backend.auth.repository.AuthSessionRepository;
+import com.gabolle.backend.user.domain.AppUser;
 import com.gabolle.backend.user.domain.UserStatus;
 import com.gabolle.backend.user.repository.AppUserRepository;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Base64;
-import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -18,6 +19,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
@@ -47,10 +49,14 @@ public class HmacJwtAuthenticationFilter extends OncePerRequestFilter {
 			throws ServletException, IOException {
 		String authorization = request.getHeader("Authorization");
 		if (authorization != null && authorization.startsWith("Bearer ")) {
-			String subject = verify(authorization.substring(7));
-			if (subject != null) {
-				UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(subject, null,
-						Collections.emptyList());
+			AppUser user = verify(authorization.substring(7));
+			if (user != null) {
+				// 🔴 role 을 JWT 클레임이 아니라 여기서 매번 DB로 읽는다(S15P21E201-686) — 아래
+				//    ACTIVE 상태 확인도 어차피 매 요청 조회라 추가 비용이 없고, 발급된 토큰을
+				//    바꾸지 않고도 권한 회수가 다음 요청부터 즉시 반영된다.
+				List<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole()));
+				UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+						user.getUserId().toString(), null, authorities);
 				authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 				SecurityContextHolder.getContext().setAuthentication(authentication);
 			}
@@ -58,7 +64,7 @@ public class HmacJwtAuthenticationFilter extends OncePerRequestFilter {
 		filterChain.doFilter(request, response);
 	}
 
-	private String verify(String token) {
+	private AppUser verify(String token) {
 		try {
 			String[] parts = token.split("\\.", -1);
 			if (parts.length != 3) {
@@ -88,11 +94,12 @@ public class HmacJwtAuthenticationFilter extends OncePerRequestFilter {
 			}
 			UUID userId = UUID.fromString(subject);
 			UUID parsedSessionId = UUID.fromString(sessionId);
-			if (!userRepository.findById(userId).map(user -> user.getStatus() == UserStatus.ACTIVE).orElse(false)) {
+			AppUser user = userRepository.findById(userId).filter(u -> u.getStatus() == UserStatus.ACTIVE).orElse(null);
+			if (user == null) {
 				return null;
 			}
 			AuthSession session = sessionRepository.findBySessionIdAndUserUserId(parsedSessionId, userId).orElse(null);
-			return session != null && session.isUsableAt(now) ? subject : null;
+			return session != null && session.isUsableAt(now) ? user : null;
 		} catch (Exception exception) {
 			return null;
 		}
