@@ -10,11 +10,12 @@ import { TabBar } from '@/components/TabBar';
 import { Text } from '@/components/Text';
 import { color, gutter, radius, spacing } from '@/design/tokens';
 import { useLayout } from '@/layout/useLayout';
+import { useI18n } from '@/i18n';
 
 const RECOMMENDATIONS = [
-  { id: 'haeundae', title: '해운대 해수욕장', description: '푸른 바다와 도시가 만나는 곳', image: require('../../assets/home/haeundae.png') },
-  { id: 'gwangalli', title: '광안리 해수욕장', description: '야경과 함께하는 해변 산책', image: require('../../assets/home/gwangalli.png') },
-  { id: 'gamcheon', title: '감천문화마을', description: '형형색색 감성 골목 여행', image: require('../../assets/home/gamcheon.png') },
+  { id: 'haeundae', titleKo: '해운대 해수욕장', titleEn: 'Haeundae Beach', descriptionKo: '푸른 바다와 도시가 만나는 곳', descriptionEn: 'Where the blue sea meets the city', image: require('../../assets/home/haeundae.png') },
+  { id: 'gwangalli', titleKo: '광안리 해수욕장', titleEn: 'Gwangalli Beach', descriptionKo: '야경과 함께하는 해변 산책', descriptionEn: 'A beach walk with a night view', image: require('../../assets/home/gwangalli.png') },
+  { id: 'gamcheon', titleKo: '감천문화마을', titleEn: 'Gamcheon Culture Village', descriptionKo: '형형색색 감성 골목 여행', descriptionEn: 'A colorful, atmospheric alley trip', image: require('../../assets/home/gamcheon.png') },
 ] as const;
 const bellIcon = require('../../assets/icons/home/bell.png');
 const heartIcon = require('../../assets/icons/home/heart.png');
@@ -26,18 +27,20 @@ function RecommendationCard({ item, index, liked, onToggleLike, desktop }: {
   item: (typeof RECOMMENDATIONS)[number]; index: number; liked: boolean; onToggleLike: () => void; desktop: boolean;
 }) {
   const router = useRouter();
+  const { tx } = useI18n();
+  const title = tx(item.titleKo, item.titleEn);
   return (
     <View style={[styles.card, desktop && styles.desktopCard]}>
       <ImageBackground source={item.image} resizeMode="cover" style={styles.cardImage} imageStyle={styles.cardImageRadius}>
         <View style={styles.cardShade} />
-        <Pressable accessibilityRole="button" accessibilityLabel={`${item.title} 상세 보기`} onPress={() => router.push(`/place/${item.id}`)} style={styles.cardLink} />
+        <Pressable accessibilityRole="button" accessibilityLabel={tx(`${title} 상세 보기`, `View details for ${title}`)} onPress={() => router.push(`/place/${item.id}`)} style={styles.cardLink} />
         <View style={styles.cardCounter}><Text variant="caption" weight="bold" color={color.text.onAction}>{index + 1}/3</Text></View>
-        <Pressable accessibilityRole="button" accessibilityLabel={liked ? `${item.title} 저장 취소` : `${item.title} 저장`} onPress={(event) => { event.stopPropagation(); onToggleLike(); }} style={[styles.heartButton, liked && styles.heartButtonSelected]}>
+        <Pressable accessibilityRole="button" accessibilityLabel={liked ? tx(`${title} 저장 취소`, `Unsave ${title}`) : tx(`${title} 저장`, `Save ${title}`)} onPress={(event) => { event.stopPropagation(); onToggleLike(); }} style={[styles.heartButton, liked && styles.heartButtonSelected]}>
           <Image source={heartIcon} resizeMode="contain" style={styles.heartIcon} />
         </Pressable>
         <View style={styles.cardCopy}>
-          <Text variant="title" weight="bold" color={color.text.onAction}>{item.title}</Text>
-          <Text variant="caption" color={color.text.onAction} style={styles.cardDescription}>{item.description}</Text>
+          <Text variant="title" weight="bold" color={color.text.onAction}>{title}</Text>
+          <Text variant="caption" color={color.text.onAction} style={styles.cardDescription}>{tx(item.descriptionKo, item.descriptionEn)}</Text>
         </View>
       </ImageBackground>
     </View>
@@ -46,6 +49,7 @@ function RecommendationCard({ item, index, liked, onToggleLike, desktop }: {
 
 export default function Home() {
   const router = useRouter();
+  const { tx } = useI18n();
   const { width } = useLayout();
   const desktop = width >= 768;
   const [likedIds, setLikedIds] = useState<Set<string>>(new Set());
@@ -69,7 +73,7 @@ export default function Home() {
     const saved = !next.has(id);
     saved ? next.add(id) : next.delete(id);
     void AsyncStorage.setItem(SAVED_PLACES_KEY, JSON.stringify([...next]));
-    setSaveFeedback(saved ? '이 기기에 여행지를 저장했어요.' : '이 기기에서 저장을 해제했어요.');
+    setSaveFeedback(saved ? tx('이 기기에 여행지를 저장했어요.', 'Saved this place on this device.') : tx('이 기기에서 저장을 해제했어요.', 'Unsaved this place on this device.'));
     return next;
   });
   const goToCard = (index: number) => {
@@ -86,21 +90,21 @@ export default function Home() {
     <Screen wide style={styles.screenContent}>
       <View style={styles.header}>
         <BrandLogoLink href="/home" imageStyle={styles.logo} />
-        <Pressable accessibilityRole="button" accessibilityLabel="알림 확인" onPress={() => router.push('/notifications')} style={styles.bell}><Image source={bellIcon} resizeMode="contain" style={styles.bellIcon} /></Pressable>
+        <Pressable accessibilityRole="button" accessibilityLabel={tx('알림 확인', 'Check notifications')} onPress={() => router.push('/notifications')} style={styles.bell}><Image source={bellIcon} resizeMode="contain" style={styles.bellIcon} /></Pressable>
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        <Pressable accessibilityRole="button" accessibilityLabel="부산 축제 찾아보기" onPress={() => router.push('/festivals')} style={({ pressed }) => [styles.weatherBar, pressed && styles.weatherBarPressed]}>
-          <Text variant="body" weight="medium" color={color.text.heading}>🌺  내 날짜에 열리는 부산 축제 찾기</Text><Text weight="bold" color={color.brand.orange}>›</Text>
+        <Pressable accessibilityRole="button" accessibilityLabel={tx('부산 축제 찾아보기', 'Explore Busan festivals')} onPress={() => router.push('/festivals')} style={({ pressed }) => [styles.weatherBar, pressed && styles.weatherBarPressed]}>
+          <Text variant="body" weight="medium" color={color.text.heading}>{tx('🌺  내 날짜에 열리는 부산 축제 찾기', '🌺  Find Busan festivals on my dates')}</Text><Text weight="bold" color={color.brand.orange}>›</Text>
         </Pressable>
 
-        <Pressable accessibilityRole="button" accessibilityLabel="지금 갈 곳 찾기" onPress={() => router.push('/now')} style={({ pressed }) => [styles.nowBar, pressed && styles.weatherBarPressed]}>
-          <Text variant="body" weight="medium" color={color.text.onAction}>🧭  지금 남는 시간, 갈 곳 찾기</Text><Text weight="bold" color={color.text.onAction}>›</Text>
+        <Pressable accessibilityRole="button" accessibilityLabel={tx('지금 갈 곳 찾기', 'Find places to go now')} onPress={() => router.push('/now')} style={({ pressed }) => [styles.nowBar, pressed && styles.weatherBarPressed]}>
+          <Text variant="body" weight="medium" color={color.text.onAction}>{tx('🧭  지금 남는 시간, 갈 곳 찾기', '🧭  Got free time now? Find a place')}</Text><Text weight="bold" color={color.text.onAction}>›</Text>
         </Pressable>
 
         <View style={styles.heading}>
-          <Text variant="display" weight="bold" color={color.text.heading} style={styles.headingTitle}>오늘 어디 가볼래?</Text>
-          <Text variant="body" color={color.text.muted}>AI가 취향에 맞는 부산 여행을 제안해드려요</Text>
+          <Text variant="display" weight="bold" color={color.text.heading} style={styles.headingTitle}>{tx('오늘 어디 가볼래?', 'Where shall we go today?')}</Text>
+          <Text variant="body" color={color.text.muted}>{tx('AI가 취향에 맞는 부산 여행을 제안해드려요', 'AI suggests a Busan trip that matches your taste')}</Text>
         </View>
 
         <ScrollView
@@ -125,21 +129,21 @@ export default function Home() {
         </ScrollView>
 
         <View style={styles.swipeHint}>
-          <Pressable accessibilityRole="button" accessibilityLabel="이전 여행지" disabled={activeCard === 0} onPress={() => goToCard(activeCard - 1)} style={[styles.carouselButton, activeCard === 0 && styles.carouselButtonDisabled]}><Image source={arrowLeftIcon} resizeMode="contain" style={styles.swipeArrow} /></Pressable>
-          <Text variant="caption" color={color.text.muted}>{activeCard + 1} / {RECOMMENDATIONS.length} · 한 장씩 넘겨보세요</Text>
-          <Pressable accessibilityRole="button" accessibilityLabel="다음 여행지" disabled={activeCard === RECOMMENDATIONS.length - 1} onPress={() => goToCard(activeCard + 1)} style={[styles.carouselButton, activeCard === RECOMMENDATIONS.length - 1 && styles.carouselButtonDisabled]}><Image source={arrowRightIcon} resizeMode="contain" style={styles.swipeArrow} /></Pressable>
+          <Pressable accessibilityRole="button" accessibilityLabel={tx('이전 여행지', 'Previous place')} disabled={activeCard === 0} onPress={() => goToCard(activeCard - 1)} style={[styles.carouselButton, activeCard === 0 && styles.carouselButtonDisabled]}><Image source={arrowLeftIcon} resizeMode="contain" style={styles.swipeArrow} /></Pressable>
+          <Text variant="caption" color={color.text.muted}>{tx(`${activeCard + 1} / ${RECOMMENDATIONS.length} · 한 장씩 넘겨보세요`, `${activeCard + 1} / ${RECOMMENDATIONS.length} · Swipe through one at a time`)}</Text>
+          <Pressable accessibilityRole="button" accessibilityLabel={tx('다음 여행지', 'Next place')} disabled={activeCard === RECOMMENDATIONS.length - 1} onPress={() => goToCard(activeCard + 1)} style={[styles.carouselButton, activeCard === RECOMMENDATIONS.length - 1 && styles.carouselButtonDisabled]}><Image source={arrowRightIcon} resizeMode="contain" style={styles.swipeArrow} /></Pressable>
         </View>
-        {saveFeedback && <Pressable accessibilityRole="button" accessibilityLabel="저장 안내 닫기" accessibilityLiveRegion="polite" onPress={() => setSaveFeedback(null)} style={styles.saveFeedback}><Text variant="caption" weight="bold" color={color.text.onAction}>{saveFeedback}</Text><Text variant="caption" color={color.text.onAction}>닫기</Text></Pressable>}
+        {saveFeedback && <Pressable accessibilityRole="button" accessibilityLabel={tx('저장 안내 닫기', 'Dismiss save notice')} accessibilityLiveRegion="polite" onPress={() => setSaveFeedback(null)} style={styles.saveFeedback}><Text variant="caption" weight="bold" color={color.text.onAction}>{saveFeedback}</Text><Text variant="caption" color={color.text.onAction}>{tx('닫기', 'Dismiss')}</Text></Pressable>}
       </ScrollView>
 
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel="가볼래 여행 도우미 열기"
-        accessibilityHint="현재 이용할 수 있는 여행 도움 기능을 확인합니다"
+        accessibilityLabel={tx('가볼래 여행 도우미 열기', 'Open GABOLLE travel assistant')}
+        accessibilityHint={tx('현재 이용할 수 있는 여행 도움 기능을 확인합니다', 'Check the travel help features available right now')}
         onPress={() => router.push('/chat')}
         style={({ pressed }) => [styles.assistantButton, pressed && styles.assistantButtonPressed]}
       >
-        <View style={styles.assistantLabel}><Text variant="caption" weight="bold" color={color.text.heading}>도움이 필요해?</Text></View>
+        <View style={styles.assistantLabel}><Text variant="caption" weight="bold" color={color.text.heading}>{tx('도움이 필요해?', 'Need help?')}</Text></View>
         <GabolleMascot state="idle" style={styles.assistantMascot} />
       </Pressable>
 
