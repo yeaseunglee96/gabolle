@@ -7,10 +7,12 @@ import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
+import { useI18n } from '@/i18n';
 import { useLayout } from '@/layout/useLayout';
 
 export default function NotFoundScreen() {
   const router = useRouter();
+  const { tx } = useI18n();
   const { width } = useLayout();
   const isDesktop = Platform.OS === 'web' && width >= 900;
   const homeHref = Platform.OS === 'web' ? '/' : '/home';
@@ -24,10 +26,10 @@ export default function NotFoundScreen() {
           <View style={styles.message}>
             <Text variant="caption" weight="bold" color={color.brand.orange}>404 · LOST IN BUSAN</Text>
             <Text variant="hero" weight="bold" color={color.text.onAction}>
-              길을 잠깐{`\n`}벗어났어요
+              {tx('길을 잠깐\n벗어났어요', "You've strayed off\nthe path")}
             </Text>
             <Text variant="body" color={color.text.onDarkMuted}>
-              요청한 화면이 없거나 주소가 변경됐어요.{`\n`}안전하게 홈에서 여행을 다시 이어가세요.
+              {tx('요청한 화면이 없거나 주소가 변경됐어요.\n안전하게 홈에서 여행을 다시 이어가세요.', "The page you're looking for doesn't exist or moved.\nHead back home to continue your trip safely.")}
             </Text>
           </View>
           <View accessibilityElementsHidden style={styles.routeLine}>
@@ -41,18 +43,18 @@ export default function NotFoundScreen() {
 
         <View style={[styles.actionPanel, isDesktop && styles.desktopActionPanel]}>
           <View>
-            <Text variant="caption" weight="bold" color={color.text.eyebrow}>경로 재안내</Text>
+            <Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx('경로 재안내', 'Rerouting')}</Text>
             <Text variant="display" weight="bold" color={color.text.heading} style={styles.actionTitle}>
-              홈으로 돌아갈까요?
+              {tx('홈으로 돌아갈까요?', 'Head back home?')}
             </Text>
             <Text variant="body" color={color.text.body}>
-              입력한 주소는 표시하거나 저장하지 않아요. 이전에 둘러보던 여행 정보도 그대로 유지돼요.
+              {tx('입력한 주소는 표시하거나 저장하지 않아요. 이전에 둘러보던 여행 정보도 그대로 유지돼요.', "We don't display or store the address you entered. Any trip you were browsing is still right where you left it.")}
             </Text>
           </View>
           <Button
-            label={isDesktop ? '웹 홈으로 돌아가기' : '앱 홈으로 돌아가기'}
+            label={isDesktop ? tx('웹 홈으로 돌아가기', 'Back to the web home') : tx('앱 홈으로 돌아가기', 'Back to the app home')}
             onPress={() => router.replace(homeHref as never)}
-            accessibilityHint="GABOLLE 홈 화면으로 이동합니다"
+            accessibilityHint={tx('GABOLLE 홈 화면으로 이동합니다', 'Goes to the GABOLLE home screen')}
           />
         </View>
       </View>
