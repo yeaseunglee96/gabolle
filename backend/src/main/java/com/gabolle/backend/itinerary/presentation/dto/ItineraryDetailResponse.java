@@ -34,7 +34,13 @@ public record ItineraryDetailResponse(
 		 */
 		String myRole,
 		/** {@code myRole} 이 {@code OWNER} 나 {@code EDITOR} 면 {@code true} — VIEWER 는 {@code false}. */
-		boolean canEdit) {
+		boolean canEdit,
+		/**
+		 * 🔴 2026-09-07 추가 — S15P21E201-218 완료 기준("경고가 있는 일정은 경고 목록이
+		 * 응답에 함께 들어온다")의 마지막 남은 항목. {@code itinerary_versions.warning_codes}
+		 * 를 그대로 옮긴다. 경고가 없으면 빈 배열이지 {@code null} 이 아니다.
+		 */
+		List<String> warningCodes) {
 
 	/** 여행 기간의 날짜 하나 — 항목이 0개인 날도 포함된다(빈 {@code items}). */
 	public record Day(String date, List<Item> items) {

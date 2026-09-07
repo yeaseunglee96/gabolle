@@ -118,7 +118,8 @@ public class ItineraryQueryService {
 				totalWalkingMeters,
 				fallbackMode,
 				access.role().name(),
-				access.role().canEdit());
+				access.role().canEdit(),
+				content.version().warningCodes());
 	}
 
 	/**

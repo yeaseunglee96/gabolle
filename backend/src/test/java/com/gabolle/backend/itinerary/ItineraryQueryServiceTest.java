@@ -149,6 +149,33 @@ class ItineraryQueryServiceTest {
 	}
 
 	@Test
+	@DisplayName("🔴 S15P21E201-218 — 판의 warningCodes 가 응답에 그대로 실린다")
+	void warningCodesAreIncluded() {
+		stubTripMembership(threeDayTrip());
+		String itineraryId = "itn_" + UUID.randomUUID();
+		Itinerary itinerary = new Itinerary(itineraryId, this.tripId, 1);
+		ItineraryVersion v = new ItineraryVersion(UUID.randomUUID().toString(), itineraryId, 1, null,
+				ItineraryVersion.Operation.CREATE, this.requesterId, "req_1", null, Instant.now(),
+				null, List.of("UNKNOWN_SHADE"));
+		this.itineraryRepository.create(itinerary, v, List.of(), List.of());
+
+		ItineraryDetailResponse response = this.service.getDetail(itineraryId, this.requesterId);
+
+		assertThat(response.warningCodes()).containsExactly("UNKNOWN_SHADE");
+	}
+
+	@Test
+	@DisplayName("🔴 경고가 없으면 warningCodes 는 null 이 아니라 빈 배열")
+	void warningCodesEmptyNotNull() {
+		stubTripMembership(threeDayTrip());
+		String itineraryId = seedItinerary(1, List.of());
+
+		ItineraryDetailResponse response = this.service.getDetail(itineraryId, this.requesterId);
+
+		assertThat(response.warningCodes()).isEmpty();
+	}
+
+	@Test
 	@DisplayName("여행 회원이 아니면 ItineraryNotFoundException(404) — 있다는 사실도 알려주지 않는다")
 	void nonMemberGetsNotFound() {
 		when(this.tripQueryService.get(this.tripId, this.requesterId))
