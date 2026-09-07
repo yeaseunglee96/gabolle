@@ -217,7 +217,38 @@ const SEA_MODE = Q.get('sea') ?? SEA_DEFAULT;
 const AERIAL_MAXZOOM_DEFAULT = 17;
 const AERIAL_MAXZOOM = Math.min(19, +(Q.get('photomax') ?? AERIAL_MAXZOOM_DEFAULT) || AERIAL_MAXZOOM_DEFAULT);
 
+// ── 🔴 도보 스케일에서는 사진을 걷어낸다 (S15P21E201-725) ──────────
+// 정사영상은 **위에서 수직으로 내려다본 사진**이다. 그래서 건물 **벽면 픽셀이 아예 없다** —
+// 해상도가 낮은 게 아니라 존재하지 않는다. 눈높이로 내려가면 사진은
+//   (1) 건물 사이 좁은 틈에서만 보이고, 스치듯 보는 각도라 길게 늘어져 뭉개지고
+//   (2) 찍을 때의 그림자가 이미 사진에 들어 있어 우리가 그리는 그림자와 두 번 겹친다
+// 즉 가까이 갈수록 사진은 도움이 아니라 방해다. 그래서 서서히 지우고, 그 자리를
+// 파사드 무늬가 채운다 (아래 '낮 파사드').
+//
+// 왜 16.5 와 18 인가 — 화면 1픽셀이 덮는 지상 거리로 갈린다.
+//   확대 16 = 1.95 m/px   사진이 아직 압도적이다 (산·바다·해변)
+//   확대 17 = 0.98 m/px   차·파라솔이 읽히는 마지막 지점
+//   확대 18 = 0.49 m/px   사람 한 명이 한 픽셀. 여기서부터는 늘어난 얼룩이다
+const AERIAL_FADE_START = 16.5;
+const AERIAL_FADE_END = 18;
+// 확대에 따라 0~1 로 오르내리는 값을 만든다. 사진 불투명도와, 그 반대인 "사진이 사라진 정도"
+// (도로선·파사드가 자리를 넘겨받는 몫) 둘 다 이 한 곳에서 나온다 — 두 곳에 숫자를 적으면 어긋난다.
+const byFadeZoom = (atStart, atEnd) => [
+  'interpolate', ['linear'], ['zoom'],
+  AERIAL_FADE_START, atStart,
+  AERIAL_FADE_END, atEnd,
+];
+
 // ── 바탕 지도 ─────────────────────────────────────────────────────
+// 🔴 사진이 꺼진 자리에 무엇을 깔 것인가 — **지금 쓰는 positron 을 그대로 둔다** (S15P21E201-725).
+//    후보는 브이월드 `Base` 였다. 안 고른 이유 셋:
+//      1. `Base` 는 **미리 잘라 둔 그림**이라 확대 19 가 끝이다. 확대 20 에서는 늘어난다 —
+//         늘어난 사진을 걷어내고 늘어난 그림을 까는 것은 제자리걸음이다.
+//         positron 은 좌표와 속성을 받아 그때그때 그리므로 확대 20 에서도 선이 선으로 남는다
+//      2. 이 화면은 시각에 따라 땅·바다·풀·길 색을 다시 칠한다(setHour). 그림 한 장으로 온 바탕은
+//         그렇게 못 한다 — 밤 도시가 낮에 찍힌 바탕 위에 서게 된다
+//      3. 인증키가 하나 더 필요하고 요청 한도를 나눠 쓴다. 얻는 것이 없다
+//
 // 평소에는 OpenFreeMap 의 positron 을 쓴다. 그런데 그 주소는 **밖에 있는 서비스**라,
 // 막힌 망(사내망·자동화 브라우저·비행기)에서는 스타일이 통째로 안 온다.
 // 그러면 map 의 'load' 가 영영 안 나고 **건물·다리·그림자가 하나도 안 만들어진다** —
@@ -251,7 +282,13 @@ const map = new MapLibreMap({
   //    "경치" 를 재려면 수평선이 필요하다.
   maxPitch: 85,
   minZoom: 11,
-  maxZoom: 18,
+  // 🔴 18 → 20 (S15P21E201-725). 18 은 "위에서 내려다보는 지도" 의 끝이고, 도보는 그 아래에 있다.
+  //    확대 20 이면 화면 1픽셀이 지상 12.2 cm 다 — 사람이 서 있는 크기로 도시를 본다.
+  //    치르는 값: 건물 타일은 확대 16 까지만 굽혀 있어서 그 위로는 늘여 쓴다(오버줌). 윤곽이
+  //    12.2 cm 격자로 굳어 있으므로 확대 20 에서 대각선 벽에 계단 자국이 이론상 화면 2픽셀이다.
+  //    서면에서 확대 20 을 실제로 띄워 봤고 육안으로 거슬리지 않았다 (2026-09-07).
+  //    거슬리기 시작하면 되돌릴 곳은 여기 한 줄이다 — 타일을 다시 굽는 것은 마지막 수단이다.
+  maxZoom: 20,
   antialias: true,
 });
 map.addControl(new NavigationControl({ visualizePitch: true }), 'bottom-right');
@@ -768,7 +805,13 @@ function setHour(hour, opt = {}) {
   paint(greenLayers, 'fill-color', greenC);
   paint(greenLayers, 'fill-outline-color', greenC);
   // 사진 위에서는 도로선이 해 고도를 따라간다 (auto — 위 ROADS_DEFAULT 설명). 사진이 없으면 손대지 않는다.
-  const roadOpacity = map.getLayer('aerial') && ROADS === 'auto' ? nightT : null;
+  //
+  // 🔴 여기에 확대를 하나 더 얹는다 (S15P21E201-725). 낮에 도로선을 끈 이유는 **길이 사진에 이미
+  //    찍혀 있어서** 였다. 확대 18 부터는 그 사진이 없다 — 그대로 두면 낮 도보 화면의 땅이
+  //    아무 자국 없는 흰 바닥이 되고, 건물만 공중에 뜬 것처럼 보인다.
+  //    그래서 사진이 사라지는 만큼 도로선이 자리를 넘겨받는다: 확대 16.5 까지는 지금 그대로(nightT),
+  //    18 에서는 완전히 켜진다. 밤에는 nightT 가 이미 1 이라 아무것도 안 바뀐다.
+  const roadOpacity = map.getLayer('aerial') && ROADS === 'auto' ? byFadeZoom(nightT, 1) : null;
   for (const l of map.getStyle().layers) {
     if (l.type === 'line' && !/water|river|stream/i.test(l.id)) {
       try {
@@ -938,7 +981,9 @@ function buildEverything() {
       id: 'aerial',
       type: 'raster',
       source: 'aerial',
-      paint: { 'raster-opacity': 1, 'raster-fade-duration': 0 },
+      // 🔴 확대 16.5 부터 서서히 지우고 18 에서 없앤다 (S15P21E201-725 — 위 AERIAL_FADE_START 설명).
+      //    밤 처리(setHour)는 밝기와 채도만 건드리므로 이 식과 부딪히지 않는다.
+      paint: { 'raster-opacity': byFadeZoom(1, 0), 'raster-fade-duration': 0 },
     }, map.getLayer('waterway') ? 'waterway' : undefined);
     credit.insertAdjacentHTML('afterbegin', '항공사진: 브이월드(국토교통부)<br />');
 
