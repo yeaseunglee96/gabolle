@@ -8,6 +8,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import com.gabolle.backend.itinerary.domain.Itinerary;
+import com.gabolle.backend.itinerary.domain.ItineraryContent;
+import com.gabolle.backend.itinerary.domain.ItineraryLeg;
+import com.gabolle.backend.itinerary.domain.ItineraryRepository;
 import com.gabolle.backend.place.domain.Place;
 import com.gabolle.backend.place.repository.PlaceRepository;
 import com.gabolle.backend.recommendation.domain.CandidateStage;
@@ -38,6 +42,7 @@ class RecommendationResultQueryServiceTest {
 
 	private RecommendationCandidateRepository candidateRepository;
 	private PlaceRepository placeRepository;
+	private ItineraryRepository itineraryRepository;
 	private RecommendationResultQueryService service;
 
 	private final UUID requestId = UUID.randomUUID();
@@ -47,8 +52,9 @@ class RecommendationResultQueryServiceTest {
 	void setUp() {
 		this.candidateRepository = mock(RecommendationCandidateRepository.class);
 		this.placeRepository = mock(PlaceRepository.class);
+		this.itineraryRepository = mock(ItineraryRepository.class);
 		this.service = new RecommendationResultQueryService(this.candidateRepository, this.placeRepository,
-				new ObjectMapper());
+				this.itineraryRepository, new ObjectMapper());
 
 		Place place = mock(Place.class);
 		when(place.getPlaceId()).thenReturn(this.placeId);
@@ -160,6 +166,60 @@ class RecommendationResultQueryServiceTest {
 
 		assertThat(response.status()).isEqualTo("COMPLETED");
 		assertThat(response.items().get(0).dataStatus()).isEqualTo("VERIFIED");
+	}
+
+	@Test
+	@DisplayName("placeCount 는 items 개수와 같다")
+	void placeCountMatchesItemCount() {
+		RecommendationCandidate candidate = returnedCandidateBuilder().build();
+		when(this.candidateRepository.findByRequestIdAndReturnedTrueOrderByFinalRankAsc(this.requestId))
+				.thenReturn(List.of(candidate));
+
+		RecommendationResultResponse response = this.service.buildResult(succeededJob(FallbackMode.BASELINE));
+
+		assertThat(response.placeCount()).isEqualTo(response.items().size()).isEqualTo(1);
+	}
+
+	@Test
+	@DisplayName("estimatedTravelMinutes — 일정이 없으면(itineraryId == null) null")
+	void estimatedTravelMinutesNullWithoutItinerary() {
+		RecommendationCandidate candidate = returnedCandidateBuilder().build();
+		when(this.candidateRepository.findByRequestIdAndReturnedTrueOrderByFinalRankAsc(this.requestId))
+				.thenReturn(List.of(candidate));
+
+		RecommendationResultResponse response = this.service.buildResult(succeededJob(FallbackMode.BASELINE));
+
+		assertThat(response.itineraryId()).isNull();
+		assertThat(response.estimatedTravelMinutes()).isNull();
+	}
+
+	@Test
+	@DisplayName("estimatedTravelMinutes — 구간의 duration_min 합, 모르는 구간은 더하지 않고 건너뛴다")
+	void estimatedTravelMinutesSkipsUnknownLegs() {
+		UUID itineraryId = UUID.randomUUID();
+		RecommendationJob job = RecommendationJob.start(UUID.randomUUID(), this.requestId, UUID.randomUUID(),
+				JobType.ITINERARY_GENERATION, OffsetDateTime.now());
+		job.applyRequestContext(UUID.randomUUID(), 1, null, null, itineraryId, 1, null, null);
+		job.markCompleted(OffsetDateTime.now(), OffsetDateTime.now(), FallbackMode.BASELINE, null);
+
+		RecommendationCandidate candidate = returnedCandidateBuilder().build();
+		when(this.candidateRepository.findByRequestIdAndReturnedTrueOrderByFinalRankAsc(this.requestId))
+				.thenReturn(List.of(candidate));
+
+		Itinerary itinerary = new Itinerary(itineraryId.toString(), UUID.randomUUID().toString(), 1);
+		when(this.itineraryRepository.findById(itineraryId.toString())).thenReturn(java.util.Optional.of(itinerary));
+
+		ItineraryLeg known = new ItineraryLeg(UUID.randomUUID().toString(), "v1", 0, 1,
+				null, UUID.randomUUID().toString(), "WALK", 500, 10, 500, null, null, java.time.Instant.now());
+		ItineraryLeg unknown = new ItineraryLeg(UUID.randomUUID().toString(), "v1", 0, 2,
+				UUID.randomUUID().toString(), UUID.randomUUID().toString(), "BUS", null, null, null, null, null,
+				java.time.Instant.now());
+		ItineraryContent content = new ItineraryContent(null, List.of(), List.of(known, unknown), List.of());
+		when(this.itineraryRepository.findContent(itineraryId.toString(), 1)).thenReturn(java.util.Optional.of(content));
+
+		RecommendationResultResponse response = this.service.buildResult(job);
+
+		assertThat(response.estimatedTravelMinutes()).isEqualTo(10);
 	}
 
 	@Test
