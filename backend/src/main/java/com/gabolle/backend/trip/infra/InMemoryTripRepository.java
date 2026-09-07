@@ -4,7 +4,9 @@ import com.gabolle.backend.trip.domain.PreferenceSnapshot;
 import com.gabolle.backend.trip.domain.Trip;
 import com.gabolle.backend.trip.domain.TripConstraint;
 import com.gabolle.backend.trip.domain.TripMember;
+import com.gabolle.backend.trip.domain.PersonalizationScope;
 import com.gabolle.backend.trip.domain.TripRepository;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -33,6 +35,16 @@ public class InMemoryTripRepository implements TripRepository {
     private final Map<String, List<TripConstraint>> constraints = new ConcurrentHashMap<>();
     private final Map<String, List<TripMember>> members = new ConcurrentHashMap<>();
     private final Map<String, List<PreferenceSnapshot>> snapshots = new ConcurrentHashMap<>();
+
+    /**
+     * 계정 기본 취향 — 열쇠가 사용자다 (S15P21E201-547).
+     *
+     * <p>🔴 {@link #snapshots}(열쇠가 여행)와 <b>섞지 않는다.</b> 한 통에 담으면
+     * {@code findLatestSnapshot(tripId)} 가 계정 기본값을 여행 스냅샷으로 집을 수 있고,
+     * 그것이 이 티켓이 막으려는 바로 그 혼동이다. DB 쪽도 같은 표에 두면서
+     * {@code trip_id IS NULL} 조건으로 갈라 놓았다.
+     */
+    private final Map<String, List<PreferenceSnapshot>> userDefaults = new ConcurrentHashMap<>();
 
     /** 열쇠는 "사용자#키". 멱등 키는 사용자마다 따로다 — 남의 키와 겹쳐도 안 된다. */
     private final Map<String, Binding> idempotency = new ConcurrentHashMap<>();
@@ -75,6 +87,31 @@ public class InMemoryTripRepository implements TripRepository {
     public Optional<PreferenceSnapshot> findLatestSnapshot(String tripId) {
         return snapshots.getOrDefault(tripId, List.of()).stream()
                 .max(Comparator.comparingInt(PreferenceSnapshot::version));
+    }
+
+    @Override
+    public Optional<PreferenceSnapshot> findUserDefaults(String userId) {
+        return userDefaults.getOrDefault(userId, List.of()).stream()
+                .max(Comparator.comparingInt(PreferenceSnapshot::version));
+    }
+
+    @Override
+    public PreferenceSnapshot saveUserDefaults(String userId,
+                                               List<PreferenceSnapshot.PreferenceAnswer> answers,
+                                               Instant at) {
+        List<PreferenceSnapshot> history = userDefaults.computeIfAbsent(userId, k -> new ArrayList<>());
+        synchronized (history) {
+            int nextVersion = history.stream()
+                    .mapToInt(PreferenceSnapshot::version)
+                    .max()
+                    .orElse(0) + 1;
+            // 🔴 tripId 는 null 이다 — 계정 기본값에는 여행이 없다.
+            PreferenceSnapshot saved = new PreferenceSnapshot(
+                    java.util.UUID.randomUUID().toString(), null, nextVersion,
+                    answers, PersonalizationScope.USER, List.of(), at);
+            history.add(saved);
+            return saved;
+        }
     }
 
     @Override
