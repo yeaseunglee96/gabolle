@@ -1,0 +1,1235 @@
+{
+  "type": "FeatureCollection",
+  "metadata": {
+    "generatedAt": "2026-08-28T02:09:22.219Z",
+    "generatedBy": "bigData/process/wheelchair-route.mjs",
+    "ontology": "origin/feat/bigData/S15P21E201-23-travel-ontology-base:bigData/config/ontology.jsonld",
+    "profile": "bm:Wheelchair",
+    "rulesRun": [
+      {
+        "id": "bm:RuleMotorFootBan",
+        "label": "자동차 전용도로 보행 금지"
+      },
+      {
+        "id": "bm:RuleWheelchairSteps",
+        "label": "휠체어 — 계단 통과 불가"
+      },
+      {
+        "id": "bm:RuleWheelchairSlope",
+        "label": "휠체어 — 경사 상한 초과"
+      }
+    ],
+    "rulesParked": [
+      {
+        "id": "bm:RuleWheelchairWidth",
+        "label": "휠체어 — 유효폭 미달",
+        "why": "입력미수집"
+      }
+    ],
+    "endpoints": {
+      "origin": {
+        "what": "좌수영교",
+        "how": "road/walk ndjson 에서 bridge=yes 이고 bridge:name 에 '좌수영교' 가 든 way 2개를 찾아, 그 중 가장 서쪽 끝점을 썼다",
+        "wayIds": [
+          77488354,
+          1356897141
+        ],
+        "tagUsed": "bridge:name",
+        "sampleTags": {
+          "bridge:name": "좌수영교",
+          "foot": "yes",
+          "highway": "secondary"
+        }
+      },
+      "dest": {
+        "what": "신세계 센텀시티",
+        "how": "poi.ndjson 에서 이름에 '신세계'와 '센텀시티'가 함께 든 node 를 썼다 (백화점 건물 폴리곤은 추출본에 없다 — poi 는 node 만 담겼다)",
+        "anchorId": 9306459885,
+        "anchorName": "신세계갤러리 센텀시티점",
+        "corroboration": [
+          {
+            "id": 4986798637,
+            "name": "신세계 센텀시티",
+            "stop_id": "09138",
+            "lat": 35.1687969,
+            "lon": 129.1311086
+          },
+          {
+            "id": 4986798638,
+            "name": "신세계 센텀시티",
+            "stop_id": "09137",
+            "lat": 35.1676259,
+            "lon": 129.1297105
+          }
+        ]
+      }
+    },
+    "routes": [
+      {
+        "id": "shortest",
+        "label": "최단거리 (판정 무시)",
+        "avoidBlocked": false,
+        "found": true,
+        "totalM": 1489,
+        "lineCount": 18,
+        "verdicts": {
+          "불가": {
+            "count": 2,
+            "metres": 4
+          },
+          "미상": {
+            "count": 16,
+            "metres": 1485
+          }
+        }
+      },
+      {
+        "id": "wheelchair",
+        "label": "휠체어 최선 (불가 구간 제외)",
+        "avoidBlocked": true,
+        "found": true,
+        "totalM": 1749,
+        "lineCount": 12,
+        "verdicts": {
+          "미상": {
+            "count": 12,
+            "metres": 1749
+          }
+        }
+      }
+    ],
+    "caveat": "온톨로지에 통과 \"가능\" 을 선언하는 규칙이 없다 — 선언된 규칙은 전부 불가 조건이다. 유효폭(bm:widthM)이 수집되면 그때 \"가능\" 이 나올 수 있다. 그전까지 불가가 아닌 모든 구간은 미상이다."
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            129.1198639,
+            35.1742759
+          ],
+          [
+            129.1198453,
+            35.1742661
+          ]
+        ]
+      },
+      "properties": {
+        "route": "shortest",
+        "routeName": "최단거리 (판정 무시)",
+        "verdict": "불가",
+        "reason": "대표 경사(p90) 10.5% — 휠체어 상한 8.3% 이상이라 통과 불가",
+        "wayId": 1356897140,
+        "name": "좌수영로",
+        "highway": "secondary",
+        "topic": "road",
+        "lengthM": 2,
+        "p90Slope": 0.105,
+        "slopeFromStagedTable": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            129.1198453,
+            35.1742661
+          ],
+          [
+            129.1199199,
+            35.1741696
+          ],
+          [
+            129.1200666,
+            35.1740116
+          ],
+          [
+            129.1204037,
+            35.1736069
+          ],
+          [
+            129.1206817,
+            35.1732937
+          ],
+          [
+            129.1209595,
+            35.17282
+          ],
+          [
+            129.121063,
+            35.1726916
+          ],
+          [
+            129.1212468,
+            35.1723579
+          ],
+          [
+            129.1216911,
+            35.1715994
+          ],
+          [
+            129.122288,
+            35.1705995
+          ],
+          [
+            129.1223722,
+            35.1704701
+          ],
+          [
+            129.122753,
+            35.1698718
+          ],
+          [
+            129.1228203,
+            35.1697642
+          ]
+        ]
+      },
+      "properties": {
+        "route": "shortest",
+        "routeName": "최단거리 (판정 무시)",
+        "verdict": "미상",
+        "reason": "통과 가능을 확인해 줄 규칙이 없다 — 유효폭(bm:widthM)이 수집되지 않아 폭 규칙이 멈춰 있다",
+        "wayId": 626525989,
+        "name": "수영강 자전거길",
+        "highway": "cycleway",
+        "topic": "walk",
+        "lengthM": 570.4,
+        "p90Slope": 0.0547,
+        "slopeFromStagedTable": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            129.1228203,
+            35.1697642
+          ],
+          [
+            129.1228538,
+            35.1697791
+          ]
+        ]
+      },
+      "properties": {
+        "route": "shortest",
+        "routeName": "최단거리 (판정 무시)",
+        "verdict": "미상",
+        "reason": "통과 가능을 확인해 줄 규칙이 없다 — 유효폭(bm:widthM)이 수집되지 않아 폭 규칙이 멈춰 있다",
+        "wayId": 1509503090,
+        "name": null,
+        "highway": "footway",
+        "topic": "walk",
+        "lengthM": 3.5,
+        "p90Slope": null,
+        "slopeFromStagedTable": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            129.1228538,
+            35.1697791
+          ],
+          [
+            129.1228734,
+            35.1697814
+          ]
+        ]
+      },
+      "properties": {
+        "route": "shortest",
+        "routeName": "최단거리 (판정 무시)",
+        "verdict": "불가",
+        "reason": "계단 구간 — 휠체어는 한 단만 있어도 통과 불가",
+        "wayId": 1510246886,
+        "name": null,
+        "highway": "steps",
+        "topic": "stairs",
+        "lengthM": 1.8,
+        "p90Slope": null,
+        "slopeFromStagedTable": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            129.1228734,
+            35.1697814
+          ],
+          [
+            129.1229023,
+            35.1697845
+          ],
+          [
+            129.1231996,
+            35.1698178
+          ],
+          [
+            129.1235735,
+            35.1699057
+          ],
+          [
+            129.123828,
+            35.1699848
+          ],
+          [
+            129.1239505,
+            35.1700354
+          ],
+          [
+            129.1241599,
+            35.1701244
+          ],
+          [
+            129.1243831,
+            35.1702499
+          ],
+          [
+            129.1245515,
+            35.1703605
+          ],
+          [
+            129.1247579,
+            35.1705165
+          ],
+          [
+            129.1248796,
+            35.1706247
+          ]
+        ]
+      },
+      "properties": {
+        "route": "shortest",
+        "routeName": "최단거리 (판정 무시)",
+        "verdict": "미상",
+        "reason": "통과 가능을 확인해 줄 규칙이 없다 — 유효폭(bm:widthM)이 수집되지 않아 폭 규칙이 멈춰 있다",
+        "wayId": 1477730651,
+        "name": null,
+        "highway": "footway",
+        "topic": "walk",
+        "lengthM": 210.1,
+        "p90Slope": 0.0305,
+        "slopeFromStagedTable": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            129.1248796,
+            35.1706247
+          ],
+          [
+            129.124939,
+            35.1706127
+          ],
+          [
+            129.1250101,
+            35.1706325
+          ],
+          [
+            129.1251067,
+            35.1706741
+          ],
+          [
+            129.1251992,
+            35.170707
+          ],
+          [
+            129.1252804,
+            35.1707268
+          ]
+        ]
+      },
+      "properties": {
+        "route": "shortest",
+        "routeName": "최단거리 (판정 무시)",
+        "verdict": "미상",
+        "reason": "통과 가능을 확인해 줄 규칙이 없다 — 유효폭(bm:widthM)이 수집되지 않아 폭 규칙이 멈춰 있다",
+        "wayId": 1509503089,
+        "name": null,
+        "highway": "footway",
+        "topic": "walk",
+        "lengthM": 39.2,
+        "p90Slope": 0.0665,
+        "slopeFromStagedTable": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            129.1252804,
+            35.1707268
+          ],
+          [
+            129.1252798,
+            35.1707282
+          ]
+        ]
+      },
+      "properties": {
+        "route": "shortest",
+        "routeName": "최단거리 (판정 무시)",
+        "verdict": "미상",
+        "reason": "통과 가능을 확인해 줄 규칙이 없다 — 유효폭(bm:widthM)이 수집되지 않아 폭 규칙이 멈춰 있다",
+        "wayId": 1477730652,
+        "name": null,
+        "highway": "pedestrian",
+        "topic": "walk",
+        "lengthM": 0.2,
+        "p90Slope": 0.0283,
+        "slopeFromStagedTable": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            129.1252798,
+            35.1707282
+          ],
+          [
+            129.1253266,
+            35.1707366
+          ],
+          [
+            129.1253626,
+            35.1707436
+          ],
+          [
+            129.1254057,
+            35.1706697
+          ],
+          [
+            129.125395,
+            35.1706423
+          ],
+          [
+            129.1252059,
+            35.1705798
+          ],
+          [
+            129.1250785,
+            35.1705349
+          ],
+          [
+            129.1250184,
+            35.1705038
+          ]
+        ]
+      },
+      "properties": {
+        "route": "shortest",
+        "routeName": "최단거리 (판정 무시)",
+        "verdict": "미상",
+        "reason": "통과 가능을 확인해 줄 규칙이 없다 — 유효폭(bm:widthM)이 수집되지 않아 폭 규칙이 멈춰 있다",
+        "wayId": 1509503088,
+        "name": null,
+        "highway": "footway",
+        "topic": "walk",
+        "lengthM": 57.6,
+        "p90Slope": 0.0349,
+        "slopeFromStagedTable": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            129.1250184,
+            35.1705038
+          ],
+          [
+            129.1251249,
+            35.1703293
+          ]
+        ]
+      },
+      "properties": {
+        "route": "shortest",
+        "routeName": "최단거리 (판정 무시)",
+        "verdict": "미상",
+        "reason": "통과 가능을 확인해 줄 규칙이 없다 — 유효폭(bm:widthM)이 수집되지 않아 폭 규칙이 멈춰 있다",
+        "wayId": 667277398,
+        "name": null,
+        "highway": "footway",
+        "topic": "walk",
+        "lengthM": 21.7,
+        "p90Slope": 0.0438,
+        "slopeFromStagedTable": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            129.1251249,
+            35.1703293
+          ],
+          [
+            129.125177,
+            35.1703491
+          ],
+          [
+            129.1252501,
+            35.1703568
+          ],
+          [
+            129.1253533,
+            35.1703581
+          ],
+          [
+            129.1254518,
+            35.1703361
+          ],
+          [
+            129.1255011,
+            35.1703166
+          ],
+          [
+            129.1255503,
+            35.1702971
+          ],
+          [
+            129.1256186,
+            35.1702465
+          ],
+          [
+            129.1256837,
+            35.1701582
+          ],
+          [
+            129.1257027,
+            35.1700673
+          ]
+        ]
+      },
+      "properties": {
+        "route": "shortest",
+        "routeName": "최단거리 (판정 무시)",
+        "verdict": "미상",
+        "reason": "통과 가능을 확인해 줄 규칙이 없다 — 유효폭(bm:widthM)이 수집되지 않아 폭 규칙이 멈춰 있다",
+        "wayId": 1510246890,
+        "name": null,
+        "highway": "footway",
+        "topic": "walk",
+        "lengthM": 70.6,
+        "p90Slope": 0.0282,
+        "slopeFromStagedTable": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            129.1257027,
+            35.1700673
+          ],
+          [
+            129.12593,
+            35.1700439
+          ],
+          [
+            129.1263558,
+            35.1699877
+          ],
+          [
+            129.1267152,
+            35.1699456
+          ],
+          [
+            129.126835,
+            35.1700156
+          ]
+        ]
+      },
+      "properties": {
+        "route": "shortest",
+        "routeName": "최단거리 (판정 무시)",
+        "verdict": "미상",
+        "reason": "통과 가능을 확인해 줄 규칙이 없다 — 유효폭(bm:widthM)이 수집되지 않아 폭 규칙이 멈춰 있다",
+        "wayId": 471302231,
+        "name": null,
+        "highway": "footway",
+        "topic": "walk",
+        "lengthM": 106.4,
+        "p90Slope": 0.0145,
+        "slopeFromStagedTable": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            129.126835,
+            35.1700156
+          ],
+          [
+            129.1269542,
+            35.169903
+          ]
+        ]
+      },
+      "properties": {
+        "route": "shortest",
+        "routeName": "최단거리 (판정 무시)",
+        "verdict": "미상",
+        "reason": "통과 가능을 확인해 줄 규칙이 없다 — 유효폭(bm:widthM)이 수집되지 않아 폭 규칙이 멈춰 있다",
+        "wayId": 518192057,
+        "name": "수영강변대로",
+        "highway": "secondary",
+        "topic": "road",
+        "lengthM": 16.6,
+        "p90Slope": 0.0193,
+        "slopeFromStagedTable": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            129.1269542,
+            35.169903
+          ],
+          [
+            129.1270842,
+            35.1697713
+          ]
+        ]
+      },
+      "properties": {
+        "route": "shortest",
+        "routeName": "최단거리 (판정 무시)",
+        "verdict": "미상",
+        "reason": "통과 가능을 확인해 줄 규칙이 없다 — 유효폭(bm:widthM)이 수집되지 않아 폭 규칙이 멈춰 있다",
+        "wayId": 511619022,
+        "name": "수영강변대로",
+        "highway": "secondary",
+        "topic": "road",
+        "lengthM": 18.8,
+        "p90Slope": 0.0192,
+        "slopeFromStagedTable": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            129.1270842,
+            35.1697713
+          ],
+          [
+            129.1272473,
+            35.1698492
+          ]
+        ]
+      },
+      "properties": {
+        "route": "shortest",
+        "routeName": "최단거리 (판정 무시)",
+        "verdict": "미상",
+        "reason": "통과 가능을 확인해 줄 규칙이 없다 — 유효폭(bm:widthM)이 수집되지 않아 폭 규칙이 멈춰 있다",
+        "wayId": 1510264128,
+        "name": null,
+        "highway": "footway",
+        "topic": "walk",
+        "lengthM": 17.2,
+        "p90Slope": 0.0128,
+        "slopeFromStagedTable": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            129.1272473,
+            35.1698492
+          ],
+          [
+            129.1278654,
+            35.169117
+          ]
+        ]
+      },
+      "properties": {
+        "route": "shortest",
+        "routeName": "최단거리 (판정 무시)",
+        "verdict": "미상",
+        "reason": "통과 가능을 확인해 줄 규칙이 없다 — 유효폭(bm:widthM)이 수집되지 않아 폭 규칙이 멈춰 있다",
+        "wayId": 1510264130,
+        "name": null,
+        "highway": "footway",
+        "topic": "walk",
+        "lengthM": 98.9,
+        "p90Slope": 0.015,
+        "slopeFromStagedTable": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            129.1278654,
+            35.169117
+          ],
+          [
+            129.127987,
+            35.1689841
+          ],
+          [
+            129.1280681,
+            35.1688869
+          ]
+        ]
+      },
+      "properties": {
+        "route": "shortest",
+        "routeName": "최단거리 (판정 무시)",
+        "verdict": "미상",
+        "reason": "통과 가능을 확인해 줄 규칙이 없다 — 유효폭(bm:widthM)이 수집되지 않아 폭 규칙이 멈춰 있다",
+        "wayId": 1510264129,
+        "name": null,
+        "highway": "footway",
+        "topic": "walk",
+        "lengthM": 31.5,
+        "p90Slope": 0.0142,
+        "slopeFromStagedTable": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            129.1280681,
+            35.1688869
+          ],
+          [
+            129.1290479,
+            35.1677619
+          ]
+        ]
+      },
+      "properties": {
+        "route": "shortest",
+        "routeName": "최단거리 (판정 무시)",
+        "verdict": "미상",
+        "reason": "통과 가능을 확인해 줄 규칙이 없다 — 유효폭(bm:widthM)이 수집되지 않아 폭 규칙이 멈춰 있다",
+        "wayId": 1510264131,
+        "name": null,
+        "highway": "footway",
+        "topic": "walk",
+        "lengthM": 153.6,
+        "p90Slope": 0.0194,
+        "slopeFromStagedTable": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            129.1290479,
+            35.1677619
+          ],
+          [
+            129.1296763,
+            35.1681099
+          ]
+        ]
+      },
+      "properties": {
+        "route": "shortest",
+        "routeName": "최단거리 (판정 무시)",
+        "verdict": "미상",
+        "reason": "통과 가능을 확인해 줄 규칙이 없다 — 유효폭(bm:widthM)이 수집되지 않아 폭 규칙이 멈춰 있다",
+        "wayId": 1510264132,
+        "name": null,
+        "highway": "footway",
+        "topic": "walk",
+        "lengthM": 69,
+        "p90Slope": 0.0146,
+        "slopeFromStagedTable": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            129.1198639,
+            35.1742759
+          ],
+          [
+            129.1199323,
+            35.1743131
+          ]
+        ]
+      },
+      "properties": {
+        "route": "wheelchair",
+        "routeName": "휠체어 최선 (불가 구간 제외)",
+        "verdict": "미상",
+        "reason": "통과 가능을 확인해 줄 규칙이 없다 — 유효폭(bm:widthM)이 수집되지 않아 폭 규칙이 멈춰 있다",
+        "wayId": 1356897141,
+        "name": null,
+        "highway": "secondary",
+        "topic": "walk",
+        "lengthM": 7.5,
+        "p90Slope": 0.0582,
+        "slopeFromStagedTable": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            129.1199323,
+            35.1743131
+          ],
+          [
+            129.1200095,
+            35.1742179
+          ]
+        ]
+      },
+      "properties": {
+        "route": "wheelchair",
+        "routeName": "휠체어 최선 (불가 구간 제외)",
+        "verdict": "미상",
+        "reason": "통과 가능을 확인해 줄 규칙이 없다 — 유효폭(bm:widthM)이 수집되지 않아 폭 규칙이 멈춰 있다",
+        "wayId": 626525984,
+        "name": null,
+        "highway": "footway",
+        "topic": "walk",
+        "lengthM": 12.7,
+        "p90Slope": 0.0417,
+        "slopeFromStagedTable": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            129.1200095,
+            35.1742179
+          ],
+          [
+            129.1215544,
+            35.1750859
+          ],
+          [
+            129.121922,
+            35.1752757
+          ],
+          [
+            129.1238058,
+            35.1762467
+          ]
+        ]
+      },
+      "properties": {
+        "route": "wheelchair",
+        "routeName": "휠체어 최선 (불가 구간 제외)",
+        "verdict": "미상",
+        "reason": "통과 가능을 확인해 줄 규칙이 없다 — 유효폭(bm:widthM)이 수집되지 않아 폭 규칙이 멈춰 있다",
+        "wayId": 77488354,
+        "name": null,
+        "highway": "secondary",
+        "topic": "walk",
+        "lengthM": 412.3,
+        "p90Slope": 0.0521,
+        "slopeFromStagedTable": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            129.1238058,
+            35.1762467
+          ],
+          [
+            129.1241657,
+            35.1764156
+          ]
+        ]
+      },
+      "properties": {
+        "route": "wheelchair",
+        "routeName": "휠체어 최선 (불가 구간 제외)",
+        "verdict": "미상",
+        "reason": "통과 가능을 확인해 줄 규칙이 없다 — 유효폭(bm:widthM)이 수집되지 않아 폭 규칙이 멈춰 있다",
+        "wayId": 37398450,
+        "name": "센텀북대로",
+        "highway": "secondary",
+        "topic": "road",
+        "lengthM": 37.7,
+        "p90Slope": 0.0648,
+        "slopeFromStagedTable": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            129.1241657,
+            35.1764156
+          ],
+          [
+            129.1239119,
+            35.1761797
+          ],
+          [
+            129.1237195,
+            35.1760773
+          ],
+          [
+            129.1230813,
+            35.1757376
+          ],
+          [
+            129.1228732,
+            35.1755253
+          ],
+          [
+            129.1228399,
+            35.1753342
+          ],
+          [
+            129.1228828,
+            35.1751325
+          ],
+          [
+            129.1230302,
+            35.174843
+          ]
+        ]
+      },
+      "properties": {
+        "route": "wheelchair",
+        "routeName": "휠체어 최선 (불가 구간 제외)",
+        "verdict": "미상",
+        "reason": "통과 가능을 확인해 줄 규칙이 없다 — 유효폭(bm:widthM)이 수집되지 않아 폭 규칙이 멈춰 있다",
+        "wayId": 441626747,
+        "name": null,
+        "highway": "secondary_link",
+        "topic": "road",
+        "lengthM": 234.4,
+        "p90Slope": 0.0172,
+        "slopeFromStagedTable": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            129.1230302,
+            35.174843
+          ],
+          [
+            129.1233577,
+            35.1745084
+          ],
+          [
+            129.1235972,
+            35.1741726
+          ],
+          [
+            129.1239786,
+            35.1736611
+          ],
+          [
+            129.1240249,
+            35.1736049
+          ],
+          [
+            129.1240679,
+            35.1735526
+          ],
+          [
+            129.126835,
+            35.1700156
+          ],
+          [
+            129.1269542,
+            35.169903
+          ]
+        ]
+      },
+      "properties": {
+        "route": "wheelchair",
+        "routeName": "휠체어 최선 (불가 구간 제외)",
+        "verdict": "미상",
+        "reason": "통과 가능을 확인해 줄 규칙이 없다 — 유효폭(bm:widthM)이 수집되지 않아 폭 규칙이 멈춰 있다",
+        "wayId": 518192057,
+        "name": "수영강변대로",
+        "highway": "secondary",
+        "topic": "road",
+        "lengthM": 655.4,
+        "p90Slope": 0.0193,
+        "slopeFromStagedTable": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            129.1269542,
+            35.169903
+          ],
+          [
+            129.1270842,
+            35.1697713
+          ]
+        ]
+      },
+      "properties": {
+        "route": "wheelchair",
+        "routeName": "휠체어 최선 (불가 구간 제외)",
+        "verdict": "미상",
+        "reason": "통과 가능을 확인해 줄 규칙이 없다 — 유효폭(bm:widthM)이 수집되지 않아 폭 규칙이 멈춰 있다",
+        "wayId": 511619022,
+        "name": "수영강변대로",
+        "highway": "secondary",
+        "topic": "road",
+        "lengthM": 18.8,
+        "p90Slope": 0.0192,
+        "slopeFromStagedTable": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            129.1270842,
+            35.1697713
+          ],
+          [
+            129.1272473,
+            35.1698492
+          ]
+        ]
+      },
+      "properties": {
+        "route": "wheelchair",
+        "routeName": "휠체어 최선 (불가 구간 제외)",
+        "verdict": "미상",
+        "reason": "통과 가능을 확인해 줄 규칙이 없다 — 유효폭(bm:widthM)이 수집되지 않아 폭 규칙이 멈춰 있다",
+        "wayId": 1510264128,
+        "name": null,
+        "highway": "footway",
+        "topic": "walk",
+        "lengthM": 17.2,
+        "p90Slope": 0.0128,
+        "slopeFromStagedTable": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            129.1272473,
+            35.1698492
+          ],
+          [
+            129.1278654,
+            35.169117
+          ]
+        ]
+      },
+      "properties": {
+        "route": "wheelchair",
+        "routeName": "휠체어 최선 (불가 구간 제외)",
+        "verdict": "미상",
+        "reason": "통과 가능을 확인해 줄 규칙이 없다 — 유효폭(bm:widthM)이 수집되지 않아 폭 규칙이 멈춰 있다",
+        "wayId": 1510264130,
+        "name": null,
+        "highway": "footway",
+        "topic": "walk",
+        "lengthM": 98.9,
+        "p90Slope": 0.015,
+        "slopeFromStagedTable": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            129.1278654,
+            35.169117
+          ],
+          [
+            129.127987,
+            35.1689841
+          ],
+          [
+            129.1280681,
+            35.1688869
+          ]
+        ]
+      },
+      "properties": {
+        "route": "wheelchair",
+        "routeName": "휠체어 최선 (불가 구간 제외)",
+        "verdict": "미상",
+        "reason": "통과 가능을 확인해 줄 규칙이 없다 — 유효폭(bm:widthM)이 수집되지 않아 폭 규칙이 멈춰 있다",
+        "wayId": 1510264129,
+        "name": null,
+        "highway": "footway",
+        "topic": "walk",
+        "lengthM": 31.5,
+        "p90Slope": 0.0142,
+        "slopeFromStagedTable": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            129.1280681,
+            35.1688869
+          ],
+          [
+            129.1290479,
+            35.1677619
+          ]
+        ]
+      },
+      "properties": {
+        "route": "wheelchair",
+        "routeName": "휠체어 최선 (불가 구간 제외)",
+        "verdict": "미상",
+        "reason": "통과 가능을 확인해 줄 규칙이 없다 — 유효폭(bm:widthM)이 수집되지 않아 폭 규칙이 멈춰 있다",
+        "wayId": 1510264131,
+        "name": null,
+        "highway": "footway",
+        "topic": "walk",
+        "lengthM": 153.6,
+        "p90Slope": 0.0194,
+        "slopeFromStagedTable": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            129.1290479,
+            35.1677619
+          ],
+          [
+            129.1296763,
+            35.1681099
+          ]
+        ]
+      },
+      "properties": {
+        "route": "wheelchair",
+        "routeName": "휠체어 최선 (불가 구간 제외)",
+        "verdict": "미상",
+        "reason": "통과 가능을 확인해 줄 규칙이 없다 — 유효폭(bm:widthM)이 수집되지 않아 폭 규칙이 멈춰 있다",
+        "wayId": 1510264132,
+        "name": null,
+        "highway": "footway",
+        "topic": "walk",
+        "lengthM": 69,
+        "p90Slope": 0.0146,
+        "slopeFromStagedTable": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          129.1198639,
+          35.1742759
+        ]
+      },
+      "properties": {
+        "kind": "endpoint",
+        "role": "origin",
+        "name": "좌수영교",
+        "how": "road/walk ndjson 에서 bridge=yes 이고 bridge:name 에 '좌수영교' 가 든 way 2개를 찾아, 그 중 가장 서쪽 끝점을 썼다"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          129.1295706,
+          35.1685854
+        ]
+      },
+      "properties": {
+        "kind": "endpoint",
+        "role": "dest",
+        "name": "신세계 센텀시티",
+        "how": "poi.ndjson 에서 이름에 '신세계'와 '센텀시티'가 함께 든 node 를 썼다 (백화점 건물 폴리곤은 추출본에 없다 — poi 는 node 만 담겼다)"
+      }
+    }
+  ]
+}
