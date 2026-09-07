@@ -10,35 +10,38 @@ import { Text } from '@/components/Text';
 import { Card } from '@/components/Card';
 import { Button } from '@/components/Button';
 import { Split } from '@/layout/Split';
+import { useI18n } from '@/i18n';
 
 type Pace = '여유' | '보통';
+const PACE_LABEL: Record<Pace, [string, string]> = { 여유: ['여유', 'Relaxed'], 보통: ['보통', 'Moderate'] };
 
 type ItineraryItem = {
   time: string;
-  title: string;
-  subtitle: string;
+  titleKo: string; titleEn: string;
+  subtitleKo: string; subtitleEn: string;
   pace: Pace;
 };
 
 const DAY1: ItineraryItem[] = [
-  { time: '10:00', title: '송도 해상 케이블카', subtitle: '바다 위를 가르는 부산 대표 뷰', pace: '여유' },
-  { time: '12:30', title: '남포동 로컬 맛집', subtitle: '현지인 추천 · 대기 15분', pace: '보통' },
-  { time: '15:00', title: '흰여울문화마을', subtitle: '골목 산책 · 포토 스팟', pace: '여유' },
-  { time: '18:30', title: '광안리 야경', subtitle: '해변 산책 · 노을 명소', pace: '보통' },
+  { time: '10:00', titleKo: '송도 해상 케이블카', titleEn: 'Songdo Marine Cable Car', subtitleKo: '바다 위를 가르는 부산 대표 뷰', subtitleEn: "Busan's signature view over the sea", pace: '여유' },
+  { time: '12:30', titleKo: '남포동 로컬 맛집', titleEn: 'Nampo-dong local eatery', subtitleKo: '현지인 추천 · 대기 15분', subtitleEn: 'Local recommendation · 15 min wait', pace: '보통' },
+  { time: '15:00', titleKo: '흰여울문화마을', titleEn: 'Huinnyeoul Culture Village', subtitleKo: '골목 산책 · 포토 스팟', subtitleEn: 'Alley walk · Photo spot', pace: '여유' },
+  { time: '18:30', titleKo: '광안리 야경', titleEn: 'Gwangalli night view', subtitleKo: '해변 산책 · 노을 명소', subtitleEn: 'Beach walk · Sunset spot', pace: '보통' },
 ];
 
 const STATS = [
-  { label: '총 소요', value: '18시간 30분', tinted: true },
-  { label: '1인 예산', value: '128,000원', tinted: false },
-  { label: '이동', value: '42.6 km', tinted: false },
+  { labelKo: '총 소요', labelEn: 'Total time', valueKo: '18시간 30분', valueEn: '18h 30m', tinted: true },
+  { labelKo: '1인 예산', labelEn: 'Budget per person', valueKo: '128,000원', valueEn: '₩128,000', tinted: false },
+  { labelKo: '이동', labelEn: 'Distance', valueKo: '42.6 km', valueEn: '42.6 km', tinted: false },
 ];
 
 function PaceTag({ pace }: { pace: Pace }) {
+  const { tx } = useI18n();
   const isEasy = pace === '여유';
   return (
     <View style={[styles.tag, { backgroundColor: isEasy ? color.state.successBg : color.state.warningBg }]}>
       <Text variant="caption" weight="bold" color={isEasy ? color.state.success : color.state.warning}>
-        {pace}
+        {tx(...PACE_LABEL[pace])}
       </Text>
     </View>
   );
@@ -46,6 +49,7 @@ function PaceTag({ pace }: { pace: Pace }) {
 
 export default function Result() {
   const router = useRouter();
+  const { tx } = useI18n();
   const { id } = useLocalSearchParams<{ id: string }>();
   const tripId = id ?? 'demo-trip';
   const [day, setDay] = useState<'DAY 1' | 'DAY 2'>('DAY 1');
@@ -58,37 +62,37 @@ export default function Result() {
     <Screen scroll wide>
       <View style={styles.headerRow}>
         <View>
-          <Text variant="caption">나의 부산 여행</Text>
+          <Text variant="caption">{tx('나의 부산 여행', 'My Busan trip')}</Text>
           <Text variant="display" weight="bold" style={styles.title}>
-            부산 1박 2일 여행
+            {tx('부산 1박 2일 여행', 'Busan 2-day 1-night trip')}
           </Text>
         </View>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="일정 수정"
+          accessibilityLabel={tx('일정 수정', 'Edit itinerary')}
           onPress={() => router.push(`/${tripId}/edit`)}
           style={styles.editButton}
         >
           <Text variant="caption" weight="bold" color={color.action.brand}>
-            일정 수정
+            {tx('일정 수정', 'Edit itinerary')}
           </Text>
         </Pressable>
       </View>
 
       <View style={styles.statsRow}>
         {STATS.map((stat) => (
-          <Card key={stat.label} tinted={stat.tinted} style={styles.statCard}>
+          <Card key={stat.labelKo} tinted={stat.tinted} style={styles.statCard}>
             <Text variant="title" weight="bold">
-              {stat.value}
+              {tx(stat.valueKo, stat.valueEn)}
             </Text>
-            <Text variant="caption">{stat.label}</Text>
+            <Text variant="caption">{tx(stat.labelKo, stat.labelEn)}</Text>
           </Card>
         ))}
       </View>
 
       <View style={styles.summaryHeaderRow}>
         <Text variant="title" weight="bold">
-          일정 요약
+          {tx('일정 요약', 'Itinerary summary')}
         </Text>
         <View accessibilityRole="tablist" style={styles.dayToggle}>
           {(['DAY 1', 'DAY 2'] as const).map((option) => {
@@ -125,10 +129,10 @@ export default function Result() {
                   </Text>
                   <Card tinted={item.time === selectedTime} style={styles.timelineCard}>
                     <Text variant="body" weight="bold">
-                      {item.title}
+                      {tx(item.titleKo, item.titleEn)}
                     </Text>
                     <Text variant="caption" style={styles.timelineSubtitle}>
-                      {item.subtitle}
+                      {tx(item.subtitleKo, item.subtitleEn)}
                     </Text>
                     <PaceTag pace={item.pace} />
                   </Card>
@@ -141,13 +145,13 @@ export default function Result() {
             // 이번 작업에서 새로 만든 화면이다. 사람 검토가 필요하다.
             <Card tinted style={styles.placeSummaryCard}>
               <Text variant="caption" weight="bold" color={color.text.eyebrow}>
-                선택한 장소
+                {tx('선택한 장소', 'Selected place')}
               </Text>
               <Text variant="title" weight="bold" style={styles.placeSummaryTitle}>
-                {selectedItem.title}
+                {tx(selectedItem.titleKo, selectedItem.titleEn)}
               </Text>
               <Text variant="caption" style={styles.timelineSubtitle}>
-                {selectedItem.time} · {selectedItem.subtitle}
+                {selectedItem.time} · {tx(selectedItem.subtitleKo, selectedItem.subtitleEn)}
               </Text>
               <PaceTag pace={selectedItem.pace} />
             </Card>
@@ -155,12 +159,12 @@ export default function Result() {
         />
       ) : (
         <Text variant="caption" style={styles.day2Placeholder}>
-          DAY 2 일정은 아직 준비 중이에요.
+          {tx('DAY 2 일정은 아직 준비 중이에요.', 'DAY 2 itinerary is still being prepared.')}
         </Text>
       )}
 
       <Button
-        label="여행 지도에서 보기"
+        label={tx('여행 지도에서 보기', 'View on trip map')}
         variant="ghost"
         containerStyle={styles.mapCta}
         onPress={() => router.push(`/${tripId}/map`)}
