@@ -50,8 +50,15 @@ public class JpaTripMembershipRepository implements TripMembershipRepository {
 				.map(JpaTripMembershipRepository::toDomain);
 	}
 
+	/**
+	 * 🔴 {@code noRollbackFor} — 이 메서드는 호출자(TripInviteService, {@code @Transactional})의 트랜잭션에
+	 * 참여한다. 참여 중인 메서드가 RuntimeException 을 밖으로 내면 Spring 은 그 공용 트랜잭션을
+	 * <b>롤백 전용</b>으로 표시하고, 호출자가 예외를 잡아 "이미 참여" 로 200 을 답하려 해도 커밋 시점에
+	 * {@code UnexpectedRollbackException} 이 난다. 동시에 두 번 누른 경쟁에서만 드러나는 500 이다.
+	 * {@link AlreadyMemberException} 은 실패가 아니라 "이미 있다" 는 사실이라 롤백 사유에서 뺀다.
+	 */
 	@Override
-	@Transactional
+	@Transactional(noRollbackFor = AlreadyMemberException.class)
 	public TripMember add(TripMember member) {
 		int inserted = this.entityManager.createNativeQuery(INSERT_ON_CONFLICT_DO_NOTHING)
 				.setParameter(1, UUID.fromString(member.tripMemberId()))
