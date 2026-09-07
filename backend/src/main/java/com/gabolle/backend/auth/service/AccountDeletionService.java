@@ -13,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.gabolle.backend.auth.api.AccountDeletionPreviewResponse;
 import com.gabolle.backend.auth.domain.LocalCredential;
 import com.gabolle.backend.auth.repository.AuthIdentityRepository;
 import com.gabolle.backend.auth.repository.AuthSessionRepository;
@@ -112,6 +113,42 @@ public class AccountDeletionService {
 		detachEvents(userId);
 
 		user.anonymizeForDeletion(this.clock.instant());
+	}
+
+	/**
+	 * 삭제 전 안내 화면이 보여줄 실제 영향 수 — S15P21E201-188/195(진미리 님 요청).
+	 *
+	 * <p>🔴 {@link #delete}가 실제로 지우는 것과 같은 기준으로 센다. {@code recordCount}(기록·
+	 * {@code story})는 지금 {@link #delete}가 <b>지우지 않는다</b> — 이 클래스 맨 위 문서는
+	 * "본인 데이터는 전부 지운다"고 적어 뒀지만 {@code story} 패키지는 그 뒤에 생겨서 빠져 있다.
+	 * 그래서 이 값은 "삭제되는 개수"가 아니라 "지금 존재하는 개수"다 — 화면에서 이 차이를
+	 * 그대로 보여줄지, 아니면 {@link #delete}를 먼저 story 까지 지우도록 넓힐지는 별도로
+	 * 정해야 한다(진미리 님께 알림).
+	 */
+	@Transactional(readOnly = true)
+	public AccountDeletionPreviewResponse preview(UUID userId) {
+		long ownedTripCount = this.entityManager
+				.createQuery("SELECT count(t) FROM TripJpaEntity t WHERE t.ownerUserId = :userId", Long.class)
+				.setParameter("userId", userId)
+				.getSingleResult();
+
+		long itineraryCount = this.entityManager
+				.createQuery("""
+						SELECT count(i) FROM ItineraryJpaEntity i WHERE i.tripId IN
+						(SELECT t.tripId FROM TripJpaEntity t WHERE t.ownerUserId = :userId)
+						""", Long.class)
+				.setParameter("userId", userId)
+				.getSingleResult();
+
+		// 🔴 story 엔티티를 import 하지 않는다 — 위 델리트 메서드들과 같은 이유
+		// (클래스 상단 "남의 패키지 코드를 고치지 않고 행만 지운다").
+		long recordCount = this.entityManager
+				.createQuery("SELECT count(s) FROM Story s WHERE s.authorUserId = :userId AND s.deletedAt IS NULL",
+						Long.class)
+				.setParameter("userId", userId)
+				.getSingleResult();
+
+		return new AccountDeletionPreviewResponse(ownedTripCount, itineraryCount, recordCount);
 	}
 
 	/** 이 사람이 소유한 여행. 동행자로만 참여한 여행은 여기 없다 — 그건 남의 여행이다. */
