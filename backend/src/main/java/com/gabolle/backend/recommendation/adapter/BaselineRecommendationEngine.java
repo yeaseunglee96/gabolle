@@ -16,6 +16,7 @@ import com.gabolle.backend.place.domain.UserPlaceCodeMap;
 import com.gabolle.backend.place.repository.UserPlaceCodeMapRepository;
 import com.gabolle.backend.place.service.PlaceCandidateQueryService;
 import com.gabolle.backend.recommendation.config.BaselineEngineProperties;
+import com.gabolle.backend.recommendation.config.PreferenceAlignmentWeights;
 import com.gabolle.backend.recommendation.domain.FallbackMode;
 import com.gabolle.backend.trip.domain.PreferenceSnapshot;
 import com.gabolle.backend.trip.domain.Trip;
@@ -58,6 +59,9 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 
 	private final BaselineEngineProperties properties;
 
+	/** S15P21E201-547 — 취향 다섯 차원이 {@code weights.preferenceAlignment} 를 나누는 비율. */
+	private final PreferenceAlignmentWeights alignmentWeights;
+
 	private final UserPlaceCodeMapRepository codeMapRepository;
 
 	/** S15P21E201-338 — 복제 씨앗. 보통 여행은 비어 있어 아무 일도 하지 않는다({@link SeedBoost}). */
@@ -66,12 +70,14 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 	public BaselineRecommendationEngine(TripRepository tripRepository,
 			PlaceCandidateQueryService placeCandidateQueryService, BaselineCandidateTranslator translator,
 			BaselineCandidateScorer scorer, BaselineEngineProperties properties,
-			UserPlaceCodeMapRepository codeMapRepository, TripSeedPlaceRepository seedPlaceRepository) {
+			PreferenceAlignmentWeights alignmentWeights, UserPlaceCodeMapRepository codeMapRepository,
+			TripSeedPlaceRepository seedPlaceRepository) {
 		this.tripRepository = tripRepository;
 		this.placeCandidateQueryService = placeCandidateQueryService;
 		this.translator = translator;
 		this.scorer = scorer;
 		this.properties = properties;
+		this.alignmentWeights = alignmentWeights;
 		this.codeMapRepository = codeMapRepository;
 		this.seedPlaceRepository = seedPlaceRepository;
 	}
@@ -109,7 +115,7 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 		List<EngineCandidate> candidates = new ArrayList<>(response.candidates().size());
 		for (PlaceCandidateResponse.Candidate candidate : response.candidates()) {
 			candidates.add(this.scorer.score(candidate, preferenceSnapshot, constraints, this.properties.radiusM(),
-					this.properties.weights(), preferenceCodeMap, constraintCodeMap));
+					this.properties.weights(), this.alignmentWeights, preferenceCodeMap, constraintCodeMap));
 		}
 		// 🔴 S15P21E201-338 — 복제 씨앗을 앞세운다. 점수만 올리고 제약 판정은 그대로다(SeedBoost 참고).
 		candidates = SeedBoost.apply(candidates, this.seedPlaceRepository.findByTripId(trip.tripId()));
