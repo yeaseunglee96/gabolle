@@ -42,6 +42,12 @@ public final class SbizCsvReader {
 
 	static final int COL_JUNG = 6;
 
+	/**
+	 * 상권업종<b>소</b>분류명 — S15P21E201-635 에서 쓰기 시작했다. 중분류(칸 6)는 앱에 없는
+	 * 낱말이라 채점이 한 건도 안 맞았다. {@link AppFoodVocabulary} 가 이 값을 앱 코드로 옮긴다.
+	 */
+	static final int COL_SO = 8;
+
 	static final int COL_JIBUN_ADDR = 24;
 
 	static final int COL_ROAD_ADDR = 31;
@@ -107,7 +113,7 @@ public final class SbizCsvReader {
 				String address = (roadAddress == null || roadAddress.isBlank())
 						? cols.get(COL_JIBUN_ADDR) : roadAddress;
 				chunk.add(new SbizRow(cols.get(COL_STORE_ID), cols.get(COL_NAME), cols.get(COL_BRANCH),
-						cols.get(COL_JUNG), address, lat, lng));
+						cols.get(COL_SO), address, lat, lng));
 				counts.food++;
 				if (chunk.size() >= chunkSize) {
 					chunkConsumer.accept(List.copyOf(chunk));

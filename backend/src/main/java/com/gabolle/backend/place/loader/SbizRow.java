@@ -13,11 +13,11 @@ package com.gabolle.backend.place.loader;
  * @param storeId 상가업소번호. 🔴 재적재해도 같은 가게가 두 행이 되지 않게 하는 유일한 열쇠다
  * @param name 상호명
  * @param branch 지점명. 없으면 빈 문자열이다 — 이 칸이 있는 음식점이 8,448곳(15.7%)
- * @param cuisine 상권업종<b>중</b>분류명 (한식·일식·주점·비알코올 …). 🔴 소분류(46종)가 아니라
- *     중분류(10종)를 쓴다 — 소분류를 묶어 "한식/일식/양식" 을 만들려면 <b>사람의 판단</b>이
- *     들어가야 하고(치킨은 간식인가 한 끼인가), 중분류는 자료가 스스로 지어 둔 묶음이라
- *     판단이 한 방울도 안 들어간다. S15P21E201-713 이 이 선택으로 재서 중앙 백분위가
- *     61.4% → 44.3% 로 움직이는 것을 확인했다
+ * @param subCategory 상권업종<b>소</b>분류명 (백반/한정식·카페·횟집·냉면/밀면 …, 43종).
+ *     🔴 <b>중분류(10종)에서 소분류로 바꿨다</b> — S15P21E201-635. 중분류는 자료가 스스로 지어 둔
+ *     묶음이라 사람의 판단이 안 들어가서 좋았지만, 그 낱말(한식·일식)이 <b>앱 어디에도 없어서</b>
+ *     채점이 한 건도 안 맞았다. 채점기는 앱이 보낸 코드와 이 값을 글자 그대로 비교한다.
+ *     소분류에서 앱 코드로 옮기는 규칙은 {@link AppFoodVocabulary} 에 있다
  * @param address 도로명 주소. 없으면 지번 주소
  * @param lat 위도
  * @param lng 경도
@@ -26,7 +26,7 @@ public record SbizRow(
 		String storeId,
 		String name,
 		String branch,
-		String cuisine,
+		String subCategory,
 		String address,
 		double lat,
 		double lng) {

@@ -65,12 +65,12 @@ class SbizPlaceLoaderIntegrationTest extends PlacePostgresIntegrationTest {
 	@DisplayName("음식 대분류만, 좌표가 있는 것만 들어간다")
 	void 음식이고_좌표가_있는_행만_들어간다() {
 		Path csv = csv(
-				row("MA001", "돼지국밥집", "", "음식", "한식", "부산광역시 부산진구 중앙대로 1", "129.05", "35.15"),
-				row("MA002", "밀면집", "서면점", "음식", "한식", "부산광역시 부산진구 중앙대로 2", "129.06", "35.16"),
+				row("MA001", "돼지국밥집", "", "음식", "백반/한정식", "부산광역시 부산진구 중앙대로 1", "129.05", "35.15"),
+				row("MA002", "밀면집", "서면점", "음식", "냉면/밀면", "부산광역시 부산진구 중앙대로 2", "129.06", "35.16"),
 				// 🔴 숙박이라 후보가 아니다
 				row("MA003", "어느 호텔", "", "숙박", "호텔/리조트", "부산광역시 해운대구", "129.16", "35.16"),
 				// 🔴 좌표가 0 이다 — 0,0 은 좌표가 아니라 빈 칸이다
-				row("MA004", "좌표없는집", "", "음식", "일식", "부산광역시 중구", "0", "0"));
+				row("MA004", "좌표없는집", "", "음식", "일식 회/초밥", "부산광역시 중구", "0", "0"));
 
 		SbizCsvReader.Counts counts = load(csv);
 
@@ -81,9 +81,9 @@ class SbizPlaceLoaderIntegrationTest extends PlacePostgresIntegrationTest {
 	}
 
 	@Test
-	@DisplayName("피처는 관심 태그 FOOD 와 음식 태그(중분류) 둘뿐이고 둘 다 ESTIMATED 다")
+	@DisplayName("🔴 음식 태그는 앱이 보내는 코드다 — 서버 낱말(한식)이 아니라 PORK_SOUP 이다")
 	void 피처는_둘뿐이고_추정으로_들어간다() {
-		load(csv(row("MA001", "돼지국밥집", "", "음식", "한식", "부산광역시 부산진구 중앙대로 1", "129.05", "35.15")));
+		load(csv(row("MA001", "돼지국밥집", "", "음식", "백반/한정식", "부산광역시 부산진구 중앙대로 1", "129.05", "35.15")));
 
 		List<Map<String, Object>> features = this.jdbcTemplate.queryForList("""
 				SELECT feature_type, feature_key, evidence_status, source_version
@@ -92,7 +92,9 @@ class SbizPlaceLoaderIntegrationTest extends PlacePostgresIntegrationTest {
 
 		assertThat(features).hasSize(2);
 		assertThat(features).extracting(f -> f.get("feature_type") + ":" + f.get("feature_key"))
-				.containsExactly("CUISINE_TAG:한식", "INTEREST_TAG:FOOD");
+				// 🔴 여기가 "CUISINE_TAG:한식" 이던 것이 S15P21E201-635 의 버그다. 채점기는
+				//    앱이 보낸 코드와 이 값을 글자 그대로 비교하므로 한 건도 안 맞았다.
+				.containsExactly("CUISINE_TAG:PORK_SOUP", "INTEREST_TAG:FOOD");
 		assertThat(features).allSatisfy(f -> {
 			// 🔴 업종 칸에서 옮긴 것이지 가게에 직접 확인한 것이 아니다.
 			assertThat(f.get("evidence_status")).isEqualTo("ESTIMATED");
@@ -101,9 +103,38 @@ class SbizPlaceLoaderIntegrationTest extends PlacePostgresIntegrationTest {
 	}
 
 	@Test
+	@DisplayName("카페는 관심 태그가 둘이다 — FOOD 하나뿐이면 순서를 못 바꾼다")
+	void 카페는_CAFE_HEALING_도_붙는다() {
+		load(csv(row("MA010", "어느 커피", "", "음식", "카페", "부산광역시 해운대구 구남로 1", "129.16", "35.16")));
+
+		List<String> keys = this.jdbcTemplate.queryForList("""
+				SELECT feature_type || ':' || feature_key FROM place_feature
+				WHERE source_type = 'SBIZ' ORDER BY feature_type, feature_key
+				""", String.class);
+
+		// 🔴 모든 음식점에 INTEREST_TAG:FOOD 하나만 붙으면 후보가 전부 똑같이 맞아서
+		//    겹침 비율이 다 같아진다 — 그 항이 순서를 한 칸도 못 바꾼다.
+		assertThat(keys).containsExactly(
+				"CUISINE_TAG:CAFE_DESSERT", "INTEREST_TAG:CAFE_HEALING", "INTEREST_TAG:FOOD");
+	}
+
+	@Test
+	@DisplayName("🔴 가를 수 없는 업종에는 음식 태그를 안 붙인다 — 억지로 분류하지 않는다")
+	void 애매하면_안_붙인다() {
+		load(csv(row("MA011", "어느 백반집", "", "음식", "백반/한정식", "부산광역시 중구 광복로 1", "129.03", "35.10")));
+
+		List<String> keys = this.jdbcTemplate.queryForList(
+				"SELECT feature_type || ':' || feature_key FROM place_feature WHERE source_type = 'SBIZ'",
+				String.class);
+
+		// 백반/한정식 10,640곳 안에 돼지국밥집이 537곳 섞여 있다. 통째로 붙이면 95% 가 오답이다.
+		assertThat(keys).containsExactly("INTEREST_TAG:FOOD");
+	}
+
+	@Test
 	@DisplayName("🔴 근거가 없는 피처는 아예 안 넣는다 — 인기 점수를 지어내지 않는다")
 	void 근거가_없는_피처는_안_넣는다() {
-		load(csv(row("MA001", "돼지국밥집", "", "음식", "한식", "부산광역시 부산진구 중앙대로 1", "129.05", "35.15")));
+		load(csv(row("MA001", "돼지국밥집", "", "음식", "백반/한정식", "부산광역시 부산진구 중앙대로 1", "129.05", "35.15")));
 
 		List<String> types = this.jdbcTemplate.queryForList(
 				"SELECT DISTINCT feature_type FROM place_feature WHERE source_type = 'SBIZ'", String.class);
@@ -118,8 +149,8 @@ class SbizPlaceLoaderIntegrationTest extends PlacePostgresIntegrationTest {
 	@DisplayName("🔴 같은 파일을 두 번 돌려도 행이 두 배가 되지 않는다")
 	void 두_번_돌려도_안_늘어난다() {
 		Path csv = csv(
-				row("MA001", "돼지국밥집", "", "음식", "한식", "부산광역시 부산진구 중앙대로 1", "129.05", "35.15"),
-				row("MA002", "밀면집", "", "음식", "한식", "부산광역시 부산진구 중앙대로 2", "129.06", "35.16"));
+				row("MA001", "돼지국밥집", "", "음식", "백반/한정식", "부산광역시 부산진구 중앙대로 1", "129.05", "35.15"),
+				row("MA002", "밀면집", "", "음식", "냉면/밀면", "부산광역시 부산진구 중앙대로 2", "129.06", "35.16"));
 
 		load(csv);
 		long afterFirst = placeCount();
@@ -133,7 +164,7 @@ class SbizPlaceLoaderIntegrationTest extends PlacePostgresIntegrationTest {
 	@Test
 	@DisplayName("카테고리는 앱이 보내는 코드 FOOD 다 — 그래야 카테고리 필터에 걸린다")
 	void 카테고리는_앱_코드다() {
-		load(csv(row("MA001", "돼지국밥집", "", "음식", "한식", "부산광역시 부산진구 중앙대로 1", "129.05", "35.15")));
+		load(csv(row("MA001", "돼지국밥집", "", "음식", "백반/한정식", "부산광역시 부산진구 중앙대로 1", "129.05", "35.15")));
 
 		List<String> categories = this.jdbcTemplate.queryForList(
 				"SELECT category FROM place WHERE source_type = 'SBIZ'", String.class);
@@ -176,7 +207,11 @@ class SbizPlaceLoaderIntegrationTest extends PlacePostgresIntegrationTest {
 	}
 
 	/** 실제 판과 같은 39칸짜리 줄을 만든다 — 우리가 읽는 칸에만 값을 넣는다. */
-	private static String row(String storeId, String name, String branch, String dae, String jung,
+	/**
+	 * @param so 상권업종<b>소</b>분류명. 🔴 중분류(칸 6)에는 일부러 다른 값을 넣어 둔다 —
+	 *     적재가 그 칸을 다시 읽기 시작하면 이 테스트가 깨져야 한다 (S15P21E201-635)
+	 */
+	private static String row(String storeId, String name, String branch, String dae, String so,
 			String roadAddress, String lng, String lat) {
 		String[] cols = new String[COLUMNS];
 		java.util.Arrays.fill(cols, "");
@@ -184,7 +219,8 @@ class SbizPlaceLoaderIntegrationTest extends PlacePostgresIntegrationTest {
 		cols[1] = name;
 		cols[2] = branch;
 		cols[4] = dae;
-		cols[6] = jung;
+		cols[6] = "중분류는_이제_안_읽는다";
+		cols[8] = so;
 		cols[24] = roadAddress + " (지번)";
 		cols[31] = roadAddress;
 		cols[37] = lng;

@@ -32,8 +32,10 @@ import com.gabolle.backend.place.repository.PlaceRepository;
  * <table border="1">
  * <caption>place_feature 14종 중 이 적재가 건드리는 것</caption>
  * <tr><th>피처</th><th>자료</th><th>채우나</th></tr>
- * <tr><td>{@code INTEREST_TAG:FOOD}</td><td>대분류가 "음식" 이다</td><td>🟢 채운다</td></tr>
- * <tr><td>{@code CUISINE_TAG:<중분류>}</td><td>상권업종중분류명</td><td>🟢 채운다</td></tr>
+ * <tr><td>{@code INTEREST_TAG:FOOD}</td><td>대분류가 "음식" 이다</td><td>🟢 전부</td></tr>
+ * <tr><td>{@code INTEREST_TAG:CAFE_HEALING}</td><td>소분류가 "카페" 다</td><td>🟢 카페만</td></tr>
+ * <tr><td>{@code CUISINE_TAG:<앱 코드>}</td><td>소분류 + 상호명 → {@link AppFoodVocabulary}</td>
+ *     <td>🟢 가를 수 있는 것만</td></tr>
  * <tr><td>{@code ATMOSPHERE_TAG}</td><td>🔴 없다</td><td>비운다</td></tr>
  * <tr><td>{@code POPULARITY_SCORE}</td><td>🔴 <b>출처가 없다.</b> 방문수·리뷰수·조회수 어느
  *     것도 우리에게 없다</td><td>비운다</td></tr>
@@ -60,6 +62,12 @@ import com.gabolle.backend.place.repository.PlaceRepository;
  * 그중 <b>{@code FOOD} 하나만</b> 이 자료로 채울 수 있다 — 상가정보 대분류 "음식" 이 앱의
  * "맛집 & 먹거리" 와 같은 것을 가리킨다. 나머지 다섯은 이 자료에 없다. 그 다섯만 고른
  * 사용자는 후보가 0건인데, <b>그것이 사실이다</b> — 그 갈래의 장소를 아직 아무도 안 넣었다.
+ *
+ * <p>🔴 <b>{@code category} 는 카페도 {@code FOOD} 로 둔다.</b> 카페에 {@code INTEREST_TAG:
+ * CAFE_HEALING} 은 붙지만 {@code category} 는 한 칸뿐이라 둘을 같이 못 적는다. 여기서 카페만
+ * {@code CAFE_HEALING} 으로 바꾸면 "맛집 & 먹거리" 를 고른 사용자에게서 카페 7,335곳이
+ * <b>사라진다.</b> 한 칸에 여러 갈래를 담는 것은 표를 바꾸는 일이라 여기서 혼자 정하지 않는다 —
+ * 지금은 {@code CAFE_HEALING} <b>만</b> 고른 사용자의 후보가 0건이다.
  */
 @Component
 @Profile({ "db", "dev" })
@@ -75,9 +83,6 @@ public class SbizPlaceLoader {
 	private static final int NAME_MAX = 200;
 
 	private static final int ADDRESS_MAX = 300;
-
-	/** {@code place_feature.feature_key} 는 VARCHAR(50). */
-	private static final int FEATURE_KEY_MAX = 50;
 
 	private final PlaceRepository placeRepository;
 
@@ -123,9 +128,12 @@ public class SbizPlaceLoader {
 					//    수집분 자체는 datasetVersion 이 말해 준다.
 					null, datasetVersion));
 
-			features.add(feature(placeId, row.storeId(), "INTEREST_TAG", "FOOD", collectedAt, datasetVersion));
-			String cuisine = row.cuisine() == null ? "" : row.cuisine().trim();
-			if (!cuisine.isBlank() && cuisine.length() <= FEATURE_KEY_MAX) {
+			// 🔴 앱이 보내는 낱말만 넣는다. 채점이 글자 그대로 비교하므로 여기 다른 낱말을
+			//    적으면 그 항이 조용히 0 이 된다 — AppFoodVocabulary 참조.
+			for (String interest : AppFoodVocabulary.interestTags(row.subCategory())) {
+				features.add(feature(placeId, row.storeId(), "INTEREST_TAG", interest, collectedAt, datasetVersion));
+			}
+			for (String cuisine : AppFoodVocabulary.cuisineTags(row.subCategory(), row.name())) {
 				features.add(feature(placeId, row.storeId(), "CUISINE_TAG", cuisine, collectedAt, datasetVersion));
 			}
 		}
