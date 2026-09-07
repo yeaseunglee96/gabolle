@@ -4,6 +4,7 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -52,9 +53,19 @@ public class CandidateAssembler {
 
 	private final SensitivePayloadGuard sensitivePayloadGuard;
 
-	public CandidateAssembler(JsonPayloads jsonPayloads, SensitivePayloadGuard sensitivePayloadGuard) {
+	/**
+	 * 다양성 재정렬 (S15P21E201-548).
+	 *
+	 * <p>🔴 이 클래스의 다섯째 불변식("Top-K 에 못 든 후보도 행으로는 남는다")은 그대로다.
+	 * 재정렬은 <b>순서만</b> 바꾸고 무엇을 저장하는지는 바꾸지 않는다.
+	 */
+	private final DiversityReranker reranker;
+
+	public CandidateAssembler(JsonPayloads jsonPayloads, SensitivePayloadGuard sensitivePayloadGuard,
+			DiversityReranker reranker) {
 		this.jsonPayloads = jsonPayloads;
 		this.sensitivePayloadGuard = sensitivePayloadGuard;
+		this.reranker = reranker;
 	}
 
 	/**
@@ -95,30 +106,48 @@ public class CandidateAssembler {
 				.reversed()
 				.thenComparing(EngineCandidate::placeId));
 
+		// 🔴 S15P21E201-548 — 여기가 original_rank 와 final_rank 가 갈라지는 자리다.
+		//    (이 주석 자리에 "재정렬기가 아직 없다" 가 적혀 있었다.)
+		//
+		//    점수는 건드리지 않는다. final_score 는 여전히 preRankScore 그대로이고, 바뀐 것은
+		//    순서뿐이다 — 벌점을 점수에 반영하면 "취향에 얼마나 맞는가" 와 "목록을 고르게
+		//    만들려고 깎았는가" 가 한 숫자에 섞인다(DiversityReranker javadoc).
+		DiversityReranker.Reranked reranked = this.reranker.rerank(rankable);
+		List<EngineCandidate> ordered = reranked.ordered();
+
+		// 🔴 반환될 것을 먼저 정해야 대조 기여도의 기준선을 잴 수 있다 — 그 기준선이
+		//    "이 결과 안에서 평균" 이라서, 반환되지 않는 후보까지 넣으면 사용자가 보지도
+		//    않은 장소들이 평균을 끌어당긴다.
+		List<EngineCandidate> returnedCandidates = DiversityMetrics.topOf(ordered, topK);
+		Map<String, Double> cohortMeans = ReasonRanking.cohortMeans(returnedCandidates);
+
 		List<RecommendationCandidate> rows = new ArrayList<>(generated.size());
 		List<RecommendedPlace> returnedItems = new ArrayList<>();
 		int returnedCount = 0;
 
-		for (int index = 0; index < rankable.size(); index++) {
-			EngineCandidate candidate = rankable.get(index);
-			int rank = index + 1;
-			// 재정렬기가 아직 없다. 있게 되면 final_score · final_rank 만 이 자리에서 갈라진다.
+		for (int index = 0; index < ordered.size(); index++) {
+			EngineCandidate candidate = ordered.get(index);
+			int finalRank = index + 1;
+			int originalRank = reranked.scoreRankByPlace().getOrDefault(candidate.placeId(), finalRank);
 			Double finalScore = candidate.preRankScore();
-			boolean returned = rank <= topK;
+			boolean returned = finalRank <= topK;
 
 			List<String> warnings = new ArrayList<>(candidate.warningCodes());
 			if (candidate.constraintVerdict() == ConstraintVerdict.UNKNOWN) {
 				warnings.add(RecommendationCodes.WARNING_CONSTRAINT_UNKNOWN);
 			}
 
+			EngineCandidate annotated =
+					annotate(candidate, reranked, originalRank, finalRank, cohortMeans, returned);
+
 			CandidateStage stage = returned ? CandidateStage.RETURNED : CandidateStage.RANKED;
-			rows.add(toRow(requestId, candidate, stage, true, rank, finalScore, rank, returned, warnings,
-					batch, createdAt, SourceMode.PERSONALIZED));
+			rows.add(toRow(requestId, annotated, stage, true, originalRank, finalScore, finalRank, returned,
+					warnings, batch, createdAt, SourceMode.PERSONALIZED));
 
 			if (returned) {
 				returnedCount++;
-				returnedItems.add(new RecommendedPlace(candidate.placeId(), rank, finalScore,
-						candidate.reasonCodes(), List.copyOf(warnings)));
+				returnedItems.add(new RecommendedPlace(candidate.placeId(), finalRank, finalScore,
+						annotated.reasonCodes(), List.copyOf(warnings)));
 			}
 		}
 
@@ -127,8 +156,52 @@ public class CandidateAssembler {
 					exclusion.warnings(), batch, createdAt, SourceMode.PERSONALIZED));
 		}
 
+		Map<String, Object> metrics = DiversityMetrics.beforeAndAfter(
+				DiversityMetrics.topOf(rankable, topK), returnedCandidates,
+				reranked.parameters(), reranked.applied());
+
 		return new CandidateAssembly(List.copyOf(rows), List.copyOf(returnedItems),
-				generated.size(), rankable.size(), returnedCount);
+				generated.size(), rankable.size(), returnedCount, metrics);
+	}
+
+	/**
+	 * 후보 하나에 재정렬 흔적과 기여도를 붙인 <b>복사본</b>을 만든다 (S15P21E201-548).
+	 *
+	 * <p>🔴 원본을 고치지 않고 복사본을 만드는 이유 — {@link EngineCandidate} 는 엔진이
+	 * 돌려준 것이고, 그것을 조립 단계에서 손대면 "엔진이 무엇을 줬나" 와 "우리가 무엇을
+	 * 덧붙였나" 를 가를 수 없다.
+	 */
+	private EngineCandidate annotate(EngineCandidate candidate, DiversityReranker.Reranked reranked,
+			int originalRank, int finalRank, Map<String, Double> cohortMeans, boolean returned) {
+
+		Map<String, Object> components = new LinkedHashMap<>(
+				(candidate.scoreComponents() == null) ? Map.of() : candidate.scoreComponents());
+
+		Map<String, Object> diversity = new LinkedHashMap<>(reranked.parameters());
+		diversity.put("originalRank", originalRank);
+		diversity.put("finalRank", finalRank);
+		diversity.put("moved", originalRank != finalRank);
+		components.put("diversity", diversity);
+
+		List<String> reasonCodes = new ArrayList<>(candidate.reasonCodes());
+
+		// 🔴 기여도는 반환되는 후보에만 붙인다. 대조 기준선이 "반환 집합의 평균" 이라서,
+		//    그 집합 밖의 후보에 붙이면 다른 기준으로 잰 값이 같은 칸에 섞인다.
+		if (returned) {
+			components.put(ReasonRanking.COMPONENT_KEY, ReasonRanking.of(candidate, cohortMeans));
+			String topAxis = ReasonRanking.topAxisOf(candidate);
+			if (topAxis != null) {
+				reasonCodes.add(RecommendationCodes.REASON_TOP_CONTRIBUTOR_PREFIX + topAxis);
+			}
+		}
+		if (originalRank != finalRank) {
+			reasonCodes.add(RecommendationCodes.REASON_DIVERSITY_RERANKED);
+		}
+
+		return new EngineCandidate(candidate.placeId(), candidate.candidateSource(),
+				candidate.constraintVerdict(), candidate.violations(), candidate.unknownFacts(),
+				candidate.constraintConfidence(), candidate.featureValues(), components,
+				candidate.preRankScore(), reasonCodes, candidate.warningCodes());
 	}
 
 	/**
@@ -219,8 +292,20 @@ public class CandidateAssembler {
 					exclusion.warnings(), batch, createdAt, SourceMode.EDITORIAL_PICK));
 		}
 
+		// 🔴 Pick 은 재정렬하지 않으므로 before·after 가 같다. 그래도 남긴다 — 지표가 아예
+		//    없으면 "Pick 이라 안 쟀다" 와 "재정렬이 아무것도 안 바꿨다" 를 가를 수 없다.
+		List<EngineCandidate> returnedCandidates = returnedItems.stream()
+				.map((item) -> keepable.stream()
+						.map(Ordered::candidate)
+						.filter((c) -> c.placeId().equals(item.placeId()))
+						.findFirst()
+						.orElse(null))
+				.filter((c) -> c != null)
+				.toList();
+		Map<String, Object> metrics = DiversityMetrics.unchanged(returnedCandidates);
+
 		return new CandidateAssembly(List.copyOf(rows), List.copyOf(returnedItems),
-				generated.size(), keepable.size(), returnedCount);
+				generated.size(), keepable.size(), returnedCount, metrics);
 	}
 
 	/**

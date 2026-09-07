@@ -262,7 +262,7 @@ public class RecommendationService {
 		OffsetDateTime completedAt = OffsetDateTime.now(this.clock);
 		// 🔴 occurred_at 은 <b>요청 시각</b>이지 완료 시각이 아니다. 이 이벤트의 이름이
 		//    recommendation_requested 다 — 요청이 일어난 순간이 발생 시각이다.
-		OutboxAppendCommand event = buildRequestedEvent(job, createdAt);
+		OutboxAppendCommand event = buildRequestedEvent(job, createdAt, assembly.diversityMetrics());
 
 		// 🔴 S15P21E201-249 — 편집 Job(ITEM_REMOVE·ITINERARY_RECALCULATE)은 후보가 0건이어도
 		//    실패가 아니다. "제외했더니 그 시간대에 넣을 후보가 없다" 는 정답이고, 조건을 완화해
@@ -446,7 +446,8 @@ public class RecommendationService {
 		OffsetDateTime completedAt = OffsetDateTime.now(this.clock);
 		job.markCompleted(generatedAt, completedAt, FallbackMode.EDITORIAL_PICK, fallbackReason);
 
-		this.recorder.record(job, assembly.candidates(), List.of(buildRequestedEvent(job, createdAt)));
+		this.recorder.record(job, assembly.candidates(),
+				List.of(buildRequestedEvent(job, createdAt, assembly.diversityMetrics())));
 
 		return new RecommendationResult(job.getRequestId(), job.getJobId(), job.getJobType(), job.getJobStatus(),
 				job.getGeneratedAt(), assembly.returnedItems(), assembly.generatedCount(),
@@ -544,6 +545,18 @@ public class RecommendationService {
 	 * "안 보냈다" 와 "없었다" 는 다른 사실이다.
 	 */
 	private OutboxAppendCommand buildRequestedEvent(RecommendationJob job, OffsetDateTime occurredAt) {
+		return buildRequestedEvent(job, occurredAt, null);
+	}
+
+	/**
+	 * @param diversityMetrics S15P21E201-548 의 재정렬 전·후 지표. 🔴 <b>이벤트에 싣는
+	 *     이유</b> — 완료 기준이 "재정렬 전후 성능·다양성 지표가 함께 남는다" 인데,
+	 *     recommendation_job 에는 이것을 담을 칸이 없다. 칸을 새로 만들면 요청마다 하나씩
+	 *     늘어나는 값을 정규화된 표에 넣는 셈이고, 이 값은 <b>분석용</b>이라 이벤트 흐름이
+	 *     제자리다. 실패 경로에서는 {@code null} 이다 — 잴 것이 없었다
+	 */
+	private OutboxAppendCommand buildRequestedEvent(RecommendationJob job, OffsetDateTime occurredAt,
+			Map<String, Object> diversityMetrics) {
 		Map<String, Object> payload = new LinkedHashMap<>();
 		payload.put("job_id", job.getJobId());
 		payload.put("job_type", job.getJobType());
@@ -562,6 +575,9 @@ public class RecommendationService {
 		payload.put("generated_candidate_count", job.getGeneratedCandidateCount());
 		payload.put("eligible_candidate_count", job.getEligibleCandidateCount());
 		payload.put("returned_candidate_count", job.getReturnedCandidateCount());
+		// 🔴 키를 지우지 않고 null 로 남긴다 — "안 보냈다" 와 "없었다" 는 다른 사실이다
+		//    (이 이벤트의 다른 칸들과 같은 규칙).
+		payload.put("diversity_metrics", diversityMetrics);
 
 		return new OutboxAppendCommand(
 				UUID.randomUUID(),

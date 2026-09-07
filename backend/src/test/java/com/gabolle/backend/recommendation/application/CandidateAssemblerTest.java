@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import com.gabolle.backend.common.json.JsonPayloads;
 import com.gabolle.backend.common.privacy.SensitivePayloadGuard;
 import com.gabolle.backend.recommendation.adapter.EngineCandidate;
+import com.gabolle.backend.recommendation.config.DiversityProperties;
 import com.gabolle.backend.recommendation.domain.CandidateStage;
 import com.gabolle.backend.recommendation.domain.ConstraintSeverity;
 import com.gabolle.backend.recommendation.domain.ConstraintVerdict;
@@ -31,8 +32,15 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  */
 class CandidateAssemblerTest {
 
+	/**
+	 * 🔴 S15P21E201-548 로 재정렬기가 생성자에 붙었다. 기존 기대값이 그대로인 이유는
+	 * {@code FakeRecommendationEngine} 의 후보에 다양성 키({@code category}·
+	 * {@code localityBucket})가 없어서다 — 키가 없는 후보는 서로 겹치지 않는 것으로 보므로 벌점이
+	 * 0 이고 순서가 점수 순 그대로다. 재정렬 자체는 {@code DiversityRerankTest} 가 본다.
+	 */
 	private final CandidateAssembler assembler = new CandidateAssembler(
-			new JsonPayloads(JsonMapper.builder().build()), new SensitivePayloadGuard());
+			new JsonPayloads(JsonMapper.builder().build()), new SensitivePayloadGuard(),
+			new DiversityReranker(new DiversityProperties(null, null, null)));
 
 	private final OffsetDateTime now = OffsetDateTime.now();
 

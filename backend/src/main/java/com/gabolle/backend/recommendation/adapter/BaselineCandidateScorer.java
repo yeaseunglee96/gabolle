@@ -96,6 +96,25 @@ public class BaselineCandidateScorer {
 
 		double total = 0.0;
 
+		// ── 다양성 재정렬이 쓸 값 (S15P21E201-548) ────────────────────────────
+		//
+		// 점수에 쓰지 않는다. "같은 종류인가 · 같은 동네인가" 를 판단하는 데만 쓰이고
+		// (DiversityKeys), 그 판단은 순서만 바꾸고 점수는 건드리지 않는다. 여기 남기는
+		// 이유는 CandidateAssembler 가 후보 객체만 보고 그 판단을 할 수 있어야 하기
+		// 때문이다 — 장소 표를 다시 읽으면 질의 수가 후보 수에 비례하게 된다.
+		//
+		// 🔴 <b>좌표를 그대로 남기지 않는다.</b> lat·lng 를 넣었다가 SensitivePayloadGuard
+		//    가 거부했고, 그 거부가 맞았다 — feature_values 는 일반 추천 로그이고 거기에는
+		//    정밀 좌표를 남기지 않는다는 것이 이 저장소의 규칙이다(그 클래스 javadoc).
+		//
+		//    그래서 <b>이름만 바꿔 통과시키지 않고</b> 값 자체를 굵게 만든다. 소수점을 두
+		//    자리에서 자른 정수 쌍이라 부산 위도에서 대략 1km 칸이고, 되돌려도 그 칸보다
+		//    정밀한 위치가 나오지 않는다. 재정렬에 필요한 것은 "같은 칸인가" 하나뿐이므로
+		//    잃는 것이 없다. 그 그물의 javadoc 이 "최후의 그물이지 설계 대체물이 아니다 —
+		//    무엇을 담을지는 부르는 쪽이 정해야 한다" 고 적은 그 결정이 이것이다.
+		featureValues.put("category", candidate.category());
+		featureValues.put("localityBucket", localityBucket(candidate.lat(), candidate.lng()));
+
 		// ── 거리 — 항상 잴 수 있다 ────────────────────────────────────────────
 		double distanceComponent = clamp01(1.0 - (candidate.distanceM() / (double) radiusM));
 		featureValues.put("distanceM", candidate.distanceM());
@@ -503,6 +522,20 @@ public class BaselineCandidateScorer {
 		double alignment = clamp01(1.0 - Math.abs(normalizedPlace - prefScore));
 		alignments.put(preferenceCode, alignment);
 		reasonCodes.add("PREF_ALIGNED_" + preferenceCode);
+	}
+
+	/**
+	 * 다양성 재정렬이 "같은 동네" 를 판단할 굵은 구역 번호. 좌표가 없으면 {@code null}.
+	 *
+	 * <p>🔴 소수점 두 자리에서 자른 뒤 <b>정수 쌍</b>으로 만든다({@code "3515:12905"}).
+	 * 소수점을 남기지 않는 것도 일부러다 — 남기면 좌표처럼 보이고, 좌표처럼 보이는 값은
+	 * 다음 사람이 좌표로 쓴다.
+	 */
+	private static String localityBucket(Double lat, Double lng) {
+		if (lat == null || lng == null) {
+			return null;
+		}
+		return Math.round(lat * 100) + ":" + Math.round(lng * 100);
 	}
 
 	/** 점수형 피처(키가 없는 행) 하나의 값. 못 구하면 {@code null} 이다. */
