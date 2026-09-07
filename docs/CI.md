@@ -1,5 +1,12 @@
 # CI 를 켜는 순서
 
+> 🔴 **2026-09-01 정정 — 사본(`ci/axmap/`)은 없어졌다.**
+> axMap 은 이제 npm 꾸러미 `axmap-cli` 를 `npx` 로 부른다. 그래서 아래에서
+> **`ci:vendor` 잡 · `ci/verify-vendor.mjs` · `SOURCE.json` · `manifest.sha256` 을
+> 말하는 대목은 전부 옛말**이다. 지금 규칙은 `CLAUDE.md` 0.3 절에 있다.
+>
+> 낡은 실측을 지우지 않고 남긴다 — 다음 사람이 같은 것을 다시 재보지 않게.
+
 **CI**(코드를 올릴 때마다 GitLab 이 자동으로 검사를 돌려주는 것) 설정 파일
 [`.gitlab-ci.yml`](../.gitlab-ci.yml) 하나만 봐서는 *왜 이렇게 돼 있지* 가 안 풀린다.
 거기 적힌 결정에는 전부 이유가 있는데 **그 이유가 파일 안에 없다.**
@@ -148,10 +155,10 @@ sudo gitlab-runner register \
 ### 손으로 확인하려면
 
 ```bash
-node ci/axmap/tools/version.mjs current                  # 지금 버전
-node ci/axmap/tools/version.mjs next --branch back/dev   # 계산만 (아무것도 안 바꿈)
-node ci/axmap/tools/version.mjs bump --branch back/dev   # 로컬에 태그를 만든다
-node ci/axmap/tools/version.mjs bump --branch back/dev --push   # 원격까지 올린다
+npx -y axmap-cli@latest version current                  # 지금 버전
+npx -y axmap-cli@latest version next --branch back/dev   # 계산만 (아무것도 안 바꿈)
+npx -y axmap-cli@latest version bump --branch back/dev   # 로컬에 태그를 만든다
+npx -y axmap-cli@latest version bump --branch back/dev --push   # 원격까지 올린다
 ```
 
 `--push` 를 빼면 태그는 이 PC 에만 생긴다. CI 의 `version` 잡은 `--push` 까지 붙여 부른다.
@@ -303,7 +310,7 @@ git 이 아니라 GitLab API 를 부르는 일이라 **`api` 가 필요하다.**
 
 지금 이 저장소의 CI 가 부르는 것은 **선점 장치의 사본**(`ci/axmap/`)뿐이고, 그건
 **배포되는 서비스가 아니라 개발할 때 쓰는 도구**다. 각자 PC 에서
-`node ci/axmap/bin/axmap.mjs` 로 돌린다. 서버에 올라가지 않으니 이미지를 만들 이유가 없다.
+`npx -y axmap-cli@latest` 로 돌린다. 서버에 올라가지 않으니 이미지를 만들 이유가 없다.
 
 **여행 서비스 파트(`frontend/` · `backend/`)가 붙으면 그때 서비스 이미지가 필요해진다.**
 그건 그 파트의 CI 로 따로 만든다 — 섞으면 프론트 빌드가 깨졌을 때 선점 검사까지
@@ -351,10 +358,10 @@ default:
 
 | 잡 | 무엇을 돌리나 | 언제 도나 |
 |---|---|---|
-| `ci:vendor` | `node ci/verify-vendor.mjs` — `ci/axmap/` 사본이 손으로 바뀌지 않았는지 | **모든 MR**, 그리고 이름이 `main`·`func`·`dev` 로 끝나는 브랜치의 커밋 |
-| `claims` | `node ci/axmap/bin/axmap.mjs audit --fetch` — 선점 없이 고친 것이 들어왔는지 | **모든 MR** |
-| `verify:mr-target` | `node ci/axmap/tools/mr-target.mjs` — MR 이 한 칸씩 올라가는지 | **모든 MR.** 컨테이너를 띄우고 node 를 한 번 부르는 게 전부라 제일 먼저 끝난다 |
-| `governance` | `node ci/axmap/governance/gate.mjs` — 정족수를 채웠는지 | **모든 MR** |
+| `ci:vendor` | `npx -y axmap-cli@latest doctor` — `ci/axmap/` 사본이 손으로 바뀌지 않았는지 | **모든 MR**, 그리고 이름이 `main`·`func`·`dev` 로 끝나는 브랜치의 커밋 |
+| `claims` | `npx -y axmap-cli@latest audit --fetch` — 선점 없이 고친 것이 들어왔는지 | **모든 MR** |
+| `verify:mr-target` | `npx -y axmap-cli@latest mr-target` — MR 이 한 칸씩 올라가는지 | **모든 MR.** 컨테이너를 띄우고 node 를 한 번 부르는 게 전부라 제일 먼저 끝난다 |
+| `governance` | `npx -y axmap-cli@latest gate` — 정족수를 채웠는지 | **모든 MR** |
 | `version` | 버전 태그 계산 · 생성 · push | 이름이 `main`·`func`·`dev` 로 끝나는 브랜치의 커밋. **MR 에서는 안 돈다** |
 | `promote` | `node ci/axmap/tools/promote.mjs --step "$PROMOTE_STEP"` — 봇이 단계를 올린다 | **스케줄 파이프라인**(GitLab 이 정해진 시각에 스스로 돌리는 것)에서만. 6절 |
 
@@ -407,7 +414,7 @@ default:
 
 ```bash
 # 손으로 미리 확인
-node ci/axmap/tools/mr-target.mjs --source front/dev --target back/main
+npx -y axmap-cli@latest mr-target --source front/dev --target back/main
 # → 거부. "파트가 다릅니다 — front 에서 back 로 건너뛸 수 없습니다"
 ```
 

@@ -1,5 +1,19 @@
 # 처음 온 사람에게 — clone 부터 첫 작업까지
 
+> 🔴 **2026-09-01 정정 — 사본(`ci/axmap/`)도 저장소의 `.mcp.json` 도 없어졌다.**
+> axMap 은 이제 **npm 꾸러미 `axmap-cli`** 다. 각자 PC 에서 한 번만 하면 된다:
+>
+> ```bash
+> npm i -g axmap-cli@latest
+> axmap setup      # Claude Code · Codex · Antigravity 를 각자의 홈 설정에 붙인다
+> ```
+>
+> 그래서 아래에서 **`ci/axmap/` 사본 · `ci:vendor` 잡 · `.mcp.json` 을 말하는 대목,
+> 그리고 3.5 절의 "MCP 설정을 손으로 넣는다" 는 전부 옛말**이다. 지금 규칙은
+> [../CLAUDE.md](../CLAUDE.md) 0.3 절에 있다.
+>
+> 낡은 실측을 지우지 않고 남긴다 — 다음 사람이 같은 것을 다시 재보지 않게.
+
 읽는 데 5분, 따라 하는 데 3분이면 된다.
 **막히면 그 자리에서 답을 얻을 수 있게** 만들어 두었으니 물어보러 가지 않아도 된다.
 
@@ -64,7 +78,7 @@ git config --global user.email "you@example.com"
 **남한테 "이거 된 거 맞아요?" 라고 물어보지 않아도 된다.**
 
 ```bash
-node ci/axmap/bin/axmap.mjs doctor
+npx -y axmap-cli@latest doctor
 ```
 
 ```
@@ -88,7 +102,7 @@ node ci/axmap/bin/axmap.mjs doctor
 > 자리를 옮겼는데, 훅은 옛 경로를 절대 경로로 박아 두고 있다. 한 줄로 고친다.
 >
 > ```bash
-> node ci/axmap/bin/axmap.mjs hook install
+> npx -y axmap-cli@latest hook install
 > ```
 >
 > **그냥 두면 안 된다.** 훅이 못 돌면 claim 없이 고친 파일도 그대로 커밋되고,
@@ -266,10 +280,10 @@ ax_status 를 불러서 결과를 그대로 보여줘.
 AI 도구를 쓰면 위의 `ax_*` 도구가 알아서 부른다. 사람이 직접 칠 수도 있다.
 
 ```bash
-node ci/axmap/bin/axmap.mjs status
-node ci/axmap/bin/axmap.mjs claim FE/src/pages/Trip.tsx --task S15P21E201-144 --intent "여행 상세 화면"
-node ci/axmap/bin/axmap.mjs release
-node ci/axmap/bin/axmap.mjs renew --ttl 30m
+npx -y axmap-cli@latest status
+npx -y axmap-cli@latest claim FE/src/pages/Trip.tsx --task S15P21E201-144 --intent "여행 상세 화면"
+npx -y axmap-cli@latest release
+npx -y axmap-cli@latest renew --ttl 30m
 ```
 
 ---
@@ -291,7 +305,7 @@ claim 거부 - 다른 에이전트가 점유 중인 경로가 있습니다.
 정 급하면 그 사람에게 직접 말하면 된다 — 그러라고 이름을 적어 두는 것이다.
 
 > **TTL** (Time To Live) — 선점이 살아 있는 시간. 기본 30분이고, 지나면 저절로 풀린다.
-> 오래 걸릴 것 같으면 `ax_renew`(손으로는 `node ci/axmap/bin/axmap.mjs renew`)로
+> 오래 걸릴 것 같으면 `ax_renew`(손으로는 `npx -y axmap-cli@latest renew`)로
 > 연장한다. 깜빡 잊고 반납 안 해도 남이 영원히 막히지 않게 하려고 있는 장치다.
 
 ---
@@ -316,7 +330,7 @@ MR 은 `main` 이 아니라 **자기 파트의 `dev`** 로 올린다.
 ## 7. 끝나면 반납한다
 
 AI 에게: `작업이 끝났으니 ax_release 로 반납해줘.`
-손으로: `node ci/axmap/bin/axmap.mjs release`
+손으로: `npx -y axmap-cli@latest release`
 
 반납을 안 해도 TTL 이 지나면 풀리지만, **끝났으면 바로 반납한다.**
 안 그러면 다른 사람이 최대 30분을 헛되이 기다린다.
@@ -328,7 +342,7 @@ AI 에게: `작업이 끝났으니 ax_release 로 반납해줘.`
 
 ## 막히면
 
-1. `node ci/axmap/bin/axmap.mjs doctor` — 대부분 여기서 답이 나온다
+1. `npx -y axmap-cli@latest doctor` — 대부분 여기서 답이 나온다
 2. [../CLAUDE.md](../CLAUDE.md) — 팀 전체 규칙 (0.3 절이 "사본을 왜 손으로 고치면 안 되나")
 3. [HANDOVER.md](HANDOVER.md) — 지금 무엇이 열려 있고 무엇이 고장 나 있는지 (4.6 절)
 4. 도구 **자체**를 고쳐야 한다면 axMap 저장소로 간다 —
