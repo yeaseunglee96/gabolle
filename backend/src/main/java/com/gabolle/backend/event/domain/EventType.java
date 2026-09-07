@@ -75,9 +75,16 @@ public enum EventType {
     // 🔴 아래 11종의 aggregate 축은 잠정이다. 그 이벤트를 실제로 구현할 때 확정한다.
     //    지금 확정할 수 없는 둘은 축을 비워 뒀다 — 비워 두면 쓰려는 순간 예외가 나서
     //    아무도 모르게 틀린 축으로 적히는 일이 없다.
-    PLACE_VIEW(Producer.CLIENT, false, VersionRequirement.NONE, AggregateAxis.TRIP),
-    PLACE_LIKE(Producer.SERVER, false, VersionRequirement.NONE, AggregateAxis.TRIP),
-    PLACE_DISLIKE(Producer.SERVER, false, VersionRequirement.NONE, AggregateAxis.TRIP),
+    //
+    // 🔴 2026-09-07 (S15P21E201-735) — 아래 셋의 축을 TRIP 에서 USER 로 옮겼다.
+    //    홈 화면 하트와 장소 상세는 <b>여행 밖 화면</b>이라 줄 tripId 가 없다. TRIP 축이면
+    //    aggregate_id 가 비어서 적을 수 없고, 그래서 앱의 저장 이벤트가 전부 튕겼다.
+    //    "이 이벤트는 누구에게 일어난 일인가" 로 되물으면 답은 그 사람이다 — 여행 안에서
+    //    누른 것도 마찬가지다. 여행과의 관계는 trip_id 실컬럼이 그대로 들고 있으므로
+    //    잃는 조인이 없다.
+    PLACE_VIEW(Producer.CLIENT, false, VersionRequirement.NONE, AggregateAxis.USER),
+    PLACE_LIKE(Producer.SERVER, false, VersionRequirement.NONE, AggregateAxis.USER),
+    PLACE_DISLIKE(Producer.SERVER, false, VersionRequirement.NONE, AggregateAxis.USER),
     ITINERARY_LOCK(Producer.SERVER, false, VersionRequirement.NONE, AggregateAxis.TRIP),
     ITINERARY_REMOVE(Producer.SERVER, false, VersionRequirement.NONE, AggregateAxis.TRIP),
     ITINERARY_REPLACE(Producer.CLIENT, false, VersionRequirement.NONE, AggregateAxis.TRIP),
@@ -110,9 +117,13 @@ public enum EventType {
      * 나중에 브로커로 보낼 때 <b>같은 대상의 이벤트는 순서가 지켜져야</b> 하고,
      * 분석에서 한 대상의 이력을 한 줄로 읽으려면 이 축이 있어야 한다.
      *
-     * <p>🔴 축이 둘뿐인 이유 — {@code aggregate_id} 컬럼이 {@code UUID NOT NULL} 이라
-     * <b>실제로 UUID 를 갖고 있는 것만</b> 축이 될 수 있다. 지금 그런 것은 추천 요청과
-     * 여행 둘이다. 장소는 UUID 가 payload 안에 있어 축으로 쓸 수 없다.
+     * <p>🔴 축을 아무것이나 못 만드는 이유 — {@code aggregate_id} 컬럼이 {@code UUID NOT NULL}
+     * 이라 <b>실제로 UUID 를 갖고 있는 것만</b> 축이 될 수 있다. 장소는 UUID 가 payload 안에
+     * 있어 축으로 쓸 수 없다.
+     *
+     * <p>🔴 <b>2026-09-07 정정</b> — 여기 "축은 추천 요청과 여행 둘뿐" 이라고 적혀 있었다.
+     * 지금은 셋이다({@code USER} 추가, S15P21E201-735). 조건이 풀린 것이 아니라 조건을
+     * 충족하는 것이 하나 늘었다 — 아래 {@link AggregateAxis#USER} 참고.
      */
     public enum AggregateAxis {
 
@@ -120,7 +131,20 @@ public enum EventType {
         RECOMMENDATION_REQUEST("recommendation"),
 
         /** 여행 한 건. {@code aggregate_id = trip_id} */
-        TRIP("trip");
+        TRIP("trip"),
+
+        /**
+         * 사용자 한 사람. {@code aggregate_id = user_id} — 2026-09-07 추가 (S15P21E201-735).
+         *
+         * <p>🔴 <b>축이 둘뿐이던 이유가 사라졌다.</b> 위 문단은 "실제로 UUID 를 갖고 있는 것만
+         * 축이 될 수 있다" 고 적었고 그건 지금도 맞다. 그런데 {@code user_id} 는 UUID 이고,
+         * 2026-09-07 인가 수정(-705) 이후 <b>수집 API 의 주체는 인증에서만 읽으므로 언제나
+         * 있다.</b> 조건을 충족하는 세 번째 것이 생긴 것이지 조건을 푼 것이 아니다.
+         *
+         * <p>이 축이 필요한 이유: 홈·장소 상세에서 누른 저장은 <b>여행 밖에서</b> 일어난다.
+         * 그때 여행 축을 쓰면 {@code aggregate_id} 에 넣을 값이 없어 이벤트가 통째로 버려진다.
+         */
+        USER("user");
 
         private final String type;
 

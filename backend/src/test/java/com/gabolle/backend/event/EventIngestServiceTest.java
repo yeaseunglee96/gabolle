@@ -225,6 +225,49 @@ class EventIngestServiceTest {
                 .hasMessageContaining("API-07");
     }
 
+    // ── 2026-09-07 (S15P21E201-735) — 여행 밖에서 일어난 장소 이벤트 ────────────
+
+    @Test
+    @DisplayName("🔴 여행 밖 저장은 requestId 없이도 적힌다 — 홈·장소 상세에는 줄 값이 없다")
+    void placeEventsAreAcceptedWithoutARequestId() {
+        UUID userId = UUID.randomUUID();
+
+        boolean created = this.service.ingestFromClient(UUID.randomUUID(), EventType.PLACE_VIEW, 1,
+                userId, null, null, at("2026-09-03T11:59:00Z"), Map.of("place_id", "seomyeon-1"));
+
+        assertThat(created).isTrue();
+        OutboxAppendCommand command = captureCommand();
+        assertThat(command.aggregateType()).isEqualTo("user");
+        assertThat(command.aggregateId()).isEqualTo(userId);
+        assertThat(command.requestId()).isNull();
+        assertThat(command.tripId()).isNull();
+    }
+
+    @Test
+    @DisplayName("추천 화면에서 왔으면 requestId 를 그대로 이어 붙인다 — 축은 여전히 사용자다")
+    void placeEventsKeepTheRequestIdWhenTheAppKnowsIt() {
+        UUID userId = UUID.randomUUID();
+        UUID tripId = UUID.randomUUID();
+        UUID requestId = UUID.randomUUID();
+
+        this.service.ingestFromClient(UUID.randomUUID(), EventType.PLACE_VIEW, 1,
+                userId, tripId, requestId, at("2026-09-03T11:59:00Z"), Map.of());
+
+        OutboxAppendCommand command = captureCommand();
+        assertThat(command.aggregateId()).isEqualTo(userId);
+        assertThat(command.requestId()).isEqualTo(requestId);
+        assertThat(command.tripId()).isEqualTo(tripId);
+    }
+
+    @Test
+    @DisplayName("🔴 사용자 축 이벤트인데 userId 가 없으면 거부한다 — 다른 값을 대신 넣지 않는다")
+    void userAxisEventWithoutUserIdIsRejected() {
+        assertThatThrownBy(() -> this.service.ingestFromClient(UUID.randomUUID(), EventType.PLACE_VIEW, 1,
+                null, null, UUID.randomUUID(), at("2026-09-03T11:59:00Z"), Map.of()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("userId");
+    }
+
     @Test
     @DisplayName("🔴 클라이언트가 서버 전용 이벤트를 보내면 거부한다 (DR-13)")
     void clientCannotForgeServerEvents() {
