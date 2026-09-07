@@ -275,7 +275,12 @@ backend:migration-order:
   stage: verify
   variables:
     GIT_DEPTH: 0
-  before_script: []
+  # 🔴 전역 before_script 를 지우지 않는다. 이 잡은 git 을 쓴다.
+  #    node:20-alpine 에는 git 이 없어서 전역 준비 단계가 매번 깔아 준다.
+  #    [] 로 덮으면 그 설치가 사라지고 아래 git fetch 가 exit 127(그런 명령 없음)로 죽는다.
+  #    아래 mr:gates·verify:mr-target 이 [] 를 쓰는 것은 그 둘이 node 만 부르기 때문이다.
+  before_script:
+    - apk add --no-cache git bash
   script:
     - |
       git fetch origin "$CI_MERGE_REQUEST_TARGET_BRANCH_NAME" --quiet
