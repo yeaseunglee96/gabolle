@@ -74,3 +74,11 @@ if (missing.length) {
   process.exit(1);
 }
 console.log('필수 파일 확인 완료.');
+
+// 항공사진 인증키. public/config.local.js 는 gitignore 대상이라 **clone 에는 없다** — 있으면 위에서 같이 복사됐다.
+// 없어도 화면은 뜬다(항공사진만 꺼진다). 그래서 실패가 아니라 경고다. 하지만 모르고 올리면 서버에서
+// "사진이 왜 안 나오지" 를 한참 찾게 되므로 여기서 크게 말한다.
+if (!fs.existsSync(path.join(DIST, 'config.local.js'))) {
+  console.warn('\n🔴 public/config.local.js 가 없습니다 — 이 배포본은 **항공사진이 꺼진 채** 올라갑니다.');
+  console.warn('   config.example.js 를 config.local.js 로 복사하고 브이월드 인증키를 적은 뒤 다시 만드세요.');
+}

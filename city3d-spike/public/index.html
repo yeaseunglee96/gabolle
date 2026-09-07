@@ -89,6 +89,10 @@
   </div>
 </div>
 
+<!-- 🔴 브이월드 인증키는 git 에 없다. public/config.local.js (gitignore 대상) 가 window.CITY3D 에 넣어 준다.
+     파일이 없으면 콘솔에 404 한 줄이 남고 **항공사진만 꺼진다** — 도시·다리·그림자는 그대로 뜬다.
+     만드는 법은 config.example.js 맨 위에 있다. 일반 script 라 아래 module 보다 먼저 끝난다(module 은 항상 뒤로 미뤄진다). -->
+<script src="./config.local.js"></script>
 <script type="module">
 // MapLibre 6 은 이름별로만 내보낸다. Map 은 자바스크립트 기본 이름과 겹쳐서 바꿔 받는다.
 import { Map as MapLibreMap, NavigationControl } from './lib/maplibre-gl.mjs';
@@ -106,7 +110,7 @@ const T0 = performance.now();
 // 화면 오른쪽 위에 판 번호를 띄운다. 폰에서는 사진 한 장으로 어느 판인지 알 수 있어야 한다 —
 // 화면 코드와 바다 코드의 판본이 어긋나 건물이 통째로 사라진 적이 있고, 그때 이게 있었으면
 // 바로 알았을 것이다.
-const BUILD_STAMP = '0907-1140';
+const BUILD_STAMP = '0907-1210';
 document.getElementById('build').textContent = '판 ' + BUILD_STAMP;
 
 // 해를 계산할 기준점과 날짜.
@@ -125,6 +129,28 @@ const DATE = [2026, 7, 15];
 const DATA = location.search.includes('data=aws')
   ? 'https://j15e201.p.ssafy.io/city3d'
   : location.origin + basePath();
+
+// ── 항공사진 (브이월드 정사영상) ──────────────────────────────────
+// 3D 지도는 모형이 아니라 **사진 길**로 간다 (S15P21E201-675). 산·바다·해변이 사진이 되고 그 위에 건물이 선다.
+//
+// 🔴 인증키는 config.local.js 에서 온다 (위 script 태그). 없으면 이 기능만 꺼진다.
+// 🔴 타일 주소는 {z}/{y}/{x} — **y 가 x 앞**이다. 흔히 틀리는 자리라 따로 적어 둔다.
+//
+// 손잡이 — 사진 있고 없고를 나란히 비교하려고 남겨 둔다 (?flat·?raw 와 같은 결):
+//   ?photo=off        사진을 안 깐다
+//   ?roads=on|dim|off 사진 위의 도로선을 그대로 / 흐리게 / 끈다   (기본: 아래 ROADS_DEFAULT)
+//   ?labels=off       글자를 끈다                                   (기본: 켬)
+//   ?sea=photo|paint|blend  바다를 사진 그대로 / 바탕 지도 색으로 / 반투명으로 겹쳐서 (기본: SEA_DEFAULT)
+const Q = new URLSearchParams(location.search);
+const AERIAL_KEY = String(window.CITY3D?.vworldKey ?? '').trim();
+// 예시 파일을 그대로 복사만 한 경우도 "키 없음" 으로 본다. 자리표시자를 주소에 넣으면 타일마다 오류가 난다.
+const HAS_KEY = AERIAL_KEY.length > 0 && !/여기에|YOUR/i.test(AERIAL_KEY);
+const PHOTO = HAS_KEY && Q.get('photo') !== 'off';
+const ROADS_DEFAULT = 'dim';
+const SEA_DEFAULT = 'photo';
+const ROADS = Q.get('roads') ?? ROADS_DEFAULT;
+const LABELS = Q.get('labels') ?? 'on';
+const SEA_MODE = Q.get('sea') ?? SEA_DEFAULT;
 
 const map = new MapLibreMap({
   container: 'map',
@@ -622,6 +648,14 @@ function setHour(hour) {
     }
   }
 
+  // 항공사진은 낮에 찍은 것이라 밤에도 환하다. 해가 지면 어둡게 하고 색을 뺀다 — 그래야 창문 불빛이 산다.
+  // raster 도 지형에 구워 붙는 종류라 바꾼 뒤 다시 구워야 한다(아래 redrape 가 한다).
+  if (map.getLayer('aerial')) {
+    const nightT = clamp01((3 - sun.altitude) / 10);   // 해 3° 위면 낮 그대로, -7° 아래면 완전한 밤
+    map.setPaintProperty('aerial', 'raster-brightness-max', 1 - 0.74 * nightT);
+    map.setPaintProperty('aerial', 'raster-saturation', -0.6 * nightT);
+  }
+
   if (map.getLayer('bld-3d')) {
     map.setPaintProperty('bld-3d', 'fill-extrusion-color', buildingColor(night));
     for (const id of ['bld-win-home', 'bld-win-office']) {
@@ -682,6 +716,59 @@ function step(name, fn) {
 
 map.on('load', () => {
   step('바탕 지도 색', repaintBase);
+
+  // 항공사진 — 바탕 지도의 땅·바다·공원 **위**, 도로선·글자·건물 **아래**에 끼운다.
+  // 지형이 켜져 있으면 raster 는 지형 표면에 구워 붙는다(drape). 그게 우리가 원하는 것이다 — 사진이 산을 덮는다.
+  // 건물·다리·그림자는 지형 위에 세우는 진짜 입체라 사진 위에 선다.
+  step('항공사진', () => {
+    const credit = document.getElementById('credit');
+    if (!HAS_KEY) {
+      credit.insertAdjacentHTML('afterbegin', '항공사진 꺼짐 — config.local.js 에 키가 없다 (config.example.js 참고)<br />');
+      return;
+    }
+    if (!PHOTO) { credit.insertAdjacentHTML('afterbegin', '항공사진 꺼짐 (?photo=off)<br />'); return; }
+    map.addSource('aerial', {
+      type: 'raster',
+      tiles: [`https://api.vworld.kr/req/wmts/1.0.0/${AERIAL_KEY}/Satellite/{z}/{y}/{x}.jpeg`],
+      tileSize: 256,
+      // 부산 정사영상은 19 단계까지 있다. 20 은 빈 타일이다. 256 타일이라 화면 확대 18 에서 19 단계를 받는다.
+      minzoom: 6,
+      maxzoom: 19,
+      attribution: '항공사진: 브이월드(국토교통부)',
+    });
+    // 'waterway'(강 선) 가 바탕 지도에서 **첫 선 레이어**다. 그 앞에 넣으면 모든 면(땅·바다·공원) 위, 모든 선·글자 아래가 된다.
+    map.addLayer({
+      id: 'aerial',
+      type: 'raster',
+      source: 'aerial',
+      paint: { 'raster-opacity': 1, 'raster-fade-duration': 0 },
+    }, map.getLayer('waterway') ? 'waterway' : undefined);
+    credit.insertAdjacentHTML('afterbegin', '항공사진: 브이월드(국토교통부)<br />');
+
+    // 사진 위의 벡터 도로선. 흰 선이 사진 위에 그대로 있으면 지도 두 장을 겹친 것처럼 보인다.
+    for (const l of map.getStyle().layers) {
+      if (l.type !== 'line' || l.id === 'aerial') continue;
+      try {
+        if (ROADS === 'off') map.setLayoutProperty(l.id, 'visibility', 'none');
+        else if (ROADS === 'dim') map.setPaintProperty(l.id, 'line-opacity', 0.3);
+      } catch {}
+    }
+    if (LABELS === 'off') {
+      for (const l of map.getStyle().layers) {
+        if (l.type === 'symbol') { try { map.setLayoutProperty(l.id, 'visibility', 'none'); } catch {} }
+      }
+    }
+    // 바다. 사진에는 바다도 찍혀 있다. 바탕 지도의 바다색을 사진 위로 올리면 시각에 따라 바다색이 바뀌는 건 살지만
+    // 해안선이 두 자료(OSM 물 폴리곤 · 사진) 사이에서 어긋난다.
+    if (SEA_MODE === 'paint' || SEA_MODE === 'blend') {
+      for (const id of waterLayers) {
+        try {
+          map.moveLayer(id, 'waterway');
+          if (SEA_MODE === 'blend') map.setPaintProperty(id, 'fill-opacity', 0.55);
+        } catch {}
+      }
+    }
+  });
 
   step('창문 그림', () => {
     map.addImage('win-home', windowsHome());
@@ -932,7 +1019,16 @@ document.getElementById('copy').addEventListener('click', async () => {
   catch { prompt('아래를 복사해 주세요', text); }
 });
 
-map.on('error', (e) => console.error('[지도 오류]', e && e.error));
+// 🔴 키가 틀리면 브이월드는 **200 으로 오류 본문**을 준다. 그래서 404 가 아니라 "이미지를 못 풀었다" 가 타일마다 쏟아진다.
+//    콘솔만 보고는 키 문제인지 모른다. 처음 몇 장이 연달아 실패하면 화면에 한 줄 적는다 — 한 번만.
+let aerialFails = 0;
+map.on('error', (e) => {
+  console.error('[지도 오류]', e && e.error);
+  if (e && e.sourceId === 'aerial' && ++aerialFails === 3) {
+    document.getElementById('credit').insertAdjacentHTML('afterbegin',
+      '🔴 항공사진 타일을 못 받고 있다 — 인증키나 등록된 도메인을 확인 (config.local.js)<br />');
+  }
+});
 loop();
 </script>
 </body>
