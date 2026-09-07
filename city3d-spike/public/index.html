@@ -95,7 +95,7 @@
 <script src="./config.local.js"></script>
 <script type="module">
 // MapLibre 6 은 이름별로만 내보낸다. Map 은 자바스크립트 기본 이름과 겹쳐서 바꿔 받는다.
-import { Map as MapLibreMap, NavigationControl } from './lib/maplibre-gl.mjs';
+import { Map as MapLibreMap, NavigationControl, addProtocol } from './lib/maplibre-gl.mjs';
 // 🔴 파도(sea.mjs)는 뺐다. 2026-09-06.
 //    바다 위에 삼각형이 부채꼴로 뻗는 깨짐이 반복해서 나왔다. 원인을 세 번 좁혔고
 //    (성긴 부모 타일 · 손으로 쓴 삼각분할 · 깊이 싸움) 그때마다 다른 모양으로 다시 나왔다.
@@ -110,7 +110,7 @@ const T0 = performance.now();
 // 화면 오른쪽 위에 판 번호를 띄운다. 폰에서는 사진 한 장으로 어느 판인지 알 수 있어야 한다 —
 // 화면 코드와 바다 코드의 판본이 어긋나 건물이 통째로 사라진 적이 있고, 그때 이게 있었으면
 // 바로 알았을 것이다.
-const BUILD_STAMP = '0907-1210';
+const BUILD_STAMP = '0907-1340';
 document.getElementById('build').textContent = '판 ' + BUILD_STAMP;
 
 // 해를 계산할 기준점과 날짜.
@@ -138,7 +138,7 @@ const DATA = location.search.includes('data=aws')
 //
 // 손잡이 — 사진 있고 없고를 나란히 비교하려고 남겨 둔다 (?flat·?raw 와 같은 결):
 //   ?photo=off        사진을 안 깐다
-//   ?roads=on|dim|off 사진 위의 도로선을 그대로 / 흐리게 / 끈다   (기본: 아래 ROADS_DEFAULT)
+//   ?roads=auto|on|dim|off 사진 위의 도로선을 해 따라 / 그대로 / 흐리게 / 끈다   (기본: 아래 ROADS_DEFAULT)
 //   ?labels=off       글자를 끈다                                   (기본: 켬)
 //   ?sea=photo|paint|blend  바다를 사진 그대로 / 바탕 지도 색으로 / 반투명으로 겹쳐서 (기본: SEA_DEFAULT)
 const Q = new URLSearchParams(location.search);
@@ -146,11 +146,22 @@ const AERIAL_KEY = String(window.CITY3D?.vworldKey ?? '').trim();
 // 예시 파일을 그대로 복사만 한 경우도 "키 없음" 으로 본다. 자리표시자를 주소에 넣으면 타일마다 오류가 난다.
 const HAS_KEY = AERIAL_KEY.length > 0 && !/여기에|YOUR/i.test(AERIAL_KEY);
 const PHOTO = HAS_KEY && Q.get('photo') !== 'off';
-const ROADS_DEFAULT = 'dim';
+// 도로선 기본은 auto — **낮에는 끄고 밤에는 켠다.** 2026-09-07 해운대 시점 캡처 셋을 놓고 봤다:
+//   on  — 장산 능선에 흰 등산로 선이 사진과 따로 놀고, 동백섬 해안도로 선이 바다로 들어간다. 지도 두 장을 겹친 것처럼 보인다
+//   dim — 대부분 사라지지만 산 위의 유령 선이 남는다
+//   off — 낮에는 가장 깨끗하다. 길은 사진에 이미 찍혀 있고, 도로 번호 표지·글자는 남아 방향을 잃지 않는다
+// 그런데 밤 화면은 가로등이 노면을 주황으로 물들이는 도로선에 절반을 기댄다 — 21시 캡처에서 0.3 짜리 주황 길은 거의 안 보였다.
+// 그래서 하나로 못 정하고 해 고도에 붙였다: 해가 지면서 길이 켜진다. 사진은 그때 어두워지므로 서로 자리를 바꾼다.
+const ROADS_DEFAULT = 'auto';
 const SEA_DEFAULT = 'photo';
 const ROADS = Q.get('roads') ?? ROADS_DEFAULT;
 const LABELS = Q.get('labels') ?? 'on';
 const SEA_MODE = Q.get('sea') ?? SEA_DEFAULT;
+// 사진 타일을 받는 확대 상한. 부산 정사영상은 19 까지 있지만 다 받으면 시점 셋(광안대교·해운대·부산항)에 타일 247장·3.4 MB 다.
+// 17 로 막으면 206장·3.0 MB (-17%·-11%) 이고 가까이(확대 17) 가도 차·파라솔이 읽힌다. 16 은 148장·2.3 MB 로 더 줄지만
+// 가까이서 모래·파라솔이 뭉개져서 접었다 (2026-09-07 실측 — work/aerial/cnt*-close-z17.png). ?photomax=19 로 되돌려 비교한다.
+const AERIAL_MAXZOOM_DEFAULT = 17;
+const AERIAL_MAXZOOM = Math.min(19, +(Q.get('photomax') ?? AERIAL_MAXZOOM_DEFAULT) || AERIAL_MAXZOOM_DEFAULT);
 
 const map = new MapLibreMap({
   container: 'map',
@@ -635,23 +646,36 @@ function setHour(hour) {
   // 밤의 길은 회색이 아니다. 가로등(나트륨·LED)이 노면을 주황으로 물들인다.
   // 이 한 줄이 야경에서 "도시가 살아 있다" 는 느낌의 절반을 만든다.
   const roadC = night ? '#6b5334' : ROAD;
-  paint(waterLayers, 'fill-color', c.sea);
-  paint(waterLayers, 'fill-outline-color', c.sea);
+  // 해 3° 위면 0(낮), -7° 아래면 1(완전한 밤). 사진 밝기·도로선·바다 톤이 같이 쓴다.
+  const nightT = clamp01((3 - sun.altitude) / 10);
+  // 사진 위에서는 바탕 바다가 **단색 타일을 걷어낸 자리에만** 비친다(항공사진 단계 참고). 옆의 사진 바다(짙은 청록)와
+  // 나란히 서므로 그 톤에 맞추고, 밤엔 사진과 같은 비율로 어둡힌다. 하늘 쪽 바다색은 5% 만 섞는다 — 노을이 살짝 비치는 정도.
+  // [34,78,80] 은 광안대교 시점 캡처의 사진 바다 픽셀을 읽어 정한 중간값이다 — 만 가운데는 [24,71,70], 먼 바다 쪽은 [50,89,88].
+  // 🔴 눈으로 고르지 않았다. 처음엔 화면의 띠가 남색인 줄 알고 세 번 고쳤는데, 픽셀을 읽어 보니 이미 청록이었고 밝기만 달랐다.
+  const seaC = map.getLayer('aerial')
+    ? rgb(mix([34, 78, 80].map((v) => v * (1 - 0.74 * nightT)), c.seaRGB, 0.05))
+    : c.sea;
+  paint(waterLayers, 'fill-color', seaC);
+  paint(waterLayers, 'fill-outline-color', seaC);
   paint(bgLayers, 'background-color', landC);
   paint(landLayers, 'fill-color', landC);
   paint(landLayers, 'fill-outline-color', landC);
   paint(greenLayers, 'fill-color', greenC);
   paint(greenLayers, 'fill-outline-color', greenC);
+  // 사진 위에서는 도로선이 해 고도를 따라간다 (auto — 위 ROADS_DEFAULT 설명). 사진이 없으면 손대지 않는다.
+  const roadOpacity = map.getLayer('aerial') && ROADS === 'auto' ? nightT : null;
   for (const l of map.getStyle().layers) {
     if (l.type === 'line' && !/water|river|stream/i.test(l.id)) {
-      try { map.setPaintProperty(l.id, 'line-color', roadC); } catch {}
+      try {
+        map.setPaintProperty(l.id, 'line-color', roadC);
+        if (roadOpacity !== null) map.setPaintProperty(l.id, 'line-opacity', roadOpacity);
+      } catch {}
     }
   }
 
   // 항공사진은 낮에 찍은 것이라 밤에도 환하다. 해가 지면 어둡게 하고 색을 뺀다 — 그래야 창문 불빛이 산다.
   // raster 도 지형에 구워 붙는 종류라 바꾼 뒤 다시 구워야 한다(아래 redrape 가 한다).
   if (map.getLayer('aerial')) {
-    const nightT = clamp01((3 - sun.altitude) / 10);   // 해 3° 위면 낮 그대로, -7° 아래면 완전한 밤
     map.setPaintProperty('aerial', 'raster-brightness-max', 1 - 0.74 * nightT);
     map.setPaintProperty('aerial', 'raster-saturation', -0.6 * nightT);
   }
@@ -727,13 +751,60 @@ map.on('load', () => {
       return;
     }
     if (!PHOTO) { credit.insertAdjacentHTML('afterbegin', '항공사진 꺼짐 (?photo=off)<br />'); return; }
+
+    // 🔴 브이월드는 정사영상이 없는 먼 바다를 **단색 타일**로 채운다. 실측(2026-09-07): 앞바다 타일은 8~18 KB 인데
+    //    먼 바다는 z11 부터 0.9 KB 다. 그 타일이 사진 바다 한가운데 남색 사각형으로 선다 — 각진 경계가 그대로 보인다.
+    //    그래서 타일을 받을 때 가로채서(addProtocol — 주소가 vworld:// 로 시작하면 이 함수가 대신 받는다) 너무 작으면
+    //    단색으로 보고 투명 한 점짜리 PNG 로 바꿔 준다. 그 자리에는 바탕 지도의 바다색이 비친다 (setHour 가 사진 톤에 맞춘다).
+    const FLAT_TILE_BYTES = 2500;
+    let emptyPng = null;
+    addProtocol('vworld', async (params, abort) => {
+      const r = await fetch(params.url.replace(/^vworld:\/\//, 'https://'), { signal: abort.signal });
+      // 🔴 키가 틀리면 404 가 아니라 **200 에 XML 오류 보고서(448 바이트)** 가 온다. 크기만 보면 단색 타일과 구분이 안 돼
+      //    투명으로 삼켜 버린다 — 그러면 아래 '못 받고 있다' 안내가 영영 안 뜬다. 그래서 이미지가 아니면 실패로 던진다.
+      const type = r.headers.get('content-type') || '';
+      if (!r.ok || !type.startsWith('image/')) throw new Error('브이월드 ' + r.status + ' ' + type);
+      const data = await r.arrayBuffer();
+      if (data.byteLength >= FLAT_TILE_BYTES) return { data: data.byteLength < MIXED_TILE_BYTES ? await stripNavy(data) : data };
+      if (!emptyPng) {
+        const cv = document.createElement('canvas'); cv.width = cv.height = 1;
+        emptyPng = await (await fetch(cv.toDataURL('image/png'))).arrayBuffer();
+      }
+      return { data: emptyPng };
+    });
+    // 정사영상 **경계가 타일을 가로지르면** 절반이 사진·절반이 남색이라 크기로는 못 거른다. 그 남색은 단색이라
+    // ([59,80,111] 근처 — 2026-09-07 타일을 풀어 읽음) 픽셀 단위로 걷어낸다. 사진 바다는 청록([40,80,80] 근처)이라
+    // 파랑이 30 넘게 낮아 겹치지 않는다. 12 KB 미만 타일만 풀어 본다 — 사진으로 꽉 찬 타일은 대개 그보다 크다.
+    // 남색이 한 점도 없으면 원본 JPEG 를 그대로 돌려준다 (다시 압축하지 않는다).
+    const MIXED_TILE_BYTES = 12000;
+    const NAVY = [60, 80, 112], NAVY_TOL = 12;
+    async function stripNavy(data) {
+      const bmp = await createImageBitmap(new Blob([data]));
+      const cv = document.createElement('canvas'); cv.width = bmp.width; cv.height = bmp.height;
+      const g = cv.getContext('2d'); g.drawImage(bmp, 0, 0);
+      const img = g.getImageData(0, 0, cv.width, cv.height); const d = img.data;
+      let hit = 0;
+      for (let i = 0; i < d.length; i += 4) {
+        if (Math.abs(d[i] - NAVY[0]) <= NAVY_TOL && Math.abs(d[i + 1] - NAVY[1]) <= NAVY_TOL && Math.abs(d[i + 2] - NAVY[2]) <= NAVY_TOL) {
+          d[i + 3] = 0; hit++;
+        }
+      }
+      if (!hit) return data;
+      g.putImageData(img, 0, 0);
+      const blob = await new Promise((res) => cv.toBlob(res, 'image/png'));
+      return await blob.arrayBuffer();
+    }
     map.addSource('aerial', {
       type: 'raster',
-      tiles: [`https://api.vworld.kr/req/wmts/1.0.0/${AERIAL_KEY}/Satellite/{z}/{y}/{x}.jpeg`],
+      tiles: [`vworld://api.vworld.kr/req/wmts/1.0.0/${AERIAL_KEY}/Satellite/{z}/{y}/{x}.jpeg`],
       tileSize: 256,
-      // 부산 정사영상은 19 단계까지 있다. 20 은 빈 타일이다. 256 타일이라 화면 확대 18 에서 19 단계를 받는다.
-      minzoom: 6,
-      maxzoom: 19,
+      // 부산 정사영상은 19 단계까지 있다(20 은 빈 타일). 256 타일이라 화면 확대 z 에서 z+1 단계를 받는다.
+      // 상한(AERIAL_MAXZOOM) 위로는 그 단계 타일을 늘여서 쓴다 — 받는 양을 줄이는 손잡이다.
+      // 🔴 아래 11 은 절약이 아니라 **바다 색** 때문이다. 10 단계는 정사영상이 아니라 세계 위성 모자이크(5.9 KB, 바다가 남색)라
+      //    크기로 못 거르고, 지평선 먼 바다에 남색 사각형으로 섰다. 시점 셋에서 10 단계 타일은 1장뿐이라 그냥 안 받는다 —
+      //    그 자리엔 바탕 지도의 바다색이 비친다 (단색 타일을 걷어낸 자리와 같은 색).
+      minzoom: 11,
+      maxzoom: AERIAL_MAXZOOM,
       attribution: '항공사진: 브이월드(국토교통부)',
     });
     // 'waterway'(강 선) 가 바탕 지도에서 **첫 선 레이어**다. 그 앞에 넣으면 모든 면(땅·바다·공원) 위, 모든 선·글자 아래가 된다.
@@ -1014,6 +1085,8 @@ document.getElementById('copy').addEventListener('click', async () => {
     '보고 있는 곳: zoom ' + map.getZoom().toFixed(1) + ' / pitch ' + Math.round(map.getPitch()),
     '해: ' + (currentSun ? `고도 ${currentSun.altitude.toFixed(1)}° 방위 ${currentSun.azimuth.toFixed(1)}°` : '–'),
     '그림자: ' + JSON.stringify(lastShadowStat),
+    // 항공사진 유무와 상한이 없으면 다른 기기의 숫자와 대조할 수 없다 — 같은 화면인지부터 갈려야 한다.
+    '항공사진: ' + (map.getLayer('aerial') ? `켬 (상한 ${AERIAL_MAXZOOM} · 도로선 ${ROADS} · 바다 ${SEA_MODE})` : HAS_KEY ? '끔 (?photo=off)' : '끔 (키 없음)'),
   ].join('\n');
   try { await navigator.clipboard.writeText(text); alert('복사했습니다. 대화창에 붙여넣어 주세요.'); }
   catch { prompt('아래를 복사해 주세요', text); }
