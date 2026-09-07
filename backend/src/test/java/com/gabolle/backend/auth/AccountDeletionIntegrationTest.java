@@ -150,6 +150,18 @@ class AccountDeletionIntegrationTest extends AuthPostgresIntegrationTest {
 	}
 
 	@Test
+	@DisplayName("🔴 삭제하면 본인 기록도 (deleted_at 찍는 방식으로) 사라지고, 남의 기록은 그대로다")
+	void deletesOwnStoriesButNotOthers() {
+		UUID myStory = createStory(this.userId);
+		UUID otherStory = createStory(this.otherUserId);
+
+		this.accountDeletionService.delete(this.userId, PASSWORD);
+
+		assertThat(storyDeletedAt(myStory)).isNotNull();
+		assertThat(storyDeletedAt(otherStory)).isNull();
+	}
+
+	@Test
 	@DisplayName("완료 기준 — 본인 여행이 사라진다 (지우는 순서와 JPQL 엔티티 이름이 맞는지가 여기서 드러난다)")
 	void deletesOwnTrips() {
 		assertThat(tripExists(this.tripId)).isTrue();
@@ -218,11 +230,18 @@ class AccountDeletionIntegrationTest extends AuthPostgresIntegrationTest {
 		return trip;
 	}
 
-	private void createStory(UUID author) {
+	private UUID createStory(UUID author) {
+		UUID storyId = UUID.randomUUID();
 		this.jdbcTemplate.update("""
 				INSERT INTO story (story_id, author_user_id, body, visibility, publish_at, created_at, updated_at)
 				VALUES (?, ?, ?, 'PUBLIC', now(), now(), now())
-				""", UUID.randomUUID(), author, "테스트 기록");
+				""", storyId, author, "테스트 기록");
+		return storyId;
+	}
+
+	private Instant storyDeletedAt(UUID storyId) {
+		return this.jdbcTemplate.queryForObject(
+				"SELECT deleted_at FROM story WHERE story_id = ?", Instant.class, storyId);
 	}
 
 	private boolean tripExists(UUID trip) {

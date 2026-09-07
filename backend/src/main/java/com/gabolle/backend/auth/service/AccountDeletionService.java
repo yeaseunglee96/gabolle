@@ -109,6 +109,7 @@ public class AccountDeletionService {
 
 		List<UUID> tripIds = ownedTripIds(userId);
 		deleteTripData(userId, tripIds);
+		deleteStories(userId);
 		deleteLoginMeans(userId, credential);
 		detachEvents(userId);
 
@@ -118,12 +119,9 @@ public class AccountDeletionService {
 	/**
 	 * 삭제 전 안내 화면이 보여줄 실제 영향 수 — S15P21E201-188/195(진미리 님 요청).
 	 *
-	 * <p>🔴 {@link #delete}가 실제로 지우는 것과 같은 기준으로 센다. {@code recordCount}(기록·
-	 * {@code story})는 지금 {@link #delete}가 <b>지우지 않는다</b> — 이 클래스 맨 위 문서는
-	 * "본인 데이터는 전부 지운다"고 적어 뒀지만 {@code story} 패키지는 그 뒤에 생겨서 빠져 있다.
-	 * 그래서 이 값은 "삭제되는 개수"가 아니라 "지금 존재하는 개수"다 — 화면에서 이 차이를
-	 * 그대로 보여줄지, 아니면 {@link #delete}를 먼저 story 까지 지우도록 넓힐지는 별도로
-	 * 정해야 한다(진미리 님께 알림).
+	 * <p>{@link #delete}가 실제로 지우는 것과 같은 기준으로 센다 — {@code recordCount}(기록·
+	 * {@code story})는 2026-09-07부터 {@link #delete}도 함께 지우므로 이 숫자가 실제
+	 * 삭제 개수와 일치한다({@link #deleteStories} 참고).
 	 */
 	@Transactional(readOnly = true)
 	public AccountDeletionPreviewResponse preview(UUID userId) {
@@ -234,6 +232,30 @@ public class AccountDeletionService {
 		this.identityRepository.deleteAll(this.identityRepository.findAllByUserUserId(userId));
 		this.credentialRepository.delete(credential);
 		this.consentRepository.deleteAll(this.consentRepository.findAllByUserUserId(userId));
+	}
+
+	/**
+	 * 이 사람이 남긴 기록(story)도 지운다 — S15P21E201-188(2026-09-07, 진미리 님 확정 요청).
+	 *
+	 * <p>🔴 {@code story} 표의 자기 방식대로 지운다 — 행을 지우지 않고 {@code deleted_at} 을
+	 * 찍는다({@code StoryService.delete} 와 같은 규칙, {@code V20260906160000} 마이그레이션
+	 * 주석 참고). 그래야 {@link #preview}의 {@code recordCount}(살아있는 기록만 센다)와
+	 * 실제 삭제 결과가 어긋나지 않는다.
+	 *
+	 * <p>🔴 <b>딸린 사진 파일은 여기서 지우지 않는다.</b> {@code StoryService.delete}는
+	 * {@code StorageCleanupService}로 파일 저장소의 실제 파일까지 지우는데, 이 메서드는
+	 * (클래스 상단이 정한 대로) JPQL 벌크 갱신 하나뿐이라 그 경로를 안 탄다. 그래서 이 사람의
+	 * 기록 사진은 DB에서는 안 보이지만 저장소에는 당분간 남는다 — 알려진 한계다. 사람 단위
+	 * 일괄 삭제 빈도가 낮고, 물리 파일 정리는 story 쪽 정기 청소(S15P21E201-226)가 이미
+	 * {@code storage_cleanup_queue}로 못 지운 키를 다시 시도하는 것과 같은 성격의 문제라
+	 * 그쪽에 맡긴다.
+	 */
+	private void deleteStories(UUID userId) {
+		this.entityManager.createQuery(
+				"UPDATE Story s SET s.deletedAt = :now WHERE s.authorUserId = :userId AND s.deletedAt IS NULL")
+				.setParameter("now", this.clock.instant())
+				.setParameter("userId", userId)
+				.executeUpdate();
 	}
 
 	/**
