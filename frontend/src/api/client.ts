@@ -75,12 +75,12 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
       headers: {
         Accept: 'application/json',
         'Accept-Language': apiLanguage,
-        ...(body === undefined ? {} : { 'Content-Type': 'application/json' }),
+        ...(body === undefined || body instanceof FormData ? {} : { 'Content-Type': 'application/json' }),
         'X-Client-Platform': Platform.OS === 'web' ? 'WEB' : 'MOBILE',
         ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
         ...headers,
       },
-      body: body === undefined ? undefined : JSON.stringify(body),
+      body: body === undefined ? undefined : body instanceof FormData ? body : JSON.stringify(body),
     });
   } catch {
     if (timedOut) throw new ApiClientError('서버 응답이 늦어 요청을 마쳤어요. 잠시 후 다시 시도해 주세요.', 'REQUEST_TIMEOUT', 0);
