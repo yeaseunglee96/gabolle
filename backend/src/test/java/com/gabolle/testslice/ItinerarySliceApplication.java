@@ -25,6 +25,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 		"com.gabolle.backend.common",
 		"com.gabolle.backend.itinerary",
 		"com.gabolle.backend.trip",
+		"com.gabolle.backend.user",
 		"com.gabolle.backend.place",
 		"com.gabolle.backend.recommendation",
 		"com.gabolle.backend.event"
@@ -32,6 +33,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @EntityScan(basePackages = {
 		"com.gabolle.backend.itinerary.infra",
 		"com.gabolle.backend.trip.infra",
+		"com.gabolle.backend.user.domain",
 		"com.gabolle.backend.place.domain",
 		"com.gabolle.backend.recommendation.domain",
 		"com.gabolle.backend.event.domain"
@@ -39,6 +41,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @EnableJpaRepositories(basePackages = {
 		"com.gabolle.backend.itinerary.infra",
 		"com.gabolle.backend.trip.infra",
+		"com.gabolle.backend.user.repository",
 		"com.gabolle.backend.place.repository",
 		"com.gabolle.backend.recommendation.repository",
 		"com.gabolle.backend.event.repository"

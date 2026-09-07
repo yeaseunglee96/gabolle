@@ -11,6 +11,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import com.gabolle.backend.itinerary.application.ItineraryAccess;
+import com.gabolle.backend.itinerary.application.ActorNames;
 import com.gabolle.backend.itinerary.application.ItineraryQueryService;
 import com.gabolle.backend.itinerary.domain.Itinerary;
 import com.gabolle.backend.itinerary.domain.ItineraryItem;
@@ -68,7 +69,7 @@ class ItineraryQueryServiceTest {
 		this.placeRepository = mock(PlaceRepository.class);
 		this.recommendationJobRepository = mock(RecommendationJobRepository.class);
 		this.service = new ItineraryQueryService(this.itineraryRepository, this.itineraryAccess,
-				this.placeRepository, this.recommendationJobRepository);
+				this.placeRepository, this.recommendationJobRepository, mock(ActorNames.class));
 
 		Place place = mock(Place.class);
 		when(place.getPlaceId()).thenReturn(this.placeId);

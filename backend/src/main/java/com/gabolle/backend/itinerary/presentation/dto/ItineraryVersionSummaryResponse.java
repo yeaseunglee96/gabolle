@@ -23,9 +23,18 @@ public record ItineraryVersionSummaryResponse(
 		String requestId,
 		List<String> warningCodes,
 		/** 되돌리기(operation=REVERT)가 내용을 복사해 온 옛 판. REVERT 가 아니면 {@code null}. */
-		Integer revertedFromVersion) {
+		Integer revertedFromVersion,
+		/**
+		 * 🔴 2026-09-07 — 맨 뒤에 더한 칸. {@code createdBy} 는 사용자 UUID 라 화면이 "누가" 를 그릴 수
+		 * 없었다(진미리 FE 블로커). {@code app_user.display_name}. 사용자 행이 없으면(탈퇴) {@code null}.
+		 */
+		String createdByName) {
 
 	public static ItineraryVersionSummaryResponse of(ItineraryVersion version) {
+		return of(version, null);
+	}
+
+	public static ItineraryVersionSummaryResponse of(ItineraryVersion version, String createdByName) {
 		return new ItineraryVersionSummaryResponse(
 				version.version(),
 				version.baseVersion(),
@@ -34,6 +43,7 @@ public record ItineraryVersionSummaryResponse(
 				version.createdAt().toString(),
 				version.requestId(),
 				version.warningCodes(),
-				version.revertedFromVersion());
+				version.revertedFromVersion(),
+				createdByName);
 	}
 }
