@@ -1,6 +1,10 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { setApiLanguage } from '@/api/client';
+import { getApiLanguage, setApiLanguage } from '@/api/client';
+
+// 이 컨텍스트 밖에서 부르면 언어 정보를 이 컨텍스트에서 얻을 수 없다 — 그래서 이 에러 메시지 자체는
+// setApiLanguage로 동기화되는 모듈 변수(기본값 'ko')를 대신 읽는다.
+const tx = (ko: string, en: string) => (getApiLanguage() === 'en' ? en : ko);
 
 export const LANGUAGE_CODES = ['ko', 'en'] as const;
 export const MOBILITY_CODES = ['none', 'wheelchair', 'stroller', 'slow'] as const;
@@ -83,6 +87,6 @@ export function OnboardingPreferencesProvider({ children }: { children: ReactNod
 
 export function useOnboardingPreferences() {
   const value = useContext(OnboardingPreferencesContext);
-  if (!value) throw new Error('useOnboardingPreferences는 OnboardingPreferencesProvider 안에서 사용해야 합니다.');
+  if (!value) throw new Error(tx('useOnboardingPreferences는 OnboardingPreferencesProvider 안에서 사용해야 합니다.', 'useOnboardingPreferences must be used inside OnboardingPreferencesProvider.'));
   return value;
 }

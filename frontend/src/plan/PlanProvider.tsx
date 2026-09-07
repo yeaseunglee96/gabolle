@@ -1,7 +1,10 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 
+import { getApiLanguage } from '@/api/client';
 import { conflictingFoodCode, foodLabel } from './foodConflicts';
+
+const tx = (ko: string, en: string) => (getApiLanguage() === 'en' ? en : ko);
 
 export type Transport = 'TRANSIT' | 'WALK' | 'CAR';
 export type ConstraintSelectionStatus = 'UNKNOWN' | 'NONE' | 'VALUES';
@@ -126,6 +129,6 @@ export function PlanProvider({ children }: { children: ReactNode }) {
 
 export function usePlan() {
   const value = useContext(PlanContext);
-  if (!value) throw new Error('usePlan은 PlanProvider 안에서 사용해야 합니다.');
+  if (!value) throw new Error(tx('usePlan은 PlanProvider 안에서 사용해야 합니다.', 'usePlan must be used inside PlanProvider.'));
   return value;
 }
