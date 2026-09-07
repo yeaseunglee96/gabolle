@@ -4,6 +4,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '@/auth/AuthProvider';
 import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
+import { Skeleton } from '@/components/Skeleton';
 import { TabBar } from '@/components/TabBar';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
@@ -31,7 +32,17 @@ export default function Recommendations() {
   const unavailable = view.state === 'unavailable' || view.state === 'empty-conflict';
   return <View style={styles.shell}><Screen scroll wide style={styles.canvas}><View style={styles.nav}><Pressable accessibilityRole="button" accessibilityLabel={tx('뒤로 가기', 'Go back')} onPress={() => router.canGoBack() ? router.back() : router.replace('/plan/confirm')} style={styles.back}><Text variant="title">‹</Text></Pressable><View style={styles.dots}><View style={styles.dot} /><View style={styles.dot} /><View style={styles.activeDot} /></View></View><Text variant="caption" weight="bold" color={color.brand.orange}>{tx('추천 일정 요약', 'Recommendation summary')}</Text><Text variant="display" weight="bold" style={styles.heading}>{view.state === 'success' || view.state === 'partial' || view.state === 'fallback' ? tx(`${view.courses.length}가지 코스를 골라봤어요.`, `We picked ${view.courses.length} courses for you.`) : tx('추천 결과', 'Recommendation result')}</Text>
       {(view.state === 'success' || view.state === 'partial' || view.state === 'fallback') && (view.placeCount !== null || view.estimatedTravelMinutes !== null) && <Text variant="body" color={color.text.muted} style={styles.summary}>{[view.placeCount !== null ? tx(`장소 ${view.placeCount}곳`, `${view.placeCount} places`) : null, view.estimatedTravelMinutes !== null ? tx(`이동 약 ${view.estimatedTravelMinutes}분`, `~${view.estimatedTravelMinutes} min travel`) : null].filter(Boolean).join(' · ')}</Text>}
-      {view.state === 'loading' && <View accessibilityLiveRegion="polite" style={styles.stateCard}><Text variant="title" weight="bold">{tx('추천을 불러오고 있어요', 'Loading recommendations')}</Text><Text color={color.text.body}>{tx('확인된 결과만 표시합니다.', 'Only confirmed results are shown.')}</Text></View>}
+      {view.state === 'loading' && <View accessibilityLabel={tx('추천을 불러오고 있어요', 'Loading recommendations')} style={styles.list}>{[0, 1].map((key) => (
+        <View key={key} style={styles.card}>
+          <Skeleton width="100%" height={140} radius={0} />
+          <View style={styles.cardBody}>
+            <Skeleton width="70%" height={18} />
+            <View style={styles.tags}><Skeleton width={64} height={22} radius={radius.sm} /><Skeleton width={64} height={22} radius={radius.sm} /></View>
+            <Skeleton width="50%" height={14} />
+            <Skeleton width="40%" height={14} />
+          </View>
+        </View>
+      ))}</View>}
       {(view.state === 'partial' || view.state === 'fallback') && <View style={styles.notice}><Text accessibilityRole="alert" variant="caption" weight="bold">{view.message}</Text></View>}
       {(view.state === 'error' || view.state === 'offline') && <View style={styles.stateCard}><Text variant="title" weight="bold">{view.state === 'offline' ? tx('인터넷 연결을 확인해 주세요', 'Please check your internet connection') : tx('추천을 불러오지 못했어요', 'Could not load recommendations')}</Text><Text color={color.text.body}>{view.message}</Text><Button accessibilityRole="button" label={tx('다시 시도', 'Try again')} variant="ghost" onPress={() => void reload()} /></View>}
       {unavailable && <View style={styles.stateCard}><View style={styles.emptyMark}><Text variant="display">⌁</Text></View><Text variant="title" weight="bold">{view.state === 'empty-conflict' ? tx('조건을 만족하는 코스가 없어요', 'No course matched your conditions') : tx('아직 생성된 추천이 없어요', 'No recommendations yet')}</Text><Text color={color.text.body}>{view.message}</Text>{view.conflicts.map((item) => <Text key={item} accessibilityRole="alert" variant="caption" color={color.state.danger}>• {item}</Text>)}<Button accessibilityRole="button" label={tx('조건 수정하기', 'Edit conditions')} variant="ghost" onPress={() => router.push('/plan/confirm')} />{jobId && <Button accessibilityRole="button" label={tx('다시 확인', 'Check again')} variant="ghost" onPress={() => void reload()} />}</View>}

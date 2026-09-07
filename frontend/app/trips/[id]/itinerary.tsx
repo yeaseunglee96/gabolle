@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { useAuth } from '@/auth/AuthProvider';
 import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
+import { Skeleton } from '@/components/Skeleton';
 import { TabBar } from '@/components/TabBar';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
@@ -139,7 +140,12 @@ export default function ItineraryScreen() {
   };
 
   return <View style={styles.shell}><Screen scroll wide style={styles.canvas}><View style={styles.header}><Pressable accessibilityRole="button" accessibilityLabel={tx('뒤로 가기', 'Go back')} onPress={() => router.canGoBack() ? router.back() : router.replace('/home')} style={styles.back}><Text variant="title">‹</Text></Pressable><View style={styles.headerTitle}><Text variant="caption" weight="bold" color={color.brand.orange}>{tx('나의 부산 여행', 'My Busan trip')}</Text><Text variant="display" weight="bold">{itinerary?.title ?? tx('여행 일정', 'Itinerary')}</Text></View>{itinerary ? <View style={styles.headerActions}><View style={styles.version}><Text variant="caption" weight="bold">v{itinerary.version}</Text></View>{canEdit && versions.length > 1 ? <Pressable accessibilityRole="button" accessibilityLabel={tx('되돌리기', 'Revert')} accessibilityState={{ busy: revertBusy }} disabled={revertBusy} onPress={() => void revert()} style={[styles.revertButton, revertBusy && styles.actionDisabled]}><Text variant="caption" weight="bold" color={color.brand.navy}>{revertBusy ? tx('처리 중', 'Processing') : tx('되돌리기', 'Revert')}</Text></Pressable> : null}</View> : <View style={styles.headerSpacer} />}</View>
-    {loading ? <View accessibilityLiveRegion="polite" style={styles.stateCard}><ActivityIndicator color={color.brand.orange} /><Text variant="title" weight="bold">{tx('일정을 불러오고 있어요', 'Loading itinerary')}</Text></View> : null}
+    {loading ? <View accessibilityLabel={tx('일정을 불러오고 있어요', 'Loading itinerary')} style={styles.timeline}>{[0, 1, 2].map((key) => (
+      <View key={key} style={styles.itemRow}>
+        <Skeleton width={40} height={16} style={styles.time} />
+        <View style={styles.itemCard}><Skeleton width="60%" height={16} /><View style={styles.metaRow}><Skeleton width="30%" height={12} /><Skeleton width="30%" height={12} /></View></View>
+      </View>
+    ))}</View> : null}
     {!loading && result.state !== 'success' ? <View style={styles.stateCard}><Text variant="title" weight="bold">{result.state === 'offline' ? tx('인터넷 연결을 확인해 주세요', 'Please check your internet connection') : result.state === 'unavailable' ? tx('일정 API를 기다리고 있어요', 'Waiting for the itinerary API') : tx('일정을 불러오지 못했어요', 'Could not load the itinerary')}</Text><Text color={color.text.body}>{result.message}</Text><Button label={tx('다시 시도', 'Try again')} variant="ghost" onPress={() => void reload()} /></View> : null}
     {!loading && itinerary ? <><View style={styles.stats}><View style={styles.stat}><Text variant="title" weight="bold">{totals.cost == null ? tx('미확인', 'Unconfirmed') : tx(`${totals.cost.toLocaleString()}원`, `${totals.cost.toLocaleString()} KRW`)}</Text><Text variant="caption" color={color.text.muted}>{tx('예상 비용', 'Estimated cost')}</Text></View><View style={styles.stat}><Text variant="title" weight="bold">{totals.walk == null ? tx('미확인', 'Unconfirmed') : `${totals.walk.toLocaleString()}m`}</Text><Text variant="caption" color={color.text.muted}>{tx('총 도보', 'Total walking')}</Text></View><View style={styles.stat}><Text variant="title" weight="bold">{tx(`${itinerary.days.length}일`, `${itinerary.days.length} days`)}</Text><Text variant="caption" color={color.text.muted}>{tx('여행 기간', 'Trip length')}</Text></View></View>
       {!canEdit ? <View style={styles.viewerNotice}><Text variant="caption" weight="bold" color={color.text.muted}>{tx('보기 전용 — 이 일정을 편집할 권한이 없어요.', "View only — you don't have permission to edit this itinerary.")}</Text></View> : null}
