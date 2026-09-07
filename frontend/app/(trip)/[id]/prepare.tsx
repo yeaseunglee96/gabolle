@@ -15,9 +15,9 @@ import { useI18n } from '@/i18n';
 import { DIALECT_PHRASES } from '@/discovery/dialectPhrases';
 
 const PREP_ITEMS = [
-  { icon: '☂', name: '접이식 우산', desc: '오후 비 예보' },
-  { icon: '👟', name: '미끄럼 적은 신발', desc: '흰여울 경사 구간' },
-  { icon: '🪪', name: '해외카드·여권 사본', desc: '현장 결제 대비' },
+  { icon: '☂', nameKo: '접이식 우산', nameEn: 'Folding umbrella', descKo: '오후 비 예보', descEn: 'Rain forecast in the afternoon' },
+  { icon: '👟', nameKo: '미끄럼 적은 신발', nameEn: 'Non-slip shoes', descKo: '흰여울 경사 구간', descEn: 'Huinnyeoul has a slope section' },
+  { icon: '🪪', nameKo: '해외카드·여권 사본', nameEn: 'Overseas card · passport copy', descKo: '현장 결제 대비', descEn: 'In case you need to pay on site' },
 ];
 
 function DialectFlashcards() {
@@ -67,6 +67,7 @@ function DialectFlashcards() {
 
 export default function Prepare() {
   const router = useRouter();
+  const { tx } = useI18n();
   const { id } = useLocalSearchParams<{ id: string }>();
   const tripId = id ?? 'demo-trip';
 
@@ -75,10 +76,10 @@ export default function Prepare() {
       <View style={styles.headerRow}>
         <View style={styles.headerCopy}>
           <Text variant="eyebrow" weight="bold">
-            여행 전 · 8월 24일 출발
+            {tx('여행 전 · 8월 24일 출발', 'Before the trip · Departing Aug 24')}
           </Text>
           <Text variant="display" weight="bold" style={styles.title}>
-            부산 여행 준비
+            {tx('부산 여행 준비', 'Getting ready for Busan')}
           </Text>
         </View>
         <LanguageBadge />
@@ -91,32 +92,32 @@ export default function Prepare() {
           </Text>
           <View style={styles.weatherStatus}>
             <Text variant="body" weight="bold">
-              맑음 · 체감 25°
+              {tx('맑음 · 체감 25°', 'Clear · Feels like 25°')}
             </Text>
             <Text variant="caption" weight="medium" color={color.state.success}>
-              미세먼지 좋음
+              {tx('미세먼지 좋음', 'Fine dust: Good')}
             </Text>
           </View>
         </View>
         <Text variant="body" weight="medium" style={styles.weatherRain}>
-          오후 5시 강수 60% · 일몰 19:04
+          {tx('오후 5시 강수 60% · 일몰 19:04', '60% chance of rain at 5 PM · Sunset 19:04')}
         </Text>
       </View>
 
       <View style={styles.prepCard}>
         <Text variant="title" weight="bold" style={styles.prepTitle}>
-          가볼래가 챙긴 준비물
+          {tx('가볼래가 챙긴 준비물', 'What GABOLLE packed for you')}
         </Text>
         {PREP_ITEMS.map((item) => (
-          <View key={item.name} style={styles.prepRow}>
+          <View key={item.nameKo} style={styles.prepRow}>
             <Text variant="title">{item.icon}</Text>
             <View style={styles.prepBody}>
               <Text variant="body" weight="bold">
-                {item.name}
+                {tx(item.nameKo, item.nameEn)}
               </Text>
             </View>
             <Text variant="caption" style={styles.prepDesc}>
-              {item.desc}
+              {tx(item.descKo, item.descEn)}
             </Text>
           </View>
         ))}
@@ -124,20 +125,20 @@ export default function Prepare() {
 
       <View style={styles.rainCard}>
         <Text variant="caption" weight="bold" color={color.text.accent}>
-          비 예보 대응
+          {tx('비 예보 대응', 'Responding to the rain forecast')}
         </Text>
         <Text variant="title" weight="bold" style={styles.rainTitle}>
-          야외 1곳을 실내 코스로 바꿀까요?
+          {tx('야외 1곳을 실내 코스로 바꿀까요?', 'Swap 1 outdoor stop for an indoor one?')}
         </Text>
         <Text variant="caption" style={styles.rainDesc}>
-          흰여울 → 국립해양박물관 · 이동 12분 감소
+          {tx('흰여울 → 국립해양박물관 · 이동 12분 감소', 'Huinnyeoul → National Maritime Museum · 12 min less travel')}
         </Text>
       </View>
 
       <DialectFlashcards />
 
       <Button
-        label="대체 일정 미리보기"
+        label={tx('대체 일정 미리보기', 'Preview the alternative plan')}
         variant="field"
         containerStyle={styles.cta}
         onPress={() => router.push(`/${tripId}/result`)}
