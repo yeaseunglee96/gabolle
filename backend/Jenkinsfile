@@ -178,8 +178,17 @@ pipeline {
                     //    (S15P21E201-574) 기동 중 포트가 아직 안 열린 순간 처음
                     //    드러났다. `|| echo 000`으로 curl 실패도 코드값 하나로
                     //    바꿔서, 재시도 루프가 진짜로 12번을 다 쓰게 한다.
+                    //
+                    // 🔴 정정 (2026-09-07, S15P21E201-231) — 12번×5초 = 60초는 부족했다.
+                    //    이 앱은 Spring Data JPA 리포지토리 스캔·Hibernate 메타모델
+                    //    생성이 무거워서 실제 기동에 150~180초가 걸린다(같은 날 배포
+                    //    5건 로그 실측: 154.7초~178.5초). 그래서 이 단계는 앱이 멀쩡히
+                    //    뜬 뒤에도 **항상** "Health check failed after retries"로
+                    //    끝났다 — 배포가 실제로는 성공인데 Jenkins만 실패로 보고하는
+                    //    상태가 반복됐다(파이프라인 색만 보고 재배포를 반복하게 만듦).
+                    //    60번×5초 = 300초로 늘려 실측 최대치에 여유를 둔다.
                     def healthy = false
-                    for (int i = 0; i < 12; i++) {
+                    for (int i = 0; i < 60; i++) {
                         def code = sh(script: "curl -s -o /dev/null -w '%{http_code}' ${HEALTH_URL} || echo 000", returnStdout: true).trim()
                         if (code == '200') {
                             healthy = true
