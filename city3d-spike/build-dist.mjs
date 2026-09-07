@@ -62,7 +62,7 @@ for (const c of COPY) {
 // 올리기 전에 확인한다. 하나라도 없으면 서버에서 화면이 하얗게 뜨고,
 // 그때는 원인을 찾기가 여기서 찾는 것보다 훨씬 어렵다.
 const MUST = [
-  'index.html', 'sun.mjs', 'bridges.geojson',
+  'index.html', 'sun.mjs', 'bridges.geojson', 'crossings.geojson',
   'lib/maplibre-gl.mjs', 'lib/maplibre-gl.css',
   'tiles-busan/14', 'dem/12', 'dem/15',
 ];

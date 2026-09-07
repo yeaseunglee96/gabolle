@@ -1169,6 +1169,51 @@ function buildEverything() {
   });
   });
 
+  // ── 횡단보도 (S15P21E201-727) ───────────────────────────────────
+  // 도보 시점에서 길이 "걸어다니는 곳" 으로 읽히려면 바닥에 사람이 아는 표시가 있어야 한다.
+  // 확대 18 부터는 항공사진을 걷어내므로(725) 사진에 찍혀 있던 흰 줄무늬도 같이 사라진다.
+  // 그 자리를 우리가 그린다. 줄무늬 도형은 crossings.mjs 가 OSM 에서 미리 만들어 둔다.
+  //
+  // 🔴 그림자 **앞**에 끼운다. 지형을 켜면 fill 은 땅 표면에 구워 붙어서(drape) 순서가
+  //    덜 중요하지만, ?flat 으로 지형을 끄면 순서대로 그려진다 — 뒤에 두면 건물을 덮는다.
+  step('횡단보도', () => {
+    map.addSource('crossing', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
+    map.addLayer({
+      id: 'crossing',
+      type: 'fill',
+      source: 'crossing',
+      // 🔴 확대 17 아래에서는 줄 하나가 화면 0.5픽셀도 안 된다. 그리면 횡단보도가 아니라
+      //    지저분한 점 무리가 된다. 그리고 그 확대에서는 아직 항공사진에 진짜 줄무늬가 찍혀 있다.
+      minzoom: 17,
+      paint: {
+        'fill-color': '#ffffff',
+        // 🔴 반투명을 안 쓴다. 지형에 구워 붙는 fill 은 반투명이 제대로 안 섞인다 —
+        //    이 저장소에서 그림자를 fill 로 만들었다가 55% 가 아예 안 보여서 겪은 일이다.
+        //
+        // 🔴 테두리가 있어야 보인다. 바탕 지도(positron)의 도로가 **흰색**이라 흰 줄무늬를
+        //    그대로 얹으면 흰 위에 흰이라 아무것도 안 보인다. 실제 도색과 아스팔트의 경계를
+        //    이 한 줄이 대신한다. 밤에는 길이 어두워져서 테두리 없이도 보이지만, 낮에 맞춘다.
+        'fill-outline-color': '#7f868b',
+      },
+    }, map.getLayer('shadow') ? 'shadow' : undefined);
+
+    // 🔴 첫 화면에서는 안 받는다. 1.5 MB 라서, 확대 13 에서 도시를 볼 때 이걸 같이 받으면
+    //    **건물 타일이 뒤로 밀린다.** 이 저장소는 그 함정을 이미 한 번 밟았다 (다리 파일을
+    //    두 번 받아서 확대 13 에서 건물이 14초 동안 한 동도 안 들어왔다).
+    //    확대 16 을 처음 넘을 때 받는다 — 그때부터 한 화면이 덮는 땅이 8 km² 아래다.
+    let crossingAsked = false;
+    const askCrossings = () => {
+      if (crossingAsked || map.getZoom() < 16) return;
+      crossingAsked = true;
+      fetch(basePath() + '/crossings.geojson')
+        .then((r) => r.json())
+        .then((j) => map.getSource('crossing')?.setData(j))
+        .catch((e) => console.error('[횡단보도] 데이터를 못 받았다', e));
+    };
+    map.on('zoomend', askCrossings);
+    askCrossings();
+  });
+
   // 🔴 건물이 가장 중요하다. 그래서 가장 먼저, 그리고 따로 만든다.
   //    전에는 파도 만들기가 이보다 앞에 있었고, 거기서 오류가 나자 건물이 통째로 사라졌다.
   step('건물', () => {
