@@ -58,12 +58,16 @@ public class ItineraryQueryService {
 
 	private final RecommendationJobRepository recommendationJobRepository;
 
+	private final ActorNames actorNames;
+
 	public ItineraryQueryService(ItineraryRepository itineraryRepository, ItineraryAccess itineraryAccess,
-			PlaceRepository placeRepository, RecommendationJobRepository recommendationJobRepository) {
+			PlaceRepository placeRepository, RecommendationJobRepository recommendationJobRepository,
+			ActorNames actorNames) {
 		this.itineraryRepository = itineraryRepository;
 		this.itineraryAccess = itineraryAccess;
 		this.placeRepository = placeRepository;
 		this.recommendationJobRepository = recommendationJobRepository;
+		this.actorNames = actorNames;
 	}
 
 	/**
@@ -129,8 +133,11 @@ public class ItineraryQueryService {
 	@Transactional(readOnly = true)
 	public List<ItineraryVersionSummaryResponse> listVersions(String itineraryId, String requesterUserId) {
 		this.itineraryAccess.requireMember(itineraryId, requesterUserId);
-		return this.itineraryRepository.findVersions(itineraryId).stream()
-				.map(ItineraryVersionSummaryResponse::of)
+		List<ItineraryVersion> versions = this.itineraryRepository.findVersions(itineraryId);
+		// 2026-09-07 — 판마다 만든 사람의 표시 이름을 싣는다. 이름 조회는 한 번(IN 질의)이다.
+		Map<String, String> names = this.actorNames.resolve(versions.stream().map(ItineraryVersion::createdBy).toList());
+		return versions.stream()
+				.map(v -> ItineraryVersionSummaryResponse.of(v, names.get(v.createdBy())))
 				.toList();
 	}
 

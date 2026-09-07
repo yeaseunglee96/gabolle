@@ -13,9 +13,11 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
  */
 @SpringBootApplication(scanBasePackages = {
 		"com.gabolle.backend.common",
-		"com.gabolle.backend.trip"
+		"com.gabolle.backend.trip",
+		// 2026-09-07 — 참여자 목록(TripMemberService)이 표시 이름을 app_user 에서 읽는다.
+		"com.gabolle.backend.user"
 })
-@EntityScan(basePackages = "com.gabolle.backend.trip.infra")
-@EnableJpaRepositories(basePackages = "com.gabolle.backend.trip.infra")
+@EntityScan(basePackages = { "com.gabolle.backend.trip.infra", "com.gabolle.backend.user.domain" })
+@EnableJpaRepositories(basePackages = { "com.gabolle.backend.trip.infra", "com.gabolle.backend.user.repository" })
 public class TripSliceApplication {
 }

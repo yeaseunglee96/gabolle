@@ -3,11 +3,13 @@ package com.gabolle.backend.itinerary.infra;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.context.annotation.Profile;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -277,6 +279,24 @@ public class JpaItineraryRepository implements ItineraryRepository {
 	@Override
 	public List<ItineraryVersion> findVersions(String itineraryId) {
 		return versionJpaRepository.findByItineraryIdOrderByVersionDesc(UUID.fromString(itineraryId)).stream()
+				.map(JpaItineraryRepository::toDomain)
+				.toList();
+	}
+
+	@Override
+	public List<Itinerary> findByTripId(String tripId) {
+		return itineraryJpaRepository.findByTripIdOrderByCreatedAtAsc(UUID.fromString(tripId)).stream()
+				.map(JpaItineraryRepository::toDomain)
+				.toList();
+	}
+
+	@Override
+	public List<ItineraryVersion> findRecentVersions(Collection<String> itineraryIds, int limit) {
+		if (itineraryIds.isEmpty() || limit < 1) {
+			return List.of();
+		}
+		List<UUID> ids = itineraryIds.stream().map(UUID::fromString).toList();
+		return versionJpaRepository.findByItineraryIdInOrderByCreatedAtDesc(ids, PageRequest.of(0, limit)).stream()
 				.map(JpaItineraryRepository::toDomain)
 				.toList();
 	}

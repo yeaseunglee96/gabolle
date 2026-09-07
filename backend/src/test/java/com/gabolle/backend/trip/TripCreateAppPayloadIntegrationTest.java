@@ -90,7 +90,7 @@ class TripCreateAppPayloadIntegrationTest {
 		this.userId = UUID.randomUUID();
 		jdbcTemplate.update(
 				"INSERT INTO app_user (user_id, display_name, language, personalization_mode, status, created_at, updated_at) "
-						+ "VALUES (?, 'test', 'ko', 'PERSONALIZED', 'ACTIVE', ?, ?)",
+						+ "VALUES (?, 'test', 'ko', 'EXPLICIT_ONLY', 'ACTIVE', ?, ?)",
 				this.userId, now, now);
 	}
 

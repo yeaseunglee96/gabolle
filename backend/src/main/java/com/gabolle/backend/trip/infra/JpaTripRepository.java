@@ -252,13 +252,9 @@ public class JpaTripRepository implements TripRepository {
 				m.role(), toOffset(m.joinedAt()));
 	}
 
+	/** S15P21E201-299 — 초대 흔적 세 칸까지 함께 되살린다. 번역은 {@link JpaTripMembershipRepository#toDomain} 한 곳에 둔다. */
 	private static TripMember toDomain(TripMemberJpaEntity e) {
-		Instant at = toInstant(e.joinedAt());
-		if (e.role() == TripMember.Role.OWNER) {
-			return TripMember.owner(e.tripMemberId().toString(), e.tripId().toString(), e.userId().toString(), at);
-		}
-		return TripMember.invited(e.tripMemberId().toString(), e.tripId().toString(), e.userId().toString(),
-				e.role(), at);
+		return JpaTripMembershipRepository.toDomain(e);
 	}
 
 	private PreferenceSnapshot toDomain(PreferenceSnapshotJpaEntity e) {

@@ -97,7 +97,7 @@ class ItineraryVersionListingIntegrationTest {
 
 		jdbcTemplate.update(
 				"INSERT INTO app_user (user_id, display_name, language, personalization_mode, status, created_at, updated_at) "
-						+ "VALUES (?, 'test', 'ko', 'PERSONALIZED', 'ACTIVE', ?, ?)",
+						+ "VALUES (?, 'test', 'ko', 'EXPLICIT_ONLY', 'ACTIVE', ?, ?)",
 				this.ownerId, now, now);
 		jdbcTemplate.update(
 				"INSERT INTO trip (trip_id, owner_user_id, start_date, end_date, party_size, created_at, updated_at) "
@@ -161,7 +161,7 @@ class ItineraryVersionListingIntegrationTest {
 		OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
 		jdbcTemplate.update(
 				"INSERT INTO app_user (user_id, display_name, language, personalization_mode, status, created_at, updated_at) "
-						+ "VALUES (?, 'stranger', 'ko', 'PERSONALIZED', 'ACTIVE', ?, ?)",
+						+ "VALUES (?, 'stranger', 'ko', 'EXPLICIT_ONLY', 'ACTIVE', ?, ?)",
 				strangerId, now, now);
 
 		Authentication stranger = new UsernamePasswordAuthenticationToken(strangerId.toString(), null, List.of());
