@@ -21,6 +21,8 @@ public class AuthProperties {
 	private Duration passwordResetTtl = Duration.ofMinutes(30);
 	private Duration oneTimeTokenRequestCooldown = Duration.ofSeconds(60);
 	private Duration oauthChallengeTtl = Duration.ofMinutes(5);
+	/** 소셜 인증 → 회원가입(또는 연결) 사이의 티켓 수명 — S15P21E201-689. 화면 하나를 채울 시간이면 된다. */
+	private Duration oauthSignupTicketTtl = Duration.ofMinutes(10);
 	/**
 	 * 연속으로 이만큼 틀리면 잠근다 (S15P21E201-421). 티켓이 5회로 정했다.
 	 */
@@ -109,6 +111,14 @@ public class AuthProperties {
 
 	public void setOauthChallengeTtl(Duration oauthChallengeTtl) {
 		this.oauthChallengeTtl = oauthChallengeTtl;
+	}
+
+	public Duration getOauthSignupTicketTtl() {
+		return oauthSignupTicketTtl;
+	}
+
+	public void setOauthSignupTicketTtl(Duration oauthSignupTicketTtl) {
+		this.oauthSignupTicketTtl = oauthSignupTicketTtl;
 	}
 
 	public int getLoginFailureThreshold() {

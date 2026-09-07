@@ -58,6 +58,11 @@ public class SecurityConfig {
 						"/api/v1/auth/password-reset/confirm",
 						"/api/v1/auth/web/refresh",
 						"/api/v1/auth/web/logout",
+						// 🔴 이 한 줄이 /oauth/ 아래 한 마디짜리 경로를 <b>전부</b> 연다 — {provider} 뿐 아니라
+						//    S15P21E201-689·-690 이 더한 /oauth/signup·/oauth/link 도 여기 걸린다(그 둘은 아직
+						//    로그인 상태가 아니라서 열려야 맞다. 잠금은 10분짜리 1회용 티켓과, 연결 쪽은 기존
+						//    계정의 비밀번호다). 그러니 /oauth/ 아래에 인증이 필요한 경로를 새로 만들 때는
+						//    /oauth/{provider}/link 처럼 <b>두 마디</b>로 두어야 한다 — 한 마디로 두면 조용히 열린다.
 						"/api/v1/auth/oauth/*",
 						"/api/v1/auth/oauth/*/challenge")
 				.permitAll()

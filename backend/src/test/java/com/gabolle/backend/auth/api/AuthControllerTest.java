@@ -11,6 +11,7 @@ import com.gabolle.backend.auth.service.AccountDeletionService;
 import com.gabolle.backend.auth.service.CurrentUserService;
 import com.gabolle.backend.auth.service.ProfileUpdateService;
 import com.gabolle.backend.auth.service.LocalAuthService;
+import com.gabolle.backend.auth.service.OAuthAccountService;
 import com.gabolle.backend.auth.service.OAuthChallengeService;
 import com.gabolle.backend.auth.service.OAuthLoginService;
 import com.gabolle.backend.auth.service.PasswordResetService;
@@ -34,7 +35,7 @@ class AuthControllerTest {
 				mock(AuthTokenService.class), mock(OAuthLoginService.class), mock(OAuthChallengeService.class),
 				mock(WebAuthCookieService.class), currentUserService,
 				mock(ProfileUpdateService.class),
-				mock(AccountDeletionService.class));
+				mock(AccountDeletionService.class), mock(OAuthAccountService.class));
 	}
 
 	@Test
