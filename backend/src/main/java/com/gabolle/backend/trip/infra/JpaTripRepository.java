@@ -30,8 +30,12 @@ import jakarta.persistence.PersistenceContext;
  * 취향·제약이 조용히 버려진다" 는 것을 찾았다. M1 판정이 오늘이라 이번에 마저 옮긴다.
  *
  * evidenceStatus·operator 는 왕복하지 않는다 — constraint_answer 표에 그 두 칸이 없다.
- * 저장은 그대로 하되, 다시 읽어올 때 evidenceStatus 는 NEEDS_REVIEW 로, operator 는
- * 종류별 관례값으로 채운다 — ALLERGY·DIET 는 EXCLUDES, MOBILITY 는 LTE. 정직한 손실이다.
+ * 고지혁 님 지적대로, 이건 유실이 아니라 설계다. operator 는 constraint_key 자체가
+ * 이미 뜻을 담고 있다(예: MAX_WALKING_METERS 는 그 이름부터 "이하"다) — 따로 저장할
+ * 값이 아니다. evidenceStatus 는 사용자 입력이 아니라 place 데이터의 속성이다(명세
+ * 6.2) — 사용자가 "내 알레르기 신고가 검증됐다"를 스스로 표시할 자리가 없다. 다시
+ * 읽어올 때는 evidenceStatus 를 NEEDS_REVIEW 로, operator 는 종류별 관례값으로
+ * 채운다 — ALLERGY·DIET 는 EXCLUDES, MOBILITY 는 LTE.
  *
  * 멱등 키는 SAVEPOINT 대신 ON CONFLICT DO NOTHING 을 쓴다 — JpaItineraryRepository 에서
  * SAVEPOINT(PROPAGATION_NESTED)가 이 환경의 트랜잭션 매니저에서 실제로 안 먹히는 것을
