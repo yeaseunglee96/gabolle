@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.gabolle.backend.itinerary.application.ItineraryEditService;
+import com.gabolle.backend.itinerary.application.port.PlaceEventSchedule;
 import com.gabolle.backend.itinerary.domain.ItineraryContent;
 import com.gabolle.backend.itinerary.domain.ItineraryItem;
 import com.gabolle.backend.itinerary.domain.ItineraryVersion;
@@ -49,7 +50,10 @@ class ItineraryVersionConflictTest {
     /** 5번 판까지 와 있고 그 판에 항목 둘이 들어 있는 일정. */
     private void seedAtVersion5() {
         repository = new InMemoryItineraryRepository();
-        service = new ItineraryEditService(repository, Clock.systemUTC());
+        // 기간이 정해진 장소가 아니라고 답하는 문. 이 테스트가 보는 것은 판 번호와 409 이고,
+        // 축제 날짜 검사는 그 판정에 끼어들지 않아야 한다(ItineraryAddItemIntegrationTest 가 본다).
+        service = new ItineraryEditService(repository,
+                (placeId, from, to) -> PlaceEventSchedule.unscheduled(), Clock.systemUTC());
         repository.seed("itn_1", "trp_1", 5);
 
         String versionId = UUID.randomUUID().toString();

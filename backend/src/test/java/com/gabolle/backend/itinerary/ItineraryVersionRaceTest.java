@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.gabolle.backend.itinerary.application.ItineraryEditService;
+import com.gabolle.backend.itinerary.application.port.PlaceEventSchedule;
 import com.gabolle.backend.itinerary.domain.Itinerary;
 import com.gabolle.backend.itinerary.domain.ItineraryContent;
 import com.gabolle.backend.itinerary.domain.ItineraryExclusion;
@@ -145,7 +146,9 @@ class ItineraryVersionRaceTest {
     @DisplayName("🔴 A 가 저장하는 중에 B 가 끼어들어도 판이 건너뛰어지지 않는다")
     void interleavedEditDoesNotSkipVersion() throws Exception {
         GatedRepository repo = new GatedRepository();
-        ItineraryEditService service = new ItineraryEditService(repo, Clock.systemUTC());
+        // 기간이 정해진 장소가 아니라고 답하는 문 — 이 테스트가 보는 것은 판 번호 경쟁이다.
+        ItineraryEditService service = new ItineraryEditService(repo,
+                (placeId, from, to) -> PlaceEventSchedule.unscheduled(), Clock.systemUTC());
         repo.seed("itn_1", "trp_1", 5);
 
         // 🔴 바탕 판에 내용이 있어야 한다 — 편집은 그것을 새 판으로 복사한다(S15P21E201-662).
