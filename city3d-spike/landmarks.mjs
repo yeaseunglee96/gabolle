@@ -51,17 +51,17 @@ const TIER = {
   flat: [[0, 1, 1]],
 };
 const LANDMARKS = [
-  { lm: 'zenith', show: '두산위브더제니스 101동', key: [299.9, 2383], at: [129.14602, 35.15684], tiers: TIER.flat },
-  { lm: 'zenith', show: '두산위브더제니스 102동', key: [283.9, 2365], at: [129.14484, 35.15723], tiers: TIER.flat },
-  { lm: 'zenith', show: '두산위브더제니스 103동', key: [267.9, 2381], at: [129.14529, 35.15609], tiers: TIER.flat },
-  { lm: 'ipark', show: '해운대아이파크 292 m 동', key: [292.7, 2138], at: [129.14209, 35.15605], tiers: TIER.flat },
-  { lm: 'ipark', show: '해운대아이파크 273 m 동', key: [273.5, 2129], at: [129.14259, 35.15708], tiers: TIER.flat },
+  { lm: 'zenith', show: '두산위브더제니스 101동', key: [299.9, 2383], at: [129.14602, 35.15684], tiers: TIER.zenith },
+  { lm: 'zenith', show: '두산위브더제니스 102동', key: [283.9, 2365], at: [129.14484, 35.15723], tiers: TIER.zenith },
+  { lm: 'zenith', show: '두산위브더제니스 103동', key: [267.9, 2381], at: [129.14529, 35.15609], tiers: TIER.zenith },
+  { lm: 'ipark', show: '해운대아이파크 292 m 동', key: [292.7, 2138], at: [129.14209, 35.15605], tiers: TIER.ipark },
+  { lm: 'ipark', show: '해운대아이파크 273 m 동', key: [273.5, 2129], at: [129.14259, 35.15708], tiers: TIER.ipark },
   { lm: 'ipark', show: '해운대아이파크 206 m 동', key: [206.3, 2132], at: [129.14242, 35.15521], tiers: TIER.flat },
   { lm: 'hyatt', show: '파크하얏트 부산', key: [169.8, 1636], at: [129.14185, 35.15656], tiers: TIER.flat },
   // 🔴 BIFC 는 건물 데이터에 **바닥 328 m² 짜리 조각**으로만 들어 있다 (63층 289 m 기록이 이 조각에 붙어 있다).
   //    그대로 세우면 바늘이 된다 — 지금 화면이 그렇다. 실제 탑은 한 변 50 m 남짓이라 발자국을 손으로 그린다:
   //    그 조각의 가운데에, 조각의 긴 변 방향으로 56×46 m 직사각형. 실측 발자국이 생기면 이 줄을 지운다
-  { lm: 'bifc', show: 'BIFC (부산국제금융센터)', key: [289, 328], at: [129.06647, 35.14689], tiers: TIER.flat,
+  { lm: 'bifc', show: 'BIFC (부산국제금융센터)', key: [289, 328], at: [129.06647, 35.14689], tiers: TIER.bifc,
     footprint: { rect: [56, 46] } },
   { lm: 'cinema', show: '영화의전당', key: [43.2, 17890], at: [129.12736, 35.17087], tiers: TIER.flat },
 ];
