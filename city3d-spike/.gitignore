@@ -1,0 +1,32 @@
+# 이 폴더에서 깃에 올리는 것은 **코드와 작은 산출물뿐**이다.
+# 구운 타일·지형·배포 꾸러미는 807 MB 인데 전부 스크립트로 다시 만들 수 있다.
+#
+# 🔴 LFS 를 쓰지 않는다. LFS 도 저장소가 그만큼 무거워지는 건 똑같고 clone 이 느려진다.
+#    큰 파일은 **AWS(EC2)에 두고 주소로 부른다.**
+#
+#    새로 clone 했다면 굽지 말고 이렇게 바로 볼 수 있다:
+#      node serve.mjs
+#      http://localhost:8787/?data=aws
+#    ?data=aws 를 붙이면 타일과 지형을 https://j15e201.p.ssafy.io/city3d 에서 받는다.
+#    직접 구우려면 아래 각 항목의 명령을 쓴다.
+
+node_modules/
+
+# 부산 전역을 굽고 남은 중간 산출물. busan.geojson 하나가 141 MB 다.
+#   다시 만들기: node night.mjs   (건물 47만 동 → 타일, 땅 높이 축소본)
+work/
+
+# 구운 건물 타일과 땅 높이. 합쳐서 124 MB.
+#   다시 만들기: node night.mjs
+public/tiles/
+public/tiles-busan/
+public/dem-tiles/
+
+# 서버에 올릴 한 폴더로 모은 것. 262 MB, 위의 것들을 복사한 결과다.
+#   다시 만들기: node build-dist.mjs
+dist/
+*.tar.gz
+
+# 확인용 브라우저가 남기는 것
+.playwright-mcp/
+*.png

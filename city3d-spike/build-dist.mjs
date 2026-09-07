@@ -1,0 +1,76 @@
+// 서버에 그대로 올릴 수 있는 폴더 하나를 만든다.
+//
+// 왜 필요한가 — 지금 이 실험은 로컬 서버(serve.mjs)가 세 군데에서 파일을 끌어다 쓴다:
+//   화면 파일은 public/ · 지도 라이브러리는 node_modules/ · 땅 높이 15단계는 bigData/
+// 정적 서버(nginx)는 그런 짜맞추기를 못 한다. 그래서 한 폴더로 미리 모아 둔다.
+//
+//   node build-dist.mjs        → dist/ 가 생긴다
+//
+// dist/ 를 통째로 웹 서버의 아무 폴더에나 두면 된다. 화면 쪽 코드가 자기가 어느 하위
+// 폴더에 놓였는지 스스로 알아내므로(basePath), 주소를 코드에 적을 필요가 없다.
+
+import fs from 'node:fs';
+import path from 'node:path';
+
+const HERE = import.meta.dirname;
+const ROOT = path.resolve(HERE, '..');
+const DIST = path.join(HERE, 'dist');
+
+// 어디에서 무엇을 가져와 dist 의 어디에 놓을지.
+// 로컬 서버(serve.mjs)의 주소 규칙과 **같은 모양**이어야 한다 — 다르면 로컬에서 되던 것이
+// 서버에서만 깨진다. 그게 가장 찾기 어려운 종류의 버그다.
+const COPY = [
+  { from: path.join(HERE, 'public'), to: DIST, skip: ['dem-tiles', 'tiles'] },
+  { from: path.join(HERE, 'node_modules/maplibre-gl/dist'), to: path.join(DIST, 'lib'),
+    only: /^maplibre-gl(-shared|-worker)?\.(mjs|css)$/ },
+  { from: path.join(HERE, 'public/dem-tiles'), to: path.join(DIST, 'dem') },
+  { from: path.join(ROOT, 'bigData/data/raw/dem/15'), to: path.join(DIST, 'dem/15') },
+];
+
+let files = 0;
+let bytes = 0;
+
+function copyDir(from, to, opt = {}) {
+  if (!fs.existsSync(from)) {
+    console.log(`  건너뜀 (없음): ${path.relative(ROOT, from)}`);
+    return;
+  }
+  fs.mkdirSync(to, { recursive: true });
+  for (const e of fs.readdirSync(from, { withFileTypes: true })) {
+    if (opt.skip?.includes(e.name)) continue;
+    const src = path.join(from, e.name);
+    const dst = path.join(to, e.name);
+    if (e.isDirectory()) {
+      copyDir(src, dst, { only: opt.only });
+    } else {
+      if (opt.only && !opt.only.test(e.name)) continue;
+      fs.copyFileSync(src, dst);
+      files++;
+      bytes += fs.statSync(dst).size;
+    }
+  }
+}
+
+fs.rmSync(DIST, { recursive: true, force: true });
+console.log('배포 꾸러미를 만듭니다…');
+for (const c of COPY) {
+  const before = files;
+  copyDir(c.from, c.to, c);
+  console.log(`  ${path.relative(ROOT, c.from)} → dist/${path.relative(DIST, c.to) || '.'}  (${files - before} 개)`);
+}
+
+// 올리기 전에 확인한다. 하나라도 없으면 서버에서 화면이 하얗게 뜨고,
+// 그때는 원인을 찾기가 여기서 찾는 것보다 훨씬 어렵다.
+const MUST = [
+  'index.html', 'sun.mjs', 'bridges.geojson',
+  'lib/maplibre-gl.mjs', 'lib/maplibre-gl.css',
+  'tiles-busan/14', 'dem/12', 'dem/15',
+];
+const missing = MUST.filter((m) => !fs.existsSync(path.join(DIST, m)));
+
+console.log(`\n파일 ${files.toLocaleString()} 개 · ${(bytes / 1048576).toFixed(1)} MB → dist/`);
+if (missing.length) {
+  console.error('빠진 것이 있습니다: ' + missing.join(', '));
+  process.exit(1);
+}
+console.log('필수 파일 확인 완료.');
