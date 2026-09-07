@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.gabolle.backend.common.api.ApiResponse;
@@ -40,15 +41,25 @@ public class PlaceDetailController {
 	 * @param acceptLanguage {@code en} 으로 시작하면 영문 이름·주소를 우선한다 (S15P21E201-430,
 	 *        부분). 영문 값이 없으면 한국어로 되돌리고, 응답의 {@code resolvedLanguage} 가 어느
 	 *        언어로 답했는지 알린다 — 그러지 않으면 화면이 받은 값이 번역된 것인지 알 수 없다
+	 * @param itineraryId 어느 일정에 대해 포함 여부를 묻는가 (S15P21E201-476). 선택이다 — 안 주면
+	 *        응답의 {@code itineraryInclusion} 이 {@code UNAVAILABLE} 로 나가고 그것이 정상이다.
+	 *        <b>여행이 아니라 일정을 받는다.</b> 포함 여부는 그 일정의 최신 판 내용에서 나오는
+	 *        값이고, 여행에서 일정으로 가는 단계를 서버가 대신 밟으면 "그 여행에 일정이 여럿이면
+	 *        어느 것인가" 를 이 엔드포인트가 몰래 정하게 된다. 더 자세한 것은
+	 *        {@code ItineraryMembershipPort} 클래스 주석에 있다.
+	 *        <p>형식이 UUID 가 아니면 {@code PlaceExceptionHandler} 가 400 으로 답한다. 이것은
+	 *        "그 일정이 있는가" 와 무관한 <b>요청 형식</b> 오류라 존재 여부를 알려주지 않는다 —
+	 *        형식이 맞는데 볼 수 없는 일정은 200 에 {@code UNAVAILABLE} 이다
 	 */
 	@GetMapping("/{placeId}")
 	public ApiResponse<PlaceDetailResponse> get(@PathVariable UUID placeId,
 			Authentication authentication,
+			@RequestParam(value = "itineraryId", required = false) UUID itineraryId,
 			@RequestHeader(value = "Accept-Language", required = false) String acceptLanguage,
 			@RequestHeader(value = "X-Request-Id", required = false) String requestId) {
 
 		UUID viewerId = AuthenticatedUsers.optionalId(authentication).orElse(null);
-		return ApiResponse.success(this.placeDetailService.get(placeId, viewerId, acceptLanguage),
+		return ApiResponse.success(this.placeDetailService.get(placeId, viewerId, acceptLanguage, itineraryId),
 				resolveRequestId(requestId));
 	}
 
