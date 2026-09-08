@@ -9,6 +9,7 @@ import { Screen } from '@/components/Screen';
 import { TabBar } from '@/components/TabBar';
 import { Text } from '@/components/Text';
 import { color, gutter, radius, spacing } from '@/design/tokens';
+import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
 import { useI18n } from '@/i18n';
 
@@ -51,7 +52,7 @@ export default function Home() {
   const router = useRouter();
   const { tx } = useI18n();
   const { width } = useLayout();
-  const desktop = width >= 768;
+  const desktop = isAtLeast(width, 'md');
   const [likedIds, setLikedIds] = useState<Set<string>>(new Set());
   const carouselRef = useRef<ScrollView>(null);
   const dragStartX = useRef(0);

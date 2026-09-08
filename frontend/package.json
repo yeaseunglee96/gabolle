@@ -50,6 +50,7 @@
     "typecheck": "tsc --noEmit",
     "verify": "npm run typecheck && npm run build:web",
     "smoke": "node tools/smoke-check.mjs",
+    "check:breakpoints": "node tools/check-breakpoints.mjs",
     "legal:generate": "node tools/generate-open-source-notices.mjs",
     "verify:android-target-sdk": "node tools/verify-android-target-sdk.mjs"
   },

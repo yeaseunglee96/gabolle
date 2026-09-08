@@ -8,6 +8,7 @@ import { Button } from '@/components/Button';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
+import { isAtLeast } from '@/layout/breakpoints';
 
 const INTRO_SEEN_KEY = '@gabolle/app-intro-seen';
 const logo = require('../assets/brand/gabolle-logo-figma.png');
@@ -44,7 +45,7 @@ export default function AppIntro() {
     router.replace({ pathname: '/age-gate', params: { language, mobility } });
   };
 
-  if (width >= 768) return <Redirect href="/" />;
+  if (isAtLeast(width, 'md')) return <Redirect href="/" />;
 
   return <SafeAreaView style={styles.screen} onLayout={(event) => setPageWidth(event.nativeEvent.layout.width)}>
     <View style={styles.top}><Pressable accessibilityRole="link" accessibilityLabel={tx('GABOLLE 시작 화면으로 이동', 'Go to the GABOLLE start screen')} onPress={() => router.replace('/')} style={({ pressed }) => [styles.logoButton, pressed && styles.pressed]}><Image source={logo} resizeMode="contain" style={styles.logo} /></Pressable><Pressable accessibilityRole="button" onPress={() => void finish()} style={({ pressed }) => [styles.skip, pressed && styles.pressed]}><Text variant="caption" weight="bold" color={color.text.body}>{tx('건너뛰기', 'Skip')}</Text></Pressable></View>

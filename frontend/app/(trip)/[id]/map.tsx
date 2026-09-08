@@ -21,6 +21,7 @@ import { city3dUrlForStops, openCity3D } from '@/map/city3d';
 import type { MapStop } from '@/map/types';
 import { PermissionRationale } from '@/components/PermissionRationale';
 import { useI18n } from '@/i18n';
+import { isAtLeast, widthTier } from '@/layout/breakpoints';
 
 type RouteStatus = 'pass' | 'fail' | 'neutral';
 
@@ -189,7 +190,7 @@ export default function Map() {
     });
   }, []);
 
-  const LayerControls = () => <View accessibilityLabel={tx('지도 겹쳐 보기', 'Map overlays')} style={[styles.layerPanel, width <= 599 && styles.layerSheet]}>
+  const LayerControls = () => <View accessibilityLabel={tx('지도 겹쳐 보기', 'Map overlays')} style={[styles.layerPanel, widthTier(width) === 'sm' && styles.layerSheet]}>
     <View style={styles.layerHeading}><View><Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx('겹쳐 보기', 'Overlays')}</Text><Text variant="caption" color={color.text.muted}>{tx('지도에 함께 볼 정보를 골라요', 'Choose what to show on the map')}</Text></View><Text variant="caption" weight="bold">{routeScope === 'all' ? tx('전체 동선', 'All routes') : day}</Text></View>
     <View style={styles.layerOptions}>
       <Pressable accessibilityRole="radio" accessibilityState={{ checked: routeScope === 'selected' }} onPress={() => setRouteScope('selected')} style={[styles.layerChip, routeScope === 'selected' && styles.layerChipActive]}><Text variant="caption" weight="bold" color={routeScope === 'selected' ? color.text.onAction : color.text.body}>{tx('선택 날짜만', 'Selected day only')}</Text></Pressable>
@@ -229,10 +230,10 @@ export default function Map() {
       )}
 
       <View style={styles.mapStage}>
-        <RouteMap stops={stops} selectedId={selectedId} onSelect={selectStopFromMap} routes={routes} points={points} onBackToList={() => router.back()} height={width <= 599 ? 420 : 600} />
-        {width > 599 ? <View style={styles.floatingLayers}><LayerControls /></View> : null}
+        <RouteMap stops={stops} selectedId={selectedId} onSelect={selectStopFromMap} routes={routes} points={points} onBackToList={() => router.back()} height={widthTier(width) === 'sm' ? 420 : 600} />
+        {isAtLeast(width, 'md') ? <View style={styles.floatingLayers}><LayerControls /></View> : null}
       </View>
-      {width <= 599 ? <LayerControls /> : null}
+      {widthTier(width) === 'sm' ? <LayerControls /> : null}
 
       {/* 3D 도시로 가는 문. 웹 지도가 살아 있든 죽어 있든, 앱이든 웹이든 여기서 열린다.
           3D 화면은 웹 페이지 한 장이라 앱에 새 부품을 하나도 안 깐다 (S15P21E201-649). */}

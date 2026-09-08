@@ -8,13 +8,14 @@ import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
+import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
 
 export default function NotFoundScreen() {
   const router = useRouter();
   const { tx } = useI18n();
   const { width } = useLayout();
-  const isDesktop = Platform.OS === 'web' && width >= 900;
+  const isDesktop = Platform.OS === 'web' && isAtLeast(width, 'md');
   const homeHref = Platform.OS === 'web' ? '/' : '/home';
 
   return (

@@ -8,6 +8,7 @@ import { Text } from '@/components/Text';
 import { GabolleMascot } from '@/components/DongbaekMascot';
 import { ScenicVideo } from '@/components/ScenicVideo';
 import { color, radius, spacing } from '@/design/tokens';
+import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
 import { type LanguageCode, useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
 import { useI18n } from '@/i18n';
@@ -70,7 +71,7 @@ export default function Welcome() {
   const { language, mobility, setPreferences } = useOnboardingPreferences();
   const { tx } = useI18n();
   const { user } = useAuth();
-  const isDesktop = width >= 1120;
+  const isDesktop = isAtLeast(width, 'lg');
   const [welcomeVideo, setWelcomeVideo] = useState<number>(() => pickWelcomeVideo());
   const appState = useRef(AppState.currentState);
 

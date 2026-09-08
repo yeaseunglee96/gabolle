@@ -7,6 +7,7 @@ import { DateFieldInput } from '@/components/DateFieldInput';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
+import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
 import { PlanStepHeader } from '@/plan/PlanStepHeader';
 import { PlanDesktopShell } from '@/plan/PlanDesktopShell';
@@ -49,7 +50,7 @@ export default function Basics() {
   const { tx } = useI18n();
   const router = useRouter();
   const { kind, width } = useLayout();
-  const isDesktop = kind === 'tablet' && width >= 1100;
+  const isDesktop = kind === 'tablet' && isAtLeast(width, 'lg');
   const { draft, ready, update, completeStep } = usePlan();
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [panelIndex, setPanelIndex] = useState(0);

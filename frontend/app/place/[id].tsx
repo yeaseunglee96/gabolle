@@ -11,6 +11,7 @@ import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { bilingualPlaceName, getPlace, hasLocalityScore, type Place as ApiPlace } from '@/discovery/places';
 import { useI18n } from '@/i18n';
+import { isAtLeast } from '@/layout/breakpoints';
 import { PlacePhraseModal } from '@/components/PlacePhraseModal';
 import { listAvailableMapApps, type AvailableMapProvider } from '@/utils/externalMaps';
 
@@ -118,7 +119,7 @@ export default function Place() {
 
       {resolved ? <>
         {demoPlace ? (
-          <ImageBackground source={demoPlace.image} resizeMode="cover" style={[styles.hero, width >= 760 && styles.heroWide]} imageStyle={styles.heroImage}>
+          <ImageBackground source={demoPlace.image} resizeMode="cover" style={[styles.hero, isAtLeast(width, 'md') && styles.heroWide]} imageStyle={styles.heroImage}>
             <View style={styles.shade} />
             <View style={styles.heroCopy}>
               <Text variant="display" weight="bold" color={color.text.onAction}>{resolved.title}</Text>
@@ -126,7 +127,7 @@ export default function Place() {
             </View>
           </ImageBackground>
         ) : resolved.apiPlace?.photoUrl ? (
-          <ImageBackground source={{ uri: resolved.apiPlace.photoUrl }} resizeMode="cover" style={[styles.hero, width >= 760 && styles.heroWide]} imageStyle={styles.heroImage}>
+          <ImageBackground source={{ uri: resolved.apiPlace.photoUrl }} resizeMode="cover" style={[styles.hero, isAtLeast(width, 'md') && styles.heroWide]} imageStyle={styles.heroImage}>
             <View style={styles.shade} />
             <View style={styles.heroCopy}>
               <Text variant="display" weight="bold" color={color.text.onAction}>{resolved.title}</Text>
@@ -140,7 +141,7 @@ export default function Place() {
             </View>
           </ImageBackground>
         ) : (
-          <View style={[styles.hero, styles.heroPlain, width >= 760 && styles.heroWide]}>
+          <View style={[styles.hero, styles.heroPlain, isAtLeast(width, 'md') && styles.heroWide]}>
             <View style={styles.heroCopy}>
               <Text variant="display" weight="bold" color={color.text.onAction}>{resolved.title}</Text>
               <Text color={color.text.onAction}>{resolved.subtitle}</Text>
