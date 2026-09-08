@@ -1,0 +1,37 @@
+{
+  "id": "MA010120220808474502",
+  "worker": "haiku-2",
+  "researchedAt": "2026-09-08T16:43:11.248Z",
+  "queries": ["맛송송면집 남포동 칼국수", "맛송송면집 남포길 국수"],
+  "found": true,
+  "confidence": "medium",
+  "sources": [
+    "https://cafe.daum.net/pusangoodfood/CAUl/20846?svc=cafeapi",
+    "https://www.diningcode.com/list.dc?query=%EB%82%A8%ED%8F%AC%EB%8F%99++%EA%B5%AD%EC%88%98"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "맛 묘사",
+      "note": "직접 끓여먹는 칼국수",
+      "sources": [0]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "가성비 좋은 남포동 국수 맛집",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": null,
+    "signatureDishes": ["칼국수"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "남포길 위치, 비교적 새로운 식당"
+}

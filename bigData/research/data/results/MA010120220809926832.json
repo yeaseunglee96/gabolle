@@ -1,0 +1,37 @@
+{
+  "id": "MA010120220809926832",
+  "worker": "haiku-2",
+  "researchedAt": "2026-09-08T16:43:11.248Z",
+  "queries": ["홍유단 중구 남포동 중국집", "홍유단 구덕로 중국음식"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.diningcode.com/profile.php?rid=7TR3SNa8P1mV",
+    "https://www.diningcode.com/profile.php?rid=27Tgmrwmk0ad"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "차분한 분위기, 테이블 간격 적당하고 깔끔하게 정리된 고급스러운 공간",
+      "sources": [0]
+    },
+    {
+      "type": "맛 묘사",
+      "note": "한국인 입맛에 잘 맞는 중국음식, 기본에 충실한 음식들",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["탕수육", "짜장", "짬뽕", "오향장육"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "2,3층, 11:00-21:30 영업(평일 15:30-16:30 브레이크)"
+}

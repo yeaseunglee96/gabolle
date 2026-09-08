@@ -1,0 +1,47 @@
+{
+  "id": "MA010120220810380463",
+  "worker": "haiku-3",
+  "researchedAt": "2026-09-08T16:54:36.279Z",
+  "queries": ["다리집 남천 김밥", "다리집 남천1동 떡볶이"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://triple.guide/restaurants/1207cc3b-1a99-4b26-ba89-a8b7def97dd2",
+    "https://busan.edit-dept.com/article/store/2502/"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "부산의 3대 떡볶이집으로 가래떡볶이 전문",
+      "sources": [0, 1]
+    },
+    {
+      "type": "맛 묘사",
+      "note": "진하고 새빨간 고추장 양념, 새콤달콤한 맛이 매콤함으로 마무리",
+      "sources": [1]
+    },
+    {
+      "type": "연차·역사",
+      "note": "약 30년 전 처음 시작한 오래된 가게",
+      "sources": [1]
+    },
+    {
+      "type": "현지인 지지",
+      "note": "부산동여자고등학교 학생들 사이에서 입소문이 났음",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 30,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["가래떡볶이", "오징어튀김"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

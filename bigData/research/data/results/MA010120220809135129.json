@@ -1,0 +1,37 @@
+{
+  "id": "MA010120220809135129",
+  "worker": "haiku-2",
+  "researchedAt": "2026-09-08T16:43:11.248Z",
+  "queries": ["한다솥 수영구 광안 횟집", "한다솥 남천바다로 회 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.diningcode.com/profile.php?rid=p1rbT2gviBpM",
+    "https://polle.com/place/2mV3fD/%ED%95%9C%EB%8B%A4%EC%86%A5"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "맛 묘사",
+      "note": "신선한 생선구이와 솥밥의 조합, 깨끗하고 담백한 맛",
+      "sources": [0, 1]
+    },
+    {
+      "type": "곁들임·차림",
+      "note": "많은 반찬과 예쁜 플레이팅, 다양한 사이드 디시",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["생선구이", "솥밥", "사시미"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "광안리 인근, 11:00-21:00 영업"
+}

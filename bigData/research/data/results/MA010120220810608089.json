@@ -1,0 +1,23 @@
+{
+  "id": "MA010120220810608089",
+  "worker": "haiku-4",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["소문난집 동구 부산"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["부산광역시 동구 중앙대로361번길 26"],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": null,
+    "signatureDishes": [],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "휴게음식점/과자점으로 분류되는 소규모 점포"
+}
