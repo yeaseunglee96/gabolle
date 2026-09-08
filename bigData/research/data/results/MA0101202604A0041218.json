@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202604A0041218",
+  "worker": "haiku-14",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["감수식당 남구 부산", "감수식당 문현4동 맛집", "감수식당 부산 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색에서 구체적인 정보를 찾을 수 없음",
+  "notes": ""
+}

@@ -32,5 +32,16 @@ node_modules/
 #    같이 있는 quarantine-*/ 는 **안 넣는다.** 2026-09-09 에 검색 없이 찍어낸
 #    가짜 결과라 값이 없다. 무슨 일이었는지는 그날의 커밋 메시지에 있다.
 
+# 예외 넷. research/data/queue.ndjson · events.ndjson · data/staged/truth-linked.ndjson
+#
+# 🔴 **이게 없으면 다른 컴퓨터가 조사를 이어받을 수 없다.** 결과 파일만 있으면
+#    "무엇을 조사했나" 는 알아도 **"무엇이 남았나" 와 "지금 누가 무엇을 잡고 있나" 를
+#    모른다.** 그러면 처음부터 다시 하거나, 같은 집을 두 번 조사한다.
+#
+#    다시 만들 수도 없다. queue.ndjson 은 selected-2000 과 truth-linked 로 만드는데
+#    그 둘은 285MB 짜리 원본에서 나오고, 원본은 여기 없다.
+#
+#    셋을 합쳐 820KB 다. research/HANDOVER.md 가 이 파일들을 전제로 쓰여 있다.
+
 # 파이썬 바이트코드 캐시. collect/*.py 를 돌리면 생긴다
 __pycache__/

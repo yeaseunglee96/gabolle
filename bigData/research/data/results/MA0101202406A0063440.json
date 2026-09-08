@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202406A0063440",
+  "worker": "haiku-14",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["뉴숯불통닭 금정구 부산", "뉴숯불통닭 장전2동 맛집", "뉴숯불통닭 딜리버리점 부산"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "데이터의 딜리버리점 위치(장전로20번길 28)에 대한 정보를 찾을 수 없음. 본점(금강로335번길 55)은 존재하나 주소 불일치",
+  "notes": "본점은 1988년 개업 숯불구이 전문점이며 배민 배달 가능하지만 딜리버리점 정보는 별도 확인 필요"
+}

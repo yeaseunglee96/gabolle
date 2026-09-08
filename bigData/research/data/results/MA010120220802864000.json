@@ -1,0 +1,25 @@
+{
+  "id": "MA010120220802864000",
+  "worker": "haiku-11",
+  "researchedAt": "2026-09-09T01:02:00Z",
+  "queries": ["초필살돼지구이 해운대 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 해운대구 마린시티3로 23"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "맛 묘사", "note": "직원이 직접 구워내는 바삭한 외층과 쫄깃한 식감의 돼지껍데기로 소고기와 짠맛의 조화", "sources": [0, 1] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": true,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["뒷고기", "돼지갈비", "돼지껍데기"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "2시간 무료주차, 금토 17:00-02:00만 영업"
+}

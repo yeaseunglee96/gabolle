@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220808530297",
+  "worker": "haiku-13",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["풍악 중구 부산", "풍악 광복동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색에서 해당 식당 정보를 찾을 수 없음",
+  "notes": ""
+}

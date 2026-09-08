@@ -1,0 +1,25 @@
+{
+  "id": "MA010120220803209391",
+  "worker": "haiku-11",
+  "researchedAt": "2026-09-09T01:07:00Z",
+  "queries": ["스시이루카 해운데 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 해운대구 마린시티2로 38"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "맛 묘사", "note": "신선한 계절 재료를 사용한 오마카세 스시 전문점", "sources": [0] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["오마카세 디너", "오마카세 런치"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "마린시티 2층"
+}

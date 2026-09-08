@@ -1,0 +1,18 @@
+{
+  "id": "MA010120220807827382",
+  "worker": "haiku-16",
+  "researchedAt": "2026-09-08T23:01:06.923Z",
+  "queries": [
+    "매일이다르다 부산 중구 카페",
+    "매일이다르다 대청로126번길"
+  ],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색으로 부산 중구 대청로126번길의 매일이다르다 카페 정보를 찾을 수 없음",
+  "notes": ""
+}

@@ -1,0 +1,55 @@
+{
+  "id": "MA010120220811410274",
+  "worker": "haiku-16",
+  "researchedAt": "2026-09-08T22:54:14.020Z",
+  "queries": [
+    "흥해참치 수영구 부산",
+    "흥해참치 광안3동 맛집"
+  ],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.siksinhot.com/P/270856",
+    "https://www.diningcode.com/profile.php?rid=NLDSYJDAJ4lr"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "메뉴 희소성",
+      "note": "참치만 고집하는 전문 식당",
+      "sources": [
+        0,
+        1
+      ]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "참스페셜, 치스페셜 등 참치 요리",
+      "sources": [
+        0
+      ]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "1층 토로 준비 구역, 2층 다양한 크기의 방",
+      "sources": [
+        1
+      ]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": [
+      "참스페셜",
+      "치스페셜"
+    ],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": "영업시간 17:00~02:00 (주중), 생참치 취급, 경성대 근처"
+}

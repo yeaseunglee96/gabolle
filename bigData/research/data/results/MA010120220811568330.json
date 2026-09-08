@@ -1,0 +1,25 @@
+{
+  "id": "MA010120220811568330",
+  "worker": "haiku-15",
+  "researchedAt": "2026-09-08T22:45:30Z",
+  "queries": ["진주추어탕 금정구 부산", "진주추어탕 구서2동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["부산광역시 금정구 안뜰로7번길 40"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "간판 메뉴 지목", "note": "추어탕", "sources": [0] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": false,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["추어탕"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "상세 정보 검색 제한"
+}

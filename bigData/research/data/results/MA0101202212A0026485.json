@@ -1,0 +1,26 @@
+{
+  "id": "MA0101202212A0026485",
+  "worker": "haiku-15",
+  "researchedAt": "2026-09-08T22:40:39Z",
+  "queries": ["이세계 부산진구 부산", "이세계 부전1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 부산진구 동천로107번길 25"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "간판 메뉴 지목", "note": "그릴 구이 닭, 특수 부위 전문", "sources": [0] },
+    { "type": "운영·접근 편의", "note": "서면역에서 2분 거리", "sources": [0] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": false,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["그릴 구이 닭", "특수 부위"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "영업시간 17:00~01:00, 예약 및 와인 코르크 서비스 가능"
+}

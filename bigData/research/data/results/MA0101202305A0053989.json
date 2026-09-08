@@ -1,0 +1,61 @@
+{
+  "id": "MA0101202305A0053989",
+  "worker": "haiku-16",
+  "researchedAt": "2026-09-08T23:01:50.811Z",
+  "queries": [
+    "해룸 부산진구 일식",
+    "해룸 서전로38번길"
+  ],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.diningcode.com/profile.php?rid=a2qOmCFdvD40",
+    "https://www.instagram.com/__haelum/"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "전포 카페거리 감성, 개인실 스타일, 골목 감성",
+      "sources": [
+        0
+      ]
+    },
+    {
+      "type": "메뉴 희소성",
+      "note": "이자카야, 카이센동 등 다양한 코스",
+      "sources": [
+        0
+      ]
+    },
+    {
+      "type": "조리·재료",
+      "note": "신선한 재료로 만든 풍부한 풀코스",
+      "sources": [
+        0
+      ]
+    },
+    {
+      "type": "현지인 지지",
+      "note": "부산 현지인 사이에 소문난 일식당",
+      "sources": [
+        0
+      ]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "locals",
+    "signatureDishes": [
+      "카이센동",
+      "이자카야"
+    ],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": "위치: 서전로38번길 35-12 (전포동 680-12), 연락처 0507-1404-9928, 월~금 16:30~23:00, 토~일 12:00~23:00, 월/화/수 휴무, 전포역/서면역 근처"
+}

@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220809993242",
+  "worker": "haiku-15",
+  "researchedAt": "2026-09-08T22:35:28Z",
+  "queries": ["하레마 해운대 부산", "하레마 우3동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 해운대구 마린시티2로 33"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "메뉴 희소성", "note": "오마카세 전문, 고급 스시만 제공", "sources": [0] },
+    { "type": "미디어 노출", "note": "블로그, 갤러리 등 온라인에서 소개", "sources": [0] },
+    { "type": "서비스·사람", "note": "프리미엄 경험, 한정 좌석 8명만 수용", "sources": [0] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": false,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["오마카세"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": "예약 필수, 월화일 휴무, 영업시간 12:00~22:00"
+}

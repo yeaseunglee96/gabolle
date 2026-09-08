@@ -1,0 +1,26 @@
+{
+  "id": "MA0101202406A0503160",
+  "worker": "haiku-11",
+  "researchedAt": "2026-09-09T00:55:00Z",
+  "queries": ["딥커피스트릿 동구 부산", "딥커피스트릿 초량 카페"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 동구 중앙대로214번길 3-2"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "맛 묘사", "note": "초콜릿 향이 진한 풍부하고 균형잡힌 커피와 하루 숙성한 바닐라 커스터드 수제 에그타르트", "sources": [0, 1] },
+    { "type": "분위기·전망", "note": "부산역 옆 한국식 국밥 골목 입구의 쾌적한 휴식 공간", "sources": [0, 1] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["초콜릿 커피", "에그타르트"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": ""
+}

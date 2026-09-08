@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220804444063",
+  "worker": "haiku-15",
+  "researchedAt": "2026-09-08T22:43:34Z",
+  "queries": ["옥미아구찜 수영구 부산", "옥미아구찜 망미2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 수영구 망미번영로55번길 35"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "연차·역사", "note": "1984년 개업, 33년+ 운영", "sources": [0] },
+    { "type": "기관 선정", "note": "백년가게 인정, 망미동 터줏대감", "sources": [0] },
+    { "type": "간판 메뉴 지목", "note": "아구찜, 녹두전", "sources": [0] },
+    { "type": "조리·재료", "note": "매일 아침 직접 선별한 신선한 아귀만 사용", "sources": [0] },
+    { "type": "분위기·전망", "note": "주택 개조 매장, 푸근한 노포 느낌", "sources": [0] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": "1984년",
+    "generations": null,
+    "queueing": false,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["아구찜", "녹두전"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "매일 11:00~21:30, 감자사리 마무리 추천, 사리 추가 강추"
+}
