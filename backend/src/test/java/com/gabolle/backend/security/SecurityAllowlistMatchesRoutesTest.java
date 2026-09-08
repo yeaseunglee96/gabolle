@@ -152,6 +152,52 @@ class SecurityAllowlistMatchesRoutesTest {
 	}
 
 	@Test
+	@DisplayName("🔴 인증이 필요한 경로가 허용 목록에 걸리지 않았다 — 와일드카드를 넓히면 여기서 걸린다")
+	void authenticatedRoutesAreNotAccidentallyOpen() throws IOException {
+		String source = Files.readString(SECURITY_CONFIG, StandardCharsets.UTF_8);
+
+		// 🔴 막아야 할 경로 목록을 손으로 적지 않는다. 정책 표에서 "로그인 없이 열려야 하는
+		//    것이 아닌 전부" 로 유도하면 새 엔드포인트가 생길 때마다 자동으로 이 검사의 대상이
+		//    된다. 손으로 적으면 목록이 낡고, 낡은 목록은 없는 목록보다 나쁘다 — 지키고 있다고
+		//    믿게 된다.
+		//
+		//    🔴 기준이 PRE_AUTH 가 아니라 PRE_AUTH + PUBLIC_TOKEN 이다. 처음 PRE_AUTH 로만
+		//    썼다가 GET /api/v1/shares/{} 가 걸렸는데, 그건 구멍이 아니라 공유 주소다 —
+		//    43글자 난수 표가 자격증명이고 로그인 없이 열리는 것이 기능이다. 즉 "로그인이
+		//    필요한가" 와 "인증이 필요한가" 가 다르고, 이 검사가 봐야 하는 것은 뒤쪽이다.
+		Set<String> mayBeOpen = RouteAuthorizationRegistryTest.openWithoutLoginRoutesForAudit();
+		List<String> leaked = new ArrayList<>();
+		for (String route : RouteAuthorizationRegistryTest.discoverRoutesForAudit()) {
+			if (mayBeOpen.contains(route)) {
+				continue;
+			}
+			String path = route.substring(route.indexOf(' ') + 1);
+			if (allowlistCovers(source, path)) {
+				leaked.add(route);
+			}
+		}
+
+		assertThat(leaked)
+				.withFailMessage("""
+						로그인이 필요한 경로가 SecurityConfig 의 허용 목록에 걸립니다. 즉 인증
+						없이 열려 있습니다.
+
+						%s
+
+						🔴 대개 와일드카드를 넓히다가 생깁니다. 허용 목록의 * 는 <b>어떤 한
+						마디든</b> 덮으므로, "/api/v1/auth/oauth/*" 는 /oauth/{provider} 뿐 아니라
+						/oauth/signup·/oauth/link 까지 엽니다. 마디 수가 같으면 이름과 무관하게
+						덮인다는 것이 요점입니다.
+
+						열어야 하는 경로라면 정책 표의 분류를 PRE_AUTH(로그인 전에 부른다)나
+						PUBLIC_TOKEN(표 자체가 자격증명이다)으로 고치고 근거를 적어 주세요 —
+						그러면 이 검사가 아니라 "로그인 없이 열리는 경로 개수 고정" 쪽이 그
+						변경을 사람에게 보여 줍니다. 숫자를 고치는 diff 가 리뷰에 남는 것이
+						요점입니다.""".formatted(String.join(System.lineSeparator(), leaked)))
+				.isEmpty();
+	}
+
+	@Test
 	@DisplayName("허용 목록을 실제로 읽었다 — 정규식이 아무것도 못 잡으면 이 검사가 무의미하다")
 	void allowlistWasActuallyParsed() throws IOException {
 		// 🔴 파싱이 실패해 빈 집합이 되면 위 확인이 "없는 경로가 없다" 며 초록이 된다.

@@ -214,6 +214,18 @@ class RouteAuthorizationRegistryTest {
 		return routesWith(Policy.PRE_AUTH);
 	}
 
+	/**
+	 * 로그인 없이 열려야 하는 경로 전부 — {@link Policy#PRE_AUTH} 와 {@link Policy#PUBLIC_TOKEN}.
+	 *
+	 * <p>🔴 {@link #preAuthRoutesForAudit()} 와 갈라 두는 이유. 저쪽은 "빠지면 기능이 죽는다"
+	 * 를 보는 창구이고(로그인 전에 반드시 열려 있어야 한다), 이쪽은 "이 밖의 것이 열려 있으면
+	 * 구멍이다" 를 보는 창구다. {@code PUBLIC_TOKEN} 은 로그인은 없지만 <b>표 자체가
+	 * 자격증명</b>이라 앞쪽 목록에 넣으면 안 되고, 뒤쪽 목록에서는 빠지면 안 된다.
+	 */
+	static Set<String> openWithoutLoginRoutesForAudit() {
+		return routesWith(Policy.PRE_AUTH, Policy.PUBLIC_TOKEN);
+	}
+
 	static Set<String> discoverRoutesForAudit() {
 		return discoverRoutes();
 	}
