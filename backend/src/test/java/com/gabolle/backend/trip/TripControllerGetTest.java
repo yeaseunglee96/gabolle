@@ -21,6 +21,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.gabolle.backend.trip.application.PreferenceDefaultsService;
 import com.gabolle.backend.trip.application.TripCreationService;
+import com.gabolle.backend.trip.application.TripDeletionService;
 import com.gabolle.backend.trip.application.TripQueryService;
 import com.gabolle.backend.trip.infra.InMemoryTripRepository;
 import com.gabolle.backend.trip.presentation.TripController;
@@ -44,11 +45,12 @@ class TripControllerGetTest {
     @BeforeEach
     void setUp() {
         InMemoryTripRepository repository = new InMemoryTripRepository();
-        TripCreationService creationService =
-                newCreationService(repository, Clock.fixed(Instant.parse("2026-09-03T00:00:00Z"), ZoneOffset.UTC));
+        Clock clock = Clock.fixed(Instant.parse("2026-09-03T00:00:00Z"), ZoneOffset.UTC);
+        TripCreationService creationService = newCreationService(repository, clock);
         TripQueryService queryService = new TripQueryService(repository);
 
-        TripController controller = new TripController(creationService, queryService);
+        TripController controller = new TripController(creationService, queryService,
+                new TripDeletionService(repository, clock));
         this.mockMvc = MockMvcBuilders.standaloneSetup(controller)
                 .setControllerAdvice(new TripExceptionHandler())
                 .build();

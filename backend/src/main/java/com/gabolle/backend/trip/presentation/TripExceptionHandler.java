@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.gabolle.backend.common.api.ApiError;
 import com.gabolle.backend.common.api.ApiResponse;
+import com.gabolle.backend.trip.application.TripDeletionService;
 import com.gabolle.backend.trip.application.TripQueryService;
 import com.gabolle.backend.trip.domain.TimeWindows;
 import com.gabolle.backend.trip.domain.TravelModes;
@@ -111,6 +112,25 @@ public class TripExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> handleNotFound(TripQueryService.TripNotFoundException e) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.failure(
                 new ApiError("TRIP_NOT_FOUND", "error.trip.notFound"),
+                requestId()));
+    }
+
+    /**
+     * 🔴 S15P21E201-746 — 회원이지만 소유자가 아니라서 여행을 지울 수 없다.
+     *
+     * <p>비회원과 없는 여행은 위 {@link #handleNotFound} 가 404 로 답한다. 여기까지
+     * 오는 사람은 이미 그 여행을 보고 있는 동행자이므로 감출 것이 없다 — 오히려 404 로
+     * 답하면 방금 열어 본 여행이 없다는 말이 된다.
+     *
+     * <p>오류 코드는 {@code TripCollaborationExceptionHandler} 가 쓰는 것과 같은
+     * {@code TRIP_FORBIDDEN} 이다. 화면이 "소유자만 할 수 있는 일" 을 한 가지로 다루면
+     * 되게 하려는 것이고, 무엇이 막혔는지는 메시지가 말한다.
+     */
+    @ExceptionHandler(TripDeletionService.TripDeleteForbiddenException.class)
+    public ResponseEntity<ApiResponse<Void>> handleDeleteForbidden(
+            TripDeletionService.TripDeleteForbiddenException e) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ApiResponse.failure(
+                new ApiError("TRIP_FORBIDDEN", e.getMessage()),
                 requestId()));
     }
 

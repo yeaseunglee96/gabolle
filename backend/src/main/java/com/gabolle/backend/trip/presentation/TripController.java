@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.gabolle.backend.common.api.ApiResponse;
 import com.gabolle.backend.common.security.AuthenticatedUsers;
 import com.gabolle.backend.trip.application.TripCreationService;
+import com.gabolle.backend.trip.application.TripDeletionService;
 import com.gabolle.backend.trip.application.TripQueryService;
 import com.gabolle.backend.trip.presentation.dto.CreateTripRequest;
 import com.gabolle.backend.trip.presentation.dto.CreateTripRequestMapper;
@@ -42,10 +44,13 @@ public class TripController {
 
     private final TripCreationService creationService;
     private final TripQueryService queryService;
+    private final TripDeletionService deletionService;
 
-    public TripController(TripCreationService creationService, TripQueryService queryService) {
+    public TripController(TripCreationService creationService, TripQueryService queryService,
+            TripDeletionService deletionService) {
         this.creationService = creationService;
         this.queryService = queryService;
+        this.deletionService = deletionService;
     }
 
     /**
@@ -121,6 +126,34 @@ public class TripController {
         return ApiResponse.success(
                 TripDetailResponse.of(view.trip(), view.constraints(), view.snapshot()),
                 "req_" + UUID.randomUUID());
+    }
+
+    /**
+     * 여행을 지운다 — S15P21E201-746.
+     *
+     * <p>앱에 "내 여행에서 삭제" 버튼이 없던 이유가 이 자리였다. 표에는 삭제 칸이
+     * 처음부터 있었고 목록도 그 칸을 이미 보고 있었는데, 채우는 경로만 없었다.
+     *
+     * <p>🔴 <b>행을 지우지 않는다.</b> 일정·기록·공유 링크가 이 여행을 가리키고 있어서
+     * 실제로 지우면 그것들이 가리킬 곳을 잃는다. 대신 지운 시각을 찍고, 그 순간부터
+     * 조회·편집·초대·공유가 전부 "없는 여행"(404)으로 답한다.
+     *
+     * <p>🔴 <b>같은 요청을 두 번 보내도 두 번째가 오류가 아니다.</b> 이미 지워져 있으면
+     * 그대로 204 다 — 지하철에서 응답이 끊겨 다시 누르거나 오래된 목록에서 누르는 것은
+     * 정상적으로 일어나는 일이라, 그때 오류를 띄우면 사용자는 지워지지 않았다고 믿는다.
+     *
+     * <p>성공은 본문이 없는 {@code 204} 다. 지워진 것을 응답 본문으로 돌려주면 화면이
+     * 그것을 그릴 수 있게 되는데, 방금 지운 것을 그릴 자리는 없다.
+     */
+    @DeleteMapping("/{tripId}")
+    public ResponseEntity<Void> delete(
+            @PathVariable String tripId,
+            Authentication authentication) {
+
+        String requester = AuthenticatedUsers.requireId(authentication).toString();
+        deletionService.delete(tripId, requester);
+
+        return ResponseEntity.noContent().build();
     }
 
     /**

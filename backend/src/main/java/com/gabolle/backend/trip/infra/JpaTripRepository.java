@@ -112,6 +112,28 @@ public class JpaTripRepository implements TripRepository {
 		return tripJpaRepository.findById(UUID.fromString(tripId)).map(JpaTripRepository::toDomain);
 	}
 
+	/**
+	 * S15P21E201-746 — 여행 삭제.
+	 *
+	 * <p>🔴 <b>{@code toEntity(trip)} 로 만든 객체를 저장하지 않는다.</b> 이 클래스는
+	 * {@code version}·{@code origin_source}·{@code origin_area_code} 를 일부러 매핑하지
+	 * 않는데({@code TripJpaEntity} 주석), 매핑 안 된 칸이 있는 상태에서 통째로 덮어쓰는
+	 * 방식은 나중에 누가 그 칸을 매핑하는 순간 조용히 값을 날린다. 대신 이미 저장된 행을
+	 * 읽어 지운 시각만 찍는다.
+	 *
+	 * <p>없는 여행이면 {@link IllegalStateException} 이다. 삭제 경로는 이미 회원 여부까지
+	 * 판정한 뒤에 오므로 여기서 못 찾는 것은 정상 흐름이 아니라 어긋남이다 — 조용히
+	 * 넘기면 사용자에게는 지워졌다고 답하고 표에는 그대로 남는다.
+	 */
+	@Override
+	@Transactional
+	public void softDelete(Trip trip) {
+		TripJpaEntity entity = tripJpaRepository.findById(UUID.fromString(trip.tripId()))
+				.orElseThrow(() -> new IllegalStateException("지우려는 여행이 표에 없다: tripId=" + trip.tripId()));
+		entity.markDeleted(toOffset(trip.deletedAt()), toOffset(trip.updatedAt()));
+		tripJpaRepository.save(entity);
+	}
+
 	@Override
 	public List<TripConstraint> findConstraints(String tripId) {
 		UUID id = UUID.fromString(tripId);

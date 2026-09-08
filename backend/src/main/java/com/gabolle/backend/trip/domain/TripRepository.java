@@ -49,6 +49,19 @@ public interface TripRepository {
     record MemberTrip(Trip trip, TripMember.Role role) {
     }
 
+    /**
+     * 지운 시각을 저장한다 — S15P21E201-746. 행을 지우지 않는다(TRIP-05).
+     *
+     * <p>🔴 <b>무엇을 지울지는 이 메서드가 정하지 않는다.</b> 부르는 쪽이 도메인 규칙
+     * ({@link Trip#markDeleted(java.time.Instant)})을 먼저 태우고, 그 결과가 든 여행을
+     * 그대로 넘긴다. 여기서 시각을 다시 정하면 "이미 지워진 여행은 시각을 덮어쓰지
+     * 않는다" 는 규칙이 도메인과 저장소 두 곳에 생기고, 언젠가 한쪽만 바뀐다.
+     *
+     * <p>행을 실제로 지우지 않는 이유는 일정·기록·공유 링크가 이 여행을 가리키고 있기
+     * 때문이다. 지우면 그것들이 전부 가리킬 곳을 잃는다.
+     */
+    void softDelete(Trip trip);
+
     /** 특정 판. 없으면 비어 있다. */
     Optional<PreferenceSnapshot> findSnapshot(String tripId, int version);
 
