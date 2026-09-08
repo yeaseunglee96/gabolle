@@ -125,6 +125,20 @@ export default function Place() {
               <Text color={color.text.onAction}>{resolved.subtitle}</Text>
             </View>
           </ImageBackground>
+        ) : resolved.apiPlace?.photoUrl ? (
+          <ImageBackground source={{ uri: resolved.apiPlace.photoUrl }} resizeMode="cover" style={[styles.hero, width >= 760 && styles.heroWide]} imageStyle={styles.heroImage}>
+            <View style={styles.shade} />
+            <View style={styles.heroCopy}>
+              <Text variant="display" weight="bold" color={color.text.onAction}>{resolved.title}</Text>
+              <Text color={color.text.onAction}>{resolved.subtitle}</Text>
+              {hasLocalityScore(resolved.apiPlace) ? (
+                <View style={styles.scoreBadge}><Text variant="caption" weight="bold" color={color.text.onAction}>{tx('로컬 점수 있음', 'Has locality score')}</Text></View>
+              ) : null}
+              {resolved.apiPlace.photoSource ? (
+                <Text variant="caption" color={color.text.onAction} style={styles.photoCredit}>{tx(`사진 제공: ${resolved.apiPlace.photoSource}`, `Photo: ${resolved.apiPlace.photoSource}`)}</Text>
+              ) : null}
+            </View>
+          </ImageBackground>
         ) : (
           <View style={[styles.hero, styles.heroPlain, width >= 760 && styles.heroWide]}>
             <View style={styles.heroCopy}>
@@ -179,6 +193,7 @@ const styles = StyleSheet.create({
   shade: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(8, 27, 53, 0.25)' },
   heroCopy: { gap: spacing[1], padding: spacing[4] },
   scoreBadge: { alignSelf: 'flex-start', marginTop: spacing[2], borderRadius: radius.full, paddingHorizontal: spacing[3], paddingVertical: spacing[1], backgroundColor: 'rgba(255,255,255,0.18)' },
+  photoCredit: { marginTop: spacing[1], opacity: 0.8 },
   notice: { gap: spacing[3], marginTop: spacing[4], padding: spacing[4], borderWidth: 1, borderColor: '#eee5da', borderRadius: radius.lg, backgroundColor: color.surface.card },
   noticeCopy: { lineHeight: 22 },
   actions: { gap: spacing[3], marginTop: spacing[4] },
