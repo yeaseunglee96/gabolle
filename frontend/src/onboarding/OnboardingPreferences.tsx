@@ -18,6 +18,7 @@ type OnboardingPreferencesValue = {
   hydrated: boolean;
   setLanguage: (language: LanguageCode) => void;
   setPreferences: (language: LanguageCode, mobility: MobilityCode) => void;
+  reset: () => void;
 };
 
 const OnboardingPreferencesContext = createContext<OnboardingPreferencesValue | null>(null);
@@ -78,6 +79,13 @@ export function OnboardingPreferencesProvider({ children }: { children: ReactNod
       if (!hydrated) changedBeforeHydration.current = true;
       setLanguage(nextLanguage);
       setMobility(nextMobility);
+    },
+    // 로그아웃·계정 삭제 때 부른다 — 같은 기기에서 다음 사람이 로그인하면 이 값들이
+    // 그 사람 것처럼 보인다(S15P21E201-740). 기본값으로 되돌리고 저장된 값도 지운다.
+    reset: () => {
+      setLanguage('ko');
+      setMobility('none');
+      void AsyncStorage.removeItem(STORAGE_KEY);
     } }),
     [hydrated, language, mobility],
   );
