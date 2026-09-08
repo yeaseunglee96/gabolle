@@ -27,6 +27,32 @@ export type StoryDto = {
   published: boolean;
 };
 
+// 기록 상세 화면(GET /api/v1/stories/:id)은 아직 계약이 없다. 목록에서 이미 받은 전체
+// StoryDto를 그대로 들고 있다가 상세 화면이 같은 세션 안에서 그걸 읽게 한다 — 새 API를
+// 지어내지 않고, 목록에서 곧장 눌러 들어온 경우를 실제로 지원한다.
+const storyCache = new Map<string, StoryDto>();
+
+export function cacheStories(items: StoryDto[]) {
+  for (const item of items) storyCache.set(item.id, item);
+}
+
+export function getCachedStory(id: string): StoryDto | null {
+  return storyCache.get(id) ?? null;
+}
+
+export function relativeStoryTime(iso: string, tx: (ko: string, en: string) => string) {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return iso;
+  const minutes = Math.round((Date.now() - date.getTime()) / 60000);
+  if (minutes < 1) return tx('방금', 'just now');
+  if (minutes < 60) return tx(`${minutes}분 전`, `${minutes}m ago`);
+  const hours = Math.round(minutes / 60);
+  if (hours < 24) return tx(`${hours}시간 전`, `${hours}h ago`);
+  const days = Math.round(hours / 24);
+  if (days < 7) return tx(`${days}일 전`, `${days}d ago`);
+  return `${date.getFullYear()}.${date.getMonth() + 1}.${date.getDate()}`;
+}
+
 type FeedFailure = { state: 'unavailable' | 'offline' | 'error'; message: string };
 
 function failure(error: unknown): FeedFailure {
@@ -43,6 +69,7 @@ export async function loadFeed(input: { scope: FeedScope; cursor?: string | null
     if (input.cursor) params.set('cursor', input.cursor);
     params.set('limit', String(input.limit ?? 20));
     const dto = await apiRequest<{ items: StoryDto[]; nextCursor: string | null }>(`/api/v1/stories?${params.toString()}`, { accessToken: input.accessToken });
+    cacheStories(dto.items);
     return { state: 'success', items: dto.items, nextCursor: dto.nextCursor };
   } catch (error) {
     return failure(error);
