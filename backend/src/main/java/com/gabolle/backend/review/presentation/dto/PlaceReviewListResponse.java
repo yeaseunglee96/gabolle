@@ -1,6 +1,7 @@
 package com.gabolle.backend.review.presentation.dto;
 
 import java.util.List;
+import java.util.UUID;
 
 import com.gabolle.backend.review.application.PlaceReviewService.ListResult;
 
@@ -14,8 +15,11 @@ import com.gabolle.backend.review.application.PlaceReviewService.ListResult;
  */
 public record PlaceReviewListResponse(List<PlaceReviewResponse> reviews, Double averageScore) {
 
-	public static PlaceReviewListResponse from(ListResult result) {
-		List<PlaceReviewResponse> responses = result.reviews().stream().map(PlaceReviewResponse::from).toList();
+	/** @param viewerId 요청자 아이디. 목록 안 리뷰마다 {@link PlaceReviewResponse#mine} 판정에 쓴다. */
+	public static PlaceReviewListResponse from(ListResult result, UUID viewerId) {
+		List<PlaceReviewResponse> responses = result.reviews().stream()
+				.map(review -> PlaceReviewResponse.from(review, viewerId))
+				.toList();
 		return new PlaceReviewListResponse(responses, result.averageScore());
 	}
 }
