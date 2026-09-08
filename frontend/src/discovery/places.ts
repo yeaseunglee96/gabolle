@@ -6,6 +6,11 @@ import { apiRequest } from '@/api/client';
 // openingHours·priceLevel·provenance·itineraryInclusion 의 정확한 칸 구조는 아직 못 받아서(모르는
 // 것을 아는 척하지 않는다 — CLAUDE.md), 여기서는 타입에 넣지 않는다. 화면에서 쓰려면 그때 다시
 // jaehyeon 님께 구조를 확인하고 추가한다.
+//
+// photoUrl·photoSource 는 계약에는 있지만(2026-09-08 jaehyeon 님 확인) 아직 채우는 경로가
+// 없어 늘 비어 있다 — 값이 없으면 NON_NULL 규칙 때문에 키 자체가 안 온다. 데이터 적재는
+// S15P21E201-146(jaehyeon 님 담당, 미착수)이 끝나야 온다. 그래서 여기서는 선택 필드로만
+// 받고, 화면에서는 없으면 지금처럼 자리표시만 보여준다.
 export type PlaceFeature = { featureType: string; [key: string]: unknown };
 
 export type Place = {
@@ -18,6 +23,8 @@ export type Place = {
   lat: number;
   lng: number;
   features: PlaceFeature[];
+  photoUrl?: string;
+  photoSource?: string;
 };
 
 // 로컬점수(LOCALITY_SCORE) 표식이 붙어 있는지만 확인한다. 표식 안의 값 칸 이름은 아직 몰라서
