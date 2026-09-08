@@ -62,8 +62,14 @@ CREATE TABLE IF NOT EXISTS recommendation (
   CONSTRAINT recommendation_when_good_ok CHECK (when_good IN ('DAY', 'NIGHT', 'ANY')),
   CONSTRAINT recommendation_place_name_ok CHECK (length(btrim(place_name)) BETWEEN 1 AND 60),
   CONSTRAINT recommendation_reason_ok     CHECK (length(btrim(reason))     BETWEEN 1 AND 500),
-  -- 한 응답 안에서 같은 유형을 두 번 적을 수 없다 (화면이 유형 카드 하나에 한 곳씩 받는다)
-  CONSTRAINT recommendation_one_per_type UNIQUE (response_id, place_type)
+  -- 한 응답 안에서 칸 번호는 겹치지 않는다 (1~5 가 한 번씩)
+  CONSTRAINT recommendation_one_per_slot UNIQUE (response_id, slot)
+
+  -- 🔴 UNIQUE (response_id, place_type) 을 두지 않는다. 일부러 뺀 것이다.
+  --    한 응답이 같은 유형을 다섯 번 적을 수 있어야 한다 — 맛집을 다섯 곳
+  --    아는 사람의 답이 우리가 가장 원하는 답인데, 유형당 하나로 막으면
+  --    그 답이 네 곳 잘려나간다.
+  --    (2026-09-08 까지는 그 제약이 있었다. 걷어냈고, 되살리지 않는다.)
 );
 
 CREATE INDEX IF NOT EXISTS recommendation_response_idx ON recommendation (response_id);

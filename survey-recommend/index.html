@@ -80,7 +80,7 @@ details th, details td { text-align: left; vertical-align: top; padding: 7px 8px
 details th { width: 33%; color: var(--muted); font-weight: 600; }
 details tr:last-child th, details tr:last-child td { border-bottom: 0; }
 
-/* ── 고르는 조각 (나이대 · 거주기간 · 낮/밤) ─────────────────────── */
+/* ── 고르는 조각 (나이대 · 거주기간 · 유형 · 낮밤) ───────────────── */
 .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 4px; }
 .chip {
   min-height: 44px; padding: 10px 16px; border-radius: 999px; border: 1px solid var(--line-2);
@@ -88,8 +88,10 @@ details tr:last-child th, details tr:last-child td { border-bottom: 0; }
 }
 .chip:active { background: var(--paper-2); }
 .chip.on { background: var(--on); color: var(--on-ink); border-color: var(--on); font-weight: 700; }
+/* 유형 알약은 일곱 개라 조금 작게. 그래도 최소 44px 은 지킨다 */
+.chips.types .chip { font-size: 14px; padding: 10px 14px; }
 
-/* ── 유형 카드 (아코디언) ───────────────────────────────────────── */
+/* ── 추천 칸 카드 (아코디언) ────────────────────────────────────── */
 .cats { display: grid; gap: 10px; margin: 12px 0 0; }
 .cat { background: var(--paper); border: 1px solid transparent; border-radius: 20px; overflow: hidden; }
 .cat.open { background: var(--bg); border-color: var(--line-2); box-shadow: var(--shadow); }
@@ -135,6 +137,10 @@ textarea { min-height: 104px; line-height: 1.6; resize: vertical; }
 input[type=text]:focus, textarea:focus { outline: 2px solid var(--ink); outline-offset: -1px; border-color: var(--ink); }
 .bad input[type=text], .bad textarea { border-color: var(--ink); border-width: 2px; background: var(--paper); }
 
+/* 유형을 아직 안 고르면 나머지 칸을 흐리게 두고 못 누르게 한다 */
+.rest { transition: opacity .18s ease; }
+.rest.locked { opacity: .38; pointer-events: none; }
+
 /* 기간 한정 체크 */
 .check { display: flex; gap: 11px; align-items: flex-start; margin: 16px 0 0; cursor: pointer; min-height: 44px; padding: 8px 0; }
 .check input { width: 22px; height: 22px; margin: 1px 0 0; flex: none; accent-color: #0a0a0a; }
@@ -146,7 +152,6 @@ input[type=text]:focus, textarea:focus { outline: 2px solid var(--ink); outline-
   font-size: 12.5px; line-height: 1.55; color: var(--ink);
   background: var(--paper); border-radius: 12px; padding: 9px 12px; margin: 6px 0 0;
 }
-.cat.open .guard { background: var(--paper); }
 
 /* ── 버튼 ──────────────────────────────────────────────────────── */
 .btn {
@@ -249,8 +254,8 @@ input[type=text]:focus, textarea:focus { outline: 2px solid var(--ink); outline-
     <div class="chips" id="yearChips"></div>
 
     <h2>추천하는 곳 다섯 군데</h2>
-    <p class="hint">유형을 눌러서 펼치고, 그 유형에서 <b>한 곳</b>씩 적어 주세요.
-      일곱 유형 중 <b>다섯 개</b>를 채우시면 끝납니다.</p>
+    <p class="hint">칸을 눌러서 펼치고 하나씩 적어 주세요.
+      <b>다섯 곳이 전부 같은 유형이어도 괜찮아요</b> — 맛집만 다섯 곳이어도 좋습니다.</p>
 
     <div class="cats" id="cats"></div>
 
@@ -295,16 +300,20 @@ const CONFIG = {
    ── 순서와 코드값을 바꾸지 않는다. 바꾸면 앞 회차 응답과 못 합친다.
    ─────────────────────────────────────────────────────────────── */
 const TYPES = [
-  { v: "FOOD",     t: "맛집 · 로컬 음식",  d: "밥집 · 국밥 · 회 · 분식" },
-  { v: "CAFE",     t: "카페 · 디저트",     d: "커피 · 빵 · 디저트" },
-  { v: "NATURE",   t: "자연 · 바다 · 산책", d: "해변 · 산 · 공원 · 걷기 좋은 길" },
-  { v: "CULTURE",  t: "문화 · 역사 · 전시", d: "박물관 · 미술관 · 오래된 동네" },
-  { v: "MARKET",   t: "시장 · 골목 · 쇼핑", d: "전통시장 · 상점가 · 구경거리" },
-  { v: "ACTIVITY", t: "체험 · 액티비티",   d: "배 · 케이블카 · 만들기 · 스포츠" },
-  { v: "BAR",      t: "술집 · 바",        d: "포차 · 이자카야 · 바" }
+  { v: "FOOD",     t: "맛집 · 로컬 음식" },
+  { v: "CAFE",     t: "카페 · 디저트" },
+  { v: "NATURE",   t: "자연 · 바다 · 산책" },
+  { v: "CULTURE",  t: "문화 · 역사 · 전시" },
+  { v: "MARKET",   t: "시장 · 골목 · 쇼핑" },
+  { v: "ACTIVITY", t: "체험 · 액티비티" },
+  { v: "BAR",      t: "술집 · 바" }
 ];
+const typeLabel = v => (TYPES.find(t => t.v === v) || {}).t || "";
 
-const NEED = 5;   /* 다섯 군데를 채워야 낼 수 있다 */
+/* 🔴 칸이 다섯이다. 유형이 다섯인 게 아니다.
+      다섯 칸이 전부 같은 유형이어도 된다 — 맛집을 다섯 곳 아는 사람의
+      답을 잘라내지 않으려고 이렇게 바꿨다. */
+const SLOTS = 5;
 
 const AGE = [
   { v: "UNDER_20", t: "20세 미만" },
@@ -349,11 +358,11 @@ function piiHit(s) {
    저장하지 않는다 — 저장하면 "제출 전에는 아무것도 저장되지 않습니다"
    라는 고지가 거짓이 된다.
    ─────────────────────────────────────────────────────────────── */
+const blank = () => ({ type: null, name: "", whenGood: null, limited: false, reason: "" });
 const state = {
   ageBand: null,
   busanYears: null,
-  /* 유형 코드 → { name, whenGood, limited, reason } */
-  picks: Object.create(null)
+  slots: Array.from({ length: SLOTS }, blank)   /* 칸 다섯. 유형은 칸 안에서 고른다 */
 };
 
 const $ = id => document.getElementById(id);
@@ -376,9 +385,10 @@ function buildChips(box, list, onPick, getNow) {
     b.type = "button";
     b.className = "chip" + (getNow() === o.v ? " on" : "");
     b.textContent = o.t;
+    b.dataset.v = o.v;
     b.addEventListener("click", () => {
       onPick(o.v);
-      box.querySelectorAll(".chip").forEach((c, i) => c.classList.toggle("on", list[i].v === getNow()));
+      box.querySelectorAll(".chip").forEach(c => c.classList.toggle("on", c.dataset.v === getNow()));
       paint();
     });
     box.appendChild(b);
@@ -387,12 +397,12 @@ function buildChips(box, list, onPick, getNow) {
 buildChips($("ageChips"),  AGE,   v => { state.ageBand = v; },    () => state.ageBand);
 buildChips($("yearChips"), YEARS, v => { state.busanYears = v; }, () => state.busanYears);
 
-/* ── 유형 카드 일곱 ──────────────────────────────────────────── */
+/* ── 추천 칸 다섯 ────────────────────────────────────────────── */
 const catsBox = $("cats");
-TYPES.forEach((ty, i) => {
+for (let i = 0; i < SLOTS; i++) {
   const art = document.createElement("article");
   art.className = "cat";
-  art.dataset.type = ty.v;
+  art.dataset.slot = String(i);
 
   const head = document.createElement("button");
   head.type = "button";
@@ -402,59 +412,86 @@ TYPES.forEach((ty, i) => {
     '<span class="num">' + (i + 1) + '</span>' +
     '<span class="catname"><b></b><s></s></span>' +
     '<span class="mark" aria-hidden="true">＋</span>';
-  head.querySelector("b").textContent = ty.t;
-  head.querySelector("s").textContent = ty.d;
+  head.querySelector("b").textContent = (i + 1) + "번째 추천";
 
   const body = document.createElement("div");
   body.className = "catbody";
   body.hidden = true;
   body.innerHTML =
-    '<label class="f">장소 이름 <span class="req">· 꼭 적어 주세요</span></label>' +
-    '<input type="text" class="in-name" maxlength="60" autocomplete="off" ' +
-      'placeholder="예) 광안리 해변 · 부평깡통시장" enterkeyhint="next">' +
-    '<div class="guard">🔴 <b>장소 이름만</b> 적어 주세요. 사람 이름 · 연락처 · 소속을 적지 마세요.</div>' +
+    '<label class="f">어떤 곳인가요? <span class="req">· 하나만 골라 주세요</span></label>' +
+    '<div class="chips types"></div>' +
 
-    '<label class="f">언제 가면 좋아요?</label>' +
-    '<div class="chips when"></div>' +
+    '<div class="rest locked">' +
+      '<label class="f">장소 이름 <span class="req">· 꼭 적어 주세요</span></label>' +
+      '<input type="text" class="in-name" maxlength="60" autocomplete="off" ' +
+        'placeholder="예) 광안리 해변 · 부평깡통시장" enterkeyhint="next">' +
+      '<div class="guard">🔴 <b>장소 이름만</b> 적어 주세요. 사람 이름 · 연락처 · 소속을 적지 마세요.</div>' +
 
-    '<label class="check"><input type="checkbox" class="in-limited">' +
-      '<span>기간이 정해진 곳이에요<i>축제 · 시즌 행사처럼 특정 시기에만 열리는 곳</i></span></label>' +
+      '<label class="f">언제 가면 좋아요?</label>' +
+      '<div class="chips when"></div>' +
 
-    '<label class="f">왜 추천하세요? <span class="req">· 이 칸이 제일 중요해요</span></label>' +
-    '<p class="hint">한 줄이어도 좋아요. “왜 여기냐” 가 없으면 그냥 장소 목록이라 저희가 쓸 수 없어요.</p>' +
-    '<textarea class="in-reason" maxlength="500" ' +
-      'placeholder="예) 관광객은 잘 모르는데 회가 싸고 사장님이 친절해요. 노을 질 때 창가 자리가 좋아요."></textarea>' +
-    '<div class="guard">🔴 사람 이름 · 전화번호 · 이메일 · 소속 반은 적지 마세요.</div>' +
+      '<label class="check"><input type="checkbox" class="in-limited">' +
+        '<span>기간이 정해진 곳이에요<i>축제 · 시즌 행사처럼 특정 시기에만 열리는 곳</i></span></label>' +
+
+      '<label class="f">왜 추천하세요? <span class="req">· 이 칸이 제일 중요해요</span></label>' +
+      '<p class="hint">한 줄이어도 좋아요. “왜 여기냐” 가 없으면 그냥 장소 목록이라 저희가 쓸 수 없어요.</p>' +
+      '<textarea class="in-reason" maxlength="500" ' +
+        'placeholder="예) 관광객은 잘 모르는데 회가 싸고 사장님이 친절해요. 노을 질 때 창가 자리가 좋아요."></textarea>' +
+      '<div class="guard">🔴 사람 이름 · 전화번호 · 이메일 · 소속 반은 적지 마세요.</div>' +
+    '</div>' +
 
     '<div class="btnwrap"><button type="button" class="btn ghost clear">이 칸 비우기</button></div>';
 
-  /* 낮 / 밤 / 상관없음 */
-  const whenBox = body.querySelector(".when");
-  for (const w of WHEN) {
-    const b = document.createElement("button");
-    b.type = "button"; b.className = "chip"; b.textContent = w.t; b.dataset.v = w.v;
-    b.addEventListener("click", () => {
-      const cur = state.picks[ty.v] || (state.picks[ty.v] = blank());
-      cur.whenGood = w.v;
-      whenBox.querySelectorAll(".chip").forEach(c => c.classList.toggle("on", c.dataset.v === cur.whenGood));
-      sync(ty.v, body); paint();
-    });
-    whenBox.appendChild(b);
-  }
-
+  const idx      = i;
+  const typeBox  = body.querySelector(".types");
+  const whenBox  = body.querySelector(".when");
+  const rest     = body.querySelector(".rest");
   const nameIn   = body.querySelector(".in-name");
   const reasonIn = body.querySelector(".in-reason");
   const limIn    = body.querySelector(".in-limited");
 
-  const onEdit = () => { sync(ty.v, body); paint(); };
+  /* 유형 일곱 — 이 칸에서 하나 고른다. 다른 칸이 같은 것을 골라도 된다 */
+  for (const ty of TYPES) {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "chip"; b.textContent = ty.t; b.dataset.v = ty.v;
+    b.addEventListener("click", () => {
+      state.slots[idx].type = ty.v;
+      typeBox.querySelectorAll(".chip").forEach(c => c.classList.toggle("on", c.dataset.v === ty.v));
+      rest.classList.remove("locked");
+      paint();
+    });
+    typeBox.appendChild(b);
+  }
+
+  /* 낮 / 밤 / 상관없음 */
+  for (const w of WHEN) {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "chip"; b.textContent = w.t; b.dataset.v = w.v;
+    b.addEventListener("click", () => {
+      state.slots[idx].whenGood = w.v;
+      whenBox.querySelectorAll(".chip").forEach(c => c.classList.toggle("on", c.dataset.v === w.v));
+      paint();
+    });
+    whenBox.appendChild(b);
+  }
+
+  const onEdit = () => {
+    const s = state.slots[idx];
+    s.name    = nameIn.value.trim();
+    s.reason  = reasonIn.value.trim();
+    s.limited = limIn.checked;
+    paint();
+  };
   nameIn.addEventListener("input", onEdit);
   reasonIn.addEventListener("input", onEdit);
   limIn.addEventListener("change", onEdit);
 
   body.querySelector(".clear").addEventListener("click", () => {
-    delete state.picks[ty.v];
+    state.slots[idx] = blank();
     nameIn.value = ""; reasonIn.value = ""; limIn.checked = false;
+    typeBox.querySelectorAll(".chip").forEach(c => c.classList.remove("on"));
     whenBox.querySelectorAll(".chip").forEach(c => c.classList.remove("on"));
+    rest.classList.add("locked");
     setOpen(art, false);
     paint();
   });
@@ -464,9 +501,7 @@ TYPES.forEach((ty, i) => {
   art.appendChild(head);
   art.appendChild(body);
   catsBox.appendChild(art);
-});
-
-function blank() { return { name: "", whenGood: null, limited: false, reason: "" }; }
+}
 
 function setOpen(art, open) {
   const body = art.querySelector(".catbody");
@@ -474,37 +509,24 @@ function setOpen(art, open) {
   art.classList.toggle("open", open);
   art.querySelector(".cathead").setAttribute("aria-expanded", String(open));
   art.querySelector(".mark").textContent = open ? "✕" : "＋";
-  if (open) art.querySelector(".in-name").focus({ preventScroll: true });
 }
 
-/* 화면의 글자를 상태로 옮긴다 */
-function sync(typeCode, body) {
-  const cur = state.picks[typeCode] || (state.picks[typeCode] = blank());
-  cur.name    = body.querySelector(".in-name").value.trim();
-  cur.reason  = body.querySelector(".in-reason").value.trim();
-  cur.limited = body.querySelector(".in-limited").checked;
-  /* 아무것도 안 남았으면 아예 지운다 — 빈 껍데기가 "채운 칸" 으로 세어지면 안 된다 */
-  if (!cur.name && !cur.reason && !cur.whenGood && !cur.limited) delete state.picks[typeCode];
-}
-
-/* 한 칸이 다 찼는가 — 이름 · 언제 · 이유 셋 다 있어야 한 곳으로 센다 */
-function isFull(p) { return !!(p && p.name && p.whenGood && p.reason); }
-
-function filledTypes() { return TYPES.filter(t => isFull(state.picks[t.v])).map(t => t.v); }
+/* 한 칸이 다 찼는가 — 유형 · 이름 · 언제 · 이유 넷 다 있어야 한 곳으로 센다 */
+const isFull = s => !!(s && s.type && s.name && s.whenGood && s.reason);
 
 /* ── 진행 표시와 카드 겉모습 ─────────────────────────────────── */
 function paint() {
-  const n = filledTypes().length;
+  const n = state.slots.filter(isFull).length;
   $("cnum").textContent = String(n);
-  $("bar").style.width = Math.min(100, n / NEED * 100) + "%";
+  $("bar").style.width = Math.min(100, n / SLOTS * 100) + "%";
   document.querySelectorAll(".cat").forEach(art => {
-    const p = state.picks[art.dataset.type];
-    art.classList.toggle("filled", isFull(p));
-    const s = art.querySelector(".catname s");
-    const ty = TYPES.find(t => t.v === art.dataset.type);
-    s.textContent = (p && p.name) ? p.name : ty.d;
+    const s = state.slots[Number(art.dataset.slot)];
+    art.classList.toggle("filled", isFull(s));
+    const sub = art.querySelector(".catname s");
+    if (s.name && s.type)  sub.textContent = s.name + " · " + typeLabel(s.type);
+    else if (s.type)       sub.textContent = typeLabel(s.type) + " · 아직 안 적었어요";
+    else                   sub.textContent = "아직 안 적었어요";
   });
-  $("submit").disabled = false;   /* 막지 않는다. 왜 못 내는지는 눌렀을 때 글로 말한다 */
 }
 
 /* ── 첫 화면 ─────────────────────────────────────────────────── */
@@ -539,35 +561,36 @@ $("submit").addEventListener("click", async () => {
   if (!state.ageBand)    trouble.push("나이대를 골라 주세요.");
   if (!state.busanYears) trouble.push("부산에 얼마나 사셨는지 골라 주세요.");
 
-  /* 🔴 개인정보 검사가 먼저다. 덜 채운 것보다 먼저 알려야 다시 안 적는다 */
+  /* 🔴 개인정보 검사가 먼저다. 덜 채운 것보다 먼저 알려야 다시 안 적는다.
+        🔴 칸 번호로 말한다 — 유형은 겹칠 수 있어서 유형 이름만으로는 못 가린다.
+           (다섯 칸이 전부 "맛집" 일 수 있다) */
   let pii = false;
-  for (const ty of TYPES) {
-    const p = state.picks[ty.v];
-    if (!p) continue;
-    const art = document.querySelector('.cat[data-type="' + ty.v + '"]');
+  state.slots.forEach((s, i) => {
+    const art = document.querySelector('.cat[data-slot="' + i + '"]');
     for (const [field, label] of [["name", "장소 이름"], ["reason", "추천 이유"]]) {
-      const hit = p[field] ? piiHit(p[field]) : null;
+      const hit = s[field] ? piiHit(s[field]) : null;
       if (hit) {
         pii = true;
-        trouble.push("“" + ty.t + "” 의 " + label + " 칸에 " + hit + "가 있어요. 지워 주세요.");
+        trouble.push((i + 1) + "번째 추천의 " + label + " 칸에 " + hit + "가 있어요. 지워 주세요.");
         art.classList.add("bad");
         if (art.querySelector(".catbody").hidden) setOpen(art, true);
       }
     }
-  }
+  });
 
-  const done = filledTypes().length;
-  if (!pii && done < NEED) {
-    trouble.push("다섯 군데를 채워 주세요. 지금 " + done + "군데예요.");
-    /* 반쯤 적다 만 칸이 있으면 어디가 빈지 알려준다 */
-    for (const ty of TYPES) {
-      const p = state.picks[ty.v];
-      if (!p || isFull(p)) continue;
-      const miss = [];
-      if (!p.name)     miss.push("장소 이름");
-      if (!p.whenGood) miss.push("언제 가면 좋은지");
-      if (!p.reason)   miss.push("추천 이유");
-      trouble.push("“" + ty.t + "” 은 " + miss.join(" · ") + " 이 비어 있어요.");
+  if (!pii) {
+    const done = state.slots.filter(isFull).length;
+    if (done < SLOTS) {
+      trouble.push("다섯 군데를 채워 주세요. 지금 " + done + "군데예요.");
+      state.slots.forEach((s, i) => {
+        if (isFull(s)) return;
+        const miss = [];
+        if (!s.type)     miss.push("어떤 곳인지");
+        if (!s.name)     miss.push("장소 이름");
+        if (!s.whenGood) miss.push("언제 가면 좋은지");
+        if (!s.reason)   miss.push("추천 이유");
+        trouble.push((i + 1) + "번째 추천은 " + miss.join(" · ") + " 이 비어 있어요.");
+      });
     }
   }
 
@@ -578,11 +601,10 @@ $("submit").addEventListener("click", async () => {
     consented: true,
     ageBand: state.ageBand,
     busanYears: state.busanYears,
-    recommendations: filledTypes().map((code, i) => {
-      const p = state.picks[code];
-      return { slot: i + 1, placeType: code, placeName: p.name,
-               whenGood: p.whenGood, limitedTime: p.limited, reason: p.reason };
-    })
+    recommendations: state.slots.map((s, i) => ({
+      slot: i + 1, placeType: s.type, placeName: s.name,
+      whenGood: s.whenGood, limitedTime: s.limited, reason: s.reason
+    }))
   };
 
   const btn = $("submit");

@@ -55,12 +55,6 @@ const PLACE_TYPES = new Set(["FOOD", "CAFE", "NATURE", "CULTURE", "MARKET", "ACT
 const WHEN_GOOD   = new Set(["DAY", "NIGHT", "ANY"]);
 const NEED = 5;
 
-const TYPE_LABEL = {
-  FOOD: "맛집 · 로컬 음식", CAFE: "카페 · 디저트", NATURE: "자연 · 바다 · 산책",
-  CULTURE: "문화 · 역사 · 전시", MARKET: "시장 · 골목 · 쇼핑",
-  ACTIVITY: "체험 · 액티비티", BAR: "술집 · 바"
-};
-
 /* 들어온 응답이 쓸 수 있는 모양인가. 아니면 왜 아닌지를 사람이 읽을 말로 돌려준다 */
 function check(b) {
   if (!b || typeof b !== "object") return "보내신 내용을 읽지 못했어요.";
@@ -71,21 +65,24 @@ function check(b) {
   const rs = b.recommendations;
   if (!Array.isArray(rs) || rs.length !== NEED) return "추천하는 곳 다섯 군데를 채워 주세요.";
 
-  const seen = new Set();
-  for (const r of rs) {
-    if (!r || typeof r !== "object") return "추천 칸 하나를 읽지 못했어요.";
-    if (!PLACE_TYPES.has(r.placeType)) return "장소 유형이 목록에 없는 값이에요.";
-    if (seen.has(r.placeType)) return "같은 유형을 두 번 보내셨어요.";
-    seen.add(r.placeType);
-    if (!WHEN_GOOD.has(r.whenGood)) return `“${TYPE_LABEL[r.placeType]}” 의 언제 가면 좋은지를 골라 주세요.`;
-    if (typeof r.limitedTime !== "boolean") return "기간 한정 표시를 읽지 못했어요.";
+  /* 🔴 같은 유형이 여러 번 와도 받는다. 맛집 다섯 곳은 정상적인 응답이다.
+        예전에는 여기서 중복 유형을 거절했는데, 그러면 맛집을 다섯 곳 아는
+        사람의 답이 잘려나간다 — 우리가 가장 원하는 응답이 바로 그것이다. */
+  for (let i = 0; i < rs.length; i++) {
+    const r = rs[i];
+    /* 🔴 칸 번호로 말한다. 유형은 겹칠 수 있어서 유형 이름만으로는 어느 칸인지 못 가린다 */
+    const where = `${i + 1}번째 추천`;
+    if (!r || typeof r !== "object") return `${where}을 읽지 못했어요.`;
+    if (!PLACE_TYPES.has(r.placeType)) return `${where}의 장소 유형이 목록에 없는 값이에요.`;
+    if (!WHEN_GOOD.has(r.whenGood)) return `${where}의 언제 가면 좋은지를 골라 주세요.`;
+    if (typeof r.limitedTime !== "boolean") return `${where}의 기간 한정 표시를 읽지 못했어요.`;
 
     for (const [key, label, max] of [["placeName", "장소 이름", 60], ["reason", "추천 이유", 500]]) {
       const v = typeof r[key] === "string" ? r[key].trim() : "";
-      if (!v) return `“${TYPE_LABEL[r.placeType]}” 의 ${label} 칸이 비어 있어요.`;
-      if (v.length > max) return `“${TYPE_LABEL[r.placeType]}” 의 ${label} 이 너무 길어요 (${max}자까지).`;
+      if (!v) return `${where}의 ${label} 칸이 비어 있어요.`;
+      if (v.length > max) return `${where}의 ${label} 이 너무 길어요 (${max}자까지).`;
       const hit = piiHit(v);
-      if (hit) return `“${TYPE_LABEL[r.placeType]}” 의 ${label} 칸에 ${hit}가 있어요. 지워 주세요.`;
+      if (hit) return `${where}의 ${label} 칸에 ${hit}가 있어요. 지워 주세요.`;
     }
   }
   return null;
