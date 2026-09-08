@@ -131,10 +131,21 @@ pipeline {
             steps {
                 sshagent(credentials: ['deploy-ssh-key']) {
                     script {
+                        // 🔴 S15P21E201-751 후속 — `docker compose ps --services`는
+                        //    매치가 0건이어도 빈 줄 하나를 찍는다. `wc -l`은 그 빈 줄도
+                        //    1로 세서 정지 상태인데도 STACK_RUNNING=true로 잘못 판정했다
+                        //    (실제 발생, 2026-09-08 — Backup이 다시 죽음). `grep -c
+                        //    '^postgres$'`는 빈 줄을 안 세므로 정지 상태에서 정확히
+                        //    0을 낸다 — 그런데 grep -c 는 매치 0건일 때 그 자체로 exit
+                        //    code 1을 낸다. ssh 가 그 종료 코드를 그대로 돌려주고,
+                        //    returnStdout: true 를 쓰는 sh 스텝은 exit 0이 아니면
+                        //    무조건 실패로 처리한다 — 정지 상태를 정상적으로 알아내려는
+                        //    바로 그 경로가 실패로 죽는다. `|| true` 로 감싼다(같은
+                        //    이유로 backup-postgres.sh 로테이션 부분에도 이미 있는 패턴).
                         def running = sh(
                             script: """
                                 ssh -o StrictHostKeyChecking=no ubuntu@${params.DEPLOY_HOST} \
-                                  'cd ${COMPOSE_PROJECT_DIR} && docker compose --env-file ${ENV_FILE} ps --status running --services postgres 2>/dev/null | wc -l'
+                                  'cd ${COMPOSE_PROJECT_DIR} && docker compose --env-file ${ENV_FILE} ps --status running --services postgres 2>/dev/null | grep -c "^postgres\$" || true'
                             """,
                             returnStdout: true
                         ).trim()
