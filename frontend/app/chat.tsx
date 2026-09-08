@@ -8,6 +8,7 @@ import { GabolleMascot } from '@/components/DongbaekMascot';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
+import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
 import { usePlan } from '@/plan/PlanProvider';
 import { useI18n } from '@/i18n';
@@ -26,7 +27,7 @@ export default function Chat() {
   const router = useRouter(); const { update } = usePlan();
   const { width } = useLayout();
   const { tx } = useI18n();
-  const desktop = width >= 768;
+  const desktop = isAtLeast(width, 'md');
   const [input, setInput] = useState('');
   // 인사말은 언어 환경설정이 뒤늦게 준비돼도 반영돼야 해서 state 초깃값(마운트 시 한 번만 평가됨)에
   // 넣지 않고, 렌더마다 tx() 로 새로 계산해 목록 앞에 붙인다.
