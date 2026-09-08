@@ -11,6 +11,7 @@ import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { getPlace, hasLocalityScore, type Place as ApiPlace } from '@/discovery/places';
 import { useI18n } from '@/i18n';
+import { PlacePhraseModal } from '@/components/PlacePhraseModal';
 import { listAvailableMapApps, type AvailableMapProvider } from '@/utils/externalMaps';
 
 // 홈 화면의 3개 데모 카드는 지금도 이 로컬 값을 그대로 쓴다 — place 표가 비어 있어(-547 적재 전)
@@ -40,6 +41,7 @@ export default function Place() {
   const [mapApps, setMapApps] = useState<AvailableMapProvider[]>([]);
   const [remote, setRemote] = useState<RemoteState>({ status: 'loading' });
   const [retryCount, setRetryCount] = useState(0);
+  const [phraseModalOpen, setPhraseModalOpen] = useState(false);
 
   // 데모 3곳은 로컬 값을, 그 밖의 id 는 방금 받아온 API 응답을 같은 모양으로 맞춘다.
   const resolved = demoPlace
@@ -140,10 +142,13 @@ export default function Place() {
         </View>
         <View style={styles.actions}>
           <Button label={isSaved ? tx('내 여행 후보에서 빼기', 'Remove from candidates') : tx('내 여행 후보에 저장', 'Save to candidates')} variant="ghost" onPress={() => void toggleSaved()} />
+          <Button label={tx('한국어로 말하기', 'Speak Korean')} onPress={() => setPhraseModalOpen(true)} containerStyle={styles.speakAction} />
           <View style={styles.mapRow}>{mapApps.map((app) => <Button key={app.key} label={tx(`${app.labelKo}으로 이동`, `Open in ${app.labelEn}`)} onPress={() => void app.open()} containerStyle={styles.mapAction} />)}</View>
           {feedback ? <Text accessibilityLiveRegion="polite" color={color.text.body} style={styles.feedback}>{feedback}</Text> : null}
         </View>
       </> : null}
+
+      <PlacePhraseModal visible={phraseModalOpen} onClose={() => setPhraseModalOpen(false)} category={resolved?.apiPlace?.category} />
 
       {notFound ? <View style={styles.notice} accessibilityRole="alert">
         <Text variant="title" weight="bold">{tx('장소를 찾을 수 없어요', 'Place not found')}</Text>
@@ -178,6 +183,7 @@ const styles = StyleSheet.create({
   noticeCopy: { lineHeight: 22 },
   actions: { gap: spacing[3], marginTop: spacing[4] },
   feedback: { textAlign: 'center' },
+  speakAction: { backgroundColor: color.brand.navy },
   mapRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] },
   mapAction: { flex: 1, minWidth: 160, backgroundColor: color.brand.navy },
   recoveryButton: { marginTop: spacing[2] },
