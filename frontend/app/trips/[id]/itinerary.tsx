@@ -22,7 +22,6 @@ import {
   type ItineraryLoadResult,
   type ItineraryVersionEntryDto,
 } from '@/plan/itinerary';
-import { rememberItinerary } from '@/trip/tripLibrary';
 import { useI18n } from '@/i18n';
 
 const WARNING_LABEL: Record<string, [string, string]> = {
@@ -75,7 +74,6 @@ export default function ItineraryScreen() {
     setResult(next); setLoading(false);
     if (next.state === 'success') {
       setSelectedDay((current) => Math.min(current, Math.max(0, next.itinerary.days.length - 1)));
-      void rememberItinerary(next.itinerary);
       void refreshVersions(next.itinerary.id);
     }
   }, [accessToken, itineraryId, refreshVersions]);
