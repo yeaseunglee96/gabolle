@@ -10,6 +10,7 @@ import com.gabolle.backend.place.api.PlaceCandidateRequest;
 import com.gabolle.backend.place.domain.UserInputKind;
 import com.gabolle.backend.place.repository.UserPlaceCodeMapRepository;
 import com.gabolle.backend.recommendation.config.BaselineEngineProperties;
+import com.gabolle.backend.recommendation.domain.RequestLocation;
 import com.gabolle.backend.trip.domain.PreferenceSnapshot;
 import com.gabolle.backend.trip.domain.Trip;
 import com.gabolle.backend.trip.domain.TripConstraint;
@@ -56,19 +57,22 @@ public class BaselineCandidateTranslator {
 	}
 
 	/**
-	 * @param trip 출발지(originLat/originLng)를 여기서 읽는다. 좌표가 없으면 이 메서드를 부르기
-	 *     전에 {@code BaselineRecommendationEngine} 이 이미 {@code ENGINE_ORIGIN_MISSING} 으로
-	 *     막는다 — 여기서는 좌표가 있다고 가정한다
+	 * @param location 🔴 S15P21E201-550 — 후보 조회의 중심. 요청이 준 현재 위치이거나 여행
+	 *     출발지다({@code BaselineRecommendationEngine} 이 골라서 넘긴다). 둘 다 없으면 이
+	 *     메서드를 부르기 전에 엔진이 {@code ENGINE_ORIGIN_MISSING} 으로 막는다.
+	 *     <p>🔴 거리 계산에만 쓰이고 저장되지 않는다
+	 * @param trip 여행. 🔴 중심 좌표는 여기서 읽지 않는다 — {@code location} 이 정본이다.
+	 *     요청이 현재 위치를 준 경우 여행 출발지와 다르기 때문이다
 	 * @param preferenceSnapshot 취향 스냅샷. 카테고리 필터는 이 안의 {@code CATEGORY} 답에서만
 	 *     가져온다. 없으면(취향을 하나도 안 답했으면) 카테고리로 좁히지 않는다
 	 * @param constraints 제약 스냅샷의 낱개 제약들. 🔴 <b>일부러 쓰지 않는다</b> — 위 클래스
 	 *     주석 참고. 파라미터로는 받아 두는데, 나중에 "왜 제약을 안 쓰냐" 는 질문에 이 자리가
 	 *     "받았지만 의도적으로 안 썼다" 는 증거로 남게 하기 위해서다
 	 */
-	public PlaceCandidateRequest translate(Trip trip, PreferenceSnapshot preferenceSnapshot,
-			List<TripConstraint> constraints) {
+	public PlaceCandidateRequest translate(RequestLocation location, Trip trip,
+			PreferenceSnapshot preferenceSnapshot, List<TripConstraint> constraints) {
 
-		PlaceCandidateRequest.Center center = new PlaceCandidateRequest.Center(trip.originLat(), trip.originLng());
+		PlaceCandidateRequest.Center center = new PlaceCandidateRequest.Center(location.lat(), location.lng());
 		List<String> categories = extractCategoryCodes(preferenceSnapshot);
 
 		return new PlaceCandidateRequest(
