@@ -11,6 +11,7 @@ type ScenicVideoProps = {
 
 export function ScenicVideo({ poster, source, contentFit = 'cover', style }: ScenicVideoProps) {
   const [reduceMotion, setReduceMotion] = useState(true);
+  const [videoFailed, setVideoFailed] = useState(false);
   const player = useVideoPlayer(source, (instance) => {
     instance.loop = true;
     instance.muted = true;
@@ -33,10 +34,20 @@ export function ScenicVideo({ poster, source, contentFit = 'cover', style }: Sce
     else player.play();
   }, [player, reduceMotion]);
 
+  // 자동재생이 막히거나(저사양 기기·데이터 절약 모드) 영상 자체를 못 받아 오면 player 가
+  // 'error' 상태를 낸다. 그때는 영상을 아예 그리지 않아 아래 포스터 이미지가 그대로 보이게 한다.
+  useEffect(() => {
+    setVideoFailed(false);
+    const subscription = player.addListener('statusChange', ({ status }) => {
+      if (status === 'error') setVideoFailed(true);
+    });
+    return () => subscription.remove();
+  }, [player, source]);
+
   return (
     <View accessible={false} importantForAccessibility="no-hide-descendants" style={[styles.fill, style]}>
       <Image source={poster} resizeMode="cover" style={styles.poster} />
-      {!reduceMotion && <VideoView player={player} nativeControls={false} contentFit={contentFit} style={styles.video} />}
+      {!reduceMotion && !videoFailed && <VideoView player={player} nativeControls={false} contentFit={contentFit} style={styles.video} />}
     </View>
   );
 }

@@ -38,8 +38,14 @@ const VIDEO_BY_TIME = {
   night: [beachNightVideo, tramSunsetVideo],
 } as const;
 
+// 부산 시간대별 영상이라 기기의 로컬 타임존이 아니라 Asia/Seoul 시각으로 고른다 —
+// 그렇지 않으면 해외에서 접속한 여행자에게는 시간대가 어긋난 영상이 뜬다.
+function seoulHour(date = new Date()) {
+  return Number(new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Seoul', hourCycle: 'h23', hour: 'numeric' }).format(date));
+}
+
 function videosForCurrentTime() {
-  const hour = new Date().getHours();
+  const hour = seoulHour();
   if (hour < 7) return VIDEO_BY_TIME.dawn;
   if (hour < 11) return VIDEO_BY_TIME.morning;
   if (hour < 17) return VIDEO_BY_TIME.day;
@@ -48,7 +54,7 @@ function videosForCurrentTime() {
 }
 
 function shouldUseLightWelcomeLogo() {
-  const hour = new Date().getHours();
+  const hour = seoulHour();
   return hour < 7 || hour >= 17;
 }
 
