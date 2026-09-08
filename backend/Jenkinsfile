@@ -147,6 +147,21 @@ pipeline {
                     //    때문에), 그 경로는 배포 파이프라인이 아니라 호스트에서 한 번만
                     //    미리 만들어 둔다. 2026-09-07에 /srv/gabolle/uploads(ubuntu
                     //    소유)로 이미 만들어 뒀다.
+                    //
+                    // 🔴 GABOLLE_ADMIN_EMAILS 는 Jenkins 자격증명이 아니라 전역 환경
+                    //    변수에서 온다 (Manage Jenkins → System → Global properties).
+                    //    withCredentials 로 묶으면 그 자격증명이 없는 순간 배포 단계가
+                    //    통째로 실패한다 — 운영자 한 명을 지정하려고 배포를 못 하게 만드는
+                    //    것은 맞바꾸기가 나쁘다. 전역 변수는 없으면 빈 값이 되고, 빈 값은
+                    //    "운영자가 아무도 없다" 는 정상 상태다.
+                    //
+                    //    🔴 이 값만은 틀리면 기동을 막는다. 적은 이메일로 가입한 계정이
+                    //    없으면 AdminRoleStartupSynchronizer 가 일부러 실패시킨다(-225 —
+                    //    오타 하나로 "운영자를 지정했다고 생각했는데 아무도 없는" 상태가
+                    //    조용히 유지되는 것을 막기 위해서다). 그래서 값을 넣기 전에 그
+                    //    계정이 운영 DB 에 실제로 있는지 확인한다. 실수했더라도 아래
+                    //    Health Check 가 :previous 로 되돌리고, 그 이미지는 이 설정을
+                    //    모르는 판이라 정상 기동한다.
                     sh '''
                         docker run -d --name backend \
                             --network local-route-personalization_data_net \
@@ -170,6 +185,7 @@ pipeline {
                             -e GABOLLE_KAKAO_CLIENT_SECRET="$GABOLLE_KAKAO_CLIENT_SECRET" \
                             -e GABOLLE_NAVER_CLIENT_ID="$GABOLLE_NAVER_CLIENT_ID" \
                             -e GABOLLE_NAVER_CLIENT_SECRET="$GABOLLE_NAVER_CLIENT_SECRET" \
+                            -e GABOLLE_ADMIN_EMAILS="$GABOLLE_ADMIN_EMAILS" \
                             local-route-backend
                     '''
                 }
@@ -256,6 +272,7 @@ pipeline {
                                     -e GABOLLE_KAKAO_CLIENT_SECRET="$GABOLLE_KAKAO_CLIENT_SECRET" \
                                     -e GABOLLE_NAVER_CLIENT_ID="$GABOLLE_NAVER_CLIENT_ID" \
                                     -e GABOLLE_NAVER_CLIENT_SECRET="$GABOLLE_NAVER_CLIENT_SECRET" \
+                                    -e GABOLLE_ADMIN_EMAILS="$GABOLLE_ADMIN_EMAILS" \
                                     local-route-backend:previous
                             '''
                         }
