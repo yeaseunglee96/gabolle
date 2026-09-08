@@ -201,8 +201,8 @@ npx -y axmap-cli@latest release
 ## 2. 브랜치와 커밋 — 기존 팀 컨벤션을 그대로 쓴다
 
 ```
-[main] ──┬── front/main ────── front/dev ────── feat/S15P21E201-144-…
-         ├── back/main  ────── back/dev  ────── fix/S15P21E201-145-…
+[main] ──┬── front/main ────── front/dev ────── feat/front/S15P21E201-144-…
+         ├── back/main  ────── back/dev  ────── fix/back/S15P21E201-145-…
          └── (ai/main   ────── ai/dev)   ────── …
 ```
 
@@ -216,12 +216,17 @@ npx -y axmap-cli@latest release
 | 최상위 | `main` | major | 릴리스 |
 | 파트 | `front/main` · `back/main` (= `…/func`) | minor | **"feat 단계"** |
 | 파트 개발 | `front/dev` · `back/dev` | patch | dev |
-| 작업 | `feat/S15P21E201-144-login` 등 | 안 올린다 | 기능 브랜치 |
+| 작업 | `feat/back/S15P21E201-144-login` 등 | 안 올린다 | 기능 브랜치 |
 
 > 🔴 **`feat` 라는 말이 두 곳에서 서로 다른 것을 가리킨다.**
 > **"feat 단계"** 는 위 표의 **파트 브랜치**(`front/main` · `back/main`)를 말하고,
 > **`feat/…`** 는 **커밋 접두사가 붙은 기능 브랜치 이름**이다. 위아래로 정반대 자리다.
 > 헷갈리면 **"파트 브랜치"** 라고 부른다.
+>
+> 🔴 **기능 브랜치 가운데 칸은 "파트"이지, 글자 그대로 `feat` 를 넣는 자리가 아니다.**
+> `feat/back/S15P21E201-144-login` 에서 가운데 `back` 이 파트(`front`·`back`, 앞으로
+> 폴더가 늘면 그 이름)를 가리킨다. 첫 칸의 `feat`(커밋 접두사)와 글자가 같아서
+> 가운데도 `feat` 을 넣기 쉬운데, 그러면 어느 파트 `dev` 로 갈지 CI 가 못 정한다.
 
 > 🔴 **최상위 `main` 은 접두사가 없는 것뿐이다.** `back/main` 은 파트 브랜치다.
 > 버전 자동화가 이 둘을 가른다 — 안 가르면 파트에 머지할 때마다 major 가 올라가서
@@ -230,7 +235,7 @@ npx -y axmap-cli@latest release
 
 | | 규칙 | 예 |
 |---|---|---|
-| 기능 브랜치 | `[접두사]/[Jira키]-[작업명]` | `feat/S15P21E201-144-login` |
+| 기능 브랜치 | `[접두사]/[파트]/[Jira키]-[작업명]` | `feat/back/S15P21E201-144-login` |
 | 접두사 | `feat` `fix` `docs` `design` `refactor` `chore` `test` | |
 | 커밋 메시지 | `[Jira키] 접두사: [모듈] 요약` | `[S15P21E201-144] feat: [BE] 회원가입 API 구현` |
 | MR 대상 | 기능 → 파트 `dev` → 파트 브랜치 → `main` | 최종 `main` 으로 바로 올리지 않는다 |
@@ -275,7 +280,7 @@ GitLab Community Edition(무료판)에는 *"이 브랜치로는 MR 을 못 연�
 손으로 먼저 확인할 수 있다.
 
 ```bash
-npx -y axmap-cli@latest mr-target --source feat/S15P21E201-144-login --target main
+npx -y axmap-cli@latest mr-target --source feat/back/S15P21E201-144-login --target main
 # → 거부. 이 브랜치가 갈 수 있는 곳을 알려준다
 ```
 
