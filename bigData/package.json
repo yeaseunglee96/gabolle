@@ -12,6 +12,7 @@
     "collect:bims": "node collect/bims-poll.mjs",
     "collect:tourapi": "node collect/tourapi.mjs",
     "collect:tourapi-bf": "node collect/tourapi-barrier-free.mjs",
+    "hours": "node process/opening-hours.mjs",
     "calibrate": "node process/calibrate-slope.mjs",
     "slope": "node --max-old-space-size=4096 process/slope.mjs",
     "verify": "node test/verify.mjs",

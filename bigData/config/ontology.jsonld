@@ -1168,12 +1168,22 @@
       "prefLabel": { "ko": "영업시간(정규화)", "en": "Opening hours (normalised)" },
       "definition": { "ko": "요일마다 열림·닫힘 시각으로 정규화한 구간 목록. 이 장소가 그 시각에 열려 있는가를 판정하는 유일한 근거다." },
       "note": {
-        "ko": "🔴 아직 받지 않았다. 필드 이름을 지어내지 않는다 — TourAPI 소개정보의 실제 응답 필드명을 공식 명세로 확인하지 못했다. 🔴 그리고 자료형을 지금 정해 두는 것이 이 항목의 요점이다. '매주 월요일 휴관, 09:00~18:00(동절기 17:00)' 같은 자유 문장을 원문 문자열로 저장하면 파싱이 영원히 미뤄지고 결국 아무도 안 쓴다."
+        "ko": "🔴 자료형을 미리 정해 둔 것이 이 항목의 요점이었다. '매주 월요일 휴관, 09:00~18:00(동절기 17:00)' 같은 자유 문장을 원문 문자열로 저장하면 파싱이 영원히 미뤄지고 결국 아무도 안 쓴다. 2026-09-08 에 실제로 받아 정규화했고 그 경고가 옳았다 — 받은 값의 절반 이상이 자유 문장이었다."
+      },
+      "//2026-09-08-필드": {
+        "ko": "🔴 필드 이름을 지어내지 않고 실제 응답에서 확인했다. 분류마다 다르다 — 음식점 opentimefood · 관광지 usetime · 문화시설 usetimeculture · 레포츠 usetimeleports · 쇼핑 opentime · 축제행사 playtime. 이름이 그럴듯해서 넣었다가 뺀 것 둘: usetimefestival 은 축제의 **입장료**이고(값이 '무료' 로 온다), checkintime 은 숙박의 **체크인 시각**이라 영업시간이 아니다."
+      },
+      "//2026-09-08-실측": {
+        "ko": "부산 634곳 중 숙박 65곳을 뺀 569곳이 모수다 — 숙박은 영업시간 개념이 없어 체크인·체크아웃으로 따로 낸다. 읽어냄 535곳 = 94.0% (구간 파싱 434 · 상시개방 101). 모름 34곳은 '점포별 상이'·'전화문의 요망'처럼 원본에 시각이 없는 것이라 UNKNOWN 으로 남겼다 — 추측해서 채우면 사람을 닫힌 문 앞에 보낸다(docs/RECOMMENDATION-DATA-COLLECTION-P0.md 2.1). 입장마감·라스트오더 같은 부가 조건 136건은 버리지 않고 notes 에 원문으로 보관한다."
       },
       "valueRange": { "kind": "요일 → (열림, 닫힘) 시각 구간의 목록", "nullable": true },
       "role": "feasibility",
-      "status": "미수집",
-      "expectedFrom": "tourapi (소개정보 조회 — 운영시간·휴무일. 활용신청 승인 2026-09-06, 아직 호출하지 않음)"
+      "status": "수집",
+      "producedBy": "process/opening-hours.mjs",
+      "sourceField": [
+        { "dataset": "data/raw/tourapi/tourapi-busan.ndjson", "field": "opentimefood · usetime · usetimeculture · usetimeleports · opentime · playtime (분류마다 다름)" },
+        { "dataset": "data/staged/opening-hours.ndjson", "field": "byDay · seasonal · closedDays · notes (정규화 결과)" }
+      ]
     },
 
     {
