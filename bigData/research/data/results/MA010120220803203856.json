@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220803203856",
+  "worker": "haiku-9",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["광안리대영횟집 부산", "광안리대영횟집 민락동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["siksinhot.com", "busan.com"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "광안리 바다와 야경을 조망하며 식사",
+      "sources": [0, 1]
+    },
+    {
+      "type": "조리·재료",
+      "note": "자연산 생선회, 제철 생선 사용",
+      "sources": [0, 1]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "특별한 도미 세트, 랍스타 등 해산물 요리",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["도미 세트", "랍스타"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": "민락공원 앞 위치. 주말 저녁에 웨이팅 많음"
+}

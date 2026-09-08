@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220810475450",
+  "worker": "haiku-12",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["산수갑산 중구 부산", "산수갑산 광복동 돼지고기"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/742322", "https://www.diningcode.com/profile.php?rid=tnnDGC7Hhhd3"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "연차·역사", "note": "55년 전통의 돼지갈비 전문 노포", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "숯불 돼지갈비가 시그니처 메뉴", "sources": [0, 1]},
+    {"type": "미디어 노출", "note": "방송 출연 및 유명인 사인이 벽에 붙어있는 유명 식당", "sources": [0, 1]},
+    {"type": "플랫폼 순위·평점", "note": "식신, 다이닝코드, 트립어드바이저 등 주요 플랫폼에 소개됨", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 55,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["돼지갈비", "숯불돼지갈비"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

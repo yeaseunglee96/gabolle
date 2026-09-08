@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220811418895",
+  "worker": "haiku-12",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["동백섬횟집 해운대구 부산", "동백섬횟집 해운대해변로 횟집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/257325", "https://www.diningcode.com/profile.php?rid=MASSRY7EPWeh"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "맛 묘사", "note": "싱싱한 자연산 활어회의 신선함이 뛰어남", "sources": [0, 1]},
+    {"type": "분위기·전망", "note": "해운대해변로에 위치한 3층 규모의 넉넉한 식당, 해변 경치 감상 가능", "sources": [0, 1]},
+    {"type": "기관 선정", "note": "부산시 추천 관광지 및 당근 동네 인기 업체 선정", "sources": [0]},
+    {"type": "플랫폼 순위·평점", "note": "다이닝코드, 뽈레, 관광지랭킹 등 플랫폼에 소개됨", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["회정식", "이시가리"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": ""
+}

@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220810618570",
+  "worker": "haiku-7",
+  "researchedAt": "2026-09-08T22:09:18Z",
+  "queries": ["명당만두 동구 부산", "명당만두 수정2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.tripadvisor.co.kr/Restaurant_Review-g297884-d9378602-Reviews-Myeongdang_Dumplings-Busan.html", "https://polle.com/place/5d0unj/%EB%AA%85%EB%8B%B9%EB%A7%8C%EB%91%90"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "김치만두와 고기만두 전문점으로 유명", "sources": [0]},
+    {"type": "미디어 노출", "note": "TV 방송에 출연한 만두 전문가의 식당", "sources": [0]},
+    {"type": "조리·재료", "note": "손수 야채를 손질하고 싱싱한 새벽시장 재료 사용", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["김치만두", "고기만두"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "수정시장 내 위치. 11:00~21:00 영업. 일요일 정기휴무. 부산역 5번 출구 인근."
+}

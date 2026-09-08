@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220810811711",
+  "worker": "haiku-9",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["국제밀면 연제구 부산", "국제밀면 거제1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["siksinhot.com", "diningcode.com"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "플랫폼 순위·평점",
+      "note": "부산 3대 밀면 맛집 중 하나로 알려짐",
+      "sources": [0, 1]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "물밀면과 비빔밀면이 주요 메뉴",
+      "sources": [0, 1]
+    },
+    {
+      "type": "곁들임·차림",
+      "note": "비법 소스를 사용한 특별한 맛",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": true,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["물밀면", "비빔밀면"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "30년 맛집으로 알려짐. 항상 웨이팅이 있을 정도로 인기 많음"
+}

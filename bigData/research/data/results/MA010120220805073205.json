@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220805073205",
+  "worker": "haiku-11",
+  "researchedAt": "2026-09-09T00:27:00Z",
+  "queries": ["아임타이 부산진 부산", "아임타이 전포 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 부산진구 전포대로199번길 12"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "맛 묘사", "note": "태국의 정통 요리를 선보이는 특별한 공간", "sources": [1] },
+    { "type": "가격·가성비", "note": "다양한 세트 메뉴와 합리적인 가격으로 많은 사람들에게 인기", "sources": [1] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": [],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

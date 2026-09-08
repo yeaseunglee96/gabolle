@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220807404632",
+  "worker": "haiku-12",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["물망초 영도구 부산", "물망초 감지해변길 요리"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://www.diningcode.com/profile.php?rid=Utctcl5YnyKu"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "생선회와 세꼬시 전문점", "sources": [0]},
+    {"type": "조리·재료", "note": "직접 만든 특별한 식초소스와 마늘 크림소스", "sources": [0]},
+    {"type": "분위기·전망", "note": "태종대 근처 해변에 위치", "sources": [0]},
+    {"type": "맛 묘사", "note": "신선한 조개와 독특한 소스의 조화", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["생선회", "세꼬시"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

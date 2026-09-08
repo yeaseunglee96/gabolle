@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220809396460",
+  "worker": "haiku-9",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["에테르 영도구 부산", "에테르 영선2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["diningcode.com", "visitbusan.net"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "탁 트인 오션뷰, 4층 구조의 실내와 야외 테라스, 루프탑",
+      "sources": [0, 1]
+    },
+    {
+      "type": "원조·최초",
+      "note": "40여 년 거주 공간을 새롭게 리모델링한 감각적인 카페",
+      "sources": [0, 1]
+    },
+    {
+      "type": "관광지·명소",
+      "note": "흰여울문화마을의 핫플레이스",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": ["관광지·명소"],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "tourist",
+    "signatureDishes": ["아메리카노", "카페라떼"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "영도 흰여울문화마을 위치. 부산역에서 82, 85번 버스로 접근"
+}

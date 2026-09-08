@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220810707788",
+  "worker": "haiku-9",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["모닭불 사상구 부산", "모닭불 괘법동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["diningcode.com"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "연차·역사",
+      "note": "2007년부터 운영, 17년 전통",
+      "sources": [0]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "숯불 닭갈비가 대표메뉴",
+      "sources": [0]
+    },
+    {
+      "type": "조리·재료",
+      "note": "국내산 닭만 사용, 육즙이 가득하고 부드러운 식감",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 17,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "local",
+    "signatureDishes": ["숯불닭갈비", "닭해장국"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "사상역 5번 출구 근처 로테리아 골목. TV 방영 여러 번"
+}

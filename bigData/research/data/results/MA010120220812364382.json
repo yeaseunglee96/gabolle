@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220812364382",
+  "worker": "haiku-11",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["겐짱카레 중구 부산", "겐짱카레 광복동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 중구 광복로35번길 16-1"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "미디어 노출", "note": "생활의 달인에 출연한 일본식 카레", "sources": [0, 1] },
+    { "type": "연차·역사", "note": "부산에서 28년 운영 중인 카레 전문점", "sources": [0, 1] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 28,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["돈가스 카레", "생선카레", "고로케카레"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": ""
+}

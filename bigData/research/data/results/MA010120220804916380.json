@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220804916380",
+  "worker": "haiku-8",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["이레옥 해운대구 우동"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산 해운대구 마린시티3로 51"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "한우 곰탕 전문점", "sources": [0]},
+    {"type": "조리·재료", "note": "최고급 한우 양지머리와 사골을 엄선하여 전통방식으로 조리", "sources": [0]},
+    {"type": "분위기·전망", "note": "야외 테이블에서 광안대교와 바다 전망이 아름다움", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["한우곰탕"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": ""
+}

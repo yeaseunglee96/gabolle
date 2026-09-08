@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220811418590",
+  "worker": "haiku-8",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["오막집 해운대구"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산 해운대구 해운대해변로209번나길 28"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "특양곱창, 소양곱창, 대창구이 전문", "sources": [0]},
+    {"type": "연차·역사", "note": "2008년 설립 오래된 고깃집", "sources": [0]},
+    {"type": "조리·재료", "note": "고급 재료를 사용한 프리미엄 고깃집", "sources": [0]},
+    {"type": "운영·접근 편의", "note": "전용 주차장과 개인실 완비", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["특양곱창"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": ""
+}

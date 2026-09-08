@@ -1,0 +1,34 @@
+{
+  "id": "MA010120220810710802",
+  "worker": "haiku-9",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["부산밀면 연제구 부산", "부산밀면 연산2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["diningcode.com"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "조리·재료",
+      "note": "직접 매일 반죽하는 자가제면과 26가지 재료를 36시간 고아낸 감칠맛 육수",
+      "sources": [0]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "물밀면과 비빔밀면이 대표 메뉴",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["물밀면", "비빔밀면"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "이마트 연제점 바로 맞은편 위치. 부산 1위 소울푸드 추천점"
+}

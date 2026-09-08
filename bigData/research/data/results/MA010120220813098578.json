@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220813098578",
+  "worker": "haiku-11",
+  "researchedAt": "2026-09-09T00:30:00Z",
+  "queries": ["선인장식당영도 영도 부산", "선인장식당 청학동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 영도구 와치로 15"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "맛 묘사", "note": "다양한 종류의 함박스테이크 카레 전문점으로 유명", "sources": [0, 1] },
+    { "type": "분위기·전망", "note": "부산항대교 전망을 감상할 수 있는 위치", "sources": [0] },
+    { "type": "혼잡·수요", "note": "오픈 직후부터 손님이 계속 들어올 정도로 매우 인기가 많은 맛집", "sources": [0] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["함박스테이크 카레", "닭 카레", "야채 카레"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "키즈존 있음"
+}

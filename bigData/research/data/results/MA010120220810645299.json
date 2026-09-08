@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220810645299",
+  "worker": "haiku-9",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["우리돼지국밥 동구 부산", "우리돼지국밥 초량2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["kookje.co.kr", "diningcode.com"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "연차·역사",
+      "note": "50년 전통의 동구 대표 음식점",
+      "sources": [0]
+    },
+    {
+      "type": "조리·재료",
+      "note": "24시간 우려낸 사골 국물",
+      "sources": [0]
+    },
+    {
+      "type": "현지인 지지",
+      "note": "지역 주민과 관광객의 발길이 끊이지 않음",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 50,
+    "generations": null,
+    "queueing": true,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["돼지국밥", "수육"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "24시간 연중무휴 영업. 초량천 관광지 근처"
+}

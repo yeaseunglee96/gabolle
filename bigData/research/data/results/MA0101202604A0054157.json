@@ -1,0 +1,25 @@
+{
+  "id": "MA0101202604A0054157",
+  "worker": "haiku-10",
+  "researchedAt": "2026-09-09T15:15:00Z",
+  "queries": ["동삼정 중구 부산", "동삼정 보수동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산 중구 흑교로46번길 3-1"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "맛 묘사", "note": "동삼정 김밥, 매운 우육찜", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["김밥"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "보수동 책방골목 근처"
+}

@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220811432774",
+  "worker": "haiku-10",
+  "researchedAt": "2026-09-09T14:45:00Z",
+  "queries": ["남나리전복 기장군 부산", "남나리전복 일광읍 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산 기장군 일광읍 문오성길 56"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "분위기·전망", "note": "아름다운 오션뷰를 바라보며 식사", "sources": [0]},
+    {"type": "맛 묘사", "note": "버터구이, 양념구이, 성게알 곁들인 전복죽", "sources": [0]},
+    {"type": "간판 메뉴 지목", "note": "전복 요리 전문점, 죽부터 구이까지 다양한 전복 메뉴", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["전복버터구이", "전복죽"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": ""
+}

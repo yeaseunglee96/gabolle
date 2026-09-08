@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220805173080",
+  "worker": "haiku-7",
+  "researchedAt": "2026-09-08T22:09:18Z",
+  "queries": ["초량돼지국밥 동구 부산", "초량돼지국밥 초량3동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=PMxZbcTSVeLg", "https://triple.guide/restaurants/f5551a52-2772-46cb-a7db-c8016af006a7"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "맛 묘사", "note": "깊고 깔끔한 돼지고기의 국물맛", "sources": [0]},
+    {"type": "동네·시장 지목", "note": "부산역 초량 돼지국밥 골목의 명소", "sources": [1]},
+    {"type": "곁들임·차림", "note": "배추김치와 부추김치의 맛이 좋아 리필 주문 많음", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["돼지국밥", "내장국밥", "머리국밥"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "부산역 초량역맛집골목 위치. 08:00~21:00 연중무휴. 비슷한 줄서는 집보다 대기시간 짧음."
+}

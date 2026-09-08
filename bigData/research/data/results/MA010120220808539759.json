@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220808539759",
+  "worker": "haiku-12",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["쌍둥이돼지국밥 남구 부산", "쌍둥이돼지국밥 대연1동 한정식"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/257472", "https://www.diningcode.com/profile.php?rid=NlpRRrCBCPmE"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "연차·역사", "note": "1996년 10월 개업으로 28년 이상 운영 중인 오래된 노포", "sources": [0, 1]},
+    {"type": "대물림", "note": "쌍둥이 언니로부터 조리 비법을 전수받은 특별한 배경", "sources": [0]},
+    {"type": "간판 메뉴 지목", "note": "항정살 수육이 유명한 돼지국밥 전문점", "sources": [0, 1]},
+    {"type": "혼잡·수요", "note": "식사시간에는 길게 줄을 서서 기다리는 유명 식당", "sources": [0, 1]},
+    {"type": "플랫폼 순위·평점", "note": "식신, 다이닝코드, 부산 공식 관광포털 등에 소개됨", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 28,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["내장국밥", "돼지국밥", "항정살 수육"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

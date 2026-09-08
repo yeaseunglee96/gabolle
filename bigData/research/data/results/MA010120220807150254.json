@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220807150254",
+  "worker": "haiku-10",
+  "researchedAt": "2026-09-09T14:50:00Z",
+  "queries": ["모시모시 금정구 부산", "모시모시 장전2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산 금정구 금강로 271-5"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "가격·가성비", "note": "가성비 좋은 스시", "sources": [0]},
+    {"type": "맛 묘사", "note": "다양한 모듬초밥과 스시한상", "sources": [0]},
+    {"type": "운영·접근 편의", "note": "부산대 근처, 주차 가능, 테이크아웃 가능", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": "2012년 오픈",
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "students",
+    "signatureDishes": ["모듬초밥", "스시한상"],
+    "priceBand": "normal"
+  },
+  "notFound": null,
+  "notes": "롯데백화점 지점도 운영 중"
+}

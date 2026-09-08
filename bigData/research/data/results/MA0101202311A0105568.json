@@ -1,0 +1,26 @@
+{
+  "id": "MA0101202311A0105568",
+  "worker": "haiku-8",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["소문난갈비탕 수영구 부산 광안", "소문난갈비탕 광안3동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["부산 수영구 망미번영로 35"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "갈비탕 전문점", "sources": [0, 1]},
+    {"type": "동네·시장 지목", "note": "망미동 역 3번 출구 근처 위치", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["갈비탕"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "제한된 정보로 판단"
+}

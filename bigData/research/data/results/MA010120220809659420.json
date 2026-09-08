@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220809659420",
+  "worker": "haiku-12",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["그라치에 영도구 부산", "그라치에 청학동 경양식"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1230551", "https://www.diningcode.com/profile.php?rid=8Ktuz0bjVA5o"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "기관 선정", "note": "블루리본과 레드리본을 모두 수상한 명점", "sources": [0, 1]},
+    {"type": "미디어 노출", "note": "KNN 방송에 3회 출연", "sources": [1]},
+    {"type": "맛 묘사", "note": "감자뇨끼의 버섯 향과 크림소스의 특별한 조화, 쫀득한 식감", "sources": [0, 1]},
+    {"type": "서비스·사람", "note": "14년 경력의 오너 셰프가 운영", "sources": [0]},
+    {"type": "플랫폼 순위·평점", "note": "식신, 다이닝코드, 망고플레이트, 트립닷컴 등 주요 플랫폼에 소개됨", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["감자뇨끼", "통오징어먹물리조또", "토마토 뽈로 파스타"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220806727490",
+  "worker": "haiku-8",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["해성막창집 해운대구 중동"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산 해운대구 중동1로19번길 29"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "곱창전골과 막창 전문", "sources": [0]},
+    {"type": "가격·가성비", "note": "합리적인 가격으로 푸짐한 양 제공", "sources": [0]},
+    {"type": "맛 묘사", "note": "쫄깃한 식감의 고급 내장류", "sources": [0]},
+    {"type": "혼잡·수요", "note": "특히 저녁에 대기줄이 길 정도로 인기", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": true,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["곱창전골", "막창구이"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

@@ -1,0 +1,29 @@
+{
+  "id": "MA0101202509A0026741",
+  "worker": "haiku-8",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["대티물꽁 사하구 부산", "대티물꽁 괴정동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산 사하구 낙동대로135번안길 15"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "연차·역사", "note": "30년 가까이 사랑받아 온 생아귀찜 전문 노포", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "아구찜, 대구뽈찜, 코다리찜 전문", "sources": [1]},
+    {"type": "조리·재료", "note": "국내산 생아귀로 만든 매콤한 찜", "sources": [1]},
+    {"type": "혼잡·수요", "note": "주말에는 대기손님이 많을 정도로 인기", "sources": [1]},
+    {"type": "운영·접근 편의", "note": "넉넉한 양과 넓은 주차장이 특징, 지하철 대티역 인근", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": true,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["아구찜", "대구뽈찜"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

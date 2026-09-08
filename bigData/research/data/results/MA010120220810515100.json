@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220810515100",
+  "worker": "haiku-7",
+  "researchedAt": "2026-09-08T22:09:18Z",
+  "queries": ["장림연탄갈비 사하구 부산", "장림연탄갈비 장림2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=xDFHu50KTzAO", "https://www.keyzard.cc/soona_me/nb/224060217263"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "연차·역사", "note": "20년 이상 운영으로 입소문난 노포 감성", "sources": [1]},
+    {"type": "맛 묘사", "note": "정통 연탄갈비의 맛과 품질", "sources": [0]},
+    {"type": "동네·시장 지목", "note": "장림마켓 인근 위치로 지역 대표 맛집", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "local",
+    "signatureDishes": ["돼지갈비", "양념돼지갈비"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "장림마켓 인근. 16:00~24:00 영업. 부근 공영주차장 이용, 2,000원 할인."
+}

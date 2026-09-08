@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220810768402",
+  "worker": "haiku-8",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["동래삼계탕 동래구 부산", "동래삼계탕 안락2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산 동래구 명안로18번길 8-1"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "연차·역사", "note": "30년 된 배종관 동래삼계탕으로 알려진 오래된 전문점", "sources": [0]},
+    {"type": "간판 메뉴 지목", "note": "삼계탕 전문점으로 복날이 기다려지는 맛집", "sources": [0, 1]},
+    {"type": "메뉴 희소성", "note": "궁중약계탕과 동래삼계탕을 전문으로 판매", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["삼계탕", "궁중약계탕"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

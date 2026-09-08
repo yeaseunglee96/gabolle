@@ -1,0 +1,25 @@
+{
+  "id": "MA010120220813692906",
+  "worker": "haiku-11",
+  "researchedAt": "2026-09-09T00:45:00Z",
+  "queries": ["한빛기사식당 남구 부산", "한빛기사식당 문현 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 남구 자유평화로 49"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "맛 묘사", "note": "푸짐한 양과 가성비가 좋은 기사식당", "sources": [0, 1] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["한빛정식", "된장찌개"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "24시간 영업, 연중무휴"
+}

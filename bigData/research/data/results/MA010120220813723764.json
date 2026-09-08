@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220813723764",
+  "worker": "haiku-12",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["비비비당 해운대구 부산", "비비비당 달맞이길 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/348866", "https://www.diningcode.com/profile.php?rid=DGAgCSVkR0FB"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "기관 선정", "note": "블루리본 누적 9개 수상한 전통차 전문점", "sources": [1]},
+    {"type": "분위기·전망", "note": "해운대 달맞이길의 아름다운 바다 전망과 고즈넉한 한옥 인테리어", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "호박 빙수 - 달콤함을 적절히 조절한 쫄깃한 식감이 특징", "sources": [0]},
+    {"type": "플랫폼 순위·평점", "note": "식신, 다이닝코드, 트립닷컴 등 주요 맛집 플랫폼에 소개됨", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["호박빙수", "전통차"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

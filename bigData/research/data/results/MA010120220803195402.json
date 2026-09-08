@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220803195402",
+  "worker": "haiku-9",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["이가네떡볶이 중구 부산", "이가네떡볶이 부평동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["siksinhot.com", "diningcode.com"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "미디어 노출",
+      "note": "백종원의 3대천왕에 출연",
+      "sources": [0, 1]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "떡볶이가 대표메뉴",
+      "sources": [0, 1]
+    },
+    {
+      "type": "조리·재료",
+      "note": "무즙만 사용하여 만든 떡볶이, 물 미사용",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": true,
+    "parking": false,
+    "audience": "tourist",
+    "signatureDishes": ["떡볶이"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "부평깡통시장 내 위치. 부평공영주차장 이용. 주문 후 즉시 제공으로 웨이팅 짧음"
+}

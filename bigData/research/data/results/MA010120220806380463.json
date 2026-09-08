@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220806380463",
+  "worker": "haiku-11",
+  "researchedAt": "2026-09-09T00:40:00Z",
+  "queries": ["할매복국 중구 부산", "할매복국 영주동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 중구 대영로 225-1"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "연차·역사", "note": "1940년부터 80년 이상 복국 전문점으로 운영해 온 역사", "sources": [0, 1] },
+    { "type": "맛 묘사", "note": "참복국, 까치복국, 밀복국 등 다양한 종류의 복국 제공", "sources": [0] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 86,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["참복국", "까치복국", "밀복국"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": ""
+}

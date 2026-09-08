@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220810473357",
+  "worker": "haiku-10",
+  "researchedAt": "2026-09-09T14:55:00Z",
+  "queries": ["태종대짬뽕 영도구 부산", "태종대짬뽕 동삼2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산 영도구 태종로 825"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "미디어 노출", "note": "생활의 달인 방영", "sources": [0]},
+    {"type": "조리·재료", "note": "신선한 해산물, 직접 담근 육수, 자가제면", "sources": [0]},
+    {"type": "맛 묘사", "note": "전복, 오징어, 홍합, 주꾸미 푸짐한 해산물, 얼큰한 국물과 쫄깃한 면발", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "tourists",
+    "signatureDishes": ["태종대짬뽕"],
+    "priceBand": "normal"
+  },
+  "notFound": null,
+  "notes": "태종대 관광지 인근, 예약 및 대기 시스템 완비"
+}

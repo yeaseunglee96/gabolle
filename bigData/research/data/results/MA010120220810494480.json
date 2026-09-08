@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220810494480",
+  "worker": "haiku-8",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["새진주식당 중구 보수동"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산 중구 흑교로 60"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "육회를 넣은 진주식 비빔밥 전문", "sources": [0]},
+    {"type": "맛 묘사", "note": "신선한 나물과 야채, 담백한 맛", "sources": [0]},
+    {"type": "곁들임·차림", "note": "시원한 국물의 선지국이 일품", "sources": [0]},
+    {"type": "미디어 노출", "note": "생활의달인에 방영됨", "sources": [0]},
+    {"type": "동네·시장 지목", "note": "보수동 대표 맛집", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["육회비빔밥"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}
