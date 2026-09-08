@@ -2,7 +2,7 @@
 //
 // 날씨·준비물은 전부 하드코딩 목업이다. 실제 기상청 API 연동 전까지는 이 값 그대로 둔다.
 import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as Speech from 'expo-speech';
 
@@ -26,15 +26,20 @@ function DialectFlashcards() {
   const [speakingId, setSpeakingId] = useState<string | null>(null);
 
   function listen(phrase: (typeof DIALECT_PHRASES)[number]) {
-    Speech.stop();
-    setSpeakingId(phrase.id);
-    Speech.speak(phrase.dialect, { language: 'ko-KR', rate: 0.9, onDone: () => setSpeakingId(null), onStopped: () => setSpeakingId(null), onError: () => setSpeakingId(null) });
+    try {
+      Speech.stop();
+      setSpeakingId(phrase.id);
+      Speech.speak(phrase.dialect, { language: 'ko-KR', rate: 0.9, onDone: () => setSpeakingId(null), onStopped: () => setSpeakingId(null), onError: () => setSpeakingId(null) });
+    } catch {
+      // 소리 기능이 없는 브라우저(Web Speech API 미지원 등)에서도 카드는 그대로 둔다.
+      setSpeakingId(null);
+    }
   }
 
   return (
     <View style={styles.dialectSection}>
       <Text variant="title" weight="bold" style={styles.prepTitle}>{tx('부산 사투리 한마디', 'A word of Busan dialect')}</Text>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.dialectScroll}>
+      <View style={styles.dialectList}>
         {DIALECT_PHRASES.map((phrase) => {
           const expanded = expandedId === phrase.id;
           return (
@@ -50,7 +55,14 @@ function DialectFlashcards() {
               </Pressable>
               {expanded ? (
                 <>
-                  <Text variant="body" color={color.text.body}>{tx(phrase.standard, phrase.en)}</Text>
+                  <View style={styles.dialectMeaningRow}>
+                    <Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx('표준어', 'Standard Korean')}</Text>
+                    <Text variant="body" color={color.text.body}>{phrase.standard}</Text>
+                  </View>
+                  <View style={styles.dialectMeaningRow}>
+                    <Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx('영문 뜻', 'English meaning')}</Text>
+                    <Text variant="body" color={color.text.body}>{phrase.en}</Text>
+                  </View>
                   <Text variant="caption" color={color.text.muted}>{tx(phrase.situationKo, phrase.situationEn)}</Text>
                   <Pressable accessibilityRole="button" accessibilityLabel={tx(`${phrase.dialect} 발음 듣기`, `Listen to ${phrase.dialect}`)} onPress={() => listen(phrase)} style={styles.listenButton}>
                     <Text variant="caption" weight="bold" color={color.text.onAction}>{speakingId === phrase.id ? tx('재생 중', 'Playing') : tx('▶ 듣기', '▶ Listen')}</Text>
@@ -60,7 +72,7 @@ function DialectFlashcards() {
             </View>
           );
         })}
-      </ScrollView>
+      </View>
     </View>
   );
 }
@@ -218,14 +230,12 @@ const styles = StyleSheet.create({
   dialectSection: {
     marginTop: spacing[4],
   },
-  dialectScroll: {
+  dialectList: {
     gap: spacing[3],
-    paddingTop: spacing[1],
-    paddingBottom: spacing[1],
+    marginTop: spacing[1],
   },
   dialectCard: {
-    width: 160,
-    minHeight: 120,
+    minHeight: 84,
     justifyContent: 'center',
     gap: spacing[2],
     padding: spacing[4],
@@ -238,10 +248,12 @@ const styles = StyleSheet.create({
     gap: spacing[2],
   },
   dialectCardExpanded: {
-    width: 220,
     borderColor: color.brand.orange,
     borderWidth: 2,
     backgroundColor: color.surface.warm,
+  },
+  dialectMeaningRow: {
+    gap: spacing[1],
   },
   listenButton: {
     marginTop: spacing[1],
