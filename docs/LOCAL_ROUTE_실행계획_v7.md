@@ -1056,3 +1056,27 @@ node ci/axmap/bin/axmap.mjs doctor   # 이 PC 에서 선점이 실제로 도는�
 > # ⚠️ GABOLLE 전환 이후 참고 문서
 >
 > 이 문서의 MySQL·과거 서비스 범위는 현재 구현 기준이 아닙니다. GABOLLE는 PostgreSQL을 사용하며, 제품·요구사항·API 기준은 `docs/gabolle/`의 v1.1 문서 6종을 따릅니다.
+>
+> ## 결정 추가 — 2026-09-08 [돌려봄]
+>
+> **S15P21E201-367**(사진 오브젝트 스토리지 도입) 완료. 상세설계서 F-SYS-08 이
+> "오브젝트 스토리지 — [도입 필요]" 로 남겨 뒀던 것을 이제 정했다.
+>
+> - **무엇을 쓰나** — 새 업체(AWS S3·Cloudflare R2 등)에 가입하지 않고,
+>   **personalization 파이프라인이 이미 쓰던 MinIO 를 그대로 재사용**한다
+>   (`infra/personalization/compose.yaml`, `local-route-personalization-minio-1`).
+> - **왜** — 새 계정·결제·자격 발급이 필요 없다. `backend` 컨테이너가 이미 같은
+>   도커 네트워크(`local-route-personalization_data_net`)에 있어 바로 닿는다.
+>   재사용 시점에 그 MinIO 는 `mlflow-artifacts` 버킷 하나만 쓰고 있어(32KB)
+>   여유가 충분했다.
+> - **어떻게 붙였나** — `gabolle-photos` 버킷 신설. 익명 `GetObject`(다운로드)만
+>   허용하고 `ListBucket`(목록 훑기)은 거부하는 커스텀 정책 — MinIO 기본
+>   "download" 정책은 `ListBucket` 도 함께 허용해서 그대로 못 썼다. 백엔드는
+>   루트 자격(minioadmin)이 아니라 이 버킷 전용 최소권한 계정(`gabolle-backend`)
+>   을 새로 만들어 쓴다. EC2 nginx 가 `/photos/` 를 MinIO 의 S3 API 포트(9000,
+>   새로 게시함)로 프록시해 공개 주소를 만든다.
+> - **구현** — `backend` 의 `StoragePort` 두 번째 구현 `S3FileStorage`(MR !404).
+>   MinIO 전용이 아니라 MinIO 공식 SDK 로 어떤 S3 호환 엔드포인트에도 붙는다 —
+>   나중에 다른 업체로 옮기더라도 이 결정만 바뀌고 도메인 코드는 안 바뀐다.
+> - **확인** — EC2 에서 실제로 파일 하나를 올리고
+>   `https://j15e201.p.ssafy.io/photos/<key>` 로 다시 받았다. 익명 목록 조회는 403.
