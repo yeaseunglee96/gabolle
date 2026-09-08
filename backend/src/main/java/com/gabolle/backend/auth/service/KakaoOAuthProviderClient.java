@@ -50,6 +50,14 @@ public class KakaoOAuthProviderClient extends AbstractRestClientOAuthProvider {
 		}
 		JsonNode account = user.path("kakao_account");
 		JsonNode profile = account.path("profile");
-		return new OAuthUserProfile(subject, account.path("email").asText(null), profile.path("nickname").asText(null), "KO");
+		return new OAuthUserProfile(subject, account.path("email").asText(null), profile.path("nickname").asText(null),
+				"KO", nullableBoolean(account, "is_email_verified"), nullableBoolean(account, "is_email_valid"));
+	}
+
+	// S15P21E201-741 — 🔴 JsonNode.path(...).asBoolean() 은 필드가 없을 때 조용히
+	// false 를 준다. has() 로 존재를 먼저 확인하지 않으면 "카카오가 안 줬다(모름)" 가
+	// "카카오가 false 라고 답했다" 로 둔갑한다.
+	private Boolean nullableBoolean(JsonNode node, String fieldName) {
+		return node.has(fieldName) ? node.path(fieldName).asBoolean() : null;
 	}
 }

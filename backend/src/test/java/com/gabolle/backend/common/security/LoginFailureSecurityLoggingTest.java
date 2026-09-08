@@ -24,6 +24,7 @@ import org.springframework.web.client.RestClient;
 import com.gabolle.backend.auth.config.AuthProperties;
 import com.gabolle.backend.auth.domain.AuthOneTimeToken;
 import com.gabolle.backend.auth.domain.LocalCredential;
+import com.gabolle.backend.auth.repository.AuthIdentityRepository;
 import com.gabolle.backend.auth.repository.AuthOneTimeTokenRepository;
 import com.gabolle.backend.auth.repository.LocalCredentialRepository;
 import com.gabolle.backend.auth.service.AuthCommands;
@@ -68,6 +69,9 @@ class LoginFailureSecurityLoggingTest {
 	@Mock private AppUserRepository userRepository;
 	@Mock private UserConsentRepository consentRepository;
 	@Mock private LocalCredentialRepository credentialRepository;
+	// S15P21E201-742 — 이메일 중복 검사가 소셜 계정도 보게 되면서 생긴 의존성. 이 테스트는
+	// 로그인 실패 로깅만 재므로 기본 mock 으로 둔다(빈 목록을 돌려준다).
+	@Mock private AuthIdentityRepository identityRepository;
 	@Mock private AuthOneTimeTokenRepository oneTimeTokenRepository;
 	@Mock private PasswordEncoder passwordEncoder;
 	@Mock private AuthTokenService authTokenService;
@@ -103,7 +107,7 @@ class LoginFailureSecurityLoggingTest {
 		//    여기(common.security)서는 못 쓴다 — 공개 생성자를 쓴다. 이 테스트는 시각 자체를
 		//    검증하지 않으므로 Clock.systemUTC() 로도 충분하다.
 		this.localAuthService = new LocalAuthService(this.userRepository, this.consentRepository,
-				this.credentialRepository, this.oneTimeTokenRepository, this.passwordEncoder,
+				this.credentialRepository, this.identityRepository, this.oneTimeTokenRepository, this.passwordEncoder,
 				new SessionTokenGenerator(), this.authTokenService, this.emailSender, authProperties,
 				new ConsentPolicy(), loginAttemptGuard, securityEventLogger);
 	}

@@ -125,8 +125,8 @@ class OAuthAccountServiceTest {
 				anyString())).thenReturn(new OAuthSignupTicketService.IssuedTicket("kakao-ticket", NOW.plusSeconds(600)));
 
 		OAuthAccountService.Outcome outcome = service.authenticate(AuthProvider.KAKAO,
-				new OAuthProviderClient.OAuthUserProfile("kakao-subject", null, "카카오 사용자", "KO"), "device-1", null,
-				false, false);
+				new OAuthProviderClient.OAuthUserProfile("kakao-subject", null, "카카오 사용자", "KO", null, null), "device-1",
+				null, false, false);
 
 		OAuthAccountService.SignupRequired signup = (OAuthAccountService.SignupRequired) outcome;
 		assertThat(signup.email()).isNull();
@@ -291,7 +291,8 @@ class OAuthAccountServiceTest {
 	}
 
 	private OAuthProviderClient.OAuthUserProfile profile(String language) {
-		return new OAuthProviderClient.OAuthUserProfile("google-subject", "traveler@example.com", "여행자", language);
+		return new OAuthProviderClient.OAuthUserProfile("google-subject", "traveler@example.com", "여행자", language,
+				Boolean.TRUE, null);
 	}
 
 	private Map<String, Boolean> requiredConsents() {
