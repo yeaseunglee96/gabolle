@@ -114,6 +114,40 @@ pipeline {
             }
         }
 
+        // 🔴 S15P21E201-751 — 스택을 일부러 멈춰 둔 상태(docker compose stop,
+        //    2026-09-08 — 진짜 파이프라인이 안 붙어서 4코어 서버에서 CI와 자원을
+        //    다투는 것을 줄이려고)에서 infra/personalization을 건드리는 커밋이
+        //    common/dev에 들어오면, Backup 단계가 정지된 postgres에 pg_dump를
+        //    시도하다 조용히 죽고 Deploy·Health Check가 통째로 건너뛰어졌다.
+        //
+        //    그런데 Backup 실패만 무시하게 고치면 바로 다음 Deploy 단계가
+        //    `docker compose up -d`로 정지해 둔 스택을 그대로 되살려 버린다 —
+        //    "잠깐 멈춘다"는 결정을 이 파이프라인이 조용히 뒤집는 것이다.
+        //
+        //    그래서 postgres가 실제로 떠 있는지 먼저 재고, 안 떠 있으면 정지
+        //    상태를 그대로 존중해서 Backup·Deploy·Health Check를 전부 건너뛴다.
+        //    빌드 이미지는 캐시를 데워 두는 것뿐이라 무해하므로 그대로 둔다.
+        stage('Check Stack State') {
+            steps {
+                sshagent(credentials: ['deploy-ssh-key']) {
+                    script {
+                        def running = sh(
+                            script: """
+                                ssh -o StrictHostKeyChecking=no ubuntu@${params.DEPLOY_HOST} \
+                                  'cd ${COMPOSE_PROJECT_DIR} && docker compose --env-file ${ENV_FILE} ps --status running --services postgres 2>/dev/null | wc -l'
+                            """,
+                            returnStdout: true
+                        ).trim()
+                        env.STACK_RUNNING = (running == '1') ? 'true' : 'false'
+                        echo "STACK_RUNNING=${env.STACK_RUNNING} (postgres 서비스 실행 여부로 판단)"
+                        if (env.STACK_RUNNING == 'false') {
+                            echo "스택이 정지 상태다 — Backup·Deploy·Health Check를 건너뛴다. 다시 켜려면 서버에서 docker compose start를 직접 실행한다."
+                        }
+                    }
+                }
+            }
+        }
+
         stage('Build Images') {
             when {
                 expression { env.IS_ROLLBACK == 'false' }
@@ -129,6 +163,9 @@ pipeline {
         }
 
         stage('Backup') {
+            when {
+                expression { env.STACK_RUNNING == 'true' }
+            }
             steps {
                 sshagent(credentials: ['deploy-ssh-key']) {
                     sh """
@@ -140,6 +177,9 @@ pipeline {
         }
 
         stage('Deploy') {
+            when {
+                expression { env.STACK_RUNNING == 'true' }
+            }
             steps {
                 sshagent(credentials: ['deploy-ssh-key']) {
                     sh """
@@ -156,6 +196,9 @@ pipeline {
         // 배포에서 확인함 (S15P21E201-582). 240초(24x10s)로 늘림 — 그 배포에서
         // 실제로 healthy가 되기까지 걸린 시간보다 여유 있게 잡음.
         stage('Health Check') {
+            when {
+                expression { env.STACK_RUNNING == 'true' }
+            }
             steps {
                 sshagent(credentials: ['deploy-ssh-key']) {
                     sh """
@@ -182,7 +225,8 @@ pipeline {
                     commit: sh(script: "git log -1 --pretty='%an: %s'", returnStdout: true).trim(),
                     buildUrl: env.BUILD_URL,
                     imageTag: env.IMAGE_TAG,
-                    isRollback: env.IS_ROLLBACK
+                    isRollback: env.IS_ROLLBACK,
+                    skipped: (env.STACK_RUNNING == 'false')
                 ])
             }
         }
@@ -202,14 +246,22 @@ pipeline {
 
 // MatterMost 알림 전송 (Jenkins Credentials: mattermost-webhook, Secret text)
 def sendMMNotify(boolean success, Map info) {
-    def titleLine = success
-        ? '#### :white_check_mark: 개인화 인프라(common/dev) 배포 성공'
-        : '#### :x: 개인화 인프라(common/dev) 배포 실패'
+    def titleLine
+    if (info.skipped) {
+        // S15P21E201-751 — 스택이 정지 상태라 Backup·Deploy·Health Check를
+        // 건너뛴 경우. "성공"이라고만 알리면 실제로 배포된 것처럼 보인다.
+        titleLine = '#### :large_blue_circle: 개인화 인프라(common/dev) 배포 건너뜀 — 스택 정지 상태'
+    } else {
+        titleLine = success
+            ? '#### :white_check_mark: 개인화 인프라(common/dev) 배포 성공'
+            : '#### :x: 개인화 인프라(common/dev) 배포 실패'
+    }
 
     def lines = []
     if (info.commit)   lines << "**커밋**: ${info.commit}"
     if (info.imageTag) lines << "**이미지 태그**: `${info.imageTag}`" + (info.isRollback == 'true' ? ' (롤백)' : '')
     if (info.buildUrl) lines << "**빌드 상세**: [Details](${info.buildUrl})"
+    if (info.skipped) lines << "**참고**: 스택이 의도적으로 멈춰 있어 배포를 건너뛰었습니다. 다시 켜려면 서버에서 docker compose start."
     if (!success && info.details) lines << "**참고**: ${info.details}"
 
     def text = lines ? "${titleLine}\n" + lines.join("\n") : titleLine
