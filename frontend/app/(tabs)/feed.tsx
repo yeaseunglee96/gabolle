@@ -9,33 +9,20 @@ import { TabBar } from '@/components/TabBar';
 import { Text } from '@/components/Text';
 import { color, gutter, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
-import { loadFeed, setFollowing, VISIBILITY_LABEL, type FeedLoadResult, type FeedScope, type StoryDto } from '@/social/stories';
+import { loadFeed, relativeStoryTime, setFollowing, VISIBILITY_LABEL, type FeedLoadResult, type FeedScope, type StoryDto } from '@/social/stories';
 
-function relativeTime(iso: string, tx: (ko: string, en: string) => string) {
-  const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return iso;
-  const minutes = Math.round((Date.now() - date.getTime()) / 60000);
-  if (minutes < 1) return tx('방금', 'just now');
-  if (minutes < 60) return tx(`${minutes}분 전`, `${minutes}m ago`);
-  const hours = Math.round(minutes / 60);
-  if (hours < 24) return tx(`${hours}시간 전`, `${hours}h ago`);
-  const days = Math.round(hours / 24);
-  if (days < 7) return tx(`${days}일 전`, `${days}d ago`);
-  return `${date.getFullYear()}.${date.getMonth() + 1}.${date.getDate()}`;
-}
-
-function StoryCard({ story, showUnfollow, unfollowBusy, onUnfollow }: { story: StoryDto; showUnfollow: boolean; unfollowBusy: boolean; onUnfollow: () => void }) {
+function StoryCard({ story, showUnfollow, unfollowBusy, onUnfollow, onOpen }: { story: StoryDto; showUnfollow: boolean; unfollowBusy: boolean; onUnfollow: () => void; onOpen: () => void }) {
   const { tx } = useI18n();
   const place = story.place?.name ?? story.region ?? null;
-  return <View style={styles.card}>
+  return <Pressable accessibilityRole="button" accessibilityLabel={tx('기록 상세 보기', 'View record details')} onPress={onOpen} style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}>
     <View style={styles.cardHeader}>
-      <View style={styles.grow}><Text variant="body" weight="bold">{story.author.displayName}</Text><Text variant="caption" color={color.text.muted}>{relativeTime(story.createdAt, tx)}{place ? ` · ${place}` : ''}</Text></View>
+      <View style={styles.grow}><Text variant="body" weight="bold">{story.author.displayName}</Text><Text variant="caption" color={color.text.muted}>{relativeStoryTime(story.createdAt, tx)}{place ? ` · ${place}` : ''}</Text></View>
       {story.mine && story.visibility !== 'PUBLIC' ? <View style={styles.visibilityBadge}><Text variant="caption" weight="bold" color={color.text.muted}>{tx(...VISIBILITY_LABEL[story.visibility])}</Text></View> : null}
       {showUnfollow ? <Pressable accessibilityRole="button" accessibilityLabel={tx(`${story.author.displayName} 언팔로우`, `Unfollow ${story.author.displayName}`)} accessibilityState={{ busy: unfollowBusy }} disabled={unfollowBusy} onPress={onUnfollow} style={[styles.unfollowButton, unfollowBusy && styles.busy]}><Text variant="caption" weight="bold" color={color.text.body}>{unfollowBusy ? tx('처리 중', 'Working') : tx('팔로잉', 'Following')}</Text></Pressable> : null}
     </View>
     <Text color={color.text.body} style={styles.body}>{story.body}</Text>
     {story.images.length ? <View style={styles.images}>{story.images.slice(0, 3).map((image) => <Image key={image.url} source={{ uri: image.url }} resizeMode="cover" accessibilityLabel={tx('여행 기록 사진', 'Trip record photo')} style={styles.image} />)}</View> : null}
-  </View>;
+  </Pressable>;
 }
 
 export default function Feed() {
@@ -93,7 +80,7 @@ export default function Feed() {
       {scope === 'FOLLOWING' ? <><Text variant="title" weight="bold">{tx('아직 팔로우한 사람의 기록이 없어요', 'No records from people you follow yet')}</Text><Button label={tx('전체 보기', 'See all')} onPress={() => setScope('ALL')} containerStyle={styles.primaryAction} /></> : <><Text variant="title" weight="bold">{tx('부산 여행 기록을 모으고 있어요', 'Collecting Busan travel stories')}</Text><Text color={color.text.body} style={styles.description}>{tx('먼저 여행을 준비하고 기록을 남겨 보세요.', 'Prepare a trip first, then write your own record.')}</Text><Button label={tx('내 여행 보기', 'See my trips')} onPress={() => router.push('/trips')} containerStyle={styles.primaryAction} /></>}
     </View> : null}
 
-    {!loading && result.state === 'success' && items.length ? <View style={styles.list}>{items.map((story) => <StoryCard key={story.id} story={story} showUnfollow={scope === 'FOLLOWING'} unfollowBusy={unfollowingId === story.author.id} onUnfollow={() => void unfollow(story)} />)}</View> : null}
+    {!loading && result.state === 'success' && items.length ? <View style={styles.list}>{items.map((story) => <StoryCard key={story.id} story={story} showUnfollow={scope === 'FOLLOWING'} unfollowBusy={unfollowingId === story.author.id} onUnfollow={() => void unfollow(story)} onOpen={() => router.push(`/feed/${story.id}`)} />)}</View> : null}
 
     {!loading && result.state === 'success' && result.nextCursor ? <Button label={loadingMore ? tx('불러오는 중…', 'Loading…') : tx('더 보기', 'Load more')} variant="ghost" disabled={loadingMore} onPress={() => void loadMore()} containerStyle={styles.loadMore} /> : null}
 
@@ -108,7 +95,7 @@ const styles = StyleSheet.create({
   loginNotice: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2], alignItems: 'center', marginTop: spacing[3], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.soft },
   stateCard: { minHeight: 240, marginTop: spacing[6], padding: spacing[6], borderWidth: 1, borderColor: '#ece6dc', borderRadius: radius.lg, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center', gap: spacing[3] }, icon: { width: 68, height: 68, borderRadius: radius.full, backgroundColor: color.surface.tint, alignItems: 'center', justifyContent: 'center' }, stateIcon: { width: 32, height: 32 }, description: { maxWidth: 360, textAlign: 'center' }, primaryAction: { width: '100%', maxWidth: 320, marginTop: spacing[2], backgroundColor: color.brand.navy },
   list: { gap: spacing[3], marginTop: spacing[4] },
-  card: { gap: spacing[2], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card }, cardHeader: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[2] }, grow: { flex: 1, gap: spacing[1] },
+  card: { gap: spacing[2], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card }, cardPressed: { opacity: 0.85 }, cardHeader: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[2] }, grow: { flex: 1, gap: spacing[1] },
   visibilityBadge: { minHeight: 28, paddingHorizontal: spacing[2], borderRadius: radius.full, backgroundColor: color.surface.soft, alignItems: 'center', justifyContent: 'center' },
   unfollowButton: { minWidth: 72, minHeight: 32, paddingHorizontal: spacing[2], borderRadius: radius.full, backgroundColor: color.surface.soft, alignItems: 'center', justifyContent: 'center' }, busy: { opacity: 0.6 },
   body: { lineHeight: 22 },
