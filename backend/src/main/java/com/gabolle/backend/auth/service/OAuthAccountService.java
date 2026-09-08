@@ -152,7 +152,9 @@ public class OAuthAccountService {
 		if (oneStep) {
 			// 🔴 옛 앱 호환 — 동의와 14세 확인을 첫 요청에 실어 보낸 경우는 예전처럼 그 자리에서 계정을 만든다.
 			AppUser user = register(profile.displayName(), profile.language(), rawConsents, behaviorPersonalizationEnabled);
-			identityRepository.save(AuthIdentity.link(user, provider, profile.subject(), email));
+			AuthIdentity linked = AuthIdentity.link(user, provider, profile.subject(), email);
+			applyProviderEmail(linked, profile, email);
+			identityRepository.save(linked);
 			return issue(user, deviceId, email);
 		}
 
@@ -191,6 +193,14 @@ public class OAuthAccountService {
 		String finalName = (displayName == null || displayName.isBlank()) ? ticket.getDisplayName() : displayName;
 		String finalLanguage = (language == null || language.isBlank()) ? ticket.getLanguage() : language;
 		AppUser user = register(finalName, finalLanguage, rawConsents, behaviorPersonalizationEnabled);
+		// 🔴 S15P21E201-741 — 이 경로만 이메일 신뢰도를 못 남긴다. 가입 티켓에는 주소만 실려 있고
+		//    "검증됐나·아직 유효한가" 는 provider 응답에만 있었는데 그 응답은 티켓을 발급할 때
+		//    이미 지나갔다. 그래서 여기서 만들어진 신원은 두 값이 null(모름)로 시작하고,
+		//    그 사람이 다음에 로그인할 때 refreshProviderEmail 이 채운다.
+		//
+		//    지금은 이것이 안전한 쪽으로 틀린다 — 판정 규칙이 "명시적으로 유효하지 않다고
+		//    답한 경우에만 배제" 이므로 모름은 배제되지 않는다. 티켓에 두 칸을 더하면 한 번에
+		//    채울 수 있지만, 그러려면 티켓 표에 칸을 늘려야 해서 이번 범위 밖으로 뒀다.
 		identityRepository.save(AuthIdentity.link(user, ticket.getProvider(), ticket.getProviderSubject(),
 				ticket.getProviderEmail()));
 		return issue(user, deviceId, ticket.getProviderEmail());
@@ -252,8 +262,11 @@ public class OAuthAccountService {
 			}
 			throw identityTaken();
 		}
-		return new LinkedIdentity(identityRepository.save(AuthIdentity.link(user, provider, profile.subject(),
-				normalizeEmailOrNull(profile.email()))), false);
+		String linkedEmail = normalizeEmailOrNull(profile.email());
+		AuthIdentity linked = AuthIdentity.link(user, provider, profile.subject(), linkedEmail);
+		applyProviderEmail(linked, profile, linkedEmail);
+		identityRepository.save(linked);
+		return new LinkedIdentity(linked, false);
 	}
 
 	public record LinkedIdentity(AuthIdentity identity, boolean alreadyLinked) {
@@ -270,7 +283,39 @@ public class OAuthAccountService {
 		}
 		String email = (profile == null || profile.email() == null || profile.email().isBlank())
 				? identity.getProviderEmail() : normalizeEmail(profile.email());
+		applyProviderEmail(identity, profile, email);
+		identityRepository.save(identity);
 		return issue(identity.getUser(), deviceId, email);
+	}
+
+	/**
+	 * 로그인할 때마다 provider 가 준 이메일과 그 신뢰도를 저장된 값에 다시 쓴다 — S15P21E201-741.
+	 *
+	 * <p>🔴 <b>예전에는 처음 연결할 때 한 번 쓰고 다시 안 봤다.</b> 그래서 사용자가 소셜에서 이메일을
+	 * 바꾸면 우리 쪽에는 옛 주소가 그대로 남았다. 그 값을 계정 연결 판정에 쓰기 시작하면
+	 * <b>이미 그 사람의 것이 아닌 주소로 판단하게 된다.</b>
+	 *
+	 * <p>🔴 카카오는 그 주소가 <b>다른 카카오계정으로 옮겨가면</b> 유효하지 않다고 답한다
+	 * ({@code is_email_valid=false}). 그 신호를 갱신하지 않으면 옮겨간 뒤에도 우리는 계속 유효한
+	 * 줄 안다 — 그때 이메일로 계정을 이으면 <b>엉뚱한 사람에게 이어진다.</b> 갱신이 이 판정의
+	 * 전제다.
+	 *
+	 * <p>🔴 <b>이메일이 안 왔으면 아무것도 지우지 않는다.</b> 카카오는 동의 상태에 따라 이메일을
+	 * 아예 안 줄 수 있는데, 그때 저장된 값을 {@code null} 로 덮으면 <b>있던 정보가 조용히
+	 * 사라진다.</b> 안 온 것과 없어진 것은 다르다.
+	 *
+	 * <p>🔴 <b>저장소가 돌려주는 값에 기대지 않는다.</b> 처음에 {@code save(...)} 의 반환값을 받아
+	 * 거기에 값을 썼더니 옛 앱 호환 경로가 {@link NullPointerException} 으로 죽었다 — 그 자리를
+	 * 재는 테스트의 mock 이 {@code null} 을 돌려주기 때문이다. 운영에서는 JPA 가 엔티티를
+	 * 돌려주므로 안 드러나고 <b>테스트에서만 죽는</b> 조합이었다. 값을 먼저 채우고 그 객체를
+	 * 저장하면 반환값이 무엇이든 상관없다.
+	 */
+	private static void applyProviderEmail(AuthIdentity identity, OAuthProviderClient.OAuthUserProfile profile,
+			String normalizedEmail) {
+		if (identity == null || profile == null || normalizedEmail == null || normalizedEmail.isBlank()) {
+			return;
+		}
+		identity.recordProviderEmail(normalizedEmail, profile.emailVerified(), profile.emailValid());
 	}
 
 	/**
