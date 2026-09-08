@@ -1,0 +1,243 @@
+{
+ "seed": 20260907,
+ "holdoutRatio": 0.3,
+ "total": 37,
+ "role": "조정용",
+ "count": 26,
+ "items": [
+  {
+   "contentid": "134949",
+   "title": "금문",
+   "poiId": "node/8440995333",
+   "poiName": "금문",
+   "kind": "restaurant",
+   "distM": 1,
+   "exact": true
+  },
+  {
+   "contentid": "2852620",
+   "title": "코모도테이블",
+   "poiId": "node/6367420689",
+   "poiName": "코모도테이블",
+   "kind": "cafe",
+   "distM": 190,
+   "exact": true
+  },
+  {
+   "contentid": "850891",
+   "title": "용궁해물야채쟁반짜장",
+   "poiId": "node/3859225900",
+   "poiName": "용궁해물쟁반짜장",
+   "kind": "restaurant",
+   "distM": 13,
+   "exact": false
+  },
+  {
+   "contentid": "2869113",
+   "title": "배종관동래삼계탕",
+   "poiId": "node/8440995324",
+   "poiName": "동래삼계탕",
+   "kind": "restaurant",
+   "distM": 5,
+   "exact": false
+  },
+  {
+   "contentid": "2860782",
+   "title": "오반장",
+   "poiId": "node/4365623690",
+   "poiName": "오반장伍班长烧肉",
+   "kind": "restaurant",
+   "distM": 10,
+   "exact": false
+  },
+  {
+   "contentid": "2626043",
+   "title": "그랜드애플",
+   "poiId": "node/4208764038",
+   "poiName": "그랜드 애플",
+   "kind": "restaurant",
+   "distM": 11,
+   "exact": true
+  },
+  {
+   "contentid": "1805095",
+   "title": "할매팥빙수단팥죽",
+   "poiId": "node/5774214253",
+   "poiName": "용호동할매 팥빙수 단팥죽",
+   "kind": "fast_food",
+   "distM": 10,
+   "exact": false
+  },
+  {
+   "contentid": "851073",
+   "title": "장성향",
+   "poiId": "node/6659713085",
+   "poiName": "장성향",
+   "kind": "restaurant",
+   "distM": 15,
+   "exact": true
+  },
+  {
+   "contentid": "2785266",
+   "title": "영진돼지국밥",
+   "poiId": "node/4815402321",
+   "poiName": "영진돼지국밥  본점",
+   "kind": "fast_food",
+   "distM": 15,
+   "exact": false
+  },
+  {
+   "contentid": "2868912",
+   "title": "엘올리브",
+   "poiId": "node/9926488292",
+   "poiName": "엘올리브",
+   "kind": "restaurant",
+   "distM": 16,
+   "exact": true
+  },
+  {
+   "contentid": "2784325",
+   "title": "용암할매횟집",
+   "poiId": "node/368973322",
+   "poiName": "용암할매횟집",
+   "kind": "restaurant",
+   "distM": 32,
+   "exact": true
+  },
+  {
+   "contentid": "2872610",
+   "title": "월화횟집",
+   "poiId": "node/368957568",
+   "poiName": "월화횟집",
+   "kind": "restaurant",
+   "distM": 30,
+   "exact": true
+  },
+  {
+   "contentid": "851104",
+   "title": "정림전통한정식",
+   "poiId": "node/8440991699",
+   "poiName": "정림",
+   "kind": "restaurant",
+   "distM": 5,
+   "exact": false
+  },
+  {
+   "contentid": "2859101",
+   "title": "나가하마만게츠",
+   "poiId": "node/6761119587",
+   "poiName": "나가하마만게츠",
+   "kind": "restaurant",
+   "distM": 19,
+   "exact": true
+  },
+  {
+   "contentid": "135827",
+   "title": "동백섬횟집",
+   "poiId": "node/368957101",
+   "poiName": "동백섬횟집",
+   "kind": "restaurant",
+   "distM": 5,
+   "exact": true
+  },
+  {
+   "contentid": "2783646",
+   "title": "러브얼스",
+   "poiId": "node/12964466506",
+   "poiName": "러브얼스",
+   "kind": "cafe",
+   "distM": 27,
+   "exact": true
+  },
+  {
+   "contentid": "851286",
+   "title": "상국이네",
+   "poiId": "node/5438483522",
+   "poiName": "상국이네",
+   "kind": "restaurant",
+   "distM": 12,
+   "exact": true
+  },
+  {
+   "contentid": "2832729",
+   "title": "모모스커피 본점",
+   "poiId": "node/4681140489",
+   "poiName": "모모스",
+   "kind": "cafe",
+   "distM": 13,
+   "exact": false
+  },
+  {
+   "contentid": "2845011",
+   "title": "가마솥생복집",
+   "poiId": "node/11985230886",
+   "poiName": "가마솥생복집",
+   "kind": "restaurant",
+   "distM": 14,
+   "exact": true
+  },
+  {
+   "contentid": "2785956",
+   "title": "초량밀면",
+   "poiId": "node/7000227451",
+   "poiName": "초량밀면",
+   "kind": "restaurant",
+   "distM": 26,
+   "exact": true
+  },
+  {
+   "contentid": "2832649",
+   "title": "피크스퀘어",
+   "poiId": "node/5059790839",
+   "poiName": "피크스퀘어",
+   "kind": "cafe",
+   "distM": 17,
+   "exact": true
+  },
+  {
+   "contentid": "2668102",
+   "title": "수변최고돼지국밥 민락본점",
+   "poiId": "node/5826140856",
+   "poiName": "수변최고돼지국밥",
+   "kind": "restaurant",
+   "distM": 12,
+   "exact": false
+  },
+  {
+   "contentid": "1805792",
+   "title": "해동횟집",
+   "poiId": "node/368958366",
+   "poiName": "해동횟집",
+   "kind": "restaurant",
+   "distM": 47,
+   "exact": true
+  },
+  {
+   "contentid": "2845027",
+   "title": "이화장횟집",
+   "poiId": "node/368973289",
+   "poiName": "이화장횟집",
+   "kind": "restaurant",
+   "distM": 11,
+   "exact": true
+  },
+  {
+   "contentid": "2868655",
+   "title": "바로해장",
+   "poiId": "node/10839031223",
+   "poiName": "바로해장",
+   "kind": "restaurant",
+   "distM": 23,
+   "exact": true
+  },
+  {
+   "contentid": "2822840",
+   "title": "칠암사계",
+   "poiId": "node/9859610717",
+   "poiName": "칠암사계",
+   "kind": "cafe",
+   "distM": 52,
+   "exact": true
+  }
+ ]
+}
