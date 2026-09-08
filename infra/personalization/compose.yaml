@@ -287,7 +287,10 @@ services:
     deploy:
       resources:
         limits:
-          memory: 1g
+          # 🔴 S15P21E201-742 — 1g일 때 실사용이 942MB(94%)까지 올라간 것을
+          # janghyojoon님이 실측했다(2026-09-08, docker stats). 여유가 60MB뿐이라
+          # 조금만 더 쓰면 OOM으로 컨테이너가 죽는다. 2g로 올려 여유를 둔다.
+          memory: 2g
 
   airflow-worker:
     <<: *airflow-common
