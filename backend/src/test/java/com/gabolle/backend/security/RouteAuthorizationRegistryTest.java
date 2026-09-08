@@ -400,6 +400,8 @@ class RouteAuthorizationRegistryTest {
 				"내 여행 목록. 참여 표로 걸러 남의 여행이 섞이지 않는다. TripListIntegrationTest");
 		put(m, "GET /api/v1/trips/{}", Policy.OWNED,
 				"비회원은 존재를 감춘 404. TripControllerGetTest · ItineraryAccessIntegrationTest");
+		put(m, "DELETE /api/v1/trips/{}", Policy.OWNED,
+				"삭제는 OWNER 만. 동행자는 403, 비회원과 없는 여행은 같은 404. TripDeleteIntegrationTest");
 		put(m, "GET /api/v1/trips/{}/itineraries", Policy.OWNED,
 				"참여자만. 비회원과 없는 여행이 같은 404. TripItineraryListIntegrationTest");
 		put(m, "GET /api/v1/trips/{}/activity", Policy.OWNED,
