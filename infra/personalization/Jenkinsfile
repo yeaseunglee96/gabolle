@@ -212,18 +212,43 @@ pipeline {
             }
             steps {
                 sshagent(credentials: ['deploy-ssh-key']) {
-                    sh """
-                        ssh -o StrictHostKeyChecking=no ubuntu@${params.DEPLOY_HOST} '
-                          for i in \$(seq 1 24); do
-                            if curl -sf http://127.0.0.1:5000/health && curl -sf http://127.0.0.1:8082/api/v2/monitor/health; then
-                              exit 0
-                            fi
-                            echo "health check retry \$i/24..."
-                            sleep 10
-                          done
-                          exit 1
-                        '
-                    """
+                    script {
+                        // 🔴 S15P21E201-575 후속(2026-09-09) — 세 배포 파이프라인의 과거 실패
+                        //    45건을 전면 검토하다 발견한 공통 간극이다. 여기도 실패하면
+                        //    "health check retry" 줄만 24번 찍고 끝났다 — 어느 서비스가,
+                        //    왜 살아나지 못했는지는 매번 사람이 SSH로 들어가 직접 봐야 했다.
+                        //    (backend/Jenkinsfile 이 같은 이유로 이미 고쳤다 — S15P21E201-575)
+                        def healthy = sh(
+                            script: """
+                                ssh -o StrictHostKeyChecking=no ubuntu@${params.DEPLOY_HOST} '
+                                  for i in \$(seq 1 24); do
+                                    if curl -sf http://127.0.0.1:5000/health && curl -sf http://127.0.0.1:8082/api/v2/monitor/health; then
+                                      exit 0
+                                    fi
+                                    echo "health check retry \$i/24..."
+                                    sleep 10
+                                  done
+                                  exit 1
+                                '
+                            """,
+                            returnStatus: true
+                        ) == 0
+                        if (!healthy) {
+                            echo '🔴 Health check 실패 — mlflow/airflow 서비스 로그를 남긴다 (원인 진단용)'
+                            sh """
+                                ssh -o StrictHostKeyChecking=no ubuntu@${params.DEPLOY_HOST} \
+                                  'cd ${COMPOSE_PROJECT_DIR} && docker compose --env-file ${ENV_FILE} logs --tail=100 mlflow airflow-scheduler airflow-api-server airflow-worker' || true
+                            """
+                            env.HEALTH_FAILURE_DETAIL = sh(
+                                script: """
+                                    ssh -o StrictHostKeyChecking=no ubuntu@${params.DEPLOY_HOST} \
+                                      'cd ${COMPOSE_PROJECT_DIR} && docker compose --env-file ${ENV_FILE} logs --tail=300 mlflow airflow-scheduler airflow-api-server airflow-worker 2>&1 | grep -iE "error|exception|traceback|fatal" | tail -5' || true
+                                """,
+                                returnStdout: true
+                            ).trim()
+                            error 'Health check failed after retries'
+                        }
+                    }
                 }
             }
         }
@@ -243,12 +268,17 @@ pipeline {
         }
         failure {
             script {
+                // S15P21E201-575 후속 — Health Check 단계에서 실패했다면
+                // env.HEALTH_FAILURE_DETAIL 에 mlflow/airflow 로그에서 뽑은 실제 원인 줄이
+                // 담겨 있다. 롤백 안내(항상 유효한 정보)에 이어 붙인다 — 있으면 둘 다 보여준다.
+                def detail = env.HEALTH_FAILURE_DETAIL?.trim()
+                def rollbackHint = '이 Job을 ROLLBACK_TAG=이전 커밋 SHA 로 다시 실행하면 재빌드 없이 이전 버전으로 되돌릴 수 있다 (문서 12.2절)'
                 sendMMNotify(false, [
                     commit: sh(script: "git log -1 --pretty='%an: %s'", returnStdout: true).trim(),
                     buildUrl: env.BUILD_URL,
                     imageTag: env.IMAGE_TAG,
                     isRollback: env.IS_ROLLBACK,
-                    details: '이 Job을 ROLLBACK_TAG=이전 커밋 SHA 로 다시 실행하면 재빌드 없이 이전 버전으로 되돌릴 수 있다 (문서 12.2절)'
+                    details: detail ? "${rollbackHint}\n```\n${detail}\n```" : rollbackHint
                 ])
             }
         }
