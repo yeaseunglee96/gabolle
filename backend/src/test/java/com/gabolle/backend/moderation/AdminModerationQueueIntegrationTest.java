@@ -136,6 +136,13 @@ class AdminModerationQueueIntegrationTest {
 				.standaloneSetup(this.storyController, this.userSocialController, this.storyReportController,
 						this.adminModerationController)
 				.setControllerAdvice(this.storyExceptionHandler, this.moderationExceptionHandler).build();
+		// 🔴 검토 큐 전체를 보는 검사라, 남아 있는 미처리 신고가 상한(DEFAULT_LIMIT=50)을
+		//    채우면 이 테스트가 넣은 기록이 목록 밖으로 밀려 "큐에 없다" 로 실패한다.
+		//    CI 는 매번 새 DB 라 안 드러나지만, 같은 DB 로 여러 번 돌리면 쌓여서 어느
+		//    순간부터 실패한다 — 2026-09-08 에 실제로 그렇게 겪었고, 그때 원인을
+		//    프레임워크 판올림으로 오해할 뻔했다. 이 검사의 전제를 여기서 명시한다.
+		this.jdbc.update("DELETE FROM story_report");
+
 		this.admin = StoryFixture.insertUser(this.jdbc, "운영자");
 		ModerationFixture.promoteToAdmin(this.jdbc, this.admin);
 		this.author = StoryFixture.insertUser(this.jdbc, "작성자");
