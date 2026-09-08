@@ -66,6 +66,19 @@ public class InMemoryTripRepository implements TripRepository {
         return Optional.ofNullable(trips.get(tripId));
     }
 
+    /**
+     * S15P21E201-746 — JPA 판과 같은 규칙. 지운 시각이 찍힌 여행으로 바꿔 넣기만 한다.
+     *
+     * <p>여기 담긴 것은 도메인 객체 자체라 {@code markDeleted} 가 이미 그 객체를 바꿔
+     * 놓았을 수 있다. 그래도 다시 넣는 이유는 <b>저장이 일어나야 남는다</b> 는 규칙을
+     * 두 구현이 같게 지키기 위해서다 — 이 판만 저장 없이도 남으면, 저장을 빠뜨린 코드가
+     * 여기서는 통과하고 실제 DB 에서만 깨진다.
+     */
+    @Override
+    public void softDelete(Trip trip) {
+        trips.put(trip.tripId(), trip);
+    }
+
     @Override
     public List<TripConstraint> findConstraints(String tripId) {
         return constraints.getOrDefault(tripId, List.of());

@@ -50,7 +50,10 @@ public class PlaceReviewController {
 		PlaceReview.Scores scores = new PlaceReview.Scores(request.foodScore(), request.priceScore(),
 				request.accessibilityScore(), request.onsiteScore());
 		PlaceReview saved = this.placeReviewService.write(placeId, userId, scores, request.body(), request.region());
-		return ApiResponse.success(PlaceReviewResponse.from(saved), resolveRequestId(requestId));
+		// 🔴 방금 쓴 사람이 곧 작성자라 true 가 나올 것이지만, 손으로 true 를 박지 않고 목록과
+		// 같은 판정 함수(PlaceReviewResponse.from)를 통과시킨다 — 쓰기와 목록이 다른 규칙을
+		// 쓰면 언젠가 갈라진다.
+		return ApiResponse.success(PlaceReviewResponse.from(saved, userId), resolveRequestId(requestId));
 	}
 
 	/** 🔴 인증 여부와 무관하게 전부 보여준다 — 목록에서 걸러지는 것은 로컬 점수 계산뿐이다. */
@@ -58,9 +61,9 @@ public class PlaceReviewController {
 	public ApiResponse<PlaceReviewListResponse> list(@PathVariable UUID placeId, Authentication authentication,
 			@RequestHeader(value = "X-Request-Id", required = false) String requestId) {
 
-		AuthenticatedUsers.requireId(authentication);
+		UUID userId = AuthenticatedUsers.requireId(authentication);
 		PlaceReviewService.ListResult result = this.placeReviewService.list(placeId);
-		return ApiResponse.success(PlaceReviewListResponse.from(result), resolveRequestId(requestId));
+		return ApiResponse.success(PlaceReviewListResponse.from(result, userId), resolveRequestId(requestId));
 	}
 
 	private String resolveRequestId(String requestId) {

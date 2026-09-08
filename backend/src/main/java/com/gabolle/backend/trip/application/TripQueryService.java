@@ -34,11 +34,25 @@ public class TripQueryService {
 	 * 문서가 말하는 대로 조회 권한 판정은 그 표를 본다 — 회원이 아니면 "권한 없음(403)"
 	 * 이 아니라 "없음(404)" 으로 답한다. 403 은 "이 여행은 있는데 너는 못 본다" 를
 	 * 확인해 주는 것과 같아서, 존재 여부 자체가 새는 것을 막지 못한다.
+	 *
+	 * <h2>🔴 지운 여행도 없는 것으로 답한다 — S15P21E201-746</h2>
+	 *
+	 * 삭제는 행을 지우지 않고 {@code deleted_at} 을 찍는 방식이라, 이 검사가 없으면
+	 * <b>지워진 여행이 목록에서만 사라지고 그대로 열린다.</b> 식별자를 아는 사람은 계속
+	 * 조회하고 고치고 공유 링크까지 만들 수 있다.
+	 *
+	 * <p>검사를 여기 두는 이유는 이 메서드가 여행에 닿는 <b>공통 관문</b>이기 때문이다 —
+	 * 일정 열람·편집({@code ItineraryAccess}), 동행자 초대와 역할 변경, 공유 링크 발급,
+	 * 추천 요청이 전부 여기를 지난다. 각 경로에 검사를 흩어 두면 언젠가 한 곳을 빠뜨리고,
+	 * 그 한 곳이 지운 여행으로 들어가는 문이 된다.
 	 */
 	@Transactional(readOnly = true)
 	public View get(String tripId, String requesterUserId) {
 		Trip trip = this.repository.findById(tripId)
 				.orElseThrow(() -> new TripNotFoundException(tripId));
+		if (trip.isDeleted()) {
+			throw new TripNotFoundException(tripId);
+		}
 
 		List<TripMember> members = this.repository.findMembers(tripId);
 		TripMember requesterMembership = members.stream()

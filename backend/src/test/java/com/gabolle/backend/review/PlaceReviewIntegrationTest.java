@@ -8,7 +8,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -26,6 +28,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import com.gabolle.backend.place.support.PlaceFixture;
 import com.gabolle.backend.review.application.PlaceReviewService;
@@ -270,6 +275,90 @@ class PlaceReviewIntegrationTest extends ReviewPostgresIntegrationTest {
 			assertThat(lower).doesNotContain("lat").doesNotContain("lng").doesNotContain("longitude")
 					.doesNotContain("latitude");
 		}
+	}
+
+	@Test
+	@DisplayName("🔴 같은 목록 응답 안에서 내가 쓴 평가는 mine=true, 남이 쓴 평가는 mine=false 다 — S15P21E201-745")
+	void mineFlagDiffersWithinTheSameListResponse() throws Exception {
+		UUID placeId = this.placeFixture.insertPlace("장소H", null, "CAFE", 35.1, 129.1);
+		UUID me = createUser();
+		UUID someoneElse = createUser();
+
+		this.mockMvc.perform(post("/api/v1/places/{placeId}/reviews", placeId)
+						.principal(as(me))
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(reviewBody(5, null, null, null, "내 평가", "해운대구")))
+				.andExpect(status().isOk());
+		this.mockMvc.perform(post("/api/v1/places/{placeId}/reviews", placeId)
+						.principal(as(someoneElse))
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(reviewBody(1, null, null, null, "남의 평가", "해운대구")))
+				.andExpect(status().isOk());
+
+		// 같은 목록을 "나"의 시점으로 조회한다 — 전부 true 이거나 전부 false 인 응답 둘로는
+		// 배선이 실제로 사람마다 다른지 확인할 수 없다. 같은 응답 안에서 갈려야 진짜다.
+		//
+		// 🔴 목록 순서에 기대지 않는다. 정렬 규칙이 바뀌면 인덱스로 짚은 검사는 무엇이 틀렸는지
+		//    안 알려주고 그냥 빨개진다. 평가 본문으로 찾아 붙이고, 실패하면 응답 전체를 찍는다.
+		String json = this.mockMvc
+				.perform(get("/api/v1/places/{placeId}/reviews", placeId).principal(as(me)))
+				.andExpect(status().isOk())
+				.andReturn().getResponse().getContentAsString();
+
+		Map<String, JsonNode> rowByBody = new LinkedHashMap<>();
+		new ObjectMapper().readTree(json).path("data").path("reviews")
+				.forEach(row -> rowByBody.put(row.path("body").asText(), row));
+
+		assertThat(rowByBody.keySet()).as("응답 전체: %s", json).contains("내 평가", "남의 평가");
+		// 칸이 아예 없으면 asBoolean() 이 조용히 false 를 준다 — 먼저 참·거짓인지 본다.
+		assertThat(rowByBody.get("내 평가").path("mine").isBoolean()).as("응답 전체: %s", json).isTrue();
+		assertThat(rowByBody.get("내 평가").path("mine").asBoolean()).as("응답 전체: %s", json).isTrue();
+		assertThat(rowByBody.get("남의 평가").path("mine").asBoolean()).as("응답 전체: %s", json).isFalse();
+	}
+
+	@Test
+	@DisplayName("🔴 방금 쓴 응답도 mine=true 다 — write 와 list 가 같은 판정을 쓴다")
+	void mineFlagIsTrueOnTheWriteResponseItself() throws Exception {
+		UUID placeId = this.placeFixture.insertPlace("장소I", null, "CAFE", 35.1, 129.1);
+		UUID userId = createUser();
+
+		this.mockMvc.perform(post("/api/v1/places/{placeId}/reviews", placeId)
+						.principal(as(userId))
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(reviewBody(5, null, null, null, "내 평가", "해운대구")))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.data.mine").value(true));
+	}
+
+	/**
+	 * 🔴 익명을 지키는 회귀 검사 — S15P21E201-745. {@code mine} 한 칸만 실어 "누가 썼는지" 를
+	 * 알려주지 않는다는 설계를 이 테스트가 지킨다. 응답 JSON 문자열 안에 남의 사용자 번호가
+	 * 그대로 박혀 있으면 이 검사가 잡는다.
+	 */
+	@Test
+	@DisplayName("리뷰 목록 응답에 작성자 번호 문자열이 새지 않는다")
+	void listResponseDoesNotLeakAuthorId() throws Exception {
+		UUID placeId = this.placeFixture.insertPlace("장소J", null, "CAFE", 35.1, 129.1);
+		UUID me = createUser();
+		UUID someoneElse = createUser();
+
+		this.mockMvc.perform(post("/api/v1/places/{placeId}/reviews", placeId)
+						.principal(as(me))
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(reviewBody(5, null, null, null, "내 평가", "해운대구")))
+				.andExpect(status().isOk());
+		this.mockMvc.perform(post("/api/v1/places/{placeId}/reviews", placeId)
+						.principal(as(someoneElse))
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(reviewBody(1, null, null, null, "남의 평가", "해운대구")))
+				.andExpect(status().isOk());
+
+		String json = this.mockMvc
+				.perform(get("/api/v1/places/{placeId}/reviews", placeId).principal(as(me)))
+				.andExpect(status().isOk())
+				.andReturn().getResponse().getContentAsString();
+
+		assertThat(json).doesNotContain(me.toString()).doesNotContain(someoneElse.toString());
 	}
 
 	/**

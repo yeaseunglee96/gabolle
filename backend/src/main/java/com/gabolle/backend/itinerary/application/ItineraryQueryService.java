@@ -211,7 +211,10 @@ public class ItineraryQueryService {
 				item.locked(),
 				item.dataStatus().name(),
 				actual == null ? null : seoulIso(actual.arrivedAt()),
-				actual == null ? null : seoulIso(actual.departedAt()));
+				actual == null ? null : seoulIso(actual.departedAt()),
+				// S15P21E201-744 — item.placeId() 를 그대로 쓴다. place 에서 다시 꺼내도 같은
+				// 값이지만, 항목이 가리키는 값을 그대로 돌려주는 쪽이 의도가 분명하다.
+				item.placeId());
 	}
 
 	/** {@code visit_date} + {@code start_time} 을 ISO-8601 로 합친다. 시간대는 항상 Asia/Seoul 이다(API-03). */

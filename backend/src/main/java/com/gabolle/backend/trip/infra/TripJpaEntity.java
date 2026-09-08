@@ -120,6 +120,19 @@ public class TripJpaEntity {
 		this.deletedAt = deletedAt;
 	}
 
+	/**
+	 * 지운 시각을 찍는다 — S15P21E201-746. {@code status} 는 건드리지 않는다(도메인
+	 * {@link Trip#markDeleted} 와 같은 이유 — 지워지기 전에 어느 단계였는지가 남아야 한다).
+	 *
+	 * <p>🔴 값을 여기서 만들지 않고 <b>인자로 받는다.</b> 이 클래스가 지금 시각을 읽으면
+	 * 도메인이 정한 시각과 미세하게 어긋나고, 그러면 응답에 실린 시각과 표에 남은 시각이
+	 * 다른 값이 된다.
+	 */
+	void markDeleted(OffsetDateTime deletedAt, OffsetDateTime updatedAt) {
+		this.deletedAt = deletedAt;
+		this.updatedAt = updatedAt;
+	}
+
 	UUID tripId() { return tripId; }
 	UUID ownerUserId() { return ownerUserId; }
 	LocalDate startDate() { return startDate; }

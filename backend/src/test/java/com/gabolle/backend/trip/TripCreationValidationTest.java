@@ -20,6 +20,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.gabolle.backend.trip.application.PreferenceDefaultsService;
 import com.gabolle.backend.trip.application.TripCreationService;
+import com.gabolle.backend.trip.application.TripDeletionService;
 import com.gabolle.backend.trip.application.TripQueryService;
 import com.gabolle.backend.trip.domain.TimeWindows;
 import com.gabolle.backend.trip.domain.TravelModes;
@@ -55,7 +56,8 @@ class TripCreationValidationTest {
                 new PreferenceDefaultsService(repository, clock));
         TripQueryService queryService = new TripQueryService(repository);
 
-        TripController controller = new TripController(creationService, queryService);
+        TripController controller = new TripController(creationService, queryService,
+				new TripDeletionService(repository, clock));
         this.mockMvc = MockMvcBuilders.standaloneSetup(controller)
                 .setControllerAdvice(new TripExceptionHandler())
                 .build();
