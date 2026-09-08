@@ -1,0 +1,47 @@
+{
+  "id": "MA010120220805428543",
+  "worker": "haiku-2",
+  "researchedAt": "2026-09-08T16:43:11.248Z",
+  "queries": ["그집곱도리탕 부산진구 부산", "그집곱도리탕 부전동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.diningcode.com/profile.php?rid=gEtPX69s7327",
+    "https://triple.guide/restaurants/5e4a43d7-1c87-473f-a8ed-2b90765d8c8a"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "맛 묘사",
+      "note": "국물이 자작하고 얼큰하며 곱창의 고소한 맛, 깊고 진한 국물 특징",
+      "sources": [0]
+    },
+    {
+      "type": "원조·최초",
+      "note": "곱도리탕을 전국최초로 개발하여 판매한 원조 가게",
+      "sources": [1]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "곱창과 닭을 함께 즐기는 곱도리탕으로 불리는 시그니처 메뉴",
+      "sources": [0, 1]
+    },
+    {
+      "type": "서비스·사람",
+      "note": "응대와 맛 부분에서 높은 평가를 받으며 식사 및 술안주로 적합",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": "some",
+    "parking": false,
+    "audience": "mixed",
+    "signatureDishes": ["곱도리탕", "닭도리탕"],
+    "priceBand": "high"
+  },
+  "notFound": null,
+  "notes": "서면 중심가에 위치, 1인 1메뉴 주문 정책 있음. 7세 이하 어린이 출입 불가"
+}

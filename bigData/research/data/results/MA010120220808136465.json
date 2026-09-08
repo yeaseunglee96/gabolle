@@ -1,0 +1,46 @@
+{
+  "id": "MA010120220808136465",
+  "worker": "haiku-3",
+  "researchedAt": "2026-09-08T16:48:19.433Z",
+  "queries": ["오성가든 부산진구 부산", "오성가든 부전동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.diningcode.com/profile.php?rid=dQothzyDsdds"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "오리주물럭이 주요 메뉴로 양이 푸짐하고 양념이 잘 배어있음",
+      "sources": [0]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "오리주물럭이 36,000원으로 가성비가 있다고 평가",
+      "sources": [0]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "야외 테라스에 포장마차 감성이 있어 캐주얼하고 서민적",
+      "sources": [0]
+    },
+    {
+      "type": "현지인 지지",
+      "note": "지역주민이 찾는 숨은맛집으로 술모임, 회식, 단체모임에 적합",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": "some",
+    "parking": false,
+    "audience": "local",
+    "signatureDishes": ["오리주물럭"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": ""
+}

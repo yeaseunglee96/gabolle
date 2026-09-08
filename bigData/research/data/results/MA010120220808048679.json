@@ -1,0 +1,47 @@
+{
+  "id": "MA010120220808048679",
+  "worker": "haiku-3",
+  "researchedAt": "2026-09-08T16:50:34.053Z",
+  "queries": ["거대갈비 해운대구 부산", "거대갈비 중동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.siksinhot.com/P/369631",
+    "https://www.diningcode.com/profile.php?rid=4aUr9YpiuuvQ"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "조리·재료",
+      "note": "부드러운 투뿔 암소 한우를 사용하여 입에 살살 녹음",
+      "sources": [0, 1]
+    },
+    {
+      "type": "맛 묘사",
+      "note": "양념갈비 특유의 달큰하면서도 짭조름한 맛",
+      "sources": [1]
+    },
+    {
+      "type": "서비스·사람",
+      "note": "직원이 직접 고기를 구워주는 편의성과 전문적 조리",
+      "sources": [1]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "프리미엄 가격대이지만 품질에 부합하는 가성비 평가",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "easy",
+    "audience": null,
+    "signatureDishes": ["거대 특수부위", "거대곰탕"],
+    "priceBand": "high"
+  },
+  "notFound": null,
+  "notes": ""
+}

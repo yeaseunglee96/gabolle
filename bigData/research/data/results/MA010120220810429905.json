@@ -1,0 +1,42 @@
+{
+  "id": "MA010120220810429905",
+  "worker": "haiku-2",
+  "researchedAt": "2026-09-08T16:43:11.248Z",
+  "queries": ["제주할매순대국밥 영도 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.diningcode.com/profile.php?rid=7pt4tPAmKG1b",
+    "https://triple.guide/restaurants/730afaca-d74c-4ffb-9eb8-8a6c61fe299c"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "맛 묘사",
+      "note": "구수한 맛, 푸짐한 양의 순대국밥",
+      "sources": [0]
+    },
+    {
+      "type": "연차·역사",
+      "note": "1975년부터 반백년 이상 운영 중인 노포",
+      "sources": [0]
+    },
+    {
+      "type": "현지인 지지",
+      "note": "유명 요리전문가도 방문할 정도로 인정받는 맛집",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 50,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["순대국밥", "비계국밥"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "남항시장 골목, 일요일 휴무"
+}

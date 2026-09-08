@@ -1,0 +1,47 @@
+{
+  "id": "MA0101202502A0010948",
+  "worker": "haiku-2",
+  "researchedAt": "2026-09-08T16:43:11.248Z",
+  "queries": ["행복식당 해운대 2호점 부산", "행복식당 달맞이길 백반 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": [
+    "https://www.diningcode.com/profile.php?rid=l02E7wwwLAsV",
+    "https://triple.guide/restaurants/5e0a7f07-d1f8-4d4c-8679-2ded714894c8"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "맛 묘사",
+      "note": "신선한 조개와 해물로 조개구이부터 회, 매운탕까지 풀코스 즐길 수 있음",
+      "sources": [0, 1]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "해운대 바다 바로 앞 위치로 야외 테이블에서 해양 경관을 감상하며 식사",
+      "sources": [0]
+    },
+    {
+      "type": "서비스·사람",
+      "note": "친절한 서비스와 푸짐한 양으로 고객 평가 좋음",
+      "sources": [1]
+    },
+    {
+      "type": "운영·접근 편의",
+      "note": "무료 주차 지원, 새벽 03시까지 늦게까지 영업",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["조개구이", "해물라면", "회"],
+    "priceBand": "high"
+  },
+  "notFound": null,
+  "notes": "해변 바로 옆 위치로 관광객과 현지인 모두 방문. 세트메뉴 48,000원~"
+}

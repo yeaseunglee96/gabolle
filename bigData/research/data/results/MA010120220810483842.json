@@ -1,0 +1,47 @@
+{
+  "id": "MA010120220810483842",
+  "worker": "haiku-2",
+  "researchedAt": "2026-09-08T16:43:11.248Z",
+  "queries": ["가야밀면 해운대 부산", "가야밀면 좌동 밀면 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.diningcode.com/profile.php?rid=Y8MFfxSbfvDn",
+    "https://www.tabling.co.kr/restaurant/5774"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "맛 묘사",
+      "note": "소양지, 닭, 한약재를 넣고 48시간 끓인 후 1년 이상 숙성한 깔끔한 육수",
+      "sources": [0]
+    },
+    {
+      "type": "연차·역사",
+      "note": "1998년 설립해 20년 이상 전통을 이어온 부산 3대 밀면 중 하나",
+      "sources": [0, 1]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "가성비 좋은 가격대로 평가받음",
+      "sources": [0]
+    },
+    {
+      "type": "혼잡·수요",
+      "note": "인기가 높아 웨이팅이 발생하며 전국에서 여행객들이 찾는 곳",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 22,
+    "generations": null,
+    "queueing": "some",
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["밀면", "비빔면", "감자피 만두"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "중동역에서 도보 4분 거리. 무료주차, 배달 가능"
+}
