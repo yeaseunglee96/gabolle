@@ -160,8 +160,13 @@
       "envVar": "DATA_GO_KR_KEY",
       "applyUrl": "https://www.data.go.kr/",
       "script": "collect/tourapi.mjs",
-      "status": "활용신청 승인 (2026-09-06 · 개발계정 · 2028-09-06 만료). 아직 호출하지 않음",
-      "note": "🔴 승인은 났지만 응답을 한 번도 못 봤다. 그래서 온톨로지의 bm:openingHoursNormalized 는 아직 미수집이고 필드 이름을 적지 않았다."
+      "endpoint": "https://apis.data.go.kr/B551011/KorService2",
+      "areaCode": 6,
+      "status": "받음 (2026-09-08 · 부산 662곳 7종 · data/raw/tourapi/tourapi-busan.ndjson)",
+      "//2026-09-08-실측": "🔴 버전 2 만 살아 있다. KorService1/areaBasedList1 은 HTTP 400 으로 죽었다. endpoint 는 오퍼레이션 앞까지의 공통 부분이고 수집기가 뒤에 areaBasedList2 · detailIntro2 를 붙인다. areaCode 6 = 부산.",
+      "//필드": "🔴 영업시간 필드 이름이 분류마다 다르다 — 하나로 받으면 대부분이 빈다. 음식점(39) opentimefood · restdatefood / 관광지(12) usetime · restdate / 문화시설(14) usetimeculture · restdateculture. 그래서 수집기는 이름을 뭉개지 않고 원문 그대로 남긴다. 해석은 process/ 의 몫이다.",
+      "//분류별-부산-2026-09-08": "관광지 140 · 문화시설 35 · 축제행사 15 · 레포츠 30 · 숙박 65 · 쇼핑 49 · 음식점 328 = 662곳",
+      "note": "온톨로지의 bm:openingHoursNormalized 가 이것을 기다렸다. 호출 한도는 오퍼레이션마다 따로 걸리므로 BIMS 실시간 버스 폴링을 갉아먹지 않는다."
     },
     {
       "id": "tourapi-barrier-free",
@@ -171,10 +176,13 @@
       "auth": "apikey",
       "envVar": "DATA_GO_KR_KEY",
       "applyUrl": "https://www.data.go.kr/data/15101897/openapi.do",
-      "script": null,
-      "status": "활용신청 승인 (2026-09-06 · 개발계정 · 2028-09-06 만료). 아직 호출하지 않음",
-      "note": "🔴 왜 tourapi 와 따로 두었나 — 데이터셋이 다르고 인증신청도 따로 났다. 한쪽이 막혀도 다른 쪽은 돈다. 온톨로지의 bm:placeWheelchairAccessible 이 이것을 기다린다. 지금 휠체어 규칙은 전부 길과 이동에만 걸려 있어서, 길을 다 통과하고도 문 앞에서 막히는 경우를 말할 수 없다.",
-      "//필드": "🔴 응답 필드 이름을 여기 적지 않았다. 승인만 났고 한 번도 호출하지 않았다 — 본 뒤에 적는다."
+      "script": "collect/tourapi-barrier-free.mjs",
+      "endpoint": "https://apis.data.go.kr/B551011/KorWithService2",
+      "areaCode": 6,
+      "status": "받음 (2026-09-08 · 부산 182곳 · data/raw/tourapi/tourapi-barrier-free-busan.ndjson)",
+      "note": "🔴 왜 tourapi 와 따로 두었나 — 데이터셋이 다르고 인증신청도 따로 났다. 한쪽이 막혀도 다른 쪽은 돈다. 온톨로지의 bm:placeWheelchairAccessible 이 이것을 기다렸다. 지금 휠체어 규칙은 전부 길과 이동에만 걸려 있어서, 길을 다 통과하고도 문 앞에서 막히는 경우를 말할 수 없었다.",
+      "//2026-09-08-실측": "🔴 버전 2 만 살아 있다. KorWithService1 은 HTTP 400 이다. 오퍼레이션은 areaBasedList2(목록) · detailWithTour2(상세).",
+      "//필드": "detailWithTour2 가 내는 29개 (2026-09-08 실측): wheelchair · elevator · restroom · exit · parking · publictransport · route · ticketoffice · promotion · handicapetc · braileblock · helpdog · guidehuman · audioguide · bigprint · brailepromotion · guidesystem · blindhandicapetc · signguide · videoguide · hearingroom · hearinghandicapetc · stroller · lactationroom · babysparechair · infantsfamilyetc · room · auditorium · contenttypeid. 휠체어뿐 아니라 시각·청각·유아동반까지 함께 온다."
     },
     {
       "id": "busan-street-trees",
@@ -291,6 +299,7 @@
       "script": null,
       "status": "활용신청 승인 (2026-09-06 · 개발계정 · 2028-09-06 만료). 아직 호출하지 않음",
       "//2026-08-28-실측": "🔴 앞선 조사가 지목한 데이터셋 번호 15000522 는 **존재하지 않는다** (fileData·openapi·standard 전부 HTTP 404 확인). 실제 시각표는 이 오픈API 하나뿐이고 파일데이터가 없다. 엔드포인트 주소는 로그인 전에 안 보이므로 지어내지 않았다.",
+      "//2026-09-08-실측": "🔴 주소를 짐작으로 찾는 것은 실패했다. 같은 날 관광공사 둘은 실제 인증키로 받아냈지만 이것만 못 했다. 아래 다섯을 실제로 불러 봤고 전부 '그런 서비스 없음(HTTP 400)' 이다 — 다시 재지 마라. 6260000/BusanTrainTimeTableInfoService/getBusanTrainTimeTableInfo · 6260000/subwayTimeTable/getSubwayTimeTable · 6260000/HumetroTimeTable/getHumetroTimeTable · 6260000/BusanSubwayTimeTable/getBusanSubwayTimeTable · 6260000/TrainTimeTableService/getTrainTimeTable. 남은 길은 하나뿐이다: data.go.kr 에 로그인해 마이페이지 > 활용신청 상세를 열면 End Point 가 보인다. 그 값을 이 항목의 endpoint 에 넣으면 collect/tourapi.mjs 와 같은 모양의 수집기를 붙일 수 있다.",
       "note": "이것이 오는 순간 산출물의 stationFirstTrain / stationLastTrain 이 채워진다. 지금은 전부 null 이다."
     },
     {
