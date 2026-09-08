@@ -29,13 +29,13 @@ export default function StoryDetail() {
       {story ? (
         <View style={styles.card}>
           <View style={styles.headerRow}>
-            <View style={styles.grow}>
+            <Pressable accessibilityRole="link" accessibilityLabel={tx(`${story.author.displayName} 프로필 보기`, `View ${story.author.displayName}'s profile`)} onPress={() => router.push(`/user/${story.author.id}`)} style={styles.grow}>
               <Text variant="title" weight="bold">{story.author.displayName}</Text>
               <Text variant="caption" color={color.text.muted}>
                 {relativeStoryTime(story.createdAt, tx)}
                 {story.place?.name ? ` · ${story.place.name}` : story.region ? ` · ${story.region}` : ''}
               </Text>
-            </View>
+            </Pressable>
             {story.mine && story.visibility !== 'PUBLIC' ? (
               <View style={styles.visibilityBadge}><Text variant="caption" weight="bold" color={color.text.muted}>{tx(...VISIBILITY_LABEL[story.visibility])}</Text></View>
             ) : null}
