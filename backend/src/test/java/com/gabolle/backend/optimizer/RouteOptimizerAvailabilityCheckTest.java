@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * CI 가 파이썬 경로 최적화(OR-Tools) 실행 환경을 실제로 갖췄는지 검증한다 — S15P21E201-161.
