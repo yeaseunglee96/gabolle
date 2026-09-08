@@ -76,7 +76,8 @@ export default function UserProfile() {
             <View style={styles.stat}><Text variant="title" weight="bold">{state.profile.followerCount}</Text><Text variant="caption" color={color.text.muted}>{tx('팔로워', 'Followers')}</Text></View>
             <View style={styles.stat}><Text variant="title" weight="bold">{state.profile.followingCount}</Text><Text variant="caption" color={color.text.muted}>{tx('팔로잉', 'Following')}</Text></View>
           </View>
-          {accessToken && user?.userId !== state.profile.userId ? (
+          {/* 문자열로 맞춰 비교한다 — 두 응답의 userId가 타입 선언과 다르게 오면(숫자 vs 문자열) !==가 늘 참이 되어 본인 프로필에도 팔로우 버튼이 뜬다. */}
+          {accessToken && String(user?.userId ?? '') !== String(state.profile.userId) ? (
             <Button
               label={followBusy ? tx('처리 중…', 'Working…') : state.profile.following ? tx('팔로잉', 'Following') : tx('팔로우', 'Follow')}
               variant={state.profile.following ? 'ghost' : 'primary'}
