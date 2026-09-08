@@ -19,6 +19,7 @@ import com.gabolle.backend.itinerary.domain.ItineraryVersion;
 import com.gabolle.backend.itinerary.infra.InMemoryItineraryRepository;
 import com.gabolle.backend.itinerary.presentation.ItineraryQueryController;
 import com.gabolle.backend.itinerary.presentation.dto.ItineraryDetailResponse;
+import com.gabolle.backend.itinerary.support.FakeItineraryItemActualRepository;
 import com.gabolle.backend.place.domain.Place;
 import com.gabolle.backend.place.repository.PlaceRepository;
 import com.gabolle.backend.recommendation.repository.RecommendationJobRepository;
@@ -68,8 +69,12 @@ class ItineraryQueryServiceTest {
 		this.itineraryAccess = new ItineraryAccess(this.itineraryRepository, this.tripQueryService);
 		this.placeRepository = mock(PlaceRepository.class);
 		this.recommendationJobRepository = mock(RecommendationJobRepository.class);
+		// S15P21E201-293 — 실제 도착·출발 시각 저장소. 이 테스트들은 기록이 하나도 없는
+		// 상태를 보므로 빈 대역이면 충분하다(기록이 있을 때의 응답은
+		// ItineraryActualTimeServiceTest 가 본다).
 		this.service = new ItineraryQueryService(this.itineraryRepository, this.itineraryAccess,
-				this.placeRepository, this.recommendationJobRepository, mock(ActorNames.class));
+				this.placeRepository, this.recommendationJobRepository, mock(ActorNames.class),
+				new FakeItineraryItemActualRepository());
 
 		Place place = mock(Place.class);
 		when(place.getPlaceId()).thenReturn(this.placeId);

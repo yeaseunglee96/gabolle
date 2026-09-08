@@ -110,6 +110,66 @@ public class SecurityEventLogger {
 		this.alertNotifier.recordAndMaybeAlert(SecurityEvent.AUTH_ACCOUNT_LOCKED);
 	}
 
+	/**
+	 * 이미 잠긴 계정으로 로그인이 다시 시도된 지점에서 남긴다.
+	 *
+	 * <h2>🔴 {@link #accountLocked} 로는 이것을 볼 수 없다</h2>
+	 * 그쪽은 임계치에 <b>닿는 순간 한 번만</b> 남는다. 그 뒤 잠금이 풀릴 때까지 오는 시도는
+	 * 지금까지 어디에도 안 남았다. 그래서 "잠갔더니 공격이 멈췄다" 와 "잠긴 채로 계속 두드려
+	 * 맞고 있다" 를 구분할 방법이 없었다. 잠금이 실제로 값을 내고 있는지 판단하려면 잠긴 뒤의
+	 * 시도 수가 필요하다.
+	 *
+	 * <p>{@code attempts} 를 안 싣는다. 잠긴 뒤에는 실패 횟수를 더 올리지 않으므로(비밀번호를
+	 * 보기도 전에 거부한다) 그 값은 임계치에 멈춰 있고, 실으면 로그를 세는 쪽이 "아직 임계치에
+	 * 막 닿았다" 로 잘못 읽는다. 대신 {@code lockedForSeconds} 로 <b>얼마나 더 잠겨 있는지</b>를
+	 * 싣는다 — 같은 잠금 구간 안의 반복인지 새 잠금인지 구분하는 데 쓴다.
+	 */
+	public void lockedAccountAttempt(String email, long lockedForSeconds) {
+		log.warn("event={} emailHash={} remoteIp={} lockedForSeconds={} outcome=REJECTED",
+				SecurityEvent.AUTH_LOCKED_ACCOUNT_ATTEMPT, hashEmail(email), resolveRemoteIp(), lockedForSeconds);
+		this.alertNotifier.recordAndMaybeAlert(SecurityEvent.AUTH_LOCKED_ACCOUNT_ATTEMPT);
+	}
+
+	/**
+	 * 허용 목록에 없는 redirect URI 로 소셜 로그인 챌린지를 요청한 지점에서 남긴다.
+	 *
+	 * <h2>🔴 URI 를 그대로 싣지 않는다 — 호스트만 싣는다</h2>
+	 * 이 값은 <b>공격자가 정한 문자열</b>이다. 경로와 질의에 무엇이든 넣을 수 있고, 그중에는
+	 * 훔친 표나 남의 개인정보가 섞여 있을 수 있다. 그것을 우리 로그에 그대로 적으면 우리가
+	 * 저장하지 않기로 한 것을 공격자가 우리 로그에 대신 적어 넣게 된다.
+	 *
+	 * <p>조사에 필요한 것은 "어디로 보내려 했나" 이고 그건 호스트로 충분하다. 파싱이 안 되는
+	 * 값이면 {@code unparsable} 로만 남긴다 — 원문을 남기려고 예외를 무시하지 않는다.
+	 */
+	public void oauthRedirectRejected(String provider, String rejectedRedirectUri) {
+		log.warn("event={} provider={} remoteIp={} redirectHost={} outcome=REJECTED",
+				SecurityEvent.AUTH_OAUTH_REDIRECT_REJECTED, provider, resolveRemoteIp(),
+				hostOf(rejectedRedirectUri));
+		this.alertNotifier.recordAndMaybeAlert(SecurityEvent.AUTH_OAUTH_REDIRECT_REJECTED);
+	}
+
+	/**
+	 * 주소의 호스트만 뽑는다. 실패하면 원문을 남기지 않고 {@code unparsable} 이다.
+	 *
+	 * <p>포트가 있으면 함께 남긴다 — 같은 호스트의 다른 포트로 돌리려는 시도가 실제로 있다.
+	 */
+	private static String hostOf(String uri) {
+		if (uri == null || uri.isBlank()) {
+			return "none";
+		}
+		try {
+			java.net.URI parsed = java.net.URI.create(uri.trim());
+			String host = parsed.getHost();
+			if (host == null || host.isBlank()) {
+				return "unparsable";
+			}
+			return parsed.getPort() < 0 ? host : host + ":" + parsed.getPort();
+		}
+		catch (IllegalArgumentException ex) {
+			return "unparsable";
+		}
+	}
+
 	/** 토큰이 없거나 유효하지 않아 401 이 나가는 지점에서 남긴다. {@code reasonCode} 는 {@code AuthException} 의 코드다. */
 	public void tokenRejected(String reasonCode) {
 		log.info("event={} remoteIp={} reason={} outcome=REJECTED", SecurityEvent.AUTH_TOKEN_REJECTED,

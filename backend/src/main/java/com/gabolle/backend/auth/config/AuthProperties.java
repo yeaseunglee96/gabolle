@@ -67,6 +67,23 @@ public class AuthProperties {
 	private String passwordResetBaseUrl = "https://j15e201.p.ssafy.io/auth/password/reset";
 	private List<String> oauthAllowedRedirectUris = new ArrayList<>();
 	private List<String> corsAllowedOrigins = new ArrayList<>();
+	/**
+	 * 기동할 때 운영자(ADMIN)로 올릴 계정의 이메일 — S15P21E201-225.
+	 *
+	 * <p>🔴 <b>기본값을 두지 않는다.</b> 비어 있는 것이 정상 상태고, 그때는 아무도 운영자가
+	 * 아니다. 여기에 계정을 하나라도 미리 적어 두면 그 배포에서는 아무 확인 없이 그 사람이
+	 * 신고 검토 큐를 열 수 있다 — "설정이 없으면 편의상 기본값을 쓴다" 가 보안 구멍이 되는
+	 * 자리가 정확히 여기다. 그래서 값을 주는 일은 배포하는 사람의 명시적인 행동이어야 한다.
+	 *
+	 * <p>이 목록이 <b>유일한 사실</b>이다. 여기에 없는 계정이 이미 ADMIN 이면 다음 기동에서
+	 * USER 로 내려간다. 값을 지우는 것만으로 권한이 회수돼야 하기 때문이다 — 목록에서 뺐는데도
+	 * 그 사람이 계속 운영자로 남으면, 권한을 회수하는 방법이 다시 "DB 를 손으로 고치기" 가 된다.
+	 *
+	 * <p>적은 이메일의 계정이 없으면 기동이 <b>실패</b>한다. 오타 하나로 "운영자를 지정했다고
+	 * 생각했는데 아무도 없는" 상태가 조용히 유지되는 것을 막는다. 자세한 동작은
+	 * {@link AdminRoleStartupSynchronizer} 에 있다.
+	 */
+	private List<String> adminEmails = new ArrayList<>();
 	private String webRefreshCookieName = "gabolle_refresh_token";
 	private boolean webRefreshCookieSecure = true;
 	private String webRefreshCookieSameSite = "Strict";
@@ -217,6 +234,14 @@ public class AuthProperties {
 
 	public boolean isAllowedOauthRedirectUri(String redirectUri) {
 		return redirectUri != null && oauthAllowedRedirectUris.stream().anyMatch(redirectUri::equals);
+	}
+
+	public List<String> getAdminEmails() {
+		return adminEmails;
+	}
+
+	public void setAdminEmails(List<String> adminEmails) {
+		this.adminEmails = adminEmails == null ? new ArrayList<>() : adminEmails;
 	}
 
 	public List<String> getCorsAllowedOrigins() {

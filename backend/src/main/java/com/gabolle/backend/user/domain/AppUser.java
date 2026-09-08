@@ -163,6 +163,31 @@ public class AppUser {
 		return role;
 	}
 
+	/**
+	 * 이 계정을 운영자로 올린다 — S15P21E201-225.
+	 *
+	 * <p>🔴 이 메서드를 부를 수 있는 곳은 기동 시점 동기화({@code AdminRoleStartupSynchronizer})
+	 * 하나뿐이다. 운영자를 만드는 HTTP 경로는 만들지 않았다 — 그 경로가 있으면 그 자체가
+	 * 새 공격면이 되고, "누가 운영자인가" 의 근거가 배포 설정이 아니라 요청 기록으로 흩어진다.
+	 *
+	 * <p>가입 팩토리({@link #register})가 {@code role} 을 인자로 받지 않는 것도 같은 이유다.
+	 * 운영자 권한은 가입으로 얻을 수 있는 값이 아니다.
+	 */
+	public void grantAdmin() {
+		this.role = UserRole.ADMIN;
+	}
+
+	/**
+	 * 운영자 권한을 회수한다.
+	 *
+	 * <p>배포 설정의 목록에서 빠진 계정에 대해 부른다. 올리는 일만 있고 내리는 일이 없으면
+	 * 한 번 운영자가 된 사람은 설정에서 지워도 계속 운영자로 남고, 회수하는 방법이 다시
+	 * "DB 를 손으로 고치기" 로 돌아간다.
+	 */
+	public void revokeAdmin() {
+		this.role = UserRole.USER;
+	}
+
 	public void activate() {
 		status = UserStatus.ACTIVE;
 	}

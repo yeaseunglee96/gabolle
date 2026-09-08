@@ -91,7 +91,7 @@ class PlaceDetailResponseSerializationTest {
 				UUID.randomUUID(), "샘플장소", null, null, null, null, null,
 				new PlaceDetailResponse.Provenance(null, null, null, null, null),
 				List.of(),
-				new PlaceDetailResponse.ItineraryInclusion("UNAVAILABLE", "ITINERARY_ITEMS_NOT_STORED"),
+				new PlaceDetailResponse.ItineraryInclusion("UNAVAILABLE", "ITINERARY_NOT_SPECIFIED"),
 				addressEn, photoUrl, photoSource, openingHours, priceLevel, resolvedLanguage);
 	}
 }

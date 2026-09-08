@@ -37,7 +37,9 @@ import com.gabolle.backend.trip.domain.TripRepository;
 /**
  * 여행 기록의 작성·조회·수정·삭제 — S15P21E201-207 · -221 · -226.
  *
- * <h2>누가 무엇을 볼 수 있나 (한 곳에서만 판정한다)</h2>
+ * <h2>누가 무엇을 볼 수 있나</h2>
+ * 판정 자체는 {@link StoryVisibilityPolicy} 가 한다({@code StoryReportService} 도 같은 것을 쓴다 —
+ * S15P21E201-254 뽑아내기). 이 클래스가 그 결과로 무엇을 하는지만 적는다.
  * <ul>
  *   <li>작성자는 자기 기록을 언제나 본다 — 공개 전이든, 나만 보기든</li>
  *   <li>남은 <b>공개 시각이 지난</b> 기록만, 그것도 PUBLIC 이거나 (FOLLOWERS 이고 그 사람을 팔로우할 때)만 본다</li>
@@ -77,12 +79,15 @@ public class StoryService {
 
 	private final StoryResponseAssembler assembler;
 
+	private final StoryVisibilityPolicy visibilityPolicy;
+
 	private final Clock clock;
 
 	public StoryService(StoryRepository storyRepository, StoryImageRepository storyImageRepository,
 			UploadedImageRepository uploadedImageRepository, UserFollowRepository userFollowRepository,
 			TripRepository tripRepository, PlaceRepository placeRepository,
-			StorageCleanupService storageCleanupService, StoryResponseAssembler assembler, Clock clock) {
+			StorageCleanupService storageCleanupService, StoryResponseAssembler assembler,
+			StoryVisibilityPolicy visibilityPolicy, Clock clock) {
 		this.storyRepository = storyRepository;
 		this.storyImageRepository = storyImageRepository;
 		this.uploadedImageRepository = uploadedImageRepository;
@@ -91,6 +96,7 @@ public class StoryService {
 		this.placeRepository = placeRepository;
 		this.storageCleanupService = storageCleanupService;
 		this.assembler = assembler;
+		this.visibilityPolicy = visibilityPolicy;
 		this.clock = clock;
 	}
 
@@ -130,10 +136,20 @@ public class StoryService {
 		return this.assembler.one(story, authorUserId, now);
 	}
 
+	/**
+	 * 🔴 S15P21E201-254 — {@code findVisibleById} 를 쓴다({@code findActiveById} 가 아니다). 신고를
+	 * 받으면 상세에서도 즉시 사라져야 하는데, 그 조건({@code moderation_state = 'VISIBLE'})은 여기서만
+	 * 걸어야 한다 — {@link #requireAuthor}(수정·삭제 경로)까지 같이 걸면 작성자가 신고당한 자기
+	 * 기록을 고치거나 지울 수 없게 된다({@code StoryRepository.findActiveById} 주석 참고).
+	 */
 	@Transactional(readOnly = true)
 	public StoryResponse get(UUID storyId, UUID viewer) {
 		Instant now = this.clock.instant();
-		Story story = requireVisible(storyId, viewer, now);
+		Story story = this.storyRepository.findVisibleById(storyId)
+				.orElseThrow(() -> new StoryNotFoundException(storyId));
+		if (!this.visibilityPolicy.canView(story, viewer, now)) {
+			throw new StoryNotFoundException(storyId);
+		}
 		return this.assembler.one(story, viewer, now);
 	}
 
@@ -178,7 +194,7 @@ public class StoryService {
 	Story requireVisible(UUID storyId, UUID viewer, Instant now) {
 		Story story = this.storyRepository.findActiveById(storyId)
 				.orElseThrow(() -> new StoryNotFoundException(storyId));
-		if (!canView(story, viewer, now)) {
+		if (!this.visibilityPolicy.canView(story, viewer, now)) {
 			throw new StoryNotFoundException(storyId);
 		}
 		return story;
@@ -190,20 +206,6 @@ public class StoryService {
 			throw new StoryForbiddenException(storyId);
 		}
 		return story;
-	}
-
-	boolean canView(Story story, UUID viewer, Instant now) {
-		if (story.isAuthor(viewer)) {
-			return true;
-		}
-		if (!story.isPublishedAt(now)) {
-			return false;
-		}
-		return switch (story.getVisibility()) {
-			case PUBLIC -> true;
-			case FOLLOWERS -> this.userFollowRepository.existsByKey(new UserFollow.Key(viewer, story.getAuthorUserId()));
-			case PRIVATE -> false;
-		};
 	}
 
 	/** 요청자가 작성자에 대해 볼 수 있는 공개 범위 목록 — 프로필 피드가 쓴다. */

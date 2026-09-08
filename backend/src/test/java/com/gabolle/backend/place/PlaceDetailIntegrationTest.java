@@ -137,15 +137,42 @@ class PlaceDetailIntegrationTest extends PlacePostgresIntegrationTest {
 				.doesNotContain("POPULARITY_SCORE", "CROWDING_SCORE");
 	}
 
+	/**
+	 * 어느 일정인지 안 물었으면 답이 없는 것이 정상이다. 🔴 여기서 {@code NOT_INCLUDED} 를
+	 * 돌려주면 화면이 "이 장소는 일정에 없다" 고 단정하게 되는데, 그것은 확인한 사실이 아니라
+	 * 물어보지 않은 것이다.
+	 */
 	@Test
-	@DisplayName("🔴 일정 포함 여부는 false 가 아니라 알 수 없음이다 — 담을 표가 아직 없다")
-	void itineraryInclusionIsUnavailableNotFalse() {
+	@DisplayName("일정을 지정하지 않으면 포함 여부는 false 가 아니라 알 수 없음이다")
+	void inclusionIsUnavailableWhenNoItineraryIsGiven() {
 		UUID placeId = this.fixture.insertPlace("일정확인", null, "ATTRACTION", 35.1, 129.0);
 
 		PlaceDetailResponse detail = this.placeDetailService.get(placeId, UUID.randomUUID());
 
 		assertThat(detail.itineraryInclusion().state()).isEqualTo("UNAVAILABLE");
-		assertThat(detail.itineraryInclusion().reason()).isEqualTo("ITINERARY_ITEMS_NOT_STORED");
+		assertThat(detail.itineraryInclusion().reason()).isEqualTo("ITINERARY_NOT_SPECIFIED");
+		// 포함 여부를 모른다고 장소 정보가 비지 않는다.
+		assertThat(detail.placeId()).isEqualTo(placeId);
+		assertThat(detail.nameKo()).endsWith("일정확인");
+	}
+
+	/**
+	 * 이 슬라이스({@code PlaceSliceApplication})는 {@code common}·{@code place} 만 스캔하므로
+	 * {@code ItineraryMembershipPort} 구현이 빈으로 없다. 그때도 조회는 성공하고 포함 여부만
+	 * "모른다" 로 나가는지를 여기서 지킨다 — 배선이 빠진 것을 {@code NOT_INCLUDED} 라는 사실로
+	 * 바꿔 내보내지 않는다.
+	 */
+	@Test
+	@DisplayName("일정을 지정해도 이 슬라이스에는 판정할 구현이 없어 알 수 없음이다")
+	void inclusionIsUnavailableWhenNoPortImplementationIsWired() {
+		UUID placeId = this.fixture.insertPlace("구현없음", null, "ATTRACTION", 35.1, 129.0);
+
+		PlaceDetailResponse detail = this.placeDetailService
+				.get(placeId, UUID.randomUUID(), null, UUID.randomUUID());
+
+		assertThat(detail.itineraryInclusion().state()).isEqualTo("UNAVAILABLE");
+		assertThat(detail.itineraryInclusion().reason()).isEqualTo("ITINERARY_LOOKUP_UNAVAILABLE");
+		assertThat(detail.placeId()).isEqualTo(placeId);
 	}
 
 	private PlaceFeatureView feature(PlaceDetailResponse detail, String featureType) {

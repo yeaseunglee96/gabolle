@@ -46,6 +46,16 @@ public class SecurityConfig {
 				// S15P21E201-330 — 공유 조회는 표(token)를 아는 사람이 로그인 없이 그대로 연다. 표가
 				//    43글자 난수라 추측할 수 없고, 발급(POST)·복제는 여전히 인증이 필요하다.
 				.requestMatchers(HttpMethod.GET, "/api/v1/shares/*").permitAll()
+				// 🔴 S15P21E201-267 — 운영자 전용 경로. `-686` 이 만든 ADMIN Role 로 막는다.
+				//
+				//    @PreAuthorize 를 쓰지 않는 이유가 둘이다. 첫째, 이 저장소는 메서드 보안
+				//    (@EnableMethodSecurity)이 **꺼져 있어서** 그 애너테이션이 <b>조용히 무시된다</b> —
+				//    붙여 놓고 안 막히는 것이 가장 나쁜 상태다. 둘째, 경로 앞자리로 막으면 나중에
+				//    운영자 API 를 하나 더 만들 때 그 사람이 애너테이션을 잊어도 막힌다.
+				//
+				//    권한은 HmacJwtAuthenticationFilter 가 매 요청 DB 에서 role 을 읽어
+				//    ROLE_ADMIN 으로 심는다(토큰 클레임이 아니라 DB 라서 권한 회수가 즉시 반영된다).
+				.requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
 				// 🔴 S15P21E201-704 — 2026-09-07 저녁에 이 줄 셋을 지웠다가 <b>같은 날 되살렸다.</b>
 				//    그 사이 소셜 로그인이 앱에서 완전히 막혔다. 무슨 일이 있었는지 남긴다.
 				//

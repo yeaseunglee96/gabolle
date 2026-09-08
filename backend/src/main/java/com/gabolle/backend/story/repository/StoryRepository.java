@@ -33,7 +33,18 @@ public interface StoryRepository extends JpaRepository<Story, UUID> {
 
 	String FEED_ORDER = " ORDER BY s.publish_at DESC, s.story_id DESC LIMIT :limit";
 
-	String NOT_DELETED_AND_PUBLISHED = " s.deleted_at IS NULL AND s.publish_at <= :now ";
+	/**
+	 * 🔴 S15P21E201-254 — {@code moderation_state} 조건이 여기 <b>한 곳</b>에 있다.
+	 *
+	 * <p>신고된 기록을 감추려면 조회 경로 전부가 그것을 봐야 하고, 하나라도 빠뜨리면 그 화면에만
+	 * 계속 보인다. 이 상수가 네 질의(전체 피드·팔로잉 피드·프로필 피드·개수)를 덮으므로 여기에
+	 * 넣는 것으로 그 넷이 끝난다. {@code findActiveById}(상세)만 따로 걸어야 한다 — 그쪽은 이
+	 * 상수를 쓰지 않는다.
+	 *
+	 * <p>새 피드 질의를 만들 때 이 상수를 쓰지 않으면 신고된 기록이 그 피드에 보인다.
+	 */
+	String NOT_DELETED_AND_PUBLISHED =
+			" s.deleted_at IS NULL AND s.publish_at <= :now AND s.moderation_state = 'VISIBLE' ";
 
 	String BEFORE_CURSOR = " AND (s.publish_at, s.story_id) < (CAST(:cursorAt AS timestamptz), CAST(:cursorId AS uuid)) ";
 
@@ -63,9 +74,28 @@ public interface StoryRepository extends JpaRepository<Story, UUID> {
 			@Param("now") Instant now, @Param("cursorAt") Instant cursorAt, @Param("cursorId") UUID cursorId,
 			@Param("limit") int limit);
 
-	/** 지운 기록은 없는 기록이다 — 조회·수정·삭제가 전부 이 메서드로 시작한다. */
+	/**
+	 * 지운 기록은 없는 기록이다 — 조회·수정·삭제가 전부 이 메서드로 시작한다.
+	 *
+	 * <p>🔴 검토 상태를 여기서 <b>걸지 않는다.</b> 이 메서드가 수정·삭제의 출발점이기도 해서,
+	 * 신고된 기록을 여기서 감추면 작성자가 자기 기록을 지울 수도 없게 된다. 조회에서 감추는 것은
+	 * {@link #findVisibleById} 가 한다.
+	 */
 	@Query("SELECT s FROM Story s WHERE s.storyId = :storyId AND s.deletedAt IS NULL")
 	Optional<Story> findActiveById(@Param("storyId") UUID storyId);
+
+	/**
+	 * 남에게 보여줄 수 있는 기록만 — 상세 조회가 쓴다 (S15P21E201-254).
+	 *
+	 * <p>신고를 받으면 <b>상세에서도</b> 즉시 사라져야 한다는 것이 완료 기준이다. 피드에서만
+	 * 빠지고 주소를 아는 사람은 계속 볼 수 있으면 감춘 것이 아니다.
+	 */
+	@Query("""
+			SELECT s FROM Story s
+			WHERE s.storyId = :storyId AND s.deletedAt IS NULL
+			  AND s.moderationState = com.gabolle.backend.moderation.domain.StoryModerationState.VISIBLE
+			""")
+	Optional<Story> findVisibleById(@Param("storyId") UUID storyId);
 
 	/** 프로필의 공개 기록 수. 본인·팔로워 여부에 따라 세는 범위가 다르다. */
 	@Query(value = "SELECT count(*) FROM story s WHERE" + NOT_DELETED_AND_PUBLISHED
