@@ -1,0 +1,91 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '4.0.8'
+	id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.gabolle'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+// S15P21E201-680 — OSV-Scanner(외부 계정 없이 osv.dev 를 조회하는 취약점 스캐너)가
+// 실제 해석된 버전을 보게 하려면 잠금 파일이 있어야 한다. build.gradle 자체는
+// 버전 범위나 BOM 이 껴 있어 스캐너가 직접 못 읽는다.
+dependencyLocking {
+	lockAllConfigurations()
+}
+
+// S15P21E201-680 — Spring Boot 4.0.8 이 관리하는 Tomcat 은 11.0.24 인데, 인증 우회 등
+// CVSS 9.8 짜리 셋(GHSA-9xv2-5v5q-p794 · GHSA-gcx9-497g-6cp6 · GHSA-h3x4-894j-xpx5)이
+// 11.0.25 에서만 고쳐졌다(Maven Central 확인, 2026-09-07). Spring Boot 의 다음 판을
+// 기다리지 않고 이 좌표만 강제로 올린다.
+ext['tomcat.version'] = '11.0.25'
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-flyway'
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-security-oauth2-client'
+	implementation 'org.springframework.boot:spring-boot-starter-security-oauth2-resource-server'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'org.springframework.boot:spring-boot-starter-restclient'
+	implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+	implementation 'org.flywaydb:flyway-database-postgresql'
+	runtimeOnly 'org.postgresql:postgresql'
+	testImplementation 'org.springframework.boot:spring-boot-starter-actuator-test'
+	testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
+	testImplementation 'org.springframework.boot:spring-boot-starter-flyway-test'
+	testImplementation 'org.springframework.boot:spring-boot-starter-security-oauth2-client-test'
+	testImplementation 'org.springframework.boot:spring-boot-starter-security-oauth2-resource-server-test'
+	testImplementation 'org.springframework.boot:spring-boot-starter-security-test'
+	testImplementation 'org.springframework.boot:spring-boot-starter-validation-test'
+	testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
+	// JUnit 5 · AssertJ · Mockito 한 묶음. 위의 세분화된 *-test 스타터들이 이미 끌어올 수도
+	// 있지만, AssertJ 가 있다는 것을 이 파일에서 눈으로 확인할 수 있게 명시한다.
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	// Testcontainers — 테스트가 시작될 때 진짜 PostgreSQL 을 도커 컨테이너로 띄우고 끝나면 지운다.
+	// 🔴 H2 로 대신하지 않는 이유: 이 티켓이 저장하는 것이 JSONB · UUID · VARCHAR[] 이고,
+	//    그 계약은 PostgreSQL 에서만 진짜로 검증된다. H2 로 통과한 초록은 아무것도 보장하지 않는다.
+	//
+	// 🔴 BOM(**Bill of Materials — 여러 라이브러리의 버전을 한 줄로 맞춰 주는 목록**)을 직접
+	//    가져오는 이유: Spring Boot 4 의 의존성 관리에는 testcontainers 버전이 들어 있지 않다.
+	//    버전을 안 적으면 "Could not find org.testcontainers:postgresql:" 로 빌드가 멈춘다.
+	testImplementation platform('org.testcontainers:testcontainers-bom:1.21.3')
+	testImplementation 'org.testcontainers:junit-jupiter'
+	testImplementation 'org.testcontainers:postgresql'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+// 자바 소스를 어떤 인코딩으로 읽을지를 빌드를 돌리는 기계의 기본값에 맡기지 않는다.
+// 윈도우 개발 기계는 보통 MS949 로 읽고 CI 의 리눅스 컨테이너는 UTF-8 로 읽는다. 그 차이를
+// 두면 같은 소스가 기계마다 다르게 컴파일되고, 한국어 문자열이 깨진 채로도 컴파일은
+// 통과해서 실행할 때서야 드러난다.
+//
+// 2026-09-04 에 같은 계열의 문제가 설정 파일 쪽에서 실제로 터졌다. 메일 발신자 이름이
+// 수신함에서 깨져 나갔고, 원인은 .properties 를 ISO-8859-1 로 읽는 자바 규격이었다
+// (DEC-CONFIG-001). 이 설정은 그 사건의 소스 파일 쪽 대응이다.
+//
+// withType 을 쓰는 이유는 compileJava 와 compileTestJava 를 한 번에 덮기 위해서다.
+// 테스트 소스가 빠지면 회귀 테스트 자체가 깨져서 거짓 초록을 낸다.
+tasks.withType(JavaCompile).configureEach {
+	options.encoding = 'UTF-8'
+}
+
+tasks.withType(Javadoc).configureEach {
+	options.encoding = 'UTF-8'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}

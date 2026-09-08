@@ -1,0 +1,316 @@
+// backend-deploy 파이프라인 (S15P21E201-575)
+//
+// Jenkins Job 설정:
+//  - Definition: Pipeline script from SCM
+//  - SCM: Git, branch back/dev, credentialsId gitlab-pat
+//  - Script Path: backend/Jenkinsfile
+//  - Triggers: Generic Webhook Trigger, token = backend-deploy
+//    (GitLab Webhook의 Wildcard pattern을 back/dev 로 제한해서 등록)
+//
+// 필요한 Jenkins Credentials:
+//  - gitlab-pat            (Username with password) — GitLab 저장소 체크아웃
+//  - mattermost-webhook    (Secret text) — 빌드 결과 알림용 MatterMost Incoming Webhook URL
+//  - gabolle-db-url        (Secret text) — jdbc:postgresql://postgres:5432/app_db
+//  - gabolle-db-username   (Secret text) — app_user
+//  - gabolle-db-password   (Secret text)
+//  - gabolle-jwt-secret    (Secret text) — 32자 이상 운영용 값
+//  - gabolle-mail-username (Secret text) — 인증·재설정 메일 발신 계정 (SMTP 사용자)
+//  - gabolle-mail-password (Secret text) — 그 계정의 앱 비밀번호. 로그인 비밀번호가 아니다
+//  - gabolle-google-client-id     (Secret text) — Google OAuth 클라이언트 ID
+//  - gabolle-google-client-secret (Secret text)
+//  - gabolle-kakao-client-id      (Secret text) — Kakao 는 REST API 키가 client_id 다
+//  - gabolle-kakao-client-secret  (Secret text) — Kakao Developers 에서 Client secret 을 켜 둔 경우 필요하다
+//  - gabolle-naver-client-id      (Secret text)
+//  - gabolle-naver-client-secret  (Secret text)
+//
+// 소셜 항목은 여섯 개인데 컨테이너로 넣는 환경변수는 일곱 개다.
+// GABOLLE_GOOGLE_ALLOWED_CLIENT_IDS 는 Credential 을 따로 만들지 않고 Google client ID 를
+// 그대로 재사용한다. 비밀값이 아니라, 구글이 서명해서 주는 ID Token(로그인한 사람이
+// 누구인지 담긴 토큰) 의 aud 칸에 들어와도 되는 client ID 목록이다. 비워 두면
+// 키를 넣어도 GoogleIdTokenVerifier 가 501 OAUTH_PROVIDER_NOT_CONFIGURED 를 낸다.
+// 플랫폼별로 client ID 를 따로 발급하면 그것들을 콤마로 이어 넣을 자리다.
+//
+// 환경변수 이름의 정본은 backend/src/main/resources/application-dev.properties 다.
+//
+// 메일을 켜는 스위치는 GABOLLE_MAIL_ENABLED 다. 위 둘을 Jenkins 에 넣기 전에는
+// false 로 두어야 한다 — true 인데 발신 계정이 비어 있으면 SmtpEmailSender 가
+// 기동을 막는다. 가입만 201 로 되고 인증 메일이 조용히 안 나가는 상태보다,
+// 배포가 그 자리에서 실패하는 쪽이 낫다.
+//
+// DB는 infra/personalization의 PostgreSQL(app_db, S15P21E201-581)을 그대로
+// 쓴다 — 그래서 컨테이너를 그 Docker 네트워크(local-route-personalization_data_net)에
+// 같이 붙여야 "postgres" 호스트명이 풀린다. 이 컨테이너가 그 compose 프로젝트
+// 소속은 아니지만, 네트워크 이름으로 조인만 하면 같은 DNS를 쓸 수 있다.
+
+pipeline {
+    agent any
+
+    options {
+        // 🔴 S15P21E201-596 — build #58/#59가 거의 동시에 돌면서(워크스페이스가
+        //    backend-deploy@2로 분리된 게 증거) 둘 다 docker run --name backend를
+        //    시도해 "Conflict. The container name /backend is already in use"로
+        //    #59가 실제로 실패했다. 뒤에 온 빌드를 앞 빌드가 끝날 때까지 큐에서
+        //    기다리게 해서 막는다.
+        disableConcurrentBuilds()
+    }
+
+    environment {
+        // 🔴 컨테이너를 직접 본다. nginx 를 지나가지 않는다.
+        //
+        //    이 값은 'https://j15e201.p.ssafy.io/api/actuator/health' 였다. 그 주소는
+        //    200 을 줄 수 없다 — 이 앱에는 context-path 가 없고(설정 없음) 컨트롤러가
+        //    @RequestMapping("/api/v1/...") 로 직접 매핑되어 있다. actuator 는 기본값인
+        //    /actuator 아래에 있으므로 Spring 에서 /api/actuator/health 는 404 다.
+        //    즉 앱이 완전히 정상이어도 Health Check 단계가 12번 재시도 후 실패했고,
+        //    배포가 늘 실패로 표시되며 MatterMost 에도 실패가 갔다.
+        //
+        //    🔴 밖에서 https://j15e201.p.ssafy.io/actuator/health 를 열면 200 이 오는데
+        //    그것은 앱이 아니다. nginx 의 SPA fallback 이 Expo 웹 index.html 을 준다.
+        //    그 200 을 백엔드가 살아 있다는 증거로 쓰면 안 된다.
+        //
+        //    컨테이너를 직접 보면 (1) 프록시·정적 fallback 에 속지 않고 (2) actuator 를
+        //    외부에 노출하지 않아도 된다.
+        //
+        //    🔴 정정 (2026-09-03) — localhost 는 틀렸다. Jenkins 자신이 컨테이너로
+        //    떠 있다 (docs/SERVER-SETUP.md 5절 — docker run --name jenkins ...).
+        //    agent any 라 이 스텝도 Jenkins 컨테이너 안에서 돈다. 그 안의 localhost 는
+        //    backend 컨테이너가 아니라 Jenkins 자기 자신이다 — 이미 5절에 적힌 함정
+        //    그대로다 ("다른 컨테이너와는 별개의 네트워크 네임스페이스").
+        //
+        //    컨테이너 이름 backend 로 대신 가리킨다. DNS 로 풀리려면 Jenkins 가
+        //    backend 와 같은 도커 네트워크(local-route-personalization_data_net)에
+        //    있어야 한다 — 위 18~21행의 postgres 호스트명과 같은 이유다.
+        //    한 번만: docker network connect local-route-personalization_data_net jenkins
+        HEALTH_URL = 'http://backend:8080/actuator/health'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'back/dev',
+                    credentialsId: 'gitlab-pat',
+                    url: 'https://lab.ssafy.com/s15-bigdata-dist-sub1/S15P21E201.git'
+            }
+        }
+
+        stage('Build Image') {
+            steps {
+                dir('backend') {
+                    // 🔴 S15P21E201-575 (jaehyeon 제안) — 새로 빌드하기 전에 지금
+                    //    이미지를 :previous로 남겨 둔다. 아래 Deploy 단계는 새
+                    //    컨테이너가 뜨는지 확인하기도 전에 옛 컨테이너를 지우므로,
+                    //    기동에 실패하면 그 순간부터 운영이 내려가고 돌아갈 곳이
+                    //    없었다(2026-09-07 새벽, 마이그레이션 충돌 두 건으로 실제
+                    //    다운타임이 길어짐). Health Check 실패 시 이 태그로 되돌린다.
+                    //    처음 배포라 :latest 가 없으면 tag가 실패하는데, 정상이라
+                    //    무시한다.
+                    sh 'docker tag local-route-backend local-route-backend:previous || true'
+                    sh 'docker build -t local-route-backend .'
+                }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                script {
+                    // 🔴 GIT_COMMIT 은 위 Checkout 단계의 git 스텝이 보통 채워 주지만
+                    //    (Jenkins Git 플러그인이 체크아웃 뒤 빌드 환경변수로 심어 준다),
+                    //    혹시 비어 있는 경우를 대비해 직접 구해서 확실히 값이 들어가게
+                    //    한다. service_version 컬럼은 VARCHAR(100)이라 커밋 해시
+                    //    하나(40자)는 넉넉히 들어간다.
+                    if (!env.GIT_COMMIT) {
+                        env.GIT_COMMIT = sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
+                    }
+                }
+                withCredentials([
+                    string(credentialsId: 'gabolle-db-url', variable: 'GABOLLE_DB_URL'),
+                    string(credentialsId: 'gabolle-db-username', variable: 'GABOLLE_DB_USERNAME'),
+                    string(credentialsId: 'gabolle-db-password', variable: 'GABOLLE_DB_PASSWORD'),
+                    string(credentialsId: 'gabolle-jwt-secret', variable: 'GABOLLE_JWT_SECRET'),
+                    string(credentialsId: 'gabolle-mail-username', variable: 'GABOLLE_MAIL_USERNAME'),
+                    string(credentialsId: 'gabolle-mail-password', variable: 'GABOLLE_MAIL_PASSWORD'),
+                    string(credentialsId: 'gabolle-google-client-id', variable: 'GABOLLE_GOOGLE_CLIENT_ID'),
+                    string(credentialsId: 'gabolle-google-client-secret', variable: 'GABOLLE_GOOGLE_CLIENT_SECRET'),
+                    string(credentialsId: 'gabolle-kakao-client-id', variable: 'GABOLLE_KAKAO_CLIENT_ID'),
+                    string(credentialsId: 'gabolle-kakao-client-secret', variable: 'GABOLLE_KAKAO_CLIENT_SECRET'),
+                    string(credentialsId: 'gabolle-naver-client-id', variable: 'GABOLLE_NAVER_CLIENT_ID'),
+                    string(credentialsId: 'gabolle-naver-client-secret', variable: 'GABOLLE_NAVER_CLIENT_SECRET')
+                ]) {
+                    sh 'docker stop backend || true'
+                    sh 'docker rm backend || true'
+                    // 🔴 사진 파일은 컨테이너 안 상대 경로(기본 ./data/uploads)에 있으면
+                    //    재배포 때마다 사라진다(jaehyeon 요청, S15P21E201-231 MR !231).
+                    //    호스트 디스크에 볼륨을 붙여 배포를 넘어 남긴다.
+                    //    🔴 여기서 mkdir을 하면 Jenkins 컨테이너 자기 자신의 파일시스템에
+                    //    폴더를 만드는 것이다 — docker.sock을 통해 부르는 docker run의
+                    //    -v 는 EC2 호스트 경로를 가리키므로(도커 데몬이 호스트에서 돌기
+                    //    때문에), 그 경로는 배포 파이프라인이 아니라 호스트에서 한 번만
+                    //    미리 만들어 둔다. 2026-09-07에 /srv/gabolle/uploads(ubuntu
+                    //    소유)로 이미 만들어 뒀다.
+                    sh '''
+                        docker run -d --name backend \
+                            --network local-route-personalization_data_net \
+                            -p 8080:8080 \
+                            -v /srv/gabolle/uploads:/data/uploads \
+                            -e GABOLLE_STORAGE_ROOT=/data/uploads \
+                            -e SPRING_PROFILES_ACTIVE=dev \
+                            -e GABOLLE_SERVICE_VERSION="${GIT_COMMIT}" \
+                            -e GABOLLE_DEPLOYMENT_ENVIRONMENT=dev \
+                            -e GABOLLE_DB_URL="$GABOLLE_DB_URL" \
+                            -e GABOLLE_DB_USERNAME="$GABOLLE_DB_USERNAME" \
+                            -e GABOLLE_DB_PASSWORD="$GABOLLE_DB_PASSWORD" \
+                            -e GABOLLE_JWT_SECRET="$GABOLLE_JWT_SECRET" \
+                            -e GABOLLE_MAIL_ENABLED=true \
+                            -e GABOLLE_MAIL_USERNAME="$GABOLLE_MAIL_USERNAME" \
+                            -e GABOLLE_MAIL_PASSWORD="$GABOLLE_MAIL_PASSWORD" \
+                            -e GABOLLE_GOOGLE_CLIENT_ID="$GABOLLE_GOOGLE_CLIENT_ID" \
+                            -e GABOLLE_GOOGLE_CLIENT_SECRET="$GABOLLE_GOOGLE_CLIENT_SECRET" \
+                            -e GABOLLE_GOOGLE_ALLOWED_CLIENT_IDS="$GABOLLE_GOOGLE_CLIENT_ID" \
+                            -e GABOLLE_KAKAO_CLIENT_ID="$GABOLLE_KAKAO_CLIENT_ID" \
+                            -e GABOLLE_KAKAO_CLIENT_SECRET="$GABOLLE_KAKAO_CLIENT_SECRET" \
+                            -e GABOLLE_NAVER_CLIENT_ID="$GABOLLE_NAVER_CLIENT_ID" \
+                            -e GABOLLE_NAVER_CLIENT_SECRET="$GABOLLE_NAVER_CLIENT_SECRET" \
+                            local-route-backend
+                    '''
+                }
+            }
+        }
+
+        stage('Health Check') {
+            steps {
+                script {
+                    // 🔴 2026-09-03 — curl이 연결 자체에 실패하면(exit 7, 앱이 아직
+                    //    포트를 안 열었을 때 흔하다) sh 스텝이 비정상 종료로 보고
+                    //    재시도 없이 파이프라인을 즉시 죽였다. HEALTH_URL이 nginx나
+                    //    Jenkins 자신을 가리키던 동안은 "연결은 되고 코드만 틀림"만
+                    //    있어서 이 버그가 드러나지 않았는데, 컨테이너를 직접 찌르니
+                    //    (S15P21E201-574) 기동 중 포트가 아직 안 열린 순간 처음
+                    //    드러났다. `|| echo 000`으로 curl 실패도 코드값 하나로
+                    //    바꿔서, 재시도 루프가 진짜로 12번을 다 쓰게 한다.
+                    //
+                    // 🔴 정정 (2026-09-07, S15P21E201-231) — 12번×5초 = 60초는 부족했다.
+                    //    이 앱은 Spring Data JPA 리포지토리 스캔·Hibernate 메타모델
+                    //    생성이 무거워서 실제 기동에 150~180초가 걸린다(같은 날 배포
+                    //    5건 로그 실측: 154.7초~178.5초). 그래서 이 단계는 앱이 멀쩡히
+                    //    뜬 뒤에도 **항상** "Health check failed after retries"로
+                    //    끝났다 — 배포가 실제로는 성공인데 Jenkins만 실패로 보고하는
+                    //    상태가 반복됐다(파이프라인 색만 보고 재배포를 반복하게 만듦).
+                    //    60번×5초 = 300초로 늘려 실측 최대치에 여유를 둔다.
+                    def healthy = false
+                    for (int i = 0; i < 60; i++) {
+                        def code = sh(script: "curl -s -o /dev/null -w '%{http_code}' ${HEALTH_URL} || echo 000", returnStdout: true).trim()
+                        if (code == '200') {
+                            healthy = true
+                            break
+                        }
+                        sleep 5
+                    }
+                    if (!healthy) {
+                        // 🔴 S15P21E201-575 — 여기서 그냥 실패시키면 방금 Deploy가
+                        //    지운 옛 컨테이너는 이미 없고, 새 컨테이너는 기동 실패
+                        //    상태로 그대로 남아 운영이 계속 내려가 있다. :previous로
+                        //    되돌려서 최소한 "직전에 정상이었던 상태"로는 복구한다.
+                        //    🔴 완전하지 않다 — 이번 배포가 새 Flyway 마이그레이션을
+                        //    이미 적용한 뒤라면, :previous 이미지(마이그레이션 이전
+                        //    버전)로 되돌려도 DB 스키마가 앞서 있어 똑같이 기동에
+                        //    실패할 수 있다. 그래도 되돌리기를 시도하지 않는 것보다는
+                        //    낫다 — 되돌리기 자체가 실패하면 원래 있던 실패가 그대로
+                        //    보이는 것뿐, 상황을 더 나쁘게 만들지 않는다.
+                        echo '🔴 Health check 실패 — local-route-backend:previous로 되돌린다'
+                        withCredentials([
+                            string(credentialsId: 'gabolle-db-url', variable: 'GABOLLE_DB_URL'),
+                            string(credentialsId: 'gabolle-db-username', variable: 'GABOLLE_DB_USERNAME'),
+                            string(credentialsId: 'gabolle-db-password', variable: 'GABOLLE_DB_PASSWORD'),
+                            string(credentialsId: 'gabolle-jwt-secret', variable: 'GABOLLE_JWT_SECRET'),
+                            string(credentialsId: 'gabolle-mail-username', variable: 'GABOLLE_MAIL_USERNAME'),
+                            string(credentialsId: 'gabolle-mail-password', variable: 'GABOLLE_MAIL_PASSWORD'),
+                            string(credentialsId: 'gabolle-google-client-id', variable: 'GABOLLE_GOOGLE_CLIENT_ID'),
+                            string(credentialsId: 'gabolle-google-client-secret', variable: 'GABOLLE_GOOGLE_CLIENT_SECRET'),
+                            string(credentialsId: 'gabolle-kakao-client-id', variable: 'GABOLLE_KAKAO_CLIENT_ID'),
+                            string(credentialsId: 'gabolle-kakao-client-secret', variable: 'GABOLLE_KAKAO_CLIENT_SECRET'),
+                            string(credentialsId: 'gabolle-naver-client-id', variable: 'GABOLLE_NAVER_CLIENT_ID'),
+                            string(credentialsId: 'gabolle-naver-client-secret', variable: 'GABOLLE_NAVER_CLIENT_SECRET')
+                        ]) {
+                            sh 'docker stop backend || true'
+                            sh 'docker rm backend || true'
+                            sh '''
+                                docker run -d --name backend \
+                                    --network local-route-personalization_data_net \
+                                    -p 8080:8080 \
+                                    -v /srv/gabolle/uploads:/data/uploads \
+                                    -e GABOLLE_STORAGE_ROOT=/data/uploads \
+                                    -e SPRING_PROFILES_ACTIVE=dev \
+                                    -e GABOLLE_SERVICE_VERSION="${GIT_COMMIT}-rollback" \
+                                    -e GABOLLE_DEPLOYMENT_ENVIRONMENT=dev \
+                                    -e GABOLLE_DB_URL="$GABOLLE_DB_URL" \
+                                    -e GABOLLE_DB_USERNAME="$GABOLLE_DB_USERNAME" \
+                                    -e GABOLLE_DB_PASSWORD="$GABOLLE_DB_PASSWORD" \
+                                    -e GABOLLE_JWT_SECRET="$GABOLLE_JWT_SECRET" \
+                                    -e GABOLLE_MAIL_ENABLED=true \
+                                    -e GABOLLE_MAIL_USERNAME="$GABOLLE_MAIL_USERNAME" \
+                                    -e GABOLLE_MAIL_PASSWORD="$GABOLLE_MAIL_PASSWORD" \
+                                    -e GABOLLE_GOOGLE_CLIENT_ID="$GABOLLE_GOOGLE_CLIENT_ID" \
+                                    -e GABOLLE_GOOGLE_CLIENT_SECRET="$GABOLLE_GOOGLE_CLIENT_SECRET" \
+                                    -e GABOLLE_GOOGLE_ALLOWED_CLIENT_IDS="$GABOLLE_GOOGLE_CLIENT_ID" \
+                                    -e GABOLLE_KAKAO_CLIENT_ID="$GABOLLE_KAKAO_CLIENT_ID" \
+                                    -e GABOLLE_KAKAO_CLIENT_SECRET="$GABOLLE_KAKAO_CLIENT_SECRET" \
+                                    -e GABOLLE_NAVER_CLIENT_ID="$GABOLLE_NAVER_CLIENT_ID" \
+                                    -e GABOLLE_NAVER_CLIENT_SECRET="$GABOLLE_NAVER_CLIENT_SECRET" \
+                                    local-route-backend:previous
+                            '''
+                        }
+                        error 'Health check failed after retries — rolled back to local-route-backend:previous'
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            script {
+                sendMMNotify(true, [
+                    commit: sh(script: "git log -1 --pretty='%an: %s'", returnStdout: true).trim(),
+                    buildUrl: env.BUILD_URL
+                ])
+            }
+        }
+        failure {
+            script {
+                sendMMNotify(false, [
+                    commit: sh(script: "git log -1 --pretty='%an: %s'", returnStdout: true).trim(),
+                    buildUrl: env.BUILD_URL,
+                    details: 'Console Output 을 확인하세요'
+                ])
+            }
+        }
+    }
+}
+
+// MatterMost 알림 전송
+def sendMMNotify(boolean success, Map info) {
+    def titleLine = success
+        ? '#### :white_check_mark: 백엔드(back/dev) 배포 성공'
+        : '#### :x: 백엔드(back/dev) 배포 실패'
+
+    def lines = []
+    if (info.commit)   lines << "**커밋**: ${info.commit}"
+    if (info.buildUrl) lines << "**빌드 상세**: [Details](${info.buildUrl})"
+    if (!success && info.details) lines << "**참고**: ${info.details}"
+
+    def text = lines ? "${titleLine}\n" + lines.join("\n") : titleLine
+
+    writeFile file: 'mm_payload.json', text: groovy.json.JsonOutput.toJson([
+        text: text,
+        username: 'Jenkins',
+        icon_emoji: ':jenkins7:'
+    ])
+
+    withCredentials([string(credentialsId: 'mattermost-webhook', variable: 'MM_WEBHOOK')]) {
+        sh '''
+            curl -sS -f -X POST -H 'Content-Type: application/json' \
+                --data-binary @mm_payload.json \
+                "$MM_WEBHOOK" || true
+        '''
+    }
+}

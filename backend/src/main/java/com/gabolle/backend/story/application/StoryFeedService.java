@@ -1,0 +1,101 @@
+package com.gabolle.backend.story.application;
+
+import java.time.Clock;
+import java.time.Instant;
+import java.util.List;
+import java.util.UUID;
+
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.gabolle.backend.story.domain.Story;
+import com.gabolle.backend.story.presentation.dto.StoryFeedResponse;
+import com.gabolle.backend.story.presentation.dto.StoryResponse;
+import com.gabolle.backend.story.repository.StoryRepository;
+
+/**
+ * 기록 피드 — 전체 / 팔로잉 / 한 사람. S15P21E201-233 · -123.
+ *
+ * <p>세 피드 모두 커서 방식이고 "한 개 더 읽기" 로 다음 묶음이 있는지 안다 — {@code limit + 1} 개를 읽어
+ * {@code limit} 개보다 많이 왔으면 마지막 것을 잘라 내고 그 앞의 마지막 항목으로 {@code nextCursor} 를
+ * 만든다. 전체 개수를 세는 질의가 없다 — 그 질의는 표가 클수록 느려지고, 앱은 "더 있나" 만 알면 된다.
+ */
+@Service
+@Profile({ "db", "dev" })
+public class StoryFeedService {
+
+	public static final int DEFAULT_LIMIT = 20;
+
+	public static final int MAX_LIMIT = 50;
+
+	public enum Scope {
+		/** 공개 기록 전부 + 내 기록. */
+		ALL,
+		/** 내가 팔로우한 사람의 기록. */
+		FOLLOWING
+	}
+
+	private final StoryRepository storyRepository;
+
+	private final StoryService storyService;
+
+	private final StoryResponseAssembler assembler;
+
+	private final Clock clock;
+
+	public StoryFeedService(StoryRepository storyRepository, StoryService storyService,
+			StoryResponseAssembler assembler, Clock clock) {
+		this.storyRepository = storyRepository;
+		this.storyService = storyService;
+		this.assembler = assembler;
+		this.clock = clock;
+	}
+
+	@Transactional(readOnly = true)
+	public StoryFeedResponse feed(UUID viewer, Scope scope, String cursor, Integer limit) {
+		Instant now = this.clock.instant();
+		FeedCursor from = FeedCursor.decode(cursor);
+		int size = clamp(limit);
+		List<Story> rows = switch (scope) {
+			case ALL -> this.storyRepository.findPublicFeed(viewer, now, from.publishAt(), from.storyId(), size + 1);
+			case FOLLOWING -> this.storyRepository.findFollowingFeed(viewer, now, from.publishAt(), from.storyId(),
+					size + 1);
+		};
+		return page(rows, size, viewer, now);
+	}
+
+	/** 한 사람의 기록(프로필). 요청자와 그 사람의 관계에 따라 보이는 범위가 다르다. */
+	@Transactional(readOnly = true)
+	public StoryFeedResponse authorFeed(UUID viewer, UUID author, String cursor, Integer limit) {
+		Instant now = this.clock.instant();
+		FeedCursor from = FeedCursor.decode(cursor);
+		int size = clamp(limit);
+		List<String> visibilities = this.storyService.visibleScopesOf(author, viewer);
+		List<Story> rows = this.storyRepository.findAuthorFeed(author, visibilities, now, from.publishAt(),
+				from.storyId(), size + 1);
+		return page(rows, size, viewer, now);
+	}
+
+	private StoryFeedResponse page(List<Story> rows, int size, UUID viewer, Instant now) {
+		boolean hasMore = rows.size() > size;
+		List<Story> shown = hasMore ? rows.subList(0, size) : rows;
+		List<StoryResponse> items = this.assembler.many(shown, viewer, now);
+		String next = null;
+		if (hasMore) {
+			Story last = shown.get(shown.size() - 1);
+			next = new FeedCursor(last.getPublishAt(), last.getStoryId()).encode();
+		}
+		return new StoryFeedResponse(items, next);
+	}
+
+	static int clamp(Integer limit) {
+		if (limit == null) {
+			return DEFAULT_LIMIT;
+		}
+		if (limit < 1) {
+			return 1;
+		}
+		return Math.min(limit, MAX_LIMIT);
+	}
+}
