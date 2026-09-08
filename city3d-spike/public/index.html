@@ -1604,6 +1604,29 @@ function buildEverything() {
   // 화면이 멎으면 그늘 띠를 다시 센다. 건물이 더 왔으면 띠도 달라진다.
   // computeBand 는 안에서 (경로·날짜·건물수)가 같으면 그냥 돌아가므로 자주 불러도 된다.
   map.on('idle', () => { try { computeBand(); } catch (e) { console.warn('[그늘 띠]', e); } });
+
+  // ── 피사계 심도 (depth of field — 초점 밖이 흐려지는 것) ─────────────
+  // **기본으로 켠다.** 화면으로 값을 확정했다 — 120 m 까지 또렷하고 1,020 m 에서 완전히 흐리다.
+  //
+  // 안개와 달리 **다 그린 뒤 화면 전체에 한 번 거는 후처리**라, "건물에는 안개가 안 걸린다"
+  // 는 막힌 지점이 원리적으로 생기지 않는다 — 화면 버퍼의 깊이에는 지형도 건물도 다 있다.
+  //
+  // 🔴 **확대 16.5 아래에서는 한 줄도 안 돈다.** 항공 시점에 심도를 걸면 "장난감 도시" 가
+  //    되고, 값도 그냥 버리는 것이다. 16.5→17.5 사이에서 서서히 켜진다
+  //    (항공사진을 걷어내는 16.5~18 램프와 같은 결이다 — S15P21E201-725).
+  //
+  //   ?dof=off        끈다. **되돌리는 길을 남긴다** — 이 한 줄이면 예전 화면 그대로다
+  //   ?dof=coc        얼마나 흐릴지를 흑백으로 본다 (흰색 = 최대)
+  //   ?dof=depth      깊이 자체를 흑백으로 본다
+  //   window.__dof    켠 뒤 값을 손으로 바꾼다 (focus·range·maxR·taps·zoomStart)
+  const DOF_MODE = (Q.get('dof') ?? '').trim();
+  if (DOF_MODE !== 'off') {
+    // step() 은 동기 try/catch 라 import 실패를 못 잡는다. 여기서 직접 잡는다.
+    // 🔴 실패해도 화면은 그대로 뜬다 — 심도만 없다.
+    import('./dof-probe.mjs').then(({ installDof }) => {
+      installDof(map, { debug: DOF_MODE === 'coc' ? 1 : DOF_MODE === 'depth' ? 2 : 0 });
+    }).catch((e) => { console.error('[심도]', e); });
+  }
 }
 
 map.on('load', buildEverything);
