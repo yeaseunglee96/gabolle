@@ -138,6 +138,7 @@ Q_ITEMS=1000 Q_WORKERS=8 Q_ROUNDS=12 node research/queue.test.mjs   # 더 세게
   "id": "MA0106202605A2141207",
   "worker": "haiku-1",
   "researchedAt": "2026-09-09T01:23:45.000Z",
+  "queries": ["부산 수영구 팁시펍", "팁시펍 광안리 후기"],
 
   "found": true,
   "confidence": "high",
@@ -174,6 +175,7 @@ Q_ITEMS=1000 Q_WORKERS=8 Q_ROUNDS=12 node research/queue.test.mjs   # 더 세게
 |---|---|---|
 | `id` | 대기열의 id 그대로 | 파일 이름과 같아야 한다 |
 | `worker` · `researchedAt` | | 누가 언제 |
+| 🔴 `queries` | 문자열 배열, **비면 안 된다** | **무엇으로 검색했는가.** 없으면 `done` 이 거부한다 — 아래 |
 | 🔴 `found` | `true` / `false` | **웹에서 이 가게에 대한 글을 하나라도 찾았나** |
 | 🔴 `confidence` | `high` · `medium` · `low` · `none` | 아래 표 |
 | `sources` | 주소 배열 | 🔴 **원문은 안 옮긴다. 주소만.** 아래 `sources: [0,1]` 은 이 배열의 번호다 |
@@ -209,9 +211,19 @@ Q_ITEMS=1000 Q_WORKERS=8 Q_ROUNDS=12 node research/queue.test.mjs   # 더 세게
 
 찾은 게 없으면 이 파일 하나면 된다. **이것도 `done` 이 받는 정상적인 결과다.**
 
+> 🔴 **단, `queries` 는 비울 수 없다.** *"못 찾았다"* 는 **찾아보고 나서만 할 수 있는 말**이고,
+> 무엇으로 찾았는지가 안 적혀 있으면 **안 찾아본 것과 구별할 방법이 없다.**
+>
+> 2026-09-09 새벽에 조사원 둘이 검색을 건너뛰고 `found: false` 파일 2,283개를 찍어냈다.
+> 그때 `done` 이 본 것은 *"파일이 있는가"* 하나뿐이었고, 파일은 한꺼번에 만들면 생긴다.
+> **파일의 존재는 조사의 증거가 아니다.** 그래서 관문이 둘 늘었다 —
+> **무엇으로 검색했는지**(`queries`)와 **시간**(가게 하나에 최소 15초).
+> 되짚어 보는 것은 `node research/audit.mjs`, 지워진 것은 `data/quarantine-2026-09-09/`.
+
 ```json
 {
   "id": "MA…", "worker": "haiku-1", "researchedAt": "2026-09-09T01:23:45.000Z",
+  "queries": ["부산 사하구 삼거리식당", "삼거리식당 하단 맛집"],
   "found": false, "confidence": "none", "sources": [], "stillOpen": null,
   "whyPeopleGo": [], "newTypes": [], "descriptors": {},
   "notFound": "상호로 검색해도 이 가게를 다룬 글이 없다. 같은 이름의 다른 지역 가게만 나온다",

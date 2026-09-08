@@ -51,6 +51,13 @@ const TRUTH_LINKED = path.join(HERE, "..", "data", "staged", "truth-linked.ndjso
 const DEFAULT_TTL_MS = 30 * 60 * 1000;   // 30분
 const STALE_LOCK_MS = 30 * 1000;         // 잠긴 채 30초 넘게 있으면 죽은 것으로 본다
 const LOCK_WAIT_MS = 20 * 1000;          // 문 앞에서 최대 20초 기다린다
+// 🔴 가게 하나에 최소 이만큼은 써야 "끝냄" 으로 적을 수 있다. 아래 cmdDone 의 관문 ①
+//    시험은 15초씩 기다릴 수 없으므로 낮출 수 있게 열어 두되, **시험용 폴더에서만** 먹는다.
+//    RESEARCH_DATA 없이 이 값을 내리면 무시된다 — 진짜 데이터에서 관문을 끌 수 없어야 한다.
+const MIN_MS_PER_STORE =
+  process.env.RESEARCH_DATA && process.env.RESEARCH_MIN_MS
+    ? Number(process.env.RESEARCH_MIN_MS)
+    : 15 * 1000;                         // 15초
 
 // ── 인자 ─────────────────────────────────────────────────────────────────────
 const argv = process.argv.slice(2);
@@ -326,6 +333,41 @@ function cmdDone() {
         );
         continue;
       }
+      // 🔴 관문 ① — **시간**. 잡자마자 끝났다고 적을 수 없다.
+      //    2026-09-09 새벽, 조사원 둘이 검색을 건너뛰고 **가게 하나당 0.01초**로 2,220곳을
+      //    "끝냄" 으로 적었다. 결과 파일도 한꺼번에 찍어냈기 때문에 바로 위의 "파일이
+      //    있는가" 검사는 그대로 통과했다. 🔴 **파일이 있다는 것은 조사했다는 증거가 아니다.**
+      //    실제로 검색하면 시간이 든다. 시간은 흉내낼 수 없다. 그래서 시간을 본다.
+      //    (그날의 기록: node research/audit.mjs)
+      if (s.claimedAt) {
+        const spent = Date.now() - Date.parse(s.claimedAt);
+        const need = MIN_MS_PER_STORE * ids.length;
+        if (spent < need) {
+          problems.push(
+            `${id} (${byId.get(id)?.name}) — 잡은 지 ${Math.round(spent / 1000)}초 만에 끝났다고 적으려 했습니다. ` +
+              `${ids.length}곳이면 ${Math.round(need / 1000)}초는 걸려야 합니다
+` +
+              `      🔴 실제로 검색했다면 이 시간이 안 나옵니다. 한 번에 적게 잡으세요 (--n 3)`,
+          );
+          continue;
+        }
+      }
+
+      // 🔴 관문 ② — **증거**. "못 찾았다" 는 찾아보고 나서만 할 수 있는 말이다.
+      //    무엇으로 검색했는지가 안 적혀 있으면, 안 찾아본 것과 구별할 방법이 없다.
+      let parsed = null;
+      try { parsed = JSON.parse(fs.readFileSync(rf, "utf8")); } catch { /* 아래에서 걸린다 */ }
+      if (!parsed || !Array.isArray(parsed.queries) || !parsed.queries.length) {
+        problems.push(
+          `${id} (${byId.get(id)?.name}) — 결과 파일에 "queries" 가 비어 있습니다
+` +
+            `      무엇으로 검색했는지를 적으세요: "queries": ["부산 수영구 팁시펍", "팁시펍 광안리 후기"]
+` +
+            `      🔴 검색하지 않고 적은 "못 찾음" 은 데이터가 아니라 빈 칸입니다`,
+        );
+        continue;
+      }
+
       if (s.status === "todo" && s.expiredFrom)
         console.error(`  · ${id} 는 시간이 지나 대기열로 돌아갔던 것입니다 (원래 ${s.expiredFrom}) — 받습니다`);
       ok.push(id);

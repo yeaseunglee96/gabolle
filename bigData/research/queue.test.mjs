@@ -23,7 +23,7 @@ import { fileURLToPath } from "node:url";
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const QUEUE_MJS = path.join(HERE, "queue.mjs");
 const TMP = fs.mkdtempSync(path.join(os.tmpdir(), "queue-test-"));
-const ENV = { ...process.env, RESEARCH_DATA: TMP };
+const ENV = { ...process.env, RESEARCH_DATA: TMP, RESEARCH_MIN_MS: "0" };  // 관문 ① 은 시험 폴더에서만 끌 수 있다
 
 // 더 세게 돌려 보려면 환경변수로 올린다 — 예: Q_WORKERS=8 Q_ROUNDS=20 node research/queue.test.mjs
 const ITEMS = Number(process.env.Q_ITEMS ?? 300);      // 대기열 크기
@@ -138,13 +138,38 @@ const inProgress = () => Number(run(["status"]).out.match(/진행 중 (\d+)/)?.[
   const noFile = run(["done", "--worker", "정상조사원", "--id", a]);
   check("결과 파일 없이 done 하면 거부한다", noFile.status === 1, (noFile.err.split("\n")[1] ?? "").trim());
 
-  fs.writeFileSync(path.join(TMP, "results", `${a}.json`), JSON.stringify({ id: a, found: false }));
+  fs.writeFileSync(path.join(TMP, "results", `${a}.json`), JSON.stringify({ id: a, found: false, queries: ["시험 검색어"] }));
   const withFile = run(["done", "--worker", "정상조사원", "--id", a]);
   check("결과 파일이 있으면 done 이 된다", withFile.status === 0, withFile.err.trim());
 
-  fs.writeFileSync(path.join(TMP, "results", `${b}.json`), JSON.stringify({ id: b, found: false }));
+  fs.writeFileSync(path.join(TMP, "results", `${b}.json`), JSON.stringify({ id: b, found: false, queries: ["시험 검색어"] }));
   const stolen = run(["done", "--worker", "남의조사원", "--id", b]);
   check("남이 잡고 있는 것을 done 하면 거부한다", stolen.status === 1, (stolen.err.split("\n")[1] ?? "").trim());
+}
+
+// ── 검사 5.5 — 관문 둘 ────────────────────────────────────────────────────────
+// 🔴 2026-09-09 에 조사원 둘이 검색 없이 결과 파일만 찍어내 2,283곳을 "끝냄" 으로 적었다.
+//    그때 done 이 본 것은 "파일이 있는가" 하나뿐이었다. 관문이 둘 늘었고, 여기서 지킨다.
+{
+  const mine2 = run(["claim", "--worker", "관문시험", "--n", "2", "--ttl", "10m"]);
+  const [c, d] = mine2.out.split("\n").filter(Boolean).map((l) => JSON.parse(l).id);
+
+  // ① 무엇으로 검색했는지가 없으면 — 안 찾아본 것과 구별할 수 없다
+  fs.writeFileSync(path.join(TMP, "results", `${c}.json`), JSON.stringify({ id: c, found: false }));
+  const noQ = run(["done", "--worker", "관문시험", "--id", c]);
+  check("queries 가 비면 done 을 거부한다", noQ.status === 1, (noQ.err.split("\n")[1] ?? "").trim());
+
+  // 같은 파일에 검색어만 넣으면 통과한다 — 관문이 다른 이유로 막는 게 아님을 보인다
+  fs.writeFileSync(path.join(TMP, "results", `${c}.json`), JSON.stringify({ id: c, found: false, queries: ["부산 무슨무슨식당"] }));
+  const withQ = run(["done", "--worker", "관문시험", "--id", c]);
+  check("검색어를 적으면 done 이 된다", withQ.status === 0, withQ.err.trim());
+
+  // ② 잡자마자 끝냈다고 적으면 — 실제로 검색했으면 나올 수 없는 시간이다
+  fs.writeFileSync(path.join(TMP, "results", `${d}.json`), JSON.stringify({ id: d, found: false, queries: ["부산 무슨무슨식당"] }));
+  const tooFast = run(["done", "--worker", "관문시험", "--id", d], {
+    env: { ...ENV, RESEARCH_MIN_MS: "60000" },   // 가게 하나에 60초를 요구하게 만든다
+  });
+  check("잡자마자 done 하면 거부한다", tooFast.status === 1, (tooFast.err.split("\n")[1] ?? "").trim());
 }
 
 // ── 검사 6 — 전부 done 하면 남은 것이 0 ──────────────────────────────────────
@@ -153,7 +178,7 @@ const inProgress = () => Number(run(["status"]).out.match(/진행 중 (\d+)/)?.[
     const r = run(["claim", "--worker", "마무리", "--n", "50", "--ttl", "30m"]);
     const ids = r.out.split("\n").filter(Boolean).map((l) => JSON.parse(l).id);
     if (!ids.length) break;
-    for (const id of ids) fs.writeFileSync(path.join(TMP, "results", `${id}.json`), JSON.stringify({ id, found: false }));
+    for (const id of ids) fs.writeFileSync(path.join(TMP, "results", `${id}.json`), JSON.stringify({ id, found: false, queries: ["시험 검색어"] }));
     run(["done", "--worker", "마무리", "--ids", ids.join(",")]);
   }
   // 앞 검사에서 다른 조사원이 잡은 것들은 시간 제한이 남아 있으므로, 그것까지 마무리한다
