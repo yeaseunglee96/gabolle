@@ -49,6 +49,22 @@ public class PlaceProperties {
 	/** 경계상자 후보를 이 개수까지만 자바에서 거리 계산한다. 넘으면 응답에 {@code scanTruncated}. */
 	private int nearbyMaxScanned = 2000;
 
+	/**
+	 * 추천 후보 사전 필터({@code PlaceCandidateQueryService})가 경계상자에서 읽어 올 최대 행 수.
+	 * 넘으면 자르되 응답에 {@code scanTruncated} 로 적어 내보낸다.
+	 *
+	 * <p>🔴 <b>근처 조회({@link #nearbyMaxScanned})와 값이 다른 이유</b> (S15P21E201-724).
+	 * 근처 조회는 사람이 화면에서 보는 목록이라 몇십 곳이면 되지만, 추천 후보는 <b>채점 대상
+	 * 전체</b>다. 부산은 반경 5km 안에 음식점이 평균 9,422곳이라 2,000 에서 자르면 채점기가
+	 * 보는 것은 그중 일부이고, <b>잘려 나간 장소는 아무리 좋아도 점수를 매길 기회조차 없다.</b>
+	 * 값이 2,000 이던 동안 실효 반경이 중앙값 304m 였다 — 반경을 5km 로 잡아 놓고 실제로는
+	 * 300m 를 봤다.
+	 *
+	 * <p>이 값을 올리면 조회·채점 시간이 같이 는다. 느려지면 여기를 내린다 —
+	 * 코드를 고칠 일이 아니다.
+	 */
+	private int candidateMaxScanned = 20000;
+
 	public Map<String, PurposeSpec> getPurposes() {
 		return this.purposes;
 	}
@@ -79,6 +95,14 @@ public class PlaceProperties {
 
 	public void setNearbyMaxScanned(int nearbyMaxScanned) {
 		this.nearbyMaxScanned = nearbyMaxScanned;
+	}
+
+	public int getCandidateMaxScanned() {
+		return this.candidateMaxScanned;
+	}
+
+	public void setCandidateMaxScanned(int candidateMaxScanned) {
+		this.candidateMaxScanned = candidateMaxScanned;
 	}
 
 	/**

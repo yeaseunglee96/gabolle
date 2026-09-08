@@ -11,9 +11,13 @@ import jakarta.persistence.Table;
 /**
  * 장소 정본 한 건. 표는 S15P21E201-262 가 만들고 -545 가 출처·데이터 판 칸을 더했다.
  *
- * <p>🔴 <b>읽기 전용이다.</b> 이 서비스는 장소를 만들지도 고치지도 않는다 — 수집·적재는 다른 파트가
- * 하고 우리는 조회 API 만 만든다. 그래서 setter 도 공개 생성자도 두지 않는다. 나중에 쓰기가 필요해지면
- * 그때 그 티켓이 필요한 것만 연다. 지금 열어 두면 "누가 place 를 쓰는가" 에 답이 둘이 된다.
+ * <p>🔴 <b>거의 읽기 전용이다.</b> setter 는 없고, 만드는 길은 {@link #imported} 하나뿐이다.
+ *
+ * <p>원래는 공개 생성자도 없었다 — <i>"수집·적재는 다른 파트가 하고 우리는 조회 API 만 만든다.
+ * 나중에 쓰기가 필요해지면 그때 그 티켓이 필요한 것만 연다"</i>. <b>그 티켓이 S15P21E201-636 이다</b>:
+ * 적재 코드가 저장소 어디에도 없어서 이 표가 통째로 비어 있었고, 그래서 추천 요청이 전부 후보 0건으로
+ * 끝났다. 그래서 <b>필요한 것만</b> 연다 — 만들기만 열고 고치기는 안 연다. 한 번 넣은 행을 어떻게
+ * 갱신할 것인가(폐업·이전·상호 변경)는 별개의 결정이라 여기서 미리 정하지 않는다.
  *
  * <p>영업시간·주차·예약·평점 칸은 여기 없다. -262 가 일부러 뺐고(담당 티켓이 아직 값을 안 정했다)
  * 그 칸이 필요해지면 -88·-97·-300 계열이 새 마이그레이션으로 더한다.
@@ -95,6 +99,42 @@ public class Place {
 	private String photoSource;
 
 	protected Place() {
+	}
+
+	/**
+	 * 외부 자료에서 가져온 장소 한 건을 만든다 — S15P21E201-636.
+	 *
+	 * <p>🔴 <b>{@code placeId} 를 부르는 쪽이 준다.</b> 무작위로 만들면 같은 자료를 두 번 적재할 때
+	 * 같은 가게가 두 행이 되고, 그러면 후보 수가 부풀고 정답이 한 행에만 붙어 나머지가 오답으로
+	 * 학습된다. 원천의 식별자에서 <b>결정적으로</b> 만든 값을 넣는다
+	 * ({@link com.gabolle.backend.place.loader.SbizPlaceLoader#placeIdOf}).
+	 *
+	 * <p>🔴 {@code category}·{@code address} 는 nullable 이지만 {@code nameKo} 는 아니다 —
+	 * DB 가 그렇게 강제한다. 좌표는 <b>둘 다 있거나 둘 다 없어야</b> 한다
+	 * ({@code ck_place_origin_pair}).
+	 *
+	 * @param collectedAt 우리가 가져온 시각
+	 * @param observedAt 원천에서 관측된 시각. 모르면 {@code null} — 지어내지 않는다
+	 * @param datasetVersion 어느 수집분인가. 🔴 이것이 없으면 추천 결과가
+	 *     {@code VERSION_UNRESOLVED} 로 실패한다({@code BaselineRecommendationEngine})
+	 */
+	public static Place imported(UUID placeId, String nameKo, String category, String address,
+			Double lat, Double lng, String sourceType, String sourceId,
+			OffsetDateTime collectedAt, OffsetDateTime observedAt, String datasetVersion) {
+		Place place = new Place();
+		place.placeId = placeId;
+		place.nameKo = nameKo;
+		place.category = category;
+		place.address = address;
+		place.lat = lat;
+		place.lng = lng;
+		place.createdAt = collectedAt;
+		place.sourceType = sourceType;
+		place.sourceId = sourceId;
+		place.collectedAt = collectedAt;
+		place.observedAt = observedAt;
+		place.datasetVersion = datasetVersion;
+		return place;
 	}
 
 	public UUID getPlaceId() {

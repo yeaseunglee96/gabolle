@@ -16,7 +16,15 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * @param ontologyVersion 제약 어휘·규칙 버전
  * @param policyVersion 제약 정책 버전
  * @param radiusM 후보 질의 반경(m) 기본값
- * @param candidateLimit 후보 상한 기본값
+ * @param candidateScanLimit <b>채점 대상</b> 상한 — 장소 조회에서 받아 올 후보 수.
+ *     기본값을 크게 둔 이유는 아래 {@code candidateLimit} 설명에 있다 (S15P21E201-724)
+ * @param candidateLimit <b>채점을 마친 뒤</b> 남기는 후보 수.
+ *     🔴 <b>2026-09-07 에 뜻이 바뀌었다.</b> 전에는 이 값이 장소 조회에 그대로 넘어가서
+ *     "가까운 순 200곳만 채점 대상" 이라는 뜻이었다 — 그 밖의 장소는 아무리 좋아도 점수를
+ *     매길 기회조차 없었고, 부산에서는 그 200곳이 중앙값 <b>304m</b> 안에서 끊겼다(반경은
+ *     5km 인데). 지금은 반경 안 후보를 {@code candidateScanLimit} 까지 받아 <b>전부 채점한 뒤</b>
+ *     점수 높은 순으로 이만큼만 남긴다. 저장되는 후보 행 수는 예전과 같고, <b>어느 200곳이
+ *     남는가</b>만 달라진다
  * @param weights 점수 가중치
  */
 @ConfigurationProperties(prefix = "gabolle.recommendation.baseline")
@@ -26,11 +34,13 @@ public record BaselineEngineProperties(
 		String ontologyVersion,
 		String policyVersion,
 		Integer radiusM,
+		Integer candidateScanLimit,
 		Integer candidateLimit,
 		Weights weights) {
 
 	public BaselineEngineProperties {
 		radiusM = (radiusM == null) ? 5000 : radiusM;
+		candidateScanLimit = (candidateScanLimit == null) ? 20000 : candidateScanLimit;
 		candidateLimit = (candidateLimit == null) ? 200 : candidateLimit;
 		weights = (weights == null) ? new Weights(null, null, null, null, null, null) : weights;
 		if (radiusM < 100) {
@@ -39,6 +49,13 @@ public record BaselineEngineProperties(
 		if (candidateLimit < 1) {
 			throw new IllegalArgumentException(
 					"gabolle.recommendation.baseline.candidate-limit 은 1 이상이어야 한다");
+		}
+		if (candidateScanLimit < candidateLimit) {
+			// 🔴 채점 대상보다 남길 수가 많으면 "채점한 뒤에 자른다" 가 아무 일도 안 하는데,
+			//    설정만 보면 그렇게 안 보인다. 조용한 무효화보다 기동 실패가 낫다.
+			throw new IllegalArgumentException(
+					"gabolle.recommendation.baseline.candidate-scan-limit(" + candidateScanLimit
+							+ ") 은 candidate-limit(" + candidateLimit + ") 이상이어야 한다");
 		}
 	}
 

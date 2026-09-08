@@ -57,12 +57,23 @@ public interface PlaceRepository extends JpaRepository<Place, UUID> {
 	 *
 	 * <p>좌표가 없는 행은 애초에 빠진다 — {@code ck_place_origin_pair} 때문에 lat 과 lng 는
 	 * 함께 있거나 함께 없으므로 lat 만 봐도 된다.
+	 *
+	 * <p>🔴 <b>{@code ORDER BY} 가 왜 있어야 하나</b> (S15P21E201-724). 이 조회에는
+	 * {@code limit} 이 걸린다. 정렬이 없으면 <b>상한에 걸렸을 때 어느 행이 남는지 SQL 이
+	 * 아무것도 약속하지 않는다</b> — 같은 요청을 두 번 보내면 다른 장소가 나올 수 있고,
+	 * 그러면 {@code recommendation_candidate} 에 남은 기록으로도 "왜 그때 그 장소가
+	 * 후보에 없었나" 를 되짚을 수 없다. 거리순으로 정렬하고 싶지만 JPQL 에 삼각함수가
+	 * 없어서 못 한다(위 주석). 그래서 <b>재현 가능하기만 한</b> 순서를 쓴다 — 어느 행이
+	 * 남는지가 <b>정해져 있다</b>는 것이 여기서 필요한 전부다. 지리적으로 고르게 남기는
+	 * 일은 정렬이 아니라 상한을 넉넉히 두는 쪽이 한다
+	 * ({@code gabolle.place.candidate-max-scanned}).
 	 */
 	@Query("""
 			SELECT p FROM Place p
 			WHERE p.lat IS NOT NULL
 			  AND p.lat BETWEEN :minLat AND :maxLat
 			  AND p.lng BETWEEN :minLng AND :maxLng
+			ORDER BY p.placeId
 			""")
 	List<Place> findWithinBoundingBox(@Param("minLat") double minLat, @Param("maxLat") double maxLat,
 			@Param("minLng") double minLng, @Param("maxLng") double maxLng, Limit limit);
@@ -76,6 +87,9 @@ public interface PlaceRepository extends JpaRepository<Place, UUID> {
 	 *
 	 * <p>{@code featureKey} 가 {@code null} 이면 종류만 보고 키는 안 본다 — 점수형·참거짓형 피처는
 	 * 키가 아예 없기 때문이다 ({@code ck_place_feature_key_shape}).
+	 *
+	 * <p>🔴 {@code ORDER BY} 는 위 조회와 같은 이유다 — 상한에 걸렸을 때 어느 행이 남는지를
+	 * 정해 둔다 (S15P21E201-724).
 	 */
 	@Query("""
 			SELECT p FROM Place p
@@ -87,6 +101,7 @@ public interface PlaceRepository extends JpaRepository<Place, UUID> {
 			                AND f.featureType = :featureType
 			                AND (:featureKey IS NULL OR f.featureKey = :featureKey)
 			                AND f.evidenceStatus <> com.gabolle.backend.place.domain.PlaceEvidenceStatus.UNKNOWN)
+			ORDER BY p.placeId
 			""")
 	List<Place> findWithinBoundingBoxHavingFeature(@Param("minLat") double minLat, @Param("maxLat") double maxLat,
 			@Param("minLng") double minLng, @Param("maxLng") double maxLng,

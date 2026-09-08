@@ -1,10 +1,13 @@
 package com.gabolle.backend.recommendation.adapter;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.TreeSet;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
@@ -48,6 +51,8 @@ import com.gabolle.backend.trip.domain.TripSeedPlaceRepository;
 //    서비스가 없으면 여기서 생성이 실패해 기동이 멈춘다 — 조용한 오작동보다 낫다.
 @ConditionalOnBean(UserPlaceCodeMapRepository.class)
 public class BaselineRecommendationEngine implements RecommendationEnginePort {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(BaselineRecommendationEngine.class);
 
 	private final TripRepository tripRepository;
 
@@ -111,6 +116,15 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 		List<UserPlaceCodeMap> constraintCodeMap =
 				this.codeMapRepository.findByIdUserInputKindOrderByIdUserInputCodeAsc(UserInputKind.CONSTRAINT);
 
+		if (response.scanTruncated()) {
+			// 🔴 조용히 넘기지 않는다. 잘렸다는 것은 "반경 안인데 채점조차 안 된 장소가 있다" 는
+			//    뜻이고, 그 사실이 안 남으면 나중에 결과가 이상해도 원인을 못 찾는다.
+			//    gabolle.place.candidate-max-scanned 를 올려야 한다는 신호다.
+			LOGGER.warn("후보 조회가 상한에 걸려 잘렸다 — tripId={} 반경={}m 받은 후보={}곳. "
+					+ "gabolle.place.candidate-max-scanned 를 올려야 반경 안 장소가 전부 채점된다",
+					request.tripId(), this.properties.radiusM(), response.candidates().size());
+		}
+
 		long rankingStart = System.nanoTime();
 		List<EngineCandidate> candidates = new ArrayList<>(response.candidates().size());
 		for (PlaceCandidateResponse.Candidate candidate : response.candidates()) {
@@ -119,6 +133,8 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 		}
 		// 🔴 S15P21E201-338 — 복제 씨앗을 앞세운다. 점수만 올리고 제약 판정은 그대로다(SeedBoost 참고).
 		candidates = SeedBoost.apply(candidates, this.seedPlaceRepository.findByTripId(trip.tripId()));
+		// 🔴 S15P21E201-724 — 자르기는 여기서, 채점을 마친 뒤에 한다.
+		candidates = keepBestScoring(candidates, this.properties.candidateLimit());
 		long rankingMs = elapsedMs(rankingStart);
 
 		String datasetVersion = resolveDatasetVersion(response.datasetVersions());
@@ -128,6 +144,48 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 		EngineLatencies latencies = new EngineLatencies(candidateGenerationMs, null, null, rankingMs, null);
 
 		return new EngineCandidateBatch(candidates, versions, latencies, FallbackMode.BASELINE, "NO_MODEL_ENGINE");
+	}
+
+	/**
+	 * 점수 높은 순으로 {@code limit} 개만 남긴다 — S15P21E201-724.
+	 *
+	 * <h2>🔴 왜 자르는 자리를 옮겼나</h2>
+	 *
+	 * 전에는 {@code candidateLimit} 이 {@code PlaceCandidateQueryService} 로 그대로 넘어갔다.
+	 * 그 서비스는 점수를 모르므로 <b>거리순</b>으로 자르고, 그래서 그 상한은 "채점 후 상위 200"
+	 * 이 아니라 <b>"가까운 순 200곳만 채점 대상"</b> 이었다. 부산 반경 5km 안에는 음식점만 평균
+	 * 9,422곳이 있어서 실효 반경이 중앙값 <b>304m</b> 였다 — 그 밖의 장소는 아무리 취향에 맞아도
+	 * 점수를 매길 기회조차 없었고, 그래서 서로 다른 네 조건으로 재도 "후보 200 안에 든 정답"
+	 * 비율이 0.26% 로 소수점까지 같았다(S15P21E201-713 실측).
+	 *
+	 * <h2>🔴 저장되는 후보 수는 안 는다</h2>
+	 *
+	 * {@code CandidateAssembler} 는 엔진이 돌려준 것을 <b>전부</b> 행으로 남긴다. 그래서 여기서
+	 * 자르지 않으면 요청 하나에 수천 행이 쌓인다. 자르는 수를 예전과 같은 {@code candidateLimit}
+	 * 으로 둔 이유가 그것이다 — 바뀐 것은 <b>어느 200곳이 남는가</b>뿐이다.
+	 *
+	 * <h2>🔴 잘린 후보의 행은 남지 않는다</h2>
+	 *
+	 * 그건 예전과 같다. 예전에는 "가까운 200곳" 밖이 통째로 사라졌고 지금은 "점수 상위 200곳"
+	 * 밖이 사라진다. 다만 <b>탈락 판정을 받은 후보(FAIL·미확인)는 점수가 낮아도 여기서 우선
+	 * 지켜지지 않는다</b> — 그것까지 남기려면 저장 행 수 자체를 늘려야 하고, 그건 이 티켓의
+	 * 범위가 아니다. 알려진 한계로 적어 둔다.
+	 *
+	 * <p>동점은 {@code placeId} 로 가른다 — 순서가 실행마다 달라지면 나중에 비교가 불가능해진다
+	 * ({@code CandidateAssembler} 가 같은 이유로 같은 규칙을 쓴다).
+	 */
+	private static List<EngineCandidate> keepBestScoring(List<EngineCandidate> candidates, int limit) {
+		if (candidates.size() <= limit) {
+			return candidates;
+		}
+		List<EngineCandidate> sorted = new ArrayList<>(candidates);
+		sorted.sort(Comparator
+				// 🔴 점수가 없는 후보를 0 으로 치지 않는다 — 없는 것과 낮은 것은 다르다.
+				//    맨 뒤로 보내되 버리지는 않는다(자리가 남으면 들어온다).
+				.comparing(EngineCandidate::preRankScore,
+						Comparator.nullsLast(Comparator.reverseOrder()))
+				.thenComparing(EngineCandidate::placeId));
+		return new ArrayList<>(sorted.subList(0, limit));
 	}
 
 	private Trip loadTrip(UUID tripId) {
