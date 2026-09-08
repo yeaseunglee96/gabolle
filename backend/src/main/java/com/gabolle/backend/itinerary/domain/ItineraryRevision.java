@@ -3,7 +3,12 @@ package com.gabolle.backend.itinerary.domain;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.UUID;
 
 /**
@@ -187,6 +192,151 @@ public final class ItineraryRevision {
 
         return new Draft(withAdded, copyLegs(base.legs(), newVersionId, now),
                 copyExclusions(base.exclusions(), newVersionId));
+    }
+
+    /**
+     * 하루 안의 방문 순서를 통째로 바꾼다 — S15P21E201-91 · -268.
+     *
+     * <h2>🔴 시각은 다시 계산하지 않고 <b>자리만 바꿔 앉힌다</b></h2>
+     *
+     * 그날의 시각표(각 항목의 시작·종료·머무는 시간)를 순서대로 뽑아 두고, 새 순서의 항목들에
+     * 그 값을 그대로 다시 나눠 준다. 즉 <b>하루의 시간표 모양은 그대로이고 누가 어느 자리에
+     * 앉는지만 바뀐다.</b>
+     *
+     * <p>시간대를 다시 나눠 계산하지 않는 이유가 둘이다. 첫째, 항목 수가 안 변하므로 다시
+     * 계산해도 <b>같은 값이 나온다</b> — 일정 생성기가 그날의 시간대를 항목 수로 나눠 쓰기
+     * 때문이다. 둘째, 그 규칙을 여기에 옮겨 적으면 <b>같은 규칙이 두 곳에 살게 된다.</b> 나중에
+     * 한쪽만 바뀌면 "순서만 바꿨는데 시각이 달라졌다" 가 된다.
+     *
+     * <p>시각이 없는 항목({@code null})은 없는 채로 옮겨진다. 없는 것을 지어내지 않는다.
+     *
+     * <h2>🔴 그날의 구간(도보 거리)은 버린다</h2>
+     *
+     * 구간은 "A 에서 B 로 갈 때 몇 미터" 라는 주장이다. 순서가 바뀌면 <b>그 주장이 더 이상
+     * 참이 아니다.</b> 그대로 두면 화면이 엉뚱한 항목에 남의 거리를 붙여 그린다 — 틀린 숫자는
+     * 빈칸보다 나쁘다. 다시 계산하려면 장소 좌표로 경로를 물어야 하고, 그것은 이 자리가 아니라
+     * 경로 조회(S15P21E201-179)가 할 일이다.
+     *
+     * <p>다른 날의 구간은 건드리지 않는다.
+     *
+     * @param dayOrder 그날 항목의 {@code itemKey} 를 원하는 순서대로 <b>전부</b>
+     * @throws DayOrderMismatchException 목록이 그날의 항목 전부와 정확히 일치하지 않는다
+     * @throws LockedItemMovedException 고정된 항목의 자리가 바뀐다
+     */
+    public static Draft withReorderedDay(ItineraryContent base, String newVersionId, int dayIndex,
+                                         List<String> dayOrder, Instant now) {
+
+        if (dayIndex < 0) {
+            throw new DayIndexOutOfRangeException(dayIndex);
+        }
+
+        List<ItineraryItem> dayItems = base.items().stream()
+                .filter((item) -> item.dayIndex() == dayIndex)
+                .sorted(Comparator.comparingInt(ItineraryItem::sequence))
+                .toList();
+
+        requireSameSet(dayItems, dayOrder, dayIndex);
+
+        Map<String, ItineraryItem> byKey = dayItems.stream()
+                .collect(Collectors.toMap(ItineraryItem::itemKey, (item) -> item));
+
+        // 🔴 고정된 항목은 자리가 바뀌면 안 된다. 사용자가 "여기 그대로 두라" 고 못 박은 것을
+        //    끌어 옮기기 한 번으로 조용히 옮기면, 고정이라는 약속이 무의미해진다.
+        for (int i = 0; i < dayOrder.size(); i++) {
+            ItineraryItem moved = byKey.get(dayOrder.get(i));
+            if (moved.locked() && dayItems.get(i) != moved) {
+                throw new LockedItemMovedException(moved.itemKey(), dayIndex);
+            }
+        }
+
+        List<ItineraryItem> reordered = new ArrayList<>();
+        for (int i = 0; i < dayOrder.size(); i++) {
+            ItineraryItem moved = byKey.get(dayOrder.get(i));
+            // 그 자리에 원래 앉아 있던 항목의 시각을 그대로 물려받는다.
+            ItineraryItem seat = dayItems.get(i);
+            reordered.add(new ItineraryItem(
+                    UUID.randomUUID().toString(),
+                    newVersionId,
+                    moved.itemKey(),
+                    moved.dayIndex(),
+                    moved.visitDate(),
+                    i + 1,
+                    moved.placeId(),
+                    seat.startTime(),
+                    seat.endTime(),
+                    seat.stayMinutes(),
+                    moved.locked(),
+                    moved.estimatedCostKrw(),
+                    seat.dataStatus(),
+                    moved.reasonCodes(),
+                    moved.warningCodes(),
+                    moved.sourceRequestId(),
+                    now));
+        }
+
+        List<ItineraryItem> others = copyItems(base.items(), newVersionId, now, null, false).stream()
+                .filter((item) -> item.dayIndex() != dayIndex)
+                .toList();
+
+        List<ItineraryItem> all = new ArrayList<>(others);
+        all.addAll(reordered);
+
+        List<ItineraryLeg> keptLegs = copyLegs(base.legs(), newVersionId, now).stream()
+                .filter((leg) -> leg.dayIndex() != dayIndex)
+                .toList();
+
+        return new Draft(all, keptLegs, copyExclusions(base.exclusions(), newVersionId));
+    }
+
+    private static void requireSameSet(List<ItineraryItem> dayItems, List<String> dayOrder, int dayIndex) {
+        Set<String> existing = dayItems.stream().map(ItineraryItem::itemKey).collect(Collectors.toCollection(LinkedHashSet::new));
+        Set<String> requested = new LinkedHashSet<>(dayOrder);
+
+        if (requested.size() != dayOrder.size()) {
+            throw new DayOrderMismatchException(dayIndex, "같은 항목이 두 번 들어 있습니다.");
+        }
+        if (!existing.equals(requested)) {
+            // 🔴 무엇이 어긋났는지 알려 준다. "잘못된 요청" 만 돌려주면 화면이 자기 목록이
+            //    낡은 것인지 항목 하나를 빠뜨린 것인지 구분할 수 없다.
+            Set<String> missing = new LinkedHashSet<>(existing);
+            missing.removeAll(requested);
+            Set<String> unknown = new LinkedHashSet<>(requested);
+            unknown.removeAll(existing);
+            throw new DayOrderMismatchException(dayIndex,
+                    "빠진 항목 " + missing.size() + "개, 모르는 항목 " + unknown.size() + "개");
+        }
+    }
+
+    /** 보낸 순서가 그날의 항목 전부와 일치하지 않는다 — 400. */
+    public static class DayOrderMismatchException extends RuntimeException {
+
+        private final int dayIndex;
+
+        public DayOrderMismatchException(int dayIndex, String detail) {
+            super("그날의 항목 전부를 순서대로 보내야 합니다: dayIndex=" + dayIndex + ", " + detail);
+            this.dayIndex = dayIndex;
+        }
+
+        public int dayIndex() {
+            return this.dayIndex;
+        }
+    }
+
+    /** 고정된 항목의 자리가 바뀌려 한다 — 409. */
+    public static class LockedItemMovedException extends RuntimeException {
+
+        private final String itemKey;
+
+        private final int dayIndex;
+
+        public LockedItemMovedException(String itemKey, int dayIndex) {
+            super("고정된 방문지는 자리를 옮길 수 없습니다: itemKey=" + itemKey + ", dayIndex=" + dayIndex);
+            this.itemKey = itemKey;
+            this.dayIndex = dayIndex;
+        }
+
+        public String itemKey() { return this.itemKey; }
+        public int dayIndex()   { return this.dayIndex; }
     }
 
     /** {@code dayIndex} 가 음수다 — 400. */
