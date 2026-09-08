@@ -1,12 +1,16 @@
 package com.gabolle.backend.event.repository;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import com.gabolle.backend.event.domain.EventOutbox;
+import com.gabolle.backend.event.domain.OutboxPublishStatus;
 
 /**
  * 🔴 이 인터페이스는 event 패키지 밖에서 직접 부르지 않는다. 다른 도메인은
@@ -40,4 +44,32 @@ public interface EventOutboxRepository extends JpaRepository<EventOutbox, UUID> 
 	 * 실제로 {@code seq} 를 봐야 한다. 그게 이 메서드다.
 	 */
 	List<EventOutbox> findByPublishedAtIsNullOrderBySeqAsc(Pageable pageable);
+
+	// ── 지표 조회 (S15P21E201-160) ──────────────────────────────────────
+
+	/**
+	 * 시간대별 종류별 건수 — {@code GET /api/v1/analytics/kpis} 의 근거.
+	 *
+	 * <p>🔴 {@code occurredAt} 기준이다({@code receivedAt} 이 아니다). "언제 일어난 일인가" 를
+	 * 센다 — 서버가 늦게 받은 것과 실제로 늦게 일어난 것은 다른 질문이다.
+	 */
+	@Query("SELECT e.eventType AS eventType, COUNT(e) AS count FROM EventOutbox e "
+			+ "WHERE e.occurredAt >= :from AND e.occurredAt < :to GROUP BY e.eventType")
+	List<EventTypeCount> countByEventTypeBetween(@Param("from") OffsetDateTime from, @Param("to") OffsetDateTime to);
+
+	/** 지금 이 순간 아직 안 보낸 건수 — 기간과 무관한 실시간 값이다. */
+	long countByPublishedAtIsNull();
+
+	/** 지금까지 재시도해도 계속 실패 중인 건수. */
+	long countByPublishStatus(OutboxPublishStatus publishStatus);
+
+	/** 그 기간에 실제로 나간 건수. */
+	long countByPublishedAtBetween(OffsetDateTime from, OffsetDateTime to);
+
+	/** {@code e.eventType} · {@code COUNT(e)} 그룹 결과를 받는 프로젝션. */
+	interface EventTypeCount {
+		String getEventType();
+
+		long getCount();
+	}
 }
