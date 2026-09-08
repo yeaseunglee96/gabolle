@@ -10,10 +10,12 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.testcontainers.containers.MinIOContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import com.gabolle.backend.recommendation.support.PostgresAvailableCondition;
 import com.gabolle.backend.story.storage.S3FileStorage;
 import com.gabolle.backend.story.storage.StorageProperties;
 import com.gabolle.backend.story.storage.StoragePort;
@@ -27,8 +29,19 @@ import io.minio.MinioClient;
  *
  * <p>진짜 MinIO 컨테이너 앞에서 돈다. {@code LocalFileStorage} 와 달리 이 구현은 서명(AWS SigV4)·
  * HTTP 응답 코드로 "없음" 을 판단하는 로직이 있어서, 가짜로 흉내 낸 서버로는 그 부분이 안 잡힌다.
+ *
+ * <h2>🔴 {@code PostgresAvailableCondition} 을 재사용하는 이유</h2>
+ *
+ * 이름은 Postgres 지만 실제로 확인하는 것은 {@code DockerClientFactory.instance()
+ * .isDockerAvailable()} — "이 실행 환경에 Testcontainers 가 쓸 도커가 있는가" 다(PostgreSQL
+ * 자체와 무관). 이미 auth·feed·itinerary·moderation·place·privacy 여섯 도메인이 이 조건을
+ * 그대로 재사용하고 있다 — 이 저장소의 GitLab CI 러너에는 그 도커가 없어서, 이 조건 없이
+ * 두면 로컬에서는 통과하고(2026-09-08 실측) CI 에서는 initializationError 로 <b>빌드가
+ * 죽는다</b>(같은 날, MR !404 에서 실제로 겪음) — 건너뜀이 아니라 실패라 남의 MR 까지
+ * 막는다. 새 이름의 클래스를 또 만들지 않고 이미 여섯 곳이 검증한 이 조건을 그대로 쓴다.
  */
 @Testcontainers
+@ExtendWith(PostgresAvailableCondition.class)
 class S3FileStorageTest {
 
 	private static final String BUCKET = "test-bucket";
