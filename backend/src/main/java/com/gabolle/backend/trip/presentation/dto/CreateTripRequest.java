@@ -49,6 +49,19 @@ public record CreateTripRequest(
         /** 명시 취향. 차원마다 답변 상태(골랐다/건너뜀/안 물어봄)를 함께 받는다. */
         @Valid List<PreferenceAnswerInput> preferences,
 
+        /**
+         * 씀씀이 성향 — S15P21E201-709. 선택 칸이다. 안 보내면 이 여행의 SPEND_PROFILE 은
+         * 계정 기본값(있으면)으로 채워지고, 계정 기본값도 없으면 빈 채로 남는다.
+         *
+         * <p>🔴 다른 여덟 차원처럼 {@code preferences} 목록에 넣지 않고 따로 둔 이유 —
+         * 그 목록은 이미 화면 네 단계가 함께 채우는 자리이고, 씀씀이 화면은 그 뒤에 별도로
+         * 추가되는 칸이라 목록 계약을 다시 건드리지 않기 위해서다. 서버 안에서는
+         * {@link CreateTripRequestMapper} 가 이 값을 {@code preferences} 목록의 다른 답과
+         * 같은 모양({@code PreferenceSnapshot.PreferenceAnswer}, dimension=SPEND_PROFILE)
+         * 으로 합쳐서 그 뒤(계정 기본값 겹치기 등)는 완전히 같은 길을 탄다.
+         */
+        @Valid SpendProfileAnswerInput spendProfile,
+
         @Valid List<ConstraintInput> constraints) {
 
     /**
