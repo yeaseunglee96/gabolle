@@ -19,6 +19,11 @@ public record ItineraryDraft(
             UUID itemKey, LocalTime startTime, LocalTime endTime, Integer stayMinutes,
             String dataStatus, List<String> reasonCodes, List<String> warningCodes) { }
 
+    /**
+     * @param dataStatus S15P21E201-179 — 거리·시간이 길찾기 실제 응답인지({@code VERIFIED})
+     *        직선거리 어림값인지({@code ESTIMATED}) 아예 못 쟀는지({@code UNKNOWN})
+     */
     public record DraftLeg(int dayIndex, int sequence, UUID fromPlaceId, UUID toPlaceId,
-            String travelMode, Integer distanceM, Integer durationMin, Integer walkingMeters) { }
+            String travelMode, Integer distanceM, Integer durationMin, Integer walkingMeters,
+            com.gabolle.backend.itinerary.domain.ItineraryItem.DataStatus dataStatus) { }
 }

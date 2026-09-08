@@ -443,6 +443,7 @@ public class JpaItineraryRepository implements ItineraryRepository {
 				e.walkingMeters(),
 				e.ascentM(),
 				e.stairSteps(),
+				e.dataStatus(),
 				toInstant(e.createdAt()));
 	}
 
@@ -460,6 +461,7 @@ public class JpaItineraryRepository implements ItineraryRepository {
 				leg.walkingMeters(),
 				leg.ascentM(),
 				leg.stairSteps(),
+				leg.dataStatus(),
 				toOffset(leg.createdAt()));
 	}
 
