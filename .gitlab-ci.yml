@@ -305,8 +305,13 @@ backend:migration-order:
         echo "새로 추가된 마이그레이션 파일 없음 — 통과"
         exit 0
       fi
+      # 🔴 S15P21E201-737 — 끝의 `|| true`가 없으면 대상 브랜치에 db/migration 폴더
+      #    자체가 없을 때(예: back/main, 2026-08-27부터 멈춰 있어 Flyway 이전 상태)
+      #    grep 이 매치 0건으로 exit 1을 내고, set -eo pipefail 때문에 이 대입 전체가
+      #    실패로 잡혀 스크립트가 바로 아래 기본값 처리(:-0)에 도달하지도 못한 채
+      #    메시지 하나 없이 조용히 죽는다(실측, !248 파이프라인).
       MAX_EXISTING=$(git ls-tree -r --name-only "origin/${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}" -- 'backend/src/main/resources/db/migration' \
-        | grep -oE 'V[0-9]+' | grep -oE '[0-9]+' | sort -n | tail -1)
+        | grep -oE 'V[0-9]+' | grep -oE '[0-9]+' | sort -n | tail -1 || true)
       MAX_EXISTING=${MAX_EXISTING:-0}
       echo "대상 브랜치(${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}) 기준 최대 버전: $MAX_EXISTING"
       FAILED=0
