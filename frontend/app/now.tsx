@@ -2,13 +2,14 @@
 // 기기 위치와 직접 입력을 항상 함께 보여준다. 추천 API(FR-REC-10)가 아직 없으므로 가짜 후보를 만들지 않고
 // '연결 전' 상태를 그대로 보여준다.
 import { useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 import * as Location from 'expo-location';
 import { useRouter } from 'expo-router';
 
 import { useAuth } from '@/auth/AuthProvider';
 import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
+import { Skeleton } from '@/components/Skeleton';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
@@ -143,7 +144,15 @@ export default function Now() {
       <Button label={tx('지금 갈 곳 찾기', 'Find a place now')} disabled={!canSearch || result.state === 'loading'} onPress={() => void search()} containerStyle={styles.searchButton} />
 
       {result.state === 'loading' && (
-        <View style={styles.stateCard}><ActivityIndicator color={color.brand.navy} /><Text color={color.text.body}>{result.message}</Text></View>
+        <View accessibilityLabel={result.message} style={styles.results}>
+          {[0, 1, 2].map((key) => (
+            <View key={key} style={styles.card}>
+              <View style={styles.cardTop}><Skeleton width="60%" height={18} /><Skeleton width={56} height={20} radius={radius.full} /></View>
+              <Skeleton width="40%" height={14} />
+              <Skeleton width="70%" height={14} />
+            </View>
+          ))}
+        </View>
       )}
       {result.state === 'unavailable' && (
         <View style={styles.stateCard}><Text variant="title" weight="bold">{tx('아직 연결되지 않았어요', 'Not connected yet')}</Text><Text color={color.text.body}>{result.message}</Text></View>

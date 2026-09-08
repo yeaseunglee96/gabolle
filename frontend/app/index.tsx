@@ -38,8 +38,14 @@ const VIDEO_BY_TIME = {
   night: [beachNightVideo, tramSunsetVideo],
 } as const;
 
+// 부산 시간대별 영상이라 기기의 로컬 타임존이 아니라 Asia/Seoul 시각으로 고른다 —
+// 그렇지 않으면 해외에서 접속한 여행자에게는 시간대가 어긋난 영상이 뜬다.
+function seoulHour(date = new Date()) {
+  return Number(new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Seoul', hourCycle: 'h23', hour: 'numeric' }).format(date));
+}
+
 function videosForCurrentTime() {
-  const hour = new Date().getHours();
+  const hour = seoulHour();
   if (hour < 7) return VIDEO_BY_TIME.dawn;
   if (hour < 11) return VIDEO_BY_TIME.morning;
   if (hour < 17) return VIDEO_BY_TIME.day;
@@ -48,7 +54,7 @@ function videosForCurrentTime() {
 }
 
 function shouldUseLightWelcomeLogo() {
-  const hour = new Date().getHours();
+  const hour = seoulHour();
   return hour < 7 || hour >= 17;
 }
 
@@ -105,7 +111,7 @@ export default function Welcome() {
       <Pressable accessibilityRole="link" accessibilityLabel={tx('GABOLLE 홈', 'GABOLLE home')} onPress={() => router.replace('/')} style={({ pressed }) => [styles.logoLink, pressed && styles.pressed]}><Image source={logo} resizeMode="contain" style={styles.webLogo} /></Pressable>
       <View style={styles.webNav}><NavItem label={tx('홈', 'Home')} onPress={() => router.replace('/')} /><NavItem label={tx('여행 만들기', 'Plan a trip')} onPress={startPlanning} /><NavItem label={tx('내 여행', 'My trips')} onPress={() => router.push(user ? '/trips' : '/sign-in')} /><NavItem label={tx('부산 축제', 'Festivals')} onPress={() => router.push('/festivals')} /></View>
       <View style={styles.accountActions}>
-        <Pressable accessibilityRole="button" accessibilityLabel={`언어를 ${language === 'ko' ? 'English' : '한국어'}로 변경`} onPress={() => chooseLanguage(language === 'ko' ? 'en' : 'ko')} style={styles.localeButton}><Text variant="caption" weight="bold">{language.toUpperCase()}</Text></Pressable>
+        <Pressable accessibilityRole="button" accessibilityLabel={tx(`언어를 ${language === 'ko' ? 'English' : '한국어'}로 변경`, `Change language to ${language === 'ko' ? 'English' : 'Korean'}`)} onPress={() => chooseLanguage(language === 'ko' ? 'en' : 'ko')} style={styles.localeButton}><Text variant="caption" weight="bold">{language.toUpperCase()}</Text></Pressable>
         {user ? (
           <Pressable accessibilityRole="button" onPress={() => router.push('/me')} style={styles.signupButton}><Text variant="caption" weight="bold" color={color.text.onAction}>{user.displayName}</Text></Pressable>
         ) : (
@@ -145,7 +151,8 @@ export default function Welcome() {
 }
 
 function LanguageButton({ item, selected, onPress }: { item: WelcomeLanguage; selected: boolean; onPress: () => void }) {
-  return <Pressable accessibilityRole="radio" accessibilityState={{ selected }} accessibilityLabel={`${item.label}로 시작하기`} onPress={onPress} style={({ pressed }) => [styles.languageButton, selected && styles.languageButtonSelected, pressed && styles.pressed]}><Text variant="title" weight="bold" color={selected ? color.brand.navy : color.text.onAction}>{item.label}</Text><View style={[styles.languageAction, selected && styles.languageActionSelected]}><Text variant="body" weight="bold" color={selected ? color.text.onAction : color.text.onAction}>{selected ? '✓' : '→'}</Text></View></Pressable>;
+  const startLabel = item.code === 'ko' ? '한국어로 시작하기' : 'Start in English';
+  return <Pressable accessibilityRole="radio" accessibilityState={{ selected }} accessibilityLabel={startLabel} onPress={onPress} style={({ pressed }) => [styles.languageButton, selected && styles.languageButtonSelected, pressed && styles.pressed]}><Text variant="title" weight="bold" color={selected ? color.brand.navy : color.text.onAction}>{item.label}</Text><View style={[styles.languageAction, selected && styles.languageActionSelected]}><Text variant="body" weight="bold" color={selected ? color.text.onAction : color.text.onAction}>{selected ? '✓' : '→'}</Text></View></Pressable>;
 }
 function NavItem({ label, onPress }: { label: string; onPress: () => void }) { return <Pressable accessibilityRole="link" onPress={onPress} style={styles.navItem}><Text variant="caption" weight="medium">{label}</Text></Pressable>; }
 function HeroChip({ dot, label }: { dot: string; label: string }) { return <View style={styles.heroChip}><View style={[styles.chipDot, { backgroundColor: dot }]} /><Text variant="caption" color="rgba(255,255,255,0.78)">{label}</Text></View>; }

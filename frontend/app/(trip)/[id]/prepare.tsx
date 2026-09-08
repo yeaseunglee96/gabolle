@@ -2,7 +2,7 @@
 //
 // 날씨·준비물은 전부 하드코딩 목업이다. 실제 기상청 API 연동 전까지는 이 값 그대로 둔다.
 import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as Speech from 'expo-speech';
 
@@ -15,9 +15,9 @@ import { useI18n } from '@/i18n';
 import { DIALECT_PHRASES } from '@/discovery/dialectPhrases';
 
 const PREP_ITEMS = [
-  { icon: '☂', name: '접이식 우산', desc: '오후 비 예보' },
-  { icon: '👟', name: '미끄럼 적은 신발', desc: '흰여울 경사 구간' },
-  { icon: '🪪', name: '해외카드·여권 사본', desc: '현장 결제 대비' },
+  { icon: '☂', nameKo: '접이식 우산', nameEn: 'Folding umbrella', descKo: '오후 비 예보', descEn: 'Rain forecast in the afternoon' },
+  { icon: '👟', nameKo: '미끄럼 적은 신발', nameEn: 'Non-slip shoes', descKo: '흰여울 경사 구간', descEn: 'Huinnyeoul has a slope section' },
+  { icon: '🪪', nameKo: '해외카드·여권 사본', nameEn: 'Overseas card · passport copy', descKo: '현장 결제 대비', descEn: 'In case you need to pay on site' },
 ];
 
 function DialectFlashcards() {
@@ -26,15 +26,20 @@ function DialectFlashcards() {
   const [speakingId, setSpeakingId] = useState<string | null>(null);
 
   function listen(phrase: (typeof DIALECT_PHRASES)[number]) {
-    Speech.stop();
-    setSpeakingId(phrase.id);
-    Speech.speak(phrase.dialect, { language: 'ko-KR', rate: 0.9, onDone: () => setSpeakingId(null), onStopped: () => setSpeakingId(null), onError: () => setSpeakingId(null) });
+    try {
+      Speech.stop();
+      setSpeakingId(phrase.id);
+      Speech.speak(phrase.dialect, { language: 'ko-KR', rate: 0.9, onDone: () => setSpeakingId(null), onStopped: () => setSpeakingId(null), onError: () => setSpeakingId(null) });
+    } catch {
+      // 소리 기능이 없는 브라우저(Web Speech API 미지원 등)에서도 카드는 그대로 둔다.
+      setSpeakingId(null);
+    }
   }
 
   return (
     <View style={styles.dialectSection}>
       <Text variant="title" weight="bold" style={styles.prepTitle}>{tx('부산 사투리 한마디', 'A word of Busan dialect')}</Text>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.dialectScroll}>
+      <View style={styles.dialectList}>
         {DIALECT_PHRASES.map((phrase) => {
           const expanded = expandedId === phrase.id;
           return (
@@ -50,7 +55,14 @@ function DialectFlashcards() {
               </Pressable>
               {expanded ? (
                 <>
-                  <Text variant="body" color={color.text.body}>{tx(phrase.standard, phrase.en)}</Text>
+                  <View style={styles.dialectMeaningRow}>
+                    <Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx('표준어', 'Standard Korean')}</Text>
+                    <Text variant="body" color={color.text.body}>{phrase.standard}</Text>
+                  </View>
+                  <View style={styles.dialectMeaningRow}>
+                    <Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx('영문 뜻', 'English meaning')}</Text>
+                    <Text variant="body" color={color.text.body}>{phrase.en}</Text>
+                  </View>
                   <Text variant="caption" color={color.text.muted}>{tx(phrase.situationKo, phrase.situationEn)}</Text>
                   <Pressable accessibilityRole="button" accessibilityLabel={tx(`${phrase.dialect} 발음 듣기`, `Listen to ${phrase.dialect}`)} onPress={() => listen(phrase)} style={styles.listenButton}>
                     <Text variant="caption" weight="bold" color={color.text.onAction}>{speakingId === phrase.id ? tx('재생 중', 'Playing') : tx('▶ 듣기', '▶ Listen')}</Text>
@@ -60,13 +72,14 @@ function DialectFlashcards() {
             </View>
           );
         })}
-      </ScrollView>
+      </View>
     </View>
   );
 }
 
 export default function Prepare() {
   const router = useRouter();
+  const { tx } = useI18n();
   const { id } = useLocalSearchParams<{ id: string }>();
   const tripId = id ?? 'demo-trip';
 
@@ -75,10 +88,10 @@ export default function Prepare() {
       <View style={styles.headerRow}>
         <View style={styles.headerCopy}>
           <Text variant="eyebrow" weight="bold">
-            여행 전 · 8월 24일 출발
+            {tx('여행 전 · 8월 24일 출발', 'Before the trip · Departing Aug 24')}
           </Text>
           <Text variant="display" weight="bold" style={styles.title}>
-            부산 여행 준비
+            {tx('부산 여행 준비', 'Getting ready for Busan')}
           </Text>
         </View>
         <LanguageBadge />
@@ -91,32 +104,32 @@ export default function Prepare() {
           </Text>
           <View style={styles.weatherStatus}>
             <Text variant="body" weight="bold">
-              맑음 · 체감 25°
+              {tx('맑음 · 체감 25°', 'Clear · Feels like 25°')}
             </Text>
             <Text variant="caption" weight="medium" color={color.state.success}>
-              미세먼지 좋음
+              {tx('미세먼지 좋음', 'Fine dust: Good')}
             </Text>
           </View>
         </View>
         <Text variant="body" weight="medium" style={styles.weatherRain}>
-          오후 5시 강수 60% · 일몰 19:04
+          {tx('오후 5시 강수 60% · 일몰 19:04', '60% chance of rain at 5 PM · Sunset 19:04')}
         </Text>
       </View>
 
       <View style={styles.prepCard}>
         <Text variant="title" weight="bold" style={styles.prepTitle}>
-          가볼래가 챙긴 준비물
+          {tx('가볼래가 챙긴 준비물', 'What GABOLLE packed for you')}
         </Text>
         {PREP_ITEMS.map((item) => (
-          <View key={item.name} style={styles.prepRow}>
+          <View key={item.nameKo} style={styles.prepRow}>
             <Text variant="title">{item.icon}</Text>
             <View style={styles.prepBody}>
               <Text variant="body" weight="bold">
-                {item.name}
+                {tx(item.nameKo, item.nameEn)}
               </Text>
             </View>
             <Text variant="caption" style={styles.prepDesc}>
-              {item.desc}
+              {tx(item.descKo, item.descEn)}
             </Text>
           </View>
         ))}
@@ -124,20 +137,20 @@ export default function Prepare() {
 
       <View style={styles.rainCard}>
         <Text variant="caption" weight="bold" color={color.text.accent}>
-          비 예보 대응
+          {tx('비 예보 대응', 'Responding to the rain forecast')}
         </Text>
         <Text variant="title" weight="bold" style={styles.rainTitle}>
-          야외 1곳을 실내 코스로 바꿀까요?
+          {tx('야외 1곳을 실내 코스로 바꿀까요?', 'Swap 1 outdoor stop for an indoor one?')}
         </Text>
         <Text variant="caption" style={styles.rainDesc}>
-          흰여울 → 국립해양박물관 · 이동 12분 감소
+          {tx('흰여울 → 국립해양박물관 · 이동 12분 감소', 'Huinnyeoul → National Maritime Museum · 12 min less travel')}
         </Text>
       </View>
 
       <DialectFlashcards />
 
       <Button
-        label="대체 일정 미리보기"
+        label={tx('대체 일정 미리보기', 'Preview the alternative plan')}
         variant="field"
         containerStyle={styles.cta}
         onPress={() => router.push(`/${tripId}/result`)}
@@ -217,14 +230,12 @@ const styles = StyleSheet.create({
   dialectSection: {
     marginTop: spacing[4],
   },
-  dialectScroll: {
+  dialectList: {
     gap: spacing[3],
-    paddingTop: spacing[1],
-    paddingBottom: spacing[1],
+    marginTop: spacing[1],
   },
   dialectCard: {
-    width: 160,
-    minHeight: 120,
+    minHeight: 84,
     justifyContent: 'center',
     gap: spacing[2],
     padding: spacing[4],
@@ -237,10 +248,12 @@ const styles = StyleSheet.create({
     gap: spacing[2],
   },
   dialectCardExpanded: {
-    width: 220,
     borderColor: color.brand.orange,
     borderWidth: 2,
     backgroundColor: color.surface.warm,
+  },
+  dialectMeaningRow: {
+    gap: spacing[1],
   },
   listenButton: {
     marginTop: spacing[1],
