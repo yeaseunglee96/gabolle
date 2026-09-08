@@ -9,7 +9,7 @@ import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
-import { getPlace, hasLocalityScore, type Place as ApiPlace } from '@/discovery/places';
+import { bilingualPlaceName, getPlace, hasLocalityScore, type Place as ApiPlace } from '@/discovery/places';
 import { useI18n } from '@/i18n';
 import { PlacePhraseModal } from '@/components/PlacePhraseModal';
 import { listAvailableMapApps, type AvailableMapProvider } from '@/utils/externalMaps';
@@ -47,7 +47,7 @@ export default function Place() {
   const resolved = demoPlace
     ? { title: tx(demoPlace.titleKo, demoPlace.titleEn), subtitle: tx(demoPlace.subtitleKo, demoPlace.subtitleEn), apiPlace: null as ApiPlace | null }
     : remote.status === 'loaded'
-      ? { title: tx(remote.place.nameKo, remote.place.nameEn ?? remote.place.nameKo), subtitle: tx(remote.place.address, remote.place.addressEn ?? remote.place.address), apiPlace: remote.place }
+      ? { title: bilingualPlaceName(remote.place.nameKo, remote.place.nameEn), subtitle: tx(remote.place.address, remote.place.addressEn ?? remote.place.address), apiPlace: remote.place }
       : null;
 
   useEffect(() => {

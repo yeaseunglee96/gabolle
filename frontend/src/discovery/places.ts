@@ -33,6 +33,15 @@ export function hasLocalityScore(place: Place) {
   return place.features.some((feature) => feature.featureType === 'LOCALITY_SCORE');
 }
 
+// 장소 이름 한글·영문 병기(S15P21E201-264) — 언어 설정과 무관하게 "해운대 해수욕장 (Haeundae
+// Beach)" 형태로 둘 다 보여준다. 영문 이름이 한국인 택시 기사에게는 쓸모없고, 한글 이름만
+// 보여주면 영어 사용자가 못 읽는다. 영문이 없으면 괄호 없이 한국어 원문만 보여준다 — 빈
+// 문자열을 보여주지 않는다.
+export function bilingualPlaceName(nameKo: string, nameEn?: string | null) {
+  const trimmedEn = nameEn?.trim();
+  return trimmedEn ? `${nameKo} (${trimmedEn})` : nameKo;
+}
+
 export function getPlace(placeId: string, signal?: AbortSignal) {
   return apiRequest<Place>(`/api/v1/places/${encodeURIComponent(placeId)}`, { signal });
 }
