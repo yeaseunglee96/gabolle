@@ -82,6 +82,37 @@ class AuthTokenServiceTest {
 	}
 
 	/**
+	 * S15P21E201-739 — 손 놓고 2시간이 지나면 풀린다.
+	 *
+	 * <p>사용자가 "반나절을 안 썼는데도 로그인이 유지된다" 고 제보해서 줄인 값이다. 이 테스트가
+	 * 재는 것은 두 가지다 — 설정 없이 띄웠을 때의 기본값이 2시간인 것과, <b>갱신할 때마다
+	 * 만료가 그 시점 기준으로 다시 밀리는 것</b>. 뒤의 것이 없으면 이 값은 "손 놓은 시간" 이
+	 * 아니라 "로그인한 뒤 총 시간" 이 되고, 쓰는 도중에 튕긴다.
+	 */
+	@Test
+	void refreshPushesSessionExpiryToTwoHoursFromNow() {
+		assertThat(new AuthProperties().getRefreshTokenTtl()).isEqualTo(java.time.Duration.ofHours(2));
+
+		String rawToken = "current-refresh-token";
+		String currentHash = tokenGenerator.hash(rawToken);
+		// 만료가 5분밖에 안 남은 세션 — 갱신하면 2시간으로 다시 밀려야 한다
+		AuthSession session = AuthSession.issue(user, UUID.randomUUID(), currentHash, "device-1", now.plusSeconds(300));
+		AuthRefreshToken history = AuthRefreshToken.issue(session, currentHash, now.plusSeconds(300));
+		when(refreshTokenRepository.findByTokenHash(currentHash)).thenReturn(Optional.of(history));
+		when(sessionRepository.save(any(AuthSession.class))).thenAnswer(invocation -> invocation.getArgument(0));
+		when(refreshTokenRepository.save(any(AuthRefreshToken.class))).thenAnswer(invocation -> invocation.getArgument(0));
+		when(accessTokenIssuer.issue(any(AppUser.class), org.mockito.ArgumentMatchers.eq(now),
+				org.mockito.ArgumentMatchers.nullable(UUID.class))).thenReturn(
+				new AccessTokenIssuer.IssuedAccessToken("access-token", now.plusSeconds(1800)));
+		when(credentialRepository.findByUserUserId(user.getUserId())).thenReturn(Optional.empty());
+		when(identityRepository.findAllByUserUserId(user.getUserId())).thenReturn(List.of());
+
+		service.refresh(rawToken, "device-1");
+
+		assertThat(session.getExpiresAt()).isEqualTo(now.plus(java.time.Duration.ofHours(2)));
+	}
+
+	/**
 	 * 🔴 S15P21E201-723 — 이 테스트는 원래 {@code now.minusSeconds(10)} 을 썼다. 유예(기본 30초)가
 	 * 생기면서 10초 전은 <b>도난이 아니라 경쟁</b>으로 처리되므로, 도난을 재려면 유예를 넘겨야
 	 * 한다. 기대를 바꾼 것이 아니라 <b>재는 대상을 유예 밖으로 옮긴 것</b>이다.
