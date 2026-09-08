@@ -146,6 +146,39 @@ public class ItineraryExceptionHandler {
 	 * 밖이어도 그 제약은 통과한다 — 표를 건너는 검사라서(마이그레이션 {@code V20260905120000}
 	 * 주석 "막지 못하는 것"). 여기서 막지 않으면 어느 날 화면에도 안 나타나는 항목이 저장된다.
 	 */
+	/**
+	 * S15P21E201-91 — 보낸 순서가 그날의 항목 전부와 일치하지 않는다 — 400.
+	 *
+	 * <p>🔴 무엇이 어긋났는지를 함께 싣는다. 화면이 <b>자기 목록이 낡은 것인지</b>(다시 조회하면
+	 * 된다) <b>항목을 빠뜨린 것인지</b>(보내는 쪽 버그다)를 구분할 수 있어야 한다.
+	 */
+	@ExceptionHandler(ItineraryRevision.DayOrderMismatchException.class)
+	public ResponseEntity<ApiResponse<Void>> handleDayOrderMismatch(
+			ItineraryRevision.DayOrderMismatchException e) {
+		return ResponseEntity.badRequest()
+				.body(ApiResponse.failure(
+						new ApiError("ITINERARY_DAY_ORDER_MISMATCH", e.getMessage(),
+								List.of("dayIndex=" + e.dayIndex())),
+						requestId()));
+	}
+
+	/**
+	 * S15P21E201-91 — 고정된 방문지의 자리가 바뀌려 한다 — 409.
+	 *
+	 * <p>409 로 두는 이유는 {@code ITINERARY_VERSION_CONFLICT} 와 같다. <b>요청은 맞는데 지금
+	 * 상태와 부딪힌다.</b> 화면은 그 항목의 고정을 먼저 풀고 다시 보내면 된다 — 그래서 어느
+	 * 항목이 막았는지를 응답에 싣는다.
+	 */
+	@ExceptionHandler(ItineraryRevision.LockedItemMovedException.class)
+	public ResponseEntity<ApiResponse<Void>> handleLockedItemMoved(
+			ItineraryRevision.LockedItemMovedException e) {
+		return ResponseEntity.status(HttpStatus.CONFLICT)
+				.body(ApiResponse.failure(
+						new ApiError("ITINERARY_LOCKED_ITEM_MOVED", e.getMessage(),
+								List.of("itemKey=" + e.itemKey(), "dayIndex=" + e.dayIndex())),
+						requestId()));
+	}
+
 	@ExceptionHandler(ItineraryEditController.DayOutsideTripException.class)
 	public ResponseEntity<ApiResponse<Void>> handleDayOutsideTrip(
 			ItineraryEditController.DayOutsideTripException e) {
