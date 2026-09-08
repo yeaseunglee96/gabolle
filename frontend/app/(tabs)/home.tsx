@@ -102,6 +102,10 @@ export default function Home() {
           <Text variant="body" weight="medium" color={color.text.onAction}>{tx('🧭  지금 남는 시간, 갈 곳 찾기', '🧭  Got free time now? Find a place')}</Text><Text weight="bold" color={color.text.onAction}>›</Text>
         </Pressable>
 
+        <Pressable accessibilityRole="button" accessibilityLabel={tx('부산 로컬 탐색', 'Explore Busan like a local')} onPress={() => router.push('/explore')} style={({ pressed }) => [styles.exploreBar, pressed && styles.weatherBarPressed]}>
+          <Text variant="body" weight="medium" color={color.text.heading}>{tx('🗺️  축제·야시장 등 로컬 8종 둘러보기', '🗺️  Explore 8 local categories')}</Text><Text weight="bold" color={color.brand.orange}>›</Text>
+        </Pressable>
+
         <View style={styles.heading}>
           <Text variant="display" weight="bold" color={color.text.heading} style={styles.headingTitle}>{tx('오늘 어디 가볼래?', 'Where shall we go today?')}</Text>
           <Text variant="body" color={color.text.muted}>{tx('AI가 취향에 맞는 부산 여행을 제안해드려요', 'AI suggests a Busan trip that matches your taste')}</Text>
@@ -162,6 +166,7 @@ const styles = StyleSheet.create({
   weatherBar: { minHeight: 44, marginTop: spacing[2], paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.state.warningBg, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   weatherBarPressed: { opacity: 0.78, transform: [{ scale: 0.99 }] },
   nowBar: { minHeight: 44, marginTop: spacing[2], paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.brand.navy, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  exploreBar: { minHeight: 44, marginTop: spacing[2], paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.field, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   heading: { gap: spacing[1], marginTop: spacing[4], marginHorizontal: spacing[1] },
   headingTitle: { fontSize: 28, lineHeight: 34 },
   carousel: { gap: spacing[3], paddingHorizontal: spacing[1], paddingVertical: spacing[4] },
