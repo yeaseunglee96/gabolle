@@ -1,5 +1,6 @@
 package com.gabolle.backend.trip.presentation;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
@@ -21,6 +22,7 @@ import com.gabolle.backend.trip.presentation.dto.CreateTripRequest;
 import com.gabolle.backend.trip.presentation.dto.CreateTripRequestMapper;
 import com.gabolle.backend.trip.presentation.dto.TripDetailResponse;
 import com.gabolle.backend.trip.presentation.dto.TripDto;
+import com.gabolle.backend.trip.presentation.dto.TripSummaryResponse;
 
 import jakarta.validation.Valid;
 
@@ -72,6 +74,33 @@ public class TripController {
 
         return ResponseEntity.status(status)
                 .body(ApiResponse.success(TripDto.of(result.trip(), result.snapshot()), requestId));
+    }
+
+    /**
+     * 내 여행 목록 — S15P21E201-738.
+     *
+     * <p>사용자가 "여행 만들기는 되는데 내 여행으로 안 들어가진다" 고 제보해서 만들었다.
+     * 원인은 화면이 아니라 이 자리가 비어 있던 것이다 — 목록 기능이 없으니 앱이 목록을
+     * 기기에 따로 적어 두고 있었고, 앱을 지웠다 깔거나 다른 기기로 로그인하면 여행이
+     * 하나도 없었다.
+     *
+     * <p>🔴 <b>내가 만든 것과 초대받은 것을 함께 준다.</b> 소유자만 주면 초대받은 사람은
+     * 그 여행에 들어갈 경로가 아예 없다 — 초대 링크를 다시 받는 것 말고는 방법이 없어진다.
+     *
+     * <p>🔴 <b>여기서 일정을 함께 읽지 않는다.</b> 목록 한 줄마다 그 여행의 최신 일정을
+     * 붙이면 여행 모듈이 일정 표를 알게 된다. 일정 식별자는 사용자가 여행 하나를 눌렀을 때
+     * {@code GET /api/v1/itineraries?tripId=...} 로 그 모듈에 묻는다 — 목록을 그릴 때가
+     * 아니라 열 때 한 번이므로 요청 수도 늘지 않는다.
+     */
+    @GetMapping
+    public ApiResponse<List<TripSummaryResponse>> list(Authentication authentication) {
+        String requester = AuthenticatedUsers.requireId(authentication).toString();
+
+        List<TripSummaryResponse> trips = queryService.list(requester, TripQueryService.MAX_LIST_SIZE).stream()
+                .map(TripSummaryResponse::of)
+                .toList();
+
+        return ApiResponse.success(trips, "req_" + UUID.randomUUID());
     }
 
     /**

@@ -53,6 +53,33 @@ public class TripQueryService {
 	}
 
 	/**
+	 * 내 여행 목록 — S15P21E201-738.
+	 *
+	 * <p>사용자 제보로 시작한 자리다. "여행 만들기는 되는데 내 여행으로 안 들어가진다" 의
+	 * 원인이 화면이 아니라 <b>서버에 목록 기능이 없는 것</b>이었다. 그래서 앱이 목록을
+	 * 기기에 따로 적어 두고 있었고, 앱을 지우거나 기기를 바꾸면 여행이 사라졌다.
+	 *
+	 * <p>🔴 <b>여기서 권한을 다시 판정하지 않는다.</b> 저장소가 참여 표를 기준으로 고르므로
+	 * 돌아온 여행은 이미 전부 요청자가 회원인 것이다. 판정을 한 번 더 넣으면 두 곳이
+	 * 같은 규칙을 각자 들고 있게 되고, 나중에 한쪽만 바뀐다 — {@link #get} 이 회원 여부로
+	 * 404 를 내는 규칙과 여기가 갈라지면 목록에 보이는데 못 여는 여행이 생긴다.
+	 */
+	@Transactional(readOnly = true)
+	public List<TripRepository.MemberTrip> list(String requesterUserId, int limit) {
+		return this.repository.findTripsForMember(requesterUserId, Math.min(Math.max(limit, 0), MAX_LIST_SIZE));
+	}
+
+	/**
+	 * 목록 한 번에 돌려주는 최대 개수 — S15P21E201-738.
+	 *
+	 * <p>상한을 두는 이유는 한 사람이 들어 있는 여행 수에 상한이 없기 때문이다. 이 값을
+	 * 넘겨야 하는 날이 오면 이어 보기(cursor)를 붙인다. 지금 붙이지 않는 이유는 이 목록이
+	 * 사람이 만든 여행이라 수백 개가 되는 경로가 없고, 안 쓰는 이어 보기를 먼저 만들면
+	 * 그 코드가 검증되지 않은 채로 남기 때문이다.
+	 */
+	public static final int MAX_LIST_SIZE = 50;
+
+	/**
 	 * 🔴 {@code role} — S15P21E201-224. 요청자가 이미 읽어 둔 {@code members} 목록의
 	 * 어느 자리에 있는지로 정한다. 추가 질의는 없다 — 그 목록을 다시 훑을 뿐이다.
 	 * 이 role 을 일정 접근 판정({@code itinerary.application.ItineraryAccess})이 그대로 쓴다.
