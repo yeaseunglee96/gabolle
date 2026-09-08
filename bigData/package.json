@@ -14,6 +14,7 @@
     "collect:tourapi-bf": "node collect/tourapi-barrier-free.mjs",
     "hours": "node process/opening-hours.mjs",
     "permits:wgs84": "node --max-old-space-size=4096 process/permits-wgs84.mjs",
+    "link": "node --max-old-space-size=6144 process/place-link.mjs",
     "calibrate": "node process/calibrate-slope.mjs",
     "slope": "node --max-old-space-size=4096 process/slope.mjs",
     "verify": "node test/verify.mjs",
