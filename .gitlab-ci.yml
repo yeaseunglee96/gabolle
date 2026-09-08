@@ -235,6 +235,13 @@ version:
       git remote set-url origin "https://oauth2:${AXMAP_BOT_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git"
       git config user.name  "axmap-bot"
       git config user.email "axmap-bot@noreply.${CI_SERVER_HOST}"
+      # 🔴 S15P21E201-741 — bigData/main 의 태그 push 가 "This repository is
+      #    configured for Git LFS but 'git-lfs' was not found" 로 계속 죽었다.
+      #    이 저장소 어느 브랜치의 .gitattributes 에도 LFS 선언이 없다(실측,
+      #    2026-09-08) — 훅은 러너 작업 폴더에 남은 잔여물이고, 이미지에
+      #    git-lfs 가 없어 그 훅이 실행되는 순간 무조건 죽는다. 이 잡의 태그
+      #    push 는 어떤 pre-push 훅도 필요 없으니 통째로 끈다.
+      git config core.hooksPath /dev/null
       npx -y axmap-cli@$AXMAP_VERSION version bump --branch "$CI_COMMIT_BRANCH" --push
   rules:
     # MR 에서는 올리지 않는다. 머지되어 브랜치에 들어온 것만 버전을 갖는다.
