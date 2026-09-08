@@ -11,11 +11,16 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.ObjectProvider;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import com.gabolle.backend.itinerary.application.ItineraryDraftService;
+import com.gabolle.backend.itinerary.application.port.TravelTime;
+import com.gabolle.backend.itinerary.domain.ItineraryItem;
+import com.gabolle.backend.itinerary.application.port.TravelTimePort;
 import com.gabolle.backend.itinerary.domain.ItineraryRepository;
 import com.gabolle.backend.place.repository.PlaceRepository;
 import com.gabolle.backend.recommendation.application.port.ItineraryDraft;
@@ -51,8 +56,15 @@ class ItineraryDraftServiceTest {
 		this.tripRepository = mock(TripRepository.class);
 		this.placeRepository = mock(PlaceRepository.class);
 		ItineraryRepository itineraryRepository = mock(ItineraryRepository.class);
+		// 🔴 이동시간 포트를 "없는" 상태로 준다(S15P21E201-179). 이 검사들이 재는 것은
+		//    날짜 배분과 시각 배정이지 바깥 길찾기가 아니고, 포트가 없으면 예전처럼
+		//    직선거리만 채우는 갈래로 떨어진다 — 그 갈래도 살아 있어야 한다.
+		@SuppressWarnings("unchecked")
+		ObjectProvider<TravelTimePort> noTravelTime = mock(ObjectProvider.class);
+		when(noTravelTime.getIfAvailable()).thenReturn(null);
+
 		this.service = new ItineraryDraftService(this.tripRepository, this.placeRepository, itineraryRepository,
-				CLOCK, 4);
+				CLOCK, 4, noTravelTime);
 
 		// 좌표를 모르는 장소만 다루는 테스트들이 기본으로 쓴다 — 거리는 항상 null 이 된다.
 		when(this.placeRepository.findByPlaceIdIn(anyCollection())).thenReturn(List.of());
@@ -95,6 +107,46 @@ class ItineraryDraftServiceTest {
 			assertThat(item.endTime()).isNull();
 			assertThat(item.stayMinutes()).isNull();
 			assertThat(item.dataStatus()).isEqualTo("UNKNOWN");
+		});
+	}
+
+	@Test
+	@DisplayName("🔴 S15P21E201-179 — 구간에 실제 이동시간과 그 값의 출처가 실린다")
+	void legsCarryMeasuredTravelTimeAndItsDataStatus() {
+		Trip trip = tripOf(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 10));
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
+
+		// 이동시간을 아는 포트를 끼운다. 좌표가 없어도 포트가 답을 주면 그 값이 그대로
+		// 구간에 실려야 한다 — 이 검사가 보는 것은 배선이지 거리 계산이 아니다.
+		TravelTimePort port = (fromLat, fromLng, toLat, toLng, mode) ->
+				new TravelTime(1234, 25, ItineraryItem.DataStatus.VERIFIED);
+		@SuppressWarnings("unchecked")
+		ObjectProvider<TravelTimePort> provider = mock(ObjectProvider.class);
+		when(provider.getIfAvailable()).thenReturn(port);
+		ItineraryDraftService withTravelTime = new ItineraryDraftService(this.tripRepository,
+				this.placeRepository, mock(ItineraryRepository.class), CLOCK, 4, provider);
+
+		ItineraryDraft draft = withTravelTime.assemble(commandOf("trip_1", plannedPlaces(3)));
+
+		assertThat(draft.legs()).isNotEmpty();
+		assertThat(draft.legs()).allSatisfy((leg) -> {
+			assertThat(leg.durationMin()).as("이동시간이 비어 있으면 화면이 그 사이를 말할 수 없다").isEqualTo(25);
+			assertThat(leg.distanceM()).isEqualTo(1234);
+			assertThat(leg.dataStatus()).isEqualTo(ItineraryItem.DataStatus.VERIFIED);
+		});
+	}
+
+	@Test
+	@DisplayName("🔴 이동시간을 물어볼 곳이 없으면 UNKNOWN 으로 남는다 — 0 분으로 지어내지 않는다")
+	void withoutATravelTimePortTheLegStaysUnknown() {
+		Trip trip = tripOf(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 10));
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
+
+		ItineraryDraft draft = this.service.assemble(commandOf("trip_1", plannedPlaces(3)));
+
+		assertThat(draft.legs()).allSatisfy((leg) -> {
+			assertThat(leg.durationMin()).isNull();
+			assertThat(leg.dataStatus()).isEqualTo(ItineraryItem.DataStatus.UNKNOWN);
 		});
 	}
 

@@ -197,8 +197,13 @@ public class ItineraryQueryService {
 		}
 
 		ItineraryLeg incomingLeg = legsByKey.get(new LegKey(item.dayIndex(), item.sequence()));
-		Integer walkingMeters = (incomingLeg != null && incomingLeg.toPlaceId().equals(item.placeId()))
-				? incomingLeg.walkingMeters()
+		// 🔴 구간이 이 항목으로 들어오는 것이 맞는지 확인한다. 순서가 바뀐 판에서는 (날짜,순번)
+		//    이 같아도 도착지가 다를 수 있고, 그때 남의 거리를 이 항목에 붙이면 안 된다.
+		boolean incoming = incomingLeg != null && incomingLeg.toPlaceId().equals(item.placeId());
+		Integer walkingMeters = incoming ? incomingLeg.walkingMeters() : null;
+		Integer travelDurationMin = incoming ? incomingLeg.durationMin() : null;
+		String travelDataStatus = (incoming && incomingLeg.dataStatus() != null)
+				? incomingLeg.dataStatus().name()
 				: null;
 
 		return new ItineraryDetailResponse.Item(
@@ -214,7 +219,9 @@ public class ItineraryQueryService {
 				actual == null ? null : seoulIso(actual.departedAt()),
 				// S15P21E201-744 — item.placeId() 를 그대로 쓴다. place 에서 다시 꺼내도 같은
 				// 값이지만, 항목이 가리키는 값을 그대로 돌려주는 쪽이 의도가 분명하다.
-				item.placeId());
+				item.placeId(),
+				travelDurationMin,
+				travelDataStatus);
 	}
 
 	/** {@code visit_date} + {@code start_time} 을 ISO-8601 로 합친다. 시간대는 항상 Asia/Seoul 이다(API-03). */

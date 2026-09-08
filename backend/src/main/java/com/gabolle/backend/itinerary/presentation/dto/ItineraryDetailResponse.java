@@ -79,6 +79,25 @@ public record ItineraryDetailResponse(
 			 * 가리키므로 이 칸은 비지 않는다. 제목으로 장소를 다시 찾지 않는다 — 같은 이름의
 			 * 가게가 여럿이면 엉뚱한 가게에 리뷰가 달린다.
 			 */
-			String placeId) {
+			String placeId,
+
+			/**
+			 * 🔴 2026-09-08 추가 — S15P21E201-179. <b>이 방문지로 오는 데 걸리는 시간</b>(분).
+			 * 그 구간이 없으면(그날 첫 방문지 앞) {@code null} 이다.
+			 *
+			 * <p>지금까지 이 값은 아예 없었다. 일정에 이동 시간이 안 들어가서 화면은 "9시에
+			 * 여기, 11시에 저기" 만 보여줄 뿐 그 사이에 얼마나 걸리는지 말할 수 없었다.
+			 */
+			Integer travelDurationMin,
+			/**
+			 * 🔴 위 두 값({@code travelDurationMin} · {@code walkingMeters})을 얼마나 믿을 수
+			 * 있는가 — {@code VERIFIED} 길찾기 실제 응답 · {@code ESTIMATED} 직선거리 어림값 ·
+			 * {@code UNKNOWN} 좌표가 없어 못 쟀다. 이 기능 이전에 만들어진 판은 {@code null}.
+			 *
+			 * <p><b>화면은 이 값을 반드시 봐야 한다.</b> {@code ESTIMATED} 를 실제 소요시간처럼
+			 * 그리면 사용자는 그 시간에 맞춰 움직이다 늦는다. 참·거짓이 아닌 이유는 "어림잡았다"
+			 * 와 "아무것도 못 쟀다" 가 화면에 서로 다르게 그려져야 하기 때문이다.
+			 */
+			String travelDataStatus) {
 	}
 }
