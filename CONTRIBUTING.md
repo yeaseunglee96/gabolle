@@ -85,7 +85,11 @@ Maintainer(**저장소 관리자 — 보호된 브랜치에 직접 push 하고 M
 ├── .gitlab-ci.yml     올릴 때마다 자동으로 도는 검사
 │
 ├── ci/
-│   └── jira-transition.mjs  머지되면 Jira 카드를 옮긴다 (dev=진행 중 · main=완료)
+│   ├── jira-transition.mjs  머지되면 Jira 카드를 옮긴다 (dev=진행 중 · main=완료)
+│   ├── vote-recheck.mjs     표는 MR 밖에서 오므로, 늦게 온 표를 반영하려면
+│   │                        파이프라인을 다시 만들어야 한다. 그것을 한다
+│   └── runner-up.sh         이 컴퓨터에 CI 러너(**잡을 실제로 돌리는 기계**)를
+│                            띄운다. 러너가 한 대뿐이면 잡이 줄을 서서 CI 가 밀린다
 │
 ├── governance/
 │   └── policy.json    누가 투표권자인가. 도구가 아니라 **팀의 데이터**라 여기 남았다
