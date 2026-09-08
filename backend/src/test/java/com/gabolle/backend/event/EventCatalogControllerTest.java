@@ -42,10 +42,32 @@ class EventCatalogControllerTest {
             EventCatalogEntry entry = byName.get(type.wireName());
             assertThat(entry).as(type.name()).isNotNull();
             assertThat(entry.producer()).isEqualTo(type.expectedProducer().name());
+            assertThat(entry.acceptedProducers())
+                    .containsExactlyInAnyOrderElementsOf(
+                            type.acceptedProducers().stream().map(Enum::name).toList());
             assertThat(entry.requiredForM1()).isEqualTo(type.requiredForM1());
             assertThat(entry.versionRequirement()).isEqualTo(type.versionRequirement().name());
             assertThat(entry.hasAggregateAxis()).isEqualTo(type.hasAggregateAxis());
         }
+    }
+
+    @Test
+    void 저장_제외_방문은_클라이언트도_보낼_수_있다고_사전이_말한다() {
+        // 🔴 producer 만 보면 SERVER 라 "앱은 보낼 수 없다" 로 읽힌다. 실제로는 둘 다 받는다
+        //    (S15P21E201-735). 사전이 그 사실을 말하지 않으면 계측하는 쪽이 안 보낸다.
+        for (EventType type : List.of(EventType.PLACE_LIKE, EventType.PLACE_DISLIKE, EventType.PLACE_VISIT)) {
+            assertThat(EventCatalogEntry.from(type).acceptedProducers())
+                    .as(type.name())
+                    .containsExactlyInAnyOrder("CLIENT", "SERVER");
+        }
+    }
+
+    @Test
+    void 나머지_종류는_만들어야_하는_쪽만_보낼_수_있다() {
+        assertThat(EventCatalogEntry.from(EventType.TRIP_CREATED).acceptedProducers())
+                .containsExactly("SERVER");
+        assertThat(EventCatalogEntry.from(EventType.RECOMMENDATION_IMPRESSION).acceptedProducers())
+                .containsExactly("CLIENT");
     }
 
     @Test

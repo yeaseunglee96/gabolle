@@ -12,9 +12,11 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import com.gabolle.backend.event.application.EventIngestService;
 import com.gabolle.backend.event.application.OutboxAppendCommand;
 import com.gabolle.backend.event.application.OutboxService;
 import com.gabolle.backend.event.domain.EventOutbox;
+import com.gabolle.backend.event.domain.EventType;
 import com.gabolle.backend.event.domain.Producer;
 import com.gabolle.backend.event.repository.EventOutboxRepository;
 import com.gabolle.backend.recommendation.application.RecommendationCodes;
@@ -41,6 +43,9 @@ class OutboxTransactionIntegrationTest extends PostgresIntegrationTest {
 
 	@Autowired
 	private OutboxService outboxService;
+
+	@Autowired
+	private EventIngestService eventIngestService;
 
 	@Autowired
 	private RecommendationRecorder recorder;
@@ -119,6 +124,35 @@ class OutboxTransactionIntegrationTest extends PostgresIntegrationTest {
 				.containsEntry("trip_id", tripId)
 				.containsEntry("producer", "SERVER")
 				.containsKey("seq");
+	}
+
+	@Test
+	@DisplayName("🔴 앱이 보낸 저장이 진짜 DB 에 사용자 축으로 적힌다 — 여행도 추천 요청도 없이")
+	void aClientSaveWithoutTripOrRequestLandsOnTheUserAxis() {
+		// 🔴 이 확인은 PostgreSQL 에서만 뜻이 있다. 지금까지 aggregate_type 에 들어간 값은
+		//    'recommendation' 과 'trip' 둘뿐이었고, 'user' 가 실제로 저장되는지는 아무도
+		//    안 재봤다. 컬럼 길이·제약이 막으면 앱 화면에서야 알게 된다 (S15P21E201-735).
+		UUID eventId = UUID.randomUUID();
+		UUID userId = UUID.randomUUID();
+
+		this.transactionTemplate.executeWithoutResult((status) -> this.eventIngestService.ingestFromClient(
+				eventId, EventType.PLACE_LIKE, 1, userId, null, null,
+				OffsetDateTime.now().minusSeconds(1), Map.of("place_id", "seomyeon-1", "surface", "home")));
+
+		EventOutbox stored = this.outboxRepository.findById(eventId).orElseThrow();
+		assertThat(stored.getAggregateId()).isEqualTo(userId);
+		assertThat(stored.getUserId()).isEqualTo(userId);
+		assertThat(stored.getTripId()).isNull();
+		assertThat(stored.getRequestId()).isNull();
+		assertThat(stored.getProducer()).isEqualTo(Producer.CLIENT);
+
+		Map<String, Object> row = this.jdbcTemplate.queryForMap(
+				"SELECT aggregate_type, aggregate_id, partition_key, producer FROM event_outbox WHERE event_id = ?",
+				eventId);
+		assertThat(row).containsEntry("aggregate_type", "user")
+				.containsEntry("aggregate_id", userId)
+				.containsEntry("partition_key", userId.toString())
+				.containsEntry("producer", "CLIENT");
 	}
 
 	@Test

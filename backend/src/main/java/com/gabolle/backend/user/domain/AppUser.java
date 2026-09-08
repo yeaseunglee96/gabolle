@@ -111,6 +111,26 @@ public class AppUser {
 	 *
 	 * <p>{@code status} 와 {@code deletedAt} 은 원래 이 용도로 만들어져 있던 칸이다.
 	 */
+	/**
+	 * 행동 기반 개인화를 켜고 끈다 — 2026-09-07 추가 (S15P21E201-735).
+	 *
+	 * <p>이 값은 가입할 때 한 번 정해지고 그 뒤로 <b>바꿀 방법이 아예 없었다.</b> 앱은
+	 * 마이페이지에 토글을 뒀는데 그 선택이 기기 안에만 남았고, 서버는 가입 때의 값을
+	 * 계속 믿었다 — 껐다고 생각한 사람의 행동이 계속 개인화에 들어가는 상태다.
+	 *
+	 * <p>🔴 동의 표({@code user_consent})와 <b>따로 두지 않는다.</b> 이 칸은 판정에 쓰는
+	 * 현재 값이고 동의 표는 "언제 무엇에 동의했나" 의 기록이다. 둘 중 하나만 바뀌면
+	 * 개인화는 켜져 있는데 동의는 없는(또는 그 반대) 상태가 되고, 그건 코드가 아니라
+	 * 방침을 어기는 것이다. 그래서 바꾸는 자리를 하나로 둔다 —
+	 * {@code ConsentUpdateService} 가 둘을 같은 트랜잭션에서 고친다.
+	 */
+	public void changePersonalizationMode(PersonalizationMode personalizationMode) {
+		if (personalizationMode == null) {
+			throw new IllegalArgumentException("개인화 모드는 비울 수 없다");
+		}
+		this.personalizationMode = personalizationMode;
+	}
+
 	public void anonymizeForDeletion(Instant deletedAt) {
 		this.displayName = "탈퇴한 사용자";
 		this.ageVerifiedAt = null;

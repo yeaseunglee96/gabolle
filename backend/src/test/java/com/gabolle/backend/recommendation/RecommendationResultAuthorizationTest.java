@@ -119,7 +119,7 @@ class RecommendationResultAuthorizationTest {
 		RecommendationJob job = jobOwnedBy(this.ownerId);
 		when(this.runner.findJob(this.jobId.toString())).thenReturn(Optional.of(job));
 		when(this.resultQueryService.buildResult(job)).thenReturn(new RecommendationResultResponse(
-				"COMPLETED", List.of(), null, null, List.of(), null, 0, null));
+				"COMPLETED", List.of(), null, null, List.of(), null, 0, null, UUID.randomUUID().toString()));
 
 		mockMvc.perform(get("/api/v1/recommendation-jobs/{jobId}", this.jobId)
 						.principal(principal(this.ownerId)))

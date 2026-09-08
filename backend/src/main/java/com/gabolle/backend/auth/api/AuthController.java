@@ -2,6 +2,7 @@ package com.gabolle.backend.auth.api;
 
 import com.gabolle.backend.auth.domain.AuthProvider;
 import com.gabolle.backend.auth.service.AuthCommands;
+import com.gabolle.backend.auth.service.ConsentUpdateService;
 import com.gabolle.backend.auth.service.AuthException;
 import com.gabolle.backend.auth.service.AuthTokenService;
 import com.gabolle.backend.auth.service.AccountDeletionService;
@@ -52,11 +53,14 @@ public class AuthController {
 
 	private final ProfileUpdateService profileUpdateService;
 
+	private final ConsentUpdateService consentUpdateService;
+
 	public AuthController(LocalAuthService localAuthService, PasswordResetService passwordResetService,
 			AuthTokenService tokenService, OAuthLoginService oAuthLoginService,
 			OAuthChallengeService oAuthChallengeService, WebAuthCookieService webAuthCookieService,
 			CurrentUserService currentUserService, ProfileUpdateService profileUpdateService,
-			AccountDeletionService accountDeletionService, OAuthAccountService oAuthAccountService) {
+			AccountDeletionService accountDeletionService, OAuthAccountService oAuthAccountService,
+			ConsentUpdateService consentUpdateService) {
 		this.localAuthService = localAuthService;
 		this.passwordResetService = passwordResetService;
 		this.tokenService = tokenService;
@@ -67,6 +71,39 @@ public class AuthController {
 		this.accountDeletionService = accountDeletionService;
 		this.profileUpdateService = profileUpdateService;
 		this.oAuthAccountService = oAuthAccountService;
+		this.consentUpdateService = consentUpdateService;
+	}
+
+	/**
+	 * 내 동의 상태 — S15P21E201-735.
+	 *
+	 * <p>🔴 {@code GET /me} 에 얹지 않고 따로 뒀다. 동의는 프로필 값이 아니라 <b>정책 판이
+	 * 붙은 결정 기록</b>이라 항목 수도 모양도 프로필과 다르게 늘어난다. 한 응답에 섞으면
+	 * 로그인 직후 매번 동의 기록 전부를 실어 나르게 되고, 그 응답은 앱의 거의 모든 화면이 쓴다.
+	 */
+	@GetMapping("/me/consents")
+	public ApiResponse<UserConsentsResponse> myConsents(Authentication authentication,
+			@RequestHeader(value = "X-Request-Id", required = false) String requestId) {
+		UUID userId = authenticatedUserId(authentication);
+		return ApiResponse.success(consentUpdateService.get(userId), resolveRequestId(requestId));
+	}
+
+	/**
+	 * 동의를 바꾼다 — S15P21E201-735.
+	 *
+	 * <p>이 경로가 없어서 앱의 "행동으로 추천 다듬기" 토글이 <b>기기 안에만</b> 남았다.
+	 * 가입 요청 말고는 동의를 서버에 남길 방법이 없었다 — {@code PATCH /me} 는 이름·언어만 받는다.
+	 *
+	 * <p>🔴 {@code PATCH} 다. 보낸 항목만 바꾸고 안 보낸 항목은 그대로 둔다 — 통째로 덮으면
+	 * 앱 화면에 없는 항목(정밀 위치·건강 제약)이 요청마다 조용히 철회된다.
+	 */
+	@PatchMapping("/me/consents")
+	public ApiResponse<UserConsentsResponse> updateMyConsents(Authentication authentication,
+			@Valid @RequestBody UpdateConsentsRequest request,
+			@RequestHeader(value = "X-Request-Id", required = false) String requestId) {
+		UUID userId = authenticatedUserId(authentication);
+		return ApiResponse.success(consentUpdateService.update(userId, request.consents()),
+				resolveRequestId(requestId));
 	}
 
 	@GetMapping("/me")

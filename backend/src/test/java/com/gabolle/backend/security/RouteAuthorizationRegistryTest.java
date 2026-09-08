@@ -380,6 +380,10 @@ class RouteAuthorizationRegistryTest {
 				"대상이 경로에 없고 인증 주체로만 정해진다 — 남의 것을 지정할 방법이 없다");
 		put(m, "PATCH /api/v1/auth/me", Policy.OWNED,
 				"위와 같다. 대상이 인증 주체 자신뿐이다");
+		put(m, "GET /api/v1/auth/me/consents", Policy.OWNED,
+				"내 동의 상태(-735). 대상이 인증 주체 자신뿐이라 남의 것을 지정할 자리가 없다. ConsentUpdateIntegrationTest");
+		put(m, "PATCH /api/v1/auth/me/consents", Policy.OWNED,
+				"동의 변경(-735). 위와 같다. 🔴 필수 약관은 이 경로로 철회되지 않는다 — 그건 탈퇴다. ConsentUpdateIntegrationTest");
 		put(m, "GET /api/v1/auth/me/deletion-preview", Policy.OWNED,
 				"탈퇴하면 무엇이 지워지는지 미리 보여준다(-188). 대상이 인증 주체 자신뿐이라 남의 것을 지정할 자리가 없다. AccountDeletionIntegrationTest");
 		put(m, "DELETE /api/v1/auth/me", Policy.OWNED,
