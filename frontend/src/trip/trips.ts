@@ -55,3 +55,21 @@ export async function loadTripItineraries(tripId: string, accessToken: string | 
     return failure(error);
   }
 }
+
+// jaehyeon 님 계약(2026-09-08 axmap): DELETE /api/v1/trips/{tripId} — 소유자만 204.
+// 동행자가 부르면 403 TRIP_FORBIDDEN(동행자는 "나가기"이지 "삭제"가 아니다 — 별도로
+// DELETE /trips/{tripId}/members/{userId} 를 쓴다). 🔴 이미 지운 여행을 소유자가 다시
+// 지워도 204 다 — 응답이 끊겨 재시도한 경우 오류로 보이면 "안 지워졌다"고 착각하게 되므로,
+// 여기서는 404(TRIP_NOT_FOUND)도 "이미 없다"는 뜻으로 같이 성공 취급한다.
+export type DeleteTripResult = { state: 'success' } | { state: 'forbidden'; message: string } | TripsFailure;
+
+export async function deleteTrip(tripId: string, accessToken: string | null): Promise<DeleteTripResult> {
+  try {
+    await apiRequest<void>(`/api/v1/trips/${encodeURIComponent(tripId)}`, { method: 'DELETE', accessToken });
+    return { state: 'success' };
+  } catch (error) {
+    if (error instanceof ApiClientError && error.status === 404) return { state: 'success' };
+    if (error instanceof ApiClientError && error.status === 403) return { state: 'forbidden', message: error.message };
+    return failure(error);
+  }
+}
