@@ -10,7 +10,32 @@ public class AuthProperties {
 
 	private String jwtSecret = "local-development-secret-change-me";
 	private Duration accessTokenTtl = Duration.ofMinutes(30);
-	private Duration refreshTokenTtl = Duration.ofDays(14);
+
+	/**
+	 * 갱신 표의 유효 시간 — 실질적으로 <b>"손 놓고 이만큼 지나면 로그아웃"</b> 이다
+	 * (S15P21E201-739).
+	 *
+	 * <p>사용자가 체감하는 로그인 유지 기간은 {@link #accessTokenTtl}(30분)이 아니라 이 값이다.
+	 * 앱은 접속 표가 만료되면 갱신 표로 조용히 새로 받아 오기 때문이다
+	 * ({@code frontend/src/api/client.ts} 가 401 을 받으면 갱신하고 재시도한다).
+	 *
+	 * <p>🔴 2026-09-08 에 <b>14일에서 2시간으로 줄였다.</b> 사용자가 "반나절을 안 썼는데도
+	 * 로그인이 그대로다" 라고 제보했고, 값을 보니 그게 정상 동작이었다. 여행 일정·기록·위치가
+	 * 붙어 있는 계정이 공용 PC 나 잃어버린 폰에서 2주 동안 열려 있는 것은 너무 길다.
+	 *
+	 * <p>🔴 <b>쓰는 동안에는 끊기지 않는다.</b> {@code AuthTokenService.rotate} 가 갱신할 때마다
+	 * 만료 시각을 그 시점 기준으로 다시 계산해 넣으므로, 이 값은 "마지막으로 쓴 뒤 얼마나
+	 * 버티는가" 이지 "로그인한 뒤 얼마 만에 끊기는가" 가 아니다. 그래서 2시간으로 줄여도
+	 * 쓰는 중에 튕기지 않는다.
+	 *
+	 * <p>같은 이유로 <b>절대 상한이 없다</b> — 2시간마다 한 번씩 열면 그 세션은 계속 산다.
+	 * 상한을 두려면 최초 발급 시각을 함께 보는 자리가 하나 더 필요하고, 그것은 이 티켓에
+	 * 넣지 않았다({@code S15P21E201-739} 의 "확인 필요").
+	 *
+	 * <p>웹(브라우저)도 이 값을 따른다 — {@code WebAuthCookieService} 가 쿠키 수명을 여기서
+	 * 가져오므로 한 곳만 고치면 앱과 웹이 같이 움직인다.
+	 */
+	private Duration refreshTokenTtl = Duration.ofHours(2);
 
 	/**
 	 * 이미 쓴 갱신 표가 이 시간 안에 다시 오면 <b>도난이 아니라 정상 경쟁</b>으로 본다

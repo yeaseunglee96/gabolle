@@ -26,6 +26,29 @@ public interface TripRepository {
 
     List<TripMember> findMembers(String tripId);
 
+    /**
+     * 한 사람이 회원으로 들어 있는 여행을 최근에 손댄 순으로 읽는다 — S15P21E201-738.
+     *
+     * <p>🔴 <b>소유자만 보는 것이 아니다.</b> 판정 기준을 {@code trip.owner_user_id} 로 두면
+     * 초대받아 들어온 사람에게 그 여행이 목록에 안 나오고, 그러면 초대받은 사람은
+     * 여행에 들어갈 경로가 아예 없다. {@link TripMember} 표를 기준으로 읽는다 —
+     * {@link #findMembers(String)} 가 이미 그 표를 여행 쪽에서 보는 것과 같은 표다.
+     *
+     * <p>지운 여행({@code deleted_at} 이 채워진 행)은 빼고, {@code limit} 개까지만 준다.
+     * 상한을 두는 이유는 한 사람이 들어 있는 여행 수에 상한이 없기 때문이다 —
+     * 목록 한 번에 표 전체를 읽어 오는 자리를 만들지 않는다.
+     */
+    List<MemberTrip> findTripsForMember(String userId, int limit);
+
+    /**
+     * 목록 한 줄 — 여행과, 그 여행에서 요청자가 가진 역할.
+     *
+     * <p>역할을 함께 주는 이유는 화면이 편집 버튼을 켤지 정해야 하기 때문이다.
+     * 목록을 받은 뒤 여행마다 역할을 다시 묻게 만들면 N 번을 더 부른다.
+     */
+    record MemberTrip(Trip trip, TripMember.Role role) {
+    }
+
     /** 특정 판. 없으면 비어 있다. */
     Optional<PreferenceSnapshot> findSnapshot(String tripId, int version);
 

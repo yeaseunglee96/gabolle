@@ -76,6 +76,26 @@ public class InMemoryTripRepository implements TripRepository {
         return members.getOrDefault(tripId, List.of());
     }
 
+    /**
+     * S15P21E201-738 — JPA 판과 같은 규칙으로 고른다. 참여 표를 훑어 내가 들어 있는
+     * 여행을 모으고, 지운 여행을 빼고, 최근에 손댄 순으로 상한까지 자른다.
+     */
+    @Override
+    public List<TripRepository.MemberTrip> findTripsForMember(String userId, int limit) {
+        if (limit <= 0) {
+            return List.of();
+        }
+        return members.entrySet().stream()
+                .flatMap(entry -> entry.getValue().stream()
+                        .filter(member -> member.userId().equals(userId))
+                        .map(member -> new TripRepository.MemberTrip(trips.get(entry.getKey()), member.role())))
+                .filter(row -> row.trip() != null && row.trip().deletedAt() == null)
+                .sorted(Comparator.comparing((TripRepository.MemberTrip row) -> row.trip().updatedAt(),
+                        Comparator.nullsLast(Comparator.reverseOrder())))
+                .limit(limit)
+                .toList();
+    }
+
     @Override
     public Optional<PreferenceSnapshot> findSnapshot(String tripId, int version) {
         return snapshots.getOrDefault(tripId, List.of()).stream()

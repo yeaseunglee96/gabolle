@@ -4,10 +4,13 @@ import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.context.annotation.Profile;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -126,6 +129,42 @@ public class JpaTripRepository implements TripRepository {
 	public List<TripMember> findMembers(String tripId) {
 		return memberJpaRepository.findByTripId(UUID.fromString(tripId)).stream()
 				.map(JpaTripRepository::toDomain)
+				.toList();
+	}
+
+	/**
+	 * S15P21E201-738 — 내 여행 목록.
+	 *
+	 * <p>🔴 질의는 <b>여행 수와 무관하게 둘</b>이다. 참여 행을 한 번 읽어 여행 식별자와
+	 * 역할을 얻고, 그 식별자 묶음으로 여행을 한 번 읽는다. 여행마다 {@code findById} 를
+	 * 부르면 목록 하나에 질의가 N+1 이 된다.
+	 *
+	 * <p>정렬은 질의가 이미 {@code updated_at} 내림차순으로 해 두었다. 그 순서를 그대로
+	 * 유지하려고 역할은 <b>맵으로 찾아 붙이기만</b> 한다 — 여기서 다시 정렬하면 질의가
+	 * 정한 순서를 두 곳에서 정하게 된다.
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public List<TripRepository.MemberTrip> findTripsForMember(String userId, int limit) {
+		if (limit <= 0) {
+			return List.of();
+		}
+
+		Map<UUID, TripMember.Role> roleByTripId = memberJpaRepository.findByUserId(UUID.fromString(userId)).stream()
+				.collect(Collectors.toMap(TripMemberJpaEntity::tripId, TripMemberJpaEntity::role,
+						// uq_trip_member (trip_id, user_id) 가 한 사람당 한 행을 보장하므로
+						// 충돌은 생기지 않는다. 그래도 병합 규칙을 비워 두지 않는다 —
+						// 제약이 사라진 날 조용히 예외로 죽는 것보다 먼저 들어온 값을 쓴다.
+						(first, second) -> first));
+
+		if (roleByTripId.isEmpty()) {
+			return List.of();
+		}
+
+		return tripJpaRepository
+				.findByTripIdInAndDeletedAtIsNullOrderByUpdatedAtDesc(roleByTripId.keySet(), Pageable.ofSize(limit))
+				.stream()
+				.map(e -> new TripRepository.MemberTrip(toDomain(e), roleByTripId.get(e.tripId())))
 				.toList();
 	}
 

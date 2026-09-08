@@ -388,8 +388,16 @@ class RouteAuthorizationRegistryTest {
 		// ── 여행 ────────────────────────────────────────────────────────────────
 		put(m, "POST /api/v1/trips", Policy.AUTHENTICATED_ONLY,
 				"새로 만드는 것이라 기존 자원의 주인 개념이 없다. 소유자는 인증 주체로 박힌다");
+		// 🔴 목록은 OWNED 가 아니라 AUTHENTICATED_ONLY 다 — 부를 때 자원을 지목하지 않기
+		//    때문이다. 위험은 "남의 것을 부르면 거부되는가" 가 아니라 "남의 여행이 목록에
+		//    섞이는가" 이고, 그것은 저장소가 참여 표로 거른다. TripListIntegrationTest 의
+		//    doesNotLeakTripsIAmNotAMemberOf 가 그 자리를 지킨다.
+		put(m, "GET /api/v1/trips", Policy.AUTHENTICATED_ONLY,
+				"내 여행 목록. 참여 표로 걸러 남의 여행이 섞이지 않는다. TripListIntegrationTest");
 		put(m, "GET /api/v1/trips/{}", Policy.OWNED,
 				"비회원은 존재를 감춘 404. TripControllerGetTest · ItineraryAccessIntegrationTest");
+		put(m, "GET /api/v1/trips/{}/itineraries", Policy.OWNED,
+				"참여자만. 비회원과 없는 여행이 같은 404. TripItineraryListIntegrationTest");
 		put(m, "GET /api/v1/trips/{}/activity", Policy.OWNED,
 				"참여자만. TripActivityIntegrationTest");
 		put(m, "GET /api/v1/trips/{}/members", Policy.OWNED,
