@@ -21,6 +21,7 @@ import com.gabolle.backend.place.service.PlaceCandidateQueryService;
 import com.gabolle.backend.recommendation.config.BaselineEngineProperties;
 import com.gabolle.backend.recommendation.config.PreferenceAlignmentWeights;
 import com.gabolle.backend.recommendation.domain.FallbackMode;
+import com.gabolle.backend.recommendation.domain.RequestLocation;
 import com.gabolle.backend.trip.domain.PreferenceSnapshot;
 import com.gabolle.backend.trip.domain.Trip;
 import com.gabolle.backend.trip.domain.TripConstraint;
@@ -91,11 +92,19 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 	public EngineCandidateBatch generate(EngineRequest request) {
 		Trip trip = loadTrip(request.tripId());
 
-		if (trip.originLat() == null || trip.originLng() == null) {
+		// 🔴 S15P21E201-550 — 요청이 준 현재 위치가 있으면 그것이 중심이고, 없으면 여행
+		//    출발지를 쓴다. 둘 다 없을 때만 실패다.
+		//
+		//    수기 입력(MANUAL)은 여기서 GPS 와 **똑같이** 다뤄진다 — 작업 내용이 "위치 거부
+		//    시 수기 입력을 1급 fallback 으로 제공한다" 라고 못 박았고, 거리 계산에 들어가는
+		//    값은 어느 쪽이든 좌표 하나다.
+		RequestLocation location = (request.location() != null) ? request.location()
+				: RequestLocation.ofTripOrigin(trip.originLat(), trip.originLng(), trip.createdAt());
+		if (location == null) {
 			// 🔴 부산 시청 같은 중심 좌표를 지어내지 않는다 — 결과가 왜 이상한지 아무도 못
 			// 찾게 된다. 좌표가 없으면 여기서 실패로 남긴다.
 			throw new RecommendationEngineException("ENGINE_ORIGIN_MISSING",
-					"여행에 출발지 좌표가 없다: tripId=" + request.tripId());
+					"요청에 현재 위치가 없고 여행에도 출발지 좌표가 없다: tripId=" + request.tripId());
 		}
 
 		// 🔴 findLatestSnapshot·findConstraints 를 쓰지 않는다 — 추천 Job 이 기록해 둔 "그 판"
@@ -106,7 +115,8 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 				: this.tripRepository.findConstraintsBySnapshotId(request.constraintSnapshotId().toString());
 
 		long candidateGenerationStart = System.nanoTime();
-		PlaceCandidateRequest queryRequest = this.translator.translate(trip, preferenceSnapshot, constraints);
+		PlaceCandidateRequest queryRequest =
+				this.translator.translate(location, trip, preferenceSnapshot, constraints);
 		PlaceCandidateResponse response = this.placeCandidateQueryService.findCandidates(queryRequest);
 		long candidateGenerationMs = elapsedMs(candidateGenerationStart);
 
@@ -143,7 +153,9 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 				this.properties.ontologyVersion(), this.properties.policyVersion(), datasetVersion);
 		EngineLatencies latencies = new EngineLatencies(candidateGenerationMs, null, null, rankingMs, null);
 
-		return new EngineCandidateBatch(candidates, versions, latencies, FallbackMode.BASELINE, "NO_MODEL_ENGINE");
+		// 🔴 실제로 쓴 출발지를 함께 돌려준다 — 그 선택을 아는 것은 엔진뿐이다.
+		return new EngineCandidateBatch(candidates, versions, latencies, FallbackMode.BASELINE,
+				"NO_MODEL_ENGINE", location);
 	}
 
 	/**

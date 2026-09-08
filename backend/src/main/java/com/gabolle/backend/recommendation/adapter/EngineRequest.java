@@ -2,6 +2,8 @@ package com.gabolle.backend.recommendation.adapter;
 
 import java.util.UUID;
 
+import com.gabolle.backend.recommendation.domain.RequestLocation;
+
 /**
  * 추천 엔진에 넘기는 입력.
  *
@@ -17,6 +19,8 @@ import java.util.UUID;
  * @param itineraryId 일정. 없으면 {@code null}
  * @param itineraryVersion 일정 버전
  * @param topK 응답에 담을 최대 개수. 후보 <b>생성</b> 개수를 제한하는 값이 아니다
+ * @param location 🔴 S15P21E201-550 — 후보 조회의 중심으로 쓸 위치. <b>저장되지 않는다.</b>
+ *     {@code null} 이면 엔진이 여행 출발지를 쓴다
  */
 public record EngineRequest(
 		UUID requestId,
@@ -27,5 +31,14 @@ public record EngineRequest(
 		UUID constraintSnapshotId,
 		UUID itineraryId,
 		Integer itineraryVersion,
-		int topK) {
+		int topK,
+		RequestLocation location) {
+
+	/** 위치 없는 요청 — S15P21E201-550 이전의 모양 그대로다. */
+	public EngineRequest(UUID requestId, UUID userId, UUID tripId, Integer tripVersion,
+			UUID preferenceSnapshotId, UUID constraintSnapshotId, UUID itineraryId, Integer itineraryVersion,
+			int topK) {
+		this(requestId, userId, tripId, tripVersion, preferenceSnapshotId, constraintSnapshotId, itineraryId,
+				itineraryVersion, topK, null);
+	}
 }

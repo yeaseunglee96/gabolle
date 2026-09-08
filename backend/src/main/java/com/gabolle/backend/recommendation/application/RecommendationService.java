@@ -192,7 +192,7 @@ public class RecommendationService {
 		try {
 			batch = engine.generate(new EngineRequest(job.getRequestId(), command.userId(), command.tripId(),
 					command.tripVersion(), command.preferenceSnapshotId(), command.constraintSnapshotId(),
-					command.itineraryId(), command.itineraryVersion(), topK));
+					command.itineraryId(), command.itineraryVersion(), topK, command.location()));
 		}
 		catch (RecommendationEngineException ex) {
 			// 엔진이 잠깐 죽었거나 느렸을 수 있다 — 다시 부르면 달라질 여지가 있다.
@@ -236,6 +236,10 @@ public class RecommendationService {
 				batch.versions().ontologyVersion(), batch.versions().policyVersion(),
 				batch.versions().datasetVersion(), this.properties.serviceVersion(),
 				this.properties.deploymentEnvironment());
+
+		// 🔴 S15P21E201-550 — 엔진이 실제로 쓴 출발지의 **파생값만** 남긴다. 정밀 좌표를
+		//    담을 칸은 이 표에 아예 없다(RecommendationJob.originAreaCode javadoc).
+		job.applyOrigin(batch.resolvedLocation());
 
 		CandidateAssembly assembly;
 		try {

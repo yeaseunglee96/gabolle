@@ -190,6 +190,21 @@ public class RecommendationJob {
 	@Column(name = "editorial_pick_id")
 	private UUID editorialPickId;
 
+	/**
+	 * 출발지를 대략 1km 칸으로 뭉갠 번호 (S15P21E201-550).
+	 *
+	 * <p>🔴 <b>정밀 좌표를 담는 칸은 이 표에 없다.</b> 요청이 받은 좌표는 거리 계산에만
+	 * 쓰이고 요청이 끝나면 사라진다 — 그래서 보존 기간이 0 이고 그것을 검사할 수 있다
+	 * (-550 완료 기준 3, {@link RequestLocation} javadoc).
+	 */
+	@Column(name = "origin_area_code", length = 32)
+	private String originAreaCode;
+
+	/** 그 좌표가 어디서 왔나 — GPS · 수기 입력 · 여행 출발지 (S15P21E201-550). */
+	@Enumerated(EnumType.STRING)
+	@Column(name = "origin_source", length = 20)
+	private RequestLocation.LocationSource originSource;
+
 	protected RecommendationJob() {
 		// JPA 전용
 	}
@@ -328,6 +343,29 @@ public class RecommendationJob {
 		}
 		this.sourceMode = SourceMode.EDITORIAL_PICK;
 		this.editorialPickId = editorialPickId;
+	}
+
+	/**
+	 * 이번 요청이 어느 칸에서 왔는지 남긴다 (S15P21E201-550).
+	 *
+	 * <p>🔴 <b>{@link RequestLocation} 을 그대로 받아서 여기서 뭉갠다.</b> 부르는 쪽이
+	 * 칸 번호를 만들어 넘기게 하면, 뭉개는 규칙이 호출부마다 생기고 그중 하나가 정밀
+	 * 좌표를 그대로 넣는 날이 온다. 뭉개는 곳을 한 곳으로 묶어 두는 것이 요점이다.
+	 */
+	public void applyOrigin(RequestLocation location) {
+		if (location == null) {
+			return;
+		}
+		this.originAreaCode = location.areaCode();
+		this.originSource = location.source();
+	}
+
+	public String getOriginAreaCode() {
+		return this.originAreaCode;
+	}
+
+	public RequestLocation.LocationSource getOriginSource() {
+		return this.originSource;
 	}
 
 	public SourceMode getSourceMode() {

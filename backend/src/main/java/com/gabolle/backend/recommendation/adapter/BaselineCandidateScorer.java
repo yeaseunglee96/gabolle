@@ -19,7 +19,9 @@ import com.gabolle.backend.place.domain.MatchKind;
 import com.gabolle.backend.place.domain.UserPlaceCodeMap;
 import com.gabolle.backend.recommendation.config.BaselineEngineProperties;
 import com.gabolle.backend.recommendation.config.PreferenceAlignmentWeights;
+import com.gabolle.backend.recommendation.domain.CoarseArea;
 import com.gabolle.backend.recommendation.domain.ConstraintVerdict;
+import com.gabolle.backend.recommendation.domain.DistanceBucket;
 import com.gabolle.backend.trip.domain.PreferenceSnapshot;
 import com.gabolle.backend.trip.domain.TripConstraint;
 
@@ -113,11 +115,14 @@ public class BaselineCandidateScorer {
 		//    잃는 것이 없다. 그 그물의 javadoc 이 "최후의 그물이지 설계 대체물이 아니다 —
 		//    무엇을 담을지는 부르는 쪽이 정해야 한다" 고 적은 그 결정이 이것이다.
 		featureValues.put("category", candidate.category());
-		featureValues.put("localityBucket", localityBucket(candidate.lat(), candidate.lng()));
+		featureValues.put("localityBucket", CoarseArea.of(candidate.lat(), candidate.lng()));
 
 		// ── 거리 — 항상 잴 수 있다 ────────────────────────────────────────────
 		double distanceComponent = clamp01(1.0 - (candidate.distanceM() / (double) radiusM));
 		featureValues.put("distanceM", candidate.distanceM());
+		// 🔴 S15P21E201-550 — 장기 분석은 띠로 센다. 미터만 남기면 질의마다 경계를 다시
+		//    정하게 되어 같은 지표가 사람마다 다른 숫자가 된다(DistanceBucket javadoc).
+		featureValues.put("distanceBucket", DistanceBucket.of(candidate.distanceM()));
 		scoreComponents.put("distance", componentDetail(weights.distance(), distanceComponent, null));
 		reasonCodes.add("NEAR_ORIGIN");
 		total += weights.distance() * distanceComponent;
@@ -522,20 +527,6 @@ public class BaselineCandidateScorer {
 		double alignment = clamp01(1.0 - Math.abs(normalizedPlace - prefScore));
 		alignments.put(preferenceCode, alignment);
 		reasonCodes.add("PREF_ALIGNED_" + preferenceCode);
-	}
-
-	/**
-	 * 다양성 재정렬이 "같은 동네" 를 판단할 굵은 구역 번호. 좌표가 없으면 {@code null}.
-	 *
-	 * <p>🔴 소수점 두 자리에서 자른 뒤 <b>정수 쌍</b>으로 만든다({@code "3515:12905"}).
-	 * 소수점을 남기지 않는 것도 일부러다 — 남기면 좌표처럼 보이고, 좌표처럼 보이는 값은
-	 * 다음 사람이 좌표로 쓴다.
-	 */
-	private static String localityBucket(Double lat, Double lng) {
-		if (lat == null || lng == null) {
-			return null;
-		}
-		return Math.round(lat * 100) + ":" + Math.round(lng * 100);
 	}
 
 	/** 점수형 피처(키가 없는 행) 하나의 값. 못 구하면 {@code null} 이다. */

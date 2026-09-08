@@ -13,6 +13,7 @@ import com.gabolle.backend.place.domain.UserInputKind;
 import com.gabolle.backend.place.domain.UserPlaceCodeMap;
 import com.gabolle.backend.place.repository.UserPlaceCodeMapRepository;
 import com.gabolle.backend.recommendation.config.BaselineEngineProperties;
+import com.gabolle.backend.recommendation.domain.RequestLocation;
 import com.gabolle.backend.trip.domain.PersonalizationScope;
 import com.gabolle.backend.trip.domain.PreferenceSnapshot;
 import com.gabolle.backend.trip.domain.Trip;
@@ -48,7 +49,7 @@ class BaselineCandidateTranslatorTest {
 		categoryIsMapped(true);
 		Trip trip = trip(35.15, 129.05);
 
-		PlaceCandidateRequest request = this.translator.translate(trip, null, List.of());
+		PlaceCandidateRequest request = this.translator.translate(originOf(trip), trip, null, List.of());
 
 		assertThat(request.center().lat()).isEqualTo(35.15);
 		assertThat(request.center().lng()).isEqualTo(129.05);
@@ -70,7 +71,7 @@ class BaselineCandidateTranslatorTest {
 						TripConstraint.EvidenceStatus.VERIFIED, TripConstraint.AnswerStatus.SELECTED,
 						PersonalizationScope.TRIP, null));
 
-		PlaceCandidateRequest request = this.translator.translate(trip, null, constraints);
+		PlaceCandidateRequest request = this.translator.translate(originOf(trip), trip, null, constraints);
 
 		assertThat(request.requiredFeatures()).isEmpty();
 		assertThat(request.excludedFeatures()).isEmpty();
@@ -83,7 +84,7 @@ class BaselineCandidateTranslatorTest {
 		Trip trip = trip(35.15, 129.05);
 		PreferenceSnapshot snapshot = snapshot("CATEGORY", "{\"codes\": [\"SEA\", \"CAFE\"]}");
 
-		PlaceCandidateRequest request = this.translator.translate(trip, snapshot, List.of());
+		PlaceCandidateRequest request = this.translator.translate(originOf(trip), trip, snapshot, List.of());
 
 		assertThat(request.categories()).containsExactly("SEA", "CAFE");
 	}
@@ -95,7 +96,7 @@ class BaselineCandidateTranslatorTest {
 		Trip trip = trip(35.15, 129.05);
 		PreferenceSnapshot snapshot = snapshot("CATEGORY", "{\"codes\": [\"SEA\"]}");
 
-		PlaceCandidateRequest request = this.translator.translate(trip, snapshot, List.of());
+		PlaceCandidateRequest request = this.translator.translate(originOf(trip), trip, snapshot, List.of());
 
 		assertThat(request.categories()).isEmpty();
 	}
@@ -106,7 +107,7 @@ class BaselineCandidateTranslatorTest {
 		categoryIsMapped(true);
 		Trip trip = trip(35.15, 129.05);
 
-		PlaceCandidateRequest request = this.translator.translate(trip, null, List.of());
+		PlaceCandidateRequest request = this.translator.translate(originOf(trip), trip, null, List.of());
 
 		assertThat(request.categories()).isEmpty();
 	}
@@ -128,5 +129,14 @@ class BaselineCandidateTranslatorTest {
 				List.of(new PreferenceSnapshot.PreferenceAnswer(dimension, valueJson,
 						PreferenceSnapshot.AnswerStatus.SELECTED)),
 				PersonalizationScope.TRIP, List.of(), Instant.now());
+	}
+
+	/**
+	 * 🔴 S15P21E201-550 — 중심 좌표를 여행에서 읽는 대신 {@code RequestLocation} 으로
+	 * 받게 바뀌었다. 이 테스트들은 "요청이 위치를 안 준" 경우를 보므로 여행 출발지에서
+	 * 만든다 — 엔진이 실제로 하는 것과 같다.
+	 */
+	private static RequestLocation originOf(Trip trip) {
+		return RequestLocation.ofTripOrigin(trip.originLat(), trip.originLng(), trip.createdAt());
 	}
 }
