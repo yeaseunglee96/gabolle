@@ -1,0 +1,15 @@
+{
+  "name": "survey-recommend",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "부산 추천 장소 설문 — 화면과 작은 서버 (S15P21E201-754)",
+  "main": "server.mjs",
+  "scripts": {
+    "start": "node server.mjs",
+    "check": "node --check server.mjs"
+  },
+  "dependencies": {
+    "pg": "^8.13.1"
+  }
+}
