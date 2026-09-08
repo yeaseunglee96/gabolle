@@ -3,6 +3,7 @@ package com.gabolle.testslice;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  * 개인정보 자동 정리 배치 통합 테스트가 띄우는 애플리케이션 — <b>공통·인증·사용자·개인정보정리만</b> 올린다.
@@ -14,6 +15,16 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
  * ({@code event} 패키지 밖에서 {@code EventOutboxRepository} 를 부르지 않는다는 그 패키지의
  * 규칙을 지키면서, 엔티티 매핑만 빌린다). {@code event.repository} 는 올리지 않는다 — 이 슬라이스가
  * {@code EventOutboxRepository} 빈을 실제로 쓰지 않는다.
+ *
+ * <h2>🔴 {@code @EnableScheduling} — 2026-09-08 사고에서 빠졌던 것</h2>
+ *
+ * 처음 이 슬라이스를 만들 때 이 애노테이션을 빠뜨렸다. 그 결과 {@code PrivacyCleanupScheduler}의
+ * {@code @Scheduled}가 {@code ScheduledAnnotationBeanPostProcessor}를 한 번도 안 거쳤고,
+ * {@code cron} 속성의 {@code ${gabolle.privacy.cleanup.cron}} 플레이스홀더가 실제 운영
+ * 프로필(`GabolleBackendApplication`, `@EnableScheduling` 있음)에서만 해석을 시도하다가
+ * {@code application.properties}에 그 키가 없어서 배포가 통째로 죽었다 — 테스트는 전부 초록이었다.
+ * 이 애노테이션이 있어야 이 슬라이스도 운영과 같은 경로(플레이스홀더 해석 포함)를 타서
+ * 같은 종류의 버그를 다시 놓치지 않는다.
  */
 @SpringBootApplication(scanBasePackages = {
 		"com.gabolle.backend.common",
@@ -21,6 +32,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 		"com.gabolle.backend.user",
 		"com.gabolle.backend.privacy"
 })
+@EnableScheduling
 @EntityScan(basePackages = {
 		"com.gabolle.backend.auth.domain",
 		"com.gabolle.backend.user.domain",
