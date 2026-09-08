@@ -1,5 +1,10 @@
 package com.gabolle.backend;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.Statement;
+
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -37,6 +42,21 @@ import com.gabolle.backend.recommendation.support.TestDatabase;
  * <p>🔴 {@code gabolle.auth.jwt-secret} 처럼 기본값이 없는 값은 여기서 직접 채운다 — 실제
  * {@code GABOLLE_JWT_SECRET} 환경변수가 있어야 하는 게 아니라, {@code spring.datasource.*}
  * 처럼 이 값이 채워진다는 사실만 필요하다({@link TestDatabase} 와 같은 판단).
+ *
+ * <h2>🔴 스키마는 왜 여기서 직접 만드나 — CI 에서 실제로 겪은 두 번째 실수</h2>
+ *
+ * 이 클래스를 처음 커밋했을 때 로컬에서는 통과했는데 CI 에서 또 실패했다 —
+ * {@code FlywaySqlScriptException}("schema \"gabolle\" does not exist"). 이유는
+ * {@code application-dev.properties} 의 {@code spring.flyway.create-schemas=false} 다 —
+ * 그 파일 자체가 "운영에서는 이 schema 를 DB 관리자가 먼저 만들고 app_user 에게 권한을
+ * 준다" 고 적어 뒀다. 로컬 검증 때는 내가 직접 {@code CREATE SCHEMA} 를 손으로 미리 돌려
+ * 뒀던 것이라, CI 의 매번 새로 뜨는 Postgres 에는 그 스키마가 없다는 것을 놓쳤다.
+ *
+ * <p>이 테스트에서는 그 "DB 관리자" 역할을 {@link #createSchema()} 가 대신한다 —
+ * {@code create-schemas=false} 를 우회하지 않는다(실제 배포 설정을 그대로 존중하는 것이
+ * 이 테스트의 존재 이유다). Flyway 가 스키마 존재를 기대하는 시점(컨텍스트 리프레시)보다
+ * 먼저(JUnit5 {@code @BeforeAll}) 돌게 해서, 운영에서 사람이 미리 하는 그 단계를
+ * 흉내낸다.
  */
 @SpringBootTest(properties = {
 		"spring.profiles.active=dev",
@@ -49,6 +69,15 @@ class DevProfileApplicationContextTest {
 	@DynamicPropertySource
 	static void datasource(DynamicPropertyRegistry registry) {
 		TestDatabase.registerDatasource(registry);
+	}
+
+	@BeforeAll
+	static void createSchema() throws Exception {
+		try (Connection connection = DriverManager.getConnection(
+				TestDatabase.url(), TestDatabase.username(), TestDatabase.password());
+				Statement statement = connection.createStatement()) {
+			statement.execute("CREATE SCHEMA IF NOT EXISTS gabolle");
+		}
 	}
 
 	@Test
