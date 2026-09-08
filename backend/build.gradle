@@ -43,6 +43,21 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-webmvc'
 	implementation 'org.flywaydb:flyway-database-postgresql'
 	runtimeOnly 'org.postgresql:postgresql'
+	// S15P21E201-367/-213 — 사진 오브젝트 스토리지(S3 호환, MinIO 재사용). StoragePort 의
+	// 두 번째 구현(S3FileStorage)이 쓴다. MinIO 공식 SDK 를 쓰는 이유는 어떤 S3 호환
+	// 엔드포인트에도 그대로 붙기 때문이다 — MinIO 전용이 아니다.
+	//
+	// 🔴 8.6.0 — 8.5.17 에는 HIGH 취약점이 둘 있었다(backend:dependency-scan 실측,
+	//    MR !404). minio 자체(GHSA-h7rh-xfpj-hpcm — XML 태그 값을 시스템 프로퍼티/환경변수로
+	//    조용히 치환해 자격증명을 흘릴 수 있었다)는 8.6.0 이 고쳤다. 그 전이 의존성인
+	//    bcprov-jdk18on(GHSA-574f-3g2m-x479)은 8.6.0 도 1.81 을 받아오는데 그 판은 아직
+	//    안 고쳐졌다(고친 판은 1.81.1/1.80.2/1.84 부터) — 9.x 로 올리면 API 가 통째로
+	//    바뀌어(공식 체인지로그 "entire code refactor") 이 티켓 범위를 넘어서므로,
+	//    대신 아래에서 그 버전만 명시로 고정한다.
+	implementation 'io.minio:minio:8.6.0'
+	// minio 8.6.0 이 전이로 받아오는 bcprov-jdk18on 1.81 은 GHSA-574f-3g2m-x479 를 아직
+	// 안 고쳤다 — 명시로 최신 고정판을 올려 그걸 덮어쓴다(위 minio 주석 참고).
+	implementation 'org.bouncycastle:bcprov-jdk18on:1.85.2'
 	testImplementation 'org.springframework.boot:spring-boot-starter-actuator-test'
 	testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
 	testImplementation 'org.springframework.boot:spring-boot-starter-flyway-test'
@@ -64,6 +79,10 @@ dependencies {
 	testImplementation platform('org.testcontainers:testcontainers-bom:1.21.3')
 	testImplementation 'org.testcontainers:junit-jupiter'
 	testImplementation 'org.testcontainers:postgresql'
+	// S15P21E201-367 — S3FileStorage 를 진짜 S3 호환 서버(MinIO) 앞에서 돌려 본다.
+	// 운영에서 실제로 쓰는 것과 같은 프로토콜이라, 가짜로 흉내 낸 HTTP 서버보다
+	// 서명·버킷 정책 같은 실수를 더 잘 잡는다.
+	testImplementation 'org.testcontainers:minio'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	// S15P21E201-571 — 계층 규칙(presentation → application → domain ← infra)을 사람이
 	// 리뷰에서 놓치지 않고 빌드가 재게 한다.

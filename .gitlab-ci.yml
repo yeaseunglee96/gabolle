@@ -146,6 +146,13 @@ claims:checkpoint:
 #    137개 전부 실행. 이 상태에서 실제로 놓친 결함이 하나 있었다 — 품질 게이트가
 #    `gabolle` schema를 못 찾는 버그가 있었는데 테스트는 `public`에 표를 만들어서
 #    187개 전부 초록이었다 (fix/back/S15P21E201-546).
+#
+# 🔴 `minio` 서비스도 같은 이유로 있다 (S15P21E201-367). `S3FileStorageTest`
+#    (backend/src/test/.../story)를 처음 도커 컨테이너로 직접 띄우게 짰더니, 이
+#    러너에는 도커 소켓이 없어 `IllegalStateException` 으로 빌드 자체가 죽었다.
+#    "도커가 없으면 건너뛴다" 로 고쳐도 바로 위 건너뜀 검사에 걸려 여전히 빨갛다 —
+#    이 잡에서는 건너뜀 자체가 답이 아니다. Postgres 와 똑같이 GitLab이 진짜
+#    MinIO를 띄워 주고, 테스트는 `GABOLLE_TEST_MINIO_*` 로 그걸 바로 쓴다.
 # 🔴 S15P21E201-736 — 이 잡이 하루 CI 시간의 34%(평균 7분)를 쓴다(실측,
 #    2026-09-08). 원인은 캐시가 없어서다 — 매 MR마다 컨테이너를 새로 띄우고
 #    Gradle 이 의존성을 Maven Central 에서 처음부터 다시 받는다.
@@ -160,6 +167,9 @@ backend:build:
   services:
     - name: postgres:16-alpine
       alias: postgres
+    - name: minio/minio:RELEASE.2024-10-13T13-34-11Z
+      alias: minio
+      command: ["server", "/data"]
   variables:
     POSTGRES_DB: gabolle_test
     POSTGRES_USER: gabolle
@@ -167,6 +177,11 @@ backend:build:
     GABOLLE_TEST_DB_URL: jdbc:postgresql://postgres:5432/gabolle_test
     GABOLLE_TEST_DB_USERNAME: gabolle
     GABOLLE_TEST_DB_PASSWORD: gabolle_ci
+    MINIO_ROOT_USER: gabolle
+    MINIO_ROOT_PASSWORD: gabolle_ci_minio
+    GABOLLE_TEST_MINIO_ENDPOINT: http://minio:9000
+    GABOLLE_TEST_MINIO_ACCESS_KEY: gabolle
+    GABOLLE_TEST_MINIO_SECRET_KEY: gabolle_ci_minio
     GRADLE_USER_HOME: $CI_PROJECT_DIR/.gradle-home
   cache:
     key:
