@@ -79,7 +79,16 @@ public class PrivacyCleanupScheduler {
 		return requestFactory;
 	}
 
-	@Scheduled(cron = "${gabolle.privacy.cleanup.cron}", zone = "UTC")
+	// 🔴 2026-09-08 사고(S15P21E201-357 배포 실패 · docs 참고) — 이 문자열 안에 인라인
+	// 기본값(:0 0 19 * * *)을 반드시 둔다. application.properties 의
+	// gabolle.privacy.cleanup.cron 이 그때그때 정의돼 있는 것에 기대면, 그 줄 하나가
+	// 실수로 지워지는 순간 이 애노테이션의 ${...} 플레이스홀더가 안 풀려
+	// BeanCreationException 으로 애플리케이션 전체가 기동을 못 한다(실제로 겪음 —
+	// PrivacyCleanupProperties 의 자바 기본값은 @ConfigurationProperties 바인딩에만
+	// 쓰이고, @Scheduled 의 플레이스홀더 해석에는 전혀 관여하지 않는다). 인라인
+	// 기본값을 두면 프로퍼티 파일에 그 줄이 있든 없든 이 클래스 혼자서 안전하다 —
+	// PrivacyCleanupProperties 의 자바 기본값과 반드시 같은 값으로 유지한다.
+	@Scheduled(cron = "${gabolle.privacy.cleanup.cron:0 0 19 * * *}", zone = "UTC")
 	public void runScheduled() {
 		if (!this.properties.isEnabled()) {
 			log.debug("event=PRIVACY_CLEANUP_SKIPPED reason=DISABLED");
