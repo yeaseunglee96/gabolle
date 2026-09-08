@@ -299,7 +299,12 @@ backend:migration-order:
     - apk add --no-cache git bash
   script:
     - |
-      git fetch origin "$CI_MERGE_REQUEST_TARGET_BRANCH_NAME" --quiet
+      # 🔴 이름을 붙여서 받는다. 그냥 `git fetch origin <브랜치>` 를 하면 결과가
+      #    FETCH_HEAD 에만 남고 `origin/<브랜치>` 라는 이름으로는 안 생긴다.
+      #    CI 의 저장소 사본은 필요한 것만 받도록 설정돼 있어서 그렇다.
+      #    그러면 바로 아래 git diff 가 "그런 것 없다" 로 죽는다 — 출력도 없이 exit 1.
+      #    검사 내용이 틀린 게 아니라 검사가 자기가 방금 받은 것을 못 찾는 것이다.
+      git fetch origin "+refs/heads/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME:refs/remotes/origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME" --quiet
       ADDED=$(git diff --name-only --diff-filter=A "origin/${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}" HEAD -- 'backend/src/main/resources/db/migration/V*.sql')
       if [ -z "$ADDED" ]; then
         echo "새로 추가된 마이그레이션 파일 없음 — 통과"
