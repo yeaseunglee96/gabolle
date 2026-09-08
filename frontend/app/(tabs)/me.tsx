@@ -13,7 +13,7 @@ import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { usePlan } from '@/plan/PlanProvider';
-import { loadSavedTrips } from '@/trip/tripLibrary';
+import { loadTrips } from '@/trip/trips';
 
 function InfoRow({ label, value, onPress, disabled = false }: { label: string; value: string; onPress?: () => void; disabled?: boolean }) {
   return <Pressable accessibilityRole={onPress ? 'button' : undefined} accessibilityState={{ disabled }} disabled={disabled || !onPress} onPress={onPress} style={({ pressed }) => [styles.row, pressed && styles.rowPressed, disabled && styles.rowDisabled]}><Text weight="bold">{label}</Text><Text variant="caption" color={disabled ? color.text.muted : color.text.body}>{value}</Text></Pressable>;
@@ -22,7 +22,7 @@ function InfoRow({ label, value, onPress, disabled = false }: { label: string; v
 export default function Me() {
   const router = useRouter();
   const { preview } = useLocalSearchParams<{ preview?: string }>();
-  const { user, signOut, updateProfile, deleteAccount } = useAuth();
+  const { user, accessToken, signOut, updateProfile, deleteAccount } = useAuth();
   const { language, tx } = useI18n();
   const plan = usePlan();
   const visualPreview = __DEV__ && preview === 'ui';
@@ -84,7 +84,8 @@ export default function Me() {
     }
   }
   async function openDeletion() {
-    setSavedTripCount((await loadSavedTrips()).length);
+    const trips = await loadTrips(accessToken);
+    setSavedTripCount(trips.state === 'success' ? trips.trips.length : 0);
     setDeletePassword('');
     setDeleteError(null);
     setDeleteStep(1);
@@ -137,7 +138,7 @@ export default function Me() {
           <Text variant="caption" weight="bold" color={color.state.danger}>{tx('1 / 2 · 삭제 내용 확인', '1 / 2 · Review deletion')}</Text>
           <Text variant="display" weight="bold">{tx('삭제되는 내용을 확인해 주세요', 'Review what will be deleted')}</Text>
           <View style={styles.impactList}>
-            <View style={styles.impactRow}><Text variant="title" weight="bold" color={color.text.accent}>{savedTripCount}</Text><Text style={styles.impactCopy}>{tx('이 기기에 저장된 여행과 서버의 일정·추천 데이터가 삭제돼요.', 'Saved trips on this device and server itinerary data will be deleted.')}</Text></View>
+            <View style={styles.impactRow}><Text variant="title" weight="bold" color={color.text.accent}>{savedTripCount}</Text><Text style={styles.impactCopy}>{tx('내 계정의 여행과 일정·추천 데이터가 삭제돼요.', "Your account's trips and itinerary/recommendation data will be deleted.")}</Text></View>
             <View style={styles.impactRow}><Text variant="title" weight="bold" color={color.text.accent}>0</Text><Text style={styles.impactCopy}>{tx('현재 기록 기능이 연결되지 않아 삭제할 여행 기록은 없어요.', 'Travel records are not connected yet, so there are no records to delete.')}</Text></View>
           </View>
           <View style={styles.reviewNotice}><Text weight="bold">{tx('리뷰는 익명으로 남아요', 'Reviews remain anonymous')}</Text><Text variant="caption" color={color.text.body}>{tx('리뷰 기능이 연결되면 작성자 정보만 제거하고 내용은 익명으로 유지해요.', 'When reviews are connected, author details are removed while content remains anonymous.')}</Text></View>
