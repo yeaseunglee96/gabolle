@@ -204,6 +204,23 @@ class ItineraryActualTimeServiceTest {
 		assertThat(names).contains("actualArrivedAt", "actualDepartedAt");
 	}
 
+	@Test
+	@DisplayName("🔴 응답 record 에 placeId 칸이 실제로 있다 — S15P21E201-744")
+	void detailItemActuallyDeclaresThePlaceIdField() {
+		List<String> names = Arrays.stream(ItineraryDetailResponse.Item.class.getRecordComponents())
+				.map(RecordComponent::getName)
+				.toList();
+		assertThat(names).contains("placeId");
+	}
+
+	@Test
+	@DisplayName("🔴 응답의 placeId 는 그 항목이 실제로 가리키는 장소의 번호와 같다 — S15P21E201-744")
+	void detailItemPlaceIdMatchesTheSeededPlace() {
+		// 칸만 만들고 null 을 넣어도 위 테스트는 통과한다. 여기서 값이 씨앗 장소(this.placeId)와
+		// 같은지 비교해야 진짜로 배선이 맞았는지 알 수 있다.
+		assertThat(visitedItem().placeId()).isEqualTo(this.placeId.toString());
+	}
+
 	// ── 완료 기준 4 ───────────────────────────────────────────────────────────
 
 	@Test

@@ -71,6 +71,14 @@ public record ItineraryDetailResponse(
 			 */
 			String actualArrivedAt,
 			/** 실제로 출발한 시각. 없으면 {@code null} — 도착만 적고 출발은 안 적을 수 있다. */
-			String actualDepartedAt) {
+			String actualDepartedAt,
+			/**
+			 * 🔴 S15P21E201-744 — 맨 뒤에 더한 칸이다. {@code place.place_id} 그대로다.
+			 * 앱이 "이 장소 평가하기" 버튼을 눌러 리뷰 API({@code /api/v1/places/{placeId}/reviews})로
+			 * 넘어갈 때, 그리고 장소 상세로 넘어갈 때 쓰는 값이다. 항목은 반드시 장소 하나를
+			 * 가리키므로 이 칸은 비지 않는다. 제목으로 장소를 다시 찾지 않는다 — 같은 이름의
+			 * 가게가 여럿이면 엉뚱한 가게에 리뷰가 달린다.
+			 */
+			String placeId) {
 	}
 }
