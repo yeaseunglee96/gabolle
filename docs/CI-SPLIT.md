@@ -83,3 +83,38 @@ curl -sS -X POST "https://lab.ssafy.com/api/v4/projects/1444066/ci/lint" \
 것은 그 대가를 치른다 — 파트 폴더가 브랜치마다 있고 없고가 다르듯, 파트 CI
 파일도 아직 없는 브랜치가 있을 수 있고, 없다고 파이프라인 전체가 죽으면 안
 되기 때문이다.
+
+---
+
+## 🔴 함정 — 파트 파일을 비워 두면 CI 전체가 죽는다 (2026-09-09 실측)
+
+주석만 있는 `.yml` 은 YAML 이 **빈 값(null)** 으로 읽는다. GitLab 은 그것을 이렇게 거부한다.
+
+```
+Included file `ci/parts/backend.yml` does not have valid YAML syntax!
+```
+
+**무서운 것은 실패하는 방식이다.** 설정이 무효면 GitLab 은 **잡을 하나도 만들지 않고**
+파이프라인만 `failed` 로 찍는다. 화면에 실패한 잡이 없어서 **원인을 찾을 단서가 안 남는다.**
+MR `!462` 가 실제로 그렇게 죽었다 — 잡 0개, `yaml_errors: null`.
+
+그래서 여섯 파일에 **숨은 잡**(이름이 점으로 시작하면 GitLab 이 잡으로 만들지 않는다)을
+한 줄씩 넣어 두었다.
+
+```yaml
+.backend-part-placeholder: {}
+```
+
+**첫 잡을 이 파일로 옮겨 오면 그 줄은 지워도 된다.** 파일이 다시 비게 되면 넣어야 한다.
+
+### 🔴 CI Lint 로는 이 오류를 못 잡는다
+
+`POST /ci/lint` 에 파일 내용만 보내면 **`include:` 가 가리키는 파일을 가져오지 않는다.**
+그래서 `valid: true` 가 나온다. 실제로 그렇게 통과한 뒤 파이프라인에서 죽었다.
+
+**반드시 `ref` 를 함께 준다** — 그때만 저장소에서 include 파일을 실제로 읽는다.
+
+```bash
+curl -X POST -H "PRIVATE-TOKEN: $TOKEN" -H "Content-Type: application/json"   --data '{"content": "...", "dry_run": true, "ref": "<브랜치>"}'   "$HOST/api/v4/projects/$ID/ci/lint"
+```
+
