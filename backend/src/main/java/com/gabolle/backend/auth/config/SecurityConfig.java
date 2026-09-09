@@ -20,13 +20,16 @@ import org.springframework.security.config.Customizer;
 public class SecurityConfig {
 
 	private final ObjectProvider<HmacJwtAuthenticationFilter> jwtFilter;
+	private final ObjectProvider<AnonymousSessionAuthenticationFilter> anonymousSessionFilter;
 	private final AuthProperties properties;
 	private final ApiAuthenticationEntryPoint authenticationEntryPoint;
 
 	@Autowired
-	public SecurityConfig(ObjectProvider<HmacJwtAuthenticationFilter> jwtFilter, AuthProperties properties,
+	public SecurityConfig(ObjectProvider<HmacJwtAuthenticationFilter> jwtFilter,
+			ObjectProvider<AnonymousSessionAuthenticationFilter> anonymousSessionFilter, AuthProperties properties,
 			ApiAuthenticationEntryPoint authenticationEntryPoint) {
 		this.jwtFilter = jwtFilter;
+		this.anonymousSessionFilter = anonymousSessionFilter;
 		this.properties = properties;
 		this.authenticationEntryPoint = authenticationEntryPoint;
 	}
@@ -98,10 +101,16 @@ public class SecurityConfig {
 						"/api/v1/auth/oauth/*",
 						// 🔴 소셜 로그인의 첫 요청이다. 이때는 아직 로그인 전이므로 열려 있어야
 						//    한다 — 막으면 브라우저가 열리기도 전에 401 이 난다 (-704)
-						"/api/v1/auth/oauth/*/challenge")
+						"/api/v1/auth/oauth/*/challenge",
+						// S15P21E201-303 — 가입 안 한 사람이 첫 출입증을 받는 자리. 이때는 아직
+						// X-Session-Token 이 없으므로 열려 있어야 한다.
+						"/api/v1/auth/anonymous")
 				.permitAll()
 				.anyRequest().authenticated());
 		jwtFilter.ifAvailable(filter -> http.addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class));
+		// 🔴 JWT 필터 뒤에 둔다 — 이미 로그인한 사람의 SecurityContext 를 익명 세션이
+		// 덮어쓰지 않게, AnonymousSessionAuthenticationFilter 는 비어 있을 때만 채운다.
+		anonymousSessionFilter.ifAvailable(filter -> http.addFilterAfter(filter, HmacJwtAuthenticationFilter.class));
 
 		return http.build();
 	}
