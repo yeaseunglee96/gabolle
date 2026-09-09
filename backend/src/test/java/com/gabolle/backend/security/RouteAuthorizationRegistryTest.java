@@ -461,6 +461,11 @@ class RouteAuthorizationRegistryTest {
 		put(m, "GET /api/v1/recommendation-jobs/{}", Policy.OWNED,
 				"위와 같은 소유자 검사를 공유한다. RecommendationResultAuthorizationTest");
 
+		// ── 코스 테마 ────────────────────────────────────────────────────────────
+		put(m, "GET /api/v1/course-categories", Policy.AUTHENTICATED_ONLY,
+				"자원에 주인이 없는 목록 조회다. 쓰이는 자리가 여행 만들기 안이라 로그인 뒤에 둔다. "
+						+ "CourseThemeContractFunctionalTest (-450)");
+
 		// ── 기록·피드·사용자 ─────────────────────────────────────────────────────
 		put(m, "POST /api/v1/stories", Policy.AUTHENTICATED_ONLY,
 				"새로 쓰는 것이라 주인 개념이 없다. 작성자는 인증 주체로 박힌다");
