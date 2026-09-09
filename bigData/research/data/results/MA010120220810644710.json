@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220810644710",
+  "worker": "haiku-25",
+  "researchedAt": "2026-09-09T10:40:00Z",
+  "queries": ["다께 동구 부산", "다께 범일2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=b2PHAfaFV2Jc"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "정통 일식 코스요리, 초밥과 장어덮밥",
+      "sources": [0]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "넓고 깔끔한 인테리어, 프라이빗 룸",
+      "sources": [0]
+    },
+    {
+      "type": "운영·접근 편의",
+      "note": "범일역 2번출구 도보 1분, 번화가",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["초밥", "장어덮밥"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": ""
+}

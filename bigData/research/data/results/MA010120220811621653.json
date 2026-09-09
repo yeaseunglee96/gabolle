@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220811621653",
+  "worker": "haiku-26",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["코다하우스 금정구 부산", "코다하우스 장전동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "검색 결과에서 금강로 위치의 코다하우스 정보를 찾을 수 없음",
+  "notes": ""
+}

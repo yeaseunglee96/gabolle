@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202409A0020400",
+  "worker": "haiku-27",
+  "researchedAt": "2026-09-09T01:36:09Z",
+  "queries": ["쭈야네 중구 부산", "쭈야네 영주1동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "부산 중구 및 영주1동 일반 정보만 나왔고 쭈야네 구체적 정보 없음",
+  "notes": ""
+}

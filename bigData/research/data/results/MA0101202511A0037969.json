@@ -1,0 +1,25 @@
+{
+  "id": "MA0101202511A0037969",
+  "worker": "haiku-25",
+  "researchedAt": "2026-09-09T10:47:00Z",
+  "queries": ["경주해관 중구 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1031937"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "감성 맥주와 아날로그 감성의 조용한 공간",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "audience": "adult",
+    "signatureDishes": ["craft beer"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": ""
+}
