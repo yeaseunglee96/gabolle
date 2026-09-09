@@ -382,7 +382,24 @@ version:
       git remote set-url origin "https://oauth2:${AXMAP_BOT_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git"
       git config user.name  "axmap-bot"
       git config user.email "axmap-bot@noreply.${CI_SERVER_HOST}"
-      npx -y axmap-cli@$AXMAP_VERSION version bump --branch "$CI_COMMIT_BRANCH" --push
+      # 🔴 S15P21E201-786 — 여러 파트가 짧은 간격으로 머지되면, 버전을 계산하는
+      #    시점과 태그를 push 하는 시점 사이에 다른 실행이 같은 번호를 먼저
+      #    push 해서 "already exists" 로 죽는다(실측 2026-09-09, 파이프라인
+      #    184052·184677 — 최근 50개 중 11개 실패). axmap-cli 자체엔 이 경합에
+      #    대한 재시도가 없어서(rleaderjoon 에게 근본 수정 요청함), 여기서
+      #    감싼다 — 이 잡이 실제로 그 실패를 겪은 유일한 파트다. 다른 파트
+      #    사본에는 증거 없이 미리 안 넣는다.
+      attempt=1
+      until npx -y axmap-cli@$AXMAP_VERSION version bump --branch "$CI_COMMIT_BRANCH" --push; do
+        if [ "$attempt" -ge 5 ]; then
+          echo "5번 재시도해도 버전 태그를 못 올렸습니다 — axmap-cli 자체 문제일 수 있습니다. 사람이 봐야 합니다."
+          exit 1
+        fi
+        echo "버전 태그 push 가 경합으로 실패했습니다 (시도 $attempt/5). 최신 태그를 다시 받고 재시도합니다."
+        attempt=$((attempt + 1))
+        sleep $((RANDOM % 5 + 1))   # 여러 파이프라인이 동시에 재시도하며 또 부딪히지 않게 무작위로 흩는다
+        git fetch --tags --quiet
+      done
   rules:
     # MR 에서는 올리지 않는다. 머지되어 브랜치에 들어온 것만 버전을 갖는다.
     - if: $CI_COMMIT_BRANCH =~ /(^|\/)(main|func|dev)$/
