@@ -14,6 +14,7 @@ import com.gabolle.backend.story.application.StoryVisibilityPolicy;
 import com.gabolle.backend.story.domain.Story;
 import com.gabolle.backend.story.domain.StoryVisibility;
 import com.gabolle.backend.story.domain.UserFollow;
+import com.gabolle.backend.story.repository.StoryCoauthorRepository;
 import com.gabolle.backend.story.repository.UserFollowRepository;
 
 /**
@@ -31,7 +32,12 @@ class StoryVisibilityPolicyTest {
 
 	private final UserFollowRepository userFollowRepository = mock(UserFollowRepository.class);
 
-	private final StoryVisibilityPolicy policy = new StoryVisibilityPolicy(this.userFollowRepository);
+	// S15P21E201-770 — isParticipant 가 이 저장소를 새로 쓴다. 여기서는 "공동 작성자가 아니다"
+	// 를 기본값으로 두어(모든 스텁이 false 를 돌려준다) 기존 여섯 경우의 입력·기대값을 그대로 둔다.
+	private final StoryCoauthorRepository coauthorRepository = mock(StoryCoauthorRepository.class);
+
+	private final StoryVisibilityPolicy policy = new StoryVisibilityPolicy(this.userFollowRepository,
+			this.coauthorRepository);
 
 	@Test
 	void authorAlwaysSeesOwnStoryEvenBeforePublishAndPrivate() {

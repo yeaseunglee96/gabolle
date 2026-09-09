@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
@@ -15,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.gabolle.backend.place.api.PlaceDetailResponse;
 import com.gabolle.backend.place.api.PlaceFeatureView;
 import com.gabolle.backend.place.domain.Place;
+import com.gabolle.backend.place.domain.PlaceEvidenceStatus;
 import com.gabolle.backend.place.domain.PlaceFeature;
 import com.gabolle.backend.place.domain.UserPlaceCodeMap;
 import com.gabolle.backend.place.repository.PlaceFeatureRepository;
@@ -51,6 +54,8 @@ import tools.jackson.databind.ObjectMapper;
 @Service
 @Profile({"db", "dev"})
 public class PlaceDetailService {
+
+	private static final Logger log = LoggerFactory.getLogger(PlaceDetailService.class);
 
 	private final PlaceRepository placeRepository;
 
@@ -189,10 +194,7 @@ public class PlaceDetailService {
 
 		for (PlaceFeature feature : stored) {
 			present.add(feature.getFeatureType());
-			views.add(new PlaceFeatureView(
-					feature.getFeatureType(), feature.getFeatureKey(),
-					feature.getEvidenceStatus().name(), readValue(feature.getValue()),
-					feature.getObservedAt(), feature.getSourceType()));
+			views.add(toView(feature));
 		}
 
 		for (String expected : expectedFeatureTypes()) {
@@ -204,6 +206,60 @@ public class PlaceDetailService {
 		views.sort(Comparator.comparing(PlaceFeatureView::featureType)
 				.thenComparing(view -> view.featureKey() == null ? "" : view.featureKey()));
 		return views;
+	}
+
+	/**
+	 * 저장된 행 하나를 응답 한 줄로 옮긴다.
+	 *
+	 * <h2>🔴 값이 있는데 못 읽으면 {@code UNKNOWN} 으로 낮춘다 — S15P21E201-749</h2>
+	 *
+	 * <p>{@link #readValue} 는 <b>"값이 원래 없음"</b> 과 <b>"값이 있는데 JSON 이 깨졌음"</b> 을
+	 * 똑같이 {@code null} 로 돌려준다. 그것을 그대로 실으면 원래의 {@code evidenceStatus} 가
+	 * 함께 나가서, 깨진 행이 <b>{@code VERIFIED} + {@code value:null}</b> 로 보인다. 그 조합은
+	 * {@link PlaceFeatureView} 가 정의한 다섯 상태 어디에도 없다 — 읽는 쪽은 "확인됐다" 로
+	 * 받는데 값이 없다. 알레르기 항목이 그렇게 나가면, 값을 보러 온 사람에게 가장 나쁘다.
+	 *
+	 * <p>🔴 <b>후보 경로({@code PlaceCandidateQueryService.toViews})처럼 행을 버리지 않는다.</b>
+	 * 거기는 {@code BaselineCandidateScorer.bucketFor} 가 "행 없음" 을 {@code UNVERIFIED} 로
+	 * 읽어 주므로 버리는 것이 곧 안전한 기본값이다. 여기는 사람이 보는 화면이고, 행을 버리면
+	 * 그 종류가 아래 반복문에서 {@code NOT_COLLECTED}(<b>"수집 대상에 아직 안 들어갔다"</b>)로
+	 * 채워진다 — 사실이 아니고, {@link PlaceFeatureView} 문서대로라면 <b>파이프라인을 고치라고
+	 * 엉뚱한 사람을 부르는 것</b>이다.
+	 *
+	 * <p>{@code UNKNOWN} 은 <b>"보러 갔는데 못 정했다"</b> 이고 값이 반드시 비어 있어야 한다.
+	 * 깨진 행이 정확히 그 상태다. 그래서 상태를 낮추고 값을 비운다 — 응답 계약을 지키면서,
+	 * 혹시 이 뷰가 나중에 표식 판정에 쓰이더라도 {@code cannotRuleOutPresence} 가 참이라
+	 * {@code UNVERIFIED} 쪽으로 떨어진다.
+	 *
+	 * <h2>🔴 지금은 이 가지에 못 들어온다 — 그래도 두는 이유</h2>
+	 *
+	 * <p><b>솔직하게 적어 둔다.</b> {@code place_feature.value} 는 {@code JSONB} 다
+	 * ({@code V20260904000000__place_and_place_feature.sql}). PostgreSQL 이 <b>쓰는 시점에</b>
+	 * JSON 을 검사하므로 깨진 값은 애초에 저장되지 않는다 — 직접 넣어도, {@code ::jsonb} 로
+	 * 캐스팅해도 {@code invalid input syntax for type json} 으로 거부된다(2026-09-09 실측).
+	 * 이 서비스는 {@code findByPlaceId} 로 DB 에서만 읽으므로, 오늘 이 {@code if} 는 참이 될 수
+	 * 없다. <b>즉 이것은 지금 있는 결함을 고치는 코드가 아니다.</b>
+	 *
+	 * <p>그래도 두는 까닭은 둘이다. 첫째, {@code VERIFIED} + {@code value:null} 은
+	 * {@link PlaceFeatureView} 가 정의한 다섯 상태에 없는 <b>표현 불가능한 조합</b>이라, 만들 수
+	 * 있는 경로를 열어 두지 않는다. 둘째, 칸 종류가 {@code TEXT} 로 바뀌거나 DB 를 거치지 않고
+	 * 만든 {@link PlaceFeature} 가 들어오는 날 이 가지가 살아난다.
+	 *
+	 * <p>🔴 <b>이 주석을 지우지 마라.</b> 지우면 다음 사람이 이 코드를 보고 "깨진 값이 실제로
+	 * 들어온다" 고 읽는다. 그것이 S15P21E201-749 가 처음에 안전 결함으로 잘못 알려진 이유다.
+	 */
+	private PlaceFeatureView toView(PlaceFeature feature) {
+		String raw = feature.getValue();
+		JsonNode value = readValue(raw);
+		if (value == null && raw != null && !raw.isBlank()) {
+			log.warn("place_feature 값 파싱 실패 — 상세 응답에서 UNKNOWN 으로 낮춘다. "
+					+ "placeId={}, featureType={}, featureKey={}", feature.getPlaceId(),
+					feature.getFeatureType(), feature.getFeatureKey());
+			return new PlaceFeatureView(feature.getFeatureType(), feature.getFeatureKey(),
+					PlaceEvidenceStatus.UNKNOWN.name(), null, feature.getObservedAt(), feature.getSourceType());
+		}
+		return new PlaceFeatureView(feature.getFeatureType(), feature.getFeatureKey(),
+				feature.getEvidenceStatus().name(), value, feature.getObservedAt(), feature.getSourceType());
 	}
 
 	/** 대조표에 이름이 오른 피처 종류. 자바가 아니라 표가 정본이다. */

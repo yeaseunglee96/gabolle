@@ -1,5 +1,6 @@
 package com.gabolle.backend.itinerary;
 
+import com.gabolle.backend.trip.infra.InMemoryTripRepository;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -52,8 +53,12 @@ class ItineraryVersionConflictTest {
         repository = new InMemoryItineraryRepository();
         // 기간이 정해진 장소가 아니라고 답하는 문. 이 테스트가 보는 것은 판 번호와 409 이고,
         // 축제 날짜 검사는 그 판정에 끼어들지 않아야 한다(ItineraryAddItemIntegrationTest 가 본다).
+        // 구간 계산기는 안 넘긴다. 여행 저장소가 비어 있어서 순서 바꾸기가 여행을 못 찾고,
+        // 그때 구간 다시 만들기는 시작조차 안 한다(ItineraryEditService.withRebuiltDayLegs).
+        // 이 테스트가 보는 것은 판 번호와 409 뿐이다.
         service = new ItineraryEditService(repository,
-                (placeId, from, to) -> PlaceEventSchedule.unscheduled(), Clock.systemUTC());
+                (placeId, from, to) -> PlaceEventSchedule.unscheduled(),
+                null, new InMemoryTripRepository(), Clock.systemUTC());
         repository.seed("itn_1", "trp_1", 5);
 
         String versionId = UUID.randomUUID().toString();

@@ -125,7 +125,7 @@ class RouteAuthorizationRegistryTest {
 		//    그 변경이 diff 에 남아 리뷰에서 보인다. 실제로 이 저장소의 SecurityConfig 주석은
 		//    "/oauth/ 아래 한 마디짜리 경로가 전부 열린다" 는 함정을 적어 두고 있다 — 두 마디로
 		//    두지 않으면 새 경로가 의도 없이 열린다.
-		assertThat(open).hasSize(17);
+		assertThat(open).hasSize(18);
 
 		// 표를 아는 사람이 실제로 열린 것과 대조할 수 있게 목록도 고정한다
 		assertThat(routesWith(Policy.PUBLIC_TOKEN)).containsExactlyInAnyOrder(
@@ -372,6 +372,9 @@ class RouteAuthorizationRegistryTest {
 				"2단계 소셜 가입 완료. 보호는 10분짜리 1회용 가입 티켓이다 (-689)");
 		put(m, "POST /api/v1/auth/oauth/link", Policy.PRE_AUTH,
 				"소셜 계정을 기존 계정에 연결. 보호는 연결 티켓 + 기존 계정 비밀번호다 (-690)");
+		put(m, "POST /api/v1/auth/anonymous", Policy.PRE_AUTH,
+				"익명 출입증 발급(-303). 가입 안 한 사람이 부르는 첫 요청이라 아직 X-Session-Token 이 없다. "
+						+ "보호는 무작위 출입증 자체다 — 서버는 해시만 들고 있고 원본은 이 응답에만 나간다");
 
 		// ── 인증 흐름 — 로그인 상태에서 부른다 ────────────────────────────────────
 		put(m, "POST /api/v1/auth/oauth/{}/link", Policy.OWNED,
@@ -466,6 +469,28 @@ class RouteAuthorizationRegistryTest {
 				"수정은 작성자만 — requireAuthor. StoryCrudIntegrationTest");
 		put(m, "DELETE /api/v1/stories/{}", Policy.OWNED,
 				"삭제는 작성자만 — requireAuthor. StoryCrudIntegrationTest");
+		// ── 기록 공동 작성 (-770) ────────────────────────────────────────────────
+		// 🔴 다섯 경로 전부 AUTHENTICATED_ONLY 다 — 자원 주인 검사(OWNED)로 분류하지 않는다.
+		//    각 경로 안에서 "만든 사람만"·"볼 수 있는 사람만" 을 실제로 가르는 것은
+		//    StoryCoauthorService(StoryService.requireVisible · StoryVisibilityPolicy.isParticipant
+		//    재사용)이고, 이 표는 그 판정이 존재한다는 사실만 기록한다. 로그인만 하면 누구나
+		//    부를 수 있는 자리(참여자 목록·초대 수락)와 실제로는 만든 사람만 통과하는 자리
+		//    (초대 발급·동행자 편입·제거)가 섞여 있지만, 다섯 다 "경로 자체에 남의 것과 내 것을
+		//    가르는 별도의 자원 식별자가 없다" 는 공통점으로 여기 둔다 — 여행 쪽 5절의
+		//    TripCollaborationController 항목들이 전부 OWNED 로 분류된 것과 다른 점이다. 그쪽은
+		//    tripId 각각이 이미 "그 여행의 누구인가" 를 묻지만, 이쪽은 storyId 자체가 이미
+		//    StoryService.requireVisible 을 지나야만 얻어지는 404/403 판정 뒤에 있다.
+		put(m, "POST /api/v1/stories/{}/invites", Policy.AUTHENTICATED_ONLY,
+				"만든 사람만 발급 — StoryCoauthorService.issueInvite 가 requireVisible 뒤에 isAuthor 를 재확인한다");
+		put(m, "POST /api/v1/story-invites/{}/accept", Policy.AUTHENTICATED_ONLY,
+				"표를 아는 로그인 사용자가 참여자가 되는 것이 기능이다. 보호는 43글자 난수 표와 7일 만료다(여행 초대와 같다)");
+		put(m, "GET /api/v1/stories/{}/coauthors", Policy.AUTHENTICATED_ONLY,
+				"그 기록을 볼 수 있는 사람이면 누구나 — canView 를 requireVisible 이 재확인한다");
+		put(m, "POST /api/v1/stories/{}/coauthors", Policy.AUTHENTICATED_ONLY,
+				"만든 사람만 — 여행 동행자인지도 TripMembershipRepository.findMember 로 서버가 재검사한다");
+		put(m, "DELETE /api/v1/stories/{}/coauthors/{}", Policy.AUTHENTICATED_ONLY,
+				"만든 사람이 남을 빼거나 공동 작성자가 자기 자신을 뺀다. 그 외는 403");
+
 		put(m, "GET /api/v1/feed/home", Policy.AUTHENTICATED_ONLY,
 				"내 피드다. 대상이 인증 주체로만 정해진다. FeedControllerTest");
 		put(m, "GET /api/v1/feed/community", Policy.AUTHENTICATED_ONLY,
@@ -513,6 +538,8 @@ class RouteAuthorizationRegistryTest {
 						+ "우리 카카오 키로 남이 길찾기를 대신 쓰는 것을 막기 위해서다. RouteControllerTest");
 		put(m, "GET /api/v1/places/nearby", Policy.AUTHENTICATED_ONLY,
 				"좌표만으로 답이 정해진다 — 컨트롤러 주석이 그렇게 적고 있다. NearbyFacetAndRadiusTest");
+		put(m, "GET /api/v1/places/accommodations", Policy.AUTHENTICATED_ONLY,
+				"숙소 후보 조회(S15P21E201-456). category 로 거른 공용 기준 데이터라 요청자별로 답이 갈리지 않는다. AccommodationQueryIntegrationTest");
 		put(m, "GET /api/v1/places/{}", Policy.AUTHENTICATED_ONLY,
 				"공용 기준 데이터. 다만 itineraryInclusion 은 요청자별로 갈리므로 그 자리는 인증 주체로만 읽는다. PlaceDetailIntegrationTest");
 		put(m, "GET /api/v1/places/{}/taxi-card", Policy.AUTHENTICATED_ONLY,

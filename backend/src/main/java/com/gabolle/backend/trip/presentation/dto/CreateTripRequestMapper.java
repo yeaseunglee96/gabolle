@@ -59,7 +59,12 @@ public final class CreateTripRequestMapper {
                 r.budgetKrw(), r.partySize(),
                 r.timeWindow(), r.timezone(),
                 preferences,
-                constraints);
+                constraints,
+                r.accommodationPlaceId(),
+                r.englishMenuRequiredOrDefault(),
+                r.foreignCardRequiredOrDefault(),
+                r.soloFriendlyPriorityOrDefault(),
+                r.maxTransitTransfers());
     }
 
     private static TripConstraint.Severity parseSeverity(String raw) {
