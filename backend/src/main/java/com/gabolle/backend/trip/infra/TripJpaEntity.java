@@ -86,6 +86,23 @@ public class TripJpaEntity {
 	@Column(name = "travel_modes")
 	private String[] travelModes;
 
+	/** 매일 여기서 시작하고 여기로 돌아온다 (S15P21E201-456). {@code place} FK. */
+	@Column(name = "accommodation_place_id")
+	private UUID accommodationPlaceId;
+
+	@Column(name = "english_menu_required", nullable = false)
+	private boolean englishMenuRequired;
+
+	@Column(name = "foreign_card_required", nullable = false)
+	private boolean foreignCardRequired;
+
+	@Column(name = "solo_friendly_priority", nullable = false)
+	private boolean soloFriendlyPriority;
+
+	/** {@code null} 이면 제한 없음. {@code PRIVATE_CAR} 가 travelModes 에 있으면 저장 시점에 이미 null 이다. */
+	@Column(name = "max_transit_transfers")
+	private Integer maxTransitTransfers;
+
 	@Column(name = "timezone", nullable = false)
 	private String timezone;
 
@@ -109,7 +126,9 @@ public class TripJpaEntity {
 	TripJpaEntity(UUID tripId, UUID ownerUserId, String ownerType, LocalDate startDate, LocalDate endDate,
 			Double originLat, Double originLng, Long budgetKrw, Integer partySize,
 			String timeWindow, String timezone, String[] travelModes,
-			LocalTime timeWindowStart, LocalTime timeWindowEnd, Trip.Status status,
+			LocalTime timeWindowStart, LocalTime timeWindowEnd,
+			UUID accommodationPlaceId, boolean englishMenuRequired, boolean foreignCardRequired,
+			boolean soloFriendlyPriority, Integer maxTransitTransfers, Trip.Status status,
 			OffsetDateTime createdAt, OffsetDateTime updatedAt, OffsetDateTime deletedAt) {
 		this.tripId = tripId;
 		this.ownerUserId = ownerUserId;
@@ -124,6 +143,11 @@ public class TripJpaEntity {
 		this.timeWindowStart = timeWindowStart;
 		this.timeWindowEnd = timeWindowEnd;
 		this.travelModes = travelModes;
+		this.accommodationPlaceId = accommodationPlaceId;
+		this.englishMenuRequired = englishMenuRequired;
+		this.foreignCardRequired = foreignCardRequired;
+		this.soloFriendlyPriority = soloFriendlyPriority;
+		this.maxTransitTransfers = maxTransitTransfers;
 		this.timezone = timezone;
 		this.status = status;
 		this.createdAt = createdAt;
@@ -157,6 +181,11 @@ public class TripJpaEntity {
 	LocalTime timeWindowStart() { return timeWindowStart; }
 	LocalTime timeWindowEnd() { return timeWindowEnd; }
 	String[] travelModes() { return travelModes; }
+	UUID accommodationPlaceId() { return accommodationPlaceId; }
+	boolean englishMenuRequired() { return englishMenuRequired; }
+	boolean foreignCardRequired() { return foreignCardRequired; }
+	boolean soloFriendlyPriority() { return soloFriendlyPriority; }
+	Integer maxTransitTransfers() { return maxTransitTransfers; }
 	String timezone() { return timezone; }
 	Trip.Status status() { return status; }
 	OffsetDateTime createdAt() { return createdAt; }

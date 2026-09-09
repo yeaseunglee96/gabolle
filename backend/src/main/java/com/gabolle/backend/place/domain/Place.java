@@ -98,6 +98,14 @@ public class Place {
 	@Column(name = "photo_source", length = 100)
 	private String photoSource;
 
+	/**
+	 * 현장 안내용 지하철 출구 번호/이름 (S15P21E201-265). 예: "2호선 강남역 3번 출구".
+	 * 채우는 경로가 아직 없어 대부분 {@code null} 이다 — 확인 상태를 따로 가질 필요가 없는
+	 * 단순 안내 문구라 {@code place_feature} 가 아니라 이 칸 하나로 둔다.
+	 */
+	@Column(name = "subway_exit", length = 100)
+	private String subwayExit;
+
 	protected Place() {
 	}
 
@@ -204,5 +212,9 @@ public class Place {
 
 	public String getPhotoSource() {
 		return this.photoSource;
+	}
+
+	public String getSubwayExit() {
+		return this.subwayExit;
 	}
 }

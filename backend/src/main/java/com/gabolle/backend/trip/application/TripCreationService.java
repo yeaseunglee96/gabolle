@@ -81,6 +81,15 @@ public class TripCreationService {
         Optional<TimeWindows.TimeWindow> window = TimeWindows.parseRange(command.timeWindow());
         String[] travelModes = resolveTravelModes(command.preferences());
 
+        // 🔴 S15P21E201-456 — 자차(PRIVATE_CAR) 이동이면 최대 환승 횟수는 뜻이 없다.
+        //    화면이 실수로 값을 함께 보내도 조용히 무시한다 — 자차에는 환승 개념이
+        //    없으므로 저장해 봐야 나중에 아무도 그 값을 안 쓴다. 400 으로 거부하지 않는
+        //    이유는 두 조건을 함께 고르는 것 자체가 사용자 잘못이 아니라 화면이 아직
+        //    상호배제를 안 걸었을 수 있어서다 — 저장 시점에 조용히 걸러 두면 화면이
+        //    나중에 그 로직을 넣어도 서버 쪽 동작은 안 바뀐다.
+        boolean usesPrivateCar = java.util.Arrays.asList(travelModes).contains("PRIVATE_CAR");
+        Integer maxTransitTransfers = usesPrivateCar ? null : command.maxTransitTransfers();
+
         // ① 여행. 생성자가 조건을 검증한다 — 종료일이 시작일보다 앞이면 여기서 거부된다.
         //    timeWindow 원문은 그대로 넘긴다 — fingerprintOf 가 이 원문 기준이라(아래),
         //    파생값이 아니라 원문을 저장해야 재시도 판정이 안 흔들린다.
@@ -92,6 +101,9 @@ public class TripCreationService {
                 travelModes,
                 window.map(TimeWindows.TimeWindow::start).orElse(null),
                 window.map(TimeWindows.TimeWindow::end).orElse(null),
+                command.accommodationPlaceId(),
+                command.englishMenuRequired(), command.foreignCardRequired(), command.soloFriendlyPriority(),
+                maxTransitTransfers,
                 now);
 
         // ② 제약. 🔴 민감 종류(알레르기·필수 식단)에 값이 들어오면 생성자가 거부한다 —
@@ -173,7 +185,10 @@ public class TripCreationService {
                 String.valueOf(c.originLat()), String.valueOf(c.originLng()),
                 String.valueOf(c.budgetKrw()), String.valueOf(c.partySize()),
                 String.valueOf(c.timeWindow()), String.valueOf(c.timezone()),
-                String.valueOf(c.preferences()), String.valueOf(c.constraints()));
+                String.valueOf(c.preferences()), String.valueOf(c.constraints()),
+                String.valueOf(c.accommodationPlaceId()), String.valueOf(c.englishMenuRequired()),
+                String.valueOf(c.foreignCardRequired()), String.valueOf(c.soloFriendlyPriority()),
+                String.valueOf(c.maxTransitTransfers()));
         try {
             byte[] digest = MessageDigest.getInstance("SHA-256").digest(raw.getBytes(StandardCharsets.UTF_8));
             return HexFormat.of().formatHex(digest);
@@ -234,18 +249,72 @@ public class TripCreationService {
             String timezone,
             List<PreferenceSnapshot.PreferenceAnswer> preferences,
             List<ConstraintInput> constraints,
-            Trip.OwnerType ownerType) {
+            Trip.OwnerType ownerType,
+            /** 매일 여기서 시작하고 여기로 돌아온다. {@code null} 이면 아직 안 정한 것이다. */
+            String accommodationPlaceId,
+            boolean englishMenuRequired,
+            boolean foreignCardRequired,
+            boolean soloFriendlyPriority,
+            /** {@code null} 이면 제한 없음. {@code PRIVATE_CAR} 이동이면 저장 전에 무시된다. */
+            Integer maxTransitTransfers) {
 
         /**
-         * 🔴 S15P21E201-317 이전의 시그니처를 그대로 남긴다 — 회원 전용으로 여행을 만들던
-         * 기존 호출부(공유 일정 복제·테스트 다수)를 하나도 고치지 않기 위해서다.
-         * {@code ownerType} 은 항상 {@code USER} 로 고정된다.
+         * 🔴 S15P21E201-317·456 이전의 시그니처를 그대로 남긴다 — 회원 전용·다섯 칸 없이
+         * 여행을 만들던 기존 호출부(공유 일정 복제·테스트 다수)를 하나도 고치지 않기
+         * 위해서다. {@code ownerType} 은 항상 {@code USER}, 다섯 칸은 기본값(false·null)이다.
          */
         public Command(String userId, LocalDate startDate, LocalDate finishDate, Double originLat, Double originLng,
                 Integer budgetKrw, int partySize, String timeWindow, String timezone,
                 List<PreferenceSnapshot.PreferenceAnswer> preferences, List<ConstraintInput> constraints) {
             this(userId, startDate, finishDate, originLat, originLng, budgetKrw, partySize, timeWindow, timezone,
-                    preferences, constraints, Trip.OwnerType.USER);
+                    preferences, constraints, Trip.OwnerType.USER, null, false, false, false, null);
+        }
+
+        /**
+         * 🔴 S15P21E201-456 시그니처(다섯 칸 포함, ownerType 없음)를 그대로 남긴다 —
+         * 회원 전용 호출부는 {@code ownerType} 을 몰라도 되게 한다.
+         */
+        public Command(
+                String userId,
+                LocalDate startDate,
+                LocalDate finishDate,
+                Double originLat,
+                Double originLng,
+                Integer budgetKrw,
+                int partySize,
+                String timeWindow,
+                String timezone,
+                List<PreferenceSnapshot.PreferenceAnswer> preferences,
+                List<ConstraintInput> constraints,
+                String accommodationPlaceId,
+                boolean englishMenuRequired,
+                boolean foreignCardRequired,
+                boolean soloFriendlyPriority,
+                Integer maxTransitTransfers) {
+            this(userId, startDate, finishDate, originLat, originLng, budgetKrw, partySize, timeWindow,
+                    timezone, preferences, constraints, Trip.OwnerType.USER, accommodationPlaceId,
+                    englishMenuRequired, foreignCardRequired, soloFriendlyPriority, maxTransitTransfers);
+        }
+
+        /**
+         * 🔴 S15P21E201-317 시그니처(ownerType 포함, 다섯 칸 없음)를 그대로 남긴다 —
+         * 익명 승계 테스트처럼 소유자 종류만 필요한 호출부는 다섯 칸을 몰라도 되게 한다.
+         */
+        public Command(
+                String userId,
+                LocalDate startDate,
+                LocalDate finishDate,
+                Double originLat,
+                Double originLng,
+                Integer budgetKrw,
+                int partySize,
+                String timeWindow,
+                String timezone,
+                List<PreferenceSnapshot.PreferenceAnswer> preferences,
+                List<ConstraintInput> constraints,
+                Trip.OwnerType ownerType) {
+            this(userId, startDate, finishDate, originLat, originLng, budgetKrw, partySize, timeWindow,
+                    timezone, preferences, constraints, ownerType, null, false, false, false, null);
         }
 
         public record ConstraintInput(
