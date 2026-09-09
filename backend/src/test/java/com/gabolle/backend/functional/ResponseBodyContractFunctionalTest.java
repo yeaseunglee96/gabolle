@@ -46,10 +46,14 @@ class ResponseBodyContractFunctionalTest extends FunctionalJourneyTest {
 	 */
 	private ResponseEntity<String> createTrip(AuthedClient authed) {
 		LocalDate start = LocalDate.now().plusDays(30);
+		// 🔴 출발지 좌표를 함께 보낸다 — S15P21E201-440 부터 서버가 좌표 없는 여행을 거부한다
+		//    (좌표가 없으면 일정 계산이 성립하지 않는다).
 		Map<String, Object> body = Map.of(
 				"startDate", start.toString(),
 				"finishDate", start.plusDays(2).toString(),
-				"partySize", 2);
+				"partySize", 2,
+				"originLat", 35.15,
+				"originLng", 129.16);
 		return authed.post(TRIPS, body, String.class);
 	}
 

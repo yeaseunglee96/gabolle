@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.gabolle.backend.trip.domain.PersonalizationScope;
 import com.gabolle.backend.trip.domain.PreferenceSnapshot;
 import com.gabolle.backend.trip.domain.TimeWindows;
+import com.gabolle.backend.trip.domain.TripConditionRules;
 import com.gabolle.backend.trip.domain.Trip;
 import com.gabolle.backend.trip.domain.TravelModes;
 import com.gabolle.backend.trip.domain.TripConstraint;
@@ -65,6 +66,17 @@ public class TripCreationService {
      */
     @Transactional
     public Result create(Command command, String idempotencyKey) {
+
+        // 🔴 S15P21E201-440 — 조건을 먼저 본다. 여기서 막지 않으면 말이 안 되는 여행이
+        //    저장되고, 그 위에서 일정 계산기가 터진다. 계산기 안에서 난 오류는 원인을
+        //    짚기 어렵다. 규칙은 TripConditionRules 한 자리에 있고, 어긴 항목을 전부
+        //    모아 돌려준다 — 하나씩 알려 주면 사용자가 고칠 때마다 다시 거절당한다.
+        //
+        //    이 자리인 이유는 위(81행) 주석과 같다. 컨트롤러는 DTO 번역만 하고, Trip
+        //    생성자는 DB 값을 되살릴 때도 지나가는 자리다. 조건 검사는 생성이 일어나는
+        //    이 자리의 일이다.
+        TripConditionRules.require(command.startDate(), command.finishDate(), command.partySize(),
+                command.budgetKrw(), command.originLat(), command.originLng(), command.timeWindow());
 
         String fingerprint = fingerprintOf(command);
 
