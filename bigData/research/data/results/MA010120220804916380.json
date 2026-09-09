@@ -1,25 +1,25 @@
 {
   "id": "MA010120220804916380",
-  "worker": "haiku-8",
-  "researchedAt": "2026-09-09T00:00:00Z",
-  "queries": ["이레옥 해운대구 우동"],
+  "worker": "haiku-17",
+  "researchedAt": "2026-09-09T09:15:30Z",
+  "queries": ["이레옥 해운대구 부산", "이레옥 우3동 맛집"],
   "found": true,
   "confidence": "high",
-  "sources": ["부산 해운대구 마린시티3로 51"],
+  "sources": ["https://www.siksinhot.com/P/257415", "https://www.diningcode.com/profile.php?rid=zvTJji68Xnoa"],
   "stillOpen": true,
   "whyPeopleGo": [
-    {"type": "간판 메뉴 지목", "note": "한우 곰탕 전문점", "sources": [0]},
-    {"type": "조리·재료", "note": "최고급 한우 양지머리와 사골을 엄선하여 전통방식으로 조리", "sources": [0]},
-    {"type": "분위기·전망", "note": "야외 테이블에서 광안대교와 바다 전망이 아름다움", "sources": [0]}
+    {"type": "분위기·전망", "note": "야외 테이블에서 광안대교와 바다가 펼쳐져 보인다", "sources": [0, 1]},
+    {"type": "조리·재료", "note": "최고급 한우 양지머리와 사골을 엄선해 전통 방식으로 정성스럽게 끓인다", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "곰탕 전문점으로 알려져 있다", "sources": [0, 1]}
   ],
   "newTypes": [],
   "descriptors": {
     "yearsClaimed": null,
     "generations": null,
     "queueing": null,
-    "parking": null,
+    "parking": true,
     "audience": "mixed",
-    "signatureDishes": ["한우곰탕"],
+    "signatureDishes": ["곰탕", "양곰탕", "특섞어곰탕", "수육"],
     "priceBand": "expensive"
   },
   "notFound": null,

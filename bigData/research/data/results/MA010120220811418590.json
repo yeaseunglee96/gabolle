@@ -1,17 +1,16 @@
 {
   "id": "MA010120220811418590",
-  "worker": "haiku-8",
-  "researchedAt": "2026-09-09T00:00:00Z",
-  "queries": ["오막집 해운대구"],
+  "worker": "haiku-17",
+  "researchedAt": "2026-09-09T09:16:00Z",
+  "queries": ["오막집 해운대구 부산", "오막집 우1동 맛집"],
   "found": true,
   "confidence": "high",
-  "sources": ["부산 해운대구 해운대해변로209번나길 28"],
+  "sources": ["https://www.siksinhot.com/P/325107", "https://www.diningcode.com/profile.php?rid=opchJVOVvo5q"],
   "stillOpen": true,
   "whyPeopleGo": [
-    {"type": "간판 메뉴 지목", "note": "특양곱창, 소양곱창, 대창구이 전문", "sources": [0]},
-    {"type": "연차·역사", "note": "2008년 설립 오래된 고깃집", "sources": [0]},
-    {"type": "조리·재료", "note": "고급 재료를 사용한 프리미엄 고깃집", "sources": [0]},
-    {"type": "운영·접근 편의", "note": "전용 주차장과 개인실 완비", "sources": [0]}
+    {"type": "간판 메뉴 지목", "note": "양과 대창 전문점으로 알려져 있다", "sources": [0, 1]},
+    {"type": "운영·접근 편의", "note": "자체 주차장이 있어 편리하다", "sources": [0, 1]},
+    {"type": "서비스·사람", "note": "직원이 친절하고 고기와 반찬이 신선하다", "sources": [0, 1]}
   ],
   "newTypes": [],
   "descriptors": {
@@ -20,7 +19,7 @@
     "queueing": null,
     "parking": true,
     "audience": "mixed",
-    "signatureDishes": ["특양곱창"],
+    "signatureDishes": ["특양", "대창", "밥창", "한우양념갈비", "양밥"],
     "priceBand": "expensive"
   },
   "notFound": null,

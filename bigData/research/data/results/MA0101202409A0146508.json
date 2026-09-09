@@ -1,0 +1,39 @@
+{
+  "id": "MA0101202409A0146508",
+  "worker": "haiku-18",
+  "researchedAt": "2026-09-09T10:30:00Z",
+  "queries": ["본가어탕 해운대구 부산", "본가어탕 좌3동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 해운대구 좌동순환로 43-1"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "조리·재료",
+      "note": "국내산 붕어를 4-6시간 우려 24시간 숙성한 진한 육수로 만듦",
+      "sources": [0]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "어탕 손수제비, 매운 손수제비, 어탕 해장국이 시그니처 메뉴",
+      "sources": [0]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "시원하고 쾌적한 매장, 테이블 간격이 넓어 혼밥하기 좋음",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["어탕 손수제비", "매운 손수제비"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

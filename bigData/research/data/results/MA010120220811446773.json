@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220811446773",
+  "worker": "haiku-19",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["문스시 해운대구 부산", "문스시 좌3동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/429216", "https://www.diningcode.com/profile.php?rid=hYimYU6QQxtt", "https://www.linktoplace.com/?action=view&no=190971"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "플랫폼 순위·평점",
+      "note": "부산 3대 스시 중 한 곳, 생활의달인 출연",
+      "sources": [0]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "오마카세, 스시 전문",
+      "sources": [0]
+    },
+    {
+      "type": "서비스·사람",
+      "note": "셰프 박해문이 생활의달인에 출연",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["오마카세", "스시", "점심 오마카세"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": ""
+}

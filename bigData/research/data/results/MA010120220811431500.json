@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220811431500",
+  "worker": "haiku-17",
+  "researchedAt": "2026-09-09T09:21:30Z",
+  "queries": ["가미 해운대구 부산 일식", "가미 우2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.mangoplate.com/restaurants/7F5D9JMfUH", "https://www.diningcode.com/profile.php?rid=QQePNaA96QQJ"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "조리·재료", "note": "신선하고 쫄깃한 회를 사용한다", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "오마카세 전문점으로 알려져 있다", "sources": [0, 1]},
+    {"type": "플랫폼 순위·평점", "note": "맛집 추천 사이트에서 높은 평가를 받고 있다", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["Course A (코스 A)", "모듬 회"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": ""
+}

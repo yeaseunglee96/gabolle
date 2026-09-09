@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220812094492",
+  "worker": "haiku-18",
+  "researchedAt": "2026-09-09T10:35:00Z",
+  "queries": ["다거도횟집 자갈치", "다거도횟집 충무동"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색 결과에서 다거도횟집의 정보를 찾을 수 없음",
+  "notes": ""
+}

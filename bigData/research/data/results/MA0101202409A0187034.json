@@ -1,0 +1,34 @@
+{
+  "id": "MA0101202409A0187034",
+  "worker": "haiku-19",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["온더테이블 해운대구 부산", "온더테이블 우2동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://www.instagram.com/p/DINBm28TJ6X/", "https://kr.trip.com/moments/detail/busan-432-128580104/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "해운대 분위기 좋은 로케이션",
+      "sources": [0]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "가성비 좋은 맛집",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": [],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": ""
+}

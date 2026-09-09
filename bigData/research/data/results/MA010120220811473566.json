@@ -1,0 +1,44 @@
+{
+  "id": "MA010120220811473566",
+  "worker": "haiku-19",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["거북선횟집 해운대구 부산", "거북선횟집 중1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/372445", "https://www.diningcode.com/profile.php?rid=SBKKmvdeasB0", "https://busan.grandculture.net/Contents/Index?contents_id=GC04216669"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "광안대교와 해운대 바다 경치 한 눈에, 바다 전망 좋은 위치",
+      "sources": [0]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "자연산 회, 대방어 등 신선한 해산물",
+      "sources": [0]
+    },
+    {
+      "type": "곁들임·차림",
+      "note": "6개월 숙성 자체 고추장 소스로 만든 양념",
+      "sources": [0]
+    },
+    {
+      "type": "서비스·사람",
+      "note": "문재인 전 대통령이 즐겨 가는 식당",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["회", "대방어"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": ""
+}

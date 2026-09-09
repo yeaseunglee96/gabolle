@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220814043289",
+  "worker": "haiku-18",
+  "researchedAt": "2026-09-09T10:45:00Z",
+  "queries": ["우미가메 연제구 부산", "우미가메 연산9동 초밥"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 연제구 고분로 247"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "조리·재료",
+      "note": "도쿄 요리 학교 졸업 셰프가 준비하는 숙성회(aged sashimi)와 각종 생선회",
+      "sources": [0]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "숙성회와 생선회 모듬이 대표 메뉴인 이자카야",
+      "sources": [0]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "아늑하고 정통 일식 분위기의 소규모 이자카야",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["숙성회", "생선회 모듬"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": ""
+}

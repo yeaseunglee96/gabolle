@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202512A0002722",
+  "worker": "haiku-17",
+  "researchedAt": "2026-09-09T09:50:45Z",
+  "queries": ["하카나 남구 부산 초밥", "하카나 대연 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "부산 남구 진남로 10 위치의 일식 회/초밥 전문점 '하카나'를 여러 검색어로 찾았으나 해당 가게를 찾을 수 없음",
+  "notes": ""
+}

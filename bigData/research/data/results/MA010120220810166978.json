@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220810166978",
+  "worker": "haiku-17",
+  "researchedAt": "2026-09-09T09:38:45Z",
+  "queries": ["호포갈비 남구 부산", "호포갈비 문현4동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=0bwvpqYwdfkg", "https://www.siksinhot.com/P/1070449"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "조리·재료", "note": "정육식당으로 고기가 부드럽고 신선하며 푸짐하다", "sources": [0, 1]},
+    {"type": "가격·가성비", "note": "합리적인 가격에 질 좋은 고기를 제공한다", "sources": [0]},
+    {"type": "운영·접근 편의", "note": "넓은 주차장이 있어 편리하다", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["살치살", "호포갈비찜", "갈빗대"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": ""
+}
