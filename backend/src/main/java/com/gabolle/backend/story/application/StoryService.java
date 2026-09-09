@@ -153,15 +153,28 @@ public class StoryService {
 		return this.assembler.one(story, viewer, now);
 	}
 
+	/**
+	 * 수정 — S15P21E201-770 이후로 <b>만든 사람과 공동 작성자가 함께</b> 고친다.
+	 *
+	 * <p>다만 <b>공개 범위와 공개 시각은 만든 사람만</b> 바꾼다. 이 둘은 "누가 이 글을 볼 수
+	 * 있는가" 를 정하는 값이라, 공동 작성자가 바꿀 수 있으면 만든 사람이 나만 보기로 써 둔 글이
+	 * 남의 손에 공개될 수 있다. 본문을 함께 쓰는 것과 그 글을 세상에 내보이는 것은 다른 결정이다.
+	 *
+	 * <p>동시에 고치면 나중에 저장한 쪽이 이긴다(팀 결정). 버전을 견주어 막지 않는다. 대신
+	 * {@code lastEditedBy} 가 남아서 화면이 "방금 누가 고쳤는지" 를 보여줄 수 있다.
+	 */
 	@Transactional
 	public StoryResponse update(UUID storyId, UUID editor, StoryUpdateRequest request) {
 		Instant now = this.clock.instant();
-		Story story = requireAuthor(storyId, editor, now);
+		Story story = requireParticipant(storyId, editor, now);
+		if (!story.isAuthor(editor) && (request.visibility() != null || request.publishAt() != null)) {
+			throw new StoryForbiddenException(storyId);
+		}
 		if (request.placeId() != null && !this.placeRepository.existsById(request.placeId())) {
 			throw new InvalidReferenceException("placeId", "그 장소를 찾을 수 없습니다.");
 		}
 		story.edit(request.body(), request.region(), request.visibility(), request.publishAt(), request.placeId(),
-				request.clearPlaceOrFalse(), now);
+				request.clearPlaceOrFalse(), editor, now);
 		return this.assembler.one(story, editor, now);
 	}
 
@@ -191,6 +204,22 @@ public class StoryService {
 
 	// ---- 판정 ----
 
+	/**
+	 * 지워지지 않은 기록을 공개 범위와 무관하게 가져온다 — S15P21E201-770 의 초대 수락이 쓴다.
+	 *
+	 * <p>여기에만 이 창구가 있는 이유가 있다. 초대 수락은 <b>표(token)를 가진 것 자체가 열쇠</b>다.
+	 * 열람 권한을 먼저 요구하면 나만 보기 기록에 초대받은 사람이 수락하기도 전에 404 를 받고,
+	 * 그러면 "우리끼리 쓰는 기록에 사람을 부른다" 는 이 기능의 주 사용처가 통째로 막힌다.
+	 * 여행 초대도 같은 방식이다 — 표가 곧 잠금이다.
+	 *
+	 * <p>그러니 이 메서드를 다른 곳에서 쓰지 않는다. 조회·수정 경로는 반드시
+	 * {@link #requireVisible} 을 지나야 한다.
+	 */
+	Story requireActiveIgnoringVisibility(UUID storyId) {
+		return this.storyRepository.findActiveById(storyId)
+				.orElseThrow(() -> new StoryNotFoundException(storyId));
+	}
+
 	Story requireVisible(UUID storyId, UUID viewer, Instant now) {
 		Story story = this.storyRepository.findActiveById(storyId)
 				.orElseThrow(() -> new StoryNotFoundException(storyId));
@@ -200,9 +229,29 @@ public class StoryService {
 		return story;
 	}
 
+	/**
+	 * 만든 사람만 — 삭제와, 공개 범위·공개 시각 변경이 여기를 지난다.
+	 *
+	 * <p>{@link #requireVisible} 을 먼저 지나므로 <b>볼 수도 없는 기록</b>에는 403 이 아니라
+	 * 404 가 나간다. 403 을 주면 "그 기록은 존재한다" 를 알려주는 셈이라 존재 자체가 샌다.
+	 */
 	private Story requireAuthor(UUID storyId, UUID editor, Instant now) {
 		Story story = requireVisible(storyId, editor, now);
 		if (!story.isAuthor(editor)) {
+			throw new StoryForbiddenException(storyId);
+		}
+		return story;
+	}
+
+	/**
+	 * 만든 사람 또는 공동 작성자 — 본문·사진 수정이 여기를 지난다 (S15P21E201-770).
+	 *
+	 * <p>판정 자체는 {@link StoryVisibilityPolicy#isParticipant} 한 곳에만 있다. 열람과 수정이
+	 * 같은 명단을 봐야 "고칠 수는 있는데 볼 수는 없는" 사람이 안 생긴다.
+	 */
+	private Story requireParticipant(UUID storyId, UUID editor, Instant now) {
+		Story story = requireVisible(storyId, editor, now);
+		if (!this.visibilityPolicy.isParticipant(story, editor)) {
 			throw new StoryForbiddenException(storyId);
 		}
 		return story;

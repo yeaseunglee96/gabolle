@@ -78,6 +78,19 @@ public class Story {
 	@Column(name = "deleted_at")
 	private Instant deletedAt;
 
+	/**
+	 * 마지막으로 본문을 고친 사람 — S15P21E201-770.
+	 *
+	 * <p>여럿이 함께 쓰는 기록에서 동시에 고치면 <b>나중에 저장한 쪽이 이긴다.</b> 충돌을
+	 * 감지해 멈추지 않는 것이 팀 결정이다(같이 여행한 사이라면 편하게 고칠 수 있어야 한다).
+	 * 그 대신 누가 마지막에 고쳤는지는 남긴다 — 이 칸마저 없으면 사용자는 자기 글이 왜
+	 * 바뀌었는지 알 방법이 전혀 없다.
+	 *
+	 * <p>아무도 고친 적 없는 기록에서는 {@code null} 이다. 만든 사람으로 채우지 않는다.
+	 */
+	@Column(name = "last_edited_by")
+	private UUID lastEditedBy;
+
 	protected Story() {
 	}
 
@@ -108,9 +121,18 @@ public class Story {
 		return body;
 	}
 
-	/** 수정. 넘긴 값 중 {@code null} 은 "바꾸지 않는다" 다. */
+	/**
+	 * 수정. 넘긴 값 중 {@code null} 은 "바꾸지 않는다" 다.
+	 *
+	 * <p>{@code editor} 를 인자로 받는 이유 — 부르는 쪽이 <b>누가 고치는지 말하지 않고는
+	 * 못 고치게</b> 하기 위해서다. 나중에 채우는 방식으로 두면 어느 경로 하나가 빼먹었을 때
+	 * 그 기록만 조용히 "마지막에 고친 사람" 이 비게 된다.
+	 *
+	 * <p>공개 범위·공개 시각을 만든 사람만 바꿀 수 있다는 규칙은 여기서 재지 않는다. 이 클래스는
+	 * 누가 참여자인지 모르고, 알게 하면 도메인이 저장소를 알아야 한다. 그 판정은 서비스가 한다.
+	 */
 	public void edit(String body, String region, StoryVisibility visibility, Instant publishAt, UUID placeId,
-			boolean clearPlace, Instant now) {
+			boolean clearPlace, UUID editor, Instant now) {
 		if (body != null) {
 			this.body = requireBody(body);
 		}
@@ -129,6 +151,7 @@ public class Story {
 		else if (placeId != null) {
 			this.placeId = placeId;
 		}
+		this.lastEditedBy = editor;
 		this.updatedAt = now;
 	}
 
@@ -160,6 +183,7 @@ public class Story {
 	public Instant getCreatedAt()     { return createdAt; }
 	public Instant getUpdatedAt()     { return updatedAt; }
 	public Instant getDeletedAt()     { return deletedAt; }
+	public UUID getLastEditedBy()     { return lastEditedBy; }
 
 	/** 신고를 받아 검토 대기로 바꾼다. 이미 대기·삭제 상태면 아무것도 하지 않는다. */
 	public void markUnderReview() {

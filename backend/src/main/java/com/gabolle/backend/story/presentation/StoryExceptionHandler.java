@@ -19,6 +19,7 @@ import com.gabolle.backend.common.api.ApiError;
 import com.gabolle.backend.common.api.ApiResponse;
 import com.gabolle.backend.story.application.FeedCursor;
 import com.gabolle.backend.story.application.FollowService;
+import com.gabolle.backend.story.application.StoryCoauthorService;
 import com.gabolle.backend.story.application.StoryService;
 import com.gabolle.backend.story.domain.UserFollow;
 
@@ -28,8 +29,12 @@ import com.gabolle.backend.story.domain.UserFollow;
  * <p>🔴 404 와 403 을 가르는 규칙이 이 파일의 핵심이다. 못 보는 기록(없음·지움·나만 보기·팔로워 전용)은 전부
  * 404 {@code STORY_NOT_FOUND} 로 같은 응답을 낸다 — 응답이 다르면 어느 쪽인지 알 수 있고 그것이 곧 존재
  * 사실의 유출이다. 403 {@code STORY_FORBIDDEN} 은 <b>보이는</b> 기록을 남이 고치거나 지우려 할 때만 난다.
+ *
+ * <p>{@link StoryCoauthorController}(공동 작성 — S15P21E201-770)도 이 핸들러를 같이 쓴다. 오류 번역이
+ * 하나뿐이면 두 컨트롤러가 같은 예외에 다른 응답을 낼 일이 없다.
  */
-@RestControllerAdvice(assignableTypes = { StoryController.class, UserSocialController.class })
+@RestControllerAdvice(
+		assignableTypes = { StoryController.class, UserSocialController.class, StoryCoauthorController.class })
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class StoryExceptionHandler {
 
@@ -50,6 +55,39 @@ public class StoryExceptionHandler {
 		return ResponseEntity.badRequest()
 				.body(ApiResponse.failure(new ApiError("STORY_REFERENCE_INVALID", e.getMessage(), List.of(e.field())),
 						requestId()));
+	}
+
+	// ── 공동 작성 — S15P21E201-770 ──────────────────────────────────────────
+
+	@ExceptionHandler(StoryCoauthorService.StoryInviteNotFoundException.class)
+	public ResponseEntity<ApiResponse<Void>> handleStoryInviteNotFound(
+			StoryCoauthorService.StoryInviteNotFoundException e) {
+		return ResponseEntity.status(HttpStatus.NOT_FOUND)
+				.body(ApiResponse.failure(new ApiError("STORY_INVITE_NOT_FOUND", e.getMessage(), List.of()),
+						requestId()));
+	}
+
+	/** 🔴 만료는 404 가 아니라 410 이다 — 표는 있었지만 지금은 못 쓴다는 뜻을 그대로 전한다. */
+	@ExceptionHandler(StoryCoauthorService.StoryInviteExpiredException.class)
+	public ResponseEntity<ApiResponse<Void>> handleStoryInviteExpired(
+			StoryCoauthorService.StoryInviteExpiredException e) {
+		return ResponseEntity.status(HttpStatus.GONE)
+				.body(ApiResponse.failure(new ApiError("STORY_INVITE_EXPIRED", e.getMessage(), List.of()),
+						requestId()));
+	}
+
+	@ExceptionHandler(StoryCoauthorService.StoryHasNoTripException.class)
+	public ResponseEntity<ApiResponse<Void>> handleStoryHasNoTrip(StoryCoauthorService.StoryHasNoTripException e) {
+		return ResponseEntity.badRequest()
+				.body(ApiResponse.failure(new ApiError("STORY_HAS_NO_TRIP", e.getMessage(), List.of("tripId")),
+						requestId()));
+	}
+
+	@ExceptionHandler(StoryCoauthorService.NotTripMemberException.class)
+	public ResponseEntity<ApiResponse<Void>> handleNotTripMember(StoryCoauthorService.NotTripMemberException e) {
+		return ResponseEntity.badRequest()
+				.body(ApiResponse.failure(new ApiError("STORY_COAUTHOR_NOT_TRIP_MEMBER", e.getMessage(),
+						List.of("userIds")), requestId()));
 	}
 
 	@ExceptionHandler(FeedCursor.InvalidCursorException.class)
