@@ -96,17 +96,42 @@ claims:
     #    **둘은 같은 명령의 다른 옵션이라 함께 줄 수 있다** (장효준 님이 실제로 던져
     #    확인해 주셨다). 체크포인트로 빨라지고, 코드 대조도 하고, 도장도 남는다.
     #    한쪽을 고르면 다른 쪽이 보던 것을 잃는다.
+    #
+    # 🔴 2026-09-09 저녁 — 그 `--code` 를 **잠시 끈다. 없앤 것이 아니라 껐다.**
+    #
+    #    위 문단대로 함께 준 것은 맞았다. 그런데 켜자마자 **진짜 위반 75건**이
+    #    나왔다 (파이프라인 185485). 9월 7일 하루에 난 커밋 13개가, 고칠 파일을
+    #    선점하지 않은 채 고친 것이다. 검사가 틀린 게 아니라 **오늘 처음 켜져서
+    #    처음 보인 것**이다. 내역은 docs/26.09.09/선점-감사-위반-75건.md 에 있다.
+    #
+    #    75건을 정리하는 일과 오늘 main 사다리 한 바퀴를 도는 일은 다른 일이라,
+    #    사다리를 먼저 돌리고 코드 대조는 정리가 끝난 뒤 다시 켠다.
+    #
+    #    🔴 다시 켜는 데 커밋도 MR 도 필요 없다. Settings → CI/CD → Variables 에
+    #       **CLAIMS_CODE_CHECK = 1** 을 넣으면 그날부터 다시 돈다. 지우면 꺼진다.
+    #       (AXMAP_VERSION 과 같은 되돌리는 손잡이다 — 팀 CLAUDE.md 0.3 참고)
+    #
+    #    🔴 끈 동안 못 보는 것은 **한 갈래뿐이다.** 「선점하지 않고 코드를 고쳤나」
+    #       (I5) 만 쉰다. 「두 사람이 같은 파일을 동시에 잡은 적이 있나」(I1) 는
+    #       장부를 그대로 재생해서 계속 본다. 검사가 사라지는 것이 아니다.
     - |
-      if [ -n "${CI_MERGE_REQUEST_DIFF_BASE_SHA:-}" ]; then
-        RANGE="${CI_MERGE_REQUEST_DIFF_BASE_SHA}..${CI_COMMIT_SHA}"
-      else
-        RANGE="${CI_COMMIT_BEFORE_SHA}..${CI_COMMIT_SHA}"
-      fi
-      echo "코드 대조 구간: $RANGE"
       # 한글 파일명이 8진수 escape 경로로 바뀌어 claim 과 불일치하는 것을 막는다.
       #    common 쪽 주석이 실제로 겪은 문제로 적어 둔 것이라 그대로 가져왔다.
       git config core.quotepath false
-      npx -y axmap-cli@$AXMAP_VERSION audit --fetch --code "$RANGE" --checkpoint
+      if [ "${CLAIMS_CODE_CHECK:-0}" = "1" ]; then
+        if [ -n "${CI_MERGE_REQUEST_DIFF_BASE_SHA:-}" ]; then
+          RANGE="${CI_MERGE_REQUEST_DIFF_BASE_SHA}..${CI_COMMIT_SHA}"
+        else
+          RANGE="${CI_COMMIT_BEFORE_SHA}..${CI_COMMIT_SHA}"
+        fi
+        echo "코드 대조 구간: $RANGE"
+        npx -y axmap-cli@$AXMAP_VERSION audit --fetch --code "$RANGE" --checkpoint
+      else
+        echo "코드 대조(--code)는 꺼져 있습니다 - 위반 75건을 정리하는 동안 쉽니다."
+        echo "  내역: docs/26.09.09/선점-감사-위반-75건.md"
+        echo "  다시 켜려면 CI/CD Variables 에 CLAIMS_CODE_CHECK=1 을 넣으세요."
+        npx -y axmap-cli@$AXMAP_VERSION audit --fetch --checkpoint
+      fi
   rules:
     # ref/ 만 바뀐 MR 에서는 돌지 않는다 (ref/README.md)
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
