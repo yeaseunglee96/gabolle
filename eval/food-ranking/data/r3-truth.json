@@ -1,0 +1,7674 @@
+{
+ "builtAt": "2026-09-07T08:42:36.076Z",
+ "rawDir": "C:\\Users\\SSAFY\\AppData\\Local\\Temp\\claude\\C--Users-SSAFY-Desktop-S15P21E201\\5d4cf699-c86d-473e-a1f5-a201bee8f3af\\scratchpad\\wt-705\\bigData\\data\\truth\\raw",
+ "rawEntries": 287,
+ "bySource": {
+  "michelin": 57,
+  "blueribbon": 100,
+  "blog100": 101,
+  "baengnyeon": 29
+ },
+ "stores": 245,
+ "tasteStores": 218,
+ "baengnyeonStores": 29,
+ "overlapDist": {
+  "1": 184,
+  "2": 28,
+  "3": 6
+ },
+ "addrMerges": [
+  [
+   "해운대암소갈비집",
+   "해운대소문난암소갈비집",
+   "해운대구|road|중동2로10번길|32|10"
+  ],
+  [
+   "브리앙",
+   "프랑스과자점브리앙",
+   "동래구|road|온천장로119번길|26|0"
+  ]
+ ],
+ "prefixMerges": [
+  [
+   "소공간",
+   "소공간다이닝"
+  ]
+ ],
+ "items": [
+  {
+   "tid": "r3-0000",
+   "core": "정짓간",
+   "names": [
+    "정짓간"
+   ],
+   "name": "정짓간",
+   "addr": null,
+   "addrRaw": null,
+   "sources": [
+    "michelin"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "michelin"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": "₩",
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": "돼지국밥"
+  },
+  {
+   "tid": "r3-0001",
+   "core": "아르프",
+   "names": [
+    "아르프"
+   ],
+   "name": "아르프",
+   "addr": null,
+   "addrRaw": null,
+   "sources": [
+    "michelin"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "michelin"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": "₩",
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": "비건"
+  },
+  {
+   "tid": "r3-0002",
+   "core": "1969부원동칼국수",
+   "names": [
+    "1969 부원동 칼국수"
+   ],
+   "name": "1969 부원동 칼국수",
+   "addr": null,
+   "addrRaw": null,
+   "sources": [
+    "michelin"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "michelin"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": "₩",
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": "칼국수"
+  },
+  {
+   "tid": "r3-0003",
+   "core": "평산옥",
+   "names": [
+    "평산옥"
+   ],
+   "name": "평산옥",
+   "addr": {
+    "gu": "동구",
+    "kind": "road",
+    "road": "초량중로",
+    "bon": 26,
+    "bu": 0,
+    "key": "동구|road|초량중로|26|0"
+   },
+   "addrRaw": "부산광역시 동구 초량중로 26",
+   "sources": [
+    "blueribbon",
+    "michelin"
+   ],
+   "nSources": 2,
+   "tasteSources": [
+    "blueribbon",
+    "michelin"
+   ],
+   "nTaste": 2,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": "₩",
+   "blueRibbon": 1,
+   "blueTheme": "노포",
+   "cuisine": "한식"
+  },
+  {
+   "tid": "r3-0004",
+   "core": "코르파스타바",
+   "names": [
+    "코르파스타바",
+    "코르 파스타바"
+   ],
+   "name": "코르파스타바",
+   "addr": {
+    "gu": "부산진구",
+    "kind": "road",
+    "road": "동성로25번길",
+    "bon": 13,
+    "bu": 0,
+    "key": "부산진구|road|동성로25번길|13|0"
+   },
+   "addrRaw": "부산 부산진구 동성로25번길 13",
+   "sources": [
+    "blog100",
+    "michelin"
+   ],
+   "nSources": 2,
+   "tasteSources": [
+    "blog100",
+    "michelin"
+   ],
+   "nTaste": 2,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": "₩",
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": "이탤리언"
+  },
+  {
+   "tid": "r3-0005",
+   "core": "합천국밥집",
+   "names": [
+    "합천국밥집"
+   ],
+   "name": "합천국밥집",
+   "addr": {
+    "gu": "남구",
+    "kind": "road",
+    "road": "용호로",
+    "bon": 235,
+    "bu": 0,
+    "key": "남구|road|용호로|235|0"
+   },
+   "addrRaw": "부산광역시 남구 용호로 235",
+   "sources": [
+    "blog100",
+    "blueribbon",
+    "michelin"
+   ],
+   "nSources": 3,
+   "tasteSources": [
+    "blog100",
+    "blueribbon",
+    "michelin"
+   ],
+   "nTaste": 3,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": "₩",
+   "blueRibbon": 1,
+   "blueTheme": "시티투어버스",
+   "cuisine": "돼지국밥"
+  },
+  {
+   "tid": "r3-0006",
+   "core": "바오하우스",
+   "names": [
+    "바오하우스"
+   ],
+   "name": "바오하우스",
+   "addr": {
+    "gu": "부산진구",
+    "kind": "road",
+    "road": "서전로38번길",
+    "bon": 62,
+    "bu": 9,
+    "key": "부산진구|road|서전로38번길|62|9"
+   },
+   "addrRaw": "부산 부산진구 서전로38번길 62-9",
+   "sources": [
+    "blog100",
+    "michelin"
+   ],
+   "nSources": 2,
+   "tasteSources": [
+    "blog100",
+    "michelin"
+   ],
+   "nTaste": 2,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": "₩",
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": "타이완"
+  },
+  {
+   "tid": "r3-0007",
+   "core": "야키토리온정",
+   "names": [
+    "야키토리 온정"
+   ],
+   "name": "야키토리 온정",
+   "addr": {
+    "gu": "부산진구",
+    "kind": "road",
+    "road": "동천로108번길",
+    "bon": 9,
+    "bu": 7,
+    "key": "부산진구|road|동천로108번길|9|7"
+   },
+   "addrRaw": "부산 부산진구 동천로108번길 9-7",
+   "sources": [
+    "blog100",
+    "michelin"
+   ],
+   "nSources": 2,
+   "tasteSources": [
+    "blog100",
+    "michelin"
+   ],
+   "nTaste": 2,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": "₩",
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": "야키토리"
+  },
+  {
+   "tid": "r3-0008",
+   "core": "잔둔가",
+   "names": [
+    "잔둔가"
+   ],
+   "name": "잔둔가",
+   "addr": null,
+   "addrRaw": null,
+   "sources": [
+    "michelin"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "michelin"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": "₩",
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": "멕시칸"
+  },
+  {
+   "tid": "r3-0009",
+   "core": "굿모닝홍콩",
+   "names": [
+    "굿모닝홍콩"
+   ],
+   "name": "굿모닝홍콩",
+   "addr": null,
+   "addrRaw": null,
+   "sources": [
+    "michelin"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "michelin"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": "₩₩",
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": "중식"
+  },
+  {
+   "tid": "r3-0010",
+   "core": "뫼밀집",
+   "names": [
+    "뫼밀집"
+   ],
+   "name": "뫼밀집",
+   "addr": null,
+   "addrRaw": null,
+   "sources": [
+    "michelin"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "michelin"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": "₩",
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": "메밀국수"
+  },
+  {
+   "tid": "r3-0011",
+   "core": "백일평냉",
+   "names": [
+    "백일평냉"
+   ],
+   "name": "백일평냉",
+   "addr": {
+    "gu": "수영구",
+    "kind": "road",
+    "road": "남천바다로10번길",
+    "bon": 29,
+    "bu": 0,
+    "key": "수영구|road|남천바다로10번길|29|0"
+   },
+   "addrRaw": "부산 수영구 남천바다로10번길 29",
+   "sources": [
+    "blog100",
+    "michelin"
+   ],
+   "nSources": 2,
+   "tasteSources": [
+    "blog100",
+    "michelin"
+   ],
+   "nTaste": 2,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": "₩",
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": "냉면"
+  },
+  {
+   "tid": "r3-0012",
+   "core": "한월관",
+   "names": [
+    "한월관"
+   ],
+   "name": "한월관",
+   "addr": null,
+   "addrRaw": null,
+   "sources": [
+    "michelin"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "michelin"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": "₩",
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": "곰탕"
+  },
+  {
+   "tid": "r3-0013",
+   "core": "진돼지곰탕",
+   "names": [
+    "진돼지곰탕"
+   ],
+   "name": "진돼지곰탕",
+   "addr": null,
+   "addrRaw": null,
+   "sources": [
+    "michelin"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "michelin"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": "₩",
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": "곰탕"
+  },
+  {
+   "tid": "r3-0014",
+   "core": "언양불고기부산집",
+   "names": [
+    "언양불고기부산집",
+    "언양불고기 부산집"
+   ],
+   "name": "언양불고기부산집",
+   "addr": {
+    "gu": "수영구",
+    "kind": "road",
+    "road": "남천바다로",
+    "bon": 32,
+    "bu": 0,
+    "key": "수영구|road|남천바다로|32|0"
+   },
+   "addrRaw": "부산광역시 수영구 남천바다로 32",
+   "sources": [
+    "blueribbon",
+    "michelin"
+   ],
+   "nSources": 2,
+   "tasteSources": [
+    "blueribbon",
+    "michelin"
+   ],
+   "nTaste": 2,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": "₩₩",
+   "blueRibbon": 2,
+   "blueTheme": "시티투어버스",
+   "cuisine": "불고기"
+  },
+  {
+   "tid": "r3-0015",
+   "core": "미락슈퍼",
+   "names": [
+    "미락슈퍼"
+   ],
+   "name": "미락슈퍼",
+   "addr": null,
+   "addrRaw": null,
+   "sources": [
+    "michelin"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "michelin"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": "₩₩",
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": "크리에이티브"
+  },
+  {
+   "tid": "r3-0016",
+   "core": "마츠자키",
+   "names": [
+    "마츠자키"
+   ],
+   "name": "마츠자키",
+   "addr": null,
+   "addrRaw": null,
+   "sources": [
+    "michelin"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "michelin"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": "₩₩",
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": "일식"
+  },
+  {
+   "tid": "r3-0017",
+   "core": "울트라바이트",
+   "names": [
+    "울트라 바이트"
+   ],
+   "name": "울트라 바이트",
+   "addr": null,
+   "addrRaw": null,
+   "sources": [
+    "michelin"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "michelin"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": "₩",
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": "컨템퍼러리"
+  },
+  {
+   "tid": "r3-0018",
+   "core": "아웃트로바이비토",
+   "names": [
+    "아웃트로 바이 비토"
+   ],
+   "name": "아웃트로 바이 비토",
+   "addr": null,
+   "addrRaw": null,
+   "sources": [
+    "michelin"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "michelin"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": "₩₩",
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": "유러피언"
+  },
+  {
+   "tid": "r3-0019",
+   "core": "레썽스",
+   "names": [
+    "레썽스"
+   ],
+   "name": "레썽스",
+   "addr": null,
+   "addrRaw": null,
+   "sources": [
+    "michelin"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "michelin"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": "₩₩",
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": "프렌치"
+  },
+  {
+   "tid": "r3-0020",
+   "core": "차애전할매칼국수",
+   "names": [
+    "차애전할매칼국수",
+    "차애전 할매 칼국수"
+   ],
+   "name": "차애전할매칼국수",
+   "addr": {
+    "gu": "연제구",
+    "kind": "road",
+    "road": "과정로191번가길",
+    "bon": 70,
+    "bu": 0,
+    "key": "연제구|road|과정로191번가길|70|0"
+   },
+   "addrRaw": "부산시 연제구 과정로191번가길 70",
+   "sources": [
+    "blog100",
+    "michelin"
+   ],
+   "nSources": 2,
+   "tasteSources": [
+    "blog100",
+    "michelin"
+   ],
+   "nTaste": 2,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": "₩",
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": "칼국수"
+  },
+  {
+   "tid": "r3-0021",
+   "core": "르도헤",
+   "names": [
+    "르도헤"
+   ],
+   "name": "르도헤",
+   "addr": {
+    "gu": "해운대구",
+    "kind": "road",
+    "road": "마린시티3로",
+    "bon": 37,
+    "bu": 0,
+    "key": "해운대구|road|마린시티3로|37|0"
+   },
+   "addrRaw": "부산광역시 해운대구 마린시티3로 37",
+   "sources": [
+    "blog100",
+    "blueribbon",
+    "michelin"
+   ],
+   "nSources": 3,
+   "tasteSources": [
+    "blog100",
+    "blueribbon",
+    "michelin"
+   ],
+   "nTaste": 3,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": "₩₩₩",
+   "blueRibbon": null,
+   "blueTheme": "파인다이닝",
+   "cuisine": "코리안 컨템퍼러리"
+  },
+  {
+   "tid": "r3-0022",
+   "core": "송헌집",
+   "names": [
+    "송헌집"
+   ],
+   "name": "송헌집",
+   "addr": null,
+   "addrRaw": null,
+   "sources": [
+    "michelin"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "michelin"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": "₩",
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": "한식"
+  },
+  {
+   "tid": "r3-0023",
+   "core": "비비재",
+   "names": [
+    "비비재"
+   ],
+   "name": "비비재",
+   "addr": null,
+   "addrRaw": null,
+   "sources": [
+    "michelin"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "michelin"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": "₩",
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": "비빔밥"
+  },
+  {
+   "tid": "r3-0024",
+   "core": "동경밥상",
+   "names": [
+    "동경밥상"
+   ],
+   "name": "동경밥상",
+   "addr": {
+    "gu": "수영구",
+    "kind": "road",
+    "road": "남천바다로",
+    "bon": 34,
+    "bu": 6,
+    "key": "수영구|road|남천바다로|34|6"
+   },
+   "addrRaw": "부산광역시 수영구 남천바다로 34-6",
+   "sources": [
+    "blog100",
+    "blueribbon",
+    "michelin"
+   ],
+   "nSources": 3,
+   "tasteSources": [
+    "blog100",
+    "blueribbon",
+    "michelin"
+   ],
+   "nTaste": 3,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": "₩",
+   "blueRibbon": 2,
+   "blueTheme": "세계음식",
+   "cuisine": "장어"
+  },
+  {
+   "tid": "r3-0025",
+   "core": "안목",
+   "names": [
+    "안목"
+   ],
+   "name": "안목",
+   "addr": null,
+   "addrRaw": null,
+   "sources": [
+    "michelin"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "michelin"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": "₩",
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": "돼지국밥"
+  },
+  {
+   "tid": "r3-0026",
+   "core": "피리피리",
+   "names": [
+    "피리피리"
+   ],
+   "name": "피리피리",
+   "addr": null,
+   "addrRaw": null,
+   "sources": [
+    "michelin"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "michelin"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": "₩",
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": "타이"
+  },
+  {
+   "tid": "r3-0027",
+   "core": "평양집",
+   "names": [
+    "평양집"
+   ],
+   "name": "평양집",
+   "addr": null,
+   "addrRaw": null,
+   "sources": [
+    "michelin"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "michelin"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": "₩",
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": "만두"
+  },
+  {
+   "tid": "r3-0028",
+   "core": "뉴러우멘관즈",
+   "names": [
+    "뉴러우멘관즈"
+   ],
+   "name": "뉴러우멘관즈",
+   "addr": {
+    "gu": "수영구",
+    "kind": "road",
+    "road": "수영로388번길",
+    "bon": 25,
+    "bu": 4,
+    "key": "수영구|road|수영로388번길|25|4"
+   },
+   "addrRaw": "부산 수영구 수영로388번길 25-4",
+   "sources": [
+    "blog100",
+    "michelin"
+   ],
+   "nSources": 2,
+   "tasteSources": [
+    "blog100",
+    "michelin"
+   ],
+   "nTaste": 2,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": "₩",
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": "타이완"
+  },
+  {
+   "tid": "r3-0029",
+   "core": "양경옥",
+   "names": [
+    "양경옥"
+   ],
+   "name": "양경옥",
+   "addr": null,
+   "addrRaw": null,
+   "sources": [
+    "michelin"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "michelin"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": "₩",
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": "냉면"
+  },
+  {
+   "tid": "r3-0030",
+   "core": "이와",
+   "names": [
+    "이와"
+   ],
+   "name": "이와",
+   "addr": null,
+   "addrRaw": null,
+   "sources": [
+    "michelin"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "michelin"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": "₩₩",
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": "일식"
+  },
+  {
+   "tid": "r3-0031",
+   "core": "융캉찌에",
+   "names": [
+    "융캉찌에"
+   ],
+   "name": "융캉찌에",
+   "addr": null,
+   "addrRaw": null,
+   "sources": [
+    "michelin"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "michelin"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": "₩",
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": "국수"
+  },
+  {
+   "tid": "r3-0032",
+   "core": "제로베이스",
+   "names": [
+    "제로베이스",
+    "제로 베이스"
+   ],
+   "name": "제로베이스",
+   "addr": {
+    "gu": "수영구",
+    "kind": "road",
+    "road": "민락로33번길",
+    "bon": 17,
+    "bu": 0,
+    "key": "수영구|road|민락로33번길|17|0"
+   },
+   "addrRaw": "부산광역시 수영구 민락로33번길 17",
+   "sources": [
+    "blog100",
+    "blueribbon",
+    "michelin"
+   ],
+   "nSources": 3,
+   "tasteSources": [
+    "blog100",
+    "blueribbon",
+    "michelin"
+   ],
+   "nTaste": 3,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": "₩₩₩",
+   "blueRibbon": 1,
+   "blueTheme": "세계음식",
+   "cuisine": "일식"
+  },
+  {
+   "tid": "r3-0033",
+   "core": "나막집",
+   "names": [
+    "나막집"
+   ],
+   "name": "나막집",
+   "addr": null,
+   "addrRaw": null,
+   "sources": [
+    "michelin"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "michelin"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": "₩",
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": "돼지국밥"
+  },
+  {
+   "tid": "r3-0034",
+   "core": "델리봉",
+   "names": [
+    "델리봉"
+   ],
+   "name": "델리봉",
+   "addr": null,
+   "addrRaw": null,
+   "sources": [
+    "michelin"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "michelin"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": "₩₩₩",
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": "프렌치"
+  },
+  {
+   "tid": "r3-0035",
+   "core": "램지",
+   "names": [
+    "램지"
+   ],
+   "name": "램지",
+   "addr": null,
+   "addrRaw": null,
+   "sources": [
+    "michelin"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "michelin"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": "₩₩₩",
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": "모던 요리"
+  },
+  {
+   "tid": "r3-0036",
+   "core": "야키토리해공",
+   "names": [
+    "야키토리해공",
+    "야키토리 해공"
+   ],
+   "name": "야키토리해공",
+   "addr": {
+    "gu": "수영구",
+    "kind": "road",
+    "road": "민락본동로19번길",
+    "bon": 30,
+    "bu": 5,
+    "key": "수영구|road|민락본동로19번길|30|5"
+   },
+   "addrRaw": "부산광역시 수영구 민락본동로19번길 30-5",
+   "sources": [
+    "blog100",
+    "blueribbon",
+    "michelin"
+   ],
+   "nSources": 3,
+   "tasteSources": [
+    "blog100",
+    "blueribbon",
+    "michelin"
+   ],
+   "nTaste": 3,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": "₩₩",
+   "blueRibbon": 1,
+   "blueTheme": "세계음식",
+   "cuisine": "야키토리"
+  },
+  {
+   "tid": "r3-0037",
+   "core": "해목",
+   "names": [
+    "해목"
+   ],
+   "name": "해목",
+   "addr": null,
+   "addrRaw": null,
+   "sources": [
+    "michelin"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "michelin"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": "₩₩",
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": "일식"
+  },
+  {
+   "tid": "r3-0038",
+   "core": "나가하마만게츠",
+   "names": [
+    "나가하마 만게츠"
+   ],
+   "name": "나가하마 만게츠",
+   "addr": null,
+   "addrRaw": null,
+   "sources": [
+    "michelin"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "michelin"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": "₩",
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": "라멘"
+  },
+  {
+   "tid": "r3-0039",
+   "core": "슌사이쿠보",
+   "names": [
+    "슌사이 쿠보"
+   ],
+   "name": "슌사이 쿠보",
+   "addr": null,
+   "addrRaw": null,
+   "sources": [
+    "michelin"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "michelin"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": "₩",
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": "장어"
+  },
+  {
+   "tid": "r3-0040",
+   "core": "우나쥬",
+   "names": [
+    "우나쥬"
+   ],
+   "name": "우나쥬",
+   "addr": null,
+   "addrRaw": null,
+   "sources": [
+    "michelin"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "michelin"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": "₩",
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": "장어"
+  },
+  {
+   "tid": "r3-0041",
+   "core": "차오란",
+   "names": [
+    "차오란"
+   ],
+   "name": "차오란",
+   "addr": {
+    "gu": "해운대구",
+    "kind": "road",
+    "road": "달맞이길",
+    "bon": 30,
+    "bu": 0,
+    "key": "해운대구|road|달맞이길|30|0"
+   },
+   "addrRaw": "부산광역시 해운대구 달맞이길 30",
+   "sources": [
+    "blueribbon",
+    "michelin"
+   ],
+   "nSources": 2,
+   "tasteSources": [
+    "blueribbon",
+    "michelin"
+   ],
+   "nTaste": 2,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": "₩₩₩",
+   "blueRibbon": 2,
+   "blueTheme": "파인다이닝",
+   "cuisine": "중식"
+  },
+  {
+   "tid": "r3-0042",
+   "core": "피오또",
+   "names": [
+    "피오또"
+   ],
+   "name": "피오또",
+   "addr": {
+    "gu": "해운대구",
+    "kind": "road",
+    "road": "달맞이길117번가길",
+    "bon": 219,
+    "bu": 0,
+    "key": "해운대구|road|달맞이길117번가길|219|0"
+   },
+   "addrRaw": "부산 해운대구 달맞이길117번가길 219",
+   "sources": [
+    "blog100",
+    "michelin"
+   ],
+   "nSources": 2,
+   "tasteSources": [
+    "blog100",
+    "michelin"
+   ],
+   "nTaste": 2,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": "₩₩₩",
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": "이탤리언 컨템퍼러리"
+  },
+  {
+   "tid": "r3-0043",
+   "core": "팔레트",
+   "names": [
+    "팔레트"
+   ],
+   "name": "팔레트",
+   "addr": {
+    "gu": "남구",
+    "kind": "road",
+    "road": "분포로",
+    "bon": 66,
+    "bu": 30,
+    "key": "남구|road|분포로|66|30"
+   },
+   "addrRaw": "부산광역시 남구 분포로 66-30",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 2,
+   "blueTheme": "파인다이닝",
+   "cuisine": "프랑스식"
+  },
+  {
+   "tid": "r3-0044",
+   "core": "팔레트",
+   "names": [
+    "팔레트"
+   ],
+   "name": "팔레트",
+   "addr": {
+    "gu": "해운대구",
+    "kind": "road",
+    "road": "달맞이길65번길",
+    "bon": 154,
+    "bu": 0,
+    "key": "해운대구|road|달맞이길65번길|154|0"
+   },
+   "addrRaw": "부산 해운대구 달맞이길65번길 154",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0045",
+   "core": "팔레트",
+   "names": [
+    "팔레트"
+   ],
+   "name": "팔레트",
+   "addr": null,
+   "addrRaw": null,
+   "sources": [
+    "michelin"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "michelin"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": true,
+   "michelinPrice": "₩₩₩₩",
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": "컨템퍼러리"
+  },
+  {
+   "tid": "r3-0046",
+   "core": "모리",
+   "names": [
+    "모리"
+   ],
+   "name": "모리",
+   "addr": {
+    "gu": "해운대구",
+    "kind": "road",
+    "road": "해운대해변로298번길",
+    "bon": 24,
+    "bu": 0,
+    "key": "해운대구|road|해운대해변로298번길|24|0"
+   },
+   "addrRaw": "부산광역시 해운대구 해운대해변로298번길 24",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "파인다이닝",
+   "cuisine": "가이세키"
+  },
+  {
+   "tid": "r3-0047",
+   "core": "모리",
+   "names": [
+    "모리"
+   ],
+   "name": "모리",
+   "addr": {
+    "gu": "해운대구",
+    "kind": "road",
+    "road": "구남로",
+    "bon": 21,
+    "bu": 0,
+    "key": "해운대구|road|구남로|21|0"
+   },
+   "addrRaw": "부산 해운대구 구남로 21 경동리인뷰 311호",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0048",
+   "core": "모리",
+   "names": [
+    "모리"
+   ],
+   "name": "모리",
+   "addr": null,
+   "addrRaw": null,
+   "sources": [
+    "michelin"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "michelin"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": true,
+   "michelinPrice": "₩₩₩",
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": "일식"
+  },
+  {
+   "tid": "r3-0049",
+   "core": "부다면옥",
+   "names": [
+    "부다면옥"
+   ],
+   "name": "부다면옥",
+   "addr": {
+    "gu": "해운대구",
+    "kind": "road",
+    "road": "중동1로",
+    "bon": 36,
+    "bu": 0,
+    "key": "해운대구|road|중동1로|36|0"
+   },
+   "addrRaw": "부산광역시 해운대구 중동1로 36",
+   "sources": [
+    "blueribbon",
+    "michelin"
+   ],
+   "nSources": 2,
+   "tasteSources": [
+    "blueribbon",
+    "michelin"
+   ],
+   "nTaste": 2,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": "₩",
+   "blueRibbon": 1,
+   "blueTheme": "시티투어버스",
+   "cuisine": "냉면"
+  },
+  {
+   "tid": "r3-0050",
+   "core": "모먼트로컬",
+   "names": [
+    "모먼트 로컬"
+   ],
+   "name": "모먼트 로컬",
+   "addr": null,
+   "addrRaw": null,
+   "sources": [
+    "michelin"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "michelin"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": "₩₩₩",
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": "스테이크하우스"
+  },
+  {
+   "tid": "r3-0051",
+   "core": "거대돼지국밥",
+   "names": [
+    "거대돼지국밥",
+    "거대 돼지국밥"
+   ],
+   "name": "거대돼지국밥",
+   "addr": {
+    "gu": "해운대구",
+    "kind": "road",
+    "road": "달맞이길",
+    "bon": 16,
+    "bu": 2,
+    "key": "해운대구|road|달맞이길|16|2"
+   },
+   "addrRaw": "부산 해운대구 달맞이길 16-2",
+   "sources": [
+    "blog100",
+    "michelin"
+   ],
+   "nSources": 2,
+   "tasteSources": [
+    "blog100",
+    "michelin"
+   ],
+   "nTaste": 2,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": "₩",
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": "돼지국밥"
+  },
+  {
+   "tid": "r3-0052",
+   "core": "이안",
+   "names": [
+    "이안"
+   ],
+   "name": "이안",
+   "addr": {
+    "gu": "해운대구",
+    "kind": "road",
+    "road": "달맞이길65번길",
+    "bon": 88,
+    "bu": 0,
+    "key": "해운대구|road|달맞이길65번길|88|0"
+   },
+   "addrRaw": "부산 해운대구 달맞이길65번길 88",
+   "sources": [
+    "blog100",
+    "michelin"
+   ],
+   "nSources": 2,
+   "tasteSources": [
+    "blog100",
+    "michelin"
+   ],
+   "nTaste": 2,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": "₩₩₩",
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": "컨템퍼러리"
+  },
+  {
+   "tid": "r3-0053",
+   "core": "본앤브레드",
+   "names": [
+    "본 앤 브레드"
+   ],
+   "name": "본 앤 브레드",
+   "addr": null,
+   "addrRaw": null,
+   "sources": [
+    "michelin"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "michelin"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": "₩₩₩₩",
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": "스테이크하우스"
+  },
+  {
+   "tid": "r3-0054",
+   "core": "토오루",
+   "names": [
+    "토오루"
+   ],
+   "name": "토오루",
+   "addr": {
+    "gu": "해운대구",
+    "kind": "road",
+    "road": "구남로",
+    "bon": 21,
+    "bu": 0,
+    "key": "해운대구|road|구남로|21|0"
+   },
+   "addrRaw": "부산 해운대구 구남로 21 경동리인뷰2차 301동",
+   "sources": [
+    "blog100",
+    "michelin"
+   ],
+   "nSources": 2,
+   "tasteSources": [
+    "blog100",
+    "michelin"
+   ],
+   "nTaste": 2,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": "₩₩₩",
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": "일식"
+  },
+  {
+   "tid": "r3-0055",
+   "core": "율링",
+   "names": [
+    "율링"
+   ],
+   "name": "율링",
+   "addr": {
+    "gu": "해운대구",
+    "kind": "road",
+    "road": "달맞이길62번길",
+    "bon": 28,
+    "bu": 0,
+    "key": "해운대구|road|달맞이길62번길|28|0"
+   },
+   "addrRaw": "부산광역시 해운대구 달맞이길62번길 28",
+   "sources": [
+    "blog100",
+    "blueribbon",
+    "michelin"
+   ],
+   "nSources": 3,
+   "tasteSources": [
+    "blog100",
+    "blueribbon",
+    "michelin"
+   ],
+   "nTaste": 3,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": "₩₩₩",
+   "blueRibbon": 2,
+   "blueTheme": "파인다이닝",
+   "cuisine": "프렌치 컨템퍼러리"
+  },
+  {
+   "tid": "r3-0056",
+   "core": "금수복국",
+   "names": [
+    "금수복국"
+   ],
+   "name": "금수복국",
+   "addr": {
+    "gu": "해운대구",
+    "kind": "road",
+    "road": "중동1로43번길",
+    "bon": 23,
+    "bu": 0,
+    "key": "해운대구|road|중동1로43번길|23|0"
+   },
+   "addrRaw": "부산광역시 해운대구 중동1로43번길 23",
+   "sources": [
+    "blueribbon",
+    "michelin"
+   ],
+   "nSources": 2,
+   "tasteSources": [
+    "blueribbon",
+    "michelin"
+   ],
+   "nTaste": 2,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": "₩₩",
+   "blueRibbon": 1,
+   "blueTheme": "노포",
+   "cuisine": "복어"
+  },
+  {
+   "tid": "r3-0057",
+   "core": "딤타오",
+   "names": [
+    "딤타오"
+   ],
+   "name": "딤타오",
+   "addr": null,
+   "addrRaw": null,
+   "sources": [
+    "michelin"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "michelin"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": "₩₩",
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": "딤섬"
+  },
+  {
+   "tid": "r3-0058",
+   "core": "으뜸이로리바타",
+   "names": [
+    "으뜸 이로리바타"
+   ],
+   "name": "으뜸 이로리바타",
+   "addr": null,
+   "addrRaw": null,
+   "sources": [
+    "michelin"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "michelin"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": "₩₩₩",
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": "일식"
+  },
+  {
+   "tid": "r3-0059",
+   "core": "해운대암소갈비집",
+   "names": [
+    "해운대 암소갈비집"
+   ],
+   "name": "해운대 암소갈비집",
+   "addr": {
+    "gu": "해운대구",
+    "kind": "road",
+    "road": "해운대해변로",
+    "bon": 333,
+    "bu": 0,
+    "key": "해운대구|road|해운대해변로|333|0"
+   },
+   "addrRaw": "부산 해운대구 해운대해변로 333",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0060",
+   "core": "해운대암소갈비집",
+   "names": [
+    "(주)해운대암소갈비집",
+    "해운대소문난암소갈비집"
+   ],
+   "name": "해운대소문난암소갈비집",
+   "addr": {
+    "gu": "해운대구",
+    "kind": "road",
+    "road": "중동2로10번길",
+    "bon": 32,
+    "bu": 10,
+    "key": "해운대구|road|중동2로10번길|32|10"
+   },
+   "addrRaw": "부산광역시 해운대구 중동2로10번길 32-10",
+   "sources": [
+    "baengnyeon",
+    "blueribbon"
+   ],
+   "nSources": 2,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": true,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 2,
+   "blueTheme": "노포",
+   "cuisine": "소갈비"
+  },
+  {
+   "tid": "r3-0061",
+   "core": "해운대암소갈비집",
+   "names": [
+    "해운대 암소갈비집"
+   ],
+   "name": "해운대 암소갈비집",
+   "addr": null,
+   "addrRaw": null,
+   "sources": [
+    "michelin"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "michelin"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": true,
+   "michelinPrice": "",
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": ""
+  },
+  {
+   "tid": "r3-0062",
+   "core": "거대숯불구이",
+   "names": [
+    "거대숯불구이"
+   ],
+   "name": "거대숯불구이",
+   "addr": {
+    "gu": "해운대구",
+    "kind": "road",
+    "road": "달맞이길",
+    "bon": 22,
+    "bu": 0,
+    "key": "해운대구|road|달맞이길|22|0"
+   },
+   "addrRaw": "부산광역시 해운대구 달맞이길 22",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 2,
+   "blueTheme": "시티투어버스",
+   "cuisine": "소고기구이"
+  },
+  {
+   "tid": "r3-0063",
+   "core": "기장손칼국수",
+   "names": [
+    "기장손칼국수"
+   ],
+   "name": "기장손칼국수",
+   "addr": {
+    "gu": "부산진구",
+    "kind": "road",
+    "road": "서면로",
+    "bon": 56,
+    "bu": 0,
+    "key": "부산진구|road|서면로|56|0"
+   },
+   "addrRaw": "부산광역시 부산진구 서면로 56",
+   "sources": [
+    "blog100",
+    "blueribbon"
+   ],
+   "nSources": 2,
+   "tasteSources": [
+    "blog100",
+    "blueribbon"
+   ],
+   "nTaste": 2,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "시티투어버스",
+   "cuisine": "칼국수"
+  },
+  {
+   "tid": "r3-0064",
+   "core": "동백섬횟집",
+   "names": [
+    "동백섬횟집"
+   ],
+   "name": "동백섬횟집",
+   "addr": {
+    "gu": "해운대구",
+    "kind": "road",
+    "road": "해운대해변로209번나길",
+    "bon": 17,
+    "bu": 0,
+    "key": "해운대구|road|해운대해변로209번나길|17|0"
+   },
+   "addrRaw": "부산광역시 해운대구 해운대해변로209번나길 17",
+   "sources": [
+    "blog100",
+    "blueribbon"
+   ],
+   "nSources": 2,
+   "tasteSources": [
+    "blog100",
+    "blueribbon"
+   ],
+   "nTaste": 2,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 2,
+   "blueTheme": "시티투어버스",
+   "cuisine": "생선회"
+  },
+  {
+   "tid": "r3-0065",
+   "core": "무진장횟집",
+   "names": [
+    "무진장횟집"
+   ],
+   "name": "무진장횟집",
+   "addr": {
+    "gu": "기장군",
+    "kind": "road",
+    "road": "연화1길",
+    "bon": 137,
+    "bu": 0,
+    "key": "기장군|road|연화1길|137|0"
+   },
+   "addrRaw": "부산광역시 기장군 기장읍 연화1길 137",
+   "sources": [
+    "blog100",
+    "blueribbon"
+   ],
+   "nSources": 2,
+   "tasteSources": [
+    "blog100",
+    "blueribbon"
+   ],
+   "nTaste": 2,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "시티투어버스",
+   "cuisine": "붕장어"
+  },
+  {
+   "tid": "r3-0066",
+   "core": "삼오불고기",
+   "names": [
+    "삼오불고기"
+   ],
+   "name": "삼오불고기",
+   "addr": {
+    "gu": "수영구",
+    "kind": "road",
+    "road": "수영로610번길",
+    "bon": 24,
+    "bu": 2,
+    "key": "수영구|road|수영로610번길|24|2"
+   },
+   "addrRaw": "부산광역시 수영구 수영로610번길 24-2",
+   "sources": [
+    "blog100",
+    "blueribbon"
+   ],
+   "nSources": 2,
+   "tasteSources": [
+    "blog100",
+    "blueribbon"
+   ],
+   "nTaste": 2,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "시티투어버스",
+   "cuisine": "돼지고기구이"
+  },
+  {
+   "tid": "r3-0067",
+   "core": "새총횟집",
+   "names": [
+    "새총횟집"
+   ],
+   "name": "새총횟집",
+   "addr": {
+    "gu": "해운대구",
+    "kind": "road",
+    "road": "반여로155번길",
+    "bon": 25,
+    "bu": 0,
+    "key": "해운대구|road|반여로155번길|25|0"
+   },
+   "addrRaw": "부산광역시 해운대구 반여로155번길 25",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "시티투어버스",
+   "cuisine": "생선회"
+  },
+  {
+   "tid": "r3-0068",
+   "core": "쌍둥이돼지국밥",
+   "names": [
+    "쌍둥이돼지국밥"
+   ],
+   "name": "쌍둥이돼지국밥",
+   "addr": {
+    "gu": "남구",
+    "kind": "road",
+    "road": "유엔평화로",
+    "bon": 35,
+    "bu": 1,
+    "key": "남구|road|유엔평화로|35|1"
+   },
+   "addrRaw": "부산광역시 남구 유엔평화로 35-1",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "시티투어버스",
+   "cuisine": "돼지국밥"
+  },
+  {
+   "tid": "r3-0069",
+   "core": "아저씨대구탕",
+   "names": [
+    "아저씨대구탕"
+   ],
+   "name": "아저씨대구탕",
+   "addr": {
+    "gu": "해운대구",
+    "kind": "road",
+    "road": "달맞이길62번가길",
+    "bon": 31,
+    "bu": 0,
+    "key": "해운대구|road|달맞이길62번가길|31|0"
+   },
+   "addrRaw": "부산광역시 해운대구 달맞이길62번가길 31",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "시티투어버스",
+   "cuisine": "대구탕"
+  },
+  {
+   "tid": "r3-0070",
+   "core": "영남돼지",
+   "names": [
+    "영남돼지"
+   ],
+   "name": "영남돼지",
+   "addr": {
+    "gu": "해운대구",
+    "kind": "road",
+    "road": "해운대해변로209번가길",
+    "bon": 13,
+    "bu": 0,
+    "key": "해운대구|road|해운대해변로209번가길|13|0"
+   },
+   "addrRaw": "부산광역시 해운대구 해운대해변로209번가길 13",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "시티투어버스",
+   "cuisine": "소고기구이,돼지고기구이"
+  },
+  {
+   "tid": "r3-0071",
+   "core": "은하갈비",
+   "names": [
+    "은하갈비"
+   ],
+   "name": "은하갈비",
+   "addr": {
+    "gu": "동구",
+    "kind": "road",
+    "road": "초량중로",
+    "bon": 86,
+    "bu": 0,
+    "key": "동구|road|초량중로|86|0"
+   },
+   "addrRaw": "부산광역시 동구 초량중로 86",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "시티투어버스",
+   "cuisine": "돼지갈비"
+  },
+  {
+   "tid": "r3-0072",
+   "core": "은해갈치",
+   "names": [
+    "은해갈치"
+   ],
+   "name": "은해갈치",
+   "addr": {
+    "gu": "수영구",
+    "kind": "road",
+    "road": "광안해변로295번길",
+    "bon": 4,
+    "bu": 7,
+    "key": "수영구|road|광안해변로295번길|4|7"
+   },
+   "addrRaw": "부산광역시 수영구 광안해변로295번길 4-7",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "시티투어버스",
+   "cuisine": "갈치"
+  },
+  {
+   "tid": "r3-0073",
+   "core": "초필살돼지구이",
+   "names": [
+    "초필살돼지구이"
+   ],
+   "name": "초필살돼지구이",
+   "addr": {
+    "gu": "해운대구",
+    "kind": "road",
+    "road": "마린시티3로",
+    "bon": 23,
+    "bu": 0,
+    "key": "해운대구|road|마린시티3로|23|0"
+   },
+   "addrRaw": "부산광역시 해운대구 마린시티3로 23",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "시티투어버스",
+   "cuisine": "돼지고기구이"
+  },
+  {
+   "tid": "r3-0074",
+   "core": "탐복",
+   "names": [
+    "탐복"
+   ],
+   "name": "탐복",
+   "addr": {
+    "gu": "기장군",
+    "kind": "road",
+    "road": "문오성길",
+    "bon": 31,
+    "bu": 0,
+    "key": "기장군|road|문오성길|31|0"
+   },
+   "addrRaw": "부산광역시 기장군 일광읍 문오성길 31",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "시티투어버스",
+   "cuisine": "전복"
+  },
+  {
+   "tid": "r3-0075",
+   "core": "미미루",
+   "names": [
+    "미미루"
+   ],
+   "name": "미미루",
+   "addr": {
+    "gu": "동래구",
+    "kind": "road",
+    "road": "온천장로",
+    "bon": 91,
+    "bu": 1,
+    "key": "동래구|road|온천장로|91|1"
+   },
+   "addrRaw": "부산광역시 동래구 온천장로 91-1",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "세계음식",
+   "cuisine": "중식"
+  },
+  {
+   "tid": "r3-0076",
+   "core": "부우사안",
+   "names": [
+    "부우사안"
+   ],
+   "name": "부우사안",
+   "addr": {
+    "gu": "해운대구",
+    "kind": "road",
+    "road": "해운대해변로209번나길",
+    "bon": 16,
+    "bu": 0,
+    "key": "해운대구|road|해운대해변로209번나길|16|0"
+   },
+   "addrRaw": "부산광역시 해운대구 해운대해변로209번나길 16",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "세계음식",
+   "cuisine": "북경오리"
+  },
+  {
+   "tid": "r3-0077",
+   "core": "산동완탕교자관",
+   "names": [
+    "산동완탕교자관"
+   ],
+   "name": "산동완탕교자관",
+   "addr": {
+    "gu": "동구",
+    "kind": "road",
+    "road": "중앙대로248번길",
+    "bon": 3,
+    "bu": 11,
+    "key": "동구|road|중앙대로248번길|3|11"
+   },
+   "addrRaw": "부산광역시 동구 중앙대로248번길 3-11",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "세계음식",
+   "cuisine": "완탕"
+  },
+  {
+   "tid": "r3-0078",
+   "core": "모즈",
+   "names": [
+    "모즈"
+   ],
+   "name": "모즈",
+   "addr": {
+    "gu": "해운대구",
+    "kind": "road",
+    "road": "마린시티2로",
+    "bon": 38,
+    "bu": 0,
+    "key": "해운대구|road|마린시티2로|38|0"
+   },
+   "addrRaw": "부산광역시 해운대구 마린시티2로 38",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 2,
+   "blueTheme": "세계음식",
+   "cuisine": "이자카야"
+  },
+  {
+   "tid": "r3-0079",
+   "core": "쇼진",
+   "names": [
+    "쇼진"
+   ],
+   "name": "쇼진",
+   "addr": {
+    "gu": "해운대구",
+    "kind": "road",
+    "road": "구남로",
+    "bon": 9,
+    "bu": 0,
+    "key": "해운대구|road|구남로|9|0"
+   },
+   "addrRaw": "부산광역시 해운대구 구남로 9",
+   "sources": [
+    "blog100",
+    "blueribbon"
+   ],
+   "nSources": 2,
+   "tasteSources": [
+    "blog100",
+    "blueribbon"
+   ],
+   "nTaste": 2,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "세계음식",
+   "cuisine": "가이세키"
+  },
+  {
+   "tid": "r3-0080",
+   "core": "스시시안",
+   "names": [
+    "스시시안"
+   ],
+   "name": "스시시안",
+   "addr": {
+    "gu": "해운대구",
+    "kind": "road",
+    "road": "센텀1로",
+    "bon": 9,
+    "bu": 0,
+    "key": "해운대구|road|센텀1로|9|0"
+   },
+   "addrRaw": "부산광역시 해운대구 센텀1로 9",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "세계음식",
+   "cuisine": "스시"
+  },
+  {
+   "tid": "r3-0081",
+   "core": "스시이루카",
+   "names": [
+    "스시이루카"
+   ],
+   "name": "스시이루카",
+   "addr": {
+    "gu": "해운대구",
+    "kind": "road",
+    "road": "마린시티2로",
+    "bon": 38,
+    "bu": 0,
+    "key": "해운대구|road|마린시티2로|38|0"
+   },
+   "addrRaw": "부산광역시 해운대구 마린시티2로 38",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "세계음식",
+   "cuisine": "스시"
+  },
+  {
+   "tid": "r3-0082",
+   "core": "쥬가정효",
+   "names": [
+    "쥬가정효"
+   ],
+   "name": "쥬가정효",
+   "addr": {
+    "gu": "해운대구",
+    "kind": "road",
+    "road": "우동1로20번길",
+    "bon": 53,
+    "bu": 0,
+    "key": "해운대구|road|우동1로20번길|53|0"
+   },
+   "addrRaw": "부산광역시 해운대구 우동1로20번길 53",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": "세계음식",
+   "cuisine": "이자카야,가이세키"
+  },
+  {
+   "tid": "r3-0083",
+   "core": "쥬가정효",
+   "names": [
+    "쥬가정효"
+   ],
+   "name": "쥬가정효",
+   "addr": {
+    "gu": "해운대구",
+    "kind": "road",
+    "road": "해운대로",
+    "bon": 620,
+    "bu": 0,
+    "key": "해운대구|road|해운대로|620|0"
+   },
+   "addrRaw": "부산 해운대구 해운대로 620 라뮤에뜨 3층",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0084",
+   "core": "톤쇼우",
+   "names": [
+    "톤쇼우",
+    "톤쇼우 광안점"
+   ],
+   "name": "톤쇼우",
+   "addr": {
+    "gu": "수영구",
+    "kind": "road",
+    "road": "광안해변로279번길",
+    "bon": 13,
+    "bu": 0,
+    "key": "수영구|road|광안해변로279번길|13|0"
+   },
+   "addrRaw": "부산광역시 수영구 광안해변로279번길 13",
+   "sources": [
+    "blog100",
+    "blueribbon"
+   ],
+   "nSources": 2,
+   "tasteSources": [
+    "blog100",
+    "blueribbon"
+   ],
+   "nTaste": 2,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "세계음식",
+   "cuisine": "일식돈가스"
+  },
+  {
+   "tid": "r3-0085",
+   "core": "라이옥",
+   "names": [
+    "라이옥"
+   ],
+   "name": "라이옥",
+   "addr": {
+    "gu": "남구",
+    "kind": "road",
+    "road": "용소로7번길",
+    "bon": 76,
+    "bu": 0,
+    "key": "남구|road|용소로7번길|76|0"
+   },
+   "addrRaw": "부산광역시 남구 용소로7번길 76",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "세계음식",
+   "cuisine": "베트남식"
+  },
+  {
+   "tid": "r3-0086",
+   "core": "달타이",
+   "names": [
+    "달타이"
+   ],
+   "name": "달타이",
+   "addr": {
+    "gu": "해운대구",
+    "kind": "road",
+    "road": "달맞이길",
+    "bon": 193,
+    "bu": 0,
+    "key": "해운대구|road|달맞이길|193|0"
+   },
+   "addrRaw": "부산광역시 해운대구 달맞이길 193",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "세계음식",
+   "cuisine": "태국식"
+  },
+  {
+   "tid": "r3-0087",
+   "core": "알로이타이레스토랑",
+   "names": [
+    "알로이타이레스토랑"
+   ],
+   "name": "알로이타이레스토랑",
+   "addr": {
+    "gu": "수영구",
+    "kind": "road",
+    "road": "민락수변로239번길",
+    "bon": 26,
+    "bu": 0,
+    "key": "수영구|road|민락수변로239번길|26|0"
+   },
+   "addrRaw": "부산광역시 수영구 민락수변로239번길 26",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "세계음식",
+   "cuisine": "태국식"
+  },
+  {
+   "tid": "r3-0088",
+   "core": "떼떼오네",
+   "names": [
+    "떼떼오네"
+   ],
+   "name": "떼떼오네",
+   "addr": {
+    "gu": "부산진구",
+    "kind": "road",
+    "road": "동성로25번길",
+    "bon": 35,
+    "bu": 0,
+    "key": "부산진구|road|동성로25번길|35|0"
+   },
+   "addrRaw": "부산광역시 부산진구 동성로25번길 35",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "세계음식",
+   "cuisine": "다이닝바"
+  },
+  {
+   "tid": "r3-0089",
+   "core": "라꽁띠",
+   "names": [
+    "라꽁띠"
+   ],
+   "name": "라꽁띠",
+   "addr": {
+    "gu": "해운대구",
+    "kind": "road",
+    "road": "청사포로",
+    "bon": 85,
+    "bu": 0,
+    "key": "해운대구|road|청사포로|85|0"
+   },
+   "addrRaw": "부산광역시 해운대구 청사포로 85",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "세계음식",
+   "cuisine": "이탈리아식"
+  },
+  {
+   "tid": "r3-0090",
+   "core": "리오네",
+   "names": [
+    "리오네"
+   ],
+   "name": "리오네",
+   "addr": {
+    "gu": "수영구",
+    "kind": "road",
+    "road": "구락로",
+    "bon": 36,
+    "bu": 0,
+    "key": "수영구|road|구락로|36|0"
+   },
+   "addrRaw": "부산광역시 수영구 구락로 36",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "세계음식",
+   "cuisine": "파스타"
+  },
+  {
+   "tid": "r3-0091",
+   "core": "쉐프리",
+   "names": [
+    "쉐프리"
+   ],
+   "name": "쉐프리",
+   "addr": {
+    "gu": "해운대구",
+    "kind": "road",
+    "road": "해운대해변로209번길",
+    "bon": 13,
+    "bu": 0,
+    "key": "해운대구|road|해운대해변로209번길|13|0"
+   },
+   "addrRaw": "부산광역시 해운대구 해운대해변로209번길 13",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "세계음식",
+   "cuisine": "이탈리아식"
+  },
+  {
+   "tid": "r3-0092",
+   "core": "음주양식당오스테리아어부",
+   "names": [
+    "음주양식당오스테리아어부"
+   ],
+   "name": "음주양식당오스테리아어부",
+   "addr": {
+    "gu": "부산진구",
+    "kind": "road",
+    "road": "동천로",
+    "bon": 58,
+    "bu": 0,
+    "key": "부산진구|road|동천로|58|0"
+   },
+   "addrRaw": "부산광역시 부산진구 동천로 58",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "세계음식",
+   "cuisine": "이탈리아식"
+  },
+  {
+   "tid": "r3-0093",
+   "core": "이재모피자",
+   "names": [
+    "이재모피자"
+   ],
+   "name": "이재모피자",
+   "addr": {
+    "gu": "중구",
+    "kind": "road",
+    "road": "광복중앙로",
+    "bon": 31,
+    "bu": 0,
+    "key": "중구|road|광복중앙로|31|0"
+   },
+   "addrRaw": "부산광역시 중구 광복중앙로 31",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "세계음식",
+   "cuisine": "피자"
+  },
+  {
+   "tid": "r3-0094",
+   "core": "카파도키아",
+   "names": [
+    "카파도키아"
+   ],
+   "name": "카파도키아",
+   "addr": {
+    "gu": "금정구",
+    "kind": "road",
+    "road": "금단로",
+    "bon": 123,
+    "bu": 9,
+    "key": "금정구|road|금단로|123|9"
+   },
+   "addrRaw": "부산광역시 금정구 금단로 123-9",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "세계음식",
+   "cuisine": "튀르키예식"
+  },
+  {
+   "tid": "r3-0095",
+   "core": "레땅",
+   "names": [
+    "레땅"
+   ],
+   "name": "레땅",
+   "addr": {
+    "gu": "부산진구",
+    "kind": "road",
+    "road": "성지로",
+    "bon": 22,
+    "bu": 0,
+    "key": "부산진구|road|성지로|22|0"
+   },
+   "addrRaw": "부산광역시 부산진구 성지로 22",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "세계음식",
+   "cuisine": "프랑스식"
+  },
+  {
+   "tid": "r3-0096",
+   "core": "거북선횟집",
+   "names": [
+    "거북선횟집"
+   ],
+   "name": "거북선횟집",
+   "addr": {
+    "gu": "해운대구",
+    "kind": "road",
+    "road": "달맞이길62번길",
+    "bon": 69,
+    "bu": 0,
+    "key": "해운대구|road|달맞이길62번길|69|0"
+   },
+   "addrRaw": "부산광역시 해운대구 달맞이길62번길 69",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "오션뷰",
+   "cuisine": "생선회"
+  },
+  {
+   "tid": "r3-0097",
+   "core": "고스락",
+   "names": [
+    "고스락"
+   ],
+   "name": "고스락",
+   "addr": {
+    "gu": "기장군",
+    "kind": "road",
+    "road": "해맞이로",
+    "bon": 286,
+    "bu": 0,
+    "key": "기장군|road|해맞이로|286|0"
+   },
+   "addrRaw": "부산광역시 기장군 장안읍 해맞이로 286",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "오션뷰",
+   "cuisine": "소고기구이"
+  },
+  {
+   "tid": "r3-0098",
+   "core": "규우정",
+   "names": [
+    "규우정"
+   ],
+   "name": "규우정",
+   "addr": {
+    "gu": "해운대구",
+    "kind": "road",
+    "road": "달맞이길",
+    "bon": 129,
+    "bu": 0,
+    "key": "해운대구|road|달맞이길|129|0"
+   },
+   "addrRaw": "부산광역시 해운대구 달맞이길 129",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "오션뷰",
+   "cuisine": "소고기구이"
+  },
+  {
+   "tid": "r3-0099",
+   "core": "금랑횟집",
+   "names": [
+    "금랑횟집"
+   ],
+   "name": "금랑횟집",
+   "addr": {
+    "gu": "수영구",
+    "kind": "road",
+    "road": "광안해변로344번길",
+    "bon": 17,
+    "bu": 5,
+    "key": "수영구|road|광안해변로344번길|17|5"
+   },
+   "addrRaw": "부산광역시 수영구 광안해변로344번길 17-5",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "오션뷰",
+   "cuisine": "생선회"
+  },
+  {
+   "tid": "r3-0100",
+   "core": "뉼리",
+   "names": [
+    "뉼리"
+   ],
+   "name": "뉼리",
+   "addr": {
+    "gu": "수영구",
+    "kind": "road",
+    "road": "민락수변로",
+    "bon": 7,
+    "bu": 0,
+    "key": "수영구|road|민락수변로|7|0"
+   },
+   "addrRaw": "부산광역시 수영구 민락수변로 7",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "오션뷰",
+   "cuisine": "스테이크,와인바"
+  },
+  {
+   "tid": "r3-0101",
+   "core": "맥퀸즈라운지",
+   "names": [
+    "맥퀸즈라운지"
+   ],
+   "name": "맥퀸즈라운지",
+   "addr": {
+    "gu": "기장군",
+    "kind": "road",
+    "road": "기장해안로",
+    "bon": 268,
+    "bu": 32,
+    "key": "기장군|road|기장해안로|268|32"
+   },
+   "addrRaw": "부산광역시 기장군 기장읍 기장해안로 268-32",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "오션뷰",
+   "cuisine": "카페"
+  },
+  {
+   "tid": "r3-0102",
+   "core": "목장원",
+   "names": [
+    "목장원"
+   ],
+   "name": "목장원",
+   "addr": {
+    "gu": "영도구",
+    "kind": "road",
+    "road": "절영로",
+    "bon": 355,
+    "bu": 0,
+    "key": "영도구|road|절영로|355|0"
+   },
+   "addrRaw": "부산광역시 영도구 절영로 355",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 2,
+   "blueTheme": "오션뷰",
+   "cuisine": "소갈비,소고기구이"
+  },
+  {
+   "tid": "r3-0103",
+   "core": "오륙도가원",
+   "names": [
+    "오륙도가원"
+   ],
+   "name": "오륙도가원",
+   "addr": {
+    "gu": "남구",
+    "kind": "road",
+    "road": "백운포로",
+    "bon": 14,
+    "bu": 0,
+    "key": "남구|road|백운포로|14|0"
+   },
+   "addrRaw": "부산광역시 남구 백운포로 14",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 2,
+   "blueTheme": "오션뷰",
+   "cuisine": "소고기구이"
+  },
+  {
+   "tid": "r3-0104",
+   "core": "이레옥",
+   "names": [
+    "이레옥"
+   ],
+   "name": "이레옥",
+   "addr": {
+    "gu": "해운대구",
+    "kind": "road",
+    "road": "마린시티3로",
+    "bon": 51,
+    "bu": 0,
+    "key": "해운대구|road|마린시티3로|51|0"
+   },
+   "addrRaw": "부산광역시 해운대구 마린시티3로 51",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 2,
+   "blueTheme": "오션뷰",
+   "cuisine": "곰탕"
+  },
+  {
+   "tid": "r3-0105",
+   "core": "칠성횟집",
+   "names": [
+    "칠성횟집"
+   ],
+   "name": "칠성횟집",
+   "addr": {
+    "gu": "수영구",
+    "kind": "road",
+    "road": "광안해변로",
+    "bon": 263,
+    "bu": 0,
+    "key": "수영구|road|광안해변로|263|0"
+   },
+   "addrRaw": "부산광역시 수영구 광안해변로 263",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "오션뷰",
+   "cuisine": "생선회,세꼬시"
+  },
+  {
+   "tid": "r3-0106",
+   "core": "남풍",
+   "names": [
+    "남풍"
+   ],
+   "name": "남풍",
+   "addr": {
+    "gu": "해운대구",
+    "kind": "road",
+    "road": "해운대해변로",
+    "bon": 296,
+    "bu": 0,
+    "key": "해운대구|road|해운대해변로|296|0"
+   },
+   "addrRaw": "부산광역시 해운대구 해운대해변로 296",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 2,
+   "blueTheme": "파인다이닝",
+   "cuisine": "일반중식"
+  },
+  {
+   "tid": "r3-0107",
+   "core": "랩24바이쿠무다",
+   "names": [
+    "랩24바이쿠무다"
+   ],
+   "name": "랩24바이쿠무다",
+   "addr": {
+    "gu": "해운대구",
+    "kind": "road",
+    "road": "송정광어골로",
+    "bon": 41,
+    "bu": 0,
+    "key": "해운대구|road|송정광어골로|41|0"
+   },
+   "addrRaw": "부산광역시 해운대구 송정광어골로 41",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 2,
+   "blueTheme": "파인다이닝",
+   "cuisine": "프랑스식"
+  },
+  {
+   "tid": "r3-0108",
+   "core": "마이클어반팜테이블",
+   "names": [
+    "마이클어반팜테이블"
+   ],
+   "name": "마이클어반팜테이블",
+   "addr": {
+    "gu": "수영구",
+    "kind": "road",
+    "road": "구락로123번길",
+    "bon": 20,
+    "bu": 0,
+    "key": "수영구|road|구락로123번길|20|0"
+   },
+   "addrRaw": "부산광역시 수영구 구락로123번길 20",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 2,
+   "blueTheme": "파인다이닝",
+   "cuisine": "뉴아메리칸"
+  },
+  {
+   "tid": "r3-0109",
+   "core": "무궁화",
+   "names": [
+    "무궁화"
+   ],
+   "name": "무궁화",
+   "addr": {
+    "gu": "부산진구",
+    "kind": "road",
+    "road": "가야대로",
+    "bon": 772,
+    "bu": 0,
+    "key": "부산진구|road|가야대로|772|0"
+   },
+   "addrRaw": "부산광역시 부산진구 가야대로 772",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 2,
+   "blueTheme": "파인다이닝",
+   "cuisine": "한정식"
+  },
+  {
+   "tid": "r3-0110",
+   "core": "사까에",
+   "names": [
+    "사까에"
+   ],
+   "name": "사까에",
+   "addr": {
+    "gu": "해운대구",
+    "kind": "road",
+    "road": "해운대해변로",
+    "bon": 296,
+    "bu": 0,
+    "key": "해운대구|road|해운대해변로|296|0"
+   },
+   "addrRaw": "부산광역시 해운대구 해운대해변로 296",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 2,
+   "blueTheme": "파인다이닝",
+   "cuisine": "데판야키,스시"
+  },
+  {
+   "tid": "r3-0111",
+   "core": "셔블",
+   "names": [
+    "셔블"
+   ],
+   "name": "셔블",
+   "addr": {
+    "gu": "해운대구",
+    "kind": "road",
+    "road": "동백로",
+    "bon": 67,
+    "bu": 0,
+    "key": "해운대구|road|동백로|67|0"
+   },
+   "addrRaw": "부산광역시 해운대구 동백로 67",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "파인다이닝",
+   "cuisine": "한정식"
+  },
+  {
+   "tid": "r3-0112",
+   "core": "아쁘앙",
+   "names": [
+    "아쁘앙"
+   ],
+   "name": "아쁘앙",
+   "addr": {
+    "gu": "기장군",
+    "kind": "road",
+    "road": "기장해안로",
+    "bon": 268,
+    "bu": 31,
+    "key": "기장군|road|기장해안로|268|31"
+   },
+   "addrRaw": "부산광역시 기장군 기장읍 기장해안로 268-31",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "파인다이닝",
+   "cuisine": "프랑스식"
+  },
+  {
+   "tid": "r3-0113",
+   "core": "아오모리",
+   "names": [
+    "아오모리"
+   ],
+   "name": "아오모리",
+   "addr": {
+    "gu": "해운대구",
+    "kind": "road",
+    "road": "센텀3로",
+    "bon": 20,
+    "bu": 0,
+    "key": "해운대구|road|센텀3로|20|0"
+   },
+   "addrRaw": "부산광역시 해운대구 센텀3로 20",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 2,
+   "blueTheme": "파인다이닝",
+   "cuisine": "스시"
+  },
+  {
+   "tid": "r3-0114",
+   "core": "팔레드신",
+   "names": [
+    "팔레드신"
+   ],
+   "name": "팔레드신",
+   "addr": {
+    "gu": "해운대구",
+    "kind": "road",
+    "road": "해운대해변로",
+    "bon": 292,
+    "bu": 0,
+    "key": "해운대구|road|해운대해변로|292|0"
+   },
+   "addrRaw": "부산광역시 해운대구 해운대해변로 292",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 2,
+   "blueTheme": "파인다이닝",
+   "cuisine": "모던차이니즈"
+  },
+  {
+   "tid": "r3-0115",
+   "core": "하레마",
+   "names": [
+    "하레마"
+   ],
+   "name": "하레마",
+   "addr": {
+    "gu": "해운대구",
+    "kind": "road",
+    "road": "마린시티2로",
+    "bon": 33,
+    "bu": 0,
+    "key": "해운대구|road|마린시티2로|33|0"
+   },
+   "addrRaw": "부산광역시 해운대구 마린시티2로 33",
+   "sources": [
+    "blog100",
+    "blueribbon"
+   ],
+   "nSources": 2,
+   "tasteSources": [
+    "blog100",
+    "blueribbon"
+   ],
+   "nTaste": 2,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 2,
+   "blueTheme": "파인다이닝",
+   "cuisine": "스시"
+  },
+  {
+   "tid": "r3-0116",
+   "core": "60년전통할매국밥",
+   "names": [
+    "60년전통할매국밥"
+   ],
+   "name": "60년전통할매국밥",
+   "addr": {
+    "gu": "동구",
+    "kind": "road",
+    "road": "중앙대로533번길",
+    "bon": 4,
+    "bu": 0,
+    "key": "동구|road|중앙대로533번길|4|0"
+   },
+   "addrRaw": "부산광역시 동구 중앙대로533번길 4",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "노포",
+   "cuisine": "돼지국밥"
+  },
+  {
+   "tid": "r3-0117",
+   "core": "개금밀면",
+   "names": [
+    "개금밀면"
+   ],
+   "name": "개금밀면",
+   "addr": {
+    "gu": "부산진구",
+    "kind": "road",
+    "road": "가야대로482번길",
+    "bon": 9,
+    "bu": 4,
+    "key": "부산진구|road|가야대로482번길|9|4"
+   },
+   "addrRaw": "부산광역시 부산진구 가야대로482번길 9-4",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "노포",
+   "cuisine": "밀면"
+  },
+  {
+   "tid": "r3-0118",
+   "core": "구포촌국수",
+   "names": [
+    "구포촌국수"
+   ],
+   "name": "구포촌국수",
+   "addr": {
+    "gu": "금정구",
+    "kind": "road",
+    "road": "금샘로",
+    "bon": 490,
+    "bu": 0,
+    "key": "금정구|road|금샘로|490|0"
+   },
+   "addrRaw": "부산광역시 금정구 금샘로 490",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "노포",
+   "cuisine": "국수"
+  },
+  {
+   "tid": "r3-0119",
+   "core": "금용",
+   "names": [
+    "금용"
+   ],
+   "name": "금용",
+   "addr": {
+    "gu": "북구",
+    "kind": "road",
+    "road": "구포만세길",
+    "bon": 75,
+    "bu": 0,
+    "key": "북구|road|구포만세길|75|0"
+   },
+   "addrRaw": "부산광역시 북구 구포만세길 75",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "노포",
+   "cuisine": "중국만두"
+  },
+  {
+   "tid": "r3-0120",
+   "core": "기장곰장어",
+   "names": [
+    "기장곰장어"
+   ],
+   "name": "기장곰장어",
+   "addr": {
+    "gu": "기장군",
+    "kind": "road",
+    "road": "기장해안로",
+    "bon": 70,
+    "bu": 0,
+    "key": "기장군|road|기장해안로|70|0"
+   },
+   "addrRaw": "부산광역시 기장군 기장읍 기장해안로 70",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "노포",
+   "cuisine": "곰장어"
+  },
+  {
+   "tid": "r3-0121",
+   "core": "기장곰장어",
+   "names": [
+    "기장곰장어 본점"
+   ],
+   "name": "기장곰장어 본점",
+   "addr": {
+    "gu": "해운대구",
+    "kind": "road",
+    "road": "좌동로91번길",
+    "bon": 19,
+    "bu": 0,
+    "key": "해운대구|road|좌동로91번길|19|0"
+   },
+   "addrRaw": "부산 해운대구 좌동로91번길 19",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0122",
+   "core": "동래할매파전",
+   "names": [
+    "동래할매파전"
+   ],
+   "name": "동래할매파전",
+   "addr": {
+    "gu": "동래구",
+    "kind": "road",
+    "road": "명륜로94번길",
+    "bon": 43,
+    "bu": 10,
+    "key": "동래구|road|명륜로94번길|43|10"
+   },
+   "addrRaw": "부산광역시 동래구 명륜로94번길 43-10",
+   "sources": [
+    "baengnyeon",
+    "blueribbon"
+   ],
+   "nSources": 2,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": true,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 2,
+   "blueTheme": "노포",
+   "cuisine": "파전"
+  },
+  {
+   "tid": "r3-0123",
+   "core": "물꽁식당",
+   "names": [
+    "물꽁식당"
+   ],
+   "name": "물꽁식당",
+   "addr": {
+    "gu": "중구",
+    "kind": "road",
+    "road": "흑교로59번길",
+    "bon": 3,
+    "bu": 0,
+    "key": "중구|road|흑교로59번길|3|0"
+   },
+   "addrRaw": "부산광역시 중구 흑교로59번길 3",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "노포",
+   "cuisine": "아귀"
+  },
+  {
+   "tid": "r3-0124",
+   "core": "박옥희할매집원조복국",
+   "names": [
+    "박옥희할매집원조복국"
+   ],
+   "name": "박옥희할매집원조복국",
+   "addr": {
+    "gu": "해운대구",
+    "kind": "road",
+    "road": "달맞이길62번길",
+    "bon": 28,
+    "bu": 0,
+    "key": "해운대구|road|달맞이길62번길|28|0"
+   },
+   "addrRaw": "부산광역시 해운대구 달맞이길62번길 28",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "노포",
+   "cuisine": "복"
+  },
+  {
+   "tid": "r3-0125",
+   "core": "배종관동래삼계탕",
+   "names": [
+    "배종관동래삼계탕",
+    "배종관 동래삼계탕"
+   ],
+   "name": "배종관동래삼계탕",
+   "addr": {
+    "gu": "동래구",
+    "kind": "road",
+    "road": "동래로116번길",
+    "bon": 39,
+    "bu": 0,
+    "key": "동래구|road|동래로116번길|39|0"
+   },
+   "addrRaw": "부산광역시 동래구 동래로116번길 39",
+   "sources": [
+    "blog100",
+    "blueribbon"
+   ],
+   "nSources": 2,
+   "tasteSources": [
+    "blog100",
+    "blueribbon"
+   ],
+   "nTaste": 2,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "노포",
+   "cuisine": "삼계탕"
+  },
+  {
+   "tid": "r3-0126",
+   "core": "백구당",
+   "names": [
+    "백구당"
+   ],
+   "name": "백구당",
+   "addr": {
+    "gu": "중구",
+    "kind": "road",
+    "road": "중앙대로81번길",
+    "bon": 3,
+    "bu": 0,
+    "key": "중구|road|중앙대로81번길|3|0"
+   },
+   "addrRaw": "부산광역시 중구 중앙대로81번길 3",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "노포",
+   "cuisine": "베이커리"
+  },
+  {
+   "tid": "r3-0127",
+   "core": "부산명물횟집",
+   "names": [
+    "부산명물횟집"
+   ],
+   "name": "부산명물횟집",
+   "addr": {
+    "gu": "중구",
+    "kind": "road",
+    "road": "자갈치해안로",
+    "bon": 55,
+    "bu": 0,
+    "key": "중구|road|자갈치해안로|55|0"
+   },
+   "addrRaw": "부산광역시 중구 자갈치해안로 55",
+   "sources": [
+    "blog100",
+    "blueribbon"
+   ],
+   "nSources": 2,
+   "tasteSources": [
+    "blog100",
+    "blueribbon"
+   ],
+   "nTaste": 2,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "노포",
+   "cuisine": "회백반,생선회"
+  },
+  {
+   "tid": "r3-0128",
+   "core": "비엔씨",
+   "names": [
+    "비엔씨"
+   ],
+   "name": "비엔씨",
+   "addr": {
+    "gu": "동구",
+    "kind": "road",
+    "road": "중앙대로",
+    "bon": 206,
+    "bu": 0,
+    "key": "동구|road|중앙대로|206|0"
+   },
+   "addrRaw": "부산광역시 동구 중앙대로 206",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "노포",
+   "cuisine": "베이커리"
+  },
+  {
+   "tid": "r3-0129",
+   "core": "새진주식당",
+   "names": [
+    "새진주식당"
+   ],
+   "name": "새진주식당",
+   "addr": {
+    "gu": "중구",
+    "kind": "road",
+    "road": "흑교로",
+    "bon": 60,
+    "bu": 0,
+    "key": "중구|road|흑교로|60|0"
+   },
+   "addrRaw": "부산광역시 중구 흑교로 60",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "노포",
+   "cuisine": "비빔밥"
+  },
+  {
+   "tid": "r3-0130",
+   "core": "서울깍두기",
+   "names": [
+    "서울깍두기"
+   ],
+   "name": "서울깍두기",
+   "addr": {
+    "gu": "중구",
+    "kind": "road",
+    "road": "남포길",
+    "bon": 33,
+    "bu": 0,
+    "key": "중구|road|남포길|33|0"
+   },
+   "addrRaw": "부산광역시 중구 남포길 33",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "노포",
+   "cuisine": "설렁탕"
+  },
+  {
+   "tid": "r3-0131",
+   "core": "송정3대국밥",
+   "names": [
+    "송정3대국밥"
+   ],
+   "name": "송정3대국밥",
+   "addr": {
+    "gu": "부산진구",
+    "kind": "road",
+    "road": "서면로68번길",
+    "bon": 33,
+    "bu": 0,
+    "key": "부산진구|road|서면로68번길|33|0"
+   },
+   "addrRaw": "부산광역시 부산진구 서면로68번길 33",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "노포",
+   "cuisine": "돼지국밥"
+  },
+  {
+   "tid": "r3-0132",
+   "core": "신발원",
+   "names": [
+    "신발원"
+   ],
+   "name": "신발원",
+   "addr": {
+    "gu": "동구",
+    "kind": "road",
+    "road": "대영로243번길",
+    "bon": 62,
+    "bu": 0,
+    "key": "동구|road|대영로243번길|62|0"
+   },
+   "addrRaw": "부산광역시 동구 대영로243번길 62",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "노포",
+   "cuisine": "중국만두"
+  },
+  {
+   "tid": "r3-0133",
+   "core": "신창국밥",
+   "names": [
+    "신창국밥"
+   ],
+   "name": "신창국밥",
+   "addr": {
+    "gu": "서구",
+    "kind": "road",
+    "road": "보수대로",
+    "bon": 53,
+    "bu": 0,
+    "key": "서구|road|보수대로|53|0"
+   },
+   "addrRaw": "부산광역시 서구 보수대로 53",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "노포",
+   "cuisine": "돼지국밥"
+  },
+  {
+   "tid": "r3-0134",
+   "core": "신흥관",
+   "names": [
+    "신흥관"
+   ],
+   "name": "신흥관",
+   "addr": {
+    "gu": "해운대구",
+    "kind": "road",
+    "road": "중동1로",
+    "bon": 31,
+    "bu": 1,
+    "key": "해운대구|road|중동1로|31|1"
+   },
+   "addrRaw": "부산광역시 해운대구 중동1로 31-1",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "노포",
+   "cuisine": "중식"
+  },
+  {
+   "tid": "r3-0135",
+   "core": "옛날오막집",
+   "names": [
+    "옛날오막집"
+   ],
+   "name": "옛날오막집",
+   "addr": {
+    "gu": "서구",
+    "kind": "road",
+    "road": "구덕로274번길",
+    "bon": 14,
+    "bu": 0,
+    "key": "서구|road|구덕로274번길|14|0"
+   },
+   "addrRaw": "부산광역시 서구 구덕로274번길 14",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 2,
+   "blueTheme": "노포",
+   "cuisine": "양곱창"
+  },
+  {
+   "tid": "r3-0136",
+   "core": "원조할매낙지",
+   "names": [
+    "원조할매낙지"
+   ],
+   "name": "원조할매낙지",
+   "addr": {
+    "gu": "부산진구",
+    "kind": "road",
+    "road": "골드테마길",
+    "bon": 10,
+    "bu": 0,
+    "key": "부산진구|road|골드테마길|10|0"
+   },
+   "addrRaw": "부산광역시 부산진구 골드테마길 10",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "노포",
+   "cuisine": "낙지"
+  },
+  {
+   "tid": "r3-0137",
+   "core": "초원복국",
+   "names": [
+    "초원복국",
+    "초원복국 본점"
+   ],
+   "name": "초원복국",
+   "addr": {
+    "gu": "남구",
+    "kind": "road",
+    "road": "황령대로492번길",
+    "bon": 30,
+    "bu": 0,
+    "key": "남구|road|황령대로492번길|30|0"
+   },
+   "addrRaw": "부산광역시 남구 황령대로492번길 30",
+   "sources": [
+    "blog100",
+    "blueribbon"
+   ],
+   "nSources": 2,
+   "tasteSources": [
+    "blog100",
+    "blueribbon"
+   ],
+   "nTaste": 2,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "노포",
+   "cuisine": "복"
+  },
+  {
+   "tid": "r3-0138",
+   "core": "할매재첩국",
+   "names": [
+    "할매재첩국"
+   ],
+   "name": "할매재첩국",
+   "addr": {
+    "gu": "사상구",
+    "kind": "road",
+    "road": "낙동대로1530번길",
+    "bon": 20,
+    "bu": 15,
+    "key": "사상구|road|낙동대로1530번길|20|15"
+   },
+   "addrRaw": "부산광역시 사상구 낙동대로1530번길 20-15",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "노포",
+   "cuisine": "재첩"
+  },
+  {
+   "tid": "r3-0139",
+   "core": "레망파티쓰리",
+   "names": [
+    "레망파티쓰리"
+   ],
+   "name": "레망파티쓰리",
+   "addr": {
+    "gu": "동래구",
+    "kind": "road",
+    "road": "온천천로471번가길",
+    "bon": 38,
+    "bu": 0,
+    "key": "동래구|road|온천천로471번가길|38|0"
+   },
+   "addrRaw": "부산광역시 동래구 온천천로471번가길 38",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "디저트커피",
+   "cuisine": "베이커리"
+  },
+  {
+   "tid": "r3-0140",
+   "core": "머그디저트랩",
+   "names": [
+    "머그디저트랩"
+   ],
+   "name": "머그디저트랩",
+   "addr": {
+    "gu": "해운대구",
+    "kind": "road",
+    "road": "마린시티2로",
+    "bon": 38,
+    "bu": 0,
+    "key": "해운대구|road|마린시티2로|38|0"
+   },
+   "addrRaw": "부산광역시 해운대구 마린시티2로 38",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "디저트커피",
+   "cuisine": "디저트카페"
+  },
+  {
+   "tid": "r3-0141",
+   "core": "모모스커피",
+   "names": [
+    "모모스커피"
+   ],
+   "name": "모모스커피",
+   "addr": {
+    "gu": "금정구",
+    "kind": "road",
+    "road": "오시게로",
+    "bon": 20,
+    "bu": 0,
+    "key": "금정구|road|오시게로|20|0"
+   },
+   "addrRaw": "부산광역시 금정구 오시게로 20",
+   "sources": [
+    "blog100",
+    "blueribbon"
+   ],
+   "nSources": 2,
+   "tasteSources": [
+    "blog100",
+    "blueribbon"
+   ],
+   "nTaste": 2,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 2,
+   "blueTheme": "디저트커피",
+   "cuisine": "커피전문점"
+  },
+  {
+   "tid": "r3-0142",
+   "core": "무슈뱅상",
+   "names": [
+    "무슈뱅상"
+   ],
+   "name": "무슈뱅상",
+   "addr": {
+    "gu": "수영구",
+    "kind": "road",
+    "road": "광남로48번길",
+    "bon": 19,
+    "bu": 0,
+    "key": "수영구|road|광남로48번길|19|0"
+   },
+   "addrRaw": "부산광역시 수영구 광남로48번길 19",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "디저트커피",
+   "cuisine": "베이커리"
+  },
+  {
+   "tid": "r3-0143",
+   "core": "베르크로스터스",
+   "names": [
+    "베르크로스터스"
+   ],
+   "name": "베르크로스터스",
+   "addr": {
+    "gu": "부산진구",
+    "kind": "road",
+    "road": "서전로58번길",
+    "bon": 115,
+    "bu": 0,
+    "key": "부산진구|road|서전로58번길|115|0"
+   },
+   "addrRaw": "부산광역시 부산진구 서전로58번길 115",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 2,
+   "blueTheme": "디저트커피",
+   "cuisine": "커피전문점"
+  },
+  {
+   "tid": "r3-0144",
+   "core": "보느파티쓰리",
+   "names": [
+    "보느파티쓰리"
+   ],
+   "name": "보느파티쓰리",
+   "addr": {
+    "gu": "연제구",
+    "kind": "road",
+    "road": "교대로",
+    "bon": 7,
+    "bu": 0,
+    "key": "연제구|road|교대로|7|0"
+   },
+   "addrRaw": "부산광역시 연제구 교대로 7",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "디저트커피",
+   "cuisine": "베이커리"
+  },
+  {
+   "tid": "r3-0145",
+   "core": "브레드365",
+   "names": [
+    "브레드365"
+   ],
+   "name": "브레드365",
+   "addr": {
+    "gu": "남구",
+    "kind": "road",
+    "road": "못골로41번길",
+    "bon": 13,
+    "bu": 0,
+    "key": "남구|road|못골로41번길|13|0"
+   },
+   "addrRaw": "부산광역시 남구 못골로41번길 13",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "디저트커피",
+   "cuisine": "베이커리"
+  },
+  {
+   "tid": "r3-0146",
+   "core": "브리앙",
+   "names": [
+    "브리앙",
+    "프랑스과자점 브리앙"
+   ],
+   "name": "브리앙",
+   "addr": {
+    "gu": "동래구",
+    "kind": "road",
+    "road": "온천장로119번길",
+    "bon": 26,
+    "bu": 0,
+    "key": "동래구|road|온천장로119번길|26|0"
+   },
+   "addrRaw": "부산광역시 동래구 온천장로119번길 26",
+   "sources": [
+    "blog100",
+    "blueribbon"
+   ],
+   "nSources": 2,
+   "tasteSources": [
+    "blog100",
+    "blueribbon"
+   ],
+   "nTaste": 2,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "디저트커피",
+   "cuisine": "베이커리"
+  },
+  {
+   "tid": "r3-0147",
+   "core": "블랙업커피",
+   "names": [
+    "블랙업커피"
+   ],
+   "name": "블랙업커피",
+   "addr": {
+    "gu": "부산진구",
+    "kind": "road",
+    "road": "서전로10번길",
+    "bon": 41,
+    "bu": 0,
+    "key": "부산진구|road|서전로10번길|41|0"
+   },
+   "addrRaw": "부산광역시 부산진구 서전로10번길 41",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 2,
+   "blueTheme": "디저트커피",
+   "cuisine": "커피전문점"
+  },
+  {
+   "tid": "r3-0148",
+   "core": "옵스",
+   "names": [
+    "옵스"
+   ],
+   "name": "옵스",
+   "addr": {
+    "gu": "수영구",
+    "kind": "road",
+    "road": "황령대로489번길",
+    "bon": 37,
+    "bu": 0,
+    "key": "수영구|road|황령대로489번길|37|0"
+   },
+   "addrRaw": "부산광역시 수영구 황령대로489번길 37",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 1,
+   "blueTheme": "디저트커피",
+   "cuisine": "베이커리"
+  },
+  {
+   "tid": "r3-0149",
+   "core": "히떼로스터리",
+   "names": [
+    "히떼로스터리"
+   ],
+   "name": "히떼로스터리",
+   "addr": {
+    "gu": "부산진구",
+    "kind": "road",
+    "road": "동성로",
+    "bon": 59,
+    "bu": 0,
+    "key": "부산진구|road|동성로|59|0"
+   },
+   "addrRaw": "부산광역시 부산진구 동성로 59",
+   "sources": [
+    "blueribbon"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blueribbon"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": 2,
+   "blueTheme": "디저트커피",
+   "cuisine": "커피전문점"
+  },
+  {
+   "tid": "r3-0150",
+   "core": "새미골해물아구찜",
+   "names": [
+    "새미골 해물아구찜"
+   ],
+   "name": "새미골 해물아구찜",
+   "addr": {
+    "gu": "동래구",
+    "kind": "road",
+    "road": "안남로",
+    "bon": 37,
+    "bu": 0,
+    "key": "동래구|road|안남로|37|0"
+   },
+   "addrRaw": "부산시 동래구 안남로 37",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0151",
+   "core": "이가해물짬뽕",
+   "names": [
+    "이가해물짬뽕"
+   ],
+   "name": "이가해물짬뽕",
+   "addr": {
+    "gu": "남구",
+    "kind": "road",
+    "road": "유엔평화로",
+    "bon": 119,
+    "bu": 0,
+    "key": "남구|road|유엔평화로|119|0"
+   },
+   "addrRaw": "부산 남구 유엔평화로 119",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0152",
+   "core": "감수식당",
+   "names": [
+    "감수식당"
+   ],
+   "name": "감수식당",
+   "addr": {
+    "gu": "남구",
+    "kind": "road",
+    "road": "지겟골로",
+    "bon": 5,
+    "bu": 0,
+    "key": "남구|road|지겟골로|5|0"
+   },
+   "addrRaw": "부산 남구 지겟골로 5",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0153",
+   "core": "사카나라멘",
+   "names": [
+    "사카나라멘"
+   ],
+   "name": "사카나라멘",
+   "addr": {
+    "gu": "수영구",
+    "kind": "road",
+    "road": "수영로610번길",
+    "bon": 7,
+    "bu": 0,
+    "key": "수영구|road|수영로610번길|7|0"
+   },
+   "addrRaw": "부산 수영구 수영로610번길 7",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0154",
+   "core": "만서리이가네막국수",
+   "names": [
+    "만서리 이가네 막국수"
+   ],
+   "name": "만서리 이가네 막국수",
+   "addr": {
+    "gu": "금정구",
+    "kind": "road",
+    "road": "식물원로",
+    "bon": 27,
+    "bu": 0,
+    "key": "금정구|road|식물원로|27|0"
+   },
+   "addrRaw": "부산 금정구 식물원로 27",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0155",
+   "core": "saan산",
+   "names": [
+    "saan 산"
+   ],
+   "name": "saan 산",
+   "addr": {
+    "gu": "수영구",
+    "kind": "road",
+    "road": "민락로6번길",
+    "bon": 17,
+    "bu": 0,
+    "key": "수영구|road|민락로6번길|17|0"
+   },
+   "addrRaw": "부산 수영구 민락로6번길 17",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0156",
+   "core": "포구나무집",
+   "names": [
+    "포구나무집"
+   ],
+   "name": "포구나무집",
+   "addr": {
+    "gu": "금정구",
+    "kind": "road",
+    "road": "조리2길",
+    "bon": 13,
+    "bu": 7,
+    "key": "금정구|road|조리2길|13|7"
+   },
+   "addrRaw": "부산 금정구 조리2길 13-7",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0157",
+   "core": "태화반점",
+   "names": [
+    "태화반점"
+   ],
+   "name": "태화반점",
+   "addr": {
+    "gu": "남구",
+    "kind": "road",
+    "road": "분포로",
+    "bon": 115,
+    "bu": 0,
+    "key": "남구|road|분포로|115|0"
+   },
+   "addrRaw": "부산 남구 분포로 115",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0158",
+   "core": "스시승후",
+   "names": [
+    "스시 승후"
+   ],
+   "name": "스시 승후",
+   "addr": {
+    "gu": "수영구",
+    "kind": "road",
+    "road": "광남로213번길",
+    "bon": 6,
+    "bu": 0,
+    "key": "수영구|road|광남로213번길|6|0"
+   },
+   "addrRaw": "부산시 수영구 광남로213번길 6",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0159",
+   "core": "고민끝에여기",
+   "names": [
+    "고민끝에여기"
+   ],
+   "name": "고민끝에여기",
+   "addr": {
+    "gu": "영도구",
+    "kind": "road",
+    "road": "중리북로29번길",
+    "bon": 12,
+    "bu": 0,
+    "key": "영도구|road|중리북로29번길|12|0"
+   },
+   "addrRaw": "부산 영도구 중리북로29번길 12",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0160",
+   "core": "갯마을횟집",
+   "names": [
+    "갯마을횟집"
+   ],
+   "name": "갯마을횟집",
+   "addr": {
+    "gu": "부산진구",
+    "kind": "road",
+    "road": "동천로107번길",
+    "bon": 24,
+    "bu": 0,
+    "key": "부산진구|road|동천로107번길|24|0"
+   },
+   "addrRaw": "부산 부산진구 동천로107번길 24",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0161",
+   "core": "복계옥",
+   "names": [
+    "복계옥"
+   ],
+   "name": "복계옥",
+   "addr": {
+    "gu": "동구",
+    "kind": "road",
+    "road": "중앙대로236번길",
+    "bon": 10,
+    "bu": 0,
+    "key": "동구|road|중앙대로236번길|10|0"
+   },
+   "addrRaw": "부산 동구 중앙대로236번길 10",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0162",
+   "core": "합천일류돼지국밥",
+   "names": [
+    "합천일류돼지국밥"
+   ],
+   "name": "합천일류돼지국밥",
+   "addr": {
+    "gu": "사상구",
+    "kind": "road",
+    "road": "광장로",
+    "bon": 34,
+    "bu": 0,
+    "key": "사상구|road|광장로|34|0"
+   },
+   "addrRaw": "부산 사상구 광장로 34",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0163",
+   "core": "참맛대게",
+   "names": [
+    "참맛대게"
+   ],
+   "name": "참맛대게",
+   "addr": {
+    "gu": "부산진구",
+    "kind": "road",
+    "road": "백양대로60번길",
+    "bon": 36,
+    "bu": 4,
+    "key": "부산진구|road|백양대로60번길|36|4"
+   },
+   "addrRaw": "부산 부산진구 백양대로60번길 36-4",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0164",
+   "core": "지즈",
+   "names": [
+    "지즈"
+   ],
+   "name": "지즈",
+   "addr": {
+    "gu": "부산진구",
+    "kind": "road",
+    "road": "서전로58번길",
+    "bon": 34,
+    "bu": 1,
+    "key": "부산진구|road|서전로58번길|34|1"
+   },
+   "addrRaw": "부산 부산진구 서전로58번길 34-1",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0165",
+   "core": "원조꼬리곰집",
+   "names": [
+    "원조꼬리곰집"
+   ],
+   "name": "원조꼬리곰집",
+   "addr": {
+    "gu": "동래구",
+    "kind": "road",
+    "road": "온천장로",
+    "bon": 52,
+    "bu": 0,
+    "key": "동래구|road|온천장로|52|0"
+   },
+   "addrRaw": "부산 동래구 온천장로 52",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0166",
+   "core": "브런치식당소보",
+   "names": [
+    "브런치식당 소보"
+   ],
+   "name": "브런치식당 소보",
+   "addr": {
+    "gu": "수영구",
+    "kind": "road",
+    "road": "민락로6번길",
+    "bon": 46,
+    "bu": 4,
+    "key": "수영구|road|민락로6번길|46|4"
+   },
+   "addrRaw": "부산 수영구 민락로6번길 46-4",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0167",
+   "core": "깃발집국수전골",
+   "names": [
+    "깃발집 국수전골"
+   ],
+   "name": "깃발집 국수전골",
+   "addr": {
+    "gu": "해운대구",
+    "kind": "road",
+    "road": "대천로",
+    "bon": 38,
+    "bu": 0,
+    "key": "해운대구|road|대천로|38|0"
+   },
+   "addrRaw": "부산 해운대구 대천로 38",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0168",
+   "core": "육화목",
+   "names": [
+    "육화목"
+   ],
+   "name": "육화목",
+   "addr": {
+    "gu": "해운대구",
+    "kind": "road",
+    "road": "좌동순환로8번길",
+    "bon": 78,
+    "bu": 0,
+    "key": "해운대구|road|좌동순환로8번길|78|0"
+   },
+   "addrRaw": "부산 해운대구 좌동순환로8번길 78",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0169",
+   "core": "청송양곱창",
+   "names": [
+    "청송양곱창"
+   ],
+   "name": "청송양곱창",
+   "addr": {
+    "gu": "수영구",
+    "kind": "road",
+    "road": "남천동로108번길",
+    "bon": 8,
+    "bu": 0,
+    "key": "수영구|road|남천동로108번길|8|0"
+   },
+   "addrRaw": "부산 수영구 남천동로108번길 8",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0170",
+   "core": "김유순대구뽈찜",
+   "names": [
+    "김유순대구뽈찜"
+   ],
+   "name": "김유순대구뽈찜",
+   "addr": {
+    "gu": "남구",
+    "kind": "road",
+    "road": "진남로",
+    "bon": 15,
+    "bu": 0,
+    "key": "남구|road|진남로|15|0"
+   },
+   "addrRaw": "부산 남구 진남로 15",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0171",
+   "core": "데부",
+   "names": [
+    "데부"
+   ],
+   "name": "데부",
+   "addr": {
+    "gu": "북구",
+    "kind": "road",
+    "road": "덕천2길",
+    "bon": 98,
+    "bu": 1,
+    "key": "북구|road|덕천2길|98|1"
+   },
+   "addrRaw": "부산 북구 덕천2길 98-1",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0172",
+   "core": "오스테리아어부",
+   "names": [
+    "오스테리아어부"
+   ],
+   "name": "오스테리아어부",
+   "addr": {
+    "gu": "해운대구",
+    "kind": "road",
+    "road": "해운대로570번길",
+    "bon": 23,
+    "bu": 0,
+    "key": "해운대구|road|해운대로570번길|23|0"
+   },
+   "addrRaw": "부산 해운대구 해운대로570번길 23 3층",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0173",
+   "core": "뉴숯불통닭",
+   "names": [
+    "뉴숯불통닭"
+   ],
+   "name": "뉴숯불통닭",
+   "addr": {
+    "gu": "금정구",
+    "kind": "road",
+    "road": "금강로335번길",
+    "bon": 55,
+    "bu": 0,
+    "key": "금정구|road|금강로335번길|55|0"
+   },
+   "addrRaw": "부산 금정구 금강로335번길 55",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0174",
+   "core": "본앤브래드해운대",
+   "names": [
+    "본앤브래드 해운대"
+   ],
+   "name": "본앤브래드 해운대",
+   "addr": {
+    "gu": "해운대구",
+    "kind": "road",
+    "road": "해운대해변로",
+    "bon": 296,
+    "bu": 0,
+    "key": "해운대구|road|해운대해변로|296|0"
+   },
+   "addrRaw": "부산 해운대구 해운대해변로 296 지하",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0175",
+   "core": "뺀데호",
+   "names": [
+    "뺀데호"
+   ],
+   "name": "뺀데호",
+   "addr": {
+    "gu": "수영구",
+    "kind": "road",
+    "road": "수영로582번길",
+    "bon": 36,
+    "bu": 0,
+    "key": "수영구|road|수영로582번길|36|0"
+   },
+   "addrRaw": "부산 수영구 수영로582번길 36",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0176",
+   "core": "성태",
+   "names": [
+    "성태"
+   ],
+   "name": "성태",
+   "addr": {
+    "gu": "동구",
+    "kind": "road",
+    "road": "초량상로",
+    "bon": 82,
+    "bu": 0,
+    "key": "동구|road|초량상로|82|0"
+   },
+   "addrRaw": "부산 동구 초량상로 82",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0177",
+   "core": "연산닭도리탕",
+   "names": [
+    "연산닭도리탕"
+   ],
+   "name": "연산닭도리탕",
+   "addr": {
+    "gu": "연제구",
+    "kind": "road",
+    "road": "과정로",
+    "bon": 236,
+    "bu": 0,
+    "key": "연제구|road|과정로|236|0"
+   },
+   "addrRaw": "부산 연제구 과정로 236",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0178",
+   "core": "미소오뎅",
+   "names": [
+    "미소오뎅"
+   ],
+   "name": "미소오뎅",
+   "addr": {
+    "gu": "남구",
+    "kind": "road",
+    "road": "유엔평화로10번길",
+    "bon": 9,
+    "bu": 0,
+    "key": "남구|road|유엔평화로10번길|9|0"
+   },
+   "addrRaw": "부산 남구 유엔평화로10번길 9",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0179",
+   "core": "빌리버거",
+   "names": [
+    "빌리버거"
+   ],
+   "name": "빌리버거",
+   "addr": {
+    "gu": "해운대구",
+    "kind": "road",
+    "road": "달맞이길117번나길",
+    "bon": 63,
+    "bu": 0,
+    "key": "해운대구|road|달맞이길117번나길|63|0"
+   },
+   "addrRaw": "부산 해운대구 달맞이길117번나길 63",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0180",
+   "core": "서울왕돈까스",
+   "names": [
+    "서울왕돈까스"
+   ],
+   "name": "서울왕돈까스",
+   "addr": {
+    "gu": "연제구",
+    "kind": "road",
+    "road": "거제천로",
+    "bon": 207,
+    "bu": 0,
+    "key": "연제구|road|거제천로|207|0"
+   },
+   "addrRaw": "부산 연제구 거제천로 207",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0181",
+   "core": "오엘스에스프레소바",
+   "names": [
+    "오엘스 에스프레소바"
+   ],
+   "name": "오엘스 에스프레소바",
+   "addr": {
+    "gu": "해운대구",
+    "kind": "road",
+    "road": "달맞이길117번나길",
+    "bon": 55,
+    "bu": 0,
+    "key": "해운대구|road|달맞이길117번나길|55|0"
+   },
+   "addrRaw": "부산 해운대구 달맞이길117번나길 55",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0182",
+   "core": "이세계",
+   "names": [
+    "이세계"
+   ],
+   "name": "이세계",
+   "addr": {
+    "gu": "부산진구",
+    "kind": "road",
+    "road": "동천로107번길",
+    "bon": 25,
+    "bu": 0,
+    "key": "부산진구|road|동천로107번길|25|0"
+   },
+   "addrRaw": "부산 부산진구 동천로107번길 25",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0183",
+   "core": "화륵",
+   "names": [
+    "화륵"
+   ],
+   "name": "화륵",
+   "addr": {
+    "gu": "수영구",
+    "kind": "road",
+    "road": "민락로19번길",
+    "bon": 6,
+    "bu": 4,
+    "key": "수영구|road|민락로19번길|6|4"
+   },
+   "addrRaw": "부산 수영구 민락로19번길 6-4",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0184",
+   "core": "솔탭하우스",
+   "names": [
+    "솔탭하우스"
+   ],
+   "name": "솔탭하우스",
+   "addr": {
+    "gu": "수영구",
+    "kind": "road",
+    "road": "광안해변로",
+    "bon": 153,
+    "bu": 0,
+    "key": "수영구|road|광안해변로|153|0"
+   },
+   "addrRaw": "부산 수영구 광안해변로 153 4층",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0185",
+   "core": "손내향미",
+   "names": [
+    "손내향미"
+   ],
+   "name": "손내향미",
+   "addr": {
+    "gu": "부산진구",
+    "kind": "road",
+    "road": "동성로30번길",
+    "bon": 4,
+    "bu": 0,
+    "key": "부산진구|road|동성로30번길|4|0"
+   },
+   "addrRaw": "부산 부산진구 동성로30번길 4",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0186",
+   "core": "소담한우한돈",
+   "names": [
+    "소담 한우&한돈"
+   ],
+   "name": "소담 한우&한돈",
+   "addr": {
+    "gu": "수영구",
+    "kind": "road",
+    "road": "무학로10번길",
+    "bon": 27,
+    "bu": 0,
+    "key": "수영구|road|무학로10번길|27|0"
+   },
+   "addrRaw": "부산 수영구 무학로10번길 27",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0187",
+   "core": "타라코소바",
+   "names": [
+    "타라코소바"
+   ],
+   "name": "타라코소바",
+   "addr": {
+    "gu": "해운대구",
+    "kind": "road",
+    "road": "해운대해변로359번길",
+    "bon": 27,
+    "bu": 0,
+    "key": "해운대구|road|해운대해변로359번길|27|0"
+   },
+   "addrRaw": "부산 해운대구 해운대해변로359번길 27",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0188",
+   "core": "동백횟집",
+   "names": [
+    "동백횟집"
+   ],
+   "name": "동백횟집",
+   "addr": {
+    "gu": "기장군",
+    "kind": "road",
+    "road": "일광로",
+    "bon": 530,
+    "bu": 0,
+    "key": "기장군|road|일광로|530|0"
+   },
+   "addrRaw": "부산 기장군 일광로 530",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0189",
+   "core": "석정갈비",
+   "names": [
+    "석정갈비"
+   ],
+   "name": "석정갈비",
+   "addr": {
+    "gu": "동래구",
+    "kind": "road",
+    "road": "중앙대로1367번길",
+    "bon": 72,
+    "bu": 0,
+    "key": "동래구|road|중앙대로1367번길|72|0"
+   },
+   "addrRaw": "부산 동래구 중앙대로1367번길 72",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0190",
+   "core": "쿠지라스토랑",
+   "names": [
+    "쿠지라스토랑"
+   ],
+   "name": "쿠지라스토랑",
+   "addr": {
+    "gu": "수영구",
+    "kind": "road",
+    "road": "무학로49번길",
+    "bon": 71,
+    "bu": 0,
+    "key": "수영구|road|무학로49번길|71|0"
+   },
+   "addrRaw": "부산 수영구 무학로49번길 71",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0191",
+   "core": "곰솔농원",
+   "names": [
+    "곰솔농원"
+   ],
+   "name": "곰솔농원",
+   "addr": {
+    "gu": "기장군",
+    "kind": "road",
+    "road": "곰내길",
+    "bon": 164,
+    "bu": 0,
+    "key": "기장군|road|곰내길|164|0"
+   },
+   "addrRaw": "부산 기장군 철마면 곰내길 164",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0192",
+   "core": "로바타아키",
+   "names": [
+    "로바타아키"
+   ],
+   "name": "로바타아키",
+   "addr": {
+    "gu": "부산진구",
+    "kind": "road",
+    "road": "동천로85번길",
+    "bon": 8,
+    "bu": 0,
+    "key": "부산진구|road|동천로85번길|8|0"
+   },
+   "addrRaw": "부산 부산진구 동천로85번길 8",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0193",
+   "core": "백팥집",
+   "names": [
+    "백팥집"
+   ],
+   "name": "백팥집",
+   "addr": {
+    "gu": "동래구",
+    "kind": "road",
+    "road": "중앙대로1367번길",
+    "bon": 22,
+    "bu": 8,
+    "key": "동래구|road|중앙대로1367번길|22|8"
+   },
+   "addrRaw": "부산 동래구 중앙대로1367번길 22-8",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0194",
+   "core": "하선집",
+   "names": [
+    "하선집"
+   ],
+   "name": "하선집",
+   "addr": {
+    "gu": "해운대구",
+    "kind": "road",
+    "road": "좌동순환로",
+    "bon": 395,
+    "bu": 0,
+    "key": "해운대구|road|좌동순환로|395|0"
+   },
+   "addrRaw": "부산 해운대구 좌동순환로 395",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0195",
+   "core": "신흥반점",
+   "names": [
+    "신흥반점"
+   ],
+   "name": "신흥반점",
+   "addr": {
+    "gu": "서구",
+    "kind": "road",
+    "road": "충무대로",
+    "bon": 284,
+    "bu": 1,
+    "key": "서구|road|충무대로|284|1"
+   },
+   "addrRaw": "부산 서구 충무대로 284-1",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0196",
+   "core": "금당식당",
+   "names": [
+    "금당식당"
+   ],
+   "name": "금당식당",
+   "addr": {
+    "gu": "해운대구",
+    "kind": "road",
+    "road": "반여로155번다길",
+    "bon": 29,
+    "bu": 4,
+    "key": "해운대구|road|반여로155번다길|29|4"
+   },
+   "addrRaw": "부산시 해운대구 반여로155번다길 29-4",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0197",
+   "core": "부제비",
+   "names": [
+    "부제비"
+   ],
+   "name": "부제비",
+   "addr": {
+    "gu": "부산진구",
+    "kind": "road",
+    "road": "서전로38번길",
+    "bon": 43,
+    "bu": 8,
+    "key": "부산진구|road|서전로38번길|43|8"
+   },
+   "addrRaw": "부산 부산진구 서전로38번길 43-8",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0198",
+   "core": "야키쵸리",
+   "names": [
+    "야키쵸리"
+   ],
+   "name": "야키쵸리",
+   "addr": {
+    "gu": "부산진구",
+    "kind": "road",
+    "road": "전포대로223번길",
+    "bon": 14,
+    "bu": 2,
+    "key": "부산진구|road|전포대로223번길|14|2"
+   },
+   "addrRaw": "부산 부산진구 전포대로223번길 14-2",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0199",
+   "core": "소베",
+   "names": [
+    "소베"
+   ],
+   "name": "소베",
+   "addr": {
+    "gu": "기장군",
+    "kind": "road",
+    "road": "동부산관광1로",
+    "bon": 60,
+    "bu": 0,
+    "key": "기장군|road|동부산관광1로|60|0"
+   },
+   "addrRaw": "부산 기장군 기장읍 동부산관광1로 60",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0200",
+   "core": "엘부스바이수블",
+   "names": [
+    "엘부스바이 수블"
+   ],
+   "name": "엘부스바이 수블",
+   "addr": {
+    "gu": "해운대구",
+    "kind": "road",
+    "road": "달맞이길62번길",
+    "bon": 49,
+    "bu": 0,
+    "key": "해운대구|road|달맞이길62번길|49|0"
+   },
+   "addrRaw": "부산 해운대구 달맞이길62번길 49 3층",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0201",
+   "core": "청산곱창",
+   "names": [
+    "청산곱창"
+   ],
+   "name": "청산곱창",
+   "addr": {
+    "gu": "해운대구",
+    "kind": "road",
+    "road": "선수촌로",
+    "bon": 86,
+    "bu": 10,
+    "key": "해운대구|road|선수촌로|86|10"
+   },
+   "addrRaw": "부산 해운대구 선수촌로 86-10",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0202",
+   "core": "덩굴아나고",
+   "names": [
+    "덩굴아나고"
+   ],
+   "name": "덩굴아나고",
+   "addr": {
+    "gu": "수영구",
+    "kind": "road",
+    "road": "황령대로",
+    "bon": 483,
+    "bu": 7,
+    "key": "수영구|road|황령대로|483|7"
+   },
+   "addrRaw": "부산 수영구 황령대로 483-7",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0203",
+   "core": "도핀느",
+   "names": [
+    "도핀느"
+   ],
+   "name": "도핀느",
+   "addr": {
+    "gu": "해운대구",
+    "kind": "road",
+    "road": "우동1로50번길",
+    "bon": 5,
+    "bu": 0,
+    "key": "해운대구|road|우동1로50번길|5|0"
+   },
+   "addrRaw": "부산 해운대구 우동1로50번길 5",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0204",
+   "core": "소공간다이닝",
+   "names": [
+    "소공간 다이닝",
+    "소공간"
+   ],
+   "name": "소공간 다이닝",
+   "addr": {
+    "gu": "해운대구",
+    "kind": "road",
+    "road": "해운대해변로298번길",
+    "bon": 47,
+    "bu": 0,
+    "key": "해운대구|road|해운대해변로298번길|47|0"
+   },
+   "addrRaw": "부산 해운대구 해운대해변로298번길 47",
+   "sources": [
+    "blog100",
+    "michelin"
+   ],
+   "nSources": 2,
+   "tasteSources": [
+    "blog100",
+    "michelin"
+   ],
+   "nTaste": 2,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": "₩₩",
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": "코리안 컨템퍼러리"
+  },
+  {
+   "tid": "r3-0205",
+   "core": "대지숯불갈비",
+   "names": [
+    "대지숯불갈비"
+   ],
+   "name": "대지숯불갈비",
+   "addr": {
+    "gu": "동구",
+    "kind": "road",
+    "road": "범일로89번길",
+    "bon": 20,
+    "bu": 0,
+    "key": "동구|road|범일로89번길|20|0"
+   },
+   "addrRaw": "부산 동구 범일로89번길 20",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0206",
+   "core": "신도마켓신도랩",
+   "names": [
+    "신도마켓&신도랩"
+   ],
+   "name": "신도마켓&신도랩",
+   "addr": {
+    "gu": "수영구",
+    "kind": "jibun",
+    "road": "광안동",
+    "bon": 94,
+    "bu": 1,
+    "key": "수영구|jibun|광안동|94|1"
+   },
+   "addrRaw": "부산 수영구 광안동 94-1",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0207",
+   "core": "아우트로바이비토",
+   "names": [
+    "아우트로바이비토"
+   ],
+   "name": "아우트로바이비토",
+   "addr": {
+    "gu": "수영구",
+    "kind": "road",
+    "road": "민락본동로19번길",
+    "bon": 18,
+    "bu": 0,
+    "key": "수영구|road|민락본동로19번길|18|0"
+   },
+   "addrRaw": "부산 수영구 민락본동로19번길 18",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0208",
+   "core": "코듀로이펠라즈",
+   "names": [
+    "코듀로이펠라즈"
+   ],
+   "name": "코듀로이펠라즈",
+   "addr": {
+    "gu": "수영구",
+    "kind": "road",
+    "road": "민락본동로11번길",
+    "bon": 53,
+    "bu": 0,
+    "key": "수영구|road|민락본동로11번길|53|0"
+   },
+   "addrRaw": "부산 수영구 민락본동로11번길 53",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0209",
+   "core": "서가원국수",
+   "names": [
+    "서가원 국수"
+   ],
+   "name": "서가원 국수",
+   "addr": {
+    "gu": "연제구",
+    "kind": "road",
+    "road": "반송로",
+    "bon": 68,
+    "bu": 0,
+    "key": "연제구|road|반송로|68|0"
+   },
+   "addrRaw": "부산 연제구 반송로 68",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0210",
+   "core": "귀화식당",
+   "names": [
+    "귀화식당"
+   ],
+   "name": "귀화식당",
+   "addr": {
+    "gu": "동래구",
+    "kind": "road",
+    "road": "중앙대로1367번길",
+    "bon": 18,
+    "bu": 0,
+    "key": "동래구|road|중앙대로1367번길|18|0"
+   },
+   "addrRaw": "부산 동래구 중앙대로1367번길 18",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0211",
+   "core": "프리윌피자",
+   "names": [
+    "프리윌피자"
+   ],
+   "name": "프리윌피자",
+   "addr": {
+    "gu": "부산진구",
+    "kind": "road",
+    "road": "전포대로224번길",
+    "bon": 26,
+    "bu": 0,
+    "key": "부산진구|road|전포대로224번길|26|0"
+   },
+   "addrRaw": "부산 부산진구 전포대로224번길 26",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0212",
+   "core": "광성",
+   "names": [
+    "광성"
+   ],
+   "name": "광성",
+   "addr": {
+    "gu": "연제구",
+    "kind": "road",
+    "road": "과정로191번가길",
+    "bon": 62,
+    "bu": 0,
+    "key": "연제구|road|과정로191번가길|62|0"
+   },
+   "addrRaw": "부산 연제구 과정로191번가길 62",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0213",
+   "core": "길목화로",
+   "names": [
+    "길목화로"
+   ],
+   "name": "길목화로",
+   "addr": {
+    "gu": "남구",
+    "kind": "road",
+    "road": "용소로7번길",
+    "bon": 28,
+    "bu": 1,
+    "key": "남구|road|용소로7번길|28|1"
+   },
+   "addrRaw": "부산 남구 용소로7번길 28-1",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0214",
+   "core": "두루미",
+   "names": [
+    "두루미"
+   ],
+   "name": "두루미",
+   "addr": {
+    "gu": "수영구",
+    "kind": "road",
+    "road": "남천바다로",
+    "bon": 38,
+    "bu": 10,
+    "key": "수영구|road|남천바다로|38|10"
+   },
+   "addrRaw": "부산 수영구 남천바다로 38-10",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0215",
+   "core": "누오토",
+   "names": [
+    "누오토"
+   ],
+   "name": "누오토",
+   "addr": {
+    "gu": "수영구",
+    "kind": "road",
+    "road": "수영로652번길",
+    "bon": 68,
+    "bu": 2,
+    "key": "수영구|road|수영로652번길|68|2"
+   },
+   "addrRaw": "부산 수영구 수영로652번길 68-2",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0216",
+   "core": "태경생태탕",
+   "names": [
+    "태경생태탕"
+   ],
+   "name": "태경생태탕",
+   "addr": {
+    "gu": "연제구",
+    "kind": "road",
+    "road": "거제대로286번길",
+    "bon": 16,
+    "bu": 0,
+    "key": "연제구|road|거제대로286번길|16|0"
+   },
+   "addrRaw": "부산 연제구 거제대로286번길 16",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0217",
+   "core": "집중호우",
+   "names": [
+    "집중호우"
+   ],
+   "name": "집중호우",
+   "addr": {
+    "gu": "사하구",
+    "kind": "road",
+    "road": "하신번영로300번길",
+    "bon": 100,
+    "bu": 2,
+    "key": "사하구|road|하신번영로300번길|100|2"
+   },
+   "addrRaw": "부산 사하구 하신번영로300번길 100-2",
+   "sources": [
+    "blog100"
+   ],
+   "nSources": 1,
+   "tasteSources": [
+    "blog100"
+   ],
+   "nTaste": 1,
+   "isTaste": true,
+   "isBaengnyeon": false,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0218",
+   "core": "쉐라미",
+   "names": [
+    "쉐라미"
+   ],
+   "name": "쉐라미",
+   "addr": {
+    "gu": "사하구",
+    "kind": "road",
+    "road": "낙동대로",
+    "bon": 238,
+    "bu": 0,
+    "key": "사하구|road|낙동대로|238|0"
+   },
+   "addrRaw": "부산광역시 사하구 낙동대로 238",
+   "sources": [
+    "baengnyeon"
+   ],
+   "nSources": 1,
+   "tasteSources": [],
+   "nTaste": 0,
+   "isTaste": false,
+   "isBaengnyeon": true,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0219",
+   "core": "옥미아구찜",
+   "names": [
+    "옥미아구찜"
+   ],
+   "name": "옥미아구찜",
+   "addr": {
+    "gu": "수영구",
+    "kind": "road",
+    "road": "망미번영로55번길",
+    "bon": 35,
+    "bu": 0,
+    "key": "수영구|road|망미번영로55번길|35|0"
+   },
+   "addrRaw": "부산광역시 수영구 망미번영로55번길 35",
+   "sources": [
+    "baengnyeon"
+   ],
+   "nSources": 1,
+   "tasteSources": [],
+   "nTaste": 0,
+   "isTaste": false,
+   "isBaengnyeon": true,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0220",
+   "core": "77돌곱창",
+   "names": [
+    "77돌곱창"
+   ],
+   "name": "77돌곱창",
+   "addr": {
+    "gu": "사상구",
+    "kind": "road",
+    "road": "괘감로",
+    "bon": 98,
+    "bu": 0,
+    "key": "사상구|road|괘감로|98|0"
+   },
+   "addrRaw": "부산광역시 사상구 괘감로 98",
+   "sources": [
+    "baengnyeon"
+   ],
+   "nSources": 1,
+   "tasteSources": [],
+   "nTaste": 0,
+   "isTaste": false,
+   "isBaengnyeon": true,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0221",
+   "core": "일송면옥",
+   "names": [
+    "일송면옥"
+   ],
+   "name": "일송면옥",
+   "addr": {
+    "gu": "금정구",
+    "kind": "road",
+    "road": "부곡로141번길",
+    "bon": 6,
+    "bu": 0,
+    "key": "금정구|road|부곡로141번길|6|0"
+   },
+   "addrRaw": "부산광역시 금정구 부곡로141번길 6",
+   "sources": [
+    "baengnyeon"
+   ],
+   "nSources": 1,
+   "tasteSources": [],
+   "nTaste": 0,
+   "isTaste": false,
+   "isBaengnyeon": true,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0222",
+   "core": "죽도횟집",
+   "names": [
+    "죽도횟집"
+   ],
+   "name": "죽도횟집",
+   "addr": {
+    "gu": "기장군",
+    "kind": "road",
+    "road": "연화1길",
+    "bon": 215,
+    "bu": 0,
+    "key": "기장군|road|연화1길|215|0"
+   },
+   "addrRaw": "부산광역시 기장군 기장읍 연화1길 215",
+   "sources": [
+    "baengnyeon"
+   ],
+   "nSources": 1,
+   "tasteSources": [],
+   "nTaste": 0,
+   "isTaste": false,
+   "isBaengnyeon": true,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0223",
+   "core": "88완당집",
+   "names": [
+    "88완당집"
+   ],
+   "name": "88완당집",
+   "addr": {
+    "gu": "해운대구",
+    "kind": "road",
+    "road": "윗반송로31번길",
+    "bon": 113,
+    "bu": 17,
+    "key": "해운대구|road|윗반송로31번길|113|17"
+   },
+   "addrRaw": "부산광역시 해운대구 윗반송로31번길 113-17",
+   "sources": [
+    "baengnyeon"
+   ],
+   "nSources": 1,
+   "tasteSources": [],
+   "nTaste": 0,
+   "isTaste": false,
+   "isBaengnyeon": true,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0224",
+   "core": "온천입구기장곰장어",
+   "names": [
+    "온천입구기장곰장어"
+   ],
+   "name": "온천입구기장곰장어",
+   "addr": {
+    "gu": "동래구",
+    "kind": "road",
+    "road": "동래로134번길",
+    "bon": 40,
+    "bu": 3,
+    "key": "동래구|road|동래로134번길|40|3"
+   },
+   "addrRaw": "부산광역시 동래구 동래로134번길 40-3",
+   "sources": [
+    "baengnyeon"
+   ],
+   "nSources": 1,
+   "tasteSources": [],
+   "nTaste": 0,
+   "isTaste": false,
+   "isBaengnyeon": true,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0225",
+   "core": "개미집",
+   "names": [
+    "개미집"
+   ],
+   "name": "개미집",
+   "addr": {
+    "gu": "중구",
+    "kind": "road",
+    "road": "중구로30번길",
+    "bon": 20,
+    "bu": 2,
+    "key": "중구|road|중구로30번길|20|2"
+   },
+   "addrRaw": "부산광역시 중구 중구로30번길 20-2",
+   "sources": [
+    "baengnyeon"
+   ],
+   "nSources": 1,
+   "tasteSources": [],
+   "nTaste": 0,
+   "isTaste": false,
+   "isBaengnyeon": true,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0226",
+   "core": "창녕집",
+   "names": [
+    "창녕집"
+   ],
+   "name": "창녕집",
+   "addr": {
+    "gu": "금정구",
+    "kind": "road",
+    "road": "산성로",
+    "bon": 520,
+    "bu": 0,
+    "key": "금정구|road|산성로|520|0"
+   },
+   "addrRaw": "부산광역시 금정구 산성로 520",
+   "sources": [
+    "baengnyeon"
+   ],
+   "nSources": 1,
+   "tasteSources": [],
+   "nTaste": 0,
+   "isTaste": false,
+   "isBaengnyeon": true,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0227",
+   "core": "풍년오리박사",
+   "names": [
+    "풍년오리박사"
+   ],
+   "name": "풍년오리박사",
+   "addr": {
+    "gu": "금정구",
+    "kind": "road",
+    "road": "청룡로",
+    "bon": 40,
+    "bu": 0,
+    "key": "금정구|road|청룡로|40|0"
+   },
+   "addrRaw": "부산광역시 금정구 청룡로 40",
+   "sources": [
+    "baengnyeon"
+   ],
+   "nSources": 1,
+   "tasteSources": [],
+   "nTaste": 0,
+   "isTaste": false,
+   "isBaengnyeon": true,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0228",
+   "core": "낙원각",
+   "names": [
+    "낙원각"
+   ],
+   "name": "낙원각",
+   "addr": {
+    "gu": "사상구",
+    "kind": "road",
+    "road": "사상로",
+    "bon": 7,
+    "bu": 0,
+    "key": "사상구|road|사상로|7|0"
+   },
+   "addrRaw": "부산광역시 사상구 사상로 7",
+   "sources": [
+    "baengnyeon"
+   ],
+   "nSources": 1,
+   "tasteSources": [],
+   "nTaste": 0,
+   "isTaste": false,
+   "isBaengnyeon": true,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0229",
+   "core": "돌고래할매복국",
+   "names": [
+    "돌고래할매복국"
+   ],
+   "name": "돌고래할매복국",
+   "addr": {
+    "gu": "부산진구",
+    "kind": "road",
+    "road": "서전로10번길",
+    "bon": 31,
+    "bu": 9,
+    "key": "부산진구|road|서전로10번길|31|9"
+   },
+   "addrRaw": "부산광역시 부산진구 서전로10번길 31-9",
+   "sources": [
+    "baengnyeon"
+   ],
+   "nSources": 1,
+   "tasteSources": [],
+   "nTaste": 0,
+   "isTaste": false,
+   "isBaengnyeon": true,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0230",
+   "core": "마라톤집",
+   "names": [
+    "마라톤집"
+   ],
+   "name": "마라톤집",
+   "addr": {
+    "gu": "부산진구",
+    "kind": "road",
+    "road": "가야대로784번길",
+    "bon": 54,
+    "bu": 0,
+    "key": "부산진구|road|가야대로784번길|54|0"
+   },
+   "addrRaw": "부산광역시 부산진구 가야대로784번길 54",
+   "sources": [
+    "baengnyeon"
+   ],
+   "nSources": 1,
+   "tasteSources": [],
+   "nTaste": 0,
+   "isTaste": false,
+   "isBaengnyeon": true,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0231",
+   "core": "정원식당",
+   "names": [
+    "정원식당"
+   ],
+   "name": "정원식당",
+   "addr": {
+    "gu": "수영구",
+    "kind": "road",
+    "road": "남천바다로10번길",
+    "bon": 41,
+    "bu": 0,
+    "key": "수영구|road|남천바다로10번길|41|0"
+   },
+   "addrRaw": "부산광역시 수영구 남천바다로10번길 41",
+   "sources": [
+    "baengnyeon"
+   ],
+   "nSources": 1,
+   "tasteSources": [],
+   "nTaste": 0,
+   "isTaste": false,
+   "isBaengnyeon": true,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0232",
+   "core": "함흥보쌈",
+   "names": [
+    "함흥보쌈"
+   ],
+   "name": "함흥보쌈",
+   "addr": {
+    "gu": "영도구",
+    "kind": "road",
+    "road": "남항로",
+    "bon": 42,
+    "bu": 0,
+    "key": "영도구|road|남항로|42|0"
+   },
+   "addrRaw": "부산광역시 영도구 남항로 42",
+   "sources": [
+    "baengnyeon"
+   ],
+   "nSources": 1,
+   "tasteSources": [],
+   "nTaste": 0,
+   "isTaste": false,
+   "isBaengnyeon": true,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0233",
+   "core": "남일꼼장어",
+   "names": [
+    "남일꼼장어"
+   ],
+   "name": "남일꼼장어",
+   "addr": {
+    "gu": "영도구",
+    "kind": "road",
+    "road": "절영로13번길",
+    "bon": 70,
+    "bu": 0,
+    "key": "영도구|road|절영로13번길|70|0"
+   },
+   "addrRaw": "부산광역시 영도구 절영로13번길 70",
+   "sources": [
+    "baengnyeon"
+   ],
+   "nSources": 1,
+   "tasteSources": [],
+   "nTaste": 0,
+   "isTaste": false,
+   "isBaengnyeon": true,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0234",
+   "core": "가마솥국밥",
+   "names": [
+    "가마솥국밥"
+   ],
+   "name": "가마솥국밥",
+   "addr": {
+    "gu": "해운대구",
+    "kind": "jibun",
+    "road": "우동",
+    "bon": 611,
+    "bu": 4,
+    "key": "해운대구|jibun|우동|611|4"
+   },
+   "addrRaw": "부산 해운대구 우동 611-4",
+   "sources": [
+    "baengnyeon"
+   ],
+   "nSources": 1,
+   "tasteSources": [],
+   "nTaste": 0,
+   "isTaste": false,
+   "isBaengnyeon": true,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0235",
+   "core": "원조석대추어탕",
+   "names": [
+    "원조석대추어탕"
+   ],
+   "name": "원조석대추어탕",
+   "addr": {
+    "gu": "해운대구",
+    "kind": "road",
+    "road": "반송로571번길",
+    "bon": 5,
+    "bu": 0,
+    "key": "해운대구|road|반송로571번길|5|0"
+   },
+   "addrRaw": "부산광역시 해운대구 반송로571번길 5",
+   "sources": [
+    "baengnyeon"
+   ],
+   "nSources": 1,
+   "tasteSources": [],
+   "nTaste": 0,
+   "isTaste": false,
+   "isBaengnyeon": true,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0236",
+   "core": "삼락하동재첩국",
+   "names": [
+    "삼락하동재첩국"
+   ],
+   "name": "삼락하동재첩국",
+   "addr": {
+    "gu": "사상구",
+    "kind": "road",
+    "road": "낙동대로1518번길",
+    "bon": 33,
+    "bu": 0,
+    "key": "사상구|road|낙동대로1518번길|33|0"
+   },
+   "addrRaw": "부산광역시 사상구 낙동대로1518번길 33",
+   "sources": [
+    "baengnyeon"
+   ],
+   "nSources": 1,
+   "tasteSources": [],
+   "nTaste": 0,
+   "isTaste": false,
+   "isBaengnyeon": true,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0237",
+   "core": "내호냉면",
+   "names": [
+    "내호냉면"
+   ],
+   "name": "내호냉면",
+   "addr": {
+    "gu": "남구",
+    "kind": "road",
+    "road": "우암번영로26번길",
+    "bon": 17,
+    "bu": 0,
+    "key": "남구|road|우암번영로26번길|17|0"
+   },
+   "addrRaw": "부산광역시 남구 우암번영로26번길 17",
+   "sources": [
+    "baengnyeon"
+   ],
+   "nSources": 1,
+   "tasteSources": [],
+   "nTaste": 0,
+   "isTaste": false,
+   "isBaengnyeon": true,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0238",
+   "core": "이흥용베이커리",
+   "names": [
+    "이흥용베이커리"
+   ],
+   "name": "이흥용베이커리",
+   "addr": {
+    "gu": "남구",
+    "kind": "road",
+    "road": "수영로39번길",
+    "bon": 2,
+    "bu": 1,
+    "key": "남구|road|수영로39번길|2|1"
+   },
+   "addrRaw": "부산광역시 남구 수영로39번길 2-1",
+   "sources": [
+    "baengnyeon"
+   ],
+   "nSources": 1,
+   "tasteSources": [],
+   "nTaste": 0,
+   "isTaste": false,
+   "isBaengnyeon": true,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0239",
+   "core": "할매팥빙수단팥죽",
+   "names": [
+    "할매팥빙수단팥죽"
+   ],
+   "name": "할매팥빙수단팥죽",
+   "addr": {
+    "gu": "남구",
+    "kind": "road",
+    "road": "용호로90번길",
+    "bon": 24,
+    "bu": 0,
+    "key": "남구|road|용호로90번길|24|0"
+   },
+   "addrRaw": "부산광역시 남구 용호로90번길 24",
+   "sources": [
+    "baengnyeon"
+   ],
+   "nSources": 1,
+   "tasteSources": [],
+   "nTaste": 0,
+   "isTaste": false,
+   "isBaengnyeon": true,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0240",
+   "core": "진주추어탕",
+   "names": [
+    "진주추어탕"
+   ],
+   "name": "진주추어탕",
+   "addr": {
+    "gu": "금정구",
+    "kind": "road",
+    "road": "안뜰로7번길",
+    "bon": 40,
+    "bu": 0,
+    "key": "금정구|road|안뜰로7번길|40|0"
+   },
+   "addrRaw": "부산 금정구 안뜰로7번길 40",
+   "sources": [
+    "baengnyeon"
+   ],
+   "nSources": 1,
+   "tasteSources": [],
+   "nTaste": 0,
+   "isTaste": false,
+   "isBaengnyeon": true,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0241",
+   "core": "곰보식당",
+   "names": [
+    "곰보식당"
+   ],
+   "name": "곰보식당",
+   "addr": {
+    "gu": "사상구",
+    "kind": "road",
+    "road": "낙동대로",
+    "bon": 1564,
+    "bu": 0,
+    "key": "사상구|road|낙동대로|1564|0"
+   },
+   "addrRaw": "부산 사상구 낙동대로 1564",
+   "sources": [
+    "baengnyeon"
+   ],
+   "nSources": 1,
+   "tasteSources": [],
+   "nTaste": 0,
+   "isTaste": false,
+   "isBaengnyeon": true,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0242",
+   "core": "파밀리아제과점",
+   "names": [
+    "파밀리아제과점"
+   ],
+   "name": "파밀리아제과점",
+   "addr": {
+    "gu": "사상구",
+    "kind": "road",
+    "road": "대동로",
+    "bon": 101,
+    "bu": 0,
+    "key": "사상구|road|대동로|101|0"
+   },
+   "addrRaw": "부산 사상구 대동로 101",
+   "sources": [
+    "baengnyeon"
+   ],
+   "nSources": 1,
+   "tasteSources": [],
+   "nTaste": 0,
+   "isTaste": false,
+   "isBaengnyeon": true,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0243",
+   "core": "약콩밀면",
+   "names": [
+    "약콩밀면"
+   ],
+   "name": "약콩밀면",
+   "addr": {
+    "gu": "남구",
+    "kind": "road",
+    "road": "용호로97번길",
+    "bon": 6,
+    "bu": 0,
+    "key": "남구|road|용호로97번길|6|0"
+   },
+   "addrRaw": "부산 남구 용호로97번길 6",
+   "sources": [
+    "baengnyeon"
+   ],
+   "nSources": 1,
+   "tasteSources": [],
+   "nTaste": 0,
+   "isTaste": false,
+   "isBaengnyeon": true,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  },
+  {
+   "tid": "r3-0244",
+   "core": "희망통닭",
+   "names": [
+    "희망통닭"
+   ],
+   "name": "희망통닭",
+   "addr": {
+    "gu": "동래구",
+    "kind": "road",
+    "road": "명륜로98번길",
+    "bon": 94,
+    "bu": 0,
+    "key": "동래구|road|명륜로98번길|94|0"
+   },
+   "addrRaw": "부산 동래구 명륜로98번길 94",
+   "sources": [
+    "baengnyeon"
+   ],
+   "nSources": 1,
+   "tasteSources": [],
+   "nTaste": 0,
+   "isTaste": false,
+   "isBaengnyeon": true,
+   "ambiguous": false,
+   "michelinPrice": null,
+   "blueRibbon": null,
+   "blueTheme": null,
+   "cuisine": null
+  }
+ ]
+}

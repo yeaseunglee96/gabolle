@@ -1,0 +1,276 @@
+// LOCAL ROUTE 제출용 핵심 ERD v1.1 FINAL
+// Jira: S15P21E201-36
+// FigJam: https://www.figma.com/board/0TPa2V2DSPoqQtMFPHSU48
+// 기준: 기존 핵심 ERD + 사용자 취향 원본·취향 점수·체력 한도·익명 짝 비교 응답 통합
+
+Project LOCAL_ROUTE_FINAL {
+  database_type: 'MySQL'
+  Note: '''
+  사용자 취향 설문 원본, 추천 프로그램이 계산한 취향 점수,
+  사용자가 감당할 수 있는 체력 한도를 분리해 저장한다.
+  ChoiceResponse는 개인을 식별하지 않는 익명 설문 원본이며
+  회원·비회원 테이블과 물리적 외래키로 연결하지 않는다.
+  '''
+}
+
+Table UserSession {
+  id varchar(191) [pk]
+  tokenHash varchar(255) [not null, unique]
+  locale varchar(10) [not null]
+  createdAt timestamp [not null, default: `CURRENT_TIMESTAMP`]
+  expiresAt timestamp [not null]
+}
+
+Table UserAccount {
+  id varchar(191) [pk]
+  email varchar(255) [not null, unique]
+  name varchar(100) [not null]
+  locale varchar(10) [not null]
+  nationality varchar(100)
+  travelStyle varchar(100)
+  ownerSessionId varchar(191) [not null, unique]
+}
+
+Table UserTasteProfile {
+  id bigint [pk, increment]
+  userId varchar(191) [null, unique]
+  anonymousSessionId varchar(191) [null, unique]
+  answers json [not null]
+  surveyVersion varchar(100) [not null]
+  createdAt timestamp [not null, default: `CURRENT_TIMESTAMP`]
+  updatedAt timestamp [not null, default: `CURRENT_TIMESTAMP`]
+
+  Note: 'userId와 anonymousSessionId 중 정확히 하나만 값이 있어야 한다.'
+}
+
+Table UserTasteVector {
+  id bigint [pk, increment]
+  userId varchar(191) [null]
+  anonymousSessionId varchar(191) [null]
+  modelVersion varchar(100) [not null]
+  vector json [not null]
+  source varchar(40) [not null]
+  isActive boolean [not null, default: false]
+  computedAt timestamp [not null, default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    (userId, modelVersion) [unique]
+    (anonymousSessionId, modelVersion) [unique]
+    (userId, isActive)
+    (anonymousSessionId, isActive)
+  }
+}
+
+Table UserEffortBudget {
+  id bigint [pk, increment]
+  userId varchar(191) [null, unique]
+  anonymousSessionId varchar(191) [null, unique]
+  walkMinutes int [not null]
+  ascentMeters int [not null]
+  sustainedRunMax int [not null]
+  stairSteps int [not null]
+  unshadedMinutes int [not null]
+  noSidewalkMeters int [not null]
+  source varchar(40) [not null]
+  updatedAt timestamp [not null, default: `CURRENT_TIMESTAMP`]
+
+  Note: '선호 점수로 상쇄하지 않는 체력 소모 상한이다.'
+}
+
+Table ChoiceResponse {
+  id bigint [pk, increment]
+  respondentId varchar(100) [not null]
+  questionSetId varchar(100) [not null]
+  questionIndex int [not null]
+  optionA json [not null]
+  optionB json [not null]
+  chosen char(1) [not null]
+  responseMs int [not null]
+  createdAt timestamp [not null, default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    (respondentId, questionSetId, questionIndex) [unique]
+    (questionSetId, questionIndex)
+    createdAt
+  }
+
+  Note: '개인 식별 정보와 위치 이동 궤적, 기기 식별자를 저장하지 않는다.'
+}
+
+Table Trip {
+  id varchar(191) [pk]
+  ownerSessionId varchar(191) [not null]
+  lodgingPlaceId varchar(191)
+  origin varchar(255) [not null]
+  startDate date [not null]
+  endDate date [not null]
+  partySize int [not null]
+  totalBudget decimal(12,2) [not null]
+  status varchar(40) [not null]
+}
+
+Table TripMember {
+  id varchar(191) [pk]
+  tripId varchar(191) [not null]
+  sessionId varchar(191) [not null]
+  role varchar(40) [not null]
+  inviteTokenHash varchar(255) [unique]
+  joinedAt timestamp
+}
+
+Table TripPreference {
+  id varchar(191) [pk]
+  tripId varchar(191) [not null, unique]
+  tasteTags json
+  courseCategory varchar(100)
+  language varchar(10)
+  needsEnglishMenu boolean [not null, default: false]
+  needsForeignCard boolean [not null, default: false]
+  dietType varchar(100)
+
+  Note: '여행별 조건이며 사용자 장기 취향 테이블과 역할이 다르다.'
+}
+
+Table Itinerary {
+  id varchar(191) [pk]
+  tripId varchar(191) [not null]
+  tasteVectorId bigint
+  modelVersion varchar(100)
+  status varchar(40) [not null]
+  solverSource varchar(100)
+  mode varchar(40)
+  version int [not null]
+  generatedAt timestamp [not null, default: `CURRENT_TIMESTAMP`]
+}
+
+Table ItineraryRevision {
+  id varchar(191) [pk]
+  itineraryId varchar(191) [not null]
+  reason varchar(500)
+}
+
+Table ItineraryShare {
+  id varchar(191) [pk]
+  itineraryId varchar(191) [not null]
+  ownerSessionId varchar(191) [not null]
+  shareSlug varchar(100) [not null, unique]
+  visibility varchar(40) [not null]
+  expiresAt timestamp
+}
+
+Table ItineraryDay {
+  id varchar(191) [pk]
+  itineraryId varchar(191) [not null]
+  dayIndex int [not null]
+  visitDate date [not null]
+  dayBudget decimal(12,2)
+  startTravelMin int
+  returnTravelMin int
+}
+
+Table ItineraryItem {
+  id varchar(191) [pk]
+  dayId varchar(191) [not null]
+  placeId varchar(191) [not null]
+  seqOrder int [not null]
+  plannedArrival varchar(20)
+  stayMinutes int
+  estCost decimal(12,2)
+  recommendReason varchar(500)
+  isPinned boolean [not null, default: false]
+}
+
+Table Place {
+  id varchar(191) [pk]
+  nameKo varchar(255) [not null]
+  category varchar(100) [not null]
+  address varchar(500)
+  lat decimal(10,7) [not null]
+  lng decimal(10,7) [not null]
+  contentId varchar(100) [unique]
+  kakaoPlaceId varchar(100) [unique]
+  localScore decimal(5,2)
+  dataSource varchar(100)
+}
+
+Table PlaceTranslation {
+  id varchar(191) [pk]
+  placeId varchar(191) [not null]
+  lang varchar(10) [not null]
+  name varchar(255) [not null]
+  address varchar(500)
+  description text
+  source varchar(100)
+
+  indexes {
+    (placeId, lang) [unique]
+  }
+}
+
+Table VisitVerification {
+  id varchar(191) [pk]
+  sessionId varchar(191) [not null]
+  placeId varchar(191) [not null]
+  visitDate date [not null]
+  arrivedAt timestamp
+  distanceM int
+  dwellMinutes int
+  status varchar(40) [not null]
+}
+
+Table Review {
+  id varchar(191) [pk]
+  sessionId varchar(191) [not null]
+  placeId varchar(191) [not null]
+  verificationId varchar(191) [unique]
+  rating int [not null]
+  body text
+  language varchar(10)
+  status varchar(40) [not null]
+}
+
+Table Story {
+  id varchar(191) [pk]
+  authorSessionId varchar(191) [not null]
+  placeId varchar(191)
+  itineraryId varchar(191)
+  itineraryItemId varchar(191)
+  content text [not null]
+  visibility varchar(40) [not null]
+  visitVerified boolean [not null, default: false]
+  publishAt timestamp
+}
+
+Ref: UserAccount.ownerSessionId > UserSession.id
+Ref: UserTasteProfile.userId > UserAccount.id
+Ref: UserTasteProfile.anonymousSessionId > UserSession.id
+Ref: UserTasteVector.userId > UserAccount.id
+Ref: UserTasteVector.anonymousSessionId > UserSession.id
+Ref: UserEffortBudget.userId > UserAccount.id
+Ref: UserEffortBudget.anonymousSessionId > UserSession.id
+
+Ref: Trip.ownerSessionId > UserSession.id
+Ref: Trip.lodgingPlaceId > Place.id
+Ref: TripMember.tripId > Trip.id
+Ref: TripMember.sessionId > UserSession.id
+Ref: TripPreference.tripId > Trip.id
+
+Ref: Itinerary.tripId > Trip.id
+Ref: Itinerary.tasteVectorId > UserTasteVector.id
+Ref: ItineraryRevision.itineraryId > Itinerary.id
+Ref: ItineraryShare.itineraryId > Itinerary.id
+Ref: ItineraryShare.ownerSessionId > UserSession.id
+Ref: ItineraryDay.itineraryId > Itinerary.id
+Ref: ItineraryItem.dayId > ItineraryDay.id
+Ref: ItineraryItem.placeId > Place.id
+
+Ref: PlaceTranslation.placeId > Place.id
+Ref: VisitVerification.sessionId > UserSession.id
+Ref: VisitVerification.placeId > Place.id
+Ref: Review.sessionId > UserSession.id
+Ref: Review.placeId > Place.id
+Ref: Review.verificationId > VisitVerification.id
+Ref: Story.authorSessionId > UserSession.id
+Ref: Story.placeId > Place.id
+Ref: Story.itineraryId > Itinerary.id
+Ref: Story.itineraryItemId > ItineraryItem.id

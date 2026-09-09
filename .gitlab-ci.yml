@@ -4,7 +4,8 @@
 #   1. 선점   — claim 없이 고친 것이 들어왔는가      (claims)
 #   2. 자리   — MR 이 한 칸씩 올라가는가             (verify:mr-target)
 #   3. 합의   — 정족수를 채웠는가                    (governance)
-#   그리고 머지된 것을 위로 올리고 태그를 붙인다      (promote · version)
+#   그리고 머지된 것을 위로 올리고 태그를 붙이고      (promote · version)
+#   Jira 카드를 옮긴다                              (jira)
 #
 # 1~3 은 모든 MR 에서, 승격과 버전은 머지된 뒤와 스케줄에서 돈다.
 #
@@ -50,6 +51,62 @@
 workflow:
   auto_cancel:
     on_new_commit: interruptible
+# ── 파트 CI 잡을 끌어온다 ─────────────────────────────────────────────────────
+#
+# 🔴 2026-09-09 실측 — 여섯 파트가 전부 이 파일 하나(공용 442줄)에 자기 잡을
+#    넣고 있었다. 여섯 파트를 main 으로 올리는 동안 걸린 충돌 파일 아홉~열 개
+#    중 아홉은 "main 쪽 받기" 로 기계적으로 끝났는데, 손으로 풀어야 한 것은
+#    이 파일 하나였다. 그리고 그 하나가 위험했다 — bigData 의
+#    `git config core.hooksPath /dev/null` 한 줄(LFS 훅 우회, S15P21E201-741)을
+#    main 쪽으로 잘못 받으면 태그 push 가 다시 죽는다. 파트 잡을 남이 판단해서
+#    고르는 구조 자체가 문제였다. 그래서 파트 잡을 파트별 파일로 옮긴다 —
+#    이 뿌리 파일에는 **공용 잡만** 남는다.
+#
+#    파트 파일 자리는 `ci/parts/<파트>.yml` 이다. 파트 폴더(`backend/` ·
+#    `frontend/` · `bigData/` · `city3d-spike/` 등) 안이 아닌 이유 — 파트
+#    폴더는 브랜치마다 있고 없고가 다르다 (`bigData/` 는 bigData/main 에만,
+#    `city3d-spike/` 는 map/main 에만 있다). `ci/parts/` 는 어느 브랜치에서도
+#    만들 수 있고, 파일이 서로 달라 파트끼리 안 부딪힌다.
+#
+# 🔴 각 include 를 `rules: exists:` 로 감싼다. `include: local:` 은 대상 파일이
+#    없으면 파이프라인 전체가 에러로 죽는다 — 파트 파일이 없는 브랜치가 있으므로
+#    (예: 이 커밋 시점에는 ci/parts/*.yml 이 전부 방금 만든 빈 파일이고, 다른
+#    브랜치는 아직 이 커밋을 안 받았을 수 있다) "있을 때만 끌어온다" 를 걸어야
+#    한다. 문법은 GitLab 공식 문서(docs.gitlab.com 의 ci/yaml/includes,
+#    `include:rules:exists`, GitLab 14.5 도입)에서 확인했다 — 지금 쓰는
+#    GitLab 18.11 에서 그대로 쓸 수 있다.
+#
+# 🔴 여섯 파트를 한 번에 다 적는다. 나중에 파트마다 이 목록 자체를 고치게
+#    만들면 이 자리가 또 충돌 자리가 된다 — 한 번 쓰고 얼린다. 파트 담당자는
+#    자기 `ci/parts/<파트>.yml` 파일만 고치면 되고, 이 include 목록은 안 건드린다.
+#
+#    지금 ci/parts/*.yml 은 전부 주석만 든 빈 파일이다. 잡을 여기로 옮기는
+#    절차는 docs/CI-SPLIT.md 에 있다.
+include:
+  - local: 'ci/parts/backend.yml'
+    rules:
+      - exists:
+          - 'ci/parts/backend.yml'
+  - local: 'ci/parts/frontend.yml'
+    rules:
+      - exists:
+          - 'ci/parts/frontend.yml'
+  - local: 'ci/parts/bigdata.yml'
+    rules:
+      - exists:
+          - 'ci/parts/bigdata.yml'
+  - local: 'ci/parts/map.yml'
+    rules:
+      - exists:
+          - 'ci/parts/map.yml'
+  - local: 'ci/parts/ai.yml'
+    rules:
+      - exists:
+          - 'ci/parts/ai.yml'
+  - local: 'ci/parts/common.yml'
+    rules:
+      - exists:
+          - 'ci/parts/common.yml'
 
 default:
   image: node:20-alpine
@@ -95,24 +152,86 @@ claims:
   variables:
     GIT_DEPTH: 0
   script:
-    # 🔴 이번에 들어온 커밋만 본다. 이력 전체를 보면 장부가 생기기 전 커밋까지
-    #    위반으로 세어 켠 날부터 영원히 빨갛다.
+    # 🔴 `--checkpoint` — 통과하면 "장부를 뿌리부터 여기까지 재생했고 깨끗했다" 를
+    #    도장으로 남기고, 다음 감사는 그 뒤부터만 재생한다.
+    #
+    #    장부는 하루 100건씩 늘기만 하는데 감사는 매번 뿌리부터 재생해서, 이 잡 하나가
+    #    17~25초에서 241초가 됐다 (2026-09-04 실측, S15P21E201-600). "최근 N개만 본다"
+    #    로는 못 고친다 — 이 검사가 보장하는 문장이 "어느 시점에도 두 사람이 같은 파일을
+    #    동시에 잡은 적이 없다" 라서, 최근만 보면 사흘 전 겹침이 영영 안 보인다.
+    #    그래서 이력은 하나도 안 버리고 이미 본 구간만 다시 안 본다.
+    #    (axMap 실측: 장부 600건에서 105.7초 → 8.6초, 장부 크기와 무관해진다)
+    #
+    #    🔴 도장을 남기려면 push 권한이 필요하다. 이 잡은 MR 에서만 돌고
+    #       AXMAP_BOT_TOKEN 은 Protected(보호된 브랜치에서 도는 잡에만 값이 간다)라
+    #       여기서는 못 남긴다. 그래서 도장은 아래 claims:checkpoint 가 찍는다.
+    #
+    #    🔴 도장을 못 남겨도 **판정은 그대로다.** 대가는 다음 감사가 느린 것이지
+    #       검사가 헐거워지는 것이 아니다 (장부 push 실패와 정반대다).
+    #
+    # `--code` 를 함께 준다 (2026-09-09, common/dev 를 합치면서).
+    #    common 쪽은 이 자리를 `--code "$RANGE"` 로만 돌리고 있었고 back 쪽은
+    #    `--checkpoint` 로만 돌리고 있어서 둘 중 하나를 골라야 하는 자리로 보였는데,
+    #    **둘은 같은 명령의 다른 옵션이라 함께 줄 수 있다** (장효준 님이 실제로 던져
+    #    확인해 주셨다). 체크포인트로 빨라지고, 코드 대조도 하고, 도장도 남는다.
+    #    한쪽을 고르면 다른 쪽이 보던 것을 잃는다.
+    #
+    # 🔴 2026-09-09 저녁 — 그 `--code` 를 **잠시 끈다. 없앤 것이 아니라 껐다.**
+    #
+    #    위 문단대로 함께 준 것은 맞았다. 그런데 켜자마자 **진짜 위반 75건**이
+    #    나왔다 (파이프라인 185485). 9월 7일 하루에 난 커밋 13개가, 고칠 파일을
+    #    선점하지 않은 채 고친 것이다. 검사가 틀린 게 아니라 **오늘 처음 켜져서
+    #    처음 보인 것**이다. 내역은 docs/26.09.09/선점-감사-위반-75건.md 에 있다.
+    #
+    #    75건을 정리하는 일과 오늘 main 사다리 한 바퀴를 도는 일은 다른 일이라,
+    #    사다리를 먼저 돌리고 코드 대조는 정리가 끝난 뒤 다시 켠다.
+    #
+    #    🔴 다시 켜는 데 커밋도 MR 도 필요 없다. Settings → CI/CD → Variables 에
+    #       **CLAIMS_CODE_CHECK = 1** 을 넣으면 그날부터 다시 돈다. 지우면 꺼진다.
+    #       (AXMAP_VERSION 과 같은 되돌리는 손잡이다 — 팀 CLAUDE.md 0.3 참고)
+    #
+    #    🔴 끈 동안 못 보는 것은 **한 갈래뿐이다.** 「선점하지 않고 코드를 고쳤나」
+    #       (I5) 만 쉰다. 「두 사람이 같은 파일을 동시에 잡은 적이 있나」(I1) 는
+    #       장부를 그대로 재생해서 계속 본다. 검사가 사라지는 것이 아니다.
     - |
-      if [ -n "${CI_MERGE_REQUEST_DIFF_BASE_SHA:-}" ]; then
-        RANGE="${CI_MERGE_REQUEST_DIFF_BASE_SHA}..${CI_COMMIT_SHA}"
-      else
-        RANGE="${CI_COMMIT_BEFORE_SHA}..${CI_COMMIT_SHA}"
-      fi
-      echo "코드 대조 구간: $RANGE"
-      # axmap audit 내부의 git show 가 기본 quote 설정을 따르므로, 한글 파일명이
-      # 8진수 escape 경로로 바뀌어 claim 과 불일치하지 않게 한다.
+      # 한글 파일명이 8진수 escape 경로로 바뀌어 claim 과 불일치하는 것을 막는다.
+      #    common 쪽 주석이 실제로 겪은 문제로 적어 둔 것이라 그대로 가져왔다.
       git config core.quotepath false
-      npx -y axmap-cli@$AXMAP_VERSION audit --fetch --code "$RANGE"
+      if [ "${CLAIMS_CODE_CHECK:-0}" = "1" ]; then
+        if [ -n "${CI_MERGE_REQUEST_DIFF_BASE_SHA:-}" ]; then
+          RANGE="${CI_MERGE_REQUEST_DIFF_BASE_SHA}..${CI_COMMIT_SHA}"
+        else
+          RANGE="${CI_COMMIT_BEFORE_SHA}..${CI_COMMIT_SHA}"
+        fi
+        echo "코드 대조 구간: $RANGE"
+        npx -y axmap-cli@$AXMAP_VERSION audit --fetch --code "$RANGE" --checkpoint
+      else
+        echo "코드 대조(--code)는 꺼져 있습니다 - 위반 75건을 정리하는 동안 쉽니다."
+        echo "  내역: docs/26.09.09/선점-감사-위반-75건.md"
+        echo "  다시 켜려면 CI/CD Variables 에 CLAIMS_CODE_CHECK=1 을 넣으세요."
+        npx -y axmap-cli@$AXMAP_VERSION audit --fetch --checkpoint
+      fi
   rules:
     # ref/ 만 바뀐 MR 에서는 돌지 않는다 (ref/README.md)
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
       changes: ['frontend/**/*', 'backend/**/*', 'ci/**/*', 'governance/**/*',
-                'docs/**/*', '.gitlab-ci.yml', 'CLAUDE.md', 'setup.sh', 'setup.ps1']
+                'docs/**/*', '.gitlab-ci.yml', 'CONTRIBUTING.md', 'CLAUDE.md', 'AGENTS.md', 'setup.sh', 'setup.ps1']
+    # 🔴 MR 을 안 거치고 **브랜치에 바로 push** 한 것도 검사한다.
+    #
+    #    dev 는 일부러 열어 둔 자리다 — 아래 governance 잡이 "dev 로 가는 MR 에는
+    #    표를 요구하지 않는다" 고 적어 둔 그것이다. 그 자유가 성립하는 근거는
+    #    **선점(claim)이 대신 막아 준다** 는 것인데, 정작 그 선점을 검사하는 잡이
+    #    이것이고 지금까지 MR 에서만 돌았다. **직접 push 하는 순간 근거가 꺼졌다.**
+    #
+    #    남는 보호는 각자 PC 의 커밋 훅뿐이다. 그런데 훅은 "설치했는가" 에 달려
+    #    있고 `--no-verify` 한 줄로 넘어가며 웹 IDE 에는 아예 없다 — 이 잡의 머리말이
+    #    바로 그 이유로 잡이 필요하다고 적어 놓고, 정작 안 도는 경로를 남겨 뒀다.
+    #
+    #    🔴 changes 필터를 일부러 안 붙인다. 브랜치 push 에서 changes 는 **마지막
+    #    커밋 하나**를 기준으로 판정하는데, 머지 커밋은 자기 자신이 바꾼 것이 없어
+    #    보일 수 있어 통째로 건너뛴다. 게다가 audit 은 원래 장부 이력을 처음부터
+    #    재생하는 검사라 "무엇이 바뀌었나" 로 좁힐 것이 아니다.
+    - if: $CI_COMMIT_BRANCH =~ /(^|\/)(main|func|dev)$/
 
 # ── frontend:build 는 지웠다 (S15P21E201-700) ────────────────────────────────
 #
@@ -252,6 +371,308 @@ frontend:smoke:
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
       changes: ['frontend/**/*']
+# ── 도장을 찍는다 — 감사가 같은 구간을 다시 안 보게 ──────────────────────────
+#
+# 위 claims 는 MR 에서만 돌고 거기에는 쓰기 토큰이 오지 않는다 (AXMAP_BOT_TOKEN 이
+# Protected 라 보호된 브랜치에서 도는 잡에만 값이 간다). 그래서 도장은 여기서 찍는다 —
+# 머지되어 dev·main 에 들어온 뒤 도는 파이프라인이다. 도장은 공유 브랜치에 쌓이므로,
+# 그것을 **읽기만** 하는 MR 쪽 감사는 권한 없이도 그만큼 빨라진다.
+#
+# 🔴 왜 claims 를 여기서도 돌리지 않고 잡을 따로 두나. 검사는 **권한이 없어야** 한다 —
+#    누구의 MR 에서나 돌아야 하니까. 도장은 **권한이 있어야** 한다. 한 잡에 섞으면
+#    토큰이 필요한 이유가 검사 쪽으로 번지고, 언젠가 "검사가 토큰 없이는 못 돈다" 가
+#    된다. 그때 잃는 것은 속도가 아니라 강제력이다.
+#
+# 🔴 토큰이 없으면 알리고 **초록으로 끝난다.** 도장을 못 남긴 대가는 다음 감사가 느린
+#    것이지 판정이 헐거워지는 것이 아니다 (장부 push 실패와 정반대다).
+claims:checkpoint:
+  stage: verify
+  variables:
+    GIT_DEPTH: 0
+  script:
+    - |
+      if [ -z "${AXMAP_BOT_TOKEN:-}" ]; then
+        echo "AXMAP_BOT_TOKEN 이 없습니다. 도장을 남기지 않습니다 - 감사는 계속 느립니다."
+        echo "버전 잡이 쓰는 것과 같은 토큰입니다 - Settings 의 CI/CD Variables 를 보세요."
+        exit 0
+      fi
+      git remote set-url origin "https://oauth2:${AXMAP_BOT_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git"
+      git config user.name  "axmap-bot"
+      git config user.email "axmap-bot@noreply.${CI_SERVER_HOST}"
+      npx -y axmap-cli@$AXMAP_VERSION audit --fetch --checkpoint
+  rules:
+    - if: $CI_COMMIT_BRANCH =~ /(^|\/)(main|func|dev)$/
+
+# ── 백엔드가 실제로 빌드되는가 ───────────────────────────────────────────────
+#
+# 🔴 위의 claims·verify:mr-target·governance 는 전부 axMap(선점·합의) 층이라
+#    Spring Boot 코드 자체가 컴파일되는지·테스트를 통과하는지는 아무것도 보지
+#    않는다. 이번 세션에서 배포가 세 번 연속 실패했다 — Flyway 스키마 충돌,
+#    RestClient.Builder 빈 누락, GoogleIdTokenVerifier 기본 생성자 없음 — 셋 다
+#    로컬에서 `./gradlew build` 한 번이면 머지 전에 잡혔을 문제였다 (S15P21E201-266).
+#
+#    그래서 여기서만 Gradle 빌드를 검사로 추가한다. `backend/` 를 건드리지 않는
+#    MR 은 돌지 않는다.
+#
+# 🔴 `services:` 와 건너뜀 검사가 없으면 이 잡은 **거짓말을 한다** (고지혁,
+#    S15P21E201-266 후속). PostgreSQL 이 없으면 `PostgresAvailableCondition`
+#    (backend/src/test/.../support)이 DB 테스트 클래스를 실패가 아니라
+#    **건너뜀**으로 표시하고, `gradlew build`는 건너뛴 테스트를 실패로 안 본다 —
+#    잡은 그대로 초록이다. 실측: DB 없이 137개 중 51개 건너뜀, 진짜 Postgres로
+#    137개 전부 실행. 이 상태에서 실제로 놓친 결함이 하나 있었다 — 품질 게이트가
+#    `gabolle` schema를 못 찾는 버그가 있었는데 테스트는 `public`에 표를 만들어서
+#    187개 전부 초록이었다 (fix/back/S15P21E201-546).
+#
+# 🔴 `minio` 서비스도 같은 이유로 있다 (S15P21E201-367). `S3FileStorageTest`
+#    (backend/src/test/.../story)를 처음 도커 컨테이너로 직접 띄우게 짰더니, 이
+#    러너에는 도커 소켓이 없어 `IllegalStateException` 으로 빌드 자체가 죽었다.
+#    "도커가 없으면 건너뛴다" 로 고쳐도 바로 위 건너뜀 검사에 걸려 여전히 빨갛다 —
+#    이 잡에서는 건너뜀 자체가 답이 아니다. Postgres 와 똑같이 GitLab이 진짜
+#    MinIO를 띄워 주고, 테스트는 `GABOLLE_TEST_MINIO_*` 로 그걸 바로 쓴다.
+# 🔴 S15P21E201-736 — 이 잡이 하루 CI 시간의 34%(평균 7분)를 쓴다(실측,
+#    2026-09-08). 원인은 캐시가 없어서다 — 매 MR마다 컨테이너를 새로 띄우고
+#    Gradle 이 의존성을 Maven Central 에서 처음부터 다시 받는다.
+#
+#    GRADLE_USER_HOME 을 $CI_PROJECT_DIR 안쪽으로 옮겨서 cache 가 잡을 수 있게
+#    한다 — GitLab 러너의 cache: paths 는 프로젝트 디렉터리 기준 상대경로만
+#    받는다. 캐시 키는 backend/gradle.lockfile 이다 — 의존성이 실제로 바뀔 때만
+#    새 캐시를 만든다(같은 파일을 OSV-Scanner 가 취약점 판정 기준으로도 쓴다).
+backend:build:
+  stage: verify
+  image: eclipse-temurin:17-jdk
+  services:
+    - name: postgres:16-alpine
+      alias: postgres
+    - name: minio/minio:RELEASE.2024-10-13T13-34-11Z
+      alias: minio
+      command: ["server", "/data"]
+  variables:
+    POSTGRES_DB: gabolle_test
+    POSTGRES_USER: gabolle
+    POSTGRES_PASSWORD: gabolle_ci
+    GABOLLE_TEST_DB_URL: jdbc:postgresql://postgres:5432/gabolle_test
+    GABOLLE_TEST_DB_USERNAME: gabolle
+    GABOLLE_TEST_DB_PASSWORD: gabolle_ci
+    MINIO_ROOT_USER: gabolle
+    MINIO_ROOT_PASSWORD: gabolle_ci_minio
+    GABOLLE_TEST_MINIO_ENDPOINT: http://minio:9000
+    GABOLLE_TEST_MINIO_ACCESS_KEY: gabolle
+    GABOLLE_TEST_MINIO_SECRET_KEY: gabolle_ci_minio
+    GRADLE_USER_HOME: $CI_PROJECT_DIR/.gradle-home
+    UV_CACHE_DIR: $CI_PROJECT_DIR/.uv-cache
+    GABOLLE_ROUTE_OPTIMIZER_PYTHON: /opt/route-optimizer-venv/bin/python3
+  cache:
+    key:
+      files:
+        - backend/gradle.lockfile
+        - backend/solver/requirements-optimizer.txt
+    paths:
+      - .gradle-home/caches
+      - .gradle-home/wrapper
+      - .uv-cache
+  before_script: []
+  script:
+    - cd backend
+    - chmod +x gradlew
+    # 🔴 경로 최적화(OR-Tools) 실행 환경 (S15P21E201-161) — ortools==9.14.6206 은 PyPI 에
+    #    cp313 까지만 휠을 낸다(2026-09-08 확인). 이 잡의 image(eclipse-temurin:17-jdk,
+    #    Ubuntu 26.04)가 apt 로 주는 python3 는 3.14 라 여기서는 못 깐다. 도커 소켓이 없는
+    #    이 러너에서는 배포 이미지(Dockerfile)처럼 다른 스테이지에서 통째로 복사해 오는
+    #    방법도 못 쓴다 — 대신 uv(파이썬 인터프리터 자체를 내려받아 까는 도구, root·apt
+    #    필요 없음)로 3.13 을 직접 받는다. RouteOptimizerAvailabilityCheckTest 가
+    #    GABOLLE_ROUTE_OPTIMIZER_PYTHON(위 variables)으로 이걸 가리켜 쓴다.
+    - curl -LsSf https://astral.sh/uv/install.sh | sh
+    - export PATH="$HOME/.local/bin:$PATH"
+    - uv python install 3.13
+    - uv venv --python 3.13 /opt/route-optimizer-venv
+    - uv pip install --python /opt/route-optimizer-venv/bin/python3 -r solver/requirements-optimizer.txt
+    - ./gradlew build --no-daemon
+    # ── :test 97초 안을 들여다본다 (S15P21E201-751) ─────────────────────────────
+    #
+    # 이 잡은 저장소에서 가장 길고(중앙값 207초) 그중 `:test` 하나가 97초다.
+    # 그런데 **그 97초 안에서 무엇이 오래 걸리는지 볼 방법이 없었다** — Gradle 의
+    # test 태스크는 기본적으로 테스트 출력을 안 흘린다.
+    #
+    # 🔴 build.gradle 을 고치지 않는다. Gradle 9 는 afterSuite 를 없앴고,
+    #    testLogging 으로 표준출력을 통째로 흘리면 스프링 기동 로그가 수 MB 로
+    #    쏟아져 정작 찾는 줄이 묻힌다. **Gradle 이 이미 쓰고 있는 결과 XML** 을
+    #    읽으면 빌드 스크립트를 한 줄도 안 건드리고 같은 답을 얻는다.
+    #
+    # 이 숫자로 무엇을 아나 — 스프링은 테스트 설정이 같으면 앱을 한 번만 띄우고
+    # 재사용한다. 그래서 **같은 설정 무리에서 첫 클래스만 유난히 느리고 나머지는
+    # 빠르다.** 그 차이가 곧 앱 한 번 띄우는 비용이다. 지금 @SpringBootTest 41개가
+    # 12가지 설정으로 갈려 있어 최소 12번 뜬다(2026-09-08 실측) — 한 번에 3초면
+    # 36초, 6초면 72초로 97초의 정체가 완전히 달라진다.
+    #
+    # 지우려면 이 블록만 지운다. 판정에 영향을 주지 않는다 — 찍기만 한다.
+    - |
+      echo ""
+      echo "테스트 클래스별 소요시간 (느린 순 · 상위 25)"
+      echo "────────────────────────────────────────────────────────────────"
+      awk 'match($0, /<testsuite [^>]*>/) {
+             s = substr($0, RSTART, RLENGTH); name = ""; t = "0"
+             if (match(s, /name="[^"]*"/)) name = substr(s, RSTART+6, RLENGTH-7)
+             if (match(s, /time="[^"]*"/)) t    = substr(s, RSTART+6, RLENGTH-7)
+             if (name != "") printf "%s\t%s\n", t, name
+           }' build/test-results/test/TEST-*.xml \
+        | sort -rn \
+        | awk -F'\t' 'NR<=25 { n=$2; sub(/.*\./,"",n); printf "%8.1f초  %s\n", $1, n }
+                      { s+=$1; c++ }
+                      END { printf "────────────────────────────────────────────────────────────────\n클래스 %d개 · 합계 %.1f초\n", c, s }'
+    # 🔴 아래가 이 잡의 절반이다 — DB 서비스가 안 뜨는 날 테스트가 전부
+    #    건너뛰고도 초록이 되는 것을, 여기서 빨갛게 만든다.
+    - |
+      skipped=$(grep -ho 'skipped="[0-9]*"' build/test-results/test/*.xml \
+                | grep -o '[0-9]*' | awk '{s+=$1} END {print s+0}')
+      echo "건너뜀: $skipped"
+      [ "$skipped" -eq 0 ] || { echo "🔴 건너뛴 테스트가 있다 — 이 초록은 아무것도 뜻하지 않는다"; exit 1; }
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes: ['backend/**/*']
+
+# ── 의존성 취약점 스캔 (OWASP A06) ────────────────────────────────────────────
+#
+# osv.dev(구글이 운영하는 취약점 데이터베이스, 계정·열쇠 필요 없음)에 잠금 파일의
+# 실제 버전을 대조한다. Gradle 은 기본으로 잠금 파일을 안 쓰므로 backend/build.gradle
+# 에 dependencyLocking 을 켜고 backend/gradle.lockfile 을 커밋해 뒀다
+# (S15P21E201-680). frontend 쪽은 npm audit 이 이미 잠금 파일(package-lock.json)을
+# 쓰므로 별도 잠금 설정이 필요 없다 — front/dev 에 같은 rules 로 추가한다.
+#
+# 🔴 심각도 HIGH 미만은 잡지 않는다 — 전부 빨갛게 하면 아무도 안 본다. OSV 결과의
+#    groups[].max_severity(osv-scanner 가 계산해 주는 CVSS 점수 문자열)로 판정한다.
+#    취약점은 있는데 이 필드가 없어서 **판정을 못 하면** — 모르는 것을 통과로
+#    내지 않는다(docs/CI-RESILIENCE.md 원칙 5) — 빨갛게 끝내고 사람이 표를 보게 한다.
+#
+# 🔴 OSV_SCANNER_VERSION 을 latest 로 둔다 — AXMAP_VERSION 과 같은 이유다
+#    (이 파일 머리말 참고). 새 판이 팀을 깨면 이 변수를 CI/CD Variables 에서
+#    구체적인 태그(예: v2.5.1)로 덮어써서 되돌린다.
+#
+# 🔴 allow_failure: true (2026-09-07) — Pipelines must succeed 가 켜져 있어서,
+#    이 잡을 blocking 으로 만들면 **이 잡을 처음 추가하는 MR 자체가 못 들어간다.**
+#    지금 실측이 HIGH 39건(대부분 Spring Boot 4.0.0/Spring Security 7.0.0이
+#    최신 GA라 이미 공개된 CVE)이라, 잡을 blocking 으로 켜는 순간 그 MR이
+#    스스로를 막는 잠금 상태가 된다. 드러내는 것(사용자 확인, 2026-09-07)이
+#    목적이라 우선 non-blocking 으로 켜고, 기존 39건을 정리하는 후속 티켓이
+#    끝나면 이 줄을 지운다 — 그때부터 진짜로 막는다.
+backend:dependency-scan:
+  stage: verify
+  allow_failure: true
+  variables:
+    OSV_SCANNER_VERSION: "latest"
+  before_script:
+    - apk add --no-cache curl
+  script:
+    - |
+      if [ "$OSV_SCANNER_VERSION" = "latest" ]; then
+        URL="https://github.com/google/osv-scanner/releases/latest/download/osv-scanner_linux_amd64"
+      else
+        URL="https://github.com/google/osv-scanner/releases/download/${OSV_SCANNER_VERSION}/osv-scanner_linux_amd64"
+      fi
+      curl -sSfL "$URL" -o /usr/local/bin/osv-scanner
+      chmod +x /usr/local/bin/osv-scanner
+      osv-scanner --version
+    - osv-scanner scan --lockfile=backend/gradle.lockfile --format json > osv-report.json || true
+    - |
+      cat > /tmp/osv-gate.mjs <<'JS'
+      import { readFileSync } from 'node:fs';
+      const threshold = 7.0;
+      const report = JSON.parse(readFileSync('osv-report.json', 'utf8'));
+      let highCount = 0;
+      let unknownCount = 0;
+      const rows = [];
+      for (const result of report.results || []) {
+        for (const pkg of result.packages || []) {
+          const name = `${pkg.package.name}@${pkg.package.version}`;
+          for (const group of pkg.groups || []) {
+            const raw = group.max_severity;
+            const score = raw === undefined || raw === '' ? null : Number(raw);
+            const ids = (group.ids || []).join(',');
+            if (score === null || Number.isNaN(score)) {
+              unknownCount++;
+              rows.push([name, ids, 'UNKNOWN(' + raw + ')']);
+            } else {
+              rows.push([name, ids, score.toFixed(1)]);
+              if (score >= threshold) highCount++;
+            }
+          }
+        }
+      }
+      console.table(rows.map(([p, i, s]) => ({ package: p, ids: i, severity: s })));
+      console.log('HIGH(>=7.0) 이상:', highCount, '| 판정 불가:', unknownCount);
+      if (highCount > 0) {
+        console.log('🔴 HIGH 이상 취약점이 있다 — S15P21E201-680');
+        process.exit(1);
+      }
+      if (unknownCount > 0) {
+        console.log('🔴 심각도 판정 불가 항목이 있다 — 통과로 내지 않는다');
+        process.exit(1);
+      }
+      JS
+      node /tmp/osv-gate.mjs
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes: ['backend/**/*']
+
+# ── 마이그레이션 버전이 거꾸로 가지 않는가 (S15P21E201-703) ────────────────────
+#
+# 🔴 2026-09-07 새벽 운영이 이걸로 두 번 죽었다. 새 마이그레이션 파일 번호가
+#    대상 브랜치에 이미 있는 최대 번호보다 작은데 나중에 머지되면, Flyway가
+#    "이미 더 큰 번호가 적용된 DB" 에서만 out-of-order 로 기동을 거부한다.
+#
+#    backend:build 는 이걸 구조적으로 못 잡는다 — 매번 빈 DB에 마이그레이션을
+#    처음부터 전부 적용하므로, 순서 역행이 드러나는 건 "이미 앞선 마이그레이션이
+#    적용된 실제 DB" 뿐이다(jaehyeon 실측). 그래서 DB 없이 파일명만 비교한다.
+#
+# 🔴 대상 브랜치의 **지금 이 순간의 tip** 과 비교한다(GIT_DEPTH: 0 으로 받아
+#    fetch) — MR 을 만든 시점의 갈림점이 아니다. 갈림점 이후 다른 MR 이 먼저
+#    머지돼 더 큰 번호가 이미 들어와 있을 수 있고, 실제로 오늘 그렇게 죽었다.
+backend:migration-order:
+  stage: verify
+  variables:
+    GIT_DEPTH: 0
+  # 🔴 전역 before_script 를 지우지 않는다. 이 잡은 git 을 쓴다.
+  #    node:20-alpine 에는 git 이 없어서 전역 준비 단계가 매번 깔아 준다.
+  #    [] 로 덮으면 그 설치가 사라지고 아래 git fetch 가 exit 127(그런 명령 없음)로 죽는다.
+  #    아래 mr:gates·verify:mr-target 이 [] 를 쓰는 것은 그 둘이 node 만 부르기 때문이다.
+  before_script:
+    - apk add --no-cache git bash
+  script:
+    - |
+      # 🔴 이름을 붙여서 받는다. 그냥 `git fetch origin <브랜치>` 를 하면 결과가
+      #    FETCH_HEAD 에만 남고 `origin/<브랜치>` 라는 이름으로는 안 생긴다.
+      #    CI 의 저장소 사본은 필요한 것만 받도록 설정돼 있어서 그렇다.
+      #    그러면 바로 아래 git diff 가 "그런 것 없다" 로 죽는다 — 출력도 없이 exit 1.
+      #    검사 내용이 틀린 게 아니라 검사가 자기가 방금 받은 것을 못 찾는 것이다.
+      git fetch origin "+refs/heads/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME:refs/remotes/origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME" --quiet
+      ADDED=$(git diff --name-only --diff-filter=A "origin/${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}" HEAD -- 'backend/src/main/resources/db/migration/V*.sql')
+      if [ -z "$ADDED" ]; then
+        echo "새로 추가된 마이그레이션 파일 없음 — 통과"
+        exit 0
+      fi
+      # 🔴 S15P21E201-737 — 끝의 `|| true`가 없으면 대상 브랜치에 db/migration 폴더
+      #    자체가 없을 때(예: back/main, 2026-08-27부터 멈춰 있어 Flyway 이전 상태)
+      #    grep 이 매치 0건으로 exit 1을 내고, set -eo pipefail 때문에 이 대입 전체가
+      #    실패로 잡혀 스크립트가 바로 아래 기본값 처리(:-0)에 도달하지도 못한 채
+      #    메시지 하나 없이 조용히 죽는다(실측, !248 파이프라인).
+      MAX_EXISTING=$(git ls-tree -r --name-only "origin/${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}" -- 'backend/src/main/resources/db/migration' \
+        | grep -oE 'V[0-9]+' | grep -oE '[0-9]+' | sort -n | tail -1 || true)
+      MAX_EXISTING=${MAX_EXISTING:-0}
+      echo "대상 브랜치(${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}) 기준 최대 버전: $MAX_EXISTING"
+      FAILED=0
+      for f in $ADDED; do
+        V=$(basename "$f" | grep -oE '^V[0-9]+' | grep -oE '[0-9]+')
+        echo "새 마이그레이션: $f (버전 $V)"
+        if [ "$V" -le "$MAX_EXISTING" ]; then
+          echo "🔴 $f 의 버전($V)이 대상 브랜치의 기존 최대($MAX_EXISTING)보다 작거나 같다"
+          echo "   Flyway가 이 버전을 out-of-order로 거부해 운영 기동이 실패한다."
+          echo "   해결: 파일명 버전을 $((MAX_EXISTING + 10000)) 이후로 바꾼다 (git mv)."
+          FAILED=1
+        fi
+      done
+      [ "$FAILED" -eq 0 ] || exit 1
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes: ['backend/src/main/resources/db/migration/**/*']
 
 # ── 파이프라인이 존재하게 한다 ───────────────────────────────────────────────
 #
@@ -342,7 +763,25 @@ governance:
     #    되돌리려면 아래 `&&` 뒤를 지운다.
     - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /(^|\/)(main|func)$/
       changes: ['frontend/**/*', 'backend/**/*', 'ci/**/*', 'governance/**/*',
-                'docs/**/*', '.gitlab-ci.yml', 'CLAUDE.md', 'setup.sh', 'setup.ps1']
+                'docs/**/*', '.gitlab-ci.yml', 'CONTRIBUTING.md', 'CLAUDE.md', 'AGENTS.md', 'setup.sh', 'setup.ps1']
+
+# bigData 파트 검증.
+#
+# axmap 과 따로 두는 이유: 서로 죽는 방식이 다르다. axmap 은 화면이 죽고,
+# bigData 는 "그럴듯한 숫자" 가 죽는다 — 경사 기준선이 틀리면 없는 언덕이 생기는데
+# 문법 검사도 단위 테스트도 전부 초록이다. verify 가 보정 불변식을 들고 있다.
+#
+# data/ 는 커밋되지 않으므로 CI 에는 원본이 없다. verify 는 데이터가 없으면
+# 해당 검사를 건너뛰고 통과한다 — clone 직후에도 돌아야 하기 때문이다.
+verify:bigdata:
+  stage: verify
+  script:
+    - npm --prefix bigData run verify
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes: [bigData/**/*]
+    - if: $CI_COMMIT_BRANCH =~ /(^|\/)(main|func|dev)$/
+      changes: [bigData/**/*]
 
 # ── 버전 ────────────────────────────────────────────────────────────────────
 #
@@ -352,8 +791,19 @@ governance:
 # 🔴 태그를 push 하려면 쓰기 권한이 있는 토큰이 필요하다. CI 기본 토큰
 #    (CI_JOB_TOKEN)은 저장소에 push 할 수 없다. 프로젝트 Access Token 을 만들어
 #    CI/CD 변수 AXMAP_BOT_TOKEN (Masked + Protected) 에 넣는다.
-#    없으면 이 잡은 **조용히 건너뛰지 않고** 계산만 하고 알린다 — 버전이 안 올라간
-#    것을 아무도 모르는 상태가 제일 나쁘다.
+#
+# 🔴 정정 (2026-09-07, S15P21E201-158) — 예전엔 토큰이 없으면 계산만 하고
+#    `exit 0` 으로 초록 끝냈다. 그런데 이 잡은 머지 뒤(post-merge)에 도는
+#    잡이라 머지를 막지 않는다 — 빨개져도 그날 리뷰·머지는 그대로 된다.
+#    초록으로 끝내는 쪽이 "버전 태그가 안 붙었다" 는 사실을 숨겼다
+#    (docs/CI-RESILIENCE.md 원칙 5 — 검사할 수 없으면 통과로 내지 않는다).
+#    그래서 토큰이 없으면 **계산은 하되 잡은 빨갛게 끝낸다.**
+#
+#    실측 — 이 정정 시점에 `axmap-bot` Project Access Token(scope: api,
+#    access_level: Maintainer)은 2026-09-01 에 만들어져 있었지만 CI/CD
+#    Variables 에 한 번도 붙여진 적이 없었다(last_used_at: null) — 태그가
+#    하나도 없었다(`git tag -l` 가 빈 목록을 냈다). 토큰을 rotate 해서
+#    AXMAP_BOT_TOKEN 으로 붙였다. 만료일은 docs/HANDOVER.md 에 있다.
 version:
   stage: release
   # 🔴 이 잡은 끊지 않는다. 태그를 만들어 push 하는 도중에 죽으면 "태그는 붙었는데
@@ -375,13 +825,23 @@ version:
         echo ""
         echo "🔴 AXMAP_BOT_TOKEN 을 Protected 로 두면 보호 브랜치에서 도는 잡에만"
         echo "   값이 갑니다. 이 잡이 도는 브랜치가 보호 브랜치가 아니면 토큰이 빈 채로"
-        echo "   여기까지 와서 초록으로 끝납니다 — 지금 보고 있는 이 메시지가 그 상태일"
+        echo "   여기까지 와서 빨갛게 끝납니다 — 지금 보고 있는 이 메시지가 그 상태일"
         echo "   수 있습니다. 브랜치: ${CI_COMMIT_BRANCH:-?}"
-        exit 0
+        echo ""
+        echo "이 잡은 머지를 막지 않는다(post-merge) — 빨개져도 리뷰·머지는 그대로"
+        echo "된다. 그래도 초록으로 숨기지 않는다 (S15P21E201-158)."
+        exit 1
       fi
       git remote set-url origin "https://oauth2:${AXMAP_BOT_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git"
       git config user.name  "axmap-bot"
       git config user.email "axmap-bot@noreply.${CI_SERVER_HOST}"
+      # 🔴 S15P21E201-741 — bigData/main 의 태그 push 가 "This repository is
+      #    configured for Git LFS but 'git-lfs' was not found" 로 계속 죽었다.
+      #    이 저장소 어느 브랜치의 .gitattributes 에도 LFS 선언이 없다(실측,
+      #    2026-09-08) — 훅은 러너 작업 폴더에 남은 잔여물이고, 이미지에
+      #    git-lfs 가 없어 그 훅이 실행되는 순간 무조건 죽는다. 이 잡의 태그
+      #    push 는 어떤 pre-push 훅도 필요 없으니 통째로 끈다.
+      git config core.hooksPath /dev/null
       # 🔴 S15P21E201-786 — 여러 파트가 짧은 간격으로 머지되면, 버전을 계산하는
       #    시점과 태그를 push 하는 시점 사이에 다른 실행이 같은 번호를 먼저
       #    push 해서 "already exists" 로 죽는다(실측 2026-09-09, 파이프라인
@@ -402,6 +862,28 @@ version:
       done
   rules:
     # MR 에서는 올리지 않는다. 머지되어 브랜치에 들어온 것만 버전을 갖는다.
+    - if: $CI_COMMIT_BRANCH =~ /(^|\/)(main|func|dev)$/
+
+# ── Jira ────────────────────────────────────────────────────────────────────
+#
+# 머지되면 카드가 스스로 움직인다. 파트 dev·파트 브랜치는 진행 중, 최상위 main 은 완료.
+# 왜 dev 에서 "완료" 를 안 찍는지, 왜 뒤로 안 가는지는 ci/jira-transition.mjs 머리말에 있다.
+#
+# 🔴 allow_failure 다. Jira 가 죽은 날 팀의 머지까지 막을 이유가 없다 —
+#    이것은 게이트가 아니라 기록이다. 실패하면 노랗게 뜨고 그때는 손으로 옮긴다.
+#
+# 🔴 GIT_DEPTH: 0 이 필요하다. 기본은 얕은 클론이라 CI_COMMIT_BEFORE_SHA 가 받아온
+#    범위 밖이면 git log 가 구간을 못 푼다. 그러면 카드를 하나도 못 찾는다.
+jira:
+  stage: release
+  variables:
+    GIT_DEPTH: 0
+  allow_failure: true
+  before_script:
+    - apk add --no-cache git
+  script:
+    - node ci/jira-transition.mjs
+  rules:
     - if: $CI_COMMIT_BRANCH =~ /(^|\/)(main|func|dev)$/
 
 # ── 승격 ────────────────────────────────────────────────────────────────────
@@ -451,9 +933,135 @@ promote:
     #    이 브랜치에는 depscan(의존성 취약점 스캔) 스케줄이 걸려 있고,
     #    그것이 깨울 때마다 이 잡도 같이 일어나 PROMOTE_STEP 이 없으니
     #    위 script 가 의도대로 exit 1 을 냈다. 그래서 **매일 09:00 에 빨개졌다**
-    #    (실측 2026-09-09, 파이프라인 184177).
+    #    (실측 2026-09-09, 파이프라인 184177). 같은 고침이 common/dev 에는
+    #    2026-09-01 에 들어갔고(S15P21E201-529), front/dev 에만 안 내려와 있었다.
+    #
+    #    2026-09-01 에 vote:recheck 스케줄이 생기자 이 잡이 같이 깨어났고,
+    #    PROMOTE_STEP 이 없으니 위 script 가 의도대로 exit 1 을 냈다.
+    #    그래서 **10분마다 파이프라인이 빨개졌다** (#176479).
     #
     #    script 의 "무엇을 올릴지 추측하지 않는다" 는 맞다. 너무 넓었던 것은 rule 이다.
-    #    같은 고침이 common/dev 에는 2026-09-01 에 들어갔고(S15P21E201-529),
-    #    front/dev 에만 안 내려와 있었다.
+    #    스케줄이 늘어날 때마다 이 잡이 깨어나는 구조 자체를 막는다.
     - if: $CI_PIPELINE_SOURCE == "schedule" && $PROMOTE_STEP
+
+# ── 표가 찼는데 화면이 아직 빨간 MR ─────────────────────────────────────────
+#
+# 표는 MR 밖(axmap/votes 브랜치)으로 들어온다. 그래서 표가 도착해도 GitLab 은
+# 파이프라인을 다시 돌리지 않고, 화면에는 "0표" 로 판정한 옛 결과가 남는다.
+# 2026-09-01 에 MR !31 이 정확히 그것으로 막혔다 — 표는 2/2 인데 판정은 5시간 전 것.
+#
+# 🔴 표 push 를 직접 트리거로 쓰지 않는다. axmap/votes 는 고아 브랜치라
+#    .gitlab-ci.yml 이 없고, GitLab 은 push 된 브랜치에서 설정을 읽으므로
+#    파이프라인이 아예 안 생긴다. 거기에 설정을 심으면 되기는 하지만, 그 브랜치는
+#    MR 없이 push 되는 곳이라 **누구든 리뷰 없이 CI 가 돌릴 코드를 바꿀 수 있게**
+#    된다. 3절이 정한 것과 정면으로 충돌한다. 즉시성 몇 분과 바꾸지 않는다.
+#
+#    Settings → CI/CD → Schedules 에 하나 만든다
+#      */5 * * * *     SCHEDULE_KIND = vote-recheck
+vote:recheck:
+  stage: release
+  variables:
+    GIT_DEPTH: 0
+  # 🔴 S15P21E201-768 — ci/vote-recheck.mjs 는 git(spawnSync('git', ['fetch', ...]))과
+  #    npx(spawnSync('npx', ...))만 직접 부른다. 둘 다 쉘을 안 거친다
+  #    (npx 호출의 shell 옵션도 win32 에서만 켠다) — bash 는 아예 안 쓴다.
+  #    axmap-cli 판 정보도 이 잡 자체에 필요 없다 — gate() 가 매 MR 마다
+  #    npx axmap-cli@$AXVER 를 직접 부르므로, 뭔가 어긋나면 그 호출 자체의
+  #    출력에서 이미 드러난다. jira 잡(바로 위)과 같은 판단이다.
+  #
+  #    실측(2026-09-09, 파이프라인 184133·184148·184201) — 이 잡 하나가
+  #    13.4초·22.5초·23.6초였다. 하는 일(표 세기)은 몇 초면 끝나고 나머지가
+  #    기본 before_script(apk add git bash + npm view)였다.
+  before_script:
+    - apk add --no-cache git
+  script:
+    - node ci/vote-recheck.mjs
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_KIND == "vote-recheck"
+
+# ── CI 상태판 ───────────────────────────────────────────────────────────────
+#
+# 팀의 CI 상태를 한 장짜리 페이지로 만든다 (S15P21E201-701).
+# 페이지와 수집기는 ci/status/ 에 있고, 사람이 읽는 설명은 ci/status/README.md 다.
+#
+# 하는 일은 둘이다.
+#   1. GitLab API 에서 브랜치별 파이프라인·잡·러너 상태를 받아 ci-status.json 을 쓴다
+#   2. 그 json 과 index.html 을 한 폴더에 담아 **아티팩트**로 남긴다
+#      (아티팩트 — 잡이 끝난 뒤에도 GitLab 이 보관해 주는 결과 파일)
+#
+# 🔴 이 잡은 **운영 서버에 올리지 않는다. 못 올린다.**
+#
+#    이 저장소의 CI 에는 서버로 미는 길이 없다 — 2026-09-08 실측:
+#      · 어느 브랜치의 .gitlab-ci.yml 에도 배포 잡이 없다 (stage 는 verify·release 뿐)
+#      · CI/CD 변수에 SSH 키도, 서버 주소도, 배포용 자격증명도 없다
+#      · 운영 서버 배포는 GitLab CI 가 아니라 **서버 위의 Jenkins** 가 한다
+#        (docs/SERVER-SETUP.md 5절 · backend/Jenkinsfile)
+#
+#    없는 길을 지어내면 잡은 초록인데 화면은 안 바뀐다. 그래서 여기서 멈추고,
+#    **서버에 올리는 마지막 한 걸음은 사람이 한 번 만든다** — 방법은
+#    ci/status/README.md "배포" 절에 명령까지 그대로 적어 두었다.
+#
+# 🔴 예약 종류를 SCHEDULE_KIND 로 가른다. `$CI_PIPELINE_SOURCE == "schedule"` 만
+#    보면 vote-recheck·promote 예약이 돌 때마다 이 잡도 같이 깨어난다. 위
+#    promote 잡이 2026-09-01 에 정확히 그것으로 10분마다 빨개졌다 (#176479).
+#    예약이 늘어날 때마다 이 잡이 깨어나는 구조를 아예 막는다.
+#
+#      Settings -> CI/CD -> Schedules 에 하나 만든다
+#        0 * * * *      SCHEDULE_KIND = status      (매시 정각, 1시간마다)
+status:publish:
+  stage: release
+  # git 도 axmap 도 안 쓴다. 컨테이너를 띄우고 node 한 번 부르는 게 전부라
+  # 기본 before_script(apk 설치 + npm view)를 건너뛴다 — verify:mr-target 과 같은 이유다.
+  before_script: []
+  variables:
+    # 얕은 클론으로 충분하다. 이 잡은 git 이력을 보지 않고 GitLab API 만 친다.
+    GIT_DEPTH: 1
+    # 🔴 토큰 값을 여기 적지 않는다. 이름만 적고 값은 CI/CD 변수에서 온다.
+    #    CI_STATUS_TOKEN 이 없으면 collect.mjs 가 알아서 AXMAP_BOT_TOKEN 을 쓴다
+    #    (찾는 순서: --token -> GITLAB_TOKEN -> GITLAB_PRIVATE_TOKEN
+    #     -> AXMAP_BOT_TOKEN -> CI_JOB_TOKEN).
+    #
+    #    읽기만 하는 일이라 read_api 짜리 좁은 토큰을 따로 두는 편이 낫다.
+    #    그래서 CI_STATUS_TOKEN 을 먼저 본다. 안 만들었으면 그냥 비워 두면 된다.
+    GITLAB_TOKEN: $CI_STATUS_TOKEN
+  script:
+    - |
+      if [ -z "${CI_STATUS_TOKEN:-}" ] && [ -z "${AXMAP_BOT_TOKEN:-}" ]; then
+        echo "🔴 토큰이 없습니다. 아무것도 받지 못했고, 페이지도 만들지 않았습니다."
+        echo ""
+        echo "이 잡은 GitLab API 로 파이프라인 상태를 읽습니다. 비공개 저장소라"
+        echo "인증 없이는 404 가 옵니다(없는 게 아니라 '너에게는 없다' 는 뜻입니다)."
+        echo ""
+        echo "둘 중 하나를 CI/CD 변수에 넣으세요 (Settings -> CI/CD -> Variables):"
+        echo "  CI_STATUS_TOKEN   scope=read_api 짜리 좁은 토큰. 이 잡 전용. 권합니다"
+        echo "  AXMAP_BOT_TOKEN   이미 있는 봇 토큰. 따로 안 만들려면 이걸 씁니다"
+        echo ""
+        echo "🔴 둘 다 Protected 로 두면 보호 브랜치에서 도는 잡에만 값이 갑니다."
+        echo "   이 예약은 common/dev 에서 돌고 common/dev 는 */dev 규칙으로 보호돼"
+        echo "   있으니 Protected 로 둬도 값이 옵니다. 브랜치: ${CI_COMMIT_BRANCH:-?}"
+        echo ""
+        echo "검사할 수 없으면 통과로 내지 않습니다 — docs/CI-RESILIENCE.md 원칙 5."
+        exit 1
+      fi
+    - mkdir -p public/status
+    - node ci/status/collect.mjs --out=public/status/ci-status.json
+    - cp ci/status/index.html public/status/index.html
+    - ls -l public/status
+    - |
+      echo ""
+      echo "─────────────────────────────────────────────────────────────────"
+      echo "여기까지가 CI 가 할 수 있는 전부입니다. 서버에 올리는 마지막 한 걸음은"
+      echo "사람이 한 번 만들어 둬야 합니다 — ci/status/README.md '배포' 절."
+      echo ""
+      echo "이 잡의 결과물(최신 성공분)은 늘 이 주소에 있습니다:"
+      echo "  ${CI_SERVER_URL}/api/v4/projects/${CI_PROJECT_ID}/jobs/artifacts/${CI_COMMIT_REF_NAME}/download?job=status:publish"
+      echo "─────────────────────────────────────────────────────────────────"
+  artifacts:
+    name: "ci-status-$CI_COMMIT_REF_SLUG"
+    paths:
+      - public/status
+    # 매시간 도는 잡이라 오래 쌓아 둘 이유가 없다. 최신 성공분은 만료와 무관하게
+    # 위 주소로 늘 받을 수 있다 (GitLab 이 latest 아티팩트는 따로 지켜 준다).
+    expire_in: 3 days
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_KIND == "status"

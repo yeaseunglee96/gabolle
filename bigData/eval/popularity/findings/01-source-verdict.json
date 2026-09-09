@@ -1,0 +1,184 @@
+{
+ "ranAt": "2026-09-07T13:13:41.497Z",
+ "질문": "인기 신호(평점·방문자 리뷰 수·블로그 리뷰 수·가격대)를 합법적으로 얻을 경로가 있는가",
+ "robots": [
+  {
+   "key": "naver-map",
+   "url": "https://map.naver.com/robots.txt",
+   "why": "네이버 지도 — 플레이스로 들어가는 문",
+   "verdict": "금지",
+   "note": "우리 이름(ClaudeBot 계열)을 콕 집어 전면 금지",
+   "status": 200,
+   "원문": "# BOT ACCESS FOR THE PURPOSES OF AI TRAINING AND RETRIEVAL-AUGMENTED GENERATION (RAG) IS STRICTLY PROHIBITED.\nUser-agent: GPTBot\nDisallow: /\nUser-agent: OAI-SearchBot\nDisallow: /\nUser-agent: PerplexityBot\nDisallow: /\nUser-agent: Google-Extended\nDisallow: /\nUser-agent: ClaudeBot\nDisallow: /\nUser-agent: Claude-SearchBot\nDisallow: /\nUser-agent: meta-externalagent\nDisallow: /\nUser-agent: Applebot-Extended\nDisallow: /\nUser-agent: CCBot\nDisallow: /\n\nUser-agent: *\nDisallow: /\nAllow: /$\nAllow: /p/$\nSitemap: https://map.naver.com/sitemap.xml\n",
+   "막힘": null
+  },
+  {
+   "key": "naver-place-m",
+   "url": "https://m.place.naver.com/robots.txt",
+   "why": "🔴 방문자 리뷰 수·블로그 리뷰 수가 실제로 적혀 있는 화면",
+   "verdict": "확인실패",
+   "note": "robots.txt 를 받지 못했다",
+   "status": 429,
+   "원문": null,
+   "막힘": "HTTP 429 — robots.txt 대신 차단 안내 화면이 왔다 (본문은 우리 IP 가 찍혀 있어 남기지 않는다)"
+  },
+  {
+   "key": "naver-place-pc",
+   "url": "https://pcmap.place.naver.com/robots.txt",
+   "why": "같은 화면의 PC 판",
+   "verdict": "확인실패",
+   "note": "robots.txt 를 받지 못했다",
+   "status": 429,
+   "원문": null,
+   "막힘": "HTTP 429 — robots.txt 대신 차단 안내 화면이 왔다 (본문은 우리 IP 가 찍혀 있어 남기지 않는다)"
+  },
+  {
+   "key": "naver-openapi",
+   "url": "https://openapi.naver.com/robots.txt",
+   "why": "네이버 공식 검색 API 호스트",
+   "verdict": "금지",
+   "note": "모두에게 전면 금지",
+   "status": 200,
+   "원문": "User-agent: *\nDisallow: /",
+   "막힘": null
+  },
+  {
+   "key": "kakao-map",
+   "url": "https://map.kakao.com/robots.txt",
+   "why": "카카오맵 — 평점·후기 수가 보이는 곳",
+   "verdict": "금지",
+   "note": "우리 이름(ClaudeBot 계열)을 콕 집어 전면 금지",
+   "status": 200,
+   "원문": "# BOT ACCESS FOR THE PURPOSES OF AI TRAINING AND RETRIEVAL-AUGMENTED GENERATION (RAG) IS STRICTLY PROHIBITED.\nUser-agent: GPTBot\nDisallow: /\nUser-agent: OAI-SearchBot\nDisallow: /\nUser-agent: PerplexityBot\nDisallow: /\nUser-agent: Google-Extended\nDisallow: /\nUser-agent: ClaudeBot\nDisallow: /\nUser-agent: Claude-SearchBot\nDisallow: /\nUser-agent: meta-externalAgent\nDisallow: /\nUser-agent: Applebot-Extended\nDisallow: /\nUser-agent: CCBot\nDisallow: /\n\nUser-agent: *\nDisallow: /\nAllow: /$\nSitemap: https://map.kakao.com/sitemap.xml\n",
+   "막힘": null
+  },
+  {
+   "key": "kakao-place",
+   "url": "https://place.map.kakao.com/robots.txt",
+   "why": "카카오 장소 상세",
+   "verdict": "금지",
+   "note": "우리 이름(ClaudeBot 계열)을 콕 집어 전면 금지",
+   "status": 200,
+   "원문": "User-agent: GPTBot\nDisallow: /\nUser-agent: OAI-SearchBot\nDisallow: /\nUser-agent: PerplexityBot\nDisallow: /\nUser-agent: Google-Extended\nDisallow: /\nUser-agent: ClaudeBot\nDisallow: /\nUser-agent: Claude-SearchBot\nDisallow: /\nUser-agent: meta-externalAgent\nDisallow: /\nUser-agent: Applebot-Extended\nDisallow: /\nUser-agent: CCBot\nDisallow: /\n\nUser-agent: *\nDisallow: /\nAllow: /$\n",
+   "막힘": null
+  },
+  {
+   "key": "diningcode",
+   "url": "https://www.diningcode.com/robots.txt",
+   "why": "다이닝코드 — 맛집 점수를 따로 매기는 곳",
+   "verdict": "금지",
+   "note": "우리 이름(ClaudeBot 계열)을 콕 집어 전면 금지",
+   "status": 200,
+   "원문": "User-agent: *\r\nAllow: /\r\nDisallow: /urlShortener\r\nDisallow: /review\r\nDisallow: /mobile/iframe/\r\n\r\n#DaumWebMasterTool:de990a9bb2a0155c601135ad755a02023538826da5a5c7102b89f39617ff1581:7x7oK9jrwZAIo2A992FSMg==\r\n\r\nUser-agent: GPTBot\r\nDisallow: /\r\n\r\nUser-agent: ClaudeBot\r\nUser-agent: Claude-Web\r\nUser-agent: anthropic-ai\r\nDisallow: /\r\n\r\nUser-agent: Google-Extended\r\nDisallow: /\r\n\r\nUser-agent: Applebot-Extended\r\nDisallow: /\r\n\r\nUser-agent: CCBot\r\nUser-agent: Bytespider\r\nUser-agent: Amazonbot\r\nUser-agent: PerplexityBot\r\nUser-agent: Meta-ExternalAgent\r\nDisallow: /\r\n",
+   "막힘": null
+  }
+ ],
+ "공식API": {
+  "네이버 지역 검색": {
+   "문서": "https://developers.naver.com/docs/serviceapi/search/local/local.md",
+   "주는칸": [
+    "title",
+    "link",
+    "category",
+    "description",
+    "telephone",
+    "address",
+    "roadAddress",
+    "mapx",
+    "mapy"
+   ],
+   "안주는칸": [
+    "평점",
+    "방문자 리뷰 수",
+    "블로그 리뷰 수",
+    "가격대"
+   ],
+   "한계": "display 최댓값 5, start 최댓값 1 — 한 질의에 5곳까지, 페이지 넘기기 없음",
+   "비고": "sort=comment 는 '카페·블로그 리뷰 개수순 정렬'이라 순서는 주지만 **개수는 안 준다**"
+  },
+  "실측": {
+   "at": "2026-09-07T13:13:41.497Z",
+   "calls": [
+    {
+     "api": "네이버 지역 검색",
+     "url": "https://openapi.naver.com/v1/search/local.json?query=%EB%B6%80%EC%82%B0%20%EB%8F%BC%EC%A7%80%EA%B5%AD%EB%B0%A5&display=5",
+     "status": null,
+     "ms": 0,
+     "note": "NAVER_CLIENT_ID / NAVER_CLIENT_SECRET 이 없어 부르지 않았다"
+    }
+   ]
+  }
+ },
+ "취득기록": [
+  {
+   "at": "2026-09-07T13:12:39.682Z",
+   "what": "robots.txt",
+   "url": "https://map.naver.com/robots.txt",
+   "status": 200,
+   "bytes": 539
+  },
+  {
+   "at": "2026-09-07T13:12:42.806Z",
+   "what": "robots.txt(429)",
+   "url": "https://m.place.naver.com/robots.txt",
+   "status": 429,
+   "bytes": 0
+  },
+  {
+   "at": "2026-09-07T13:13:02.917Z",
+   "what": "robots.txt",
+   "url": "https://m.place.naver.com/robots.txt",
+   "status": 429,
+   "bytes": 7093
+  },
+  {
+   "at": "2026-09-07T13:13:05.996Z",
+   "what": "robots.txt(429)",
+   "url": "https://pcmap.place.naver.com/robots.txt",
+   "status": 429,
+   "bytes": 0
+  },
+  {
+   "at": "2026-09-07T13:13:26.086Z",
+   "what": "robots.txt",
+   "url": "https://pcmap.place.naver.com/robots.txt",
+   "status": 429,
+   "bytes": 7093
+  },
+  {
+   "at": "2026-09-07T13:13:29.170Z",
+   "what": "robots.txt",
+   "url": "https://openapi.naver.com/robots.txt",
+   "status": 200,
+   "bytes": 25
+  },
+  {
+   "at": "2026-09-07T13:13:32.268Z",
+   "what": "robots.txt",
+   "url": "https://map.kakao.com/robots.txt",
+   "status": 200,
+   "bytes": 527
+  },
+  {
+   "at": "2026-09-07T13:13:35.367Z",
+   "what": "robots.txt",
+   "url": "https://place.map.kakao.com/robots.txt",
+   "status": 200,
+   "bytes": 374
+  },
+  {
+   "at": "2026-09-07T13:13:38.487Z",
+   "what": "robots.txt",
+   "url": "https://www.diningcode.com/robots.txt",
+   "status": 200,
+   "bytes": 561
+  },
+  {
+   "at": "2026-09-07T13:13:41.497Z",
+   "what": "공식 API 호출",
+   "url": "https://openapi.naver.com/v1/search/local.json?query=%EB%B6%80%EC%82%B0%20%EB%8F%BC%EC%A7%80%EA%B5%AD%EB%B0%A5&display=5",
+   "status": null,
+   "bytes": 0
+  }
+ ]
+}

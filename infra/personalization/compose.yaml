@@ -1,0 +1,326 @@
+name: local-route-personalization
+
+# IMAGE_TAG: mlflow/airflow는 커스텀 빌드라 롤백하려면 "이전 태그로 다시
+# 기동"이 가능해야 한다 (S15P21E201-579, 문서 12절). Jenkinsfile이 git commit
+# SHA를 IMAGE_TAG로 넘겨 빌드·배포하고, 롤백 시에는 재빌드 없이 이전 SHA
+# 태그로만 up -d 한다. 사람이 손으로 돌릴 때는 안 넘기면 latest로 동작한다.
+
+networks:
+  data_net:
+    driver: bridge
+
+volumes:
+  pg_data:
+  redis_data:
+  minio_data:
+  airflow_logs:
+
+x-airflow-common: &airflow-common
+  build: ./airflow
+  image: local-route-personalization-airflow:${IMAGE_TAG:-latest}
+  restart: unless-stopped
+  networks:
+    - data_net
+  environment:
+    AIRFLOW__CORE__EXECUTOR: CeleryExecutor
+    AIRFLOW__CORE__AUTH_MANAGER: airflow.providers.fab.auth_manager.fab_auth_manager.FabAuthManager
+    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow_user:${AIRFLOW_DB_PASSWORD}@postgres:5432/airflow_db
+    AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql://airflow_user:${AIRFLOW_DB_PASSWORD}@postgres:5432/airflow_db
+    AIRFLOW__CELERY__BROKER_URL: redis://:${AIRFLOW_BROKER_PASSWORD}@airflow-broker:6379/0
+    AIRFLOW__CORE__EXECUTION_API_SERVER_URL: http://airflow-api-server:8080/execution/
+    AIRFLOW__CORE__FERNET_KEY: ${AIRFLOW_FERNET_KEY}
+    AIRFLOW__WEBSERVER__SECRET_KEY: ${AIRFLOW_WEBSERVER_SECRET}
+    AIRFLOW__API__SECRET_KEY: ${AIRFLOW_WEBSERVER_SECRET}
+    AIRFLOW__API_AUTH__JWT_SECRET: ${AIRFLOW_WEBSERVER_SECRET}
+    AIRFLOW__CORE__PARALLELISM: 4
+    AIRFLOW__CORE__MAX_ACTIVE_TASKS_PER_DAG: 2
+    AIRFLOW__CORE__MAX_ACTIVE_RUNS_PER_DAG: 1
+    AIRFLOW__CELERY__WORKER_CONCURRENCY: 2
+    AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+    # S15P21E201-785 — dag-processor 가 기본값(30초)마다 DAG 폴더를 다시 훑는다.
+    # 이 폴더엔 파일이 sample_personalization_pipeline.py 하나뿐인데, 그 파일이
+    # 최상위에서 mlflow·lightgbm·pandas 를 불러와서 매 재파싱마다 코어 하나가
+    # 몇 초씩 70~100% 로 튄다(고지혁 실측, 2026-09-09 — dag-processor 파싱
+    # 6.25초→3.88초로 줄인 MR !449 를 넣고도 재파싱 자체의 airflow 임포트 비용은
+    # 못 줄임). 이 DAG 은 schedule=None(수동 트리거 전용)이라 30초마다 다시 읽어야
+    # 할 이유가 애초에 없다 — 5분으로 늘려 재파싱 횟수를 10분의 1로 줄인다.
+    # DAG 파일을 고친 뒤 바로 반영하려면 dag-processor 컨테이너를 재시작하면 된다.
+    AIRFLOW__SCHEDULER__MIN_FILE_PROCESS_INTERVAL: "300"
+    MLFLOW_TRACKING_URI: http://mlflow:5000
+    MLFLOW_S3_ENDPOINT_URL: http://minio:9000
+    AWS_ACCESS_KEY_ID: ${MINIO_ROOT_USER}
+    AWS_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD}
+    APP_DB_PASSWORD: ${APP_DB_PASSWORD}
+    REDIS_PASSWORD: ${REDIS_PASSWORD}
+  volumes:
+    - ./airflow/dags:/opt/airflow/dags
+    - airflow_logs:/opt/airflow/logs
+  logging:
+    driver: json-file
+    options:
+      max-size: "10m"
+      max-file: "3"
+  depends_on:
+    postgres:
+      condition: service_healthy
+    airflow-broker:
+      condition: service_healthy
+
+services:
+  postgres:
+    image: postgres:16.4
+    restart: unless-stopped
+    networks:
+      - data_net
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_ADMIN_PASSWORD}
+      APP_DB_PASSWORD: ${APP_DB_PASSWORD}
+      AIRFLOW_DB_PASSWORD: ${AIRFLOW_DB_PASSWORD}
+      MLFLOW_DB_PASSWORD: ${MLFLOW_DB_PASSWORD}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 2g
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  redis:
+    image: redis:7.4-alpine
+    restart: unless-stopped
+    networks:
+      - data_net
+    command: >
+      redis-server
+      --requirepass ${REDIS_PASSWORD}
+      --appendonly yes
+      --maxmemory 384mb
+      --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "PING"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 512m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  minio:
+    image: minio/minio:RELEASE.2024-10-13T13-34-11Z
+    restart: unless-stopped
+    networks:
+      - data_net
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    command: server /data --console-address ":9001"
+    ports:
+      - "127.0.0.1:9001:9001"
+      # 🔴 S15P21E201-367/-213 — S3 API 포트(9000)를 호스트에 연다. 지금까지는 이
+      #    네트워크 안(personalization 파이프라인)에서만 minio 를 썼는데, 이제
+      #    사진 오브젝트 스토리지로도 재사용한다(GABOLLE_STORAGE_PROVIDER=s3). 호스트의
+      #    nginx 가 /photos/ 를 이 포트로 프록시해 외부(모바일 앱)에서 사진 주소에
+      #    닿게 한다 — nginx 는 도커 밖(호스트 서비스)이라 컨테이너 네트워크로는 못 닿고
+      #    반드시 게시된 포트가 있어야 한다. 127.0.0.1 로 묶어 외부에서 9000 을 직접
+      #    두드리지 못하게 막는다(9001 콘솔과 같은 방식).
+      - "127.0.0.1:9000:9000"
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 1g
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  mlflow:
+    build: ./mlflow
+    image: local-route-personalization-mlflow:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    networks:
+      - data_net
+    environment:
+      MLFLOW_S3_ENDPOINT_URL: http://minio:9000
+      AWS_ACCESS_KEY_ID: ${MINIO_ROOT_USER}
+      AWS_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD}
+    command: >
+      mlflow server
+      --backend-store-uri postgresql://mlflow_user:${MLFLOW_DB_PASSWORD}@postgres:5432/mlflow_db
+      --default-artifact-root s3://mlflow-artifacts/
+      --host 0.0.0.0
+      --port 5000
+    ports:
+      - "127.0.0.1:5000:5000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:5000/health').status==200 else 1)"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 1g
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  airflow-broker:
+    image: redis:7.4-alpine
+    restart: unless-stopped
+    networks:
+      - data_net
+    command: >
+      redis-server
+      --requirepass ${AIRFLOW_BROKER_PASSWORD}
+      --maxmemory 256mb
+      --maxmemory-policy noeviction
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${AIRFLOW_BROKER_PASSWORD}", "PING"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 256m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  airflow-init:
+    <<: *airflow-common
+    restart: "no"
+    entrypoint: /bin/bash
+    command:
+      - -c
+      - |
+        airflow db migrate
+        airflow users create \
+          --username admin \
+          --firstname Admin \
+          --lastname User \
+          --role Admin \
+          --email admin@example.com \
+          --password "$${AIRFLOW_ADMIN_PASSWORD}"
+    environment:
+      AIRFLOW__CORE__EXECUTOR: CeleryExecutor
+      AIRFLOW__CORE__AUTH_MANAGER: airflow.providers.fab.auth_manager.fab_auth_manager.FabAuthManager
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow_user:${AIRFLOW_DB_PASSWORD}@postgres:5432/airflow_db
+      AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql://airflow_user:${AIRFLOW_DB_PASSWORD}@postgres:5432/airflow_db
+      AIRFLOW__CELERY__BROKER_URL: redis://:${AIRFLOW_BROKER_PASSWORD}@airflow-broker:6379/0
+      AIRFLOW__CORE__FERNET_KEY: ${AIRFLOW_FERNET_KEY}
+      AIRFLOW__WEBSERVER__SECRET_KEY: ${AIRFLOW_WEBSERVER_SECRET}
+      AIRFLOW_ADMIN_PASSWORD: ${AIRFLOW_ADMIN_PASSWORD}
+
+  airflow-scheduler:
+    <<: *airflow-common
+    command: scheduler
+    # 🔴 timeout 60s (2026-09-07, S15P21E201-575) — 10s였을 때 scheduler는 실제로
+    #    정상 동작 중인데도(airflow jobs check가 수동으로는 "Found one alive job"
+    #    성공) 계속 unhealthy였다. `airflow jobs check` CLI 자체가 전체 Airflow
+    #    앱 컨텍스트를 콜드스타트로 로딩하는 데 10초를 넘겨서, Docker가 답이
+    #    오기 전에 timeout으로 죽였다 — 기능 장애가 아니라 헬스체크 예산이
+    #    실제 실행 시간보다 짧았던 것(backend Jenkinsfile 헬스체크와 같은 종류).
+    healthcheck:
+      test: ["CMD-SHELL", "airflow jobs check --job-type SchedulerJob --hostname \"$(hostname)\""]
+      interval: 30s
+      timeout: 60s
+      retries: 5
+    depends_on:
+      airflow-init:
+        condition: service_completed_successfully
+    deploy:
+      resources:
+        limits:
+          memory: 1.5g
+
+  airflow-dag-processor:
+    <<: *airflow-common
+    command: dag-processor
+    # 🔴 timeout 60s — airflow-scheduler와 같은 이유(S15P21E201-575). `airflow
+    #    jobs check`의 콜드스타트가 10초를 넘긴다.
+    healthcheck:
+      test: ["CMD-SHELL", "airflow jobs check --job-type DagProcessorJob --hostname \"$(hostname)\""]
+      interval: 30s
+      timeout: 60s
+      retries: 5
+    depends_on:
+      airflow-init:
+        condition: service_completed_successfully
+    deploy:
+      resources:
+        limits:
+          memory: 1g
+
+  airflow-api-server:
+    <<: *airflow-common
+    command: api-server
+    ports:
+      - "127.0.0.1:8082:8080"
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8080/api/v2/monitor/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    depends_on:
+      airflow-init:
+        condition: service_completed_successfully
+    deploy:
+      resources:
+        limits:
+          # 🔴 S15P21E201-742 — 1g일 때 실사용이 942MB(94%)까지 올라간 것을
+          # janghyojoon님이 실측했다(2026-09-08, docker stats). 여유가 60MB뿐이라
+          # 조금만 더 쓰면 OOM으로 컨테이너가 죽는다. 2g로 올려 여유를 둔다.
+          memory: 2g
+
+  airflow-worker:
+    <<: *airflow-common
+    command: celery worker
+    healthcheck:
+      test: ["CMD-SHELL", "celery -A airflow.providers.celery.executors.celery_executor.app inspect ping -d \"celery@$(hostname)\" -t 10"]
+      interval: 30s
+      timeout: 15s
+      retries: 5
+    depends_on:
+      airflow-init:
+        condition: service_completed_successfully
+    deploy:
+      resources:
+        limits:
+          memory: 2g

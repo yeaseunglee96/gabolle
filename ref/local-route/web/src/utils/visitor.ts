@@ -1,5 +1,14 @@
 const WELCOME_SEEN_KEY = "local-route-onboarding-seen";
 const LAST_TRIP_KEY = "local-route-last-trip-id";
+const CONSENT_KEY = "busan-gabolle-consent-v1";
+
+export interface ConsentSettings {
+  personalizationMode: "EXPLICIT_ONLY" | "BEHAVIOR_ENABLED";
+  behavior: boolean;
+  sensitive: boolean;
+  preciseLocation: boolean;
+  policyVersion: "2026-09";
+}
 
 export function hasSeenWelcome(): boolean {
   try {
@@ -31,4 +40,15 @@ export function setLastVisitedTripId(tripId: string) {
   } catch {
     /* 위와 동일한 이유로 무시 */
   }
+}
+
+export function getConsentSettings(): ConsentSettings | null {
+  try {
+    const value = localStorage.getItem(CONSENT_KEY);
+    return value ? JSON.parse(value) as ConsentSettings : null;
+  } catch { return null; }
+}
+
+export function saveConsentSettings(settings: ConsentSettings) {
+  localStorage.setItem(CONSENT_KEY, JSON.stringify(settings));
 }

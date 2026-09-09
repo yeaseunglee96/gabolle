@@ -16,11 +16,12 @@ async function main() {
     const longitude = Math.round(visit.longitude * 200) / 200;
     await prisma.visitVerification.update({ where: { id: visit.id }, data: { latitude, longitude, gridCell: `${latitude.toFixed(3)}:${longitude.toFixed(3)}`, coordinatesSanitizedAt: now } });
   }
+  const deletedLocationSignals = (await prisma.locationSignal.deleteMany({ where: { deleteAfter: { lte: now } } })).count;
   let deletedEvents = 0;
   for (const [topic, cutoff] of Object.entries(eventCutoffs)) deletedEvents += (await prisma.eventOutbox.deleteMany({ where: { topic, occurredAt: { lt: cutoff } } })).count;
   const expiredSessions = await prisma.anonymousSession.findMany({ where: { expiresAt: { lt: now }, tokenHash: { not: { startsWith: "expired:" } } }, select: { id: true } });
   for (const session of expiredSessions) await prisma.anonymousSession.update({ where: { id: session.id }, data: { tokenHash: `expired:${session.id}` } });
-  console.log(JSON.stringify({ sanitizedVisits: visits.length, deletedEvents, expiredSessions: expiredSessions.length }));
+  console.log(JSON.stringify({ sanitizedVisits: visits.length, deletedLocationSignals, deletedEvents, expiredSessions: expiredSessions.length }));
 }
 
 main().finally(() => prisma.$disconnect());

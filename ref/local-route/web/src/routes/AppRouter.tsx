@@ -1,4 +1,5 @@
-import { Navigate, Route, Routes, useParams, useSearchParams } from "react-router-dom";
+import { useLayoutEffect } from "react";
+import { Navigate, Outlet, Route, Routes, useLocation, useParams, useSearchParams } from "react-router-dom";
 import { AppShell } from "./AppShell";
 
 import { HomePage } from "../pages/HomePage";
@@ -6,6 +7,7 @@ import { OnboardingPage } from "../pages/OnboardingPage";
 import { WelcomePage } from "../pages/WelcomePage";
 import { AuthPage } from "../pages/auth/AuthPage";
 import { PlanWizardPage } from "../pages/PlanWizardPage";
+import { NowPage } from "../pages/NowPage";
 import { GeneratingPage } from "../pages/GeneratingPage";
 import { InviteAcceptPage } from "../pages/InviteAcceptPage";
 import { NotFoundPage } from "../pages/NotFoundPage";
@@ -26,7 +28,7 @@ import { TripNavigatePage } from "../pages/trip/TripNavigatePage";
 import { PlaceDetailPage } from "../pages/place/PlaceDetailPage";
 import { PlaceReviewsPage } from "../pages/place/PlaceReviewsPage";
 
-import { StoryFeedPage } from "../pages/story/StoryFeedPage";
+import { StoryFeedVibePage } from "../pages/story/StoryFeedVibePage";
 import { StoryComposePage } from "../pages/story/StoryComposePage";
 import { StoryDetailPage } from "../pages/story/StoryDetailPage";
 import { UserProfilePage } from "../pages/user/UserProfilePage";
@@ -44,12 +46,32 @@ import { PrivacyPage } from "../pages/legal/PrivacyPage";
 import { OpenSourcePage } from "../pages/legal/OpenSourcePage";
 
 import { paths } from "./paths";
-import { getLastVisitedTripId, hasSeenWelcome } from "../utils/visitor";
+import { getConsentSettings, getLastVisitedTripId, hasSeenWelcome } from "../utils/visitor";
+import { getStoredAccount } from "../api/client";
 
 /** /s/:slug 라우트에서 slug 를 읽어 기존 화면에 넘긴다. */
 function SharedItineraryRoute() {
   const { slug = "" } = useParams();
   return <SharedItineraryPage slug={slug} />;
+}
+
+function RequireAccount() {
+  if (!getStoredAccount()) return <Navigate to={paths.login()} replace />;
+  if (!getConsentSettings()) return <Navigate to={paths.onboarding()} replace />;
+  return <Outlet />;
+}
+
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useLayoutEffect(() => {
+    if ("scrollRestoration" in window.history) window.history.scrollRestoration = "manual";
+    const reset = () => window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    reset();
+    const frame = window.requestAnimationFrame(reset);
+    const timer = window.setTimeout(reset, 120);
+    return () => { window.cancelAnimationFrame(frame); window.clearTimeout(timer); };
+  }, [pathname]);
+  return null;
 }
 
 /**
@@ -59,6 +81,7 @@ function SharedItineraryRoute() {
  */
 function LegacyQueryRedirect() {
   const [searchParams] = useSearchParams();
+  const account = getStoredAccount();
 
   const share = searchParams.get("share");
   if (share) return <Navigate to={paths.share(share)} replace />;
@@ -79,6 +102,8 @@ function LegacyQueryRedirect() {
   }
 
   // 재방문 사용자(진행 중인 일정이 있음)는 홈/웰컴 화면을 건너뛰고 자신의 일정으로 바로 들어간다.
+  if (!account) return <Navigate to={hasSeenWelcome() ? paths.signup() : paths.welcome()} replace />;
+  if (!getConsentSettings()) return <Navigate to={paths.onboarding()} replace />;
   const lastTripId = getLastVisitedTripId();
   if (lastTripId) return <Navigate to={paths.tripOverview(lastTripId)} replace />;
 
@@ -95,7 +120,7 @@ function LegacyQueryRedirect() {
  */
 export function AppRouter() {
   return (
-    <Routes>
+    <><ScrollToTop /><Routes>
       <Route element={<AppShell />}>
         <Route path="/" element={<LegacyQueryRedirect />} />
         <Route path="/welcome" element={<WelcomePage />} />
@@ -103,9 +128,11 @@ export function AppRouter() {
         <Route path="/login" element={<AuthPage mode="login" />} />
         <Route path="/signup" element={<AuthPage mode="signup" />} />
 
-        <Route path="/plan" element={<Navigate to={paths.plan("basic")} replace />} />
-        <Route path="/plan/:step" element={<PlanWizardPage />} />
-        <Route path="/generating/:tripId" element={<GeneratingPage />} />
+        <Route element={<RequireAccount />}>
+          <Route path="/plan" element={<Navigate to={paths.plan("basic")} replace />} />
+          <Route path="/plan/:step" element={<PlanWizardPage />} />
+          <Route path="/now" element={<NowPage />} />
+          <Route path="/generating/:tripId" element={<GeneratingPage />} />
 
         <Route path="/trips/:tripId" element={<TripLayout />}>
           <Route index element={<Navigate to="overview" replace />} />
@@ -122,10 +149,10 @@ export function AppRouter() {
           <Route path="collaborate" element={<TripCollaboratePage />} />
         </Route>
 
-        <Route path="/places/:placeId" element={<PlaceDetailPage />} />
-        <Route path="/places/:placeId/reviews" element={<PlaceReviewsPage />} />
+          <Route path="/places/:placeId" element={<PlaceDetailPage />} />
+          <Route path="/places/:placeId/reviews" element={<PlaceReviewsPage />} />
 
-        <Route path="/stories" element={<StoryFeedPage />} />
+        <Route path="/stories" element={<StoryFeedVibePage />} />
         <Route path="/stories/new" element={<StoryComposePage />} />
         <Route path="/stories/:storyId" element={<StoryDetailPage />} />
         <Route path="/users/:userId" element={<UserProfilePage />} />
@@ -133,7 +160,8 @@ export function AppRouter() {
         <Route path="/me" element={<Navigate to={paths.myTrips()} replace />} />
         <Route path="/me/trips" element={<MyTripsPage />} />
         <Route path="/me/local" element={<MyLocalPage />} />
-        <Route path="/me/settings" element={<SettingsPage />} />
+          <Route path="/me/settings" element={<SettingsPage />} />
+        </Route>
 
         <Route path="/s/:slug" element={<SharedItineraryRoute />} />
         <Route path="/invite/:inviteToken" element={<InviteAcceptPage />} />
@@ -150,6 +178,6 @@ export function AppRouter() {
 
         <Route path="*" element={<NotFoundPage />} />
       </Route>
-    </Routes>
+    </Routes></>
   );
 }

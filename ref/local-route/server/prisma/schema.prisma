@@ -80,6 +80,7 @@ model AnonymousSession {
   following          Follow[]          @relation("Follower")
   followers          Follow[]          @relation("Followee")
   accountOwner       User?             @relation("UserOwnerSession")
+  routeExecutions    RouteExecution[]
 }
 
 model User {
@@ -100,8 +101,23 @@ model User {
   ownerSession   AnonymousSession @relation("UserOwnerSession", fields: [ownerSessionId], references: [id])
   ownerSessionId String           @unique
   sessions       AccountSession[]
+  consents       UserConsent[]
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
+}
+
+model UserConsent {
+  id            String   @id @default(cuid())
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId        String
+  category      String   // BEHAVIOR | SENSITIVE | PRECISE_LOCATION
+  granted       Boolean  @default(false)
+  policyVersion String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([userId, category])
+  @@index([userId, updatedAt])
 }
 
 model AccountSession {
@@ -304,6 +320,9 @@ model Trip {
   dayStart      String   @default("09:30")
   dayEnd        String   @default("20:00")
   maxWalkingKm  Float    @default(8)
+  mobilityProfile String @default("STANDARD") // STANDARD | WHEELCHAIR | STROLLER | HEAVY_LUGGAGE
+  avoidStairs   Boolean  @default(false)
+  shadePriority String   @default("MEDIUM") // LOW | MEDIUM | HIGH
   recommendationMode String @default("LOCAL") // ESSENTIAL | LOCAL | PET_SAFE
   lodgingPlaceId String?
   lodgingPlace   Place?   @relation("TripLodging", fields: [lodgingPlaceId], references: [id])
@@ -315,6 +334,41 @@ model Trip {
   itineraries   Itinerary[]
   jobs          ItineraryJob[]
   members       TripMember[]
+  routeExecutions RouteExecution[]
+}
+
+model RouteExecution {
+  id           String            @id @default(cuid())
+  trip         Trip              @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  tripId       String
+  session      AnonymousSession  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  sessionId    String
+  status       String            @default("ACTIVE") // ACTIVE | PAUSED | ENDED
+  transport    String            // TRANSIT | CAR
+  startedAt    DateTime          @default(now())
+  pausedAt     DateTime?
+  endedAt      DateTime?
+  lastSignalAt DateTime?
+  signals      LocationSignal[]
+
+  @@index([tripId, status])
+  @@index([sessionId, startedAt])
+}
+
+model LocationSignal {
+  id               String          @id @default(cuid())
+  routeExecution   RouteExecution  @relation(fields: [routeExecutionId], references: [id], onDelete: Cascade)
+  routeExecutionId String
+  latitude         Float
+  longitude        Float
+  accuracy         Float
+  heading          Float?
+  capturedAt       DateTime
+  deleteAfter      DateTime
+  createdAt        DateTime        @default(now())
+
+  @@index([routeExecutionId, capturedAt])
+  @@index([deleteAfter])
 }
 
 model ItineraryJob {
