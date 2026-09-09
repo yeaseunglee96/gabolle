@@ -395,8 +395,12 @@ version:
 #    돈다. 어느 단계를 올릴지는 스케줄마다 변수 PROMOTE_STEP 으로 준다:
 #
 #      Settings → CI/CD → Schedules 에서 둘을 만든다
-#        매일  0 19 * * 1-5   PROMOTE_STEP = dev-to-part
-#        매주  0 19 * * 5     PROMOTE_STEP = part-to-main
+#        매일  0 9 * * *     PROMOTE_STEP = dev-to-part
+#        매주  0 9 * * 1     PROMOTE_STEP = part-to-main
+#
+#      🔴 2026-09-09 정정 — 위 두 줄은 `0 19 * * 1-5` · `0 19 * * 5` 로
+#         적혀 있었는데 실제 스케줄은 **매일 09:00 KST** 과 **월요일 09:00 KST** 다.
+#         시각을 문서에서 읽은 사람은 "저녁에 돌겠구나" 하고 기다리게 된다.
 #
 # 🔴 봇도 정족수를 통과해야 머지한다. 게이트가 미달(2)이면 머지 호출 자체가
 #    일어나지 않고, 잡은 초록으로 끝난다 — "아직 표가 모자람" 은 고장이 아니다.
@@ -424,4 +428,15 @@ promote:
       fi
     - npx -y axmap-cli@$AXMAP_VERSION promote --step "$PROMOTE_STEP"
   rules:
-    - if: $CI_PIPELINE_SOURCE == "schedule"
+    # 🔴 PROMOTE_STEP 이 있는 스케줄에서만 돈다.
+    #
+    #    예전에는 "스케줄이면 돈다" 였다. 그런데 스케줄은 승격만 쓰는 것이 아니다 —
+    #    이 브랜치에는 depscan(의존성 취약점 스캔) 스케줄이 걸려 있고,
+    #    그것이 깨울 때마다 이 잡도 같이 일어나 PROMOTE_STEP 이 없으니
+    #    위 script 가 의도대로 exit 1 을 냈다. 그래서 **매일 09:00 에 빨개졌다**
+    #    (실측 2026-09-09, 파이프라인 184177).
+    #
+    #    script 의 "무엇을 올릴지 추측하지 않는다" 는 맞다. 너무 넓었던 것은 rule 이다.
+    #    같은 고침이 common/dev 에는 2026-09-01 에 들어갔고(S15P21E201-529),
+    #    front/dev 에만 안 내려와 있었다.
+    - if: $CI_PIPELINE_SOURCE == "schedule" && $PROMOTE_STEP
