@@ -40,6 +40,7 @@ export function validateTripBasics(draft: PlanDraft, today = localToday()): Trip
   if (!Number.isInteger(draft.children) || draft.children < 0) errors.children = '아동 인원은 0명 이상이어야 해요.';
   if (draft.adults + draft.children < 1) errors.travelers = '성인과 아동을 합해 최소 1명이 필요해요.';
   if (!draft.origin.trim()) errors.origin = '출발지를 입력해 주세요.';
+  else if (draft.originLat === null || draft.originLng === null) errors.origin = '목록에서 출발지를 선택해 좌표를 확인해 주세요.';
   if (draft.budgetKrw === null || !Number.isInteger(draft.budgetKrw) || draft.budgetKrw < 10000) errors.budgetKrw = '총예산은 최소 10,000원이어야 해요.';
   else if (draft.budgetKrw % 10000 !== 0) errors.budgetKrw = '총예산은 10,000원 단위로 입력해 주세요.';
   const start = minutes(draft.dayStartTime); const end = minutes(draft.dayEndTime);
