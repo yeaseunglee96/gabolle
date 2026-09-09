@@ -171,6 +171,35 @@ export async function loadUserStories(userId: string, accessToken: string | null
   }
 }
 
+// jaehyeon 님 계약(S15P21E201-254): POST /api/v1/stories/{storyId}/reports.
+// 처음 신고든 같은 사람의 중복 신고든 서버는 항상 204를 준다 — "이미 신고했습니다" 같은
+// 오류로 갈라 보여주지 않는다(신고 여부가 새어 나가지 않게 하려는 의도). 그래서 화면도
+// 성공/실패만 가르고, 신고를 받으면 서버가 그 자리에서 글을 검토 대기로 옮겨 즉시
+// 비노출하므로 화면에서는 카드를 낙관적으로 지우기만 하면 된다.
+export type StoryReportReason = 'PRIVACY' | 'OFFENSIVE' | 'SPAM' | 'OTHER';
+
+export const REPORT_REASON_LABEL: Record<StoryReportReason, [string, string]> = {
+  PRIVACY: ['개인정보 노출', 'Personal information exposed'],
+  OFFENSIVE: ['불쾌한 내용', 'Offensive content'],
+  SPAM: ['스팸', 'Spam'],
+  OTHER: ['기타', 'Other'],
+};
+
+export type ReportResult = { state: 'success' } | FeedFailure;
+
+export async function reportStory(storyId: string, reason: StoryReportReason, detail: string | undefined, accessToken: string | null): Promise<ReportResult> {
+  try {
+    await apiRequest<void>(`/api/v1/stories/${encodeURIComponent(storyId)}/reports`, {
+      method: 'POST',
+      accessToken,
+      body: { reason, detail: reason === 'OTHER' ? detail : undefined },
+    });
+    return { state: 'success' };
+  } catch (error) {
+    return failure(error);
+  }
+}
+
 export type FollowResult = { state: 'success'; following: boolean; followerCount: number; followingCount: number } | FeedFailure;
 
 export async function setFollowing(userId: string, following: boolean, accessToken: string | null): Promise<FollowResult> {
