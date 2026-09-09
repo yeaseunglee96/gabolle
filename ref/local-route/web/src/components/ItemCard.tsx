@@ -1,7 +1,6 @@
-import { useEffect, useState } from "react";
-import type { ItineraryItemOutput, PlaceImageMatch } from "../types";
-import { getPlaceImage } from "../api/client";
-import { SpeakModal } from "./SpeakModal";
+import { useState } from "react";
+import type { ItineraryItemOutput } from "../types";
+import { PlacePhoto } from "./PlacePhoto";
 
 const CATEGORY_META: Record<string, { label: string; color: string }> = {
   TOURIST: { label: "관광지", color: "#b9d9f4" }, RESTAURANT: { label: "식당", color: "#d8cff4" },
@@ -23,11 +22,8 @@ interface Props {
 
 export function ItemCard({ item, pinned, busy, onTogglePin, onExclude, onReplace, onSelect, language, userAllergies = [], dietType = "NONE" }: Props) {
   const [expanded, setExpanded] = useState(false);
-  const [showSpeakModal, setShowSpeakModal] = useState(false);
-  const [searchedImage, setSearchedImage] = useState<PlaceImageMatch | null>(null);
-  const [imageFailed, setImageFailed] = useState(false);
   const meta = CATEGORY_META[item.category] ?? { label: item.category, color: "#d8dde5" };
-  const sourceLabel = item.dataSource === "TOURAPI" ? "한국관광공사 기초 데이터" : "LOCAL ROUTE 초기 조사 데이터";
+  const sourceLabel = item.dataSource === "TOURAPI" ? "한국관광공사 기초 데이터" : "GABOLLE 로컬 조사 데이터";
   const en = language === "EN" || (!language && document.documentElement.lang === "en");
   const mapUrl = `https://map.kakao.com/link/to/${encodeURIComponent(item.nameKo)},${item.lat},${item.lng}`;
   const hasKakaoReviews = item.category === "RESTAURANT" && item.kakaoRating !== null && item.kakaoReviewCount !== null && !!item.kakaoReviewSource;
@@ -39,19 +35,9 @@ export function ItemCard({ item, pinned, busy, onTogglePin, onExclude, onReplace
   const effectiveAllergies = userAllergies.length ? userAllergies : JSON.parse(document.documentElement.dataset.allergies ?? "[]");
   const effectiveDiet = dietType !== "NONE" ? dietType : document.documentElement.dataset.diet ?? "NONE";
   const needsFoodCheck = ["RESTAURANT", "CAFE"].includes(item.category) && (effectiveAllergies.length > 0 || effectiveDiet !== "NONE") && item.allergens.length === 0 && item.dietOptions.length === 0;
-  useEffect(() => {
-    setSearchedImage(null); setImageFailed(false);
-    if (item.imageUrl || !["TOURIST", "RESTAURANT"].includes(item.category)) return;
-    let cancelled = false;
-    getPlaceImage(item.placeId).then((match) => { if (!cancelled && match.imageUrl) setSearchedImage(match); }).catch(() => undefined);
-    return () => { cancelled = true; };
-  }, [item.placeId, item.imageUrl, item.category]);
-  const displayImage = imageFailed ? null : item.imageUrl ?? searchedImage?.imageUrl ?? null;
-  const imageProvider = searchedImage?.provider === "NAVER" ? "네이버 이미지" : searchedImage?.provider === "GOOGLE" ? "Google 이미지" : null;
-
   return <article className={`place-card ${pinned ? "pinned" : ""}`} onClick={() => onSelect?.(item)}>
     <div className="place-sequence"><span>{item.seqOrder}</span><time>{item.plannedArrival}</time></div>
-    <div className="place-visual" style={{ backgroundColor: meta.color }}>{displayImage ? <img src={displayImage} alt={en && item.nameEn ? item.nameEn : item.nameKo} onError={() => setImageFailed(true)} /> : <span className="place-placeholder" aria-hidden="true">{categoryLabel.slice(0, 1)}</span>}{imageProvider && searchedImage?.sourceUrl && displayImage && <a className="image-source-badge" href={searchedImage.sourceUrl} target="_blank" rel="noreferrer" onClick={(event) => event.stopPropagation()} aria-label={`${item.nameKo} 사진 출처 열기`}>{imageProvider}</a>}</div>
+    <div className="place-visual" style={{ backgroundColor: meta.color }}><PlacePhoto placeId={item.placeId} imageUrl={item.imageUrl} alt={en && item.nameEn ? item.nameEn : item.nameKo} category={item.category} showSource /></div>
     <div className="place-content">
       <div className="place-kicker"><span>{categoryLabel}</span><span>{en ? `Stay ${item.stayMinutes} min` : `체류 ${item.stayMinutes}분`}</span>{pinned && <span className="pin-badge">{en ? "Pinned" : "고정됨"}</span>}</div>
       <h3>{en && item.nameEn ? `${item.nameKo} (${item.nameEn})` : item.nameKo}</h3>
@@ -86,9 +72,6 @@ export function ItemCard({ item, pinned, busy, onTogglePin, onExclude, onReplace
         <div className="taxi-card"><span>{en ? "Show this to driver" : "기사님께 보여주세요"}</span><b>{taxiText}</b><button type="button" onClick={(e) => { e.stopPropagation(); navigator.clipboard.writeText(taxiText); }}>{en ? "Copy address" : "주소 복사"}</button></div>
       </div>}
       <div className="place-actions">
-        <button type="button" className="speak-action-btn" onClick={(e) => { e.stopPropagation(); setShowSpeakModal(true); }}>
-          🗣️ {en ? "Speak Korean" : "한국어 말하기"}
-        </button>
         <button type="button" onClick={(e) => { e.stopPropagation(); setExpanded((value) => !value); }} aria-expanded={expanded}>{en ? (expanded ? "Hide Details" : "Evidence & Policy") : (expanded ? "정보 접기" : "근거·정책 보기")}</button>
         <button type="button" onClick={(event) => { event.stopPropagation(); onSelect?.(item); window.setTimeout(() => document.getElementById("route-map")?.scrollIntoView({ behavior: "smooth", block: "center" }), 0); }}>{en ? "Route on Map" : "지도에서 경로 보기"}</button>
         {onTogglePin && <button type="button" disabled={busy} onClick={(e) => { e.stopPropagation(); onTogglePin(item); }}>{pinned ? (en ? "Unpin" : "고정 해제") : (en ? "Pin Place" : "장소 고정")}</button>}
@@ -96,15 +79,6 @@ export function ItemCard({ item, pinned, busy, onTogglePin, onExclude, onReplace
         {onExclude && <button type="button" className="danger-action" disabled={busy || pinned} onClick={(e) => { e.stopPropagation(); onExclude(item); }}>{en ? "Exclude & Recalculate" : "제외 후 재계산"}</button>}
       </div>
 
-      <SpeakModal
-        isOpen={showSpeakModal}
-        onClose={() => setShowSpeakModal(false)}
-        targetCategory={item.category}
-        targetAddress={item.address}
-        targetName={item.nameKo}
-        targetNameEn={item.nameEn}
-        language={language}
-      />
     </div>
   </article>;
 }
@@ -112,7 +86,7 @@ export function ItemCard({ item, pinned, busy, onTogglePin, onExclude, onReplace
 export function TravelSegment({ item, hasCar, language = "KO" }: { item: ItineraryItemOutput; hasCar: boolean; language?: "KO" | "EN" }) {
   if (item.travelMinToNext === null) return null;
   const en = language === "EN";
-  const modeIcon = hasCar ? "🚗" : "🚌";
+  const modeIcon = hasCar ? "CAR" : "BUS";
   const modeLabel = en ? (hasCar ? "Drive" : "Public transit") : (hasCar ? "자차" : "대중교통");
   return (
     <div className="travel-segment">

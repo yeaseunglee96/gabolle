@@ -1,4 +1,4 @@
-import type { ActivitySpot, BookingOption, CourseCategory, CreateTripRequest, EmbeddedRoute, Festival, ItineraryJob, ItineraryOutput, LocationSearchResult, PaceForecast, PlaceAlternative, PlaceImageMatch, PlaceRecord, ReplanResult, RhythmProfile, SharedItinerary, SouvenirShop, SponsoredPlacement, StoryRecord, TaxiCard, WeatherForecast } from "../types";
+import type { ActivitySpot, BookingOption, CourseCategory, CreateTripRequest, EmbeddedRoute, Festival, ItineraryJob, ItineraryOutput, LocationSearchResult, NowRecommendation, PaceForecast, PlaceAlternative, PlaceImageMatch, PlaceRecord, ReplanResult, RhythmProfile, SharedItinerary, SouvenirShop, SponsoredPlacement, StoryRecord, TaxiCard, WeatherForecast } from "../types";
 
 /**
  * 백엔드가 떠 있지 않으면 fetch 는 TypeError("Failed to fetch") 로 실패한다.
@@ -17,21 +17,42 @@ export class ApiResponseError extends Error {
 }
 
 const rawFetch = globalThis.fetch.bind(globalThis);
+
+/**
+ * 브라우저 UUID는 HTTPS 또는 localhost 같은 보안 컨텍스트에서만 제공될 수 있다.
+ * 같은 데모를 사설 IP로 열어도 일정 생성이 멈추지 않도록, 가능한 경우 난수 바이트로
+ * RFC 4122 형태의 식별자를 만들고 마지막 수단으로 시각·난수를 조합한다.
+ */
+function clientEventId(): string {
+  if (typeof globalThis.crypto?.randomUUID === "function") return globalThis.crypto.randomUUID();
+  if (typeof globalThis.crypto?.getRandomValues === "function") {
+    const bytes = globalThis.crypto.getRandomValues(new Uint8Array(16));
+    bytes[6] = (bytes[6] & 0x0f) | 0x40;
+    bytes[8] = (bytes[8] & 0x3f) | 0x80;
+    const hex = [...bytes].map((value) => value.toString(16).padStart(2, "0")).join("");
+    return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
+  }
+  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}-${Math.random().toString(36).slice(2)}`;
+}
 // 아래 fetch 는 이 모듈 스코프에서 전역 fetch 를 가린다(호출부 수정 불필요).
 async function fetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
   try {
-    return await rawFetch(input, init);
+    const versionedInput = typeof input === "string" && input.startsWith("/api/") && !input.startsWith("/api/v1/")
+      ? input.replace("/api/", "/api/v1/")
+      : input;
+    return await rawFetch(versionedInput, init);
   } catch {
     throw new ApiUnavailableError();
   }
 }
 
 async function handle<T>(res: Response): Promise<T> {
+  const body = await res.json().catch(() => ({}));
   if (!res.ok) {
-    const body = await res.json().catch(() => ({}));
-    throw new ApiResponseError(body.message ?? `요청 실패 (${res.status})`, res.status);
+    const details = body?.error?.details ?? body;
+    throw new ApiResponseError(details?.message ?? body?.message ?? `요청 실패 (${res.status})`, res.status);
   }
-  return res.json() as Promise<T>;
+  return (body && typeof body === "object" && "data" in body ? body.data : body) as T;
 }
 
 export async function createTrip(payload: CreateTripRequest): Promise<{ tripId: string }> {
@@ -50,7 +71,7 @@ export async function getMyTrips() { return (await handle<{ trips: MyTripSummary
 export async function generateItinerary(tripId: string, onProgress?: (job: ItineraryJob) => void, mode?: string): Promise<ItineraryOutput> {
   const res = await fetch(`/api/trips/${tripId}/itineraries:generate`, {
     method: "POST",
-    headers: { "Idempotency-Key": crypto.randomUUID(), ...(await authHeaders()) },
+    headers: { "Idempotency-Key": clientEventId(), ...(await authHeaders()) },
   });
   const created = await handle<{ jobId: string; streamUrl: string; statusUrl: string }>(res);
   await waitForJob(created, onProgress);
@@ -60,36 +81,38 @@ export async function generateItinerary(tripId: string, onProgress?: (job: Itine
 function waitForJob(created: { jobId: string; streamUrl: string; statusUrl: string }, onProgress?: (job: ItineraryJob) => void) {
   return new Promise<void>((resolve, reject) => {
     let settled = false;
-    let polling = false;
     const finish = (job: ItineraryJob) => {
       onProgress?.(job);
       if (job.status === "DONE") { settled = true; resolve(); return true; }
       if (job.status === "FAILED") { settled = true; reject(new Error(job.errorMessage ?? "일정 생성에 실패했습니다.")); return true; }
       return false;
     };
-    const source = new EventSource(created.streamUrl);
-    source.addEventListener("progress", (event) => {
-      const job = JSON.parse((event as MessageEvent).data) as ItineraryJob;
-      if (finish(job)) source.close();
-    });
-    source.onerror = () => {
-      source.close();
-      if (settled || polling) return;
-      polling = true;
-      const poll = async () => {
-        try {
-          const job = await handle<ItineraryJob>(await fetch(created.statusUrl));
-          if (!finish(job)) window.setTimeout(poll, 2_000);
-        } catch (error) { reject(error); }
-      };
-      void poll();
+    const poll = async () => {
+      if (settled) return;
+      try {
+        const job = await handle<ItineraryJob>(await fetch(created.statusUrl, { headers: await authHeaders() }));
+        if (!finish(job)) window.setTimeout(poll, 1_500);
+      } catch (error) { settled = true; reject(error); }
     };
+    void poll();
   });
 }
 
 export async function getItinerary(tripId: string, mode?: string): Promise<ItineraryOutput> {
   const res = await fetch(`/api/trips/${tripId}/itinerary${mode ? `?mode=${encodeURIComponent(mode)}` : ""}`, { headers: await authHeaders() });
   return handle(res);
+}
+
+export async function startRouteExecution(tripId: string, transport: "TRANSIT" | "CAR") {
+  return handle<{ executionId: string; status: "ACTIVE" }>(await fetch("/api/route-executions", { method: "POST", headers: { "Content-Type": "application/json", ...(await authHeaders()) }, body: JSON.stringify({ tripId, transport }) }));
+}
+
+export async function updateRouteExecution(executionId: string, status: "ACTIVE" | "PAUSED" | "ENDED") {
+  return handle<{ executionId: string; status: string }>(await fetch(`/api/route-executions/${executionId}`, { method: "PATCH", headers: { "Content-Type": "application/json", ...(await authHeaders()) }, body: JSON.stringify({ status }) }));
+}
+
+export async function sendLocationSignals(executionId: string, signals: Array<{ latitude: number; longitude: number; accuracy: number; heading: number | null; capturedAt: string }>) {
+  return handle<{ accepted: number }>(await fetch(`/api/route-executions/${executionId}/location-signals/batch`, { method: "POST", headers: { "Content-Type": "application/json", ...(await authHeaders()) }, body: JSON.stringify({ signals }) }));
 }
 
 export async function updateTripPreferences(
@@ -174,8 +197,15 @@ export async function searchLocations(query: string): Promise<LocationSearchResu
   return (await handle<{ locations: LocationSearchResult[] }>(await fetch(`/api/locations/search?query=${encodeURIComponent(query)}`))).locations;
 }
 
-export async function getPlaceImage(placeId: string): Promise<PlaceImageMatch> {
-  return handle(await fetch(`/api/places/${encodeURIComponent(placeId)}/image`));
+export async function getNowRecommendations(query: string, hours: number, indoor: boolean) {
+  const params = new URLSearchParams({ query, hours: String(hours), indoor: String(indoor) });
+  return handle<{ origin: LocationSearchResult; generatedAt: string; recommendations: NowRecommendation[] }>(
+    await fetch(`/api/recommendations/now?${params}`, { headers: await authHeaders() })
+  );
+}
+
+export async function getPlaceImage(placeId: string, fallback = false): Promise<PlaceImageMatch> {
+  return handle(await fetch(`/api/places/${encodeURIComponent(placeId)}/image${fallback ? "?fallback=1" : ""}`));
 }
 
 export async function getEmbeddedRoute(params: { startLat: number; startLng: number; endLat: number; endLng: number; mode: "TRANSIT" | "CAR"; lang?: "KO" | "EN" }): Promise<EmbeddedRoute> {
@@ -192,7 +222,7 @@ function clientSessionId() {
   const key = "local-route-client-session";
   const existing = localStorage.getItem(key);
   if (existing) return existing;
-  const created = crypto.randomUUID();
+  const created = clientEventId();
   localStorage.setItem(key, created);
   return created;
 }
@@ -222,7 +252,7 @@ export function getStoredAccount(): AccountUser | null {
   try { const value = localStorage.getItem(accountKey); return value ? JSON.parse(value) as AccountUser : null; } catch { return null; }
 }
 
-export async function registerAccount(payload: { name: string; email: string; password: string; locale: "KO" | "EN" }) {
+export async function registerAccount(payload: { name: string; email: string; password: string; dateOfBirth: string; locale: "KO" | "EN" }) {
   const res = await fetch("/api/auth/register", { method: "POST", headers: { "Content-Type": "application/json", ...(await authHeaders(payload.locale)) }, body: JSON.stringify(payload) });
   const result = await handle<{ token: string; user: AccountUser }>(res);
   saveAccount(result.token, result.user);
@@ -234,6 +264,33 @@ export async function loginAccount(payload: { email: string; password: string })
   const result = await handle<{ token: string; user: AccountUser }>(res);
   saveAccount(result.token, result.user);
   return result.user;
+}
+
+export async function loginWithDemoProvider(provider: "GOOGLE" | "NAVER" | "KAKAO", locale: "KO" | "EN") {
+  const res = await fetch("/api/auth/oauth/demo", { method: "POST", headers: { "Content-Type": "application/json", ...(await authHeaders(locale)) }, body: JSON.stringify({ provider, locale }) });
+  const result = await handle<{ token: string; user: AccountUser }>(res);
+  saveAccount(result.token, result.user);
+  return result.user;
+}
+
+export interface AccountConsentSettings {
+  personalizationMode: "EXPLICIT_ONLY" | "BEHAVIOR_ENABLED";
+  behavior: boolean;
+  sensitive: boolean;
+  preciseLocation: boolean;
+  policyVersion: string;
+}
+
+export async function getAccountConsents(): Promise<AccountConsentSettings> {
+  const token = localStorage.getItem(tokenKey);
+  if (!token) throw new Error("로그인이 필요합니다.");
+  return handle(await fetch("/api/auth/me/consents", { headers: { Authorization: `Bearer ${token}` } }));
+}
+
+export async function saveAccountConsents(settings: AccountConsentSettings): Promise<AccountConsentSettings> {
+  const token = localStorage.getItem(tokenKey);
+  if (!token) throw new Error("로그인이 필요합니다.");
+  return handle(await fetch("/api/auth/me/consents", { method: "PUT", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify(settings) }));
 }
 
 export async function logoutAccount() {
@@ -276,7 +333,7 @@ export async function getNightViews(lat: number, lng: number): Promise<ActivityS
 export async function getWeather(date: string): Promise<WeatherForecast> { return handle(await fetch(`/api/weather?region=BUSAN&date=${date}`)); }
 export async function createShare(itineraryId: string) { return handle<{ shareSlug: string; url: string; expiresAt: string }>(await fetch(`/api/itineraries/${itineraryId}/share`, { method: "POST", headers: { "Content-Type": "application/json", ...(await authHeaders()) }, body: JSON.stringify({ visibility: "LINK", expiresInDays: 30 }) })); }
 export async function getSharedItinerary(slug: string): Promise<SharedItinerary> { return handle(await fetch(`/api/s/${slug}`)); }
-export async function inviteCompanion(tripId: string, role: "EDITOR" | "VIEWER") { return handle<{ inviteUrl: string; expiresAt: string }>(await fetch(`/api/trips/${tripId}/members/invite`, { method: "POST", headers: { "Content-Type": "application/json", ...(await authHeaders()) }, body: JSON.stringify({ role, expiresInDays: 7 }) })); }
+export async function inviteCompanion(tripId: string) { return handle<{ inviteUrl: string; expiresAt: string }>(await fetch(`/api/trips/${tripId}/members/invite`, { method: "POST", headers: { "Content-Type": "application/json", ...(await authHeaders()) }, body: JSON.stringify({ expiresInDays: 7 }) })); }
 export async function acceptInvite(inviteToken: string) { return handle<{ tripId: string; role: string }>(await fetch(`/api/collaboration/invites/${inviteToken}/accept`, { method: "POST", headers: await authHeaders() })); }
 export async function getCollaboration(itineraryId: string) { return handle<{ version: number; myRole: string; members: unknown[] }>(await fetch(`/api/itineraries/${itineraryId}/collaboration`, { headers: await authHeaders() })); }
 export async function createStory(payload: { placeId: string; itineraryItemId?: string; content: string; images: string[]; visibility: string; publishMode: "NOW" | "AFTER_TRIP" }) { return handle<{ storyId: string; delayed: boolean; exifRemoved: boolean }>(await fetch("/api/stories", { method: "POST", headers: { "Content-Type": "application/json", ...(await authHeaders()) }, body: JSON.stringify(payload) })); }
@@ -292,7 +349,7 @@ export async function getSponsoredPlacements(context: { mode: string; language: 
 }
 
 export async function trackAd(campaignId: string, eventType: "impressions" | "clicks") {
-  return handle(await fetch(`/api/ads/${campaignId}/${eventType}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ eventId: crypto.randomUUID(), clientSessionId: clientSessionId() }) }));
+  return handle(await fetch(`/api/ads/${campaignId}/${eventType}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ eventId: clientEventId(), clientSessionId: clientSessionId() }) }));
 }
 
 export async function getBookingOptions(placeId: string): Promise<BookingOption[]> {
@@ -300,5 +357,5 @@ export async function getBookingOptions(placeId: string): Promise<BookingOption[
 }
 
 export async function startBooking(partnerId: string, tripId: string) {
-  return handle<{ bookingId: string; bookingUrl: string; disclosure: string }>(await fetch("/api/bookings/start", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ partnerId, tripId, eventId: crypto.randomUUID(), clientSessionId: clientSessionId() }) }));
+  return handle<{ bookingId: string; bookingUrl: string; disclosure: string }>(await fetch("/api/bookings/start", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ partnerId, tripId, eventId: clientEventId(), clientSessionId: clientSessionId() }) }));
 }

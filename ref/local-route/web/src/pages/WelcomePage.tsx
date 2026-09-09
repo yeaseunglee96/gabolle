@@ -8,40 +8,40 @@ import { getStoredAccount, logoutAccount, type AccountUser } from "../api/client
 
 const FEATURES = [
   {
-    titleKo: "맞춤 일정 생성",
-    titleEn: "Custom Itinerary",
-    bodyKo: "예산 · 이동시간 · 영업시간",
-    bodyEn: "Budget · Travel Time · Hours",
+    titleKo: "나에게 맞는 부산",
+    titleEn: "Busan, made for you",
+    bodyKo: "취향 · 제약 · 여행 맥락을 함께 반영",
+    bodyEn: "Taste · Needs · Travel context",
   },
   {
-    titleKo: "로컬 추천 코스",
-    titleEn: "Local Recommendations",
-    bodyKo: "관광 코스 · 로컬 코스",
-    bodyEn: "Essential Sights · Hidden Local",
+    titleKo: "실행 가능한 일정",
+    titleEn: "A trip you can follow",
+    bodyKo: "영업시간 · 예산 · 이동 동선을 한 번에",
+    bodyEn: "Hours · Budget · Routes",
   },
   {
-    titleKo: "외국인 여행 도구",
-    titleEn: "Traveler Tools",
-    bodyKo: "메뉴 번역 · 음성 통역 · 사투리",
-    bodyEn: "Menu Translation · Voice · Dialect",
+    titleKo: "지금 갈 곳",
+    titleEn: "Where to go now",
+    bodyKo: "현재 위치 · 시간 · 날씨에 맞춰 추천",
+    bodyEn: "Location · Time · Weather",
   },
   {
-    titleKo: "실시간 내비게이션",
-    titleEn: "Live Navigation",
-    bodyKo: "GPS 안내 · 택시 카드",
-    bodyEn: "GPS Guide · Taxi Card",
+    titleKo: "이유가 보이는 추천",
+    titleEn: "Recommendations with reasons",
+    bodyKo: "로컬성 · 새로움 · 주의사항을 투명하게",
+    bodyEn: "Local fit · Novelty · Warnings",
   },
   {
-    titleKo: "동행 & 기록",
-    titleEn: "Share & Record",
-    bodyKo: "일정 공유 · 공동 편집",
-    bodyEn: "Share · Co-edit",
+    titleKo: "함께 만드는 여행",
+    titleEn: "Plan together",
+    bodyKo: "초대 · 공동 편집 · 버전 충돌 보호",
+    bodyEn: "Invite · Co-edit · Version safety",
   },
   {
-    titleKo: "여행 준비 지원",
-    titleEn: "Trip Prep",
-    bodyKo: "날씨 · 경비 · 예약",
-    bodyEn: "Weather · Costs · Booking",
+    titleKo: "여행 뒤에도 이어지는 취향",
+    titleEn: "A taste profile that grows",
+    bodyKo: "저장 · 교체 · 방문을 다음 추천에 반영",
+    bodyEn: "Save · Replace · Visit",
   },
 ];
 
@@ -63,7 +63,7 @@ export function WelcomePage() {
 
   const start = () => {
     markWelcomeSeen();
-    navigate(paths.home(), { replace: true });
+    navigate(account ? paths.home() : paths.signup(), { replace: true });
   };
 
   return (
@@ -110,11 +110,11 @@ export function WelcomePage() {
       </section>
 
       <section className="landing-hero onboarding-hero">
-        <span className="section-eyebrow">{isEn ? "LOCAL-RECOMMENDED TRAVEL" : "현지인 추천 기반 여행"}</span>
-        <h1>{isEn ? "Enjoy Busan, recommended by locals" : "현지인이 추천해주는 부산을 즐기세요"}</h1>
+        <span className="section-eyebrow">{isEn ? "HYPER-PERSONALIZED BUSAN" : "나만의 부산을 만나는 방법"}</span>
+        <h1>{isEn ? "Busan, shall we go?" : "부산, 가볼래?"}</h1>
         <p>{isEn
-          ? "From planning to communicating on the ground — all in one place."
-          : "일정 계산부터 현지 소통까지, 한 번에 도와드려요."}</p>
+          ? "Find local places that fit you and turn them into a trip you can actually follow."
+          : "내 취향과 조건에 맞는 로컬 장소를 찾고, 실제로 움직일 수 있는 일정으로 완성해요."}</p>
       </section>
 
       <section className="onboarding-features">
@@ -128,9 +128,9 @@ export function WelcomePage() {
 
       <div className="onboarding-cta">
         <button type="button" className="primary-btn" onClick={start}>
-          {isEn ? "Get Started" : "시작하기"}
+          {account ? (isEn ? "Continue" : "내 여행 계속하기") : (isEn ? "Create an account" : "가입하고 시작하기")}
         </button>
-        <small>{isEn ? "No sign-up required · Your trip is saved on this device" : "회원가입 없이 이용할 수 있으며, 여행은 현재 기기에 저장됩니다."}</small>
+        <small>{isEn ? "For travelers aged 14 and over · Korean and English supported" : "만 14세 이상 이용 가능 · 한국어와 영어를 지원합니다."}</small>
       </div>
     </div>
   );

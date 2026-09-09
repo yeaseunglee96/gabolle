@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { getWeather } from "../api/client";
 import type { ItineraryOutput, WeatherForecast } from "../types";
 import type { DashboardTab } from "./Sidebar";
+import { PlacePhoto } from "./PlacePhoto";
 
 const TAB_CARDS: { id: Exclude<DashboardTab, "home">; number: string; title: string; titleEn: string; description: string; descriptionEn: string }[] = [
   { id: "schedule", number: "01", title: "일정과 동선", titleEn: "Itinerary & Route", description: "지도와 날짜별 일정을 함께 확인하고 장소를 교체합니다.", descriptionEn: "Explore map and daily schedule, and swap locations easily." },
@@ -22,14 +23,14 @@ export function OverviewHub({ itinerary, onNavigate }: { itinerary: ItineraryOut
   return <div className="overview-hub">
     <section className="home-welcome-card">
       <div className="home-welcome-copy">
-        <span className="section-eyebrow">MY LOCAL ROUTE</span>
+        <span className="section-eyebrow">MY GABOLLE</span>
         <h2>{en ? "Travel Light,\nDiscover Busan Deeply." : "여행 준비는 가볍게,\n부산은 더 깊게."}</h2>
         <p>{en ? `Follow the local vibe for ${nights} nights and ${itinerary.days.length} days from ${itinerary.trip.startDate}.` : `${itinerary.trip.startDate}부터 ${nights}박 ${itinerary.days.length}일 동안 현지의 결을 따라가요.`}</p>
         <button type="button" onClick={() => onNavigate("schedule")}>{en ? "Open My Schedule" : "내 일정 열기"} <span>→</span></button>
       </div>
       <div className="next-stop-card">
         <span>{en ? "First Stop Scene" : "여행의 첫 장면"}</span>
-        {nextStop?.imageUrl ? <img src={nextStop.imageUrl} alt={`${nextStop.nameKo} view`} /> : <div className="next-stop-art" aria-hidden="true" />}
+        {nextStop ? <PlacePhoto placeId={nextStop.placeId} imageUrl={nextStop.imageUrl} alt={`${nextStop.nameKo} 전경`} category={nextStop.category} /> : <div className="next-stop-art" aria-hidden="true" />}
         <div>
           <small>DAY {firstDay?.dayIndex ?? 1} · {nextStop?.plannedArrival ?? "09:30"}</small>
           <strong>{nextStopTitle}</strong>

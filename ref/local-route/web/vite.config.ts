@@ -4,6 +4,8 @@ import { defineConfig } from "vite";
 export default defineConfig({
   plugins: [react()],
   server: {
+    // 데스크톱 앱의 인앱 브라우저와 같은 로컬 네트워크 클라이언트에서도 접근한다.
+    host: "0.0.0.0",
     port: 5173,
     // 5173 이 이미 사용 중이면 조용히 5174 로 옮기지 않고 에러로 알린다.
     // (다른 포트로 옮겨 가면 localhost:5173 에는 아무것도 뜨지 않는다)

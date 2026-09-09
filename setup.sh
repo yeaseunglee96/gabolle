@@ -9,13 +9,25 @@
 #   3. 커밋 훅을 심는다           (axmap hook install)
 #   4. (전역 CLI 사용자를 위한 안내를 찍는다)
 #
-# Claude Code 는 4번이 필요 없다. `.mcp.json` 이 저장소에 들어 있어 이 폴더를 열 때
-# 스스로 발견하고 승인을 묻는다. 그 편의가 Claude Code 전용이라서 나머지 CLI
-# (Codex, Antigravity `agy`)는 각자의 설정 파일에 적어 줘야 하고, 그걸 4번이 한다.
+# 4번이 안내만 하는 이유 — MCP 등록은 이 저장소가 아니라 **각자의 PC 에 설치한
+# axMap** 이 한다. `npm i -g axmap-cli` 뒤 `axmap setup` 을 한 번 돌리면 Claude
+# Code · Codex · Antigravity 가 전부 각자의 홈 설정에 붙는다.
+#
+# 🔴 2026-08-31 이전에는 저장소에 `.mcp.json` 이 있어서 Claude Code 만 clone 으로
+#    붙었다. 그 파일을 뺐다 (S15P21E201-509) — 같은 이름 `axmap` 이 저장소와 홈
+#    두 곳에 잡혀 저장소 쪽이 홈을 이겼고, npm 판을 깔아도 여기서는 안 쓰였다.
 
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+# 🔴 say() 가 없어서 80행에서 통째로 죽었다 (S15P21E201-484). 위의 set -euo pipefail
+#    때문에 정의되지 않은 함수를 부르는 순간 종료 코드 127 로 끝나고, 그 뒤의
+#    자가 점검(doctor)이 한 번도 안 돌았다. 그런데 앞부분은 정상으로 보여서
+#    "준비가 끝났다" 고 믿고 넘어가게 된다.
+#    맥에서는 안 죽는다 — 맥에는 say 라는 진짜 명령이 있어서(글자를 소리 내어 읽는다)
+#    안내문을 스피커로 읽고 그냥 넘어간다. 그래서 운영체제마다 결과가 셋으로 갈렸고
+#    아무도 못 잡았다. setup.ps1 에는 처음부터 Say 가 있었다.
+say()  { printf '%s\n' "$1"; }
 ok()   { printf '  OK  %s\n' "$1"; }
 warn() { printf '  !!  %s\n' "$1"; }
 fail() { printf '중단: %s\n' "$1" >&2; exit 1; }
@@ -58,26 +70,26 @@ ok "이름: $WHO  (git config user.name)"
 # --- 3. 장부 ----------------------------------------------------------------
 echo
 echo "장부를 준비합니다..."
-node "$ROOT/ci/axmap/bin/axmap.mjs" init || fail "장부를 만들지 못했습니다. 위 메시지를 읽고 고친 뒤 다시 실행하세요."
+npx -y axmap-cli@latest init || fail "장부를 만들지 못했습니다. 위 메시지를 읽고 고친 뒤 다시 실행하세요."
 
 # --- 4. 훅 ------------------------------------------------------------------
 #
 # [!] 훅이 없으면 이 프로토콜은 권고 사항에 불과하다. claim 하지 않은 파일도
 #     그냥 커밋되고, 그러면 아무도 규칙을 지킬 이유가 없어진다.
 echo
-node "$ROOT/ci/axmap/bin/axmap.mjs" hook install || warn "훅을 심지 못했습니다. 나중에 'node ci/axmap/bin/axmap.mjs hook install' 을 직접 실행하세요."
+npx -y axmap-cli@latest hook install || warn "훅을 심지 못했습니다. 나중에 'npx -y axmap-cli@latest hook install' 을 직접 실행하세요."
 
 # --- 5. 다른 AI CLI 에 MCP 등록 ----------------------------------------------
 #
 # [!] 실패해도 여기서 멈추지 않는다. 장부와 훅이 본체고 MCP 는 편의다.
 #     못 붙어도 사람이 CLI 로 claim 할 수 있으니 설치 전체를 무를 이유가 없다.
 #     대신 무엇이 붙고 무엇이 안 붙었는지는 화면에 그대로 나온다.
-# 🔴 예전에는 여기서 mcp-register.mjs 를 불렀다. 그 파일은 axMap 저장소로 나갔고
-#    사본에는 없다. 그리고 이 저장소에서는 필요 없다 — .mcp.json 이 사본의 서버를
-#    가리키고 있어서 Claude Code 는 clone 만으로 붙는다.
-#    Codex·Antigravity 처럼 저장소의 .mcp.json 을 안 읽는 도구를 쓴다면
-#    axMap 을 전역에 한 번 설치한다 (axMap 저장소의 mcp/SETUP-FOR-AI.md).
-say "MCP: .mcp.json 이 ci/axmap/mcp/server.mjs 를 가리킵니다. AI CLI 를 껐다 켜세요." 
+# 🔴 여기서 등록을 대신하지 않는다. 등록기(mcp-register.mjs)는 axMap 저장소에 있고
+#    팀 사본에는 없다. 사본에 다시 넣으면 벤더 지문(ci/axmap/manifest.sha256)이
+#    어긋나 ci:vendor 잡이 빨개진다. 그래서 이 자리는 **안내만** 한다.
+say "MCP: 이 저장소에는 등록 설정이 없습니다. 각자 한 번 돌리세요 —"
+say "       npm i -g axmap-cli   그리고   axmap setup"
+say "     claude · codex · agy 가 각자의 홈 설정에 붙습니다. 그 뒤 AI CLI 를 껐다 켜세요."
 
 # --- 6. 스스로 확인 ----------------------------------------------------------
 #
@@ -85,7 +97,7 @@ say "MCP: .mcp.json 이 ci/axmap/mcp/server.mjs 를 가리킵니다. AI CLI 를 
 #     이 도구의 실패는 대부분 조용해서, 오류가 안 났다는 것이 정상이라는 뜻이 아니다.
 echo
 echo "확인합니다..."
-node "$ROOT/ci/axmap/bin/axmap.mjs" doctor || fail "위의 !! 줄을 고친 뒤 다시 실행하세요."
+npx -y axmap-cli@latest doctor || fail "위의 !! 줄을 고친 뒤 다시 실행하세요."
 
 # --- 7. 안내 ----------------------------------------------------------------
 #
@@ -112,8 +124,8 @@ cat <<'MSG'
   Claude Code 면 /ax 로 보고 /ax-done 으로 반납합니다.
   다른 CLI 면 같은 일을 시키는 문장이 docs/ONBOARDING.md 3.5 절 표에 있습니다.
 
-  언제든 다시 확인:  node ci/axmap/bin/axmap.mjs doctor
-  MCP 가 안 뜨면:    AI CLI 를 껐다 켠다 (.mcp.json 은 켤 때 한 번만 읽힌다)
+  언제든 다시 확인:  npx -y axmap-cli@latest doctor
+  MCP 가 안 뜨면:    axmap setup 을 한 번 돌리고 AI CLI 를 껐다 켠다
   자세히:            docs/ONBOARDING.md  ("Claude Code 가 아닌 AI CLI 를 쓴다면" 절)
 
 MSG

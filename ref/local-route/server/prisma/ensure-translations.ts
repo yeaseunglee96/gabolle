@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 const places = await prisma.place.findMany({ where: { nameEn: { not: null } } });

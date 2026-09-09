@@ -25,16 +25,19 @@
     4. (전역 CLI 사용자를 위한 안내를 찍는다)
     5. 실제로 도는지 확인한다      (axmap doctor)
 
-  MCP(AI 도구가 외부 프로그램을 "도구" 로 부를 수 있게 해주는 규격) 는 Claude Code 만
-  따로 할 것이 없다 — `.mcp.json` 이 저장소에 들어 있어 이 폴더를 열 때 스스로 발견하고
-  승인을 묻는다. 그 편의가 Claude Code 전용이라서 나머지 CLI(Codex, Antigravity `agy`)는
-  각자의 설정 파일에 적어 줘야 하고, 그걸 4번이 대신한다.
+  MCP(AI 도구가 외부 프로그램을 "도구" 로 부를 수 있게 해주는 규격) 등록은 이 저장소가
+  아니라 **각자의 PC 에 설치한 axMap** 이 한다. `npm i -g axmap-cli` 뒤 `axmap setup`
+  을 한 번 돌리면 Claude Code · Codex · Antigravity 가 전부 각자의 홈 설정에 붙는다.
+  4번은 그 안내만 찍는다.
+
+  2026-08-31 이전에는 저장소에 `.mcp.json` 이 있어서 Claude Code 만 clone 으로 붙었다.
+  그 파일을 뺐다 (S15P21E201-509) — 같은 이름이 저장소와 홈 두 곳에 잡혀 저장소 쪽이
+  홈을 이겼고, npm 판을 깔아도 여기서는 안 쓰였다.
 #>
 param([switch]$Force)
 
 $ErrorActionPreference = 'Stop'
 $root = $PSScriptRoot
-$AX   = Join-Path $root (Join-Path 'ci' (Join-Path 'axmap' (Join-Path 'bin' 'axmap.mjs')))
 
 
 function Say($m)  { Write-Host $m }
@@ -80,7 +83,7 @@ Ok "이름: $who  (git config user.name)"
 # --- 3. 장부 ----------------------------------------------------------------
 Say ""
 Say "장부를 준비합니다..."
-& node $AX init
+npx -y 'axmap-cli@latest' init
 if ($LASTEXITCODE -ne 0) { Fail "장부를 만들지 못했습니다. 위 메시지를 읽고 고친 뒤 다시 실행하세요." }
 
 # --- 4. 훅 ------------------------------------------------------------------
@@ -89,18 +92,17 @@ if ($LASTEXITCODE -ne 0) { Fail "장부를 만들지 못했습니다. 위 메시
 #     불과하다. claim 하지 않은 파일도 그냥 커밋되고, 그러면 아무도 규칙을 지킬
 #     이유가 없어진다.
 Say ""
-& node $AX hook install
-if ($LASTEXITCODE -ne 0) { Warn "훅을 심지 못했습니다. 나중에 'node ci\axmap\bin\axmap.mjs hook install' 을 직접 실행하세요." }
+npx -y 'axmap-cli@latest' hook install
+if ($LASTEXITCODE -ne 0) { Warn "훅을 심지 못했습니다. 나중에 'npx -y axmap-cli@latest hook install' 을 직접 실행하세요." }
 
 # --- 5. MCP 안내 --------------------------------------------------------------
 #
-# [!] 예전에는 여기서 mcp-register.mjs 를 불렀다. 그 파일은 axMap 저장소로 나갔고
-#     사본에는 없다. 그리고 이 저장소에서는 필요 없다 - .mcp.json 이 사본의
-#     서버를 가리키고 있어서 Claude Code 는 clone 만으로 붙는다.
-#
-#     Codex/Antigravity 처럼 저장소의 .mcp.json 을 안 읽는 도구를 쓴다면
-#     axMap 을 전역에 한 번 설치한다 (axMap 저장소의 mcp/SETUP-FOR-AI.md).
-Say "MCP: .mcp.json 이 ci\axmap\mcp\server.mjs 를 가리킵니다. AI CLI 를 껐다 켜세요."
+# [!] 여기서 등록을 대신하지 않는다. 등록기는 npm 꾸러미 axmap-cli 안에 있고,
+#     그것을 부르는 `axmap setup` 은 저장소가 아니라 **각자의 홈 설정**을 고친다.
+#     저장소가 남의 PC 설정을 대신 고치면 되돌릴 방법이 없다. 그래서 안내만 한다.
+Say "MCP: 이 저장소에는 등록 설정이 없습니다. 각자 한 번 돌리세요 -"
+Say "       npm i -g axmap-cli   그리고   axmap setup"
+Say "     claude / codex / agy 가 각자의 홈 설정에 붙습니다. 그 뒤 AI CLI 를 껐다 켜세요."
 
 # --- 6. 스스로 확인 ----------------------------------------------------------
 #
@@ -108,7 +110,7 @@ Say "MCP: .mcp.json 이 ci\axmap\mcp\server.mjs 를 가리킵니다. AI CLI 를 
 #     이 도구의 실패는 대부분 조용해서, 오류가 안 났다는 것이 정상이라는 뜻이 아니다.
 Say ""
 Say "확인합니다..."
-& node $AX doctor
+npx -y 'axmap-cli@latest' doctor
 if ($LASTEXITCODE -ne 0) { Fail "위의 !! 줄에 고치는 방법이 함께 적혀 있습니다. 고친 뒤 다시 실행하세요." }
 
 # --- 7. 안내 ----------------------------------------------------------------
@@ -135,7 +137,7 @@ Say "  파일을 고치기 전에 claim -> 끝나면 release. 그게 전부입�
 Say "  Claude Code 면 /ax 로 보고 /ax-done 으로 반납합니다."
 Say "  다른 CLI 면 같은 일을 시키는 문장이 docs\ONBOARDING.md 3.5 절 표에 있습니다."
 Say ""
-Say "  언제든 다시 확인:  node ci\axmap\bin\axmap.mjs doctor"
-Say "  MCP 가 안 뜨면:    AI CLI 를 껐다 켠다 (.mcp.json 은 켤 때 한 번만 읽힌다)"
+Say "  언제든 다시 확인:  npx -y axmap-cli@latest doctor"
+Say "  MCP 가 안 뜨면:    axmap setup 을 한 번 돌리고 AI CLI 를 껐다 켠다"
 Say '  자세히:            docs\ONBOARDING.md  - Claude Code 가 아닌 AI CLI 를 쓴다면 3.5 절'
 Say ""

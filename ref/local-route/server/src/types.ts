@@ -25,6 +25,9 @@ export interface CreateTripRequest {
   dayStart?: string;
   dayEnd?: string;
   maxWalkingKm?: number;
+  mobilityProfile?: "STANDARD" | "WHEELCHAIR" | "STROLLER" | "HEAVY_LUGGAGE";
+  avoidStairs?: boolean;
+  shadePriority?: "LOW" | "MEDIUM" | "HIGH";
   language?: Language;
   allergies?: string[];
   dietType?: DietType;
@@ -51,6 +54,9 @@ export interface TripMeta {
   dayStart: string;
   dayEnd: string;
   maxWalkingKm: number;
+  mobilityProfile: "STANDARD" | "WHEELCHAIR" | "STROLLER" | "HEAVY_LUGGAGE";
+  avoidStairs: boolean;
+  shadePriority: "LOW" | "MEDIUM" | "HIGH";
   recommendationMode: RecommendationMode;
   tasteTags: string[];
   language: Language;

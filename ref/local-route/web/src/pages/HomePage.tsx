@@ -18,6 +18,11 @@ export function HomePage() {
   const [lang, setLang] = useState<"KO" | "EN">(getUiLanguage());
   const navigate = useNavigate();
   const isEn = lang === "EN";
+  const picks = [
+    { titleKo: "영도 바다와 오래된 골목", titleEn: "Yeongdo sea & old alleys", metaKo: "로컬 산책 · 반나절", metaEn: "Local walk · Half day", reasonKo: "조용한 동네와 사진 취향에 맞아요", reasonEn: "Fits your quiet and photo tastes", tone: "ocean" },
+    { titleKo: "시장 사이 부산의 한 끼", titleEn: "A meal between Busan markets", metaKo: "전통시장 · 4시간", metaEn: "Markets · 4 hours", reasonKo: "현지인 방문과 음식 취향을 함께 반영", reasonEn: "Local visits and food preferences", tone: "market" },
+    { titleKo: "광안리의 느린 저녁", titleEn: "A slow evening in Gwangalli", metaKo: "야경 · 카페 · 저녁", metaEn: "Night view · Cafe · Evening", reasonKo: "여유로운 여행 스타일에 맞아요", reasonEn: "Fits a relaxed travel style", tone: "night" },
+  ];
 
   useEffect(() => {
     getCourseCategories().then(setCategories).catch(() => setCategories([]));
@@ -28,7 +33,7 @@ export function HomePage() {
   return (
     <div className="landing">
       <header className="landing-header">
-        <Link to={paths.welcome()} className="landing-brand-link" title={isEn ? "About LOCAL ROUTE" : "서비스 소개 다시 보기"}>
+        <Link to={paths.welcome()} className="landing-brand-link" title={isEn ? "About GABOLLE" : "서비스 소개 다시 보기"}>
           <BrandLogo />
         </Link>
         <nav className="landing-nav">
@@ -43,15 +48,26 @@ export function HomePage() {
         </nav>
       </header>
 
+      <section className="personalized-picks" aria-labelledby="pick-title">
+        <div className="pick-heading"><div><span className="section-eyebrow">EDITOR'S PICK · FOR YOU</span><h1 id="pick-title">{isEn ? "Start with a Busan that feels like you" : "나와 닮은 부산부터 둘러보세요"}</h1></div><small>{isEn ? "Personalized from your explicit choices" : "내가 직접 고른 취향을 기준으로 정렬했어요"}</small></div>
+        <div className="pick-grid">{picks.map((pick) => <article key={pick.titleKo} className={`pick-card ${pick.tone}`}>
+          <span>{isEn ? pick.metaEn : pick.metaKo}</span>
+          <h2>{isEn ? pick.titleEn : pick.titleKo}</h2>
+          <p>{isEn ? pick.reasonEn : pick.reasonKo}</p>
+          <button type="button" onClick={() => navigate(paths.plan("taste"))}>{isEn ? "Make this my trip" : "이 취향으로 일정 만들기"}</button>
+        </article>)}</div>
+      </section>
+
       <section className="landing-hero">
-        <span className="section-eyebrow">{isEn ? "LOCAL-RECOMMENDED TRAVEL" : "현지인 추천 기반 여행"}</span>
-        <h1>{isEn ? "Enjoy Busan to the fullest" : "부산을 마음껏 즐기세요"}</h1>
+        <span className="section-eyebrow">{isEn ? "BUSAN, MADE FOR YOU" : "취향으로 만나는 부산"}</span>
+        <h1>{isEn ? "Where shall we go in Busan?" : "부산, 어디부터 가볼래?"}</h1>
         <p>{isEn
           ? "Instead of just listing places, we calculate opening hours, travel time, budget, and accessibility together."
-          : "장소를 나열하는 대신 운영시간, 이동시간, 예산과 동반 조건을 함께 계산합니다."}</p>
-        <button type="button" className="primary-btn" onClick={() => navigate(paths.plan())}>
-          {isEn ? "Create My Itinerary" : "여행 일정 만들기"}
-        </button>
+          : "유명 장소를 나열하지 않고, 취향과 제약을 이해해 지금 실행할 수 있는 로컬 일정을 만들어요."}</p>
+        <div className="home-primary-actions">
+          <button type="button" className="primary-btn" onClick={() => navigate(paths.plan())}>{isEn ? "Plan a trip" : "여행 계획 만들기"}</button>
+          <button type="button" className="secondary-btn" onClick={() => navigate(paths.now())}>{isEn ? "Where to go now" : "지금 갈 곳 찾기"}</button>
+        </div>
         {typeof placeCount === "number" && (
           <small>{isEn ? `${placeCount.toLocaleString()} registered local places (Busan)` : `등록된 로컬 장소 ${placeCount.toLocaleString()}곳 (부산 기준)`}</small>
         )}
@@ -72,7 +88,7 @@ export function HomePage() {
       )}
 
       <footer className="landing-footer">
-        <Link to={paths.welcome()}>{isEn ? "About LOCAL ROUTE" : "서비스 소개"}</Link>
+        <Link to={paths.welcome()}>{isEn ? "About GABOLLE" : "서비스 소개"}</Link>
         <Link to={paths.terms()}>{isEn ? "Terms of Service" : "이용약관"}</Link>
         <Link to={paths.privacy()}>{isEn ? "Privacy Policy" : "개인정보 처리방침"}</Link>
         <Link to={paths.openSource()}>{isEn ? "Open Source Notices" : "오픈소스 고지"}</Link>
