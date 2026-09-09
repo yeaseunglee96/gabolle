@@ -5,7 +5,7 @@
 // 권한 거부 때문에 로그인이나 일정 생성 진입을 막지는 않는다.
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useState } from 'react';
-import { Platform, Pressable, StyleSheet, View } from 'react-native';
+import { Image, Platform, Pressable, StyleSheet, View } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import { useRouter } from 'expo-router';
 
@@ -19,6 +19,8 @@ import { useI18n } from '@/i18n';
 import { useLayout } from '@/layout/useLayout';
 
 const PERMISSION_PREFERENCES_KEY = '@gabolle/permission-preferences';
+const bellIcon = require('../../assets/icons/home/bell.png');
+const lockIcon = require('../../assets/icons/common/lock.png');
 
 export default function Permissions() {
   const router = useRouter();
@@ -55,7 +57,7 @@ export default function Permissions() {
       <View style={styles.actionColumn}><View style={[styles.cards, kind === 'tablet' && styles.cardsWide]}>
           <View style={styles.card}>
             <View style={styles.cardIcon}>
-              <Text variant="title">🔔</Text>
+              <Image source={bellIcon} resizeMode="contain" style={styles.cardIconImage} />
             </View>
             <View style={styles.cardBody}>
               <View style={styles.cardTopRow}>
@@ -75,7 +77,7 @@ export default function Permissions() {
       </View>
 
       <Pressable accessibilityRole="link" accessibilityLabel={tx('개인정보 처리 안내 보기', 'View privacy information')} onPress={() => router.push('/legal/privacy')} style={({ pressed }) => [styles.privacyBox, pressed && styles.privacyPressed]}>
-        <Text variant="title">🔒</Text>
+        <Image source={lockIcon} resizeMode="contain" style={styles.privacyIcon} />
         <View style={styles.privacyCopy}>
           <Text variant="caption" weight="bold" color={color.text.heading}>
             {tx('개인정보는 추천 기능에만 사용하며 제3자에게 제공하지 않아요.', "We use your personal data only for recommendations and never share it with third parties.")}
@@ -138,6 +140,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  cardIconImage: { width: 24, height: 24 },
+  privacyIcon: { width: 24, height: 24 },
   cardBody: {
     flex: 1,
     gap: spacing[1],

@@ -11,6 +11,7 @@ import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 
 const logo = require('../../assets/brand/gabolle-logo-figma.png');
+const envelopeIcon = require('../../assets/icons/common/envelope.png');
 
 export default function ForgotPassword() {
   const router = useRouter();
@@ -45,7 +46,7 @@ export default function ForgotPassword() {
         <Text variant="body" style={styles.subtitle}>{tx('가입할 때 사용한 이메일을 입력해 주세요.', 'Enter the email address you signed up with.')}</Text>
         {sent ? (
           <View style={styles.sentBox}>
-            <Text variant="title">✉</Text>
+            <Image source={envelopeIcon} resizeMode="contain" style={styles.sentIcon} />
             <Text variant="body" weight="bold" style={styles.center}>{tx('입력한 이메일로 가입된 계정이 있다면 비밀번호 재설정 링크를 보내드렸어요.', "If that email has an account, we've sent a password reset link.")}</Text>
             <Text variant="caption" style={styles.center}>{tx('메일이 보이지 않으면 스팸함도 확인해 주세요.', "If you don't see it, please check your spam folder too.")}</Text>
           </View>
@@ -74,6 +75,7 @@ const styles = StyleSheet.create({
   fieldGroup: { gap: spacing[2] },
   input: { minHeight: 52, borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.card, color: color.text.heading, fontSize: 15, paddingHorizontal: spacing[4] },
   sentBox: { alignItems: 'center', gap: spacing[3], borderRadius: radius.lg, backgroundColor: color.surface.card, padding: spacing[6] },
+  sentIcon: { width: 32, height: 32 },
   center: { textAlign: 'center' },
   errorBox: { borderRadius: radius.md, backgroundColor: color.state.dangerBg, padding: spacing[3] },
   loginLink: { alignItems: 'center', paddingVertical: spacing[4] },

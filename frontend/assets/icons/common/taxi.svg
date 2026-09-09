@@ -1,0 +1,11 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g>
+
+    <path d="M4 16l1-5.5A2 2 0 0 1 7 9h10a2 2 0 0 1 2 1.5L20 16" stroke="#0B1D3A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+    <path d="M3 16h18v2.5a.5.5 0 0 1-.5.5H18a.5.5 0 0 1-.5-.5V17h-11v1.5a.5.5 0 0 1-.5.5H3.5a.5.5 0 0 1-.5-.5V16Z" stroke="#0B1D3A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+    <path d="M10 5h4v3.5h-4V5Z" stroke="#0B1D3A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+    <circle cx="7.5" cy="16.5" r="0.4" stroke="#0B1D3A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+    <circle cx="16.5" cy="16.5" r="0.4" stroke="#0B1D3A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+  
+</g>
+</svg>

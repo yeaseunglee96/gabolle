@@ -5,7 +5,7 @@
 // "장소별 한국어" 는 이미 만든 17 현장 말하기 화면(phrase 카드)과 같은 기능이라 그리로 잇고,
 // "날씨·준비물" 은 16 여행 준비 화면으로 잇는다.
 import { useEffect, useState } from 'react';
-import { AppState, Platform, Pressable, StyleSheet, View } from 'react-native';
+import { AppState, Image, Platform, Pressable, StyleSheet, View, type ImageSourcePropType } from 'react-native';
 import { Camera } from 'expo-camera';
 import { useRouter } from 'expo-router';
 
@@ -17,10 +17,12 @@ import { PermissionRationale } from '@/components/PermissionRationale';
 import { useI18n } from '@/i18n';
 
 const DEMO_TRIP_ID = 'demo-trip';
+const sunIcon = require('../../assets/icons/common/sun.png');
+const cameraIcon = require('../../assets/icons/common/camera.png');
 
 type Tool = {
   key: string;
-  icon: string;
+  icon: string | ImageSourcePropType;
   title: string;
   desc: string;
   tinted?: boolean;
@@ -82,7 +84,7 @@ export default function Translate() {
     },
     {
       key: 'weather',
-      icon: '☀',
+      icon: sunIcon,
       title: tx('날씨·준비물', 'Weather & what to bring'),
       desc: tx('기상청 예보 기반 우산·옷차림 안내', 'Umbrella and clothing tips based on the weather forecast'),
       onPress: () => router.push(`/${DEMO_TRIP_ID}/prepare`),
@@ -100,7 +102,7 @@ export default function Translate() {
 
       {cameraPermission !== 'granted' && (
         <PermissionRationale
-          icon="📷"
+          icon={cameraIcon}
           title={tx('메뉴판을 촬영해 번역할까요?', 'Photograph a menu to translate it?')}
           description={tx('카메라는 메뉴와 안내문을 읽을 때만 사용해요. 촬영한 이미지는 사진첩에 저장하지 않아요.', 'The camera is only used to read menus and signs. Photos are not saved to your camera roll.')}
           denied={cameraPermission === 'denied'}
@@ -121,9 +123,13 @@ export default function Translate() {
             style={[styles.card, tool.tinted && styles.cardTinted, tool.pending && styles.cardPending]}
           >
             <View style={[styles.iconBox, tool.tinted ? styles.iconBoxDark : styles.iconBoxLight]}>
-              <Text variant="title" weight="bold" color={tool.tinted ? color.text.onAction : color.action.secondary}>
-                {tool.icon}
-              </Text>
+              {typeof tool.icon === 'string' ? (
+                <Text variant="title" weight="bold" color={tool.tinted ? color.text.onAction : color.action.secondary}>
+                  {tool.icon}
+                </Text>
+              ) : (
+                <Image source={tool.icon} resizeMode="contain" style={styles.toolIconImage} />
+              )}
             </View>
             <View style={styles.cardBody}>
               <Text variant="body" weight="bold">
@@ -178,6 +184,7 @@ const styles = StyleSheet.create({
   iconBoxDark: {
     backgroundColor: color.action.secondary,
   },
+  toolIconImage: { width: 24, height: 24 },
   cardBody: {
     flex: 1,
     gap: spacing[1],

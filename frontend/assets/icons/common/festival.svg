@@ -1,0 +1,10 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g>
+
+    <path d="M12 2v3" stroke="#0B1D3A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+    <rect x="6" y="5" width="12" height="13" rx="6" stroke="#0B1D3A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+    <path d="M9 5v13M15 5v13" stroke="#0B1D3A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+    <path d="M12 18v3" stroke="#0B1D3A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+  
+</g>
+</svg>
