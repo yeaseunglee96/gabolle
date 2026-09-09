@@ -9,8 +9,9 @@ export const paths = {
   onboarding: () => "/onboarding",
   login: () => "/login",
   signup: () => "/signup",
+  now: () => "/now",
 
-  plan: (step: "basic" | "taste" | "confirm" = "basic") => `/plan/${step}`,
+  plan: (step: "basic" | "taste" | "constraints" | "confirm" = "basic") => `/plan/${step}`,
   generating: (tripId: string) => `/generating/${tripId}`,
 
   trip: (tripId: string) => `/trips/${tripId}`,

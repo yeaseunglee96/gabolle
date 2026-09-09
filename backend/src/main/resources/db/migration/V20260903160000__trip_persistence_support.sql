@@ -1,0 +1,15 @@
+-- S15P21E201-461 — Trip 을 InMemory 에서 실제 DB(trip 표)로 옮기는 데 빠진 컬럼 하나.
+--
+-- V20260903120000(S15P21E201-554, 고지혁 님)이 trip 표를 이미 만들었다.
+--
+-- 🔴 trip.time_window — S15P21E201-554 에는 없던 컬럼이다.
+--    Trip(도메인)의 timeWindow 는 "MORNING_TO_EVENING" 같은 하루 활동 시간대 프리셋
+--    코드다. V120000 이 만든 time_window_start·time_window_end 는 TIME 두 칸이라
+--    다른 것 — 프리셋을 실제 시각 두 개로 푸는 규칙은 아직 없다(2026-09-03 미해결로
+--    남은 자리). 프리셋 자체를 잃지 않으려면 칸이 필요하고, 값 목록이 아직 없으므로
+--    CHECK 는 걸지 않는다 — 알레르기 코드와 같은 이유(V120000 의
+--    constraint_answer.constraint_key 주석 참고).
+--
+-- 여행 멤버·취향/제약 스냅샷·멱등 키의 DB 저장은 이번에 함께 하지 않는다 — 범위를
+-- Trip 본표 하나로 좁혔다. 그 자리는 여전히 InMemory 다(JpaTripRepository 주석 참고).
+ALTER TABLE trip ADD COLUMN time_window VARCHAR(30);

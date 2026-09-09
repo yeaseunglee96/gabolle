@@ -1,19 +1,5 @@
 # 처음 온 사람에게 — clone 부터 첫 작업까지
 
-> 🔴 **2026-09-01 정정 — 사본(`ci/axmap/`)도 저장소의 `.mcp.json` 도 없어졌다.**
-> axMap 은 이제 **npm 꾸러미 `axmap-cli`** 다. 각자 PC 에서 한 번만 하면 된다:
->
-> ```bash
-> npm i -g axmap-cli@latest
-> axmap setup      # Claude Code · Codex · Antigravity 를 각자의 홈 설정에 붙인다
-> ```
->
-> 그래서 아래에서 **`ci/axmap/` 사본 · `ci:vendor` 잡 · `.mcp.json` 을 말하는 대목,
-> 그리고 3.5 절의 "MCP 설정을 손으로 넣는다" 는 전부 옛말**이다. 지금 규칙은
-> [../CLAUDE.md](../CLAUDE.md) 0.3 절에 있다.
->
-> 낡은 실측을 지우지 않고 남긴다 — 다음 사람이 같은 것을 다시 재보지 않게.
-
 읽는 데 5분, 따라 하는 데 3분이면 된다.
 **막히면 그 자리에서 답을 얻을 수 있게** 만들어 두었으니 물어보러 가지 않아도 된다.
 
@@ -33,12 +19,15 @@
 코드 충돌이 나기 전에 **의도 충돌**을 먼저 터뜨리는 것이다.
 당신이 할 일은 거의 없다. AI 도구를 쓰면 도구가 알아서 부른다.
 
-> **이 저장소에 있는 것은 그 도구의 사본이다.** axMap 본체는 별도 저장소
-> (`https://lab.ssafy.com/rleaderjoon/axmap`)에 있고, 여기 `ci/axmap/` 에는 팀이
-> 실제로 부르는 파일만 복사해 뒀다 — **벤더링**(vendoring — 남의 코드를 내 저장소
-> 안에 복사해 두고 그 사본으로 돌리는 것). 쓰는 데는 아무 차이가 없다.
-> **다만 `ci/axmap/` 아래를 손으로 고치면 안 된다** — 왜인지는
-> [../CLAUDE.md](../CLAUDE.md) 0.3 절에 있다.
+> 🔴 **2026-09-01 정정 — 이 저장소 안에 axMap 은 없다.** 예전에는 `ci/axmap/` 에
+> 사본을 두고 그걸 불렀다 — **벤더링**(vendoring — 남의 코드를 내 저장소 안에
+> 복사해 두고 그 사본으로 돌리는 것). 그 폴더를 통째로 뺐다.
+> 지금은 **npm 꾸러미 `axmap-cli`** 를 각자 PC 에 한 번 깔아서 쓴다 (1절).
+> 본체는 여전히 별도 저장소(`https://lab.ssafy.com/rleaderjoon/axmap`)에 있다.
+>
+> 낡은 실측은 지우지 않고 정정한 날짜와 함께 남긴다 — 다음 사람이 같은 것을
+> 다시 재보지 않게. 왜 사본을 버렸는지는
+> [AXMAP-NPM-MIGRATION.md](AXMAP-NPM-MIGRATION.md) 에 있다.
 
 ---
 
@@ -85,12 +74,14 @@ npx -y axmap-cli@latest doctor
   OK  node       v20.11.0
   OK  저장소        /home/you/S15P21E201
   OK  내 이름       홍길동  (git config user.name)
+  OK  내 세션       0c01633e…39a4  (CLAUDE_CODE_SESSION_ID)
   OK  장부         .axmap/ledger
   OK  장부 원격      origin  (git config axmap.remote)
   OK  원격 연결      닿습니다
   OK  커밋 훅       심겨 있습니다
-  OK  MCP 설정     ./ci/axmap/mcp/server.mjs  (AI 도구가 승인만 하면 붙습니다)
+  OK  MCP 설정     홈에 등록돼 있습니다 (claude · agy) — 저장소에 파일이 없어도 됩니다
   OK  선점 판정      지금 유효한 claim 이 있습니다
+  OK  버전         1.1.0 — 새 버전이 있는지 물어본 적이 없습니다 (axmap update)
 
 전부 정상입니다. 파일을 고치기 전에 claim 하는 것만 지키면 됩니다.
 ```
@@ -98,8 +89,10 @@ npx -y axmap-cli@latest doctor
 `!!` 가 있으면 그 줄에 **고치는 방법이 함께 적혀 있다.** `~~` 는 알아둘 것이지 오류는 아니다.
 
 > 🔴 **`커밋 훅` 줄에 `!!` 가 나오고 "가리키는 파일이 없습니다" 라고 하면** — 이 저장소를
-> 2026-08-26 이전부터 쓰고 있었다는 뜻이다. 그날 axMap 이 `axmap/` 에서 `ci/axmap/` 으로
-> 자리를 옮겼는데, 훅은 옛 경로를 절대 경로로 박아 두고 있다. 한 줄로 고친다.
+> axMap 이 자리를 옮기기 전부터 쓰고 있었다는 뜻이다. 두 번 옮겼다 —
+> 2026-08-26 에 `axmap/` → `ci/axmap/`, 2026-09-01 에 `ci/axmap/` → **저장소 밖
+> npm 꾸러미**. 훅은 심을 때의 경로를 절대 경로로 박아 두므로 둘 다에서 깨진다.
+> 어느 쪽이든 한 줄로 고친다.
 >
 > ```bash
 > npx -y axmap-cli@latest hook install
@@ -116,14 +109,31 @@ npx -y axmap-cli@latest doctor
 
 ## 3. AI CLI 를 켠다
 
-이 폴더에서 그냥 켜면 된다.
+### 먼저 — axMap 을 이 PC 에 한 번 설치한다
+
+**저장소에는 MCP 설정이 없다.** 각자 한 번 돌린다 (어느 폴더에서 돌려도 된다).
+
+```bash
+npm i -g axmap-cli
+axmap setup
+```
+
+`setup` 이 이 PC 에 있는 AI CLI 를 찾아 **각자의 홈 설정**에 `axmap` 을 등록한다 —
+Claude Code 는 `~/.claude.json`, Codex 는 `~/.codex/config.toml`,
+Antigravity 는 `~/.gemini/config/mcp_config.json`. 저장소에는 아무것도 안 남는다.
+
+> 🔴 **2026-08-31 이전에는 저장소의 `.mcp.json` 으로 Claude Code 만 clone 으로
+> 붙었다.** 그 파일을 뺐다 (S15P21E201-509). 같은 이름 `axmap` 이 저장소와 홈
+> 두 곳에 잡혀 `claude mcp list` 가 `Conflicting scopes` 로 경고했고, **저장소 쪽이
+> 홈을 이겨서** npm 판을 깔아도 이 저장소에서는 안 쓰였기 때문이다.
+
+### 그 다음 — 이 폴더에서 켠다
 
 ```bash
 claude
 ```
 
-**`axmap` 도구를 신뢰할지 물어보면 "예".** 저장소에 `.mcp.json` 이 들어 있어서
-따로 설정할 것은 없다. 승인 한 번이면 AI 가 도구를 쓸 수 있게 된다.
+**`axmap` 도구를 신뢰할지 물어보면 "예".** 승인 한 번이면 AI 가 도구를 쓸 수 있게 된다.
 
 > **Codex(`codex`) 나 Antigravity(`agy`) 를 쓴다면 [3.5 절](#35-claude-code-가-아닌-ai-cli-를-쓴다면)로 간다.**
 > 붙기는 똑같이 붙는데, 설정 파일과 부르는 방법이 다르다.
@@ -164,21 +174,24 @@ AI 가 이 순서로 움직이면 정상이다.
 우리 MCP 서버는 **표준 규격**(stdio + 줄바꿈 JSON-RPC 2.0)이라 MCP 를 지원하는
 CLI 면 무엇이든 붙는다. 다른 것은 **자동으로 붙느냐**뿐이다.
 
-> 저장소에 든 `.mcp.json` 을 알아서 찾아 주는 것은 **Claude Code 뿐**이다.
-> Codex 나 Antigravity(`agy`)는 각자의 설정 파일에 한 번 적어 줘야 한다.
+> 예전에는 저장소에 든 `.mcp.json` 을 알아서 찾아 주는 **Claude Code 만** 그냥
+> 붙었다. 지금은 셋이 같다 — `axmap setup` 이 각자의 홈 설정에 넣어 준다.
 
-### 🔴 지금은 손으로 넣어야 한다 (2026-08-26)
+### 🟢 이제 손으로 안 넣어도 된다 (2026-08-31 정정)
 
-`setup.sh` / `setup.ps1` 이 그 등록까지 대신하도록 만들어 뒀는데, **지금은 그 단계가
-`!!` 경고로 끝난다.** 등록을 하던 프로그램(`tools/mcp-register.mjs`)이 axMap 본체와
-함께 별도 저장소로 나갔고, `setup` 이 아직 옛 경로를 부르기 때문이다.
+`axmap-cli@0.3.0` 부터 `axmap setup` 이 **세 CLI 를 모두** 각자의 홈 설정에 등록한다.
+3절의 두 줄이면 끝난다.
 
-**설치가 실패한 것은 아니다** — 장부와 커밋 훅은 정상으로 심긴다. Claude Code 는
-저장소의 `.mcp.json` 을 스스로 읽으므로 아무 영향이 없다.
-**Codex · Antigravity 를 쓰는 사람만** 아래를 손으로 한 번 넣으면 된다.
+이 자리에는 원래 *"🔴 지금은 손으로 넣어야 한다 (2026-08-26)"* 고 적혀 있었다.
+그때는 등록기(`tools/mcp-register.mjs`)가 axMap 저장소로 나가고 팀 사본에는 없어서
+`setup` 이 `!!` 경고로 끝났다. 지금은 그 등록기가 **npm 꾸러미 안에 함께 온다.**
+낡은 실측은 지우지 말고 **정정한 날짜와 함께** 남긴다 — 다음 사람이 같은 것을
+다시 재보지 않게.
 
-경로는 **이 저장소를 clone 한 절대 경로**로 적는다. 전역 설정 파일이라 상대 경로는
-안 통한다.
+아래 손으로 넣는 방법은 **`setup` 이 실패했을 때의 예비책**으로 남긴다.
+
+경로는 **axMap 이 설치된 절대 경로**로 적는다 — `npm root -g` 가 알려 주는 폴더
+아래의 `axmap-cli/mcp/server.mjs` 다. 전역 설정 파일이라 상대 경로는 안 통한다.
 
 **Antigravity** — `~/.gemini/config/mcp_config.json`
 
@@ -187,7 +200,7 @@ CLI 면 무엇이든 붙는다. 다른 것은 **자동으로 붙느냐**뿐이�
   "mcpServers": {
     "axmap": {
       "command": "node",
-      "args": ["<clone 한 절대경로>/ci/axmap/mcp/server.mjs"],
+      "args": ["<npm root -g 가 알려준 폴더>/axmap-cli/mcp/server.mjs"],
       "env": { "AXMAP_ACTOR": "agent", "AXMAP_TTL": "45m" }
     }
   }
@@ -199,7 +212,7 @@ CLI 면 무엇이든 붙는다. 다른 것은 **자동으로 붙느냐**뿐이�
 ```toml
 [mcp_servers.axmap]
 command = "node"
-args = ["<clone 한 절대경로>/ci/axmap/mcp/server.mjs"]
+args = ["<npm root -g 가 알려준 폴더>/axmap-cli/mcp/server.mjs"]
 env = { AXMAP_ACTOR = "agent", AXMAP_TTL = "45m" }
 ```
 
@@ -208,19 +221,21 @@ env = { AXMAP_ACTOR = "agent", AXMAP_TTL = "45m" }
 
 > `AXMAP_AGENT` 는 **어느 파일에도 적지 않는다** — 바로 아래 절이 그 이유다.
 
-이 상태를 되돌리는 것(등록 도구를 사본에 넣을지, axMap 저장소에서 돌리게 할지)은
-아직 안 정했다. [HANDOVER.md](HANDOVER.md) 4.6 절에 있다.
+**정해졌다 (2026-08-31)** — 등록 도구는 팀 저장소에 넣지 않는다. npm 꾸러미
+`axmap-cli` 안에 함께 오고 각자 `axmap setup` 으로 돌린다. `setup` 은 저장소가
+아니라 **각자의 홈 설정**을 고치는 일이라, 저장소가 대신 해 주면 되돌릴 방법이 없다.
 
 ### 어디에 무엇이 들어가나
 
 | CLI | 설정 파일 | 확인했나 |
 |---|---|---|
-| **Claude Code** (`claude`) | 저장소의 `.mcp.json` — 할 일 없음 | ✅ 쓰고 있다 |
+| **Claude Code** (`claude`) | `~/.claude.json` (전역) — `axmap setup` 이 넣는다 | ✅ 2026-08-31 실물 확인 |
 | **Antigravity** (`agy`) | `~/.gemini/config/mcp_config.json` (전역) | ✅ 이 PC 의 `agy` 1.1.10 으로 확인 |
 | **Codex** (`codex`) | `~/.codex/config.toml` (전역) | ⚠️ **확인 못 했다** — 아래 참고 |
 
 **Antigravity 에서 확인한 것** — 전역 파일에 적으면 `ax_*` 도구가 실제로 뜬다.
-저장소의 `.mcp.json` 은 **읽지 않는다**(같은 조건에서 도구가 아예 안 나왔다).
+저장소의 `.mcp.json` 은 **읽지 않았다**(같은 조건에서 도구가 아예 안 나왔다).
+그 파일은 2026-08-31 에 저장소에서 빠졌으니 이제 어느 CLI 도 그것으로 붙지 않는다.
 공식 문서가 말하는 작업 폴더용 `.agents/mcp_config.json` 도 **CLI 에서는 안 먹었다** —
 IDE 쪽 경로로 보인다. 그래서 전역 파일만 쓴다.
 서버는 **CLI 를 켠 폴더를 대상으로** 잡으므로, 전역에 한 번만 넣어도 저장소마다 따로
@@ -260,7 +275,7 @@ IDE 쪽 경로로 보인다. 그래서 전역 파일만 쓴다.
 
 > `ax_brief` · `ax_status` · `ax_claim` 같은 것이 **MCP 도구 이름**이다.
 > 사람이 직접 부르는 명령이 아니라 AI 가 부르는 것이고, 위처럼 이름을 대 주면
-> AI 가 그걸 골라 쓴다. 무엇이 있는지는 [../CLAUDE.md](../CLAUDE.md) 1절 표에 있고,
+> AI 가 그걸 골라 쓴다. 무엇이 있는지는 [../CONTRIBUTING.md](../CONTRIBUTING.md) 1절 표에 있고,
 > 각 도구의 인자까지 보려면 **axMap 저장소**(`https://lab.ssafy.com/rleaderjoon/axmap`)
 > 의 `mcp/README.md` 를 본다.
 
@@ -323,7 +338,7 @@ git commit -m "[S15P21E201-144] feat: [FE] 여행 상세 화면 구현"
 
 브랜치는 `feat/S15P21E201-144-trip-detail` 처럼 만든다.
 MR 은 `main` 이 아니라 **자기 파트의 `dev`** 로 올린다.
-전체 규칙은 [../CLAUDE.md](../CLAUDE.md) 에 있다.
+전체 규칙은 [../CONTRIBUTING.md](../CONTRIBUTING.md) 에 있다.
 
 ---
 
@@ -343,10 +358,10 @@ AI 에게: `작업이 끝났으니 ax_release 로 반납해줘.`
 ## 막히면
 
 1. `npx -y axmap-cli@latest doctor` — 대부분 여기서 답이 나온다
-2. [../CLAUDE.md](../CLAUDE.md) — 팀 전체 규칙 (0.3 절이 "사본을 왜 손으로 고치면 안 되나")
+2. [../CONTRIBUTING.md](../CONTRIBUTING.md) — 팀 전체 규칙
 3. [HANDOVER.md](HANDOVER.md) — 지금 무엇이 열려 있고 무엇이 고장 나 있는지 (4.6 절)
 4. 도구 **자체**를 고쳐야 한다면 axMap 저장소로 간다 —
-   `https://lab.ssafy.com/rleaderjoon/axmap`. **이 저장소의 `ci/axmap/` 을 고치는
-   것이 아니다**
+   `https://lab.ssafy.com/rleaderjoon/axmap`. 거기서 고치고 npm 에 새 판을 올리면
+   팀은 다음 `npx` 부터 그것을 쓴다. **이 저장소를 고치는 것이 아니다**
 5. 그래도 안 되면 팀에 물어본다. 물어본 내용은 이 문서에 한 줄로 남긴다 —
    **당신이 막힌 곳에서 다음 사람도 막힌다.**

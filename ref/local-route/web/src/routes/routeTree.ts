@@ -1,5 +1,5 @@
 /**
- * LOCAL ROUTE 페이지 트리 — 단일 진실 공급원(Single Source of Truth)
+ * GABOLLE 페이지 트리 — 단일 진실 공급원(Single Source of Truth)
  *
  * 이 파일 하나가 다음 4가지를 동시에 정의한다.
  *   1) 웹 라우팅        : routes/AppRouter.tsx 가 이 트리를 그대로 사용
@@ -65,11 +65,25 @@ export const ROUTE_TREE: RouteNode[] = [
     titleEn: "Home",
     purpose: "서비스 가치를 한 화면에 보여주고 여행 계획 시작으로 연결한다.",
     platform: "BOTH",
-    access: "PUBLIC",
+    access: "SESSION",
     apis: ["GET /api/places?limit=1", "GET /api/course-categories"],
     owners: ["FE"],
     milestone: "M1_WEB",
-    status: "TODO",
+    status: "DONE",
+  },
+  {
+    id: "now",
+    path: "/now",
+    expoPath: "app/now.tsx",
+    titleKo: "지금, 어디 가볼래?",
+    titleEn: "Where should we go now?",
+    purpose: "현재 출발지·가용 시간·실내 선호를 바탕으로 바로 갈 수 있는 후보와 이유를 보여준다.",
+    platform: "BOTH",
+    access: "SESSION",
+    apis: ["GET /api/places", "GET /api/routes/directions"],
+    owners: ["FE", "BE"],
+    milestone: "M1_WEB",
+    status: "DONE",
   },
   {
     id: "welcome",
@@ -92,12 +106,12 @@ export const ROUTE_TREE: RouteNode[] = [
     titleKo: "앱 온보딩·권한 요청",
     titleEn: "Onboarding",
     purpose: "앱 최초 실행 시 위치·알림 권한을 목적과 함께 설명하고 요청한다. 스토어 심사에서 권한 사유 노출이 필수다.",
-    platform: "APP",
-    access: "PUBLIC",
-    apis: ["POST /api/auth/anonymous"],
+    platform: "BOTH",
+    access: "SESSION",
+    apis: [],
     owners: ["FE"],
     milestone: "M3_REVIEW",
-    status: "TODO",
+    status: "DONE",
   },
   {
     id: "auth.login",
@@ -107,7 +121,7 @@ export const ROUTE_TREE: RouteNode[] = [
     titleEn: "Sign in",
     purpose: "저장된 여행과 기록을 이어서 이용하기 위한 로그인 화면을 제공한다.",
     platform: "BOTH",
-    access: "PUBLIC",
+    access: "SESSION",
     apis: ["POST /api/auth/login", "GET /api/auth/me", "POST /api/auth/logout"],
     owners: ["FE"],
     milestone: "M1_WEB",
@@ -143,7 +157,7 @@ export const ROUTE_TREE: RouteNode[] = [
     children: [
       { id: "plan.basic", path: "basic", expoPath: "app/plan/basic.tsx", titleKo: "1단계 · 기본 정보", titleEn: "Basics", purpose: "출발지·기간·인원·예산·이동 시간대를 입력한다.", platform: "BOTH", access: "PUBLIC", apis: ["GET /api/locations/search"], owners: ["FE"], milestone: "M1_WEB", status: "DONE" },
       { id: "plan.taste", path: "taste", expoPath: "app/plan/taste.tsx", titleKo: "2단계 · 취향·코스", titleEn: "Taste & course", purpose: "추천 모드 3종과 10개 코스 카테고리, 취향 태그를 선택한다.", platform: "BOTH", access: "PUBLIC", apis: ["GET /api/course-categories"], owners: ["FE", "BE"], milestone: "M1_WEB", status: "DONE" },
-      { id: "plan.conditions", path: "conditions", expoPath: "app/plan/conditions.tsx", titleKo: "3단계 · 이용 조건", titleEn: "Conditions", purpose: "외국인 편의·알레르기·식단·숙소를 입력한다.", platform: "BOTH", access: "PUBLIC", apis: ["GET /api/places?category=LODGING"], owners: ["FE"], milestone: "M1_WEB", status: "DONE" },
+      { id: "plan.constraints", path: "constraints", expoPath: "app/plan/constraints.tsx", titleKo: "3단계 · 이용 조건", titleEn: "Constraints", purpose: "식단·알레르기·휠체어·유모차·계단 회피처럼 추천에서 완화하면 안 되는 조건을 입력한다.", platform: "BOTH", access: "SESSION", apis: [], owners: ["FE", "BE"], milestone: "M1_WEB", status: "DONE" },
       { id: "plan.confirm", path: "confirm", expoPath: "app/plan/confirm.tsx", titleKo: "4단계 · 최종 확인", titleEn: "Confirm", purpose: "입력값을 요약해 보여주고 일정 계산을 실행한다.", platform: "BOTH", access: "PUBLIC", apis: ["POST /api/trips", "POST /api/trips/:id/itineraries:generate"], owners: ["FE", "BE"], milestone: "M1_WEB", status: "DONE" },
     ],
   },

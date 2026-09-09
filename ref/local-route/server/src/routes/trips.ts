@@ -15,6 +15,49 @@ import { optionalSession, requireItineraryEditor, requireSession, requireTripEdi
 
 export const tripsRouter = Router();
 
+tripsRouter.post("/route-executions", async (req, res, next) => {
+  try {
+    const tripId = String(req.body?.tripId ?? "");
+    const viewer = await requireTripViewer(req, res, tripId); if (!viewer) return;
+    const transport = req.body?.transport === "CAR" ? "CAR" : "TRANSIT";
+    const account = await prisma.user.findUnique({ where: { ownerSessionId: viewer.session.id }, include: { consents: { where: { category: "PRECISE_LOCATION", granted: true } } } });
+    if (!account?.consents.length) return res.status(403).json({ error_code: "PRECISE_LOCATION_CONSENT_REQUIRED", message: "설정에서 여행 중 정밀 위치 사용에 동의한 뒤 시작해주세요." });
+    await prisma.routeExecution.updateMany({ where: { sessionId: viewer.session.id, status: "ACTIVE" }, data: { status: "ENDED", endedAt: new Date() } });
+    const execution = await prisma.routeExecution.create({ data: { tripId, sessionId: viewer.session.id, transport } });
+    res.status(201).json({ executionId: execution.id, status: execution.status, startedAt: execution.startedAt });
+  } catch (error) { next(error); }
+});
+
+tripsRouter.patch("/route-executions/:id", async (req, res, next) => {
+  try {
+    const session = await requireSession(req, res); if (!session) return;
+    const execution = await prisma.routeExecution.findFirst({ where: { id: req.params.id, sessionId: session.id } });
+    if (!execution) return res.status(404).json({ error_code: "ROUTE_EXECUTION_NOT_FOUND" });
+    const status = String(req.body?.status ?? "");
+    if (!new Set(["ACTIVE", "PAUSED", "ENDED"]).has(status)) return res.status(400).json({ error_code: "INVALID_ROUTE_EXECUTION_STATUS" });
+    const updated = await prisma.routeExecution.update({ where: { id: execution.id }, data: { status, pausedAt: status === "PAUSED" ? new Date() : null, endedAt: status === "ENDED" ? new Date() : null } });
+    res.json({ executionId: updated.id, status: updated.status });
+  } catch (error) { next(error); }
+});
+
+tripsRouter.post("/route-executions/:id/location-signals/batch", async (req, res, next) => {
+  try {
+    const session = await requireSession(req, res); if (!session) return;
+    const execution = await prisma.routeExecution.findFirst({ where: { id: req.params.id, sessionId: session.id, status: "ACTIVE" } });
+    if (!execution) return res.status(409).json({ error_code: "ROUTE_EXECUTION_NOT_ACTIVE" });
+    const source = Array.isArray(req.body?.signals) ? req.body.signals.slice(0, 100) : [];
+    const deleteAfter = new Date(Date.now() + 7 * 86_400_000);
+    const signals = source.flatMap((signal: any) => {
+      const latitude = Number(signal?.latitude); const longitude = Number(signal?.longitude); const accuracy = Number(signal?.accuracy);
+      const capturedAt = new Date(signal?.capturedAt);
+      if (!Number.isFinite(latitude) || latitude < -90 || latitude > 90 || !Number.isFinite(longitude) || longitude < -180 || longitude > 180 || !Number.isFinite(accuracy) || accuracy < 0 || Number.isNaN(capturedAt.getTime())) return [];
+      return [{ routeExecutionId: execution.id, latitude, longitude, accuracy, heading: Number.isFinite(Number(signal?.heading)) ? Number(signal.heading) : null, capturedAt, deleteAfter }];
+    });
+    if (signals.length) await prisma.$transaction([prisma.locationSignal.createMany({ data: signals }), prisma.routeExecution.update({ where: { id: execution.id }, data: { lastSignalAt: new Date() } })]);
+    res.json({ accepted: signals.length, rejected: source.length - signals.length });
+  } catch (error) { next(error); }
+});
+
 tripsRouter.get("/trips", async (req, res, next) => {
   try {
     const session = await requireSession(req, res); if (!session) return;
@@ -40,6 +83,76 @@ tripsRouter.get("/locations/search", async (req, res, next) => {
   } catch (error) { next(error); }
 });
 
+/**
+ * 계획을 새로 만들지 않고 지금 바로 갈 장소를 고른다.
+ * 출발지는 카카오 장소 검색, 이동 경로는 카카오 대중교통 API를 사용하고
+ * 후보 사진과 운영 정보는 TourAPI로 적재한 자체 장소 DB를 사용한다.
+ */
+tripsRouter.get("/recommendations/now", async (req, res, next) => {
+  try {
+    const query = typeof req.query.query === "string" ? req.query.query.trim().slice(0, 100) : "";
+    const hours = Math.max(1, Math.min(6, Number(req.query.hours ?? 2)));
+    const indoorOnly = req.query.indoor === "true";
+    if (query.length < 2) return res.status(400).json({ error_code: "QUERY_TOO_SHORT", message: "출발지를 2자 이상 입력해 주세요." });
+
+    const origins = await searchKakaoLocations(query);
+    const origin = origins[0];
+    if (!origin) return res.status(404).json({ error_code: "ORIGIN_NOT_FOUND", message: "카카오맵에서 출발지를 찾지 못했습니다." });
+
+    const kst = new Date(Date.now() + 9 * 60 * 60 * 1000);
+    const nowTime = `${String(kst.getUTCHours()).padStart(2, "0")}:${String(kst.getUTCMinutes()).padStart(2, "0")}`;
+    const dayCode = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"][kst.getUTCDay()];
+    const places = await prisma.place.findMany({
+      where: { category: { in: ["TOURIST", "RESTAURANT", "CAFE"] }, ...(indoorOnly ? { isOutdoor: false } : {}) },
+      take: 180,
+    });
+    const nearby = places
+      .filter((place) => !(JSON.parse(place.closedDays) as string[]).includes(dayCode))
+      .map((place) => ({ place, distanceM: haversineDistanceM(origin.lat, origin.lng, place.lat, place.lng) }))
+      .filter(({ distanceM }) => distanceM <= 20_000)
+      .sort((a, b) => (a.distanceM - b.distanceM) + (b.place.localScore - a.place.localScore) * 2_500)
+      .slice(0, 8);
+
+    const routed = await Promise.all(nearby.map(async ({ place, distanceM }) => {
+      const route = await getEmbeddedRoute(origin.lat, origin.lng, place.lat, place.lng, "TRANSIT");
+      const isOpenNow = place.openTime <= nowTime && place.closeTime > nowTime;
+      const fitsTime = route.durationMin + place.recommendedStayMin <= hours * 60;
+      const reasons = [
+        place.dataSource === "TOURAPI" ? "한국관광공사 최신 관광정보" : "GABOLLE 로컬 큐레이션",
+        place.localScore >= .72 ? "현지인 추천도가 높은 장소" : null,
+        route.isEstimate ? "이동시간은 추정값" : "카카오 실시간 경로 확인",
+      ].filter(Boolean);
+      return {
+        placeId: place.id,
+        nameKo: place.nameKo,
+        nameEn: place.nameEn,
+        category: place.category,
+        address: place.address,
+        lat: place.lat,
+        lng: place.lng,
+        imageUrl: place.imageUrl,
+        dataSource: place.dataSource,
+        distanceM: Math.round(distanceM),
+        durationMin: route.durationMin,
+        routeSource: route.source,
+        isEstimate: route.isEstimate,
+        openTime: place.openTime,
+        closeTime: place.closeTime,
+        isOpenNow,
+        fitsTime,
+        recommendedStayMin: place.recommendedStayMin,
+        reason: reasons.join(" · "),
+      };
+    }));
+
+    const recommendations = routed
+      .filter((item) => item.fitsTime)
+      .sort((a, b) => Number(b.isOpenNow) - Number(a.isOpenNow) || a.durationMin - b.durationMin)
+      .slice(0, 5);
+    return res.json({ origin, generatedAt: new Date().toISOString(), recommendations });
+  } catch (error) { next(error); }
+});
+
 tripsRouter.get("/course-categories", (_req, res) => {
   res.setHeader("Cache-Control", "public, max-age=3600");
   res.json({ categories: getCourseCategories() });
@@ -49,7 +162,7 @@ tripsRouter.get("/places/:id/image", async (req, res, next) => {
   try {
     const place = await prisma.place.findUnique({ where: { id: req.params.id }, select: { id: true, nameKo: true, address: true, category: true, imageUrl: true } });
     if (!place) return res.status(404).json({ error_code: "PLACE_NOT_FOUND" });
-    const match = await searchPlaceImage(place);
+    const match = await searchPlaceImage(place, { ignoreStoredImage: req.query.fallback === "1" });
     return res.json(match ?? { imageUrl: null, sourceUrl: null, provider: null, title: null });
   } catch (error) { next(error); }
 });
@@ -95,6 +208,9 @@ function buildTripMeta(
     dayStart: string;
     dayEnd: string;
     maxWalkingKm: number;
+    mobilityProfile: string;
+    avoidStairs: boolean;
+    shadePriority: string;
     recommendationMode: string;
   },
   preference: {
@@ -125,6 +241,9 @@ function buildTripMeta(
     dayStart: trip.dayStart,
     dayEnd: trip.dayEnd,
     maxWalkingKm: trip.maxWalkingKm,
+    mobilityProfile: trip.mobilityProfile as TripMeta["mobilityProfile"],
+    avoidStairs: trip.avoidStairs,
+    shadePriority: trip.shadePriority as TripMeta["shadePriority"],
     recommendationMode: trip.recommendationMode as TripMeta["recommendationMode"],
     tasteTags: JSON.parse(preference.tasteTags),
     language: preference.language as TripMeta["language"],
@@ -172,7 +291,7 @@ tripsRouter.post("/trips/:id/itineraries\\:generate", async (req, res) => {
   return res.status(202).json({
     jobId: job.jobId,
     status: job.status,
-    statusUrl: `/api/itinerary-jobs/${job.jobId}`,
+    statusUrl: `/api/jobs/${job.jobId}`,
     streamUrl: `/api/itinerary-jobs/${job.jobId}/events`,
   });
 });
@@ -180,12 +299,21 @@ tripsRouter.post("/trips/:id/itineraries\\:generate", async (req, res) => {
 tripsRouter.get("/itinerary-jobs/:jobId", async (req, res) => {
   const job = await getJob(req.params.jobId);
   if (!job) return res.status(404).json({ error_code: "JOB_NOT_FOUND", message: "생성 작업을 찾을 수 없습니다." });
+  if (!await requireTripViewer(req, res, job.tripId)) return;
+  return res.json(job);
+});
+
+tripsRouter.get("/jobs/:jobId", async (req, res) => {
+  const job = await getJob(req.params.jobId);
+  if (!job) return res.status(404).json({ error_code: "JOB_NOT_FOUND", message: "작업을 찾을 수 없습니다." });
+  if (!await requireTripViewer(req, res, job.tripId)) return;
   return res.json(job);
 });
 
 tripsRouter.get("/itinerary-jobs/:jobId/events", async (req, res) => {
   const initial = await getJob(req.params.jobId);
   if (!initial) return res.status(404).json({ error_code: "JOB_NOT_FOUND", message: "생성 작업을 찾을 수 없습니다." });
+  if (!await requireTripViewer(req, res, initial.tripId)) return;
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache, no-transform");
   res.setHeader("Connection", "keep-alive");
@@ -404,6 +532,11 @@ tripsRouter.post("/trips", async (req, res) => {
   if (!Number.isInteger(adultCount) || adultCount < 1 || !Number.isInteger(childCount) || childCount < 0) {
     return res.status(400).json({ error_code: "INVALID_PARTY", message: "성인은 1명 이상, 아동은 0명 이상이어야 합니다." });
   }
+  const mobilityProfiles = new Set(["STANDARD", "WHEELCHAIR", "STROLLER", "HEAVY_LUGGAGE"]);
+  const shadePriorities = new Set(["LOW", "MEDIUM", "HIGH"]);
+  if (!mobilityProfiles.has(body.mobilityProfile ?? "STANDARD") || !shadePriorities.has(body.shadePriority ?? "MEDIUM")) {
+    return res.status(400).json({ error_code: "INVALID_ACCESSIBILITY_CONDITION", message: "지원하지 않는 이동 상황 또는 그늘 선호 값입니다." });
+  }
   // 날짜 지정된 필수 방문 장소(위저드의 "가고 싶은 곳" 추가). dayIndex는 1부터 시작.
   const mustVisitAssignments = (body.mustVisitAssignments ?? []).filter(
     (assignment) => assignment && typeof assignment.placeId === "string" && Number.isInteger(assignment.dayIndex) && assignment.dayIndex >= 1
@@ -438,6 +571,9 @@ tripsRouter.post("/trips", async (req, res) => {
       dayStart,
       dayEnd,
       maxWalkingKm: body.maxWalkingKm ?? 8,
+      mobilityProfile: body.mobilityProfile ?? "STANDARD",
+      avoidStairs: body.avoidStairs ?? false,
+      shadePriority: body.shadePriority ?? "MEDIUM",
       recommendationMode: body.recommendationMode ?? "LOCAL",
       lodgingPlaceId: body.lodgingPlaceId || null,
       status: "DRAFT",

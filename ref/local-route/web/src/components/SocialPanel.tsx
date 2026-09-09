@@ -4,6 +4,7 @@ import type { ItineraryOutput, StoryRecord } from "../types";
 
 const shortAuthor = (label: string) => label.replace(/^여행자\s*/, "");
 const storyInitial = (story: StoryRecord) => shortAuthor(story.authorLabel).slice(0, 1) || "L";
+const isDemoStory = (story: StoryRecord) => story.id.startsWith("demo-");
 
 async function prepareStoryImage(file: File) {
   if (!file.type.startsWith("image/")) throw new Error("이미지 파일만 선택할 수 있어요.");
@@ -36,7 +37,8 @@ export function SocialPanel({ itinerary }: { itinerary: ItineraryOutput }) {
   const [editImages, setEditImages] = useState<string[]>([]);
   const [editVisibility, setEditVisibility] = useState("PRIVATE");
   const [savingEdit, setSavingEdit] = useState(false);
-  const [section, setSection] = useState<"book" | "community">("book");
+  const [section, setSection] = useState<"mine" | "friends" | "neighbors">("neighbors");
+  const [likedStories, setLikedStories] = useState<string[]>([]);
 
   const load = async () => {
     try {
@@ -47,11 +49,38 @@ export function SocialPanel({ itinerary }: { itinerary: ItineraryOutput }) {
   };
   useEffect(() => { void load(); }, []);
 
+  const demoStories = useMemo<StoryRecord[]>(() => {
+    const sources = items.filter((item) => item.imageUrl);
+    const samples = [
+      { author: "민지", content: "광안대교 불이 켜지는 시간에 맞춰 걸었어요. 바다 쪽 벤치에서 보는 야경이 특히 좋았습니다.", friend: true },
+      { author: "준호", content: "시장 안쪽으로 두 블록만 더 들어가니 현지인들이 줄 서는 간식집이 보였어요. 오전 방문을 추천해요.", friend: true },
+      { author: "유나", content: "골목의 색과 바다가 함께 보이는 지점이에요. 사람이 적은 아침에는 천천히 사진을 남기기 좋았습니다.", friend: false },
+      { author: "도윤", content: "부산의 오래된 동네 분위기를 느끼며 걸었습니다. 경사가 있어 편한 신발을 준비하면 좋아요.", friend: false },
+    ];
+    return samples.map((sample, index) => {
+      const source = sources[index % Math.max(sources.length, 1)] ?? items[index % Math.max(items.length, 1)];
+      const createdAt = new Date(Date.now() - (index + 1) * 60 * 60 * 1000).toISOString();
+      return {
+        id: `demo-${sample.friend ? "friend" : "neighbor"}-${index + 1}`,
+        authorId: `demo-author-${index + 1}`, authorLabel: sample.author,
+        placeId: source?.placeId ?? `demo-place-${index + 1}`, placeName: source?.nameKo ?? "부산 로컬 산책",
+        tripId: null, dayIndex: index + 1, visitDate: itinerary.trip.startDate, plannedArrival: source?.plannedArrival ?? "18:30",
+        content: sample.content, images: source?.imageUrl ? [source.imageUrl] : [], visibility: "PUBLIC",
+        visitVerified: true, areaLabel: source?.address?.split(" ").slice(0, 2).join(" ") ?? "부산광역시",
+        publishAt: createdAt, moderationStatus: "PUBLISHED", createdAt, isFollowing: sample.friend, mine: false,
+      };
+    });
+  }, [itinerary.trip.startDate, items]);
+
+  const scopedStories = section === "friends"
+    ? (followingPosts.length ? followingPosts : demoStories.filter((story) => story.isFollowing))
+    : (publicStories.filter((story) => !story.mine).length ? publicStories.filter((story) => !story.mine) : demoStories);
+
   const storyTray = useMemo(() => {
     const latestByAuthor = new Map<string, StoryRecord>();
-    publicStories.forEach((story) => { if (!latestByAuthor.has(story.authorId)) latestByAuthor.set(story.authorId, story); });
+    scopedStories.forEach((story) => { if (!latestByAuthor.has(story.authorId)) latestByAuthor.set(story.authorId, story); });
     return [...latestByAuthor.values()].slice(0, 14);
-  }, [publicStories]);
+  }, [scopedStories]);
   const tripStories = useMemo(() => myStories.filter((story) => story.tripId === itinerary.tripId).sort((a, b) => (a.dayIndex ?? 999) - (b.dayIndex ?? 999) || String(a.plannedArrival ?? "").localeCompare(String(b.plannedArrival ?? ""))), [myStories, itinerary.tripId]);
 
   const selected = items.find((item) => item.placeId === placeId);
@@ -72,23 +101,32 @@ export function SocialPanel({ itinerary }: { itinerary: ItineraryOutput }) {
     } catch (error) { setNotice(error instanceof Error ? error.message : "여행 기록을 저장하지 못했습니다."); }
   };
   const toggleFollow = async (story: StoryRecord) => { await followUser(story.authorId, story.isFollowing); await load(); };
+  const toggleLike = (storyId: string) => setLikedStories((current) => current.includes(storyId) ? current.filter((id) => id !== storyId) : [...current, storyId]);
+  const shareStory = async (story: StoryRecord) => {
+    const shareText = `${story.authorLabel}님의 부산 여행 기록 · ${story.placeName}\n${story.content}`;
+    try {
+      if (navigator.share) await navigator.share({ title: `${story.placeName} 여행 기록`, text: shareText, url: window.location.href });
+      else { await navigator.clipboard.writeText(`${shareText}\n${window.location.href}`); setNotice("여행 기록 링크를 복사했습니다."); }
+    } catch (error) { if (error instanceof DOMException && error.name === "AbortError") return; setNotice("공유하지 못했습니다. 잠시 후 다시 시도해주세요."); }
+  };
   const startEdit = (story: StoryRecord) => { setEditingStory(story); setEditContent(story.content); setEditImages(story.images); setEditVisibility(story.visibility); setSelectedStory(null); };
   const saveEdit = async (publishNow = false) => { if (!editingStory || !editContent.trim()) return; setSavingEdit(true); try { await updateStory(editingStory.id, { content: editContent.trim(), images: editImages, visibility: editVisibility, publishNow }); setEditingStory(null); setNotice(publishNow ? "여행 기록을 지금 공개했습니다." : "여행 기록을 수정했습니다."); await load(); } catch (error) { setNotice(error instanceof Error ? error.message : "수정하지 못했습니다."); } finally { setSavingEdit(false); } };
   const removeStory = async () => { if (!editingStory || !window.confirm("이 여행 기록을 삭제할까요? 삭제하면 되돌릴 수 없어요.")) return; setSavingEdit(true); try { await deleteStory(editingStory.id); setEditingStory(null); setNotice("여행 기록을 삭제했습니다."); await load(); } catch (error) { setNotice(error instanceof Error ? error.message : "삭제하지 못했습니다."); } finally { setSavingEdit(false); } };
 
   return <section className="social-panel social-home" aria-label="함께 여행 피드">
-    <section className="story-quick-start" aria-label="내 여행 기록 작성">
-      <div><span>MY TRAVEL NOTE</span><strong>이 여행의 사진과 이야기를 남겨보세요</strong><small>일정 속 장소를 선택해 기록하면 나중에 여행별로 다시 볼 수 있어요.</small></div>
-      <button type="button" onClick={() => { setComposerOpen(true); window.setTimeout(() => document.getElementById("my-travel-note")?.scrollIntoView({ behavior: "smooth", block: "center" }), 0); }}>＋ 사진·기록 남기기</button>
-    </section>
-
-    <nav className="story-section-tabs" aria-label="여행 기록 메뉴">
-      <button type="button" className={section === "book" ? "active" : ""} onClick={() => setSection("book")}>내 여행책</button>
-      <button type="button" className={section === "community" ? "active" : ""} onClick={() => setSection("community")}>여행자 피드</button>
+    <nav className="story-section-tabs scope-tabs" aria-label="여행 기록 공개 범위">
+      <button type="button" className={section === "mine" ? "active" : ""} onClick={() => setSection("mine")}><strong>나</strong><small>내 여행 기록</small></button>
+      <button type="button" className={section === "friends" ? "active" : ""} onClick={() => setSection("friends")}><strong>친구</strong><small>팔로우한 여행자</small></button>
+      <button type="button" className={section === "neighbors" ? "active" : ""} onClick={() => setSection("neighbors")}><strong>이웃</strong><small>부산의 모든 여행자</small></button>
     </nav>
 
-    {section === "book" && <section className="my-story-manager" aria-labelledby="my-story-manager-title">
-      <div className="travel-book-cover" style={tripStories[0]?.images[0] ? { backgroundImage: `linear-gradient(90deg, rgba(16,16,22,.8), rgba(16,16,22,.2)), url(${tripStories[0].images[0]})` } : undefined}><span>LOCAL ROUTE · TRAVEL BOOK</span><h2>부산에서의 {itinerary.days.length}일</h2><p>{itinerary.trip.startDate} — {itinerary.trip.endDate} · {new Set(tripStories.map((story) => story.placeId)).size}곳의 기록</p></div>
+    {section === "mine" && <section className="story-quick-start" aria-label="내 여행 기록 작성">
+      <div><span>MY TRAVEL NOTE</span><strong>이 여행의 사진과 이야기를 남겨보세요</strong><small>일정 속 장소를 선택해 기록하면 나중에 여행별로 다시 볼 수 있어요.</small></div>
+      <button type="button" onClick={() => { setComposerOpen(true); window.setTimeout(() => document.getElementById("my-travel-note")?.scrollIntoView({ behavior: "smooth", block: "center" }), 0); }}>＋ 사진·기록 남기기</button>
+    </section>}
+
+    {section === "mine" && <section className="my-story-manager" aria-labelledby="my-story-manager-title">
+      <div className="travel-book-cover" style={tripStories[0]?.images[0] ? { backgroundImage: `linear-gradient(90deg, rgba(16,16,22,.8), rgba(16,16,22,.2)), url(${tripStories[0].images[0]})` } : undefined}><span>GABOLLE · TRAVEL BOOK</span><h2>부산에서의 {itinerary.days.length}일</h2><p>{itinerary.trip.startDate} — {itinerary.trip.endDate} · {new Set(tripStories.map((story) => story.placeId)).size}곳의 기록</p></div>
       <div className="social-section-heading"><div><span>MY TRAVEL BOOK</span><h2 id="my-story-manager-title">이 여행의 기록</h2></div><small>{tripStories.length}개의 장면</small></div>
       {tripStories.length === 0 ? <div className="my-story-manager-empty">이 여행에는 아직 기록이 없어요. 위 버튼으로 첫 장면을 남겨보세요.</div> : <div className="travel-book-strip">
         {tripStories.map((story) => <button type="button" key={story.id} onClick={() => startEdit(story)}>
@@ -97,28 +135,32 @@ export function SocialPanel({ itinerary }: { itinerary: ItineraryOutput }) {
         </button>)}
       </div>}
     </section>}
-    {section === "community" && <><section className="people-stories" aria-labelledby="story-tray-title">
-      <div className="social-section-heading"><div><span>지금 여행 중</span><h2 id="story-tray-title">여행자 스토리</h2></div><small>최근 공유된 순간</small></div>
+    {section !== "mine" && <section className="community-stream" aria-labelledby="story-tray-title">
+      <header className="community-intro">
+        <div><span>{section === "friends" ? "FRIENDS" : "BUSAN COMMUNITY"}</span><h2 id="story-tray-title">{section === "friends" ? "친구의 새 소식" : "부산 여행자 이야기"}</h2><p>{section === "friends" ? "팔로우한 여행자가 부산에서 남긴 순간이에요." : "여행자들이 직접 발견한 부산의 장소와 팁을 만나보세요."}</p></div>
+        <em>{publicStories.length || followingPosts.length ? "최근 공유" : "미리보기"}</em>
+      </header>
       <div className="story-rail" role="list">
         {storyTray.length === 0 && <div className="story-rail-empty"><strong>첫 번째 여행 순간을 기다리고 있어요</strong><span>공개된 스토리가 생기면 여기에 먼저 보여드릴게요.</span></div>}
         {storyTray.map((story) => <button type="button" className="story-bubble" role="listitem" key={story.id} onClick={() => setSelectedStory(story)} aria-label={`${story.authorLabel}의 ${story.placeName} 스토리 보기`}>
           <span className="story-ring"><span className="story-thumb">{story.images[0] ? <img src={story.images[0]} alt="" /> : <b>{storyInitial(story)}</b>}</span></span><strong>{shortAuthor(story.authorLabel)}</strong><small>{story.areaLabel || story.placeName}</small>
         </button>)}
       </div>
-    </section>
-
-    <section className="following-feed-section" aria-labelledby="following-feed-title">
-      <div className="social-section-heading"><div><span>내가 고른 여행자</span><h2 id="following-feed-title">팔로잉 피드</h2></div><small>{followingPosts.length}개의 새 기록</small></div>
-      {followingPosts.length === 0 ? <div className="following-empty"><strong>아직 팔로우한 여행자의 게시물이 없어요</strong><p>위 스토리를 열어 마음에 드는 여행자를 팔로우하면, 새 여행 기록이 이곳에 차분히 쌓입니다.</p></div> : <div className="following-posts">
-        {followingPosts.map((story) => <article className="following-post" key={story.id}>
-          <header><div className="post-author"><span>{storyInitial(story)}</span><div><strong>{story.authorLabel}</strong><small>{story.areaLabel} · {story.placeName}</small></div></div><button type="button" className="following-button" onClick={() => void toggleFollow(story)}>팔로잉</button></header>
-          {story.images[0] ? <img className="post-photo" src={story.images[0]} alt={`${story.placeName}에서 공유한 여행 사진`} /> : <button type="button" className="post-text-cover" onClick={() => setSelectedStory(story)}><span>{story.placeName}</span><strong>{story.content}</strong></button>}
-          <div className="post-body">{story.images[0] && <p><strong>{story.authorLabel}</strong> {story.content}</p>}<div className="post-meta"><span>{story.visitVerified ? "방문 확인" : "여행 기록"} · {new Date(story.publishAt).toLocaleDateString("ko-KR")}</span>{story.moderationStatus === "REVIEW" ? <em>검토 중</em> : <button type="button" onClick={async () => { await reportStory(story.id); await load(); }}>신고</button>}</div></div>
+      <div className="community-feed-label"><strong>최신 기록</strong><span>{scopedStories.length}개</span></div>
+      <div className="following-posts">
+        {scopedStories.map((story) => <article className={`following-post ${isDemoStory(story) ? "demo-post" : ""}`} key={story.id}>
+          <header><div className="post-author"><span>{storyInitial(story)}</span><div><strong>{story.authorLabel}{isDemoStory(story) && <em className="demo-badge">DEMO</em>}</strong><small>{story.areaLabel} · {story.placeName}</small></div></div>{isDemoStory(story) ? <span className="demo-follow-label">{story.isFollowing ? "친구 예시" : "이웃 예시"}</span> : <button type="button" className="following-button" onClick={() => void toggleFollow(story)}>{story.isFollowing ? "팔로잉" : "팔로우"}</button>}</header>
+          <div className="moment-copy"><p>{story.content}</p><button type="button" onClick={() => setSelectedStory(story)}><span aria-hidden="true">⌖</span>{story.placeName}<small>{story.areaLabel}</small></button></div>
+          {story.images[0] ? <button type="button" className="moment-photo-button" onClick={() => setSelectedStory(story)} aria-label={`${story.placeName} 여행 기록 자세히 보기`}><img className="post-photo" src={story.images[0]} alt={`${story.placeName}에서 공유한 여행 사진`} /></button> : <button type="button" className="post-text-cover" onClick={() => setSelectedStory(story)}><span>{story.placeName}</span><strong>{story.content}</strong></button>}
+          <footer className="moment-footer">
+            <div className="moment-actions"><button type="button" className={likedStories.includes(story.id) ? "liked" : ""} aria-pressed={likedStories.includes(story.id)} onClick={() => toggleLike(story.id)}><span aria-hidden="true">{likedStories.includes(story.id) ? "♥" : "♡"}</span> 공감</button><button type="button" onClick={() => setSelectedStory(story)}><span aria-hidden="true">◯</span> 자세히</button><button type="button" onClick={() => void shareStory(story)}><span aria-hidden="true">↗</span> 공유</button></div>
+            <div className="post-meta"><span>{story.visitVerified ? "방문 확인" : "여행 기록"} · {isDemoStory(story) ? "화면 이해를 위한 예시" : new Date(story.publishAt).toLocaleDateString("ko-KR")}</span>{isDemoStory(story) ? <em>데모 게시물</em> : story.moderationStatus === "REVIEW" ? <em>검토 중</em> : <button type="button" onClick={async () => { await reportStory(story.id); await load(); }}>신고</button>}</div>
+          </footer>
         </article>)}
-      </div>}
-    </section></>}
+      </div>
+    </section>}
 
-    {section === "book" && <section id="my-travel-note" className="my-story-area" aria-labelledby="my-story-title">
+    {section === "mine" && <section id="my-travel-note" className="my-story-area" aria-labelledby="my-story-title">
       <div><span>MY TRAVEL NOTE</span><h2 id="my-story-title">내 여행 기록 남기기</h2><p>피드를 둘러본 뒤, 오늘의 기억을 한 장면으로 남겨보세요.</p></div>
       <button type="button" className="composer-toggle" aria-expanded={composerOpen} onClick={() => setComposerOpen((open) => !open)}>{composerOpen ? "작성 닫기" : "기록 작성"}</button>
       {composerOpen && <div className="story-composer">
@@ -135,7 +177,7 @@ export function SocialPanel({ itinerary }: { itinerary: ItineraryOutput }) {
       <article className="story-viewer" role="dialog" aria-modal="true" aria-labelledby="story-viewer-title">
         <header><div className="post-author"><span>{storyInitial(selectedStory)}</span><div><strong id="story-viewer-title">{selectedStory.authorLabel}</strong><small>{selectedStory.areaLabel} · {selectedStory.placeName}</small></div></div><button type="button" className="viewer-close" onClick={() => setSelectedStory(null)} aria-label="스토리 닫기">닫기</button></header>
         {selectedStory.images.length > 0 ? <div className="viewer-gallery">{selectedStory.images.map((image, index) => <img key={`${image.slice(-20)}-${index}`} src={image} alt={`${selectedStory.placeName} 여행 사진 ${index + 1}`} />)}</div> : <div className="viewer-text"><span>{selectedStory.placeName}</span><p>{selectedStory.content}</p></div>}
-        <div className="viewer-copy">{selectedStory.images[0] && <p>{selectedStory.content}</p>}<div><span>{new Date(selectedStory.publishAt).toLocaleDateString("ko-KR")}</span>{selectedStory.mine ? <button type="button" onClick={() => startEdit(selectedStory)}>수정</button> : <button type="button" onClick={() => void toggleFollow(selectedStory)}>{selectedStory.isFollowing ? "팔로잉 취소" : "팔로우"}</button>}</div></div>
+        <div className="viewer-copy">{selectedStory.images[0] && <p>{selectedStory.content}</p>}<div><span>{isDemoStory(selectedStory) ? "화면 이해를 위한 데모 게시물" : new Date(selectedStory.publishAt).toLocaleDateString("ko-KR")}</span>{selectedStory.mine ? <button type="button" onClick={() => startEdit(selectedStory)}>수정</button> : isDemoStory(selectedStory) ? <em className="demo-badge">DEMO</em> : <button type="button" onClick={() => void toggleFollow(selectedStory)}>{selectedStory.isFollowing ? "팔로잉 취소" : "팔로우"}</button>}</div></div>
       </article>
     </div>}
     {editingStory && <div className="story-viewer-backdrop"><section className="story-edit-dialog" role="dialog" aria-modal="true" aria-labelledby="story-edit-title"><header><div><span>MY TRAVEL NOTE</span><h2 id="story-edit-title">여행 기록 수정</h2><p>{editingStory.placeName} · {new Date(editingStory.publishAt) > new Date() ? `${new Date(editingStory.publishAt).toLocaleDateString("ko-KR")} 공개 예정` : "공개됨"}</p></div><button type="button" onClick={() => setEditingStory(null)} aria-label="수정 닫기">×</button></header><label>기록<textarea value={editContent} maxLength={500} onChange={(event) => setEditContent(event.target.value)} /></label><div className="story-preview-grid">{editImages.map((image, index) => <figure key={`${image.slice(-20)}-${index}`}><img src={image} alt={`사진 ${index + 1}`} /><button type="button" onClick={() => setEditImages(editImages.filter((_, itemIndex) => itemIndex !== index))} aria-label={`사진 ${index + 1} 삭제`}>×</button></figure>)}</div><div className="story-edit-options"><label className="image-picker">사진 추가 ({editImages.length}/3)<input type="file" multiple accept="image/jpeg,image/png,image/webp" onChange={(event) => void chooseImages(event.target.files, "edit")} /></label><select aria-label="수정 공개 범위" value={editVisibility} onChange={(event) => setEditVisibility(event.target.value)}><option value="PUBLIC">전체 공개</option><option value="FOLLOWERS">팔로워 공개</option><option value="PRIVATE">나만 보기</option></select></div><footer><button type="button" className="story-delete-button" onClick={() => void removeStory()}>기록 삭제</button><div>{new Date(editingStory.publishAt) > new Date() && editVisibility !== "PRIVATE" && <button type="button" className="publish-now-button" disabled={savingEdit} onClick={() => void saveEdit(true)}>지금 공개하기</button>}<button type="button" onClick={() => setEditingStory(null)}>취소</button><button type="button" disabled={savingEdit || !editContent.trim()} onClick={() => void saveEdit()}>{savingEdit ? "저장 중…" : "수정 저장"}</button></div></footer></section></div>}

@@ -20,7 +20,7 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, info: ErrorInfo) {
-    console.error("[LOCAL ROUTE] 화면 렌더 중 오류", error, info.componentStack);
+    console.error("[GABOLLE] 화면 렌더 중 오류", error, info.componentStack);
   }
 
   render() {

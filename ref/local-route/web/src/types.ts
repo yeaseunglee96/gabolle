@@ -25,6 +25,9 @@ export interface CreateTripRequest {
   language?: "KO" | "EN";
   allergies?: string[];
   dietType?: DietType;
+  mobilityProfile?: "STANDARD" | "WHEELCHAIR" | "STROLLER" | "HEAVY_LUGGAGE";
+  avoidStairs?: boolean;
+  shadePriority?: "LOW" | "MEDIUM" | "HIGH";
   desiredFoods?: string[];
   lodgingPlaceId?: string;
   landmarkRatio?: number;
@@ -229,6 +232,12 @@ export interface WeatherForecast { date: string; tempMin: number; tempMax: numbe
 export interface LocationSearchResult { id: string; name: string; address: string; lat: number; lng: number; category: string }
 export interface CourseCategory { code: string; nameKo: string; nameEn: string; axis: "BUDGET" | "MOOD" | "THEME" | "MOBILITY" | "COMPANION" | "SITUATION"; summaryKo: string; enabled: boolean; disabledReason?: string; boostTasteTags?: string[]; scheduleParams?: { pace?: Pace; transport?: string; stayMinutesScale?: number; maxWalkDistanceScale?: number; dayEndTimeCap?: string; forbidTimeRange?: { after?: string } } }
 export interface PlaceImageMatch { imageUrl: string | null; sourceUrl: string | null; provider: "DATABASE" | "NAVER" | "GOOGLE" | null; title: string | null }
+export interface NowRecommendation {
+  placeId: string; nameKo: string; nameEn: string | null; category: string; address: string;
+  lat: number; lng: number; imageUrl: string | null; dataSource: string; distanceM: number;
+  durationMin: number; routeSource: "KAKAO_MAP" | "KAKAO_MOBILITY" | "ESTIMATE"; isEstimate: boolean;
+  openTime: string; closeTime: string; isOpenNow: boolean; fitsTime: boolean; recommendedStayMin: number; reason: string;
+}
 export interface RouteStep { guidance: string; durationMin: number; distanceM: number; vehicle: string | null; destinationStop?: string | null; path: [number, number][] }
 export interface TransitAlternative { id: string; label: string; distanceM: number; durationMin: number; fare: number | null; transfers: number | null; steps: RouteStep[]; path: [number, number][]; isEstimate: boolean }
 export interface EmbeddedRoute { mode: "TRANSIT" | "CAR"; distanceM: number; durationMin: number; fare: number | null; transfers: number | null; transferDifficulty: "EASY" | "MODERATE" | "HARD" | null; steps: RouteStep[]; path: [number, number][]; isEstimate: boolean; source: "KAKAO_MAP" | "KAKAO_MOBILITY" | "ESTIMATE"; alternatives?: TransitAlternative[] }

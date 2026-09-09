@@ -1,0 +1,323 @@
+// infra-personalization 배포 파이프라인 (S15P21E201-573 에서 Job 연결 완료)
+//
+// 실행 전제:
+//  - Jenkins 플러그인 "SSH Agent"가 설치되어 있어야 한다 (sshagent 스텝이
+//    이 플러그인 없이는 아예 DSL 메서드로 인식되지 않는다 — Job 최초 실행 시
+//    "No such DSL method 'sshagent'"로 실패하고서야 발견했다)
+//  - Jenkins Credentials에 SSH 키(ID: deploy-ssh-key, Kind: SSH Username with
+//    private key, Username: ubuntu)가 등록되어 있어야 한다 (메인 서버
+//    j15e201.p.ssafy.io 접속용). Jenkins도 이 서버 위 컨테이너로 떠 있지만,
+//    그 컨테이너 자신의 파일시스템은 호스트와 분리돼 있어서(jenkins_home은
+//    named volume) compose.yaml의 bind mount(./airflow/dags 등)가 호스트
+//    경로를 기준으로 풀리려면 반드시 SSH로 실제 호스트 셸에 들어가야 한다 —
+//    Jenkins 컨테이너 안에서 직접 docker compose up을 돌리면 안 된다
+//  - Job은 `infra-personalization-deploy` 라는 이름의 Pipeline Job이고,
+//    Definition은 "Pipeline script from SCM", Script Path는
+//    infra/personalization/Jenkinsfile, Branches to build는 */common/dev 다
+//  - GitLab 저장소 Settings → Webhooks에 Push events + Wildcard pattern
+//    `common/dev`로 제한된 웹훅이 등록되어 있어야 한다 (URL:
+//    http://j15e201.p.ssafy.io:8081/generic-webhook-trigger/invoke?token=infra-personalization-deploy)
+//
+// 백업 스크립트(scripts/backup-postgres.sh, scripts/backup-minio.sh)는
+// COMPOSE_PROJECT_DIR(git clone 안, 별도 복사 없음)에 실행 권한이 있어야 하고,
+// 백업 서버(J15E201A) 접속용 SSH 키(~/.ssh/backup_to_j15e201a)가 미리 준비되어
+// 있어야 한다 (문서 11절, S15P21E201-578). 이 파이프라인은 배포 직전에 그 자리에서
+// 한 번 더 최신 백업을 남기는 안전망이다 — 매일 cron으로도 별도로 돈다.
+//
+// COMPOSE_PROJECT_DIR은 별도 배포 디렉터리가 아니라 서버의 git clone
+// (`/opt/local-route/repository`) 안의 infra/personalization 이다 — 예전에는
+// git이 아닌 별도 디렉터리를 두려 했지만 실제로 동기화가 안 맞아 있었다
+// (S15P21E201-579에서 발견, README.md 참고).
+//
+// 이미지 태그와 롤백 (문서 12절, S15P21E201-579):
+//  - mlflow/airflow는 커스텀 빌드라, 매번 같은 이름(latest)으로 덮어쓰면 이전
+//    버전으로 되돌릴 방법이 없다. 그래서 이 Job은 git commit SHA를 IMAGE_TAG로
+//    써서 이미지를 빌드한다 (compose.yaml의 image: 필드가 이 값을 받는다).
+//  - 롤백할 때는 ROLLBACK_TAG 파라미터에 이전 커밋의 짧은 SHA를 넣고 이 Job을
+//    다시 실행한다 — 그러면 재빌드 없이(이미 로컬에 있는 이전 태그 이미지로)
+//    서비스만 재기동한다. 값이 비어 있으면 평소처럼 지금 커밋으로 새로 빌드한다.
+//  - 🔴 오래된 태그 이미지를 자동으로 정리하지 않는다 — 디스크가 부족해지면
+//    `docker image prune`으로 손으로 정리한다. 자동 정리는 "몇 개까지 남길지"를
+//    아직 팀이 정하지 않아서, 잘못 지웠다가 롤백을 못 하는 쪽이 디스크 낭비보다
+//    위험하다고 판단해 지금은 안전한 쪽(안 지움)을 기본값으로 했다.
+
+pipeline {
+    agent any
+
+    options {
+        // 🔴 S15P21E201-596 — 짧은 간격으로 두 push가 겹치면 두 빌드가 동시에 돌면서
+        //    같은 compose 프로젝트를 동시에 배포하려다 컨테이너 이름 충돌로 죽을 수
+        //    있다 (backend-deploy build #58/#59에서 실제로 겪음). 뒤에 온 빌드를 앞
+        //    빌드가 끝날 때까지 큐에서 기다리게 해서 막는다.
+        disableConcurrentBuilds()
+    }
+
+    parameters {
+        string(name: 'DEPLOY_HOST', defaultValue: 'j15e201.p.ssafy.io', description: '배포 대상 서버 도메인')
+        string(name: 'ROLLBACK_TAG', defaultValue: '', description: '비워두면 지금 커밋으로 새로 빌드해 배포한다. 이전 커밋의 짧은 SHA(예: a1b2c3d4e5f6)를 넣으면 재빌드 없이 그 태그의 기존 이미지로 재기동만 한다 — 롤백용')
+    }
+
+    environment {
+        COMPOSE_PROJECT_DIR = '/opt/local-route/repository/infra/personalization'
+        ENV_FILE = '/etc/local-route/personalization.env'
+        DEPLOY_SERVICES = 'postgres redis minio mlflow airflow-broker airflow-scheduler airflow-dag-processor airflow-api-server airflow-worker'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Resolve Image Tag') {
+            steps {
+                script {
+                    if (params.ROLLBACK_TAG?.trim()) {
+                        env.IMAGE_TAG = params.ROLLBACK_TAG.trim()
+                        env.IS_ROLLBACK = 'true'
+                    } else {
+                        env.IMAGE_TAG = sh(script: 'git rev-parse --short=12 HEAD', returnStdout: true).trim()
+                        env.IS_ROLLBACK = 'false'
+                    }
+                    echo "IMAGE_TAG=${env.IMAGE_TAG} (rollback=${env.IS_ROLLBACK})"
+                }
+            }
+        }
+
+        // 🔴 이 단계는 반드시 "Compose Config Check"보다 먼저 와야 한다. 서버의
+        // 공유 clone(COMPOSE_PROJECT_DIR)이 다른 작업(예: frontend 브랜치 테스트)
+        // 때문에 common/dev가 아닌 브랜치에 남아있으면, infra/personalization/
+        // 디렉터리 자체가 없는 브랜치일 수 있다 — 그 상태에서 Config Check가
+        // 먼저 실행되면 "No such file or directory"로 즉시 실패한다
+        // (S15P21E201-582에서 실제로 겪음). Sync를 먼저 해서 항상 common/dev로
+        // 맞춰놓은 뒤에 Config Check를 해야 안전하다.
+        stage('Sync Repository on Server') {
+            steps {
+                sshagent(credentials: ['deploy-ssh-key']) {
+                    sh """
+                        ssh -o StrictHostKeyChecking=no ubuntu@${params.DEPLOY_HOST} \
+                          'cd ${COMPOSE_PROJECT_DIR} && git fetch origin && git checkout common/dev && git pull origin common/dev'
+                    """
+                }
+            }
+        }
+
+        stage('Compose Config Check') {
+            steps {
+                sshagent(credentials: ['deploy-ssh-key']) {
+                    sh """
+                        ssh -o StrictHostKeyChecking=no ubuntu@${params.DEPLOY_HOST} \
+                          'cd ${COMPOSE_PROJECT_DIR} && IMAGE_TAG=${IMAGE_TAG} docker compose --env-file ${ENV_FILE} config --quiet'
+                    """
+                }
+            }
+        }
+
+        // 🔴 S15P21E201-751 — 스택을 일부러 멈춰 둔 상태(docker compose stop,
+        //    2026-09-08 — 진짜 파이프라인이 안 붙어서 4코어 서버에서 CI와 자원을
+        //    다투는 것을 줄이려고)에서 infra/personalization을 건드리는 커밋이
+        //    common/dev에 들어오면, Backup 단계가 정지된 postgres에 pg_dump를
+        //    시도하다 조용히 죽고 Deploy·Health Check가 통째로 건너뛰어졌다.
+        //
+        //    그런데 Backup 실패만 무시하게 고치면 바로 다음 Deploy 단계가
+        //    `docker compose up -d`로 정지해 둔 스택을 그대로 되살려 버린다 —
+        //    "잠깐 멈춘다"는 결정을 이 파이프라인이 조용히 뒤집는 것이다.
+        //
+        //    그래서 postgres가 실제로 떠 있는지 먼저 재고, 안 떠 있으면 정지
+        //    상태를 그대로 존중해서 Backup·Deploy·Health Check를 전부 건너뛴다.
+        //    빌드 이미지는 캐시를 데워 두는 것뿐이라 무해하므로 그대로 둔다.
+        stage('Check Stack State') {
+            steps {
+                sshagent(credentials: ['deploy-ssh-key']) {
+                    script {
+                        // 🔴 S15P21E201-751 후속 — `docker compose ps --services`는
+                        //    매치가 0건이어도 빈 줄 하나를 찍는다. `wc -l`은 그 빈 줄도
+                        //    1로 세서 정지 상태인데도 STACK_RUNNING=true로 잘못 판정했다
+                        //    (실제 발생, 2026-09-08 — Backup이 다시 죽음). `grep -c
+                        //    '^postgres$'`는 빈 줄을 안 세므로 정지 상태에서 정확히
+                        //    0을 낸다 — 그런데 grep -c 는 매치 0건일 때 그 자체로 exit
+                        //    code 1을 낸다. ssh 가 그 종료 코드를 그대로 돌려주고,
+                        //    returnStdout: true 를 쓰는 sh 스텝은 exit 0이 아니면
+                        //    무조건 실패로 처리한다 — 정지 상태를 정상적으로 알아내려는
+                        //    바로 그 경로가 실패로 죽는다. `|| true` 로 감싼다(같은
+                        //    이유로 backup-postgres.sh 로테이션 부분에도 이미 있는 패턴).
+                        def running = sh(
+                            script: """
+                                ssh -o StrictHostKeyChecking=no ubuntu@${params.DEPLOY_HOST} \
+                                  'cd ${COMPOSE_PROJECT_DIR} && docker compose --env-file ${ENV_FILE} ps --status running --services postgres 2>/dev/null | grep -c "^postgres\$" || true'
+                            """,
+                            returnStdout: true
+                        ).trim()
+                        env.STACK_RUNNING = (running == '1') ? 'true' : 'false'
+                        echo "STACK_RUNNING=${env.STACK_RUNNING} (postgres 서비스 실행 여부로 판단)"
+                        if (env.STACK_RUNNING == 'false') {
+                            echo "스택이 정지 상태다 — Backup·Deploy·Health Check를 건너뛴다. 다시 켜려면 서버에서 docker compose start를 직접 실행한다."
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Build Images') {
+            when {
+                expression { env.IS_ROLLBACK == 'false' }
+            }
+            steps {
+                sshagent(credentials: ['deploy-ssh-key']) {
+                    sh """
+                        ssh -o StrictHostKeyChecking=no ubuntu@${params.DEPLOY_HOST} \
+                          'cd ${COMPOSE_PROJECT_DIR} && IMAGE_TAG=${IMAGE_TAG} docker compose --env-file ${ENV_FILE} build mlflow airflow-scheduler'
+                    """
+                }
+            }
+        }
+
+        stage('Backup') {
+            when {
+                expression { env.STACK_RUNNING == 'true' }
+            }
+            steps {
+                sshagent(credentials: ['deploy-ssh-key']) {
+                    sh """
+                        ssh -o StrictHostKeyChecking=no ubuntu@${params.DEPLOY_HOST} \
+                          '${COMPOSE_PROJECT_DIR}/scripts/backup-postgres.sh && ${COMPOSE_PROJECT_DIR}/scripts/backup-minio.sh'
+                    """
+                }
+            }
+        }
+
+        stage('Deploy') {
+            when {
+                expression { env.STACK_RUNNING == 'true' }
+            }
+            steps {
+                sshagent(credentials: ['deploy-ssh-key']) {
+                    sh """
+                        ssh -o StrictHostKeyChecking=no ubuntu@${params.DEPLOY_HOST} \
+                          'cd ${COMPOSE_PROJECT_DIR} && IMAGE_TAG=${IMAGE_TAG} docker compose --env-file ${ENV_FILE} up -d --no-deps ${DEPLOY_SERVICES}'
+                    """
+                }
+            }
+        }
+
+        // 60초(12x5s)로는 부족했다 — airflow 4개 서비스가 동시에 재기동되면
+        // (예: 이 서비스들과 무관한 커밋이라도 Dockerfile/requirements가 바뀌면
+        // 전부 재기동된다) airflow-api-server가 그보다 늦게 준비되는 걸 실제
+        // 배포에서 확인함 (S15P21E201-582). 240초(24x10s)로 늘림 — 그 배포에서
+        // 실제로 healthy가 되기까지 걸린 시간보다 여유 있게 잡음.
+        stage('Health Check') {
+            when {
+                expression { env.STACK_RUNNING == 'true' }
+            }
+            steps {
+                sshagent(credentials: ['deploy-ssh-key']) {
+                    script {
+                        // 🔴 S15P21E201-575 후속(2026-09-09) — 세 배포 파이프라인의 과거 실패
+                        //    45건을 전면 검토하다 발견한 공통 간극이다. 여기도 실패하면
+                        //    "health check retry" 줄만 24번 찍고 끝났다 — 어느 서비스가,
+                        //    왜 살아나지 못했는지는 매번 사람이 SSH로 들어가 직접 봐야 했다.
+                        //    (backend/Jenkinsfile 이 같은 이유로 이미 고쳤다 — S15P21E201-575)
+                        def healthy = sh(
+                            script: """
+                                ssh -o StrictHostKeyChecking=no ubuntu@${params.DEPLOY_HOST} '
+                                  for i in \$(seq 1 24); do
+                                    if curl -sf http://127.0.0.1:5000/health && curl -sf http://127.0.0.1:8082/api/v2/monitor/health; then
+                                      exit 0
+                                    fi
+                                    echo "health check retry \$i/24..."
+                                    sleep 10
+                                  done
+                                  exit 1
+                                '
+                            """,
+                            returnStatus: true
+                        ) == 0
+                        if (!healthy) {
+                            echo '🔴 Health check 실패 — mlflow/airflow 서비스 로그를 남긴다 (원인 진단용)'
+                            sh """
+                                ssh -o StrictHostKeyChecking=no ubuntu@${params.DEPLOY_HOST} \
+                                  'cd ${COMPOSE_PROJECT_DIR} && docker compose --env-file ${ENV_FILE} logs --tail=100 mlflow airflow-scheduler airflow-api-server airflow-worker' || true
+                            """
+                            env.HEALTH_FAILURE_DETAIL = sh(
+                                script: """
+                                    ssh -o StrictHostKeyChecking=no ubuntu@${params.DEPLOY_HOST} \
+                                      'cd ${COMPOSE_PROJECT_DIR} && docker compose --env-file ${ENV_FILE} logs --tail=300 mlflow airflow-scheduler airflow-api-server airflow-worker 2>&1 | grep -iE "error|exception|traceback|fatal" | tail -5' || true
+                                """,
+                                returnStdout: true
+                            ).trim()
+                            error 'Health check failed after retries'
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            script {
+                sendMMNotify(true, [
+                    commit: sh(script: "git log -1 --pretty='%an: %s'", returnStdout: true).trim(),
+                    buildUrl: env.BUILD_URL,
+                    imageTag: env.IMAGE_TAG,
+                    isRollback: env.IS_ROLLBACK,
+                    skipped: (env.STACK_RUNNING == 'false')
+                ])
+            }
+        }
+        failure {
+            script {
+                // S15P21E201-575 후속 — Health Check 단계에서 실패했다면
+                // env.HEALTH_FAILURE_DETAIL 에 mlflow/airflow 로그에서 뽑은 실제 원인 줄이
+                // 담겨 있다. 롤백 안내(항상 유효한 정보)에 이어 붙인다 — 있으면 둘 다 보여준다.
+                def detail = env.HEALTH_FAILURE_DETAIL?.trim()
+                def rollbackHint = '이 Job을 ROLLBACK_TAG=이전 커밋 SHA 로 다시 실행하면 재빌드 없이 이전 버전으로 되돌릴 수 있다 (문서 12.2절)'
+                sendMMNotify(false, [
+                    commit: sh(script: "git log -1 --pretty='%an: %s'", returnStdout: true).trim(),
+                    buildUrl: env.BUILD_URL,
+                    imageTag: env.IMAGE_TAG,
+                    isRollback: env.IS_ROLLBACK,
+                    details: detail ? "${rollbackHint}\n```\n${detail}\n```" : rollbackHint
+                ])
+            }
+        }
+    }
+}
+
+// MatterMost 알림 전송 (Jenkins Credentials: mattermost-webhook, Secret text)
+def sendMMNotify(boolean success, Map info) {
+    def titleLine
+    if (info.skipped) {
+        // S15P21E201-751 — 스택이 정지 상태라 Backup·Deploy·Health Check를
+        // 건너뛴 경우. "성공"이라고만 알리면 실제로 배포된 것처럼 보인다.
+        titleLine = '#### :large_blue_circle: 개인화 인프라(common/dev) 배포 건너뜀 — 스택 정지 상태'
+    } else {
+        titleLine = success
+            ? '#### :white_check_mark: 개인화 인프라(common/dev) 배포 성공'
+            : '#### :x: 개인화 인프라(common/dev) 배포 실패'
+    }
+
+    def lines = []
+    if (info.commit)   lines << "**커밋**: ${info.commit}"
+    if (info.imageTag) lines << "**이미지 태그**: `${info.imageTag}`" + (info.isRollback == 'true' ? ' (롤백)' : '')
+    if (info.buildUrl) lines << "**빌드 상세**: [Details](${info.buildUrl})"
+    if (info.skipped) lines << "**참고**: 스택이 의도적으로 멈춰 있어 배포를 건너뛰었습니다. 다시 켜려면 서버에서 docker compose start."
+    if (!success && info.details) lines << "**참고**: ${info.details}"
+
+    def text = lines ? "${titleLine}\n" + lines.join("\n") : titleLine
+
+    writeFile file: 'mm_payload.json', text: groovy.json.JsonOutput.toJson([
+        text: text,
+        username: 'Jenkins',
+        icon_emoji: ':jenkins7:'
+    ])
+
+    withCredentials([string(credentialsId: 'mattermost-webhook', variable: 'MM_WEBHOOK')]) {
+        sh '''
+            curl -sS -f -X POST -H 'Content-Type: application/json' \
+                --data-binary @mm_payload.json \
+                "$MM_WEBHOOK" || true
+        '''
+    }
+}

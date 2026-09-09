@@ -2,19 +2,26 @@ const KAKAO_MOBILITY_URL = "https://apis-navi.kakaomobility.com/v1/directions";
 const TRANSIT_SPEED_KMH = 20;
 const CAR_SPEED_KMH = 30; // 시내 평균 추정 속도(하버사인 폴백용)
 
+/** 카카오 REST API와 Mobility API는 JavaScript 키가 아닌 REST API 키로 인증한다. */
+function kakaoRestHeaders(apiKey: string): Record<string, string> {
+  return { Authorization: `KakaoAK ${apiKey}`, "Content-Type": "application/json" };
+}
+
 /**
- * .env의 KAKAO_REST_API_KEY는 실제로는 REST API 키가 아니라 JavaScript 키다(2026-08-25 실측 확인:
- * Authorization 헤더만으로 호출하면 dapi.kakao.com/v2/local/search 같은 기본 API조차 401
- * "KA Header is required"로 거부되고, os/javascript + 등록된 origin을 담은 KA 헤더를 실어 보내면
- * 통과한다 — 즉 이 키는 KAKAO_JS_ORIGIN에 등록된 도메인에서만 허용되는 JS 키다).
- * 카카오 로컬 검색·대중교통(publictraffic)은 이 방식으로 우회 가능하지만,
- * 카카오모빌리티 자동차 길찾기(KAKAO_MOBILITY_URL)는 별도 상품이라 이 우회가 통하지 않는다
- * (KA 헤더를 어떤 형태로 보내도 동일하게 401). 프로덕션 배포 전에는 Kakao Developers 콘솔에서
- * 발급한 진짜 REST API 키로 교체하고 이 워크어라운드를 제거해야 한다.
+ * 이전 데모에는 JavaScript 키가 KAKAO_REST_API_KEY라는 이름으로 저장되어 있다.
+ * 정식 REST 인증을 항상 먼저 시도하고, 401일 때에만 등록된 웹 도메인의 KA 헤더로
+ * 장소·대중교통 조회를 재시도한다. Mobility 자동차 경로에는 이 호환 경로를 쓰지 않는다.
  */
-const KAKAO_JS_ORIGIN = process.env.KAKAO_JS_ORIGIN || "http://localhost:5173";
-function kakaoJsHeaders(apiKey: string): Record<string, string> {
-  return { Authorization: `KakaoAK ${apiKey}`, KA: `sdk/1.0.0 os/javascript lang/ko-KR origin/${KAKAO_JS_ORIGIN}` };
+async function fetchKakaoMap(url: string, apiKey: string, timeoutMs: number): Promise<Response> {
+  let response = await fetch(url, { headers: kakaoRestHeaders(apiKey), signal: AbortSignal.timeout(timeoutMs) });
+  if (response.status !== 401) return response;
+  const origin = process.env.KAKAO_JS_ORIGIN;
+  if (!origin) return response;
+  response = await fetch(url, {
+    headers: { Authorization: `KakaoAK ${apiKey}`, KA: `sdk/1.0.0 os/javascript lang/ko-KR origin/${origin}` },
+    signal: AbortSignal.timeout(timeoutMs),
+  });
+  return response;
 }
 
 export interface TravelEstimate {
@@ -175,7 +182,7 @@ export async function getEmbeddedRoute(lat1: number, lng1: number, lat2: number,
   try {
     if (mode === "TRANSIT") {
       const query = new URLSearchParams({ start_x: String(lng1), start_y: String(lat1), end_x: String(lng2), end_y: String(lat2), input_coord: "WGS84", output_coord: "WGS84" });
-      const response = await fetch(`https://dapi.kakao.com/v2/routing/publictraffic?${query}`, { headers: kakaoJsHeaders(apiKey), signal: AbortSignal.timeout(5000) });
+      const response = await fetchKakaoMap(`https://dapi.kakao.com/v2/routing/publictraffic?${query}`, apiKey, 5000);
       if (!response.ok) throw new Error(`public traffic http ${response.status}`);
       const data = await response.json() as any;
       const route = data?.routes?.[0];
@@ -245,7 +252,7 @@ export async function searchKakaoLocations(query: string) {
   const apiKey = process.env.KAKAO_REST_API_KEY;
   if (!apiKey) return [];
   const params = new URLSearchParams({ query, size: "8" });
-  const response = await fetch(`https://dapi.kakao.com/v2/local/search/keyword.json?${params}`, { headers: kakaoJsHeaders(apiKey), signal: AbortSignal.timeout(4000) });
+  const response = await fetchKakaoMap(`https://dapi.kakao.com/v2/local/search/keyword.json?${params}`, apiKey, 4000);
   if (!response.ok) throw new Error(`location search http ${response.status}`);
   const data = await response.json() as any;
   return (data.documents ?? []).map((place: any) => ({ id: place.id, name: place.place_name, address: place.road_address_name || place.address_name, lat: Number(place.y), lng: Number(place.x), category: place.category_name }));
