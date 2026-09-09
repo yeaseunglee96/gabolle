@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220810789977",
+  "worker": "haiku-22",
+  "researchedAt": "2026-09-09T01:17:30.000Z",
+  "queries": ["정초밥 연제구 부산", "정초밥 연산5동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.siksinhot.com/P/749906",
+    "http://localmap.co.kr/web/splus/kmap/view.php?sigun=6260000&gugun=3370000&keyno=110&keyname=%EC%A0%95%EC%B4%88%EB%B0%A5&keylink=3370000-101-2016-00055"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "초밥·참치 전문, 오마카세 제공", "sources": [0, 1]},
+    {"type": "분위기·전망", "note": "연산역 근처 접근 편리", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["초밥", "참치"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "주소: 연제구 연산동 1357-14 (중앙대로1039번길 16)"
+}
