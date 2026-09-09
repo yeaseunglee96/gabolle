@@ -1,0 +1,113 @@
+package com.gabolle.backend;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.Statement;
+
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+
+import com.gabolle.backend.recommendation.support.PostgresAvailableCondition;
+import com.gabolle.backend.recommendation.support.TestDatabase;
+
+/**
+ * 실제 배포가 쓰는 프로필(dev)로 <b>전체</b> 애플리케이션이 뜨는지 본다 — S15P21E201-161
+ * 배포 실패(2026-09-08) 후속.
+ *
+ * <h2>🔴 이 테스트가 메우는 구멍 — 왜 CI 는 초록인데 배포는 죽었나</h2>
+ *
+ * {@code RouteOptimizerAvailabilityCheck}(S15P21E201-161)가
+ * {@code com.fasterxml.jackson.databind.ObjectMapper}(Jackson 2, 옛 패키지)를 import 했다.
+ * 컴파일은 통과했지만 — 이 저장소는 Jackson 3({@code tools.jackson})이라 Spring 은
+ * 그 타입의 빈을 등록하지 않는다. 배포({@code SPRING_PROFILES_ACTIVE=dev})에서만
+ * "No qualifying bean of type ObjectMapper" 로 죽었다.
+ *
+ * <p>CI({@code backend:build})가 이걸 못 잡은 이유를 찾다가 이 저장소의 구조적 구멍을
+ * 발견했다 — {@link GabolleBackendApplicationTests}(전체 앱)는 {@code no-db} 프로필로 돌아
+ * {@code @Profile({"db","dev"})}(이 저장소에 123개 클래스가 이 조건을 쓴다)인
+ * 빈을 애초에 만들지 않고, DB 가 필요한 통합 테스트(예: {@code AccountDeletionIntegrationTest})는
+ * 전부 <b>슬라이스 앱</b>({@code AuthSliceApplication} 등 — 도메인 하나만 골라 띄우는 작은
+ * 앱)만 쓴다. <b>전체 앱을 진짜 DB 로 띄우는 테스트가 이 저장소에 하나도 없었다</b> —
+ * S15P21E201-546(스키마 버그가 187개 테스트를 전부 초록으로 통과시킴)과 뿌리가 같은 종류의
+ * 간극이다.
+ *
+ * <p>여기서는 딱 하나만 확인한다 — {@code dev} 프로필의 컨텍스트가 <b>뜨는가</b>. 기능이
+ * 맞는지는 슬라이스 통합 테스트들의 몫이다. 이 테스트가 잡는 것은 "각자는 맞는데 합치면
+ * 안 뜬다" 는 배선 문제뿐이다 — 정확히 오늘 겪은 그 종류다.
+ *
+ * <p>🔴 {@code gabolle.auth.jwt-secret} 처럼 기본값이 없는 값은 여기서 직접 채운다 — 실제
+ * {@code GABOLLE_JWT_SECRET} 환경변수가 있어야 하는 게 아니라, {@code spring.datasource.*}
+ * 처럼 이 값이 채워진다는 사실만 필요하다({@link TestDatabase} 와 같은 판단).
+ *
+ * <h2>🔴 스키마는 왜 여기서 직접 만드나 — CI 에서 실제로 겪은 두 번째 실수</h2>
+ *
+ * 이 클래스를 처음 커밋했을 때 로컬에서는 통과했는데 CI 에서 또 실패했다 —
+ * {@code FlywaySqlScriptException}("schema \"gabolle\" does not exist"). 이유는
+ * {@code application-dev.properties} 의 {@code spring.flyway.create-schemas=false} 다 —
+ * 그 파일 자체가 "운영에서는 이 schema 를 DB 관리자가 먼저 만들고 app_user 에게 권한을
+ * 준다" 고 적어 뒀다. 로컬 검증 때는 내가 직접 {@code CREATE SCHEMA} 를 손으로 미리 돌려
+ * 뒀던 것이라, CI 의 매번 새로 뜨는 Postgres 에는 그 스키마가 없다는 것을 놓쳤다.
+ *
+ * <p>이 테스트에서는 그 "DB 관리자" 역할을 {@link #createSchema()} 가 대신한다 —
+ * {@code create-schemas=false} 를 우회하지 않는다(실제 배포 설정을 그대로 존중하는 것이
+ * 이 테스트의 존재 이유다). Flyway 가 스키마 존재를 기대하는 시점(컨텍스트 리프레시)보다
+ * 먼저(JUnit5 {@code @BeforeAll}) 돌게 해서, 운영에서 사람이 미리 하는 그 단계를
+ * 흉내낸다.
+ *
+ * <h2>🔴 왜 끝나면 지우나 — 세 번째 실수, 이번엔 남의 테스트를 깼다</h2>
+ *
+ * 처음엔 {@link #createSchema()} 만 있고 끝난 뒤 지우지 않았다. 로컬·CI 양쪽에서 이 클래스
+ * 하나만 보면 통과했지만, 전체 스위트에서 {@code EventQualityGateTest}(S15P21E201-546)가
+ * 이 클래스 <b>뒤에</b> 도는 순서에서만 간헐적으로 깨졌다 — 고지혁이 근본 원인을 찾았다
+ * (MR !425). PostgreSQL 의 기본 {@code search_path}는 {@code "$user", public}인데, 접속
+ * 사용자 이름이 정확히 {@code gabolle} 이다. 이 클래스가 {@code gabolle} schema 를 만들어
+ * 두고 안 지우면, <b>그 뒤에 새로 여는 모든 연결</b>에서 {@code $user} 가 그 schema 로
+ * 풀린다 — 그 연결들이 dev 프로필인지 아닌지와 무관하다. 그러면 Flyway 가 표를
+ * {@code public} 대신 {@code gabolle} 에 만들고, "표는 다 public 에 있다" 고 가정한 다른
+ * 테스트가 조용히 깨진다.
+ *
+ * <p>이 클래스가 만든 부작용이니 이 클래스가 치운다 — {@link #dropSchema()}. 지우면
+ * {@code $user} 는 다시 아무 schema 도 안 가리키므로 이후 연결은 예전처럼 {@code public}
+ * 으로 떨어진다.
+ */
+@SpringBootTest(properties = {
+		"spring.profiles.active=dev",
+		"spring.mail.host=127.0.0.1",
+		"gabolle.auth.jwt-secret=0123456789abcdef0123456789abcdef"
+})
+@ExtendWith(PostgresAvailableCondition.class)
+class DevProfileApplicationContextTest {
+
+	@DynamicPropertySource
+	static void datasource(DynamicPropertyRegistry registry) {
+		TestDatabase.registerDatasource(registry);
+	}
+
+	@BeforeAll
+	static void createSchema() throws Exception {
+		try (Connection connection = DriverManager.getConnection(
+				TestDatabase.url(), TestDatabase.username(), TestDatabase.password());
+				Statement statement = connection.createStatement()) {
+			statement.execute("CREATE SCHEMA IF NOT EXISTS gabolle");
+		}
+	}
+
+	/** {@link #createSchema()} 가 만든 것을 치운다 — 이유는 클래스 주석 참고. */
+	@AfterAll
+	static void dropSchema() throws Exception {
+		try (Connection connection = DriverManager.getConnection(
+				TestDatabase.url(), TestDatabase.username(), TestDatabase.password());
+				Statement statement = connection.createStatement()) {
+			statement.execute("DROP SCHEMA IF EXISTS gabolle CASCADE");
+		}
+	}
+
+	@Test
+	void contextLoads() {
+	}
+}
