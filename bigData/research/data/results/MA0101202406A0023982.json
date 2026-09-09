@@ -1,0 +1,23 @@
+{
+  "id": "MA0101202406A0023982",
+  "worker": "haiku-32",
+  "researchedAt": "2026-09-09T11:04:00Z",
+  "queries": ["델피하우스 금정구 부산 경양식", "델피하우스 부곡2동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["부산광역시 금정구 중앙대로1685번길 31"],
+  "stillOpen": true,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": null,
+    "signatureDishes": [],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "다이닝코드에 호프집/칠면조 맛집으로 등재."
+}

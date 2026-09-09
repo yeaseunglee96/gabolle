@@ -1,0 +1,34 @@
+{
+  "id": "MA010120220808734843",
+  "worker": "haiku-32",
+  "researchedAt": "2026-09-09T10:57:00Z",
+  "queries": ["금수각 동구 부산 중국집", "금수각 초량6동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 동구 초량로 119"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "원조·최초",
+      "note": "전통 중화요리, 입소문으로 동네 평정",
+      "sources": [0, 1]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "짜장면, 짬뽕, 탕수육 전문",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["짜장면", "짬뽕", "탕수육"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "10:30~20:00 영업, 일요일 휴무. 전용 주차장 없음. 다이닝코드, 식신 등재."
+}

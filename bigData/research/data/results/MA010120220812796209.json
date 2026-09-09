@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220812796209",
+  "worker": "haiku-33",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["카돈 서구 부산", "카돈 동대신3동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=0v77o0A84TPN"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "카레와 돈카츠 전문", "sources": [0]},
+    {"type": "가격·가성비", "note": "카레 8,000원부터 시작", "sources": [0]},
+    {"type": "분위기·전망", "note": "아늑한 분위기의 목재 인테리어", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "alley",
+    "audience": "solo",
+    "signatureDishes": ["cheese katsu curry", "cheese katsu", "tonkatsu curry"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "늦은 시간에도 조용한 분위기에서 식사 가능"
+}

@@ -1,0 +1,25 @@
+{
+  "id": "MA010120220811624244",
+  "worker": "haiku-33",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["싱싱회해물 금정구 부산", "싱싱회해물 남산동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://www.siksinhot.com/P/1376998", "https://www.linktoplace.com/?action=view&no=99170"],
+  "stillOpen": null,
+  "whyPeopleGo": [
+    {"type": "맛 묘사", "note": "신선한 회와 해산물", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": null,
+    "signatureDishes": ["생선회"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "식신에서 확인. 영업 중인지 불확실"
+}
