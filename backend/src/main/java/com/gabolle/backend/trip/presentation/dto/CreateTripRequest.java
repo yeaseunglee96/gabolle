@@ -1,0 +1,154 @@
+package com.gabolle.backend.trip.presentation.dto;
+
+import java.time.LocalDate;
+import java.util.List;
+
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
+/**
+ * 여행 생성 요청 — TRIP-01 {@code POST /api/v1/trips}.
+ *
+ * <p>명세가 받는 것으로 {@code dates · origin · budget · party · transport · timezone}
+ * 을 지정한다. 네 단계 화면에서 모은 조건이 하나로 온다.
+ *
+ * <p>🔴 필수 항목이 빠지면 <b>어느 항목이 빠졌는지</b>가 응답에 들어가야 한다
+ * (티켓 완료 기준). {@code @NotNull} 이 필드 이름을 담아 준다.
+ *
+ * <p>🔴 2026-09-03 — {@code preferences: Map<String,String>} 을
+ * {@code List<PreferenceAnswerInput>} 으로, {@code ConstraintInput} 에
+ * {@code answerStatus} 를 추가했다. FE 가 "골랐다/건너뜀/안 물어봄" 을 이미
+ * 구분해서 보낼 준비가 됐는데(고지혁 님 확인), Map 으로는 그 구분을 받을 수 없었다.
+ *
+ * <p>🔴 {@code scope}(계정 기본값 / 이번 여행 전용)는 요청에 없다. TRIP-01 이 만드는
+ * 스냅샷·제약은 <b>항상 이번 여행 전용</b>이다 — {@code trip_id} 가 항상 있는 자리라서
+ * 서버가 고정한다({@link com.gabolle.backend.trip.domain.PersonalizationScope#TRIP}).
+ * 계정 기본값(USER)을 만드는 흐름은 이 엔드포인트가 아니다.
+ */
+public record CreateTripRequest(
+
+        @NotNull LocalDate startDate,
+        @NotNull LocalDate finishDate,
+
+        /** 출발지. 매일 여기서 일정이 시작된다. */
+        Double originLat,
+        Double originLng,
+
+        Integer budgetKrw,
+
+        @NotNull @Min(1) Integer partySize,
+
+        /** 하루 활동 시간대. 예: {@code MORNING_TO_EVENING} */
+        String timeWindow,
+
+        /** 비우면 {@code Asia/Seoul}. API-03 이 시간대를 공통 사전으로 고정한다. */
+        String timezone,
+
+        /** 명시 취향. 차원마다 답변 상태(골랐다/건너뜀/안 물어봄)를 함께 받는다. */
+        @Valid List<PreferenceAnswerInput> preferences,
+
+        @Valid List<ConstraintInput> constraints,
+
+        /**
+         * 🔴 S15P21E201-456 — 매일 여기서 시작하고 여기로 돌아온다. {@code place_id}(UUID
+         * 문자열)를 가리킨다. 안 보내면 아직 안 정한 것이다 — 필수로 두지 않는다. 화면이
+         * 숙소를 나중 단계에서 고를 수도 있다.
+         */
+        String accommodationPlaceId,
+
+        /** 영어 메뉴가 있는 곳을 우선한다. 안 보내면 {@code false}(우선하지 않음). */
+        Boolean englishMenuRequired,
+
+        /** 해외 카드를 받는 곳을 우선한다. 안 보내면 {@code false}. */
+        Boolean foreignCardRequired,
+
+        /** 혼밥하기 편한 곳을 우선한다. 안 보내면 {@code false}. */
+        Boolean soloFriendlyPriority,
+
+        /**
+         * 대중교통 최대 환승 횟수. 안 보내면 제한 없음. 🔴 이동 수단에 자차(PRIVATE_CAR)가
+         * 있으면 서버가 이 값을 무시한다 — {@code TripCreationService} 참고.
+         */
+        @Min(0) Integer maxTransitTransfers) {
+
+    /**
+     * 🔴 이 다섯 칸이 생기기 전의 호출부(테스트 등)를 그대로 남긴다. 새 칸은 전부
+     * 기본값(false·null)으로 채운다 — 옛 요청 모양도 여전히 유효한 요청이어야 한다.
+     */
+    public CreateTripRequest(
+            LocalDate startDate, LocalDate finishDate,
+            Double originLat, Double originLng,
+            Integer budgetKrw, Integer partySize,
+            String timeWindow, String timezone,
+            List<PreferenceAnswerInput> preferences,
+            List<ConstraintInput> constraints) {
+        this(startDate, finishDate, originLat, originLng, budgetKrw, partySize, timeWindow, timezone,
+                preferences, constraints, null, null, null, null, null);
+    }
+
+    /** 안 보냈으면 우선하지 않는 것으로 본다. */
+    public boolean englishMenuRequiredOrDefault() {
+        return this.englishMenuRequired != null && this.englishMenuRequired;
+    }
+
+    public boolean foreignCardRequiredOrDefault() {
+        return this.foreignCardRequired != null && this.foreignCardRequired;
+    }
+
+    public boolean soloFriendlyPriorityOrDefault() {
+        return this.soloFriendlyPriority != null && this.soloFriendlyPriority;
+    }
+
+    /**
+     * 취향 차원 하나에 대한 답.
+     *
+     * <p>🔴 {@code value} 는 {@code answerStatus == "SELECTED"} 일 때만 채운다.
+     * 건너뛰었거나(SKIPPED) 안 물어봤으면(UNKNOWN) 비운다 — 값을 채우면서 상태를
+     * 다르게 보내면 서버가 400 으로 거부한다({@code PreferenceSnapshot.PreferenceAnswer}).
+     */
+    public record PreferenceAnswerInput(
+            @NotBlank String dimension,
+            String value,
+            /** {@code SELECTED} · {@code SKIPPED} · {@code UNKNOWN} */
+            @NotBlank String answerStatus) {
+    }
+
+    /**
+     * 사용자가 반드시(HARD) 또는 가급적(SOFT) 지키길 원하는 조건.
+     *
+     * <p>🔴 알레르기·필수(REQUIRED) 식단은 <b>M1 에서 값을 받지 않는다.</b> 암호화 경로가
+     * 준비되지 않았고, 평문으로 한 번 저장하면 그 데이터가 남는다.
+     *
+     * <p>🔴 {@code value}·{@code threshold} 는 {@code answerStatus == "SELECTED"}
+     * 일 때만 채운다. "없다"(NONE)·"안 물어봄"(UNKNOWN)이면 둘 다 비운다.
+     */
+    public record ConstraintInput(
+            /** {@code ALLERGY} · {@code DIET} · {@code MOBILITY} · {@code BUDGET} */
+            @NotNull String type,
+            /**
+             * 🔴 2026-09-04 추가. 종류 안에서 무엇에 대한 사실인가 — {@code ALLERGY} 면
+             * 알레르기 코드({@code PEANUT} 등, 자유 입력이면 {@code "OTHER"}),
+             * {@code DIET} 면 식단 코드, {@code MOBILITY} 면 이동 조건 이름
+             * ({@code MAX_WALKING_METERS} 등). 민감 종류는 이 값이 {@code "OTHER"}
+             * 일 때만 거부된다 — 코드로 된 값은 구조화된 정보라 안전하다.
+             */
+            @NotBlank String constraintKey,
+            /** {@code HARD} 또는 {@code SOFT} */
+            @NotNull String severity,
+            /** {@code EXCLUDES} · {@code LTE} · {@code GTE} */
+            String operator,
+            String value,
+            Double threshold,
+            /** {@code SELECTED} · {@code NONE} · {@code UNKNOWN} */
+            @NotBlank String answerStatus,
+            /**
+             * 🔴 2026-09-04 추가. {@code type == "DIET"} 일 때만 채운다 —
+             * {@code REQUIRED}(의료·종교상 필수) · {@code PREFERRED}(선호).
+             * 민감 정보 판정({@code TripConstraint.isSensitive})이 이 값을 본다 —
+             * 없으면(null) 필수 식단이 일반 로그로 새어 나간다(고지혁 님 실측).
+             */
+            String dietRequirement) {
+    }
+}

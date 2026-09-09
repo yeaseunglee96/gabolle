@@ -37,6 +37,15 @@ x-airflow-common: &airflow-common
     AIRFLOW__CORE__MAX_ACTIVE_RUNS_PER_DAG: 1
     AIRFLOW__CELERY__WORKER_CONCURRENCY: 2
     AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+    # S15P21E201-785 — dag-processor 가 기본값(30초)마다 DAG 폴더를 다시 훑는다.
+    # 이 폴더엔 파일이 sample_personalization_pipeline.py 하나뿐인데, 그 파일이
+    # 최상위에서 mlflow·lightgbm·pandas 를 불러와서 매 재파싱마다 코어 하나가
+    # 몇 초씩 70~100% 로 튄다(고지혁 실측, 2026-09-09 — dag-processor 파싱
+    # 6.25초→3.88초로 줄인 MR !449 를 넣고도 재파싱 자체의 airflow 임포트 비용은
+    # 못 줄임). 이 DAG 은 schedule=None(수동 트리거 전용)이라 30초마다 다시 읽어야
+    # 할 이유가 애초에 없다 — 5분으로 늘려 재파싱 횟수를 10분의 1로 줄인다.
+    # DAG 파일을 고친 뒤 바로 반영하려면 dag-processor 컨테이너를 재시작하면 된다.
+    AIRFLOW__SCHEDULER__MIN_FILE_PROCESS_INTERVAL: "300"
     MLFLOW_TRACKING_URI: http://mlflow:5000
     MLFLOW_S3_ENDPOINT_URL: http://minio:9000
     AWS_ACCESS_KEY_ID: ${MINIO_ROOT_USER}

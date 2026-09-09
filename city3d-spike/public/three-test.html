@@ -1,0 +1,449 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<title>three.js 부하 실험 — S15P21E201-659</title>
+<link rel="stylesheet" href="./lib/maplibre-gl.css" />
+<style>
+  :root { --sea:#adcdcd; --land:#f3f5f1; --green:#d8e6d2; --road:#fff; --ink:#33443f; }
+  * { box-sizing: border-box; }
+  html, body { margin:0; height:100%; overflow:hidden;
+    font:13px/1.5 -apple-system,"Segoe UI","Malgun Gothic",sans-serif; color:var(--ink); }
+  #map { position:absolute; inset:0; background:var(--sea); }
+  .panel { position:absolute; left:10px; right:10px; bottom:calc(10px + env(safe-area-inset-bottom));
+    background:rgba(255,255,255,.94); backdrop-filter:blur(8px);
+    border-radius:14px; padding:12px 14px; box-shadow:0 6px 24px rgba(40,70,60,.16); }
+  .nums { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:10px; }
+  .num { text-align:center; }
+  .num b { display:block; font-size:19px; font-variant-numeric:tabular-nums; line-height:1.2; }
+  .num span { font-size:10.5px; opacity:.62; }
+  .bad b { color:#b4453a; }
+  .row { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  button { font:inherit; font-size:12px; border:0; border-radius:9px; padding:7px 12px;
+    background:rgba(51,68,63,.09); color:var(--ink); cursor:pointer; }
+  button.on { background:var(--ink); color:#fff; }
+  #note { position:absolute; top:calc(10px + env(safe-area-inset-top)); left:10px; right:10px;
+    background:rgba(255,255,255,.92); border-radius:10px; padding:8px 11px; font-size:11.5px; }
+  #err { position:absolute; left:10px; right:10px; top:calc(64px + env(safe-area-inset-top));
+    background:rgba(150,40,32,.94); color:#fff; border-radius:10px; padding:9px 12px;
+    font-size:11.5px; white-space:pre-wrap; z-index:9; }
+</style>
+</head>
+<body>
+<div id="map"></div>
+<div id="note"><b>S15P21E201-659</b> · three.js 부하 실험 — <span id="mode">가짜 그림자 (지금 방식)</span></div>
+<div id="err" hidden></div>
+
+<div class="panel">
+  <div class="nums">
+    <div class="num" id="n-fps"><b>–</b><span>지금 초당 프레임</span></div>
+    <div class="num" id="n-min"><b>–</b><span>돌릴 때 최저</span></div>
+    <div class="num" id="n-net"><b>–</b><span>받은 양</span></div>
+    <div class="num" id="n-tri"><b>–</b><span>three.js 삼각형</span></div>
+  </div>
+  <div class="row">
+    <button id="btn-a" class="on">A · 가짜 그림자</button>
+    <button id="btn-b">B · three.js 진짜 그림자</button>
+    <button id="btn-run">같은 길로 돌려서 재기</button>
+    <button id="btn-copy">숫자 복사</button>
+  </div>
+</div>
+
+<script type="module">
+import { Map as MapLibreMap, MercatorCoordinate } from './lib/maplibre-gl.mjs';
+import { sunPosition, kst } from './sun.mjs';
+
+const SITE = { lat: 35.1600, lon: 129.1300 };
+const DATE = [2026, 7, 15];
+const HOUR = 17;                       // 해 30° — 그림자가 길어 차이가 가장 잘 보인다
+const NEAR_M = 900;                    // three.js 로 다시 그릴 범위 (카메라 주변)
+const MIN_H = 8;
+
+const sun = sunPosition(kst(...DATE, HOUR), SITE.lat, SITE.lon);
+
+function fail(where, e) {
+  const el = document.getElementById('err');
+  el.hidden = false;
+  el.textContent = (el.textContent ? el.textContent + '\n' : '') + where + ': ' + (e && e.message ? e.message : e);
+  console.error('[' + where + ']', e);
+}
+
+// 🔴 큰 파일(건물 타일 58 MB · 땅 높이 204 MB)은 깃에 없다.
+//    LFS 도 답이 아니다 — 저장소가 그만큼 무거워지는 건 똑같고, clone 이 느려진다.
+//    대신 **AWS(EC2)에 두고 주소로 부른다.** 서버는 그 자리에 다른 주소에서도
+//    받아 갈 수 있게 열어 두었다.
+//
+//    기본        같은 자리에서 찾는다 (배포본, 또는 직접 구운 로컬)
+//    ?data=aws   AWS 에 올려 둔 것을 쓴다 — **새로 clone 한 사람이 807 MB 를 굽지 않고
+//                바로 볼 수 있다.** 화면 코드만 있으면 된다.
+const DATA = location.search.includes('data=aws')
+  ? 'https://j15e201.p.ssafy.io/city3d'
+  : location.origin + basePath();
+
+const map = new MapLibreMap({
+  container: 'map',
+  style: 'https://tiles.openfreemap.org/styles/positron',
+  center: [129.1380, 35.1560], zoom: 13, pitch: 60, maxPitch: 85,
+  minZoom: 11, maxZoom: 18, antialias: true,
+});
+window.map = map;
+
+// ── 재는 것 ───────────────────────────────────────────────────────
+// 초당 프레임은 **지도가 실제로 다시 그린 횟수**를 센다. 자체 루프를 세면
+// 지도가 한 장도 안 그려도 숫자가 나온다 — 그걸로 판단하면 안 된다.
+let frames = 0, fps = 0, minMovingFps = Infinity, windowClean = false, lastTick = performance.now();
+let triCount = 0;
+map.on('render', () => { frames++; });
+map.on('movestart', () => { frames = 0; lastTick = performance.now(); windowClean = true; });
+map.on('moveend', () => { windowClean = false; });
+
+setInterval(() => {
+  const now = performance.now();
+  fps = Math.round((frames * 1000) / (now - lastTick));
+  frames = 0; lastTick = now;
+  // 1초 창이 움직임 안에 온전히 들어갈 때만 최저값으로 센다
+  if (windowClean && map.isMoving() && fps > 0) minMovingFps = Math.min(minMovingFps, fps);
+  windowClean = map.isMoving();
+  set('n-fps', fps === 0 ? '쉼' : fps, fps > 0 && fps < 30);
+  set('n-min', minMovingFps === Infinity ? '–' : minMovingFps, minMovingFps < 30);
+  const mb = performance.getEntriesByType('resource').reduce((s, e) => s + (e.transferSize || 0), 0) / 1048576;
+  set('n-net', mb.toFixed(2) + ' MB', mb > 4.1);
+  set('n-tri', triCount ? triCount.toLocaleString() : '–');
+}, 1000);
+
+function set(id, v, bad) {
+  const el = document.getElementById(id);
+  el.querySelector('b').textContent = v;
+  el.classList.toggle('bad', !!bad);
+}
+
+// ── 바탕 지도 색 ──────────────────────────────────────────────────
+function repaintBase() {
+  for (const l of map.getStyle().layers) {
+    try {
+      if (l.type === 'background') { map.setPaintProperty(l.id, 'background-color', '#f3f5f1'); continue; }
+      if (/building/i.test(l.id)) { map.setLayoutProperty(l.id, 'visibility', 'none'); continue; }
+      if (l.type === 'fill') {
+        const water = /water|ocean|sea|river|bay|harbou?r/i.test(l.id);
+        const green = /park|wood|forest|grass|green|landcover|garden|pitch/i.test(l.id);
+        const c = water ? '#adcdcd' : green ? '#d8e6d2' : '#f3f5f1';
+        map.setPaintProperty(l.id, 'fill-color', c);
+        map.setPaintProperty(l.id, 'fill-outline-color', c);
+      } else if (l.type === 'line') {
+        map.setPaintProperty(l.id, 'line-color', /water|river|stream/i.test(l.id) ? '#adcdcd' : '#fff');
+      }
+    } catch {}
+  }
+}
+
+// ── 가짜 그림자 (A) — 지금 쓰는 방식 그대로 ──────────────────────
+const R = 6378137;
+const mPerLon = (lat) => (Math.PI / 180) * R * Math.cos((lat * Math.PI) / 180);
+const M_PER_LAT = (Math.PI / 180) * R;
+
+function convexHull(pts) {
+  if (pts.length < 4) return pts;
+  const p = pts.slice().sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+  const cr = (o, a, b) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+  const lo = [], up = [];
+  for (const q of p) { while (lo.length >= 2 && cr(lo[lo.length - 2], lo[lo.length - 1], q) <= 0) lo.pop(); lo.push(q); }
+  for (let i = p.length - 1; i >= 0; i--) { const q = p[i]; while (up.length >= 2 && cr(up[up.length - 2], up[up.length - 1], q) <= 0) up.pop(); up.push(q); }
+  up.pop(); lo.pop();
+  return lo.concat(up);
+}
+
+function buildFakeShadows() {
+  const src = map.getSource('shadow');
+  if (!src) return;
+  const dir = ((sun.azimuth + 180) * Math.PI) / 180;
+  const east = Math.sin(dir), north = Math.cos(dir);
+  const perM = 1 / Math.tan((sun.altitude * Math.PI) / 180);
+  const out = [];
+  const seen = new Set();
+  for (const f of map.querySourceFeatures('bld', { sourceLayer: 'building' })) {
+    const h = f.properties.h;
+    if (!(h >= 20)) continue;
+    const g = f.geometry;
+    const rings = g.type === 'Polygon' ? [g.coordinates[0]] : g.coordinates.map((c) => c[0]);
+    for (const ring of rings) {
+      if (!ring || ring.length < 4) continue;
+      const key = ring[0][0].toFixed(5) + ',' + ring[0][1].toFixed(5) + ',' + h;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      const L = Math.min(h * perM, 600);
+      const lat = ring[0][1];
+      const dLon = (east * L) / mPerLon(lat), dLat = (north * L) / M_PER_LAT;
+      const pts = [];
+      for (const p of ring) { pts.push(p); pts.push([p[0] + dLon, p[1] + dLat]); }
+      const hull = convexHull(pts);
+      if (hull.length < 3) continue;
+      hull.push(hull[0]);
+      out.push({ type: 'Feature', properties: { sh: h }, geometry: { type: 'Polygon', coordinates: [hull] } });
+    }
+  }
+  src.setData({ type: 'FeatureCollection', features: out });
+}
+
+// ── three.js (B) — 카메라 근처 건물을 다시 그리고 진짜 그림자 ────
+let THREE = null, threeLayer = null;
+
+async function loadThree() {
+  if (THREE) return THREE;
+  THREE = await import('./three.module.min.js');
+  return THREE;
+}
+
+// 건물 발자국을 상자가 아니라 **실제 모양 그대로** 세운다.
+// 상자로 하면 삼각형이 적어져 부하 측정이 후해진다 — 실제와 같은 조건으로 재야 한다.
+function buildingMesh(T, feats, originMerc, scale) {
+  const pos = [], nrm = [];
+  const push = (a, b, c, n) => {
+    pos.push(a[0], a[1], a[2], b[0], b[1], b[2], c[0], c[1], c[2]);
+    for (let i = 0; i < 3; i++) nrm.push(n[0], n[1], n[2]);
+  };
+  const toLocal = (lon, lat, z) => {
+    const m = MercatorCoordinate.fromLngLat({ lng: lon, lat }, z);
+    return [(m.x - originMerc.x) * scale, -(m.y - originMerc.y) * scale, m.z * scale];
+  };
+
+  for (const f of feats) {
+    const h = f.properties.h;
+    const g = f.geometry;
+    const rings = g.type === 'Polygon' ? [g.coordinates[0]] : g.coordinates.map((c) => c[0]);
+    for (const ring of rings) {
+      if (!ring || ring.length < 4) continue;
+      const top = ring.map((p) => toLocal(p[0], p[1], h));
+      const bot = ring.map((p) => toLocal(p[0], p[1], 0));
+      // 옆면
+      for (let i = 0; i < ring.length - 1; i++) {
+        const a = bot[i], b = bot[i + 1], c = top[i + 1], d = top[i];
+        const ux = b[0] - a[0], uy = b[1] - a[1];
+        const len = Math.hypot(ux, uy) || 1;
+        const n = [uy / len, -ux / len, 0];
+        push(a, b, c, n); push(a, c, d, n);
+      }
+      // 지붕 — 부채꼴로 채운다. 오목한 발자국에서 살짝 어긋나지만 부하 측정에는 영향이 없다.
+      for (let i = 1; i < top.length - 2; i++) push(top[0], top[i], top[i + 1], [0, 0, 1]);
+    }
+  }
+
+  const geo = new T.BufferGeometry();
+  geo.setAttribute('position', new T.Float32BufferAttribute(pos, 3));
+  // 🔴 법선(면이 어느 쪽을 보는지)을 손으로 넣었더니 건물이 새까맣게 나왔다.
+  //    발자국을 감는 방향이 데이터마다 달라서 안쪽을 향한 면이 생긴다.
+  //    꼭짓점을 공유하지 않으므로 three.js 에 맡기면 면마다 정확히 나온다.
+  geo.computeVertexNormals();
+  return { geo, tris: pos.length / 9 };
+}
+
+async function makeThreeLayer() {
+  const T = await loadThree();
+  const c = map.getCenter();
+  const originMerc = MercatorCoordinate.fromLngLat({ lng: c.lng, lat: c.lat }, 0);
+  const scale = 1 / originMerc.meterInMercatorCoordinateUnits();
+
+  return {
+    id: 'three-buildings',
+    type: 'custom',
+    renderingMode: '3d',
+    onAdd(mapRef, gl) {
+      this.scene = new T.Scene();
+      this.camera = new T.Camera();
+
+      // 해 — 위치는 실제 태양 방위·고도에서 온다 (sun.mjs)
+      const az = (sun.azimuth * Math.PI) / 180, al = (sun.altitude * Math.PI) / 180;
+      const D = 3000;
+      const light = new T.DirectionalLight(0xfff3e2, 3.2);
+      light.position.set(Math.sin(az) * Math.cos(al) * D, Math.cos(az) * Math.cos(al) * D, Math.sin(al) * D);
+      light.castShadow = true;
+      light.shadow.mapSize.set(2048, 2048);
+      const s = light.shadow.camera;
+      s.left = -NEAR_M; s.right = NEAR_M; s.top = NEAR_M; s.bottom = -NEAR_M;
+      s.near = 1; s.far = D * 2;
+      light.target.position.set(0, 0, 0);
+      this.scene.add(light.target);
+      // 🔴 그림자를 만드는 카메라는 **위쪽 방향**을 정해 줘야 한다. 우리 장면은 z 가 위인데
+      //    three.js 의 기본 위쪽은 y 라, 그대로 두면 그림자 상자가 엉뚱하게 눕는다.
+      light.shadow.camera.up.set(0, 0, 1);
+      light.shadow.bias = -0.0015;
+      this.scene.add(light);
+      this.scene.add(new T.AmbientLight(0xd6e2ec, 1.6));
+      this.light = light;
+
+      // 그림자를 받을 바닥
+      const ground = new T.Mesh(
+        new T.PlaneGeometry(NEAR_M * 4, NEAR_M * 4),
+        new T.ShadowMaterial({ opacity: 0.38 })
+      );
+      ground.receiveShadow = true;
+      this.scene.add(ground);
+      this.ground = ground;
+
+      this.mat = new T.MeshLambertMaterial({ color: 0xd8d4cc, side: T.DoubleSide });
+      this.mesh = null;
+      this.originMerc = originMerc;
+      this.scale = scale;
+
+      this.renderer = new T.WebGLRenderer({ canvas: mapRef.getCanvas(), context: gl, antialias: true });
+      this.renderer.autoClear = false;
+      this.renderer.shadowMap.enabled = true;
+      this.renderer.shadowMap.type = T.PCFSoftShadowMap;
+
+      this.rebuild();
+      mapRef.on('moveend', () => this.rebuild());
+    },
+
+    rebuild() {
+      const cam = map.getCenter();
+      const feats = [];
+      const seen = new Set();
+      for (const f of map.querySourceFeatures('bld', { sourceLayer: 'building' })) {
+        if (!(f.properties.h >= MIN_H)) continue;
+        const g = f.geometry;
+        const first = (g.type === 'Polygon' ? g.coordinates[0] : g.coordinates[0][0])?.[0];
+        if (!first) continue;
+        const dx = (first[0] - cam.lng) * mPerLon(cam.lat);
+        const dy = (first[1] - cam.lat) * M_PER_LAT;
+        if (Math.hypot(dx, dy) > NEAR_M) continue;
+        const key = first[0].toFixed(5) + ',' + first[1].toFixed(5);
+        if (seen.has(key)) continue;
+        seen.add(key);
+        feats.push(f);
+      }
+      if (this.mesh) { this.scene.remove(this.mesh); this.mesh.geometry.dispose(); }
+      const { geo, tris } = buildingMesh(T, feats, this.originMerc, this.scale);
+      this.mesh = new T.Mesh(geo, this.mat);
+      // MapLibre 가 그린 같은 건물과 겹쳐 깊이 싸움이 나므로 0.5 m 띄운다. 이 거리에선 안 보인다.
+      this.mesh.position.z = 0.5;
+      this.mesh.castShadow = true;
+      this.mesh.receiveShadow = true;
+      this.scene.add(this.mesh);
+      triCount = tris;
+      map.triggerRepaint();
+    },
+
+    render(gl, args) {
+      // MapLibre 가 준 행렬을 three.js 카메라에 그대로 꽂는다.
+      // 우리 장면은 지도 중심을 원점으로 미터 단위이므로, 그 자리로 옮기고 크기를 맞춘다.
+      const o = this.originMerc, k = 1 / this.scale;
+      const model = new T.Matrix4()
+        .makeTranslation(o.x, o.y, o.z)
+        .multiply(new T.Matrix4().makeScale(k, -k, k));
+      this.camera.projectionMatrix = new T.Matrix4().fromArray(args.defaultProjectionData.mainMatrix).multiply(model);
+      this.renderer.resetState();
+      this.renderer.render(this.scene, this.camera);
+      map.triggerRepaint();
+    },
+  };
+}
+
+// ── A/B 전환 ──────────────────────────────────────────────────────
+let mode = 'A';
+
+async function setMode(next) {
+  if (mode === next) return;
+  minMovingFps = Infinity;
+  try {
+    if (next === 'B') {
+      // 🔴 MapLibre 건물 레이어를 숨기면 안 된다. 레이어를 숨기면 MapLibre 가 **그 소스의 타일을
+      //    아예 안 받는다.** 그러면 three.js 가 세울 건물 데이터가 0 개가 된다 — 실제로 그랬다.
+      //    그래서 그대로 두고 three.js 를 위에 얹는다. 재려는 것도 "얼마나 늘어나는가" 다.
+      map.setLayoutProperty('shadow', 'visibility', 'none');   // 가짜 그림자만 끈다
+      if (!threeLayer) { threeLayer = await makeThreeLayer(); map.addLayer(threeLayer); }
+      else { map.setLayoutProperty('three-buildings', 'visibility', 'visible'); (threeLayer.implementation ?? threeLayer).rebuild?.(); }
+      document.getElementById('mode').textContent = 'three.js 진짜 그림자 (MapLibre 건물 위에 얹음)';
+    } else {
+      if (threeLayer && map.getLayer('three-buildings')) map.setLayoutProperty('three-buildings', 'visibility', 'none');
+      map.setLayoutProperty('shadow', 'visibility', 'visible');
+      triCount = 0;
+      document.getElementById('mode').textContent = '가짜 그림자 (지금 방식)';
+    }
+    mode = next;
+    document.getElementById('btn-a').classList.toggle('on', mode === 'A');
+    document.getElementById('btn-b').classList.toggle('on', mode === 'B');
+  } catch (e) { fail('모드 ' + next, e); }
+}
+
+// 같은 길로 카메라를 돌려서 두 방식을 같은 조건으로 잰다.
+function runCourse() {
+  minMovingFps = Infinity;
+  map.jumpTo({ center: [129.1380, 35.1560], zoom: 14.5, pitch: 70, bearing: 0 });
+  setTimeout(() => map.easeTo({ bearing: 90, pitch: 78, zoom: 15.2, duration: 5000 }), 800);
+  setTimeout(() => map.easeTo({ bearing: 0, pitch: 60, zoom: 14.5, duration: 5000 }), 6200);
+}
+
+map.on('load', () => {
+  try { repaintBase(); } catch (e) { fail('바탕 지도 색', e); }
+
+  try {
+    map.addSource('dem', {
+      type: 'raster-dem', tiles: [DATA + '/dem/{z}/{x}_{y}.png'],
+      tileSize: 256, encoding: 'terrarium', minzoom: 11, maxzoom: 15,
+    });
+    map.setTerrain({ source: 'dem', exaggeration: 1.25 });
+  } catch (e) { fail('지형', e); }
+
+  try {
+    map.addSource('shadow', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
+    map.addLayer({
+      id: 'shadow', type: 'fill-extrusion', source: 'shadow',
+      paint: { 'fill-extrusion-color': '#2f3f4c', 'fill-extrusion-opacity': 0.42,
+        'fill-extrusion-base': 0, 'fill-extrusion-height': ['+', 0.4, ['*', ['get', 'sh'], 0.004]],
+        'fill-extrusion-vertical-gradient': false },
+    });
+  } catch (e) { fail('가짜 그림자', e); }
+
+  try {
+    map.addSource('bld', {
+      type: 'vector', tiles: [DATA + '/tiles-busan/{z}/{x}/{y}.pbf'],
+      minzoom: 12, maxzoom: 16,
+    });
+    map.addLayer({
+      id: 'bld-3d', type: 'fill-extrusion', source: 'bld', 'source-layer': 'building',
+      minzoom: 12, filter: ['>', ['get', 'h'], 0],
+      paint: { 'fill-extrusion-color': '#d8d4cc', 'fill-extrusion-height': ['get', 'h'],
+        'fill-extrusion-base': 0, 'fill-extrusion-opacity': 1, 'fill-extrusion-vertical-gradient': true },
+    });
+  } catch (e) { fail('건물', e); }
+
+  try {
+    map.setLight({ anchor: 'map', position: [1.4, sun.azimuth, Math.max(2, 90 - sun.altitude)],
+      color: 'rgb(255,238,214)', intensity: 0.45 });
+  } catch (e) { fail('빛', e); }
+
+  let t = null;
+  map.on('sourcedata', (e) => {
+    if (e.sourceId !== 'bld' || !e.isSourceLoaded) return;
+    clearTimeout(t);
+    t = setTimeout(() => { if (!map.isMoving() && mode === 'A') buildFakeShadows(); }, 300);
+  });
+});
+
+function basePath() {
+  const p = location.pathname.replace(/\/[^/]*$/, '');
+  return p === '/' ? '' : p;
+}
+
+document.getElementById('btn-a').onclick = () => setMode('A');
+document.getElementById('btn-b').onclick = () => setMode('B');
+document.getElementById('btn-run').onclick = runCourse;
+document.getElementById('btn-copy').onclick = async () => {
+  const txt = [
+    'three.js 부하 실험 (S15P21E201-659)',
+    '방식: ' + (mode === 'A' ? '가짜 그림자' : 'three.js 진짜 그림자'),
+    '기기: ' + navigator.userAgent,
+    '화면: ' + innerWidth + '×' + innerHeight + ' (배율 ' + devicePixelRatio + ')',
+    '돌릴 때 최저: ' + (minMovingFps === Infinity ? '측정 안 됨' : minMovingFps),
+    '받은 양: ' + document.getElementById('n-net').querySelector('b').textContent,
+    'three.js 삼각형: ' + triCount,
+  ].join('\n');
+  try { await navigator.clipboard.writeText(txt); alert('복사했습니다'); }
+  catch { prompt('복사해 주세요', txt); }
+};
+
+map.on('error', (e) => console.error('[지도]', e && e.error));
+window.addEventListener('error', (e) => fail('전역', e.error || e.message));
+</script>
+</body>
+</html>

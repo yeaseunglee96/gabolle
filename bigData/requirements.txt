@@ -1,0 +1,8 @@
+# PBF 추출 전용. 나머지는 전부 Node 다.
+#
+# 왜 Python 인가: PBF(OpenStreetMap 의 압축 바이너리 형식)를 제대로 읽는 라이브러리는
+# osmium(C++) 계열뿐이고, 그 바인딩이 Python 에 있다. Node 쪽 구현은 신뢰도가 떨어진다.
+# 이 하나를 위해서만 Python 을 쓴다.
+#
+#   py -m pip install -r bigData/requirements.txt
+osmium>=4.0
