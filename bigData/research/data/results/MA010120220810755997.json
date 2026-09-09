@@ -1,8 +1,8 @@
 {
   "id": "MA010120220810755997",
-  "worker": "haiku-53",
-  "researchedAt": "2026-09-09T15:53:00Z",
-  "queries": ["포동 달맞이길", "포동 횟집"],
+  "worker": "haiku-56",
+  "researchedAt": "2026-09-09T06:37:13Z",
+  "queries": ["포동 해운대구 부산", "포동 중1동 맛집"],
   "found": false,
   "confidence": "none",
   "sources": [],
@@ -10,6 +10,6 @@
   "whyPeopleGo": [],
   "newTypes": [],
   "descriptors": {},
-  "notFound": "웹 검색에서 포동 횟집 정보를 찾지 못함",
-  "notes": "카테고리는 횟집으로 기록되었으나 웹 검색 결과에서 특정 음식점으로 나타나지 않음"
+  "notFound": "웹 검색에서 이 이름의 음식점 정보를 찾을 수 없음",
+  "notes": ""
 }

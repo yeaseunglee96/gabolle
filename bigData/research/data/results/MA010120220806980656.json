@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220806980656",
+  "worker": "haiku-58",
+  "researchedAt": "2026-09-09T16:59:00Z",
+  "queries": ["하모횟집 수영구 부산", "하모횟집 민락동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/383573", "https://www.tabling.co.kr/place/677cc8db66de5f069877c2ea", "https://www.diningcode.com/profile.php?rid=Sx01ISG255WM", "https://kr.trip.com/restaurant/south-korea/busan/detail/hamo-sashimi-restaurant-42623662/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "메뉴 희소성", "note": "하모(갯장어) 샤브샤브로 희귀한 메뉴", "sources": [0, 1, 2]},
+    {"type": "조리·재료", "note": "경남 고성에서 직접 수입하는 신선한 갯장어", "sources": [2, 3]},
+    {"type": "간판 메뉴 지목", "note": "하모 샤브샤브, 새조개 샤브샤브 대표 메뉴", "sources": [1, 2]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["하모 샤브샤브", "새조개 샤브샤브"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "운영시간 12:00~21:00 (15:00~16:30 휴게). 하모 샤브샤브 1인 45,000원, 새조개 샤브샤브 1인 55,000원. 주차 가능"
+}

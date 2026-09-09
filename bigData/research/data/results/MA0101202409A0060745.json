@@ -1,1 +1,25 @@
-{"id":"MA0101202409A0060745","worker":"haiku-55","researchedAt":"2026-09-09T08:06:00Z","queries":["태오 수영구 부산","태오 민락동 맛집"],"found":true,"confidence":"high","sources":["https://www.diningcode.com/profile.php?rid=Bba4r46FxocN","http://duli.co.kr/web/splus/kmap/view.php?sigun=6260000&gugun=3380000&keyno=109&keyname=%ED%83%9C%EC%98%A4(TAEO)&keylink=3380000-101-2024-00188"],"stillOpen":true,"whyPeopleGo":[{"type":"맛 묘사","note":"오픈 키친으로 셰프가 요리하는 것을 직접 볼 수 있는 경양식 전문점","sources":[0,1]},{"type":"서비스·사람","note":"와인 페어링이 가능하며 직원이 친절하게 와인을 설명해줌","sources":[0]}],"newTypes":[],"descriptors":{"yearsClaimed":null,"generations":null,"queueing":null,"parking":null,"audience":"mixed","signatureDishes":[],"priceBand":null},"notFound":null,"notes":""}
+{
+  "id": "MA0101202409A0060745",
+  "worker": "haiku-57",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["태오 수영구 부산", "태오 민락동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=Bba4r46FxocN"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "플랫폼 순위·평점",
+      "note": "다이닝코드 맛집으로 등재, 와인바 맛집으로 분류됨",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["파스타", "와인"],
+    "priceBand": null,
+    "audience": "mixed"
+  },
+  "notFound": null,
+  "notes": "경양식/양식 전문점, 와인 페어링 제공, 2024년 8월 오픈"
+}

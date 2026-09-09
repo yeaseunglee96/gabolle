@@ -1,8 +1,8 @@
 {
   "id": "MA0101202409A0196066",
-  "worker": "haiku-53",
-  "researchedAt": "2026-09-09T15:46:00Z",
-  "queries": ["플레르원 광안2동", "플레르원 부산"],
+  "worker": "haiku-56",
+  "researchedAt": "2026-09-09T06:37:13Z",
+  "queries": ["플레르원 수영구 부산", "플레르원 광안 맛집"],
   "found": false,
   "confidence": "none",
   "sources": [],
@@ -10,6 +10,6 @@
   "whyPeopleGo": [],
   "newTypes": [],
   "descriptors": {},
-  "notFound": "웹 검색에서 플레르원 음식점 정보를 찾지 못함",
-  "notes": "카테고리는 경양식으로 기록되었으나 웹 검색 결과에서 음식점으로 나타나지 않음. 광안2동 수영로594번길 위치"
+  "notFound": "웹 검색에서 이 음식점의 정보를 찾을 수 없음",
+  "notes": ""
 }

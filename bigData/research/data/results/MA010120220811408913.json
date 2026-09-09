@@ -1,0 +1,31 @@
+{
+  "id": "MA010120220811408913",
+  "worker": "haiku-59",
+  "researchedAt": "2026-09-09T08:26:00Z",
+  "queries": ["곰포횟집 부산 민락", "곰포횟집 민락수변로 회"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/361867", "https://www.diningcode.com/profile.php?rid=bTJib1KxC7Pi"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "모듬회 (중, 대)",
+      "sources": ["https://www.diningcode.com/profile.php?rid=bTJib1KxC7Pi"]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "민락회센터 6층, 광안리 해변 분위기",
+      "sources": ["https://www.siksinhot.com/P/361867"]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "phone": "051-751-5558",
+    "operatingHours": "10:30~02:00 (월요일 휴무)",
+    "building": "민락회센터 6층",
+    "parking": "민락횟시장 맞은편 공영주차장 (2시간 무료)",
+    "type": "초장집 (아래 시장에서 생선 구매 후 테이블 요금 내고 먹음)"
+  },
+  "notes": "민락동 회타운의 대표 횟집 중 하나"
+}

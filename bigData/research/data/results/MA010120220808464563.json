@@ -1,0 +1,34 @@
+{
+  "id": "MA010120220808464563",
+  "worker": "haiku-57",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["구로마쯔 광안해변로 부산", "구로마쯔 테판야끼 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=qX8HqxVMevbT"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "정통 재패니즈 데판야끼 코스요리",
+      "sources": [0]
+    },
+    {
+      "type": "조리·재료",
+      "note": "신선한 부산 식재료 사용",
+      "sources": [0]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "광안대교와 바다가 보이는 전망",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["데판야끼 코스"],
+    "audience": "mixed"
+  },
+  "notFound": null,
+  "notes": "Hotel Central Bay 3F, 광안점과 송정점 운영, 예약 필수"
+}

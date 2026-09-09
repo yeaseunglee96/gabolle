@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220805327680",
+  "worker": "haiku-59",
+  "researchedAt": "2026-09-09T08:20:00Z",
+  "queries": ["도군수산횟집 부산 민락", "도군수산 민락수변로 횟집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "민락동 회타운 검색에서 여러 횟집들이 나오지만 '도군수산횟집'이라는 특정 가게는 찾을 수 없음",
+  "notes": "횟집 카테고리로 등록"
+}

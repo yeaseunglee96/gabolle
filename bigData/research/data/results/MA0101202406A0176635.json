@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202406A0176635",
+  "worker": "haiku-62",
+  "researchedAt": "2026-09-09T08:33:29Z",
+  "queries": ["골목연1호 수영구 부산", "골목연1호 민락동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색에서 골목연1호에 대한 정보를 찾을 수 없음",
+  "notes": ""
+}

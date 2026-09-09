@@ -1,0 +1,49 @@
+{
+  "id": "MA0101202310A0067992",
+  "worker": "haiku-60",
+  "researchedAt": "2026-09-09T10:11:00Z",
+  "queries": ["파파횟집 해운대구 부산", "파파횟집 중동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1234789"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "오션뷰와 광안대교가 보이는 바다 경치",
+      "sources": [0]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "대게코스, 랍스타코스 등 프리미엄 코스요리",
+      "sources": [0]
+    },
+    {
+      "type": "운영·접근 편의",
+      "note": "지하주차장과 매장 앞 주차 공간 완비, 2층 바다뷰 좌석",
+      "sources": [0]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "합리적 가격대 (A코스 40,000원, B코스 55,000원)",
+      "sources": [0]
+    },
+    {
+      "type": "서비스·사람",
+      "note": "넓은 좌석 간격과 조용한 분위기로 편안한 식사 환경",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "available",
+    "audience": "mixed",
+    "signatureDishes": ["대게코스", "랍스타코스"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "해운대 바다뷰 횟집으로 영업시간 11:30~02:00. 모임, 회식에 적합"
+}

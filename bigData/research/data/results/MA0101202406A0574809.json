@@ -1,0 +1,27 @@
+{
+  "id": "MA0101202406A0574809",
+  "worker": "haiku-58",
+  "researchedAt": "2026-09-09T17:03:00Z",
+  "queries": ["압구정편의점 광안리 부산", "압구정편의점 민락동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://triple.guide/restaurants/26f21b6b-d8cb-45de-a2de-74e540dd8eaf", "https://www.instagram.com/p/C-iD5YeBB-_/", "https://www.instagram.com/p/DBEWdWAS7ak/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "분위기·전망", "note": "오사카 감성의 퓨전포차 분위기", "sources": [0, 1, 2]},
+    {"type": "메뉴 희소성", "note": "광안리에서 즐기는 작은 일본, 오사카식 퓨전 푸드", "sources": [1, 2]},
+    {"type": "곁들임·차림", "note": "카페 문화와 함께 즐길 수 있는 식사 공간", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["오사카식 퓨전 음식"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "광안리 해수욕장 근처 위치. 카페와 음식점이 결합된 형태. 협찬 가능성 있음"
+}

@@ -1,0 +1,35 @@
+{
+  "id": "MA010120220811417556",
+  "worker": "haiku-57",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["어촌횟집 민락수변로 부산", "어촌횟집 당근 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.daangn.com/kr/local-profile/%EC%96%B4%EC%B4%8C%ED%9A%9F%EC%A7%91-gorxuubyhsab/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "현지인 지지",
+      "note": "민락동 회 전문 지역의 오래된 횟집",
+      "sources": [0]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "신선한 활어회 전문",
+      "sources": [0]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "합리적인 가격대",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["활어회"],
+    "priceBand": "cheap",
+    "audience": "local"
+  },
+  "notFound": null,
+  "notes": "당근 동네 업체로 리스팅, 민락수변로 전문 횟집 거리에 위치"
+}

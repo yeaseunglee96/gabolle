@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202305A0087330",
+  "worker": "haiku-59",
+  "researchedAt": "2026-09-09T08:28:00Z",
+  "queries": ["휴테 부산 해운대 달맞이길", "휴테 경양식 중동 해운대"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "달맞이길 및 해운대 중동 경양식 검색에도 불구하고 '휴테'라는 가게는 찾을 수 없음",
+  "notes": "경양식 카테고리로 등록"
+}

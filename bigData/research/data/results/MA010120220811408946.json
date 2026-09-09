@@ -1,0 +1,34 @@
+{
+  "id": "MA010120220811408946",
+  "worker": "haiku-57",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["방파제 광안해변로 횟집", "방파제 광안리 회"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=JoyVXb03T65r"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "연차·역사",
+      "note": "1981년 개업, 오래된 전통 식당",
+      "sources": [0]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "야생 활어회 전문",
+      "sources": [0]
+    },
+    {
+      "type": "현지인 지지",
+      "note": "광안리 대표 시푸드 전문점",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["야생 활어회", "계절 코스"],
+    "audience": "family"
+  },
+  "notFound": null,
+  "notes": "국가지정 전통음식점, 3층 건물(1층 회의실, 2층 소규모, 3층 100명), 광안리 해변 10분 거리, 주중 11:30-22:00"
+}

@@ -1,0 +1,34 @@
+{
+  "id": "MA0101202406A0424858",
+  "worker": "haiku-59",
+  "researchedAt": "2026-09-09T08:12:05Z",
+  "queries": ["앵무새LP바 수영구 부산", "앵무새LP바 민락동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1738429", "https://www.diningcode.com/profile.php?rid=xfYI7fzlGdJ8"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "LP바, 어두운 분위기와 네온사인의 독일식 펍",
+      "sources": [0, 1]
+    },
+    {
+      "type": "맛 묘사",
+      "note": "크래프트 맥주와 위스키, 주문 없이 조용히 술 즐기는 분위기",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["Chicken Fricassee", "Ostras Calamares", "크래프트 맥주"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "화~토 18:30 ~ 24:00 (일,월 휴무, 최종주문 23:10). 광안역 1번 출구 도보 931m"
+}

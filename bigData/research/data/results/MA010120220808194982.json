@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220808194982",
+  "worker": "haiku-59",
+  "researchedAt": "2026-09-09T08:36:00Z",
+  "queries": ["구들장 부산 민락동 고기", "구들장 광안해변로 구이 찜"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "민락동·광안해변 고기 구이·찜 검색에도 불구하고 '구들장'이라는 가게는 찾을 수 없음",
+  "notes": "돼지고기 구이/찜 카테고리로 등록"
+}

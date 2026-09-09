@@ -1,15 +1,31 @@
 {
   "id": "MA0101202212A0065170",
-  "worker": "haiku-53",
-  "researchedAt": "2026-09-09T15:39:00Z",
-  "queries": ["애뜨비스트로 우동 해운대", "애뜨비스트로 부산"],
+  "worker": "haiku-56",
+  "researchedAt": "2026-09-09T06:37:13Z",
+  "queries": ["애뜨비스트로 해운대구 부산", "애뜨비스트로 우동 맛집"],
   "found": true,
-  "confidence": "high",
-  "sources": ["https://www.diningcode.com/profile.php?rid=a5aZP2WYPh4v"],
+  "confidence": "medium",
+  "sources": [
+    "https://www.diningcode.com/profile.php?rid=a5aZP2WYPh4v"
+  ],
   "stillOpen": true,
-  "whyPeopleGo": [{"type": "간판 메뉴 지목", "note": "파스타, 뇨끼, 리소또", "sources": [0]}, {"type": "분위기·전망", "note": "해리단길 파스타 맛집", "sources": [0]}],
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "파스타와 뇨끼가 특징",
+      "sources": [0]
+    }
+  ],
   "newTypes": [],
-  "descriptors": {"signatureDishes": ["파스타", "뇨끼", "리소또"]},
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["파스타", "뇨끼", "리조또"],
+    "priceBand": "moderate"
+  },
   "notFound": null,
-  "notes": "카테고리는 경양식으로 기록됨. 우동1로38번가길 20 3층 (해리단길). 운영시간 월~토 11:30-20:30 (휴게시간 15:00-17:00), 일요일 휴무. 해운대역 4번출구에서 도보 170m"
+  "notes": ""
 }

@@ -1,0 +1,40 @@
+{
+  "id": "MA0101202310A0095305",
+  "worker": "haiku-57",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["치직 민락동 부산", "치직 부산 음식"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=xGqr1whmBGiP"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "광안리 한우, 소고기 전문",
+      "sources": [0]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "2층, 야외 테라스 구역, 편안한 분위기",
+      "sources": [0]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "2명 78,000원, 3명 117,000원, 4명 156,000원 세트로 합리적 가격",
+      "sources": [0]
+    },
+    {
+      "type": "운영·접근 편의",
+      "note": "직원이 고기를 구워주는 서비스, 무연 그릴 시스템",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["한우", "소고기"],
+    "priceBand": "mid",
+    "audience": "family"
+  },
+  "notFound": null,
+  "notes": "광안리 위치, 구워주는 서비스, 무연 그릴 시스템"
+}

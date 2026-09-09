@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202406A0596610",
+  "worker": "haiku-59",
+  "researchedAt": "2026-09-09T08:20:00Z",
+  "queries": ["크라클랑 해운대 중동", "크라클랑 부산 경양식"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "해운대 중동 경양식 검색에도 불구하고 '크라클랑'이라는 경양식 식당은 찾을 수 없음",
+  "notes": "경양식 카테고리로 등록"
+}

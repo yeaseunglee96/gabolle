@@ -1,8 +1,8 @@
 {
   "id": "MA0101202603A0001549",
-  "worker": "haiku-53",
-  "researchedAt": "2026-09-09T16:00:00Z",
-  "queries": ["광안만쿠 민락로", "광안만쿠 부산"],
+  "worker": "haiku-56",
+  "researchedAt": "2026-09-09T06:37:13Z",
+  "queries": ["광안만쿠 수영구 부산", "광안만쿠 민락동 맛집"],
   "found": false,
   "confidence": "none",
   "sources": [],
@@ -10,6 +10,6 @@
   "whyPeopleGo": [],
   "newTypes": [],
   "descriptors": {},
-  "notFound": "웹 검색에서 광안만쿠 음식점 정보를 찾지 못함",
-  "notes": "카테고리는 일식 회/초밥으로 기록되었으나 웹 검색 결과에서 특정 음식점으로 나타나지 않음"
+  "notFound": "웹 검색에서 이 이름의 음식점 정보를 찾을 수 없음",
+  "notes": ""
 }
