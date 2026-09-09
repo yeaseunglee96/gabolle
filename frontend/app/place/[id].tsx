@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { ActivityIndicator, ImageBackground, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { ActivityIndicator, Animated, ImageBackground, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
@@ -43,13 +43,30 @@ export default function Place() {
   const [remote, setRemote] = useState<RemoteState>({ status: 'loading' });
   const [retryCount, setRetryCount] = useState(0);
   const [phraseModalOpen, setPhraseModalOpen] = useState(false);
+  const [heroLoaded, setHeroLoaded] = useState(false);
+  const heroReveal = useRef(new Animated.Value(0)).current;
 
   // 데모 3곳은 로컬 값을, 그 밖의 id 는 방금 받아온 API 응답을 같은 모양으로 맞춘다.
-  const resolved = demoPlace
-    ? { title: tx(demoPlace.titleKo, demoPlace.titleEn), subtitle: tx(demoPlace.subtitleKo, demoPlace.subtitleEn), apiPlace: null as ApiPlace | null }
-    : remote.status === 'loaded'
-      ? { title: bilingualPlaceName(remote.place.nameKo, remote.place.nameEn), subtitle: tx(remote.place.address, remote.place.addressEn ?? remote.place.address), apiPlace: remote.place }
-      : null;
+  // useMemo 로 묶는다 — 안 묶으면 매 렌더 새 객체가 생겨서 아래 지도 앱 조회 effect 가
+  // resolved 를 의존성으로 삼다가 무한 재실행에 빠진다(setMapApps → 재렌더 → 새 resolved → 재실행).
+  const resolved = useMemo(() => (
+    demoPlace
+      ? { title: tx(demoPlace.titleKo, demoPlace.titleEn), subtitle: tx(demoPlace.subtitleKo, demoPlace.subtitleEn), apiPlace: null as ApiPlace | null }
+      : remote.status === 'loaded'
+        ? { title: bilingualPlaceName(remote.place.nameKo, remote.place.nameEn), subtitle: tx(remote.place.address, remote.place.addressEn ?? remote.place.address), apiPlace: remote.place }
+        : null
+  ), [demoPlace, remote, tx]);
+  const photoUrl = resolved?.apiPlace?.photoUrl ?? null;
+
+  useEffect(() => {
+    setHeroLoaded(false);
+    heroReveal.setValue(0);
+  }, [photoUrl, heroReveal]);
+
+  useEffect(() => {
+    if (!heroLoaded) return;
+    Animated.timing(heroReveal, { toValue: 1, duration: 320, useNativeDriver: true }).start();
+  }, [heroLoaded, heroReveal]);
 
   useEffect(() => {
     if (!id || demoPlace) return;
@@ -127,19 +144,24 @@ export default function Place() {
             </View>
           </ImageBackground>
         ) : resolved.apiPlace?.photoUrl ? (
-          <ImageBackground source={{ uri: resolved.apiPlace.photoUrl }} resizeMode="cover" style={[styles.hero, isAtLeast(width, 'md') && styles.heroWide]} imageStyle={styles.heroImage}>
-            <View style={styles.shade} />
-            <View style={styles.heroCopy}>
-              <Text variant="display" weight="bold" color={color.text.onAction}>{resolved.title}</Text>
-              <Text color={color.text.onAction}>{resolved.subtitle}</Text>
-              {hasLocalityScore(resolved.apiPlace) ? (
-                <View style={styles.scoreBadge}><Text variant="caption" weight="bold" color={color.text.onAction}>{tx('로컬 점수 있음', 'Has locality score')}</Text></View>
-              ) : null}
-              {resolved.apiPlace.photoSource ? (
-                <Text variant="caption" color={color.text.onAction} style={styles.photoCredit}>{tx(`사진 제공: ${resolved.apiPlace.photoSource}`, `Photo: ${resolved.apiPlace.photoSource}`)}</Text>
-              ) : null}
-            </View>
-          </ImageBackground>
+          <View style={[styles.hero, isAtLeast(width, 'md') && styles.heroWide]}>
+            <View style={[StyleSheet.absoluteFill, styles.heroPlaceholder]} />
+            <Animated.View style={[StyleSheet.absoluteFill, { opacity: heroReveal, transform: [{ scale: heroReveal.interpolate({ inputRange: [0, 1], outputRange: [1.04, 1] }) }] }]}>
+              <ImageBackground source={{ uri: resolved.apiPlace.photoUrl }} resizeMode="cover" style={styles.heroFill} imageStyle={styles.heroImage} onLoad={() => setHeroLoaded(true)} onError={() => setHeroLoaded(true)}>
+                <View style={styles.shade} />
+                <View style={styles.heroCopy}>
+                  <Text variant="display" weight="bold" color={color.text.onAction}>{resolved.title}</Text>
+                  <Text color={color.text.onAction}>{resolved.subtitle}</Text>
+                  {hasLocalityScore(resolved.apiPlace) ? (
+                    <View style={styles.scoreBadge}><Text variant="caption" weight="bold" color={color.text.onAction}>{tx('로컬 점수 있음', 'Has locality score')}</Text></View>
+                  ) : null}
+                  {resolved.apiPlace.photoSource ? (
+                    <Text variant="caption" color={color.text.onAction} style={styles.photoCredit}>{tx(`사진 제공: ${resolved.apiPlace.photoSource}`, `Photo: ${resolved.apiPlace.photoSource}`)}</Text>
+                  ) : null}
+                </View>
+              </ImageBackground>
+            </Animated.View>
+          </View>
         ) : (
           <View style={[styles.hero, styles.heroPlain, isAtLeast(width, 'md') && styles.heroWide]}>
             <View style={styles.heroCopy}>
@@ -189,7 +211,9 @@ const styles = StyleSheet.create({
   spacer: { width: 44 },
   hero: { height: 240, justifyContent: 'flex-end', overflow: 'hidden', borderRadius: radius.lg },
   heroWide: { height: 360 },
+  heroFill: { flex: 1, justifyContent: 'flex-end' },
   heroImage: { borderRadius: radius.lg },
+  heroPlaceholder: { backgroundColor: color.surface.soft },
   heroPlain: { backgroundColor: color.brand.navy, padding: spacing[4] },
   shade: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(8, 27, 53, 0.25)' },
   heroCopy: { gap: spacing[1], padding: spacing[4] },
