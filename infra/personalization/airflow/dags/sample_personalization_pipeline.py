@@ -16,14 +16,23 @@ import pickle
 import random
 import string
 
-import lightgbm as lgb
-import mlflow
-import mlflow.lightgbm
-import pandas as pd
 import psycopg2
 import redis
 from airflow import DAG
 from airflow.operators.python import PythonOperator
+
+# 🔴 lightgbm · mlflow · pandas 는 **일부러 여기서 임포트하지 않는다** (S15P21E201-785).
+#    Airflow 의 dag-processor 는 이 파일을 기본값 30초마다(min_file_process_interval)
+#    새 하위 프로세스에서 다시 임포트한다. 그 셋을 최상위에 두면 30초마다 mlflow +
+#    lightgbm + pandas 를 처음부터 다시 불러들이며 코어 하나를 몇 초씩 태운다.
+#
+#    실측 (2026-09-09, 4코어 서버) — DAG 파일이 이 하나뿐인데도 dag-processor 와
+#    scheduler 가 주기마다 함께 70% 를 넘겼고, 백엔드가 하루의 20~40% 동안
+#    건강검진에 5초 안에 답을 못 했다. 백엔드 자신의 CPU 는 0.15% 였다.
+#
+#    이 셋은 파싱 때 필요하지 않다 — 쓰는 곳은 태스크 함수 안이고, 태스크는
+#    실행 시점에 임포트한다. 그래서 각 함수 안으로 옮겼다.
+#    🔴 새 라이브러리를 더할 때도 같은 규칙을 지킨다: 무거운 것은 최상위에 두지 않는다.
 
 APP_DB_DSN = (
     f"host=postgres dbname=app_db user=app_user "
@@ -167,6 +176,9 @@ def build_features(**_):
 
 
 def train_and_evaluate(**context):
+    import lightgbm as lgb
+    import pandas as pd
+
     conn = get_conn()
     df = pd.read_sql(
         "SELECT user_id, visit_count_7d, unique_routes_7d FROM user_feature", conn
@@ -196,6 +208,9 @@ def train_and_evaluate(**context):
 
 
 def register_candidate(**context):
+    import mlflow
+    import mlflow.lightgbm
+
     ti = context["ti"]
     accuracy = ti.xcom_pull(task_ids="train_and_evaluate", key="accuracy")
     num_users = ti.xcom_pull(task_ids="train_and_evaluate", key="num_users")
@@ -217,6 +232,8 @@ def register_candidate(**context):
 
 
 def publish_online_features(**context):
+    import pandas as pd
+
     ti = context["ti"]
     run_id = ti.xcom_pull(task_ids="register_candidate", key="run_id")
 
@@ -245,6 +262,8 @@ def publish_online_features(**context):
 
 
 def smoke_test(**context):
+    import mlflow
+
     ti = context["ti"]
     run_id = ti.xcom_pull(task_ids="register_candidate", key="run_id")
     published = ti.xcom_pull(task_ids="publish_online_features", key="published_count")
