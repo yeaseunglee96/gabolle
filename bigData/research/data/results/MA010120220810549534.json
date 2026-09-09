@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220810549534",
+  "worker": "haiku-43",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["지중해식당 사하구 부산", "지중해식당 괴정동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색 결과에서 괴정4동 주소의 지중해식당을 찾을 수 없음",
+  "notes": ""
+}

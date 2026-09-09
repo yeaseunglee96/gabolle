@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220810688708",
+  "worker": "haiku-43",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["운해 북구 부산", "운해 화명동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.busan.com/view/busan/view.php?code=20180226000426", "https://www.diningcode.com/profile.php?rid=3w8mK6o80O6P"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "가격·가성비", "note": "연산동 5만 원 코스보다 운해 2만 원 코스가 더 낫다는 평가", "sources": [0]},
+    {"type": "현지인 지지", "note": "주로 단골이 찾는 동네 일식집", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 18,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["초밥", "회"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

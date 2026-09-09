@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220810533771",
+  "worker": "haiku-44",
+  "researchedAt": "2026-09-09T10:57:00Z",
+  "queries": ["대일식당 사하구 부산", "대일식당 구평동 맛집"],
+  "found": false,
+  "confidence": "low",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "부산 사하구 구평동의 대일식당 정보를 찾을 수 없음",
+  "notes": ""
+}

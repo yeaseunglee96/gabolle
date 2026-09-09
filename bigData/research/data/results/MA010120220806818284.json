@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220806818284",
+  "worker": "haiku-42",
+  "researchedAt": "2026-09-09T04:29:12Z",
+  "queries": ["연스시 북구 부산 초밥"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=Pw5EBLU4EINo"],
+  "stillOpen": true,
+  "whyPeopleGo": [{"type": "간판 메뉴 지목", "note": "신선한 초밥 전문점", "sources": [0]}, {"type": "가격·가성비", "note": "17피스 초밥 세트 15,000원", "sources": [0]}],
+  "newTypes": [],
+  "descriptors": {"signatureDishes": ["연스시 C", "소불고기초밥"]},
+  "notFound": null,
+  "notes": "11:30~23:00 영업, 브레이크 15:00~16:30, 매주 화요일 정기휴무. 예약·포장·배달 가능"
+}
