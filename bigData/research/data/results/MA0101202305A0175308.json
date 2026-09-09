@@ -1,0 +1,27 @@
+{
+  "id": "MA0101202305A0175308",
+  "worker": "haiku-37",
+  "researchedAt": "2026-09-09T11:23:43.0136153+09:00",
+  "queries": ["텐카츠 기장군 부산", "텐카츠 정관읍 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=TJb3IiAbuTM9"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "간판 메뉴 지목", "note": "일식돈까스 전문점으로 로스카츠, 히레카츠 등 여러 카츠 종류 제공", "sources": [0] },
+    { "type": "맛 묘사", "note": "안심은 빵가루가 얇고 속은 매우 부드러우며 진한 육즙과 잡내가 없음", "sources": [0] },
+    { "type": "메뉴 희소성", "note": "치즈돈까스는 모짜렐라 치즈를 사용한 특별 메뉴로 인기", "sources": [0] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "free",
+    "audience": "mixed",
+    "signatureDishes": ["로스카츠", "히레카츠", "모밀카츠", "치즈돈까스"],
+    "priceBand": "affordable"
+  },
+  "notFound": null,
+  "notes": "영업시간: 월-토 11:30~20:00 (19:50 라스트오더), 일요일 정기휴무"
+}
