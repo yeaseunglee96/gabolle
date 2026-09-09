@@ -50,6 +50,32 @@ public class Trip {
     /** 🔴 API-03 — 시간대를 공통 사전으로 고정한다. 안 맞추면 일정이 통째로 밀린다. */
     private final String timezone;
 
+    /**
+     * 🔴 S15P21E201-456 — 매일 여기서 시작하고 여기로 돌아온다. {@code place} 를 가리키는
+     * FK 다. 서버가 이 값을 갖고 있지 않으면 일정의 시작점·끝점이 매일 달라진다.
+     */
+    private final String accommodationPlaceId;
+
+    /** 영어 메뉴가 있는 곳을 우선한다 (선호, HARD 필터 아님). */
+    private final boolean englishMenuRequired;
+
+    /** 해외 카드를 받는 곳을 우선한다 (선호). */
+    private final boolean foreignCardRequired;
+
+    /** 혼밥하기 편한 곳을 우선한다 (선호). */
+    private final boolean soloFriendlyPriority;
+
+    /**
+     * 대중교통 최대 환승 횟수. {@code null} 이면 제한 없음.
+     *
+     * <p>🔴 이동 수단에 {@code PRIVATE_CAR} 가 포함되면 이 값은 뜻이 없다 — 자차 이동에는
+     * 환승 개념이 없다. 그 경우 저장 시점(application 계층, {@code TripCreationService})이
+     * 이 값을 무시하고 {@code null} 로 만든다 — 도메인은 그 규칙을 강제하지 않는다({@code
+     * travelModes} 가 나중에 바뀔 수 있는 값이라 생성자에서 못박으면 순서에 따라 결과가
+     * 달라진다).
+     */
+    private final Integer maxTransitTransfers;
+
     private Status status;
     private final Instant createdAt;
     private Instant updatedAt;
@@ -88,6 +114,27 @@ public class Trip {
                 String timeWindow, String timezone,
                 String[] travelModes, LocalTime timeWindowStart, LocalTime timeWindowEnd,
                 Instant createdAt) {
+        this(tripId, createdBy, startDate, finishDate, originLat, originLng, budgetKrw, partySize,
+                timeWindow, timezone, travelModes, timeWindowStart, timeWindowEnd,
+                null, false, false, false, null, createdAt);
+    }
+
+    /**
+     * S15P21E201-456 — 숙소·영어메뉴/해외카드/혼밥우선 선호·최대환승횟수를 더한 생성자.
+     *
+     * <p>🔴 옛 생성자(14-인자)를 지우지 않는다 — {@code TripCreationService} 가 이 다섯
+     * 칸이 없던 시절부터 그 시그니처를 썼고, 위임하며 기본값(false·null)을 채우면 그
+     * 호출부를 건드리지 않고도 새 칸을 더할 수 있다.
+     */
+    public Trip(String tripId, String createdBy,
+                LocalDate startDate, LocalDate finishDate,
+                Double originLat, Double originLng,
+                Integer budgetKrw, int partySize,
+                String timeWindow, String timezone,
+                String[] travelModes, LocalTime timeWindowStart, LocalTime timeWindowEnd,
+                String accommodationPlaceId, boolean englishMenuRequired, boolean foreignCardRequired,
+                boolean soloFriendlyPriority, Integer maxTransitTransfers,
+                Instant createdAt) {
 
         if (startDate == null || finishDate == null) {
             throw new IllegalArgumentException("여행 시작일과 종료일은 필수다");
@@ -109,6 +156,9 @@ public class Trip {
         if (originLng != null && (originLng < -180 || originLng > 180)) {
             throw new IllegalArgumentException("경도 범위를 벗어났다: " + originLng);
         }
+        if (maxTransitTransfers != null && maxTransitTransfers < 0) {
+            throw new IllegalArgumentException("최대 환승 횟수는 음수일 수 없다: " + maxTransitTransfers);
+        }
 
         this.tripId = tripId;
         this.createdBy = createdBy;
@@ -122,6 +172,11 @@ public class Trip {
         this.timeWindowStart = timeWindowStart;
         this.timeWindowEnd = timeWindowEnd;
         this.travelModes = validateTravelModes(travelModes);
+        this.accommodationPlaceId = accommodationPlaceId;
+        this.englishMenuRequired = englishMenuRequired;
+        this.foreignCardRequired = foreignCardRequired;
+        this.soloFriendlyPriority = soloFriendlyPriority;
+        this.maxTransitTransfers = maxTransitTransfers;
         this.timezone = timezone != null ? timezone : "Asia/Seoul";
         this.status = Status.PLANNING;
         this.createdAt = createdAt;
@@ -173,6 +228,11 @@ public class Trip {
         private LocalTime timeWindowStart;
         private LocalTime timeWindowEnd;
         private String[] travelModes;
+        private String accommodationPlaceId;
+        private boolean englishMenuRequired;
+        private boolean foreignCardRequired;
+        private boolean soloFriendlyPriority;
+        private Integer maxTransitTransfers;
         private String timezone;
         private Status status;
         private Instant createdAt;
@@ -194,6 +254,11 @@ public class Trip {
         public Builder timeWindowStart(LocalTime timeWindowStart) { this.timeWindowStart = timeWindowStart; return this; }
         public Builder timeWindowEnd(LocalTime timeWindowEnd) { this.timeWindowEnd = timeWindowEnd; return this; }
         public Builder travelModes(String[] travelModes) { this.travelModes = travelModes; return this; }
+        public Builder accommodationPlaceId(String accommodationPlaceId) { this.accommodationPlaceId = accommodationPlaceId; return this; }
+        public Builder englishMenuRequired(boolean englishMenuRequired) { this.englishMenuRequired = englishMenuRequired; return this; }
+        public Builder foreignCardRequired(boolean foreignCardRequired) { this.foreignCardRequired = foreignCardRequired; return this; }
+        public Builder soloFriendlyPriority(boolean soloFriendlyPriority) { this.soloFriendlyPriority = soloFriendlyPriority; return this; }
+        public Builder maxTransitTransfers(Integer maxTransitTransfers) { this.maxTransitTransfers = maxTransitTransfers; return this; }
         public Builder timezone(String timezone) { this.timezone = timezone; return this; }
         public Builder status(Status status) { this.status = status; return this; }
         public Builder createdAt(Instant createdAt) { this.createdAt = createdAt; return this; }
@@ -209,7 +274,8 @@ public class Trip {
         public Trip build() {
             Trip trip = new Trip(tripId, createdBy, startDate, finishDate, originLat, originLng,
                     budgetKrw, partySize, timeWindow, timezone, travelModes, timeWindowStart, timeWindowEnd,
-                    createdAt);
+                    accommodationPlaceId, englishMenuRequired, foreignCardRequired, soloFriendlyPriority,
+                    maxTransitTransfers, createdAt);
             if (status != null) {
                 trip.status = status;
             }
@@ -283,6 +349,11 @@ public class Trip {
     public LocalTime timeWindowEnd()   { return timeWindowEnd; }
     /** 방어적 복사본 — 밖에서 바꿔도 이 여행의 값은 안 바뀐다. */
     public String[] travelModes() { return travelModes.clone(); }
+    public String accommodationPlaceId()     { return accommodationPlaceId; }
+    public boolean englishMenuRequired()     { return englishMenuRequired; }
+    public boolean foreignCardRequired()     { return foreignCardRequired; }
+    public boolean soloFriendlyPriority()    { return soloFriendlyPriority; }
+    public Integer maxTransitTransfers()     { return maxTransitTransfers; }
     public String timezone()     { return timezone; }
     public Status status()       { return status; }
     public Instant createdAt()   { return createdAt; }

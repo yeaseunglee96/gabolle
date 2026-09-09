@@ -125,4 +125,22 @@ public interface PlaceRepository extends JpaRepository<Place, UUID> {
 			@Param("featureKey") String featureKey, Limit limit);
 
 	List<Place> findByPlaceIdIn(Collection<UUID> placeIds);
+
+	/**
+	 * 종류(category)만으로 거른다 — 숙소 후보 조회(S15P21E201-456)가 쓴다. 이름 검색과
+	 * 달리 검색어가 없어 {@link #searchByNameAndCategory} 를 재사용할 수 없다.
+	 *
+	 * <p>{@code category} 는 자유 문자열이라 소문자로 맞춰 비교한다 — 호출하는 쪽이
+	 * 이미 소문자로 넘겨야 한다({@code AccommodationCategories} 처럼 대문자로 적어 둔
+	 * 목록은 서비스 계층에서 소문자로 바꿔 넘긴다).
+	 *
+	 * <p>🔴 {@code ORDER BY} 가 있는 이유는 다른 조회들과 같다(S15P21E201-724) — limit 에
+	 * 걸렸을 때 어느 행이 남는지가 정해져 있어야 재현 가능하다.
+	 */
+	@Query("""
+			SELECT p FROM Place p
+			WHERE LOWER(p.category) IN :categories
+			ORDER BY p.nameKo, p.placeId
+			""")
+	List<Place> findByCategoryIn(@Param("categories") List<String> categories, Limit limit);
 }
