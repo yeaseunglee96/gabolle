@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>휠체어 경로 판정 데모 — 좌수영교 → 신세계 센텀시티</title>
+
+<!-- 🔴 색·굵기·간격·글꼴은 전부 여기 있다. 이 파일 하나만 갈아끼우면 디자인이 바뀐다. -->
+<link rel="stylesheet" href="tokens.css">
+
+<!-- 앱키는 커밋되지 않는 파일에서 읽는다. 없으면 아래에서 만드는 법을 띄운다. -->
+<script src="config.local.js" onerror="window.__CONFIG_MISSING__ = true"></script>
+
+<style>
+  /* 이 아래에는 색 리터럴이 없다. 전부 var(--토큰) 이다. */
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    display: flex;
+    font-family: var(--font-sans);
+    font-size: var(--font-size-md);
+    line-height: var(--line-height-normal);
+    color: var(--text-primary);
+    background: var(--surface);
+  }
+
+  #map { flex: 1; min-width: 0; background: var(--surface-sunken); }
+
+  #panel {
+    width: var(--panel-width);
+    flex: 0 0 var(--panel-width);
+    border-left: 1px solid var(--border);
+    background: var(--surface-raised);
+    overflow-y: auto;
+    padding: var(--space-5);
+    box-shadow: var(--shadow-panel);
+  }
+
+  h1 { font-size: var(--font-size-xl); font-weight: var(--font-weight-bold);
+       margin: 0 0 var(--space-1); line-height: var(--line-height-tight); }
+  h2 { font-size: var(--font-size-sm); font-weight: var(--font-weight-bold);
+       text-transform: uppercase; letter-spacing: .06em;
+       color: var(--text-muted); margin: var(--space-5) 0 var(--space-2); }
+  p  { margin: 0 0 var(--space-2); }
+  .sub { color: var(--text-secondary); font-size: var(--font-size-sm); margin-bottom: var(--space-4); }
+
+  .card {
+    border: 1px solid var(--border); border-radius: var(--radius-md);
+    padding: var(--space-3); margin-bottom: var(--space-2); background: var(--surface);
+  }
+  .card.is-active { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
+
+  .route-toggle { display: flex; gap: var(--space-2); margin-bottom: var(--space-3); flex-wrap: wrap; }
+  .route-toggle button {
+    flex: 1; min-width: 0; cursor: pointer; white-space: nowrap;
+    font-family: inherit; font-size: var(--font-size-sm); font-weight: var(--font-weight-medium);
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
+    background: var(--surface); color: var(--text-secondary);
+  }
+  .route-toggle button[aria-pressed="true"] {
+    background: var(--accent); color: var(--accent-contrast); border-color: var(--accent);
+  }
+
+  .legend-row { display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-2); }
+  .swatch { width: 28px; height: 0; flex: 0 0 28px; border-radius: var(--radius-sm); }
+  .swatch.ok      { border-top: 4px solid var(--route-ok); }
+  .swatch.blocked { border-top: 4px solid var(--route-blocked); }
+  .swatch.unknown { border-top: 4px dashed var(--route-unknown); }
+  .legend-row span { font-size: var(--font-size-sm); color: var(--text-secondary); }
+
+  .stat { display: flex; justify-content: space-between; gap: var(--space-3);
+          font-size: var(--font-size-sm); padding: var(--space-1) 0; }
+  .stat dt { color: var(--text-secondary); margin: 0; }
+  .stat dd { margin: 0; font-variant-numeric: tabular-nums; font-weight: var(--font-weight-medium); }
+
+  .verdict-tag {
+    display: inline-block; padding: 0 var(--space-2); border-radius: var(--radius-sm);
+    font-size: var(--font-size-xs); font-weight: var(--font-weight-bold);
+    color: var(--accent-contrast);
+  }
+  .verdict-tag.ok      { background: var(--route-ok); }
+  .verdict-tag.blocked { background: var(--route-blocked); }
+  .verdict-tag.unknown { background: var(--route-unknown); }
+
+  .reason { font-size: var(--font-size-md); margin: var(--space-2) 0; color: var(--text-primary); }
+  .meta { font-family: var(--font-mono); font-size: var(--font-size-xs); color: var(--text-muted); }
+
+  .notice {
+    background: var(--warning-surface); border: 1px solid var(--warning-border);
+    color: var(--warning-text); border-radius: var(--radius-md);
+    padding: var(--space-3); font-size: var(--font-size-sm); margin-bottom: var(--space-3);
+  }
+
+  .setup { max-width: 720px; margin: var(--space-6) auto; padding: var(--space-5); }
+  .setup pre {
+    background: var(--surface-sunken); border: 1px solid var(--border);
+    border-radius: var(--radius-md); padding: var(--space-3);
+    font-family: var(--font-mono); font-size: var(--font-size-sm);
+    overflow-x: auto; color: var(--text-primary);
+  }
+  .setup ol { padding-left: var(--space-5); line-height: var(--line-height-normal); }
+  .setup code { font-family: var(--font-mono); font-size: var(--font-size-sm);
+                background: var(--surface-sunken); padding: 0 var(--space-1); border-radius: var(--radius-sm); }
+
+  .endpoint-dot {
+    width: var(--endpoint-size); height: var(--endpoint-size); border-radius: 50%;
+    border: 2px solid var(--accent-contrast); box-shadow: var(--shadow-panel);
+  }
+  .endpoint-dot.origin { background: var(--endpoint-origin); }
+  .endpoint-dot.dest   { background: var(--endpoint-dest); }
+
+  @media (max-width: 860px) {
+    body { flex-direction: column; }
+    #map { height: 55vh; flex: none; }
+    #panel { width: 100%; flex: none; border-left: none; border-top: 1px solid var(--border); }
+  }
+</style>
+</head>
+<body>
+  <div id="map"></div>
+  <aside id="panel">
+    <h1>휠체어 경로 판정</h1>
+    <p class="sub">좌수영교 → 신세계 센텀시티</p>
+    <p class="sub">불러오는 중…</p>
+  </aside>
+
+<script>
+/* ─────────────────────────────────────────────────────────────────────────
+   토큰 읽기 — 자바스크립트도 색을 직접 갖지 않는다.
+   지도 SDK 는 '#RRGGBB' 를 원하는데 getComputedStyle 은 'rgb(r, g, b)' 를 주므로
+   여기서 형식만 바꾼다. 색을 만들지는 않는다.
+   ───────────────────────────────────────────────────────────────────────── */
+const ROOT_STYLE = getComputedStyle(document.documentElement);
+const token = (name) => ROOT_STYLE.getPropertyValue(name).trim();
+
+function toHex(cssColor) {
+  const m = cssColor.match(/^rgba?\(([^)]+)\)$/i);
+  if (!m) return cssColor;                       // 이미 #RRGGBB 였다
+  const [r, g, b] = m[1].split(',').map((v) => Math.round(parseFloat(v)));
+  return '#' + [r, g, b].map((v) => v.toString(16).padStart(2, '0')).join('');
+}
+const colorToken = (name) => toHex(token(name));
+const numberToken = (name) => parseFloat(token(name));
+
+/* 판정 값 → 어느 토큰을 쓰는가. 여기가 유일한 연결점이다. */
+const VERDICT_STYLE = {
+  '가능': { color: '--route-ok',      style: '--route-style-ok',      css: 'ok' },
+  '불가': { color: '--route-blocked', style: '--route-style-blocked', css: 'blocked' },
+  '미상': { color: '--route-unknown', style: '--route-style-unknown', css: 'unknown' },
+};
+
+const panel = document.getElementById('panel');
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) =>
+  ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const fmt = (n) => Number(n).toLocaleString('ko-KR');
+
+/* ── 앱키가 없을 때 ─────────────────────────────────────────────────── */
+function showSetup(extraMessage) {
+  document.getElementById('map').remove();
+  panel.style.width = '100%';
+  panel.style.flex = '1';
+  panel.innerHTML = `
+    <div class="setup">
+      <h1>앱키가 없습니다. <code>config.local.js</code> 를 만드세요</h1>
+      ${extraMessage ? `<div class="notice">${esc(extraMessage)}</div>` : ''}
+      <p class="sub">카카오 지도를 띄우려면 자바스크립트 앱키가 필요합니다.
+         키는 사람마다 다르고 커밋하면 안 되므로 이 저장소에 들어 있지 않습니다.</p>
+      <ol>
+        <li><a href="https://developers.kakao.com/console/app" target="_blank" rel="noopener">카카오 개발자 콘솔</a>
+            에서 애플리케이션을 만들고 <strong>JavaScript 키</strong>를 복사합니다.</li>
+        <li>같은 앱의 <strong>플랫폼 → Web</strong> 에 사이트 도메인으로
+            <code>http://localhost:5173</code> 을 <strong>그대로</strong> 등록합니다.
+            여기와 다른 주소로 열면 지도가 뜨지 않습니다.</li>
+        <li>이 폴더에 <code>config.local.js</code> 를 만들고 아래를 넣습니다
+            (<code>config.example.js</code> 를 복사해도 됩니다).</li>
+      </ol>
+      <pre>window.DEMO_CONFIG = {
+  kakaoAppKey: '여기에_자바스크립트_키를_넣으세요',
+};</pre>
+      <p class="sub"><code>config.local.js</code> 는 <code>.gitignore</code> 에 들어 있어 커밋되지 않습니다.</p>
+      <h2>띄우는 법</h2>
+      <pre>npx serve -l 5173 bigData/demo/wheelchair-route</pre>
+      <p class="sub">그리고 <code>http://localhost:5173</code> 을 엽니다.
+         <strong><code>file://</code> 로 열면 도메인을 등록할 수 없어 지도가 뜨지 않습니다.</strong></p>
+    </div>`;
+}
+
+function showError(title, detail) {
+  panel.innerHTML = `<h1>${esc(title)}</h1><div class="notice">${esc(detail)}</div>`;
+}
+
+/* ── 지도 SDK 불러오기 ──────────────────────────────────────────────── */
+function loadKakao(appKey) {
+  return new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${encodeURIComponent(appKey)}&autoload=false`;
+    s.onload = () => window.kakao.maps.load(resolve);
+    s.onerror = () => reject(new Error('카카오 지도 SDK 를 불러오지 못했습니다.'));
+    document.head.appendChild(s);
+  });
+}
+
+/* ── 화면 ───────────────────────────────────────────────────────────── */
+const state = { data: null, map: null, lines: [], visible: 'both', selected: null };
+
+function drawRoutes() {
+  for (const l of state.lines) l.polyline.setMap(null);
+  state.lines = [];
+
+  const width = numberToken('--route-width');
+  const opacity = numberToken('--route-opacity');
+  const dimmed = numberToken('--route-opacity-dimmed');
+
+  for (const f of state.data.features) {
+    if (f.geometry.type !== 'LineString') continue;
+    const p = f.properties;
+    const shown = state.visible === 'both' || state.visible === p.route;
+    const style = VERDICT_STYLE[p.verdict];
+    if (!style) continue;   // 판정 값이 셋 밖이면 그리지 않는다 — 지어내지 않는다
+
+    const polyline = new kakao.maps.Polyline({
+      path: f.geometry.coordinates.map(([lon, lat]) => new kakao.maps.LatLng(lat, lon)),
+      strokeWeight: width,
+      strokeColor: colorToken(style.color),
+      strokeOpacity: shown ? opacity : dimmed,
+      strokeStyle: token(style.style),
+      zIndex: p.verdict === '불가' ? 3 : 2,
+    });
+    polyline.setMap(state.map);
+    const entry = { polyline, feature: f };
+    kakao.maps.event.addListener(polyline, 'click', () => selectLine(entry));
+    state.lines.push(entry);
+  }
+}
+
+function selectLine(entry) {
+  const base = numberToken('--route-width');
+  const sel = numberToken('--route-width-selected');
+  for (const l of state.lines) l.polyline.setOptions({ strokeWeight: base });
+  entry.polyline.setOptions({ strokeWeight: sel });
+  state.selected = entry.feature;
+  renderPanel();
+}
+
+function routeSummary(routeId) {
+  const feats = state.data.features.filter((f) => f.geometry.type === 'LineString' && f.properties.route === routeId);
+  const by = {};
+  let total = 0;
+  for (const f of feats) {
+    const v = f.properties.verdict;
+    by[v] ??= { count: 0, metres: 0 };
+    by[v].count++; by[v].metres += f.properties.lengthM; total += f.properties.lengthM;
+  }
+  return { feats, by, total };
+}
+
+function renderPanel() {
+  const meta = state.data.metadata ?? {};
+  const routes = (meta.routes ?? []).filter((r) => r.found);
+  const sel = state.selected?.properties;
+
+  // 버튼에는 짧은 이름을 쓴다 — 괄호 안 설명은 아래 카드가 그대로 갖고 있다.
+  const short = (label) => label.replace(/\s*\(.*\)\s*$/, '');
+  const toggles = [
+    ...routes.map((r) => ({ id: r.id, label: short(r.label), title: r.label })),
+    { id: 'both', label: '둘 다', title: '두 경로를 겹쳐 본다' },
+  ].map((t) => `<button data-show="${esc(t.id)}" title="${esc(t.title)}" aria-pressed="${state.visible === t.id}">${esc(t.label)}</button>`).join('');
+
+  const routeCards = routes.map((r) => {
+    const { by, total } = routeSummary(r.id);
+    const unknownPct = total ? ((by['미상']?.metres ?? 0) / total * 100) : 0;
+    const rows = Object.entries(by).map(([v, s]) => `
+      <div class="stat"><dt><span class="verdict-tag ${VERDICT_STYLE[v]?.css ?? ''}">${esc(v)}</span></dt>
+      <dd>${s.count}개 · ${fmt(Math.round(s.metres))} m</dd></div>`).join('');
+    return `<div class="card">
+      <div class="stat"><dt style="font-weight:var(--font-weight-bold);color:var(--text-primary)">${esc(r.label)}</dt>
+      <dd>${fmt(r.totalM)} m</dd></div>
+      ${rows}
+      <div class="stat"><dt>미상 비율(길이)</dt><dd>${unknownPct.toFixed(1)}%</dd></div>
+    </div>`;
+  }).join('');
+
+  const detail = sel ? `
+    <div class="card is-active">
+      <span class="verdict-tag ${VERDICT_STYLE[sel.verdict]?.css ?? ''}">${esc(sel.verdict)}</span>
+      <p class="reason">${esc(sel.reason)}</p>
+      <div class="stat"><dt>길이</dt><dd>${fmt(sel.lengthM)} m</dd></div>
+      <div class="stat"><dt>대표 경사 (p90)</dt><dd>${sel.p90Slope == null ? '자료 없음' : (sel.p90Slope * 100).toFixed(1) + '%'}</dd></div>
+      <div class="stat"><dt>도로 등급</dt><dd>${esc(sel.highway ?? '—')}</dd></div>
+      <div class="stat"><dt>이름</dt><dd>${esc(sel.name ?? '(이름 없음)')}</dd></div>
+      <p class="meta">way ${esc(sel.wayId)} · ${esc(sel.routeName)}</p>
+    </div>`
+    : `<div class="card"><p class="sub" style="margin:0">지도에서 선을 클릭하면 <strong>왜 그 색인지</strong>가 여기 나옵니다.</p></div>`;
+
+  panel.innerHTML = `
+    <h1>휠체어 경로 판정</h1>
+    <p class="sub">좌수영교 → 신세계 센텀시티 · 프로파일 ${esc(meta.profile ?? '')}</p>
+
+    ${meta.caveat ? `<div class="notice">${esc(meta.caveat)}</div>` : ''}
+
+    <h2>경로</h2>
+    <div class="route-toggle">${toggles}</div>
+    ${routeCards}
+
+    <h2>고른 구간</h2>
+    ${detail}
+
+    <h2>색이 뜻하는 것</h2>
+    <div class="legend-row"><i class="swatch ok"></i><span>가능 — 통과할 수 있다고 확인됨</span></div>
+    <div class="legend-row"><i class="swatch blocked"></i><span>불가 — 규칙에 걸렸다</span></div>
+    <div class="legend-row"><i class="swatch unknown"></i><span>미상 — 확정할 근거가 없다</span></div>
+
+    <h2>지금 도는 규칙</h2>
+    ${(meta.rulesRun ?? []).map((r) => `<div class="stat"><dt>✅ ${esc(r.label)}</dt><dd class="meta">${esc(r.id)}</dd></div>`).join('')}
+    <h2>멈춰 있는 규칙</h2>
+    ${(meta.rulesParked ?? []).map((r) => `<div class="stat"><dt>⏸️ ${esc(r.label)}</dt><dd class="meta">${esc(r.why)}</dd></div>`).join('')}
+
+    <h2>끝점을 무엇으로 확정했나</h2>
+    ${['origin', 'dest'].map((k) => {
+      const e = meta.endpoints?.[k]; if (!e) return '';
+      return `<div class="card"><p style="margin:0 0 var(--space-1);font-weight:var(--font-weight-medium)">${esc(e.what)}</p>
+              <p class="sub" style="margin:0">${esc(e.how)}</p></div>`;
+    }).join('')}
+
+    <p class="meta">온톨로지: ${esc(meta.ontology ?? '')}<br>만든 시각: ${esc(meta.generatedAt ?? '')}</p>`;
+
+  panel.querySelectorAll('[data-show]').forEach((b) => {
+    b.addEventListener('click', () => { state.visible = b.dataset.show; drawRoutes(); renderPanel(); });
+  });
+}
+
+function fitToData() {
+  const bounds = new kakao.maps.LatLngBounds();
+  for (const f of state.data.features) {
+    const coords = f.geometry.type === 'LineString' ? f.geometry.coordinates : [f.geometry.coordinates];
+    for (const [lon, lat] of coords) bounds.extend(new kakao.maps.LatLng(lat, lon));
+  }
+  state.map.setBounds(bounds);
+}
+
+function drawEndpoints() {
+  for (const f of state.data.features) {
+    if (f.geometry.type !== 'Point' || f.properties.kind !== 'endpoint') continue;
+    const [lon, lat] = f.geometry.coordinates;
+    const el = document.createElement('div');
+    el.className = `endpoint-dot ${f.properties.role === 'origin' ? 'origin' : 'dest'}`;
+    el.title = f.properties.name;
+    new kakao.maps.CustomOverlay({
+      position: new kakao.maps.LatLng(lat, lon), content: el, zIndex: 5,
+    }).setMap(state.map);
+  }
+}
+
+async function start() {
+  if (window.__CONFIG_MISSING__ || !window.DEMO_CONFIG?.kakaoAppKey) { showSetup(); return; }
+  const key = String(window.DEMO_CONFIG.kakaoAppKey).trim();
+  if (!key || key.includes('여기에') || key.toUpperCase().includes('YOUR_')) {
+    showSetup('config.local.js 는 있지만 앱키가 아직 예시 문구 그대로입니다.');
+    return;
+  }
+
+  let res;
+  try {
+    res = await fetch('route.geojson', { cache: 'no-store' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    state.data = await res.json();
+  } catch (err) {
+    showError('경로 파일을 읽지 못했습니다',
+      `route.geojson 을 읽을 수 없습니다 (${err.message}). ` +
+      `먼저 "node bigData/process/wheelchair-route.mjs" 를 돌려 만들고, ` +
+      `http://localhost:5173 으로 여세요. file:// 로 열면 읽지 못합니다.`);
+    return;
+  }
+
+  try { await loadKakao(key); }
+  catch (err) { showSetup(err.message + ' 앱키와 등록한 도메인(http://localhost:5173)을 확인하세요.'); return; }
+
+  // 처음 중심은 데이터에서 가져온다 — 좌표를 여기 적어 두면 경로가 바뀔 때 그 줄이 낡는다.
+  // 어차피 바로 아래 fitToData() 가 전체를 담도록 다시 맞춘다.
+  const origin = state.data.features.find((f) => f.properties?.role === 'origin')
+              ?? state.data.features.find((f) => f.geometry.type === 'Point');
+  const [cLon, cLat] = origin.geometry.coordinates;
+  state.map = new kakao.maps.Map(document.getElementById('map'), {
+    center: new kakao.maps.LatLng(cLat, cLon), level: 4,
+  });
+  drawRoutes();
+  drawEndpoints();
+  fitToData();
+  renderPanel();
+}
+
+start();
+</script>
+</body>
+</html>

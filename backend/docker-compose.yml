@@ -1,0 +1,59 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-gabolle}
+      POSTGRES_USER: ${POSTGRES_USER:-gabolle}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+    volumes:
+      - gabolle_postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-gabolle} -d ${POSTGRES_DB:-gabolle}"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-dev}
+      GABOLLE_SERVICE_VERSION: ${GABOLLE_SERVICE_VERSION:-local-dev}
+      GABOLLE_DEPLOYMENT_ENVIRONMENT: ${GABOLLE_DEPLOYMENT_ENVIRONMENT:-local}
+      GABOLLE_DB_URL: jdbc:postgresql://db:5432/${POSTGRES_DB:-gabolle}
+      GABOLLE_DB_USERNAME: ${POSTGRES_USER:-gabolle}
+      GABOLLE_DB_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      GABOLLE_DB_SCHEMA: ${GABOLLE_DB_SCHEMA:-gabolle}
+      GABOLLE_JWT_SECRET: ${GABOLLE_JWT_SECRET:?GABOLLE_JWT_SECRET is required}
+      GABOLLE_MAIL_ENABLED: ${GABOLLE_MAIL_ENABLED:-false}
+      GABOLLE_MAIL_HOST: ${GABOLLE_MAIL_HOST:-smtp.gmail.com}
+      GABOLLE_MAIL_PORT: ${GABOLLE_MAIL_PORT:-587}
+      GABOLLE_MAIL_USERNAME: ${GABOLLE_MAIL_USERNAME:-local@example.com}
+      GABOLLE_MAIL_PASSWORD: ${GABOLLE_MAIL_PASSWORD:-local-only}
+      GABOLLE_MAIL_FROM: ${GABOLLE_MAIL_FROM:-local@example.com}
+      GABOLLE_EMAIL_VERIFICATION_BASE_URL: ${GABOLLE_EMAIL_VERIFICATION_BASE_URL:-http://localhost:3000/verify-email}
+      GABOLLE_PASSWORD_RESET_BASE_URL: ${GABOLLE_PASSWORD_RESET_BASE_URL:-http://localhost:3000/reset-password}
+      GABOLLE_OAUTH_ALLOWED_REDIRECT_URIS: ${GABOLLE_OAUTH_ALLOWED_REDIRECT_URIS:-https://j15e201.p.ssafy.io/oauth/google/callback}
+      GABOLLE_CORS_ALLOWED_ORIGINS: ${GABOLLE_CORS_ALLOWED_ORIGINS:-https://j15e201.p.ssafy.io}
+      GABOLLE_WEB_REFRESH_COOKIE_NAME: ${GABOLLE_WEB_REFRESH_COOKIE_NAME:-gabolle_refresh_token}
+      GABOLLE_WEB_REFRESH_COOKIE_SECURE: ${GABOLLE_WEB_REFRESH_COOKIE_SECURE:-true}
+      GABOLLE_WEB_REFRESH_COOKIE_SAME_SITE: ${GABOLLE_WEB_REFRESH_COOKIE_SAME_SITE:-Strict}
+      GABOLLE_GOOGLE_CLIENT_ID: ${GABOLLE_GOOGLE_CLIENT_ID:-}
+      GABOLLE_GOOGLE_CLIENT_SECRET: ${GABOLLE_GOOGLE_CLIENT_SECRET:-}
+      GABOLLE_GOOGLE_ALLOWED_CLIENT_IDS: ${GABOLLE_GOOGLE_ALLOWED_CLIENT_IDS:-}
+      GABOLLE_NAVER_CLIENT_ID: ${GABOLLE_NAVER_CLIENT_ID:-}
+      GABOLLE_NAVER_CLIENT_SECRET: ${GABOLLE_NAVER_CLIENT_SECRET:-}
+      GABOLLE_KAKAO_CLIENT_ID: ${GABOLLE_KAKAO_CLIENT_ID:-}
+      GABOLLE_KAKAO_CLIENT_SECRET: ${GABOLLE_KAKAO_CLIENT_SECRET:-}
+    ports:
+      - "${BACKEND_PORT:-8080}:8080"
+    restart: unless-stopped
+
+volumes:
+  gabolle_postgres_data:

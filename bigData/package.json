@@ -1,0 +1,24 @@
+{
+  "name": "bigdata",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "부산 이동성 온톨로지 — 수집·처리",
+  "scripts": {
+    "collect:osm": "node collect/osm-pbf.mjs",
+    "collect:extract": "py collect/pbf_extract.py",
+    "collect:overpass": "node collect/overpass.mjs",
+    "collect:terrain": "node collect/terrain.mjs",
+    "collect:bims": "node collect/bims-poll.mjs",
+    "collect:tourapi": "node collect/tourapi.mjs",
+    "collect:tourapi-bf": "node collect/tourapi-barrier-free.mjs",
+    "hours": "node process/opening-hours.mjs",
+    "permits:wgs84": "node --max-old-space-size=4096 process/permits-wgs84.mjs",
+    "link": "node --max-old-space-size=6144 process/place-link.mjs",
+    "calibrate": "node process/calibrate-slope.mjs",
+    "slope": "node --max-old-space-size=4096 process/slope.mjs",
+    "verify": "node test/verify.mjs",
+    "choice:design": "node process/choice-design.mjs",
+    "choice:fit": "node process/choice-fit.mjs"
+  }
+}

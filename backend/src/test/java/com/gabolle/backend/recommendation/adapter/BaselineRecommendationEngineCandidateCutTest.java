@@ -1,0 +1,193 @@
+package com.gabolle.backend.recommendation.adapter;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+
+import com.gabolle.backend.place.api.PlaceCandidateRequest;
+import com.gabolle.backend.place.api.PlaceCandidateResponse;
+import com.gabolle.backend.place.api.PlaceFeatureView;
+import com.gabolle.backend.place.domain.MatchKind;
+import com.gabolle.backend.place.domain.UserInputKind;
+import com.gabolle.backend.place.domain.UserPlaceCodeMap;
+import com.gabolle.backend.place.repository.UserPlaceCodeMapRepository;
+import com.gabolle.backend.place.service.PlaceCandidateQueryService;
+import com.gabolle.backend.recommendation.config.BaselineEngineProperties;
+import com.gabolle.backend.recommendation.config.PreferenceAlignmentWeights;
+import com.gabolle.backend.trip.domain.PersonalizationScope;
+import com.gabolle.backend.trip.domain.PreferenceSnapshot;
+import com.gabolle.backend.trip.domain.Trip;
+import com.gabolle.backend.trip.domain.TripRepository;
+import com.gabolle.backend.trip.domain.TripSeedPlaceRepository;
+
+import tools.jackson.databind.ObjectMapper;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+/**
+ * 🔴 <b>후보를 자르는 자리가 채점 <u>뒤</u>인가</b> — S15P21E201-724.
+ *
+ * <p>고치기 전에는 {@code candidateLimit} 이 장소 조회로 그대로 넘어갔다. 그 조회는 점수를
+ * 모르므로 <b>거리순</b>으로 잘랐고, 그래서 그 상한은 "채점 후 상위 200" 이 아니라 <b>"가까운 순
+ * 200곳만 채점 대상"</b> 이라는 뜻이었다. 부산 반경 5km 안에는 음식점만 평균 9,422곳이 있어서
+ * 실효 반경이 중앙값 <b>304m</b> 였다 — 그 밖의 장소는 아무리 취향에 맞아도 점수를 매길 기회조차
+ * 없었다. 서로 다른 네 조건으로 재도 "후보 200 안에 든 정답" 비율이 0.26% 로 소수점까지 같았던
+ * 것이 그 증거다 (S15P21E201-713 실측).
+ *
+ * <p>그래서 여기서 재는 것은 점수 계산이 아니라 <b>순서</b>다 — 조회에 무엇을 요구하는가,
+ * 그리고 자르기가 채점 앞인가 뒤인가.
+ */
+class BaselineRecommendationEngineCandidateCutTest {
+
+	private static final String TRIP_ID = UUID.randomUUID().toString();
+
+	private static final int RADIUS_M = 5000;
+
+	private static final int SCAN_LIMIT = 20_000;
+
+	private static final int KEEP = 10;
+
+	private static final BaselineEngineProperties PROPERTIES = new BaselineEngineProperties(
+			"rule-v1", "feature-v1", "ontology-v1", "policy-v1", RADIUS_M, SCAN_LIMIT, KEEP, null);
+
+	private final TripRepository tripRepository = mock(TripRepository.class);
+
+	private final PlaceCandidateQueryService queryService = mock(PlaceCandidateQueryService.class);
+
+	private final UserPlaceCodeMapRepository codeMapRepository = mock(UserPlaceCodeMapRepository.class);
+
+	private final TripSeedPlaceRepository seedPlaceRepository = mock(TripSeedPlaceRepository.class);
+
+	private final ObjectMapper objectMapper = new ObjectMapper();
+
+	/**
+	 * 🔴 대역을 미리 만들어 둔다. {@code when(...)} 안에서 또 {@code when(...)} 을 부르면
+	 * Mockito 가 {@code UnfinishedStubbingException} 을 던진다 — 바깥 stub 이 아직 안 끝났는데
+	 * 안쪽이 끼어들기 때문이다.
+	 */
+	private final List<UserPlaceCodeMap> foodPreferenceCodeMap = List.of(codeMap("FOOD_PREFERENCE", "CUISINE_TAG"));
+
+	private BaselineRecommendationEngine engine() {
+		when(this.tripRepository.findById(TRIP_ID)).thenReturn(Optional.of(Trip.builder()
+				.tripId(TRIP_ID).createdBy(UUID.randomUUID().toString())
+				.startDate(LocalDate.of(2026, 10, 1)).finishDate(LocalDate.of(2026, 10, 3))
+				.originLat(35.15).originLng(129.05).partySize(2).timezone("Asia/Seoul")
+				.build()));
+		when(this.seedPlaceRepository.findByTripId(TRIP_ID)).thenReturn(List.of());
+		when(this.codeMapRepository.findByIdUserInputKindOrderByIdUserInputCodeAsc(UserInputKind.PREFERENCE))
+				.thenReturn(this.foodPreferenceCodeMap);
+		when(this.codeMapRepository.findByIdUserInputKindOrderByIdUserInputCodeAsc(UserInputKind.CONSTRAINT))
+				.thenReturn(List.of());
+		when(this.codeMapRepository.findByIdUserInputKindAndIdUserInputCode(UserInputKind.PREFERENCE, "CATEGORY"))
+				.thenReturn(List.of());
+
+		return new BaselineRecommendationEngine(this.tripRepository, this.queryService,
+				new BaselineCandidateTranslator(PROPERTIES, this.codeMapRepository, this.objectMapper),
+				new BaselineCandidateScorer(this.objectMapper), PROPERTIES,
+				new PreferenceAlignmentWeights(null, null, null, null, null),
+				this.codeMapRepository, this.seedPlaceRepository);
+	}
+
+	@Test
+	@DisplayName("🔴 장소 조회에는 남길 수(10)가 아니라 채점 대상 상한(20000)을 요구한다")
+	void 조회에는_채점대상_상한을_요구한다() {
+		when(this.queryService.findCandidates(any())).thenReturn(response(List.of()));
+
+		engine().generate(request());
+
+		ArgumentCaptor<PlaceCandidateRequest> captured = ArgumentCaptor.forClass(PlaceCandidateRequest.class);
+		org.mockito.Mockito.verify(this.queryService).findCandidates(captured.capture());
+		assertThat(captured.getValue().limit()).isEqualTo(SCAN_LIMIT);
+		assertThat(captured.getValue().radiusM()).isEqualTo(RADIUS_M);
+	}
+
+	@Test
+	@DisplayName("🔴 가장 먼 곳이라도 취향에 맞으면 남는다 — 거리로 먼저 자르면 이 장소는 채점조차 안 된다")
+	void 멀지만_취향에_맞는_곳이_살아남는다() {
+		// 500곳. 가까운 순으로 1,000m 부터 1m 씩 멀어진다.
+		// 🔴 정답은 **가장 먼** 한 곳이고, 그 한 곳만 사용자가 고른 음식 태그를 갖는다.
+		List<PlaceCandidateResponse.Candidate> pool = new ArrayList<>();
+		for (int i = 0; i < 500; i++) {
+			pool.add(new PlaceCandidateResponse.Candidate(new UUID(0L, i), "후보" + i, "FOOD",
+					35.15, 129.05, 1000L + i, List.of()));
+		}
+		UUID farthestButMatching = new UUID(0L, 500L);
+		pool.add(new PlaceCandidateResponse.Candidate(farthestButMatching, "멀지만 취향에 맞는 곳", "FOOD",
+				35.15, 129.05, 1500L,
+				List.of(new PlaceFeatureView("CUISINE_TAG", "PORK_SOUP", "ESTIMATED",
+						this.objectMapper.readTree("true"), null, "FIXTURE"))));
+
+		when(this.queryService.findCandidates(any())).thenReturn(response(pool));
+		when(this.tripRepository.findSnapshotById(any())).thenReturn(Optional.of(
+				snapshot("FOOD_PREFERENCE", "{\"codes\": [\"PORK_SOUP\"]}")));
+
+		EngineCandidateBatch batch = engine().generate(request());
+
+		List<UUID> kept = batch.candidates().stream().map(EngineCandidate::placeId).toList();
+		assertThat(kept).hasSize(KEEP);
+		assertThat(kept).contains(farthestButMatching);
+		// 취향 태그가 총점 0.15 를 더하고, 501곳 중 1m 씩의 거리 차이는 0.30/5000 밖에 안 된다.
+		// 그래서 이 장소가 1등이어야 한다 — 점수가 순서를 정한다는 뜻이다.
+		assertThat(kept.get(0)).isEqualTo(farthestButMatching);
+	}
+
+	@Test
+	@DisplayName("남기는 수는 candidateLimit 그대로다 — 저장되는 후보 행 수가 늘지 않는다")
+	void 남기는_수는_candidateLimit_그대로다() {
+		List<PlaceCandidateResponse.Candidate> pool = new ArrayList<>();
+		for (int i = 0; i < 300; i++) {
+			pool.add(new PlaceCandidateResponse.Candidate(new UUID(1L, i), "후보" + i, "FOOD",
+					35.15, 129.05, 100L + i, List.of()));
+		}
+		when(this.queryService.findCandidates(any())).thenReturn(response(pool));
+
+		assertThat(engine().generate(request()).candidates()).hasSize(KEEP);
+	}
+
+	@Test
+	@DisplayName("후보가 남길 수보다 적으면 그대로 전부 돌려준다")
+	void 후보가_적으면_전부_돌려준다() {
+		List<PlaceCandidateResponse.Candidate> pool = List.of(
+				new PlaceCandidateResponse.Candidate(new UUID(2L, 1L), "한 곳", "FOOD", 35.15, 129.05, 100L,
+						List.of()));
+		when(this.queryService.findCandidates(any())).thenReturn(response(pool));
+
+		assertThat(engine().generate(request()).candidates()).hasSize(1);
+	}
+
+	// ── 도구 ──────────────────────────────────────────────────────────────────
+
+	private EngineRequest request() {
+		return new EngineRequest(UUID.randomUUID(), UUID.randomUUID(), UUID.fromString(TRIP_ID), 1,
+				UUID.randomUUID(), null, null, null, 10);
+	}
+
+	private static PlaceCandidateResponse response(List<PlaceCandidateResponse.Candidate> candidates) {
+		return new PlaceCandidateResponse(candidates, candidates.size(), 0, false,
+				List.of("CENTER_RADIUS"), List.of(), false, List.of("fixture"));
+	}
+
+	private static UserPlaceCodeMap codeMap(String userInputCode, String placeFeatureType) {
+		UserPlaceCodeMap row = mock(UserPlaceCodeMap.class);
+		when(row.getUserInputCode()).thenReturn(userInputCode);
+		when(row.getPlaceFeatureType()).thenReturn(placeFeatureType);
+		when(row.getMatchKind()).thenReturn(MatchKind.TAG_OVERLAP);
+		return row;
+	}
+
+	private static PreferenceSnapshot snapshot(String dimension, String valueJson) {
+		return new PreferenceSnapshot(UUID.randomUUID().toString(), TRIP_ID, 1,
+				List.of(new PreferenceSnapshot.PreferenceAnswer(dimension, valueJson,
+						PreferenceSnapshot.AnswerStatus.SELECTED)),
+				PersonalizationScope.TRIP, List.of(), java.time.Instant.now());
+	}
+}

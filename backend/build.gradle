@@ -1,0 +1,113 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '4.0.8'
+	id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.gabolle'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+// S15P21E201-680 — OSV-Scanner(외부 계정 없이 osv.dev 를 조회하는 취약점 스캐너)가
+// 실제 해석된 버전을 보게 하려면 잠금 파일이 있어야 한다. build.gradle 자체는
+// 버전 범위나 BOM 이 껴 있어 스캐너가 직접 못 읽는다.
+dependencyLocking {
+	lockAllConfigurations()
+}
+
+// S15P21E201-680 — Spring Boot 4.0.8 이 관리하는 Tomcat 은 11.0.24 인데, 인증 우회 등
+// CVSS 9.8 짜리 셋(GHSA-9xv2-5v5q-p794 · GHSA-gcx9-497g-6cp6 · GHSA-h3x4-894j-xpx5)이
+// 11.0.25 에서만 고쳐졌다(Maven Central 확인, 2026-09-07). Spring Boot 의 다음 판을
+// 기다리지 않고 이 좌표만 강제로 올린다.
+ext['tomcat.version'] = '11.0.25'
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-flyway'
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-security-oauth2-client'
+	implementation 'org.springframework.boot:spring-boot-starter-security-oauth2-resource-server'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'org.springframework.boot:spring-boot-starter-restclient'
+	implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+	implementation 'org.flywaydb:flyway-database-postgresql'
+	runtimeOnly 'org.postgresql:postgresql'
+	// S15P21E201-367/-213 — 사진 오브젝트 스토리지(S3 호환, MinIO 재사용). StoragePort 의
+	// 두 번째 구현(S3FileStorage)이 쓴다. MinIO 공식 SDK 를 쓰는 이유는 어떤 S3 호환
+	// 엔드포인트에도 그대로 붙기 때문이다 — MinIO 전용이 아니다.
+	//
+	// 🔴 8.6.0 — 8.5.17 에는 HIGH 취약점이 둘 있었다(backend:dependency-scan 실측,
+	//    MR !404). minio 자체(GHSA-h7rh-xfpj-hpcm — XML 태그 값을 시스템 프로퍼티/환경변수로
+	//    조용히 치환해 자격증명을 흘릴 수 있었다)는 8.6.0 이 고쳤다. 그 전이 의존성인
+	//    bcprov-jdk18on(GHSA-574f-3g2m-x479)은 8.6.0 도 1.81 을 받아오는데 그 판은 아직
+	//    안 고쳐졌다(고친 판은 1.81.1/1.80.2/1.84 부터) — 9.x 로 올리면 API 가 통째로
+	//    바뀌어(공식 체인지로그 "entire code refactor") 이 티켓 범위를 넘어서므로,
+	//    대신 아래에서 그 버전만 명시로 고정한다.
+	implementation 'io.minio:minio:8.6.0'
+	// minio 8.6.0 이 전이로 받아오는 bcprov-jdk18on 1.81 은 GHSA-574f-3g2m-x479 를 아직
+	// 안 고쳤다 — 명시로 최신 고정판을 올려 그걸 덮어쓴다(위 minio 주석 참고).
+	implementation 'org.bouncycastle:bcprov-jdk18on:1.85.2'
+	testImplementation 'org.springframework.boot:spring-boot-starter-actuator-test'
+	testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
+	testImplementation 'org.springframework.boot:spring-boot-starter-flyway-test'
+	testImplementation 'org.springframework.boot:spring-boot-starter-security-oauth2-client-test'
+	testImplementation 'org.springframework.boot:spring-boot-starter-security-oauth2-resource-server-test'
+	testImplementation 'org.springframework.boot:spring-boot-starter-security-test'
+	testImplementation 'org.springframework.boot:spring-boot-starter-validation-test'
+	testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
+	// JUnit 5 · AssertJ · Mockito 한 묶음. 위의 세분화된 *-test 스타터들이 이미 끌어올 수도
+	// 있지만, AssertJ 가 있다는 것을 이 파일에서 눈으로 확인할 수 있게 명시한다.
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	// Testcontainers — 테스트가 시작될 때 진짜 PostgreSQL 을 도커 컨테이너로 띄우고 끝나면 지운다.
+	// 🔴 H2 로 대신하지 않는 이유: 이 티켓이 저장하는 것이 JSONB · UUID · VARCHAR[] 이고,
+	//    그 계약은 PostgreSQL 에서만 진짜로 검증된다. H2 로 통과한 초록은 아무것도 보장하지 않는다.
+	//
+	// 🔴 BOM(**Bill of Materials — 여러 라이브러리의 버전을 한 줄로 맞춰 주는 목록**)을 직접
+	//    가져오는 이유: Spring Boot 4 의 의존성 관리에는 testcontainers 버전이 들어 있지 않다.
+	//    버전을 안 적으면 "Could not find org.testcontainers:postgresql:" 로 빌드가 멈춘다.
+	testImplementation platform('org.testcontainers:testcontainers-bom:1.21.3')
+	testImplementation 'org.testcontainers:junit-jupiter'
+	testImplementation 'org.testcontainers:postgresql'
+	// S15P21E201-367 — S3FileStorage 를 진짜 S3 호환 서버(MinIO) 앞에서 돌려 본다.
+	// 운영에서 실제로 쓰는 것과 같은 프로토콜이라, 가짜로 흉내 낸 HTTP 서버보다
+	// 서명·버킷 정책 같은 실수를 더 잘 잡는다.
+	testImplementation 'org.testcontainers:minio'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	// S15P21E201-571 — 계층 규칙(presentation → application → domain ← infra)을 사람이
+	// 리뷰에서 놓치지 않고 빌드가 재게 한다.
+	testImplementation 'com.tngtech.archunit:archunit-junit5:1.3.0'
+}
+
+// 자바 소스를 어떤 인코딩으로 읽을지를 빌드를 돌리는 기계의 기본값에 맡기지 않는다.
+// 윈도우 개발 기계는 보통 MS949 로 읽고 CI 의 리눅스 컨테이너는 UTF-8 로 읽는다. 그 차이를
+// 두면 같은 소스가 기계마다 다르게 컴파일되고, 한국어 문자열이 깨진 채로도 컴파일은
+// 통과해서 실행할 때서야 드러난다.
+//
+// 2026-09-04 에 같은 계열의 문제가 설정 파일 쪽에서 실제로 터졌다. 메일 발신자 이름이
+// 수신함에서 깨져 나갔고, 원인은 .properties 를 ISO-8859-1 로 읽는 자바 규격이었다
+// (DEC-CONFIG-001). 이 설정은 그 사건의 소스 파일 쪽 대응이다.
+//
+// withType 을 쓰는 이유는 compileJava 와 compileTestJava 를 한 번에 덮기 위해서다.
+// 테스트 소스가 빠지면 회귀 테스트 자체가 깨져서 거짓 초록을 낸다.
+tasks.withType(JavaCompile).configureEach {
+	options.encoding = 'UTF-8'
+}
+
+tasks.withType(Javadoc).configureEach {
+	options.encoding = 'UTF-8'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}

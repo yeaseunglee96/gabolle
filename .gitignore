@@ -61,3 +61,6 @@ Thumbs.db
 # 분리 전에 clone 한 PC 에는 이 폴더가 디스크에 남아 있는데, 추적하지 않는다.
 # 사본은 ci/axmap/ 이고 그건 vendor 명령이 만든다.
 /axmap/
+
+# 소상공인 상가정보 원본 CSV (82MB) — 저장소에 넣지 않는다. 각자 내려받는다.
+bigData/data/sbiz/*.csv

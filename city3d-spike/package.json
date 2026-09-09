@@ -1,0 +1,21 @@
+{
+  "name": "city3d-spike",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "earcut": "^3.2.3",
+    "geojson-vt": "^5.0.2",
+    "maplibre-gl": "^6.7.0",
+    "pngjs": "^7.0.0",
+    "three": "^0.185.1",
+    "vt-pbf": "^3.1.3"
+  }
+}
