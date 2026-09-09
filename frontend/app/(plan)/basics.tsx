@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Button } from '@/components/Button';
@@ -9,11 +9,17 @@ import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
+import { RouteMap } from '@/map/RouteMap';
 import { PlanStepHeader } from '@/plan/PlanStepHeader';
 import { PlanDesktopShell } from '@/plan/PlanDesktopShell';
+import { MAJOR_BUSAN_ORIGINS, searchOrigins, type OriginCandidate } from '@/plan/origins';
+import { useAuth } from '@/auth/AuthProvider';
 import { useI18n } from '@/i18n';
 import { type PlanDraft, type Transport, usePlan } from '@/plan/PlanProvider';
 import { addDays, BUDGET_UNIT_KRW, formatBudgetEn, formatBudgetKo, localToday, validateTripBasics, type TripBasicsErrors } from '@/plan/tripBasics';
+
+const ORIGIN_SEARCH_DEBOUNCE_MS = 300;
+const ORIGIN_MIN_QUERY_LENGTH = 2;
 
 const AREAS = [['HAEUNDAE', '해운대', 'Haeundae'], ['GWANGALLI', '광안리', 'Gwangalli'], ['NAMPO', '남포동', 'Nampo-dong'], ['SEOMYEON', '서면', 'Seomyeon'], ['YEONGDO', '영도', 'Yeongdo'], ['SONGJEONG', '송정', 'Songjeong']] as const;
 // 🔴 예산은 **쌓는다.** 한 칸을 누르면 그만큼 더해지고, 같은 칸을 또 누르면 또 더해진다
@@ -52,8 +58,14 @@ export default function Basics() {
   const { kind, width } = useLayout();
   const isDesktop = kind === 'tablet' && isAtLeast(width, 'lg');
   const { draft, ready, update, completeStep } = usePlan();
+  const { accessToken } = useAuth();
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [panelIndex, setPanelIndex] = useState(0);
+  const [originResults, setOriginResults] = useState<OriginCandidate[]>([]);
+  const [originSearching, setOriginSearching] = useState(false);
+  const [originSearched, setOriginSearched] = useState(false);
+  const originDebounce = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const originAbort = useRef<AbortController | null>(null);
   const touch = (field: string) => setTouched((current) => ({ ...current, [field]: true }));
   const errors = validateTripBasics(draft);
   const valid = ready && Object.keys(errors).length === 0;
@@ -75,6 +87,38 @@ export default function Basics() {
   const endMinimum = /^\d{4}-\d{2}-\d{2}$/.test(draft.startDate) ? draft.startDate : today;
   const endMaximum = addDays(endMinimum, 7);
   const toggleArea = (code: string) => set('travelAreas', draft.travelAreas.includes(code) ? draft.travelAreas.filter((item) => item !== code) : [...draft.travelAreas, code]);
+
+  // 완료 기준: 글자를 이어 쳐도 요청이 글자 수만큼 나가지 않는다 — 300ms 안에 또 치면 이전
+  // 타이머를 지우고 새로 잰다. 응답이 늦게 온 이전 요청이 최신 결과를 덮어쓰지 않도록 abort 도 같이 한다.
+  const performOriginSearch = async (query: string) => {
+    originAbort.current?.abort();
+    const controller = new AbortController();
+    originAbort.current = controller;
+    setOriginSearching(true);
+    const result = await searchOrigins(query, accessToken, controller.signal);
+    if (controller.signal.aborted) return;
+    setOriginSearching(false);
+    setOriginSearched(true);
+    setOriginResults(result.state === 'success' ? result.items : []);
+  };
+  const handleOriginChange = (value: string) => {
+    update({ origin: value, originLat: null, originLng: null });
+    if (originDebounce.current) clearTimeout(originDebounce.current);
+    const trimmed = value.trim();
+    if (trimmed.length < ORIGIN_MIN_QUERY_LENGTH) {
+      originAbort.current?.abort();
+      setOriginSearching(false); setOriginSearched(false); setOriginResults([]);
+      return;
+    }
+    originDebounce.current = setTimeout(() => void performOriginSearch(trimmed), ORIGIN_SEARCH_DEBOUNCE_MS);
+  };
+  const selectOrigin = (candidate: OriginCandidate) => {
+    if (originDebounce.current) clearTimeout(originDebounce.current);
+    originAbort.current?.abort();
+    update({ origin: candidate.name, originLat: candidate.lat, originLng: candidate.lng });
+    setOriginResults([]); setOriginSearched(false); setOriginSearching(false);
+    touch('origin');
+  };
   const reason = !ready ? tx('저장된 정보를 불러오고 있어요.', 'Loading your saved details.') : !valid ? tx('빨간 안내가 표시된 항목을 확인해 주세요.', 'Check the fields highlighted in red.') : null;
 
   const panelBlocked = (index: number) => PANEL_ERROR_KEYS[index].some((key) => errors[key]);
@@ -150,7 +194,28 @@ export default function Basics() {
       </Card>}
 
       {(kind === 'tablet' || panelIndex === 3) && <>
-      <Card title={tx('출발지', 'Starting point')} hint={tx('숙소나 역 이름처럼 알아보기 쉽게 입력해 주세요.', 'Enter a recognizable place such as a hotel or station.')}><Field label={tx('장소', 'Place')} error={touched.origin || draft.origin ? errors.origin : undefined}><TextInput accessibilityLabel={tx('출발지', 'Starting point')} value={draft.origin} onBlur={() => touch('origin')} onChangeText={(value) => set('origin', value)} placeholder={tx('예: 부산역', 'e.g. Busan Station')} placeholderTextColor={color.text.muted} style={[styles.input, isDesktop && styles.inputDesktop, Boolean((touched.origin || draft.origin) && errors.origin) && styles.invalid]} /></Field></Card>
+      <Card title={tx('출발지', 'Starting point')} hint={tx('숙소나 역 이름처럼 알아보기 쉽게 입력해 주세요.', 'Enter a recognizable place such as a hotel or station.')}>
+        <Field label={tx('장소', 'Place')} error={touched.origin || draft.origin ? errors.origin : undefined}>
+          <TextInput accessibilityLabel={tx('출발지', 'Starting point')} value={draft.origin} onBlur={() => touch('origin')} onChangeText={handleOriginChange} placeholder={tx('예: 부산역', 'e.g. Busan Station')} placeholderTextColor={color.text.muted} style={[styles.input, isDesktop && styles.inputDesktop, Boolean((touched.origin || draft.origin) && errors.origin) && styles.invalid]} />
+        </Field>
+        {originSearching && <Text accessibilityLiveRegion="polite" variant="caption" color={color.text.muted} style={styles.originStatus}>{tx('검색 중…', 'Searching…')}</Text>}
+        {originResults.length > 0 && <View accessibilityRole="list" style={styles.originList}>
+          {originResults.map((item) => <Pressable key={item.externalId} accessibilityRole="button" accessibilityLabel={tx(`출발지로 ${item.name} 선택`, `Choose ${item.name} as the starting point`)} onPress={() => selectOrigin(item)} style={({ pressed }) => [styles.originItem, pressed && styles.originItemPressed]}>
+            <Text weight="bold">{item.name}</Text>
+            <Text variant="caption" color={color.text.muted}>{item.address}</Text>
+          </Pressable>)}
+        </View>}
+        {!originSearching && originSearched && originResults.length === 0 && <View accessibilityRole="list" style={styles.originList}>
+          <Text accessibilityLiveRegion="polite" variant="caption" color={color.text.muted} style={styles.originStatus}>{tx('검색 결과가 없습니다. 주요 출발지 중에서 골라 보세요.', 'No results. Try one of these major starting points.')}</Text>
+          {MAJOR_BUSAN_ORIGINS.map((item) => <Pressable key={item.externalId} accessibilityRole="button" accessibilityLabel={tx(`출발지로 ${item.name} 선택`, `Choose ${item.name} as the starting point`)} onPress={() => selectOrigin(item)} style={({ pressed }) => [styles.originItem, pressed && styles.originItemPressed]}>
+            <Text weight="bold">{item.name}</Text>
+            <Text variant="caption" color={color.text.muted}>{item.address}</Text>
+          </Pressable>)}
+        </View>}
+        {draft.originLat !== null && draft.originLng !== null && <View style={styles.originMapWrap}>
+          <RouteMap stops={[{ id: 'origin-preview', number: 1, name: draft.origin, latitude: draft.originLat, longitude: draft.originLng }]} selectedId="origin-preview" onSelect={() => {}} height={160} />
+        </View>}
+      </Card>
 
       <Card title={tx('하루 여행 시간', 'Daily hours')} hint={tx('24시간 HH:MM 형식으로 입력해 주세요.', 'Enter in 24-hour HH:MM format.')}><View style={[styles.dateRow, kind === 'phone' && styles.dateRowPhone]}><Field label={tx('시작', 'Start')} error={errors.dayStartTime}><TextInput accessibilityLabel={tx('매일 여행 시작 시각', 'Daily start time')} value={draft.dayStartTime} onChangeText={(value) => set('dayStartTime', value)} placeholder="09:00" placeholderTextColor={color.text.muted} style={[styles.input, errors.dayStartTime && styles.invalid]} /></Field>{kind === 'tablet' && <Text style={styles.dateArrow}>→</Text>}<Field label={tx('종료', 'End')} error={errors.dayEndTime}><TextInput accessibilityLabel={tx('매일 여행 종료 시각', 'Daily end time')} value={draft.dayEndTime} onChangeText={(value) => set('dayEndTime', value)} placeholder="18:00" placeholderTextColor={color.text.muted} style={[styles.input, errors.dayEndTime && styles.invalid]} /></Field></View></Card>
 
@@ -183,4 +248,9 @@ const styles = StyleSheet.create({
   budgetUndoRow: { flexDirection: 'row', gap: spacing[2] }, budgetUndo: { flex: 2, minHeight: 48, paddingHorizontal: spacing[3], borderRadius: radius.full, borderWidth: 1, borderColor: color.brand.orange, backgroundColor: color.surface.warm, alignItems: 'center', justifyContent: 'center' }, budgetClear: { flex: 1, minHeight: 48, paddingHorizontal: spacing[3], borderRadius: radius.full, borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center' },
   panelNav: { marginTop: spacing[4], flexDirection: 'row', alignItems: 'center', gap: spacing[3] }, panelNavButton: { minWidth: 72, minHeight: 48, paddingHorizontal: spacing[3], borderRadius: radius.full, borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center' }, panelCta: { flex: 1, marginTop: 0, backgroundColor: color.brand.navy },
   reason: { marginTop: spacing[6], textAlign: 'center', color: color.text.body }, cta: { marginTop: spacing[3], backgroundColor: color.brand.navy },
+  originStatus: { paddingHorizontal: spacing[1] },
+  originList: { gap: spacing[1], borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.card, padding: spacing[2] },
+  originItem: { minHeight: 48, justifyContent: 'center', gap: 2, borderRadius: radius.sm, paddingHorizontal: spacing[2], paddingVertical: spacing[1] },
+  originItemPressed: { backgroundColor: color.surface.tint },
+  originMapWrap: { borderRadius: radius.md, overflow: 'hidden' },
 });
