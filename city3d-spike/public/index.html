@@ -1,0 +1,2105 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<title>부산 3D — 사양 판정 실험</title>
+<link rel="stylesheet" href="./lib/maplibre-gl.css" />
+<style>
+  :root {
+    --sea:   #adcdcd;
+    --land:  #f3f5f1;
+    --green: #d8e6d2;
+    --road:  #ffffff;
+    --ink:   #33443f;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; overflow: hidden;
+    font: 13px/1.5 -apple-system, "Segoe UI", "Malgun Gothic", sans-serif; color: var(--ink); }
+  /* 화면 전체 색보정. 도형을 안 늘리고 사진 같은 대비를 만든다 — GPU 합성이라 사실상 공짜다.
+     ?raw 를 주소에 붙이면 끈다 (보정 전후를 비교하려고 남겨 둔다). */
+  #map { position: absolute; inset: 0; background: var(--sea);
+         filter: saturate(1.07) contrast(1.05); }
+  #map.raw { filter: none; }
+
+  .panel {
+    position: absolute; left: 10px; right: 10px; bottom: calc(10px + env(safe-area-inset-bottom));
+    background: rgba(255,255,255,.92); backdrop-filter: blur(8px);
+    border-radius: 14px; padding: 12px 14px; box-shadow: 0 6px 24px rgba(40,70,60,.16);
+  }
+  .nums { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 10px; }
+  .num { text-align: center; }
+  .num b { display: block; font-size: 19px; font-variant-numeric: tabular-nums; line-height: 1.2; }
+  .num span { font-size: 10.5px; opacity: .62; }
+  .bad b { color: #b4453a; }
+  .row { display: flex; align-items: center; gap: 10px; }
+  .row label { font-size: 11px; opacity: .7; white-space: nowrap; }
+  input[type=range] { flex: 1; accent-color: #6f9b8e; }
+  button {
+    font: inherit; font-size: 12px; border: 0; border-radius: 9px;
+    padding: 7px 12px; background: var(--ink); color: #fff; cursor: pointer;
+  }
+  .views { margin-bottom: 9px; flex-wrap: wrap; }
+  .view { background: rgba(51,68,63,.09); color: var(--ink); padding: 6px 13px; }
+  .view.on { background: var(--ink); color: #fff; }
+  #t-label { min-width: 152px; font-variant-numeric: tabular-nums; }
+  /* 슬라이더와 그늘 띠를 한 칸에 세로로 쌓는다. 띠가 슬라이더와 **가로로 정확히 겹쳐야**
+     "이 시각이 그늘인가" 를 눈으로 읽을 수 있다. 따로 두면 몇 픽셀씩 어긋나 쓸모가 없다. */
+  .tcol { flex: 1; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+  .tcol input[type=range] { width: 100%; margin: 0; }
+  #band { width: 100%; height: 15px; display: block; border-radius: 4px; }
+  #sunline { margin-top: 7px; font-size: 10.5px; opacity: .72; font-variant-numeric: tabular-nums;
+             display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; }
+  #sunline b { font-weight: 600; opacity: .95; }
+  .tag { font-size: 10.5px; opacity: .55; margin-right: 2px; }
+  .swatch { display: inline-block; width: 9px; height: 9px; border-radius: 2px; vertical-align: -1px; margin-right: 3px; }
+  #hint {
+    position: absolute; top: calc(10px + env(safe-area-inset-top)); left: 10px;
+    background: rgba(255,255,255,.9); border-radius: 10px; padding: 7px 11px; font-size: 11.5px;
+  }
+  /* 무언가 실패하면 화면에 띄운다. 폰에서는 개발자 도구를 못 여니, 사진 한 장으로
+     무엇이 왜 실패했는지 알 수 있어야 한다. */
+  #err {
+    position: absolute; left: 10px; right: 10px; top: calc(52px + env(safe-area-inset-top));
+    background: rgba(150,40,32,.94); color: #fff; border-radius: 10px; padding: 9px 12px;
+    font-size: 11.5px; line-height: 1.5; white-space: pre-wrap; z-index: 9;
+  }
+  #credit {
+    position: absolute; top: calc(10px + env(safe-area-inset-top)); right: 10px;
+    background: rgba(255,255,255,.72); border-radius: 8px; padding: 5px 8px;
+    font-size: 9.5px; opacity: .8; max-width: 45vw; text-align: right;
+  }
+</style>
+</head>
+<body>
+<div id="map"></div>
+<div id="hint">한 손가락 = 이동 · 두 손가락 = 돌리기/기울이기</div>
+<div id="credit">건물: 국토교통부 GIS건물통합정보 (CC BY)<br />다리: OpenStreetMap · 지형: AWS Terrain Tiles<br /><span id="build"></span></div>
+<div id="err" hidden></div>
+
+<div class="panel">
+  <div class="nums">
+    <div class="num" id="n-fps"><b>–</b><span>지금 초당 프레임</span></div>
+    <div class="num" id="n-min"><b>–</b><span>돌릴 때 최저</span></div>
+    <div class="num" id="n-net"><b>–</b><span>받은 양</span></div>
+    <div class="num" id="n-first"><b>–</b><span>첫 화면까지</span></div>
+  </div>
+  <div class="row views">
+    <button class="view" data-v="광안대교">광안대교</button>
+    <button class="view" data-v="해운대">해운대</button>
+    <button class="view" data-v="부산항">부산항</button>
+    <button class="view" data-v="남항대교">남항대교</button>
+    <button class="view" data-v="마린시티">마린시티</button>
+    <button class="view" data-v="BIFC">BIFC</button>
+  </div>
+  <div class="row views" id="demos">
+    <span class="tag">이동수단</span>
+    <button class="view demo" data-demo="off">끔</button>
+    <button class="view demo" data-demo="walk">도보</button>
+    <button class="view demo" data-demo="bus">버스</button>
+    <button class="view demo" data-demo="car">승용차</button>
+    <button class="view demo" data-demo="all">셋 다</button>
+  </div>
+  <div class="row">
+    <label id="t-label">낮 12:00</label>
+    <div class="tcol">
+      <input type="range" id="time" min="4" max="22" step="0.25" value="17" />
+      <!-- 그늘 띠 — 슬라이더 바로 밑에 같은 가로 자리로. 진한 곳이 그늘이 많은 시각이다 -->
+      <canvas id="band" height="15"></canvas>
+    </div>
+    <button id="copy">숫자 복사</button>
+  </div>
+  <div id="sunline"></div>
+</div>
+
+<!-- 🔴 브이월드 인증키는 git 에 없다. public/config.local.js (gitignore 대상) 가 window.CITY3D 에 넣어 준다.
+     파일이 없으면 콘솔에 404 한 줄이 남고 **항공사진만 꺼진다** — 도시·다리·그림자는 그대로 뜬다.
+     만드는 법은 config.example.js 맨 위에 있다. 일반 script 라 아래 module 보다 먼저 끝난다(module 은 항상 뒤로 미뤄진다). -->
+<script src="./config.local.js"></script>
+<script type="module">
+// MapLibre 6 은 이름별로만 내보낸다. Map 은 자바스크립트 기본 이름과 겹쳐서 바꿔 받는다.
+import { Map as MapLibreMap, NavigationControl, addProtocol } from './lib/maplibre-gl.mjs';
+// 🔴 파도(sea.mjs)는 뺐다. 2026-09-06.
+//    바다 위에 삼각형이 부채꼴로 뻗는 깨짐이 반복해서 나왔다. 원인을 세 번 좁혔고
+//    (성긴 부모 타일 · 손으로 쓴 삼각분할 · 깊이 싸움) 그때마다 다른 모양으로 다시 나왔다.
+//    물결 하나를 얻자고 바다 전체가 깨지는 위험을 지고 갈 이유가 없다.
+//    파일은 그대로 남겨 뒀다 — 되살리려면 아래 import 를 풀고 '파도' 단계를 되돌린다:
+//      import { makeSeaLayer } from './sea.mjs?v=<판>';
+//    바다 색은 바탕 지도가 계속 칠하므로 파도가 없어도 시각에 따라 바뀐다.
+import { sunPosition, shadowLengthM, kst, sunTimes, hhmm, todayKST, nowHourKST } from './sun.mjs';
+// 이동 수단 — 경로 위를 실제로 움직이는 보행자·버스·승용차. 왜 3D 상자로 골랐는지는 actors.mjs 맨 위에 있다.
+import { MODES, makeRoute, actorCollection, actorColorExpr } from './actors.mjs';
+// 그늘/볕 판정 — "이 자리가 몇 시에 그늘인가". 🔴 못 보는 것(가로수·지형)은 shade.mjs 맨 위에 적혀 있다.
+import { buildIndex, shadeAt, shadeTimeline } from './shade.mjs';
+
+const T0 = performance.now();
+
+// 화면 오른쪽 위에 판 번호를 띄운다. 폰에서는 사진 한 장으로 어느 판인지 알 수 있어야 한다 —
+// 화면 코드와 바다 코드의 판본이 어긋나 건물이 통째로 사라진 적이 있고, 그때 이게 있었으면
+// 바로 알았을 것이다.
+const BUILD_STAMP = '0907-1340';
+document.getElementById('build').textContent = '판 ' + BUILD_STAMP;
+
+// 해를 계산할 기준점과 날짜.
+const SITE = { lat: 35.1600, lon: 129.1300 };
+
+const Q = new URLSearchParams(location.search);
+
+// ── 날짜 — 기본은 **오늘(부산 현지)** ────────────────────────────
+// 🔴 2026-09-07 에 바뀌었다. 전에는 `[2026, 7, 15]` 가 박혀 있었다 (팀의 그림자 분석과 날짜를
+//    맞추려고 그랬다). 그런데 이 화면은 이제 여행자가 **자기 여행 날**의 그늘을 보는 데 쓰인다.
+//    7월 15일의 해로 12월 여행을 보여주면 낮 길이가 2시간 40분 틀리고, 그림자 방향도 틀린다.
+//    분석과 대조할 때는 ?date=2026-07-15 로 그날을 다시 부르면 된다.
+//
+//   ?date=2026-09-12   그날의 해로 본다 (여행은 미래 날짜다)
+//   ?date=today        오늘 (기본값)
+const DATE = (() => {
+  const raw = (Q.get('date') ?? '').trim();
+  const m = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(raw);
+  if (m) {
+    const y = +m[1], mo = +m[2], d = +m[3];
+    // 실제로 있는 날인지 본다. 2026-02-31 을 주면 Date 가 3월 3일로 조용히 굴러가는데,
+    // 조용히 다른 날을 보여주는 것이 오류를 내는 것보다 나쁘다.
+    const probe = new Date(Date.UTC(y, mo - 1, d));
+    if (probe.getUTCFullYear() === y && probe.getUTCMonth() === mo - 1 && probe.getUTCDate() === d) return [y, mo, d];
+  }
+  return todayKST();
+})();
+const DATE_IS_TODAY = DATE.join('-') === todayKST().join('-');
+
+// 그날의 일출·일몰·남중. 슬라이더 범위와 "일몰 후" 표시가 전부 여기서 나온다.
+// 🔴 이 값은 sunrise-sunset.org 의 공개 API 와 대조했다 (2026-09-07, 부산 35.1796/129.0756):
+//    9/7 · 하지 · 동지 · 춘분 네 날 모두 **일출 +1~2분 · 일몰 -1분 · 남중 0~1분** 안에 들었다.
+//    남는 차이는 기준 고도(-0.833°)와 해발고도 보정 유무 때문이다. 분 단위로는 맞다고 본다.
+const SUNT = sunTimes(DATE[0], DATE[1], DATE[2], SITE.lat, SITE.lon, 9);
+
+// 🔴 큰 파일(건물 타일 58 MB · 땅 높이 204 MB)은 깃에 없다.
+//    LFS 도 답이 아니다 — 저장소가 그만큼 무거워지는 건 똑같고, clone 이 느려진다.
+//    대신 **AWS(EC2)에 두고 주소로 부른다.** 서버는 그 자리에 다른 주소에서도
+//    받아 갈 수 있게 열어 두었다.
+//
+//    기본        같은 자리에서 찾는다 (배포본, 또는 직접 구운 로컬)
+//    ?data=aws   AWS 에 올려 둔 것을 쓴다 — **새로 clone 한 사람이 807 MB 를 굽지 않고
+//                바로 볼 수 있다.** 화면 코드만 있으면 된다.
+const DATA = location.search.includes('data=aws')
+  ? 'https://j15e201.p.ssafy.io/city3d'
+  : location.origin + basePath();
+
+// ── 항공사진 (브이월드 정사영상) ──────────────────────────────────
+// 3D 지도는 모형이 아니라 **사진 길**로 간다 (S15P21E201-675). 산·바다·해변이 사진이 되고 그 위에 건물이 선다.
+//
+// 🔴 인증키는 config.local.js 에서 온다 (위 script 태그). 없으면 이 기능만 꺼진다.
+// 🔴 타일 주소는 {z}/{y}/{x} — **y 가 x 앞**이다. 흔히 틀리는 자리라 따로 적어 둔다.
+//
+// 손잡이 — 사진 있고 없고를 나란히 비교하려고 남겨 둔다 (?flat·?raw 와 같은 결):
+//   ?photo=off        사진을 안 깐다
+//   ?roads=auto|on|dim|off 사진 위의 도로선을 해 따라 / 그대로 / 흐리게 / 끈다   (기본: 아래 ROADS_DEFAULT)
+//   ?labels=off       글자를 끈다                                   (기본: 켬)
+//   ?sea=photo|paint|blend  바다를 사진 그대로 / 바탕 지도 색으로 / 반투명으로 겹쳐서 (기본: SEA_DEFAULT)
+const AERIAL_KEY = String(window.CITY3D?.vworldKey ?? '').trim();
+// 예시 파일을 그대로 복사만 한 경우도 "키 없음" 으로 본다. 자리표시자를 주소에 넣으면 타일마다 오류가 난다.
+const HAS_KEY = AERIAL_KEY.length > 0 && !/여기에|YOUR/i.test(AERIAL_KEY);
+const PHOTO = HAS_KEY && Q.get('photo') !== 'off';
+// 도로선 기본은 auto — **낮에는 끄고 밤에는 켠다.** 2026-09-07 해운대 시점 캡처 셋을 놓고 봤다:
+//   on  — 장산 능선에 흰 등산로 선이 사진과 따로 놀고, 동백섬 해안도로 선이 바다로 들어간다. 지도 두 장을 겹친 것처럼 보인다
+//   dim — 대부분 사라지지만 산 위의 유령 선이 남는다
+//   off — 낮에는 가장 깨끗하다. 길은 사진에 이미 찍혀 있고, 도로 번호 표지·글자는 남아 방향을 잃지 않는다
+// 그런데 밤 화면은 가로등이 노면을 주황으로 물들이는 도로선에 절반을 기댄다 — 21시 캡처에서 0.3 짜리 주황 길은 거의 안 보였다.
+// 그래서 하나로 못 정하고 해 고도에 붙였다: 해가 지면서 길이 켜진다. 사진은 그때 어두워지므로 서로 자리를 바꾼다.
+const ROADS_DEFAULT = 'auto';
+const SEA_DEFAULT = 'photo';
+const ROADS = Q.get('roads') ?? ROADS_DEFAULT;
+const LABELS = Q.get('labels') ?? 'on';
+const SEA_MODE = Q.get('sea') ?? SEA_DEFAULT;
+// 사진 타일을 받는 확대 상한. 부산 정사영상은 19 까지 있지만 다 받으면 시점 셋(광안대교·해운대·부산항)에 타일 247장·3.4 MB 다.
+// 17 로 막으면 206장·3.0 MB (-17%·-11%) 이고 가까이(확대 17) 가도 차·파라솔이 읽힌다. 16 은 148장·2.3 MB 로 더 줄지만
+// 가까이서 모래·파라솔이 뭉개져서 접었다 (2026-09-07 실측 — work/aerial/cnt*-close-z17.png). ?photomax=19 로 되돌려 비교한다.
+const AERIAL_MAXZOOM_DEFAULT = 17;
+const AERIAL_MAXZOOM = Math.min(19, +(Q.get('photomax') ?? AERIAL_MAXZOOM_DEFAULT) || AERIAL_MAXZOOM_DEFAULT);
+
+// ── 🔴 도보 스케일에서는 사진을 걷어낸다 (S15P21E201-725) ──────────
+// 정사영상은 **위에서 수직으로 내려다본 사진**이다. 그래서 건물 **벽면 픽셀이 아예 없다** —
+// 해상도가 낮은 게 아니라 존재하지 않는다. 눈높이로 내려가면 사진은
+//   (1) 건물 사이 좁은 틈에서만 보이고, 스치듯 보는 각도라 길게 늘어져 뭉개지고
+//   (2) 찍을 때의 그림자가 이미 사진에 들어 있어 우리가 그리는 그림자와 두 번 겹친다
+// 즉 가까이 갈수록 사진은 도움이 아니라 방해다. 그래서 서서히 지우고, 그 자리를
+// 파사드 무늬가 채운다 (아래 '낮 파사드').
+//
+// 왜 16.5 와 18 인가 — 화면 1픽셀이 덮는 지상 거리로 갈린다.
+//   확대 16 = 1.95 m/px   사진이 아직 압도적이다 (산·바다·해변)
+//   확대 17 = 0.98 m/px   차·파라솔이 읽히는 마지막 지점
+//   확대 18 = 0.49 m/px   사람 한 명이 한 픽셀. 여기서부터는 늘어난 얼룩이다
+const AERIAL_FADE_START = 16.5;
+const AERIAL_FADE_END = 18;
+// 확대에 따라 0~1 로 오르내리는 값을 만든다. 사진 불투명도와, 그 반대인 "사진이 사라진 정도"
+// (도로선·파사드가 자리를 넘겨받는 몫) 둘 다 이 한 곳에서 나온다 — 두 곳에 숫자를 적으면 어긋난다.
+const byFadeZoom = (atStart, atEnd) => [
+  'interpolate', ['linear'], ['zoom'],
+  AERIAL_FADE_START, atStart,
+  AERIAL_FADE_END, atEnd,
+];
+
+// ── 바탕 지도 ─────────────────────────────────────────────────────
+// 🔴 사진이 꺼진 자리에 무엇을 깔 것인가 — **지금 쓰는 positron 을 그대로 둔다** (S15P21E201-725).
+//    후보는 브이월드 `Base` 였다. 안 고른 이유 셋:
+//      1. `Base` 는 **미리 잘라 둔 그림**이라 확대 19 가 끝이다. 확대 20 에서는 늘어난다 —
+//         늘어난 사진을 걷어내고 늘어난 그림을 까는 것은 제자리걸음이다.
+//         positron 은 좌표와 속성을 받아 그때그때 그리므로 확대 20 에서도 선이 선으로 남는다
+//      2. 이 화면은 시각에 따라 땅·바다·풀·길 색을 다시 칠한다(setHour). 그림 한 장으로 온 바탕은
+//         그렇게 못 한다 — 밤 도시가 낮에 찍힌 바탕 위에 서게 된다
+//      3. 인증키가 하나 더 필요하고 요청 한도를 나눠 쓴다. 얻는 것이 없다
+//
+// 평소에는 OpenFreeMap 의 positron 을 쓴다. 그런데 그 주소는 **밖에 있는 서비스**라,
+// 막힌 망(사내망·자동화 브라우저·비행기)에서는 스타일이 통째로 안 온다.
+// 그러면 map 의 'load' 가 영영 안 나고 **건물·다리·그림자가 하나도 안 만들어진다** —
+// 바탕 지도만 못 받은 게 아니라 화면 전체가 빈다. 2026-09-07 에 실제로 그랬다
+// (자동화 브라우저에서 tiles.openfreemap.org 가 차단돼 전송량 0 바이트로 즉시 끊겼다).
+//
+// 그래서 탈출구를 둔다. ?basemap=off 면 **바탕색 한 장짜리 스타일**로 시작한다.
+// 도로선·글자·해안선은 없지만 건물·다리·그림자·항공사진은 전부 우리 서버에서 오므로 그대로 뜬다.
+// 성능을 잴 때도 이쪽이 낫다 — 남의 서버 상태가 숫자에 안 섞인다.
+const BASEMAP_OFF = Q.get('basemap') === 'off';
+// 🔴 스타일을 **객체 그대로 주면 이 MapLibre 판에서는 안 뜬다.** 오류도 안 나고
+//    getStyle() 이 계속 null 이라 'load' 가 영영 안 난다 (2026-09-07 실측).
+//    주소 문자열은 된다. 그래서 객체를 Blob 으로 감싸 blob: 주소로 만들어 넘긴다 —
+//    네트워크를 안 타면서 주소의 모양은 갖춘다.
+const MINIMAL_STYLE = {
+  version: 8,
+  sources: {},
+  layers: [{ id: 'bg', type: 'background', paint: { 'background-color': '#f3f5f1' } }],
+};
+const MINIMAL_STYLE_URL = BASEMAP_OFF
+  ? URL.createObjectURL(new Blob([JSON.stringify(MINIMAL_STYLE)], { type: 'application/json' }))
+  : null;
+
+// ── 🔴 밖에서 넣는 좌표 (S15P21E201-734) ─────────────────────────
+// 여태 이 화면이 보여 주는 코스는 **소스 코드에 박혀 있었다** (아래 DEMOS 셋).
+// 그래서 앱이 이 화면을 열어도 여행자의 일정이 아니라 남의 데모 코스가 떴다.
+// 주소로 좌표를 받는다.
+//
+//   ?lng=129.1187&lat=35.1532    그 한 지점을 본다
+//   ?zoom=16                      확대 (선택). 안 주면 아래 EXT_ZOOM_DEFAULT
+//   ?course=경도,위도;경도,위도;…  여러 지점 — 다 보이게 맞추고 그 위에 선을 그린다
+//
+// 🔴 **손잡이를 하나도 안 주면 지금까지와 똑같이 동작한다** (광안대교 시점).
+//    값이 망가져 있으면(숫자가 아님·위경도 범위 밖) 조용히 기본 화면으로 떨어진다 —
+//    주소 하나 잘못 붙였다고 흰 화면이 되는 것이 제일 나쁘다.
+//
+// 🔴 부산 밖 좌표도 **막지 않는다.** 건물·땅 높이 타일이 부산뿐이라 밖으로 가면
+//    항공사진과 바탕 지도만 남지만, 그것도 지도이고 "아무것도 안 뜬다" 보다 낫다.
+//    범위 밖 안내를 만들 것인지는 사람이 정할 일이다 (아직 안 정해졌다).
+const EXT_ZOOM_DEFAULT = 15.5;
+
+function parseLngLat(text) {
+  const parts = String(text).split(',');
+  if (parts.length !== 2) return null;
+  const lng = Number(parts[0]);
+  const lat = Number(parts[1]);
+  if (!Number.isFinite(lng) || !Number.isFinite(lat)) return null;
+  // 위경도로 말이 되는 범위인가. 웹 메르카토르 지도는 위도 ±85 밖을 못 그린다.
+  if (lng < -180 || lng > 180 || lat < -85 || lat > 85) return null;
+  return [lng, lat];
+}
+
+// 코스. 못 읽는 점은 버리고 읽은 것만 쓴다 — 하나가 깨졌다고 전부 버리지 않는다.
+const EXT_COURSE = (() => {
+  const raw = (Q.get('course') ?? '').trim();
+  if (!raw) return null;
+  const pts = raw.split(';').map((one) => parseLngLat(one.trim())).filter(Boolean);
+  return pts.length ? pts : null;
+})();
+
+// 한 지점. ?course= 가 있으면 그쪽이 이긴다 (더 많이 말해 주는 쪽).
+const EXT_POINT = (() => {
+  if (EXT_COURSE) return null;
+  const lng = (Q.get('lng') ?? '').trim();
+  const lat = (Q.get('lat') ?? '').trim();
+  // 🔴 둘 다 실제로 적혀 있어야 한다. **빈 문자열을 Number() 에 넣으면 0 이 되므로**,
+  //    이걸 안 막으면 손잡이를 하나도 안 준 화면이 위경도 0,0(아프리카 앞바다)으로 간다.
+  //    실제로 그렇게 만들었다가 헤드리스 브라우저로 재 보고 잡았다 (2026-09-08).
+  if (!lng || !lat) return null;
+  return parseLngLat(`${lng},${lat}`);
+})();
+
+// 확대. 안 주면 null 이고, 그때는 아래 gotoExternal 이 스스로 정한다
+// (한 지점이면 EXT_ZOOM_DEFAULT, 코스면 다 들어오는 값).
+const EXT_ZOOM = (() => {
+  const raw = (Q.get('zoom') ?? '').trim();
+  if (!raw) return null;
+  const z = Number(raw);
+  // 지도의 minZoom·maxZoom 밖은 어차피 잘리므로 여기서 맞춰 둔다.
+  return Number.isFinite(z) ? Math.min(20, Math.max(11, z)) : null;
+})();
+
+const map = new MapLibreMap({
+  container: 'map',
+  style: BASEMAP_OFF ? MINIMAL_STYLE_URL : 'https://tiles.openfreemap.org/styles/positron',
+  center: [129.1380, 35.1560],
+  zoom: 13,
+  pitch: 60,
+  // 🔴 눕힐수록 먼 것을 더 그려야 해서 무거워지지만, 수평선이 안 보이면 하늘도 안 보인다.
+  //    "경치" 를 재려면 수평선이 필요하다.
+  maxPitch: 85,
+  minZoom: 11,
+  // 🔴 18 → 20 (S15P21E201-725). 18 은 "위에서 내려다보는 지도" 의 끝이고, 도보는 그 아래에 있다.
+  //    확대 20 이면 화면 1픽셀이 지상 12.2 cm 다 — 사람이 서 있는 크기로 도시를 본다.
+  //    치르는 값: 건물 타일은 확대 16 까지만 굽혀 있어서 그 위로는 늘여 쓴다(오버줌). 윤곽이
+  //    12.2 cm 격자로 굳어 있으므로 확대 20 에서 대각선 벽에 계단 자국이 이론상 화면 2픽셀이다.
+  //    서면에서 확대 20 을 실제로 띄워 봤고 육안으로 거슬리지 않았다 (2026-09-07).
+  //    거슬리기 시작하면 되돌릴 곳은 여기 한 줄이다 — 타일을 다시 굽는 것은 마지막 수단이다.
+  maxZoom: 20,
+  antialias: true,
+});
+map.addControl(new NavigationControl({ visualizePitch: true }), 'bottom-right');
+window.map = map;   // 브라우저 콘솔에서 만져 보려고 열어 둔다
+if (location.search.includes('raw')) document.getElementById('map').classList.add('raw');
+
+// ── 어디서 무엇을 보나 ────────────────────────────────────────────
+// 각도(bearing·pitch)를 손으로 맞추면 반드시 틀린다 — 실제로 처음에 정반대를 봤다.
+// 대신 "카메라는 여기 이 높이에 있고, 저기를 본다" 로 적는다. 각도는 계산이 낸다.
+const VIEWS = {
+  광안대교: { from: [129.1215, 35.1290], alt: 700, to: [129.1420, 35.1570], toAlt: 80 },
+  해운대: { from: [129.1560, 35.1380], alt: 520, to: [129.1600, 35.1650], toAlt: 60 },
+  부산항: { from: [129.0480, 35.0700], alt: 900, to: [129.0700, 35.1150], toAlt: 60 },
+  // 랜드마크를 손본 뒤(S15P21E201-685) 그 자리를 바로 확인하려고 셋을 더 뒀다.
+  남항대교: { from: [129.0200, 35.0680], alt: 600, to: [129.0320, 35.0810], toAlt: 40 },
+  마린시티: { from: [129.1500, 35.1450], alt: 500, to: [129.1440, 35.1570], toAlt: 120 },
+  BIFC: { from: [129.0750, 35.1380], alt: 500, to: [129.0665, 35.1469], toAlt: 120 },
+};
+
+function goto(name) {
+  const v = VIEWS[name];
+  map.jumpTo(map.calculateCameraOptionsFromTo(v.from, v.alt, v.to, v.toAlt));
+  for (const b of document.querySelectorAll('.view')) b.classList.toggle('on', b.dataset.v === name);
+}
+
+// 주소로 받은 좌표를 본다. 받은 것이 없으면 false 를 돌려주고 아무것도 안 한다 —
+// 부르는 쪽이 그때 기본 시점으로 간다.
+//
+// 🔴 위의 VIEWS 와 정하는 방식이 다르다. VIEWS 는 "저 다리를 이 각도에서" 같은 **경치**라
+//    카메라 자리로 적고 각도를 계산에 맡기는 것이 맞다. 여기는 "이 좌표를 보여 달라" 라서
+//    보는 자리와 확대를 **그대로 준다.** 처음에 VIEWS 와 같은 방식으로 만들었더니
+//    확대 15.5 를 부탁했는데 11.4 가 나왔다 (2026-09-08 실측) — 에둘러 정한 값은 어긋난다.
+function gotoExternal() {
+  const pts = EXT_COURSE ?? (EXT_POINT ? [EXT_POINT] : null);
+  if (!pts) return false;
+
+  let west = Infinity, east = -Infinity, south = Infinity, north = -Infinity;
+  for (const [lng, lat] of pts) {
+    west = Math.min(west, lng); east = Math.max(east, lng);
+    south = Math.min(south, lat); north = Math.max(north, lat);
+  }
+  const midLng = (west + east) / 2;
+  const midLat = (south + north) / 2;
+
+  // 기울기 60도는 지도가 처음 켜질 때와 같은 값이다 — 3D 로 보이면서 아래위가 안 눌린다.
+  const zoom = EXT_ZOOM ?? fitZoom(pts, [west, south, east, north], midLat);
+  map.jumpTo({ center: [midLng, midLat], zoom, pitch: 60, bearing: 0 });
+  // 주소로 온 자리는 미리 박아 둔 시점 중 어느 것도 아니다. 눌린 시점 버튼을 푼다.
+  // 🔴 `[data-v]` 를 반드시 붙인다 — 아래 이동수단 버튼도 같은 `view` 클래스를 쓰고 있어서,
+  //    안 붙이면 켜져 있던 이동수단 버튼까지 같이 꺼진다.
+  for (const b of document.querySelectorAll('.view[data-v]')) b.classList.remove('on');
+  return true;
+}
+
+// 받은 점들이 한 화면에 들어오는 확대를 낸다.
+// 확대 z 에서 화면 1픽셀이 덮는 지상 거리는 156543·cos(위도)/2^z 다 — 거기서 z 를 거꾸로 푼다.
+function fitZoom(pts, [west, south, east, north], midLat) {
+  if (pts.length < 2) return EXT_ZOOM_DEFAULT;
+  const spanM = Math.hypot((east - west) * mPerLon(midLat), (north - south) * M_PER_LAT);
+  if (!(spanM > 0)) return EXT_ZOOM_DEFAULT;
+  const canvas = map.getCanvas();
+  // 🔴 화면을 60도 눕혀 놓고 보므로 세로로는 실제보다 멀리까지 보인다. 가로·세로 중
+  //    짧은 쪽의 70% 에 맞추면 눕힌 상태에서도 점들이 화면 안에 남는다.
+  const fitPx = Math.min(canvas.clientWidth || 800, canvas.clientHeight || 500) * 0.7;
+  const z = Math.log2((156543.03392 * Math.cos((midLat * Math.PI) / 180) * fitPx) / spanM);
+  return Math.min(18, Math.max(11, z));
+}
+
+// ── 바탕 지도 색 ──────────────────────────────────────────────────
+const C = getComputedStyle(document.documentElement);
+const SEA = C.getPropertyValue('--sea').trim();
+const LAND = C.getPropertyValue('--land').trim();
+const GREEN = C.getPropertyValue('--green').trim();
+const ROAD = C.getPropertyValue('--road').trim();
+
+const TERRAIN = { source: 'dem', exaggeration: 1.25 };
+const waterLayers = [];
+const landLayers = [];
+const greenLayers = [];
+// 바탕색 레이어. 물 폴리곤과 육지 폴리곤 사이의 틈으로 이 색이 비친다 —
+// 밤에 이것만 흰색으로 남으면 해안선을 따라 흰 띠가 도시를 두른다. 실제로 그랬다.
+const bgLayers = [];
+
+// 🔴 지형을 켜면 2D 지도를 텍스처로 구워서 지형 표면에 씌운다(drape).
+//    구워지는 것은 딱 여섯 종류다: background · fill · line · raster · hillshade · color-relief.
+//    그래서 바다·땅·도로·그림자는 색을 바꿔도 화면이 안 바뀐다. 다시 굽는 기준이 색이 아니라
+//    타일이 새로 왔는지이기 때문이다. 건물·다리는 지형 위에 세우는 진짜 입체라 이 문제가 없다.
+//
+// 🔴 그리고 **한 프레임 그린 뒤에** 버려야 한다. 바꾸자마자 버리면 다시 굽는 시점에 아직
+//    이전 색이라 한 단계 전 색으로 구워진다 — 파랑으로 바꿨는데 직전 노을색이 나오는 식이다.
+//
+// 🔴 releaseAllRTT 는 공개된 이름이 아니다. 라이브러리를 올릴 때 사라질 수 있으므로 없으면
+//    조용히 넘어간다. 그때는 바다 색이 다음에 화면을 움직일 때 따라온다.
+let redrapeTimer = null;
+function redrape() {
+  if (!map.getTerrain()) return;
+  clearTimeout(redrapeTimer);
+  redrapeTimer = setTimeout(() => {
+    map.once('render', () => {
+      map.terrain?.tileManager?.releaseAllRTT?.();
+      map.triggerRepaint();
+    });
+    map.triggerRepaint();
+  }, 160);
+}
+
+function repaintBase() {
+  for (const layer of map.getStyle().layers) {
+    const id = layer.id;
+    try {
+      if (layer.type === 'background') { map.setPaintProperty(id, 'background-color', LAND); bgLayers.push(id); continue; }
+      // 바탕 지도가 가진 건물은 끈다. 건물은 우리 데이터로 세운다.
+      if (/building/i.test(id)) { map.setLayoutProperty(id, 'visibility', 'none'); continue; }
+      if (layer.type === 'fill') {
+        const water = /water|ocean|sea|river|bay|harbou?r/i.test(id);
+        const green = /park|wood|forest|grass|green|landcover|garden|pitch/i.test(id);
+        map.setPaintProperty(id, 'fill-color', water ? SEA : green ? GREEN : LAND);
+        map.setPaintProperty(id, 'fill-outline-color', water ? SEA : LAND);
+        (water ? waterLayers : green ? greenLayers : landLayers).push(id);
+      } else if (layer.type === 'line') {
+        map.setPaintProperty(id, 'line-color', /water|river|stream/i.test(id) ? SEA : ROAD);
+      } else if (layer.type === 'symbol') {
+        map.setPaintProperty(id, 'text-color', '#5d726b');
+        map.setPaintProperty(id, 'text-halo-color', 'rgba(255,255,255,.9)');
+      }
+    } catch { /* 바탕 지도 스타일이 바뀌어도 실험이 멈추지는 않게 한다 */ }
+  }
+}
+
+// ── 색 도구 ───────────────────────────────────────────────────────
+const rgb = (c) => `rgb(${Math.round(c[0])},${Math.round(c[1])},${Math.round(c[2])})`;
+const mix = (a, b, t) => a.map((v, i) => v + (b[i] - v) * t);
+const clamp01 = (x) => Math.max(0, Math.min(1, x));
+
+// 🔴 하늘·바다 색을 **시계가 아니라 해의 고도**로 정한다.
+//    시계로 정하면 계절이나 위치가 바뀌는 순간 거짓말이 된다. 고도로 정하면 저절로 맞는다.
+//    노을이 예쁜 이유는 "저녁 7시라서" 가 아니라 "해가 낮아서" 다.
+const SKY = [
+  //   해의 고도        하늘 위쪽          수평선            안개(먼 지형)      바다
+  { alt: -14, sky: [14, 18, 34], hz: [30, 30, 52], fog: [30, 32, 54], sea: [12, 16, 30] },
+  { alt: -3, sky: [40, 52, 88], hz: [116, 74, 104], fog: [104, 84, 112], sea: [42, 48, 74] },
+  { alt: 3, sky: [84, 108, 164], hz: [255, 146, 92], fog: [244, 194, 160], sea: [186, 138, 124] },
+  { alt: 14, sky: [110, 150, 205], hz: [250, 214, 178], fog: [240, 224, 204], sea: [168, 178, 180] },
+  { alt: 38, sky: [122, 168, 222], hz: [228, 238, 246], fog: [230, 238, 244], sea: [172, 202, 205] },
+  { alt: 70, sky: [126, 178, 229], hz: [233, 243, 249], fog: [227, 237, 243], sea: [173, 205, 205] },
+];
+
+function skyAt(altDeg) {
+  let i = 0;
+  while (i < SKY.length - 2 && SKY[i + 1].alt < altDeg) i++;
+  const a = SKY[i], b = SKY[i + 1];
+  const t = clamp01((altDeg - a.alt) / (b.alt - a.alt));
+  return {
+    sky: rgb(mix(a.sky, b.sky, t)),
+    hz: rgb(mix(a.hz, b.hz, t)),
+    fog: rgb(mix(a.fog, b.fog, t)),
+    sea: rgb(mix(a.sea, b.sea, t)),
+    seaRGB: mix(a.sea, b.sea, t),
+  };
+}
+
+// ── 건물 색 ───────────────────────────────────────────────────────
+// 지금까지는 높이 하나로만 색을 냈다. 그래서 도시 전체가 한 톤이었다.
+// 용도(공동주택·업무시설…)가 이미 데이터에 들어 있으므로 그걸로 결을 나눈다.
+// 실제 도시가 그래서 읽히는 것이다 — 아파트 단지와 오피스 지구는 색이 다르다.
+const APT = ['공동주택', '단독주택'];
+const OFFICE = ['업무시설', '판매시설', '문화및집회시설', '숙박시설'];
+const WORKS = ['공장', '창고시설', '위험물저장및처리시설', '운수시설', '자동차관련시설'];
+// 동네 상가. 법에서 가게·식당·학원·미용실을 담는 분류가 이 둘이다.
+// 서면 표본 24,420동 중 4,504동으로 공동주택(4,978)에 맞먹고, **도보 시점에서 눈에 들어오는 것이
+// 대부분 이것들**이다. 색은 지금까지 '그 밖' 취급을 받았고, 무늬는 25 m 문턱 아래라 하나도 안 걸렸다.
+const SHOP = ['제1종근린생활시설', '제2종근린생활시설'];
+
+// day: 낮 팔레트 / night: 밤 팔레트
+const BUILDING_COLORS = {
+  // 🔴 참고 사진(해운대 노을)에서 읽은 것: 하늘이 밝고 **건물은 중간~어두운 톤**이다.
+  //    처음엔 전부 밝게 칠했더니 하늘과 대비가 없어 스카이라인이 안 읽혔다.
+  //    엘시티·마린시티의 유리는 회색이 아니라 **청록**에 가깝다.
+  day: {
+    low: { apt: '#ece5da', office: '#dfe9ec', works: '#e6e3da', other: '#eeeee9' },
+    mid: { apt: '#cfc5b4', office: '#b4ccd6', works: '#c9c3b3', other: '#d4d7cf' },
+    high: { apt: '#a89c88', office: '#8fb4c4', works: '#ada693', other: '#a9b2a8' },
+    top: '#7d9aa4',
+  },
+  night: {
+    low: { apt: '#2b2c33', office: '#262d36', works: '#2a2a2e', other: '#2a2d31' },
+    mid: { apt: '#33333c', office: '#2b3642', works: '#31302f', other: '#31353a' },
+    high: { apt: '#3d3c44', office: '#33424f', works: '#3a3830', other: '#3a3f45' },
+    top: '#44505a',
+  },
+};
+
+function buildingColor(night) {
+  const P = night ? BUILDING_COLORS.night : BUILDING_COLORS.day;
+  const byUse = (band) => [
+    'match', ['get', 'use'],
+    APT, P[band].apt,
+    OFFICE, P[band].office,
+    WORKS, P[band].works,
+    P[band].other,
+  ];
+  return [
+    'interpolate', ['linear'], ['get', 'h'],
+    0, byUse('low'),
+    35, byUse('mid'),
+    130, byUse('high'),
+    400, P.top,
+  ];
+}
+
+// ── 랜드마크 ──────────────────────────────────────────────────────
+// 랜드마크 아홉 동은 기본 건물 레이어에서 **빼고**, landmarks.geojson 의 층단(위로 갈수록 좁아지는
+// 다층 상자)으로 다시 그린다. 만드는 쪽은 landmarks.mjs 다.
+//
+// 타일에 이름이 없다(속성이 h·a·use·lv 뿐). 그래서 **높이|바닥면적** 조합으로 알아본다 — 부산 안에서
+// 그 조합은 사실상 유일하다. 🔴 이 목록은 landmarks.mjs 가 끝에 찍어 주는 것과 같아야 한다.
+//    처음엔 위치로 고르려고 했다(within). 그런데 within 은 점과 선에만 답하고 **다각형에는 늘 거짓**을 준다.
+//    건물은 다각형이라 그 길은 막혀 있다.
+const LANDMARK_KEYS = ['299.9|2383', '283.9|2365', '267.9|2381', '292.7|2138', '273.5|2129', '206.3|2132', '169.8|1636', '289|328', '43.2|17890'];
+const IS_LANDMARK = ['match', ['concat', ['get', 'h'], '|', ['get', 'a']], LANDMARK_KEYS, true, false];
+const NOT_LANDMARK = ['!', IS_LANDMARK];
+
+// 이웃과 다른 색·재질. 지금까지 랜드마크가 이웃 건물과 같은 색이라 눈에 안 띄었다.
+//   zenith  두산위브더제니스 — 청록빛 유리. 참고 사진에서 마린시티 유리는 회색이 아니라 청록에 가깝다
+//   ipark   해운대아이파크 — 조금 더 푸른 유리
+//   hyatt   파크하얏트 — 갈색 유리
+//   bifc    BIFC — 짙은 남색 유리
+//   cinema  영화의전당 — 은빛 지붕
+//   tower   부산타워 — 흰 콘크리트. 밤엔 조명이 든다
+const LANDMARK_COLORS = {
+  day: { zenith: '#5f93ad', ipark: '#8fb9cc', hyatt: '#8d8676', bifc: '#4f6d86', cinema: '#e6e9ec', tower: '#f0efe9' },
+  night: { zenith: '#3d5266', ipark: '#3a4f60', hyatt: '#4a4538', bifc: '#2f4358', cinema: '#5c6a80', tower: '#8a7a5a' },
+};
+function landmarkColor(night) {
+  const P = night ? LANDMARK_COLORS.night : LANDMARK_COLORS.day;
+  return ['match', ['get', 'lm'], ...Object.entries(P).flat(), '#c9c9c9'];
+}
+
+// ── 다리 색 ───────────────────────────────────────────────────────
+// 종류(kind)마다 다르다. 주탑은 콘크리트라 밝고, 케이블은 강선이라 조금 어둡고,
+// 고가도로(viaduct)는 시내를 가로지르는 회색 콘크리트라 이름난 다리 상판보다 한 톤 어둡다 —
+// 같은 색이면 광안대교와 동네 고가가 구분이 안 된다.
+// 광안대교는 밤에 조명이 들어온다. 부산에서 그건 다리가 아니라 랜드마크다.
+// 사장교 케이블(stay)은 흰 피복이라 현수교 주케이블보다 밝다. 어둡게 하면 작은 토막들이 옆면 그늘까지
+// 더해져 검은 삼각형으로 뭉친다 — 실제로 그랬다.
+function bridgeColor(night) {
+  return night
+    // 교각(pier)은 콘크리트라 상판보다 살짝 어둡고, 행어(hanger)는 강선이라 주케이블과 같은 톤이다.
+    ? ['match', ['get', 'kind'], 'pylon', '#7d6a55', 'cable', '#6b5a48', 'stay', '#8a7a66', 'hanger', '#6b5a48', 'pier', '#6e6252', 'viaduct-pier', '#393735', 'viaduct', '#3f3d3c', '#5f5750']
+    : ['match', ['get', 'kind'], 'pylon', '#eceeeb', 'cable', '#9ba4a1', 'stay', '#e6eae8', 'hanger', '#9ba4a1', 'pier', '#c9ccc7', 'viaduct-pier', '#bcc0bd', 'viaduct', '#cfd3d0', '#dee2df'];
+}
+
+// ── 창문 무늬 ─────────────────────────────────────────────────────
+// 상자를 건물로 보이게 하는 가장 싼 방법. 도형을 하나도 안 늘린다 — 그림 한 장이다.
+//
+// 🔴 아파트와 업무시설은 밤에 켜지는 방식이 완전히 다르다. 하나로 하면 체크무늬가 된다.
+//    아파트 — 한 집이 세로 한 줄을 쓴다. 그래서 **같은 세로줄이 같이 켜진다.**
+//             창이 작고 촘촘하고, 사람이 사니까 절반 넘게 켜져 있다. 불빛이 따뜻하다.
+//    업무시설 — 한 층을 통째로 쓴다. 그래서 **가로 한 줄이 통째로** 켜지거나 꺼진다.
+//             퇴근 뒤라 대부분 꺼져 있고, 형광등이라 불빛이 차갑다.
+//
+// 어느 창이 켜지는지는 고정해 둔다. 안 그러면 시각을 움직일 때마다 온 도시가 깜빡인다.
+const SIZE = 64;
+
+function makeTexture(draw) {
+  const d = new Uint8Array(SIZE * SIZE * 4);
+  const put = (x, y, c) => {
+    const i = (y * SIZE + x) * 4;
+    d[i] = c[0]; d[i + 1] = c[1]; d[i + 2] = c[2]; d[i + 3] = 255;
+  };
+  const rect = (x0, y0, w, h, c) => {
+    for (let y = y0; y < y0 + h; y++) for (let x = x0; x < x0 + w; x++) put(x, y, c);
+  };
+  draw(rect, put);
+  return { width: SIZE, height: SIZE, data: d };
+}
+
+// 늘 같은 순서로 나오는 난수. 새로고침해도 같은 창이 켜져 있어야 한다.
+function seeded(seed) {
+  return () => (seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff;
+}
+
+// 🔴 무늬가 걸리는 가장 낮은 건물 (S15P21E201-726). 밤 창문과 낮 파사드가 **같은 문턱**을 쓴다 —
+//    두 곳에 숫자를 적으면 낮과 밤에 다른 건물이 무늬를 갖게 된다.
+//    전에는 25 m 였고 서면 표본 24,420동 중 19.3% 만 걸렸다. 6 m 는 2층 언저리다.
+const FACADE_MIN_H = 6;
+// 낮에만 켜지는 겹 전부. setHour 가 밤낮을 뒤집을 때 이 목록을 쓴다.
+const DAY_FACADE_LAYERS = ['bld-day-shop', 'bld-day-office', 'bld-day-home', 'bld-day-plain', 'bld-shopfront'];
+// 1층 상가띠의 높이(m). 한 층 높이다 — 건축물대장의 층별 높이는 타일에 없어서 이 한 값을 쓴다.
+const SHOP_FLOOR_M = 4.2;
+
+// 아파트 — 세로 8줄 × 가로 12층. 한 세로줄이 한 집이라 같이 켜진다.
+function windowsHome() {
+  return makeTexture((rect) => {
+    rect(0, 0, SIZE, SIZE, [46, 44, 48]);              // 밤의 외벽
+    const rnd = seeded(7);
+    const cols = 8, rows = 12;
+    const cw = SIZE / cols, ch = SIZE / rows;
+    for (let c = 0; c < cols; c++) {
+      const homeLit = rnd() < 0.62;                     // 이 집에 사람이 있나
+      for (let r = 0; r < rows; r++) {
+        // 같은 집이라도 방마다 조금씩 다르다. 다 켜져 있으면 그것도 가짜다.
+        const on = homeLit && rnd() < 0.78;
+        rect(Math.round(c * cw) + 1, Math.round(r * ch) + 1,
+             Math.max(1, Math.round(cw) - 2), Math.max(1, Math.round(ch) - 2),
+             on ? [255, 226, 168] : [58, 58, 66]);      // 따뜻한 흰색 / 꺼진 창
+      }
+    }
+  });
+}
+
+// 업무시설 — 층이 통째로 켜진다. 대부분 꺼져 있다.
+function windowsOffice() {
+  return makeTexture((rect) => {
+    rect(0, 0, SIZE, SIZE, [34, 38, 46]);
+    const rnd = seeded(23);
+    const rows = 14, cols = 10;
+    const ch = SIZE / rows, cw = SIZE / cols;
+    for (let r = 0; r < rows; r++) {
+      const floorLit = rnd() < 0.22;                    // 이 층에 아직 사람이 있나
+      for (let c = 0; c < cols; c++) {
+        const on = floorLit && rnd() < 0.9;
+        rect(Math.round(c * cw), Math.round(r * ch) + 1,
+             Math.max(1, Math.round(cw) - 1), Math.max(1, Math.round(ch) - 2),
+             on ? [206, 230, 255] : [44, 50, 60]);      // 찬 형광등 / 꺼진 층
+      }
+    }
+  });
+}
+
+// ── 낮 파사드 무늬 (S15P21E201-726) ───────────────────────────────
+// 위의 둘은 **밤에만** 쓴다 — 검은 벽에 켜진 창이라 낮에는 도시가 밤중에 정전된 것처럼 보인다.
+// 낮은 정반대다: **밝은 벽에 어두운 창.** 창이 빛나는 게 아니라 유리가 하늘을 안 비추고 어둡게 보인다.
+//
+// 🔴 이 무늬가 세로로 어디서 시작하는지는 우리가 못 정한다.
+//    벽면 UV 의 세로 자리는 (건물 높이 × 배율)에 **타일마다 다른 값이 더해져서** 정해진다
+//    (MapLibre 세이더 get_pattern_pos). 그래서 "이미지 맨 아랫줄 = 1층" 으로 만들 수 없다 —
+//    타일이 바뀌면 다른 줄이 1층 자리에 온다. **그래서 넷 다 위아래로 고르게** 만든다.
+//    1층만 다르게 하는 것은 무늬 안에서 못 하고, 겹을 따로 세워야 한다 (S15P21E201-728).
+//
+// 🔴 무늬를 켜면 높이별 색이 무늬에 덮여 사라진다. 그래서 이 겹은 **확대 16.5 부터** 서서히
+//    켜진다 (byFadeZoom). 멀리서 보는 화면은 지금처럼 높이 색으로 남고, 도시의 스카이라인이
+//    계속 읽힌다. 가까이 가면 색 대신 층이 읽힌다 — 그 거리에서 필요한 것이 바뀌기 때문이다.
+
+// 🔴 창이 벽보다 넓으면 낮 도시가 어두워진다 — 처음에 그렇게 만들었다가 되돌렸다.
+//    창을 칸의 절반쯤으로 줄이고 톤을 올렸더니 그제야 "볕 든 낮" 으로 읽혔다.
+//    실제 건물도 벽이 창보다 넓다. 창이 벽을 다 덮은 건물은 커튼월 업무동뿐이다.
+//    🔴 지붕에도 같은 그림이 깔린다 (지붕은 타일 좌표를 UV 로 쓴다 — 이건 못 나눈다).
+//       그래서 대비를 낮게 잡는다. 위에서 봤을 때 촘촘한 결로 보이면 되고, 창으로 보이면 안 된다.
+
+// 아파트·단독주택 — 한 집이 세로 한 줄. 창 아래 발코니 난간 줄이 가로로 지나간다.
+function dayHome() {
+  return makeTexture((rect) => {
+    rect(0, 0, SIZE, SIZE, [228, 223, 214]);             // 볕 든 회백 외벽
+    const rnd = seeded(7);                               // 밤 무늬와 같은 씨앗 — 같은 건물이 같은 결을 갖는다
+    const cols = 8, rows = 12;
+    const cw = SIZE / cols, ch = SIZE / rows;
+    for (let r = 0; r < rows; r++) {
+      // 발코니 난간 — 층마다 가로로 한 줄. 이것 하나로 "아파트" 로 읽힌다
+      rect(0, Math.round((r + 1) * ch) - 1, SIZE, 1, [199, 192, 181]);
+      for (let c = 0; c < cols; c++) {
+        const v = Math.round(rnd() * 12);                // 유리마다 반사가 조금씩 다르다
+        rect(Math.round(c * cw) + 2, Math.round(r * ch) + 1,
+             Math.max(1, Math.round(cw) - 4), Math.max(1, Math.round(ch) - 3),
+             [150 + v, 160 + v, 168 + v]);               // 하늘을 못 비추는 유리 = 벽보다 어둡다
+      }
+    }
+  });
+}
+
+// 동네 상가(제1·2종근린생활시설) — 층마다 가로로 긴 창. 기둥이 드물고 유리가 넓다.
+function dayShop() {
+  return makeTexture((rect) => {
+    rect(0, 0, SIZE, SIZE, [214, 207, 196]);
+    const rnd = seeded(41);
+    const rows = 11;                                     // 한 줄 ≈ 한 층
+    const ch = SIZE / rows;
+    for (let r = 0; r < rows; r++) {
+      const y = Math.round(r * ch);
+      const h = Math.max(1, Math.round(ch) - 3);         // 창은 층 높이의 절반쯤
+      const v = Math.round(rnd() * 10);
+      rect(3, y + 1, SIZE - 6, h, [138 + v, 145 + v, 150 + v]);   // 가로로 긴 창
+      // 기둥 둘 — 가게 앞 유리를 나누는 세로 기둥
+      rect(Math.round(SIZE / 3), y + 1, 2, h, [214, 207, 196]);
+      rect(Math.round((SIZE * 2) / 3), y + 1, 2, h, [214, 207, 196]);
+    }
+  });
+}
+
+// 업무시설 — 커튼월. 층 전체가 하나의 가로 띠창이고 얇은 세로 창틀이 지나간다.
+function dayOffice() {
+  return makeTexture((rect) => {
+    rect(0, 0, SIZE, SIZE, [201, 210, 218]);
+    const rows = 14, mullion = 5;                        // 밤 무늬와 같은 14층
+    const ch = SIZE / rows;
+    for (let r = 0; r < rows; r++) {
+      const y = Math.round(r * ch);
+      const h = Math.max(1, Math.round(ch) - 2);
+      rect(0, y, SIZE, h, [132, 148, 163]);              // 띠창
+      for (let x = 0; x < SIZE; x += mullion) rect(x, y, 1, h, [188, 199, 209]);  // 세로 창틀
+      rect(0, y + h, SIZE, Math.max(1, Math.round(ch) - h), [205, 214, 222]);     // 층 사이 벽
+    }
+  });
+}
+
+// 1층 상가띠 (S15P21E201-728) — 동네 상가의 **맨 아래 한 층**에만 따로 얹는 무늬.
+//
+// 🔴 세로로 고르게 만든다. 이 무늬가 덮는 것은 땅에서 4.2 m 까지, 즉 무늬 그림의 아주
+//    얇은 가로 조각 하나다. 그런데 그 조각이 그림의 **어느 높이에서 잘리는지는 우리가
+//    못 정한다** (타일마다 다른 값이 더해진다 — 위 '낮 파사드' 설명). 그래서 위아래가
+//    다른 그림을 넣으면 건물마다 다른 조각이 나온다. 세로로 고르면 어디를 잘라도 같다.
+//
+// 그래서 가로 줄이 아니라 **세로 통유리**로 만든다. 위층은 층마다 가로로 긴 창이고
+// 1층은 바닥부터 천장까지 통유리다 — 실제 상가가 그렇고, 두 무늬가 가로/세로로 갈려서
+// 층 하나만 달라진 것이 눈에 바로 들어온다.
+function shopFront() {
+  return makeTexture((rect) => {
+    rect(0, 0, SIZE, SIZE, [200, 192, 182]);            // 기둥·문틀
+    const rnd = seeded(59);
+    const panes = 9;                                     // 통유리 아홉 짝
+    const pw = SIZE / panes;
+    for (let c = 0; c < panes; c++) {
+      const v = Math.round(rnd() * 16);
+      rect(Math.round(c * pw) + 2, 0, Math.max(1, Math.round(pw) - 3), SIZE,
+           [96 + v, 100 + v, 104 + v]);                  // 안을 들여다보는 유리는 벽보다 훨씬 어둡다
+    }
+  });
+}
+
+// 그 밖의 모든 것 — 용도를 모르는 24.5% 를 포함한다. 성격을 지어내지 않고 중립으로 둔다.
+function dayPlain() {
+  return makeTexture((rect) => {
+    rect(0, 0, SIZE, SIZE, [223, 220, 214]);
+    const rnd = seeded(97);
+    const cols = 10, rows = 12;
+    const cw = SIZE / cols, ch = SIZE / rows;
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const v = Math.round(rnd() * 9);
+        rect(Math.round(c * cw) + 2, Math.round(r * ch) + 1,
+             Math.max(1, Math.round(cw) - 4), Math.max(1, Math.round(ch) - 3),
+             [160 + v, 164 + v, 165 + v]);
+      }
+    }
+  });
+}
+
+// ── 그림자 ────────────────────────────────────────────────────────
+// 건물 발자국을 해 반대쪽으로 밀어 지면에 눕힌다.
+//
+// 왜 볼록 껍질인가 — 상자의 그림자는 "발자국" 과 "밀어낸 발자국" 그리고 그 사이를 잇는
+// 옆면이 만든다. 그 셋의 합집합은 두 발자국을 감싸는 볼록 껍질과 같다(발자국이 볼록할 때).
+// 건물은 대개 네모라서 이 근사가 거의 정확하고, 계산이 아주 싸다.
+//
+// 🔴 한계는 정직하게: 건물이 자기 자신에는 그림자를 못 진다(옆면이 안 어두워진다).
+//    그림자끼리 겹치면 두 번 어두워진다. 진짜 그림자를 원하면 건물을 우리가 직접
+//    그려야 하고, 그건 커스텀 레이어(three.js) 로 가는 길이다.
+const SHADOW_MIN_H = 20;      // 이보다 낮은 건물은 그림자를 안 만든다 (화면에서 안 보인다)
+const SHADOW_MIN_ALT = 6;     // 해가 이보다 낮으면 그림자가 화면 밖까지 뻗어 의미가 없다
+const SHADOW_MAX_M = 600;     // 아무리 길어도 여기서 자른다
+const R_EARTH = 6378137;
+const mPerLon = (lat) => (Math.PI / 180) * R_EARTH * Math.cos((lat * Math.PI) / 180);
+const M_PER_LAT = (Math.PI / 180) * R_EARTH;
+
+// 볼록 껍질 (Andrew monotone chain). 경도·위도 그대로 계산해도 된다 —
+// 껍질은 축을 늘려도 모양이 유지되는 성질(아핀 불변)이 있기 때문이다.
+function convexHull(pts) {
+  if (pts.length < 4) return pts;
+  const p = pts.slice().sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+  const cross = (o, a, b) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+  const lower = [];
+  for (const q of p) {
+    while (lower.length >= 2 && cross(lower[lower.length - 2], lower[lower.length - 1], q) <= 0) lower.pop();
+    lower.push(q);
+  }
+  const upper = [];
+  for (let i = p.length - 1; i >= 0; i--) {
+    const q = p[i];
+    while (upper.length >= 2 && cross(upper[upper.length - 2], upper[upper.length - 1], q) <= 0) upper.pop();
+    upper.push(q);
+  }
+  upper.pop(); lower.pop();
+  return lower.concat(upper);
+}
+
+let shadowTimer = null;
+let lastShadowStat = null;
+
+// 🔴 2026-09-07 에 두 갈래로 나눴다. 전에는 한 함수가 "타일에서 건물을 줍는 일" 과
+//    "해 방향으로 늘여 그림자를 만드는 일" 을 같이 했다. 그래서 해가 1분만 움직여도
+//    **타일을 처음부터 다시 훑어야 했고**, 그 비용 때문에 슬라이더를 끄는 동안에는
+//    그림자를 못 바꿨다 — 손을 떼고 260 ms 뒤에 한 번 바뀌었다.
+//
+//    건물은 해가 움직여도 그대로다. 그래서 건물은 **쌓아 두고**(buildingCache),
+//    해가 움직이면 쌓아 둔 것에서 **그림자만 다시 만든다.** 타일을 다시 훑지 않는다.
+//    쌓아 두는 이유는 예전 주석 그대로다 — 확대하는 동안 타일이 오가는데, 그때마다
+//    처음부터 만들면 아직 안 온 타일의 그림자가 사라져 깜빡인다.
+const buildingCache = new Map();   // key -> { ring, h }
+const BLD_CAP = 6000;              // 넘치면 오래된 것부터 버린다 (Map 은 넣은 순서를 기억한다)
+
+function collectBuildings() {
+  let feats;
+  try { feats = map.querySourceFeatures('bld', { sourceLayer: 'building' }); }
+  catch { return { added: 0, seen: 0 }; }
+  let added = 0;
+  for (const f of feats) {
+    const h = f.properties.h;
+    if (!(h >= SHADOW_MIN_H)) continue;
+    const g = f.geometry;
+    const rings = g.type === 'Polygon' ? [g.coordinates[0]] : g.coordinates.map((c) => c[0]);
+    for (const ring of rings) {
+      if (!ring || ring.length < 4) continue;
+      // 타일 경계에 걸친 건물은 여러 번 온다. 첫 점과 높이로 같은 것을 걸러낸다.
+      const key = ring[0][0].toFixed(5) + ',' + ring[0][1].toFixed(5) + ',' + h;
+      if (buildingCache.has(key)) continue;
+      buildingCache.set(key, { ring, h });
+      added++;
+    }
+  }
+  if (buildingCache.size > BLD_CAP) {
+    const drop = buildingCache.size - BLD_CAP;
+    let i = 0;
+    for (const k of buildingCache.keys()) { if (i++ >= drop) break; buildingCache.delete(k); }
+  }
+  if (added) shadeIndexDirty = true;   // 그늘 판정용 색인도 다시 만들어야 한다
+  return { added, seen: feats.length };
+}
+
+// 지금 화면에 넣어 둔 그림자가 어떤 해·어떤 기준으로 만든 것인가. 같으면 손대지 않는다.
+let projectedKey = '';
+let projectedCount = 0;
+// 끄는 동안 쓰는 최소 건물 높이. 느려지면 스스로 올라간다 (아래 설명).
+let liveMinH = SHADOW_MIN_H;
+const LIVE_BUDGET_MS = 12;   // 한 프레임 16.7 ms 중 그림자에 줄 수 있는 몫
+
+function rebuildShadows(opt = {}) {
+  const live = !!opt.live;
+  const src = map.getSource('shadow');
+  if (!src) return;
+  const t0 = performance.now();
+
+  // 해가 졌거나 너무 낮으면 그림자를 안 그린다. 왜 그런지를 숫자로 남긴다 —
+  // 화면이 비었을 때 "고장" 인지 "일몰 후" 인지 구분이 돼야 한다.
+  if (!currentSun || currentSun.altitude < SHADOW_MIN_ALT) {
+    if (projectedCount !== 0) src.setData({ type: 'FeatureCollection', features: [] });
+    projectedCount = 0;
+    projectedKey = '';
+    window.lastShadowStat = lastShadowStat = {
+      개수: 0,
+      이유: !currentSun ? '아직 계산 전'
+        : currentSun.altitude <= 0 ? '일몰 후 (해가 지평선 아래)'
+        : '해가 낮아 그림자가 화면 밖까지 뻗음 (' + currentSun.altitude.toFixed(1) + '°)',
+    };
+    return;
+  }
+
+  // 끄는 동안에는 타일을 다시 안 훑는다. 그게 이 갈래의 요점이다.
+  const added = live ? 0 : collectBuildings().added;
+  const minH = live ? liveMinH : SHADOW_MIN_H;
+  const sunKey = currentSun.azimuth.toFixed(2) + ',' + currentSun.altitude.toFixed(2) + ',' + minH;
+  if (sunKey === projectedKey && added === 0 && projectedCount > 0) return;
+
+  const dir = ((currentSun.azimuth + 180) * Math.PI) / 180;   // 그림자가 향하는 쪽 = 해의 반대쪽
+  const east = Math.sin(dir);
+  const north = Math.cos(dir);
+  const perM = 1 / Math.tan((currentSun.altitude * Math.PI) / 180);
+
+  const features = [];
+  for (const b of buildingCache.values()) {
+    if (b.h < minH) continue;
+    const ring = b.ring;
+    const L = Math.min(b.h * perM, SHADOW_MAX_M);
+    const lat = ring[0][1];
+    const dLon = (east * L) / mPerLon(lat);
+    const dLat = (north * L) / M_PER_LAT;
+    const pts = new Array(ring.length * 2);
+    for (let i = 0; i < ring.length; i++) {
+      pts[i] = ring[i];
+      pts[i + ring.length] = [ring[i][0] + dLon, ring[i][1] + dLat];
+    }
+    const hull = convexHull(pts);
+    if (hull.length < 3) continue;
+    hull.push(hull[0]);
+    features.push({ type: 'Feature', properties: { sh: b.h }, geometry: { type: 'Polygon', coordinates: [hull] } });
+  }
+
+  src.setData({ type: 'FeatureCollection', features });
+  projectedKey = sunKey;
+  projectedCount = features.length;
+  const ms = performance.now() - t0;
+
+  // 🔴 끄는 동안 예산을 넘으면 **낮은 건물부터 뺀다.** 품질을 낮추는 것이 멈추는 것보다 낫다.
+  //    손을 떼면 곧바로 원래 기준(SHADOW_MIN_H)으로 한 번 더 만들므로 최종 화면은 안 상한다.
+  if (live) {
+    if (ms > LIVE_BUDGET_MS) liveMinH = Math.min(120, liveMinH + 10);
+    else if (ms < LIVE_BUDGET_MS / 2) liveMinH = Math.max(SHADOW_MIN_H, liveMinH - 5);
+  }
+
+  window.lastShadowStat = lastShadowStat = {
+    개수: features.length,
+    쌓은건물: buildingCache.size,
+    새건물: added,
+    걸린ms: +ms.toFixed(1),
+    해고도: +currentSun.altitude.toFixed(1),
+    끄는중: live,
+    최소건물높이: minH,
+  };
+}
+
+
+
+// 🔴 화면이 움직이는 동안에는 그림자 소스를 **아예 안 건드린다.**
+//    소스를 바꾸면 그 도형들을 타일로 다시 만드는데, 지금 9천 개가 넘어서 그 사이가 길다.
+//    그 사이에 확대 단계가 넘어가면 새 단계의 그림자 타일이 아직 없어 화면이 빈다 — 그게 깜빡임이다.
+//    그림자는 위경도로 적혀 있어 확대해도 자리가 안 변하므로, 멈춘 뒤에 채워도 늦지 않다.
+function scheduleShadows(opt = {}) {
+  // 슬라이더를 끄는 중이면 기다리지 않는다. 이미 프레임당 한 번으로 묶여 있다(requestHour).
+  if (opt.live) { rebuildShadows({ live: true }); return; }
+  clearTimeout(shadowTimer);
+  shadowTimer = setTimeout(() => {
+    if (map.isMoving() || map.isZooming() || map.isRotating()) { scheduleShadows(); return; }
+    rebuildShadows();
+  }, 260);
+}
+
+// ── 시각 ──────────────────────────────────────────────────────────
+let currentSun = null;
+
+function setHour(hour, opt = {}) {
+  const h = Math.floor(hour);
+  const m = Math.round((hour - h) * 60);
+  const sun = sunPosition(kst(...DATE, h, m), SITE.lat, SITE.lon);
+  currentSun = sun;
+
+  const night = sun.altitude < -1;
+  const c = skyAt(sun.altitude);
+
+  // 빛 — 해가 낮을수록 따뜻하고 약하다. 이건 지어낸 게 아니라 실제 태양 위치다.
+  const low = clamp01((20 - sun.altitude) / 26);
+  const light = night
+    // 🔴 밤 조명을 푸르게 주면 **창문 무늬까지 파래진다.** 무늬는 조명의 영향을 받는다.
+    //    아파트 창을 따뜻하게 그려 놓고도 화면에서는 파랗게 나왔다. 그래서 거의 흰색으로 둔다.
+    ? { color: 'rgb(238,240,244)', intensity: 0.16 }
+    : { color: rgb(mix([255, 255, 255], [255, 178, 122], low)), intensity: 0.5 - low * 0.14 };
+  try {
+    map.setLight({
+      anchor: 'map',
+      position: [1.4, sun.azimuth, Math.max(2, 90 - sun.altitude)],
+      color: light.color,
+      intensity: light.intensity,
+    });
+  } catch (e) { console.warn('[해] 조명을 못 바꿨습니다', e); }
+
+  try {
+    map.setSky({
+      'sky-color': c.sky,
+      'horizon-color': c.hz,
+      'fog-color': c.fog,
+      'sky-horizon-blend': 0.55,
+      'horizon-fog-blend': 0.4,
+      'fog-ground-blend': 0.06,
+      'atmosphere-blend': 0.9,
+    });
+  } catch (e) { console.warn('[하늘] 못 바꿨습니다', e); }
+
+  // 바다·땅·녹지도 같이. 물은 하늘을 비추는 거울이고, 밤이면 땅도 어두워야 한다.
+  const landC = night ? rgb(mix([243, 245, 241], [26, 28, 36], 0.92)) : LAND;
+  // 밤의 산은 거의 검다. 도시의 불빛이 살아나려면 그 주변이 어두워야 한다.
+  const greenC = night ? rgb(mix([216, 230, 210], [18, 24, 22], 0.93)) : GREEN;
+  // 밤의 길은 회색이 아니다. 가로등(나트륨·LED)이 노면을 주황으로 물들인다.
+  // 이 한 줄이 야경에서 "도시가 살아 있다" 는 느낌의 절반을 만든다.
+  const roadC = night ? '#6b5334' : ROAD;
+  // 해 3° 위면 0(낮), -7° 아래면 1(완전한 밤). 사진 밝기·도로선·바다 톤이 같이 쓴다.
+  const nightT = clamp01((3 - sun.altitude) / 10);
+  // 사진 위에서는 바탕 바다가 **단색 타일을 걷어낸 자리에만** 비친다(항공사진 단계 참고). 옆의 사진 바다(짙은 청록)와
+  // 나란히 서므로 그 톤에 맞추고, 밤엔 사진과 같은 비율로 어둡힌다. 하늘 쪽 바다색은 5% 만 섞는다 — 노을이 살짝 비치는 정도.
+  // [34,78,80] 은 광안대교 시점 캡처의 사진 바다 픽셀을 읽어 정한 중간값이다 — 만 가운데는 [24,71,70], 먼 바다 쪽은 [50,89,88].
+  // 🔴 눈으로 고르지 않았다. 처음엔 화면의 띠가 남색인 줄 알고 세 번 고쳤는데, 픽셀을 읽어 보니 이미 청록이었고 밝기만 달랐다.
+  const seaC = map.getLayer('aerial')
+    ? rgb(mix([34, 78, 80].map((v) => v * (1 - 0.74 * nightT)), c.seaRGB, 0.05))
+    : c.sea;
+  paint(waterLayers, 'fill-color', seaC);
+  paint(waterLayers, 'fill-outline-color', seaC);
+  paint(bgLayers, 'background-color', landC);
+  paint(landLayers, 'fill-color', landC);
+  paint(landLayers, 'fill-outline-color', landC);
+  paint(greenLayers, 'fill-color', greenC);
+  paint(greenLayers, 'fill-outline-color', greenC);
+  // 사진 위에서는 도로선이 해 고도를 따라간다 (auto — 위 ROADS_DEFAULT 설명). 사진이 없으면 손대지 않는다.
+  //
+  // 🔴 여기에 확대를 하나 더 얹는다 (S15P21E201-725). 낮에 도로선을 끈 이유는 **길이 사진에 이미
+  //    찍혀 있어서** 였다. 확대 18 부터는 그 사진이 없다 — 그대로 두면 낮 도보 화면의 땅이
+  //    아무 자국 없는 흰 바닥이 되고, 건물만 공중에 뜬 것처럼 보인다.
+  //    그래서 사진이 사라지는 만큼 도로선이 자리를 넘겨받는다: 확대 16.5 까지는 지금 그대로(nightT),
+  //    18 에서는 완전히 켜진다. 밤에는 nightT 가 이미 1 이라 아무것도 안 바뀐다.
+  const roadOpacity = map.getLayer('aerial') && ROADS === 'auto' ? byFadeZoom(nightT, 1) : null;
+  for (const l of map.getStyle().layers) {
+    if (l.type === 'line' && !/water|river|stream/i.test(l.id)) {
+      try {
+        map.setPaintProperty(l.id, 'line-color', roadC);
+        if (roadOpacity !== null) map.setPaintProperty(l.id, 'line-opacity', roadOpacity);
+      } catch {}
+    }
+  }
+
+  // 항공사진은 낮에 찍은 것이라 밤에도 환하다. 해가 지면 어둡게 하고 색을 뺀다 — 그래야 창문 불빛이 산다.
+  // raster 도 지형에 구워 붙는 종류라 바꾼 뒤 다시 구워야 한다(아래 redrape 가 한다).
+  if (map.getLayer('aerial')) {
+    map.setPaintProperty('aerial', 'raster-brightness-max', 1 - 0.74 * nightT);
+    map.setPaintProperty('aerial', 'raster-saturation', -0.6 * nightT);
+  }
+
+  if (map.getLayer('bld-3d')) {
+    map.setPaintProperty('bld-3d', 'fill-extrusion-color', buildingColor(night));
+    for (const id of ['bld-win-home', 'bld-win-office']) {
+      map.setLayoutProperty(id, 'visibility', night ? 'visible' : 'none');
+    }
+    // 낮 파사드는 정반대로 켜진다 (S15P21E201-726). 밤 창문과 같은 벽에 두 무늬가 겹치면
+    // 어느 쪽도 안 읽히므로 **둘 중 하나만** 선다. 확대에 따른 서서히 켜기는 paint 쪽이 맡는다.
+    for (const id of DAY_FACADE_LAYERS) {
+      if (map.getLayer(id)) map.setLayoutProperty(id, 'visibility', night ? 'none' : 'visible');
+    }
+  }
+  if (map.getLayer('bridge-3d')) map.setPaintProperty('bridge-3d', 'fill-extrusion-color', bridgeColor(night));
+  if (map.getLayer('landmark-3d')) {
+    map.setPaintProperty('landmark-3d', 'fill-extrusion-color', landmarkColor(night));
+    for (const id of ['landmark-win-home', 'landmark-win-office']) {
+      map.setLayoutProperty(id, 'visibility', night ? 'visible' : 'none');
+    }
+  }
+  if (map.getLayer('shadow')) {
+    // 해가 낮을수록 그림자가 옅고 길어진다 — 빛이 비스듬히 들어와 산란되기 때문이다.
+    // 🔴 0.20 으로 시작했더니 화면에서 안 보였다. 밝은 땅색 위에 20% 는 없는 것과 같다.
+    //    빨갛게 칠해 보고서야 그림자가 제대로 있다는 걸 확인했다.
+    map.setPaintProperty('shadow', 'fill-extrusion-opacity', 0.42 - low * 0.14);
+  }
+
+  // 분이 60 으로 반올림되면 시를 올린다. 안 하면 "오후 3:60" 이 나온다.
+  let hh = h, mm = m;
+  if (mm >= 60) { mm -= 60; hh += 1; }
+  const label = `${hh < 12 ? '오전' : hh === 12 ? '낮' : '오후'} ${hh <= 12 ? hh : hh - 12}:${String(mm).padStart(2, '0')}`;
+  // 🔴 해가 졌으면 그렇다고 적는다. 전에는 '해 짐' 한 마디였는데, 그림자가 없는 이유가
+  //    "해가 졌다" 인지 "고장" 인지 화면에서 갈리지 않았다.
+  const state = sun.altitude <= 0
+    ? '일몰 후 · 그림자 없음'
+    : sun.altitude < SHADOW_MIN_ALT
+      ? `해 ${sun.altitude.toFixed(1)}° · 너무 낮아 그림자 없음`
+      : `해 ${Math.round(sun.altitude)}°`;
+  document.getElementById('t-label').textContent = label + ' · ' + state;
+
+  scheduleShadows({ live: opt.live });
+  redrape();
+  drawBand();
+  // 슬라이더에 묶어 둔 경우(actors=clock)에는 표식도 시각을 따라 움직여야 한다.
+  if (ACTORS_ON_CLOCK) drawActors();
+}
+
+// 'rgb(1,2,3)' 문자열에서 숫자 셋을 도로 꺼낸다.
+function skyRGB(str) {
+  const m = str.match(/(\d+)\D+(\d+)\D+(\d+)/);
+  return m ? [+m[1], +m[2], +m[3]] : [200, 210, 220];
+}
+
+function paint(ids, prop, value) {
+  for (const id of ids) {
+    try { map.setPaintProperty(id, prop, value); } catch {}
+  }
+}
+
+// ── 지도 구성 ─────────────────────────────────────────────────────
+// 🔴 준비 단계를 하나씩 따로 감싼다.
+//    전에는 한 덩어리였다. 그래서 중간의 한 줄이 실패하면 **그 뒤의 건물·다리·그림자가
+//    통째로 안 만들어졌다.** 폰에서 실제로 그렇게 됐다 — 지도만 남고 건물이 사라졌다.
+//    하나가 깨져도 나머지는 살아야 하고, 무엇이 깨졌는지는 화면에 보여야 한다.
+const NL = String.fromCharCode(10);
+const ERR_HEAD = '이 부분이 실패했습니다 (나머지는 그대로 돕니다)' + NL;
+const failures = [];
+function step(name, fn) {
+  try { fn(); } catch (e) {
+    failures.push(name + ': ' + (e && e.message ? e.message : e));
+    console.error('[' + name + ']', e);
+    const el = document.getElementById('err');
+    el.hidden = false;
+    el.textContent = ERR_HEAD + failures.join(NL);
+  }
+}
+
+// 🔴 지도 준비를 **'load' 사건 하나에 걸지 않는다.**
+//    2026-09-07 실측: 이 MapLibre 판은 스타일이 다 왔는데도(isStyleLoaded() === true,
+//    areTilesLoaded() === true, WebGL 정상) 'load' 를 **한 번도 안 낸다.**
+//    그러면 아래 준비가 통째로 안 돌아 건물·다리·그림자가 하나도 안 생긴다 —
+//    화면은 바탕색만 남고, 오류도 안 뜨니 무엇이 잘못됐는지 알 방법이 없다.
+//    그래서 'load' 든 'styledata' 든 **먼저 오는 것으로 시작하고**, 자물쇠로 두 번 들어가는 것을 막는다.
+let mapBuilt = false;
+function buildEverything() {
+  if (mapBuilt) return;
+  mapBuilt = true;
+  step('바탕 지도 색', repaintBase);
+
+  // 항공사진 — 바탕 지도의 땅·바다·공원 **위**, 도로선·글자·건물 **아래**에 끼운다.
+  // 지형이 켜져 있으면 raster 는 지형 표면에 구워 붙는다(drape). 그게 우리가 원하는 것이다 — 사진이 산을 덮는다.
+  // 건물·다리·그림자는 지형 위에 세우는 진짜 입체라 사진 위에 선다.
+  step('항공사진', () => {
+    const credit = document.getElementById('credit');
+    if (!HAS_KEY) {
+      credit.insertAdjacentHTML('afterbegin', '항공사진 꺼짐 — config.local.js 에 키가 없다 (config.example.js 참고)<br />');
+      return;
+    }
+    if (!PHOTO) { credit.insertAdjacentHTML('afterbegin', '항공사진 꺼짐 (?photo=off)<br />'); return; }
+
+    // 🔴 브이월드는 정사영상이 없는 먼 바다를 **단색 타일**로 채운다. 실측(2026-09-07): 앞바다 타일은 8~18 KB 인데
+    //    먼 바다는 z11 부터 0.9 KB 다. 그 타일이 사진 바다 한가운데 남색 사각형으로 선다 — 각진 경계가 그대로 보인다.
+    //    그래서 타일을 받을 때 가로채서(addProtocol — 주소가 vworld:// 로 시작하면 이 함수가 대신 받는다) 너무 작으면
+    //    단색으로 보고 투명 한 점짜리 PNG 로 바꿔 준다. 그 자리에는 바탕 지도의 바다색이 비친다 (setHour 가 사진 톤에 맞춘다).
+    const FLAT_TILE_BYTES = 2500;
+    let emptyPng = null;
+    addProtocol('vworld', async (params, abort) => {
+      const r = await fetch(params.url.replace(/^vworld:\/\//, 'https://'), { signal: abort.signal });
+      // 🔴 키가 틀리면 404 가 아니라 **200 에 XML 오류 보고서(448 바이트)** 가 온다. 크기만 보면 단색 타일과 구분이 안 돼
+      //    투명으로 삼켜 버린다 — 그러면 아래 '못 받고 있다' 안내가 영영 안 뜬다. 그래서 이미지가 아니면 실패로 던진다.
+      const type = r.headers.get('content-type') || '';
+      if (!r.ok || !type.startsWith('image/')) throw new Error('브이월드 ' + r.status + ' ' + type);
+      const data = await r.arrayBuffer();
+      if (data.byteLength >= FLAT_TILE_BYTES) return { data: data.byteLength < MIXED_TILE_BYTES ? await stripNavy(data) : data };
+      if (!emptyPng) {
+        const cv = document.createElement('canvas'); cv.width = cv.height = 1;
+        emptyPng = await (await fetch(cv.toDataURL('image/png'))).arrayBuffer();
+      }
+      return { data: emptyPng };
+    });
+    // 정사영상 **경계가 타일을 가로지르면** 절반이 사진·절반이 남색이라 크기로는 못 거른다. 그 남색은 단색이라
+    // ([59,80,111] 근처 — 2026-09-07 타일을 풀어 읽음) 픽셀 단위로 걷어낸다. 사진 바다는 청록([40,80,80] 근처)이라
+    // 파랑이 30 넘게 낮아 겹치지 않는다. 12 KB 미만 타일만 풀어 본다 — 사진으로 꽉 찬 타일은 대개 그보다 크다.
+    // 남색이 한 점도 없으면 원본 JPEG 를 그대로 돌려준다 (다시 압축하지 않는다).
+    const MIXED_TILE_BYTES = 12000;
+    const NAVY = [60, 80, 112], NAVY_TOL = 12;
+    async function stripNavy(data) {
+      const bmp = await createImageBitmap(new Blob([data]));
+      const cv = document.createElement('canvas'); cv.width = bmp.width; cv.height = bmp.height;
+      const g = cv.getContext('2d'); g.drawImage(bmp, 0, 0);
+      const img = g.getImageData(0, 0, cv.width, cv.height); const d = img.data;
+      let hit = 0;
+      for (let i = 0; i < d.length; i += 4) {
+        if (Math.abs(d[i] - NAVY[0]) <= NAVY_TOL && Math.abs(d[i + 1] - NAVY[1]) <= NAVY_TOL && Math.abs(d[i + 2] - NAVY[2]) <= NAVY_TOL) {
+          d[i + 3] = 0; hit++;
+        }
+      }
+      if (!hit) return data;
+      g.putImageData(img, 0, 0);
+      const blob = await new Promise((res) => cv.toBlob(res, 'image/png'));
+      return await blob.arrayBuffer();
+    }
+    map.addSource('aerial', {
+      type: 'raster',
+      tiles: [`vworld://api.vworld.kr/req/wmts/1.0.0/${AERIAL_KEY}/Satellite/{z}/{y}/{x}.jpeg`],
+      tileSize: 256,
+      // 부산 정사영상은 19 단계까지 있다(20 은 빈 타일). 256 타일이라 화면 확대 z 에서 z+1 단계를 받는다.
+      // 상한(AERIAL_MAXZOOM) 위로는 그 단계 타일을 늘여서 쓴다 — 받는 양을 줄이는 손잡이다.
+      // 🔴 아래 11 은 절약이 아니라 **바다 색** 때문이다. 10 단계는 정사영상이 아니라 세계 위성 모자이크(5.9 KB, 바다가 남색)라
+      //    크기로 못 거르고, 지평선 먼 바다에 남색 사각형으로 섰다. 시점 셋에서 10 단계 타일은 1장뿐이라 그냥 안 받는다 —
+      //    그 자리엔 바탕 지도의 바다색이 비친다 (단색 타일을 걷어낸 자리와 같은 색).
+      minzoom: 11,
+      maxzoom: AERIAL_MAXZOOM,
+      attribution: '항공사진: 브이월드(국토교통부)',
+    });
+    // 'waterway'(강 선) 가 바탕 지도에서 **첫 선 레이어**다. 그 앞에 넣으면 모든 면(땅·바다·공원) 위, 모든 선·글자 아래가 된다.
+    map.addLayer({
+      id: 'aerial',
+      type: 'raster',
+      source: 'aerial',
+      // 🔴 확대 16.5 부터 서서히 지우고 18 에서 없앤다 (S15P21E201-725 — 위 AERIAL_FADE_START 설명).
+      //    밤 처리(setHour)는 밝기와 채도만 건드리므로 이 식과 부딪히지 않는다.
+      paint: { 'raster-opacity': byFadeZoom(1, 0), 'raster-fade-duration': 0 },
+    }, map.getLayer('waterway') ? 'waterway' : undefined);
+    credit.insertAdjacentHTML('afterbegin', '항공사진: 브이월드(국토교통부)<br />');
+
+    // 사진 위의 벡터 도로선. 흰 선이 사진 위에 그대로 있으면 지도 두 장을 겹친 것처럼 보인다.
+    for (const l of map.getStyle().layers) {
+      if (l.type !== 'line' || l.id === 'aerial') continue;
+      try {
+        if (ROADS === 'off') map.setLayoutProperty(l.id, 'visibility', 'none');
+        else if (ROADS === 'dim') map.setPaintProperty(l.id, 'line-opacity', 0.3);
+      } catch {}
+    }
+    if (LABELS === 'off') {
+      for (const l of map.getStyle().layers) {
+        if (l.type === 'symbol') { try { map.setLayoutProperty(l.id, 'visibility', 'none'); } catch {} }
+      }
+    }
+    // 바다. 사진에는 바다도 찍혀 있다. 바탕 지도의 바다색을 사진 위로 올리면 시각에 따라 바다색이 바뀌는 건 살지만
+    // 해안선이 두 자료(OSM 물 폴리곤 · 사진) 사이에서 어긋난다.
+    if (SEA_MODE === 'paint' || SEA_MODE === 'blend') {
+      for (const id of waterLayers) {
+        try {
+          map.moveLayer(id, 'waterway');
+          if (SEA_MODE === 'blend') map.setPaintProperty(id, 'fill-opacity', 0.55);
+        } catch {}
+      }
+    }
+  });
+
+  step('창문 그림', () => {
+    map.addImage('win-home', windowsHome());
+    map.addImage('win-office', windowsOffice());
+    map.addImage('day-home', dayHome());
+    map.addImage('day-shop', dayShop());
+    map.addImage('day-office', dayOffice());
+    map.addImage('day-plain', dayPlain());
+    map.addImage('shopfront', shopFront());
+  });
+
+  // 지형 — 그늘 계산하려고 받아 둔 땅 높이 타일이 그대로 쓰인다.
+  // terrarium = 픽셀의 R·G·B 값 안에 높이(m)를 적어 두는 방식.
+  step('지형', () => {
+  map.addSource('dem', {
+    type: 'raster-dem',
+    tiles: [DATA + '/dem/{z}/{x}_{y}.png'],
+    tileSize: 256,
+    encoding: 'terrarium',
+    minzoom: 11,
+    maxzoom: 15,
+  });
+  // 주소에 ?flat 을 붙이면 지형 없이 평평하게 본다 (지형이 얼마나 무거운지 재려고 남겨 둔다).
+  if (!location.search.includes('flat')) map.setTerrain(TERRAIN);
+  });
+
+  // 그림자 — 건물보다 먼저 그려야 건물이 그림자를 덮는다.
+  step('그림자', () => {
+  map.addSource('shadow', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
+  // 🔴 그림자를 `fill` 로 만들면 안 된다 — 위에 적은 규칙 그대로다.
+  //    fill 은 지형 위에 구워 붙는데, 그 과정에서 반투명이 제대로 안 섞인다.
+  //    빨강 100% 는 보이는데 55% 는 아예 안 보였다. 그래서 건물·다리와 같은
+  //    진짜 입체(fill-extrusion)로 만든다. 색과 진하기가 즉시 반영되고, 다시 구울 필요도 없다.
+  //
+  //    높이를 건물 높이에 따라 아주 조금씩 다르게 준다(0.4 ~ 2 m). 전부 같은 높이면
+  //    겹친 그림자끼리 앞뒤를 못 정해서 화면이 지글거린다.
+  map.addLayer({
+    id: 'shadow',
+    type: 'fill-extrusion',
+    source: 'shadow',
+    paint: {
+      'fill-extrusion-color': '#2f3f4c',
+      'fill-extrusion-opacity': 0.42,
+      'fill-extrusion-base': 0,
+      'fill-extrusion-height': ['+', 0.4, ['*', ['get', 'sh'], 0.004]],
+      'fill-extrusion-vertical-gradient': false,
+    },
+  });
+  });
+
+  // ── 횡단보도 (S15P21E201-727) ───────────────────────────────────
+  // 도보 시점에서 길이 "걸어다니는 곳" 으로 읽히려면 바닥에 사람이 아는 표시가 있어야 한다.
+  // 확대 18 부터는 항공사진을 걷어내므로(725) 사진에 찍혀 있던 흰 줄무늬도 같이 사라진다.
+  // 그 자리를 우리가 그린다. 줄무늬 도형은 crossings.mjs 가 OSM 에서 미리 만들어 둔다.
+  //
+  // 🔴 그림자 **앞**에 끼운다. 지형을 켜면 fill 은 땅 표면에 구워 붙어서(drape) 순서가
+  //    덜 중요하지만, ?flat 으로 지형을 끄면 순서대로 그려진다 — 뒤에 두면 건물을 덮는다.
+  step('횡단보도', () => {
+    map.addSource('crossing', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
+    map.addLayer({
+      id: 'crossing',
+      type: 'fill',
+      source: 'crossing',
+      // 🔴 확대 17 아래에서는 줄 하나가 화면 0.5픽셀도 안 된다. 그리면 횡단보도가 아니라
+      //    지저분한 점 무리가 된다. 그리고 그 확대에서는 아직 항공사진에 진짜 줄무늬가 찍혀 있다.
+      minzoom: 17,
+      paint: {
+        'fill-color': '#ffffff',
+        // 🔴 반투명을 안 쓴다. 지형에 구워 붙는 fill 은 반투명이 제대로 안 섞인다 —
+        //    이 저장소에서 그림자를 fill 로 만들었다가 55% 가 아예 안 보여서 겪은 일이다.
+        //
+        // 🔴 테두리가 있어야 보인다. 바탕 지도(positron)의 도로가 **흰색**이라 흰 줄무늬를
+        //    그대로 얹으면 흰 위에 흰이라 아무것도 안 보인다. 실제 도색과 아스팔트의 경계를
+        //    이 한 줄이 대신한다. 밤에는 길이 어두워져서 테두리 없이도 보이지만, 낮에 맞춘다.
+        'fill-outline-color': '#7f868b',
+      },
+    }, map.getLayer('shadow') ? 'shadow' : undefined);
+
+    // 🔴 첫 화면에서는 안 받는다. 1.5 MB 라서, 확대 13 에서 도시를 볼 때 이걸 같이 받으면
+    //    **건물 타일이 뒤로 밀린다.** 이 저장소는 그 함정을 이미 한 번 밟았다 (다리 파일을
+    //    두 번 받아서 확대 13 에서 건물이 14초 동안 한 동도 안 들어왔다).
+    //    확대 16 을 처음 넘을 때 받는다 — 그때부터 한 화면이 덮는 땅이 8 km² 아래다.
+    let crossingAsked = false;
+    const askCrossings = () => {
+      if (crossingAsked || map.getZoom() < 16) return;
+      crossingAsked = true;
+      fetch(basePath() + '/crossings.geojson')
+        .then((r) => r.json())
+        .then((j) => map.getSource('crossing')?.setData(j))
+        .catch((e) => console.error('[횡단보도] 데이터를 못 받았다', e));
+    };
+    map.on('zoomend', askCrossings);
+    askCrossings();
+  });
+
+  // 🔴 건물이 가장 중요하다. 그래서 가장 먼저, 그리고 따로 만든다.
+  //    전에는 파도 만들기가 이보다 앞에 있었고, 거기서 오류가 나자 건물이 통째로 사라졌다.
+  step('건물', () => {
+  map.addSource('bld', {
+    type: 'vector',
+    tiles: [DATA + '/tiles-busan/{z}/{x}/{y}.pbf'],
+    minzoom: 12,
+    maxzoom: 16,
+  });
+  map.addLayer({
+    id: 'bld-3d',
+    type: 'fill-extrusion',
+    source: 'bld',
+    'source-layer': 'building',
+    minzoom: 12,
+    // 랜드마크는 여기서 빼고 아래 '랜드마크' 단계가 층단으로 그린다. 둘 다 그리면 같은 자리에서 겹쳐 지글거린다
+    filter: ['all', ['>', ['get', 'h'], 0], NOT_LANDMARK],
+    paint: {
+      'fill-extrusion-color': buildingColor(false),
+      'fill-extrusion-height': ['get', 'h'],
+      'fill-extrusion-base': 0,
+      'fill-extrusion-opacity': 1,
+      'fill-extrusion-vertical-gradient': true,
+      // 🔴 모서리 둥글리기(fill-extrusion-rounded-corner-distance)는 여기 못 넣는다.
+      //    타입 정의 파일에는 있지만 실제로 화면을 그리는 라이브러리가 거부한다 —
+      //    설치된 타입 정의가 그리는 쪽보다 새 버전이라서 생긴 어긋남이다.
+      //    넣으면 레이어 추가 자체가 실패해서 건물이 통째로 안 나온다.
+    },
+  });
+  });
+
+  // 밤에만 켜지는 창문 겹. 낮에는 숨긴다 —
+  // 무늬를 쓰면 높이별 색이 사라져서 스카이라인이 안 읽히기 때문이다.
+  // 용도에 따라 두 겹으로 나눈다. 켜지는 방식이 다르기 때문이다 (위 설명 참고).
+  //
+  // 🔴 문턱 25 m → 6 m (S15P21E201-726). 25 m 는 서면 표본 24,420동 중 **19.3%** 만 걸렀다.
+  //    나머지 80.7% 는 민무늬 상자로 남았고, **도보에서 바로 옆에 서 있는 건물이 대부분 거기**다.
+  //    6 m 는 2층 언저리다 — 그 아래는 창고·컨테이너·가건물이라 창이 없는 편이 맞다.
+  step('야경 창문', () => {
+  for (const [id, img, useList, isOffice] of [
+    ['bld-win-home', 'win-home', APT, false],
+    ['bld-win-office', 'win-office', OFFICE, true],
+  ]) {
+    map.addLayer({
+      id,
+      type: 'fill-extrusion',
+      source: 'bld',
+      'source-layer': 'building',
+      minzoom: 13,
+      filter: isOffice
+        ? ['all', ['>', ['get', 'h'], FACADE_MIN_H], ['match', ['get', 'use'], useList, true, false], NOT_LANDMARK]
+        : ['all', ['>', ['get', 'h'], FACADE_MIN_H], ['match', ['get', 'use'], OFFICE, false, true], NOT_LANDMARK],
+      layout: { visibility: 'none' },
+      paint: {
+        'fill-extrusion-pattern': img,
+        'fill-extrusion-height': ['get', 'h'],
+        'fill-extrusion-base': 0,
+        'fill-extrusion-opacity': 1,
+      },
+    });
+  }
+  });
+
+  // ── 낮 파사드 (S15P21E201-726) ──────────────────────────────────
+  // 야경 창문과 같은 자리에 서지만 **켜지는 때가 정반대**다. 낮에 켜고 밤에 끈다 (setHour).
+  //
+  // 용도로 넷을 가른다. 넷의 조건은 서로 안 겹친다 — 상가를 먼저 집어내고, 업무, 주거,
+  // 나머지 전부가 중립이다. 겹치면 같은 벽에 두 무늬가 겹쳐 지글거린다.
+  //
+  // 🔴 확대에 붙여 서서히 켠다. 무늬가 높이별 색을 덮기 때문이다 —
+  //    멀리서는 색으로 스카이라인을 읽고, 가까이서는 무늬로 층을 읽는다.
+  //    켜지는 구간이 사진이 꺼지는 구간과 **같다**. 사진이 나가고 파사드가 들어온다.
+  step('낮 파사드', () => {
+  const DAY_FACADE = {
+    'bld-day-shop': ['day-shop', ['match', ['get', 'use'], SHOP, true, false]],
+    'bld-day-office': ['day-office', ['match', ['get', 'use'], OFFICE, true, false]],
+    'bld-day-home': ['day-home', ['match', ['get', 'use'], APT, true, false]],
+    'bld-day-plain': ['day-plain', ['match', ['get', 'use'], [...SHOP, ...OFFICE, ...APT], false, true]],
+  };
+  for (const id of Object.keys(DAY_FACADE)) {
+    const [img, useFilter] = DAY_FACADE[id];
+    map.addLayer({
+      id,
+      type: 'fill-extrusion',
+      source: 'bld',
+      'source-layer': 'building',
+      minzoom: AERIAL_FADE_START,
+      filter: ['all', ['>', ['get', 'h'], FACADE_MIN_H], useFilter, NOT_LANDMARK],
+      layout: { visibility: 'none' },
+      paint: {
+        'fill-extrusion-pattern': img,
+        'fill-extrusion-height': ['get', 'h'],
+        'fill-extrusion-base': 0,
+        // 아래 bld-3d 가 같은 모양을 단색으로 이미 그려 놨다. 그래서 반투명 구간에도
+        // 뒤가 비치지 않고 **색에서 무늬로 건너간다.**
+        'fill-extrusion-opacity': byFadeZoom(0, 1),
+      },
+    });
+  }
+  });
+
+  // ── 1층 상가띠 (S15P21E201-728) ─────────────────────────────────
+  // 도보 시점에서 눈에 들어오는 건물은 대부분 낮은 동네 상가다. 그리고 상가는 1층과 위층이
+  // 전혀 다르게 생겼다 — 1층은 통유리·출입구, 위층은 창문. 무늬 하나를 통째로 바르면
+  // 그 차이가 사라지고, 3층짜리 가게가 3층짜리 사무실과 똑같아 보인다.
+  //
+  // 🔴 **티켓의 설계안(`['step', ['get','lv'], …]` 으로 층수별 무늬 고르기)은 쓰지 않았다.**
+  //    직접 해 봤고 **되기는 된다** — MapLibre 는 fill-extrusion-pattern 에 데이터 기반 식을
+  //    받아 주고, 층수에 따라 건물마다 다른 그림이 실제로 걸렸다 (2026-09-07 실측).
+  //    그런데 그것은 **건물 한 동에 그림 하나**를 고르는 것이지 1층과 위층을 가르지 못한다.
+  //    그림 한 장은 벽을 위아래로 되풀이하며 덮고, 어느 높이에서 시작할지도 우리가 못 정한다.
+  //    "1층만 다르게" 는 무늬 안에서 되는 일이 아니라 **겹을 하나 더 세워야 하는 일**이다.
+  //
+  // 그래서 같은 발자국 위에 땅에서 4.2 m 까지만 올라오는 겹을 하나 더 세운다.
+  // 위층 무늬는 가로줄, 1층 무늬는 세로 통유리라 층 하나만 달라진 것이 바로 읽힌다.
+  step('1층 상가띠', () => {
+    map.addLayer({
+      id: 'bld-shopfront',
+      type: 'fill-extrusion',
+      source: 'bld',
+      'source-layer': 'building',
+      minzoom: AERIAL_FADE_START,
+      filter: ['all', ['>', ['get', 'h'], FACADE_MIN_H], ['match', ['get', 'use'], SHOP, true, false], NOT_LANDMARK],
+      layout: { visibility: 'none' },
+      paint: {
+        'fill-extrusion-pattern': 'shopfront',
+        'fill-extrusion-base': 0,
+        // 지금 조건(h > 6 m)에서는 늘 4.2 지만, 문턱을 더 내리는 날 4 m 짜리 건물 지붕 위로
+        // 띠가 삐져나오지 않게 막아 둔다.
+        'fill-extrusion-height': ['min', SHOP_FLOOR_M, ['get', 'h']],
+        'fill-extrusion-opacity': byFadeZoom(0, 1),
+      },
+    });
+  });
+
+  // 다리 — 건물 데이터에는 교량이 한 동도 없다. 그건 건축물대장이기 때문이다.
+  step('다리', () => {
+  // 🔴 주소를 그대로 주면 이 파일을 **두 번 받는다.** 지도가 한 번, 이동수단 경로가 한 번.
+  //    1.4 MB 짜리라 그냥 두면 첫 화면에서 2.8 MB 를 쓰고, 그동안 워커가 이 파일을 두 번
+  //    타일로 쪼개느라 **건물 타일 처리가 뒤로 밀린다** (실측: 확대 13 에서 건물이 14초 동안
+  //    한 동도 안 들어왔다). 그래서 받는 곳을 하나로 묶고 그 결과를 둘이 나눠 쓴다.
+  map.addSource('bridge', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
+  map.addLayer({
+    id: 'bridge-3d',
+    type: 'fill-extrusion',
+    source: 'bridge',
+    paint: {
+      'fill-extrusion-color': bridgeColor(false),
+      'fill-extrusion-base': ['get', 'hb'],
+      'fill-extrusion-height': ['get', 'h'],
+      'fill-extrusion-opacity': 1,
+      'fill-extrusion-vertical-gradient': true,
+    },
+  });
+  loadBridgeGeo()
+    .then((j) => { map.getSource('bridge')?.setData(j); })
+    .catch((e) => console.error('[다리] 데이터를 못 받았다', e));
+  });
+
+  // 랜드마크 — 층단 있는 다층 상자 (landmarks.mjs 가 만든다). 기본 건물 레이어에서 뺀 아홉 동이 여기서 다시 선다.
+  // 부산타워는 건물 데이터에 없어서 여기서 처음 선다.
+  step('랜드마크', () => {
+    map.addSource('landmark', { type: 'geojson', data: basePath() + '/landmarks.geojson' });
+    map.addLayer({
+      id: 'landmark-3d',
+      type: 'fill-extrusion',
+      source: 'landmark',
+      paint: {
+        'fill-extrusion-color': landmarkColor(false),
+        'fill-extrusion-base': ['get', 'hb'],
+        'fill-extrusion-height': ['get', 'h'],
+        'fill-extrusion-opacity': 1,
+        'fill-extrusion-vertical-gradient': true,
+      },
+    });
+    // 밤 창문 — 일반 건물과 같은 무늬를 같은 방식으로 겹친다. 아파트 셋은 세로줄, 나머지는 층 단위로 켜진다.
+    // 부산타워는 창이 없으니 뺀다.
+    for (const [id, img, lms] of [
+      ['landmark-win-home', 'win-home', ['zenith', 'ipark', 'hyatt']],
+      ['landmark-win-office', 'win-office', ['bifc', 'cinema']],
+    ]) {
+      map.addLayer({
+        id,
+        type: 'fill-extrusion',
+        source: 'landmark',
+        filter: ['match', ['get', 'lm'], lms, true, false],
+        layout: { visibility: 'none' },
+        paint: {
+          'fill-extrusion-pattern': img,
+          'fill-extrusion-base': ['get', 'hb'],
+          'fill-extrusion-height': ['get', 'h'],
+          'fill-extrusion-opacity': 1,
+        },
+      });
+    }
+  });
+
+  // 이동 수단 — 경로 위를 실제로 움직이는 표식. 도형이 열 개 남짓이라
+  // 매 프레임 통째로 갈아 끼워도 싸다 (그림자는 9,000개다).
+  step('이동수단', () => {
+    map.addSource('actors', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
+    map.addLayer({
+      id: 'actors-3d',
+      type: 'fill-extrusion',
+      source: 'actors',
+      paint: {
+        'fill-extrusion-color': actorColorExpr(),
+        'fill-extrusion-base': ['get', 'hb'],
+        'fill-extrusion-height': ['get', 'h'],
+        'fill-extrusion-opacity': 1,
+        // 작은 상자라 위아래 그라데이션을 주면 색이 뭉개진다.
+        'fill-extrusion-vertical-gradient': false,
+      },
+    });
+  });
+
+  step('시각과 시점', () => {
+    setHour(+document.getElementById('time').value);
+    // 주소로 좌표를 받았으면 그리로 간다. 안 받았으면 지금까지와 똑같다.
+    if (!gotoExternal()) goto('광안대교');
+  });
+
+  // 받은 코스를 땅 위에 선으로 긋는다. 받은 것이 없으면 겹 자체를 안 만든다 —
+  // 안 쓰는 소스를 얹으면 지도가 그것 때문에도 다시 그린다.
+  if (EXT_COURSE && EXT_COURSE.length >= 2) {
+    step('받은 코스', () => {
+      map.addSource('ext-course', {
+        type: 'geojson',
+        data: { type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: EXT_COURSE } },
+      });
+      map.addLayer({
+        id: 'ext-course-line',
+        type: 'line',
+        source: 'ext-course',
+        layout: { 'line-cap': 'round', 'line-join': 'round' },
+        paint: { 'line-color': '#ff6a1f', 'line-width': 4, 'line-opacity': 0.95 },
+      });
+    });
+  }
+
+  // 🔴 setDemo 는 async 라서 안에서 던지면 step() 의 try 가 **못 잡는다.**
+  //    조용한 실패가 되므로 catch 를 직접 붙여 화면의 오류 칸에 띄운다.
+  step('이동수단 시작', () => {
+    setDemo(demoName).catch((e) => {
+      console.error('[이동수단]', e);
+      const el = document.getElementById('err');
+      el.hidden = false;
+      el.textContent = ERR_HEAD + '이동수단: ' + (e && e.message ? e.message : e);
+    });
+  });
+
+  // 🔴 그림자는 **건물 타일이 도착한 뒤에** 만들어야 한다.
+  //    처음에는 화면을 옮길 때만 다시 만들게 했더니, 그 시점엔 타일이 아직 안 와서
+  //    건물 0개로 계산하고 끝났다 — 화면에 그림자가 하나도 없었다.
+  map.on('moveend', scheduleShadows);
+  map.on('sourcedata', (e) => {
+    if (e.sourceId === 'bld' && e.isSourceLoaded) scheduleShadows();
+  });
+  // 화면이 멎으면 그늘 띠를 다시 센다. 건물이 더 왔으면 띠도 달라진다.
+  // computeBand 는 안에서 (경로·날짜·건물수)가 같으면 그냥 돌아가므로 자주 불러도 된다.
+  map.on('idle', () => { try { computeBand(); } catch (e) { console.warn('[그늘 띠]', e); } });
+
+  // ── 피사계 심도 (depth of field — 초점 밖이 흐려지는 것) ─────────────
+  // **기본으로 켠다.** 화면으로 값을 확정했다 — 120 m 까지 또렷하고 1,020 m 에서 완전히 흐리다.
+  //
+  // 안개와 달리 **다 그린 뒤 화면 전체에 한 번 거는 후처리**라, "건물에는 안개가 안 걸린다"
+  // 는 막힌 지점이 원리적으로 생기지 않는다 — 화면 버퍼의 깊이에는 지형도 건물도 다 있다.
+  //
+  // 🔴 **확대 16.5 아래에서는 한 줄도 안 돈다.** 항공 시점에 심도를 걸면 "장난감 도시" 가
+  //    되고, 값도 그냥 버리는 것이다. 16.5→17.5 사이에서 서서히 켜진다
+  //    (항공사진을 걷어내는 16.5~18 램프와 같은 결이다 — S15P21E201-725).
+  //
+  //   ?dof=off        끈다. **되돌리는 길을 남긴다** — 이 한 줄이면 예전 화면 그대로다
+  //   ?dof=coc        얼마나 흐릴지를 흑백으로 본다 (흰색 = 최대)
+  //   ?dof=depth      깊이 자체를 흑백으로 본다
+  //   window.__dof    켠 뒤 값을 손으로 바꾼다 (focus·range·maxR·taps·zoomStart)
+  const DOF_MODE = (Q.get('dof') ?? '').trim();
+  if (DOF_MODE !== 'off') {
+    // step() 은 동기 try/catch 라 import 실패를 못 잡는다. 여기서 직접 잡는다.
+    // 🔴 실패해도 화면은 그대로 뜬다 — 심도만 없다.
+    import('./dof-probe.mjs').then(({ installDof }) => {
+      installDof(map, { debug: DOF_MODE === 'coc' ? 1 : DOF_MODE === 'depth' ? 2 : 0 });
+    }).catch((e) => { console.error('[심도]', e); });
+  }
+}
+
+map.on('load', buildEverything);
+map.on('styledata', () => { if (map.isStyleLoaded()) queueMicrotask(buildEverything); });
+if (map.isStyleLoaded()) queueMicrotask(buildEverything);
+
+// 하위 폴더에 올려도 돌게 한다 (예: /city3d/). 서버 설정에 주소를 두 번 적지 않으려고.
+function basePath() {
+  const p = location.pathname.replace(/\/[^/]*$/, '');
+  return p === '/' ? '' : p;
+}
+
+for (const b of document.querySelectorAll('.view')) {
+  b.addEventListener('click', () => goto(b.dataset.v));
+}
+
+// ══════════════════════════════════════════════════════════════════
+// 해 · 그늘 · 이동수단
+// ══════════════════════════════════════════════════════════════════
+
+// ── 슬라이더 범위를 그날의 낮에 맞춘다 ───────────────────────────
+// 🔴 전에는 4시~22시로 박혀 있었다. 그런데 부산의 낮 길이는 하지 14시간 33분,
+//    동지 9시간 47분으로 **4시간 46분이 다르다** (2026년, 이 파일의 계산값).
+//    고정 범위를 쓰면 겨울에는 슬라이더의 절반이 캄캄한 시각이고, 여름에는 해 뜨는
+//    순간이 왼쪽 끝에 눌려 붙는다. 어느 쪽이든 "몇 시에 그늘인가" 를 못 읽는다.
+//    그래서 **일출 1시간 전 ~ 일몰 1시간 후**로 만든다. 앞뒤 1시간은 해가 뜨고 지는
+//    장면 자체를 보기 위한 여유다.
+const SLIDER_PAD_H = 1;
+const SLIDER_MIN = SUNT.sunriseMin === null ? 0 : Math.max(0, SUNT.sunriseMin / 60 - SLIDER_PAD_H);
+const SLIDER_MAX = SUNT.sunsetMin === null ? 24 : Math.min(24, SUNT.sunsetMin / 60 + SLIDER_PAD_H);
+
+const timeEl = document.getElementById('time');
+timeEl.min = SLIDER_MIN.toFixed(4);
+timeEl.max = SLIDER_MAX.toFixed(4);
+// 1분 단위. 그림자 방향은 1분에 약 0.25도 도니까 이 정도면 끄는 동안 매끄럽게 이어진다.
+timeEl.step = (1 / 60).toFixed(6);
+// 오늘이면 지금 시각에서 시작한다 — 여행자가 화면을 열자마자 보는 것이 "지금" 이어야 한다.
+// 다른 날짜를 부른 것이면 남중(해가 가장 높은 때)에서 시작한다.
+timeEl.value = String(
+  Math.min(SLIDER_MAX, Math.max(SLIDER_MIN, DATE_IS_TODAY ? nowHourKST() : SUNT.noonMin / 60))
+);
+
+// 그날 몇 시의 해인가. 그늘 띠와 경로 판정이 모두 이 함수를 쓴다 — 두 곳이 다른 해를 쓰면 안 된다.
+const DAY0 = kst(DATE[0], DATE[1], DATE[2], 0, 0);
+const sunAtHour = (h) => sunPosition(new Date(DAY0.getTime() + h * 3600000), SITE.lat, SITE.lon);
+
+function renderSunLine() {
+  const el = document.getElementById('sunline');
+  const dl = SUNT.dayLengthMin;
+  const dayStr = SUNT.polar === 'none'
+    ? Math.floor(dl / 60) + '시간 ' + Math.round(dl % 60) + '분'
+    : SUNT.polar === 'day' ? '하루 종일 낮' : '하루 종일 밤';
+  el.innerHTML =
+    '<span><b>' + DATE.join('-') + '</b>' + (DATE_IS_TODAY ? ' (오늘)' : ' (date 로 지정한 날)') + '</span>' +
+    '<span>일출 <b>' + hhmm(SUNT.sunriseMin) + '</b></span>' +
+    '<span>남중 <b>' + hhmm(SUNT.noonMin) + '</b></span>' +
+    '<span>일몰 <b>' + hhmm(SUNT.sunsetMin) + '</b></span>' +
+    '<span>낮 <b>' + dayStr + '</b></span>' +
+    '<span><i class="swatch" style="background:#41566b"></i>그늘' +
+    '<i class="swatch" style="background:#f0d38b;margin-left:8px"></i>볕</span>' +
+    '<span id="band-note" style="opacity:.75"></span>';
+}
+renderSunLine();
+
+// ── 그늘 띠 ──────────────────────────────────────────────────────
+// 시간축 위에 "이 시각에 경로의 몇 %가 그늘인가" 를 칠한다.
+// 이게 사용자가 실제로 원하는 것이다 — 경로 요약을 보면서 언제 해를 피할 수 있는지 읽는 것.
+// 🔴 판정 방법과 **못 보는 것**(가로수·지형·안 가 본 곳)은 shade.mjs 맨 위에 적혀 있다.
+let shadeIndex = null;
+let shadeIndexDirty = true;
+function getShadeIndex() {
+  if (shadeIndexDirty || !shadeIndex) {
+    shadeIndex = buildIndex([...buildingCache.values()], { minH: SHADOW_MIN_H });
+    shadeIndexDirty = false;
+  }
+  return shadeIndex;
+}
+
+let bandBins = null;
+let bandKey = '';
+let bandMs = 0;
+const bandEl = document.getElementById('band');
+
+function computeBand() {
+  const route = currentDemoRoute();
+  const note = document.getElementById('band-note');
+  if (!route) {
+    bandBins = null; bandKey = '';
+    if (note) note.textContent = '· 그늘 띠: 이동수단을 고르면 그 경로로 계산한다';
+    drawBand();
+    return;
+  }
+  const idx = getShadeIndex();
+  // 건물이 아직 하나도 안 왔으면 계산해 봐야 전부 "볕" 이다. 그걸 그리면 거짓말이 된다.
+  if (idx.count === 0) {
+    bandBins = null; bandKey = '';
+    if (note) note.textContent = '· 그늘 띠: 주변 건물이 아직 안 왔다 (지도를 그 자리로 옮겨야 한다)';
+    drawBand();
+    return;
+  }
+  const key = demoName + '|' + DATE.join('-') + '|' + idx.count;
+  if (key === bandKey) return;
+  const t0 = performance.now();
+  const res = shadeTimeline(route.coords.map((c) => [c[0], c[1]]), idx, sunAtHour,
+    { fromHour: SLIDER_MIN, toHour: SLIDER_MAX, stepMin: 15, sampleM: 40 });
+  bandMs = performance.now() - t0;
+  bandBins = res.bins;
+  bandKey = key;
+  if (note) {
+    note.textContent = '· 그늘 띠: ' + route.label + ' · 경로 ' + res.samples + '점 · 건물 ' +
+      idx.count + '동 · ' + bandMs.toFixed(0) + ' ms';
+  }
+  drawBand();
+}
+
+function drawBand() {
+  if (!bandEl) return;
+  const dpr = Math.min(2, devicePixelRatio || 1);
+  const w = bandEl.clientWidth || 300;
+  const h = 15;
+  if (bandEl.width !== Math.round(w * dpr)) {
+    bandEl.width = Math.round(w * dpr);
+    bandEl.height = Math.round(h * dpr);
+  }
+  const g = bandEl.getContext('2d');
+  g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  g.clearRect(0, 0, w, h);
+  const x = (hour) => ((hour - SLIDER_MIN) / (SLIDER_MAX - SLIDER_MIN)) * w;
+
+  if (!bandBins) {
+    g.fillStyle = 'rgba(51,68,63,.07)';
+    g.fillRect(0, 0, w, h);
+  } else {
+    for (let i = 0; i < bandBins.length; i++) {
+      const b = bandBins[i];
+      const x0 = x(b.hour);
+      const x1 = i + 1 < bandBins.length ? x(bandBins[i + 1].hour) : w;
+      // 해가 진 시각은 그늘도 볕도 아니다. 회색으로 둔다 — 그늘이라고 칠하면
+      // "밤이라 시원하다" 가 "그늘이 좋다" 로 잘못 읽힌다.
+      if (b.alt <= 0) g.fillStyle = '#5b6470';
+      else if (b.alt < 6) g.fillStyle = '#8a8f93';
+      else {
+        const t = b.shadedRatio;
+        const c = [240 - 175 * t, 211 - 125 * t, 139 - 32 * t];
+        g.fillStyle = 'rgb(' + c.map(Math.round).join(',') + ')';
+      }
+      g.fillRect(x0, 0, Math.max(1, x1 - x0 + 0.6), h);
+    }
+  }
+  // 일출·일몰 눈금
+  g.strokeStyle = 'rgba(0,0,0,.35)';
+  g.lineWidth = 1;
+  for (const m of [SUNT.sunriseMin, SUNT.sunsetMin]) {
+    if (m === null) continue;
+    const px = Math.round(x(m / 60)) + 0.5;
+    g.beginPath(); g.moveTo(px, 0); g.lineTo(px, h); g.stroke();
+  }
+  // 지금 보고 있는 시각
+  const px = Math.round(x(+timeEl.value)) + 0.5;
+  g.strokeStyle = '#b4453a';
+  g.lineWidth = 2;
+  g.beginPath(); g.moveTo(px, 0); g.lineTo(px, h); g.stroke();
+}
+
+// ── 이동 수단 ────────────────────────────────────────────────────
+// 손잡이 (이 파일의 photo=off · roads=on 과 같은 방식으로 주소에 붙인다):
+//   demo=walk | bus | car | all | off   무엇을 움직일 것인가 (기본 off)
+//   actors=clock                        t 를 **시간 슬라이더**에 묶는다.
+//                                       슬라이더를 끌면 표식이 경로 위를 따라 움직인다
+// 화면 아래 버튼으로도 고를 수 있다.
+//
+// 경로 — 다리 둘은 **bridges.geojson 의 상판에서 뽑는다.** 좌표를 여기 베껴 두면
+// 다리 데이터가 바뀔 때 둘이 어긋나고, 그때 표식만 바다 위를 지나게 된다.
+const WALK_COORDS = [
+  // 해운대 해변 산책로 (OpenStreetMap, highway=pedestrian · 885 m). 지면이라 높이는 0 이다.
+  [129.147082, 35.162189], [129.148289, 35.16156], [129.14892, 35.161231], [129.149499, 35.160933],
+  [129.150278, 35.160688], [129.1508, 35.160649], [129.151203, 35.160619], [129.151811, 35.160661],
+  [129.151905, 35.160686], [129.152377, 35.160815], [129.152881, 35.16106], [129.153858, 35.16161],
+  [129.154506, 35.161971], [129.155581, 35.162614],
+];
+
+const DEMOS = {
+  walk: { label: '해운대 해변 산책로', mode: 'walk', coords: WALK_COORDS, view: '해운대' },
+  bus: { label: '광안대교 상판', mode: 'bus', bridge: '광안대교', view: '광안대교' },
+  car: { label: '부산항대교 상판', mode: 'car', bridge: '부산항대교', view: '부산항' },
+};
+
+// 받은 코스를 이동수단이 걸을 수 있게 등록한다 (S15P21E201-734). 새 장치를 만들지 않고
+// 이미 있는 것(actors.mjs·그늘 띠)이 그대로 쓰게 하는 것이 요점이다.
+//   ?course=…&demo=trip  →  받은 코스 위를 실제 걷는 속도로 표식이 간다
+if (EXT_COURSE && EXT_COURSE.length >= 2) DEMOS.trip = { label: '받은 코스', mode: 'walk', coords: EXT_COURSE };
+
+let demoName = ((v) => (v === 'all' || DEMOS[v] ? v : 'off'))(Q.get('demo') ?? 'off');
+const ACTORS_ON_CLOCK = Q.get('actors') === 'clock';
+// bridges.geojson 을 **딱 한 번만** 받는다. 지도의 다리 레이어와 이동수단 경로가 같은 것을 쓴다.
+let bridgeGeo = null;
+let bridgeGeoPromise = null;
+function loadBridgeGeo() {
+  if (!bridgeGeoPromise) {
+    bridgeGeoPromise = fetch(basePath() + '/bridges.geojson')
+      .then((r) => r.json())
+      .then((j) => { bridgeGeo = j; return j; });
+  }
+  return bridgeGeoPromise;
+}
+const routeCache = new Map();
+
+// 다리 상판 조각의 가운데를 이어 중심선을 만든다.
+// 조각은 파일 안에서 순서대로 있지 않으므로 **가장 먼 두 조각**을 양 끝으로 잡고
+// 거기서부터 가까운 것을 차례로 잇는다.
+function routeFromBridge(name) {
+  if (routeCache.has(name)) return routeCache.get(name);
+  if (!bridgeGeo) return null;
+  const decks = bridgeGeo.features.filter((f) => f.properties.kind === 'deck' && f.properties.name === name);
+  if (decks.length < 3) { routeCache.set(name, null); return null; }
+  const mid = (f) => {
+    const r = f.geometry.coordinates[0];
+    let x = 0, y = 0;
+    const n = r.length - 1;
+    for (let i = 0; i < n; i++) { x += r[i][0]; y += r[i][1]; }
+    return [x / n, y / n, f.properties.h];
+  };
+  const pts = decks.map(mid);
+  const dm = (a, b) => Math.hypot((b[0] - a[0]) * mPerLon(a[1]), (b[1] - a[1]) * M_PER_LAT);
+  let far = [0, 0];
+  let best = -1;
+  for (let i = 0; i < pts.length; i++) {
+    for (let j = i + 1; j < pts.length; j++) {
+      const d = dm(pts[i], pts[j]);
+      if (d > best) { best = d; far = [i, j]; }
+    }
+  }
+  const rest = pts.slice();
+  const out = [rest.splice(far[0], 1)[0]];
+  while (rest.length) {
+    let bi = 0, bd = Infinity;
+    for (let i = 0; i < rest.length; i++) {
+      const d = dm(out[out.length - 1], rest[i]);
+      if (d < bd) { bd = d; bi = i; }
+    }
+    out.push(rest.splice(bi, 1)[0]);
+  }
+  routeCache.set(name, out);
+  return out;
+}
+
+function currentDemoRoute() {
+  const names = demoName === 'all' ? ['walk', 'bus', 'car'] : DEMOS[demoName] ? [demoName] : [];
+  if (!names.length) return null;
+  const d = DEMOS[names[0]];
+  const coords = d.coords ?? routeFromBridge(d.bridge);
+  return coords ? { label: d.label, coords } : null;
+}
+
+let actorRoutes = [];
+let actorRaf = 0;
+let actorT0 = 0;
+
+function buildActorRoutes() {
+  const names = demoName === 'all' ? ['walk', 'bus', 'car'] : DEMOS[demoName] ? [demoName] : [];
+  actorRoutes = [];
+  for (const n of names) {
+    const d = DEMOS[n];
+    const coords = d.coords ?? routeFromBridge(d.bridge);
+    if (!coords) continue;
+    try { actorRoutes.push({ id: n, route: makeRoute(coords, d.mode, { loop: true }), label: d.label }); }
+    catch (e) { console.warn('[이동수단] 경로를 못 만들었다', n, e); }
+  }
+}
+
+function drawActors() {
+  const src = map.getSource('actors');
+  if (!src) return;
+  if (!actorRoutes.length) { src.setData({ type: 'FeatureCollection', features: [] }); return; }
+  // 🔴 확대가 낮으면 안 그린다. 승용차 4.6 m 는 확대 13 에서 1 픽셀도 안 되고,
+  //    안 보이는 것을 매 프레임 계산하는 것은 그냥 낭비다. 경계값은 actors.mjs 의 minZoom.
+  const z = map.getZoom();
+  const list = [];
+  const now = performance.now();
+  for (const a of actorRoutes) {
+    if (z < MODES[a.route.mode].minZoom) continue;
+    // t 는 0~1. 여기가 actors.mjs 와의 계약 지점이다 — 붙이는 쪽은 t 만 주면 된다.
+    const t = ACTORS_ON_CLOCK
+      // 슬라이더에 묶기 — 그날의 낮 전체를 경로 한 바퀴로 본다. 시간 연동의 예시다.
+      ? (+timeEl.value - SLIDER_MIN) / (SLIDER_MAX - SLIDER_MIN)
+      // 실제 속도로 흐르기 — 경로 길이 / 그 수단의 속도만큼 걸려 한 바퀴 돈다
+      : ((now - actorT0) / 1000 / a.route.durationSec) % 1;
+    list.push({ p: a.route.at(t), mode: a.route.mode, id: a.id });
+  }
+  src.setData(actorCollection(list));
+}
+
+function tickActors() {
+  actorRaf = 0;
+  if (!actorRoutes.length || ACTORS_ON_CLOCK) return;
+  drawActors();
+  actorRaf = requestAnimationFrame(tickActors);
+}
+
+async function setDemo(name, opt = {}) {
+  demoName = (name === 'all' || DEMOS[name]) ? name : 'off';
+  for (const b of document.querySelectorAll('.demo')) b.classList.toggle('on', b.dataset.demo === demoName);
+  cancelAnimationFrame(actorRaf);
+  actorRaf = 0;
+
+  const needsBridge = demoName === 'all' || !!DEMOS[demoName]?.bridge;
+  if (needsBridge && !bridgeGeo) {
+    // 지도가 이미 받고 있는 그 약속(promise)을 같이 기다린다. 두 번 받지 않는다.
+    try { await loadBridgeGeo(); } catch (e) { console.warn('[이동수단] 다리 데이터를 못 읽었다', e); }
+  }
+  buildActorRoutes();
+  actorT0 = performance.now();
+  drawActors();
+  if (!ACTORS_ON_CLOCK && actorRoutes.length) actorRaf = requestAnimationFrame(tickActors);
+  bandKey = '';
+  computeBand();
+  // 버튼으로 고른 경우에만 그 자리로 옮긴다. 주소로 준 경우는 보던 자리를 안 뺏는다.
+  if (opt.fly && actorRoutes.length) {
+    const v = DEMOS[demoName === 'all' ? 'bus' : demoName]?.view;
+    if (v && VIEWS[v]) goto(v);
+  }
+}
+
+for (const b of document.querySelectorAll('.demo')) {
+  b.addEventListener('click', () => setDemo(b.dataset.demo, { fly: true }));
+}
+
+// ── 슬라이더 — 끄는 내내 그림자가 따라 움직인다 ──────────────────
+// 🔴 전에는 input 하나로 setHour 만 불렀다. 그런데 setHour 안의 scheduleShadows 가
+//    **260 ms 를 기다렸다가** 그리는데, 끄는 동안에는 그 타이머가 계속 새로 시작되므로
+//    손을 뗄 때까지 그림자가 한 번도 안 바뀌었다. 여행자는 그 사이에 아무것도 못 읽는다.
+//
+//    고친 방법은 둘이다.
+//    1) 프레임마다 한 번만 반영한다 (requestAnimationFrame). 슬라이더는 한 프레임에
+//       input 을 여러 번 낼 수 있는데, 그때마다 그리면 같은 프레임을 여러 번 그리게 된다
+//    2) 끄는 동안에는 타일을 다시 안 훑고, 예산(12 ms)을 넘으면 낮은 건물부터 뺀다
+//       — rebuildShadows 의 live 갈래
+let pendingHour = null;
+let pendingLive = false;
+let hourRaf = 0;
+let dragging = false;
+
+function requestHour(v, live) {
+  pendingHour = v;
+  pendingLive = live;
+  if (hourRaf) return;
+  hourRaf = requestAnimationFrame(() => {
+    hourRaf = 0;
+    setHour(pendingHour, { live: pendingLive });
+  });
+}
+
+timeEl.addEventListener('pointerdown', () => { dragging = true; });
+timeEl.addEventListener('input', (e) => requestHour(+e.target.value, dragging));
+// 손을 떼면 **원래 품질로 한 번 더** 만든다. 끄는 동안 뺐던 낮은 건물이 여기서 돌아온다.
+const endDrag = () => {
+  if (!dragging) return;
+  dragging = false;
+  liveMinH = SHADOW_MIN_H;
+  requestHour(+timeEl.value, false);
+};
+addEventListener('pointerup', endDrag);
+addEventListener('pointercancel', endDrag);
+timeEl.addEventListener('change', () => requestHour(+timeEl.value, false));
+
+addEventListener('resize', () => drawBand());
+
+// ── 밖에서 쓸 수 있는 문 ──────────────────────────────────────────
+// 실제 앱은 이 화면을 통째로 쓰는 게 아니라 **경로를 넣고 결과를 받아** 쓴다.
+// 그래서 필요한 것만 window 에 걸어 둔다. 브라우저 콘솔에서 만져 보는 데도 쓴다.
+//
+//   CITY3D_MAP.route(coords, 'walk')     → t(0~1) 를 주면 위치·방향을 주는 것
+//   CITY3D_MAP.shadeAt(lon, lat, 14.5)   → 그 시각 그 자리가 그늘인가
+//   CITY3D_MAP.timeline(coords)          → 하루 전체의 그늘/볕 띠 데이터
+//   CITY3D_MAP.setDemo('bus')            → 화면의 표식을 바꾼다
+window.CITY3D_MAP = {
+  MODES,
+  route: makeRoute,
+  setDemo,
+  // 시각을 코드에서 바꾼다. 슬라이더를 거치지 않으므로 앱이 자기 시계로 몰 수 있다.
+  setHour: (h, opt) => { const el = timeEl; el.value = String(Math.min(+el.max, Math.max(+el.min, h))); setHour(+el.value, opt || {}); },
+  get routes() { return actorRoutes; },
+  get demo() { return demoName; },
+  get bandBins() { return bandBins; },
+  get buildings() { return buildingCache.size; },
+  sunAtHour,
+  sunTimes: SUNT,
+  date: DATE,
+  shadeAt: (lon, lat, hour) => shadeAt(lon, lat, sunAtHour(hour ?? +timeEl.value), getShadeIndex()),
+  timeline: (coords, opt) => shadeTimeline(coords, getShadeIndex(), sunAtHour,
+    Object.assign({ fromHour: SLIDER_MIN, toHour: SLIDER_MAX }, opt)),
+};
+
+
+// ── 재는 것 ───────────────────────────────────────────────────────
+// 🔴 여태 이 숫자는 내 자체 루프를 센 것이라 **지도가 실제로 다시 그리는지와 무관했다.**
+//    지도가 한 장도 안 그려도 170 이 찍혔다. 그래서 지도의 render 사건을 직접 센다.
+let frames = 0, fps = 0, minMovingFps = Infinity, lastTick = performance.now(), firstPaintMs = null;
+map.on('render', () => { frames++; });
+
+// 🔴 "돌릴 때 최저" 는 **1초 창이 움직임 안에 온전히 들어갈 때만** 세야 한다.
+//    지도는 볼일이 없으면 안 그린다. 그래서 쉬던 구간이 절반 섞인 창을 그대로 세면
+//    성능과 무관한 낮은 숫자가 찍힌다 — 실제로 6 이 나왔다 (진짜 값은 100 언저리였다).
+let windowClean = false;
+map.on('movestart', () => { frames = 0; lastTick = performance.now(); windowClean = true; });
+map.on('moveend', () => { windowClean = false; });
+
+map.on('idle', () => { if (firstPaintMs === null) firstPaintMs = Math.round(performance.now() - T0); });
+
+function loop() {
+  const now = performance.now();
+  if (now - lastTick >= 1000) {
+    fps = Math.round((frames * 1000) / (now - lastTick));
+    frames = 0; lastTick = now;
+    // "돌리는 중" 일 때만 최저값을 센다. 가만히 있을 때의 60 은 아무것도 증명하지 않는다.
+    if (windowClean && map.isMoving() && fps > 0) minMovingFps = Math.min(minMovingFps, fps);
+    windowClean = map.isMoving();
+    render();
+  }
+  requestAnimationFrame(loop);
+}
+
+function transferredMB() {
+  return performance.getEntriesByType('resource')
+    .reduce((sum, e) => sum + (e.transferSize || 0), 0) / 1024 / 1024;
+}
+
+function render() {
+  const mb = transferredMB();
+  // 🔴 파도를 뺀 뒤로는 지도가 **볼일이 없으면 안 그린다.** 그게 정상이고 배터리에도 좋다.
+  //    그때 0 을 띄우면 고장처럼 보이므로 "쉼" 이라고 적는다. 움직일 때의 숫자가 진짜 성능이다.
+  set('n-fps', fps === 0 ? '쉼' : fps, fps > 0 && fps < 30);
+  set('n-min', minMovingFps === Infinity ? '–' : minMovingFps, minMovingFps < 30);
+  set('n-net', mb.toFixed(2) + ' MB', mb > 12);
+  set('n-first', firstPaintMs === null ? '–' : (firstPaintMs / 1000).toFixed(1) + ' 초', firstPaintMs > 3000);
+}
+
+function set(id, value, bad) {
+  const el = document.getElementById(id);
+  el.querySelector('b').textContent = value;
+  el.classList.toggle('bad', !!bad);
+}
+
+document.getElementById('copy').addEventListener('click', async () => {
+  const text = [
+    '부산 3D 실험 결과',
+    '기기: ' + navigator.userAgent,
+    '화면: ' + innerWidth + '×' + innerHeight + ' (배율 ' + devicePixelRatio + ')',
+    '지금 초당 프레임: ' + fps,
+    '돌릴 때 최저 초당 프레임: ' + (minMovingFps === Infinity ? '측정 안 됨 — 화면을 돌려 보세요' : minMovingFps),
+    '받은 양: ' + transferredMB().toFixed(2) + ' MB',
+    '첫 화면까지: ' + (firstPaintMs === null ? '–' : firstPaintMs + ' ms'),
+    '보고 있는 곳: zoom ' + map.getZoom().toFixed(1) + ' / pitch ' + Math.round(map.getPitch()),
+    '해: ' + (currentSun ? `고도 ${currentSun.altitude.toFixed(1)}° 방위 ${currentSun.azimuth.toFixed(1)}°` : '–'),
+    '그림자: ' + JSON.stringify(lastShadowStat),
+    // 항공사진 유무와 상한이 없으면 다른 기기의 숫자와 대조할 수 없다 — 같은 화면인지부터 갈려야 한다.
+    '항공사진: ' + (map.getLayer('aerial') ? `켬 (상한 ${AERIAL_MAXZOOM} · 도로선 ${ROADS} · 바다 ${SEA_MODE})` : HAS_KEY ? '끔 (?photo=off)' : '끔 (키 없음)'),
+  ].join('\n');
+  try { await navigator.clipboard.writeText(text); alert('복사했습니다. 대화창에 붙여넣어 주세요.'); }
+  catch { prompt('아래를 복사해 주세요', text); }
+});
+
+// 🔴 키가 틀리면 브이월드는 **200 으로 오류 본문**을 준다. 그래서 404 가 아니라 "이미지를 못 풀었다" 가 타일마다 쏟아진다.
+//    콘솔만 보고는 키 문제인지 모른다. 처음 몇 장이 연달아 실패하면 화면에 한 줄 적는다 — 한 번만.
+let aerialFails = 0;
+map.on('error', (e) => {
+  console.error('[지도 오류]', e && e.error);
+  if (e && e.sourceId === 'aerial' && ++aerialFails === 3) {
+    document.getElementById('credit').insertAdjacentHTML('afterbegin',
+      '🔴 항공사진 타일을 못 받고 있다 — 인증키나 등록된 도메인을 확인 (config.local.js)<br />');
+  }
+});
+loop();
+</script>
+</body>
+</html>
