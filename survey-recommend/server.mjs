@@ -28,6 +28,34 @@ const MOUNT = process.env.MOUNT_PATH || "/survey";
 
 const PAGE = readFileSync(join(HERE, "index.html"));
 
+/* ── 🔴 정적 파일(사진·글꼴)을 허용 목록으로만 내준다 ────────────────
+ * 예전엔 index.html 딱 한 파일만 내줬다 — 그래서 앞선 작업이 사진·글꼴을
+ * base64 로 index.html 안에 통째로 넣었고, 화면 파일이 33KB 에서 3.2MB 로
+ * 불었다. 이제 이 서버가 파일을 더 내주지만, 요청 경로를 그대로 파일
+ * 시스템에 넘기면 "../" 로 서버의 아무 파일이나 읽어가는 공격(path
+ * traversal)이 된다. 그래서 요청 경로 문자열이 아니라 "내줄 파일 이름"을
+ * 코드에 미리 박아 두고, 그 목록에 있는 요청만 실제 파일로 연결한다 —
+ * 목록에 없으면 무엇을 요청했든 그냥 404 다.
+ *
+ * 사진·글꼴은 index.html 처럼 시작할 때 한 번 읽어 메모리에 둔다 —
+ * 요청마다 디스크를 다시 읽지 않는다. 안 바뀌는 파일이라
+ * Cache-Control 로 브라우저·CDN 에 일주일(604800초) 캐시를 허락한다.
+ * ────────────────────────────────────────────────────────────────── */
+const STATIC_FILES = {
+  "/assets/gwangan-bridge.jpg":       { file: "assets/gwangan-bridge.jpg",       type: "image/jpeg" },
+  "/assets/haeundae-beach.jpg":       { file: "assets/haeundae-beach.jpg",       type: "image/jpeg" },
+  "/assets/gwangalli-beach.jpg":      { file: "assets/gwangalli-beach.jpg",      type: "image/jpeg" },
+  "/assets/huinnyeoul.jpg":           { file: "assets/huinnyeoul.jpg",           type: "image/jpeg" },
+  "/assets/busan-night-panorama.jpg": { file: "assets/busan-night-panorama.jpg", type: "image/jpeg" },
+  "/assets/CREDITS.md":               { file: "assets/CREDITS.md",               type: "text/markdown; charset=utf-8" },
+  "/fonts/PretendardVariable.woff2":  { file: "fonts/PretendardVariable.woff2",  type: "font/woff2" },
+  "/fonts/LICENSE-Pretendard.txt":    { file: "fonts/LICENSE-Pretendard.txt",    type: "text/plain; charset=utf-8" }
+};
+/* 목록에 적힌 파일만 이때 읽는다 — 목록에 없는 파일은 이 서버가 존재조차 모른다 */
+for (const entry of Object.values(STATIC_FILES)) {
+  entry.body = readFileSync(join(HERE, entry.file));
+}
+
 const pool = new pg.Pool({
   connectionString: process.env.DATABASE_URL,
   max: 4,
@@ -140,6 +168,15 @@ const server = createServer((req, res) => {
   if (req.method === "GET" && (path === "/" || path === "/index.html")) {
     res.writeHead(200, { "content-type": "text/html; charset=utf-8", "cache-control": "no-cache" });
     res.end(PAGE);
+    return;
+  }
+
+  /* 사진 · 글꼴 — 허용 목록에 있는 경로만. 목록에 없으면 여기까지 안 걸리고
+     맨 아래 404 로 떨어진다 (path traversal 을 시도해도 마찬가지다) */
+  if (req.method === "GET" && Object.prototype.hasOwnProperty.call(STATIC_FILES, path)) {
+    const entry = STATIC_FILES[path];
+    res.writeHead(200, { "content-type": entry.type, "cache-control": "public, max-age=604800" });
+    res.end(entry.body);
     return;
   }
 

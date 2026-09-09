@@ -18,13 +18,18 @@
 
 ## 5장
 
-| 파일명 | 무엇 | 출처 URL (원본 페이지) | 촬영자 | 라이선스 | 내려받은 날 | 픽셀 크기 |
-|---|---|---|---|---|---|---|
-| `gwangan-bridge.jpg` | 광안대교 (낮, 항공) | https://commons.wikimedia.org/wiki/File:Gwangan_Bridge1.jpg | Glabb | CC BY-SA 3.0 | 2026-09-09 | 4000 × 2250 |
-| `haeundae-beach.jpg` | 해운대 해수욕장 | https://commons.wikimedia.org/wiki/File:Haeundae_Beach_Busan_(45698772572).jpg | bryan... (Flickr 사용자 `bryansjs`) | CC BY-SA 2.0 | 2026-09-09 | 6720 × 4480 |
-| `gwangalli-beach.jpg` | 광안리 해수욕장 | https://commons.wikimedia.org/wiki/File:Gwangalli_Beach.jpg | Chelsea Hicks | CC BY 2.0 | 2026-09-09 | 4752 × 3168 |
-| `huinnyeoul.jpg` | 흰여울 문화마을 (영도) | https://commons.wikimedia.org/wiki/File:Huinnyeoul_culture_village,_Busan_on_October_25th,_2019.jpg | Choi2451 | CC0 | 2026-09-09 | 4032 × 3024 |
-| `busan-night-panorama.jpg` | 부산 야경 — 광안대교와 마린시티 | https://commons.wikimedia.org/wiki/File:Gwangan_Bridge_seen_Marine_City_at_Night_01.jpg | Jeena Paradies | CC BY 2.0 | 2026-09-09 | 5889 × 3183 |
+| 파일명 | 무엇 | 출처 URL (원본 페이지) | 촬영자 | 라이선스 | 내려받은 날 | 픽셀 크기 | 웹용 재저장 |
+|---|---|---|---|---|---|---|---|
+| `gwangan-bridge.jpg` | 광안대교 (낮, 항공) | https://commons.wikimedia.org/wiki/File:Gwangan_Bridge1.jpg | Glabb | CC BY-SA 3.0 | 2026-09-09 | 4000 × 2250 | 웹용으로 가로 1080px·품질 80 으로 다시 저장함 |
+| `haeundae-beach.jpg` | 해운대 해수욕장 | https://commons.wikimedia.org/wiki/File:Haeundae_Beach_Busan_(45698772572).jpg | bryan... (Flickr 사용자 `bryansjs`) | CC BY-SA 2.0 | 2026-09-09 | 6720 × 4480 | 웹용으로 가로 1080px·품질 80 으로 다시 저장함 |
+| `gwangalli-beach.jpg` | 광안리 해수욕장 | https://commons.wikimedia.org/wiki/File:Gwangalli_Beach.jpg | Chelsea Hicks | CC BY 2.0 | 2026-09-09 | 4752 × 3168 | 웹용으로 가로 1080px·품질 80 으로 다시 저장함 |
+| `huinnyeoul.jpg` | 흰여울 문화마을 (영도) | https://commons.wikimedia.org/wiki/File:Huinnyeoul_culture_village,_Busan_on_October_25th,_2019.jpg | Choi2451 | CC0 | 2026-09-09 | 4032 × 3024 | 웹용으로 가로 1080px·품질 80 으로 다시 저장함 |
+| `busan-night-panorama.jpg` | 부산 야경 — 광안대교와 마린시티 | https://commons.wikimedia.org/wiki/File:Gwangan_Bridge_seen_Marine_City_at_Night_01.jpg | Jeena Paradies | CC BY 2.0 | 2026-09-09 | 5889 × 3183 | 웹용으로 가로 1440px·품질 80 으로 다시 저장함 |
+
+> 🔴 **"픽셀 크기" 열은 원본 그대로 둔다.** 실제로 저장소에 들어 있는 파일은 위
+> "웹용 재저장" 열의 크기다 (원본은 `feat/bigData/S15P21E201-23-survey-photos`
+> 브랜치에 그대로 있다). 촬영자·출처·라이선스는 원본과 동일하므로 재저장으로
+> 바뀌지 않는다.
 
 촬영자 이름은 **각 원본 페이지에서 실제로 읽은 문자열**이다. `bryan...` 은 점 세 개까지
 그 사람의 Flickr 표시 이름 그대로다 — 줄임표가 아니다.
