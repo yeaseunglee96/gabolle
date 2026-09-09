@@ -60,7 +60,7 @@ collaborationRouter.post("/s/:slug/clone", async (req, res, next) => {
     const created = await createJob(trip.id, `clone:${share.id}:${trip.id}`);
     await prisma.itineraryShare.update({ where: { id: share.id }, data: { cloneCount: { increment: 1 } } });
     await recordEvent({ eventType: "itinerary_cloned", actorId: pseudonymize(session.id), entityType: "itinerary", entityId: share.itineraryId, payload: { targetTripId: trip.id } });
-    res.status(202).json({ jobId: created.job.jobId, statusUrl: `/api/itinerary-jobs/${created.job.jobId}` });
+    res.status(202).json({ jobId: created.job.jobId, statusUrl: `/api/jobs/${created.job.jobId}` });
   } catch (error) { next(error); }
 });
 
@@ -71,7 +71,7 @@ collaborationRouter.post("/trips/:tripId/members/invite", async (req, res, next)
     if (!trip) return res.status(404).json({ error_code: "TRIP_NOT_FOUND" });
     if (!trip.ownerSessionId) await prisma.trip.update({ where: { id: trip.id }, data: { ownerSessionId: session.id } });
     else if (trip.ownerSessionId !== session.id) return res.status(403).json({ error_code: "NOT_OWNER" });
-    const role = req.body?.role === "EDITOR" ? "EDITOR" : "VIEWER";
+    const role = "EDITOR";
     const raw = token(); const days = Math.min(30, Math.max(1, Number(req.body?.expiresInDays ?? 7)));
     const member = await prisma.tripMember.create({ data: { tripId: trip.id, role, inviteTokenHash: hash(raw), expiresAt: new Date(Date.now() + days * 86_400_000) } });
     await recordEvent({ eventType: "companion_invited", actorId: pseudonymize(session.id), entityType: "trip", entityId: trip.id, payload: { role } });
