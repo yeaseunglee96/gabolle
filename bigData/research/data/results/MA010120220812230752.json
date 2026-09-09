@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220812230752",
+  "worker": "haiku-21",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["최大感 동래구 부산", "최大感 안락동 맛집", "최大感 안락동 블로그", "최大感 고기 부산"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "여러 검색(직접검색, 블로그검색, 주변 고기집 종합검색)을 시도했으나 해당 가게 정보를 찾을 수 없음",
+  "notes": ""
+}

@@ -1,0 +1,34 @@
+{
+  "id": "MA010120220811398384",
+  "worker": "haiku-21",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["이가횟집 남구 부산", "이가횟집 용호동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/678287", "https://www.diningcode.com/profile.php?rid=TZxHttvT55yD"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "메뉴 희소성",
+      "note": "매운탕정식, 알탕정식은 특정 생선으로만 만드는 특별 요리",
+      "sources": [0, 1]
+    },
+    {
+      "type": "플랫폼 순위·평점",
+      "note": "식신, 다이닝코드 용호동 횟집 랭킹에 등재",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["매운탕정식", "알탕정식"],
+    "priceBand": "medium"
+  },
+  "notFound": null,
+  "notes": ""
+}

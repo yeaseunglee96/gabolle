@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220813172242",
+  "worker": "haiku-22",
+  "researchedAt": "2026-09-09T01:17:30.000Z",
+  "queries": ["교토 해운대구 부산", "교토 좌1동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색에서 찾을 수 없음 (일본 교토 맛집만 나옴)",
+  "notes": ""
+}

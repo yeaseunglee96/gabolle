@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220813726640",
+  "worker": "haiku-20",
+  "researchedAt": "2026-09-09T11:41:30Z",
+  "queries": ["뚱돈 남구 부산", "뚱돈 용호1동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색에서 '뚱돈'이라는 돼지고기 구이/찜 가게 정보 없음. 용호1동 일반 맛집 리스트만 나타남",
+  "notes": ""
+}

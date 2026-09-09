@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220811445368",
+  "worker": "haiku-20",
+  "researchedAt": "2026-09-09T11:25:45Z",
+  "queries": ["구이원 남구 부산", "구이원 대연1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 남구 대연동"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "간판 메뉴 지목", "note": "삼겹살, 고추장 삼겹살 전문", "sources": [0] },
+    { "type": "운영·접근 편의", "note": "자동 불판으로 고기를 구워 편의성 제공", "sources": [0] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["삼겹살", "고추장 삼겹살"],
+    "priceBand": "regular"
+  },
+  "notFound": null,
+  "notes": ""
+}
