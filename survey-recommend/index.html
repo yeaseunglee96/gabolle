@@ -1,0 +1,632 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>부산에서 여기는 꼭 가보세요 · 3분</title>
+<style>
+/* ══════════════════════════════════════════════════════════════════
+   흑백만 쓴다. 강조색이 없다.
+   색을 하나라도 넣으면 사람은 색이 있는 쪽을 먼저 누르고,
+   그 편향은 나중에 취향과 분리할 방법이 없다.
+   "선택됨" 은 색이 아니라 밝기의 반전(검정 바탕 + 흰 글자)으로만 말한다.
+   ══════════════════════════════════════════════════════════════════ */
+:root {
+  color-scheme: light;          /* 폰이 어두운 모드여도 이 화면은 흰 종이다 */
+  --bg:        #ffffff;
+  --paper:     #f2f2f0;         /* 아직 안 연 카드 · 안 고른 조각 */
+  --paper-2:   #e9e9e6;         /* 눌렀을 때 */
+  --ink:       #0a0a0a;
+  --muted:     #6f6f6b;
+  --line:      #e0e0dc;
+  --line-2:    #c9c9c3;
+  --on:        #0a0a0a;         /* 고른 것의 바탕 */
+  --on-ink:    #ffffff;         /* 고른 것의 글자 */
+  --shadow:    0 1px 2px rgba(0,0,0,.04), 0 6px 18px rgba(0,0,0,.05);
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+          "D2Coding", "Nanum Gothic Coding", monospace;
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); }
+body {
+  font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard",
+        "Malgun Gothic", "Noto Sans KR", sans-serif;
+  padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
+  -webkit-text-size-adjust: 100%;
+}
+.wrap { max-width: 520px; margin: 0 auto; padding: 0 16px 48px; }
+
+/* ── 올리기 전에 안 채운 칸이 있으면 참여자에게도 보이게 뜬다 ─────── */
+#cfgWarn {
+  display: none; border: 2px solid var(--ink); border-radius: 14px;
+  padding: 12px 14px; font-size: 13px; line-height: 1.55; margin: 14px 0 0;
+  background: var(--paper);
+}
+#cfgWarn.on { display: block; }
+code { font-family: var(--mono); font-size: .92em; }
+
+/* ── 진행 표시 ──────────────────────────────────────────────────── */
+#top {
+  position: sticky; top: 0; z-index: 20; background: var(--bg);
+  padding: 12px 0 10px; border-bottom: 1px solid var(--line);
+}
+#top.hide { display: none; }
+#topRow { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+#counter { font-family: var(--mono); font-size: 20px; font-weight: 700; letter-spacing: .02em; }
+#counter .of { color: var(--muted); font-weight: 400; }
+#counterWhat { font-size: 12px; color: var(--muted); }
+#track { height: 3px; background: var(--line); border-radius: 3px; overflow: hidden; margin-top: 8px; }
+#bar { height: 100%; width: 0; background: var(--ink); transition: width .24s ease; }
+
+.screen { display: none; }
+.screen.on { display: block; }
+
+h1 { font-family: var(--mono); font-size: 23px; line-height: 1.42; margin: 22px 0 10px; letter-spacing: -.01em; }
+h2 { font-family: var(--mono); font-size: 15px; margin: 30px 0 2px; letter-spacing: .01em; }
+p  { margin: 10px 0; }
+.lede { color: var(--muted); font-size: 14px; margin: 0 0 20px; }
+.small { font-size: 13px; color: var(--muted); line-height: 1.62; }
+.hint { font-size: 13px; color: var(--muted); margin: 2px 0 12px; }
+
+/* ── 고지문 ────────────────────────────────────────────────────── */
+.notice { background: var(--paper); border-radius: 18px; padding: 16px 18px; margin: 16px 0; }
+.notice p { margin: 0 0 11px; font-size: 15px; }
+.notice p:last-child { margin-bottom: 0; }
+details { border-top: 1px solid var(--line-2); margin-top: 14px; padding-top: 12px; }
+summary { cursor: pointer; font-size: 14px; font-weight: 700; padding: 4px 0; }
+details table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
+details th, details td { text-align: left; vertical-align: top; padding: 7px 8px 7px 0; border-bottom: 1px solid var(--line); }
+details th { width: 33%; color: var(--muted); font-weight: 600; }
+details tr:last-child th, details tr:last-child td { border-bottom: 0; }
+
+/* ── 고르는 조각 (나이대 · 거주기간 · 유형 · 낮밤) ───────────────── */
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 4px; }
+.chip {
+  min-height: 44px; padding: 10px 16px; border-radius: 999px; border: 1px solid var(--line-2);
+  background: var(--paper); color: var(--ink); font: inherit; font-size: 15px; cursor: pointer;
+}
+.chip:active { background: var(--paper-2); }
+.chip.on { background: var(--on); color: var(--on-ink); border-color: var(--on); font-weight: 700; }
+/* 유형 알약은 일곱 개라 조금 작게. 그래도 최소 44px 은 지킨다 */
+.chips.types .chip { font-size: 14px; padding: 10px 14px; }
+
+/* ── 추천 칸 카드 (아코디언) ────────────────────────────────────── */
+.cats { display: grid; gap: 10px; margin: 12px 0 0; }
+.cat { background: var(--paper); border: 1px solid transparent; border-radius: 20px; overflow: hidden; }
+.cat.open { background: var(--bg); border-color: var(--line-2); box-shadow: var(--shadow); }
+.cat.filled .num { background: var(--on); color: var(--on-ink); border-color: var(--on); }
+
+.cathead {
+  display: flex; align-items: center; gap: 12px; width: 100%;
+  min-height: 64px; padding: 12px 14px; background: none; border: 0;
+  font: inherit; color: inherit; text-align: left; cursor: pointer;
+}
+.num {
+  flex: none; width: 30px; height: 30px; border-radius: 999px;
+  border: 1px solid var(--line-2); background: var(--bg);
+  font-family: var(--mono); font-size: 13px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
+.catname { flex: 1 1 auto; min-width: 0; }
+.catname b { display: block; font-size: 16px; font-weight: 700; line-height: 1.35; }
+.catname s {
+  display: block; font-size: 12.5px; color: var(--muted); text-decoration: none;
+  margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.mark {
+  flex: none; width: 34px; height: 34px; border-radius: 999px;
+  border: 1px solid var(--line-2); background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px; line-height: 1; font-family: var(--mono);
+}
+.cat.open .mark { background: var(--on); color: var(--on-ink); border-color: var(--on); }
+
+.catbody { padding: 2px 16px 18px; border-top: 1px solid var(--line); margin: 0 14px; }
+.catbody[hidden] { display: none; }
+
+label.f { display: block; font-size: 14px; font-weight: 700; margin: 16px 0 2px; }
+label.f .req { font-weight: 400; color: var(--muted); font-size: 12.5px; }
+input[type=text], textarea {
+  width: 100%; font: inherit; font-size: 16px;      /* 16px 미만이면 iOS 가 화면을 확대한다 */
+  padding: 12px 14px; min-height: 46px;
+  border: 1px solid var(--line-2); border-radius: 14px;
+  background: var(--bg); color: var(--ink);
+}
+textarea { min-height: 104px; line-height: 1.6; resize: vertical; }
+input[type=text]:focus, textarea:focus { outline: 2px solid var(--ink); outline-offset: -1px; border-color: var(--ink); }
+.bad input[type=text], .bad textarea { border-color: var(--ink); border-width: 2px; background: var(--paper); }
+
+/* 유형을 아직 안 고르면 나머지 칸을 흐리게 두고 못 누르게 한다 */
+.rest { transition: opacity .18s ease; }
+.rest.locked { opacity: .38; pointer-events: none; }
+
+/* 기간 한정 체크 */
+.check { display: flex; gap: 11px; align-items: flex-start; margin: 16px 0 0; cursor: pointer; min-height: 44px; padding: 8px 0; }
+.check input { width: 22px; height: 22px; margin: 1px 0 0; flex: none; accent-color: #0a0a0a; }
+.check span { font-size: 15px; }
+.check span i { display: block; font-style: normal; font-size: 12.5px; color: var(--muted); }
+
+/* 자유 입력 칸 위 안내 — 이 설문에서 가장 중요한 한 줄 */
+.guard {
+  font-size: 12.5px; line-height: 1.55; color: var(--ink);
+  background: var(--paper); border-radius: 12px; padding: 9px 12px; margin: 6px 0 0;
+}
+
+/* ── 버튼 ──────────────────────────────────────────────────────── */
+.btn {
+  display: block; width: 100%; min-height: 52px; padding: 15px 16px;
+  border-radius: 16px; border: 1px solid var(--on);
+  background: var(--on); color: var(--on-ink); font: inherit; font-weight: 700; cursor: pointer;
+}
+.btn[disabled] { background: var(--paper); color: var(--muted); border-color: var(--line-2); cursor: not-allowed; }
+.btn.ghost { background: var(--bg); color: var(--ink); border-color: var(--line-2); font-weight: 500; }
+.btnwrap { margin: 26px 0 0; }
+
+/* ── 제출을 막았을 때 뜨는 자리 ─────────────────────────────────── */
+#stop {
+  display: none; border: 2px solid var(--ink); border-radius: 16px;
+  padding: 13px 15px; margin: 18px 0 0; background: var(--bg); font-size: 14px; line-height: 1.6;
+}
+#stop.on { display: block; }
+#stop b { display: block; margin-bottom: 6px; }
+#stop ul { margin: 6px 0 0; padding-left: 18px; }
+#stop li { margin: 4px 0; }
+
+/* ── 동의 ──────────────────────────────────────────────────────── */
+.agree { display: flex; gap: 11px; align-items: flex-start; margin: 20px 0 14px; cursor: pointer; padding: 8px 0; }
+.agree input { width: 22px; height: 22px; margin: 1px 0 0; flex: none; accent-color: #0a0a0a; }
+.agree span { font-size: 15px; }
+
+/* ── 완료 ──────────────────────────────────────────────────────── */
+.done-mark { font-family: var(--mono); font-size: 44px; margin: 40px 0 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div id="cfgWarn">🔴 <b>아직 채우지 않은 칸이 있습니다.</b> 이 화면을 그대로 공개하지 마세요.
+    <code>index.html</code> 맨 위 <code>CONFIG</code> 를 채운 뒤 올려 주세요.
+    (남은 칸: <span id="cfgWarnList"></span>)</div>
+
+  <div id="top" class="hide">
+    <div id="topRow">
+      <div id="counter"><span id="cnum">0</span><span class="of"> / 5</span></div>
+      <div id="counterWhat">추천한 곳</div>
+    </div>
+    <div id="track"><div id="bar"></div></div>
+  </div>
+
+  <!-- ══ 첫 화면 : 고지 + 동의 ══════════════════════════════════ -->
+  <section id="scIntro" class="screen on">
+    <h1>부산에서<br>여기는 꼭 가보세요</h1>
+    <p class="lede">SSAFY 부울경에 계신 분들께 여쭙습니다. <b>부산에서 좋았던 곳 다섯 군데</b>와, 왜 좋았는지를 적어 주세요. 3분쯤 걸려요.</p>
+
+    <div class="notice">
+      <p>이 설문은 <b>나이대 · 부산에 산 기간 · 추천하는 곳 다섯 군데와 그 이유</b>만 받습니다.
+         이름 · 연락처 · 학번 · 소속 반을 묻는 칸이 없습니다.</p>
+      <p>답은 <b>“부산을 아는 사람은 어디를 왜 추천하는가”</b> 를 모으는 데만 씁니다.
+         개인을 알아보거나 누구인지 되찾는 데 쓰지 않습니다.</p>
+      <p>응답은 <b><span class="cfg-delete"></span></b> 지웁니다. <b>만 14세 이상</b>만 참여해 주세요.</p>
+
+      <details>
+        <summary>무엇을 모으고 어디에 두는지 자세히 보기</summary>
+        <table>
+          <tr><th>누가 모으나</th><td>SSAFY 15기 자율 프로젝트 팀 S15P21E201 (가볼래). 진행자는 <span class="cfg-facilitator"></span> 한 명입니다.</td></tr>
+          <tr><th>무엇을 모으나</th><td>나이대 · 부산에 산 기간 · 추천하는 곳 다섯 군데(유형 · 이름 · 낮밤 · 기간 한정인지 · <b>왜 추천하는지</b>). 그 밖에는 없습니다.</td></tr>
+          <tr><th>안 모으는 것</th><td>이름 · 연락처 · 이메일 · 학번 · 소속 반 · 성별 · 생년월일 · <b>IP 주소 · 위치 · 기기 정보 · 브라우저 정보</b>. 접속 기록도 남기지 않습니다.</td></tr>
+          <tr><th>왜 모으나</th><td>추천을 만들려면 “부산에 뭐가 있는지” 부터 있어야 하는데, 지금 저희에게는 그 목록이 없습니다. 인터넷에서 긁어온 유명한 곳 말고 <b>실제로 살아 본 사람이 추천하는 곳</b>이 필요해서요.</td></tr>
+          <tr><th>어디에 쓰나</th><td>추천 후보 목록과, 학교 프로젝트 발표의 <b>합친 숫자</b>(예: “30명이 추천한 곳 중 카페가 22곳”).</td></tr>
+          <tr><th>어디에 안 쓰나</th><td>광고 · 외부 제공 · 개인 식별 · 팀 밖에 개별 응답을 보여 주는 것.</td></tr>
+          <tr><th>어디에 두나</th><td>팀 서버의 <b>이 설문 전용 데이터베이스</b> 한 곳. 운영 중인 서비스의 데이터베이스와 <b>따로</b> 있고, 바깥에서 직접 접속할 수 없습니다. 외부 설문 업체 · 구글 폼 · 클라우드 문서를 쓰지 않습니다.</td></tr>
+          <tr><th>언제 지우나</th><td><span class="cfg-delete"></span>. 지운 날짜를 팀 문서에 적습니다.</td></tr>
+          <tr><th>낸 뒤에 뺄 수 있나</th><td>🔴 <b>못 뺍니다.</b> 이름을 안 받기 때문에 어느 것이 누구 응답인지 저희도 알 수 없어서예요. <b>제출 전에는</b> 창을 닫으시면 아무것도 저장되지 않습니다.</td></tr>
+          <tr><th>문의</th><td><span class="cfg-contact"></span></td></tr>
+        </table>
+      </details>
+    </div>
+
+    <p class="small">🔴 <b>적는 칸에 사람 이름 · 연락처 · 소속을 적지 말아 주세요.</b>
+      이 설문은 처음으로 <b>자유롭게 쓰는 칸</b>이 있습니다. 장소 이름과 이유만 적어 주시면 됩니다.
+      전화번호나 이메일처럼 보이는 글자가 있으면 <b>제출이 막히고 어느 칸인지 알려 드립니다.</b></p>
+
+    <label class="agree">
+      <input type="checkbox" id="consent">
+      <span>위 내용을 읽었고, <b>자유롭게</b> 참여하는 데 동의합니다. (만 14세 이상)</span>
+    </label>
+
+    <div class="btnwrap"><button class="btn" id="start" disabled>시작하기</button></div>
+    <p class="small">참여하지 않으셔도 됩니다. 참여 여부는 SSAFY 의 평가 · 수료 · 성적 · 팀 배정 ·
+      그 밖의 어떤 것과도 <b>관계가 없습니다.</b> 저희가 누가 참여했는지 알 수 없기도 합니다.
+      도중에 그만두시려면 창을 닫으시면 됩니다 — 제출 전에는 아무것도 저장되지 않습니다.</p>
+  </section>
+
+  <!-- ══ 본 화면 ═══════════════════════════════════════════════ -->
+  <section id="scMain" class="screen">
+
+    <h2>먼저 두 가지만</h2>
+    <p class="hint">누구인지 알려고 여쭙는 게 아니라, <b>응답한 분들이 어느 쪽으로 치우쳐 있는지</b>를 나중에 재려고 여쭙습니다.</p>
+
+    <label class="f">나이대</label>
+    <div class="chips" id="ageChips"></div>
+
+    <label class="f">부산에 얼마나 사셨어요?</label>
+    <div class="chips" id="yearChips"></div>
+
+    <h2>추천하는 곳 다섯 군데</h2>
+    <p class="hint">칸을 눌러서 펼치고 하나씩 적어 주세요.
+      <b>다섯 곳이 전부 같은 유형이어도 괜찮아요</b> — 맛집만 다섯 곳이어도 좋습니다.</p>
+
+    <div class="cats" id="cats"></div>
+
+    <div id="stop"></div>
+
+    <div class="btnwrap"><button class="btn" id="submit">제출하기</button></div>
+    <p class="small">제출하면 되돌릴 수 없어요. 낸 뒤에는 그 응답 하나만 빼 드릴 수 없습니다.</p>
+  </section>
+
+  <!-- ══ 완료 ══════════════════════════════════════════════════ -->
+  <section id="scDone" class="screen">
+    <div class="done-mark">✓</div>
+    <h1>고맙습니다.</h1>
+    <p>다섯 군데 잘 받았습니다. 이 창은 닫으셔도 됩니다.</p>
+    <p class="small">받은 내용은 팀 서버의 이 설문 전용 데이터베이스에만 들어갔고,
+      <b><span class="cfg-delete"></span></b> 지웁니다.
+      누가 냈는지는 저희도 모릅니다 — 접속 기록도 남기지 않았습니다.</p>
+    <p class="small">문의: <span class="cfg-contact"></span></p>
+  </section>
+
+</div>
+
+<script>
+"use strict";
+
+/* ══════════════════════════════════════════════════════════════════
+   🔴 올리기 전에 채운다. 하나라도 "정해야 함" 이 남아 있으면
+      화면 맨 위에 경고가 뜬다 — 참여자에게도 보인다. 그게 안전장치다.
+      값의 근거는 docs/SURVEY-CONSENT.md 7절의 "정해야 함" 목록이다.
+   ══════════════════════════════════════════════════════════════════ */
+const CONFIG = {
+  facilitator: "장효준",
+  deleteWhen:  "수집일로부터 1년 뒤에",
+  contact:     "Mattermost DM (장효준)"
+};
+
+/* ── 장소 유형 일곱 ────────────────────────────────────────────────
+   🔴 "야간" 과 "축제" 를 여기에 넣지 않는다.
+      야간은 시간이고 축제는 날짜가 있는 사건이다. 유형에 섞으면
+      "이 사람이 술을 좋아하는지 야경을 좋아하는지" 를 나중에 못 가른다.
+      그래서 낮/밤은 whenGood, 축제는 limited 로 따로 받는다.
+   ── 순서와 코드값을 바꾸지 않는다. 바꾸면 앞 회차 응답과 못 합친다.
+   ─────────────────────────────────────────────────────────────── */
+const TYPES = [
+  { v: "FOOD",     t: "맛집 · 로컬 음식" },
+  { v: "CAFE",     t: "카페 · 디저트" },
+  { v: "NATURE",   t: "자연 · 바다 · 산책" },
+  { v: "CULTURE",  t: "문화 · 역사 · 전시" },
+  { v: "MARKET",   t: "시장 · 골목 · 쇼핑" },
+  { v: "ACTIVITY", t: "체험 · 액티비티" },
+  { v: "BAR",      t: "술집 · 바" }
+];
+const typeLabel = v => (TYPES.find(t => t.v === v) || {}).t || "";
+
+/* 🔴 칸이 다섯이다. 유형이 다섯인 게 아니다.
+      다섯 칸이 전부 같은 유형이어도 된다 — 맛집을 다섯 곳 아는 사람의
+      답을 잘라내지 않으려고 이렇게 바꿨다. */
+const SLOTS = 5;
+
+const AGE = [
+  { v: "UNDER_20", t: "20세 미만" },
+  { v: "AGE_20_24", t: "20 ~ 24세" },
+  { v: "AGE_25_29", t: "25 ~ 29세" },
+  { v: "AGE_30_34", t: "30 ~ 34세" },
+  { v: "AGE_35_PLUS", t: "35세 이상" }
+];
+
+const YEARS = [
+  { v: "BORN_HERE",  t: "부산에서 나고 자람" },
+  { v: "OVER_10Y",   t: "10년 이상" },
+  { v: "Y_3_10",     t: "3 ~ 10년" },
+  { v: "Y_1_3",      t: "1 ~ 3년" },
+  { v: "UNDER_1Y",   t: "1년 미만" },
+  { v: "NEVER",      t: "부산에 산 적 없음" }
+];
+
+const WHEN = [
+  { v: "DAY",   t: "낮" },
+  { v: "NIGHT", t: "밤" },
+  { v: "ANY",   t: "상관없음" }
+];
+
+/* ── 🔴 개인정보가 섞였는지 보는 자리 ──────────────────────────────
+   이 검사는 화면과 서버 양쪽에 똑같이 있다 (server.mjs 의 PII).
+   화면만 있으면 주소창으로 직접 보내는 것을 못 막고,
+   서버만 있으면 사람이 다 적은 뒤에야 거절당해서 다시 적어야 한다.
+   ─────────────────────────────────────────────────────────────── */
+const PII = [
+  { name: "전화번호처럼 보이는 숫자", re: /0\d{1,2}[-.\s]?\d{3,4}[-.\s]?\d{4}/ },
+  { name: "이메일 주소(@)",          re: /@/ },
+  { name: "8자리 넘게 이어진 숫자",   re: /\d{8,}/ }
+];
+function piiHit(s) {
+  for (const p of PII) if (p.re.test(s)) return p.name;
+  return null;
+}
+
+/* ── 상태 ────────────────────────────────────────────────────────
+   제출 버튼을 누르기 전까지 이 값들은 이 창 안에만 있다.
+   저장하지 않는다 — 저장하면 "제출 전에는 아무것도 저장되지 않습니다"
+   라는 고지가 거짓이 된다.
+   ─────────────────────────────────────────────────────────────── */
+const blank = () => ({ type: null, name: "", whenGood: null, limited: false, reason: "" });
+const state = {
+  ageBand: null,
+  busanYears: null,
+  slots: Array.from({ length: SLOTS }, blank)   /* 칸 다섯. 유형은 칸 안에서 고른다 */
+};
+
+const $ = id => document.getElementById(id);
+const show = id => document.querySelectorAll(".screen").forEach(s => s.classList.toggle("on", s.id === id));
+
+/* ── 안 채운 칸 경고 ─────────────────────────────────────────── */
+(function checkConfig() {
+  document.querySelectorAll(".cfg-facilitator").forEach(e => e.textContent = CONFIG.facilitator);
+  document.querySelectorAll(".cfg-delete").forEach(e => e.textContent = CONFIG.deleteWhen);
+  document.querySelectorAll(".cfg-contact").forEach(e => e.textContent = CONFIG.contact);
+  const left = Object.entries(CONFIG).filter(([, v]) => v.includes("정해야 함")).map(([k]) => k);
+  if (left.length) { $("cfgWarn").classList.add("on"); $("cfgWarnList").textContent = left.join(", "); }
+})();
+
+/* ── 조각 만들기 ─────────────────────────────────────────────── */
+function buildChips(box, list, onPick, getNow) {
+  box.textContent = "";
+  for (const o of list) {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "chip" + (getNow() === o.v ? " on" : "");
+    b.textContent = o.t;
+    b.dataset.v = o.v;
+    b.addEventListener("click", () => {
+      onPick(o.v);
+      box.querySelectorAll(".chip").forEach(c => c.classList.toggle("on", c.dataset.v === getNow()));
+      paint();
+    });
+    box.appendChild(b);
+  }
+}
+buildChips($("ageChips"),  AGE,   v => { state.ageBand = v; },    () => state.ageBand);
+buildChips($("yearChips"), YEARS, v => { state.busanYears = v; }, () => state.busanYears);
+
+/* ── 추천 칸 다섯 ────────────────────────────────────────────── */
+const catsBox = $("cats");
+for (let i = 0; i < SLOTS; i++) {
+  const art = document.createElement("article");
+  art.className = "cat";
+  art.dataset.slot = String(i);
+
+  const head = document.createElement("button");
+  head.type = "button";
+  head.className = "cathead";
+  head.setAttribute("aria-expanded", "false");
+  head.innerHTML =
+    '<span class="num">' + (i + 1) + '</span>' +
+    '<span class="catname"><b></b><s></s></span>' +
+    '<span class="mark" aria-hidden="true">＋</span>';
+  head.querySelector("b").textContent = (i + 1) + "번째 추천";
+
+  const body = document.createElement("div");
+  body.className = "catbody";
+  body.hidden = true;
+  body.innerHTML =
+    '<label class="f">어떤 곳인가요? <span class="req">· 하나만 골라 주세요</span></label>' +
+    '<div class="chips types"></div>' +
+
+    '<div class="rest locked">' +
+      '<label class="f">장소 이름 <span class="req">· 꼭 적어 주세요</span></label>' +
+      '<input type="text" class="in-name" maxlength="60" autocomplete="off" ' +
+        'placeholder="예) 광안리 해변 · 부평깡통시장" enterkeyhint="next">' +
+      '<div class="guard">🔴 <b>장소 이름만</b> 적어 주세요. 사람 이름 · 연락처 · 소속을 적지 마세요.</div>' +
+
+      '<label class="f">언제 가면 좋아요?</label>' +
+      '<div class="chips when"></div>' +
+
+      '<label class="check"><input type="checkbox" class="in-limited">' +
+        '<span>기간이 정해진 곳이에요<i>축제 · 시즌 행사처럼 특정 시기에만 열리는 곳</i></span></label>' +
+
+      '<label class="f">왜 추천하세요? <span class="req">· 이 칸이 제일 중요해요</span></label>' +
+      '<p class="hint">한 줄이어도 좋아요. “왜 여기냐” 가 없으면 그냥 장소 목록이라 저희가 쓸 수 없어요.</p>' +
+      '<textarea class="in-reason" maxlength="500" ' +
+        'placeholder="예) 관광객은 잘 모르는데 회가 싸고 사장님이 친절해요. 노을 질 때 창가 자리가 좋아요."></textarea>' +
+      '<div class="guard">🔴 사람 이름 · 전화번호 · 이메일 · 소속 반은 적지 마세요.</div>' +
+    '</div>' +
+
+    '<div class="btnwrap"><button type="button" class="btn ghost clear">이 칸 비우기</button></div>';
+
+  const idx      = i;
+  const typeBox  = body.querySelector(".types");
+  const whenBox  = body.querySelector(".when");
+  const rest     = body.querySelector(".rest");
+  const nameIn   = body.querySelector(".in-name");
+  const reasonIn = body.querySelector(".in-reason");
+  const limIn    = body.querySelector(".in-limited");
+
+  /* 유형 일곱 — 이 칸에서 하나 고른다. 다른 칸이 같은 것을 골라도 된다 */
+  for (const ty of TYPES) {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "chip"; b.textContent = ty.t; b.dataset.v = ty.v;
+    b.addEventListener("click", () => {
+      state.slots[idx].type = ty.v;
+      typeBox.querySelectorAll(".chip").forEach(c => c.classList.toggle("on", c.dataset.v === ty.v));
+      rest.classList.remove("locked");
+      paint();
+    });
+    typeBox.appendChild(b);
+  }
+
+  /* 낮 / 밤 / 상관없음 */
+  for (const w of WHEN) {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "chip"; b.textContent = w.t; b.dataset.v = w.v;
+    b.addEventListener("click", () => {
+      state.slots[idx].whenGood = w.v;
+      whenBox.querySelectorAll(".chip").forEach(c => c.classList.toggle("on", c.dataset.v === w.v));
+      paint();
+    });
+    whenBox.appendChild(b);
+  }
+
+  const onEdit = () => {
+    const s = state.slots[idx];
+    s.name    = nameIn.value.trim();
+    s.reason  = reasonIn.value.trim();
+    s.limited = limIn.checked;
+    paint();
+  };
+  nameIn.addEventListener("input", onEdit);
+  reasonIn.addEventListener("input", onEdit);
+  limIn.addEventListener("change", onEdit);
+
+  body.querySelector(".clear").addEventListener("click", () => {
+    state.slots[idx] = blank();
+    nameIn.value = ""; reasonIn.value = ""; limIn.checked = false;
+    typeBox.querySelectorAll(".chip").forEach(c => c.classList.remove("on"));
+    whenBox.querySelectorAll(".chip").forEach(c => c.classList.remove("on"));
+    rest.classList.add("locked");
+    setOpen(art, false);
+    paint();
+  });
+
+  head.addEventListener("click", () => setOpen(art, body.hidden));
+
+  art.appendChild(head);
+  art.appendChild(body);
+  catsBox.appendChild(art);
+}
+
+function setOpen(art, open) {
+  const body = art.querySelector(".catbody");
+  body.hidden = !open;
+  art.classList.toggle("open", open);
+  art.querySelector(".cathead").setAttribute("aria-expanded", String(open));
+  art.querySelector(".mark").textContent = open ? "✕" : "＋";
+}
+
+/* 한 칸이 다 찼는가 — 유형 · 이름 · 언제 · 이유 넷 다 있어야 한 곳으로 센다 */
+const isFull = s => !!(s && s.type && s.name && s.whenGood && s.reason);
+
+/* ── 진행 표시와 카드 겉모습 ─────────────────────────────────── */
+function paint() {
+  const n = state.slots.filter(isFull).length;
+  $("cnum").textContent = String(n);
+  $("bar").style.width = Math.min(100, n / SLOTS * 100) + "%";
+  document.querySelectorAll(".cat").forEach(art => {
+    const s = state.slots[Number(art.dataset.slot)];
+    art.classList.toggle("filled", isFull(s));
+    const sub = art.querySelector(".catname s");
+    if (s.name && s.type)  sub.textContent = s.name + " · " + typeLabel(s.type);
+    else if (s.type)       sub.textContent = typeLabel(s.type) + " · 아직 안 적었어요";
+    else                   sub.textContent = "아직 안 적었어요";
+  });
+}
+
+/* ── 첫 화면 ─────────────────────────────────────────────────── */
+$("consent").addEventListener("change", e => { $("start").disabled = !e.target.checked; });
+$("start").addEventListener("click", () => {
+  if (!$("consent").checked) return;
+  $("top").classList.remove("hide");
+  show("scMain");
+  window.scrollTo(0, 0);
+  paint();
+});
+
+/* ── 제출 ────────────────────────────────────────────────────── */
+function complain(lines) {
+  const box = $("stop");
+  box.innerHTML = "";
+  const b = document.createElement("b");
+  b.textContent = "아직 낼 수 없어요";
+  box.appendChild(b);
+  const ul = document.createElement("ul");
+  for (const l of lines) { const li = document.createElement("li"); li.textContent = l; ul.appendChild(li); }
+  box.appendChild(ul);
+  box.classList.add("on");
+  box.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
+$("submit").addEventListener("click", async () => {
+  $("stop").classList.remove("on");
+  document.querySelectorAll(".cat").forEach(a => a.classList.remove("bad"));
+
+  const trouble = [];
+  if (!state.ageBand)    trouble.push("나이대를 골라 주세요.");
+  if (!state.busanYears) trouble.push("부산에 얼마나 사셨는지 골라 주세요.");
+
+  /* 🔴 개인정보 검사가 먼저다. 덜 채운 것보다 먼저 알려야 다시 안 적는다.
+        🔴 칸 번호로 말한다 — 유형은 겹칠 수 있어서 유형 이름만으로는 못 가린다.
+           (다섯 칸이 전부 "맛집" 일 수 있다) */
+  let pii = false;
+  state.slots.forEach((s, i) => {
+    const art = document.querySelector('.cat[data-slot="' + i + '"]');
+    for (const [field, label] of [["name", "장소 이름"], ["reason", "추천 이유"]]) {
+      const hit = s[field] ? piiHit(s[field]) : null;
+      if (hit) {
+        pii = true;
+        trouble.push((i + 1) + "번째 추천의 " + label + " 칸에 " + hit + "가 있어요. 지워 주세요.");
+        art.classList.add("bad");
+        if (art.querySelector(".catbody").hidden) setOpen(art, true);
+      }
+    }
+  });
+
+  if (!pii) {
+    const done = state.slots.filter(isFull).length;
+    if (done < SLOTS) {
+      trouble.push("다섯 군데를 채워 주세요. 지금 " + done + "군데예요.");
+      state.slots.forEach((s, i) => {
+        if (isFull(s)) return;
+        const miss = [];
+        if (!s.type)     miss.push("어떤 곳인지");
+        if (!s.name)     miss.push("장소 이름");
+        if (!s.whenGood) miss.push("언제 가면 좋은지");
+        if (!s.reason)   miss.push("추천 이유");
+        trouble.push((i + 1) + "번째 추천은 " + miss.join(" · ") + " 이 비어 있어요.");
+      });
+    }
+  }
+
+  if (trouble.length) { complain(trouble); return; }
+
+  const body = {
+    schema: "gabolle.survey.recommend.v1",
+    consented: true,
+    ageBand: state.ageBand,
+    busanYears: state.busanYears,
+    recommendations: state.slots.map((s, i) => ({
+      slot: i + 1, placeType: s.type, placeName: s.name,
+      whenGood: s.whenGood, limitedTime: s.limited, reason: s.reason
+    }))
+  };
+
+  const btn = $("submit");
+  btn.disabled = true; btn.textContent = "보내는 중…";
+  try {
+    /* 주소를 상대경로로 쓴다 — /survey/ 아래에 올려도, 그냥 3100 번으로 열어도 같이 간다 */
+    const r = await fetch("api/submit", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(body)
+    });
+    const out = await r.json().catch(() => ({}));
+    if (!r.ok) { complain([out.message || ("서버가 받지 않았어요 (" + r.status + "). 잠시 뒤 다시 눌러 주세요.")]); return; }
+    show("scDone");
+    $("top").classList.add("hide");
+    window.scrollTo(0, 0);
+  } catch (e) {
+    complain(["보내지 못했어요. 인터넷 연결을 확인하고 다시 눌러 주세요. 적으신 내용은 그대로 있어요."]);
+  } finally {
+    btn.disabled = false; btn.textContent = "제출하기";
+  }
+});
+</script>
+</body>
+</html>
