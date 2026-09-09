@@ -27,7 +27,7 @@ const MODES: { value: RecommendationMode; title: string; description: string }[]
   { value: "ESSENTIAL", title: "관광 필수 코스", description: "대표 명소와 접근성을 우선해요." },
   { value: "LOCAL", title: "현지인 코스", description: "로컬 점수와 숨은 장소를 더 중요하게 봐요." },
 ];
-const STEPS = ["기본 정보", "취향·모드", "최종 확인"];
+const STEPS = ["기본 정보", "취향", "이용 조건", "최종 확인"];
 /**
  * STEP 2 안의 질문들. 한 화면에 하나씩 보여주고, 고르면 다음 질문으로 넘어간다.
  * 33개 선택지를 한꺼번에 늘어놓는 것보다 결정 부담이 훨씬 적다.
@@ -101,6 +101,9 @@ export function TripFormPage({ onSubmit, submitting, errorMessage, placeCount, i
   useEffect(() => { getCourseCategories().then(setCourseCategories).catch(() => setCourseCategories([])); }, []);
   const [allergyText, setAllergyText] = useState((initialValues?.allergies ?? []).join(", "));
   const [dietType, setDietType] = useState<DietType>(initialValues?.dietType ?? "NONE");
+  const [mobilityProfile, setMobilityProfile] = useState<CreateTripRequest["mobilityProfile"]>(initialValues?.mobilityProfile ?? "STANDARD");
+  const [avoidStairs, setAvoidStairs] = useState(initialValues?.avoidStairs ?? false);
+  const [shadePriority, setShadePriority] = useState<CreateTripRequest["shadePriority"]>(initialValues?.shadePriority ?? "MEDIUM");
   const [desiredFoods, setDesiredFoods] = useState<string[]>(initialValues?.desiredFoods ?? ["milmyeon", "dwaeji_gukbap"]);
   const [desiredPlaces, setDesiredPlaces] = useState<DesiredPlace[]>(
     (initialValues?.mustVisitAssignments ?? []).map((a) => ({ placeId: a.placeId, name: a.placeId, address: "" }))
@@ -197,10 +200,11 @@ export function TripFormPage({ onSubmit, submitting, errorMessage, placeCount, i
     recommendationMode: mode, dayStart, dayEnd,
     maxWalkingKm: 100, language,
     allergies: allergyText.split(",").map((value) => value.trim()).filter(Boolean), dietType,
+    mobilityProfile, avoidStairs, shadePriority,
     desiredFoods,
     mustVisitPlaceIds: desiredPlaces.map((place) => place.placeId),
     ...recommendationRatios,
-  }), [origin, startDate, endDate, partySize, totalBudget, hasCar, pace, selectedTags, selectedCourse, courseCategory, mode, dayStart, dayEnd, language, allergyText, dietType, desiredFoods, desiredPlaces]);
+  }), [origin, startDate, endDate, partySize, totalBudget, hasCar, pace, selectedTags, selectedCourse, courseCategory, mode, dayStart, dayEnd, language, allergyText, dietType, mobilityProfile, avoidStairs, shadePriority, desiredFoods, desiredPlaces]);
 
   const submit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -220,6 +224,7 @@ export function TripFormPage({ onSubmit, submitting, errorMessage, placeCount, i
     if (step === 1 && tasteStep === 0 && tasteCustom) { setTasteCustom(false); return; }
     if (step === 1 && tasteStep > 0) { setTasteStep(tasteStep - 1); return; }
     if (step === 2) { setStep(1); setTasteStep(TASTE_STEPS.length - 1); return; }
+    if (step === 3) { setStep(2); return; }
     setStep(step - 1);
   };
 
@@ -292,23 +297,6 @@ export function TripFormPage({ onSubmit, submitting, errorMessage, placeCount, i
                 <option value="NORMAL">{language === "EN" ? "Normal · Up to 4 stops" : "균형 있게 · 하루 최대 4곳"}</option>
                 <option value="PACKED">{language === "EN" ? "Packed · Up to 6 stops" : "알차게 · 하루 최대 6곳"}</option>
               </select>
-            </label>
-          </div>
-          <div className="form-grid two diet-allergy-grid" style={{ marginTop: "20px" }}>
-            <label className="field">
-              <span>{language === "EN" ? "Dietary Option" : "식단"}</span>
-              <select value={dietType} onChange={(e) => setDietType(e.target.value as DietType)}>
-                <option value="NONE">{language === "EN" ? "No Restrictions" : "제한 없음"}</option>
-                <option value="VEGETARIAN">{language === "EN" ? "Vegetarian" : "채식"}</option>
-                <option value="VEGAN">{language === "EN" ? "Vegan" : "비건"}</option>
-                <option value="HALAL">{language === "EN" ? "Halal" : "할랄"}</option>
-                <option value="GLUTEN_FREE">{language === "EN" ? "Gluten-Free" : "글루텐 프리"}</option>
-              </select>
-            </label>
-            <label className="field">
-              <span>{language === "EN" ? "Allergens" : "알레르기 성분"}</span>
-              <input value={allergyText} onChange={(e) => setAllergyText(e.target.value)} placeholder={language === "EN" ? "e.g., Peanut, Shellfish, Milk" : "예: 땅콩, 갑각류, 우유"} />
-              <small>{language === "EN" ? "Separate with commas." : "쉼표로 구분해주세요. 정보가 없으면 확인 필요로 표시됩니다."}</small>
             </label>
           </div>
         </section>}
@@ -429,9 +417,21 @@ export function TripFormPage({ onSubmit, submitting, errorMessage, placeCount, i
           </div>
         </section>}
 
-        {step === 2 && <section aria-labelledby="confirm-title">
+        {step === 2 && <section aria-labelledby="constraints-title">
+          <div className="section-heading"><div><span>STEP 3</span><h2 id="constraints-title">{language === "EN" ? "Tell us what must be protected" : "반드시 지켜야 할 조건을 알려주세요"}</h2></div><p>{language === "EN" ? "Safety constraints are checked before preference scores." : "안전과 식단 조건은 취향 점수보다 먼저 확인합니다."}</p></div>
+          <div className="constraint-callout"><b>{language === "EN" ? "Hard constraints" : "절대 조건"}</b><span>{language === "EN" ? "We never silently relax these conditions when recommendations are scarce." : "조건을 만족하는 후보가 적어도 서비스가 임의로 완화하지 않습니다."}</span></div>
+          <div className="form-grid two diet-allergy-grid">
+            <label className="field"><span>{language === "EN" ? "Required diet" : "필수 식단"}</span><select value={dietType} onChange={(e) => setDietType(e.target.value as DietType)}><option value="NONE">{language === "EN" ? "No restrictions" : "제한 없음"}</option><option value="VEGETARIAN">{language === "EN" ? "Vegetarian" : "채식"}</option><option value="VEGAN">{language === "EN" ? "Vegan" : "비건"}</option><option value="HALAL">{language === "EN" ? "Halal" : "할랄"}</option><option value="GLUTEN_FREE">{language === "EN" ? "Gluten-free" : "글루텐 프리"}</option></select></label>
+            <label className="field"><span>{language === "EN" ? "Allergens" : "알레르기 성분"}</span><input value={allergyText} onChange={(e) => setAllergyText(e.target.value)} placeholder={language === "EN" ? "e.g., Peanut, Shellfish" : "예: 땅콩, 갑각류, 우유"} /><small>{language === "EN" ? "Unknown evidence is shown as unverified, never safe." : "근거가 없으면 안전하다고 단정하지 않고 ‘확인 필요’로 표시합니다."}</small></label>
+            <label className="field"><span>{language === "EN" ? "Mobility context" : "이동 상황"}</span><select value={mobilityProfile} onChange={(e) => setMobilityProfile(e.target.value as CreateTripRequest["mobilityProfile"])}><option value="STANDARD">{language === "EN" ? "Standard" : "일반 이동"}</option><option value="WHEELCHAIR">{language === "EN" ? "Wheelchair" : "휠체어 이용"}</option><option value="STROLLER">{language === "EN" ? "Stroller" : "유모차 동반"}</option><option value="HEAVY_LUGGAGE">{language === "EN" ? "Heavy luggage" : "무거운 짐 동반"}</option></select></label>
+            <label className="field"><span>{language === "EN" ? "Shade preference" : "그늘 선호"}</span><select value={shadePriority} onChange={(e) => setShadePriority(e.target.value as CreateTripRequest["shadePriority"])}><option value="LOW">{language === "EN" ? "Not important" : "중요하지 않음"}</option><option value="MEDIUM">{language === "EN" ? "Prefer shade" : "가능하면 그늘"}</option><option value="HIGH">{language === "EN" ? "Very important" : "그늘이 매우 중요"}</option></select></label>
+          </div>
+          <label className="constraint-toggle"><div><b>{language === "EN" ? "Avoid stairs" : "계단이 있는 보행 경로 제외"}</b><span>{language === "EN" ? "Verified stair segments will be removed before route scoring." : "계단이 확인된 구간은 경로 점수 계산 전에 제외합니다."}</span></div><input type="checkbox" checked={avoidStairs} onChange={(event) => setAvoidStairs(event.target.checked)} /></label>
+        </section>}
+
+        {step === 3 && <section aria-labelledby="confirm-title">
           <div className="section-heading">
-            <div><span>STEP 3</span><h2 id="confirm-title">{language === "EN" ? "Generate schedule with these options?" : "이 조건으로 일정을 계산할까요?"}</h2></div>
+            <div><span>STEP 4</span><h2 id="confirm-title">{language === "EN" ? "Generate schedule with these options?" : "이 조건으로 일정을 계산할까요?"}</h2></div>
             <p>{language === "EN" ? "Our scheduler optimizes opening hours, travel time, and budget." : "최종 결정은 추천 점수와 제약조건 스케줄러가 수행합니다."}</p>
           </div>
           <div className="confirm-hero">
@@ -449,6 +449,7 @@ export function TripFormPage({ onSubmit, submitting, errorMessage, placeCount, i
             <div><dt>{language === "EN" ? "Daily Hours" : "여행 시간대"}</dt><dd>{dayStart}–{dayEnd}</dd></div>
             <div><dt>{language === "EN" ? "Travel Pace" : "여행 스타일"}</dt><dd>{paceLabel(pace, language)}</dd></div>
             <div><dt>{language === "EN" ? "Primary Transport" : "주요 이동 수단"}</dt><dd>{transportLabel(hasCar, language)}</dd></div>
+            <div><dt>{language === "EN" ? "Protected conditions" : "보호할 조건"}</dt><dd>{[dietType !== "NONE" && dietType, allergyText && (language === "EN" ? "Allergy" : "알레르기"), mobilityProfile !== "STANDARD" && mobilityProfile, avoidStairs && (language === "EN" ? "No stairs" : "계단 제외")].filter(Boolean).join(" · ") || (language === "EN" ? "None" : "없음")}</dd></div>
             <div><dt>{language === "EN" ? "Selected Tags" : "선택 취향"}</dt><dd>{selectedTags.length ? selectedTags.map((slug) => tagLabel(slug, language)).join(", ") : (language === "EN" ? "Default" : "기본값")}</dd></div>
             <div>
               <dt>{language === "EN" ? "Must-try dishes" : "꼭 먹고 싶은 음식"}</dt>
@@ -479,4 +480,3 @@ export function TripFormPage({ onSubmit, submitting, errorMessage, placeCount, i
     </div>
   </DashboardShell>;
 }
-
