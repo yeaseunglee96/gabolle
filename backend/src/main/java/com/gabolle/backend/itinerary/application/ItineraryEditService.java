@@ -75,15 +75,24 @@ public class ItineraryEditService {
      */
     private final TripRepository tripRepository;
 
+    /**
+     * 순서를 바꾼 뒤 그날 방문 시각이 영업시간을 어기는지 본다 — S15P21E201-268.
+     *
+     * <p>{@link PlaceEventSchedulePort} 와 같은 이유로 선택 의존성으로 두지 않는다. 없을 때
+     * 조용히 건너뛰게 만들면 배선이 빠진 채 배포돼도 아무 검사도 빨개지지 않고 경고만 사라진다.
+     */
+    private final ItineraryOpeningHoursChecker openingHours;
+
     private final Clock clock;
 
     public ItineraryEditService(ItineraryRepository repository, PlaceEventSchedulePort eventSchedule,
                                 ItineraryLegPlanner legPlanner, TripRepository tripRepository,
-                                Clock clock) {
+                                ItineraryOpeningHoursChecker openingHours, Clock clock) {
         this.repository = repository;
         this.eventSchedule = eventSchedule;
         this.legPlanner = legPlanner;
         this.tripRepository = tripRepository;
+        this.openingHours = openingHours;
         this.clock = clock;
     }
 
@@ -245,8 +254,8 @@ public class ItineraryEditService {
      * @throws NoSuchElementException 그런 일정이 없다 (404)
      */
     @Transactional
-    public ItineraryVersion reorderDay(String itineraryId, int dayIndex, List<String> dayOrder,
-                                       int baseVersion, String editorUserId) {
+    public ReorderOutcome reorderDay(String itineraryId, int dayIndex, List<String> dayOrder,
+                                     int baseVersion, String editorUserId) {
 
         Itinerary itinerary = repository.findById(itineraryId)
                 .orElseThrow(() -> new NoSuchElementException("일정을 찾을 수 없습니다: " + itineraryId));
@@ -276,7 +285,20 @@ public class ItineraryEditService {
                 new ItineraryVersion.Versions(null, null, null, null, null),
                 now);
 
-        return repository.appendVersion(candidate, draft.items(), legs, draft.exclusions());
+        ItineraryVersion saved = repository.appendVersion(candidate, draft.items(), legs, draft.exclusions());
+
+        // 🔴 판정은 저장한 뒤에 한다. 위반이 있어도 순서 바꾸기는 성공해야 한다 — 완료 기준의
+        //    문장이 "순서가 유지된 채 경고가 온다" 다. 경고가 순서를 막는 자리에 있으면 안 된다.
+        return new ReorderOutcome(saved, this.openingHours.checkDay(draft.items(), dayIndex));
+    }
+
+    /**
+     * 순서 바꾸기가 만든 것 — 새 판과, 그 결과에 대해 <b>알려 줄 것</b>.
+     *
+     * <p>판만 돌려주면 부르는 쪽이 경고를 알 길이 없고, 부르는 쪽에서 다시 판정하게 만들면 같은
+     * 규칙이 두 곳에 살게 된다. 그래서 판정한 자리에서 함께 올린다.
+     */
+    public record ReorderOutcome(ItineraryVersion version, ItineraryOpeningHoursChecker.Result openingHours) {
     }
 
     /**
