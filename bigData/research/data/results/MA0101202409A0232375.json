@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202409A0232375",
+  "worker": "haiku-34",
+  "researchedAt": "2026-09-09T06:35:00Z",
+  "queries": ["여유 경양식 부산진구", "여유 당감4동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "2번의 검색으로도 음식점 정보를 찾을 수 없음. 당감동의 일반 맛집 정보만 나옴 (교촌치킨, 화성왕족발 등)",
+  "notes": ""
+}

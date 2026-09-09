@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220804791352",
+  "worker": "haiku-35",
+  "researchedAt": "2026-09-09T02:10:44.184Z",
+  "queries": ["청와정 부산진구 부산", "청와정 당감1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["식신", "다이닝코드", "식품저널", "블로그", "공식홈페이지"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "기관 선정", "note": "대한민국 한식명인 박다희 대표가 운영하는 공식 인정 보양식 명가", "sources": [1]},
+    {"type": "조리·재료", "note": "녹두한방백숙, 청와봉황탕 등 프리미엄 한방 요리와 신선한 오리 사용", "sources": [0]},
+    {"type": "미디어 노출", "note": "식품저널 등 언론 보도를 통해 소개된 보양식 전문점", "sources": [2]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "있음",
+    "audience": "mixed",
+    "signatureDishes": ["녹두한방백숙", "청와봉황탕", "코다리찜"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": "전통 한옥 건물, 285평 규모 250석, 월요일 휴무"
+}

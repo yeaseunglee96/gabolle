@@ -1,0 +1,25 @@
+{
+  "id": "MA010120220807365031",
+  "worker": "haiku-35",
+  "researchedAt": "2026-09-09T02:10:44.184Z",
+  "queries": ["토이케이크 북구 부산", "토이케이크 만덕2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["다이닝코드", "카카오톡"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "초미니 한입 케이크, 마이크로케이크 전문", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "가게 앞 주차 가능",
+    "audience": "mixed",
+    "signatureDishes": ["마이크로케이크", "미니케이크"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "주문은 카카오톡 ID 토이케이크로 (DM 및 전화 불가), 픽업시간 11:00-20:00"
+}

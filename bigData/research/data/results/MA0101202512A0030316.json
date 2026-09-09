@@ -1,0 +1,25 @@
+{
+  "id": "MA0101202512A0030316",
+  "worker": "haiku-35",
+  "researchedAt": "2026-09-09T02:10:44.184Z",
+  "queries": ["원호정 동구 부산 초밥", "원호정 수정2동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["당근 동네업체", "카카오맵"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "등심카츠, 치즈카츠 등 경양식 전문", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["등심카츠", "치즈카츠", "우동돈카츠세트"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "주소: 부산광역시 동구 중앙대로361번길 36 1층, 연락처: 070-4136-1230, 단체석·배달·예약 가능"
+}

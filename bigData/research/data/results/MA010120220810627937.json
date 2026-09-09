@@ -1,0 +1,25 @@
+{
+  "id": "MA010120220810627937",
+  "worker": "haiku-35",
+  "researchedAt": "2026-09-09T02:10:44.184Z",
+  "queries": ["소정 부산진구 부산", "소정 연지동 맛집", "소정 돼지고기 부산진구"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["다이닝코드"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "돼지갈비, 양념돼지갈비 전문", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "아시아나타운 주차장 1시간 30분 무료주차 가능",
+    "audience": "local",
+    "signatureDishes": ["돼지갈비", "양념돼지갈비", "LA갈비"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "테이블석, 아기의자 있음, 다이닝코드에서 돼지갈비 전문점으로 소개됨"
+}
