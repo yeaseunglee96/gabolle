@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
 
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -59,51 +58,59 @@ import com.gabolle.backend.recommendation.support.TestDatabase;
  * 먼저(JUnit5 {@code @BeforeAll}) 돌게 해서, 운영에서 사람이 미리 하는 그 단계를
  * 흉내낸다.
  *
- * <h2>🔴 왜 끝나면 지우나 — 세 번째 실수, 이번엔 남의 테스트를 깼다</h2>
+ * <h2>🔴 schema 이름을 {@code gabolle} 로 쓰지 않는 이유 — 세 번째 실수, 이번엔 남의 테스트를 깼다</h2>
  *
- * 처음엔 {@link #createSchema()} 만 있고 끝난 뒤 지우지 않았다. 로컬·CI 양쪽에서 이 클래스
- * 하나만 보면 통과했지만, 전체 스위트에서 {@code EventQualityGateTest}(S15P21E201-546)가
- * 이 클래스 <b>뒤에</b> 도는 순서에서만 간헐적으로 깨졌다 — 고지혁이 근본 원인을 찾았다
- * (MR !425). PostgreSQL 의 기본 {@code search_path}는 {@code "$user", public}인데, 접속
- * 사용자 이름이 정확히 {@code gabolle} 이다. 이 클래스가 {@code gabolle} schema 를 만들어
- * 두고 안 지우면, <b>그 뒤에 새로 여는 모든 연결</b>에서 {@code $user} 가 그 schema 로
- * 풀린다 — 그 연결들이 dev 프로필인지 아닌지와 무관하다. 그러면 Flyway 가 표를
- * {@code public} 대신 {@code gabolle} 에 만들고, "표는 다 public 에 있다" 고 가정한 다른
- * 테스트가 조용히 깨진다.
+ * 처음엔 {@code gabolle} schema 를 만들고 끝나면 {@code DROP SCHEMA} 로 지우는 방식이었다.
+ * 로컬·CI 양쪽에서 이 클래스 하나만 보면 통과했지만, 전체 스위트에서
+ * {@code EventQualityGateTest}(S15P21E201-546)가 이 클래스 <b>뒤에</b> 도는 순서에서만
+ * 간헐적으로 깨졌다 — 고지혁이 근본 원인을 찾았다(MR !425). PostgreSQL 의 기본
+ * {@code search_path}는 {@code "$user", public}인데, 접속 사용자 이름이 정확히
+ * {@code gabolle} 이다. {@code gabolle} 이라는 이름으로 schema 를 만드는 순간
+ * {@code $user} 가 그쪽으로 풀리고, <b>그 뒤에 새로 여는 모든 연결</b>(dev 프로필인지와
+ * 무관하게)에서 Flyway 가 표를 {@code public} 대신 {@code gabolle} 에 만든다.
  *
- * <p>이 클래스가 만든 부작용이니 이 클래스가 치운다 — {@link #dropSchema()}. 지우면
- * {@code $user} 는 다시 아무 schema 도 안 가리키므로 이후 연결은 예전처럼 {@code public}
- * 으로 떨어진다.
+ * <p>🔴 <b>끝나고 지우는 것으로는 못 고친다는 것도 고지혁이 지적했다.</b> Spring 은 컨텍스트를
+ * 캐시해서 JVM 이 끝날 때까지 안 닫는다 — {@code gabolle} schema 가 있는 동안 뜬 다른
+ * 컨텍스트가 그 표를 계속 쓰는 채로 살아 있는데 {@code @AfterAll} 이
+ * {@code DROP SCHEMA ... CASCADE} 를 하면, <b>살아 있는 컨텍스트가 쓰던 표가 사라진다</b>.
+ * 게다가 지운 뒤에는 {@code $user} 가 다시 안 풀려 {@code public} 로 떨어지므로, 그
+ * 컨텍스트보다 먼저 떠서 {@code public} 에 표를 만들어 둔 <b>또 다른</b> 컨텍스트가 있으면
+ * 오류 없이 엉뚱한 표를 읽는다 — 실행 순서에 따라 갈리는, 원래 것보다 더 고약한 종류의
+ * 플레이키다.
+ *
+ * <p>진짜 원인은 "schema 를 만든 것" 이 아니라 "<b>접속 사용자와 같은 이름으로</b> 만든
+ * 것"이다. 이름만 다르면 {@code $user} 가 애초에 안 풀리므로 부작용 자체가 안 생기고,
+ * 지울 필요도 없다 — {@code GABOLLE_DB_SCHEMA} 를 이 테스트 전용 이름으로 덮어써서
+ * {@code application-dev.properties} 의 네 자리(Flyway 두 곳·Hibernate·Hikari)가 전부
+ * 그쪽을 보게 한다.
  */
 @SpringBootTest(properties = {
 		"spring.profiles.active=dev",
+		"GABOLLE_DB_SCHEMA=devprofile",
 		"spring.mail.host=127.0.0.1",
 		"gabolle.auth.jwt-secret=0123456789abcdef0123456789abcdef"
 })
 @ExtendWith(PostgresAvailableCondition.class)
 class DevProfileApplicationContextTest {
 
+	private static final String SCHEMA = "devprofile";
+
 	@DynamicPropertySource
 	static void datasource(DynamicPropertyRegistry registry) {
 		TestDatabase.registerDatasource(registry);
 	}
 
+	/**
+	 * 운영에서 DB 관리자가 미리 하는 일을 대신한다({@code spring.flyway.create-schemas=false}
+	 * — 클래스 주석의 두 번째 문단 참고). {@code gabolle} 이 아니라 {@link #SCHEMA} 를 쓰므로
+	 * 끝나고 지울 필요가 없다 — 남아 있어도 접속 사용자 이름과 다르니 무해하다.
+	 */
 	@BeforeAll
 	static void createSchema() throws Exception {
 		try (Connection connection = DriverManager.getConnection(
 				TestDatabase.url(), TestDatabase.username(), TestDatabase.password());
 				Statement statement = connection.createStatement()) {
-			statement.execute("CREATE SCHEMA IF NOT EXISTS gabolle");
-		}
-	}
-
-	/** {@link #createSchema()} 가 만든 것을 치운다 — 이유는 클래스 주석 참고. */
-	@AfterAll
-	static void dropSchema() throws Exception {
-		try (Connection connection = DriverManager.getConnection(
-				TestDatabase.url(), TestDatabase.username(), TestDatabase.password());
-				Statement statement = connection.createStatement()) {
-			statement.execute("DROP SCHEMA IF EXISTS gabolle CASCADE");
+			statement.execute("CREATE SCHEMA IF NOT EXISTS " + SCHEMA);
 		}
 	}
 
