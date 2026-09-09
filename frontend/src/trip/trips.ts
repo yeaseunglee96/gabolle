@@ -4,7 +4,11 @@ import { apiRequest, ApiClientError } from '@/api/client';
 // 여행 자체에 제목 칸이 없고(지금 화면의 제목도 실은 일정에서 가져온 값이었다), 방문지 수는
 // 일정의 최신 판을 세어야 나와서 목록 한 줄마다 그 조회를 더 하는 비용이 안 맞는다고 보셨다.
 // 화면에서는 날짜로 대신 보여준다.
-export type TripStatus = 'ACTIVE' | 'ARCHIVED' | 'CANCELLED' | string;
+// 🔴 서버가 쓰는 이름 그대로다 — PLANNING 은 조건만 저장되고 아직 일정이 없는 상태,
+// READY 는 일정이 만들어진 상태다. 여기 한때 ACTIVE·ARCHIVED·CANCELLED 라고 적혀 있었는데
+// 서버 이름과 하나도 안 겹쳤다. `| string` 으로 열려 있고 지금은 화면이 이 값으로 분기하지
+// 않아 드러나지 않았을 뿐이라, 상태 배지나 필터를 붙이는 순간 조용히 어긋났을 것이다.
+export type TripStatus = 'PLANNING' | 'READY' | 'IN_PROGRESS' | 'COMPLETED' | string;
 export type TripRole = 'OWNER' | 'EDITOR' | 'VIEWER' | string;
 
 export type TripSummaryDto = {
