@@ -44,6 +44,19 @@ public class AnonymousSessionAuthenticationFilter extends OncePerRequestFilter {
 		this.anonymousSessionService = anonymousSessionService;
 	}
 
+	/**
+	 * 오류 디스패치에서도 돈다 — S15P21E201-790. {@code HmacJwtAuthenticationFilter} 와 같은
+	 * 이유다.
+	 *
+	 * <p>여기까지 뒤집는 이유는 익명 세션도 신원이기 때문이다. 안 뒤집으면 익명 세션으로
+	 * 여행을 만들다 요청 하나가 잘못됐을 때 4xx 가 401 로 바뀌고, 화면은 그것을 "세션이
+	 * 끊겼다" 로 읽어 그때까지 담아 둔 익명 여행을 잃는다.
+	 */
+	@Override
+	protected boolean shouldNotFilterErrorDispatch() {
+		return false;
+	}
+
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
