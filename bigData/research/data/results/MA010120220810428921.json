@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220810428921",
+  "worker": "haiku-34",
+  "researchedAt": "2026-09-09T06:20:00Z",
+  "queries": ["황룡성 영도구 부산", "황룡성 청학2동 맛집", "황룡성 중국집 부산"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "3번의 검색으로도 음식점 정보를 찾을 수 없음. 황룡성(황룡산성)은 북한의 역사유적이며, 부산의 중국집 관련 결과에서도 이 상호를 찾을 수 없음",
+  "notes": ""
+}

@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220811956177",
+  "worker": "haiku-34",
+  "researchedAt": "2026-09-09T06:15:00Z",
+  "queries": ["소중한아이 영도구 부산", "소중한아이 청학2동 맛집", "소중한아이 일식 회 초밥 부산"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "3번의 검색으로도 음식점 정보를 찾을 수 없음. 부산 아이와 가볼 만한 장소나 어린이 시설 관련 결과만 나옴",
+  "notes": ""
+}
