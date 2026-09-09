@@ -85,6 +85,9 @@ export async function createStory(input: {
   visibility?: StoryVisibility;
   placeId?: string;
   tripId?: string;
+  // 없으면 서버가 "여행 종료 다음 날 0시, 여행도 없으면 지금"으로 정한다.
+  // "지금 바로 공개"를 고른 경우에만 현재 시각을 실어 보낸다.
+  publishAt?: string;
   accessToken: string | null;
 }): Promise<StoryMutationResult> {
   try {
@@ -98,6 +101,7 @@ export async function createStory(input: {
         visibility: input.visibility,
         placeId: input.placeId,
         tripId: input.tripId,
+        publishAt: input.publishAt,
       },
     });
     return { state: 'success', story };
