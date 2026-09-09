@@ -7,7 +7,9 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import com.gabolle.backend.story.domain.Story;
+import com.gabolle.backend.story.domain.StoryCoauthor;
 import com.gabolle.backend.story.domain.UserFollow;
+import com.gabolle.backend.story.repository.StoryCoauthorRepository;
 import com.gabolle.backend.story.repository.UserFollowRepository;
 
 /**
@@ -44,12 +46,34 @@ public class StoryVisibilityPolicy {
 
 	private final UserFollowRepository userFollowRepository;
 
-	public StoryVisibilityPolicy(UserFollowRepository userFollowRepository) {
+	private final StoryCoauthorRepository coauthorRepository;
+
+	public StoryVisibilityPolicy(UserFollowRepository userFollowRepository,
+			StoryCoauthorRepository coauthorRepository) {
 		this.userFollowRepository = userFollowRepository;
+		this.coauthorRepository = coauthorRepository;
+	}
+
+	/**
+	 * 이 사람이 이 기록을 함께 쓰는가 — 만든 사람이거나 초대받아 들어온 사람 — S15P21E201-770.
+	 *
+	 * <p>열람과 수정이 <b>같은 명단</b>을 본다. 여기서 갈라 두면 "고칠 수는 있는데 볼 수는 없는"
+	 * 사람이 생길 수 있고, 그건 어느 쪽이 버그인지 아무도 모르는 상태다.
+	 */
+	public boolean isParticipant(Story story, UUID user) {
+		if (user == null) {
+			return false;
+		}
+		if (story.isAuthor(user)) {
+			return true;
+		}
+		return this.coauthorRepository.existsByKey(new StoryCoauthor.Key(story.getStoryId(), user));
 	}
 
 	public boolean canView(Story story, UUID viewer, Instant now) {
-		if (story.isAuthor(viewer)) {
+		// 참여자는 공개 시각 전이든 나만 보기든 언제나 본다. 자기가 함께 쓰는 글을 못 보면
+		// 고칠 수도 없다 — 수정 경로가 먼저 상세 조회를 지나기 때문이다.
+		if (isParticipant(story, viewer)) {
 			return true;
 		}
 		if (!story.isPublishedAt(now)) {
