@@ -14,6 +14,17 @@
 --    경품 추첨 대상을 나중에 연락하려면 연락처가 있어야 해서, response 한 줄에
 --    선택 입력으로 전화번호를 더했다. NULL 이면 그 응답은 추첨에서 빠질 뿐 나머지는
 --    그대로 쓴다 — 그래서 이 칸은 NOT NULL 이 아니다.
+--
+-- 🔴 2026-09-09 (같은 티켓, "가게 이름 자동완성") recommendation 에 place_id ·
+--    gu 두 칸이 더 생겼다. 응답자가 우리 목록(부산 음식점 53,716곳 색인,
+--    survey-recommend/places.json — build-places.mjs 가 만든다)에서 가게를
+--    직접 고르면 채워지고, 「목록에 없어요 — 직접 적기」로 낸 응답은 여전히
+--    NULL 이다 — place_name 은 어느 쪽이든 사람이 본 이름 그대로 남는다.
+--    place_id 는 데이터베이스가 아니라 색인 파일을 가리키므로 여기엔
+--    REFERENCES(외래키)를 걸지 않는다 — server.mjs 가 제출 시점에 색인에
+--    실제로 있는 id 인지 확인한 뒤에만 넣는다.
+--    🔴 이미 떠 있는 서버의 표는 이 파일이 다시 안 돈다(위 6번 줄). 그쪽은
+--    survey-recommend/migrations/0001_add_place_id.sql 을 손으로 돌려야 한다.
 
 BEGIN;
 
@@ -79,6 +90,14 @@ CREATE TABLE IF NOT EXISTS recommendation (
 
   -- 이 설문의 본체. 여기가 비면 나머지는 그냥 장소 목록이라 쓸 데가 없다.
   reason        TEXT        NOT NULL,
+
+  -- 🔴 2026-09-09 (S15P21E201-754) 목록에서 고른 경우만 채워진다. 색인
+  --    파일(우리 데이터, 카카오·네이버 지도가 아니다)의 상가업소번호다.
+  --    NULL 허용 — 「목록에 없어요 — 직접 적기」로 낸 응답은 이름만 있다.
+  place_id      TEXT,
+  -- 그 가게가 속한 구·군. place_id 가 있을 때만 서버가 색인에서 찾아 채운다
+  -- (클라이언트가 보낸 값을 안 믿는다). NULL 허용.
+  gu            TEXT,
 
   CONSTRAINT recommendation_slot_ok CHECK (slot BETWEEN 1 AND 5),
   CONSTRAINT recommendation_place_type_ok CHECK (place_type IN (

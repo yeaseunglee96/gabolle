@@ -56,6 +56,50 @@ for (const entry of Object.values(STATIC_FILES)) {
   entry.body = readFileSync(join(HERE, entry.file));
 }
 
+/* ── 🔴 가게 이름 검색 색인 — 시작할 때 한 번만 메모리에 올린다 (S15P21E201-754) ──
+ * places.json 은 build-places.mjs 가 부산 음식점 CSV(87MB, 이 저장소 밖)에서
+ * 미리 뽑아 만든 작은 파일이다(커밋됨). 여기서 다시 87MB CSV 를 읽지 않는다.
+ * 배열의 배열(rows) 로 저장돼 있는 걸 검색하기 편한 객체 배열로 한 번 바꿔 둔다.
+ * ────────────────────────────────────────────────────────────────── */
+const placesRaw = JSON.parse(readFileSync(join(HERE, "places.json"), "utf8"));
+const PLACES = placesRaw.rows.map(row => {
+  const rec = {};
+  placesRaw.fields.forEach((field, i) => { rec[field] = row[i]; });
+  rec.road = placesRaw.roadPrefix + (rec.road || "");
+  rec.branch = rec.branch || "";
+  rec.nameLower = String(rec.name).toLowerCase();
+  return rec;
+});
+const PLACE_BY_ID = new Map(PLACES.map(p => [p.id, p]));
+console.log(`가게 색인 ${PLACES.length}곳 로드`);
+
+/* 상호명에 검색어가 포함되면 맞음. 앞에서부터(접두어) 맞는 것을 먼저, 그다음 포함.
+ * 🔴 사람이 보낸 글자를 정규식으로 만들지 않는다 — indexOf 만 쓴다
+ *   (정규식으로 만들면 값에 따라 서버를 오래 멈추게 하는 ReDoS 위험이 있다). */
+function searchPlaces(qRaw, guRaw) {
+  const q = String(qRaw || "").trim().slice(0, 60);
+  if (q.length < 2) return [];   /* 🔴 2자 미만이면 5만 줄을 매번 안 돈다 */
+  const qLower = q.toLowerCase();
+  const gu = guRaw ? String(guRaw).trim().slice(0, 20) : null;
+
+  const starts = [];
+  const contains = [];
+  for (const p of PLACES) {
+    if (gu && p.gu !== gu) continue;
+    const at = p.nameLower.indexOf(qLower);
+    if (at === -1) continue;
+    (at === 0 ? starts : contains).push(p);
+  }
+  const byLen = (a, b) => a.name.length - b.name.length || (a.id < b.id ? -1 : 1);
+  starts.sort(byLen);
+  contains.sort(byLen);
+
+  return starts.concat(contains).slice(0, 8).map(p => ({
+    id: p.id, name: p.name, branch: p.branch, gu: p.gu, dong: p.dong, road: p.road, cat: p.cat
+    /* 🔴 좌표(lat·lng)는 일부러 안 넣는다 — 화면은 필요 없고, 넣으면 우리 데이터가 그대로 밖으로 나간다 */
+  }));
+}
+
 const pool = new pg.Pool({
   connectionString: process.env.DATABASE_URL,
   max: 4,
@@ -137,6 +181,15 @@ function check(b) {
       const hit = piiHit(v);
       if (hit) return `${where}의 ${label} 칸에 ${hit}가 있어요. 지워 주세요.`;
     }
+
+    /* 🔴 목록에서 고른 경우만 온다 — 직접 적은 경우엔 없거나 빈 값이라 통과.
+          값이 있으면 우리 색인에 실제로 있는 id 인지 본다(S15P21E201-754).
+          없는 id 를 보내면(다른 값 조작 등) 그 자리에서 거절한다. */
+    if (r.placeId != null && r.placeId !== "") {
+      if (typeof r.placeId !== "string" || !PLACE_BY_ID.has(r.placeId)) {
+        return `${where}에서 고른 장소를 찾을 수 없어요. 목록에서 다시 골라 주세요.`;
+      }
+    }
   }
   return null;
 }
@@ -154,11 +207,16 @@ async function insert(b) {
     let slot = 0;
     for (const r of b.recommendations) {
       slot += 1;
+      /* 🔴 gu 는 클라이언트가 보낸 값을 믿지 않는다 — place_id 로 우리 색인을
+            다시 찾아 그 가게의 구를 서버가 직접 채운다. check() 가 이미 이
+            place_id 가 색인에 있는지 확인했다. */
+      const place = r.placeId ? PLACE_BY_ID.get(r.placeId) : null;
       await client.query(
         `INSERT INTO recommendation
-           (response_id, slot, place_type, place_name, when_good, limited_time, reason)
-         VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-        [id, slot, r.placeType, r.placeName.trim(), r.whenGood, r.limitedTime, r.reason.trim()]
+           (response_id, slot, place_type, place_name, when_good, limited_time, reason, place_id, gu)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+        [id, slot, r.placeType, r.placeName.trim(), r.whenGood, r.limitedTime, r.reason.trim(),
+         place ? place.id : null, place ? place.gu : null]
       );
     }
     await client.query("COMMIT");
@@ -178,7 +236,8 @@ const json = (res, code, obj) => {
 
 const server = createServer((req, res) => {
   /* 주소만 본다. 어디서 왔는지(IP · Referer · User-Agent)는 읽지 않는다 */
-  let path = (req.url || "/").split("?")[0];
+  const url = new URL(req.url || "/", "http://internal");   /* 물음표 뒤 검색어(query)를 안전하게 떼어내려고만 쓴다 */
+  let path = url.pathname;
 
   /* /survey 로 오면 /survey/ 로 보낸다.
      🔴 슬래시가 없으면 화면 안의 "api/submit" 이 /api/submit 으로 풀려서
@@ -207,6 +266,15 @@ const server = createServer((req, res) => {
 
   if (req.method === "GET" && path === "/health") {
     json(res, 200, { ok: true });
+    return;
+  }
+
+  /* 🔴 가게 이름 자동완성 (S15P21E201-754). 화면은 이 응답에 좌표를 못 본다 —
+        searchPlaces() 가 애초에 안 담는다. json() 이 no-store 를 붙여서
+        검색어가 캐시에 안 남는다. */
+  if (req.method === "GET" && path === "/api/places") {
+    const results = searchPlaces(url.searchParams.get("q"), url.searchParams.get("gu"));
+    json(res, 200, results);
     return;
   }
 
