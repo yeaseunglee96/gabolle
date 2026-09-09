@@ -10,6 +10,7 @@ import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
+import { resizeForUpload } from '@/social/imageResize';
 import { createStory, uploadStoryImage, VISIBILITY_LABEL, type StoryVisibility } from '@/social/stories';
 
 const MAX_IMAGES = 3;
@@ -20,7 +21,7 @@ const BODY_MAX = 500;
 const DRAFT_KEY = 'gabolle.story-compose-draft';
 type PublishTiming = 'AFTER_TRIP' | 'NOW';
 
-type PendingImage = { localUri: string; imageUrl: string | null; uploading: boolean; error: string | null; fileName?: string | null; mimeType?: string | null };
+type PendingImage = { localUri: string; originalUri: string; imageUrl: string | null; uploading: boolean; error: string | null };
 
 export default function ComposeStory() {
   const router = useRouter();
@@ -60,11 +61,20 @@ export default function ComposeStory() {
   const anyUploading = images.some((image) => image.uploading);
   const canSubmit = bodyValid && !anyUploading && !submitting;
 
-  const runUpload = async (index: number, asset: { uri: string; fileName?: string | null; mimeType?: string | null }) => {
-    const outcome = await uploadStoryImage(asset, accessToken);
-    setImages((prev) => prev.map((image, position) => position === index
-      ? (outcome.state === 'success' ? { ...image, imageUrl: outcome.imageUrl, uploading: false, error: null } : { ...image, uploading: false, error: outcome.message })
-      : image));
+  // 원본을 그대로 올리지 않는다 — 다시 인코딩해서 가장 긴 변을 1600px로 줄이고 그
+  // 과정에서 촬영 위치 정보(EXIF)도 함께 뗀다(S15P21E201-204). 재시도도 이 함수를
+  // 다시 타서, 실패했던 것을 원본 그대로 올려버리는 일이 없게 한다.
+  const processAndUpload = async (index: number, originalUri: string) => {
+    try {
+      const resized = await resizeForUpload(originalUri);
+      setImages((prev) => prev.map((image, position) => position === index ? { ...image, localUri: resized.uri } : image));
+      const outcome = await uploadStoryImage({ uri: resized.uri, fileName: 'story.jpg', mimeType: 'image/jpeg' }, accessToken);
+      setImages((prev) => prev.map((image, position) => position === index
+        ? (outcome.state === 'success' ? { ...image, imageUrl: outcome.imageUrl, uploading: false, error: null } : { ...image, uploading: false, error: outcome.message })
+        : image));
+    } catch {
+      setImages((prev) => prev.map((image, position) => position === index ? { ...image, uploading: false, error: tx('사진을 처리하지 못했어요.', 'Could not process the photo.') } : image));
+    }
   };
 
   const addImage = async () => {
@@ -73,15 +83,15 @@ export default function ComposeStory() {
     if (result.canceled) return;
     const asset = result.assets[0];
     const index = images.length;
-    setImages((prev) => [...prev, { localUri: asset.uri, imageUrl: null, uploading: true, error: null, fileName: asset.fileName, mimeType: asset.mimeType }]);
-    void runUpload(index, { uri: asset.uri, fileName: asset.fileName, mimeType: asset.mimeType });
+    setImages((prev) => [...prev, { localUri: asset.uri, originalUri: asset.uri, imageUrl: null, uploading: true, error: null }]);
+    void processAndUpload(index, asset.uri);
   };
 
   const retryImage = (index: number) => {
     const image = images[index];
     if (!image || image.uploading) return;
     setImages((prev) => prev.map((item, position) => position === index ? { ...item, uploading: true, error: null } : item));
-    void runUpload(index, { uri: image.localUri, fileName: image.fileName, mimeType: image.mimeType });
+    void processAndUpload(index, image.originalUri);
   };
 
   const removeImage = (index: number) => setImages((prev) => prev.filter((_, position) => position !== index));
