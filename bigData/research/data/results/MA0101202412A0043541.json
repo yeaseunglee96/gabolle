@@ -1,15 +1,1 @@
-{
-  "id": "MA0101202412A0043541",
-  "worker": "haiku-53",
-  "researchedAt": "2026-09-09T15:05:00Z",
-  "queries": ["디라이크 민락로 부산", "디라이크 부산 맛집"],
-  "found": false,
-  "confidence": "none",
-  "sources": [],
-  "stillOpen": null,
-  "whyPeopleGo": [],
-  "newTypes": [],
-  "descriptors": {},
-  "notFound": "웹 검색에서 음식점 디라이크 정보를 찾지 못함",
-  "notes": "카테고리는 경양식으로 기록되었으나 웹 검색 결과에서 특정 음식점으로 나타나지 않음"
-}
+{"id":"MA0101202412A0043541","worker":"haiku-55","researchedAt":"2026-09-09T07:41:00Z","queries":["디라이크 수영구 부산","디라이크 민락동 맛집"],"found":true,"confidence":"high","sources":["https://www.keyzard.cc/gbblog/nb/223901083831"],"stillOpen":true,"whyPeopleGo":[{"type":"분위기·전망","note":"광안리의 대형 펍보다 조용하게 대화할 수 있는 술집","sources":[0]},{"type":"맛 묘사","note":"맛있는 요리와 함께 좋은 시간을 보낼 수 있는 곳","sources":[0]}],"newTypes":[],"descriptors":{"yearsClaimed":null,"generations":null,"queueing":null,"parking":null,"audience":"adults","signatureDishes":[],"priceBand":null},"notFound":null,"notes":""}
