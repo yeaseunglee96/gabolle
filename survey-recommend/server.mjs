@@ -76,9 +76,25 @@ const PII = [
 ];
 const piiHit = s => { for (const p of PII) if (p.re.test(s)) return p.name; return null; };
 
+/* ── 🔴 전화번호 칸만 PII 검사의 예외다 (S15P21E201-754) ─────────────
+ * 경품 추첨용으로 일부러 받는 칸이라, 위 PII 검사(자유 입력 칸용)를 여기엔
+ * 안 돌린다. 대신 "숫자·하이픈을 받고, 정규화하면 한국 휴대전화 번호 모양인가"
+ * 만 본다. index.html 의 PHONE_RE 와 한 글자도 다르지 않게 맞춘다.
+ * 비어 있으면(제출 안 하면) 검사를 건너뛴다 — 선택 입력이라서다.
+ * ────────────────────────────────────────────────────────────────── */
+const PHONE_RE = /^01[016789][0-9]{7,8}$/;
+const normalizePhone = s => String(s).replace(/[^0-9]/g, "");
+
 /* ── 받아들이는 값 — 화면의 목록과 같아야 한다 ───────────────────── */
-const AGE_BANDS   = new Set(["UNDER_20", "AGE_20_24", "AGE_25_29", "AGE_30_34", "AGE_35_PLUS"]);
-const BUSAN_YEARS = new Set(["BORN_HERE", "OVER_10Y", "Y_3_10", "Y_1_3", "UNDER_1Y", "NEVER"]);
+/* 🔴 다섯 칸 → 세 칸 (S15P21E201-754, 팀원 피드백). 옛 값 UNDER_20 ·
+      AGE_20_24 · AGE_25_29 · AGE_30_34 · AGE_35_PLUS 는 이제 전부 거절된다.
+      🔴 빈 구멍: 20세 미만 · 80세 이상은 이 세 칸에 안 들어간다. 나이대가
+      필수 입력이라 그 나이의 응답자는 못 낸다 — index.html AGE 배열 주석 참고. */
+const AGE_BANDS   = new Set(["AGE_20_39", "AGE_40_59", "AGE_60_79"]);
+/* 🔴 'NEVER' → 'VISITED_ONLY', 구간 경계 10/3/1 → 20/10/5 (S15P21E201-754).
+      OVER_10Y→OVER_20Y · Y_3_10→Y_10_20 · Y_1_3→Y_5_10 · UNDER_1Y→UNDER_5Y.
+      옛 값은 이제 전부 거절된다 — 값 이관은 필요 없었다 (그때까지 0행). */
+const BUSAN_YEARS = new Set(["BORN_HERE", "OVER_20Y", "Y_10_20", "Y_5_10", "UNDER_5Y", "VISITED_ONLY"]);
 const PLACE_TYPES = new Set(["FOOD", "CAFE", "NATURE", "CULTURE", "MARKET", "ACTIVITY", "BAR"]);
 const WHEN_GOOD   = new Set(["DAY", "NIGHT", "ANY"]);
 const NEED = 5;
@@ -89,6 +105,15 @@ function check(b) {
   if (b.consented !== true) return "동의 표시가 없어요.";
   if (!AGE_BANDS.has(b.ageBand)) return "나이대를 골라 주세요.";
   if (!BUSAN_YEARS.has(b.busanYears)) return "부산에 얼마나 사셨는지 골라 주세요.";
+
+  /* 🔴 전화번호는 선택이다 — 비어 있으면(null/undefined/"") 그냥 통과시킨다.
+        값이 있을 때만 모양을 본다. b.phone 은 아래 POST 핸들러가 넣기 전에
+        이미 숫자만 남도록 정규화해 둔다. */
+  if (b.phone != null && b.phone !== "") {
+    if (typeof b.phone !== "string" || !PHONE_RE.test(b.phone)) {
+      return "전화번호 형식이 올바르지 않아요. (예: 010-1234-5678, 비워 두셔도 됩니다)";
+    }
+  }
 
   const rs = b.recommendations;
   if (!Array.isArray(rs) || rs.length !== NEED) return "추천하는 곳 다섯 군데를 채워 주세요.";
@@ -121,9 +146,9 @@ async function insert(b) {
   try {
     await client.query("BEGIN");
     const { rows } = await client.query(
-      `INSERT INTO response (age_band, busan_years, consented, nonce)
-       VALUES ($1, $2, TRUE, $3) RETURNING id`,
-      [b.ageBand, b.busanYears, randomBytes(9).toString("base64url")]
+      `INSERT INTO response (age_band, busan_years, phone, consented, nonce)
+       VALUES ($1, $2, $3, TRUE, $4) RETURNING id`,
+      [b.ageBand, b.busanYears, b.phone || null, randomBytes(9).toString("base64url")]
     );
     const id = rows[0].id;
     let slot = 0;
@@ -197,6 +222,12 @@ const server = createServer((req, res) => {
       let body;
       try { body = JSON.parse(Buffer.concat(chunks).toString("utf8")); }
       catch { return json(res, 400, { message: "보내신 내용을 읽지 못했어요." }); }
+
+      /* 🔴 하이픈이 섞여 와도(주소창으로 직접 보낸 경우 등) 숫자만 남긴다.
+            비어 있으면 그대로 두고, check() 가 "선택이라 통과" 를 처리한다. */
+      if (body && typeof body === "object" && body.phone) {
+        body.phone = normalizePhone(body.phone);
+      }
 
       const wrong = check(body);
       if (wrong) return json(res, 400, { message: wrong });

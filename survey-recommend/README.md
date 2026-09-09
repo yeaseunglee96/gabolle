@@ -43,7 +43,7 @@ SSAFY 부울경에서 부산을 아는 사람에게 **"어디를 왜 추천하�
 | **①** | 자유 입력 칸 **위마다** 한 줄 — *"장소 이름만 적어 주세요. 사람 이름 · 연락처 · 소속을 적지 마세요"* | `index.html` 의 `.guard` |
 | **②** | 제출을 **막는다.** 전화번호 · 이메일(`@`) · 8자리 넘게 이어진 숫자가 있으면 **어느 유형의 어느 칸인지** 말해 준다 | `index.html` 의 `PII` **와** `server.mjs` 의 `PII` — **두 벌이다** |
 | **③** | **IP · 브라우저 정보 · 기기 식별자를 안 남긴다.** 서버가 읽지도 않고, 표에 칸도 없고, nginx 접속 기록도 이 경로만 끈다 | `server.mjs` · `schema.sql` · nginx `access_log off` |
-| **④** | 이름 · 연락처 · 이메일 · 소속 반 · 학번을 **묻는 칸을 아예 안 만든다** | 화면에 그런 입력칸이 없다 |
+| **④** | 이름 · 이메일 · 소속 반 · 학번을 **묻는 칸을 아예 안 만든다** (🔴 전화번호는 예외 — 경품 추첨용으로 **선택** 입력만 하나 둔다. S15P21E201-754) | 화면에 그런 입력칸이 없다 |
 
 > 🔴 **②의 검사는 화면과 서버 양쪽에 있고, 두 벌은 같아야 한다.**
 > 화면에만 두면 주소창으로 직접 보내는 것을 못 막는다. 서버에만 두면 사람이
@@ -128,8 +128,8 @@ response                                recommendation  (5줄)
 ┌──────────────┬───────────────┐        ┌──────────────┬──────────────────────┐
 │ id           │ 1             │◀──┐    │ response_id  │ 1                    │
 │ submitted_on │ 2026-09-08    │   └────│ slot         │ 1 … 5                │
-│ age_band     │ AGE_25_29     │        │ place_type   │ FOOD · CAFE · …      │
-│ busan_years  │ Y_3_10        │        │ place_name   │ "부평깡통시장"        │
+│ age_band     │ AGE_20_39     │        │ place_type   │ FOOD · CAFE · …      │
+│ busan_years  │ OVER_20Y      │        │ place_name   │ "부평깡통시장"        │
 │ consented    │ true          │        │ when_good    │ DAY · NIGHT · ANY    │
 │ nonce        │ "kQ3f…"       │        │ limited_time │ false                │
 └──────────────┴───────────────┘        │ reason       │ "왜 좋은지 …"         │
@@ -173,7 +173,7 @@ docker exec -i survey-postgres psql -U survey -d survey -c \
 ```bash
 curl -sS -X POST http://127.0.0.1:3100/api/submit \
   -H 'content-type: application/json' \
-  --data '{"consented":true,"ageBand":"AGE_25_29","busanYears":"Y_3_10","recommendations":[
+  --data '{"consented":true,"ageBand":"AGE_20_39","busanYears":"OVER_20Y","recommendations":[
     {"placeType":"FOOD","placeName":"010-1234-5678","whenGood":"DAY","limitedTime":false,"reason":"x"}]}'
 ```
 
@@ -242,11 +242,11 @@ curl -sS -o /dev/null -w "back   %{http_code}\n" https://j15e201.p.ssafy.io/api/
 
 | | |
 |---|---|
-| 보관 기간 | **수집일로부터 1년** |
+| 보관 기간 | **수집일로부터 1년** (전화번호는 경품 추첨 뒤 별도로 지운다) |
 | 진행자 | **장효준** (한 명) |
-| 문의 | **Mattermost DM (장효준)** |
-| 모으는 것 | 나이대 · 부산 거주기간 · 추천 장소 다섯 곳과 그 이유 |
-| 안 모으는 것 | 이름 · 연락처 · 이메일 · 학번 · 소속 반 · IP · 위치 · 기기 정보 |
+| 문의 | **Mattermost DM: 부울경_E201_장효준 · Email: ***@redacted** |
+| 모으는 것 | 나이대 · 부산 거주기간 · **전화번호(선택, 경품 추첨용)** · 추천 장소 다섯 곳과 그 이유 |
+| 안 모으는 것 | 이름 · 이메일 · 학번 · 소속 반 · IP · 위치 · 기기 정보 |
 | 두는 곳 | 팀 서버의 **이 설문 전용 데이터베이스**. 운영 서비스와 분리 |
 
 `CONFIG` 에 `정해야 함` 이 하나라도 남아 있으면 **화면 맨 위에 경고가 뜬다 —
