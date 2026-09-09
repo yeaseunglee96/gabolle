@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220810641437",
+  "worker": "haiku-46",
+  "researchedAt": "2026-09-09T12:00:00Z",
+  "queries": ["콩지팥찌 동구 부산", "콩지팥찌 수정4동 맛집", "콩지팥찌 부산 블로그"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색 결과에 부산 동구 고관로 85-1의 콩지팥찌에 대한 정보를 찾을 수 없음 (의왕시의 콩지팥찌만 검색됨)",
+  "notes": ""
+}

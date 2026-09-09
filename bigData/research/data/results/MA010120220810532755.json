@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220810532755",
+  "worker": "haiku-46",
+  "researchedAt": "2026-09-09T12:30:00Z",
+  "queries": ["뿅라면분식 사하구 부산", "뿅라면분식 신평 종합분식"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=Pe2Cgeajq0Tm"],
+  "stillOpen": true,
+  "whyPeopleGo": [{"type": "맛 묘사", "note": "신평 종합분식", "sources": [0]}],
+  "newTypes": [],
+  "descriptors": {"yearsClaimed": null, "generations": null, "queueing": null, "parking": null, "audience": "mixed", "signatureDishes": ["라면"], "priceBand": "cheap"},
+  "notFound": null,
+  "notes": ""
+}
