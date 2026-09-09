@@ -2,7 +2,7 @@
 //
 // 번역 업체 계약과 무관하게 기기 TTS·클립보드·지도 링크로 완결할 수 있는 현장 기능은
 // Expo 네이티브 API로 실제 동작시킨다.
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Image, Linking, Pressable, StyleSheet, View } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import * as Speech from 'expo-speech';
@@ -32,11 +32,17 @@ export default function Speak() {
   const [tab, setTab] = useState<Tab>('speak');
   const [playing, setPlaying] = useState<PlaySpeed>(null);
   const [copied, setCopied] = useState(false);
+  // play()를 빠르게 다시 누르면 Speech.stop()이 취소한 "이전" 재생의 onDone/onError가
+  // 나중에 도착해서 방금 시작한 재생의 상태를 null로 덮어쓴다 — 눌러도 반응이 없어
+  // 보이는 원인이었다. 매 호출마다 토큰을 새로 발급해 자기 차례가 아니면 무시한다.
+  const playTokenRef = useRef(0);
 
   function play(speed: PlaySpeed) {
     Speech.stop();
+    const token = ++playTokenRef.current;
     setPlaying(speed);
-    Speech.speak(KOREAN_PHRASE, { language: 'ko-KR', rate: speed === 'slow' ? 0.65 : 0.95, onDone: () => setPlaying(null), onStopped: () => setPlaying(null), onError: () => setPlaying(null) });
+    const finish = () => { if (playTokenRef.current === token) setPlaying(null); };
+    Speech.speak(KOREAN_PHRASE, { language: 'ko-KR', rate: speed === 'slow' ? 0.65 : 0.95, onDone: finish, onStopped: finish, onError: finish });
   }
 
   async function copyAddress() {
