@@ -8,6 +8,7 @@ import com.gabolle.backend.auth.repository.AuthIdentityRepository;
 import com.gabolle.backend.auth.repository.AuthOneTimeTokenRepository;
 import com.gabolle.backend.auth.repository.LocalCredentialRepository;
 import com.gabolle.backend.common.security.SecurityEventLogger;
+import com.gabolle.backend.trip.application.AnonymousTripClaimService;
 import com.gabolle.backend.user.domain.AppUser;
 import com.gabolle.backend.user.domain.PersonalizationMode;
 import com.gabolle.backend.user.domain.UserStatus;
@@ -46,17 +47,23 @@ public class LocalAuthService {
 	private final SecurityEventLogger securityEventLogger;
 	private final Clock clock;
 
+	/** S15P21E201-317 — {@code X-Session-Token} 이 가리키는 세션을 찾는다. */
+	private final AnonymousSessionService anonymousSessionService;
+	/** S15P21E201-317 — 그 세션이 만든 여행을 회원 소유로 옮긴다. */
+	private final AnonymousTripClaimService anonymousTripClaimService;
+
 	@Autowired
 	public LocalAuthService(AppUserRepository userRepository, UserConsentRepository consentRepository,
 			LocalCredentialRepository credentialRepository, AuthIdentityRepository identityRepository,
 			AuthOneTimeTokenRepository oneTimeTokenRepository, PasswordEncoder passwordEncoder,
 			SessionTokenGenerator tokenGenerator, AuthTokenService authTokenService, EmailSender emailSender,
 			AuthProperties properties, ConsentPolicy consentPolicy, LoginAttemptGuard loginAttemptGuard,
-			SecurityEventLogger securityEventLogger) {
+			SecurityEventLogger securityEventLogger, AnonymousSessionService anonymousSessionService,
+			AnonymousTripClaimService anonymousTripClaimService) {
 		this(userRepository, consentRepository, credentialRepository, identityRepository, oneTimeTokenRepository,
 				passwordEncoder, tokenGenerator,
 				authTokenService, emailSender, properties, consentPolicy, loginAttemptGuard, securityEventLogger,
-				Clock.systemUTC());
+				anonymousSessionService, anonymousTripClaimService, Clock.systemUTC());
 	}
 
 	LocalAuthService(AppUserRepository userRepository, UserConsentRepository consentRepository,
@@ -64,7 +71,8 @@ public class LocalAuthService {
 			AuthOneTimeTokenRepository oneTimeTokenRepository, PasswordEncoder passwordEncoder,
 			SessionTokenGenerator tokenGenerator, AuthTokenService authTokenService, EmailSender emailSender,
 			AuthProperties properties, ConsentPolicy consentPolicy, LoginAttemptGuard loginAttemptGuard,
-			SecurityEventLogger securityEventLogger, Clock clock) {
+			SecurityEventLogger securityEventLogger, AnonymousSessionService anonymousSessionService,
+			AnonymousTripClaimService anonymousTripClaimService, Clock clock) {
 		this.userRepository = userRepository;
 		this.consentRepository = consentRepository;
 		this.credentialRepository = credentialRepository;
@@ -78,6 +86,8 @@ public class LocalAuthService {
 		this.consentPolicy = consentPolicy;
 		this.loginAttemptGuard = loginAttemptGuard;
 		this.securityEventLogger = securityEventLogger;
+		this.anonymousSessionService = anonymousSessionService;
+		this.anonymousTripClaimService = anonymousTripClaimService;
 		this.clock = clock;
 	}
 
@@ -106,7 +116,28 @@ public class LocalAuthService {
 		LocalCredential credential = credentialRepository.save(LocalCredential.create(user, email,
 				passwordEncoder.encode(command.password())));
 		issueEmailVerification(credential, now);
+		claimAnonymousTrips(command.sessionToken(), user.getUserId(), now);
 		return new Registration(user.getUserId(), email, user.getStatus());
+	}
+
+	/**
+	 * S15P21E201-317 — 가입 직전까지 익명으로 만든 여행을 새 계정 소유로 옮긴다.
+	 *
+	 * <p>🔴 이 메서드가 던지는 예외는 {@link #register} 의 {@code @Transactional} 을 그대로
+	 * 타고 올라간다 — 승계 도중 실패하면 방금 만든 계정({@code user}·consents·credential)도
+	 * 함께 롤백된다(완료 기준 2번). 트랜잭션을 여기서 새로 열지 않는 것이 핵심이다.
+	 *
+	 * <p>{@code sessionToken} 이 없거나, 있어도 가리키는 세션이 없거나(만료·오타), 그 세션이
+	 * 만든 여행이 하나도 없으면 전부 조용히 넘어간다 — 익명 여행 없이 가입하는 것은 실패가
+	 * 아니라 <b>정상 흐름</b>이다(완료 기준 3번).
+	 */
+	private void claimAnonymousTrips(String sessionToken, java.util.UUID newUserId, Instant now) {
+		if (sessionToken == null || sessionToken.isBlank()) {
+			return;
+		}
+		anonymousSessionService.resolve(sessionToken)
+				.ifPresent(session -> anonymousTripClaimService.claimForNewUser(
+						session.getSessionId().toString(), newUserId.toString(), now));
 	}
 
 	@Transactional

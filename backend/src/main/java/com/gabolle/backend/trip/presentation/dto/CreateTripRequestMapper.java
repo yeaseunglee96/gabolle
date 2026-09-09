@@ -5,6 +5,7 @@ import java.util.List;
 import com.gabolle.backend.trip.application.TripCreationService;
 import com.gabolle.backend.trip.domain.PreferenceDimensions;
 import com.gabolle.backend.trip.domain.PreferenceSnapshot;
+import com.gabolle.backend.trip.domain.Trip;
 import com.gabolle.backend.trip.domain.TripConstraint;
 
 /**
@@ -23,6 +24,15 @@ public final class CreateTripRequestMapper {
     }
 
     public static TripCreationService.Command toCommand(CreateTripRequest r, String userId) {
+        return toCommand(r, userId, Trip.OwnerType.USER);
+    }
+
+    /**
+     * S15P21E201-317 — 익명 세션이 여행을 만드는 경로가 쓴다. {@code ownerType} 만 더할 뿐,
+     * 그 외 번역 규칙(차원 이름 정규화 등)은 위 오버로드와 똑같다.
+     */
+    public static TripCreationService.Command toCommand(CreateTripRequest r, String userId,
+            Trip.OwnerType ownerType) {
         List<TripCreationService.Command.ConstraintInput> constraints =
                 r.constraints() == null ? List.of()
                         : r.constraints().stream().map(c ->
@@ -59,7 +69,8 @@ public final class CreateTripRequestMapper {
                 r.budgetKrw(), r.partySize(),
                 r.timeWindow(), r.timezone(),
                 preferences,
-                constraints);
+                constraints,
+                ownerType);
     }
 
     private static TripConstraint.Severity parseSeverity(String raw) {

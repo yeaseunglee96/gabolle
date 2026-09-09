@@ -84,7 +84,7 @@ public class TripCreationService {
         // ① 여행. 생성자가 조건을 검증한다 — 종료일이 시작일보다 앞이면 여기서 거부된다.
         //    timeWindow 원문은 그대로 넘긴다 — fingerprintOf 가 이 원문 기준이라(아래),
         //    파생값이 아니라 원문을 저장해야 재시도 판정이 안 흔들린다.
-        Trip trip = new Trip(tripId, command.userId(),
+        Trip trip = new Trip(tripId, command.userId(), command.ownerType(),
                 command.startDate(), command.finishDate(),
                 command.originLat(), command.originLng(),
                 command.budgetKrw(), command.partySize(),
@@ -233,7 +233,20 @@ public class TripCreationService {
             String timeWindow,
             String timezone,
             List<PreferenceSnapshot.PreferenceAnswer> preferences,
-            List<ConstraintInput> constraints) {
+            List<ConstraintInput> constraints,
+            Trip.OwnerType ownerType) {
+
+        /**
+         * 🔴 S15P21E201-317 이전의 시그니처를 그대로 남긴다 — 회원 전용으로 여행을 만들던
+         * 기존 호출부(공유 일정 복제·테스트 다수)를 하나도 고치지 않기 위해서다.
+         * {@code ownerType} 은 항상 {@code USER} 로 고정된다.
+         */
+        public Command(String userId, LocalDate startDate, LocalDate finishDate, Double originLat, Double originLng,
+                Integer budgetKrw, int partySize, String timeWindow, String timezone,
+                List<PreferenceSnapshot.PreferenceAnswer> preferences, List<ConstraintInput> constraints) {
+            this(userId, startDate, finishDate, originLat, originLng, budgetKrw, partySize, timeWindow, timezone,
+                    preferences, constraints, Trip.OwnerType.USER);
+        }
 
         public record ConstraintInput(
                 String type,

@@ -63,6 +63,19 @@ public class TripMember {
     }
 
     /**
+     * S15P21E201-317 — 익명 세션 소유의 여행을 승계할 때, OWNER 행의 주인을 새 회원으로 옮긴다.
+     *
+     * <p>🔴 OWNER 행에만 쓴다. 익명 세션으로 만든 여행에는 그 세션을 가리키는 참여자 행이
+     * OWNER 하나뿐이다 — 초대는 회원만 받을 수 있어 익명 여행에는 EDITOR·VIEWER 가 없다.
+     */
+    public TripMember claimedBy(String newUserId) {
+        if (this.role != Role.OWNER) {
+            throw new IllegalArgumentException("소유자 행만 승계할 수 있다");
+        }
+        return new TripMember(tripMemberId, tripId, newUserId, role, joinedAt, tripInviteId, invitedBy, invitedAt);
+    }
+
+    /**
      * 역할을 바꾼 새 값 — S15P21E201-320. 소유자만 부를 수 있다는 판정은 서비스가 한다. 여기서는
      * OWNER 로 바꾸거나 OWNER 를 바꾸는 것만 막는다 — 소유자는 여행마다 하나이고 생성 시 정해진다.
      */

@@ -394,7 +394,9 @@ class RouteAuthorizationRegistryTest {
 
 		// ── 여행 ────────────────────────────────────────────────────────────────
 		put(m, "POST /api/v1/trips", Policy.AUTHENTICATED_ONLY,
-				"새로 만드는 것이라 기존 자원의 주인 개념이 없다. 소유자는 인증 주체로 박힌다");
+				"새로 만드는 것이라 기존 자원의 주인 개념이 없다. 소유자는 인증 주체로 박힌다. "
+				+ "S15P21E201-317 — 익명 세션(ROLE_ANONYMOUS)도 이 자리만은 통과한다. 만든 사람이 곧 "
+				+ "소유자가 되므로 익명이라도 남의 것을 건드릴 수 없다 — AuthenticatedUsers.requireOwner");
 		// 🔴 목록은 OWNED 가 아니라 AUTHENTICATED_ONLY 다 — 부를 때 자원을 지목하지 않기
 		//    때문이다. 위험은 "남의 것을 부르면 거부되는가" 가 아니라 "남의 여행이 목록에
 		//    섞이는가" 이고, 그것은 저장소가 참여 표로 거른다. TripListIntegrationTest 의

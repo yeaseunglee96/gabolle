@@ -20,6 +20,7 @@ import com.gabolle.backend.common.security.AuthenticatedUsers;
 import com.gabolle.backend.trip.application.TripCreationService;
 import com.gabolle.backend.trip.application.TripDeletionService;
 import com.gabolle.backend.trip.application.TripQueryService;
+import com.gabolle.backend.trip.domain.Trip;
 import com.gabolle.backend.trip.presentation.dto.CreateTripRequest;
 import com.gabolle.backend.trip.presentation.dto.CreateTripRequestMapper;
 import com.gabolle.backend.trip.presentation.dto.TripDetailResponse;
@@ -68,10 +69,15 @@ public class TripController {
             Authentication authentication) {
 
         String requestId = "req_" + UUID.randomUUID();
-        String creator = AuthenticatedUsers.requireId(authentication).toString();
+        // 🔴 S15P21E201-317 — 여기만 익명 세션을 허용한다. 만든 사람이 곧 소유자가 되는
+        //    자리라 "익명이면 못 만든다" 를 없애도 회원 전용 자원이 뚫리지 않는다 — 아래
+        //    다른 메서드(list·get·delete)는 여전히 requireId 라 회원만 접근한다.
+        AuthenticatedUsers.Owner owner = AuthenticatedUsers.requireOwner(authentication);
+        String creator = owner.id().toString();
+        Trip.OwnerType ownerType = owner.anonymous() ? Trip.OwnerType.ANONYMOUS : Trip.OwnerType.USER;
 
         TripCreationService.Result result =
-                creationService.create(toCommand(request, creator), idempotencyKey);
+                creationService.create(toCommand(request, creator, ownerType), idempotencyKey);
 
         // 🔴 재시도였으면 200, 새로 만들었으면 201. 둘 다 성공이다 —
         //    재시도에 4xx 를 주면 사용자 화면에 오류가 뜬다.
@@ -163,5 +169,9 @@ public class TripController {
      */
     private TripCreationService.Command toCommand(CreateTripRequest r, String userId) {
         return CreateTripRequestMapper.toCommand(r, userId);
+    }
+
+    private TripCreationService.Command toCommand(CreateTripRequest r, String userId, Trip.OwnerType ownerType) {
+        return CreateTripRequestMapper.toCommand(r, userId, ownerType);
     }
 }

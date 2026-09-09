@@ -22,10 +22,16 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
  * 프로필에서도 켜지고 {@code contextLoads} 가 죽는다. 같은 사고가
  * {@code RecommendationSliceApplication} 주석에 기록돼 있다.
  */
+// 🔴 S15P21E201-317 — trip 을 더했다. 가입(LocalAuthService)이 익명 여행을 승계하려면
+//    AnonymousTripClaimService(trip.application)·JpaTripRepository(trip.infra) 빈이 있어야
+//    한다. 아래 @EnableJpaRepositories 도 trip.infra 를 더해야 그 빈이 요구하는
+//    TripJpaRepository 등이 실제로 만들어진다 — 안 더하면 이 슬라이스의 컨텍스트가
+//    "그런 빈 없음" 으로 못 뜬다.
 @SpringBootApplication(scanBasePackages = {
 		"com.gabolle.backend.common",
 		"com.gabolle.backend.auth",
-		"com.gabolle.backend.user"
+		"com.gabolle.backend.user",
+		"com.gabolle.backend.trip"
 })
 // 🔴 엔티티는 인증 밖의 것도 올린다. 계정 삭제(S15P21E201-425)가 그 사람의 여행·일정·추천 기록을
 //    JPQL 로 지우는데, 엔티티가 이 영속성 단위에 없으면 "그런 엔티티 없다" 로 실행에서 터진다.
@@ -48,7 +54,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 })
 @EnableJpaRepositories(basePackages = {
 		"com.gabolle.backend.auth.repository",
-		"com.gabolle.backend.user.repository"
+		"com.gabolle.backend.user.repository",
+		"com.gabolle.backend.trip.infra"
 })
 public class AuthSliceApplication {
 }

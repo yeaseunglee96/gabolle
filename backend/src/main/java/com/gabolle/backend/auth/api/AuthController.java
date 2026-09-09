@@ -150,12 +150,23 @@ public class AuthController {
 		return ResponseEntity.noContent().build();
 	}
 
+	/**
+	 * S15P21E201-317 — {@code X-Session-Token} 이 실려 오면, 가입 직전까지 그 익명 세션으로
+	 * 만든 여행을 이 계정으로 승계한다.
+	 *
+	 * <p>🔴 {@code Authentication}/{@code SecurityContext} 를 거치지 않고 헤더를 직접 읽는다.
+	 * {@code /signup} 은 {@code SecurityConfig} 의 {@code permitAll()} 이라 익명 인증 필터가
+	 * 돌긴 하지만, 그 필터가 채우는 principal({@code "anon:" + sessionId})은 "로그인이
+	 * 필요한 기존 경로를 열지 않는다" 는 것이 원래 목적이다(그 필터 문서 참고) — 승계 여부를
+	 * 그 우회 경로에 얹기보다, 이 자리에서만 쓰는 목적을 헤더로 명시하는 편이 더 분명하다.
+	 */
 	@PostMapping("/signup")
 	public ResponseEntity<ApiResponse<LocalAuthService.Registration>> signup(@Valid @RequestBody LocalSignupRequest request,
-			@RequestHeader(value = "X-Request-Id", required = false) String requestId) {
+			@RequestHeader(value = "X-Request-Id", required = false) String requestId,
+			@RequestHeader(value = "X-Session-Token", required = false) String sessionToken) {
 		LocalAuthService.Registration registration = localAuthService.register(new AuthCommands.Register(request.email(),
 				request.password(), request.displayName(), request.language(), request.ageGateAccepted(), request.deviceId(),
-				request.consents(), request.behaviorPersonalizationEnabled()));
+				request.consents(), request.behaviorPersonalizationEnabled(), sessionToken));
 		return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(registration, resolveRequestId(requestId)));
 	}
 
