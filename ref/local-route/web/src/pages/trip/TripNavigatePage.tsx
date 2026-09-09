@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
-import { getEmbeddedRoute, getTaxiCard } from "../../api/client";
+import { getEmbeddedRoute, getTaxiCard, sendLocationSignals, startRouteExecution, updateRouteExecution } from "../../api/client";
 import type { EmbeddedRoute, TaxiCard } from "../../types";
 import { useTrip } from "./TripContext";
 import { NavigateMap } from "../../components/NavigateMap";
@@ -19,6 +19,7 @@ type GeoState =
   | { status: "REQUESTING" }
   | { status: "UNSUPPORTED" }
   | { status: "DENIED" }
+  | { status: "PAUSED" }
   | { status: "TRACKING"; lat: number; lng: number; heading: number | null; accuracy: number }
   | { status: "ARRIVED"; lat: number; lng: number };
 
@@ -32,7 +33,7 @@ type GeoState =
  * 여기서 확인 못 하는 걸 지어내지 않는다(v2 §16.5 추정값 표시 원칙과 동일한 이유).
  */
 export function TripNavigatePage() {
-  const { dayIndex: dayIndexParam } = useParams();
+  const { tripId, dayIndex: dayIndexParam } = useParams();
   const { itinerary } = useTrip();
   const day = itinerary.days.find((d) => d.dayIndex === Number(dayIndexParam)) ?? itinerary.days[0];
 
@@ -56,12 +57,19 @@ export function TripNavigatePage() {
   const [taxiCard, setTaxiCard] = useState<TaxiCard | null>(null);
   const [geo, setGeo] = useState<GeoState>({ status: "IDLE" });
   const watchIdRef = useRef<number | null>(null);
+  const executionIdRef = useRef<string | null>(null);
+  const lastSignalAtRef = useRef(0);
 
   const en = lang === "EN";
   const leg = legs[Math.min(legIndex, legs.length - 1)] ?? null;
 
   useEffect(() => { setLegIndex(0); stopLiveNav(); }, [dayIndexParam]);
   useEffect(() => () => stopLiveNav(), []);
+  useEffect(() => {
+    const pauseInBackground = () => { if (document.visibilityState === "hidden" && executionIdRef.current) pauseLiveNav(); };
+    document.addEventListener("visibilitychange", pauseInBackground);
+    return () => document.removeEventListener("visibilitychange", pauseInBackground);
+  }, []);
 
   useEffect(() => {
     if (!leg) return;
@@ -80,26 +88,54 @@ export function TripNavigatePage() {
       navigator.geolocation?.clearWatch(watchIdRef.current);
       watchIdRef.current = null;
     }
+    const executionId = executionIdRef.current;
+    executionIdRef.current = null;
+    if (executionId) void updateRouteExecution(executionId, "ENDED").catch(() => undefined);
     setGeo({ status: "IDLE" });
   }
 
-  function startLiveNav() {
+  function pauseLiveNav() {
+    if (watchIdRef.current !== null) navigator.geolocation?.clearWatch(watchIdRef.current);
+    watchIdRef.current = null;
+    const executionId = executionIdRef.current;
+    executionIdRef.current = null;
+    if (executionId) void updateRouteExecution(executionId, "PAUSED").catch(() => undefined);
+    setGeo({ status: "PAUSED" });
+  }
+
+  async function startLiveNav() {
     if (!navigator.geolocation) { setGeo({ status: "UNSUPPORTED" }); return; }
+    if (!tripId) { setError(en ? "Trip information is missing." : "여행 정보를 찾을 수 없어요."); return; }
+    setGeo({ status: "REQUESTING" }); setError("");
+    let executionId: string;
+    try {
+      executionId = (await startRouteExecution(tripId, routeMode)).executionId;
+      executionIdRef.current = executionId;
+    } catch (reason) {
+      setGeo({ status: "IDLE" });
+      setError(reason instanceof Error ? reason.message : (en ? "Could not start live navigation." : "실시간 내비게이션을 시작하지 못했습니다."));
+      return;
+    }
     watchIdRef.current = navigator.geolocation.watchPosition(
       (position) => {
         const { latitude, longitude, heading, accuracy } = position.coords;
+        if (Date.now() - lastSignalAtRef.current >= 5_000) {
+          lastSignalAtRef.current = Date.now();
+          void sendLocationSignals(executionId, [{ latitude, longitude, heading: heading ?? null, accuracy, capturedAt: new Date(position.timestamp).toISOString() }]).catch(() => undefined);
+        }
         if (leg && haversineDistanceM(latitude, longitude, leg.to.lat, leg.to.lng) <= ARRIVAL_RADIUS_M) {
           setGeo({ status: "ARRIVED", lat: latitude, lng: longitude });
           if (watchIdRef.current !== null) navigator.geolocation.clearWatch(watchIdRef.current);
           watchIdRef.current = null;
+          executionIdRef.current = null;
+          void updateRouteExecution(executionId, "ENDED").catch(() => undefined);
           return;
         }
         setGeo({ status: "TRACKING", lat: latitude, lng: longitude, heading: heading ?? null, accuracy });
       },
-      (err) => { setGeo({ status: err.code === err.PERMISSION_DENIED ? "DENIED" : "UNSUPPORTED" }); },
+      (err) => { executionIdRef.current = null; void updateRouteExecution(executionId, "ENDED").catch(() => undefined); setGeo({ status: err.code === err.PERMISSION_DENIED ? "DENIED" : "UNSUPPORTED" }); },
       { enableHighAccuracy: true, maximumAge: 3000, timeout: 15000 }
     );
-    setGeo({ status: "REQUESTING" });
   }
 
   const userPos = geo.status === "TRACKING" || geo.status === "ARRIVED" ? { lat: geo.lat, lng: geo.lng, heading: geo.status === "TRACKING" ? geo.heading : null } : null;
@@ -209,9 +245,10 @@ export function TripNavigatePage() {
             {geo.status === "IDLE" && (
               <p className="nav-alert nav-alert-info">
                 {en ? "Turn on live GPS tracking to follow this route as you walk or ride." : "GPS 실시간 추적을 켜면 이동하는 동안 경로를 따라갑니다."}
-                <button type="button" className="nav-alert-btn" onClick={startLiveNav}>{en ? "Start live navigation" : "실시간 내비게이션 시작"}</button>
+                <button type="button" className="nav-alert-btn" onClick={() => void startLiveNav()}>{en ? "Start live navigation" : "실시간 내비게이션 시작"}</button>
               </p>
             )}
+            {geo.status === "PAUSED" && <p className="nav-alert nav-alert-warning">{en ? "Location sharing paused because the app moved to the background." : "앱이 백그라운드로 전환되어 위치 사용을 멈췄어요."}<button type="button" className="nav-alert-btn" onClick={() => void startLiveNav()}>{en ? "Resume" : "다시 시작"}</button></p>}
             {geo.status === "REQUESTING" && <p className="nav-status">{en ? "Waiting for GPS signal…" : "GPS 신호를 기다리는 중…"}</p>}
             {geo.status === "UNSUPPORTED" && <p className="nav-alert nav-alert-danger">{en ? "This browser can't access GPS." : "이 브라우저에서는 GPS를 사용할 수 없어요."}</p>}
             {geo.status === "DENIED" && <p className="nav-alert nav-alert-danger">{en ? "Location permission was denied — enable it in your browser settings to use live navigation." : "위치 권한이 거부됐어요 — 브라우저 설정에서 허용하면 실시간 내비게이션을 쓸 수 있어요."}</p>}

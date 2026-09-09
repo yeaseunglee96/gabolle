@@ -13,18 +13,20 @@
 # axMap** 이 한다. `npm i -g axmap-cli` 뒤 `axmap setup` 을 한 번 돌리면 Claude
 # Code · Codex · Antigravity 가 전부 각자의 홈 설정에 붙는다.
 #
-# 🔴 2026-09-01 이전에는 저장소에 `.mcp.json` 이 있어서 Claude Code 만 clone 으로
-#    붙었다. 사본(`ci/axmap/`)을 걷어내면서 그 파일도 함께 뺐다 (S15P21E201-526).
+# 🔴 2026-08-31 이전에는 저장소에 `.mcp.json` 이 있어서 Claude Code 만 clone 으로
+#    붙었다. 그 파일을 뺐다 (S15P21E201-509) — 같은 이름 `axmap` 이 저장소와 홈
+#    두 곳에 잡혀 저장소 쪽이 홈을 이겼고, npm 판을 깔아도 여기서는 안 쓰였다.
 
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# 🔴 say() 가 없어서 아래 MCP 안내 줄에서 통째로 죽었다. 위의 set -euo pipefail
+# 🔴 say() 가 없어서 80행에서 통째로 죽었다 (S15P21E201-484). 위의 set -euo pipefail
 #    때문에 정의되지 않은 함수를 부르는 순간 종료 코드 127 로 끝나고, 그 뒤의
-#    자가 점검(doctor)이 한 번도 안 돈다. 그런데 앞부분은 정상으로 보여서
+#    자가 점검(doctor)이 한 번도 안 돌았다. 그런데 앞부분은 정상으로 보여서
 #    "준비가 끝났다" 고 믿고 넘어가게 된다.
 #    맥에서는 안 죽는다 — 맥에는 say 라는 진짜 명령이 있어서(글자를 소리 내어 읽는다)
-#    안내문을 스피커로 읽고 그냥 넘어간다. setup.ps1 에는 처음부터 Say 가 있었다.
+#    안내문을 스피커로 읽고 그냥 넘어간다. 그래서 운영체제마다 결과가 셋으로 갈렸고
+#    아무도 못 잡았다. setup.ps1 에는 처음부터 Say 가 있었다.
 say()  { printf '%s\n' "$1"; }
 ok()   { printf '  OK  %s\n' "$1"; }
 warn() { printf '  !!  %s\n' "$1"; }
@@ -83,7 +85,8 @@ npx -y axmap-cli@latest hook install || warn "훅을 심지 못했습니다. 나
 #     못 붙어도 사람이 CLI 로 claim 할 수 있으니 설치 전체를 무를 이유가 없다.
 #     대신 무엇이 붙고 무엇이 안 붙었는지는 화면에 그대로 나온다.
 # 🔴 여기서 등록을 대신하지 않는다. 등록기(mcp-register.mjs)는 axMap 저장소에 있고
-#    이 저장소에는 이제 axMap 이 아예 없다. 그래서 이 자리는 **안내만** 한다.
+#    팀 사본에는 없다. 사본에 다시 넣으면 벤더 지문(ci/axmap/manifest.sha256)이
+#    어긋나 ci:vendor 잡이 빨개진다. 그래서 이 자리는 **안내만** 한다.
 say "MCP: 이 저장소에는 등록 설정이 없습니다. 각자 한 번 돌리세요 —"
 say "       npm i -g axmap-cli   그리고   axmap setup"
 say "     claude · codex · agy 가 각자의 홈 설정에 붙습니다. 그 뒤 AI CLI 를 껐다 켜세요."

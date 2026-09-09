@@ -82,7 +82,7 @@ export function TravelMoodPicker({ value, onSelect, onCustom, customActive, lang
   const isEn = language === "EN";
   return (
     <div className="mood-grid" role="radiogroup" aria-label={isEn ? "Travel mood" : "여행 무드"}>
-      {TRAVEL_MOODS.map((mood) => {
+      {TRAVEL_MOODS.map((mood, index) => {
         const selected = value === mood.id;
         return (
           <button
@@ -90,7 +90,7 @@ export function TravelMoodPicker({ value, onSelect, onCustom, customActive, lang
             className={`mood-card ${selected ? "selected" : ""}`}
             onClick={() => onSelect(mood)}
           >
-            <span className="mood-emoji" aria-hidden="true">{mood.emoji}</span>
+            <span className="mood-emoji mood-index" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
             <div className="mood-info">
               <strong>{isEn ? mood.titleEn : mood.titleKo}</strong>
               <small>{isEn ? mood.descEn : mood.descKo}</small>
@@ -105,7 +105,7 @@ export function TravelMoodPicker({ value, onSelect, onCustom, customActive, lang
           className={`mood-card mood-card-custom ${customActive ? "selected" : ""}`}
           onClick={onCustom}
         >
-          <span className="mood-emoji" aria-hidden="true">🎛</span>
+          <span className="mood-emoji mood-index" aria-hidden="true">＋</span>
           <div className="mood-info">
             <strong>{isEn ? "I'll pick it myself" : "직접 고를래요"}</strong>
             <small>{isEn ? "Mode, course theme and tags" : "추천 모드 · 코스 · 취향 태그"}</small>

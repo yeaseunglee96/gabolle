@@ -8,6 +8,7 @@ events.setMaxListeners(100);
 
 export type JobSnapshot = {
   jobId: string;
+  type: "ITINERARY_GENERATION";
   tripId: string;
   status: string;
   stage: string;
@@ -15,11 +16,14 @@ export type JobSnapshot = {
   resultItineraryId: string | null;
   errorCode: string | null;
   errorMessage: string | null;
+  resultUrl: string | null;
+  retryable: boolean;
+  pollAfterSeconds: number;
 };
 
 function snapshot(job: Awaited<ReturnType<typeof prisma.itineraryJob.findUnique>>): JobSnapshot | null {
   if (!job) return null;
-  return { jobId: job.id, tripId: job.tripId, status: job.status, stage: job.stage, progress: job.progress, resultItineraryId: job.resultItineraryId, errorCode: job.errorCode, errorMessage: job.errorMessage };
+  return { jobId: job.id, type: "ITINERARY_GENERATION", tripId: job.tripId, status: job.status, stage: job.stage, progress: job.progress, resultItineraryId: job.resultItineraryId, errorCode: job.errorCode, errorMessage: job.errorMessage, resultUrl: job.resultItineraryId ? `/api/v1/trips/${job.tripId}/itinerary` : null, retryable: job.status === "FAILED", pollAfterSeconds: job.status === "RUNNING" ? 2 : 1 };
 }
 
 async function update(jobId: string, data: Parameters<typeof prisma.itineraryJob.update>[0]["data"]) {
