@@ -90,13 +90,16 @@ export const color = {
   },
 } as const;
 
-// 한글은 Noto Sans KR, 숫자·영문은 Inter 를 쓰기로 했다.
-// 폰트 파일이 아직 저장소에 없어서 지금은 이름만 넣어둔다 —
-// RN 은 못 찾는 fontFamily 를 시스템 폰트로 조용히 대체하므로 화면이 깨지진 않는다.
-// 다만 **디자인과 글자 모양이 다르다.** .ttf 가 들어오면 expo-font 로 로드만 붙이면 된다.
+// Pretendard 한 벌로 통일한다(S15P21E201-640). 원래 디자인 규칙은 한글 Noto Sans KR·
+// 영문 Inter 두 벌이었는데, 관리할 폰트가 하나로 줄고 한글 앱에서 이미 널리 쓰이는
+// 무료(SIL OFL) 폰트라 이쪽을 골랐다 — frontend/assets/fonts 에 정적 3종(Regular·Medium·
+// Bold)을 넣고 app/_layout.tsx 에서 expo-font 로 로드한다.
+// RN 은 굵기별로 다른 파일을 다른 이름으로 등록해야 한다 — 커스텀 폰트에 fontWeight 숫자만
+// 주면 대부분 플랫폼에서 그냥 Regular 로 보인다. 그래서 굵기마다 별도 family 이름을 둔다.
 export const fontFamily = {
-  kr: 'NotoSansKR',
-  en: 'Inter',
+  regular: 'Pretendard-Regular',
+  medium: 'Pretendard-Medium',
+  bold: 'Pretendard-Bold',
 } as const;
 
 // 🔴 body 는 Figma 실측(10~13px)이 아니라 15px 이다. 실수로 되돌리지 않는다.
