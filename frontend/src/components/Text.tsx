@@ -39,6 +39,12 @@ const FONT_WEIGHT: Record<Weight, '400' | '500' | '700'> = {
   bold: '700',
 };
 
+const FONT_FAMILY: Record<Weight, string> = {
+  regular: fontFamily.regular,
+  medium: fontFamily.medium,
+  bold: fontFamily.bold,
+};
+
 export function Text({ variant = 'body', color: colorOverride, weight = 'regular', style, ...rest }: TextProps) {
   const { size, lineHeight } = SIZE[variant];
   return (
@@ -46,7 +52,7 @@ export function Text({ variant = 'body', color: colorOverride, weight = 'regular
       {...rest}
       style={[
         {
-          fontFamily: fontFamily.kr,
+          fontFamily: FONT_FAMILY[weight],
           fontSize: size,
           lineHeight,
           fontWeight: FONT_WEIGHT[weight],
