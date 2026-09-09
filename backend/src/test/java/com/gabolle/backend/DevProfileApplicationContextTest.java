@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -57,6 +58,22 @@ import com.gabolle.backend.recommendation.support.TestDatabase;
  * 이 테스트의 존재 이유다). Flyway 가 스키마 존재를 기대하는 시점(컨텍스트 리프레시)보다
  * 먼저(JUnit5 {@code @BeforeAll}) 돌게 해서, 운영에서 사람이 미리 하는 그 단계를
  * 흉내낸다.
+ *
+ * <h2>🔴 왜 끝나면 지우나 — 세 번째 실수, 이번엔 남의 테스트를 깼다</h2>
+ *
+ * 처음엔 {@link #createSchema()} 만 있고 끝난 뒤 지우지 않았다. 로컬·CI 양쪽에서 이 클래스
+ * 하나만 보면 통과했지만, 전체 스위트에서 {@code EventQualityGateTest}(S15P21E201-546)가
+ * 이 클래스 <b>뒤에</b> 도는 순서에서만 간헐적으로 깨졌다 — 고지혁이 근본 원인을 찾았다
+ * (MR !425). PostgreSQL 의 기본 {@code search_path}는 {@code "$user", public}인데, 접속
+ * 사용자 이름이 정확히 {@code gabolle} 이다. 이 클래스가 {@code gabolle} schema 를 만들어
+ * 두고 안 지우면, <b>그 뒤에 새로 여는 모든 연결</b>에서 {@code $user} 가 그 schema 로
+ * 풀린다 — 그 연결들이 dev 프로필인지 아닌지와 무관하다. 그러면 Flyway 가 표를
+ * {@code public} 대신 {@code gabolle} 에 만들고, "표는 다 public 에 있다" 고 가정한 다른
+ * 테스트가 조용히 깨진다.
+ *
+ * <p>이 클래스가 만든 부작용이니 이 클래스가 치운다 — {@link #dropSchema()}. 지우면
+ * {@code $user} 는 다시 아무 schema 도 안 가리키므로 이후 연결은 예전처럼 {@code public}
+ * 으로 떨어진다.
  */
 @SpringBootTest(properties = {
 		"spring.profiles.active=dev",
@@ -77,6 +94,16 @@ class DevProfileApplicationContextTest {
 				TestDatabase.url(), TestDatabase.username(), TestDatabase.password());
 				Statement statement = connection.createStatement()) {
 			statement.execute("CREATE SCHEMA IF NOT EXISTS gabolle");
+		}
+	}
+
+	/** {@link #createSchema()} 가 만든 것을 치운다 — 이유는 클래스 주석 참고. */
+	@AfterAll
+	static void dropSchema() throws Exception {
+		try (Connection connection = DriverManager.getConnection(
+				TestDatabase.url(), TestDatabase.username(), TestDatabase.password());
+				Statement statement = connection.createStatement()) {
+			statement.execute("DROP SCHEMA IF EXISTS gabolle CASCADE");
 		}
 	}
 
