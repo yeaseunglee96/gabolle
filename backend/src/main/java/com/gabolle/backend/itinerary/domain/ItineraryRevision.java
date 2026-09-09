@@ -427,6 +427,15 @@ public final class ItineraryRevision {
                     leg.walkingMeters(),
                     leg.ascentM(),
                     leg.stairSteps(),
+                    // S15P21E201-755 에서 찾았다. 여기가 dataStatus 를 안 넘기는 13개짜리
+                    // 생성자를 쓰고 있었고, 그 생성자는 그 칸에 null 을 박는다. 그래서 구간이
+                    // 하나도 안 바뀐 편집(고정·해제·장소 추가·되돌리기)에서도 "이 값이 잰
+                    // 것인가 어림한 것인가" 가 조용히 지워졌다.
+                    //
+                    // 그 표시를 잃으면 화면이 어림값을 잰 값처럼 그린다 — S15P21E201-179 가
+                    // 이 칸을 만든 이유가 정확히 그것을 막기 위해서다. 복사는 값을 옮기는
+                    // 일이지 지우는 일이 아니다.
+                    leg.dataStatus(),
                     now));
         }
         return copied;
