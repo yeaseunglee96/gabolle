@@ -1,0 +1,34 @@
+{
+  "id": "MA010120220806471238",
+  "worker": "haiku-73",
+  "researchedAt": "2026-09-09T23:25:24.530Z",
+  "queries": ["징기스 수영구 부산", "징기스 민락동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=sFwKIqYyRqas"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "원조·최초",
+      "note": "양고기 열풍을 불게 했던 원조급 양갈비 맛집",
+      "sources": [0]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "양갈비와 양고기가 이 집의 대표메뉴",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["양갈비", "양고기"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": ""
+}

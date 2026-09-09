@@ -1,8 +1,8 @@
 {
   "id": "MA010120220809230931",
-  "worker": "haiku-72",
-  "researchedAt": "2026-09-10T00:00:00Z",
-  "queries": ["모녀주방 재송동 부산", "모녀주방 경양식 맛집"],
+  "worker": "haiku-73",
+  "researchedAt": "2026-09-09T23:28:43.735Z",
+  "queries": ["모녀주방 해운대구 부산", "모녀주방 재송1동 맛집"],
   "found": false,
   "confidence": "none",
   "sources": [],
@@ -10,6 +10,6 @@
   "whyPeopleGo": [],
   "newTypes": [],
   "descriptors": {},
-  "notFound": "웹 검색 결과에서 해운대구 재송1동의 모녀주방에 대한 정보를 찾을 수 없음",
+  "notFound": "웹 검색에서 부산 해운대 재송1동의 모녀주방을 찾을 수 없음",
   "notes": ""
 }

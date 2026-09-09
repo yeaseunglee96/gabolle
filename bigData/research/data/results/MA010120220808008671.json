@@ -1,20 +1,15 @@
 {
   "id": "MA010120220808008671",
-  "worker": "haiku-72",
-  "researchedAt": "2026-09-10T00:00:00Z",
-  "queries": ["키야키 전포동 부산", "키야키 일식 초밥"],
-  "found": true,
-  "confidence": "medium",
-  "sources": ["https://www.instagram.com/p/DBMH8cJyTRK/", "https://triple.guide/restaurants/e9611da1-3316-4c47-83bb-493c39948f52", "https://www.daangn.com/kr/local-profile/%EC%95%BC%ED%82%A4%EC%B5%B8%EB%A6%AC-4mskp1hho1op/"],
-  "stillOpen": true,
-  "whyPeopleGo": [
-    {"type": "간판 메뉴 지목", "note": "야키쵸리(일본식 구이) 전문점", "sources": [0, 1]}
-  ],
+  "worker": "haiku-73",
+  "researchedAt": "2026-09-09T23:29:49.528Z",
+  "queries": ["키야키 부산진구 부산", "키야키 전포1동 맛집"],
+  "found": false,
+  "confidence": "low",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
   "newTypes": [],
-  "descriptors": {
-    "priceBand": "moderate",
-    "audience": "mixed"
-  },
-  "notFound": null,
-  "notes": "카테고리는 '일식 회/초밥'이나 실제로는 '야키쵸리(일본식 구이) 이자카야'입니다."
+  "descriptors": {},
+  "notFound": "전포1동 일식 회/초밥 맛집 검색에 '키야키'는 나오지 않음. '야키쵸리' 등 다른 일식점만 검색됨",
+  "notes": ""
 }

@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220808447030",
+  "worker": "haiku-73",
+  "researchedAt": "2026-09-09T23:27:49.072Z",
+  "queries": ["스무고개 해운대구 부산", "스무고개 중1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=4mJ0sNhjFOdH"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "플라워 등심과 한우 오마카세가 대표메뉴",
+      "sources": [0]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "1++ 한우를 10,000-20,000원의 합리적 가격에 제공",
+      "sources": [0]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "고즈넉한 한옥 분위기에서 프리미엄 바베큐 즐김",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["플라워 등심", "한우 오마카세"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "500시간 숙성 프리미엄 한우 전문점. 1층 오마카세(예약제), 2층 화로구이 운영"
+}
