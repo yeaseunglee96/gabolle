@@ -27,9 +27,10 @@ export type StoryDto = {
   published: boolean;
 };
 
-// 기록 상세 화면(GET /api/v1/stories/:id)은 아직 계약이 없다. 목록에서 이미 받은 전체
-// StoryDto를 그대로 들고 있다가 상세 화면이 같은 세션 안에서 그걸 읽게 한다 — 새 API를
-// 지어내지 않고, 목록에서 곧장 눌러 들어온 경우를 실제로 지원한다.
+// GET /api/v1/stories/:id 계약이 생기기 전(S15P21E201-228 이전)에는 목록에서 받은
+// StoryDto를 캐시해서 상세 화면이 그걸 읽었다. 지금은 실제 상세 조회 API가 있어서
+// (getStory) 그걸로 다시 받아오지만, 캐시는 그대로 남긴다 — 목록에서 곧장 눌러
+// 들어왔을 때 API 응답을 기다리지 않고 먼저 보여주는 자리표시로 쓴다.
 const storyCache = new Map<string, StoryDto>();
 
 export function cacheStories(items: StoryDto[]) {
@@ -38,6 +39,31 @@ export function cacheStories(items: StoryDto[]) {
 
 export function getCachedStory(id: string): StoryDto | null {
   return storyCache.get(id) ?? null;
+}
+
+export type StoryLoadResult = { state: 'success'; story: StoryDto } | { state: 'not-found' } | FeedFailure;
+
+export async function getStory(id: string, accessToken: string | null): Promise<StoryLoadResult> {
+  try {
+    const story = await apiRequest<StoryDto>(`/api/v1/stories/${encodeURIComponent(id)}`, { accessToken });
+    storyCache.set(story.id, story);
+    return { state: 'success', story };
+  } catch (error) {
+    if (error instanceof ApiClientError && error.status === 404) return { state: 'not-found' };
+    return failure(error);
+  }
+}
+
+export type DeleteStoryResult = { state: 'success' } | FeedFailure;
+
+export async function deleteStory(id: string, accessToken: string | null): Promise<DeleteStoryResult> {
+  try {
+    await apiRequest<void>(`/api/v1/stories/${encodeURIComponent(id)}`, { method: 'DELETE', accessToken });
+    storyCache.delete(id);
+    return { state: 'success' };
+  } catch (error) {
+    return failure(error);
+  }
 }
 
 export function relativeStoryTime(iso: string, tx: (ko: string, en: string) => string) {
