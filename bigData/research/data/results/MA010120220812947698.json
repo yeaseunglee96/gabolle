@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220812947698",
+  "worker": "haiku-23",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["메종드마레 북구 부산", "메종드마레 만덕1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 북구 만덕고개길 85"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "분위기·전망", "note": "산에 위치하여 분위기 좋고 경치가 우수함", "sources": [0, 1]},
+    {"type": "조리·재료", "note": "건강한 재료로 만든 브런치", "sources": [0]},
+    {"type": "운영·접근 편의", "note": "반려동물 동반 가능하고 전용주차장 있음", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "full",
+    "audience": "mixed",
+    "signatureDishes": ["브런치"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "영업시간 10:00~18:00 (라스트오더 17:00). 월요일 정기휴무. 반려동물 동반 가능"
+}

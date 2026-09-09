@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220812461003",
+  "worker": "haiku-23",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["대어스시 남구 부산", "대어스시 용호2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 남구 동명로158번길 77"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "서비스·사람", "note": "전 청와대 셰프가 운영하며 대통령을 대접한 경력", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "복요리와 복국 전문", "sources": [1, 2]},
+    {"type": "조리·재료", "note": "신선한 회와 회덮밥, 물회 제공", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["복국", "회", "회덮밥"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "전화 051-626-8883. 용호골목시장 근처. 2022년 4월 8일 개점"
+}

@@ -1,0 +1,25 @@
+{
+  "id": "MA0101202409A0089474",
+  "worker": "haiku-23",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["바쿠스 사하구 부산", "바쿠스 하단2동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["부산광역시 사하구 하단동"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "분위기·전망", "note": "하단 지역의 술집 문화", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "adult",
+    "signatureDishes": [],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "연락처 051-208-3331. 술집으로 등록되어 있음"
+}

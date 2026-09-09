@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202406A0224907",
+  "worker": "haiku-22",
+  "researchedAt": "2026-09-09T01:20:00.000Z",
+  "queries": ["시청갓포 연제구 부산", "시청갓포 거제3동 맛집"],
+  "found": false,
+  "confidence": "low",
+  "sources": ["https://www.catchtable.net/shop/Sicheonggatpo"],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "CatchTable에서만 발견, 상세 정보 부족",
+  "notes": ""
+}
