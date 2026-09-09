@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202406A0291337",
+  "worker": "haiku-53",
+  "researchedAt": "2026-09-09T06:30:00Z",
+  "queries": ["리볼리 광안2동 부산", "리볼리 경양식 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.instagram.com/rivoli_gwangan/", "https://www.diningcode.com/profile.php?rid=nDUZTERUkl6Z"],
+  "stillOpen": true,
+  "whyPeopleGo": [{"type": "간판 메뉴 지목", "note": "화덕피자, 크리미한 파스타, 스테이크 등 양식 메뉴", "sources": [0, 1]}, {"type": "분위기·전망", "note": "조용한 주택가에 위치한 좋은 분위기", "sources": [1]}],
+  "newTypes": [],
+  "descriptors": {"signatureDishes": ["화덕피자", "파스타", "스테이크"]},
+  "notFound": null,
+  "notes": "카테고리는 경양식으로 기록되었으나 실제로는 화덕피자와 파스타 전문 양식당. 영업시간 11:00-22:00 (휴게시간 15:00-17:00)"
+}

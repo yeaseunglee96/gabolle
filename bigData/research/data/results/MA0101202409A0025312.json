@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202409A0025312",
+  "worker": "haiku-53",
+  "researchedAt": "2026-09-09T06:50:00Z",
+  "queries": ["아메리칸빌리지 민락동", "아메리칸빌리지 수영구 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.instagram.com/american.village_/", "https://www.siksinhot.com/P/1692411", "https://polle.com/place/3xJTak/%EC%95%84%EB%A9%94%EB%A6%AC%EC%B9%B8%20%EB%B9%8C%EB%A6%AC%EC%A7%80"],
+  "stillOpen": true,
+  "whyPeopleGo": [{"type": "간판 메뉴 지목", "note": "텍사스 스모크 스타일 바비큐 전문점, 소고기 립 플래터", "sources": [0, 1]}, {"type": "분위기·전망", "note": "민락수변로의 수변 위치로 좋은 전망", "sources": [1]}],
+  "newTypes": [],
+  "descriptors": {"signatureDishes": ["소고기 립 플래터", "2인 플래터"], "priceBand": "moderate"},
+  "notFound": null,
+  "notes": "카테고리는 경양식으로 기록되었으나 실제로는 텍사스 바비큐/스모크 스타일 바비큐 전문점. 영업시간 11:30-22:00 (평일 휴게시간 15:00-17:00)"
+}

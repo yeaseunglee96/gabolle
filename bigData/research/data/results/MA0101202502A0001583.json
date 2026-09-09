@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202502A0001583",
+  "worker": "haiku-53",
+  "researchedAt": "2026-09-09T14:50:00Z",
+  "queries": ["제이비작 광안해변로", "제이비작 부산"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색에서 제이비작 정보를 찾지 못함",
+  "notes": "카테고리 기록 없음. 광안해변로 위치로 기록되었으나 웹 검색(다이닝코드, 구글 등) 결과에서 음식점으로 나타나지 않음"
+}

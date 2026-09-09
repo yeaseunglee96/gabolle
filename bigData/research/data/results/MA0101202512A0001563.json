@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202512A0001563",
+  "worker": "haiku-53",
+  "researchedAt": "2026-09-09T15:18:00Z",
+  "queries": ["바다새 광안2동 부산", "바다새 부산"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색에서 음식점 바다새 정보를 찾지 못함",
+  "notes": "카테고리는 경양식으로 기록되었으나 웹 검색 결과는 가수 '바다새'에 대한 정보만 나옴. 음식점으로는 찾을 수 없음"
+}

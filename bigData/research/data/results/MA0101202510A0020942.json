@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202510A0020942",
+  "worker": "haiku-53",
+  "researchedAt": "2026-09-09T15:12:00Z",
+  "queries": ["대니얼스 광안2동 부산", "대니얼스 부산 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색에서 음식점 대니얼스 정보를 찾지 못함",
+  "notes": "카테고리는 경양식으로 기록되었으나 웹 검색 결과에서 음식점으로 나타나지 않음"
+}

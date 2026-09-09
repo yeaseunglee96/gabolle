@@ -1,0 +1,15 @@
+{
+  "id": "MA0106202605A0579501",
+  "worker": "haiku-53",
+  "researchedAt": "2026-09-09T14:50:00Z",
+  "queries": ["헬로우미스장 민락동", "헬로우미스장 초밥"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색에서 헬로우미스장 정보를 찾지 못함",
+  "notes": "카테고리는 회/초밥으로 기록되었으나 웹 검색(다이닝코드, 소셜 미디어 등) 결과에 나타나지 않음"
+}

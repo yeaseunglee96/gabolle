@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220804529651",
+  "worker": "haiku-53",
+  "researchedAt": "2026-09-09T15:39:00Z",
+  "queries": ["안쵸비 민락동 부산", "안쵸비 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1005967"],
+  "stillOpen": true,
+  "whyPeopleGo": [{"type": "간판 메뉴 지목", "note": "이탈리아 요리, 파스타, 아란치니", "sources": [0]}, {"type": "분위기·전망", "note": "원셰프 이탈리아 레스토랑", "sources": [0]}],
+  "newTypes": [],
+  "descriptors": {"signatureDishes": ["아란치니", "파스타", "대파 파스타"]},
+  "notFound": null,
+  "notes": "카테고리는 경양식으로 기록되었으나 실제로는 이탈리아 요리점 (원셰프). 민락본동로19번길 40 1층. 운영시간 12:00-21:00 (휴게시간 15:30-17:30)"
+}

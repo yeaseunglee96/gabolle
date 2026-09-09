@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220812302778",
+  "worker": "haiku-53",
+  "researchedAt": "2026-09-09T15:32:00Z",
+  "queries": ["아마 감포로 민락동", "아마 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1306270", "https://www.diningcode.com/profile.php?rid=slRGRVdAi7bH"],
+  "stillOpen": true,
+  "whyPeopleGo": [{"type": "간판 메뉴 지목", "note": "스페인 가정식, 파에야, 핀초", "sources": [0, 1]}, {"type": "분위기·전망", "note": "스페인 가정식 분위기", "sources": [0, 1]}],
+  "newTypes": [],
+  "descriptors": {"signatureDishes": ["파에야", "핀초", "풀포 알라 갈레가"]},
+  "notFound": null,
+  "notes": "카테고리는 경양식으로 기록되었으나 실제로는 스페인 가정식 식당. 감포로8번길 15. 블루 벽이 특징"
+}

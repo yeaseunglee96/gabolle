@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202406A0430181",
+  "worker": "haiku-53",
+  "researchedAt": "2026-09-09T15:05:00Z",
+  "queries": ["은상 광안해변로 회/초밥", "은상 일식 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=twBNUEOJ0vEq"],
+  "stillOpen": true,
+  "whyPeopleGo": [{"type": "간판 메뉴 지목", "note": "생새우덮밥, 숙성회, 돼지덮밥", "sources": [0]}, {"type": "분위기·전망", "note": "목재 톤 코지한 인테리어, 일본 음악", "sources": [0]}],
+  "newTypes": [],
+  "descriptors": {"signatureDishes": ["생새우덮밥", "숙성회", "돼지덮밥"]},
+  "notFound": null,
+  "notes": "카테고리는 일식 회/초밥으로 기록됨. 2층 위치. 운영시간 11:30-21:00 (평일 15:00-17:00 휴게시간). 화요일 휴무. 전화: 0507-1359-3487. 민락동 버스정류장(41, 83번) 근처"
+}

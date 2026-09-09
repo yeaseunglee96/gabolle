@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202303A0077965",
+  "worker": "haiku-53",
+  "researchedAt": "2026-09-09T06:10:00Z",
+  "queries": ["골목심 민락동 부산", "골목심 회/초밥 맛집", "골목심 일식 초밥"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색 결과에서 부산 민락동의 일식당 골목심 정보를 찾지 못함",
+  "notes": ""
+}

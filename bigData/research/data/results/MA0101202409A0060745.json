@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202409A0060745",
+  "worker": "haiku-53",
+  "researchedAt": "2026-09-09T15:25:00Z",
+  "queries": ["태오 광남로 부산", "태오 경양식 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=Bba4r46FxocN", "https://www.instagram.com/taeo_gwangalli/"],
+  "stillOpen": true,
+  "whyPeopleGo": [{"type": "간판 메뉴 지목", "note": "경양식 와인바", "sources": [0]}, {"type": "분위기·전망", "note": "광안리 와인바 분위기", "sources": [0]}],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": null,
+  "notes": "카테고리는 경양식으로 기록됨. 광남로 166, 광안리슈빌DS 상가 1층 102호에 위치. 2024년 8월 16일 개업. 전화: 0507-1467-6464. 광안역 3번출구에서 도보 10분"
+}

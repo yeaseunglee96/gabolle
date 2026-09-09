@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202604A0011449",
+  "worker": "haiku-53",
+  "researchedAt": "2026-09-09T15:46:00Z",
+  "queries": ["루베르부산 광안해변로", "루베르부산 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색에서 루베르부산 음식점 정보를 찾지 못함",
+  "notes": "카테고리는 경양식으로 기록되었으나 웹 검색 결과에서 음식점으로 나타나지 않음"
+}

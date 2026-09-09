@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202406A0593444",
+  "worker": "haiku-53",
+  "researchedAt": "2026-09-09T15:18:00Z",
+  "queries": ["더서서 광안 일식", "더서서 부산"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색에서 더서서 음식점 정보를 찾지 못함",
+  "notes": "카테고리는 일식 회/초밥으로 기록되었으나 웹 검색 결과에서 특정 음식점으로 나타나지 않음"
+}

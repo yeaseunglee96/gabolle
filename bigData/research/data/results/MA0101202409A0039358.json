@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202409A0039358",
+  "worker": "haiku-53",
+  "researchedAt": "2026-09-09T15:53:00Z",
+  "queries": ["시쿠 민락로 부산", "시쿠 부산 회/초밥"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색에서 시쿠 음식점 정보를 찾지 못함",
+  "notes": "카테고리는 일식 회/초밥으로 기록되었으나 웹 검색 결과에서 음식점으로 나타나지 않음. 스시키쿠라는 다른 회전초밥점이 나왔으나 위치가 다름"
+}

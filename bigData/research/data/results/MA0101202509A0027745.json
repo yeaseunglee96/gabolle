@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202509A0027745",
+  "worker": "haiku-53",
+  "researchedAt": "2026-09-09T14:55:00Z",
+  "queries": ["게스후카페181 광안해변로", "게스후카페 광안 카페"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=aBPDVzexmniT", "https://www.instagram.com/cafe181.gwanganri/"],
+  "stillOpen": true,
+  "whyPeopleGo": [{"type": "분위기·전망", "note": "광안대교 뷰, 루프탑 카페", "sources": [0, 1]}, {"type": "간판 메뉴 지목", "note": "카페, 디저트, 음료", "sources": [0]}],
+  "newTypes": [],
+  "descriptors": {"signatureDishes": ["레몬에이드", "디카페인라떼", "녹차빙수"]},
+  "notFound": null,
+  "notes": "카테고리는 경양식으로 기록되었으나 실제로는 루프탑 카페. 광안해변로 181 15층. 운영시간 09:00-24:00. 주차 1시간 30분 지원"
+}

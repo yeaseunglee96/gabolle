@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202502A0050565",
+  "worker": "haiku-53",
+  "researchedAt": "2026-09-09T15:32:00Z",
+  "queries": ["돈까스의정원 민락로", "돈까스의정원 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=923UzO9frJwJ"],
+  "stillOpen": true,
+  "whyPeopleGo": [{"type": "간판 메뉴 지목", "note": "돈까스 코스요리, 로스카츠", "sources": [0]}, {"type": "분위기·전망", "note": "빈티지 우아한 인테리어, 꽃과 샹들리에", "sources": [0]}],
+  "newTypes": [],
+  "descriptors": {"signatureDishes": ["돈까스 코스요리", "로스카츠", "필레 카츠"]},
+  "notFound": null,
+  "notes": "카테고리는 경양식으로 기록됨. 민락로 8-3 101호. 운영시간 11:00-21:00 (휴게시간 16:00-17:00, 라스트오더 20:30). 전화: 051-761-1395. 광안리 신상 맛집"
+}

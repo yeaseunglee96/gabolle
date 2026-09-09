@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220811396093",
+  "worker": "haiku-53",
+  "researchedAt": "2026-09-09T16:07:00Z",
+  "queries": ["신토불이보쌈 구남로", "신토불이보쌈 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=04IQKGVezFRn"],
+  "stillOpen": true,
+  "whyPeopleGo": [{"type": "간판 메뉴 지목", "note": "보쌈, 김치찜", "sources": [0]}, {"type": "대물림", "note": "20년 이상 운영", "sources": [0]}],
+  "newTypes": [],
+  "descriptors": {"signatureDishes": ["보쌈", "김치찜"]},
+  "notFound": null,
+  "notes": "카테고리는 족발/보쌈으로 기록됨. 실제 상호는 윤가네신토불이보쌈. 구남로29번길 35 위치. 20년 이상 운영. 사장이 직접 선별한 고기와 순창산 쌀/고춧가루 사용"
+}

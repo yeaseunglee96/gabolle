@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202511A0004114",
+  "worker": "haiku-53",
+  "researchedAt": "2026-09-09T14:55:00Z",
+  "queries": ["채플스트릿 광안2동", "채플스트릿 부산 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://mom-mom.net/travel/places/6a4f52b29c654ce498f2992d", "https://www.instagram.com/p/DRMd5s0CVgj/"],
+  "stillOpen": true,
+  "whyPeopleGo": [{"type": "기관 선정", "note": "부산 맘맘 추천 식당", "sources": [0]}, {"type": "간판 메뉴 지목", "note": "호주식 브런치 전문점", "sources": [0, 1]}],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": null,
+  "notes": "카테고리는 경양식으로 기록되었으나 실제로는 호주식 브런치 카페. 오너셰프는 호주 멜버른에서 9년간 경력. 주소: 광안로41번길 26"
+}

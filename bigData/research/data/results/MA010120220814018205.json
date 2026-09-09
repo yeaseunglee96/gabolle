@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220814018205",
+  "worker": "haiku-53",
+  "researchedAt": "2026-09-09T05:53:12Z",
+  "queries": ["타파스토끼 수영구 부산", "타파스토끼 민락동 맛집", "타파스토끼 블로그"],
+  "found": true,
+  "confidence": "low",
+  "sources": ["https://www.instagram.com/tapas_tokki_busan/"],
+  "stillOpen": true,
+  "whyPeopleGo": [{"type": "간판 메뉴 지목", "note": "스페인 타파스 전문 레스토랑", "sources": [0]}],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": null,
+  "notes": ""
+}

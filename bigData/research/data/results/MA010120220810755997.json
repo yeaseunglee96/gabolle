@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220810755997",
+  "worker": "haiku-53",
+  "researchedAt": "2026-09-09T15:53:00Z",
+  "queries": ["포동 달맞이길", "포동 횟집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색에서 포동 횟집 정보를 찾지 못함",
+  "notes": "카테고리는 횟집으로 기록되었으나 웹 검색 결과에서 특정 음식점으로 나타나지 않음"
+}

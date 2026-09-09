@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202603A0001549",
+  "worker": "haiku-53",
+  "researchedAt": "2026-09-09T16:00:00Z",
+  "queries": ["광안만쿠 민락로", "광안만쿠 부산"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색에서 광안만쿠 음식점 정보를 찾지 못함",
+  "notes": "카테고리는 일식 회/초밥으로 기록되었으나 웹 검색 결과에서 특정 음식점으로 나타나지 않음"
+}

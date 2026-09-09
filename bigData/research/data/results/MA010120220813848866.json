@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220813848866",
+  "worker": "haiku-53",
+  "researchedAt": "2026-09-09T16:07:00Z",
+  "queries": ["부산왕족발 광안해변로", "부산왕족발 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": [],
+  "stillOpen": true,
+  "whyPeopleGo": [{"type": "간판 메뉴 지목", "note": "족발 전문점", "sources": []}],
+  "newTypes": [],
+  "descriptors": {"signatureDishes": ["족발"]},
+  "notFound": null,
+  "notes": "카테고리는 족발/보쌈으로 기록됨. 광안해변로277번길 36-1 1층. 운영시간 10:30-23:00. 맛이 좋고 가성비 있으며 서빙이 친절하다는 평가"
+}

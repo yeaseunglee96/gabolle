@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220803814633",
+  "worker": "haiku-53",
+  "researchedAt": "2026-09-09T16:14:00Z",
+  "queries": ["수영빈대떡 망미 부산", "수영빈대떡 부산"],
+  "found": true,
+  "confidence": "medium",
+  "sources": [],
+  "stillOpen": true,
+  "whyPeopleGo": [{"type": "간판 메뉴 지목", "note": "빈대떡", "sources": []}],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": null,
+  "notes": "카테고리는 전/부침개로 기록됨. 망미번영로38번길 65 위치. 수영구 빈대떡 맛집 Top 8에 포함됨"
+}

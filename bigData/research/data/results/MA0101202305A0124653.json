@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202305A0124653",
+  "worker": "haiku-53",
+  "researchedAt": "2026-09-09T07:00:00Z",
+  "queries": ["솔팅 광안2동 부산", "솔팅 경양식"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://www.tabling.co.kr/place/677cd75966de5f06989297b7"],
+  "stillOpen": true,
+  "whyPeopleGo": [{"type": "간판 메뉴 지목", "note": "소세지, 모르타델라, 파스트라미 등 서양 메뉴", "sources": [0]}],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": null,
+  "notes": "테이블링에 광안4동으로 기록되어 있음. 서양식 음식점."
+}
