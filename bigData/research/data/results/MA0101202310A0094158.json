@@ -1,0 +1,37 @@
+{
+  "id": "MA0101202310A0094158",
+  "worker": "haiku-49",
+  "researchedAt": "2026-09-09T17:30:00Z",
+  "queries": ["올데이파스타 수영구 광안1동", "올데이파스타 광서로 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.diningcode.com/profile.php?rid=IxdqUBZ0gQRo",
+    "http://alldaypasta.com/"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "파스타 전문점",
+      "sources": [0, 1]
+    },
+    {
+      "type": "플랫폼 순위·평점",
+      "note": "다이닝코드에 등록되어 있음",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["파스타", "스테이크"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}
