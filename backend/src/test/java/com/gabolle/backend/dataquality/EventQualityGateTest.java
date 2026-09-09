@@ -3,6 +3,7 @@ package com.gabolle.backend.dataquality;
 import java.time.Clock;
 import java.util.UUID;
 
+import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -36,6 +37,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class EventQualityGateTest extends PostgresIntegrationTest {
 
 	private static final String DATASET = "dataset-2026-09-03";
+
+	/** 설정된 schema 를 실제로 보는지 확인할 때 쓰는, 비어 있지만 완전한 schema. */
+	private static final String PROBE_SCHEMA = "probe";
 
 	@Autowired
 	private EventQualityGate gate;
@@ -257,19 +261,41 @@ class EventQualityGateTest extends PostgresIntegrationTest {
 		insertCandidate(placeId, "PASS", 1, true);
 		insertImpression(placeId, 1, fullVersions());
 
-		// schema 설정이 없으면 지금까지처럼 기본 경로(public)를 본다.
+		// schema 설정이 없으면 아무것도 건드리지 않고 연결의 기본 search_path 를 그대로 쓴다.
+		// 🔴 그 기본값은 `"$user", public` 이라 public 이라는 뜻이 아니다 — 접속 사용자와
+		//    같은 이름의 schema 가 있으면 그쪽이 먼저다. 어느 쪽이든 표가 있는 곳을 본다.
 		assertThat(this.gate.measure(DATASET).eventsTotal()).isEqualTo(1);
 
-		// probe schema 에 event_outbox 를 하나 더 둔다. 행은 없다.
-		// 🔴 search_path 가 실제로 바뀌면 이 빈 표를 읽어 0 이 나온다. 안 바뀌면 public 을
-		//    읽어 1 이 나온다. 그 차이가 이 테스트의 전부다.
-		this.jdbcTemplate.execute("CREATE SCHEMA IF NOT EXISTS probe");
-		this.jdbcTemplate.execute("""
-				CREATE TABLE IF NOT EXISTS probe.event_outbox (
-				    event_id UUID PRIMARY KEY, event_type VARCHAR(64), payload JSONB)
-				""");
+		// probe schema 를 **진짜 마이그레이션으로 통째로** 만든다. 표는 다 있고 행은 없다.
+		// 🔴 search_path 가 실제로 바뀌면 이 빈 표들을 읽어 0 이 나온다. 안 바뀌면 원래
+		//    schema 를 읽어 1 이 나온다. 그 차이가 이 테스트의 전부다.
+		//
+		// 🔴 예전에는 여기서 event_outbox 하나만 손으로 만들었다. 그러면 게이트가 함께 읽는
+		//    나머지(recommendation_exposure · recommendation_candidate · event_quality_report)가
+		//    probe 에 없어서, 게이트가 붙이는 폴백 경로 public 으로만 풀렸다. 즉 이 테스트는
+		//    **"나머지 표가 전부 public 에 있다"** 는, 적어 두지도 않은 전제 위에 서 있었다.
+		//    그 전제가 깨지는 순간이 실제로 있다 — 같은 시험용 DB 에 gabolle schema 가
+		//    생기면(dev 프로필을 띄우는 테스트가 그렇게 한다) 접속 사용자가 gabolle 이라
+		//    기본 search_path 의 "$user" 가 그 schema 로 풀리고, Flyway 는 표를 public 이
+		//    아니라 gabolle 에 만든다. 그러면 폴백 public 에는 아무것도 없어서
+		//    `relation "recommendation_exposure" does not exist` 로 죽었다 (S15P21E201-546 후속).
+		//    테스트 실행 순서에 따라 갈려서 플레이키로 보였지만 순서가 정해지면 결정론적이다.
+		//
+		//    그래서 전제를 없앤다 — probe 를 완전한 schema 로 만들어 폴백에 기대지 않는다.
+		// 🔴 먼저 지운다. 시험용 DB 는 실행 사이에 살아남고(밖에서 준 DB 면 더 그렇다),
+		//    앞선 실행이 남긴 probe 가 있으면 Flyway 가 "이력표 없는 안 빈 schema" 라고
+		//    거부한다. 지우고 새로 만들면 어느 실행에서든 같은 상태에서 시작한다.
+		this.jdbcTemplate.execute("DROP SCHEMA IF EXISTS " + PROBE_SCHEMA + " CASCADE");
 
-		EventQualityGate scoped = new EventQualityGate(this.jdbcTemplate, this.guard, this.clock, "probe");
+		Flyway.configure()
+			.dataSource(this.jdbcTemplate.getDataSource())
+			.schemas(PROBE_SCHEMA)
+			.defaultSchema(PROBE_SCHEMA)
+			.locations("classpath:db/migration")
+			.load()
+			.migrate();
+
+		EventQualityGate scoped = new EventQualityGate(this.jdbcTemplate, this.guard, this.clock, PROBE_SCHEMA);
 
 		// 🔴 SET LOCAL 은 트랜잭션 안에서만 듣는다. 직접 만든 객체는 프록시를 안 거치므로
 		//    트랜잭션이 없어서, 여기서 손으로 하나 열어 준다. 스프링 빈으로 부를 때는
