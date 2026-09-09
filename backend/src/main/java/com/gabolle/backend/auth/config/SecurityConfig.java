@@ -7,6 +7,7 @@ import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -36,6 +37,17 @@ public class SecurityConfig {
 		http
 			.csrf(csrf -> csrf.disable())
 			.cors(Customizer.withDefaults())
+			// 🔴 S15P21E201-769 — ZAP 스캔이 /actuator/health 응답에서 JSESSIONID 쿠키를 잡았다
+			//    (SameSite 속성도 없이). 이 앱은 JWT 전용이다 — HmacJwtAuthenticationFilter 가
+			//    매 요청 DB 에서 role 을 다시 읽으므로 세션에 담아 둘 것이 애초에 없다. 그런데도
+			//    Spring Security 기본값(세션 필요시 생성)이 살아 있어서 아무도 안 쓰는 세션이
+			//    계속 만들어지고 있었다 — 세션 고정 공격면만 늘리는 상태다.
+			//
+			//    STATELESS 로 끄면 이 필터 체인이 HttpSession 을 절대 안 만들고 안 읽는다.
+			//    웹의 리프레시 토큰 쿠키(GABOLLE_WEB_REFRESH_COOKIE_NAME)는 이것과 무관하다 —
+			//    그건 애플리케이션 코드가 직접 Set-Cookie 로 관리하는 별개의 쿠키이지
+			//    HttpSession 이 아니다.
+			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 			.exceptionHandling(exceptions -> exceptions.authenticationEntryPoint(authenticationEntryPoint))
 			.authorizeHttpRequests(authorize -> authorize
 				.requestMatchers("/actuator/health").permitAll()
