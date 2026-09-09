@@ -139,6 +139,23 @@ public class PlaceSearchService {
 	}
 
 	/**
+	 * 종류(category)만으로 거른 목록 — 숙소 후보 조회(S15P21E201-456)가 쓴다.
+	 *
+	 * <p>커서를 받지 않는다. {@link #searchByFacet} 과 같은 이유다 — 리포지토리가 오프셋
+	 * 있는 조회를 지원하지 않고, 완료 기준도 이어받기를 요구하지 않는다.
+	 */
+	public PlacePageResponse listByCategories(List<String> categories, Integer limit) {
+		int effectiveLimit = requireLimit(limit);
+		List<String> lowerCategories = categories.stream().map(c -> c.toLowerCase(Locale.ROOT)).toList();
+
+		List<Place> found = this.placeRepository.findByCategoryIn(lowerCategories, Limit.of(effectiveLimit + 1));
+		boolean hasNext = found.size() > effectiveLimit;
+		List<Place> page = hasNext ? found.subList(0, effectiveLimit) : found;
+		List<PlaceSummaryResponse> items = page.stream().map(PlaceSummaryResponse::ofFacetMatch).toList();
+		return new PlacePageResponse(items, effectiveLimit, null, hasNext, false);
+	}
+
+	/**
 	 * {@code candidates} 중 지정한 표식이 <b>실제로 있는(indicatesPresence)</b> 장소만 남긴다.
 	 *
 	 * <p>🔴 {@code findByPlaceIdIn} 은 후보 장소의 피처를 <b>전부</b> 돌려준다 — 다른 종류의 피처가

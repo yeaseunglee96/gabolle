@@ -24,6 +24,13 @@ public record TripDto(
         String timezone,
         String status,
         int days,
+        /** 매일 여기서 시작하고 여기로 돌아온다. 안 정했으면 {@code null} (S15P21E201-456). */
+        String accommodationPlaceId,
+        boolean englishMenuRequired,
+        boolean foreignCardRequired,
+        boolean soloFriendlyPriority,
+        /** {@code null} 이면 제한 없음(또는 자차 이동이라 뜻이 없어 무시됨). */
+        Integer maxTransitTransfers,
         PreferenceSnapshotDto preferenceSnapshot) {
 
     /**
@@ -64,6 +71,9 @@ public record TripDto(
                 t.budgetKrw(), t.partySize(),
                 t.timeWindow(), t.timezone(),
                 t.status().name(), t.days(),
+                t.accommodationPlaceId(),
+                t.englishMenuRequired(), t.foreignCardRequired(), t.soloFriendlyPriority(),
+                t.maxTransitTransfers(),
                 s == null ? null
                         : new PreferenceSnapshotDto(
                                 s.snapshotId(), s.version(), s.scope().name(),
