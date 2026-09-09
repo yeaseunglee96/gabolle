@@ -1,0 +1,25 @@
+{
+  "id": "MA010120220813751394",
+  "worker": "haiku-48",
+  "researchedAt": "2026-09-09T14:47:00+09:00",
+  "queries": ["순대정 남구 부산", "순대정 대연1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://triple.guide/restaurants/c40dbd34-4f31-4e8f-bb8a-6ed69b73b606"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "순대 전문점", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["순대"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

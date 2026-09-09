@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202406A0489556",
+  "worker": "haiku-49",
+  "researchedAt": "2026-09-09T16:30:00Z",
+  "queries": ["야손 수영구 남천 치킨", "야손 광남로 부산"],
+  "found": false,
+  "confidence": "low",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "광남로48번길 25에서 야손이라는 가게는 찾았지만, 데이터베이스 분류는 치킨인데 실제는 감성 바/음료점으로 보이는 업종 불일치",
+  "notes": ""
+}

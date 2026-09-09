@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220811442886",
+  "worker": "haiku-47",
+  "researchedAt": "2026-09-09T10:45:00Z",
+  "queries": ["남포삼계탕 해운대구 부산", "남포삼계탕 중1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/368054", "https://www.tabling.co.kr/place/677cc8ee66de5f069877ee22", "https://www.diningcode.com/profile.php?rid=knGHC73cIVCz"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "연차·역사", "note": "50년 전통의 부산 보양식 전문점", "sources": [0, 2]},
+    {"type": "간판 메뉴 지목", "note": "기본삼계탕, 전복삼계탕, 한방삼계탕, 옻삼계탕", "sources": [0, 1, 2]},
+    {"type": "조리·재료", "note": "국내산 닭, 찹쌀, 인삼만 사용", "sources": [0]},
+    {"type": "맛 묘사", "note": "잡내 없이 깔끔하고 인삼향 가득한 깊은맛, 부드럽고 쫄깃한 닭", "sources": [2]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": true,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["삼계탕", "전복삼계탕", "한방삼계탕"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "영업시간 10:00-21:30, 브레이크타임 없음. 복날에는 웨이팅 있음. 포장 가능"
+}

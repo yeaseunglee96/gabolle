@@ -1,0 +1,31 @@
+{
+  "id": "MA0101202511A0037919",
+  "worker": "haiku-50",
+  "researchedAt": "2026-09-09T05:29:15Z",
+  "queries": ["가생이우동 수영구 부산", "가생이우동 민락동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": [
+    "https://www.siksinhot.com/P/1836354"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "우동과 소바 전문점",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["우동", "소바"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "아직 준비 중인 매장으로 상세 리뷰 정보 부족"
+}

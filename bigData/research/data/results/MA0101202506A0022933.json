@@ -1,0 +1,26 @@
+{
+  "id": "MA0101202506A0022933",
+  "worker": "haiku-48",
+  "researchedAt": "2026-09-09T14:50:15+09:00",
+  "queries": ["젤라또부 해운대구 부산", "젤라또부 우1동"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.daangn.com/kr/local-profile/%EC%A0%A4%EB%9D%BC%EB%98%90%EB%B6%80-pgtgwn5ou1q2/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "천연 재료로 만드는 젤라또 전문", "sources": [0]},
+    {"type": "분위기·전망", "note": "해리단길의 감성 디저트 공간", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "young",
+    "signatureDishes": ["젤라또"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "배달 및 포장 가능, 제로페이 등 다양한 결제 수단 지원"
+}

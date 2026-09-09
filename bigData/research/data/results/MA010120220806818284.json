@@ -1,15 +1,27 @@
 {
   "id": "MA010120220806818284",
-  "worker": "haiku-42",
-  "researchedAt": "2026-09-09T04:29:12Z",
-  "queries": ["연스시 북구 부산 초밥"],
+  "worker": "haiku-47",
+  "researchedAt": "2026-09-09T12:00:00Z",
+  "queries": ["연스시 북구 부산", "연스시 구포3동 맛집"],
   "found": true,
   "confidence": "high",
-  "sources": ["https://www.diningcode.com/profile.php?rid=Pw5EBLU4EINo"],
+  "sources": ["https://www.siksinhot.com/P/1496077", "https://www.diningcode.com/profile.php?rid=Pw5EBLU4EINo"],
   "stillOpen": true,
-  "whyPeopleGo": [{"type": "간판 메뉴 지목", "note": "신선한 초밥 전문점", "sources": [0]}, {"type": "가격·가성비", "note": "17피스 초밥 세트 15,000원", "sources": [0]}],
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "가성비 좋은 연스시C(17ps 15,000원), 직화소고기 11ps", "sources": [0, 1]},
+    {"type": "맛 묘사", "note": "신선한 초밥, 연어·자연산 광어·새우 등 신선한 식재료", "sources": [0, 1]},
+    {"type": "현지인 지지", "note": "구포 지역 초밥 맛집", "sources": [1]}
+  ],
   "newTypes": [],
-  "descriptors": {"signatureDishes": ["연스시 C", "소불고기초밥"]},
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["연스시C(17ps)", "직화소고기 11ps"],
+    "priceBand": "cheap"
+  },
   "notFound": null,
-  "notes": "11:30~23:00 영업, 브레이크 15:00~16:30, 매주 화요일 정기휴무. 예약·포장·배달 가능"
+  "notes": "영업시간 11:30-23:00 (화요일 정기휴무, 브레이크타임 15:00-16:30). 예약·포장·배달 가능"
 }

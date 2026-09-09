@@ -1,0 +1,45 @@
+{
+  "id": "MA010120220805236355",
+  "worker": "haiku-49",
+  "researchedAt": "2026-09-09T12:30:00Z",
+  "queries": ["고향카츠 수영구 부산", "고향카츠 광안2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://triple.guide/restaurants/d380b09b-0791-4685-aceb-aa0565e0471c",
+    "https://kr.trip.com/moments/detail/busan-432-121809809/",
+    "https://www.mangoplate.com/restaurants/TxiHBJJ_A2Rm",
+    "https://www.diningcode.com/profile.php?rid=K0po2TvHjHDT",
+    "https://polle.com/place/3Q5H5r/%EA%B3%A0%ED%96%A5%EC%B9%B4%EC%B8%A0"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "조리·재료",
+      "note": "400시간 이상 저온 숙성한 돈가스로 육즙과 풍미가 충분함",
+      "sources": [0, 1]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "12,000-13,000원 가격대로 부담없는 가격",
+      "sources": [1, 2, 3]
+    },
+    {
+      "type": "혼잡·수요",
+      "note": "광안리에서 줄서서 먹는 인기 가게",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["히레카츠", "나폴리탄"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

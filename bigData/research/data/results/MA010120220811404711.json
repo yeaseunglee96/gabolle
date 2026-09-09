@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220811404711",
+  "worker": "haiku-47",
+  "researchedAt": "2026-09-09T12:30:00Z",
+  "queries": ["비학산칼국수 해운대구 부산", "비학산칼국수 중1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/726848", "https://triple.guide/restaurants/a4e0dac8-db21-43cd-8f9b-9bd3ab9c6987", "https://www.diningcode.com/profile.php?rid=9YqPsvNURxRW"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "보리밥, 생칼국수, 바지락칼국수", "sources": [0, 1]},
+    {"type": "맛 묘사", "note": "신선한 칼국수, 향긋한 보리밥", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": false,
+    "audience": "mixed",
+    "signatureDishes": ["보리밥", "생칼국수", "바지락칼국수"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "영업시간 07:00-22:00. 본점과 센텀 지점이 있음"
+}

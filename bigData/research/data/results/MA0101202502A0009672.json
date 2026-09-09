@@ -1,0 +1,28 @@
+{
+  "id": "MA0101202502A0009672",
+  "worker": "haiku-47",
+  "researchedAt": "2026-09-09T10:35:00Z",
+  "queries": ["히봉 해운대구 부산", "히봉 우1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=udH8WH5YO5wI", "https://www.daangn.com/kr/local-profile/%ED%9E%88%EB%B4%89-vk2adhq52z9f/", "https://www.instagram.com/p/DLY2s_FSCrZ/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "한우사골 육수로 만든 소고기 쌀국수, 냉분짜, 수제 짜조", "sources": [0, 1]},
+    {"type": "분위기·전망", "note": "해리단길 신상 맛집, 베트남 현지 감성", "sources": [2]},
+    {"type": "맛 묘사", "note": "매일 먹어도 질리지 않는 깊은 국물 맛", "sources": [1]},
+    {"type": "현지인 지지", "note": "해운대 우동 지역 주민이 찾는 지점", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["소고기 쌀국수", "냉분짜", "수제 짜조"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "영업시간 11:00-16:00(또는 17:00), 화요일 휴무. 가게 이름은 베트남어로 '희망'을 의미"
+}

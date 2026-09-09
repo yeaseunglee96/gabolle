@@ -1,0 +1,42 @@
+{
+  "id": "MA010120220811398285",
+  "worker": "haiku-50",
+  "researchedAt": "2026-09-09T05:30:45Z",
+  "queries": ["밀면전문 해운대구 부산", "밀면전문 중1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://kr.trip.com/moments/theme/poi-haeundae-milmyeon-140672643-restaurant-993134/",
+    "https://www.diningcode.com/profile.php?rid=CvgkUhXfwZOd"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "밀면 전문점",
+      "sources": [0, 1]
+    },
+    {
+      "type": "맛 묘사",
+      "note": "시원한 육수의 물밀면",
+      "sources": [0]
+    },
+    {
+      "type": "플랫폼 순위·평점",
+      "note": "다이닝코드, Trip 등 여행 사이트에 등재",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["물밀면", "비빔밀면"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}
