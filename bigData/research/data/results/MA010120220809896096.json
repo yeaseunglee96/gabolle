@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220809896096",
+  "worker": "haiku-30",
+  "researchedAt": "2026-09-09T10:40:00Z",
+  "queries": ["강적들 부산진구 부산", "강적들 양정2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 부산진구 동평로405번길 64"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "메뉴 희소성", "note": "숯불닭갈비라는 특색 있는 메뉴", "sources": [0, 1] },
+    { "type": "조리·재료", "note": "직접 숯불에 구워내는 조리법", "sources": [0, 1] },
+    { "type": "현지인 지지", "note": "양정동 인기 맛집", "sources": [1] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": false,
+    "parking": false,
+    "audience": "local",
+    "signatureDishes": ["숯불닭갈비"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

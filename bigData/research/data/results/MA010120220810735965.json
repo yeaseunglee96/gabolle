@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220810735965",
+  "worker": "haiku-28",
+  "researchedAt": "2026-09-09T10:05:00Z",
+  "queries": ["어부횟집 강서구 부산", "어부횟집 가덕도동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.tabling.co.kr/place/677cc8b166de5f0698776c51", "https://www.diningcode.com/profile.php?rid=BhrBiePVJ7Zw"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "물회, 회무침 전문", "sources": [1]},
+    {"type": "메뉴 희소성", "note": "가덕도 어부가 잡은 제철 자연산 물고기", "sources": [0]},
+    {"type": "분위기·전망", "note": "바다가 보이는 위치", "sources": [0]},
+    {"type": "맛 묘사", "note": "신선한 해산물, 깨끗한 국물", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "좋은 주차 시설",
+    "audience": "local",
+    "signatureDishes": ["물회", "회무침", "모듬회"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": ""
+}

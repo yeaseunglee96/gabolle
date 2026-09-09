@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220803145958",
+  "worker": "haiku-29",
+  "researchedAt": "2026-09-09T10:19:00Z",
+  "queries": ["수성수산 강서구 부산", "수성수산 신호동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/806100", "https://www.diningcode.com/profile.php?rid=GpH2orsbMQWY"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "신선한 물회 전문점", "sources": [0, 1]},
+    {"type": "가격·가성비", "note": "가성비 좋은 가격대", "sources": [0, 1]},
+    {"type": "메뉴 희소성", "note": "자연산 한치와 제주대광어 따로물회", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "주차장 완비",
+    "audience": "mixed",
+    "signatureDishes": ["전복죽", "제주대광어 따로물회", "한치"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220813842202",
+  "worker": "haiku-30",
+  "researchedAt": "2026-09-09T11:28:00Z",
+  "queries": ["가야공원집 부산진구 부산", "가야공원집 가야1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 부산진구 가야공원로 83-16"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "메뉴 희소성", "note": "오리고기, 오리불고기 전문", "sources": [0, 1] },
+    { "type": "분위기·전망", "note": "자연 계곡수 흐르는 경관, 야외 테라스", "sources": [0, 1] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": false,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["오리불고기", "오리백숙"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

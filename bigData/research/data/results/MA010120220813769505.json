@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220813769505",
+  "worker": "haiku-28",
+  "researchedAt": "2026-09-09T10:25:00Z",
+  "queries": ["스시무라 서구 부산", "스시무라 아미동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1141237", "https://www.diningcode.com/profile.php?rid=6Tt4wjy8o11I"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "초밥 전문점", "sources": [0]},
+    {"type": "가격·가성비", "note": "가성비 좋은 메뉴 구성", "sources": [1]},
+    {"type": "서비스·사람", "note": "친절한 직원", "sources": [1]},
+    {"type": "분위기·전망", "note": "깔끔한 분위기", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["모듬 스시", "카츠동", "미니우동"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "부산대학병원 근처에 위치"
+}

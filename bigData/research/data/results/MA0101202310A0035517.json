@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202310A0035517",
+  "worker": "haiku-28",
+  "researchedAt": "2026-09-09T10:30:00Z",
+  "queries": ["산사로 부산진구 부산", "산사로 개금1동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "산사로는 도로명(산복도로)이며 음식점에 대한 정보 없음",
+  "notes": ""
+}

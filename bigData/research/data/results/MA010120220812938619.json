@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220812938619",
+  "worker": "haiku-29",
+  "researchedAt": "2026-09-09T10:17:00Z",
+  "queries": ["용꿈횟집 강서구 부산", "용꿈횟집 명지1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.daangn.com/kr/local-profile/%EC%9A%A9%EA%BF%88%ED%9A%9F%EC%A7%91-y5cbyieakxrq/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "생선회 전문점", "sources": [0]},
+    {"type": "메뉴 희소성", "note": "계절 자연산 생선 도다리, 아나구탕, 갈미, 개불 등", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["도다리", "아나구탕", "갈미", "개불"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

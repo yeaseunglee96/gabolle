@@ -1,0 +1,26 @@
+{
+  "id": "MA0101202409A0247605",
+  "worker": "haiku-29",
+  "researchedAt": "2026-09-09T10:05:00Z",
+  "queries": ["모닝하우스 동래구 부산", "모닝하우스 사직3동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://brunch.co.kr/@3f4a9f480cf349b/365", "https://kr.trip.com/moments/detail/dongnae-gu-2016644-127688311/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "그릴베지 샌드위치, 프렌치토스트 등 브런치 전문", "sources": [0]},
+    {"type": "분위기·전망", "note": "자연주의 신상 브런치 카페의 감성 있는 분위기", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["그릴베지 샌드위치", "프렌치토스트", "유자그린티에이드"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

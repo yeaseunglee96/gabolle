@@ -1,0 +1,26 @@
+{
+  "id": "MA0101202301A0037585",
+  "worker": "haiku-29",
+  "researchedAt": "2026-09-09T10:06:00Z",
+  "queries": ["수타생왕돈까스 연제구 부산", "수타생왕돈까스 거제1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=NkZyOJ0QH8Qy"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "수제 왕돈까스 전문점", "sources": [0]},
+    {"type": "가격·가성비", "note": "양이 많고 가격이 저렴", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["수타생왕돈까스", "수타왕고구마치즈돈까스", "수타왕치즈돈까스"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}
