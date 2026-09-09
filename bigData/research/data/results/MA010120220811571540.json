@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220811571540",
+  "worker": "haiku-38",
+  "researchedAt": "2026-09-09T14:45:00Z",
+  "queries": ["대성집 금정구 부산", "대성집 금성동 맛집", "대성집 블로그 부산", "대성집 후기 금성동"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "부산 금정구 금성동의 대성집을 찾을 수 없었다. 검색 결과에서는 서울 강북의 도가니탕 대성집과 부산 중구의 이모카세 대성집만 나타났으며, 금정구 금성동 소재 대성집은 블로그나 맛집 정보 사이트에서 확인되지 않았다.",
+  "notes": ""
+}

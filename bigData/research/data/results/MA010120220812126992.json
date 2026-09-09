@@ -1,0 +1,34 @@
+{
+  "id": "MA010120220812126992",
+  "worker": "haiku-38",
+  "researchedAt": "2026-09-09T16:00:00Z",
+  "queries": ["광식당 부산 사하구", "광식당 신평동"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://penhoo.com/post/bae1c1ba/587"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "조리·재료",
+      "note": "천연 재료의 맛으로 조미료 없이 준비하는 음식",
+      "sources": [0]
+    },
+    {
+      "type": "서비스·사람",
+      "note": "해외와 국내 경력이 20년인 사장과 유명 가게에서 일했던 셰프들",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": [],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": ""
+}
