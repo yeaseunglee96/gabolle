@@ -58,7 +58,9 @@ class ItineraryVersionConflictTest {
         // 이 테스트가 보는 것은 판 번호와 409 뿐이다.
         service = new ItineraryEditService(repository,
                 (placeId, from, to) -> PlaceEventSchedule.unscheduled(),
-                null, new InMemoryTripRepository(), Clock.systemUTC());
+                // 구간 계획기와 영업시간 검사기는 순서 바꾸기에서만 쓰인다. 이 검사는 고정만
+                // 부르고, 여행 저장소도 비어 있어 그 갈래에 닿지 않는다.
+                null, new InMemoryTripRepository(), null, Clock.systemUTC());
         repository.seed("itn_1", "trp_1", 5);
 
         String versionId = UUID.randomUUID().toString();
