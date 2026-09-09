@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202512A0008104",
+  "worker": "haiku-52",
+  "researchedAt": "2026-09-09T14:40:30Z",
+  "queries": ["야키토리로만 해운대구 부산", "야키토리로만 우1동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "같은 이름의 야키토리 로만은 서울과 대구에만 있고 해운대 우1동 정보는 없음",
+  "notes": ""
+}
