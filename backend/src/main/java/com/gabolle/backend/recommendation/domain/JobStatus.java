@@ -28,5 +28,16 @@ public enum JobStatus {
 	/** 사용자가 취소했다 (JOB-02). */
 	CANCELLED,
 	/** 유효 시간이 지났다. */
-	EXPIRED
+	EXPIRED;
+
+	/**
+	 * 더 이상 바뀌지 않는 상태인가 — S15P21E201-193.
+	 *
+	 * <p>진행률을 밀어 보내는 통로가 언제 연결을 닫아야 하는지를 이 값으로 정한다. 진행률
+	 * 100으로 판단하지 않는 이유는 실패·취소·만료도 끝인데 100이 아니기 때문이다. 상태 전이가
+	 * 단방향이라(위 주석) 한 번 끝이면 다시 도는 일이 없다.
+	 */
+	public boolean isTerminal() {
+		return this == SUCCEEDED || this == FAILED || this == CANCELLED || this == EXPIRED;
+	}
 }
