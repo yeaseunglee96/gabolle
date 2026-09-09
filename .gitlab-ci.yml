@@ -35,6 +35,63 @@
 # 권한은 가진 사람이 언제든 우회할 수 있지만 필수 파이프라인은 모두에게 똑같이 걸린다.
 # 그래서 지켜야 할 것은 전부 잡(job)으로 만든다.
 
+# ── 파트 CI 잡을 끌어온다 ─────────────────────────────────────────────────────
+#
+# 🔴 2026-09-09 실측 — 여섯 파트가 전부 이 파일 하나(공용 442줄)에 자기 잡을
+#    넣고 있었다. 여섯 파트를 main 으로 올리는 동안 걸린 충돌 파일 아홉~열 개
+#    중 아홉은 "main 쪽 받기" 로 기계적으로 끝났는데, 손으로 풀어야 한 것은
+#    이 파일 하나였다. 그리고 그 하나가 위험했다 — bigData 의
+#    `git config core.hooksPath /dev/null` 한 줄(LFS 훅 우회, S15P21E201-741)을
+#    main 쪽으로 잘못 받으면 태그 push 가 다시 죽는다. 파트 잡을 남이 판단해서
+#    고르는 구조 자체가 문제였다. 그래서 파트 잡을 파트별 파일로 옮긴다 —
+#    이 뿌리 파일에는 **공용 잡만** 남는다.
+#
+#    파트 파일 자리는 `ci/parts/<파트>.yml` 이다. 파트 폴더(`backend/` ·
+#    `frontend/` · `bigData/` · `city3d-spike/` 등) 안이 아닌 이유 — 파트
+#    폴더는 브랜치마다 있고 없고가 다르다 (`bigData/` 는 bigData/main 에만,
+#    `city3d-spike/` 는 map/main 에만 있다). `ci/parts/` 는 어느 브랜치에서도
+#    만들 수 있고, 파일이 서로 달라 파트끼리 안 부딪힌다.
+#
+# 🔴 각 include 를 `rules: exists:` 로 감싼다. `include: local:` 은 대상 파일이
+#    없으면 파이프라인 전체가 에러로 죽는다 — 파트 파일이 없는 브랜치가 있으므로
+#    (예: 이 커밋 시점에는 ci/parts/*.yml 이 전부 방금 만든 빈 파일이고, 다른
+#    브랜치는 아직 이 커밋을 안 받았을 수 있다) "있을 때만 끌어온다" 를 걸어야
+#    한다. 문법은 GitLab 공식 문서(docs.gitlab.com 의 ci/yaml/includes,
+#    `include:rules:exists`, GitLab 14.5 도입)에서 확인했다 — 지금 쓰는
+#    GitLab 18.11 에서 그대로 쓸 수 있다.
+#
+# 🔴 여섯 파트를 한 번에 다 적는다. 나중에 파트마다 이 목록 자체를 고치게
+#    만들면 이 자리가 또 충돌 자리가 된다 — 한 번 쓰고 얼린다. 파트 담당자는
+#    자기 `ci/parts/<파트>.yml` 파일만 고치면 되고, 이 include 목록은 안 건드린다.
+#
+#    지금 ci/parts/*.yml 은 전부 주석만 든 빈 파일이다. 잡을 여기로 옮기는
+#    절차는 docs/CI-SPLIT.md 에 있다.
+include:
+  - local: 'ci/parts/backend.yml'
+    rules:
+      - exists:
+          - 'ci/parts/backend.yml'
+  - local: 'ci/parts/frontend.yml'
+    rules:
+      - exists:
+          - 'ci/parts/frontend.yml'
+  - local: 'ci/parts/bigdata.yml'
+    rules:
+      - exists:
+          - 'ci/parts/bigdata.yml'
+  - local: 'ci/parts/map.yml'
+    rules:
+      - exists:
+          - 'ci/parts/map.yml'
+  - local: 'ci/parts/ai.yml'
+    rules:
+      - exists:
+          - 'ci/parts/ai.yml'
+  - local: 'ci/parts/common.yml'
+    rules:
+      - exists:
+          - 'ci/parts/common.yml'
+
 default:
   image: node:20-alpine
   before_script:
