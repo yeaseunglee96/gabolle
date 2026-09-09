@@ -8,11 +8,14 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 /**
- * M1 의 {@link StoragePort} 구현 — 서버 디스크에 그대로 쓴다(S15P21E201-174, 버킷 미정).
+ * M1 의 {@link StoragePort} 구현 — 서버 디스크에 그대로 쓴다(S15P21E201-174, S15P21E201-367 로
+ * 버킷이 정해진 뒤에는 {@code gabolle.storage.provider=s3} 환경에서 {@link S3FileStorage} 로
+ * 바뀐다 — 기본값은 여전히 이 구현이다).
  *
  * <h2>🔴 임시 파일에 쓴 뒤 옮긴다</h2>
  * {@code root/<key>} 에 바로 쓰면, 쓰는 도중에 같은 키를 읽는 요청이 반쪽짜리 파일을 받을 수
@@ -29,6 +32,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Profile({ "db", "dev" })
+@ConditionalOnProperty(prefix = "gabolle.storage", name = "provider", havingValue = "local", matchIfMissing = true)
 public class LocalFileStorage implements StoragePort {
 
 	private static final Pattern KEY_PATTERN = Pattern.compile("^[A-Za-z0-9][A-Za-z0-9/_\\-.]*$");

@@ -22,6 +22,10 @@
 //  - gabolle-kakao-client-secret  (Secret text) — Kakao Developers 에서 Client secret 을 켜 둔 경우 필요하다
 //  - gabolle-naver-client-id      (Secret text)
 //  - gabolle-naver-client-secret  (Secret text)
+//  - gabolle-s3-access-key  (Secret text) — S15P21E201-367, 사진 오브젝트 스토리지(MinIO)
+//    전용 최소권한 access key. 루트 자격(minioadmin)이 아니다 — gabolle-photos 버킷에만
+//    Put/Get/Delete/ListBucket 권한이 있다.
+//  - gabolle-s3-secret-key  (Secret text)
 //
 // 소셜 항목은 여섯 개인데 컨테이너로 넣는 환경변수는 일곱 개다.
 // GABOLLE_GOOGLE_ALLOWED_CLIENT_IDS 는 Credential 을 따로 만들지 않고 Google client ID 를
@@ -96,16 +100,22 @@ pipeline {
         stage('Build Image') {
             steps {
                 dir('backend') {
-                    // 🔴 S15P21E201-575 (jaehyeon 제안) — 새로 빌드하기 전에 지금
-                    //    이미지를 :previous로 남겨 둔다. 아래 Deploy 단계는 새
-                    //    컨테이너가 뜨는지 확인하기도 전에 옛 컨테이너를 지우므로,
-                    //    기동에 실패하면 그 순간부터 운영이 내려가고 돌아갈 곳이
-                    //    없었다(2026-09-07 새벽, 마이그레이션 충돌 두 건으로 실제
-                    //    다운타임이 길어짐). Health Check 실패 시 이 태그로 되돌린다.
-                    //    처음 배포라 :latest 가 없으면 tag가 실패하는데, 정상이라
-                    //    무시한다.
-                    sh 'docker tag local-route-backend local-route-backend:previous || true'
-                    sh 'docker build -t local-route-backend .'
+                    // 🔴 S15P21E201-575/-357 (2026-09-08 정정) — 새 빌드를 :latest 로 바로
+                    //    올리지 않는다. :candidate 라는 별도 태그로 받는다.
+                    //
+                    //    예전에는 여기서 "지금 :latest 를 :previous 로 백업 → :latest 로 새로
+                    //    빌드" 순서였다. 그런데 그 백업은 <b>새 빌드가 통과할지 확인하기 전에</b>
+                    //    일어난다 — 즉 아래 Health Check 가 이번 배포를 실패로 판정해도
+                    //    :previous 는 이미 "방금 실패한 그 이미지"로 덮어써진 뒤다. 이틀 연속
+                    //    배포가 실패하면(2026-09-08 실제로 겪음 — cron 플레이스홀더 버그 다음
+                    //    바로 KakaoMobilityRouteAdapter 버그) :previous 마저 고장난 이미지가
+                    //    되어 롤백이 롤백 역할을 못 하고, 실제로 502 운영 장애가 났다.
+                    //
+                    //    :candidate 로 받으면 Health Check 를 통과했을 때만(아래 Health Check
+                    //    단계) :latest·:previous 를 옮긴다 — :latest 는 항상 "마지막으로 실제
+                    //    검증된 빌드"만 가리킨다. 실패하면 :latest 를 아무도 안 건드렸으므로
+                    //    그 자체가 이미 안전한 롤백 대상이다(아래 Health Check 참고).
+                    sh 'docker build -t local-route-backend:candidate .'
                 }
             }
         }
@@ -134,7 +144,9 @@ pipeline {
                     string(credentialsId: 'gabolle-kakao-client-id', variable: 'GABOLLE_KAKAO_CLIENT_ID'),
                     string(credentialsId: 'gabolle-kakao-client-secret', variable: 'GABOLLE_KAKAO_CLIENT_SECRET'),
                     string(credentialsId: 'gabolle-naver-client-id', variable: 'GABOLLE_NAVER_CLIENT_ID'),
-                    string(credentialsId: 'gabolle-naver-client-secret', variable: 'GABOLLE_NAVER_CLIENT_SECRET')
+                    string(credentialsId: 'gabolle-naver-client-secret', variable: 'GABOLLE_NAVER_CLIENT_SECRET'),
+                    string(credentialsId: 'gabolle-s3-access-key', variable: 'GABOLLE_S3_ACCESS_KEY'),
+                    string(credentialsId: 'gabolle-s3-secret-key', variable: 'GABOLLE_S3_SECRET_KEY')
                 ]) {
                     sh 'docker stop backend || true'
                     sh 'docker rm backend || true'
@@ -160,8 +172,8 @@ pipeline {
                     //    오타 하나로 "운영자를 지정했다고 생각했는데 아무도 없는" 상태가
                     //    조용히 유지되는 것을 막기 위해서다). 그래서 값을 넣기 전에 그
                     //    계정이 운영 DB 에 실제로 있는지 확인한다. 실수했더라도 아래
-                    //    Health Check 가 :previous 로 되돌리고, 그 이미지는 이 설정을
-                    //    모르는 판이라 정상 기동한다.
+                    //    Health Check 가 :latest(마지막으로 검증된 이미지)로 되돌리고,
+                    //    그 이미지는 이 설정을 모르는 판이라 정상 기동한다.
                     sh '''
                         docker run -d --name backend \
                             --network local-route-personalization_data_net \
@@ -171,6 +183,12 @@ pipeline {
                             -e SPRING_PROFILES_ACTIVE=dev \
                             -e GABOLLE_SERVICE_VERSION="${GIT_COMMIT}" \
                             -e GABOLLE_DEPLOYMENT_ENVIRONMENT=dev \
+                            -e GABOLLE_STORAGE_PROVIDER=s3 \
+                            -e GABOLLE_S3_ENDPOINT=http://minio:9000 \
+                            -e GABOLLE_S3_BUCKET=gabolle-photos \
+                            -e GABOLLE_S3_ACCESS_KEY="$GABOLLE_S3_ACCESS_KEY" \
+                            -e GABOLLE_S3_SECRET_KEY="$GABOLLE_S3_SECRET_KEY" \
+                            -e GABOLLE_S3_PUBLIC_BASE_URL=https://j15e201.p.ssafy.io/photos \
                             -e GABOLLE_DB_URL="$GABOLLE_DB_URL" \
                             -e GABOLLE_DB_USERNAME="$GABOLLE_DB_USERNAME" \
                             -e GABOLLE_DB_PASSWORD="$GABOLLE_DB_PASSWORD" \
@@ -186,7 +204,7 @@ pipeline {
                             -e GABOLLE_NAVER_CLIENT_ID="$GABOLLE_NAVER_CLIENT_ID" \
                             -e GABOLLE_NAVER_CLIENT_SECRET="$GABOLLE_NAVER_CLIENT_SECRET" \
                             -e GABOLLE_ADMIN_EMAILS="$GABOLLE_ADMIN_EMAILS" \
-                            local-route-backend
+                            local-route-backend:candidate
                     '''
                 }
             }
@@ -221,18 +239,50 @@ pipeline {
                         }
                         sleep 5
                     }
+                    if (healthy) {
+                        // 🔴 2026-09-08 — 여기서만 :latest·:previous 를 옮긴다. 검증된 빌드만
+                        //    승격시켜야 :latest 가 "마지막으로 실제로 뜬 것"이라는 뜻을 계속
+                        //    지킨다(Build Image 단계 주석 참고). :latest 가 아직 없는 첫 배포는
+                        //    뒤 tag 가 실패하는데 정상이라 무시한다.
+                        sh 'docker tag local-route-backend:latest local-route-backend:previous || true'
+                        sh 'docker tag local-route-backend:candidate local-route-backend:latest'
+                    }
                     if (!healthy) {
+                        // 🔴 S15P21E201-575 후속(2026-09-09) — 지난 배포 실패 27건 중 21건이
+                        //    "Health check failed after retries" 한 줄만 남기고 끝났다. 컨테이너가
+                        //    이미 왜 죽었는지 알고 있는데(Spring 부팅 로그) 그걸 한 번도 안 남겨서,
+                        //    매번 사람이 직접 SSH로 들어가 재현해야 했다(S15P21E201-161 배포 실패도
+                        //    그랬다 — Jackson 2/3 패키지 실수는 여기서 한 줄만 봤어도 바로 보였다).
+                        //
+                        //    롤백(아래)이 이 컨테이너를 지우기 전에 로그부터 남긴다 — 컨테이너
+                        //    자체가 하나도 안 떴을 수도 있어(`docker run` 은 성공해도 앱이 바로
+                        //    죽을 수 있다) `|| true` 로 감싼다.
+                        sh 'echo "🔴 실패한 컨테이너의 최근 로그 (원인 진단용):" && docker logs backend --tail 200 2>&1 || true'
+                        env.HEALTH_FAILURE_DETAIL = sh(
+                            script: "docker logs backend --tail 200 2>&1 | grep -E 'Caused by:|^[0-9-]+.*ERROR ' | tail -3 || true",
+                            returnStdout: true
+                        ).trim()
+
                         // 🔴 S15P21E201-575 — 여기서 그냥 실패시키면 방금 Deploy가
                         //    지운 옛 컨테이너는 이미 없고, 새 컨테이너는 기동 실패
-                        //    상태로 그대로 남아 운영이 계속 내려가 있다. :previous로
+                        //    상태로 그대로 남아 운영이 계속 내려가 있다. :latest로
                         //    되돌려서 최소한 "직전에 정상이었던 상태"로는 복구한다.
-                        //    🔴 완전하지 않다 — 이번 배포가 새 Flyway 마이그레이션을
-                        //    이미 적용한 뒤라면, :previous 이미지(마이그레이션 이전
-                        //    버전)로 되돌려도 DB 스키마가 앞서 있어 똑같이 기동에
-                        //    실패할 수 있다. 그래도 되돌리기를 시도하지 않는 것보다는
-                        //    낫다 — 되돌리기 자체가 실패하면 원래 있던 실패가 그대로
-                        //    보이는 것뿐, 상황을 더 나쁘게 만들지 않는다.
-                        echo '🔴 Health check 실패 — local-route-backend:previous로 되돌린다'
+                        //
+                        //    🔴 2026-09-08 정정 — 예전에는 이 자리에서 :previous 로 되돌렸다.
+                        //    그런데 :previous 는 Build Image 단계가 "검증 전에" 미리 백업한
+                        //    것이라, 이틀 연속 배포가 실패하면(실제로 겪음) :previous 마저
+                        //    고장난 이미지가 되어 롤백이 롤백 역할을 못 했다. 지금은 :latest 가
+                        //    Health Check 를 통과했을 때만 옮겨지므로(바로 위 if(healthy) 블록),
+                        //    이 시점의 :latest 는 <b>이번 실패한 배포가 한 번도 안 건드린</b>
+                        //    마지막 검증된 이미지 그대로다 — 그래서 그냥 이것으로 되돌린다.
+                        //
+                        //    🔴 여전히 완전하지 않다 — 이번 배포가 새 Flyway 마이그레이션을
+                        //    이미 적용한 뒤라면, :latest 이미지(마이그레이션 이전 버전)로
+                        //    되돌려도 DB 스키마가 앞서 있어 똑같이 기동에 실패할 수 있다.
+                        //    그래도 되돌리기를 시도하지 않는 것보다는 낫다 — 되돌리기 자체가
+                        //    실패하면 원래 있던 실패가 그대로 보이는 것뿐, 상황을 더 나쁘게
+                        //    만들지 않는다.
+                        echo '🔴 Health check 실패 — local-route-backend:latest(마지막 검증된 빌드)로 되돌린다'
                         withCredentials([
                             string(credentialsId: 'gabolle-db-url', variable: 'GABOLLE_DB_URL'),
                             string(credentialsId: 'gabolle-db-username', variable: 'GABOLLE_DB_USERNAME'),
@@ -245,7 +295,9 @@ pipeline {
                             string(credentialsId: 'gabolle-kakao-client-id', variable: 'GABOLLE_KAKAO_CLIENT_ID'),
                             string(credentialsId: 'gabolle-kakao-client-secret', variable: 'GABOLLE_KAKAO_CLIENT_SECRET'),
                             string(credentialsId: 'gabolle-naver-client-id', variable: 'GABOLLE_NAVER_CLIENT_ID'),
-                            string(credentialsId: 'gabolle-naver-client-secret', variable: 'GABOLLE_NAVER_CLIENT_SECRET')
+                            string(credentialsId: 'gabolle-naver-client-secret', variable: 'GABOLLE_NAVER_CLIENT_SECRET'),
+                            string(credentialsId: 'gabolle-s3-access-key', variable: 'GABOLLE_S3_ACCESS_KEY'),
+                            string(credentialsId: 'gabolle-s3-secret-key', variable: 'GABOLLE_S3_SECRET_KEY')
                         ]) {
                             sh 'docker stop backend || true'
                             sh 'docker rm backend || true'
@@ -258,6 +310,12 @@ pipeline {
                                     -e SPRING_PROFILES_ACTIVE=dev \
                                     -e GABOLLE_SERVICE_VERSION="${GIT_COMMIT}-rollback" \
                                     -e GABOLLE_DEPLOYMENT_ENVIRONMENT=dev \
+                                    -e GABOLLE_STORAGE_PROVIDER=s3 \
+                                    -e GABOLLE_S3_ENDPOINT=http://minio:9000 \
+                                    -e GABOLLE_S3_BUCKET=gabolle-photos \
+                                    -e GABOLLE_S3_ACCESS_KEY="$GABOLLE_S3_ACCESS_KEY" \
+                                    -e GABOLLE_S3_SECRET_KEY="$GABOLLE_S3_SECRET_KEY" \
+                                    -e GABOLLE_S3_PUBLIC_BASE_URL=https://j15e201.p.ssafy.io/photos \
                                     -e GABOLLE_DB_URL="$GABOLLE_DB_URL" \
                                     -e GABOLLE_DB_USERNAME="$GABOLLE_DB_USERNAME" \
                                     -e GABOLLE_DB_PASSWORD="$GABOLLE_DB_PASSWORD" \
@@ -273,10 +331,10 @@ pipeline {
                                     -e GABOLLE_NAVER_CLIENT_ID="$GABOLLE_NAVER_CLIENT_ID" \
                                     -e GABOLLE_NAVER_CLIENT_SECRET="$GABOLLE_NAVER_CLIENT_SECRET" \
                                     -e GABOLLE_ADMIN_EMAILS="$GABOLLE_ADMIN_EMAILS" \
-                                    local-route-backend:previous
+                                    local-route-backend:latest
                             '''
                         }
-                        error 'Health check failed after retries — rolled back to local-route-backend:previous'
+                        error 'Health check failed after retries — rolled back to local-route-backend:latest (last verified build)'
                     }
                 }
             }
@@ -294,10 +352,16 @@ pipeline {
         }
         failure {
             script {
+                // 🔴 S15P21E201-575 후속 — "Console Output 을 확인하세요" 는 그 Console Output
+                //    자체에 원인이 없을 때가 대부분이었다(위 Health Check 주석 참고). Health
+                //    Check 단계가 실패한 경우라면 env.HEALTH_FAILURE_DETAIL 에 실제 원인 줄이
+                //    담겨 있다 — 그걸 그대로 보여준다. 다른 단계(Checkout·Build Image)에서
+                //    실패했다면 그 변수 자체가 없으니 예전처럼 Console Output 안내로 대체한다.
+                def detail = env.HEALTH_FAILURE_DETAIL?.trim()
                 sendMMNotify(false, [
                     commit: sh(script: "git log -1 --pretty='%an: %s'", returnStdout: true).trim(),
                     buildUrl: env.BUILD_URL,
-                    details: 'Console Output 을 확인하세요'
+                    details: detail ? "```\n${detail}\n```" : 'Console Output 을 확인하세요'
                 ])
             }
         }

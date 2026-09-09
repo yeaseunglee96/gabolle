@@ -27,6 +27,7 @@ import com.gabolle.backend.itinerary.presentation.dto.AddItemRequest;
 import com.gabolle.backend.itinerary.presentation.dto.ItineraryDetailResponse;
 import com.gabolle.backend.itinerary.presentation.dto.ItineraryEditResponse;
 import com.gabolle.backend.itinerary.presentation.dto.LockItemRequest;
+import com.gabolle.backend.itinerary.presentation.dto.ReorderDayRequest;
 import com.gabolle.backend.itinerary.presentation.dto.RevertRequest;
 import com.gabolle.backend.trip.application.TripQueryService;
 
@@ -154,6 +155,36 @@ public class ItineraryEditController {
 		return ResponseEntity.status(HttpStatus.CREATED)
 				.body(ApiResponse.success(ItineraryEditResponse.of(detail, saved),
 						"req_" + UUID.randomUUID()));
+	}
+
+	/**
+	 * 하루 안의 방문 순서를 바꾼다 — S15P21E201-91 · -268. 화면의 끌어 옮기기와 위·아래 버튼이
+	 * 여기로 온다({@code S15P21E201-277}).
+	 *
+	 * <p>🔴 <b>그날의 순서를 통째로 받는다.</b> "이 항목을 3번째로" 가 아니다 — 이유는
+	 * {@link ReorderDayRequest} 에 적어 두었다.
+	 *
+	 * <p>응답은 더하기·고정과 같은 모양이다. 바뀐 일정 전체와 새 판 번호가 함께 오므로 화면이
+	 * 다시 조회할 필요가 없다. 새 자원을 만든 것이 아니라 <b>있는 것을 고친 것</b>이라
+	 * {@code 201} 이 아니라 {@code 200} 이다.
+	 */
+	@PostMapping("/days/{dayIndex}/reorder")
+	public ApiResponse<ItineraryEditResponse> reorderDay(
+			@PathVariable String itineraryId,
+			@PathVariable int dayIndex,
+			@Valid @RequestBody ReorderDayRequest request,
+			Authentication authentication) {
+
+		String editor = AuthenticatedUsers.requireId(authentication).toString();
+		ItineraryAccess.Access access = this.itineraryAccess.requireEditor(itineraryId, editor);
+
+		requireDayInsideTrip(access, dayIndex);
+
+		ItineraryVersion saved = this.editService.reorderDay(itineraryId, dayIndex, request.itemKeys(),
+				request.baseVersion(), editor);
+		ItineraryDetailResponse detail = this.queryService.getDetail(itineraryId, editor);
+
+		return ApiResponse.success(ItineraryEditResponse.of(detail, saved), "req_" + UUID.randomUUID());
 	}
 
 	/**

@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Limit;
 import org.springframework.stereotype.Service;
@@ -81,6 +83,8 @@ import tools.jackson.databind.ObjectMapper;
 @Service
 @Profile({"db", "dev"})
 public class PlaceCandidateQueryService {
+
+	private static final Logger log = LoggerFactory.getLogger(PlaceCandidateQueryService.class);
 
 	private final PlaceRepository placeRepository;
 
@@ -271,16 +275,40 @@ public class PlaceCandidateQueryService {
 		return match.featureKey() == null || match.featureKey().equals(feature.getFeatureKey());
 	}
 
+	/**
+	 * 🔴 값이 있는데 파싱에 실패한 행은 옮기지 않고 버린다 — S15P21E201-749.
+	 *
+	 * <p>{@code readValue} 는 파싱 실패와 "값이 원래 없음" 을 똑같이 {@code null} 로 돌려준다.
+	 * 그 {@code null} 을 그대로 {@link PlaceFeatureView} 에 실으면, {@code BaselineCandidateScorer
+	 * .bucketFor} 가 "이 행이 존재하고 값이 null" 과 "이 행 자체가 없음" 을 구분하지 못한 채
+	 * 안전 판정(알레르기·식단·이동 접근성)을 내린다. 안전 제약은 항목마다 판정 방향이
+	 * 반대라서({@code FeaturePresence} 참고), 어느 쪽이든 파싱 실패가 조용히 특정 결과로
+	 * 굳으면 최소 한쪽 방향에서는 실제로 안전하지 않은 장소가 조건을 통과할 수 있다.
+	 *
+	 * <p>행을 아예 빼면 {@code bucketFor} 가 그 표식을 "행이 없음" 으로 읽어 {@code UNVERIFIED}
+	 * 가 되고, 방향에 무관하게 안전한 기본값(모르는 것은 있는 것으로 취급)으로 떨어진다.
+	 * {@code EditorialPickBaselineProvider.toViews}(S15P21E201-555, MR !297)가 같은 문제를
+	 * 먼저 이 방식으로 고쳤다 — 여기도 같은 방향으로 맞춘다.
+	 */
 	private List<PlaceFeatureView> toViews(List<PlaceFeature> features) {
 		List<PlaceFeatureView> views = new ArrayList<>(features.size());
 		for (PlaceFeature feature : features) {
+			String raw = feature.getValue();
+			JsonNode value = readValue(raw);
+			if (value == null && raw != null && !raw.isBlank()) {
+				log.warn(
+						"place_feature 값 파싱 실패 — 안전을 위해 이 행을 후보 응답에서 뺀다. "
+								+ "placeId={}, featureType={}, featureKey={}",
+						feature.getPlaceId(), feature.getFeatureType(), feature.getFeatureKey());
+				continue;
+			}
 			views.add(new PlaceFeatureView(feature.getFeatureType(), feature.getFeatureKey(),
-					feature.getEvidenceStatus().name(), readValue(feature.getValue()),
-					feature.getObservedAt(), feature.getSourceType()));
+					feature.getEvidenceStatus().name(), value, feature.getObservedAt(), feature.getSourceType()));
 		}
 		return views;
 	}
 
+	/** 못 읽으면 {@code null}. 부르는 쪽이 "값이 있었는가" 와 함께 보고 판단한다. */
 	private JsonNode readValue(String raw) {
 		if (raw == null || raw.isBlank()) {
 			return null;

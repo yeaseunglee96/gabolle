@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.gabolle.backend.common.api.ApiResponse;
+import com.gabolle.backend.place.domain.AccommodationCategories;
 import com.gabolle.backend.place.service.PlaceFacetService;
 import com.gabolle.backend.place.service.PlaceRequestException;
 import com.gabolle.backend.place.service.PlaceSearchService;
@@ -69,6 +70,23 @@ public class PlaceQueryController {
 				? this.placeSearchService.search(query, category, limit, cursor)
 				: this.placeSearchService.searchByFacet(facetType, facetKey, limit);
 
+		return ApiResponse.success(page, resolveRequestId(requestId));
+	}
+
+	/**
+	 * 숙소 후보 조회 (S15P21E201-456). {@code place.category} 가 숙소류인 장소만 돌려준다.
+	 *
+	 * <p>🔴 지금 적재된 자료에는 숙소가 없어 빈 목록이 나오는 것이 정상이다 — 완료 기준은
+	 * "숙소 조회에 숙소 종류만 나온다" 이지, "숙소가 나온다" 가 아니다
+	 * ({@code AccommodationCategories} 클래스 참고).
+	 */
+	@GetMapping("/accommodations")
+	public ApiResponse<PlacePageResponse> accommodations(
+			@RequestParam(required = false) Integer limit,
+			@RequestHeader(value = "X-Request-Id", required = false) String requestId) {
+
+		PlacePageResponse page = this.placeSearchService.listByCategories(
+				AccommodationCategories.CODES, limit);
 		return ApiResponse.success(page, resolveRequestId(requestId));
 	}
 

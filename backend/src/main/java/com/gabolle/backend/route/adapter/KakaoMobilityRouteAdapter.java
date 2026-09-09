@@ -7,6 +7,7 @@ import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.client.ClientHttpRequestFactory;
@@ -48,6 +49,17 @@ public class KakaoMobilityRouteAdapter implements RouteProviderPort {
 
 	private final RouteProperties properties;
 
+	/**
+	 * 🔴 2026-09-08 사고(S15P21E201-357 배포 조사 중 발견) — {@code @Autowired} 가 없으면
+	 * Spring Framework 7 이 이 클래스에 생성자가 둘(이 public 3-인자와 아래 package-private
+	 * 4-인자 테스트 전용)이라 <b>어느 것도 자동으로 못 고른다.</b> package-private 생성자는
+	 * {@code private} 이 아니라서 {@code BeanUtils.getResolvableConstructor} 의 "생성자가
+	 * 하나뿐" 판정에서 제외되지 않고, 결국 기본(무인자) 생성자를 찾다가 없어서
+	 * {@code BeanCreationException: No default constructor found} 로 기동이 죽는다
+	 * ({@code spring-beans-7.0.9}, Spring Boot 4.0.8 기준 실측). 이 애노테이션이 "DI 는
+	 * 반드시 이 생성자로" 를 명시해 그 모호함을 없앤다.
+	 */
+	@Autowired
 	public KakaoMobilityRouteAdapter(RestClient.Builder restClientBuilder, ObjectMapper objectMapper,
 			RouteProperties properties) {
 		this(restClientBuilder, objectMapper, properties, timeoutFactory(properties));

@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,8 @@ import com.gabolle.backend.itinerary.domain.ItineraryContent;
 import com.gabolle.backend.itinerary.domain.ItineraryExclusion;
 import com.gabolle.backend.itinerary.domain.ItineraryItem;
 import com.gabolle.backend.itinerary.domain.ItineraryLeg;
+import com.gabolle.backend.itinerary.application.port.TravelTime;
+import com.gabolle.backend.itinerary.application.port.TravelTimePort;
 import com.gabolle.backend.itinerary.domain.ItineraryRepository;
 import com.gabolle.backend.itinerary.domain.ItineraryRevision;
 import com.gabolle.backend.itinerary.domain.ItineraryVersion;
@@ -65,14 +68,24 @@ public class ItineraryDraftService implements ItineraryDraftPort {
     /** 하루에 배정할 최대 항목 수. 프리셋·설정이 없으면 4 — 이 값 자체가 제품 결정은 아니다. */
     private final int maxItemsPerDay;
 
+    /**
+     * 🔴 S15P21E201-179 — 구간의 이동시간을 실제로 물어보는 문. {@code ObjectProvider} 로 받아
+     * <b>없어도 뜨게</b> 한다. 이 서비스는 경로 계층을 안 스캔하는 슬라이스 컨텍스트에서도
+     * 만들어지는데, 필수 의존성으로 두면 그 컨텍스트가 통째로 안 뜬다. 없으면 예전처럼
+     * 직선거리로만 채우고 그 사실을 구간에 적는다.
+     */
+    private final ObjectProvider<TravelTimePort> travelTime;
+
     public ItineraryDraftService(TripRepository tripRepository, PlaceRepository placeRepository,
             ItineraryRepository itineraryRepository, Clock clock,
-            @Value("${gabolle.itinerary.max-items-per-day:4}") int maxItemsPerDay) {
+            @Value("${gabolle.itinerary.max-items-per-day:4}") int maxItemsPerDay,
+            ObjectProvider<TravelTimePort> travelTime) {
         this.tripRepository = tripRepository;
         this.placeRepository = placeRepository;
         this.itineraryRepository = itineraryRepository;
         this.clock = clock;
         this.maxItemsPerDay = maxItemsPerDay;
+        this.travelTime = travelTime;
     }
 
     /**
@@ -224,17 +237,39 @@ public class ItineraryDraftService implements ItineraryDraftPort {
                 Double toLat = (to != null && to.hasCoordinates()) ? to.getLat() : null;
                 Double toLng = (to != null && to.hasCoordinates()) ? to.getLng() : null;
 
-                Integer distanceM = null;
-                if (fromLat != null && fromLng != null && toLat != null && toLng != null) {
+                // 🔴 S15P21E201-179 — 실제 경로를 물어본다. 못 받으면 그쪽이 직선거리로
+                //    어림잡아 돌려주고 그 사실을 함께 알려 준다. 여기서 예외를 잡을 일이
+                //    없다 — 그 문은 실패를 예외로 알리지 않는다(TravelTimePort 주석).
+                TravelTime measured = measure(fromLat, fromLng, toLat, toLng, travelMode);
+
+                Integer distanceM = measured.distanceM();
+                if (distanceM == null && fromLat != null && fromLng != null && toLat != null && toLng != null) {
+                    // 경로 계층이 아예 없는 컨텍스트다. 예전처럼 직선거리라도 적는다.
                     distanceM = (int) Math.round(GeoDistance.meters(fromLat, fromLng, toLat, toLng));
                 }
                 Integer walkingMeters = walkingMetersFor(travelMode, distanceM);
 
                 legs.add(new ItineraryDraft.DraftLeg(dayIndex, i + 1,
-                        fromPlaceId, toPlaceId, travelMode, distanceM, null, walkingMeters));
+                        fromPlaceId, toPlaceId, travelMode, distanceM, measured.durationMin(),
+                        walkingMeters, measured.dataStatus()));
             }
         }
         return legs;
+    }
+
+    /**
+     * 구간 하나의 실제 이동 거리·시간. 경로 계층이 없는 컨텍스트에서는 잴 수 없음으로 답한다.
+     *
+     * <p>🔴 <b>여기서 예외를 삼키지 않는다.</b> 포트가 실패를 예외로 알리지 않기로 약속했고,
+     * 그 약속이 깨지면 조용히 넘기는 대신 시끄럽게 실패하는 편이 낫다 — 조용히 넘기면 모든
+     * 구간이 이유 없이 비어 나가고 아무도 이유를 못 찾는다.
+     */
+    private TravelTime measure(Double fromLat, Double fromLng, Double toLat, Double toLng, String travelMode) {
+        TravelTimePort port = this.travelTime.getIfAvailable();
+        if (port == null) {
+            return TravelTime.unknown();
+        }
+        return port.between(fromLat, fromLng, toLat, toLng, travelMode);
     }
 
     /**
@@ -302,7 +337,8 @@ public class ItineraryDraftService implements ItineraryDraftPort {
                     UUID.randomUUID().toString(), itineraryVersionId, draftLeg.dayIndex(), draftLeg.sequence(),
                     draftLeg.fromPlaceId() != null ? draftLeg.fromPlaceId().toString() : null,
                     draftLeg.toPlaceId().toString(), draftLeg.travelMode(), draftLeg.distanceM(),
-                    draftLeg.durationMin(), draftLeg.walkingMeters(), null, null, now));
+                    draftLeg.durationMin(), draftLeg.walkingMeters(), null, null,
+                    draftLeg.dataStatus(), now));
         }
 
         // 🔴 2026-09-06 (S15P21E201-662) — 판과 내용을 한 번에 넘긴다. 예전에는 create 로
@@ -550,7 +586,8 @@ public class ItineraryDraftService implements ItineraryDraftPort {
                     UUID.randomUUID().toString(), newVersionId, draftLeg.dayIndex(), draftLeg.sequence(),
                     draftLeg.fromPlaceId() != null ? draftLeg.fromPlaceId().toString() : null,
                     draftLeg.toPlaceId().toString(), draftLeg.travelMode(), draftLeg.distanceM(),
-                    draftLeg.durationMin(), draftLeg.walkingMeters(), null, null, now));
+                    draftLeg.durationMin(), draftLeg.walkingMeters(), null, null,
+                    draftLeg.dataStatus(), now));
         }
 
         ItineraryVersion.Versions versions = new ItineraryVersion.Versions(

@@ -54,6 +54,22 @@ public class AppUser {
 	@Column(name = "deleted_at")
 	private Instant deletedAt;
 
+	/**
+	 * 회원이 반복해서 쓰는 출발지 (S15P21E201-265). {@code trip.origin_lat/lng} 와 다르다 —
+	 * 그건 여행마다 바뀌고 이건 회원에 고정된 값이다. 이동시간 캐시가 매번 새 좌표라 못
+	 * 맞는 문제 때문에 필요해졌다 — 이 칸을 실제로 읽는 캐시 로직은 이 티켓 몫이 아니고,
+	 * 여기서는 저장 자리만 연다.
+	 */
+	@Column(name = "frequent_origin_lat")
+	private Double frequentOriginLat;
+
+	@Column(name = "frequent_origin_lng")
+	private Double frequentOriginLng;
+
+	/** 그 출발지를 부르는 이름(예: "집", "회사"). 화면 표시용. */
+	@Column(name = "frequent_origin_label", length = 100)
+	private String frequentOriginLabel;
+
 	protected AppUser() {
 	}
 
@@ -212,6 +228,34 @@ public class AppUser {
 		status = UserStatus.ACTIVE;
 	}
 
+	/**
+	 * 자주 쓰는 출발지를 정하거나 바꾼다 (S15P21E201-265).
+	 *
+	 * <p>🔴 좌표는 함께 있거나 함께 없어야 한다 — {@code place} 의 {@code ck_place_origin_pair}
+	 * 와 같은 이유다. 위도만 주고 경도를 안 주면 반쪽 좌표가 저장된다.
+	 */
+	public void changeFrequentOrigin(Double lat, Double lng, String label) {
+		if ((lat == null) != (lng == null)) {
+			throw new IllegalArgumentException("출발지 좌표는 위도·경도가 함께 있어야 한다");
+		}
+		if (lat != null && (lat < -90 || lat > 90)) {
+			throw new IllegalArgumentException("위도 범위를 벗어났다: " + lat);
+		}
+		if (lng != null && (lng < -180 || lng > 180)) {
+			throw new IllegalArgumentException("경도 범위를 벗어났다: " + lng);
+		}
+		this.frequentOriginLat = lat;
+		this.frequentOriginLng = lng;
+		this.frequentOriginLabel = label;
+	}
+
+	/** 자주 쓰는 출발지를 지운다. */
+	public void clearFrequentOrigin() {
+		this.frequentOriginLat = null;
+		this.frequentOriginLng = null;
+		this.frequentOriginLabel = null;
+	}
+
 	public Instant getCreatedAt() {
 		return createdAt;
 	}
@@ -222,5 +266,17 @@ public class AppUser {
 
 	public Instant getDeletedAt() {
 		return deletedAt;
+	}
+
+	public Double getFrequentOriginLat() {
+		return frequentOriginLat;
+	}
+
+	public Double getFrequentOriginLng() {
+		return frequentOriginLng;
+	}
+
+	public String getFrequentOriginLabel() {
+		return frequentOriginLabel;
 	}
 }

@@ -204,6 +204,55 @@ public class ItineraryEditService {
     }
 
     /**
+     * 하루 안의 방문 순서를 바꾼다 — S15P21E201-91 · -268.
+     *
+     * <p>순서는 {@link #setItemLocked} 와 똑같다 — 판 번호를 먼저 검증하고, 바탕 판을 읽어
+     * 새 내용을 만들고, 한 트랜잭션으로 저장한다. 그 자리에 있는 세 장치(사전 확인 · 판 번호
+     * UNIQUE · 포인터 조건부 갱신)를 그대로 물려받는다.
+     *
+     * <p>무엇이 어떻게 바뀌는지는 {@link ItineraryRevision#withReorderedDay} 에 적어 두었다 —
+     * 요약하면 <b>시각표는 그대로 두고 자리만 바꿔 앉히며, 그날의 구간(도보 거리)은 버린다.</b>
+     *
+     * @param dayOrder 그날 항목의 {@code itemKey} 를 원하는 순서대로 전부
+     * @throws StaleItineraryVersionException 그 사이 다른 편집이 있었다 (409)
+     * @throws ItineraryRevision.DayOrderMismatchException 목록이 그날의 항목과 안 맞는다 (400)
+     * @throws ItineraryRevision.LockedItemMovedException 고정된 항목이 옮겨진다 (409)
+     * @throws NoSuchElementException 그런 일정이 없다 (404)
+     */
+    @Transactional
+    public ItineraryVersion reorderDay(String itineraryId, int dayIndex, List<String> dayOrder,
+                                       int baseVersion, String editorUserId) {
+
+        Itinerary itinerary = repository.findById(itineraryId)
+                .orElseThrow(() -> new NoSuchElementException("일정을 찾을 수 없습니다: " + itineraryId));
+
+        int next = itinerary.nextVersionFrom(baseVersion);
+
+        ItineraryContent base = repository.findContent(itineraryId, baseVersion)
+                .orElseThrow(() -> new IllegalStateException(
+                        "바탕 판의 내용이 없습니다: itineraryId=" + itineraryId + ", version=" + baseVersion));
+
+        Instant now = clock.instant();
+        String newVersionId = UUID.randomUUID().toString();
+        ItineraryRevision.Draft draft =
+                ItineraryRevision.withReorderedDay(base, newVersionId, dayIndex, dayOrder, now);
+
+        ItineraryVersion candidate = new ItineraryVersion(
+                newVersionId,
+                itineraryId,
+                next,
+                baseVersion,
+                ItineraryVersion.Operation.REORDER,
+                editorUserId,
+                "req_edit_" + UUID.randomUUID(),
+                // 엔진을 돌리지 않았으므로 판 값 다섯이 비어 들어온다 — 더하기·고정과 같다.
+                new ItineraryVersion.Versions(null, null, null, null, null),
+                now);
+
+        return repository.appendVersion(candidate, draft.items(), draft.legs(), draft.exclusions());
+    }
+
+    /**
      * S15P21E201-467 — 장소를 더할 수 있는지 본다. 날짜 검사와 중복 검사 둘 다 여기 있다.
      *
      * <h2>🔴 두 검사는 "기간이 정해진 장소" 에만 걸린다</h2>

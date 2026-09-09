@@ -62,7 +62,74 @@ public record CreateTripRequest(
          */
         @Valid SpendProfileAnswerInput spendProfile,
 
-        @Valid List<ConstraintInput> constraints) {
+        @Valid List<ConstraintInput> constraints,
+
+        /**
+         * 🔴 S15P21E201-456 — 매일 여기서 시작하고 여기로 돌아온다. {@code place_id}(UUID
+         * 문자열)를 가리킨다. 안 보내면 아직 안 정한 것이다 — 필수로 두지 않는다. 화면이
+         * 숙소를 나중 단계에서 고를 수도 있다.
+         */
+        String accommodationPlaceId,
+
+        /** 영어 메뉴가 있는 곳을 우선한다. 안 보내면 {@code false}(우선하지 않음). */
+        Boolean englishMenuRequired,
+
+        /** 해외 카드를 받는 곳을 우선한다. 안 보내면 {@code false}. */
+        Boolean foreignCardRequired,
+
+        /** 혼밥하기 편한 곳을 우선한다. 안 보내면 {@code false}. */
+        Boolean soloFriendlyPriority,
+
+        /**
+         * 대중교통 최대 환승 횟수. 안 보내면 제한 없음. 🔴 이동 수단에 자차(PRIVATE_CAR)가
+         * 있으면 서버가 이 값을 무시한다 — {@code TripCreationService} 참고.
+         */
+        @Min(0) Integer maxTransitTransfers) {
+
+    /**
+     * 🔴 spendProfile(709)·다섯 칸(456)이 생기기 전의 호출부(테스트 등)를 그대로 남긴다.
+     * 새 칸은 전부 기본값(null·false)으로 채운다 — 옛 요청 모양도 여전히 유효한 요청이어야
+     * 한다.
+     */
+    public CreateTripRequest(
+            LocalDate startDate, LocalDate finishDate,
+            Double originLat, Double originLng,
+            Integer budgetKrw, Integer partySize,
+            String timeWindow, String timezone,
+            List<PreferenceAnswerInput> preferences,
+            List<ConstraintInput> constraints) {
+        this(startDate, finishDate, originLat, originLng, budgetKrw, partySize, timeWindow, timezone,
+                preferences, null, constraints, null, null, null, null, null);
+    }
+
+    /**
+     * 🔴 다섯 칸(456)이 생기기 전의 호출부(테스트 등)를 그대로 남긴다 — {@code spendProfile}
+     * 만 받고 싶은 자리가 있다.
+     */
+    public CreateTripRequest(
+            LocalDate startDate, LocalDate finishDate,
+            Double originLat, Double originLng,
+            Integer budgetKrw, Integer partySize,
+            String timeWindow, String timezone,
+            List<PreferenceAnswerInput> preferences,
+            SpendProfileAnswerInput spendProfile,
+            List<ConstraintInput> constraints) {
+        this(startDate, finishDate, originLat, originLng, budgetKrw, partySize, timeWindow, timezone,
+                preferences, spendProfile, constraints, null, null, null, null, null);
+    }
+
+    /** 안 보냈으면 우선하지 않는 것으로 본다. */
+    public boolean englishMenuRequiredOrDefault() {
+        return this.englishMenuRequired != null && this.englishMenuRequired;
+    }
+
+    public boolean foreignCardRequiredOrDefault() {
+        return this.foreignCardRequired != null && this.foreignCardRequired;
+    }
+
+    public boolean soloFriendlyPriorityOrDefault() {
+        return this.soloFriendlyPriority != null && this.soloFriendlyPriority;
+    }
 
     /**
      * 취향 차원 하나에 대한 답.

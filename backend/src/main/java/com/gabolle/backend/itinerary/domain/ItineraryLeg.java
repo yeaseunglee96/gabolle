@@ -39,12 +39,38 @@ public class ItineraryLeg {
     private final Integer ascentM;
     private final Integer stairSteps;
 
+    /**
+     * 🔴 S15P21E201-179 — 위의 거리·시간을 얼마나 믿을 수 있는가.
+     *
+     * <p>{@code VERIFIED} 길찾기 실제 응답 · {@code ESTIMATED} 직선거리 어림값 ·
+     * {@code UNKNOWN} 좌표가 없어 못 쟀다. 이 기능 이전에 만들어진 판은 {@code null} 이다 —
+     * 그때 값이 무엇이었는지 알 수 없고, 모르는 것을 UNKNOWN 으로 적는 것도 하나의 주장이라
+     * 아예 비워 둔다.
+     *
+     * <p>참·거짓이 아닌 이유는 "어림잡았다" 와 "아무것도 못 쟀다" 가 화면에 서로 다르게
+     * 그려져야 하기 때문이다 — 앞은 "예상 25분", 뒤는 아무것도 안 띄운다.
+     */
+    private final ItineraryItem.DataStatus dataStatus;
+
     private final Instant createdAt;
 
+    /**
+     * S15P21E201-179 이전의 생성자를 그대로 남긴다 — 부르는 곳이 여럿이고, 그때 만들어진
+     * 구간은 거리·시간의 출처를 알 수 없으므로 {@code dataStatus} 가 {@code null} 이다.
+     */
     public ItineraryLeg(String itineraryLegId, String itineraryVersionId, int dayIndex, int sequence,
                         String fromPlaceId, String toPlaceId, String travelMode,
                         Integer distanceM, Integer durationMin, Integer walkingMeters,
                         Integer ascentM, Integer stairSteps, Instant createdAt) {
+        this(itineraryLegId, itineraryVersionId, dayIndex, sequence, fromPlaceId, toPlaceId, travelMode,
+                distanceM, durationMin, walkingMeters, ascentM, stairSteps, null, createdAt);
+    }
+
+    public ItineraryLeg(String itineraryLegId, String itineraryVersionId, int dayIndex, int sequence,
+                        String fromPlaceId, String toPlaceId, String travelMode,
+                        Integer distanceM, Integer durationMin, Integer walkingMeters,
+                        Integer ascentM, Integer stairSteps, ItineraryItem.DataStatus dataStatus,
+                        Instant createdAt) {
 
         if (dayIndex < 0) {
             throw new IllegalArgumentException("dayIndex 는 0 이상이어야 한다: " + dayIndex);
@@ -74,6 +100,7 @@ public class ItineraryLeg {
         this.walkingMeters = walkingMeters;
         this.ascentM = ascentM;
         this.stairSteps = stairSteps;
+        this.dataStatus = dataStatus;
         this.createdAt = createdAt;
     }
 
@@ -89,5 +116,7 @@ public class ItineraryLeg {
     public Integer walkingMeters()     { return walkingMeters; }
     public Integer ascentM()           { return ascentM; }
     public Integer stairSteps()        { return stairSteps; }
+    public ItineraryItem.DataStatus dataStatus() { return dataStatus; }
+
     public Instant createdAt()         { return createdAt; }
 }

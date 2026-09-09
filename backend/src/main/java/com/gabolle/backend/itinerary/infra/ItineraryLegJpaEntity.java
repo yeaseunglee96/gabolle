@@ -3,7 +3,11 @@ package com.gabolle.backend.itinerary.infra;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
+import com.gabolle.backend.itinerary.domain.ItineraryItem;
+
 import jakarta.persistence.Column;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -57,6 +61,11 @@ public class ItineraryLegJpaEntity {
 	@Column(name = "stair_steps", updatable = false)
 	private Integer stairSteps;
 
+	/** S15P21E201-179 — 위의 거리·시간이 실제 응답인지 어림값인지. 옛 행은 NULL 이다. */
+	@Enumerated(EnumType.STRING)
+	@Column(name = "data_status", length = 20, updatable = false)
+	private ItineraryItem.DataStatus dataStatus;
+
 	@Column(name = "created_at", nullable = false, updatable = false)
 	private OffsetDateTime createdAt;
 
@@ -66,7 +75,8 @@ public class ItineraryLegJpaEntity {
 
 	ItineraryLegJpaEntity(UUID itineraryLegId, UUID itineraryVersionId, int dayIndex, int sequence,
 			UUID fromPlaceId, UUID toPlaceId, String travelMode, Integer distanceM, Integer durationMin,
-			Integer walkingMeters, Integer ascentM, Integer stairSteps, OffsetDateTime createdAt) {
+			Integer walkingMeters, Integer ascentM, Integer stairSteps,
+			ItineraryItem.DataStatus dataStatus, OffsetDateTime createdAt) {
 		this.itineraryLegId = itineraryLegId;
 		this.itineraryVersionId = itineraryVersionId;
 		this.dayIndex = dayIndex;
@@ -79,6 +89,7 @@ public class ItineraryLegJpaEntity {
 		this.walkingMeters = walkingMeters;
 		this.ascentM = ascentM;
 		this.stairSteps = stairSteps;
+		this.dataStatus = dataStatus;
 		this.createdAt = createdAt;
 	}
 
@@ -94,5 +105,6 @@ public class ItineraryLegJpaEntity {
 	Integer walkingMeters() { return walkingMeters; }
 	Integer ascentM() { return ascentM; }
 	Integer stairSteps() { return stairSteps; }
+	ItineraryItem.DataStatus dataStatus() { return dataStatus; }
 	OffsetDateTime createdAt() { return createdAt; }
 }
