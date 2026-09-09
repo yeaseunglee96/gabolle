@@ -146,6 +146,13 @@ claims:checkpoint:
 #    137개 전부 실행. 이 상태에서 실제로 놓친 결함이 하나 있었다 — 품질 게이트가
 #    `gabolle` schema를 못 찾는 버그가 있었는데 테스트는 `public`에 표를 만들어서
 #    187개 전부 초록이었다 (fix/back/S15P21E201-546).
+#
+# 🔴 `minio` 서비스도 같은 이유로 있다 (S15P21E201-367). `S3FileStorageTest`
+#    (backend/src/test/.../story)를 처음 도커 컨테이너로 직접 띄우게 짰더니, 이
+#    러너에는 도커 소켓이 없어 `IllegalStateException` 으로 빌드 자체가 죽었다.
+#    "도커가 없으면 건너뛴다" 로 고쳐도 바로 위 건너뜀 검사에 걸려 여전히 빨갛다 —
+#    이 잡에서는 건너뜀 자체가 답이 아니다. Postgres 와 똑같이 GitLab이 진짜
+#    MinIO를 띄워 주고, 테스트는 `GABOLLE_TEST_MINIO_*` 로 그걸 바로 쓴다.
 # 🔴 S15P21E201-736 — 이 잡이 하루 CI 시간의 34%(평균 7분)를 쓴다(실측,
 #    2026-09-08). 원인은 캐시가 없어서다 — 매 MR마다 컨테이너를 새로 띄우고
 #    Gradle 이 의존성을 Maven Central 에서 처음부터 다시 받는다.
@@ -160,6 +167,9 @@ backend:build:
   services:
     - name: postgres:16-alpine
       alias: postgres
+    - name: minio/minio:RELEASE.2024-10-13T13-34-11Z
+      alias: minio
+      command: ["server", "/data"]
   variables:
     POSTGRES_DB: gabolle_test
     POSTGRES_USER: gabolle
@@ -167,19 +177,72 @@ backend:build:
     GABOLLE_TEST_DB_URL: jdbc:postgresql://postgres:5432/gabolle_test
     GABOLLE_TEST_DB_USERNAME: gabolle
     GABOLLE_TEST_DB_PASSWORD: gabolle_ci
+    MINIO_ROOT_USER: gabolle
+    MINIO_ROOT_PASSWORD: gabolle_ci_minio
+    GABOLLE_TEST_MINIO_ENDPOINT: http://minio:9000
+    GABOLLE_TEST_MINIO_ACCESS_KEY: gabolle
+    GABOLLE_TEST_MINIO_SECRET_KEY: gabolle_ci_minio
     GRADLE_USER_HOME: $CI_PROJECT_DIR/.gradle-home
+    UV_CACHE_DIR: $CI_PROJECT_DIR/.uv-cache
+    GABOLLE_ROUTE_OPTIMIZER_PYTHON: /opt/route-optimizer-venv/bin/python3
   cache:
     key:
       files:
         - backend/gradle.lockfile
+        - backend/solver/requirements-optimizer.txt
     paths:
       - .gradle-home/caches
       - .gradle-home/wrapper
+      - .uv-cache
   before_script: []
   script:
     - cd backend
     - chmod +x gradlew
+    # 🔴 경로 최적화(OR-Tools) 실행 환경 (S15P21E201-161) — ortools==9.14.6206 은 PyPI 에
+    #    cp313 까지만 휠을 낸다(2026-09-08 확인). 이 잡의 image(eclipse-temurin:17-jdk,
+    #    Ubuntu 26.04)가 apt 로 주는 python3 는 3.14 라 여기서는 못 깐다. 도커 소켓이 없는
+    #    이 러너에서는 배포 이미지(Dockerfile)처럼 다른 스테이지에서 통째로 복사해 오는
+    #    방법도 못 쓴다 — 대신 uv(파이썬 인터프리터 자체를 내려받아 까는 도구, root·apt
+    #    필요 없음)로 3.13 을 직접 받는다. RouteOptimizerAvailabilityCheckTest 가
+    #    GABOLLE_ROUTE_OPTIMIZER_PYTHON(위 variables)으로 이걸 가리켜 쓴다.
+    - curl -LsSf https://astral.sh/uv/install.sh | sh
+    - export PATH="$HOME/.local/bin:$PATH"
+    - uv python install 3.13
+    - uv venv --python 3.13 /opt/route-optimizer-venv
+    - uv pip install --python /opt/route-optimizer-venv/bin/python3 -r solver/requirements-optimizer.txt
     - ./gradlew build --no-daemon
+    # ── :test 97초 안을 들여다본다 (S15P21E201-751) ─────────────────────────────
+    #
+    # 이 잡은 저장소에서 가장 길고(중앙값 207초) 그중 `:test` 하나가 97초다.
+    # 그런데 **그 97초 안에서 무엇이 오래 걸리는지 볼 방법이 없었다** — Gradle 의
+    # test 태스크는 기본적으로 테스트 출력을 안 흘린다.
+    #
+    # 🔴 build.gradle 을 고치지 않는다. Gradle 9 는 afterSuite 를 없앴고,
+    #    testLogging 으로 표준출력을 통째로 흘리면 스프링 기동 로그가 수 MB 로
+    #    쏟아져 정작 찾는 줄이 묻힌다. **Gradle 이 이미 쓰고 있는 결과 XML** 을
+    #    읽으면 빌드 스크립트를 한 줄도 안 건드리고 같은 답을 얻는다.
+    #
+    # 이 숫자로 무엇을 아나 — 스프링은 테스트 설정이 같으면 앱을 한 번만 띄우고
+    # 재사용한다. 그래서 **같은 설정 무리에서 첫 클래스만 유난히 느리고 나머지는
+    # 빠르다.** 그 차이가 곧 앱 한 번 띄우는 비용이다. 지금 @SpringBootTest 41개가
+    # 12가지 설정으로 갈려 있어 최소 12번 뜬다(2026-09-08 실측) — 한 번에 3초면
+    # 36초, 6초면 72초로 97초의 정체가 완전히 달라진다.
+    #
+    # 지우려면 이 블록만 지운다. 판정에 영향을 주지 않는다 — 찍기만 한다.
+    - |
+      echo ""
+      echo "테스트 클래스별 소요시간 (느린 순 · 상위 25)"
+      echo "────────────────────────────────────────────────────────────────"
+      awk 'match($0, /<testsuite [^>]*>/) {
+             s = substr($0, RSTART, RLENGTH); name = ""; t = "0"
+             if (match(s, /name="[^"]*"/)) name = substr(s, RSTART+6, RLENGTH-7)
+             if (match(s, /time="[^"]*"/)) t    = substr(s, RSTART+6, RLENGTH-7)
+             if (name != "") printf "%s\t%s\n", t, name
+           }' build/test-results/test/TEST-*.xml \
+        | sort -rn \
+        | awk -F'\t' 'NR<=25 { n=$2; sub(/.*\./,"",n); printf "%8.1f초  %s\n", $1, n }
+                      { s+=$1; c++ }
+                      END { printf "────────────────────────────────────────────────────────────────\n클래스 %d개 · 합계 %.1f초\n", c, s }'
     # 🔴 아래가 이 잡의 절반이다 — DB 서비스가 안 뜨는 날 테스트가 전부
     #    건너뛰고도 초록이 되는 것을, 여기서 빨갛게 만든다.
     - |

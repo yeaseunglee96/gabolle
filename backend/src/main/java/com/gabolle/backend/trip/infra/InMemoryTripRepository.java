@@ -66,6 +66,19 @@ public class InMemoryTripRepository implements TripRepository {
         return Optional.ofNullable(trips.get(tripId));
     }
 
+    /**
+     * S15P21E201-746 — JPA 판과 같은 규칙. 지운 시각이 찍힌 여행으로 바꿔 넣기만 한다.
+     *
+     * <p>여기 담긴 것은 도메인 객체 자체라 {@code markDeleted} 가 이미 그 객체를 바꿔
+     * 놓았을 수 있다. 그래도 다시 넣는 이유는 <b>저장이 일어나야 남는다</b> 는 규칙을
+     * 두 구현이 같게 지키기 위해서다 — 이 판만 저장 없이도 남으면, 저장을 빠뜨린 코드가
+     * 여기서는 통과하고 실제 DB 에서만 깨진다.
+     */
+    @Override
+    public void softDelete(Trip trip) {
+        trips.put(trip.tripId(), trip);
+    }
+
     @Override
     public List<TripConstraint> findConstraints(String tripId) {
         return constraints.getOrDefault(tripId, List.of());
@@ -74,6 +87,26 @@ public class InMemoryTripRepository implements TripRepository {
     @Override
     public List<TripMember> findMembers(String tripId) {
         return members.getOrDefault(tripId, List.of());
+    }
+
+    /**
+     * S15P21E201-738 — JPA 판과 같은 규칙으로 고른다. 참여 표를 훑어 내가 들어 있는
+     * 여행을 모으고, 지운 여행을 빼고, 최근에 손댄 순으로 상한까지 자른다.
+     */
+    @Override
+    public List<TripRepository.MemberTrip> findTripsForMember(String userId, int limit) {
+        if (limit <= 0) {
+            return List.of();
+        }
+        return members.entrySet().stream()
+                .flatMap(entry -> entry.getValue().stream()
+                        .filter(member -> member.userId().equals(userId))
+                        .map(member -> new TripRepository.MemberTrip(trips.get(entry.getKey()), member.role())))
+                .filter(row -> row.trip() != null && row.trip().deletedAt() == null)
+                .sorted(Comparator.comparing((TripRepository.MemberTrip row) -> row.trip().updatedAt(),
+                        Comparator.nullsLast(Comparator.reverseOrder())))
+                .limit(limit)
+                .toList();
     }
 
     @Override

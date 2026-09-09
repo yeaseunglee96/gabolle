@@ -3,6 +3,8 @@ package com.gabolle.backend.story.domain;
 import java.time.Instant;
 import java.util.UUID;
 
+import com.gabolle.backend.moderation.domain.StoryModerationState;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -55,6 +57,17 @@ public class Story {
 
 	@Column(name = "publish_at", nullable = false)
 	private Instant publishAt;
+
+	/**
+	 * 신고 검토 상태 — S15P21E201-254 · -267.
+	 *
+	 * <p>🔴 {@code deletedAt} 과 다른 칸이다. 이 칸은 기각으로 {@code VISIBLE} 로 <b>되돌릴 수
+	 * 있고</b>, {@code deletedAt} 은 작성자가 지운 것이라 되돌리지 않는다. 한 칸에 담으면 "지운
+	 * 것" 과 "잠깐 감춘 것" 을 구분할 수 없다.
+	 */
+	@Enumerated(EnumType.STRING)
+	@Column(name = "moderation_state", nullable = false, length = 20)
+	private StoryModerationState moderationState = StoryModerationState.VISIBLE;
 
 	@Column(name = "created_at", nullable = false, updatable = false)
 	private Instant createdAt;
@@ -147,4 +160,25 @@ public class Story {
 	public Instant getCreatedAt()     { return createdAt; }
 	public Instant getUpdatedAt()     { return updatedAt; }
 	public Instant getDeletedAt()     { return deletedAt; }
+
+	/** 신고를 받아 검토 대기로 바꾼다. 이미 대기·삭제 상태면 아무것도 하지 않는다. */
+	public void markUnderReview() {
+		if (this.moderationState == StoryModerationState.VISIBLE) {
+			this.moderationState = StoryModerationState.UNDER_REVIEW;
+		}
+	}
+
+	/** 운영자가 기각했다 — 다시 보인다 (S15P21E201-267). */
+	public void restoreVisibility() {
+		this.moderationState = StoryModerationState.VISIBLE;
+	}
+
+	/** 운영자가 삭제로 처리했다. 되돌리지 않는다. */
+	public void markRemovedByModerator() {
+		this.moderationState = StoryModerationState.REMOVED;
+	}
+
+	public StoryModerationState getModerationState() {
+		return this.moderationState;
+	}
 }

@@ -4,6 +4,7 @@ import com.gabolle.backend.auth.config.AuthProperties;
 import com.gabolle.backend.auth.domain.AuthOneTimeToken;
 import com.gabolle.backend.auth.domain.AuthTokenPurpose;
 import com.gabolle.backend.auth.domain.LocalCredential;
+import com.gabolle.backend.auth.repository.AuthIdentityRepository;
 import com.gabolle.backend.auth.repository.AuthOneTimeTokenRepository;
 import com.gabolle.backend.auth.repository.LocalCredentialRepository;
 import com.gabolle.backend.common.security.SecurityEventLogger;
@@ -17,7 +18,6 @@ import com.gabolle.backend.user.repository.AppUserRepository;
 import com.gabolle.backend.user.repository.UserConsentRepository;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.Locale;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -32,6 +32,9 @@ public class LocalAuthService {
 	private final AppUserRepository userRepository;
 	private final UserConsentRepository consentRepository;
 	private final LocalCredentialRepository credentialRepository;
+
+	/** S15P21E201-742 — 이메일 중복을 볼 때 소셜 계정도 함께 본다. {@code emailAlreadyTaken} 참고. */
+	private final AuthIdentityRepository identityRepository;
 	private final AuthOneTimeTokenRepository oneTimeTokenRepository;
 	private final PasswordEncoder passwordEncoder;
 	private final SessionTokenGenerator tokenGenerator;
@@ -45,18 +48,19 @@ public class LocalAuthService {
 
 	@Autowired
 	public LocalAuthService(AppUserRepository userRepository, UserConsentRepository consentRepository,
-			LocalCredentialRepository credentialRepository,
+			LocalCredentialRepository credentialRepository, AuthIdentityRepository identityRepository,
 			AuthOneTimeTokenRepository oneTimeTokenRepository, PasswordEncoder passwordEncoder,
 			SessionTokenGenerator tokenGenerator, AuthTokenService authTokenService, EmailSender emailSender,
 			AuthProperties properties, ConsentPolicy consentPolicy, LoginAttemptGuard loginAttemptGuard,
 			SecurityEventLogger securityEventLogger) {
-		this(userRepository, consentRepository, credentialRepository, oneTimeTokenRepository, passwordEncoder, tokenGenerator,
+		this(userRepository, consentRepository, credentialRepository, identityRepository, oneTimeTokenRepository,
+				passwordEncoder, tokenGenerator,
 				authTokenService, emailSender, properties, consentPolicy, loginAttemptGuard, securityEventLogger,
 				Clock.systemUTC());
 	}
 
 	LocalAuthService(AppUserRepository userRepository, UserConsentRepository consentRepository,
-			LocalCredentialRepository credentialRepository,
+			LocalCredentialRepository credentialRepository, AuthIdentityRepository identityRepository,
 			AuthOneTimeTokenRepository oneTimeTokenRepository, PasswordEncoder passwordEncoder,
 			SessionTokenGenerator tokenGenerator, AuthTokenService authTokenService, EmailSender emailSender,
 			AuthProperties properties, ConsentPolicy consentPolicy, LoginAttemptGuard loginAttemptGuard,
@@ -64,6 +68,7 @@ public class LocalAuthService {
 		this.userRepository = userRepository;
 		this.consentRepository = consentRepository;
 		this.credentialRepository = credentialRepository;
+		this.identityRepository = identityRepository;
 		this.oneTimeTokenRepository = oneTimeTokenRepository;
 		this.passwordEncoder = passwordEncoder;
 		this.tokenGenerator = tokenGenerator;
@@ -83,7 +88,7 @@ public class LocalAuthService {
 			throw new AuthException("AGE_GATE_REQUIRED", "14세 이상 확인이 필요합니다.",
 					org.springframework.http.HttpStatus.BAD_REQUEST);
 		}
-		if (credentialRepository.findByEmail(email).isPresent()) {
+		if (emailAlreadyTaken(email)) {
 			throw new AuthException("EMAIL_ALREADY_EXISTS", "이미 가입된 이메일입니다.",
 					org.springframework.http.HttpStatus.CONFLICT);
 		}
@@ -150,6 +155,11 @@ public class LocalAuthService {
 		// 🔴 비밀번호를 보기 전에 잠금부터 본다. 잠긴 동안에는 맞는 비밀번호도 거부한다 —
 		//    비밀번호가 맞는지 알려 주는 것 자체가 공격자에게 정보이기 때문이다.
 		if (credential.isLoginLocked(now)) {
+			// 🔴 S15P21E201-682 후속 — 잠긴 뒤의 시도는 지금까지 어디에도 안 남았다.
+			//    accountLocked 는 임계치에 닿는 순간 한 번만 남으므로, 이 줄이 없으면
+			//    "잠갔더니 멈췄다" 와 "잠긴 채로 계속 맞고 있다" 를 구분할 수 없다.
+			securityEventLogger.lockedAccountAttempt(credential.getEmail(),
+					java.time.Duration.between(now, credential.getLoginLockedUntil()).toSeconds());
 			throw loginLocked(credential.getLoginLockedUntil(), now);
 		}
 
@@ -229,8 +239,42 @@ public class LocalAuthService {
 				.forEach(token -> token.consume(now));
 	}
 
+	/**
+	 * 정규화 규칙 자체는 {@link EmailNormalizer} 에 있다 — 넣을 때와 찾을 때가 갈라지면 대문자로
+	 * 적은 사람의 계정을 못 찾는다. 이 메서드는 부르는 자리를 짧게 두려고 남긴 껍데기다.
+	 */
+	/**
+	 * 이 이메일이 이미 쓰이고 있는가 — S15P21E201-742.
+	 *
+	 * <p>🔴 예전에는 {@code local_credential} 만 봤다. 그래서 이 순서가 그대로 통과했다 —
+	 * 구글로 가입(비밀번호 없는 계정이 생긴다) → 같은 주소로 비밀번호 회원가입 → <b>계정이
+	 * 하나 더 생긴다.</b> 사용자 눈에는 "가입했는데 내 여행이 없다" 로 보인다. 2026-09-08 에
+	 * 사용자가 구글·카카오·네이버로 각각 로그인해 계정이 셋 생기는 것을 제보하면서, 그 반대
+	 * 방향으로 같은 구멍이 있다는 것을 코드 조사로 찾았다.
+	 *
+	 * <p>🔴 <b>어느 소셜로 가입돼 있는지는 응답에 담지 않는다.</b> "이 이메일은 구글로 가입돼
+	 * 있습니다" 가 친절해 보이지만, 아무나 이메일을 넣어 보며 <b>그 사람이 어느 소셜을 쓰는지
+	 * 알아낼 수 있게 된다.</b> 그래서 이 메서드는 참·거짓만 돌려주고, 부르는 쪽은 예전과 똑같은
+	 * {@code EMAIL_ALREADY_EXISTS} 로 답한다 — 앱이 이미 아는 오류라 화면을 안 고쳐도 맞는
+	 * 동작이 된다.
+	 *
+	 * <p>🔴 <b>두 저장소가 같은 정규화를 쓰는 것에 기대고 있다.</b> 소셜 쪽 이메일도
+	 * {@code OAuthAccountService} 가 같은 {@link EmailNormalizer} 로 내려 저장한다. 한쪽만 규칙이
+	 * 바뀌면 대소문자만 다른 주소가 조용히 새 계정이 된다 — 그때 이 검사는 실패하지 않고
+	 * <b>그냥 아무것도 안 잡는다.</b>
+	 *
+	 * <p>연결이 끊긴 신원은 세지 않는다. 그 신원은 더 이상 로그인 경로가 아니므로, 그것 때문에
+	 * 가입을 막으면 <b>아무도 못 쓰는 이메일</b>이 생긴다.
+	 */
+	private boolean emailAlreadyTaken(String normalizedEmail) {
+		if (credentialRepository.findByEmail(normalizedEmail).isPresent()) {
+			return true;
+		}
+		return !identityRepository.findAllByProviderEmailAndUnlinkedAtIsNull(normalizedEmail).isEmpty();
+	}
+
 	private String normalizeEmail(String email) {
-		return email.trim().toLowerCase(Locale.ROOT);
+		return EmailNormalizer.normalize(email);
 	}
 
 	private String normalizeLanguage(String language) {

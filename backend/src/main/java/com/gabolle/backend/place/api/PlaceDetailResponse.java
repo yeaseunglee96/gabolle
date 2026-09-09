@@ -24,8 +24,12 @@ import tools.jackson.databind.JsonNode;
  *
  * @param provenance 이 장소 행 자체의 출처. 피처마다 붙는 출처와 다르다 — "이 피처는 어디서
  *        왔나" 와 "이 장소는 어느 수집분에서 왔나" 는 다른 질문이고 둘 다 답할 수 있어야 한다
- * @param itineraryInclusion 🔴 지금은 항상 {@code UNAVAILABLE} 이다. 일정에 장소를 담는 표가
- *        아직 없어서 계산할 수 없다. 자세한 것은 {@code ItineraryMembershipPort}
+ * @param itineraryInclusion 이 장소가 <b>요청이 지정한 일정</b>에 들어 있는가. 어느 일정인지는
+ *        질의 파라미터 {@code itineraryId} 로 받고, 판정 기준은 그 일정의 최신 판이다. 파라미터가
+ *        없거나 요청자가 그 일정을 볼 수 없으면 {@code UNAVAILABLE} 이고, 왜 모르는지는
+ *        {@code reason} 에 담긴다. 🔴 <b>없는 일정과 남의 일정이 같은 응답을 받는다</b> — 둘을
+ *        나누면 이 칸으로 남의 일정 내용을 알아낼 수 있다. 자세한 것은
+ *        {@code ItineraryMembershipPort}
  * @param addressEn 영문 주소({@code Place.getAddressEn()}). 없으면 키 자체가 빠진다
  * @param photoUrl 대표 사진 주소. 🔴 지금은 채우는 경로가 없어 항상 없다({@code null}) — 외부 사진
  *        검색(-146 · -480)이 붙어야 값이 생긴다. 값이 없을 때도 칸을 미리 만들어 둔 이유는 화면이
@@ -78,7 +82,11 @@ public record PlaceDetailResponse(
 
 	/**
 	 * @param state {@code INCLUDED} · {@code NOT_INCLUDED} · {@code UNAVAILABLE}
-	 * @param reason {@code UNAVAILABLE} 일 때만 채워진다
+	 * @param reason {@code UNAVAILABLE} 일 때만 채워진다. 값은 셋이다 —
+	 *        {@code ITINERARY_NOT_SPECIFIED}(요청이 일정을 지정하지 않았다),
+	 *        {@code ITINERARY_NOT_VISIBLE}(그 일정을 이 요청자에게 보여줄 수 없다 — 없는 일정과
+	 *        남의 일정이 함께 여기 온다), {@code ITINERARY_LOOKUP_UNAVAILABLE}(서버가 지금
+	 *        판정할 수 없다). 정본은 {@code ItineraryMembershipPort} 의 상수다
 	 */
 	public record ItineraryInclusion(String state, String reason) {
 	}

@@ -11,6 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.gabolle.backend.auth.service.AuthCommands;
 import com.gabolle.backend.auth.service.AuthTokenService;
 import com.gabolle.backend.auth.service.AccountDeletionService;
+import com.gabolle.backend.auth.service.ConsentUpdateService;
 import com.gabolle.backend.auth.service.CurrentUserService;
 import com.gabolle.backend.auth.service.ProfileUpdateService;
 import com.gabolle.backend.auth.service.LocalAuthService;
@@ -45,7 +46,8 @@ class AuthControllerHttpContractTest {
 				mock(AuthTokenService.class), mock(OAuthLoginService.class), mock(OAuthChallengeService.class),
 				mock(WebAuthCookieService.class), mock(CurrentUserService.class),
 				mock(ProfileUpdateService.class),
-				mock(AccountDeletionService.class), mock(OAuthAccountService.class));
+				mock(AccountDeletionService.class), mock(OAuthAccountService.class),
+				mock(ConsentUpdateService.class));
 		mockMvc = MockMvcBuilders.standaloneSetup(controller)
 				.setControllerAdvice(new AuthExceptionHandler())
 				.build();

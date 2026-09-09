@@ -13,6 +13,7 @@ import com.gabolle.backend.place.domain.UserInputKind;
 import com.gabolle.backend.place.domain.UserPlaceCodeMap;
 import com.gabolle.backend.place.repository.UserPlaceCodeMapRepository;
 import com.gabolle.backend.recommendation.config.BaselineEngineProperties;
+import com.gabolle.backend.recommendation.domain.RequestLocation;
 import com.gabolle.backend.trip.domain.PersonalizationScope;
 import com.gabolle.backend.trip.domain.PreferenceSnapshot;
 import com.gabolle.backend.trip.domain.Trip;
@@ -32,8 +33,10 @@ import static org.mockito.Mockito.when;
  */
 class BaselineCandidateTranslatorTest {
 
+	// 🔴 상한이 둘이다 (S15P21E201-724). 앞의 9000 이 채점 대상(장소 조회에 넘어가는 limit),
+	//    뒤의 150 은 채점을 마친 뒤 남길 수다. 이 변환기는 앞의 것만 쓴다.
 	private static final BaselineEngineProperties PROPERTIES = new BaselineEngineProperties(
-			"rule-v1", "feature-v1", "ontology-v1", "policy-v1", 4000, 150, null);
+			"rule-v1", "feature-v1", "ontology-v1", "policy-v1", 4000, 9000, 150, null);
 
 	private final UserPlaceCodeMapRepository codeMapRepository = mock(UserPlaceCodeMapRepository.class);
 
@@ -41,17 +44,20 @@ class BaselineCandidateTranslatorTest {
 			new BaselineCandidateTranslator(PROPERTIES, this.codeMapRepository, new ObjectMapper());
 
 	@Test
-	@DisplayName("중심 좌표는 Trip.originLat/originLng, 반경·상한은 설정값이다")
+	@DisplayName("중심 좌표는 Trip.originLat/originLng, 반경은 설정값이고 상한은 채점 대상 상한이다")
 	void 중심좌표와_반경은_설정과_여행에서_온다() {
 		categoryIsMapped(true);
 		Trip trip = trip(35.15, 129.05);
 
-		PlaceCandidateRequest request = this.translator.translate(trip, null, List.of());
+		PlaceCandidateRequest request = this.translator.translate(originOf(trip), trip, null, List.of());
 
 		assertThat(request.center().lat()).isEqualTo(35.15);
 		assertThat(request.center().lng()).isEqualTo(129.05);
 		assertThat(request.radiusM()).isEqualTo(4000);
-		assertThat(request.limit()).isEqualTo(150);
+		// 🔴 150(=candidateLimit) 이 아니라 9000(=candidateScanLimit) 이어야 한다.
+		//    장소 조회는 점수를 모르므로 limit 을 거리순으로 자른다 — 여기에 150 을 주면
+		//    채점기는 가까운 150곳만 보게 된다 (S15P21E201-724).
+		assertThat(request.limit()).isEqualTo(9000);
 	}
 
 	@Test
@@ -65,7 +71,7 @@ class BaselineCandidateTranslatorTest {
 						TripConstraint.EvidenceStatus.VERIFIED, TripConstraint.AnswerStatus.SELECTED,
 						PersonalizationScope.TRIP, null));
 
-		PlaceCandidateRequest request = this.translator.translate(trip, null, constraints);
+		PlaceCandidateRequest request = this.translator.translate(originOf(trip), trip, null, constraints);
 
 		assertThat(request.requiredFeatures()).isEmpty();
 		assertThat(request.excludedFeatures()).isEmpty();
@@ -78,7 +84,7 @@ class BaselineCandidateTranslatorTest {
 		Trip trip = trip(35.15, 129.05);
 		PreferenceSnapshot snapshot = snapshot("CATEGORY", "{\"codes\": [\"SEA\", \"CAFE\"]}");
 
-		PlaceCandidateRequest request = this.translator.translate(trip, snapshot, List.of());
+		PlaceCandidateRequest request = this.translator.translate(originOf(trip), trip, snapshot, List.of());
 
 		assertThat(request.categories()).containsExactly("SEA", "CAFE");
 	}
@@ -90,7 +96,7 @@ class BaselineCandidateTranslatorTest {
 		Trip trip = trip(35.15, 129.05);
 		PreferenceSnapshot snapshot = snapshot("CATEGORY", "{\"codes\": [\"SEA\"]}");
 
-		PlaceCandidateRequest request = this.translator.translate(trip, snapshot, List.of());
+		PlaceCandidateRequest request = this.translator.translate(originOf(trip), trip, snapshot, List.of());
 
 		assertThat(request.categories()).isEmpty();
 	}
@@ -101,7 +107,7 @@ class BaselineCandidateTranslatorTest {
 		categoryIsMapped(true);
 		Trip trip = trip(35.15, 129.05);
 
-		PlaceCandidateRequest request = this.translator.translate(trip, null, List.of());
+		PlaceCandidateRequest request = this.translator.translate(originOf(trip), trip, null, List.of());
 
 		assertThat(request.categories()).isEmpty();
 	}
@@ -123,5 +129,14 @@ class BaselineCandidateTranslatorTest {
 				List.of(new PreferenceSnapshot.PreferenceAnswer(dimension, valueJson,
 						PreferenceSnapshot.AnswerStatus.SELECTED)),
 				PersonalizationScope.TRIP, List.of(), Instant.now());
+	}
+
+	/**
+	 * 🔴 S15P21E201-550 — 중심 좌표를 여행에서 읽는 대신 {@code RequestLocation} 으로
+	 * 받게 바뀌었다. 이 테스트들은 "요청이 위치를 안 준" 경우를 보므로 여행 출발지에서
+	 * 만든다 — 엔진이 실제로 하는 것과 같다.
+	 */
+	private static RequestLocation originOf(Trip trip) {
+		return RequestLocation.ofTripOrigin(trip.originLat(), trip.originLng(), trip.createdAt());
 	}
 }

@@ -34,11 +34,25 @@ public class TripQueryService {
 	 * 문서가 말하는 대로 조회 권한 판정은 그 표를 본다 — 회원이 아니면 "권한 없음(403)"
 	 * 이 아니라 "없음(404)" 으로 답한다. 403 은 "이 여행은 있는데 너는 못 본다" 를
 	 * 확인해 주는 것과 같아서, 존재 여부 자체가 새는 것을 막지 못한다.
+	 *
+	 * <h2>🔴 지운 여행도 없는 것으로 답한다 — S15P21E201-746</h2>
+	 *
+	 * 삭제는 행을 지우지 않고 {@code deleted_at} 을 찍는 방식이라, 이 검사가 없으면
+	 * <b>지워진 여행이 목록에서만 사라지고 그대로 열린다.</b> 식별자를 아는 사람은 계속
+	 * 조회하고 고치고 공유 링크까지 만들 수 있다.
+	 *
+	 * <p>검사를 여기 두는 이유는 이 메서드가 여행에 닿는 <b>공통 관문</b>이기 때문이다 —
+	 * 일정 열람·편집({@code ItineraryAccess}), 동행자 초대와 역할 변경, 공유 링크 발급,
+	 * 추천 요청이 전부 여기를 지난다. 각 경로에 검사를 흩어 두면 언젠가 한 곳을 빠뜨리고,
+	 * 그 한 곳이 지운 여행으로 들어가는 문이 된다.
 	 */
 	@Transactional(readOnly = true)
 	public View get(String tripId, String requesterUserId) {
 		Trip trip = this.repository.findById(tripId)
 				.orElseThrow(() -> new TripNotFoundException(tripId));
+		if (trip.isDeleted()) {
+			throw new TripNotFoundException(tripId);
+		}
 
 		List<TripMember> members = this.repository.findMembers(tripId);
 		TripMember requesterMembership = members.stream()
@@ -51,6 +65,33 @@ public class TripQueryService {
 
 		return new View(trip, constraints, snapshot, requesterMembership.role());
 	}
+
+	/**
+	 * 내 여행 목록 — S15P21E201-738.
+	 *
+	 * <p>사용자 제보로 시작한 자리다. "여행 만들기는 되는데 내 여행으로 안 들어가진다" 의
+	 * 원인이 화면이 아니라 <b>서버에 목록 기능이 없는 것</b>이었다. 그래서 앱이 목록을
+	 * 기기에 따로 적어 두고 있었고, 앱을 지우거나 기기를 바꾸면 여행이 사라졌다.
+	 *
+	 * <p>🔴 <b>여기서 권한을 다시 판정하지 않는다.</b> 저장소가 참여 표를 기준으로 고르므로
+	 * 돌아온 여행은 이미 전부 요청자가 회원인 것이다. 판정을 한 번 더 넣으면 두 곳이
+	 * 같은 규칙을 각자 들고 있게 되고, 나중에 한쪽만 바뀐다 — {@link #get} 이 회원 여부로
+	 * 404 를 내는 규칙과 여기가 갈라지면 목록에 보이는데 못 여는 여행이 생긴다.
+	 */
+	@Transactional(readOnly = true)
+	public List<TripRepository.MemberTrip> list(String requesterUserId, int limit) {
+		return this.repository.findTripsForMember(requesterUserId, Math.min(Math.max(limit, 0), MAX_LIST_SIZE));
+	}
+
+	/**
+	 * 목록 한 번에 돌려주는 최대 개수 — S15P21E201-738.
+	 *
+	 * <p>상한을 두는 이유는 한 사람이 들어 있는 여행 수에 상한이 없기 때문이다. 이 값을
+	 * 넘겨야 하는 날이 오면 이어 보기(cursor)를 붙인다. 지금 붙이지 않는 이유는 이 목록이
+	 * 사람이 만든 여행이라 수백 개가 되는 경로가 없고, 안 쓰는 이어 보기를 먼저 만들면
+	 * 그 코드가 검증되지 않은 채로 남기 때문이다.
+	 */
+	public static final int MAX_LIST_SIZE = 50;
 
 	/**
 	 * 🔴 {@code role} — S15P21E201-224. 요청자가 이미 읽어 둔 {@code members} 목록의

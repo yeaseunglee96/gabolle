@@ -16,7 +16,13 @@ import java.time.ZoneOffset;
 import java.util.Map;
 import java.util.Optional;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
+import java.util.List;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.slf4j.LoggerFactory;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,11 +30,15 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import com.gabolle.backend.common.security.SecurityEventLogger;
+import com.gabolle.backend.common.security.SecurityAlertProperties;
+import com.gabolle.backend.common.security.SecurityAlertNotifier;
 import com.gabolle.backend.auth.api.OAuthLoginResponse;
 import com.gabolle.backend.auth.config.AuthProperties;
 import com.gabolle.backend.auth.domain.AuthIdentity;
 import com.gabolle.backend.auth.domain.AuthProvider;
 import com.gabolle.backend.auth.domain.LocalCredential;
+import com.gabolle.backend.auth.domain.OAuthSignupTicket;
 import com.gabolle.backend.auth.repository.AuthIdentityRepository;
 import com.gabolle.backend.auth.repository.LocalCredentialRepository;
 import com.gabolle.backend.user.domain.AppUser;
@@ -58,12 +68,27 @@ class OAuthAccountServiceTest {
 	private static final Instant NOW = Instant.parse("2026-01-01T00:00:00Z");
 
 	private OAuthAccountService service;
+	private ch.qos.logback.classic.Logger logbackLogger;
+	private ListAppender<ILoggingEvent> appender;
+	private Level originalLevel;
 
 	@BeforeEach
 	void setUp() {
+		// 🔴 수준을 명시하고 원래대로 되돌린다. 앞선 Spring 테스트가 로그백을 재설정하면
+		//    로깅 확인이 빈 목록을 훑고 조용히 통과한다.
+		logbackLogger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(SecurityEventLogger.class);
+		originalLevel = logbackLogger.getLevel();
+		logbackLogger.setLevel(Level.INFO);
+		appender = new ListAppender<>();
+		appender.start();
+		logbackLogger.addAppender(appender);
+
 		service = new OAuthAccountService(identityRepository, credentialRepository, userRepository, consentRepository,
 				tokenService, new AuthProperties(), new ConsentPolicy(), ticketService, passwordEncoder,
-				loginAttemptGuard, Clock.fixed(NOW, ZoneOffset.UTC));
+				loginAttemptGuard,
+				new SecurityEventLogger(new SecurityAlertNotifier(new SecurityAlertProperties(),
+						org.springframework.web.client.RestClient.builder(), Clock.systemUTC())),
+				Clock.fixed(NOW, ZoneOffset.UTC));
 	}
 
 	@Test
@@ -100,14 +125,79 @@ class OAuthAccountServiceTest {
 				anyString())).thenReturn(new OAuthSignupTicketService.IssuedTicket("kakao-ticket", NOW.plusSeconds(600)));
 
 		OAuthAccountService.Outcome outcome = service.authenticate(AuthProvider.KAKAO,
-				new OAuthProviderClient.OAuthUserProfile("kakao-subject", null, "카카오 사용자", "KO"), "device-1", null,
-				false, false);
+				new OAuthProviderClient.OAuthUserProfile("kakao-subject", null, "카카오 사용자", "KO", null, null), "device-1",
+				null, false, false);
 
 		OAuthAccountService.SignupRequired signup = (OAuthAccountService.SignupRequired) outcome;
 		assertThat(signup.email()).isNull();
 		assertThat(signup.emailProvided()).isFalse();
 		// 이메일이 없으면 로컬 계정과 겹칠지 볼 수가 없다 — 그 질의를 하지 않는다.
 		verify(credentialRepository, never()).findByEmail(anyString());
+	}
+
+	@AfterEach
+	void detachAppender() {
+		logbackLogger.detachAppender(appender);
+		logbackLogger.setLevel(originalLevel);
+	}
+
+	@Test
+	@DisplayName("🔴 소셜 연결에서 비밀번호가 틀리면 보안 로그에 남는다 — 여기가 사각지대였다")
+	void wrongPasswordOnSocialLinkIsRecorded() {
+		// 🔴 S15P21E201-682 후속. 전역 예외 처리기는 이 코드(INVALID_CREDENTIALS)를 "던지는
+		//    지점에서 이미 남긴다" 는 이유로 건너뛴다. 그 전제가 LocalAuthService 에서만 참이라
+		//    소셜 연결 화면을 통한 비밀번호 시도는 통째로 안 남고 있었다.
+		AppUser owner = AppUser.register("여행자", "KO", NOW, "2026-01", PersonalizationMode.EXPLICIT_ONLY,
+				UserStatus.ACTIVE);
+		LocalCredential credential = mock(LocalCredential.class);
+		when(credential.getEmail()).thenReturn("traveler@example.com");
+		when(credential.isLoginLocked(NOW)).thenReturn(false);
+		when(credential.getPasswordHash()).thenReturn("stored-hash");
+		OAuthSignupTicket ticket = OAuthSignupTicket.forLink("hash", AuthProvider.GOOGLE, "google-subject",
+				"traveler@example.com", owner, "device-1", NOW, NOW.plusSeconds(600));
+		when(ticketService.consume("raw-ticket", OAuthSignupTicket.Kind.LINK)).thenReturn(ticket);
+		when(credentialRepository.findByUserUserId(owner.getUserId())).thenReturn(Optional.of(credential));
+		when(passwordEncoder.matches("wrong", "stored-hash")).thenReturn(false);
+		when(loginAttemptGuard.recordFailure(any(), eq(NOW))).thenReturn(3);
+
+		assertThatThrownBy(() -> service.linkWithPassword("raw-ticket", "wrong", "device-1"))
+				.isInstanceOfSatisfying(AuthException.class,
+						(e) -> assertThat(e.getCode()).isEqualTo("INVALID_CREDENTIALS"));
+
+		List<String> lines = appender.list.stream().map(ILoggingEvent::getFormattedMessage)
+				.filter((message) -> message.contains("event=AUTH_LOGIN_FAILURE")).toList();
+		assertThat(lines)
+				.withFailMessage("소셜 연결의 비밀번호 실패가 로그에 없습니다. 배선이 빠지면 이 경로로 "
+						+ "들어오는 시도가 통째로 안 보입니다.")
+				.hasSize(1);
+		assertThat(lines.get(0)).contains("attempts=3").contains("emailHash=");
+		assertThat(lines.get(0)).doesNotContain("traveler@example.com").doesNotContain("wrong");
+	}
+
+	@Test
+	@DisplayName("🔴 이미 잠긴 계정으로 소셜 연결을 시도하면 그것도 남는다")
+	void lockedAccountOnSocialLinkIsRecorded() {
+		AppUser owner = AppUser.register("여행자", "KO", NOW, "2026-01", PersonalizationMode.EXPLICIT_ONLY,
+				UserStatus.ACTIVE);
+		LocalCredential credential = mock(LocalCredential.class);
+		when(credential.getEmail()).thenReturn("traveler@example.com");
+		when(credential.isLoginLocked(NOW)).thenReturn(true);
+		when(credential.getLoginLockedUntil()).thenReturn(NOW.plusSeconds(300));
+		OAuthSignupTicket ticket = OAuthSignupTicket.forLink("hash", AuthProvider.GOOGLE, "google-subject",
+				"traveler@example.com", owner, "device-1", NOW, NOW.plusSeconds(600));
+		when(ticketService.consume("raw-ticket", OAuthSignupTicket.Kind.LINK)).thenReturn(ticket);
+		when(credentialRepository.findByUserUserId(owner.getUserId())).thenReturn(Optional.of(credential));
+
+		assertThatThrownBy(() -> service.linkWithPassword("raw-ticket", "whatever", "device-1"))
+				.isInstanceOfSatisfying(AuthException.class,
+						(e) -> assertThat(e.getCode()).isEqualTo("TOO_MANY_LOGIN_ATTEMPTS"));
+
+		List<String> lines = appender.list.stream().map(ILoggingEvent::getFormattedMessage)
+				.filter((message) -> message.contains("event=AUTH_LOCKED_ACCOUNT_ATTEMPT")).toList();
+		assertThat(lines).hasSize(1);
+		assertThat(lines.get(0)).contains("lockedForSeconds=300");
+		// 잠긴 동안에는 비밀번호를 보지 않으므로 실패 횟수를 올리지 않는다.
+		verify(loginAttemptGuard, never()).recordFailure(any(), any());
 	}
 
 	@Test
@@ -201,7 +291,8 @@ class OAuthAccountServiceTest {
 	}
 
 	private OAuthProviderClient.OAuthUserProfile profile(String language) {
-		return new OAuthProviderClient.OAuthUserProfile("google-subject", "traveler@example.com", "여행자", language);
+		return new OAuthProviderClient.OAuthUserProfile("google-subject", "traveler@example.com", "여행자", language,
+				Boolean.TRUE, null);
 	}
 
 	private Map<String, Boolean> requiredConsents() {

@@ -10,12 +10,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Limit;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.gabolle.backend.place.api.PlaceCandidateRequest;
+import com.gabolle.backend.place.config.PlaceProperties;
 import com.gabolle.backend.place.api.PlaceCandidateResponse;
 import com.gabolle.backend.place.api.PlaceFeatureView;
 import com.gabolle.backend.place.domain.Place;
@@ -55,6 +58,22 @@ import tools.jackson.databind.ObjectMapper;
  * 영업시간은 칸이 없어 지금 거를 수 없다. 조용히 무시하면 호출자는 걸러진 줄 알고 영업이 끝난 곳을
  * 추천한다. 그래서 {@code notApplied} 에 적어 내보낸다.
  *
+ * <h2>🔴 자르기가 두 번 일어난다 — 둘 다 "거리" 가 아니다</h2>
+ *
+ * <ol>
+ * <li><b>경계상자 상한</b>({@code gabolle.place.candidate-max-scanned}) — DB 에서 읽어 올 행 수.
+ *     여기서 잘리면 {@code scanTruncated} 로 알린다. 잘리는 순서는 {@code place_id} 순이다
+ *     (JPQL 에 삼각함수가 없어 거리로는 못 자른다)</li>
+ * <li><b>{@code limit}</b> — 거리순으로 정렬한 뒤 앞에서부터 이만큼만 돌려준다</li>
+ * </ol>
+ *
+ * <p>🔴 <b>{@code limit} 은 "가까운 순 N 곳" 이지 "좋은 순 N 곳" 이 아니다</b>
+ * (S15P21E201-724). 이 서비스는 점수를 모르기 때문에 그럴 수밖에 없다. 그래서 <b>부르는 쪽이
+ * 채점을 한다면 여기에 작은 {@code limit} 을 주면 안 된다</b> — 잘려 나간 장소는 아무리 좋아도
+ * 점수를 매길 기회조차 없고, 그 사실은 어디에도 안 남는다. 추천 엔진이 실제로 그랬다
+ * ({@code BaselineCandidateTranslator} 가 200 을 주고 있었다). 지금은 엔진이 반경 안 후보를
+ * 전부 받아 <b>채점한 뒤에</b> 자른다.
+ *
  * <h2>🔴 모자라면 모자란 채로 돌려준다</h2>
  *
  * 최소 개수를 못 채워도 조건을 자동으로 풀지 않는다. 알레르기 조건을 슬쩍 풀어 채운 목록은 빈
@@ -65,8 +84,7 @@ import tools.jackson.databind.ObjectMapper;
 @Profile({"db", "dev"})
 public class PlaceCandidateQueryService {
 
-	/** 경계상자에서 읽어 올 최대 행. 넘으면 자르되 응답에 잘렸다고 적는다. */
-	private static final int MAX_SCANNED = 2_000;
+	private static final Logger log = LoggerFactory.getLogger(PlaceCandidateQueryService.class);
 
 	private final PlaceRepository placeRepository;
 
@@ -76,13 +94,23 @@ public class PlaceCandidateQueryService {
 
 	private final ObjectMapper objectMapper;
 
+	/**
+	 * 경계상자에서 읽어 올 최대 행 수({@code gabolle.place.candidate-max-scanned}).
+	 *
+	 * <p>🔴 상수 {@code MAX_SCANNED = 2_000} 이었다 (S15P21E201-724). 부산 반경 5km 안에는
+	 * 음식점만 평균 9,422곳이 있어 그 상한이 <b>항상</b> 먼저 걸렸고, 그러면 자바가 거리를
+	 * 재기 전에 이미 대부분이 사라진 뒤였다. 상수라서 운영에서 올릴 방법도 없었다.
+	 */
+	private final int maxScanned;
+
 	public PlaceCandidateQueryService(PlaceRepository placeRepository,
 			PlaceFeatureRepository placeFeatureRepository, OpeningHoursFilterPort openingHoursFilter,
-			ObjectMapper objectMapper) {
+			ObjectMapper objectMapper, PlaceProperties properties) {
 		this.placeRepository = placeRepository;
 		this.placeFeatureRepository = placeFeatureRepository;
 		this.openingHoursFilter = openingHoursFilter;
 		this.objectMapper = objectMapper;
+		this.maxScanned = properties.getCandidateMaxScanned();
 	}
 
 	@Transactional(readOnly = true)
@@ -100,19 +128,19 @@ public class PlaceCandidateQueryService {
 		List<Place> scanned;
 		if (required.isEmpty()) {
 			scanned = this.placeRepository.findWithinBoundingBox(
-					box.minLat(), box.maxLat(), box.minLng(), box.maxLng(), Limit.of(MAX_SCANNED + 1));
+					box.minLat(), box.maxLat(), box.minLng(), box.maxLng(), Limit.of(this.maxScanned + 1));
 		}
 		else {
 			PlaceCandidateRequest.FeatureMatch first = required.get(0);
 			scanned = this.placeRepository.findWithinBoundingBoxHavingFeature(
 					box.minLat(), box.maxLat(), box.minLng(), box.maxLng(),
-					first.featureType(), first.featureKey(), Limit.of(MAX_SCANNED + 1));
+					first.featureType(), first.featureKey(), Limit.of(this.maxScanned + 1));
 			applied.add("REQUIRED_FEATURES");
 		}
 
-		boolean scanTruncated = scanned.size() > MAX_SCANNED;
+		boolean scanTruncated = scanned.size() > this.maxScanned;
 		if (scanTruncated) {
-			scanned = scanned.subList(0, MAX_SCANNED);
+			scanned = scanned.subList(0, this.maxScanned);
 		}
 
 		// 반경과 카테고리는 자바에서 — 경계상자는 반경보다 넓은 사각형이라 바깥이 섞여 있다.
@@ -247,16 +275,40 @@ public class PlaceCandidateQueryService {
 		return match.featureKey() == null || match.featureKey().equals(feature.getFeatureKey());
 	}
 
+	/**
+	 * 🔴 값이 있는데 파싱에 실패한 행은 옮기지 않고 버린다 — S15P21E201-749.
+	 *
+	 * <p>{@code readValue} 는 파싱 실패와 "값이 원래 없음" 을 똑같이 {@code null} 로 돌려준다.
+	 * 그 {@code null} 을 그대로 {@link PlaceFeatureView} 에 실으면, {@code BaselineCandidateScorer
+	 * .bucketFor} 가 "이 행이 존재하고 값이 null" 과 "이 행 자체가 없음" 을 구분하지 못한 채
+	 * 안전 판정(알레르기·식단·이동 접근성)을 내린다. 안전 제약은 항목마다 판정 방향이
+	 * 반대라서({@code FeaturePresence} 참고), 어느 쪽이든 파싱 실패가 조용히 특정 결과로
+	 * 굳으면 최소 한쪽 방향에서는 실제로 안전하지 않은 장소가 조건을 통과할 수 있다.
+	 *
+	 * <p>행을 아예 빼면 {@code bucketFor} 가 그 표식을 "행이 없음" 으로 읽어 {@code UNVERIFIED}
+	 * 가 되고, 방향에 무관하게 안전한 기본값(모르는 것은 있는 것으로 취급)으로 떨어진다.
+	 * {@code EditorialPickBaselineProvider.toViews}(S15P21E201-555, MR !297)가 같은 문제를
+	 * 먼저 이 방식으로 고쳤다 — 여기도 같은 방향으로 맞춘다.
+	 */
 	private List<PlaceFeatureView> toViews(List<PlaceFeature> features) {
 		List<PlaceFeatureView> views = new ArrayList<>(features.size());
 		for (PlaceFeature feature : features) {
+			String raw = feature.getValue();
+			JsonNode value = readValue(raw);
+			if (value == null && raw != null && !raw.isBlank()) {
+				log.warn(
+						"place_feature 값 파싱 실패 — 안전을 위해 이 행을 후보 응답에서 뺀다. "
+								+ "placeId={}, featureType={}, featureKey={}",
+						feature.getPlaceId(), feature.getFeatureType(), feature.getFeatureKey());
+				continue;
+			}
 			views.add(new PlaceFeatureView(feature.getFeatureType(), feature.getFeatureKey(),
-					feature.getEvidenceStatus().name(), readValue(feature.getValue()),
-					feature.getObservedAt(), feature.getSourceType()));
+					feature.getEvidenceStatus().name(), value, feature.getObservedAt(), feature.getSourceType()));
 		}
 		return views;
 	}
 
+	/** 못 읽으면 {@code null}. 부르는 쪽이 "값이 있었는가" 와 함께 보고 판단한다. */
 	private JsonNode readValue(String raw) {
 		if (raw == null || raw.isBlank()) {
 			return null;

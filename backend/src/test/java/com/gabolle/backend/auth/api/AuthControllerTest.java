@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import com.gabolle.backend.auth.service.AuthException;
 import com.gabolle.backend.auth.service.AuthTokenService;
 import com.gabolle.backend.auth.service.AccountDeletionService;
+import com.gabolle.backend.auth.service.ConsentUpdateService;
 import com.gabolle.backend.auth.service.CurrentUserService;
 import com.gabolle.backend.auth.service.ProfileUpdateService;
 import com.gabolle.backend.auth.service.LocalAuthService;
@@ -35,7 +36,8 @@ class AuthControllerTest {
 				mock(AuthTokenService.class), mock(OAuthLoginService.class), mock(OAuthChallengeService.class),
 				mock(WebAuthCookieService.class), currentUserService,
 				mock(ProfileUpdateService.class),
-				mock(AccountDeletionService.class), mock(OAuthAccountService.class));
+				mock(AccountDeletionService.class), mock(OAuthAccountService.class),
+				mock(ConsentUpdateService.class));
 	}
 
 	@Test

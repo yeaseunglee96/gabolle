@@ -10,7 +10,6 @@ import com.gabolle.backend.auth.repository.AuthRefreshTokenRepository;
 import com.gabolle.backend.auth.repository.LocalCredentialRepository;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.Locale;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -105,7 +104,8 @@ public class PasswordResetService {
 				.orElse(false);
 	}
 
+	/** 규칙은 {@link EmailNormalizer} 하나만 쓴다 — 가입 때와 재설정 때가 갈라지면 재설정 메일이 아무에게도 안 간다. */
 	private String normalizeEmail(String email) {
-		return email.trim().toLowerCase(Locale.ROOT);
+		return EmailNormalizer.normalize(email);
 	}
 }

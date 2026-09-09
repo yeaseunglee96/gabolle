@@ -55,6 +55,9 @@ import org.springframework.web.bind.annotation.RestController;
  *   <li>{@code OTHER_USER_OK} — 남의 자원을 보는 것이 <b>기능 자체</b>다(프로필 보기, 팔로우).
  *       여기서 위험은 거부되지 않는 것이 아니라 <b>보여선 안 될 것이 섞이는 것</b>이다</li>
  *   <li>{@code AUTHENTICATED_ONLY} — 로그인만 하면 누구나 같은 답을 받는다. 자원에 주인이 없다</li>
+ *   <li>🔴 {@code ADMIN_ONLY} — 운영자만. 자원의 주인이 <b>요청자가 아닌</b> 유일한 갈래다.
+ *       나머지 다섯은 "내 것인가" 를 묻는데 이것은 "너는 운영자인가" 를 묻는다. 그래서
+ *       {@code OWNED} 로 분류하면 안 된다 — 남의 것을 다루는 것이 기능이기 때문이다</li>
  * </ul>
  *
  * <p>🔴 이 표는 <b>정책이 실제로 지켜지는지</b>를 재지 않는다. 그건 표의 두 번째 칸이 가리키는
@@ -67,7 +70,7 @@ class RouteAuthorizationRegistryTest {
 
 	enum Policy {
 
-		PRE_AUTH, PUBLIC_TOKEN, OWNED, OTHER_USER_OK, AUTHENTICATED_ONLY
+		PRE_AUTH, PUBLIC_TOKEN, OWNED, OTHER_USER_OK, AUTHENTICATED_ONLY, ADMIN_ONLY
 	}
 
 	private static final Map<String, Map.Entry<Policy, String>> POLICY = policies();
@@ -128,6 +131,19 @@ class RouteAuthorizationRegistryTest {
 		assertThat(routesWith(Policy.PUBLIC_TOKEN)).containsExactlyInAnyOrder(
 				"GET /api/v1/shares/{}",
 				"GET /api/v1/uploads/images/{}");
+	}
+
+	@Test
+	@DisplayName("🔴 운영자 경로가 모두 /api/v1/admin/ 아래에 있다 — 경로 규칙 하나로 막기 때문이다")
+	void adminRoutesLiveUnderTheAdminPrefix() {
+		// 🔴 이 저장소는 메서드 보안(@EnableMethodSecurity)이 꺼져 있어서 @PreAuthorize 가
+		//    조용히 무시된다. 그래서 운영자 인가는 SecurityConfig 의
+		//    "/api/v1/admin/**" → hasRole("ADMIN") 경로 규칙 하나가 전부 담당한다.
+		//    그 아래에 없는 운영자 경로는 <b>아무도 막지 않는다.</b>
+		assertThat(routesWith(Policy.ADMIN_ONLY))
+				.isNotEmpty()
+				.allSatisfy(route -> assertThat(route)
+						.contains(" /api/v1/admin/"));
 	}
 
 	@Test
@@ -196,6 +212,18 @@ class RouteAuthorizationRegistryTest {
 	/** 같은 패키지의 허용 목록 검사가 쓰는 창구 — 로그인 전에 부르는 경로만. */
 	static Set<String> preAuthRoutesForAudit() {
 		return routesWith(Policy.PRE_AUTH);
+	}
+
+	/**
+	 * 로그인 없이 열려야 하는 경로 전부 — {@link Policy#PRE_AUTH} 와 {@link Policy#PUBLIC_TOKEN}.
+	 *
+	 * <p>🔴 {@link #preAuthRoutesForAudit()} 와 갈라 두는 이유. 저쪽은 "빠지면 기능이 죽는다"
+	 * 를 보는 창구이고(로그인 전에 반드시 열려 있어야 한다), 이쪽은 "이 밖의 것이 열려 있으면
+	 * 구멍이다" 를 보는 창구다. {@code PUBLIC_TOKEN} 은 로그인은 없지만 <b>표 자체가
+	 * 자격증명</b>이라 앞쪽 목록에 넣으면 안 되고, 뒤쪽 목록에서는 빠지면 안 된다.
+	 */
+	static Set<String> openWithoutLoginRoutesForAudit() {
+		return routesWith(Policy.PRE_AUTH, Policy.PUBLIC_TOKEN);
 	}
 
 	static Set<String> discoverRoutesForAudit() {
@@ -352,6 +380,10 @@ class RouteAuthorizationRegistryTest {
 				"대상이 경로에 없고 인증 주체로만 정해진다 — 남의 것을 지정할 방법이 없다");
 		put(m, "PATCH /api/v1/auth/me", Policy.OWNED,
 				"위와 같다. 대상이 인증 주체 자신뿐이다");
+		put(m, "GET /api/v1/auth/me/consents", Policy.OWNED,
+				"내 동의 상태(-735). 대상이 인증 주체 자신뿐이라 남의 것을 지정할 자리가 없다. ConsentUpdateIntegrationTest");
+		put(m, "PATCH /api/v1/auth/me/consents", Policy.OWNED,
+				"동의 변경(-735). 위와 같다. 🔴 필수 약관은 이 경로로 철회되지 않는다 — 그건 탈퇴다. ConsentUpdateIntegrationTest");
 		put(m, "GET /api/v1/auth/me/deletion-preview", Policy.OWNED,
 				"탈퇴하면 무엇이 지워지는지 미리 보여준다(-188). 대상이 인증 주체 자신뿐이라 남의 것을 지정할 자리가 없다. AccountDeletionIntegrationTest");
 		put(m, "DELETE /api/v1/auth/me", Policy.OWNED,
@@ -360,8 +392,18 @@ class RouteAuthorizationRegistryTest {
 		// ── 여행 ────────────────────────────────────────────────────────────────
 		put(m, "POST /api/v1/trips", Policy.AUTHENTICATED_ONLY,
 				"새로 만드는 것이라 기존 자원의 주인 개념이 없다. 소유자는 인증 주체로 박힌다");
+		// 🔴 목록은 OWNED 가 아니라 AUTHENTICATED_ONLY 다 — 부를 때 자원을 지목하지 않기
+		//    때문이다. 위험은 "남의 것을 부르면 거부되는가" 가 아니라 "남의 여행이 목록에
+		//    섞이는가" 이고, 그것은 저장소가 참여 표로 거른다. TripListIntegrationTest 의
+		//    doesNotLeakTripsIAmNotAMemberOf 가 그 자리를 지킨다.
+		put(m, "GET /api/v1/trips", Policy.AUTHENTICATED_ONLY,
+				"내 여행 목록. 참여 표로 걸러 남의 여행이 섞이지 않는다. TripListIntegrationTest");
 		put(m, "GET /api/v1/trips/{}", Policy.OWNED,
 				"비회원은 존재를 감춘 404. TripControllerGetTest · ItineraryAccessIntegrationTest");
+		put(m, "DELETE /api/v1/trips/{}", Policy.OWNED,
+				"삭제는 OWNER 만. 동행자는 403, 비회원과 없는 여행은 같은 404. TripDeleteIntegrationTest");
+		put(m, "GET /api/v1/trips/{}/itineraries", Policy.OWNED,
+				"참여자만. 비회원과 없는 여행이 같은 404. TripItineraryListIntegrationTest");
 		put(m, "GET /api/v1/trips/{}/activity", Policy.OWNED,
 				"참여자만. TripActivityIntegrationTest");
 		put(m, "GET /api/v1/trips/{}/members", Policy.OWNED,
@@ -392,6 +434,8 @@ class RouteAuthorizationRegistryTest {
 				"참여자만. ItineraryVersionListingIntegrationTest");
 		put(m, "POST /api/v1/itineraries/{}/items", Policy.OWNED,
 				"장소 더하기는 편집 권한자만. ItineraryAddItemIntegrationTest (-467)");
+		put(m, "POST /api/v1/itineraries/{}/days/{}/reorder", Policy.OWNED,
+				"편집 권한이 있는 참여자만. 비회원과 없는 일정이 같은 404, VIEWER 는 403. ItineraryReorderIntegrationTest");
 		put(m, "POST /api/v1/itineraries/{}/items/{}/lock", Policy.OWNED,
 				"고정은 편집 권한자만. ItineraryAccessIntegrationTest");
 		put(m, "DELETE /api/v1/itineraries/{}/items/{}/lock", Policy.OWNED,
@@ -402,6 +446,8 @@ class RouteAuthorizationRegistryTest {
 				"재계산 접수는 편집 권한자만. ItineraryRecalculationIntegrationTest");
 		put(m, "POST /api/v1/itineraries/{}/revert", Policy.OWNED,
 				"되돌리기는 편집 권한자만. ItineraryRevertIntegrationTest");
+		put(m, "PUT /api/v1/itineraries/{}/items/{}/actual", Policy.OWNED,
+				"그 여행의 편집자만 자기 일정의 방문 시각을 적는다 — 남의 여행은 존재를 감춘 404, VIEWER 는 403. ItineraryActualTimeIntegrationTest (-293)");
 
 		// ── 추천 작업 ────────────────────────────────────────────────────────────
 		put(m, "GET /api/v1/jobs/{}", Policy.OWNED,
@@ -433,6 +479,24 @@ class RouteAuthorizationRegistryTest {
 		put(m, "DELETE /api/v1/users/{}/follow", Policy.OTHER_USER_OK,
 				"언팔로우도 같다. 주체는 인증에서만 읽는다. FollowIntegrationTest");
 
+		// ── 신고와 검토 (-254 · -267) ────────────────────────────────────────────
+		put(m, "POST /api/v1/stories/{}/reports", Policy.OTHER_USER_OK,
+				"남의 기록에 신고를 거는 것이 기능이다. 안 보이는 기록은 존재를 감춘 404. 중복 신고는 조용히 성공한다(남의 신고 여부를 흘리지 않기 위해). StoryReportFilingIntegrationTest");
+		put(m, "GET /api/v1/admin/story-reports", Policy.ADMIN_ONLY,
+				"검토 큐. SecurityConfig 의 /api/v1/admin/** → hasRole(ADMIN) 이 막는다. AdminModerationAuthorizationIntegrationTest");
+		put(m, "POST /api/v1/admin/story-reports/{}/remove", Policy.ADMIN_ONLY,
+				"운영자 삭제. 같은 경로 규칙이 막는다. AdminModerationQueueIntegrationTest");
+		put(m, "POST /api/v1/admin/story-reports/{}/dismiss", Policy.ADMIN_ONLY,
+				"운영자 기각. 같은 경로 규칙이 막는다. AdminModerationQueueIntegrationTest");
+
+		// ── 방문 인증과 리뷰 (-279 · -287 · -408) ─────────────────────────────────
+		put(m, "POST /api/v1/places/{}/visit-verifications", Policy.AUTHENTICATED_ONLY,
+				"주체를 인증에서만 읽고 좌표는 저장하지 않으므로 남의 인증을 대신 만들 자리가 없다. VisitVerificationIntegrationTest");
+		put(m, "POST /api/v1/places/{}/reviews", Policy.AUTHENTICATED_ONLY,
+				"본문에 사용자도 인증 여부도 받지 않는다 — 서버가 인증 기록을 조회해 정하므로 남의 리뷰를 쓸 수 없다. PlaceReviewIntegrationTest");
+		put(m, "GET /api/v1/places/{}/reviews", Policy.AUTHENTICATED_ONLY,
+				"장소 하나의 목록이라 주인이 없다. 인증·미인증을 다 보여주고 평균은 인증된 것만으로 낸다. PlaceReviewIntegrationTest");
+
 		// ── 업로드 ──────────────────────────────────────────────────────────────
 		put(m, "POST /api/v1/uploads/story-image", Policy.AUTHENTICATED_ONLY,
 				"새로 올리는 것이라 주인 개념이 없다. 올린 사람은 인증 주체로 박히고, 남이 올린 주소를 자기 기록에 붙이면 400 이다. ImageUploadIntegrationTest");
@@ -444,6 +508,9 @@ class RouteAuthorizationRegistryTest {
 				"장소는 공용 기준 데이터라 사용자별로 답이 다르지 않다. PlaceSearchIntegrationTest");
 		put(m, "GET /api/v1/places/facets", Policy.AUTHENTICATED_ONLY,
 				"갈래별 건수. 공용 기준 데이터다. PlaceFacetInterestTagIntegrationTest");
+		put(m, "GET /api/v1/routes/directions", Policy.AUTHENTICATED_ONLY,
+				"좌표 두 개로 답이 정해진다 — 우리 자원이 아니라 주인이 없다. 인증을 요구하는 것은 "
+						+ "우리 카카오 키로 남이 길찾기를 대신 쓰는 것을 막기 위해서다. RouteControllerTest");
 		put(m, "GET /api/v1/places/nearby", Policy.AUTHENTICATED_ONLY,
 				"좌표만으로 답이 정해진다 — 컨트롤러 주석이 그렇게 적고 있다. NearbyFacetAndRadiusTest");
 		put(m, "GET /api/v1/places/{}", Policy.AUTHENTICATED_ONLY,
@@ -460,6 +527,10 @@ class RouteAuthorizationRegistryTest {
 				"이벤트 종류 목록. 공용 기준 데이터다");
 		put(m, "POST /api/v1/events", Policy.AUTHENTICATED_ONLY,
 				"행동 이벤트 적재. 주체는 인증에서 읽고 본문의 사용자 값을 신뢰하지 않아야 한다 — 아래 '남은 위험' 참고. EventIngestServiceTest");
+		put(m, "GET /api/v1/analytics/kpis", Policy.AUTHENTICATED_ONLY,
+				"집계 지표 조회. 개인 자원이 아니라 전체 이벤트를 기간으로 묶어 세므로 주인이 없다 — "
+						+ "관리자 전용으로 좁히려면 이 저장소에 아직 없는 역할 체계부터 있어야 한다 "
+						+ "(AnalyticsController 주석 참고). AnalyticsControllerTest");
 
 		return m;
 	}

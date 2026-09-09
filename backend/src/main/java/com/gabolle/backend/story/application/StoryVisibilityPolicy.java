@@ -1,0 +1,64 @@
+package com.gabolle.backend.story.application;
+
+import java.time.Instant;
+import java.util.UUID;
+
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Component;
+
+import com.gabolle.backend.story.domain.Story;
+import com.gabolle.backend.story.domain.UserFollow;
+import com.gabolle.backend.story.repository.UserFollowRepository;
+
+/**
+ * 기록(Story) 한 건을 특정 사람이 볼 수 있는지 판정한다 — S15P21E201-254 뽑아내기.
+ *
+ * <h2>왜 이 판정을 한 곳에 모아야 하나</h2>
+ * {@code StoryService}(기록 상세·수정·삭제)와 {@code StoryReportService}(신고 접수) 둘 다 같은 질문을
+ * 던진다 — "이 사람이 이 기록을 볼 수 있는가". 볼 수 없으면 둘 다 <b>404</b> 로 답해 존재 자체를 감춰야
+ * 한다. 신고 쪽에서 이 판정이 없으면, 사적인 기록의 UUID 를 우연히 알게 된 사람이 신고를 넣어 보고
+ * 응답이 200 인지 404 인지만으로 그 기록이 실제로 존재하는지 알아낼 수 있다 — 신고 기능이 열람 권한을
+ * 우회하는 샛길이 되는 것이다. 그래서 두 서비스는 같은 규칙을, 같은 코드로 써야 한다.
+ *
+ * <p>🔴 예전에는 이 로직이 {@code StoryService} 안에 있었고 {@code StoryReportService} 가 그대로
+ * 복사해 갖고 있었다(두 클래스가 각자 사용 가능한 자리에 있지 않아서였다). 두 사본이 갈라질 위험이
+ * 실제로 있었기 때문에 이 클래스로 뽑아 왔다.
+ *
+ * <h2>왜 {@code moderation} 이 아니라 {@code story} 패키지인가</h2>
+ * {@code moderation} 은 이미 {@code story.repository.StoryRepository} 와
+ * {@code story.repository.UserFollowRepository} 를 직접 참조하고 있다 — 즉 이 저장소의 기존 의존
+ * 방향은 {@code moderation → story} 다. 이 클래스를 {@code story} 에 두면 {@code moderation} 이
+ * 지금처럼 {@code story} 를 참조하는 방향 그대로 가져다 쓸 수 있고, {@code story} 가 {@code moderation}
+ * 을 거꾸로 참조하게 되는 일이 생기지 않는다.
+ *
+ * <h2>규칙</h2>
+ * <ul>
+ *   <li>작성자는 언제나 자기 기록을 본다 — 공개 전이든, 나만 보기든</li>
+ *   <li>작성자가 아니면 <b>공개 시각이 지난</b> 기록만 대상이 되고, 그중에서도 PUBLIC 이거나
+ *       (FOLLOWERS 이고 그 사람을 팔로우할 때)만 본다. PRIVATE 은 작성자 외엔 아무도 못 본다</li>
+ * </ul>
+ */
+@Component
+@Profile({ "db", "dev" })
+public class StoryVisibilityPolicy {
+
+	private final UserFollowRepository userFollowRepository;
+
+	public StoryVisibilityPolicy(UserFollowRepository userFollowRepository) {
+		this.userFollowRepository = userFollowRepository;
+	}
+
+	public boolean canView(Story story, UUID viewer, Instant now) {
+		if (story.isAuthor(viewer)) {
+			return true;
+		}
+		if (!story.isPublishedAt(now)) {
+			return false;
+		}
+		return switch (story.getVisibility()) {
+			case PUBLIC -> true;
+			case FOLLOWERS -> this.userFollowRepository.existsByKey(new UserFollow.Key(viewer, story.getAuthorUserId()));
+			case PRIVATE -> false;
+		};
+	}
+}

@@ -1,5 +1,6 @@
 package com.gabolle.backend.auth.api;
 
+import com.gabolle.backend.common.privacy.EmailMasker;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -71,14 +72,11 @@ public record OAuthLoginResponse(
 	 *
 	 * <p>🔴 가리는 이유 — 이 값은 "provider 가 준 이메일로 우리 표를 찔러 본 결과" 다. 그대로 돌려주면 아무나 남의
 	 * 이메일 가입 여부를 확인할 수 있다. 사용자에게는 "어느 계정에 붙는지" 를 알려 줄 만큼만 남긴다.
+	 *
+	 * <p>규칙 자체는 {@link EmailMasker} 로 옮겼다 — 기동 시점 관리자 지정(S15P21E201-225)이 오류
+	 * 메시지에 같은 방식으로 이메일을 가려 적어야 해서, 두 곳이 다른 폭으로 가리지 않게 한 곳에 뒀다.
 	 */
 	public static String mask(String email) {
-		if (email == null || !email.contains("@")) {
-			return null;
-		}
-		int at = email.indexOf('@');
-		String local = email.substring(0, at);
-		String head = local.length() > 1 ? local.substring(0, 1) + "***" : "*";
-		return head + email.substring(at);
+		return EmailMasker.mask(email);
 	}
 }

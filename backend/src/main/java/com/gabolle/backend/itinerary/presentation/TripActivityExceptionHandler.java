@@ -14,8 +14,13 @@ import com.gabolle.backend.common.api.ApiError;
 import com.gabolle.backend.common.api.ApiResponse;
 import com.gabolle.backend.trip.application.TripQueryService;
 
-/** {@link TripActivityController} 전용. 없는 여행과 비회원을 같은 404 로 답한다 — 존재를 감춘다. */
-@RestControllerAdvice(assignableTypes = TripActivityController.class)
+/**
+ * 여행 밑에 붙는 일정 쪽 경로 전용. 없는 여행과 비회원을 같은 404 로 답한다 — 존재를 감춘다.
+ *
+ * <p>2026-09-08 — {@link TripItineraryController}(S15P21E201-738)를 함께 맡긴다. 두 경로가 같은
+ * 규칙으로 404 를 내야 하는데 advice 를 따로 두면 한쪽만 고쳐지는 날이 온다.
+ */
+@RestControllerAdvice(assignableTypes = { TripActivityController.class, TripItineraryController.class })
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class TripActivityExceptionHandler {
 

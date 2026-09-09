@@ -3,6 +3,8 @@ package com.gabolle.backend.itinerary;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.nullValue;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.OffsetDateTime;
@@ -51,7 +53,15 @@ import com.gabolle.testslice.ItinerarySliceApplication;
  *   <li>여행 기간을 벗어난 날은 400 이다. 표의 CHECK 는 이것을 막지 못한다</li>
  * </ol>
  *
+ * <p>2026-09-07 에 셋이 더 붙었다. 축제가 <b>그 날 실제로 열리는지</b> 서버가 보고, 열리지 않으면
+ * 거부하는 방식이 두 가지로 갈리며(다른 날을 고르면 되는 경우와 이 여행에서는 안 되는 경우),
+ * 같은 축제를 두 번 넣으면 두 번째가 거부된다. 세 검사는 모두 <b>기간이 정해진 장소</b>에만
+ * 걸린다 — 기간 행이 없는 일반 장소는 예전처럼 아무 제약 없이 들어가고, 그것을 확인하는
+ * 회귀 테스트가 아래에 있다.
+ *
  * <p>여행은 2026-09-10 부터 09-12 까지 사흘이다. 1판에 첫날(dayIndex 0) 항목 둘이 있다.
+ * {@code festival} 은 기본적으로 기간 행이 없는 장소이고, 기간이 필요한 시험은
+ * {@link #insertEventPeriod} 로 그 시험 안에서 직접 심는다.
  */
 @SpringBootTest(classes = ItinerarySliceApplication.class, properties = {
 		"spring.profiles.active=db",
@@ -233,6 +243,108 @@ class ItineraryAddItemIntegrationTest {
 		assertThat(latestVersion()).isEqualTo(1);
 	}
 
+	@Test
+	@DisplayName("기간이 있는 축제를 열리는 날에 넣으면 들어간다")
+	void festivalIsAddedOnAnOpenDay() throws Exception {
+		// 이 축제는 여행 둘째·셋째 날에만 열린다
+		insertEventPeriod(this.festival, "2026-09-11", "2026-09-12");
+
+		addItem(this.festival, 1, 1).andExpect(status().isCreated());
+
+		List<Map<String, Object>> items = itemsOf(2);
+		assertThat(items).hasSize(3);
+
+		Map<String, Object> added = festivalItemsOf(2).get(0);
+		assertThat(added.get("day_index")).isEqualTo(1);
+		assertThat(added.get("visit_date")).hasToString("2026-09-11");
+	}
+
+	@Test
+	@DisplayName("🔴 그 날에는 안 열리면 400 이고, 넣을 수 있는 날들이 응답에 담긴다")
+	void closedOnRequestedDayAnswersWithTheOpenDays() throws Exception {
+		insertEventPeriod(this.festival, "2026-09-11", "2026-09-12");
+
+		// 첫날(2026-09-10)에는 안 열린다. 다른 날을 고르면 되는 요청이다
+		addItem(this.festival, 0, 1)
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.error.code").value("ITINERARY_PLACE_CLOSED_ON_DAY"))
+				// 목록의 내용을 보기 전에 목록이 비어 있지 않음을 먼저 단정한다 — 비어 있어도
+				// hasItem 없이 통과하는 단정을 쓰면 이 시험이 공허하게 초록이 된다
+				.andExpect(jsonPath("$.error.fields").isNotEmpty())
+				.andExpect(jsonPath("$.error.fields").value(hasItem("requestedDayIndex=0")))
+				.andExpect(jsonPath("$.error.fields").value(hasItem("requestedDate=2026-09-10")))
+				.andExpect(jsonPath("$.error.fields").value(hasItem("availableDayIndexes=1,2")))
+				.andExpect(jsonPath("$.error.fields").value(hasItem("availableDates=2026-09-11,2026-09-12")))
+				// 실패 봉투에는 data 가 없다. 키가 아예 빠진 것과 값이 null 인 것을 구분하려고
+				// nullValue() 로 보고, 같은 응답의 다른 칸이 채워져 있음을 함께 본다
+				.andExpect(jsonPath("$.data").value(nullValue()))
+				.andExpect(jsonPath("$.meta.requestId").isNotEmpty());
+
+		assertThat(latestVersion()).isEqualTo(1);
+		assertThat(festivalItemsOf(1)).isEmpty();
+	}
+
+	@Test
+	@DisplayName("여행 기간과 전혀 겹치지 않는 축제는 다른 코드로 거부된다 — 422")
+	void festivalOutsideTheTripIsRejectedWithADifferentCode() throws Exception {
+		// 10월 축제, 여행은 9월이다. 어느 날을 골라도 안 된다
+		insertEventPeriod(this.festival, "2026-10-01", "2026-10-05");
+
+		addItem(this.festival, 0, 1)
+				.andExpect(status().isUnprocessableEntity())
+				.andExpect(jsonPath("$.error.code").value("ITINERARY_PLACE_NOT_OPEN_DURING_TRIP"))
+				.andExpect(jsonPath("$.error.fields").isNotEmpty())
+				.andExpect(jsonPath("$.error.fields").value(hasItem("tripStartDate=2026-09-10")))
+				.andExpect(jsonPath("$.error.fields").value(hasItem("tripFinishDate=2026-09-12")));
+
+		// 다른 날을 골라도 같은 판정이어야 한다 — "고칠 수 있는 요청" 이 아니다
+		addItem(this.festival, 2, 1)
+				.andExpect(status().isUnprocessableEntity())
+				.andExpect(jsonPath("$.error.code").value("ITINERARY_PLACE_NOT_OPEN_DURING_TRIP"));
+
+		assertThat(latestVersion()).isEqualTo(1);
+	}
+
+	@Test
+	@DisplayName("같은 축제를 두 번 넣으면 두 번째가 409 이고, 일정에는 하나만 남는다")
+	void addingTheSameFestivalTwiceIsRejected() throws Exception {
+		// 여행 내내 열리는 축제. 날짜 검사에는 걸리지 않는다
+		insertEventPeriod(this.festival, "2026-09-10", "2026-09-12");
+
+		addItem(this.festival, 0, 1).andExpect(status().isCreated());
+
+		// 다른 날을 골라도 중복이다 — 중복 판정은 그 날이 아니라 판 전체를 본다
+		addItem(this.festival, 2, 2)
+				.andExpect(status().isConflict())
+				.andExpect(jsonPath("$.error.code").value("ITINERARY_PLACE_ALREADY_ADDED"))
+				.andExpect(jsonPath("$.error.fields").isNotEmpty())
+				.andExpect(jsonPath("$.error.fields").value(hasItem("existingDayIndex=0")))
+				.andExpect(jsonPath("$.error.fields").value(hasItem("existingDayIndexes=0")))
+				.andExpect(jsonPath("$.error.fields").value(hasItem("requestedDayIndex=2")));
+
+		// 판이 낡았다는 409 와 섞이지 않았다는 것을 코드로 확인했다. 이제 판을 실제로 읽는다
+		assertThat(latestVersion()).isEqualTo(2);
+		List<Map<String, Object>> festivalItems = festivalItemsOf(2);
+		assertThat(festivalItems).hasSize(1);
+		assertThat(festivalItems.get(0).get("day_index")).isEqualTo(0);
+		assertThat(itemsOf(2)).hasSize(3);
+	}
+
+	@Test
+	@DisplayName("기간 행이 없는 일반 장소는 날짜·중복 검사에 걸리지 않는다")
+	void placeWithoutEventPeriodsSkipsBothChecks() throws Exception {
+		// placeA 는 1판 첫날에 이미 들어 있고 기간 행이 없다. 같은 카페를 이틀 연속 가는 경우다
+		addItem(this.placeA, 1, 1).andExpect(status().isCreated());
+		addItem(this.placeA, 2, 2).andExpect(status().isCreated());
+
+		List<Map<String, Object>> samePlace = itemsOf(3).stream()
+				.filter((row) -> this.placeA.toString().equals(row.get("place_id")))
+				.toList();
+		assertThat(samePlace).hasSize(3);
+		assertThat(samePlace.stream().map((row) -> row.get("day_index")))
+				.containsExactly(0, 1, 2);
+	}
+
 	// ---- 도우미 ----
 
 	private ResultActions addItem(UUID placeId, int dayIndex, int baseVersion) throws Exception {
@@ -268,6 +380,24 @@ class ItineraryAddItemIntegrationTest {
 						+ "data_status, created_at) "
 						+ "VALUES (?, ?, ?, ?, '2026-09-10', ?, ?, ?::time, ?::time, 180, FALSE, 'ESTIMATED', now())",
 				UUID.randomUUID(), versionId, itemKey, dayIndex, sequence, placeId, start, end);
+	}
+
+	/**
+	 * 축제 기간 한 회차를 심는다. 이 표가 비어 있는 장소는 "기간이 정해진 장소" 가 아니므로
+	 * 날짜·중복 검사를 건너뛴다 — 그것을 확인하는 시험이 위에 있다.
+	 */
+	private void insertEventPeriod(UUID placeId, String startDate, String endDate) {
+		this.jdbc.update(
+				"INSERT INTO place_event_period (place_event_period_id, place_id, title, start_date, end_date, "
+						+ "created_at) VALUES (?, ?, '테스트 회차', ?::date, ?::date, now())",
+				UUID.randomUUID(), placeId, startDate, endDate);
+	}
+
+	/** 그 판에 들어 있는 축제 장소의 항목들. 몇 개인지를 보는 것이 중복 시험의 핵심이다. */
+	private List<Map<String, Object>> festivalItemsOf(int version) {
+		return itemsOf(version).stream()
+				.filter((row) -> this.festival.toString().equals(row.get("place_id")))
+				.toList();
 	}
 
 	private List<Map<String, Object>> itemsOf(int version) {

@@ -1,5 +1,6 @@
 package com.gabolle.backend.auth.service;
 
+import com.gabolle.backend.common.security.SecurityEventLogger;
 import com.gabolle.backend.auth.config.AuthProperties;
 import com.gabolle.backend.auth.domain.AuthProvider;
 import com.gabolle.backend.auth.domain.OAuthChallenge;
@@ -23,19 +24,24 @@ public class OAuthChallengeService {
 	private final OAuthChallengeRepository repository;
 	private final SessionTokenGenerator tokenGenerator;
 	private final AuthProperties properties;
+
+	/** 🔴 S15P21E201-682 후속 — 허용 목록에 없는 주소로 표를 보내려는 시도가 안 남고 있었다. */
+	private final SecurityEventLogger securityEventLogger;
+
 	private final Clock clock;
 
 	@Autowired
 	public OAuthChallengeService(OAuthChallengeRepository repository, SessionTokenGenerator tokenGenerator,
-			AuthProperties properties) {
-		this(repository, tokenGenerator, properties, Clock.systemUTC());
+			AuthProperties properties, SecurityEventLogger securityEventLogger) {
+		this(repository, tokenGenerator, properties, securityEventLogger, Clock.systemUTC());
 	}
 
 	OAuthChallengeService(OAuthChallengeRepository repository, SessionTokenGenerator tokenGenerator,
-			AuthProperties properties, Clock clock) {
+			AuthProperties properties, SecurityEventLogger securityEventLogger, Clock clock) {
 		this.repository = repository;
 		this.tokenGenerator = tokenGenerator;
 		this.properties = properties;
+		this.securityEventLogger = securityEventLogger;
 		this.clock = clock;
 	}
 
@@ -43,6 +49,9 @@ public class OAuthChallengeService {
 	public IssuedChallenge issue(AuthProvider provider, String redirectUri, String codeChallenge,
 			String codeChallengeMethod, String deviceId) {
 		if (!properties.isAllowedOauthRedirectUri(redirectUri)) {
+			// 🔴 이 거부는 오타가 아니라 대개 공격이다 — 통과하면 우리가 발급한 표가 남의
+			//    주소로 간다. 400 이라서 상태 코드만 보는 로깅에는 안 잡히고 있었다.
+			securityEventLogger.oauthRedirectRejected(provider == null ? "unknown" : provider.name(), redirectUri);
 			throw new AuthException("INVALID_OAUTH_REDIRECT_URI", "허용되지 않은 OAuth redirect URI입니다.",
 					HttpStatus.BAD_REQUEST);
 		}

@@ -62,7 +62,7 @@ class OAuthTwoStepSignupIntegrationTest extends AuthPostgresIntegrationTest {
 	}
 
 	private OAuthProviderClient.OAuthUserProfile profile() {
-		return new OAuthProviderClient.OAuthUserProfile(subject, email, "여행자", "KO");
+		return new OAuthProviderClient.OAuthUserProfile(subject, email, "여행자", "KO", null, null);
 	}
 
 	@Test
@@ -201,8 +201,8 @@ class OAuthTwoStepSignupIntegrationTest extends AuthPostgresIntegrationTest {
 	void providerWithoutEmailCanStillSignUp() {
 		String kakaoSubject = "kakao-" + UUID.randomUUID();
 		OAuthAccountService.Outcome outcome = accountService.authenticate(AuthProvider.KAKAO,
-				new OAuthProviderClient.OAuthUserProfile(kakaoSubject, null, "카카오 사용자", "KO"), "device-1", null, false,
-				false);
+				new OAuthProviderClient.OAuthUserProfile(kakaoSubject, null, "카카오 사용자", "KO", null, null), "device-1",
+				null, false, false);
 
 		OAuthAccountService.SignupRequired signup = (OAuthAccountService.SignupRequired) outcome;
 		assertThat(signup.emailProvided()).isFalse();

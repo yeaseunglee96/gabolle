@@ -79,6 +79,24 @@ src/main/java/com/gabolle/backend/
 └── event/           # PostgreSQL Outbox와 이벤트 발행
 ```
 
+### 기능 하나 안의 4계층 (S15P21E201-571)
+
+각 기능 패키지 안은 이 네 폴더로 나뉩니다. 의존 방향은 한쪽으로만 흐릅니다 —
+`presentation → application → domain ← infra`.
+
+```text
+presentation/   Controller · DTO
+application/    Service · 트랜잭션 경계 · Port 인터페이스
+domain/         Entity · Repository 인터페이스 · 업무 규칙
+infra/          JPA 구현 · 외부 API 어댑터 (recommendation 은 이 자리가 adapter/)
+```
+
+`LayeringArchitectureTest`(ArchUnit)가 이 중 둘을 빌드 때마다 확인합니다 — Controller가
+저장소·JPA 구현을 직접 부르지 않는 것, 그리고 domain이 presentation을 모르는 것. 그 클래스
+javadoc에 **일부러 안 건 규칙 둘**도 적어 뒀습니다 — 도메인·JPA 엔티티 미분리(의도적 결정,
+매핑 코드 2배를 피함)와 기능 간 domain 참조(`auth→user`, `story→moderation` 등 이미
+존재하는 예외를 허용목록으로 만들지, 아예 금지할지는 아직 팀이 안 정했습니다).
+
 이번 작업에서는 디렉터리와 프로젝트 뼈대만 만들었습니다. 초기 담당 경계는 다음과 같습니다.
 
 - 본인: `auth`, `user` — 소셜 로그인, JWT/세션, 회원·동의·취향·제약

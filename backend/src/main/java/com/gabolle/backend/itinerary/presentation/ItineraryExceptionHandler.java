@@ -3,6 +3,7 @@ package com.gabolle.backend.itinerary.presentation;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -145,6 +146,39 @@ public class ItineraryExceptionHandler {
 	 * 밖이어도 그 제약은 통과한다 — 표를 건너는 검사라서(마이그레이션 {@code V20260905120000}
 	 * 주석 "막지 못하는 것"). 여기서 막지 않으면 어느 날 화면에도 안 나타나는 항목이 저장된다.
 	 */
+	/**
+	 * S15P21E201-91 — 보낸 순서가 그날의 항목 전부와 일치하지 않는다 — 400.
+	 *
+	 * <p>🔴 무엇이 어긋났는지를 함께 싣는다. 화면이 <b>자기 목록이 낡은 것인지</b>(다시 조회하면
+	 * 된다) <b>항목을 빠뜨린 것인지</b>(보내는 쪽 버그다)를 구분할 수 있어야 한다.
+	 */
+	@ExceptionHandler(ItineraryRevision.DayOrderMismatchException.class)
+	public ResponseEntity<ApiResponse<Void>> handleDayOrderMismatch(
+			ItineraryRevision.DayOrderMismatchException e) {
+		return ResponseEntity.badRequest()
+				.body(ApiResponse.failure(
+						new ApiError("ITINERARY_DAY_ORDER_MISMATCH", e.getMessage(),
+								List.of("dayIndex=" + e.dayIndex())),
+						requestId()));
+	}
+
+	/**
+	 * S15P21E201-91 — 고정된 방문지의 자리가 바뀌려 한다 — 409.
+	 *
+	 * <p>409 로 두는 이유는 {@code ITINERARY_VERSION_CONFLICT} 와 같다. <b>요청은 맞는데 지금
+	 * 상태와 부딪힌다.</b> 화면은 그 항목의 고정을 먼저 풀고 다시 보내면 된다 — 그래서 어느
+	 * 항목이 막았는지를 응답에 싣는다.
+	 */
+	@ExceptionHandler(ItineraryRevision.LockedItemMovedException.class)
+	public ResponseEntity<ApiResponse<Void>> handleLockedItemMoved(
+			ItineraryRevision.LockedItemMovedException e) {
+		return ResponseEntity.status(HttpStatus.CONFLICT)
+				.body(ApiResponse.failure(
+						new ApiError("ITINERARY_LOCKED_ITEM_MOVED", e.getMessage(),
+								List.of("itemKey=" + e.itemKey(), "dayIndex=" + e.dayIndex())),
+						requestId()));
+	}
+
 	@ExceptionHandler(ItineraryEditController.DayOutsideTripException.class)
 	public ResponseEntity<ApiResponse<Void>> handleDayOutsideTrip(
 			ItineraryEditController.DayOutsideTripException e) {
@@ -153,6 +187,75 @@ public class ItineraryExceptionHandler {
 						new ApiError("ITINERARY_DAY_OUTSIDE_TRIP", e.getMessage(),
 								List.of("dayIndex=" + e.dayIndex())),
 						requestId()));
+	}
+
+	/**
+	 * S15P21E201-467 — 기간이 정해진 장소가 여행 기간 내내 열리지 않는다 — 422.
+	 *
+	 * <p>422 로 두는 이유는 {@code ITINERARY_NOTHING_TO_REVERT} 와 같다. 요청 모양은 맞는데 이
+	 * 여행의 날짜로는 할 수 없는 일이다. 아래 {@code ITINERARY_PLACE_CLOSED_ON_DAY} 와 <b>다른
+	 * 코드·다른 상태 코드</b>인 것이 핵심이다 — 이쪽은 날짜를 바꿔 다시 보내도 안 되므로 화면이
+	 * 날짜 선택기를 띄우면 안 되고 "이 여행 기간에는 열리지 않습니다" 로 끝내야 한다.
+	 */
+	@ExceptionHandler(ItineraryEditService.PlaceNotOpenDuringTripException.class)
+	public ResponseEntity<ApiResponse<Void>> handlePlaceNotOpenDuringTrip(
+			ItineraryEditService.PlaceNotOpenDuringTripException e) {
+		return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+				.body(ApiResponse.failure(
+						new ApiError("ITINERARY_PLACE_NOT_OPEN_DURING_TRIP", e.getMessage(),
+								List.of("tripStartDate=" + e.tripStartDate(),
+										"tripFinishDate=" + e.tripFinishDate())),
+						requestId()));
+	}
+
+	/**
+	 * 🔴 S15P21E201-467 — 그 날에는 안 열리지만 <b>다른 날에는 열린다</b> — 400. 고칠 수 있는
+	 * 요청이므로 <b>넣을 수 있는 날들을 함께 싣는다.</b>
+	 *
+	 * <p>{@code availableDayIndexes} 는 며칠째인지(화면의 탭), {@code availableDates} 는 실제
+	 * 날짜(사람이 읽을 문장)다. 둘의 순서가 서로 짝이 맞는다 — 같은 목록을 두 모양으로 적은
+	 * 것이다. {@code fields} 문자열 형식은 이 클래스 javadoc 이 설명하는 계약을 따르고, 값이 여러
+	 * 개인 칸은 쉼표로 잇는다.
+	 */
+	@ExceptionHandler(ItineraryEditService.PlaceClosedOnDayException.class)
+	public ResponseEntity<ApiResponse<Void>> handlePlaceClosedOnDay(
+			ItineraryEditService.PlaceClosedOnDayException e) {
+		List<String> fields = List.of(
+				"requestedDayIndex=" + e.dayIndex(),
+				"requestedDate=" + e.requestedDate(),
+				"availableDayIndexes=" + join(e.openDayIndexes()),
+				"availableDates=" + join(e.openDates()));
+
+		return ResponseEntity.badRequest()
+				.body(ApiResponse.failure(
+						new ApiError("ITINERARY_PLACE_CLOSED_ON_DAY", e.getMessage(), fields),
+						requestId()));
+	}
+
+	/**
+	 * S15P21E201-467 — 이미 담긴 장소를 또 담으려 했다 — 409. 조용히 성공시키지 않는 이유는
+	 * {@code ItineraryEditService.requireAddable} javadoc 에 있다.
+	 *
+	 * <p>{@code ITINERARY_VERSION_CONFLICT} 와 상태 코드는 같고 코드는 다르다. 앞의 것은 "최신
+	 * 일정을 다시 불러와라" 이고 이것은 "이미 담겨 있다" 라서 화면이 할 일이 정반대다.
+	 */
+	@ExceptionHandler(ItineraryEditService.PlaceAlreadyInItineraryException.class)
+	public ResponseEntity<ApiResponse<Void>> handlePlaceAlreadyAdded(
+			ItineraryEditService.PlaceAlreadyInItineraryException e) {
+		List<String> fields = List.of(
+				"existingDayIndex=" + e.existingDayIndex(),
+				"existingDayIndexes=" + join(e.existingDayIndexes()),
+				"requestedDayIndex=" + e.requestedDayIndex());
+
+		return ResponseEntity.status(HttpStatus.CONFLICT)
+				.body(ApiResponse.failure(
+						new ApiError("ITINERARY_PLACE_ALREADY_ADDED", e.getMessage(), fields),
+						requestId()));
+	}
+
+	/** 여러 값을 한 {@code fields} 칸에 담는 형식 — 쉼표로 잇는다. 빈 목록은 빈 문자열이다. */
+	private static String join(List<?> values) {
+		return values.stream().map(String::valueOf).collect(Collectors.joining(","));
 	}
 
 	/** {@code dayIndex} 가 음수다 — 400. */

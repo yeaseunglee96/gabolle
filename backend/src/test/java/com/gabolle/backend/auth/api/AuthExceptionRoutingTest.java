@@ -16,6 +16,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.gabolle.backend.auth.service.AccountDeletionService;
+import com.gabolle.backend.auth.service.ConsentUpdateService;
 import com.gabolle.backend.auth.service.AuthCommands;
 import com.gabolle.backend.auth.service.AuthException;
 import com.gabolle.backend.auth.service.AuthTokenService;
@@ -59,7 +60,8 @@ class AuthExceptionRoutingTest {
 		AuthController controller = new AuthController(this.localAuthService, mock(PasswordResetService.class),
 				mock(AuthTokenService.class), mock(OAuthLoginService.class), mock(OAuthChallengeService.class),
 				mock(WebAuthCookieService.class), mock(CurrentUserService.class), mock(ProfileUpdateService.class),
-				mock(AccountDeletionService.class), mock(OAuthAccountService.class));
+				mock(AccountDeletionService.class), mock(OAuthAccountService.class),
+				mock(ConsentUpdateService.class));
 		// 🔴 캐치올을 가진 advice 를 일부러 먼저 준다. @Order 가 없으면 그것이 이긴다.
 		// S15P21E201-682 — GlobalAuthExceptionHandler 가 보안 이벤트 로깅을 위해
 		// SecurityEventLogger 를 생성자로 받게 됐다. 이 테스트의 관심사는 라우팅 순서라

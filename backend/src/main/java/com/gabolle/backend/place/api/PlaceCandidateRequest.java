@@ -23,6 +23,9 @@ import jakarta.validation.constraints.NotNull;
  *        그 사실이 실린다 — 영업시간 칸이 아직 없다
  * @param minimumCount 이만큼은 나와야 한다. 못 채우면 응답에 {@code belowMinimum} 이 붙는다.
  *        🔴 조건을 자동으로 풀어서 채우지 않는다
+ * @param limit 돌려줄 후보 수의 상한. 🔴 <b>거리순으로 자른다</b> — 점수를 모르는 단계라
+ *        그럴 수밖에 없다. 채점을 할 호출자는 여기를 작게 주면 안 된다 (S15P21E201-724,
+ *        {@link com.gabolle.backend.place.service.PlaceCandidateQueryService} 클래스 주석)
  */
 public record PlaceCandidateRequest(
 		@NotNull @Valid Center center,
@@ -35,7 +38,11 @@ public record PlaceCandidateRequest(
 		List<@Valid FeatureMatch> excludedFeatures,
 		OffsetDateTime openNowAt,
 		@Min(0) Integer minimumCount,
-		@Min(1) @Max(500) Integer limit) {
+		// 🔴 500 이었다 (S15P21E201-724). 추천 엔진은 반경 안 후보를 전부 받아 채점한 뒤에
+		//    잘라야 하는데, 부산은 반경 5km 안에 음식점만 평균 9,422곳이라 500 으로는 그
+		//    "전부" 를 표현할 수 없었다. 큰 값을 줘도 실제 작업량은 무한정 늘지 않는다 —
+		//    DB 에서 읽어 오는 행 수는 gabolle.place.candidate-max-scanned 가 따로 막는다.
+		@Min(1) @Max(50_000) Integer limit) {
 
 	public record Center(
 			@NotNull @jakarta.validation.constraints.DecimalMin("-90") @jakarta.validation.constraints.DecimalMax("90") Double lat,

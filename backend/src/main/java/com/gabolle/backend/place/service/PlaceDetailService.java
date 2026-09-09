@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,8 +43,9 @@ import tools.jackson.databind.ObjectMapper;
  *     참고. 언어 선택(-430 부분)도 이미 읽은 {@code Place} 의 {@code nameEn} 만 보므로 질의가
  *     늘지 않는다</li>
  * <li>"정보 없음과 해당 없음이 구분된다" — {@link PlaceFeatureView} 의 네 상태로 나눈다</li>
- * <li>"일정 포함 여부가 응답에 있다" — {@link ItineraryMembershipPort} 가 답한다. 지금은 담을 표가
- *     없어 "알 수 없음" 이다</li>
+ * <li>"일정 포함 여부가 응답에 있다" — {@link ItineraryMembershipPort} 가 답한다. 어느 일정인지는
+ *     요청이 지정하고({@code itineraryId} 질의 파라미터), 지정하지 않으면 모른다고 답한다.
+ *     그 경로만 일정 쪽 질의를 더 돈다 — 지정하지 않은 요청의 질의 수는 위의 셋 그대로다</li>
  * </ul>
  */
 @Service
@@ -56,12 +58,21 @@ public class PlaceDetailService {
 
 	private final UserPlaceCodeMapRepository codeMapRepository;
 
-	private final ItineraryMembershipPort itineraryMembership;
+	/**
+	 * {@code ObjectProvider} 로 받는다 — 이 포트의 구현({@code itinerary.application
+	 * .ItineraryPlaceMembershipService})은 {@code itinerary} 패키지에 있고,
+	 * {@code PlaceSliceApplication} 은 {@code common}·{@code place} 만 스캔하므로 그 슬라이스에는
+	 * 빈으로 없다. {@code ObjectProvider} 는 "있으면 주고 없으면 빈손" 인 주입 방식이다.
+	 * {@code RecommendationRecorder} 가 {@code ItineraryDraftPort} 에 대해 이미 쓰고 있는 것과
+	 * 같은 판단이다 — 여기서도 그것을 물려받는다.
+	 */
+	private final ObjectProvider<ItineraryMembershipPort> itineraryMembership;
 
 	private final ObjectMapper objectMapper;
 
 	public PlaceDetailService(PlaceRepository placeRepository, PlaceFeatureRepository placeFeatureRepository,
-			UserPlaceCodeMapRepository codeMapRepository, ItineraryMembershipPort itineraryMembership,
+			UserPlaceCodeMapRepository codeMapRepository,
+			ObjectProvider<ItineraryMembershipPort> itineraryMembership,
 			ObjectMapper objectMapper) {
 		this.placeRepository = placeRepository;
 		this.placeFeatureRepository = placeFeatureRepository;
@@ -78,20 +89,30 @@ public class PlaceDetailService {
 	}
 
 	/**
+	 * 일정을 지정하지 않는 호출부를 위해 둔 자리. 포함 여부는 "모른다" 로 나간다.
+	 *
 	 * @param acceptLanguageHeader 요청의 {@code Accept-Language} 값 그대로. 없으면 {@code null} —
-	 *        그 경우 한국어를 우선한다. 🔴 지금 {@code PlaceDetailController} 는 이 값을 넘기지
-	 *        않는다 — 컨트롤러가 이 작업의 수정 대상 목록 밖이라 배선하지 않았다. 보고서에 그
-	 *        컨트롤러가 어떻게 바뀌어야 하는지 적어 뒀다
+	 *        그 경우 한국어를 우선한다
 	 */
 	@Transactional(readOnly = true)
 	public PlaceDetailResponse get(UUID placeId, UUID viewerId, String acceptLanguageHeader) {
+		return get(placeId, viewerId, acceptLanguageHeader, null);
+	}
+
+	/**
+	 * @param itineraryId 어느 일정에 대해 포함 여부를 묻는가. {@code null} 이면 묻지 않은 것이고
+	 *        정상적인 요청이다 — 여행 맥락 없이 장소만 열어 보는 화면이 있다. 왜 여행이 아니라
+	 *        일정을 받는지는 {@link ItineraryMembershipPort} 클래스 주석에 있다
+	 */
+	@Transactional(readOnly = true)
+	public PlaceDetailResponse get(UUID placeId, UUID viewerId, String acceptLanguageHeader, UUID itineraryId) {
 		Place place = this.placeRepository.findById(placeId)
 				.orElseThrow(() -> new PlaceNotFoundException(placeId));
 
 		List<PlaceFeature> stored = this.placeFeatureRepository.findByPlaceId(placeId);
 		List<PlaceFeatureView> features = buildFeatureViews(stored);
 
-		ItineraryMembershipPort.Inclusion inclusion = this.itineraryMembership.inclusionOf(viewerId, placeId);
+		ItineraryMembershipPort.Inclusion inclusion = inclusionOf(viewerId, itineraryId, placeId);
 
 		return new PlaceDetailResponse(
 				place.getPlaceId(), place.getNameKo(), place.getNameEn(),
@@ -106,6 +127,32 @@ public class PlaceDetailService {
 				// 이 화면의 주된 값은 이름이라 영문 이름 유무로 판정한다. 어느 필드를 기준으로
 				// 삼는지가 응답마다 다른 이유는 RequestLanguage 주석에 있다
 				RequestLanguage.resolve(acceptLanguageHeader, place.getNameEn() != null));
+	}
+
+	/**
+	 * 일정 포함 여부를 정한다. 이 메서드가 정하는 것은 <b>묻기 전에 끝나는 두 경우</b>다.
+	 *
+	 * <p>첫째, 요청이 일정을 지정하지 않으면 포트를 부르지 않는다. 답할 수 없는 질문이 아니라
+	 * 하지 않은 질문이라, 그 구분을 {@code reason} 에 그대로 싣는다.
+	 *
+	 * <p>둘째, 이 컨텍스트에 포트 구현이 없으면 <b>{@code UNAVAILABLE} 로 답한다.</b> 여기서
+	 * {@code NOT_INCLUDED} 를 돌려주면 화면이 "이 장소는 일정에 없다" 고 단정하게 되고, 실제로는
+	 * 들어 있었다는 것이 나중에 드러나도 사용자가 이미 본 것은 되돌릴 수 없다 — 배선이 빠진 것을
+	 * 사실로 바꿔 내보내는 셈이다. 예외를 던져 요청을 실패시키는 것도 맞지 않다. 장소 상세의
+	 * 본체는 장소 정보이고, 포함 여부 한 칸의 구현이 없다고 화면 전체를 못 그리게 할 이유가 없다.
+	 * 그래서 "모른다" 로 답하고, 왜 모르는지는 {@code reason} 이 말한다.
+	 */
+	private ItineraryMembershipPort.Inclusion inclusionOf(UUID viewerId, UUID itineraryId, UUID placeId) {
+		if (itineraryId == null) {
+			return ItineraryMembershipPort.Inclusion.unavailable(ItineraryMembershipPort.REASON_NOT_SPECIFIED);
+		}
+
+		ItineraryMembershipPort port = this.itineraryMembership.getIfAvailable();
+		if (port == null) {
+			return ItineraryMembershipPort.Inclusion
+					.unavailable(ItineraryMembershipPort.REASON_LOOKUP_UNAVAILABLE);
+		}
+		return port.inclusionOf(viewerId, itineraryId, placeId);
 	}
 
 	/**

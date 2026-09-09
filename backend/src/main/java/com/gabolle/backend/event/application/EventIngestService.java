@@ -113,10 +113,6 @@ public class EventIngestService {
 		if (eventId == null) {
 			throw new IllegalArgumentException("eventId 는 멱등 키다. 비울 수 없다");
 		}
-		if (requestId == null) {
-			// API-07 — requestId 로 연결되지 않으면 분석용 정상 데이터로 승인하지 않는다.
-			throw new IllegalArgumentException("requestId 가 없으면 노출과 행동을 이을 수 없다 (API-07): " + type);
-		}
 		if (!type.allowsProducer(producer)) {
 			// DR-13 — 생산 책임이 뒤바뀌면 신뢰할 수 없는 값이 들어온다.
 			throw new IllegalArgumentException(
@@ -132,7 +128,7 @@ public class EventIngestService {
 			throw new IllegalArgumentException("occurredAt(" + occurredAt + ") 이 수신 시각(" + receivedAt + ") 보다 뒤다");
 		}
 
-		UUID aggregateId = aggregateIdOf(type, tripId, requestId);
+		UUID aggregateId = aggregateIdOf(type, userId, tripId, requestId);
 
 		OutboxAppendCommand command = new OutboxAppendCommand(
 				eventId,
@@ -155,22 +151,44 @@ public class EventIngestService {
 	 * 이 이벤트가 붙는 대상의 ID.
 	 *
 	 * <p>축은 {@link EventType} 이 정한다 — 추천 요청이면 {@code request_id}, 여행이면
-	 * {@code trip_id}. {@code aggregate_id} 컬럼이 {@code UUID NOT NULL} 이라 <b>축이 가리키는
-	 * 값이 비어 있으면 적을 수 없다.</b> 임의로 다른 값을 넣지 않고 그 자리에서 거부한다.
+	 * {@code trip_id}, 사용자면 {@code user_id}. {@code aggregate_id} 컬럼이 {@code UUID NOT NULL}
+	 * 이라 <b>축이 가리키는 값이 비어 있으면 적을 수 없다.</b> 임의로 다른 값을 넣지 않고
+	 * 그 자리에서 거부한다.
+	 *
+	 * <p>🔴 <b>{@code requestId} 필수 검사가 여기 있는 이유</b> (2026-09-07, S15P21E201-735).
+	 * 예전에는 이 메서드 바깥에서 <b>모든 이벤트</b>에 {@code requestId} 를 요구했다. 그런데
+	 * 그 값을 앱에 알려주는 응답이 하나도 없어서, 앱이 보내는 저장·제외·방문이 전부 튕겼다.
+	 * 필수인 진짜 이유는 API-07 이라는 이름이 아니라 <b>이 축의 {@code aggregate_id} 가 곧
+	 * 그 값</b>이라는 구조다. 그래서 검사를 그 구조가 있는 자리로 옮겼다 — 추천 축에서는
+	 * 여전히 필수이고, 다른 축에서는 있으면 {@code request_id} 칸으로 이어 붙이고 없으면 비운다.
 	 */
-	private UUID aggregateIdOf(EventType type, UUID tripId, UUID requestId) {
+	private UUID aggregateIdOf(EventType type, UUID userId, UUID tripId, UUID requestId) {
 		// 🔴 축이 null 인 경우를 switch 안에서 다루지 않는다 — Java 17 에서 case null 은 아직
 		//    프리뷰 기능이라 컴파일되지 않는다. 스위치에 들어가기 전에 거른다.
 		if (!type.hasAggregateAxis()) {
 			throw new IllegalStateException(type + " 의 aggregate 축이 아직 정해지지 않았다");
 		}
 		return switch (type.aggregateAxis()) {
-			case RECOMMENDATION_REQUEST -> requestId;
+			case RECOMMENDATION_REQUEST -> {
+				if (requestId == null) {
+					// API-07 — 이 축의 이벤트는 requestId 가 곧 aggregate_id 다. 없으면 노출과
+					// 행동을 이을 수 없고, 컬럼이 NOT NULL 이라 애초에 적히지도 않는다.
+					throw new IllegalArgumentException(
+							type + " 은 추천 요청에 붙는 이벤트다. requestId 없이는 노출과 행동을 이을 수 없다 (API-07)");
+				}
+				yield requestId;
+			}
 			case TRIP -> {
 				if (tripId == null) {
 					throw new IllegalArgumentException(type + " 은 여행에 붙는 이벤트다. tripId 없이는 적을 수 없다");
 				}
 				yield tripId;
+			}
+			case USER -> {
+				if (userId == null) {
+					throw new IllegalArgumentException(type + " 은 사용자에 붙는 이벤트다. userId 없이는 적을 수 없다");
+				}
+				yield userId;
 			}
 		};
 	}

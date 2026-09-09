@@ -3,6 +3,8 @@ package com.gabolle.backend.recommendation.application;
 import java.util.List;
 import java.util.UUID;
 
+import com.gabolle.backend.recommendation.domain.RequestLocation;
+
 import com.gabolle.backend.recommendation.domain.JobType;
 
 /**
@@ -25,6 +27,9 @@ import com.gabolle.backend.recommendation.domain.JobType;
  * @param topK 응답에 담을 최대 개수. {@code null} 이면 설정 기본값
  * @param edit 🔴 S15P21E201-249 — 장소 제외·재계산 편집 Job 만 채운다. 일정 생성 등 다른
  *     jobType 은 {@code null} 이다
+ * @param location 🔴 S15P21E201-550 — 이 요청 하나에만 쓰이는 위치. <b>저장되지 않는다</b>
+ *     (자세한 것은 {@link RequestLocation}). {@code null} 이면 여행 출발지를 쓴다.
+ *     "지금 어디 있는가" 가 무의미한 요청(일정 편집 등)은 늘 {@code null} 이다
  */
 public record RecommendationCommand(
 		UUID userId,
@@ -38,7 +43,24 @@ public record RecommendationCommand(
 		Integer baseVersion,
 		String appVersion,
 		Integer topK,
-		ItineraryEdit edit) {
+		ItineraryEdit edit,
+		RequestLocation location) {
+
+	/**
+	 * 위치 없는 요청 — S15P21E201-550 이전의 모양 그대로다.
+	 *
+	 * <p>🔴 편의 생성자를 둔 이유. 위치는 <b>선택</b>이고(일정 편집·재계산은 "지금 어디
+	 * 있는가" 가 무의미하다), 그런 호출부까지 {@code null} 을 한 칸 더 적게 만들면 그
+	 * {@code null} 이 무슨 뜻인지 읽는 사람이 매번 되짚어야 한다. 게다가 이 기록을 만드는
+	 * 곳 하나가 {@code itinerary} 패키지라 다른 담당의 자리다 — 위치와 무관한 변경으로
+	 * 그쪽 파일을 건드리지 않는다.
+	 */
+	public RecommendationCommand(UUID userId, JobType jobType, UUID tripId, Integer tripVersion,
+			UUID preferenceSnapshotId, UUID constraintSnapshotId, UUID itineraryId, Integer itineraryVersion,
+			Integer baseVersion, String appVersion, Integer topK, ItineraryEdit edit) {
+		this(userId, jobType, tripId, tripVersion, preferenceSnapshotId, constraintSnapshotId, itineraryId,
+				itineraryVersion, baseVersion, appVersion, topK, edit, null);
+	}
 
 	/**
 	 * 🔴 S15P21E201-249 — 장소 제외(ITN-08)·재계산(ITN-09) 편집 요청이 실어 보내는 입력.

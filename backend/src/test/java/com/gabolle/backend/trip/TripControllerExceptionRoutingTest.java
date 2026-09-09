@@ -20,6 +20,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import com.gabolle.backend.auth.api.AuthExceptionHandler;
 import com.gabolle.backend.trip.application.PreferenceDefaultsService;
 import com.gabolle.backend.trip.application.TripCreationService;
+import com.gabolle.backend.trip.application.TripDeletionService;
 import com.gabolle.backend.trip.application.TripQueryService;
 import com.gabolle.backend.trip.infra.InMemoryTripRepository;
 import com.gabolle.backend.trip.presentation.TripController;
@@ -48,7 +49,8 @@ class TripControllerExceptionRoutingTest {
 				new PreferenceDefaultsService(repository, clock));
 		TripQueryService queryService = new TripQueryService(repository);
 
-		TripController controller = new TripController(creationService, queryService);
+		TripController controller = new TripController(creationService, queryService,
+				new TripDeletionService(repository, clock));
 		// 🔴 실제 앱은 두 advice 가 함께 등록된다 — AuthExceptionHandler 는 전역이라 TripController
 		// 에서 난 예외도 본다. 이 둘을 같이 올려야 배포에서 난 것과 같은 라우팅이 재현된다.
 		this.mockMvc = MockMvcBuilders.standaloneSetup(controller)

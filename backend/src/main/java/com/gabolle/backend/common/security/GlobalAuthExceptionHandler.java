@@ -56,10 +56,21 @@ public class GlobalAuthExceptionHandler {
 	 * {@code AUTH_LOGIN_FAILURE} 와 {@code AUTH_TOKEN_REJECTED} 두 사건으로 중복 집계되고, 후자는
 	 * "토큰이 없거나 무효하다" 는 뜻인데 실제로는 "비밀번호가 틀렸다" 라서 의미도 틀린다.
 	 *
-	 * <p>🔴 {@code OAuthAccountService} 의 {@code INVALID_CREDENTIALS}·{@code ACCOUNT_UNAVAILABLE} 은
-	 * 이 목록으로 걸러지면서 <b>어디서도 로깅되지 않는 사각지대</b>가 된다 — 그 파일은 이 티켓의 수정
-	 * 대상이 아니라 여기서 손대지 않았다. 소셜 로그인 브루트포스 관측이 필요해지면 후속 티켓에서
-	 * {@code OAuthAccountService} 에 같은 방식으로 배선해야 한다.
+	 * <p>🔴 <b>2026-09-07 후속 — 그 사각지대를 메웠다.</b> 이 목록이 걸러 주는 두 코드는
+	 * {@code LocalAuthService} 만 던지는 것이 아니라 {@code OAuthAccountService}(소셜 연결의 비밀번호
+	 * 확인)도 던진다. 그쪽에는 던지는 지점의 로깅이 없어서, 이 목록이 걸러 준 뒤 <b>어디에서도 남지
+	 * 않는</b> 상태였다 — 소셜 연결 화면을 통한 비밀번호 시도가 통째로 안 보였다. 이제 그 파일도
+	 * 같은 방식으로 남기므로 이 목록의 전제("던지는 지점에서 이미 남긴다")가 실제로 참이다.
+	 *
+	 * <p>{@code ACCOUNT_UNAVAILABLE} 은 이 목록에 없다 — 403 이라 {@link SecurityEventLogger#authzDenied}
+	 * 로 남는다.
+	 *
+	 * <p>🔴 <b>상태 코드로 보는 이 방식이 놓치는 것이 아직 남아 있다.</b> 401·403 이 아닌 코드는
+	 * 여기서 안 남는다. 그중 관측이 필요한 두 개(이미 잠긴 계정에 오는 429, 허용 목록에 없는
+	 * redirect URI 로 오는 400)는 던지는 지점에 직접 배선했다 —
+	 * {@link SecurityEvent#AUTH_LOCKED_ACCOUNT_ATTEMPT}·{@link SecurityEvent#AUTH_OAUTH_REDIRECT_REJECTED}.
+	 * 나머지 400·409 는 대개 형식 오류라 남기면 잡음이 된다. 새 코드를 더할 때 <b>그 코드가 공격
+	 * 신호인지</b>를 판단해서, 그렇다면 던지는 지점에 한 줄 넣는다.
 	 */
 	private static final Set<String> LOGGED_ELSEWHERE = Set.of("INVALID_CREDENTIALS", "TOO_MANY_LOGIN_ATTEMPTS");
 

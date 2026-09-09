@@ -1,5 +1,6 @@
 package com.gabolle.backend.itinerary.application;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -20,6 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.gabolle.backend.itinerary.domain.Itinerary;
 import com.gabolle.backend.itinerary.domain.ItineraryContent;
 import com.gabolle.backend.itinerary.domain.ItineraryItem;
+import com.gabolle.backend.itinerary.domain.ItineraryItemActual;
+import com.gabolle.backend.itinerary.domain.ItineraryItemActualRepository;
 import com.gabolle.backend.itinerary.domain.ItineraryLeg;
 import com.gabolle.backend.itinerary.domain.ItineraryRepository;
 import com.gabolle.backend.itinerary.domain.ItineraryVersion;
@@ -60,14 +63,18 @@ public class ItineraryQueryService {
 
 	private final ActorNames actorNames;
 
+	/** S15P21E201-293 — 방문지의 실제 도착·출발 시각. 판이 아니라 일정에 매달려 있다. */
+	private final ItineraryItemActualRepository actualRepository;
+
 	public ItineraryQueryService(ItineraryRepository itineraryRepository, ItineraryAccess itineraryAccess,
 			PlaceRepository placeRepository, RecommendationJobRepository recommendationJobRepository,
-			ActorNames actorNames) {
+			ActorNames actorNames, ItineraryItemActualRepository actualRepository) {
 		this.itineraryRepository = itineraryRepository;
 		this.itineraryAccess = itineraryAccess;
 		this.placeRepository = placeRepository;
 		this.recommendationJobRepository = recommendationJobRepository;
 		this.actorNames = actorNames;
+		this.actualRepository = actualRepository;
 	}
 
 	/**
@@ -100,7 +107,14 @@ public class ItineraryQueryService {
 		Map<Integer, List<ItineraryItem>> itemsByDay = content.items().stream()
 				.collect(Collectors.groupingBy(ItineraryItem::dayIndex));
 
-		List<ItineraryDetailResponse.Day> days = buildDays(trip, itemsByDay, legsByKey, placesByPlaceId);
+		// S15P21E201-293 — 실제 시각은 판이 아니라 일정에 매달려 있으므로 판 번호와 무관하게
+		// 한 번에 읽는다. 편집으로 판이 바뀌어도 같은 item_key 의 기록이 그대로 붙는다.
+		Map<String, ItineraryItemActual> actualsByItemKey = this.actualRepository.findByItineraryId(itineraryId)
+				.stream()
+				.collect(Collectors.toMap(ItineraryItemActual::itemKey, actual -> actual));
+
+		List<ItineraryDetailResponse.Day> days = buildDays(trip, itemsByDay, legsByKey, placesByPlaceId,
+				actualsByItemKey);
 
 		Integer totalEstimatedCostKrw = sumOrNull(content.items().stream()
 				.map(ItineraryItem::estimatedCostKrw));
@@ -147,7 +161,8 @@ public class ItineraryQueryService {
 	 * 없는 {@code dayIndex} 는 빈 {@code items} 로 채운다.
 	 */
 	private List<ItineraryDetailResponse.Day> buildDays(Trip trip, Map<Integer, List<ItineraryItem>> itemsByDay,
-			Map<LegKey, ItineraryLeg> legsByKey, Map<UUID, Place> placesByPlaceId) {
+			Map<LegKey, ItineraryLeg> legsByKey, Map<UUID, Place> placesByPlaceId,
+			Map<String, ItineraryItemActual> actualsByItemKey) {
 
 		List<ItineraryDetailResponse.Day> days = new ArrayList<>(trip.days());
 		LocalDate date = trip.startDate();
@@ -158,7 +173,7 @@ public class ItineraryQueryService {
 
 			List<ItineraryDetailResponse.Item> items = new ArrayList<>(itemsOfDay.size());
 			for (ItineraryItem item : itemsOfDay) {
-				items.add(toItemDto(item, legsByKey, placesByPlaceId));
+				items.add(toItemDto(item, legsByKey, placesByPlaceId, actualsByItemKey.get(item.itemKey())));
 			}
 
 			days.add(new ItineraryDetailResponse.Day(date.toString(), items));
@@ -167,8 +182,13 @@ public class ItineraryQueryService {
 		return days;
 	}
 
+	/**
+	 * @param actual 그 방문지에 남은 실제 시각. 아직 안 갔거나 안 적었으면 {@code null} 이고,
+	 *     그때도 응답의 두 칸은 <b>키가 있고 값이 {@code null}</b> 이다 — 없는 칸과 빈 칸은
+	 *     화면에 다른 뜻이다({@link ItineraryDetailResponse.Item} 주석 참고)
+	 */
 	private ItineraryDetailResponse.Item toItemDto(ItineraryItem item, Map<LegKey, ItineraryLeg> legsByKey,
-			Map<UUID, Place> placesByPlaceId) {
+			Map<UUID, Place> placesByPlaceId, ItineraryItemActual actual) {
 
 		Place place = placesByPlaceId.get(UUID.fromString(item.placeId()));
 		if (place == null) {
@@ -177,8 +197,13 @@ public class ItineraryQueryService {
 		}
 
 		ItineraryLeg incomingLeg = legsByKey.get(new LegKey(item.dayIndex(), item.sequence()));
-		Integer walkingMeters = (incomingLeg != null && incomingLeg.toPlaceId().equals(item.placeId()))
-				? incomingLeg.walkingMeters()
+		// 🔴 구간이 이 항목으로 들어오는 것이 맞는지 확인한다. 순서가 바뀐 판에서는 (날짜,순번)
+		//    이 같아도 도착지가 다를 수 있고, 그때 남의 거리를 이 항목에 붙이면 안 된다.
+		boolean incoming = incomingLeg != null && incomingLeg.toPlaceId().equals(item.placeId());
+		Integer walkingMeters = incoming ? incomingLeg.walkingMeters() : null;
+		Integer travelDurationMin = incoming ? incomingLeg.durationMin() : null;
+		String travelDataStatus = (incoming && incomingLeg.dataStatus() != null)
+				? incomingLeg.dataStatus().name()
 				: null;
 
 		return new ItineraryDetailResponse.Item(
@@ -189,7 +214,14 @@ public class ItineraryQueryService {
 				item.estimatedCostKrw(),
 				walkingMeters,
 				item.locked(),
-				item.dataStatus().name());
+				item.dataStatus().name(),
+				actual == null ? null : seoulIso(actual.arrivedAt()),
+				actual == null ? null : seoulIso(actual.departedAt()),
+				// S15P21E201-744 — item.placeId() 를 그대로 쓴다. place 에서 다시 꺼내도 같은
+				// 값이지만, 항목이 가리키는 값을 그대로 돌려주는 쪽이 의도가 분명하다.
+				item.placeId(),
+				travelDurationMin,
+				travelDataStatus);
 	}
 
 	/** {@code visit_date} + {@code start_time} 을 ISO-8601 로 합친다. 시간대는 항상 Asia/Seoul 이다(API-03). */
@@ -199,6 +231,17 @@ public class ItineraryQueryService {
 		}
 		ZonedDateTime zoned = ZonedDateTime.of(item.visitDate(), item.startTime(), ZoneId.of("Asia/Seoul"));
 		return zoned.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+	}
+
+	/**
+	 * 실제 시각을 계획 시각({@link #startsAt})과 <b>같은 형식</b>으로 적는다 — 화면이 두 값을
+	 * 같은 파서로 읽고 나란히 보여준다(API-03 이 정한 Asia/Seoul).
+	 */
+	private static String seoulIso(Instant instant) {
+		if (instant == null) {
+			return null;
+		}
+		return instant.atZone(ZoneId.of("Asia/Seoul")).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
 	}
 
 	/**

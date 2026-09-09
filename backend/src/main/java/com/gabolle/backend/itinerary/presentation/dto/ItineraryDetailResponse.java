@@ -59,6 +59,45 @@ public record ItineraryDetailResponse(
 			Integer walkingMeters,
 			boolean locked,
 			/** {@code VERIFIED} · {@code ESTIMATED} · {@code UNKNOWN}. */
-			String dataStatus) {
+			String dataStatus,
+
+			/**
+			 * 2026-09-07 추가 — S15P21E201-293. <b>실제로</b> 도착한 시각이다.
+			 * {@code startsAt}(계획)과 다른 사실이라 그 칸을 덮어쓰지 않고 자리를 따로 둔다.
+			 *
+			 * <p>기록이 없으면 {@code null} 이고 <b>그때도 이 칸은 응답에 있다.</b> 칸을 아예
+			 * 빼면 화면은 "아직 안 갔다" 와 "이 서버는 이 기능을 모른다" 를 구분할 수 없다.
+			 * 형식은 {@code startsAt} 과 같은 ISO-8601 + 시간대(Asia/Seoul)다.
+			 */
+			String actualArrivedAt,
+			/** 실제로 출발한 시각. 없으면 {@code null} — 도착만 적고 출발은 안 적을 수 있다. */
+			String actualDepartedAt,
+			/**
+			 * 🔴 S15P21E201-744 — 맨 뒤에 더한 칸이다. {@code place.place_id} 그대로다.
+			 * 앱이 "이 장소 평가하기" 버튼을 눌러 리뷰 API({@code /api/v1/places/{placeId}/reviews})로
+			 * 넘어갈 때, 그리고 장소 상세로 넘어갈 때 쓰는 값이다. 항목은 반드시 장소 하나를
+			 * 가리키므로 이 칸은 비지 않는다. 제목으로 장소를 다시 찾지 않는다 — 같은 이름의
+			 * 가게가 여럿이면 엉뚱한 가게에 리뷰가 달린다.
+			 */
+			String placeId,
+
+			/**
+			 * 🔴 2026-09-08 추가 — S15P21E201-179. <b>이 방문지로 오는 데 걸리는 시간</b>(분).
+			 * 그 구간이 없으면(그날 첫 방문지 앞) {@code null} 이다.
+			 *
+			 * <p>지금까지 이 값은 아예 없었다. 일정에 이동 시간이 안 들어가서 화면은 "9시에
+			 * 여기, 11시에 저기" 만 보여줄 뿐 그 사이에 얼마나 걸리는지 말할 수 없었다.
+			 */
+			Integer travelDurationMin,
+			/**
+			 * 🔴 위 두 값({@code travelDurationMin} · {@code walkingMeters})을 얼마나 믿을 수
+			 * 있는가 — {@code VERIFIED} 길찾기 실제 응답 · {@code ESTIMATED} 직선거리 어림값 ·
+			 * {@code UNKNOWN} 좌표가 없어 못 쟀다. 이 기능 이전에 만들어진 판은 {@code null}.
+			 *
+			 * <p><b>화면은 이 값을 반드시 봐야 한다.</b> {@code ESTIMATED} 를 실제 소요시간처럼
+			 * 그리면 사용자는 그 시간에 맞춰 움직이다 늦는다. 참·거짓이 아닌 이유는 "어림잡았다"
+			 * 와 "아무것도 못 쟀다" 가 화면에 서로 다르게 그려져야 하기 때문이다.
+			 */
+			String travelDataStatus) {
 	}
 }
