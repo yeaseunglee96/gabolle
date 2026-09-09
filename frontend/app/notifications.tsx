@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { AppState, Linking, Platform, Pressable, StyleSheet, View } from 'react-native';
+import { AppState, Image, Linking, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import * as ExpoNotifications from 'expo-notifications';
 
@@ -8,6 +8,8 @@ import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
+
+const bellIcon = require('../assets/icons/home/bell.png');
 
 export default function Notifications() {
   const router = useRouter();
@@ -62,7 +64,7 @@ export default function Notifications() {
         <View style={styles.headerSpacer} />
       </View>
       <View style={styles.empty}>
-        <View style={styles.icon}><Text variant="display">🔔</Text></View>
+        <View style={styles.icon}><Image source={bellIcon} resizeMode="contain" style={styles.iconImage} /></View>
         <Text variant="title" weight="bold">{tx('아직 도착한 알림이 없어요', 'No notifications yet')}</Text>
         <Text variant="body" color={color.text.muted} style={styles.description}>{tx('여행 일정 생성과 변경 알림 API가 연결되면 이곳에서 확인할 수 있어요.', "Once the trip creation and change alert API is connected, you'll see them here.")}</Text>
         <View accessibilityLiveRegion="polite" style={styles.permissionCard}>
@@ -82,6 +84,7 @@ const styles = StyleSheet.create({
   headerSpacer: { width: 44 },
   empty: { flex: 1, minHeight: 420, alignItems: 'center', justifyContent: 'center', gap: spacing[3], paddingHorizontal: spacing[6] },
   icon: { width: 72, height: 72, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.state.warningBg },
+  iconImage: { width: 32, height: 32 },
   description: { textAlign: 'center', lineHeight: 23 },
   permissionCard: { width: '100%', maxWidth: 360, minHeight: 72, marginTop: spacing[4], padding: spacing[4], flexDirection: 'row', alignItems: 'center', gap: spacing[3], borderRadius: radius.lg, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.field },
   statusDot: { width: 10, height: 10, borderRadius: radius.full },

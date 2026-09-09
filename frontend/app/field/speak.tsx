@@ -3,7 +3,7 @@
 // 번역 업체 계약과 무관하게 기기 TTS·클립보드·지도 링크로 완결할 수 있는 현장 기능은
 // Expo 네이티브 API로 실제 동작시킨다.
 import { useState } from 'react';
-import { Linking, Pressable, StyleSheet, View } from 'react-native';
+import { Image, Linking, Pressable, StyleSheet, View } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import * as Speech from 'expo-speech';
 
@@ -24,6 +24,8 @@ const MAP_APPS = [
 // 보여줄 한국어 주소라, 영어로 바뀌면 현장에서 그대로 쓸모가 없어진다.
 const KOREAN_PHRASE = '사진 한 장 부탁드려도 될까요?';
 const TAXI_ADDRESS = '부산 영도구 영선동4가 605-3';
+const speakerIcon = require('../../assets/icons/common/speaker.png');
+const taxiIcon = require('../../assets/icons/common/taxi.png');
 
 export default function Speak() {
   const { tx } = useI18n();
@@ -56,17 +58,23 @@ export default function Speak() {
           style={[styles.segmentItem, tab === 'speak' && styles.segmentItemActive]}
           onPress={() => setTab('speak')}
         >
-          <Text variant="caption" weight="bold" color={tab === 'speak' ? color.text.accent : color.text.body}>
-            {tx('🔊 말하기', '🔊 Speak')}
-          </Text>
+          <View style={styles.segmentLabel}>
+            <Image source={speakerIcon} resizeMode="contain" style={styles.segmentIcon} />
+            <Text variant="caption" weight="bold" color={tab === 'speak' ? color.text.accent : color.text.body}>
+              {tx('말하기', 'Speak')}
+            </Text>
+          </View>
         </Pressable>
         <Pressable
           style={[styles.segmentItem, tab === 'taxi' && styles.segmentItemActive]}
           onPress={() => setTab('taxi')}
         >
-          <Text variant="caption" weight="bold" color={tab === 'taxi' ? color.text.accent : color.text.body}>
-            {tx('🚕 택시 카드', '🚕 Taxi card')}
-          </Text>
+          <View style={styles.segmentLabel}>
+            <Image source={taxiIcon} resizeMode="contain" style={styles.segmentIcon} />
+            <Text variant="caption" weight="bold" color={tab === 'taxi' ? color.text.accent : color.text.body}>
+              {tx('택시 카드', 'Taxi card')}
+            </Text>
+          </View>
         </Pressable>
       </View>
 
@@ -154,6 +162,15 @@ const styles = StyleSheet.create({
   },
   segmentItemActive: {
     backgroundColor: color.surface.card,
+  },
+  segmentLabel: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing[1],
+  },
+  segmentIcon: {
+    width: 14,
+    height: 14,
   },
   phraseCard: {
     marginTop: spacing[4],

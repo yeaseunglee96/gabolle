@@ -12,6 +12,7 @@ import { isAtLeast } from '@/layout/breakpoints';
 
 const INTRO_SEEN_KEY = '@gabolle/app-intro-seen';
 const logo = require('../assets/brand/gabolle-logo-figma.png');
+const cameraIcon = require('../assets/icons/common/camera.png');
 const PAGES = [
   { eyebrow: 'AI TRAVEL', titleKo: '조건만 알려주면\n일정을 만들어요', titleEn: 'Tell us your conditions,\nwe build the itinerary', descriptionKo: '날짜와 취향, 이동 조건을 반영해 나만의 부산 여행을 구성해요.', descriptionEn: 'We put together your Busan trip using your dates, tastes, and mobility needs.' },
   { eyebrow: 'MENU TRANSLATE', titleKo: '메뉴판을 찍고\n바로 이해해요', titleEn: 'Snap the menu,\nunderstand it instantly', descriptionKo: '카메라를 쓰기 직전에 이유를 설명하고, 허용한 경우에만 촬영해요.', descriptionEn: 'We explain why right before using the camera, and only shoot once you allow it.' },
@@ -59,7 +60,7 @@ export default function AppIntro() {
 function FeaturePreview({ index }: { index: number }) {
   const { tx } = useI18n();
   if (index === 0) return <View style={styles.preview}><Text variant="caption" weight="bold" color={color.text.muted}>{tx('어떤 여행을 좋아하세요?', 'What kind of trip do you like?')}</Text><View style={styles.chips}><View style={styles.selectedChip}><Text variant="caption" weight="bold" color={color.text.onAction}>{tx('바다', 'Sea')}</Text></View><View style={styles.chip}><Text variant="caption" weight="bold">{tx('미식', 'Food')}</Text></View><View style={styles.chip}><Text variant="caption" weight="bold">{tx('골목', 'Alleys')}</Text></View></View><View style={styles.progress}><View style={styles.progressFill} /></View></View>;
-  if (index === 1) return <View style={styles.preview}><Text variant="caption" weight="bold" color={color.text.muted}>{tx('메뉴판 카메라 번역', 'Menu camera translation')}</Text><View style={styles.menuFrame}><Text variant="title">📷</Text><Text weight="bold">{tx('메뉴를 화면 안에 맞춰주세요', 'Fit the menu inside the frame')}</Text></View><Text variant="caption" color={color.text.body}>{tx('사진은 번역에만 사용하고 기기에 저장하지 않아요.', 'Photos are used only for translation and are not saved on the device.')}</Text></View>;
+  if (index === 1) return <View style={styles.preview}><Text variant="caption" weight="bold" color={color.text.muted}>{tx('메뉴판 카메라 번역', 'Menu camera translation')}</Text><View style={styles.menuFrame}><Image source={cameraIcon} resizeMode="contain" style={styles.menuFrameIcon} /><Text weight="bold">{tx('메뉴를 화면 안에 맞춰주세요', 'Fit the menu inside the frame')}</Text></View><Text variant="caption" color={color.text.body}>{tx('사진은 번역에만 사용하고 기기에 저장하지 않아요.', 'Photos are used only for translation and are not saved on the device.')}</Text></View>;
   return <View style={styles.ticket}><View style={styles.ticketTop}><Text variant="caption" weight="bold" color={color.text.onAction}>{tx('현장 말하기', 'Field talk')}</Text><Text variant="title" weight="bold" color={color.text.onAction}>{tx('사진 한 장 부탁드려도 될까요?', 'Could you take a photo for us?')}</Text></View><View style={styles.ticketBody}><Text variant="caption" color={color.text.muted}>sajin han jang butakdeuryeodo doelkkayo?</Text><View style={styles.dash} /><Text weight="bold" color={color.action.field}>{tx('▶ 한국어로 듣기', '▶ Listen in Korean')}</Text></View></View>;
 }
 
@@ -74,6 +75,7 @@ const styles = StyleSheet.create({
   progress: { height: 6, overflow: 'hidden', borderRadius: radius.full, backgroundColor: '#eee9e1' }, progressFill: { width: '64%', height: 6, borderRadius: radius.full, backgroundColor: color.brand.orange },
   previewRow: { minHeight: 42, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: '#e8e2d9' },
   menuFrame: { minHeight: 112, alignItems: 'center', justifyContent: 'center', gap: spacing[2], borderRadius: radius.md, borderWidth: 2, borderStyle: 'dashed', borderColor: color.action.secondary, backgroundColor: color.surface.soft },
+  menuFrameIcon: { width: 28, height: 28 },
   ticket: { minHeight: 210, overflow: 'hidden', borderRadius: 28, backgroundColor: color.surface.card, shadowColor: color.brand.navy, shadowOpacity: 0.08, shadowRadius: 16, shadowOffset: { width: 0, height: 8 }, elevation: 4 }, ticketTop: { gap: spacing[2], padding: spacing[6], backgroundColor: color.brand.navy }, ticketBody: { flex: 1, gap: spacing[3], padding: spacing[6] }, dash: { borderTopWidth: 1, borderStyle: 'dashed', borderColor: '#c9c3bb' },
   copy: { gap: spacing[3], marginTop: spacing[6] }, title: { fontSize: 30, lineHeight: 38 }, description: { maxWidth: 330, lineHeight: 24 },
   footer: { position: 'absolute', left: spacing[6], right: spacing[6], bottom: spacing[6], gap: spacing[4] },
