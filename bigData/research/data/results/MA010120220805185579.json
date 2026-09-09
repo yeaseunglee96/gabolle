@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220805185579",
+  "worker": "haiku-61",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["우곱 해운대구 부산", "우곱 중1동 맛집"],
+  "found": false,
+  "confidence": "low",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹에서 검색되지 않음. 우동(지역)과 중동(지역) 정보만 조회됨",
+  "notes": ""
+}

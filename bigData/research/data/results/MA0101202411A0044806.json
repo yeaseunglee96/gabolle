@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202411A0044806",
+  "worker": "haiku-69",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["식감 수영구 부산", "식감 광안2동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "검색 결과에서 같은 이름의 횟집은 나왔으나 백반/한정식 카테고리의 식감은 찾을 수 없음",
+  "notes": ""
+}

@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220811426189",
+  "worker": "haiku-71",
+  "researchedAt": "2026-09-10T12:25:00Z",
+  "queries": ["호야 남구 부산 회", "호야 대연3동 횟집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색 결과에서 부산 남구 대연3동의 횟집 '호야'에 대한 정보를 찾을 수 없음",
+  "notes": ""
+}

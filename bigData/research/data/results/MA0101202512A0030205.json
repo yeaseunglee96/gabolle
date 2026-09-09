@@ -1,0 +1,19 @@
+{
+  "id": "MA0101202512A0030205",
+  "worker": "haiku-65",
+  "researchedAt": "2026-09-09T22:34:05.627Z",
+  "queries": [
+    "피보 부산진구 전포동",
+    "피보 동성로 경양식",
+    "피보 부산 카페"
+  ],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "광범위한 검색에도 불구하고 웹에서 발견되지 않음. 전포동 일반 정보만 나타남.",
+  "notes": ""
+}

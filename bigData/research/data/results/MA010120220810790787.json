@@ -1,0 +1,34 @@
+{
+  "id": "MA010120220810790787",
+  "worker": "haiku-68",
+  "researchedAt": "2026-09-10T09:35:00Z",
+  "queries": ["코숑과자점 수영구 부산", "코숑과자점 광안1동 맛집", "코숑과자점 광안 베이커리 블로그"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=1FlTzeKXVPgx", "https://polle.com/place/17EDKA/%EC%BD%94%EC%88%91"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "밤식빵과 단팥빵이 대표 메뉴",
+      "sources": [0, 1]
+    },
+    {
+      "type": "조리·재료",
+      "note": "국가공인 제과기능장이 운영하는 베이커리",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["밤식빵", "단팥빵", "크루아상"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "광안 종합시장 내 베이커리. 밤 식빵, 단팥빵, 크루아상, 두쫀쿠 등 판매"
+}

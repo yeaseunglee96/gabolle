@@ -1,0 +1,53 @@
+{
+  "id": "MA0101202307A0069491",
+  "worker": "haiku-65",
+  "researchedAt": "2026-09-09T22:30:20.420Z",
+  "queries": [
+    "송정스시 해운대구 부산",
+    "송정스시 송정동 맛집"
+  ],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.diningcode.com/profile.php?rid=Eadry83Trw1d"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "가격·가성비",
+      "note": "좋은 가격에 고급 품질의 스시 제공",
+      "sources": [
+        0
+      ]
+    },
+    {
+      "type": "동네·시장 지목",
+      "note": "송정해수욕장 인근 관광지",
+      "sources": [
+        0
+      ]
+    },
+    {
+      "type": "운영·접근 편의",
+      "note": "주차 공간 있음, 배달·테이크아웃 가능",
+      "sources": [
+        0
+      ]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "가능",
+    "audience": "mixed",
+    "signatureDishes": [
+      "초밥",
+      "회"
+    ],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "영업시간 11:00-22:00 (15:00-16:00 휴무)"
+}

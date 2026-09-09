@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202306A0093613",
+  "worker": "haiku-61",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["미엘 수영구 부산", "미엘 민락동 맛집"],
+  "found": false,
+  "confidence": "low",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹에서 검색되지 않음. 민락동 일반 맛집 정보만 나옴",
+  "notes": ""
+}

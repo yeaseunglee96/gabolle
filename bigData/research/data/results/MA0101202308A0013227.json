@@ -1,0 +1,39 @@
+{
+  "id": "MA0101202308A0013227",
+  "worker": "haiku-70",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["하진식당 수영 백반", "하진식당 광안4동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=S79F79vthn0B", "https://www.badaon.or.kr/seantour_map/travel/destination/detail.do;jsessionid=33FF6279D69A5DADD9AA1FC01826DDA9?destId=DEST003237"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "가격·가성비",
+      "note": "8,000~9,000원대의 저렴한 가정식 정식",
+      "sources": [0]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "김치찌개, 된장찌개, 돈까스/고등어 정식 제공",
+      "sources": [1]
+    },
+    {
+      "type": "맛 묘사",
+      "note": "정성스럽고 많은 반찬으로 가성비 좋은 백반",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["정식", "김치찌개", "돈까스"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "수영로 523, 11:30-19:00, 일요일 휴무, 무료 커피 제공"
+}

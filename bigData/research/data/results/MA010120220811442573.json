@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220811442573",
+  "worker": "haiku-69",
+  "researchedAt": "2026-09-10T00:08:00Z",
+  "queries": ["오라 수영구 부산", "오라 남천1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/367601", "https://www.diningcode.com/profile.php?rid=pLrLvELfF9pI"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "이탈리안 파스타, 스테이크", "sources": [0, 1]},
+    {"type": "분위기·전망", "note": "식물과 우드톤의 아늑한 인테리어", "sources": [0]},
+    {"type": "메뉴 희소성", "note": "한우 모듬 스테이크, 가정식 코스", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["한우 모듬 스테이크 나눔코스", "오라 가정식 코스"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "이탈리안 가정식 전문, 영업시간 주중 11:30~23:00"
+}

@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202509A0004846",
+  "worker": "haiku-63",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["대방집 남구 부산", "대방집 대연3동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "검색 결과에 요청된 가게명 '대방집'과 정확히 일치하는 정보를 찾지 못했음. 남구와 대연3동의 일반적인 맛집 정보만 검색됨",
+  "notes": ""
+}

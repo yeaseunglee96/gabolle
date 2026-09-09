@@ -1,0 +1,27 @@
+{
+  "id": "MA0101202309A0081396",
+  "worker": "haiku-69",
+  "researchedAt": "2026-09-10T00:04:00Z",
+  "queries": ["파자마 수영구 부산", "파자마 남천1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.tabling.co.kr/place/677cd64666de5f069890b13c", "https://www.diningcode.com/profile.php?rid=2abbRnDwYHKm"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "고급 서양식 레스토랑 - 파스타, 스테이크", "sources": [0, 1]},
+    {"type": "분위기·전망", "note": "일상의 쉼표, 프라이빗 룸 있음", "sources": [0]},
+    {"type": "가격·가성비", "note": "프리미엄 재료(로부스터, 한우)", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["로부스터 비스크", "한우 텐더로인 스테이크", "트러플 링귀네"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": "프라이빗 룸, 레터링 서비스, 와인 선택 가능, 화요~목 와인 무료 코르크비"
+}

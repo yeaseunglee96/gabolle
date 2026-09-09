@@ -1,0 +1,34 @@
+{
+  "id": "MA010120220814112132",
+  "worker": "haiku-66",
+  "researchedAt": "2026-09-10T12:52:00Z",
+  "queries": ["광안리산해횟집 민락동"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=tnfQYPt2odwo", "http://localmap.co.kr/web/splus/kmap/view.php?sigun=6260000&gugun=3380000&keyno=122&keyname=%EA%B4%91%EC%95%88%EB%A6%AC+%EC%82%B0%ED%95%B4%ED%9A%9F%EC%A7%91&keylink=3380000-101-2002-04584"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "광안리 다리와 바다 해변이 보이는 오션뷰",
+      "sources": [0]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "횟집 전문 - 회 코스, 무한리필",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["회코스", "무한리필 회"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "풍경타워 8호, 광안리 회타운 인근"
+}

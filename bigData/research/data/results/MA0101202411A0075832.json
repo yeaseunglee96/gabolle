@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202411A0075832",
+  "worker": "haiku-71",
+  "researchedAt": "2026-09-10T12:01:00Z",
+  "queries": ["스시안 수영구 부산", "스시안 광안동 맛집", "스시안 부산 망미", "스시안 초밥 부산"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색 결과에서 부산 수영구 광안3동 망미번영로 지역의 '스시안' 관련 정보를 찾을 수 없음. 부산의 여러 스시 맛집이 나왔으나 해당 주소와 이름이 일치하는 정보 없음",
+  "notes": ""
+}

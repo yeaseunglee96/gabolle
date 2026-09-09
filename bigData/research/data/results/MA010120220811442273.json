@@ -1,0 +1,36 @@
+{
+  "id": "MA010120220811442273",
+  "worker": "haiku-63",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["새바다횟집 수영구 부산", "새바다횟집 민락동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.siksinhot.com/search?keywords=%EB%AF%BC%EB%9D%BD%EB%8F%99+%ED%9A%9F%EC%A7%91"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "메뉴 희소성",
+      "note": "민락 횟타운에서 국내산 꼼장어를 유일하게 판매하는 곳",
+      "sources": [0]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "2층에서 광안리 해변 바다 전망을 즐기며 식사 가능",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["꼼장어", "회"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "주소: 민락수변로 9-1, 2층 (민락동 181-137)"
+}

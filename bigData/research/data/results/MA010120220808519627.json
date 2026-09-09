@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220808519627",
+  "worker": "haiku-71",
+  "researchedAt": "2026-09-10T12:41:00Z",
+  "queries": ["구르메 남구 부산 대연 회", "이이히 대연3동 일식"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["http://duli.co.kr/web/splus/kmap/view.php?sigun=6260000&gugun=3310000&keyno=110&keyname=%EA%B5%AC%EB%A5%B4%EB%A9%94&keylink=3310000-101-2017-00051"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "원조·최초",
+      "note": "2017년부터 운영 중인 오래된 일식당",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 2017,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "student",
+    "signatureDishes": ["회", "초밥"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "주변에 경성대·부경대 있어 학생층이 많음"
+}

@@ -1,0 +1,34 @@
+{
+  "id": "MA010120220811435184",
+  "worker": "haiku-67",
+  "researchedAt": "2026-09-09T22:31:00.000Z",
+  "queries": ["고옥 수영구 부산", "고옥 남천1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=33CyyNyixt2h", "https://linktoplace.com/?action=view&name=%EA%B3%A0%EC%98%A5&no=166311", "https://polle.com/place/4ZU5ua/%EA%B3%A0%EC%98%A5"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "히츠마부시와 장어덮밥이 주 메뉴",
+      "sources": [0, 1, 2]
+    },
+    {
+      "type": "조리·재료",
+      "note": "매일 아침 신선한 장어를 직접 손질해서 제공",
+      "sources": [0, 1]
+    },
+    {
+      "type": "연차·역사",
+      "note": "2011년 개업 이후 14년간 일관된 품질 유지",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["히츠마부시", "장어덮밥"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "일식 회/초밥. 히츠마부시(큰거) 36,000원, 1/2히츠마부시(작은거) 24,000원."
+}

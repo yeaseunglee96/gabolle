@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220811470092",
+  "worker": "haiku-69",
+  "researchedAt": "2026-09-10T00:10:00Z",
+  "queries": ["엄마손대구탕 해운대구", "엄마손대구탕 송정동"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/386996", "https://www.diningcode.com/profile.php?rid=vpbJ9nFU7SF2"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "대구탕, 묵은지 전문", "sources": [0, 1]},
+    {"type": "곁들임·차림", "note": "오래된 묵은지, 다양한 종류", "sources": [1]},
+    {"type": "메뉴 희소성", "note": "삼겹살 묵은지 - 숨은 인기 메뉴", "sources": [1]},
+    {"type": "맛 묘사", "note": "엄마 손맛 대구탕", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["대구탕", "묵은지", "삼겹살 묵은지"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "영업시간 화~일 07:00~21:00, 월요일 휴무, 주차장 약 6대"
+}

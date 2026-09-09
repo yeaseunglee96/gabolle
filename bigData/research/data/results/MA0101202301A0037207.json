@@ -1,0 +1,31 @@
+{
+  "id": "MA0101202301A0037207",
+  "worker": "haiku-63",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["호호스시 수영구 부산", "호호스시 광안3동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://gall.dcinside.com/mgallery/board/view/?id=omakase&no=18521"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "오마카세 스시 전문점",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["오마카세 스시"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": "광안동 수영구에 위치한 오마카세 스시 레스토랑"
+}

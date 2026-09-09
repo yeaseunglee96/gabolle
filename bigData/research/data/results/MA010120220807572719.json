@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220807572719",
+  "worker": "haiku-66",
+  "researchedAt": "2026-09-10T12:13:00Z",
+  "queries": ["홍익당 수영구 부산", "홍익당 민락동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://triple.guide/restaurants/edbd3302-f51a-4cc3-a399-6c23b11470a3", "https://www.diningcode.com/profile.php?rid=ki9W91sYh3Wv"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "조리·재료",
+      "note": "천연발효종, 우리밀 유기농으로 만든 건강한 빵",
+      "sources": [0]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "우드톤의 따뜻한 분위기, 민락동 수변공원 인근",
+      "sources": [1]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "타르트 등 베이커리 카페",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "주차 가능",
+    "audience": "mixed",
+    "signatureDishes": ["타르트"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "광안해변 인근 건강한 베이커리 카페"
+}

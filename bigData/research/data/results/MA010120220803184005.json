@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220803184005",
+  "worker": "haiku-62",
+  "researchedAt": "2026-09-10T12:05:00Z",
+  "queries": ["부산초밥 부산진구 부산", "부산초밥 부전2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/361792"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "조리·재료", "note": "신선한 회로 만든 초밥", "sources": [0]},
+    {"type": "간판 메뉴 지목", "note": "고래고기(밍크) 초밥과 복매운탕 전문", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["고래고기 초밥", "복매운탕"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "개별룸 있음"
+}

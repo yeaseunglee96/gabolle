@@ -1,0 +1,29 @@
+{
+  "id": "MA0101202307A0010373",
+  "worker": "haiku-66",
+  "researchedAt": "2026-09-10T12:03:00Z",
+  "queries": ["히든에이스 수영구 부산", "히든에이스 광안해변 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://hiddenace.co.kr/place.apsl?st_idx=135"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "광안해변 해변로 뷰를 즐길 수 있는 위치",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": [],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "히든에이스 광안리점, 3층 위치"
+}

@@ -1,0 +1,19 @@
+{
+  "id": "MA010120220812837526",
+  "worker": "haiku-65",
+  "researchedAt": "2026-09-09T22:31:18.844Z",
+  "queries": [
+    "봉참치 남구 대연동",
+    "봉참치 부산 회 참치",
+    "봉참치 대연3동 용소로 회"
+  ],
+  "found": false,
+  "confidence": "low",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "부산의 봉참치 대연3동 지점은 웹 검색으로 발견되지 않음. 인천 봉참치만 나타남.",
+  "notes": ""
+}

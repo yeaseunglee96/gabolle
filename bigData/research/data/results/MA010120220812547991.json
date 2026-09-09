@@ -1,0 +1,42 @@
+{
+  "id": "MA010120220812547991",
+  "worker": "haiku-63",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["더스모코 남구 부산", "더스모코 대연3동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.siksinhot.com/P/799788",
+    "https://www.diningcode.com/profile.php?rid=1omlTWlLDUXP"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "스테이크와 관자크림파스타가 대표 메뉴",
+      "sources": [0, 1]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "광안리 근처로 산책하기 좋고 경치가 좋은 위치",
+      "sources": [1]
+    },
+    {
+      "type": "조리·재료",
+      "note": "기버터 스테이크로 유명",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "couples",
+    "signatureDishes": ["기버터 스테이크", "관자크림파스타"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": "밀락더마켓 건너편 위치, 오너셰프가 운영"
+}

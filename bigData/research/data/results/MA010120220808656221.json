@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220808656221",
+  "worker": "haiku-61",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["삼목 해운대구 부산", "삼목 중2동 맛집"],
+  "found": false,
+  "confidence": "low",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹에서 검색되지 않음. 다른 지역 삼산동, 삼도2동 정보만 나옴",
+  "notes": ""
+}

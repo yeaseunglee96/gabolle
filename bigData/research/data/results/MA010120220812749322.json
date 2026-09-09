@@ -1,0 +1,24 @@
+{
+  "id": "MA010120220812749322",
+  "worker": "haiku-72",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["민락돼지국밥 광안해변 부산", "민락돼지국밥 백반 한정식"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.tabling.co.kr/restaurant/4479", "https://www.diningcode.com/profile.php?rid=hRvkURvu2RJp", "https://polle.com/place/3QXjX4/%EC%88%98%EB%B3%80%20%EC%B5%9C%EA%B3%A0%20%EB%8F%BC%EC%A7%80%EA%B5%AD%EB%B0%A5"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "현지인 지지", "note": "24시간 영업으로 야식 후 따뜻한 국밥을 즐기기 좋음", "sources": [0, 1]},
+    {"type": "가격·가성비", "note": "항정국밥 13,000원으로 저렴한 가격", "sources": [1, 2]},
+    {"type": "분위기·전망", "note": "광안리 해변 야경을 즐기고 돌아오는 길에 들르기 좋음", "sources": [0, 1]},
+    {"type": "조리·재료", "note": "깊고 맑은 국물, 자숙되지 않은 신선한 돼지고기", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["돼지국밥", "항정국밥"],
+    "priceBand": "cheap",
+    "audience": "local"
+  },
+  "notFound": null,
+  "notes": ""
+}

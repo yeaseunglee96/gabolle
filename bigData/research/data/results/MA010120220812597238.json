@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220812597238",
+  "worker": "haiku-71",
+  "researchedAt": "2026-09-10T12:06:00Z",
+  "queries": ["신선지국밥 해운대구 부산", "신선지국밥 송정동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://triple.guide/restaurants/6f30cb26-ab00-41e3-9ed2-09ca41fd2d73", "https://www.daangn.com/kr/local-profile/%EC%8B%A0%EC%84%A0%EC%A7%80%EA%B5%AD%EB%B0%A5-dt6by4z2gbm5/", "https://www.diningcode.com/profile.php?rid=Z2ZQJY5SxmJm"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "동네·시장 지목",
+      "note": "송정의 3대 국밥 중 하나로 불림",
+      "sources": [2]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "선지국밥과 소고기국밥이 메인 메뉴",
+      "sources": [1, 2]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "국밥 9,000원",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "local",
+    "signatureDishes": ["선지국밥", "소고기국밥"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

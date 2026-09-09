@@ -1,0 +1,20 @@
+{
+  "id": "MA010120220806851663",
+  "worker": "haiku-65",
+  "researchedAt": "2026-09-09T22:30:20.420Z",
+  "queries": [
+    "명송오리 수영구 부산",
+    "명송오리 민락동 맛집",
+    "명송오리 부산 광안해변",
+    "명송오리 오리구이 맛집 부산"
+  ],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "광범위한 검색에도 불구하고 웹에서 발견되지 않음. 부산 오리구이 맛집 목록에도 없음.",
+  "notes": ""
+}

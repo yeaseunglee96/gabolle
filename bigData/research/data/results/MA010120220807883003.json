@@ -1,0 +1,22 @@
+{
+  "id": "MA010120220807883003",
+  "worker": "haiku-72",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["코티지피 전포동 부산", "코티지피 경양식 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=ivHS8SFA0ar3", "https://visla.kr/feature/260102/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "동네·시장 지목", "note": "부산의 유명한 핫플레이스인 전포카페거리에 위치", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "파스타와 리조또 전문점", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["파스타", "리조또"],
+    "priceBand": "moderate",
+    "audience": "mixed"
+  },
+  "notFound": null,
+  "notes": "카테고리는 '경양식'이나 실제로는 '파스타와 리조또 전문점'입니다. 전포카페거리의 유명한 식당입니다."
+}

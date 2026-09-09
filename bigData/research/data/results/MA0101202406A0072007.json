@@ -1,0 +1,39 @@
+{
+  "id": "MA0101202406A0072007",
+  "worker": "haiku-70",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["위즈윗 전포 경양식", "위즈윗 전포1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=SCcLkXTcJnwz"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "필리델피아 치즈스테이크와 수제버거 전문점",
+      "sources": [0]
+    },
+    {
+      "type": "맛 묘사",
+      "note": "질기지 않은 빵과 진하고 맛있는 치즈소스가 특징",
+      "sources": [0]
+    },
+    {
+      "type": "운영·접근 편의",
+      "note": "전포역 4번출구에서 도보 3분 거리의 전포메인거리 위치",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "주차 가능",
+    "audience": "mixed",
+    "signatureDishes": ["필리치즈스테이크", "수제버거"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "화-일요일 11:30-21:00 (브레이크타임 15:00-16:00), 월요일 정기휴무"
+}

@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220811423345",
+  "worker": "haiku-62",
+  "researchedAt": "2026-09-10T12:01:00Z",
+  "queries": ["수백한상 해운대구 부산", "수백한상 우1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/389690", "https://www.diningcode.com/profile.php?rid=vhuGHUGGEenv"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "돼지국밥 전문", "sources": [0, 1]},
+    {"type": "맛 묘사", "note": "국물이 맑고 담백하며 잡내 없음", "sources": [0, 1]},
+    {"type": "현지인 지지", "note": "해운대의 로컬 맛집으로 관광객도 자주 방문", "sources": [1]},
+    {"type": "운영·접근 편의", "note": "혼밥 전용 테이블과 다찌석으로 혼밥하기 편함", "sources": [1]},
+    {"type": "가격·가성비", "note": "듬뿍 들어간 고기로 가성비 좋음", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["돼지국밥", "내장국밥"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

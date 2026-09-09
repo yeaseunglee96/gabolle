@@ -1,0 +1,34 @@
+{
+  "id": "MA0101202502A0068486",
+  "worker": "haiku-70",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["아리포차 민락 부산", "아리포차 광안해변 맛집", "\"아리포차\" 광안해변 278"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://www.instagram.com/ari_cartbar/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "광안리 해변의 포차로 오션뷰를 즐길 수 있는 차 바",
+      "sources": [0]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "초장(chocho)집으로 불리는 포차 식당",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["포차 음식"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "Instagram 계정 @ari_cartbar로 운영 중"
+}

@@ -1,0 +1,34 @@
+{
+  "id": "MA0101202303A0077646",
+  "worker": "haiku-67",
+  "researchedAt": "2026-09-09T22:31:00.000Z",
+  "queries": ["봉수삼춘 해운대구 부산", "봉수삼춘 우1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://kr.trip.com/moments/detail/busan-432-122296890/", "https://www.diningcode.com/profile.php?rid=g2dxyuAz12TF"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "고등어회가 주 메뉴, 수조에서 신선하게 직접 자르는 방식",
+      "sources": [0, 1]
+    },
+    {
+      "type": "조리·재료",
+      "note": "수조에서 고등어를 직접 잡아 회로 만드는 방식",
+      "sources": [0, 1]
+    },
+    {
+      "type": "현지인 지지",
+      "note": "제주도가 아닌 부산에서 신선한 고등어회를 즐길 수 있는 곳",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["고등어회"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "횟집. 고등어 회 35,000원."
+}

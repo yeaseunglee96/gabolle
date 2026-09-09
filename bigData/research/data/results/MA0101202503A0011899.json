@@ -1,0 +1,22 @@
+{
+  "id": "MA0101202503A0011899",
+  "worker": "haiku-72",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["난로회관 광안로 부산", "난로회관 민락동 백반"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://app.catchtable.co.kr/ct/shop/nanrohoedam", "https://www.keyzard.cc/osy09300/nb/224015191464"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "한우 전문점", "sources": [0, 1]},
+    {"type": "가격·가성비", "note": "착한 가격의 한우 구이", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["한우 구이"],
+    "priceBand": "moderate",
+    "audience": "mixed"
+  },
+  "notFound": null,
+  "notes": ""
+}

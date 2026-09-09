@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220807044880",
+  "worker": "haiku-69",
+  "researchedAt": "2026-09-10T00:02:00Z",
+  "queries": ["백수농원 수영구 부산", "백수농원 광안3동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1284716", "https://www.diningcode.com/profile.php?rid=O2wcv1EwFc6z"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "삼겹살 고깃집으로 알려짐", "sources": [0, 1]},
+    {"type": "현지인 지지", "note": "수영역 근처 인기 고깃집", "sources": [1]},
+    {"type": "운영·접근 편의", "note": "주차 가능, 수영역 11번 출구 도보 3분", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["삼겹살", "한돈"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "평일 17:00~01:00, 주말 12:00~01:00 영업"
+}

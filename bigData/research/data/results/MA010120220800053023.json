@@ -1,0 +1,25 @@
+{
+  "id": "MA010120220800053023",
+  "worker": "haiku-61",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["조이풀조이풀 수영구 부산", "조이풀조이풀 민락동 맛집"],
+  "found": true,
+  "confidence": "low",
+  "sources": ["https://www.siksinhot.com/theme/magazine/8277"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "맛 묘사", "note": "민락동 와인/바 카테고리로 높은 평가", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": [],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "와인/바로 분류됨, 구체적 메뉴 정보 없음"
+}

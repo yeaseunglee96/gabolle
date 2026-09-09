@@ -1,0 +1,24 @@
+{
+  "id": "MA010120220812589691",
+  "worker": "haiku-72",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["구덕포끝집고기 송정동 부산", "구덕포끝집고기 돼지고기 구이"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://triple.guide/restaurants/02ebb823-353f-4d30-a0ae-c3e46f4a1873", "https://www.diningcode.com/profile.php?rid=Y11V6ygiYLu8", "https://www.tabling.co.kr/restaurant/2596"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "분위기·전망", "note": "송정해변 해변뷰가 좋은 테라스, 개별 선풍기로 쾌적한 환경", "sources": [0, 1]},
+    {"type": "조리·재료", "note": "경매로 선별한 국내산 A+ 돼지고기, 허브 마리네이드 후 24시간 숙성", "sources": [1]},
+    {"type": "가격·가성비", "note": "고급 돼지고기를 합리적인 가격에 제공", "sources": [0]},
+    {"type": "운영·접근 편의", "note": "반려견 동반 가능한 테라스, 넓은 주차장, 연중무휴", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["삼겹살", "목살", "갈비"],
+    "priceBand": "moderate",
+    "audience": "mixed"
+  },
+  "notFound": null,
+  "notes": ""
+}
