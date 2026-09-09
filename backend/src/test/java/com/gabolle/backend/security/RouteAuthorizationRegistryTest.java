@@ -125,7 +125,7 @@ class RouteAuthorizationRegistryTest {
 		//    그 변경이 diff 에 남아 리뷰에서 보인다. 실제로 이 저장소의 SecurityConfig 주석은
 		//    "/oauth/ 아래 한 마디짜리 경로가 전부 열린다" 는 함정을 적어 두고 있다 — 두 마디로
 		//    두지 않으면 새 경로가 의도 없이 열린다.
-		assertThat(open).hasSize(17);
+		assertThat(open).hasSize(18);
 
 		// 표를 아는 사람이 실제로 열린 것과 대조할 수 있게 목록도 고정한다
 		assertThat(routesWith(Policy.PUBLIC_TOKEN)).containsExactlyInAnyOrder(
@@ -372,6 +372,9 @@ class RouteAuthorizationRegistryTest {
 				"2단계 소셜 가입 완료. 보호는 10분짜리 1회용 가입 티켓이다 (-689)");
 		put(m, "POST /api/v1/auth/oauth/link", Policy.PRE_AUTH,
 				"소셜 계정을 기존 계정에 연결. 보호는 연결 티켓 + 기존 계정 비밀번호다 (-690)");
+		put(m, "POST /api/v1/auth/anonymous", Policy.PRE_AUTH,
+				"익명 출입증 발급(-303). 가입 안 한 사람이 부르는 첫 요청이라 아직 X-Session-Token 이 없다. "
+						+ "보호는 무작위 출입증 자체다 — 서버는 해시만 들고 있고 원본은 이 응답에만 나간다");
 
 		// ── 인증 흐름 — 로그인 상태에서 부른다 ────────────────────────────────────
 		put(m, "POST /api/v1/auth/oauth/{}/link", Policy.OWNED,
