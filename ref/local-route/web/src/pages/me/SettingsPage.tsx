@@ -1,8 +1,9 @@
-import { ChangeEvent, FormEvent, useMemo, useState } from "react";
+import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getStoredAccount, updateAccountProfile } from "../../api/client";
+import { getAccountConsents, getStoredAccount, saveAccountConsents, updateAccountProfile } from "../../api/client";
 import { setUiLanguage } from "../../i18n";
 import { paths } from "../../routes/paths";
+import { getConsentSettings, saveConsentSettings } from "../../utils/visitor";
 
 const AVATAR_COLORS = ["LAVENDER", "SKY", "MINT", "PEACH", "CHARCOAL"] as const;
 
@@ -31,6 +32,20 @@ export function SettingsPage() {
   const [avatarColor, setAvatarColor] = useState(account?.avatarColor ?? "LAVENDER");
   const [status, setStatus] = useState<"idle" | "saving" | "saved">("idle");
   const [error, setError] = useState("");
+  const initialConsent = useMemo(getConsentSettings, []);
+  const [behaviorConsent, setBehaviorConsent] = useState(initialConsent?.behavior ?? false);
+  const [sensitiveConsent, setSensitiveConsent] = useState(initialConsent?.sensitive ?? false);
+  const [locationConsent, setLocationConsent] = useState(initialConsent?.preciseLocation ?? false);
+
+  useEffect(() => {
+    if (!account) return;
+    void getAccountConsents().then((settings) => {
+      setBehaviorConsent(settings.behavior);
+      setSensitiveConsent(settings.sensitive);
+      setLocationConsent(settings.preciseLocation);
+      saveConsentSettings({ ...settings, policyVersion: "2026-09" });
+    }).catch(() => undefined);
+  }, [account]);
 
   if (!account) return <main className="settings-page settings-guest"><h1>로그인이 필요해요</h1><p>프로필과 여행 기본값은 계정에 안전하게 저장됩니다.</p><button onClick={() => navigate(paths.login())}>로그인하기</button></main>;
 
@@ -38,6 +53,9 @@ export function SettingsPage() {
     event.preventDefault(); setStatus("saving"); setError("");
     try {
       await updateAccountProfile({ name, nationality: nationality || null, locale, dietType, allergies: allergies.split(",").map((value) => value.trim()).filter(Boolean), travelStyle, defaultTransport, avatarImage, avatarColor });
+      const consent = { personalizationMode: behaviorConsent ? "BEHAVIOR_ENABLED" as const : "EXPLICIT_ONLY" as const, behavior: behaviorConsent, sensitive: sensitiveConsent, preciseLocation: locationConsent, policyVersion: "2026-09" as const };
+      saveConsentSettings(consent);
+      await saveAccountConsents(consent);
       setUiLanguage(locale); setStatus("saved");
     } catch (reason) { setError(reason instanceof Error ? reason.message : "저장하지 못했습니다."); setStatus("idle"); }
   };
@@ -66,11 +84,16 @@ export function SettingsPage() {
           <label>화면 언어<select value={locale} onChange={(e) => setLocale(e.target.value as "KO" | "EN")}><option value="KO">한국어</option><option value="EN">English</option></select></label>
         </div></section>
         <section><h2>여행 기본값</h2><p>일정 만들기에서 먼저 제안할 값이에요. 매 여행마다 바꿀 수 있습니다.</p><div className="settings-grid">
-          <label>여행 속도<select value={travelStyle} onChange={(e) => setTravelStyle(e.target.value as typeof travelStyle)}><option value="RELAXED">여유롭게</option><option value="BALANCED">균형 있게</option><option value="PACKED">알차게</option></select></label>
-          <label>주요 이동 수단<select value={defaultTransport} onChange={(e) => setDefaultTransport(e.target.value as typeof defaultTransport)}><option value="TRANSIT">대중교통</option><option value="CAR">자차</option><option value="WALK">도보</option></select></label>
+          <label>여행 스타일<select value={travelStyle} onChange={(e) => setTravelStyle(e.target.value as typeof travelStyle)}><option value="RELAXED">여유롭게</option><option value="BALANCED">균형 있게</option><option value="PACKED">알차게</option></select></label>
+          <label>주요 이동 수단<select value={defaultTransport} onChange={(e) => setDefaultTransport(e.target.value as typeof defaultTransport)}><option value="TRANSIT">대중교통</option><option value="CAR">자차</option></select></label>
           <label>식단<select value={dietType} onChange={(e) => setDietType(e.target.value as typeof dietType)}><option value="NONE">제한 없음</option><option value="VEGETARIAN">채식</option><option value="VEGAN">비건</option><option value="HALAL">할랄</option></select></label>
           <label>알레르기<input value={allergies} onChange={(e) => setAllergies(e.target.value)} placeholder="예: 견과류, 갑각류 (쉼표로 구분)" /></label>
         </div></section>
+        <section><h2>개인정보·개인화</h2><p>서비스 필수 정보와 선택 동의를 분리해 관리합니다.</p><div className="settings-consent-list">
+          <label><div><b>행동 기반 개인화</b><small>조회·저장·교체·방문을 다음 추천에 반영합니다.</small></div><input type="checkbox" checked={behaviorConsent} onChange={(event) => setBehaviorConsent(event.target.checked)} /></label>
+          <label><div><b>민감정보 처리</b><small>알레르기 등 건강 관련 조건을 안전 필터에 사용합니다.</small></div><input type="checkbox" checked={sensitiveConsent} onChange={(event) => setSensitiveConsent(event.target.checked)} /></label>
+          <label><div><b>여행 중 정밀 위치</b><small>앱을 사용하는 동안 도착과 이동 보조에 사용합니다.</small></div><input type="checkbox" checked={locationConsent} onChange={(event) => setLocationConsent(event.target.checked)} /></label>
+        </div><button type="button" className="settings-reset" onClick={() => { setBehaviorConsent(false); localStorage.removeItem("local-route-last-trip-id"); setStatus("idle"); }}>행동 개인화 초기화</button></section>
         {error && <p className="settings-error" role="alert">{error}</p>}
         <div className="settings-actions"><span>{status === "saved" ? "✓ 저장되었습니다." : ""}</span><button type="submit" disabled={status === "saving"}>{status === "saving" ? "저장 중…" : "변경사항 저장"}</button></div>
       </form>

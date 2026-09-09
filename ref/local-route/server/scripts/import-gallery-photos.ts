@@ -162,6 +162,8 @@ async function main() {
     }
 
     if (imageUrl) {
+      // HTTPS 배포에서 혼합 콘텐츠로 사진이 차단되지 않도록 공공 API의 구형 http URL을 정규화한다.
+      imageUrl = imageUrl.replace(/^http:/, "https:");
       await prisma.place.update({
         where: { id: place.id },
         data: { imageUrl }

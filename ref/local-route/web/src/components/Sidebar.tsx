@@ -24,13 +24,13 @@ export function Sidebar({ placeCount, language = "KO", activeTab, onTabChange, s
   const en = language === "EN";
   return (
     <aside className="sidebar">
-      <Link to={paths.welcome()} className="sidebar-brand" title={en ? "About LOCAL ROUTE" : "서비스 소개 다시 보기"}>
+      <Link to={paths.welcome()} className="sidebar-brand" title={en ? "About GABOLLE" : "서비스 소개 다시 보기"}>
         <BrandLogo />
       </Link>
       <p className="brand-tagline">
-        {en ? "Places locals return to," : "현지인이 다시 가는 곳으로,"}
+        {en ? "Busan that fits you," : "나에게 맞는 부산을,"}
         <br />
-        {en ? "even where Google Maps can't find the way" : "구글맵이 못 찾는 길도 걱정 없이"}
+        {en ? "from discovery to a doable route" : "발견부터 실행 가능한 동선까지"}
       </p>
 
       {showNavigation && <nav className="sidebar-nav" aria-label={en ? "Main service navigation" : "주요 서비스"}>

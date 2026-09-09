@@ -1,0 +1,10 @@
+apache-airflow-providers-postgres==6.2.1
+apache-airflow-providers-celery==3.12.1
+apache-airflow-providers-redis==4.1.1
+apache-airflow-providers-fab==2.3.0
+mlflow==2.16.2
+psycopg2-binary==2.9.10
+boto3==1.38.27
+lightgbm==4.7.0
+redis==5.2.1
+pandas==2.2.3
