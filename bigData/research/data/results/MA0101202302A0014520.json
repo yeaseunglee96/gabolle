@@ -1,0 +1,27 @@
+{
+  "id": "MA0101202302A0014520",
+  "worker": "haiku-39",
+  "researchedAt": "2026-09-09T10:06:00Z",
+  "queries": ["쿠키담 서구 부산", "쿠키담 서대신1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.instagram.com/cookie.dam/", "https://www.diningcode.com/profile.php?rid=jVTsXwYB2Q2F"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "미디어 노출", "note": "유튜브 컨텐츠 크리에이터 서담의 쿠키 전문점", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "수제 홈메이드 쿠키로 알려짐", "sources": [1]},
+    {"type": "메뉴 희소성", "note": "쌀가루팥떡, 수제 쿠키 등 특별한 디저트", "sources": [0]},
+    {"type": "분위기·전망", "note": "깨끗하고 쾌적한 카페 분위기", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": false,
+    "audience": "mixed",
+    "signatureDishes": ["홈메이드 쿠키", "쌀가루팥떡"],
+    "priceBand": "moderate"
+  },
+  "notes": "금토일 11:00~19:00만 영업, 월화수목 휴무. 서대신역 4번 출구 근처"
+}
