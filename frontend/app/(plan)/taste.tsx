@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Image, Pressable, StyleSheet, View } from 'react-native';
+import { Image, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import Animated, { FadeInRight, FadeOutLeft, ReduceMotion } from 'react-native-reanimated';
 import { Button } from '@/components/Button';
@@ -10,9 +10,16 @@ import { color, radius, spacing } from '@/design/tokens';
 import { useLayout } from '@/layout/useLayout';
 import { PlanStepHeader } from '@/plan/PlanStepHeader';
 import { PlanDesktopShell } from '@/plan/PlanDesktopShell';
-import { type PreferenceDimension, usePlan } from '@/plan/PlanProvider';
+import { type MustVisitPlace, type PreferenceDimension, usePlan } from '@/plan/PlanProvider';
 import { CONFLICT_LABEL_PAIR, conflictingFoodCode, FOODS } from '@/plan/foodConflicts';
+import { bilingualPlaceName, searchPlacesByName, type PlaceSearchItem } from '@/discovery/places';
+import { haversineDistanceKm } from '@/utils/geo';
 import { useI18n } from '@/i18n';
+
+const MUST_VISIT_MAX = 5;
+const MUST_VISIT_WARN_KM = 25;
+const MUST_VISIT_SEARCH_DEBOUNCE_MS = 300;
+const MUST_VISIT_MIN_QUERY_LENGTH = 2;
 
 const CATEGORIES = [
   { key: 'SEA_BEACH', labelKo: '바다 & 해변', labelEn: 'Sea & Beach', image: require('../../assets/taste/sea-beach.png') },
@@ -57,11 +64,32 @@ function Scale({ label, value, low, high, desktop, onChange }: { label: string; 
   return <View accessibilityRole="radiogroup" accessibilityLabel={label} style={styles.scale}><View style={styles.scaleLabels}><Text variant="caption">{low}</Text><Text variant="caption">{high}</Text></View><View style={[styles.scalePoints, desktop && styles.scalePointsDesktop]}>{[1, 2, 3, 4, 5].map((point) => <Pressable key={point} accessibilityRole="radio" accessibilityLabel={tx(`${label} ${point}단계`, `${label} level ${point}`)} accessibilityState={{ selected: value === point }} onPress={() => onChange(point)} style={[styles.scalePoint, value === point && styles.scalePointSelected, value === point && desktop && styles.scalePointSelectedDesktop]}><Text variant="caption" weight="bold" color={value === point ? color.text.onAction : color.text.body}>{point}</Text></Pressable>)}</View></View>;
 }
 
+// 서로 25km 이상 떨어진 쌍을 전부 찾는다(S15P21E201-463) — 한 쌍만 걸러 숨기면 "왜 저 둘은
+// 경고가 없냐" 는 재현하기 어려운 의문이 된다.
+type MustVisitWarning = { key: string; nameA: string; nameB: string; km: string };
+function mustVisitWarnings(places: MustVisitPlace[]): MustVisitWarning[] {
+  const warnings: MustVisitWarning[] = [];
+  for (let i = 0; i < places.length; i++) {
+    for (let j = i + 1; j < places.length; j++) {
+      const km = haversineDistanceKm(places[i], places[j]);
+      if (km > MUST_VISIT_WARN_KM) warnings.push({ key: `${places[i].placeId}-${places[j].placeId}`, nameA: places[i].nameKo, nameB: places[j].nameKo, km: km.toFixed(1) });
+    }
+  }
+  return warnings;
+}
+
 export default function Taste() {
   const router = useRouter(); const { kind } = useLayout(); const { tx } = useI18n(); const { draft, update, completeStep, foodConflictNotice, clearFoodConflictNotice } = usePlan();
   const [feedback, setFeedback] = useState<string | null>(null);
   const [panelIndex, setPanelIndex] = useState(0);
   const advanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [mustVisitQuery, setMustVisitQuery] = useState('');
+  const [mustVisitResults, setMustVisitResults] = useState<PlaceSearchItem[]>([]);
+  const [mustVisitSearching, setMustVisitSearching] = useState(false);
+  const [mustVisitSearched, setMustVisitSearched] = useState(false);
+  const [mustVisitNotice, setMustVisitNotice] = useState<string | null>(null);
+  const mustVisitDebounce = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const mustVisitAbort = useRef<AbortController | null>(null);
   const goToPanel = (index: number) => setPanelIndex(Math.max(0, Math.min(5, index)));
   const advancePanel = () => {
     if (advanceTimer.current) clearTimeout(advanceTimer.current);
@@ -82,6 +110,53 @@ export default function Taste() {
     update({ preferences, preferenceAnswerStatus: { ...draft.preferenceAnswerStatus, category: preferences.length ? 'SELECTED' : 'UNKNOWN' } }); setFeedback(null);
     if (kind === 'phone' && !selected && preferences.length === 3) advancePanel();
   }
+  const performMustVisitSearch = async (query: string) => {
+    mustVisitAbort.current?.abort();
+    const controller = new AbortController();
+    mustVisitAbort.current = controller;
+    setMustVisitSearching(true);
+    try {
+      const items = await searchPlacesByName(query, controller.signal);
+      if (controller.signal.aborted) return;
+      setMustVisitResults(items);
+    } catch {
+      if (controller.signal.aborted) return;
+      setMustVisitResults([]);
+    } finally {
+      if (!controller.signal.aborted) { setMustVisitSearching(false); setMustVisitSearched(true); }
+    }
+  };
+  const handleMustVisitChange = (value: string) => {
+    setMustVisitQuery(value);
+    if (mustVisitDebounce.current) clearTimeout(mustVisitDebounce.current);
+    const trimmed = value.trim();
+    if (trimmed.length < MUST_VISIT_MIN_QUERY_LENGTH) {
+      mustVisitAbort.current?.abort();
+      setMustVisitSearching(false); setMustVisitSearched(false); setMustVisitResults([]);
+      return;
+    }
+    mustVisitDebounce.current = setTimeout(() => void performMustVisitSearch(trimmed), MUST_VISIT_SEARCH_DEBOUNCE_MS);
+  };
+  const addMustVisit = (item: PlaceSearchItem) => {
+    if (draft.mustVisitPlaces.some((place) => place.placeId === item.placeId)) {
+      setMustVisitNotice(tx('이미 추가한 장소예요.', 'Already added.'));
+      return;
+    }
+    if (draft.mustVisitPlaces.length >= MUST_VISIT_MAX) {
+      setMustVisitNotice(tx(`최대 ${MUST_VISIT_MAX}곳까지 추가할 수 있어요.`, `You can add up to ${MUST_VISIT_MAX} places.`));
+      return;
+    }
+    update({ mustVisitPlaces: [...draft.mustVisitPlaces, { placeId: item.placeId, nameKo: item.nameKo, nameEn: item.nameEn, lat: item.lat, lng: item.lng }] });
+    setMustVisitNotice(null);
+    setMustVisitQuery(''); setMustVisitResults([]); setMustVisitSearched(false);
+    if (mustVisitDebounce.current) clearTimeout(mustVisitDebounce.current);
+    mustVisitAbort.current?.abort();
+  };
+  const removeMustVisit = (placeId: string) => {
+    update({ mustVisitPlaces: draft.mustVisitPlaces.filter((place) => place.placeId !== placeId) });
+    setMustVisitNotice(null);
+  };
+  const mustVisitWarningList = mustVisitWarnings(draft.mustVisitPlaces);
   function next() { completeStep(2); router.push('/plan/conditions'); }
   function skipAll() { update({ preferences: [], atmospheres: [], localityLevel: null, quietLevel: null, touristLevel: null, foods: [], preferenceAnswerStatus: { category: 'SKIPPED', atmosphere: 'SKIPPED', locality: 'SKIPPED', quietness: 'SKIPPED', touristPreference: 'SKIPPED', foodPreference: 'SKIPPED' } }); next(); }
   const answerStatuses = [
@@ -143,6 +218,27 @@ export default function Taste() {
       </View>
       </Animated.View>
     </View>
+    <View style={styles.mustVisitSection}>
+      <Text variant="title" weight="bold">{tx('꼭 가고 싶은 장소', 'Places you must visit')}</Text>
+      <Text variant="caption" color={color.text.muted}>{tx(`최대 ${MUST_VISIT_MAX}곳까지 추가할 수 있어요. 일정에 반드시 포함돼요.`, `Add up to ${MUST_VISIT_MAX} places — they'll always be included in your itinerary.`)}</Text>
+      <TextInput accessibilityLabel={tx('장소 검색', 'Search places')} value={mustVisitQuery} onChangeText={handleMustVisitChange} placeholder={tx('예: 감천문화마을', 'e.g. Gamcheon Culture Village')} placeholderTextColor={color.text.muted} style={styles.mustVisitInput} />
+      {mustVisitSearching && <Text accessibilityLiveRegion="polite" variant="caption" color={color.text.muted}>{tx('검색 중…', 'Searching…')}</Text>}
+      {mustVisitResults.length > 0 && <View accessibilityRole="list" style={styles.mustVisitList}>
+        {mustVisitResults.map((item) => <Pressable key={item.placeId} accessibilityRole="button" accessibilityLabel={tx(`${item.nameKo} 추가`, `Add ${item.nameKo}`)} onPress={() => addMustVisit(item)} style={({ pressed }) => [styles.mustVisitItem, pressed && styles.mustVisitItemPressed]}>
+          <Text weight="bold">{bilingualPlaceName(item.nameKo, item.nameEn)}</Text>
+          <Text variant="caption" color={color.text.muted}>{item.address}</Text>
+        </Pressable>)}
+      </View>}
+      {!mustVisitSearching && mustVisitSearched && mustVisitResults.length === 0 && <Text accessibilityLiveRegion="polite" variant="caption" color={color.text.muted}>{tx('검색 결과가 없습니다.', 'No results.')}</Text>}
+      {mustVisitNotice && <Text accessibilityRole="alert" variant="caption" color={color.state.danger}>{mustVisitNotice}</Text>}
+      {draft.mustVisitPlaces.length > 0 && <View style={styles.mustVisitChips}>
+        {draft.mustVisitPlaces.map((place) => <View key={place.placeId} style={styles.mustVisitChip}>
+          <Text weight="bold">{bilingualPlaceName(place.nameKo, place.nameEn)}</Text>
+          <Pressable accessibilityRole="button" accessibilityLabel={tx(`${place.nameKo} 빼기`, `Remove ${place.nameKo}`)} onPress={() => removeMustVisit(place.placeId)} style={styles.mustVisitRemove}><Text weight="bold" color={color.text.muted}>×</Text></Pressable>
+        </View>)}
+      </View>}
+      {mustVisitWarningList.map((warning) => <Text key={warning.key} accessibilityRole="alert" variant="caption" color={color.state.danger} style={styles.mustVisitWarning}>{tx(`${warning.nameA}·${warning.nameB}가 ${warning.km}km 떨어져 있어 하루에 함께 넣기 어려워요.`, `${warning.nameA} and ${warning.nameB} are ${warning.km}km apart — hard to fit in one day.`)}</Text>)}
+    </View>
     {kind === 'phone' && <View style={styles.mobileActions}>
       <Pressable accessibilityRole="button" accessibilityState={{ disabled: panelIndex === 0 }} disabled={panelIndex === 0} onPress={() => goToPanel(panelIndex - 1)} style={[styles.previousLink, panelIndex === 0 && styles.detailNavButtonDisabled]}><Text variant="caption" weight="bold" color={color.text.muted}>{tx('이전 질문', 'Previous question')}</Text></Pressable>
       {(panelIndex === 0 || panelIndex === 1) && <Button accessibilityRole="button" label={tx('선택 완료', 'Done')} disabled={!multiSelectReady} containerStyle={styles.inlineCta} onPress={() => advancePanel()} />}
@@ -155,4 +251,13 @@ export default function Taste() {
 const styles = StyleSheet.create({
   canvas: { backgroundColor: color.brand.ivory }, topBar: { minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }, back: { width: 36, height: 36, borderRadius: radius.full, backgroundColor: color.surface.subtle, alignItems: 'center', justifyContent: 'center' }, logo: { width: 86, height: 22 }, stepPill: { paddingHorizontal: spacing[3], paddingVertical: spacing[2], borderRadius: radius.full, backgroundColor: color.surface.subtle }, headingRow: { marginTop: spacing[4], gap: spacing[3] }, subtitle: { marginTop: spacing[1] }, skipAll: { alignSelf: 'flex-end', minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[3] }, questionProgress: { gap: spacing[2], marginBottom: spacing[3] }, questionMeta: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }, questionDots: { flexDirection: 'row', gap: spacing[2] }, questionDot: { flex: 1, height: 4, borderRadius: radius.full, backgroundColor: color.surface.field }, questionDotCurrent: { backgroundColor: color.brand.orange }, questionDotAnswered: { opacity: 0.72, backgroundColor: color.brand.orange }, answerSummary: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[1] }, answerChip: { minHeight: 32, justifyContent: 'center', paddingHorizontal: spacing[2], borderRadius: radius.full, backgroundColor: color.surface.subtle }, content: { gap: spacing[4] }, contentWide: { flexDirection: 'row', alignItems: 'flex-start' }, animatedContent: { width: '100%' }, animatedContentWide: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[4] }, section: { gap: spacing[3], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.border }, sectionHeader: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: spacing[2] }, sectionCopy: { flex: 1, gap: spacing[1] }, skip: { minHeight: 44, justifyContent: 'center' },
   imageGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[3] }, imageCard: { position: 'relative', width: '47%', borderRadius: radius.md, overflow: 'hidden', borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.surface.card }, imageCardPhone: { width: '47%' }, imageCardWide: { width: '30%' }, imageCardSelected: { borderWidth: 2, borderColor: color.brand.orange, backgroundColor: color.surface.warm }, cardImage: { width: '100%', height: 110 }, cardImagePhone: { height: 88 }, cardLabel: { textAlign: 'center', paddingVertical: spacing[2] }, check: { position: 'absolute', top: spacing[2], right: spacing[2], width: 24, height: 24, borderRadius: radius.full, backgroundColor: color.brand.orange, alignItems: 'center', justifyContent: 'center' }, selectionHint: { textAlign: 'center' }, detailColumn: { gap: spacing[4] }, detailColumnWide: { width: 360, flexGrow: 0, flexShrink: 0, flexBasis: 'auto' }, categoryColumn: { flex: 1, width: 0, minWidth: 0, gap: spacing[4] }, detailNav: { display: 'none' }, detailNavButton: { minHeight: 44, minWidth: 72, paddingHorizontal: spacing[3], borderRadius: radius.full, borderWidth: 1, borderColor: color.surface.field, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.card }, detailNavButtonDisabled: { opacity: 0.35 }, mobileActions: { marginTop: spacing[4], flexDirection: 'row', alignItems: 'center', gap: spacing[3] }, previousLink: { minWidth: 86, minHeight: 48, alignItems: 'center', justifyContent: 'center' }, inlineCta: { flex: 1, marginTop: 0, backgroundColor: color.brand.navy }, chips: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] }, foodConflictNotice: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[2], marginBottom: spacing[2], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.state.warningBg }, chip: { minHeight: 44, borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.full, paddingHorizontal: spacing[3], alignItems: 'center', justifyContent: 'center' }, chipDesktop: { borderColor: color.surface.border, backgroundColor: color.surface.subtle }, selected: { backgroundColor: color.action.primary, borderColor: color.action.primary }, selectedDesktop: { backgroundColor: color.surface.warm, borderColor: color.brand.orange }, foodChipWrap: { gap: spacing[1] }, chipBlocked: { opacity: 0.5 }, scale: { gap: spacing[2] }, scaleLabels: { flexDirection: 'row', justifyContent: 'space-between' }, scalePoints: { flexDirection: 'row', justifyContent: 'space-between', borderRadius: radius.full, backgroundColor: color.surface.soft, padding: spacing[1] }, scalePointsDesktop: { backgroundColor: color.surface.subtle }, scalePoint: { width: 44, height: 44, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center' }, scalePointSelected: { backgroundColor: color.action.primary }, scalePointSelectedDesktop: { backgroundColor: color.brand.orange }, paceSection: { gap: spacing[3], marginTop: spacing[4], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.border }, paceGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] }, paceCard: { minWidth: '100%', gap: spacing[1], padding: spacing[3], borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.brand.ivory }, paceCardSelected: { borderWidth: 2, borderColor: color.brand.orange, backgroundColor: color.surface.warm }, cta: { marginTop: spacing[4], backgroundColor: color.brand.navy },
+  mustVisitSection: { gap: spacing[2], marginTop: spacing[4], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.border },
+  mustVisitInput: { minHeight: 48, borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.brand.ivory, color: color.text.heading, fontSize: 15, paddingHorizontal: spacing[3] },
+  mustVisitList: { gap: spacing[1], borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.card, padding: spacing[2] },
+  mustVisitItem: { minHeight: 48, justifyContent: 'center', gap: 2, borderRadius: radius.sm, paddingHorizontal: spacing[2], paddingVertical: spacing[1] },
+  mustVisitItemPressed: { backgroundColor: color.surface.tint },
+  mustVisitChips: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] },
+  mustVisitChip: { flexDirection: 'row', alignItems: 'center', gap: spacing[1], minHeight: 40, paddingLeft: spacing[3], paddingRight: spacing[1], borderRadius: radius.full, backgroundColor: color.surface.warm },
+  mustVisitRemove: { width: 28, height: 28, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center' },
+  mustVisitWarning: { lineHeight: 18 },
 });
