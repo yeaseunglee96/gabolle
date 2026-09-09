@@ -81,6 +81,15 @@ public class TripCreationService {
         Optional<TimeWindows.TimeWindow> window = TimeWindows.parseRange(command.timeWindow());
         String[] travelModes = resolveTravelModes(command.preferences());
 
+        // 🔴 S15P21E201-456 — 자차(PRIVATE_CAR) 이동이면 최대 환승 횟수는 뜻이 없다.
+        //    화면이 실수로 값을 함께 보내도 조용히 무시한다 — 자차에는 환승 개념이
+        //    없으므로 저장해 봐야 나중에 아무도 그 값을 안 쓴다. 400 으로 거부하지 않는
+        //    이유는 두 조건을 함께 고르는 것 자체가 사용자 잘못이 아니라 화면이 아직
+        //    상호배제를 안 걸었을 수 있어서다 — 저장 시점에 조용히 걸러 두면 화면이
+        //    나중에 그 로직을 넣어도 서버 쪽 동작은 안 바뀐다.
+        boolean usesPrivateCar = java.util.Arrays.asList(travelModes).contains("PRIVATE_CAR");
+        Integer maxTransitTransfers = usesPrivateCar ? null : command.maxTransitTransfers();
+
         // ① 여행. 생성자가 조건을 검증한다 — 종료일이 시작일보다 앞이면 여기서 거부된다.
         //    timeWindow 원문은 그대로 넘긴다 — fingerprintOf 가 이 원문 기준이라(아래),
         //    파생값이 아니라 원문을 저장해야 재시도 판정이 안 흔들린다.
@@ -92,6 +101,9 @@ public class TripCreationService {
                 travelModes,
                 window.map(TimeWindows.TimeWindow::start).orElse(null),
                 window.map(TimeWindows.TimeWindow::end).orElse(null),
+                command.accommodationPlaceId(),
+                command.englishMenuRequired(), command.foreignCardRequired(), command.soloFriendlyPriority(),
+                maxTransitTransfers,
                 now);
 
         // ② 제약. 🔴 민감 종류(알레르기·필수 식단)에 값이 들어오면 생성자가 거부한다 —
@@ -173,7 +185,10 @@ public class TripCreationService {
                 String.valueOf(c.originLat()), String.valueOf(c.originLng()),
                 String.valueOf(c.budgetKrw()), String.valueOf(c.partySize()),
                 String.valueOf(c.timeWindow()), String.valueOf(c.timezone()),
-                String.valueOf(c.preferences()), String.valueOf(c.constraints()));
+                String.valueOf(c.preferences()), String.valueOf(c.constraints()),
+                String.valueOf(c.accommodationPlaceId()), String.valueOf(c.englishMenuRequired()),
+                String.valueOf(c.foreignCardRequired()), String.valueOf(c.soloFriendlyPriority()),
+                String.valueOf(c.maxTransitTransfers()));
         try {
             byte[] digest = MessageDigest.getInstance("SHA-256").digest(raw.getBytes(StandardCharsets.UTF_8));
             return HexFormat.of().formatHex(digest);
@@ -233,7 +248,34 @@ public class TripCreationService {
             String timeWindow,
             String timezone,
             List<PreferenceSnapshot.PreferenceAnswer> preferences,
-            List<ConstraintInput> constraints) {
+            List<ConstraintInput> constraints,
+            /** 매일 여기서 시작하고 여기로 돌아온다. {@code null} 이면 아직 안 정한 것이다. */
+            String accommodationPlaceId,
+            boolean englishMenuRequired,
+            boolean foreignCardRequired,
+            boolean soloFriendlyPriority,
+            /** {@code null} 이면 제한 없음. {@code PRIVATE_CAR} 이동이면 저장 전에 무시된다. */
+            Integer maxTransitTransfers) {
+
+        /**
+         * 🔴 S15P21E201-456 이전의 호출부(테스트 등)를 그대로 남긴다 — 새 다섯 칸은
+         * 기본값(false·null)으로 채운다.
+         */
+        public Command(
+                String userId,
+                LocalDate startDate,
+                LocalDate finishDate,
+                Double originLat,
+                Double originLng,
+                Integer budgetKrw,
+                int partySize,
+                String timeWindow,
+                String timezone,
+                List<PreferenceSnapshot.PreferenceAnswer> preferences,
+                List<ConstraintInput> constraints) {
+            this(userId, startDate, finishDate, originLat, originLng, budgetKrw, partySize, timeWindow,
+                    timezone, preferences, constraints, null, false, false, false, null);
+        }
 
         public record ConstraintInput(
                 String type,

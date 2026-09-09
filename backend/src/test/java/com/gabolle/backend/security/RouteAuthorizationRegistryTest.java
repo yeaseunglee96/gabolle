@@ -513,6 +513,8 @@ class RouteAuthorizationRegistryTest {
 						+ "우리 카카오 키로 남이 길찾기를 대신 쓰는 것을 막기 위해서다. RouteControllerTest");
 		put(m, "GET /api/v1/places/nearby", Policy.AUTHENTICATED_ONLY,
 				"좌표만으로 답이 정해진다 — 컨트롤러 주석이 그렇게 적고 있다. NearbyFacetAndRadiusTest");
+		put(m, "GET /api/v1/places/accommodations", Policy.AUTHENTICATED_ONLY,
+				"숙소 후보 조회(S15P21E201-456). category 로 거른 공용 기준 데이터라 요청자별로 답이 갈리지 않는다. AccommodationQueryIntegrationTest");
 		put(m, "GET /api/v1/places/{}", Policy.AUTHENTICATED_ONLY,
 				"공용 기준 데이터. 다만 itineraryInclusion 은 요청자별로 갈리므로 그 자리는 인증 주체로만 읽는다. PlaceDetailIntegrationTest");
 		put(m, "GET /api/v1/places/{}/taxi-card", Policy.AUTHENTICATED_ONLY,
