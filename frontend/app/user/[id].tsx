@@ -77,7 +77,9 @@ export default function UserProfile() {
             <View style={styles.stat}><Text variant="title" weight="bold">{state.profile.followingCount}</Text><Text variant="caption" color={color.text.muted}>{tx('팔로잉', 'Following')}</Text></View>
           </View>
           {/* 문자열로 맞춰 비교한다 — 두 응답의 userId가 타입 선언과 다르게 오면(숫자 vs 문자열) !==가 늘 참이 되어 본인 프로필에도 팔로우 버튼이 뜬다. */}
-          {accessToken && String(user?.userId ?? '') !== String(state.profile.userId) ? (
+          {accessToken && String(user?.userId ?? '') === String(state.profile.userId) ? (
+            <Button label={tx('프로필 수정', 'Edit profile')} variant="ghost" onPress={() => router.push('/me')} containerStyle={styles.followButton} />
+          ) : accessToken ? (
             <Button
               label={followBusy ? tx('처리 중…', 'Working…') : state.profile.following ? tx('팔로잉', 'Following') : tx('팔로우', 'Follow')}
               variant={state.profile.following ? 'ghost' : 'primary'}
@@ -92,7 +94,7 @@ export default function UserProfile() {
       {state.status === 'loaded' ? (
         <View style={styles.list}>
           {storiesLoading ? <ActivityIndicator color={color.brand.orange} /> : null}
-          {!storiesLoading && !items.length ? <Text color={color.text.body} style={styles.empty}>{tx('아직 남긴 기록이 없어요.', 'No records yet.')}</Text> : null}
+          {!storiesLoading && !items.length ? <Text color={color.text.body} style={styles.empty}>{tx('아직 공개된 기록이 없어요.', 'No public records yet.')}</Text> : null}
           {items.map((story: StoryDto) => (
             <Pressable key={story.id} accessibilityRole="button" onPress={() => router.push(`/feed/${story.id}`)} style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}>
               <Text variant="caption" color={color.text.muted}>{relativeStoryTime(story.createdAt, tx)}{story.place?.name ? ` · ${story.place.name}` : story.region ? ` · ${story.region}` : ''}</Text>
