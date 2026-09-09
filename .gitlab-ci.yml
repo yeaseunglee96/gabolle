@@ -337,6 +337,18 @@ vote:recheck:
   stage: release
   variables:
     GIT_DEPTH: 0
+  # 🔴 S15P21E201-768 — ci/vote-recheck.mjs 는 git(spawnSync('git', ['fetch', ...]))과
+  #    npx(spawnSync('npx', ...))만 직접 부른다. 둘 다 쉘을 안 거친다
+  #    (npx 호출의 shell 옵션도 win32 에서만 켠다) — bash 는 아예 안 쓴다.
+  #    axmap-cli 판 정보도 이 잡 자체에 필요 없다 — gate() 가 매 MR 마다
+  #    npx axmap-cli@$AXVER 를 직접 부르므로, 뭔가 어긋나면 그 호출 자체의
+  #    출력에서 이미 드러난다. jira 잡(바로 위)과 같은 판단이다.
+  #
+  #    실측(2026-09-09, 파이프라인 184133·184148·184201) — 이 잡 하나가
+  #    13.4초·22.5초·23.6초였다. 하는 일(표 세기)은 몇 초면 끝나고 나머지가
+  #    기본 before_script(apk add git bash + npm view)였다.
+  before_script:
+    - apk add --no-cache git
   script:
     - node ci/vote-recheck.mjs
   rules:
