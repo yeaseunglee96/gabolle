@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220810793069",
+  "worker": "haiku-24",
+  "researchedAt": "2026-09-09T10:26:15.2132113+09:00",
+  "queries": ["안디아모 동래구 부산", "안디아모 온천2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.tabling.co.kr/place/677cc8c466de5f0698779522", "https://www.diningcode.com/profile.php?rid=KpUKKrycj6Ss"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "파스타/화덕피자 전문점", "sources": [0, 1]},
+    {"type": "조리·재료", "note": "MSG 없는 건강한 맛", "sources": [1]},
+    {"type": "운영·접근 편의", "note": "예약 가능, 주차장 있음, 유아의자 비치", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "available",
+    "audience": "family",
+    "signatureDishes": ["파스타", "화덕피자", "리조또", "샐러드"],
+    "priceBand": "medium"
+  },
+  "notFound": null,
+  "notes": "영업: 11:00-21:00, 월/화 휴무. 식전빵 기본 제공, 추가 3,000원"
+}
