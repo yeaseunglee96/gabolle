@@ -461,6 +461,13 @@ class RouteAuthorizationRegistryTest {
 		put(m, "GET /api/v1/recommendation-jobs/{}", Policy.OWNED,
 				"위와 같은 소유자 검사를 공유한다. RecommendationResultAuthorizationTest");
 
+		put(m, "POST /api/v1/trips/{}/facet-views/{}", Policy.OWNED,
+				"그 여행의 회원만 그 여행 이름으로 갈래 열람을 남긴다 — 아무나 남기면 집계를 부풀릴 수 "
+						+ "있다. FacetViewFunctionalTest (-475)");
+		put(m, "GET /api/v1/admin/facet-views", Policy.ADMIN_ONLY,
+				"갈래별 이용 집계는 운영 판단용이다. 경로 앞자리가 실제 보호 장치다. "
+						+ "FacetViewFunctionalTest (-475)");
+
 		// ── 코스 테마 ────────────────────────────────────────────────────────────
 		put(m, "GET /api/v1/course-categories", Policy.AUTHENTICATED_ONLY,
 				"자원에 주인이 없는 목록 조회다. 쓰이는 자리가 여행 만들기 안이라 로그인 뒤에 둔다. "
