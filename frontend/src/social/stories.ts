@@ -134,6 +134,43 @@ export async function uploadStoryImage(asset: ImagePickResult, accessToken: stri
   }
 }
 
+// jaehyeon 님 계약(2026-09-08 axmap): GET /api/v1/users/{userId}/profile. following은 서버가
+// "요청자가 이 사람을 팔로우 중인가"를 판정해 주므로 화면에서 따로 물어보지 않는다.
+export type UserProfileDto = {
+  userId: string;
+  displayName: string;
+  followerCount: number;
+  followingCount: number;
+  storyCount: number;
+  following: boolean;
+};
+
+export type ProfileLoadResult = { state: 'success'; profile: UserProfileDto } | FeedFailure;
+
+export async function getUserProfile(userId: string, accessToken: string | null): Promise<ProfileLoadResult> {
+  try {
+    const profile = await apiRequest<UserProfileDto>(`/api/v1/users/${encodeURIComponent(userId)}/profile`, { accessToken });
+    return { state: 'success', profile };
+  } catch (error) {
+    return failure(error);
+  }
+}
+
+// GET /api/v1/users/{userId}/stories — 홈 피드(/api/v1/stories)와 같은 StoryDto 모양이라
+// 카드 렌더링을 그대로 재사용할 수 있다(jaehyeon 님 2026-09-08).
+export async function loadUserStories(userId: string, accessToken: string | null, cursor?: string | null): Promise<FeedLoadResult> {
+  try {
+    const params = new URLSearchParams();
+    if (cursor) params.set('cursor', cursor);
+    const query = params.toString();
+    const dto = await apiRequest<{ items: StoryDto[]; nextCursor: string | null }>(`/api/v1/users/${encodeURIComponent(userId)}/stories${query ? `?${query}` : ''}`, { accessToken });
+    cacheStories(dto.items);
+    return { state: 'success', items: dto.items, nextCursor: dto.nextCursor };
+  } catch (error) {
+    return failure(error);
+  }
+}
+
 export type FollowResult = { state: 'success'; following: boolean; followerCount: number; followingCount: number } | FeedFailure;
 
 export async function setFollowing(userId: string, following: boolean, accessToken: string | null): Promise<FollowResult> {

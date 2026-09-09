@@ -34,8 +34,31 @@
 # 권한은 가진 사람이 언제든 우회할 수 있지만 필수 파이프라인은 모두에게 똑같이 걸린다.
 # 그래서 지켜야 할 것은 전부 잡(job)으로 만든다.
 
+# ── 새 커밋이 오면 옛 파이프라인을 끊는다 ──────────────────────────────────────
+#
+# 브랜치에 커밋을 하나 더 올리면, 직전 커밋을 검사하던 파이프라인은 **이미 답이
+# 필요 없는 것**이 된다. 우리가 알고 싶은 것은 언제나 **가장 최신 코드가 성한가**
+# 이지, 3분 전 코드가 성했는가가 아니다.
+#
+# 그런데 그 죽은 파이프라인이 러너 슬롯을 계속 차지한다. 이 저장소의 러너는
+# 운영 서버 위에서 돌고 동시 4개가 상한이라, 슬롯 하나가 헛일에 묶이면 그만큼
+# **살아 있는 파이프라인이 느려진다** (실측: 동시 4개일 때 잡 하나가 2~3배 느려짐).
+#
+# 🔴 `interruptible: true` 만으로는 안 끊긴다. 아래 workflow 의 auto_cancel 이
+#    "무엇을 계기로 끊을지" 를 정하고, 잡 쪽 interruptible 이 "이 잡은 끊겨도
+#    되는가" 를 정한다. 둘 다 있어야 동작한다.
+workflow:
+  auto_cancel:
+    on_new_commit: interruptible
+
 default:
   image: node:20-alpine
+  # 🔴 기본은 "끊겨도 된다" 로 둔다. verify 잡들은 전부 읽고 판정만 하므로
+  #    중간에 죽어도 남는 것이 없다.
+  #
+  #    반대로 release 단계(version · promote)는 태그를 push 하고 MR 을 머지한다 —
+  #    쓰다 만 상태가 남을 수 있어서 그 둘만 아래에서 interruptible: false 로 덮는다.
+  interruptible: true
   before_script:
     - apk add --no-cache git bash
     # 🔴 어느 판이 돌았는지 남긴다. 빨개졌을 때 '어제와 판이 다르네' 를 3초에 안다.
@@ -114,17 +137,51 @@ claims:
 #
 # --audit-level=high 는 npm 내장 기준이라 HIGH·CRITICAL 에서만 실패한다.
 # 실측(2026-09-07): 현재 MODERATE 14건뿐이라 이 잡은 지금 통과한다.
+#
+# 🔴 2026-09-08 — 언제 도는가를 두 갈래로 바꿨다.
+#
+#    전에는 `frontend/**/*` 가 바뀌면 돌았다. 그런데 이 검사가 보는 것은 **의존성**
+#    이지 우리 화면 코드가 아니다. 글자 하나만 고친 MR 에서도 `npm ci` 를 통째로
+#    돌리고 있었고, 그때 의존성은 한 줄도 안 바뀌었다.
+#
+#    그래서 MR 에서는 **잠금 파일이 바뀔 때만** 돈다.
+#
+#    🔴 대신 하루 한 번 예약으로 전체를 다시 본다. **새 취약점은 우리 코드가 안
+#    바뀌어도 생기기 때문이다** — 지난달에 깐 라이브러리가 오늘 취약하다고 공개될
+#    수 있다. 잠금 파일 조건만 두면 그런 날 아무도 모른 채 지나간다.
 frontend:dependency-scan:
   stage: verify
   image: node:20-alpine
   before_script: []
+  # 🔴 캐시하는 것은 node_modules 가 아니라 **npm 이 받아 둔 꾸러미 보관함**(.npm)이다.
+  #    보관함에는 내려받은 tarball 이 들어 있고, npm 은 잠금 파일대로 다시 풀되
+  #    **내려받는 일만 건너뛴다.** GitLab 공식 캐싱 예제가 쓰는 방식 그대로다.
+  #
+  #    node_modules 를 캐시하지 않는 이유는 위험해서가 아니라 **낭비라서**다 —
+  #    `npm ci` 는 시작 전에 node_modules 를 무조건 지운다(재현 확인: 가짜 패키지를
+  #    심어 두어도 다음 npm ci 에서 사라진다). 지워질 것을 압축해 옮기는 셈이다.
+  #
+  #    key 를 잠금 파일 내용으로 잡아서, 의존성이 바뀌면 캐시도 저절로 갈린다.
+  #
+  # 🔴 이 저장소의 러너는 **2대**이고 캐시는 **러너 로컬 디스크**에 쌓인다(원격 캐시
+  #    설정이 없다). 그래서 다른 러너로 배정된 잡은 **캐시가 그냥 미스난다.**
+  #    절감폭이 날마다 들쭉날쭉한 것은 고장이 아니라 이 구조 때문이다.
+  cache:
+    key:
+      files:
+        - frontend/package-lock.json
+    paths:
+      - frontend/.npm
   script:
     - cd frontend
-    - npm ci
+    - npm ci --cache .npm --prefer-offline
     - npm audit --audit-level=high
   rules:
+    # ① 의존성이 실제로 바뀐 MR
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-      changes: ['frontend/**/*']
+      changes: ['frontend/package.json', 'frontend/package-lock.json']
+    # ② 매일 예약 — 코드가 안 바뀌어도 새로 공개된 취약점을 잡는다
+    - if: $CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_KIND == "depscan"
 
 # ── 화면이 실제로 뜨는가 ───────────────────────────────────────────────────────
 #
@@ -148,9 +205,31 @@ frontend:smoke:
   stage: verify
   image: mcr.microsoft.com/playwright:v1.62.1-noble
   before_script: []
+  # 🔴 캐시가 줄여 주는 것은 `npm ci` 안의 **내려받기 부분**뿐이고, 그 크기는
+  #    **10~20초**다. 이 저장소 잡 로그 실측에서 `npm ci` 자체가 22~49초였고,
+  #    같은 잠금 파일로 로컬 재현하니 29.2초 → 12.6~19.5초였다.
+  #
+  #    🔴 이 자리에 한때 "69~112초가 준다" 고 적혀 있었는데 **틀린 값이었다.**
+  #    그 숫자는 `npm ci` 가 아니라 아래 `expo export`(Metro 번들러)가 **러너 동시
+  #    부하에 따라 41초 → 74~111초로 늘어나는 폭**이다. 캐시와 아무 상관이 없다.
+  #    그래서 이 잡을 빠르게 만드는 진짜 손잡이는 캐시가 아니라 **동시에 도는
+  #    잡을 줄이는 것**이다 (그래서 dependency-scan 조건을 좁혔다).
+  #
+  #    타입 검사와 `expo export` 는 우리 코드를 다루는 일이라 캐시와 무관하게
+  #    매번 그대로 돈다. 캐시는 "바뀐 부분만 빌드" 가 아니라 "라이브러리를 다시
+  #    안 받는다" 이다.
+  #
+  #    형제 잡(frontend:dependency-scan)과 key 를 같은 잠금 파일로 잡았으므로,
+  #    **같은 러너에 배정되면** 둘 중 먼저 도는 쪽이 채운 보관함을 나머지가 쓴다.
+  cache:
+    key:
+      files:
+        - frontend/package-lock.json
+    paths:
+      - frontend/.npm
   script:
     - cd frontend
-    - npm ci
+    - npm ci --cache .npm --prefer-offline
     # 🔴 타입 검사를 여기 넣은 이유 — 이건 원래 CI 에 없던 검사다.
     #    package.json 에 `typecheck: tsc --noEmit` 이 있는데 .gitlab-ci.yml
     #    어디에서도 안 불렀다(실측 2026-09-07: tsc·typecheck·verify 0건).
@@ -277,6 +356,9 @@ governance:
 #    것을 아무도 모르는 상태가 제일 나쁘다.
 version:
   stage: release
+  # 🔴 이 잡은 끊지 않는다. 태그를 만들어 push 하는 도중에 죽으면 "태그는 붙었는데
+  #    push 는 안 된" 상태나 그 반대가 남는다. 새 커밋이 왔다고 버릴 수 있는 일이 아니다.
+  interruptible: false
   script:
     - git fetch --tags --quiet
     - |
@@ -324,6 +406,10 @@ version:
 #    있으므로(G3 — 헤드가 바뀌면 표가 효력을 잃는다) 바뀐 내용은 새로 표를 받아야 한다.
 promote:
   stage: release
+  # 🔴 이 잡도 끊지 않는다. MR 을 만들고 머지까지 하므로, 도중에 죽으면 "MR 은
+  #    열렸는데 머지는 안 된" 상태가 남는다. 게다가 예약에서만 도는 잡이라
+  #    새 커밋과 겹칠 일 자체가 드물다.
+  interruptible: false
   variables:
     GIT_DEPTH: 0
   script:

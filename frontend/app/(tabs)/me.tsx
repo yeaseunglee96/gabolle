@@ -12,7 +12,8 @@ import { TabBar } from '@/components/TabBar';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
-import { loadSavedTrips } from '@/trip/tripLibrary';
+import { usePlan } from '@/plan/PlanProvider';
+import { loadTrips } from '@/trip/trips';
 
 function InfoRow({ label, value, onPress, disabled = false }: { label: string; value: string; onPress?: () => void; disabled?: boolean }) {
   return <Pressable accessibilityRole={onPress ? 'button' : undefined} accessibilityState={{ disabled }} disabled={disabled || !onPress} onPress={onPress} style={({ pressed }) => [styles.row, pressed && styles.rowPressed, disabled && styles.rowDisabled]}><Text weight="bold">{label}</Text><Text variant="caption" color={disabled ? color.text.muted : color.text.body}>{value}</Text></Pressable>;
@@ -21,8 +22,9 @@ function InfoRow({ label, value, onPress, disabled = false }: { label: string; v
 export default function Me() {
   const router = useRouter();
   const { preview } = useLocalSearchParams<{ preview?: string }>();
-  const { user, signOut, updateProfile, deleteAccount } = useAuth();
+  const { user, accessToken, signOut, updateProfile, deleteAccount } = useAuth();
   const { language, tx } = useI18n();
+  const plan = usePlan();
   const visualPreview = __DEV__ && preview === 'ui';
   const profileOwner = user?.userId ?? (visualPreview ? 'preview' : null);
   const [editing, setEditing] = useState(visualPreview);
@@ -82,7 +84,8 @@ export default function Me() {
     }
   }
   async function openDeletion() {
-    setSavedTripCount((await loadSavedTrips()).length);
+    const trips = await loadTrips(accessToken);
+    setSavedTripCount(trips.state === 'success' ? trips.trips.length : 0);
     setDeletePassword('');
     setDeleteError(null);
     setDeleteStep(1);
@@ -94,6 +97,7 @@ export default function Me() {
     setDeleteError(null);
     try {
       await deleteAccount(deletePassword);
+      await plan.clear();
     } catch (cause) {
       const incorrect = cause instanceof ApiClientError && (cause.status === 401 || cause.code === 'INVALID_CREDENTIALS');
       setDeleteError(incorrect ? tx('비밀번호가 올바르지 않아요. 다시 입력해 주세요.', 'The password is incorrect. Try again.') : cause instanceof ApiClientError ? cause.message : tx('계정을 삭제하지 못했어요. 잠시 후 다시 시도해 주세요.', 'Could not delete the account. Try again later.'));
@@ -125,7 +129,7 @@ export default function Me() {
       <InfoRow label={tx('오픈소스 고지', 'Open-source notices')} value="›" onPress={() => router.push('/legal/open-source')} />
     </View>
     <Text variant="caption" color={color.text.muted} style={styles.notice}>{tx('완료 여행·저장 장소·리뷰 수는 실제 조회 API가 연결된 뒤 표시합니다.', 'Trip, saved-place, and review counts will appear after their APIs are connected.')}</Text>
-    <Button label={tx('로그아웃', 'Sign out')} variant="ghost" onPress={() => void signOut()} containerStyle={styles.logout} />
+    <Button label={tx('로그아웃', 'Sign out')} variant="ghost" onPress={() => void (async () => { await signOut(); await plan.clear(); })()} containerStyle={styles.logout} />
     <View style={styles.dangerZone}><Text variant="caption" weight="bold" color={color.state.danger}>{tx('계정 관리', 'Account')}</Text><Text variant="caption" color={color.text.body}>{tx('계정과 개인 데이터를 영구적으로 삭제할 수 있어요.', 'Permanently delete your account and personal data.')}</Text><Pressable accessibilityRole="button" onPress={() => void openDeletion()} style={({ pressed }) => [styles.deleteEntry, pressed && styles.rowPressed]}><Text weight="bold" color={color.state.danger}>{tx('계정 삭제', 'Delete account')}</Text><Text variant="title" color={color.state.danger}>›</Text></Pressable></View>
   </Screen><TabBar active="me" />
     <Modal visible={deleteStep > 0} transparent animationType="fade" onRequestClose={closeDeletion}>
@@ -134,7 +138,7 @@ export default function Me() {
           <Text variant="caption" weight="bold" color={color.state.danger}>{tx('1 / 2 · 삭제 내용 확인', '1 / 2 · Review deletion')}</Text>
           <Text variant="display" weight="bold">{tx('삭제되는 내용을 확인해 주세요', 'Review what will be deleted')}</Text>
           <View style={styles.impactList}>
-            <View style={styles.impactRow}><Text variant="title" weight="bold" color={color.text.accent}>{savedTripCount}</Text><Text style={styles.impactCopy}>{tx('이 기기에 저장된 여행과 서버의 일정·추천 데이터가 삭제돼요.', 'Saved trips on this device and server itinerary data will be deleted.')}</Text></View>
+            <View style={styles.impactRow}><Text variant="title" weight="bold" color={color.text.accent}>{savedTripCount}</Text><Text style={styles.impactCopy}>{tx('내 계정의 여행과 일정·추천 데이터가 삭제돼요.', "Your account's trips and itinerary/recommendation data will be deleted.")}</Text></View>
             <View style={styles.impactRow}><Text variant="title" weight="bold" color={color.text.accent}>0</Text><Text style={styles.impactCopy}>{tx('현재 기록 기능이 연결되지 않아 삭제할 여행 기록은 없어요.', 'Travel records are not connected yet, so there are no records to delete.')}</Text></View>
           </View>
           <View style={styles.reviewNotice}><Text weight="bold">{tx('리뷰는 익명으로 남아요', 'Reviews remain anonymous')}</Text><Text variant="caption" color={color.text.body}>{tx('리뷰 기능이 연결되면 작성자 정보만 제거하고 내용은 익명으로 유지해요.', 'When reviews are connected, author details are removed while content remains anonymous.')}</Text></View>

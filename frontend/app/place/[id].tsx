@@ -9,8 +9,10 @@ import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
-import { getPlace, hasLocalityScore, type Place as ApiPlace } from '@/discovery/places';
+import { bilingualPlaceName, getPlace, hasLocalityScore, type Place as ApiPlace } from '@/discovery/places';
 import { useI18n } from '@/i18n';
+import { isAtLeast } from '@/layout/breakpoints';
+import { PlacePhraseModal } from '@/components/PlacePhraseModal';
 import { listAvailableMapApps, type AvailableMapProvider } from '@/utils/externalMaps';
 
 // 홈 화면의 3개 데모 카드는 지금도 이 로컬 값을 그대로 쓴다 — place 표가 비어 있어(-547 적재 전)
@@ -40,12 +42,13 @@ export default function Place() {
   const [mapApps, setMapApps] = useState<AvailableMapProvider[]>([]);
   const [remote, setRemote] = useState<RemoteState>({ status: 'loading' });
   const [retryCount, setRetryCount] = useState(0);
+  const [phraseModalOpen, setPhraseModalOpen] = useState(false);
 
   // 데모 3곳은 로컬 값을, 그 밖의 id 는 방금 받아온 API 응답을 같은 모양으로 맞춘다.
   const resolved = demoPlace
     ? { title: tx(demoPlace.titleKo, demoPlace.titleEn), subtitle: tx(demoPlace.subtitleKo, demoPlace.subtitleEn), apiPlace: null as ApiPlace | null }
     : remote.status === 'loaded'
-      ? { title: tx(remote.place.nameKo, remote.place.nameEn ?? remote.place.nameKo), subtitle: tx(remote.place.address, remote.place.addressEn ?? remote.place.address), apiPlace: remote.place }
+      ? { title: bilingualPlaceName(remote.place.nameKo, remote.place.nameEn), subtitle: tx(remote.place.address, remote.place.addressEn ?? remote.place.address), apiPlace: remote.place }
       : null;
 
   useEffect(() => {
@@ -116,15 +119,29 @@ export default function Place() {
 
       {resolved ? <>
         {demoPlace ? (
-          <ImageBackground source={demoPlace.image} resizeMode="cover" style={[styles.hero, width >= 760 && styles.heroWide]} imageStyle={styles.heroImage}>
+          <ImageBackground source={demoPlace.image} resizeMode="cover" style={[styles.hero, isAtLeast(width, 'md') && styles.heroWide]} imageStyle={styles.heroImage}>
             <View style={styles.shade} />
             <View style={styles.heroCopy}>
               <Text variant="display" weight="bold" color={color.text.onAction}>{resolved.title}</Text>
               <Text color={color.text.onAction}>{resolved.subtitle}</Text>
             </View>
           </ImageBackground>
+        ) : resolved.apiPlace?.photoUrl ? (
+          <ImageBackground source={{ uri: resolved.apiPlace.photoUrl }} resizeMode="cover" style={[styles.hero, isAtLeast(width, 'md') && styles.heroWide]} imageStyle={styles.heroImage}>
+            <View style={styles.shade} />
+            <View style={styles.heroCopy}>
+              <Text variant="display" weight="bold" color={color.text.onAction}>{resolved.title}</Text>
+              <Text color={color.text.onAction}>{resolved.subtitle}</Text>
+              {hasLocalityScore(resolved.apiPlace) ? (
+                <View style={styles.scoreBadge}><Text variant="caption" weight="bold" color={color.text.onAction}>{tx('로컬 점수 있음', 'Has locality score')}</Text></View>
+              ) : null}
+              {resolved.apiPlace.photoSource ? (
+                <Text variant="caption" color={color.text.onAction} style={styles.photoCredit}>{tx(`사진 제공: ${resolved.apiPlace.photoSource}`, `Photo: ${resolved.apiPlace.photoSource}`)}</Text>
+              ) : null}
+            </View>
+          </ImageBackground>
         ) : (
-          <View style={[styles.hero, styles.heroPlain, width >= 760 && styles.heroWide]}>
+          <View style={[styles.hero, styles.heroPlain, isAtLeast(width, 'md') && styles.heroWide]}>
             <View style={styles.heroCopy}>
               <Text variant="display" weight="bold" color={color.text.onAction}>{resolved.title}</Text>
               <Text color={color.text.onAction}>{resolved.subtitle}</Text>
@@ -140,10 +157,13 @@ export default function Place() {
         </View>
         <View style={styles.actions}>
           <Button label={isSaved ? tx('내 여행 후보에서 빼기', 'Remove from candidates') : tx('내 여행 후보에 저장', 'Save to candidates')} variant="ghost" onPress={() => void toggleSaved()} />
+          <Button label={tx('한국어로 말하기', 'Speak Korean')} onPress={() => setPhraseModalOpen(true)} containerStyle={styles.speakAction} />
           <View style={styles.mapRow}>{mapApps.map((app) => <Button key={app.key} label={tx(`${app.labelKo}으로 이동`, `Open in ${app.labelEn}`)} onPress={() => void app.open()} containerStyle={styles.mapAction} />)}</View>
           {feedback ? <Text accessibilityLiveRegion="polite" color={color.text.body} style={styles.feedback}>{feedback}</Text> : null}
         </View>
       </> : null}
+
+      <PlacePhraseModal visible={phraseModalOpen} onClose={() => setPhraseModalOpen(false)} category={resolved?.apiPlace?.category} />
 
       {notFound ? <View style={styles.notice} accessibilityRole="alert">
         <Text variant="title" weight="bold">{tx('장소를 찾을 수 없어요', 'Place not found')}</Text>
@@ -174,10 +194,12 @@ const styles = StyleSheet.create({
   shade: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(8, 27, 53, 0.25)' },
   heroCopy: { gap: spacing[1], padding: spacing[4] },
   scoreBadge: { alignSelf: 'flex-start', marginTop: spacing[2], borderRadius: radius.full, paddingHorizontal: spacing[3], paddingVertical: spacing[1], backgroundColor: 'rgba(255,255,255,0.18)' },
+  photoCredit: { marginTop: spacing[1], opacity: 0.8 },
   notice: { gap: spacing[3], marginTop: spacing[4], padding: spacing[4], borderWidth: 1, borderColor: '#eee5da', borderRadius: radius.lg, backgroundColor: color.surface.card },
   noticeCopy: { lineHeight: 22 },
   actions: { gap: spacing[3], marginTop: spacing[4] },
   feedback: { textAlign: 'center' },
+  speakAction: { backgroundColor: color.brand.navy },
   mapRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] },
   mapAction: { flex: 1, minWidth: 160, backgroundColor: color.brand.navy },
   recoveryButton: { marginTop: spacing[2] },

@@ -11,12 +11,12 @@ import { color, gutter, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { loadFeed, relativeStoryTime, setFollowing, VISIBILITY_LABEL, type FeedLoadResult, type FeedScope, type StoryDto } from '@/social/stories';
 
-function StoryCard({ story, showUnfollow, unfollowBusy, onUnfollow, onOpen }: { story: StoryDto; showUnfollow: boolean; unfollowBusy: boolean; onUnfollow: () => void; onOpen: () => void }) {
+function StoryCard({ story, showUnfollow, unfollowBusy, onUnfollow, onOpen, onOpenAuthor }: { story: StoryDto; showUnfollow: boolean; unfollowBusy: boolean; onUnfollow: () => void; onOpen: () => void; onOpenAuthor: () => void }) {
   const { tx } = useI18n();
   const place = story.place?.name ?? story.region ?? null;
   return <Pressable accessibilityRole="button" accessibilityLabel={tx('기록 상세 보기', 'View record details')} onPress={onOpen} style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}>
     <View style={styles.cardHeader}>
-      <View style={styles.grow}><Text variant="body" weight="bold">{story.author.displayName}</Text><Text variant="caption" color={color.text.muted}>{relativeStoryTime(story.createdAt, tx)}{place ? ` · ${place}` : ''}</Text></View>
+      <Pressable accessibilityRole="link" accessibilityLabel={tx(`${story.author.displayName} 프로필 보기`, `View ${story.author.displayName}'s profile`)} onPress={(event) => { event.stopPropagation(); onOpenAuthor(); }} style={styles.grow}><Text variant="body" weight="bold">{story.author.displayName}</Text><Text variant="caption" color={color.text.muted}>{relativeStoryTime(story.createdAt, tx)}{place ? ` · ${place}` : ''}</Text></Pressable>
       {story.mine && story.visibility !== 'PUBLIC' ? <View style={styles.visibilityBadge}><Text variant="caption" weight="bold" color={color.text.muted}>{tx(...VISIBILITY_LABEL[story.visibility])}</Text></View> : null}
       {showUnfollow ? <Pressable accessibilityRole="button" accessibilityLabel={tx(`${story.author.displayName} 언팔로우`, `Unfollow ${story.author.displayName}`)} accessibilityState={{ busy: unfollowBusy }} disabled={unfollowBusy} onPress={onUnfollow} style={[styles.unfollowButton, unfollowBusy && styles.busy]}><Text variant="caption" weight="bold" color={color.text.body}>{unfollowBusy ? tx('처리 중', 'Working') : tx('팔로잉', 'Following')}</Text></Pressable> : null}
     </View>
@@ -80,7 +80,7 @@ export default function Feed() {
       {scope === 'FOLLOWING' ? <><Text variant="title" weight="bold">{tx('아직 팔로우한 사람의 기록이 없어요', 'No records from people you follow yet')}</Text><Button label={tx('전체 보기', 'See all')} onPress={() => setScope('ALL')} containerStyle={styles.primaryAction} /></> : <><Text variant="title" weight="bold">{tx('부산 여행 기록을 모으고 있어요', 'Collecting Busan travel stories')}</Text><Text color={color.text.body} style={styles.description}>{tx('먼저 여행을 준비하고 기록을 남겨 보세요.', 'Prepare a trip first, then write your own record.')}</Text><Button label={tx('내 여행 보기', 'See my trips')} onPress={() => router.push('/trips')} containerStyle={styles.primaryAction} /></>}
     </View> : null}
 
-    {!loading && result.state === 'success' && items.length ? <View style={styles.list}>{items.map((story) => <StoryCard key={story.id} story={story} showUnfollow={scope === 'FOLLOWING'} unfollowBusy={unfollowingId === story.author.id} onUnfollow={() => void unfollow(story)} onOpen={() => router.push(`/feed/${story.id}`)} />)}</View> : null}
+    {!loading && result.state === 'success' && items.length ? <View style={styles.list}>{items.map((story) => <StoryCard key={story.id} story={story} showUnfollow={scope === 'FOLLOWING'} unfollowBusy={unfollowingId === story.author.id} onUnfollow={() => void unfollow(story)} onOpen={() => router.push(`/feed/${story.id}`)} onOpenAuthor={() => router.push(`/user/${story.author.id}`)} />)}</View> : null}
 
     {!loading && result.state === 'success' && result.nextCursor ? <Button label={loadingMore ? tx('불러오는 중…', 'Loading…') : tx('더 보기', 'Load more')} variant="ghost" disabled={loadingMore} onPress={() => void loadMore()} containerStyle={styles.loadMore} /> : null}
 

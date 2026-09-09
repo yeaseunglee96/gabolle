@@ -4,12 +4,13 @@ import { ImageBackground, StyleSheet, View } from 'react-native';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
+import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
 
 export function PlanDesktopShell({ children }: { children: ReactNode }) {
   const { kind, width } = useLayout();
   const { tx } = useI18n();
-  const desktop = kind === 'tablet' && width >= 1100;
+  const desktop = kind === 'tablet' && isAtLeast(width, 'lg');
   if (!desktop) return <>{children}</>;
   return <View style={styles.page}>
     <ImageBackground source={require('../../assets/images/welcome-busan.png')} resizeMode="cover" style={styles.hero}>

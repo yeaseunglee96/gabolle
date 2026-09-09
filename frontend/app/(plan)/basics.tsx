@@ -7,15 +7,22 @@ import { DateFieldInput } from '@/components/DateFieldInput';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
+import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
 import { PlanStepHeader } from '@/plan/PlanStepHeader';
 import { PlanDesktopShell } from '@/plan/PlanDesktopShell';
 import { useI18n } from '@/i18n';
 import { type PlanDraft, type Transport, usePlan } from '@/plan/PlanProvider';
-import { addDays, localToday, validateTripBasics, type TripBasicsErrors } from '@/plan/tripBasics';
+import { addDays, BUDGET_UNIT_KRW, formatBudgetEn, formatBudgetKo, localToday, validateTripBasics, type TripBasicsErrors } from '@/plan/tripBasics';
 
 const AREAS = [['HAEUNDAE', '해운대', 'Haeundae'], ['GWANGALLI', '광안리', 'Gwangalli'], ['NAMPO', '남포동', 'Nampo-dong'], ['SEOMYEON', '서면', 'Seomyeon'], ['YEONGDO', '영도', 'Yeongdo'], ['SONGJEONG', '송정', 'Songjeong']] as const;
-const BUDGETS = [50000, 100000, 150000, 200000] as const;
+// 🔴 예산은 **쌓는다.** 한 칸을 누르면 그만큼 더해지고, 같은 칸을 또 누르면 또 더해진다
+// (5 → 5만, 5 를 한 번 더 → 10만. 55만이 아니다). 여행 예산은 만 원 단위로 말하는 값이라
+// 원 단위로 0 을 네 개 치게 하는 것보다 이 편이 빠르고, 0 을 하나 빠뜨릴 일도 없다.
+// 마지막 10 은 30만·50만 같은 큰 금액을 몇 번 만에 만들기 위한 큰 칸이다.
+const BUDGET_STEPS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] as const;
+/** 영어에는 "만" 자리가 없다. 키에 ₩50,000 을 그대로 넣으면 칸을 넘치므로 천 단위(K)로 줄여 쓴다. */
+const enStep = (units: number) => `₩${units * 10}K`;
 
 // 모바일에서 7개 카드를 한 화면에 몰아두면 설문이 길어 보인다 (taste·constraints 는
 // 이미 화면당 1~2문항으로 쪼개져 있는데 여기만 그대로였다). 같은 패턴으로 4묶음
@@ -43,7 +50,7 @@ export default function Basics() {
   const { tx } = useI18n();
   const router = useRouter();
   const { kind, width } = useLayout();
-  const isDesktop = kind === 'tablet' && width >= 1100;
+  const isDesktop = kind === 'tablet' && isAtLeast(width, 'lg');
   const { draft, ready, update, completeStep } = usePlan();
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [panelIndex, setPanelIndex] = useState(0);
@@ -53,7 +60,17 @@ export default function Basics() {
   const nights = /^\d{4}-\d{2}-\d{2}$/.test(draft.startDate) && /^\d{4}-\d{2}-\d{2}$/.test(draft.endDate) ? Math.max(0, Math.round((Date.parse(`${draft.endDate}T00:00:00Z`) - Date.parse(`${draft.startDate}T00:00:00Z`)) / 86400000)) : null;
   const set = <K extends keyof PlanDraft>(key: K, value: PlanDraft[K]) => update({ [key]: value });
   const setPeople = (key: 'adults' | 'children', value: number) => update({ [key]: value, travelers: value + draft[key === 'adults' ? 'children' : 'adults'] });
-  const selectBudget = (amount: number | null) => update({ budgetKrw: amount });
+  // 되돌리기는 **누르기 전 상태를 통째로 쌓아두는 방식**이다. 금액만 빼면 "전체 지우기" 를
+  // 무를 수 없는데, 한 번 누르면 값이 통째로 사라지는 버튼에 되돌리기가 없는 것이 제일 나쁘다.
+  const [budgetUndo, setBudgetUndo] = useState<{ krw: number | null; added: number | null; trail: number[] }[]>([]);
+  const [budgetAdded, setBudgetAdded] = useState<number | null>(null);
+  const [budgetTrail, setBudgetTrail] = useState<number[]>([]);
+  const pushBudgetUndo = () => setBudgetUndo((stack) => [...stack, { krw: draft.budgetKrw, added: budgetAdded, trail: budgetTrail }]);
+  const addBudget = (units: number) => { pushBudgetUndo(); update({ budgetKrw: (draft.budgetKrw ?? 0) + units * BUDGET_UNIT_KRW }); setBudgetAdded(units); setBudgetTrail([...budgetTrail, units]); };
+  const clearBudget = () => { pushBudgetUndo(); update({ budgetKrw: null }); setBudgetAdded(null); setBudgetTrail([]); };
+  const undoBudget = () => { const previous = budgetUndo[budgetUndo.length - 1]; if (!previous) return; setBudgetUndo((stack) => stack.slice(0, -1)); update({ budgetKrw: previous.krw }); setBudgetAdded(previous.added); setBudgetTrail(previous.trail); };
+  // 이 화면에 들어오기 전부터 들고 있던 금액. 쌓아온 순서를 "10만 원 +5만 +5만" 으로 보여줄 때 맨 앞에 온다.
+  const budgetTrailBase = (draft.budgetKrw ?? 0) - budgetTrail.reduce((sum, units) => sum + units, 0) * BUDGET_UNIT_KRW;
   const today = localToday();
   const endMinimum = /^\d{4}-\d{2}-\d{2}$/.test(draft.startDate) ? draft.startDate : today;
   const endMaximum = addDays(endMinimum, 7);
@@ -109,11 +126,27 @@ export default function Basics() {
       </Card>
       </>}
 
-      {(kind === 'tablet' || panelIndex === 2) && <Card title={tx('총예산', 'Total budget')} hint={tx('전체 여행 기간의 숙박비 제외 예산이에요. 10,000원 단위로 선택해 주세요.', 'Budget for the whole trip excluding lodging, in KRW 10,000 increments.')}>
-        <View accessibilityRole="radiogroup" accessibilityLabel={tx('총예산 구간', 'Total budget range')} style={styles.chips}>
-          {BUDGETS.map((amount) => { const selected = draft.budgetKrw === amount; return <Pressable key={amount} accessibilityRole="radio" accessibilityState={{ selected }} onPress={() => selectBudget(amount)} style={[styles.chip, isDesktop && styles.chipDesktop, selected && styles.chipSelected, selected && isDesktop && styles.chipSelectedDesktop]}><Text weight="bold" color={selected ? (isDesktop ? color.brand.orange : color.text.onAction) : color.text.heading}>{tx(`${amount / 10000}만원`, `₩${amount.toLocaleString('en-US')}`)}</Text></Pressable>; })}
+      {(kind === 'tablet' || panelIndex === 2) && <Card title={tx('총예산', 'Total budget')} hint={tx('전체 여행 기간에 쓸 돈이에요. 숙박비는 빼고 생각해 주세요.', 'What you plan to spend across the whole trip, excluding lodging.')}>
+        <View style={[styles.budgetTotal, isDesktop && styles.budgetTotalDesktop]}>
+          <View style={styles.budgetTotalHead}>
+            <Text variant="caption" weight="bold" color={color.text.muted}>{tx('지금 예산', 'Current budget')}</Text>
+            {budgetAdded !== null && <View style={styles.budgetJustAdded}><Text variant="caption" weight="bold" color={color.text.onAction}>{tx(`방금 +${budgetAdded}만`, `Just +${enStep(budgetAdded)}`)}</Text></View>}
+          </View>
+          <Text accessibilityLiveRegion="polite" variant="hero" weight="bold" color={color.text.heading}>{draft.budgetKrw === null ? tx('0원', '₩0') : tx(formatBudgetKo(draft.budgetKrw), formatBudgetEn(draft.budgetKrw))}</Text>
+          <Text variant="caption" color={color.text.muted}>{draft.budgetKrw === null ? tx('아직 정하지 않았어요.', 'Not set yet.') : tx(`${draft.budgetKrw.toLocaleString('ko-KR')}원`, `${(draft.budgetKrw / BUDGET_UNIT_KRW).toLocaleString('en-US')} × ₩10,000`)}</Text>
+          {budgetTrail.length > 0 && <Text variant="caption" color={color.text.body}>{[...(budgetTrailBase > 0 ? [tx(formatBudgetKo(budgetTrailBase), formatBudgetEn(budgetTrailBase))] : []), ...budgetTrail.map((units) => tx(`+${units}만`, `+${enStep(units)}`))].join(' ')}</Text>}
         </View>
-        <Field label={tx('직접 입력·10,000원 단위', 'Custom amount · KRW 10,000 steps')} error={errors.budgetKrw}><View style={styles.moneyRow}><TextInput accessibilityLabel={tx('총예산, 숙박비 제외', 'Total budget excluding lodging')} keyboardType="number-pad" value={draft.budgetKrw === null ? '' : draft.budgetKrw.toLocaleString('ko-KR')} onChangeText={(value) => { const digits = value.replace(/\D/g, ''); selectBudget(digits ? Number(digits) : null); }} placeholder="100,000" placeholderTextColor={color.text.muted} style={[styles.input, isDesktop && styles.inputDesktop, styles.moneyInput, errors.budgetKrw && styles.invalid]} /><Text>{tx('원', 'KRW')}</Text></View></Field>
+
+        <Text variant="caption" color={color.text.body}>{tx('숫자를 누를 때마다 그만큼 더해져요 — 5 를 누르면 5만 원, 한 번 더 누르면 10만 원.', 'Each tap adds that amount — tap 5 for ₩50,000, tap it again for ₩100,000.')}</Text>
+        <View accessibilityLabel={tx('예산 더하기 키패드', 'Budget add keypad')} style={styles.budgetKeys}>
+          {BUDGET_STEPS.map((units) => <Pressable key={units} accessibilityRole="button" accessibilityLabel={tx(`${units}만원 더하기`, `Add ${formatBudgetEn(units * BUDGET_UNIT_KRW)}`)} onPress={() => addBudget(units)} style={[styles.budgetKey, isDesktop && styles.budgetKeyDesktop]}><Text variant="title" weight="bold" color={color.text.heading}>{tx(`+${units}만`, `+${enStep(units)}`)}</Text></Pressable>)}
+        </View>
+
+        <View style={styles.budgetUndoRow}>
+          <Pressable accessibilityRole="button" accessibilityState={{ disabled: budgetUndo.length === 0 }} disabled={budgetUndo.length === 0} accessibilityLabel={tx('마지막으로 누른 것 되돌리기', 'Undo the last tap')} onPress={undoBudget} style={[styles.budgetUndo, budgetUndo.length === 0 && styles.disabled]}><Text variant="caption" weight="bold" color={color.text.heading}>{budgetUndo.length === 0 ? tx('↩ 되돌리기', '↩ Undo') : budgetAdded === null ? tx('↩ 지운 것 되살리기', '↩ Undo clear') : tx(`↩ +${budgetAdded}만 취소`, `↩ Undo +${enStep(budgetAdded)}`)}</Text></Pressable>
+          <Pressable accessibilityRole="button" accessibilityState={{ disabled: draft.budgetKrw === null }} disabled={draft.budgetKrw === null} accessibilityLabel={tx('예산 전체 지우기', 'Clear the whole budget')} onPress={clearBudget} style={[styles.budgetClear, draft.budgetKrw === null && styles.disabled]}><Text variant="caption" weight="bold" color={color.text.heading}>{tx('전체 지우기', 'Clear all')}</Text></Pressable>
+        </View>
+        {errors.budgetKrw && <Text accessibilityRole="alert" variant="caption" color={color.state.danger}>{errors.budgetKrw}</Text>}
       </Card>}
 
       {(kind === 'tablet' || panelIndex === 3) && <>
@@ -144,7 +177,10 @@ const styles = StyleSheet.create({
   questionProgress: { gap: spacing[2], marginBottom: spacing[3] }, questionMeta: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }, questionDots: { flexDirection: 'row', gap: spacing[2] }, questionDot: { flex: 1, height: 4, borderRadius: radius.full, backgroundColor: color.surface.field }, questionDotCurrent: { backgroundColor: color.brand.orange }, questionDotAnswered: { opacity: 0.72, backgroundColor: color.brand.orange },
   grid: { gap: spacing[4] }, gridWide: { flexDirection: 'row', flexWrap: 'wrap' }, card: { minWidth: '48%', flexGrow: 1, gap: spacing[3], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.border, shadowColor: color.brand.navy, shadowOpacity: .06, shadowRadius: 12, shadowOffset: { width: 0, height: 4 }, elevation: 2 }, field: { flex: 1, gap: spacing[2] }, input: { minHeight: 48, borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.card, color: color.text.heading, fontSize: 15, paddingHorizontal: spacing[3] }, inputDesktop: { borderColor: color.surface.border, backgroundColor: color.surface.subtle }, invalid: { borderColor: color.state.danger },
   dateRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] }, dateRowPhone: { flexDirection: 'column', alignItems: 'stretch' }, dateArrow: { marginTop: spacing[6], color: color.text.muted }, badge: { alignSelf: 'center', paddingHorizontal: spacing[3], paddingVertical: spacing[2], borderRadius: radius.full, backgroundColor: color.surface.subtle }, stepper: { minHeight: 58, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }, stepperControls: { flexDirection: 'row', alignItems: 'center', gap: spacing[3] }, roundButton: { width: 44, height: 44, borderRadius: radius.full, backgroundColor: color.surface.tint, alignItems: 'center', justifyContent: 'center' }, roundButtonDesktop: { backgroundColor: color.surface.subtle }, roundButtonPlusDesktop: { backgroundColor: color.brand.navy }, disabled: { opacity: .4 },
-  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] }, chip: { minHeight: 44, paddingHorizontal: spacing[4], borderRadius: radius.full, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center' }, chipDesktop: { borderColor: color.surface.border, backgroundColor: color.surface.subtle }, chipSelected: { backgroundColor: color.action.primary, borderColor: color.action.primary }, chipSelectedDesktop: { backgroundColor: color.surface.warm, borderColor: color.brand.orange }, moneyRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] }, moneyInput: { flex: 1 }, transport: { flexDirection: 'row', gap: spacing[2] }, transportButton: { flex: 1, minHeight: 48, borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center' },
+  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] }, chip: { minHeight: 44, paddingHorizontal: spacing[4], borderRadius: radius.full, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center' }, chipDesktop: { borderColor: color.surface.border, backgroundColor: color.surface.subtle }, chipSelected: { backgroundColor: color.action.primary, borderColor: color.action.primary }, chipSelectedDesktop: { backgroundColor: color.surface.warm, borderColor: color.brand.orange }, transport: { flexDirection: 'row', gap: spacing[2] }, transportButton: { flex: 1, minHeight: 48, borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center' },
+  budgetTotal: { gap: spacing[1], padding: spacing[4], borderRadius: radius.md, backgroundColor: color.surface.tint }, budgetTotalDesktop: { backgroundColor: color.surface.subtle }, budgetTotalHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[2] }, budgetJustAdded: { paddingHorizontal: spacing[2], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: color.brand.orange },
+  budgetKeys: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] }, budgetKey: { flexGrow: 1, flexBasis: '30%', minHeight: 52, borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center' }, budgetKeyDesktop: { borderColor: color.surface.border, backgroundColor: color.surface.subtle },
+  budgetUndoRow: { flexDirection: 'row', gap: spacing[2] }, budgetUndo: { flex: 2, minHeight: 48, paddingHorizontal: spacing[3], borderRadius: radius.full, borderWidth: 1, borderColor: color.brand.orange, backgroundColor: color.surface.warm, alignItems: 'center', justifyContent: 'center' }, budgetClear: { flex: 1, minHeight: 48, paddingHorizontal: spacing[3], borderRadius: radius.full, borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center' },
   panelNav: { marginTop: spacing[4], flexDirection: 'row', alignItems: 'center', gap: spacing[3] }, panelNavButton: { minWidth: 72, minHeight: 48, paddingHorizontal: spacing[3], borderRadius: radius.full, borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center' }, panelCta: { flex: 1, marginTop: 0, backgroundColor: color.brand.navy },
   reason: { marginTop: spacing[6], textAlign: 'center', color: color.text.body }, cta: { marginTop: spacing[3], backgroundColor: color.brand.navy },
 });

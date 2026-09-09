@@ -9,6 +9,7 @@ import { Screen } from '@/components/Screen';
 import { TabBar } from '@/components/TabBar';
 import { Text } from '@/components/Text';
 import { color, gutter, radius, spacing } from '@/design/tokens';
+import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
 import { useI18n } from '@/i18n';
 
@@ -51,7 +52,7 @@ export default function Home() {
   const router = useRouter();
   const { tx } = useI18n();
   const { width } = useLayout();
-  const desktop = width >= 768;
+  const desktop = isAtLeast(width, 'md');
   const [likedIds, setLikedIds] = useState<Set<string>>(new Set());
   const carouselRef = useRef<ScrollView>(null);
   const dragStartX = useRef(0);
@@ -100,6 +101,10 @@ export default function Home() {
 
         <Pressable accessibilityRole="button" accessibilityLabel={tx('지금 갈 곳 찾기', 'Find places to go now')} onPress={() => router.push('/now')} style={({ pressed }) => [styles.nowBar, pressed && styles.weatherBarPressed]}>
           <Text variant="body" weight="medium" color={color.text.onAction}>{tx('🧭  지금 남는 시간, 갈 곳 찾기', '🧭  Got free time now? Find a place')}</Text><Text weight="bold" color={color.text.onAction}>›</Text>
+        </Pressable>
+
+        <Pressable accessibilityRole="button" accessibilityLabel={tx('부산 로컬 탐색', 'Explore Busan like a local')} onPress={() => router.push('/explore')} style={({ pressed }) => [styles.exploreBar, pressed && styles.weatherBarPressed]}>
+          <Text variant="body" weight="medium" color={color.text.heading}>{tx('🗺️  축제·야시장 등 로컬 8종 둘러보기', '🗺️  Explore 8 local categories')}</Text><Text weight="bold" color={color.brand.orange}>›</Text>
         </Pressable>
 
         <View style={styles.heading}>
@@ -162,6 +167,7 @@ const styles = StyleSheet.create({
   weatherBar: { minHeight: 44, marginTop: spacing[2], paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.state.warningBg, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   weatherBarPressed: { opacity: 0.78, transform: [{ scale: 0.99 }] },
   nowBar: { minHeight: 44, marginTop: spacing[2], paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.brand.navy, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  exploreBar: { minHeight: 44, marginTop: spacing[2], paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.field, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   heading: { gap: spacing[1], marginTop: spacing[4], marginHorizontal: spacing[1] },
   headingTitle: { fontSize: 28, lineHeight: 34 },
   carousel: { gap: spacing[3], paddingHorizontal: spacing[1], paddingVertical: spacing[4] },

@@ -12,6 +12,20 @@ function minutes(value: string) { const match = /^(\d{2}):(\d{2})$/.exec(value);
 export function localToday(now = new Date()) { const offset = now.getTimezoneOffset() * 60000; return new Date(now.getTime() - offset).toISOString().slice(0, 10); }
 export function addDays(value: string, days: number) { const date = new Date(`${value}T00:00:00Z`); date.setUTCDate(date.getUTCDate() + days); return date.toISOString().slice(0, 10); }
 
+/** 예산 한 칸의 크기. 검증도 10,000원 단위를 요구하므로 같은 값을 쓴다. */
+export const BUDGET_UNIT_KRW = 10000;
+
+// 여행 예산은 "십만 원" 처럼 만 원 단위로 말하는 값인데 화면에 100000 이라고 적으면
+// 사람이 0을 세게 된다. 그래서 만 원으로 나누어 읽는 단위로 보여준다.
+// 만 원으로 안 떨어지는 값(예전에 원 단위로 저장된 초안)은 그대로 원으로 보여준다.
+export function formatBudgetKo(amountKrw: number) {
+  return amountKrw % BUDGET_UNIT_KRW === 0 ? `${(amountKrw / BUDGET_UNIT_KRW).toLocaleString('ko-KR')}만 원` : `${amountKrw.toLocaleString('ko-KR')}원`;
+}
+/** 영어에는 "만" 에 해당하는 자리가 없어서 원 단위 금액을 그대로 쓴다. */
+export function formatBudgetEn(amountKrw: number) {
+  return `₩${amountKrw.toLocaleString('en-US')}`;
+}
+
 export function validateTripBasics(draft: PlanDraft, today = localToday()): TripBasicsErrors {
   const errors: TripBasicsErrors = {};
   if (!validDate(draft.startDate)) errors.startDate = '시작일을 YYYY-MM-DD 형식으로 입력해 주세요.';
