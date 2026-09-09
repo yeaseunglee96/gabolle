@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220802988657",
+  "worker": "haiku-21",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["라무야 남구 부산", "라무야 문현동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1486316", "https://www.diningcode.com/profile.php?rid=h7dfsYJE1FWu", "https://www.daangn.com/kr/local-profile/%EB%9D%BC%EB%AC%B4%EC%95%BC-tbo3avcok76e/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "조리·재료",
+      "note": "냉동이 아닌 냉장육을 사용해 신선도를 중시",
+      "sources": [0, 1]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "라무야 특양갈비(스프링램)로 불리며 단일 대표메뉴",
+      "sources": [0, 1]
+    },
+    {
+      "type": "플랫폼 순위·평점",
+      "note": "식신, 다이닝코드, 당근 등 다수 맛집 플랫폼에 등재",
+      "sources": [0, 1, 2]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "available",
+    "audience": "mixed",
+    "signatureDishes": ["라무야 특양갈비", "땡초라면"],
+    "priceBand": "medium"
+  },
+  "notFound": null,
+  "notes": ""
+}

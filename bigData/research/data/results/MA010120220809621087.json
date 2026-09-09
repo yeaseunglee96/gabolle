@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220809621087",
+  "worker": "haiku-20",
+  "researchedAt": "2026-09-09T10:26:30Z",
+  "queries": ["씨푸드127 남구 부산", "씨푸드127 대연6동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 남구 못골로12번길 63"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "간판 메뉴 지목", "note": "회전초밥 전문점", "sources": [0] },
+    { "type": "운영·접근 편의", "note": "여러 층 구성, 주차장 있음", "sources": [0] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "yes",
+    "audience": "mixed",
+    "signatureDishes": ["회전초밥"],
+    "priceBand": "regular"
+  },
+  "notFound": null,
+  "notes": ""
+}
