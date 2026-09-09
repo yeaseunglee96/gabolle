@@ -1,5 +1,11 @@
 package com.gabolle.backend.itinerary.application;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Objects;
+import com.gabolle.backend.itinerary.domain.ItineraryLeg;
+import com.gabolle.backend.trip.domain.Trip;
+import com.gabolle.backend.trip.domain.TripRepository;
 import com.gabolle.backend.itinerary.application.port.PlaceEventSchedule;
 import com.gabolle.backend.itinerary.application.port.PlaceEventSchedulePort;
 import com.gabolle.backend.itinerary.domain.Itinerary;
@@ -53,12 +59,31 @@ public class ItineraryEditService {
 
     private final PlaceEventSchedulePort eventSchedule;
 
+    /**
+     * 순서를 바꾼 뒤 그날 구간을 다시 만드는 데 쓴다 — S15P21E201-755.
+     *
+     * <p>구간 계산을 여기서 다시 쓰지 않고 생성 경로와 <b>같은 코드</b>를 부른다. 규칙이 적지
+     * 않다 — 출발지 처리, 이동수단 고르기, 대중교통 구간에 직선거리를 걷은 거리로 안 적기,
+     * 길찾기가 실패했을 때 어림값으로 표시하기. 사본을 두면 언젠가 한쪽만 고쳐지고 두 경로가
+     * 다른 답을 낸다.
+     */
+    private final ItineraryLegPlanner legPlanner;
+
+    /**
+     * 여행의 출발 좌표와 이동수단을 읽으려고 받는다. 구간의 첫 자리는 여행 출발지에서
+     * 시작하고, 이동수단은 걷기 거리를 채울지 말지를 가른다.
+     */
+    private final TripRepository tripRepository;
+
     private final Clock clock;
 
     public ItineraryEditService(ItineraryRepository repository, PlaceEventSchedulePort eventSchedule,
+                                ItineraryLegPlanner legPlanner, TripRepository tripRepository,
                                 Clock clock) {
         this.repository = repository;
         this.eventSchedule = eventSchedule;
+        this.legPlanner = legPlanner;
+        this.tripRepository = tripRepository;
         this.clock = clock;
     }
 
@@ -237,6 +262,8 @@ public class ItineraryEditService {
         ItineraryRevision.Draft draft =
                 ItineraryRevision.withReorderedDay(base, newVersionId, dayIndex, dayOrder, now);
 
+        List<ItineraryLeg> legs = withRebuiltDayLegs(itinerary, draft, dayIndex, newVersionId, now);
+
         ItineraryVersion candidate = new ItineraryVersion(
                 newVersionId,
                 itineraryId,
@@ -249,7 +276,47 @@ public class ItineraryEditService {
                 new ItineraryVersion.Versions(null, null, null, null, null),
                 now);
 
-        return repository.appendVersion(candidate, draft.items(), draft.legs(), draft.exclusions());
+        return repository.appendVersion(candidate, draft.items(), legs, draft.exclusions());
+    }
+
+    /**
+     * 순서를 바꾼 그날의 구간을 다시 만들어 끼운다 — S15P21E201-755.
+     *
+     * <p>{@code withReorderedDay} 는 그날 구간을 <b>버린 채로</b> 준다. 순서가 바뀌면 "A 에서
+     * B 로 몇 분" 이라는 주장이 더 이상 참이 아니기 때문이다. 버리는 것까지가 맞고, 여기서
+     * 새 순서로 다시 채운다. 안 채우면 사용자 눈에는 "순서를 바꿨더니 소요시간이 사라졌다" 다.
+     *
+     * <p>다른 날 구간은 손대지 않는다 — {@code draft.legs()} 에 그대로 들어 있다.
+     *
+     * <p>여행을 못 찾으면 구간 없이 넘어간다. 순서 바꾸기 자체는 성공해야 하기 때문이다 —
+     * 이동시간을 못 채운 것이 순서를 못 바꿀 이유는 아니다. 좌표가 없는 방문지도 같다.
+     * 그때 구간의 거리·시간은 비고, 그 사실이 {@code dataStatus} 에 남는다(생성 경로와 같다).
+     */
+    private List<ItineraryLeg> withRebuiltDayLegs(Itinerary itinerary, ItineraryRevision.Draft draft,
+                                                  int dayIndex, String newVersionId, Instant now) {
+
+        List<ItineraryLeg> otherDays = draft.legs();
+
+        Trip trip = tripRepository.findById(itinerary.tripId()).orElse(null);
+        if (trip == null) {
+            return otherDays;
+        }
+
+        List<UUID> dayPlaceIds = draft.items().stream()
+                .filter((item) -> item.dayIndex() == dayIndex)
+                .sorted(Comparator.comparingInt(ItineraryItem::sequence))
+                .map(ItineraryItem::placeId)
+                .filter(Objects::nonNull)
+                .map(UUID::fromString)
+                .toList();
+
+        if (dayPlaceIds.isEmpty()) {
+            return otherDays;
+        }
+
+        List<ItineraryLeg> rebuilt = new ArrayList<>(otherDays);
+        rebuilt.addAll(legPlanner.legsForDay(trip, dayIndex, dayPlaceIds, newVersionId, now));
+        return rebuilt;
     }
 
     /**
