@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220801838938",
+  "worker": "haiku-32",
+  "researchedAt": "2026-09-09T10:33:00Z",
+  "queries": ["일봉초밥 사하구 부산", "일봉초밥 하단1동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "검색 결과에서 이 가게에 대한 정보를 찾을 수 없음. 사하구·하단1동 지역의 다른 초밥점(용이초밥, 올타미스터스시, 미카도스시, 백초밥 사하점, 스시나라 등) 정보는 나왔으나 일봉초밥은 미확인.",
+  "notes": ""
+}
