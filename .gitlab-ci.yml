@@ -89,7 +89,24 @@ claims:
     #
     #    🔴 도장을 못 남겨도 **판정은 그대로다.** 대가는 다음 감사가 느린 것이지
     #       검사가 헐거워지는 것이 아니다 (장부 push 실패와 정반대다).
-    - npx -y axmap-cli@$AXMAP_VERSION audit --fetch --checkpoint
+    #
+    # `--code` 를 함께 준다 (2026-09-09, common/dev 를 합치면서).
+    #    common 쪽은 이 자리를 `--code "$RANGE"` 로만 돌리고 있었고 back 쪽은
+    #    `--checkpoint` 로만 돌리고 있어서 둘 중 하나를 골라야 하는 자리로 보였는데,
+    #    **둘은 같은 명령의 다른 옵션이라 함께 줄 수 있다** (장효준 님이 실제로 던져
+    #    확인해 주셨다). 체크포인트로 빨라지고, 코드 대조도 하고, 도장도 남는다.
+    #    한쪽을 고르면 다른 쪽이 보던 것을 잃는다.
+    - |
+      if [ -n "${CI_MERGE_REQUEST_DIFF_BASE_SHA:-}" ]; then
+        RANGE="${CI_MERGE_REQUEST_DIFF_BASE_SHA}..${CI_COMMIT_SHA}"
+      else
+        RANGE="${CI_COMMIT_BEFORE_SHA}..${CI_COMMIT_SHA}"
+      fi
+      echo "코드 대조 구간: $RANGE"
+      # 한글 파일명이 8진수 escape 경로로 바뀌어 claim 과 불일치하는 것을 막는다.
+      #    common 쪽 주석이 실제로 겪은 문제로 적어 둔 것이라 그대로 가져왔다.
+      git config core.quotepath false
+      npx -y axmap-cli@$AXMAP_VERSION audit --fetch --code "$RANGE" --checkpoint
   rules:
     # ref/ 만 바뀐 MR 에서는 돌지 않는다 (ref/README.md)
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
