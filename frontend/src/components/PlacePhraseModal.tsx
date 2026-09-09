@@ -1,5 +1,5 @@
 // 장소 카드에서 여는 한국어 말하기 모달 — 4개 탭(관광지·식당카페·택시·숙소), S15P21E201-389.
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import * as Speech from 'expo-speech';
@@ -21,19 +21,26 @@ export function PlacePhraseModal({ visible, onClose, category }: PlacePhraseModa
   const [tab, setTab] = useState<PlaceTabKey>(() => defaultTabForCategory(category));
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [speakingId, setSpeakingId] = useState<string | null>(null);
+  // speak()를 빠르게 다시 누르면(같은 문장의 다른 속도, 또는 다른 문장) Speech.stop()이
+  // 취소한 "이전" 재생의 onDone/onError가 뒤늦게 도착해 방금 시작한 재생의 상태를
+  // null로 덮어쓴다 — field/speak.tsx의 TTS 버튼에서 실제로 겪은 것과 같은 경쟁
+  // 상태다(S15P21E201-771). 매 호출마다 토큰을 새로 발급해 자기 차례가 아니면 무시한다.
+  const playTokenRef = useRef(0);
 
   useEffect(() => {
     if (visible) { setTab(defaultTabForCategory(category)); setExpandedId(null); }
   }, [visible, category]);
 
   function speak(phrase: PlacePhrase, rate: number) {
+    const token = ++playTokenRef.current;
+    const finish = () => { if (playTokenRef.current === token) setSpeakingId(null); };
     try {
       Speech.stop();
       setSpeakingId(phrase.id);
-      Speech.speak(phrase.ko, { language: 'ko-KR', rate, onDone: () => setSpeakingId(null), onStopped: () => setSpeakingId(null), onError: () => setSpeakingId(null) });
+      Speech.speak(phrase.ko, { language: 'ko-KR', rate, onDone: finish, onStopped: finish, onError: finish });
     } catch {
       // 소리 기능이 없는 브라우저에서도 글자는 그대로 보인다.
-      setSpeakingId(null);
+      finish();
     }
   }
 
