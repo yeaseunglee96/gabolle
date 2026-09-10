@@ -1,11 +1,18 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Platform, StyleSheet, Text, View } from 'react-native';
 
 const buildSha = process.env.EXPO_PUBLIC_BUILD_SHA?.slice(0, 8);
 const buildRef = process.env.EXPO_PUBLIC_BUILD_REF;
 const alwaysShow = process.env.EXPO_PUBLIC_SHOW_BUILD_INFO === '1';
 
 function shouldDisplay() {
-  if (typeof window === 'undefined') return false;
+  // 🔴 실측(2026-09-10, S15P21E201-177 첫 실기기 빌드) — React Native의 Hermes
+  // 런타임은 `window`를 전역 별칭으로 제공해서 네이티브(Android/iOS)에서도
+  // `typeof window === 'undefined'`가 false로 나온다. 그런데 `window.location`은
+  // 웹 전용이라 네이티브엔 없어서, 바로 아래에서 `window.location.search`를
+  // 읽는 순간 TypeError로 죽었다 — 앱이 켜지자마자 모든 네이티브 빌드가
+  // AppErrorBoundary로 떨어지는 크래시였다. window 존재 여부가 아니라
+  // Platform.OS로 웹인지 직접 판별한다.
+  if (Platform.OS !== 'web') return false;
   if (alwaysShow) return true;
 
   const params = new URLSearchParams(window.location.search);
