@@ -9,7 +9,7 @@
   "stillOpen": true,
   "whyPeopleGo": [
     {"type": "맛 묘사", "note": "밥도둑 간장게장, 풍성한 해산물 모듬", "sources": [0]},
-    {"type": "현지인 지지", "note": "1454개 방문자 리뷰, 4118개 블로그 리뷰", "sources": [1]}
+    {"type": "현지인 지지", "note": "방문자 리뷰와 블로그 리뷰 수를 근거로 든다", "sources": [1]}
   ],
   "newTypes": [],
   "descriptors": {
