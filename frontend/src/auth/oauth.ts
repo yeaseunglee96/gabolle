@@ -9,6 +9,12 @@ const PROVIDERS: Record<OAuthProvider, { clientId?: string; authorizationEndpoin
   google: { clientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID, authorizationEndpoint: 'https://accounts.google.com/o/oauth2/v2/auth', scope: 'openid email profile' },
   naver: { clientId: process.env.EXPO_PUBLIC_NAVER_CLIENT_ID, authorizationEndpoint: 'https://nid.naver.com/oauth2.0/authorize', scope: 'name email' },
   kakao: { clientId: process.env.EXPO_PUBLIC_KAKAO_CLIENT_ID, authorizationEndpoint: 'https://kauth.kakao.com/oauth/authorize', scope: 'profile_nickname account_email' },
+  // scope를 email만 요청한다(name은 요청하지 않는다) — name을 요청하면 Apple이 GET 리다이렉트
+  // 대신 POST(response_mode=form_post)로만 응답하는데, 이 프런트(정적 SPA)는 POST 본문을 받을
+  // 서버가 없다. 백엔드 AppleOAuthProviderClient(jaehyeon님, S15P21E201-825)도 표시 이름을
+  // 애초에 안 쓴다 — 가입 화면에서 사용자가 직접 적는 이름을 쓴다. 그래서 다른 provider와 똑같이
+  // GET 리다이렉트(response_mode 기본값)로 처리할 수 있다.
+  apple: { clientId: process.env.EXPO_PUBLIC_APPLE_CLIENT_ID, authorizationEndpoint: 'https://appleid.apple.com/auth/authorize', scope: 'email' },
 };
 
 // redirect URI 는 provider 개발자센터에 등록한 값과 백엔드 GABOLLE_OAUTH_ALLOWED_REDIRECT_URIS 와
