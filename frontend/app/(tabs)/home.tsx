@@ -20,6 +20,18 @@ const RECOMMENDATIONS = [
   { id: 'gwangalli', titleKo: '광안리 해수욕장', titleEn: 'Gwangalli Beach', descriptionKo: '야경과 함께하는 해변 산책', descriptionEn: 'A beach walk with a night view', image: require('../../assets/home/gwangalli.png') },
   { id: 'gamcheon', titleKo: '감천문화마을', titleEn: 'Gamcheon Culture Village', descriptionKo: '형형색색 감성 골목 여행', descriptionEn: 'A colorful, atmospheric alley trip', image: require('../../assets/home/gamcheon.png') },
 ] as const;
+
+/**
+ * 🔴 위 카드 셋은 **파일에 박혀 있다.** id 가 'haeundae' · 'gwangalli' · 'gamcheon' 이라는
+ *    화면용 이름표지 서버의 장소 번호가 아니다. 그래서 여기서 나가는 행동 기록은
+ *    **존재하지 않는 장소에 붙는다.** 빈 것은 비어 보이지만 틀린 것은 맞아 보인다 —
+ *    한 번 들어가면 나중에 그 줄만 골라낼 방법이 없다. 서버도 장소 번호의 실재를 검사하지 않는다.
+ *
+ * 🟢 홈 카드가 서버에서 오게 되면(추천 API 연결) **이 값을 false 로 바꾸는 것 하나로** 되살아난다.
+ *    저장 자체는 지금도 그대로 된다 — 기기에 남고 화면도 똑같이 반응한다. 기록만 안 간다.
+ */
+const HOME_CARDS_ARE_MOCK = true;
+
 const bellIcon = require('../../assets/icons/home/bell.png');
 const heartIcon = require('../../assets/icons/home/heart.png');
 const arrowLeftIcon = require('../../assets/icons/home/arrow-left.png');
@@ -90,7 +102,7 @@ export default function Home() {
     setLikedIds(next);
     void AsyncStorage.setItem(SAVED_PLACES_KEY, JSON.stringify([...next]));
     setSaveFeedback(saved ? tx('이 기기에 여행지를 저장했어요.', 'Saved this place on this device.') : tx('이 기기에서 저장을 해제했어요.', 'Unsaved this place on this device.'));
-    if (saved) sendAppEvent({ type: 'place_like', accessToken, payload: { place_id: id, surface: 'home' } });
+    if (saved && !HOME_CARDS_ARE_MOCK) sendAppEvent({ type: 'place_like', accessToken, payload: { place_id: id, surface: 'home' } });
   };
   const goToCard = (index: number) => {
     const next = Math.max(0, Math.min(RECOMMENDATIONS.length - 1, index));
