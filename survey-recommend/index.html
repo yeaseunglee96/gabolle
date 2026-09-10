@@ -275,8 +275,18 @@ h2.section { font-size: 30px; line-height: 1.1; letter-spacing: -.03em; font-wei
 .pcard.on .lbl, .pcard.on .prow .k { color: var(--dark-label); }
 .ask { font-size: 12.5px; color: var(--muted); margin: 12px 0 0; }
 
-/* ── 추천 칸 다섯 (줄 목록) ─────────────────────────────────────── */
-.cats { border-top: 1px solid var(--ink); }
+/* ── 🔴 "안 채워도 된다" 를 말하는 상자 (S15P21E201-754) ──────────
+   갈래 여덟이 세로로 늘어서 있으면 사람은 여덟을 다 채워야 하는 줄 안다.
+   그래서 회색 힌트가 아니라 **테두리 친 상자**로 둔다 — 흑백만 쓰는 화면이라
+   "눈에 띄게" 할 수 있는 수단이 테두리와 밝기뿐이다. */
+.optnote {
+  margin: 22px 0 0; padding: 16px 18px; border: 1.5px solid var(--ink); border-radius: 14px;
+  font-size: 15px; line-height: 1.6; color: var(--ink);
+}
+.optnote b { font-weight: 700; }
+
+/* ── 추천 갈래 여덟 (아코디언) ─────────────────────────────────── */
+.cats { border-top: 1px solid var(--ink); margin-top: 22px; }
 .cat { border-bottom: 1px solid var(--line); }
 .cat.bad { border-bottom: 2px solid var(--ink); }
 .cathead {
@@ -304,8 +314,21 @@ h2.section { font-size: 30px; line-height: 1.1; letter-spacing: -.03em; font-wei
 .catbody > div { overflow: hidden; min-height: 0; }
 .catinner { padding: 0 0 28px 52px; }
 
-.rest { transition: opacity .18s ease; }
-.rest.locked { opacity: .3; pointer-events: none; }
+/* ── 🔴 갈래 안의 줄 하나 (S15P21E201-754) ────────────────────────
+   한 갈래에 여러 곳을 적을 수 있으므로, 줄과 줄 사이가 어디서 갈리는지
+   눈에 보여야 한다. 색을 안 쓰므로 **가로줄 한 개**로만 가른다.
+   첫 줄 위에는 안 긋는다 — 갈래 제목 바로 아래라 이미 갈려 있다. */
+.srow + .srow { margin-top: 34px; padding-top: 30px; border-top: 1px solid var(--line); }
+.srow.bad { border-left: 2px solid var(--ink); padding-left: 16px; margin-left: -18px; }
+.rowhead {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 12px;
+  min-height: 22px;
+}
+.rowhead .roword { font-size: 13px; color: var(--muted); font-weight: 700; }
+/* 🔴 줄이 하나뿐이면 .roword 가 빈칸이라 「이 줄 비우기」만 오른쪽에 남는다 */
+.rowhead .linkbtn { margin-left: auto; }
+
+.catfoot { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: 30px 0 0; }
 
 label.f2 { display: block; margin: 26px 0 0; font-size: 13px; color: var(--muted); }
 label.f2 b { color: var(--ink); font-weight: 700; }
@@ -357,7 +380,6 @@ textarea.u { min-height: 96px; font-size: 17px; line-height: 1.5; resize: vertic
 .check span { font-size: 15px; line-height: 1.45; }
 .check span i { display: block; font-style: normal; font-size: 12.5px; color: var(--muted); }
 
-.slotfoot { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: 30px 0 0; }
 .linkbtn {
   background: none; border: 0; padding: 10px 0; min-height: 44px; font: inherit; font-size: 14px;
   color: var(--muted); cursor: pointer; text-decoration: underline; text-underline-offset: 4px;
@@ -372,8 +394,9 @@ textarea.u { min-height: 96px; font-size: 17px; line-height: 1.5; resize: vertic
 /* ── 「한 곳 더 적기」 (S15P21E201-754) ──────────────────────────
    🔴 속을 채운 단추(.pill-sm 기본)가 아니라 **테두리만 있는 단추**다.
       아래 「제출하기」가 이 화면에서 가장 눈에 띄어야 하는데, 속을 채우면
-      둘이 같은 무게가 되어 "더 적어야 제출되나" 로 읽힌다. */
-.addslot { margin: 26px 0 0; }
+      둘이 같은 무게가 되어 "더 적어야 제출되나" 로 읽힌다.
+   🔴 이 단추는 이제 **갈래마다 하나씩** 그 갈래 안에 있다. 화면 맨 아래에
+      하나만 두면 어느 갈래에 칸이 느는지 알 수 없다. */
 .addbtn { background: none; color: var(--ink); border: 1px dashed var(--line-2); }
 .addbtn:hover { border-style: solid; border-color: var(--ink); }
 .addnote { font-size: 13px; color: var(--muted); margin: 10px 0 0; max-width: 36ch; }
@@ -586,16 +609,17 @@ textarea.u { min-height: 96px; font-size: 17px; line-height: 1.5; resize: vertic
     </div>
 
     <h2 class="section" style="margin-top:56px">추천하는 곳<br>다섯 군데</h2>
-    <p class="hint">줄을 눌러 펼치고 하나씩 적어 주세요. <b>다섯 곳이 전부 같은 유형이어도 괜찮아요</b> — 맛집만 다섯 곳이어도 좋습니다. <b>더 아시면 열 곳까지</b> 적으실 수 있어요.</p>
+    <!-- 🔴 이 상자가 이 화면에서 가장 중요한 한 줄이다 (S15P21E201-754).
+         갈래 여덟이 세로로 늘어서 있으면 사람은 **여덟을 다 채워야 하는 줄 안다.**
+         그 순간 "이건 6분짜리가 아니구나" 가 되어 시작도 전에 나간다.
+         그래서 갈래 목록보다 **먼저**, 그리고 힌트 글씨가 아니라 **테두리 친
+         상자**로 둔다. 힌트 회색 글씨로 적으면 아무도 안 읽는다. -->
+    <p class="optnote"><b>아는 곳만 적어 주세요. 모르는 갈래는 비워 두셔도 됩니다.</b>
+      모두 합해 <b>다섯 곳</b>이면 됩니다 — 여덟 갈래를 다 채우실 필요 없어요.
+      한 갈래에 여러 곳을 적으셔도 좋습니다 (맛집만 다섯 곳도 좋아요).</p>
+    <p class="hint">갈래를 눌러 펼치고 적어 주세요. 갈래 안에서 <b>「+ 한 곳 더 적기」</b>로 칸을 늘리실 수 있고, 모두 합해 <b>열 곳까지</b> 받습니다.</p>
 
     <div class="cats" id="cats"></div>
-
-    <!-- 🔴 「한 곳 더 적기」 — 기본은 다섯 칸이고, 이 버튼을 누른 사람만 는다.
-         열이 차면 버튼이 사라지고 안내 문구만 남는다 (paintAddSlot). -->
-    <div class="addslot">
-      <button type="button" class="pill-sm addbtn" id="addSlot"><span aria-hidden="true">+</span> 한 곳 더 적기</button>
-      <p class="addnote" id="addSlotNote"></p>
-    </div>
 
     <div id="stop"></div>
 
@@ -871,50 +895,74 @@ const CREDITS_LINE =
   "광안리 해수욕장 Chelsea Hicks(CC BY 2.0) · 흰여울 문화마을 Choi2451(CC0) · " +
   "부산 야경 Jeena Paradies(CC BY 2.0) — 출처 Wikimedia Commons";
 
-/* ── 장소 유형 일곱 ────────────────────────────────────────────────
+/* ── 장소 갈래 여덟 ────────────────────────────────────────────────
    🔴 "야간" 과 "축제" 를 여기에 넣지 않는다.
-      야간은 시간이고 축제는 날짜가 있는 사건이다. 유형에 섞으면
+      야간은 시간이고 축제는 날짜가 있는 사건이다. 갈래에 섞으면
       "이 사람이 술을 좋아하는지 야경을 좋아하는지" 를 나중에 못 가른다.
       그래서 낮/밤은 whenGood, 축제는 limited 로 따로 받는다.
-   ── 순서와 코드값을 바꾸지 않는다. 바꾸면 앞 회차 응답과 못 합친다.
+
+   🔴 2026-09-10 (S15P21E201-754) 일곱 → **여덟**. 이름과 순서를 사람이 정했다.
+      새로 생긴 것은 **SIGHT(「관광 · 명소 · 경치」) 하나뿐**이고, 나머지 일곱은
+      **코드값 그대로**다 (화면 이름만 다듬었다) — 그래서 앞 회차 응답과 합칠 수 있다.
+
+   🔴 SIGHT 가 왜 필요했나 — 일곱에는 **"보러 가는 곳" 을 담을 자리가 없었다.**
+      해운대해수욕장은 바다니까 NATURE? 부산에서 가장 유명한 관광지인데?
+      감천문화마을은 마을이니까 CULTURE? 벽화 보러 가는 곳인데?
+      광안리 야경은 NATURE 도 CULTURE 도 아니라 갈 곳이 아예 없다.
+      적는 사람마다 다른 칸을 고르면 같은 곳이 표에서 두세 갈래로 흩어지고,
+      그러면 "관광지로 많이 추천된 곳" 을 셀 수가 없다. 나중에 못 합친다 —
+      어느 행이 "관광지로 적은 것" 이었는지가 안 남기 때문이다.
+
+   🔴 왜 글자가 SIGHT 인가 — sight = "볼거리 · 명소"(sightseeing 의 그 sight).
+      이 갈래가 담는 것이 정확히 그것이다. 버린 후보:
+        TOUR     여행 전체라 너무 넓다 (이 설문은 전부 여행 이야기다)
+        VIEW     경치만이라 감천문화마을 같은 명소가 안 들어간다
+        SCENIC   형용사라 나머지(FOOD · CAFE …)와 품사가 어긋난다
+        LANDMARK 대표 건물만 가리켜 전망 · 야경이 빠진다
+      기존 일곱과 같은 모양(대문자 ASCII 한 낱말)으로 맞췄다.
+
+   🔴 코드값(v) · 순서 · 이름(t)을 바꾸지 않는다. 이 목록은 server.mjs 의
+      PLACE_TYPES · schema.sql · migrations/0006_add_sight_type.sql 의
+      recommendation_place_type_ok 와 같아야 한다.
    ─────────────────────────────────────────────────────────────── */
-/* 🔴 eg = 이름 칸의 예시. **유형을 고르면 그 유형의 예시로 바뀐다.**
-      예전에는 일곱 유형이 전부 "예: ○○돼지국밥" 이었다 — 카페를 골라 놓고
-      돼지국밥 예시를 보면 사람은 "여기 맛집만 적는 곳인가" 로 읽는다.
-   🔴 lim = 「기간이 정해진 곳」 체크칸을 이 유형에서 보여 줄 것인가.
+/* 🔴 eg = 이름 칸의 예시. 갈래마다 다르다 — 카페 갈래에 "예: ○○돼지국밥" 이
+      떠 있으면 사람은 "여기 맛집만 적는 곳인가" 로 읽는다.
+      문구는 사람이 정한 그대로다. 지어내서 바꾸지 않는다.
+   🔴 lim = 「기간이 정해진 곳」 체크칸을 이 갈래에서 보여 줄 것인가.
       축제 · 시즌 행사는 전시 · 시장 · 체험 쪽 이야기이고, 맛집 · 카페 ·
       술집에 "기간이 정해진 곳인가요" 를 물으면 안 묻느니만 못하다 —
       쓸 데 없는 칸이 하나 늘면 나머지 칸의 신뢰도까지 같이 떨어진다.
-      🔴 lim:false 인 유형으로 바꾸면 이미 켠 체크도 같이 끈다. 안 끄면
-         화면에는 안 보이는데 값만 true 로 남아 표에 들어간다.
-   ── 순서와 코드값(v)을 바꾸지 않는다. 바꾸면 앞 회차 응답과 못 합친다.
-      eg · lim 은 화면 문구라 바꿔도 응답과 안 어긋난다.
+      🔴 SIGHT 는 false 다. 관광지 · 전망대 · 야경은 **상시로 있는 곳**이고,
+         "밤에 좋다" 는 이미 whenGood 이 받는다. FOOD · CAFE · NATURE · BAR 와
+         같은 쪽이다.
+      🔴 이제 갈래가 곧 유형이라 **유형이 바뀌는 일이 없다.** 예전에는 칸 안에서
+         유형을 바꿀 수 있어서 "lim:false 로 바꿀 때 이미 켠 체크를 끄는" 처리가
+         필요했는데, 그 경로 자체가 사라졌다 — 체크칸이 없는 갈래에서는
+         체크칸이 애초에 안 그려진다.
    ─────────────────────────────────────────────────────────────── */
 const TYPES = [
-  { v: "FOOD",     t: "맛집 · 로컬 음식",   eg: "예: ○○돼지국밥",     lim: false },
-  { v: "CAFE",     t: "카페 · 디저트",      eg: "예: ○○로스터리",     lim: false },
-  { v: "NATURE",   t: "자연 · 바다 · 산책", eg: "예: ○○해변 산책로",  lim: false },
-  { v: "CULTURE",  t: "문화 · 역사 · 전시", eg: "예: ○○미술관",       lim: true  },
-  { v: "MARKET",   t: "시장 · 골목 · 쇼핑", eg: "예: ○○시장",         lim: true  },
-  { v: "ACTIVITY", t: "체험 · 액티비티",    eg: "예: ○○요트 투어",    lim: true  },
-  { v: "BAR",      t: "술집 · 바",          eg: "예: ○○포차",         lim: false }
+  { v: "SIGHT",    t: "관광 · 명소 · 경치",           eg: "관광지, 명소, 전망, 야경 이름",                             lim: false },
+  { v: "FOOD",     t: "로컬 음식 · 맛집",             eg: "식당 이름",                                                 lim: false },
+  { v: "CAFE",     t: "카페 · 찻집 · 디저트",         eg: "카페, 찻집, 디저트 가게 이름",                              lim: false },
+  { v: "NATURE",   t: "자연 · 산책",                  eg: "바닷가, 산, 공원, 산책길 이름",                             lim: false },
+  { v: "CULTURE",  t: "문화 · 역사 · 종교 · 전시",    eg: "박물관, 기념관, 미술관, 사찰, 성당 등 역사 문화 명소 이름", lim: true  },
+  { v: "MARKET",   t: "시장 · 쇼핑",                  eg: "전통시장, 쇼핑 장소, 골목길 이름",                          lim: true  },
+  { v: "ACTIVITY", t: "체험 · 액티비티 · 휴식",       eg: "스포츠, 놀이시설, 실내체험, 목욕탕, 공연음악 장소 이름",    lim: true  },
+  { v: "BAR",      t: "술집 · 바",                    eg: "술집, 바 이름",                                             lim: false }
 ];
 const typeLabel = v => (TYPES.find(t => t.v === v) || {}).t || "";
-const typeOf    = v => TYPES.find(t => t.v === v) || null;
-/* 유형을 아직 안 골랐을 때의 예시 — 일부러 유형색이 없는 말로 둔다 */
-const EG_NONE = "먼저 위에서 어떤 곳인지 골라 주세요";
 
-/* 🔴 칸이 다섯이다. 유형이 다섯인 게 아니다.
-      다섯 칸이 전부 같은 유형이어도 된다 — 맛집을 다섯 곳 아는 사람의
-      답을 잘라내지 않으려고 이렇게 바꿨다.
-   🔴 SLOTS 는 **처음 보여 주는 칸 수이자 반드시 채워야 하는 칸 수**이고,
-      MAX_SLOTS 는 「한 곳 더 적기」로 늘릴 수 있는 **상한**이다 (S15P21E201-754).
-      처음부터 열 칸을 펼쳐 놓지 않는 이유는, 그 길이 자체가 "열 곳을 적어야
-      하는구나" 로 읽혀 시작도 하기 전에 사람을 돌려보내기 때문이다.
+/* 🔴 NEED 는 **전체 하한**(다 채운 곳이 이만큼은 있어야 낸다), MAX_SLOTS 는
+      **전체 상한**이다. 둘 다 응답 하나 전체를 센다 (S15P21E201-754).
+   🔴 갈래별 상한은 두지 않는다. 맛집을 다섯 곳 아는 사람이 다섯 곳 다
+      「로컬 음식 · 맛집」에 적을 수 있어야 한다 — 그 답이 우리가 가장 원하는
+      답이고, 갈래마다 하나로 막으면 네 곳이 잘려나간다.
+   🔴 갈래는 여덟인데 하한이 다섯인 것은 실수가 아니다. **여덟을 다 채우라는
+      뜻이 아니다** — 아는 갈래에만 적고 나머지는 비워 두면 된다.
    🔴 MAX_SLOTS(10) 는 server.mjs 의 MAX_SLOTS · schema.sql 과
       migrations/0005_more_slots.sql 의 recommendation_slot_ok 상한과 같아야
       한다. 어긋나면 사람은 화면에서 통과하고 서버나 DB 에서 거절당한다. */
-const SLOTS = 5;
+const NEED = 5;
 const MAX_SLOTS = 10;
 
 /* 🔴 다섯 칸 → 세 칸으로 바꿨다 (S15P21E201-754, 팀원 피드백).
@@ -1178,7 +1226,10 @@ const bucketOf = ms => { let i = 0; while (i < MS_BUCKETS.length && ms >= MS_BUC
 /* 🔴 placeId — 목록에서 고른 경우만 채워진다(S15P21E201-754). 직접 타이핑하면
       곧바로 null 로 되돌아간다(자동완성 목록에서 아래 이벤트가 그렇게 한다) —
       옛 선택을 붙인 채로 이름만 바뀐 걸 서버에 보내지 않으려고. */
-const blank = () => ({ type: null, name: "", whenGood: null, limited: false, reason: "", placeId: null });
+/* 🔴 type 은 **갈래가 정해서 넣어 준다** (S15P21E201-754). 줄 안에서 안 고른다 —
+      「로컬 음식 · 맛집」 갈래에 적은 줄은 FOOD 말고 다른 것이 될 수 없다.
+      그래서 "유형만 고르고 만 줄" 도, "유형을 바꿔서 값이 어긋난 줄" 도 없다. */
+const blank = type => ({ type: type, name: "", whenGood: null, limited: false, reason: "", placeId: null });
 const state = {
   ageBand: null,
   busanYears: null,
@@ -1203,8 +1254,12 @@ const state = {
         정한 것이고, 이전 장으로 돌아왔다 가도 안 바뀌어야 한다. */
   pair: new Array(PAIR_SETS.length).fill(null),
   pairTopWas: new Array(PAIR_SETS.length).fill(null),
-  slots: Array.from({ length: SLOTS }, blank),   /* 칸 다섯. 유형은 칸 안에서 고른다 */
-  open: -1                                        /* 한 번에 하나만 펼친다. -1 = 다 닫힘 */
+  /* 🔴 갈래 여덟. 갈래마다 줄이 여럿 있을 수 있다 (S15P21E201-754).
+        유형은 **갈래가 정한다** — 줄 안에서 고르지 않는다.
+        갈래마다 빈 줄 하나로 시작하고, 「+ 한 곳 더 적기」로 는다.
+        빈 줄은 보낼 때 조용히 빠진다 (liveRows). */
+  cats: TYPES.map(t => ({ rows: [blank(t.v)] })),
+  open: -1                                        /* 한 번에 한 갈래만 펼친다. -1 = 다 닫힘 */
 };
 
 const $ = id => document.getElementById(id);
@@ -1309,136 +1364,106 @@ $("detailsToggle").addEventListener("click", () => {
   $("detailsToggle").textContent = open ? "자세한 내용 접기 ↑" : "무엇을 모으고 어디에 두는지 자세히 보기 ↓";
 });
 
-/* ── 추천 칸 다섯 ────────────────────────────────────────────── */
-/* 🔴 열까지 있다. 다섯에서 끊기면 여섯째 칸 제목이 "undefined 번째 추천" 이 된다 */
+/* ── 추천하는 곳 — 갈래 여덟 × 갈래마다 여러 곳 ────────────────────
+ * (S15P21E201-754. 왜 이 모양으로 되돌렸는지는 README.md 3절에 있다)
+ *
+ * 갈래 제목 여덟을 세로로 늘어놓고, **누른 갈래만** 아래로 펼친다(아코디언).
+ * 펼치면 그 갈래에 적는 줄이 하나 있고, 「+ 한 곳 더 적기」로 그 갈래 안에서
+ * 줄을 늘린다 — 맛집을 다섯 곳 아는 사람은 맛집 갈래에만 다섯 줄을 적는다.
+ *
+ * 🔴 빈 갈래는 그냥 비워 두는 것이다. 여덟이 다 보인다고 여덟을 다 채워야
+ *    하는 것이 아니다 — 그렇게 읽히면 시작도 전에 사람이 나간다. 그래서
+ *    ① 맨 위에 "아는 곳만 적어 주세요" 를 크게 두고
+ *    ② 처음에는 여덟 갈래가 **전부 접혀** 있고
+ *    ③ 접힌 제목에는 **적은 갈래에만** 개수를 붙인다.
+ *    ③ 이 중요하다. "0곳" 을 여덟 줄 늘어놓으면 그 화면은 설문이 아니라
+ *    **다 채워야 하는 체크리스트**로 읽힌다.
+ * ─────────────────────────────────────────────────────────────── */
 const ORD = ["첫", "두", "세", "네", "다섯", "여섯", "일곱", "여덟", "아홉", "열"];
 const catsBox = $("cats");
 
-/* 🔴 예전에는 이 아래가 `for (let i = 0; i < SLOTS; i++) { … }` 였다. 함수로
-      바꾼 이유는 하나다 — 「한 곳 더 적기」를 누를 때 **같은 칸을 하나 더**
-      만들어야 하는데, 반복문 안에 있으면 그때 다시 부를 수가 없다.
-      안쪽 내용은 그대로다 (닫는 괄호만 `}` → `}` 로 같고, 호출이 아래에 있다). */
-function buildSlot(i) {
-  const art = document.createElement("article");
-  art.className = "cat";
-  art.dataset.slot = String(i);
+/* 줄마다 DOM id 가 하나씩 필요하다 (자동완성 목록을 aria 로 이름칸에 잇는다).
+   갈래·순서로 만들면 줄을 늘리거나 지울 때 겹치므로, 한 번 쓰고 버리는
+   번호를 센다. */
+let rowUid = 0;
+/* 줄 객체 → 그 줄의 DOM. 줄이 사라지면 항목도 같이 사라진다(WeakMap).
+   🔴 DOM 을 줄 객체 안에 넣지 않는다 — 그 객체는 그대로 서버로 보낼 값이다. */
+const rowEl = new WeakMap();
 
-  const head = document.createElement("button");
-  head.type = "button";
-  head.className = "cathead";
-  head.setAttribute("aria-expanded", "false");
-  head.innerHTML =
-    '<span class="num">' + String(i + 1).padStart(2, "0") + '</span>' +
-    '<span class="catname"><span class="cattitle"></span><span class="catsub"></span></span>' +
-    '<span class="mark" aria-hidden="true">+</span>';
+/* ── 줄 하나 그리기 ────────────────────────────────────────────────
+ * 🔴 row 는 state.cats[c].rows 안의 **객체 그 자체**다. 번호(인덱스)로 안 잡는다 —
+ *    줄을 지우면 뒤 번호가 한 칸씩 당겨져서, 번호를 들고 있던 이벤트 처리기가
+ *    **다른 줄을 고치게 된다.** 객체를 직접 들고 있으면 그 줄이 몇 번째로
+ *    옮겨가든 언제나 같은 줄을 가리킨다.
+ * ─────────────────────────────────────────────────────────────── */
+function buildRow(catDef, cat, row, into) {
+  const uid = ++rowUid;
+  const wrap = document.createElement("div");
+  wrap.className = "srow";
+  rowEl.set(row, wrap);
 
-  const body = document.createElement("div");
-  body.className = "catbody";
-  body.setAttribute("aria-hidden", "true");
-  const inner = document.createElement("div");
-  const catinner = document.createElement("div");
-  catinner.className = "catinner";
-  catinner.innerHTML =
-    '<div class="field-label">어떤 곳인가요? <span style="color:var(--ink)">하나만</span></div>' +
-    '<div class="chips small types"></div>' +
+  wrap.innerHTML =
+    '<div class="rowhead"><span class="roword"></span>' +
+      '<button type="button" class="linkbtn clear">이 줄 비우기</button></div>' +
 
-    '<div class="rest locked">' +
-      '<label class="f2" id="namelbl' + i + '">장소 이름</label>' +
-      '<div class="acwrap">' +
-        /* 🔴 placeholder 는 비워 둔다. 유형을 고르는 순간 그 유형에 맞는
-              예시(TYPES 의 eg)로 아래 setEg() 가 채운다 — 여기에 한 유형의
-              예시를 박아 두면 나머지 여섯 유형에서 엉뚱한 예시가 뜬다. */
-        '<input type="text" class="u in-name" maxlength="60" autocomplete="off" ' +
-          'placeholder="" enterkeyhint="next" role="combobox" ' +
-          'aria-autocomplete="list" aria-expanded="false" aria-haspopup="listbox" ' +
-          'aria-controls="aclist' + i + '" aria-labelledby="namelbl' + i + '">' +
-        '<input type="hidden" class="in-place-id">' +
-        '<ul class="aclist" id="aclist' + i + '" role="listbox" hidden></ul>' +
+    '<label class="f2" id="namelbl' + uid + '">장소 이름</label>' +
+    '<div class="acwrap">' +
+      /* 🔴 예시(placeholder)는 갈래마다 다르다 — 사람이 정한 문구를 그대로 쓴다.
+            카페 갈래에 돼지국밥 예시가 떠 있으면 "여기 맛집만 적는 곳인가" 가 된다. */
+      '<input type="text" class="u in-name" maxlength="60" autocomplete="off" ' +
+        'placeholder="' + escapeHtml(catDef.eg) + '" enterkeyhint="next" role="combobox" ' +
+        'aria-autocomplete="list" aria-expanded="false" aria-haspopup="listbox" ' +
+        'aria-controls="aclist' + uid + '" aria-labelledby="namelbl' + uid + '">' +
+      '<input type="hidden" class="in-place-id">' +
+      '<ul class="aclist" id="aclist' + uid + '" role="listbox" hidden></ul>' +
+    '</div>' +
+    '<p class="acstatus" aria-live="polite"></p>' +
+    /* 🔴 이 한 줄은 README.md 1절 「보호 장치 넷」의 ① 이다. 지우지 않는다.
+          2026-09-10 에 **짧게** 고쳤다 — 앞에서 전화번호를 선택으로 받는데
+          "연락처를 적지 마세요" 가 같이 있으면 읽는 사람이 모순으로 읽는다.
+          막으려던 것은 처음부터 **남의** 신원("우리 이모가 하는 집, 010-…")
+          이었으므로, 목적은 그대로 두고 방어적인 말만 걷어냈다.
+          실제 차단은 보호 장치 ②(PII 검사, 화면·서버 두 벌)가 한다. */
+    '<p class="guard"><b>가게 이름만</b> 적어 주세요. ' +
+      '목록에서 골라도 되고, 없으면 그대로 적어도 돼요.</p>' +
+
+    '<div class="twocol">' +
+      '<div>' +
+        '<div class="field-label" style="margin:26px 0 4px">언제 가면 좋아요?</div>' +
+        '<div class="chips small when"></div>' +
       '</div>' +
-      '<p class="acstatus" aria-live="polite"></p>' +
-      /* 🔴 이 한 줄은 README.md 1절 「보호 장치 넷」의 ① 이다. 지우지 않는다.
-            2026-09-10 에 **짧게** 고쳤다 — 앞에서 전화번호를 선택으로 받는데
-            "연락처를 적지 마세요" 가 같이 있으면 읽는 사람이 모순으로 읽는다.
-            막으려던 것은 처음부터 **남의** 신원("우리 이모가 하는 집, 010-…")
-            이었으므로, 목적은 그대로 두고 방어적인 말만 걷어냈다.
-            실제 차단은 보호 장치 ②(PII 검사, 화면·서버 두 벌)가 한다. */
-      '<p class="guard"><b>가게 이름만</b> 적어 주세요. ' +
-        '목록에서 골라도 되고, 없으면 그대로 적어도 돼요.</p>' +
-
-      '<div class="twocol">' +
-        '<div>' +
-          '<div class="field-label" style="margin:26px 0 4px">언제 가면 좋아요?</div>' +
-          '<div class="chips small when"></div>' +
-        '</div>' +
-        /* 🔴 이 칸은 유형에 따라 통째로 사라진다 (TYPES 의 lim). 전시 · 시장 ·
-              체험에만 남기고 맛집 · 카페 · 술집 · 자연에서는 안 보여 준다 —
-              돼지국밥집에 "기간이 정해진 곳인가요" 는 물어볼 것이 못 된다. */
-        '<div class="limbox" hidden>' +
-          '<div class="field-label" style="margin:26px 0 4px">기간</div>' +
-          '<label class="check"><input type="checkbox" class="in-limited">' +
-            '<span>기간이 정해진 곳이에요<i>축제 · 시즌 행사처럼 특정 시기에만 열리는 곳</i></span></label>' +
-        '</div>' +
-      '</div>' +
-
-      '<label class="f2">왜 추천하세요? <span style="color:var(--ink)">이 칸이 제일 중요해요</span></label>' +
-      '<textarea class="u in-reason" maxlength="500" ' +
-        'placeholder="한 줄이어도 좋아요. “왜 여기냐” 가 없으면 그냥 장소 목록이라 저희가 쓸 수 없어요."></textarea>' +
-      /* 🔴 여기도 보호 장치 ① 이다 (위 이름 칸과 같은 이유로 짧게 고쳤다).
-            이유 칸은 "우리 이모가 하는 집, 010-…" 이 가장 많이 들어오는
-            자리라, **남의** 신원이라는 것을 분명히 말하고 끝낸다. */
-      '<p class="guard">다른 분의 이름 · 연락처는 빼고 적어 주세요.</p>' +
+      /* 🔴 이 칸은 갈래에 따라 통째로 없다 (TYPES 의 lim). 전시 · 시장 · 체험
+            셋에만 그리고 나머지 다섯에는 아예 안 그린다 — 돼지국밥집에
+            "기간이 정해진 곳인가요" 는 물어볼 것이 못 된다.
+            🔴 갈래가 곧 유형이라 **유형이 바뀌는 일이 없다.** 그래서 예전처럼
+               "체크를 켠 뒤 유형을 바꿔서 값만 true 로 남는" 경로가 없다. */
+      (catDef.lim
+        ? '<div class="limbox">' +
+            '<div class="field-label" style="margin:26px 0 4px">기간</div>' +
+            '<label class="check"><input type="checkbox" class="in-limited">' +
+              '<span>기간이 정해진 곳이에요<i>축제 · 시즌 행사처럼 특정 시기에만 열리는 곳</i></span></label>' +
+          '</div>'
+        : '') +
     '</div>' +
 
-    '<div class="slotfoot">' +
-      '<button type="button" class="linkbtn clear">이 칸 비우기</button>' +
-      '<button type="button" class="pill-sm next"><span class="nextLabel"></span><span aria-hidden="true">→</span></button>' +
-    '</div>';
-  inner.appendChild(catinner);
-  body.appendChild(inner);
+    '<label class="f2">왜 추천하세요? <span style="color:var(--ink)">이 칸이 제일 중요해요</span></label>' +
+    '<textarea class="u in-reason" maxlength="500" ' +
+      'placeholder="한 줄이어도 좋아요. “왜 여기냐” 가 없으면 그냥 장소 목록이라 저희가 쓸 수 없어요."></textarea>' +
+    /* 🔴 여기도 보호 장치 ① 이다 (위 이름 칸과 같은 이유로 짧게 고쳤다).
+          이유 칸은 "우리 이모가 하는 집, 010-…" 이 가장 많이 들어오는
+          자리라, **남의** 신원이라는 것을 분명히 말하고 끝낸다. */
+    '<p class="guard">다른 분의 이름 · 연락처는 빼고 적어 주세요.</p>';
 
-  const idx        = i;
-  const typeBox    = catinner.querySelector(".types");
-  const whenBox    = catinner.querySelector(".when");
-  const rest       = catinner.querySelector(".rest");
-  const nameIn     = catinner.querySelector(".in-name");
-  const placeIdIn  = catinner.querySelector(".in-place-id");
-  const aclist     = catinner.querySelector(".aclist");
-  const acStatus   = catinner.querySelector(".acstatus");
-  const reasonIn   = catinner.querySelector(".in-reason");
-  const limIn      = catinner.querySelector(".in-limited");
-  const limBox     = catinner.querySelector(".limbox");
-  const nextBtn    = catinner.querySelector(".next");
-  const nextLbl    = catinner.querySelector(".nextLabel");
-
-  /* ── 🔴 고른 유형에 화면을 맞춘다 (S15P21E201-754) ──────────────────
-   *   1. 이름 칸 예시를 그 유형의 것으로 바꾼다
-   *   2. 「기간이 정해진 곳」 칸을 그 유형에서 쓰는 것일 때만 보여 준다
-   *   🔴 안 쓰는 유형으로 바꿀 때는 이미 켠 체크도 끈다. 안 끄면 화면에는
-   *      없는데 값만 true 로 남아 표에 들어가고, 나중에 "돼지국밥집인데
-   *      기간 한정" 이라는 행이 나온다 — 그때는 화면을 봐도 원인을 못 찾는다.
-   * ─────────────────────────────────────────────────────────────── */
-  const applyType = () => {
-    const t = typeOf(state.slots[idx].type);
-    nameIn.placeholder = t ? t.eg : EG_NONE;
-    const showLim = !!(t && t.lim);
-    limBox.hidden = !showLim;
-    if (!showLim && state.slots[idx].limited) {
-      state.slots[idx].limited = false;
-      limIn.checked = false;
-    }
-  };
-
-  /* 유형 일곱 — 이 칸에서 하나 고른다. 다른 칸이 같은 것을 골라도 된다 */
-  buildChips(typeBox, TYPES, v => {
-    state.slots[idx].type = v;
-    rest.classList.remove("locked");
-    applyType();
-  }, () => state.slots[idx].type, true);
-
-  applyType();   /* 처음 그릴 때 한 번 — 아직 안 골랐으면 예시 대신 안내가 뜬다 */
+  const whenBox    = wrap.querySelector(".when");
+  const nameIn     = wrap.querySelector(".in-name");
+  const placeIdIn  = wrap.querySelector(".in-place-id");
+  const aclist     = wrap.querySelector(".aclist");
+  const acStatus   = wrap.querySelector(".acstatus");
+  const reasonIn   = wrap.querySelector(".in-reason");
+  const limIn      = wrap.querySelector(".in-limited");   /* lim:false 갈래에서는 null */
 
   /* 낮 / 밤 / 상관없음 */
-  buildChips(whenBox, WHEN, v => { state.slots[idx].whenGood = v; }, () => state.slots[idx].whenGood, true);
+  buildChips(whenBox, WHEN, v => { row.whenGood = v; paint(); }, () => row.whenGood, true);
 
   /* ── 가게 이름 자동완성 (S15P21E201-754) ───────────────────────
      우리 색인(부산 음식점 53,716곳)에서 찾는다. 두 글자 이상 · 타이핑이
@@ -1475,8 +1500,8 @@ function buildSlot(i) {
   function pickPlace(p) {
     nameIn.value = p.name;
     placeIdIn.value = p.id;
-    state.slots[idx].name = p.name;
-    state.slots[idx].placeId = p.id;
+    row.name = p.name;
+    row.placeId = p.id;
     acStatus.textContent = "우리 데이터에서 골랐어요 — " + p.gu + " " + p.dong;
     closeAc();
     paint();
@@ -1487,7 +1512,7 @@ function buildSlot(i) {
     /* 🔴 목록에 없어도 낼 수 있어야 한다. place_id 없이 지금 적은 이름 그대로 낸다 —
           풀에 없는 가게를 알게 되는 것도 우리가 원하는 정보다. */
     placeIdIn.value = "";
-    state.slots[idx].placeId = null;
+    row.placeId = null;
     acStatus.textContent = nameIn.value.trim() ? "직접 적은 이름으로 낼게요." : "";
     closeAc();
     paint();
@@ -1506,7 +1531,7 @@ function buildSlot(i) {
       list.forEach((p, k) => {
         const li = document.createElement("li");
         li.className = "acitem";
-        li.id = "acopt" + idx + "-" + k;
+        li.id = "acopt" + uid + "-" + k;
         li.setAttribute("role", "option");
         li.setAttribute("aria-selected", "false");
         li.innerHTML =
@@ -1520,7 +1545,7 @@ function buildSlot(i) {
     }
     const freeLi = document.createElement("li");
     freeLi.className = "acitem acfree";
-    freeLi.id = "acopt" + idx + "-free";
+    freeLi.id = "acopt" + uid + "-free";
     freeLi.setAttribute("role", "option");
     freeLi.setAttribute("aria-selected", "false");
     freeLi.textContent = "목록에 없어요 — 직접 적기";
@@ -1534,11 +1559,18 @@ function buildSlot(i) {
     setActiveOption();
   }
 
+  const onEdit = () => {
+    row.name    = nameIn.value.trim();
+    row.reason  = reasonIn.value.trim();
+    row.limited = !!(limIn && limIn.checked);
+    paint();
+  };
+
   nameIn.addEventListener("input", () => {
     /* 다시 타이핑하면 이전에 고른 것은 무효 — place_id 를 지운다.
        (목록에서 새로 고르면 pickPlace() 가 다시 채운다.) */
     placeIdIn.value = "";
-    state.slots[idx].placeId = null;
+    row.placeId = null;
     acStatus.textContent = "";
     onEdit();
 
@@ -1577,138 +1609,206 @@ function buildSlot(i) {
   });
 
   /* 목록 밖으로 진짜 포커스가 나갈 때만 닫는다 — 목록 안 클릭은 위의
-     mousedown preventDefault 덕에 여기로 안 온다 */
-  nameIn.addEventListener("blur", () => closeAc());
+     mousedown preventDefault 덕에 여기로 안 온다.
+     🔴 닫기 전에 **아직 안 터진 검색을 취소한다**(clearTimeout + acSeq 올리기).
+        안 그러면 마지막 글자를 치고 250ms 안에 다른 칸으로 넘어갔을 때, 이미
+        닫은 목록을 그 타이머가 **다시 연다.** 갈래를 접어도 그 목록은 그대로
+        떠 있어서, 접힌 갈래 자리에 목록만 둥둥 뜬 화면이 된다.
+        acSeq 를 올리면 그 사이 날아간 fetch 의 응답도 버려진다 (renderAc 앞의
+        seq 검사에 걸린다) — 브라우저로 눌러 보다가 실제로 이 화면을 봤다. */
+  nameIn.addEventListener("blur", () => { clearTimeout(acTimer); acSeq++; closeAc(); });
 
-  const onEdit = () => {
-    const s = state.slots[idx];
-    s.name    = nameIn.value.trim();
-    s.reason  = reasonIn.value.trim();
-    s.limited = limIn.checked;
-    paint();
-  };
   /* 🔴 nameIn 의 "input" 은 위 자동완성 블록이 이미 듣고 있고, 그 안에서
         onEdit() 을 직접 부른다(place_id 를 지우는 일을 먼저 해야 해서) —
         여기서 또 걸면 같은 입력에 onEdit() 이 두 번 돈다. */
   reasonIn.addEventListener("input", onEdit);
-  limIn.addEventListener("change", onEdit);
+  if (limIn) limIn.addEventListener("change", onEdit);
 
-  catinner.querySelector(".clear").addEventListener("click", () => {
-    state.slots[idx] = blank();
-    nameIn.value = ""; reasonIn.value = ""; limIn.checked = false;
-    placeIdIn.value = ""; acStatus.textContent = ""; closeAc();
-    typeBox.querySelectorAll(".chip").forEach(c => c.classList.remove("on"));
-    whenBox.querySelectorAll(".chip").forEach(c => c.classList.remove("on"));
-    rest.classList.add("locked");
-    applyType();   /* 유형이 없어졌으니 예시와 「기간」 칸도 처음 상태로 */
-    if (state.open === idx) state.open = -1;
+  /* ── 「이 줄 비우기」 ────────────────────────────────────────────
+   * 🔴 그 갈래의 **하나뿐인 줄**이면 값만 지우고 줄은 남긴다. 지워 버리면
+   *    그 갈래를 펼쳤을 때 적을 곳이 없어진다.
+   * 🔴 둘째 줄부터는 **줄째로 없앤다.** 값만 지우면 빈 줄이 계속 쌓여서
+   *    "내가 늘린 칸을 못 되돌린다" 가 된다. (보낼 때 빈 줄이 어차피 빠지니
+   *    데이터에는 차이가 없다 — 이건 순전히 화면을 되돌릴 수 있게 하는 것이다.)
+   * ─────────────────────────────────────────────────────────── */
+  wrap.querySelector(".clear").addEventListener("click", () => {
+    closeAc();
+    if (cat.rows.length <= 1) {
+      row.name = ""; row.whenGood = null; row.limited = false;
+      row.reason = ""; row.placeId = null;
+      nameIn.value = ""; reasonIn.value = ""; placeIdIn.value = "";
+      if (limIn) limIn.checked = false;
+      acStatus.textContent = "";
+      whenBox.querySelectorAll(".chip").forEach(c => c.classList.remove("on"));
+    } else {
+      const k = cat.rows.indexOf(row);
+      if (k >= 0) cat.rows.splice(k, 1);
+      wrap.remove();
+    }
     paint();
   });
 
-  nextBtn.addEventListener("click", () => {
-    /* 🔴 SLOTS 가 아니라 지금 열려 있는 칸 수를 본다. 「한 곳 더 적기」로
-          늘렸으면 다섯째의 다음은 닫기가 아니라 여섯째다. */
-    state.open = idx < state.slots.length - 1 ? idx + 1 : -1;
+  into.appendChild(wrap);
+  return wrap;
+}
+
+/* ── 갈래 하나 그리기 ─────────────────────────────────────────── */
+function buildCat(c) {
+  const catDef = TYPES[c];
+  const cat = state.cats[c];
+
+  const art = document.createElement("article");
+  art.className = "cat";
+  art.dataset.cat = String(c);
+
+  const head = document.createElement("button");
+  head.type = "button";
+  head.className = "cathead";
+  head.setAttribute("aria-expanded", "false");
+  head.innerHTML =
+    '<span class="num">' + String(c + 1).padStart(2, "0") + '</span>' +
+    '<span class="catname"><span class="cattitle"></span><span class="catsub"></span></span>' +
+    '<span class="mark" aria-hidden="true">+</span>';
+  head.querySelector(".cattitle").textContent = catDef.t;
+
+  const body = document.createElement("div");
+  body.className = "catbody";
+  body.setAttribute("aria-hidden", "true");
+  const inner = document.createElement("div");
+  const catinner = document.createElement("div");
+  catinner.className = "catinner";
+  catinner.innerHTML =
+    '<div class="rows"></div>' +
+    '<div class="catfoot">' +
+      '<button type="button" class="pill-sm addbtn addrow">' +
+        '<span aria-hidden="true">+</span> 한 곳 더 적기</button>' +
+      '<button type="button" class="linkbtn catclose">닫기</button>' +
+    '</div>' +
+    '<p class="addnote"></p>';
+
+  const rowsBox = catinner.querySelector(".rows");
+  const addBtn  = catinner.querySelector(".addrow");
+
+  cat.rows.forEach(r => buildRow(catDef, cat, r, rowsBox));
+
+  addBtn.addEventListener("click", () => {
+    if (!canAddRow(cat)) return;
+    const r = blank(catDef.v);
+    cat.rows.push(r);
+    const el = buildRow(catDef, cat, r, rowsBox);
     paint();
-    const nowOpen = document.querySelector('.cat[data-slot="' + state.open + '"]');
-    if (nowOpen) nowOpen.scrollIntoView({ behavior: "smooth", block: "start" });
+    const nameIn = el.querySelector(".in-name");
+    if (nameIn) nameIn.focus();
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+  });
+
+  catinner.querySelector(".catclose").addEventListener("click", () => {
+    state.open = -1;
+    paint();
+    art.scrollIntoView({ behavior: "smooth", block: "center" });
   });
 
   head.addEventListener("click", () => {
-    state.open = state.open === idx ? -1 : idx;
+    state.open = state.open === c ? -1 : c;
     paint();
   });
 
+  inner.appendChild(catinner);
+  body.appendChild(inner);
   art.appendChild(head);
   art.appendChild(body);
   catsBox.appendChild(art);
 }
 
-/* 처음 보여 주는 다섯 칸 */
-for (let i = 0; i < SLOTS; i++) buildSlot(i);
-
-/* ── 🔴 「한 곳 더 적기」 (S15P21E201-754) ────────────────────────────
- * 다섯으로 못 박아 두면 **부산을 가장 잘 아는 사람의 답이 잘려나간다.**
- * 열 곳을 아는 사람이 다섯 곳만 적고 나가는 것은 우리가 가장 원하는 응답을
- * 절반 버리는 것이다.
- *
- * 🔴 늘린 칸은 **비워 둬도 제출된다.** 눌러 놓고 안 채운 사람이 막히면
- *    "괜히 눌렀네" 가 되고, 그러면 아무도 안 누른다. 비운 칸은 보낼 때
- *    조용히 빠진다 (아래 liveSlots).
- * 🔴 열이 차면 버튼을 감춘다 — 눌러도 아무 일이 없는 버튼을 남겨 두면
- *    사람은 화면이 고장 났다고 생각한다.
+/* ── 세는 규칙 ────────────────────────────────────────────────────
+ * isFull  : 이름 · 언제 · 이유 셋이 다 있는 줄 (유형은 갈래가 이미 넣어 뒀다)
+ * isEmpty : 한 글자도 안 적은 줄 — 늘려 놓고 안 채운 줄이 이것이다
+ * 🔴 둘은 서로 반대가 아니다. 이름만 적고 만 줄은 둘 다 아니다(적다 만 것)이고,
+ *    그런 줄은 조용히 버리지 않고 제출에서 막는다.
  * ─────────────────────────────────────────────────────────────── */
-const addSlotBtn = $("addSlot");
-function paintAddSlot() {
-  const room = state.slots.length < MAX_SLOTS;
-  addSlotBtn.hidden = !room;
-  $("addSlotNote").textContent = room
-    ? "더 아는 곳이 있으시면 칸을 늘려 주세요. 비워 두셔도 제출됩니다."
-    : "칸은 " + MAX_SLOTS + "곳까지예요. 비워 둔 칸은 그냥 빠집니다.";
-}
-addSlotBtn.addEventListener("click", () => {
-  if (state.slots.length >= MAX_SLOTS) return;
-  const i = state.slots.length;
-  state.slots.push(blank());
-  buildSlot(i);
-  state.open = i;              /* 만들자마자 펼친다 — 누른 사람이 찾아 내려가지 않게 */
-  paint();
-  const el = document.querySelector('.cat[data-slot="' + i + '"]');
-  if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-});
+const isFull  = s => !!(s && s.type && s.name && s.whenGood && s.reason);
+const isEmpty = s => !!(s && !s.name && !s.whenGood && !s.reason && !s.placeId);
+/* 갈래 순서대로 편 전체 줄 목록. 표에 들어갈 순서가 곧 이 순서다 */
+const allRows  = () => state.cats.reduce((acc, c) => acc.concat(c.rows), []);
+/* 실제로 보낼 줄 — 늘려 놓고 안 채운 줄은 여기서 빠진다 */
+const liveRows = () => allRows().filter(s => !isEmpty(s));
+const filledCount = () => allRows().filter(isFull).length;
+/* 갈래별 개수 — 접힌 제목에 붙는 "2곳" 이 이것이다 */
+const catFilled = c => c.rows.filter(isFull).length;
 
-/* 한 칸이 다 찼는가 — 유형 · 이름 · 언제 · 이유 넷 다 있어야 한 곳으로 센다 */
-const isFull = s => !!(s && s.type && s.name && s.whenGood && s.reason);
-/* 한 글자도 안 적은 칸인가 — 늘려 놓고 안 채운 칸이 이것이다.
-   🔴 "다 찼다" 의 반대가 아니다. 이름만 적고 만 칸은 둘 다 아니다 (적다 만 것). */
-const isEmpty = s => !!(s && !s.type && !s.name && !s.whenGood && !s.reason && !s.placeId);
-/* 실제로 보낼 칸 — 늘려 놓고 안 채운 칸은 여기서 빠진다 */
-const liveSlots = () => state.slots.filter(s => !isEmpty(s));
+/* ── 🔴 줄을 더 늘릴 수 있나 (S15P21E201-754) ──────────────────────
+ * 상한은 **응답 하나 전체**로 열이다. 갈래별 상한은 없다 — 맛집을 다섯 곳
+ * 아는 사람이 맛집 갈래에만 다섯 줄을 적을 수 있어야 한다.
+ * 🔴 세는 것은 "지금 화면의 줄 수" 가 아니라 **실제로 보낼 줄 수**(liveRows)다.
+ *    갈래 여덟이 빈 줄 하나씩만 갖고 있어도 그건 여덟 곳이 아니라 0곳이다.
+ * 🔴 한 갈래의 줄 수도 열로 막는다. 안 막으면 아무 갈래에서나 버튼을 백 번
+ *    눌러 빈 줄 백 개를 만들 수 있다 — 데이터에는 안 남지만 화면이 못 쓰게 된다.
+ * ─────────────────────────────────────────────────────────────── */
+const canAddRow = cat => liveRows().length < MAX_SLOTS && cat.rows.length < MAX_SLOTS;
 
-/* ── 진행 표시와 카드 겉모습 ─────────────────────────────────── */
+/* 갈래 여덟을 그린다. 🔴 처음에는 전부 접혀 있다 (state.open = -1) */
+for (let c = 0; c < TYPES.length; c++) buildCat(c);
+
+/* ── 진행 표시와 갈래 겉모습 ─────────────────────────────────── */
 let currentTrouble = [];
 function paint() {
-  const n = state.slots.filter(isFull).length;
+  const n = filledCount();
+  const live = liveRows().length;
+
   $("cnum").textContent = String(n);
   /* 위쪽 진행 표시는 단계마다 세는 것이 다르다 (짝 비교 4장 · 여행 스타일 4문항 ·
-     추천한 곳 5곳). 이 화면으로 돌아올 때마다 "추천한 곳" 으로 되돌려 놓는다.
-     🔴 분모는 SLOTS(5)가 아니라 **지금 화면에 있는 칸 수**다. 「한 곳 더 적기」로
-        여섯 칸이 되면 0/5 가 아니라 0/6 이어야 한다 — 칸은 여섯인데 분모가 5 로
-        멈춰 있으면 "6/5" 같은 숫자가 나오고, 그 순간 위 표시를 아무도 안 믿는다. */
-  $("cof").textContent = " / " + state.slots.length + " 추천한 곳";
-  paintAddSlot();
+     추천한 곳). 이 화면으로 돌아올 때마다 "추천한 곳" 으로 되돌려 놓는다.
+     🔴 세는 것은 **갈래가 아니라 곳**이다. 갈래 여덟을 분모로 쓰면 "0 / 8" 이
+        되고, 그건 여덟 갈래를 다 채우라는 말로 읽힌다 — 정반대다.
+     🔴 분모는 하한 다섯이되, 다섯을 넘기면 넘긴 수를 분모로 쓴다. 5 에
+        멈춰 두면 일곱 곳을 적은 사람에게 "7 / 5" 가 나오고, 그 순간 이
+        표시를 아무도 안 믿는다. */
+  $("cof").textContent = " / " + Math.max(NEED, n) + " 추천한 곳";
+
   document.querySelectorAll(".cat").forEach(art => {
-    const i = Number(art.dataset.slot);
-    const s = state.slots[i];
-    const open = state.open === i;
+    const c = Number(art.dataset.cat);
+    const cat = state.cats[c];
+    const open = state.open === c;
+    const done = catFilled(cat);
+
     art.classList.toggle("open", open);
-    art.classList.toggle("filled", isFull(s));
+    art.classList.toggle("filled", done > 0);
     const head = art.querySelector(".cathead");
     head.setAttribute("aria-expanded", String(open));
     art.querySelector(".mark").textContent = open ? "×" : "+";
     art.querySelector(".catbody").setAttribute("aria-hidden", String(!open));
 
-    const title = art.querySelector(".cattitle");
-    title.textContent = s.name ? s.name : ORD[i] + " 번째 추천";
-
+    const tr = currentTrouble.filter(t => t.cat === c);
     const sub = art.querySelector(".catsub");
-    const tr = currentTrouble.filter(t => t.slot === i);
     if (tr.length) {
       sub.textContent = tr.map(t => t.text).join(" ");
-    } else if (s.name && s.type) {
-      sub.textContent = typeLabel(s.type) + (s.whenGood ? " · " + (WHEN.find(w => w.v === s.whenGood) || {}).t : "");
-    } else if (s.type) {
-      sub.textContent = typeLabel(s.type) + " · 아직 안 적었어요";
+    } else if (done > 0) {
+      /* 🔴 적은 갈래에만 개수를 붙인다. 안 적은 갈래는 **빈칸**이다 —
+            "0곳" 을 여덟 줄 늘어놓으면 다 채워야 하는 목록으로 읽힌다. */
+      sub.textContent = done + "곳";
     } else {
-      sub.textContent = "비어 있어요";
+      sub.textContent = "";
     }
     art.classList.toggle("bad", tr.length > 0);
 
-    const nextLbl = art.querySelector(".nextLabel");
-    if (nextLbl) nextLbl.textContent = i < state.slots.length - 1 ? "다음 칸" : "닫기";
+    /* 줄 머리 — 줄이 둘 이상일 때만 "첫 번째 / 두 번째" 를 붙인다.
+       하나뿐일 때 "첫 번째" 는 아무것도 안 알려주면서 자리만 먹는다 */
+    cat.rows.forEach((r, k) => {
+      const el = rowEl.get(r);
+      if (!el) return;
+      const ordEl = el.querySelector(".roword");
+      if (ordEl) ordEl.textContent = cat.rows.length > 1 ? (ORD[k] || (k + 1)) + " 번째" : "";
+      const rtr = currentTrouble.filter(t => t.row === r);
+      el.classList.toggle("bad", rtr.length > 0);
+    });
 
-    const rest = art.querySelector(".rest");
-    if (s.type) rest.classList.remove("locked"); else rest.classList.add("locked");
+    /* 「+ 한 곳 더 적기」 — 상한에 닿으면 감춘다. 눌러도 아무 일이 없는
+       버튼을 남겨 두면 사람은 화면이 고장 났다고 생각한다 */
+    const addBtn = art.querySelector(".addrow");
+    const note   = art.querySelector(".addnote");
+    const room   = canAddRow(cat);
+    addBtn.hidden = !room;
+    note.textContent = room ? "" : "추천하는 곳은 " + MAX_SLOTS + "곳까지 받아요. 지금 " + live + "곳이에요.";
   });
 }
 
@@ -2042,15 +2142,21 @@ function renderTrouble(trouble) {
     row.type = "button";
     row.className = "stopRow";
     row.innerHTML =
-      '<span class="stopNum">' + (t.slot >= 0 ? String(t.slot + 1).padStart(2, "0") : "—") + '</span>' +
+      /* 🔴 번호는 **갈래 번호**다 (01~08). 예전에는 칸 번호였는데, 이제 한
+            갈래에 줄이 여럿이라 칸 번호로는 어디를 열어야 할지 못 가리킨다.
+            어느 줄인지는 아래에서 그 줄로 직접 스크롤해 알려 준다. */
+      '<span class="stopNum">' + (t.cat >= 0 ? String(t.cat + 1).padStart(2, "0") : "—") + '</span>' +
       '<span>' + t.text + '</span>' +
-      '<span class="stopArrow">' + (t.slot >= 0 ? "→" : "↑") + '</span>';
+      '<span class="stopArrow">' + (t.cat >= 0 ? "→" : "↑") + '</span>';
     row.addEventListener("click", () => {
-      if (t.slot >= 0) {
-        state.open = t.slot;
+      if (t.cat >= 0) {
+        state.open = t.cat;
         paint();
-        const el = document.querySelector('.cat[data-slot="' + t.slot + '"]');
-        if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+        /* 문제가 난 **그 줄**로 간다. 갈래만 열고 말면 줄이 다섯인 갈래에서
+           어느 줄이 문제인지 다시 찾아야 한다 */
+        const target = (t.row && rowEl.get(t.row)) ||
+                       document.querySelector('.cat[data-cat="' + t.cat + '"]');
+        if (target) target.scrollIntoView({ behavior: "smooth", block: "center" });
       } else {
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
@@ -2065,8 +2171,8 @@ $("submit").addEventListener("click", async () => {
   renderTrouble([]);
 
   const trouble = [];
-  if (!state.ageBand)    trouble.push({ text: "나이대를 골라 주세요.", slot: -1 });
-  if (!state.busanYears) trouble.push({ text: "부산에 얼마나 사셨는지 골라 주세요.", slot: -1 });
+  if (!state.ageBand)    trouble.push({ text: "나이대를 골라 주세요.", cat: -1 });
+  if (!state.busanYears) trouble.push({ text: "부산에 얼마나 사셨는지 골라 주세요.", cat: -1 });
 
   /* 🔴 짝 비교를 다 안 골랐으면 여기서 막는다. 화면 흐름상 여덟을 다 고르지
         않으면 이 화면까지 못 오지만, 안 막으면 서버가 400 으로 거절하고
@@ -2074,7 +2180,7 @@ $("submit").addEventListener("click", async () => {
         반쪽짜리 짝 비교는 안 받는다 — 빠진 자리는 나중에 지어내게 된다. */
   const pairLeft = state.pair.filter(p => p === null).length;
   if (pairLeft > 0) {
-    trouble.push({ text: "두 곳 중 고르기 " + pairLeft + "문항이 남아 있어요.", slot: -1 });
+    trouble.push({ text: "두 곳 중 고르기 " + pairLeft + "문항이 남아 있어요.", cat: -1 });
   }
 
   /* 🔴 전화번호는 선택이라 비어 있으면 그냥 통과. 값이 있을 때만 모양을 본다 */
@@ -2083,54 +2189,67 @@ $("submit").addEventListener("click", async () => {
   if (!isValidPhone(state.phone)) {
     $("phoneBlock").classList.add("bad");
     $("phoneGuard").style.display = "block";
-    trouble.push({ text: "전화번호 형식을 확인해 주세요 (예: 010-1234-5678). 비워 두셔도 됩니다.", slot: -1 });
+    trouble.push({ text: "전화번호 형식을 확인해 주세요 (예: 010-1234-5678). 비워 두셔도 됩니다.", cat: -1 });
   }
 
   /* 🔴 개인정보 검사가 먼저다. 덜 채운 것보다 먼저 알려야 다시 안 적는다.
-        🔴 칸 번호로 말한다 — 유형은 겹칠 수 있어서 유형 이름만으로는 못 가린다.
-           (다섯 칸이 전부 "맛집" 일 수 있다) */
+        🔴 어디인지는 **갈래 + 그 안의 몇 번째 줄**로 말한다. 갈래 이름만으로는
+           못 가린다 — 한 갈래에 다섯 줄이 있을 수 있다. */
   let pii = false;
-  state.slots.forEach((s, i) => {
-    for (const [field, label] of [["name", "장소 이름"], ["reason", "추천 이유"]]) {
-      const hit = s[field] ? piiHit(s[field]) : null;
-      if (hit) {
-        pii = true;
-        trouble.push({ text: label + " 칸에 " + hit + "가 있어요. 지워 주세요.", slot: i });
+  const whereOf = (c, k) =>
+    TYPES[c].t + (state.cats[c].rows.length > 1 ? " " + (ORD[k] || (k + 1)) + " 번째" : "");
+  state.cats.forEach((cat, c) => {
+    cat.rows.forEach((s, k) => {
+      for (const [field, label] of [["name", "장소 이름"], ["reason", "추천 이유"]]) {
+        const hit = s[field] ? piiHit(s[field]) : null;
+        if (hit) {
+          pii = true;
+          trouble.push({ text: whereOf(c, k) + " — " + label + " 칸에 " + hit + "가 있어요. 지워 주세요.", cat: c, row: s });
+        }
       }
-    }
+    });
   });
 
-  /* 🔴 다섯은 하한이고 열이 상한이다 (S15P21E201-754). 세는 규칙이 둘로 갈린다.
-        - **다 찬 칸이 다섯 곳 미만**이면 막는다. 그게 이 설문의 최소치다.
-        - **늘려 놓고 한 글자도 안 적은 칸은 안 막는다.** 보낼 때 조용히 빠진다
-          (liveSlots). 눌러 놓고 안 채운 사람이 막히면 아무도 그 버튼을 안 누른다.
-        - **적다 만 칸은 막는다.** 조용히 버리면 사람이 적은 것이 소리 없이
-          사라지고, 그걸 알아차릴 방법이 없다. 어느 칸의 무엇이 비었는지 말해 준다.
-     🔴 예전에는 `done < SLOTS` 하나로만 봤다. 칸이 늘 수 있게 된 지금 그 식은
-        틀린다 — 1·2·3·4 번을 채우고 5 번을 비운 채 6 번을 채우면 done 이 5 라
-        통과하는데, 정작 다섯째 칸은 비어 있다. 그래서 앞 다섯 칸을 따로 본다. */
+  /* 🔴 다섯은 **전체** 하한이고 열이 **전체** 상한이다 (S15P21E201-754).
+        갈래별로는 아무것도 안 센다 — 맛집 갈래에만 다섯 곳을 적어도 통과다.
+        세는 규칙이 셋으로 갈린다.
+        - **다 채운 곳이 다섯 미만**이면 막는다. 그게 이 설문의 최소치다.
+        - **늘려 놓고 한 글자도 안 적은 줄은 안 막는다.** 보낼 때 조용히 빠진다
+          (liveRows). 여덟 갈래가 다 빈 줄 하나씩 갖고 시작하므로, 안 그러면
+          아무도 제출을 못 한다.
+        - **적다 만 줄은 막는다.** 조용히 버리면 사람이 적은 것이 소리 없이
+          사라지고, 그걸 알아차릴 방법이 없다. 어느 줄의 무엇이 비었는지 말해 준다.
+     🔴 예전에는 "앞 다섯 칸" 을 따로 봤다. 이제 그런 칸이 없다 — 다섯이라는 수는
+        칸의 위치가 아니라 **다 채운 곳의 개수**다. 여덟 갈래 어디에 흩어져 있어도
+        합쳐서 다섯이면 통과한다.
+     🔴 유형은 안 센다. 갈래가 이미 넣어 뒀으니 빌 수가 없다. */
   if (!pii) {
-    const baseDone = state.slots.slice(0, SLOTS).filter(isFull).length;
-    const sayMissing = (s, i) => {
+    const done = filledCount();
+    const live = liveRows().length;
+    const sayMissing = (s, c, k) => {
       const miss = [];
-      if (!s.type)     miss.push("어떤 곳인지");
       if (!s.name)     miss.push("장소 이름");
       if (!s.whenGood) miss.push("언제 가면 좋은지");
       if (!s.reason)   miss.push("추천 이유");
-      trouble.push({ text: miss.join(" · ") + " 이 비어 있어요.", slot: i });
+      trouble.push({ text: whereOf(c, k) + " — " + miss.join(" · ") + " 이 비어 있어요.", cat: c, row: s });
     };
 
-    if (baseDone < SLOTS) {
-      trouble.push({ text: "다섯 군데를 채워 주세요. 지금 " + baseDone + "군데예요.", slot: -1 });
-      state.slots.slice(0, SLOTS).forEach((s, i) => { if (!isFull(s)) sayMissing(s, i); });
+    if (done < NEED) {
+      trouble.push({ text: "모두 합해 " + NEED + "군데는 적어 주세요. 지금 " + done + "군데예요. 갈래는 아무 데나 괜찮아요.", cat: -1 });
+    }
+    /* 🔴 상한도 화면에서 말해 준다. 서버가 400 으로 돌려보내면 사람은 다 적은
+          뒤에야 "왜 안 되지" 를 겪는다. (열째까지는 버튼이 안 보이지만, 이미
+          늘려 둔 빈 줄을 나중에 채우면 열한 곳이 될 수 있다) */
+    if (live > MAX_SLOTS) {
+      trouble.push({ text: "추천하는 곳은 " + MAX_SLOTS + "군데까지 받아요. 지금 " + live + "군데예요.", cat: -1 });
     }
 
-    /* 여섯째 칸부터 — 다 찼거나 아예 비었거나 둘 중 하나여야 한다 */
-    state.slots.forEach((s, i) => {
-      if (i < SLOTS) return;
-      if (isFull(s) || isEmpty(s)) return;
-      trouble.push({ text: "이 칸은 적다 마셨어요. 마저 적으시거나 「이 칸 비우기」를 눌러 주세요.", slot: i });
-      sayMissing(s, i);
+    /* 줄 하나하나 — 다 찼거나 아예 비었거나 둘 중 하나여야 한다 */
+    state.cats.forEach((cat, c) => {
+      cat.rows.forEach((s, k) => {
+        if (isFull(s) || isEmpty(s)) return;
+        sayMissing(s, c, k);
+      });
     });
   }
 
@@ -2178,11 +2297,16 @@ $("submit").addEventListener("click", async () => {
         };
       }).filter(Boolean)
     },
-    /* 🔴 늘려 놓고 한 글자도 안 적은 칸은 여기서 빠진다 (liveSlots). 그래서
-          slot 번호는 화면의 칸 번호가 아니라 **남은 것을 1 부터 다시 센 번호**다.
-          6·9 번만 남았어도 표에는 6·7 로 들어간다 — 서버도 같은 일을 한 번 더
-          한다(pruneEmptySlots + insert 가 1 부터 다시 셈). 화면만 믿지 않는다. */
-    recommendations: liveSlots().map((s, i) => ({
+    /* 🔴 한 글자도 안 적은 줄은 여기서 빠진다 (liveRows). 여덟 갈래가 전부 빈
+          줄 하나씩을 갖고 시작하므로, 이걸 안 하면 매번 빈 줄 일고여덟 개가
+          같이 간다.
+       🔴 slot 번호는 화면의 자리가 아니라 **남은 것을 갈래 순서대로 1 부터 다시
+          센 번호**다. 갈래 1 에 한 곳, 갈래 5 에 두 곳이면 1·2·3 으로 간다 —
+          서버도 같은 일을 한 번 더 한다(pruneEmptySlots + insert 가 1 부터 다시
+          셈). 화면만 믿지 않는다.
+       🔴 placeType 은 사람이 고른 것이 아니라 **그 줄이 놓인 갈래**다
+          (blank(catDef.v) 이 넣어 뒀고, 그 뒤로 바뀌지 않는다). */
+    recommendations: liveRows().map((s, i) => ({
       slot: i + 1, placeType: s.type, placeName: s.name,
       whenGood: s.whenGood, limitedTime: s.limited, reason: s.reason,
       placeId: s.placeId || null   /* 목록에서 고른 경우만. 직접 적었으면 null */
@@ -2200,7 +2324,7 @@ $("submit").addEventListener("click", async () => {
     });
     const out = await r.json().catch(() => ({}));
     if (!r.ok) {
-      renderTrouble([{ text: out.message || ("서버가 받지 않았어요 (" + r.status + "). 잠시 뒤 다시 눌러 주세요."), slot: -1 }]);
+      renderTrouble([{ text: out.message || ("서버가 받지 않았어요 (" + r.status + "). 잠시 뒤 다시 눌러 주세요."), cat: -1 }]);
       $("stop").scrollIntoView({ behavior: "smooth", block: "center" });
       return;
     }
@@ -2208,7 +2332,7 @@ $("submit").addEventListener("click", async () => {
     recap.innerHTML = "";
     /* 🔴 보낸 것만 보여 준다. 빈 칸까지 "—" 로 늘어놓으면 방금 낸 응답이
           실제로 무엇이었는지가 오히려 안 보인다 */
-    liveSlots().forEach((s, i) => {
+    liveRows().forEach((s, i) => {
       const row = document.createElement("div");
       row.className = "row";
       row.innerHTML =
@@ -2220,14 +2344,14 @@ $("submit").addEventListener("click", async () => {
     /* 🔴 실제로 보낸 곳 수로 말한다. 여섯 곳을 적은 사람에게 "다섯 군데" 라고
           하면 하나를 잃어버린 줄 안다 */
     const sentOrd = ["", "한", "두", "세", "네", "다섯", "여섯", "일곱", "여덟", "아홉", "열"];
-    const sentN = liveSlots().length;
+    const sentN = liveRows().length;
     $("doneCount").textContent = (sentOrd[sentN] || String(sentN)) + " 군데";
     $("doneTop").textContent = sentN + " / " + sentN;
     show("scDone");
     $("top").classList.add("hide");
     window.scrollTo(0, 0);
   } catch (e) {
-    renderTrouble([{ text: "보내지 못했어요. 인터넷 연결을 확인하고 다시 눌러 주세요. 적으신 내용은 그대로 있어요.", slot: -1 }]);
+    renderTrouble([{ text: "보내지 못했어요. 인터넷 연결을 확인하고 다시 눌러 주세요. 적으신 내용은 그대로 있어요.", cat: -1 }]);
     $("stop").scrollIntoView({ behavior: "smooth", block: "center" });
   } finally {
     btn.disabled = false; $("submitLabel").textContent = "제출하기";

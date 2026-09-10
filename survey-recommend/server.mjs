@@ -146,8 +146,12 @@ console.log(`짝 비교 문항 ${DESIGN.sets.length}개 (${DESIGN.designId})`);
       이 숫자를 안 올리면 옛 응답과 섞여서 "북적임 응답률이 낮다" 로 잘못 읽힌다 —
       사실은 그 문항이 생기기 전에 들어온 응답이라 물어본 적이 없는 것이다.
       🔴 5 도 같다. 안 올리면 "여섯 칸 이상 적은 사람이 3%뿐" 으로 읽는데,
-         사실은 나머지가 그 버튼이 생기기 전 응답이라 더 적고 싶어도 못 적었다. */
-const FORM_VERSION = 5;
+         사실은 나머지가 그 버튼이 생기기 전 응답이라 더 적고 싶어도 못 적었다.
+      6 = 장소 추천이 **갈래 여덟 × 갈래마다 여러 곳**이 된 판 (migrations/0006).
+      🔴 6 도 같다. 안 올리면 "SIGHT 로 적힌 곳이 하나도 없다 → 사람들이
+         관광지를 안 추천한다" 로 읽는데, 사실은 그 갈래가 생기기 전 응답이라
+         고를 수가 없었다. */
+const FORM_VERSION = 6;
 
 const pool = new pg.Pool({
   connectionString: process.env.DATABASE_URL,
@@ -188,11 +192,24 @@ const AGE_BANDS   = new Set(["AGE_20_39", "AGE_40_59", "AGE_60_79"]);
       OVER_10Y→OVER_20Y · Y_3_10→Y_10_20 · Y_1_3→Y_5_10 · UNDER_1Y→UNDER_5Y.
       옛 값은 이제 전부 거절된다 — 값 이관은 필요 없었다 (그때까지 0행). */
 const BUSAN_YEARS = new Set(["BORN_HERE", "OVER_20Y", "Y_10_20", "Y_5_10", "UNDER_5Y", "VISITED_ONLY"]);
-const PLACE_TYPES = new Set(["FOOD", "CAFE", "NATURE", "CULTURE", "MARKET", "ACTIVITY", "BAR"]);
+/* 🔴 일곱 → 여덟 (S15P21E201-754). 새로 생긴 것은 SIGHT 하나뿐이고 나머지
+      일곱은 코드값 그대로다 — 화면의 갈래 이름만 바뀌었다.
+      🔴 SIGHT = "볼거리 · 명소"(sightseeing 의 그 sight). 「관광 · 명소 · 경치」가
+         담는 것이 정확히 그것이다 — 보러 가는 곳. TOUR 는 여행 전체라 너무 넓고,
+         VIEW 는 경치만이라 감천문화마을이 안 들어가고, LANDMARK 는 대표 건물만
+         가리켜 전망 · 야경이 빠진다. 왜 이 갈래가 필요했는지는
+         migrations/0006_add_sight_type.sql 과 README.md 2절에 있다.
+      🔴 이 목록은 index.html 의 TYPES · schema.sql · migrations/0006 의
+         recommendation_place_type_ok 와 같아야 한다. 넷이 어긋나면 사람은
+         화면에서 통과하고 여기서, 또는 여기서 통과하고 DB 에서 거절당한다. */
+const PLACE_TYPES = new Set(["SIGHT", "FOOD", "CAFE", "NATURE", "CULTURE", "MARKET", "ACTIVITY", "BAR"]);
 const WHEN_GOOD   = new Set(["DAY", "NIGHT", "ANY"]);
-/* 🔴 NEED 는 **반드시 채워야 하는 칸 수**, MAX_SLOTS 는 **넣을 수 있는 상한**이다.
-      화면은 다섯 칸으로 시작하고, 「한 곳 더 적기」를 누른 사람만 열까지 는다.
-      🔴 이 두 숫자는 index.html 의 SLOTS · MAX_SLOTS 와 같아야 하고, MAX_SLOTS 는
+/* 🔴 NEED 는 **반드시 채워야 하는 곳 수**(전체 하한), MAX_SLOTS 는 **넣을 수
+      있는 상한**이다. 둘 다 **응답 하나 전체**를 세는 숫자다.
+      🔴 갈래별 상한은 없다 (S15P21E201-754). 맛집을 다섯 곳 아는 사람이 다섯
+         곳 다 「로컬 음식 · 맛집」 갈래에 적을 수 있어야 한다 — 그 답이 우리가
+         가장 원하는 답이다. 그래서 여기서도, DB 에서도 유형별로 안 센다.
+      🔴 이 두 숫자는 index.html 의 NEED · MAX_SLOTS 와 같아야 하고, MAX_SLOTS 는
          schema.sql · migrations/0005_more_slots.sql 의 recommendation_slot_ok
          상한(10)과도 같아야 한다. 어긋나면 사람은 화면에서 통과하고 여기서,
          또는 여기서 통과하고 DB 에서 거절당한다. */
