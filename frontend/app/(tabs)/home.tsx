@@ -5,6 +5,7 @@ import { Redirect, useRouter } from 'expo-router';
 
 import { sendAppEvent } from '@/analytics/appEvents';
 import { useAuth } from '@/auth/AuthProvider';
+import { getSpendProfile } from '@/onboarding/spendProfile';
 import { BrandLogoLink } from '@/components/BrandLogoLink';
 import { GabolleMascot } from '@/components/DongbaekMascot';
 import { Screen } from '@/components/Screen';
@@ -68,7 +69,7 @@ function RecommendationCard({ item, index, liked, onToggleLike, desktop }: {
 export default function Home() {
   const router = useRouter();
   const { tx } = useI18n();
-  const { accessToken } = useAuth();
+  const { accessToken, ready } = useAuth();
   const { width } = useLayout();
   const desktop = isAtLeast(width, 'md');
   const [likedIds, setLikedIds] = useState<Set<string>>(new Set());
@@ -87,6 +88,20 @@ export default function Home() {
       }
     });
   }, []);
+  // 온보딩 세 질문(S15P21E201-807) — 계정이 아직 한 번도 답한 적 없으면(UNKNOWN) 홈을
+  // 보여주기 전에 그 화면으로 보낸다. 로컬 플래그를 따로 두지 않고 서버 상태만 본다 —
+  // 여러 로그인 경로(이메일·구글·카카오·네이버)를 전부 건드리지 않고 이 한 곳에서만
+  // 게이트하기 위해서다. 이미 답했거나(SELECTED) 건너뛴 적 있으면(SKIPPED) 다시 안 보낸다.
+  useEffect(() => {
+    if (!ready || !accessToken) return;
+    let active = true;
+    void getSpendProfile(accessToken).then((result) => {
+      if (active && result.status === 'UNKNOWN') router.replace('/spend-profile');
+    }).catch(() => {
+      // 조회에 실패해도 홈은 그대로 보여준다 — 이 화면 하나 때문에 앱 전체가 막히면 안 된다.
+    });
+    return () => { active = false; };
+  }, [ready, accessToken, router]);
   // 하트는 기기에만 남아 있었다. 이제 저장할 때 서버에도 신호를 보낸다.
   //
   // 🔴 저장을 해제한 것은 "싫다" 가 아니라 "취소" 다. 추천 화면의 제외 버튼과 달리 이 하트에는
