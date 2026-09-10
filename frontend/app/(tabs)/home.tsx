@@ -3,6 +3,8 @@ import { Image, ImageBackground, Pressable, ScrollView, StyleSheet, View } from 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Redirect, useRouter } from 'expo-router';
 
+import { sendAppEvent } from '@/analytics/appEvents';
+import { useAuth } from '@/auth/AuthProvider';
 import { BrandLogoLink } from '@/components/BrandLogoLink';
 import { GabolleMascot } from '@/components/DongbaekMascot';
 import { Screen } from '@/components/Screen';
@@ -54,6 +56,7 @@ function RecommendationCard({ item, index, liked, onToggleLike, desktop }: {
 export default function Home() {
   const router = useRouter();
   const { tx } = useI18n();
+  const { accessToken } = useAuth();
   const { width } = useLayout();
   const desktop = isAtLeast(width, 'md');
   const [likedIds, setLikedIds] = useState<Set<string>>(new Set());
@@ -72,14 +75,23 @@ export default function Home() {
       }
     });
   }, []);
-  const toggleLike = (id: string) => setLikedIds((current) => {
-    const next = new Set(current);
-    const saved = !next.has(id);
+  // 하트는 기기에만 남아 있었다. 이제 저장할 때 서버에도 신호를 보낸다.
+  //
+  // 🔴 저장을 해제한 것은 "싫다" 가 아니라 "취소" 다. 추천 화면의 제외 버튼과 달리 이 하트에는
+  //    싫다는 뜻이 없어서, 해제에는 아무 이벤트도 보내지 않는다 — 없는 뜻을 만들지 않는다.
+  // 🔴 화면은 전송을 기다리지 않는다. 하트는 누른 즉시 채워지고 이벤트는 뒤에서 간다.
+  // 🔴 여기 place_id 는 아직 홈 화면에 박아 둔 목업 값이다. 실제 추천이 붙으면 그대로 바뀐다.
+  // 🔴 전송을 setLikedIds 의 갱신 함수 안에서 하지 않는다. 그 함수는 React 가 두 번 부를 수
+  //    있고, 그러면 하트 한 번에 이벤트가 두 건 적힌다(eventId 가 매번 달라 중복으로도 안 걸린다).
+  const toggleLike = (id: string) => {
+    const saved = !likedIds.has(id);
+    const next = new Set(likedIds);
     saved ? next.add(id) : next.delete(id);
+    setLikedIds(next);
     void AsyncStorage.setItem(SAVED_PLACES_KEY, JSON.stringify([...next]));
     setSaveFeedback(saved ? tx('이 기기에 여행지를 저장했어요.', 'Saved this place on this device.') : tx('이 기기에서 저장을 해제했어요.', 'Unsaved this place on this device.'));
-    return next;
-  });
+    if (saved) sendAppEvent({ type: 'place_like', accessToken, payload: { place_id: id, surface: 'home' } });
+  };
   const goToCard = (index: number) => {
     const next = Math.max(0, Math.min(RECOMMENDATIONS.length - 1, index));
     carouselRef.current?.scrollTo({ x: next * 312, animated: true });
