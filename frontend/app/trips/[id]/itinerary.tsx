@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
@@ -128,6 +128,7 @@ export default function ItineraryScreen() {
   const [replanConfirming, setReplanConfirming] = useState(false);
   const [replanBusy, setReplanBusy] = useState(false);
   const [replanOverflowIds, setReplanOverflowIds] = useState<string[] | null>(null);
+  const [syncDisconnected, setSyncDisconnected] = useState(false);
 
   const refreshVersions = useCallback(async (targetId: string) => {
     const next = await loadItineraryVersions(targetId, accessToken);
@@ -150,6 +151,38 @@ export default function ItineraryScreen() {
   }, [accessToken, itineraryId, refreshVersions]);
 
   useEffect(() => { void reload(); }, [reload]);
+
+  // 동행자의 변경을 실시간으로 받아온다(S15P21E201-323). 진행 중인 내 편집(잠금·제외·
+  // 순서 변경 등) 위에 서버 응답이 덮어써 충돌하지 않도록, 그런 조작이 도는 동안은
+  // 이번 주기를 건너뛴다 — 편집이 끝나면 각 함수가 자체적으로 reload()를 부른다.
+  const pollBlockedRef = useRef(false);
+  useEffect(() => {
+    pollBlockedRef.current = Boolean(busyItemId) || excludingItemId !== null || excludeConfirming !== null || dayActionBusy || revertBusy || orderDraft !== null || reorderBusy || replanBusy || actualBusyItemId !== null;
+  });
+  const failureStreakRef = useRef(0);
+  useEffect(() => {
+    if (!itineraryId) return;
+    const timer = setInterval(() => {
+      if (pollBlockedRef.current) return;
+      void loadItinerary(itineraryId, accessToken).then((next) => {
+        if (next.state === 'success') {
+          failureStreakRef.current = 0;
+          setSyncDisconnected(false);
+          setResult((prev) => (prev.state === 'success' && prev.itinerary.version === next.itinerary.version) ? prev : next);
+        } else {
+          failureStreakRef.current += 1;
+          if (failureStreakRef.current >= 3) setSyncDisconnected(true);
+        }
+      });
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [accessToken, itineraryId]);
+
+  const manualSyncRefresh = async () => {
+    await reload();
+    failureStreakRef.current = 0;
+    setSyncDisconnected(false);
+  };
 
   const itinerary = result.state === 'success' ? result.itinerary : null;
   const day = itinerary?.days[selectedDay];
@@ -340,6 +373,7 @@ export default function ItineraryScreen() {
         <Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx('여행 리듬', 'Trip rhythm')}</Text>
         <Text variant="caption" color={color.text.body}>{tx(`하루 평균 ${rhythm.averageItemsPerDay}곳`, `${rhythm.averageItemsPerDay} places/day avg.`)}{rhythm.travelShare != null ? tx(` · 이동 비중 ${Math.round(rhythm.travelShare * 100)}%`, ` · ${Math.round(rhythm.travelShare * 100)}% travel time`) : tx(' · 이동 비중 미확인', ' · travel share unconfirmed')}{rhythm.plannedVsActual != null ? tx(` · 계획 대비 실제 ${rhythm.plannedVsActual}배`, ` · ${rhythm.plannedVsActual}x planned pace`) : ''}</Text>
       </View> : null}
+      {syncDisconnected ? <View accessibilityRole="alert" style={styles.conflict}><Text variant="body" weight="bold">{tx('실시간 동기화가 끊겼습니다', 'Live sync lost')}</Text><Text variant="caption" color={color.text.body}>{tx('네트워크 연결을 확인해 주세요. 보고 있는 화면은 최신이 아닐 수 있어요.', 'Please check your network connection. What you see may not be up to date.')}</Text><Button label={tx('새로고침', 'Refresh')} variant="ghost" onPress={() => void manualSyncRefresh()} /></View> : null}
       {conflict ? <View accessibilityRole="alert" style={styles.conflict}><Text variant="body" weight="bold">{tx('최신 일정과 충돌했어요', 'Conflicted with the latest itinerary')}</Text><Text variant="caption" color={color.text.body}>{conflict}</Text><Button label={tx('최신 일정 불러오기', 'Load latest itinerary')} variant="ghost" onPress={() => void reload()} /></View> : null}
       {actionMessage ? <View accessibilityRole="alert" style={styles.actionNotice}><Text variant="caption" color={color.text.body}>{actionMessage}</Text></View> : null}
       {latestWarnings.length ? <View style={styles.warningNotice}>{latestWarnings.map((message, index) => <Text key={index} variant="caption" color={color.text.body}>{message}</Text>)}</View> : null}
