@@ -451,6 +451,12 @@ class RouteAuthorizationRegistryTest {
 				"되돌리기는 편집 권한자만. ItineraryRevertIntegrationTest");
 		put(m, "PUT /api/v1/itineraries/{}/items/{}/actual", Policy.OWNED,
 				"그 여행의 편집자만 자기 일정의 방문 시각을 적는다 — 남의 여행은 존재를 감춘 404, VIEWER 는 403. ItineraryActualTimeIntegrationTest (-293)");
+		put(m, "GET /api/v1/itineraries/{}/days/{}/pace", Policy.OWNED,
+				"지연 경고 조회다. 보기만 하므로 VIEWER 도 본다 — 참여자가 아니면 존재를 감춘 404. ItineraryPaceIntegrationTest (-304)");
+		put(m, "GET /api/v1/itineraries/{}/rhythm", Policy.OWNED,
+				"여행 리듬 요약 조회다. 위와 같은 이유로 VIEWER 도 본다. ItineraryPaceIntegrationTest (-308)");
+		put(m, "POST /api/v1/itineraries/{}/days/{}/replan", Policy.OWNED,
+				"남은 하루 재계획은 판을 만드는 편집이라 편집 권한자만. ItineraryReplanIntegrationTest (-308)");
 
 		// ── 추천 작업 ────────────────────────────────────────────────────────────
 		put(m, "GET /api/v1/jobs/{}", Policy.OWNED,
