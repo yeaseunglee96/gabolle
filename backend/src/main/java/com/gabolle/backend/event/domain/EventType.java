@@ -66,8 +66,16 @@ public enum EventType {
     RECOMMENDATION_FAILED(Producer.SERVER, true, VersionRequirement.BEST_EFFORT,
             AggregateAxis.RECOMMENDATION_REQUEST),
 
-    /** 명시 선호 입력 */
-    PREFERENCE_SET(Producer.SERVER, true, VersionRequirement.NONE, AggregateAxis.TRIP),
+    /**
+     * 명시 선호 입력.
+     *
+     * <p>🔴 축이 {@code TRIP} 이 아니라 {@code USER} 다 (S15P21E201-709). 이 종류를 실제로
+     * 발행하는 첫 자리가 {@code PUT /api/v1/me/preferences/spend} 인데, 그 경로는 계정
+     * 기본값(scope=USER)을 바꾸는 것이라 tripId 가 없다. {@link #PLACE_VIEW} ·
+     * {@link #PLACE_LIKE} 가 같은 이유로 이미 {@code TRIP} 에서 {@code USER} 로 옮긴 전례를
+     * 그대로 따른다 — 여행과의 관계는 필요하면 실컬럼 {@code trip_id} 가 여전히 들고 있다.
+     */
+    PREFERENCE_SET(Producer.SERVER, true, VersionRequirement.NONE, AggregateAxis.USER),
     /** 제약 입력 (알레르기·식단·이동) */
     CONSTRAINT_SET(Producer.SERVER, true, VersionRequirement.NONE, AggregateAxis.TRIP),
     /** 여행 생성 */

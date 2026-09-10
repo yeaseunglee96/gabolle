@@ -394,6 +394,10 @@ class RouteAuthorizationRegistryTest {
 				"탈퇴하면 무엇이 지워지는지 미리 보여준다(-188). 대상이 인증 주체 자신뿐이라 남의 것을 지정할 자리가 없다. AccountDeletionIntegrationTest");
 		put(m, "DELETE /api/v1/auth/me", Policy.OWNED,
 				"탈퇴. 대상이 인증 주체 자신뿐이다. AccountDeletionIntegrationTest");
+		put(m, "GET /api/v1/me/preferences/spend", Policy.OWNED,
+				"계정 기본 씀씀이 성향 조회(-709). 대상이 경로에 없고 인증 주체로만 정해진다 — 남의 것을 지정할 방법이 없다. SpendProfileControllerTest");
+		put(m, "PUT /api/v1/me/preferences/spend", Policy.OWNED,
+				"위와 같다. SpendProfileControllerTest");
 
 		// ── 여행 ────────────────────────────────────────────────────────────────
 		put(m, "POST /api/v1/trips", Policy.AUTHENTICATED_ONLY,
