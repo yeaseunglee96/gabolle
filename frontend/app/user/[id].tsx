@@ -111,7 +111,7 @@ export default function UserProfile() {
 const styles = StyleSheet.create({
   back: { minHeight: 44, alignSelf: 'flex-start', justifyContent: 'center', marginBottom: spacing[3] },
   pressed: { opacity: 0.72 },
-  stateCard: { gap: spacing[3], marginTop: spacing[4], padding: spacing[4], borderWidth: 1, borderColor: '#eee5da', borderRadius: radius.lg, backgroundColor: color.surface.card, alignItems: 'center' },
+  stateCard: { gap: spacing[3], marginTop: spacing[4], padding: spacing[4], borderWidth: 1, borderColor: color.surface.border, borderRadius: radius.lg, backgroundColor: color.surface.card, alignItems: 'center' },
   header: { gap: spacing[3], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card },
   statRow: { flexDirection: 'row', gap: spacing[4] },
   stat: { alignItems: 'flex-start' },

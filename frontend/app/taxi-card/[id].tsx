@@ -105,7 +105,7 @@ export default function TaxiCardScreen() {
 }
 
 const styles = StyleSheet.create({
-  screen: { backgroundColor: '#ffffff' },
+  screen: { backgroundColor: color.surface.card },
   topBar: { minHeight: 52, justifyContent: 'center' },
   back: { width: 44, height: 44, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.card },
   pressed: { opacity: 0.72, transform: [{ scale: 0.96 }] },
