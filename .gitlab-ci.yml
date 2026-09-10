@@ -233,144 +233,6 @@ claims:
     #    재생하는 검사라 "무엇이 바뀌었나" 로 좁힐 것이 아니다.
     - if: $CI_COMMIT_BRANCH =~ /(^|\/)(main|func|dev)$/
 
-# ── frontend:build 는 지웠다 (S15P21E201-700) ────────────────────────────────
-#
-# 🔴 다시 넣지 마라. "프론트 빌드 검사가 없네" 로 보이지만 없는 게 아니다.
-#    아래 `frontend:smoke` 가 `npm ci` + `npx expo export --platform web` 을
-#    **똑같이** 하고, 거기에 더해 헤드리스 브라우저로 실제로 열어 본다.
-#    번들이 안 만들어지면 smoke 가 그 자리에서 실패한다 — 검사 강도는 그대로다.
-#
-# 왜 지웠나 — 낭비가 아니라 **해로웠다.** 둘 다 stage: verify 라 동시에 돌았고,
-# 4코어 러너에서 Metro 번들러 두 개가 서로를 밀어냈다. 실측(2026-09-07, 잡 4,466개):
-#
-#     러너에 동시 3개일 때  frontend:build 130초
-#     러너에 동시 4개일 때                  247초   ← 정확히 2배
-#     한가한 기계(동시 1개)                 118초
-#
-# 이 잡 하나를 지워 4일치 CI 실행시간의 19.7%(9.4시간)를 회수한다.
-
-# ── 의존성 취약점 스캔 (OWASP A06) ────────────────────────────────────────────
-#
-# npm audit은 이미 package-lock.json(잠금 파일)을 쓰므로 backend처럼 별도
-# 잠금 설정이 필요 없다 — S15P21E201-680, 형제 잡은 backend:dependency-scan.
-#
-# --audit-level=high 는 npm 내장 기준이라 HIGH·CRITICAL 에서만 실패한다.
-# 실측(2026-09-07): 현재 MODERATE 14건뿐이라 이 잡은 지금 통과한다.
-#
-# 🔴 2026-09-08 — 언제 도는가를 두 갈래로 바꿨다.
-#
-#    전에는 `frontend/**/*` 가 바뀌면 돌았다. 그런데 이 검사가 보는 것은 **의존성**
-#    이지 우리 화면 코드가 아니다. 글자 하나만 고친 MR 에서도 `npm ci` 를 통째로
-#    돌리고 있었고, 그때 의존성은 한 줄도 안 바뀌었다.
-#
-#    그래서 MR 에서는 **잠금 파일이 바뀔 때만** 돈다.
-#
-#    🔴 대신 하루 한 번 예약으로 전체를 다시 본다. **새 취약점은 우리 코드가 안
-#    바뀌어도 생기기 때문이다** — 지난달에 깐 라이브러리가 오늘 취약하다고 공개될
-#    수 있다. 잠금 파일 조건만 두면 그런 날 아무도 모른 채 지나간다.
-frontend:dependency-scan:
-  stage: verify
-  image: node:20-alpine
-  before_script: []
-  # 🔴 캐시하는 것은 node_modules 가 아니라 **npm 이 받아 둔 꾸러미 보관함**(.npm)이다.
-  #    보관함에는 내려받은 tarball 이 들어 있고, npm 은 잠금 파일대로 다시 풀되
-  #    **내려받는 일만 건너뛴다.** GitLab 공식 캐싱 예제가 쓰는 방식 그대로다.
-  #
-  #    node_modules 를 캐시하지 않는 이유는 위험해서가 아니라 **낭비라서**다 —
-  #    `npm ci` 는 시작 전에 node_modules 를 무조건 지운다(재현 확인: 가짜 패키지를
-  #    심어 두어도 다음 npm ci 에서 사라진다). 지워질 것을 압축해 옮기는 셈이다.
-  #
-  #    key 를 잠금 파일 내용으로 잡아서, 의존성이 바뀌면 캐시도 저절로 갈린다.
-  #
-  # 🔴 이 저장소의 러너는 **2대**이고 캐시는 **러너 로컬 디스크**에 쌓인다(원격 캐시
-  #    설정이 없다). 그래서 다른 러너로 배정된 잡은 **캐시가 그냥 미스난다.**
-  #    절감폭이 날마다 들쭉날쭉한 것은 고장이 아니라 이 구조 때문이다.
-  cache:
-    key:
-      files:
-        - frontend/package-lock.json
-    paths:
-      - frontend/.npm
-  script:
-    - cd frontend
-    - npm ci --cache .npm --prefer-offline
-    - npm audit --audit-level=high
-  rules:
-    # ① 의존성이 실제로 바뀐 MR
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-      changes: ['frontend/package.json', 'frontend/package-lock.json']
-    # ② 매일 예약 — 코드가 안 바뀌어도 새로 공개된 취약점을 잡는다
-    - if: $CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_KIND == "depscan"
-
-# ── 화면이 실제로 뜨는가 ───────────────────────────────────────────────────────
-#
-# 🔴 위 frontend:build는 번들이 만들어지는지만 본다 — 문법 검사·타입 검사와
-#    같은 층이라, 브라우저에서 실행돼야만 터지는 문제(예: let 선언이 첫
-#    사용처보다 아래에 있어 부트스트랩이 죽는 것)는 못 잡는다. docs/CI.md가
-#    이걸 실제로 하룻밤에 두 번 겪었다고 적어 뒀다 — 문법 검사·단위 테스트
-#    전부 통과한 채로 흰 화면이 배포될 뻔했다 (S15P21E201-252).
-#
-#    헤드리스 브라우저로 실제로 열어서 (1) 화면에 글자가 그려졌는지
-#    (2) 콘솔에 error가 안 찍혔는지를 본다 — tools/smoke-check.mjs.
-#
-# 🔴 이미지를 Microsoft 공식 Playwright 이미지로 고른 이유. docs/CI.md 3절이
-#    남긴 함정 — "데비안 계열 이미지는 패키지 목록이 비어 있어서
-#    apt-get update 없이 apt-get install을 치면 실패한다" — 이 자체를
-#    피한다. 이 이미지는 크로미움과 필요한 라이브러리가 전부 미리 깔려 있어서
-#    apt-get을 아예 안 부른다. 태그(v1.62.1)는 package.json의 playwright
-#    버전과 반드시 같아야 한다 — 다르면 "browserType.launch: Executable
-#    doesn't exist" 로 죽는다.
-frontend:smoke:
-  stage: verify
-  image: mcr.microsoft.com/playwright:v1.62.1-noble
-  before_script: []
-  # 🔴 캐시가 줄여 주는 것은 `npm ci` 안의 **내려받기 부분**뿐이고, 그 크기는
-  #    **10~20초**다. 이 저장소 잡 로그 실측에서 `npm ci` 자체가 22~49초였고,
-  #    같은 잠금 파일로 로컬 재현하니 29.2초 → 12.6~19.5초였다.
-  #
-  #    🔴 이 자리에 한때 "69~112초가 준다" 고 적혀 있었는데 **틀린 값이었다.**
-  #    그 숫자는 `npm ci` 가 아니라 아래 `expo export`(Metro 번들러)가 **러너 동시
-  #    부하에 따라 41초 → 74~111초로 늘어나는 폭**이다. 캐시와 아무 상관이 없다.
-  #    그래서 이 잡을 빠르게 만드는 진짜 손잡이는 캐시가 아니라 **동시에 도는
-  #    잡을 줄이는 것**이다 (그래서 dependency-scan 조건을 좁혔다).
-  #
-  #    타입 검사와 `expo export` 는 우리 코드를 다루는 일이라 캐시와 무관하게
-  #    매번 그대로 돈다. 캐시는 "바뀐 부분만 빌드" 가 아니라 "라이브러리를 다시
-  #    안 받는다" 이다.
-  #
-  #    형제 잡(frontend:dependency-scan)과 key 를 같은 잠금 파일로 잡았으므로,
-  #    **같은 러너에 배정되면** 둘 중 먼저 도는 쪽이 채운 보관함을 나머지가 쓴다.
-  cache:
-    key:
-      files:
-        - frontend/package-lock.json
-    paths:
-      - frontend/.npm
-  script:
-    - cd frontend
-    - npm ci --cache .npm --prefer-offline
-    # 🔴 타입 검사를 여기 넣은 이유 — 이건 원래 CI 에 없던 검사다.
-    #    package.json 에 `typecheck: tsc --noEmit` 이 있는데 .gitlab-ci.yml
-    #    어디에서도 안 불렀다(실측 2026-09-07: tsc·typecheck·verify 0건).
-    #    지운 frontend:build 도 expo export 만 했으므로, 타입은 지금까지
-    #    CI 에서 한 번도 안 봤다.
-    #
-    #    Metro 번들러는 **타입 오류를 무시하고 번들을 만든다.** `user.nmae`
-    #    같은 오타는 번들도 되고 화면도 뜨고, 그 값을 쓰는 순간에만 터진다.
-    #    아래 스모크로도 안 잡히는 자리가 있다.
-    #
-    #    별도 잡으로 안 뺀 이유: 그러면 `npm ci`(69~112초)를 한 번 더 돌리고
-    #    러너 슬롯을 하나 더 먹는다. 그게 바로 frontend:build 를 지운 이유다.
-    #    여기 두면 이미 깔아 둔 node_modules 를 그대로 쓰고, 무거운 번들링
-    #    앞에서 싼 검사가 먼저 실패한다.
-    - npx tsc --noEmit
-    - npx expo export --platform web
-    - npx serve dist -l 3000 &
-    - sleep 2
-    - npm run smoke -- http://localhost:3000
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-      changes: ['frontend/**/*']
 # ── 도장을 찍는다 — 감사가 같은 구간을 다시 안 보게 ──────────────────────────
 #
 # 위 claims 는 MR 에서만 돌고 거기에는 쓰기 토큰이 오지 않는다 (AXMAP_BOT_TOKEN 이
@@ -842,7 +704,24 @@ version:
       #    git-lfs 가 없어 그 훅이 실행되는 순간 무조건 죽는다. 이 잡의 태그
       #    push 는 어떤 pre-push 훅도 필요 없으니 통째로 끈다.
       git config core.hooksPath /dev/null
-      npx -y axmap-cli@$AXMAP_VERSION version bump --branch "$CI_COMMIT_BRANCH" --push
+      # 🔴 S15P21E201-786 — 여러 파트가 짧은 간격으로 머지되면, 버전을 계산하는
+      #    시점과 태그를 push 하는 시점 사이에 다른 실행이 같은 번호를 먼저
+      #    push 해서 "already exists" 로 죽는다(실측 2026-09-09, 파이프라인
+      #    184052·184677 — 최근 50개 중 11개 실패). axmap-cli 자체엔 이 경합에
+      #    대한 재시도가 없어서(rleaderjoon 에게 근본 수정 요청함), 여기서
+      #    감싼다 — 이 잡이 실제로 그 실패를 겪은 유일한 파트다. 다른 파트
+      #    사본에는 증거 없이 미리 안 넣는다.
+      attempt=1
+      until npx -y axmap-cli@$AXMAP_VERSION version bump --branch "$CI_COMMIT_BRANCH" --push; do
+        if [ "$attempt" -ge 5 ]; then
+          echo "5번 재시도해도 버전 태그를 못 올렸습니다 — axmap-cli 자체 문제일 수 있습니다. 사람이 봐야 합니다."
+          exit 1
+        fi
+        echo "버전 태그 push 가 경합으로 실패했습니다 (시도 $attempt/5). 최신 태그를 다시 받고 재시도합니다."
+        attempt=$((attempt + 1))
+        sleep $((RANDOM % 5 + 1))   # 여러 파이프라인이 동시에 재시도하며 또 부딪히지 않게 무작위로 흩는다
+        git fetch --tags --quiet
+      done
   rules:
     # MR 에서는 올리지 않는다. 머지되어 브랜치에 들어온 것만 버전을 갖는다.
     - if: $CI_COMMIT_BRANCH =~ /(^|\/)(main|func|dev)$/
@@ -877,8 +756,12 @@ jira:
 #    돈다. 어느 단계를 올릴지는 스케줄마다 변수 PROMOTE_STEP 으로 준다:
 #
 #      Settings → CI/CD → Schedules 에서 둘을 만든다
-#        매일  0 19 * * 1-5   PROMOTE_STEP = dev-to-part
-#        매주  0 19 * * 5     PROMOTE_STEP = part-to-main
+#        매일  0 9 * * *     PROMOTE_STEP = dev-to-part
+#        매주  0 9 * * 1     PROMOTE_STEP = part-to-main
+#
+#      🔴 2026-09-09 정정 — 위 두 줄은 `0 19 * * 1-5` · `0 19 * * 5` 로
+#         적혀 있었는데 실제 스케줄은 **매일 09:00 KST** 과 **월요일 09:00 KST** 다.
+#         시각을 문서에서 읽은 사람은 "저녁에 돌겠구나" 하고 기다리게 된다.
 #
 # 🔴 봇도 정족수를 통과해야 머지한다. 게이트가 미달(2)이면 머지 호출 자체가
 #    일어나지 않고, 잡은 초록으로 끝난다 — "아직 표가 모자람" 은 고장이 아니다.
@@ -909,6 +792,12 @@ promote:
     # 🔴 PROMOTE_STEP 이 있는 스케줄에서만 돈다.
     #
     #    예전에는 "스케줄이면 돈다" 였다. 그런데 스케줄은 승격만 쓰는 것이 아니다 —
+    #    이 브랜치에는 depscan(의존성 취약점 스캔) 스케줄이 걸려 있고,
+    #    그것이 깨울 때마다 이 잡도 같이 일어나 PROMOTE_STEP 이 없으니
+    #    위 script 가 의도대로 exit 1 을 냈다. 그래서 **매일 09:00 에 빨개졌다**
+    #    (실측 2026-09-09, 파이프라인 184177). 같은 고침이 common/dev 에는
+    #    2026-09-01 에 들어갔고(S15P21E201-529), front/dev 에만 안 내려와 있었다.
+    #
     #    2026-09-01 에 vote:recheck 스케줄이 생기자 이 잡이 같이 깨어났고,
     #    PROMOTE_STEP 이 없으니 위 script 가 의도대로 exit 1 을 냈다.
     #    그래서 **10분마다 파이프라인이 빨개졌다** (#176479).

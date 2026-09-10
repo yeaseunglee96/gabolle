@@ -22,6 +22,9 @@ const bellIcon = require('../../assets/icons/home/bell.png');
 const heartIcon = require('../../assets/icons/home/heart.png');
 const arrowLeftIcon = require('../../assets/icons/home/arrow-left.png');
 const arrowRightIcon = require('../../assets/icons/home/arrow-right.png');
+const festivalIcon = require('../../assets/icons/common/festival.png');
+const compassWhiteIcon = require('../../assets/icons/common/compass-white.png');
+const mapIcon = require('../../assets/icons/home/map.png');
 const SAVED_PLACES_KEY = 'gabolle.saved-home-places';
 
 function RecommendationCard({ item, index, liked, onToggleLike, desktop }: {
@@ -96,15 +99,15 @@ export default function Home() {
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <Pressable accessibilityRole="button" accessibilityLabel={tx('부산 축제 찾아보기', 'Explore Busan festivals')} onPress={() => router.push('/festivals')} style={({ pressed }) => [styles.weatherBar, pressed && styles.weatherBarPressed]}>
-          <Text variant="body" weight="medium" color={color.text.heading}>{tx('🌺  내 날짜에 열리는 부산 축제 찾기', '🌺  Find Busan festivals on my dates')}</Text><Text weight="bold" color={color.brand.orange}>›</Text>
+          <View style={styles.barLabel}><Image source={festivalIcon} resizeMode="contain" style={styles.barIcon} /><Text variant="body" weight="medium" color={color.text.heading}>{tx('내 날짜에 열리는 부산 축제 찾기', 'Find Busan festivals on my dates')}</Text></View><Text weight="bold" color={color.brand.orange}>›</Text>
         </Pressable>
 
         <Pressable accessibilityRole="button" accessibilityLabel={tx('지금 갈 곳 찾기', 'Find places to go now')} onPress={() => router.push('/now')} style={({ pressed }) => [styles.nowBar, pressed && styles.weatherBarPressed]}>
-          <Text variant="body" weight="medium" color={color.text.onAction}>{tx('🧭  지금 남는 시간, 갈 곳 찾기', '🧭  Got free time now? Find a place')}</Text><Text weight="bold" color={color.text.onAction}>›</Text>
+          <View style={styles.barLabel}><Image source={compassWhiteIcon} resizeMode="contain" style={styles.barIcon} /><Text variant="body" weight="medium" color={color.text.onAction}>{tx('지금 남는 시간, 갈 곳 찾기', 'Got free time now? Find a place')}</Text></View><Text weight="bold" color={color.text.onAction}>›</Text>
         </Pressable>
 
         <Pressable accessibilityRole="button" accessibilityLabel={tx('부산 로컬 탐색', 'Explore Busan like a local')} onPress={() => router.push('/explore')} style={({ pressed }) => [styles.exploreBar, pressed && styles.weatherBarPressed]}>
-          <Text variant="body" weight="medium" color={color.text.heading}>{tx('🗺️  축제·야시장 등 로컬 8종 둘러보기', '🗺️  Explore 8 local categories')}</Text><Text weight="bold" color={color.brand.orange}>›</Text>
+          <View style={styles.barLabel}><Image source={mapIcon} resizeMode="contain" style={styles.barIcon} /><Text variant="body" weight="medium" color={color.text.heading}>{tx('축제·야시장 등 로컬 8종 둘러보기', 'Explore 8 local categories')}</Text></View><Text weight="bold" color={color.brand.orange}>›</Text>
         </Pressable>
 
         <View style={styles.heading}>
@@ -164,6 +167,8 @@ const styles = StyleSheet.create({
   bell: { width: 40, height: 40, borderRadius: radius.full, backgroundColor: color.surface.soft, alignItems: 'center', justifyContent: 'center' },
   bellIcon: { width: 20, height: 20 },
   scrollContent: { paddingBottom: spacing[6] },
+  barLabel: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], flexShrink: 1 },
+  barIcon: { width: 18, height: 18 },
   weatherBar: { minHeight: 44, marginTop: spacing[2], paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.state.warningBg, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   weatherBarPressed: { opacity: 0.78, transform: [{ scale: 0.99 }] },
   nowBar: { minHeight: 44, marginTop: spacing[2], paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.brand.navy, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },

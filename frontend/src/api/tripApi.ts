@@ -89,8 +89,8 @@ export function toCreateTripPayload(draft: PlanDraft): CreateTripPayload {
   return {
     startDate: draft.startDate,
     finishDate: draft.endDate,
-    originLat: null,
-    originLng: null,
+    originLat: draft.originLat,
+    originLng: draft.originLng,
     budgetKrw: draft.budgetKrw,
     partySize: draft.adults + draft.children,
     timeWindow: `${draft.dayStartTime}-${draft.dayEndTime}`,

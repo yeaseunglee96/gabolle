@@ -45,3 +45,16 @@ export function bilingualPlaceName(nameKo: string, nameEn?: string | null) {
 export function getPlace(placeId: string, signal?: AbortSignal) {
   return apiRequest<Place>(`/api/v1/places/${encodeURIComponent(placeId)}`, { signal });
 }
+
+// 계약: backend/src/main/java/com/gabolle/backend/place/api/PlaceQueryController.java (S15P21E201-462).
+// GET /api/v1/places?query=&limit= — query 와 facetType 은 정확히 하나만 보내야 한다(둘 다
+// 없거나 둘 다 있으면 400). 여기서는 이름 검색만 쓰므로 query 만 보낸다.
+export type PlaceSearchItem = { placeId: string; nameKo: string; nameEn: string | null; category: string; address: string; lat: number; lng: number };
+
+type PlacePageDto = { items: PlaceSearchItemDto[]; limit: number; nextCursor: string | null; hasNext: boolean; rankTruncated: boolean };
+type PlaceSearchItemDto = { placeId: string; nameKo: string; nameEn: string | null; category: string; address: string; lat: number; lng: number; matchedField: 'NAME_KO' | 'NAME_EN' | null };
+
+export async function searchPlacesByName(query: string, signal?: AbortSignal): Promise<PlaceSearchItem[]> {
+  const dto = await apiRequest<PlacePageDto>(`/api/v1/places?query=${encodeURIComponent(query)}&limit=8`, { signal });
+  return dto.items.map(({ placeId, nameKo, nameEn, category, address, lat, lng }) => ({ placeId, nameKo, nameEn, category, address, lat, lng }));
+}

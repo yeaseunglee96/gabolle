@@ -4,7 +4,11 @@ import { apiRequest, ApiClientError } from '@/api/client';
 // 여행 자체에 제목 칸이 없고(지금 화면의 제목도 실은 일정에서 가져온 값이었다), 방문지 수는
 // 일정의 최신 판을 세어야 나와서 목록 한 줄마다 그 조회를 더 하는 비용이 안 맞는다고 보셨다.
 // 화면에서는 날짜로 대신 보여준다.
-export type TripStatus = 'ACTIVE' | 'ARCHIVED' | 'CANCELLED' | string;
+// 🔴 서버가 쓰는 이름 그대로다 — PLANNING 은 조건만 저장되고 아직 일정이 없는 상태,
+// READY 는 일정이 만들어진 상태다. 여기 한때 ACTIVE·ARCHIVED·CANCELLED 라고 적혀 있었는데
+// 서버 이름과 하나도 안 겹쳤다. `| string` 으로 열려 있고 지금은 화면이 이 값으로 분기하지
+// 않아 드러나지 않았을 뿐이라, 상태 배지나 필터를 붙이는 순간 조용히 어긋났을 것이다.
+export type TripStatus = 'PLANNING' | 'READY' | 'IN_PROGRESS' | 'COMPLETED' | string;
 export type TripRole = 'OWNER' | 'EDITOR' | 'VIEWER' | string;
 
 export type TripSummaryDto = {
@@ -29,10 +33,18 @@ function failure(error: unknown): TripsFailure {
 
 export type TripsLoadResult = { state: 'success'; trips: TripSummaryDto[] } | TripsFailure;
 
+// 🔴 서버는 봉투의 `data` 에 목록을 **배열 그대로** 싣는다 — `{ trips: [...] }` 가 아니다
+// (`ApiResponse<List<TripSummaryResponse>>`). 이 자리가 한때 `dto.trips` 를 읽어 undefined 를
+// 목록으로 넘겼고, 화면이 그 개수를 세다 죽어 안전망 화면("화면을 불러오지 못했어요")이 떴다
+// (S15P21E201-762). 여행이 없는 계정에서 먼저 눈에 띄었지만 있으나 없으나 같았다.
+// 같은 저장소의 일정 버전 목록(`plan/itinerary.ts`)은 처음부터 배열로 받고 있었다.
 export async function loadTrips(accessToken: string | null): Promise<TripsLoadResult> {
   try {
-    const dto = await apiRequest<{ trips: TripSummaryDto[] }>('/api/v1/trips', { accessToken });
-    return { state: 'success', trips: dto.trips };
+    const rows = await apiRequest<TripSummaryDto[]>('/api/v1/trips', { accessToken });
+    // 모양이 예상과 다르면 화면을 죽이지 말고 오류 안내로 떨어뜨린다. 목록 한 줄 때문에
+    // 탭 전체가 안 열리는 것이 이 버그의 실제 피해였다.
+    if (!Array.isArray(rows)) return { state: 'error', message: '여행 목록의 형식이 예상과 달라요.' };
+    return { state: 'success', trips: rows };
   } catch (error) {
     return failure(error);
   }
@@ -50,6 +62,9 @@ export async function loadTripItineraries(tripId: string, accessToken: string | 
       `/api/v1/trips/${encodeURIComponent(tripId)}/itineraries`,
       { accessToken },
     );
+    // 여기는 서버가 객체를 준다(위 목록과 다르다). 그래도 같은 방식으로 한 번 확인한다 —
+    // 호출한 쪽이 곧바로 개수를 세므로, 모양이 어긋나면 화면이 죽는 자리다.
+    if (!Array.isArray(dto?.itineraries)) return { state: 'error', message: '일정 목록의 형식이 예상과 달라요.' };
     return { state: 'success', role: dto.role, itineraries: dto.itineraries };
   } catch (error) {
     return failure(error);

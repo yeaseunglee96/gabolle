@@ -18,6 +18,8 @@ import { Card } from '@/components/Card';
 import { Button } from '@/components/Button';
 import { RouteMap } from '@/map/RouteMap';
 import { city3dUrlForStops, openCity3D } from '@/map/city3d';
+
+const pinIcon = require('../../../assets/icons/common/pin.png');
 import type { MapStop } from '@/map/types';
 import { PermissionRationale } from '@/components/PermissionRationale';
 import { useI18n } from '@/i18n';
@@ -219,7 +221,7 @@ export default function Map() {
 
       {locationPermission !== 'granted' && (
         <PermissionRationale
-          icon="📍"
+          icon={pinIcon}
           title={tx('현재 위치로 길을 안내할까요?', 'Use your location to guide you?')}
           description={tx('여행 중 가까운 장소와 출발 경로를 안내할 때만 위치를 사용해요. 허용하지 않아도 일정 지도는 볼 수 있어요.', 'We only use your location to guide you to nearby places and starting routes during your trip. You can still view the itinerary map without allowing it.')}
           denied={locationPermission === 'denied'}

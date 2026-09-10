@@ -5,7 +5,7 @@
 // "장소별 한국어" 는 이미 만든 17 현장 말하기 화면(phrase 카드)과 같은 기능이라 그리로 잇고,
 // "날씨·준비물" 은 16 여행 준비 화면으로 잇는다.
 import { useEffect, useState } from 'react';
-import { AppState, Platform, Pressable, StyleSheet, View } from 'react-native';
+import { AppState, Image, Platform, Pressable, StyleSheet, View, type ImageSourcePropType } from 'react-native';
 import { Camera } from 'expo-camera';
 import { useRouter } from 'expo-router';
 
@@ -17,10 +17,12 @@ import { PermissionRationale } from '@/components/PermissionRationale';
 import { useI18n } from '@/i18n';
 
 const DEMO_TRIP_ID = 'demo-trip';
+const sunIcon = require('../../assets/icons/common/sun.png');
+const cameraIcon = require('../../assets/icons/common/camera.png');
 
 type Tool = {
   key: string;
-  icon: string;
+  icon: string | ImageSourcePropType;
   title: string;
   desc: string;
   tinted?: boolean;
@@ -56,23 +58,9 @@ export default function Translate() {
     }
   }
 
+  // 지금 실제로 눌리는 기능(장소별 한국어·날씨)을 위로, 아직 못 쓰는 기능(음성 통역·
+  // 메뉴판 번역)을 아래로 둔다 — 카드 순서만으로 "이건 지금 되는 기능이다"가 보이게.
   const tools: Tool[] = [
-    {
-      key: 'menu-camera',
-      icon: '▣',
-      title: tx('메뉴판 카메라 번역', 'Menu camera translation'),
-      desc: tx('사진을 찍으면 음식명·가격·알레르기를 번역', 'Take a photo to translate dish names, prices, and allergens'),
-      tinted: true,
-      onPress: cameraPermission === 'undetermined' ? () => void requestCamera() : undefined,
-      pending: cameraPermission !== 'undetermined',
-    },
-    {
-      key: 'voice',
-      icon: '◉',
-      title: tx('양방향 음성 통역', 'Two-way voice interpretation'),
-      desc: tx('한국어 ↔ English 실시간 대화', 'Real-time conversation, Korean ↔ English'),
-      pending: true,
-    },
     {
       key: 'phrase',
       icon: '말',
@@ -82,10 +70,28 @@ export default function Translate() {
     },
     {
       key: 'weather',
-      icon: '☀',
+      icon: sunIcon,
       title: tx('날씨·준비물', 'Weather & what to bring'),
       desc: tx('기상청 예보 기반 우산·옷차림 안내', 'Umbrella and clothing tips based on the weather forecast'),
       onPress: () => router.push(`/${DEMO_TRIP_ID}/prepare`),
+    },
+    {
+      key: 'voice',
+      icon: '◉',
+      title: tx('양방향 음성 통역', 'Two-way voice interpretation'),
+      desc: tx('한국어 ↔ English 실시간 대화', 'Real-time conversation, Korean ↔ English'),
+      pending: true,
+    },
+    {
+      key: 'menu-camera',
+      icon: '▣',
+      title: tx('메뉴판 카메라 번역', 'Menu camera translation'),
+      desc: tx('사진을 찍으면 음식명·가격·알레르기를 번역', 'Take a photo to translate dish names, prices, and allergens'),
+      tinted: true,
+      // 번역 업체가 아직 안 정해져 이 기능 자체가 못 켜져 있다 — 카메라 권한을 미리
+      // 받아두는 것과는 별개라, 목록 카드에서는 권한을 요청하지 않는다. 권한 사전 요청은
+      // 위 PermissionRationale 배너로만 한다.
+      pending: true,
     },
   ];
 
@@ -100,7 +106,7 @@ export default function Translate() {
 
       {cameraPermission !== 'granted' && (
         <PermissionRationale
-          icon="📷"
+          icon={cameraIcon}
           title={tx('메뉴판을 촬영해 번역할까요?', 'Photograph a menu to translate it?')}
           description={tx('카메라는 메뉴와 안내문을 읽을 때만 사용해요. 촬영한 이미지는 사진첩에 저장하지 않아요.', 'The camera is only used to read menus and signs. Photos are not saved to your camera roll.')}
           denied={cameraPermission === 'denied'}
@@ -121,9 +127,13 @@ export default function Translate() {
             style={[styles.card, tool.tinted && styles.cardTinted, tool.pending && styles.cardPending]}
           >
             <View style={[styles.iconBox, tool.tinted ? styles.iconBoxDark : styles.iconBoxLight]}>
-              <Text variant="title" weight="bold" color={tool.tinted ? color.text.onAction : color.action.secondary}>
-                {tool.icon}
-              </Text>
+              {typeof tool.icon === 'string' ? (
+                <Text variant="title" weight="bold" color={tool.tinted ? color.text.onAction : color.action.secondary}>
+                  {tool.icon}
+                </Text>
+              ) : (
+                <Image source={tool.icon} resizeMode="contain" style={styles.toolIconImage} />
+              )}
             </View>
             <View style={styles.cardBody}>
               <Text variant="body" weight="bold">
@@ -133,12 +143,12 @@ export default function Translate() {
                 {tool.desc}
               </Text>
             </View>
-            {tool.pending ? <Text variant="caption" weight="bold" color={color.text.muted}>{tx('API 협의 중', 'API in discussion')}</Text> : <Text variant="title" weight="bold" color={color.action.secondary}>›</Text>}
+            {tool.pending ? <Text variant="caption" weight="bold" color={color.text.muted}>{tx('준비 중', 'Coming soon')}</Text> : <Text variant="title" weight="bold" color={color.action.secondary}>›</Text>}
           </Pressable>
         ))}
       </View>
 
-      <Button label={tx('번역 API 연결 후 사용할 수 있어요', 'Available once the translation API is connected')} variant="secondary" disabled containerStyle={styles.cta} />
+      <Button label={tx('음성 통역·메뉴판 번역은 곧 추가될 예정이에요', 'Voice interpretation and menu translation are on the way')} variant="secondary" disabled containerStyle={styles.cta} />
     </Screen>
   );
 }
@@ -178,6 +188,7 @@ const styles = StyleSheet.create({
   iconBoxDark: {
     backgroundColor: color.action.secondary,
   },
+  toolIconImage: { width: 24, height: 24 },
   cardBody: {
     flex: 1,
     gap: spacing[1],

@@ -4,8 +4,8 @@
 // 사용자가 고른 권한만 CTA 시점에 OS에 요청한다. 거부된 항목은 false로 저장하되,
 // 권한 거부 때문에 로그인이나 일정 생성 진입을 막지는 않는다.
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useState } from 'react';
-import { Platform, Pressable, StyleSheet, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { Animated, Image, Platform, Pressable, StyleSheet, View } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import { useRouter } from 'expo-router';
 
@@ -19,6 +19,33 @@ import { useI18n } from '@/i18n';
 import { useLayout } from '@/layout/useLayout';
 
 const PERMISSION_PREFERENCES_KEY = '@gabolle/permission-preferences';
+const bellIcon = require('../../assets/icons/home/bell.png');
+const lockIcon = require('../../assets/icons/common/lock.png');
+
+const SWITCH_WIDTH = 46;
+const SWITCH_HEIGHT = 26;
+const SWITCH_THUMB = 22;
+const SWITCH_PADDING = 2;
+
+// on/off를 텍스트 두 개짜리 알약 버튼으로 표현하던 것을 실제 토글 스위치로 바꿨다 —
+// 사용자가 직접 보고 "이런 방식이 더 낫다"고 제안한 형태(iOS 설정 화면과 같은 트랙+원).
+function ToggleSwitch({ value, onChange, accessibilityLabel }: { value: boolean; onChange: (next: boolean) => void; accessibilityLabel: string }) {
+  const progress = useRef(new Animated.Value(value ? 1 : 0)).current;
+  useEffect(() => {
+    // transform만 native driver로 태운다 — backgroundColor까지 같이 태우면 RN Web에서
+    // 애니메이션 프레임마다 렌더 도중 setState가 걸려 "Cannot update a component
+    // while rendering" 경고가 난다. 트랙 색은 그냥 value로 즉시 전환한다.
+    Animated.spring(progress, { toValue: value ? 1 : 0, useNativeDriver: true, bounciness: 0, speed: 20 }).start();
+  }, [value, progress]);
+  const thumbOffset = progress.interpolate({ inputRange: [0, 1], outputRange: [SWITCH_PADDING, SWITCH_WIDTH - SWITCH_THUMB - SWITCH_PADDING] });
+  return (
+    <Pressable accessibilityRole="switch" accessibilityLabel={accessibilityLabel} accessibilityState={{ checked: value }} onPress={() => onChange(!value)} hitSlop={8}>
+      <View style={[styles.switchTrack, { backgroundColor: value ? color.brand.orange : color.surface.field }]}>
+        <Animated.View style={[styles.switchThumb, { transform: [{ translateX: thumbOffset }] }]} />
+      </View>
+    </Pressable>
+  );
+}
 
 export default function Permissions() {
   const router = useRouter();
@@ -55,12 +82,12 @@ export default function Permissions() {
       <View style={styles.actionColumn}><View style={[styles.cards, kind === 'tablet' && styles.cardsWide]}>
           <View style={styles.card}>
             <View style={styles.cardIcon}>
-              <Text variant="title">🔔</Text>
+              <Image source={bellIcon} resizeMode="contain" style={styles.cardIconImage} />
             </View>
             <View style={styles.cardBody}>
               <View style={styles.cardTopRow}>
                 <Text variant="body" weight="bold">{tx('여행 알림 받기', 'Get trip notifications')}</Text>
-                <Pressable accessibilityRole="switch" accessibilityState={{ checked: notification }} onPress={() => setNotification((current) => !current)} style={[styles.choice, notification && styles.choiceActive]}><Text variant="caption" weight="bold" color={notification ? color.text.onAction : color.text.body}>{notification ? tx('받을게요', "I'll allow it") : tx('나중에', 'Later')}</Text></Pressable>
+                <ToggleSwitch value={notification} onChange={setNotification} accessibilityLabel={tx('여행 알림 받기', 'Get trip notifications')} />
               </View>
               <Text variant="caption" color={color.text.body}>
                 {tx('일정 변경과 출발 시간을 놓치지 않도록 알려드려요.', "We'll let you know about schedule changes and departure times.")}
@@ -75,7 +102,7 @@ export default function Permissions() {
       </View>
 
       <Pressable accessibilityRole="link" accessibilityLabel={tx('개인정보 처리 안내 보기', 'View privacy information')} onPress={() => router.push('/legal/privacy')} style={({ pressed }) => [styles.privacyBox, pressed && styles.privacyPressed]}>
-        <Text variant="title">🔒</Text>
+        <Image source={lockIcon} resizeMode="contain" style={styles.privacyIcon} />
         <View style={styles.privacyCopy}>
           <Text variant="caption" weight="bold" color={color.text.heading}>
             {tx('개인정보는 추천 기능에만 사용하며 제3자에게 제공하지 않아요.', "We use your personal data only for recommendations and never share it with third parties.")}
@@ -138,6 +165,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  cardIconImage: { width: 24, height: 24 },
+  privacyIcon: { width: 24, height: 24 },
   cardBody: {
     flex: 1,
     gap: spacing[1],
@@ -147,8 +176,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  choice: { minHeight: 36, justifyContent: 'center', paddingHorizontal: spacing[3], borderRadius: radius.full, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.card },
-  choiceActive: { borderColor: color.brand.orange, backgroundColor: color.brand.orange },
+  switchTrack: { width: SWITCH_WIDTH, height: SWITCH_HEIGHT, borderRadius: SWITCH_HEIGHT / 2, justifyContent: 'center' },
+  switchThumb: { width: SWITCH_THUMB, height: SWITCH_THUMB, borderRadius: SWITCH_THUMB / 2, backgroundColor: '#fff' },
   cardBottomRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',

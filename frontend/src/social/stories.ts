@@ -27,9 +27,10 @@ export type StoryDto = {
   published: boolean;
 };
 
-// 기록 상세 화면(GET /api/v1/stories/:id)은 아직 계약이 없다. 목록에서 이미 받은 전체
-// StoryDto를 그대로 들고 있다가 상세 화면이 같은 세션 안에서 그걸 읽게 한다 — 새 API를
-// 지어내지 않고, 목록에서 곧장 눌러 들어온 경우를 실제로 지원한다.
+// GET /api/v1/stories/:id 계약이 생기기 전(S15P21E201-228 이전)에는 목록에서 받은
+// StoryDto를 캐시해서 상세 화면이 그걸 읽었다. 지금은 실제 상세 조회 API가 있어서
+// (getStory) 그걸로 다시 받아오지만, 캐시는 그대로 남긴다 — 목록에서 곧장 눌러
+// 들어왔을 때 API 응답을 기다리지 않고 먼저 보여주는 자리표시로 쓴다.
 const storyCache = new Map<string, StoryDto>();
 
 export function cacheStories(items: StoryDto[]) {
@@ -38,6 +39,31 @@ export function cacheStories(items: StoryDto[]) {
 
 export function getCachedStory(id: string): StoryDto | null {
   return storyCache.get(id) ?? null;
+}
+
+export type StoryLoadResult = { state: 'success'; story: StoryDto } | { state: 'not-found' } | FeedFailure;
+
+export async function getStory(id: string, accessToken: string | null): Promise<StoryLoadResult> {
+  try {
+    const story = await apiRequest<StoryDto>(`/api/v1/stories/${encodeURIComponent(id)}`, { accessToken });
+    storyCache.set(story.id, story);
+    return { state: 'success', story };
+  } catch (error) {
+    if (error instanceof ApiClientError && error.status === 404) return { state: 'not-found' };
+    return failure(error);
+  }
+}
+
+export type DeleteStoryResult = { state: 'success' } | FeedFailure;
+
+export async function deleteStory(id: string, accessToken: string | null): Promise<DeleteStoryResult> {
+  try {
+    await apiRequest<void>(`/api/v1/stories/${encodeURIComponent(id)}`, { method: 'DELETE', accessToken });
+    storyCache.delete(id);
+    return { state: 'success' };
+  } catch (error) {
+    return failure(error);
+  }
 }
 
 export function relativeStoryTime(iso: string, tx: (ko: string, en: string) => string) {
@@ -85,6 +111,9 @@ export async function createStory(input: {
   visibility?: StoryVisibility;
   placeId?: string;
   tripId?: string;
+  // 없으면 서버가 "여행 종료 다음 날 0시, 여행도 없으면 지금"으로 정한다.
+  // "지금 바로 공개"를 고른 경우에만 현재 시각을 실어 보낸다.
+  publishAt?: string;
   accessToken: string | null;
 }): Promise<StoryMutationResult> {
   try {
@@ -98,6 +127,7 @@ export async function createStory(input: {
         visibility: input.visibility,
         placeId: input.placeId,
         tripId: input.tripId,
+        publishAt: input.publishAt,
       },
     });
     return { state: 'success', story };
@@ -166,6 +196,35 @@ export async function loadUserStories(userId: string, accessToken: string | null
     const dto = await apiRequest<{ items: StoryDto[]; nextCursor: string | null }>(`/api/v1/users/${encodeURIComponent(userId)}/stories${query ? `?${query}` : ''}`, { accessToken });
     cacheStories(dto.items);
     return { state: 'success', items: dto.items, nextCursor: dto.nextCursor };
+  } catch (error) {
+    return failure(error);
+  }
+}
+
+// jaehyeon 님 계약(S15P21E201-254): POST /api/v1/stories/{storyId}/reports.
+// 처음 신고든 같은 사람의 중복 신고든 서버는 항상 204를 준다 — "이미 신고했습니다" 같은
+// 오류로 갈라 보여주지 않는다(신고 여부가 새어 나가지 않게 하려는 의도). 그래서 화면도
+// 성공/실패만 가르고, 신고를 받으면 서버가 그 자리에서 글을 검토 대기로 옮겨 즉시
+// 비노출하므로 화면에서는 카드를 낙관적으로 지우기만 하면 된다.
+export type StoryReportReason = 'PRIVACY' | 'OFFENSIVE' | 'SPAM' | 'OTHER';
+
+export const REPORT_REASON_LABEL: Record<StoryReportReason, [string, string]> = {
+  PRIVACY: ['개인정보 노출', 'Personal information exposed'],
+  OFFENSIVE: ['불쾌한 내용', 'Offensive content'],
+  SPAM: ['스팸', 'Spam'],
+  OTHER: ['기타', 'Other'],
+};
+
+export type ReportResult = { state: 'success' } | FeedFailure;
+
+export async function reportStory(storyId: string, reason: StoryReportReason, detail: string | undefined, accessToken: string | null): Promise<ReportResult> {
+  try {
+    await apiRequest<void>(`/api/v1/stories/${encodeURIComponent(storyId)}/reports`, {
+      method: 'POST',
+      accessToken,
+      body: { reason, detail: reason === 'OTHER' ? detail : undefined },
+    });
+    return { state: 'success' };
   } catch (error) {
     return failure(error);
   }

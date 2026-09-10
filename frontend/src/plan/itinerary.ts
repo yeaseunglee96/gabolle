@@ -123,6 +123,34 @@ export async function pollItineraryJob(jobId: string, accessToken: string | null
   }
 }
 
+export type ItineraryReorderResult =
+  | { state: 'success'; itinerary: ItineraryDto }
+  | { state: 'conflict'; latestVersion: number; message: string }
+  | { state: 'mismatch'; message: string }
+  | { state: 'lockedItemMoved'; message: string }
+  | { state: 'unavailable' | 'offline' | 'error'; message: string };
+
+export async function reorderItineraryDay(input: { itineraryId: string; dayIndex: number; itemKeys: string[]; baseVersion: number; accessToken: string | null }): Promise<ItineraryReorderResult> {
+  try {
+    return {
+      state: 'success',
+      itinerary: await apiRequest<ItineraryDto>(`/api/v1/itineraries/${encodeURIComponent(input.itineraryId)}/days/${input.dayIndex}/reorder`, {
+        method: 'POST',
+        accessToken: input.accessToken,
+        body: { itemKeys: input.itemKeys, baseVersion: input.baseVersion },
+      }),
+    };
+  } catch (error) {
+    if (error instanceof ApiClientError && error.status === 400 && error.code === 'ITINERARY_DAY_ORDER_MISMATCH') {
+      return { state: 'mismatch', message: '순서 목록이 이 날짜의 장소와 맞지 않아요. 새로고침 후 다시 시도해 주세요.' };
+    }
+    if (error instanceof ApiClientError && error.status === 409 && error.code === 'ITINERARY_LOCKED_ITEM_MOVED') {
+      return { state: 'lockedItemMoved', message: '고정된 장소는 자리를 옮길 수 없어요. 고정을 먼저 풀어 주세요.' };
+    }
+    return failure(error);
+  }
+}
+
 export type ItineraryRevertResult = ItineraryMutationResult | { state: 'noOp'; message: string };
 
 export async function revertItinerary(input: { itineraryId: string; baseVersion: number; toVersion?: number; accessToken: string | null }): Promise<ItineraryRevertResult> {

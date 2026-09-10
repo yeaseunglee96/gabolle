@@ -4,14 +4,15 @@ import { useFocusEffect, useRouter } from 'expo-router';
 
 import { useAuth } from '@/auth/AuthProvider';
 import { Button } from '@/components/Button';
+import { ReportModal } from '@/components/ReportModal';
 import { Screen } from '@/components/Screen';
 import { TabBar } from '@/components/TabBar';
 import { Text } from '@/components/Text';
 import { color, gutter, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
-import { loadFeed, relativeStoryTime, setFollowing, VISIBILITY_LABEL, type FeedLoadResult, type FeedScope, type StoryDto } from '@/social/stories';
+import { loadFeed, relativeStoryTime, reportStory, setFollowing, VISIBILITY_LABEL, type FeedLoadResult, type FeedScope, type StoryDto, type StoryReportReason } from '@/social/stories';
 
-function StoryCard({ story, showUnfollow, unfollowBusy, onUnfollow, onOpen, onOpenAuthor }: { story: StoryDto; showUnfollow: boolean; unfollowBusy: boolean; onUnfollow: () => void; onOpen: () => void; onOpenAuthor: () => void }) {
+function StoryCard({ story, showUnfollow, unfollowBusy, onUnfollow, onOpen, onOpenAuthor, onReport }: { story: StoryDto; showUnfollow: boolean; unfollowBusy: boolean; onUnfollow: () => void; onOpen: () => void; onOpenAuthor: () => void; onReport: () => void }) {
   const { tx } = useI18n();
   const place = story.place?.name ?? story.region ?? null;
   return <Pressable accessibilityRole="button" accessibilityLabel={tx('기록 상세 보기', 'View record details')} onPress={onOpen} style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}>
@@ -19,6 +20,7 @@ function StoryCard({ story, showUnfollow, unfollowBusy, onUnfollow, onOpen, onOp
       <Pressable accessibilityRole="link" accessibilityLabel={tx(`${story.author.displayName} 프로필 보기`, `View ${story.author.displayName}'s profile`)} onPress={(event) => { event.stopPropagation(); onOpenAuthor(); }} style={styles.grow}><Text variant="body" weight="bold">{story.author.displayName}</Text><Text variant="caption" color={color.text.muted}>{relativeStoryTime(story.createdAt, tx)}{place ? ` · ${place}` : ''}</Text></Pressable>
       {story.mine && story.visibility !== 'PUBLIC' ? <View style={styles.visibilityBadge}><Text variant="caption" weight="bold" color={color.text.muted}>{tx(...VISIBILITY_LABEL[story.visibility])}</Text></View> : null}
       {showUnfollow ? <Pressable accessibilityRole="button" accessibilityLabel={tx(`${story.author.displayName} 언팔로우`, `Unfollow ${story.author.displayName}`)} accessibilityState={{ busy: unfollowBusy }} disabled={unfollowBusy} onPress={onUnfollow} style={[styles.unfollowButton, unfollowBusy && styles.busy]}><Text variant="caption" weight="bold" color={color.text.body}>{unfollowBusy ? tx('처리 중', 'Working') : tx('팔로잉', 'Following')}</Text></Pressable> : null}
+      {!story.mine ? <Pressable accessibilityRole="button" accessibilityLabel={tx('신고하기', 'Report')} onPress={(event) => { event.stopPropagation(); onReport(); }} style={styles.menuButton}><Text variant="body" weight="bold" color={color.text.muted}>⋯</Text></Pressable> : null}
     </View>
     <Text color={color.text.body} style={styles.body}>{story.body}</Text>
     {story.images.length ? <View style={styles.images}>{story.images.slice(0, 3).map((image) => <Image key={image.url} source={{ uri: image.url }} resizeMode="cover" accessibilityLabel={tx('여행 기록 사진', 'Trip record photo')} style={styles.image} />)}</View> : null}
@@ -34,6 +36,7 @@ export default function Feed() {
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [unfollowingId, setUnfollowingId] = useState<string | null>(null);
+  const [reportingStoryId, setReportingStoryId] = useState<string | null>(null);
 
   const load = useCallback(async (targetScope: FeedScope) => {
     setLoading(true);
@@ -61,6 +64,16 @@ export default function Feed() {
 
   const items = result.state === 'success' ? result.items : [];
 
+  const submitReport = async (reason: StoryReportReason, detail: string | undefined) => {
+    if (!reportingStoryId) return false;
+    const outcome = await reportStory(reportingStoryId, reason, detail, accessToken);
+    if (outcome.state !== 'success') return false;
+    // 신고 즉시 서버가 그 글을 검토 대기로 옮겨 비노출한다 — 화면에서도 새로고침을
+    // 기다리지 않고 바로 지운다("신고까지 화면을 벗어나지 않고 끝난다" 완료 기준).
+    if (result.state === 'success') setResult({ state: 'success', items: result.items.filter((item) => item.id !== reportingStoryId), nextCursor: result.nextCursor });
+    return true;
+  };
+
   return <View style={styles.shell}><Screen scroll>
     <View style={styles.headerRow}><View><Text variant="eyebrow" weight="bold">TRAVEL STORIES</Text><Text variant="display" weight="bold" style={styles.headerTitle}>{tx('여행 이야기', 'Travel stories')}</Text></View>{accessToken ? <Button label={tx('기록 남기기', 'Write')} onPress={() => router.push('/feed/compose')} containerStyle={styles.writeButton} /> : null}</View>
 
@@ -80,7 +93,9 @@ export default function Feed() {
       {scope === 'FOLLOWING' ? <><Text variant="title" weight="bold">{tx('아직 팔로우한 사람의 기록이 없어요', 'No records from people you follow yet')}</Text><Button label={tx('전체 보기', 'See all')} onPress={() => setScope('ALL')} containerStyle={styles.primaryAction} /></> : <><Text variant="title" weight="bold">{tx('부산 여행 기록을 모으고 있어요', 'Collecting Busan travel stories')}</Text><Text color={color.text.body} style={styles.description}>{tx('먼저 여행을 준비하고 기록을 남겨 보세요.', 'Prepare a trip first, then write your own record.')}</Text><Button label={tx('내 여행 보기', 'See my trips')} onPress={() => router.push('/trips')} containerStyle={styles.primaryAction} /></>}
     </View> : null}
 
-    {!loading && result.state === 'success' && items.length ? <View style={styles.list}>{items.map((story) => <StoryCard key={story.id} story={story} showUnfollow={scope === 'FOLLOWING'} unfollowBusy={unfollowingId === story.author.id} onUnfollow={() => void unfollow(story)} onOpen={() => router.push(`/feed/${story.id}`)} onOpenAuthor={() => router.push(`/user/${story.author.id}`)} />)}</View> : null}
+    {!loading && result.state === 'success' && items.length ? <View style={styles.list}>{items.map((story) => <StoryCard key={story.id} story={story} showUnfollow={scope === 'FOLLOWING'} unfollowBusy={unfollowingId === story.author.id} onUnfollow={() => void unfollow(story)} onOpen={() => router.push(`/feed/${story.id}`)} onOpenAuthor={() => router.push(`/user/${story.author.id}`)} onReport={() => setReportingStoryId(story.id)} />)}</View> : null}
+
+    <ReportModal visible={reportingStoryId !== null} onClose={() => setReportingStoryId(null)} onSubmit={submitReport} />
 
     {!loading && result.state === 'success' && result.nextCursor ? <Button label={loadingMore ? tx('불러오는 중…', 'Loading…') : tx('더 보기', 'Load more')} variant="ghost" disabled={loadingMore} onPress={() => void loadMore()} containerStyle={styles.loadMore} /> : null}
 
@@ -98,6 +113,7 @@ const styles = StyleSheet.create({
   card: { gap: spacing[2], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card }, cardPressed: { opacity: 0.85 }, cardHeader: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[2] }, grow: { flex: 1, gap: spacing[1] },
   visibilityBadge: { minHeight: 28, paddingHorizontal: spacing[2], borderRadius: radius.full, backgroundColor: color.surface.soft, alignItems: 'center', justifyContent: 'center' },
   unfollowButton: { minWidth: 72, minHeight: 32, paddingHorizontal: spacing[2], borderRadius: radius.full, backgroundColor: color.surface.soft, alignItems: 'center', justifyContent: 'center' }, busy: { opacity: 0.6 },
+  menuButton: { minWidth: 32, minHeight: 32, alignItems: 'center', justifyContent: 'center' },
   body: { lineHeight: 22 },
   images: { flexDirection: 'row', gap: spacing[2] }, image: { flex: 1, aspectRatio: 1, borderRadius: radius.md, backgroundColor: color.surface.soft },
   loadMore: { marginTop: spacing[4] },

@@ -2,7 +2,7 @@
 //
 // 날씨·준비물은 전부 하드코딩 목업이다. 실제 기상청 API 연동 전까지는 이 값 그대로 둔다.
 import { useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Image, Pressable, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as Speech from 'expo-speech';
 
@@ -15,9 +15,9 @@ import { useI18n } from '@/i18n';
 import { DIALECT_PHRASES } from '@/discovery/dialectPhrases';
 
 const PREP_ITEMS = [
-  { icon: '☂', nameKo: '접이식 우산', nameEn: 'Folding umbrella', descKo: '오후 비 예보', descEn: 'Rain forecast in the afternoon' },
-  { icon: '👟', nameKo: '미끄럼 적은 신발', nameEn: 'Non-slip shoes', descKo: '흰여울 경사 구간', descEn: 'Huinnyeoul has a slope section' },
-  { icon: '🪪', nameKo: '해외카드·여권 사본', nameEn: 'Overseas card · passport copy', descKo: '현장 결제 대비', descEn: 'In case you need to pay on site' },
+  { icon: require('../../../assets/icons/common/umbrella.png'), nameKo: '접이식 우산', nameEn: 'Folding umbrella', descKo: '오후 비 예보', descEn: 'Rain forecast in the afternoon' },
+  { icon: require('../../../assets/icons/common/shoes.png'), nameKo: '미끄럼 적은 신발', nameEn: 'Non-slip shoes', descKo: '흰여울 경사 구간', descEn: 'Huinnyeoul has a slope section' },
+  { icon: require('../../../assets/icons/common/idcard.png'), nameKo: '해외카드·여권 사본', nameEn: 'Overseas card · passport copy', descKo: '현장 결제 대비', descEn: 'In case you need to pay on site' },
 ];
 
 function DialectFlashcards() {
@@ -122,7 +122,7 @@ export default function Prepare() {
         </Text>
         {PREP_ITEMS.map((item) => (
           <View key={item.nameKo} style={styles.prepRow}>
-            <Text variant="title">{item.icon}</Text>
+            <Image source={item.icon} resizeMode="contain" style={styles.prepIcon} />
             <View style={styles.prepBody}>
               <Text variant="body" weight="bold">
                 {tx(item.nameKo, item.nameEn)}
@@ -207,6 +207,10 @@ const styles = StyleSheet.create({
   },
   prepBody: {
     flex: 1,
+  },
+  prepIcon: {
+    width: 26,
+    height: 26,
   },
   prepDesc: {
     color: color.text.body,
