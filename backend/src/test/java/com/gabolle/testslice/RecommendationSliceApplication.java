@@ -37,15 +37,29 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @SpringBootApplication(scanBasePackages = {
 		"com.gabolle.backend.common",
 		"com.gabolle.backend.event",
-		"com.gabolle.backend.recommendation"
+		"com.gabolle.backend.recommendation",
+		// S15P21E201-808 — 추천 엔진이 기대는 곳만 더한다. 엔진에서 @ConditionalOnBean 을
+		// 걷어냈으므로 이제 배선은 이 목록이 정한다.
+		//
+		// trip 은 패키지 전체가 아니라 infra 만 올린다. 엔진이 필요로 하는 것은 여행 저장소
+		// 둘(TripRepository · TripSeedPlaceRepository)뿐인데, trip 전체를 올리면
+		// TripQueryService 가 서고 그것을 조건으로 삼는 RecommendationJobRunner 와 그 뒤의
+		// 결과 조회·컨트롤러가 줄줄이 켜져서 itinerary 까지 따라온다. 이 슬라이스의 뜻은
+		// "추천만 올린다" 이므로 거기서 멈춘다.
+		"com.gabolle.backend.place",
+		"com.gabolle.backend.trip.infra"
 })
 @EntityScan(basePackages = {
 		"com.gabolle.backend.event.domain",
-		"com.gabolle.backend.recommendation.domain"
+		"com.gabolle.backend.recommendation.domain",
+		"com.gabolle.backend.place.domain",
+		"com.gabolle.backend.trip.infra"
 })
 @EnableJpaRepositories(basePackages = {
 		"com.gabolle.backend.event.repository",
-		"com.gabolle.backend.recommendation.repository"
+		"com.gabolle.backend.recommendation.repository",
+		"com.gabolle.backend.place.repository",
+		"com.gabolle.backend.trip.infra"
 })
 public class RecommendationSliceApplication {
 }
