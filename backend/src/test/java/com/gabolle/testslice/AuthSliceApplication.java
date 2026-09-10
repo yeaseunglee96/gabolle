@@ -43,7 +43,16 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 		"com.gabolle.backend.auth",
 		"com.gabolle.backend.user",
 		"com.gabolle.backend.trip",
-		"com.gabolle.backend.place"
+		"com.gabolle.backend.place",
+		// 🔴 S15P21E201-440 — event 를 더했다. 위의 trip 에 SpendProfileService(S15P21E201-709)가
+		//    들어오면서 그것이 event 쪽 EventIngestService 를 필수로 요구한다. place 를 더한
+		//    것과 똑같은 모양의 사고이고 오늘만 세 번째다.
+		//
+		//    🔴 이 목록이 계속 길어지는 것 자체가 신호다. trip 패키지에 빈을 하나 더할 때마다
+		//    이 슬라이스가 따라 넓어져야 하는데, 그러면 "인증만 올린다" 는 이 슬라이스의 뜻이
+		//    점점 사라진다. 언젠가는 trip 을 여기서 빼고 인증이 실제로 필요로 하는 것만
+		//    남기는 쪽을 봐야 한다 — 지금은 back/dev 를 세워 두는 것이 먼저라 미룬다.
+		"com.gabolle.backend.event"
 })
 // 🔴 엔티티는 인증 밖의 것도 올린다. 계정 삭제(S15P21E201-425)가 그 사람의 여행·일정·추천 기록을
 //    JPQL 로 지우는데, 엔티티가 이 영속성 단위에 없으면 "그런 엔티티 없다" 로 실행에서 터진다.
@@ -71,7 +80,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 		"com.gabolle.backend.auth.repository",
 		"com.gabolle.backend.user.repository",
 		"com.gabolle.backend.trip.infra",
-		"com.gabolle.backend.place.repository"
+		"com.gabolle.backend.place.repository",
+		"com.gabolle.backend.event.repository"
 })
 public class AuthSliceApplication {
 }
