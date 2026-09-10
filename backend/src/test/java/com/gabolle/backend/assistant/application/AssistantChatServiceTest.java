@@ -3,8 +3,6 @@ package com.gabolle.backend.assistant.application;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import java.util.List;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -34,9 +32,9 @@ class AssistantChatServiceTest {
 	@Test
 	@DisplayName("정상 메시지는 벤더를 한 번 불러 답을 그대로 돌려준다")
 	void chatCallsVendorOnce() {
-		AssistantReply reply = this.service.chat("해운대와 광안리 2명 맛집 일정 짜줘");
+		AssistantReply reply = this.service.chat("여행 만들고 싶어");
 
-		assertThat(reply.kind()).isEqualTo(AssistantActionKind.PLAN);
+		assertThat(reply.kind()).isEqualTo(AssistantActionKind.NAVIGATE);
 		assertThat(this.vendor.callCount).isEqualTo(1);
 	}
 
@@ -65,7 +63,7 @@ class AssistantChatServiceTest {
 	void vendorFailurePropagatesInsteadOfBeingHidden() {
 		this.vendor.shouldFail = true;
 
-		assertThatThrownBy(() -> this.service.chat("해운대와 광안리 2명 맛집 일정 짜줘"))
+		assertThatThrownBy(() -> this.service.chat("여행 만들고 싶어"))
 				.isInstanceOf(AssistantVendorException.class);
 	}
 
@@ -80,8 +78,8 @@ class AssistantChatServiceTest {
 			if (this.shouldFail) {
 				throw new AssistantVendorException("ASSISTANT_VENDOR_UNAVAILABLE", "실패", HttpStatus.BAD_GATEWAY);
 			}
-			return new AssistantReply(AssistantActionKind.PLAN, "반영했어요.", List.of("지역: 해운대, 광안리"), null, null,
-					null, null, null);
+			return new AssistantReply(AssistantActionKind.NAVIGATE, "새 여행 만들기로 안내할게요.", null, null, "여행 만들기",
+					"/plan/basic");
 		}
 
 		@Override

@@ -5,7 +5,10 @@ package com.gabolle.backend.assistant.domain;
  *
  * <p>프런트엔드 {@code AssistantAction} 유니언(front/dev, {@code src/assistant/intent.ts})의
  * {@code kind} 판별자와 값이 같아야 한다. 여기서 이름을 바꾸면 화면이 못 알아본다.
+ *
+ * <p>🔴 MVP 범위는 은행 앱 챗봇처럼 "안내"뿐이다 — 일정을 대신 짜는 {@code PLAN} 은 없다.
+ * AI 가 여행 조건을 만들어 채우지 않고, 관련 화면(예: 새 여행 만들기)으로 안내만 한다.
  */
 public enum AssistantActionKind {
-	PLAN, PHRASE, NAVIGATE, HELP
+	PHRASE, NAVIGATE, HELP
 }

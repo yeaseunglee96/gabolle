@@ -2,57 +2,68 @@ package com.gabolle.backend.assistant.adapter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.List;
-
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import com.gabolle.backend.assistant.config.AssistantProperties;
-import com.gabolle.backend.assistant.domain.PlanPatch;
+import com.gabolle.backend.assistant.domain.AssistantActionKind;
+import com.gabolle.backend.assistant.domain.AssistantReply;
 
 /**
- * {@link ClaudeAssistantAdapter#buildPlanSummary} 검증 — S15P21E201-802.
+ * {@link ClaudeAssistantAdapter#toDomain}·{@code parseKind} 검증 — S15P21E201-802.
  *
- * <p>🔴 이 메서드가 곧 "장소 이름이 새어나갈 통로가 없다"는 보장의 실체다 — {@code plan}
- * 응답의 reply/summary 는 모델이 쓴 문장이 아니라 여기서 patch 값만 보고 조립된다. 그래서
- * 이 테스트는 모델을 흉내 낼 필요가 없다 — 순수 함수다.
+ * <p>실제 Claude 호출 없이, 모델이 낼 수 있는 구조화 출력 모양을 직접 만들어 변환 로직만
+ * 잰다 — 특히 모델이 허용 목록 밖의 href 나 모르는 kind 를 지어냈을 때 안전하게 HELP 로
+ * 낮추는지가 핵심이다.
  */
 class ClaudeAssistantAdapterTest {
 
 	private final ClaudeAssistantAdapter adapter = new ClaudeAssistantAdapter(new AssistantProperties());
 
 	@Test
-	@DisplayName("지역·인원이 채워지면 그 값만 한국어 문장으로 나열한다")
-	void summarizesFilledFieldsOnly() {
-		PlanPatch patch = new PlanPatch(null, null, 2, null, null, List.of("해운대", "광안리"), List.of("맛집"), null,
-				null, null);
+	@DisplayName("navigate + 허용된 href 는 그대로 통과한다")
+	void navigateWithAllowedHrefPassesThrough() {
+		ClaudeStructuredReply parsed = new ClaudeStructuredReply("navigate", "여행 만들기로 안내할게요.", null, null,
+				"여행 만들기", "/plan/basic");
 
-		List<String> summary = this.adapter.buildPlanSummary(patch);
+		AssistantReply reply = this.adapter.toDomain(parsed);
 
-		assertThat(summary).containsExactly("지역: 해운대, 광안리", "인원: 2명", "음식: 맛집");
+		assertThat(reply.kind()).isEqualTo(AssistantActionKind.NAVIGATE);
+		assertThat(reply.href()).isEqualTo("/plan/basic");
+		assertThat(reply.label()).isEqualTo("여행 만들기");
 	}
 
 	@Test
-	@DisplayName("아무 것도 언급되지 않으면 빈 목록이다")
-	void emptyPatchProducesEmptySummary() {
-		PlanPatch patch = new PlanPatch(null, null, null, null, null, null, null, null, null, null);
+	@DisplayName("🔴 navigate 인데 href 가 허용 목록 밖이면 HELP 로 낮춘다")
+	void navigateWithDisallowedHrefIsDowngradedToHelp() {
+		ClaudeStructuredReply parsed = new ClaudeStructuredReply("navigate", "안내할게요.", null, null, "아무 데나",
+				"/admin/secret");
 
-		assertThat(this.adapter.buildPlanSummary(patch)).isEmpty();
+		AssistantReply reply = this.adapter.toDomain(parsed);
+
+		assertThat(reply.kind()).isEqualTo(AssistantActionKind.HELP);
+		assertThat(reply.href()).isNull();
+		assertThat(reply.label()).isNull();
 	}
 
 	@Test
-	@DisplayName("이동수단 코드는 한국어 라벨로 바뀐다")
-	void transportCodeIsTranslatedToKoreanLabel() {
-		PlanPatch patch = new PlanPatch(null, null, null, null, null, null, null, null, "TRANSIT", null);
+	@DisplayName("phrase 는 korean·pronunciation 만 채워진다")
+	void phraseFillsOnlyKoreanAndPronunciation() {
+		ClaudeStructuredReply parsed = new ClaudeStructuredReply("phrase", "현장에서 쓰세요.", "화장실이 어디예요?",
+				"hwajangsiri eodiyeyo?", null, null);
 
-		assertThat(this.adapter.buildPlanSummary(patch)).containsExactly("이동수단: 대중교통");
+		AssistantReply reply = this.adapter.toDomain(parsed);
+
+		assertThat(reply.kind()).isEqualTo(AssistantActionKind.PHRASE);
+		assertThat(reply.korean()).isEqualTo("화장실이 어디예요?");
+		assertThat(reply.href()).isNull();
 	}
 
 	@Test
-	@DisplayName("travelers 가 없고 adults/children 만 있으면 그걸로 인원을 조립한다")
-	void fallsBackToAdultsAndChildrenWhenTravelersIsMissing() {
-		PlanPatch patch = new PlanPatch(null, null, null, 2, 1, null, null, null, null, null);
-
-		assertThat(this.adapter.buildPlanSummary(patch)).containsExactly("인원: 성인 2명, 아동 1명");
+	@DisplayName("🔴 모델이 모르는 kind 를 지어내면 HELP 로 낮춘다")
+	void unknownKindFallsBackToHelp() {
+		assertThat(this.adapter.parseKind("plan")).isEqualTo(AssistantActionKind.HELP);
+		assertThat(this.adapter.parseKind("nonsense")).isEqualTo(AssistantActionKind.HELP);
+		assertThat(this.adapter.parseKind(null)).isEqualTo(AssistantActionKind.HELP);
 	}
 }
