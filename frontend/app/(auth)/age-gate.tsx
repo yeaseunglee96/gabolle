@@ -94,13 +94,13 @@ const styles = StyleSheet.create({
   webTrust: { marginTop: spacing[4], gap: spacing[2] },
   header: { minHeight: 52, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   logo: { width: 100, height: 24 },
-  step: { paddingHorizontal: spacing[3], paddingVertical: spacing[2], borderRadius: radius.full, backgroundColor: '#fff1e8' },
+  step: { paddingHorizontal: spacing[3], paddingVertical: spacing[2], borderRadius: radius.full, backgroundColor: color.surface.tint },
   body: {
     flex: 1,
     justifyContent: 'center',
     gap: spacing[3],
   },
-  ageMark: { width: 64, height: 64, marginBottom: spacing[2], borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: '#fff1e8', borderWidth: 1, borderColor: '#f7cdbd' },
+  ageMark: { width: 64, height: 64, marginBottom: spacing[2], borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.tint, borderWidth: 1, borderColor: '#f7cdbd' },
   description: {
     color: color.text.body,
   },

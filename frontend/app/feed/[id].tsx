@@ -155,7 +155,7 @@ export default function StoryDetail() {
 const styles = StyleSheet.create({
   back: { minHeight: 44, alignSelf: 'flex-start', justifyContent: 'center', marginBottom: spacing[3] },
   pressed: { opacity: 0.72 },
-  notice: { gap: spacing[3], marginTop: spacing[4], padding: spacing[4], borderWidth: 1, borderColor: '#eee5da', borderRadius: radius.lg, backgroundColor: color.surface.card, alignItems: 'center' },
+  notice: { gap: spacing[3], marginTop: spacing[4], padding: spacing[4], borderWidth: 1, borderColor: color.surface.border, borderRadius: radius.lg, backgroundColor: color.surface.card, alignItems: 'center' },
   card: { gap: spacing[3], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card },
   headerRow: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[2] },
   grow: { flex: 1, gap: spacing[1] },
