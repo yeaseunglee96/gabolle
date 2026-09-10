@@ -2,7 +2,7 @@
 // 기기 위치와 직접 입력을 항상 함께 보여준다. 추천 API(FR-REC-10)가 아직 없으므로 가짜 후보를 만들지 않고
 // '연결 전' 상태를 그대로 보여준다.
 import { useState } from 'react';
-import { Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { Linking, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import * as Location from 'expo-location';
 import { useRouter } from 'expo-router';
 
@@ -110,7 +110,12 @@ export default function Now() {
               containerStyle={styles.locationButton}
             />
             {locationState === 'denied' && (
-              <Text variant="caption" color={color.state.danger}>{tx('위치 권한이 꺼져 있어요. 출발 위치를 직접 입력해 주세요.', 'Location permission is off. Please enter your starting point manually.')}</Text>
+              <View style={styles.deniedRow}>
+                <Text variant="caption" color={color.state.danger} style={styles.deniedText}>{tx('위치 권한이 필요합니다. 아래에 직접 입력하거나 설정에서 허용해 주세요.', 'Permission needed. Enter your starting point below, or allow it in settings.')}</Text>
+                <Pressable accessibilityRole="button" onPress={() => void Linking.openSettings()} style={styles.settingsLink}>
+                  <Text variant="caption" weight="bold" color={color.text.accent}>{tx('설정 열기 ›', 'Open settings ›')}</Text>
+                </Pressable>
+              </View>
             )}
             <TextInput
               value={manualLocation}
@@ -188,6 +193,9 @@ const styles = StyleSheet.create({
   intro: { marginTop: spacing[2], marginBottom: spacing[4] },
   section: { gap: spacing[2], marginBottom: spacing[4] },
   locationButton: { marginTop: spacing[1] },
+  deniedRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
+  deniedText: { flex: 1 },
+  settingsLink: { minHeight: 32, justifyContent: 'center' },
   locationDone: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 44, paddingHorizontal: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.field },
   input: { minHeight: 48, marginTop: spacing[1], paddingHorizontal: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.field, color: color.text.heading },
   chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] },
