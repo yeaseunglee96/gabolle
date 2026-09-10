@@ -240,6 +240,20 @@ public class StoryService {
 		if (!this.visibilityPolicy.canView(story, viewer, now)) {
 			throw new StoryNotFoundException(storyId);
 		}
+		// 🔴 S15P21E201-137 — 검토로 감춰진 기록은 참여자 아닌 사람에게 없는 것으로 답한다.
+		//
+		// 상세 조회는 findVisibleById 가 따로 막고 있었는데, 이 판정을 지나는 다른 경로들이
+		// 검토 상태를 안 보고 있었다. 참여자 목록 조회가 그래서 열려 있었다 — 신고돼서 사라진
+		// 글인데 "거기 누가 참여했나" 를 물으면 아무 로그인 사용자에게나 표시 이름을 그대로
+		// 돌려줬다. 감췄다는 것은 그 글에 딸린 것도 함께 감췄다는 뜻이어야 한다.
+		//
+		// 참여자를 빼 두는 것이 중요하다. 참여자까지 막으면 작성자가 신고당한 자기 글을
+		// 지울 수 없다(삭제도 이 메서드를 지난다). 그리고 이 검사를 한 단계 아래인
+		// canView 에 넣으면 안 된다 — 신고 접수가 그것을 쓰고, 그쪽은 검토 중인 기록도
+		// 받아야 두 번째 신고자가 세어진다.
+		if (!story.getModerationState().visibleToOthers() && !this.visibilityPolicy.isParticipant(story, viewer)) {
+			throw new StoryNotFoundException(storyId);
+		}
 		return story;
 	}
 
