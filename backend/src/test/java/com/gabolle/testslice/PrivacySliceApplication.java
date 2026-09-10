@@ -26,23 +26,29 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  * 이 애노테이션이 있어야 이 슬라이스도 운영과 같은 경로(플레이스홀더 해석 포함)를 타서
  * 같은 종류의 버그를 다시 놓치지 않는다.
  */
+// 🔴 S15P21E201-317 — trip 을 더했다. LocalAuthService(auth)가 가입 시 익명 여행 승계를 위해
+//    AnonymousTripClaimService(trip.application)·JpaTripRepository(trip.infra) 를 물게
+//    됐다 — AuthSliceApplication 과 같은 이유다.
 @SpringBootApplication(scanBasePackages = {
 		"com.gabolle.backend.common",
 		"com.gabolle.backend.auth",
 		"com.gabolle.backend.user",
-		"com.gabolle.backend.privacy"
+		"com.gabolle.backend.privacy",
+		"com.gabolle.backend.trip"
 })
 @EnableScheduling
 @EntityScan(basePackages = {
 		"com.gabolle.backend.auth.domain",
 		"com.gabolle.backend.user.domain",
 		"com.gabolle.backend.event.domain",
-		"com.gabolle.backend.privacy.domain"
+		"com.gabolle.backend.privacy.domain",
+		"com.gabolle.backend.trip.infra"
 })
 @EnableJpaRepositories(basePackages = {
 		"com.gabolle.backend.auth.repository",
 		"com.gabolle.backend.user.repository",
-		"com.gabolle.backend.privacy.repository"
+		"com.gabolle.backend.privacy.repository",
+		"com.gabolle.backend.trip.infra"
 })
 public class PrivacySliceApplication {
 }

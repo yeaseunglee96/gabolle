@@ -9,10 +9,15 @@
 -- 🔴 owner_type 은 trip 표에만 둔다. 승계 대상을 찾는 질의("이 세션이 만든 여행")가 이
 -- 표 하나만 보면 되고, trip_member·preference_snapshot·constraint_snapshot 은 trip_id 로
 -- 옮길 행을 이미 특정할 수 있어 자기 표에 따로 구분자를 둘 이유가 없다.
+-- 🔴 2026-09-10 정정 — 원래 여기서 DEFAULT 를 뗐었다("모든 INSERT가 명시하게 강제한다"는
+-- 의도). 그런데 이 저장소의 테스트 스무 곳 가까이가 이미 raw SQL로 trip 표에 직접
+-- INSERT 하고 있었다(JdbcTemplate — 도메인 생성자를 거치지 않는다). DEFAULT 를 떼자
+-- 그 전부가 owner_type NOT NULL 위반으로 한꺼번에 깨졌다 — 그중 여럿은 이 티켓과 무관한
+-- 파트(itinerary·story·share)라 여기서 손댈 수 없었다. 실제 애플리케이션 코드는
+-- Trip 생성자가 항상 ownerType 을 명시적으로 채우므로 DEFAULT 를 남겨도 회원 여행에
+-- 잘못된 값이 들어갈 길이 없다 — 그래서 강제하려던 이득보다 대가가 훨씬 컸다.
 ALTER TABLE trip
     ADD COLUMN owner_type VARCHAR(20) NOT NULL DEFAULT 'USER';
-ALTER TABLE trip
-    ALTER COLUMN owner_type DROP DEFAULT;
 ALTER TABLE trip
     ADD CONSTRAINT ck_trip_owner_type CHECK (owner_type IN ('USER', 'ANONYMOUS'));
 

@@ -224,8 +224,8 @@ class AccountDeletionIntegrationTest extends AuthPostgresIntegrationTest {
 	private UUID createTrip(UUID owner) {
 		UUID trip = UUID.randomUUID();
 		this.jdbcTemplate.update("""
-				INSERT INTO trip (trip_id, owner_user_id, start_date, end_date, created_at, updated_at)
-				VALUES (?, ?, ?, ?, now(), now())
+				INSERT INTO trip (trip_id, owner_user_id, owner_type, start_date, end_date, created_at, updated_at)
+				VALUES (?, ?, 'USER', ?, ?, now(), now())
 				""", trip, owner, LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 12));
 		return trip;
 	}
