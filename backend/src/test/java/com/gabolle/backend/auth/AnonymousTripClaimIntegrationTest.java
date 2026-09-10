@@ -81,7 +81,8 @@ class AnonymousTripClaimIntegrationTest extends AuthPostgresIntegrationTest {
 	@DisplayName("X-Session-Token 자체가 없는(익명 세션을 아예 안 거친) 가입도 성공한다")
 	void signupSucceedsWithoutAnySessionTokenAtAll() {
 		LocalAuthService.Registration registration = localAuthService.register(new AuthCommands.Register(
-				"no-session-" + UUID.randomUUID() + "@example.com", "Route!2026", "여행자", "KO", true, "device-1"));
+				"no-session-" + UUID.randomUUID() + "@example.com", "Route!2026", "여행자", "KO", true, "device-1",
+				Map.of("TERMS_OF_SERVICE", true, "PRIVACY_POLICY", true), false));
 
 		assertThat(registration.userId()).isNotNull();
 	}
@@ -101,6 +102,6 @@ class AnonymousTripClaimIntegrationTest extends AuthPostgresIntegrationTest {
 	private AuthCommands.Register registerCommand(String sessionToken) {
 		return new AuthCommands.Register(
 				"claimer-" + UUID.randomUUID() + "@example.com", "Route!2026", "여행자", "KO",
-				true, "device-1", Map.of(), false, sessionToken);
+				true, "device-1", Map.of("TERMS_OF_SERVICE", true, "PRIVACY_POLICY", true), false, sessionToken);
 	}
 }

@@ -85,7 +85,8 @@ class SignupRollsBackOnAnonymousTripClaimFailureIntegrationTest {
 		String email = "broken-claim-" + UUID.randomUUID() + "@example.com";
 
 		assertThatThrownBy(() -> localAuthService.register(new AuthCommands.Register(
-				email, "Route!2026", "여행자", "KO", true, "device-1", Map.of(), false, session.token())))
+				email, "Route!2026", "여행자", "KO", true, "device-1",
+				Map.of("TERMS_OF_SERVICE", true, "PRIVACY_POLICY", true), false, session.token())))
 				.isInstanceOf(IllegalStateException.class);
 
 		Integer credentialCount = jdbcTemplate.queryForObject(
