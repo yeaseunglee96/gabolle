@@ -6,6 +6,8 @@ import { Image, Pressable, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { color, spacing } from '@/design/tokens';
+import { isAtLeast } from '@/layout/breakpoints';
+import { useLayout } from '@/layout/useLayout';
 import { useI18n } from '@/i18n';
 import { Text } from './Text';
 
@@ -31,6 +33,13 @@ const TABS: Tab[] = [
 export function TabBar({ active }: { active: TabKey }) {
   const router = useRouter();
   const { tx } = useI18n();
+  const { width } = useLayout();
+
+  // 이 바는 휴대폰 폭(하단 고정 탭) 전용이다 — breakpoints.ts 의 반응형 표를 보면
+  // 600px 부터는 상단 가로 바로 바뀌어야 한다. 그 화면은 아직 없으니, 없는 것을
+  // 지어내 보여주는 대신 desktop 폭에서는 아무것도 안 그린다(home.tsx 의 데스크톱
+  // 리다이렉트와 같은 판단). 화면 가운데 붕 뜬 모바일 탭바보다는 없는 쪽이 낫다.
+  if (isAtLeast(width, 'md')) return null;
 
   return (
     <View style={styles.bar}>
