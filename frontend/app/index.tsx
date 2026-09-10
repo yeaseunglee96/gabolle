@@ -110,7 +110,7 @@ export default function Welcome() {
     <StatusBar style="dark" />
     <SafeAreaView edges={['top']} style={styles.webHeader}>
       <Pressable accessibilityRole="link" accessibilityLabel={tx('GABOLLE 홈', 'GABOLLE home')} onPress={() => router.replace('/')} style={({ pressed }) => [styles.logoLink, pressed && styles.pressed]}><Image source={logo} resizeMode="contain" style={styles.webLogo} /></Pressable>
-      <View style={styles.webNav}><NavItem label={tx('홈', 'Home')} onPress={() => router.replace('/')} /><NavItem label={tx('여행 만들기', 'Plan a trip')} onPress={startPlanning} /><NavItem label={tx('내 여행', 'My trips')} onPress={() => router.push(user ? '/trips' : '/sign-in')} /><NavItem label={tx('부산 축제', 'Festivals')} onPress={() => router.push('/festivals')} /></View>
+      <View style={styles.webNav}><NavItem label={tx('홈', 'Home')} onPress={() => router.replace('/')} /><NavItem label={tx('피드', 'Feed')} onPress={() => router.push(user ? '/feed' : '/sign-in')} /><NavItem label={tx('여행 만들기', 'Plan a trip')} onPress={startPlanning} /><NavItem label={tx('내 여행', 'My trips')} onPress={() => router.push(user ? '/trips' : '/sign-in')} /><NavItem label={tx('부산 축제', 'Festivals')} onPress={() => router.push('/festivals')} /></View>
       <View style={styles.accountActions}>
         <Pressable accessibilityRole="button" accessibilityLabel={tx(`언어를 ${language === 'ko' ? 'English' : '한국어'}로 변경`, `Change language to ${language === 'ko' ? 'English' : 'Korean'}`)} onPress={() => chooseLanguage(language === 'ko' ? 'en' : 'ko')} style={styles.localeButton}><Text variant="caption" weight="bold">{language.toUpperCase()}</Text></Pressable>
         {user ? (
