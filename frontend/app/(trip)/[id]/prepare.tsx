@@ -1,7 +1,8 @@
 // 16 여행 준비·날씨 — Figma 16_여행 준비·날씨 실측 그대로.
 //
-// 날씨·준비물은 전부 하드코딩 목업이다. 실제 기상청 API 연동 전까지는 이 값 그대로 둔다.
-import { useState } from 'react';
+// 날씨는 GET /api/v1/weather 로 실제 값을 받는다(S15P21E201-378) — 준비물 목록은
+// 아직 하드코딩 목업이다(별도 티켓 범위).
+import { useEffect, useState } from 'react';
 import { Image, Pressable, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as Speech from 'expo-speech';
@@ -11,8 +12,23 @@ import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { Button } from '@/components/Button';
 import { LanguageBadge } from '@/components/LanguageBadge';
+import { useAuth } from '@/auth/AuthProvider';
 import { useI18n } from '@/i18n';
 import { DIALECT_PHRASES } from '@/discovery/dialectPhrases';
+import { loadItinerary } from '@/plan/itinerary';
+import { loadWeatherForecast, type SkyCondition, type WeatherLoadResult } from '@/trip/weather';
+
+const SKY_LABEL: Record<SkyCondition, readonly [string, string]> = {
+  CLEAR: ['맑음', 'Clear'],
+  PARTLY_CLOUDY: ['구름 조금', 'Partly cloudy'],
+  CLOUDY: ['흐림', 'Cloudy'],
+};
+
+function formatDepartureDate(value: string) {
+  const date = new Date(`${value}T00:00:00`);
+  if (Number.isNaN(date.getTime())) return null;
+  return { ko: `${date.getMonth() + 1}월 ${date.getDate()}일`, en: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) };
+}
 
 const PREP_ITEMS = [
   { icon: require('../../../assets/icons/common/umbrella.png'), nameKo: '접이식 우산', nameEn: 'Folding umbrella', descKo: '오후 비 예보', descEn: 'Rain forecast in the afternoon' },
@@ -80,15 +96,32 @@ function DialectFlashcards() {
 export default function Prepare() {
   const router = useRouter();
   const { tx } = useI18n();
+  const { accessToken } = useAuth();
   const { id } = useLocalSearchParams<{ id: string }>();
   const tripId = id ?? 'demo-trip';
+  const [firstDayDate, setFirstDayDate] = useState<string | null>(null);
+  const [weather, setWeather] = useState<WeatherLoadResult | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    void loadItinerary(tripId, accessToken).then((result) => {
+      if (cancelled) return;
+      const date = result.state === 'success' ? (result.itinerary.days[0]?.date ?? null) : null;
+      setFirstDayDate(date);
+      if (!date) { setWeather({ state: 'unavailable', message: '일정을 아직 못 불러왔어요.' }); return; }
+      void loadWeatherForecast(date, accessToken).then((weatherResult) => { if (!cancelled) setWeather(weatherResult); });
+    });
+    return () => { cancelled = true; };
+  }, [tripId, accessToken]);
+
+  const departure = firstDayDate ? formatDepartureDate(firstDayDate) : null;
 
   return (
     <Screen scroll>
       <View style={styles.headerRow}>
         <View style={styles.headerCopy}>
           <Text variant="eyebrow" weight="bold">
-            {tx('여행 전 · 8월 24일 출발', 'Before the trip · Departing Aug 24')}
+            {departure ? tx(`여행 전 · ${departure.ko} 출발`, `Before the trip · Departing ${departure.en}`) : tx('여행 전', 'Before the trip')}
           </Text>
           <Text variant="display" weight="bold" style={styles.title}>
             {tx('부산 여행 준비', 'Getting ready for Busan')}
@@ -98,22 +131,33 @@ export default function Prepare() {
       </View>
 
       <View style={styles.weatherCard}>
-        <View style={styles.weatherTopRow}>
-          <Text variant="hero" weight="bold" color={color.text.heading}>
-            24°
-          </Text>
-          <View style={styles.weatherStatus}>
-            <Text variant="body" weight="bold">
-              {tx('맑음 · 체감 25°', 'Clear · Feels like 25°')}
+        {weather?.state === 'success' ? (
+          <>
+            <View style={styles.weatherTopRow}>
+              <Text variant="hero" weight="bold" color={color.text.heading}>
+                {weather.forecast.maxTemperature != null ? `${Math.round(weather.forecast.maxTemperature)}°` : tx('미확인', 'N/A')}
+              </Text>
+              <View style={styles.weatherStatus}>
+                <Text variant="body" weight="bold">
+                  {weather.forecast.skyCondition ? tx(...SKY_LABEL[weather.forecast.skyCondition]) : tx('하늘 상태 미확인', 'Sky condition unknown')}
+                  {weather.forecast.minTemperature != null && weather.forecast.maxTemperature != null ? ` · ${Math.round(weather.forecast.minTemperature)}~${Math.round(weather.forecast.maxTemperature)}°` : ''}
+                </Text>
+              </View>
+            </View>
+            <Text variant="body" weight="medium" style={styles.weatherRain}>
+              {weather.forecast.precipitationProbability != null
+                ? tx(`강수확률 ${weather.forecast.precipitationProbability}%`, `${weather.forecast.precipitationProbability}% chance of rain`)
+                : tx('강수확률 미확인', 'Rain chance unknown')}
             </Text>
-            <Text variant="caption" weight="medium" color={color.state.success}>
-              {tx('미세먼지 좋음', 'Fine dust: Good')}
-            </Text>
-          </View>
-        </View>
-        <Text variant="body" weight="medium" style={styles.weatherRain}>
-          {tx('오후 5시 강수 60% · 일몰 19:04', '60% chance of rain at 5 PM · Sunset 19:04')}
-        </Text>
+            {weather.forecast.precipitationProbability != null && weather.forecast.precipitationProbability >= 60 ? (
+              <Text variant="caption" weight="bold" color={color.brand.orange}>{tx('☂ 우산을 챙기세요', '☂ Bring an umbrella')}</Text>
+            ) : null}
+          </>
+        ) : weather ? (
+          <Text variant="body" color={color.text.muted}>{tx('예보를 가져오지 못했습니다.', 'Could not load the forecast.')}</Text>
+        ) : (
+          <Text variant="body" color={color.text.muted}>{tx('예보를 불러오는 중…', 'Loading the forecast…')}</Text>
+        )}
       </View>
 
       <View style={styles.prepCard}>
