@@ -57,6 +57,26 @@ export function hasLocalityScore(place: Place) {
   return place.features.some((feature) => feature.featureType === 'LOCALITY_SCORE');
 }
 
+// 장소 종류(category) 값의 정확한 목록을 아직 못 받았다(field/placePhrases.ts의
+// defaultTabForCategory와 같은 사정). 그래서 정확히 아는 척하지 않고, 식당·카페로 흔히
+// 쓰이는 키워드가 들어 있으면 식음료 장소로 본다.
+function isFoodPlace(category: string) {
+  return /FOOD|RESTAURANT|CAFE|맛집|카페|식당/i.test(category);
+}
+
+// 안전 정보(알레르기·식단) 확인 필요 여부 — S15P21E201-478·-141.
+// 대조표(user_place_code_map, S15P21E201-545 마이그레이션)의 짝: 알레르기 = ALLERGEN_TAG,
+// 식단 = DIETARY_SUPPORT_TAG. 둘 다 태그형이라 "해당 없음"과 "확인 안 됨"을 이 배열만으로는
+// 구분할 수 없다 — 행이 없으면 알레르기 유발 성분이 실제로 없는 것인지 아무도 확인을
+// 안 한 것인지 똑같이 아무 표식도 안 남는다. 그래서 이 둘만은 "없으면 안전하다"로 읽지
+// 않는다(기획서 2.1절 원칙 3) — 행이 하나도 없으면 무조건 확인 필요로 취급한다.
+export function needsFoodSafetyCheck(place: Place) {
+  if (!isFoodPlace(place.category)) return false;
+  const hasAllergenInfo = place.features.some((feature) => feature.featureType === 'ALLERGEN_TAG');
+  const hasDietInfo = place.features.some((feature) => feature.featureType === 'DIETARY_SUPPORT_TAG');
+  return !hasAllergenInfo || !hasDietInfo;
+}
+
 // 장소 이름 한글·영문 병기(S15P21E201-264) — 언어 설정과 무관하게 "해운대 해수욕장 (Haeundae
 // Beach)" 형태로 둘 다 보여준다. 영문 이름이 한국인 택시 기사에게는 쓸모없고, 한글 이름만
 // 보여주면 영어 사용자가 못 읽는다. 영문이 없으면 괄호 없이 한국어 원문만 보여준다 — 빈
