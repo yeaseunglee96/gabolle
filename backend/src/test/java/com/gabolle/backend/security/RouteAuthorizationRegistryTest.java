@@ -595,6 +595,12 @@ class RouteAuthorizationRegistryTest {
 						+ "인증을 요구하는 것은 route/directions 와 같은 이유 — 우리 업체 키로 남이 대신 "
 						+ "번역을 돌리는 것(비용)을 막기 위해서다. TranslateControllerTest");
 
+		// ── 날씨 (-366) ──────────────────────────────────────────────────────────
+		put(m, "GET /api/v1/weather", Policy.AUTHENTICATED_ONLY,
+				"좌표·날짜로 답이 정해진다 — 우리 자원이 아니라 주인이 없다. 인증을 요구하는 것은 "
+						+ "route/directions·tools/translate 와 같은 이유 — 우리 기상청 키로 남이 대신 "
+						+ "조회를 돌리는 것(비용)을 막기 위해서다. WeatherControllerTest");
+
 		return m;
 	}
 }
