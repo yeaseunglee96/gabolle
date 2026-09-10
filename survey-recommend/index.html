@@ -4,7 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<title>부산에서 여기는 꼭 가보세요 · 3분</title>
+<!-- 🔴 "3분" 이 아니라 "5분" 이다. 짝 비교 여섯 문항과 여행 스타일 세 문항을
+     얹으면서 늘렸다. 걸리는 시간도 참여자에게 한 약속이라, 문항을 늘리고
+     이 숫자를 안 고치면 그 약속이 거짓이 된다. -->
+<title>부산에서 여기는 꼭 가보세요 · 5분</title>
 <style>
 /* ══════════════════════════════════════════════════════════════════
    흑백만 쓴다. 강조색이 없다.
@@ -204,6 +207,68 @@ h2.section { font-size: 30px; line-height: 1.1; letter-spacing: -.03em; font-wei
 .field-block.first { border-top: 1px solid var(--ink); }
 .field-label { font-size: 13px; color: var(--muted); margin-bottom: 4px; }
 
+/* ── 한 화면에 한 문항 (개인화 세 문항) ─────────────────────────────
+   위의 word-radio 와 같은 말투다 — 점 하나와 글자, 고른 것은 굵게.
+   새 디자인을 만들지 않는다. 여기만 다르게 생기면 설문이 두 개로 보인다.
+   ─────────────────────────────────────────────────────────────── */
+.opts { margin: 30px 0 0; border-top: 1px solid var(--ink); }
+.opt {
+  display: grid; grid-template-columns: 13px minmax(0,1fr); gap: 0 12px; align-items: start;
+  width: 100%; min-height: 64px; padding: 18px 0; text-align: left;
+  background: none; border: 0; border-bottom: 1px solid var(--line);
+  font: inherit; color: var(--ink); cursor: pointer;
+}
+.opt .dot {
+  margin-top: 7px; width: 13px; height: 13px; border-radius: 999px;
+  border: 1.5px solid var(--ink); background: transparent; transition: background .15s, box-shadow .15s;
+}
+.opt.on .dot { background: var(--ink); box-shadow: inset 0 0 0 2.5px var(--paper); }
+.opt b { display: block; font-size: 19px; font-weight: 400; line-height: 1.25; letter-spacing: -.02em; }
+.opt.on b { font-weight: 700; }
+.opt s { display: block; text-decoration: none; font-size: 13px; color: var(--muted); margin-top: 5px; line-height: 1.5; }
+
+/* 이전 · 건너뛰기 — 큰 버튼 아래 한 줄 */
+.navrow { display: flex; gap: 10px; margin: 14px 0 0; }
+.btn-ghost {
+  flex: 1 1 0; min-height: 52px; padding: 0 18px; border-radius: 999px;
+  border: 1px solid var(--line-2); background: transparent; color: var(--ink);
+  font: inherit; font-size: 15px; cursor: pointer;
+}
+.linkbtn {
+  display: block; width: 100%; margin: 16px 0 0; padding: 10px 0; min-height: 44px;
+  background: none; border: 0; font: inherit; font-size: 13px; color: var(--muted);
+  text-decoration: underline; text-underline-offset: 4px; cursor: pointer;
+}
+
+/* ── 짝 비교 카드 두 장 ────────────────────────────────────────────
+   🔴 두 카드에 다른 색 · 다른 크기 · 다른 모양을 주지 않는다. 하나라도
+      다르면 사람은 조건이 아니라 눈에 띄는 쪽을 고르고, 그 편향은 나중에
+      취향과 분리할 방법이 없다. 위아래를 뒤집는 것만으로는 못 막는다.
+   🔴 "골랐다" 는 여기서도 색이 아니라 밝기의 반전으로만 말한다.
+   ─────────────────────────────────────────────────────────────── */
+.pq { margin: 30px 0 0; }
+.pq + .pq { margin-top: 36px; border-top: 1px solid var(--line); }
+.pqh { font-size: 13px; color: var(--muted); margin: 16px 0 0; }
+.pairs { display: grid; gap: 12px; margin: 12px 0 0; }
+.pcard {
+  display: block; width: 100%; padding: 16px 18px; text-align: left;
+  border: 1px solid var(--line-2); border-radius: 18px; background: transparent;
+  color: var(--ink); font: inherit; cursor: pointer;
+  transition: background .15s, color .15s, border-color .15s;
+}
+.pcard:active { background: var(--paper-2); }
+.pcard.on { background: var(--ink); color: var(--on-ink); border-color: var(--ink); }
+.pcard .lbl {
+  display: block; font-size: 12px; font-weight: 700; letter-spacing: .08em;
+  color: var(--muted); margin-bottom: 10px;
+}
+.prow { display: flex; justify-content: space-between; gap: 12px; padding: 4px 0; font-size: 15px; }
+.prow .k { color: var(--muted); }
+.prow .v { font-weight: 700; text-align: right; }
+/* 반전된 바탕에서도 읽히는 밝기 */
+.pcard.on .lbl, .pcard.on .prow .k { color: var(--dark-label); }
+.ask { font-size: 12.5px; color: var(--muted); margin: 12px 0 0; }
+
 /* ── 추천 칸 다섯 (줄 목록) ─────────────────────────────────────── */
 .cats { border-top: 1px solid var(--ink); }
 .cat { border-bottom: 1px solid var(--line); }
@@ -386,7 +451,7 @@ textarea.u { min-height: 96px; font-size: 17px; line-height: 1.5; resize: vertic
   <div class="wcontent">
     <div class="wtop"><b>가볼래 · 설문</b><button type="button" class="wskip" id="skip2">건너뛰기</button></div>
     <div class="wspacer"></div>
-    <h1 class="wtitle">3분이면<br>충분합니다</h1>
+    <h1 class="wtitle">5분이면<br>충분합니다</h1>
     <p class="wlede">당신이 아는 부산을 공유해주세요.</p>
     <div class="wdots" id="wdots2"><span></span><span></span><span class="now"></span></div>
     <button type="button" class="wbtn" id="wstart">설문 시작하기 <span aria-hidden="true">→</span></button>
@@ -402,18 +467,18 @@ textarea.u { min-height: 96px; font-size: 17px; line-height: 1.5; resize: vertic
   <div id="top" class="hide">
     <div id="topRow">
       <span id="brand">가볼래 · 설문</span>
-      <span id="counter"><b id="cnum">0</b><span class="of"> / 5 추천한 곳</span></span>
+      <span id="counter"><b id="cnum">0</b><span class="of" id="cof"> / 5 추천한 곳</span></span>
     </div>
   </div>
 
   <!-- ══ 첫 화면 : 고지 + 동의 ══════════════════════════════════ -->
   <section id="scIntro" class="screen on">
-    <div class="wtop" style="padding-top:18px"><b>가볼래 · 설문</b><span style="color:var(--muted)">3분</span></div>
+    <div class="wtop" style="padding-top:18px"><b>가볼래 · 설문</b><span style="color:var(--muted)">5분</span></div>
     <h1 class="big">부산에서<br>여기는 꼭<br>가보세요</h1>
     <p class="lede"><b>부산에서 좋았던 곳 다섯 군데</b>와, 왜 좋았는지를 적어 주세요.</p>
 
     <div class="deflist">
-      <div class="row"><span>받는 것</span><p>이 설문은 <b>나이대 · 부산에 산 기간 · 전화번호(선택) · 추천하는 곳 다섯 군데와 그 이유</b>를 받습니다. 전화번호는 <b>경품 추첨을 위해 선택으로만</b> 받고, 이름 · 이메일을 묻는 칸은 없습니다.</p></div>
+      <div class="row"><span>받는 것</span><p>이 설문은 <b>두 곳 중 하나 고르기 여섯 번 · 여행 스타일 세 가지 · 나이대 · 부산에 산 기간 · 전화번호(선택) · 추천하는 곳 다섯 군데와 그 이유</b>를 받습니다. 전화번호는 <b>경품 추첨을 위해 선택으로만</b> 받고, 이름 · 이메일을 묻는 칸은 없습니다.</p></div>
       <div class="row"><span>쓰는 곳</span><p>답은 <b>“부산을 아는 사람은 어디를 왜 추천하는가”</b> 를 모으는 데만 씁니다. 개인을 알아보거나 누구인지 되찾는 데 쓰지 않습니다.</p></div>
       <div class="row"><span>지우는 때</span><p>응답은 <b><span class="cfg-delete"></span></b> 지웁니다. <b>만 14세 이상</b>만 참여해 주세요.</p></div>
       <div class="row"><span style="color:var(--ink);font-weight:700">● 주의</span><p><b>적는 칸에 사람 이름 · 연락처 · 소속을 적지 말아 주세요.</b> 이 설문은 처음으로 <b>자유롭게 쓰는 칸</b>이 있습니다. 장소 이름과 이유만 적어 주시면 됩니다. 전화번호나 이메일처럼 보이는 글자가 있으면 <b>제출이 막히고 어느 칸인지 알려 드립니다.</b></p></div>
@@ -422,10 +487,10 @@ textarea.u { min-height: 96px; font-size: 17px; line-height: 1.5; resize: vertic
     <button type="button" class="toggle-details" id="detailsToggle">무엇을 모으고 어디에 두는지 자세히 보기 ↓</button>
     <div class="deflist small2" id="detailsBox" hidden>
       <div class="row"><span>누가 모으나</span><span>SSAFY 15기 자율 프로젝트 팀 S15P21E201 (가볼래). 진행자는 <span class="cfg-facilitator"></span> 한 명입니다.</span></div>
-      <div class="row"><span>무엇을 모으나</span><span>나이대 · 부산에 산 기간 · <b>전화번호(선택, 경품 추첨용)</b> · 추천하는 곳 다섯 군데(유형 · 이름 · 낮밤 · 기간 한정인지 · <b>왜 추천하는지</b>). 그 밖에는 없습니다.</span></div>
+      <div class="row"><span>무엇을 모으나</span><span><b>두 곳 중 하나 고르기 여섯 번</b>(조건만 적힌 카드 두 장 중 어느 쪽을 고르셨는지, 그 카드가 화면의 위였는지 아래였는지, 고르시는 데 걸린 시간을 <b>“3초 미만 · 5초 미만”</b> 같은 <b>구간</b>으로만 — 초 단위로는 남기지 않습니다) · 여행 스타일 세 가지(부산까지 <b>오는 교통</b> · <b>숙소</b> 1박 · <b>저녁 한 끼</b> — 고르는 칸이고 건너뛰셔도 됩니다) · 나이대 · 부산에 산 기간 · <b>전화번호(선택, 경품 추첨용)</b> · 추천하는 곳 다섯 군데(유형 · 이름 · 낮밤 · 기간 한정인지 · <b>왜 추천하는지</b>). 그 밖에는 없습니다.</span></div>
       <div class="row"><span>안 모으는 것</span><span>이름 · 이메일 · 성별 · 생년월일 · <b>IP 주소 · 위치 · 기기 정보 · 브라우저 정보</b>. 접속 기록도 남기지 않습니다. (전화번호만 선택 입력으로 받습니다 — 위 참고)</span></div>
       <div class="row"><span>왜 모으나</span><span>추천을 만들려면 “부산에 뭐가 있는지” 부터 있어야 하는데, 지금 저희에게는 그 목록이 없습니다. 인터넷에서 긁어온 유명한 곳 말고 <b>실제로 살아 본 사람이 추천하는 곳</b>이 필요해서요.</span></div>
-      <div class="row"><span>어디에 쓰나</span><span>추천 후보 목록과, 학교 프로젝트 발표의 <b>합친 숫자</b>(예: “30명이 추천한 곳 중 카페가 22곳”).</span></div>
+      <div class="row"><span>어디에 쓰나</span><span>추천 후보 목록과, 학교 프로젝트 발표의 <b>합친 숫자</b>(예: “30명이 추천한 곳 중 카페가 22곳”). <b>두 곳 중 고르기</b>와 <b>여행 스타일</b>은 추천 순서를 정할 때 <b>가격 · 걷는 거리 · 줄서기 · 골목의 비슷한 가게 · 알려진 정도</b> 다섯에 각각 얼마나 무게를 둘지를 정하는 데만 씁니다 — 어느 장소가 좋은지를 배우는 것이 아닙니다.</span></div>
       <div class="row"><span>어디에 안 쓰나</span><span>광고 · 외부 제공 · 개인 식별 · 팀 밖에 개별 응답을 보여 주는 것.</span></div>
       <div class="row"><span>어디에 두나</span><span>팀 서버의 <b>이 설문 전용 데이터베이스</b> 한 곳. 운영 중인 서비스의 데이터베이스와 <b>따로</b> 있고, 바깥에서 직접 접속할 수 없습니다. 외부 설문 업체 · 구글 폼 · 클라우드 문서를 쓰지 않습니다.</span></div>
       <div class="row"><span>사진 출처</span><span class="credits" id="creditsIntro"></span></div>
@@ -444,6 +509,30 @@ textarea.u { min-height: 96px; font-size: 17px; line-height: 1.5; resize: vertic
       그 밖의 어떤 것과도 <b style="color:var(--ink)">관계가 없습니다.</b> 전화번호를 남기지 않으시면 저희가 누가 참여했는지 알아낼 수 없기도 합니다.
       도중에 그만두시려면 창을 닫으시면 됩니다 — 제출 전에는 아무것도 저장되지 않습니다.</p>
   </section>
+
+  <!-- ══ 짝 비교 — 화면 3장, 한 장에 두 문항 ════════════════════
+       🔴 자리가 **동의하기 바로 다음**이다. 맨 앞이라 사람이 가장 안 지쳐
+          있을 때 이 문항을 받는다. 장소 추천 뒤에 두면 다섯 칸을 다 적고
+          지친 사람이 두 장 중 아무거나 찍고, 그러면 이 여섯 문항은
+          아무것도 안 재고 자리만 먹는다.
+       🔴 화면이 정확히 3장이다. 여섯 문항을 3장에 담으니 한 장에 두 문항.
+          화면 하나를 장마다 다시 그린다 (여섯 문항이 모양이 같다).
+       ══════════════════════════════════════════════════════════ -->
+  <section id="scPair" class="screen">
+    <h2 class="section" style="margin-top:44px">둘 중 어디로<br>가시겠어요?</h2>
+    <p class="hint" id="pairLede">가게 이름도 사진도 없어요. <b style="color:var(--ink)">조건만 보고</b> 끌리는 쪽을 골라 주세요.
+      정답이 없는 문항이에요 — <b style="color:var(--ink)">세 장</b>이면 끝납니다.</p>
+    <div id="pairBody"></div>
+    <button class="btn-big" id="pairNext" style="margin-top:36px"><span id="pairNextLabel">다음</span><span class="arrow">→</span></button>
+    <p class="small" id="pairLeft" style="margin-top:12px"></p>
+    <div class="navrow"><button type="button" class="btn-ghost" id="pairBack">이전</button></div>
+  </section>
+
+  <!-- ══ 개인화 세 문항 (한 화면에 한 문항) ══════════════════════
+       🔴 화면은 JS 가 만든다 (SPEND_QUESTIONS). 여기에 markup 을 적지 않는다 —
+          문항을 늘릴 때 두 곳을 고치게 되고, 한 곳을 빠뜨리면 조용히 깨진다.
+          만들어진 화면은 이 자리(scPair 와 scMain 사이)에 끼워진다.
+       ══════════════════════════════════════════════════════════ -->
 
   <!-- ══ 본 화면 ═══════════════════════════════════════════════ -->
   <section id="scMain" class="screen">
@@ -493,6 +582,181 @@ textarea.u { min-height: 96px; font-size: 17px; line-height: 1.5; resize: vertic
   </section>
 
 </div>
+
+<!-- ══════════════════════════════════════════════════════════════════
+     짝 비교 문항 — 🔴 손으로 고치지 않는다.
+     이 블록을 만드는 것은 design.mjs 다:  node survey-recommend/design.mjs
+     server.mjs 도 **이 블록을 읽어서** 들어온 답을 검사하고, 표에 넣을
+     조건값(가격 · 분)도 여기서 가져간다. 한 벌뿐이라 화면과 서버가 서로
+     다른 문항을 들고 있을 수가 없다.
+     ══════════════════════════════════════════════════════════════════ -->
+<script id="design" type="application/json">
+{
+  "designId": "recommend-v1-seed-20260907",
+  "seed": 20260907,
+  "perPage": 2,
+  "msBuckets": [
+    1500,
+    3000,
+    5000,
+    8000,
+    12000,
+    20000,
+    40000
+  ],
+  "attributes": {
+    "price": [
+      10000,
+      20000,
+      40000,
+      70000
+    ],
+    "walkMin": [
+      3,
+      8,
+      15,
+      25
+    ],
+    "queueMin": [
+      0,
+      20,
+      40
+    ],
+    "sameStreet": [
+      0,
+      3,
+      12
+    ],
+    "fame": [
+      "LOCAL_ONLY",
+      "SNS_FAMOUS"
+    ]
+  },
+  "sets": [
+    {
+      "setId": "s01",
+      "trap": false,
+      "alternatives": [
+        {
+          "price": 20000,
+          "walkMin": 15,
+          "queueMin": 20,
+          "sameStreet": 0,
+          "fame": "SNS_FAMOUS"
+        },
+        {
+          "price": 70000,
+          "walkMin": 8,
+          "queueMin": 0,
+          "sameStreet": 12,
+          "fame": "LOCAL_ONLY"
+        }
+      ]
+    },
+    {
+      "setId": "s02",
+      "trap": false,
+      "alternatives": [
+        {
+          "price": 40000,
+          "walkMin": 25,
+          "queueMin": 0,
+          "sameStreet": 0,
+          "fame": "LOCAL_ONLY"
+        },
+        {
+          "price": 40000,
+          "walkMin": 25,
+          "queueMin": 40,
+          "sameStreet": 3,
+          "fame": "SNS_FAMOUS"
+        }
+      ]
+    },
+    {
+      "setId": "s03",
+      "trap": false,
+      "alternatives": [
+        {
+          "price": 10000,
+          "walkMin": 3,
+          "queueMin": 40,
+          "sameStreet": 0,
+          "fame": "SNS_FAMOUS"
+        },
+        {
+          "price": 10000,
+          "walkMin": 15,
+          "queueMin": 40,
+          "sameStreet": 3,
+          "fame": "LOCAL_ONLY"
+        }
+      ]
+    },
+    {
+      "setId": "tr01",
+      "trap": true,
+      "trapCorrect": 0,
+      "alternatives": [
+        {
+          "price": 20000,
+          "walkMin": 3,
+          "queueMin": 0,
+          "sameStreet": 3,
+          "fame": "LOCAL_ONLY"
+        },
+        {
+          "price": 20000,
+          "walkMin": 25,
+          "queueMin": 40,
+          "sameStreet": 3,
+          "fame": "LOCAL_ONLY"
+        }
+      ]
+    },
+    {
+      "setId": "s04",
+      "trap": false,
+      "alternatives": [
+        {
+          "price": 70000,
+          "walkMin": 3,
+          "queueMin": 0,
+          "sameStreet": 12,
+          "fame": "LOCAL_ONLY"
+        },
+        {
+          "price": 10000,
+          "walkMin": 8,
+          "queueMin": 20,
+          "sameStreet": 3,
+          "fame": "SNS_FAMOUS"
+        }
+      ]
+    },
+    {
+      "setId": "s05",
+      "trap": false,
+      "alternatives": [
+        {
+          "price": 70000,
+          "walkMin": 25,
+          "queueMin": 20,
+          "sameStreet": 12,
+          "fame": "SNS_FAMOUS"
+        },
+        {
+          "price": 20000,
+          "walkMin": 8,
+          "queueMin": 20,
+          "sameStreet": 3,
+          "fame": "LOCAL_ONLY"
+        }
+      ]
+    }
+  ]
+}
+</script>
 
 <script>
 "use strict";
@@ -637,6 +901,118 @@ const PHOTO_SRC = {
    라는 고지가 거짓이 된다. (웰컴을 봤다는 사실만 세션 동안 기억한다 —
    응답 내용이 아니다.)
    ─────────────────────────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════════
+   맨 앞의 개인화 세 문항 — 오는 교통 · 숙소 · 식사
+   ──────────────────────────────────────────────────────────────────
+   🔴 문장도 선택지도 여기서 지어내지 않았다. 원본은
+      docs/COLDSTART-THREE-QUESTIONS.md 2절(화면 문장)과 3.2절(코드값)이다.
+
+   🔴 소득을 직접 묻지 않는다. "연 소득이 어떻게 되세요?" 는 취조로 읽혀
+      첫 화면에서 이탈하고, 게다가 우리가 필요한 값도 아니다. 필요한 것은
+      재산이 아니라 이번 여행의 지불 의사라서 교통 · 숙소 · 식사로 간접적으로 받는다.
+
+   🔴 자유 입력 칸이 하나도 없다. 전부 고르는 칸이다.
+
+   v: null 은 "봤는데 건너뛰었다". 그 답은 저장할 때 키 자체가 빠진다 —
+   null 을 넣지 않는다. 키가 없는 것과 키가 null 인 것은 나중에 반드시
+   누군가 다르게 읽는다.
+   ══════════════════════════════════════════════════════════════════ */
+const SPEND_LEAD = {
+  kicker: "여행 스타일을 3개만 여쭤볼게요",
+  lede:   "여행할 때 보통 어떻게 쓰시는지 알면 추천 순서가 달라져요. 건너뛰셔도 돼요."
+};
+
+const SPEND_QUESTIONS = [
+  {
+    key: "transport",
+    /* 🔴 "항공편" 이라고 쓰지 않는다. 국내에서는 KTX · SRT · 고속버스로 온다.
+          "항공편" 으로 물으면 국내 응답자의 절반이 답할 수 없다. */
+    title: "부산에 갈 때,<br>보통 어느 쪽을<br>고르세요?",
+    /* 🔴 중간 선택지에 숫자를 넣지 않았다. "2시간 이상 빨라지면 3만원까지" 는
+          또렷하지만 그 숫자는 지금 근거가 없고, 눈금이 틀리면 답이 한쪽으로
+          쏠린다. 바로 앞의 짝 비교가 그 교환율을 재고 나서 넣는다. */
+    options: [
+      { v: "PRICE_FIRST",    t: "값이 가장 싼 쪽",        s: "새벽에 출발하거나 한 번 갈아타야 해도, 싼 쪽으로 골라요" },
+      { v: "TIME_AND_PRICE", t: "시간과 값을 함께 보는 쪽", s: "훨씬 빨라지면 더 내지만, 조금 빨라지는 정도면 싼 쪽을 골라요" },
+      { v: "COMFORT_FIRST",  t: "가장 편한 쪽",           s: "원하는 시간에, 갈아타지 않고 가는 쪽이면 돈을 더 내요" },
+      { v: null,             t: "잘 모르겠어요",          s: "" }
+    ]
+  },
+  {
+    key: "stay",
+    /* 🔴 "1인" 을 굵게 쓴다. 가족 4명이 20만원짜리 방을 함께 쓰면 1인 5만원이다.
+          이 한 단어가 없으면 가족 여행자가 전부 최상위 구간으로 잡힌다. */
+    title: "숙소는 <b>1인 1박</b><br>얼마까지<br>보통 내세요?",
+    /* 🔴 금액 눈금(5만 / 12만 / 25만)이 부산 숙소 실제 가격 분포로 검증된 적은
+          없다. 그래서 이 설문의 답에서 한 구간이 60% 를 넘는지 반드시 본다 —
+          넘으면 눈금이 틀린 것이다. 눈금형 코드값이라 나중에 눈금을 바꿔도
+          옛 답과 조용히 섞이지 않는다. */
+    options: [
+      { v: "KRW_UNDER_50K", t: "5만원 이하",     s: "게스트하우스 · 도미토리 · 모텔" },
+      { v: "KRW_50K_120K",  t: "5만 ~ 12만원",   s: "비즈니스호텔 · 에어비앤비" },
+      { v: "KRW_120K_250K", t: "12만 ~ 25만원",  s: "오션뷰 · 4성급" },
+      { v: "KRW_OVER_250K", t: "25만원 이상",    s: "특급호텔 · 리조트" },
+      { v: null,            t: "아직 안 정했어요", s: "" }
+    ]
+  },
+  {
+    key: "meal",
+    title: "부산에서 저녁 한 끼,<br>보통 어느 쪽이<br>더 끌리세요?",
+    /* 🔴 마지막 선택지가 건너뛰기가 아니다. "그날그날 달라요" 는 답이다 —
+          "나는 가격대를 고정하지 않는 사람" 이라는 정보가 있다. 그래서
+          VARIES 로 저장하고 계산에서만 뺀다. "잘 모르겠어요" 와 같은 칸에
+          넣으면 그 정보는 영영 못 되살린다. */
+    options: [
+      { v: "EVERYDAY_LOCAL", t: "동네 사람들이 가는 국밥 · 백반집", s: "1만원 안팎, 줄 안 서요" },
+      { v: "KNOWN_IN_AREA",  t: "그 동네에서 이름난 집",           s: "2만 ~ 4만원, 20분쯤은 줄 서도 가요" },
+      { v: "SPECIAL_BOOKED", t: "예약하고 가는 특별한 한 끼",       s: "5만원 이상, 코스 · 오마카세" },
+      { v: "VARIES",         t: "그날그날 달라요",                s: "그날 기분이나 같이 가는 사람에 따라 달라져요" }
+    ]
+  }
+];
+
+/* ══════════════════════════════════════════════════════════════════
+   짝 비교 — 두 곳 중 하나 고르기 (화면 3장 × 문항 2개)
+   ──────────────────────────────────────────────────────────────────
+   🔴 왜 필요한가. 위의 세 문항이 내는 것은 **방향(부호)** 뿐이다 —
+      "이 사람은 값을 더 본다" 까지는 알려 주지만 **얼마나** 더 보는지
+      (배수)는 안 알려 준다. 배수가 1.0 이면 추천 순위는 한 칸도 안 바뀐다.
+
+   🔴 왜 같은 설문인가. 세 문항과 짝 비교를 **같은 사람에게서** 받아야
+      "값을 더 보는 사람은 가격 무게가 이만큼 높더라" 라는 짝이 생긴다.
+      다른 페이지에서 따로 받으면 그 짝이 영영 안 생긴다.
+
+   🔴 문항은 여기서 지어내지 않는다. 아래 DESIGN 이 <script id="design">
+      블록이고, 그것을 만드는 것은 design.mjs 다.
+
+   재는 속성은 다섯 — 가격 · 걷는 거리 · 줄서기 · 골목의 비슷한 가게 ·
+   알려진 정도. survey-place 설문(S15P21E201-714)과 **같은 다섯**이고,
+   s01~s05 · tr01 은 그 설문과 같은 문항이라 응답을 합칠 수 있다.
+   ══════════════════════════════════════════════════════════════════ */
+const DESIGN = JSON.parse(document.getElementById("design").textContent);
+const PAIR_SETS = DESIGN.sets;
+const PER_PAGE = DESIGN.perPage;
+const PAIR_PAGES = Math.ceil(PAIR_SETS.length / PER_PAGE);
+
+/* ── 카드에 적는 말 ────────────────────────────────────────────────
+   🔴 가게 이름 · 사진 · 동네를 적지 않는다. 적는 순간 사람은 조건이 아니라
+      브랜드를 고르고, 그 편향은 나중에 취향과 분리할 방법이 없다.
+   🔴 문구를 survey-place 와 같게 둔다. 두 설문이 같은 문항을 다르게 물으면
+      set_id 가 같아도 같은 질문이 아니게 된다.
+   ─────────────────────────────────────────────────────────────── */
+const PAIR_ATTR_UI = [
+  { key: "price",      name: "한 끼 가격",            fmt: v => (v / 10000) + "만원" },
+  { key: "walkMin",    name: "역에서 걸어서",          fmt: v => v + "분" },
+  { key: "queueMin",   name: "줄서기",                fmt: v => v === 0 ? "줄 없음" : v + "분" },
+  { key: "sameStreet", name: "같은 골목의 비슷한 가게", fmt: v => v === 0 ? "없음 (외딴집)" : v + "곳" },
+  { key: "fame",       name: "알려진 정도",            fmt: v => v === "SNS_FAMOUS" ? "SNS 에서 유명" : "동네에서만 알려짐" }
+];
+
+/* 🔴 몇 초 걸렸는지를 초가 아니라 **구간**으로만 남긴다. 눈금은 design.mjs 에
+      한 벌만 있다 — 화면 · 서버 · 표가 전부 그 한 벌에서 나온다. */
+const MS_BUCKETS = DESIGN.msBuckets;
+const bucketOf = ms => { let i = 0; while (i < MS_BUCKETS.length && ms >= MS_BUCKETS[i]) i++; return i; };
+
 /* 🔴 placeId — 목록에서 고른 경우만 채워진다(S15P21E201-754). 직접 타이핑하면
       곧바로 null 로 되돌아간다(자동완성 목록에서 아래 이벤트가 그렇게 한다) —
       옛 선택을 붙인 채로 이름만 바뀐 걸 서버에 보내지 않으려고. */
@@ -645,6 +1021,19 @@ const state = {
   ageBand: null,
   busanYears: null,
   phone: "",                                      /* 선택. 빈 문자열 = 안 적음 */
+  /* 개인화 세 문항 — 🔴 고른 것만 들어간다. 건너뛴 문항은 키가 아예 없다.
+     "봤는데 건너뛰었다"(SKIPPED)와 "아직 안 물어봤다"(NULL)를 서버가 가른다:
+     이 화면은 세 문항을 반드시 보여 주므로 빈 객체 {} 라도 항상 보낸다. */
+  spend: {},
+  /* "건너뛰기를 눌렀다" 는 화면 표시에만 쓴다. 서버로 보내지 않는다 —
+     서버는 키가 없는 것만 보고 건너뜀으로 읽는다. 상태 이름을 두 벌 보내면
+     둘이 어긋났을 때 어느 쪽이 진짜인지 아무도 모르게 된다 */
+  spendSkip: {},
+  /* 짝 비교 — 문항마다 { chosen, msBucket }. 아직 안 고른 문항은 null.
+     🔴 topWas 는 따로 둔다. "화면에서 위에 있던 쪽" 은 답이 아니라 화면이
+        정한 것이고, 이전 장으로 돌아왔다 가도 안 바뀌어야 한다. */
+  pair: new Array(PAIR_SETS.length).fill(null),
+  pairTopWas: new Array(PAIR_SETS.length).fill(null),
   slots: Array.from({ length: SLOTS }, blank),   /* 칸 다섯. 유형은 칸 안에서 고른다 */
   open: -1                                        /* 한 번에 하나만 펼친다. -1 = 다 닫힘 */
 };
@@ -1026,6 +1415,9 @@ let currentTrouble = [];
 function paint() {
   const n = state.slots.filter(isFull).length;
   $("cnum").textContent = String(n);
+  /* 위쪽 진행 표시는 단계마다 세는 것이 다르다 (짝 비교 3장 · 여행 스타일 3문항 ·
+     추천한 곳 5곳). 이 화면으로 돌아올 때마다 "추천한 곳" 으로 되돌려 놓는다 */
+  $("cof").textContent = " / " + SLOTS + " 추천한 곳";
   document.querySelectorAll(".cat").forEach(art => {
     const i = Number(art.dataset.slot);
     const s = state.slots[i];
@@ -1061,14 +1453,274 @@ function paint() {
   });
 }
 
-/* ── 첫 화면 ─────────────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════════
+   화면 순서 — 웰컴 3장 → 고지·동의 → **짝 비교 3장** → 개인화 세 문항
+              → 장소 추천 다섯 곳
+   🔴 짝 비교가 장소 추천보다 **앞**이다. 뒤에 두면 다섯 칸을 다 적고 지친
+      사람이 두 장 중 아무거나 찍고, 그러면 그 여섯 문항은 아무것도 안 재고
+      자리만 먹는다.
+   ══════════════════════════════════════════════════════════════════ */
+
+/* 진행 표시 한 줄. 단계마다 세는 것이 다르다 */
+function setTop(now, total, what) {
+  $("cnum").textContent = String(now);
+  $("cof").textContent = " / " + total + " " + what;
+}
+
+/* ── 짝 비교 ─────────────────────────────────────────────────── */
+let pairPage = 0;      /* 지금 몇 번째 장인가 (0부터) */
+let pairMarkAt = 0;    /* 직전에 무엇을 한 시각. 문항 하나에 걸린 시간을 재는 기준 */
+
+/* p 번째 장으로 간다. -1 이면 고지 화면, 3 이면 개인화 세 문항으로 넘어간다 */
+function goPair(p) {
+  if (p < 0) { show("scIntro"); $("top").classList.add("hide"); window.scrollTo(0, 0); return; }
+  if (p >= PAIR_PAGES) { goSpend(0); return; }
+  pairPage = p;
+  renderPairPage(p);
+  show("scPair");
+  $("top").classList.remove("hide");
+  setTop(p + 1, PAIR_PAGES, "두 곳 중 고르기");
+  window.scrollTo(0, 0);
+  pairMarkAt = performance.now();
+}
+
+function renderPairPage(p) {
+  $("pairLede").hidden = p !== 0;   /* 머리말은 첫 장에만. 세 번 반복하면 읽지 않는다 */
+  const box = $("pairBody");
+  box.textContent = "";
+  for (let k = 0; k < PER_PAGE; k++) {
+    const i = p * PER_PAGE + k;
+    if (i >= PAIR_SETS.length) break;
+    box.appendChild(buildPairQuestion(i));
+  }
+  $("pairNextLabel").textContent = p + 1 >= PAIR_PAGES ? "다음 — 여행 스타일" : "다음";
+  paintPairNext();
+}
+
+function buildPairQuestion(i) {
+  const wrap = document.createElement("div");
+  wrap.className = "pq";
+
+  const h = document.createElement("p");
+  h.className = "pqh";
+  h.textContent = (i + 1) + "번째 질문 — 어느 쪽으로 가시겠어요?";
+  wrap.appendChild(h);
+
+  /* 🔴 위아래를 문항마다 무작위로 뒤집는다. 고정하면 "위쪽을 더 고른다" 는
+        위치 편향이 통째로 결과에 섞이고 나중에 분리할 수 없다.
+        한 번 정한 순서는 이전 장으로 돌아왔다 와도 안 바뀐다 —
+        바뀌면 방금 본 것과 달라져서 사람이 혼란스럽다.
+        🔴 어느 쪽이 위였는지를 응답에 남긴다(top_was). 안 남기면 못 뺀다. */
+  if (state.pairTopWas[i] === null) state.pairTopWas[i] = Math.random() < 0.5 ? 0 : 1;
+  const top = state.pairTopWas[i], bottom = 1 - top;
+  const now = state.pair[i];
+
+  const box = document.createElement("div");
+  box.className = "pairs";
+  box.setAttribute("role", "radiogroup");
+  for (const [idx, label] of [[top, "가"], [bottom, "나"]]) {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "pcard" + (now && now.chosen === idx ? " on" : "");
+    b.setAttribute("role", "radio");
+    b.setAttribute("aria-checked", String(!!(now && now.chosen === idx)));
+
+    const lbl = document.createElement("span");
+    lbl.className = "lbl";
+    lbl.textContent = label;
+    b.appendChild(lbl);
+
+    const alt = PAIR_SETS[i].alternatives[idx];
+    for (const u of PAIR_ATTR_UI) {
+      const row = document.createElement("div");
+      row.className = "prow";
+      const k = document.createElement("span"); k.className = "k"; k.textContent = u.name;
+      const v = document.createElement("span"); v.className = "v"; v.textContent = u.fmt(alt[u.key]);
+      row.appendChild(k); row.appendChild(v);
+      b.appendChild(row);
+    }
+    b.addEventListener("click", () => pickPair(i, idx));
+    box.appendChild(b);
+  }
+  wrap.appendChild(box);
+
+  const ask = document.createElement("p");
+  ask.className = "ask";
+  ask.textContent = "둘 다 아니어도, 그나마 끌리는 쪽으로 골라 주세요.";
+  wrap.appendChild(ask);
+  return wrap;
+}
+
+/* 🔴 건너뛰기가 없다. 한 장의 두 문항을 다 골라야 다음으로 간다.
+      세 문항(교통 · 숙소 · 식사)은 건너뛸 수 있지만 여기는 아니다 —
+      강제 선택이 짝 비교의 본체라, 건너뛸 수 있으면 배수를 아무것도 못 잰다.
+      대신 여섯 문항뿐이고 "정답이 없다" 고 화면에 적어 두었다. */
+function pickPair(i, idx) {
+  const t = performance.now();
+  state.pair[i] = { chosen: idx, msBucket: bucketOf(t - pairMarkAt) };
+  pairMarkAt = t;              /* 다음 문항의 시간은 여기서부터 잰다 */
+  renderPairPage(pairPage);    /* 누른 것이 보이게 다시 그린다 */
+}
+
+/* 이 장을 다 골랐나. 다 골라야 "다음" 이 켜진다 — 안 막으면 안 고르고
+   넘어가고, 그 자리는 나중에 지어낼 수 없다. 대신 몇 개 남았는지를 버튼
+   아래에 글자로 알려 준다 (버튼만 꺼 두면 사람은 화면이 고장 난 줄 안다). */
+function paintPairNext() {
+  let left = 0;
+  for (let k = 0; k < PER_PAGE; k++) {
+    const i = pairPage * PER_PAGE + k;
+    if (i < PAIR_SETS.length && state.pair[i] === null) left += 1;
+  }
+  $("pairNext").disabled = left > 0;
+  $("pairLeft").textContent = left > 0
+    ? "이 장에서 " + left + "문항이 남았어요. 두 문항을 다 고르시면 넘어갑니다."
+    : "";
+}
+
+$("pairNext").addEventListener("click", () => goPair(pairPage + 1));
+$("pairBack").addEventListener("click", () => goPair(pairPage - 1));
+
+/* ── 개인화 세 문항 — 화면 만들기 ─────────────────────────────────
+   한 화면에 한 문항이다. 세 개를 한 화면에 놓으면 "설문" 으로 보이고 이탈한다.
+   ─────────────────────────────────────────────────────────────── */
+const mainSec = $("scMain");
+
+SPEND_QUESTIONS.forEach((q, qi) => {
+  const sec = document.createElement("section");
+  sec.className = "screen";
+  sec.id = "scQ" + (qi + 1);
+
+  const h = document.createElement("h2");
+  h.className = "section";
+  h.style.marginTop = "44px";
+  h.innerHTML = q.title;                       /* 위 상수의 고정된 글이다. 사람이 적은 글이 아니다 */
+  sec.appendChild(h);
+
+  /* 머리말은 첫 문항에만. 세 번 반복하면 읽지 않는다 */
+  if (qi === 0) {
+    const l = document.createElement("p");
+    l.className = "hint";
+    l.textContent = SPEND_LEAD.lede;
+    sec.appendChild(l);
+  }
+
+  const box = document.createElement("div");
+  box.className = "opts";
+  box.setAttribute("role", "radiogroup");
+  for (const o of q.options) {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "opt";
+    b.setAttribute("role", "radio");
+    b.setAttribute("aria-checked", "false");
+    b.dataset.v = o.v === null ? "" : o.v;     /* 빈 문자열 = 건너뛰기 선택지 */
+    const dot = document.createElement("span");
+    dot.className = "dot";
+    b.appendChild(dot);
+    const txt = document.createElement("span");
+    const t = document.createElement("b");
+    t.textContent = o.t;
+    txt.appendChild(t);
+    if (o.s) { const s = document.createElement("s"); s.textContent = o.s; txt.appendChild(s); }
+    b.appendChild(txt);
+    /* 누르면 고르기만 하고 넘어가지 않는다. 손이 미끄러진 사람이 되돌릴 수 있어야 한다.
+       넘어가는 것은 "다음" 하나가 한다 */
+    b.addEventListener("click", () => pickSpend(qi, o.v));
+    box.appendChild(b);
+  }
+  sec.appendChild(box);
+
+  const next = document.createElement("button");
+  next.type = "button"; next.className = "btn-big"; next.style.marginTop = "36px";
+  /* 🔴 안 골라도 넘어간다. 다음 버튼을 막지 않는다 — 막으면 아무거나 찍는다.
+        안 고르고 넘어간 것은 "봤는데 건너뛰었다" 로 저장된다.
+        (짝 비교는 반대로 막는다. 거기서는 강제 선택이 문항의 본체다.) */
+  next.innerHTML = '<span>다음</span><span class="arrow">→</span>';
+  next.addEventListener("click", () => goSpend(qi + 1));
+  sec.appendChild(next);
+
+  const nav = document.createElement("div");
+  nav.className = "navrow";
+  const back = document.createElement("button");
+  back.type = "button"; back.className = "btn-ghost"; back.textContent = "이전";
+  back.addEventListener("click", () => goSpend(qi - 1));
+  nav.appendChild(back);
+
+  /* 🔴 건너뛰기가 항상 보인다. 숨겨 두지 않는다.
+        1 · 2번 문항은 마지막 선택지("잘 모르겠어요" · "아직 안 정했어요")가 곧
+        건너뛰기지만, 3번 문항은 마지막 선택지가 답("그날그날 달라요")이라
+        건너뛸 자리가 없다. 그래서 세 화면 모두 이 버튼을 같은 자리에 둔다. */
+  const skip = document.createElement("button");
+  skip.type = "button"; skip.className = "btn-ghost"; skip.textContent = "건너뛰기";
+  skip.addEventListener("click", () => { pickSpend(qi, null); goSpend(qi + 1); });
+  nav.appendChild(skip);
+  sec.appendChild(nav);
+
+  if (qi === 0) {
+    /* 전체 건너뛰기 — 그때도 세 문항이 전부 "건너뜀" 으로 저장된다.
+       아무것도 저장 안 하는 것과 다르다: "물어봤는데 안 답했다" 는 정보다 */
+    const all = document.createElement("button");
+    all.type = "button"; all.className = "linkbtn";
+    all.textContent = "세 문항 모두 건너뛰기";
+    all.addEventListener("click", () => {
+      for (let i = 0; i < SPEND_QUESTIONS.length; i++) pickSpend(i, null);
+      goSpend(SPEND_QUESTIONS.length);
+    });
+    sec.appendChild(all);
+  }
+
+  /* 화면 순서가 짝 비교 → 세 문항 → 장소 추천 이라 그 사이에 끼운다.
+     (어느 화면이 보이는지는 .on 클래스가 정하므로 DOM 순서가 동작을 바꾸지는
+      않는다. 읽는 사람이 헷갈리지 않게 맞춰 둘 뿐이다.) */
+  mainSec.parentNode.insertBefore(sec, mainSec);
+});
+
+/* 고른 것을 상태에 넣는다. null 이면 키를 지운다 — null 을 값으로 넣지 않는다 */
+function pickSpend(qi, v) {
+  const key = SPEND_QUESTIONS[qi].key;
+  if (v === null) { delete state.spend[key]; state.spendSkip[key] = true; }
+  else            { state.spend[key] = v;    delete state.spendSkip[key]; }
+  paintSpend(qi);
+}
+
+/* 그 화면의 "골랐다" 표시를 다시 그린다 (되돌아왔을 때도 그대로 보이게) */
+function paintSpend(qi) {
+  const key = SPEND_QUESTIONS[qi].key;
+  const now = state.spend[key];
+  document.querySelectorAll("#scQ" + (qi + 1) + " .opt").forEach(b => {
+    /* 빈 dataset.v = 건너뛰기 선택지. 그것도 "골랐다" 로 보여 준다 —
+       눌렀는데 아무 일도 안 일어나면 사람은 고장 난 줄 알고 아무거나 다시 누른다 */
+    const mine = b.dataset.v === "" ? !!state.spendSkip[key] : b.dataset.v === now;
+    b.classList.toggle("on", mine);
+    b.setAttribute("aria-checked", String(mine));
+  });
+}
+
+/* i 번째 문항 화면으로 간다. -1 이면 짝 비교 마지막 장, 3 이면 장소 추천 */
+function goSpend(i) {
+  if (i < 0) { goPair(PAIR_PAGES - 1); return; }
+  if (i >= SPEND_QUESTIONS.length) { goMain(); return; }
+  paintSpend(i);
+  show("scQ" + (i + 1));
+  $("top").classList.remove("hide");
+  setTop(i + 1, SPEND_QUESTIONS.length, "여행 스타일");
+  window.scrollTo(0, 0);
+}
+
+/* ── 장소 추천 화면 ──────────────────────────────────────────── */
+function goMain() {
+  show("scMain");
+  $("top").classList.remove("hide");
+  window.scrollTo(0, 0);
+  paint();
+}
+
+/* ── 고지 화면 ───────────────────────────────────────────────── */
 $("consent").addEventListener("change", e => { $("start").disabled = !e.target.checked; });
 $("start").addEventListener("click", () => {
   if (!$("consent").checked) return;
-  $("top").classList.remove("hide");
-  show("scMain");
-  window.scrollTo(0, 0);
-  paint();
+  /* 🔴 동의 다음은 **짝 비교**다. 개인화 세 문항은 그 뒤에 온다. */
+  goPair(0);
 });
 
 /* ── 제출 ────────────────────────────────────────────────────── */
@@ -1115,6 +1767,15 @@ $("submit").addEventListener("click", async () => {
   const trouble = [];
   if (!state.ageBand)    trouble.push({ text: "나이대를 골라 주세요.", slot: -1 });
   if (!state.busanYears) trouble.push({ text: "부산에 얼마나 사셨는지 골라 주세요.", slot: -1 });
+
+  /* 🔴 짝 비교를 다 안 골랐으면 여기서 막는다. 화면 흐름상 여섯을 다 고르지
+        않으면 이 화면까지 못 오지만, 안 막으면 서버가 400 으로 거절하고
+        사람은 다섯 칸을 다 적은 뒤에야 "왜 안 되지" 를 겪는다.
+        반쪽짜리 짝 비교는 안 받는다 — 빠진 자리는 나중에 지어내게 된다. */
+  const pairLeft = state.pair.filter(p => p === null).length;
+  if (pairLeft > 0) {
+    trouble.push({ text: "두 곳 중 고르기 " + pairLeft + "문항이 남아 있어요.", slot: -1 });
+  }
 
   /* 🔴 전화번호는 선택이라 비어 있으면 그냥 통과. 값이 있을 때만 모양을 본다 */
   $("phoneBlock").classList.remove("bad");
@@ -1168,6 +1829,32 @@ $("submit").addEventListener("click", async () => {
     ageBand: state.ageBand,
     busanYears: state.busanYears,
     phone: normalizePhone(state.phone) || null,   /* 선택. 안 적었으면 null */
+    /* 🔴 답한 키만 담는다. 건너뛴 문항은 키가 아예 없다 — null 을 넣지 않는다.
+          🔴 그리고 하나도 안 골랐어도 {} 를 반드시 보낸다. 이 칸을 통째로 빼면
+             서버가 "아직 안 물어봤다" 로 읽는데, 이 화면은 물어봤다. */
+    spendProfile: Object.assign({}, state.spend),
+    /* 🔴 짝 비교 — 세 문항 답과 **같은 요청**으로 간다. 그래서 둘이 갈라지지
+          않고, 이을 새 식별자도 필요 없다. 서버가 둘을 response 의 같은 줄에
+          넣는다 (그 줄의 nonce 가 그 응답 하나를 가리킨다).
+          🔴 보내는 것은 **어느 문항의 어느 쪽을 골랐나** 뿐이다. 카드에 적혀
+             있던 조건(가격 · 분)은 안 보낸다 — 서버가 자기가 가진 문항 정의에서
+             찾아 표에 적는다. 화면이 보낸 숫자를 그대로 저장하면 주소창으로
+             "가격 1원짜리를 봤다" 를 꾸며 넣을 수 있다.
+          🔴 함정 문항도 여기 같이 실려 간다. 통과했는지는 화면이 안 정하고
+             서버가 판정한다 — 화면이 정하면 "통과했다" 를 그냥 보낼 수 있다.
+             표에서는 is_trap 으로 갈라져 계수 계산에서 빠진다. */
+    pairwise: {
+      designId: DESIGN.designId,
+      choices: PAIR_SETS.map((s, i) => {
+        const a = state.pair[i];
+        return a === null ? null : {
+          setId: s.setId,
+          chosen: a.chosen,
+          topWas: state.pairTopWas[i],   /* 화면에서 위에 있던 쪽 */
+          msBucket: a.msBucket
+        };
+      }).filter(Boolean)
+    },
     recommendations: state.slots.map((s, i) => ({
       slot: i + 1, placeType: s.type, placeName: s.name,
       whenGood: s.whenGood, limitedTime: s.limited, reason: s.reason,

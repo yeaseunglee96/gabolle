@@ -25,6 +25,21 @@
 --    실제로 있는 id 인지 확인한 뒤에만 넣는다.
 --    🔴 이미 떠 있는 서버의 표는 이 파일이 다시 안 돈다(위 6번 줄). 그쪽은
 --    survey-recommend/migrations/0001_add_place_id.sql 을 손으로 돌려야 한다.
+--
+-- 🔴 2026-09-10 (같은 티켓) response 에 개인화 세 문항(spend_profile ·
+--    spend_profile_status)과 설문 판 번호(form_version)가, 그리고 짝 비교
+--    (pairwise_status · pairwise_design_id · pairwise_trap_passed + 새 표
+--    pairwise_choice + 뷰 pairwise_choice_real)가 더 생겼다.
+--    🔴 이미 떠 있는 서버는 이 파일이 다시 안 돈다. 그쪽은
+--    migrations/0002_add_spend_profile.sql 과 0003_add_pairwise.sql 을
+--    **순서대로** 손으로 돌려야 한다. 이 파일과 그 둘은 **같은 결과**를
+--    내야 한다 — 칸 이름 · 제약 이름 · 제약 내용을 한 글자도 다르지 않게 맞춘다.
+--    (한쪽만 고치면 새로 띄운 DB 와 살아 있는 DB 가 서로 다른 표가 되고,
+--     그건 두 DB 의 응답을 합치려는 날에야 드러난다.)
+--
+-- 🔴 새로 더한 칸은 전부 NULL 허용이다. NULL 이 곧 "그 판에서는 안 물어봤음"
+--    이다. 이미 응답이 들어 있는 표에 NOT NULL 을 걸면 ALTER 가 거부되고
+--    살아 있는 설문이 그 자리에서 멈춘다.
 
 BEGIN;
 
@@ -51,6 +66,35 @@ CREATE TABLE IF NOT EXISTS response (
   -- 같은 응답이 두 번 들어왔는지만 본다. 사람을 가리키지 않는다.
   nonce         TEXT        NOT NULL UNIQUE,
 
+  -- ── 개인화 세 문항 (오는 교통 · 숙소 · 식사) — migrations/0002 와 같은 것 ──
+  -- 세 문항을 세 칸으로 쪼개지 않았다. 문항을 하나 늘릴 때마다 고쳐야 하는
+  -- 곳이 세 배가 되고, 그러다 한 곳을 빠뜨리면 조용히 깨진다.
+  -- 🔴 답한 키만 들어간다. 건너뛴 키는 null 이 아니라 아예 없다.
+  spend_profile        JSONB,
+  -- NULL = 안 물어봤음 · 'SELECTED' = 하나 이상 골랐음 · 'SKIPPED' = 봤는데 안 골랐음.
+  -- 값이 비어 있는 이유가 셋이라 값만으로는 못 가린다.
+  spend_profile_status TEXT,
+
+  -- 🔴 이 응답이 어느 판의 설문에 답했나.
+  --      NULL 또는 1 = 이 칸이 생기기 전 판 (추천 다섯 곳 · 전화번호 · 가게 자동완성)
+  --      2           = 개인화 세 문항이 붙은 판
+  --      3           = 짝 비교까지 붙은 판
+  --    없으면 나중에 반드시 이렇게 잘못 읽는다: "응답 100건 중 짝 비교가
+  --    60건뿐이네 → 응답률 60%". 사실은 40건이 그 문항이 생기기 **전에**
+  --    들어온 것이라 응답률은 100% 다.
+  form_version         SMALLINT DEFAULT 1,
+
+  -- ── 짝 비교 여섯 문항 (화면 3장 × 2문항) — migrations/0003 과 같은 것 ──
+  -- NULL = 안 물어봤음 · 'ANSWERED' = 여섯 문항을 다 답했음.
+  -- 🔴 'SKIPPED' 가 없다. 짝 비교 화면에는 건너뛰기가 없기 때문이다 —
+  --    강제 선택이 짝 비교의 본체라, 건너뛸 수 있으면 배수를 못 잰다.
+  pairwise_status      TEXT,
+  pairwise_design_id   TEXT,
+  -- 함정 문항을 통과했나. pairwise_choice 의 함정 줄에서 나오는 값이지만,
+  -- 응답 단위로 거르는 일이 잦아 여기에도 둔다. 둘 다 server.mjs 가
+  -- 같은 트랜잭션에서 같은 문항 정의를 보고 적는다.
+  pairwise_trap_passed BOOLEAN,
+
   -- 🔴 2026-09-09 (S15P21E201-754, 팀원 피드백) 다섯 칸 → 세 칸으로 바꿨다.
   --    UNDER_20 · AGE_20_24 · AGE_25_29 · AGE_30_34 · AGE_35_PLUS 를 버리고
   --    AGE_20_39 · AGE_40_59 · AGE_60_79 로 다시 나눴다. DB 가 그때까지
@@ -68,7 +112,39 @@ CREATE TABLE IF NOT EXISTS response (
   CONSTRAINT response_busan_years_ok CHECK (busan_years IN (
     'BORN_HERE', 'OVER_20Y', 'Y_10_20', 'Y_5_10', 'UNDER_5Y', 'VISITED_ONLY')),
   CONSTRAINT response_consented_ok CHECK (consented IS TRUE),
-  CONSTRAINT response_phone_ok CHECK (phone IS NULL OR phone ~ '^01[016789][0-9]{7,8}$')
+  CONSTRAINT response_phone_ok CHECK (phone IS NULL OR phone ~ '^01[016789][0-9]{7,8}$'),
+
+  -- 🔴 아래 다섯 제약은 migrations/0002 · 0003 이 ALTER 로 더하는 것과
+  --    이름도 내용도 같아야 한다.
+  CONSTRAINT response_spend_profile_status_ok
+    CHECK (spend_profile_status IS NULL OR spend_profile_status IN ('SELECTED', 'SKIPPED')),
+  -- 고른 답에는 값이 반드시 있고, 건너뜀·안 물어봄에는 값을 실을 수 없다
+  CONSTRAINT ck_spend_profile_value_matches_status CHECK (
+    -- 🔴 CASE 로 쓴다. OR 로 늘어놓으면 상태가 NULL 일 때 각 가지가
+    --    TRUE/FALSE 가 아니라 **NULL** 이 되고, CHECK 는 NULL 을 통과시킨다
+    --    (SQL 의 3값 논리 — 거짓이 아니라 "모른다" 라서 안 막는다).
+    --    실제로 그렇게 안 막히는 것을 확인하고 고쳤다.
+    CASE WHEN spend_profile_status = 'SELECTED'
+         THEN spend_profile IS NOT NULL
+              AND jsonb_typeof(spend_profile) = 'object'
+              AND spend_profile <> '{}'::jsonb
+         ELSE spend_profile IS NULL
+    END),
+  -- 바깥 껍데기(키 이름)는 여기서 막고, 안쪽 코드값은 server.mjs 가 막는다
+  CONSTRAINT ck_spend_profile_keys_known CHECK (
+    spend_profile IS NULL
+    OR spend_profile - ARRAY['transport', 'stay', 'meal'] = '{}'::jsonb),
+  CONSTRAINT response_form_version_ok CHECK (form_version IS NULL OR form_version >= 1),
+  CONSTRAINT response_pairwise_status_ok
+    CHECK (pairwise_status IS NULL OR pairwise_status = 'ANSWERED'),
+  CONSTRAINT ck_pairwise_value_matches_status CHECK (
+    -- 🔴 여기도 CASE 다 (위 ck_spend_profile_value_matches_status 와 같은 이유).
+    CASE WHEN pairwise_status = 'ANSWERED'
+         THEN pairwise_design_id IS NOT NULL
+              AND length(btrim(pairwise_design_id)) BETWEEN 1 AND 60
+              AND pairwise_trap_passed IS NOT NULL
+         ELSE pairwise_design_id IS NULL AND pairwise_trap_passed IS NULL
+    END)
 );
 
 -- ── 그 응답이 추천한 곳 (한 건당 다섯 줄) ─────────────────────────
@@ -117,5 +193,74 @@ CREATE TABLE IF NOT EXISTS recommendation (
 
 CREATE INDEX IF NOT EXISTS recommendation_response_idx ON recommendation (response_id);
 CREATE INDEX IF NOT EXISTS recommendation_type_idx     ON recommendation (place_type);
+
+-- ── 짝 비교: 문항 하나 = 줄 하나 ──────────────────────────────────
+-- 🔴 아래는 migrations/0003_add_pairwise.sql 과 같은 것이다. 한 글자도
+--    다르지 않게 맞춘다 (거기에 왜 이렇게 생겼는지가 자세히 적혀 있다).
+--
+-- 🔴 보여준 두 카드의 조건을 줄마다 그대로 적는다. design.mjs 를 열지 않아도
+--    이 표만으로 조건부 로짓(여러 대안 중 하나를 고른 기록에서 각 조건의
+--    무게를 역산하는 계산)을 돌릴 수 있어야 한다. 값을 채우는 것은
+--    server.mjs 이고, 화면이 보낸 숫자가 아니라 자기가 가진 문항 정의에서
+--    set_id 로 찾아 적는다.
+CREATE TABLE IF NOT EXISTS pairwise_choice (
+  id            BIGSERIAL PRIMARY KEY,
+  response_id   BIGINT      NOT NULL REFERENCES response(id) ON DELETE CASCADE,
+
+  design_id     TEXT        NOT NULL,
+  set_id        TEXT        NOT NULL,
+
+  -- 🔴 함정 문항인가. 성의를 재는 문항이지 취향을 재는 문항이 아니다 —
+  --    계수 계산에 섞이면 아무거나 찍은 사람이 "아무거나 좋아하는 사람" 이 된다.
+  is_trap       BOOLEAN     NOT NULL DEFAULT FALSE,
+  trap_correct  SMALLINT,
+
+  -- 화면 3장 중 몇 번째 장이었나 (한 장에 두 문항)
+  page_no       SMALLINT    NOT NULL,
+
+  -- 고른 쪽 (alt0 / alt1). 화면의 위/아래가 아니다
+  chosen        SMALLINT    NOT NULL,
+  -- 🔴 화면에서 위에 있던 쪽. 안 남기면 위치 편향을 나중에 못 뺀다
+  top_was       SMALLINT    NOT NULL,
+  -- 🔴 걸린 시간은 초가 아니라 구간으로만 (0~7)
+  ms_bucket     SMALLINT    NOT NULL,
+
+  -- 보여준 카드 두 장의 조건
+  alt0_price        INTEGER  NOT NULL,
+  alt0_walk_min     SMALLINT NOT NULL,
+  alt0_queue_min    SMALLINT NOT NULL,
+  alt0_same_street  SMALLINT NOT NULL,
+  alt0_fame         TEXT     NOT NULL,
+  alt1_price        INTEGER  NOT NULL,
+  alt1_walk_min     SMALLINT NOT NULL,
+  alt1_queue_min    SMALLINT NOT NULL,
+  alt1_same_street  SMALLINT NOT NULL,
+  alt1_fame         TEXT     NOT NULL,
+
+  CONSTRAINT pairwise_choice_chosen_ok    CHECK (chosen    IN (0, 1)),
+  CONSTRAINT pairwise_choice_top_was_ok   CHECK (top_was   IN (0, 1)),
+  CONSTRAINT pairwise_choice_ms_bucket_ok CHECK (ms_bucket BETWEEN 0 AND 7),
+  CONSTRAINT pairwise_choice_page_no_ok   CHECK (page_no   BETWEEN 1 AND 99),
+  CONSTRAINT pairwise_choice_fame_ok      CHECK (alt0_fame IN ('LOCAL_ONLY', 'SNS_FAMOUS')
+                                            AND alt1_fame IN ('LOCAL_ONLY', 'SNS_FAMOUS')),
+  CONSTRAINT pairwise_choice_differ_ok    CHECK (
+    (alt0_price, alt0_walk_min, alt0_queue_min, alt0_same_street, alt0_fame) IS DISTINCT FROM
+    (alt1_price, alt1_walk_min, alt1_queue_min, alt1_same_street, alt1_fame)),
+  CONSTRAINT pairwise_choice_trap_ok      CHECK (
+    -- 🔴 IS NOT NULL 을 반드시 앞에 둔다. `NULL IN (0,1)` 은 FALSE 가
+    --    아니라 NULL 이고, CHECK 는 NULL 을 통과시킨다 — 그래서 예전 판은
+    --    "함정인데 정답 칸이 빈" 줄을 안 막았다. 실측으로 잡았다.
+    CASE WHEN is_trap THEN trap_correct IS NOT NULL AND trap_correct IN (0, 1)
+         ELSE trap_correct IS NULL
+    END),
+  CONSTRAINT pairwise_choice_one_per_set  UNIQUE (response_id, set_id)
+);
+
+CREATE INDEX IF NOT EXISTS pairwise_choice_response_idx ON pairwise_choice (response_id);
+CREATE INDEX IF NOT EXISTS pairwise_choice_set_idx      ON pairwise_choice (set_id);
+
+-- 🔴 추정에는 이 뷰를 쓴다. 함정이 빠져 있다.
+CREATE OR REPLACE VIEW pairwise_choice_real AS
+  SELECT * FROM pairwise_choice WHERE is_trap IS FALSE;
 
 COMMIT;

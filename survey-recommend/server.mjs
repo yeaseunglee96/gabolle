@@ -100,6 +100,50 @@ function searchPlaces(qRaw, guRaw) {
   }));
 }
 
+/* ── 짝 비교 문항 정의 — 🔴 여기에 다시 적지 않는다 (S15P21E201-754) ───
+ * index.html 안의 <script id="design"> 블록을 그대로 읽어 쓴다. 그 블록을
+ * 만드는 것은 design.mjs 다 (손으로 고치지 않는다).
+ *
+ * 왜 이렇게 하나: 문항 목록을 서버에도 한 벌 적으면 두 벌이 되고, 두 벌은
+ * 반드시 어긋난다. 어긋나면 사람은 화면에서 다 답하고 서버에서 거절당한다.
+ * 파일이 하나라서 그 위험 자체가 없다.
+ * ────────────────────────────────────────────────────────────────── */
+function readDesign(html) {
+  const open = '<script id="design" type="application/json">';
+  const i = html.indexOf(open);
+  if (i < 0) return null;
+  const j = html.indexOf("<" + "/script>", i);
+  if (j < 0) return null;
+  try { return JSON.parse(html.slice(i + open.length, j)); } catch { return null; }
+}
+
+const DESIGN = readDesign(PAGE.toString("utf8"));
+/* 🔴 문항이 없으면 뜨지 않는다. 그냥 뜨면 짝 비교 답이 전부 거절당하는데,
+      화면에는 400 만 보이고 왜인지는 아무도 모른다. */
+if (!DESIGN || !Array.isArray(DESIGN.sets) || DESIGN.sets.length === 0) {
+  console.error("index.html 에 짝 비교 문항이 없다 — node design.mjs 를 먼저 돌려 주세요.");
+  process.exit(1);
+}
+/* 🔴 함정이 없으면 뜨지 않는다. 함정이 없으면 아무거나 찍은 사람이
+      "아무거나 좋아하는 사람" 으로 학습되고, 그건 결과만 봐서는 안 보인다. */
+const TRAP_SET = DESIGN.sets.find(s => s.trap) || null;
+if (!TRAP_SET || (TRAP_SET.trapCorrect !== 0 && TRAP_SET.trapCorrect !== 1)) {
+  console.error("짝 비교 문항에 함정이 없다 — design.mjs 의 TRAP_AT 을 확인해 주세요.");
+  process.exit(1);
+}
+/* set_id → 문항 정의. 🔴 화면이 보낸 조건값을 믿지 않고 여기서 찾아 쓴다 */
+const SET_BY_ID = new Map(DESIGN.sets.map(s => [s.setId, s]));
+/* 한 장에 몇 문항인가 — 표의 page_no 를 화면과 같은 규칙으로 여기서 센다 */
+const PER_PAGE = DESIGN.perPage || 2;
+/* 응답 시간 구간의 최댓값. 화면도 표(ms_bucket 제약)도 같은 수에서 나온다 */
+const MS_BUCKET_MAX = (DESIGN.msBuckets || []).length;
+console.log(`짝 비교 문항 ${DESIGN.sets.length}개 (${DESIGN.designId})`);
+
+/* 🔴 이 응답이 어느 판의 설문에 답했나 — schema.sql · migrations/0002 참고.
+      1 = 짝 비교도 세 문항도 없던 판 · 2 = 세 문항이 붙은 판 · 3 = 짝 비교까지.
+      이 숫자를 안 올리면 옛 응답과 섞여서 "짝 비교 응답률이 낮다" 로 잘못 읽힌다. */
+const FORM_VERSION = 3;
+
 const pool = new pg.Pool({
   connectionString: process.env.DATABASE_URL,
   max: 4,
@@ -142,6 +186,126 @@ const BUSAN_YEARS = new Set(["BORN_HERE", "OVER_20Y", "Y_10_20", "Y_5_10", "UNDE
 const PLACE_TYPES = new Set(["FOOD", "CAFE", "NATURE", "CULTURE", "MARKET", "ACTIVITY", "BAR"]);
 const WHEN_GOOD   = new Set(["DAY", "NIGHT", "ANY"]);
 const NEED = 5;
+
+/* ── 맨 앞의 개인화 세 문항 (오는 교통 · 숙소 · 식사) ────────────────
+ * 코드값은 docs/COLDSTART-THREE-QUESTIONS.md 3.2 의 "안 B — 눈금형" 이다.
+ * 등급형(LOW/MID/HIGH)이 아니라 눈금형을 쓰기로 사람이 정했다.
+ *
+ * 🔴 여기가 유일한 방벽이다. DB 는 JSONB 안쪽 글자를 안 막는다.
+ *    화면(index.html 의 SPEND_QUESTIONS)과 이 목록은 같아야 한다.
+ *    한쪽만 고치면 사람은 화면에서 통과하고 서버에서 거절당한다.
+ * ────────────────────────────────────────────────────────────────── */
+const SPEND_CHOICES = {
+  transport: new Set(["PRICE_FIRST", "TIME_AND_PRICE", "COMFORT_FIRST"]),
+  stay:      new Set(["KRW_UNDER_50K", "KRW_50K_120K", "KRW_120K_250K", "KRW_OVER_250K"]),
+  /* VARIES("그날그날 달라요")는 건너뛴 것이 아니라 답이다 —
+     "가격대를 고정하지 않는 사람" 이라는 정보가 있어서 저장은 하고 계산에서만 뺀다. */
+  meal:      new Set(["EVERYDAY_LOCAL", "KNOWN_IN_AREA", "SPECIAL_BOOKED", "VARIES"])
+};
+const SPEND_LABEL = { transport: "오는 교통", stay: "숙소", meal: "식사" };
+
+/* 들어온 세 문항 답을 읽는다. 🔴 셋을 가른다 —
+ *   null     : spendProfile 이 아예 없다 = 아직 안 물어봤다 (표에서도 NULL)
+ *   SKIPPED  : 물어봤는데 하나도 안 골랐다 ({} 로 온다)
+ *   SELECTED : 하나 이상 골랐다
+ * 건너뛴 키는 null 이 아니라 아예 없다.
+ * 상태는 클라이언트가 보낸 것을 믿지 않고 여기서 정한다. */
+function readSpendProfile(v) {
+  if (v === undefined) return { status: null, value: null };
+  if (v === null || typeof v !== "object" || Array.isArray(v)) {
+    return { error: "여행 스타일 세 문항의 답을 읽지 못했어요." };
+  }
+  const picked = Object.create(null);
+  for (const key of Object.keys(v)) {
+    /* 🔴 hasOwn 으로 본다. SPEND_CHOICES["__proto__"] 는 목록에 없는데도
+          Object.prototype 이 나와서 "있다" 로 읽힌다. 그러면 그 다음 줄이
+          터지고 요청이 답 없이 매달린다. */
+    const allowed = Object.hasOwn(SPEND_CHOICES, key) ? SPEND_CHOICES[key] : null;
+    /* 🔴 모르는 키 이름을 메시지에 그대로 되돌려 주지 않는다.
+          이 서버는 사람이 적은 글을 어디에도 다시 내보내지 않는다. */
+    if (!allowed) return { error: "여행 스타일 답에 모르는 항목이 있어요." };
+    const code = v[key];
+    if (typeof code !== "string" || !allowed.has(code)) {
+      return { error: `여행 스타일의 “${SPEND_LABEL[key]}” 답이 목록에 없는 값이에요.` };
+    }
+    picked[key] = code;
+  }
+  return Object.keys(picked).length === 0
+    ? { status: "SKIPPED",  value: null }
+    : { status: "SELECTED", value: picked };
+}
+
+/* ── 짝 비교 여섯 문항 (화면 3장 × 2문항) ────────────────────────────
+ * 🔴 여기가 유일한 방벽이다. 화면만 믿으면 주소창으로 직접 보내는 것을 못 막는다.
+ *
+ * 🔴 둘을 가른다 —
+ *   null     : pairwise 가 아예 없다 = 아직 안 물어봤다 (표에서도 NULL)
+ *   ANSWERED : 여섯 문항을 다 답했다
+ *   ...SKIPPED 는 없다. 화면에 건너뛰기가 없기 때문이다 — 두 카드 중 하나를
+ *   눌러야 다음으로 간다. 강제 선택이 짝 비교의 본체다. 그래서 "일부만
+ *   답했다" 도 안 받는다. 반쪽짜리는 나중에 빠진 자리를 지어내게 만든다.
+ * ────────────────────────────────────────────────────────────────── */
+const isBit = v => v === 0 || v === 1;
+const okBucket = v => Number.isInteger(v) && v >= 0 && v <= MS_BUCKET_MAX;
+
+function readPairwise(v) {
+  if (v === undefined) {
+    return { status: null, designId: null, trapPassed: null, rows: [] };
+  }
+  if (v === null || typeof v !== "object" || Array.isArray(v)) {
+    return { error: "두 곳 중 고르기 답을 읽지 못했어요." };
+  }
+  /* 🔴 화면과 서버가 서로 다른 문항을 들고 있으면 그 응답은 못 쓴다 —
+        s01 이 서로 다른 질문이 되어 버린다. */
+  if (v.designId !== DESIGN.designId) {
+    return { error: "화면이 오래됐어요. 새로고침한 뒤 다시 해 주세요." };
+  }
+  if (!Array.isArray(v.choices)) return { error: "두 곳 중 고르기 답을 읽지 못했어요." };
+
+  const rows = [];
+  const seen = new Set();
+  let trapPassed = null;
+
+  for (const c of v.choices) {
+    if (!c || typeof c !== "object" || Array.isArray(c)) {
+      return { error: "두 곳 중 고르기 답을 읽지 못했어요." };
+    }
+    /* 🔴 모르는 set_id 를 메시지에 그대로 되돌려 주지 않는다 */
+    const set = typeof c.setId === "string" ? SET_BY_ID.get(c.setId) : null;
+    if (!set) return { error: "두 곳 중 고르기에 모르는 문항이 있어요." };
+    if (seen.has(set.setId)) return { error: "두 곳 중 고르기 답이 겹쳐서 왔어요." };
+    seen.add(set.setId);
+    if (!isBit(c.chosen) || !isBit(c.topWas)) {
+      return { error: "두 곳 중 고르기에서 어느 쪽을 고르셨는지 읽지 못했어요." };
+    }
+    if (!okBucket(c.msBucket)) return { error: "두 곳 중 고르기 답을 읽지 못했어요." };
+
+    /* 🔴 함정을 통과했는지는 **여기서** 정한다. 화면이 보낸 판정을 믿으면
+          주소창으로 "통과했다" 를 그냥 보낼 수 있고, 그러면 함정이 함정이 아니다. */
+    if (set.trap) trapPassed = c.chosen === set.trapCorrect;
+
+    /* 🔴 보여준 두 카드의 조건은 **화면이 보낸 값을 쓰지 않는다.**
+          여기 있는 문항 정의에서 set_id 로 찾아 서버가 적는다. 화면이 보낸
+          숫자를 그대로 넣으면 주소창으로 "가격 1원짜리를 봤다" 를 꾸며 넣을
+          수 있고, 그건 계수를 조용히 망가뜨린다. */
+    const [a0, a1] = set.alternatives;
+    rows.push({
+      setId: set.setId,
+      isTrap: !!set.trap,
+      trapCorrect: set.trap ? set.trapCorrect : null,
+      pageNo: Math.floor(DESIGN.sets.indexOf(set) / PER_PAGE) + 1,
+      chosen: c.chosen, topWas: c.topWas, msBucket: c.msBucket,
+      a0, a1
+    });
+  }
+
+  if (rows.length !== DESIGN.sets.length) {
+    return { error: `두 곳 중 고르기 ${DESIGN.sets.length}문항을 모두 골라 주세요.` };
+  }
+  if (trapPassed === null) return { error: "두 곳 중 고르기 문항을 모두 골라 주세요." };
+
+  return { status: "ANSWERED", designId: DESIGN.designId, trapPassed, rows };
+}
 
 /* 들어온 응답이 쓸 수 있는 모양인가. 아니면 왜 아닌지를 사람이 읽을 말로 돌려준다 */
 function check(b) {
@@ -194,16 +358,43 @@ function check(b) {
   return null;
 }
 
-async function insert(b) {
+async function insert(b, spend, pair) {
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
+    /* 🔴 개인화 세 문항 답과 짝 비교 답이 **같은 줄**에 들어간다. 그래서 이을
+          것이 없다 — 애초에 갈라지지 않는다. 새 식별자를 만들지 않는 이유가
+          이것이다: 이 줄의 nonce 가 이미 그 응답 하나를 가리키고, 짝 비교
+          여섯 줄은 이 줄의 id 를 외래키로 물고 있다. */
     const { rows } = await client.query(
-      `INSERT INTO response (age_band, busan_years, phone, consented, nonce)
-       VALUES ($1, $2, $3, TRUE, $4) RETURNING id`,
-      [b.ageBand, b.busanYears, b.phone || null, randomBytes(9).toString("base64url")]
+      `INSERT INTO response (age_band, busan_years, phone, consented, nonce, form_version,
+                             spend_profile, spend_profile_status,
+                             pairwise_status, pairwise_design_id, pairwise_trap_passed)
+       VALUES ($1, $2, $3, TRUE, $4, $5, $6, $7, $8, $9, $10) RETURNING id`,
+      [b.ageBand, b.busanYears, b.phone || null, randomBytes(9).toString("base64url"),
+       FORM_VERSION,
+       spend.value ? JSON.stringify(spend.value) : null, spend.status,
+       pair.status, pair.designId, pair.trapPassed]
     );
     const id = rows[0].id;
+    for (const c of pair.rows) {
+      /* 🔴 문항 하나 = 줄 하나. 보여준 두 카드의 조건이 이 줄에 그대로
+            들어간다 — 나중에 design.mjs 를 안 열어도 이 표만으로 계수를 낼 수
+            있게. 조건값은 화면이 보낸 것이 아니라 서버가 문항 정의에서 찾은 것이다. */
+      await client.query(
+        `INSERT INTO pairwise_choice
+           (response_id, design_id, set_id, is_trap, trap_correct, page_no,
+            chosen, top_was, ms_bucket,
+            alt0_price, alt0_walk_min, alt0_queue_min, alt0_same_street, alt0_fame,
+            alt1_price, alt1_walk_min, alt1_queue_min, alt1_same_street, alt1_fame)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9,
+                 $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)`,
+        [id, pair.designId, c.setId, c.isTrap, c.trapCorrect, c.pageNo,
+         c.chosen, c.topWas, c.msBucket,
+         c.a0.price, c.a0.walkMin, c.a0.queueMin, c.a0.sameStreet, c.a0.fame,
+         c.a1.price, c.a1.walkMin, c.a1.queueMin, c.a1.sameStreet, c.a1.fame]
+      );
+    }
     let slot = 0;
     for (const r of b.recommendations) {
       slot += 1;
@@ -300,8 +491,15 @@ const server = createServer((req, res) => {
       const wrong = check(body);
       if (wrong) return json(res, 400, { message: wrong });
 
+      /* 🔴 화면만 믿지 않는다. 주소창으로 직접 보내는 것도 여기서 걸러진다 */
+      const spend = readSpendProfile(body.spendProfile);
+      if (spend.error) return json(res, 400, { message: spend.error });
+
+      const pair = readPairwise(body.pairwise);
+      if (pair.error) return json(res, 400, { message: pair.error });
+
       try {
-        await insert(body);
+        await insert(body, spend, pair);
         json(res, 201, { ok: true });
       } catch (e) {
         /* 🔴 오류 이름만 찍는다. 요청 내용은 절대 찍지 않는다 —
