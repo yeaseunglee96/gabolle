@@ -38,12 +38,22 @@ public class RecommendationJobWorker {
 
 	private final Clock clock;
 
+	/**
+	 * 진행률을 화면에 알린다 — S15P21E201-193. 이 클래스가 <b>모든 끝</b>을 지나가므로
+	 * (성공 · 예상된 실패 · 판 충돌 · 예기치 않은 오류) 끝 상태를 알리는 자리를 여기 하나로
+	 * 둔다. 갈래마다 알리게 하면 언젠가 한 갈래에서 안 알리고, 그 작업의 통로는 영원히 열린
+	 * 채 남는다.
+	 */
+	private final JobProgressReporter progress;
+
 	public RecommendationJobWorker(RecommendationJobRepository jobRepository,
-			RecommendationService recommendationService, RecommendationRecorder recorder, Clock clock) {
+			RecommendationService recommendationService, RecommendationRecorder recorder, Clock clock,
+			JobProgressReporter progress) {
 		this.jobRepository = jobRepository;
 		this.recommendationService = recommendationService;
 		this.recorder = recorder;
 		this.clock = clock;
+		this.progress = progress;
 	}
 
 	/**
@@ -63,6 +73,9 @@ public class RecommendationJobWorker {
 		try {
 			job.markRunning(JobStage.CANDIDATE_GENERATION);
 			this.jobRepository.save(job);
+			// S15P21E201-193 — 저장한 뒤에 알린다. 반대로 하면 화면이 받은 진행률이 아직
+			// 표에 없는 순간이 생기고, 그 사이 다시 붙은 화면은 더 낮은 값을 본다.
+			this.progress.publishCurrent(job);
 
 			this.recommendationService.continueJob(job, command);
 		}
@@ -107,6 +120,13 @@ public class RecommendationJobWorker {
 				log.error("추천 Job 실패 기록마저 실패했습니다. jobId={}, requestId={}",
 						job.getJobId(), job.getRequestId(), recordingFailure);
 			}
+		}
+		finally {
+			// 🔴 S15P21E201-193 — 어느 갈래로 끝나든 마지막 상태를 한 번 알린다. 이것이
+			//    없으면 실패한 작업을 보고 있던 화면은 연결이 열린 채 아무 소식도 못 받는다
+			//    (진행률만 보고 있으면 "계산이 아직 도는 중" 과 구분할 수 없다).
+			//    상태가 끝이면 통로가 그 자리에서 닫힌다(JobProgressBroker.send).
+			this.progress.publishCurrent(job);
 		}
 	}
 }

@@ -13,6 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import com.gabolle.backend.recommendation.application.JobProgressBroker;
 import com.gabolle.backend.recommendation.application.RecommendationJobRunner;
 import com.gabolle.backend.recommendation.application.RecommendationResultQueryService;
 import com.gabolle.backend.recommendation.domain.JobType;
@@ -58,7 +59,10 @@ class RecommendationResultAuthorizationTest {
 
 		this.mockMvc = MockMvcBuilders
 				.standaloneSetup(
-						new RecommendationJobController(this.runner),
+						// 진행률 통로를 들고 있는 쪽(S15P21E201-193). 이 검사는 그 통로를
+						// 쓰지 않지만 컨트롤러가 요구하므로 진짜 객체를 그대로 준다 —
+						// 상태를 갖지 않아 mock 으로 대신할 이유가 없다.
+						new RecommendationJobController(this.runner, new JobProgressBroker()),
 						new RecommendationResultController(this.runner, this.resultQueryService))
 				.setControllerAdvice(new RecommendationJobExceptionHandler())
 				.build();

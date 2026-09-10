@@ -22,7 +22,10 @@ import com.gabolle.backend.trip.application.TripQueryService;
  * {@code assignableTypes = TripController.class} 로 범위가 좁혀져 있어 이 컨트롤러의 예외는
  * 어차피 거기서 안 잡힌다 — 그래서 이 컨트롤러 전용 처리기를 새로 둔다.
  */
-@RestControllerAdvice(assignableTypes = TripCollaborationController.class)
+// 갈래 열람 기록 경로(S15P21E201-475)도 이 번역기를 쓴다. 그 경로가 여행 회원 판정에
+// 같은 예외(TripQueryService.TripNotFoundException)를 쓰므로, 번역을 새로 만들면 같은
+// 잘못에 다른 응답이 나간다.
+@RestControllerAdvice(assignableTypes = { TripCollaborationController.class, TripFacetViewController.class })
 public class TripCollaborationExceptionHandler {
 
 	/**
