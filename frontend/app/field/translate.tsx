@@ -12,7 +12,6 @@ import { useRouter } from 'expo-router';
 import { color, radius, spacing } from '@/design/tokens';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
-import { Button } from '@/components/Button';
 import { PermissionRationale } from '@/components/PermissionRationale';
 import { useI18n } from '@/i18n';
 
@@ -147,8 +146,6 @@ export default function Translate() {
           </Pressable>
         ))}
       </View>
-
-      <Button label={tx('음성 통역·메뉴판 번역은 곧 추가될 예정이에요', 'Voice interpretation and menu translation are on the way')} variant="secondary" disabled containerStyle={styles.cta} />
     </Screen>
   );
 }
@@ -195,8 +192,5 @@ const styles = StyleSheet.create({
   },
   cardDesc: {
     color: color.text.body,
-  },
-  cta: {
-    marginTop: spacing[6],
   },
 });

@@ -158,8 +158,7 @@ export default function Home() {
       </ScrollView>
 
       <View style={styles.floatingStack}>
-        <Pressable accessibilityRole="button" accessibilityLabel={tx('메뉴판 번역 열기', 'Open menu translation')} onPress={() => router.push('/field/translate')} style={({ pressed }) => [styles.floatingChip, pressed && styles.assistantButtonPressed]}><Text variant="caption" weight="bold" color={color.text.heading}>{tx('메뉴판 번역', 'Menu translation')}</Text></Pressable>
-        <Pressable accessibilityRole="button" accessibilityLabel={tx('현장 말하기 열기', 'Open on-the-go phrases')} onPress={() => router.push('/field/speak')} style={({ pressed }) => [styles.floatingChip, pressed && styles.assistantButtonPressed]}><Text variant="caption" weight="bold" color={color.text.heading}>{tx('현장 말하기', 'On-the-go phrases')}</Text></Pressable>
+        <Pressable accessibilityRole="button" accessibilityLabel={tx('현장 도구 열기', 'Open on-the-go tools')} accessibilityHint={tx('현장 말하기와 메뉴판 번역을 한곳에서 씁니다', 'Use on-the-go phrases and menu translation in one place')} onPress={() => router.push('/field/translate')} style={({ pressed }) => [styles.floatingChip, pressed && styles.assistantButtonPressed]}><Text variant="caption" weight="bold" color={color.text.heading}>{tx('현장 도구', 'On-the-go tools')}</Text></Pressable>
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={tx('가볼래 여행 도우미 열기', 'Open GABOLLE travel assistant')}

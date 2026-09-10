@@ -27,7 +27,7 @@ export function understandAssistantMessage(raw: string): AssistantAction {
   const text = raw.trim();
   if (includesAny(text, ['문장', '한국어', '뭐라고', '말해', '표현'])) {
     const phrase = PHRASES.find((item) => includesAny(text, item.match));
-    return phrase ? { kind: 'phrase', reply: t('현장에서 바로 보여주거나 들려줄 수 있게 준비했어요.', "I've got it ready to show or read aloud on the spot."), korean: phrase.korean, pronunciation: phrase.pronunciation } : { kind: 'navigate', reply: t('상황별 문장을 고를 수 있는 현장 도구로 안내할게요.', "I'll take you to the on-the-go tool where you can pick a phrase for your situation."), label: t('현장 말하기 열기', 'Open on-the-go phrases'), href: '/field/translate' };
+    return phrase ? { kind: 'phrase', reply: t('현장에서 바로 보여주거나 들려줄 수 있게 준비했어요.', "I've got it ready to show or read aloud on the spot."), korean: phrase.korean, pronunciation: phrase.pronunciation } : { kind: 'navigate', reply: t('상황별 문장을 고를 수 있는 현장 도구로 안내할게요.', "I'll take you to the on-the-go tool where you can pick a phrase for your situation."), label: t('현장 도구 열기', 'Open on-the-go tools'), href: '/field/translate' };
   }
   if (includesAny(text.toLowerCase(), ['번역', '메뉴판', 'translate'])) return { kind: 'navigate', reply: t('메뉴판이나 안내문 번역 기능으로 이동할 수 있어요.', 'I can take you to the menu or sign translation feature.'), label: t('번역 도구 열기', 'Open translation tool'), href: '/field/translate' };
   if (includesAny(text, ['내 일정', '여행 목록', '만든 일정'])) return { kind: 'navigate', reply: t('저장한 여행 목록을 열어드릴게요.', "I'll open your saved trip list."), label: t('내 여행 보기', 'View my trips'), href: '/trips' };
