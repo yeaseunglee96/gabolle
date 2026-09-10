@@ -1,0 +1,39 @@
+package com.gabolle.backend.batch.application;
+
+import org.springframework.boot.context.properties.ConfigurationProperties;
+
+/**
+ * 접는 규칙의 판 번호 — MLOps Phase 1.
+ *
+ * <p>🔴 <b>기본값을 두지 않는다.</b> {@code user_taste_vector.vector_version} 과
+ * {@code ontology_version} 은 {@code NOT NULL} 이고, 그 이유는 "같은 잣대로 만든 벡터끼리만
+ * 비교할 수 있다" 는 것이다. 값을 못 구했을 때 {@code "unknown"} 같은 것을 넣으면 그 벡터가
+ * 어느 규칙에서 나왔는지 영영 알 수 없는데 표는 멀쩡해 보인다. 그래서 비어 있으면
+ * {@link TasteVectorFoldService} 가 <b>요청을 실패시킨다</b> —
+ * {@code RecommendationVersionsMissingException} 과 같은 판단이다.
+ */
+@ConfigurationProperties(prefix = "gabolle.taste-vector")
+public class TasteVectorProperties {
+
+	/** 어떻게 접었는가. 접는 산수를 고치면 이 값을 올린다. */
+	private String vectorVersion = "";
+
+	/** 어떤 개념 사전으로 접었는가. 차원·코드가 바뀌면 벡터의 뜻이 달라진다. */
+	private String ontologyVersion = "";
+
+	public String getVectorVersion() {
+		return this.vectorVersion;
+	}
+
+	public void setVectorVersion(String vectorVersion) {
+		this.vectorVersion = (vectorVersion == null) ? "" : vectorVersion.trim();
+	}
+
+	public String getOntologyVersion() {
+		return this.ontologyVersion;
+	}
+
+	public void setOntologyVersion(String ontologyVersion) {
+		this.ontologyVersion = (ontologyVersion == null) ? "" : ontologyVersion.trim();
+	}
+}

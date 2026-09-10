@@ -44,7 +44,7 @@ import org.springframework.web.bind.annotation.RestController;
  * 그래서 클래스 경로를 직접 훑어 애너테이션을 읽는다. DB 도 프로필도 필요 없고, 프로필 조건과
  * 무관하게 전부 보인다.
  *
- * <h2>정책 다섯 가지</h2>
+ * <h2>정책 일곱 가지</h2>
  * <ul>
  *   <li>{@code PRE_AUTH} — 로그인 <b>전에</b> 부르는 인증 흐름 자체. 열려 있는 것이 정상이고
  *       보호는 안쪽에 있다(연속 실패 잠금, 1회용 티켓, 비밀번호 확인)</li>
@@ -55,6 +55,12 @@ import org.springframework.web.bind.annotation.RestController;
  *   <li>{@code OTHER_USER_OK} — 남의 자원을 보는 것이 <b>기능 자체</b>다(프로필 보기, 팔로우).
  *       여기서 위험은 거부되지 않는 것이 아니라 <b>보여선 안 될 것이 섞이는 것</b>이다</li>
  *   <li>{@code AUTHENTICATED_ONLY} — 로그인만 하면 누구나 같은 답을 받는다. 자원에 주인이 없다</li>
+ *   <li>🔴 {@code INTERNAL_ONLY} — <b>사람이 아니라 기계</b>가 부른다(Airflow 배치). 위 여섯은
+ *       전부 "요청자가 누구인가" 를 묻는데, 이것은 요청자에게 신원이 <b>없다</b> —
+ *       공유 토큰 하나({@code X-Internal-Token})가 전부다. {@code ADMIN_ONLY} 로 분류하면
+ *       안 된다: 운영자 권한은 배포 설정의 이메일 목록에서 매 기동 계산되므로, 배치를 거기
+ *       끼우면 <b>목록을 고치는 사람이 자기가 배치를 멈춘다는 것을 모른 채 멈춘다</b>
+ *       (S15P21E201-772). 문이 다르다는 것이 이 정책의 존재 이유다</li>
  *   <li>🔴 {@code ADMIN_ONLY} — 운영자만. 자원의 주인이 <b>요청자가 아닌</b> 유일한 갈래다.
  *       나머지 다섯은 "내 것인가" 를 묻는데 이것은 "너는 운영자인가" 를 묻는다. 그래서
  *       {@code OWNED} 로 분류하면 안 된다 — 남의 것을 다루는 것이 기능이기 때문이다</li>
@@ -70,7 +76,7 @@ class RouteAuthorizationRegistryTest {
 
 	enum Policy {
 
-		PRE_AUTH, PUBLIC_TOKEN, OWNED, OTHER_USER_OK, AUTHENTICATED_ONLY, ADMIN_ONLY
+		PRE_AUTH, PUBLIC_TOKEN, OWNED, OTHER_USER_OK, AUTHENTICATED_ONLY, ADMIN_ONLY, INTERNAL_ONLY
 	}
 
 	private static final Map<String, Map.Entry<Policy, String>> POLICY = policies();
@@ -606,6 +612,19 @@ class RouteAuthorizationRegistryTest {
 				"자연어 메시지 하나를 AI 업체(Claude)에 대신 물어보는 창구라 우리 자원이 아니라 "
 						+ "주인이 없다. 인증을 요구하는 것은 tools/translate 와 같은 이유 — 우리 업체 "
 						+ "키로 남이 대신 호출을 돌리는 것(비용)을 막기 위해서다. AssistantControllerTest");
+
+		// ── 기계용 내부 배치 (S15P21E201-772 · -787) ──────────────────────────────
+		//
+		// 🔴 사람 계정과 무관하다. SecurityConfig 의 "/internal/**" → hasRole("INTERNAL") 이
+		//    막고, 권한은 InternalTokenAuthenticationFilter 가 X-Internal-Token 헤더를 보고
+		//    심는다. 토큰을 설정하지 않으면 아무 권한도 안 심겨서 전부 거부된다 —
+		//    "설정을 깜빡했더니 열려 있었다" 가 되지 않는다.
+		put(m, "GET /internal/v1/batch/taste-vectors/stale", Policy.INTERNAL_ONLY,
+				"표시가 뒤처진 사람 목록. 사람 신원이 아니라 공유 토큰으로 연다. "
+						+ "InternalTokenAuthenticationFilterTest (-772)");
+		put(m, "POST /internal/v1/batch/taste-vectors/rebuild", Policy.INTERNAL_ONLY,
+				"넘긴 사람들의 취향 벡터를 다시 접는다. 같은 문·같은 토큰. "
+						+ "InternalTokenAuthenticationFilterTest (-772) · TasteVectorFoldIntegrationTest (-787)");
 
 		return m;
 	}
