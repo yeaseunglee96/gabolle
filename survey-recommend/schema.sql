@@ -37,6 +37,17 @@
 --    (한쪽만 고치면 새로 띄운 DB 와 살아 있는 DB 가 서로 다른 표가 되고,
 --     그건 두 DB 의 응답을 합치려는 날에야 드러난다.)
 --
+-- 🔴 2026-09-10 (같은 티켓) 네 번째 개인화 문항 "북적임" 이 붙었다 —
+--    response 에 crowd_pref · crowd_pref_status 두 칸. 살아 있는 DB 는
+--    migrations/0004_add_crowd.sql 을 0003 **뒤에** 돌린다.
+--    🔴 앱 온보딩은 여전히 세 질문이다. 넷은 이 설문에서만이고, 이유는
+--    docs/COLDSTART-THREE-QUESTIONS.md 2.6 에 적어 뒀다 (이탈 비용이 다르다).
+--
+-- 🔴 2026-09-10 (같은 티켓) 추천 장소 칸이 **다섯에서 열까지** 늘 수 있게 됐다 —
+--    recommendation_slot_ok 의 상한만 5 → 10. 살아 있는 DB 는
+--    migrations/0005_more_slots.sql 을 0004 **뒤에** 돌린다.
+--    🔴 기본은 여전히 다섯이다. 화면의 「한 곳 더 적기」를 누른 사람만 는다.
+--
 -- 🔴 새로 더한 칸은 전부 NULL 허용이다. NULL 이 곧 "그 판에서는 안 물어봤음"
 --    이다. 이미 응답이 들어 있는 표에 NOT NULL 을 걸면 ALTER 가 거부되고
 --    살아 있는 설문이 그 자리에서 멈춘다.
@@ -79,6 +90,8 @@ CREATE TABLE IF NOT EXISTS response (
   --      NULL 또는 1 = 이 칸이 생기기 전 판 (추천 다섯 곳 · 전화번호 · 가게 자동완성)
   --      2           = 개인화 세 문항이 붙은 판
   --      3           = 짝 비교까지 붙은 판
+  --      4           = 북적임 문항까지 붙은 판 (migrations/0004)
+  --      5           = 장소 칸을 열까지 늘릴 수 있는 판 (migrations/0005)
   --    없으면 나중에 반드시 이렇게 잘못 읽는다: "응답 100건 중 짝 비교가
   --    60건뿐이네 → 응답률 60%". 사실은 40건이 그 문항이 생기기 **전에**
   --    들어온 것이라 응답률은 100% 다.
@@ -94,6 +107,18 @@ CREATE TABLE IF NOT EXISTS response (
   -- 응답 단위로 거르는 일이 잦아 여기에도 둔다. 둘 다 server.mjs 가
   -- 같은 트랜잭션에서 같은 문항 정의를 보고 적는다.
   pairwise_trap_passed BOOLEAN,
+
+  -- ── 네 번째 개인화 문항: 북적임 — migrations/0004 와 같은 것 ────────
+  -- 🔴 칸 순서를 맨 뒤로 둔다. 마이그레이션은 ALTER … ADD COLUMN 이라
+  --    반드시 맨 뒤에 붙는다. 여기서 가운데에 끼우면 새로 띄운 DB 와 살아
+  --    있는 DB 의 칸 순서(ordinal_position)가 갈라진다.
+  -- 🔴 spend_profile JSONB 에 키를 하나 더 넣지 않은 이유는 0004 에 적혀 있다 —
+  --    북적임은 돈이 아니라 밀도라 다른 차원이고, 상태 칸을 두 차원이 나눠
+  --    쓰면 "북적임만 답한 사람" 이 지불 의사 'SELECTED' 로 남는다.
+  -- NULL = 안 물어봤음 또는 건너뜀 (어느 쪽인지는 아래 상태 칸이 가른다).
+  crowd_pref           TEXT,
+  -- NULL = 안 물어봤음 · 'SELECTED' = 골랐음 · 'SKIPPED' = 봤는데 안 골랐음.
+  crowd_pref_status    TEXT,
 
   -- 🔴 2026-09-09 (S15P21E201-754, 팀원 피드백) 다섯 칸 → 세 칸으로 바꿨다.
   --    UNDER_20 · AGE_20_24 · AGE_25_29 · AGE_30_34 · AGE_35_PLUS 를 버리고
@@ -144,15 +169,36 @@ CREATE TABLE IF NOT EXISTS response (
               AND length(btrim(pairwise_design_id)) BETWEEN 1 AND 60
               AND pairwise_trap_passed IS NOT NULL
          ELSE pairwise_design_id IS NULL AND pairwise_trap_passed IS NULL
+    END),
+
+  -- 🔴 아래 셋은 migrations/0004 가 ALTER 로 더하는 것과 이름도 내용도 같아야 한다.
+  CONSTRAINT response_crowd_pref_status_ok
+    CHECK (crowd_pref_status IS NULL OR crowd_pref_status IN ('SELECTED', 'SKIPPED')),
+  -- 🔴 이 칸은 JSONB 가 아니라 글자 한 칸이라 코드값 목록을 DB 가 직접 막는다
+  --    (age_band · busan_years 와 같은 방식). 목록이 server.mjs 의
+  --    CROWD_CHOICES 와 두 벌이니 고칠 때 반드시 같이 고친다.
+  --    🔴 CROWD_VARIES("그날그날 달라요")는 눈금 위의 한 점이 아니고 건너뛴
+  --       것도 아니다 — "밀도를 고정하지 않는 사람" 이라는 답이라 저장은 하고
+  --       계산에서만 뺀다. 식사 문항의 'VARIES' 와 같은 취급이다.
+  CONSTRAINT response_crowd_pref_ok CHECK (crowd_pref IS NULL OR crowd_pref IN (
+    'CROWD_BUSY', 'CROWD_EDGE', 'CROWD_QUIET', 'CROWD_VARIES')),
+  CONSTRAINT ck_crowd_pref_value_matches_status CHECK (
+    -- 🔴 여기도 CASE 다 (위 둘과 같은 이유).
+    CASE WHEN crowd_pref_status = 'SELECTED'
+         THEN crowd_pref IS NOT NULL
+         ELSE crowd_pref IS NULL
     END)
 );
 
--- ── 그 응답이 추천한 곳 (한 건당 다섯 줄) ─────────────────────────
+-- ── 그 응답이 추천한 곳 (한 건당 다섯 줄, 최대 열 줄) ─────────────
 CREATE TABLE IF NOT EXISTS recommendation (
   id            BIGSERIAL PRIMARY KEY,
   response_id   BIGINT      NOT NULL REFERENCES response(id) ON DELETE CASCADE,
 
-  -- 화면에서 몇 번째로 센 칸인가 (1~5). 유형 순서와는 다르다.
+  -- 화면에서 몇 번째로 센 칸인가 (1~10). 유형 순서와는 다르다.
+  -- 🔴 기본은 다섯이고, 화면의 「한 곳 더 적기」를 누른 사람만 여섯째부터
+  --    늘어난다 (S15P21E201-754, migrations/0005_more_slots.sql).
+  --    그래서 한 응답의 줄 수는 5~10 이고, 5 가 아니라고 이상한 것이 아니다.
   slot          SMALLINT    NOT NULL,
 
   -- 🔴 '야간' 과 '축제' 가 이 목록에 없는 것은 실수가 아니다.
@@ -175,13 +221,18 @@ CREATE TABLE IF NOT EXISTS recommendation (
   -- (클라이언트가 보낸 값을 안 믿는다). NULL 허용.
   gu            TEXT,
 
-  CONSTRAINT recommendation_slot_ok CHECK (slot BETWEEN 1 AND 5),
+  -- 🔴 상한 10 은 migrations/0005_more_slots.sql 과 **한 글자도 같아야 한다.**
+  --    (그 파일은 살아 있는 DB 를, 이 줄은 새로 띄우는 DB 를 만든다. 둘이
+  --     다르면 두 DB 가 서로 다른 표가 된다.)
+  --    같은 값이 화면(index.html 의 MAX_SLOTS)과 서버(server.mjs 의 MAX_SLOTS)
+  --    에도 있다. 셋이 어긋나면 사람은 화면에서 통과하고 여기서 거절당한다.
+  CONSTRAINT recommendation_slot_ok CHECK (slot BETWEEN 1 AND 10),
   CONSTRAINT recommendation_place_type_ok CHECK (place_type IN (
     'FOOD', 'CAFE', 'NATURE', 'CULTURE', 'MARKET', 'ACTIVITY', 'BAR')),
   CONSTRAINT recommendation_when_good_ok CHECK (when_good IN ('DAY', 'NIGHT', 'ANY')),
   CONSTRAINT recommendation_place_name_ok CHECK (length(btrim(place_name)) BETWEEN 1 AND 60),
   CONSTRAINT recommendation_reason_ok     CHECK (length(btrim(reason))     BETWEEN 1 AND 500),
-  -- 한 응답 안에서 칸 번호는 겹치지 않는다 (1~5 가 한 번씩)
+  -- 한 응답 안에서 칸 번호는 겹치지 않는다 (1~n 이 한 번씩)
   CONSTRAINT recommendation_one_per_slot UNIQUE (response_id, slot)
 
   -- 🔴 UNIQUE (response_id, place_type) 을 두지 않는다. 일부러 뺀 것이다.

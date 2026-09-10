@@ -140,9 +140,14 @@ const MS_BUCKET_MAX = (DESIGN.msBuckets || []).length;
 console.log(`짝 비교 문항 ${DESIGN.sets.length}개 (${DESIGN.designId})`);
 
 /* 🔴 이 응답이 어느 판의 설문에 답했나 — schema.sql · migrations/0002 참고.
-      1 = 짝 비교도 세 문항도 없던 판 · 2 = 세 문항이 붙은 판 · 3 = 짝 비교까지.
-      이 숫자를 안 올리면 옛 응답과 섞여서 "짝 비교 응답률이 낮다" 로 잘못 읽힌다. */
-const FORM_VERSION = 3;
+      1 = 짝 비교도 세 문항도 없던 판 · 2 = 세 문항이 붙은 판 · 3 = 짝 비교까지 ·
+      4 = 네 번째 개인화 문항(북적임)까지 (migrations/0004).
+      5 = 장소 칸을 열까지 늘릴 수 있는 판 (migrations/0005).
+      이 숫자를 안 올리면 옛 응답과 섞여서 "북적임 응답률이 낮다" 로 잘못 읽힌다 —
+      사실은 그 문항이 생기기 전에 들어온 응답이라 물어본 적이 없는 것이다.
+      🔴 5 도 같다. 안 올리면 "여섯 칸 이상 적은 사람이 3%뿐" 으로 읽는데,
+         사실은 나머지가 그 버튼이 생기기 전 응답이라 더 적고 싶어도 못 적었다. */
+const FORM_VERSION = 5;
 
 const pool = new pg.Pool({
   connectionString: process.env.DATABASE_URL,
@@ -185,7 +190,14 @@ const AGE_BANDS   = new Set(["AGE_20_39", "AGE_40_59", "AGE_60_79"]);
 const BUSAN_YEARS = new Set(["BORN_HERE", "OVER_20Y", "Y_10_20", "Y_5_10", "UNDER_5Y", "VISITED_ONLY"]);
 const PLACE_TYPES = new Set(["FOOD", "CAFE", "NATURE", "CULTURE", "MARKET", "ACTIVITY", "BAR"]);
 const WHEN_GOOD   = new Set(["DAY", "NIGHT", "ANY"]);
+/* 🔴 NEED 는 **반드시 채워야 하는 칸 수**, MAX_SLOTS 는 **넣을 수 있는 상한**이다.
+      화면은 다섯 칸으로 시작하고, 「한 곳 더 적기」를 누른 사람만 열까지 는다.
+      🔴 이 두 숫자는 index.html 의 SLOTS · MAX_SLOTS 와 같아야 하고, MAX_SLOTS 는
+         schema.sql · migrations/0005_more_slots.sql 의 recommendation_slot_ok
+         상한(10)과도 같아야 한다. 어긋나면 사람은 화면에서 통과하고 여기서,
+         또는 여기서 통과하고 DB 에서 거절당한다. */
 const NEED = 5;
+const MAX_SLOTS = 10;
 
 /* ── 맨 앞의 개인화 세 문항 (오는 교통 · 숙소 · 식사) ────────────────
  * 코드값은 docs/COLDSTART-THREE-QUESTIONS.md 3.2 의 "안 B — 눈금형" 이다.
@@ -233,6 +245,40 @@ function readSpendProfile(v) {
   return Object.keys(picked).length === 0
     ? { status: "SKIPPED",  value: null }
     : { status: "SELECTED", value: picked };
+}
+
+/* ── 네 번째 개인화 문항: 저녁 먹을 곳의 북적임 ──────────────────────
+ * 🔴 화면(index.html 의 CROWD_QUESTION)과 표(schema.sql ·
+ *    migrations/0004 의 response_crowd_pref_ok)와 이 목록이 **세 벌**이다.
+ *    셋이 어긋나면 사람은 화면에서 통과하고 서버나 DB 에서 거절당한다.
+ *    고칠 때 셋을 같이 고친다.
+ *
+ * 눈금은 "저녁 먹을 곳을 고를 때 어느 쪽으로 가나" 한 축이다 —
+ *   CROWD_BUSY(먹자골목 한가운데) · CROWD_EDGE(가장자리) · CROWD_QUIET(조용한 골목).
+ * 🔴 CROWD_VARIES("그날그날 달라요")는 눈금 위의 한 점이 아니고 건너뛴 것도
+ *    아니다. "밀도를 고정하지 않는 사람" 이라는 답이라 저장은 하고 계산에서만
+ *    뺀다 — 식사 문항의 VARIES 와 같은 취급이다.
+ * ────────────────────────────────────────────────────────────────── */
+const CROWD_CHOICES = new Set(["CROWD_BUSY", "CROWD_EDGE", "CROWD_QUIET", "CROWD_VARIES"]);
+
+/* 들어온 북적임 답을 읽는다. 🔴 셋을 가른다 —
+ *   null     : crowdPref 칸이 아예 없다 = 아직 안 물어봤다 (표에서도 NULL)
+ *   SKIPPED  : 물어봤는데 안 골랐다 (null 로 온다)
+ *   SELECTED : 골랐다
+ * 🔴 여기서는 null 이 "건너뜀" 이다. spend_profile 안쪽에서 "stay": null 을
+ *    금지한 것과 어긋나 보이지만 자리가 다르다 — 저기는 **객체 안의 키**라
+ *    "키가 없는 것" 과 "키가 null 인 것" 두 벌이 생기는 게 문제였고, 여기는
+ *    **칸 하나**라 세 상태를 나타낼 다른 방법이 없다(칸 없음 / null / 글자).
+ * 상태는 클라이언트가 보낸 것을 믿지 않고 여기서 정한다. */
+function readCrowdPref(v) {
+  if (v === undefined) return { status: null, value: null };
+  if (v === null) return { status: "SKIPPED", value: null };
+  /* 🔴 모르는 값을 메시지에 그대로 되돌려 주지 않는다.
+        이 서버는 사람이 적은 글을 어디에도 다시 내보내지 않는다. */
+  if (typeof v !== "string" || !CROWD_CHOICES.has(v)) {
+    return { error: "저녁 먹을 곳 문항의 답이 목록에 없는 값이에요." };
+  }
+  return { status: "SELECTED", value: v };
 }
 
 /* ── 짝 비교 여섯 문항 (화면 3장 × 2문항) ────────────────────────────
@@ -324,7 +370,13 @@ function check(b) {
   }
 
   const rs = b.recommendations;
-  if (!Array.isArray(rs) || rs.length !== NEED) return "추천하는 곳 다섯 군데를 채워 주세요.";
+  /* 🔴 다섯은 하한이고 열이 상한이다 (S15P21E201-754). 예전에는 `!== NEED` 라
+        여섯 번째 칸을 보내면 그 자리에서 거절당했다.
+        🔴 빈 칸은 여기 오기 전에 pruneEmptySlots() 가 이미 걷어냈다 —
+           그래서 여기 남은 것은 전부 "적은 칸" 이고, 아래 검사는 전부 통과해야 한다. */
+  if (!Array.isArray(rs)) return "추천하는 곳을 읽지 못했어요.";
+  if (rs.length < NEED) return "추천하는 곳 다섯 군데를 채워 주세요.";
+  if (rs.length > MAX_SLOTS) return `추천하는 곳은 ${MAX_SLOTS}군데까지 받아요.`;
 
   /* 🔴 같은 유형이 여러 번 와도 받는다. 맛집 다섯 곳은 정상적인 응답이다.
         예전에는 여기서 중복 유형을 거절했는데, 그러면 맛집을 다섯 곳 아는
@@ -358,7 +410,29 @@ function check(b) {
   return null;
 }
 
-async function insert(b, spend, pair) {
+/* ── 🔴 늘려 놓고 안 채운 칸을 걷어낸다 (S15P21E201-754) ─────────────
+ * 「한 곳 더 적기」로 칸을 늘렸다가 안 채운 사람이 제출에서 막히면 안 된다.
+ * 화면도 보내기 전에 같은 일을 하지만, **여기서 한 번 더 한다** — 화면만 믿으면
+ * 주소창으로 직접 보낸 요청이나 옛 화면이 통째로 빈 칸을 실어 보낸다.
+ *
+ * 🔴 "통째로 빈 칸" 만 걷어낸다. 이름만 적고 이유를 안 적은 칸은 **안 걷어낸다** —
+ *    그건 사람이 적다 만 것이고, 조용히 버리면 적은 것이 소리 없이 사라진다.
+ *    그런 칸은 아래 check() 가 "몇 번째 칸의 무엇이 비었다" 로 알려 준다.
+ *
+ * 🔴 걷어낸 뒤 칸 번호를 다시 매기는 것은 insert() 다 (거기서 1부터 센다).
+ *    화면이 보낸 slot 값은 안 쓴다 — 6·9 만 남은 배열이 와도 표에는 1·2 로 들어간다.
+ * ────────────────────────────────────────────────────────────────── */
+function pruneEmptySlots(b) {
+  if (!b || typeof b !== "object" || !Array.isArray(b.recommendations)) return;
+  const blank = r => {
+    if (!r || typeof r !== "object") return false;   /* 읽을 수 없는 것은 check() 가 말한다 */
+    const txt = k => (typeof r[k] === "string" ? r[k].trim() : "");
+    return !r.placeType && !r.whenGood && !txt("placeName") && !txt("reason") && !txt("placeId");
+  };
+  b.recommendations = b.recommendations.filter(r => !blank(r));
+}
+
+async function insert(b, spend, pair, crowd) {
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
@@ -369,12 +443,14 @@ async function insert(b, spend, pair) {
     const { rows } = await client.query(
       `INSERT INTO response (age_band, busan_years, phone, consented, nonce, form_version,
                              spend_profile, spend_profile_status,
-                             pairwise_status, pairwise_design_id, pairwise_trap_passed)
-       VALUES ($1, $2, $3, TRUE, $4, $5, $6, $7, $8, $9, $10) RETURNING id`,
+                             pairwise_status, pairwise_design_id, pairwise_trap_passed,
+                             crowd_pref, crowd_pref_status)
+       VALUES ($1, $2, $3, TRUE, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING id`,
       [b.ageBand, b.busanYears, b.phone || null, randomBytes(9).toString("base64url"),
        FORM_VERSION,
        spend.value ? JSON.stringify(spend.value) : null, spend.status,
-       pair.status, pair.designId, pair.trapPassed]
+       pair.status, pair.designId, pair.trapPassed,
+       crowd.value, crowd.status]
     );
     const id = rows[0].id;
     for (const c of pair.rows) {
@@ -488,6 +564,9 @@ const server = createServer((req, res) => {
         body.phone = normalizePhone(body.phone);
       }
 
+      /* 🔴 늘려 놓고 안 채운 칸을 먼저 걷어낸다. check() 는 남은 것만 본다 */
+      pruneEmptySlots(body);
+
       const wrong = check(body);
       if (wrong) return json(res, 400, { message: wrong });
 
@@ -498,8 +577,11 @@ const server = createServer((req, res) => {
       const pair = readPairwise(body.pairwise);
       if (pair.error) return json(res, 400, { message: pair.error });
 
+      const crowd = readCrowdPref(body.crowdPref);
+      if (crowd.error) return json(res, 400, { message: crowd.error });
+
       try {
-        await insert(body, spend, pair);
+        await insert(body, spend, pair, crowd);
         json(res, 201, { ok: true });
       } catch (e) {
         /* 🔴 오류 이름만 찍는다. 요청 내용은 절대 찍지 않는다 —

@@ -4,10 +4,16 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<!-- 🔴 "3분" 이 아니라 "5분" 이다. 짝 비교 여섯 문항과 여행 스타일 세 문항을
+<!-- 🔴 "3분" 이 아니라 "6분" 이다. 짝 비교 여덟 문항과 여행 스타일 네 문항을
      얹으면서 늘렸다. 걸리는 시간도 참여자에게 한 약속이라, 문항을 늘리고
-     이 숫자를 안 고치면 그 약속이 거짓이 된다. -->
-<title>부산에서 여기는 꼭 가보세요 · 5분</title>
+     이 숫자를 안 고치면 그 약속이 거짓이 된다.
+     🔴 셈한 방법: 문항 아홉(짝 비교 6 + 여행 스타일 3)을 얹을 때 3분 → 5분
+        으로 잡았으니 문항 하나에 대략 13초다. 2026-09-10 에 문항이 셋 늘었다
+        (짝 비교 6→8 · 여행 스타일 3→4) — 약 40초라 5분 → 6분이다.
+        실제 응답 시간은 아직 못 쟀다 (응답 0건). 재고 나면 이 숫자를 고친다.
+     🔴 이 숫자가 나오는 자리가 셋이다 (title · 웰컴 3장째 · 고지 화면 머리).
+        하나만 고치면 다른 자리가 다른 약속을 한다. -->
+<title>부산에서 여기는 꼭 가보세요 · 6분</title>
 <style>
 /* ══════════════════════════════════════════════════════════════════
    흑백만 쓴다. 강조색이 없다.
@@ -207,7 +213,7 @@ h2.section { font-size: 30px; line-height: 1.1; letter-spacing: -.03em; font-wei
 .field-block.first { border-top: 1px solid var(--ink); }
 .field-label { font-size: 13px; color: var(--muted); margin-bottom: 4px; }
 
-/* ── 한 화면에 한 문항 (개인화 세 문항) ─────────────────────────────
+/* ── 한 화면에 한 문항 (개인화 네 문항) ─────────────────────────────
    위의 word-radio 와 같은 말투다 — 점 하나와 글자, 고른 것은 굵게.
    새 디자인을 만들지 않는다. 여기만 다르게 생기면 설문이 두 개로 보인다.
    ─────────────────────────────────────────────────────────────── */
@@ -363,6 +369,15 @@ textarea.u { min-height: 96px; font-size: 17px; line-height: 1.5; resize: vertic
   font: inherit; font-size: 15px; font-weight: 600; cursor: pointer;
 }
 
+/* ── 「한 곳 더 적기」 (S15P21E201-754) ──────────────────────────
+   🔴 속을 채운 단추(.pill-sm 기본)가 아니라 **테두리만 있는 단추**다.
+      아래 「제출하기」가 이 화면에서 가장 눈에 띄어야 하는데, 속을 채우면
+      둘이 같은 무게가 되어 "더 적어야 제출되나" 로 읽힌다. */
+.addslot { margin: 26px 0 0; }
+.addbtn { background: none; color: var(--ink); border: 1px dashed var(--line-2); }
+.addbtn:hover { border-style: solid; border-color: var(--ink); }
+.addnote { font-size: 13px; color: var(--muted); margin: 10px 0 0; max-width: 36ch; }
+
 /* ── 동의 (첫 화면) ────────────────────────────────────────────── */
 .agree {
   display: flex; gap: 14px; align-items: flex-start; margin: 36px 0 0; cursor: pointer;
@@ -435,7 +450,7 @@ textarea.u { min-height: 96px; font-size: 17px; line-height: 1.5; resize: vertic
         <div class="wnrow"><span>이메일</span><span>없음</span></div>
         <div class="wnrow"><span>성별 · 생년월일</span><span>없음</span></div>
       </div>
-      <div class="wdarkcard"><b>받는 것</b>나이대 · 부산에 산 기간 · 전화번호(선택) · 추천하는 곳 다섯 군데와 그 이유</div>
+      <div class="wdarkcard"><b>받는 것</b>나이대 · 부산에 산 기간 · 전화번호(선택) · 추천하는 곳 다섯 군데와 그 이유 (원하시면 열 곳까지)</div>
     </div>
     <h1 class="wtitle">이름도, 이메일도<br>묻지 않아요</h1>
     <p class="wlede">답변은 추천을 만드는 데만 쓰고, 프로젝트가 끝나면 지웁니다. 전화번호는 <b>경품 추첨에만</b> 쓰고 추첨이 끝나면 지웁니다 — 남기지 않으시면, 이 응답이 누구의 것인지 저희도 알아낼 수 없습니다.</p>
@@ -451,7 +466,7 @@ textarea.u { min-height: 96px; font-size: 17px; line-height: 1.5; resize: vertic
   <div class="wcontent">
     <div class="wtop"><b>가볼래 · 설문</b><button type="button" class="wskip" id="skip2">건너뛰기</button></div>
     <div class="wspacer"></div>
-    <h1 class="wtitle">5분이면<br>충분합니다</h1>
+    <h1 class="wtitle">6분이면<br>충분합니다</h1>
     <p class="wlede">당신이 아는 부산을 공유해주세요.</p>
     <div class="wdots" id="wdots2"><span></span><span></span><span class="now"></span></div>
     <button type="button" class="wbtn" id="wstart">설문 시작하기 <span aria-hidden="true">→</span></button>
@@ -473,28 +488,35 @@ textarea.u { min-height: 96px; font-size: 17px; line-height: 1.5; resize: vertic
 
   <!-- ══ 첫 화면 : 고지 + 동의 ══════════════════════════════════ -->
   <section id="scIntro" class="screen on">
-    <div class="wtop" style="padding-top:18px"><b>가볼래 · 설문</b><span style="color:var(--muted)">5분</span></div>
+    <div class="wtop" style="padding-top:18px"><b>가볼래 · 설문</b><span style="color:var(--muted)">6분</span></div>
     <h1 class="big">부산에서<br>여기는 꼭<br>가보세요</h1>
     <p class="lede"><b>부산에서 좋았던 곳 다섯 군데</b>와, 왜 좋았는지를 적어 주세요.</p>
 
     <div class="deflist">
-      <div class="row"><span>받는 것</span><p>이 설문은 <b>두 곳 중 하나 고르기 여섯 번 · 여행 스타일 세 가지 · 나이대 · 부산에 산 기간 · 전화번호(선택) · 추천하는 곳 다섯 군데와 그 이유</b>를 받습니다. 전화번호는 <b>경품 추첨을 위해 선택으로만</b> 받고, 이름 · 이메일을 묻는 칸은 없습니다.</p></div>
+      <div class="row"><span>받는 것</span><p>이 설문은 <b>두 곳 중 하나 고르기 여덟 번 · 여행 스타일 네 가지 · 나이대 · 부산에 산 기간 · 전화번호(선택) · 추천하는 곳 다섯 군데와 그 이유</b>를 받습니다. 추천하는 곳은 <b>더 아시면 열 곳까지</b> 적으실 수 있고, 늘린 칸은 <b>비워 두셔도 제출됩니다.</b> 전화번호는 <b>경품 추첨을 위해 선택으로만</b> 받고, 이름 · 이메일을 묻는 칸은 없습니다.</p></div>
+      <div class="row"><span>언제까지</span><p>응답은 <b><span class="cfg-deadline"></span></b> 받습니다. 경품 추첨은 <b><span class="cfg-draw"></span></b> 합니다. <b>참여 인원에 제한은 없습니다.</b></p></div>
       <div class="row"><span>쓰는 곳</span><p>답은 <b>“부산을 아는 사람은 어디를 왜 추천하는가”</b> 를 모으는 데만 씁니다. 개인을 알아보거나 누구인지 되찾는 데 쓰지 않습니다.</p></div>
       <div class="row"><span>지우는 때</span><p>응답은 <b><span class="cfg-delete"></span></b> 지웁니다. <b>만 14세 이상</b>만 참여해 주세요.</p></div>
-      <div class="row"><span style="color:var(--ink);font-weight:700">● 주의</span><p><b>적는 칸에 사람 이름 · 연락처 · 소속을 적지 말아 주세요.</b> 이 설문은 처음으로 <b>자유롭게 쓰는 칸</b>이 있습니다. 장소 이름과 이유만 적어 주시면 됩니다. 전화번호나 이메일처럼 보이는 글자가 있으면 <b>제출이 막히고 어느 칸인지 알려 드립니다.</b></p></div>
+      <div class="row"><span style="color:var(--ink);font-weight:700">● 주의</span><!-- 🔴 "사람 이름 · 연락처" 였던 것을 "다른 분의 …" 로 고쳤다 (2026-09-10).
+             바로 위에서 전화번호를 선택으로 받으므로, 그냥 "연락처를 적지 마세요" 는
+             읽는 사람에게 모순이다. 막으려던 것은 처음부터 **남의** 신원이다.
+             칸 옆의 짧은 안내(.guard)와 같은 이유로 같이 고쳤다. -->
+        <p><b>적는 칸에 다른 분의 이름 · 연락처 · 소속을 적지 말아 주세요.</b> 이 설문은 처음으로 <b>자유롭게 쓰는 칸</b>이 있습니다. 가게 이름과 이유만 적어 주시면 됩니다. 전화번호나 이메일처럼 보이는 글자가 있으면 <b>제출이 막히고 어느 칸인지 알려 드립니다.</b></p></div>
     </div>
 
     <button type="button" class="toggle-details" id="detailsToggle">무엇을 모으고 어디에 두는지 자세히 보기 ↓</button>
     <div class="deflist small2" id="detailsBox" hidden>
       <div class="row"><span>누가 모으나</span><span>SSAFY 15기 자율 프로젝트 팀 S15P21E201 (가볼래). 진행자는 <span class="cfg-facilitator"></span> 한 명입니다.</span></div>
-      <div class="row"><span>무엇을 모으나</span><span><b>두 곳 중 하나 고르기 여섯 번</b>(조건만 적힌 카드 두 장 중 어느 쪽을 고르셨는지, 그 카드가 화면의 위였는지 아래였는지, 고르시는 데 걸린 시간을 <b>“3초 미만 · 5초 미만”</b> 같은 <b>구간</b>으로만 — 초 단위로는 남기지 않습니다) · 여행 스타일 세 가지(부산까지 <b>오는 교통</b> · <b>숙소</b> 1박 · <b>저녁 한 끼</b> — 고르는 칸이고 건너뛰셔도 됩니다) · 나이대 · 부산에 산 기간 · <b>전화번호(선택, 경품 추첨용)</b> · 추천하는 곳 다섯 군데(유형 · 이름 · 낮밤 · 기간 한정인지 · <b>왜 추천하는지</b>). 그 밖에는 없습니다.</span></div>
+      <div class="row"><span>무엇을 모으나</span><span><b>두 곳 중 하나 고르기 여덟 번</b>(조건만 적힌 카드 두 장 중 어느 쪽을 고르셨는지, 그 카드가 화면의 위였는지 아래였는지, 고르시는 데 걸린 시간을 <b>“3초 미만 · 5초 미만”</b> 같은 <b>구간</b>으로만 — 초 단위로는 남기지 않습니다) · 여행 스타일 네 가지(부산까지 <b>오는 교통</b> · <b>숙소</b> 1박 · <b>저녁 한 끼</b> · <b>저녁 먹을 곳을 고를 때 사람이 몰리는 쪽으로 가시는지 조용한 쪽으로 가시는지</b> — 고르는 칸이고 건너뛰셔도 됩니다) · 나이대 · 부산에 산 기간 · <b>전화번호(선택, 경품 추첨용)</b> · 추천하는 곳 다섯 군데(유형 · 이름 · 낮밤 · 일부 유형에서는 기간 한정인지 · <b>왜 추천하는지</b> — 원하시면 <b>열 곳까지</b>). 그 밖에는 없습니다.</span></div>
       <div class="row"><span>안 모으는 것</span><span>이름 · 이메일 · 성별 · 생년월일 · <b>IP 주소 · 위치 · 기기 정보 · 브라우저 정보</b>. 접속 기록도 남기지 않습니다. (전화번호만 선택 입력으로 받습니다 — 위 참고)</span></div>
       <div class="row"><span>왜 모으나</span><span>추천을 만들려면 “부산에 뭐가 있는지” 부터 있어야 하는데, 지금 저희에게는 그 목록이 없습니다. 인터넷에서 긁어온 유명한 곳 말고 <b>실제로 살아 본 사람이 추천하는 곳</b>이 필요해서요.</span></div>
-      <div class="row"><span>어디에 쓰나</span><span>추천 후보 목록과, 학교 프로젝트 발표의 <b>합친 숫자</b>(예: “30명이 추천한 곳 중 카페가 22곳”). <b>두 곳 중 고르기</b>와 <b>여행 스타일</b>은 추천 순서를 정할 때 <b>가격 · 걷는 거리 · 줄서기 · 골목의 비슷한 가게 · 알려진 정도</b> 다섯에 각각 얼마나 무게를 둘지를 정하는 데만 씁니다 — 어느 장소가 좋은지를 배우는 것이 아닙니다.</span></div>
+      <div class="row"><span>어디에 쓰나</span><span>추천 후보 목록과, 학교 프로젝트 발표의 <b>합친 숫자</b>(예: “30명이 추천한 곳 중 카페가 22곳”). <b>두 곳 중 고르기</b>와 <b>여행 스타일</b>은 추천 순서를 정할 때 <b>가격 · 걷는 거리 · 줄서기 · 골목의 비슷한 가게 · 알려진 정도</b> 다섯에 각각 얼마나 무게를 둘지를 정하는 데만 씁니다 — 어느 장소가 좋은지를 배우는 것이 아닙니다. <b>저녁 먹을 곳의 북적임</b> 답은 그중 <b>골목의 비슷한 가게</b>(가게가 얼마나 몰려 있는지)를 어느 쪽으로 밀지를 정하는 데 씁니다.</span></div>
       <div class="row"><span>어디에 안 쓰나</span><span>광고 · 외부 제공 · 개인 식별 · 팀 밖에 개별 응답을 보여 주는 것.</span></div>
-      <div class="row"><span>어디에 두나</span><span>팀 서버의 <b>이 설문 전용 데이터베이스</b> 한 곳. 운영 중인 서비스의 데이터베이스와 <b>따로</b> 있고, 바깥에서 직접 접속할 수 없습니다. 외부 설문 업체 · 구글 폼 · 클라우드 문서를 쓰지 않습니다.</span></div>
+      <div class="row"><span>어떻게 보내나</span><span>적으시는 동안에는 <b>아무것도 나가지 않습니다.</b> <b>제출하기를 누르실 때 한 번</b>, 적으신 내용이 저희 서버로 갑니다. 서버가 내용을 확인한 뒤 아래의 데이터베이스에 넣습니다. 중간 저장 · 자동 전송은 없습니다.</span></div>
+      <div class="row"><span>어디에 두나</span><span>팀 서버의 <b>이 설문 전용 데이터베이스</b> 한 곳. 운영 중인 서비스의 데이터베이스와 <b>따로</b> 있고, 바깥에서 직접 접속할 수 없습니다. 외부 설문 업체 · 구글 폼 · 클라우드 문서를 쓰지 않습니다. <b>하루 한 번 사본(백업)을 떠서 그 서버 밖에 둡니다</b> — 서버가 통째로 없어져도 응답이 사라지지 않게. 사본도 <b><span class="cfg-delete"></span></b> 같이 지웁니다.</span></div>
+      <div class="row"><span>결과를 알려주나</span><span>합친 결과를 <b>채널에 올리지 않습니다.</b> 채널에는 <b>경품 추첨 결과만</b> 올립니다. 결과는 학교 프로젝트 발표에서 합친 숫자로만 씁니다.</span></div>
       <div class="row"><span>사진 출처</span><span class="credits" id="creditsIntro"></span></div>
-      <div class="row"><span>언제 지우나</span><span><span class="cfg-delete"></span>. 지운 날짜를 팀 문서에 적습니다.</span></div>
+      <div class="row"><span>언제 지우나</span><span>응답은 <span class="cfg-delete"></span> 지웁니다. 지운 날짜를 팀 문서에 적습니다.</span></div>
       <div class="row"><span>낸 뒤에 뺄 수 있나</span><span>🔴 <b>못 뺍니다.</b> 전화번호를 남기지 않으셨다면 어느 것이 누구의 응답인지 저희도 알아낼 수 없어서예요. 전화번호를 남기신 분도 제출 뒤에는 개별 응답을 따로 빼 드리지 않습니다. <b>제출 전에는</b> 창을 닫으시면 아무것도 저장되지 않습니다.</span></div>
       <div class="row"><span>문의</span><span class="cfg-contact"></span></div>
     </div>
@@ -510,26 +532,29 @@ textarea.u { min-height: 96px; font-size: 17px; line-height: 1.5; resize: vertic
       도중에 그만두시려면 창을 닫으시면 됩니다 — 제출 전에는 아무것도 저장되지 않습니다.</p>
   </section>
 
-  <!-- ══ 짝 비교 — 화면 3장, 한 장에 두 문항 ════════════════════
+  <!-- ══ 짝 비교 — 화면 4장, 한 장에 두 문항 ════════════════════
        🔴 자리가 **동의하기 바로 다음**이다. 맨 앞이라 사람이 가장 안 지쳐
           있을 때 이 문항을 받는다. 장소 추천 뒤에 두면 다섯 칸을 다 적고
-          지친 사람이 두 장 중 아무거나 찍고, 그러면 이 여섯 문항은
+          지친 사람이 두 장 중 아무거나 찍고, 그러면 이 여덟 문항은
           아무것도 안 재고 자리만 먹는다.
-       🔴 화면이 정확히 3장이다. 여섯 문항을 3장에 담으니 한 장에 두 문항.
-          화면 하나를 장마다 다시 그린다 (여섯 문항이 모양이 같다).
+       🔴 화면이 정확히 4장이다. 여덟 문항을 4장에 담으니 한 장에 두 문항.
+          화면 하나를 장마다 다시 그린다 (여덟 문항이 모양이 같다).
+          🔴 2026-09-10 에 여섯(3장) → 여덟(4장)이 됐다. 문항을 늘린 것이 아니라
+             **다시 고른 것**이다 — 옛 다섯은 가격과 골목 밀집이 거의 같이 움직여
+             둘을 못 갈랐다 (design.mjs 의 PICK 주석에 숫자가 있다).
        ══════════════════════════════════════════════════════════ -->
   <section id="scPair" class="screen">
     <h2 class="section" style="margin-top:44px">둘 중 어디로<br>가시겠어요?</h2>
     <p class="hint" id="pairLede">가게 이름도 사진도 없어요. <b style="color:var(--ink)">조건만 보고</b> 끌리는 쪽을 골라 주세요.
-      정답이 없는 문항이에요 — <b style="color:var(--ink)">세 장</b>이면 끝납니다.</p>
+      정답이 없는 문항이에요 — <b style="color:var(--ink)">네 장</b>이면 끝납니다.</p>
     <div id="pairBody"></div>
     <button class="btn-big" id="pairNext" style="margin-top:36px"><span id="pairNextLabel">다음</span><span class="arrow">→</span></button>
     <p class="small" id="pairLeft" style="margin-top:12px"></p>
     <div class="navrow"><button type="button" class="btn-ghost" id="pairBack">이전</button></div>
   </section>
 
-  <!-- ══ 개인화 세 문항 (한 화면에 한 문항) ══════════════════════
-       🔴 화면은 JS 가 만든다 (SPEND_QUESTIONS). 여기에 markup 을 적지 않는다 —
+  <!-- ══ 개인화 네 문항 (한 화면에 한 문항) ══════════════════════
+       🔴 화면은 JS 가 만든다 (PERSONAL_QUESTIONS). 여기에 markup 을 적지 않는다 —
           문항을 늘릴 때 두 곳을 고치게 되고, 한 곳을 빠뜨리면 조용히 깨진다.
           만들어진 화면은 이 자리(scPair 와 scMain 사이)에 끼워진다.
        ══════════════════════════════════════════════════════════ -->
@@ -538,7 +563,12 @@ textarea.u { min-height: 96px; font-size: 17px; line-height: 1.5; resize: vertic
   <section id="scMain" class="screen">
 
     <h2 class="section" style="margin-top:44px">먼저 몇 가지만</h2>
-    <p class="hint">누구인지 알려고 여쭙는 게 아니라, <b>응답한 분들이 어느 쪽으로 치우쳐 있는지</b>를 나중에 재려고 여쭙습니다. 전화번호만은 예외로, <b>경품 추첨을 위해 선택으로</b> 받습니다 — 비워 두셔도 제출됩니다.</p>
+    <!-- 🔴 2026-09-10: "어느 쪽으로 치우쳐 있는지" 를 "어떤 분들이 답해 주셨는지"
+         로 바꿨다. 뜻은 같은데(표본 구성을 나중에 본다) 앞의 말은 읽는 사람을
+         겨누는 것으로 들린다 — "치우침" 은 우리끼리 쓰는 분석 용어이지 참여자에게
+         할 말이 아니다. 문장을 통째로 빼지는 않는다: 왜 나이대를 묻는지 설명이
+         없으면 "안 모은다더니 왜 묻지" 가 되어 더 이상해진다. -->
+    <p class="hint">누구인지 알려고 여쭙는 게 아니라, <b>어떤 분들이 답해 주셨는지</b>를 나중에 살펴보려고 여쭙습니다. 전화번호만은 예외로, <b>경품 추첨을 위해 선택으로</b> 받습니다 — 비워 두셔도 제출됩니다.</p>
 
     <div class="field-block first">
       <div class="field-label">나이대 — 하나 골라 주세요</div>
@@ -556,9 +586,16 @@ textarea.u { min-height: 96px; font-size: 17px; line-height: 1.5; resize: vertic
     </div>
 
     <h2 class="section" style="margin-top:56px">추천하는 곳<br>다섯 군데</h2>
-    <p class="hint">줄을 눌러 펼치고 하나씩 적어 주세요. <b>다섯 곳이 전부 같은 유형이어도 괜찮아요</b> — 맛집만 다섯 곳이어도 좋습니다.</p>
+    <p class="hint">줄을 눌러 펼치고 하나씩 적어 주세요. <b>다섯 곳이 전부 같은 유형이어도 괜찮아요</b> — 맛집만 다섯 곳이어도 좋습니다. <b>더 아시면 열 곳까지</b> 적으실 수 있어요.</p>
 
     <div class="cats" id="cats"></div>
+
+    <!-- 🔴 「한 곳 더 적기」 — 기본은 다섯 칸이고, 이 버튼을 누른 사람만 는다.
+         열이 차면 버튼이 사라지고 안내 문구만 남는다 (paintAddSlot). -->
+    <div class="addslot">
+      <button type="button" class="pill-sm addbtn" id="addSlot"><span aria-hidden="true">+</span> 한 곳 더 적기</button>
+      <p class="addnote" id="addSlotNote"></p>
+    </div>
 
     <div id="stop"></div>
 
@@ -568,10 +605,14 @@ textarea.u { min-height: 96px; font-size: 17px; line-height: 1.5; resize: vertic
 
   <!-- ══ 완료 ══════════════════════════════════════════════════ -->
   <section id="scDone" class="screen">
-    <div class="wtop" style="padding-top:18px"><b>가볼래 · 설문</b><span style="color:var(--muted)">5 / 5</span></div>
+    <!-- 🔴 "5 / 5" 를 박아 두지 않는다 — 위 진행 표시와 같은 모양이라, 여섯 곳을
+         낸 사람이 여기서 "5 / 5" 를 보면 다섯만 갔다고 읽는다 (2026-09-10). -->
+    <div class="wtop" style="padding-top:18px"><b>가볼래 · 설문</b><span style="color:var(--muted)" id="doneTop"></span></div>
     <div class="done-mark">✓</div>
     <h1 class="big" style="margin-top:24px">고맙습니다.</h1>
-    <p style="font-size:17px;margin:24px 0 0">다섯 군데 잘 받았습니다. 이 창은 닫으셔도 됩니다.</p>
+    <!-- 🔴 "다섯" 을 박아 두지 않는다. 여섯 곳을 적고 낸 사람에게 "다섯 군데
+         받았습니다" 라고 하면, 하나를 잃어버린 줄 안다 (2026-09-10). -->
+    <p style="font-size:17px;margin:24px 0 0"><span id="doneCount"></span> 잘 받았습니다. 이 창은 닫으셔도 됩니다.</p>
     <div class="recap" id="recap"></div>
     <p class="small" style="margin-top:32px">받은 내용은 팀 서버의 이 설문 전용 데이터베이스에만 들어갔고,
       <b style="color:var(--ink)"><span class="cfg-delete"></span></b> 지웁니다.
@@ -592,7 +633,7 @@ textarea.u { min-height: 96px; font-size: 17px; line-height: 1.5; resize: vertic
      ══════════════════════════════════════════════════════════════════ -->
 <script id="design" type="application/json">
 {
-  "designId": "recommend-v1-seed-20260907",
+  "designId": "recommend-v2-seed-20260907",
   "seed": 20260907,
   "perPage": 2,
   "msBuckets": [
@@ -674,20 +715,20 @@ textarea.u { min-height: 96px; font-size: 17px; line-height: 1.5; resize: vertic
       ]
     },
     {
-      "setId": "s03",
+      "setId": "s05",
       "trap": false,
       "alternatives": [
         {
-          "price": 10000,
-          "walkMin": 3,
-          "queueMin": 40,
-          "sameStreet": 0,
+          "price": 70000,
+          "walkMin": 25,
+          "queueMin": 20,
+          "sameStreet": 12,
           "fame": "SNS_FAMOUS"
         },
         {
-          "price": 10000,
-          "walkMin": 15,
-          "queueMin": 40,
+          "price": 20000,
+          "walkMin": 8,
+          "queueMin": 20,
           "sameStreet": 3,
           "fame": "LOCAL_ONLY"
         }
@@ -715,42 +756,82 @@ textarea.u { min-height: 96px; font-size: 17px; line-height: 1.5; resize: vertic
       ]
     },
     {
-      "setId": "s04",
+      "setId": "s07",
       "trap": false,
       "alternatives": [
         {
           "price": 70000,
+          "walkMin": 8,
+          "queueMin": 20,
+          "sameStreet": 12,
+          "fame": "SNS_FAMOUS"
+        },
+        {
+          "price": 40000,
+          "walkMin": 15,
+          "queueMin": 40,
+          "sameStreet": 12,
+          "fame": "LOCAL_ONLY"
+        }
+      ]
+    },
+    {
+      "setId": "s08",
+      "trap": false,
+      "alternatives": [
+        {
+          "price": 20000,
+          "walkMin": 15,
+          "queueMin": 0,
+          "sameStreet": 3,
+          "fame": "SNS_FAMOUS"
+        },
+        {
+          "price": 20000,
           "walkMin": 3,
           "queueMin": 0,
-          "sameStreet": 12,
+          "sameStreet": 0,
+          "fame": "LOCAL_ONLY"
+        }
+      ]
+    },
+    {
+      "setId": "s10",
+      "trap": false,
+      "alternatives": [
+        {
+          "price": 40000,
+          "walkMin": 15,
+          "queueMin": 20,
+          "sameStreet": 0,
           "fame": "LOCAL_ONLY"
         },
         {
-          "price": 10000,
+          "price": 40000,
           "walkMin": 8,
-          "queueMin": 20,
-          "sameStreet": 3,
+          "queueMin": 40,
+          "sameStreet": 12,
           "fame": "SNS_FAMOUS"
         }
       ]
     },
     {
-      "setId": "s05",
+      "setId": "s11",
       "trap": false,
       "alternatives": [
         {
-          "price": 70000,
-          "walkMin": 25,
+          "price": 10000,
+          "walkMin": 3,
+          "queueMin": 40,
+          "sameStreet": 3,
+          "fame": "LOCAL_ONLY"
+        },
+        {
+          "price": 10000,
+          "walkMin": 15,
           "queueMin": 20,
           "sameStreet": 12,
           "fame": "SNS_FAMOUS"
-        },
-        {
-          "price": 20000,
-          "walkMin": 8,
-          "queueMin": 20,
-          "sameStreet": 3,
-          "fame": "LOCAL_ONLY"
         }
       ]
     }
@@ -766,10 +847,19 @@ textarea.u { min-height: 96px; font-size: 17px; line-height: 1.5; resize: vertic
       화면 맨 위에 경고가 뜬다 — 참여자에게도 보인다. 그게 안전장치다.
       값의 근거는 docs/SURVEY-CONSENT.md 7절의 "정해야 함" 목록이다.
    ══════════════════════════════════════════════════════════════════ */
+/* 🔴 다섯 칸 다 사람이 정한 값이다 (2026-09-10). 지어낸 값이 아니다.
+      같은 값이 docs/SURVEY-CONSENT.md 2.1 · 2.2 · 5.2 · 7절에도 들어가 있다 —
+      한쪽만 고치면 참여자가 보는 화면과 팀 문서가 다른 말을 하게 된다.
+   🔴 deadline · drawWhen 은 2026-09-10 에 더 정한 것이다 (7절 P4).
+      마감은 **월요일까지**, 올리는 날은 배포 당일, 추첨은 **마감 다음 날**.
+      날짜를 글자로 박아 둔다 — "다음 주 월요일" 은 읽는 날에 따라 다른 날을
+      가리키고, 마감을 잘못 안 사람은 다 적고 나서야 늦은 것을 안다. */
 const CONFIG = {
   facilitator: "장효준",
-  deleteWhen:  "수집일로부터 1년 뒤에",
-  contact:     "Mattermost DM: 부울경_E201_장효준 · Email: ***@redacted"
+  deleteWhen:  "받은 날로부터 1년 뒤에",
+  contact:     "Mattermost 로 부울경_E201_박재현",
+  deadline:    "2026년 9월 14일 (월) 밤 12시까지",
+  drawWhen:    "마감 다음 날인 9월 15일 (화)"
 };
 
 /* ── 사진 출처 (S15P21E201-754) ──────────────────────────────────
@@ -788,21 +878,44 @@ const CREDITS_LINE =
       그래서 낮/밤은 whenGood, 축제는 limited 로 따로 받는다.
    ── 순서와 코드값을 바꾸지 않는다. 바꾸면 앞 회차 응답과 못 합친다.
    ─────────────────────────────────────────────────────────────── */
+/* 🔴 eg = 이름 칸의 예시. **유형을 고르면 그 유형의 예시로 바뀐다.**
+      예전에는 일곱 유형이 전부 "예: ○○돼지국밥" 이었다 — 카페를 골라 놓고
+      돼지국밥 예시를 보면 사람은 "여기 맛집만 적는 곳인가" 로 읽는다.
+   🔴 lim = 「기간이 정해진 곳」 체크칸을 이 유형에서 보여 줄 것인가.
+      축제 · 시즌 행사는 전시 · 시장 · 체험 쪽 이야기이고, 맛집 · 카페 ·
+      술집에 "기간이 정해진 곳인가요" 를 물으면 안 묻느니만 못하다 —
+      쓸 데 없는 칸이 하나 늘면 나머지 칸의 신뢰도까지 같이 떨어진다.
+      🔴 lim:false 인 유형으로 바꾸면 이미 켠 체크도 같이 끈다. 안 끄면
+         화면에는 안 보이는데 값만 true 로 남아 표에 들어간다.
+   ── 순서와 코드값(v)을 바꾸지 않는다. 바꾸면 앞 회차 응답과 못 합친다.
+      eg · lim 은 화면 문구라 바꿔도 응답과 안 어긋난다.
+   ─────────────────────────────────────────────────────────────── */
 const TYPES = [
-  { v: "FOOD",     t: "맛집 · 로컬 음식" },
-  { v: "CAFE",     t: "카페 · 디저트" },
-  { v: "NATURE",   t: "자연 · 바다 · 산책" },
-  { v: "CULTURE",  t: "문화 · 역사 · 전시" },
-  { v: "MARKET",   t: "시장 · 골목 · 쇼핑" },
-  { v: "ACTIVITY", t: "체험 · 액티비티" },
-  { v: "BAR",      t: "술집 · 바" }
+  { v: "FOOD",     t: "맛집 · 로컬 음식",   eg: "예: ○○돼지국밥",     lim: false },
+  { v: "CAFE",     t: "카페 · 디저트",      eg: "예: ○○로스터리",     lim: false },
+  { v: "NATURE",   t: "자연 · 바다 · 산책", eg: "예: ○○해변 산책로",  lim: false },
+  { v: "CULTURE",  t: "문화 · 역사 · 전시", eg: "예: ○○미술관",       lim: true  },
+  { v: "MARKET",   t: "시장 · 골목 · 쇼핑", eg: "예: ○○시장",         lim: true  },
+  { v: "ACTIVITY", t: "체험 · 액티비티",    eg: "예: ○○요트 투어",    lim: true  },
+  { v: "BAR",      t: "술집 · 바",          eg: "예: ○○포차",         lim: false }
 ];
 const typeLabel = v => (TYPES.find(t => t.v === v) || {}).t || "";
+const typeOf    = v => TYPES.find(t => t.v === v) || null;
+/* 유형을 아직 안 골랐을 때의 예시 — 일부러 유형색이 없는 말로 둔다 */
+const EG_NONE = "먼저 위에서 어떤 곳인지 골라 주세요";
 
 /* 🔴 칸이 다섯이다. 유형이 다섯인 게 아니다.
       다섯 칸이 전부 같은 유형이어도 된다 — 맛집을 다섯 곳 아는 사람의
-      답을 잘라내지 않으려고 이렇게 바꿨다. */
+      답을 잘라내지 않으려고 이렇게 바꿨다.
+   🔴 SLOTS 는 **처음 보여 주는 칸 수이자 반드시 채워야 하는 칸 수**이고,
+      MAX_SLOTS 는 「한 곳 더 적기」로 늘릴 수 있는 **상한**이다 (S15P21E201-754).
+      처음부터 열 칸을 펼쳐 놓지 않는 이유는, 그 길이 자체가 "열 곳을 적어야
+      하는구나" 로 읽혀 시작도 하기 전에 사람을 돌려보내기 때문이다.
+   🔴 MAX_SLOTS(10) 는 server.mjs 의 MAX_SLOTS · schema.sql 과
+      migrations/0005_more_slots.sql 의 recommendation_slot_ok 상한과 같아야
+      한다. 어긋나면 사람은 화면에서 통과하고 서버나 DB 에서 거절당한다. */
 const SLOTS = 5;
+const MAX_SLOTS = 10;
 
 /* 🔴 다섯 칸 → 세 칸으로 바꿨다 (S15P21E201-754, 팀원 피드백).
       UNDER_20·AGE_20_24·AGE_25_29·AGE_30_34·AGE_35_PLUS 를 버리고
@@ -918,7 +1031,7 @@ const PHOTO_SRC = {
    누군가 다르게 읽는다.
    ══════════════════════════════════════════════════════════════════ */
 const SPEND_LEAD = {
-  kicker: "여행 스타일을 3개만 여쭤볼게요",
+  kicker: "여행 스타일을 4개만 여쭤볼게요",
   lede:   "여행할 때 보통 어떻게 쓰시는지 알면 추천 순서가 달라져요. 건너뛰셔도 돼요."
 };
 
@@ -972,7 +1085,56 @@ const SPEND_QUESTIONS = [
 ];
 
 /* ══════════════════════════════════════════════════════════════════
-   짝 비교 — 두 곳 중 하나 고르기 (화면 3장 × 문항 2개)
+   네 번째 문항 — 저녁 먹을 곳의 **북적임** (S15P21E201-754)
+   ──────────────────────────────────────────────────────────────────
+   🔴 앱 온보딩은 여전히 **세 질문**이다. 넷은 **이 설문에서만**이다.
+      "세 질문" 이라는 약속은 처음 앱을 켠 사람이 문항 하나 늘 때마다
+      나가기 때문에 있는 것이고, 링크를 눌러 들어온 이 설문의 참여자는
+      이미 6분을 쓸 작정으로 들어왔다. 이탈 비용이 서로 다르다 —
+      docs/COLDSTART-THREE-QUESTIONS.md 2.6 에 이유를 적어 뒀다.
+      🔴 이 넷을 앱으로 그대로 옮기지 않는다.
+
+   🔴 왜 이것을 묻나. 장소 쪽 피처는 이미 있다 — 선정 모델이 "100m 안
+      음식점 수 · 300m 안 음식점 수 · 같은 업종 밀도" 를 이미 잰다.
+      **북적임이 곧 그 밀도다.** 없는 것은 그 밀도를 어느 쪽으로 밀지를
+      정하는 **사람 쪽 값**이라, 그게 없으면 밀도 피처는 계산만 되고
+      쓸 방향을 아무도 모른다.
+
+   🔴 선호를 직접 묻지 않는다. "북적이는 곳 좋아하세요?" 는 사람이
+      자기 답을 모른다. 그래서 **상황과 행동**을 묻는다 — 소득을 안 묻고
+      "숙소에 1박 얼마까지" 를 묻는 것과 같은 간접 대리 방식이다.
+
+   🔴 가격 · 유명세를 이 문항에 섞지 않는다. 바로 앞 식사 문항이 그 둘을
+      재고 있어서, 여기서 또 물으면 두 문항이 같은 것을 재고 밀도는
+      아무도 안 잰다. 그래서 선택지 문구를 **거리와 골목**으로만 적었다.
+   ══════════════════════════════════════════════════════════════════ */
+const CROWD_QUESTION = {
+  /* 🔴 store 가 "crowd" 다. 이 답은 spend_profile JSONB 가 아니라
+        제 칸(crowd_pref)으로 간다 — 북적임은 돈이 아니라 밀도라 다른
+        차원이고, 상태 칸을 지불 의사와 나눠 쓰면 "북적임만 답한 사람" 이
+        지불 의사 'SELECTED' 로 남는다 (migrations/0004 참고). */
+  store: "crowd",
+  key: "crowd",
+  title: "부산에서 저녁 먹을 곳을<br>고를 때, 보통<br>어느 쪽으로 가세요?",
+  options: [
+    { v: "CROWD_BUSY",   t: "사람이 몰리는 먹자골목",  s: "가게가 늘어선 거리 한가운데로 들어가요" },
+    { v: "CROWD_EDGE",   t: "그 골목 가장자리",       s: "번화한 거리 바로 옆, 한 블록 안쪽으로 들어가요" },
+    { v: "CROWD_QUIET",  t: "조용한 동네 골목",       s: "가게가 드문 데라도, 한산한 쪽으로 가요" },
+    /* 🔴 마지막 선택지가 건너뛰기가 아니다. 식사 문항의 "그날그날 달라요" 와
+          같은 이유로 **답이다** — "밀도를 고정하지 않는 사람" 이라는 정보가
+          있다. 가운데(CROWD_EDGE)로 뭉개면 "가장자리를 고른 사람" 과
+          구별이 영영 안 된다. 건너뛰기는 아래 navrow 의 버튼이 따로 한다. */
+    { v: "CROWD_VARIES", t: "그날그날 달라요",        s: "북적여도 좋을 때가 있고, 조용한 데를 찾을 때가 있어요" }
+  ]
+};
+
+/* 화면에 나가는 개인화 문항 넷 — 순서가 곧 화면 순서다 (scQ1 ~ scQ4).
+   🔴 앞의 셋은 지불 의사(spend_profile) 한 차원이고 넷째는 밀도(crowd_pref)
+      한 차원이다. 화면은 같은 모양이지만 저장되는 칸이 다르다 — store 가 가른다. */
+const PERSONAL_QUESTIONS = SPEND_QUESTIONS.concat([CROWD_QUESTION]);
+
+/* ══════════════════════════════════════════════════════════════════
+   짝 비교 — 두 곳 중 하나 고르기 (화면 4장 × 문항 2개)
    ──────────────────────────────────────────────────────────────────
    🔴 왜 필요한가. 위의 세 문항이 내는 것은 **방향(부호)** 뿐이다 —
       "이 사람은 값을 더 본다" 까지는 알려 주지만 **얼마나** 더 보는지
@@ -1029,6 +1191,13 @@ const state = {
      서버는 키가 없는 것만 보고 건너뜀으로 읽는다. 상태 이름을 두 벌 보내면
      둘이 어긋났을 때 어느 쪽이 진짜인지 아무도 모르게 된다 */
   spendSkip: {},
+  /* 네 번째 문항 — 북적임. 🔴 코드값 하나 또는 null.
+     null 이 "건너뜀" 이다("안 물어봤음" 이 아니다) — 이 화면은 넷째 문항을
+     반드시 보여 주므로, 제출할 때 crowdPref 칸을 **항상** 실어 보낸다.
+     칸이 통째로 없는 것만 서버가 "아직 안 물어봤다" 로 읽는다. */
+  crowd: null,
+  /* "건너뛰기를 눌렀다" 는 화면 표시에만 쓴다 (spendSkip 과 같은 이유) */
+  crowdSkip: false,
   /* 짝 비교 — 문항마다 { chosen, msBucket }. 아직 안 고른 문항은 null.
      🔴 topWas 는 따로 둔다. "화면에서 위에 있던 쪽" 은 답이 아니라 화면이
         정한 것이고, 이전 장으로 돌아왔다 가도 안 바뀌어야 한다. */
@@ -1046,6 +1215,8 @@ const show = id => document.querySelectorAll(".screen").forEach(s => s.classList
   document.querySelectorAll(".cfg-facilitator").forEach(e => e.textContent = CONFIG.facilitator);
   document.querySelectorAll(".cfg-delete").forEach(e => e.textContent = CONFIG.deleteWhen);
   document.querySelectorAll(".cfg-contact").forEach(e => e.textContent = CONFIG.contact);
+  document.querySelectorAll(".cfg-deadline").forEach(e => e.textContent = CONFIG.deadline);
+  document.querySelectorAll(".cfg-draw").forEach(e => e.textContent = CONFIG.drawWhen);
   const left = Object.entries(CONFIG).filter(([, v]) => v.includes("정해야 함")).map(([k]) => k);
   if (left.length) { $("cfgWarn").classList.add("on"); $("cfgWarnList").textContent = left.join(", "); }
 })();
@@ -1139,9 +1310,15 @@ $("detailsToggle").addEventListener("click", () => {
 });
 
 /* ── 추천 칸 다섯 ────────────────────────────────────────────── */
-const ORD = ["첫", "두", "세", "네", "다섯"];
+/* 🔴 열까지 있다. 다섯에서 끊기면 여섯째 칸 제목이 "undefined 번째 추천" 이 된다 */
+const ORD = ["첫", "두", "세", "네", "다섯", "여섯", "일곱", "여덟", "아홉", "열"];
 const catsBox = $("cats");
-for (let i = 0; i < SLOTS; i++) {
+
+/* 🔴 예전에는 이 아래가 `for (let i = 0; i < SLOTS; i++) { … }` 였다. 함수로
+      바꾼 이유는 하나다 — 「한 곳 더 적기」를 누를 때 **같은 칸을 하나 더**
+      만들어야 하는데, 반복문 안에 있으면 그때 다시 부를 수가 없다.
+      안쪽 내용은 그대로다 (닫는 괄호만 `}` → `}` 로 같고, 호출이 아래에 있다). */
+function buildSlot(i) {
   const art = document.createElement("article");
   art.className = "cat";
   art.dataset.slot = String(i);
@@ -1168,15 +1345,24 @@ for (let i = 0; i < SLOTS; i++) {
     '<div class="rest locked">' +
       '<label class="f2" id="namelbl' + i + '">장소 이름</label>' +
       '<div class="acwrap">' +
+        /* 🔴 placeholder 는 비워 둔다. 유형을 고르는 순간 그 유형에 맞는
+              예시(TYPES 의 eg)로 아래 setEg() 가 채운다 — 여기에 한 유형의
+              예시를 박아 두면 나머지 여섯 유형에서 엉뚱한 예시가 뜬다. */
         '<input type="text" class="u in-name" maxlength="60" autocomplete="off" ' +
-          'placeholder="예: ○○돼지국밥" enterkeyhint="next" role="combobox" ' +
+          'placeholder="" enterkeyhint="next" role="combobox" ' +
           'aria-autocomplete="list" aria-expanded="false" aria-haspopup="listbox" ' +
           'aria-controls="aclist' + i + '" aria-labelledby="namelbl' + i + '">' +
         '<input type="hidden" class="in-place-id">' +
         '<ul class="aclist" id="aclist' + i + '" role="listbox" hidden></ul>' +
       '</div>' +
       '<p class="acstatus" aria-live="polite"></p>' +
-      '<p class="guard"><b>장소 이름만</b> 적어 주세요. 사람 이름 · 연락처 · 소속을 적지 마세요. ' +
+      /* 🔴 이 한 줄은 README.md 1절 「보호 장치 넷」의 ① 이다. 지우지 않는다.
+            2026-09-10 에 **짧게** 고쳤다 — 앞에서 전화번호를 선택으로 받는데
+            "연락처를 적지 마세요" 가 같이 있으면 읽는 사람이 모순으로 읽는다.
+            막으려던 것은 처음부터 **남의** 신원("우리 이모가 하는 집, 010-…")
+            이었으므로, 목적은 그대로 두고 방어적인 말만 걷어냈다.
+            실제 차단은 보호 장치 ②(PII 검사, 화면·서버 두 벌)가 한다. */
+      '<p class="guard"><b>가게 이름만</b> 적어 주세요. ' +
         '목록에서 골라도 되고, 없으면 그대로 적어도 돼요.</p>' +
 
       '<div class="twocol">' +
@@ -1184,7 +1370,10 @@ for (let i = 0; i < SLOTS; i++) {
           '<div class="field-label" style="margin:26px 0 4px">언제 가면 좋아요?</div>' +
           '<div class="chips small when"></div>' +
         '</div>' +
-        '<div>' +
+        /* 🔴 이 칸은 유형에 따라 통째로 사라진다 (TYPES 의 lim). 전시 · 시장 ·
+              체험에만 남기고 맛집 · 카페 · 술집 · 자연에서는 안 보여 준다 —
+              돼지국밥집에 "기간이 정해진 곳인가요" 는 물어볼 것이 못 된다. */
+        '<div class="limbox" hidden>' +
           '<div class="field-label" style="margin:26px 0 4px">기간</div>' +
           '<label class="check"><input type="checkbox" class="in-limited">' +
             '<span>기간이 정해진 곳이에요<i>축제 · 시즌 행사처럼 특정 시기에만 열리는 곳</i></span></label>' +
@@ -1194,7 +1383,10 @@ for (let i = 0; i < SLOTS; i++) {
       '<label class="f2">왜 추천하세요? <span style="color:var(--ink)">이 칸이 제일 중요해요</span></label>' +
       '<textarea class="u in-reason" maxlength="500" ' +
         'placeholder="한 줄이어도 좋아요. “왜 여기냐” 가 없으면 그냥 장소 목록이라 저희가 쓸 수 없어요."></textarea>' +
-      '<p class="guard">사람 이름 · 전화번호 · 이메일은 적지 마세요.</p>' +
+      /* 🔴 여기도 보호 장치 ① 이다 (위 이름 칸과 같은 이유로 짧게 고쳤다).
+            이유 칸은 "우리 이모가 하는 집, 010-…" 이 가장 많이 들어오는
+            자리라, **남의** 신원이라는 것을 분명히 말하고 끝낸다. */
+      '<p class="guard">다른 분의 이름 · 연락처는 빼고 적어 주세요.</p>' +
     '</div>' +
 
     '<div class="slotfoot">' +
@@ -1214,14 +1406,36 @@ for (let i = 0; i < SLOTS; i++) {
   const acStatus   = catinner.querySelector(".acstatus");
   const reasonIn   = catinner.querySelector(".in-reason");
   const limIn      = catinner.querySelector(".in-limited");
+  const limBox     = catinner.querySelector(".limbox");
   const nextBtn    = catinner.querySelector(".next");
   const nextLbl    = catinner.querySelector(".nextLabel");
+
+  /* ── 🔴 고른 유형에 화면을 맞춘다 (S15P21E201-754) ──────────────────
+   *   1. 이름 칸 예시를 그 유형의 것으로 바꾼다
+   *   2. 「기간이 정해진 곳」 칸을 그 유형에서 쓰는 것일 때만 보여 준다
+   *   🔴 안 쓰는 유형으로 바꿀 때는 이미 켠 체크도 끈다. 안 끄면 화면에는
+   *      없는데 값만 true 로 남아 표에 들어가고, 나중에 "돼지국밥집인데
+   *      기간 한정" 이라는 행이 나온다 — 그때는 화면을 봐도 원인을 못 찾는다.
+   * ─────────────────────────────────────────────────────────────── */
+  const applyType = () => {
+    const t = typeOf(state.slots[idx].type);
+    nameIn.placeholder = t ? t.eg : EG_NONE;
+    const showLim = !!(t && t.lim);
+    limBox.hidden = !showLim;
+    if (!showLim && state.slots[idx].limited) {
+      state.slots[idx].limited = false;
+      limIn.checked = false;
+    }
+  };
 
   /* 유형 일곱 — 이 칸에서 하나 고른다. 다른 칸이 같은 것을 골라도 된다 */
   buildChips(typeBox, TYPES, v => {
     state.slots[idx].type = v;
     rest.classList.remove("locked");
+    applyType();
   }, () => state.slots[idx].type, true);
+
+  applyType();   /* 처음 그릴 때 한 번 — 아직 안 골랐으면 예시 대신 안내가 뜬다 */
 
   /* 낮 / 밤 / 상관없음 */
   buildChips(whenBox, WHEN, v => { state.slots[idx].whenGood = v; }, () => state.slots[idx].whenGood, true);
@@ -1386,12 +1600,15 @@ for (let i = 0; i < SLOTS; i++) {
     typeBox.querySelectorAll(".chip").forEach(c => c.classList.remove("on"));
     whenBox.querySelectorAll(".chip").forEach(c => c.classList.remove("on"));
     rest.classList.add("locked");
+    applyType();   /* 유형이 없어졌으니 예시와 「기간」 칸도 처음 상태로 */
     if (state.open === idx) state.open = -1;
     paint();
   });
 
   nextBtn.addEventListener("click", () => {
-    state.open = idx < SLOTS - 1 ? idx + 1 : -1;
+    /* 🔴 SLOTS 가 아니라 지금 열려 있는 칸 수를 본다. 「한 곳 더 적기」로
+          늘렸으면 다섯째의 다음은 닫기가 아니라 여섯째다. */
+    state.open = idx < state.slots.length - 1 ? idx + 1 : -1;
     paint();
     const nowOpen = document.querySelector('.cat[data-slot="' + state.open + '"]');
     if (nowOpen) nowOpen.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -1407,17 +1624,59 @@ for (let i = 0; i < SLOTS; i++) {
   catsBox.appendChild(art);
 }
 
+/* 처음 보여 주는 다섯 칸 */
+for (let i = 0; i < SLOTS; i++) buildSlot(i);
+
+/* ── 🔴 「한 곳 더 적기」 (S15P21E201-754) ────────────────────────────
+ * 다섯으로 못 박아 두면 **부산을 가장 잘 아는 사람의 답이 잘려나간다.**
+ * 열 곳을 아는 사람이 다섯 곳만 적고 나가는 것은 우리가 가장 원하는 응답을
+ * 절반 버리는 것이다.
+ *
+ * 🔴 늘린 칸은 **비워 둬도 제출된다.** 눌러 놓고 안 채운 사람이 막히면
+ *    "괜히 눌렀네" 가 되고, 그러면 아무도 안 누른다. 비운 칸은 보낼 때
+ *    조용히 빠진다 (아래 liveSlots).
+ * 🔴 열이 차면 버튼을 감춘다 — 눌러도 아무 일이 없는 버튼을 남겨 두면
+ *    사람은 화면이 고장 났다고 생각한다.
+ * ─────────────────────────────────────────────────────────────── */
+const addSlotBtn = $("addSlot");
+function paintAddSlot() {
+  const room = state.slots.length < MAX_SLOTS;
+  addSlotBtn.hidden = !room;
+  $("addSlotNote").textContent = room
+    ? "더 아는 곳이 있으시면 칸을 늘려 주세요. 비워 두셔도 제출됩니다."
+    : "칸은 " + MAX_SLOTS + "곳까지예요. 비워 둔 칸은 그냥 빠집니다.";
+}
+addSlotBtn.addEventListener("click", () => {
+  if (state.slots.length >= MAX_SLOTS) return;
+  const i = state.slots.length;
+  state.slots.push(blank());
+  buildSlot(i);
+  state.open = i;              /* 만들자마자 펼친다 — 누른 사람이 찾아 내려가지 않게 */
+  paint();
+  const el = document.querySelector('.cat[data-slot="' + i + '"]');
+  if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+});
+
 /* 한 칸이 다 찼는가 — 유형 · 이름 · 언제 · 이유 넷 다 있어야 한 곳으로 센다 */
 const isFull = s => !!(s && s.type && s.name && s.whenGood && s.reason);
+/* 한 글자도 안 적은 칸인가 — 늘려 놓고 안 채운 칸이 이것이다.
+   🔴 "다 찼다" 의 반대가 아니다. 이름만 적고 만 칸은 둘 다 아니다 (적다 만 것). */
+const isEmpty = s => !!(s && !s.type && !s.name && !s.whenGood && !s.reason && !s.placeId);
+/* 실제로 보낼 칸 — 늘려 놓고 안 채운 칸은 여기서 빠진다 */
+const liveSlots = () => state.slots.filter(s => !isEmpty(s));
 
 /* ── 진행 표시와 카드 겉모습 ─────────────────────────────────── */
 let currentTrouble = [];
 function paint() {
   const n = state.slots.filter(isFull).length;
   $("cnum").textContent = String(n);
-  /* 위쪽 진행 표시는 단계마다 세는 것이 다르다 (짝 비교 3장 · 여행 스타일 3문항 ·
-     추천한 곳 5곳). 이 화면으로 돌아올 때마다 "추천한 곳" 으로 되돌려 놓는다 */
-  $("cof").textContent = " / " + SLOTS + " 추천한 곳";
+  /* 위쪽 진행 표시는 단계마다 세는 것이 다르다 (짝 비교 4장 · 여행 스타일 4문항 ·
+     추천한 곳 5곳). 이 화면으로 돌아올 때마다 "추천한 곳" 으로 되돌려 놓는다.
+     🔴 분모는 SLOTS(5)가 아니라 **지금 화면에 있는 칸 수**다. 「한 곳 더 적기」로
+        여섯 칸이 되면 0/5 가 아니라 0/6 이어야 한다 — 칸은 여섯인데 분모가 5 로
+        멈춰 있으면 "6/5" 같은 숫자가 나오고, 그 순간 위 표시를 아무도 안 믿는다. */
+  $("cof").textContent = " / " + state.slots.length + " 추천한 곳";
+  paintAddSlot();
   document.querySelectorAll(".cat").forEach(art => {
     const i = Number(art.dataset.slot);
     const s = state.slots[i];
@@ -1446,7 +1705,7 @@ function paint() {
     art.classList.toggle("bad", tr.length > 0);
 
     const nextLbl = art.querySelector(".nextLabel");
-    if (nextLbl) nextLbl.textContent = i < SLOTS - 1 ? "다음 칸" : "닫기";
+    if (nextLbl) nextLbl.textContent = i < state.slots.length - 1 ? "다음 칸" : "닫기";
 
     const rest = art.querySelector(".rest");
     if (s.type) rest.classList.remove("locked"); else rest.classList.add("locked");
@@ -1454,10 +1713,10 @@ function paint() {
 }
 
 /* ══════════════════════════════════════════════════════════════════
-   화면 순서 — 웰컴 3장 → 고지·동의 → **짝 비교 3장** → 개인화 세 문항
+   화면 순서 — 웰컴 3장 → 고지·동의 → **짝 비교 4장** → 개인화 네 문항
               → 장소 추천 다섯 곳
    🔴 짝 비교가 장소 추천보다 **앞**이다. 뒤에 두면 다섯 칸을 다 적고 지친
-      사람이 두 장 중 아무거나 찍고, 그러면 그 여섯 문항은 아무것도 안 재고
+      사람이 두 장 중 아무거나 찍고, 그러면 그 여덟 문항은 아무것도 안 재고
       자리만 먹는다.
    ══════════════════════════════════════════════════════════════════ */
 
@@ -1469,19 +1728,43 @@ function setTop(now, total, what) {
 
 /* ── 짝 비교 ─────────────────────────────────────────────────── */
 let pairPage = 0;      /* 지금 몇 번째 장인가 (0부터) */
-let pairMarkAt = 0;    /* 직전에 무엇을 한 시각. 문항 하나에 걸린 시간을 재는 기준 */
 
-/* p 번째 장으로 간다. -1 이면 고지 화면, 3 이면 개인화 세 문항으로 넘어간다 */
+/* ── 🔴 기준 시각을 **문항마다** 따로 둔다 (S15P21E201-754) ──────────
+   예전에는 기준점이 `pairMarkAt` 하나뿐이었고, 누를 때마다 그 자리로
+   옮겼다. 한 장에 문항이 둘이라 이렇게 됐다:
+
+     장이 열림 ─────▶ 1번 문항 클릭 ─────▶ 2번 문항 클릭
+     기준점 = 장 열림     ↑ 여기서 기준점이 옮겨감
+                          2번 문항의 시간이 "이 문항을 본 뒤" 가 아니라
+                          "직전 클릭 이후" 가 된다
+
+   두 문항은 **같이** 보인다. 사람은 둘 다 읽고 나서 하나씩 누르므로,
+   2번 문항의 실제 고민 시간에는 1번을 읽던 시간이 이미 들어 있다.
+   기준점을 옮기면 그 시간이 통째로 빠져서 2번 문항만 늘 빨라 보이고,
+   "안 읽고 찍은 응답" 을 거를 때 2번 문항이 부당하게 걸린다.
+
+   그래서 장이 열릴 때 그 장의 문항 **둘 다** 기준점을 잡는다.
+   ─────────────────────────────────────────────────────────────── */
+const pairShownAt = new Array(PAIR_SETS.length).fill(0);
+
+/* p 번째 장으로 간다. -1 이면 고지 화면, 3 이면 개인화 네 문항으로 넘어간다 */
 function goPair(p) {
   if (p < 0) { show("scIntro"); $("top").classList.add("hide"); window.scrollTo(0, 0); return; }
-  if (p >= PAIR_PAGES) { goSpend(0); return; }
+  if (p >= PAIR_PAGES) { goPersonal(0); return; }
   pairPage = p;
   renderPairPage(p);
   show("scPair");
   $("top").classList.remove("hide");
   setTop(p + 1, PAIR_PAGES, "두 곳 중 고르기");
   window.scrollTo(0, 0);
-  pairMarkAt = performance.now();
+  /* 🔴 이 장의 문항 전부가 지금 동시에 보이기 시작한다.
+        이전 장에서 되돌아온 경우 이미 답한 문항도 다시 잡히지만, 그 문항의
+        구간은 첫 선택 때 굳어 있어 안 바뀐다 (pickPair 참고). */
+  const t = performance.now();
+  for (let k = 0; k < PER_PAGE; k++) {
+    const i = p * PER_PAGE + k;
+    if (i < PAIR_SETS.length) pairShownAt[i] = t;
+  }
 }
 
 function renderPairPage(p) {
@@ -1554,11 +1837,17 @@ function buildPairQuestion(i) {
 /* 🔴 건너뛰기가 없다. 한 장의 두 문항을 다 골라야 다음으로 간다.
       세 문항(교통 · 숙소 · 식사)은 건너뛸 수 있지만 여기는 아니다 —
       강제 선택이 짝 비교의 본체라, 건너뛸 수 있으면 배수를 아무것도 못 잰다.
-      대신 여섯 문항뿐이고 "정답이 없다" 고 화면에 적어 두었다. */
+      대신 여덟 문항뿐이고 "정답이 없다" 고 화면에 적어 두었다. */
 function pickPair(i, idx) {
-  const t = performance.now();
-  state.pair[i] = { chosen: idx, msBucket: bucketOf(t - pairMarkAt) };
-  pairMarkAt = t;              /* 다음 문항의 시간은 여기서부터 잰다 */
+  const before = state.pair[i];
+  state.pair[i] = {
+    chosen: idx,
+    /* 🔴 **첫 선택**의 구간을 그대로 둔다. 마음을 바꿔 다시 누르면 고른 쪽만
+          바뀌고 시간은 안 바뀐다 — 재려는 것이 "이 문항을 보고 처음 정하는 데
+          걸린 시간" 이라서다. 다시 누른 시각으로 덮어쓰면, 두 번 본 사람일수록
+          오래 고민한 것처럼 되어 "빨리 찍은 응답 거르기" 가 거꾸로 돈다. */
+    msBucket: before ? before.msBucket : bucketOf(performance.now() - pairShownAt[i])
+  };
   renderPairPage(pairPage);    /* 누른 것이 보이게 다시 그린다 */
 }
 
@@ -1580,12 +1869,14 @@ function paintPairNext() {
 $("pairNext").addEventListener("click", () => goPair(pairPage + 1));
 $("pairBack").addEventListener("click", () => goPair(pairPage - 1));
 
-/* ── 개인화 세 문항 — 화면 만들기 ─────────────────────────────────
-   한 화면에 한 문항이다. 세 개를 한 화면에 놓으면 "설문" 으로 보이고 이탈한다.
+/* ── 개인화 네 문항 — 화면 만들기 ─────────────────────────────────
+   한 화면에 한 문항이다. 넷을 한 화면에 놓으면 "설문" 으로 보이고 이탈한다.
+   🔴 앞의 셋(교통 · 숙소 · 식사)은 지불 의사로, 넷째(북적임)는 밀도로
+      저장된다. 화면 모양은 같고 저장되는 칸만 다르다 — q.store 가 가른다.
    ─────────────────────────────────────────────────────────────── */
 const mainSec = $("scMain");
 
-SPEND_QUESTIONS.forEach((q, qi) => {
+PERSONAL_QUESTIONS.forEach((q, qi) => {
   const sec = document.createElement("section");
   sec.className = "screen";
   sec.id = "scQ" + (qi + 1);
@@ -1625,7 +1916,7 @@ SPEND_QUESTIONS.forEach((q, qi) => {
     b.appendChild(txt);
     /* 누르면 고르기만 하고 넘어가지 않는다. 손이 미끄러진 사람이 되돌릴 수 있어야 한다.
        넘어가는 것은 "다음" 하나가 한다 */
-    b.addEventListener("click", () => pickSpend(qi, o.v));
+    b.addEventListener("click", () => pickPersonal(qi, o.v));
     box.appendChild(b);
   }
   sec.appendChild(box);
@@ -1636,74 +1927,83 @@ SPEND_QUESTIONS.forEach((q, qi) => {
         안 고르고 넘어간 것은 "봤는데 건너뛰었다" 로 저장된다.
         (짝 비교는 반대로 막는다. 거기서는 강제 선택이 문항의 본체다.) */
   next.innerHTML = '<span>다음</span><span class="arrow">→</span>';
-  next.addEventListener("click", () => goSpend(qi + 1));
+  next.addEventListener("click", () => goPersonal(qi + 1));
   sec.appendChild(next);
 
   const nav = document.createElement("div");
   nav.className = "navrow";
   const back = document.createElement("button");
   back.type = "button"; back.className = "btn-ghost"; back.textContent = "이전";
-  back.addEventListener("click", () => goSpend(qi - 1));
+  back.addEventListener("click", () => goPersonal(qi - 1));
   nav.appendChild(back);
 
   /* 🔴 건너뛰기가 항상 보인다. 숨겨 두지 않는다.
         1 · 2번 문항은 마지막 선택지("잘 모르겠어요" · "아직 안 정했어요")가 곧
-        건너뛰기지만, 3번 문항은 마지막 선택지가 답("그날그날 달라요")이라
-        건너뛸 자리가 없다. 그래서 세 화면 모두 이 버튼을 같은 자리에 둔다. */
+        건너뛰기지만, 3 · 4번 문항은 마지막 선택지가 답("그날그날 달라요")이라
+        건너뛸 자리가 없다. 그래서 네 화면 모두 이 버튼을 같은 자리에 둔다. */
   const skip = document.createElement("button");
   skip.type = "button"; skip.className = "btn-ghost"; skip.textContent = "건너뛰기";
-  skip.addEventListener("click", () => { pickSpend(qi, null); goSpend(qi + 1); });
+  skip.addEventListener("click", () => { pickPersonal(qi, null); goPersonal(qi + 1); });
   nav.appendChild(skip);
   sec.appendChild(nav);
 
   if (qi === 0) {
-    /* 전체 건너뛰기 — 그때도 세 문항이 전부 "건너뜀" 으로 저장된다.
+    /* 전체 건너뛰기 — 그때도 네 문항이 전부 "건너뜀" 으로 저장된다.
        아무것도 저장 안 하는 것과 다르다: "물어봤는데 안 답했다" 는 정보다 */
     const all = document.createElement("button");
     all.type = "button"; all.className = "linkbtn";
-    all.textContent = "세 문항 모두 건너뛰기";
+    all.textContent = "네 문항 모두 건너뛰기";
     all.addEventListener("click", () => {
-      for (let i = 0; i < SPEND_QUESTIONS.length; i++) pickSpend(i, null);
-      goSpend(SPEND_QUESTIONS.length);
+      for (let i = 0; i < PERSONAL_QUESTIONS.length; i++) pickPersonal(i, null);
+      goPersonal(PERSONAL_QUESTIONS.length);
     });
     sec.appendChild(all);
   }
 
-  /* 화면 순서가 짝 비교 → 세 문항 → 장소 추천 이라 그 사이에 끼운다.
+  /* 화면 순서가 짝 비교 → 네 문항 → 장소 추천 이라 그 사이에 끼운다.
      (어느 화면이 보이는지는 .on 클래스가 정하므로 DOM 순서가 동작을 바꾸지는
       않는다. 읽는 사람이 헷갈리지 않게 맞춰 둘 뿐이다.) */
   mainSec.parentNode.insertBefore(sec, mainSec);
 });
 
-/* 고른 것을 상태에 넣는다. null 이면 키를 지운다 — null 을 값으로 넣지 않는다 */
-function pickSpend(qi, v) {
-  const key = SPEND_QUESTIONS[qi].key;
-  if (v === null) { delete state.spend[key]; state.spendSkip[key] = true; }
-  else            { state.spend[key] = v;    delete state.spendSkip[key]; }
-  paintSpend(qi);
+/* 고른 것을 상태에 넣는다. v 가 null 이면 "봤는데 건너뛰었다".
+   🔴 지불 의사 셋은 **키를 지운다** — 객체 안에 null 을 값으로 넣지 않는다.
+      북적임은 칸 하나라 null 그 자체가 "건너뜀" 이다 (제출할 때 칸은 늘 실려 간다). */
+function pickPersonal(qi, v) {
+  const q = PERSONAL_QUESTIONS[qi];
+  if (q.store === "crowd") {
+    state.crowd = v;
+    state.crowdSkip = v === null;
+  } else if (v === null) {
+    delete state.spend[q.key]; state.spendSkip[q.key] = true;
+  } else {
+    state.spend[q.key] = v;    delete state.spendSkip[q.key];
+  }
+  paintPersonal(qi);
 }
 
 /* 그 화면의 "골랐다" 표시를 다시 그린다 (되돌아왔을 때도 그대로 보이게) */
-function paintSpend(qi) {
-  const key = SPEND_QUESTIONS[qi].key;
-  const now = state.spend[key];
+function paintPersonal(qi) {
+  const q = PERSONAL_QUESTIONS[qi];
+  const now     = q.store === "crowd" ? state.crowd     : state.spend[q.key];
+  const skipped = q.store === "crowd" ? state.crowdSkip : !!state.spendSkip[q.key];
   document.querySelectorAll("#scQ" + (qi + 1) + " .opt").forEach(b => {
     /* 빈 dataset.v = 건너뛰기 선택지. 그것도 "골랐다" 로 보여 준다 —
        눌렀는데 아무 일도 안 일어나면 사람은 고장 난 줄 알고 아무거나 다시 누른다 */
-    const mine = b.dataset.v === "" ? !!state.spendSkip[key] : b.dataset.v === now;
+    const mine = b.dataset.v === "" ? skipped : b.dataset.v === now;
     b.classList.toggle("on", mine);
     b.setAttribute("aria-checked", String(mine));
   });
 }
 
-/* i 번째 문항 화면으로 간다. -1 이면 짝 비교 마지막 장, 3 이면 장소 추천 */
-function goSpend(i) {
+/* i 번째 문항 화면으로 간다. -1 이면 짝 비교 마지막 장, 4 이면 장소 추천 */
+function goPersonal(i) {
   if (i < 0) { goPair(PAIR_PAGES - 1); return; }
-  if (i >= SPEND_QUESTIONS.length) { goMain(); return; }
-  paintSpend(i);
+  if (i >= PERSONAL_QUESTIONS.length) { goMain(); return; }
+  paintPersonal(i);
   show("scQ" + (i + 1));
   $("top").classList.remove("hide");
-  setTop(i + 1, SPEND_QUESTIONS.length, "여행 스타일");
+  setTop(i + 1, PERSONAL_QUESTIONS.length, "여행 스타일");
   window.scrollTo(0, 0);
 }
 
@@ -1719,7 +2019,7 @@ function goMain() {
 $("consent").addEventListener("change", e => { $("start").disabled = !e.target.checked; });
 $("start").addEventListener("click", () => {
   if (!$("consent").checked) return;
-  /* 🔴 동의 다음은 **짝 비교**다. 개인화 세 문항은 그 뒤에 온다. */
+  /* 🔴 동의 다음은 **짝 비교**다. 개인화 네 문항은 그 뒤에 온다. */
   goPair(0);
 });
 
@@ -1768,7 +2068,7 @@ $("submit").addEventListener("click", async () => {
   if (!state.ageBand)    trouble.push({ text: "나이대를 골라 주세요.", slot: -1 });
   if (!state.busanYears) trouble.push({ text: "부산에 얼마나 사셨는지 골라 주세요.", slot: -1 });
 
-  /* 🔴 짝 비교를 다 안 골랐으면 여기서 막는다. 화면 흐름상 여섯을 다 고르지
+  /* 🔴 짝 비교를 다 안 골랐으면 여기서 막는다. 화면 흐름상 여덟을 다 고르지
         않으면 이 화면까지 못 오지만, 안 막으면 서버가 400 으로 거절하고
         사람은 다섯 칸을 다 적은 뒤에야 "왜 안 되지" 를 겪는다.
         반쪽짜리 짝 비교는 안 받는다 — 빠진 자리는 나중에 지어내게 된다. */
@@ -1800,20 +2100,38 @@ $("submit").addEventListener("click", async () => {
     }
   });
 
+  /* 🔴 다섯은 하한이고 열이 상한이다 (S15P21E201-754). 세는 규칙이 둘로 갈린다.
+        - **다 찬 칸이 다섯 곳 미만**이면 막는다. 그게 이 설문의 최소치다.
+        - **늘려 놓고 한 글자도 안 적은 칸은 안 막는다.** 보낼 때 조용히 빠진다
+          (liveSlots). 눌러 놓고 안 채운 사람이 막히면 아무도 그 버튼을 안 누른다.
+        - **적다 만 칸은 막는다.** 조용히 버리면 사람이 적은 것이 소리 없이
+          사라지고, 그걸 알아차릴 방법이 없다. 어느 칸의 무엇이 비었는지 말해 준다.
+     🔴 예전에는 `done < SLOTS` 하나로만 봤다. 칸이 늘 수 있게 된 지금 그 식은
+        틀린다 — 1·2·3·4 번을 채우고 5 번을 비운 채 6 번을 채우면 done 이 5 라
+        통과하는데, 정작 다섯째 칸은 비어 있다. 그래서 앞 다섯 칸을 따로 본다. */
   if (!pii) {
-    const done = state.slots.filter(isFull).length;
-    if (done < SLOTS) {
-      trouble.push({ text: "다섯 군데를 채워 주세요. 지금 " + done + "군데예요.", slot: -1 });
-      state.slots.forEach((s, i) => {
-        if (isFull(s)) return;
-        const miss = [];
-        if (!s.type)     miss.push("어떤 곳인지");
-        if (!s.name)     miss.push("장소 이름");
-        if (!s.whenGood) miss.push("언제 가면 좋은지");
-        if (!s.reason)   miss.push("추천 이유");
-        trouble.push({ text: miss.join(" · ") + " 이 비어 있어요.", slot: i });
-      });
+    const baseDone = state.slots.slice(0, SLOTS).filter(isFull).length;
+    const sayMissing = (s, i) => {
+      const miss = [];
+      if (!s.type)     miss.push("어떤 곳인지");
+      if (!s.name)     miss.push("장소 이름");
+      if (!s.whenGood) miss.push("언제 가면 좋은지");
+      if (!s.reason)   miss.push("추천 이유");
+      trouble.push({ text: miss.join(" · ") + " 이 비어 있어요.", slot: i });
+    };
+
+    if (baseDone < SLOTS) {
+      trouble.push({ text: "다섯 군데를 채워 주세요. 지금 " + baseDone + "군데예요.", slot: -1 });
+      state.slots.slice(0, SLOTS).forEach((s, i) => { if (!isFull(s)) sayMissing(s, i); });
     }
+
+    /* 여섯째 칸부터 — 다 찼거나 아예 비었거나 둘 중 하나여야 한다 */
+    state.slots.forEach((s, i) => {
+      if (i < SLOTS) return;
+      if (isFull(s) || isEmpty(s)) return;
+      trouble.push({ text: "이 칸은 적다 마셨어요. 마저 적으시거나 「이 칸 비우기」를 눌러 주세요.", slot: i });
+      sayMissing(s, i);
+    });
   }
 
   if (trouble.length) {
@@ -1833,6 +2151,11 @@ $("submit").addEventListener("click", async () => {
           🔴 그리고 하나도 안 골랐어도 {} 를 반드시 보낸다. 이 칸을 통째로 빼면
              서버가 "아직 안 물어봤다" 로 읽는데, 이 화면은 물어봤다. */
     spendProfile: Object.assign({}, state.spend),
+    /* 🔴 북적임 — 칸을 **항상** 실어 보낸다. 안 고르셨으면 null 이다.
+          여기서 null 은 "봤는데 건너뛰었다" 이고, 칸이 통째로 없는 것만
+          서버가 "아직 안 물어봤다"(옛 판의 응답)로 읽는다. 이 화면은 넷째
+          문항을 반드시 보여 주므로 "안 물어봤다" 는 여기서 나올 수 없다. */
+    crowdPref: state.crowd,
     /* 🔴 짝 비교 — 세 문항 답과 **같은 요청**으로 간다. 그래서 둘이 갈라지지
           않고, 이을 새 식별자도 필요 없다. 서버가 둘을 response 의 같은 줄에
           넣는다 (그 줄의 nonce 가 그 응답 하나를 가리킨다).
@@ -1855,7 +2178,11 @@ $("submit").addEventListener("click", async () => {
         };
       }).filter(Boolean)
     },
-    recommendations: state.slots.map((s, i) => ({
+    /* 🔴 늘려 놓고 한 글자도 안 적은 칸은 여기서 빠진다 (liveSlots). 그래서
+          slot 번호는 화면의 칸 번호가 아니라 **남은 것을 1 부터 다시 센 번호**다.
+          6·9 번만 남았어도 표에는 6·7 로 들어간다 — 서버도 같은 일을 한 번 더
+          한다(pruneEmptySlots + insert 가 1 부터 다시 셈). 화면만 믿지 않는다. */
+    recommendations: liveSlots().map((s, i) => ({
       slot: i + 1, placeType: s.type, placeName: s.name,
       whenGood: s.whenGood, limitedTime: s.limited, reason: s.reason,
       placeId: s.placeId || null   /* 목록에서 고른 경우만. 직접 적었으면 null */
@@ -1879,7 +2206,9 @@ $("submit").addEventListener("click", async () => {
     }
     const recap = $("recap");
     recap.innerHTML = "";
-    state.slots.forEach((s, i) => {
+    /* 🔴 보낸 것만 보여 준다. 빈 칸까지 "—" 로 늘어놓으면 방금 낸 응답이
+          실제로 무엇이었는지가 오히려 안 보인다 */
+    liveSlots().forEach((s, i) => {
       const row = document.createElement("div");
       row.className = "row";
       row.innerHTML =
@@ -1888,6 +2217,12 @@ $("submit").addEventListener("click", async () => {
         '<span class="rtype">' + typeLabel(s.type) + '</span>';
       recap.appendChild(row);
     });
+    /* 🔴 실제로 보낸 곳 수로 말한다. 여섯 곳을 적은 사람에게 "다섯 군데" 라고
+          하면 하나를 잃어버린 줄 안다 */
+    const sentOrd = ["", "한", "두", "세", "네", "다섯", "여섯", "일곱", "여덟", "아홉", "열"];
+    const sentN = liveSlots().length;
+    $("doneCount").textContent = (sentOrd[sentN] || String(sentN)) + " 군데";
+    $("doneTop").textContent = sentN + " / " + sentN;
     show("scDone");
     $("top").classList.add("hide");
     window.scrollTo(0, 0);
