@@ -12,7 +12,6 @@ import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { Eyebrow } from '@/components/Eyebrow';
 import { Button } from '@/components/Button';
-import { LanguageBadge } from '@/components/LanguageBadge';
 import { useAuth } from '@/auth/AuthProvider';
 import { useI18n } from '@/i18n';
 import { DIALECT_PHRASES } from '@/discovery/dialectPhrases';
@@ -128,7 +127,6 @@ export default function Prepare() {
             {tx('부산 여행 준비', 'Getting ready for Busan')}
           </Text>
         </View>
-        <LanguageBadge />
       </View>
 
       <View style={styles.weatherCard}>
@@ -213,6 +211,10 @@ const styles = StyleSheet.create({
   headerCopy: {
     flex: 1,
     gap: spacing[1],
+    // 우측 상단에 상시 떠 있는 언어 배지(GlobalLanguageBadge)와 겹치지 않게
+    // 제목 영역 오른쪽에 여백을 둔다 — 이 자리에 배지가 인라인으로 있던 것을
+    // 전역 배지로 옮기면서(S15P21E201-261) 대신 남겨 둔 여백이다.
+    paddingRight: 140,
   },
   title: {
     marginTop: spacing[1],
