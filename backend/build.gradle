@@ -58,6 +58,9 @@ dependencies {
 	// minio 8.6.0 이 전이로 받아오는 bcprov-jdk18on 1.81 은 GHSA-574f-3g2m-x479 를 아직
 	// 안 고쳤다 — 명시로 최신 고정판을 올려 그걸 덮어쓴다(위 minio 주석 참고).
 	implementation 'org.bouncycastle:bcprov-jdk18on:1.85.2'
+	// S15P21E201-802 — 자연어 여행 도우미가 Claude(Haiku 4.5)를 구조화 출력(StructuredMessageCreateParams)
+	// 으로 부른다. 공식 Anthropic Java SDK.
+	implementation 'com.anthropic:anthropic-java:2.34.0'
 	testImplementation 'org.springframework.boot:spring-boot-starter-actuator-test'
 	testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
 	testImplementation 'org.springframework.boot:spring-boot-starter-flyway-test'
