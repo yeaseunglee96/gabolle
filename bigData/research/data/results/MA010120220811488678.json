@@ -1,0 +1,34 @@
+{
+  "id": "MA010120220811488678",
+  "worker": "haiku-59",
+  "researchedAt": "2026-09-09T07:55:02Z",
+  "queries": ["해림이네 해운대구 부산", "해림이네 중2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=Spf38xzHwZTK", "https://www.siksinhot.com/P/631923", "https://triple.guide/restaurants/14531c5e-3b3c-4657-809f-7583b191935d"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "조개구이와 장어구이 전문점, 신선한 해산물",
+      "sources": [0, 1]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "청사포 지역의 바다가 보이는 경치, 수상 좋은 분위기",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "무료 주차 및 발렛 파킹 서비스",
+    "audience": "mixed",
+    "signatureDishes": ["조개구이(중)", "장어구이", "회덮밥"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "청사포 지역의 해산물 전문점. 인터넷에서 유명한 부산 맛집. 반려동물 친화적. 10:00 ~ 05:00(새벽 운영)"
+}

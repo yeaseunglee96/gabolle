@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220803700098",
+  "worker": "haiku-66",
+  "researchedAt": "2026-09-10T12:22:00Z",
+  "queries": ["찐스시 해운대구 부산", "찐스시 중1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=Ryg1I0FgWqEJ"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "맛 묘사",
+      "note": "깔끔하고 신선한 스시",
+      "sources": [0]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "좋은 가격대의 가성비 좋은 스시",
+      "sources": [0]
+    },
+    {
+      "type": "현지인 지지",
+      "note": "로컬들이 선호하는 스시점",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["스시", "오마카세"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "정중동역 근처, 캐주얼 다이닝 및 디너코스·오마카세 가능"
+}

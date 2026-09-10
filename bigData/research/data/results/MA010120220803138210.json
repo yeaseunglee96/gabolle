@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220803138210",
+  "worker": "haiku-10",
+  "researchedAt": "2026-09-09T14:55:00Z",
+  "queries": ["빨간등대 영도구 부산", "빨간등대 남항동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산 영도구 남항서로 40"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "분위기·전망", "note": "전좌석 오션뷰, 해안가에 위치한 아름다운 경치", "sources": [0]},
+    {"type": "기관 선정", "note": "블루리본 서베이 선정", "sources": [0]},
+    {"type": "맛 묘사", "note": "제철회, 고급회, 물회밥상 등 신선한 해산물 코스", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["고급회코스", "물회밥상"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": ""
+}

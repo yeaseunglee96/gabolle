@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202409A0177168",
+  "worker": "haiku-45",
+  "researchedAt": "2026-09-09T13:36:00Z",
+  "queries": ["영도면옥 영도구 부산", "영도면옥 동삼3동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1397544", "https://www.diningcode.com/profile.php?rid=JK1CJGyGF1Z2"],
+  "stillOpen": true,
+  "whyPeopleGo": [{"type": "간판 메뉴 지목", "note": "칼국수, 냉면, 곰탕 전문점", "sources": [0, 1]}],
+  "newTypes": [],
+  "descriptors": {"yearsClaimed": null, "generations": null, "queueing": null, "parking": null, "audience": "mixed", "signatureDishes": ["칼국수", "냉면", "곰탕"], "priceBand": "cheap"},
+  "notFound": null,
+  "notes": ""
+}

@@ -1,0 +1,23 @@
+{
+  "id": "MA0101202411A0135163",
+  "worker": "haiku-62",
+  "researchedAt": "2026-09-09T08:40:00Z",
+  "queries": ["원웨이브레드 수영구 부산", "원웨이브레드 광안2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=LTmXc0Uw804f", "https://www.keyzard.cc/yubeen22/nb/223982374900"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "프리미엄 식빵과 프렌치토스트 전문점",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["식빵", "프렌치토스트", "소금빵"]
+  },
+  "notFound": null,
+  "notes": ""
+}

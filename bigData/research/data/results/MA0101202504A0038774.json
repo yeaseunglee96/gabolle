@@ -1,0 +1,27 @@
+{
+  "id": "MA0101202504A0038774",
+  "worker": "haiku-69",
+  "researchedAt": "2026-09-10T00:15:00Z",
+  "queries": ["베이커스박스 해운대", "베이커스박스 중1동"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=jyt8gB0yR2xe"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "분위기·전망", "note": "오션뷰, 신상 복합문화공간", "sources": [0]},
+    {"type": "간판 메뉴 지목", "note": "베이커리 전문", "sources": [0]},
+    {"type": "운영·접근 편의", "note": "무료 주차 2시간", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["베이커리"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "메뉴 5,500~6,500원, 블루라인파크 옆, 영업시간 09:00~19:00"
+}

@@ -1,0 +1,44 @@
+{
+  "id": "MA010120220814323564",
+  "worker": "haiku-19",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["레땅 부산진구 부산", "레땅 연지동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1004876", "https://www.tabling.co.kr/place/677ccbda66de5f06987e0066", "https://www.diningcode.com/profile.php?rid=1miO4mSqAsmv"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "원조·최초",
+      "note": "프랑스·일본 경험 후 고향 연지동에 2018년 개업한 셰프의 한 명 운영",
+      "sources": [0]
+    },
+    {
+      "type": "조리·재료",
+      "note": "제철 식재료로 계절별 메뉴 변화, 기본에 충실한 프렌치 퀴진",
+      "sources": [0]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "시즌 코스 65,000원 합리적 가격",
+      "sources": [0]
+    },
+    {
+      "type": "메뉴 희소성",
+      "note": "1인 셰프 다이닝으로 계절과 감정에 따라 메뉴 선택",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["프렌치 코스"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": ""
+}

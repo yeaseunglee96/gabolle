@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220810522237",
+  "worker": "haiku-24",
+  "researchedAt": "2026-09-09T10:26:15.2132113+09:00",
+  "queries": ["오늘은돈까스먹는날 서구 부산", "오늘은돈까스먹는날 남부민2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.mangoplate.com/restaurants/Na8IHRiGuj", "https://www.diningcode.com/profile.php?rid=RH4TD8eMhZTz", "http://localmap.co.kr/web/splus/kmap/view.php?sigun=6260000&gugun=3260000&keyno=111&keyname=%EC%98%A4%EB%8A%98%EC%9D%80%EB%8F%88%EA%B9%8C%EC%8A%A4%EB%A8%B9%EB%8A%94%EB%82%A0&keylink=3260000-101-2008-00006"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "돈까스 전문점", "sources": [0]},
+    {"type": "가격·가성비", "note": "작은돈까스 6,000원 등 저가 메뉴", "sources": [0, 1]},
+    {"type": "운영·접근 편의", "note": "매일 8:30-20:30 운영", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["돈까스", "튀김우동", "이나리초밥"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

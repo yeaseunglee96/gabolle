@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220810465745",
+  "worker": "haiku-21",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["남포물회 중구 부산", "남포물회 남포동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=i9dh4lTdqxrc", "https://www.tabling.co.kr/place/677cc8e766de5f069877df1d", "https://www.daangn.com/kr/local-profile/%EB%82%A8%ED%8F%AC%EB%AC%BC%ED%9A%8C-9wru9yxv3ih8/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "동네·시장 지목",
+      "note": "자갈치시장 내 물회 전문점으로 시장의 위치 신호",
+      "sources": [0, 1, 2]
+    },
+    {
+      "type": "메뉴 희소성",
+      "note": "물회는 제한적인 계절 보양식으로 이곳에서만 가능",
+      "sources": [0, 1]
+    },
+    {
+      "type": "플랫폼 순위·평점",
+      "note": "다이닝코드 등 맛집 플랫폼에 등재되어 있음",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "available",
+    "audience": "mixed",
+    "signatureDishes": ["활어물회", "갈치물회", "전복물회"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

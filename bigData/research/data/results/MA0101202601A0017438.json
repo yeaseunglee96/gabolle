@@ -1,0 +1,25 @@
+{
+  "id": "MA0101202601A0017438",
+  "worker": "haiku-11",
+  "researchedAt": "2026-09-09T00:52:00Z",
+  "queries": ["보수동가 중구 부산", "보수동가 보수동 카페"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 중구 책방골목길 13-15"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "분위기·전망", "note": "햇살 가득한 테라스와 정원의 루프탑 카페로 책방골목의 특별한 분위기에서 도시 전망 감상 가능", "sources": [0, 1] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["크로플", "딸기 스무디"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "개 동반 가능 (대형견도 리드 착용 시 가능)"
+}

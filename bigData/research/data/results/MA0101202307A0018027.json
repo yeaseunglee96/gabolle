@@ -1,0 +1,23 @@
+{
+  "id": "MA0101202307A0018027",
+  "worker": "haiku-66",
+  "researchedAt": "2026-09-10T12:04:00Z",
+  "queries": ["태산 수영구 부산", "태산 민락동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://app.catchtable.co.kr/ct/shop/taesan"],
+  "stillOpen": true,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": [],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "캐치테이블 예약 플랫폼에 등재된 횟집. 구체적 정보 부족"
+}

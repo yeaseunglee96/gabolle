@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220810511790",
+  "worker": "haiku-36",
+  "researchedAt": "2026-09-09T02:11:08Z",
+  "queries": ["푸른횟집 사하구 부산", "푸른횟집 장림1동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색 결과에서 부산 사하구 장림동의 푸른횟집에 대한 정보를 찾을 수 없음",
+  "notes": ""
+}

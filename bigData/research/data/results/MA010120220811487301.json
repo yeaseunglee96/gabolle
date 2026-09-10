@@ -1,0 +1,34 @@
+{
+  "id": "MA010120220811487301",
+  "worker": "haiku-68",
+  "researchedAt": "2026-09-10T10:16:00Z",
+  "queries": ["진횟집 민락수변로 민락동 부산", "진횟집 횟집 맛집 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=hcI6c7xMmKl5", "https://triple.guide/restaurants/2ef13605-325a-457e-85cb-e1cfafafc715"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "조리·재료",
+      "note": "신선한 활어를 사용한 싱싱한 회",
+      "sources": [0]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "활어회와 물회 전문",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["활어회", "물회"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "횟집. 민락수변로 5에 위치. 신선한 활어를 사용하며 국물이 맛있다는 평가"
+}

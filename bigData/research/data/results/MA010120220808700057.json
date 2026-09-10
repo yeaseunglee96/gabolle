@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220808700057",
+  "worker": "haiku-13",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["로바타아키 부산진구 부산", "로바타아키 부전2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["식신", "다이닝코드"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "일식 로바타(숯불 구이) 이자카야",
+      "sources": [0, 1]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "카운터식 약 18-20석의 고급스러운 이자카야 분위기",
+      "sources": [1]
+    },
+    {
+      "type": "서비스·사람",
+      "note": "고급스러운 분위기, 데이트/모임에 적합",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "upscale",
+    "signatureDishes": ["BMS9+ 스키야키", "고구마 가라아게"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": "화요일 휴무, 캐치테이블 예약 가능 (인당 예약금 10,000원)"
+}

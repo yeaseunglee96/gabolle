@@ -1,0 +1,47 @@
+{
+  "id": "MA010120220813539438",
+  "worker": "haiku-3",
+  "researchedAt": "2026-09-08T16:44:01.978Z",
+  "queries": ["신창국밥 서구 부산", "신창국밥 충무동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.siksinhot.com/P/256819",
+    "https://www.diningcode.com/profile.php?rid=FHMSgQBdZGoq"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "맛 묘사",
+      "note": "국물이 깔끔하면서 깊은 맛",
+      "sources": [0, 1]
+    },
+    {
+      "type": "조리·재료",
+      "note": "약재향이 나는 맑은 국물과 부드러운 고기",
+      "sources": [0, 1]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "국밥 10,000원, 수육밥 13,000원의 합리적 가격대",
+      "sources": [1]
+    },
+    {
+      "type": "미디어 노출",
+      "note": "이재용 삼성전자 회장 등 여러 유명인 방문",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 57,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": null,
+    "signatureDishes": ["돼지국밥", "수육밥"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

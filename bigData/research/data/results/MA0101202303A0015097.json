@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202303A0015097",
+  "worker": "haiku-59",
+  "researchedAt": "2026-09-09T07:57:20Z",
+  "queries": ["해염 수영구 부산", "해염 광안 맛집 빵"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "해당 이름의 식당이 웹 검색 결과에 나타나지 않음. 광안리 빵집 플랫폼(다이닝코드 등)에서 발견 불가",
+  "notes": "빵/도넛 카테고리로 등록. 광안리의 다른 베이커리(더베이베이커리 등)들은 검색되나 '해염'은 미확인"
+}

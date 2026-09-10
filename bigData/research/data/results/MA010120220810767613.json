@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220810767613",
+  "worker": "haiku-42",
+  "researchedAt": "2026-09-09T04:29:12Z",
+  "queries": ["부산냉면 사하구 부산", "부산냉면 옥천로 감천동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/search?keywords=%EB%B6%80%EC%82%B0+%EC%82%AC%ED%95%98%EA%B5%AC+%EB%83%89%EB%A9%B4", "https://autoreserve.com/ko/kr/busan/saha-gu/cold-noodle"],
+  "stillOpen": true,
+  "whyPeopleGo": [{"type": "간판 메뉴 지목", "note": "평양냉면, 함흥냉면, 밀면 등 다양한 냉면 전문점", "sources": [0]}],
+  "newTypes": [],
+  "descriptors": {"signatureDishes": ["평양냉면", "함흥냉면", "밀면"]},
+  "notFound": null,
+  "notes": "전화번호: 051-256-1330"
+}

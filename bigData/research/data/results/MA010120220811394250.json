@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220811394250",
+  "worker": "haiku-25",
+  "researchedAt": "2026-09-09T10:42:00Z",
+  "queries": ["돼지촌 해운대구 부산", "돼지촌 반여2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/678670"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "현지인 지지",
+      "note": "반여동 토박이들의 단골집",
+      "sources": [0]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "돼지갈비와 삼겹살",
+      "sources": [0]
+    },
+    {
+      "type": "곁들임·차림",
+      "note": "간장 양념이 달지 않음, 밑반찬 좋음, 고구마 서빙",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["돼지갈비", "삼겹살"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

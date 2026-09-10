@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220810730353",
+  "worker": "haiku-9",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["자매국밥 수영구 부산", "자매국밥 민락동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["siksinhot.com", "diningcode.com"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "조리·재료",
+      "note": "순수 100% 고기 육수 사용, 첨가물 없음",
+      "sources": [0, 1]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "내장국밥, 돼지국밥이 대표메뉴",
+      "sources": [0, 1]
+    },
+    {
+      "type": "현지인 지지",
+      "note": "광안리 돼지국밥 맛집, 현지인들의 추천",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": false,
+    "audience": "local",
+    "signatureDishes": ["내장국밥", "돼지국밥"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "돼지머리를 베이스로 사용. 누린내 없이 담백한 맛"
+}

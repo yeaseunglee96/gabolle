@@ -1,0 +1,42 @@
+{
+  "id": "MA010120220811425729",
+  "worker": "haiku-49",
+  "researchedAt": "2026-09-09T13:30:00Z",
+  "queries": ["해주면옥 해운대구 부산", "해주면옥 중동 냉면 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.siksinhot.com/P/396177",
+    "https://www.diningcode.com/profile.php?rid=f78UOSiPb9n8"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "냉면과 갈비탕 전문점으로 알려져 있음",
+      "sources": [0, 1]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "가성비 좋은 메뉴 구성",
+      "sources": [0]
+    },
+    {
+      "type": "맛 묘사",
+      "note": "해운대 냉면으로 맛이 좋기로 소문난 식당",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["물냉면", "갈비탕", "공기밥"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

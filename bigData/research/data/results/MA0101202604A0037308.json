@@ -1,0 +1,26 @@
+{
+  "id": "MA0101202604A0037308",
+  "worker": "haiku-69",
+  "researchedAt": "2026-09-10T00:15:00Z",
+  "queries": ["백양회초밥 부산진구", "백양회초밥 부전"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.menupan.com/restaurant/onepage.asp?acode=J600456"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "초밥, 롤 전문점", "sources": [0]},
+    {"type": "조리·재료", "note": "신선한 재료 직주문 준비", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["초밥"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "가격대 10,000~20,000원"
+}

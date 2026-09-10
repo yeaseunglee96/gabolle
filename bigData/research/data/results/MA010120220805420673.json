@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220805420673",
+  "worker": "haiku-59",
+  "researchedAt": "2026-09-09T08:00:10Z",
+  "queries": ["수제돈까스무무 수영구 부산", "수제돈까스무무 광안 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "해당 이름의 식당이 웹 검색 결과에 나타나지 않음. 광안의 다른 돈까스 맛집들(하나돈까스, 톤쇼우 등)은 검색되나 '수제돈까스무무'는 미확인",
+  "notes": "경양식 카테고리로 등록. 수영구의 수제돈까스 플랫폼에서도 발견 불가"
+}

@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202507A0035343",
+  "worker": "haiku-49",
+  "researchedAt": "2026-09-09T15:30:00Z",
+  "queries": ["퀸즈 해운대 우1동", "퀸즈 해운대해변로 부산"],
+  "found": false,
+  "confidence": "low",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "해운대해변로265번길 13에 위치한다는 퀸즈를 찾을 수 없음. 퀸스 호텔이나 퀸즈W 오션프런트는 검색되지만 음식점은 찾을 수 없음",
+  "notes": ""
+}

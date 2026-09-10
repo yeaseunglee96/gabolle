@@ -1,0 +1,47 @@
+{
+  "id": "MA010120220810615651",
+  "worker": "haiku-2",
+  "researchedAt": "2026-09-08T16:43:11.248Z",
+  "queries": ["본전돼지국밥 동구 부산", "본전돼지국밥 초량 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.diningcode.com/profile.php?rid=6giP1BV3d8KD",
+    "https://triple.guide/restaurants/c5601962-492f-4349-9def-d749a585c28f"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "맛 묘사",
+      "note": "45년 전통의 깊고 진한 사골 국물, 잡내 잘 잡힌 깔끔한 스타일",
+      "sources": [0]
+    },
+    {
+      "type": "연차·역사",
+      "note": "45년 전통으로 지역 대표 돼지국밥 맛집",
+      "sources": [0, 1]
+    },
+    {
+      "type": "미디어 노출",
+      "note": "배틀트립(TV 프로그램)에 소개되어 부산 여행 필수 코스로 알려짐",
+      "sources": [1]
+    },
+    {
+      "type": "현지인 지지",
+      "note": "부산역 도보 4분 거리로 여행객과 현지인 모두 찾는 명소",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 45,
+    "generations": null,
+    "queueing": "some",
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["돼지국밥", "내장국밥"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "부산역 근처, 식사시간 웨이팅 있으나 회전율 빠름. 반려견동반 가능"
+}

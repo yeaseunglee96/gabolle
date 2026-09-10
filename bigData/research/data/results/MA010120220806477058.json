@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220806477058",
+  "worker": "haiku-44",
+  "researchedAt": "2026-09-09T11:36:00Z",
+  "queries": ["오뚝이국수 동구 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1388470"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "맛 묘사",
+      "note": "국수와 칼국수를 주요 메뉴로 하는 전통 국수 맛집",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["칼국수"],
+    "priceBand": "affordable"
+  },
+  "notFound": null,
+  "notes": ""
+}

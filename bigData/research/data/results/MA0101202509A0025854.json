@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202509A0025854",
+  "worker": "haiku-49",
+  "researchedAt": "2026-09-09T17:30:00Z",
+  "queries": ["안동전집 기장군 일광읍", "안동전집 일광로 부산"],
+  "found": false,
+  "confidence": "low",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "일광로 68에 위치한다는 안동전집을 찾을 수 없음",
+  "notes": ""
+}

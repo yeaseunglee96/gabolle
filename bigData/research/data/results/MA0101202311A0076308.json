@@ -1,0 +1,39 @@
+{
+  "id": "MA0101202311A0076308",
+  "worker": "haiku-19",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["부라더연어 부산진구 부산", "부라더연어 부전1동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://triple.guide/restaurants/2efb5d5b-ddf3-4e18-b997-d7629b9f4568", "https://www.daangn.com/kr/local-profile/%EB%B6%80%EB%9D%BC%EB%8D%94%EC%97%B0%EC%96%B4-udkuzag42dkx/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "연어 회 전문",
+      "sources": [0]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "내부 분위기 좋음",
+      "sources": [0]
+    },
+    {
+      "type": "서비스·사람",
+      "note": "사장님 친절, 항상 신선",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["연어회"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": ""
+}

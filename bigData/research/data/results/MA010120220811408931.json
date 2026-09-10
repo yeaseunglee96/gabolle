@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220811408931",
+  "worker": "haiku-59",
+  "researchedAt": "2026-09-09T08:07:50Z",
+  "queries": ["여의도 수영구 부산", "여의도 민락동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "해당 이름의 식당이 웹 검색 결과에 나타나지 않음. 여의도는 서울의 금융 중심지이며 부산 민락동의 횟집 '여의도'는 미확인",
+  "notes": "횟집 카테고리로 등록"
+}

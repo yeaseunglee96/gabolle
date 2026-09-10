@@ -1,0 +1,53 @@
+{
+  "id": "MA010120220814337268",
+  "worker": "haiku-16",
+  "researchedAt": "2026-09-08T23:01:06.923Z",
+  "queries": [
+    "유씨 서구 부산 카페",
+    "유씨 망양로 191"
+  ],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.instagram.com/___yousee/",
+    "https://www.keyzard.cc/hot3820/nb/223794491544"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "부산 산복도로의 감성 카페, 민주공원 경치",
+      "sources": [
+        1
+      ]
+    },
+    {
+      "type": "운영·접근 편의",
+      "note": "주차 가능, 벚꽃 명소",
+      "sources": [
+        1
+      ]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "커피 전문",
+      "sources": [
+        1
+      ]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "가능",
+    "audience": "mixed",
+    "signatureDishes": [
+      "커피"
+    ],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "위치: 망양로 191-1 1층, 아메리카노 4,000원, 월~화 9:00~22:00, 정기휴무 매주 수요일, 산복도로 분위기 좋은 카페"
+}

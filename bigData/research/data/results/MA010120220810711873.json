@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220810711873",
+  "worker": "haiku-46",
+  "researchedAt": "2026-09-09T12:50:00Z",
+  "queries": ["황금정 북구 부산 돼지고기", "황금정 효열로 금곡동"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://www.diningcode.com/profile.php?rid=McW930dEVAxI"],
+  "stillOpen": true,
+  "whyPeopleGo": [{"type": "맛 묘사", "note": "한정식 전문", "sources": [0]}],
+  "newTypes": [],
+  "descriptors": {"yearsClaimed": null, "generations": null, "queueing": null, "parking": true, "audience": "mixed", "signatureDishes": ["삼계탕"], "priceBand": null},
+  "notFound": null,
+  "notes": ""
+}

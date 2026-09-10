@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202309A0051062",
+  "worker": "haiku-25",
+  "researchedAt": "2026-09-09T10:32:45Z",
+  "queries": ["일다 금정구 부산", "일다 구서1동 맛집", "일다 부산 경양식 블로그"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "부산 금정구 구서1동의 일다 경양식 음식점에 대한 정보를 웹에서 찾을 수 없음",
+  "notes": ""
+}

@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202512A0040552",
+  "worker": "haiku-20",
+  "researchedAt": "2026-09-09T11:55:45Z",
+  "queries": ["불망 동래구 부산", "불망 안락1동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색에서 '불망'이라는 일식 회/초밥 가게 정보 없음. 안락1동 일반 맛집 리스트만 나타남",
+  "notes": ""
+}

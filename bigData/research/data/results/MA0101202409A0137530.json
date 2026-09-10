@@ -1,0 +1,29 @@
+{
+  "id": "MA0101202409A0137530",
+  "worker": "haiku-69",
+  "researchedAt": "2026-09-10T00:06:00Z",
+  "queries": ["백산숯불가든 수영구 부산", "백산숯불가든 민락동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://kr.trip.com/moments/detail/busan-432-134586895/", "https://www.diningcode.com/profile.php?rid=rkAsV4Fig7TV"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "참숯 숯불구이", "sources": [0]},
+    {"type": "조리·재료", "note": "웻에이징+드라이에이징 숙성, 참숯만 사용", "sources": [0]},
+    {"type": "곁들임·차림", "note": "기장 멸치젓, 강된장, 백산 갓김치", "sources": [0]},
+    {"type": "가격·가성비", "note": "한돈 생삼겹살 100g 7,500원", "sources": [0]},
+    {"type": "동네·시장 지목", "note": "수영역 근처 숨은 기맛집", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["한돈 생삼겹살", "양념돼지갈비"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "고기부터 반찬까지 정성 가득한 곳, 수제 양념돼지갈비 180g 8,500원"
+}

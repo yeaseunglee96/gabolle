@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220810463208",
+  "worker": "haiku-41",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["가오내횟집 영도구 부산", "가오내횟집 영선1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=z5QtKwQCjKgA"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "메뉴 희소성", "note": "자연산활어회 전문", "sources": [0]},
+    {"type": "가격·가성비", "note": "착한가격으로 유명", "sources": [0]},
+    {"type": "현지인 지지", "note": "동네 단골들이 찾는 가게", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["자연산활어회", "모듬회", "매운탕"],
+    "priceBand": "affordable"
+  },
+  "notFound": null,
+  "notes": "남항시장 내 위치, 전화 051-416-3282, 넓은 내부 단체석 가능"
+}

@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220813615418",
+  "worker": "haiku-58",
+  "researchedAt": "2026-09-09T17:01:00Z",
+  "queries": ["오반장밥과고기 해운대구 부산", "오반장밥과고기 우1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.tripadvisor.co.kr/ShowUserReviews-g297884-d7234293-r541753029-Obanjang-Busan.html"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "갈매기살(스커트 스테이크)이 대표 메뉴", "sources": [0]},
+    {"type": "곁들임·차림", "note": "푸짐한 밑반찬과 신선한 고기", "sources": [0]},
+    {"type": "분위기·전망", "note": "편리한 주차시설이 있는 쾌적한 공간", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["갈매기살", "밥"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "트립어드바이저에서 부산의 33번째 레스토랑. 전화 051-747-8085"
+}

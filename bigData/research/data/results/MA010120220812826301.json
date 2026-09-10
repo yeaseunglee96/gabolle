@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220812826301",
+  "worker": "haiku-48",
+  "researchedAt": "2026-09-09T14:32:45+09:00",
+  "queries": ["카페오뜨 수영구 부산", "카페오뜨 광안2동 카페"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://autoreserve.com/ko/restaurants/EGeDiCxesiiovGWCefrc", "https://www.diningcode.com/profile.php?rid=xeRaPmlODhlm", "https://kr.trip.com/moments/detail/busan-432-130705570/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "분위기·전망", "note": "광안리 바다뷰를 볼 수 있는 감성 카페, 루프탑 시팅", "sources": [0, 1, 2]},
+    {"type": "메뉴 희소성", "note": "다양한 디저트와 음료 전문", "sources": [2]},
+    {"type": "현지인 지지", "note": "부산 광안리 지역의 인기 카페", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["디저트", "음료"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": ""
+}

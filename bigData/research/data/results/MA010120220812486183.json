@@ -1,0 +1,34 @@
+{
+  "id": "MA010120220812486183",
+  "worker": "haiku-44",
+  "researchedAt": "2026-09-09T10:18:00Z",
+  "queries": ["다다제과 북구 부산", "다다제과 화명1동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://www.instagram.com/bakery_dada/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "조리·재료",
+      "note": "수제디저트 전문점으로 직접 만든 디저트와 베이글 등 수제 제품",
+      "sources": [0]
+    },
+    {
+      "type": "현지인 지지",
+      "note": "작은 시장 안의 제과점으로 동네 고객 중심 운영",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["과일 샌드", "베이글"],
+    "priceBand": "affordable"
+  },
+  "notFound": null,
+  "notes": ""
+}

@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220811429748",
+  "worker": "haiku-26",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["이정식당 해운대구 부산", "이정식당 좌동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://linktoplace.com/index.php?action=view&name=%EC%9D%B4%EC%A0%95%EC%8B%9D%EB%8B%B9&no=190349"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "맛 묘사",
+      "note": "한정식 요리로 알려진 음식점",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": [],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "웹 검색 결과 정보가 2016년 기준으로 오래됨"
+}

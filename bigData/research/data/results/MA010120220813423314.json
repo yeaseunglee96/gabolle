@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220813423314",
+  "worker": "haiku-9",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["경주박가국밥 부산진구", "경주박가국밥 부전2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["siksinhot.com", "busan.grandculture.net"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "연차·역사",
+      "note": "1951년 박주호 어머니가 개업, 75년 전통",
+      "sources": [1]
+    },
+    {
+      "type": "대물림",
+      "note": "박가 가족이 대대로 운영",
+      "sources": [1]
+    },
+    {
+      "type": "기관 선정",
+      "note": "부산시가 선정한 향토음식",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 75,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["수육국밥", "장선국밥"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "여러 지점 운영 중. 부드러운 수육과 깊은 국물이 특징"
+}

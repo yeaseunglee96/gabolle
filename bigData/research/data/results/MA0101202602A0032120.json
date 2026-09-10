@@ -1,0 +1,27 @@
+{
+  "id": "MA0101202602A0032120",
+  "worker": "haiku-47",
+  "researchedAt": "2026-09-09T12:20:00Z",
+  "queries": ["양아찌 해운대구 부산", "양아찌 중1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1586061", "https://www.diningcode.com/profile.php?rid=38PaVb60x6d4", "https://www.daangn.com/kr/local-profile/%EC%96%91%EC%95%84%EC%B0%8C-vxz1du1exxra/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "냄새 없는 양고기 그릴링, 양갈비, 양꼬치", "sources": [0, 1, 2]},
+    {"type": "조리·재료", "note": "생후 1년 미만의 호주산 냉장 어린 양만 사용, 모든 곁들임과 특수 소스는 직접 만든 것", "sources": [1, 2]},
+    {"type": "맛 묘사", "note": "프리미엄 양갈비 전문점, 숨은 양고기 맛집", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["양갈비", "양꼬치"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "데이터 분류는 중국집이나 실제는 양고기 그릴링 전문점. 영업시간 월-토 17:00-24:00, 일요일 정기휴무"
+}

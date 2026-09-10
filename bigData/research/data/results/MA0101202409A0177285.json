@@ -1,0 +1,27 @@
+{
+  "id": "MA0101202409A0177285",
+  "worker": "haiku-58",
+  "researchedAt": "2026-09-09T16:52:00Z",
+  "queries": ["광안리카페이플 수영구 부산", "광안리카페이플 광안2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://kr.trip.com/moments/detail/gwanganri-beach-2040459-136698340/", "https://www.diningcode.com/profile.php?rid=0ichTsmCibIb"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "분위기·전망", "note": "감성적인 인테리어와 고즈넉한 분위기, 해변 근처", "sources": [0]},
+    {"type": "곁들임·차림", "note": "다양한 과일 디저트와 음료", "sources": [0, 1]},
+    {"type": "메뉴 희소성", "note": "이플만의 특색 있는 디저트와 음료", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["과일 디저트", "음료"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "매일 10:00-24:00 운영 (불꽃축제 날에는 01:30까지). 반려동물 동반 가능"
+}

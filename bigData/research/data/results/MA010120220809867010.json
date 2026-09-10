@@ -1,0 +1,62 @@
+{
+  "id": "MA010120220809867010",
+  "worker": "haiku-16",
+  "researchedAt": "2026-09-08T23:00:18.863Z",
+  "queries": [
+    "월강 부산진구 일식",
+    "월강 서면로 부산"
+  ],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.siksinhot.com/P/256599",
+    "https://www.diningcode.com/profile.php?rid=mz7BQFVqgW7a"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "연차·역사",
+      "note": "1979년 설립, 46년 전통",
+      "sources": [
+        0
+      ]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "회정식, 장어정식, 초밥 코스",
+      "sources": [
+        0
+      ]
+    },
+    {
+      "type": "기관 선정",
+      "note": "Blue Ribbon Survey 2013년부터 수상, APEC 공식 레스토랑",
+      "sources": [
+        1
+      ]
+    },
+    {
+      "type": "조리·재료",
+      "note": "매일 아침 엄선한 신선한 재료, 숙련된 전문 기술",
+      "sources": [
+        0
+      ]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": [
+      "회정식",
+      "장어정식",
+      "초밥"
+    ],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": "위치: 서면로 7 (부전동 533-10, 1~4층), 영업 11:30~22:00 (브레이크 14:00~17:00), 일 휴무, 영어/일본어 가능"
+}

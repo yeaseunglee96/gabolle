@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220810439799",
+  "worker": "haiku-7",
+  "researchedAt": "2026-09-08T22:09:18Z",
+  "queries": ["라멘야 부산진구 부산", "라멘야 부전2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/631086", "https://www.instagram.com/p/DEjUUtoyFzL/", "https://www.diningcode.com/profile.php?rid=NP8G1LnZ5Oki"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "맛 묘사", "note": "하카타 전통 돈코츠라멘의 풍미", "sources": [0]},
+    {"type": "간판 메뉴 지목", "note": "냉라멘(계절메뉴), 닭껍질교자로 알려짐", "sources": [0]},
+    {"type": "미디어 노출", "note": "다이닝코드 서면 돈코츠라멘 맛집 1위 선정", "sources": [2]},
+    {"type": "혼잡·수요", "note": "작은 공간으로 웨이팅이 발생할 수 있음", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": true,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["냉라멘", "닭껍질교자"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "부산진구 부전동에 위치. 화~토 11:30~01:00 영업. 본점과 롯데점 운영."
+}

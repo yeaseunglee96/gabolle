@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220813198991",
+  "worker": "haiku-19",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["그랜드애플 해운대구 부산", "그랜드애플 우2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=1wycG7rmFaEx", "https://polle.com/place/3WlhMt/%EA%B7%B8%EB%9E%9C%EB%93%9C%EC%95%A0%ED%94%8C"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "럭셔리한 분위기, 대리석 바닥, 원목 테이블, 샹들리에 조명",
+      "sources": [0]
+    },
+    {
+      "type": "곁들임·차림",
+      "note": "한식, 중식, 일식, 양식 다양한 세계 요리, 신선한 해산물",
+      "sources": [0]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "프리미엄 뷔페 평일 런치 약 69,000원, 평일 디너 약 74,000원",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["스테이크", "파스타", "해산물"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": ""
+}

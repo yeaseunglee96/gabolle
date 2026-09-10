@@ -1,0 +1,25 @@
+{
+  "id": "MA010120220810519964",
+  "worker": "haiku-37",
+  "researchedAt": "2026-09-09T11:23:43.0136153+09:00",
+  "queries": ["청솔 부산 서구 돼지고기", "청솔 엄광산로 106"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/637028"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "간판 메뉴 지목", "note": "오리백숙 전문점 - 허브 오리 수육", "sources": [0] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["오리백숙", "오리 요리"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "식신 '꽃마을청솔집' 명칭으로도 검색됨. 예약 권장 (방문 1시간 전 전화)"
+}

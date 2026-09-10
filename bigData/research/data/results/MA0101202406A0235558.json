@@ -1,0 +1,28 @@
+{
+  "id": "MA0101202406A0235558",
+  "worker": "haiku-48",
+  "researchedAt": "2026-09-09T14:35:30+09:00",
+  "queries": ["왓더버거광안리점 부산", "왓더버거 광안리 민락동"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://triple.guide/restaurants/666cb047-b996-4156-8020-37f792a877a3", "https://www.siksinhot.com/P/1652921", "https://www.diningcode.com/profile.php?rid=YU9Zcgb6Qmuw", "https://www.daangn.com/kr/local-profile/%EC%99%93%EB%8D%94%EB%B2%84%EA%B1%B0-%EB%B6%80%EC%82%B0%EA%B4%91%EC%95%88%EC%A0%90-u3ceejz78pm1/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "분위기·전망", "note": "광안리해수욕장 바로 앞, 테라스/야외 시팅", "sources": [0, 1, 2]},
+    {"type": "조리·재료", "note": "매일 아침 패티 직접 제조, 직접 만든 소스, 2차 베이킹 후 제공", "sources": [0, 2]},
+    {"type": "간판 메뉴 지목", "note": "수제버거 전문점", "sources": [1, 2, 3]},
+    {"type": "메뉴 희소성", "note": "유기농 상추 사용, 특유의 바삭한 빵", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["수제버거"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": ""
+}

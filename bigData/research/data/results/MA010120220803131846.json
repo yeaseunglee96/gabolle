@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220803131846",
+  "worker": "haiku-9",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["신창국밥 수영구 부산", "신창국밥 남천1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["busan.grandculture.net", "visitbusan.net"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "연차·역사",
+      "note": "1969년 국제시장 신창동에서 시작한 노포",
+      "sources": [0, 1]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "맑은 국물의 돼지국밥, 왕순대국밥",
+      "sources": [0, 1]
+    },
+    {
+      "type": "조리·재료",
+      "note": "국산 돼지고기 사용, 매일 수제로 만드는 이북식 순대",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 57,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["왕순대국밥", "돼지국밥", "수육"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "본점은 서구, 직영점으로 남천점·해운대점·부산역점 운영"
+}

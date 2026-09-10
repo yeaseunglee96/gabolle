@@ -1,0 +1,27 @@
+{
+  "id": "MA0101202406A0502395",
+  "worker": "haiku-23",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["도토리돈까스 중구 부산", "도토리돈까스 대청동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 중구 대청로 99"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "조리·재료", "note": "최상급 프리미엄 한돈을 선별하여 사용", "sources": [0, 1]},
+    {"type": "조리·재료", "note": "3년간 숙성해 만든 수제 경양식소스", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "경양식 돈까스 전문", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["경양식 돈까스", "경양식 모둠돈까스"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "2024년 3월 오픈. 전화 051-467-9260. 수제스프 기본제공, 반찬 리필가능"
+}

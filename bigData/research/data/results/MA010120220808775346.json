@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220808775346",
+  "worker": "haiku-28",
+  "researchedAt": "2026-09-09T10:20:00Z",
+  "queries": ["찐추어탕 사하구 부산", "찐추어탕 감천1동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "검색 결과에서 찐추어탕이라는 가게에 대한 구체적 정보 없음",
+  "notes": "감천 추어탕 맛집 목록에 다른 가게들은 나옴"
+}

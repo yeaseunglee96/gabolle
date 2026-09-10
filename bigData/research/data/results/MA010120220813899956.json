@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220813899956",
+  "worker": "haiku-69",
+  "researchedAt": "2026-09-10T00:15:00Z",
+  "queries": ["등대횟집 송정동", "등대횟집 해운대"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.tabling.co.kr/place/677ccac166de5f06987be7f1", "https://www.diningcode.com/profile.php?rid=OKDNJNCd6cCJ"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "신선한 회 전문점", "sources": [0, 1]},
+    {"type": "분위기·전망", "note": "바다 전망", "sources": [1]},
+    {"type": "메뉴 희소성", "note": "다양한 생선회", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["신선한 회"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "메뉴 C Course 25,000~50,000원, 송정역 2번출구 도보 378m"
+}

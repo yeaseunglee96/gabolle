@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220810612209",
+  "worker": "haiku-48",
+  "researchedAt": "2026-09-09T14:28:21+09:00",
+  "queries": ["짜짜루 연제구 부산", "짜짜루 거제4동 맛집", "짜짜루 부산 연제구 거제4동"],
+  "found": false,
+  "confidence": "low",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "발견된 짜짜루는 거제시 장평동에 위치 - 부산 연제구와 다른 지역",
+  "notes": ""
+}

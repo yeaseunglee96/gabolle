@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220810465467",
+  "worker": "haiku-11",
+  "researchedAt": "2026-09-09T00:51:00Z",
+  "queries": ["커피미미 영도 부산", "커피미미 남항동 카페"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 영도구 남항로 26-10"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "분위기·전망", "note": "남항로의 조용한 골목에 위치한 10년 이상 운영된 카페로 좋은 분위기", "sources": [0, 1] },
+    { "type": "맛 묘사", "note": "좋은 커피와 프렌치토스트로 알려진 카페", "sources": [0, 1] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 10,
+    "generations": null,
+    "queueing": true,
+    "parking": false,
+    "audience": "mixed",
+    "signatureDishes": ["커피", "프렌치토스트"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "웨이팅 필요, 영업시간 제한 (평일 12-15시, 주말 12-18시)"
+}

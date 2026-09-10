@@ -1,0 +1,42 @@
+{
+  "id": "MA010120220805689382",
+  "worker": "haiku-63",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["아미티스 해운대구 부산", "아미티스 중1동 맛집", "아미티스 해운대구 구남로", "아미티스 경양식 해운대"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.diningcode.com/profile.php?rid=B30e4MC9OFAD",
+    "https://triple.guide/restaurants/d212132d-a817-456b-a9ad-2e7cd1f4ad50"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "라비드아틀란호텔 32층 스카이라운지에서 해운대 바다와 하늘을 감상하며 식사 가능",
+      "sources": [0, 1]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "스테이크와 파스타가 주요 메뉴",
+      "sources": [0, 1]
+    },
+    {
+      "type": "조리·재료",
+      "note": "일류 셰프가 직접 연구하고 개발한 레시피",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "1 hour free at hotel parking",
+    "audience": "couples",
+    "signatureDishes": ["스테이크", "파스타"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": "주말 점심 이벤트: 1인 1메뉴 주문 시 음료 무료, 와인/위스키 주문 시 치즈 플래터 무료"
+}

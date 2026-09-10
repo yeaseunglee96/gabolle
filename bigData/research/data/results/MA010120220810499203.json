@@ -1,0 +1,23 @@
+{
+  "id": "MA010120220810499203",
+  "worker": "haiku-32",
+  "researchedAt": "2026-09-09T11:06:00Z",
+  "queries": ["푸드웨이주 영도구 부산", "푸드웨이주 동삼1동 맛집"],
+  "found": true,
+  "confidence": "low",
+  "sources": ["부산광역시 영도구 절영로 355"],
+  "stillOpen": true,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": null,
+    "signatureDishes": [],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "식신에 태종대 지역 맛집으로 등재. 상세 정보 부족."
+}

@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220810519795",
+  "worker": "haiku-10",
+  "researchedAt": "2026-09-09T15:10:00Z",
+  "queries": ["옛날오막집 서구 부산", "옛날오막집 동대신1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산 서구 구덕로274번길 14"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "미디어 노출", "note": "수요미식회, 식객 허영만의 백반기행 등 방송 출연", "sources": [0]},
+    {"type": "조리·재료", "note": "매일 손질한 신선한 내장류, 전통 방식의 된장과 고추장 직접 제조", "sources": [0]},
+    {"type": "서비스·사람", "note": "가족 같은 마음으로 정성 들여 조리", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["곱창", "대창"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": "발렛 주차 서비스 있음"
+}

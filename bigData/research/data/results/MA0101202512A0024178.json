@@ -1,0 +1,28 @@
+{
+  "id": "MA0101202512A0024178",
+  "worker": "haiku-12",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["미미루 동래구 부산 중국집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/999462", "https://www.diningcode.com/profile.php?rid=6xbaItiGV13X"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "중식 우동, 자장면, 짬뽕밥이 특징", "sources": [0, 1]},
+    {"type": "조리·재료", "note": "탕수육과 깐풍기 조합이 유명", "sources": [0, 1]},
+    {"type": "곁들임·차림", "note": "식사류마다 기본으로 계란후라이가 올려져 나옴", "sources": [1]},
+    {"type": "현지인 지지", "note": "항상 대기가 있을 정도로 인기 있는 중국집", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["짬뽕밥", "탕수육", "깐풍기"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

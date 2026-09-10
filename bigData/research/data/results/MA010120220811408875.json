@@ -1,0 +1,24 @@
+{
+  "id": "MA010120220811408875",
+  "worker": "haiku-72",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["민락쌈밥 부산 맛집", "민락쌈밥 감포로 한정식"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://triple.guide/restaurants/5e942524-9c27-45ab-b168-d27cc6bcb175", "https://www.diningcode.com/profile.php?rid=Geuvfr6TjjP2", "https://www.tabling.co.kr/place/677cd14266de5f06988795f6"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "현지인 지지", "note": "순수 민락동 현지인들이 다니는 점심 밥집", "sources": [1]},
+    {"type": "가격·가성비", "note": "가격이 부담 없고 가성비 좋음", "sources": [1]},
+    {"type": "곁들임·차림", "note": "건강한 채소와 밥도둑 반찬, 넉넉한 찬 구성", "sources": [1]},
+    {"type": "간판 메뉴 지목", "note": "쌈밥 전문, 갈치찌개, 돼지불고기 등 다양한 메뉴", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["쌈밥", "갈치찌개", "돼지불고기"],
+    "priceBand": "cheap",
+    "audience": "local"
+  },
+  "notFound": null,
+  "notes": ""
+}

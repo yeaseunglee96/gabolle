@@ -1,0 +1,61 @@
+{
+  "id": "MA0101202503A0020598",
+  "worker": "haiku-16",
+  "researchedAt": "2026-09-08T22:56:51.412Z",
+  "queries": [
+    "유옥 해운대 송정 부산",
+    "유옥 일식 송정강변로"
+  ],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.diningcode.com/profile.php?rid=Hu6OQ9yisggL"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "일본 시골마을 같은 고즈넉한 분위기, 독채 건물",
+      "sources": [
+        0
+      ]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "장어덮밥, 사바 오차즈케, 연어덮밥",
+      "sources": [
+        0
+      ]
+    },
+    {
+      "type": "운영·접근 편의",
+      "note": "송정역 2번 출구 도보 4~5분, 주차 가능",
+      "sources": [
+        0
+      ]
+    },
+    {
+      "type": "현지인 지지",
+      "note": "송정 로컬 일식당",
+      "sources": [
+        0
+      ]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "가능",
+    "audience": "locals",
+    "signatureDishes": [
+      "장어덮밥",
+      "사바 오차즈케",
+      "연어덮밥"
+    ],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "위치: 송정강변로 47 1층, 영업 11:00~23:00 (브레이크 15:00~17:00), 단체/포장/예약/반려동물 동반 가능"
+}

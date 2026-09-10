@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220802889430",
+  "worker": "haiku-41",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["농원집 금정구 부산", "농원집 선두구동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=UA0FpGEq5Xvh"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "오리불고기 전문점", "sources": [0]},
+    {"type": "분위기·전망", "note": "자연경관 속의 시골 분위기, 회동저수지 인근", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "가능",
+    "audience": "families",
+    "signatureDishes": ["오리고기", "오리불고기"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "영업시간 화~일 11:00-20:30 (라스트오더 19:00), 월 휴무, 족구장 보유"
+}

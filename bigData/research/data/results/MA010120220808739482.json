@@ -1,0 +1,34 @@
+{
+  "id": "MA010120220808739482",
+  "worker": "haiku-59",
+  "researchedAt": "2026-09-09T07:55:02Z",
+  "queries": ["해금강곰장어 해운대구 부산", "해금강곰장어 중동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=hQ8AqnqpzgaH", "https://triple.guide/restaurants/e211ad0e-96f2-47c0-9d0e-cef40b3b899e", "https://www.tripadvisor.co.kr/Restaurant_Review-g297884-d9034275-Reviews-Hae_Geum_River_Sea_Eel-Busan.html"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "특제 양념장으로 맛을 낸 곰장어구이 전문점",
+      "sources": [0, 1]
+    },
+    {
+      "type": "현지인 지지",
+      "note": "해운대 전통시장 근처 현지인이 많이 찾는 맛집, 이연복 셰프 검증",
+      "sources": [0, 2]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "해운대 전통시장 전용 주차장 1시간 무료",
+    "audience": "mixed",
+    "signatureDishes": ["곰장어 양념구이", "곰장어 소금구이"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "해운대역 도보 7분, 해수욕장 도보 6분. 반려동물 동반 가능. 다이닝코드 등 주요 평가 사이트에 등록됨"
+}

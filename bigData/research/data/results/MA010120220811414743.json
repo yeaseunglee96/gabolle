@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220811414743",
+  "worker": "haiku-70",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["백번집 해운대구 부산", "백번집 중1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/410967", "https://www.diningcode.com/profile.php?rid=tntNjrut57YT", "https://www.koobig.com/23166"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "연차·역사",
+      "note": "30년 이상 전통을 이어온 해운대의 대표 백반 맛집",
+      "sources": [0]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "정식백반이 대표 메뉴, 닭도리탕과 돼지두루치기도 유명",
+      "sources": [0]
+    },
+    {
+      "type": "기관 선정",
+      "note": "식신·다이닝코드·쿠빅 등 주요 맛집 사이트에 소개",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 30,
+    "generations": null,
+    "queueing": null,
+    "parking": "해운대구청 주차장 이용 가능",
+    "audience": "local",
+    "signatureDishes": ["정식백반", "닭도리탕", "돼지두루치기"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

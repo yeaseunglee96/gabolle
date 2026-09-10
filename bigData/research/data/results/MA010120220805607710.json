@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220805607710",
+  "worker": "haiku-35",
+  "researchedAt": "2026-09-09T02:10:44.184Z",
+  "queries": ["OK목장 부산진구 부산", "OK목장 당감4동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["다이닝코드", "테이블링", "로컬맵"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "현지인 지지", "note": "당감동 현지인에게 인기있는 한우 전문점", "sources": [1]},
+    {"type": "조리·재료", "note": "신선한 한우 고기, 매일 입고되는 고기의 신선도를 벽면 라벨로 확인 가능", "sources": [1]},
+    {"type": "가격·가성비", "note": "갈비살 21,000원/100g, 특수부위 25,000원/100g 수준의 가격대", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "주차전용장소 없음, 주차권 2천원 할인",
+    "audience": "local",
+    "signatureDishes": ["갈비살", "특수부위"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": ""
+}

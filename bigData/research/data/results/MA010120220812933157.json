@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220812933157",
+  "worker": "haiku-13",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["브리앙 동래구 부산", "브리앙 온천1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["다이닝코드"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "조리·재료",
+      "note": "파티셰 이지아가 만드는 정통 프랑스 페이스트리",
+      "sources": [0]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "구움과자와 프렌치 파티세리 전문",
+      "sources": [0]
+    },
+    {
+      "type": "현지인 지지",
+      "note": "온천장 구움과자 맛집으로 유명",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["까눌레", "휘낭시에 아망드", "산딸기 하트슈"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "정오에 오픈하며 소진 시 일찍 마감될 수 있음"
+}

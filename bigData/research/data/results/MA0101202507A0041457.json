@@ -1,0 +1,29 @@
+{
+  "id": "MA0101202507A0041457",
+  "worker": "haiku-32",
+  "researchedAt": "2026-09-09T11:16:00Z",
+  "queries": ["이구백갈비 금정구 부산", "이구백갈비 부곡3동 맛집"],
+  "found": true,
+  "confidence": "low",
+  "sources": ["부산광역시 금정구 중앙대로 1705"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "갈비, 찌개, 육회 제공",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": null,
+    "signatureDishes": ["갈비", "찌개", "육회"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "장전역 근처. 부산 금정구 고기 맛집 TOP 랭킹 등재."
+}

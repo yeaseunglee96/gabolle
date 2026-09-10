@@ -1,0 +1,47 @@
+{
+  "id": "MA010120220810638685",
+  "worker": "haiku-3",
+  "researchedAt": "2026-09-08T16:48:19.433Z",
+  "queries": ["구워삶기 부산진구 부산", "구워삶기 부전동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.siksinhot.com/P/354834",
+    "https://www.diningcode.com/profile.php?rid=Ul3v5k4FsPBs"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "93매콤불고기가 시그니처 메뉴로, 제주 훈제불고기와 다양한 재료가 들어감",
+      "sources": [0, 1]
+    },
+    {
+      "type": "연차·역사",
+      "note": "18년 이상 같은 자리에서 영업해온 오래된 가게",
+      "sources": [1]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "점심세트 31,500원으로 가성비가 좋다",
+      "sources": [1]
+    },
+    {
+      "type": "맛 묘사",
+      "note": "대학 시절부터 다닌 단골들이 맛이 변하지 않았다고 평가",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 18,
+    "generations": null,
+    "queueing": null,
+    "parking": false,
+    "audience": null,
+    "signatureDishes": ["93매콤불고기", "당면만두튀김"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": ""
+}

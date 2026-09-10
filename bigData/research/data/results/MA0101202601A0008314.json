@@ -1,0 +1,39 @@
+{
+  "id": "MA0101202601A0008314",
+  "worker": "haiku-26",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["경미횟집 남구 부산", "경미횟집 용호동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=5kjcuz0sxvYQ"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "서비스·사람",
+      "note": "부부 일식 쉐프가 운영하는 위생적이고 깨끗한 횟집",
+      "sources": [0]
+    },
+    {
+      "type": "조리·재료",
+      "note": "신선한 회를 현장에서 직접 썬다",
+      "sources": [0]
+    },
+    {
+      "type": "곁들임·차림",
+      "note": "다양한 맛있는 반찬 제공(호박전, 생선뼈전 등)",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "families",
+    "signatureDishes": ["회덮밥", "신선한 회"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

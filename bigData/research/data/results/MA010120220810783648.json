@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220810783648",
+  "worker": "haiku-25",
+  "researchedAt": "2026-09-09T10:32:30Z",
+  "queries": ["선참치 금정구 부산", "선참치 구서1동 맛집", "선참치 구서 부산 후기"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "구서1동 선참치에 대한 정보를 웹에서 찾을 수 없음. 검색된 선참치 체인들은 다른 지역(원주, 영등포, 일산 등)에 위치",
+  "notes": ""
+}

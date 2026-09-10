@@ -1,0 +1,34 @@
+{
+  "id": "MA0101202406A0241470",
+  "worker": "haiku-57",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["붉은수염스몰 부산", "붉은수염스몰 광안"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=qUyHAiwsRyKM"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "번초밥, 고마사바(참치 깨소스회) 전문",
+      "sources": [0]
+    },
+    {
+      "type": "서비스·사람",
+      "note": "일본 이자카야 경험많은 주인장",
+      "sources": [0]
+    },
+    {
+      "type": "메뉴 희소성",
+      "note": "아사히생맥주, 일본 사케, 소주, 동해 증류주",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["번초밥", "고마사바"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "이자카야, 당근 동네 업체, 18:00-01:00 영업, 한일중 퓨전 요리"
+}

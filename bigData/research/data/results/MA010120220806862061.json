@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220806862061",
+  "worker": "haiku-31",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["옥천 영도구 부산 횟집", "옥천 동삼1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://triple.guide/restaurants/326ed110-223f-4e18-8877-22918c7937d4", "https://www.tabling.co.kr/place/677ccfdd66de5f06988502a7", "https://www.diningcode.com/profile.php?rid=XPeLs3rgCY7D"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "성게 알 김밥, 해물라면, 회",
+      "sources": [0, 1, 2]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "바다 전망, 테라스 좌석",
+      "sources": [0, 1, 2]
+    },
+    {
+      "type": "운영·접근 편의",
+      "note": "무료 주차",
+      "sources": [0, 1, 2]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["성게 알 김밥", "해물라면", "회", "전복죽"],
+    "priceBand": "medium"
+  },
+  "notFound": null,
+  "notes": "부산 영도구 중리남로 2-21, 월/수~일 11:00~21:00 (매월 2,4번째 화요일 휴무)"
+}

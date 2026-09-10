@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220810650623",
+  "worker": "haiku-27",
+  "researchedAt": "2026-09-09T01:36:30Z",
+  "queries": ["해성식당 부산진구 부산", "해성식당 가야2동 맛집"],
+  "found": false,
+  "confidence": "low",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "해성막창집 전포점(동성로49번길 32)은 찾았으나 냉정로253번길 10의 해성식당 정보는 없음",
+  "notes": ""
+}

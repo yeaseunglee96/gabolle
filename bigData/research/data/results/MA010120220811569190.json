@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220811569190",
+  "worker": "haiku-29",
+  "researchedAt": "2026-09-09T10:00:00Z",
+  "queries": ["우정갈비 금정구 부산", "우정갈비 구서2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/396367", "https://www.diningcode.com/profile.php?rid=MLUAhEFOr5lW", "https://www.menupan.com/restaurant/onepage.asp?acode=H600267"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "떡갈비와 갈비 전문점으로 알려져 있음", "sources": [0, 1]},
+    {"type": "동네·시장 지목", "note": "구서2동 금정구에 위치한 지역 맛집", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "넓은 전용주차장",
+    "audience": "mixed",
+    "signatureDishes": ["떡갈비", "갈비살", "생갈비"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

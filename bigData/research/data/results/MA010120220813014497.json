@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220813014497",
+  "worker": "haiku-29",
+  "researchedAt": "2026-09-09T10:16:00Z",
+  "queries": ["9공탄 부산진구 부산", "9공탄 개금1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=iHNZQyXPtdn1"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "조리·재료", "note": "연탄불에서 직접 구우며 사장님이 초벌로 구워서 서빙", "sources": [0]},
+    {"type": "서비스·사람", "note": "사장님이 먹기 좋게 직접 구워주는 서비스", "sources": [0]},
+    {"type": "동네·시장 지목", "note": "노포 감성의 동네 고깃집", "sources": [0]},
+    {"type": "간판 메뉴 지목", "note": "연탄불 삼겹살과 김치볶음밥 전문", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["통삼겹살", "김치볶음밥", "열무국수"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

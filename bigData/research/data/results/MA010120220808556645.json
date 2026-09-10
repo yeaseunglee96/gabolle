@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220808556645",
+  "worker": "haiku-51",
+  "researchedAt": "2026-09-09T14:38:00Z",
+  "queries": ["삼원 해운대 부산", "삼원 센텀 우2동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "센텀 지역 구내식당 정보는 있으나 '삼원'이라는 구체적인 식당에 대한 정보를 찾을 수 없음",
+  "notes": ""
+}

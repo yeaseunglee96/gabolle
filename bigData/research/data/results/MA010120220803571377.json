@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220803571377",
+  "worker": "haiku-9",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["감포참가자미 동구 부산", "감포참가자미 범일2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["siksinhot.com", "diningcode.com"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "조리·재료",
+      "note": "100% 자연산 활어 참가자미, 깊은 수심의 참가자미",
+      "sources": [0, 1]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "물회(멀회)가 주 메뉴, 회정식, 각종 회",
+      "sources": [0, 1]
+    },
+    {
+      "type": "메뉴 희소성",
+      "note": "감포 자연산 참가자미로 만든 특별한 물회",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["물회", "회정식"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "2층 구조, 30·50·80석 단체석 완비. 범일역·좌천역 인근"
+}

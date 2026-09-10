@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202603A0011591",
+  "worker": "haiku-51",
+  "researchedAt": "2026-09-09T14:50:00Z",
+  "queries": ["엘라샌드위치타운 해운대 부산", "엘라샌드위치타운 우1동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "엘라샌드위치타운에 대한 웹 정보를 찾을 수 없음. 검색 결과는 부산 엘시티 건물이나 LA 한인타운 정보만 나옴",
+  "notes": ""
+}

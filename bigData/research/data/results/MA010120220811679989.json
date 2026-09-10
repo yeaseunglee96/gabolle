@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220811679989",
+  "worker": "haiku-53",
+  "researchedAt": "2026-09-09T07:00:00Z",
+  "queries": ["뜨라또리아단테 민락동", "뜨라또리아단테 파스타"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1072394", "https://www.tabling.co.kr/place/677ccc6d66de5f06987f1516", "https://www.diningcode.com/profile.php?rid=1APetcKaS3UE"],
+  "stillOpen": true,
+  "whyPeopleGo": [{"type": "간판 메뉴 지목", "note": "생면파스타 전문점, 이탈리안 레스토랑", "sources": [0, 2]}, {"type": "조리·재료", "note": "신선한 파스타, 빵, 디저트, 소스, 스톡을 모두 직접 만듦", "sources": [1]}],
+  "newTypes": [],
+  "descriptors": {"signatureDishes": ["생면파스타"]},
+  "notFound": null,
+  "notes": "카테고리는 경양식으로 기록되었으나 실제로는 이탈리안 파스타 전문점. 영업시간 12:00-22:00 (월요일 휴무, 15:00-18:00 휴게)"
+}

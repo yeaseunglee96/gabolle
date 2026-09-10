@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220807173798",
+  "worker": "haiku-67",
+  "researchedAt": "2026-09-09T22:37:00.000Z",
+  "queries": ["모어허그 수영구 부산", "모어허그 광안1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=TrnrMX7Ubdkv"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "케이크 전문점",
+      "sources": [0]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "예쁜 디자인의 케이크로 유명",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["케이크"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "경양식(케이크/베이커리). 생화 미니케이크, 컵녹케이크, 도시락케이크 등 다양한 케이크 판매."
+}

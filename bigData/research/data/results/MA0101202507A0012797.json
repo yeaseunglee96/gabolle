@@ -1,0 +1,39 @@
+{
+  "id": "MA0101202507A0012797",
+  "worker": "haiku-18",
+  "researchedAt": "2026-09-09T10:50:00Z",
+  "queries": ["이조갈비 부산 대연동", "이조갈비 돼지고기 남구"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 남구 수영로 185"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "한돈 목심본갈비와 삼겹살 구이가 대표 메뉴",
+      "sources": [0]
+    },
+    {
+      "type": "운영·접근 편의",
+      "note": "프라이빗룸 갖춘 넓고 깔끔한 매장, 주차 가능",
+      "sources": [0]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "여러 규모의 그룹 모임에 적합한 프라이빗룸 운영",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "groups",
+    "signatureDishes": ["한돈 목심본갈비", "삼겹살"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": ""
+}

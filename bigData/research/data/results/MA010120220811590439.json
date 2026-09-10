@@ -1,0 +1,23 @@
+{
+  "id": "MA010120220811590439",
+  "worker": "haiku-17",
+  "researchedAt": "2026-09-09T09:46:45Z",
+  "queries": ["몽크 금정구 부산 경양식", "몽크 장전 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://app.catchtable.co.kr/ct/shop/monksbutcher"],
+  "stillOpen": true,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": [],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "Catch Table 예약 링크 확인됨. 구체적인 정보는 제한적"
+}

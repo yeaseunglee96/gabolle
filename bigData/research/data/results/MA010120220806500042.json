@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220806500042",
+  "worker": "haiku-24",
+  "researchedAt": "2026-09-09T10:26:15.2132113+09:00",
+  "queries": ["오야꼬 중구 부산", "오야꼬 대청동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=rTj7VNHjkbVK", "http://duli.co.kr/web/splus/kmap/view.php?sigun=6260000&gugun=3250000&keyno=110&keyname=%EC%98%A4%EC%95%BC%EA%BC%AC&keylink=3250000-101-2016-00082"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "일본 가정식 전문점", "sources": [0]},
+    {"type": "가격·가성비", "note": "세트메뉴 양이 많고 가격 합리적", "sources": [1]},
+    {"type": "서비스·사람", "note": "직원 친절함", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["정식", "세트메뉴", "우동", "돈부리"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "보수동 책방골목 근처 위치"
+}

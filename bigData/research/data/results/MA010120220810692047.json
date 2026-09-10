@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220810692047",
+  "worker": "haiku-46",
+  "researchedAt": "2026-09-09T13:10:00Z",
+  "queries": ["낙양회센타 강서구 부산", "낙양회센타 회 물회"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://c54.bil.co.kr/10404"],
+  "stillOpen": true,
+  "whyPeopleGo": [{"type": "간판 메뉴 지목", "note": "회, 물회 전문", "sources": [0]}],
+  "newTypes": [],
+  "descriptors": {"yearsClaimed": null, "generations": null, "queueing": null, "parking": true, "audience": "mixed", "signatureDishes": ["회", "물회"], "priceBand": null},
+  "notFound": null,
+  "notes": ""
+}

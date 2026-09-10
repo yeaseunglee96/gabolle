@@ -1,0 +1,18 @@
+{
+  "id": "MA010120220811447522",
+  "worker": "haiku-53",
+  "researchedAt": "2026-09-09T05:46:43.8167057Z",
+  "queries": ["다이닝센부 남구 부산", "다이닝센부 용호1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/430665", "https://www.diningcode.com/profile.php?rid=CKM8jERd8gi6"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "기관 선정", "note": "식약청 매우 우수 등급, 남구 모범 음식점 지정, 부산시 양식당 선정", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "소고기 등심 스테이크 샐러드, 소고기 골수 필라프 등 시그니처 메뉴", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {"signatureDishes": ["소고기 등심 스테이크 샐러드", "소고기 골수 필라프"], "priceBand": "moderate", "audience": "mixed"},
+  "notFound": null,
+  "notes": ""
+}

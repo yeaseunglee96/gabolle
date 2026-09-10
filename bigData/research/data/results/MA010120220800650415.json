@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220800650415",
+  "worker": "haiku-7",
+  "researchedAt": "2026-09-08T22:09:18Z",
+  "queries": ["내호냉면 남구 부산", "내호냉면 우암동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://ko.wikipedia.org/wiki/%EB%82%B4%ED%98%B8%EB%83%89%EB%A9%B4", "https://www.siksinhot.com/P/266880", "https://www.diningcode.com/profile.php?rid=8AXCZLxXxftP"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "원조·최초", "note": "밀면을 한국에서 처음 개발하여 판매한 식당", "sources": [0]},
+    {"type": "연차·역사", "note": "1919년 설립으로 100년 이상 역사, 현존하는 매우 오래된 식당", "sources": [0]},
+    {"type": "맛 묘사", "note": "진한 육향의 육수와 부드럽게 끊기는 면발", "sources": [2]},
+    {"type": "동네·시장 지목", "note": "우암동구시장 인근 위치로 시장 문화 체험", "sources": [2]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": 4,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["밀면", "냉면"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "우암동구시장 골목 내에 위치. 매일 10:30~20:00 영업. 밀면은 주문 후 조리에 시간 소요."
+}

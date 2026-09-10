@@ -1,0 +1,44 @@
+{
+  "id": "MA010120220803173868",
+  "worker": "haiku-21",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["유화 해운대구 부산", "유화 좌동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=sOlv4Lc5rtuD", "https://kr.trip.com/moments/detail/busan-432-137698073/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "메뉴 희소성",
+      "note": "스시 오마카세는 특별한 고급 음식",
+      "sources": [0, 1]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "100% 예약제로 조용하고 프라이빗한 분위기",
+      "sources": [0, 1]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "오마카세 치고 1인 약 6만원대의 가성비",
+      "sources": [0, 1]
+    },
+    {
+      "type": "플랫폼 순위·평점",
+      "note": "다이닝코드, 트립닷컴 등 플랫폼에 등재",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["스시 오마카세"],
+    "priceBand": "medium"
+  },
+  "notFound": null,
+  "notes": "하루 3타임만 운영, 100% 예약제(캐치테이블)"
+}

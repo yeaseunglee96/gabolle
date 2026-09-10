@@ -1,0 +1,34 @@
+{
+  "id": "MA0101202406A0485190",
+  "worker": "haiku-13",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["갯마을횟집 부산진구 부산", "갯마을횟집 부전1동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["식신", "다이닝코드", "triple.guide"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "자연산 횟감 전문",
+      "sources": [0, 1]
+    },
+    {
+      "type": "원조·최초",
+      "note": "갯마을 체인 횟집",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["자연산 횟감"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "갯마을 체인점이 부산 지역에 여러 곳 위치"
+}

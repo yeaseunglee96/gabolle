@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220808294900",
+  "worker": "haiku-26",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["호호갈비 연제구 부산", "호호갈비 연산동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://infosori.com/sori/m.php?board=foodbs&command=body&no=72338"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "갈비·쪽갈비 전문",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["갈비"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": ""
+}

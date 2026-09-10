@@ -1,0 +1,25 @@
+{
+  "id": "MA010120220812487918",
+  "worker": "haiku-47",
+  "researchedAt": "2026-09-09T11:55:00Z",
+  "queries": ["산해루 수영구 부산", "산해루 광안2동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://triple.guide/restaurants/fa4c07f3-ee8f-4458-a1b0-603b7e72a8e9"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "기관 선정", "note": "미슐랭 1스타 파인다이닝", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": [],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": "데이터 분류는 중국집이나 실제는 파인다이닝. triple.guide에서 최고급 식재료로 정통 요리를 선보이는 미슐랭 1스타 파인다이닝으로 표기됨"
+}

@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220805838016",
+  "worker": "haiku-69",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["갈매기집 수영구 부산", "갈매기집 민락동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1040701", "https://www.diningcode.com/profile.php?rid=CTDYwNQ6NgtG"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "아구수육 전문점으로 알려져 있음", "sources": [0, 1]},
+    {"type": "메뉴 희소성", "note": "시원하고 담백한 아구수육과 제철회, 각종 해산물 판매", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["아구수육", "제철회"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "예약 권장, 조리 시간이 다소 긴 편"
+}

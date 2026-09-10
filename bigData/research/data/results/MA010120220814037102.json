@@ -1,0 +1,47 @@
+{
+  "id": "MA010120220814037102",
+  "worker": "haiku-2",
+  "researchedAt": "2026-09-08T16:43:11.248Z",
+  "queries": ["대쿠이 부산진구 김밥", "대쿠이 전포동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://polle.com/place/4eTKYY/%EB%8C%80%EC%BF%A0%EC%9D%B4",
+    "https://xn--2s2b33eb3kgvpta.com/store/S200807_1597995345902"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "맛 묘사",
+      "note": "여러 부위(안심·등심·목살)를 함께 맛볼 수 있으며 안심은 부드러운 식감",
+      "sources": [0]
+    },
+    {
+      "type": "곁들임·차림",
+      "note": "밥, 반찬과 함께 리필 가능한 국수가 제공되는 특징",
+      "sources": [0]
+    },
+    {
+      "type": "서비스·사람",
+      "note": "친절한 서빙으로 테이블마다 맛있게 먹는 법과 부위 설명 종이 배치",
+      "sources": [0]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "합리적 가격에 푸짐하게 여러 부위를 식사할 수 있음",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": "some",
+    "parking": false,
+    "audience": null,
+    "signatureDishes": ["모듬 카츠"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "웨이팅이 발생할 수 있으나 캐치테이블 예약으로 대기 시간 단축 가능"
+}

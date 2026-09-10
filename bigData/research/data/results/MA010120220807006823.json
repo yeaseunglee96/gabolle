@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220807006823",
+  "worker": "haiku-53",
+  "researchedAt": "2026-09-09T14:50:00Z",
+  "queries": ["잇시 해운대 중1동", "잇시 경양식 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=tbvZo6FE35Og"],
+  "stillOpen": true,
+  "whyPeopleGo": [{"type": "간판 메뉴 지목", "note": "와인바", "sources": [0]}, {"type": "분위기·전망", "note": "해운대 중1동 와인바 맛집", "sources": [0]}],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": null,
+  "notes": "카테고리는 경양식으로 기록되었으나 실제로는 와인바. 해운대 와인바로 다이닝코드에 등재됨"
+}

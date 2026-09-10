@@ -1,0 +1,42 @@
+{
+  "id": "MA0101202504A0008777",
+  "worker": "haiku-50",
+  "researchedAt": "2026-09-09T05:30:45Z",
+  "queries": ["삼원면옥 송정동 부산", "삼원면옥 해운대 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "http://localmap.co.kr/web/splus/kmap/view.php?sigun=6260000&gugun=3330000&keyno=127&keyname=%EC%82%BC%EC%9B%90%EB%A9%B4%EC%98%A5&keylink=3330000-101-2025-00092",
+    "https://www.siksinhot.com/theme/magazine/10967"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "밀면과 보쌈 전문점",
+      "sources": [0, 1]
+    },
+    {
+      "type": "맛 묘사",
+      "note": "무말랭이와 따뜻한 보쌈을 함께하는 조합, 부드럽고 쫄깃한 면발",
+      "sources": [1]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "송정해수욕장 도보 3분 거리의 해변 근처 위치",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": true,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["밀면", "보쌈"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "웨이팅이 있을 수 있으니 참고"
+}

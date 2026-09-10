@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220811481852",
+  "worker": "haiku-14",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["원조석대추어탕 해운대구 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산방문관광", "다이닝코드", "트립가이드"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "추어탕 전문점", "sources": [0, 1]},
+    {"type": "조리·재료", "note": "전통 조리법으로 나무 장작과 주철 가마솥에 끓임", "sources": [0, 1]},
+    {"type": "분위기·전망", "note": "오래된 시골 가옥 분위기, 큰 주철 가마솥이 인상적", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["추어탕", "가마솥 요리"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

@@ -1,0 +1,34 @@
+{
+  "id": "MA0101202211A0018815",
+  "worker": "haiku-25",
+  "researchedAt": "2026-09-09T10:43:00Z",
+  "queries": ["정통중국관 금정구 부산", "정통중국관 서2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=5mxgk95Pj5fP"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "가격·가성비",
+      "note": "가성비 중국집. 현금 1,000원 할인, 곱배기 1,000원 추가",
+      "sources": [0]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "반반메뉴 (짜장과 짬뽕)",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["짜장면", "반반메뉴"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

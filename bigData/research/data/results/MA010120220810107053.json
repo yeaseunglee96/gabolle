@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220810107053",
+  "worker": "haiku-4",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["기장끝집 기장군 부산", "기장끝집 기장읍 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 기장군 기장읍 기장해안로 895"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "맛 묘사", "note": "신선한 생전복 사용, 100% 참기름 사용", "sources": [0]},
+    {"type": "분위기", "note": "푸른 바다 조망, 오션뷰", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["전복죽", "특전복죽"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "해산물모듬 한소쿠리 서비스"
+}

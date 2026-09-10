@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220810718098",
+  "worker": "haiku-41",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["돈오리 강서구 부산", "돈오리 명지2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://triple.guide/restaurants/acd8d488-0a8e-4cc6-b252-34f5b6a60f35", "https://www.diningcode.com/profile.php?rid=aswPGIR2yrDw"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "청둥오리가 대표메뉴, 당일도축 신선육", "sources": [0, 1]},
+    {"type": "조리·재료", "note": "지리산자생참나무만을 사용한 돈오리참숯으로 고기를 구움", "sources": [1]},
+    {"type": "서비스·사람", "note": "사장님이 직접 구워줌", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["청둥오리", "돼지고기"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "영업시간 11:30-20:00 (15:30-16:30 브레이크), 전화 051-201-5205, 단체 이용 가능, 산장 같은 분위기"
+}

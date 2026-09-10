@@ -1,0 +1,27 @@
+{
+  "id": "MA0101202305A0146188",
+  "worker": "haiku-47",
+  "researchedAt": "2026-09-09T10:00:00Z",
+  "queries": ["고재 해운대구 부산", "고재 우1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.tabling.co.kr/place/677cd60d66de5f0698904e6a", "https://www.diningcode.com/profile.php?rid=tzKuBCx6VKkn", "https://kr.trip.com/moments/detail/haeundae-gu-2016633-140563572/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "분위기·전망", "note": "해리단길의 한옥 카페로 전통 한옥 미학과 현대식 실내 공간", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "유기농 베리 빙수와 수수한옥빙수 등 시즈널 디저트", "sources": [1]},
+    {"type": "미디어 노출", "note": "인스타그램 명소로 유명한 카페", "sources": [2]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["유기농 베리 빙수", "수수한옥빙수", "쑥 빙수"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "2층 위치로 계단이 가파르고 어린이 미동반 운영정책 있음. 영업시간 11:00-20:00 (라스트오더 19:30)"
+}

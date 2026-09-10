@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220811597830",
+  "worker": "haiku-70",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["대성장횟집 기장 횟집", "대성장횟집 연화 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://triple.guide/restaurants/67e4cfbc-4eb8-44bc-97d8-e99cdc6ff1f4", "https://www.diningcode.com/profile.php?rid=JhYDPVbF6fjh", "https://kr.trip.com/moments/detail/gijang-gun-2016643-119151035/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "메뉴 희소성",
+      "note": "앞바다에서 직접 잡아 올린 신선한 해산물 전문",
+      "sources": [0]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "전복죽과 전복회, 다양한 해산물 코스 제공",
+      "sources": [1]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "반실외 테라스에서 바다뷰를 즐길 수 있는 해산물 전문점",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "매장 앞 전용 주차장",
+    "audience": "mixed",
+    "signatureDishes": ["전복죽", "전복회", "모듬회"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "기장읍 연화1길 163, 월-금 10:00-20:30 토일 09:30-21:30"
+}

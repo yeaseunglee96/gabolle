@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220803784207",
+  "worker": "haiku-70",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["공삼삼 광안 돼지고기 부산", "공삼삼 광안3동 맛집", "\"공삼삼\" 감포로 돼지고기"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색으로 공삼삼에 대한 구체적인 정보를 찾을 수 없음",
+  "notes": ""
+}

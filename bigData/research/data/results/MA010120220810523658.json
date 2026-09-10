@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220810523658",
+  "worker": "haiku-38",
+  "researchedAt": "2026-09-09T15:45:00Z",
+  "queries": ["감천횟집 부산", "감천횟집 괴정3동"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.facebook.com/pages/%C3%AA%C2%B0%C2%90%C3%AC%C2%B2%C2%9C%C3%AD%C2%9A%C2%9F%C3%AC%C2%A7%C2%91/146974985832293/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "생선회 전문점",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["생선회"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": ""
+}

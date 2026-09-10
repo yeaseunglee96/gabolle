@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220813464345",
+  "worker": "haiku-14",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["뉼리 수영구 부산", "뉼리 민락동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["식신", "다이닝코드", "트립어드바이저"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "분위기·전망", "note": "광안대교 뷰, 8층에 위치한 프리미엄 다이닝 공간", "sources": [0, 1]},
+    {"type": "서비스·사람", "note": "친절한 사장, 깨끗한 시설", "sources": [1]},
+    {"type": "간판 메뉴 지목", "note": "리브아이 스테이크가 시그니처 메뉴", "sources": [0]},
+    {"type": "메뉴 희소성", "note": "코스 요리로 특별한 경험 제공", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["리브아이 스테이크", "카치오에 페페 파스타", "매운탕"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": ""
+}

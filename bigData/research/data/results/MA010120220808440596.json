@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220808440596",
+  "worker": "haiku-23",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["열돈이야기 해운대구 부산", "열돈이야기 반여1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 해운대구 선수촌로 74-13"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "조리·재료", "note": "직접 만드는 수제양념돼지갈비로 차별화된 맛", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "수제양념돼지갈비가 대표 메뉴", "sources": [1]},
+    {"type": "운영·접근 편의", "note": "회식과 단체모임을 위한 단체룸과 전용주차장(2시간 무료)", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "full",
+    "audience": "mixed",
+    "signatureDishes": ["수제양념돼지갈비"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "전화 051-521-4647. 단체룸 있음. 월요일 정기휴무"
+}

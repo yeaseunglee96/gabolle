@@ -1,0 +1,27 @@
+{
+  "id": "MA0101202411A0092129",
+  "worker": "haiku-69",
+  "researchedAt": "2026-09-10T00:14:00Z",
+  "queries": ["해양산국밥 수영구", "해양산국밥 민락동"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1745526", "https://www.diningcode.com/profile.php?rid=GbITvCfY8xUM"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "돼지국밥 전문점", "sources": [0, 1]},
+    {"type": "맛 묘사", "note": "깨끗한 무취 국물", "sources": [1]},
+    {"type": "운영·접근 편의", "note": "무료 주차, 새 건물, 청결", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["돼지국밥"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "영업시간 09:00~22:00, 연중무휴, 애완동물 가능, 와이파이"
+}

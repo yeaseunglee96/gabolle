@@ -1,0 +1,23 @@
+{
+  "id": "MA0101202511A0038343",
+  "worker": "haiku-56",
+  "researchedAt": "2026-09-09T06:37:13Z",
+  "queries": ["테츠아지 수영구 부산", "테츠아지 민락동 맛집"],
+  "found": true,
+  "confidence": "low",
+  "sources": [],
+  "stillOpen": true,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": [],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "이자카야 업태. Instagram 오픈 공지 확인되었으나 자세한 메뉴/정보 제한적"
+}

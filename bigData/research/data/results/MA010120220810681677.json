@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220810681677",
+  "worker": "haiku-46",
+  "researchedAt": "2026-09-09T13:20:00Z",
+  "queries": ["칡넝굴2 강서구 부산", "칡넝굴 상덕로 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.tabling.co.kr/place/677ccbb466de5f06987dbc1b"],
+  "stillOpen": true,
+  "whyPeopleGo": [{"type": "간판 메뉴 지목", "note": "유황 오리 전문", "sources": [0]}],
+  "newTypes": [],
+  "descriptors": {"yearsClaimed": null, "generations": null, "queueing": null, "parking": true, "audience": "mixed", "signatureDishes": ["유황 오리", "오리탕", "오리구이"], "priceBand": null},
+  "notFound": null,
+  "notes": ""
+}

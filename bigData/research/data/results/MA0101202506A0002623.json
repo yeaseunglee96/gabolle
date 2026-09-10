@@ -1,0 +1,39 @@
+{
+  "id": "MA0101202506A0002623",
+  "worker": "haiku-66",
+  "researchedAt": "2026-09-10T12:08:00Z",
+  "queries": ["연 해운대구 부산", "연 중1동 맛집 해운대"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=6RFE90eOPwal"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "고급진 분위기, 파라다이스 호텔 맞은편 3층 위치",
+      "sources": [0]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "한정식, 소갈비찜 전문",
+      "sources": [0]
+    },
+    {
+      "type": "운영·접근 편의",
+      "note": "프라이빗 룸 구비, 예약 가능",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["소갈비찜"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": "영업시간 11:30~21:30 (15:00~17:00 휴게)"
+}

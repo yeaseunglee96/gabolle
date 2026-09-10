@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220811994804",
+  "worker": "haiku-44",
+  "researchedAt": "2026-09-09T10:27:00Z",
+  "queries": ["남해달인횟집 사하구 부산", "남해달인횟집 괴정2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/383465", "https://www.diningcode.com/profile.php?rid=IXcV8pFam2uD", "https://bebeyam.com/%EB%9A%9C%EB%B2%85%EC%9D%B4-%EC%97%AC%ED%96%89%EA%B8%B057-%EB%B6%80%EC%82%B0-%EB%82%A8%ED%95%B4%EB%8B%AC%EC%9D%B8%ED%9A%9F%EC%A7%91-%EC%88%99%EC%84%B1%ED%9A%8C-%ED%9A%8C%EB%B0%B1%EB%B0%98/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "미디어 노출",
+      "note": "SBS 생활의 달인 출연 - 회백반의 달인으로 소개됨",
+      "sources": [0, 1, 2]
+    },
+    {
+      "type": "조리·재료",
+      "note": "당일 수급한 회를 4시간 이상 숙성하여 제공하는 전문적인 조리법",
+      "sources": [2]
+    },
+    {
+      "type": "메뉴 희소성",
+      "note": "리필 가능한 회 백반으로 일반 횟집과 차별화됨",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["회 백반", "숙성회"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

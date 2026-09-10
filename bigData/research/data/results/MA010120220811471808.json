@@ -1,0 +1,37 @@
+{
+  "id": "MA010120220811471808",
+  "worker": "haiku-2",
+  "researchedAt": "2026-09-08T16:43:11.248Z",
+  "queries": ["의령식당 해운대 우동", "의령식당 우동 한정식 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.diningcode.com/profile.php?rid=kjTtKepwjpo3",
+    "https://geniusjw.com/3206"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "맛 묘사",
+      "note": "담백한 맛의 돼지국밥, 깔끔하게 우려낸 육수",
+      "sources": [0, 1]
+    },
+    {
+      "type": "현지인 지지",
+      "note": "해리단길 인기 있는 오래된 식당",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["돼지국밥", "내장국밥", "수육백반"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "월-토 08:30-21:00, 일요일 휴무. 소규모 매장"
+}

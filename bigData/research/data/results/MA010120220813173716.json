@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220813173716",
+  "worker": "haiku-48",
+  "researchedAt": "2026-09-09T14:41:00+09:00",
+  "queries": ["미포할매복집 해운대구 부산", "미포할매복집 중1동 복"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=nyioY7O3UN2w", "https://www.siksinhot.com/P/1353030", "https://triple.guide/restaurants/88fb3d4e-2ed1-48c5-b35e-4c2c002e2c54"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "복국, 복 요리 전문", "sources": [0, 1, 2]},
+    {"type": "연차·역사", "note": "1976년부터 할머니가 만들어온 전통 맛", "sources": [2]},
+    {"type": "현지인 지지", "note": "지역의 인기 맛집으로 개업 3개월 만에 일 1,000명 방문", "sources": [2]},
+    {"type": "운영·접근 편의", "note": "24시간 운영하는 복국 맛집", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["복국"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "원조할매복국과 미포집 등 근처에 유사한 이름의 복 요리 전문점들이 있음"
+}

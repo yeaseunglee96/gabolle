@@ -1,0 +1,34 @@
+{
+  "id": "MA010120220811422762",
+  "worker": "haiku-13",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["정원식당 수영구 부산", "정원식당 남천1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["식신", "triple.guide"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "해장국 전문, 뼈다귀/선지해장국",
+      "sources": [0]
+    },
+    {
+      "type": "연차·역사",
+      "note": "30년 전통의 로컬 식당",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["뼈다귀 해장국", "선지해장국", "된장찌개"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "진한 해장국과 푸짐한 반찬 한상"
+}

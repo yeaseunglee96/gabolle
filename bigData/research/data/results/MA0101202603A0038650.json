@@ -1,0 +1,34 @@
+{
+  "id": "MA0101202603A0038650",
+  "worker": "haiku-38",
+  "researchedAt": "2026-09-09T15:15:00Z",
+  "queries": ["냠냠쪽쪽 부산", "냠냠쪽쪽 감만2동"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=WcGJc2My8x20"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "쪽갈비 전문점",
+      "sources": [0]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "깨끗하고 아늑한 분위기의 원탁 배치",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["쪽갈비", "양념구이 갈비"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": ""
+}

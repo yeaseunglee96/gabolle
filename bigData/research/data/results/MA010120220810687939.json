@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220810687939",
+  "worker": "haiku-39",
+  "researchedAt": "2026-09-09T10:06:00Z",
+  "queries": ["목포홍어집 사상구 부산", "목포홍어집 덕포1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["http://duli.co.kr/web/splus/kmap/view.php?sigun=6260000&gugun=3390000&keyno=107&keyname=%EB%AA%A9%ED%8F%AC%ED%99%8D%EC%96%B4%EC%A7%91&keylink=3390000-101-1993-00569"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "원조·최초", "note": "목포식 홍어 전문점", "sources": [0]},
+    {"type": "간판 메뉴 지목", "note": "홍어로 알려진 가게", "sources": [0]},
+    {"type": "메뉴 희소성", "note": "홍어 전문 음식점", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": null,
+    "signatureDishes": ["홍어"],
+    "priceBand": null
+  },
+  "notes": "주소: 부산광역시 사상구 덕포동 429-5, 전화: 051-305-3715, 명칭: 목포홍어집"
+}

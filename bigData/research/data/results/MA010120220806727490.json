@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220806727490",
+  "worker": "haiku-17",
+  "researchedAt": "2026-09-09T09:15:45Z",
+  "queries": ["해성막창집 해운대구 부산", "해성막창집 중1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/285983", "https://www.diningcode.com/profile.php?rid=rWzcwMfL7iag"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "소막창이 잘 숙성되어 냄새가 나지 않는 것으로 유명하다", "sources": [0, 1]},
+    {"type": "혼잡·수요", "note": "저녁 시간에 웨이팅이 있을 정도로 인기가 많다", "sources": [0, 1]},
+    {"type": "가격·가성비", "note": "1인분 기준 11,000-12,000원대로 저렴하다", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": true,
+    "parking": false,
+    "audience": "local",
+    "signatureDishes": ["소막창", "대창구이", "곱창전골"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

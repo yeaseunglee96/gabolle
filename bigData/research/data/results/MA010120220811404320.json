@@ -1,0 +1,44 @@
+{
+  "id": "MA010120220811404320",
+  "worker": "haiku-60",
+  "researchedAt": "2026-09-09T08:38:00Z",
+  "queries": ["이어도 수영구 광안 횟집 부산", "\"이어도\" 광안리 코스요리 오마카세"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=8EoHYBqaNpO6", "https://polle.com/place/1Ufvle/%EC%9D%B4%EC%96%B4%EB%8F%84"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "광안대교 야경과 바다 조망을 함께 즐길 수 있는 2층 룸",
+      "sources": [0]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "코스 A/B, 스페샬, 오마카세 코스 등 다양한 프리미엄 메뉴",
+      "sources": [0]
+    },
+    {
+      "type": "조리·재료",
+      "note": "신선한 제철 해산물을 직접 준비",
+      "sources": [0]
+    },
+    {
+      "type": "운영·접근 편의",
+      "note": "프라이빗한 룸이 완비되어 있어 모임이나 가족 외식에 최적화",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "families",
+    "signatureDishes": ["점심특선", "코스 A/B", "오마카세"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "광안대우아이빌 2층. 점심특선 35,000원, 코스 A 50,000원, 코스 B 60,000원, 스페샬 80,000원, 오마카세 100,000원. 연락처 051-755-0225"
+}

@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220803322229",
+  "worker": "haiku-11",
+  "researchedAt": "2026-09-09T00:32:00Z",
+  "queries": ["광안리진양호횟집 수영 부산", "광안리진양호횟집 민락 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 수영구 광안해변로344번길 17-20"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "연차·역사", "note": "25년 경력의 사장님이 직접 고급어종 회를 썰어내는 전문성", "sources": [0, 1] },
+    { "type": "분위기·전망", "note": "광안리 바다를 한눈에 보는 오션뷰와 100석 규모의 넓은 홀", "sources": [0, 1] },
+    { "type": "조리·재료", "note": "결이 곱고 쫀득한 식감의 고급어종 회와 산낙지, 전복회, 가리비구이 등 다양한 해산물", "sources": [0, 1] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["대방어회", "돌돔코스", "산낙지", "전복회", "가리비구이"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "회 리필 가능"
+}

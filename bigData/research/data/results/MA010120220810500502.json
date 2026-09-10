@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220810500502",
+  "worker": "haiku-68",
+  "researchedAt": "2026-09-10T09:56:00Z",
+  "queries": ["지원실업 감포로 광안3동 부산", "지원실업 돼지고기 구이 맛집 부산"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색에서 수영구 광안3동의 지원실업 음식점을 찾을 수 없음. 검색 결과에는 실업 지원 공공기관 정보만 나타남",
+  "notes": ""
+}

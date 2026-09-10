@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220810773670",
+  "worker": "haiku-20",
+  "researchedAt": "2026-09-09T11:40:45Z",
+  "queries": ["용소천 남구 부산", "용소천 용호1동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색에서 '용소천'이라는 횟집 정보 없음. 용호1동 일반 맛집 리스트만 나타남",
+  "notes": ""
+}

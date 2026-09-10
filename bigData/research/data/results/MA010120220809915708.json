@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220809915708",
+  "worker": "haiku-26",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["라포 연제구 부산", "라포 연산동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=MPck1b9zinlK"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "유럽풍 인테리어, 잔잔한 음악, 루프탑 테라스",
+      "sources": [0]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "파스타와 스테이크 전문",
+      "sources": [0]
+    },
+    {
+      "type": "운영·접근 편의",
+      "note": "연산역에서 3분 거리, 주차비 지원",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "couples",
+    "signatureDishes": ["파스타", "스테이크"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

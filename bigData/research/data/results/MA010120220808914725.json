@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220808914725",
+  "worker": "haiku-10",
+  "researchedAt": "2026-09-09T14:50:00Z",
+  "queries": ["스시심 금정구 부산", "스시심 장전2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산 금정구 금강로 279-1"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "가격·가성비", "note": "10만원 이하 가성비 좋은 오마카세, 점심 40,000원 저녁 60,000원", "sources": [0]},
+    {"type": "맛 묘사", "note": "셰프의 정성이 담긴 니기리와 오마카세", "sources": [0]},
+    {"type": "현지인 지지", "note": "부산대역 근처, 학생과 지역 주민이 찾는 스시집", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": false,
+    "audience": "students",
+    "signatureDishes": ["오마카세", "니기리 세트"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "예약 가능"
+}

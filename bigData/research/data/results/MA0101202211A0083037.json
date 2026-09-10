@@ -1,0 +1,34 @@
+{
+  "id": "MA0101202211A0083037",
+  "worker": "haiku-13",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["두루미 수영구 부산", "두루미 남천2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["Instagram", "당근"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "돼지고기 구이 전문, 삼겹살/오겹살",
+      "sources": [0, 1]
+    },
+    {
+      "type": "연차·역사",
+      "note": "노포 감성의 오래된 식당",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["삼겹살", "오겹살"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "광안리 오겹살 맛집으로 유명한 노포"
+}

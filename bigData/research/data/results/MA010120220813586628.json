@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220813586628",
+  "worker": "haiku-61",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["명가 수영구 부산 회", "명가 광안2동 맛집"],
+  "found": false,
+  "confidence": "low",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹에서 검색되지 않음. 민락 회 타운이나 명동식당(한식) 정보만 나옴",
+  "notes": ""
+}

@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202507A0012340",
+  "worker": "haiku-59",
+  "researchedAt": "2026-09-09T07:54:15Z",
+  "queries": ["라코 수영구 부산", "라코 민락동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "해당 이름의 식당이 웹 검색 결과에 나타나지 않음. 민락동 맛집 플랫폼(다이닝코드, 식신 등)에서 발견 불가",
+  "notes": "일식 회/초밥 카테고리로 등록. 부산 민락동 지역의 다른 일식당들은 검색되나 '라코'는 미확인"
+}

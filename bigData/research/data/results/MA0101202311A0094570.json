@@ -1,0 +1,29 @@
+{
+  "id": "MA0101202311A0094570",
+  "worker": "haiku-25",
+  "researchedAt": "2026-09-09T10:39:30Z",
+  "queries": ["트로피 동구 부산", "트로피 범일2동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://www.siksinhot.com/theme/magazine/8563"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "코스형 샤브와 룸이 있는 식당. 샤브/죽 마무리",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "공영주차장 1시간 지원",
+    "audience": "mixed",
+    "signatureDishes": ["샤브", "죽"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": ""
+}

@@ -1,0 +1,25 @@
+{
+  "id": "MA010120220810634364",
+  "worker": "haiku-20",
+  "researchedAt": "2026-09-09T11:10:00Z",
+  "queries": ["아자금 부산진구", "아자금 범천1동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["부산광역시 부산진구 서면로 24 부산플라자 2층"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "간판 메뉴 지목", "note": "정통 일식 전문점", "sources": [0] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "yes",
+    "audience": "mixed",
+    "signatureDishes": [],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": "검색 주소가 일부 다름. 서면로에 위치한 것으로 확인되었으나 대기열 주소는 중앙번영로"
+}

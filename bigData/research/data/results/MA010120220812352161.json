@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220812352161",
+  "worker": "haiku-49",
+  "researchedAt": "2026-09-09T14:30:00Z",
+  "queries": ["혜자네 해운대구 부산 돼지고기", "혜자네 구남로 중1동"],
+  "found": false,
+  "confidence": "low",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "구남로41번길 18에 위치한다는 혜자네를 찾을 수 없음. 해운대구 고기집들은 여러 개 검색되지만 이 가게는 찾을 수 없음",
+  "notes": ""
+}

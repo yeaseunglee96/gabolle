@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220810534291",
+  "worker": "haiku-31",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["토모Tomo 서구 부산", "토모Tomo 부민동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://www.instagram.com/p/B7nZUNZFpJYIz0s-SmUf3W1JdhsPFMfj_1jVYE0/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "현지인 지지",
+      "note": "혼자 종종 가는 맛집으로 소개됨",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": [],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "부산 서구 부민동, 일식 회/초밥 전문, 인스타그램 언급"
+}

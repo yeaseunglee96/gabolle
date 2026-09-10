@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220813402547",
+  "worker": "haiku-15",
+  "researchedAt": "2026-09-08T22:39:41Z",
+  "queries": ["피오또 해운대구 부산", "피오또 중1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산 해운대구 좌동순환로 432"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "기관 선정", "note": "2025년 미슐랭 가이드 남한 1스타 레스토랑", "sources": [0] },
+    { "type": "분위기·전망", "note": "달맞이길 근처 좋은 분위기", "sources": [0] },
+    { "type": "서비스·사람", "note": "기념일, 생일, 특별한 날 방문하기 좋음", "sources": [0] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": false,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["생면파스타", "코스 요리"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": "전화 0507-1349-1045, 예약 권장, 와인·논알콜 페어링 제공"
+}

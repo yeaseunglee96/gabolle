@@ -1,0 +1,37 @@
+{
+  "id": "MA0101202504A0084172",
+  "worker": "haiku-56",
+  "researchedAt": "2026-09-09T06:37:13Z",
+  "queries": ["뚜벅스 수영구 부산", "뚜벅스 민락동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://kr.trip.com/moments/detail/busan-432-119968470/",
+    "https://www.diningcode.com/profile.php?rid=1RayyDJjKsau"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "광안대교와 광안리해수욕장의 야경을 즐길 수 있는 감성 있는 공간",
+      "sources": [0]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "카페/디저트 전문점으로 코코넛딸기쉐이크, 케이크 등 제공",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["코코넛딸기쉐이크", "캐모마일티", "그린티쇼콜라케이크"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

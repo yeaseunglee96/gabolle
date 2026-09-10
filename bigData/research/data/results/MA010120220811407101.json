@@ -1,0 +1,44 @@
+{
+  "id": "MA010120220811407101",
+  "worker": "haiku-66",
+  "researchedAt": "2026-09-10T12:14:00Z",
+  "queries": ["용반점 수영구 부산", "용반점 민락동 중국집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/396449", "https://www.diningcode.com/profile.php?rid=tOZfX2v5DhLs"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "용짬뽕 전문",
+      "sources": [0]
+    },
+    {
+      "type": "맛 묘사",
+      "note": "상큼한 육수, 신선하고 깔끔한 맛",
+      "sources": [0]
+    },
+    {
+      "type": "혼잡·수요",
+      "note": "점심시간에 웨이팅 필수",
+      "sources": [1]
+    },
+    {
+      "type": "운영·접근 편의",
+      "note": "점심시간만 운영으로 빠른 식사에 편함",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": "점심시간 웨이팅 필수",
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["용짬뽕", "하얀 짬뽕", "짜장면", "해물 볶음밥"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "점심시간(11:00-15:00)만 운영, 화요일 휴무"
+}

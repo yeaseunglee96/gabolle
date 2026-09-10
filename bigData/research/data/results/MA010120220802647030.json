@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220802647030",
+  "worker": "haiku-37",
+  "researchedAt": "2026-09-09T11:23:43.0136153+09:00",
+  "queries": ["마호우가 부산 영도구", "마호우가 절영로 231"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=hk3OFSYh8luL", "https://kr.trip.com/moments/detail/busan-432-127659429/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "간판 메뉴 지목", "note": "직접 만드는 우동 - 시간이 걸리지만 쫄깃한 식감이 특징", "sources": [0] },
+    { "type": "분위기·전망", "note": "해변을 바라보는 창가에서 해양 경치를 즐길 수 있음", "sources": [0] },
+    { "type": "메뉴 희소성", "note": "에비텐부카케우동 - 신선한 새우튀김과 찬 국수를 양념에 비벼 먹음", "sources": [0, 1] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["우동", "에비텐부카케우동", "메밀국수", "돈까스"],
+    "priceBand": "affordable"
+  },
+  "notFound": null,
+  "notes": "영도 휘누을문화마을 위치. 월-금 10:30-18:00, 토-일 10:30-19:00, 목요일 정기휴무"
+}

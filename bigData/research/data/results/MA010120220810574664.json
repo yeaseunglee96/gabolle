@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220810574664",
+  "worker": "haiku-8",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["일품향 동구 부산 중국집", "일품향 초량동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산 동구 대영로243번길 22"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "만두와 깐풍기, 탕수육 전문", "sources": [0, 1]},
+    {"type": "동네·시장 지목", "note": "초량 차이나타운에 위치", "sources": [0, 1]},
+    {"type": "가격·가성비", "note": "합리적인 가격대", "sources": [0]},
+    {"type": "맛 묘사", "note": "만두 맛이 좋다는 고객 평가", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": false,
+    "audience": "mixed",
+    "signatureDishes": ["만두"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

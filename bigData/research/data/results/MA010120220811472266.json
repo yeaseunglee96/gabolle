@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220811472266",
+  "worker": "haiku-26",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["OPS 해운대구 부산", "OPS 좌동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/256570", "https://www.diningcode.com/profile.php?rid=nFME7DxGp3Og"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "메뉴 희소성",
+      "note": "계절 과일을 사용한 파이 전문",
+      "sources": [0]
+    },
+    {
+      "type": "운영·접근 편의",
+      "note": "해운대역, 해운대 해수욕장 근처로 접근성 좋음",
+      "sources": [0]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "부산의 대표 베이커리로 인정받음",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["파이", "케이크"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220811420469",
+  "worker": "haiku-15",
+  "researchedAt": "2026-09-08T22:45:30Z",
+  "queries": ["이흥용베이커리 남구 부산", "이흥용베이커리 문현3동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 남구 수영로39번길 2-1"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "연차·역사", "note": "1995년 개업, 부산 대표 빵집", "sources": [0] },
+    { "type": "기관 선정", "note": "제과제빵 명장 선정, 백년가게 지정", "sources": [0] },
+    { "type": "간판 메뉴 지목", "note": "자갈치 명란 바게트, 해운대 오징어 먹물 빵", "sources": [0] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": "1995년",
+    "generations": null,
+    "queueing": false,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["명란 바게트", "오징어 먹물 빵"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "08:30~21:00, 제과 명장 운영"
+}

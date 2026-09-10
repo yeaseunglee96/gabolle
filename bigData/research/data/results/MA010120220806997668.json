@@ -1,0 +1,34 @@
+{
+  "id": "MA010120220806997668",
+  "worker": "haiku-67",
+  "researchedAt": "2026-09-09T22:30:00.000Z",
+  "queries": ["삼오식당 수영구 부산", "삼오식당 광안1동 맛집", "삼오불고기 광안동 부산", "삼오불고기 수영로610번길"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=Djhx1KrgMZkO", "https://www.tel-co.net/food/spot/4217", "https://www.siksinhot.com/theme/magazine/7328"],
+  "stillOpen": null,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "삼겹살과 냉삼이 주 메뉴",
+      "sources": [0, 1, 2]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "삼겹살과 불고기가 9,000원",
+      "sources": [0, 1]
+    },
+    {
+      "type": "현지인 지지",
+      "note": "광안리 지역의 노포 맛집",
+      "sources": [2]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["삼겹살", "냉삼"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "돼지고기 구이/찜. 영업 상태를 확인하는 것이 좋을 수 있음."
+}

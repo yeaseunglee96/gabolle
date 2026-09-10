@@ -1,0 +1,34 @@
+{
+  "id": "MA0101202209A0013516",
+  "worker": "haiku-51",
+  "researchedAt": "2026-09-09T14:47:00Z",
+  "queries": ["해림한식뷔페 해운대 부산", "해림한식뷔페 우1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1781636", "https://www.diningcode.com/profile.php?rid=KQbXrco48uVy", "https://autoreserve.com/ko/restaurants/uANXTWextFHWqRtBwYbv"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "가격·가성비",
+      "note": "8,000원 대의 저렴한 가격에 20가지 반찬 포함",
+      "sources": [0, 1]
+    },
+    {
+      "type": "운영·접근 편의",
+      "note": "조식부터 운영되는 이른 시간(5:30)과 단체 예약 가능",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": [],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "영업시간: 평일 5:30~18:30, 일요일 5:30~14:30. 단체 예약 최소 80명, 최대 178명"
+}

@@ -1,0 +1,27 @@
+{
+  "id": "MA0101202411A0170869",
+  "worker": "haiku-14",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["크랩헛 수영구 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["식신", "다이닝코드", "당근"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "루이지애나식 끓인 게 전문", "sources": [0, 1]},
+    {"type": "분위기·전망", "note": "광안리 해변 인근 위치, 데이트/관광 좋음", "sources": [0, 1]},
+    {"type": "메뉴 희소성", "note": "매운맛, 마늘, 버터 등 다양한 양념 선택 가능한 랍스터, 새우, 홍합", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["끓인 게", "랍스터", "새우", "홍합"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": ""
+}

@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220810467776",
+  "worker": "haiku-12",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["바다집 중구 부산", "바다집 광복동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/370044", "https://www.diningcode.com/profile.php?rid=tx7SKI14deXy"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "연차·역사", "note": "49년 전통의 오래된 맛집", "sources": [0, 1]},
+    {"type": "미디어 노출", "note": "백종원 3대천왕 42회, 2TV생생정보 654회 출연", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "다양한 해산물이 들어간 수중전골이 시그니처 요리", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 49,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["수중전골", "낙지볶음"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

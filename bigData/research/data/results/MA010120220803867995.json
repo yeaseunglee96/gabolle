@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220803867995",
+  "worker": "haiku-64",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["돼지야 송정동 해운대", "돼지야 부산 돼지고기", "돼지야 식신 송정"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.instagram.com/reel/CvVGLYggp1G/", "https://www.threads.com/@busan.park.j.h_9364/post/C9xUzCkymUo/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "숯불 꽃(앞다리살) 생삼겹살 전문", "sources": [0, 1]},
+    {"type": "분위기·전망", "note": "송정해수욕장 근처 입지", "sources": [0, 1]},
+    {"type": "조리·재료", "note": "숯불로 구워낸 신선한 생삼겹살", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["생삼겹살", "꽃살"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "송정중앙로 주소. 연락처: 051-703-3663"
+}

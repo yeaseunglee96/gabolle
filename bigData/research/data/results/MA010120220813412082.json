@@ -1,0 +1,25 @@
+{
+  "id": "MA010120220813412082",
+  "worker": "haiku-61",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["착한횟집 해운대구 부산", "착한횟집 중2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.tabling.co.kr/place/677cc8ee66de5f069877eedf"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "맛 묘사", "note": "신선한 회와 구이조개, 구이장어 전문", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["회", "구이조개", "구이장어"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "청사포로 161 위치, 예약 가능"
+}

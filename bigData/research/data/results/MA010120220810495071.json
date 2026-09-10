@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220810495071",
+  "worker": "haiku-37",
+  "researchedAt": "2026-09-09T11:23:43.0136153+09:00",
+  "queries": ["보수구이 부산 중구", "보수구이 흑교로 71"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색 결과에서 흑교로 71 주소의 보수구이를 찾을 수 없음",
+  "notes": "보수동 일대의 고기 구이 가게들은 발견되었으나 흑교로 71 주소는 확인 불가"
+}

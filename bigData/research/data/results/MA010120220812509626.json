@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220812509626",
+  "worker": "haiku-68",
+  "researchedAt": "2026-09-10T09:30:00Z",
+  "queries": ["제주옥탑 해운대구 부산", "제주옥탑 우1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://triple.guide/restaurants/c9c31c00-a40f-4272-9992-e516c5c66c83", "https://www.diningcode.com/profile.php?rid=WuqJx5IyOjmW", "https://www.instagram.com/jeju_rooftop_haeundae/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "메뉴 희소성",
+      "note": "제주산 흑돼지 전문점으로 여기서만 맛볼 수 있는 음식",
+      "sources": [0]
+    },
+    {
+      "type": "조리·재료",
+      "note": "제주산 고품질 흑돼지를 사용한 바비큐",
+      "sources": [0, 1]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "휴양지 분위기의 테마 식당",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["흑돼지 숄더랙", "본삼겹", "흑돼지 꽃목살", "본생갈비"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "제주산 흑돼지 전문점. 영업시간 평일 15:00-24:00, 금토일 15:00-01:00"
+}

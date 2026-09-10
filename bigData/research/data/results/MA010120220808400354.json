@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220808400354",
+  "worker": "haiku-22",
+  "researchedAt": "2026-09-09T01:18:00.000Z",
+  "queries": ["숯놈꼬치구이 연제구 부산", "숯놈꼬치구이 연산1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://triple.guide/restaurants/0615ca24-98ae-4eb9-a5e9-eae88f651080",
+    "https://www.siksinhot.com/theme/magazine/12330",
+    "https://www.instagram.com/p/CVQUmuIhnSK/"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "숯불 꼬치구이 전문", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["꼬치구이"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "전화 051-867-4292"
+}

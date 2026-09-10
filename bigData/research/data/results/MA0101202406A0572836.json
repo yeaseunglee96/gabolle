@@ -1,0 +1,23 @@
+{
+  "id": "MA0101202406A0572836",
+  "worker": "haiku-72",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["럭키베이커리 수영로 부산", "럭키베이커리 광안동 도넛"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.hankyung.com/article/2025122428517", "https://www.instagram.com/_lucky_bakery/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "원조·최초", "note": "부산의 성심당이라 불릴 정도의 유명한 베이커리", "sources": [0]},
+    {"type": "혼잡·수요", "note": "오픈 30분 전부터 20여 명이 오픈런을 위해 줄서서 기다림", "sources": [0]},
+    {"type": "간판 메뉴 지목", "note": "사워도우 전문점, 특히 단호박 크림치즈 사워도우가 베스트 상품", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["사워도우", "단호박 크림치즈 사워도우"],
+    "priceBand": "cheap",
+    "audience": "mixed"
+  },
+  "notFound": null,
+  "notes": "천연발효, 이스트 무첨가, 장시간 숙성으로 만든 사워도우 전문점입니다. 광안종합시장 6평 규모의 작은 공간에 위치합니다."
+}

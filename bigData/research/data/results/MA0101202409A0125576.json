@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202409A0125576",
+  "worker": "haiku-42",
+  "researchedAt": "2026-09-09T04:29:12Z",
+  "queries": ["대티돈까스 사하구 부산 돈까스"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["http://duli.co.kr/web/splus/kmap/view.php?sigun=6260000&gugun=3340000&keyno=109&keyname=%EB%8C%80%ED%8B%B0%EB%8F%88%EA%B9%8C%EC%8A%A4&keylink=3340000-101-2021-00010"],
+  "stillOpen": true,
+  "whyPeopleGo": [{"type": "간판 메뉴 지목", "note": "경양식 돈까스 전문점", "sources": [0]}, {"type": "연차·역사", "note": "2021년 1월 개업", "sources": [0]}],
+  "newTypes": [],
+  "descriptors": {"signatureDishes": ["돈까스"]},
+  "notFound": null,
+  "notes": "11:00~20:00 운영, 월요일 휴무, 브레이크타임 15:00~17:00. 주차장 없음"
+}

@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220806842915",
+  "worker": "haiku-15",
+  "researchedAt": "2026-09-08T22:42:33Z",
+  "queries": ["프리윌피자 부산진구 부산", "프리윌피자 전포1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 부산진구 전포대로224번길 26"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "간판 메뉴 지목", "note": "수제 피자, 양송이버섯 튀김", "sources": [0] },
+    { "type": "조리·재료", "note": "매일 새벽 직접 배합하고 장시간 숙성한 도우", "sources": [0] },
+    { "type": "분위기·전망", "note": "편안한 미국식 양식 다이닝 무드", "sources": [0] },
+    { "type": "운영·접근 편의", "note": "콜키지 무료, 반려동물 동반가능", "sources": [0] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": false,
+    "parking": false,
+    "audience": "mixed",
+    "signatureDishes": ["프리윌피자", "양송이버섯 튀김", "갈릭버터프라이즈"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "월~일 11:00~21:30, 라스트오더 20:30, 주차 불가, 테라스 좌석 보유"
+}

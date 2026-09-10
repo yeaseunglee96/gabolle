@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220811409077",
+  "worker": "haiku-45",
+  "researchedAt": "2026-09-09T13:39:00Z",
+  "queries": ["숙이네조개전골 사상구 부산", "숙이네조개전골 삼락동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=dyy8IAyo70aK", "https://www.daangn.com/kr/local-profile/51468/"],
+  "stillOpen": true,
+  "whyPeopleGo": [{"type": "간판 메뉴 지목", "note": "조개전골, 조개구이 전문점", "sources": [0, 1]}],
+  "newTypes": [],
+  "descriptors": {"yearsClaimed": null, "generations": null, "queueing": null, "parking": null, "audience": "mixed", "signatureDishes": ["조개전골", "조개구이"], "priceBand": "medium"},
+  "notFound": null,
+  "notes": ""
+}

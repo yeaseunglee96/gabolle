@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220811404643",
+  "worker": "haiku-58",
+  "researchedAt": "2026-09-09T16:55:00Z",
+  "queries": ["감골횟집 수영구 부산", "감골횟집 민락동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.tabling.co.kr/place/677cc8db66de5f069877c2f5", "https://www.diningcode.com/profile.php?rid=26vIelKszn6U"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "연차·역사", "note": "1976년도부터 3대째 영업 중인 오래된 횟집", "sources": [1]},
+    {"type": "조리·재료", "note": "자연산 쏨뱅이, 물회 등 신선한 해산물", "sources": [1]},
+    {"type": "간판 메뉴 지목", "note": "조개구이와 물회가 대표 메뉴", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["조개구이", "물회", "장어구이"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "운영시간 11:00~22:00 (21:50 라스트오더). 3단 조개구이 59,000원~, 3단 조회장 119,000원~"
+}

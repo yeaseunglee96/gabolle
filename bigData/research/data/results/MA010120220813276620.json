@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220813276620",
+  "worker": "haiku-43",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["설 사상구 부산", "설 엄궁동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색 결과에서 엄궁동 주소의 '설'이라는 일식당을 찾을 수 없음",
+  "notes": ""
+}

@@ -1,0 +1,39 @@
+{
+  "id": "MA0101202409A0121509",
+  "worker": "haiku-25",
+  "researchedAt": "2026-09-09T10:37:00Z",
+  "queries": ["세실곰탕 해운대구 부산", "세실곰탕 좌4동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=IGBayUnikOJh"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "서비스·사람",
+      "note": "사장님이 친절함",
+      "sources": [0]
+    },
+    {
+      "type": "곁들임·차림",
+      "note": "앞 텃밭에서 직접 키운 부추, 고추, 깻잎을 반찬으로 제공",
+      "sources": [0]
+    },
+    {
+      "type": "맛 묘사",
+      "note": "국물이 좋음",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["곰탕"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

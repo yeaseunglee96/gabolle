@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202212A0087042",
+  "worker": "haiku-59",
+  "researchedAt": "2026-09-09T08:03:50Z",
+  "queries": ["곽안리 수영구 부산", "곽안리 남천 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "해당 이름의 식당이 웹 검색 결과에 나타나지 않음. 광안리해수욕장과 남천역 맛집들은 검색되나 '곽안리'는 미확인",
+  "notes": "일식 회/초밥 카테고리로 등록. 호마카세, 스시 관련 맛집들은 여럿 검색되나 해당 가게명 미발견"
+}

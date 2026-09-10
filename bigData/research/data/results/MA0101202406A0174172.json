@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202406A0174172",
+  "worker": "haiku-22",
+  "researchedAt": "2026-09-09T01:16:00.000Z",
+  "queries": ["돌체경양식 기장군 부산", "돌체경양식 장안읍 맛집"],
+  "found": false,
+  "confidence": "low",
+  "sources": ["https://www.diningcode.com/list.dc?query=%EB%B6%80%EC%82%B0%EA%B4%91%EC%97%AD%EC%8B%9C+%EA%B8%B0%EC%9E%A5%EA%B5%B0+%EC%9E%A5%EC%95%88%EC%9D%8D+%EA%B2%BD%EC%96%91%EC%8B%9D"],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "다이닝코드 리스트에만 언급되고 상세 정보 없음",
+  "notes": ""
+}

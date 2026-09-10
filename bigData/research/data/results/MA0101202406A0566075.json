@@ -1,0 +1,39 @@
+{
+  "id": "MA0101202406A0566075",
+  "worker": "haiku-13",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["랩24바이쿠무다 해운대구 부산", "랩24바이쿠무다 송정동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["식신", "다이닝코드", "망고플레이트", "polle"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "프렌치 파인다이닝 코스 전문",
+      "sources": [0, 1]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "바다가 탁 트인 송정동의 우아한 경치",
+      "sources": [1, 2]
+    },
+    {
+      "type": "조리·재료",
+      "note": "셰프 Edward Kwon의 프랑스 음식 파인다이닝",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "upscale",
+    "signatureDishes": ["디너 코스", "런치 코스"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": "해운대센텀호텔 4층 위치"
+}

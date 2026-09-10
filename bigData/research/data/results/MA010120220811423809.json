@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220811423809",
+  "worker": "haiku-21",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["초량상회 중구 부산", "초량상회 남포동 맛집", "초량상회 블로그", "초량상회 남포동 후기"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색 및 블로그 검색으로도 해당 가게 정보를 찾을 수 없음",
+  "notes": ""
+}

@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220808280661",
+  "worker": "haiku-51",
+  "researchedAt": "2026-09-09T14:47:00Z",
+  "queries": ["가야뷔페 부산진 부산", "가야뷔페 부전1동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://www.diningcode.com/list.dc?query=%EB%B6%80%EC%82%B0%EC%8B%9C+%EB%B6%80%EC%A0%841%EB%8F%99"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "가격·가성비",
+      "note": "부전1동 지역의 한식뷔페로 저가 대중음식점으로 분류",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": [],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "부산진구 부전1동 뷔페 맛집 목록에 등재됨"
+}

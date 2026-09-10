@@ -1,0 +1,18 @@
+{
+  "id": "MA0101202502A0067293",
+  "worker": "haiku-54",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["몽글 수영구 부산", "몽글 민락동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.keyzard.cc/premii_um/nb/223842505868", "https://www.keyzard.cc/premii_um/nb/223837516346"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "분위기·전망", "note": "주택을 개조한 따스한 느낌, 핑크 구름 벽화 등 예쁜 인테리어", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "신상 양식 전문점", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {"yearsClaimed": null, "generations": null, "queueing": null, "parking": false, "audience": "mixed", "signatureDishes": [], "priceBand": "moderate"},
+  "notFound": null,
+  "notes": "매일 9:30~21:00 운영, 2인~4인 테이블 있음, 주차 불가능, 민락동골목시장 정류장에서 약 5분 거리"
+}

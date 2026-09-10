@@ -1,0 +1,34 @@
+{
+  "id": "MA010120220804427095",
+  "worker": "haiku-67",
+  "researchedAt": "2026-09-09T22:31:00.000Z",
+  "queries": ["물찬제비 부산진구 부산", "물찬제비 전포1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://kr.trip.com/moments/detail/busan-432-13306377/", "https://www.diningcode.com/profile.php?rid=7SPA5uC4CU5Y", "https://www.instagram.com/p/DXtmXASCfPr/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "파스타와 뇨끼가 주 메뉴",
+      "sources": [1]
+    },
+    {
+      "type": "조리·재료",
+      "note": "특별한 요리를 만들지만 한국인의 대중적인 입맛을 고려하는 퓨전 요리",
+      "sources": [0, 1, 2]
+    },
+    {
+      "type": "현지인 지지",
+      "note": "요즘 핫한 서면 파스타집",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["파스타", "뇨끼"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "경양식. 대창차돌파스타, 갈비초밥, 새우크림뇨끼 등 메뉴."
+}

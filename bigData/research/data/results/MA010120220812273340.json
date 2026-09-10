@@ -1,0 +1,25 @@
+{
+  "id": "MA010120220812273340",
+  "worker": "haiku-17",
+  "researchedAt": "2026-09-09T09:50:30Z",
+  "queries": ["키아누 연제구 부산 경양식", "키아누 연산 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": [],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "분위기·전망", "note": "좋은 전망과 세련된 인테리어를 가진 식당이다", "sources": []}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": [],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "검색 결과에 경양식이 아닌 이탈리안 레스토랑으로 표시된 정보도 있음"
+}

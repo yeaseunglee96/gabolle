@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220813161133",
+  "worker": "haiku-45",
+  "researchedAt": "2026-09-09T13:36:00Z",
+  "queries": ["황제삼겹 북구 부산", "황제삼겹 덕천1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/theme/magazine/10975", "https://www.diningcode.com/list.dc?query=%EB%B6%80%EC%82%B0+%EB%B6%81%EA%B5%AC+%EA%B8%80%EA%B3%A0%EA%B8%B0%EB%8F%99+%EC%82%BC%EA%B2%B9%EC%82%B4"],
+  "stillOpen": true,
+  "whyPeopleGo": [{"type": "간판 메뉴 지목", "note": "삼겹살 전문점", "sources": [0, 1]}],
+  "newTypes": [],
+  "descriptors": {"yearsClaimed": null, "generations": null, "queueing": null, "parking": null, "audience": "mixed", "signatureDishes": ["삼겹살"], "priceBand": "medium"},
+  "notFound": null,
+  "notes": ""
+}

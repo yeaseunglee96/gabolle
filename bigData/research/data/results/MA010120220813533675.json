@@ -1,0 +1,31 @@
+{
+  "id": "MA010120220813533675",
+  "worker": "haiku-56",
+  "researchedAt": "2026-09-09T06:37:13Z",
+  "queries": ["태리식당 해운대구 부산", "태리식당 우동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.diningcode.com/profile.php?rid=V4TlBdIWkYJv"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "쉬림프 파스타가 대표 메뉴로 꾸덕한 크림소스와 신선한 새우가 특징",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "주차 가능",
+    "audience": "mixed",
+    "signatureDishes": ["쉬림프파스타"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

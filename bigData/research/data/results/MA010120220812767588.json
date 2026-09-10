@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220812767588",
+  "worker": "haiku-19",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["스시야마 해운대구 부산", "스시야마 우2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/422504", "https://www.diningcode.com/profile.php?rid=W6ZTSupdAjms", "https://triple.guide/restaurants/e442627d-6480-4629-9b69-2ba17f170462"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "회전초밥 레일 위 초밥 한접시, 우동 대표메뉴",
+      "sources": [0]
+    },
+    {
+      "type": "플랫폼 순위·평점",
+      "note": "부산 1등 회전초밥집 평가",
+      "sources": [0]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "가성비 좋은 회전초밥",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["회전초밥", "우동"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

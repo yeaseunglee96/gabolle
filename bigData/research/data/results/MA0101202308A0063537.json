@@ -1,0 +1,27 @@
+{
+  "id": "MA0101202308A0063537",
+  "worker": "haiku-47",
+  "researchedAt": "2026-09-09T11:05:00Z",
+  "queries": ["고낙온 수영구 부산", "고낙온 광안2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1598712", "https://www.diningcode.com/profile.php?rid=5lUUF7AoQRfM", "https://polle.com/place/4ggntW/%EA%B3%A0%EB%82%99%EC%98%A8"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "분위기·전망", "note": "광안대교 특1급 뷰, 수변 위치의 쾌적한 3층 공간", "sources": [0, 1, 2]},
+    {"type": "간판 메뉴 지목", "note": "고낙해물부추전, 낙지볶음(낙지/대패/새우)", "sources": [0, 1]},
+    {"type": "맛 묘사", "note": "광안리 대표 한식 맛집, 맛이 좋은 낙지 요리", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["낙지볶음", "고낙해물부추전"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "영업시간 11:00-22:00, 무선인터넷, 유아의자 구비, 예약 가능, 다양한 음료 보유"
+}

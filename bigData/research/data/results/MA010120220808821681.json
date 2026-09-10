@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220808821681",
+  "worker": "haiku-30",
+  "researchedAt": "2026-09-09T11:08:00Z",
+  "queries": ["만두우 서구 부산", "만두우 초장동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 서구 구덕로 153"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "조리·재료", "note": "한 사람이 손으로 직접 만드는 수제만두", "sources": [0, 1] },
+    { "type": "가격·가성비", "note": "저렴한 가격에 다양한 만두 메뉴", "sources": [0, 1] },
+    { "type": "메뉴 희소성", "note": "김치만두, 고기만두 등 다양한 종류", "sources": [0] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": false,
+    "parking": false,
+    "audience": "local",
+    "signatureDishes": ["수제만두"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

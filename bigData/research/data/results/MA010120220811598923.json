@@ -1,0 +1,34 @@
+{
+  "id": "MA010120220811598923",
+  "worker": "haiku-32",
+  "researchedAt": "2026-09-09T11:02:00Z",
+  "queries": ["부영궁중국관 금정구 부산", "부영궁중국관 부곡2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 금정구 무학송로 13"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "짜장면, 탕수육, 짬뽕 전문",
+      "sources": [0, 1]
+    },
+    {
+      "type": "맛 묘사",
+      "note": "바삭한 탕수육, 과일과 함께 끓인 소스",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["짜장면", "탕수육", "짬뽕"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "11:00~20:00 영업. 회식, 모임, 데이트 장소로 추천. 식신, 다이닝코드 등재."
+}

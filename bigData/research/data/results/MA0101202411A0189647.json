@@ -1,0 +1,25 @@
+{
+  "id": "MA0101202411A0189647",
+  "worker": "haiku-11",
+  "researchedAt": "2026-09-09T00:06:00Z",
+  "queries": ["팔레트 해운대 부산", "팔레트 중2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 해운대구 달맞이길65번길 154"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "기관 선정", "note": "미쉐린 1스타를 2년 연속 수상한 모던 프렌치 레스토랑", "sources": [0, 1] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": [],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": ""
+}

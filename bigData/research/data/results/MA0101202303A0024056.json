@@ -1,0 +1,39 @@
+{
+  "id": "MA0101202303A0024056",
+  "worker": "haiku-21",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["모이소 남구 부산", "모이소 대연동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.keyzard.cc/eunae11447/nb/223941512903", "https://www.diningcode.com/list.dc?query=%EB%8C%80%EC%97%B0%EB%8F%99"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "가격·가성비",
+      "note": "착한 가격의 소고기 구이",
+      "sources": [0]
+    },
+    {
+      "type": "현지인 지지",
+      "note": "대연동 현지인들이 찾는 소고기집",
+      "sources": [0, 1]
+    },
+    {
+      "type": "운영·접근 편의",
+      "note": "직진주차 가능하고 2층 구조로 넓음",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "available",
+    "audience": "local",
+    "signatureDishes": ["육사시미", "소고기"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

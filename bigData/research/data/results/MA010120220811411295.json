@@ -1,0 +1,18 @@
+{
+  "id": "MA010120220811411295",
+  "worker": "haiku-65",
+  "researchedAt": "2026-09-09T22:34:55.225Z",
+  "queries": [
+    "우정 광안2동 돼지고기",
+    "우정 광안로 부산"
+  ],
+  "found": false,
+  "confidence": "low",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "광안로 광안2동 위치의 우정은 웹에서 발견되지 않음. 광복로의 우정(돌솥비빔밥 전문점)은 발견되었지만 다른 위치.",
+  "notes": ""
+}

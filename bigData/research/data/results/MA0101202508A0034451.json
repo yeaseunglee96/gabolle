@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202508A0034451",
+  "worker": "haiku-61",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["굿키드 부산진구 부산", "굿키드 부전2동 맛집"],
+  "found": false,
+  "confidence": "low",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹에서 검색되지 않음. 굿즈샵 정보만 나옴",
+  "notes": ""
+}

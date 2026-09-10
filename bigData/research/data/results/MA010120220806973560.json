@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220806973560",
+  "worker": "haiku-22",
+  "researchedAt": "2026-09-09T01:16:00.000Z",
+  "queries": ["솔밭횟집꽃게탕 기장군 부산", "솔밭횟집꽃게탕 장안읍 맛집"],
+  "found": false,
+  "confidence": "low",
+  "sources": ["https://www.daangn.com/kr/local-profile/%EC%86%94%EB%B0%AD%ED%9A%9F%EC%A7%91-rkscgke8rv8w/"],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "당근에서 '솔밭횟집' 발견 (꽃게탕 이름 없음), 상세 정보 부족",
+  "notes": ""
+}

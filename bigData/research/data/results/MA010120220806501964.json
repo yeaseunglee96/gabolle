@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220806501964",
+  "worker": "haiku-36",
+  "researchedAt": "2026-09-09T02:15:02Z",
+  "queries": ["일해옥 동래구 부산", "일해옥 사직2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://skjikdongilhaeok.modoo.at/", "https://www.diningcode.com/profile.php?rid=e7X70zGHunNr"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "맛 묘사", "note": "숯불로 구운 돼지갈비가 맛있음", "sources": [0]},
+    {"type": "간판 메뉴 지목", "note": "숯불돼지갈비 전문점", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["숯불돼지갈비"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "단체 예약 가능. 공식 Modoo 홈페이지 보유"
+}

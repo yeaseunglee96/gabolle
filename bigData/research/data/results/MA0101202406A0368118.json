@@ -1,0 +1,18 @@
+{
+  "id": "MA0101202406A0368118",
+  "worker": "haiku-54",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["발리우드 수영구 부산", "발리우드 광안2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=EPQY39GMWHEC"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "광안리 인도음식, 커리 전문점", "sources": [0]},
+    {"type": "분위기·전망", "note": "바다와 가까워서 밤바다를 구경하기 좋은 위치", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {"yearsClaimed": null, "generations": null, "queueing": null, "parking": null, "audience": "mixed", "signatureDishes": ["커리"], "priceBand": "moderate"},
+  "notFound": null,
+  "notes": "인도인 사장님 운영, 매일 12:00~23:00 영업, 금련산역 1번 출구에서 773m 거리, 2층"
+}

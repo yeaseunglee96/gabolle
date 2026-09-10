@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220812768700",
+  "worker": "haiku-30",
+  "researchedAt": "2026-09-09T11:18:00Z",
+  "queries": ["오!삼겹 동래구 부산", "오!삼겹 수민동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 동래구 명륜로112번길 27"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "메뉴 희소성", "note": "삼겹살, 대패삼겹살 전문", "sources": [0, 1] },
+    { "type": "분위기·전망", "note": "넓은 인테리어, 셀프 밴찬바, 단체 이용 가능", "sources": [0] },
+    { "type": "운영·접근 편의", "note": "충분한 테이블과 편의", "sources": [0] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": false,
+    "parking": false,
+    "audience": "mixed",
+    "signatureDishes": ["삼겹살", "대패삼겹살"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

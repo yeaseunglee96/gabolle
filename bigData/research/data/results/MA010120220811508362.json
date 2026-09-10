@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220811508362",
+  "worker": "haiku-7",
+  "researchedAt": "2026-09-08T22:09:18Z",
+  "queries": ["동보성 동래구 부산", "동보성 명륜동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=PHGqYXvnD7G0", "http://duli.co.kr/web/splus/kmap/view.php?sigun=6260000&gugun=3300000&keyno=108&keyname=%EB%8F%99%EB%B3%B4%EC%84%B1&keylink=3300000-101-2000-06151"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "맛 묘사", "note": "정통 중국 요리의 진정한 맛", "sources": [0]},
+    {"type": "연차·역사", "note": "약 20년 영업으로 입소문난 중국집", "sources": [0]},
+    {"type": "분위기·전망", "note": "가족 단위 손님들이 많고 개별룸 완비", "sources": [0]},
+    {"type": "운영·접근 편의", "note": "주차 가능, 점심특선, 예약 가능", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "family",
+    "signatureDishes": ["짜장면", "간짜장", "짬뽕", "우동"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "명륜동 온천천로 인근. 11:00~21:30 영업. 월요일 정기휴무. 코스요리 메뉴 보유."
+}

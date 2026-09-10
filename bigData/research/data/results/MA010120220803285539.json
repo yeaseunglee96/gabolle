@@ -1,0 +1,37 @@
+{
+  "id": "MA010120220803285539",
+  "worker": "haiku-3",
+  "researchedAt": "2026-09-08T16:55:36.224Z",
+  "queries": ["가야밀면 광복로", "가야밀면 냉면 남포동"],
+  "found": true,
+  "confidence": "medium",
+  "sources": [
+    "https://www.tabling.co.kr/place/68a3d95a11c8e44915eb1860",
+    "https://www.diningcode.com/profile.php?rid=upBDWRRobFiO"
+  ],
+  "stillOpen": false,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "부산의 향토음식 밀면 전문점",
+      "sources": [0, 1]
+    },
+    {
+      "type": "연차·역사",
+      "note": "40년 이상 전통있는 가게",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 40,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": null,
+    "signatureDishes": ["밀면"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": ""
+}

@@ -1,0 +1,23 @@
+{
+  "id": "MA010120220813154693",
+  "worker": "haiku-62",
+  "researchedAt": "2026-09-09T09:00:00Z",
+  "queries": ["해운회관 해운대구 부산", "해운회관 우1동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://www.diningcode.com/profile.php?rid=JN0sA2vh0jTB"],
+  "stillOpen": false,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "숙성회 전문점",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["숙성회", "회"]
+  },
+  "notFound": null,
+  "notes": "폐업신고 가능성 있음 - 현재 영업 상태 확인 필요"
+}

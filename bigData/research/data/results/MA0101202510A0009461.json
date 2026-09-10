@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202510A0009461",
+  "worker": "haiku-45",
+  "researchedAt": "2026-09-09T13:36:30Z",
+  "queries": ["대패생각사상점 사상구 부산", "대패생각사상점 모라1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.daangn.com/kr/local-profile/%EB%8C%80%ED%8C%A8%EC%83%9D%EA%B0%81-%EB%AA%A8%EB%9D%BC-bhi7ugu3599p/"],
+  "stillOpen": true,
+  "whyPeopleGo": [{"type": "간판 메뉴 지목", "note": "삼겹살 전문점, 신선한 쌈과 샐러드바", "sources": [0]}],
+  "newTypes": [],
+  "descriptors": {"yearsClaimed": null, "generations": null, "queueing": null, "parking": null, "audience": "mixed", "signatureDishes": ["제주대패", "삼겹살"], "priceBand": "cheap"},
+  "notFound": null,
+  "notes": ""
+}

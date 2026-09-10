@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220804772721",
+  "worker": "haiku-21",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["대정 중구 부산", "대정 부평동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=UcsoelCV2tid"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "뜨끈하고 얼큰한 곱창전골로 겨울나기에 좋음",
+      "sources": [0]
+    },
+    {
+      "type": "메뉴 희소성",
+      "note": "양곱창 전골은 특정 요리",
+      "sources": [0]
+    },
+    {
+      "type": "플랫폼 순위·평점",
+      "note": "다이닝코드에 등재",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["양곱창전골"],
+    "priceBand": "medium"
+  },
+  "notFound": null,
+  "notes": "밑반찬: 염전게, 김치, 두부, 절이 야채"
+}

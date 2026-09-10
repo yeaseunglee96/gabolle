@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220811390814",
+  "worker": "haiku-71",
+  "researchedAt": "2026-09-10T12:11:00Z",
+  "queries": ["태양횟집 수영구 부산", "태양횟집 남천1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.tabling.co.kr/place/6911772dbf02ec70c9501407", "https://www.diningcode.com/profile.php?rid=2EJeSS58hm2E"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "연차·역사",
+      "note": "30년 칼질 경력 사장",
+      "sources": [1]
+    },
+    {
+      "type": "조리·재료",
+      "note": "신선한 재료와 계절 따라 바뀌는 메뉴",
+      "sources": [1]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "모듬회 대짜 5만원",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 30,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["모듬회"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

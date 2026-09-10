@@ -1,0 +1,41 @@
+{
+  "id": "MA0101202509A0037941",
+  "worker": "haiku-50",
+  "researchedAt": "2026-09-09T05:33:50Z",
+  "queries": ["육장갈비 해운대 부산", "육장갈비 우1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.keyzard.cc/rpretty90/nb/224090146800"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "돼지갈비 전문 프랜차이즈",
+      "sources": [0]
+    },
+    {
+      "type": "맛 묘사",
+      "note": "정성스럽게 준비된 돼지갈비",
+      "sources": [0]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "넓은 인테리어, 해운대 해변 근처 위치",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": false,
+    "audience": "mixed",
+    "signatureDishes": ["돼지갈비"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "주차 없음, CU 뒷편 유료주차장 이용"
+}

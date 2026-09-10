@@ -1,0 +1,23 @@
+{
+  "id": "MA010120220810721692",
+  "worker": "haiku-36",
+  "researchedAt": "2026-09-09T02:20:20Z",
+  "queries": ["르츠과자점 북구 부산", "르츠과자점 구포2동"],
+  "found": true,
+  "confidence": "high",
+  "sources": [],
+  "stillOpen": true,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": [],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "베이커리/과자점. 전화: 0513345344"
+}

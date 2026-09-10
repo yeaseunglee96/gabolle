@@ -1,0 +1,34 @@
+{
+  "id": "MA010120220814285871",
+  "worker": "haiku-70",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["포항생아구 해운대 부산", "포항생아구 재송동 맛집", "포항생아구 국 탕 찌개 재반로", "포항생아구 찌개 해운대"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://www.diningcode.com/list.dc?query=%ED%95%B4%EC%9A%B4%EB%8C%80+%EC%83%9D%EC%95%84%EA%B5%AC%EC%B0%9C"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "메뉴 희소성",
+      "note": "생아구찜과 국/탕/찌개를 전문으로 하는 전문점",
+      "sources": [0]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "포항 생아구로 만든 찜과 탕이 대표 메뉴",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["생아구찜", "생아구탕"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "해운대 지역의 생아구찜 맛집 Top15 리스트에 포함됨"
+}

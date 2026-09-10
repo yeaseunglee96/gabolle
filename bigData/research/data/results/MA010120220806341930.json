@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220806341930",
+  "worker": "haiku-70",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["무스비 해운대 국수", "무스비 우1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=vTTJSmAzUTxe", "https://polle.com/place/5j4itM/%EB%AC%B4%EC%8A%A4%EB%B9%84%20%EC%86%8C%EB%B0%94/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "소바 전문점으로 숭어소바, 청어소바, 따뜻한 소바 등 제공",
+      "sources": [0]
+    },
+    {
+      "type": "맛 묘사",
+      "note": "생선비린내가 적고 육수가 진하며 맛있다는 평가",
+      "sources": [0]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "해운대 해리단길에 위치한 감성 있는 소바 식당",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["숭어소바", "청어소바"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "카테고리는 국수/칼국수이지만 실제로는 일본 소바 전문점"
+}

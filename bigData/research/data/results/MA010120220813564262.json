@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220813564262",
+  "worker": "haiku-63",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["인생과자점 해운대구 부산", "인생과자점 중1동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "검색 결과에 요청된 가게명 '인생과자점'과 정확히 일치하는 정보를 찾지 못했음",
+  "notes": ""
+}

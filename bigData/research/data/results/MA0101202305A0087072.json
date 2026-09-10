@@ -1,0 +1,34 @@
+{
+  "id": "MA0101202305A0087072",
+  "worker": "haiku-59",
+  "researchedAt": "2026-09-09T08:10:30Z",
+  "queries": ["서희와제과 수영구 부산", "서희와제과 광안 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=nBFFokqVhqh3", "https://www.siksinhot.com/P/1598928"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "광안리 빵집, 갓 구운 빵",
+      "sources": [0, 1]
+    },
+    {
+      "type": "맛 묘사",
+      "note": "고소한 크림치즈, 흑쑥이, 밤팥빵 등 재료 본연의 맛",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["고소한왕크림치즈", "흑쑥이", "밤팥빵", "휘낭시에"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "11:00 ~ 19:00 (수~일만 영업, 월,화 정기휴무). 테이크아웃 전문. 12시~1시가 가장 종류 많음"
+}
