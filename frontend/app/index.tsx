@@ -5,6 +5,7 @@ import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Text } from '@/components/Text';
+import { Eyebrow } from '@/components/Eyebrow';
 import { GabolleMascot } from '@/components/DongbaekMascot';
 import { ScenicVideo } from '@/components/ScenicVideo';
 import { color, radius, spacing } from '@/design/tokens';
@@ -135,7 +136,7 @@ export default function Welcome() {
       </View></View>
     </ImageBackground>
     <View style={styles.featureSection}>
-      <View style={styles.featureHeadingRow}><View><Text variant="eyebrow" weight="bold">— EXCLUSIVE FEATURES</Text><Text variant="display" weight="bold" style={styles.featureHeading}>{tx('똑똑하고 아름답게\n설계되는 맞춤형 여정', 'A personalized journey,\nsmartly and beautifully designed')}</Text></View></View>
+      <View style={styles.featureHeadingRow}><View><Eyebrow>{tx('— 특별한 기능', '— Exclusive features')}</Eyebrow><Text variant="display" weight="bold" style={styles.featureHeading}>{tx('똑똑하고 아름답게\n설계되는 맞춤형 여정', 'A personalized journey,\nsmartly and beautifully designed')}</Text></View></View>
       <View style={styles.featureGrid}>{FEATURES.map((feature) => <View key={feature.titleKo} style={styles.featureCard}><View style={styles.featureIcon}><Image source={feature.icon} resizeMode="contain" style={styles.featureIconImage} /></View><Text variant="title" weight="bold">{tx(feature.titleKo, feature.titleEn)}</Text><Text variant="body" style={styles.featureBody}>{tx(feature.bodyKo, feature.bodyEn)}</Text></View>)}</View>
     </View>
   </ScrollView>

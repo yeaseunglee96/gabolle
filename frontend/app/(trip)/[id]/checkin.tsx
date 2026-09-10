@@ -13,6 +13,7 @@ import { useAuth } from '@/auth/AuthProvider';
 import { color, radius, spacing } from '@/design/tokens';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
+import { Eyebrow } from '@/components/Eyebrow';
 import { Button } from '@/components/Button';
 import { Toggle } from '@/components/Toggle';
 import { useI18n } from '@/i18n';
@@ -85,9 +86,9 @@ export default function CheckIn() {
 
   return (
     <Screen scroll>
-      <Text variant="eyebrow" weight="bold">
+      <Eyebrow>
         {tx('방문 후 · 8월 24일 16:42', 'After your visit · Aug 24, 16:42')}
-      </Text>
+      </Eyebrow>
       <Text variant="display" weight="bold" style={styles.title}>
         {tx('여행은 어떠셨나요?', 'How was your trip?')}
       </Text>

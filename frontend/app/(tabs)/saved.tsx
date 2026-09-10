@@ -11,6 +11,7 @@ import { DEMO_PLACES, SAVED_PLACES_KEY } from '@/discovery/savedPlaces';
 import { Screen } from '@/components/Screen';
 import { TabBar } from '@/components/TabBar';
 import { Text } from '@/components/Text';
+import { Eyebrow } from '@/components/Eyebrow';
 import { color, radius, spacing } from '@/design/tokens';
 import { bilingualPlaceName, getPlace } from '@/discovery/places';
 import { useI18n } from '@/i18n';
@@ -60,7 +61,7 @@ export default function Saved() {
   }
 
   return <View style={styles.shell}><Screen scroll style={styles.screen}>
-    <View style={styles.heading}><Text variant="caption" weight="bold" color={color.brand.orange}>SAVED</Text><Text variant="display" weight="bold">{tx('저장한 장소', 'Saved places')}</Text></View>
+    <View style={styles.heading}><Eyebrow>{tx('저장 목록', 'Saved')}</Eyebrow><Text variant="display" weight="bold">{tx('저장한 장소', 'Saved places')}</Text></View>
 
     {state === 'loading' && <ActivityIndicator style={styles.spinner} color={color.action.primary} />}
 

@@ -13,6 +13,7 @@ import * as Clipboard from 'expo-clipboard';
 import { color, radius, spacing } from '@/design/tokens';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
+import { Eyebrow } from '@/components/Eyebrow';
 import { PlacePhraseBrowser } from '@/components/PlacePhraseBrowser';
 import { useI18n } from '@/i18n';
 
@@ -42,9 +43,9 @@ export default function Speak() {
 
   return (
     <Screen scroll>
-      <Text variant="eyebrow" weight="bold">
+      <Eyebrow>
         {tx('여행 중 · 흰여울문화마을', 'Traveling · Huinnyeoul Culture Village')}
-      </Text>
+      </Eyebrow>
       <Text variant="display" weight="bold" style={styles.title}>
         {tx('현장에서 바로 쓰기', 'Use it right now')}
       </Text>

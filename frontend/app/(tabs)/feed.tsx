@@ -4,6 +4,7 @@ import { useFocusEffect, useRouter } from 'expo-router';
 
 import { useAuth } from '@/auth/AuthProvider';
 import { Button } from '@/components/Button';
+import { Eyebrow } from '@/components/Eyebrow';
 import { ReportModal } from '@/components/ReportModal';
 import { Screen } from '@/components/Screen';
 import { TabBar } from '@/components/TabBar';
@@ -75,7 +76,7 @@ export default function Feed() {
   };
 
   return <View style={styles.shell}><Screen scroll>
-    <View style={styles.headerRow}><View><Text variant="eyebrow" weight="bold">TRAVEL STORIES</Text><Text variant="display" weight="bold" style={styles.headerTitle}>{tx('여행 이야기', 'Travel stories')}</Text></View>{accessToken ? <Button label={tx('기록 남기기', 'Write')} onPress={() => router.push('/feed/compose')} containerStyle={styles.writeButton} /> : null}</View>
+    <View style={styles.headerRow}><View><Eyebrow>{tx('여행 기록 피드', 'Travel story feed')}</Eyebrow><Text variant="display" weight="bold" style={styles.headerTitle}>{tx('여행 이야기', 'Travel stories')}</Text></View>{accessToken ? <Button label={tx('기록 남기기', 'Write')} onPress={() => router.push('/feed/compose')} containerStyle={styles.writeButton} /> : null}</View>
 
     <View accessibilityRole="tablist" style={styles.scopeTabs}>
       <Pressable accessibilityRole="tab" accessibilityState={{ selected: scope === 'ALL' }} onPress={() => setScope('ALL')} style={[styles.scopeTab, scope === 'ALL' && styles.scopeTabActive]}><Text variant="caption" weight="bold" color={scope === 'ALL' ? color.text.onAction : color.text.body}>{tx('전체', 'All')}</Text></Pressable>

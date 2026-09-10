@@ -10,6 +10,7 @@ import * as Speech from 'expo-speech';
 import { color, radius, spacing } from '@/design/tokens';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
+import { Eyebrow } from '@/components/Eyebrow';
 import { Button } from '@/components/Button';
 import { LanguageBadge } from '@/components/LanguageBadge';
 import { useAuth } from '@/auth/AuthProvider';
@@ -120,9 +121,9 @@ export default function Prepare() {
     <Screen scroll>
       <View style={styles.headerRow}>
         <View style={styles.headerCopy}>
-          <Text variant="eyebrow" weight="bold">
+          <Eyebrow>
             {departure ? tx(`여행 전 · ${departure.ko} 출발`, `Before the trip · Departing ${departure.en}`) : tx('여행 전', 'Before the trip')}
-          </Text>
+          </Eyebrow>
           <Text variant="display" weight="bold" style={styles.title}>
             {tx('부산 여행 준비', 'Getting ready for Busan')}
           </Text>

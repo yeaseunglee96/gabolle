@@ -6,6 +6,7 @@ import { ApiClientError } from '@/api/client';
 import { useAuth } from '@/auth/AuthProvider';
 import { BrandLogoLink } from '@/components/BrandLogoLink';
 import { Button } from '@/components/Button';
+import { Eyebrow } from '@/components/Eyebrow';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
@@ -44,7 +45,7 @@ export default function TripShare() {
 
   return <Screen scroll wide style={styles.screen}>
     <View style={styles.topBar}><Pressable accessibilityRole="button" accessibilityLabel={tx('이전 화면으로 이동', 'Go back')} onPress={() => router.canGoBack() ? router.back() : router.replace('/trips')} style={({ pressed }) => [styles.back, pressed && styles.pressed]}><Text variant="title" weight="bold">‹</Text></Pressable><BrandLogoLink href="/home" imageStyle={styles.logo} /><View style={styles.spacer} /></View>
-    <View style={styles.heading}><Text variant="eyebrow" weight="bold">TRIP TOGETHER</Text><Text variant="display" weight="bold">{tx('동행자를 초대해요', 'Invite a companion')}</Text><Text color={color.text.body}>{tx('역할을 먼저 고르면 7일 동안 사용할 수 있는 초대 링크를 만들어요.', 'Pick a role first, and we’ll create an invite link valid for 7 days.')}</Text></View>
+    <View style={styles.heading}><Eyebrow>{tx('함께하는 여행', 'Trip together')}</Eyebrow><Text variant="display" weight="bold">{tx('동행자를 초대해요', 'Invite a companion')}</Text><Text color={color.text.body}>{tx('역할을 먼저 고르면 7일 동안 사용할 수 있는 초대 링크를 만들어요.', 'Pick a role first, and we’ll create an invite link valid for 7 days.')}</Text></View>
 
     {!ready && <View accessibilityLiveRegion="polite" style={styles.stateCard}><Text weight="bold">{tx('로그인 상태를 확인하고 있어요.', 'Checking sign-in status.')}</Text></View>}
     {ready && !accessToken && <View style={styles.stateCard}><Text variant="title" weight="bold">{tx('로그인이 필요한 기능이에요', 'Sign-in required for this feature')}</Text><Text color={color.text.body}>{tx('초대 링크는 여행 소유자와 권한을 확인한 뒤 만들 수 있어요.', "We'll verify the trip owner and permissions before creating the invite link.")}</Text><Button label={tx('로그인하기', 'Sign in')} onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: `/${id}/share` } })} /></View>}
