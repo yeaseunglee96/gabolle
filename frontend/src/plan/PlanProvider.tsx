@@ -57,14 +57,6 @@ export type PlanDraft = {
   accommodation: string;
   maxTransfers: number | null;
   mustVisitPlaces: MustVisitPlace[];
-  /**
-   * 이 초안으로 여행을 만든 시각(ISO). S15P21E201-810.
-   *
-   * 값이 있으면 이 초안은 이미 여행 하나가 됐다는 뜻이다. 1단계에 다시 들어오는 것은
-   * "새 여행" 이므로 그때 기본값으로 되돌린다. 단계를 오가는 동안에는 null 이라 값이
-   * 그대로 유지된다.
-   */
-  submittedTripAt: string | null;
 };
 
 const VERSION = 1;
@@ -81,7 +73,7 @@ const ANONYMOUS_KEY = `${STORAGE_PREFIX}:anonymous`;
 const LEGACY_STORAGE_KEY = STORAGE_PREFIX;
 
 const storageKeyFor = (userId: string | null) => (userId ? `${STORAGE_PREFIX}:${userId}` : ANONYMOUS_KEY);
-export const EMPTY_PLAN: PlanDraft = { startDate: '', endDate: '', travelers: 1, adults: 1, children: 0, origin: '', originLat: null, originLng: null, transport: 'TRANSIT', budgetKrw: 100000, dayStartTime: '09:00', dayEndTime: '18:00', walkingLevel: 'MEDIUM', companionType: 'SOLO', preferences: [], preferenceAnswerStatus: { category: 'UNKNOWN', atmosphere: 'UNKNOWN', locality: 'UNKNOWN', quietness: 'UNKNOWN', touristPreference: 'UNKNOWN', foodPreference: 'UNKNOWN' }, atmospheres: [], localityLevel: null, quietLevel: null, touristLevel: null, foods: [], dietTypes: [], allergies: [], allergyStatus: 'UNKNOWN', allergyAnswered: false, dietStatus: 'UNKNOWN', dietAnswered: false, maxWalkingDistanceM: null, slopeConstraint: null, stairsConstraint: null, shadePreference: null, wheelchair: null, stroller: null, luggage: null, accessibilityNeeds: [], travelAreas: [], maxCompletedStep: 0, paceLevel: null, englishMenuRequired: false, foreignCardRequired: false, soloDiningPreferred: false, accommodation: '', maxTransfers: null, mustVisitPlaces: [], submittedTripAt: null };
+export const EMPTY_PLAN: PlanDraft = { startDate: '', endDate: '', travelers: 1, adults: 1, children: 0, origin: '', originLat: null, originLng: null, transport: 'TRANSIT', budgetKrw: 100000, dayStartTime: '09:00', dayEndTime: '18:00', walkingLevel: 'MEDIUM', companionType: 'SOLO', preferences: [], preferenceAnswerStatus: { category: 'UNKNOWN', atmosphere: 'UNKNOWN', locality: 'UNKNOWN', quietness: 'UNKNOWN', touristPreference: 'UNKNOWN', foodPreference: 'UNKNOWN' }, atmospheres: [], localityLevel: null, quietLevel: null, touristLevel: null, foods: [], dietTypes: [], allergies: [], allergyStatus: 'UNKNOWN', allergyAnswered: false, dietStatus: 'UNKNOWN', dietAnswered: false, maxWalkingDistanceM: null, slopeConstraint: null, stairsConstraint: null, shadePreference: null, wheelchair: null, stroller: null, luggage: null, accessibilityNeeds: [], travelAreas: [], maxCompletedStep: 0, paceLevel: null, englishMenuRequired: false, foreignCardRequired: false, soloDiningPreferred: false, accommodation: '', maxTransfers: null, mustVisitPlaces: [] };
 
 const VOLATILE_CONSTRAINTS: Partial<PlanDraft> = {
   allergies: [], dietTypes: [], allergyStatus: 'UNKNOWN', allergyAnswered: false, dietStatus: 'UNKNOWN', dietAnswered: false,
@@ -104,7 +96,7 @@ type PlanContextValue = {
 const PlanContext = createContext<PlanContextValue | null>(null);
 
 export function PlanProvider({ children }: { children: ReactNode }) {
-  const { user } = useAuth();
+  const { user, ready: authReady } = useAuth();
   const storageKey = storageKeyFor(user?.userId ?? null);
 
   const [draft, setDraft] = useState<PlanDraft>(EMPTY_PLAN);
@@ -116,6 +108,11 @@ export function PlanProvider({ children }: { children: ReactNode }) {
   const ready = hydratedKey !== null;
 
   useEffect(() => {
+    // 로그인 상태를 알기 전에는 아무것도 읽지 않는다. 세션을 되살리는 동안에는 user 가
+    // 잠깐 null 이라, 이 조건이 없으면 그 순간 익명 열쇠를 읽어 초안을 비우고, 뒤이어
+    // 계정 열쇠로 옮기면서 그 빈 초안을 저장된 것 위에 덮어쓴다. 새로고침 한 번에 입력이
+    // 사라진다 — 실제로 그렇게 됐다.
+    if (!authReady) return;
     if (hydratedKey === storageKey) return;
 
     // 로그인하지 않고 채운 초안은 로그인 뒤에도 그대로 쓴다. 확인 화면에 "로그인하고 일정
@@ -144,7 +141,7 @@ export function PlanProvider({ children }: { children: ReactNode }) {
       if (!changedBeforeHydration.current) setDraft(restored ?? EMPTY_PLAN);
     }).finally(() => { if (!cancelled) setHydratedKey(storageKey); });
     return () => { cancelled = true; };
-  }, [hydratedKey, storageKey]);
+  }, [authReady, hydratedKey, storageKey]);
 
   useEffect(() => { void AsyncStorage.removeItem(LEGACY_STORAGE_KEY); }, []);
 

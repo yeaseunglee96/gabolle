@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Button } from '@/components/Button';
@@ -57,14 +57,7 @@ export default function Basics() {
   const router = useRouter();
   const { kind, width } = useLayout();
   const isDesktop = kind === 'tablet' && isAtLeast(width, 'lg');
-  const { draft, ready, update, completeStep, clear } = usePlan();
-
-  // 이 초안으로 여행을 이미 만들었으면 1단계에 다시 들어온 것은 "새 여행" 이다 —
-  // 지난 여행의 날짜·예산·출발지가 채워진 채로 시작하지 않게 기본값으로 되돌린다
-  // (S15P21E201-810). 단계를 오가는 동안에는 이 표시가 없어 값이 그대로 남는다.
-  useEffect(() => {
-    if (ready && draft.submittedTripAt) void clear();
-  }, [ready, draft.submittedTripAt, clear]);
+  const { draft, ready, update, completeStep } = usePlan();
   const { accessToken } = useAuth();
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [panelIndex, setPanelIndex] = useState(0);
