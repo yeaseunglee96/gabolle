@@ -19,7 +19,7 @@ export type Registration = {
 };
 export type AuthUser = { userId: string; email: string; displayName: string; language: string; status: string };
 export type AuthTokens = { accessToken: string; refreshToken: string | null; expiresIn: number; sessionId: string; user: AuthUser };
-export type OAuthProvider = 'google' | 'naver' | 'kakao';
+export type OAuthProvider = 'google' | 'naver' | 'kakao' | 'apple';
 export type OAuthChallenge = { state: string; nonce: string; expiresAt: string };
 
 // 소셜 인증(POST /auth/oauth/{provider}) 뒤 셋 중 하나로 갈린다 — S15P21E201-689/-690.
