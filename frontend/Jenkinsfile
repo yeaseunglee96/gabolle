@@ -15,6 +15,9 @@
 //  - gabolle-naver-client-id  (Secret text)
 //  - gabolle-kakao-client-id  (Secret text)
 //    이 셋도 backend-deploy가 이미 쓰는 항목을 그대로 재사용한다 — 새로 만들 것 없음
+//  - gabolle-kakao-map-js-key (Secret text) — Kakao Maps JS SDK 키. gabolle-kakao-client-id
+//    (로그인용 REST API 키)와는 다른 값이다 — Kakao Developers 콘솔에서 "JavaScript 키"로
+//    따로 발급받아 새로 등록해야 한다.
 //
 // backend/Jenkinsfile(S15P21E201-575)과 같은 구조다. frontend는 Expo 웹 export를
 // nginx:alpine 으로 서빙하는 정적 이미지라 런타임 시크릿은 없다. 다만 빌드 시점에
@@ -71,7 +74,8 @@ pipeline {
                     withCredentials([
                         string(credentialsId: 'gabolle-google-client-id', variable: 'GOOGLE_CLIENT_ID'),
                         string(credentialsId: 'gabolle-naver-client-id', variable: 'NAVER_CLIENT_ID'),
-                        string(credentialsId: 'gabolle-kakao-client-id', variable: 'KAKAO_CLIENT_ID')
+                        string(credentialsId: 'gabolle-kakao-client-id', variable: 'KAKAO_CLIENT_ID'),
+                        string(credentialsId: 'gabolle-kakao-map-js-key', variable: 'KAKAO_MAP_JS_KEY')
                     ]) {
                         // 🔴 S15P21E201-575 후속(2026-09-09) — 예전에는 :latest 하나뿐이라
                         //    Health Check 가 실패해도 되돌릴 이전 이미지가 없었다(backend/Jenkinsfile
@@ -88,6 +92,7 @@ pipeline {
                                 --build-arg EXPO_PUBLIC_GOOGLE_CLIENT_ID="$GOOGLE_CLIENT_ID" \
                                 --build-arg EXPO_PUBLIC_NAVER_CLIENT_ID="$NAVER_CLIENT_ID" \
                                 --build-arg EXPO_PUBLIC_KAKAO_CLIENT_ID="$KAKAO_CLIENT_ID" \
+                                --build-arg EXPO_PUBLIC_KAKAO_MAP_JS_KEY="$KAKAO_MAP_JS_KEY" \
                                 .
                         '''
                     }
