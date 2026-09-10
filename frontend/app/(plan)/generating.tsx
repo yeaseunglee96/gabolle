@@ -35,9 +35,9 @@ function timeLabel(value: string) { return value.match(/T(\d{2}:\d{2})/)?.[1] ??
 const PREVIEW_ITINERARY: ItineraryDto = {
   id: 'preview-trip', title: '부산 바다와 로컬 맛집 여행', version: 1,
   days: [{ date: '2026-09-12', items: [
-    { id: 'preview-1', startsAt: '2026-09-12T09:30:00', title: '해운대 바다 산책', locked: false },
-    { id: 'preview-2', startsAt: '2026-09-12T12:00:00', title: '로컬 맛집', locked: false },
-    { id: 'preview-3', startsAt: '2026-09-12T17:30:00', title: '광안리 노을', locked: false },
+    { id: 'preview-1', startsAt: '2026-09-12T09:30:00', title: '해운대 바다 산책', locked: false, placeId: 'preview-place-1' },
+    { id: 'preview-2', startsAt: '2026-09-12T12:00:00', title: '로컬 맛집', locked: false, placeId: 'preview-place-2' },
+    { id: 'preview-3', startsAt: '2026-09-12T17:30:00', title: '광안리 노을', locked: false, placeId: 'preview-place-3' },
   ] }], totalEstimatedCostKrw: 78000, totalWalkingMeters: 3200, fallbackMode: 'MODEL',
 };
 

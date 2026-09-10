@@ -9,6 +9,9 @@ export type ItineraryItemDto = {
   walkingMeters?: number | null;
   locked: boolean;
   dataStatus?: 'VERIFIED' | 'ESTIMATED' | 'UNKNOWN';
+  // S15P21E201-744 — 이 항목이 가리키는 장소. "다녀오셨나요" 평가(S15P21E201-406)를
+  // 어느 장소로 보낼지 여기서 얻는다. ItineraryDetailResponse.Item 기준.
+  placeId: string;
 };
 
 export type ItineraryDto = {
