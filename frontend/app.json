@@ -47,6 +47,7 @@
         "expo-camera",
         {
           "cameraPermission": "메뉴와 안내문을 촬영해 번역하기 위해 카메라를 사용합니다. 촬영 이미지는 기기에 저장하지 않습니다.",
+          "microphonePermission": false,
           "recordAudioAndroid": false
         }
       ],
