@@ -90,6 +90,12 @@ services:
       resources:
         limits:
           memory: 2g
+          # 🔴 S15P21E201-798 — NanoCpus=0(상한 없음)이라 CI 러너가 뜨면 이
+          # 컨테이너까지 통째로 밀려날 수 있었다(실측: 21개 컨테이너 전부 cpus
+          # 상한 없음, 스냅샷 CPU 합계가 정원 400% 중 약 388%). postgres는
+          # 여러 서비스(mlflow, airflow 전부)가 걸려 있는 공유 자원이라 다른
+          # 컨테이너보다 넉넉히 잡는다.
+          cpus: "1.0"
     logging:
       driver: json-file
       options:
@@ -118,6 +124,9 @@ services:
       resources:
         limits:
           memory: 512m
+          # 🔴 S15P21E201-798 — 21개 컨테이너 전부 cpus 상한이 없던 것 중 하나.
+          # personalization 파이프라인 내부 캐시 용도라 부하가 가볍다.
+          cpus: "0.5"
     logging:
       driver: json-file
       options:
@@ -154,6 +163,10 @@ services:
       resources:
         limits:
           memory: 1g
+          # 🔴 S15P21E201-798 — 21개 컨테이너 전부 cpus 상한이 없던 것 중 하나.
+          # 사진 오브젝트 스토리지(S3 API)로도 재사용되므로(위 9000 포트 주석
+          # 참고) redis/mlflow보다 여유를 둔다.
+          cpus: "0.5"
     logging:
       driver: json-file
       options:
@@ -192,6 +205,8 @@ services:
       resources:
         limits:
           memory: 1g
+          # 🔴 S15P21E201-798 — 21개 컨테이너 전부 cpus 상한이 없던 것 중 하나.
+          cpus: "0.5"
     logging:
       driver: json-file
       options:
@@ -217,6 +232,9 @@ services:
       resources:
         limits:
           memory: 256m
+          # 🔴 S15P21E201-798 — 21개 컨테이너 전부 cpus 상한이 없던 것 중 하나.
+          # celery 메시지 큐 용도라 가장 가볍게 잡는다.
+          cpus: "0.25"
     logging:
       driver: json-file
       options:
@@ -269,6 +287,10 @@ services:
       resources:
         limits:
           memory: 1.5g
+          # 🔴 S15P21E201-798 — 21개 컨테이너 전부 cpus 상한이 없던 것 중 하나.
+          # 스케줄링 루프가 DAG 재파싱과 겹치면 CPU를 가장 많이 먹는 컨테이너라
+          # (S15P21E201-784 실측) airflow 그룹 중 가장 넉넉히 잡는다.
+          cpus: "1.5"
 
   airflow-dag-processor:
     <<: *airflow-common
@@ -287,6 +309,10 @@ services:
       resources:
         limits:
           memory: 1g
+          # 🔴 S15P21E201-798 — 21개 컨테이너 전부 cpus 상한이 없던 것 중 하나.
+          # DAG 파일을 주기적으로 재파싱하는 컨테이너. S15P21E201-784에서
+          # 백엔드 헬스체크 지연을 일으킨 스파이크의 원인 중 하나로 지목됨.
+          cpus: "1.0"
 
   airflow-api-server:
     <<: *airflow-common
@@ -308,6 +334,9 @@ services:
           # janghyojoon님이 실측했다(2026-09-08, docker stats). 여유가 60MB뿐이라
           # 조금만 더 쓰면 OOM으로 컨테이너가 죽는다. 2g로 올려 여유를 둔다.
           memory: 2g
+          # 🔴 S15P21E201-798 — 21개 컨테이너 전부 cpus 상한이 없던 것 중 하나.
+          # REST API 요청 처리는 스케줄러/DAG 처리기보다 가볍다.
+          cpus: "0.5"
 
   airflow-worker:
     <<: *airflow-common
@@ -324,3 +353,7 @@ services:
       resources:
         limits:
           memory: 2g
+          # 🔴 S15P21E201-798 — 21개 컨테이너 전부 cpus 상한이 없던 것 중 하나.
+          # 실제 추천 파이프라인 태스크(모델 학습/추론 등)를 celery worker가
+          # 돌리므로 scheduler와 함께 가장 넉넉히 잡는다.
+          cpus: "1.5"
