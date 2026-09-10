@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202406A0162492",
+  "worker": "haiku-64",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["라보Labo 해운대구 부산", "라보Labo 우동 맛집", "라보 도넛 해운대", "라보 빵 부산"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색으로 찾을 수 없음. 유사명의 다른 매장(노티드 도넛 등)만 검색됨.",
+  "notes": ""
+}

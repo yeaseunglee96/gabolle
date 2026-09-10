@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220806879476",
+  "worker": "haiku-44",
+  "researchedAt": "2026-09-09T10:39:00Z",
+  "queries": ["철마손짜장 기장군 부산", "철마손짜장 철마면 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/831410"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "연차·역사",
+      "note": "50년 경력의 수타명인이 직접 운영하는 중식당",
+      "sources": [0]
+    },
+    {
+      "type": "조리·재료",
+      "note": "50년 경력 수타명인이 직접 면을 뽑아 부드럽고 쫄깃한 면을 만듦",
+      "sources": [0]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "대표 메뉴 쟁반짜장으로 유명하며 춘장의 고소한 맛이 오래 남음",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "available",
+    "audience": "mixed",
+    "signatureDishes": ["쟁반짜장"],
+    "priceBand": "affordable"
+  },
+  "notFound": null,
+  "notes": ""
+}

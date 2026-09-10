@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202511A0023926",
+  "worker": "haiku-63",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["우하 해운대구 부산", "우하 중1동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "검색 결과에 요청된 가게명 '우하'와 정확히 일치하는 정보를 찾지 못했음. 우동이라는 지역명만 나왔음",
+  "notes": ""
+}

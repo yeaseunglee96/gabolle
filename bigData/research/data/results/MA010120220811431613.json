@@ -1,0 +1,25 @@
+{
+  "id": "MA010120220811431613",
+  "worker": "haiku-69",
+  "researchedAt": "2026-09-10T00:10:00Z",
+  "queries": ["오징어랑해물이랑 수영구", "오징어랑해물이랑 민락동"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://triple.guide/restaurants/0d9a621e-6ac8-4d93-83a8-7a9d9260ec1b"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "오징어, 해물 요리 전문", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["오징어", "해물"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": ""
+}

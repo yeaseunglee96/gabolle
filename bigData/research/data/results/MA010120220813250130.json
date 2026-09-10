@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220813250130",
+  "worker": "haiku-27",
+  "researchedAt": "2026-09-09T01:36:15Z",
+  "queries": ["기사식당소풍 남구 부산", "기사식당소풍 용당동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "부산의 여러 기사식당 정보는 있지만 기사식당소풍의 구체적 정보 없음",
+  "notes": ""
+}

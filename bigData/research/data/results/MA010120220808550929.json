@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220808550929",
+  "worker": "haiku-27",
+  "researchedAt": "2026-09-09T01:36:15Z",
+  "queries": ["뿐이네 남구 부산", "뿐이네 용당동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "부산 남구 및 용당동 일반 정보만 나왔고 베트남식 뿐이네 구체적 정보 없음",
+  "notes": ""
+}

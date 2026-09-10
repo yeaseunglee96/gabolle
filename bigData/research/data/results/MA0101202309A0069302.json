@@ -1,0 +1,26 @@
+{
+  "id": "MA0101202309A0069302",
+  "worker": "haiku-35",
+  "researchedAt": "2026-09-09T02:10:44.184Z",
+  "queries": ["구구이 북구 부산", "구구이 덕천2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["다이닝코드"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "육회 전문점, 스테이크와 육회 중심의 안주 제공", "sources": [0]},
+    {"type": "가격·가성비", "note": "가성비가 좋으며 룸 형식의 자리도 있음", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["육회", "스테이크"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "술집, 유가네쪽 골목의 안쪽 골목에 위치"
+}

@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220813752038",
+  "worker": "haiku-38",
+  "researchedAt": "2026-09-09T15:15:00Z",
+  "queries": ["돈앤돈 부산 남구", "돈앤돈 감만동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=tRalDH3ufYi0", "https://www.daangn.com/kr/local-profile/24327/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "가격·가성비",
+      "note": "사장이 식육점을 직접 운영하여 좋은 품질의 고기를 저렴한 가격에 판매",
+      "sources": [0]
+    },
+    {
+      "type": "곁들임·차림",
+      "note": "무제한 셀프바 제공",
+      "sources": [0]
+    },
+    {
+      "type": "운영·접근 편의",
+      "note": "가족 외식을 위한 놀이방 구비",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "family",
+    "signatureDishes": ["삼겹살"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

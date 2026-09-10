@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202512A0009962",
+  "worker": "haiku-34",
+  "researchedAt": "2026-09-09T07:02:00Z",
+  "queries": ["시오 초밥 부산 동구", "시오 중앙대로 부산 수정동"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "2번의 검색으로도 부산 동구 중앙대로의 시오 음식점을 찾을 수 없음. 부산의 일반 초밥집 정보만 검색됨",
+  "notes": ""
+}

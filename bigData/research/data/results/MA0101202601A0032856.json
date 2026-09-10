@@ -1,0 +1,26 @@
+{
+  "id": "MA0101202601A0032856",
+  "worker": "haiku-20",
+  "researchedAt": "2026-09-09T11:10:45Z",
+  "queries": ["츠키노준 부산진구", "츠키노준 범천1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 부산진구 황령대로7번길 29 2층"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "간판 메뉴 지목", "note": "이자카야 술집", "sources": [0] },
+    { "type": "분위기·전망", "note": "조용하고 분위기 좋은 공간", "sources": [0] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": [],
+    "priceBand": "regular"
+  },
+  "notFound": null,
+  "notes": ""
+}

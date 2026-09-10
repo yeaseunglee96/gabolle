@@ -1,0 +1,26 @@
+{
+  "id": "MA0101202211A0019563",
+  "worker": "haiku-62",
+  "researchedAt": "2026-09-10T12:07:00Z",
+  "queries": ["파복스 부산진구 경양식", "파복스 서면"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1080080", "https://www.diningcode.com/profile.php?rid=6h72gEUXyNnM"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "메뉴 희소성", "note": "600여 가지의 다양한 와인과 위스키 보유", "sources": [0, 1]},
+    {"type": "분위기·전망", "note": "와인바/위스키바의 고급스러운 분위기", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["Burrata Cheese", "Cheese Platter"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": "와인바/위스키바"
+}

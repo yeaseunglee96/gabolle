@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220810514680",
+  "worker": "haiku-39",
+  "researchedAt": "2026-09-09T10:02:00Z",
+  "queries": ["동경초밥 서구 부산", "동경초밥 서대신1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/679124", "https://www.diningcode.com/profile.php?rid=ifbR3nLCvzmI", "https://www.mangoplate.com/restaurants/eUsqq8SxbF"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "원조·최초", "note": "30년 이상 전통을 이어온 장인 맛집", "sources": [0, 1]},
+    {"type": "조리·재료", "note": "대대로 이어져 내려오는 비법과 정성 어린 손맛", "sources": [0]},
+    {"type": "기관 선정", "note": "부산 서구의 30년 장인 맛집으로 공식 선정", "sources": [1]},
+    {"type": "메뉴 희소성", "note": "정통 일식 코스 요리 전문", "sources": [2]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": "30년 이상",
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": null,
+    "signatureDishes": ["동경특선 A코스", "동경특선 B코스"],
+    "priceBand": "expensive"
+  },
+  "notes": ""
+}

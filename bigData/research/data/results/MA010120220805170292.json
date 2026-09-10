@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220805170292",
+  "worker": "haiku-59",
+  "researchedAt": "2026-09-09T08:07:50Z",
+  "queries": ["다이닝커널오프쇼어 해운대 부산", "다이닝커널오프쇼어 송정동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "해당 이름의 식당이 웹 검색 결과에 나타나지 않음",
+  "notes": "경양식 카테고리로 등록"
+}

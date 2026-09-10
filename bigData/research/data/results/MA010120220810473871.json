@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220810473871",
+  "worker": "haiku-33",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["어우량 영도구 부산", "어우량 봉래1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=pSBotKJSvPfX"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "메로 구이와 쥐치(filefish) 전문", "sources": [0]},
+    {"type": "맛 묘사", "note": "신선한 생선회", "sources": [0]},
+    {"type": "가격·가성비", "note": "좋은 가성비", "sources": [0]},
+    {"type": "서비스·사람", "note": "친근한 사장 운영", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 15,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["메로 구이", "생선회", "쥐치"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

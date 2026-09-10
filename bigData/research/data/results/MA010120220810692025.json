@@ -1,0 +1,25 @@
+{
+  "id": "MA010120220810692025",
+  "worker": "haiku-41",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["직송식당 사상구 부산", "직송식당 감전동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://www.diningcode.com/profile.php?rid=eZ9PRYp3piaN"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "메뉴 희소성", "note": "신선한 회를 제공하는 도매센터", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": "1989년부터",
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["회", "매운탕"],
+    "priceBand": "affordable"
+  },
+  "notFound": null,
+  "notes": "검색에서 직송회도매센터로 표시됨, 1989년부터 37년 운영, 11:00-22:00 영업, 051-317-5065"
+}

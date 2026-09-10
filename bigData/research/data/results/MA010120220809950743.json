@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220809950743",
+  "worker": "haiku-8",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["달봉이횟집 중구 부산 자갈치", "달봉이횟집 남포동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산 중구 자갈치해안로 52"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "전복구이와 전복 코스요리 전문", "sources": [0, 1]},
+    {"type": "조리·재료", "note": "신선한 해산물과 맛있는 밑반찬", "sources": [1]},
+    {"type": "가격·가성비", "note": "인당 3만원대 가격으로 전복죽, 회, 철판구이 등 다양하게 맛볼 수 있음", "sources": [1]},
+    {"type": "동네·시장 지목", "note": "자갈치시장 2층에 위치한 시장 맛집", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["전복구이"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

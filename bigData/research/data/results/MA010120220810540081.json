@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220810540081",
+  "worker": "haiku-20",
+  "researchedAt": "2026-09-09T12:25:00Z",
+  "queries": ["공담 동래구 부산", "공담 명륜동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 동래구 명륜로129번길 27"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "간판 메뉴 지목", "note": "화덕피자와 생면파스타 전문", "sources": [0] },
+    { "type": "서비스·사람", "note": "서울 핫플 출신 셰프들이 운영", "sources": [0] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["고르곤졸라 파스타", "관자피칸테 파스타", "화덕피자"],
+    "priceBand": "regular"
+  },
+  "notFound": null,
+  "notes": ""
+}

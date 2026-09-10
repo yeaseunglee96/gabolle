@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220810507802",
+  "worker": "haiku-19",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["태성식당 서구 부산", "태성식당 암남동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "송도해변 지역 태성식당에 대한 구체 정보 못 찾음",
+  "notes": ""
+}

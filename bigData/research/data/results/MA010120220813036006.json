@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220813036006",
+  "worker": "haiku-70",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["16돈 광안 수영구 부산", "16돈 광안2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.daangn.com/kr/local-profile/16%EB%8F%88-y21kpbjz6eh8/", "https://marketbz.com/companyDetail/7612600667"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "메뉴 희소성",
+      "note": "국내산 한돈 숙성 생삼겹살과 특수부위를 전문으로 판매",
+      "sources": [0]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "질 좋은 국내산 한돈을 합리적인 가격에 제공",
+      "sources": [0]
+    },
+    {
+      "type": "운영·접근 편의",
+      "note": "광안역 5번 출구에서 도보 6분 거리로 접근성이 좋음",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["생삼겹살", "특수부위"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

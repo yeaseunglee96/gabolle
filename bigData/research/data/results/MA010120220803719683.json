@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220803719683",
+  "worker": "haiku-58",
+  "researchedAt": "2026-09-09T17:10:00Z",
+  "queries": ["우문현답 수영구 부산", "우문현답 민락동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1450880"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "한우 숯불화로구이 전문", "sources": [0]},
+    {"type": "조리·재료", "note": "1++ 한우 업진살, 앞부채살 제공", "sources": [0]},
+    {"type": "분위기·전망", "note": "프리미엄 이자카야 분위기", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["1++ 한우 업진살", "앞부채살"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "주소 광안로61번길 698, 운영 17:00~02:00 매일"
+}

@@ -1,0 +1,26 @@
+{
+  "id": "MA0101202504A0013539",
+  "worker": "haiku-11",
+  "researchedAt": "2026-09-09T00:12:00Z",
+  "queries": ["황토마루 기장 부산", "황토마루 정관읍 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 기장군 정관읍 병산1길 74-18"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "분위기·전망", "note": "산 중턱 자연 속에서 장작불로 달군 돌판에서 직접 구우며 불쇼까지 즐기는 경험", "sources": [0, 1] },
+    { "type": "맛 묘사", "note": "장작불 위의 구들장 돌판에서 구워 먹는 고기의 풍미가 특별함", "sources": [1] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["장작 모둠"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": ""
+}

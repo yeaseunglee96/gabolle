@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220810683911",
+  "worker": "haiku-45",
+  "researchedAt": "2026-09-09T13:41:00Z",
+  "queries": ["강따라물따라 강서구 부산", "강따라물따라 강동동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/274046", "https://www.diningcode.com/profile.php?rid=6qC2TlyzITtK"],
+  "stillOpen": true,
+  "whyPeopleGo": [{"type": "간판 메뉴 지목", "note": "오리 양념구이, 오리백숙 전문점", "sources": [0, 1]}, {"type": "분위기·전망", "note": "낙동강을 보며 식사 가능", "sources": [0]}],
+  "newTypes": [],
+  "descriptors": {"yearsClaimed": null, "generations": null, "queueing": null, "parking": null, "audience": "mixed", "signatureDishes": ["오리 양념구이", "오리 옻백숙"], "priceBand": "medium"},
+  "notFound": null,
+  "notes": ""
+}

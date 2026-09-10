@@ -1,0 +1,42 @@
+{
+  "id": "MA010120220811429950",
+  "worker": "haiku-49",
+  "researchedAt": "2026-09-09T13:00:00Z",
+  "queries": ["광안아구찜 수영구 부산", "광안아구찜 민락동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.siksinhot.com/P/396631",
+    "https://www.diningcode.com/list.dc?query=%EB%B6%80%EC%82%B0%EA%B4%91%EC%97%AD%EC%8B%9C+%EC%88%98%EC%98%81%EA%B5%AC+%EA%B4%91%EC%95%88%EB%8F%99+%EC%95%84%EA%B5%AC%EC%B0%9C"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "아구찜 전문점으로 알려져 있으며, 광안리 아구찜 맛집으로 높은 평가",
+      "sources": [0, 1]
+    },
+    {
+      "type": "맛 묘사",
+      "note": "칼칼한 맛, 감칠맛, 아삭한 식감이 특징",
+      "sources": [0]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "합리적인 가격대의 메뉴 구성",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["대구탕", "생아구찜", "섞어찜"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

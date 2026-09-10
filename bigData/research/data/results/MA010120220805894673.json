@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220805894673",
+  "worker": "haiku-71",
+  "researchedAt": "2026-09-10T12:30:00Z",
+  "queries": ["유정 수영구 부산 횟집", "유정 민락동 회"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://triple.guide/restaurants/1164326c-7bcf-4141-94f0-e8dd2ee387a4"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "연차·역사",
+      "note": "47년 이상 운영 중인 오래된 횟집",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 47,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["회"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": ""
+}

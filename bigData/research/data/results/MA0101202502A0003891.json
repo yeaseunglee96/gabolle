@@ -1,0 +1,23 @@
+{
+  "id": "MA0101202502A0003891",
+  "worker": "haiku-72",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["부산샌드 해운대구 부산", "부산샌드 우1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://triple.guide/restaurants/918236dd-5504-4051-9a45-63faa45aaaa6", "https://www.visitbusan.net/index.do?menuCd=DOM_000000201003001000&uc_seq=2579&lang_cd=ko", "https://www.diningcode.com/profile.php?rid=NDU3F3a8kquv"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "미디어 노출", "note": "해리단길의 유명한 버터샌드 전문점으로 부산의 핫플", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "프리미엄 프랑스 고메 버터로 만든 버터샌드", "sources": [0, 1, 2]},
+    {"type": "분위기·전망", "note": "해운대의 인기 있는 데이트 장소이자 관광 명소", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["버터샌드"],
+    "priceBand": "expensive",
+    "audience": "mixed"
+  },
+  "notFound": null,
+  "notes": ""
+}

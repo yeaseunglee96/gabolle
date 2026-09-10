@@ -1,0 +1,34 @@
+{
+  "id": "MA010120220811585453",
+  "worker": "haiku-38",
+  "researchedAt": "2026-09-09T14:30:00Z",
+  "queries": ["서울녹각삼계탕 금정구 부산", "서울녹각삼계탕 금사회동동 맛집", "서울녹각삼계탕 부산 금정구"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.tabling.co.kr/place/677cc83f66de5f0698766e4c"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "녹각(녹색 사슴뿔)을 재료로 한 특별한 삼계탕",
+      "sources": [0]
+    },
+    {
+      "type": "조리·재료",
+      "note": "녹각 재료의 수고로운 조리",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["녹각삼계탕"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": ""
+}

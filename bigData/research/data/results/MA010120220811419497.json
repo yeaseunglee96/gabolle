@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220811419497",
+  "worker": "haiku-53",
+  "researchedAt": "2026-09-09T15:18:00Z",
+  "queries": ["미포초장집 달맞이길", "미포초장집 횟집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.tabling.co.kr/restaurant/8816", "https://www.instagram.com/mipojip/"],
+  "stillOpen": true,
+  "whyPeopleGo": [{"type": "간판 메뉴 지목", "note": "초장집, 해물장의 원조", "sources": [0, 1]}, {"type": "분위기·전망", "note": "해운대 달맞이길 야경, 미포항 근처 바다 뷰", "sources": [0]}],
+  "newTypes": [],
+  "descriptors": {"signatureDishes": ["회", "해물"]},
+  "notFound": null,
+  "notes": "카테고리는 횟집으로 기록됨. 해운대 달맞이길 미포 지역에 위치. 초장집(회를 가져가면 초장, 술, 국을 준비해주고 테이블 요금을 내는 형태)"
+}

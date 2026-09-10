@@ -1,0 +1,23 @@
+{
+  "id": "MA0101202306A0045059",
+  "worker": "haiku-62",
+  "researchedAt": "2026-09-09T08:35:00Z",
+  "queries": ["청미가 해운대구 부산", "청미가 중2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.instagram.com/cmigak", "https://www.diningcode.com/profile.php?rid=pIS2TQrVEAVl"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "조개구이와 해산물 전문점",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["조개구이", "해산물"]
+  },
+  "notFound": null,
+  "notes": ""
+}

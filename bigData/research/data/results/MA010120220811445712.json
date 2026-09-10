@@ -1,0 +1,69 @@
+{
+  "id": "MA010120220811445712",
+  "worker": "haiku-16",
+  "researchedAt": "2026-09-08T22:57:36.502Z",
+  "queries": [
+    "흑송 송정 부산 일식",
+    "흑송 송정광어골로 맛집"
+  ],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.siksinhot.com/P/1035668",
+    "https://www.diningcode.com/profile.php?rid=i8eYXDPEACeH"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "맛 묘사",
+      "note": "부산 3대 돈까스 맛집",
+      "sources": [
+        0
+      ]
+    },
+    {
+      "type": "조리·재료",
+      "note": "30년 경력의 일식 쉐프",
+      "sources": [
+        1
+      ]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "송정 바다 풍경 테라스 좌석",
+      "sources": [
+        0
+      ]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "우엉튀김우동, 돈까스, 소바",
+      "sources": [
+        0
+      ]
+    },
+    {
+      "type": "혼잡·수요",
+      "note": "주말 웨이팅 길음",
+      "sources": [
+        1
+      ]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": "common",
+    "parking": "전용 주차장",
+    "audience": "mixed",
+    "signatureDishes": [
+      "우엉튀김우동",
+      "돈까스",
+      "기장미역우동"
+    ],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "위치: 송정광어골로 73 블루웨이브 1,2층, 영업 화~일 10:00~19:30 (브레이크 15:00~16:00), 월 휴무, 테이블링 앱으로 원격 줄서기 가능"
+}

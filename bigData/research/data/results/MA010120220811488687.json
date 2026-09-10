@@ -1,0 +1,47 @@
+{
+  "id": "MA010120220811488687",
+  "worker": "haiku-3",
+  "researchedAt": "2026-09-08T16:50:34.053Z",
+  "queries": ["초원복국 해운대구 부산", "초원복국 중동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.siksinhot.com/P/257274",
+    "https://www.diningcode.com/profile.php?rid=VZ36LucJAhOS"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "25년 경력의 복어 전문점으로 신선한 복어를 사용",
+      "sources": [0, 1]
+    },
+    {
+      "type": "맛 묘사",
+      "note": "시원하고 깔끔한 국물, 조미료를 넣지 않았는데도 깔끔하고 맛있음",
+      "sources": [1]
+    },
+    {
+      "type": "운영·접근 편의",
+      "note": "무료주차 가능하고 아침 8시부터 영업하여 해장용으로 편리",
+      "sources": [1]
+    },
+    {
+      "type": "서비스·사람",
+      "note": "끓인 후 남은 국물을 냄비채로 주고 리필 가능한 점",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 25,
+    "generations": null,
+    "queueing": null,
+    "parking": "easy",
+    "audience": null,
+    "signatureDishes": ["복국", "복지리", "복튀김"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": ""
+}

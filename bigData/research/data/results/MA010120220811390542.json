@@ -1,0 +1,30 @@
+{
+  "id": "MA010120220811390542",
+  "worker": "haiku-8",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["궁중해물탕조씨집 남구 부산", "궁중해물탕조씨집 대연5동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산 남구 진남로 7-11"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "연차·역사", "note": "1950년대부터 70년 전통을 이어오는 노포", "sources": [0, 1]},
+    {"type": "대물림", "note": "1950년대부터 2대째 가업을 이어오고 있음", "sources": [1]},
+    {"type": "기관 선정", "note": "부산 백년가게로 공식 인증", "sources": [0, 1]},
+    {"type": "원조·최초", "note": "부산 최초로 생선내장탕을 팔던 곳, 팔뚝탕 64년 전통", "sources": [1]},
+    {"type": "조리·재료", "note": "자갈치 시장에서 싱싱한 계절 해산물을 사용", "sources": [0, 1]},
+    {"type": "미디어 노출", "note": "허영만 백반기행에 출연한 맛집", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["궁중해물탕", "팔뚝탕"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": ""
+}

@@ -1,0 +1,26 @@
+{
+  "id": "MA0101202512A0035524",
+  "worker": "haiku-11",
+  "researchedAt": "2026-09-09T00:50:00Z",
+  "queries": ["찰리스 동구 부산", "찰리스 범일 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 동구 조방로 28"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "분위기·전망", "note": "미국식 다이너 감성이 넘치는 따뜻한 조명의 인테리어", "sources": [0, 1] },
+    { "type": "맛 묘사", "note": "정통 미국 디트로이트 피자 전문점", "sources": [0, 1] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["디트로이트 피자", "트러플감자튀김"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": ""
+}

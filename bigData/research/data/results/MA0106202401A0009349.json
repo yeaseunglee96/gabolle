@@ -1,0 +1,34 @@
+{
+  "id": "MA0106202401A0009349",
+  "worker": "haiku-31",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["맥도날드 부산영도 드라이브스루", "맥도날드 영도 봉래"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/438606", "https://triple.guide/restaurants/17ca0b6d-1cfe-4329-9768-f7b2520034fe", "https://www.diningcode.com/profile.php?rid=FGpru8Wtabsz"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "운영·접근 편의",
+      "note": "드라이브스루 가능, 주차장 완비, 교통의 요지 위치",
+      "sources": [0, 1, 2]
+    },
+    {
+      "type": "플랫폼 순위·평점",
+      "note": "다이닝코드, 식신 등 맛집 플랫폼에 기재",
+      "sources": [0, 2]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["햄버거", "감자튀김"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "봉래동3가 태종로 150, 영도대교·남항대교·부산항대교·부산대교 만나는 지점"
+}

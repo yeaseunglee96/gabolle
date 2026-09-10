@@ -1,0 +1,23 @@
+{
+  "id": "MA0101202406A0436947",
+  "worker": "haiku-69",
+  "researchedAt": "2026-09-10T00:13:00Z",
+  "queries": ["미안해청춘 부산진구", "미안해청춘 전포동"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://www.instagram.com/sorry_chungchoon/"],
+  "stillOpen": true,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": [],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "Instagram 계정 @sorry_chungchoon"
+}

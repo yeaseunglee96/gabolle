@@ -1,0 +1,27 @@
+{
+  "id": "MA0101202505A0078597",
+  "worker": "haiku-15",
+  "researchedAt": "2026-09-08T22:41:35Z",
+  "queries": ["부제비 부산진구 부산", "부제비 전포1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 부산진구 서전로38번길 43-3"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "간판 메뉴 지목", "note": "수제비, 황제비, 굴제비 (시즌 한정)", "sources": [0] },
+    { "type": "조리·재료", "note": "자가제반한 쫀득한 수제비와 깊고 진한 국물", "sources": [0] },
+    { "type": "운영·접근 편의", "note": "1인 식사 가능, 좌석 적어 예약 강력 권장", "sources": [0] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": false,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["부제비", "황제비", "굴제비"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "일~목 11:00~21:00, 금토 11:00~21:30, 타임제 운영, 해장 음식"
+}

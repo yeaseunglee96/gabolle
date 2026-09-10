@@ -1,0 +1,20 @@
+{
+  "id": "MA010120220813660879",
+  "worker": "haiku-52",
+  "researchedAt": "2026-09-09T14:51:00Z",
+  "queries": ["비네토 수영구 부산", "비네토 광안2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://guide.michelin.com/us/en/busan-region/busan_1025838/restaurant/vigneto", "https://www.diningcode.com/profile.php?rid=LXO4hO26JCm5"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "기관 선정", "note": "2025 미쉐린 가이드 등재", "sources": [0]},
+    {"type": "분위기·전망", "note": "광안리 와인바로 분위기 좋음", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": "주차 불가능"
+}

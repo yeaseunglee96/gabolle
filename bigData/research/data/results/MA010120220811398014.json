@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220811398014",
+  "worker": "haiku-47",
+  "researchedAt": "2026-09-09T11:50:00Z",
+  "queries": ["부창루 해운대구 부산", "부창루 우1동 맛집"],
+  "found": false,
+  "confidence": "low",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색으로 부산 해운대구 우1동 지역의 '부창루'라는 중국집에 대한 구체적 정보를 찾을 수 없음",
+  "notes": "우동 지역 맛집 리스트에 중국집 이름들이 있으나 부창루에 대한 상세 정보 부족"
+}

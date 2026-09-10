@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220811939955",
+  "worker": "haiku-17",
+  "researchedAt": "2026-09-09T09:43:00Z",
+  "queries": ["일신초밥 부산진구", "일신초밥 부전 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=Ef4BH4qCBjBr", "https://www.siksinhot.com/P/395352"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "가격·가성비", "note": "가성비 최고의 코스요리를 제공한다", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "일식 코스요리와 초밥 전문점이다", "sources": [0]},
+    {"type": "현지인 지지", "note": "부전시장 내 로컬 일식점으로 입소문이 있다", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["코스요리", "생선초밥", "대구탕", "참복국"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

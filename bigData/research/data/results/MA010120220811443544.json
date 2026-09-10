@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220811443544",
+  "worker": "haiku-10",
+  "researchedAt": "2026-09-09T15:00:00Z",
+  "queries": ["광안리유가횟집 수영구 부산", "광안리유가횟집 민락동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산 수영구 광안해변로344번길 17-11"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "분위기·전망", "note": "광안리 해변 수변 위치, 오션뷰", "sources": [0]},
+    {"type": "서비스·사람", "note": "친절한 서빙", "sources": [0]},
+    {"type": "맛 묘사", "note": "다양한 회 코스, 정교하고 깨끗한 플레이팅", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["유가스페셜", "특코스"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": ""
+}

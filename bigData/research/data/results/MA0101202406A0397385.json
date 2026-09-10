@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202406A0397385",
+  "worker": "haiku-51",
+  "researchedAt": "2026-09-09T14:41:00Z",
+  "queries": ["더그랜드 해운대 부산", "더그랜드 우1동 맛집"],
+  "found": false,
+  "confidence": "low",
+  "sources": ["https://hudroom.com/haeundae-ocean"],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "더그랜드는 고급 유흥주점으로 분류되며 일반 음식점이 아님. 음식 관련 평가 및 후기 없음",
+  "notes": "유흥주점으로 분류되어 조사 범위 벗어남"
+}

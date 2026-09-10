@@ -1,0 +1,36 @@
+{
+  "id": "MA010120220812552427",
+  "worker": "haiku-3",
+  "researchedAt": "2026-09-08T16:44:01.978Z",
+  "queries": ["딩동댕향어회 수영구 부산", "딩동댕향어회 수영동 맛집", "딩동댕 향어회 부산", "\"망미번영로70번길\" 부산 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": [
+    "https://www.leebommat.com/restaurant/content/194/"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "조리·재료",
+      "note": "직접 키운 양식 향어를 사용",
+      "sources": [0]
+    },
+    {
+      "type": "맛 묘사",
+      "note": "깔끔한 맛과 쫄깃한 식감",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": null,
+    "signatureDishes": ["향어회"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": ""
+}

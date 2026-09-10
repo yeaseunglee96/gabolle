@@ -1,0 +1,27 @@
+{
+  "id": "MA0101202406A0408584",
+  "worker": "haiku-27",
+  "researchedAt": "2026-09-09T01:36:30Z",
+  "queries": ["오뎅나와 동구 부산", "오뎅나와 범일2동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["부산 동구 범일동 범일역 2번 출구 인근"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "분위기·전망", "note": "감성 돋는 오뎅바 분위기", "sources": [0]},
+    {"type": "곁들임·차림", "note": "기본셋팅 1인 4,500원에 오뎅 2개와 곤약 포함", "sources": [0]},
+    {"type": "맛 묘사", "note": "다양한 오뎅 종류와 특별 메뉴 제공", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["기본셋팅 오뎅", "사각오뎅", "길쭉오뎅"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "범일역 2번 출구 인근 오뎅바. 기본셋팅 외 사각/길쭉오뎅, 곤약, 물떡 등 메뉴 보유. 오징어볼, 치즈오뎅, 매콤당면오뎅 등 특별 메뉴도 있음"
+}

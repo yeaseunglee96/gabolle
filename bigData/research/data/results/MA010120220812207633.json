@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220812207633",
+  "worker": "haiku-9",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["비와술잔 수영구 부산", "비와술잔 남천1동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["diningcode.com"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "미디어 노출",
+      "note": "TV 프로그램 '전현무계획'에 출연",
+      "sources": [0]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "라이브하고 활기찬 분위기에서 술과 함께 즐기는 공간",
+      "sources": [0]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "일본식 이모카세 형식의 고기 요리",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": false,
+    "audience": "local",
+    "signatureDishes": ["모소리살", "짜글이밥"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "남천1동공영주차장 또는 인근 민간 주차장 이용 필요. 콜롬보가든 옆골목"
+}

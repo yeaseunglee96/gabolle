@@ -1,0 +1,18 @@
+{
+  "id": "MA0101202508A0000544",
+  "worker": "haiku-54",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["오만거때만거 수영구 부산", "오만거때만거 민락동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.tabling.co.kr/place/68c7eca4919474fb3e532d97", "https://www.daangn.com/kr/local-profile/%EC%98%A4%EB%A7%8C%EA%B1%B0%EB%95%8C%EB%A7%8C%EA%B1%B0-bh9q4fhydah4/", "https://polle.com/place/3X1M7k/%EC%98%A4%EB%A7%8C%EA%B1%B0%20%EB%95%8C%EB%A7%8C%EA%B1%B0"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "오만술때만술을 파는 해산물 포차", "sources": [0, 1]},
+    {"type": "맛 묘사", "note": "다양한 해산물 요리 전문", "sources": [1, 2]}
+  ],
+  "newTypes": [],
+  "descriptors": {"yearsClaimed": null, "generations": null, "queueing": null, "parking": null, "audience": "mixed", "signatureDishes": ["해산물 한상", "동해안 청어 사시미", "갑오징어 튀김"], "priceBand": "moderate"},
+  "notFound": null,
+  "notes": "포차, 17:00~06:00 (화요일 휴무), 전화 010-9532-6223, 대관/단체석/룸/예약/반려동물동반 가능"
+}

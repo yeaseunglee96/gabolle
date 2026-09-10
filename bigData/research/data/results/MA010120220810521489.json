@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220810521489",
+  "worker": "haiku-43",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["오이시 사상구 부산", "오이시 주례3동 일식 회"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/431183", "https://www.diningcode.com/profile.php?rid=R7dsaWn0QGxU"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "현지인 지지", "note": "주례동 지역 주민들이 사랑하는 일식당", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "신선한 일식 회/초밥 전문", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["회", "초밥", "스시"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "주례역 1번 출구에서 약 5분 거리"
+}

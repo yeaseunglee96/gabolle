@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220811394395",
+  "worker": "haiku-25",
+  "researchedAt": "2026-09-09T10:41:45Z",
+  "queries": ["언양봉계숯불갈비 해운대구 부산", "언양봉계숯불갈비 반여2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/list.dc?query=%EB%B0%98%EC%97%AC%EB%8F%99++%EA%B0%88%EB%B9%84%ED%83%95"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "연차·역사",
+      "note": "10여 년 전통",
+      "sources": [0]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "돼지갈비와 알밥",
+      "sources": [0]
+    },
+    {
+      "type": "맛 묘사",
+      "note": "육고기의 구수한 참맛",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["돼지갈비", "알밥"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": ""
+}

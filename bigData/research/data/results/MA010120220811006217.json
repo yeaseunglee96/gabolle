@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220811006217",
+  "worker": "haiku-7",
+  "researchedAt": "2026-09-08T22:09:18Z",
+  "queries": ["18번완당집 수영구 부산", "18번완당집 남천1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=u76NuK7FlBru", "https://busan.grandculture.net/Contents?contents_id=GC04210180&dataType=01&local=busan"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "대물림", "note": "1948년 개업하여 3대를 거친 전통 식당", "sources": [1]},
+    {"type": "원조·최초", "note": "원조 18번 완당으로 부산의 역사적 맛집", "sources": [1]},
+    {"type": "간판 메뉴 지목", "note": "1mm 미만의 얇은 완당피가 특징", "sources": [0]},
+    {"type": "조리·재료", "note": "48시간 우린 특수 국물과 남도 미역 사용", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": 3,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["완당", "발국수"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "광안리 남천동로 위치. 10:00~20:00 영업. 월요일 정기휴무. TV 방영 다수."
+}

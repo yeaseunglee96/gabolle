@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202512A0007961",
+  "worker": "haiku-53",
+  "researchedAt": "2026-09-09T15:05:00Z",
+  "queries": ["유기체 민락동 부산", "유기체 경양식 부산"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색에서 음식점 유기체 정보를 찾지 못함",
+  "notes": "카테고리는 경양식으로 기록되었으나 웹 검색(다이닝코드, 구글 등) 결과에서 음식점으로 나타나지 않음"
+}

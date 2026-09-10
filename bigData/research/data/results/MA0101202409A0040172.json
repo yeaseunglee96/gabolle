@@ -1,0 +1,27 @@
+{
+  "id": "MA0101202409A0040172",
+  "worker": "haiku-48",
+  "researchedAt": "2026-09-09T14:50:15+09:00",
+  "queries": ["젤라또조이 해운대구 부산", "젤라또조이 달맞이길"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1755637", "https://www.tabling.co.kr/place/677cd7ad66de5f0698932d0d", "https://www.diningcode.com/profile.php?rid=8BFW4iYf1RGS", "https://www.daangn.com/kr/local-profile/%EC%A0%A4%EB%9D%BC%EB%98%90%EC%A1%B0%EC%9D%B4-%ED%95%B4%EC%9A%B4%EB%8C%80%EB%AF%B8%ED%8F%AC%EC%A0%90-vxzume8jpyrc/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "분위기·전망", "note": "바다를 바로 앞에 두고 있는 해운대 미포 디저트 공간", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "젤라또 2가지맛 조합이 대표메뉴", "sources": [0, 2]},
+    {"type": "메뉴 희소성", "note": "천연 젤라또 전문점", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "young",
+    "signatureDishes": ["젤라또 1컵 2가지맛"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "달맞이길 미포 쪽 끝자락에 위치, 바닷바람 속에서 산책하며 즐기기 좋은 디저트 공간"
+}

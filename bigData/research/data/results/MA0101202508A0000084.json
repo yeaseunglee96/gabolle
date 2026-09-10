@@ -1,0 +1,39 @@
+{
+  "id": "MA0101202508A0000084",
+  "worker": "haiku-19",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["회뜰기세 남구 부산", "회뜰기세 대연4동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.daangn.com/kr/local-profile/%ED%9A%8C%EB%9C%B0%EA%B8%B0%EC%84%B8-85gspw6j29qn/", "https://www.diningcode.com/list.dc?query=%EB%B6%80%EC%82%B0+%EB%8C%80%EC%97%B0%EB%8F%99+%ED%9A%8C%EC%A7%91"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "밀치회 등 생선회 전문",
+      "sources": [0]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "30,000원 1.5인분 저렴한 가격",
+      "sources": [0]
+    },
+    {
+      "type": "운영·접근 편의",
+      "note": "배달, 테이크아웃, 예약 가능",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["밀치회", "생선회"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

@@ -1,0 +1,21 @@
+{
+  "id": "MA0101202306A0061273",
+  "worker": "haiku-52",
+  "researchedAt": "2026-09-09T14:42:00Z",
+  "queries": ["궈차오훠궈 해운대구 부산", "궈차오훠궈 우1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://shinystar75.com/entry/%EB%B6%80%EC%82%B0-%ED%95%B4%EC%9A%B4%EB%8C%80-%EB%A7%9B%EC%A7%91-%EB%AC%B4%ED%95%9C%EB%A6%AC%ED%95%84-%EA%B6%88%EC%B0%A8%EC%98%A4%ED%9B%A0%EA%B6%88", "https://www.diningcode.com/list.dc?query=%EB%B6%80%EC%82%B0+%ED%9B%A0%EA%B6%88"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "가격·가성비", "note": "무한리필 서비스 26,900원부터", "sources": [0]},
+    {"type": "간판 메뉴 지목", "note": "훠궈 전문점", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["훠궈"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

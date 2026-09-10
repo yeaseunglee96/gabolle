@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220811590185",
+  "worker": "haiku-22",
+  "researchedAt": "2026-09-09T01:16:30.000Z",
+  "queries": ["베뜨빌 금정구 부산", "베뜨빌 장전1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://autoreserve.com/ko/restaurants/fdJAn6GhrSfRkYnHfxxr",
+    "https://triple.guide/restaurants/a99a0124-0d7b-47f5-a0a1-a29f9c2a8dc2"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "분위기·전망", "note": "2층 위치로 쾌적한 분위기", "sources": [0, 1]},
+    {"type": "운영·접근 편의", "note": "부산대역에서 0.10km 매우 가까움", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": [],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "영업시간 11:30~23:00 (라스트오더 22:00), 화·금은 11:00 시작, 전화 051-518-4599"
+}

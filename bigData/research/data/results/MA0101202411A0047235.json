@@ -1,0 +1,23 @@
+{
+  "id": "MA0101202411A0047235",
+  "worker": "haiku-62",
+  "researchedAt": "2026-09-09T09:00:00Z",
+  "queries": ["케이크온에어 수영구 부산", "케이크온에어 광안2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.threads.com/@yun_san1208/post/DTUM11lj1-U/", "https://www.diningcode.com/list.dc?query=%EA%B4%91%EC%95%88%EB%A6%AC++%EC%88%98%EC%A0%9C%EC%BC%80%EC%9D%B4%ED%81%AC"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "수제 케이크 전문점",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["수제 케이크"]
+  },
+  "notFound": null,
+  "notes": ""
+}

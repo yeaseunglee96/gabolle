@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220813036461",
+  "worker": "haiku-48",
+  "researchedAt": "2026-09-09T14:50:15+09:00",
+  "queries": ["배스킨라빈스광안역점 부산", "배스킨라빈스 광안4동 수영로"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://www.baskinrobbins.co.kr/m/store/map.php"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "배스킨라빈스 아이스크림 전문점", "sources": [0]},
+    {"type": "플랫폼 순위·평점", "note": "국제적 브랜드의 아이스크림", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["아이스크림"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "광안역 근처 배스킨라빈스 공식 매장"
+}

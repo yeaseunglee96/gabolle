@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220807083406",
+  "worker": "haiku-19",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["철호국밥 남구 부산", "철호국밥 문현4동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "수영로 50 철호국밥에 대한 구체 정보 못 찾음",
+  "notes": ""
+}

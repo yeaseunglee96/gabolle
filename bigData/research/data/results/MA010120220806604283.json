@@ -1,0 +1,20 @@
+{
+  "id": "MA010120220806604283",
+  "worker": "haiku-65",
+  "researchedAt": "2026-09-09T22:32:13.352Z",
+  "queries": [
+    "아넬로 해운대 마린시티 부산",
+    "아넬로 우3동 레스토랑",
+    "아넬로 부산 식당 식신",
+    "아넬로 부산진구 우동"
+  ],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "광범위한 검색에도 불구하고 웹에서 발견되지 않음.",
+  "notes": "마린시티 지역 정보만 나타남, 구체적인 식당 정보 없음"
+}

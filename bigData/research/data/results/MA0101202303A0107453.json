@@ -1,0 +1,35 @@
+{
+  "id": "MA0101202303A0107453",
+  "worker": "haiku-57",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["고결 민락동 부산", "고결 광안해변로 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=qzv6u4OiILEF"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "짚불 우대갈비, 짚불 삼겹살이 대표 메뉴",
+      "sources": [0]
+    },
+    {
+      "type": "조리·재료",
+      "note": "짚불 초벌과 훈연으로 풍미를 강화",
+      "sources": [0]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "한옥풍 외관과 정원",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["짚불 우대갈비", "짚불 삼겹살", "돌솥밥", "항아리 된장찌개"],
+    "priceBand": "mid",
+    "audience": "family"
+  },
+  "notFound": null,
+  "notes": "구워주는 서비스 제공, 단체석 가능, 무료주차"
+}

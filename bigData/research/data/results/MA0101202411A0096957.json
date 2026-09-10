@@ -1,0 +1,42 @@
+{
+  "id": "MA0101202411A0096957",
+  "worker": "haiku-50",
+  "researchedAt": "2026-09-09T05:32:45Z",
+  "queries": ["폴스팜 광안로 부산", "폴스팜 광안2동 빵 도넛"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.visitbusan.net/index.do?menuCd=DOM_000000201001001000&uc_seq=2615&lang_cd=ko",
+    "https://www.diningcode.com/profile.php?rid=CKWJ6YRgGle3"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "은행나무 풍경과 유럽 농장 인테리어",
+      "sources": [0]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "수제 케이크 전문 카페",
+      "sources": [0, 1]
+    },
+    {
+      "type": "맛 묘사",
+      "note": "매일 다른 수제 케이크와 신선한 커피",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["딸기 생크림 케이크", "빅토리아 케이크", "수제 케이크"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "반려견 동반 가능"
+}

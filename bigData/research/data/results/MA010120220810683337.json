@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220810683337",
+  "worker": "haiku-42",
+  "researchedAt": "2026-09-09T04:29:12Z",
+  "queries": ["진주네 사상구 부산 횟집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=yWMEmTahQYcl", "https://www.menutong.com/bbs/board.php?bo_table=sangto&wr_id=6160"],
+  "stillOpen": true,
+  "whyPeopleGo": [{"type": "가격·가성비", "note": "회덮밥 4,500원, 물회 6,500원의 저렴한 가격", "sources": [0]}, {"type": "간판 메뉴 지목", "note": "물회와 회덮밥이 대표메뉴", "sources": [0]}, {"type": "미디어 노출", "note": "생생정보통에서 소개되었다", "sources": [1]}],
+  "newTypes": [],
+  "descriptors": {"signatureDishes": ["물회", "회덮밥"]},
+  "notFound": null,
+  "notes": "엄궁동 전통시장 내 위치. 화~일 11:00~23:30 운영. 월요일 정기휴무"
+}

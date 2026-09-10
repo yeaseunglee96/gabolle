@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220803512994",
+  "worker": "haiku-37",
+  "researchedAt": "2026-09-09T11:23:43.0136153+09:00",
+  "queries": ["돈갓수제돈까스 우암점 부산", "돈갓수제돈까스 우암동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://www.dongod.co.kr/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "간판 메뉴 지목", "note": "프리미염 수제돈까스 전문점", "sources": [0] },
+    { "type": "조리·재료", "note": "수제 돈까스 - 직접 만드는 프로세스", "sources": [0] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["수제돈까스"],
+    "priceBand": "affordable"
+  },
+  "notFound": null,
+  "notes": "돈갓 체인점. 공식 사이트 dongod.co.kr 에서 매장 정보 확인"
+}

@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220810506109",
+  "worker": "haiku-51",
+  "researchedAt": "2026-09-09T14:38:00Z",
+  "queries": ["주영식품 서구 부산", "주영식품 암남동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "주영식품은 집단급식소로 분류되며 맛집 리뷰나 대중적 평가가 없음",
+  "notes": "부산광역시 서구 원양로 125에 위치한 집단급식소"
+}

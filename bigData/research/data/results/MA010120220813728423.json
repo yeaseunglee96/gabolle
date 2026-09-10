@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220813728423",
+  "worker": "haiku-42",
+  "researchedAt": "2026-09-09T04:29:12Z",
+  "queries": ["숲 카페 동구 부산 범일동", "숲 카페 범일로 41 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.welfarehello.com/community/hometownNews/7a5b964e-4fed-4f4b-b76f-c88c953ad0bf", "https://www.visitbusan.net/index.do?menuCd=DOM_000000201001001000&uc_seq=2613&lang_cd=ko"],
+  "stillOpen": true,
+  "whyPeopleGo": [{"type": "분위기·전망", "note": "따뜻하고 아늑한 인테리어, 감성적인 공간", "sources": [0]}],
+  "newTypes": [],
+  "descriptors": {"signatureDishes": ["쿠키"]},
+  "notFound": null,
+  "notes": "다양한 쿠키를 저렴한 가격에 제공, 지역 주민들 애용"
+}

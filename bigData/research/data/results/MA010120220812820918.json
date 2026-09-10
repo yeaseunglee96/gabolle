@@ -1,0 +1,23 @@
+{
+  "id": "MA010120220812820918",
+  "worker": "haiku-62",
+  "researchedAt": "2026-09-09T08:50:00Z",
+  "queries": ["기승전골 수영구 부산", "기승전골 민락동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://www.siksinhot.com/P/462412", "https://www.diningcode.com/profile.php?rid=60tykYY8QId2"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "곱창과 순대, 소고기 전골 전문점",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["곱창", "순대", "소고기 전골"]
+  },
+  "notFound": null,
+  "notes": "검색 결과에서는 부전동으로 표시되지만 주소 불일치 가능성 확인 필요"
+}

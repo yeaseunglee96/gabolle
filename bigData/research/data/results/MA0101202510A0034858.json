@@ -1,0 +1,25 @@
+{
+  "id": "MA0101202510A0034858",
+  "worker": "haiku-11",
+  "researchedAt": "2026-09-09T00:57:00Z",
+  "queries": ["피아크스낵바 영도 부산", "피아크스낵바 동삼 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 영도구 해양로195번길 180"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "분위기·전망", "note": "부산 영도 항만의 오션뷰와 넓은 야외 가든, 인공 잔디마당을 갖춘 복합문화공간", "sources": [0, 1] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["영도 사골 뚝배기빵", "초콜릿 가나슈 탕종"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "6층 규모 복합문화공간으로 F&B, 문화, 예술, 전시, 액티비티 등 다양한 브랜드 입점"
+}

@@ -1,0 +1,23 @@
+{
+  "id": "MA010120220812063078",
+  "worker": "haiku-72",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["세이고우 대연동 부산", "세이고우 일식 초밥 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=J6ZDuKuhvuFC", "https://kr.trip.com/moments/detail/busan-432-133168212/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "조리·재료", "note": "실제 문어를 사용한 고급 타코야키", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "일본식 타코야키 전문점", "sources": [0, 1]},
+    {"type": "분위기·전망", "note": "경성대/부경대 역 근처 대학가 맛집", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["타코야키", "오코노미야키"],
+    "priceBand": "cheap",
+    "audience": "local"
+  },
+  "notFound": null,
+  "notes": "카테고리는 '일식 회/초밥'이나 실제로는 타코야키와 오코노미야키 전문점입니다. 30년 전통의 오사카식 맛을 제공합니다."
+}

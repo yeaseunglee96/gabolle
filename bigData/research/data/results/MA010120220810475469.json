@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220810475469",
+  "worker": "haiku-18",
+  "researchedAt": "2026-09-09T10:55:00Z",
+  "queries": ["꼬모도 광복동 경양식", "꼬모도 중구 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 중구 광복로 59-1"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "조리·재료",
+      "note": "도우를 직접 만들고 화덕에서 직접 구워내는 화덕피자",
+      "sources": [0]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "화덕피자와 파스타가 대표 메뉴",
+      "sources": [0]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "모던하면서도 따뜻한 분위기의 넓고 쾌적한 실내",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["화덕피자", "파스타"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": ""
+}

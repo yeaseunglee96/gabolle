@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220802155474",
+  "worker": "haiku-69",
+  "researchedAt": "2026-09-10T00:09:00Z",
+  "queries": ["편백송정 해운대구", "편백송정 송정동"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://triple.guide/restaurants/62e466b5-cc11-4cc0-aee1-e5258aaa4db3", "https://www.diningcode.com/profile.php?rid=IOOBJcahybhz"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "편백찜, 샤브샤브 전문", "sources": [0, 1]},
+    {"type": "분위기·전망", "note": "프라이빗 룸, 송정해수욕장 바다 전망", "sources": [0]},
+    {"type": "운영·접근 편의", "note": "무료 전용주차장", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["편백찜", "샤브샤브"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "모든 좌석이 프라이빗 방, 영업시간 11:30~21:00, 연중무휴"
+}

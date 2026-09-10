@@ -1,0 +1,44 @@
+{
+  "id": "MA0101202501A0068534",
+  "worker": "haiku-31",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["도암돌판구이 사하구 부산", "도암돌판구이 하단1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.youtube.com/watch?v=mV6GLHpGY-U", "https://www.diningcode.com/profile.php?rid=kRuSHsVdW3n3", "https://www.daangn.com/kr/local-profile/%EB%8F%84%EC%95%94-npbzcgfup7kc/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "혼잡·수요",
+      "note": "웨이팅이 있을 정도로 인기 많은 고기집",
+      "sources": [0, 1, 2]
+    },
+    {
+      "type": "조리·재료",
+      "note": "제주돼지고기를 돌판에 구워 먹음, 반찬이 다 맛있음",
+      "sources": [0, 1]
+    },
+    {
+      "type": "서비스·사람",
+      "note": "구워주는 서비스 제공",
+      "sources": [1]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "야외 감성, 고향의 정을 담아내는 특별한 공간",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": true,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["돌판구이", "제주돼지고기"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "예약 권장, 16:00~23:00 영업, 하단역 2번 출구에서 도보 5분"
+}

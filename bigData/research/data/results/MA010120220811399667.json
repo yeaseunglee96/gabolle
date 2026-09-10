@@ -1,0 +1,34 @@
+{
+  "id": "MA010120220811399667",
+  "worker": "haiku-67",
+  "researchedAt": "2026-09-09T22:37:00.000Z",
+  "queries": ["유명한꼼장어집 해운대", "유명한꼼장어집 중1동 구남로"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.autodaily.co.kr/news/articleView.html?idxno=412441", "https://www.diningcode.com/list.dc?query=%ED%95%B4%EC%9A%B4%EB%8C%80++%EA%BC%BC%EC%9E%A5%EC%96%B4"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "꼼장어(곱창) 전문, 돼지국밥도 함께 제공",
+      "sources": [0, 1]
+    },
+    {
+      "type": "운영·접근 편의",
+      "note": "24시간 연중무휴 운영",
+      "sources": [0, 1]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "넓고 청결한 내부 공간",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["꼼장어", "돼지국밥"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "백반/한정식(꼼장어 전문). 해운대 시장 꼼장어골목 입구 위치. 24시간 운영."
+}

@@ -1,0 +1,30 @@
+{
+  "id": "MA010120220805447601",
+  "worker": "haiku-22",
+  "researchedAt": "2026-09-09T01:16:30.000Z",
+  "queries": ["토흐 금정구 부산", "토흐 장전1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.siksinhot.com/P/1045213",
+    "https://triple.guide/restaurants/6f2ff907-aaf0-4dbe-826e-78f3e1c93572",
+    "https://www.diningcode.com/profile.php?rid=tv1gfJcVkDyi"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "퓨전 돈까스·델리돈까스 전문", "sources": [0, 1, 2]},
+    {"type": "분위기·전망", "note": "부산대 근처 쾌적한 식당", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "student",
+    "signatureDishes": ["돈까스", "델리돈까스"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "영업시간 11:00~20:30 (라스트오더 20:00), 휴무 금요일"
+}

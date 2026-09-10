@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220812858864",
+  "worker": "haiku-18",
+  "researchedAt": "2026-09-09T10:25:00Z",
+  "queries": ["반핀 베트남식 부산진구", "반핀 전포동 베트남"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 부산진구 동천로108번길 9"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "XO fried rice, 차슈덮밥, 가지튀김이 대표 메뉴인 아시아 음식점",
+      "sources": [0]
+    },
+    {
+      "type": "조리·재료",
+      "note": "정통 대만 요리를 준비하는 전포동 대만 음식의 성지",
+      "sources": [0]
+    },
+    {
+      "type": "운영·접근 편의",
+      "note": "서석면역 8번 출구에서 도보 5분으로 접근 편함",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["XO fried rice", "차슈덮밥", "가지튀김"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

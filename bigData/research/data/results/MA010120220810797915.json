@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220810797915",
+  "worker": "haiku-23",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["정참치 연제구 부산", "정참치 연산1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 연제구 고분로13번길 43"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "조리·재료", "note": "매일 아침 공수한 최상급 참치를 최적의 상태로 숙성하여 제공", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "눈다랑어 코스 전문점", "sources": [1, 2]},
+    {"type": "메뉴 희소성", "note": "프리미엄 참치 코스 경험 제공", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["눈다랑어 코스"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": ""
+}

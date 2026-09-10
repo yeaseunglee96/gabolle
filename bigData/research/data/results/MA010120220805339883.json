@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220805339883",
+  "worker": "haiku-33",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["화돈가 부산진구 부산", "화돈가 개금3동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.keyzard.cc/hjms20/nb/223957014513", "https://www.keyzard.cc/jinniivlog/nb/223969891968"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "생고기 전문점", "sources": [0]},
+    {"type": "곁들임·차림", "note": "밑반찬 10가지", "sources": [1]},
+    {"type": "가격·가성비", "note": "가성비 좋음", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": "가능",
+    "parking": null,
+    "audience": "group",
+    "signatureDishes": ["생고기"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "개금역 2번 출구에서 도보 2-3분, 월-토 17:00-22:30 영업, 일요일 휴무"
+}

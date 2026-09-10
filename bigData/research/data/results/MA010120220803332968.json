@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220803332968",
+  "worker": "haiku-27",
+  "researchedAt": "2026-09-09T01:36:45Z",
+  "queries": ["갈매기먹짱 동래구 부산", "갈매기먹짱 안락2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 동래구 명장로 152"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "현지인 지지", "note": "저녁시간에 항상 자리가 꽉 찬 로컬 맛집", "sources": [0]},
+    {"type": "가격·가성비", "note": "갈매기살 6천500원의 저렴한 가격대", "sources": [0]},
+    {"type": "분위기·전망", "note": "옛날 감성이 남아 있는 동그란 숯불그릴 테이블", "sources": [0]},
+    {"type": "맛 묘사", "note": "숙성고기의 맛이 우수함", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": "high",
+    "parking": "available",
+    "audience": "local",
+    "signatureDishes": ["간장갈매기살", "냉면"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "부산에 마지막 남은 갈매기먹짱. 운영시간: 주중 16:00-24:00, 매주 월요일 휴무. 셀프바에서 반찬과 소스 제공. 웨이팅 예상"
+}

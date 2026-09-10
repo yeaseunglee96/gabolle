@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220810475063",
+  "worker": "haiku-11",
+  "researchedAt": "2026-09-09T00:01:00Z",
+  "queries": ["화국반점 중구 부산", "화국반점 동광동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 중구 백산길 3"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "미디어 노출", "note": "영화 신세계, 범죄와의 전쟁 촬영지로 출연", "sources": [0, 1] },
+    { "type": "대물림", "note": "약 40년 운영되어 온 2세 경영 중국집", "sources": [1] },
+    { "type": "간판 메뉴 지목", "note": "간짜장을 대표 메뉴로 하는 정통 중국식당", "sources": [0, 1] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 40,
+    "generations": 2,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["간짜장", "탕수육"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": ""
+}

@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220806306466",
+  "worker": "haiku-24",
+  "researchedAt": "2026-09-09T10:26:15.2132113+09:00",
+  "queries": ["덕선제과 부산진구 부산", "덕선제과 범천2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://triple.guide/restaurants/fec281bb-00c0-4ceb-8584-aeb8e1decd54", "https://www.diningcode.com/profile.php?rid=tfpVhj4jRECS"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "수제 팥빵/휘낭시에 전문", "sources": [0, 1]},
+    {"type": "맛 묘사", "note": "부드럽고 맛있는 제과류", "sources": [1]},
+    {"type": "현지인 지지", "note": "부산 빵지순례 명소", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["팥빵", "휘낭시에", "팥빵떡", "무화과크림치즈휘낭시에"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "범밀역 7번 출구에서 도보 10분, 언덕길에 위치. 월화 휴무, 수-일 11:00-19:00"
+}

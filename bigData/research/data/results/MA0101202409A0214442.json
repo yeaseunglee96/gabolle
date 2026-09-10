@@ -1,0 +1,42 @@
+{
+  "id": "MA0101202409A0214442",
+  "worker": "haiku-3",
+  "researchedAt": "2026-09-09T02:05:00.000Z",
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.diningcode.com/profile.php?rid=TLiRHCAormiI",
+    "https://blog.naver.com/quin1236/224168948017?viewType=pc",
+    "https://blog.naver.com/hz88/224194665791?redirect=Dlog"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "바다 뷰가 있는 광안리 해변로에 위치한 카페 같은 분위기",
+      "sources": [0, 1, 2]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "샌드위치 전문점으로 알려져 있으며 브런치 맛집",
+      "sources": [0, 1, 2]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "데이트 코스로 추천되는 카페 분위기 공간",
+      "sources": [1, 2]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 2,
+    "generations": null,
+    "queueing": null,
+    "parking": "none",
+    "audience": "tourist",
+    "signatureDishes": ["잠봉뵈르 샌드위치", "BLT 샌드위치"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "2022년 3월 개업. 월요일 10:00-15:30, 화~일 10:00-21:00 영업. 금련산역 3번 출구에서 약 455m."
+}

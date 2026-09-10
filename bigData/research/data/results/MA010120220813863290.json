@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220813863290",
+  "worker": "haiku-37",
+  "researchedAt": "2026-09-09T11:23:43.0136153+09:00",
+  "queries": ["가야지흑돼지 부산 서구", "가야지흑돼지 충무대로255 돼지고기"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색 결과에서 명확한 정보를 찾을 수 없음",
+  "notes": "유사한 이름의 가게들(제주흑돼지, 가야돼지집 등)은 발견되었으나 가야지흑돼지는 확인 불가"
+}

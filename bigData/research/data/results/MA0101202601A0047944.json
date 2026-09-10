@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202601A0047944",
+  "worker": "haiku-54",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["아톰 수영구 부산", "아톰 민락동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색에서 수영구 민락동의 아톰 식당을 찾을 수 없음 (카라오케는 발견됨)",
+  "notes": ""
+}

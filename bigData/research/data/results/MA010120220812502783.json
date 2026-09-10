@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220812502783",
+  "worker": "haiku-62",
+  "researchedAt": "2026-09-10T12:04:00Z",
+  "queries": ["나오스시 해운대구 부산", "나오스시 중1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1096361", "https://www.diningcode.com/profile.php?rid=bd9z1uFEGjLd"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "오마카세 스시 전문", "sources": [0, 1]},
+    {"type": "혼잡·수요", "note": "예약 필수일 정도로 인기", "sources": [1]},
+    {"type": "가격·가성비", "note": "합리적인 가격대의 고급 오마카세", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": true,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["오마카세"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": "예약 필수"
+}

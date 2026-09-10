@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220810677611",
+  "worker": "haiku-14",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["파밀리아제과점 사상구 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["식신", "부산일보", "다이닝코드"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "연차·역사", "note": "38년 제빵 경력", "sources": [1, 2]},
+    {"type": "조리·재료", "note": "약 200여 종의 빵에 유산균 효종 사용해 소화 잘되게 제조", "sources": [1, 2]},
+    {"type": "간판 메뉴 지목", "note": "몽블랑 페스츄리, 승학산 눈꽃빵이 대표", "sources": [1]},
+    {"type": "분위기·전망", "note": "유럽식 건물, 샹들리에 조명, 붉은 벽돌의 은은한 분위기", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 38,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["몽블랑 페스츄리", "승학산 눈꽃빵"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

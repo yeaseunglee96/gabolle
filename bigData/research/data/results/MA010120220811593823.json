@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220811593823",
+  "worker": "haiku-15",
+  "researchedAt": "2026-09-08T22:44:32Z",
+  "queries": ["풍년오리박사 금정구 부산", "풍년오리박사 청룡노포동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 금정구 청룡로 40"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "연차·역사", "note": "1988년부터 운영, 31년 연구", "sources": [0] },
+    { "type": "기관 선정", "note": "백년가게 인정", "sources": [0] },
+    { "type": "간판 메뉴 지목", "note": "유황 오리, 오리 불고기", "sources": [0] },
+    { "type": "조리·재료", "note": "13가지 한약재 첨가", "sources": [0] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": "1988년",
+    "generations": null,
+    "queueing": false,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["유황 오리 불고기", "황칠 유황 오리 백숙"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "매일 10:00~22:00, 전화 051-508-4642, 범어사역 근처"
+}

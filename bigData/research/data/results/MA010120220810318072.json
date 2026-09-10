@@ -1,0 +1,34 @@
+{
+  "id": "MA010120220810318072",
+  "worker": "haiku-13",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["달타이 해운대구 부산", "달타이 중2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["망고플레이트"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "태국 음식 전문점",
+      "sources": [0]
+    },
+    {
+      "type": "메뉴 희소성",
+      "note": "부산에서 정통 태국 음식을 제공하는 식당",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["태국 음식"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "달맞이길 경치 좋은 위치에 위치"
+}

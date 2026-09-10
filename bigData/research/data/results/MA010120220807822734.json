@@ -1,0 +1,30 @@
+{
+  "id": "MA010120220807822734",
+  "worker": "haiku-59",
+  "researchedAt": "2026-09-09T08:46:00Z",
+  "queries": ["사카나식당 부산 해운대 회", "사카나식당 우동 회 초밥"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1100630", "https://polle.com/place/2wt0Zj/%EC%82%AC%EC%B9%B4%EB%82%98%EC%8B%9D%EB%8B%B9"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "동글동글 구슬초밥",
+      "sources": ["https://www.siksinhot.com/P/1100630"]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "해리단길 데이트코스, 초밥이 작고 귀여움",
+      "sources": ["https://www.siksinhot.com/P/1100630"]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "address": "부산 해운대구 우동1로 34, 2층",
+    "operatingHours": "월 휴무, 화-일 11:30-20:30 (휴시간 15:30-17:00)",
+    "lastOrder": "점심 14:50, 저녁 19:50",
+    "menu": "구슬초밥, 모츠짬뽕, 스지우동, 비프키마카레우동, 야끼소바, 가라야게, 연어샐러드"
+  },
+  "notes": "초밥이 작고 귀여운 게 특징"
+}

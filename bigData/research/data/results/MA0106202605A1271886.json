@@ -1,0 +1,27 @@
+{
+  "id": "MA0106202605A1271886",
+  "worker": "haiku-30",
+  "researchedAt": "2026-09-09T11:19:00Z",
+  "queries": ["동래갈비 동래구 부산", "동래갈비 수민동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 동래구 명륜로63번길 5"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "메뉴 희소성", "note": "돼지갈비 전문", "sources": [0, 1] },
+    { "type": "가격·가성비", "note": "가성비 좋은 돼지갈비", "sources": [1] },
+    { "type": "현지인 지지", "note": "동래 인기 맛집", "sources": [1] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": false,
+    "parking": false,
+    "audience": "local",
+    "signatureDishes": ["돼지갈비"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

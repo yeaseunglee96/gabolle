@@ -1,0 +1,22 @@
+{
+  "id": "MA0106202605A0044474",
+  "worker": "haiku-52",
+  "researchedAt": "2026-09-09T14:51:30Z",
+  "queries": ["엑스트라마일 수영구 부산", "엑스트라마일 광안2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=t8V54qJxIqiT"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "피자와 파스타 전문", "sources": [0]},
+    {"type": "분위기·전망", "note": "분위기 좋은 데이트 맛집", "sources": [0]},
+    {"type": "플랫폼 순위·평점", "note": "다이닝코드에서 높은 평점", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["피자", "파스타"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "최근 오픈한 깔끔한 곳"
+}

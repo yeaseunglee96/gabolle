@@ -1,0 +1,22 @@
+{
+  "id": "MA0101202311A0043141",
+  "worker": "haiku-72",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["문범초밥 부전동 부산", "문범초밥 초밥 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://m.alba.co.kr/job/JobDetail.asp?adid=135905314", "https://www.diningcode.com/profile.php?rid=4BjKCil5agGz"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "가격·가성비", "note": "회전초밥이 1,980원부터 시작하는 착한 가격", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "회전초밥 전문점, 프리미엄 접시 4,600원", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["회전초밥"],
+    "priceBand": "cheap",
+    "audience": "local"
+  },
+  "notFound": null,
+  "notes": ""
+}

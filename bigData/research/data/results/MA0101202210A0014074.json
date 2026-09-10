@@ -1,0 +1,42 @@
+{
+  "id": "MA0101202210A0014074",
+  "worker": "haiku-50",
+  "researchedAt": "2026-09-09T05:35:00Z",
+  "queries": ["오버두 해운대 부산", "오버두 중1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.diningcode.com/profile.php?rid=62nZU6BrThHf",
+    "http://localmap.co.kr/web/splus/kmap/view.php?sigun=6260000&gugun=3330000&keyno=126&keyname=%EC%98%A4%EB%B2%84%EB%91%90(Overdo)&keylink=3330000-101-2022-00419"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "해변 근처의 힙한 분위기와 좋은 음악",
+      "sources": [0, 1]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "펍과 칵테일 전문 바",
+      "sources": [0]
+    },
+    {
+      "type": "플랫폼 순위·평점",
+      "note": "다이닝코드, 로컬맵 등에 등재",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["칵테일", "맥주"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": ""
+}

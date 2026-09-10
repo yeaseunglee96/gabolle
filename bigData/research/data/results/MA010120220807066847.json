@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220807066847",
+  "worker": "haiku-53",
+  "researchedAt": "2026-09-09T06:40:00Z",
+  "queries": ["이에이치육 해운대 부산", "이에이치육 초밥 회", "징기스 해운대 우동"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "이에이치육은 양고기 전문점 징기스를 운영하며, 일식 회/초밥 가게가 아님",
+  "notes": "데이터 카테고리는 일식 회/초밥이나 실제 이에이치육은 몽골리안 양고기 구이(징기스)를 운영하는 업체"
+}

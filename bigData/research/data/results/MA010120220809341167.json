@@ -1,0 +1,25 @@
+{
+  "id": "MA010120220809341167",
+  "worker": "haiku-11",
+  "researchedAt": "2026-09-09T00:15:00Z",
+  "queries": ["파인그로브 기장 부산", "파인그로브 일광읍 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 기장군 일광읍 문오성길 299"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "분위기·전망", "note": "영국식 건축물에 웅장한 소나무가 특징인 분위기 좋은 레스토랑", "sources": [0, 1] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["보타르가 파스타", "마르게리타 피자"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": ""
+}

@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220810514022",
+  "worker": "haiku-19",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["꿀꿀이감자탕 해운대구 부산", "꿀꿀이감자탕 좌3동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://dinnerqueen.net/taste/1458465", "https://www.keyzard.cc/rpretty90/nb/223981452486"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "감자탕, 돼지국밥 등 국밥 전문",
+      "sources": [0]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "작은 감자탕 25,000원 저렴한 가격",
+      "sources": [0]
+    },
+    {
+      "type": "곁들임·차림",
+      "note": "감자탕, 돼지국밥, 뼈다귀탕, 내장국밥, 순대국밥, 갈비탕 다양한 메뉴",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": false,
+    "audience": "mixed",
+    "signatureDishes": ["감자탕", "돼지국밥"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

@@ -1,0 +1,53 @@
+{
+  "id": "MA0101202211A0072682",
+  "worker": "haiku-65",
+  "researchedAt": "2026-09-09T22:32:13.351Z",
+  "queries": [
+    "웨이드 남구 대연동 부산",
+    "웨이드 황령대로 경양식"
+  ],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.diningcode.com/profile.php?rid=1t7100vHDdsw"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "동네·시장 지목",
+      "note": "부경대/경성대 인근 대학가 위치",
+      "sources": [
+        0
+      ]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "닭발, 조개찜 전문",
+      "sources": [
+        0
+      ]
+    },
+    {
+      "type": "운영·접근 편의",
+      "note": "오래 운영되는 대학가 술집",
+      "sources": [
+        0
+      ]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "young-adults",
+    "signatureDishes": [
+      "닭발",
+      "조개찜"
+    ],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "영업시간 12:00-24:00, Instagram @wayd_bar"
+}

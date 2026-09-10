@@ -1,0 +1,45 @@
+{
+  "id": "MA0101202511A0004215",
+  "worker": "haiku-65",
+  "researchedAt": "2026-09-09T22:32:13.352Z",
+  "queries": [
+    "블러드문 부산진구 부전동",
+    "블러드문 부산 경양식"
+  ],
+  "found": true,
+  "confidence": "medium",
+  "sources": [
+    "https://maidmap.net/cafe/%EB%B8%94%EB%9F%AC%EB%93%9C%EB%AC%B8"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "뱀파이어 집사카페 컨셉의 독특한 분위기",
+      "sources": [
+        0
+      ]
+    },
+    {
+      "type": "메뉴 희소성",
+      "note": "메이드 컨셉 카페, 스케줄 확인 필요",
+      "sources": [
+        0
+      ]
+    }
+  ],
+  "newTypes": [
+    "컨셉카페"
+  ],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "young-adults",
+    "signatureDishes": [],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "영업시간 목금 16:00-22:00, 토일 13:00-22:00, 연락처 0507-1497-3468"
+}

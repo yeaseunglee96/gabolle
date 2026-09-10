@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220811473950",
+  "worker": "haiku-48",
+  "researchedAt": "2026-09-09T14:30:15+09:00",
+  "queries": ["100세낙지 해운대구 부산", "100세낙지 우1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.tabling.co.kr/place/687ee722532a6884bba58dc6", "https://www.diningcode.com/profile.php?rid=3vARQhRAzC3J", "https://www.daangn.com/kr/local-profile/100%EC%84%B8-%EB%82%99%EC%A7%80-17jti3qqmjgq/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "혼잡·수요", "note": "대기줄이 길고 인기 있는 맛집", "sources": [1]},
+    {"type": "맛 묘사", "note": "낙곱새와 낙지가 맛있다는 평가", "sources": [1]},
+    {"type": "간판 메뉴 지목", "note": "낙곱새로 알려진 전문점", "sources": [0, 1]},
+    {"type": "현지인 지지", "note": "해운대 지역 로컬 인기 낙지 전문점", "sources": [2]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": true,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["낙곱새", "낙지"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": ""
+}

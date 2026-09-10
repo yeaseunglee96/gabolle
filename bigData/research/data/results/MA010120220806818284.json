@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220806818284",
+  "worker": "haiku-47",
+  "researchedAt": "2026-09-09T12:00:00Z",
+  "queries": ["연스시 북구 부산", "연스시 구포3동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1496077", "https://www.diningcode.com/profile.php?rid=Pw5EBLU4EINo"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "가성비 좋은 연스시C(17ps 15,000원), 직화소고기 11ps", "sources": [0, 1]},
+    {"type": "맛 묘사", "note": "신선한 초밥, 연어·자연산 광어·새우 등 신선한 식재료", "sources": [0, 1]},
+    {"type": "현지인 지지", "note": "구포 지역 초밥 맛집", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["연스시C(17ps)", "직화소고기 11ps"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "영업시간 11:30-23:00 (화요일 정기휴무, 브레이크타임 15:00-16:30). 예약·포장·배달 가능"
+}

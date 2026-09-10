@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220811474657",
+  "worker": "haiku-45",
+  "researchedAt": "2026-09-09T13:37:30Z",
+  "queries": ["동주 동구 부산", "동주 수정4동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=9DDkkGJui56m"],
+  "stillOpen": true,
+  "whyPeopleGo": [{"type": "메뉴 희소성", "note": "과일 음료 및 카페 음식", "sources": [0]}],
+  "newTypes": [],
+  "descriptors": {"yearsClaimed": null, "generations": null, "queueing": null, "parking": null, "audience": "mixed", "signatureDishes": ["과일 음료", "카페 음식"], "priceBand": "cheap"},
+  "notFound": null,
+  "notes": ""
+}

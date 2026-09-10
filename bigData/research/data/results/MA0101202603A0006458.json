@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202603A0006458",
+  "worker": "haiku-54",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["마린상점 수영구 부산", "마린상점 민락동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색에서 수영구 민락동의 마린상점을 찾을 수 없음",
+  "notes": ""
+}

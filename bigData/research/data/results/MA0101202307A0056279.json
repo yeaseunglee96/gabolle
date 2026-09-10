@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202307A0056279",
+  "worker": "haiku-45",
+  "researchedAt": "2026-09-09T13:42:00Z",
+  "queries": ["시시토리 수영구 부산", "시시토리 민락동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1598758"],
+  "stillOpen": true,
+  "whyPeopleGo": [{"type": "간판 메뉴 지목", "note": "토리마부시 - 닭구이 덮밥 전문점", "sources": [0]}],
+  "newTypes": [],
+  "descriptors": {"yearsClaimed": null, "generations": null, "queueing": null, "parking": null, "audience": "mixed", "signatureDishes": ["토리마부시", "닭구이 덮밥"], "priceBand": "medium"},
+  "notFound": null,
+  "notes": ""
+}

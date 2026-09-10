@@ -1,0 +1,45 @@
+{
+  "id": "MA010120220806119308",
+  "worker": "haiku-16",
+  "researchedAt": "2026-09-08T22:53:20.996Z",
+  "queries": [
+    "스시하루 수영구 부산",
+    "스시하루 남천1동 맛집"
+  ],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.camp-gazua.com/%EB%B6%80%EC%82%B0-%EC%98%A4%EB%A7%88%EC%B9%B4%EC%84%B8-%EC%B6%94%EC%B2%9C/"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "메뉴 희소성",
+      "note": "오마카세 단일 메뉴 코스만 제공",
+      "sources": [
+        0
+      ]
+    },
+    {
+      "type": "운영·접근 편의",
+      "note": "단일 코스 시스템으로 결정 용이",
+      "sources": [
+        0
+      ]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "가능",
+    "audience": "mixed",
+    "signatureDishes": [
+      "오마카세 코스"
+    ],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": "1인 90,000원(2022년 3월부터), 코르크차지 20,000원"
+}

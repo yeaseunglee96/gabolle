@@ -1,0 +1,34 @@
+{
+  "id": "MA010120220814169358",
+  "worker": "haiku-59",
+  "researchedAt": "2026-09-09T08:03:50Z",
+  "queries": ["이와 해운대 부산", "이와 우동 회 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=t9CaNgLp0LDS", "https://guide.michelin.com/us/en/busan-region/busan_1025838/restaurant/iwa"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "기관 선정",
+      "note": "2025 미슐랭 가이드 등재 레스토랑",
+      "sources": [1]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "숙성 생선 특허 기술로 만든 오마카세·스시",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "upscale",
+    "signatureDishes": ["스시오마카세", "생선 스시"],
+    "priceBand": "high"
+  },
+  "notFound": null,
+  "notes": "월-토 12:00 ~ 22:00 (일요일 휴무). 예약제 (12:00/18:00/20:00 시간대). 바게트 호텔 2층"
+}

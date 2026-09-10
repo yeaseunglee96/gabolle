@@ -1,0 +1,27 @@
+{
+  "id": "MA0101202306A0090423",
+  "worker": "haiku-47",
+  "researchedAt": "2026-09-09T12:45:00Z",
+  "queries": ["샤브20광안리점 수영구 부산", "샤브20광안리점 남천2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1598929", "https://www.diningcode.com/profile.php?rid=DKB1ei7bIRAO", "https://www.daangn.com/kr/local-profile/%EC%83%A4%EB%B8%8C20-%EA%B4%91%EC%95%88%EB%A6%AC%EC%A0%90-g2wp4agtxsxp/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "샤브샤브 무한리필, 신선한 고기", "sources": [0, 1]},
+    {"type": "분위기·전망", "note": "바다 전망이 좋은 광안리 뷰 맛집", "sources": [1, 2]},
+    {"type": "맛 묘사", "note": "신선하고 맛있으며 깔끔한 음식", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": true,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["샤브샤브", "무한리필"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "영업시간 11:00-22:00. 웨이팅 있는 인기 가게. 5가지 국물 맛 선택 가능. 주차비 1.5시간 무료"
+}

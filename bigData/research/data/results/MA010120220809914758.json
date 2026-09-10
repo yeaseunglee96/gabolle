@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220809914758",
+  "worker": "haiku-68",
+  "researchedAt": "2026-09-10T10:12:00Z",
+  "queries": ["제주돈떵이 민락동 수영구 부산", "제주돈떵이 돼지고기 구이 맛집 부산"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색에서 수영구 민락동의 제주돈떵이 음식점을 찾을 수 없음",
+  "notes": ""
+}

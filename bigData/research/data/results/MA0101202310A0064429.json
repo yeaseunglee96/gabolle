@@ -1,0 +1,26 @@
+{
+  "id": "MA0101202310A0064429",
+  "worker": "haiku-11",
+  "researchedAt": "2026-09-09T00:36:00Z",
+  "queries": ["일미기사식당 중구 부산", "일미기사식당 부평 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 중구 흑교로 16-1"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "가격·가성비", "note": "2025 착한가격업소로 지정된 저렴하고 가성비 좋은 기사식당", "sources": [0, 1] },
+    { "type": "현지인 지지", "note": "예전 기사들 외에 요즘은 맛집으로 소문나서 일부러 찾아오는 사람들이 많은 곳", "sources": [1] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["선지국밥", "소고기국밥", "비빔밥"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "24시간 영업 (둘째주 월요일, 넷째주 일요일 휴무)"
+}

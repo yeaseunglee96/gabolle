@@ -1,0 +1,39 @@
+{
+  "id": "MA0101202510A0006366",
+  "worker": "haiku-70",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["석옥갈비 해운대 돼지", "석옥갈비 중1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=2uZZNvCYJnJX", "https://www.daangn.com/kr/local-profile/%EC%84%9D%EC%98%A5%EA%B0%88%EB%B9%84-smv1vaep7a7q/", "https://www.threads.com/@foodie_yeoni/post/Da-bfa4k4S5/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "조리·재료",
+      "note": "각 조각마다 2,125개의 칼집을 놓아 만드는 장인 정신",
+      "sources": [0]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "남해 청정 돼지생갈비와 30년 비법 흑장 양념이 특징",
+      "sources": [1]
+    },
+    {
+      "type": "메뉴 희소성",
+      "note": "생돼지갈비 전문으로 소금에 찍어먹는 기본 맛이 뛰어남",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "주차장 없음 (근처 공영주차장 이용)",
+    "audience": "mixed",
+    "signatureDishes": ["생돼지갈비", "석옥팔첩"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": "중동역 Exit 7으로 접근 가능"
+}

@@ -1,0 +1,41 @@
+{
+  "id": "MA010120220810679427",
+  "worker": "haiku-40",
+  "researchedAt": "2026-09-09T13:50:00Z",
+  "queries": ["수연횟집 강서구 부산", "수연횟집 녹산동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.diningcode.com/profile.php?rid=bG3nOEgOiS5D"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "웅어회 전문. 야들야들한 식감, 입에서 사르르 녹음",
+      "sources": [0]
+    },
+    {
+      "type": "미디어 노출",
+      "note": "KBS1 '6시 내고향' 방송 소개",
+      "sources": [0]
+    },
+    {
+      "type": "조리·재료",
+      "note": "제철 웅어와 자연산 회",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["웅어회", "자연산 모듬회"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "051-941-4609, 웅어(소/중/대) 30,000원/50,000원/70,000원"
+}

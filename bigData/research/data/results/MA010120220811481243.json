@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220811481243",
+  "worker": "haiku-17",
+  "researchedAt": "2026-09-09T09:30:30Z",
+  "queries": ["뱃길 해운대구 부산 횟집", "뱃길 재송 맛집", "\"뱃길\" 횟집 재송로"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "부산 해운대구 재송1로 79 위치의 횟집 '뱃길'을 여러 검색어로 찾았으나 해당 가게를 찾을 수 없음",
+  "notes": ""
+}

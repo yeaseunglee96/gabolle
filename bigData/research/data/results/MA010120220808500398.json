@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220808500398",
+  "worker": "haiku-30",
+  "researchedAt": "2026-09-09T10:29:00Z",
+  "queries": ["유식당 금정구 부산", "유식당 부곡4동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 금정구 동현로16번길 95"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "가격·가성비", "note": "90g에 3,500원부터 시작하는 저렴한 가격", "sources": [0, 1] },
+    { "type": "메뉴 희소성", "note": "가게에서 직접 육절기로 썬 대패삼겹살", "sources": [1] },
+    { "type": "조리·재료", "note": "신선한 국내산 고기 사용", "sources": [0, 1] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": false,
+    "parking": true,
+    "audience": "local",
+    "signatureDishes": ["대패삼겹살"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

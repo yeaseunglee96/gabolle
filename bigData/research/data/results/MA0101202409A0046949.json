@@ -1,0 +1,44 @@
+{
+  "id": "MA0101202409A0046949",
+  "worker": "haiku-34",
+  "researchedAt": "2026-09-09T07:00:00Z",
+  "queries": ["용나베 회 초밥 부산", "용나베 고관로 부산 일식"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=k2GcRlwfOok2", "https://www.daangn.com/kr/local-profile/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "용나베(nabeyaki) 전문점",
+      "sources": [0]
+    },
+    {
+      "type": "메뉴 희소성",
+      "note": "curry katsu, cheese egg roll 등 다양한 일식 메뉴 제공",
+      "sources": [0]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "1인 용나베 13,800원부터 합리적인 가격대",
+      "sources": [0]
+    },
+    {
+      "type": "운영·접근 편의",
+      "note": "무료 건물 주차, WiFi 제공",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "free building parking",
+    "audience": "mixed",
+    "signatureDishes": ["용나베", "curry katsu", "cheese egg roll"],
+    "priceBand": "medium"
+  },
+  "notFound": null,
+  "notes": "건물 안에 위치하여 찾기가 다소 어려울 수 있음"
+}

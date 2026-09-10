@@ -1,0 +1,17 @@
+{
+  "id": "MA010120220803237442",
+  "worker": "haiku-67",
+  "researchedAt": "2026-09-09T22:40:00.000Z",
+  "queries": ["옵서예수제도너츠 수영구"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1062058"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "메뉴 희소성", "note": "홈메이드 도넛 전문", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {"signatureDishes": ["도넛", "감자크로켓"], "priceBand": "cheap"},
+  "notFound": null,
+  "notes": "빵/도넛. 옵서예. 09:30~19:00 영업."
+}

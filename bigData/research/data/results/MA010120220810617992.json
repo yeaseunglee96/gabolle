@@ -1,0 +1,30 @@
+{
+  "id": "MA010120220810617992",
+  "worker": "haiku-8",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["신선식당 동구 부산 백반", "신선식당 범일동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산 동구 조방로49번길 13"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "맛 묘사", "note": "고소한 생선구이와 신선한 알탕", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "생선구이와 알탕 전문", "sources": [0, 1]},
+    {"type": "가격·가성비", "note": "착한 가격으로 여러 종류의 생선구이와 국을 함께 제공", "sources": [0, 1]},
+    {"type": "곁들임·차림", "note": "한 번 주문하면 여러 종류의 생선구이와 동태탕까지 더해져 푸짐한 구성", "sources": [1]},
+    {"type": "현지인 지지", "note": "범일동의 전설적인 로컬 맛집, 한 번이 아닌 여러 번 가는 곳", "sources": [0, 1]},
+    {"type": "동네·시장 지목", "note": "범일동 대표 생선구이집", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "locals",
+    "signatureDishes": ["생선구이", "알탕"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

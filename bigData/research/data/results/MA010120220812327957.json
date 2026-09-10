@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220812327957",
+  "worker": "haiku-21",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["요이남 연제구 부산", "요이남 연산동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "카페 게시글에서만 단편적으로 언급되었으나 구체적인 가게정보를 찾을 수 없음",
+  "notes": ""
+}

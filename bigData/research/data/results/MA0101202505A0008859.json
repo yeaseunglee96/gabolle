@@ -1,0 +1,34 @@
+{
+  "id": "MA0101202505A0008859",
+  "worker": "haiku-59",
+  "researchedAt": "2026-09-09T07:54:15Z",
+  "queries": ["쿠시노아광안리점 수영구 부산", "쿠시노아광안리점 민락 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.daangn.com/kr/local-profile/%EC%BF%A0%EC%8B%9C%EB%85%B8%EC%95%84-%EA%B4%91%EC%95%88%EB%A6%AC%EC%A0%90-bzeafmxnbcbu/", "https://www.instagram.com/kusinoa6638/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "맛 묘사",
+      "note": "오마카세와 가이세키 일본 정식 요리",
+      "sources": [0]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "현지인들이 찾는 오마카세 전문점",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["오마카세", "가이세키"],
+    "priceBand": "high"
+  },
+  "notFound": null,
+  "notes": "광안리·민락동 지역의 고급 일식 오마카세 전문점. 당근 동네 업체로 등록되어 지역 커뮤니티에서 활동 중"
+}

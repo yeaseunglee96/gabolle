@@ -1,0 +1,25 @@
+{
+  "id": "MA010120220811473654",
+  "worker": "haiku-11",
+  "researchedAt": "2026-09-09T00:05:00Z",
+  "queries": ["경북횟집 해운대 부산", "경북횟집 중1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 해운대구 달맞이길62번길 28"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "맛 묘사", "note": "신선하고 숙성된 회를 상추, 깻잎, 미역, 김치와 함께 먹는 독특한 방식의 횟집", "sources": [0, 1] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["숙성회 세트", "한마리", "광어"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": ""
+}

@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220811604122",
+  "worker": "haiku-47",
+  "researchedAt": "2026-09-09T10:30:00Z",
+  "queries": ["헬로인디아알와하 해운대구 부산", "헬로인디아알와하 중1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.tripadvisor.com/Restaurant_Review-g297884-d7738154-Reviews-Hello_India_Al_Waha-Busan.html", "https://www.trazy.com/spot/3179/hello-india-al-waha-%ED%97%AC%EB%A1%9C-%EC%9D%B8%EB%94%94%EC%95%84-%EC%95%8C%EC%99%80%ED%95%98-restaurant-cafe", "https://english.visitkorea.or.kr/svc/contents/infoHtmlView.do?vcontsId=138341"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "미디어 노출", "note": "TripAdvisor에서 부산 전체 4178개 식당 중 49위로 평가", "sources": [0]},
+    {"type": "간판 메뉴 지목", "note": "인도 및 중동 요리의 결합", "sources": [0, 1]},
+    {"type": "메뉴 희소성", "note": "부산에서 드문 인도·중동 음식 조합을 제공하는 지점", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["인도 커리", "중동 요리"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "해운대 관광 정보 사이트에 등록된 가게"
+}

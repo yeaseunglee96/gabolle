@@ -1,0 +1,34 @@
+{
+  "id": "MA010120220814189408",
+  "worker": "haiku-18",
+  "researchedAt": "2026-09-09T10:05:00Z",
+  "queries": ["쉐프리 해운대구 부산", "쉐프리 우1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 해운대구 해운대해변로209번길 13"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "조리·재료",
+      "note": "이태리 정통 파스타와 피자를 재료와 조리법에 신경써서 준비",
+      "sources": [0]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "바게트호텔 3층에 위치해 해변 분위기를 즐길 수 있음",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["파스타", "피자"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": ""
+}

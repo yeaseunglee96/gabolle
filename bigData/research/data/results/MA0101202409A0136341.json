@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202409A0136341",
+  "worker": "haiku-59",
+  "researchedAt": "2026-09-09T07:58:45Z",
+  "queries": ["이지에디 해운대구 부산", "이지에디 해운대 빵 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "해당 이름의 식당이 웹 검색 결과에 나타나지 않음. 다이닝코드, 식신 등 주요 플랫폼에서 발견 불가",
+  "notes": "빵/도넛 카테고리로 등록. 해운대의 다른 빵집들(자연도, 옵스, 빵다무르 등)은 검색되나 '이지에디'는 미확인"
+}

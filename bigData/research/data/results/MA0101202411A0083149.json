@@ -1,0 +1,25 @@
+{
+  "id": "MA0101202411A0083149",
+  "worker": "haiku-11",
+  "researchedAt": "2026-09-09T00:35:00Z",
+  "queries": ["지라솔레 수영 부산", "지라솔레 광안 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 수영구 광남로 120"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "분위기·전망", "note": "광안리에서 이탈리아의 감성을 가득 담은 레스토랑", "sources": [1] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": [],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": ""
+}

@@ -1,0 +1,37 @@
+{
+  "id": "MA010120220810459201",
+  "worker": "haiku-3",
+  "researchedAt": "2026-09-08T16:55:36.224Z",
+  "queries": ["18번완당집 남포동 부산", "18번완당집 비프광장로 남포"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.siksinhot.com/P/256289",
+    "https://www.diningcode.com/profile.php?rid=fF2T2HuRtSXD"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "얇은 만두 껍질의 완당 전문점",
+      "sources": [0, 1]
+    },
+    {
+      "type": "맛 묘사",
+      "note": "콩나물과 완당 만두 고기, 얇은 만두 피의 조화",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": false,
+    "audience": null,
+    "signatureDishes": ["완당", "김밥", "김치김밥"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": ""
+}

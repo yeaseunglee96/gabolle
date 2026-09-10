@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220812406174",
+  "worker": "haiku-53",
+  "researchedAt": "2026-09-09T16:14:00Z",
+  "queries": ["파전한닭 광안해변로", "파전한닭 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1407252"],
+  "stillOpen": true,
+  "whyPeopleGo": [{"type": "간판 메뉴 지목", "note": "닭갈비, 순살 소금구이", "sources": [0]}],
+  "newTypes": [],
+  "descriptors": {"signatureDishes": ["닭갈비", "순살 소금구이", "파전한닭"]},
+  "notFound": null,
+  "notes": "카테고리는 전/부침개로 기록되었으나 실제로는 닭 요리 전문점. 광남로 256 또는 광안해변로277번길 10 위치. 운영시간 12:00-22:00"
+}

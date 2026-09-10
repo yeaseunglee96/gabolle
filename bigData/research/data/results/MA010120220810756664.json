@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220810756664",
+  "worker": "haiku-35",
+  "researchedAt": "2026-09-09T02:10:44.184Z",
+  "queries": ["한경 북구 부산 초밥", "한경 덕천2동 맛집", "한경 덕천 초밥"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "3회 검색했으나 웹에서 찾을 수 없음",
+  "notes": ""
+}

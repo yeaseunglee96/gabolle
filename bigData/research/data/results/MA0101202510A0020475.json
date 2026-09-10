@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202510A0020475",
+  "worker": "haiku-43",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["골목돼지 사상구 부산", "골목돼지 덕포동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색 결과에서 덕포2동 주소의 골목돼지에 대한 구체적인 정보를 찾을 수 없음",
+  "notes": ""
+}

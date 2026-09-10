@@ -1,0 +1,32 @@
+{
+  "id": "MA010120220813775539",
+  "worker": "haiku-22",
+  "researchedAt": "2026-09-09T01:16:30.000Z",
+  "queries": ["잇쇼우안 금정구 부산", "잇쇼우안 장전1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.siksinhot.com/P/1102619",
+    "https://triple.guide/restaurants/a99a0124-0d7b-47f5-a0a1-a29f9c2a8dc2",
+    "https://www.daangn.com/kr/local-profile/mi1x2e1pknft/",
+    "https://www.diningcode.com/profile.php?rid=OeOrNKxKZUx1"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "큐브 스테이크·명란 파스타 전문", "sources": [0, 1]},
+    {"type": "분위기·전망", "note": "부산대 앞 따뜻한 분위기의 공간", "sources": [0, 1]},
+    {"type": "현지인 지지", "note": "부산대 학생 많이 방문", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "student",
+    "signatureDishes": ["큐브 스테이크", "하네시타 스테이크", "명란로제파스타", "명란오일파스타"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "평일·주말 11:00~21:00 (브레이크타임 있음, 라스트오더 20:30), 부산대학로50번길 40"
+}

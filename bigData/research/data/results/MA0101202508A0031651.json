@@ -1,0 +1,25 @@
+{
+  "id": "MA0101202508A0031651",
+  "worker": "haiku-69",
+  "researchedAt": "2026-09-10T00:11:00Z",
+  "queries": ["카츠하코 부산진구", "카츠하코 전포동"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://www.daangn.com/kr/community/%EC%A0%84%ED%8F%AC%EB%8F%99-%EC%B9%B4%EC%B8%A0%ED%95%98%EC%BD%94-%EB%8B%AD%EC%95%88%EC%8B%AC%EA%B0%80%EC%B8%A0-kbiio4ken8nc/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "닭안심가츠 전문", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["닭안심가츠"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "카츠 전문점"
+}

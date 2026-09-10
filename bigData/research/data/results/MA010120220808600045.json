@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220808600045",
+  "worker": "haiku-41",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["파스타흔 강서구 부산", "파스타흔 명지2동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "검색에서 강서구 명지2동의 파스타흔을 찾을 수 없음. 사하구 괴정동의 파스타흔은 검색되었으나 위치가 다름",
+  "notes": ""
+}

@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220813701944",
+  "worker": "haiku-17",
+  "researchedAt": "2026-09-09T09:38:30Z",
+  "queries": ["양미가 남구 부산 경양식", "양미가 문현 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=2mbjvTWuS3eJ"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "양고기와 양갈비를 전문으로 한다", "sources": [0]},
+    {"type": "조리·재료", "note": "양꼬치와 양갈비의 신선한 맛이 특징이다", "sources": [0]},
+    {"type": "메뉴 희소성", "note": "양고기 레스토랑으로 다른 고기집과 차별화된다", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["양갈비", "양등심", "양꼬치", "떡국"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": ""
+}

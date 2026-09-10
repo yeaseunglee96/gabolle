@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220809703645",
+  "worker": "haiku-59",
+  "researchedAt": "2026-09-09T07:53:31Z",
+  "queries": ["금토가든 수영구 부산", "금토가든 광안 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "해당 이름의 식당이 웹 검색 결과에 나타나지 않음. 광안리 맛집 Top 100, 다이닝코드 등에서도 발견 불가",
+  "notes": "돼지고기 구이/찜 카테고리로 등록. 광안 지역의 유명 맛집들(다자, 천지식당 등)은 검색되나 해당 가게명은 미확인"
+}

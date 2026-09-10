@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202509A0034667",
+  "worker": "haiku-54",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["드레 수영구 부산", "드레 민락동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.daangn.com/kr/local-profile/%EB%AA%B0%ED%8A%B8%EB%B0%94-%EB%93%9C%EB%A0%88-qsd7z9wq6ngd/"],
+  "stillOpen": true,
+  "whyPeopleGo": [{"type": "분위기·전망", "note": "바다를 보며 혼술하기 편안한 공간", "sources": [0]}],
+  "newTypes": [],
+  "descriptors": {"yearsClaimed": null, "generations": null, "queueing": null, "parking": null, "audience": "mixed", "signatureDishes": [], "priceBand": null},
+  "notFound": null,
+  "notes": "몰트바 (위스키·칵테일·맥주 판매점, 음식점 아님)"
+}

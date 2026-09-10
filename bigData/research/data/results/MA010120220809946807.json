@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220809946807",
+  "worker": "haiku-35",
+  "researchedAt": "2026-09-09T02:10:44.184Z",
+  "queries": ["암소가 부산진구 부산", "암소가 당감1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["식신", "다이닝코드", "망고플레이트", "뽈레", "로컬맵"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "현지인 지지", "note": "당감동에서 잘나가는 현지인 맛집, 동네 사람들이 자주 찾는 소고기집", "sources": [1]},
+    {"type": "조리·재료", "note": "한우만 전문으로 사용하며, 한우 투뿔만 사용해서 신선한 고기 보장", "sources": [0]},
+    {"type": "간판 메뉴 지목", "note": "한우갈비살1++, 한우양념갈비살1++ 대표메뉴", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "있음",
+    "audience": "local",
+    "signatureDishes": ["한우갈비살1++", "한우양념갈비살1++"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": "연락처: 051-891-5337"
+}

@@ -1,0 +1,36 @@
+{
+  "id": "MA010120220810774501",
+  "worker": "haiku-2",
+  "researchedAt": "2026-09-08T16:43:11.248Z",
+  "queries": ["재민국밥 동래구 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.diningcode.com/profile.php?rid=GTNLCXfga1yP"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "맛 묘사",
+      "note": "구수한 맛의 돼지국밥과 수육백반",
+      "sources": [0]
+    },
+    {
+      "type": "연차·역사",
+      "note": "34년 전통의 동래시장 노포",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 34,
+    "generations": null,
+    "queueing": null,
+    "parking": false,
+    "audience": "local",
+    "signatureDishes": ["돼지국밥", "수육백반"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "동래시장 골목, 수안역 도보 3분"
+}

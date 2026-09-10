@@ -1,0 +1,19 @@
+{
+  "id": "MA0101202511A0027890",
+  "worker": "haiku-54",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["하모 수영구 부산", "하모 민락동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/383573", "https://www.daangn.com/kr/local-profile/%ED%95%98%EB%AA%A8%ED%9A%9F%EC%A7%91-rnfd8yktkyzi/", "https://polle.com/place/4LvAnF/%ED%95%98%EB%AA%A8%ED%9A%9F%EC%A7%91"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "하모 샤브샤브(5월~10월), 새조개 샤브샤브(1월~4월) 전문", "sources": [0, 1, 2]},
+    {"type": "조리·재료", "note": "경남 고성에서 직접 가져온 수출용 갯장어, 여수에서 채취한 살아있는 새조개", "sources": [1, 2]},
+    {"type": "메뉴 희소성", "note": "일본에서 최고 하모요로 취급하는 특별한 요리", "sources": [1, 2]}
+  ],
+  "newTypes": [],
+  "descriptors": {"yearsClaimed": null, "generations": null, "queueing": null, "parking": null, "audience": "mixed", "signatureDishes": ["하모 샤브샤브", "하모회", "새조개 샤브샤브"], "priceBand": "expensive"},
+  "notFound": null,
+  "notes": "전화 051-757-0205, 12:00~21:00 운영, 4~12월 하모 샤브샤브 1인 50,000원부터, 하모회(대) 150,000원부터"
+}

@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220814150399",
+  "worker": "haiku-38",
+  "researchedAt": "2026-09-09T16:00:00Z",
+  "queries": ["대원식품 부산", "대원식품 신평2동"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "대원식품은 식품 제조업체(어업회사법인)로서 일반 공개 음식점이 아닌 것으로 보인다. 신평2동 소재의 구내식당에 대한 정보는 찾을 수 없었다.",
+  "notes": ""
+}

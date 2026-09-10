@@ -1,0 +1,34 @@
+{
+  "id": "MA0101202409A0169044",
+  "worker": "haiku-57",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["브런치소보 민락로 부산", "브런치소보 민락동"],
+  "found": true,
+  "confidence": "high",
+  "sources": [],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "크림소스 파스타, 소보 브런치 전문",
+      "sources": []
+    },
+    {
+      "type": "서비스·사람",
+      "note": "친절한 서비스, 깔끔한 음식 담음새",
+      "sources": []
+    },
+    {
+      "type": "운영·접근 편의",
+      "note": "애견동반 가능(가방/캐리어 필수)",
+      "sources": []
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["크림소스 파스타", "소보 브런치"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "다이닝코드 리스팅, 08:30-16:00 영업(라스트오더 15:30), 테이크아웃 가능, Wi-Fi 제공, 예약 필수, 주차 불편"
+}

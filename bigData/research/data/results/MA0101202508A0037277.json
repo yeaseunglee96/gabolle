@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202508A0037277",
+  "worker": "haiku-34",
+  "researchedAt": "2026-09-09T06:27:00Z",
+  "queries": ["태화담 빵 도넛 부산", "태화담 개금3동 베이커리", "태화담 베이커리 부산 블로그"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "3번의 검색으로도 음식점 정보를 찾을 수 없음. 부산의 일반 베이커리 정보와 태화 시장만 검색 결과에 나옴",
+  "notes": ""
+}

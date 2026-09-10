@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220811437183",
+  "worker": "haiku-9",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["이하정간장게장 수영구", "이하정간장게장 광안3동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["siksinhot.com", "diningcode.com"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "미디어 노출",
+      "note": "TV프로그램 먹거리X파일에서 착한식당으로 선정",
+      "sources": [0, 1]
+    },
+    {
+      "type": "조리·재료",
+      "note": "화학조미료·설탕·물엿 미사용, 전통비법 간장 사용",
+      "sources": [0, 1]
+    },
+    {
+      "type": "메뉴 희소성",
+      "note": "간장게장이 핵심 메뉴, 화학첨가물 없는 친환경 음식",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "local",
+    "signatureDishes": ["간장게장"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "수영역 근처. 짜지 않아 맛있는 간장게장으로 유명"
+}

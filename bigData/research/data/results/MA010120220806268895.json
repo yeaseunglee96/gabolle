@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220806268895",
+  "worker": "haiku-61",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["유메이 수영구 부산", "유메이 수영동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.114.co.kr/search/detail?comp_id=11948790&comp_tp_cd=GOV&godata_tp_cd=LOCALDATA", "http://localmap.co.kr/web/splus/kmap/view.php?sigun=6260000&gugun=3380000&keyno=126&keyname=%EC%9C%A0%EB%A9%94%EC%9D%B4&keylink=3380000-101-2022-00111"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "분위기·전망", "note": "현대적 일식 인테리어", "sources": [0]},
+    {"type": "맛 묘사", "note": "이자카야식 음식과 음료, 품질 좋은 요리", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["모찌 토우푸", "이자카야 요리"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "2022년 5월 25일 오픈, 전화 051-752-8557"
+}

@@ -1,0 +1,25 @@
+{
+  "id": "MA010120220810278351",
+  "worker": "haiku-33",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["백마 금정구 부산", "백마 부곡2동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://www.tripadvisor.co.kr/Restaurant_Review-g297884-d15692699-Reviews-Baek_Ma_Pork_Ribs-Busan.html"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "돼지갈비 전문", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": null,
+    "signatureDishes": ["돼지갈비"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "Tripadvisor 평점 높음"
+}

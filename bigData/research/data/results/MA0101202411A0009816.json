@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202411A0009816",
+  "worker": "haiku-31",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["브레도 영도구 부산", "브레도 동삼1동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "경양식 음식점으로 표시되었으나 웹 검색에서 구체적인 영업정보 미확인",
+  "notes": ""
+}

@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220810691869",
+  "worker": "haiku-46",
+  "researchedAt": "2026-09-09T12:50:00Z",
+  "queries": ["웅천집 북구 부산 횟집", "웅천집 향어회 블로그"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=HOWgLryhjDeI", "https://polle.com/place/4GkVVn/%EC%9B%85%EC%B2%9C%EC%A7%91"],
+  "stillOpen": true,
+  "whyPeopleGo": [{"type": "연차·역사", "note": "1965년부터 운영된 전통 횟집", "sources": [0]}, {"type": "간판 메뉴 지목", "note": "향어회가 대표 메뉴", "sources": [1]}],
+  "newTypes": [],
+  "descriptors": {"yearsClaimed": 59, "generations": null, "queueing": null, "parking": null, "audience": "mixed", "signatureDishes": ["향어회", "장어구이", "메기매운탕"], "priceBand": "mid"},
+  "notFound": null,
+  "notes": ""
+}

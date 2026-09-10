@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220812869704",
+  "worker": "haiku-64",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["365일 경양식 수영구 부산", "365일 남천1동 부산", "\"365일\" 남천 경양식", "\"365일\" 황령대로 남천1동"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색으로 찾을 수 없음. 황령대로 481번길 남천1동 경양식 '365일'의 정보 및 후기가 없음.",
+  "notes": ""
+}

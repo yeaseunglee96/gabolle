@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220813699465",
+  "worker": "haiku-12",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["원조조방낙지 동래구 부산", "원조조방낙지 명륜동 낙지"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/263604", "https://www.diningcode.com/profile.php?rid=ocACxHQijDE6"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "연차·역사", "note": "40년 이상 전통의 낙지 전문점", "sources": [0, 1]},
+    {"type": "미디어 노출", "note": "백종원의 3대천왕 출연 - 3세대 낙곱새 전문점으로 소개됨", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "낙곱새(낙지·곱창·새우) - 시그니처 요리로 재료를 선택 추가 가능", "sources": [0, 1]},
+    {"type": "플랫폼 순위·평점", "note": "식신, 다이닝코드, 마켓컬리 등 주요 플랫폼에 소개됨", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 40,
+    "generations": 3,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["낙곱새", "낙지", "조방낙지"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

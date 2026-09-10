@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220810448031",
+  "worker": "haiku-13",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["함흥보쌈 영도구 부산", "함흥보쌈 영선1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["테이블링", "다이닝코드", "Instagram"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "보쌈과 사계절냉면 전문",
+      "sources": [0, 1]
+    },
+    {
+      "type": "연차·역사",
+      "note": "백년가게로 오래된 전통 식당",
+      "sources": [0]
+    },
+    {
+      "type": "서비스·사람",
+      "note": "친절한 사장과 직원, 푸짐한 반찬",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["맛보기 수육", "보쌈정식", "냉면곡배기"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "테이블링 예약 가능, 배달/포장 서비스"
+}

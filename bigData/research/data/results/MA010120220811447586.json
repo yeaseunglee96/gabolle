@@ -1,0 +1,47 @@
+{
+  "id": "MA010120220811447586",
+  "worker": "haiku-3",
+  "researchedAt": "2026-09-08T16:50:34.053Z",
+  "queries": ["상국이네 해운대구 부산", "상국이네 센텀 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.siksinhot.com/P/257005",
+    "https://www.diningcode.com/profile.php?rid=KtaruW7xCpnF"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "부산 전통의 고추장 가래떡 떡볶이로 유명",
+      "sources": [0, 1]
+    },
+    {
+      "type": "맛 묘사",
+      "note": "쫀득한 쌀떡에 달작지근하면서도 살짝 매콤한 양념",
+      "sources": [1]
+    },
+    {
+      "type": "운영·접근 편의",
+      "note": "신세계백화점 센텀시티 내 위치로 주차 편리하고 쇼핑 전후로 간단히 먹기 좋음",
+      "sources": [1]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "가성비가 좋고 세트메뉴 옵션 있음",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": "long",
+    "parking": "easy",
+    "audience": "mixed",
+    "signatureDishes": ["떡볶이", "순대", "꼬마김밥"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

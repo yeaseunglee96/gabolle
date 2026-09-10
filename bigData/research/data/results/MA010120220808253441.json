@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220808253441",
+  "worker": "haiku-71",
+  "researchedAt": "2026-09-10T12:07:00Z",
+  "queries": ["티그히그 수영구 부산", "티그히그 광안2동 맛집", "티그히그 부산 한정식", "티그히그 광안리"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색 결과에서 부산 수영구 광안2동 수영로554번가길의 '티그히그'에 대한 정보를 찾을 수 없음",
+  "notes": ""
+}

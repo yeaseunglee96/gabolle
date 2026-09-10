@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220811575262",
+  "worker": "haiku-7",
+  "researchedAt": "2026-09-08T22:09:18Z",
+  "queries": ["고마대구탕 수영구 부산", "고마대구탕 남천2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=uejVvbW3y8dp", "https://www.youtube.com/watch?v=cJ0sbPfv2uo"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "맛 묘사", "note": "시원하고 속 풀리는 국물맛, 부드러운 대구살", "sources": [0]},
+    {"type": "분위기·전망", "note": "광안리해수욕장 맞은편, 남천공원 인근 위치", "sources": [1]},
+    {"type": "운영·접근 편의", "note": "조식 인기 맛집, 이른 아침부터 손님으로 가득 참", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "office_workers",
+    "signatureDishes": ["대구탕", "대구찜"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "광안리해변 남천공원 맞은편. 07:00~21:00 연중무휴. 지하철 2호선 금련산역 인근."
+}

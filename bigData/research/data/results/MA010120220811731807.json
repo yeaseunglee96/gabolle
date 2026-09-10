@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220811731807",
+  "worker": "haiku-15",
+  "researchedAt": "2026-09-08T22:36:37Z",
+  "queries": ["무슈뱅상 수영구 부산", "무슈뱅상 남천2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 수영구 광남로48번길 19"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "메뉴 희소성", "note": "프랑스 바게트 전문, 견과류 바게트 '바통'으로 유명", "sources": [0] },
+    { "type": "간판 메뉴 지목", "note": "바게트, 특히 견과류 바통", "sources": [0] },
+    { "type": "혼잡·수요", "note": "주말 오픈 2시간 안에 빵이 품절", "sources": [0] },
+    { "type": "운영·접근 편의", "note": "금련산역 근처, 11:00~21:00 영업", "sources": [0] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": true,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["바게트", "바통"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "월요일 휴무, 하드계열 빵 전문, 테이크아웃 가능"
+}

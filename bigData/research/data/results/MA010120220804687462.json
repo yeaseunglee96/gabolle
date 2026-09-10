@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220804687462",
+  "worker": "haiku-62",
+  "researchedAt": "2026-09-10T12:09:00Z",
+  "queries": ["중앙횟집 송정해변 해운대", "중앙횟집 송정 횟집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/367881", "https://www.diningcode.com/profile.php?rid=RPNxbCMnK2Oh"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "조리·재료", "note": "신선한 회가 일품, 회 두께와 선도가 좋음", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "모둠회 전문", "sources": [1]},
+    {"type": "분위기·전망", "note": "3층 넓은 공간과 룸으로 쾌적한 환경", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["모둠회"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "뒤쪽에 전용 주차장 있음"
+}

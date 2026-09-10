@@ -1,0 +1,39 @@
+{
+  "id": "MA0101202510A0008274",
+  "worker": "haiku-70",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["워킹홀리데이 민락 수영구 부산", "워킹홀리데이 민락동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=VDG2yp6TwnMr", "https://kr.trip.com/moments/detail/busan-432-124292205/", "https://www.threads.com/@_all__ure/post/DXbxzGSE_Lt/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "광안리 오션뷰와 광안대교가 한눈에 보이는 감성 있는 카페",
+      "sources": [1]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "이탈리아 피자와 플랫화이트 전문 카페",
+      "sources": [0]
+    },
+    {
+      "type": "운영·접근 편의",
+      "note": "반려견 동반 가능한 오션뷰 카페",
+      "sources": [2]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "주차 불가",
+    "audience": "mixed",
+    "signatureDishes": ["이탈리아 피자", "플랫화이트"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "경양식 카테고리이지만 실제로는 카페/브런치 식당"
+}

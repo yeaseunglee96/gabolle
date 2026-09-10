@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220805051810",
+  "worker": "haiku-7",
+  "researchedAt": "2026-09-08T22:09:18Z",
+  "queries": ["풍성돼지국밥 부산진구 부산", "풍성돼지국밥 부전2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://kr.trip.com/moments/detail/busan-432-11520541/", "https://www.diningcode.com/profile.php?rid=n50UX4vk2Nt9", "https://www.tabling.co.kr/place/677cd56966de5f06988f2953"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "맛 묘사", "note": "부드럽고 살살 녹는 수육과 깊고 담백한 육수", "sources": [1]},
+    {"type": "곁들임·차림", "note": "밥과 소면이 무한리필되는 셀프바 운영", "sources": [1]},
+    {"type": "동네·시장 지목", "note": "부산 서면 돼지국밥 맛집으로 알려짐", "sources": [0]},
+    {"type": "운영·접근 편의", "note": "전포역 인근으로 접근성 우수", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": false,
+    "audience": "mixed",
+    "signatureDishes": ["돼지국밥"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "서면/전포동 인근. 09:00~21:00 영업. 화요일 정기휴무. 아담한 내부 시설. 인근 주차 이용."
+}

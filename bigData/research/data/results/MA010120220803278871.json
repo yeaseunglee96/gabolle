@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220803278871",
+  "worker": "haiku-12",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["탐복 기장군 부산 횟집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://curling-chef.com/33/?bmode=view&idx=11147395"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "전복(전복회, 전복구이) 전문점", "sources": [0]},
+    {"type": "조리·재료", "note": "다양한 전복 요리 - 전복죽, 전복밥, 전복구이 등", "sources": [0]},
+    {"type": "맛 묘사", "note": "진정성 있는 전복 요리", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["전복회", "전복구이", "전복죽"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

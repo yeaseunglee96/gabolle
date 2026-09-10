@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220801138873",
+  "worker": "haiku-66",
+  "researchedAt": "2026-09-10T12:18:00Z",
+  "queries": ["꾼쿡스시앤요리 해운대구 부산", "꾼쿡스시앤요리 달맞이길"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/758920", "https://www.diningcode.com/profile.php?rid=Wbu471s2O8b7"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "달맞이길의 아름다운 해운대 바다 조망",
+      "sources": [0]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "스시, 초밥, 소바, 우동 등 일식 요리 전문",
+      "sources": [1]
+    },
+    {
+      "type": "운영·접근 편의",
+      "note": "2시간 무료 주차, 단체 이용 및 배달 가능",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 2018,
+    "generations": null,
+    "queueing": null,
+    "parking": "2시간 무료주차",
+    "audience": "mixed",
+    "signatureDishes": ["모둠초밥", "특초밥", "회정식"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "삼환미포씨랜드 3층, 2018년 3월 개점"
+}

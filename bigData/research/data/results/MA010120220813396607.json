@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220813396607",
+  "worker": "haiku-57",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["마이페이보릿쿠키 부산", "마이페이보릿쿠키 광안"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=fOBwh2b1SF7b"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "수제 쿠키 전문, 레드벨벳 크림치즈 오레오, 말차 크림치즈 등 다양한 맛",
+      "sources": [0]
+    },
+    {
+      "type": "혼잡·수요",
+      "note": "항상 웨이팅, 오픈시간에 대기열 형성",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["수제쿠키"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "\"쿠키대장\", 테이크아웃 전용, 주차 불가, 3000-3800원, 8개 이상 구매시 블루박스"
+}

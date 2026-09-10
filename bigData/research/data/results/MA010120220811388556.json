@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220811388556",
+  "worker": "haiku-20",
+  "researchedAt": "2026-09-09T10:17:00Z",
+  "queries": ["동일참치 남구 부산", "동일참치 대연5동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 남구 진남로 7-3"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "메뉴 희소성", "note": "참치회와 무한리필 코스메뉴 제공", "sources": [0] },
+    { "type": "현지인 지지", "note": "1988년부터 운영하는 꾸준히 사랑받는 참치 전문점", "sources": [0] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["뱃살모듬(대)", "뱃살모듬(소)"],
+    "priceBand": "regular"
+  },
+  "notFound": null,
+  "notes": ""
+}

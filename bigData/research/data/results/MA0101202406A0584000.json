@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202406A0584000",
+  "worker": "haiku-70",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["상식 수영 국수", "상식 광안3동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색으로 상식에 대한 구체적인 정보를 찾을 수 없음",
+  "notes": ""
+}

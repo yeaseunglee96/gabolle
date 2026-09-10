@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220805338514",
+  "worker": "haiku-73",
+  "researchedAt": "2026-09-09T23:26:21.852Z",
+  "queries": ["빨간마후라 해운대구 부산", "빨간마후라 중2동 맛집"],
+  "found": false,
+  "confidence": "low",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "검색에는 같은 주소(청사포로128번길 60)에 '노란마후라'(장어)라는 다른 이름의 가게만 나옴. '빨간마후라'와는 이름 및 업종이 일치하지 않음",
+  "notes": ""
+}

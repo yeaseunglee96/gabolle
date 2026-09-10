@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220811449907",
+  "worker": "haiku-15",
+  "researchedAt": "2026-09-08T22:38:42Z",
+  "queries": ["육화목 해운대구 부산", "육화목 중1동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["부산광역시 해운대구 좌동순환로8번길 78"],
+  "stillOpen": null,
+  "whyPeopleGo": [
+    { "type": "간판 메뉴 지목", "note": "목살, 소고기 전문", "sources": [0] },
+    { "type": "가격·가성비", "note": "육질이 좋은 데 비해 가격 합리적", "sources": [0] },
+    { "type": "곁들임·차림", "note": "김치찌개, 된장찌개 감칠맛 좋음", "sources": [0] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["목살", "소고기"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "해운대 중동에 위치, 영업시간 정보는 검색 결과에서 확인 불가"
+}

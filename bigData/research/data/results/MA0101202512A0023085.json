@@ -1,0 +1,27 @@
+{
+  "id": "MA0101202512A0023085",
+  "worker": "haiku-61",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["테타라운지바 해운대구 부산", "테타라운지바 우1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.threads.com/@iamhappyelly/post/Daf5jlviEXo/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "분위기·전망", "note": "감각적인 인테리어와 해변 경치", "sources": [0]},
+    {"type": "맛 묘사", "note": "칵테일과 하이볼이 특별한 시간을 만들어줌", "sources": [0]},
+    {"type": "운영·접근 편의", "note": "해변과 가까워 접근 편함", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["칵테일", "하이볼"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "라운지바, LP 1,000장 이상 보유, 음악 신청 가능, 데이트/친구 모임 추천"
+}

@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220811663233",
+  "worker": "haiku-15",
+  "researchedAt": "2026-09-08T22:37:41Z",
+  "queries": ["태화반점 남구 부산", "태화반점 용호1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 남구 분포로 115"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "간판 메뉴 지목", "note": "마파두부, 짬뽕탕, 짜장면", "sources": [0] },
+    { "type": "혼잡·수요", "note": "웨이팅이 있는 인기 중식당", "sources": [0] },
+    { "type": "운영·접근 편의", "note": "기존 부암동에서 이전하여 더욱 쾌적한 공간", "sources": [0] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": true,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["마파두부", "짬뽕탕", "XO소스팔보채", "양장피"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "월요일 휴무, 영업시간 17:00~24:00, 전화 051-611-6799"
+}

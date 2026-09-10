@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220808491063",
+  "worker": "haiku-49",
+  "researchedAt": "2026-09-09T17:00:00Z",
+  "queries": ["송뎅 해운대 송정동", "송뎅 송정해변로 부산"],
+  "found": false,
+  "confidence": "low",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "송정해변로 42-8에 위치한다는 송뎅을 찾을 수 없음",
+  "notes": ""
+}

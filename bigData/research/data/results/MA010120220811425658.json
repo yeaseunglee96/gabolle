@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220811425658",
+  "worker": "haiku-38",
+  "researchedAt": "2026-09-09T15:00:00Z",
+  "queries": ["공짜루 부산 남구", "공짜루 감만동 중국집", "공짜루 중국집 블로그"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/list.dc?query=%EB%B6%80%EC%82%B0+%EB%82%A8%EA%B5%AC+%EA%B0%90%EB%A7%8C%EB%8F%99+%EC%A4%91%EA%B5%AD%EC%A7%91"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "메뉴 희소성",
+      "note": "부산 남구 감만동 지역의 전문 중국집",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["중국음식"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": ""
+}

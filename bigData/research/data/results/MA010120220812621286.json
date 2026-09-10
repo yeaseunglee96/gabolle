@@ -1,0 +1,44 @@
+{
+  "id": "MA010120220812621286",
+  "worker": "haiku-34",
+  "researchedAt": "2026-09-09T06:50:00Z",
+  "queries": ["육림구공탄 부산 돼지고기", "육림구공탄 당감1동"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=d4pDtjOJRnrH", "https://www.facebook.com/pages/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "연차·역사",
+      "note": "12년 경력의 숙성 돼지고기 전문점",
+      "sources": [0]
+    },
+    {
+      "type": "조리·재료",
+      "note": "100% 국내산 돼지고기, 자체 숙성 시스템으로 신선도 관리",
+      "sources": [0]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "삼겹살(samgyeopsal)과 목살(moksal) 전문",
+      "sources": [0]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "2-3인 37,000원, 3-4인 48,000원, 대인 62,000원대의 합리적 가격",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 12,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["삼겹살", "목살"],
+    "priceBand": "medium"
+  },
+  "notFound": null,
+  "notes": ""
+}

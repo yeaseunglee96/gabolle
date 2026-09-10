@@ -1,0 +1,34 @@
+{
+  "id": "MA0101202212A0090663",
+  "worker": "haiku-73",
+  "researchedAt": "2026-09-09T23:26:21.852Z",
+  "queries": ["엘포스트레 수영구 부산", "엘포스트레 광안2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.threads.com/@bbang_chhichi/video/DZCfT5EAT0p/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "생망고빙수가 대표메뉴로 후숙된 달달한 망고가 가득",
+      "sources": [0]
+    },
+    {
+      "type": "메뉴 희소성",
+      "note": "파블로바와 같은 스페셜 디저트 메뉴 보유",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["생망고빙수", "파블로바", "와플"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": ""
+}

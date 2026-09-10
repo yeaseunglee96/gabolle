@@ -1,0 +1,53 @@
+{
+  "id": "MA0101202306A0102929",
+  "worker": "haiku-16",
+  "researchedAt": "2026-09-08T22:55:10.550Z",
+  "queries": [
+    "아츠이 부산 광안3동",
+    "아츠이 수영구 일식"
+  ],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.siksinhot.com/P/1594911"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "철판이자카야 컨셉, 일본식 분위기",
+      "sources": [
+        0
+      ]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "고등어봉초밥, 닭목살소금구이",
+      "sources": [
+        0
+      ]
+    },
+    {
+      "type": "메뉴 희소성",
+      "note": "철판 스타일 일식 코스",
+      "sources": [
+        0
+      ]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "없음",
+    "audience": "mixed",
+    "signatureDishes": [
+      "고등어봉초밥",
+      "닭목살소금구이"
+    ],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "아츠이세트 35,000원, 예약 17:30~18:30만 가능, 다양한 좌석(개별실, 바, 좌식)"
+}

@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220810723089",
+  "worker": "haiku-39",
+  "researchedAt": "2026-09-09T10:24:00Z",
+  "queries": ["강동횟집 북구 부산", "강동횟집 화명3동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=WL0hZFmJkFJO"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "메뉴 희소성", "note": "자연산회 전문점", "sources": [0]},
+    {"type": "간판 메뉴 지목", "note": "모듬회로 알려짐", "sources": [0]},
+    {"type": "조리·재료", "note": "싱싱한 자연산 회", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": null,
+    "signatureDishes": ["자연산회", "모듬회"],
+    "priceBand": "expensive"
+  },
+  "notes": "위치: 화명동 (화명역 근처), 룸식당, 영업시간: 월-금 11:00~23:00, 토-일 변동, 자연산 예약 필수, 가격·종류는 계절에 따라 변함"
+}

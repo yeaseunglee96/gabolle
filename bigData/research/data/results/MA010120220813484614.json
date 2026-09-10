@@ -1,0 +1,34 @@
+{
+  "id": "MA010120220813484614",
+  "worker": "haiku-9",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["금강만두 동래구 부산", "금강만두 사직2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["visitbusan.net", "diningcode.com"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "충무세트(충무김밥), 육개장이 대표메뉴",
+      "sources": [0, 1]
+    },
+    {
+      "type": "조리·재료",
+      "note": "육개장에 고기, 대파, 토란 등의 건더기가 푸짐하게 들어감",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "local",
+    "signatureDishes": ["충무세트", "육개장"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "사직역, 사직공원, 부산어린이대공원 근처. 직영점 존재"
+}

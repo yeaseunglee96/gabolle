@@ -1,0 +1,34 @@
+{
+  "id": "MA010120220806873933",
+  "worker": "haiku-73",
+  "researchedAt": "2026-09-09T23:27:49.072Z",
+  "queries": ["송정횟집 해운대구 부산", "송정횟집 송정동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=Hj0dd2Xx6Ccy"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "모듬회가 대표메뉴인 신선한 회 전문점",
+      "sources": [0]
+    },
+    {
+      "type": "현지인 지지",
+      "note": "송정해수욕장 지역 현지인들의 입소문난 맛집",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["모듬회"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "매주 수요일 정기휴무. 다양한 제철 회와 반찬 제공. 개인실 보유"
+}

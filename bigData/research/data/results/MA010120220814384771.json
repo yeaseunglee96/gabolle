@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220814384771",
+  "worker": "haiku-60",
+  "researchedAt": "2026-09-09T08:40:00Z",
+  "queries": ["사십이 민락동 횟집 부산", "\"사십이\" 광안로 숙성회 사시미"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1528962", "https://www.diningcode.com/profile.php?rid=d1tbIAJMIEim"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "숙성회, 사시미 전문 - 반반 사시미와 회 모둠이 시그니처",
+      "sources": [0]
+    },
+    {
+      "type": "조리·재료",
+      "note": "신선한 횟감 - 광어, 연어 등 다양한 제철 생선",
+      "sources": [0]
+    },
+    {
+      "type": "운영·접근 편의",
+      "note": "저녁 늦게까지 영업 (17:00~02:00), 밤 늦은 외출에 적합",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["반반 사시미", "회 모둠", "광어", "연어"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "광안로 61번길 5 1층. 화요일~일요일 17:00~02:00, 월요일 휴무. 민락동 광안리 숙성회 전문점. 전화 050-7137-7614"
+}

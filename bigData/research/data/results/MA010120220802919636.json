@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220802919636",
+  "worker": "haiku-32",
+  "researchedAt": "2026-09-09T10:30:00Z",
+  "queries": ["엄마추어탕 남구 부산", "엄마추어탕 감만1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 남구 우암로70번길 3"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "추어탕 전문점으로 알려짐",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": null,
+    "signatureDishes": ["추어탕"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "114.co.kr과 다이닝코드에서 추어탕 맛집으로 분류됨. 포장전문점."
+}

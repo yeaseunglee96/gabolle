@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220807149718",
+  "worker": "haiku-23",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["곤파치 연제구 부산", "곤파치 연산4동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "검색 결과에서 연제구 연산4동에 위치한 이 횟집에 대한 정보를 찾을 수 없음",
+  "notes": ""
+}

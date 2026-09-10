@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220811418465",
+  "worker": "haiku-37",
+  "researchedAt": "2026-09-09T11:23:43.0136153+09:00",
+  "queries": ["사계절냉면 부산 우암동", "사계절냉면 우암로 216"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색 결과에서 부산 남구 우암로 216-3 주소의 사계절냉면을 찾을 수 없음",
+  "notes": "창원 봉곡동의 사계절냉면만 발견되었음"
+}

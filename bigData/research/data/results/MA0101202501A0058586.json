@@ -1,0 +1,24 @@
+{
+  "id": "MA0101202501A0058586",
+  "worker": "haiku-72",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["싱싱뽈락회 해운대 부산", "싱싱뽈락회 회 초밥 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1228902", "https://www.diningcode.com/profile.php?rid=HLr38ig5hwaO", "https://polle.com/place/1pQszy/%EC%8B%B1%EC%8B%B1%ED%9A%8C%EB%BD%88%EB%9D%BD"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "뽈락회 전문, 특대·대 포션의 뼈를 가진 횟감 세꼬시", "sources": [0, 1]},
+    {"type": "분위기·전망", "note": "2층 넓은 실내 공간, 쾌적한 인테리어, 비에 놓인 칸막이", "sources": [1, 2]},
+    {"type": "조리·재료", "note": "신선한 천연 횟감, 특별한 된장 기반 소스 (고추와 참기름)", "sources": [1, 2]},
+    {"type": "현지인 지지", "note": "부산·대구에 지점이 있는 유명한 횟집 프랜차이즈", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["뽈락회 세꼬시", "뽈락회 구이", "특대 포션"],
+    "priceBand": "moderate",
+    "audience": "mixed"
+  },
+  "notFound": null,
+  "notes": ""
+}

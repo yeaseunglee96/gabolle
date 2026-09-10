@@ -1,0 +1,25 @@
+{
+  "id": "MA010120220810451705",
+  "worker": "haiku-33",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["청동식당 영도구 부산", "청동식당 청학2동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["http://localmap.co.kr/web/splus/kmap/view.php?sigun=6260000&gugun=3280000&keyno=155&keyname=%EC%9A%A9%EA%B0%90%ED%95%9C%EC%8B%9D%EB%8B%B9&keylink=3280000-107-2021-00053"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "연차·역사", "note": "32년 운영 중", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 32,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": null,
+    "signatureDishes": [],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "1990년 2월 17일 개점"
+}

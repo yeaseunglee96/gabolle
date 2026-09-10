@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220800085324",
+  "worker": "haiku-62",
+  "researchedAt": "2026-09-10T12:03:00Z",
+  "queries": ["만쿠 부산진구 부산", "만쿠 부전2동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색에서 가게 정보를 찾을 수 없음",
+  "notes": ""
+}

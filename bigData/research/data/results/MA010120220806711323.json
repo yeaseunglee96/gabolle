@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220806711323",
+  "worker": "haiku-26",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["고엔 사상구 부산", "고엔 괘법동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=rz6C7TZGQNwR"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "맛 묘사",
+      "note": "정통 일식 전문",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": [],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

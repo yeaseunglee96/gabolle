@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220812331213",
+  "worker": "haiku-58",
+  "researchedAt": "2026-09-09T17:10:00Z",
+  "queries": ["카이브 해운대 부산", "카이브 송정동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://kaive.co.kr/", "https://kr.trip.com/hotels/busan-hotel-detail-23514938/kaive/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "분위기·전망", "note": "송정해변 오션뷰, 최대 20명 수용", "sources": [0, 1]},
+    {"type": "곁들임·차림", "note": "개별 바베큐 시설, 당구대, 플레이스테이션4", "sources": [0, 1]},
+    {"type": "운영·접근 편의", "note": "송정 해변에서 도보 3분, 개별시설", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "group",
+    "signatureDishes": [],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "프리미엄 숙소, 송정 1~4호점·기장 일광점 운영"
+}

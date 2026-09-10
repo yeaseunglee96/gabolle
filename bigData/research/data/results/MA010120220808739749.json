@@ -1,0 +1,31 @@
+{
+  "id": "MA010120220808739749",
+  "worker": "haiku-40",
+  "researchedAt": "2026-09-09T13:24:00Z",
+  "queries": ["돈파네 사하구 부산", "돈파네 다대2동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": [
+    "https://www.busan.com/view/busan/view.php?code=2019032718551989828"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "메뉴 희소성",
+      "note": "돈까스·파스타·리조또·케이크 등 다양한 서양식 메뉴",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["돈까스", "파스타", "케이크"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "현재 이름 안단테(Andante)로 개명. 2016년 개점. 8,500원~23,000원 가격대"
+}

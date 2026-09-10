@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220812421713",
+  "worker": "haiku-21",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["힙포 해운대구 부산", "힙포 좌동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://www.diningcode.com/profile.php?rid=udH8WH5YO5wI"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "신상 식당이라 깨끗하고 깔끔한 인테리어",
+      "sources": [0]
+    },
+    {
+      "type": "메뉴 희소성",
+      "note": "베트남 쌀국수는 제한적인 요리",
+      "sources": [0]
+    },
+    {
+      "type": "플랫폼 순위·평점",
+      "note": "다이닝코드에 베트남음식 쌀국수 맛집으로 등재",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["고기듬뿍직화쌀국수"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "신상 식당, 국물이 깔끔"
+}

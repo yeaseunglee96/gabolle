@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220806025286",
+  "worker": "haiku-17",
+  "researchedAt": "2026-09-09T09:51:00Z",
+  "queries": ["모리하루 남구 부산", "모리하루 대연 일식"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=hVZLM15zgSz8"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "사누끼우동을 전문으로 한다", "sources": [0]},
+    {"type": "조리·재료", "note": "우동을 자가제면으로 만든다", "sources": [0]},
+    {"type": "현지인 지지", "note": "대연동 주민들이 찾는 로컬 맛집이다", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["사누끼우동", "냄비우동", "냉우동"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

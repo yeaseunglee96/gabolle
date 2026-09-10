@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220811995576",
+  "worker": "haiku-28",
+  "researchedAt": "2026-09-09T10:35:00Z",
+  "queries": ["한옥김치찜 서구 부산", "한옥김치찜 초장동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://www.tripadvisor.co.kr/Restaurant_Review-g297884-d8985889-Reviews-Han_Ok_House_Kimchi_Jjim-Busan.html", "https://korean.visitkorea.or.kr/detail/ms_detail.do?cotid=5564e8bf-40dd-4d05-a941-5ff94f38890d"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "김치찜 전문점", "sources": [0]},
+    {"type": "가격·가성비", "note": "합리적인 가격대의 음식", "sources": [1]},
+    {"type": "현지인 지지", "note": "대학생들의 오랜 맛집으로 알려짐", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["김치찜", "김치찌개"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "여러 지점이 있는 브랜드, 부산에는 여러 지점 (연산, 대연동 등)이 있음"
+}

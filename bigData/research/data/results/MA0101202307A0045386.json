@@ -1,0 +1,36 @@
+{
+  "id": "MA0101202307A0045386",
+  "worker": "haiku-63",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["토종진순대 수영구 부산", "토종진순대 광안4동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.diningcode.com/profile.php?rid=mbFpYBXJjPYg"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "토종순대와 피순대가 대표 메뉴",
+      "sources": [0]
+    },
+    {
+      "type": "곁들임·차림",
+      "note": "셀프 음료 서비스, 코르크에 관계없이 외부 음료 반입 가능",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "paid parking nearby or public sports center",
+    "audience": "mixed",
+    "signatureDishes": ["토종순대 믹스", "피순대"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "금련산역 출구 2번에서 10분 거리"
+}

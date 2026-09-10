@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220808564560",
+  "worker": "haiku-10",
+  "researchedAt": "2026-09-09T15:15:00Z",
+  "queries": ["섬세한카츠 서구 부산", "섬세한카츠 부민동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산 서구 보수대로 103-1"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "맛 묘사", "note": "바삭한 카츠, 질 좋은 고기, 합리적인 가격", "sources": [0]},
+    {"type": "현지인 지지", "note": "동아대학교 부민캠퍼스 근처 대학가 맛집", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "students",
+    "signatureDishes": ["로스카츠", "히레카츠"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

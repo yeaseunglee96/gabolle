@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220811433012",
+  "worker": "haiku-10",
+  "researchedAt": "2026-09-09T14:35:00Z",
+  "queries": ["날잡아잡소 해운대구 부산", "날잡아잡소 중1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산 해운대구 중동 199-3"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "미디어 노출", "note": "유튜브 맛집으로 소개됨", "sources": [0]},
+    {"type": "분위기·전망", "note": "60-70년대 감성 인테리어로 추억 불러일으킴", "sources": [0]},
+    {"type": "서비스·사람", "note": "친절한 서빙과 좋은 분위기", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": "2011년 이후",
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["돼지고기 구이"],
+    "priceBand": "normal"
+  },
+  "notFound": null,
+  "notes": ""
+}

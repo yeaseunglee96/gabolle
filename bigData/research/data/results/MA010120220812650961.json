@@ -1,0 +1,48 @@
+{
+  "id": "MA010120220812650961",
+  "worker": "haiku-65",
+  "researchedAt": "2026-09-09T22:38:45.759Z",
+  "queries": [
+    "노란마후라 청사포로 해운대"
+  ],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.siksinhot.com/P/387039",
+    "https://www.diningcode.com/profile.php?rid=MgzyemvIxVRh"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "창가에서 바다 경치를 감상하며 식사",
+      "sources": [
+        0,
+        1
+      ]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "조개구이, 장어구이 전문",
+      "sources": [
+        0,
+        1
+      ]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "가능",
+    "audience": "mixed",
+    "signatureDishes": [
+      "조개구이",
+      "장어구이"
+    ],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "청사포 방파제 인근, 영업시간 11:00-20:00, 대중교통 접근성 낮음"
+}

@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202604A0034832",
+  "worker": "haiku-61",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["박스밀전포점 부산진구 부산", "박스밀전포점 전포1동 맛집"],
+  "found": false,
+  "confidence": "low",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹에서 검색되지 않음. 전포동 일반 맛집 정보만 조회됨",
+  "notes": ""
+}

@@ -1,0 +1,43 @@
+{
+  "id": "MA010120220806648632",
+  "worker": "haiku-50",
+  "researchedAt": "2026-09-09T05:28:38Z",
+  "queries": ["생생돈까스 수영구 부산", "생생돈까스 광안1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.siksinhot.com/P/1694735",
+    "https://freshdon.com/",
+    "https://www.diningcode.com/list.dc?query=%EB%B6%80%EC%82%B0%EC%88%98%EC%98%81+%EB%8F%88%EA%B9%8C%EC%8A%A4"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "맛 묘사",
+      "note": "바삭한 돈까스",
+      "sources": [1]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "돈까스와 생선까스 전문점",
+      "sources": [0, 2]
+    },
+    {
+      "type": "플랫폼 순위·평점",
+      "note": "다이닝코드 등 맛집 사이트에 등재",
+      "sources": [2]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["돈까스", "생선까스"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": ""
+}

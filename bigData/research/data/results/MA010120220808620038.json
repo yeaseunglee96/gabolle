@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220808620038",
+  "worker": "haiku-26",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["배돈 부산진구 부산", "배돈 초읍동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1152511", "https://www.diningcode.com/profile.php?rid=fbuQlDQFniSb"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "조리·재료",
+      "note": "숯불로 구운 생갈비, 국내산 고기 사용",
+      "sources": [0]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "흑갈비, 백갈비 전문",
+      "sources": [0]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "가격이 착하고 푸짐한 양념갈비",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["흑갈비", "백갈비"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}
