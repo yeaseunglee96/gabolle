@@ -8,22 +8,31 @@
 //   ② 전송은 화면을 기다리게 하지 않는다. 저장 버튼은 즉시 반응하고 이벤트는 뒤에서 간다.
 //   ③ 전송 실패가 사용자에게 보이지 않는다. 후기를 못 남긴 것이 아니라 통계가 한 건 빈 것이다.
 //
-// 🔴 지금 이 요청들은 서버가 받아 주지 않는다. 앱 잘못이 아니라 백엔드 계약이 아직
-//    이 행동들을 못 받는 상태다. 확인한 것 셋(origin/back/dev, 2026-09-07):
+// 🔴 **정정 (2026-09-10) — 아래 셋은 전부 풀렸다. 이제 서버가 받는다.**
 //
-//    1. `requestId` 가 필수다(IngestEventRequest 의 @NotNull, EventIngestService 가 다시 검사).
-//       그런데 추천 요청의 정본 키(request_id)를 앱에 알려 주는 응답이 하나도 없다 —
-//       RecommendationJobResponse·RecommendationResultResponse 둘 다 jobId 만 준다.
-//       🔴 그렇다고 앱이 UUID 를 하나 지어내면 안 된다. 그 값은 "노출과 행동을 잇는"
-//       분석 키(API-07)라서, 아무 값이나 넣으면 조인이 되는 척하면서 틀린다.
-//    2. place_like · place_dislike · place_visit 는 EventType 에서 producer 가 SERVER 다.
-//       클라이언트가 보내면 EventIngestService 가 거부한다(DR-13). 서버가 이 이벤트를
-//       내려면 "장소 저장" · "체크인 후기" 업무 API 가 있어야 하는데 그 API 가 없다.
-//    3. 여행에 붙는 이벤트(aggregate 축 TRIP)는 tripId 없이는 적히지 않는다.
-//       홈 하트·장소 상세는 여행 밖 화면이라 지금 줄 tripId 가 없다.
+//    2026-09-07 에 이 자리에 "지금 이 요청들은 서버가 받아 주지 않는다" 고 적었다.
+//    그때는 사실이었고 지금은 아니다. 백엔드 S15P21E201-735 가 origin/back/dev 로
+//    들어가면서 셋을 다 풀었다 (2026-09-10 에 백엔드 코드에서 직접 확인):
 //
-//    그래서 이 모듈은 **아는 것만 담아 보내고 결과를 삼킨다.** 위 셋 중 하나라도 풀리면
-//    화면 코드는 한 줄도 안 고치고 그대로 실려 나간다.
+//    ① requestId 가 더 이상 전부 필수가 아니다 — IngestEventRequest 의 requestId 에서
+//       @NotNull 이 빠졌고, 구조적으로 필요한 이벤트(aggregate 축이 추천 요청인 것)
+//       에서만 요구한다. 추천 작업·결과 응답도 이제 requestId 를 싣는다.
+//    ② place_like · place_dislike · place_visit 에 허용 producer 목록이 붙었고
+//       거기에 CLIENT 가 있다 (EventType.java). 앱이 보내도 거부되지 않는다.
+//    ③ place_view · place_like 의 aggregate 축이 TRIP 에서 USER 로 옮겨졌다.
+//       홈 하트·장소 상세처럼 여행 밖 화면도 tripId 없이 적힌다.
+//
+//    백엔드에 **앱이 보내는 본문을 그대로 복사해 넣은 검사**(AppEventContractTest)가
+//    있고, 그것이 "받는다(202)" 를 못 박고 있다.
+//
+//    🔴 낡은 경고를 지우지 않고 정정으로 남기는 이유: 이 주석 때문에 며칠 동안
+//    아무도 이 코드를 내보내지 않았다. 문서가 **비관 쪽으로 틀린 것**이 버그보다
+//    나쁘다 — 읽은 사람이 시도조차 안 한다. 다음 사람이 같은 것을 다시 재지 않게 남긴다.
+//
+//    아직 남은 것 (경고가 아니라 할 일):
+//      · 노출(recommendation_impression)을 보내는 코드가 없다. 지금은 보낼 수 있다.
+//      · "지도 앱 열기" 는 서버 EventType 에 이름 자체가 없다. 만드는 것은 서버 쪽 일이다.
+//      · requestId 를 모를 때는 여전히 **비운다.** 지어내면 조인이 되는 척하면서 틀린다.
 import * as Crypto from 'expo-crypto';
 
 import { apiRequest } from '@/api/client';
