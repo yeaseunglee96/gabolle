@@ -101,10 +101,13 @@ export default function SignIn() {
     </View>
     <View style={styles.divider}><View style={styles.line} /><Text variant="caption">{tx('또는', 'or')}</Text><View style={styles.line} /></View>
     <View style={styles.socials}>{([
+      // 외국인 관광객이 주 사용자라 계정 보유 가능성이 높은 순서로 둔다 — 구글·애플은
+      // 외국에서도 흔한 글로벌 계정, 카카오·네이버는 한국 전용 계정이라 관광객은
+      // 어차피 새로 만들어야 한다(둘 사이 순서는 무의미하니 그대로 카카오·네이버 순).
       { item: 'google', name: 'Google', backgroundColor: '#ffffff', textColor: '#202124', borderColor: '#dadce0' },
-      { item: 'naver', name: 'Naver', backgroundColor: '#03c75a', textColor: '#ffffff', borderColor: '#03c75a' },
-      { item: 'kakao', name: 'Kakao', backgroundColor: '#fee500', textColor: '#191919', borderColor: '#fee500' },
       { item: 'apple', name: 'Apple', backgroundColor: '#000000', textColor: '#ffffff', borderColor: '#000000' },
+      { item: 'kakao', name: 'Kakao', backgroundColor: '#fee500', textColor: '#191919', borderColor: '#fee500' },
+      { item: 'naver', name: 'Naver', backgroundColor: '#03c75a', textColor: '#ffffff', borderColor: '#03c75a' },
     ] as const).map(({ item, name, backgroundColor, textColor, borderColor }) => { const action = tx(`${name}로 계속하기`, `Continue with ${name}`); return <Pressable key={item} accessibilityRole="button" accessibilityLabel={action} accessibilityState={{ disabled: busy || !!provider, busy: provider === item }} disabled={busy || !!provider} onPress={() => void social(item)} style={({ pressed }) => [styles.social, { backgroundColor, borderColor }, pressed && styles.pressed]}><View accessible={false} style={styles.socialContent}><View style={styles.socialMark}><SocialProviderIcon provider={item} /></View><Text weight="bold" color={textColor}>{provider === item ? tx('연결 중…', 'Connecting…') : action}</Text></View></Pressable>; })}</View>
     {provider && <ActivityIndicator accessibilityLabel={tx('소셜 로그인 처리 중', 'Processing social sign-in')} color={color.action.primary} />}
     <Pressable accessibilityRole="button" style={styles.guest} onPress={() => router.replace('/home')}><Text weight="bold" color={color.action.primary}>{tx('계정 없이 둘러보기', 'Explore without an account')}</Text></Pressable>
