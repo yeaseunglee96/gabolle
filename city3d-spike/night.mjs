@@ -26,6 +26,13 @@ const BLD_ZOOMS = [12, 16];
 const DEM_SRC_Z = 15;
 const DEM_MIN_Z = 11;
 
+// 🔴 땅 높이 축소본의 재료 (S15P21E201-805)
+//   --raw-dem   원본 z15 로 줄인다. **비교용이다** — 매립지의 가짜 능선이 그대로 따라온다
+//   --dem-only  3단계(땅 높이)만 돈다. 건물 재료(285 MB OSM 추출본)가 없어도 되고,
+//               정리본을 다시 구운 뒤 축소본만 맞출 때 쓴다
+const RAW_DEM = process.argv.includes('--raw-dem');
+const DEM_ONLY = process.argv.includes('--dem-only');
+
 fs.mkdirSync(WORK, { recursive: true });
 fs.writeFileSync(LOG, '');
 const say = (msg) => {
@@ -189,9 +196,17 @@ function tileBuildings(srcPath) {
 // ─────────────────────────────────────────────────────────────────
 // terrarium = 픽셀 색 안에 높이(m)를 적어 두는 방식. 값을 평균 내면 색이 깨지므로
 // 픽셀을 하나 걸러 하나 고르는 방식(가장 가까운 값)으로 줄인다. 지형의 큰 모양은 남는다.
+// 🔴 축소본의 재료는 **정리본 z15** 다 (S15P21E201-805). 원본에서 줄이면 확대 11~14
+//    단계에도 가짜 능선이 그대로 따라 내려간다 — 멀리서 보면 사라졌다가 가까이
+//    가면 나타나는, 더 나쁜 모양이 된다. serve.mjs · build-dist.mjs 와 같은 것을 본다.
 function demOverviews() {
-  const SRC_DIR = path.join(ROOT, 'bigData/data/raw/dem', String(DEM_SRC_Z));
+  const SRC_DIR = path.join(ROOT, RAW_DEM ? 'bigData/data/raw/dem' : 'bigData/data/clean/dem', String(DEM_SRC_Z));
   const OUT_DIR = path.join(HERE, 'public/dem-tiles');
+  if (!fs.existsSync(SRC_DIR)) {
+    throw new Error(`땅 높이 z${DEM_SRC_Z} 타일이 없습니다: ${path.relative(ROOT, SRC_DIR)}`
+      + (RAW_DEM ? ' — cd ../bigData && node collect/terrain.mjs' : ' — node dem-clean-tiles.mjs'));
+  }
+  say(`  재료: ${path.relative(ROOT, SRC_DIR).replace(/\\/g, '/')}${RAW_DEM ? '  🔴 원본 (--raw-dem)' : ''}`);
   const SIZE = 256;
   const SEA = [128, 0, 0]; // 높이 0 m 을 terrarium 으로 적으면 이 색이다
 
@@ -252,9 +267,11 @@ function demOverviews() {
 
 // ─────────────────────────────────────────────────────────────────
 try {
-  say('밤샘 작업 시작 — 부산 전역');
-  const src = await extractBuildings();
-  tileBuildings(src);
+  say(DEM_ONLY ? '땅 높이 축소본만 굽습니다 (--dem-only)' : '밤샘 작업 시작 — 부산 전역');
+  if (!DEM_ONLY) {
+    const src = await extractBuildings();
+    tileBuildings(src);
+  }
   demOverviews();
   finish(true);
 } catch (err) {
