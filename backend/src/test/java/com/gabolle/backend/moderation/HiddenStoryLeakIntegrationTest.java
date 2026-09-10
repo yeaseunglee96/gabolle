@@ -96,7 +96,13 @@ class HiddenStoryLeakIntegrationTest {
 
 	private UUID storyId;
 
-	private final Instant now = Instant.now();
+	/**
+	 * 🔴 공개 시각을 <b>한 시간 전</b>으로 둔다. "지금" 으로 두면 서버가 볼 때 아직 공개 전으로
+	 * 읽히는 순간이 생겨, 신고 접수가 404 를 돌려주고 검사가 이따금 빨개진다(전체 스위트에서만
+	 * 재현됐다). 이 검사가 보려는 것은 감춤 규칙이지 공개 시각 경계가 아니라, 그 경계에서
+	 * 비켜세운다.
+	 */
+	private final Instant now = Instant.now().minusSeconds(3600);
 
 	@BeforeEach
 	void setUp() {
