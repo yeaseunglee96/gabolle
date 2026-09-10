@@ -21,6 +21,7 @@ export default function StoryDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const [state, setState] = useState<State>({ status: 'loading', cached: null });
   const [reporting, setReporting] = useState(false);
+  const [reported, setReported] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
@@ -41,6 +42,10 @@ export default function StoryDetail() {
   const submitReport = async (reason: StoryReportReason, detail: string | undefined) => {
     if (!id) return false;
     const outcome = await reportStory(id, reason, detail, accessToken);
+    // 신고 즉시 서버가 검토 대기로 옮겨 비노출한다 — 화면도 그 기록을 계속 보여주지 않고,
+    // 접수됐다는 안내로 바꾼다(완료 기준: "신고를 보내고 나면 그 기록이 화면에서 사라지고
+    // 접수됐다는 안내를 보여준다"). feed.tsx의 목록 제거와 같은 원칙이다.
+    if (outcome.state === 'success') setReported(true);
     return outcome.state === 'success';
   };
 
@@ -62,7 +67,15 @@ export default function StoryDetail() {
         <View accessibilityLiveRegion="polite" style={styles.notice}><ActivityIndicator color={color.brand.orange} /><Text color={color.text.body}>{tx('기록을 불러오고 있어요', 'Loading the record')}</Text></View>
       ) : null}
 
-      {story ? (
+      {reported ? (
+        <View style={styles.notice} accessibilityRole="alert" accessibilityLiveRegion="polite">
+          <Text variant="title" weight="bold">{tx('신고가 접수됐어요', 'Report submitted')}</Text>
+          <Text color={color.text.body}>{tx('신고한 기록은 더 이상 보이지 않아요. 24시간 안에 처리돼요.', 'This record is no longer shown to you. It will be reviewed within 24 hours.')}</Text>
+          <Button label={tx('피드로 돌아가기', 'Back to feed')} onPress={() => router.replace('/feed')} containerStyle={styles.recoveryButton} />
+        </View>
+      ) : null}
+
+      {story && !reported ? (
         <View style={styles.card}>
           <View style={styles.headerRow}>
             <Pressable accessibilityRole="link" accessibilityLabel={tx(`${story.author.displayName} 프로필 보기`, `View ${story.author.displayName}'s profile`)} onPress={() => router.push(`/user/${story.author.id}`)} style={styles.grow}>
