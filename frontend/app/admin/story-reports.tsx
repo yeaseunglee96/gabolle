@@ -19,10 +19,22 @@ const REASON_LABEL: Record<string, string> = {
   OTHER: '기타',
 };
 
+const OVERDUE_SECONDS = 86400; // 24시간 — S15P21E201-271 완료 기준
+
 function formatElapsed(seconds: number): string {
   if (seconds < 3600) return `${Math.max(1, Math.round(seconds / 60))}분 전 접수`;
   if (seconds < 86400) return `${Math.round(seconds / 3600)}시간 전 접수`;
   return `${Math.round(seconds / 86400)}일 전 접수`;
+}
+
+// 백엔드가 오래된 신고 순으로 주지만(ModerationQueueService), 24시간 넘은 것을 "맨 위에
+// 고정"이라는 요구는 그 정렬만으로는 보장되지 않는다 — 신고가 몰리는 시점이 섞이면
+// 24시간 넘은 항목 사이에 안 넘은 항목이 끼어들 수 있다. 그래서 여기서 한 번 더 가른다:
+// 각 그룹 안에서는 오래된 순을 그대로 유지한 채, 넘은 것을 앞으로 옮긴다(안정 정렬).
+function sortWithOverdueFirst(items: ModerationQueueItem[]): ModerationQueueItem[] {
+  const overdue = items.filter((item) => item.elapsedSeconds >= OVERDUE_SECONDS);
+  const rest = items.filter((item) => item.elapsedSeconds < OVERDUE_SECONDS);
+  return [...overdue, ...rest];
 }
 
 export default function AdminStoryReports() {
@@ -36,7 +48,7 @@ export default function AdminStoryReports() {
     if (!accessToken) return;
     setState('loading');
     const result = await fetchModerationQueue(accessToken);
-    if (result.state === 'success') { setItems(result.items); setState('ready'); }
+    if (result.state === 'success') { setItems(sortWithOverdueFirst(result.items)); setState('ready'); }
     else if (result.state === 'forbidden') setState('forbidden');
     else { setErrorMessage(result.message); setState('error'); }
   }, [accessToken]);
@@ -59,9 +71,14 @@ export default function AdminStoryReports() {
 
   return (
     <Screen scroll>
-      <Text variant="display" weight="bold">신고 검토</Text>
+      <View style={styles.titleRow}>
+        <Text variant="display" weight="bold">신고 검토</Text>
+        {state === 'ready' && items.length > 0 && (
+          <View style={styles.countBadge}><Text variant="caption" weight="bold" color={color.text.onAction}>미처리 {items.length}건</Text></View>
+        )}
+      </View>
       <Text variant="caption" color={color.text.body} style={styles.subtitle}>
-        미처리 신고가 있는 기록을 오래된 순으로 보여줘요. 삭제하면 기록이 즉시 비노출돼요.
+        미처리 신고가 있는 기록을 오래된 순으로 보여줘요. 24시간이 지난 항목은 빨간색으로 맨 위에 고정돼요. 삭제하면 기록이 즉시 비노출돼요.
       </Text>
 
       {state === 'loading' && <ActivityIndicator style={styles.spinner} color={color.action.primary} />}
@@ -87,11 +104,15 @@ export default function AdminStoryReports() {
 
       {state === 'ready' && (
         <View style={styles.list}>
-          {items.map((item) => (
-            <Card key={item.storyId} style={styles.itemCard}>
+          {items.map((item) => {
+            const overdue = item.elapsedSeconds >= OVERDUE_SECONDS;
+            return (
+            <Card key={item.storyId} style={[styles.itemCard, overdue && styles.itemCardOverdue]}>
               <View style={styles.itemHeader}>
                 <Text weight="bold">{item.authorName ?? '(탈퇴한 사용자)'}</Text>
-                <Text variant="caption" color={color.text.muted}>{formatElapsed(item.elapsedSeconds)}</Text>
+                <Text variant="caption" weight={overdue ? 'bold' : undefined} color={overdue ? color.state.danger : color.text.muted}>
+                  {overdue ? `⚠ ${formatElapsed(item.elapsedSeconds)}` : formatElapsed(item.elapsedSeconds)}
+                </Text>
               </View>
               <Text style={styles.body}>{item.body}</Text>
               <View style={styles.reasonRow}>
@@ -117,7 +138,8 @@ export default function AdminStoryReports() {
                 />
               </View>
             </Card>
-          ))}
+            );
+          })}
         </View>
       )}
     </Screen>
@@ -125,11 +147,14 @@ export default function AdminStoryReports() {
 }
 
 const styles = StyleSheet.create({
+  titleRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[3] },
+  countBadge: { paddingHorizontal: spacing[3], paddingVertical: spacing[1], borderRadius: 999, backgroundColor: color.state.danger },
   subtitle: { marginTop: spacing[1], marginBottom: spacing[4] },
   spinner: { marginTop: spacing[6] },
   retry: { marginTop: spacing[2] },
   list: { gap: spacing[3] },
   itemCard: { gap: spacing[2] },
+  itemCardOverdue: { borderWidth: 2, borderColor: color.state.danger },
   itemHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   body: { color: color.text.heading },
   reasonRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing[2] },
