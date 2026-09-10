@@ -21,8 +21,7 @@ const SUGGESTIONS = ['해운대와 광안리 2명 맛집 일정 짜줘', '사진
 // (자유 대화보다 우리 기능으로 바로 연결)이라 실제로 동작하는 화면만 올린다.
 const QUICK_TOOLS = [
   { labelKo: '일정 만들기', labelEn: 'Plan a trip', hintKo: '대화 조건 적용', hintEn: 'Applies chat conditions', href: '/plan/basic' },
-  { labelKo: '현장 말하기', labelEn: 'On-the-go phrases', hintKo: '문장 크게 보기·음성', hintEn: 'Large text · voice', href: '/field/speak' },
-  { labelKo: '메뉴판 번역', labelEn: 'Menu translation', hintKo: '카메라 번역 준비 중', hintEn: 'Camera translation coming soon', href: '/field/translate' },
+  { labelKo: '현장 도구', labelEn: 'On-the-go tools', hintKo: '현장 말하기·메뉴판 번역', hintEn: 'On-the-go phrases · menu translation', href: '/field/translate' },
   { labelKo: '내 여행 보기', labelEn: 'View my trips', hintKo: '저장한 일정 열기', hintEn: 'Open your saved itineraries', href: '/trips' },
   { labelKo: '지금 갈 곳 찾기', labelEn: 'Find places to go now', hintKo: '남는 시간에 바로', hintEn: 'Right now, right nearby', href: '/now' },
   { labelKo: '부산 축제 보기', labelEn: 'See Busan festivals', hintKo: '내 날짜에 열리는 것만', hintEn: 'Only ones on your dates', href: '/festivals' },
