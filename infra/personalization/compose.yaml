@@ -334,9 +334,17 @@ services:
           # janghyojoon님이 실측했다(2026-09-08, docker stats). 여유가 60MB뿐이라
           # 조금만 더 쓰면 OOM으로 컨테이너가 죽는다. 2g로 올려 여유를 둔다.
           memory: 2g
-          # 🔴 S15P21E201-798 — 21개 컨테이너 전부 cpus 상한이 없던 것 중 하나.
-          # REST API 요청 처리는 스케줄러/DAG 처리기보다 가볍다.
-          cpus: "0.5"
+          # 🔴 S15P21E201-798 정정 (2026-09-10, 실측) — 처음엔 0.5로 잡았는데
+          # (근거: "REST API 요청 처리는 평상시엔 스케줄러/DAG 처리기보다 가볍다"),
+          # 그 근거가 콜드 스타트에는 안 맞았다. 실제 배포에서 이 컨테이너가
+          # "Waiting for child process / Child process died"를 반복하며 몇 분간
+          # unhealthy로 크래시루프에 빠졌다 — FastAPI+flask_limiter+Uvicorn
+          # 워커 여러 개를 한꺼번에 띄우는 기동 순간은 스케줄러 못지않게
+          # CPU를 먹는데 0.5코어로는 그 순간을 못 버텼다. 운영에서
+          # `docker update --cpus 1.5`로 즉시 올렸더니 곧바로 기동에 성공해
+          # CPU 부족이 원인임을 확인했다. 이제 dag-processor(1.0)와 같은
+          # 값으로 맞춘다 — 평시엔 여유롭고 콜드 스타트엔 더는 굶지 않는다.
+          cpus: "1.0"
 
   airflow-worker:
     <<: *airflow-common
