@@ -13,6 +13,18 @@ export function createCompanionInvite(tripId: string, role: CompanionRole, acces
   });
 }
 
+export type AcceptedInvite = { tripId: string; role: CompanionRole | 'OWNER'; alreadyMember: boolean; joinedAt: string };
+
+// 서버 계약(TripCollaborationController#acceptInvite): 로그인만 하면 되고 표(token) 자체가
+// 잠금이다. 이미 참여 중이어도 실패가 아니라 alreadyMember: true 로 200을 돌려준다 — 같은
+// 링크를 두 번 열었다고 실패 화면을 보여주지 않기 위함이다(S15P21E201-302).
+export function acceptTripInvite(token: string, accessToken: string) {
+  return apiRequest<AcceptedInvite>(`/api/v1/trip-invites/${encodeURIComponent(token)}/accept`, {
+    method: 'POST',
+    accessToken,
+  });
+}
+
 // jaehyeon 님(2026-09-08 axmap): 여행 삭제(DELETE /trips/{tripId})는 소유자 전용이고 동행자가
 // 부르면 403이다. 동행자가 "내 화면에서 치우고 싶다"는 요청은 이 자리 것 — 자기 자신을
 // 멤버 목록에서 빼는 것이라, 삭제와 버튼을 하나로 합치지 않는다(눌린 사람의 역할에 따라
