@@ -44,6 +44,13 @@
           "recordAudioAndroid": false
         }
       ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "여행 기록에 올릴 사진을 고르기 위해 사진첩을 사용합니다. 고른 사진만 올라가고, 다른 사진은 읽지 않습니다.",
+          "microphonePermission": false
+        }
+      ],
       "expo-notifications",
       "expo-video"
     ]
