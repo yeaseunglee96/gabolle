@@ -21,9 +21,7 @@
   ],
   "newTypes": [],
   "descriptors": {
-    "established": "광안리 낙지 전문점",
-    "signature": "낙곱새, 낙곱새세트",
-    "location": "광안리 본점"
+    "signatureDishes": ["낙곱새", "낙곱새세트"]
   },
   "notFound": null,
   "notes": "11:00~15:30, 17:00~22:00 영업, 2인 이상 주문, 1인 1음식 필수"

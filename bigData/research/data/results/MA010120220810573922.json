@@ -31,9 +31,7 @@
   ],
   "newTypes": [],
   "descriptors": {
-    "established": "4대 이어온 역사 있는 수육 전문점",
-    "signature": "수육, 국수, 열무국수",
-    "recognition": "Michelin Guide 2026 선정, TV '배틀트립' 출연"
+    "signatureDishes": ["수육", "국수", "열무국수"]
   },
   "notFound": null,
   "notes": "1인 1수육 주문 정책, 부산역 초량 위치로 여행객 방문 많음, 미니멀한 반찬"

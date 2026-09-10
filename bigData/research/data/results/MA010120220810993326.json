@@ -21,9 +21,7 @@
   ],
   "newTypes": [],
   "descriptors": {
-    "established": "서면 밀면 대표 명점",
-    "signature": "물밀면, 만두",
-    "location": "이오스프라자"
+    "signatureDishes": ["물밀면", "만두"]
   },
   "notFound": null,
   "notes": "서전로 25, 10:30~21:30, 30분 무료주차"

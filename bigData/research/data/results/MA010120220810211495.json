@@ -26,9 +26,7 @@
   ],
   "newTypes": [],
   "descriptors": {
-    "established": "수영구 광안동 돼지국밥 전문점",
-    "signature": "부산식 돼지국밥, 밀양식 돼지국밥",
-    "location": "광안리 인근, 수영역 근처"
+    "signatureDishes": ["부산식 돼지국밥", "밀양식 돼지국밥"]
   },
   "notFound": null,
   "notes": "11:00~21:00(15:00~17:00 브레이크, 라스트오더 20:30), 제한된 좌석으로 웨이팅 있음"

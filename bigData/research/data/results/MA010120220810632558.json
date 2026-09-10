@@ -31,10 +31,8 @@
   ],
   "newTypes": [],
   "descriptors": {
-    "established": "1946년 개점 - 80년 전통의 부산 대표 돼지국밥",
-    "signature": "따로국밥, 수육백반",
-    "recognition": "Blue Ribbon 14회 수상",
-    "operating_hours": "24시간 (2:30~4:30 AM 휴무)"
+    "yearsClaimed": 80,
+    "signatureDishes": ["따로국밥", "수육백반"]
   },
   "notFound": null,
   "notes": "서면시장 위치, 외국인 관광객 많음, 셀프 반찬 리필 가능, 무료 찹쌀순대 제공, 서면역 1번 출구에서 3분 거리"

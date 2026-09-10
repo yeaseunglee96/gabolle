@@ -31,9 +31,8 @@
   ],
   "newTypes": [],
   "descriptors": {
-    "established": "46년 된 동네 노포 - 현지인 단골들의 애정 맛집",
-    "signature": "순대국, 특수 모둠",
-    "location": "연산역 5번 출구 가까움"
+    "yearsClaimed": 46,
+    "signatureDishes": ["순대국", "특수 모둠"]
   },
   "notFound": null,
   "notes": "유명 메뉴 '술국(술 안주용)', 저렴한 가격대, 점심 시간 웨이팅 주의, 온사이트 주차 가능, 1/3 일요일 휴무"

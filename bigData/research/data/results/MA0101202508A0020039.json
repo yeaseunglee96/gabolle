@@ -26,9 +26,7 @@
   ],
   "newTypes": [],
   "descriptors": {
-    "established": "광안리 원조 언양불고기 전문점",
-    "signature": "불고기, 김치찌개",
-    "recognition": "1박2일 출연"
+    "signatureDishes": ["불고기", "김치찌개"]
   },
   "notFound": null,
   "notes": "11:00~22:00 영업(월요일 휴무), 서울 논현동 지점 있음, 전화 선주문 픽업 가능"

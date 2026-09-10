@@ -31,8 +31,7 @@
   ],
   "newTypes": [],
   "descriptors": {
-    "established": "부산 서면 밀면 전문점 - 서면본점",
-    "signature": "물밀면, 비빔밀면, 수제만두"
+    "signatureDishes": ["물밀면", "비빔밀면", "수제만두"]
   },
   "notFound": null,
   "notes": "온육수 셀프 서빙 가능, 주차 불가능 - 근처 유료주차장 이용, 서면역 9번 출구에서 도보 5분, 2층 넓은 좌석"

@@ -26,9 +26,7 @@
   ],
   "newTypes": [],
   "descriptors": {
-    "established": "해운대 재송동 돼지국밥 전문점",
-    "signature": "돼지국밥, 순대국밥, 수육백반",
-    "location": "동해 센텀역 1번 출구에서 도보 692m"
+    "signatureDishes": ["돼지국밥", "순대국밥", "수육백반"]
   },
   "notFound": null,
   "notes": "7:00~21:40 영업(무휴), 라스트오더 21:00, 평일 점심 웨이팅, 셀프바 시골 막걸리"

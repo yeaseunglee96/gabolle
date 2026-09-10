@@ -26,9 +26,8 @@
   ],
   "newTypes": [],
   "descriptors": {
-    "established": "1956년 개점 - 60년 이상 전통",
-    "signature": "순대국밥, 내장국밥",
-    "location": "부산역 초량 범일동"
+    "yearsClaimed": 60,
+    "signatureDishes": ["순대국밥", "내장국밥"]
   },
   "notFound": null,
   "notes": "10:00~20:00 영업, 부산 돼지국밥 베스트 5"

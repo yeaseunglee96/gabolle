@@ -26,9 +26,7 @@
   ],
   "newTypes": [],
   "descriptors": {
-    "established": "부산 남구 용호동 명점",
-    "signature": "따로국밥, 수육백반",
-    "recognition": "Michelin Guide 선정"
+    "signatureDishes": ["따로국밥", "수육백반"]
   },
   "notFound": null,
   "notes": "09:30~20:00 영업, 1시간 무료주차, 포장·예약 가능"

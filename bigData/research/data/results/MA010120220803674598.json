@@ -31,9 +31,7 @@
   ],
   "newTypes": [],
   "descriptors": {
-    "established": "부산 양정 대표 맛집 - 서면 미누식당의 원조 본점",
-    "signature": "고구마무스닭갈비, 해물파전",
-    "operating_hours": "16:00~01:00 (월요일 휴무)"
+    "signatureDishes": ["고구마무스닭갈비", "해물파전"]
   },
   "notFound": null,
   "notes": "저녁시간 대기 많음, 술모임과 가족 식사에 적합, 양정역에서 도보 300m"

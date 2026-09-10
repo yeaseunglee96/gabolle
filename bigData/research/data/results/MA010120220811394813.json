@@ -21,9 +21,8 @@
   ],
   "newTypes": [],
   "descriptors": {
-    "established": "광안리 20년 전통 횟집",
-    "signature": "세꼬시",
-    "location": "광안해변로 207 1층"
+    "yearsClaimed": 20,
+    "signatureDishes": ["세꼬시"]
   },
   "notFound": null,
   "notes": "11:00~22:00 영업(무휴), 1시간 무료주차"

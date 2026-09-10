@@ -31,9 +31,7 @@
   ],
   "newTypes": [],
   "descriptors": {
-    "established": "가야공원 인근 오리고기 전문점",
-    "signature": "오리불고기, 오리백숙",
-    "special_feature": "계곡물 흐르는 야외테이블"
+    "signatureDishes": ["오리불고기", "오리백숙"]
   },
   "notFound": null,
   "notes": "자료 카테고리(돼지고기구이/찜)와 다르게 실제로는 오리고기 전문점, 무료 주차 가능, 반려동물 동반 가능"

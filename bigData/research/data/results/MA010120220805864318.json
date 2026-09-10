@@ -31,10 +31,7 @@
   ],
   "newTypes": [],
   "descriptors": {
-    "established": "수영구 민락동 대표 돼지국밥 명점",
-    "signature": "고기국밥, 항정국밥",
-    "operating_hours": "24시간 연중무휴",
-    "location": "광안리 인근"
+    "signatureDishes": ["고기국밥", "항정국밥"]
   },
   "notFound": null,
   "notes": "민락본점, 웨이팅 많을 시 테이블링 앱으로 원격 등록 가능, 여러 지점 운영"
