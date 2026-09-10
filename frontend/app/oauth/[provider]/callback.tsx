@@ -1,9 +1,8 @@
 // 소셜 로그인이 끝나고 provider 가 사용자를 되돌려 보내는 착지 화면이다.
 // 경로는 /oauth/google/callback · /oauth/naver/callback · /oauth/kakao/callback ·
 // /oauth/apple/callback 넷이고 [provider] 동적 구간으로 한 파일이 다 받는다
-// (S15P21E201-612, DEC-AUTH-006). Apple은 이 화면에 바로 오지 않고 백엔드
-// AppleOAuthCallbackController 를 한 번 거쳐 여기로 302 리다이렉트된다 —
-// Apple의 POST(form_post) 응답을 이 SPA는 받을 서버가 없어서다.
+// (S15P21E201-612, DEC-AUTH-006). Apple도 scope를 email만 요청해(oauth.ts 주석)
+// 다른 셋과 똑같이 GET 리다이렉트로 바로 여기 온다 — 별도 경유지가 없다.
 //
 // 🔴 이 화면이 없으면 소셜 로그인이 마지막에 실패한다. 2026-09-04 에 실제로 그랬다 —
 //    provider 는 code 를 들고 정상으로 되돌려 보내는데 Expo Router 에 이 경로가 없어서
