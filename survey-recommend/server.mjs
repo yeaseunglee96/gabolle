@@ -140,9 +140,11 @@ const MS_BUCKET_MAX = (DESIGN.msBuckets || []).length;
 console.log(`짝 비교 문항 ${DESIGN.sets.length}개 (${DESIGN.designId})`);
 
 /* 🔴 이 응답이 어느 판의 설문에 답했나 — schema.sql · migrations/0002 참고.
-      1 = 짝 비교도 세 문항도 없던 판 · 2 = 세 문항이 붙은 판 · 3 = 짝 비교까지.
-      이 숫자를 안 올리면 옛 응답과 섞여서 "짝 비교 응답률이 낮다" 로 잘못 읽힌다. */
-const FORM_VERSION = 3;
+      1 = 짝 비교도 세 문항도 없던 판 · 2 = 세 문항이 붙은 판 · 3 = 짝 비교까지 ·
+      4 = 네 번째 개인화 문항(북적임)까지 (migrations/0004).
+      이 숫자를 안 올리면 옛 응답과 섞여서 "북적임 응답률이 낮다" 로 잘못 읽힌다 —
+      사실은 그 문항이 생기기 전에 들어온 응답이라 물어본 적이 없는 것이다. */
+const FORM_VERSION = 4;
 
 const pool = new pg.Pool({
   connectionString: process.env.DATABASE_URL,
@@ -233,6 +235,40 @@ function readSpendProfile(v) {
   return Object.keys(picked).length === 0
     ? { status: "SKIPPED",  value: null }
     : { status: "SELECTED", value: picked };
+}
+
+/* ── 네 번째 개인화 문항: 저녁 먹을 곳의 북적임 ──────────────────────
+ * 🔴 화면(index.html 의 CROWD_QUESTION)과 표(schema.sql ·
+ *    migrations/0004 의 response_crowd_pref_ok)와 이 목록이 **세 벌**이다.
+ *    셋이 어긋나면 사람은 화면에서 통과하고 서버나 DB 에서 거절당한다.
+ *    고칠 때 셋을 같이 고친다.
+ *
+ * 눈금은 "저녁 먹을 곳을 고를 때 어느 쪽으로 가나" 한 축이다 —
+ *   CROWD_BUSY(먹자골목 한가운데) · CROWD_EDGE(가장자리) · CROWD_QUIET(조용한 골목).
+ * 🔴 CROWD_VARIES("그날그날 달라요")는 눈금 위의 한 점이 아니고 건너뛴 것도
+ *    아니다. "밀도를 고정하지 않는 사람" 이라는 답이라 저장은 하고 계산에서만
+ *    뺀다 — 식사 문항의 VARIES 와 같은 취급이다.
+ * ────────────────────────────────────────────────────────────────── */
+const CROWD_CHOICES = new Set(["CROWD_BUSY", "CROWD_EDGE", "CROWD_QUIET", "CROWD_VARIES"]);
+
+/* 들어온 북적임 답을 읽는다. 🔴 셋을 가른다 —
+ *   null     : crowdPref 칸이 아예 없다 = 아직 안 물어봤다 (표에서도 NULL)
+ *   SKIPPED  : 물어봤는데 안 골랐다 (null 로 온다)
+ *   SELECTED : 골랐다
+ * 🔴 여기서는 null 이 "건너뜀" 이다. spend_profile 안쪽에서 "stay": null 을
+ *    금지한 것과 어긋나 보이지만 자리가 다르다 — 저기는 **객체 안의 키**라
+ *    "키가 없는 것" 과 "키가 null 인 것" 두 벌이 생기는 게 문제였고, 여기는
+ *    **칸 하나**라 세 상태를 나타낼 다른 방법이 없다(칸 없음 / null / 글자).
+ * 상태는 클라이언트가 보낸 것을 믿지 않고 여기서 정한다. */
+function readCrowdPref(v) {
+  if (v === undefined) return { status: null, value: null };
+  if (v === null) return { status: "SKIPPED", value: null };
+  /* 🔴 모르는 값을 메시지에 그대로 되돌려 주지 않는다.
+        이 서버는 사람이 적은 글을 어디에도 다시 내보내지 않는다. */
+  if (typeof v !== "string" || !CROWD_CHOICES.has(v)) {
+    return { error: "저녁 먹을 곳 문항의 답이 목록에 없는 값이에요." };
+  }
+  return { status: "SELECTED", value: v };
 }
 
 /* ── 짝 비교 여섯 문항 (화면 3장 × 2문항) ────────────────────────────
@@ -358,7 +394,7 @@ function check(b) {
   return null;
 }
 
-async function insert(b, spend, pair) {
+async function insert(b, spend, pair, crowd) {
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
@@ -369,12 +405,14 @@ async function insert(b, spend, pair) {
     const { rows } = await client.query(
       `INSERT INTO response (age_band, busan_years, phone, consented, nonce, form_version,
                              spend_profile, spend_profile_status,
-                             pairwise_status, pairwise_design_id, pairwise_trap_passed)
-       VALUES ($1, $2, $3, TRUE, $4, $5, $6, $7, $8, $9, $10) RETURNING id`,
+                             pairwise_status, pairwise_design_id, pairwise_trap_passed,
+                             crowd_pref, crowd_pref_status)
+       VALUES ($1, $2, $3, TRUE, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING id`,
       [b.ageBand, b.busanYears, b.phone || null, randomBytes(9).toString("base64url"),
        FORM_VERSION,
        spend.value ? JSON.stringify(spend.value) : null, spend.status,
-       pair.status, pair.designId, pair.trapPassed]
+       pair.status, pair.designId, pair.trapPassed,
+       crowd.value, crowd.status]
     );
     const id = rows[0].id;
     for (const c of pair.rows) {
@@ -498,8 +536,11 @@ const server = createServer((req, res) => {
       const pair = readPairwise(body.pairwise);
       if (pair.error) return json(res, 400, { message: pair.error });
 
+      const crowd = readCrowdPref(body.crowdPref);
+      if (crowd.error) return json(res, 400, { message: crowd.error });
+
       try {
-        await insert(body, spend, pair);
+        await insert(body, spend, pair, crowd);
         json(res, 201, { ok: true });
       } catch (e) {
         /* 🔴 오류 이름만 찍는다. 요청 내용은 절대 찍지 않는다 —

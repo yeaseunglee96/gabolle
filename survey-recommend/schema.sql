@@ -37,6 +37,12 @@
 --    (한쪽만 고치면 새로 띄운 DB 와 살아 있는 DB 가 서로 다른 표가 되고,
 --     그건 두 DB 의 응답을 합치려는 날에야 드러난다.)
 --
+-- 🔴 2026-09-10 (같은 티켓) 네 번째 개인화 문항 "북적임" 이 붙었다 —
+--    response 에 crowd_pref · crowd_pref_status 두 칸. 살아 있는 DB 는
+--    migrations/0004_add_crowd.sql 을 0003 **뒤에** 돌린다.
+--    🔴 앱 온보딩은 여전히 세 질문이다. 넷은 이 설문에서만이고, 이유는
+--    docs/COLDSTART-THREE-QUESTIONS.md 2.6 에 적어 뒀다 (이탈 비용이 다르다).
+--
 -- 🔴 새로 더한 칸은 전부 NULL 허용이다. NULL 이 곧 "그 판에서는 안 물어봤음"
 --    이다. 이미 응답이 들어 있는 표에 NOT NULL 을 걸면 ALTER 가 거부되고
 --    살아 있는 설문이 그 자리에서 멈춘다.
@@ -79,6 +85,7 @@ CREATE TABLE IF NOT EXISTS response (
   --      NULL 또는 1 = 이 칸이 생기기 전 판 (추천 다섯 곳 · 전화번호 · 가게 자동완성)
   --      2           = 개인화 세 문항이 붙은 판
   --      3           = 짝 비교까지 붙은 판
+  --      4           = 북적임 문항까지 붙은 판 (migrations/0004)
   --    없으면 나중에 반드시 이렇게 잘못 읽는다: "응답 100건 중 짝 비교가
   --    60건뿐이네 → 응답률 60%". 사실은 40건이 그 문항이 생기기 **전에**
   --    들어온 것이라 응답률은 100% 다.
@@ -94,6 +101,18 @@ CREATE TABLE IF NOT EXISTS response (
   -- 응답 단위로 거르는 일이 잦아 여기에도 둔다. 둘 다 server.mjs 가
   -- 같은 트랜잭션에서 같은 문항 정의를 보고 적는다.
   pairwise_trap_passed BOOLEAN,
+
+  -- ── 네 번째 개인화 문항: 북적임 — migrations/0004 와 같은 것 ────────
+  -- 🔴 칸 순서를 맨 뒤로 둔다. 마이그레이션은 ALTER … ADD COLUMN 이라
+  --    반드시 맨 뒤에 붙는다. 여기서 가운데에 끼우면 새로 띄운 DB 와 살아
+  --    있는 DB 의 칸 순서(ordinal_position)가 갈라진다.
+  -- 🔴 spend_profile JSONB 에 키를 하나 더 넣지 않은 이유는 0004 에 적혀 있다 —
+  --    북적임은 돈이 아니라 밀도라 다른 차원이고, 상태 칸을 두 차원이 나눠
+  --    쓰면 "북적임만 답한 사람" 이 지불 의사 'SELECTED' 로 남는다.
+  -- NULL = 안 물어봤음 또는 건너뜀 (어느 쪽인지는 아래 상태 칸이 가른다).
+  crowd_pref           TEXT,
+  -- NULL = 안 물어봤음 · 'SELECTED' = 골랐음 · 'SKIPPED' = 봤는데 안 골랐음.
+  crowd_pref_status    TEXT,
 
   -- 🔴 2026-09-09 (S15P21E201-754, 팀원 피드백) 다섯 칸 → 세 칸으로 바꿨다.
   --    UNDER_20 · AGE_20_24 · AGE_25_29 · AGE_30_34 · AGE_35_PLUS 를 버리고
@@ -144,6 +163,24 @@ CREATE TABLE IF NOT EXISTS response (
               AND length(btrim(pairwise_design_id)) BETWEEN 1 AND 60
               AND pairwise_trap_passed IS NOT NULL
          ELSE pairwise_design_id IS NULL AND pairwise_trap_passed IS NULL
+    END),
+
+  -- 🔴 아래 셋은 migrations/0004 가 ALTER 로 더하는 것과 이름도 내용도 같아야 한다.
+  CONSTRAINT response_crowd_pref_status_ok
+    CHECK (crowd_pref_status IS NULL OR crowd_pref_status IN ('SELECTED', 'SKIPPED')),
+  -- 🔴 이 칸은 JSONB 가 아니라 글자 한 칸이라 코드값 목록을 DB 가 직접 막는다
+  --    (age_band · busan_years 와 같은 방식). 목록이 server.mjs 의
+  --    CROWD_CHOICES 와 두 벌이니 고칠 때 반드시 같이 고친다.
+  --    🔴 CROWD_VARIES("그날그날 달라요")는 눈금 위의 한 점이 아니고 건너뛴
+  --       것도 아니다 — "밀도를 고정하지 않는 사람" 이라는 답이라 저장은 하고
+  --       계산에서만 뺀다. 식사 문항의 'VARIES' 와 같은 취급이다.
+  CONSTRAINT response_crowd_pref_ok CHECK (crowd_pref IS NULL OR crowd_pref IN (
+    'CROWD_BUSY', 'CROWD_EDGE', 'CROWD_QUIET', 'CROWD_VARIES')),
+  CONSTRAINT ck_crowd_pref_value_matches_status CHECK (
+    -- 🔴 여기도 CASE 다 (위 둘과 같은 이유).
+    CASE WHEN crowd_pref_status = 'SELECTED'
+         THEN crowd_pref IS NOT NULL
+         ELSE crowd_pref IS NULL
     END)
 );
 
