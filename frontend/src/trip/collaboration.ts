@@ -1,4 +1,4 @@
-import { apiRequest } from '@/api/client';
+import { apiRequest, ApiClientError } from '@/api/client';
 
 export type CompanionRole = 'EDITOR' | 'VIEWER';
 export type CompanionInvite = { inviteUrl: string; expiresAt: string };
@@ -34,4 +34,63 @@ export function leaveTrip(tripId: string, userId: string, accessToken: string) {
     method: 'DELETE',
     accessToken,
   });
+}
+
+// 참여자 목록·역할 관리 — S15P21E201-327·-320. 서버 계약(TripCollaborationController):
+//   GET   /api/v1/trips/{tripId}/members            참여자 목록 + 내 역할 + 내 편집 가능 여부
+//   PATCH /api/v1/trips/{tripId}/members/{userId}   역할 변경(EDITOR·VIEWER만, 소유자 전용)
+//   DELETE .../members/{userId}                     참여자 제거(소유자 전용, 소유자 자신은 못 뺀다)
+export type TripMemberRole = 'OWNER' | CompanionRole;
+export type TripMember = { userId: string; displayName: string | null; role: TripMemberRole; joinedAt: string; invitedBy: string | null; invitedAt: string | null; isMe: boolean };
+export type TripMembersView = { members: TripMember[]; myRole: TripMemberRole; canEdit: boolean };
+
+export type TripMembersResult = { state: 'success' } & TripMembersView | { state: 'forbidden' | 'error'; message: string };
+
+function membersFailure(error: unknown): Exclude<TripMembersResult, { state: 'success' }> {
+  if (error instanceof ApiClientError && error.status === 403) return { state: 'forbidden', message: error.message };
+  return { state: 'error', message: error instanceof Error ? error.message : '참여자 목록을 불러오지 못했어요.' };
+}
+
+export async function listTripMembers(tripId: string, accessToken: string | null): Promise<TripMembersResult> {
+  try {
+    const view = await apiRequest<TripMembersView>(`/api/v1/trips/${encodeURIComponent(tripId)}/members`, { accessToken });
+    return { state: 'success', ...view };
+  } catch (error) {
+    return membersFailure(error);
+  }
+}
+
+export type TripMemberActionResult = { state: 'success' } | { state: 'forbidden' | 'error'; message: string };
+
+// 응답도 TripMember 와 같은 모양이지만, 화면은 바뀐 한 명이 아니라 목록을 다시 불러
+// 그린다(그새 다른 사람이 참여했을 수 있어서) — 그래서 응답 값 자체는 버리고 성공
+// 여부만 쓴다.
+export async function changeTripMemberRole(tripId: string, userId: string, role: CompanionRole, accessToken: string | null): Promise<TripMemberActionResult> {
+  try {
+    await apiRequest<TripMember>(`/api/v1/trips/${encodeURIComponent(tripId)}/members/${encodeURIComponent(userId)}`, {
+      method: 'PATCH',
+      accessToken,
+      body: { role },
+    });
+    return { state: 'success' };
+  } catch (error) {
+    return membersActionFailure(error);
+  }
+}
+
+export async function removeTripMember(tripId: string, userId: string, accessToken: string | null): Promise<TripMemberActionResult> {
+  try {
+    await apiRequest<void>(`/api/v1/trips/${encodeURIComponent(tripId)}/members/${encodeURIComponent(userId)}`, {
+      method: 'DELETE',
+      accessToken,
+    });
+    return { state: 'success' };
+  } catch (error) {
+    return membersActionFailure(error);
+  }
+}
+
+function membersActionFailure(error: unknown): Exclude<TripMemberActionResult, { state: 'success' }> {
+  if (error instanceof ApiClientError && error.status === 403) return { state: 'forbidden', message: error.message };
+  return { state: 'error', message: error instanceof Error ? error.message : '요청을 처리하지 못했어요.' };
 }
