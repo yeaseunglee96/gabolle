@@ -88,11 +88,15 @@ class OAuthChallengeJourneyFunctionalTest extends FunctionalJourneyTest {
 				new HttpEntity<>(loginRequest), new ParameterizedTypeReference<ApiResponse<Object>>() {
 				});
 
-		// 🔴 401(인증 필요)이 아니라 501(provider 미설정)이어야 한다 — 테스트 환경엔 실제
-		// client-id/secret이 없어 여기서 막히는 것이 정상이다. 401이 나오면 -704가 재발한 것이다.
-		assertThat(login.getStatusCode()).isEqualTo(HttpStatus.NOT_IMPLEMENTED);
+		// 🔴 401(인증 필요)만 아니면 된다 — 정확히 어느 실패로 막히는지는 환경마다 다르다.
+		// client-id가 비어 있으면(로컬) 네트워크를 타기 전에 501 OAUTH_PROVIDER_NOT_CONFIGURED로
+		// 막히고, 실제 credential이 설정된 환경(CI)에서는 가짜 authorizationCode로 진짜 provider와
+		// 교환을 시도하다 502 OAUTH_TOKEN_EXCHANGE_FAILED로 막힌다 — 실측(2026-09-10, CI 파이프라인
+		// 188525)으로 확인했다. 둘 다 "필터체인은 통과했다"는 같은 사실의 증거이니 이 테스트가 보는
+		// 것은 401이 아니라는 것 하나뿐이다. 401이 나오면 -704가 재발한 것이다.
+		assertThat(login.getStatusCode()).isNotEqualTo(HttpStatus.UNAUTHORIZED);
 		assertThat(login.getBody()).isNotNull();
-		assertThat(login.getBody().error().code()).isEqualTo("OAUTH_PROVIDER_NOT_CONFIGURED");
+		assertThat(login.getBody().error().code()).isIn("OAUTH_PROVIDER_NOT_CONFIGURED", "OAUTH_TOKEN_EXCHANGE_FAILED");
 	}
 
 	/**
