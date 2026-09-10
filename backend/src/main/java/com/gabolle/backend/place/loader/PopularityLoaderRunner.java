@@ -71,8 +71,15 @@ public class PopularityLoaderRunner implements ApplicationRunner {
 		long startedAt = System.nanoTime();
 		LOGGER.info("목록 근거 적재를 시작한다 — 파일={} 수집분={}", file.toAbsolutePath(), this.datasetVersion);
 
-		TruthSignalReader.Counts counts = TruthSignalReader.read(file, CHUNK,
-				chunk -> inserted.addAndGet(this.loader.saveChunk(chunk, this.datasetVersion, collectedAt)));
+		TruthSignalReader.Loaded loaded = TruthSignalReader.read(file);
+		// 목록의 무게는 이 파일 전체의 분포에서 나온다 — 한 줄만 봐서는 못 정한다.
+		ListRarity rarity = ListRarity.from(loaded.rows());
+		for (int from = 0; from < loaded.rows().size(); from += CHUNK) {
+			int to = Math.min(from + CHUNK, loaded.rows().size());
+			inserted.addAndGet(this.loader.saveChunk(loaded.rows().subList(from, to), rarity,
+					this.datasetVersion, collectedAt));
+		}
+		TruthSignalReader.Counts counts = loaded.counts();
 
 		long elapsedMs = (System.nanoTime() - startedAt) / 1_000_000L;
 		// 넣은 것과 건너뛴 것을 갈라 남긴다. 건너뛴 것은 두 가지가 섞여 있다 — 이미 있는

@@ -68,7 +68,8 @@ public class PopularityScoreLoader {
 
 	/** @return 실제로 넣은 피처 수 */
 	@Transactional
-	public int saveChunk(List<TruthSignalRow> rows, String datasetVersion, OffsetDateTime collectedAt) {
+	public int saveChunk(List<TruthSignalRow> rows, ListRarity rarity, String datasetVersion,
+			OffsetDateTime collectedAt) {
 		Set<UUID> knownPlaces = new HashSet<>();
 		this.placeRepository.findAllById(rows.stream().map(row -> SbizPlaceLoader.placeIdOf(row.storeId())).toList())
 				.forEach(place -> knownPlaces.add(place.getPlaceId()));
@@ -84,7 +85,7 @@ public class PopularityScoreLoader {
 			if (!knownPlaces.contains(placeId) || existingFeatures.contains(featureId)) {
 				continue;
 			}
-			features.add(PlaceFeature.imported(featureId, placeId, FEATURE_TYPE, null, value(row),
+			features.add(PlaceFeature.imported(featureId, placeId, FEATURE_TYPE, null, value(row, rarity),
 					// 목록에 올랐다는 사실이지 잰 인기도가 아니다. VERIFIED 로 적으면
 					// 나중에 아무도 이 값을 의심하지 않는다.
 					PlaceEvidenceStatus.ESTIMATED,
@@ -94,10 +95,11 @@ public class PopularityScoreLoader {
 		return features.size();
 	}
 
-	static String value(TruthSignalRow row) {
+	static String value(TruthSignalRow row, ListRarity rarity) {
 		ObjectNode node = MAPPER.createObjectNode();
-		node.put("score", row.score());
-		node.put("sources", row.sourceCount());
+		node.put("score", rarity.scoreOf(row));
+		node.put("lists_count", row.lists().size());
+		node.put("mentions", row.mentions());
 		ArrayNode lists = node.putArray("lists");
 		row.lists().forEach(lists::add);
 		return node.toString();

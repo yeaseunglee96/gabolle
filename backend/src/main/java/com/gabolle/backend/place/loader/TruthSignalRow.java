@@ -5,22 +5,12 @@ import java.util.List;
 /**
  * 목록 근거 한 줄 — S15P21E201-826.
  *
+ * <p>점수를 여기서 내지 않는다. 목록 하나가 얼마나 무거운지는 <b>그 목록에 몇 곳이
+ * 올랐는가</b>에 따라 정해지므로 한 줄만 봐서는 알 수 없다 — {@link ListRarity} 가 낸다.
+ *
  * @param storeId 상가업소번호. 장소 id 를 이 값에서 계산한다({@link SbizPlaceLoader#placeIdOf})
- * @param sourceCount 서로 다른 목록 몇 곳에 올랐는가
- * @param lists 그 목록 이름들. 점수의 근거를 사람이 되짚을 수 있게 함께 남긴다
+ * @param lists 오른 큐레이션 목록 이름들 — 블루리본 · 백년가게 · 택슐랭 · 블로그100 · 공개글448
+ * @param mentions 공개글이 지목한 횟수. 그 칸은 「공개글448」에만 붙으므로 없을 수 있다
  */
-public record TruthSignalRow(String storeId, int sourceCount, List<String> lists) {
-
-	/**
-	 * 목록 수를 0~1 점수로 옮긴다.
-	 *
-	 * <p>다섯 곳 이상이면 1.0 이다. 실제 자료에서 여섯 곳이 최대이고 그 위는 한 곳뿐이라,
-	 * 상한을 더 올려 봐야 가르는 것이 없으면서 한 곳 오른 가게의 점수만 낮아진다.
-	 *
-	 * <p>이 값은 <b>몇 개의 목록에 올랐는가</b>이지 측정된 인기도가 아니다. 그래서 증거
-	 * 등급을 {@code ESTIMATED} 로 적는다.
-	 */
-	public double score() {
-		return Math.min(1.0, this.sourceCount / 5.0);
-	}
+public record TruthSignalRow(String storeId, List<String> lists, int mentions) {
 }

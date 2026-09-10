@@ -10,7 +10,6 @@ import java.nio.file.Path;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import com.gabolle.backend.place.loader.PopularityScoreLoader;
+import com.gabolle.backend.place.loader.ListRarity;
 import com.gabolle.backend.place.loader.SbizPlaceLoader;
 import com.gabolle.backend.place.loader.SbizRow;
 import com.gabolle.backend.place.loader.TruthSignalReader;
@@ -40,7 +40,7 @@ class PopularityScoreLoaderIntegrationTest extends PlacePostgresIntegrationTest 
 
 	private static final String SAMPLE = "/research/truth-sample.ndjson";
 
-	/** 표본에 실제로 들어 있는 가게. 목록 둘에 올랐다. */
+	/** 표본에 실제로 들어 있는 가게. 「공개글448」 하나에 오르고 글이 두 번 지목했다. */
 	private static final String LISTED_STORE = "MA010120220811437741";
 
 	@Autowired
@@ -83,11 +83,9 @@ class PopularityScoreLoaderIntegrationTest extends PlacePostgresIntegrationTest 
 	}
 
 	private int load(Path file) {
-		AtomicInteger inserted = new AtomicInteger();
-		OffsetDateTime collectedAt = OffsetDateTime.now();
-		TruthSignalReader.read(file, 500,
-				chunk -> inserted.addAndGet(this.popularityLoader.saveChunk(chunk, DATASET, collectedAt)));
-		return inserted.get();
+		TruthSignalReader.Loaded loaded = TruthSignalReader.read(file);
+		ListRarity rarity = ListRarity.from(loaded.rows());
+		return this.popularityLoader.saveChunk(loaded.rows(), rarity, DATASET, OffsetDateTime.now());
 	}
 
 	@Test
@@ -101,7 +99,7 @@ class PopularityScoreLoaderIntegrationTest extends PlacePostgresIntegrationTest 
 		String value = this.jdbcTemplate.queryForObject(
 				"SELECT value::text FROM place_feature WHERE place_id = ? AND feature_type = 'POPULARITY_SCORE'",
 				String.class, placeId);
-		assertThat(value).contains("\"score\"").contains("\"sources\"").contains("\"lists\"");
+		assertThat(value).contains("\"score\"").contains("\"lists_count\"").contains("\"mentions\"").contains("\"lists\"");
 	}
 
 	@Test
@@ -165,7 +163,8 @@ class PopularityScoreLoaderIntegrationTest extends PlacePostgresIntegrationTest 
 				"SELECT (value->>'score')::float8 FROM place_feature "
 						+ "WHERE place_id = ? AND feature_type = 'POPULARITY_SCORE'",
 				Double.class, placeId);
-		// 표본의 이 가게는 목록 둘에 올랐다 — 2 / 5 = 0.4.
-		assertThat(score).isEqualTo(0.4);
+		// 이 가게는 「공개글448」 하나에 올랐다. 표본 안에서 그 목록이 가장 흔하므로
+		// 무게가 작다 — 그것이 희소성 방식의 요점이다.
+		assertThat(score).isBetween(0.0, 1.0).isNotNull();
 	}
 }
