@@ -165,8 +165,8 @@ public class AuthController {
 			@RequestHeader(value = "X-Request-Id", required = false) String requestId,
 			@RequestHeader(value = "X-Session-Token", required = false) String sessionToken) {
 		LocalAuthService.Registration registration = localAuthService.register(new AuthCommands.Register(request.email(),
-				request.password(), request.displayName(), request.language(), request.ageGateAccepted(), request.deviceId(),
-				request.consents(), request.behaviorPersonalizationEnabled(), sessionToken));
+				request.password(), request.displayName(), request.language(), request.ageGateAcceptedOrFalse(),
+				request.deviceId(), request.consents(), request.behaviorPersonalizationEnabledOrFalse(), sessionToken));
 		return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(registration, resolveRequestId(requestId)));
 	}
 
@@ -214,7 +214,7 @@ public class AuthController {
 
 	@PostMapping("/logout")
 	public ResponseEntity<Void> logout(@Valid @RequestBody LogoutRequest request) {
-		tokenService.logout(request.refreshToken(), request.allDevices());
+		tokenService.logout(request.refreshToken(), request.allDevicesOrFalse());
 		return ResponseEntity.noContent().build();
 	}
 
