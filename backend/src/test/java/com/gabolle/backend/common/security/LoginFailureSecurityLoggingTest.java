@@ -76,6 +76,9 @@ class LoginFailureSecurityLoggingTest {
 	@Mock private PasswordEncoder passwordEncoder;
 	@Mock private AuthTokenService authTokenService;
 	@Mock private EmailSender emailSender;
+	// S15P21E201-317 — 가입 시 익명 여행 승계 의존성. 이 테스트는 로그인만 재므로 기본 mock 이면 된다.
+	@Mock private com.gabolle.backend.auth.service.AnonymousSessionService anonymousSessionService;
+	@Mock private com.gabolle.backend.trip.application.AnonymousTripClaimService anonymousTripClaimService;
 
 	private LocalAuthService localAuthService;
 	private Logger logbackLogger;
@@ -109,7 +112,8 @@ class LoginFailureSecurityLoggingTest {
 		this.localAuthService = new LocalAuthService(this.userRepository, this.consentRepository,
 				this.credentialRepository, this.identityRepository, this.oneTimeTokenRepository, this.passwordEncoder,
 				new SessionTokenGenerator(), this.authTokenService, this.emailSender, authProperties,
-				new ConsentPolicy(), loginAttemptGuard, securityEventLogger);
+				new ConsentPolicy(), loginAttemptGuard, securityEventLogger,
+				this.anonymousSessionService, this.anonymousTripClaimService);
 	}
 
 	@AfterEach

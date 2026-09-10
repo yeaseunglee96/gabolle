@@ -116,4 +116,12 @@ tasks.withType(Javadoc).configureEach {
 
 tasks.named('test') {
 	useJUnitPlatform()
+	testLogging {
+		// 🔴 원인 메시지("No qualifying bean of type ...")가 콘솔에 안 찍혀서 CI 실패의
+		//    진짜 이유를 못 읽던 문제 — 예외 클래스+줄번호만 남고 원인 체인 메시지는 잘렸다.
+		exceptionFormat = 'full'
+		showCauses = true
+		showExceptions = true
+		showStackTraces = true
+	}
 }

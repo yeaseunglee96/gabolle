@@ -18,6 +18,14 @@ public class Trip {
     private final String tripId;
     private final String createdBy;
 
+    /**
+     * 🔴 S15P21E201-317 — {@code createdBy} 가 회원(app_user)인지 익명 세션
+     * (anonymous_session)인지 구분한다. 가입 전 만든 여행은 {@code ANONYMOUS} 로 시작해서,
+     * 가입할 때 그 세션이 만든 여행을 전부 찾아 {@code USER} 로 바꾸는 승계(claim)의
+     * 대상이 된다. 회원이 직접 만든 여행은 항상 {@code USER} 다.
+     */
+    private final OwnerType ownerType;
+
     private final LocalDate startDate;
     private final LocalDate finishDate;
 
@@ -135,6 +143,27 @@ public class Trip {
                 String accommodationPlaceId, boolean englishMenuRequired, boolean foreignCardRequired,
                 boolean soloFriendlyPriority, Integer maxTransitTransfers,
                 Instant createdAt) {
+        this(tripId, createdBy, OwnerType.USER, startDate, finishDate, originLat, originLng, budgetKrw, partySize,
+                timeWindow, timezone, travelModes, timeWindowStart, timeWindowEnd,
+                accommodationPlaceId, englishMenuRequired, foreignCardRequired, soloFriendlyPriority,
+                maxTransitTransfers, createdAt);
+    }
+
+    /**
+     * S15P21E201-317 — 소유자 종류({@code ownerType})까지 받는 생성자. 익명 세션이 여행을
+     * 만드는 경로({@code TripCreationService})가 이걸 쓴다. 위 생성자들은 항상
+     * {@code OwnerType.USER} 로 고정해 이 생성자에 위임한다 — 회원 전용이던 기존 호출부를
+     * 하나도 고치지 않기 위해서다.
+     */
+    public Trip(String tripId, String createdBy, OwnerType ownerType,
+                LocalDate startDate, LocalDate finishDate,
+                Double originLat, Double originLng,
+                Integer budgetKrw, int partySize,
+                String timeWindow, String timezone,
+                String[] travelModes, LocalTime timeWindowStart, LocalTime timeWindowEnd,
+                String accommodationPlaceId, boolean englishMenuRequired, boolean foreignCardRequired,
+                boolean soloFriendlyPriority, Integer maxTransitTransfers,
+                Instant createdAt) {
 
         if (startDate == null || finishDate == null) {
             throw new IllegalArgumentException("여행 시작일과 종료일은 필수다");
@@ -162,6 +191,7 @@ public class Trip {
 
         this.tripId = tripId;
         this.createdBy = createdBy;
+        this.ownerType = ownerType != null ? ownerType : OwnerType.USER;
         this.startDate = startDate;
         this.finishDate = finishDate;
         this.originLat = originLat;
@@ -218,6 +248,7 @@ public class Trip {
     public static final class Builder {
         private String tripId;
         private String createdBy;
+        private OwnerType ownerType;
         private LocalDate startDate;
         private LocalDate finishDate;
         private Double originLat;
@@ -244,6 +275,7 @@ public class Trip {
 
         public Builder tripId(String tripId) { this.tripId = tripId; return this; }
         public Builder createdBy(String createdBy) { this.createdBy = createdBy; return this; }
+        public Builder ownerType(OwnerType ownerType) { this.ownerType = ownerType; return this; }
         public Builder startDate(LocalDate startDate) { this.startDate = startDate; return this; }
         public Builder finishDate(LocalDate finishDate) { this.finishDate = finishDate; return this; }
         public Builder originLat(Double originLat) { this.originLat = originLat; return this; }
@@ -272,7 +304,7 @@ public class Trip {
          * PLANNING·createdAt 으로 시작하도록 만들어졌다, TRIP-01).
          */
         public Trip build() {
-            Trip trip = new Trip(tripId, createdBy, startDate, finishDate, originLat, originLng,
+            Trip trip = new Trip(tripId, createdBy, ownerType, startDate, finishDate, originLat, originLng,
                     budgetKrw, partySize, timeWindow, timezone, travelModes, timeWindowStart, timeWindowEnd,
                     accommodationPlaceId, englishMenuRequired, foreignCardRequired, soloFriendlyPriority,
                     maxTransitTransfers, createdAt);
@@ -294,6 +326,14 @@ public class Trip {
 
     public int days() {
         return nights() + 1;
+    }
+
+    /** S15P21E201-317 — {@code createdBy} 가 가리키는 표. */
+    public enum OwnerType {
+        /** {@code createdBy} 는 {@code app_user.user_id} 다. */
+        USER,
+        /** {@code createdBy} 는 {@code anonymous_session.session_id} 다. 가입하면 {@code USER} 로 승계된다. */
+        ANONYMOUS
     }
 
     public enum Status {
@@ -338,6 +378,7 @@ public class Trip {
 
     public String tripId()       { return tripId; }
     public String createdBy()    { return createdBy; }
+    public OwnerType ownerType() { return ownerType; }
     public LocalDate startDate() { return startDate; }
     public LocalDate finishDate(){ return finishDate; }
     public Double originLat()    { return originLat; }
