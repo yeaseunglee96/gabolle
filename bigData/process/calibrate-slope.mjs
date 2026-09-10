@@ -15,12 +15,12 @@
  *
  *   node process/calibrate-slope.mjs
  */
-import { createReadStream, existsSync, readFileSync } from 'node:fs'
+import { createReadStream, existsSync } from 'node:fs'
 import { createInterface } from 'node:readline'
 import { readFile, writeFile, mkdir } from 'node:fs/promises'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { decodePNG, terrariumToElevation } from './png.mjs'
+import { createDemReader } from './dem-clean.mjs'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const DEM  = join(ROOT, 'data/raw/dem')
@@ -41,20 +41,18 @@ const dist = (a, b) => {
   return 2 * R * Math.asin(Math.sqrt(h))
 }
 
-const tiles = new Map()
-function tile(tx, ty) {
-  const k = `${tx}_${ty}`
-  if (tiles.has(k)) return tiles.get(k)
-  const p = join(DEM, String(ZOOM), `${k}.png`)
-  let v = null
-  if (existsSync(p)) {
-    const f = terrariumToElevation(decodePNG(readFileSync(p)))
-    v = new Int16Array(f.length)
-    for (let i = 0; i < f.length; i++) v[i] = Math.round(f[i] * 10)
-  }
-  tiles.set(k, v)
-  return v
-}
+// 🔴 slope.mjs 와 **똑같은 청소된 DEM** 을 본다 (process/dem-clean.mjs).
+//    이게 어긋나면 보정이 잰 기준선이 경사 계산에 안 맞는다 (S15P21E201-795).
+//
+// `--raw-dem` 은 청소를 끄고 원본으로 잰다. **대조군이 오염됐는지 보는 용도**다 —
+// 가짜 혹이 평지 도로를 12 m 위로 밀어 올려 대조군에서 빼 버리므로, 켜고 끄고
+// 두 번 돌려 `flatWays` 개수를 비교하면 그 일이 실제로 일어났는지 눈에 보인다.
+// 이 값을 기준선 산출물로 쓰지 않는다.
+const RAW_DEM = process.argv.includes('--raw-dem')
+const dem = createDemReader({
+  demDir: DEM, zoom: ZOOM, tileSize: TILE, debump: !RAW_DEM, rangeCheck: !RAW_DEM,
+})
+const tile = (tx, ty) => dem.tile(tx, ty)
 const gx = lon => (lon + 180) / 360 * 2 ** ZOOM * TILE
 const gy = lat => { const r = rad(lat)
   return (1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2 * 2 ** ZOOM * TILE }
@@ -161,6 +159,7 @@ async function main() {
   await writeFile(join(OUT, '_calibration.json'), JSON.stringify({
     at: new Date().toISOString(), source, zoom: ZOOM,
     control: { flatMaxM: FLAT_MAX_M, flatWays: flat.length, hillyMinM: HILLY_MIN_M, hillyWays: hilly.length },
+    demClean: { tiles: dem.stats.tilesLoaded, repairedPx: dem.stats.repairedPx, bumps: dem.stats.bumps.length, pressedPx: dem.stats.pressedPx },
     rows, recommendedBaselineM: pick ? pick.baselineM : null,
     rule: '평지 대조군의 8% 이상 비율(=거짓양성)이 1% 이하인 가장 짧은 기준선을 쓴다',
   }, null, 2))

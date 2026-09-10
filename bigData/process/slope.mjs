@@ -26,12 +26,12 @@
  *
  *   node process/slope.mjs
  */
-import { createReadStream, existsSync, readFileSync } from 'node:fs'
+import { createReadStream, existsSync } from 'node:fs'
 import { createInterface } from 'node:readline'
 import { readFile, readdir, writeFile, mkdir, open } from 'node:fs/promises'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { decodePNG, terrariumToElevation } from './png.mjs'
+import { createDemReader } from './dem-clean.mjs'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const DEM  = join(ROOT, 'data/raw/dem')
@@ -51,22 +51,18 @@ const dist = (a, b) => {
 }
 
 // ── DEM: 필요할 때만 올린다. 데시미터 Int16 으로 메모리를 절반으로 ──────────
-const tiles = new Map()        // "x_y" → Int16Array | null(없는 타일)
-let tileHits = 0, tileMiss = 0
-function tile(tx, ty) {
-  const k = `${tx}_${ty}`
-  if (tiles.has(k)) return tiles.get(k)
-  const p = join(DEM, String(ZOOM), `${k}.png`)
-  let v = null
-  if (existsSync(p)) {
-    const f = terrariumToElevation(decodePNG(readFileSync(p)))
-    v = new Int16Array(f.length)
-    for (let i = 0; i < f.length; i++) v[i] = Math.round(f[i] * 10)   // 데시미터
-    tileHits++
-  } else tileMiss++
-  tiles.set(k, v)
-  return v
-}
+// 🔴 원본 타일을 그대로 쓰지 않는다. process/dem-clean.mjs 가 먼저 청소한다 —
+//    값 범위 밖(손상된 세로 실선)을 메우고, 매립지의 **가짜 혹**을 누른다.
+//    calibrate-slope.mjs 도 같은 파일을 통해 읽는다. 두 곳이 다른 DEM 을 보면
+//    "보정이 잰 것" 과 "경사가 쓴 것" 이 어긋난다 (S15P21E201-795).
+//
+// `--raw-dem` 을 주면 청소를 끄고 **원본 그대로** 계산한다. 쓰는 자리는 하나다:
+// **청소가 무엇을 바꿨는지 나란히 보려고.** 이 값을 산출물로 쓰지 않는다.
+const RAW_DEM = process.argv.includes('--raw-dem')
+const dem = createDemReader({
+  demDir: DEM, zoom: ZOOM, tileSize: TILE, debump: !RAW_DEM, rangeCheck: !RAW_DEM,
+})
+const tile = (tx, ty) => dem.tile(tx, ty)
 
 const gx = lon => (lon + 180) / 360 * 2 ** ZOOM * TILE
 const gy = lat => { const r = rad(lat)
@@ -213,7 +209,7 @@ async function main() {
       inclineTag: el.tags?.incline ?? null, widthTag: el.tags?.width ?? null,
     }) + '\n')
 
-    if (n % 20000 === 0) log(`  ${n.toLocaleString()}개 / ${(totalLen/1000).toFixed(0)} km / 타일 ${tileHits}장`)
+    if (n % 20000 === 0) log(`  ${n.toLocaleString()}개 / ${(totalLen/1000).toFixed(0)} km / 타일 ${dem.stats.tilesLoaded}장`)
   }
 
   await new Promise(r => w.end(r))
@@ -224,7 +220,7 @@ async function main() {
   await writeFile(join(OUT, '_slope-summary.json'), JSON.stringify({
     at: new Date().toISOString(), source, zoom: ZOOM, baselineM: BASELINE_M, stepM: STEP_M,
     ways: n, samples, totalLengthKm: +(totalLen/1000).toFixed(1),
-    demMissWays: noDem, tilesLoaded: tileHits, tilesMissing: tileMiss,
+    demMissWays: noDem, tilesLoaded: dem.stats.tilesLoaded, tilesMissing: dem.stats.tilesMissing,
     elapsedSec: +secs.toFixed(2), histogramM: hist,
     stairs: { count: stairsN, estimatedSteps: stairsSteps, worst: worstStairs.slice(0, 30) },
     byClass: Object.fromEntries(Object.entries(byClass).map(([k, v]) =>
@@ -234,11 +230,23 @@ async function main() {
     calibrationRef: 'data/staged/_calibration.json',
     calibrationAt: calibration?.at ?? null,
     calibrationOk: calibration ? calibration.recommendedBaselineM === BASELINE_M : null,
+    // DEM 청소 내역 — 무엇을 걷어내고 잰 숫자인지 남긴다 (S15P21E201-795)
+    demClean: RAW_DEM ? null : {
+      repairedPx: dem.stats.repairedPx,
+      bumps: dem.stats.bumps.length,
+      pressedPx: dem.stats.pressedPx,
+      ref: 'process/dem-clean.mjs — 문턱과 근거가 거기 있다',
+    },
+    demRaw: RAW_DEM || undefined,
     caveat: '고도 원본은 SRTM ~30m 보간, 수직오차 ±5m. 기준선으로 눌렀으나 짧은 급경사 골목은 여전히 뭉개진다. 5m 국가 DEM 으로 교체 필요.',
+    caveatBumps: RAW_DEM
+      ? '🔴 --raw-dem 으로 돌렸다. 매립지·모래해안의 가짜 혹이 그대로 들어 있다. 비교용이지 산출물이 아니다.'
+      : '매립지·모래해안의 가짜 혹은 process/dem-clean.mjs 가 걷어냈다. 폭 98m 미만·높이 25m 초과의 진짜 저지대 둔덕은 같이 지워진다.',
   }, null, 2))
 
   log(`구간 ${n.toLocaleString()}개 / 샘플 ${samples.toLocaleString()}개 / ${secs.toFixed(1)}초`)
-  log(`DEM 타일 ${tileHits}장 사용, ${tileMiss}장 없음, 고도 없어 건너뜀 ${noDem.toLocaleString()}개`)
+  log(`DEM 타일 ${dem.stats.tilesLoaded}장 사용, ${dem.stats.tilesMissing}장 없음, 고도 없어 건너뜀 ${noDem.toLocaleString()}개`)
+  log(`DEM 청소 — 범위 밖 ${dem.stats.repairedPx.toLocaleString()}px 메움 · 가짜 혹 ${dem.stats.bumps.length}개 (${dem.stats.pressedPx.toLocaleString()}px) 누름`)
 
   console.log(`\n📐 경사별 연장 — p90, 기준선 ${BASELINE_M}m (전체 ${(totalLen/1000).toFixed(0)} km)`)
   for (const k of ['0-4%','4-8%','8-10%','10-15%','15-20%','20%+']) {
