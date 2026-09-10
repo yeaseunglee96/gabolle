@@ -76,6 +76,15 @@ public class StoryVisibilityPolicy {
 		if (isParticipant(story, viewer)) {
 			return true;
 		}
+		// 🔴 여기에 검토 상태를 넣지 않는다 — S15P21E201-137 에서 한 번 넣었다가 되돌렸다.
+		//
+		// 이 판정은 "공개 범위 규칙상 이 사람이 볼 수 있는가" 만 답한다. 신고 접수 경로가
+		// 이것을 그대로 쓰는데(StoryReportService.requireReportable), 그쪽은 검토 중인 기록도
+		// 받아야 한다. 두 번째 신고자가 404 를 받으면 신고 수가 1로 멈추고, 그 숫자가 운영자가
+		// 무엇을 먼저 볼지 정하는 근거라 판단이 흐려진다. 실제로 그 검사 둘이 빨개져서 알았다.
+		//
+		// 감춰진 기록을 남에게 안 보이게 하는 것은 한 단계 위, StoryService.requireVisible 이
+		// 한다. 거기는 참여자를 이미 가려낸 뒤라 작성자의 삭제 경로를 막지 않는다.
 		if (!story.isPublishedAt(now)) {
 			return false;
 		}

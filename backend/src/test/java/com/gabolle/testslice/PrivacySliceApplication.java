@@ -34,7 +34,12 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 		"com.gabolle.backend.auth",
 		"com.gabolle.backend.user",
 		"com.gabolle.backend.privacy",
-		"com.gabolle.backend.trip"
+		"com.gabolle.backend.trip",
+		// 🔴 S15P21E201-137 — place 를 더했다. 위의 trip 을 올리는 순간 그 패키지의 컨트롤러가
+		//    전부 함께 올라오고, 그중 TripFacetViewController(S15P21E201-475)가 place 쪽
+		//    서비스를 필수로 요구한다. 없으면 이 슬라이스가 통째로 못 뜬다.
+		//    AuthSliceApplication 이 같은 이유로 같은 줄을 갖고 있다.
+		"com.gabolle.backend.place"
 })
 @EnableScheduling
 @EntityScan(basePackages = {
@@ -42,13 +47,15 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 		"com.gabolle.backend.user.domain",
 		"com.gabolle.backend.event.domain",
 		"com.gabolle.backend.privacy.domain",
-		"com.gabolle.backend.trip.infra"
+		"com.gabolle.backend.trip.infra",
+		"com.gabolle.backend.place.domain"
 })
 @EnableJpaRepositories(basePackages = {
 		"com.gabolle.backend.auth.repository",
 		"com.gabolle.backend.user.repository",
 		"com.gabolle.backend.privacy.repository",
-		"com.gabolle.backend.trip.infra"
+		"com.gabolle.backend.trip.infra",
+		"com.gabolle.backend.place.repository"
 })
 public class PrivacySliceApplication {
 }

@@ -27,11 +27,23 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 //    한다. 아래 @EnableJpaRepositories 도 trip.infra 를 더해야 그 빈이 요구하는
 //    TripJpaRepository 등이 실제로 만들어진다 — 안 더하면 이 슬라이스의 컨텍스트가
 //    "그런 빈 없음" 으로 못 뜬다.
+// 🔴 S15P21E201-137 — place 를 더했다. 위에서 trip 을 더한 순간 그 패키지의 컨트롤러가 전부
+//    함께 올라오는데, 그중 TripFacetViewController(S15P21E201-475)가 place 쪽 서비스를 필수로
+//    요구한다. 그것이 없으면 이 슬라이스의 컨텍스트가 통째로 못 뜨고 인증 테스트 52개가
+//    한꺼번에 빨개진다 — 실제로 그렇게 back/dev 가 빨간 채로 있었다.
+//
+//    🔴 컨트롤러 쪽에 조건을 걸어 이 슬라이스에서만 빠지게 하는 방법은 쓰지 않는다. 그러면
+//    운영에서도 조용히 빠질 수 있는 자리가 하나 늘고, 그 실패는 아무 검사도 못 잡는다.
+//    ItinerarySliceApplication 이 같은 갈림길에서 같은 판단을 먼저 적어 뒀다.
+//
+//    남는 교훈은 스캔 목록에 패키지를 더하는 것이 그 패키지 하나를 더하는 일이 아니라는
+//    것이다. 그 패키지가 기대는 곳까지 함께 따라온다.
 @SpringBootApplication(scanBasePackages = {
 		"com.gabolle.backend.common",
 		"com.gabolle.backend.auth",
 		"com.gabolle.backend.user",
-		"com.gabolle.backend.trip"
+		"com.gabolle.backend.trip",
+		"com.gabolle.backend.place"
 })
 // 🔴 엔티티는 인증 밖의 것도 올린다. 계정 삭제(S15P21E201-425)가 그 사람의 여행·일정·추천 기록을
 //    JPQL 로 지우는데, 엔티티가 이 영속성 단위에 없으면 "그런 엔티티 없다" 로 실행에서 터진다.
@@ -50,12 +62,16 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 		// 🔴 2026-09-07 (S15P21E201-188) — 계정 삭제 미리보기가 story 도 JPQL 로 센다
 		// (AccountDeletionService.preview). 위 문단이 경고한 바로 그 실패가 실제로 났다 —
 		// CI 가 UnknownEntityException 으로 잡았다.
-		"com.gabolle.backend.story.domain"
+		"com.gabolle.backend.story.domain",
+		// S15P21E201-137 — 위 scanBasePackages 에 place 를 더하면서 그 빈들이 쓰는 표 매핑도
+		// 함께 올린다. 매핑이 없으면 빈은 만들어지고 첫 질의에서 터진다.
+		"com.gabolle.backend.place.domain"
 })
 @EnableJpaRepositories(basePackages = {
 		"com.gabolle.backend.auth.repository",
 		"com.gabolle.backend.user.repository",
-		"com.gabolle.backend.trip.infra"
+		"com.gabolle.backend.trip.infra",
+		"com.gabolle.backend.place.repository"
 })
 public class AuthSliceApplication {
 }

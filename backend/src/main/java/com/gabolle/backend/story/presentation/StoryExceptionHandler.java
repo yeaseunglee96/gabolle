@@ -50,6 +50,21 @@ public class StoryExceptionHandler {
 				.body(ApiResponse.failure(new ApiError("STORY_FORBIDDEN", e.getMessage(), List.of()), requestId()));
 	}
 
+	/**
+	 * S15P21E201-137 — 검토로 감춰진 기록을 고치려 했다 — 409.
+	 *
+	 * <p>{@code STORY_FORBIDDEN}(403) 과 가르는 이유는 화면이 할 말이 다르기 때문이다. 앞의
+	 * 것은 "내 기록이 아니다" 이고 이것은 "내 기록이지만 지금은 못 고친다" 라, 같은 코드로
+	 * 답하면 사용자가 자기 글을 남의 글로 오해한다. 지우는 것은 여전히 되므로 그 안내도
+	 * 메시지에 함께 있다.
+	 */
+	@ExceptionHandler(StoryService.StoryUnderModerationException.class)
+	public ResponseEntity<ApiResponse<Void>> handleUnderModeration(StoryService.StoryUnderModerationException e) {
+		return ResponseEntity.status(HttpStatus.CONFLICT)
+				.body(ApiResponse.failure(new ApiError("STORY_UNDER_MODERATION", e.getMessage(), List.of()),
+						requestId()));
+	}
+
 	@ExceptionHandler(StoryService.InvalidReferenceException.class)
 	public ResponseEntity<ApiResponse<Void>> handleInvalidReference(StoryService.InvalidReferenceException e) {
 		return ResponseEntity.badRequest()
