@@ -145,16 +145,20 @@ export default function Home() {
         {saveFeedback && <Pressable accessibilityRole="button" accessibilityLabel={tx('저장 안내 닫기', 'Dismiss save notice')} accessibilityLiveRegion="polite" onPress={() => setSaveFeedback(null)} style={styles.saveFeedback}><Text variant="caption" weight="bold" color={color.text.onAction}>{saveFeedback}</Text><Text variant="caption" color={color.text.onAction}>{tx('닫기', 'Dismiss')}</Text></Pressable>}
       </ScrollView>
 
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={tx('가볼래 여행 도우미 열기', 'Open GABOLLE travel assistant')}
-        accessibilityHint={tx('현재 이용할 수 있는 여행 도움 기능을 확인합니다', 'Check the travel help features available right now')}
-        onPress={() => router.push('/chat')}
-        style={({ pressed }) => [styles.assistantButton, pressed && styles.assistantButtonPressed]}
-      >
-        <View style={styles.assistantLabel}><Text variant="caption" weight="bold" color={color.text.heading}>{tx('도움이 필요해?', 'Need help?')}</Text></View>
-        <GabolleMascot state="idle" style={styles.assistantMascot} />
-      </Pressable>
+      <View style={styles.floatingStack}>
+        <Pressable accessibilityRole="button" accessibilityLabel={tx('메뉴판 번역 열기', 'Open menu translation')} onPress={() => router.push('/field/translate')} style={({ pressed }) => [styles.floatingChip, pressed && styles.assistantButtonPressed]}><Text variant="caption" weight="bold" color={color.text.heading}>{tx('메뉴판 번역', 'Menu translation')}</Text></Pressable>
+        <Pressable accessibilityRole="button" accessibilityLabel={tx('현장 말하기 열기', 'Open on-the-go phrases')} onPress={() => router.push('/field/speak')} style={({ pressed }) => [styles.floatingChip, pressed && styles.assistantButtonPressed]}><Text variant="caption" weight="bold" color={color.text.heading}>{tx('현장 말하기', 'On-the-go phrases')}</Text></Pressable>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={tx('가볼래 여행 도우미 열기', 'Open GABOLLE travel assistant')}
+          accessibilityHint={tx('현재 이용할 수 있는 여행 도움 기능을 확인합니다', 'Check the travel help features available right now')}
+          onPress={() => router.push('/chat')}
+          style={({ pressed }) => [styles.assistantButton, pressed && styles.assistantButtonPressed]}
+        >
+          <View style={styles.assistantLabel}><Text variant="caption" weight="bold" color={color.text.heading}>{tx('도움이 필요해?', 'Need help?')}</Text></View>
+          <GabolleMascot state="idle" style={styles.assistantMascot} />
+        </Pressable>
+      </View>
     </Screen>
     <TabBar active="home" />
     </View>
@@ -195,7 +199,12 @@ const styles = StyleSheet.create({
   carouselButton: { width: 36, height: 36, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.card },
   carouselButtonDisabled: { opacity: 0.35 },
   saveFeedback: { minHeight: 44, marginHorizontal: spacing[2], marginTop: spacing[4], paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.brand.navy, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  assistantButton: { position: 'absolute', right: spacing[2], bottom: 94, minWidth: 44, minHeight: 44, flexDirection: 'row', alignItems: 'center', zIndex: 3 },
+  // 하단 탭 바로 위에 붙는 떠 있는 버튼 묶음 — 챗봇 하나였을 때는 bottom:94로 떨어뜨려
+  // 뒀었는데, 그 값이 탭바 높이를 감안 안 해서 화면 중간쯤에 떠 있었다(실기기 확인).
+  // 이제 탭바 바로 위(spacing[2])에 붙이고, 그 위로 자주 쓰는 현장 도구 두 개를 쌓는다.
+  floatingStack: { position: 'absolute', right: spacing[2], bottom: spacing[2], alignItems: 'flex-end', gap: spacing[2], zIndex: 3 },
+  floatingChip: { minHeight: 40, justifyContent: 'center', paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.field, shadowColor: color.brand.navy, shadowOpacity: 0.12, shadowRadius: 8, shadowOffset: { width: 0, height: 3 }, elevation: 3 },
+  assistantButton: { minWidth: 44, minHeight: 44, flexDirection: 'row', alignItems: 'center' },
   assistantButtonPressed: { opacity: 0.78, transform: [{ scale: 0.96 }] },
   assistantLabel: { marginRight: -spacing[2], paddingLeft: spacing[3], paddingRight: spacing[4], paddingVertical: spacing[2], borderRadius: radius.full, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.field, shadowColor: color.brand.navy, shadowOpacity: 0.12, shadowRadius: 8, shadowOffset: { width: 0, height: 3 }, elevation: 3 },
   assistantMascot: { width: 58, height: 58 },
