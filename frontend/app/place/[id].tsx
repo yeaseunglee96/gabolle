@@ -114,8 +114,14 @@ export default function Place() {
     await AsyncStorage.setItem(SAVED_PLACES_KEY, JSON.stringify(nextIds));
     setIsSaved(nextSaved);
     setFeedback(nextSaved ? tx('내 여행 후보에 저장했어요.', 'Saved to your trip candidates.') : tx('저장을 해제했어요.', 'Removed from saved.'));
-    // 홈 화면 하트와 같은 규칙이다 — 저장할 때만 보낸다. 해제는 "싫다" 가 아니라 "취소" 다.
-    if (nextSaved) sendAppEvent({ type: 'place_like', accessToken, payload: { place_id: id, surface: 'place_detail' } });
+    // 저장할 때만 보낸다. 해제는 "싫다" 가 아니라 "취소" 다.
+    //
+    // 🔴 목업 장소면 보내지 않는다 (2026-09-10). 이 화면은 id 가 DEMO_PLACES 에 있으면
+    //    그 고정 데이터를 보여준다(위 demoPlace). 그때의 id 는 서버 장소 번호가 아니라
+    //    화면용 이름표라, 보내면 **없는 장소에 붙은 place_like** 가 서버에 쌓인다.
+    //    서버는 장소 번호의 실재를 검사하지 않으므로 조용히 들어가고, 나중에 못 골라낸다.
+    //    목업이 걷히면 demoPlace 가 언제나 null 이 되어 이 조건은 저절로 사라진다.
+    if (nextSaved && !demoPlace) sendAppEvent({ type: 'place_like', accessToken, payload: { place_id: id, surface: 'place_detail' } });
   };
 
   const notFound = !demoPlace && remote.status === 'not-found';
