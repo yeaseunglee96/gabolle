@@ -8,7 +8,7 @@ import { ReportModal } from '@/components/ReportModal';
 import { Screen } from '@/components/Screen';
 import { TabBar } from '@/components/TabBar';
 import { Text } from '@/components/Text';
-import { color, gutter, radius, spacing } from '@/design/tokens';
+import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { loadFeed, relativeStoryTime, reportStory, setFollowing, VISIBILITY_LABEL, type FeedLoadResult, type FeedScope, type StoryDto, type StoryReportReason } from '@/social/stories';
 
@@ -100,8 +100,7 @@ export default function Feed() {
     {!loading && result.state === 'success' && result.nextCursor ? <Button label={loadingMore ? tx('불러오는 중…', 'Loading…') : tx('더 보기', 'Load more')} variant="ghost" disabled={loadingMore} onPress={() => void loadMore()} containerStyle={styles.loadMore} /> : null}
 
     <Pressable accessibilityRole="button" onPress={() => router.replace('/home')} style={({ pressed }) => [styles.homeLink, pressed && styles.pressed]}><Text variant="caption" weight="bold" color={color.brand.orange}>{tx('홈으로 돌아가기', 'Back to home')}</Text></Pressable>
-    <View style={styles.tabBar}><TabBar active="feed" /></View>
-  </Screen></View>;
+  </Screen><TabBar active="feed" /></View>;
 }
 
 const styles = StyleSheet.create({
@@ -117,5 +116,5 @@ const styles = StyleSheet.create({
   body: { lineHeight: 22 },
   images: { flexDirection: 'row', gap: spacing[2] }, image: { flex: 1, aspectRatio: 1, borderRadius: radius.md, backgroundColor: color.surface.soft },
   loadMore: { marginTop: spacing[4] },
-  homeLink: { minHeight: 44, marginTop: spacing[6], alignItems: 'center', justifyContent: 'center' }, pressed: { opacity: 0.72 }, tabBar: { marginTop: spacing[2], marginHorizontal: -gutter },
+  homeLink: { minHeight: 44, marginTop: spacing[6], alignItems: 'center', justifyContent: 'center' }, pressed: { opacity: 0.72 },
 });

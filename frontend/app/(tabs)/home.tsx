@@ -8,7 +8,7 @@ import { GabolleMascot } from '@/components/DongbaekMascot';
 import { Screen } from '@/components/Screen';
 import { TabBar } from '@/components/TabBar';
 import { Text } from '@/components/Text';
-import { color, gutter, radius, spacing } from '@/design/tokens';
+import { color, radius, spacing } from '@/design/tokens';
 import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
 import { useI18n } from '@/i18n';
@@ -91,6 +91,7 @@ export default function Home() {
   }
 
   return (
+    <View style={styles.shell}>
     <Screen wide style={styles.screenContent}>
       <View style={styles.header}>
         <BrandLogoLink href="/home" imageStyle={styles.logo} />
@@ -154,13 +155,14 @@ export default function Home() {
         <View style={styles.assistantLabel}><Text variant="caption" weight="bold" color={color.text.heading}>{tx('도움이 필요해?', 'Need help?')}</Text></View>
         <GabolleMascot state="idle" style={styles.assistantMascot} />
       </Pressable>
-
-      <View style={styles.tabBar}><TabBar active="home" /></View>
     </Screen>
+    <TabBar active="home" />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  shell: { flex: 1, backgroundColor: color.canvas },
   screenContent: { paddingTop: spacing[2], paddingBottom: spacing[3] },
   header: { minHeight: 52, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   logo: { width: 100, height: 22 },
@@ -197,5 +199,4 @@ const styles = StyleSheet.create({
   assistantButtonPressed: { opacity: 0.78, transform: [{ scale: 0.96 }] },
   assistantLabel: { marginRight: -spacing[2], paddingLeft: spacing[3], paddingRight: spacing[4], paddingVertical: spacing[2], borderRadius: radius.full, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.field, shadowColor: color.brand.navy, shadowOpacity: 0.12, shadowRadius: 8, shadowOffset: { width: 0, height: 3 }, elevation: 3 },
   assistantMascot: { width: 58, height: 58 },
-  tabBar: { marginHorizontal: -gutter, borderRadius: radius.lg, overflow: 'hidden' },
 });
