@@ -145,6 +145,12 @@ pipeline {
                     string(credentialsId: 'gabolle-kakao-client-secret', variable: 'GABOLLE_KAKAO_CLIENT_SECRET'),
                     string(credentialsId: 'gabolle-naver-client-id', variable: 'GABOLLE_NAVER_CLIENT_ID'),
                     string(credentialsId: 'gabolle-naver-client-secret', variable: 'GABOLLE_NAVER_CLIENT_SECRET'),
+                    // S15P21E201-825 — 애플 로그인. 자격증명 이름은 이예승 승인분 그대로다.
+                    //    개인키(.p8)는 여러 줄이지만 서버가 \n 표기도 받으므로 한 줄로 넣어도 된다.
+                    string(credentialsId: 'gabolle-apple-client-id', variable: 'GABOLLE_APPLE_CLIENT_ID'),
+                    string(credentialsId: 'gabolle-apple-team-id', variable: 'GABOLLE_APPLE_TEAM_ID'),
+                    string(credentialsId: 'gabolle-apple-key-id', variable: 'GABOLLE_APPLE_KEY_ID'),
+                    string(credentialsId: 'gabolle-apple-private-key', variable: 'GABOLLE_APPLE_PRIVATE_KEY'),
                     string(credentialsId: 'gabolle-s3-access-key', variable: 'GABOLLE_S3_ACCESS_KEY'),
                     string(credentialsId: 'gabolle-s3-secret-key', variable: 'GABOLLE_S3_SECRET_KEY')
                 ]) {
@@ -226,6 +232,11 @@ pipeline {
                             -e GABOLLE_KAKAO_CLIENT_SECRET="$GABOLLE_KAKAO_CLIENT_SECRET" \
                             -e GABOLLE_NAVER_CLIENT_ID="$GABOLLE_NAVER_CLIENT_ID" \
                             -e GABOLLE_NAVER_CLIENT_SECRET="$GABOLLE_NAVER_CLIENT_SECRET" \
+                            -e GABOLLE_APPLE_CLIENT_ID="$GABOLLE_APPLE_CLIENT_ID" \
+                            -e GABOLLE_APPLE_TEAM_ID="$GABOLLE_APPLE_TEAM_ID" \
+                            -e GABOLLE_APPLE_KEY_ID="$GABOLLE_APPLE_KEY_ID" \
+                            -e GABOLLE_APPLE_PRIVATE_KEY="$GABOLLE_APPLE_PRIVATE_KEY" \
+                            -e GABOLLE_APPLE_ALLOWED_CLIENT_IDS="com.gabolle.app" \
                             -e GABOLLE_ADMIN_EMAILS="$GABOLLE_ADMIN_EMAILS" \
                             local-route-backend:candidate
                     '''
@@ -319,7 +330,13 @@ pipeline {
                             string(credentialsId: 'gabolle-kakao-client-secret', variable: 'GABOLLE_KAKAO_CLIENT_SECRET'),
                             string(credentialsId: 'gabolle-naver-client-id', variable: 'GABOLLE_NAVER_CLIENT_ID'),
                             string(credentialsId: 'gabolle-naver-client-secret', variable: 'GABOLLE_NAVER_CLIENT_SECRET'),
-                            string(credentialsId: 'gabolle-s3-access-key', variable: 'GABOLLE_S3_ACCESS_KEY'),
+                            // S15P21E201-825 — 애플 로그인. 자격증명 이름은 이예승 승인분 그대로다.
+                    //    개인키(.p8)는 여러 줄이지만 서버가 \n 표기도 받으므로 한 줄로 넣어도 된다.
+                    string(credentialsId: 'gabolle-apple-client-id', variable: 'GABOLLE_APPLE_CLIENT_ID'),
+                    string(credentialsId: 'gabolle-apple-team-id', variable: 'GABOLLE_APPLE_TEAM_ID'),
+                    string(credentialsId: 'gabolle-apple-key-id', variable: 'GABOLLE_APPLE_KEY_ID'),
+                    string(credentialsId: 'gabolle-apple-private-key', variable: 'GABOLLE_APPLE_PRIVATE_KEY'),
+                    string(credentialsId: 'gabolle-s3-access-key', variable: 'GABOLLE_S3_ACCESS_KEY'),
                             string(credentialsId: 'gabolle-s3-secret-key', variable: 'GABOLLE_S3_SECRET_KEY')
                         ]) {
                             sh 'docker stop backend || true'
@@ -357,6 +374,11 @@ pipeline {
                                     -e GABOLLE_KAKAO_CLIENT_SECRET="$GABOLLE_KAKAO_CLIENT_SECRET" \
                                     -e GABOLLE_NAVER_CLIENT_ID="$GABOLLE_NAVER_CLIENT_ID" \
                                     -e GABOLLE_NAVER_CLIENT_SECRET="$GABOLLE_NAVER_CLIENT_SECRET" \
+                                    -e GABOLLE_APPLE_CLIENT_ID="$GABOLLE_APPLE_CLIENT_ID" \
+                                    -e GABOLLE_APPLE_TEAM_ID="$GABOLLE_APPLE_TEAM_ID" \
+                                    -e GABOLLE_APPLE_KEY_ID="$GABOLLE_APPLE_KEY_ID" \
+                                    -e GABOLLE_APPLE_PRIVATE_KEY="$GABOLLE_APPLE_PRIVATE_KEY" \
+                                    -e GABOLLE_APPLE_ALLOWED_CLIENT_IDS="com.gabolle.app" \
                                     -e GABOLLE_ADMIN_EMAILS="$GABOLLE_ADMIN_EMAILS" \
                                     local-route-backend:latest
                             '''
