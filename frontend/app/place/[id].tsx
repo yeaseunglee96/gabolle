@@ -83,7 +83,7 @@ export default function Place() {
   useEffect(() => {
     if (!resolved) return;
     let active = true;
-    void listAvailableMapApps({ name: resolved.title }).then((apps) => { if (active) setMapApps(apps); });
+    void listAvailableMapApps({ name: resolved.title, latitude: resolved.apiPlace?.lat, longitude: resolved.apiPlace?.lng }).then((apps) => { if (active) setMapApps(apps); });
     return () => { active = false; };
   }, [resolved]);
 
