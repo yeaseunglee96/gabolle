@@ -206,6 +206,14 @@ pipeline {
         // 전부 재기동된다) airflow-api-server가 그보다 늦게 준비되는 걸 실제
         // 배포에서 확인함 (S15P21E201-582). 240초(24x10s)로 늘림 — 그 배포에서
         // 실제로 healthy가 되기까지 걸린 시간보다 여유 있게 잡음.
+        //
+        // 🔴 S15P21E201-798 후속 (2026-09-10) — 240초로도 부족한 실제 사례가 또
+        //    나왔다. airflow-api-server가 cpus 상한(처음엔 0.5, 이어서 1.0) 아래서
+        //    콜드 스타트 때 반복해서 크래시루프에 빠졌고, 운영에서 직접 지켜본
+        //    회복 시간은 240초를 넘겼다(다른 배포와 겹쳐 호스트가 붐빌 때는 더
+        //    걸렸다). cpus를 2.0으로 올려 원인 쪽도 같이 고치지만(위 compose.yaml
+        //    주석), 그 값도 절대 보장이 아니므로 이 예산도 400초(40x10s)로 늘려
+        //    자연 회복이 실제로 일어날 시간을 확보한다.
         stage('Health Check') {
             when {
                 expression { env.STACK_RUNNING == 'true' }
@@ -221,11 +229,11 @@ pipeline {
                         def healthy = sh(
                             script: """
                                 ssh -o StrictHostKeyChecking=no ubuntu@${params.DEPLOY_HOST} '
-                                  for i in \$(seq 1 24); do
+                                  for i in \$(seq 1 40); do
                                     if curl -sf http://127.0.0.1:5000/health && curl -sf http://127.0.0.1:8082/api/v2/monitor/health; then
                                       exit 0
                                     fi
-                                    echo "health check retry \$i/24..."
+                                    echo "health check retry \$i/40..."
                                     sleep 10
                                   done
                                   exit 1
