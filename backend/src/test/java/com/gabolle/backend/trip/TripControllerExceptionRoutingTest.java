@@ -70,6 +70,8 @@ class TripControllerExceptionRoutingTest {
 				  "startDate": "2026-09-10",
 				  "finishDate": "2026-09-12",
 				  "partySize": 1,
+				  "originLat": 35.1587,
+				  "originLng": 129.1604,
 				  "timezone": "Asia/Seoul",
 				  "constraints": [
 				    { "type": "ALLERGY", "constraintKey": "OTHER", "severity": "SOFT", "answerStatus": "NONE" }

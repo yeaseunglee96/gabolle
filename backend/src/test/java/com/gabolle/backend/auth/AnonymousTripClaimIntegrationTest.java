@@ -91,7 +91,9 @@ class AnonymousTripClaimIntegrationTest extends AuthPostgresIntegrationTest {
 		TripCreationService.Command command = new TripCreationService.Command(
 				sessionId,
 				LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 3),
-				null, null, null, 1,
+				// 출발지 좌표(해운대). S15P21E201-440 으로 필수가 됐다 — 없으면 여행 생성 자체가
+				// 400 이라 이 검사가 보려는 승계 갈래에 닿지 못한다.
+				35.1587, 129.1604, null, 1,
 				null, "Asia/Seoul",
 				List.<PreferenceSnapshot.PreferenceAnswer>of(),
 				List.<TripCreationService.Command.ConstraintInput>of(),

@@ -75,6 +75,8 @@ class TripCreationValidationTest {
                   "startDate": "2026-09-06",
                   "finishDate": "2026-09-08",
                   "partySize": 1,
+                  "originLat": 35.1587,
+                  "originLng": 129.1604,
                   "timeWindow": "18:00-09:00"
                 }""";
 
@@ -95,6 +97,8 @@ class TripCreationValidationTest {
                   "startDate": "2026-09-06",
                   "finishDate": "2026-09-08",
                   "partySize": 1,
+                  "originLat": 35.1587,
+                  "originLng": 129.1604,
                   "preferences": [
                     { "dimension": "transport", "value": "\\"HELICOPTER\\"", "answerStatus": "SELECTED" }
                   ]
@@ -116,6 +120,8 @@ class TripCreationValidationTest {
                   "startDate": "2026-09-06",
                   "finishDate": "2026-09-08",
                   "partySize": 1,
+                  "originLat": 35.1587,
+                  "originLng": 129.1604,
                   "timeWindow": "09:00-18:00",
                   "preferences": [
                     { "dimension": "transport", "value": "\\"TRANSIT\\"", "answerStatus": "SELECTED" }
