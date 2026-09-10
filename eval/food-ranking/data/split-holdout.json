@@ -1,0 +1,108 @@
+{
+ "seed": 20260907,
+ "holdoutRatio": 0.3,
+ "total": 37,
+ "role": "판정용",
+ "count": 11,
+ "items": [
+  {
+   "contentid": "2832636",
+   "title": "코랄라니",
+   "poiId": "node/13384617801",
+   "poiName": "코랄라니",
+   "kind": "cafe",
+   "distM": 37,
+   "exact": true
+  },
+  {
+   "contentid": "2832671",
+   "title": "신발원",
+   "poiId": "node/7000229898",
+   "poiName": "신발원",
+   "kind": "restaurant",
+   "distM": 18,
+   "exact": true
+  },
+  {
+   "contentid": "2872634",
+   "title": "일광수산횟집",
+   "poiId": "node/368973336",
+   "poiName": "일광수산횟집",
+   "kind": "restaurant",
+   "distM": 31,
+   "exact": true
+  },
+  {
+   "contentid": "850932",
+   "title": "원조 범일동 매떡",
+   "poiId": "node/11503117720",
+   "poiName": "원조범일동매떡",
+   "kind": "restaurant",
+   "distM": 5,
+   "exact": true
+  },
+  {
+   "contentid": "2838432",
+   "title": "엄용백 돼지국밥",
+   "poiId": "node/5878196885",
+   "poiName": "엄용백 돼지국밥",
+   "kind": "restaurant",
+   "distM": 6,
+   "exact": true
+  },
+  {
+   "contentid": "2836450",
+   "title": "이재모피자 본점",
+   "poiId": "node/11527215623",
+   "poiName": "이재모 Pizza",
+   "kind": "restaurant",
+   "distM": 22,
+   "exact": false
+  },
+  {
+   "contentid": "2775556",
+   "title": "칠암일번지횟집",
+   "poiId": "node/368973283",
+   "poiName": "칠암일번지횟집",
+   "kind": "restaurant",
+   "distM": 29,
+   "exact": true
+  },
+  {
+   "contentid": "2759609",
+   "title": "쌍둥이돼지국밥 본점",
+   "poiId": "node/5774214154",
+   "poiName": "쌍둥이돼지국밥 본점",
+   "kind": "restaurant",
+   "distM": 20,
+   "exact": true
+  },
+  {
+   "contentid": "2848924",
+   "title": "황금새우기장본점",
+   "poiId": "node/4581698890",
+   "poiName": "황금새우",
+   "kind": "restaurant",
+   "distM": 24,
+   "exact": false
+  },
+  {
+   "contentid": "2778476",
+   "title": "동래밀면",
+   "poiId": "node/4629989134",
+   "poiName": "동래밀면",
+   "kind": "restaurant",
+   "distM": 8,
+   "exact": true
+  },
+  {
+   "contentid": "2608459",
+   "title": "죽도횟집",
+   "poiId": "node/368957794",
+   "poiName": "죽도횟집",
+   "kind": "restaurant",
+   "distM": 32,
+   "exact": true
+  }
+ ]
+}

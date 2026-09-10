@@ -1,0 +1,350 @@
+{
+  "//": "데이터 출처 레지스트리. 라이선스가 없는 출처는 여기에 못 들어온다.",
+  "//규칙": "auth 가 none 이 아니면 사람이 신청해야 한다. 스크립트가 대신 못 한다.",
+  "sources": [
+    {
+      "id": "osm-korea-pbf",
+      "name": "Geofabrik 대한민국 OSM 추출본",
+      "gives": [
+        "도로망",
+        "보행로",
+        "계단",
+        "건물",
+        "정류장",
+        "POI"
+      ],
+      "license": "ODbL 1.0",
+      "licenseNote": "출처 표기 필수. 파생 DB 를 배포하면 같은 라이선스로 열어야 한다.",
+      "auth": "none",
+      "url": "https://download.geofabrik.de/asia/south-korea-latest.osm.pbf",
+      "script": "collect/osm-pbf.mjs",
+      "status": "받음 (286MB)",
+      "note": "부산 전역의 주 입력원. collect/pbf_extract.py 가 여기서 부산을 뽑는다 (64초). Overpass 로 전역을 긁지 않는 이유가 이것이다.",
+      "derived": "data/raw/pbf/*.ndjson"
+    },
+    {
+      "id": "overpass",
+      "name": "Overpass API — 대상 구역 주제별 추출",
+      "gives": [
+        "incline(경사) 태그",
+        "width(폭) 태그",
+        "surface(노면)",
+        "계단 단수",
+        "정류장"
+      ],
+      "license": "ODbL 1.0",
+      "auth": "none",
+      "url": "https://overpass-api.de/api/interpreter",
+      "script": "collect/overpass.mjs",
+      "status": "받음 (focus 구역만)",
+      "note": "공용 서버라 예의가 필요하다. 순차 실행 + 백오프. 전역은 PBF 에서 뽑는다.",
+      "scope": "focus (중구·동구) 전용 — 면적 상한 200km2 가 코드에 걸려 있다"
+    },
+    {
+      "id": "terrain-tiles",
+      "name": "AWS Terrain Tiles (elevation-tiles-prod)",
+      "gives": [
+        "고도 ~30m"
+      ],
+      "license": "출처별 상이 (SRTM/ASTER 등 공개 데이터)",
+      "auth": "none",
+      "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png",
+      "script": "collect/terrain.mjs",
+      "status": "받음 (부산 전역 3,127타일)",
+      "note": "임시. 국가 5m DEM 이 오면 교체한다. 30m 로는 골목 경사가 뭉개진다."
+    },
+    {
+      "id": "bims-realtime",
+      "name": "부산 BIMS 실시간 버스 위치",
+      "gives": [
+        "실측 배차간격",
+        "정류장간 소요시간 분포",
+        "정시성 편차"
+      ],
+      "license": "공공누리 (data.go.kr 이용약관)",
+      "auth": "apikey",
+      "envVar": "DATA_GO_KR_KEY",
+      "applyUrl": "https://www.data.go.kr/dataset/15001114/openapi.do",
+      "endpoint": "https://apis.data.go.kr/6260000/BusanBIMS",
+      "script": "collect/bims-poll.mjs",
+      "status": "수집 중 (개발계정, 승인 2025-04-28 ~ 2027-04-28)",
+      "//최우선인이유": "실시간 데이터는 소급 수집이 안 된다. 오늘 안 모으면 한 달 뒤에 한 달치가 없다.",
+      "//2026-08-28-실측": "🔴 일일 트래픽 10,000회는 **계정당이 아니라 오퍼레이션(상세기능)당**이고 이 API 에는 오퍼레이션이 6개 있다. 우리는 그중 /busInfoByRouteId 하나만 쓰고 있어서 나머지 5개의 하루 50,000회가 한 번도 안 쓰이고 있다. 그리고 한도는 사람마다 따로다 — 팀원이 각자 키를 발급받아 다른 노선을 맡으면 배수로 늘어난다. docs/BIMS-FLEET.md 참조.",
+      "operations": {
+        "/busStopList": "정적 — ARS번호·정류장명으로 정류소 정보. 10,000/일",
+        "/busInfo": "정적 — 버스아이디·번호로 노선 정보. 10,000/일",
+        "/busInfoByRouteId": "🔄 사용 중 — 노선ID로 노선 정보 + 실시간 버스 위치. 10,000/일",
+        "/stopArrByBstopid": "미사용 — 정류소ID로 실시간 도착정보. 10,000/일",
+        "/busStopArrByBstopidLineid": "미사용 — 정류소+노선 도착정보. 10,000/일",
+        "/bitArrByArsno": "미사용 — ARS번호로 실시간 도착정보. 10,000/일"
+      },
+      "//응답구조": "한 응답에 정류소 목록(정적: bstopidx·bstopnm·nodeid·arsno·rpoint)과 지금 달리는 차량(실시간: carno·lat·lin·direction·gpsym·avgym·lowplate·nodekn)이 함께 온다. 응답 원문을 파싱하지 않고 그대로 저장하는 이유가 이것이다 — 파싱은 나중에 바꿀 수 있지만 안 받은 데이터는 못 만든다.",
+      "//운영계정": "포털 활용신청 상세에 「운영계정 신청하기」 버튼이 있다. 한도를 올리려면 그 길이고, 신청은 사람이 한다."
+    },
+    {
+      "id": "sbiz-poi",
+      "name": "소상공인시장진흥공단 상가(상권)정보",
+      "gives": [
+        "상호",
+        "업종 대/중/소분류",
+        "좌표",
+        "행정동·법정동"
+      ],
+      "license": "공공누리",
+      "auth": "login",
+      "applyUrl": "https://www.data.go.kr/data/15083033/fileData.do",
+      "script": "collect/sbiz-poi.mjs",
+      "status": "받음 (2026-09-06 · 부산 159,689행 · data/raw/poi/sbiz-poi-busan-202606.csv)",
+      "datasetVersion": "sbiz-poi-202606",
+      "//2026-09-06-실측": "🔴 정정. 이 파일에서 영업 지속기간이 바로 나오지 않는다 — 39개 칸을 전부 확인했고 개업일·영업개시일에 해당하는 칸이 없다. 있는 것은 상가업소번호·상호·업종 3단분류·표준산업분류·행정구역·지번/도로명주소·우편번호·경위도다. 지속기간을 만들려면 분기 스냅샷을 둘 이상 받아 상가업소번호로 대조해야 한다 (포털의 주기성 과거 데이터).",
+      "note": "리뷰 대신 쓰는 신호의 뼈대. 전국 zip 안에 시도별 CSV 가 따로 들어 있어 부산만 꺼내 쓴다. 🔴 place 표에 넣을 때 dataset_version 을 비우면 추천이 VERSION_UNRESOLVED 로 전부 실패한다 — 위 datasetVersion 값을 쓴다."
+    },
+    {
+      "id": "juso-road",
+      "name": "도로명주소 전자지도 (실폭도로)",
+      "gives": [
+        "실제 도로 폭 폴리곤",
+        "도로구간",
+        "출입구"
+      ],
+      "license": "이용목적 심사 후 제공",
+      "auth": "application",
+      "applyUrl": "https://business.juso.go.kr/",
+      "script": null,
+      "status": "🔴 막힘 — 신청서에 서비스 URL 이 필요한데 서버가 아직 없다 (2026-08-28 확인)",
+      "//2026-08-28-실측": "신청을 시도했으나 신청서가 **서비스 URL**(이 데이터를 쓸 서비스의 주소)을 요구한다. 배포 서버가 나와야 채울 수 있다. 다음 주 월요일 서버가 뜬 뒤 신청 가능. 🔴 그때까지 아무도 다시 시도하지 말 것 — 같은 벽이다. 그리고 심사 기간이 그만큼 뒤로 밀린다는 뜻이므로, 서버가 뜨는 날 이것을 가장 먼저 넣는다.",
+      "blockedBy": "배포 서버 URL",
+      "note": "OSM width 태그는 결측이 많다(부산 전역 0.6%). 폭 판정의 진짜 근거는 이것이고, 계산으로 만들 수 없다 — 안 받으면 폭 판정 기능이 사라진다."
+    },
+    {
+      "id": "ngii-dem",
+      "name": "국토지리정보원 5m DEM",
+      "//2026-09-06-실측": "🔴 지도 화면의 `공개DEM` 갈래는 이것이 아니다. 도엽 35913 을 6개 연도 전부 받아 재 보니 격자 간격 90m · 264x319 칸 · float32 · EPSG:5186 이었다. 지금 쓰는 AWS Terrain Tiles 31m 보다 3배 거칠어 경사 계산 교체용으로는 못 쓴다. 쓸 곳은 SRTM 수직오차 실측과 좌표계 대조 둘이다. 5m 는 별도 경로이고 아직 못 받았다.",
+      "gives": [
+        "고도 5m 격자 → 구간별 경사도"
+      ],
+      "license": "공공누리",
+      "auth": "login",
+      "applyUrl": "https://map.ngii.go.kr/",
+      "script": null,
+      "status": "사람이 다운로드 (대용량 전송 SW 필요, Windows)",
+      "note": "산복도로 경사 판정의 근거. terrain-tiles 30m 를 이걸로 교체한다."
+    },
+    {
+      "id": "mapillary",
+      "name": "Mapillary 거리 이미지",
+      "gives": [
+        "조망 점수",
+        "계단/보도 존재",
+        "그늘"
+      ],
+      "license": "CC BY-SA 4.0",
+      "licenseNote": "다운로드·AI 처리 가능. 출처 표기 + 동일조건 변경허락.",
+      "auth": "token",
+      "envVar": "MAPILLARY_TOKEN",
+      "applyUrl": "https://www.mapillary.com/developer",
+      "script": "collect/mapillary.mjs",
+      "status": "토큰 대기 + 부산 커버리지 확인 필요",
+      "note": "커버리지가 비면 팀이 직접 촬영해서 올린다. 직접 찍은 것은 제약이 없다."
+    },
+    {
+      "id": "tourapi",
+      "name": "한국관광공사 TourAPI",
+      "gives": [
+        "관광지",
+        "무장애 여행 정보",
+        "다국어 설명"
+      ],
+      "license": "공공누리",
+      "auth": "apikey",
+      "envVar": "DATA_GO_KR_KEY",
+      "applyUrl": "https://www.data.go.kr/",
+      "script": "collect/tourapi.mjs",
+      "endpoint": "https://apis.data.go.kr/B551011/KorService2",
+      "areaCode": 6,
+      "status": "받음 (2026-09-08 · 부산 662곳 7종 · data/raw/tourapi/tourapi-busan.ndjson)",
+      "//2026-09-08-실측": "🔴 버전 2 만 살아 있다. KorService1/areaBasedList1 은 HTTP 400 으로 죽었다. endpoint 는 오퍼레이션 앞까지의 공통 부분이고 수집기가 뒤에 areaBasedList2 · detailIntro2 를 붙인다. areaCode 6 = 부산.",
+      "//필드": "🔴 영업시간 필드 이름이 분류마다 다르다 — 하나로 받으면 대부분이 빈다. 음식점(39) opentimefood · restdatefood / 관광지(12) usetime · restdate / 문화시설(14) usetimeculture · restdateculture. 그래서 수집기는 이름을 뭉개지 않고 원문 그대로 남긴다. 해석은 process/ 의 몫이다.",
+      "//분류별-부산-2026-09-08": "관광지 140 · 문화시설 35 · 축제행사 15 · 레포츠 30 · 숙박 65 · 쇼핑 49 · 음식점 328 = 662곳",
+      "note": "온톨로지의 bm:openingHoursNormalized 가 이것을 기다렸다. 호출 한도는 오퍼레이션마다 따로 걸리므로 BIMS 실시간 버스 폴링을 갉아먹지 않는다."
+    },
+    {
+      "id": "tourapi-barrier-free",
+      "name": "한국관광공사_무장애 여행 정보",
+      "gives": ["장소별 무장애 시설 여부"],
+      "license": "공공누리",
+      "auth": "apikey",
+      "envVar": "DATA_GO_KR_KEY",
+      "applyUrl": "https://www.data.go.kr/data/15101897/openapi.do",
+      "script": "collect/tourapi-barrier-free.mjs",
+      "endpoint": "https://apis.data.go.kr/B551011/KorWithService2",
+      "areaCode": 6,
+      "status": "받음 (2026-09-08 · 부산 182곳 · data/raw/tourapi/tourapi-barrier-free-busan.ndjson)",
+      "note": "🔴 왜 tourapi 와 따로 두었나 — 데이터셋이 다르고 인증신청도 따로 났다. 한쪽이 막혀도 다른 쪽은 돈다. 온톨로지의 bm:placeWheelchairAccessible 이 이것을 기다렸다. 지금 휠체어 규칙은 전부 길과 이동에만 걸려 있어서, 길을 다 통과하고도 문 앞에서 막히는 경우를 말할 수 없었다.",
+      "//2026-09-08-실측": "🔴 버전 2 만 살아 있다. KorWithService1 은 HTTP 400 이다. 오퍼레이션은 areaBasedList2(목록) · detailWithTour2(상세).",
+      "//필드": "detailWithTour2 가 내는 29개 (2026-09-08 실측): wheelchair · elevator · restroom · exit · parking · publictransport · route · ticketoffice · promotion · handicapetc · braileblock · helpdog · guidehuman · audioguide · bigprint · brailepromotion · guidesystem · blindhandicapetc · signguide · videoguide · hearingroom · hearinghandicapetc · stroller · lactationroom · babysparechair · infantsfamilyetc · room · auditorium · contenttypeid. 휠체어뿐 아니라 시각·청각·유아동반까지 함께 온다."
+    },
+    {
+      "id": "busan-street-trees",
+      "name": "부산광역시_구군 가로수 현황",
+      "gives": [
+        "가로수 위치",
+        "수종 38종",
+        "구간 시·종점",
+        "식재거리",
+        "그루 수"
+      ],
+      "license": "공공누리 (이용허락범위 제한 없음)",
+      "auth": "data.go.kr 활용신청 (자동승인)",
+      "url": "https://www.data.go.kr/data/15040363/openapi.do",
+      "endpoint": "https://apis.data.go.kr/6260000/RoadsideTreeService/RoadSideTreeStusInfo",
+      "status": "활용신청 완료 (2026-08-28). 자동승인 — 키 전파에 최대 1시간",
+      "script": "collect/street-trees.mjs",
+      "derived": "data/raw/trees/street-trees.ndjson",
+      "note": "🔴 여름 그늘의 핵심. 778개소 18만 그루. loc_nm·lat·lng·sec_timepoint·sec_endpoint·plant_distance 가 있어 길 구간 단위로 우리 경로와 결합할 수 있다. 수종별 컬럼이 38개라 \"가로수 있다/없다\" 가 아니라 그늘 점수를 만들 수 있다 — 메타세콰이아·버즘나무는 그늘이 짙고 주목·가이즈카향나무는 키가 작아 거의 없다. **계산으로는 절대 못 만드는 데이터다** — 나무 위치는 위성 고도에도 OSM 태그에도 거의 없다.",
+      "quota": "개발계정 10,000/일"
+    },
+    {
+      "id": "molit-gis-building",
+      "name": "국토교통부_GIS건물통합정보",
+      "gives": [
+        "건물 도형",
+        "층수",
+        "높이",
+        "용도",
+        "연면적"
+      ],
+      "license": "CC BY",
+      "licenseNote": "출처 표기만 하면 된다. 화면 어딘가에 \"국토교통부 GIS건물통합정보 (V-World)\" 가 있어야 한다.",
+      "auth": "login",
+      "url": "https://www.vworld.kr/dtmk/dtmk_ntads_s002.do?svcCde=NA&dsId=18",
+      "status": "받음 (2026-08-28, 부산 전역 472,608동)",
+      "//2026-08-27": "🔴 낡은 실측 — 지우지 않고 남긴다. nsdi.go.kr 연결 자체가 안 됐다 (curl 000). 점검인지 망 차단인지는 끝까지 확인하지 못했다.",
+      "//2026-08-28-정정": "🔴 nsdi 를 거칠 필요가 없었다. 같은 데이터를 V-World(vworld.kr, 국가공간정보 오픈플랫폼)가 로그인만으로 시·도 단위 SHP 로 준다. 시·도=부산광역시 · 구분=전체데이터 · 포맷=SHP 로 조회하면 월별 스냅샷이 나온다. 변동데이터(일간)는 수십 KB 라 쓸모가 없으니 반드시 전체데이터를 고른다.",
+      "note": "건물 그림자 계산의 입력. 건축물대장 API 는 **주소로 조회**하는 구조라 우리 용도(좌표 범위로 훑기)에 안 맞고, 이것은 도형 + 대장속성이 이미 건물 단위로 결합돼 있어 맞다. 받은 이유는 OSM 태그가 부족했기 때문이다 — 2026-08-27 실측으로 부산 건물 52,614개 중 building:levels 30.8% · height 2.1% 였고, 2026-08-28 에 \"태그 없는 건물은 작아서 그림자를 못 만든다\" 는 가설을 면적으로 검증했더니 **기각**됐다 (2,000m² 이상 건물의 면적 90.7%가 태그 없음 — 강서·사하 공단의 공장·창고). 즉 이 데이터 없이는 큰 건물의 그림자가 통째로 빈다.",
+      "file": "AL_D010_26_20260809.zip (83.8MB → 압축 해제 948MB)",
+      "records": 472608,
+      "crs": "EPSG:5186 (Korea 2000 중부원점 TM). WGS84 로 변환해야 한다.",
+      "encoding": "CP949",
+      "//컬럼": "🔴 SHP 컬럼 이름이 A0~A28 로만 되어 있고, 배포된 컬럼정의서(31개, A0~A30)와 실제 전체데이터 파일(29개)이 A23 부터 어긋난다 — 전체데이터에는 변동순번·입력구분이 없어 두 칸 당겨져 있다. 실제 레코드로 대조해 확정한 매핑은 docs/ONTOLOGY.md 와 collect/shp_buildings.py 에 있다. 핵심은 A9=건축물용도명 · A16=높이(m) · A26=지상층_수 이고, **A15·A16·A17·A18 은 0 이 \"없음\" 을 뜻하므로 0 을 실제 값으로 쓰면 안 된다.**",
+      "script": "collect/shp_buildings.py",
+      "derived": "data/raw/building/gis-building.ndjson",
+      "alternative": "공공데이터포털(data.go.kr/data/15123970)에도 같은 이름의 API 가 있으나 nsdi 를 거친다. V-World 쪽이 짧다."
+    },
+    {
+      "id": "molit-pedestrian-zone",
+      "name": "국토교통부_보행우선구역(WMS/WFS)",
+      "gives": [
+        "보행자 우선 조성 구역 경계"
+      ],
+      "license": "이용허락범위 제한 없음",
+      "auth": "외부 제공처",
+      "url": "https://www.data.go.kr/data/15058453/openapi.do",
+      "status": "미확인 — 부산에 실제로 몇 구역이 있는지 안 봤다",
+      "note": "국가가 \"여기는 걷기 좋게 만들었다\" 고 지정한 구역. 계산으로는 만들 수 없는 종류의 신호다. 보행 관련 오픈API 42개를 훑었으나 나머지는 대부분 어린이·노인 **사고 통계**이고 지역도 경기·강원·성남이라 우리 질문(\"이 길이 걸을 만한가\")에는 맞지 않았다."
+    },
+    {
+      "id": "btc-elevator",
+      "name": "부산교통공사_엘리베이터 정보",
+      "gives": ["호선", "역명", "출입구번호", "상세위치", "시작층/종료층"],
+      "license": "이용허락범위 제한 없음",
+      "auth": "none",
+      "url": "https://www.data.go.kr/data/15119875/fileData.do",
+      "script": "collect/subway.mjs",
+      "status": "받음 (448행 / CP949)",
+      "note": "🔴 출입구번호가 있어서 OSM 의 railway=subway_entrance 태그 ref 와 붙는다. 좌표는 이쪽에 없고 OSM 이 댄다 — 출구 778개 중 ref 보유율이 99.6% 라 조인이 성립한다. 448행 중 173행은 출입구번호가 공란(역 내부 엘리베이터)이라 출구가 아니라 역에 붙였다.",
+      "derived": "data/staged/subway-entrance.ndjson"
+    },
+    {
+      "id": "btc-station-facility",
+      "name": "부산교통공사_역사 편의시설현황",
+      "gives": ["에스컬레이터", "외부경사로", "엘리베이터 내부/외부", "휠체어리프트", "시각장애인 유도로"],
+      "license": "이용허락범위 제한 없음",
+      "auth": "none",
+      "url": "https://www.data.go.kr/data/15052664/fileData.do",
+      "script": "collect/subway.mjs",
+      "status": "받음 (114행 / CP949)",
+      "note": "🔴 역 단위 집계다. 출구가 아니라 역에 붙는다 — 산출물에서 필드 이름을 station* 으로 구분한다. 부산은 한 역의 출구끼리 수백 m 떨어진 곳이 있어서 역과 출구를 같은 것으로 취급하면 걷는 거리가 어긋난다."
+    },
+    {
+      "id": "btc-station-info",
+      "name": "부산교통공사_도시철도역사정보",
+      "gives": ["역번호", "역사명", "노선", "역 위경도", "환승역구분", "도로명주소"],
+      "license": "이용허락범위 제한 없음",
+      "auth": "none",
+      "url": "https://www.data.go.kr/data/15043686/fileData.do",
+      "script": "collect/subway.mjs",
+      "status": "받음 (114행 / UTF-16LE 탭구분, 확장자만 .csv)",
+      "note": "🔴 조인 안전장치다. 역 중심 좌표에서 1,200m 를 넘으면 조인을 거부한다 — 이 검사가 실제로 물었다: 동해선 좌천역(1호선 좌천역에서 약 26km)이 1호선의 엘리베이터를 물려받는 것을 막았다. 동명이역은 이름만으로 붙이면 조용히 틀린다."
+    },
+    {
+      "id": "btc-ridership",
+      "name": "부산교통공사_시간대별 승하차인원",
+      "gives": ["역번호", "일자", "요일", "승/하차", "시간대별 인원"],
+      "license": "이용허락범위 제한 없음",
+      "auth": "none",
+      "url": "https://www.data.go.kr/data/3057229/fileData.do",
+      "script": "collect/subway.mjs",
+      "status": "받음 (40,544행 / CP949, 2026-01~06)",
+      "note": "역 혼잡. 조작할 수 없는 관측 신호다 (CLAUDE.md 2절 — 리뷰 별점을 안 쓰는 것과 같은 이유)."
+    },
+    {
+      "id": "btc-timetable",
+      "name": "부산교통공사_부산도시철도 열차시각표 조회 서비스",
+      "gives": ["첫차", "막차", "열차별 시각"],
+      "license": "이용허락범위 제한 없음",
+      "auth": "apikey",
+      "envVar": "DATA_GO_KR_KEY",
+      "applyUrl": "https://www.data.go.kr/data/15158990/openapi.do",
+      "script": null,
+      "status": "활용신청 승인 (2026-09-06 · 개발계정 · 2028-09-06 만료). 아직 호출하지 않음",
+      "//2026-08-28-실측": "🔴 앞선 조사가 지목한 데이터셋 번호 15000522 는 **존재하지 않는다** (fileData·openapi·standard 전부 HTTP 404 확인). 실제 시각표는 이 오픈API 하나뿐이고 파일데이터가 없다. 엔드포인트 주소는 로그인 전에 안 보이므로 지어내지 않았다.",
+      "//2026-09-08-실측": "🔴 주소를 짐작으로 찾는 것은 실패했다. 같은 날 관광공사 둘은 실제 인증키로 받아냈지만 이것만 못 했다. 아래 다섯을 실제로 불러 봤고 전부 '그런 서비스 없음(HTTP 400)' 이다 — 다시 재지 마라. 6260000/BusanTrainTimeTableInfoService/getBusanTrainTimeTableInfo · 6260000/subwayTimeTable/getSubwayTimeTable · 6260000/HumetroTimeTable/getHumetroTimeTable · 6260000/BusanSubwayTimeTable/getBusanSubwayTimeTable · 6260000/TrainTimeTableService/getTrainTimeTable. 남은 길은 하나뿐이다: data.go.kr 에 로그인해 마이페이지 > 활용신청 상세를 열면 End Point 가 보인다. 그 값을 이 항목의 endpoint 에 넣으면 collect/tourapi.mjs 와 같은 모양의 수집기를 붙일 수 있다.",
+      "note": "이것이 오는 순간 산출물의 stationFirstTrain / stationLastTrain 이 채워진다. 지금은 전부 null 이다."
+    },
+    {
+      "id": "btc-transfer-walk",
+      "name": "부산 도시철도 환승 통로 도보거리",
+      "gives": ["환승역 내부 도보 거리·소요시간"],
+      "license": "해당 없음",
+      "auth": "none",
+      "url": null,
+      "script": null,
+      "status": "🔴 공개 데이터가 없다 (2026-08-28 확인)",
+      "note": "서울교통공사는 환승 도보거리를 공개하는데(1.2m/s 기준) 부산 대응물이 없고, 부산교통공사는 역사 시설안내도를 **이미지로만** 공개한다. 환승역이 서면·연산·수영·덕천·미남·동래·사상 7곳뿐이라 손으로 재면 되는 크기다. 산출물의 transferWalkMeters 는 전부 null 로 열어 두었다 — 🔴 추정해서 채우지 않았다. 걷는 비용을 재는 제품에서 환승 도보 거리를 지어내면 그게 곧 틀린 판정이 된다."
+    },
+    {
+      "id": "localdata-permits",
+      "name": "행정안전부 지방행정 인허가 데이터 (LOCALDATA) — 부산 음식점 5종",
+      "gives": ["영업 지속기간(인허가일자·폐업일자)", "폐업 이력 124,910곳", "소재지면적", "좌표(EPSG:5174)", "업태구분", "상호·주소"],
+      "license": "공공누리 제1유형 (출처표시)",
+      "licenseNote": "출처만 표시하면 상업적 이용·변형·재배포 모두 가능. 표기는 '행정안전부 지방행정 인허가 데이터'. 🔴 CLAUDE.md 1절의 네이버·카카오 금지와 무관하다 — 저장·가공에 제약이 없다.",
+      "auth": "none",
+      "url": "https://www.localdata.go.kr",
+      "endpoint": "https://file.localdata.go.kr/file/download/{업종슬러그}/info?orgCode={지자체코드}",
+      "script": "collect/localdata-permits.mjs",
+      "status": "받음 2026-09-08 (5종 183,144행 / 영업 58,234 · 폐업 124,910 / 62MB / 약 6초)",
+      "derived": "data/raw/permits/*.csv + _stats.json",
+      "scope": "부산 16개 구·군 (3250000~3400000). 🔴 광역시 코드 6260000 을 넣으면 0건이 온다 — 음식점 인허가는 구·군이 낸다",
+      "note": "🔴 키도 활용신청도 없이 받아지는 몇 안 되는 출처. Referer 헤더만 필요하다. CLAUDE.md 2절이 요구한 '조작할 수 없는 관측 신호 = 영업 지속기간' 을 실제로 가진 데이터다 — 폐업이 영업 중의 2배라 죽은 가게까지 보인다. 업종 5종의 칸 39개가 완전히 같아 합쳐 다룰 수 있다. 함정 셋: (1) Content-Type 이 UTF-8 이라고 거짓말하는데 실제는 CP949 다 (2) 좌표는 EPSG:5174 다 — 이름매칭 31곳 오차 중앙값 20.4m(5174) vs 317.2m(5181), 육지경계 포함률 99.97% vs 95.17% 로 갈랐다. 다만 변환은 collect 가 아니라 process 의 몫이라 원문 그대로 저장한다 (3) 헤더에 칸이 있다고 값이 있는 게 아니다 — 홈페이지·건물소유구분명은 183,144행 중 0건이다. 자세한 것은 docs/PERMITS.md.",
+      "docs": "docs/PERMITS.md"
+    }
+  ],
+  "banned": [
+    {
+      "id": "naver-map",
+      "why": "약관상 응답 데이터 저장 금지. 지도·로드뷰 모두 표시만 허용.",
+      "insteadUse": "표시는 공식 SDK 로. 분석 데이터는 osm-korea-pbf + mapillary."
+    },
+    {
+      "id": "kakao-map",
+      "why": "Local API 응답 별도 저장 금지, 로드뷰 이미지 수집·재배포 금지 (카카오 공식 답변).",
+      "insteadUse": "로드뷰는 SDK 임베드로 화면에만. 저장하지 않는다."
+    },
+    {
+      "id": "naver-review",
+      "why": "리뷰 이벤트로 오염되어 신호가 아니다. 약관 문제 이전에 품질 문제.",
+      "insteadUse": "sbiz-poi 영업 지속기간 + 유동인구 + 카드매출."
+    }
+  ]
+}

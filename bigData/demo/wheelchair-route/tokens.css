@@ -1,0 +1,109 @@
+/* ─────────────────────────────────────────────────────────────────────────
+   디자인 토큰 — 이 화면이 쓰는 색·굵기·간격·글꼴이 전부 여기 있다.
+
+   🔴 디자인 시스템이 정해지면 **이 파일 하나만 갈아끼우면 끝난다.**
+      index.html 에는 색 리터럴(#ff0000 같은 것)이 한 개도 없다.
+      자바스크립트가 지도에 선을 그릴 때도 getComputedStyle 로 여기서 읽어 간다.
+
+   이름은 **의미로** 짓는다. `--red` 가 아니라 `--route-blocked` 다.
+   디자인 시스템이 "불가는 주황" 이라고 정하면 이름은 그대로 두고 값만 바꾼다.
+   ───────────────────────────────────────────────────────────────────────── */
+
+:root {
+  /* ── 판정 3색. 이 화면의 전부다 ────────────────────────────────────── */
+  --route-ok:          #15803d;   /* 가능 — 지금은 나올 수 없다. 아래 주석 참고 */
+  --route-blocked:     #dc2626;   /* 불가 — 계단·자동차전용도로·경사 상한 초과 */
+  --route-unknown:     #6b7280;   /* 미상 — 확정할 근거가 없다 */
+
+  /* 미상은 색만으로 말하지 않는다. 점선이라는 형태로도 말한다 —
+     색각 이상이 있는 사람에게 회색과 초록은 구분이 어렵다.
+     값은 카카오 지도의 strokeStyle 이름이다: solid · shortdash · dash · dot ... */
+  --route-style-ok:        solid;
+  --route-style-blocked:   solid;
+  --route-style-unknown:   shortdash;
+
+  /* ── 선 굵기·불투명도 ──────────────────────────────────────────────── */
+  --route-width:            6;
+  --route-width-selected:   10;
+  --route-opacity:          0.85;
+  --route-opacity-dimmed:   0.25;
+
+  /* ── 끝점 ──────────────────────────────────────────────────────────── */
+  --endpoint-origin:   #1d4ed8;
+  --endpoint-dest:     #7c3aed;
+  --endpoint-size:     14px;
+
+  /* ── 바탕과 글자 ───────────────────────────────────────────────────── */
+  --surface:           #ffffff;
+  --surface-sunken:    #f3f4f6;
+  --surface-raised:    #ffffff;
+  --border:            #e5e7eb;
+  --border-strong:     #d1d5db;
+  --text-primary:      #111827;
+  --text-secondary:    #4b5563;
+  --text-muted:        #9ca3af;
+  --accent:            #1d4ed8;
+  --accent-contrast:   #ffffff;
+  --warning-surface:   #fef3c7;
+  --warning-border:    #fcd34d;
+  --warning-text:      #78350f;
+
+  /* ── 간격 ──────────────────────────────────────────────────────────── */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+
+  /* ── 모서리·그림자 ─────────────────────────────────────────────────── */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --shadow-panel: 0 1px 3px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.06);
+
+  /* ── 글꼴 ──────────────────────────────────────────────────────────── */
+  --font-sans: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, -apple-system, sans-serif;
+  --font-mono: "SFMono-Regular", "Consolas", "D2Coding", monospace;
+  --font-size-xs:  11px;
+  --font-size-sm:  12px;
+  --font-size-md:  14px;
+  --font-size-lg:  16px;
+  --font-size-xl:  20px;
+  --font-weight-regular: 400;
+  --font-weight-medium:  500;
+  --font-weight-bold:    700;
+  --line-height-tight: 1.35;
+  --line-height-normal: 1.6;
+
+  /* ── 판 크기 ───────────────────────────────────────────────────────── */
+  --panel-width: 380px;
+}
+
+/* 어두운 화면. 토큰만 다시 정의한다 — 규칙은 한 줄도 바뀌지 않는다. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --route-ok:        #4ade80;
+    --route-blocked:   #f87171;
+    --route-unknown:   #9ca3af;
+
+    --endpoint-origin: #60a5fa;
+    --endpoint-dest:   #c084fc;
+
+    --surface:         #111827;
+    --surface-sunken:  #0b1220;
+    --surface-raised:  #1f2937;
+    --border:          #374151;
+    --border-strong:   #4b5563;
+    --text-primary:    #f9fafb;
+    --text-secondary:  #d1d5db;
+    --text-muted:      #6b7280;
+    --accent:          #60a5fa;
+    --accent-contrast: #0b1220;
+    --warning-surface: #422006;
+    --warning-border:  #a16207;
+    --warning-text:    #fde68a;
+
+    --shadow-panel: 0 1px 3px rgba(0, 0, 0, 0.4), 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+}

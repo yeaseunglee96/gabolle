@@ -122,10 +122,11 @@ function getFallbackImage(place: { nameKo: string; category: string }): PlaceIma
   }
 }
 
-export async function searchPlaceImage(place: { id: string; nameKo: string; address: string; category: string; imageUrl: string | null }): Promise<PlaceImageMatch | null> {
-  if (place.imageUrl) return { imageUrl: place.imageUrl, sourceUrl: place.imageUrl, provider: "DATABASE", title: place.nameKo };
+export async function searchPlaceImage(place: { id: string; nameKo: string; address: string; category: string; imageUrl: string | null }, options: { ignoreStoredImage?: boolean } = {}): Promise<PlaceImageMatch | null> {
+  if (place.imageUrl && !options.ignoreStoredImage) return { imageUrl: place.imageUrl, sourceUrl: place.imageUrl, provider: "DATABASE", title: place.nameKo };
   if (!["TOURIST", "RESTAURANT", "CAFE", "LODGING", "FESTIVAL", "SOUVENIR"].includes(place.category)) return null;
-  const cached = cache.get(place.id);
+  const cacheKey = `${place.id}:${options.ignoreStoredImage ? "fallback" : "default"}`;
+  const cached = cache.get(cacheKey);
   if (cached && cached.expiresAt > Date.now()) return cached.value;
   const area = place.address.split(" ").slice(0, 2).join(" ");
   
@@ -157,6 +158,6 @@ export async function searchPlaceImage(place: { id: string; nameKo: string; addr
     result = getFallbackImage(place);
   }
   
-  cache.set(place.id, { value: result, expiresAt: Date.now() + CACHE_TTL_MS });
+  cache.set(cacheKey, { value: result, expiresAt: Date.now() + CACHE_TTL_MS });
   return result;
 }

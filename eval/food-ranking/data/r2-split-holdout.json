@@ -1,0 +1,784 @@
+{
+ "round": 2,
+ "seed": 7052026,
+ "holdoutRatio": 0.3,
+ "total": 285,
+ "role": "판정용",
+ "count": 86,
+ "items": [
+  {
+   "contentid": "2848949",
+   "title": "칠암만장",
+   "storeId": "MA0101202506A0009294",
+   "storeName": "기장맛집칠암만장 본점",
+   "so": "백반/한정식",
+   "distM": 3,
+   "exact": false
+  },
+  {
+   "contentid": "2838907",
+   "title": "고관함박",
+   "storeId": "MA010120220808683911",
+   "storeName": "고관함박",
+   "so": "경양식",
+   "distM": 5,
+   "exact": true
+  },
+  {
+   "contentid": "2838849",
+   "title": "초량1941",
+   "storeId": "MA010120220803228658",
+   "storeName": "초량1941",
+   "so": "카페",
+   "distM": 42,
+   "exact": true
+  },
+  {
+   "contentid": "851104",
+   "title": "정림전통한정식",
+   "storeId": "MA010120220811424248",
+   "storeName": "정림",
+   "so": "백반/한정식",
+   "distM": 4,
+   "exact": false
+  },
+  {
+   "contentid": "851955",
+   "title": "일품한우",
+   "storeId": "MA010120220811470821",
+   "storeName": "일품한우",
+   "so": "소고기 구이/찜",
+   "distM": 4,
+   "exact": true
+  },
+  {
+   "contentid": "2848930",
+   "title": "하바나",
+   "storeId": "MA010120220813306656",
+   "storeName": "하바나",
+   "so": "카페",
+   "distM": 5,
+   "exact": true
+  },
+  {
+   "contentid": "1805656",
+   "title": "일번지자갈치산곰장어",
+   "storeId": "MA010120220811442384",
+   "storeName": "일번지자갈치산곰장어",
+   "so": "횟집",
+   "distM": 6,
+   "exact": true
+  },
+  {
+   "contentid": "2783360",
+   "title": "꽃피는 4월 밀익는 5월",
+   "storeId": "MA010120220813585589",
+   "storeName": "꽃피는4월밀익는5월",
+   "so": "빵/도넛",
+   "distM": 4,
+   "exact": true
+  },
+  {
+   "contentid": "2875744",
+   "title": "영남돼지",
+   "storeId": "MA010120220803924920",
+   "storeName": "영남돼지",
+   "so": "돼지고기 구이/찜",
+   "distM": 5,
+   "exact": true
+  },
+  {
+   "contentid": "2760771",
+   "title": "거대갈비",
+   "storeId": "MA010120220808048679",
+   "storeName": "거대갈비",
+   "so": "돼지고기 구이/찜",
+   "distM": 18,
+   "exact": true
+  },
+  {
+   "contentid": "3442923",
+   "title": "솥이랑 서면점",
+   "storeId": "MA010120220811453177",
+   "storeName": "솥이랑 서면점",
+   "so": "백반/한정식",
+   "distM": 6,
+   "exact": true
+  },
+  {
+   "contentid": "2872353",
+   "title": "엠아이알오",
+   "storeId": "MA010120220811432774",
+   "storeName": "남나리전복;엠아이알오",
+   "so": "횟집",
+   "distM": 39,
+   "exact": false
+  },
+  {
+   "contentid": "1805792",
+   "title": "해동횟집",
+   "storeId": "MA010120220804930894",
+   "storeName": "해동횟집",
+   "so": "횟집",
+   "distM": 6,
+   "exact": true
+  },
+  {
+   "contentid": "2832649",
+   "title": "피크스퀘어",
+   "storeId": "MA010120220811616031",
+   "storeName": "피크스퀘어",
+   "so": "카페",
+   "distM": 17,
+   "exact": true
+  },
+  {
+   "contentid": "2784321",
+   "title": "개금밀면",
+   "storeId": "MA010120220800666091",
+   "storeName": "원조개금밀면",
+   "so": "국수/칼국수",
+   "distM": 19,
+   "exact": false
+  },
+  {
+   "contentid": "2870841",
+   "title": "우디브룩",
+   "storeId": "MA010120220810706263",
+   "storeName": "우디브룩",
+   "so": "카페",
+   "distM": 58,
+   "exact": true
+  },
+  {
+   "contentid": "2759593",
+   "title": "전산가든",
+   "storeId": "MA010120220811608345",
+   "storeName": "전산가든",
+   "so": "백반/한정식",
+   "distM": 7,
+   "exact": true
+  },
+  {
+   "contentid": "2870354",
+   "title": "스완양분식",
+   "storeId": "MA010120220808707582",
+   "storeName": "스완양분식",
+   "so": "김밥/만두/분식",
+   "distM": 5,
+   "exact": true
+  },
+  {
+   "contentid": "1855868",
+   "title": "부전돼지국밥",
+   "storeId": "MA0101202409A0124701",
+   "storeName": "부전돼지국밥",
+   "so": "백반/한정식",
+   "distM": 3,
+   "exact": true
+  },
+  {
+   "contentid": "2852602",
+   "title": "태백관",
+   "storeId": "MA010120220812431473",
+   "storeName": "태백관",
+   "so": "중국집",
+   "distM": 6,
+   "exact": true
+  },
+  {
+   "contentid": "849887",
+   "title": "김유순대구뽈찜",
+   "storeId": "MA0101202506A0024836",
+   "storeName": "김유순대구뽈찜",
+   "so": "백반/한정식",
+   "distM": 18,
+   "exact": true
+  },
+  {
+   "contentid": "2785970",
+   "title": "장씨해녀집",
+   "storeId": "MA0101202406A0489757",
+   "storeName": "장씨해녀집",
+   "so": "백반/한정식",
+   "distM": 4,
+   "exact": true
+  },
+  {
+   "contentid": "135287",
+   "title": "구덕민속촌",
+   "storeId": "MA010120220810683239",
+   "storeName": "구덕민속촌",
+   "so": "돼지고기 구이/찜",
+   "distM": 35,
+   "exact": true
+  },
+  {
+   "contentid": "850932",
+   "title": "원조 범일동 매떡",
+   "storeId": "MA010120220810619843",
+   "storeName": "매떡",
+   "so": "김밥/만두/분식",
+   "distM": 2,
+   "exact": false
+  },
+  {
+   "contentid": "2869936",
+   "title": "우봉",
+   "storeId": "MA0101202406A0332681",
+   "storeName": "우봉",
+   "so": "백반/한정식",
+   "distM": 7,
+   "exact": true
+  },
+  {
+   "contentid": "2838432",
+   "title": "엄용백 돼지국밥",
+   "storeId": "MA010120220810211495",
+   "storeName": "엄용백돼지국밥",
+   "so": "백반/한정식",
+   "distM": 5,
+   "exact": true
+  },
+  {
+   "contentid": "3415203",
+   "title": "만달리",
+   "storeId": "MA0101202211A0060828",
+   "storeName": "만달리",
+   "so": "카페",
+   "distM": 5,
+   "exact": true
+  },
+  {
+   "contentid": "2867598",
+   "title": "서대시장족발",
+   "storeId": "MA010120220810533721",
+   "storeName": "서대시장족발 본점",
+   "so": "족발/보쌈",
+   "distM": 5,
+   "exact": true
+  },
+  {
+   "contentid": "2845027",
+   "title": "이화장횟집",
+   "storeId": "MA010120220808605183",
+   "storeName": "기장이화장횟집",
+   "so": "횟집",
+   "distM": 4,
+   "exact": false
+  },
+  {
+   "contentid": "841730",
+   "title": "사미헌",
+   "storeId": "MA0106202201A1729809",
+   "storeName": "사미헌",
+   "so": "백반/한정식",
+   "distM": 3,
+   "exact": true
+  },
+  {
+   "contentid": "851286",
+   "title": "상국이네",
+   "storeId": "MA010120220813446713",
+   "storeName": "상국이네",
+   "so": "김밥/만두/분식",
+   "distM": 2,
+   "exact": true
+  },
+  {
+   "contentid": "2867517",
+   "title": "양정기사식당",
+   "storeId": "MA010120220814023419",
+   "storeName": "양정기사식당",
+   "so": "백반/한정식",
+   "distM": 9,
+   "exact": true
+  },
+  {
+   "contentid": "2869196",
+   "title": "마파람해물찜해물탕 구서본점",
+   "storeId": "MA010120220810777690",
+   "storeName": "마파람해물찜해물탕구서 본점",
+   "so": "백반/한정식",
+   "distM": 4,
+   "exact": true
+  },
+  {
+   "contentid": "2867626",
+   "title": "영남냉면밀면",
+   "storeId": "MA010120220802915863",
+   "storeName": "영남냉면",
+   "so": "냉면/밀면",
+   "distM": 15,
+   "exact": false
+  },
+  {
+   "contentid": "2868507",
+   "title": "남천다옴",
+   "storeId": "MA010120220808679252",
+   "storeName": "다옴",
+   "so": "백반/한정식",
+   "distM": 5,
+   "exact": false
+  },
+  {
+   "contentid": "2872271",
+   "title": "해녀천지할매집",
+   "storeId": "MA010120220811592521",
+   "storeName": "해녀천지할매",
+   "so": "횟집",
+   "distM": 6,
+   "exact": false
+  },
+  {
+   "contentid": "2868448",
+   "title": "타타에스프레소바",
+   "storeId": "MA0101202512A0040535",
+   "storeName": "타타에스프레소바",
+   "so": "카페",
+   "distM": 5,
+   "exact": true
+  },
+  {
+   "contentid": "2875783",
+   "title": "이레옥",
+   "storeId": "MA010120220804916380",
+   "storeName": "이레옥",
+   "so": "백반/한정식",
+   "distM": 36,
+   "exact": true
+  },
+  {
+   "contentid": "2833257",
+   "title": "그릿비 일광",
+   "storeId": "MA010120220811230315",
+   "storeName": "그릿비",
+   "so": "카페",
+   "distM": 5,
+   "exact": false
+  },
+  {
+   "contentid": "2852685",
+   "title": "금강만두",
+   "storeId": "MA010120220813484614",
+   "storeName": "금강만두",
+   "so": "김밥/만두/분식",
+   "distM": 6,
+   "exact": true
+  },
+  {
+   "contentid": "2787109",
+   "title": "사비아",
+   "storeId": "MA010120220812230370",
+   "storeName": "사비아",
+   "so": "경양식",
+   "distM": 6,
+   "exact": true
+  },
+  {
+   "contentid": "2891745",
+   "title": "듀스포레",
+   "storeId": "MA010120220805050463",
+   "storeName": "듀스포레",
+   "so": "경양식",
+   "distM": 5,
+   "exact": true
+  },
+  {
+   "contentid": "2785965",
+   "title": "송정집",
+   "storeId": "MA0101202409A0242381",
+   "storeName": "송정집1",
+   "so": "백반/한정식",
+   "distM": 6,
+   "exact": false
+  },
+  {
+   "contentid": "2875819",
+   "title": "하가원 해운대점",
+   "storeId": "MA010120220811445355",
+   "storeName": "하가원",
+   "so": "국수/칼국수",
+   "distM": 5,
+   "exact": false
+  },
+  {
+   "contentid": "2891887",
+   "title": "프루터리포레스트",
+   "storeId": "MA010120220803550552",
+   "storeName": "프루터리포레스트",
+   "so": "피자",
+   "distM": 6,
+   "exact": true
+  },
+  {
+   "contentid": "2778476",
+   "title": "동래밀면",
+   "storeId": "MA010120220813431827",
+   "storeName": "동래밀면",
+   "so": "냉면/밀면",
+   "distM": 4,
+   "exact": true
+  },
+  {
+   "contentid": "2869183",
+   "title": "신가네 호떡 김밥 떡볶이",
+   "storeId": "MA010120220803302841",
+   "storeName": "신가네호떡김밥",
+   "so": "김밥/만두/분식",
+   "distM": 5,
+   "exact": false
+  },
+  {
+   "contentid": "2808104",
+   "title": "송정해녀집",
+   "storeId": "MA010120220808617617",
+   "storeName": "송정해녀집",
+   "so": "횟집",
+   "distM": 5,
+   "exact": true
+  },
+  {
+   "contentid": "2784320",
+   "title": "소문난원조조방낙지본점",
+   "storeId": "MA010120220813699465",
+   "storeName": "원조조방낙지",
+   "so": "해산물 구이/찜",
+   "distM": 6,
+   "exact": false
+  },
+  {
+   "contentid": "850847",
+   "title": "오사카",
+   "storeId": "MA010120220810516418",
+   "storeName": "오사카",
+   "so": "일식 회/초밥",
+   "distM": 6,
+   "exact": true
+  },
+  {
+   "contentid": "2869343",
+   "title": "홍순덕 전포양곱창",
+   "storeId": "MA010120220811388877",
+   "storeName": "홍순덕전포양곱창",
+   "so": "곱창 전골/구이",
+   "distM": 5,
+   "exact": true
+  },
+  {
+   "contentid": "2869249",
+   "title": "푸디1354",
+   "storeId": "MA010120220809733548",
+   "storeName": "푸디1354",
+   "so": "돼지고기 구이/찜",
+   "distM": 4,
+   "exact": true
+  },
+  {
+   "contentid": "2859073",
+   "title": "구덕포끝집고기",
+   "storeId": "MA010120220812589691",
+   "storeName": "구덕포끝집고기",
+   "so": "돼지고기 구이/찜",
+   "distM": 5,
+   "exact": true
+  },
+  {
+   "contentid": "850466",
+   "title": "명수정",
+   "storeId": "MA010120220811614426",
+   "storeName": "명수정",
+   "so": "백반/한정식",
+   "distM": 3,
+   "exact": true
+  },
+  {
+   "contentid": "2844259",
+   "title": "오프오",
+   "storeId": "MA010120220811639907",
+   "storeName": "오프오",
+   "so": "경양식",
+   "distM": 7,
+   "exact": true
+  },
+  {
+   "contentid": "2870780",
+   "title": "클레이디뷔페 돌잔치",
+   "storeId": "MA010120220810669415",
+   "storeName": "클레이디",
+   "so": "백반/한정식",
+   "distM": 5,
+   "exact": false
+  },
+  {
+   "contentid": "2844698",
+   "title": "제주항통갈치",
+   "storeId": "MA010120220804410347",
+   "storeName": "제주항통칼치",
+   "so": "백반/한정식",
+   "distM": 5,
+   "exact": false
+  },
+  {
+   "contentid": "134326",
+   "title": "곰보식당",
+   "storeId": "MA010120220810695174",
+   "storeName": "곰보식당",
+   "so": "돼지고기 구이/찜",
+   "distM": 3,
+   "exact": true
+  },
+  {
+   "contentid": "2868609",
+   "title": "리오네",
+   "storeId": "MA010120220811195703",
+   "storeName": "리오네",
+   "so": "경양식",
+   "distM": 5,
+   "exact": true
+  },
+  {
+   "contentid": "2869572",
+   "title": "수영 돼지국밥",
+   "storeId": "MA010120220811410685",
+   "storeName": "수영돼지국밥",
+   "so": "백반/한정식",
+   "distM": 5,
+   "exact": true
+  },
+  {
+   "contentid": "2865384",
+   "title": "아시오",
+   "storeId": "MA010120220810607575",
+   "storeName": "아시오",
+   "so": "카페",
+   "distM": 11,
+   "exact": true
+  },
+  {
+   "contentid": "2841524",
+   "title": "향유정 속초이모네찜",
+   "storeId": "MA010120220805325256",
+   "storeName": "향유정",
+   "so": "백반/한정식",
+   "distM": 6,
+   "exact": false
+  },
+  {
+   "contentid": "2868824",
+   "title": "비스포레",
+   "storeId": "MA010120220810104676",
+   "storeName": "비스포레",
+   "so": "경양식",
+   "distM": 5,
+   "exact": true
+  },
+  {
+   "contentid": "2844738",
+   "title": "팜카페",
+   "storeId": "MA010120220805145079",
+   "storeName": "팜카페",
+   "so": "카페",
+   "distM": 5,
+   "exact": true
+  },
+  {
+   "contentid": "2642681",
+   "title": "카페 385",
+   "storeId": "MA010120220814288147",
+   "storeName": "카페385",
+   "so": "카페",
+   "distM": 7,
+   "exact": true
+  },
+  {
+   "contentid": "2759629",
+   "title": "디저트시네마",
+   "storeId": "MA010120220805450333",
+   "storeName": "디저트시네마",
+   "so": "빵/도넛",
+   "distM": 6,
+   "exact": true
+  },
+  {
+   "contentid": "2759609",
+   "title": "쌍둥이돼지국밥 본점",
+   "storeId": "MA010120220808539759",
+   "storeName": "쌍둥이돼지국밥 2호점",
+   "so": "백반/한정식",
+   "distM": 5,
+   "exact": false
+  },
+  {
+   "contentid": "2793181",
+   "title": "속씨원한대구탕미포본점",
+   "storeId": "MA0101202509A0026421",
+   "storeName": "미포",
+   "so": "백반/한정식",
+   "distM": 219,
+   "exact": false
+  },
+  {
+   "contentid": "2868940",
+   "title": "요이쿠마 본점",
+   "storeId": "MA010120220810430722",
+   "storeName": "요이쿠마 본점",
+   "so": "일식 회/초밥",
+   "distM": 5,
+   "exact": true
+  },
+  {
+   "contentid": "2869875",
+   "title": "화복반점",
+   "storeId": "MA010120220809264113",
+   "storeName": "화복반점",
+   "so": "중국집",
+   "distM": 5,
+   "exact": true
+  },
+  {
+   "contentid": "2608181",
+   "title": "일송면옥",
+   "storeId": "MA010120220811572648",
+   "storeName": "일송면옥",
+   "so": "냉면/밀면",
+   "distM": 5,
+   "exact": true
+  },
+  {
+   "contentid": "2809068",
+   "title": "국이네 낙지볶음",
+   "storeId": "MA0101202412A0016915",
+   "storeName": "국이네낙지볶음",
+   "so": "해산물 구이/찜",
+   "distM": 5,
+   "exact": true
+  },
+  {
+   "contentid": "2845069",
+   "title": "마레레스토랑",
+   "storeId": "MA010120220808539504",
+   "storeName": "마레",
+   "so": "경양식",
+   "distM": 6,
+   "exact": false
+  },
+  {
+   "contentid": "2847910",
+   "title": "메밀447",
+   "storeId": "MA010120220803347309",
+   "storeName": "메밀447",
+   "so": "국수/칼국수",
+   "distM": 5,
+   "exact": true
+  },
+  {
+   "contentid": "2775556",
+   "title": "칠암일번지횟집",
+   "storeId": "MA0101202503A0017055",
+   "storeName": "칠암일번지횟집",
+   "so": "횟집",
+   "distM": 4,
+   "exact": true
+  },
+  {
+   "contentid": "2860755",
+   "title": "영남식육식당",
+   "storeId": "MA010120220811472009",
+   "storeName": "영남식육식당",
+   "so": "돼지고기 구이/찜",
+   "distM": 5,
+   "exact": true
+  },
+  {
+   "contentid": "2841442",
+   "title": "톤쇼우",
+   "storeId": "MA010120220813741438",
+   "storeName": "톤쇼우",
+   "so": "일식 회/초밥",
+   "distM": 5,
+   "exact": true
+  },
+  {
+   "contentid": "2869158",
+   "title": "감포참가자미",
+   "storeId": "MA010120220803571377",
+   "storeName": "감포참가자미",
+   "so": "횟집",
+   "distM": 5,
+   "exact": true
+  },
+  {
+   "contentid": "2845094",
+   "title": "마리솔",
+   "storeId": "MA010120220807824618",
+   "storeName": "마리솔",
+   "so": "카페",
+   "distM": 5,
+   "exact": true
+  },
+  {
+   "contentid": "2807808",
+   "title": "카페썬번",
+   "storeId": "MA010120220803858405",
+   "storeName": "썬번",
+   "so": "카페",
+   "distM": 6,
+   "exact": false
+  },
+  {
+   "contentid": "2838382",
+   "title": "신창국밥 본점",
+   "storeId": "MA010120220813539438",
+   "storeName": "신창국밥",
+   "so": "국/탕/찌개류",
+   "distM": 6,
+   "exact": false
+  },
+  {
+   "contentid": "2859132",
+   "title": "흑송 우동소바 송정본점",
+   "storeId": "MA010120220811445712",
+   "storeName": "흑송",
+   "so": "일식 회/초밥",
+   "distM": 5,
+   "exact": false
+  },
+  {
+   "contentid": "2859188",
+   "title": "키친동백",
+   "storeId": "MA010120220812105460",
+   "storeName": "키친동백",
+   "so": "경양식",
+   "distM": 5,
+   "exact": true
+  },
+  {
+   "contentid": "2872611",
+   "title": "만호갈미샤브샤브",
+   "storeId": "MA010120220814347031",
+   "storeName": "만호갈미샤브샤브",
+   "so": "국/탕/찌개류",
+   "distM": 54,
+   "exact": true
+  },
+  {
+   "contentid": "2867167",
+   "title": "양산국밥",
+   "storeId": "MA010120220811399882",
+   "storeName": "양산국밥",
+   "so": "국/탕/찌개류",
+   "distM": 5,
+   "exact": true
+  },
+  {
+   "contentid": "2786742",
+   "title": "양산왕돼지국밥",
+   "storeId": "MA010120220800910914",
+   "storeName": "양산왕돼지국밥",
+   "so": "백반/한정식",
+   "distM": 6,
+   "exact": true
+  }
+ ]
+}

@@ -1,5 +1,6 @@
 package com.gabolle.backend.itinerary;
 
+import com.gabolle.backend.trip.infra.InMemoryTripRepository;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -12,6 +13,7 @@ import com.gabolle.backend.itinerary.domain.ItineraryItem;
 import com.gabolle.backend.itinerary.domain.ItineraryVersion;
 import com.gabolle.backend.itinerary.domain.StaleItineraryVersionException;
 import com.gabolle.backend.itinerary.infra.InMemoryItineraryRepository;
+import com.gabolle.backend.itinerary.support.FakeItineraryItemActualRepository;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -52,8 +54,18 @@ class ItineraryVersionConflictTest {
         repository = new InMemoryItineraryRepository();
         // 기간이 정해진 장소가 아니라고 답하는 문. 이 테스트가 보는 것은 판 번호와 409 이고,
         // 축제 날짜 검사는 그 판정에 끼어들지 않아야 한다(ItineraryAddItemIntegrationTest 가 본다).
+        // 구간 계산기는 안 넘긴다. 여행 저장소가 비어 있어서 순서 바꾸기가 여행을 못 찾고,
+        // 그때 구간 다시 만들기는 시작조차 안 한다(ItineraryEditService.withRebuiltDayLegs).
+        // 이 테스트가 보는 것은 판 번호와 409 뿐이다.
         service = new ItineraryEditService(repository,
-                (placeId, from, to) -> PlaceEventSchedule.unscheduled(), Clock.systemUTC());
+                (placeId, from, to) -> PlaceEventSchedule.unscheduled(),
+                // 구간 계획기와 영업시간 검사기는 순서 바꾸기에서만 쓰인다. 이 검사는 고정만
+                // 부르고, 여행 저장소도 비어 있어 그 갈래에 닿지 않는다.
+                null, new InMemoryTripRepository(), null, Clock.systemUTC(),
+                // 실제 시각 저장소는 재계획(S15P21E201-308)만 읽는다. 여기서는 null 대신
+                // 빈 대역을 준다 — 나중에 다른 편집이 이 자리를 쓰게 되면 NPE 로 죽는 대신
+                // "기록이 없는 일정" 이라는 멀쩡한 상황으로 이어져야 한다.
+                new FakeItineraryItemActualRepository());
         repository.seed("itn_1", "trp_1", 5);
 
         String versionId = UUID.randomUUID().toString();

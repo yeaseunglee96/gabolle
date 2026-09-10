@@ -18,6 +18,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import com.gabolle.backend.itinerary.application.ItineraryDraftService;
+import com.gabolle.backend.itinerary.application.ItineraryLegPlanner;
 import com.gabolle.backend.itinerary.application.port.TravelTime;
 import com.gabolle.backend.itinerary.domain.ItineraryItem;
 import com.gabolle.backend.itinerary.application.port.TravelTimePort;
@@ -63,8 +64,8 @@ class ItineraryDraftServiceTest {
 		ObjectProvider<TravelTimePort> noTravelTime = mock(ObjectProvider.class);
 		when(noTravelTime.getIfAvailable()).thenReturn(null);
 
-		this.service = new ItineraryDraftService(this.tripRepository, this.placeRepository, itineraryRepository,
-				CLOCK, 4, noTravelTime);
+		ItineraryLegPlanner legPlanner = new ItineraryLegPlanner(this.placeRepository, noTravelTime);
+		this.service = new ItineraryDraftService(this.tripRepository, itineraryRepository, CLOCK, 4, legPlanner);
 
 		// 좌표를 모르는 장소만 다루는 테스트들이 기본으로 쓴다 — 거리는 항상 null 이 된다.
 		when(this.placeRepository.findByPlaceIdIn(anyCollection())).thenReturn(List.of());
@@ -123,8 +124,9 @@ class ItineraryDraftServiceTest {
 		@SuppressWarnings("unchecked")
 		ObjectProvider<TravelTimePort> provider = mock(ObjectProvider.class);
 		when(provider.getIfAvailable()).thenReturn(port);
+		ItineraryLegPlanner legPlanner = new ItineraryLegPlanner(this.placeRepository, provider);
 		ItineraryDraftService withTravelTime = new ItineraryDraftService(this.tripRepository,
-				this.placeRepository, mock(ItineraryRepository.class), CLOCK, 4, provider);
+				mock(ItineraryRepository.class), CLOCK, 4, legPlanner);
 
 		ItineraryDraft draft = withTravelTime.assemble(commandOf("trip_1", plannedPlaces(3)));
 
@@ -170,12 +172,12 @@ class ItineraryDraftServiceTest {
 	@DisplayName("🔴 대중교통 구간은 walkingMeters 가 NULL 이다 — 직선거리를 지하철 이동거리인 척하지 않는다")
 	void walkingMetersIsOnlyFilledForWalkMode() {
 		// 🔴 지금 buildLegs()는 Trip 이 이동수단을 아직 노출하지 않아 항상 WALK 만 만든다 —
-		//    그래서 이 규칙 자체는 ItineraryDraftService.walkingMetersFor(...) 를 직접
+		//    그래서 이 규칙 자체는 ItineraryLegPlanner.walkingMetersFor(...) 를 직접
 		//    불러 확인한다. Trip 이 실제 이동수단을 노출하게 되면 buildLegs() 를 통해서도
 		//    이 갈래가 나오게 된다.
-		assertThat(ItineraryDraftService.walkingMetersFor("WALK", 350)).isEqualTo(350);
-		assertThat(ItineraryDraftService.walkingMetersFor("SUBWAY", 350)).isNull();
-		assertThat(ItineraryDraftService.walkingMetersFor("BUS", 350)).isNull();
+		assertThat(ItineraryLegPlanner.walkingMetersFor("WALK", 350)).isEqualTo(350);
+		assertThat(ItineraryLegPlanner.walkingMetersFor("SUBWAY", 350)).isNull();
+		assertThat(ItineraryLegPlanner.walkingMetersFor("BUS", 350)).isNull();
 	}
 
 	@Test

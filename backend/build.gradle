@@ -66,6 +66,12 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-security-test'
 	testImplementation 'org.springframework.boot:spring-boot-starter-validation-test'
 	testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
+	// S15P21E201-779 — TestRestTemplate 은 spring-boot-starter-restclient-test 가 아니라
+	// spring-boot-resttestclient 모듈에 있다(실측 — 잡 파일을 직접 훑어 확인했다.
+	// org.springframework.boot.resttestclient.TestRestTemplate). restclient-test 는
+	// @RestClientTest(아웃바운드 호출을 목킹하는 슬라이스 테스트)용이라 별개다. 이 모듈을
+	// 감싸는 starter 가 따로 없어서 직접 적는다.
+	testImplementation 'org.springframework.boot:spring-boot-resttestclient'
 	// JUnit 5 · AssertJ · Mockito 한 묶음. 위의 세분화된 *-test 스타터들이 이미 끌어올 수도
 	// 있지만, AssertJ 가 있다는 것을 이 파일에서 눈으로 확인할 수 있게 명시한다.
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'

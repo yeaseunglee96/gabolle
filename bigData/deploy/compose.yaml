@@ -1,0 +1,97 @@
+# BIMS 수집 — 키 6개를 각각 한 컨테이너로 (S15P21E201-633)
+#
+# ══════════════════════════════════════════════════════════════════════════════
+# 왜 6개로 나누나
+# ══════════════════════════════════════════════════════════════════════════════
+# 일일 호출 한도가 **계정(키)당** 걸린다. 키가 여섯이면 예산도 여섯 배다.
+# 한 프로세스가 키를 돌려 쓰게 만들 수도 있지만, 그러면 하나가 죽을 때 여섯이 같이
+# 죽는다. 따로 두면 하나가 죽어도 나머지 다섯은 계속 모은다 — 실시간 데이터는
+# 소급 수집이 안 되므로 "일부라도 계속 도는 것" 이 "전부 아니면 전무" 보다 훨씬 낫다.
+#
+# ══════════════════════════════════════════════════════════════════════════════
+# 시간표 — 하루 600회/노선 (배정표의 --calls-per-route 600 과 반드시 같아야 한다)
+# ══════════════════════════════════════════════════════════════════════════════
+#   07–09시 · 17–20시 (5시간)    60초 →  300회/노선   ← 소요시간 변동이 가장 큰 구간
+#   05–07 · 09–17 · 20–01 (15h) 180초 →  300회/노선
+#   01–05시                       꺼짐 →    0회
+#                                        합 600회/노선
+#
+#   12노선 × 600 = 7,200회/키/일  (한도 10,000 의 72%)
+#
+# 🔴 이 시간표를 고치면 `bims-assign.json` 도 같이 다시 만들어야 한다.
+#    한쪽만 고치면 한도를 넘기고, 넘긴 키는 **그날 남은 시간 동안 아무것도 못 받는다.**
+#      node process/bims-assign.mjs --members ... --calls-per-route <새 값>
+#
+# 🔴 노선 목록은 여기 없다. 각 컨테이너가 `config/bims-assign.json` 에서 자기 이름으로
+#    찾아 읽는다. 여기 베껴 적으면 배정을 다시 계산한 날 여섯 벌 중 하나가 안 고쳐진다.
+
+x-collector: &collector
+  build:
+    context: ..
+    dockerfile: deploy/Dockerfile
+  image: gabolle-bims:latest
+  restart: unless-stopped          # 서버가 재부팅돼도 알아서 다시 뜬다
+  volumes:
+    - ./data:/app/data             # 수집물은 호스트에 쌓인다
+  environment: &schedule
+    BIMS_ENDPOINT: https://apis.data.go.kr/6260000/BusanBIMS/busInfoByRouteId
+    BIMS_TZ: Asia/Seoul            # 🔴 서버는 UTC 다. 안 주면 시간표가 9시간 밀린다
+    BIMS_ACTIVE_HOURS: "05:00-01:00"
+    BIMS_RUSH_HOURS: "07:00-09:00,17:00-20:00"
+    BIMS_RUSH_INTERVAL_MS: "60000"
+    BIMS_INTERVAL_MS: "180000"
+    BIMS_DAILY_CAP: "7200"         # 산수가 틀려도 키를 태우지 않게 하는 마지막 방어선
+  logging:                          # 로그가 디스크를 채워 서버를 멈추게 두지 않는다
+    driver: json-file
+    options: { max-size: "10m", max-file: "3" }
+
+services:
+  # 이름(BIMS_INSTANCE)은 config/bims-assign.json 의 "담당" 과 **글자까지 같아야** 한다.
+  # 다르면 컨테이너가 뜨자마자 이름을 지어내지 않고 멈춘다.
+  bims-rleaderjoon:
+    <<: *collector
+    container_name: bims-rleaderjoon
+    environment:
+      <<: *schedule
+      BIMS_INSTANCE: rleaderjoon
+      DATA_GO_KR_KEY: ${KEY_RLEADERJOON}
+
+  bims-masdf13:
+    <<: *collector
+    container_name: bims-masdf13
+    environment:
+      <<: *schedule
+      BIMS_INSTANCE: masdf13
+      DATA_GO_KR_KEY: ${KEY_MASDF13}
+
+  bims-yeaseung:
+    <<: *collector
+    container_name: bims-yeaseung
+    environment:
+      <<: *schedule
+      BIMS_INSTANCE: yeaseung.lee96
+      DATA_GO_KR_KEY: ${KEY_YEASEUNG}
+
+  bims-jinmiri:
+    <<: *collector
+    container_name: bims-jinmiri
+    environment:
+      <<: *schedule
+      BIMS_INSTANCE: jinmiri
+      DATA_GO_KR_KEY: ${KEY_JINMIRI}
+
+  bims-mojinseong:
+    <<: *collector
+    container_name: bims-mojinseong
+    environment:
+      <<: *schedule
+      BIMS_INSTANCE: 모진성
+      DATA_GO_KR_KEY: ${KEY_MOJINSEONG}
+
+  bims-kojihyeok:
+    <<: *collector
+    container_name: bims-kojihyeok
+    environment:
+      <<: *schedule
+      BIMS_INSTANCE: 고지혁
+      DATA_GO_KR_KEY: ${KEY_KOJIHYEOK}
