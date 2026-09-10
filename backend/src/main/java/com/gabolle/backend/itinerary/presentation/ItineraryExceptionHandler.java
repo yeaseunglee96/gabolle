@@ -233,6 +233,29 @@ public class ItineraryExceptionHandler {
 	}
 
 	/**
+	 * S15P21E201-308 — 다시 짠 시간표가 그날 안에 안 들어간다 — 422.
+	 *
+	 * <p>400 이 아닌 이유는 요청 자체는 멀쩡하기 때문이다. 형식도 맞고 권한도 있는데 지금
+	 * 상태에서는 그 요청을 들어줄 수 없는 것이라, 문법 오류를 뜻하는 400 보다 "무슨 말인지는
+	 * 알겠으나 처리할 수 없다" 는 422 가 맞다. 영업시간 밖 장소를 넣으려 할 때와 같은 자리다.
+	 *
+	 * <p>넘치는 방문지를 함께 실어 보낸다. 화면이 "이 셋을 빼면 들어갑니다" 라고 말할 수
+	 * 있어야 사용자가 다음 행동을 정한다 — 그냥 거절만 하면 사용자는 무엇을 고쳐야 할지 모른다.
+	 */
+	@ExceptionHandler(ItineraryEditService.ReplanOverflowsDayException.class)
+	public ResponseEntity<ApiResponse<Void>> handleReplanOverflowsDay(
+			ItineraryEditService.ReplanOverflowsDayException e) {
+		List<String> fields = List.of(
+				"dayIndex=" + e.dayIndex(),
+				"overflowingItemIds=" + join(e.overflowingItemKeys()));
+
+		return ResponseEntity.unprocessableEntity()
+				.body(ApiResponse.failure(
+						new ApiError("ITINERARY_REPLAN_OVERFLOWS_DAY", e.getMessage(), fields),
+						requestId()));
+	}
+
+	/**
 	 * S15P21E201-467 — 이미 담긴 장소를 또 담으려 했다 — 409. 조용히 성공시키지 않는 이유는
 	 * {@code ItineraryEditService.requireAddable} javadoc 에 있다.
 	 *
