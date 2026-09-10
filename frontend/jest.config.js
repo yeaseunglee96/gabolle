@@ -9,4 +9,8 @@ module.exports = {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
   setupFiles: ['<rootDir>/jest.setup.js'],
+  // 🔴 S15P21E201-775 — tests/e2e/*.spec.ts는 @playwright/test의 test()를 쓴다(jest의
+  //    test()가 아니다). 기본 testMatch에 걸려 jest가 이 파일을 집어 들면 "test is not
+  //    a function" 류로 죽는다 — Playwright 전용 테스트 러너(npx playwright test)로만 돈다.
+  testPathIgnorePatterns: ['<rootDir>/node_modules/', '<rootDir>/tests/e2e/'],
 };
