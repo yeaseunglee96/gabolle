@@ -10,7 +10,12 @@ WORKDIR /app
 COPY package.json ./
 RUN npm install --omit=dev --no-audit --no-fund
 
-COPY server.mjs index.html ./
+# 🔴 places.json 과 design.mjs 를 빠뜨리면 앱이 시작하자마자 죽는다.
+#    server.mjs 가 뜨는 자리에서 둘 다 읽는다 — places.json 은 가게 이름 색인(53,716곳),
+#    design.mjs 는 짝 비교 문항 정의다. 없으면 ENOENT 로 죽고 컨테이너가 재시작을
+#    반복하며 502 가 된다. 2026-09-10 배포에서 실제로 그렇게 죽었다 (S15P21E201-754).
+#    화면 파일만 바뀌는 게 아니라 **읽는 파일이 늘면 이 줄도 같이 늘어야 한다.**
+COPY server.mjs index.html places.json design.mjs ./
 COPY assets ./assets
 COPY fonts ./fonts
 
