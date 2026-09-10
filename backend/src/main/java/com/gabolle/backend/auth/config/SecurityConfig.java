@@ -164,8 +164,17 @@ public class SecurityConfig {
 		CorsConfiguration configuration = new CorsConfiguration();
 		configuration.setAllowedOrigins(properties.getCorsAllowedOrigins());
 		configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+		// 🔴 실측(2026-09-10) — X-Session-Token(익명 출입증, S15P21E201-303)·Idempotency-Key
+		//    (POST /api/v1/trips 등이 보내는 재시도 안전 키)가 여기 없어서 웹에서 로그인·
+		//    여행 생성이 둘 다 막혀 있었다. 브라우저가 실제 요청 전에 보내는 사전 확인
+		//    (preflight, OPTIONS)이 "이 헤더를 보내도 되는가"를 여기 목록과 대조하는데,
+		//    프론트가 실제로 보내는 헤더(src/api/client.ts·tripApi.ts) 중 이 둘이 빠져 있어
+		//    /auth/login·/auth/web/refresh·POST /api/v1/trips가 CORS로 거부됐다 — 상태
+		//    코드조차 못 받고 fetch 자체가 실패해서 화면에는 "서버에 연결할 수 없어요"로만
+		//    보였다. Playwright E2E(S15P21E201-775)가 실제 로그인→여행 생성을 자동화하다가
+		//    둘 다 발견했다 — 하나를 고치고 다음 단계에서 또 걸렸다.
 		configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Request-Id", "X-Client-Platform",
-				"X-Device-Id"));
+				"X-Device-Id", "X-Session-Token", "Idempotency-Key"));
 		configuration.setExposedHeaders(List.of("X-Request-Id"));
 		configuration.setAllowCredentials(true);
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
