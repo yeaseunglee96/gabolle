@@ -11,7 +11,7 @@ import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
-import { bilingualPlaceName, formatFeatureSlot, getPlace, hasLocalityScore, type Place as ApiPlace } from '@/discovery/places';
+import { bilingualPlaceName, formatFeatureSlot, getPlace, hasLocalityScore, needsFoodSafetyCheck, type Place as ApiPlace } from '@/discovery/places';
 import { DEMO_PLACES, SAVED_PLACES_KEY } from '@/discovery/savedPlaces';
 import { useI18n } from '@/i18n';
 import { isAtLeast } from '@/layout/breakpoints';
@@ -185,6 +185,12 @@ export default function Place() {
             {formatFeatureSlot(resolved.apiPlace.priceLevel, tx) ? <View style={styles.infoRow}><Text variant="caption" weight="bold" color={color.text.muted}>{tx('가격대', 'Price level')}</Text><Text variant="body">{formatFeatureSlot(resolved.apiPlace.priceLevel, tx)}</Text></View> : null}
           </View>
         ) : null}
+        {resolved.apiPlace && needsFoodSafetyCheck(resolved.apiPlace) ? (
+          <View style={styles.safetyNotice} accessibilityRole="alert">
+            <Text variant="caption" weight="bold" color={color.state.danger}>{tx('확인 필요', 'Needs confirmation')}</Text>
+            <Text color={color.text.body}>{tx('알레르기·식단 정보가 없어 주문 전 확인이 필요합니다.', 'Allergy and dietary information is not available for this place — please check before ordering.')}</Text>
+          </View>
+        ) : null}
         <View style={styles.notice} accessibilityLiveRegion="polite">
           <Text variant="title" weight="bold">{tx('상세 정보를 준비하고 있어요', 'Details are on the way')}</Text>
           <Text color={color.text.body} style={styles.noticeCopy}>{tx('접근성·혼잡도·리뷰는 실제 장소 조회 API가 연결된 뒤 표시합니다. 확인되지 않은 정보는 임의로 보여드리지 않아요.', 'Accessibility, crowd levels, and reviews will show once the real place lookup API is connected. We never show unverified information.')}</Text>
@@ -234,6 +240,7 @@ const styles = StyleSheet.create({
   photoCredit: { marginTop: spacing[1], opacity: 0.8 },
   infoRows: { marginTop: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card, overflow: 'hidden' },
   infoRow: { minHeight: 52, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[3], paddingHorizontal: spacing[4], borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: '#e8e4dd' },
+  safetyNotice: { gap: spacing[1], marginTop: spacing[4], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.state.dangerBg },
   notice: { gap: spacing[3], marginTop: spacing[4], padding: spacing[4], borderWidth: 1, borderColor: '#eee5da', borderRadius: radius.lg, backgroundColor: color.surface.card },
   noticeCopy: { lineHeight: 22 },
   actions: { gap: spacing[3], marginTop: spacing[4] },
