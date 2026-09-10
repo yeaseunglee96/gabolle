@@ -29,6 +29,16 @@ const DAY1: ItineraryItem[] = [
   { time: '18:30', titleKo: '광안리 야경', titleEn: 'Gwangalli night view', subtitleKo: '해변 산책 · 노을 명소', subtitleEn: 'Beach walk · Sunset spot', pace: '보통' },
 ];
 
+// 🔴 이 화면은 실제 생성된 일정이 아니라 Figma 실측 그대로의 정적 데모다(파일 맨 위 주석).
+// DAY 2도 같은 패턴(가짜 고정 데이터)으로 채운다 — "1박 2일" 제목을 걸어 두고 DAY 2 탭을
+// 빈 안내문으로 막아 두면 심사에서 미완성으로 보인다(STORE-REVIEW-CHECKLIST.md).
+const DAY2: ItineraryItem[] = [
+  { time: '09:30', titleKo: '감천문화마을', titleEn: 'Gamcheon Culture Village', subtitleKo: '색색의 골목 · 포토 스팟', subtitleEn: 'Colorful alleys · Photo spot', pace: '여유' },
+  { time: '12:00', titleKo: '자갈치시장 회 정식', titleEn: 'Jagalchi Market sashimi set', subtitleKo: '현지인 추천 · 대기 10분', subtitleEn: 'Local recommendation · 10 min wait', pace: '보통' },
+  { time: '14:30', titleKo: '해운대 해수욕장', titleEn: 'Haeundae Beach', subtitleKo: '해변 산책 · 카페', subtitleEn: 'Beach walk · Cafes', pace: '여유' },
+  { time: '17:00', titleKo: '동백섬 산책로', titleEn: 'Dongbaekseom trail', subtitleKo: '노을 명소 · 가벼운 산책', subtitleEn: 'Sunset spot · Easy walk', pace: '여유' },
+];
+
 const STATS = [
   { labelKo: '총 소요', labelEn: 'Total time', valueKo: '18시간 30분', valueEn: '18h 30m', tinted: true },
   { labelKo: '1인 예산', labelEn: 'Budget per person', valueKo: '128,000원', valueEn: '₩128,000', tinted: false },
@@ -53,10 +63,11 @@ export default function Result() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const tripId = id ?? 'demo-trip';
   const [day, setDay] = useState<'DAY 1' | 'DAY 2'>('DAY 1');
+  const items = day === 'DAY 1' ? DAY1 : DAY2;
   // 태블릿 detail 패널에 보여줄 선택 항목. 기본값을 첫 항목으로 둔 이유는 폴드8 을 펼쳤을 때
   // detail 패널이 빈 채로 시작하지 않게 하기 위해서다(Figma 에 이 상태의 디자인은 없다).
   const [selectedTime, setSelectedTime] = useState(DAY1[0].time);
-  const selectedItem = DAY1.find((item) => item.time === selectedTime) ?? DAY1[0];
+  const selectedItem = items.find((item) => item.time === selectedTime) ?? items[0];
 
   return (
     <Screen scroll wide>
@@ -102,7 +113,7 @@ export default function Result() {
                 key={option}
                 accessibilityRole="tab"
                 accessibilityState={{ selected }}
-                onPress={() => setDay(option)}
+                onPress={() => { setDay(option); setSelectedTime((option === 'DAY 1' ? DAY1 : DAY2)[0].time); }}
                 style={[styles.dayOption, selected && styles.dayOptionSelected]}
               >
                 <Text variant="caption" weight="bold" color={selected ? color.action.brand : color.text.muted}>
@@ -114,54 +125,48 @@ export default function Result() {
         </View>
       </View>
 
-      {day === 'DAY 1' ? (
-        <Split
-          master={
-            <View style={styles.timeline}>
-              {DAY1.map((item) => (
-                <Pressable
-                  key={item.time}
-                  onPress={() => setSelectedTime(item.time)}
-                  style={styles.timelineRow}
-                >
-                  <Text variant="body" weight="bold" color={color.text.accent} style={styles.timelineTime}>
-                    {item.time}
+      <Split
+        master={
+          <View style={styles.timeline}>
+            {items.map((item) => (
+              <Pressable
+                key={item.time}
+                onPress={() => setSelectedTime(item.time)}
+                style={styles.timelineRow}
+              >
+                <Text variant="body" weight="bold" color={color.text.accent} style={styles.timelineTime}>
+                  {item.time}
+                </Text>
+                <Card tinted={item.time === selectedTime} style={styles.timelineCard}>
+                  <Text variant="body" weight="bold">
+                    {tx(item.titleKo, item.titleEn)}
                   </Text>
-                  <Card tinted={item.time === selectedTime} style={styles.timelineCard}>
-                    <Text variant="body" weight="bold">
-                      {tx(item.titleKo, item.titleEn)}
-                    </Text>
-                    <Text variant="caption" style={styles.timelineSubtitle}>
-                      {tx(item.subtitleKo, item.subtitleEn)}
-                    </Text>
-                    <PaceTag pace={item.pace} />
-                  </Card>
-                </Pressable>
-              ))}
-            </View>
-          }
-          detail={
-            // 🔴 "선택한 장소 요약" 은 Figma·명세 어디에도 없다 — 태블릿에서 detail 칸을 채우려고
-            // 이번 작업에서 새로 만든 화면이다. 사람 검토가 필요하다.
-            <Card tinted style={styles.placeSummaryCard}>
-              <Text variant="caption" weight="bold" color={color.text.eyebrow}>
-                {tx('선택한 장소', 'Selected place')}
-              </Text>
-              <Text variant="title" weight="bold" style={styles.placeSummaryTitle}>
-                {tx(selectedItem.titleKo, selectedItem.titleEn)}
-              </Text>
-              <Text variant="caption" style={styles.timelineSubtitle}>
-                {selectedItem.time} · {tx(selectedItem.subtitleKo, selectedItem.subtitleEn)}
-              </Text>
-              <PaceTag pace={selectedItem.pace} />
-            </Card>
-          }
-        />
-      ) : (
-        <Text variant="caption" style={styles.day2Placeholder}>
-          {tx('DAY 2 일정은 아직 준비 중이에요.', 'DAY 2 itinerary is still being prepared.')}
-        </Text>
-      )}
+                  <Text variant="caption" style={styles.timelineSubtitle}>
+                    {tx(item.subtitleKo, item.subtitleEn)}
+                  </Text>
+                  <PaceTag pace={item.pace} />
+                </Card>
+              </Pressable>
+            ))}
+          </View>
+        }
+        detail={
+          // 🔴 "선택한 장소 요약" 은 Figma·명세 어디에도 없다 — 태블릿에서 detail 칸을 채우려고
+          // 이번 작업에서 새로 만든 화면이다. 사람 검토가 필요하다.
+          <Card tinted style={styles.placeSummaryCard}>
+            <Text variant="caption" weight="bold" color={color.text.eyebrow}>
+              {tx('선택한 장소', 'Selected place')}
+            </Text>
+            <Text variant="title" weight="bold" style={styles.placeSummaryTitle}>
+              {tx(selectedItem.titleKo, selectedItem.titleEn)}
+            </Text>
+            <Text variant="caption" style={styles.timelineSubtitle}>
+              {selectedItem.time} · {tx(selectedItem.subtitleKo, selectedItem.subtitleEn)}
+            </Text>
+            <PaceTag pace={selectedItem.pace} />
+          </Card>
+        }
+      />
 
       <Button
         label={tx('여행 지도에서 보기', 'View on trip map')}
@@ -242,9 +247,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing[2],
     paddingVertical: 2,
     marginTop: spacing[1],
-  },
-  day2Placeholder: {
-    marginTop: spacing[4],
   },
   placeSummaryCard: {
     gap: spacing[1],
