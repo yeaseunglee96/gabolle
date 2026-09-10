@@ -7,6 +7,7 @@ import { Button } from '@/components/Button';
 import { GabolleMascot } from '@/components/DongbaekMascot';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
+import { Eyebrow } from '@/components/Eyebrow';
 import { color, radius, spacing } from '@/design/tokens';
 import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
@@ -49,7 +50,7 @@ export default function Chat() {
   return <Screen wide style={[styles.screen, desktop && styles.desktopScreen]}>
     <View style={[styles.header, desktop && styles.desktopHeader]}><View style={styles.identity}><GabolleMascot state="open" delay={180} style={desktop ? styles.desktopAvatar : styles.avatar} /><View><Text variant={desktop ? 'display' : 'title'} weight="bold">{tx('가볼래 AI', 'GABOLLE AI')}</Text><Text variant="caption" color={color.text.body}>{tx('앱 기능을 실행하는 부산 여행 도우미', 'A Busan travel assistant that runs app features for you')}</Text></View></View><Pressable accessibilityRole="button" accessibilityLabel={tx('채팅 닫기', 'Close chat')} onPress={() => router.canGoBack() ? router.back() : router.replace('/')} style={styles.close}><Text variant="title">×</Text></Pressable></View>
     <View style={[styles.workspace, desktop && styles.workspaceDesktop]}>
-      {desktop ? <View style={styles.sidebar}><Text variant="eyebrow" weight="bold" color={color.brand.orange}>TRAVEL TOOLS</Text><Text variant="title" weight="bold" color={color.text.onAction}>{tx('여행 중 필요한 기능을 바로 실행하세요', 'Run the features you need for your trip right away')}</Text><Text variant="body" color={color.text.onAction}>{tx('현장 문장은 크게 보거나 음성으로 듣고, 메뉴판 번역 도구도 바로 열 수 있어요.', 'View on-the-go phrases in large text or hear them aloud, and open the menu translation tool right away.')}</Text>{tools}</View> : null}
+      {desktop ? <View style={styles.sidebar}><Eyebrow>{tx('여행 도구', 'Travel tools')}</Eyebrow><Text variant="title" weight="bold" color={color.text.onAction}>{tx('여행 중 필요한 기능을 바로 실행하세요', 'Run the features you need for your trip right away')}</Text><Text variant="body" color={color.text.onAction}>{tx('현장 문장은 크게 보거나 음성으로 듣고, 메뉴판 번역 도구도 바로 열 수 있어요.', 'View on-the-go phrases in large text or hear them aloud, and open the menu translation tool right away.')}</Text>{tools}</View> : null}
       <View style={[styles.chatPanel, desktop && styles.chatPanelDesktop]}>
         <ScrollView style={styles.messages} contentContainerStyle={[styles.messageContent, desktop && styles.messageContentDesktop]} keyboardShouldPersistTaps="handled">
           <View style={[styles.bubble, desktop && styles.bubbleDesktop, styles.assistantBubble]}><Text color={color.text.heading}>{tx('안녕하세요! 부산 일정과 여행 중 필요한 말을 앱 기능으로 바로 도와드릴게요.', 'Hi! I can help with your Busan itinerary and useful phrases for your trip, right from the app.')}</Text></View>
