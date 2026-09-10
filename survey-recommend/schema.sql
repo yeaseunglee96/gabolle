@@ -48,6 +48,14 @@
 --    migrations/0005_more_slots.sql 을 0004 **뒤에** 돌린다.
 --    🔴 기본은 여전히 다섯이다. 화면의 「한 곳 더 적기」를 누른 사람만 는다.
 --
+-- 🔴 2026-09-10 (같은 티켓) 장소 유형이 **일곱에서 여덟**이 됐다 —
+--    「관광 · 명소 · 경치」(SIGHT). recommendation_place_type_ok 만 넓어진다.
+--    살아 있는 DB 는 migrations/0006_add_sight_type.sql 을 0005 **뒤에** 돌린다.
+--    🔴 왜 하나 더 필요했는지(해운대해수욕장 · 감천문화마을이 NATURE 와
+--       CULTURE 사이에서 갈렸다)는 그 파일과 README.md 2절에 적어 뒀다.
+--    🔴 옛 행의 유형을 다시 나누지 않는다. 무엇을 보고 그렇게 적었는지 우리가
+--       모르기 때문이다 — 가르는 기준은 form_version(6 이상이면 SIGHT 가 있던 판)이다.
+--
 -- 🔴 새로 더한 칸은 전부 NULL 허용이다. NULL 이 곧 "그 판에서는 안 물어봤음"
 --    이다. 이미 응답이 들어 있는 표에 NOT NULL 을 걸면 ALTER 가 거부되고
 --    살아 있는 설문이 그 자리에서 멈춘다.
@@ -227,8 +235,13 @@ CREATE TABLE IF NOT EXISTS recommendation (
   --    같은 값이 화면(index.html 의 MAX_SLOTS)과 서버(server.mjs 의 MAX_SLOTS)
   --    에도 있다. 셋이 어긋나면 사람은 화면에서 통과하고 여기서 거절당한다.
   CONSTRAINT recommendation_slot_ok CHECK (slot BETWEEN 1 AND 10),
+  -- 🔴 여덟 값과 그 순서는 migrations/0006_add_sight_type.sql 과 **한 글자도
+  --    같아야 한다.** (그 파일은 살아 있는 DB 를, 이 줄은 새로 띄우는 DB 를
+  --    만든다. 둘이 다르면 두 DB 가 서로 다른 표가 된다.)
+  --    같은 목록이 화면(index.html 의 TYPES)과 서버(server.mjs 의 PLACE_TYPES)
+  --    에도 있다. 넷이 어긋나면 사람은 화면에서 통과하고 여기서 거절당한다.
   CONSTRAINT recommendation_place_type_ok CHECK (place_type IN (
-    'FOOD', 'CAFE', 'NATURE', 'CULTURE', 'MARKET', 'ACTIVITY', 'BAR')),
+    'SIGHT', 'FOOD', 'CAFE', 'NATURE', 'CULTURE', 'MARKET', 'ACTIVITY', 'BAR')),
   CONSTRAINT recommendation_when_good_ok CHECK (when_good IN ('DAY', 'NIGHT', 'ANY')),
   CONSTRAINT recommendation_place_name_ok CHECK (length(btrim(place_name)) BETWEEN 1 AND 60),
   CONSTRAINT recommendation_reason_ok     CHECK (length(btrim(reason))     BETWEEN 1 AND 500),
