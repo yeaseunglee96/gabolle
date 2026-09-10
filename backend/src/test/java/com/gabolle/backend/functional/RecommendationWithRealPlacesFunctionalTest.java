@@ -181,7 +181,35 @@ class RecommendationWithRealPlacesFunctionalTest extends FunctionalJourneyTest {
 		System.out.println("### 추천된 가게 " + names.size() + "곳: " + names);
 	}
 
+	@Test
+	@DisplayName("고른 갈래에 맞는 곳이 없으면 그렇다고 말한다 — 버전 오류로 뭉개지지 않는다")
+	void anEmptyCategorySaysSoInsteadOfBlamingVersions() {
+		ensurePlaces();
+		AuthedClient authed = loginAsNewUser("rec-empty-category");
+
+		// 적재된 장소는 전부 음식점이다. 바다만 고르면 후보가 0곳이 된다.
+		String tripId = createTrip(authed, "SEA_BEACH");
+		String jobId = requestRecommendation(authed, tripId);
+		String body = pollUntil(() -> authed.get("/api/v1/jobs/" + jobId, String.class), response -> {
+			String status = JsonPath.read(response, "$.data.status");
+			return !"PENDING".equals(status) && !"RUNNING".equals(status);
+		});
+
+		// 2026-09-10 배포에서 이 요청이 VERSION_UNRESOLVED 로 끝났다. 후보가 없어 수집분
+		// 이름을 못 정한 것은 원인이 아니라 결과인데, 그 결과가 코드로 나갔다.
+		assertThat(body)
+				.as("후보가 없는 것을 버전 문제로 말하고 있다. 응답 전문: %s", body)
+				.doesNotContain("VERSION_UNRESOLVED")
+				.contains("ENGINE_NO_CANDIDATES");
+		// 다시 불러도 안 달라진다 — 자료가 들어와야 바뀐다.
+		assertThat(body).contains("\"retryable\":false");
+	}
+
 	private String createTrip(AuthedClient authed) {
+		return createTrip(authed, "FOOD");
+	}
+
+	private String createTrip(AuthedClient authed, String categoryCode) {
 		// 알레르기를 "없다"(NONE)로 답한다. 실제 사용자가 "알레르기 없음" 을 고르는 것과
 		//    같고, 서버가 제약을 최소 하나 요구하기 때문이기도 하다(RecommendationJobRunner).
 		//
@@ -197,7 +225,7 @@ class RecommendationWithRealPlacesFunctionalTest extends FunctionalJourneyTest {
 				Map.entry("timeWindow", "09:00-18:00"),
 				Map.entry("timezone", "Asia/Seoul"),
 				Map.entry("preferences", java.util.List.of(
-						Map.of("dimension", "category", "value", "[\"FOOD\"]", "answerStatus", "SELECTED"))),
+						Map.of("dimension", "category", "value", "[\"" + categoryCode + "\"]", "answerStatus", "SELECTED"))),
 				Map.entry("constraints", java.util.List.of(Map.of(
 						"type", "ALLERGY",
 						"constraintKey", "NONE",
