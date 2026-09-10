@@ -369,6 +369,15 @@ textarea.u { min-height: 96px; font-size: 17px; line-height: 1.5; resize: vertic
   font: inherit; font-size: 15px; font-weight: 600; cursor: pointer;
 }
 
+/* ── 「한 곳 더 적기」 (S15P21E201-754) ──────────────────────────
+   🔴 속을 채운 단추(.pill-sm 기본)가 아니라 **테두리만 있는 단추**다.
+      아래 「제출하기」가 이 화면에서 가장 눈에 띄어야 하는데, 속을 채우면
+      둘이 같은 무게가 되어 "더 적어야 제출되나" 로 읽힌다. */
+.addslot { margin: 26px 0 0; }
+.addbtn { background: none; color: var(--ink); border: 1px dashed var(--line-2); }
+.addbtn:hover { border-style: solid; border-color: var(--ink); }
+.addnote { font-size: 13px; color: var(--muted); margin: 10px 0 0; max-width: 36ch; }
+
 /* ── 동의 (첫 화면) ────────────────────────────────────────────── */
 .agree {
   display: flex; gap: 14px; align-items: flex-start; margin: 36px 0 0; cursor: pointer;
@@ -441,7 +450,7 @@ textarea.u { min-height: 96px; font-size: 17px; line-height: 1.5; resize: vertic
         <div class="wnrow"><span>이메일</span><span>없음</span></div>
         <div class="wnrow"><span>성별 · 생년월일</span><span>없음</span></div>
       </div>
-      <div class="wdarkcard"><b>받는 것</b>나이대 · 부산에 산 기간 · 전화번호(선택) · 추천하는 곳 다섯 군데와 그 이유</div>
+      <div class="wdarkcard"><b>받는 것</b>나이대 · 부산에 산 기간 · 전화번호(선택) · 추천하는 곳 다섯 군데와 그 이유 (원하시면 열 곳까지)</div>
     </div>
     <h1 class="wtitle">이름도, 이메일도<br>묻지 않아요</h1>
     <p class="wlede">답변은 추천을 만드는 데만 쓰고, 프로젝트가 끝나면 지웁니다. 전화번호는 <b>경품 추첨에만</b> 쓰고 추첨이 끝나면 지웁니다 — 남기지 않으시면, 이 응답이 누구의 것인지 저희도 알아낼 수 없습니다.</p>
@@ -484,21 +493,28 @@ textarea.u { min-height: 96px; font-size: 17px; line-height: 1.5; resize: vertic
     <p class="lede"><b>부산에서 좋았던 곳 다섯 군데</b>와, 왜 좋았는지를 적어 주세요.</p>
 
     <div class="deflist">
-      <div class="row"><span>받는 것</span><p>이 설문은 <b>두 곳 중 하나 고르기 여덟 번 · 여행 스타일 네 가지 · 나이대 · 부산에 산 기간 · 전화번호(선택) · 추천하는 곳 다섯 군데와 그 이유</b>를 받습니다. 전화번호는 <b>경품 추첨을 위해 선택으로만</b> 받고, 이름 · 이메일을 묻는 칸은 없습니다.</p></div>
+      <div class="row"><span>받는 것</span><p>이 설문은 <b>두 곳 중 하나 고르기 여덟 번 · 여행 스타일 네 가지 · 나이대 · 부산에 산 기간 · 전화번호(선택) · 추천하는 곳 다섯 군데와 그 이유</b>를 받습니다. 추천하는 곳은 <b>더 아시면 열 곳까지</b> 적으실 수 있고, 늘린 칸은 <b>비워 두셔도 제출됩니다.</b> 전화번호는 <b>경품 추첨을 위해 선택으로만</b> 받고, 이름 · 이메일을 묻는 칸은 없습니다.</p></div>
+      <div class="row"><span>언제까지</span><p>응답은 <b><span class="cfg-deadline"></span></b> 받습니다. 경품 추첨은 <b><span class="cfg-draw"></span></b> 합니다. <b>참여 인원에 제한은 없습니다.</b></p></div>
       <div class="row"><span>쓰는 곳</span><p>답은 <b>“부산을 아는 사람은 어디를 왜 추천하는가”</b> 를 모으는 데만 씁니다. 개인을 알아보거나 누구인지 되찾는 데 쓰지 않습니다.</p></div>
       <div class="row"><span>지우는 때</span><p>응답은 <b><span class="cfg-delete"></span></b> 지웁니다. <b>만 14세 이상</b>만 참여해 주세요.</p></div>
-      <div class="row"><span style="color:var(--ink);font-weight:700">● 주의</span><p><b>적는 칸에 사람 이름 · 연락처 · 소속을 적지 말아 주세요.</b> 이 설문은 처음으로 <b>자유롭게 쓰는 칸</b>이 있습니다. 장소 이름과 이유만 적어 주시면 됩니다. 전화번호나 이메일처럼 보이는 글자가 있으면 <b>제출이 막히고 어느 칸인지 알려 드립니다.</b></p></div>
+      <div class="row"><span style="color:var(--ink);font-weight:700">● 주의</span><!-- 🔴 "사람 이름 · 연락처" 였던 것을 "다른 분의 …" 로 고쳤다 (2026-09-10).
+             바로 위에서 전화번호를 선택으로 받으므로, 그냥 "연락처를 적지 마세요" 는
+             읽는 사람에게 모순이다. 막으려던 것은 처음부터 **남의** 신원이다.
+             칸 옆의 짧은 안내(.guard)와 같은 이유로 같이 고쳤다. -->
+        <p><b>적는 칸에 다른 분의 이름 · 연락처 · 소속을 적지 말아 주세요.</b> 이 설문은 처음으로 <b>자유롭게 쓰는 칸</b>이 있습니다. 가게 이름과 이유만 적어 주시면 됩니다. 전화번호나 이메일처럼 보이는 글자가 있으면 <b>제출이 막히고 어느 칸인지 알려 드립니다.</b></p></div>
     </div>
 
     <button type="button" class="toggle-details" id="detailsToggle">무엇을 모으고 어디에 두는지 자세히 보기 ↓</button>
     <div class="deflist small2" id="detailsBox" hidden>
       <div class="row"><span>누가 모으나</span><span>SSAFY 15기 자율 프로젝트 팀 S15P21E201 (가볼래). 진행자는 <span class="cfg-facilitator"></span> 한 명입니다.</span></div>
-      <div class="row"><span>무엇을 모으나</span><span><b>두 곳 중 하나 고르기 여덟 번</b>(조건만 적힌 카드 두 장 중 어느 쪽을 고르셨는지, 그 카드가 화면의 위였는지 아래였는지, 고르시는 데 걸린 시간을 <b>“3초 미만 · 5초 미만”</b> 같은 <b>구간</b>으로만 — 초 단위로는 남기지 않습니다) · 여행 스타일 네 가지(부산까지 <b>오는 교통</b> · <b>숙소</b> 1박 · <b>저녁 한 끼</b> · <b>저녁 먹을 곳을 고를 때 사람이 몰리는 쪽으로 가시는지 조용한 쪽으로 가시는지</b> — 고르는 칸이고 건너뛰셔도 됩니다) · 나이대 · 부산에 산 기간 · <b>전화번호(선택, 경품 추첨용)</b> · 추천하는 곳 다섯 군데(유형 · 이름 · 낮밤 · 기간 한정인지 · <b>왜 추천하는지</b>). 그 밖에는 없습니다.</span></div>
+      <div class="row"><span>무엇을 모으나</span><span><b>두 곳 중 하나 고르기 여덟 번</b>(조건만 적힌 카드 두 장 중 어느 쪽을 고르셨는지, 그 카드가 화면의 위였는지 아래였는지, 고르시는 데 걸린 시간을 <b>“3초 미만 · 5초 미만”</b> 같은 <b>구간</b>으로만 — 초 단위로는 남기지 않습니다) · 여행 스타일 네 가지(부산까지 <b>오는 교통</b> · <b>숙소</b> 1박 · <b>저녁 한 끼</b> · <b>저녁 먹을 곳을 고를 때 사람이 몰리는 쪽으로 가시는지 조용한 쪽으로 가시는지</b> — 고르는 칸이고 건너뛰셔도 됩니다) · 나이대 · 부산에 산 기간 · <b>전화번호(선택, 경품 추첨용)</b> · 추천하는 곳 다섯 군데(유형 · 이름 · 낮밤 · 일부 유형에서는 기간 한정인지 · <b>왜 추천하는지</b> — 원하시면 <b>열 곳까지</b>). 그 밖에는 없습니다.</span></div>
       <div class="row"><span>안 모으는 것</span><span>이름 · 이메일 · 성별 · 생년월일 · <b>IP 주소 · 위치 · 기기 정보 · 브라우저 정보</b>. 접속 기록도 남기지 않습니다. (전화번호만 선택 입력으로 받습니다 — 위 참고)</span></div>
       <div class="row"><span>왜 모으나</span><span>추천을 만들려면 “부산에 뭐가 있는지” 부터 있어야 하는데, 지금 저희에게는 그 목록이 없습니다. 인터넷에서 긁어온 유명한 곳 말고 <b>실제로 살아 본 사람이 추천하는 곳</b>이 필요해서요.</span></div>
       <div class="row"><span>어디에 쓰나</span><span>추천 후보 목록과, 학교 프로젝트 발표의 <b>합친 숫자</b>(예: “30명이 추천한 곳 중 카페가 22곳”). <b>두 곳 중 고르기</b>와 <b>여행 스타일</b>은 추천 순서를 정할 때 <b>가격 · 걷는 거리 · 줄서기 · 골목의 비슷한 가게 · 알려진 정도</b> 다섯에 각각 얼마나 무게를 둘지를 정하는 데만 씁니다 — 어느 장소가 좋은지를 배우는 것이 아닙니다. <b>저녁 먹을 곳의 북적임</b> 답은 그중 <b>골목의 비슷한 가게</b>(가게가 얼마나 몰려 있는지)를 어느 쪽으로 밀지를 정하는 데 씁니다.</span></div>
       <div class="row"><span>어디에 안 쓰나</span><span>광고 · 외부 제공 · 개인 식별 · 팀 밖에 개별 응답을 보여 주는 것.</span></div>
-      <div class="row"><span>어디에 두나</span><span>팀 서버의 <b>이 설문 전용 데이터베이스</b> 한 곳. 운영 중인 서비스의 데이터베이스와 <b>따로</b> 있고, 바깥에서 직접 접속할 수 없습니다. 외부 설문 업체 · 구글 폼 · 클라우드 문서를 쓰지 않습니다.</span></div>
+      <div class="row"><span>어떻게 보내나</span><span>적으시는 동안에는 <b>아무것도 나가지 않습니다.</b> <b>제출하기를 누르실 때 한 번</b>, 적으신 내용이 저희 서버로 갑니다. 서버가 내용을 확인한 뒤 아래의 데이터베이스에 넣습니다. 중간 저장 · 자동 전송은 없습니다.</span></div>
+      <div class="row"><span>어디에 두나</span><span>팀 서버의 <b>이 설문 전용 데이터베이스</b> 한 곳. 운영 중인 서비스의 데이터베이스와 <b>따로</b> 있고, 바깥에서 직접 접속할 수 없습니다. 외부 설문 업체 · 구글 폼 · 클라우드 문서를 쓰지 않습니다. <b>하루 한 번 사본(백업)을 떠서 그 서버 밖에 둡니다</b> — 서버가 통째로 없어져도 응답이 사라지지 않게. 사본도 <b><span class="cfg-delete"></span></b> 같이 지웁니다.</span></div>
+      <div class="row"><span>결과를 알려주나</span><span>합친 결과를 <b>채널에 올리지 않습니다.</b> 채널에는 <b>경품 추첨 결과만</b> 올립니다. 결과는 학교 프로젝트 발표에서 합친 숫자로만 씁니다.</span></div>
       <div class="row"><span>사진 출처</span><span class="credits" id="creditsIntro"></span></div>
       <div class="row"><span>언제 지우나</span><span>응답은 <span class="cfg-delete"></span> 지웁니다. 지운 날짜를 팀 문서에 적습니다.</span></div>
       <div class="row"><span>낸 뒤에 뺄 수 있나</span><span>🔴 <b>못 뺍니다.</b> 전화번호를 남기지 않으셨다면 어느 것이 누구의 응답인지 저희도 알아낼 수 없어서예요. 전화번호를 남기신 분도 제출 뒤에는 개별 응답을 따로 빼 드리지 않습니다. <b>제출 전에는</b> 창을 닫으시면 아무것도 저장되지 않습니다.</span></div>
@@ -547,7 +563,12 @@ textarea.u { min-height: 96px; font-size: 17px; line-height: 1.5; resize: vertic
   <section id="scMain" class="screen">
 
     <h2 class="section" style="margin-top:44px">먼저 몇 가지만</h2>
-    <p class="hint">누구인지 알려고 여쭙는 게 아니라, <b>응답한 분들이 어느 쪽으로 치우쳐 있는지</b>를 나중에 재려고 여쭙습니다. 전화번호만은 예외로, <b>경품 추첨을 위해 선택으로</b> 받습니다 — 비워 두셔도 제출됩니다.</p>
+    <!-- 🔴 2026-09-10: "어느 쪽으로 치우쳐 있는지" 를 "어떤 분들이 답해 주셨는지"
+         로 바꿨다. 뜻은 같은데(표본 구성을 나중에 본다) 앞의 말은 읽는 사람을
+         겨누는 것으로 들린다 — "치우침" 은 우리끼리 쓰는 분석 용어이지 참여자에게
+         할 말이 아니다. 문장을 통째로 빼지는 않는다: 왜 나이대를 묻는지 설명이
+         없으면 "안 모은다더니 왜 묻지" 가 되어 더 이상해진다. -->
+    <p class="hint">누구인지 알려고 여쭙는 게 아니라, <b>어떤 분들이 답해 주셨는지</b>를 나중에 살펴보려고 여쭙습니다. 전화번호만은 예외로, <b>경품 추첨을 위해 선택으로</b> 받습니다 — 비워 두셔도 제출됩니다.</p>
 
     <div class="field-block first">
       <div class="field-label">나이대 — 하나 골라 주세요</div>
@@ -565,9 +586,16 @@ textarea.u { min-height: 96px; font-size: 17px; line-height: 1.5; resize: vertic
     </div>
 
     <h2 class="section" style="margin-top:56px">추천하는 곳<br>다섯 군데</h2>
-    <p class="hint">줄을 눌러 펼치고 하나씩 적어 주세요. <b>다섯 곳이 전부 같은 유형이어도 괜찮아요</b> — 맛집만 다섯 곳이어도 좋습니다.</p>
+    <p class="hint">줄을 눌러 펼치고 하나씩 적어 주세요. <b>다섯 곳이 전부 같은 유형이어도 괜찮아요</b> — 맛집만 다섯 곳이어도 좋습니다. <b>더 아시면 열 곳까지</b> 적으실 수 있어요.</p>
 
     <div class="cats" id="cats"></div>
+
+    <!-- 🔴 「한 곳 더 적기」 — 기본은 다섯 칸이고, 이 버튼을 누른 사람만 는다.
+         열이 차면 버튼이 사라지고 안내 문구만 남는다 (paintAddSlot). -->
+    <div class="addslot">
+      <button type="button" class="pill-sm addbtn" id="addSlot"><span aria-hidden="true">+</span> 한 곳 더 적기</button>
+      <p class="addnote" id="addSlotNote"></p>
+    </div>
 
     <div id="stop"></div>
 
@@ -577,10 +605,14 @@ textarea.u { min-height: 96px; font-size: 17px; line-height: 1.5; resize: vertic
 
   <!-- ══ 완료 ══════════════════════════════════════════════════ -->
   <section id="scDone" class="screen">
-    <div class="wtop" style="padding-top:18px"><b>가볼래 · 설문</b><span style="color:var(--muted)">5 / 5</span></div>
+    <!-- 🔴 "5 / 5" 를 박아 두지 않는다 — 위 진행 표시와 같은 모양이라, 여섯 곳을
+         낸 사람이 여기서 "5 / 5" 를 보면 다섯만 갔다고 읽는다 (2026-09-10). -->
+    <div class="wtop" style="padding-top:18px"><b>가볼래 · 설문</b><span style="color:var(--muted)" id="doneTop"></span></div>
     <div class="done-mark">✓</div>
     <h1 class="big" style="margin-top:24px">고맙습니다.</h1>
-    <p style="font-size:17px;margin:24px 0 0">다섯 군데 잘 받았습니다. 이 창은 닫으셔도 됩니다.</p>
+    <!-- 🔴 "다섯" 을 박아 두지 않는다. 여섯 곳을 적고 낸 사람에게 "다섯 군데
+         받았습니다" 라고 하면, 하나를 잃어버린 줄 안다 (2026-09-10). -->
+    <p style="font-size:17px;margin:24px 0 0"><span id="doneCount"></span> 잘 받았습니다. 이 창은 닫으셔도 됩니다.</p>
     <div class="recap" id="recap"></div>
     <p class="small" style="margin-top:32px">받은 내용은 팀 서버의 이 설문 전용 데이터베이스에만 들어갔고,
       <b style="color:var(--ink)"><span class="cfg-delete"></span></b> 지웁니다.
@@ -815,13 +847,19 @@ textarea.u { min-height: 96px; font-size: 17px; line-height: 1.5; resize: vertic
       화면 맨 위에 경고가 뜬다 — 참여자에게도 보인다. 그게 안전장치다.
       값의 근거는 docs/SURVEY-CONSENT.md 7절의 "정해야 함" 목록이다.
    ══════════════════════════════════════════════════════════════════ */
-/* 🔴 세 칸 다 사람이 정한 값이다 (2026-09-10). 지어낸 값이 아니다.
+/* 🔴 다섯 칸 다 사람이 정한 값이다 (2026-09-10). 지어낸 값이 아니다.
       같은 값이 docs/SURVEY-CONSENT.md 2.1 · 2.2 · 5.2 · 7절에도 들어가 있다 —
-      한쪽만 고치면 참여자가 보는 화면과 팀 문서가 다른 말을 하게 된다. */
+      한쪽만 고치면 참여자가 보는 화면과 팀 문서가 다른 말을 하게 된다.
+   🔴 deadline · drawWhen 은 2026-09-10 에 더 정한 것이다 (7절 P4).
+      마감은 **월요일까지**, 올리는 날은 배포 당일, 추첨은 **마감 다음 날**.
+      날짜를 글자로 박아 둔다 — "다음 주 월요일" 은 읽는 날에 따라 다른 날을
+      가리키고, 마감을 잘못 안 사람은 다 적고 나서야 늦은 것을 안다. */
 const CONFIG = {
   facilitator: "장효준",
   deleteWhen:  "받은 날로부터 1년 뒤에",
-  contact:     "Mattermost 로 부울경_E201_박재현"
+  contact:     "Mattermost 로 부울경_E201_박재현",
+  deadline:    "2026년 9월 14일 (월) 밤 12시까지",
+  drawWhen:    "마감 다음 날인 9월 15일 (화)"
 };
 
 /* ── 사진 출처 (S15P21E201-754) ──────────────────────────────────
@@ -840,21 +878,44 @@ const CREDITS_LINE =
       그래서 낮/밤은 whenGood, 축제는 limited 로 따로 받는다.
    ── 순서와 코드값을 바꾸지 않는다. 바꾸면 앞 회차 응답과 못 합친다.
    ─────────────────────────────────────────────────────────────── */
+/* 🔴 eg = 이름 칸의 예시. **유형을 고르면 그 유형의 예시로 바뀐다.**
+      예전에는 일곱 유형이 전부 "예: ○○돼지국밥" 이었다 — 카페를 골라 놓고
+      돼지국밥 예시를 보면 사람은 "여기 맛집만 적는 곳인가" 로 읽는다.
+   🔴 lim = 「기간이 정해진 곳」 체크칸을 이 유형에서 보여 줄 것인가.
+      축제 · 시즌 행사는 전시 · 시장 · 체험 쪽 이야기이고, 맛집 · 카페 ·
+      술집에 "기간이 정해진 곳인가요" 를 물으면 안 묻느니만 못하다 —
+      쓸 데 없는 칸이 하나 늘면 나머지 칸의 신뢰도까지 같이 떨어진다.
+      🔴 lim:false 인 유형으로 바꾸면 이미 켠 체크도 같이 끈다. 안 끄면
+         화면에는 안 보이는데 값만 true 로 남아 표에 들어간다.
+   ── 순서와 코드값(v)을 바꾸지 않는다. 바꾸면 앞 회차 응답과 못 합친다.
+      eg · lim 은 화면 문구라 바꿔도 응답과 안 어긋난다.
+   ─────────────────────────────────────────────────────────────── */
 const TYPES = [
-  { v: "FOOD",     t: "맛집 · 로컬 음식" },
-  { v: "CAFE",     t: "카페 · 디저트" },
-  { v: "NATURE",   t: "자연 · 바다 · 산책" },
-  { v: "CULTURE",  t: "문화 · 역사 · 전시" },
-  { v: "MARKET",   t: "시장 · 골목 · 쇼핑" },
-  { v: "ACTIVITY", t: "체험 · 액티비티" },
-  { v: "BAR",      t: "술집 · 바" }
+  { v: "FOOD",     t: "맛집 · 로컬 음식",   eg: "예: ○○돼지국밥",     lim: false },
+  { v: "CAFE",     t: "카페 · 디저트",      eg: "예: ○○로스터리",     lim: false },
+  { v: "NATURE",   t: "자연 · 바다 · 산책", eg: "예: ○○해변 산책로",  lim: false },
+  { v: "CULTURE",  t: "문화 · 역사 · 전시", eg: "예: ○○미술관",       lim: true  },
+  { v: "MARKET",   t: "시장 · 골목 · 쇼핑", eg: "예: ○○시장",         lim: true  },
+  { v: "ACTIVITY", t: "체험 · 액티비티",    eg: "예: ○○요트 투어",    lim: true  },
+  { v: "BAR",      t: "술집 · 바",          eg: "예: ○○포차",         lim: false }
 ];
 const typeLabel = v => (TYPES.find(t => t.v === v) || {}).t || "";
+const typeOf    = v => TYPES.find(t => t.v === v) || null;
+/* 유형을 아직 안 골랐을 때의 예시 — 일부러 유형색이 없는 말로 둔다 */
+const EG_NONE = "먼저 위에서 어떤 곳인지 골라 주세요";
 
 /* 🔴 칸이 다섯이다. 유형이 다섯인 게 아니다.
       다섯 칸이 전부 같은 유형이어도 된다 — 맛집을 다섯 곳 아는 사람의
-      답을 잘라내지 않으려고 이렇게 바꿨다. */
+      답을 잘라내지 않으려고 이렇게 바꿨다.
+   🔴 SLOTS 는 **처음 보여 주는 칸 수이자 반드시 채워야 하는 칸 수**이고,
+      MAX_SLOTS 는 「한 곳 더 적기」로 늘릴 수 있는 **상한**이다 (S15P21E201-754).
+      처음부터 열 칸을 펼쳐 놓지 않는 이유는, 그 길이 자체가 "열 곳을 적어야
+      하는구나" 로 읽혀 시작도 하기 전에 사람을 돌려보내기 때문이다.
+   🔴 MAX_SLOTS(10) 는 server.mjs 의 MAX_SLOTS · schema.sql 과
+      migrations/0005_more_slots.sql 의 recommendation_slot_ok 상한과 같아야
+      한다. 어긋나면 사람은 화면에서 통과하고 서버나 DB 에서 거절당한다. */
 const SLOTS = 5;
+const MAX_SLOTS = 10;
 
 /* 🔴 다섯 칸 → 세 칸으로 바꿨다 (S15P21E201-754, 팀원 피드백).
       UNDER_20·AGE_20_24·AGE_25_29·AGE_30_34·AGE_35_PLUS 를 버리고
@@ -1154,6 +1215,8 @@ const show = id => document.querySelectorAll(".screen").forEach(s => s.classList
   document.querySelectorAll(".cfg-facilitator").forEach(e => e.textContent = CONFIG.facilitator);
   document.querySelectorAll(".cfg-delete").forEach(e => e.textContent = CONFIG.deleteWhen);
   document.querySelectorAll(".cfg-contact").forEach(e => e.textContent = CONFIG.contact);
+  document.querySelectorAll(".cfg-deadline").forEach(e => e.textContent = CONFIG.deadline);
+  document.querySelectorAll(".cfg-draw").forEach(e => e.textContent = CONFIG.drawWhen);
   const left = Object.entries(CONFIG).filter(([, v]) => v.includes("정해야 함")).map(([k]) => k);
   if (left.length) { $("cfgWarn").classList.add("on"); $("cfgWarnList").textContent = left.join(", "); }
 })();
@@ -1247,9 +1310,15 @@ $("detailsToggle").addEventListener("click", () => {
 });
 
 /* ── 추천 칸 다섯 ────────────────────────────────────────────── */
-const ORD = ["첫", "두", "세", "네", "다섯"];
+/* 🔴 열까지 있다. 다섯에서 끊기면 여섯째 칸 제목이 "undefined 번째 추천" 이 된다 */
+const ORD = ["첫", "두", "세", "네", "다섯", "여섯", "일곱", "여덟", "아홉", "열"];
 const catsBox = $("cats");
-for (let i = 0; i < SLOTS; i++) {
+
+/* 🔴 예전에는 이 아래가 `for (let i = 0; i < SLOTS; i++) { … }` 였다. 함수로
+      바꾼 이유는 하나다 — 「한 곳 더 적기」를 누를 때 **같은 칸을 하나 더**
+      만들어야 하는데, 반복문 안에 있으면 그때 다시 부를 수가 없다.
+      안쪽 내용은 그대로다 (닫는 괄호만 `}` → `}` 로 같고, 호출이 아래에 있다). */
+function buildSlot(i) {
   const art = document.createElement("article");
   art.className = "cat";
   art.dataset.slot = String(i);
@@ -1276,15 +1345,24 @@ for (let i = 0; i < SLOTS; i++) {
     '<div class="rest locked">' +
       '<label class="f2" id="namelbl' + i + '">장소 이름</label>' +
       '<div class="acwrap">' +
+        /* 🔴 placeholder 는 비워 둔다. 유형을 고르는 순간 그 유형에 맞는
+              예시(TYPES 의 eg)로 아래 setEg() 가 채운다 — 여기에 한 유형의
+              예시를 박아 두면 나머지 여섯 유형에서 엉뚱한 예시가 뜬다. */
         '<input type="text" class="u in-name" maxlength="60" autocomplete="off" ' +
-          'placeholder="예: ○○돼지국밥" enterkeyhint="next" role="combobox" ' +
+          'placeholder="" enterkeyhint="next" role="combobox" ' +
           'aria-autocomplete="list" aria-expanded="false" aria-haspopup="listbox" ' +
           'aria-controls="aclist' + i + '" aria-labelledby="namelbl' + i + '">' +
         '<input type="hidden" class="in-place-id">' +
         '<ul class="aclist" id="aclist' + i + '" role="listbox" hidden></ul>' +
       '</div>' +
       '<p class="acstatus" aria-live="polite"></p>' +
-      '<p class="guard"><b>장소 이름만</b> 적어 주세요. 사람 이름 · 연락처 · 소속을 적지 마세요. ' +
+      /* 🔴 이 한 줄은 README.md 1절 「보호 장치 넷」의 ① 이다. 지우지 않는다.
+            2026-09-10 에 **짧게** 고쳤다 — 앞에서 전화번호를 선택으로 받는데
+            "연락처를 적지 마세요" 가 같이 있으면 읽는 사람이 모순으로 읽는다.
+            막으려던 것은 처음부터 **남의** 신원("우리 이모가 하는 집, 010-…")
+            이었으므로, 목적은 그대로 두고 방어적인 말만 걷어냈다.
+            실제 차단은 보호 장치 ②(PII 검사, 화면·서버 두 벌)가 한다. */
+      '<p class="guard"><b>가게 이름만</b> 적어 주세요. ' +
         '목록에서 골라도 되고, 없으면 그대로 적어도 돼요.</p>' +
 
       '<div class="twocol">' +
@@ -1292,7 +1370,10 @@ for (let i = 0; i < SLOTS; i++) {
           '<div class="field-label" style="margin:26px 0 4px">언제 가면 좋아요?</div>' +
           '<div class="chips small when"></div>' +
         '</div>' +
-        '<div>' +
+        /* 🔴 이 칸은 유형에 따라 통째로 사라진다 (TYPES 의 lim). 전시 · 시장 ·
+              체험에만 남기고 맛집 · 카페 · 술집 · 자연에서는 안 보여 준다 —
+              돼지국밥집에 "기간이 정해진 곳인가요" 는 물어볼 것이 못 된다. */
+        '<div class="limbox" hidden>' +
           '<div class="field-label" style="margin:26px 0 4px">기간</div>' +
           '<label class="check"><input type="checkbox" class="in-limited">' +
             '<span>기간이 정해진 곳이에요<i>축제 · 시즌 행사처럼 특정 시기에만 열리는 곳</i></span></label>' +
@@ -1302,7 +1383,10 @@ for (let i = 0; i < SLOTS; i++) {
       '<label class="f2">왜 추천하세요? <span style="color:var(--ink)">이 칸이 제일 중요해요</span></label>' +
       '<textarea class="u in-reason" maxlength="500" ' +
         'placeholder="한 줄이어도 좋아요. “왜 여기냐” 가 없으면 그냥 장소 목록이라 저희가 쓸 수 없어요."></textarea>' +
-      '<p class="guard">사람 이름 · 전화번호 · 이메일은 적지 마세요.</p>' +
+      /* 🔴 여기도 보호 장치 ① 이다 (위 이름 칸과 같은 이유로 짧게 고쳤다).
+            이유 칸은 "우리 이모가 하는 집, 010-…" 이 가장 많이 들어오는
+            자리라, **남의** 신원이라는 것을 분명히 말하고 끝낸다. */
+      '<p class="guard">다른 분의 이름 · 연락처는 빼고 적어 주세요.</p>' +
     '</div>' +
 
     '<div class="slotfoot">' +
@@ -1322,14 +1406,36 @@ for (let i = 0; i < SLOTS; i++) {
   const acStatus   = catinner.querySelector(".acstatus");
   const reasonIn   = catinner.querySelector(".in-reason");
   const limIn      = catinner.querySelector(".in-limited");
+  const limBox     = catinner.querySelector(".limbox");
   const nextBtn    = catinner.querySelector(".next");
   const nextLbl    = catinner.querySelector(".nextLabel");
+
+  /* ── 🔴 고른 유형에 화면을 맞춘다 (S15P21E201-754) ──────────────────
+   *   1. 이름 칸 예시를 그 유형의 것으로 바꾼다
+   *   2. 「기간이 정해진 곳」 칸을 그 유형에서 쓰는 것일 때만 보여 준다
+   *   🔴 안 쓰는 유형으로 바꿀 때는 이미 켠 체크도 끈다. 안 끄면 화면에는
+   *      없는데 값만 true 로 남아 표에 들어가고, 나중에 "돼지국밥집인데
+   *      기간 한정" 이라는 행이 나온다 — 그때는 화면을 봐도 원인을 못 찾는다.
+   * ─────────────────────────────────────────────────────────────── */
+  const applyType = () => {
+    const t = typeOf(state.slots[idx].type);
+    nameIn.placeholder = t ? t.eg : EG_NONE;
+    const showLim = !!(t && t.lim);
+    limBox.hidden = !showLim;
+    if (!showLim && state.slots[idx].limited) {
+      state.slots[idx].limited = false;
+      limIn.checked = false;
+    }
+  };
 
   /* 유형 일곱 — 이 칸에서 하나 고른다. 다른 칸이 같은 것을 골라도 된다 */
   buildChips(typeBox, TYPES, v => {
     state.slots[idx].type = v;
     rest.classList.remove("locked");
+    applyType();
   }, () => state.slots[idx].type, true);
+
+  applyType();   /* 처음 그릴 때 한 번 — 아직 안 골랐으면 예시 대신 안내가 뜬다 */
 
   /* 낮 / 밤 / 상관없음 */
   buildChips(whenBox, WHEN, v => { state.slots[idx].whenGood = v; }, () => state.slots[idx].whenGood, true);
@@ -1494,12 +1600,15 @@ for (let i = 0; i < SLOTS; i++) {
     typeBox.querySelectorAll(".chip").forEach(c => c.classList.remove("on"));
     whenBox.querySelectorAll(".chip").forEach(c => c.classList.remove("on"));
     rest.classList.add("locked");
+    applyType();   /* 유형이 없어졌으니 예시와 「기간」 칸도 처음 상태로 */
     if (state.open === idx) state.open = -1;
     paint();
   });
 
   nextBtn.addEventListener("click", () => {
-    state.open = idx < SLOTS - 1 ? idx + 1 : -1;
+    /* 🔴 SLOTS 가 아니라 지금 열려 있는 칸 수를 본다. 「한 곳 더 적기」로
+          늘렸으면 다섯째의 다음은 닫기가 아니라 여섯째다. */
+    state.open = idx < state.slots.length - 1 ? idx + 1 : -1;
     paint();
     const nowOpen = document.querySelector('.cat[data-slot="' + state.open + '"]');
     if (nowOpen) nowOpen.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -1515,8 +1624,46 @@ for (let i = 0; i < SLOTS; i++) {
   catsBox.appendChild(art);
 }
 
+/* 처음 보여 주는 다섯 칸 */
+for (let i = 0; i < SLOTS; i++) buildSlot(i);
+
+/* ── 🔴 「한 곳 더 적기」 (S15P21E201-754) ────────────────────────────
+ * 다섯으로 못 박아 두면 **부산을 가장 잘 아는 사람의 답이 잘려나간다.**
+ * 열 곳을 아는 사람이 다섯 곳만 적고 나가는 것은 우리가 가장 원하는 응답을
+ * 절반 버리는 것이다.
+ *
+ * 🔴 늘린 칸은 **비워 둬도 제출된다.** 눌러 놓고 안 채운 사람이 막히면
+ *    "괜히 눌렀네" 가 되고, 그러면 아무도 안 누른다. 비운 칸은 보낼 때
+ *    조용히 빠진다 (아래 liveSlots).
+ * 🔴 열이 차면 버튼을 감춘다 — 눌러도 아무 일이 없는 버튼을 남겨 두면
+ *    사람은 화면이 고장 났다고 생각한다.
+ * ─────────────────────────────────────────────────────────────── */
+const addSlotBtn = $("addSlot");
+function paintAddSlot() {
+  const room = state.slots.length < MAX_SLOTS;
+  addSlotBtn.hidden = !room;
+  $("addSlotNote").textContent = room
+    ? "더 아는 곳이 있으시면 칸을 늘려 주세요. 비워 두셔도 제출됩니다."
+    : "칸은 " + MAX_SLOTS + "곳까지예요. 비워 둔 칸은 그냥 빠집니다.";
+}
+addSlotBtn.addEventListener("click", () => {
+  if (state.slots.length >= MAX_SLOTS) return;
+  const i = state.slots.length;
+  state.slots.push(blank());
+  buildSlot(i);
+  state.open = i;              /* 만들자마자 펼친다 — 누른 사람이 찾아 내려가지 않게 */
+  paint();
+  const el = document.querySelector('.cat[data-slot="' + i + '"]');
+  if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+});
+
 /* 한 칸이 다 찼는가 — 유형 · 이름 · 언제 · 이유 넷 다 있어야 한 곳으로 센다 */
 const isFull = s => !!(s && s.type && s.name && s.whenGood && s.reason);
+/* 한 글자도 안 적은 칸인가 — 늘려 놓고 안 채운 칸이 이것이다.
+   🔴 "다 찼다" 의 반대가 아니다. 이름만 적고 만 칸은 둘 다 아니다 (적다 만 것). */
+const isEmpty = s => !!(s && !s.type && !s.name && !s.whenGood && !s.reason && !s.placeId);
+/* 실제로 보낼 칸 — 늘려 놓고 안 채운 칸은 여기서 빠진다 */
+const liveSlots = () => state.slots.filter(s => !isEmpty(s));
 
 /* ── 진행 표시와 카드 겉모습 ─────────────────────────────────── */
 let currentTrouble = [];
@@ -1524,8 +1671,12 @@ function paint() {
   const n = state.slots.filter(isFull).length;
   $("cnum").textContent = String(n);
   /* 위쪽 진행 표시는 단계마다 세는 것이 다르다 (짝 비교 4장 · 여행 스타일 4문항 ·
-     추천한 곳 5곳). 이 화면으로 돌아올 때마다 "추천한 곳" 으로 되돌려 놓는다 */
-  $("cof").textContent = " / " + SLOTS + " 추천한 곳";
+     추천한 곳 5곳). 이 화면으로 돌아올 때마다 "추천한 곳" 으로 되돌려 놓는다.
+     🔴 분모는 SLOTS(5)가 아니라 **지금 화면에 있는 칸 수**다. 「한 곳 더 적기」로
+        여섯 칸이 되면 0/5 가 아니라 0/6 이어야 한다 — 칸은 여섯인데 분모가 5 로
+        멈춰 있으면 "6/5" 같은 숫자가 나오고, 그 순간 위 표시를 아무도 안 믿는다. */
+  $("cof").textContent = " / " + state.slots.length + " 추천한 곳";
+  paintAddSlot();
   document.querySelectorAll(".cat").forEach(art => {
     const i = Number(art.dataset.slot);
     const s = state.slots[i];
@@ -1554,7 +1705,7 @@ function paint() {
     art.classList.toggle("bad", tr.length > 0);
 
     const nextLbl = art.querySelector(".nextLabel");
-    if (nextLbl) nextLbl.textContent = i < SLOTS - 1 ? "다음 칸" : "닫기";
+    if (nextLbl) nextLbl.textContent = i < state.slots.length - 1 ? "다음 칸" : "닫기";
 
     const rest = art.querySelector(".rest");
     if (s.type) rest.classList.remove("locked"); else rest.classList.add("locked");
@@ -1949,20 +2100,38 @@ $("submit").addEventListener("click", async () => {
     }
   });
 
+  /* 🔴 다섯은 하한이고 열이 상한이다 (S15P21E201-754). 세는 규칙이 둘로 갈린다.
+        - **다 찬 칸이 다섯 곳 미만**이면 막는다. 그게 이 설문의 최소치다.
+        - **늘려 놓고 한 글자도 안 적은 칸은 안 막는다.** 보낼 때 조용히 빠진다
+          (liveSlots). 눌러 놓고 안 채운 사람이 막히면 아무도 그 버튼을 안 누른다.
+        - **적다 만 칸은 막는다.** 조용히 버리면 사람이 적은 것이 소리 없이
+          사라지고, 그걸 알아차릴 방법이 없다. 어느 칸의 무엇이 비었는지 말해 준다.
+     🔴 예전에는 `done < SLOTS` 하나로만 봤다. 칸이 늘 수 있게 된 지금 그 식은
+        틀린다 — 1·2·3·4 번을 채우고 5 번을 비운 채 6 번을 채우면 done 이 5 라
+        통과하는데, 정작 다섯째 칸은 비어 있다. 그래서 앞 다섯 칸을 따로 본다. */
   if (!pii) {
-    const done = state.slots.filter(isFull).length;
-    if (done < SLOTS) {
-      trouble.push({ text: "다섯 군데를 채워 주세요. 지금 " + done + "군데예요.", slot: -1 });
-      state.slots.forEach((s, i) => {
-        if (isFull(s)) return;
-        const miss = [];
-        if (!s.type)     miss.push("어떤 곳인지");
-        if (!s.name)     miss.push("장소 이름");
-        if (!s.whenGood) miss.push("언제 가면 좋은지");
-        if (!s.reason)   miss.push("추천 이유");
-        trouble.push({ text: miss.join(" · ") + " 이 비어 있어요.", slot: i });
-      });
+    const baseDone = state.slots.slice(0, SLOTS).filter(isFull).length;
+    const sayMissing = (s, i) => {
+      const miss = [];
+      if (!s.type)     miss.push("어떤 곳인지");
+      if (!s.name)     miss.push("장소 이름");
+      if (!s.whenGood) miss.push("언제 가면 좋은지");
+      if (!s.reason)   miss.push("추천 이유");
+      trouble.push({ text: miss.join(" · ") + " 이 비어 있어요.", slot: i });
+    };
+
+    if (baseDone < SLOTS) {
+      trouble.push({ text: "다섯 군데를 채워 주세요. 지금 " + baseDone + "군데예요.", slot: -1 });
+      state.slots.slice(0, SLOTS).forEach((s, i) => { if (!isFull(s)) sayMissing(s, i); });
     }
+
+    /* 여섯째 칸부터 — 다 찼거나 아예 비었거나 둘 중 하나여야 한다 */
+    state.slots.forEach((s, i) => {
+      if (i < SLOTS) return;
+      if (isFull(s) || isEmpty(s)) return;
+      trouble.push({ text: "이 칸은 적다 마셨어요. 마저 적으시거나 「이 칸 비우기」를 눌러 주세요.", slot: i });
+      sayMissing(s, i);
+    });
   }
 
   if (trouble.length) {
@@ -2009,7 +2178,11 @@ $("submit").addEventListener("click", async () => {
         };
       }).filter(Boolean)
     },
-    recommendations: state.slots.map((s, i) => ({
+    /* 🔴 늘려 놓고 한 글자도 안 적은 칸은 여기서 빠진다 (liveSlots). 그래서
+          slot 번호는 화면의 칸 번호가 아니라 **남은 것을 1 부터 다시 센 번호**다.
+          6·9 번만 남았어도 표에는 6·7 로 들어간다 — 서버도 같은 일을 한 번 더
+          한다(pruneEmptySlots + insert 가 1 부터 다시 셈). 화면만 믿지 않는다. */
+    recommendations: liveSlots().map((s, i) => ({
       slot: i + 1, placeType: s.type, placeName: s.name,
       whenGood: s.whenGood, limitedTime: s.limited, reason: s.reason,
       placeId: s.placeId || null   /* 목록에서 고른 경우만. 직접 적었으면 null */
@@ -2033,7 +2206,9 @@ $("submit").addEventListener("click", async () => {
     }
     const recap = $("recap");
     recap.innerHTML = "";
-    state.slots.forEach((s, i) => {
+    /* 🔴 보낸 것만 보여 준다. 빈 칸까지 "—" 로 늘어놓으면 방금 낸 응답이
+          실제로 무엇이었는지가 오히려 안 보인다 */
+    liveSlots().forEach((s, i) => {
       const row = document.createElement("div");
       row.className = "row";
       row.innerHTML =
@@ -2042,6 +2217,12 @@ $("submit").addEventListener("click", async () => {
         '<span class="rtype">' + typeLabel(s.type) + '</span>';
       recap.appendChild(row);
     });
+    /* 🔴 실제로 보낸 곳 수로 말한다. 여섯 곳을 적은 사람에게 "다섯 군데" 라고
+          하면 하나를 잃어버린 줄 안다 */
+    const sentOrd = ["", "한", "두", "세", "네", "다섯", "여섯", "일곱", "여덟", "아홉", "열"];
+    const sentN = liveSlots().length;
+    $("doneCount").textContent = (sentOrd[sentN] || String(sentN)) + " 군데";
+    $("doneTop").textContent = sentN + " / " + sentN;
     show("scDone");
     $("top").classList.add("hide");
     window.scrollTo(0, 0);

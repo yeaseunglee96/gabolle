@@ -43,6 +43,11 @@
 --    🔴 앱 온보딩은 여전히 세 질문이다. 넷은 이 설문에서만이고, 이유는
 --    docs/COLDSTART-THREE-QUESTIONS.md 2.6 에 적어 뒀다 (이탈 비용이 다르다).
 --
+-- 🔴 2026-09-10 (같은 티켓) 추천 장소 칸이 **다섯에서 열까지** 늘 수 있게 됐다 —
+--    recommendation_slot_ok 의 상한만 5 → 10. 살아 있는 DB 는
+--    migrations/0005_more_slots.sql 을 0004 **뒤에** 돌린다.
+--    🔴 기본은 여전히 다섯이다. 화면의 「한 곳 더 적기」를 누른 사람만 는다.
+--
 -- 🔴 새로 더한 칸은 전부 NULL 허용이다. NULL 이 곧 "그 판에서는 안 물어봤음"
 --    이다. 이미 응답이 들어 있는 표에 NOT NULL 을 걸면 ALTER 가 거부되고
 --    살아 있는 설문이 그 자리에서 멈춘다.
@@ -86,6 +91,7 @@ CREATE TABLE IF NOT EXISTS response (
   --      2           = 개인화 세 문항이 붙은 판
   --      3           = 짝 비교까지 붙은 판
   --      4           = 북적임 문항까지 붙은 판 (migrations/0004)
+  --      5           = 장소 칸을 열까지 늘릴 수 있는 판 (migrations/0005)
   --    없으면 나중에 반드시 이렇게 잘못 읽는다: "응답 100건 중 짝 비교가
   --    60건뿐이네 → 응답률 60%". 사실은 40건이 그 문항이 생기기 **전에**
   --    들어온 것이라 응답률은 100% 다.
@@ -184,12 +190,15 @@ CREATE TABLE IF NOT EXISTS response (
     END)
 );
 
--- ── 그 응답이 추천한 곳 (한 건당 다섯 줄) ─────────────────────────
+-- ── 그 응답이 추천한 곳 (한 건당 다섯 줄, 최대 열 줄) ─────────────
 CREATE TABLE IF NOT EXISTS recommendation (
   id            BIGSERIAL PRIMARY KEY,
   response_id   BIGINT      NOT NULL REFERENCES response(id) ON DELETE CASCADE,
 
-  -- 화면에서 몇 번째로 센 칸인가 (1~5). 유형 순서와는 다르다.
+  -- 화면에서 몇 번째로 센 칸인가 (1~10). 유형 순서와는 다르다.
+  -- 🔴 기본은 다섯이고, 화면의 「한 곳 더 적기」를 누른 사람만 여섯째부터
+  --    늘어난다 (S15P21E201-754, migrations/0005_more_slots.sql).
+  --    그래서 한 응답의 줄 수는 5~10 이고, 5 가 아니라고 이상한 것이 아니다.
   slot          SMALLINT    NOT NULL,
 
   -- 🔴 '야간' 과 '축제' 가 이 목록에 없는 것은 실수가 아니다.
@@ -212,13 +221,18 @@ CREATE TABLE IF NOT EXISTS recommendation (
   -- (클라이언트가 보낸 값을 안 믿는다). NULL 허용.
   gu            TEXT,
 
-  CONSTRAINT recommendation_slot_ok CHECK (slot BETWEEN 1 AND 5),
+  -- 🔴 상한 10 은 migrations/0005_more_slots.sql 과 **한 글자도 같아야 한다.**
+  --    (그 파일은 살아 있는 DB 를, 이 줄은 새로 띄우는 DB 를 만든다. 둘이
+  --     다르면 두 DB 가 서로 다른 표가 된다.)
+  --    같은 값이 화면(index.html 의 MAX_SLOTS)과 서버(server.mjs 의 MAX_SLOTS)
+  --    에도 있다. 셋이 어긋나면 사람은 화면에서 통과하고 여기서 거절당한다.
+  CONSTRAINT recommendation_slot_ok CHECK (slot BETWEEN 1 AND 10),
   CONSTRAINT recommendation_place_type_ok CHECK (place_type IN (
     'FOOD', 'CAFE', 'NATURE', 'CULTURE', 'MARKET', 'ACTIVITY', 'BAR')),
   CONSTRAINT recommendation_when_good_ok CHECK (when_good IN ('DAY', 'NIGHT', 'ANY')),
   CONSTRAINT recommendation_place_name_ok CHECK (length(btrim(place_name)) BETWEEN 1 AND 60),
   CONSTRAINT recommendation_reason_ok     CHECK (length(btrim(reason))     BETWEEN 1 AND 500),
-  -- 한 응답 안에서 칸 번호는 겹치지 않는다 (1~5 가 한 번씩)
+  -- 한 응답 안에서 칸 번호는 겹치지 않는다 (1~n 이 한 번씩)
   CONSTRAINT recommendation_one_per_slot UNIQUE (response_id, slot)
 
   -- 🔴 UNIQUE (response_id, place_type) 을 두지 않는다. 일부러 뺀 것이다.

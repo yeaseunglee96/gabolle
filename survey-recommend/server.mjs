@@ -142,9 +142,12 @@ console.log(`짝 비교 문항 ${DESIGN.sets.length}개 (${DESIGN.designId})`);
 /* 🔴 이 응답이 어느 판의 설문에 답했나 — schema.sql · migrations/0002 참고.
       1 = 짝 비교도 세 문항도 없던 판 · 2 = 세 문항이 붙은 판 · 3 = 짝 비교까지 ·
       4 = 네 번째 개인화 문항(북적임)까지 (migrations/0004).
+      5 = 장소 칸을 열까지 늘릴 수 있는 판 (migrations/0005).
       이 숫자를 안 올리면 옛 응답과 섞여서 "북적임 응답률이 낮다" 로 잘못 읽힌다 —
-      사실은 그 문항이 생기기 전에 들어온 응답이라 물어본 적이 없는 것이다. */
-const FORM_VERSION = 4;
+      사실은 그 문항이 생기기 전에 들어온 응답이라 물어본 적이 없는 것이다.
+      🔴 5 도 같다. 안 올리면 "여섯 칸 이상 적은 사람이 3%뿐" 으로 읽는데,
+         사실은 나머지가 그 버튼이 생기기 전 응답이라 더 적고 싶어도 못 적었다. */
+const FORM_VERSION = 5;
 
 const pool = new pg.Pool({
   connectionString: process.env.DATABASE_URL,
@@ -187,7 +190,14 @@ const AGE_BANDS   = new Set(["AGE_20_39", "AGE_40_59", "AGE_60_79"]);
 const BUSAN_YEARS = new Set(["BORN_HERE", "OVER_20Y", "Y_10_20", "Y_5_10", "UNDER_5Y", "VISITED_ONLY"]);
 const PLACE_TYPES = new Set(["FOOD", "CAFE", "NATURE", "CULTURE", "MARKET", "ACTIVITY", "BAR"]);
 const WHEN_GOOD   = new Set(["DAY", "NIGHT", "ANY"]);
+/* 🔴 NEED 는 **반드시 채워야 하는 칸 수**, MAX_SLOTS 는 **넣을 수 있는 상한**이다.
+      화면은 다섯 칸으로 시작하고, 「한 곳 더 적기」를 누른 사람만 열까지 는다.
+      🔴 이 두 숫자는 index.html 의 SLOTS · MAX_SLOTS 와 같아야 하고, MAX_SLOTS 는
+         schema.sql · migrations/0005_more_slots.sql 의 recommendation_slot_ok
+         상한(10)과도 같아야 한다. 어긋나면 사람은 화면에서 통과하고 여기서,
+         또는 여기서 통과하고 DB 에서 거절당한다. */
 const NEED = 5;
+const MAX_SLOTS = 10;
 
 /* ── 맨 앞의 개인화 세 문항 (오는 교통 · 숙소 · 식사) ────────────────
  * 코드값은 docs/COLDSTART-THREE-QUESTIONS.md 3.2 의 "안 B — 눈금형" 이다.
@@ -360,7 +370,13 @@ function check(b) {
   }
 
   const rs = b.recommendations;
-  if (!Array.isArray(rs) || rs.length !== NEED) return "추천하는 곳 다섯 군데를 채워 주세요.";
+  /* 🔴 다섯은 하한이고 열이 상한이다 (S15P21E201-754). 예전에는 `!== NEED` 라
+        여섯 번째 칸을 보내면 그 자리에서 거절당했다.
+        🔴 빈 칸은 여기 오기 전에 pruneEmptySlots() 가 이미 걷어냈다 —
+           그래서 여기 남은 것은 전부 "적은 칸" 이고, 아래 검사는 전부 통과해야 한다. */
+  if (!Array.isArray(rs)) return "추천하는 곳을 읽지 못했어요.";
+  if (rs.length < NEED) return "추천하는 곳 다섯 군데를 채워 주세요.";
+  if (rs.length > MAX_SLOTS) return `추천하는 곳은 ${MAX_SLOTS}군데까지 받아요.`;
 
   /* 🔴 같은 유형이 여러 번 와도 받는다. 맛집 다섯 곳은 정상적인 응답이다.
         예전에는 여기서 중복 유형을 거절했는데, 그러면 맛집을 다섯 곳 아는
@@ -392,6 +408,28 @@ function check(b) {
     }
   }
   return null;
+}
+
+/* ── 🔴 늘려 놓고 안 채운 칸을 걷어낸다 (S15P21E201-754) ─────────────
+ * 「한 곳 더 적기」로 칸을 늘렸다가 안 채운 사람이 제출에서 막히면 안 된다.
+ * 화면도 보내기 전에 같은 일을 하지만, **여기서 한 번 더 한다** — 화면만 믿으면
+ * 주소창으로 직접 보낸 요청이나 옛 화면이 통째로 빈 칸을 실어 보낸다.
+ *
+ * 🔴 "통째로 빈 칸" 만 걷어낸다. 이름만 적고 이유를 안 적은 칸은 **안 걷어낸다** —
+ *    그건 사람이 적다 만 것이고, 조용히 버리면 적은 것이 소리 없이 사라진다.
+ *    그런 칸은 아래 check() 가 "몇 번째 칸의 무엇이 비었다" 로 알려 준다.
+ *
+ * 🔴 걷어낸 뒤 칸 번호를 다시 매기는 것은 insert() 다 (거기서 1부터 센다).
+ *    화면이 보낸 slot 값은 안 쓴다 — 6·9 만 남은 배열이 와도 표에는 1·2 로 들어간다.
+ * ────────────────────────────────────────────────────────────────── */
+function pruneEmptySlots(b) {
+  if (!b || typeof b !== "object" || !Array.isArray(b.recommendations)) return;
+  const blank = r => {
+    if (!r || typeof r !== "object") return false;   /* 읽을 수 없는 것은 check() 가 말한다 */
+    const txt = k => (typeof r[k] === "string" ? r[k].trim() : "");
+    return !r.placeType && !r.whenGood && !txt("placeName") && !txt("reason") && !txt("placeId");
+  };
+  b.recommendations = b.recommendations.filter(r => !blank(r));
 }
 
 async function insert(b, spend, pair, crowd) {
@@ -525,6 +563,9 @@ const server = createServer((req, res) => {
       if (body && typeof body === "object" && body.phone) {
         body.phone = normalizePhone(body.phone);
       }
+
+      /* 🔴 늘려 놓고 안 채운 칸을 먼저 걷어낸다. check() 는 남은 것만 본다 */
+      pruneEmptySlots(body);
 
       const wrong = check(body);
       if (wrong) return json(res, 400, { message: wrong });
