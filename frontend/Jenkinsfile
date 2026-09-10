@@ -75,7 +75,10 @@ pipeline {
                         string(credentialsId: 'gabolle-google-client-id', variable: 'GOOGLE_CLIENT_ID'),
                         string(credentialsId: 'gabolle-naver-client-id', variable: 'NAVER_CLIENT_ID'),
                         string(credentialsId: 'gabolle-kakao-client-id', variable: 'KAKAO_CLIENT_ID'),
-                        string(credentialsId: 'gabolle-kakao-map-js-key', variable: 'KAKAO_MAP_JS_KEY')
+                        string(credentialsId: 'gabolle-kakao-map-js-key', variable: 'KAKAO_MAP_JS_KEY'),
+                        // 애플 로그인 Service ID. 백엔드가 쓰는 것과 같은 자격증명이다 — 비밀이 아니지만
+                        // 한 군데서만 관리하려고 같은 이름을 쓴다 (S15P21E201-825).
+                        string(credentialsId: 'gabolle-apple-client-id', variable: 'APPLE_CLIENT_ID')
                     ]) {
                         // 🔴 S15P21E201-575 후속(2026-09-09) — 예전에는 :latest 하나뿐이라
                         //    Health Check 가 실패해도 되돌릴 이전 이미지가 없었다(backend/Jenkinsfile
@@ -92,6 +95,7 @@ pipeline {
                                 --build-arg EXPO_PUBLIC_GOOGLE_CLIENT_ID="$GOOGLE_CLIENT_ID" \
                                 --build-arg EXPO_PUBLIC_NAVER_CLIENT_ID="$NAVER_CLIENT_ID" \
                                 --build-arg EXPO_PUBLIC_KAKAO_CLIENT_ID="$KAKAO_CLIENT_ID" \
+                                --build-arg EXPO_PUBLIC_APPLE_CLIENT_ID="$APPLE_CLIENT_ID" \
                                 --build-arg EXPO_PUBLIC_KAKAO_MAP_JS_KEY="$KAKAO_MAP_JS_KEY" \
                                 .
                         '''
