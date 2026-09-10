@@ -14,6 +14,7 @@ import com.gabolle.backend.recommendation.presentation.dto.RecommendationResultR
 import com.gabolle.backend.trip.presentation.dto.CreateTripRequest;
 import com.gabolle.backend.trip.presentation.dto.TripDto;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Predicate;
@@ -60,23 +61,37 @@ class CoreJourneyFunctionalTest extends FunctionalJourneyTest {
 
 	private PlaceFixture placeFixture;
 
+	/** {@link #cleanUpPlaces} 가 참조를 먼저 끊는 데 쓴다 — 아래 javadoc 참고. */
+	private final List<UUID> seededPlaceIds = new ArrayList<>();
+
 	/**
 	 * 🔴 실측(2026-09-10) — 이 여정은 실제로 일정을 조립해 {@code itinerary_item}이 방금 심은
-	 * 장소를 참조한다(그것이 이 테스트가 확인하려는 것이다). {@link PlaceFixture#cleanUp}은
-	 * 그 참조를 모르고 {@code place}를 바로 지우려다 {@code fk_itinerary_item_place}에
-	 * 걸린다. {@link FunctionalJourneyTest#cleanUpCreatedUsers}와 같은 이유로 베스트에포트다 —
-	 * 정리 실패가 다음 테스트를 막으면 안 된다. 남는 행은 {@code dataset_version=
-	 * 'fixture-test'}·이름 접두사로 이 실행만의 것이라 다른 테스트와 안 섞인다.
+	 * 장소를 참조한다(그것이 이 테스트가 확인하려는 것이다). {@link PlaceFixture#cleanUp}이
+	 * 그 참조를 모르고 {@code place}를 바로 지우려다 {@code fk_itinerary_item_place}에 걸려
+	 * 일부 행을 못 지우고 남기면, 그 남은 행이 {@link RecommendationWithRealPlacesFunctionalTest
+	 * #ensurePlaces}를 속인다 — "{@code place}가 이미 있으니 표본 200곳을 안 넣어도 된다"고
+	 * 잘못 판단해 그 검사가 실제로는 CI에서 실패했다(2026-09-10 실측, 파이프라인 188411).
+	 * 그래서 베스트에포트로 삼키지 않고, {@code place}를 지우기 전에 참조하는 세 표
+	 * (itinerary_item·itinerary_leg·itinerary_excluded_place)에서 먼저 행을 지운다 —
+	 * 이 트리를 통째로 지우는 cascade가 없어(itinerary_versions까지 손으로 타고 내려가야
+	 * 한다) 참조 쪽에서 바로 지우는 것이 더 안전하다.
 	 */
 	@AfterEach
 	void cleanUpPlaces() {
+		if (!this.seededPlaceIds.isEmpty()) {
+			this.jdbcTemplate.batchUpdate("DELETE FROM itinerary_item WHERE place_id = ?", this.seededPlaceIds,
+					this.seededPlaceIds.size(), (ps, placeId) -> ps.setObject(1, placeId));
+			this.jdbcTemplate.batchUpdate(
+					"DELETE FROM itinerary_leg WHERE from_place_id = ? OR to_place_id = ?", this.seededPlaceIds,
+					this.seededPlaceIds.size(), (ps, placeId) -> {
+						ps.setObject(1, placeId);
+						ps.setObject(2, placeId);
+					});
+			this.jdbcTemplate.batchUpdate("DELETE FROM itinerary_excluded_place WHERE place_id = ?",
+					this.seededPlaceIds, this.seededPlaceIds.size(), (ps, placeId) -> ps.setObject(1, placeId));
+		}
 		if (this.placeFixture != null) {
-			try {
-				this.placeFixture.cleanUp();
-			}
-			catch (RuntimeException ignored) {
-				// 베스트에포트 — 위 javadoc 참고.
-			}
+			this.placeFixture.cleanUp();
 		}
 	}
 
@@ -97,6 +112,7 @@ class CoreJourneyFunctionalTest extends FunctionalJourneyTest {
 			UUID placeId = this.placeFixture.insertPlace("여정테스트장소" + i, "JourneyPlace" + i, "CAFE",
 					originLat + (i * 0.001), originLng + (i * 0.001));
 			this.placeFixture.insertTagFeature(placeId, "INTEREST_TAG", "SEA", "VERIFIED", "{\"present\": true}");
+			this.seededPlaceIds.add(placeId);
 		}
 
 		// 1) 여행 생성 — TRIP-01.
