@@ -19,6 +19,7 @@ import com.gabolle.backend.place.repository.UserPlaceCodeMapRepository;
 import com.gabolle.backend.place.service.PlaceCandidateQueryService;
 import com.gabolle.backend.recommendation.config.BaselineEngineProperties;
 import com.gabolle.backend.recommendation.config.PreferenceAlignmentWeights;
+import com.gabolle.backend.recommendation.application.RecommendationCodes;
 import com.gabolle.backend.recommendation.domain.FallbackMode;
 import com.gabolle.backend.recommendation.domain.RequestLocation;
 import com.gabolle.backend.trip.domain.PreferenceSnapshot;
@@ -130,6 +131,23 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 				this.codeMapRepository.findByIdUserInputKindOrderByIdUserInputCodeAsc(UserInputKind.PREFERENCE);
 		List<UserPlaceCodeMap> constraintCodeMap =
 				this.codeMapRepository.findByIdUserInputKindOrderByIdUserInputCodeAsc(UserInputKind.CONSTRAINT);
+
+		// 🔴 S15P21E201-827 — 후보가 0곳이면 여기서 멈춘다.
+		//
+		//    이 검사가 없으면 아래 resolveDatasetVersion 이 빈 목록을 받아 null 을 내고,
+		//    요청은 VERSION_UNRESOLVED 로 끝난다. 그것은 원인이 아니라 결과다 — 후보가
+		//    없어서 수집분 이름을 못 정한 것인데, 그 코드만 보면 배포 설정이 잘못된 것처럼
+		//    읽힌다. 2026-09-10 배포에서 실제로 그랬다(바다만 고른 요청).
+		//
+		//    무엇을 찾다가 비었는지 함께 남긴다. 갈래를 좁혀서 빈 것과 반경 안에 아무것도
+		//    없어서 빈 것은 사람이 할 일이 다르다.
+		if (response.candidates().isEmpty()) {
+			String asked = queryRequest.categoriesOrEmpty().isEmpty() ? "갈래를 안 좁혔다"
+					: "고른 갈래=" + String.join(",", queryRequest.categoriesOrEmpty());
+			throw new RecommendationEngineException(RecommendationCodes.ERROR_NO_CANDIDATES,
+					"반경 %dm 안에 조건에 해당하는 장소가 하나도 없다 — %s"
+							.formatted(this.properties.radiusM(), asked));
+		}
 
 		if (response.scanTruncated()) {
 			// 🔴 조용히 넘기지 않는다. 잘렸다는 것은 "반경 안인데 채점조차 안 된 장소가 있다" 는

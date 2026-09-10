@@ -215,7 +215,11 @@ public class RecommendationService {
 			if (baseline != null) {
 				return baseline;
 			}
-			throw abandon(job, ex.getErrorCode(), JobStage.CANDIDATE_GENERATION, ex.isTimeout(), true,
+			// 🔴 S15P21E201-827 — 후보가 0곳인 것은 다시 불러도 안 달라진다. 자료가 들어와야
+			//    바뀌므로 재시도 가능으로 표시하지 않는다. 그 표시를 믿고 다시 부르는 쪽이
+			//    같은 실패를 반복하게 된다.
+			boolean retryable = !RecommendationCodes.ERROR_NO_CANDIDATES.equals(ex.getErrorCode());
+			throw abandon(job, ex.getErrorCode(), JobStage.CANDIDATE_GENERATION, ex.isTimeout(), retryable,
 					createdAt, startedNanos, ex);
 		}
 		catch (RuntimeException ex) {
