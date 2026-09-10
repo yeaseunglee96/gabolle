@@ -9,7 +9,7 @@ import { color, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { Text } from './Text';
 
-export type TabKey = 'home' | 'schedule' | 'map' | 'saved' | 'me';
+export type TabKey = 'home' | 'feed' | 'schedule' | 'map' | 'saved' | 'me';
 
 type Tab = {
   key: TabKey;
@@ -22,6 +22,7 @@ type Tab = {
 // APP 01에서 내보낸 실제 아이콘을 사용한다.
 const TABS: Tab[] = [
   { key: 'home', icon: require('../../assets/icons/home/home.png'), labelKo: '홈', labelEn: 'Home', route: '/home' },
+  { key: 'feed', icon: require('../../assets/icons/home/heart.png'), labelKo: '피드', labelEn: 'Feed', route: '/feed' },
   { key: 'schedule', icon: require('../../assets/icons/home/plus.png'), labelKo: '여행 만들기', labelEn: 'Create', route: '/plan/basic' },
   { key: 'map', icon: require('../../assets/icons/home/map.png'), labelKo: '내 여행', labelEn: 'My trips', route: '/trips' },
   { key: 'me', icon: require('../../assets/icons/home/user.png'), labelKo: '마이페이지', labelEn: 'Profile', route: '/me' },

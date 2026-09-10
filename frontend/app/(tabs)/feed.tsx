@@ -100,7 +100,7 @@ export default function Feed() {
     {!loading && result.state === 'success' && result.nextCursor ? <Button label={loadingMore ? tx('불러오는 중…', 'Loading…') : tx('더 보기', 'Load more')} variant="ghost" disabled={loadingMore} onPress={() => void loadMore()} containerStyle={styles.loadMore} /> : null}
 
     <Pressable accessibilityRole="button" onPress={() => router.replace('/home')} style={({ pressed }) => [styles.homeLink, pressed && styles.pressed]}><Text variant="caption" weight="bold" color={color.brand.orange}>{tx('홈으로 돌아가기', 'Back to home')}</Text></Pressable>
-    <View style={styles.tabBar}><TabBar active="home" /></View>
+    <View style={styles.tabBar}><TabBar active="feed" /></View>
   </Screen></View>;
 }
 

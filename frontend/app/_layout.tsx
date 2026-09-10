@@ -10,6 +10,7 @@ import { AuthProvider } from '@/auth/AuthProvider';
 import { AppErrorBoundary } from '@/components/AppErrorBoundary';
 import { ApiAvailabilityBanner } from '@/components/ApiAvailabilityBanner';
 import { BuildInfoBadge } from '@/components/BuildInfoBadge';
+import { CollectionProvider } from '@/collection/CollectionProvider';
 import { OnboardingPreferencesProvider } from '@/onboarding/OnboardingPreferences';
 import { PlanProvider } from '@/plan/PlanProvider';
 
@@ -32,12 +33,14 @@ export default function RootLayout() {
           <BuildInfoBadge />
           <AuthProvider>
             <PlanProvider>
-              <Stack
-                screenOptions={{
-                  headerShown: false,
-                  contentStyle: { backgroundColor: color.canvas },
-                }}
-              />
+              <CollectionProvider>
+                <Stack
+                  screenOptions={{
+                    headerShown: false,
+                    contentStyle: { backgroundColor: color.canvas },
+                  }}
+                />
+              </CollectionProvider>
             </PlanProvider>
           </AuthProvider>
         </OnboardingPreferencesProvider>
