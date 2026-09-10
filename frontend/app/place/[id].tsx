@@ -12,20 +12,14 @@ import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { bilingualPlaceName, formatFeatureSlot, getPlace, hasLocalityScore, type Place as ApiPlace } from '@/discovery/places';
+import { DEMO_PLACES, SAVED_PLACES_KEY } from '@/discovery/savedPlaces';
 import { useI18n } from '@/i18n';
 import { isAtLeast } from '@/layout/breakpoints';
 import { PlacePhraseModal } from '@/components/PlacePhraseModal';
 import { listAvailableMapApps, type AvailableMapProvider } from '@/utils/externalMaps';
 
-// 홈 화면의 3개 데모 카드는 지금도 이 로컬 값을 그대로 쓴다 — place 표가 비어 있어(-547 적재 전)
-// 실제 API 로는 이 셋이 아직 안 나온다. 그 밖의 id(실 장소 id)는 아래에서 진짜 API 로 조회한다.
-const PLACES = {
-  haeundae: { titleKo: '해운대 해수욕장', titleEn: 'Haeundae Beach', subtitleKo: '푸른 바다와 도시가 만나는 곳', subtitleEn: 'Where the blue sea meets the city', image: require('../../assets/home/haeundae.png') },
-  gwangalli: { titleKo: '광안리 해수욕장', titleEn: 'Gwangalli Beach', subtitleKo: '야경과 함께하는 해변 산책', subtitleEn: 'A beach walk under the night view', image: require('../../assets/home/gwangalli.png') },
-  gamcheon: { titleKo: '감천문화마을', titleEn: 'Gamcheon Culture Village', subtitleKo: '형형색색 감성 골목 여행', subtitleEn: 'A colorful walk through winding alleys', image: require('../../assets/home/gamcheon.png') },
-} as const;
-
-const SAVED_PLACES_KEY = 'gabolle.saved-home-places';
+// 데모 3곳·저장 키는 src/discovery/savedPlaces.ts 로 옮겼다 — (tabs)/saved.tsx 도 같은 값을 쓴다.
+const PLACES = DEMO_PLACES;
 
 type RemoteState =
   | { status: 'loading' }
