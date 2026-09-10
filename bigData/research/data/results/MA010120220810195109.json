@@ -31,10 +31,7 @@
   ],
   "newTypes": [],
   "descriptors": {
-    "established": "오래된 노포 - 현지인 단골들의 맛집",
-    "signature": "밀면, 비빔밀면, 수육",
-    "atmosphere": "정통 구식 분위기",
-    "peak_time": "점심 시간 웨이팅, 오후 방문 권장"
+    "signatureDishes": ["밀면", "비빔밀면", "수육"]
   },
   "notFound": null,
   "notes": "주차장 없음 - 국제시장 인근. 한 명당 한 가지 음식 주문 정책. 수육은 주말 오후 중반 소진"

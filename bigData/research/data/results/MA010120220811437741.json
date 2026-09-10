@@ -31,10 +31,8 @@
   ],
   "newTypes": [],
   "descriptors": {
-    "established": "40년 전통 로컬 명점",
-    "signature": "아나고구이",
-    "cooking_method": "연탄불 석쇠 구이",
-    "minimum_order": "3인분"
+    "yearsClaimed": 40,
+    "signatureDishes": ["아나고구이"]
   },
   "notFound": null,
   "notes": "최소주문 3인분, 매주 수요일 휴무, 무료주차 가능(1시간 제한)"

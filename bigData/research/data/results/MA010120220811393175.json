@@ -31,9 +31,8 @@
   ],
   "newTypes": [],
   "descriptors": {
-    "established": "40년 전통의 로컬 돼지국밥 전문점",
-    "signature": "돼지국밥, 내장국밥, 섞어국밥",
-    "fair_price": "착한가격업소 지정"
+    "yearsClaimed": 40,
+    "signatureDishes": ["돼지국밥", "내장국밥", "섞어국밥"]
   },
   "notFound": null,
   "notes": "월-토 10:00~21:30, 일요일 정기휴무, 일요일 휴무, 골목 안 위치로 찾기 어려울 수 있음"

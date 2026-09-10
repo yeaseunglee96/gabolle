@@ -21,9 +21,8 @@
   ],
   "newTypes": [],
   "descriptors": {
-    "established": "50년 이상 전통 재첩국 전문점 - 부산본점",
-    "signature": "재첩국, 재첩 정식",
-    "location": "광안리 광안2동"
+    "yearsClaimed": 50,
+    "signatureDishes": ["재첩국", "재첩 정식"]
   },
   "notFound": null,
   "notes": "07:00~21:00 영업(무휴)"

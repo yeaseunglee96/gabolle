@@ -20,11 +20,6 @@
     }
   ],
   "newTypes": [],
-  "descriptors": {
-    "address": "부산 수영구 광안로62번길 39, 3층",
-    "operatingHours": "12:00-02:30 (라스트오더 02:00)",
-    "type": "조개구이",
-    "features": "신선한 재료 매일 구입, 광안대교 오션뷰"
-  },
+  "descriptors": {},
   "notes": "원래는 조개구이지만 카테고리는 회/초밥으로 등록됨"
 }

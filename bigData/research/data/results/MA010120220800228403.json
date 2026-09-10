@@ -31,9 +31,7 @@
   ],
   "newTypes": [],
   "descriptors": {
-    "signature": "돼지국밥",
-    "atmosphere": "깨끗하고 넓음",
-    "accessibility": "부산역 인근"
+    "signatureDishes": ["돼지국밥"]
   },
   "notFound": null,
   "notes": "부산역 주변 위치로 여행객 방문이 많을 것으로 예상됨"

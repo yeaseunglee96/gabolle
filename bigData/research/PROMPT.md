@@ -134,6 +134,23 @@ node research/queue.mjs claim --worker <이름> --n 3
 🔴 **영업 지속기간·인허가일자·폐업 여부·영업시간·좌표·업종은 쓰지 마라.**
 우리 데이터에 이미 있다. 조사원이 그 칸을 채우면 그건 웹에서 본 게 아니라 지어낸 것이다.
 
+### 🔴 `descriptors` 에는 위 일곱 칸 말고 아무것도 넣지 마라 — 이름이 비슷해도 안 된다
+
+**2026-09-10 실측.** 2,356건 중 62건(전부 2026-09-09 조사분)이 `descriptors` 에
+규정 밖 칸을 넣었다. 가장 많은 것은 `signature`(43건 — 맞는 이름은
+**`signatureDishes`**)와 `established`(41건 — 맞는 이름은 **`yearsClaimed`**)였다.
+그 밖에도 `location`·`phone`·`address`·`operatingHours`·`menu`·`type` 등 45가지
+이름이 나왔고, 그중 26가지는 딱 한 번만 나왔다 — **조사원이 그때그때 자연스러운
+영어 이름을 지어낸 것이다.**
+
+`signatureDishes` 를 `signature` 라고 적으면, 이 칸을 세는 코드는 **그 값을 아예
+못 본다** — 없는 것과 같아진다. 집계·모델 학습 모두 조용히 틀린 숫자를 낸다.
+
+**칸은 정확히 일곱이다.** 위 예시 JSON 의 키 이름을 **글자 그대로** 써라.
+`signature`·`established`·`atmosphere`·`location`·`phone` 같이 뜻은 비슷해도
+이름이 다른 키는 전부 규정 밖이다. 일곱 중 어디에도 안 맞으면 **아예 적지 마라** —
+`whyPeopleGo` 나 `notes` 로 갈 내용이지 `descriptors` 자유 서식이 아니다.
+
 ### 🔴 하지 말 것
 
 - **네이버·카카오 지도 응답을 저장하지 마라.** 로드뷰 이미지도 안 된다

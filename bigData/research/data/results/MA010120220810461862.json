@@ -26,9 +26,8 @@
   ],
   "newTypes": [],
   "descriptors": {
-    "established": "1954년 개점 - 70년 전통 돼지국밥 원조",
-    "signature": "돼지국밥, 수육, 편육",
-    "location": "깡통시장 거리 첫 번째 점"
+    "yearsClaimed": 70,
+    "signatureDishes": ["돼지국밥", "수육", "편육"]
   },
   "notFound": null,
   "notes": "자갈치역 3번 출구에서 도보 9분, 10:00~20:00(15:00~17:00 브레이크), 부산 돼지국밥 역사 명점"

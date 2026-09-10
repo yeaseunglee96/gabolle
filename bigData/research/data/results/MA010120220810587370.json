@@ -26,9 +26,8 @@
   ],
   "newTypes": [],
   "descriptors": {
-    "established": "1960년대 개점 - 60년 이상 전통",
-    "signature": "돼지국밥",
-    "location": "범천동 조방 거리"
+    "yearsClaimed": 60,
+    "signatureDishes": ["돼지국밥"]
   },
   "notFound": null,
   "notes": "자유시장과 평화시장 사이 위치, 약 60석 규모"
