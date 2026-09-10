@@ -33,7 +33,7 @@ function formatDate(iso: string, locale: string, fallback: string) {
 function Section({ title, path, hard, children }: { title: string; path: '/plan/basic' | '/plan/taste' | '/plan/conditions'; hard?: boolean; children: React.ReactNode }) { const router = useRouter(); const { tx } = useI18n(); return <View style={[styles.card, hard && styles.hardCard]}><View style={styles.cardHeader}><View style={styles.cardTitle}>{hard && <View style={styles.dot} />}<Text variant="title" weight="bold">{title}</Text></View><Pressable accessibilityRole="button" accessibilityLabel={tx(`${title} 수정`, `Edit ${title}`)} onPress={() => router.push(path)} style={styles.edit}><Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx('수정', 'Edit')}</Text></Pressable></View>{children}</View>; }
 
 export default function Confirm() {
-  const router = useRouter(); const { preview } = useLocalSearchParams<{ preview?: string }>(); const { kind } = useLayout(); const { tx, locale } = useI18n(); const { user, accessToken, ready: authReady } = useAuth(); const { draft, basicComplete, update } = usePlan(); const [job, setJob] = useState<RecommendationJobSnapshot | null>(preview === 'api-error' ? { state: 'unavailable', jobId: null, progress: null, stage: null, canCancel: false, errorMessage: tx('여행 생성 서버 연결을 확인하고 있어요. 잠시 후 다시 시도해 주세요.', 'Checking the itinerary server connection. Please try again shortly.'), resultRef: null } : null);
+  const router = useRouter(); const { preview } = useLocalSearchParams<{ preview?: string }>(); const { kind } = useLayout(); const { tx, locale } = useI18n(); const { user, accessToken, ready: authReady } = useAuth(); const { draft, basicComplete } = usePlan(); const [job, setJob] = useState<RecommendationJobSnapshot | null>(preview === 'api-error' ? { state: 'unavailable', jobId: null, progress: null, stage: null, canCancel: false, errorMessage: tx('여행 생성 서버 연결을 확인하고 있어요. 잠시 후 다시 시도해 주세요.', 'Checking the itinerary server connection. Please try again shortly.'), resultRef: null } : null);
   useEffect(() => { if (!basicComplete && preview !== 'api-error') router.replace('/plan/basic'); }, [basicComplete, preview, router]);
   const allergy = draft.allergyStatus === 'UNKNOWN' ? tx('미확인', 'Unconfirmed') : draft.allergyStatus === 'NONE' ? tx('해당 없음', 'None') : names(tx, draft.allergies);
   const diet = draft.dietStatus === 'UNKNOWN' ? tx('미확인', 'Unconfirmed') : draft.dietStatus === 'NONE' ? tx('해당 없음', 'None') : names(tx, draft.dietTypes);
@@ -59,12 +59,7 @@ export default function Confirm() {
       setJob({ state: 'submitting', jobId: null, progress: null, stage: null, canCancel: false, errorMessage: null, resultRef: null });
       const next = await createRecommendationJobAdapter(accessToken).submit(draft);
       setJob(next);
-      if (next.jobId) {
-        // 여기서 여행이 만들어졌다. 이 초안은 제 역할을 다했으므로 표시를 남긴다 —
-        // 1단계에 다시 들어오면 그 표시를 보고 기본값으로 되돌린다 (S15P21E201-810).
-        update({ submittedTripAt: new Date().toISOString() });
-        router.push({ pathname: '/plan/generating', params: { jobId: next.jobId } });
-      }
+      if (next.jobId) router.push({ pathname: '/plan/generating', params: { jobId: next.jobId } });
     }} />
   </Screen></PlanDesktopShell>;
 }
