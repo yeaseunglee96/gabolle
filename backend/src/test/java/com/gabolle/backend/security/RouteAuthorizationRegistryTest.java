@@ -601,6 +601,12 @@ class RouteAuthorizationRegistryTest {
 						+ "route/directions·tools/translate 와 같은 이유 — 우리 기상청 키로 남이 대신 "
 						+ "조회를 돌리는 것(비용)을 막기 위해서다. WeatherControllerTest");
 
+		// ── AI 여행 도우미 (-802) ────────────────────────────────────────────────
+		put(m, "POST /api/v1/assistant/messages", Policy.AUTHENTICATED_ONLY,
+				"자연어 메시지 하나를 AI 업체(Claude)에 대신 물어보는 창구라 우리 자원이 아니라 "
+						+ "주인이 없다. 인증을 요구하는 것은 tools/translate 와 같은 이유 — 우리 업체 "
+						+ "키로 남이 대신 호출을 돌리는 것(비용)을 막기 위해서다. AssistantControllerTest");
+
 		return m;
 	}
 }
