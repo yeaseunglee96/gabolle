@@ -39,7 +39,10 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 		//    전부 함께 올라오고, 그중 TripFacetViewController(S15P21E201-475)가 place 쪽
 		//    서비스를 필수로 요구한다. 없으면 이 슬라이스가 통째로 못 뜬다.
 		//    AuthSliceApplication 이 같은 이유로 같은 줄을 갖고 있다.
-		"com.gabolle.backend.place"
+		"com.gabolle.backend.place",
+		// S15P21E201-440 — AuthSliceApplication 과 같은 이유로 event 도 더한다. trip 의
+		// SpendProfileService(-709)가 event 쪽 EventIngestService 를 필수로 요구한다.
+		"com.gabolle.backend.event"
 })
 @EnableScheduling
 @EntityScan(basePackages = {
@@ -55,7 +58,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 		"com.gabolle.backend.user.repository",
 		"com.gabolle.backend.privacy.repository",
 		"com.gabolle.backend.trip.infra",
-		"com.gabolle.backend.place.repository"
+		"com.gabolle.backend.place.repository",
+		"com.gabolle.backend.event.repository"
 })
 public class PrivacySliceApplication {
 }

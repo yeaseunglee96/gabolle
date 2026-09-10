@@ -92,8 +92,8 @@ class TripConditionRevalidationFunctionalTest extends FunctionalJourneyTest {
 	}
 
 	@Test
-	@DisplayName("출발지 좌표가 없는 요청은 아직 통과한다 — 지금 앱이 그렇게 보낸다")
-	void aTripWithoutOriginStillPasses() {
+	@DisplayName("출발지 좌표가 없는 요청은 거부되고 응답에 항목 이름이 들어 있다")
+	void aTripWithoutOriginIsRejected() {
 		AuthedClient authed = loginAsNewUser("revalidate-origin");
 		Map<String, Object> body = validBody();
 		body.put("originLat", null);
@@ -101,9 +101,10 @@ class TripConditionRevalidationFunctionalTest extends FunctionalJourneyTest {
 
 		ResponseEntity<String> response = post(authed, body);
 
-		// 티켓은 좌표를 조건으로 적어 뒀지만 켜지 않았다. 켜면 배포된 앱이 여행을 못 만든다 —
-		// 앱이 이 두 칸에 null 을 박아 보낸다. 근거는 TripConditionRules 머리말에 있다.
-		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+		// 2026-09-10 - 앱이 좌표를 실어 보내기 시작해(S15P21E201-791, !479) 이제 없으면
+		// 거부한다. 근거는 TripConditionRules 머리말에 있다.
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+		assertThat(fieldsOf(response)).anySatisfy((line) -> assertThat(line).contains("originLat"));
 	}
 
 	@Test
@@ -134,13 +135,16 @@ class TripConditionRevalidationFunctionalTest extends FunctionalJourneyTest {
 		Map<String, Object> body = validBody();
 		body.put("finishDate", LocalDate.now().plusDays(29).toString());
 		body.put("budgetKrw", 15_500);
+		// 좌표 위반도 같은 목록에 함께 담기는지 본다 - 2026-09-10 에 켠 규칙이다.
+		body.put("originLat", null);
+		body.put("originLng", null);
 
 		ResponseEntity<String> response = post(authed, body);
 
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
 		// 하나씩 알려 주면 사용자가 고칠 때마다 다시 거절당한다.
-		assertThat(fieldsOf(response)).hasSizeGreaterThanOrEqualTo(2);
+		assertThat(fieldsOf(response)).hasSizeGreaterThanOrEqualTo(3);
 		assertThat(String.join(" ", fieldsOf(response)))
-				.contains("finishDate").contains("budgetKrw");
+				.contains("finishDate").contains("budgetKrw").contains("originLat");
 	}
 }
