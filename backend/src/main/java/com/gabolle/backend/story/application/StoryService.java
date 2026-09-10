@@ -167,6 +167,20 @@ public class StoryService {
 	public StoryResponse update(UUID storyId, UUID editor, StoryUpdateRequest request) {
 		Instant now = this.clock.instant();
 		Story story = requireParticipant(storyId, editor, now);
+		// 🔴 S15P21E201-137 — 검토로 감춰진 기록은 고칠 수 없다.
+		//
+		// 지우는 것은 열어 둔다(StoryRepository.findActiveById 주석이 그 이유를 적어 뒀다).
+		// 그런데 그 자리가 수정까지 함께 열어 두고 있었다. 그러면 운영자가 감춘 글을 작성자가
+		// 다른 내용으로 바꿔 둘 수 있고, 기각으로 되살아나는 순간 운영자가 본 적 없는 글이
+		// 공개된다. 검토란 그 시점의 내용을 두고 판단하는 일이라 그 사이 내용이 바뀌면
+		// 판단의 대상이 사라진다.
+		//
+		// 404 가 아니라 409 인 이유는 여기까지 온 사람이 이미 참여자라서다. 그 사람에게는
+		// 기록의 존재가 비밀이 아니므로 감출 것이 없고, 대신 지금은 왜 안 되는지를 알려주는
+		// 편이 낫다.
+		if (!story.getModerationState().visibleToOthers()) {
+			throw new StoryUnderModerationException(storyId);
+		}
 		if (!story.isAuthor(editor) && (request.visibility() != null || request.publishAt() != null)) {
 			throw new StoryForbiddenException(storyId);
 		}
@@ -359,6 +373,19 @@ public class StoryService {
 
 		public StoryForbiddenException(UUID storyId) {
 			super("내 기록만 고치거나 지울 수 있습니다.");
+		}
+	}
+
+	/**
+	 * 검토로 감춰진 기록을 고치려 했다 — 409 (S15P21E201-137).
+	 *
+	 * <p>지우는 것은 여전히 된다. 신고당한 글을 스스로 내리는 길까지 막으면 사용자가 할 수
+	 * 있는 일이 없어진다. 막는 것은 <b>내용을 바꾸는 것</b>뿐이다.
+	 */
+	public static class StoryUnderModerationException extends RuntimeException {
+
+		public StoryUnderModerationException(UUID storyId) {
+			super("신고 검토 중인 기록은 고칠 수 없습니다. 지우는 것은 됩니다.");
 		}
 	}
 

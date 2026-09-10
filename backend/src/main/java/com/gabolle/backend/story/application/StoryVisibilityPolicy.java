@@ -76,6 +76,18 @@ public class StoryVisibilityPolicy {
 		if (isParticipant(story, viewer)) {
 			return true;
 		}
+		// 🔴 S15P21E201-137 — 신고로 감춰진 기록은 남에게 보이지 않는다.
+		//
+		// 상세 조회는 findVisibleById 가 이미 막고 있었지만, 이 판정을 지나는 다른 경로들이
+		// 검토 상태를 안 보고 있었다. 실제로 참여자 목록 조회가 그래서 열려 있었다 — 신고돼서
+		// 사라진 글인데 "거기 누가 참여했나" 를 물으면 아무 로그인 사용자에게나 표시 이름을
+		// 그대로 돌려줬다. 감췄다는 것은 그 글에 딸린 것도 함께 감췄다는 뜻이어야 한다.
+		//
+		// 참여자 검사보다 뒤에 두는 것이 중요하다. 앞에 두면 작성자도 자기 기록을 못 보게
+		// 되고, 그러면 삭제 경로가 404 로 막혀 신고당한 글을 스스로 지울 수 없다.
+		if (!story.getModerationState().visibleToOthers()) {
+			return false;
+		}
 		if (!story.isPublishedAt(now)) {
 			return false;
 		}
