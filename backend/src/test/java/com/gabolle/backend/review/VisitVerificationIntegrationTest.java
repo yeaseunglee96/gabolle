@@ -242,8 +242,13 @@ class VisitVerificationIntegrationTest extends ReviewPostgresIntegrationTest {
 				.andExpect(jsonPath("$.data.verified").value(true))
 				.andExpect(jsonPath("$.data.distanceM").value(199));
 
+		// 🔴 둘째 사용자에게도 동의를 준다 (S15P21E201-549). createUser 는 계정만 만들고
+		//    동의는 안 준다 — 그 구분이 일부러 있는 것이라
+		//    verificationIsRefusedWithoutPreciseLocationConsent 가 그 상태를 쓴다.
+		//    여기서 재려는 것은 거리 경계이지 동의가 아니므로 명시적으로 켠다.
 		UUID secondUser = UUID.randomUUID();
 		createUser(secondUser);
+		grantPreciseLocation(secondUser);
 		double[] point201 = northOf(35.1587, 129.1604, 201);
 		this.mockMvc.perform(post("/api/v1/places/{placeId}/visit-verifications", placeId)
 						.principal(as(secondUser))
