@@ -43,8 +43,11 @@ import com.gabolle.backend.recommendation.support.TestDatabase;
 import com.gabolle.testslice.ItinerarySliceApplication;
 
 /**
- * 순서를 바꿨을 때 영업시간 위반을 순서는 그대로 두고 알려 주는가 — S15P21E201-268 의 마지막
- * 완료 기준.
+ * 일정을 편집했을 때 영업시간 위반이 응답에 실리는가 — S15P21E201-268 · -858.
+ *
+ * <p>처음에는 순서 바꾸기만 재는 클래스였다(`-268` 의 마지막 완료 기준). `-858` 에서 장소
+ * 더하기와 되돌리기도 같은 판정을 싣게 되어 그 둘을 여기서 함께 잰다 — 세 경로가 같은 씨앗
+ * 데이터를 쓰므로 클래스를 하나 더 만드는 것보다 낫다.
  *
  * <p>다른 두 검사가 이미 옆에 있다. {@link ItineraryReorderIntegrationTest} 는 권한과 검증
  * (409 · 400 · 403 · 404)을, {@link ItineraryReorderLegRebuildIntegrationTest} 는 바뀐 날의
@@ -281,6 +284,70 @@ class ItineraryReorderOpeningHoursIntegrationTest {
 				.andExpect(jsonPath("$.data.notChecked.length()").value(1))
 				.andExpect(jsonPath("$.data.notChecked[0].check").value("OPENING_HOURS"))
 				.andExpect(jsonPath("$.data.notChecked[0].reason").value("NO_ITEM_TIME"));
+	}
+
+	@Test
+	@DisplayName("장소를 더하면 그 날짜의 기존 항목 위반이 응답에 실린다")
+	void addItemCarriesOpeningHoursForThatDay() throws Exception {
+		UUID placeD = UUID.randomUUID();
+		insertPlace(placeD, "D 범어사", 35.28, 129.06, OffsetDateTime.now(ZoneOffset.UTC));
+		this.openingHours.closed(Set.of(this.placeC));
+
+		addItem(placeD, 0, 1)
+				.andExpect(status().isCreated())
+				// 예전에는 이 두 칸이 함께 비어 나갔고 화면은 그것을 "확인했고 문제 없음" 으로 읽었다.
+				.andExpect(jsonPath("$.data.warnings.length()").value(1))
+				.andExpect(jsonPath("$.data.warnings[0].code").value("OPENING_HOURS_CLOSED"))
+				.andExpect(jsonPath("$.data.warnings[0].placeId").value(this.placeC.toString()))
+				// 더한 항목은 아직 시각이 없다. 그 사실도 함께 올라간다.
+				.andExpect(jsonPath("$.data.notChecked[0].reason").value("NO_ITEM_TIME"));
+	}
+
+	@Test
+	@DisplayName("더한 항목 자체는 시각이 없어 판정 대상이 아니다 — 그 사실을 못 한 검사로 알린다")
+	void addedItemHasNoTimeYetSoItIsReportedAsUnchecked() throws Exception {
+		UUID placeD = UUID.randomUUID();
+		insertPlace(placeD, "D 범어사", 35.28, 129.06, OffsetDateTime.now(ZoneOffset.UTC));
+
+		addItem(placeD, 0, 1)
+				.andExpect(status().isCreated())
+				// 시각은 그 날짜 재계산이 정하고 화면이 이어서 부른다. 그때까지는 판정할 수 없다 —
+				// 여는 것으로 넘기면 화면이 "확인했고 문제 없음" 으로 읽는다.
+				.andExpect(jsonPath("$.data.warnings.length()").value(0))
+				.andExpect(jsonPath("$.data.notChecked.length()").value(1))
+				.andExpect(jsonPath("$.data.notChecked[0].check").value("OPENING_HOURS"))
+				.andExpect(jsonPath("$.data.notChecked[0].reason").value("NO_ITEM_TIME"));
+	}
+
+	@Test
+	@DisplayName("되돌리면 되살린 판 전체의 영업시간 판정이 실린다")
+	void revertCarriesOpeningHoursForEveryDay() throws Exception {
+		this.openingHours.closed(Set.of(this.placeC));
+		reorderDay(0, List.of(this.keyC.toString(), this.keyA.toString(), this.keyB.toString()), 1)
+				.andExpect(status().isOk());
+
+		revertTo(1, 2)
+				.andExpect(status().isCreated())
+				// 되살린 판에도 C 가 있으므로 위반이 그대로 있다. 되돌리기가 위반을 없애 주지 않는다.
+				.andExpect(jsonPath("$.data.warnings.length()").value(1))
+				.andExpect(jsonPath("$.data.warnings[0].placeId").value(this.placeC.toString()));
+	}
+
+	private ResultActions addItem(UUID placeId, int dayIndex, int baseVersion) throws Exception {
+		String body = "{\"placeId\":\"" + placeId + "\",\"dayIndex\":" + dayIndex
+				+ ",\"baseVersion\":" + baseVersion + "}";
+		return this.mockMvc.perform(post("/api/v1/itineraries/{id}/items", this.itineraryId)
+				.contentType(MediaType.APPLICATION_JSON)
+				.principal(as(this.ownerId))
+				.content(body));
+	}
+
+	private ResultActions revertTo(int toVersion, int baseVersion) throws Exception {
+		String body = "{\"toVersion\":" + toVersion + ",\"baseVersion\":" + baseVersion + "}";
+		return this.mockMvc.perform(post("/api/v1/itineraries/{id}/revert", this.itineraryId)
+				.contentType(MediaType.APPLICATION_JSON)
+				.principal(as(this.ownerId))
+				.content(body));
 	}
 
 	private ResultActions reorderDay(int dayIndex, List<String> itemKeys, int baseVersion) throws Exception {
