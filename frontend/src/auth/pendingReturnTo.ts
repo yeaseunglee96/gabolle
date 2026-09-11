@@ -23,3 +23,12 @@ export async function consumePendingReturnTo(): Promise<string | null> {
   if (value) await AsyncStorage.removeItem(STORAGE_KEY);
   return isSafeReturnPath(value) ? value : null;
 }
+
+// sign-in.tsx와 웹 소셜 로그인 착지 화면(oauth/[provider]/callback.tsx, S15P21E201-830)이
+// 로그인 뒤 돌아갈 곳을 같은 규칙으로 정하도록 한 곳에 둔다 — 두 곳에 각자 적으면
+// 한쪽만 고쳐지는 날이 온다.
+export async function resolveDestination(returnTo?: string | null): Promise<string> {
+  if (isSafeReturnPath(returnTo)) return returnTo;
+  const pending = await consumePendingReturnTo();
+  return pending ?? '/home';
+}
