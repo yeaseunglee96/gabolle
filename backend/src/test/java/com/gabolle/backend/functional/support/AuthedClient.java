@@ -44,6 +44,17 @@ public final class AuthedClient {
 	}
 
 	/**
+	 * 본문을 실은 {@code DELETE} — S15P21E201-837 (탈퇴).
+	 *
+	 * <p>🔴 {@code DELETE} 에 본문을 싣는 것은 흔하지 않지만 탈퇴 계약이 그렇다(확인 값이나
+	 * 비밀번호를 질의 문자열에 넣으면 접속 기록에 남는다). {@code TestRestTemplate.delete} 는
+	 * 본문을 못 실으므로 {@code exchange} 를 쓴다.
+	 */
+	public <T> ResponseEntity<T> delete(String path, Object body, Class<T> responseType) {
+		return rest.exchange(path, HttpMethod.DELETE, authed(body), responseType);
+	}
+
+	/**
 	 * 파일 업로드 — S15P21E201-782. {@code multipart/form-data}는 본문이 아니라 헤더의
 	 * Content-Type이 경계(boundary)를 정하므로, {@link #authed}가 만드는 일반 JSON 헤더를
 	 * 그대로 못 쓴다.

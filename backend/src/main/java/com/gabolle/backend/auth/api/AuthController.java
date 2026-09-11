@@ -138,15 +138,18 @@ public class AuthController {
 	}
 
 	/**
-	 * 계정과 그 사람의 데이터를 지운다 (S15P21E201-425).
+	 * 계정과 그 사람의 데이터를 지운다 (S15P21E201-425, 확인 방식은 -837).
 	 *
-	 * <p>🔴 되돌릴 수 없다. 그래서 비밀번호를 다시 받아 확인하고, 틀리면 아무것도 지우지 않는다.
+	 * <p>🔴 되돌릴 수 없다. 그래서 사용자가 직접 친 확인 값을 받고, 다르면 아무것도 지우지 않는다.
+	 * 비밀번호는 가진 계정만 함께 보내면 되는데, 보냈으면 맞아야 한다 — 소셜로만 가입한 계정에는
+	 * 비밀번호가 없어서 그것을 필수로 두면 그 사람들이 탈퇴를 못 한다.
 	 * 성공하면 본문 없이 204 다 — 지운 뒤에 돌려줄 것이 없다.
 	 */
 	@DeleteMapping("/me")
 	public ResponseEntity<Void> deleteAccount(@Valid @RequestBody DeleteAccountRequest request,
 			Authentication authentication) {
-		accountDeletionService.delete(authenticatedUserId(authentication), request.password());
+		accountDeletionService.delete(authenticatedUserId(authentication), request.confirmation(),
+				request.password());
 		return ResponseEntity.noContent().build();
 	}
 
