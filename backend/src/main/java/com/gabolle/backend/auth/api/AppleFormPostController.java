@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -83,7 +82,14 @@ public class AppleFormPostController {
 	//    (RouteAuthorizationRegistryTest.collect)가 애너테이션의 value() 만 읽어서,
 	//    path= 로 두면 이 경로가 감사에 "/api/v1/auth/oauth/apple" 로 잡히고 실제 경로는
 	//    표와 대조되지 않는다. 처음에 path= 로 썼다가 그 검사가 빨개져서 알았다.
-	@PostMapping(value = "/form-post", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+	// 🔴 consumes 를 걸지 않는다. 처음에는 form-urlencoded 로 제한했는데, 그러면 그 형식이
+	//    아닌 요청에 <b>맞는 핸들러가 없어</b> 오류 전달(/error)로 넘어가고 그 자리는 인증을
+	//    요구해서 401 이 나간다. 인가 감사(RouteAuthorizationFunctionalTest)가 빈 JSON 으로
+	//    찔러 보다가 그것을 잡았다 — "로그인 전에 열려 있어야 하는 경로가 막혀 있다".
+	//    이 경로는 몸통을 해석하지 않고 요청 파라미터 셋만 읽어 고정된 주소로 넘기므로,
+	//    형식을 가리지 않는 편이 더 튼튼하다. 형식이 틀리면 파라미터가 비고, 그때의 동작은
+	//    아래 "셋 다 비어 있으면" 가지가 이미 정의하고 있다.
+	@PostMapping("/form-post")
 	public ResponseEntity<Void> receive(
 			@RequestParam(name = "code", required = false) String code,
 			@RequestParam(name = "state", required = false) String state,
