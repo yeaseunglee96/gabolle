@@ -231,7 +231,7 @@ class ConsentUpdateIntegrationTest extends AuthPostgresIntegrationTest {
 				""", buildId, this.userId, tasteVectorId);
 		this.jdbcTemplate.update("""
 				INSERT INTO user_feed (build_id, position, item_type, item_id, reason_codes, payload, created_at)
-				VALUES (?, 0, 'PLACE', ?, '{}', '{}'::jsonb, now())
+				VALUES (?, 0, 'PLACE', ?, '{PERSONALIZED}', '{}'::jsonb, now())
 				""", buildId, UUID.randomUUID());
 
 		insertEvent(behaviorEventId, "place_view");

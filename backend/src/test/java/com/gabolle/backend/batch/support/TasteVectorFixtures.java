@@ -1,5 +1,6 @@
 package com.gabolle.backend.batch.support;
 
+import com.gabolle.backend.event.domain.EventType;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -97,12 +98,21 @@ public final class TasteVectorFixtures {
 	 * 도착 시각으로 구간을 세는지(늦게 온 이벤트를 안 빠뜨리는지)를 검사해야 하고,
 	 * 둘이 같으면 그 검사가 불가능하다.
 	 */
-	public void tasteSignal(UUID userId, String eventType, OffsetDateTime occurredAt, OffsetDateTime receivedAt) {
+	/**
+	 * 취향 신호 이벤트 하나를 심는다.
+	 *
+	 * <p>🔴 2026-09-11 (S15P21E201-549) — 문자열이 아니라 {@link EventType} 을 받는다. 전에는
+	 * {@code "PLACE_LIKE"} 처럼 <b>대문자 문자열</b>을 심었는데, 애플리케이션이 실제로 적는 값은
+	 * {@link EventType#wireName()} 이 만드는 소문자다. 배치의 비교 목록도 같은 대문자라 검사는
+	 * 초록이었지만 <b>운영에서는 한 건도 안 맞았다.</b> 픽스처가 버그와 같은 방향으로 틀려 있으면
+	 * 검사는 그 버그를 지켜 준다 — 그래서 대소문자를 정하는 곳을 열거형 하나로 모은다.
+	 */
+	public void tasteSignal(UUID userId, EventType eventType, OffsetDateTime occurredAt, OffsetDateTime receivedAt) {
 		this.jdbc.update("""
 				INSERT INTO event_outbox
 				  (event_id, event_type, event_version, aggregate_type, aggregate_id, partition_key,
 				   payload, occurred_at, received_at, user_id, producer)
 				VALUES (?, ?, 1, 'trip', ?, ?, '{}'::jsonb, ?, ?, ?, 'SERVER')
-				""", UUID.randomUUID(), eventType, userId, userId.toString(), occurredAt, receivedAt, userId);
+				""", UUID.randomUUID(), eventType.wireName(), userId, userId.toString(), occurredAt, receivedAt, userId);
 	}
 }

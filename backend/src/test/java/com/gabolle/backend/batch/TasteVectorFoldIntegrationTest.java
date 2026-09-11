@@ -1,5 +1,6 @@
 package com.gabolle.backend.batch;
 
+import com.gabolle.backend.event.domain.EventType;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
@@ -172,7 +173,7 @@ class TasteVectorFoldIntegrationTest extends BatchPostgresTest {
 		// 🔴 8월 1일에 **일어난** 일이 8월 2일에 **도착했다** — 비행기 모드였다가 켠 경우다.
 		//    구간을 occurred_at 으로 세면 표시가 이미 8월 2일을 지나 있어 이 이벤트는
 		//    영원히 안 읽힌다. received_at 으로 세야 다음 구간에서 정확히 한 번 읽힌다.
-		this.fixtures.tasteSignal(userId, "PLACE_LIKE", DAY1.plusHours(3), DAY2.plusHours(5));
+		this.fixtures.tasteSignal(userId, EventType.PLACE_LIKE, DAY1.plusHours(3), DAY2.plusHours(5));
 
 		TasteVectorFoldOutcome outcome = this.foldService.fold(userId, DAY3);
 
@@ -189,7 +190,7 @@ class TasteVectorFoldIntegrationTest extends BatchPostgresTest {
 		UUID userId = this.fixtures.newUser();
 		UUID snapshot = this.fixtures.newUserScopeSnapshot(userId, DAY1);
 		this.fixtures.selectedCodes(snapshot, "CATEGORY", "CAFE");
-		this.fixtures.tasteSignal(userId, "PLACE_LIKE", DAY1.plusHours(1), DAY1.plusHours(1));
+		this.fixtures.tasteSignal(userId, EventType.PLACE_LIKE, DAY1.plusHours(1), DAY1.plusHours(1));
 
 		this.foldService.fold(userId, DAY2);
 		this.foldService.fold(userId, DAY3);
