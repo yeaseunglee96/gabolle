@@ -1,8 +1,10 @@
-import { useMemo, useState } from 'react';
+import { useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { understandAssistantMessage, type AssistantAction } from '@/assistant/intent';
+import { askAssistant } from '@/assistant/assistantApi';
+import { useAuth } from '@/auth/AuthProvider';
 import { Button } from '@/components/Button';
 import { GabolleMascot } from '@/components/DongbaekMascot';
 import { Screen } from '@/components/Screen';
@@ -30,6 +32,7 @@ const QUICK_TOOLS = [
 
 export default function Chat() {
   const router = useRouter(); const { update } = usePlan();
+  const { accessToken } = useAuth();
   const { width } = useLayout();
   const { tx } = useI18n();
   const desktop = isAtLeast(width, 'md');
@@ -37,8 +40,25 @@ export default function Chat() {
   // 인사말은 언어 환경설정이 뒤늦게 준비돼도 반영돼야 해서 state 초깃값(마운트 시 한 번만 평가됨)에
   // 넣지 않고, 렌더마다 tx() 로 새로 계산해 목록 앞에 붙인다.
   const [messages, setMessages] = useState<Message[]>([]);
-  const nextId = useMemo(() => (messages.length ? Math.max(...messages.map((message) => message.id)) : 0) + 1, [messages]);
-  function send(value = input) { const content = value.trim(); if (!content) return; const action = understandAssistantMessage(content); setMessages((current) => [...current, { id: nextId, role: 'user', text: content }, { id: nextId + 1, role: 'assistant', text: action.reply, action }]); setInput(''); }
+  // 🔴 id 발급을 ref 카운터로 둔다 — 서버 호출이 비동기라 연속으로 빠르게 보내면 messages
+  // state 가 아직 안 바뀐 사이에 다음 send() 가 같은 id를 다시 계산할 수 있다(state 파생값은
+  // 렌더 지연을 겪는다). 카운터는 그 지연과 무관하게 그 자리에서 바로 늘어난다.
+  const nextIdRef = useRef(1);
+  // 🔴 로그인 전에는 서버(AUTHENTICATED_ONLY)를 아예 부르지 않고 로컬 규칙으로 바로 넘어간다 —
+  // 401 처리(토큰 갱신 시도 등)를 겪을 이유가 없다. 로그인 후에도 서버 호출이 실패하면
+  // (네트워크 문제 등) 같은 로컬 규칙으로 자연스럽게 넘어간다 — 사용자는 항상 답을 받는다.
+  async function send(value = input) {
+    const content = value.trim();
+    if (!content) return;
+    setInput('');
+    const userId = nextIdRef.current++;
+    const assistantId = nextIdRef.current++;
+    setMessages((current) => [...current, { id: userId, role: 'user', text: content }]);
+    const action = accessToken
+      ? await askAssistant(content, accessToken).catch(() => understandAssistantMessage(content))
+      : understandAssistantMessage(content);
+    setMessages((current) => [...current, { id: assistantId, role: 'assistant', text: action.reply, action }]);
+  }
   function applyPlan(id: number, action: Extract<AssistantAction, { kind: 'plan' }>) { update(action.patch); setMessages((current) => current.map((item) => item.id === id ? { ...item, applied: true } : item)); }
 
   const visibleTools = QUICK_TOOLS.slice(1);
