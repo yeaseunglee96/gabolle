@@ -1,16 +1,24 @@
-import { apiRequest, ApiClientError } from '@/api/client';
+import { apiRequest, ApiClientError, APP_WEB_BASE_URL } from '@/api/client';
 
 export type CompanionRole = 'EDITOR' | 'VIEWER';
 export type CompanionInvite = { inviteUrl: string; expiresAt: string };
 
-export function createCompanionInvite(tripId: string, role: CompanionRole, accessToken: string) {
+// 서버 응답(TripInviteResponse)은 inviteId·tripId·role·token·expiresAt·acceptPath 뿐이다 —
+// acceptPath는 "서버 API 경로"이지 앱 화면 주소가 아니라고 레코드 주석에 그대로 적혀 있다.
+// 착지 화면은 /invite/[token].tsx(앱 라우트)이므로, 공유할 링크는 token으로 여기서 직접
+// 조립한다(S15P21E201-846 — 예전에는 이 응답을 그대로 CompanionInvite로 캐스팅해 inviteUrl이
+// 항상 undefined였다).
+type TripInviteIssued = { inviteId: string; tripId: string; role: CompanionRole; token: string; expiresAt: string; acceptPath: string };
+
+export async function createCompanionInvite(tripId: string, role: CompanionRole, accessToken: string): Promise<CompanionInvite> {
   // jaehyeon 님 axmap 제보(2026-09-08): 프론트는 .../members/invite를 불렀는데 서버는
   // .../invites로 만들어져 있어 지금까지 이 요청이 아예 안 붙고 있었다. 서버 쪽에 맞춘다.
-  return apiRequest<CompanionInvite>(`/api/v1/trips/${encodeURIComponent(tripId)}/invites`, {
+  const issued = await apiRequest<TripInviteIssued>(`/api/v1/trips/${encodeURIComponent(tripId)}/invites`, {
     method: 'POST',
     accessToken,
     body: { role, expiresInDays: 7 },
   });
+  return { inviteUrl: `${APP_WEB_BASE_URL}/invite/${issued.token}`, expiresAt: issued.expiresAt };
 }
 
 export type AcceptedInvite = { tripId: string; role: CompanionRole | 'OWNER'; alreadyMember: boolean; joinedAt: string };

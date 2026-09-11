@@ -108,6 +108,11 @@ export default function StoryDetail() {
           ) : null}
 
           <View style={styles.actionRow}>
+            {!confirmingDelete && (
+              <Pressable accessibilityRole="button" accessibilityLabel={tx('공동 작성자 보기', 'View co-authors')} onPress={() => router.push(`/feed/${story.id}/coauthors`)} style={styles.textAction}>
+                <Text variant="caption" weight="bold" color={color.text.accent}>{tx('공동 작성자', 'Co-authors')}</Text>
+              </Pressable>
+            )}
             {story.mine ? (
               confirmingDelete ? (
                 <View style={styles.confirmRow}>
@@ -164,7 +169,7 @@ const styles = StyleSheet.create({
   images: { gap: spacing[2] },
   image: { width: '100%', aspectRatio: 4 / 3, borderRadius: radius.md, backgroundColor: color.surface.soft },
   placeCard: { gap: spacing[1], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.tint },
-  actionRow: { flexDirection: 'row', justifyContent: 'flex-end' },
+  actionRow: { flexDirection: 'row', justifyContent: 'space-between' },
   textAction: { minHeight: 44, paddingHorizontal: spacing[2], alignItems: 'center', justifyContent: 'center' },
   confirmRow: { flex: 1, gap: spacing[2] },
   confirmText: { textAlign: 'right' },
