@@ -14,7 +14,7 @@ import com.gabolle.backend.place.service.GeoDistance;
 import com.gabolle.backend.review.config.ReviewProperties;
 import com.gabolle.backend.review.domain.PlaceVisitVerification;
 import com.gabolle.backend.review.repository.PlaceVisitVerificationRepository;
-import com.gabolle.backend.user.application.PreciseLocationConsent;
+import com.gabolle.backend.user.application.ConsentGuard;
 
 /**
  * 방문 인증 판정 — S15P21E201-279.
@@ -41,17 +41,17 @@ public class VisitVerificationService {
 
 	private final ReviewProperties properties;
 
-	private final PreciseLocationConsent preciseLocationConsent;
+	private final ConsentGuard consentGuard;
 
 	private final Clock clock;
 
 	public VisitVerificationService(PlaceRepository placeRepository,
 			PlaceVisitVerificationRepository verificationRepository, ReviewProperties properties,
-			PreciseLocationConsent preciseLocationConsent, Clock clock) {
+			ConsentGuard consentGuard, Clock clock) {
 		this.placeRepository = placeRepository;
 		this.verificationRepository = verificationRepository;
 		this.properties = properties;
-		this.preciseLocationConsent = preciseLocationConsent;
+		this.consentGuard = consentGuard;
 		this.clock = clock;
 	}
 
@@ -82,7 +82,7 @@ public class VisitVerificationService {
 		//    "정밀 위치 별도 동의가 없으면 수집하지 않는다",
 		//    "위치 미동의 사용자의 방문 여부를 추측해서 채우지 않는다".
 		//    이 메서드가 바로 그 "방문 여부를 채우는" 자리다.
-		this.preciseLocationConsent.requireGranted(userId);
+		this.consentGuard.requirePreciseLocation(userId);
 
 		Place place = this.placeRepository.findById(placeId)
 				.orElseThrow(() -> new PlaceNotFoundException(placeId));

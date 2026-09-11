@@ -24,6 +24,7 @@ import com.gabolle.backend.trip.domain.TravelModes;
 import com.gabolle.backend.trip.domain.TripConstraint;
 import com.gabolle.backend.trip.domain.TripMember;
 import com.gabolle.backend.trip.domain.TripRepository;
+import com.gabolle.backend.user.application.ConsentGuard;
 
 /**
  * 여행 생성 — S15P21E201-461 · TRIP-01.
@@ -44,11 +45,21 @@ public class TripCreationService {
      */
     private final PreferenceDefaultsService preferenceDefaults;
 
+    /**
+     * 🔴 민감정보(알레르기·필수 식단) 동의를 검사한다 — S15P21E201-549.
+     *
+     * <p>여행 생성이 이 서비스의 일인데 왜 동의까지 보는가 — 이 경로가 <b>민감 제약을 표에
+     * 넣는 유일한 자리</b>이기 때문이다. 컨트롤러에 두면 다른 호출자가 생길 때 그대로
+     * 새어 나가고, 이 클래스 머리말이 정한 "업무 규칙은 생성이 일어나는 자리에" 와도 어긋난다.
+     */
+    private final ConsentGuard consentGuard;
+
     public TripCreationService(TripRepository repository, Clock clock,
-                               PreferenceDefaultsService preferenceDefaults) {
+                               PreferenceDefaultsService preferenceDefaults, ConsentGuard consentGuard) {
         this.repository = repository;
         this.clock = clock;
         this.preferenceDefaults = preferenceDefaults;
+        this.consentGuard = consentGuard;
     }
 
     /**
@@ -132,6 +143,27 @@ public class TripCreationService {
             constraintIds.add(id);
         }
 
+        // 🔴 S15P21E201-549 — 민감 제약이 하나라도 있으면 동의를 본다.
+        //
+        //    위 ② 문단이 막는 것은 "평문 자유 입력을 저장하는 것" 이고, 여기서 막는 것은
+        //    "동의 없이 수집하는 것" 이다. 다른 문제다 — 코드로 된 민감 값(ALLERGY+PEANUT
+        //    같은)은 생성자를 그대로 통과해 저장되는데, 그것도 개인정보보호법이 말하는
+        //    건강에 관한 민감정보다. HEALTH_CONSTRAINTS 동의는 받아서 표에 기록까지 하면서
+        //    아무도 안 보고 있었다.
+        //
+        //    🔴 왜 루프 <b>뒤</b>인가. 도메인 검증이 먼저 이겨야 하기 때문이다. 자유 입력
+        //    거부(SensitiveConstraintNotSupportedException)는 동의가 있든 없든 나는 400 인데,
+        //    동의를 먼저 보면 미동의 사용자에게는 그 오류가 403 에 가려 영영 안 보인다.
+        //    저장은 이 아래에서 한 번에 일어나므로, 여기서 막으면 <b>표에는 아무것도 안 들어간다</b>.
+        //
+        //    🔴 민감 여부는 여기서 판정하지 않고 TripConstraint.isSensitive 에 묻는다.
+        //    목록이 두 벌이 되면 한쪽만 늘어나고, 그 어긋남은 "이 종류만 동의 없이
+        //    저장되는" 모양으로 나타나 어느 화면에도 안 보인다.
+        if (command.constraints().stream()
+                .anyMatch(c -> TripConstraint.isSensitive(c.type(), c.dietRequirement()))) {
+            this.consentGuard.requireHealthConstraints(asUuidOrNull(command.userId()));
+        }
+
         // ③ 🔴 만든 사람을 OWNER 로 넣는다. 안 넣으면 자기 여행을 못 본다.
         TripMember owner = TripMember.owner(UUID.randomUUID().toString(), tripId, command.userId(), now);
 
@@ -191,6 +223,23 @@ public class TripCreationService {
      * <p>🔴 같은 키를 <b>다른 내용</b>으로 재사용하면 409 로 거부해야 한다(API-09).
      * 그러려면 "같은 내용인가" 를 비교할 것이 필요하다.
      */
+    /**
+     * 사용자 ID 를 {@code UUID} 로 바꾼다. 형식이 아니면 {@code null} — S15P21E201-549.
+     *
+     * <p>🔴 예외를 던지지 않고 {@code null} 을 주는 이유는, 여기서 400 을 내면 <b>동의가
+     * 없는 것</b>과 <b>ID 가 이상한 것</b>이 서로 다른 오류로 갈라져 앱이 두 갈래를 다뤄야
+     * 하기 때문이다. 둘 다 "이 사람의 동의를 확인할 수 없다" 이고, 그때 할 일은 하나다 —
+     * 저장하지 않는다. 가드가 {@code null} 을 미동의로 다룬다.
+     */
+    private static UUID asUuidOrNull(String userId) {
+        try {
+            return (userId == null) ? null : UUID.fromString(userId);
+        }
+        catch (IllegalArgumentException notAUuid) {
+            return null;
+        }
+    }
+
     private String fingerprintOf(Command c) {
         String raw = String.join("|",
                 c.userId(), String.valueOf(c.startDate()), String.valueOf(c.finishDate()),
