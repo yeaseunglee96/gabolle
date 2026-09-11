@@ -35,9 +35,15 @@ import com.gabolle.backend.place.service.OpeningHoursFilterPort;
  * 장소 후보 조회가 이미 쓰고 있다({@code PlaceCandidateResponse.notApplied} — 값도
  * {@code OPENING_HOURS} · {@code NOT_COLLECTED} 로 같다).
  *
- * <p>🔴 하루치 항목 하나하나에 문을 따로 묻는다. 항목이 한 자리 수라 질의 수가 문제가 되지
+ * <p>하루치 항목 하나하나에 문을 따로 묻는다. 항목이 한 자리 수라 질의 수가 문제가 되지
  * 않는 자리이고, 대신 <b>항목마다 다른 시각</b>을 물을 수 있다. 후보 목록처럼 대상이 수백인
  * 자리는 한 번에 읽어 둔 피처로 직접 판정한다({@code PlaceCandidateQueryService}).
+ *
+ * <h2>부르는 자리</h2>
+ * 일정 편집 다섯 경로가 전부 이것을 지난다(S15P21E201-858) — 순서 바꾸기·장소 더하기·재계획은
+ * 요청에 날짜가 있어 {@link #checkDay}, 고정·해제는 그 항목의 날짜로 {@link #checkDay},
+ * 되돌리기는 판 전체가 바뀌므로 {@link #checkAll} 이다. 예전에는 순서 바꾸기 하나만 지났고
+ * 나머지 넷은 빈 결과를 보내 화면이 그것을 "확인했고 문제 없음" 으로 읽었다.
  */
 @Component
 @Profile({ "db", "dev" })
@@ -109,6 +115,29 @@ public class ItineraryOpeningHoursChecker {
 				.map((reason) -> new NotChecked(CHECK, reason))
 				.toList();
 		return new Result(List.copyOf(violations), notChecked);
+	}
+
+	/**
+	 * 일정 전체를 날짜별로 판정해 하나로 합친다 — S15P21E201-858.
+	 *
+	 * <p>되돌리기처럼 <b>한 날이 아니라 판 전체</b>가 바뀌는 편집이 쓴다. 되살린 판의 위반이
+	 * 어느 날에 있을지 모르므로 한 날만 보는 것으로는 빠뜨린다.
+	 *
+	 * <p>위반은 이어 붙이고 못 한 검사는 <b>이유별로 한 번만</b> 남긴다. 사흘 모두 영업시간을
+	 * 모른다고 세 줄을 올리면 화면이 같은 문구를 세 번 보여 준다 — 사용자가 알아야 하는 것은
+	 * "몇 번 못 봤나" 가 아니라 "무엇을 못 봤나" 다.
+	 */
+	public Result checkAll(List<ItineraryItem> items) {
+		List<Integer> days = items.stream().map(ItineraryItem::dayIndex).distinct().sorted().toList();
+		List<Violation> violations = new ArrayList<>();
+		Set<String> reasons = new LinkedHashSet<>();
+		for (int dayIndex : days) {
+			Result result = checkDay(items, dayIndex);
+			violations.addAll(result.violations());
+			result.notChecked().forEach((notChecked) -> reasons.add(notChecked.reason()));
+		}
+		return new Result(List.copyOf(violations),
+				reasons.stream().map((reason) -> new NotChecked(CHECK, reason)).toList());
 	}
 
 	/**
