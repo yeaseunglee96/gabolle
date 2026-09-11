@@ -59,7 +59,8 @@
         }
       ],
       "expo-notifications",
-      "expo-video"
+      "expo-video",
+      "./plugins/withExtraTrustedRoots"
     ],
     "extra": {
       "router": {},
