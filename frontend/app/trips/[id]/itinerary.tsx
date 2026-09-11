@@ -26,6 +26,8 @@ import {
   type ItineraryDto,
   type ItineraryItemDto,
   type ItineraryLoadResult,
+  type ItineraryOpeningHoursNotChecked,
+  type ItineraryOpeningHoursWarning,
   type ItineraryPaceDto,
   type ItineraryPaceItemDto,
   type ItineraryRhythmDto,
@@ -39,6 +41,23 @@ const WARNING_LABEL: Record<string, [string, string]> = {
   RECALC_NO_CANDIDATE: ['뺀 자리를 채울 다른 장소를 찾지 못해 비워 뒀어요.', "We couldn't find another place to fill the removed spot, so it's left empty."],
   RECALC_TIMES_RESHUFFLED: ['다시 계산하면서 고정된 장소의 시각도 함께 조정됐어요.', 'Recalculating also adjusted the times of locked places.'],
 };
+
+// 영업시간 경고(S15P21E201-268/-858) — 편집 다섯 갈래 중 넷(더하기 제외, 재계산은 비동기라
+// 이 응답에 못 싣는다)이 warnings·notChecked를 함께 돌려준다. 되돌리기는 여러 날에 걸친
+// 위반이 함께 올 수 있어 하루가 아니라 일정 전체에서 항목을 찾는다.
+function describeOpeningHoursIssues(itinerary: ItineraryDto, warnings: ItineraryOpeningHoursWarning[], notChecked: ItineraryOpeningHoursNotChecked[], tx: (ko: string, en: string) => string): string[] {
+  const itemsById = new Map(itinerary.days.flatMap((day) => day.items).map((item) => [item.id, item]));
+  const closedMessages = warnings
+    .filter((warning) => warning.code === 'OPENING_HOURS_CLOSED')
+    .map((warning) => {
+      const title = itemsById.get(warning.itemId)?.title ?? tx('이 장소', 'this place');
+      return tx(`${title}은(는) 이 시각에 영업하지 않아요.`, `${title} is closed at this time.`);
+    });
+  const notCheckedMessages = notChecked.map((entry) => entry.reason === 'NOT_COLLECTED'
+    ? tx('일부 장소는 영업시간 정보가 없어 확인하지 못했어요.', "We couldn't check opening hours for some places — no data yet.")
+    : tx('시각이 없는 항목이 있어 일부는 확인하지 못했어요.', "Some items have no visit time, so we couldn't check them."));
+  return [...closedMessages, ...notCheckedMessages];
+}
 
 function formatTime(value: string) {
   const date = new Date(value);
@@ -250,10 +269,14 @@ export default function ItineraryScreen() {
 
   const confirmReplan = async () => {
     if (!itinerary) return;
-    setReplanBusy(true); setConflict(null); setActionMessage(null); setReplanOverflowIds(null);
+    setReplanBusy(true); setConflict(null); setActionMessage(null); setReplanOverflowIds(null); setOpeningHoursNotice([]);
     const outcome = await replanItineraryDay({ itineraryId: itinerary.id, dayIndex: selectedDay, baseVersion: itinerary.version, accessToken });
     setReplanBusy(false); setReplanConfirming(false);
-    if (outcome.state === 'success') { setResult({ state: 'success', itinerary: outcome.itinerary }); setActionMessage(tx('남은 일정을 다시 계획했어요.', 'Replanned the rest of the day.')); }
+    if (outcome.state === 'success') {
+      setResult({ state: 'success', itinerary: outcome.itinerary });
+      setActionMessage(tx('남은 일정을 다시 계획했어요.', 'Replanned the rest of the day.'));
+      setOpeningHoursNotice(describeOpeningHoursIssues(outcome.itinerary, outcome.warnings, outcome.notChecked, tx));
+    }
     else if (outcome.state === 'conflict') setConflict(outcome.message);
     else if (outcome.state === 'overflow') { setReplanOverflowIds(outcome.itemIds); setActionMessage(outcome.message); }
     else setActionMessage(outcome.message);
@@ -271,10 +294,10 @@ export default function ItineraryScreen() {
 
   const toggleLock = async (item: ItineraryItemDto) => {
     if (!itinerary) return;
-    setBusyItemId(item.id); setConflict(null); setActionMessage(null);
+    setBusyItemId(item.id); setConflict(null); setActionMessage(null); setOpeningHoursNotice([]);
     const next = await setItineraryItemLocked({ itineraryId: itinerary.id, itemId: item.id, locked: !item.locked, baseVersion: itinerary.version, accessToken });
     setBusyItemId(null);
-    if (next.state === 'success') setResult({ state: 'success', itinerary: next.itinerary });
+    if (next.state === 'success') { setResult({ state: 'success', itinerary: next.itinerary }); setOpeningHoursNotice(describeOpeningHoursIssues(next.itinerary, next.warnings, next.notChecked, tx)); }
     else if (next.state === 'conflict') setConflict(next.message);
     else setResult(next);
   };
@@ -303,10 +326,15 @@ export default function ItineraryScreen() {
 
   const revert = async () => {
     if (!itinerary) return;
-    setRevertBusy(true); setConflict(null); setActionMessage(null);
+    setRevertBusy(true); setConflict(null); setActionMessage(null); setOpeningHoursNotice([]);
     const outcome = await revertItinerary({ itineraryId: itinerary.id, baseVersion: itinerary.version, accessToken });
     setRevertBusy(false);
-    if (outcome.state === 'success') { setResult({ state: 'success', itinerary: outcome.itinerary }); void refreshVersions(outcome.itinerary.id); setActionMessage(tx('최근 변경을 되돌렸어요.', 'Reverted your last change.')); }
+    if (outcome.state === 'success') {
+      setResult({ state: 'success', itinerary: outcome.itinerary });
+      void refreshVersions(outcome.itinerary.id);
+      setActionMessage(tx('최근 변경을 되돌렸어요.', 'Reverted your last change.'));
+      setOpeningHoursNotice(describeOpeningHoursIssues(outcome.itinerary, outcome.warnings, outcome.notChecked, tx));
+    }
     else if (outcome.state === 'conflict') setConflict(outcome.message);
     else if (outcome.state === 'noOp') setActionMessage(outcome.message);
     else setResult(outcome);
@@ -358,19 +386,7 @@ export default function ItineraryScreen() {
       setResult({ state: 'success', itinerary: outcome.itinerary });
       setOrderDraft(null);
       setActionMessage(tx('순서를 저장했어요.', 'Saved the new order.'));
-      // 경고(문 닫힌 시각)와 못 한 검사(자료 없음)는 함께 올 수 있다 — 한쪽만 보여 주면
-      // 나머지를 "확인했고 문제 없음"으로 잘못 읽는다(제보: jaehyeon, S15P21E201-852).
-      const itemsById = new Map(outcome.itinerary.days[selectedDay]?.items.map((entry) => [entry.id, entry]) ?? []);
-      const closedMessages = outcome.warnings
-        .filter((warning) => warning.code === 'OPENING_HOURS_CLOSED')
-        .map((warning) => {
-          const title = itemsById.get(warning.itemId)?.title ?? tx('이 장소', 'this place');
-          return tx(`${title}은(는) 이 시각에 영업하지 않아요.`, `${title} is closed at this time.`);
-        });
-      const notCheckedMessages = outcome.notChecked.map((entry) => entry.reason === 'NOT_COLLECTED'
-        ? tx('일부 장소는 영업시간 정보가 없어 확인하지 못했어요.', "We couldn't check opening hours for some places — no data yet.")
-        : tx('시각이 없는 항목이 있어 일부는 확인하지 못했어요.', "Some items have no visit time, so we couldn't check them."));
-      setOpeningHoursNotice([...closedMessages, ...notCheckedMessages]);
+      setOpeningHoursNotice(describeOpeningHoursIssues(outcome.itinerary, outcome.warnings, outcome.notChecked, tx));
     } else if (outcome.state === 'conflict') setConflict(outcome.message);
     else setActionMessage(outcome.message);
   };
