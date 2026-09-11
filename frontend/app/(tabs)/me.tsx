@@ -188,6 +188,10 @@ export default function Me() {
     <View style={styles.group}>
       <InfoRow label={tx('언어', 'Language')} value={language === 'ko' ? '한국어' : 'English'} disabled />
       <InfoRow label={tx('여행 조건 관리', 'Trip preferences')} value={tx('여행 만들기에서 수정', 'Edit while planning')} disabled />
+      {/* S15P21E201-847 — /user/[id] 화면은 이미 내 기록을 전부(공개·팔로워·나만 보기) 보여주고
+          삭제까지 되는데, 이 설정 화면에서 거기로 가는 길이 없었다. 다른 사람 프로필을 보다가
+          우연히 자기 자신일 때만 닿을 수 있었다. */}
+      <InfoRow label={tx('내 기록', 'My records')} value="›" onPress={() => user && router.push(`/user/${user.userId}`)} disabled={!user} />
       <ConsentRow
         label={tx('행동으로 추천 다듬기', 'Tune recommendations from my activity')}
         description={tx('저장·제외·일정 수정·체크인 후기를 보고 추천 순서를 바꿔요. 이 선택은 이 기기에 저장돼요.', 'We reorder recommendations using your saves, exclusions, itinerary edits, and check-in reviews. This choice is stored on this device.')}
