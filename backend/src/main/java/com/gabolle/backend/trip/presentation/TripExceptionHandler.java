@@ -14,6 +14,7 @@ import com.gabolle.backend.common.api.ApiResponse;
 import com.gabolle.backend.trip.application.TripDeletionService;
 import com.gabolle.backend.trip.application.TripQueryService;
 import com.gabolle.backend.trip.domain.TimeWindows;
+import com.gabolle.backend.trip.domain.TripConditionRules;
 import com.gabolle.backend.trip.domain.TravelModes;
 import com.gabolle.backend.trip.domain.TripConstraint;
 import com.gabolle.backend.trip.domain.TripRepository;
@@ -41,6 +42,22 @@ public class TripExceptionHandler {
 
         return ResponseEntity.badRequest().body(ApiResponse.failure(
                 new ApiError("TRIP_VALIDATION_FAILED", "error.trip.validation", fields),
+                requestId()));
+    }
+
+    /**
+     * 여행 조건 재검증이 거부한 것 — S15P21E201-440.
+     *
+     * <p>🔴 이 처리기가 아래 {@link #handleIllegalArgument} 보다 먼저 잡힌다(Spring 은 예외
+     * 계층에서 가장 구체적인 타입을 고른다). 갈라 두는 이유는 <b>어긴 항목을 전부</b> 담기
+     * 위해서다 — 저쪽은 메시지 한 줄만 담으므로 화면이 어느 칸을 짚을지 알 수 없다.
+     */
+    @ExceptionHandler(TripConditionRules.TripConditionRejectedException.class)
+    public ResponseEntity<ApiResponse<Void>> handleTripConditionRejected(
+            TripConditionRules.TripConditionRejectedException e) {
+
+        return ResponseEntity.badRequest().body(ApiResponse.failure(
+                new ApiError("TRIP_VALIDATION_FAILED", "error.trip.validation", e.fieldLines()),
                 requestId()));
     }
 

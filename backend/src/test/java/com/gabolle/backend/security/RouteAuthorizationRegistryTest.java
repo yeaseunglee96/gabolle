@@ -455,8 +455,23 @@ class RouteAuthorizationRegistryTest {
 		// ── 추천 작업 ────────────────────────────────────────────────────────────
 		put(m, "GET /api/v1/jobs/{}", Policy.OWNED,
 				"남의 작업 번호와 없는 번호를 같은 404 로 답한다. RecommendationResultAuthorizationTest");
+		put(m, "GET /api/v1/jobs/{}/progress", Policy.OWNED,
+				"진행률을 밀어 보내는 통로도 같은 소유자 검사를 지난다 — 이 자리만 열면 남의 계산이 "
+						+ "어디까지 갔는지가 옆문으로 샌다. RecommendationJobProgressStreamTest (-193)");
 		put(m, "GET /api/v1/recommendation-jobs/{}", Policy.OWNED,
 				"위와 같은 소유자 검사를 공유한다. RecommendationResultAuthorizationTest");
+
+		put(m, "POST /api/v1/trips/{}/facet-views/{}", Policy.OWNED,
+				"그 여행의 회원만 그 여행 이름으로 갈래 열람을 남긴다 — 아무나 남기면 집계를 부풀릴 수 "
+						+ "있다. FacetViewFunctionalTest (-475)");
+		put(m, "GET /api/v1/admin/facet-views", Policy.ADMIN_ONLY,
+				"갈래별 이용 집계는 운영 판단용이다. 경로 앞자리가 실제 보호 장치다. "
+						+ "FacetViewFunctionalTest (-475)");
+
+		// ── 코스 테마 ────────────────────────────────────────────────────────────
+		put(m, "GET /api/v1/course-categories", Policy.AUTHENTICATED_ONLY,
+				"자원에 주인이 없는 목록 조회다. 쓰이는 자리가 여행 만들기 안이라 로그인 뒤에 둔다. "
+						+ "CourseThemeContractFunctionalTest (-450)");
 
 		// ── 기록·피드·사용자 ─────────────────────────────────────────────────────
 		put(m, "POST /api/v1/stories", Policy.AUTHENTICATED_ONLY,

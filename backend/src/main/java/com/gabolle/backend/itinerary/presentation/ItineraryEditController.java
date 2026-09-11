@@ -180,11 +180,13 @@ public class ItineraryEditController {
 
 		requireDayInsideTrip(access, dayIndex);
 
-		ItineraryVersion saved = this.editService.reorderDay(itineraryId, dayIndex, request.itemKeys(),
-				request.baseVersion(), editor);
+		ItineraryEditService.ReorderOutcome outcome = this.editService.reorderDay(itineraryId, dayIndex,
+				request.itemKeys(), request.baseVersion(), editor);
 		ItineraryDetailResponse detail = this.queryService.getDetail(itineraryId, editor);
 
-		return ApiResponse.success(ItineraryEditResponse.of(detail, saved), "req_" + UUID.randomUUID());
+		return ApiResponse.success(
+				ItineraryEditResponse.of(detail, outcome.version(), outcome.openingHours()),
+				"req_" + UUID.randomUUID());
 	}
 
 	/**
