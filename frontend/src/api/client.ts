@@ -1,6 +1,11 @@
 import { Platform } from 'react-native';
+import * as SecureStore from 'expo-secure-store';
 
 export const API_BASE_URL = (process.env.EXPO_PUBLIC_API_BASE_URL ?? 'http://localhost:8080').replace(/\/$/, '');
+// 서버가 초대 응답에 주는 건 token·acceptPath(서버 API 경로)뿐이다 — 앱 화면 주소는 앱이
+// 스스로 조립해야 한다(TripInviteResponse·StoryInviteResponse 공통 계약). oauth.ts의
+// CALLBACK_BASE_URL과 같은 값이라 같은 환경변수를 그대로 쓴다 — 이 웹앱이 실제로 떠 있는 자리다.
+export const APP_WEB_BASE_URL = (process.env.EXPO_PUBLIC_OAUTH_CALLBACK_BASE_URL ?? 'https://j15e201.p.ssafy.io').replace(/\/$/, '');
 const configuredTimeout = Number(process.env.EXPO_PUBLIC_API_TIMEOUT_MS ?? 12000);
 const API_TIMEOUT_MS = Number.isFinite(configuredTimeout) && configuredTimeout > 0 ? configuredTimeout : 12000;
 let apiLanguage: 'ko' | 'en' = 'ko';
@@ -56,6 +61,75 @@ export function subscribeApiAvailability(listener: ApiAvailabilityListener) {
   };
 }
 
+// 익명 출입증(S15P21E201-303 이 발급하는 X-Session-Token) — 가입 안 한 사람의 요청도
+// 같은 세션으로 묶이도록 여기서 한 번만 발급받아 모든 요청에 자동으로 붙인다(S15P21E201-311).
+const ANONYMOUS_SESSION_STORAGE_KEY = 'gabolle.anonymous-session-token';
+let anonymousSessionToken: string | null = null;
+let anonymousSessionPromise: Promise<string | null> | null = null;
+
+async function readStoredAnonymousSessionToken(): Promise<string | null> {
+  try {
+    if (Platform.OS === 'web') {
+      return typeof localStorage === 'undefined' ? null : localStorage.getItem(ANONYMOUS_SESSION_STORAGE_KEY);
+    }
+    return await SecureStore.getItemAsync(ANONYMOUS_SESSION_STORAGE_KEY);
+  } catch {
+    return null;
+  }
+}
+
+async function writeStoredAnonymousSessionToken(token: string): Promise<void> {
+  try {
+    if (Platform.OS === 'web') {
+      if (typeof localStorage !== 'undefined') localStorage.setItem(ANONYMOUS_SESSION_STORAGE_KEY, token);
+      return;
+    }
+    await SecureStore.setItemAsync(ANONYMOUS_SESSION_STORAGE_KEY, token);
+  } catch {
+    // 저장에 실패해도 메모리의 토큰은 남아 있어 이번 실행 동안은 계속 쓸 수 있다.
+  }
+}
+
+async function requestAnonymousSessionToken(): Promise<string | null> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/v1/auth/anonymous`, {
+      method: 'POST',
+      headers: { Accept: 'application/json' },
+    });
+    if (!response.ok) return null;
+    const envelope = (await response.json()) as ApiEnvelope<{ sessionId: string; sessionToken: string; issuedAt: string }>;
+    return envelope.data?.sessionToken ?? null;
+  } catch {
+    return null;
+  }
+}
+
+async function ensureAnonymousSessionToken(): Promise<string | null> {
+  if (anonymousSessionToken) return anonymousSessionToken;
+  if (!anonymousSessionPromise) {
+    anonymousSessionPromise = (async () => {
+      const stored = await readStoredAnonymousSessionToken();
+      if (stored) {
+        anonymousSessionToken = stored;
+        return stored;
+      }
+      // 발급이 실패하면 한 번 더 시도하고, 그래도 실패하면 연결 실패로 처리한다.
+      const issued = (await requestAnonymousSessionToken()) ?? (await requestAnonymousSessionToken());
+      if (issued) {
+        anonymousSessionToken = issued;
+        setApiUnavailable(false);
+        await writeStoredAnonymousSessionToken(issued);
+      } else {
+        setApiUnavailable(true);
+      }
+      return issued;
+    })().finally(() => {
+      anonymousSessionPromise = null;
+    });
+  }
+  return anonymousSessionPromise;
+}
+
 type RequestOptions = Omit<RequestInit, 'body'> & { body?: unknown; accessToken?: string | null; skipUnauthorizedHandling?: boolean };
 let unauthorizedHandler: (() => void) | null = null;
 export function setUnauthorizedHandler(handler: (() => void) | null) { unauthorizedHandler = handler; }
@@ -86,6 +160,7 @@ async function performRequest<T>(path: string, options: RequestOptions, isRetry:
   if (requestOptions.signal?.aborted) controller.abort();
   else requestOptions.signal?.addEventListener('abort', abortFromCaller, { once: true });
   const timeout = setTimeout(() => { timedOut = true; controller.abort(); }, API_TIMEOUT_MS);
+  const sessionToken = await ensureAnonymousSessionToken();
   let response: Response;
   try {
     response = await fetch(`${API_BASE_URL}${path}`, {
@@ -98,6 +173,7 @@ async function performRequest<T>(path: string, options: RequestOptions, isRetry:
         'Accept-Language': apiLanguage,
         ...(body === undefined || body instanceof FormData ? {} : { 'Content-Type': 'application/json' }),
         'X-Client-Platform': Platform.OS === 'web' ? 'WEB' : 'MOBILE',
+        ...(sessionToken ? { 'X-Session-Token': sessionToken } : {}),
         ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
         ...headers,
       },

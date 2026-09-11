@@ -4,26 +4,22 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { ApiClientError } from '@/api/client';
+import { sendAppEvent } from '@/analytics/appEvents';
+import { useAuth } from '@/auth/AuthProvider';
 import { BrandLogoLink } from '@/components/BrandLogoLink';
 import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
-import { bilingualPlaceName, getPlace, hasLocalityScore, type Place as ApiPlace } from '@/discovery/places';
+import { bilingualPlaceName, formatFeatureSlot, getPlace, hasLocalityScore, needsFoodSafetyCheck, type Place as ApiPlace } from '@/discovery/places';
+import { DEMO_PLACES, SAVED_PLACES_KEY } from '@/discovery/savedPlaces';
 import { useI18n } from '@/i18n';
 import { isAtLeast } from '@/layout/breakpoints';
 import { PlacePhraseModal } from '@/components/PlacePhraseModal';
 import { listAvailableMapApps, type AvailableMapProvider } from '@/utils/externalMaps';
 
-// 홈 화면의 3개 데모 카드는 지금도 이 로컬 값을 그대로 쓴다 — place 표가 비어 있어(-547 적재 전)
-// 실제 API 로는 이 셋이 아직 안 나온다. 그 밖의 id(실 장소 id)는 아래에서 진짜 API 로 조회한다.
-const PLACES = {
-  haeundae: { titleKo: '해운대 해수욕장', titleEn: 'Haeundae Beach', subtitleKo: '푸른 바다와 도시가 만나는 곳', subtitleEn: 'Where the blue sea meets the city', image: require('../../assets/home/haeundae.png') },
-  gwangalli: { titleKo: '광안리 해수욕장', titleEn: 'Gwangalli Beach', subtitleKo: '야경과 함께하는 해변 산책', subtitleEn: 'A beach walk under the night view', image: require('../../assets/home/gwangalli.png') },
-  gamcheon: { titleKo: '감천문화마을', titleEn: 'Gamcheon Culture Village', subtitleKo: '형형색색 감성 골목 여행', subtitleEn: 'A colorful walk through winding alleys', image: require('../../assets/home/gamcheon.png') },
-} as const;
-
-const SAVED_PLACES_KEY = 'gabolle.saved-home-places';
+// 데모 3곳·저장 키는 src/discovery/savedPlaces.ts 로 옮겼다 — (tabs)/saved.tsx 도 같은 값을 쓴다.
+const PLACES = DEMO_PLACES;
 
 type RemoteState =
   | { status: 'loading' }
@@ -34,6 +30,7 @@ type RemoteState =
 export default function Place() {
   const router = useRouter();
   const { tx } = useI18n();
+  const { accessToken } = useAuth();
   const { width } = useWindowDimensions();
   const { id } = useLocalSearchParams<{ id?: string }>();
   const demoPlace = id && id in PLACES ? PLACES[id as keyof typeof PLACES] : null;
@@ -86,7 +83,7 @@ export default function Place() {
   useEffect(() => {
     if (!resolved) return;
     let active = true;
-    void listAvailableMapApps({ name: resolved.title }).then((apps) => { if (active) setMapApps(apps); });
+    void listAvailableMapApps({ name: resolved.title, latitude: resolved.apiPlace?.lat, longitude: resolved.apiPlace?.lng }).then((apps) => { if (active) setMapApps(apps); });
     return () => { active = false; };
   }, [resolved]);
 
@@ -117,6 +114,14 @@ export default function Place() {
     await AsyncStorage.setItem(SAVED_PLACES_KEY, JSON.stringify(nextIds));
     setIsSaved(nextSaved);
     setFeedback(nextSaved ? tx('내 여행 후보에 저장했어요.', 'Saved to your trip candidates.') : tx('저장을 해제했어요.', 'Removed from saved.'));
+    // 저장할 때만 보낸다. 해제는 "싫다" 가 아니라 "취소" 다.
+    //
+    // 🔴 목업 장소면 보내지 않는다 (2026-09-10). 이 화면은 id 가 DEMO_PLACES 에 있으면
+    //    그 고정 데이터를 보여준다(위 demoPlace). 그때의 id 는 서버 장소 번호가 아니라
+    //    화면용 이름표라, 보내면 **없는 장소에 붙은 place_like** 가 서버에 쌓인다.
+    //    서버는 장소 번호의 실재를 검사하지 않으므로 조용히 들어가고, 나중에 못 골라낸다.
+    //    목업이 걷히면 demoPlace 가 언제나 null 이 되어 이 조건은 저절로 사라진다.
+    if (nextSaved && !demoPlace) sendAppEvent({ type: 'place_like', accessToken, payload: { place_id: id, surface: 'place_detail' } });
   };
 
   const notFound = !demoPlace && remote.status === 'not-found';
@@ -174,9 +179,21 @@ export default function Place() {
             </View>
           </View>
         )}
+        {resolved.apiPlace && (formatFeatureSlot(resolved.apiPlace.openingHours, tx) || formatFeatureSlot(resolved.apiPlace.priceLevel, tx)) ? (
+          <View style={styles.infoRows}>
+            {formatFeatureSlot(resolved.apiPlace.openingHours, tx) ? <View style={styles.infoRow}><Text variant="caption" weight="bold" color={color.text.muted}>{tx('영업시간', 'Hours')}</Text><Text variant="body">{formatFeatureSlot(resolved.apiPlace.openingHours, tx)}</Text></View> : null}
+            {formatFeatureSlot(resolved.apiPlace.priceLevel, tx) ? <View style={styles.infoRow}><Text variant="caption" weight="bold" color={color.text.muted}>{tx('가격대', 'Price level')}</Text><Text variant="body">{formatFeatureSlot(resolved.apiPlace.priceLevel, tx)}</Text></View> : null}
+          </View>
+        ) : null}
+        {resolved.apiPlace && needsFoodSafetyCheck(resolved.apiPlace) ? (
+          <View style={styles.safetyNotice} accessibilityRole="alert">
+            <Text variant="caption" weight="bold" color={color.state.danger}>{tx('확인 필요', 'Needs confirmation')}</Text>
+            <Text color={color.text.body}>{tx('알레르기·식단 정보가 없어 주문 전 확인이 필요합니다.', 'Allergy and dietary information is not available for this place — please check before ordering.')}</Text>
+          </View>
+        ) : null}
         <View style={styles.notice} accessibilityLiveRegion="polite">
           <Text variant="title" weight="bold">{tx('상세 정보를 준비하고 있어요', 'Details are on the way')}</Text>
-          <Text color={color.text.body} style={styles.noticeCopy}>{tx('운영시간·접근성·혼잡도·리뷰는 실제 장소 조회 API가 연결된 뒤 표시합니다. 확인되지 않은 정보는 임의로 보여드리지 않아요.', 'Hours, accessibility, crowd levels, and reviews will show once the real place lookup API is connected. We never show unverified information.')}</Text>
+          <Text color={color.text.body} style={styles.noticeCopy}>{tx('접근성·혼잡도·리뷰는 실제 장소 조회 API가 연결된 뒤 표시합니다. 확인되지 않은 정보는 임의로 보여드리지 않아요.', 'Accessibility, crowd levels, and reviews will show once the real place lookup API is connected. We never show unverified information.')}</Text>
         </View>
         <View style={styles.actions}>
           <Button label={isSaved ? tx('내 여행 후보에서 빼기', 'Remove from candidates') : tx('내 여행 후보에 저장', 'Save to candidates')} variant="ghost" onPress={() => void toggleSaved()} />
@@ -221,7 +238,10 @@ const styles = StyleSheet.create({
   heroCopy: { gap: spacing[1], padding: spacing[4] },
   scoreBadge: { alignSelf: 'flex-start', marginTop: spacing[2], borderRadius: radius.full, paddingHorizontal: spacing[3], paddingVertical: spacing[1], backgroundColor: 'rgba(255,255,255,0.18)' },
   photoCredit: { marginTop: spacing[1], opacity: 0.8 },
-  notice: { gap: spacing[3], marginTop: spacing[4], padding: spacing[4], borderWidth: 1, borderColor: '#eee5da', borderRadius: radius.lg, backgroundColor: color.surface.card },
+  infoRows: { marginTop: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card, overflow: 'hidden' },
+  infoRow: { minHeight: 52, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[3], paddingHorizontal: spacing[4], borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: color.surface.border },
+  safetyNotice: { gap: spacing[1], marginTop: spacing[4], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.state.dangerBg },
+  notice: { gap: spacing[3], marginTop: spacing[4], padding: spacing[4], borderWidth: 1, borderColor: color.surface.border, borderRadius: radius.lg, backgroundColor: color.surface.card },
   noticeCopy: { lineHeight: 22 },
   actions: { gap: spacing[3], marginTop: spacing[4] },
   feedback: { textAlign: 'center' },

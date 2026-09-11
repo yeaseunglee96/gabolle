@@ -4,6 +4,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Button } from '@/components/Button';
 import { BrandLogoLink } from '@/components/BrandLogoLink';
 import { useAuth } from '@/auth/AuthProvider';
+import { subscribeApiAvailability } from '@/api/client';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
@@ -34,6 +35,8 @@ function Section({ title, path, hard, children }: { title: string; path: '/plan/
 
 export default function Confirm() {
   const router = useRouter(); const { preview } = useLocalSearchParams<{ preview?: string }>(); const { kind } = useLayout(); const { tx, locale } = useI18n(); const { user, accessToken, ready: authReady } = useAuth(); const { draft, basicComplete } = usePlan(); const [job, setJob] = useState<RecommendationJobSnapshot | null>(preview === 'api-error' ? { state: 'unavailable', jobId: null, progress: null, stage: null, canCancel: false, errorMessage: tx('여행 생성 서버 연결을 확인하고 있어요. 잠시 후 다시 시도해 주세요.', 'Checking the itinerary server connection. Please try again shortly.'), resultRef: null } : null);
+  const [apiUnavailable, setApiUnavailable] = useState(false);
+  useEffect(() => subscribeApiAvailability(setApiUnavailable), []);
   useEffect(() => { if (!basicComplete && preview !== 'api-error') router.replace('/plan/basic'); }, [basicComplete, preview, router]);
   const allergy = draft.allergyStatus === 'UNKNOWN' ? tx('미확인', 'Unconfirmed') : draft.allergyStatus === 'NONE' ? tx('해당 없음', 'None') : names(tx, draft.allergies);
   const diet = draft.dietStatus === 'UNKNOWN' ? tx('미확인', 'Unconfirmed') : draft.dietStatus === 'NONE' ? tx('해당 없음', 'None') : names(tx, draft.dietTypes);
@@ -54,7 +57,7 @@ export default function Confirm() {
     <View style={styles.notice}><Text variant="caption" color={color.text.body}>{tx('장소 운영시간·접근성·혼잡도는 최신 정보가 아닐 수 있어요. 최종 방문 전 공식 정보를 확인해 주세요.', 'Hours, accessibility, and crowd data may change. Check official information before visiting.')}</Text></View>
     <View style={styles.nextSteps}><Text weight="bold">{tx('이후 진행 단계', 'What happens next')}</Text><Text variant="caption" color={color.text.body}>{tx('조건 검토 → 추천 장소 구성 → 이동 동선 확인 → 일정 완성', 'Review constraints → Build recommendations → Check routes → Complete itinerary')}</Text></View>
     {job?.errorMessage && <View style={styles.unavailable}><Text accessibilityRole="alert" variant="caption" style={styles.generateNotice}>{job.errorMessage}</Text><Text variant="caption" color={color.text.body}>{tx('입력한 조건은 그대로 보관돼요. 서버가 준비되면 아래 버튼으로 다시 요청할 수 있어요.', 'Your choices are preserved. Retry below when the server is ready.')}</Text><Button accessibilityRole="button" label={tx('조건 다시 확인', 'Review constraints')} variant="ghost" onPress={() => router.push('/plan/conditions')} /></View>}
-    <Button accessibilityRole="button" accessibilityState={{ disabled: !basicComplete || hardUnknown || !authReady, busy: job?.state === 'submitting' }} accessibilityHint={hardUnknown ? tx('미확인 제약 조건을 먼저 확인해 주세요.', 'Please review the unanswered constraints first.') : user ? tx('일정 생성을 요청합니다.', 'Requests itinerary generation.') : tx('로그인 후 입력한 조건으로 일정 생성을 계속합니다.', 'Sign in to continue generating your itinerary with these choices.')} label={!authReady ? tx('로그인 상태 확인 중…', 'Checking sign-in status…') : job?.state === 'submitting' ? tx('요청 중…', 'Requesting…') : user ? tx('이 조건으로 일정 만들기', 'Create itinerary with these choices') : tx('로그인하고 일정 만들기', 'Sign in and create itinerary')} disabled={!basicComplete || hardUnknown || !authReady || job?.state === 'submitting'} containerStyle={styles.cta} onPress={async () => {
+    <Button accessibilityRole="button" accessibilityState={{ disabled: !basicComplete || hardUnknown || !authReady || apiUnavailable, busy: job?.state === 'submitting' }} accessibilityHint={apiUnavailable ? tx('서버 연결을 확인하고 있어요. 잠시 후 다시 시도해 주세요.', 'Checking the server connection. Please try again shortly.') : hardUnknown ? tx('미확인 제약 조건을 먼저 확인해 주세요.', 'Please review the unanswered constraints first.') : user ? tx('일정 생성을 요청합니다.', 'Requests itinerary generation.') : tx('로그인 후 입력한 조건으로 일정 생성을 계속합니다.', 'Sign in to continue generating your itinerary with these choices.')} label={!authReady ? tx('로그인 상태 확인 중…', 'Checking sign-in status…') : job?.state === 'submitting' ? tx('요청 중…', 'Requesting…') : user ? tx('이 조건으로 일정 만들기', 'Create itinerary with these choices') : tx('로그인하고 일정 만들기', 'Sign in and create itinerary')} disabled={!basicComplete || hardUnknown || !authReady || apiUnavailable || job?.state === 'submitting'} containerStyle={styles.cta} onPress={async () => {
       if (!user) { router.push({ pathname: '/sign-in', params: { returnTo: '/plan/confirm' } }); return; }
       setJob({ state: 'submitting', jobId: null, progress: null, stage: null, canCancel: false, errorMessage: null, resultRef: null });
       const next = await createRecommendationJobAdapter(accessToken).submit(draft);

@@ -46,3 +46,7 @@ yarn-error.*
 *.apk
 *.aab
 *.ipa
+
+# Playwright (S15P21E201-775) — 실행 결과물. trace.zip·스크린샷은 CI 아티팩트로만 남긴다.
+/test-results/
+/playwright-report/

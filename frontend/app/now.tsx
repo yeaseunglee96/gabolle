@@ -2,7 +2,7 @@
 // 기기 위치와 직접 입력을 항상 함께 보여준다. 추천 API(FR-REC-10)가 아직 없으므로 가짜 후보를 만들지 않고
 // '연결 전' 상태를 그대로 보여준다.
 import { useState } from 'react';
-import { Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { Linking, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import * as Location from 'expo-location';
 import { useRouter } from 'expo-router';
 
@@ -15,6 +15,10 @@ import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { idleNowResult, requestNowRecommendations, type NowCandidate, type NowViewModel } from '@/plan/nowRecommendations';
 
+function isSampleCandidate(candidate: NowCandidate): boolean {
+  return 'isSample' in candidate;
+}
+
 const REMAINING_OPTIONS = [30, 60, 90, 120, 180] as const;
 
 type LocationState = 'idle' | 'detecting' | 'granted' | 'denied';
@@ -26,6 +30,7 @@ function CandidateCard({ candidate, onOpen }: { candidate: NowCandidate; onOpen:
     <View style={styles.card}>
       <View style={styles.cardTop}>
         <Text variant="title" weight="bold" style={styles.grow}>{candidate.name}</Text>
+        {isSampleCandidate(candidate) && <View style={styles.sampleChip}><Text variant="caption" weight="bold">{tx('샘플', 'Sample')}</Text></View>}
         <View style={styles.statusChip}><Text variant="caption" weight="bold">{STATUS_LABEL[candidate.dataStatus]}</Text></View>
       </View>
       <Text variant="body" color={color.text.body}>{tx(`이동 ${candidate.travelMinutes}분`, `${candidate.travelMinutes} min away`)}</Text>
@@ -110,7 +115,12 @@ export default function Now() {
               containerStyle={styles.locationButton}
             />
             {locationState === 'denied' && (
-              <Text variant="caption" color={color.state.danger}>{tx('위치 권한이 꺼져 있어요. 출발 위치를 직접 입력해 주세요.', 'Location permission is off. Please enter your starting point manually.')}</Text>
+              <View style={styles.deniedRow}>
+                <Text variant="caption" color={color.state.danger} style={styles.deniedText}>{tx('위치 권한이 필요합니다. 아래에 직접 입력하거나 설정에서 허용해 주세요.', 'Permission needed. Enter your starting point below, or allow it in settings.')}</Text>
+                <Pressable accessibilityRole="button" onPress={() => void Linking.openSettings()} style={styles.settingsLink}>
+                  <Text variant="caption" weight="bold" color={color.text.accent}>{tx('설정 열기 ›', 'Open settings ›')}</Text>
+                </Pressable>
+              </View>
             )}
             <TextInput
               value={manualLocation}
@@ -154,9 +164,6 @@ export default function Now() {
           ))}
         </View>
       )}
-      {result.state === 'unavailable' && (
-        <View style={styles.stateCard}><Text variant="title" weight="bold">{tx('아직 연결되지 않았어요', 'Not connected yet')}</Text><Text color={color.text.body}>{result.message}</Text></View>
-      )}
       {(result.state === 'error' || result.state === 'offline') && (
         <View style={styles.stateCard}>
           <Text variant="title" weight="bold">{result.state === 'offline' ? tx('인터넷 연결을 확인해 주세요', 'Please check your internet connection') : tx('지금 갈 곳을 찾지 못했어요', 'Could not find a place to go now')}</Text>
@@ -188,6 +195,9 @@ const styles = StyleSheet.create({
   intro: { marginTop: spacing[2], marginBottom: spacing[4] },
   section: { gap: spacing[2], marginBottom: spacing[4] },
   locationButton: { marginTop: spacing[1] },
+  deniedRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
+  deniedText: { flex: 1 },
+  settingsLink: { minHeight: 32, justifyContent: 'center' },
   locationDone: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 44, paddingHorizontal: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.field },
   input: { minHeight: 48, marginTop: spacing[1], paddingHorizontal: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.field, color: color.text.heading },
   chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] },
@@ -201,6 +211,7 @@ const styles = StyleSheet.create({
   cardTop: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
   grow: { flex: 1 },
   statusChip: { paddingHorizontal: spacing[2], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: color.surface.soft },
+  sampleChip: { paddingHorizontal: spacing[2], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: color.surface.tint },
   tags: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[1] },
   tag: { paddingHorizontal: spacing[2], paddingVertical: spacing[1], borderRadius: radius.sm, backgroundColor: color.surface.tint },
   detailLink: { minHeight: 32, justifyContent: 'center' },

@@ -36,17 +36,22 @@ export type MapPointLayer = { id: string; label: string; color: string; stops: M
 //    (points 를 안 넘기는 호출부에서 실측 — S15P21E201-435).
 const NO_POINT_LAYERS: MapPointLayer[] = [];
 
+export type CurrentLocation = { latitude: number; longitude: number };
+
 type RouteMapProps = {
   stops: MapStop[];
   selectedId: string;
   onSelect: (id: string) => void;
   routes?: MapRouteLayer[];
   points?: MapPointLayer[];
+  /** 위치 권한을 허용했을 때만 준다(S15P21E201-214). 없으면 점을 그리지 않는다 — 거부해도
+   *  경로·안내는 그대로 보여야 하므로, 이 지도는 이 값이 없다고 오류로 취급하지 않는다. */
+  currentLocation?: CurrentLocation | null;
   onBackToList?: () => void;
   height?: number;
 };
 
-export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POINT_LAYERS, onBackToList, height = 340 }: RouteMapProps) {
+export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POINT_LAYERS, currentLocation, onBackToList, height = 340 }: RouteMapProps) {
   const { tx } = useI18n();
   const hostRef = useRef<HTMLElement | null>(null);
   const mapRef = useRef<any>(null);
@@ -98,13 +103,31 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
           const content = document.createElement('button');
           const pointLayer = points.find((layer) => layer.stops.some((item) => item.id === stop.id));
           const markerColor = pointLayer?.color ?? color.brand.navy;
-          content.type = 'button'; content.textContent = pointLayer ? pointLayer.label : String(stop.number);
+          content.type = 'button';
           content.setAttribute('aria-label', pointLayer ? `${pointLayer.label} ${stop.name}` : tx(`${stop.number}번 ${stop.name}`, `Stop ${stop.number} ${stop.name}`));
-          Object.assign(content.style, { minWidth: '34px', height: '34px', padding: '0 8px', borderRadius: '999px', border: `3px solid ${stop.id === selectedId ? color.brand.orange : markerColor}`, background: color.canvas, color: markerColor, fontWeight: '700', cursor: 'pointer', boxShadow: '0 4px 12px rgba(11,29,58,.18)' });
+          if (stop.imageUrl) {
+            const img = document.createElement('img');
+            img.src = stop.imageUrl;
+            img.alt = '';
+            Object.assign(img.style, { width: '100%', height: '100%', objectFit: 'cover', borderRadius: '999px' });
+            content.appendChild(img);
+            Object.assign(content.style, { width: '40px', height: '40px', padding: '0', overflow: 'hidden', borderRadius: '999px', border: `3px solid ${stop.id === selectedId ? color.brand.orange : markerColor}`, background: color.canvas, cursor: 'pointer', boxShadow: '0 4px 12px rgba(11,29,58,.18)' });
+          } else {
+            content.textContent = pointLayer ? pointLayer.label : String(stop.number);
+            Object.assign(content.style, { minWidth: '34px', height: '34px', padding: '0 8px', borderRadius: '999px', border: `3px solid ${stop.id === selectedId ? color.brand.orange : markerColor}`, background: color.canvas, color: markerColor, fontWeight: '700', cursor: 'pointer', boxShadow: '0 4px 12px rgba(11,29,58,.18)' });
+          }
           content.onclick = () => onSelect(stop.id);
           const overlay = new maps.CustomOverlay({ position, content, yAnchor: 0.5 });
           overlay.setMap(map); overlaysRef.current.push(overlay);
         });
+        if (currentLocation) {
+          const position = new maps.LatLng(currentLocation.latitude, currentLocation.longitude);
+          const content = document.createElement('div');
+          content.setAttribute('aria-label', tx('현재 위치', 'Your current location'));
+          Object.assign(content.style, { width: '18px', height: '18px', borderRadius: '999px', border: `3px solid ${color.canvas}`, background: color.brand.navy, boxShadow: '0 0 0 2px rgba(11,29,58,.35), 0 4px 10px rgba(11,29,58,.28)' });
+          const overlay = new maps.CustomOverlay({ position, content, yAnchor: 0.5 });
+          overlay.setMap(map); overlaysRef.current.push(overlay);
+        }
         (routes ?? [{ id: 'selected', color: color.brand.orange, stops }]).forEach((route) => {
           const path = route.stops.map((stop) => new maps.LatLng(stop.latitude, stop.longitude));
           const line = new maps.Polyline({ path, strokeWeight: 5, strokeColor: route.color, strokeOpacity: 0.9, strokeStyle: 'solid' });
@@ -156,7 +179,7 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
       script.removeEventListener('load', draw);
       script.removeEventListener('error', onError);
     };
-  }, [appKey, onSelect, points, routes, selectedId, stops]);
+  }, [appKey, currentLocation, onSelect, points, routes, selectedId, stops]);
 
   if (Platform.OS === 'web') {
     return (

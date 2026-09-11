@@ -1,12 +1,15 @@
-import { useMemo, useState } from 'react';
+import { useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { understandAssistantMessage, type AssistantAction } from '@/assistant/intent';
+import { askAssistant } from '@/assistant/assistantApi';
+import { useAuth } from '@/auth/AuthProvider';
 import { Button } from '@/components/Button';
 import { GabolleMascot } from '@/components/DongbaekMascot';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
+import { Eyebrow } from '@/components/Eyebrow';
 import { color, radius, spacing } from '@/design/tokens';
 import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
@@ -17,14 +20,19 @@ type Message = { id: number; role: 'user' | 'assistant'; text: string; action?: 
 // 🔴 아래 예시 문구는 한국어 입력만 인식하는 이해 로직(src/assistant/intent.ts)에 맞춘 것이다.
 // 영어로 바꾸면 그 매처가 알아듣지 못해 기능이 깨지므로, 영어 모드에서도 예시는 한국어로 남긴다.
 const SUGGESTIONS = ['해운대와 광안리 2명 맛집 일정 짜줘', '사진 부탁할 때 한국어 문장 알려줘', '메뉴판 번역하고 싶어'];
+// 은행 앱 챗봇처럼 "대화 없이 바로 실행" 목록을 넓혔다 — 사용자가 직접 요청한 방향
+// (자유 대화보다 우리 기능으로 바로 연결)이라 실제로 동작하는 화면만 올린다.
 const QUICK_TOOLS = [
   { labelKo: '일정 만들기', labelEn: 'Plan a trip', hintKo: '대화 조건 적용', hintEn: 'Applies chat conditions', href: '/plan/basic' },
-  { labelKo: '현장 말하기', labelEn: 'On-the-go phrases', hintKo: '문장 크게 보기·음성', hintEn: 'Large text · voice', href: '/field/speak' },
-  { labelKo: '메뉴판 번역', labelEn: 'Menu translation', hintKo: '카메라 번역 준비 중', hintEn: 'Camera translation coming soon', href: '/field/translate' },
+  { labelKo: '현장 도구', labelEn: 'On-the-go tools', hintKo: '현장 말하기·메뉴판 번역', hintEn: 'On-the-go phrases · menu translation', href: '/field/translate' },
+  { labelKo: '내 여행 보기', labelEn: 'View my trips', hintKo: '저장한 일정 열기', hintEn: 'Open your saved itineraries', href: '/trips' },
+  { labelKo: '지금 갈 곳 찾기', labelEn: 'Find places to go now', hintKo: '남는 시간에 바로', hintEn: 'Right now, right nearby', href: '/now' },
+  { labelKo: '부산 축제 보기', labelEn: 'See Busan festivals', hintKo: '내 날짜에 열리는 것만', hintEn: 'Only ones on your dates', href: '/festivals' },
 ] as const;
 
 export default function Chat() {
   const router = useRouter(); const { update } = usePlan();
+  const { accessToken } = useAuth();
   const { width } = useLayout();
   const { tx } = useI18n();
   const desktop = isAtLeast(width, 'md');
@@ -32,8 +40,25 @@ export default function Chat() {
   // 인사말은 언어 환경설정이 뒤늦게 준비돼도 반영돼야 해서 state 초깃값(마운트 시 한 번만 평가됨)에
   // 넣지 않고, 렌더마다 tx() 로 새로 계산해 목록 앞에 붙인다.
   const [messages, setMessages] = useState<Message[]>([]);
-  const nextId = useMemo(() => (messages.length ? Math.max(...messages.map((message) => message.id)) : 0) + 1, [messages]);
-  function send(value = input) { const content = value.trim(); if (!content) return; const action = understandAssistantMessage(content); setMessages((current) => [...current, { id: nextId, role: 'user', text: content }, { id: nextId + 1, role: 'assistant', text: action.reply, action }]); setInput(''); }
+  // 🔴 id 발급을 ref 카운터로 둔다 — 서버 호출이 비동기라 연속으로 빠르게 보내면 messages
+  // state 가 아직 안 바뀐 사이에 다음 send() 가 같은 id를 다시 계산할 수 있다(state 파생값은
+  // 렌더 지연을 겪는다). 카운터는 그 지연과 무관하게 그 자리에서 바로 늘어난다.
+  const nextIdRef = useRef(1);
+  // 🔴 로그인 전에는 서버(AUTHENTICATED_ONLY)를 아예 부르지 않고 로컬 규칙으로 바로 넘어간다 —
+  // 401 처리(토큰 갱신 시도 등)를 겪을 이유가 없다. 로그인 후에도 서버 호출이 실패하면
+  // (네트워크 문제 등) 같은 로컬 규칙으로 자연스럽게 넘어간다 — 사용자는 항상 답을 받는다.
+  async function send(value = input) {
+    const content = value.trim();
+    if (!content) return;
+    setInput('');
+    const userId = nextIdRef.current++;
+    const assistantId = nextIdRef.current++;
+    setMessages((current) => [...current, { id: userId, role: 'user', text: content }]);
+    const action = accessToken
+      ? await askAssistant(content, accessToken).catch(() => understandAssistantMessage(content))
+      : understandAssistantMessage(content);
+    setMessages((current) => [...current, { id: assistantId, role: 'assistant', text: action.reply, action }]);
+  }
   function applyPlan(id: number, action: Extract<AssistantAction, { kind: 'plan' }>) { update(action.patch); setMessages((current) => current.map((item) => item.id === id ? { ...item, applied: true } : item)); }
 
   const visibleTools = QUICK_TOOLS.slice(1);
@@ -45,7 +70,7 @@ export default function Chat() {
   return <Screen wide style={[styles.screen, desktop && styles.desktopScreen]}>
     <View style={[styles.header, desktop && styles.desktopHeader]}><View style={styles.identity}><GabolleMascot state="open" delay={180} style={desktop ? styles.desktopAvatar : styles.avatar} /><View><Text variant={desktop ? 'display' : 'title'} weight="bold">{tx('가볼래 AI', 'GABOLLE AI')}</Text><Text variant="caption" color={color.text.body}>{tx('앱 기능을 실행하는 부산 여행 도우미', 'A Busan travel assistant that runs app features for you')}</Text></View></View><Pressable accessibilityRole="button" accessibilityLabel={tx('채팅 닫기', 'Close chat')} onPress={() => router.canGoBack() ? router.back() : router.replace('/')} style={styles.close}><Text variant="title">×</Text></Pressable></View>
     <View style={[styles.workspace, desktop && styles.workspaceDesktop]}>
-      {desktop ? <View style={styles.sidebar}><Text variant="eyebrow" weight="bold" color={color.brand.orange}>TRAVEL TOOLS</Text><Text variant="title" weight="bold" color={color.text.onAction}>{tx('여행 중 필요한 기능을 바로 실행하세요', 'Run the features you need for your trip right away')}</Text><Text variant="body" color={color.text.onAction}>{tx('현장 문장은 크게 보거나 음성으로 듣고, 메뉴판 번역 도구도 바로 열 수 있어요.', 'View on-the-go phrases in large text or hear them aloud, and open the menu translation tool right away.')}</Text>{tools}</View> : null}
+      {desktop ? <View style={styles.sidebar}><Eyebrow>{tx('여행 도구', 'Travel tools')}</Eyebrow><Text variant="title" weight="bold" color={color.text.onAction}>{tx('여행 중 필요한 기능을 바로 실행하세요', 'Run the features you need for your trip right away')}</Text><Text variant="body" color={color.text.onAction}>{tx('현장 문장은 크게 보거나 음성으로 듣고, 메뉴판 번역 도구도 바로 열 수 있어요.', 'View on-the-go phrases in large text or hear them aloud, and open the menu translation tool right away.')}</Text>{tools}</View> : null}
       <View style={[styles.chatPanel, desktop && styles.chatPanelDesktop]}>
         <ScrollView style={styles.messages} contentContainerStyle={[styles.messageContent, desktop && styles.messageContentDesktop]} keyboardShouldPersistTaps="handled">
           <View style={[styles.bubble, desktop && styles.bubbleDesktop, styles.assistantBubble]}><Text color={color.text.heading}>{tx('안녕하세요! 부산 일정과 여행 중 필요한 말을 앱 기능으로 바로 도와드릴게요.', 'Hi! I can help with your Busan itinerary and useful phrases for your trip, right from the app.')}</Text></View>
@@ -69,6 +94,6 @@ const styles = StyleSheet.create({
   workspace: { flex: 1 }, workspaceDesktop: { flexDirection: 'row', gap: spacing[4], minHeight: 0 }, sidebar: { width: 290, gap: spacing[3], padding: spacing[6], borderRadius: radius.lg, backgroundColor: color.brand.navy }, chatPanel: { flex: 1, gap: spacing[3], minHeight: 0 }, chatPanelDesktop: { padding: spacing[4], borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.lg, backgroundColor: color.surface.card },
   messages: { flex: 1 }, messageContent: { gap: spacing[3], paddingVertical: spacing[3] }, messageContentDesktop: { paddingHorizontal: spacing[2] }, bubble: { maxWidth: '88%', padding: spacing[3], borderRadius: radius.lg, gap: spacing[3] }, bubbleDesktop: { maxWidth: '72%' }, userBubble: { alignSelf: 'flex-end', backgroundColor: color.brand.navy, borderBottomRightRadius: radius.sm }, assistantBubble: { alignSelf: 'flex-start', backgroundColor: color.surface.soft, borderBottomLeftRadius: radius.sm }, actionCard: { gap: spacing[2], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.card },
   suggestionSection: { gap: spacing[2] }, suggestions: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] }, suggestion: { minHeight: 48, maxWidth: '100%', justifyContent: 'center', paddingHorizontal: spacing[4], borderWidth: 1, borderColor: color.action.secondary, borderRadius: radius.full, backgroundColor: color.surface.card },
-  toolSection: { gap: spacing[3], padding: spacing[3], borderRadius: radius.lg, backgroundColor: color.surface.soft }, toolSectionDesktop: { marginTop: spacing[3], padding: 0, backgroundColor: 'transparent' }, sectionHeading: { gap: spacing[1] }, quickTools: { flexDirection: 'row', gap: spacing[2] }, quickToolsDesktop: { flexDirection: 'column' }, quickTool: { position: 'relative', flex: 1, minHeight: 72, justifyContent: 'center', gap: spacing[1], paddingLeft: spacing[3], paddingRight: spacing[6], borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.md, backgroundColor: color.surface.card }, quickToolDesktop: { flex: 0, minHeight: 76, paddingHorizontal: spacing[3] }, quickToolPressed: { opacity: 0.76, backgroundColor: color.state.warningBg }, toolArrow: { position: 'absolute', right: spacing[3] },
+  toolSection: { gap: spacing[3], padding: spacing[3], borderRadius: radius.lg, backgroundColor: color.surface.soft }, toolSectionDesktop: { marginTop: spacing[3], padding: 0, backgroundColor: 'transparent' }, sectionHeading: { gap: spacing[1] }, quickTools: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] }, quickToolsDesktop: { flexDirection: 'column', flexWrap: 'nowrap' }, quickTool: { position: 'relative', width: '47%', minHeight: 72, justifyContent: 'center', gap: spacing[1], paddingLeft: spacing[3], paddingRight: spacing[6], borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.md, backgroundColor: color.surface.card }, quickToolDesktop: { width: '100%', minHeight: 76, paddingHorizontal: spacing[3] }, quickToolPressed: { opacity: 0.76, backgroundColor: color.state.warningBg }, toolArrow: { position: 'absolute', right: spacing[3] },
   composer: { flexDirection: 'row', alignItems: 'flex-end', gap: spacing[2], padding: spacing[2], borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.lg, backgroundColor: color.surface.card }, input: { flex: 1, minHeight: 44, maxHeight: 112, paddingHorizontal: spacing[2], paddingVertical: spacing[2], color: color.text.heading, fontSize: 16 }, send: { width: 44, height: 44, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.brand.orange }, sendDisabled: { opacity: 0.4 }, disclaimer: { textAlign: 'center' },
 });

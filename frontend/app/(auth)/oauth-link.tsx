@@ -23,7 +23,7 @@ async function resolveDestination(returnTo?: string) {
   if (isSafeReturnPath(returnTo)) return returnTo;
   return (await consumePendingReturnTo()) ?? '/home';
 }
-const PROVIDER_LABEL: Record<OAuthProvider, string> = { google: 'Google', naver: 'Naver', kakao: 'Kakao' };
+const PROVIDER_LABEL: Record<OAuthProvider, string> = { google: 'Google', naver: 'Naver', kakao: 'Kakao', apple: 'Apple' };
 
 export default function OAuthLink() {
   const router = useRouter();

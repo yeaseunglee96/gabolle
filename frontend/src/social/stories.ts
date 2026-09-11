@@ -16,7 +16,10 @@ export type StoryDto = {
   author: { id: string; displayName: string };
   body: string;
   region?: string | null;
-  place?: { id: string; name: string } | null;
+  // lat·lng는 S15P21E201-829(추억 지도) 계약으로 /stories · /stories/{id} · 이 아래
+  // getTripStories 셋에 함께 붙었다(jaehyeon 님, 2026-09-11). 좌표 없는 장소는 null이다 —
+  // 마커를 안 찍으면 된다(지어내지 않는다).
+  place?: { id: string; name: string; lat: number | null; lng: number | null } | null;
   tripId?: string | null;
   images: Array<{ url: string; position: number }>;
   visibility: StoryVisibility;
@@ -197,6 +200,24 @@ export async function loadUserStories(userId: string, accessToken: string | null
     cacheStories(dto.items);
     return { state: 'success', items: dto.items, nextCursor: dto.nextCursor };
   } catch (error) {
+    return failure(error);
+  }
+}
+
+// jaehyeon 님 계약(S15P21E201-829, 2026-09-11): GET /api/v1/trips/{tripId}/stories.
+// 쓴 순서(created_at, 오래된 것부터)로 온다 — publishAt이 아니다(한 여행의 기록은
+// publishAt 기본값이 전부 "여행 종료 다음 날 0시"로 같아서 그걸로 정렬하면 순서가
+// 사실상 무작위가 된다). 이어 보기 칸이 없다 — 한 여행의 기록 수는 상한 200으로 한 번에
+// 온다. 참여자가 아니면 404 TRIP_NOT_FOUND(그 여행이 있는지조차 알려주지 않으려고 403이
+// 아니다), 기록이 없으면 404가 아니라 빈 items다.
+export type TripStoriesResult = { state: 'success'; items: StoryDto[] } | { state: 'not-found' } | FeedFailure;
+
+export async function getTripStories(tripId: string, accessToken: string | null): Promise<TripStoriesResult> {
+  try {
+    const dto = await apiRequest<{ items: StoryDto[] }>(`/api/v1/trips/${encodeURIComponent(tripId)}/stories`, { accessToken });
+    return { state: 'success', items: dto.items };
+  } catch (error) {
+    if (error instanceof ApiClientError && error.status === 404) return { state: 'not-found' };
     return failure(error);
   }
 }

@@ -4,10 +4,12 @@ import { useLocalSearchParams, useRouter, type Href } from 'expo-router';
 import { ApiClientError } from '@/api/client';
 import { useAuth } from '@/auth/AuthProvider';
 import { loginWithOAuth } from '@/auth/oauth';
+import { navigateAfterOAuthComplete } from '@/auth/oauthNavigation';
 import type { OAuthProvider } from '@/auth/authApi';
-import { consumePendingReturnTo, isSafeReturnPath, savePendingReturnTo } from '@/auth/pendingReturnTo';
+import { resolveDestination, savePendingReturnTo } from '@/auth/pendingReturnTo';
 import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
+import { Eyebrow } from '@/components/Eyebrow';
 import { Screen } from '@/components/Screen';
 import { SocialProviderIcon } from '@/components/SocialProviderIcon';
 import { Text } from '@/components/Text';
@@ -15,15 +17,6 @@ import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { useLayout } from '@/layout/useLayout';
 
-// URL 의 returnTo 가 있으면 그걸 쓰고, 없으면(회원가입 뒤 이메일 인증처럼 앱을 벗어났다
-// 돌아온 경우) 저장해 둔 값으로 대신한다 — pendingReturnTo.ts 참고.
-// 🔴 그 둘 다 없을 때의 기본값은 /home 이다. 로그인은 목적지가 아니라 수단이라 — 로그인
-// 자체가 하려던 일이 아니라면 방금 로그인한 사람에게 보여줄 화면은 홈이 맞다 (jaehyeon 님 제안).
-async function resolveDestination(returnTo?: string): Promise<Href> {
-  if (isSafeReturnPath(returnTo)) return returnTo as Href;
-  const pending = await consumePendingReturnTo();
-  return (pending ?? '/home') as Href;
-}
 // 🔴 401 을 password/social 로 나눠서 말한다. 소셜 버튼에는 애초에 비밀번호가 없으니
 // "비밀번호가 틀렸다" 는 말은 거짓이고, 이 문구 하나가 실제 사고를 가렸다 — 2026-09-07,
 // 백엔드의 challenge/refresh/logout 엔드포인트가 통째로 사라져 소셜 로그인이 전부 401을
@@ -48,35 +41,17 @@ export default function SignIn() {
   const [busy, setBusy] = useState(false); const [provider, setProvider] = useState<OAuthProvider | null>(null); const [feedback, setFeedback] = useState<{ danger: boolean; text: string } | null>(passwordReset === 'success' ? { danger: false, text: tx('비밀번호가 변경됐어요. 새 비밀번호로 로그인해 주세요.', 'Your password was changed. Sign in with your new password.') } : null);
   const eligible = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()) && password.length > 0;
   useEffect(() => { void savePendingReturnTo(returnTo); }, [returnTo]);
-  async function submit() { if (!eligible || busy || provider) return; setBusy(true); setFeedback(null); try { await signIn(email, password); router.replace(await resolveDestination(returnTo)); } catch (e) { setFeedback({ danger: true, text: errorMessage(e, tx, 'password') }); } finally { setBusy(false); } }
+  async function submit() { if (!eligible || busy || provider) return; setBusy(true); setFeedback(null); try { await signIn(email, password); router.replace((await resolveDestination(returnTo)) as Href); } catch (e) { setFeedback({ danger: true, text: errorMessage(e, tx, 'password') }); } finally { setBusy(false); } }
   async function social(next: OAuthProvider) {
     if (busy || provider) return;
     setProvider(next);
     setFeedback(null);
     try {
-      const result = await loginWithOAuth(next);
-      if (result.status === 'LOGGED_IN') {
-        await acceptTokens(result);
-        router.replace(await resolveDestination(returnTo));
-      } else if (result.status === 'SIGNUP_REQUIRED') {
-        router.push({
-          pathname: '/oauth-signup',
-          params: {
-            provider: next,
-            signupTicket: result.signupTicket,
-            email: result.prefill.email ?? '',
-            displayName: result.prefill.displayName,
-            language: result.prefill.language,
-            emailProvided: String(result.prefill.emailProvided),
-            ...(returnTo ? { returnTo } : {}),
-          },
-        });
-      } else {
-        router.push({
-          pathname: '/oauth-link',
-          params: { provider: result.provider, linkTicket: result.linkTicket, maskedEmail: result.maskedEmail, ...(returnTo ? { returnTo } : {}) },
-        });
-      }
+      // 웹에서는 loginWithOAuth가 현재 페이지를 제공자 화면으로 그대로 넘긴다
+      // (S15P21E201-830) — 이 아래는 실행되지 않고, 완료 뒤 분기는
+      // oauth/[provider]/callback.tsx가 같은 navigateAfterOAuthComplete로 이어받는다.
+      const result = await loginWithOAuth(next, returnTo);
+      await navigateAfterOAuthComplete({ result, provider: next, returnTo, router, acceptTokens });
     } catch (e) {
       setFeedback({ danger: true, text: errorMessage(e, tx, 'social') });
     } finally {
@@ -84,7 +59,7 @@ export default function SignIn() {
     }
   }
   return <Screen scroll wide style={styles.screen}><View style={[styles.loginLayout, kind === 'tablet' && styles.loginLayoutWide]}>
-      {kind === 'tablet' && <View style={styles.webIntro}><Text variant="eyebrow" weight="bold" color={color.brand.orange}>GABOLLE ACCOUNT</Text><Text variant="display" weight="bold" color={color.text.onAction} style={styles.webIntroTitle}>{tx('여행의 설렘은 그대로,\n일정은 안전하게', 'Keep the excitement,\nsave every plan.')}</Text><Text variant="body" color={color.text.onDarkMuted}>{tx('저장한 부산 여행과 동행자 일정을 어디서든 이어보세요.', 'Continue your saved Busan trips and shared plans anywhere.')}</Text></View>}
+      {kind === 'tablet' && <View style={styles.webIntro}><Eyebrow>{tx('가볼래 계정', 'GABOLLE Account')}</Eyebrow><Text variant="display" weight="bold" color={color.text.onAction} style={styles.webIntroTitle}>{tx('여행의 설렘은 그대로,\n일정은 안전하게', 'Keep the excitement,\nsave every plan.')}</Text><Text variant="body" color={color.text.onDarkMuted}>{tx('저장한 부산 여행과 동행자 일정을 어디서든 이어보세요.', 'Continue your saved Busan trips and shared plans anywhere.')}</Text></View>}
     <View style={styles.panel}>
     <Pressable accessibilityRole="link" accessibilityLabel={tx('GABOLLE 홈으로 이동', 'Go to the GABOLLE home')} onPress={() => router.replace(kind === 'phone' ? '/home' : '/')} style={({ pressed }) => [styles.logoLink, pressed && styles.pressed]}>
       <Image source={require('../../assets/brand/gabolle-logo-figma.png')} resizeMode="contain" accessibilityIgnoresInvertColors style={styles.logo} />
@@ -100,9 +75,13 @@ export default function SignIn() {
     </View>
     <View style={styles.divider}><View style={styles.line} /><Text variant="caption">{tx('또는', 'or')}</Text><View style={styles.line} /></View>
     <View style={styles.socials}>{([
+      // 외국인 관광객이 주 사용자라 계정 보유 가능성이 높은 순서로 둔다 — 구글·애플은
+      // 외국에서도 흔한 글로벌 계정, 카카오·네이버는 한국 전용 계정이라 관광객은
+      // 어차피 새로 만들어야 한다(둘 사이 순서는 무의미하니 그대로 카카오·네이버 순).
       { item: 'google', name: 'Google', backgroundColor: '#ffffff', textColor: '#202124', borderColor: '#dadce0' },
-      { item: 'naver', name: 'Naver', backgroundColor: '#03c75a', textColor: '#ffffff', borderColor: '#03c75a' },
+      { item: 'apple', name: 'Apple', backgroundColor: '#000000', textColor: '#ffffff', borderColor: '#000000' },
       { item: 'kakao', name: 'Kakao', backgroundColor: '#fee500', textColor: '#191919', borderColor: '#fee500' },
+      { item: 'naver', name: 'Naver', backgroundColor: '#03c75a', textColor: '#ffffff', borderColor: '#03c75a' },
     ] as const).map(({ item, name, backgroundColor, textColor, borderColor }) => { const action = tx(`${name}로 계속하기`, `Continue with ${name}`); return <Pressable key={item} accessibilityRole="button" accessibilityLabel={action} accessibilityState={{ disabled: busy || !!provider, busy: provider === item }} disabled={busy || !!provider} onPress={() => void social(item)} style={({ pressed }) => [styles.social, { backgroundColor, borderColor }, pressed && styles.pressed]}><View accessible={false} style={styles.socialContent}><View style={styles.socialMark}><SocialProviderIcon provider={item} /></View><Text weight="bold" color={textColor}>{provider === item ? tx('연결 중…', 'Connecting…') : action}</Text></View></Pressable>; })}</View>
     {provider && <ActivityIndicator accessibilityLabel={tx('소셜 로그인 처리 중', 'Processing social sign-in')} color={color.action.primary} />}
     <Pressable accessibilityRole="button" style={styles.guest} onPress={() => router.replace('/home')}><Text weight="bold" color={color.action.primary}>{tx('계정 없이 둘러보기', 'Explore without an account')}</Text></Pressable>

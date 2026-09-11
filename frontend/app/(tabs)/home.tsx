@@ -3,12 +3,15 @@ import { Image, ImageBackground, Pressable, ScrollView, StyleSheet, View } from 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Redirect, useRouter } from 'expo-router';
 
+import { sendAppEvent } from '@/analytics/appEvents';
+import { useAuth } from '@/auth/AuthProvider';
+import { getSpendProfile } from '@/onboarding/spendProfile';
 import { BrandLogoLink } from '@/components/BrandLogoLink';
 import { GabolleMascot } from '@/components/DongbaekMascot';
 import { Screen } from '@/components/Screen';
 import { TabBar } from '@/components/TabBar';
 import { Text } from '@/components/Text';
-import { color, gutter, radius, spacing } from '@/design/tokens';
+import { color, radius, spacing } from '@/design/tokens';
 import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
 import { useI18n } from '@/i18n';
@@ -18,6 +21,18 @@ const RECOMMENDATIONS = [
   { id: 'gwangalli', titleKo: '광안리 해수욕장', titleEn: 'Gwangalli Beach', descriptionKo: '야경과 함께하는 해변 산책', descriptionEn: 'A beach walk with a night view', image: require('../../assets/home/gwangalli.png') },
   { id: 'gamcheon', titleKo: '감천문화마을', titleEn: 'Gamcheon Culture Village', descriptionKo: '형형색색 감성 골목 여행', descriptionEn: 'A colorful, atmospheric alley trip', image: require('../../assets/home/gamcheon.png') },
 ] as const;
+
+/**
+ * 🔴 위 카드 셋은 **파일에 박혀 있다.** id 가 'haeundae' · 'gwangalli' · 'gamcheon' 이라는
+ *    화면용 이름표지 서버의 장소 번호가 아니다. 그래서 여기서 나가는 행동 기록은
+ *    **존재하지 않는 장소에 붙는다.** 빈 것은 비어 보이지만 틀린 것은 맞아 보인다 —
+ *    한 번 들어가면 나중에 그 줄만 골라낼 방법이 없다. 서버도 장소 번호의 실재를 검사하지 않는다.
+ *
+ * 🟢 홈 카드가 서버에서 오게 되면(추천 API 연결) **이 값을 false 로 바꾸는 것 하나로** 되살아난다.
+ *    저장 자체는 지금도 그대로 된다 — 기기에 남고 화면도 똑같이 반응한다. 기록만 안 간다.
+ */
+const HOME_CARDS_ARE_MOCK = true;
+
 const bellIcon = require('../../assets/icons/home/bell.png');
 const heartIcon = require('../../assets/icons/home/heart.png');
 const arrowLeftIcon = require('../../assets/icons/home/arrow-left.png');
@@ -54,6 +69,7 @@ function RecommendationCard({ item, index, liked, onToggleLike, desktop }: {
 export default function Home() {
   const router = useRouter();
   const { tx } = useI18n();
+  const { accessToken, ready } = useAuth();
   const { width } = useLayout();
   const desktop = isAtLeast(width, 'md');
   const [likedIds, setLikedIds] = useState<Set<string>>(new Set());
@@ -72,14 +88,37 @@ export default function Home() {
       }
     });
   }, []);
-  const toggleLike = (id: string) => setLikedIds((current) => {
-    const next = new Set(current);
-    const saved = !next.has(id);
+  // 온보딩 세 질문(S15P21E201-807) — 계정이 아직 한 번도 답한 적 없으면(UNKNOWN) 홈을
+  // 보여주기 전에 그 화면으로 보낸다. 로컬 플래그를 따로 두지 않고 서버 상태만 본다 —
+  // 여러 로그인 경로(이메일·구글·카카오·네이버)를 전부 건드리지 않고 이 한 곳에서만
+  // 게이트하기 위해서다. 이미 답했거나(SELECTED) 건너뛴 적 있으면(SKIPPED) 다시 안 보낸다.
+  useEffect(() => {
+    if (!ready || !accessToken) return;
+    let active = true;
+    void getSpendProfile(accessToken).then((result) => {
+      if (active && result.status === 'UNKNOWN') router.replace('/spend-profile');
+    }).catch(() => {
+      // 조회에 실패해도 홈은 그대로 보여준다 — 이 화면 하나 때문에 앱 전체가 막히면 안 된다.
+    });
+    return () => { active = false; };
+  }, [ready, accessToken, router]);
+  // 하트는 기기에만 남아 있었다. 이제 저장할 때 서버에도 신호를 보낸다.
+  //
+  // 🔴 저장을 해제한 것은 "싫다" 가 아니라 "취소" 다. 추천 화면의 제외 버튼과 달리 이 하트에는
+  //    싫다는 뜻이 없어서, 해제에는 아무 이벤트도 보내지 않는다 — 없는 뜻을 만들지 않는다.
+  // 🔴 화면은 전송을 기다리지 않는다. 하트는 누른 즉시 채워지고 이벤트는 뒤에서 간다.
+  // 🔴 여기 place_id 는 아직 홈 화면에 박아 둔 목업 값이다. 실제 추천이 붙으면 그대로 바뀐다.
+  // 🔴 전송을 setLikedIds 의 갱신 함수 안에서 하지 않는다. 그 함수는 React 가 두 번 부를 수
+  //    있고, 그러면 하트 한 번에 이벤트가 두 건 적힌다(eventId 가 매번 달라 중복으로도 안 걸린다).
+  const toggleLike = (id: string) => {
+    const saved = !likedIds.has(id);
+    const next = new Set(likedIds);
     saved ? next.add(id) : next.delete(id);
+    setLikedIds(next);
     void AsyncStorage.setItem(SAVED_PLACES_KEY, JSON.stringify([...next]));
     setSaveFeedback(saved ? tx('이 기기에 여행지를 저장했어요.', 'Saved this place on this device.') : tx('이 기기에서 저장을 해제했어요.', 'Unsaved this place on this device.'));
-    return next;
-  });
+    if (saved && !HOME_CARDS_ARE_MOCK) sendAppEvent({ type: 'place_like', accessToken, payload: { place_id: id, surface: 'home' } });
+  };
   const goToCard = (index: number) => {
     const next = Math.max(0, Math.min(RECOMMENDATIONS.length - 1, index));
     carouselRef.current?.scrollTo({ x: next * 312, animated: true });
@@ -91,6 +130,7 @@ export default function Home() {
   }
 
   return (
+    <View style={styles.shell}>
     <Screen wide style={styles.screenContent}>
       <View style={styles.header}>
         <BrandLogoLink href="/home" imageStyle={styles.logo} />
@@ -144,23 +184,27 @@ export default function Home() {
         {saveFeedback && <Pressable accessibilityRole="button" accessibilityLabel={tx('저장 안내 닫기', 'Dismiss save notice')} accessibilityLiveRegion="polite" onPress={() => setSaveFeedback(null)} style={styles.saveFeedback}><Text variant="caption" weight="bold" color={color.text.onAction}>{saveFeedback}</Text><Text variant="caption" color={color.text.onAction}>{tx('닫기', 'Dismiss')}</Text></Pressable>}
       </ScrollView>
 
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={tx('가볼래 여행 도우미 열기', 'Open GABOLLE travel assistant')}
-        accessibilityHint={tx('현재 이용할 수 있는 여행 도움 기능을 확인합니다', 'Check the travel help features available right now')}
-        onPress={() => router.push('/chat')}
-        style={({ pressed }) => [styles.assistantButton, pressed && styles.assistantButtonPressed]}
-      >
-        <View style={styles.assistantLabel}><Text variant="caption" weight="bold" color={color.text.heading}>{tx('도움이 필요해?', 'Need help?')}</Text></View>
-        <GabolleMascot state="idle" style={styles.assistantMascot} />
-      </Pressable>
-
-      <View style={styles.tabBar}><TabBar active="home" /></View>
+      <View style={styles.floatingStack}>
+        <Pressable accessibilityRole="button" accessibilityLabel={tx('현장 도구 열기', 'Open on-the-go tools')} accessibilityHint={tx('현장 말하기와 메뉴판 번역을 한곳에서 씁니다', 'Use on-the-go phrases and menu translation in one place')} onPress={() => router.push('/field/translate')} style={({ pressed }) => [styles.floatingChip, pressed && styles.assistantButtonPressed]}><Text variant="caption" weight="bold" color={color.text.heading}>{tx('현장 도구', 'On-the-go tools')}</Text></Pressable>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={tx('가볼래 여행 도우미 열기', 'Open GABOLLE travel assistant')}
+          accessibilityHint={tx('현재 이용할 수 있는 여행 도움 기능을 확인합니다', 'Check the travel help features available right now')}
+          onPress={() => router.push('/chat')}
+          style={({ pressed }) => [styles.assistantButton, pressed && styles.assistantButtonPressed]}
+        >
+          <View style={styles.assistantLabel}><Text variant="caption" weight="bold" color={color.text.heading}>{tx('도움이 필요해?', 'Need help?')}</Text></View>
+          <GabolleMascot state="idle" style={styles.assistantMascot} />
+        </Pressable>
+      </View>
     </Screen>
+    <TabBar active="home" />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  shell: { flex: 1, backgroundColor: color.canvas },
   screenContent: { paddingTop: spacing[2], paddingBottom: spacing[3] },
   header: { minHeight: 52, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   logo: { width: 100, height: 22 },
@@ -193,9 +237,13 @@ const styles = StyleSheet.create({
   carouselButton: { width: 36, height: 36, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.card },
   carouselButtonDisabled: { opacity: 0.35 },
   saveFeedback: { minHeight: 44, marginHorizontal: spacing[2], marginTop: spacing[4], paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.brand.navy, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  assistantButton: { position: 'absolute', right: spacing[2], bottom: 94, minWidth: 44, minHeight: 44, flexDirection: 'row', alignItems: 'center', zIndex: 3 },
+  // 하단 탭 바로 위에 붙는 떠 있는 버튼 묶음 — 챗봇 하나였을 때는 bottom:94로 떨어뜨려
+  // 뒀었는데, 그 값이 탭바 높이를 감안 안 해서 화면 중간쯤에 떠 있었다(실기기 확인).
+  // 이제 탭바 바로 위(spacing[2])에 붙이고, 그 위로 자주 쓰는 현장 도구 두 개를 쌓는다.
+  floatingStack: { position: 'absolute', right: spacing[2], bottom: spacing[2], alignItems: 'flex-end', gap: spacing[2], zIndex: 3 },
+  floatingChip: { minHeight: 40, justifyContent: 'center', paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.field, shadowColor: color.brand.navy, shadowOpacity: 0.12, shadowRadius: 8, shadowOffset: { width: 0, height: 3 }, elevation: 3 },
+  assistantButton: { minWidth: 44, minHeight: 44, flexDirection: 'row', alignItems: 'center' },
   assistantButtonPressed: { opacity: 0.78, transform: [{ scale: 0.96 }] },
   assistantLabel: { marginRight: -spacing[2], paddingLeft: spacing[3], paddingRight: spacing[4], paddingVertical: spacing[2], borderRadius: radius.full, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.field, shadowColor: color.brand.navy, shadowOpacity: 0.12, shadowRadius: 8, shadowOffset: { width: 0, height: 3 }, elevation: 3 },
   assistantMascot: { width: 58, height: 58 },
-  tabBar: { marginHorizontal: -gutter, borderRadius: radius.lg, overflow: 'hidden' },
 });

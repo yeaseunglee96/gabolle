@@ -475,6 +475,32 @@ backend:dependency-scan:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
       changes: ['backend/**/*']
 
+# ── 프론트 단위·컴포넌트 테스트 (S15P21E201-774) ────────────────────────────
+#
+# jest-expo(Expo SDK에 맞춘 Jest 프리셋) + @testing-library/react-native.
+# frontend/src/plan 같은 순수 로직과, 표시용 컴포넌트 하나의 렌더링을 검사한다.
+#
+# 🔴 .ts(x) 변경에만 건다 — backend:build 와 달리 전체 frontend/**/* 가 아니다.
+#    설정 파일(app.json, eas.json 등)만 바뀌었을 때는 코드가 안 바뀌었으므로
+#    테스트 결과가 달라질 수 없다.
+frontend:unit:
+  stage: verify
+  variables:
+    npm_config_cache: $CI_PROJECT_DIR/.npm-cache
+  cache:
+    key:
+      files:
+        - frontend/package-lock.json
+    paths:
+      - .npm-cache
+  script:
+    - cd frontend
+    - npm ci --no-audit --no-fund
+    - npm test -- --ci
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes: ['frontend/**/*.ts', 'frontend/**/*.tsx']
+
 # ── 마이그레이션 버전이 거꾸로 가지 않는가 (S15P21E201-703) ────────────────────
 #
 # 🔴 2026-09-07 새벽 운영이 이걸로 두 번 죽었다. 새 마이그레이션 파일 번호가

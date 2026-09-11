@@ -7,6 +7,7 @@ import { BrandLogoLink } from '@/components/BrandLogoLink';
 import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
+import { Eyebrow } from '@/components/Eyebrow';
 import { color, radius, spacing } from '@/design/tokens';
 import { festivalDisplayTitle, getFestivals, type Festival } from '@/discovery/festivals';
 import { useI18n } from '@/i18n';
@@ -62,7 +63,7 @@ export default function Festivals() {
       <BrandLogoLink href="/home" imageStyle={styles.logo} />
       <View style={styles.spacer} />
     </View>
-    <View style={styles.heading}><Text variant="eyebrow" weight="bold">BUSAN FESTIVAL</Text><Text variant="display" weight="bold">{tx('여행 날짜에 열리는 축제', 'Festivals during your trip dates')}</Text><Text color={color.text.body}>{tx('선택한 기간에 실제로 열리는 축제만 보여드려요.', 'We only show festivals actually running in the period you pick.')}</Text></View>
+    <View style={styles.heading}><Eyebrow>{tx('부산 축제', 'Busan festival')}</Eyebrow><Text variant="display" weight="bold">{tx('여행 날짜에 열리는 축제', 'Festivals during your trip dates')}</Text><Text color={color.text.body}>{tx('선택한 기간에 실제로 열리는 축제만 보여드려요.', 'We only show festivals actually running in the period you pick.')}</Text></View>
 
     <View style={[styles.filterCard, isAtLeast(width, 'md') && styles.filterCardWide]}>
       <View style={styles.dateField}><Text variant="caption" weight="bold">{tx('시작일', 'Start date')}</Text><TextInput accessibilityLabel={tx('축제 조회 시작일', 'Festival search start date')} value={from} onChangeText={setFrom} placeholder="YYYY-MM-DD" maxLength={10} style={[styles.input, !dateValid && styles.inputError]} /></View>
@@ -78,9 +79,18 @@ export default function Festivals() {
     {state === 'loading' && <View accessibilityLiveRegion="polite" style={styles.stateCard}><Text variant="title" weight="bold">{tx('축제를 확인하고 있어요', 'Checking festivals')}</Text><Text color={color.text.body}>{tx('선택한 기간과 부산 지역을 기준으로 조회합니다.', 'Searching based on your selected period and the Busan area.')}</Text></View>}
     {state === 'error' && <View accessibilityRole="alert" style={styles.stateCard}><Text variant="title" weight="bold">{tx('불러오지 못했습니다', 'Could not load')}</Text><Text color={color.text.body}>{errorMessage}</Text><Button label={tx('다시 시도', 'Try again')} variant="ghost" onPress={() => void load()} /></View>}
     {state === 'ready' && sorted.length === 0 && <View style={styles.stateCard}><Text variant="title" weight="bold">{tx('이 기간에 열리는 축제가 없습니다', 'No festivals run during this period')}</Text><Text color={color.text.body}>{tx('날짜를 바꿔 다시 조회해 보세요. 기간과 무관한 축제는 대신 보여드리지 않아요.', "Try different dates. We don't show festivals outside the period instead.")}</Text></View>}
+    {state === 'ready' && sorted.length > 0 && sorted.some((festival) => 'isSample' in festival) && (
+      <View style={styles.sampleNotice}><Text variant="caption" weight="bold">{tx('축제 API 연동 전이라 예시 일정을 보여드려요. 실제 날짜와 다를 수 있어요.', "The festival API isn't connected yet, so these are example dates — actual dates may differ.")}</Text></View>
+    )}
     {state === 'ready' && sorted.length > 0 && <View style={styles.grid}>{sorted.map((festival) => <View key={festival.placeId} style={[styles.card, isAtLeast(width, 'md') && styles.cardWide]}>
       {festival.imageUrl ? <Image source={{ uri: festival.imageUrl }} resizeMode="cover" style={styles.image} /> : <View style={styles.imageFallback}><Text weight="bold" color={color.brand.orange}>GABOLLE</Text></View>}
-      <View style={styles.cardBody}><Text variant="caption" weight="bold" color={color.brand.orange}>{festival.startDate} — {festival.endDate}</Text><Text variant="title" weight="bold">{tx(festivalDisplayTitle(festival), festival.titleEn ?? festivalDisplayTitle(festival))}</Text><Text color={color.text.body}>{festival.address}</Text><Text variant="caption" color={color.text.muted}>{festival.admissionFee || tx('입장료 정보 확인 필요', 'Admission fee info not available yet')}</Text></View>
+      <View style={styles.cardBody}>
+        <View style={styles.cardTopRow}>
+          <Text variant="caption" weight="bold" color={color.brand.orange}>{festival.startDate} — {festival.endDate}</Text>
+          {'isSample' in festival && <View style={styles.sampleBadge}><Text variant="caption" weight="bold">{tx('샘플', 'Sample')}</Text></View>}
+        </View>
+        <Text variant="title" weight="bold">{tx(festivalDisplayTitle(festival), festival.titleEn ?? festivalDisplayTitle(festival))}</Text><Text color={color.text.body}>{festival.address}</Text><Text variant="caption" color={color.text.muted}>{festival.admissionFee || tx('입장료 정보 확인 필요', 'Admission fee info not available yet')}</Text>
+      </View>
     </View>)}</View>}
   </Screen>;
 }
@@ -95,5 +105,8 @@ const styles = StyleSheet.create({
   primaryAction: { backgroundColor: color.brand.navy },
   sortRow: { flexDirection: 'row', gap: spacing[2], marginVertical: spacing[4] }, sortButton: { minHeight: 40, justifyContent: 'center', paddingHorizontal: spacing[4], borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.full, backgroundColor: color.surface.card }, sortSelected: { borderColor: color.brand.orange, backgroundColor: color.brand.orange },
   stateCard: { gap: spacing[3], padding: spacing[6], borderRadius: radius.lg, backgroundColor: color.surface.card },
+  sampleNotice: { marginBottom: spacing[3], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.state.warningBg },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[4] }, card: { width: '100%', overflow: 'hidden', borderRadius: radius.lg, backgroundColor: color.surface.card }, cardWide: { width: '48%' }, image: { width: '100%', height: 180 }, imageFallback: { height: 180, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.tint }, cardBody: { gap: spacing[2], padding: spacing[4] },
+  cardTopRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  sampleBadge: { paddingHorizontal: spacing[2], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: color.surface.tint },
 });

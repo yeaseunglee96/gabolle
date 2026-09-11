@@ -21,6 +21,7 @@ export default function StoryDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const [state, setState] = useState<State>({ status: 'loading', cached: null });
   const [reporting, setReporting] = useState(false);
+  const [reported, setReported] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
@@ -41,6 +42,10 @@ export default function StoryDetail() {
   const submitReport = async (reason: StoryReportReason, detail: string | undefined) => {
     if (!id) return false;
     const outcome = await reportStory(id, reason, detail, accessToken);
+    // 신고 즉시 서버가 검토 대기로 옮겨 비노출한다 — 화면도 그 기록을 계속 보여주지 않고,
+    // 접수됐다는 안내로 바꾼다(완료 기준: "신고를 보내고 나면 그 기록이 화면에서 사라지고
+    // 접수됐다는 안내를 보여준다"). feed.tsx의 목록 제거와 같은 원칙이다.
+    if (outcome.state === 'success') setReported(true);
     return outcome.state === 'success';
   };
 
@@ -62,7 +67,15 @@ export default function StoryDetail() {
         <View accessibilityLiveRegion="polite" style={styles.notice}><ActivityIndicator color={color.brand.orange} /><Text color={color.text.body}>{tx('기록을 불러오고 있어요', 'Loading the record')}</Text></View>
       ) : null}
 
-      {story ? (
+      {reported ? (
+        <View style={styles.notice} accessibilityRole="alert" accessibilityLiveRegion="polite">
+          <Text variant="title" weight="bold">{tx('신고가 접수됐어요', 'Report submitted')}</Text>
+          <Text color={color.text.body}>{tx('신고한 기록은 더 이상 보이지 않아요. 24시간 안에 처리돼요.', 'This record is no longer shown to you. It will be reviewed within 24 hours.')}</Text>
+          <Button label={tx('피드로 돌아가기', 'Back to feed')} onPress={() => router.replace('/feed')} containerStyle={styles.recoveryButton} />
+        </View>
+      ) : null}
+
+      {story && !reported ? (
         <View style={styles.card}>
           <View style={styles.headerRow}>
             <Pressable accessibilityRole="link" accessibilityLabel={tx(`${story.author.displayName} 프로필 보기`, `View ${story.author.displayName}'s profile`)} onPress={() => router.push(`/user/${story.author.id}`)} style={styles.grow}>
@@ -95,6 +108,11 @@ export default function StoryDetail() {
           ) : null}
 
           <View style={styles.actionRow}>
+            {!confirmingDelete && (
+              <Pressable accessibilityRole="button" accessibilityLabel={tx('공동 작성자 보기', 'View co-authors')} onPress={() => router.push(`/feed/${story.id}/coauthors`)} style={styles.textAction}>
+                <Text variant="caption" weight="bold" color={color.text.accent}>{tx('공동 작성자', 'Co-authors')}</Text>
+              </Pressable>
+            )}
             {story.mine ? (
               confirmingDelete ? (
                 <View style={styles.confirmRow}>
@@ -142,7 +160,7 @@ export default function StoryDetail() {
 const styles = StyleSheet.create({
   back: { minHeight: 44, alignSelf: 'flex-start', justifyContent: 'center', marginBottom: spacing[3] },
   pressed: { opacity: 0.72 },
-  notice: { gap: spacing[3], marginTop: spacing[4], padding: spacing[4], borderWidth: 1, borderColor: '#eee5da', borderRadius: radius.lg, backgroundColor: color.surface.card, alignItems: 'center' },
+  notice: { gap: spacing[3], marginTop: spacing[4], padding: spacing[4], borderWidth: 1, borderColor: color.surface.border, borderRadius: radius.lg, backgroundColor: color.surface.card, alignItems: 'center' },
   card: { gap: spacing[3], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card },
   headerRow: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[2] },
   grow: { flex: 1, gap: spacing[1] },
@@ -151,7 +169,7 @@ const styles = StyleSheet.create({
   images: { gap: spacing[2] },
   image: { width: '100%', aspectRatio: 4 / 3, borderRadius: radius.md, backgroundColor: color.surface.soft },
   placeCard: { gap: spacing[1], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.tint },
-  actionRow: { flexDirection: 'row', justifyContent: 'flex-end' },
+  actionRow: { flexDirection: 'row', justifyContent: 'space-between' },
   textAction: { minHeight: 44, paddingHorizontal: spacing[2], alignItems: 'center', justifyContent: 'center' },
   confirmRow: { flex: 1, gap: spacing[2] },
   confirmText: { textAlign: 'right' },

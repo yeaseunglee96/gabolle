@@ -15,6 +15,9 @@
 //  - gabolle-naver-client-id  (Secret text)
 //  - gabolle-kakao-client-id  (Secret text)
 //    이 셋도 backend-deploy가 이미 쓰는 항목을 그대로 재사용한다 — 새로 만들 것 없음
+//  - gabolle-kakao-map-js-key (Secret text) — Kakao Maps JS SDK 키. gabolle-kakao-client-id
+//    (로그인용 REST API 키)와는 다른 값이다 — Kakao Developers 콘솔에서 "JavaScript 키"로
+//    따로 발급받아 새로 등록해야 한다.
 //
 // backend/Jenkinsfile(S15P21E201-575)과 같은 구조다. frontend는 Expo 웹 export를
 // nginx:alpine 으로 서빙하는 정적 이미지라 런타임 시크릿은 없다. 다만 빌드 시점에
@@ -65,13 +68,49 @@ pipeline {
             }
         }
 
+        // 🔴 S15P21E201-811 — disableConcurrentBuilds()(위 options)는 이 잡 혼자
+        //    중복 실행되는 것만 막는다. backend-deploy·frontend-deploy·
+        //    infra-personalization-deploy 세 잡은 서로 다른 잡이라 그걸로 안 막힌다.
+        //    실측(2026-09-10) — infra-personalization-deploy와 backend-deploy(JVM
+        //    콜드 부팅)가 동시에 돌면서 4코어 호스트 load average가 8.18까지 치솟았고,
+        //    그 여파로 airflow-api-server가 몇 분간 크래시루프했다.
+        //
+        //    Jenkins의 Lockable Resources 플러그인을 쓰지 않는다 — 이 서버에 설치돼
+        //    있는지 확인할 방법이 없었다(docs/SERVER-SETUP.md 5절에 명시적으로 설치를
+        //    적어 둔 플러그인은 Generic Webhook Trigger뿐이다). 대신 세 Jenkinsfile이
+        //    같은 잠금 디렉터리 이름을 쓰는 mkdir 기반 상호 배제를 쓴다 — mkdir은
+        //    POSIX에서 원자적이라(이미 있으면 실패) 플러그인 없이도 안전하다. 세
+        //    Jenkinsfile 다 agent any라 같은 Jenkins 컨테이너 안에서 도므로 파일
+        //    시스템을 공유한다.
+        stage('Wait for exclusive deploy slot') {
+            steps {
+                script {
+                    env.DEPLOY_LOCK_ACQUIRED = 'false'
+                    int waitedSec = 0
+                    int maxWaitSec = 1200 // 20분 — 못 얻으면 무한정 큐에 쌓이지 않고 실패시킨다
+                    while (sh(script: 'mkdir /tmp/gabolle-deploy.lock', returnStatus: true) != 0) {
+                        if (waitedSec >= maxWaitSec) {
+                            error('다른 배포 파이프라인이 20분 넘게 락을 안 놓았습니다 — /tmp/gabolle-deploy.lock 을 Jenkins 컨테이너 안에서 직접 확인하세요.')
+                        }
+                        sleep(10)
+                        waitedSec += 10
+                    }
+                    env.DEPLOY_LOCK_ACQUIRED = 'true'
+                }
+            }
+        }
+
         stage('Build Image') {
             steps {
                 dir('frontend') {
                     withCredentials([
                         string(credentialsId: 'gabolle-google-client-id', variable: 'GOOGLE_CLIENT_ID'),
                         string(credentialsId: 'gabolle-naver-client-id', variable: 'NAVER_CLIENT_ID'),
-                        string(credentialsId: 'gabolle-kakao-client-id', variable: 'KAKAO_CLIENT_ID')
+                        string(credentialsId: 'gabolle-kakao-client-id', variable: 'KAKAO_CLIENT_ID'),
+                        string(credentialsId: 'gabolle-kakao-map-js-key', variable: 'KAKAO_MAP_JS_KEY'),
+                        // 애플 로그인 Service ID. 백엔드가 쓰는 것과 같은 자격증명이다 — 비밀이 아니지만
+                        // 한 군데서만 관리하려고 같은 이름을 쓴다 (S15P21E201-825).
+                        string(credentialsId: 'gabolle-apple-client-id', variable: 'APPLE_CLIENT_ID')
                     ]) {
                         // 🔴 S15P21E201-575 후속(2026-09-09) — 예전에는 :latest 하나뿐이라
                         //    Health Check 가 실패해도 되돌릴 이전 이미지가 없었다(backend/Jenkinsfile
@@ -88,6 +127,8 @@ pipeline {
                                 --build-arg EXPO_PUBLIC_GOOGLE_CLIENT_ID="$GOOGLE_CLIENT_ID" \
                                 --build-arg EXPO_PUBLIC_NAVER_CLIENT_ID="$NAVER_CLIENT_ID" \
                                 --build-arg EXPO_PUBLIC_KAKAO_CLIENT_ID="$KAKAO_CLIENT_ID" \
+                                --build-arg EXPO_PUBLIC_APPLE_CLIENT_ID="$APPLE_CLIENT_ID" \
+                                --build-arg EXPO_PUBLIC_KAKAO_MAP_JS_KEY="$KAKAO_MAP_JS_KEY" \
                                 .
                         '''
                     }
@@ -99,11 +140,16 @@ pipeline {
             steps {
                 sh 'docker stop frontend || true'
                 sh 'docker rm frontend || true'
+                // 🔴 S15P21E201-798 (2026-09-10) — 21개 컨테이너 전부 cpus 상한이 없던
+                //    것 중 하나(고지혁 실측, S15P21E201-784/785). nginx:alpine 정적
+                //    서빙이라 backend 보다 훨씬 가볍게 잡는다.
                 sh '''
                     docker run -d --name frontend \
                         --restart unless-stopped \
                         --network local-route-personalization_data_net \
                         -p 3000:80 \
+                        --cpus="0.5" \
+                        --memory="128m" \
                         local-route-frontend:candidate
                 '''
             }
@@ -152,6 +198,8 @@ pipeline {
                                 --restart unless-stopped \
                                 --network local-route-personalization_data_net \
                                 -p 3000:80 \
+                                --cpus="0.5" \
+                                --memory="128m" \
                                 local-route-frontend:latest
                         '''
                         error 'Health check failed after retries — rolled back to local-route-frontend:latest (last verified build)'
@@ -162,6 +210,17 @@ pipeline {
     }
 
     post {
+        // 🔴 S15P21E201-811 — 위 "Wait for exclusive deploy slot"에서 실제로 잡은
+        //    락만 놓는다. 락을 기다리다 타임아웃으로 실패한 경우(env.DEPLOY_LOCK_ACQUIRED
+        //    가 'true'가 아님)까지 rmdir을 부르면, 그건 이 빌드가 잡은 락이 아니라
+        //    **다른 빌드가 지금 쓰고 있는 락**을 지우는 것이 된다 — 상호 배제가 깨진다.
+        always {
+            script {
+                if (env.DEPLOY_LOCK_ACQUIRED == 'true') {
+                    sh 'rmdir /tmp/gabolle-deploy.lock || true'
+                }
+            }
+        }
         success {
             script {
                 sendMMNotify(true, [
