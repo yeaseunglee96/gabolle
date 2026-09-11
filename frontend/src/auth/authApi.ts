@@ -126,6 +126,34 @@ export function completeOAuthLink(input: { linkTicket: string; password: string;
     method: 'POST', skipUnauthorizedHandling: true, body: input,
   });
 }
+
+// jaehyeon 님 계약(S15P21E201-690, 2026-09-11): POST /auth/oauth/{provider}/link.
+// completeOAuthLink(위)와 다르다 — 그건 로그인 전에 409를 받고 비밀번호로 붙이는 쪽이고,
+// 이건 이미 로그인한 계정에 소셜 신원을 직접 붙이는 쪽이다(설정 화면, S15P21E201-832).
+// 이메일을 전혀 안 보므로 애플·기본 동의 카카오처럼 이메일을 안 주는 제공자도 그대로 된다.
+// 같은 신원을 같은 계정에 다시 연결하면 alreadyLinked=true로 200(멱등)이고, 다른 계정에
+// 이미 붙어 있으면 409 OAUTH_IDENTITY_TAKEN이다 — 그건 오류로 던지지 않고 정상 결과로 접어
+// 넣는다(completeOAuth의 LINK_REQUIRED 처리와 같은 방식).
+export type OAuthIdentityLinkResult =
+  | { status: 'LINKED'; providerEmail: string | null; alreadyLinked: boolean }
+  | { status: 'TAKEN' };
+
+export async function linkOAuthAccount(
+  provider: OAuthProvider,
+  input: { authorizationCode: string; redirectUri: string; codeVerifier: string; state: string; nonce: string },
+  accessToken: string,
+): Promise<OAuthIdentityLinkResult> {
+  try {
+    const dto = await apiRequest<{ provider: OAuthProvider; providerEmail: string | null; linkedAt: string; alreadyLinked: boolean }>(
+      `/api/v1/auth/oauth/${provider}/link`,
+      { method: 'POST', accessToken, body: input },
+    );
+    return { status: 'LINKED', providerEmail: dto.providerEmail, alreadyLinked: dto.alreadyLinked };
+  } catch (cause) {
+    if (cause instanceof ApiClientError && cause.code === 'OAUTH_IDENTITY_TAKEN') return { status: 'TAKEN' };
+    throw cause;
+  }
+}
 export function getMe(accessToken: string) { return apiRequest<AuthUser>('/api/v1/auth/me', { accessToken }); }
 export function updateMe(accessToken: string, input: { displayName?: string; language?: SignupLanguage }) {
   return apiRequest<AuthUser>('/api/v1/auth/me', { method: 'PATCH', accessToken, body: input });

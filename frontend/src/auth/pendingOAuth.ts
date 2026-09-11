@@ -9,12 +9,20 @@ import type { OAuthProvider } from './authApi';
 // (oauth/[provider]/callback.tsx) 한 번 꺼내 쓴 뒤 지운다 — pendingReturnTo.ts와 같은 모양이다.
 const STORAGE_KEY = '@gabolle/pending-oauth';
 
+// S15P21E201-832 — 같은 왕복(제공자 인증 → 착지 화면)을 로그인과 "이미 로그인한 계정에
+// 소셜 연결하기" 둘 다에 쓴다. 착지 화면이 completeOAuth(로그인)를 부를지 linkOAuthAccount
+// (연결)를 부를지는 이 칸으로 가른다 — 없으면 로그인으로 본다(기존 저장값과 호환).
+export type PendingOAuthIntent = 'login' | 'link';
+
 export type PendingOAuth = {
+  intent: PendingOAuthIntent;
   provider: OAuthProvider;
   redirectUri: string;
   codeVerifier: string;
   state: string;
   nonce: string;
+  // login: 완료 뒤 돌아갈 곳(resolveDestination이 읽는다).
+  // link: 완료 뒤 돌아갈 설정 화면 경로 — 지금은 /me 하나뿐이라 이 칸을 그대로 쓴다.
   returnTo?: string | null;
 };
 
@@ -31,7 +39,7 @@ export async function consumePendingOAuth(): Promise<PendingOAuth | null> {
   try {
     const parsed = JSON.parse(raw) as PendingOAuth;
     if (!parsed?.provider || !parsed.codeVerifier || !parsed.state) return null;
-    return parsed;
+    return { ...parsed, intent: parsed.intent ?? 'login' };
   } catch {
     return null;
   }

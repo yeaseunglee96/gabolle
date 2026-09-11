@@ -2,8 +2,8 @@ import { Platform } from 'react-native';
 import * as Crypto from 'expo-crypto';
 import * as WebBrowser from 'expo-web-browser';
 import { ApiClientError } from '@/api/client';
-import { completeOAuth, createOAuthChallenge, type OAuthCompleteResult, type OAuthProvider } from './authApi';
-import { savePendingOAuth } from './pendingOAuth';
+import { completeOAuth, createOAuthChallenge, linkOAuthAccount, type OAuthCompleteResult, type OAuthIdentityLinkResult, type OAuthProvider } from './authApi';
+import { savePendingOAuth, type PendingOAuthIntent } from './pendingOAuth';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -33,18 +33,10 @@ const CALLBACK_BASE_URL = process.env.EXPO_PUBLIC_OAUTH_CALLBACK_BASE_URL ?? 'ht
 function base64Url(value: string) { return value.replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_'); }
 function verifier() { return Array.from(Crypto.getRandomBytes(48), (byte) => byte.toString(16).padStart(2, '0')).join(''); }
 
-// S15P21E201-830 — 모바일 웹 브라우저는 window.open(아래 WebBrowser.openAuthSessionAsync가
-// 웹에서 쓰는 방식)로 여는 팝업을 넷 다(구글·카카오·네이버·애플) 팝업 차단으로 막는다.
-// 눌러도 아무 일도 안 일어난 것처럼 보인다. 앱은 같은 함수가 앱 안의 브라우저 화면을
-// 써서 차단기가 끼어들 자리가 없다 — 웹만 그렇다.
-//
-// 그래서 웹에서는 팝업 대신 현재 페이지를 그대로 제공자 인증 화면으로 넘긴다. 되돌아올
-// 주소(redirectUri)와 허용 목록은 그대로라 서버는 바꿀 것이 없다. code_verifier·state·
-// nonce는 이 함수의 지역 변수라 페이지가 넘어가면 사라지므로, 넘어가기 전에
-// pendingOAuth.ts에 잠깐 저장해 두고 착지 화면(oauth/[provider]/callback.tsx)이 돌아와서
-// 그것으로 완료를 잇는다 — 그래서 이 함수는 웹에서 결과를 반환하지 않는다(페이지 자체가
-// 다시 로드되므로 이 호출의 나머지는 실행되지 않는다).
-export async function loginWithOAuth(provider: OAuthProvider, returnTo?: string | null): Promise<OAuthCompleteResult> {
+// 로그인(loginWithOAuth)과 이미 로그인한 계정에 소셜을 붙이는 연결(linkOAuthProvider,
+// S15P21E201-832) 둘 다 여기까지는 완전히 같다 — 제공자에게 던질 인증 URL을 만드는
+// PKCE 절차. 둘이 갈리는 것은 그 뒤 코드를 받아 어느 서버 경로로 보내는지뿐이다.
+async function beginOAuthChallenge(provider: OAuthProvider) {
   const config = PROVIDERS[provider];
   if (!config.clientId) throw new ApiClientError(`${provider.toUpperCase()} 로그인 설정이 필요해요.`, 'OAUTH_NOT_CONFIGURED', 0);
   const redirectUri = `${CALLBACK_BASE_URL}/oauth/${provider}/callback`;
@@ -64,13 +56,12 @@ export async function loginWithOAuth(provider: OAuthProvider, returnTo?: string 
   });
   if (config.scope) params.set('scope', config.scope);
   const authorizationUrl = `${config.authorizationEndpoint}?${params.toString()}`;
+  return { redirectUri, codeVerifier, challenge, authorizationUrl };
+}
 
-  if (Platform.OS === 'web') {
-    await savePendingOAuth({ provider, redirectUri, codeVerifier, state: challenge.state, nonce: challenge.nonce, returnTo });
-    window.location.assign(authorizationUrl);
-    return new Promise<OAuthCompleteResult>(() => {}); // 페이지가 곧 떠난다 — 이 약속은 안 풀린다.
-  }
-
+// 네이티브(앱)는 팝업 차단이 끼어들 자리가 없는 앱 안 브라우저 화면을 쓰므로
+// S15P21E201-830 이전 방식 그대로 코드를 바로 받아 온다.
+async function runNativeAuthSession(authorizationUrl: string, redirectUri: string, expectedState: string) {
   const result = await WebBrowser.openAuthSessionAsync(authorizationUrl, redirectUri);
   if (result.type === 'cancel' || result.type === 'dismiss') throw new ApiClientError('로그인이 취소되었어요.', 'OAUTH_CANCELLED', 0);
   if (result.type !== 'success') throw new ApiClientError('소셜 로그인을 완료하지 못했어요.', 'OAUTH_FAILED', 0);
@@ -79,6 +70,53 @@ export async function loginWithOAuth(provider: OAuthProvider, returnTo?: string 
   const authorizationCode = callback.searchParams.get('code');
   const returnedState = callback.searchParams.get('state');
   if (callbackError) throw new ApiClientError('소셜 로그인 요청이 거절되었어요.', callbackError, 0);
-  if (!authorizationCode || returnedState !== challenge.state) throw new ApiClientError('로그인 응답을 확인할 수 없어요.', 'INVALID_OAUTH_RESPONSE', 0);
+  if (!authorizationCode || returnedState !== expectedState) throw new ApiClientError('로그인 응답을 확인할 수 없어요.', 'INVALID_OAUTH_RESPONSE', 0);
+  return authorizationCode;
+}
+
+// 웹에서 팝업 대신 현재 페이지를 그대로 제공자 인증 화면으로 넘긴다(S15P21E201-830).
+// code_verifier·state·nonce는 지역 변수라 페이지가 넘어가면 사라지므로, 넘어가기 전에
+// pendingOAuth.ts에 잠깐 저장해 두고 착지 화면(oauth/[provider]/callback.tsx)이 돌아와서
+// intent(login/link)에 맞는 서버 경로로 완료를 잇는다.
+async function beginWebRedirect(
+  intent: PendingOAuthIntent,
+  provider: OAuthProvider,
+  returnTo: string | null | undefined,
+  built: Awaited<ReturnType<typeof beginOAuthChallenge>>,
+) {
+  const { redirectUri, codeVerifier, challenge, authorizationUrl } = built;
+  await savePendingOAuth({ intent, provider, redirectUri, codeVerifier, state: challenge.state, nonce: challenge.nonce, returnTo });
+  window.location.assign(authorizationUrl);
+}
+
+// S15P21E201-830 — 모바일 웹 브라우저는 window.open(WebBrowser.openAuthSessionAsync가
+// 웹에서 쓰는 방식)로 여는 팝업을 넷 다(구글·카카오·네이버·애플) 팝업 차단으로 막는다.
+// 눌러도 아무 일도 안 일어난 것처럼 보인다. 그래서 웹에서는 이 함수가 결과를 반환하지
+// 않는다(페이지 자체가 다시 로드되므로 이 호출의 나머지는 실행되지 않는다) — 위
+// beginWebRedirect 참고.
+export async function loginWithOAuth(provider: OAuthProvider, returnTo?: string | null): Promise<OAuthCompleteResult> {
+  const built = await beginOAuthChallenge(provider);
+  const { redirectUri, codeVerifier, challenge } = built;
+  if (Platform.OS === 'web') {
+    await beginWebRedirect('login', provider, returnTo, built);
+    return new Promise<OAuthCompleteResult>(() => {}); // 페이지가 곧 떠난다 — 이 약속은 안 풀린다.
+  }
+  const authorizationCode = await runNativeAuthSession(built.authorizationUrl, redirectUri, challenge.state);
   return completeOAuth(provider, { authorizationCode, redirectUri, codeVerifier, state: challenge.state, nonce: challenge.nonce });
+}
+
+// S15P21E201-832 — 이미 로그인한 계정(설정 화면)에 소셜 신원을 붙인다. 흐름은
+// loginWithOAuth와 같은 PKCE 왕복이고, 마지막에 completeOAuth 대신 linkOAuthAccount를
+// 부르는 것만 다르다. accessToken은 호출 시점(설정 화면)의 것을 그대로 쓴다 — 웹에서는
+// 페이지가 넘어갔다 돌아오지만, AuthProvider가 부팅 때마다 세션 쿠키로 다시 복원하므로
+// 착지 화면에서 useAuth()로 새로 받으면 된다(oauth/[provider]/callback.tsx).
+export async function linkOAuthProvider(provider: OAuthProvider, accessToken: string, returnTo?: string | null): Promise<OAuthIdentityLinkResult> {
+  const built = await beginOAuthChallenge(provider);
+  const { redirectUri, codeVerifier, challenge } = built;
+  if (Platform.OS === 'web') {
+    await beginWebRedirect('link', provider, returnTo, built);
+    return new Promise<OAuthIdentityLinkResult>(() => {});
+  }
+  const authorizationCode = await runNativeAuthSession(built.authorizationUrl, redirectUri, challenge.state);
+  return linkOAuthAccount(provider, { authorizationCode, redirectUri, codeVerifier, state: challenge.state, nonce: challenge.nonce }, accessToken);
 }
