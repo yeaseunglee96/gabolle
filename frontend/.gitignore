@@ -30,12 +30,12 @@ yarn-error.*
 # macOS
 .DS_Store
 *.pem
-# S15P21E201-827 — 위 *.pem은 서명 키·인증서 유출 방지용이다. 여기 둘은 그 반대다 —
-# Let's Encrypt가 공개 배포하는 루트 인증서(개인키 아님)라 앱에 번들링하려면 커밋돼
-# 있어야 한다. EAS Build는 .gitignore 패턴을 git 추적 여부와 무관하게 그대로 보고
-# 업로드 대상에서 빼버려서(android-certs/*.pem이 EAS 서버에 없어 Prebuild가 ENOENT로
-# 실패했다, 2026-09-11 실측), git add -f만으로는 부족하다 — 여기서 명시적으로 풀어준다.
-!/android-certs/*.pem
+# 🔴 2026-09-11 정정(S15P21E201-827) — 한때 여기에 !/android-certs/*.pem 예외를
+# 추가해 Let's Encrypt 루트 인증서 파일을 커밋해 뒀었다(git add -f 사용). git
+# check-ignore로는 정상 확인됐는데도 EAS 클라우드 빌드는 그 파일을 계속 못 찾았다
+# (원인 불명 — EAS 업로드 단계가 정확히 무엇을 근거로 뺐는지 끝내 못 밝힘). 그
+# 파일 자체를 없애고 인증서 내용을 plugins/withExtraTrustedRoots.js 안에 문자열로
+# 옮겨서 이 문제를 우회했다 — 그래서 이 예외 규칙도 더는 필요 없다.
 
 # env files
 .env
