@@ -23,9 +23,13 @@ import org.springframework.stereotype.Component;
  * <pre>
  * java -jar gabolle-backend.jar \
  *   --spring.profiles.active=dev \
- *   --gabolle.place.loader.opening-hours=/data/opening-hours-busan-20260911.ndjson \
+ *   --gabolle.place.loader.opening-hours=/data/opening-hours.ndjson \
  *   --gabolle.place.loader.dataset-version=tourapi-busan-20260911
  * </pre>
+ *
+ * <p>파일 이름은 여기서 정한 것이 아니다 — {@code bigData/process/opening-hours.mjs} 가
+ * {@code data/staged/opening-hours.ndjson} 으로 쓴다. 그 스크립트의 출력이 데이터 파트와
+ * 이 적재기 사이의 계약이라 이름도 그쪽이 정본이다.
  *
  * <p>🔴 <b>장소 적재를 먼저 돌려야 한다</b>({@code --gabolle.place.loader.tourapi}). 영업시간은
  * 장소에 붙는 값이라 장소 행이 없으면 붙을 자리가 없다. 순서가 뒤집히면 실패하지 않고
