@@ -26,7 +26,15 @@ public record StoryResponse(
 	public record Author(String id, String displayName) {
 	}
 
-	public record PlaceRef(String id, String name) {
+	/**
+	 * 기록이 가리키는 장소.
+	 *
+	 * <p>🔴 {@code lat}·{@code lng} 는 S15P21E201-829 에서 더했다. 화면이 사진을 지도에 찍으려면
+	 * 좌표가 필요한데, 그전에는 장소마다 {@code GET /api/v1/places/&#123;id&#125;} 를 한 번씩 더
+	 * 불러야 했다(사진 여러 장이 같은 장소면 같은 장소를 반복해서). 좌표가 없는 장소도 있으므로
+	 * 두 값은 {@code null} 일 수 있다 — 화면은 그때 마커를 찍지 않는다.
+	 */
+	public record PlaceRef(String id, String name, Double lat, Double lng) {
 	}
 
 	public record Image(String url, int position) {
