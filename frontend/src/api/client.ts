@@ -2,6 +2,10 @@ import { Platform } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 
 export const API_BASE_URL = (process.env.EXPO_PUBLIC_API_BASE_URL ?? 'http://localhost:8080').replace(/\/$/, '');
+// 서버가 초대 응답에 주는 건 token·acceptPath(서버 API 경로)뿐이다 — 앱 화면 주소는 앱이
+// 스스로 조립해야 한다(TripInviteResponse·StoryInviteResponse 공통 계약). oauth.ts의
+// CALLBACK_BASE_URL과 같은 값이라 같은 환경변수를 그대로 쓴다 — 이 웹앱이 실제로 떠 있는 자리다.
+export const APP_WEB_BASE_URL = (process.env.EXPO_PUBLIC_OAUTH_CALLBACK_BASE_URL ?? 'https://j15e201.p.ssafy.io').replace(/\/$/, '');
 const configuredTimeout = Number(process.env.EXPO_PUBLIC_API_TIMEOUT_MS ?? 12000);
 const API_TIMEOUT_MS = Number.isFinite(configuredTimeout) && configuredTimeout > 0 ? configuredTimeout : 12000;
 let apiLanguage: 'ko' | 'en' = 'ko';
