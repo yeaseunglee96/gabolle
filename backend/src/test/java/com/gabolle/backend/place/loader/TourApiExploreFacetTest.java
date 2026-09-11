@@ -75,6 +75,21 @@ class TourApiExploreFacetTest {
 	}
 
 	@Test
+	@DisplayName("탐색 갈래는 설문이 쓰는 낱말과 하나도 안 겹친다 — 표식을 더해도 추천 점수가 안 움직인다")
+	void exploreFacetsNeverCollideWithSurveyCodes() {
+		// 점수는 matched.size() / userCodes.size() 로 구한다(BaselineCandidateScorer.applyTagComponent).
+		// 분모가 사용자가 고른 낱말 수라, 장소에 표식이 늘어도 그중 하나가 사용자의 낱말과
+		// 같지 않으면 점수가 안 변한다. 그 "같지 않다" 를 여기서 못 박는다 — 티켓의
+		// 완료 기준이 "표식을 붙이기 전과 후에 추천 결과가 달라지지 않았다" 다.
+		List<String> surveyCodes = List.of(
+				"SEA_BEACH", "CITY", "CAFE_HEALING", "CULTURE_TEMPLE", "FOOD", "NATURE_WALK");
+
+		assertThat(InterestTagCode.displayOrder().stream().map(Enum::name).toList())
+				.as("탐색 갈래가 설문 낱말과 겹치면 그 갈래에 표식을 붙이는 순간 추천이 조용히 달라진다")
+				.doesNotContainAnyElementsOf(surveyCodes);
+	}
+
+	@Test
 	@DisplayName("내는 값은 전부 화면이 아는 여덟 갈래 안에 있다 — 하나만 벗어나도 그 줄이 조용히 0건이 된다")
 	void everyProducedCodeIsOneTheScreenKnows() {
 		List<String> known = InterestTagCode.displayOrder().stream().map(Enum::name).toList();
