@@ -4,6 +4,8 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -16,6 +18,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
+import com.gabolle.backend.place.service.OpeningHoursFilterPort;
 import com.gabolle.backend.itinerary.domain.Itinerary;
 import com.gabolle.backend.itinerary.domain.ItineraryContent;
 import com.gabolle.backend.itinerary.domain.ItineraryExclusion;
@@ -64,14 +67,25 @@ public class ItineraryDraftService implements ItineraryDraftPort {
      */
     private final ItineraryLegPlanner legPlanner;
 
+    /**
+     * 그 시각에 문을 여는가 — S15P21E201-857.
+     *
+     * <p>후보를 고르는 단계가 아니라 <b>자리에 앉히는 단계</b>에서 묻는다. 후보 조회는 여행
+     * 전체에 한 번 부르고 시각 칸은 한 순간이라, 거기에 첫날 아침을 넣으면 화요일 오후에
+     * 방문할 곳까지 월요일 아침 기준으로 걸러진다. 항목마다 날짜와 시각이 다른 이 자리에서만
+     * 제대로 물을 수 있다.
+     */
+    private final OpeningHoursFilterPort openingHours;
+
     public ItineraryDraftService(TripRepository tripRepository, ItineraryRepository itineraryRepository, Clock clock,
             @Value("${gabolle.itinerary.max-items-per-day:4}") int maxItemsPerDay,
-            ItineraryLegPlanner legPlanner) {
+            ItineraryLegPlanner legPlanner, OpeningHoursFilterPort openingHours) {
         this.tripRepository = tripRepository;
         this.itineraryRepository = itineraryRepository;
         this.clock = clock;
         this.maxItemsPerDay = maxItemsPerDay;
         this.legPlanner = legPlanner;
+        this.openingHours = openingHours;
     }
 
     /**
@@ -101,19 +115,18 @@ public class ItineraryDraftService implements ItineraryDraftPort {
             LocalDate visitDate = trip.startDate().plusDays(dayIndex);
             List<UUID> placeIdsToday = new ArrayList<>(dayPlaces.size());
 
-            for (int i = 0; i < dayPlaces.size(); i++) {
-                ItineraryDraftCommand.PlannedPlace place = dayPlaces.get(i);
+            List<Placed> placedToday = placeIntoSlots(trip, dayPlaces, visitDate);
+
+            for (int i = 0; i < placedToday.size(); i++) {
+                Placed placed = placedToday.get(i);
+                ItineraryDraftCommand.PlannedPlace place = placed.place();
                 placeIdsToday.add(place.placeId());
 
-                // 🔴 시각은 여행이 실제 시각을 들고 있을 때만 배정한다. 프리셋
-                //    ("MORNING_TO_EVENING")을 시각으로 바꾸는 규칙은 아직 확정되지 않았고
-                //    (V20260904010000 마이그레이션 주석), 없는 규칙을 여기서 지어내면
-                //    그 값이 계약이 된다. 없으면 시각을 비우고 UNKNOWN 으로 표시한다.
-                Slot slot = slotFor(trip, i, dayPlaces.size());
+                Slot slot = placed.slot();
                 items.add(new ItineraryDraft.DraftItem(
                         dayIndex, visitDate, i + 1, place.placeId(),
                         UUID.randomUUID(), slot.start(), slot.end(), slot.stayMinutes(),
-                        slot.dataStatus(), place.reasonCodes(), place.warningCodes()));
+                        slot.dataStatus(), place.reasonCodes(), placed.warningCodes()));
             }
             placeIdsByDay.add(placeIdsToday);
         }
@@ -159,6 +172,88 @@ public class ItineraryDraftService implements ItineraryDraftPort {
             return new Slot(null, null, null, "UNKNOWN");
         }
     }
+
+    /**
+     * 그 날의 장소를 시간 칸에 앉힌다 — S15P21E201-857.
+     *
+     * <p>칸을 앞에서부터 채우면서, 그 시각에 <b>닫는다고 원천이 말한</b> 장소는 그 자리에
+     * 놓지 않고 다음 후보를 본다. 후보는 순위 순으로 훑으므로 걸리는 것이 없으면 순위가
+     * 그대로 유지된다.
+     *
+     * <h2>모른다를 닫힘처럼 다루지 않는다</h2>
+     * 영업시간이 들어간 장소는 관광공사 268곳뿐이다(S15P21E201-852). 모름을 닫힘으로 보면
+     * 아직 안 넣은 2,355곳이 일정에서 통째로 빠지고, 사용자에게는 그것이 "갈 데가 없다" 로
+     * 보인다. 그래서 모름은 앉힌다.
+     *
+     * <h2>바꿀 후보가 없으면 그대로 놓고 적는다</h2>
+     * 남은 후보가 전부 그 시각에 닫혀 있으면 순위 그대로 앉히고 그 항목의 경고에
+     * {@code OPENING_HOURS_CLOSED} 를 더한다. 빈 자리를 남기지 않는 이유는 일정에 구멍이
+     * 생기면 사용자가 그날 무엇을 할지 알 수 없기 때문이고, 조용히 앉히지 않는 이유는
+     * 화면이 그것을 "확인했고 문제 없음" 으로 읽기 때문이다.
+     *
+     * <h2>시각이 없으면 아무것도 안 한다</h2>
+     * 여행이 활동 시간대를 안 정했으면 칸에 시각이 없고, 시각이 없으면 문이 열렸는지 물어볼
+     * 수가 없다. 그때는 순위 그대로 앉힌다.
+     */
+    private List<Placed> placeIntoSlots(Trip trip, List<ItineraryDraftCommand.PlannedPlace> dayPlaces,
+                                        LocalDate visitDate) {
+
+        int count = dayPlaces.size();
+        List<Placed> placed = new ArrayList<>(count);
+        boolean[] used = new boolean[count];
+
+        for (int slotIndex = 0; slotIndex < count; slotIndex++) {
+            Slot slot = slotFor(trip, slotIndex, count);
+            OffsetDateTime at = (slot.start() == null) ? null
+                    : visitDate.atTime(slot.start()).atZone(ZONE).toOffsetDateTime();
+
+            int chosen = -1;
+            if (at != null) {
+                for (int i = 0; i < count; i++) {
+                    if (used[i]) {
+                        continue;
+                    }
+                    if (this.openingHours.openAt(dayPlaces.get(i).placeId(), at)
+                            != OpeningHoursFilterPort.Answer.CLOSED) {
+                        chosen = i;
+                        break;
+                    }
+                }
+            }
+
+            boolean forced = chosen < 0;
+            if (forced) {
+                for (int i = 0; i < count; i++) {
+                    if (!used[i]) {
+                        chosen = i;
+                        break;
+                    }
+                }
+            }
+
+            used[chosen] = true;
+            ItineraryDraftCommand.PlannedPlace place = dayPlaces.get(chosen);
+            List<String> warnings = place.warningCodes();
+            if (forced && at != null
+                    && this.openingHours.openAt(place.placeId(), at) == OpeningHoursFilterPort.Answer.CLOSED) {
+                warnings = new ArrayList<>(warnings == null ? List.of() : warnings);
+                warnings.add(ItineraryOpeningHoursChecker.VIOLATION_CLOSED);
+            }
+            placed.add(new Placed(place, slot, warnings));
+        }
+        return placed;
+    }
+
+    /**
+     * 한 자리에 앉은 결과.
+     *
+     * @param warningCodes 후보의 경고에 이 자리에서 생긴 것을 더한 목록
+     */
+    private record Placed(ItineraryDraftCommand.PlannedPlace place, Slot slot, List<String> warningCodes) {
+    }
+
+    /** 방문 시각을 절대 시각으로 바꿀 때 쓰는 시간대. 판정기와 같은 값이다. */
+    private static final ZoneId ZONE = ZoneId.of("Asia/Seoul");
 
     /**
      * 하루의 활동 시간대를 그 날 항목 수로 균등하게 나눈다.
