@@ -48,10 +48,7 @@
   ],
   "newTypes": ["국수/칼국수"],
   "descriptors": {
-    "cuisine": "국수",
-    "specialty": "손칼국수",
-    "priceRange": "저가",
-    "signature": "샤브칼국수"
+    "signatureDishes": ["샤브칼국수"]
   },
   "notFound": null,
   "notes": "테이블링, 트리플, 부산에가면 등 여러 플랫폼에서 예약/정보 제공 중. 영업 중 확인. 인스타그램 최근 포스팅으로 현재 운영 상태 확인됨."

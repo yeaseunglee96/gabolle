@@ -13,13 +13,31 @@ const HERE = import.meta.dirname;
 const ROOT = path.resolve(HERE, '..');
 const PORT = 8787;
 
+// 🔴 땅 높이는 **정리본**을 내준다 (S15P21E201-805).
+//
+// 원본 타일에는 매립지·모래해안에 **없는 능선**이 서 있다 — 마린시티 앞
+// 방파제의 51.5 m 가 그것이고 실제로는 평지다. 뿌리는 SRTM(2000년 레이더
+// 측량)이 물·젖은 모래에서 신호를 잘못 받은 것이다.
+// 걷어내는 일은 `bigData/process/dem-clean.mjs` 가 하고, 그것을 디스크에
+// 구워 두는 것이 `dem-clean-tiles.mjs` 다. 여기서는 구운 것을 내주기만 한다.
+//
+//   node serve.mjs          정리본 (기본)
+//   node serve.mjs --raw    원본 — **청소가 무엇을 바꿨나를 나란히 볼 때만** 쓴다
+const RAW_DEM = process.argv.includes('--raw');
+const CLEAN15 = path.join(ROOT, 'bigData/data/clean/dem/15');
+const RAW15 = path.join(ROOT, 'bigData/data/raw/dem/15');
+// 정리본이 아직 안 구워졌으면 원본으로 내주되 **크게 말한다.** 조용히 원본을
+// 내주면 "고쳤는데 화면은 그대로네" 를 몇 시간 찾게 된다.
+const cleanMissing = !RAW_DEM && !fs.existsSync(CLEAN15);
+const DEM15 = RAW_DEM || cleanMissing ? RAW15 : CLEAN15;
+
 // 주소 앞부분 → 실제 폴더
-// 위에서부터 먼저 맞는 것을 쓴다. 땅 높이는 확대 15 단계만 원본이고
+// 위에서부터 먼저 맞는 것을 쓴다. 땅 높이는 확대 15 단계만 타일 한 장이 그대로고
 // 그보다 먼 단계는 우리가 구운 축소본이라 자리가 다르다.
 const MOUNTS = [
   ['/tiles-busan/', path.join(HERE, 'public/tiles-busan')],
   ['/tiles/', path.join(HERE, 'public/tiles')],
-  ['/dem/15/', path.join(ROOT, 'bigData/data/raw/dem/15')],
+  ['/dem/15/', DEM15],
   ['/dem/', path.join(HERE, 'public/dem-tiles')],
   ['/lib/', path.join(HERE, 'node_modules/maplibre-gl/dist')],
   // 맨 아래 — 위에서 안 걸린 주소는 public 폴더에서 그대로 찾는다 (bridges.geojson 등)
@@ -82,7 +100,16 @@ server.listen(PORT, '0.0.0.0', () => {
     .map((n) => n.address);
 
   console.log('\n  해운대 3D 실험 서버가 떴습니다.\n');
-  console.log(`  이 PC 에서:  http://localhost:${PORT}`);
+  // 어느 땅을 밟고 서 있는지 매번 적는다. 화면이 이상할 때 3초에 알 수 있어야 한다.
+  if (cleanMissing) {
+    console.log('  🔴 땅 높이: **원본** — 정리본이 없습니다. 매립지의 가짜 능선이 그대로 보입니다.');
+    console.log('     구우려면:  node dem-clean-tiles.mjs   (원본이 없으면 먼저 cd ../bigData && node collect/terrain.mjs)');
+  } else if (RAW_DEM) {
+    console.log('  🔴 땅 높이: **원본** (--raw) — 가짜 능선이 그대로 있습니다. 비교용입니다.');
+  } else {
+    console.log('  땅 높이: 정리본 (가짜 능선을 걷어낸 것) — 원본으로 보려면 --raw');
+  }
+  console.log(`\n  이 PC 에서:  http://localhost:${PORT}`);
   for (const ip of ips) console.log(`  폰에서:      http://${ip}:${PORT}   ← 같은 와이파이에 있어야 합니다`);
   console.log('\n  멈추려면 Ctrl+C\n');
 });

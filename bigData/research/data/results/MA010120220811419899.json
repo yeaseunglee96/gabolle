@@ -31,10 +31,7 @@
   ],
   "newTypes": [],
   "descriptors": {
-    "established": "전국에서 손에 꼽히는 대구탕 명점",
-    "signature": "대구탕",
-    "rating": "4.5/5 (51명 평가), Daco 85점, 맛 4.8점",
-    "special_feature": "단일 메뉴 대구탕 전문점"
+    "signatureDishes": ["대구탕"]
   },
   "notFound": null,
   "notes": "아침 08:00 오픈 - 해장용으로 인기, 발렛파킹과 무료주차 가능, 가격 16,000원(공기밥 포함), 웨이팅 발생 가능"

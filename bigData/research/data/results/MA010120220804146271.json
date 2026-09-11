@@ -53,13 +53,7 @@
     }
   ],
   "newTypes": ["해산물/횟집", "전복/코스요리"],
-  "descriptors": {
-    "cuisine": "해산물",
-    "specialty": "전복",
-    "priceRange": "중상급",
-    "atmosphere": "야외테라스",
-    "media_presence": "방송출연"
-  },
+  "descriptors": {},
   "notFound": null,
   "notes": "MBC 방송 출연으로 SNS 핫플 인정. 다이닝코드, 식신 등 여러 맛집 사이트에 등재. 야외 테라스 특화 시설. 전복 관련 코스 메뉴 발달. 현재 정상 영업 중."
 }

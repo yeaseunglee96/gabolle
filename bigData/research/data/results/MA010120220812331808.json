@@ -10,7 +10,7 @@
   "whyPeopleGo": [
     {"type": "간판 메뉴 지목", "note": "뒷고기 전문", "sources": [0]},
     {"type": "조리·재료", "note": "신선한 고기 사용", "sources": [0]},
-    {"type": "플랫폼 순위·평점", "note": "네이버 4.9별 평점", "sources": [0]},
+    {"type": "플랫폼 순위·평점", "note": "네이버 별점을 근거로 든다", "sources": [0]},
     {"type": "혼잡·수요", "note": "특히 주말에 웨이팅 있을 정도 인기", "sources": [0]}
   ],
   "newTypes": [],

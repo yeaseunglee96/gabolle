@@ -20,11 +20,6 @@
     }
   ],
   "newTypes": [],
-  "descriptors": {
-    "phone": "051-758-5412",
-    "operatingHours": "평일 11:00-22:30, 월요일 휴무",
-    "menu": "신선한 회, 튀김 가자미(민어튀김)",
-    "location": "부산 수영구 광남로 224"
-  },
+  "descriptors": {},
   "notes": "민락동 해변가 위치"
 }

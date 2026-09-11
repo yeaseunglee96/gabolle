@@ -31,10 +31,8 @@
   ],
   "newTypes": [],
   "descriptors": {
-    "established": "50년 이상 전통 - 조방 골목 돼지국밥 원조",
-    "signature": "돼지따로국밥, 수육백반, 순대한접시",
-    "rating": "4.0/5 (15명 평가), Daco 69점",
-    "operating_hours": "24시간 영업"
+    "yearsClaimed": 50,
+    "signatureDishes": ["돼지따로국밥", "수육백반", "순대한접시"]
   },
   "notFound": null,
   "notes": "범천1동, 웹툰 '식객'에 출연, 범일역 근처, 무료주차 가능, 국내산 식재료만 사용"

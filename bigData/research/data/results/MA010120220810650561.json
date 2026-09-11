@@ -31,11 +31,7 @@
   ],
   "newTypes": [],
   "descriptors": {
-    "established": "노포 감성의 로컬 식당",
-    "signature": "물밀면, 비빔밀면",
-    "rating": "4점 (2명 평가), Daco 60점",
-    "seasonal": "4월~10월만 영업",
-    "seating_note": "점심 시간 웨이팅 있음"
+    "signatureDishes": ["물밀면", "비빔밀면"]
   },
   "notFound": null,
   "notes": "계절 영업(4월~10월), 주차장 없음 - 영주공영주차장 이용 권장. 6개월만 운영하는 특이한 영업 방식"

@@ -31,10 +31,8 @@
   ],
   "newTypes": [],
   "descriptors": {
-    "established": "1984년 개점 - 40년 전통",
-    "signature": "돼지국밥, 수육백반",
-    "rating": "4.0/5 (10명 평가), Daco 67점",
-    "recognition": "백종원 3대천왕 출연"
+    "yearsClaimed": 40,
+    "signatureDishes": ["돼지국밥", "수육백반"]
   },
   "notFound": null,
   "notes": "중앙역 11번 출구 근처, 월~금 10:00~19:30(14:00~16:00 브레이크), 토 10:00~14:00, 일요일 휴무, 주차 불가"

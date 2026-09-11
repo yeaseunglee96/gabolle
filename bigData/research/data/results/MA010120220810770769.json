@@ -31,10 +31,8 @@
   ],
   "newTypes": [],
   "descriptors": {
-    "established": "1951년 개점 - 50년 이상 전통의 부산 돼지국밥 명점",
-    "signature": "돼지국밥, 순대국밥, 수육백반",
-    "rating": "4.8/5 (8명 평가)",
-    "recognition": "부산시 선정 향토음식"
+    "yearsClaimed": 50,
+    "signatureDishes": ["돼지국밥", "순대국밥", "수육백반"]
   },
   "notFound": null,
   "notes": "토곡점, 09:00~06:00 영업(라스트 오더 05:00), 셀프바 반찬 리필 가능, 30분 무료주차 제공"

@@ -21,9 +21,7 @@
   ],
   "newTypes": [],
   "descriptors": {
-    "established": "광안리 톤카츠 전문점",
-    "signature": "돈까스",
-    "location": "광안해변로279번길 13 1층"
+    "signatureDishes": ["돈까스"]
   },
   "notFound": null,
   "notes": "11:30~21:00 영업, 광안점 외 부산대본점 등 다수 지점"

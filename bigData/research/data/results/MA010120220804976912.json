@@ -21,9 +21,7 @@
   ],
   "newTypes": [],
   "descriptors": {
-    "established": "광안리 민락동 경양식당",
-    "signature": "리소또, 비프 텐더로인",
-    "location": "민락수변로 29 3층"
+    "signatureDishes": ["리소또", "비프 텐더로인"]
   },
   "notFound": null,
   "notes": "11:00~22:00 영업(라스트오더 21:15), 건물 지하 무료주차"

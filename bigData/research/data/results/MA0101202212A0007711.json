@@ -31,10 +31,7 @@
   ],
   "newTypes": [],
   "descriptors": {
-    "established": "1953년부터 3대 이어온 전통 돼지국밥 명점",
-    "signature": "돼지국밥, 순대국밥, 수육세트",
-    "rating": "4.3/5 (37명 평가), Daco 78점",
-    "operating_hours": "24시간 연중무휴"
+    "signatureDishes": ["돼지국밥", "순대국밥", "수육세트"]
   },
   "notFound": null,
   "notes": "해운대역 근처 위치, 점심 시간 웨이팅 있음, 외국인 관광객 많음, 셀프바 제공(김치/소면/쌈채소), 30분 무료주차 제공"

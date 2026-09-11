@@ -26,9 +26,7 @@
   ],
   "newTypes": [],
   "descriptors": {
-    "established": "부산 중구 부평동 돼지국밥 명점",
-    "signature": "돼지국밥, 순대국밥",
-    "location": "부산 돼지국밥 로드"
+    "signatureDishes": ["돼지국밥", "순대국밥"]
   },
   "notFound": null,
   "notes": "자갈치역 매우 가까움, 7:30~21:30 영업, 휴무일 없음"

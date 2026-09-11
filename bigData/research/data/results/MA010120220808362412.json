@@ -31,10 +31,8 @@
   ],
   "newTypes": [],
   "descriptors": {
-    "established": "1964년 개점 - 60년 전통 암소 갈비 전문점",
-    "signature": "암소갈비, 불고기, 감자사리",
-    "rating": "4.2/5 (118명 평가)",
-    "special_technique": "다이아몬드 컷 기법"
+    "yearsClaimed": 60,
+    "signatureDishes": ["암소갈비", "불고기", "감자사리"]
   },
   "notFound": null,
   "notes": "극심한 웨이팅으로 악명높음 - 오픈런 또는 주중 방문 권장, 생갈비는 오전 중 품절 가능, 1인 5~7만원대 가격대"

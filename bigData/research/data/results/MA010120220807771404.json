@@ -31,10 +31,7 @@
   ],
   "newTypes": [],
   "descriptors": {
-    "established": "서면역 인근 족발 전문점",
-    "signature": "냉채족발, 불족발, 막국수",
-    "rating": "4.2/5 (10명 평가), Daco 76점",
-    "location": "서면역에서 도보 6분"
+    "signatureDishes": ["냉채족발", "불족발", "막국수"]
   },
   "notFound": null,
   "notes": "전용 주차장 없음, 테이크아웃 가능, 전포 카페거리와 인접, 넓은 룸과 단체석 있음, 일요일 22:30 조기마감"

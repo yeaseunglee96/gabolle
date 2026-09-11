@@ -31,11 +31,7 @@
   ],
   "newTypes": [],
   "descriptors": {
-    "established": "부산역 인근 전통 중국집",
-    "signature": "간짜장, 탕수육",
-    "rating": "5.0/5 (3명 평가), Daco 65점",
-    "concept": "옛날 맛 그대로",
-    "special_note": "사장님 건강상 이유로 평일 점심만 운영 중"
+    "signatureDishes": ["간짜장", "탕수육"]
   },
   "notFound": null,
   "notes": "부산역 정거장 1번 출구에서 도보 10분, 점심시간 예약 필수, 평일 점심만 운영"
