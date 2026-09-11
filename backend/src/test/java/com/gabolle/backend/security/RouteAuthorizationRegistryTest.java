@@ -131,7 +131,12 @@ class RouteAuthorizationRegistryTest {
 		//    그 변경이 diff 에 남아 리뷰에서 보인다. 실제로 이 저장소의 SecurityConfig 주석은
 		//    "/oauth/ 아래 한 마디짜리 경로가 전부 열린다" 는 함정을 적어 두고 있다 — 두 마디로
 		//    두지 않으면 새 경로가 의도 없이 열린다.
-		assertThat(open).hasSize(18);
+		// 🔴 18 → 19 (2026-09-11, S15P21E201-833). 늘어난 하나는
+		//    POST /api/v1/auth/oauth/apple/form-post 다 — 애플이 form_post 로 결과를 되돌려 보내는
+		//    자리라 로그인 전에 애플 서버가 직접 부른다. 열어도 되는 근거는 그 경로가 판정을
+		//    하지 않는다는 것이다: 받은 값을 설정에 박힌 화면 주소로만 옮기고, state·nonce
+		//    검증은 화면이 이어서 부르는 코드 교환이 그대로 한다.
+		assertThat(open).hasSize(19);
 
 		// 표를 아는 사람이 실제로 열린 것과 대조할 수 있게 목록도 고정한다
 		assertThat(routesWith(Policy.PUBLIC_TOKEN)).containsExactlyInAnyOrder(
@@ -373,6 +378,13 @@ class RouteAuthorizationRegistryTest {
 				"웹은 리프레시 토큰을 쿠키로 주고받는다. 로그인 전 상태에서 오는 요청이다");
 		put(m, "POST /api/v1/auth/web/logout", Policy.PRE_AUTH,
 				"위와 같다. 남의 세션을 끊으려면 그 쿠키를 가지고 있어야 한다");
+		put(m, "POST /api/v1/auth/oauth/apple/form-post", Policy.PRE_AUTH,
+				"애플이 form_post 로 되돌려 보내는 자리 — 로그인 전에 애플 서버가 직접 부르므로 열려 있다. "
+						+ "판정을 하지 않는 경로다: 받은 code·state 를 설정에 박힌 화면 주소로만 옮기고"
+						+ "(요청이 준 주소를 쓰지 않아 open redirect 가 안 된다), state·nonce 검증은 화면이 "
+						+ "이어서 부르는 코드 교환이 한다. 폼 본문의 user(이름·이메일)는 서명 밖의 값이라 "
+						+ "받지도 않는다. provider 를 경로 변수로 두지 않고 apple 로 박은 것은 form_post 를 요구하는 제공자가 애플뿐이어서다. "
+						+ "AppleFormPostJourneyFunctionalTest (-833)");
 		put(m, "POST /api/v1/auth/oauth/{}/challenge", Policy.PRE_AUTH,
 				"🔴 소셜 로그인의 첫 요청이다. 막으면 브라우저가 열리기도 전에 401 이 난다 (-704)");
 		put(m, "POST /api/v1/auth/oauth/{}", Policy.PRE_AUTH,

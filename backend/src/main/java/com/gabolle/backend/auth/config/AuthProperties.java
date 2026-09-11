@@ -90,6 +90,18 @@ public class AuthProperties {
 	 * 으로 갖고 있어(같은 파일의 {@code oauthAllowedRedirectUris}) 관례가 맞는다.
 	 */
 	private String passwordResetBaseUrl = "https://j15e201.p.ssafy.io/auth/password/reset";
+	/**
+	 * 애플이 {@code response_mode=form_post} 로 보낸 결과를 넘겨 줄 화면 주소 — S15P21E201-833.
+	 *
+	 * <p>🔴 <b>요청에서 받은 값을 쓰지 않고 설정에 박힌 이 값만 쓴다.</b> 애플의 POST 는 누구나
+	 * 흉내낼 수 있는 평범한 폼 전송이고, 거기 실린 주소로 되돌려 보내면 이 서버가 임의의 주소로
+	 * 사람을 보내 주는 도구가 된다(open redirect). 보낼 곳이 하나뿐이면 그 공격이 성립하지 않는다.
+	 *
+	 * <p>기본값은 지금 앱이 쓰는 애플 착지 화면과 같다. 그 화면은 이미 코드와 state 를 쿼리에서
+	 * 읽으므로, 이 리다이렉트가 붙으면 화면 쪽은 POST 가 있었다는 것을 모른 채 그대로 돈다.
+	 */
+	private String appleFormPostRedirectUrl = "https://j15e201.p.ssafy.io/oauth/apple/callback";
+
 	private List<String> oauthAllowedRedirectUris = new ArrayList<>();
 	private List<String> corsAllowedOrigins = new ArrayList<>();
 	/**
@@ -247,6 +259,14 @@ public class AuthProperties {
 
 	public void setPasswordResetBaseUrl(String passwordResetBaseUrl) {
 		this.passwordResetBaseUrl = passwordResetBaseUrl;
+	}
+
+	public String getAppleFormPostRedirectUrl() {
+		return appleFormPostRedirectUrl;
+	}
+
+	public void setAppleFormPostRedirectUrl(String appleFormPostRedirectUrl) {
+		this.appleFormPostRedirectUrl = appleFormPostRedirectUrl;
 	}
 
 	public List<String> getOauthAllowedRedirectUris() {
