@@ -1,7 +1,7 @@
 package com.gabolle.backend.assistant.adapter;
 
-import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -10,61 +10,75 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
-import com.anthropic.client.AnthropicClient;
-import com.anthropic.client.okhttp.AnthropicOkHttpClient;
-import com.anthropic.models.messages.MessageCreateParams;
-import com.anthropic.models.messages.StructuredMessageCreateParams;
+import com.google.genai.Client;
+import com.google.genai.types.Content;
+import com.google.genai.types.GenerateContentConfig;
+import com.google.genai.types.GenerateContentResponse;
+import com.google.genai.types.Part;
+import com.google.genai.types.Schema;
+import com.google.genai.types.Type;
 import com.gabolle.backend.assistant.application.AssistantVendorException;
 import com.gabolle.backend.assistant.application.AssistantVendorPort;
 import com.gabolle.backend.assistant.config.AssistantProperties;
 import com.gabolle.backend.assistant.domain.AssistantActionKind;
 import com.gabolle.backend.assistant.domain.AssistantReply;
 
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
+
 /**
- * 실제 Claude 호출 — S15P21E201-802.
+ * 실제 Google Gemini 호출 — S15P21E201-802.
  *
  * <p>{@code TranslationVendorAdapter} 와 같은 자리다 — 키가 비어 있으면 호출을 시도하지 않고
- * 즉시 명확한 실패를 던지고({@code TRANSLATE_VENDOR_NOT_CONFIGURED} 와 같은 모양), 원문을
+ * 즉시 명확한 실패를 던지고({@code ASSISTANT_VENDOR_NOT_CONFIGURED} 와 같은 모양), 원문을
  * 로그에 남기지 않는다.
  *
  * <h2>🔴 MVP 범위 — 일정을 대신 짜지 않는다</h2>
  * 이 도우미는 은행 앱 챗봇처럼 <b>안내</b>만 한다 — 사용자의 말을 알아듣고 이 앱의 관련
  * 화면으로 가는 버튼을 만들어 주거나(navigate), 현장 문구를 알려주거나(phrase), 그 외에는
  * 짧게 안내한다(help). 실제 여행 일정·장소 추천은 이 앱의 기존 화면(설문·현지인 추천 데이터
- * 기반)이 한다 — AI 가 일정 조건을 만들어 대신 채우지 않는다. 예전에 있었던 {@code plan}
- * kind(자연어 → 여행 조건 patch)는 이 범위 밖이라 걷어냈다.
+ * 기반)이 한다 — AI 가 일정 조건을 만들어 대신 채우지 않는다.
  *
- * <p>{@code help} 는 "이 앱 뭐야?" 같은 정체성 질문도 답한다 — 시스템 프롬프트에 박아 둔
- * 사실만 근거로 삼는다. 여행·이 앱과 무관한 질문(날씨, 시사, 코딩 등)은 정중히 범위를
- * 안내하고 거절하도록 프롬프트로 지시한다 — 🔴 이건 타입으로 막을 수 있는 종류가 아니라
- * (자유 대화라 응답 모양 자체가 제약이 없다) 프롬프트 수준의 방어다. 모델이 가끔 지시를
- * 놓칠 수 있다는 뜻이고, 실제 호출로 확인하기 전까지는 검증된 것이 아니다.
- *
- * <p>구조화 출력({@link ClaudeStructuredReply})을 응답 스키마로 강제해 파싱을 직접 하지
- * 않는다 — 모델이 잘못된 모양으로 답할 수가 없다({@code StructuredMessageCreateParams}).
+ * <p>구조화 출력을 {@link #RESPONSE_SCHEMA}(JSON 스키마)로 강제해 파싱을 어렵게 만들지
+ * 않는다 — 모델이 잘못된 모양으로 답할 수가 없다. Claude 의 {@code StructuredMessageCreateParams}
+ * 와 달리 이 SDK 는 POJO 를 직접 만들어 주지 않아서, 응답 원문(JSON 문자열)을
+ * {@link GeminiStructuredReply} 로 수동 파싱한다.
  */
 @Component
 @Profile({ "db", "dev" })
-public class ClaudeAssistantAdapter implements AssistantVendorPort {
+public class GeminiAssistantAdapter implements AssistantVendorPort {
 
-	private static final Logger log = LoggerFactory.getLogger(ClaudeAssistantAdapter.class);
+	private static final Logger log = LoggerFactory.getLogger(GeminiAssistantAdapter.class);
 
-	static final String PROVIDER_NAME = "CLAUDE";
+	static final String PROVIDER_NAME = "GEMINI";
 
 	static final Set<String> ALLOWED_HREFS = Set.of("/plan/basic", "/trips", "/field/translate");
+
+	private static final Schema RESPONSE_SCHEMA = Schema.builder()
+			.type(Type.Known.OBJECT)
+			.properties(Map.of(
+					"kind", stringEnum("navigate", "phrase", "help"),
+					"reply", string(),
+					"korean", string(),
+					"pronunciation", string(),
+					"label", string(),
+					"href", stringEnum("/plan/basic", "/trips", "/field/translate")))
+			.required("kind", "reply")
+			.build();
+
+	private static Schema string() {
+		return Schema.builder().type(Type.Known.STRING).build();
+	}
+
+	private static Schema stringEnum(String... values) {
+		return Schema.builder().type(Type.Known.STRING).enum_(values).build();
+	}
 
 	private static final String SYSTEM_PROMPT = """
 			너는 여행 앱 '가볼래'의 안내 도우미다. 은행 앱 챗봇처럼, 사용자의 말을 알아듣고
 			이 앱의 관련 기능으로 가는 버튼을 만들어 주는 것이 네 역할이다 — 일정을 직접 짜거나
 			장소를 추천하지 않는다. 사용자의 한국어 메시지를 아래 세 가지 중 정확히 하나로
 			분류해 답한다.
-
-			🔴 이 앱에 대한 사실 — "이 앱 뭐야?" 같은 질문에는 아래 사실만 근거로 답한다. 여기
-			없는 기능을 지어내서 답하지 않는다.
-			- 이름은 '가볼래'다. 부산 여행에 특화된 여행 서비스다.
-			- 가장 큰 특징: 장소·코스 추천이 AI 가 지어낸 것이 아니라, 실제 설문과 부산 현지인
-			  추천 데이터를 바탕으로 한다.
-			- 이 챗봇이 안내할 수 있는 기능은 여행 일정 만들기, 내 여행 관리, 현장 번역 세 가지다.
 
 			- navigate: 이 앱의 다른 화면으로 보내 달라는 요청(여행/일정을 만들고 싶다, 내
 			  여행을 보고 싶다, 현장에서 쓸 번역이 필요하다 등). href 는 아래 셋 중 하나만 쓴다.
@@ -74,13 +88,8 @@ public class ClaudeAssistantAdapter implements AssistantVendorPort {
 			  label 에는 그 화면으로 가는 짧은 한국어 버튼 문구를 채운다(예: "여행 만들기").
 			- phrase: 특정 한국어 표현/문구를 물어보거나 번역을 원하는 요청. korean·pronunciation
 			  을 채운다.
-			- help: 위 둘에 해당하지 않거나 애매한 요청, 이 앱에 대한 질문, 또는 이 앱이 못 하는
-			  것을 물었을 때. reply 에만 답한다.
-
-			🔴 이 앱·여행과 무관한 요청(날씨·시사·다른 서비스·코딩·일반 상식·잡담 등)은 help 로
-			답하되, 아는 척 답하지 않는다 — "저는 가볼래 여행 관련해서만 도와드릴 수 있어요" 처럼
-			정중히 범위를 안내하고, 이 챗봇이 실제로 할 수 있는 것(여행 만들기·내 여행·현장 번역)
-			으로 돌아오게 유도한다.
+			- help: 위 둘에 해당하지 않거나 애매한 요청, 또는 이 앱이 못 하는 것을 물었을 때.
+			  reply 에만 답한다.
 
 			🔴 어떤 kind 에서도 구체적인 가게·식당·관광지 이름을 답하지 않는다(예: "OO집",
 			"OO해수욕장 근처 XX식당"). 이 앱이 보여주는 장소는 전부 실제 설문·현지인 추천으로
@@ -88,12 +97,26 @@ public class ClaudeAssistantAdapter implements AssistantVendorPort {
 			추천하면 그 보증이 깨진다. 장소·일정 관련 요청은 항상 navigate('/plan/basic' 또는
 			'/trips')로 안내하고, 알레르기·접근성 같은 안전 조건도 이 앱 화면에서 직접 입력받으니
 			네가 대신 판단하지 않는다.
+
+			🔴 이 앱에 대한 사실 — "이 앱 뭐야?" 같은 질문에는 아래 사실만 근거로 답한다. 여기
+			없는 기능을 지어내서 답하지 않는다.
+			- 이름은 '가볼래'다. 부산 여행에 특화된 여행 서비스다.
+			- 가장 큰 특징: 장소·코스 추천이 AI 가 지어낸 것이 아니라, 실제 설문과 부산 현지인
+			  추천 데이터를 바탕으로 한다.
+			- 이 챗봇이 안내할 수 있는 기능은 여행 일정 만들기, 내 여행 관리, 현장 번역 세 가지다.
+
+			🔴 이 앱·여행과 무관한 요청(날씨·시사·다른 서비스·코딩·일반 상식·잡담 등)은 help 로
+			답하되, 아는 척 답하지 않는다 — "저는 가볼래 여행 관련해서만 도와드릴 수 있어요" 처럼
+			정중히 범위를 안내하고, 이 챗봇이 실제로 할 수 있는 것으로 돌아오게 유도한다.
 			""";
 
 	private final AssistantProperties properties;
 
-	public ClaudeAssistantAdapter(AssistantProperties properties) {
+	private final ObjectMapper objectMapper;
+
+	public GeminiAssistantAdapter(AssistantProperties properties, ObjectMapper objectMapper) {
 		this.properties = properties;
+		this.objectMapper = objectMapper;
 	}
 
 	@Override
@@ -109,23 +132,21 @@ public class ClaudeAssistantAdapter implements AssistantVendorPort {
 					"AI 여행 도우미가 설정되지 않았습니다.", HttpStatus.BAD_GATEWAY);
 		}
 
-		AnthropicClient client = AnthropicOkHttpClient.builder().apiKey(apiKey).build();
+		Client client = Client.builder().apiKey(apiKey).build();
 
-		StructuredMessageCreateParams<ClaudeStructuredReply> params = MessageCreateParams.builder()
-				.model(this.properties.getModel())
-				.maxTokens(this.properties.getMaxTokens())
-				.system(SYSTEM_PROMPT)
-				.outputConfig(ClaudeStructuredReply.class)
-				.addUserMessage(message)
+		Content systemInstruction = Content.fromParts(Part.fromText(SYSTEM_PROMPT));
+		GenerateContentConfig config = GenerateContentConfig.builder()
+				.systemInstruction(systemInstruction)
+				.responseMimeType("application/json")
+				.responseSchema(RESPONSE_SCHEMA)
+				.maxOutputTokens((int) this.properties.getMaxTokens())
 				.build();
 
-		ClaudeStructuredReply parsed;
+		String rawJson;
 		try {
-			parsed = client.messages().create(params).content().stream()
-					.flatMap(block -> block.text().stream())
-					.map(structuredText -> structuredText.text())
-					.findFirst()
-					.orElse(null);
+			GenerateContentResponse response = client.models.generateContent(this.properties.getModel(), message,
+					config);
+			rawJson = response.text();
 		}
 		catch (RuntimeException exception) {
 			// 🔴 원문을 찍지 않는다 — 실패했다는 사실만 남긴다.
@@ -134,7 +155,23 @@ public class ClaudeAssistantAdapter implements AssistantVendorPort {
 					"AI 여행 도우미 호출에 실패했습니다.", HttpStatus.BAD_GATEWAY, exception);
 		}
 
-		if (parsed == null || parsed.reply() == null || parsed.reply().isBlank()) {
+		if (rawJson == null || rawJson.isBlank()) {
+			log.warn("AI 여행 도우미가 결과를 주지 않음");
+			throw new AssistantVendorException("ASSISTANT_VENDOR_UNAVAILABLE",
+					"AI 여행 도우미가 결과를 주지 않았습니다.", HttpStatus.BAD_GATEWAY);
+		}
+
+		GeminiStructuredReply parsed;
+		try {
+			parsed = this.objectMapper.readValue(rawJson, GeminiStructuredReply.class);
+		}
+		catch (JacksonException exception) {
+			log.warn("AI 여행 도우미 응답을 해석하지 못함");
+			throw new AssistantVendorException("ASSISTANT_VENDOR_UNAVAILABLE",
+					"AI 여행 도우미 응답을 해석하지 못했습니다.", HttpStatus.BAD_GATEWAY, exception);
+		}
+
+		if (parsed.reply() == null || parsed.reply().isBlank()) {
 			log.warn("AI 여행 도우미가 결과를 주지 않음");
 			throw new AssistantVendorException("ASSISTANT_VENDOR_UNAVAILABLE",
 					"AI 여행 도우미가 결과를 주지 않았습니다.", HttpStatus.BAD_GATEWAY);
@@ -143,7 +180,7 @@ public class ClaudeAssistantAdapter implements AssistantVendorPort {
 		return toDomain(parsed);
 	}
 
-	AssistantReply toDomain(ClaudeStructuredReply parsed) {
+	AssistantReply toDomain(GeminiStructuredReply parsed) {
 		AssistantActionKind kind = parseKind(parsed.kind());
 
 		if (kind == AssistantActionKind.NAVIGATE && !ALLOWED_HREFS.contains(parsed.href())) {
