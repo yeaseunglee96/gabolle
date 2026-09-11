@@ -290,26 +290,59 @@ CREATE TABLE IF NOT EXISTS pairwise_choice (
   ms_bucket     SMALLINT    NOT NULL,
 
   -- 보여준 카드 두 장의 조건
-  alt0_price        INTEGER  NOT NULL,
-  alt0_walk_min     SMALLINT NOT NULL,
-  alt0_queue_min    SMALLINT NOT NULL,
-  alt0_same_street  SMALLINT NOT NULL,
-  alt0_fame         TEXT     NOT NULL,
-  alt1_price        INTEGER  NOT NULL,
-  alt1_walk_min     SMALLINT NOT NULL,
-  alt1_queue_min    SMALLINT NOT NULL,
-  alt1_same_street  SMALLINT NOT NULL,
-  alt1_fame         TEXT     NOT NULL,
+  -- 🔴 v2 의 칸이다. 속성이 다섯으로 고정이라 칸으로 박아 두었다.
+  --    v3 부터는 아래 JSONB 가 대신 채워지고 여기는 NULL 이다.
+  --    지우지 않는다 — 이미 들어온 v2 응답을 그대로 읽어야 하고, 칸을 지우는
+  --    ALTER 는 되돌릴 수 없다. migrations/0007 이 NOT NULL 만 푼 것과 같다.
+  alt0_price        INTEGER,
+  alt0_walk_min     SMALLINT,
+  alt0_queue_min    SMALLINT,
+  alt0_same_street  SMALLINT,
+  alt0_fame         TEXT,
+  alt1_price        INTEGER,
+  alt1_walk_min     SMALLINT,
+  alt1_queue_min    SMALLINT,
+  alt1_same_street  SMALLINT,
+  alt1_fame         TEXT,
+
+  -- ── 🔴 v3 (2026-09-11, S15P21E201-851) — migrations/0007 과 같은 것 ──
+  -- v3 는 덩어리마다 속성이 다르다 — 「보는 곳」에는 가격이 없고 오르막·그늘이 있다.
+  -- 'eat' · 'see' · 'play', 덩어리가 섞인 문항은 'mixed'. v2 행은 NULL 이다.
+  block             TEXT,
+  -- 섞인 문항일 때만. 두 카드의 덩어리가 다르다.
+  alt0_block        TEXT,
+  alt1_block        TEXT,
+  -- 🔴 이 표만으로 조건부 로짓을 돌릴 수 있어야 한다 — design-v3.mjs 를 열지 않고도.
+  --    값은 server.mjs 가 자기 문항 정의에서 set_id 로 찾아 적는다. 화면이 보낸
+  --    숫자를 그대로 믿지 않는다.
+  alt0              JSONB,
+  alt1              JSONB,
 
   CONSTRAINT pairwise_choice_chosen_ok    CHECK (chosen    IN (0, 1)),
   CONSTRAINT pairwise_choice_top_was_ok   CHECK (top_was   IN (0, 1)),
   CONSTRAINT pairwise_choice_ms_bucket_ok CHECK (ms_bucket BETWEEN 0 AND 7),
   CONSTRAINT pairwise_choice_page_no_ok   CHECK (page_no   BETWEEN 1 AND 99),
-  CONSTRAINT pairwise_choice_fame_ok      CHECK (alt0_fame IN ('LOCAL_ONLY', 'SNS_FAMOUS')
-                                            AND alt1_fame IN ('LOCAL_ONLY', 'SNS_FAMOUS')),
+  CONSTRAINT pairwise_choice_fame_ok      CHECK (
+    (alt0_fame IS NULL OR alt0_fame IN ('LOCAL_ONLY', 'SNS_FAMOUS'))
+    AND (alt1_fame IS NULL OR alt1_fame IN ('LOCAL_ONLY', 'SNS_FAMOUS'))),
+  -- 🔴 두 카드가 달라야 한다. 판에 따라 채워지는 쪽이 달라서 채워진 쪽을 본다.
   CONSTRAINT pairwise_choice_differ_ok    CHECK (
-    (alt0_price, alt0_walk_min, alt0_queue_min, alt0_same_street, alt0_fame) IS DISTINCT FROM
-    (alt1_price, alt1_walk_min, alt1_queue_min, alt1_same_street, alt1_fame)),
+    CASE
+      WHEN alt0 IS NOT NULL AND alt1 IS NOT NULL
+        THEN alt0 IS DISTINCT FROM alt1 OR alt0_block IS DISTINCT FROM alt1_block
+      ELSE (alt0_price, alt0_walk_min, alt0_queue_min, alt0_same_street, alt0_fame) IS DISTINCT FROM
+           (alt1_price, alt1_walk_min, alt1_queue_min, alt1_same_street, alt1_fame)
+    END),
+  -- 🔴 어느 모양이든 한쪽은 반드시 채워져야 한다. 둘 다 비면 그 줄은
+  --    「무엇을 보여줬는지 모르는 선택」이 되어 추정에 못 쓴다.
+  CONSTRAINT ck_pairwise_choice_shape     CHECK (
+    (alt0 IS NOT NULL AND alt1 IS NOT NULL)
+    OR (alt0_price IS NOT NULL AND alt1_price IS NOT NULL)),
+  -- 🔴 목록이 design-v3.mjs 의 BLOCKS 와 두 벌이다. 덩어리를 늘리면 여기도 고친다.
+  CONSTRAINT ck_pairwise_choice_block     CHECK (
+    (block      IS NULL OR block      IN ('eat', 'see', 'play', 'mixed'))
+    AND (alt0_block IS NULL OR alt0_block IN ('eat', 'see', 'play'))
+    AND (alt1_block IS NULL OR alt1_block IN ('eat', 'see', 'play'))),
   CONSTRAINT pairwise_choice_trap_ok      CHECK (
     -- 🔴 IS NOT NULL 을 반드시 앞에 둔다. `NULL IN (0,1)` 은 FALSE 가
     --    아니라 NULL 이고, CHECK 는 NULL 을 통과시킨다 — 그래서 예전 판은
@@ -322,6 +355,7 @@ CREATE TABLE IF NOT EXISTS pairwise_choice (
 
 CREATE INDEX IF NOT EXISTS pairwise_choice_response_idx ON pairwise_choice (response_id);
 CREATE INDEX IF NOT EXISTS pairwise_choice_set_idx      ON pairwise_choice (set_id);
+CREATE INDEX IF NOT EXISTS pairwise_choice_block_idx    ON pairwise_choice (block);
 
 -- 🔴 추정에는 이 뷰를 쓴다. 함정이 빠져 있다.
 CREATE OR REPLACE VIEW pairwise_choice_real AS

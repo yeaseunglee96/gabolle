@@ -151,7 +151,7 @@ console.log(`짝 비교 문항 ${DESIGN.sets.length}개 (${DESIGN.designId})`);
       🔴 6 도 같다. 안 올리면 "SIGHT 로 적힌 곳이 하나도 없다 → 사람들이
          관광지를 안 추천한다" 로 읽는데, 사실은 그 갈래가 생기기 전 응답이라
          고를 수가 없었다. */
-const FORM_VERSION = 6;
+const FORM_VERSION = 7;
 
 const pool = new pg.Pool({
   connectionString: process.env.DATABASE_URL,
@@ -352,12 +352,19 @@ function readPairwise(v) {
           숫자를 그대로 넣으면 주소창으로 "가격 1원짜리를 봤다" 를 꾸며 넣을
           수 있고, 그건 계수를 조용히 망가뜨린다. */
     const [a0, a1] = set.alternatives;
+    /* 🔴 v3 (S15P21E201-851) — 어느 덩어리의 문항이었나. 이것도 화면이 아니라
+          문항 정의에서 가져온다. 덩어리가 섞인 문항(set.blocks)은 두 카드의
+          덩어리가 다르므로 카드마다 따로 적는다. */
+    const mixed = Array.isArray(set.blocks) && set.blocks.length === 2;
     rows.push({
       setId: set.setId,
       isTrap: !!set.trap,
       trapCorrect: set.trap ? set.trapCorrect : null,
       pageNo: Math.floor(DESIGN.sets.indexOf(set) / PER_PAGE) + 1,
       chosen: c.chosen, topWas: c.topWas, msBucket: c.msBucket,
+      block: mixed ? "mixed" : (set.block || null),
+      a0Block: mixed ? set.blocks[0] : null,
+      a1Block: mixed ? set.blocks[1] : null,
       a0, a1
     });
   }
@@ -475,17 +482,16 @@ async function insert(b, spend, pair, crowd) {
             들어간다 — 나중에 design.mjs 를 안 열어도 이 표만으로 계수를 낼 수
             있게. 조건값은 화면이 보낸 것이 아니라 서버가 문항 정의에서 찾은 것이다. */
       await client.query(
+        /* 🔴 v3 부터 카드 조건은 JSONB 다. 덩어리마다 속성이 달라 칸으로 못 박는다.
+              v2 의 alt0_price 같은 칸은 표에 남아 있지만 여기서는 안 채운다 —
+              옛 응답을 읽기 위한 자리이지 새 응답이 쓸 자리가 아니다. */
         `INSERT INTO pairwise_choice
            (response_id, design_id, set_id, is_trap, trap_correct, page_no,
-            chosen, top_was, ms_bucket,
-            alt0_price, alt0_walk_min, alt0_queue_min, alt0_same_street, alt0_fame,
-            alt1_price, alt1_walk_min, alt1_queue_min, alt1_same_street, alt1_fame)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9,
-                 $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)`,
+            chosen, top_was, ms_bucket, block, alt0_block, alt1_block, alt0, alt1)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`,
         [id, pair.designId, c.setId, c.isTrap, c.trapCorrect, c.pageNo,
-         c.chosen, c.topWas, c.msBucket,
-         c.a0.price, c.a0.walkMin, c.a0.queueMin, c.a0.sameStreet, c.a0.fame,
-         c.a1.price, c.a1.walkMin, c.a1.queueMin, c.a1.sameStreet, c.a1.fame]
+         c.chosen, c.topWas, c.msBucket, c.block, c.a0Block, c.a1Block,
+         JSON.stringify(c.a0), JSON.stringify(c.a1)]
       );
     }
     let slot = 0;
