@@ -178,7 +178,7 @@
       "script": "collect/tourapi.mjs",
       "endpoint": "https://apis.data.go.kr/B551011/KorService2",
       "areaCode": 6,
-      "status": "받음 (2026-09-08 · 부산 662곳 7종 · data/raw/tourapi/tourapi-busan.ndjson)",
+      "status": "커밋됨 (2026-09-11 실측 · 부산 656곳 7종 · 상세 629건·빈 것 27 · data/raw/tourapi/tourapi-busan.ndjson)",
       "//2026-09-08-실측": "🔴 버전 2 만 살아 있다. KorService1/areaBasedList1 은 HTTP 400 으로 죽었다. endpoint 는 오퍼레이션 앞까지의 공통 부분이고 수집기가 뒤에 areaBasedList2 · detailIntro2 를 붙인다. areaCode 6 = 부산.",
       "//필드": "🔴 영업시간 필드 이름이 분류마다 다르다 — 하나로 받으면 대부분이 빈다. 음식점(39) opentimefood · restdatefood / 관광지(12) usetime · restdate / 문화시설(14) usetimeculture · restdateculture. 그래서 수집기는 이름을 뭉개지 않고 원문 그대로 남긴다. 해석은 process/ 의 몫이다.",
       "//분류별-부산-2026-09-08": "관광지 140 · 문화시설 35 · 축제행사 15 · 레포츠 30 · 숙박 65 · 쇼핑 49 · 음식점 328 = 662곳",
@@ -195,7 +195,7 @@
       "script": "collect/tourapi-barrier-free.mjs",
       "endpoint": "https://apis.data.go.kr/B551011/KorWithService2",
       "areaCode": 6,
-      "status": "받음 (2026-09-08 · 부산 182곳 · data/raw/tourapi/tourapi-barrier-free-busan.ndjson)",
+      "status": "커밋됨 (2026-09-11 실측 · 부산 179곳 · 상세 179건·빈 것 0 · data/raw/tourapi/tourapi-barrier-free-busan.ndjson)",
       "note": "🔴 왜 tourapi 와 따로 두었나 — 데이터셋이 다르고 인증신청도 따로 났다. 한쪽이 막혀도 다른 쪽은 돈다. 온톨로지의 bm:placeWheelchairAccessible 이 이것을 기다렸다. 지금 휠체어 규칙은 전부 길과 이동에만 걸려 있어서, 길을 다 통과하고도 문 앞에서 막히는 경우를 말할 수 없었다.",
       "//2026-09-08-실측": "🔴 버전 2 만 살아 있다. KorWithService1 은 HTTP 400 이다. 오퍼레이션은 areaBasedList2(목록) · detailWithTour2(상세).",
       "//필드": "detailWithTour2 가 내는 29개 (2026-09-08 실측): wheelchair · elevator · restroom · exit · parking · publictransport · route · ticketoffice · promotion · handicapetc · braileblock · helpdog · guidehuman · audioguide · bigprint · brailepromotion · guidesystem · blindhandicapetc · signguide · videoguide · hearingroom · hearinghandicapetc · stroller · lactationroom · babysparechair · infantsfamilyetc · room · auditorium · contenttypeid. 휠체어뿐 아니라 시각·청각·유아동반까지 함께 온다."
