@@ -17,7 +17,6 @@ import com.gabolle.backend.place.domain.PlaceEvidenceStatus;
 import com.gabolle.backend.place.domain.PlaceFeature;
 import com.gabolle.backend.place.repository.PlaceFeatureRepository;
 import com.gabolle.backend.place.repository.PlaceRepository;
-import com.gabolle.backend.place.service.OpeningHoursFilterPort;
 import com.gabolle.backend.place.service.PlaceCandidateQueryService;
 
 import tools.jackson.databind.ObjectMapper;
@@ -51,13 +50,11 @@ class PlaceCandidateQueryServiceTest {
 	void setUp() {
 		this.placeRepository = mock(PlaceRepository.class);
 		this.placeFeatureRepository = mock(PlaceFeatureRepository.class);
-		OpeningHoursFilterPort openingHoursFilter = mock(OpeningHoursFilterPort.class);
-		given(openingHoursFilter.isAvailable()).willReturn(true);
 		ObjectMapper objectMapper = JsonMapper.builder().build();
 		PlaceProperties properties = new PlaceProperties();
 
 		this.service = new PlaceCandidateQueryService(this.placeRepository, this.placeFeatureRepository,
-				openingHoursFilter, objectMapper, properties);
+				objectMapper, properties);
 
 		Place place = Place.imported(PLACE_ID, "해운대 맛집", "food", "부산 해운대구", CENTER_LAT, CENTER_LNG,
 				"sbiz", "src-1", OffsetDateTime.now(), OffsetDateTime.now(), "v1");
