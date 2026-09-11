@@ -16,6 +16,9 @@ import org.springframework.stereotype.Component;
 @ConditionalOnProperty(prefix = "gabolle.mail", name = "enabled", havingValue = "true")
 public class SmtpEmailSender implements EmailSender {
 
+	/** 본문 줄바꿈. 문자열 안에 직접 쓰면 이 파일을 고치는 도구에 따라 실제 줄바꿈으로 바뀐다. */
+	private static final String NEW_LINE = "\n";
+
 	private final JavaMailSender mailSender;
 	private final String from;
 	private final String fromName;
@@ -45,6 +48,15 @@ public class SmtpEmailSender implements EmailSender {
 	@Override
 	public void sendPasswordReset(String email, String resetUrl) {
 		send(email, "가볼래 비밀번호 재설정", "아래 링크에서 비밀번호를 재설정해 주세요.\n" + resetUrl);
+	}
+
+	@Override
+	public void sendStoryRemovedByModerator(String email, String excerpt) {
+		String shown = (excerpt == null || excerpt.isBlank()) ? "(내용 없음)" : excerpt;
+		send(email, "가볼래 기록이 삭제되었습니다",
+				"신고 검토 결과 아래 기록이 삭제되었습니다." + NEW_LINE + NEW_LINE
+						+ shown + NEW_LINE + NEW_LINE
+						+ "딸린 사진도 함께 지워졌습니다. 문의가 있으면 이 메일에 답장해 주세요.");
 	}
 
 	/**
