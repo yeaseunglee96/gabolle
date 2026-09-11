@@ -21,4 +21,10 @@ public class LoggingEmailSender implements EmailSender {
 	public void sendPasswordReset(String email, String resetUrl) {
 		log.info("Password reset requested for {}", email);
 	}
+
+	// 본문(excerpt)은 안 찍는다 — 기록 본문은 사용자가 쓴 글이고, 신고까지 받은 글이다.
+	@Override
+	public void sendStoryRemovedByModerator(String email, String excerpt) {
+		log.info("Story removal notice requested for {}", email);
+	}
 }

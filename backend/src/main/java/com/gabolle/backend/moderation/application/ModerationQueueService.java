@@ -11,11 +11,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Limit;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.gabolle.backend.moderation.domain.StoryRemovedByModerator;
 import com.gabolle.backend.moderation.domain.StoryReport;
 import com.gabolle.backend.moderation.domain.StoryReportResolution;
 import com.gabolle.backend.moderation.presentation.dto.ModerationActionResponse;
@@ -90,15 +92,27 @@ public class ModerationQueueService {
 
 	public ModerationQueueService(StoryReportRepository storyReportRepository, StoryRepository storyRepository,
 			StoryImageRepository storyImageRepository, UploadedImageRepository uploadedImageRepository,
-			AppUserRepository appUserRepository, StorageCleanupService storageCleanupService, Clock clock) {
+			AppUserRepository appUserRepository, StorageCleanupService storageCleanupService,
+			ApplicationEventPublisher events, Clock clock) {
 		this.storyReportRepository = storyReportRepository;
 		this.storyRepository = storyRepository;
 		this.storyImageRepository = storyImageRepository;
 		this.uploadedImageRepository = uploadedImageRepository;
 		this.appUserRepository = appUserRepository;
 		this.storageCleanupService = storageCleanupService;
+		this.events = events;
 		this.clock = clock;
 	}
+
+	private final ApplicationEventPublisher events;
+
+	/**
+	 * 알림 메일에 싣는 본문의 길이 — S15P21E201-794.
+	 *
+	 * <p>어느 기록인지 알아보게 하는 것이 목적이므로 전문을 실을 이유가 없다. 길게 실으면
+	 * 신고까지 받은 글이 메일 서버와 우편함에 한 벌 더 남는다.
+	 */
+	static final int EXCERPT_LENGTH = 60;
 
 	@Transactional(readOnly = true)
 	public ModerationQueueResponse list(Integer requestedLimit) {
@@ -191,6 +205,7 @@ public class ModerationQueueService {
 		}
 		story.markRemovedByModerator();
 		purgeImages(storyId, now);
+		publishRemoved(story);
 		return new ModerationActionResponse(storyId, pending.size());
 	}
 
@@ -209,6 +224,48 @@ public class ModerationQueueService {
 		}
 		story.restoreVisibility();
 		return new ModerationActionResponse(storyId, pending.size());
+	}
+
+	/**
+	 * 지웠다는 사실을 알린다 — S15P21E201-794. {@code -137} 의 작업 내용에 있었으나 알릴 창구가
+	 * 없어서 빠져 있던 한 줄이다.
+	 *
+	 * <h2>🔴 왜 메일을 여기서 보내지 않고 사건만 띄우나</h2>
+	 * 처음에는 이 클래스가 메일 발송기를 직접 물게 만들었다. 그러자 <b>기록·신고 통합 테스트가
+	 * 통째로 컨텍스트 로딩부터 깨졌다</b> — 그 테스트들이 띄우는 슬라이스
+	 * ({@code StorySliceApplication})는 {@code auth} 패키지를 스캔하지 않으므로 발송기 빈이 없다.
+	 * 그 슬라이스에 {@code auth} 를 더하는 것은 이 한 줄에 비해 너무 큰 변경이다(JWT·메일 설정과
+	 * 그 표들이 전부 따라온다).
+	 *
+	 * <p>그래서 이 클래스는 <b>"지웠다" 는 사실만 띄우고</b> 누가 어떻게 알리는지는 모른다. 듣는
+	 * 쪽({@code auth.service.StoryRemovalNotifier})이 주소를 찾아 메일을 보낸다. 슬라이스에서는
+	 * 듣는 쪽이 없어 아무 일도 일어나지 않고, 그것이 그 테스트들이 재려는 것과도 맞는다.
+	 *
+	 * <h2>🔴 발송 시점은 프레임워크가 커밋 뒤로 미룬다</h2>
+	 * 듣는 쪽이 {@code @TransactionalEventListener(phase = AFTER_COMMIT)} 다. 이 트랜잭션 안에서
+	 * 보내면 메일 서버가 안 될 때 <b>운영자가 지운 기록이 되살아난다</b> — 감춰야 할 글이 다시
+	 * 보이는 것은 메일이 안 가는 것보다 나쁘다. 반대로 커밋 전에 보내 놓고 커밋이 실패하면
+	 * 일어나지 않은 일을 알린 메일이 이미 나가 있다.
+	 *
+	 * <h2>값으로 담아 보낸다</h2>
+	 * {@code story} 는 이 트랜잭션이 관리하는 객체다. 듣는 쪽은 커밋 뒤에 돌아서 영속성 컨텍스트가
+	 * 닫혀 있으므로, 필요한 둘(작성자 식별자·본문 앞부분)을 지금 값으로 뽑아 사건에 담는다.
+	 */
+	private void publishRemoved(Story story) {
+		this.events.publishEvent(new StoryRemovedByModerator(story.getStoryId(), story.getAuthorUserId(),
+				excerptOf(story.getBody())));
+	}
+
+	/** 앞 {@link #EXCERPT_LENGTH} 자. 잘렸으면 그 사실이 보이게 말줄임을 붙인다. */
+	static String excerptOf(String body) {
+		if (body == null) {
+			return "";
+		}
+		String trimmed = body.strip();
+		if (trimmed.length() <= EXCERPT_LENGTH) {
+			return trimmed;
+		}
+		return trimmed.substring(0, EXCERPT_LENGTH) + "…";
 	}
 
 	/** {@code StoryService.delete} 의 사진 정리 부분과 같은 절차 — 직접 지우지 않고 재사용한다. */
