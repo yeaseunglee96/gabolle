@@ -246,6 +246,17 @@ pipeline {
         //    걸렸다). cpus를 2.0으로 올려 원인 쪽도 같이 고치지만(위 compose.yaml
         //    주석), 그 값도 절대 보장이 아니므로 이 예산도 400초(40x10s)로 늘려
         //    자연 회복이 실제로 일어날 시간을 확보한다.
+        //
+        // 🔴 S15P21E201-848 후속 (2026-09-11) — 400초로도 또 부족했다(빌드 #83).
+        //    이번엔 컨테이너 cpus 상한이 아니라 호스트 자체가 과부하였다 —
+        //    /proc/loadavg 로 확인한 실측이 4코어에 로드 평균 15~19(GitLab CI
+        //    러너 동시 빌드 2건 + Jenkins + personalization 전체 스택 + 그 밖의
+        //    컨테이너들이 한 EC2에 같이 떠 있다). airflow-api-server worker가
+        //    예외 없이 계속 죽고 재기동되다가, 이 400초 창이 끝난 뒤에야 실제로
+        //    떠서 200 OK를 응답하기 시작하는 것을 직접 확인했다. 호스트 자원
+        //    자체를 늘리는 것은 이 파일의 몫이 아니라 팀 결정 사항이라(인스턴스
+        //    증설 또는 CI 동시 실행 수 제한), 우선 이 예산을 900초(90x10s)로
+        //    늘려 자연 회복 시간을 더 확보한다 — 여전히 절대 보장은 아니다.
         stage('Health Check') {
             when {
                 expression { env.STACK_RUNNING == 'true' }
@@ -261,11 +272,11 @@ pipeline {
                         def healthy = sh(
                             script: """
                                 ssh -o StrictHostKeyChecking=no ubuntu@${params.DEPLOY_HOST} '
-                                  for i in \$(seq 1 40); do
+                                  for i in \$(seq 1 90); do
                                     if curl -sf http://127.0.0.1:5000/health && curl -sf http://127.0.0.1:8082/api/v2/monitor/health; then
                                       exit 0
                                     fi
-                                    echo "health check retry \$i/40..."
+                                    echo "health check retry \$i/90..."
                                     sleep 10
                                   done
                                   exit 1
