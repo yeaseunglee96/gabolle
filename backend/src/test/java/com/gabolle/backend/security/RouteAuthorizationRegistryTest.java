@@ -422,6 +422,11 @@ class RouteAuthorizationRegistryTest {
 				"삭제는 OWNER 만. 동행자는 403, 비회원과 없는 여행은 같은 404. TripDeleteIntegrationTest");
 		put(m, "GET /api/v1/trips/{}/itineraries", Policy.OWNED,
 				"참여자만. 비회원과 없는 여행이 같은 404. TripItineraryListIntegrationTest");
+		put(m, "GET /api/v1/trips/{}/stories", Policy.OWNED,
+				"참여자만. 비회원과 없는 여행이 같은 404 이고, 참여자에게도 그 기록의 공개 범위 판정"
+						+ "(StoryVisibilityPolicy.canView)을 한 번 더 지난다 — 여행에 달렸다는 이유로 남의 "
+						+ "나만 보기 기록이 새면 -137 에서 막은 구멍이 다시 열린다. "
+						+ "TripStoryJourneyFunctionalTest (-829)");
 		put(m, "GET /api/v1/trips/{}/activity", Policy.OWNED,
 				"참여자만. TripActivityIntegrationTest");
 		put(m, "GET /api/v1/trips/{}/members", Policy.OWNED,
