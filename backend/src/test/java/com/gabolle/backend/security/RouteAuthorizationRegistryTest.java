@@ -199,14 +199,7 @@ class RouteAuthorizationRegistryTest {
 	private static Set<String> discoverRoutes() {
 		Set<String> routes = new TreeSet<>();
 		for (Class<?> controller : scanForControllers()) {
-			String base = classLevelPath(controller);
-			for (var method : controller.getDeclaredMethods()) {
-				collect(routes, base, method.getAnnotation(GetMapping.class));
-				collect(routes, base, method.getAnnotation(PostMapping.class));
-				collect(routes, base, method.getAnnotation(PutMapping.class));
-				collect(routes, base, method.getAnnotation(PatchMapping.class));
-				collect(routes, base, method.getAnnotation(DeleteMapping.class));
-			}
+			routes.addAll(routesOf(controller));
 		}
 		// 🔴 하나도 못 찾았으면 그것 자체가 실패다. 이 메서드가 조용히 빈 집합을 돌려주면
 		//    위의 모든 확인이 무의미하게 초록이 된다.
@@ -291,9 +284,70 @@ class RouteAuthorizationRegistryTest {
 		}
 	}
 
+	/**
+	 * 한 컨트롤러가 선언한 경로들.
+	 *
+	 * <p>🔴 {@code discoverRoutes} 에서 이 자리를 떼어낸 이유는 <b>회귀 검사가 직접 부를 자리가
+	 * 필요해서</b>다 — S15P21E201-836. 그 전에는 경로를 읽는 방식이 클래스 경로 스캔 안에만
+	 * 있어서, {@code path=} 로 쓴 매핑을 감사가 보는지 확인하려면 실제 컨트롤러를 하나 만들어야
+	 * 했다. 그런데 {@code @RestController} 를 붙인 순간 그것이 감사 대상에 들어가 표와 열린 경로
+	 * 수까지 건드린다. 이제 검사가 {@code @RestController} 없는 대역 클래스를 만들어 이 메서드만
+	 * 부를 수 있다.
+	 */
+	static Set<String> routesOf(Class<?> controller) {
+		Set<String> routes = new TreeSet<>();
+		String base = classLevelPath(controller);
+		for (var method : controller.getDeclaredMethods()) {
+			collect(routes, base, method.getAnnotation(GetMapping.class));
+			collect(routes, base, method.getAnnotation(PostMapping.class));
+			collect(routes, base, method.getAnnotation(PutMapping.class));
+			collect(routes, base, method.getAnnotation(PatchMapping.class));
+			collect(routes, base, method.getAnnotation(DeleteMapping.class));
+		}
+		return routes;
+	}
+
 	private static String classLevelPath(Class<?> controller) {
 		RequestMapping mapping = AnnotatedElementUtils.findMergedAnnotation(controller, RequestMapping.class);
-		return (mapping == null || mapping.value().length == 0) ? "" : mapping.value()[0];
+		if (mapping == null) {
+			return "";
+		}
+		String[] path = pathOf(mapping.value(), mapping.path());
+		return path.length == 0 ? "" : path[0];
+	}
+
+	/**
+	 * 🔴 {@code value} 와 {@code path} 를 <b>둘 다</b> 본다 — S15P21E201-836.
+	 *
+	 * <p>스프링에게 이 둘은 완전히 같은 별칭이다({@code @AliasFor}). 그런데 애너테이션 객체를
+	 * 직접 읽는 이 감사에게는 다르다 — {@code @PostMapping(path = "/x")} 로 쓰면 {@code value()}
+	 * 가 비어 있고, 그때 이 감사는 그 메서드의 경로를 <b>클래스 경로 그대로로 오인했다.</b>
+	 *
+	 * <p>그것이 왜 위험한가. 오인한 이름이 표에 없으면 "정책 없는 경로" 로 빨개지지만,
+	 * <b>클래스 경로가 이미 표에 있으면 조용히 통과한다.</b> 즉 {@code @RequestMapping("/api/v1/auth")}
+	 * 처럼 표에 있는 컨트롤러에 {@code path=} 로 새 경로를 더하면, 정책을 한 줄도 안 적고
+	 * 이 검사를 지나간다 — 이 검사가 막으려는 것이 정확히 그것이다.
+	 *
+	 * <p>실제로 겪었다. {@code S15P21E201-833} 에서 애플 착지 경로를 {@code path=} 로 썼고,
+	 * 감사는 그것을 {@code POST /api/v1/auth/oauth/apple} 로 봤다. 그때는 그 이름이 표에 없어
+	 * 빨개졌지만, 한 마디만 달랐으면 아무 일도 안 일어났을 것이다.
+	 *
+	 * <h2>🔴 실측 — 구멍은 메서드 쪽에만 있었다</h2>
+	 * 부수기 실험으로 확인했다. 이 메서드를 {@code return value} 로 되돌리면
+	 * {@code RouteDiscoveryReadsPathAttributeTest} 의 <b>메서드 매핑 검사 둘만</b> 빨개지고
+	 * 클래스 레벨 검사는 그대로 초록이다.
+	 *
+	 * <p>이유는 읽는 방식이 다르기 때문이다. 클래스 경로는
+	 * {@code AnnotatedElementUtils.findMergedAnnotation} 으로 읽는데 그쪽은 {@code @AliasFor} 를
+	 * 실제로 합쳐 준다. 메서드 매핑은 {@code method.getAnnotation(...)} — 순수 반사라 별칭을
+	 * 합치지 않고 선언된 값 그대로다. <b>같은 별칭인데 읽는 도구가 달라서 결과가 갈렸다.</b>
+	 *
+	 * <p>그래서 {@link #classLevelPath} 쪽 호출은 지금도 필요하지 않다. 그래도 남겨 두는 이유는
+	 * 두 자리가 같은 규칙으로 보이는 편이 다음 사람에게 안전하고, 읽는 도구를 나중에 바꿔도
+	 * 결과가 안 흔들리기 때문이다.
+	 */
+	private static String[] pathOf(String[] value, String[] path) {
+		return value.length > 0 ? value : path;
 	}
 
 	private static void collect(Set<String> routes, String base, Annotation annotation) {
@@ -304,23 +358,23 @@ class RouteAuthorizationRegistryTest {
 		String[] value;
 		if (annotation instanceof GetMapping a) {
 			verb = "GET";
-			value = a.value();
+			value = pathOf(a.value(), a.path());
 		}
 		else if (annotation instanceof PostMapping a) {
 			verb = "POST";
-			value = a.value();
+			value = pathOf(a.value(), a.path());
 		}
 		else if (annotation instanceof PutMapping a) {
 			verb = "PUT";
-			value = a.value();
+			value = pathOf(a.value(), a.path());
 		}
 		else if (annotation instanceof PatchMapping a) {
 			verb = "PATCH";
-			value = a.value();
+			value = pathOf(a.value(), a.path());
 		}
 		else if (annotation instanceof DeleteMapping a) {
 			verb = "DELETE";
-			value = a.value();
+			value = pathOf(a.value(), a.path());
 		}
 		else {
 			throw new IllegalArgumentException("모르는 매핑: " + annotation);
