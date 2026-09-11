@@ -214,12 +214,17 @@ class AccountDeletionIntegrationTest extends AuthPostgresIntegrationTest {
 	}
 
 	@Test
-	@DisplayName("이미 지운 계정을 다시 지우려 하면 쓸 수 없는 계정이라고 거절한다")
+	@DisplayName("이미 지운 계정을 다시 지우려 하면 쓸 수 없는 계정이라고 거절한다 — 검사 순서를 못 박는다")
 	void deletingTwiceIsRejected() {
 		this.accountDeletionService.delete(this.userId, CONFIRM, PASSWORD);
 
 		// 🔴 S15P21E201-837 이전에는 자격증명이 사라진 덕분에 LOCAL_CREDENTIAL_REQUIRED 로 막혔다.
 		// 비밀번호가 선택이 된 지금은 그 우연한 방어가 없어서 상태를 직접 본다.
+		//
+		// 🔴 이 검사는 **순서**도 함께 못 박는다. 비밀번호를 실어 보내는 것이 핵심이다 — 계정 상태를
+		// 비밀번호보다 나중에 보면, 자격증명이 이미 사라졌으므로 PASSWORD_NOT_SET("소셜 계정입니다")
+		// 이 나간다. 사실과 다른 안내이고, 쓸 수 없는 계정에 대해 "비밀번호가 있는 계정인가" 를
+		// 알려 주는 것이기도 하다. 실제로 그렇게 짰다가 CI 에서 잡혔다(파이프라인 189067).
 		assertThatThrownBy(() -> this.accountDeletionService.delete(this.userId, CONFIRM, PASSWORD))
 				.isInstanceOf(AuthException.class)
 				.extracting(exception -> ((AuthException) exception).getCode())

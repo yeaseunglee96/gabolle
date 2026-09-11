@@ -138,6 +138,22 @@ public class AccountDeletionService {
 					HttpStatus.BAD_REQUEST);
 		}
 
+		// 🔴 계정이 쓸 수 있는 상태인지가 비밀번호보다 먼저다. 순서를 반대로 뒀다가 CI 에서 잡혔다
+		// (2026-09-11, 파이프라인 189067) — 이미 지운 계정에 비밀번호를 실어 다시 부르면 자격증명이
+		// 없으므로 "이 계정에는 비밀번호가 없습니다(소셜 계정입니다)" 가 나갔다. 사실과 다른 안내이고,
+		// 쓸 수 없는 계정에 대해 "비밀번호가 있는 계정인가" 를 알려 주는 것이기도 하다.
+		AppUser user = this.userRepository.findById(userId)
+				.orElseThrow(() -> new AuthException("ACCOUNT_UNAVAILABLE", "사용할 수 없는 계정입니다.",
+						HttpStatus.UNAUTHORIZED));
+
+		// 🔴 이미 지운 계정을 또 지우지 않는다 (S15P21E201-837). 전에는 자격증명이 사라진 덕분에
+		// 두 번째 호출이 LOCAL_CREDENTIAL_REQUIRED 로 막혔는데, 자격증명이 선택이 된 지금은 그
+		// 우연한 방어가 없다. 접속 표는 발급 시점부터 30분 살아 있으므로 탈퇴 직후에도 같은 표로
+		// 한 번 더 부를 수 있다 — 그때 익명화가 두 번 도는 것을 여기서 끊는다.
+		if (user.getStatus() == UserStatus.DELETED) {
+			throw new AuthException("ACCOUNT_UNAVAILABLE", "사용할 수 없는 계정입니다.", HttpStatus.UNAUTHORIZED);
+		}
+
 		LocalCredential credential = this.credentialRepository.findByUserUserId(userId).orElse(null);
 
 		// 🔴 비밀번호는 선택이지만 보냈으면 반드시 맞아야 한다. 틀린 것을 조용히 무시하면 사용자는
@@ -152,18 +168,6 @@ public class AccountDeletionService {
 				throw new AuthException("INVALID_CREDENTIALS", "비밀번호가 올바르지 않습니다.",
 						HttpStatus.UNAUTHORIZED);
 			}
-		}
-
-		AppUser user = this.userRepository.findById(userId)
-				.orElseThrow(() -> new AuthException("ACCOUNT_UNAVAILABLE", "사용할 수 없는 계정입니다.",
-						HttpStatus.UNAUTHORIZED));
-
-		// 🔴 이미 지운 계정을 또 지우지 않는다 (S15P21E201-837). 전에는 자격증명이 사라진 덕분에
-		// 두 번째 호출이 LOCAL_CREDENTIAL_REQUIRED 로 막혔는데, 자격증명이 선택이 된 지금은 그
-		// 우연한 방어가 없다. 접속 표는 발급 시점부터 30분 살아 있으므로 탈퇴 직후에도 같은 표로
-		// 한 번 더 부를 수 있다 — 그때 익명화가 두 번 도는 것을 여기서 끊는다.
-		if (user.getStatus() == UserStatus.DELETED) {
-			throw new AuthException("ACCOUNT_UNAVAILABLE", "사용할 수 없는 계정입니다.", HttpStatus.UNAUTHORIZED);
 		}
 
 		List<UUID> tripIds = ownedTripIds(userId);
