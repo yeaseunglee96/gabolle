@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220811591741",
+  "worker": "haiku-10",
+  "researchedAt": "2026-09-09T14:45:00Z",
+  "queries": ["구포촌국수가락 금정구 부산", "구포촌국수가락 남산동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산 금정구 금샘로 490"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "연차·역사", "note": "30년 이상 운영해온 국수 전문점", "sources": [0]},
+    {"type": "대물림", "note": "2대에 걸쳐 운영 중", "sources": [0]},
+    {"type": "조리·재료", "note": "청정 남해 멸치를 12시간 이상 우린 깊은 멸치육수", "sources": [0]},
+    {"type": "맛 묘사", "note": "쫄깃한 면발과 비린맛 없는 진한 국물", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": "30년 이상",
+    "generations": "2대",
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["물국수"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

@@ -1,0 +1,24 @@
+{
+  "id": "MA0101202307A0011416",
+  "worker": "haiku-72",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["광안리엔미포집 부산", "광안리엔미포집 광안해변로 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://kr.trip.com/moments/detail/busan-432-131929926/", "https://www.diningcode.com/profile.php?rid=da7Q7t2xdLao", "https://www.siksinhot.com/theme/magazine/7326"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "분위기·전망", "note": "광안리 오션뷰 맛집, 바다가 보이는 위치", "sources": [0]},
+    {"type": "간판 메뉴 지목", "note": "해물장 솥밥 전문점, 간장게장", "sources": [1, 2]},
+    {"type": "조리·재료", "note": "과일 효소를 3년 발효해 만든 열매 간장 사용", "sources": [1]},
+    {"type": "현지인 지지", "note": "가족 외식에 인기 있는 광안리 대표 식당", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["해물장 솥밥", "간장게장"],
+    "priceBand": "moderate",
+    "audience": "mixed"
+  },
+  "notFound": null,
+  "notes": ""
+}

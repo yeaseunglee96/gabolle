@@ -1,0 +1,26 @@
+{
+  "id": "MA0101202507A0029543",
+  "worker": "haiku-11",
+  "researchedAt": "2026-09-09T00:47:00Z",
+  "queries": ["포항물회 서구 부산", "포항물회 충무 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 서구 충무시장길 14"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "맛 묘사", "note": "신선한 자연산 회의 포항식 물회로 자작한 국물이 특징", "sources": [0, 1] },
+    { "type": "조리·재료", "note": "신선하게 선택된 재료로 포항식 물회의 독특한 방식으로 조리", "sources": [0, 1] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["물회", "모듬회"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": ""
+}

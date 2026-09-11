@@ -1,0 +1,23 @@
+{
+  "id": "MA010120220813626648",
+  "worker": "haiku-33",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["고고70 금정구 부산", "고고70 남산동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://www.namu.wiki/w/%EA%B3%A0%EA%B3%A070"],
+  "stillOpen": true,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": null,
+    "signatureDishes": [],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "위치와 전화번호만 확인 가능. 자세한 정보는 없음"
+}

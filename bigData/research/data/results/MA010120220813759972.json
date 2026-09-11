@@ -1,0 +1,30 @@
+{
+  "id": "MA010120220813759972",
+  "worker": "haiku-8",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["중앙곰탕 중구 부산", "중앙곰탕 중앙동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산 중구 충장대로9번길 9"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "연차·역사", "note": "중앙동에서 46년 한결같은 맛과 서비스를 유지해온 노포", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "곰탕 전문, 수백과 양수백 대표메뉴", "sources": [0, 1]},
+    {"type": "미디어 노출", "note": "성시경 먹을텐데, 전현무계획 TV 프로그램에 소개됨", "sources": [0, 1]},
+    {"type": "맛 묘사", "note": "부드럽고 잡내 없는 수육과 진한 곰탕 국물의 조화", "sources": [1]},
+    {"type": "조리·재료", "note": "담백하고 깊은 맛의 곰탕", "sources": [1]},
+    {"type": "혼잡·수요", "note": "점심시간에 줄이 길게 늘어날 정도로 인기 많음", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": true,
+    "parking": false,
+    "audience": "mixed",
+    "signatureDishes": ["수백", "양수백"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

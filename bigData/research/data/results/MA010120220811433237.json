@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220811433237",
+  "worker": "haiku-9",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["간판없는집 수영구 부산", "간판없는집 광안3동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["siksinhot.com", "diningcode.com"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "제주 돼지 목살을 소금구이로 주로 제공",
+      "sources": [0, 1]
+    },
+    {
+      "type": "조리·재료",
+      "note": "국내산 제주 돼지, 국산 김치, 국산 쌀만 사용",
+      "sources": [0, 1]
+    },
+    {
+      "type": "메뉴 희소성",
+      "note": "간판 없이 맛으로만 승부하는 가성비 좋은 맛집",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["제주 돼지 목살", "된장찌개"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "원래 간판이 없었으나 현재 간판 설치. 저녁시간만 영업"
+}

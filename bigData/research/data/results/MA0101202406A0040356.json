@@ -1,0 +1,28 @@
+{
+  "id": "MA0101202406A0040356",
+  "worker": "haiku-69",
+  "researchedAt": "2026-09-10T00:09:00Z",
+  "queries": ["극동횟집 기장군", "극동횟집 기장읍"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.tabling.co.kr/place/677ccbd166de5f06987def29", "https://www.diningcode.com/profile.php?rid=iKoCODOwMldw"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "연차·역사", "note": "50년 전통 붕장어 전문점", "sources": [1]},
+    {"type": "간판 메뉴 지목", "note": "붕장어회 전문", "sources": [1]},
+    {"type": "메뉴 희소성", "note": "붕장어회, 모듬회", "sources": [1]},
+    {"type": "분위기·전망", "note": "조용한 해변 골목, 큰 수족관", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 50,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["붕장어회", "모듬회"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "코스 50,000원~, 영업시간 11:00~22:00, 화요일 휴무"
+}

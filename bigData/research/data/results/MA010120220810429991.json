@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220810429991",
+  "worker": "haiku-1",
+  "researchedAt": "2026-09-09T02:15:00Z",
+  "queries": ["부광돼지국밥 중구 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=nyamk4hq5gOR", "https://visitbusan.net/index.do?lang_cd=ko&menuCd=DOM_000000201002001000&uc_seq=1516"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "heritage",
+      "note": "1984년에 문을 연 40년 전통 돼지국밥 전문점",
+      "sources": [0]
+    },
+    {
+      "type": "recognition",
+      "note": "백종원의 3대천왕에 출연한 경력 있음",
+      "sources": [0]
+    },
+    {
+      "type": "quality",
+      "note": "깔끔하고 맛있다는 평가 - 고기가 질기지 않고 잡내 없음",
+      "sources": [0]
+    },
+    {
+      "type": "cooking_method",
+      "note": "왕소금으로 밑간하고 질 좋은 냉장육만 사용 - 단순하면서 깊은 맛",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 40,
+    "signatureDishes": ["돼지국밥", "수육백반"]
+  },
+  "notFound": null,
+  "notes": "중앙역 11번 출구 근처, 월~금 10:00~19:30(14:00~16:00 브레이크), 토 10:00~14:00, 일요일 휴무, 주차 불가"
+}

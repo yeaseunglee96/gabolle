@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220803720722",
+  "worker": "haiku-63",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["케이크콕 수영구 부산", "케이크콕 광안2동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "검색 결과에 요청된 가게명 '케이크콕'과 정확히 일치하는 정보를 찾지 못했음. 광안2동 케이크 맛집들이 나왔으나 그중에 케이크콕은 없음",
+  "notes": ""
+}

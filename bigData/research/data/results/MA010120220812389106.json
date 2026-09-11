@@ -1,0 +1,33 @@
+{
+  "id": "MA010120220812389106",
+  "worker": "haiku-1",
+  "researchedAt": "2026-09-09T02:31:00Z",
+  "queries": ["합천국밥집 남구 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://guide.michelin.com/us/en/busan-region/busan_1025838/restaurant/hapcheon-gukbapjip", "https://www.diningcode.com/profile.php?rid="],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "recognition",
+      "note": "미쉐린 빕구르망과 미슐랭 가이드 선정 - 부산 대표 돼지국밥",
+      "sources": [0]
+    },
+    {
+      "type": "quality",
+      "note": "맑은 국물에 수육과 순대가 듬뿍 - 돼지 잡내 제거 기술",
+      "sources": [0]
+    },
+    {
+      "type": "taste",
+      "note": "감칠맛과 깔끔한 맛이 동시에 느껴지는 국물",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["따로국밥", "수육백반"]
+  },
+  "notFound": null,
+  "notes": "09:30~20:00 영업, 1시간 무료주차, 포장·예약 가능"
+}

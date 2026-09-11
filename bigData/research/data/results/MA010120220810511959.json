@@ -1,0 +1,25 @@
+{
+  "id": "MA010120220810511959",
+  "worker": "haiku-41",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["썽그러횟집 중구 부산", "썽그러횟집 영주2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.tripadvisor.co.kr/Restaurant_Review-g297884-d9243336-Reviews-Sseong_Geureo_Sashimi_Restaurant-Busan.html", "https://www.diningcode.com/profile.php?rid=uvWidSPnK3A0"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "메뉴 희소성", "note": "생회 전문점", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["회"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "부산 중구 망양로에 위치한 횟집"
+}

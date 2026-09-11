@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220810524310",
+  "worker": "haiku-45",
+  "researchedAt": "2026-09-09T13:39:00Z",
+  "queries": ["뚱스 사하구 부산", "뚱스 신평1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://triple.guide/restaurants/f6553bc2-01bc-4709-ab5a-9dc096fca982", "https://www.tabling.co.kr/place/677cd80f66de5f069893d914"],
+  "stillOpen": true,
+  "whyPeopleGo": [{"type": "간판 메뉴 지목", "note": "돼지고기 구이/찜 전문점", "sources": [0, 1]}],
+  "newTypes": [],
+  "descriptors": {"yearsClaimed": null, "generations": null, "queueing": null, "parking": null, "audience": "mixed", "signatureDishes": ["돼지고기 구이", "돼지고기 찜"], "priceBand": "cheap"},
+  "notFound": null,
+  "notes": ""
+}

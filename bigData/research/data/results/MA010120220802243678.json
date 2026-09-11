@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220802243678",
+  "worker": "haiku-13",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["백팥집 동래구 부산", "백팥집 온천2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["다이닝코드", "koreatriptips"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "팥빙수 전문점",
+      "sources": [0]
+    },
+    {
+      "type": "조리·재료",
+      "note": "100% 국산 팥, 눈꽃 얼음, 직접 뽑아낸 쫀득한 떡",
+      "sources": [1]
+    },
+    {
+      "type": "플랫폼 순위·평점",
+      "note": "다이닝코드 평점을 근거로 든다",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["옛날팥빙수", "팥죽", "인절미"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "동래역 인근 조용한 골목, 여행객 입소문 맛집"
+}

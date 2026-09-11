@@ -1,0 +1,44 @@
+{
+  "id": "MA010120220808539504",
+  "worker": "haiku-19",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["마레 기장군 부산", "마레 일광읍 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=RxLaEvqtv0Gh", "https://www.siksinhot.com/P/263135", "https://shelly9.com/entry/%EB%B6%80%EC%82%B0-%EA%B8%B0%EC%9E%A5-%EB%B0%94%EB%8B%A4%EB%B7%B0-%EB%A7%9B%EC%A7%91-%EB%A7%88%EB%A0%88-%E2%80%94-%EB%B8%94%EB%A3%A8%EB%A6%AC%EB%B3%B8-13%EB%85%84-%EC%97%B0%EC%86%8D-%ED%8A%B8%EB%9F%AC%ED%94%8C-%ED%8C%8C%EC%8A%A4%ED%83%80%EC%99%80-%EC%8A%A4%ED%85%8C%EC%9D%B4%ED%81%AC-%EC%B0%90%ED%9B%84%EA%B8%B0"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "지중해식 건축의 우아한 외관, 넓은 창문에서 바다뷰, 유럽식 분위기",
+      "sources": [0]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "스테이크, 스파게티, 한우1++ 스테이크",
+      "sources": [0]
+    },
+    {
+      "type": "플랫폼 순위·평점",
+      "note": "블루리본 13년 연속 선정",
+      "sources": [0]
+    },
+    {
+      "type": "운영·접근 편의",
+      "note": "넓은 주차장, 2000년부터 운영",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["스테이크", "파스타", "한우1++ 스테이크"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": ""
+}

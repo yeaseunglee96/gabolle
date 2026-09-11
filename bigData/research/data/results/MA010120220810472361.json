@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220810472361",
+  "worker": "haiku-8",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["진미돼지국밥 중구 부산", "진미돼지국밥 부평동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산 중구 부평1길 9"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "맛 묘사", "note": "깔끔한 국물에 담백한 느낌과 부드러운 수육", "sources": [0, 1]},
+    {"type": "서비스·사람", "note": "친절한 사장님", "sources": [1]},
+    {"type": "현지인 지지", "note": "시장통 근처에서 일하는 분들이 자주 방문하는 현지 맛집", "sources": [1]},
+    {"type": "동네·시장 지목", "note": "야시장 입구에 위치하며 깡통시장·국제시장 인근", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "locals",
+    "signatureDishes": ["돼지국밥"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

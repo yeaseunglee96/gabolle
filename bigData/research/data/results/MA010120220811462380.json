@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220811462380",
+  "worker": "haiku-61",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["키친보리에주 해운대구 부산", "키친보리에주 우1동 맛집"],
+  "found": false,
+  "confidence": "low",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹에서 검색되지 않음. 다른 키친 상호만 검색됨",
+  "notes": ""
+}

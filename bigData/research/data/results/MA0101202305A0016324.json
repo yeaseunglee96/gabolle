@@ -1,0 +1,29 @@
+{
+  "id": "MA0101202305A0016324",
+  "worker": "haiku-21",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["엠비스 동구 부산", "엠비스 초량동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://www.diningcode.com/profile.php?rid=OeRiZZSFKiPm"],
+  "stillOpen": false,
+  "whyPeopleGo": [
+    {
+      "type": "메뉴 희소성",
+      "note": "베트남식(또는 중식) 아시아음식으로 제한적 요리",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["새우볶음밥", "라면볶음", "찹수이"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "검색결과에서 폐업신고(폐업신고) 언급 있음. 현재 영업 여부 확인 불가"
+}

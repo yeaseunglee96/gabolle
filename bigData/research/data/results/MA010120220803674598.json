@@ -1,0 +1,38 @@
+{
+  "id": "MA010120220803674598",
+  "worker": "haiku-1",
+  "researchedAt": "2026-09-09T01:20:00Z",
+  "queries": ["파전닭갈비 부산진구", "파전닭갈비 거제대로 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=jv4PqxpLVff0", "https://www.siksinhot.com/P/355433"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "signature_dish",
+      "note": "고구마무스닭갈비 - 고구마무스를 얹은 시그니처 메뉴, 달콤한 맛",
+      "sources": [0]
+    },
+    {
+      "type": "menu_variety",
+      "note": "다양한 파전 - 해물파전, 파전과 닭갈비의 완벽한 조합",
+      "sources": [0]
+    },
+    {
+      "type": "atmosphere",
+      "note": "넓은 공간과 깔끔한 분위기 - 환기가 잘 되고 친절한 서빙",
+      "sources": [0]
+    },
+    {
+      "type": "sider_dishes",
+      "note": "닭갈비 사리 추가 - 고구마, 우동 등 다양한 사리 선택 가능",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["고구마무스닭갈비", "해물파전"]
+  },
+  "notFound": null,
+  "notes": "저녁시간 대기 많음, 술모임과 가족 식사에 적합, 양정역에서 도보 300m"
+}

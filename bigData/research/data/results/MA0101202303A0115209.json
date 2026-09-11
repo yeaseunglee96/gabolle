@@ -1,0 +1,25 @@
+{
+  "id": "MA0101202303A0115209",
+  "worker": "haiku-10",
+  "researchedAt": "2026-09-09T15:05:00Z",
+  "queries": ["영도빨간등대밀면 영도구 부산", "영도빨간등대밀면 남항동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산 영도구 남항남로 1-1"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "맛 묘사", "note": "시원한 밀면, 풍부한 육전과 국물", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["밀면", "육전"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "영업시간이 10:30-17:00으로 제한적"
+}

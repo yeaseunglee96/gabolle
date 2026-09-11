@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220805401974",
+  "worker": "haiku-37",
+  "researchedAt": "2026-09-09T11:23:43.0136153+09:00",
+  "queries": ["오히츠 부산 서구 회초밥"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=sYjycbeaYPW2"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "맛 묘사", "note": "좋은 맛의 스시", "sources": [0] },
+    { "type": "가격·가성비", "note": "합리적인 가격대", "sources": [0] },
+    { "type": "운영·접근 편의", "note": "배달·테이크아웃·룸 가능, 주차 완비", "sources": [0] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "available",
+    "audience": "mixed",
+    "signatureDishes": ["스시"],
+    "priceBand": "affordable"
+  },
+  "notFound": null,
+  "notes": "대신샤프쇼핑 2층. 전화 051-242-2002"
+}

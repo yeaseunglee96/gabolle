@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220804941441",
+  "worker": "haiku-47",
+  "researchedAt": "2026-09-09T11:10:00Z",
+  "queries": ["유투 해운대구 부산", "유투 중1동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://www.diningcode.com/profile.php?rid=FScT7AWv60Ut"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "분위기·전망", "note": "해운대 해운대해변로의 칵테일 바, 외국 관광객이 많이 방문", "sources": [0]},
+    {"type": "운영·접근 편의", "note": "게임 시설 구비(포켓볼, 다트, 슬롯머신), 야간 영업", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "tourists",
+    "signatureDishes": ["순살치킨&감자튀김", "토마토카프레제"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "데이터 분류는 백반/한정식이나 실제는 칵테일 바(위스키바). 영업시간 19:00-01:00"
+}

@@ -1,0 +1,28 @@
+{
+  "id": "MA0101202301A0016426",
+  "worker": "haiku-64",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["고하순 민락동 부산", "고하순 돼지고기 맛집", "고하순 식신", "고하순 광안리 식신"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1541620", "https://www.diningcode.com/profile.php?rid=9GEupo5VlOOA", "https://kr.trip.com/moments/detail/busan-432-131591119/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "갈비살과 돼지고기 김치찌개가 대표", "sources": [0]},
+    {"type": "조리·재료", "note": "신선한 숙성 돼지고기, 사장과 직원이 직접 구워줌", "sources": [1, 2]},
+    {"type": "서비스·사람", "note": "사장이 고기를 정성럽게 구워주는 서비스", "sources": [1]},
+    {"type": "현지인 지지", "note": "광안리 지역의 인기 고기집", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "available",
+    "audience": "mixed",
+    "signatureDishes": ["갈비살", "삼겹살", "돼지고기 김치찌개"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "서면 전포동 본점과 광안리점 등 여러 점포 운영"
+}

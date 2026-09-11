@@ -1,0 +1,39 @@
+{
+  "id": "MA0101202508A0025811",
+  "worker": "haiku-70",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["호이안 송정 중국집", "호이안 해운대 중국요리"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=jqUuq7f63fTa", "https://www.instagram.com/p/DFAKU4Nxvh7/", "https://www.youtube.com/watch?v=VXLh1huU9ng"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "메뉴 희소성",
+      "note": "베트남식 쌀국수와 정통 베트남 가정식 제공",
+      "sources": [1]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "송정의 해변 근처로 바다 뷰를 즐길 수 있는 식당",
+      "sources": [0]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "숭어 소스 국수(Banh Se O)와 그릴 소고기 국수가 특징",
+      "sources": [2]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["쌀국수", "Banh Se O"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "카테고리는 중국집이지만 실제로는 베트남 식당"
+}

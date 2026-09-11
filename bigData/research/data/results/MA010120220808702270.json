@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220808702270",
+  "worker": "haiku-12",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["이흥용과자점칠암사계 기장군 부산", "이흥용과자점칠암사계 일광읍 카페"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.busan.go.kr/news/specnews/view?bbsNo=6&dataNo=67157&srchThemeNo=258", "https://brunch.co.kr/@kun-archiving/138"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "원조·최초", "note": "제과 명장 이흥용이 1995년 자신의 이름을 걸고 시작한 부산 대표 브랜드", "sources": [0]},
+    {"type": "기관 선정", "note": "2018년 대한민국 제과·제빵 명장으로 공식 선정", "sources": [0]},
+    {"type": "분위기·전망", "note": "기장 해변의 베이커리 갤러리 + 카페 콘셉트, 아름다운 바다 경치 감상", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "돌만주, 명란바게트, 오징어먹물빵 등 부산 대표 특산 빵", "sources": [0, 1]},
+    {"type": "현지인 지지", "note": "오픈 3개월 만에 네이버 방문자 리뷰 수를 근거로 든다 - 기장의 핫 플레이스", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 29,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["명란바게트", "오징어먹물빵", "돌만주"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

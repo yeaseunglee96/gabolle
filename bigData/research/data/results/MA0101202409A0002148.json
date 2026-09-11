@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202409A0002148",
+  "worker": "haiku-62",
+  "researchedAt": "2026-09-09T08:40:00Z",
+  "queries": ["사라랑 부산진구 부산", "사라랑 부전2동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색에서 사라랑에 대한 정보를 찾을 수 없음",
+  "notes": ""
+}

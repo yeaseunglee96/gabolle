@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220810468969",
+  "worker": "haiku-8",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["고향김치전골 중구 부평동"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산 중구 중구로29번길 26"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "맛 묘사", "note": "따뜻하고 칼칼한 국물, 새콤매콤한 맛", "sources": [0]},
+    {"type": "곁들임·차림", "note": "김치 돌돌 말아 만든 김치만두가 인상적", "sources": [0]},
+    {"type": "미디어 노출", "note": "백종원 3대 천왕에 소개됨", "sources": [0]},
+    {"type": "동네·시장 지목", "note": "부평깡통시장 부평동 대표 맛집", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["김치전골"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220810511182",
+  "worker": "haiku-30",
+  "researchedAt": "2026-09-09T10:14:00Z",
+  "queries": ["두레마을식당 서구 부산", "두레마을식당 서대신3동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 서구 구덕로321번길 64"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "현지인 지지", "note": "서대신동 주민들이 '진짜 맛집'이라고 입모아 추천", "sources": [1] },
+    { "type": "맛 묘사", "note": "여운이 많이 남는 소고기 맛, 일관된 맛", "sources": [1] },
+    { "type": "메뉴 희소성", "note": "마늘양념이 특색인 생고기 준비", "sources": [1] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": false,
+    "parking": false,
+    "audience": "local",
+    "signatureDishes": ["생고기", "된장찌개"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

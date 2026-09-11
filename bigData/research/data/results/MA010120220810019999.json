@@ -1,0 +1,25 @@
+{
+  "id": "MA010120220810019999",
+  "worker": "haiku-11",
+  "researchedAt": "2026-09-09T01:06:00Z",
+  "queries": ["스시시안 센텀 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 해운대구 센텀1로 9"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "가격·가성비", "note": "센텀 지역에서 가성비 좋은 스시 오마카세로 알려짐", "sources": [0, 1] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["판초밥", "후토마끼"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": ""
+}

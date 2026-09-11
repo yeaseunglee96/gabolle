@@ -1,0 +1,28 @@
+{
+  "id": "MA0101202309A0051854",
+  "worker": "haiku-15",
+  "researchedAt": "2026-09-08T22:40:39Z",
+  "queries": ["타라코소바 해운대구 부산", "타라코소바 중1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 해운대구 해운대해변로359번길 27"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "메뉴 희소성", "note": "국내 유일무이한 명란소바 전문점", "sources": [0] },
+    { "type": "간판 메뉴 지목", "note": "명란크림소바, 명란츠케멘, 명란 들기름 소바", "sources": [0] },
+    { "type": "조리·재료", "note": "탱글 쫄깃한 소바면과 좋은 품질의 명란", "sources": [0] },
+    { "type": "분위기·전망", "note": "오픈키친 바테이블 구성으로 조리 과정 관찰 가능", "sources": [0] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": false,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["명란크림소바", "명란츠케멘", "명란 들기름 소바"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "월-토 11:20~18:30, 일요일 휴무, 점심 시간 만석, 혼밥 편함"
+}

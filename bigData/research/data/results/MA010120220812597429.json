@@ -1,0 +1,17 @@
+{
+  "id": "MA010120220812597429",
+  "worker": "haiku-56",
+  "researchedAt": "2026-09-09T06:37:13Z",
+  "queries": ["경아네착한빈대떡 해운대구 부산", "경아네착한빈대떡 재송 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [
+    "https://www.diningcode.com/list.dc?query=%EC%9E%AC%EC%86%A1%EB%8F%99+%EB%96%A1"
+  ],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색에서 이 음식점의 구체적인 정보를 찾을 수 없음. 다이닝코드의 재송동 떡 맛집 목록에만 포함됨",
+  "notes": ""
+}

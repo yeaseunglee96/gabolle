@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202604A0034694",
+  "worker": "haiku-63",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["대맥 해운대구 중1동 부산"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "검색 결과에 요청된 가게명 '대맥'과 정확히 일치하는 정보를 찾지 못했음",
+  "notes": ""
+}

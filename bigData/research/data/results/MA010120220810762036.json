@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220810762036",
+  "worker": "haiku-8",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["동래할매파전 동래구 부산", "동래할매파전 복산동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산 동래구 명륜로94번길 43-10"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "연차·역사", "note": "1930년대부터 시작하여 약 90년 운영", "sources": [0, 1]},
+    {"type": "현지인 지지", "note": "동래가면 무조건 가야하는 전집으로 불림", "sources": [1]},
+    {"type": "맛 묘사", "note": "겉바속촉한 식감과 해물 풍미 제대로 올라오는 두툼한 파전", "sources": [1]},
+    {"type": "미디어 노출", "note": "맛있는 녀석들, 배틀트립 등 여러 방송에서 소개", "sources": [0, 1]},
+    {"type": "곁들임·차림", "note": "파전을 초고추장과 곁들여 먹는 독특한 방식", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["동래파전"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

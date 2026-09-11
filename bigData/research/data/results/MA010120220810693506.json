@@ -1,0 +1,25 @@
+{
+  "id": "MA010120220810693506",
+  "worker": "haiku-62",
+  "researchedAt": "2026-09-10T12:02:00Z",
+  "queries": ["팩토리 남구 부산", "팩토리 수영로 부산 경양식"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://www.busan.go.kr/depart/goodshops"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "스테이크 전문 경양식", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["스테이크"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": ""
+}

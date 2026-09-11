@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220810770769",
+  "worker": "haiku-1",
+  "researchedAt": "2026-09-09T02:07:00Z",
+  "queries": ["경주박가국밥 연제구", "경주박가국밥 고분로 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=Oe5lJXo6z1HD", "https://busan.grandculture.net/Contents/Index?contents_id=GC04216679"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "heritage",
+      "note": "1951년 박주호의 어머니가 개점 - 50년 이상 전통",
+      "sources": [0]
+    },
+    {
+      "type": "quality",
+      "note": "국물이 진하고 묵직하며 돼지 잡내가 거의 없음 - 깔끔한 맛",
+      "sources": [0]
+    },
+    {
+      "type": "recognition",
+      "note": "부산시가 선정한 향토음식 - 돼지국밥 원조 중 하나",
+      "sources": [0]
+    },
+    {
+      "type": "service",
+      "note": "09:00~06:00 야간 영업 - 아침 식사부터 해장까지 가능",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 50,
+    "signatureDishes": ["돼지국밥", "순대국밥", "수육백반"]
+  },
+  "notFound": null,
+  "notes": "토곡점, 09:00~06:00 영업(라스트 오더 05:00), 셀프바 반찬 리필 가능, 30분 무료주차 제공"
+}

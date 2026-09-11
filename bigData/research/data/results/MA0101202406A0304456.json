@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202406A0304456",
+  "worker": "haiku-61",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["비비비 수영구 부산", "비비비 광안동 맛집", "비비비 빵 도넛 부산", "BBB 카페 부산 광안"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "같은 동네의 비슷한 가게들(비비베이커리, 더베이베이커리 등) 검색되었으나 해당 주소의 음식점인 비비비는 웹에서 확인 불가",
+  "notes": ""
+}

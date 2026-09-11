@@ -1,0 +1,25 @@
+{
+  "id": "MA010120220812855445",
+  "worker": "haiku-39",
+  "researchedAt": "2026-09-09T10:22:00Z",
+  "queries": ["명소 북구 부산 돼지고기", "명소 화명3동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://linktoplace.com/index.php?action=view&name=%EB%AA%85%EC%86%8C&no=2924"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "분위기·전망", "note": "넓은 주차장, 단독건물 2-3층", "sources": [0]},
+    {"type": "운영·접근 편의", "note": "단체석과 모임하기 좋은 공간", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "groups",
+    "signatureDishes": ["소고기"],
+    "priceBand": "expensive"
+  },
+  "notes": "정식명칭: 명소한우숯불구이, 주소: 부산광역시 북구 화명동(화명3동) 용당로 7, 소고기 전문점, 가격은 조금 비싼 편"
+}

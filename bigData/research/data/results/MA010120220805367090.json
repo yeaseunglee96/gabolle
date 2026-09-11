@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220805367090",
+  "worker": "haiku-42",
+  "researchedAt": "2026-09-09T04:29:12Z",
+  "queries": ["백스시 사하구 부산 초밥"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=VUwJ8al0BS0i"],
+  "stillOpen": true,
+  "whyPeopleGo": [{"type": "간판 메뉴 지목", "note": "초밥 전문점, 회와 일식 메뉴 다양하게 제공", "sources": [0]}, {"type": "플랫폼 순위·평점", "note": "다이닝코드 별점을 근거로 든다", "sources": [0]}],
+  "newTypes": [],
+  "descriptors": {"signatureDishes": ["초밥", "회", "사시미"]},
+  "notFound": null,
+  "notes": "배달, 단체, 포장 가능. 월~토 11:30~24:00 운영, 브레이크타임 14:30~17:00. 일요일 정기휴무(2,4주)"
+}

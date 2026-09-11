@@ -1,0 +1,30 @@
+{
+  "id": "MA010120220811500187",
+  "worker": "haiku-59",
+  "researchedAt": "2026-09-09T08:16:00Z",
+  "queries": ["하루참치 해운대구 중동", "하루참치 부산 중동 회"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/767715", "https://www.diningcode.com/profile.php?rid=ae3IsTXTSWpZ"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "싱싱한 참치 오마카세",
+      "sources": ["https://www.siksinhot.com/P/767715"]
+    },
+    {
+      "type": "맛 묘사",
+      "note": "신선한 참치와 다양한 특별 부위 제공",
+      "sources": ["https://www.diningcode.com/profile.php?rid=ae3IsTXTSWpZ"]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "카운터 시팅 오마카세 스타일, 개인실/바테이블/단체석 구비",
+      "sources": ["https://www.diningcode.com/profile.php?rid=ae3IsTXTSWpZ"]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {},
+  "notes": "해운대 구청 후면 위치, 최근 해운대경동리뷰 2단지 4층으로 이전된 것으로 추정"
+}

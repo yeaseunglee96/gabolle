@@ -1,0 +1,25 @@
+{
+  "id": "MA010120220810524386",
+  "worker": "haiku-39",
+  "researchedAt": "2026-09-09T10:28:00Z",
+  "queries": ["모젤과자점 서구 부산", "모젤과자점 동대신2동"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.busan.com/view/busan/view.php?code=20180424000374"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "메뉴 희소성", "note": "포도당 크림으로 만든 건강 빵", "sources": [0]},
+    {"type": "간판 메뉴 지목", "note": "크림케이크로 알려짐", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": null,
+    "signatureDishes": ["베리크림케이크", "미니치즈케이크", "고구마케이크", "티라미수"],
+    "priceBand": "cheap"
+  },
+  "notes": "위치: 부산 서구 구덕로 320, 동대신동 (구덕야구장 앞), 전화: 051-257-2220"
+}

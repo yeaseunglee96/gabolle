@@ -1,0 +1,44 @@
+{
+  "id": "MA010120220811414177",
+  "worker": "haiku-18",
+  "researchedAt": "2026-09-09T10:15:00Z",
+  "queries": ["동산횟집 남구 부산", "동산횟집 용호3동"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 남구 분포로 66-30"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "조리·재료",
+      "note": "선장이 매일 새벽에 직접 잡아온 자연산 회를 사용",
+      "sources": [0]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "자연산 회 코스요리, 물회, 매운탕이 대표 메뉴",
+      "sources": [0]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "광안대교 야경이 보이는 바다뷰, 양호동별빛공원 옆으로 야경 감상 명소",
+      "sources": [0]
+    },
+    {
+      "type": "현지인 지지",
+      "note": "용호동 지역의 로컬 맛집으로 알려짐",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["자연산 회 코스", "물회"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": ""
+}

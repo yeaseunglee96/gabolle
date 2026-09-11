@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220805492663",
+  "worker": "haiku-39",
+  "researchedAt": "2026-09-09T10:12:00Z",
+  "queries": ["원조덕포꼬리집 사상구 부산", "원조덕포꼬리집 덕포1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=f5UBA7L6J1Cg", "https://www.keyzard.cc/dailyding/nb/224047201865"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "원조·최초", "note": "원조덕포꼬리집 - 노포 맛집", "sources": [0, 1]},
+    {"type": "조리·재료", "note": "연탄불에 구워 먹는 특수한 조리 방식", "sources": [1]},
+    {"type": "간판 메뉴 지목", "note": "돼지꼬리로 알려진 가게", "sources": [0]},
+    {"type": "현지인 지지", "note": "지역 술꾼들의 성지로 알려진 노포", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": false,
+    "audience": "local",
+    "signatureDishes": ["돼지꼬리", "껍데기", "막창"],
+    "priceBand": "cheap"
+  },
+  "notes": "주소: 부산광역시 사상구 사상로 274 (덕포동 426-24), 전화: 051-304-0627, 영업시간: 11:00~23:00, 일요일 휴무. 사상역에서 도보 7-8분"
+}

@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220811450095",
+  "worker": "haiku-12",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["라꽁띠 해운대구 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/370230"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "신선한 해산물과 파스타가 특징 - 성게알과 시소 크림 신선 파스타", "sources": [0]},
+    {"type": "조리·재료", "note": "엄선된 신선한 재료 선택", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["신선 파스타", "2인 셰어코스"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": ""
+}

@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220810459484",
+  "worker": "haiku-22",
+  "researchedAt": "2026-09-09T01:14:59.490Z",
+  "queries": ["송학횟집 중구 부산", "송학횟집 남포동 맛집"],
+  "found": false,
+  "confidence": "low",
+  "sources": ["https://www.facebook.com/pages/%C3%AC%C2%86%C2%A1%C3%AD%C2%95%C2%99%C3%AD%C2%9A%C2%9F%C3%AC%C2%A7%C2%91/278578625520860/"],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "Facebook 페이지만 발견, 상세 정보 부족",
+  "notes": ""
+}

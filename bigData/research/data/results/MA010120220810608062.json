@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220810608062",
+  "worker": "haiku-38",
+  "researchedAt": "2026-09-09T16:30:00Z",
+  "queries": ["만리장성반점 부산", "만리장성반점 범일1동"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "만리장성반점을 부산 범일1동에서 찾을 수 없었다. 대전의 만리장성 중식당은 나타났지만 부산 범일1동 소재는 확인되지 않았다.",
+  "notes": ""
+}

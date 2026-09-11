@@ -1,0 +1,46 @@
+{
+  "id": "MA010120220813235451",
+  "worker": "haiku-16",
+  "researchedAt": "2026-09-08T23:03:30.033Z",
+  "queries": [
+    "라쿠다 남구 부산 일식"
+  ],
+  "found": true,
+  "confidence": "medium",
+  "sources": [
+    "https://www.welfarehello.com/community/hometownNews/c6b3c03c-3b10-4941-a704-9af5dec2dac4"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "라멘, 냉모밀, 후토마끼",
+      "sources": [
+        0
+      ]
+    },
+    {
+      "type": "메뉴 희소성",
+      "note": "일식 라멘/면 요리 전문",
+      "sources": [
+        0
+      ]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": [
+      "라멘",
+      "냉모밀",
+      "후토마끼"
+    ],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "경성대 주변 위치, 라멘과 냉모밀 등 일식 면 요리 전문점"
+}

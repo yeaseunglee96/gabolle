@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202503A0047548",
+  "worker": "haiku-53",
+  "researchedAt": "2026-09-09T06:20:00Z",
+  "queries": ["앙리17 민락동 부산", "앙리17 경양식"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=gfDfYBUQC7mG", "https://www.facebook.com/pages/%C3%AC%C2%95%C2%99%C3%AB%C2%A6%C2%AC17%20-Henry17-/1911761032480938/"],
+  "stillOpen": true,
+  "whyPeopleGo": [{"type": "분위기·전망", "note": "민락동 광안리 근처 클래식 바, 민락동 바 붐의 중심 가게", "sources": [0]}],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": null,
+  "notes": "카테고리는 경양식으로 기록되었으나 실제로는 칵테일/위스키 바. 영업시간 19:00-03:00"
+}

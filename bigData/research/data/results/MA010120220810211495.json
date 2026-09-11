@@ -1,0 +1,33 @@
+{
+  "id": "MA010120220810211495",
+  "worker": "haiku-1",
+  "researchedAt": "2026-09-09T02:22:00Z",
+  "queries": ["엄용백돼지국밥 수영구"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=00keRGEMWOds", "https://www.siksinhot.com/P/999409"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "menu_variety",
+      "note": "부산식과 밀양식 두 가지 스타일의 돼지국밥 선택 가능",
+      "sources": [0]
+    },
+    {
+      "type": "quality",
+      "note": "고기에 특유의 냄새가 없음 - 누구나 편하게 즐길 수 있는 맛",
+      "sources": [0]
+    },
+    {
+      "type": "location",
+      "note": "광안리 근처 - 수영역 인근 편리한 위치",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["부산식 돼지국밥", "밀양식 돼지국밥"]
+  },
+  "notFound": null,
+  "notes": "11:00~21:00(15:00~17:00 브레이크, 라스트오더 20:30), 제한된 좌석으로 웨이팅 있음"
+}

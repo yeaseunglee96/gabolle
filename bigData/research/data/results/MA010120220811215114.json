@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220811215114",
+  "worker": "haiku-53",
+  "researchedAt": "2026-09-09T06:50:00Z",
+  "queries": ["오피시 민락동 부산", "오피시 경양식 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색 결과에서 민락동의 경양식당 오피시 정보를 찾지 못함",
+  "notes": ""
+}

@@ -1,0 +1,28 @@
+{
+  "id": "MA0101202306A0082711",
+  "worker": "haiku-22",
+  "researchedAt": "2026-09-09T01:20:00.000Z",
+  "queries": ["요이참치 연제구 부산", "요이참치 거제3동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.yoituna.com/",
+    "https://www.instagram.com/yoituna/"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "참치 전문점", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["참치회"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "영업시간 16:00~01:00, 전화 0507-1321-4463"
+}

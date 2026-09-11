@@ -1,0 +1,25 @@
+{
+  "id": "MA0101202604A0051727",
+  "worker": "haiku-39",
+  "researchedAt": "2026-09-09T10:12:00Z",
+  "queries": ["파슷타애요 사상구 부산", "파슷타애요 덕포1동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["http://duli.co.kr/web/splus/kmap/view.php?sigun=6260000&gugun=3390000&keyno=109&keyname=%ED%8C%8C%EC%8A%B7%ED%83%80%EC%95%A0%EC%9A%94+%EC%82%AC%EC%83%81%EC%A0%90&keylink=3390000-101-2024-00057"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "파스타로 알려진 가게", "sources": [0]},
+    {"type": "메뉴 희소성", "note": "파스타 및 양식 전문점", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": null,
+    "signatureDishes": ["파스타"],
+    "priceBand": "moderate"
+  },
+  "notes": "위치: 부산광역시 사상구 덕포동 (백양대로 687-4)"
+}

@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220811409523",
+  "worker": "haiku-69",
+  "researchedAt": "2026-09-10T00:04:00Z",
+  "queries": ["포항물횟집 수영구 부산", "포항물횟집 민락동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.tabling.co.kr/place/677cd1a366de5f0698884665", "https://www.diningcode.com/profile.php?rid=LIRXR6cj36IJ"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "포항식 물회 전문점", "sources": [0, 1]},
+    {"type": "메뉴 희소성", "note": "계절 특선 - 봄 도리, 여름 하모, 가을 고등어, 겨울 방어", "sources": [1]},
+    {"type": "운영·접근 편의", "note": "주차장 있음, 오래된 노포", "sources": [1]},
+    {"type": "현지인 지지", "note": "정겨운 노포 분위기", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["포항식 물회", "하모회", "매운탕"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "영업시간 10:30~21:00, 2명 이상 주문시 매운탕 제공"
+}

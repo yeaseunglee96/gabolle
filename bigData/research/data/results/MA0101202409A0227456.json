@@ -1,0 +1,39 @@
+{
+  "id": "MA0101202409A0227456",
+  "worker": "haiku-21",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["유안집 동래구 부산", "유안집 명륜동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.hotple.com/place/yuanjip-dongrae-1782837472"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "아늑하고 따뜻한 분위기",
+      "sources": [0]
+    },
+    {
+      "type": "서비스·사람",
+      "note": "친절한 사장님으로 알려짐",
+      "sources": [0]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "매운 갈비찜으로 알려진 시그니처 메뉴",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["매운 갈비찜"],
+    "priceBand": "medium"
+  },
+  "notFound": null,
+  "notes": ""
+}

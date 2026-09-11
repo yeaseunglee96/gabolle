@@ -1,0 +1,47 @@
+{
+  "id": "MA010120220811971002",
+  "worker": "haiku-2",
+  "researchedAt": "2026-09-08T16:43:11.248Z",
+  "queries": ["바오하우스 부산진구 초밥", "바오하우스 전포동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": [
+    "https://guide.michelin.com/kr/ko/busan-region/busan_1025838/restaurant/bao-haus",
+    "https://triple.guide/restaurants/1eb326f1-cc3a-4faf-8dae-4d7e49e951e2"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "맛 묘사",
+      "note": "대만식 찐빵 바오, 삼겹살 루로우판, 마파두부 등 먹음직스러운 대만 음식",
+      "sources": [0, 1]
+    },
+    {
+      "type": "미디어 노출",
+      "note": "미쉐린 가이드 2024에 선정되어 평가받음",
+      "sources": [0]
+    },
+    {
+      "type": "혼잡·수요",
+      "note": "점심시간마다 긴 대기줄이 형성될 만큼 인기 있는 맛집",
+      "sources": [1]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "전포 카페 거리 내 위치로 캐주얼하고 심플한 분위기",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": "long",
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["바오", "루로우판", "마파두부"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "예약을 받지 않으므로 웨이팅이 있을 수 있음. 테이크아웃 서비스 가능"
+}

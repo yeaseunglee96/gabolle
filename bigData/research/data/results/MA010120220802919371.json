@@ -1,0 +1,19 @@
+{
+  "id": "MA010120220802919371",
+  "worker": "haiku-54",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["비비드13 수영구 부산", "비비드13 광안2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.instagram.com/vivid_13_/", "https://www.diningcode.com/profile.php?rid=bvMdYn5Fur8t"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "광안리 브런치 전문점, 8년의 노하우", "sources": [0, 1]},
+    {"type": "분위기·전망", "note": "광안리 카페거리 입구, 광안리 비치에서 도보 2분", "sources": [1]},
+    {"type": "운영·접근 편의", "note": "반려동물 동반 가능, 휠체어 접근 가능", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {"yearsClaimed": null, "generations": null, "queueing": null, "parking": false, "audience": "mixed", "signatureDishes": ["브런치", "파스타"], "priceBand": "moderate"},
+  "notFound": null,
+  "notes": "주소 광남로 129, 광안빌딩 1층, 08:20~18:00 (라스트오더 17:20), 전화 0507-1380-0331"
+}

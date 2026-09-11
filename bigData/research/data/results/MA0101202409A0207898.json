@@ -1,0 +1,34 @@
+{
+  "id": "MA0101202409A0207898",
+  "worker": "haiku-1",
+  "researchedAt": "2026-09-09T02:30:00Z",
+  "queries": ["60년전통할매국밥 동구 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=trbVz72n3j6b", "https://triple.guide/restaurants/2352bd8d-b6b3-44dc-b8ff-437e9a579687"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "heritage",
+      "note": "1956년부터 지금까지 60년 이상 운영 - 범일동의 시간을 묵묵히 지켜온 노포",
+      "sources": [0]
+    },
+    {
+      "type": "specialty",
+      "note": "부산 돼지국밥의 맑은 국물 계보 - 육안으로도 바닥이 보일 듯 투명한 국물",
+      "sources": [0]
+    },
+    {
+      "type": "quality",
+      "note": "깊고 진한 감칠맛 - 텁텁함 없이 깔끔한 뒷맛",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 60,
+    "signatureDishes": ["순대국밥", "내장국밥"]
+  },
+  "notFound": null,
+  "notes": "10:00~20:00 영업, 부산 돼지국밥 베스트 5"
+}

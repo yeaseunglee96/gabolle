@@ -1,0 +1,30 @@
+{
+  "id": "MA010120220806365285",
+  "worker": "haiku-8",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["복성반점 사하구 부산", "복성반점 하단1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산 사하구 하신중앙로 289"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "연차·역사", "note": "40년에 가까운 오래된 노포 중국집", "sources": [0, 1]},
+    {"type": "미디어 노출", "note": "백종원의 3대천왕에 출연", "sources": [1]},
+    {"type": "맛 묘사", "note": "부산의 대표 짬뽕이라고 할 수 있을 정도의 시원한 해물 짬뽕", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "짬뽕 전문", "sources": [0, 1]},
+    {"type": "현지인 지지", "note": "사하구 주민이라면 누구나 다 아는 지역 대표 맛집", "sources": [1]},
+    {"type": "조리·재료", "note": "매일 자갈치에서 가져오는 신선한 해물을 넣으며 오징어 대신 한치를 사용", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["짬뽕"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

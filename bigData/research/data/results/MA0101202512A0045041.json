@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202512A0045041",
+  "worker": "haiku-49",
+  "researchedAt": "2026-09-09T15:30:00Z",
+  "queries": ["바리바리휴게소 수영구 부산", "바리바리휴게소 광안2동 수영로"],
+  "found": false,
+  "confidence": "low",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "수영로 576에 위치한다는 바리바리휴게소를 찾을 수 없음",
+  "notes": ""
+}

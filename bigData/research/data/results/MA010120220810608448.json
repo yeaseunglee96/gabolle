@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220810608448",
+  "worker": "haiku-6",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["초량밀면 동구 부산", "초량밀면 초량2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 동구 중앙대로 225"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "맛 묘사", "note": "한약재 육수의 물밀면, 왕만두가 유명", "sources": [0]},
+    {"type": "현지인 지지", "note": "현지인과 관광객 모두에게 인기", "sources": [0]},
+    {"type": "운영·접근 편의", "note": "부산역에서 도보 3분 거리", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": true,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["물밀면", "왕만두", "비빔냉면"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "영업시간 10:00~22:00 (예상), 부산역 건너편, 웨이팅 심한 편, 2층 좌석"
+}

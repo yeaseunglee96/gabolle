@@ -1,0 +1,34 @@
+{
+  "id": "MA010120220807655470",
+  "worker": "haiku-57",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["머스트루 해운대", "머스트루 해운대 파인다이닝"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=DRZbvSnZ3leV"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "프라이빗 모던 다이닝, 셰프 테이블에서 플레이팅 관찰 가능",
+      "sources": [0]
+    },
+    {
+      "type": "서비스·사람",
+      "note": "부산 토박이 셰프의 공간, 셰프가 직접 조리와 서빙",
+      "sources": [0]
+    },
+    {
+      "type": "조리·재료",
+      "note": "당귀씨, 참나물 등 한국 재료를 활용한 유러피안 요리",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["한국-프렌치 스타일 코스", "와인 페어링"],
+    "audience": "couple"
+  },
+  "notFound": null,
+  "notes": "최대 7명 디너 한 타임, 달맞이길 골목, 와인/논알코올 와인 페어링 선택 가능"
+}

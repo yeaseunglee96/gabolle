@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220811391278",
+  "worker": "haiku-13",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["필하모니레스토랑 남구 부산", "필하모니레스토랑 대연4동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색에서 해당 식당 정보를 찾을 수 없음",
+  "notes": ""
+}

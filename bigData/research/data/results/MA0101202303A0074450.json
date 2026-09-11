@@ -1,0 +1,25 @@
+{
+  "id": "MA0101202303A0074450",
+  "worker": "haiku-24",
+  "researchedAt": "2026-09-09T10:26:15.2132113+09:00",
+  "queries": ["임금님초밥 수영구 부산", "임금님초밥 망미1동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["http://localmap.co.kr/web/splus/kmap/view.php?sigun=6260000&gugun=3380000&keyno=122&keyname=%EA%B4%91%EC%95%88%EC%88%98%EC%82%B0&keylink=3380000-101-2020-00012"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "초밥 전문점", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["초밥", "회"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "웹 검색에서 기본 정보만 확인됨"
+}

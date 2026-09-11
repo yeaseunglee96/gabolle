@@ -1,0 +1,25 @@
+{
+  "id": "MA0101202209A0094309",
+  "worker": "haiku-64",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["베비_부산 경양식 전포"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.instagram.com/bevvy_busan/", "https://www.diningcode.com/profile.php?rid=kPtnOlI3Q2Rx"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "매실, 바질, 커피, 상그리아 등 시그니처 칵테일", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "adults",
+    "signatureDishes": ["칵테일", "하이볼", "와인"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "전포 칵테일 바/와인바. Instagram @bevvy_busan. 영업 19:00-03:00"
+}

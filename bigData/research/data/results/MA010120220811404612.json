@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220811404612",
+  "worker": "haiku-1",
+  "researchedAt": "2026-09-09T02:42:00Z",
+  "queries": ["할매재첩국 수영구"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=mWQDIi6Ev9gq", "https://korean.visitkorea.or.kr/detail/ms_detail.do?cotid=2ded7978-ffe0-42eb-9272-9256f2f03da6"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "heritage",
+      "note": "50년 이상 전통 - 한국전쟁 이후 구포에서 시작해 광안리에서 20년 운영",
+      "sources": [0]
+    },
+    {
+      "type": "specialty",
+      "note": "물을 붓지 않고 신선한 재첩을 끓여 나온 진한 재첩국물 - 재첩 정식",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 50,
+    "signatureDishes": ["재첩국", "재첩 정식"]
+  },
+  "notFound": null,
+  "notes": "07:00~21:00 영업(무휴)"
+}

@@ -1,0 +1,19 @@
+{
+  "id": "MA0101202406A0026422",
+  "worker": "haiku-54",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["루카 수영구 부산", "루카 광안2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://kr.trip.com/moments/detail/busan-432-128987861/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "뇨끼와 파스타 유명", "sources": [0]},
+    {"type": "분위기·전망", "note": "따스한 인테리어와 플랜테리어가 잘 어우러진 광안리 양식 맛집", "sources": [0]},
+    {"type": "운영·접근 편의", "note": "애견동반 가능", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {"yearsClaimed": null, "generations": null, "queueing": null, "parking": null, "audience": "mixed", "signatureDishes": ["뇨끼", "파스타"], "priceBand": "moderate"},
+  "notFound": null,
+  "notes": "매일 오후 12:00~21:00 운영 (화요일 휴무)"
+}

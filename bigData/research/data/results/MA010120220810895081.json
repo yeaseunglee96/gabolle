@@ -1,0 +1,23 @@
+{
+  "id": "MA010120220810895081",
+  "worker": "haiku-20",
+  "researchedAt": "2026-09-09T11:55:00Z",
+  "queries": ["유로파크 기장군 부산", "유로파크 장안읍 맛집"],
+  "found": true,
+  "confidence": "low",
+  "sources": ["부산광역시 기장군 장안읍 구기길 19-9"],
+  "stillOpen": true,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": [],
+    "priceBand": "regular"
+  },
+  "notFound": null,
+  "notes": "커피 회사로 검색되었으나 원래 분류는 횟집. 실제 사업 내용 확인 필요"
+}

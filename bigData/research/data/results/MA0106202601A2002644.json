@@ -1,0 +1,15 @@
+{
+  "id": "MA0106202601A2002644",
+  "worker": "haiku-59",
+  "researchedAt": "2026-09-09T08:42:00Z",
+  "queries": ["부바 부산 해운대 백반", "부바 우동 한정식"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "해운대 백반·한정식 검색에도 불구하고 '부바'라는 가게는 찾을 수 없음",
+  "notes": "백반/한정식 카테고리로 등록"
+}

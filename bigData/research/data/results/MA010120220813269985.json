@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220813269985",
+  "worker": "haiku-69",
+  "researchedAt": "2026-09-10T00:06:00Z",
+  "queries": ["뉴부산횟집 수영구 부산", "뉴부산횟집 남천1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/680498", "https://www.diningcode.com/profile.php?rid=voSR3Yl7f2JI"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "회, 매운탕 전문점", "sources": [0, 1]},
+    {"type": "맛 묘사", "note": "회맛이 좋고 쫄길쫄길한 식감", "sources": [1]},
+    {"type": "운영·접근 편의", "note": "주차 가능, 번화가 아닌 조용한 위치", "sources": [0]},
+    {"type": "현지인 지지", "note": "로컬 맛집", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["회", "매운탕"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "대표메뉴 뉴부산셋트35, 뉴부산셋트40, 영업시간 11:00~21:30, 14:30~16:30 쉼, 1,3주 일요일 휴무"
+}

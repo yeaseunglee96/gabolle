@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220810531204",
+  "worker": "haiku-30",
+  "researchedAt": "2026-09-09T10:13:00Z",
+  "queries": ["금화초밥 서구 부산", "금화초밥 서대신3동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 서구 대신로 11"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "서비스·사람", "note": "정성스러운 상차림과 세심한 배치", "sources": [0, 1] },
+    { "type": "분위기·전망", "note": "파티션으로 나뉜 편안한 식사 공간", "sources": [1] },
+    { "type": "맛 묘사", "note": "참치뱃살 등 신선한 일본식 코스", "sources": [0] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": false,
+    "parking": true,
+    "audience": "family",
+    "signatureDishes": ["참치뱃살", "어종별 코스"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": ""
+}

@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220800609518",
+  "worker": "haiku-33",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["빵제이 영도구 부산", "빵제이 봉래1동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색에서 빵제이 관련 구체적 정보를 찾을 수 없음. 영도 빵집 목록에는 나타나지 않음",
+  "notes": ""
+}

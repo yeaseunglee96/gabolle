@@ -1,0 +1,25 @@
+{
+  "id": "MA0101202604A0042709",
+  "worker": "haiku-37",
+  "researchedAt": "2026-09-09T11:23:43.0136153+09:00",
+  "queries": ["해정각 부산 중국집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=KXOArbaW2n5I"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "간판 메뉴 지목", "note": "옛날스타일 바삭한 탕수육 전문", "sources": [0] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["탕수육"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "꽃마을로 40. 영업시간 11:00-20:00. 배달 중심. 주차장 없음. 테이블 약 4개 규모"
+}

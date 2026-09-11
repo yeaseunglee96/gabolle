@@ -1,0 +1,61 @@
+{
+  "id": "MA010120220811469893",
+  "worker": "haiku-16",
+  "researchedAt": "2026-09-08T22:57:36.502Z",
+  "queries": [
+    "영변횟집 송정 부산",
+    "영변횟집 송정해변로 맛집"
+  ],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://triple.guide/restaurants/b17256da-e136-40ef-9ab3-85e8e677e274",
+    "https://www.diningcode.com/profile.php?rid=TGybJsaLsJJA"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "연차·역사",
+      "note": "1978년 설립, 45년 전통",
+      "sources": [
+        0
+      ]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "세꼬시 전문, 도다리 세꼬시",
+      "sources": [
+        1
+      ]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "해운대 오션뷰 가능",
+      "sources": [
+        0
+      ]
+    },
+    {
+      "type": "현지인 지지",
+      "note": "송정의 터줏대감",
+      "sources": [
+        1
+      ]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "노상/도로변",
+    "audience": "locals",
+    "signatureDishes": [
+      "도다리 세꼬시",
+      "세꼬시"
+    ],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "위치: 송정해변로 30 (지번 송정동 297-17), 신선한 제철 활어 전문, 인원수에 따라 주문"
+}

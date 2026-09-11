@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220809771865",
+  "worker": "haiku-52",
+  "researchedAt": "2026-09-09T14:39:30Z",
+  "queries": ["영천떡방 수영구 부산", "영천떡방 광안4동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "검색 결과에서 해당 가게 정보를 찾을 수 없음",
+  "notes": ""
+}

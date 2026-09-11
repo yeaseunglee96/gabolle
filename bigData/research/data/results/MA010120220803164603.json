@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220803164603",
+  "worker": "haiku-29",
+  "researchedAt": "2026-09-09T10:27:00Z",
+  "queries": ["풍미추어탕 남구 부산", "풍미추어탕 감만1동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://m.cafe.daum.net/pusangoodfood/WkKN/13108"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "추어탕 전문점", "sources": [0]},
+    {"type": "가격·가성비", "note": "저렴한 가격", "sources": [0]},
+    {"type": "곁들임·차림", "note": "다양한 반찬", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["추어탕", "돼지고기수육"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

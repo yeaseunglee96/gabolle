@@ -1,0 +1,34 @@
+{
+  "id": "MA0101202504A0082552",
+  "worker": "haiku-70",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["작은집 수영구 부산", "작은집 수영동 맛집", "작은집 경양식 수미로 부산", "\"작은집\" 광안리 남천 경양식"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://www.siksinhot.com/P/830078", "https://triple.guide/restaurants/189ef9e9-58b1-4c90-a9c5-1404797f363d"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "1인 코스 식사가 대표 메뉴인 경양식 전문점",
+      "sources": [0]
+    },
+    {
+      "type": "현지인 지지",
+      "note": "광안리 남천 지역의 로컬 경양식 맛집",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["1인 코스 식사"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "주소는 수미로26번길이나 식신에는 광안리 남천으로 표기"
+}

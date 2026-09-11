@@ -1,0 +1,30 @@
+{
+  "id": "MA010120220813419674",
+  "worker": "haiku-59",
+  "researchedAt": "2026-09-09T08:40:00Z",
+  "queries": ["브라운돈까스 부산 해운대", "브라운돈까스 구남로 경양식"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/325105"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "1980년대 추억의 한국 경양식 돈까스",
+      "sources": ["https://www.siksinhot.com/P/325105"]
+    },
+    {
+      "type": "원조·최초",
+      "note": "한국 대표 돈까스 브랜드, 5년 연속 한국브랜드어워드 수상",
+      "sources": ["https://www.siksinhot.com/P/325105"]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "로봇 서빙, 셀프 바(크림수프, 우동국물, 밑반찬), 테이블 키오스크",
+      "sources": ["https://www.siksinhot.com/P/325105"]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {},
+  "notes": "한국 경양식 돈까스 대표 브랜드"
+}

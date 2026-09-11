@@ -1,0 +1,47 @@
+{
+  "id": "MA010120220810639932",
+  "worker": "haiku-2",
+  "researchedAt": "2026-09-08T16:43:11.248Z",
+  "queries": ["가야포차선지국밥 부산진구 부산", "가야포차선지국밥 가야공원로 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.diningcode.com/profile.php?rid=IlmUKLOK4pLo",
+    "https://triple.guide/restaurants/add04061-b470-4e1b-a88e-3eb683b8be14"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "맛 묘사",
+      "note": "선지가 많아서 매콤하고 고소하며 깊은 감칠맛의 국물",
+      "sources": [0]
+    },
+    {
+      "type": "현지인 지지",
+      "note": "택시기사들도 많이 찾는 곳으로 지역 주민에게 인정받음",
+      "sources": [0]
+    },
+    {
+      "type": "조리·재료",
+      "note": "특수부위 수구레를 사용하여 쫄깃한 식감이 특징이며 직접 담근 어간장 사용",
+      "sources": [0]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "서민적이면서도 푸짐한 양으로 합리적 가격",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 30,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["선지국밥", "수구레국밥"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "24시간 영업, 청결하고 친절한 사장님으로 평가받음"
+}

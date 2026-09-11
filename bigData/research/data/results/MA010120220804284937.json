@@ -1,0 +1,19 @@
+{
+  "id": "MA010120220804284937",
+  "worker": "haiku-54",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["마담에뽀끄 수영구 부산", "마담에뽀끄 민락동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1041031", "https://kr.trip.com/moments/detail/busan-432-119260890?locale=ko-KR", "https://www.diningcode.com/profile.php?rid=Ldu99CUIInXa"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "감바스, 고르곤졸라피자 시그니처 메뉴", "sources": [0, 2]},
+    {"type": "분위기·전망", "note": "광안리 브런치 명소, 해외에 있는 듯한 느낌", "sources": [0, 1]},
+    {"type": "조리·재료", "note": "파스타와 피자 주력, 스테이크파스타, 해장 빼쉐파스타 등", "sources": [2]}
+  ],
+  "newTypes": [],
+  "descriptors": {"yearsClaimed": null, "generations": null, "queueing": null, "parking": true, "audience": "mixed", "signatureDishes": ["감바스", "고르곤졸라피자", "스테이크파스타"], "priceBand": "moderate"},
+  "notFound": null,
+  "notes": "롯데주차장 이용시 1시간 무료 주차"
+}

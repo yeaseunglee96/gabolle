@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220809746452",
+  "worker": "haiku-28",
+  "researchedAt": "2026-09-09T10:15:00Z",
+  "queries": ["베이커지 부산진구 부산", "베이커지 부암1동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "검색 결과에서 베이커지에 대한 구체적 정보 없음",
+  "notes": ""
+}

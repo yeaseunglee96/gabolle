@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220811425887",
+  "worker": "haiku-23",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["숯부레 남구 부산", "숯부레 문현3동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 남구 고동골로4번길 20"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "조리·재료", "note": "곱창, 막창, 양 등 다양한 식육 전문점", "sources": [0, 1]},
+    {"type": "조리·재료", "note": "숯불 구이로 조리하는 전문성", "sources": [0]},
+    {"type": "가격·가성비", "note": "합리적인 가격대의 고기 요리", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["곱창", "막창", "양구이"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "전화 051-634-2292. 2009년 7월 10일 개점. 국제금융센터부산은행역 근처"
+}

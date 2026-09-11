@@ -1,0 +1,27 @@
+{
+  "id": "MA0101202511A0015572",
+  "worker": "haiku-59",
+  "researchedAt": "2026-09-09T08:22:00Z",
+  "queries": ["혁이네초밥집 부산 광안", "혁이네초밥 남천바다 초밥"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=48loHwYYXyFc"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "연어 초밥, 신선한 생선회",
+      "sources": ["https://www.diningcode.com/profile.php?rid=48loHwYYXyFc"]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "조용하고 편한 분위기의 스시 레스토랑",
+      "sources": ["https://www.diningcode.com/profile.php?rid=48loHwYYXyFc"]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "parking": "건물 자체 주차 없음, 근처 2분 거리 주차장 이용 가능"
+  },
+  "notes": "광안리 지역의 인기 스시 식당, 남천바다로 근처"
+}

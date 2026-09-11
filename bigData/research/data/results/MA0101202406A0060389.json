@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202406A0060389",
+  "worker": "haiku-53",
+  "researchedAt": "2026-09-09T07:30:00Z",
+  "queries": ["램지 민락동 부산", "램지 광안해변로"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://guide.michelin.com/us/en/busan-region/busan_1025838/restaurant/ramsey", "https://www.instagram.com/restaurant_ramsey/"],
+  "stillOpen": true,
+  "whyPeopleGo": [{"type": "기관 선정", "note": "미쉐린 가이드 선정 레스토랑", "sources": [0]}],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": null,
+  "notes": "카테고리는 경양식으로 기록되었으나 실제로는 프랑스 레스토랑. 미쉐린 선정. 광안해변로 주변 위치"
+}

@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220811398603",
+  "worker": "haiku-47",
+  "researchedAt": "2026-09-09T10:55:00Z",
+  "queries": ["청해해물탕 수영구 부산", "청해해물탕 민락동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://triple.guide/restaurants/c3477cfb-7914-45b9-bd28-07ae5371a198"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "해물탕, 뽈찜, 꽃게, 대구 알탕, 갈치찌개 등", "sources": [0]},
+    {"type": "맛 묘사", "note": "된장국물에 콩나물과 미나리로 만든 깔끔하고 시원한 해물탕, 해산물의 감칠맛을 살린 국물", "sources": [0]},
+    {"type": "현지인 지지", "note": "수영구 민락동 지역 주민이 찾는 해물탕 전문점", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["해물탕", "뽈찜", "꽃게"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "소/중/대 35,000원/50,000원/65,000원. 우동국수 사이드 추가 가능"
+}

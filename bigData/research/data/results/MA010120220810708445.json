@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220810708445",
+  "worker": "haiku-45",
+  "researchedAt": "2026-09-09T13:40:00Z",
+  "queries": ["모라성 사상구 부산", "모라성 모라3동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://daangn.com/kr/local-profile/%EB%AA%A8%EB%9D%BC%EC%84%B1-touahmtxb7av/", "https://www.linktoplace.com/?action=view&no=60323"],
+  "stillOpen": true,
+  "whyPeopleGo": [{"type": "간판 메뉴 지목", "note": "중식 전문점", "sources": [0, 1]}],
+  "newTypes": [],
+  "descriptors": {"yearsClaimed": null, "generations": null, "queueing": null, "parking": null, "audience": "mixed", "signatureDishes": ["중국 요리"], "priceBand": "cheap"},
+  "notFound": null,
+  "notes": ""
+}

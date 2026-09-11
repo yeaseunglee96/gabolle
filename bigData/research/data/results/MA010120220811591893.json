@@ -1,0 +1,44 @@
+{
+  "id": "MA010120220811591893",
+  "worker": "haiku-66",
+  "researchedAt": "2026-09-10T12:01:00Z",
+  "queries": ["일광수산횟집 해운대구 부산", "일광수산횟집 우1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/372444", "https://www.diningcode.com/profile.php?rid=7cbbi7rj33r8"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "조리·재료",
+      "note": "싱싱한 자연산 활어회와 복요리 전문, 수조에서 신선한 맛을 유지",
+      "sources": [0]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "복국 - 복어 전문 (1층), 2층은 횟집",
+      "sources": [1]
+    },
+    {
+      "type": "곁들임·차림",
+      "note": "복국의 풍부한 반찬 (가짓수가 많음)",
+      "sources": [1]
+    },
+    {
+      "type": "현지인 지지",
+      "note": "가족 식사나 회식장소로 인기",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "전용주차장",
+    "audience": "local",
+    "signatureDishes": ["복국", "복회", "복불고기"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

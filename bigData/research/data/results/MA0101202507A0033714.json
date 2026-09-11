@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202507A0033714",
+  "worker": "haiku-31",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["꼬부기 서구 부산", "꼬부기 남부민1동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색에서 음식점으로 확인되지 않음. 포켓몬 캐릭터만 검색됨",
+  "notes": ""
+}

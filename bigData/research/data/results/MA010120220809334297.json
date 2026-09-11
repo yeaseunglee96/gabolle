@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220809334297",
+  "worker": "haiku-22",
+  "researchedAt": "2026-09-09T01:17:00.000Z",
+  "queries": ["마마 동구 부산", "마마 초량2동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색에서 찾을 수 없음 (마마도마 등 다른 마마 식당만 나옴)",
+  "notes": ""
+}

@@ -1,0 +1,23 @@
+{
+  "id": "MA010120220811733417",
+  "worker": "haiku-7",
+  "researchedAt": "2026-09-08T22:09:18Z",
+  "queries": ["포에버얌 기장점 일광읍", "포에버얌 기장군 부산"],
+  "found": true,
+  "confidence": "low",
+  "sources": ["https://m.tripinfo.co.kr/info.html?content_id=2844748&content_type_id=39&navi=trip_rank-busan&rd=%2Frd%2Fm%2Finfo%2Ffood"],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": null,
+    "signatureDishes": [],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "일광읍 문오성길 위치로 기장 지역의 베트남식 전문점. 웹 검색 결과에 구체적 정보 부족."
+}

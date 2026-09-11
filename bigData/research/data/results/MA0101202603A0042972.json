@@ -1,0 +1,39 @@
+{
+  "id": "MA0101202603A0042972",
+  "worker": "haiku-9",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["종각집 중구 부산", "종각집 광복동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["siksinhot.com", "diningcode.com"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "연차·역사",
+      "note": "60년 이상 오래된 노포",
+      "sources": [0, 1]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "종각가락국수가 시그니처 메뉴",
+      "sources": [0, 1]
+    },
+    {
+      "type": "메뉴 희소성",
+      "note": "쫄깃한 우동 면발에 시원하고 깊은 맛의 종각가락국수",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 60,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["종각가락국수", "김초밥", "냉모밀"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "남포동의 50년 이상 된 분식집. 광복 남포 중앙 위치"
+}

@@ -1,0 +1,37 @@
+{
+  "id": "MA010120220808586567",
+  "worker": "haiku-2",
+  "researchedAt": "2026-09-08T16:43:11.248Z",
+  "queries": ["황금바다 수영구 민락동 횟집", "황금바다 광안해변로 회 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.diningcode.com/profile.php?rid=LyUFakfKsBRc",
+    "https://www.keyzard.cc/kaaoxaf/nb/223875048566"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "광안대교와 야경을 즐기는 멋진 뷰, 모든 테이블이 단독 프라이빗 룸",
+      "sources": [0, 1]
+    },
+    {
+      "type": "맛 묘사",
+      "note": "오너쉐프가 직접 손질한 신선한 활어회, 큰 물고기만 엄선하여 사용",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["활어회", "해산물"],
+    "priceBand": "high"
+  },
+  "notFound": null,
+  "notes": "3층 위치, 회 리필 서비스, 12:00-23:00 영업"
+}

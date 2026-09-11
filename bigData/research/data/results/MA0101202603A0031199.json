@@ -1,0 +1,30 @@
+{
+  "id": "MA0101202603A0031199",
+  "worker": "haiku-59",
+  "researchedAt": "2026-09-09T08:38:00Z",
+  "queries": ["다케다야 부산 남천 초밥", "다케다야 남천동로 회"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/91158", "https://www.diningcode.com/profile.php?rid=MSCCtLO78orV"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "수타우동, 냉우동, 붓카케우동",
+      "sources": ["https://www.diningcode.com/profile.php?rid=MSCCtLO78orV"]
+    },
+    {
+      "type": "맛 묘사",
+      "note": "자가제면(손으로 직접 만든 면) 우동",
+      "sources": ["https://www.siksinhot.com/P/91158"]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "생활의 달인에 소개된 우동 전문점",
+      "sources": ["https://www.siksinhot.com/P/91158"]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {},
+  "notes": "카테고리는 일식 회/초밥이나 실제로는 우동 전문점. 냉우동이 특히 인기."
+}

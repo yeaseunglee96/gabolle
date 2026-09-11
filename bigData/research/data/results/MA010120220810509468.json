@@ -1,0 +1,25 @@
+{
+  "id": "MA010120220810509468",
+  "worker": "haiku-37",
+  "researchedAt": "2026-09-09T11:23:43.0136153+09:00",
+  "queries": ["민경식당 부산 횟집 서구", "민경식당 충무대로 207 횟집"],
+  "found": true,
+  "confidence": "low",
+  "sources": ["https://triple.guide/restaurants/b01d8f97-e6e9-4f21-a277-365a2881413a"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "맛 묘사", "note": "횟집 전문점", "sources": [0] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["회"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "Triple Guide에 등록되어 있으나 상세 정보 부족"
+}

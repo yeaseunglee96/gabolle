@@ -1,0 +1,55 @@
+{
+  "id": "MA0101202309A0060068",
+  "worker": "haiku-16",
+  "researchedAt": "2026-09-08T22:56:51.412Z",
+  "queries": [
+    "라비꽁띠뉴 해운대 부산",
+    "라비꽁띠뉴 경양식 마린시티"
+  ],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.keyzard.cc/ssongs_yummy/nb/223859544362",
+    "https://www.keyzard.cc/cjstkmy/nb/223840368185"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "유럽식 인테리어, 샹들리에, 테라스 좌석",
+      "sources": [
+        0
+      ]
+    },
+    {
+      "type": "메뉴 희소성",
+      "note": "유럽식 브런치, 파스타, 리소또",
+      "sources": [
+        1
+      ]
+    },
+    {
+      "type": "운영·접근 편의",
+      "note": "마린시티 위치, 편리한 주차",
+      "sources": [
+        0
+      ]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "현대 카멜리아 주차장 (결제시 무료)",
+    "audience": "mixed",
+    "signatureDishes": [
+      "브런치",
+      "파스타",
+      "리소또"
+    ],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "위치: 마린시티1로 167 상가동 1층 131호, 연락처 0507-1401-0883, 월~금 09:00~21:00 (브레이크 15:30~17:30), 토~일 09:00~21:00"
+}

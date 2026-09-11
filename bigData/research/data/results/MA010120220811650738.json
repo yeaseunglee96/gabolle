@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220811650738",
+  "worker": "haiku-46",
+  "researchedAt": "2026-09-09T13:30:00Z",
+  "queries": ["원조할매추어탕 강서구 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.tabling.co.kr/place/677cc8b166de5f0698776b7a", "https://www.siksinhot.com/P/266421", "https://www.diningcode.com/profile.php?rid=oKU1OIPX7DrV"],
+  "stillOpen": true,
+  "whyPeopleGo": [{"type": "연차·역사", "note": "3대 운영 추어탕 전문점", "sources": [2]}, {"type": "간판 메뉴 지목", "note": "추어탕이 대표 메뉴", "sources": [2]}],
+  "newTypes": [],
+  "descriptors": {"yearsClaimed": null, "generations": 3, "queueing": null, "parking": true, "audience": "mixed", "signatureDishes": ["추어탕", "고등어조림"], "priceBand": "cheap"},
+  "notFound": null,
+  "notes": ""
+}

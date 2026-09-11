@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220801049693",
+  "worker": "haiku-52",
+  "researchedAt": "2026-09-09T14:48:00Z",
+  "queries": ["뉴월드 부산진구 부산", "뉴월드 부전1동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "음식점이 아닌 유흥시설 (무도 유흥 주점)",
+  "notes": ""
+}

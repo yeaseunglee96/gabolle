@@ -1,0 +1,34 @@
+{
+  "id": "MA0101202603A0046840",
+  "worker": "haiku-13",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["복계옥 동구 부산", "복계옥 초량3동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["당근", "도도도맵"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "국수/만두/칼국수 전문",
+      "sources": [0]
+    },
+    {
+      "type": "조리·재료",
+      "note": "한식, 백반, 가정식",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["국수", "만두", "칼국수"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "초량역 근처 로컬 맛집"
+}

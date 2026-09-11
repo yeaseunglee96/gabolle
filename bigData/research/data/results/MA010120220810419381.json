@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220810419381",
+  "worker": "haiku-10",
+  "researchedAt": "2026-09-09T14:35:00Z",
+  "queries": ["원조할매국밥 해운대구 부산", "원조할매국밥 우1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산 해운대구 우동"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "연차·역사", "note": "1962년부터 62년 전통 운영 중", "sources": [0]},
+    {"type": "원조·최초", "note": "원조 할매국밥, 본점", "sources": [0]},
+    {"type": "맛 묘사", "note": "진한 국물의 소고기국밥, 시원하고 얼큰한 맛", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": "62년",
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["선지국밥", "소고기국밥"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

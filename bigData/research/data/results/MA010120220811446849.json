@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220811446849",
+  "worker": "haiku-70",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["소정식당 중1동 부산", "소정식당 해운대 백반 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/324847", "https://myteatime.kr/travel-food/?bmode=view&idx=166919817"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "갈치찌개와 고갈비정식이 대표 메뉴인 백반 전문점",
+      "sources": [0]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "저렴하고 푸짐한 10여 가지의 가정식 반찬이 기본 제공",
+      "sources": [1]
+    },
+    {
+      "type": "맛 묘사",
+      "note": "푸짐한 두루치기백반으로 알려진 가정식 백반집",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["갈치찌개", "고갈비정식", "두루치기백반"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "메가커피 2층 위치"
+}

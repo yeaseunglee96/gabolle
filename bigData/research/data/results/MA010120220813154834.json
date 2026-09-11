@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220813154834",
+  "worker": "haiku-28",
+  "researchedAt": "2026-09-09T10:35:00Z",
+  "queries": ["스시석 강서구 부산", "스시석 명지1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1573752", "https://www.keyzard.cc/soona_me/nb/223994598633"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "오마카세 코스 메뉴 전문", "sources": [0]},
+    {"type": "조리·재료", "note": "신선한 재료를 사용한 일식 요리", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "지하주차장 (예약하면 비번 제공)",
+    "audience": "mixed",
+    "signatureDishes": ["간바레 오또상", "나가사키짬뽕탕"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": "예약제, 다찌석(카운터석)과 테이블석 있음, 2022년 8월 오픈"
+}

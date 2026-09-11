@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220806972853",
+  "worker": "haiku-36",
+  "researchedAt": "2026-09-09T02:11:08Z",
+  "queries": ["초량온당 동구 부산", "초량온당 수정1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.tabling.co.kr/restaurant/5028", "https://www.siksinhot.com/P/1216180", "https://www.diningcode.com/profile.php?rid=QorZ1PJ0rOR8", "https://www.mangoplate.com/restaurants/YoTcXPvnkjfR"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "혼잡·수요", "note": "문 열기 30분 전부터 대기 예약을 받을 정도 인기, 맘모스빵은 대기 번호 30번 전후로 소진", "sources": [0, 1, 2]},
+    {"type": "간판 메뉴 지목", "note": "맘모스빵과 크럼블로 유명한 브레드 전문점", "sources": [1, 3]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["맘모스빵", "크럼블"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "테이크아웃 전문점, 내부 취식 불가"
+}

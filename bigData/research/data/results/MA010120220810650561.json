@@ -1,0 +1,38 @@
+{
+  "id": "MA010120220810650561",
+  "worker": "haiku-1",
+  "researchedAt": "2026-09-09T00:20:00Z",
+  "queries": ["중구기사식당 중구 부산", "중구기사식당 동영로 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=LEEF4gXNzIGi", "https://www.siksinhot.com/P/684249"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "signature_dish",
+      "note": "한약재 향이 나면서 천연의 단맛이 일품인 육수 - 밀면 전문점의 특색",
+      "sources": [0]
+    },
+    {
+      "type": "texture",
+      "note": "쫄깃한 면발과 진한 마늘 양념이 특징",
+      "sources": [0]
+    },
+    {
+      "type": "atmosphere",
+      "note": "로컬 감성의 오래된 식당 - 현지인들이 즐겨 찾는 숨은 맛집",
+      "sources": [0]
+    },
+    {
+      "type": "location",
+      "note": "부산터널 위 높은 위치에 있어 독특한 경험 제공",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["물밀면", "비빔밀면"]
+  },
+  "notFound": null,
+  "notes": "계절 영업(4월~10월), 주차장 없음 - 영주공영주차장 이용 권장. 6개월만 운영하는 특이한 영업 방식"
+}

@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220812620175",
+  "worker": "haiku-17",
+  "researchedAt": "2026-09-09T09:18:45Z",
+  "queries": ["플렌터 수영구 부산", "플렌터 남천2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1202721", "https://www.mangoplate.com/restaurants/39HZJzepb1sF"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "분위기·전망", "note": "고즈넉한 인테리어가 좋다", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "브런치 맛집으로 알려져 있다", "sources": [0]},
+    {"type": "운영·접근 편의", "note": "반려동물 동반 가능한 카페 형태", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["치킨 스테이크 리가토니 파스타", "쉬림프 아보카도 샐러드"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

@@ -1,0 +1,31 @@
+{
+  "id": "MA010120220810469720",
+  "worker": "haiku-15",
+  "researchedAt": "2026-09-08T22:35:28Z",
+  "queries": ["백구당 중구 부산", "백구당 중앙동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 중구 중앙대로81번길 3"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "연차·역사", "note": "1959년 개업, 67년 전통", "sources": [0] },
+    { "type": "원조·최초", "note": "부산 최초 빵집", "sources": [0] },
+    { "type": "대물림", "note": "초대 경영자로부터 여러 대에 걸친 가업 승계", "sources": [0] },
+    { "type": "기관 선정", "note": "부산 명품 빵집 지정", "sources": [0] },
+    { "type": "간판 메뉴 지목", "note": "크로이즌, 프로이즌, 고로케가 대표메뉴", "sources": [0] },
+    { "type": "가격·가성비", "note": "명품 빵집이지만 착한 가격, 저녁 할인 제공", "sources": [0] },
+    { "type": "운영·접근 편의", "note": "중앙역 13번 출구 220m, 아침 7시 30분부터 영업", "sources": [0] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": "1959년",
+    "generations": 3,
+    "queueing": false,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["크로이즌", "프로이즌", "고로케", "참치모찌"],
+    "priceBand": "affordable"
+  },
+  "notFound": null,
+  "notes": "일요일 휴무, 평일 오후 8시 이후 20% 할인, 주말 저녁 6시 이후 20% 할인"
+}

@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220810238313",
+  "worker": "haiku-9",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["상해만두 사상구 부산", "상해만두 학장동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["triple.guide", "diningcode.com"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "미디어 노출",
+      "note": "TV 프로그램에 만두 맛집으로 소문",
+      "sources": [0, 1]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "홍초만두, 군만두, 찐만두 등 만두 전문",
+      "sources": [0, 1]
+    },
+    {
+      "type": "메뉴 희소성",
+      "note": "만두만 판매, 짜장면·짬뽕 같은 면요리 없음",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 18,
+    "generations": null,
+    "queueing": null,
+    "parking": false,
+    "audience": "local",
+    "signatureDishes": ["홍초만두", "군만두", "찐만두"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "정통 중국식 만두와 요리 전문. 캐시 결제 시 10% 할인"
+}

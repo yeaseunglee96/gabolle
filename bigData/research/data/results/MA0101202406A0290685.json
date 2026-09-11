@@ -1,0 +1,42 @@
+{
+  "id": "MA0101202406A0290685",
+  "worker": "haiku-63",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["아미티스 해운대구 부산", "아미티스 경양식 해운대"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.diningcode.com/profile.php?rid=B30e4MC9OFAD",
+    "https://access.visitkorea.or.kr/food/detail.do?cotId=808b9aed-ce11-484a-afb8-2ffc01af4a1c"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "라비드아틀란호텔 32층 스카이라운지에서 해운대 해안 조망",
+      "sources": [0, 1]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "스테이크와 파스타가 특징",
+      "sources": [0, 1]
+    },
+    {
+      "type": "조리·재료",
+      "note": "셰프가 개발한 레시피로 준비한 요리",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "1 hour free hotel parking",
+    "audience": "couples",
+    "signatureDishes": ["스테이크", "파스타"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": "같은 가게의 중복 데이터 엔트리"
+}

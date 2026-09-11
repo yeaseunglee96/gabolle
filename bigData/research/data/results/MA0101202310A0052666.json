@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202310A0052666",
+  "worker": "haiku-59",
+  "researchedAt": "2026-09-09T08:00:10Z",
+  "queries": ["부산식 수영구 부산", "부산식 광안 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "해당 이름의 식당이 웹 검색 결과에 나타나지 않음. 광안리의 다른 식당들은 검색되나 '부산식'은 미확인",
+  "notes": "돼지고기 구이/찜 카테고리로 등록. 광안리 지역의 돼지국밥 맛집(수변최고돼지국밥 등)은 검색되나 '부산식'은 미발견"
+}

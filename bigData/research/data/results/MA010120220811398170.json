@@ -1,0 +1,42 @@
+{
+  "id": "MA010120220811398170",
+  "worker": "haiku-3",
+  "researchedAt": "2026-09-09T02:15:00.000Z",
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://blog.naver.com/about_gourmet/223721273672",
+    "https://www.diningcode.com/profile.php?rid=ZsEH4QMPy51F",
+    "https://blog.naver.com/99hyunuk/224038312086"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "연차·역사",
+      "note": "25년 전통의 오래된 가게로 알려져 있음",
+      "sources": [0, 2]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "일본식 돈까스 전문점, 특히 히레카츠로 유명",
+      "sources": [0, 1, 2]
+    },
+    {
+      "type": "현지인 지지",
+      "note": "늘 줄서는 남천동 현지인 맛집으로 알려짐",
+      "sources": [0, 2]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 25,
+    "generations": null,
+    "queueing": "long",
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["히레카츠", "에비산도"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "월~토 11:00-21:00 (브레이크 15:00-17:00), 일요일 정기휴무. 부산 수영구 남천동로108번길 49에 위치."
+}

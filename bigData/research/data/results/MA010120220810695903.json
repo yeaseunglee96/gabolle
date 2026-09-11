@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220810695903",
+  "worker": "haiku-46",
+  "researchedAt": "2026-09-09T12:40:00Z",
+  "queries": ["녹슨드럼통 강서구 부산", "녹슨드럼통 바베큐 블로그"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=CJlwr9npwqPO", "https://www.nexlearn.co.kr/news/297959"],
+  "stillOpen": true,
+  "whyPeopleGo": [{"type": "연차·역사", "note": "20년 전통 바베큐", "sources": [1]}, {"type": "맛 묘사", "note": "한돈 숯불 바베큐", "sources": [0]}, {"type": "분위기·전망", "note": "도심 속 힐링 캠핑 분위기", "sources": [1]}],
+  "newTypes": [],
+  "descriptors": {"yearsClaimed": 20, "generations": null, "queueing": null, "parking": null, "audience": "mixed", "signatureDishes": ["공룡삼겹살", "한돈"], "priceBand": null},
+  "notFound": null,
+  "notes": ""
+}

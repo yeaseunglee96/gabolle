@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202512A0044584",
+  "worker": "haiku-51",
+  "researchedAt": "2026-09-09T14:38:00Z",
+  "queries": ["고메드갤러리아조선비치호텔 해운대 부산", "고메드갤러리아조선비치호텔 우1동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "호텔명으로는 그랜드 조선 부산이 검색되나 구내식당명 고메드갤러리아는 웹에 별도 정보가 없음",
+  "notes": ""
+}

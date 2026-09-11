@@ -1,0 +1,39 @@
+{
+  "id": "MA0101202406A0432510",
+  "worker": "haiku-32",
+  "researchedAt": "2026-09-09T10:43:00Z",
+  "queries": ["탐라물회 영도구 부산", "탐라물회 남항동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 영도구 남항로31번길 33"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "자리돔 물회 전문점으로 알려짐",
+      "sources": [0, 1]
+    },
+    {
+      "type": "맛 묘사",
+      "note": "여름에 입맛을 돌게 하는 식당, 깔끔한 국물 맛",
+      "sources": [1]
+    },
+    {
+      "type": "미디어 노출",
+      "note": "2TV 생생정보 맛집으로 소개됨",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["자리돔 물회"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "테이블링, 다이닝코드에서도 확인 가능. 월요일 휴무, 11:00~20:00 영업."
+}

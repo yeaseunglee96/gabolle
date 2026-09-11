@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220810632937",
+  "worker": "haiku-31",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["일품정가 부산진구 부산", "일품정가 당감2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.busan.go.kr/news/snsbusan04/view?dataNo=46162&gugun=Next", "https://www.busan.com/view/busan/view.php?code=20141115000054", "https://www.diningcode.com/profile.php?rid=xUKBCYFDXnHf", "https://www.daangn.com/kr/local-profile/%EC%9D%BC%ED%92%88%EC%A0%95%EA%B0%80-dka39byr2h96/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "갈비탕, 갈비찜, 삼겹살",
+      "sources": [2, 3]
+    },
+    {
+      "type": "기관 선정",
+      "note": "부산공동모금회 '착한가게' 캠페인 공식 참여",
+      "sources": [0, 1]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "4인 좌석, 개인실 구비로 그룹 식사 가능",
+      "sources": [2]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "group",
+    "signatureDishes": ["갈비탕", "갈비찜", "삼겹살", "된장찌개"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "부암역 인근, 전화 051-891-9136, 주소 부산 부산진구 가야대로703번길 25"
+}

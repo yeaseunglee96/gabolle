@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220807998610",
+  "worker": "haiku-14",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["석정갈비 동래구 부산", "석정갈비 온천2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["식신", "다이닝코드", "링크투플레이스"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "조리·재료", "note": "남해산 프리미엄 돼지 생갈비를 300시간 숙성해서 사장이 직접 손질", "sources": [1, 2]},
+    {"type": "기관 선정", "note": "2019년 이후 매년 블루리본 어워드 수상", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "생갈비와 양념갈비가 대표 메뉴", "sources": [1]},
+    {"type": "혼잡·수요", "note": "웨이팅이 길지만 인기 있는 맛집", "sources": [0, 1]},
+    {"type": "곁들임·차림", "note": "김치찜 주문시 무한 반찬 제공", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": true,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["생갈비", "양념갈비", "갈매기살"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

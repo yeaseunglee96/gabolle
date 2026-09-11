@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220809732434",
+  "worker": "haiku-67",
+  "researchedAt": "2026-09-09T22:36:00.000Z",
+  "queries": ["용당횟집 해운대구 부산", "용당횟집 우1동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://www.diningcode.com/profile.php?rid=mCZEGf4HVH6k"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "바다장어(아나고) 전문",
+      "sources": [0]
+    },
+    {
+      "type": "메뉴 희소성",
+      "note": "아나고회는 흔하지 않은 메뉴",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["바다장어(아나고)", "아나고회"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "횟집. 아나고회(50,000~100,000원), 생 아나고 구이, 모듬 사시미 등."
+}

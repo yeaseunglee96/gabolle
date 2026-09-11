@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220808362412",
+  "worker": "haiku-1",
+  "researchedAt": "2026-09-09T01:50:00Z",
+  "queries": ["암소갈비집 해운대", "암소갈비집 해운대해변로 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=i3QrNAR4zjgW", "https://visitbusan.net/index.do?menuCd=DOM_000000202017001000&uc_seq=2317&lang_cd=ko"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "specialty_technique",
+      "note": "손으로 직접 다이아몬드 컷을 내어 갈비의 육질을 더 부드럽게 - 1964년 창업자가 개발한 특별한 기법",
+      "sources": [0]
+    },
+    {
+      "type": "quality",
+      "note": "부드러운 고기와 특제 양념이 특징 - 순수 한우의 특성을 살린 맛",
+      "sources": [0]
+    },
+    {
+      "type": "heritage",
+      "note": "1964년부터 60년 이어진 전통 - 3대에 걸쳐 운영 중인 해운대 명물",
+      "sources": [0]
+    },
+    {
+      "type": "recognition",
+      "note": "Michelin Guide 등재 - 100년 된 고택을 현대식 건물로 개축",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 60,
+    "signatureDishes": ["암소갈비", "불고기", "감자사리"]
+  },
+  "notFound": null,
+  "notes": "극심한 웨이팅으로 악명높음 - 오픈런 또는 주중 방문 권장, 생갈비는 오전 중 품절 가능, 1인 5~7만원대 가격대"
+}

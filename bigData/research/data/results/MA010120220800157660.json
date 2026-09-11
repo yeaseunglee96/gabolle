@@ -1,0 +1,25 @@
+{
+  "id": "MA010120220800157660",
+  "worker": "haiku-25",
+  "researchedAt": "2026-09-09T10:47:15Z",
+  "queries": ["우이 동광동 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=QjicvZCs5ImZ"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "한우 오마카세, 한우 코스요리",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "audience": "adult",
+    "signatureDishes": ["한우 오마카세"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": ""
+}

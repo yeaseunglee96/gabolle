@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220808568644",
+  "worker": "haiku-14",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["규우정 해운대구 부산", "규우정 중2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["식신", "다이닝코드", "트립닷컴", "당근"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "조리·재료", "note": "최상급 1++ 한우 암소만 선별해서 사용", "sources": [1, 2]},
+    {"type": "분위기·전망", "note": "해운대 해변을 바로 앞에서 바라보는 오션뷰", "sources": [2, 3]},
+    {"type": "간판 메뉴 지목", "note": "1++ 한우 샤브샤브 뷔페가 대표 메뉴", "sources": [1, 2]},
+    {"type": "서비스·사람", "note": "프리미엄 분위기, 개인실 제공", "sources": [2]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "high-income",
+    "signatureDishes": ["1++ 한우 샤브샤브 뷔페", "1++ 한우 숯불구이"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": ""
+}

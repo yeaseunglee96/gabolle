@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202504A0007677",
+  "worker": "haiku-53",
+  "researchedAt": "2026-09-09T06:20:00Z",
+  "queries": ["백탄 초밥 부산", "백탄 민락동"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1540724", "https://www.diningcode.com/profile.php?rid=Q6rPSievsSXc"],
+  "stillOpen": true,
+  "whyPeopleGo": [{"type": "간판 메뉴 지목", "note": "야키토리(그릴에 구운 닭꼬치) 전문점, 같은 날 뼈 제거하고 같은 날 소비", "sources": [0, 1]}, {"type": "분위기·전망", "note": "광안리 전망이 좋은 카운터 좌석", "sources": [1]}],
+  "newTypes": [],
+  "descriptors": {"signatureDishes": ["야키토리", "이자카야 코스"]},
+  "notFound": null,
+  "notes": "카테고리는 일식 회/초밥으로 기록되었으나 실제로는 야키토리/이자카야. 영업시간 17:30-01:00. 흰(백) 코스, 숯(탄) 코스 제공"
+}

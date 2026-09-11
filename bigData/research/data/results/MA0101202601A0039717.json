@@ -1,0 +1,39 @@
+{
+  "id": "MA0101202601A0039717",
+  "worker": "haiku-21",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["재풍호 남구 부산", "재풍호 용호동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/763769"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "메뉴 희소성",
+      "note": "자연산 생선회, 특히 꼼장어와 붕장어(아나고)는 제한적 식재",
+      "sources": [0]
+    },
+    {
+      "type": "조리·재료",
+      "note": "자연산 생선을 사용해 신선도와 희소성이 높음",
+      "sources": [0]
+    },
+    {
+      "type": "플랫폼 순위·평점",
+      "note": "식신 맛집 검색에 대연/용호 지역 자연산회 전문점으로 등재",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["꼼장어 소금구이", "붕장어양념구이"],
+    "priceBand": "premium"
+  },
+  "notFound": null,
+  "notes": ""
+}

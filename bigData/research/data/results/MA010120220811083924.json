@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220811083924",
+  "worker": "haiku-58",
+  "researchedAt": "2026-09-09T17:12:00Z",
+  "queries": ["참가자미집 해운대 부산", "참가자미집 중1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1018188", "https://www.diningcode.com/list.dc?query=%EB%B6%80%EC%82%B0%EA%B4%91%EC%97%AD%EC%8B%9C+%ED%95%B4%EC%9A%B4%EB%8C%80%EA%B5%AC+%EC%B0%B8%EA%B0%80%EC%9E%90%EB%AF%B8"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "참가자미(참치회) 전문", "sources": [0, 1]},
+    {"type": "메뉴 희소성", "note": "감포참가자미로 유명한 특화 메뉴", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["참가자미"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "감포참가자미 해운대점으로도 알려짐. 주소 마린시티3로 46, 전화 0507-1364-3539, 주중 10:00~22:00"
+}

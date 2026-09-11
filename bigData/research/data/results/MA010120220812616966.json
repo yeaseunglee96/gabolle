@@ -1,0 +1,25 @@
+{
+  "id": "MA010120220812616966",
+  "worker": "haiku-33",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["잘생긴소 해운대구 부산", "잘생긴소 반송1동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://www.siksinhot.com/P/755099"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "소고기 전문", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": null,
+    "signatureDishes": ["소고기"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "식신에서 확인"
+}

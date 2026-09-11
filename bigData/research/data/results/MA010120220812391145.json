@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220812391145",
+  "worker": "haiku-9",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["우성삼계탕 수영구 부산", "우성삼계탕 광안3동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["siksinhot.com", "diningcode.com"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "연차·역사",
+      "note": "40년 전통의 삼계탕 전문점",
+      "sources": [0, 1]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "삼계탕이 유일한 메뉴",
+      "sources": [0, 1]
+    },
+    {
+      "type": "조리·재료",
+      "note": "진한 국물과 부드러운 닭고기, 인삼주 제공",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 40,
+    "generations": null,
+    "queueing": true,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["삼계탕"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "수영역 5번 출구 3~5분 거리. 복날·연휴에 웨이팅 많음"
+}

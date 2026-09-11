@@ -1,0 +1,39 @@
+{
+  "id": "MA0101202505A0078832",
+  "worker": "haiku-9",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["수정동시장횟집 동구 부산", "수정동시장횟집 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["busan.com", "diningcode.com"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "연차·역사",
+      "note": "30년 전통의 수정전통시장 내 수정동 시장횟집",
+      "sources": [0, 1]
+    },
+    {
+      "type": "조리·재료",
+      "note": "신선한 자연산 회, 계절 생선으로 만든 모듬회",
+      "sources": [0, 1]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "세트메뉴 20,000원, 모듬회 약 20,000원의 가성비",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 30,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["모듬회", "생선회"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "수정전통시장 내 위치. 부산진역 근처. 단골이 많은 지역 식당"
+}

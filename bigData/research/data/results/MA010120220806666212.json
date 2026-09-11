@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220806666212",
+  "worker": "haiku-12",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["무쇠김치삼겹 수영구 부산", "무쇠김치삼겹 광안2동 돼지고기"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://triple.guide/restaurants/d4f34ad9-afa7-45f5-927b-b7a08c3f887e", "https://kr.trip.com/moments/detail/busan-432-13963609"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "원조·최초", "note": "부산 서면을 1호점으로 시작해 전국 프랜차이즈로 확장", "sources": [0, 1]},
+    {"type": "조리·재료", "note": "100% 국산 1+ 냉장 삼겹살만 사용", "sources": [0, 1]},
+    {"type": "조리·재료", "note": "본사 직영 김치공장에서 직접 제조한 김치", "sources": [0, 1]},
+    {"type": "플랫폼 순위·평점", "note": "식신, 다이닝코드, 트립닷컴 등 주요 플랫폼에 소개됨", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["무쇠김치삼겹", "김치전골"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

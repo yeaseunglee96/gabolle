@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220800295482",
+  "worker": "haiku-32",
+  "researchedAt": "2026-09-09T10:56:00Z",
+  "queries": ["오다가다 동구 부산 초밥", "오다가다 초량6동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 동구 망양로 589-2"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "가격·가성비",
+      "note": "가성비 좋음, 웨이팅이 생길 정도로 인기",
+      "sources": [1]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "야경이 예쁜 로컬 식당",
+      "sources": [1]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "스시, 돈까스 전문",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": "yes",
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["활어 초밥", "돈까스"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "11:00~20:00 영업, 일요일 휴무, 라스트오더 19:50. 배달·포장·예약 가능. 길가 주차 어려움."
+}

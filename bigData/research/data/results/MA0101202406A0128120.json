@@ -1,0 +1,27 @@
+{
+  "id": "MA0101202406A0128120",
+  "worker": "haiku-69",
+  "researchedAt": "2026-09-10T00:07:00Z",
+  "queries": ["술나방바 부산진구", "술나방바 전포동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1258984", "https://www.diningcode.com/profile.php?rid=LKMwpx4iyKaZ"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "참치 대뱃살 마끼 - 프리미엄 혼 마그로 뱃살", "sources": [0]},
+    {"type": "분위기·전망", "note": "빈티지 인테리어, 따뜻한 조명의 이자카야", "sources": [1]},
+    {"type": "혼잡·수요", "note": "웨이팅 있음, 특히 토요일 저녁", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": true,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["참치 대뱃살 마끼", "닭튀김"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": "최소주문 20,000원 + 주류 필수, 테이블 타임 2시간 30분, 영업시간 18:00~02:00, 서면역 8번출구 도보 4분"
+}

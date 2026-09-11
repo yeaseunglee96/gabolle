@@ -1,0 +1,36 @@
+{
+  "id": "MA0101202510A0004094",
+  "worker": "haiku-40",
+  "researchedAt": "2026-09-09T13:42:00Z",
+  "queries": ["랑야각 사상구 부산", "랑야각 주례2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.diningcode.com/profile.php?rid=ogRiG0ynhhbj"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "운영·접근 편의",
+      "note": "셀프바에서 샐러드, 과일, 과자 즐길 수 있음",
+      "sources": [0]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "유린기 등 중국 요리",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["유린기"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "다이닝코드 등록. 동서대학교 앞 위치"
+}

@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220811436198",
+  "worker": "haiku-64",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["청춘식당 해운대 돼지고기", "청춘식당 우1동 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/766329", "https://www.diningcode.com/profile.php?rid=xIDbJLdzQGmA", "https://www.tabling.co.kr/place/687ee720532a6884bba5826c"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "삼겹살, 꽃목살, 대패삼겹살, 항정살 전문", "sources": [0, 1]},
+    {"type": "조리·재료", "note": "신선한 생삼겹살과 고급 부위 제공", "sources": [0, 1]},
+    {"type": "분위기·전망", "note": "해운대해변 인근 입지", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["삼겹살", "꽃목살", "대패삼겹살", "등심", "항정살"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "센텀 지점도 있음. 야간 영업 18:00~06:00"
+}

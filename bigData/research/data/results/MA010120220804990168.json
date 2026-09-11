@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220804990168",
+  "worker": "haiku-7",
+  "researchedAt": "2026-09-08T22:09:18Z",
+  "queries": ["어느멋진날 기장군 부산", "어느멋진날 일광읍 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://kr.trip.com/moments/detail/gijang-gun-2016643-120678945/", "https://kr.trip.com/moments/detail/busan-432-13348953/", "https://polle.com/place/2YkOqY/%EC%96%B4%EB%8A%90%20%EB%A9%8B%EC%A7%84%EB%82%A0"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "맛 묘사", "note": "전복, 새우 가정식으로 신선한 해산물 요리", "sources": [0]},
+    {"type": "분위기·전망", "note": "일광 뷰로 경치가 좋은 해변 식당", "sources": [1]},
+    {"type": "미디어 노출", "note": "KBS 2TV 예능 프로그램 출연", "sources": [0]},
+    {"type": "간판 메뉴 지목", "note": "버터전복구이, 전복밥이 대표메뉴", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["버터전복구이", "전복밥", "홍게살덮밥"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "일광읍 일광해수욕장 인근 위치. 월~일 11:00~20:00 (휴게시간 15:30~17:00). 예약 가능."
+}

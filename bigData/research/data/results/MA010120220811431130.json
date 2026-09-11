@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220811431130",
+  "worker": "haiku-12",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["길수횟집 수영구 부산", "길수횟집 민락동 횟집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/270862", "https://www.diningcode.com/profile.php?rid=nKlumw9rkddE"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "생선회 무한 리필이 특징 - 푸짐할 때까지 제공", "sources": [0, 1]},
+    {"type": "분위기·전망", "note": "민락 수변공원 인근, 광안대교 오션뷰", "sources": [0, 1]},
+    {"type": "맛 묘사", "note": "푸짐한 제철 해물들을 밑반찬으로 준비", "sources": [0, 1]},
+    {"type": "플랫폼 순위·평점", "note": "식신, 다이닝코드, 트리플 등 주요 플랫폼에 소개됨", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["생선회 코스"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

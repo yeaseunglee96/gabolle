@@ -1,0 +1,37 @@
+{
+  "id": "MA010120220806902131",
+  "worker": "haiku-3",
+  "researchedAt": "2026-09-08T16:54:36.279Z",
+  "queries": ["한월관 광안 백반", "한월관 수영구 백반"],
+  "found": true,
+  "confidence": "medium",
+  "sources": [
+    "https://guide.michelin.com/us/en/busan-region/busan_1025838/restaurant/hanwolgwan",
+    "https://korea.beautihost.com/busan/search/?q=hanwolgwan"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "맛 묘사",
+      "note": "깊고 진한 국물 맛이 특징",
+      "sources": [0]
+    },
+    {
+      "type": "조리·재료",
+      "note": "부드러운 고기가 푸짐한 양",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": null,
+    "signatureDishes": ["곰탕"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": ""
+}

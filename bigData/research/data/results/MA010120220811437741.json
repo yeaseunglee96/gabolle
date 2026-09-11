@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220811437741",
+  "worker": "haiku-1",
+  "researchedAt": "2026-09-09T00:38:00Z",
+  "queries": ["덩굴아나고구이 수영구 부산", "덩굴아나고구이 황령대로 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=T4Wo8Ffjh3tl", "https://www.siksinhot.com/P/368055"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "specialty",
+      "note": "40년 전통 연탄불 아나고(바다장어) 구이 - 신선하고 실한 붕장어",
+      "sources": [0]
+    },
+    {
+      "type": "quality",
+      "note": "석쇠에 구워 독특한 식감 - 향긋하고 부드러운 식감 - 생선비린맛 없음",
+      "sources": [0]
+    },
+    {
+      "type": "signature_sauce",
+      "note": "특별한 소스와 생강 양념으로 깊은 맛",
+      "sources": [0]
+    },
+    {
+      "type": "experience",
+      "note": "아나고구이 + 매운탕으로 마무리 - 고객들의 추천 먹는 방식",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 40,
+    "signatureDishes": ["아나고구이"]
+  },
+  "notFound": null,
+  "notes": "최소주문 3인분, 매주 수요일 휴무, 무료주차 가능(1시간 제한)"
+}

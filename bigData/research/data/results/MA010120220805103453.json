@@ -1,0 +1,34 @@
+{
+  "id": "MA010120220805103453",
+  "worker": "haiku-61",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["정순옥 수영구 부산", "정순옥 남천동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1503719", "http://duli.co.kr/web/splus/kmap/view.php?sigun=6260000&gugun=3380000&keyno=124&keyname=%EC%A0%95%EC%88%9C%EC%98%A5&keylink=3380000-101-2020-00140", "https://www.instagram.com/jungsoonock.busan/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "석쇠 오리구이가 대표 메뉴",
+      "sources": [0, 1]
+    },
+    {
+      "type": "조리·재료",
+      "note": "불향이 잘 느껴지게 맛이 업그레이드됨",
+      "sources": [2]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["석쇠 오리구이", "소갈비"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": ""
+}

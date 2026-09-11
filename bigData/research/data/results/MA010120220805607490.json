@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220805607490",
+  "worker": "haiku-23",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["야망정아구야 사하구 부산", "야망정아구야 다대1동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "검색 결과에서 이 횟집에 대한 구체적인 정보를 찾을 수 없음",
+  "notes": ""
+}

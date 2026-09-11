@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220811597245",
+  "worker": "haiku-44",
+  "researchedAt": "2026-09-09T10:37:00Z",
+  "queries": ["형제가든 기장군 부산", "형제가든 철마면 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/640520", "https://www.instagram.com/bro_garden/", "https://www.diningcode.com/profile.php?rid=kmGzVrOW44a1"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "연차·역사",
+      "note": "철마 지역에서 20년간 영업해온 한우 식당으로 2020년 확장공사 후 재오픈",
+      "sources": [0, 1]
+    },
+    {
+      "type": "조리·재료",
+      "note": "모든 고기가 한우 투뿔이며 쌀, 배추, 고춧가루, 채소류 모두 국내산만 사용",
+      "sources": [0, 1]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "넓은 주차장, 잘 꾸며진 정원, 방갈로 형태의 분리된 룸으로 프라이빗한 분위기",
+      "sources": [0, 2]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "available",
+    "audience": "family",
+    "signatureDishes": ["꽃등심", "갈빗살", "생고기모듬"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

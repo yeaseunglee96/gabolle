@@ -1,0 +1,62 @@
+{
+  "id": "MA010120220811432696",
+  "worker": "haiku-16",
+  "researchedAt": "2026-09-08T22:56:51.411Z",
+  "queries": [
+    "무겐 해운대 마린시티",
+    "무겐 일식 부산"
+  ],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.diningcode.com/profile.php?rid=Zhlobg9qehJC",
+    "https://www.tripadvisor.com/Restaurant_Review-g297884-d28654144-Reviews-Mugen-Busan.html"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "조용하고 고급스러운 분위기",
+      "sources": [
+        0
+      ]
+    },
+    {
+      "type": "메뉴 희소성",
+      "note": "신선한 회와 와규 요리 코스",
+      "sources": [
+        0
+      ]
+    },
+    {
+      "type": "플랫폼 순위·평점",
+      "note": "TripAdvisor 부산 24위",
+      "sources": [
+        1
+      ]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "와규, 스시, 사시미 코스",
+      "sources": [
+        0
+      ]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": [
+      "와규",
+      "스시",
+      "사시미"
+    ],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": "위치: 마린시티1로 127 아라트리움 203호, 영업 11:30~21:50 (브레이크 15:00~17:00), 코스 30,000원부터"
+}

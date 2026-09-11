@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220811399426",
+  "worker": "haiku-26",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["박가면가 해운대구 부산", "박가면가 반여동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=0wZ3RhImKe9c"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "막국수 전문점",
+      "sources": [0]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "시골 오두막 스타일의 아늑한 분위기, 건물 외부 디자인이 예쁨",
+      "sources": [0]
+    },
+    {
+      "type": "메뉴 희소성",
+      "note": "여름 막국수, 육전칼국수, 들깨칼국수 등 특색있는 메뉴",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "families",
+    "signatureDishes": ["막국수", "갈비탕", "돈까스"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

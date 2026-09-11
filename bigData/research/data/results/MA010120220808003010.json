@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220808003010",
+  "worker": "haiku-41",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["뚱이네포차 중구 부산", "뚱이네포차 영주2동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "검색에서 부산 중구 영주2동의 뚱이네포차를 찾을 수 없음",
+  "notes": ""
+}

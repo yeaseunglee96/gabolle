@@ -1,0 +1,33 @@
+{
+  "id": "MA0101202508A0020039",
+  "worker": "haiku-1",
+  "researchedAt": "2026-09-09T02:47:00Z",
+  "queries": ["원조언양불고기 광안 수영구"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=9BPz6lVKnXSL", "https://guide.michelin.com/us/en/busan-region/busan_1025838/restaurant/eonyang-bulgogi-busanjip"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "specialty",
+      "note": "설탕으로 양념한 쇠고기 불고기 - 고기를 부드럽게 만드는 전통 기법",
+      "sources": [0]
+    },
+    {
+      "type": "menu_variety",
+      "note": "우둔살, 갈빗살, 쇠고기 육회 등 다양한 메뉴",
+      "sources": [0]
+    },
+    {
+      "type": "recognition",
+      "note": "TV '1박 2일' 출연 - 광안리 명소",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["불고기", "김치찌개"]
+  },
+  "notFound": null,
+  "notes": "11:00~22:00 영업(월요일 휴무), 서울 논현동 지점 있음, 전화 선주문 픽업 가능"
+}

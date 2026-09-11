@@ -1,0 +1,47 @@
+{
+  "id": "MA010120220811608345",
+  "worker": "haiku-2",
+  "researchedAt": "2026-09-08T16:43:11.248Z",
+  "queries": ["전산가든 기장군 부산", "전산가든 일광읍 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.diningcode.com/profile.php?rid=bQ37qriBY1Fn",
+    "https://www.tabling.co.kr/place/677ccb2d66de5f06987cc622"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "맛 묘사",
+      "note": "매콤한 양념과 부드러운 아귀살, 콩나물의 아삭한 식감을 푸짐하게 먹을 수 있음",
+      "sources": [0, 1]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "가격이 저렴하고 양이 푸짐함. 소주, 맥주 3000원",
+      "sources": [0, 1]
+    },
+    {
+      "type": "조리·재료",
+      "note": "경상도식 향신료(방아, 산초가루, 계피가루)를 사용한 독특한 맛",
+      "sources": [1]
+    },
+    {
+      "type": "서비스·사람",
+      "note": "직원이 친절하고 고객 맞춤 서빙(매운맛 조절 등)",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": "some",
+    "parking": "easy",
+    "audience": "local",
+    "signatureDishes": ["아구찜", "아구수육"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "부산 3대 아구찜집 중 하나로 평가받음"
+}

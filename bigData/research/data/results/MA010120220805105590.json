@@ -1,0 +1,31 @@
+{
+  "id": "MA010120220805105590",
+  "worker": "haiku-40",
+  "researchedAt": "2026-09-09T12:40:00Z",
+  "queries": ["선우고깃집 부산진구 부산", "선우고깃집 부암3동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.diningcode.com/profile.php?rid=LOaq0bwEJme5"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "조리·재료",
+      "note": "20년 전통 가정식 화로구이",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": false,
+    "audience": "local",
+    "signatureDishes": ["삼겹살", "화로구이"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "051-806-6628, 당감동 위치"
+}

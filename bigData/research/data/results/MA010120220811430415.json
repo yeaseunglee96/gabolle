@@ -1,0 +1,34 @@
+{
+  "id": "MA010120220811430415",
+  "worker": "haiku-32",
+  "researchedAt": "2026-09-09T10:45:00Z",
+  "queries": ["더포 동래구 부산 베트남", "더포 사직1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 동래구 사직1동"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "베트남 요리 전문, 샤브와 월남쌈 유명",
+      "sources": [1]
+    },
+    {
+      "type": "서비스·사람",
+      "note": "음식의 질, 서비스, 청결함에 대한 긍정 평가",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": null,
+    "signatureDishes": ["샤브", "월남쌈"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "트리플가이드, 뽈레, 다이닝코드에서 확인 가능."
+}

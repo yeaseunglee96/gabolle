@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220811437318",
+  "worker": "haiku-58",
+  "researchedAt": "2026-09-09T17:07:00Z",
+  "queries": ["조선스낵 수영구 부산", "조선스낵 광안1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.facebook.com/pages/%C3%AC%C2%A1%C2%B0%C3%AC%C2%84%C2%A0%C3%AC%C2%8A%C2%A4%C3%AB%C2%82%C2%B5/414580645815357/", "https://joseonsnack.com/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "스낵 전문점", "sources": [0, 1]},
+    {"type": "운영·접근 편의", "note": "12:00~20:00 운영", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["스낵"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "공식 웹사이트 운영 중. 주소 부산광역시 수영구 무학로52번길 36-1. 전화 051-753-5582"
+}

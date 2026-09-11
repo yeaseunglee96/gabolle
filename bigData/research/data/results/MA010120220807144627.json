@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220807144627",
+  "worker": "haiku-21",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["라나 해운대구 부산", "라나 좌동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "검색에서 빵/도넛 라나라는 가게를 찾을 수 없음",
+  "notes": ""
+}

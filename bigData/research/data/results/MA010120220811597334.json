@@ -1,0 +1,55 @@
+{
+  "id": "MA010120220811597334",
+  "name": "얼크니손칼국수",
+  "worker": "haiku-1",
+  "researchedAt": "2026-09-09T00:16:00Z",
+  "queries": [
+    "얼크니손칼국수 기장 부산",
+    "\"얼크니손칼국수\" 기장읍 2024 2025"
+  ],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.tabling.co.kr/restaurant/5250",
+    "https://triple.guide/restaurants/d75da4dc-e768-4057-aaab-4c93f218159c",
+    "https://www.visitbusan.net/index.do?menuCd=DOM_000000201002001000&uc_seq=877&lang_cd=ko",
+    "https://www.daangn.com/kr/local-profile/%EC%96%BC%ED%81%AC%EB%8B%88%EC%86%90%EC%B9%BC%EA%B5%AD%EC%88%98-7w3uxncy7xa2/"
+  ],
+  "stillOpen": true,
+  "contact": {
+    "phone": "051-721-3487",
+    "address": "부산광역시 기장군 기장읍 차성로417번길 22 (교리) 1층"
+  },
+  "hours": {
+    "weekday": "11:30-21:30",
+    "lastOrder": "20:30"
+  },
+  "whyPeopleGo": [
+    {
+      "type": "menu",
+      "note": "얼큰한 국물의 손칼국수 전문점 - 고기와 만두, 면을 함께 즐김",
+      "sources": ["https://triple.guide/restaurants/d75da4dc-e768-4057-aaab-4c93f218159c", "https://www.visitbusan.net/index.do?menuCd=DOM_000000201002001000&uc_seq=877&lang_cd=ko"]
+    },
+    {
+      "type": "specialty",
+      "note": "샤브칼국수 경험 - 먼저 샤브샤브를 즐기고 나중에 칼국수 국물에 국수를 넣음",
+      "sources": ["https://www.instagram.com/p/DAc50Ityu5W/"]
+    },
+    {
+      "type": "noodle_quality",
+      "note": "정성 가득한 쫄깃한 면발과 깊은 육수의 조화",
+      "sources": ["https://www.visitbusan.net/index.do?menuCd=DOM_000000201002001000&uc_seq=877&lang_cd=ko"]
+    },
+    {
+      "type": "price",
+      "note": "손칼국수 11,000원 - 대중적 가격대",
+      "sources": ["https://www.tabling.co.kr/restaurant/5250"]
+    }
+  ],
+  "newTypes": ["국수/칼국수"],
+  "descriptors": {
+    "signatureDishes": ["샤브칼국수"]
+  },
+  "notFound": null,
+  "notes": "테이블링, 트리플, 부산에가면 등 여러 플랫폼에서 예약/정보 제공 중. 영업 중 확인. 인스타그램 최근 포스팅으로 현재 운영 상태 확인됨."
+}

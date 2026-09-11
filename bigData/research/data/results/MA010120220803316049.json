@@ -1,0 +1,44 @@
+{
+  "id": "MA010120220803316049",
+  "worker": "haiku-34",
+  "researchedAt": "2026-09-09T07:37:00Z",
+  "queries": ["해대이모횟집 부산 영도"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://triple.guide/restaurants/39385533-4f2d-4f2b-8f6a-f82eac221123", "https://www.diningcode.com/profile.php?rid=KEuBzqqVIp2R"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "연차·역사",
+      "note": "영도 동삼동에서 21년 운영해온 오래된 횟집",
+      "sources": [0]
+    },
+    {
+      "type": "조리·재료",
+      "note": "직접 배로 잡은 생선으로 신선함 보장",
+      "sources": [1]
+    },
+    {
+      "type": "메뉴 희소성",
+      "note": "시즌별 생선 제공 - 가자미(연중), 도다리(봄), 전어(가을), 농어, 미시가리(겨울)",
+      "sources": [1]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "모둠 횟감 플래터로 다양한 생선을 저렴하게 즐길 수 있음",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 21,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["가자미", "도다리", "전어", "농어", "모둠횟감"],
+    "priceBand": "medium"
+  },
+  "notFound": null,
+  "notes": "해양대 교차로 근처 위치"
+}

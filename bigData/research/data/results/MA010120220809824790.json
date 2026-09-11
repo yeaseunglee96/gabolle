@@ -1,0 +1,64 @@
+{
+  "id": "MA010120220809824790",
+  "worker": "haiku-65",
+  "researchedAt": "2026-09-09T22:29:19.740Z",
+  "queries": [
+    "언양불고기부산집본가 수영구 부산",
+    "언양불고기부산집본가 광안2동 맛집"
+  ],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.siksinhot.com/P/264833",
+    "https://www.diningcode.com/profile.php?rid=XmMP7FT4U6Nh"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "연차·역사",
+      "note": "1973년부터 운영한 45년 전통 숯불 불고기 전문점",
+      "sources": [
+        0,
+        1
+      ]
+    },
+    {
+      "type": "기관 선정",
+      "note": "2026 MICHELIN Guide South Korea 등재",
+      "sources": [
+        0,
+        1
+      ]
+    },
+    {
+      "type": "조리·재료",
+      "note": "정통 숯불 향과 부드러운 고기 품질",
+      "sources": [
+        0,
+        1
+      ]
+    },
+    {
+      "type": "곁들임·차림",
+      "note": "백김치 등 푸짐한 디너세트",
+      "sources": [
+        0,
+        1
+      ]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": "45년",
+    "generations": null,
+    "queueing": null,
+    "parking": "가능",
+    "audience": "mixed",
+    "signatureDishes": [
+      "언양불고기"
+    ],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": ""
+}

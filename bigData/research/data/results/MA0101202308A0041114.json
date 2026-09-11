@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202308A0041114",
+  "worker": "haiku-59",
+  "researchedAt": "2026-09-09T08:18:30Z",
+  "queries": ["니나 부산 광안 경양식", "니나 수영구 광안해변"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "광안 지역 양식당 검색에도 불구하고 '니나'라는 경양식 식당은 웹 검색에서 찾을 수 없음",
+  "notes": "경양식 카테고리로 등록"
+}

@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220810133619",
+  "worker": "haiku-8",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["어부의잔치 수영구 부산", "어부의잔치 수영동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산 수영구 망미번영로70번길 3"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "조리·재료", "note": "셰프가 그날의 재료에 따라 신선 회를 직접 손질하여 제공", "sources": [0, 1]},
+    {"type": "서비스·사람", "note": "셰프가 준비하는 메뉴의 오마카세 코스 구성", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "대메로 구이와 조림이 대표 메뉴", "sources": [0, 1]},
+    {"type": "가격·가성비", "note": "오마카세 코스 1인 70,000원의 합리적 가격", "sources": [0]},
+    {"type": "동네·시장 지목", "note": "광안리 남천 지역의 유명 회식당", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["메로구이", "생선회"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

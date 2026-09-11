@@ -1,0 +1,27 @@
+{
+  "id": "MA0101202411A0053157",
+  "worker": "haiku-27",
+  "researchedAt": "2026-09-09T01:36:45Z",
+  "queries": ["토토키친 동래구 부산", "토토키친 안락2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 동래구 온천천로453번길 17"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "맛 묘사", "note": "일식 커리와 돈까스 전문", "sources": [0]},
+    {"type": "분위기·전망", "note": "평화로운 일본 분위기로 혼술하기 좋은 곳", "sources": [0]},
+    {"type": "현지인 지지", "note": "동네 사람들이 찾는 숨은 맛집", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["커리", "돈까스", "카레"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "일인 운영 식당이라 조리에 시간 소요. 운영시간: 12:00-23:00 (점심휴무 15:00-17:00), 매주 월요일 휴무. 단체예약(최대 12명) 권장"
+}

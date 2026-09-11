@@ -1,0 +1,46 @@
+{
+  "id": "MA010120220802936201",
+  "worker": "haiku-65",
+  "researchedAt": "2026-09-09T22:29:19.741Z",
+  "queries": [
+    "텐짱 남구 부산",
+    "텐짱 대연3동 맛집"
+  ],
+  "found": true,
+  "confidence": "medium",
+  "sources": [
+    "https://www.mangoplate.com/restaurants/EK0HTaiERV0i"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "텐동 전문점",
+      "sources": [
+        0
+      ]
+    },
+    {
+      "type": "맛 묘사",
+      "note": "바삭한 일식 텐동",
+      "sources": [
+        0
+      ]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": [
+      "텐동",
+      "돈부리"
+    ],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": ""
+}

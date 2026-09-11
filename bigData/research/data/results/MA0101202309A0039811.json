@@ -1,0 +1,29 @@
+{
+  "id": "MA0101202309A0039811",
+  "worker": "haiku-8",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["석기시대 중구 부산 중국집", "석기시대 동광동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산 중구 동광길 75-1"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "연차·역사", "note": "40년 전통을 유지하는 오래된 중국집", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "오향장육과 만두 전문", "sources": [0, 1]},
+    {"type": "조리·재료", "note": "국내산 고기를 사용하며 마늘이 들어간 새콤한 간장소스", "sources": [1]},
+    {"type": "맛 묘사", "note": "오향장육은 향이 강하지 않아 먹기 쉽고 맛이 좋다는 평가", "sources": [0, 1]},
+    {"type": "동네·시장 지목", "note": "동광동 40계단 위에 위치한 지역 대표 맛집", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["오향장육", "만두"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

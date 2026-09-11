@@ -1,0 +1,28 @@
+{
+  "id": "MA0101202406A0489600",
+  "worker": "haiku-7",
+  "researchedAt": "2026-09-08T22:09:18Z",
+  "queries": ["짬뽕상회 부산대점 금정구", "짬뽕상회 장전2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=idpjbVR3UbdH", "https://triple.guide/restaurants/b9121e58-9a97-43b3-a821-21b41b23f28d", "https://koreabackpacking.com/762"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "맛 묘사", "note": "중독성 강한 얼큰한 짬뽕 국물", "sources": [0]},
+    {"type": "조리·재료", "note": "닭발, 표고버섯, 매실액, 감초 등 20여 가지 신선한 재료를 48시간 우낸 국물", "sources": [0]},
+    {"type": "미디어 노출", "note": "국제신문 부산 짬뽕 맛집 투표 3위 선정", "sources": [0]},
+    {"type": "플랫폼 순위·평점", "note": "10년간 2만여 번의 테스트를 거쳐 완성된 특별한 짬뽕", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "students",
+    "signatureDishes": ["짬뽕"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "부산대역 도보 5분. 11:00~20:30 영업 (15:00~16:00 휴게시간). 매장 앞 2대 주차 가능."
+}

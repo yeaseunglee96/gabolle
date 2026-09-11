@@ -1,0 +1,34 @@
+{
+  "id": "MA0101202505A0009969",
+  "worker": "haiku-71",
+  "researchedAt": "2026-09-10T12:46:00Z",
+  "queries": ["테하노텍스멕스바베큐 광안2동", "레드도어 해운대 중국집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/368058"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "조리·재료",
+      "note": "Pitmaster 셰프가 준비하는 텍사스 바베큐",
+      "sources": [0]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "광안리 해변 뷰",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["바베큐"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "해운대에 첫 점포, 광안리가 2번째 위치"
+}

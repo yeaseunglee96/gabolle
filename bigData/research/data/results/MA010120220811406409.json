@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220811406409",
+  "worker": "haiku-62",
+  "researchedAt": "2026-09-10T12:00:00Z",
+  "queries": ["마포참숯갈비 수영구 부산", "마포참숯갈비 민락동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.daangn.com/kr/local-profile/%EB%A7%88%ED%8F%AC%EC%88%AF%EB%B6%88%EA%B0%88%EB%B9%84-in36rfeyrcv9/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "분위기·전망", "note": "개방된 창문에서 바닷바람을 맞으며 식사", "sources": [0]},
+    {"type": "맛 묘사", "note": "숯불 향이 배어 입안에서 녹고 양념이 적당함", "sources": [0]},
+    {"type": "간판 메뉴 지목", "note": "돼지갈비 전문", "sources": [0]},
+    {"type": "곁들임·차림", "note": "칼칼한 김치찌개로 기름기를 씻어낼 수 있음", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["돼지갈비", "김치찌개"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": ""
+}

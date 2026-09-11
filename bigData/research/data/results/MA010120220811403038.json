@@ -1,0 +1,34 @@
+{
+  "id": "MA010120220811403038",
+  "worker": "haiku-67",
+  "researchedAt": "2026-09-09T22:35:00.000Z",
+  "queries": ["삼천각 수영구 부산", "삼천각 남천2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/396514", "https://www.diningcode.com/profile.php?rid=qAvA1F0bLAnO"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "광안리 해변과 광안대교를 한눈에 감상할 수 있는 오션뷰 중식당",
+      "sources": [0, 1]
+    },
+    {
+      "type": "연차·역사",
+      "note": "오래된 노포 중식당",
+      "sources": [0, 1]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "난자완스, 양장피, 라조기 등 사천/삼천포 요리 전문",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["난자완스", "양장피", "라조기"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "중국집. 짬뽕, 짜장, 볶음밥도 제공. 영업시간 월/수~일 10:30~21:00 (브레이크타임 15:00~16:30), 화요일 휴무. 전화 0507-1377-3022."
+}

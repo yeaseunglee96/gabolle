@@ -1,0 +1,44 @@
+{
+  "id": "MA010120220804835051",
+  "worker": "haiku-13",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["팔레트 남구 부산", "팔레트 용호3동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["식신", "다이닝코드", "polle", "triple.guide", "미슐랭가이드"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "기관 선정",
+      "note": "2026 미슐랭 가이드 남한국 원스타 인증",
+      "sources": [4]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "바다 전망의 우아한 분위기, 밤에 더욱 매력적",
+      "sources": [1, 3]
+    },
+    {
+      "type": "메뉴 희소성",
+      "note": "자연 와인과의 특별한 페어링 (딸기 대게, 요거트 방어, 아몬드 새우 등)",
+      "sources": [3]
+    },
+    {
+      "type": "조리·재료",
+      "note": "고급 자연 와인 선택",
+      "sources": [1, 3]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "upscale",
+    "signatureDishes": ["디너 코스", "런치 코스"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": "와인바로서의 정체성이 강함"
+}

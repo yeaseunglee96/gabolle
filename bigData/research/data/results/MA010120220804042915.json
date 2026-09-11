@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220804042915",
+  "worker": "haiku-71",
+  "researchedAt": "2026-09-10T12:10:00Z",
+  "queries": ["사계 해운대 부산 돼지고기", "사계 중1동 부산 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1157194", "https://www.instagram.com/sagye_bulgogi/", "https://m.ksmnews.co.kr/view.php?idx=269404"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "언양불고기 전문점",
+      "sources": [0]
+    },
+    {
+      "type": "미디어 노출",
+      "note": "언론에 소개된 맛집",
+      "sources": [2]
+    },
+    {
+      "type": "현지인 지지",
+      "note": "남녀노소 많은 방문객",
+      "sources": [2]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "family",
+    "signatureDishes": ["언양불고기"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "카테고리 데이터에는 '돼지고기 구이/찜'이라 표시되었으나 실제 메뉴는 소고기 언양불고기"
+}

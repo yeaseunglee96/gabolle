@@ -1,0 +1,23 @@
+{
+  "id": "MA0101202509A0028881",
+  "worker": "haiku-52",
+  "researchedAt": "2026-09-09T14:42:30Z",
+  "queries": ["샤오마라 수영구 부산", "샤오마라 광안2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=drZsiDNejKZn", "https://kr.trip.com/moments/detail/gwanganri-beach-2040459-137479568/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "마라꼬치와 마라탕 전문", "sources": [0, 1]},
+    {"type": "메뉴 희소성", "note": "컵마라탕과 마라꼬치 전용 브랜드", "sources": [0]},
+    {"type": "분위기·전망", "note": "광안리 바다 야경을 바라보며 식사", "sources": [1]},
+    {"type": "가격·가성비", "note": "가성비 있는 마라 요리", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["마라꼬치", "마라탕"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

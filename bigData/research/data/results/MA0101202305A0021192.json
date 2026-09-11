@@ -1,0 +1,58 @@
+{
+  "id": "MA0101202305A0021192",
+  "worker": "haiku-65",
+  "researchedAt": "2026-09-09T22:31:18.844Z",
+  "queries": [
+    "토리야키 수영구 부산",
+    "토리야키 광안1동 일식"
+  ],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.siksinhot.com/P/1787808",
+    "https://www.diningcode.com/profile.php?rid=eMSs0QRkWxKO"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "야키토리/닭꼬치 전문",
+      "sources": [
+        0,
+        1
+      ]
+    },
+    {
+      "type": "조리·재료",
+      "note": "신선한 생닭을 당일 손질, 잡내 없음",
+      "sources": [
+        0,
+        1
+      ]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "일본식 이자카야 분위기, 바에서 조리 모습 관찰 가능",
+      "sources": [
+        0,
+        1
+      ]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "young-adults",
+    "signatureDishes": [
+      "야키토리",
+      "꼬치 6종 + 츠쿠네",
+      "베이컨계란말이"
+    ],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "영업시간 화~일 18:00-02:00"
+}

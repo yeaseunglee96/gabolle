@@ -1,0 +1,27 @@
+{
+  "id": "MA0101202310A0002338",
+  "worker": "haiku-10",
+  "researchedAt": "2026-09-09T15:00:00Z",
+  "queries": ["석화연 수영구 부산", "석화연 광안2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산 수영구 광안해변로 199-201호"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "분위기·전망", "note": "광안대교 야경 뷰, 광안해변 위치", "sources": [0]},
+    {"type": "조리·재료", "note": "336시간(2주) 이상 숙성한 프리미엄 돼지고기", "sources": [0]},
+    {"type": "맛 묘사", "note": "풍부한 육즙과 부드러운 식감의 숙성육", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["버크셔K", "뼈등심"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": ""
+}

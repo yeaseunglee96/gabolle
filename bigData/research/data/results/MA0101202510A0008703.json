@@ -1,0 +1,27 @@
+{
+  "id": "MA0101202510A0008703",
+  "worker": "haiku-62",
+  "researchedAt": "2026-09-10T12:09:00Z",
+  "queries": ["나가하마만게츠 광안리점", "나가하마만게츠"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=jmQqSmOMuJQQ", "https://guide.michelin.com/us/en/busan-region/busan_1025838/restaurant/nagahama-mangetsu"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "후쿠오카 스타일 톤코츠 라멘 전문", "sources": [0, 1]},
+    {"type": "조리·재료", "note": "36시간 돼지뼈 육수로 우린 국물", "sources": [1]},
+    {"type": "기관 선정", "note": "2025 미슐랭 가이드 빕 구르망 인증, 2년 연속 선정", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": false,
+    "audience": "mixed",
+    "signatureDishes": ["톤코츠 라멘", "교자"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "민락수변공원 도보 5분, 민락골목시장 도보 4분"
+}

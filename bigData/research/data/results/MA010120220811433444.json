@@ -1,0 +1,34 @@
+{
+  "id": "MA010120220811433444",
+  "worker": "haiku-67",
+  "researchedAt": "2026-09-09T22:30:00.000Z",
+  "queries": ["동방명주 수영구 부산", "동방명주 광안2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://triple.guide/restaurants/6fd1e583-2d11-4072-ac7f-3565101f96ff", "https://www.instagram.com/p/DGYEBSmS2Jw/", "https://www.instagram.com/p/CKtXw2AM1BM/", "https://www.diningcode.com/profile.php?rid=w5sZjddEV2H8", "https://www.threads.com/@meal_kick/post/DAKgPNvTMnw"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "짬뽕과 군만두가 대표 메뉴",
+      "sources": [0, 1, 2]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "짬뽕이 4천원의 착한 가격",
+      "sources": [0, 4]
+    },
+    {
+      "type": "현지인 지지",
+      "note": "광안리 지역에서 많은 방문객들에게 사랑받음",
+      "sources": [2, 4]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["짬뽕", "군만두"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "중국집. 짬뽕은 면이 따로 놀지 않고 국물 간이 잘 배어 있으며, 군만두는 고기 육즙이 잘 남아 있다는 평가."
+}

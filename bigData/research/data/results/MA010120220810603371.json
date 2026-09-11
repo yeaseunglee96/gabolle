@@ -1,0 +1,31 @@
+{
+  "id": "MA010120220810603371",
+  "worker": "haiku-40",
+  "researchedAt": "2026-09-09T12:42:00Z",
+  "queries": ["아구마을 부산진구 부산", "아구마을 부암3동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": [
+    "https://www.diningcode.com/list.dc?query=%EB%B6%80%EC%82%B0%EC%A7%84%EA%B5%AC+%EC%95%84%EA%B5%AC%ED%83%95"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "아구찜 전문점",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["아구찜"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "다이닝코드 목록에 포함"
+}

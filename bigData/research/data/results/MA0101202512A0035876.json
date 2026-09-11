@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202512A0035876",
+  "worker": "haiku-33",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["광해횟집 영도구 부산", "광해횟집 봉래1동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "검색 결과 광해횟집은 제주시 일도2동 위치. 부산 영도구 봉래1동과 다른 지역",
+  "notes": ""
+}

@@ -1,0 +1,28 @@
+{
+  "id": "MA0101202308A0000334",
+  "worker": "haiku-7",
+  "researchedAt": "2026-09-08T22:09:18Z",
+  "queries": ["공순대 중구 부산", "공순대 부평동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=jfFwG4xceBSm", "https://www.busan.com/view/busan/view.php?code=2019041108113406979", "https://comeleon.co.kr/15"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "연차·역사", "note": "80년 전통의 부산 대표 순대 가게", "sources": [1]},
+    {"type": "대물림", "note": "3대째 이어온 이북식 순대 전문점", "sources": [2]},
+    {"type": "간판 메뉴 지목", "note": "이북식 순대전골과 공순대모듬 전문", "sources": [1]},
+    {"type": "미디어 노출", "note": "생생정보통, 모닝와이드 노포의 법칙에 소개", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": 3,
+    "queueing": true,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["순대전골", "공순대모듬", "막창순대"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "깡통시장 위치. 12:00~00:00 연중무휴 영업. 식사시간에 수십 분 대기 각오 필요."
+}

@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202303A0038450",
+  "worker": "haiku-61",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["치즈해르트 해운대구 부산", "치즈해르트 우1동 맛집"],
+  "found": false,
+  "confidence": "low",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹에서 검색되지 않음. 다른 치즈 상호만 검색됨",
+  "notes": ""
+}

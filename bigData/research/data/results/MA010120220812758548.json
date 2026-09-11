@@ -1,0 +1,23 @@
+{
+  "id": "MA010120220812758548",
+  "worker": "haiku-31",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["단빵마을 서구 부산", "단빵마을 동대신3동"],
+  "found": true,
+  "confidence": "medium",
+  "sources": [],
+  "stillOpen": true,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": [],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "부산 서구 동대신동3가 222-1 (보수대로 236), 베이커리"
+}

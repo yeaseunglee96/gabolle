@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220813946155",
+  "worker": "haiku-58",
+  "researchedAt": "2026-09-09T17:01:00Z",
+  "queries": ["돼지양 해운대구 부산", "돼지양 우1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=AeT6sZJm5G9L"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "숯불구이로 구워낸 양고기, 양꼬치 전문", "sources": [0]},
+    {"type": "조리·재료", "note": "신선한 양고기를 숯불로 구워서 제공", "sources": [0]},
+    {"type": "분위기·전망", "note": "편안한 한정식당 분위기", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["양고기", "양꼬치"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "다이닝코드 등재. 해운대 양고기 전문점"
+}

@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220810632558",
+  "worker": "haiku-1",
+  "researchedAt": "2026-09-09T00:54:00Z",
+  "queries": ["송정3대국밥 부산진구", "송정3대국밥 서면로 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=aKa14GinMuHB", "https://www.siksinhot.com/P/256569"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "heritage",
+      "note": "1946년 개점 - 80년 이어진 부산의 전설적인 돼지국밥 명점",
+      "sources": [0]
+    },
+    {
+      "type": "specialty",
+      "note": "따로국밥(국과 밥 분리) - 뽀얀 맑은 육수",
+      "sources": [0]
+    },
+    {
+      "type": "quality",
+      "note": "돼지 비린내 최소화 - 신선한 고기와 깨끗한 국물",
+      "sources": [0]
+    },
+    {
+      "type": "recognition",
+      "note": "Blue Ribbon 14회 수상(2013년~) - 부산 대표 돼지국밥",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 80,
+    "signatureDishes": ["따로국밥", "수육백반"]
+  },
+  "notFound": null,
+  "notes": "서면시장 위치, 외국인 관광객 많음, 셀프 반찬 리필 가능, 무료 찹쌀순대 제공, 서면역 1번 출구에서 3분 거리"
+}

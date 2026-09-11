@@ -1,0 +1,42 @@
+{
+  "id": "MA0101202310A0014872",
+  "worker": "haiku-50",
+  "researchedAt": "2026-09-09T05:32:45Z",
+  "queries": ["고래당 광안로 부산", "고래당 광안2동 빵"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.siksinhot.com/P/1591866",
+    "https://www.diningcode.com/profile.php?rid=8ViRTXdMtp7S"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "수제 카스테라 및 카스도스 전문점",
+      "sources": [0, 1]
+    },
+    {
+      "type": "맛 묘사",
+      "note": "신선한 수제 카스테라의 풍부한 맛",
+      "sources": [1]
+    },
+    {
+      "type": "플랫폼 순위·평점",
+      "note": "식신, 다이닝코드 등에 등재",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["검은콩 카스테라", "녹차 카스테라", "카스도스"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": ""
+}

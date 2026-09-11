@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220811401517",
+  "worker": "haiku-17",
+  "researchedAt": "2026-09-09T09:34:30Z",
+  "queries": ["모짜르트 남구 부산 경양식", "모짜르트 대연 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=WNMIejXBYP8C", "https://www.siksinhot.com/P/375366"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "미디어 노출", "note": "백종원의 3대천왕에 출연한 유명한 맛집이다", "sources": [0, 1]},
+    {"type": "분위기·전망", "note": "엔틱한 인테리어로 고풍스러운 분위기가 좋다", "sources": [0, 1]},
+    {"type": "서비스·사람", "note": "서비스가 훌륭하다", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": false,
+    "audience": "mixed",
+    "signatureDishes": ["명품수제함박스테이크", "비후까스"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": ""
+}

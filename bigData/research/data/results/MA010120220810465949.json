@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220810465949",
+  "worker": "haiku-12",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["소문난똥집이모 중구 부산", "소문난똥집이모 대청동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/324480", "https://www.diningcode.com/profile.php?rid=ltvCE3EPoRww"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "닭똥집과 감자를 함께 요리한 시그니처 요리", "sources": [0, 1]},
+    {"type": "맛 묘사", "note": "남포동 술안주로 인기 높은 맛집", "sources": [0]},
+    {"type": "플랫폼 순위·평점", "note": "식신·다이닝코드·트립닷컴 등 주요 맛집 사이트에 소개됨", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["닭똥집", "닭날개구이", "닭모래집"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220811420824",
+  "worker": "haiku-13",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["아오모리 해운대구 부산", "아오모리 우2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["식신", "다이닝코드", "triple.guide", "autoreserve"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "스시 오마카세 전문",
+      "sources": [0, 1]
+    },
+    {
+      "type": "현지인 지지",
+      "note": "부산 3대 스시/초밥 맛집 중 하나로 알려짐",
+      "sources": [1]
+    },
+    {
+      "type": "조리·재료",
+      "note": "신선한 회와 초밥",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "upscale",
+    "signatureDishes": ["디너 사시미 오마카세", "디너 스시 오마카세"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": "해운대센텀호텔 3층 위치, 월요일 휴무"
+}

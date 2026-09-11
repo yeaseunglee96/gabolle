@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220810703245",
+  "worker": "haiku-7",
+  "researchedAt": "2026-09-08T22:09:18Z",
+  "queries": ["안동돼지국밥 사상구 부산", "안동돼지국밥 덕포1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://triple.guide/restaurants/2247bc41-59c0-4319-8ba3-e09348f35773", "https://www.diningcode.com/profile.php?rid=hApTCU3ytBTM", "https://polle.com/place/5c9nXn/%EC%95%88%EB%8F%99%20%EB%8F%BC%EC%A7%80%EA%B5%AD%EB%B0%A5"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "맛 묘사", "note": "담백한 국물과 신선한 부추무침의 조화", "sources": [0]},
+    {"type": "플랫폼 순위·평점", "note": "다이닝코드 별점을 근거로 든다", "sources": [1]},
+    {"type": "미디어 노출", "note": "유튜버 곽튜브님의 최애맛집", "sources": [2]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["돼지국밥", "순대국밥", "섞어국밥"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "덕포동 위치. 월~토 11:00~21:00, 일요일 정기휴무. 다양한 국밥 메뉴 보유."
+}

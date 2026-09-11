@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220806675220",
+  "worker": "haiku-14",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["칠성횟집 수영구 부산", "칠성횟집 민락동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["식신", "다이닝코드", "당근", "82cook"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "분위기·전망", "note": "광안대교와 광안리 해변 경관이 한눈에 보이는 위치", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "세꼬시(뼈회)로 특화되어 있음", "sources": [0, 1]},
+    {"type": "조리·재료", "note": "신선한 재료 사용으로 많은 손님에게 사랑받음", "sources": [0, 1]},
+    {"type": "가격·가성비", "note": "반찬을 최소화해서 합리적인 가격 제공", "sources": [0]},
+    {"type": "플랫폼 순위·평점", "note": "평점과 리뷰 수를 근거로 든다", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["세꼬시(뼈회)", "광어", "우럭", "참돔"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

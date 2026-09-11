@@ -1,0 +1,38 @@
+{
+  "id": "MA010120220800228403",
+  "worker": "haiku-1",
+  "researchedAt": "2026-09-09T00:35:00Z",
+  "queries": ["순애돼지국밥 중구 부산", "순애돼지국밥 충장대로 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://triple.guide/restaurants/c9f8f61e-7911-4636-81b7-26eb9a58627c"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "specialty",
+      "note": "전통적인 돼지국밥과는 다른 깨끗하고 깊은 국물 - 삼계탕 같은 맛",
+      "sources": [0]
+    },
+    {
+      "type": "quality",
+      "note": "신선한 고기, 내장육, 한우 소시지가 어우러진 혼합밥 - 다양한 식감",
+      "sources": [0]
+    },
+    {
+      "type": "atmosphere",
+      "note": "넓고 깨끗한 환경 - 친절한 서비스",
+      "sources": [0]
+    },
+    {
+      "type": "location",
+      "note": "부산역 근처 편리한 위치 - 여행객 접근성 좋음",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["돼지국밥"]
+  },
+  "notFound": null,
+  "notes": "부산역 주변 위치로 여행객 방문이 많을 것으로 예상됨"
+}

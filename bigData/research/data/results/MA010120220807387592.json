@@ -1,0 +1,47 @@
+{
+  "id": "MA010120220807387592",
+  "worker": "haiku-2",
+  "researchedAt": "2026-09-08T16:43:11.248Z",
+  "queries": ["영진돼지국밥 부산진구 부산", "영진돼지국밥 가야공원로 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.diningcode.com/profile.php?rid=dS9kzEVWppJU",
+    "https://www.tabling.co.kr/place/677cd3f866de5f06988c89de"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "맛 묘사",
+      "note": "야들야들한 고기와 뽀얀 진국의 깊은 맛, 잡내가 없고 깔끔한 국물",
+      "sources": [0, 1]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "합리적 가격에 푸짐한 반찬과 셀프바 제공",
+      "sources": [0]
+    },
+    {
+      "type": "운영·접근 편의",
+      "note": "빠른 서빙 속도로 빨리 나오며 공영주차장 이용 시 1,000원 할인",
+      "sources": [0]
+    },
+    {
+      "type": "서비스·사람",
+      "note": "식후 식혜 및 커피를 제공하는 정성 있는 서빙",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "easy",
+    "audience": "local",
+    "signatureDishes": ["따로국밥", "내장국밥", "수육백반"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "가야공원 입구 근처 위치로 찾기 편함. 혼밥하기 좋은 분위기"
+}

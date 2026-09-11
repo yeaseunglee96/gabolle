@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202506A0037869",
+  "worker": "haiku-68",
+  "researchedAt": "2026-09-10T09:41:00Z",
+  "queries": ["리앤플레이 해운대 중1동 부산", "리앤플레이 해운대 백반 맛집", "리앤플레이 해운대 블로그"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색 결과에서 해운대 중1동의 리앤플레이 백반/한정식 음식점을 찾을 수 없음",
+  "notes": ""
+}

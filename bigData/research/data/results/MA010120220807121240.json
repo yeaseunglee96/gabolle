@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220807121240",
+  "worker": "haiku-12",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["거창맷돌순두부 남구 부산", "거창맷돌순두부 대연동 순두부"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=tAQXIsRkZslu", "https://korean.visitkorea.or.kr/detail/ms_detail.do?cotid=3151ecb8-d0f2-41e2-864a-35088cc11d2b"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "연차·역사", "note": "30년 이상 같은 자리에서 운영 중인 노포", "sources": [0, 1]},
+    {"type": "조리·재료", "note": "매일 아침 5시부터 직접 만드는 신선한 순두부", "sources": [0]},
+    {"type": "현지인 지지", "note": "택시 기사들이 자주 찾는 지역 로컬 식당", "sources": [0, 1]},
+    {"type": "플랫폼 순위·평점", "note": "다이닝코드 별점을 근거로 든다, 당근 동네 업체 선정", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 30,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["맷돌순두부", "흰순두부", "비지찌개"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

@@ -1,0 +1,42 @@
+{
+  "id": "MA010120220814201874",
+  "worker": "haiku-50",
+  "researchedAt": "2026-09-09T05:29:15Z",
+  "queries": ["우동토오루 해운대구 부산", "우동토오루 중1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.siksinhot.com/P/1489267",
+    "https://kr.trip.com/moments/detail/haeundae-gu-2016633-130129225/"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "맛 묘사",
+      "note": "바삭한 튀김과 신선한 우동",
+      "sources": [1]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "텐동과 우동 전문점",
+      "sources": [0, 1]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "달맞이길 입구의 경치 좋은 위치",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["텐동", "우동"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": ""
+}

@@ -1,0 +1,23 @@
+{
+  "id": "MA0101202406A0203430",
+  "worker": "haiku-72",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["요미우돈교자 해리단길 부산", "요미우돈교자 우동 교자"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.tabling.co.kr/place/677cd89c66de5f069894ce6e", "https://kr.trip.com/moments/detail/busan-432-128570948/", "http://yummyudongyoza.co.kr/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "넓적우동과 교자 전문점", "sources": [0, 1]},
+    {"type": "분위기·전망", "note": "깔끔하고 정돈된 일식 인테리어", "sources": [1]},
+    {"type": "혼잡·수요", "note": "주말에 웨이팅이 있을 정도로 인기 많음", "sources": [2]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["넓적우동", "베이컨크림우동", "교자"],
+    "priceBand": "cheap",
+    "audience": "mixed"
+  },
+  "notFound": null,
+  "notes": "카테고리는 '일식 회/초밥'이나 실제로는 '우동과 교자(만두) 전문점'입니다. 퓨전 일식 프랜차이즈로 해리단길의 핫플레이스입니다."
+}

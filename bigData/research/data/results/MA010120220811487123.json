@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220811487123",
+  "worker": "haiku-11",
+  "researchedAt": "2026-09-09T00:17:00Z",
+  "queries": ["가마솥생복집 기장 부산", "가마솥생복집 기장읍 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 기장군 기장읍 차성로 327-2"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "연차·역사", "note": "1994년 개업 이후 30년 이상 입소문이 나 방송까지 탄 부산의 유명한 복집", "sources": [0, 1] },
+    { "type": "미디어 노출", "note": "방송에 나간 부산에서 가장 유명한 복집으로 알려짐", "sources": [0, 1] },
+    { "type": "기관 선정", "note": "블루리본 선정 및 소방청 인증 안전 관리 우수업소", "sources": [1] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 32,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["복지리", "까치복", "밀복"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": ""
+}

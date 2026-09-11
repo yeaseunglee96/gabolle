@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220811613273",
+  "worker": "haiku-15",
+  "researchedAt": "2026-09-08T22:37:41Z",
+  "queries": ["만서리이가네막국수 금정구 부산", "만서리이가네막국수 장전2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 금정구 식물원로 27"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "간판 메뉴 지목", "note": "강원도식 동치미 막국수, 비빔막국수, 옹심이 메밀 칼국수", "sources": [0] },
+    { "type": "현지인 지지", "note": "온천장의 현지인 맛집으로 많은 단골 보유", "sources": [0] },
+    { "type": "혼잡·수요", "note": "주말에는 항상 웨이팅이 있을 정도로 인기", "sources": [0] },
+    { "type": "운영·접근 편의", "note": "금정산 주차장 이용 가능, 1시간 주차권 제공", "sources": [0] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": true,
+    "parking": true,
+    "audience": "local",
+    "signatureDishes": ["동치미 막국수", "비빔막국수", "옹심이 메밀 칼국수"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "월요일 휴무, 영업시간 11:00~21:30, 15:30~17:00 브레이크타임"
+}

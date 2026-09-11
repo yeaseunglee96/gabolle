@@ -1,0 +1,27 @@
+{
+  "id": "MA0101202302A0098689",
+  "worker": "haiku-55",
+  "researchedAt": "2026-09-09T06:30:00Z",
+  "queries": ["레인즈 수영구 부산", "레인즈 민락동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://kr.trip.com/moments/detail/gwanganri-beach-2040459-128987637/", "https://www.siksinhot.com/P/1250088"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "분위기·전망", "note": "영국 레인즈 파크 마을의 따뜻함과 여유로움 담은 우드톤 인테리어 카페", "sources": [0, 1]},
+    {"type": "운영·접근 편의", "note": "애견동반 가능", "sources": [0, 1]},
+    {"type": "메뉴 희소성", "note": "브런치 전문점", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["브런치"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": ""
+}

@@ -1,0 +1,25 @@
+{
+  "id": "MA0101202409A0202978",
+  "worker": "haiku-39",
+  "researchedAt": "2026-09-09T10:06:00Z",
+  "queries": ["미양식당 사상구 부산", "미양식당 덕포1동 경양식"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://www.siksinhot.com/taste?upHpAreaId=8&hpAreaId=178"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "운영·접근 편의", "note": "깨끗하고 편안한 분위기, 주차 편의", "sources": [0]},
+    {"type": "맛 묘사", "note": "다양한 파스타 메뉴, 푸짐한 양", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": null,
+    "signatureDishes": ["파스타"],
+    "priceBand": "moderate"
+  },
+  "notes": "주소: 부산광역시 사상구 덕포동 139-12 1층, 전화: 0507-1411-8533"
+}

@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220811580560",
+  "worker": "haiku-12",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["리멘시타Limensita 금정구 부산", "리멘시타 장전2동 피자"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/toplists/best/110509_busan", "https://www.instagram.com/limensita.busan/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "조리·재료", "note": "정통 로마식 화덕피자 - 이탈리아에서 배운 조리법", "sources": [0, 1]},
+    {"type": "조리·재료", "note": "자연산 치즈와 인공조미료 무첨가로 더 믿음 가능", "sources": [0, 1]},
+    {"type": "현지인 지지", "note": "부산대 학생들이 추천한 부산대 맛집으로 알려짐", "sources": [0]},
+    {"type": "플랫폼 순위·평점", "note": "식신, 포스퀘어 등 맛집 플랫폼에 소개됨", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["화덕피자", "손수 만든 라자냐"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}
