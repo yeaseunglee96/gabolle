@@ -53,13 +53,19 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 		"com.gabolle.backend.event.domain",
 		"com.gabolle.backend.recommendation.domain",
 		"com.gabolle.backend.place.domain",
-		"com.gabolle.backend.trip.infra"
+		"com.gabolle.backend.trip.infra",
+		// 🔴 2026-09-11 (S15P21E201-549) — user 를 더했다. EventIngestService 가 행동 이벤트를
+		//    적기 전에 그 사람이 행동 개인화를 켜 뒀는지 보게 되면서 AppUserRepository 를 필수로
+		//    요구한다. 매핑과 저장소가 없으면 이 슬라이스의 컨텍스트가 안 뜨고 검사 수십 개가
+		//    한꺼번에 빨개진다 — CI 가 그렇게 잡았다.
+		"com.gabolle.backend.user.domain"
 })
 @EnableJpaRepositories(basePackages = {
 		"com.gabolle.backend.event.repository",
 		"com.gabolle.backend.recommendation.repository",
 		"com.gabolle.backend.place.repository",
-		"com.gabolle.backend.trip.infra"
+		"com.gabolle.backend.trip.infra",
+		"com.gabolle.backend.user.repository"
 })
 public class RecommendationSliceApplication {
 }

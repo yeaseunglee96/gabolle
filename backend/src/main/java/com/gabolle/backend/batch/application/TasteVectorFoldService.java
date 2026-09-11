@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +16,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.gabolle.backend.event.domain.EventType;
 import com.gabolle.backend.preference.domain.TasteDimension;
 import com.gabolle.backend.preference.domain.UserTasteVector;
 import com.gabolle.backend.preference.domain.UserTasteWeight;
@@ -92,9 +94,22 @@ public class TasteVectorFoldService {
 	 * 이다 — 세는 것은 지금 맞게 돌고(표시가 정확히 움직인다), 장소를 차원·코드로 바꾸는
 	 * 대조({@code user_place_code_map})는 계측된 이벤트가 생긴 뒤에 붙인다.
 	 * 지어낸 대조를 지금 넣으면 그 값이 계약처럼 굳는다.
+	 *
+	 * <h2>🔴 2026-09-11 — 대문자 문자열이라 <b>한 건도 안 세어지고 있었다</b> (S15P21E201-549)</h2>
+	 *
+	 * 이 목록은 {@code "PLACE_LIKE"} 처럼 손으로 적은 대문자였는데, {@code event_outbox.event_type}
+	 * 에 실제로 들어가는 값은 {@link EventType#wireName()} 이 만드는 <b>소문자</b>
+	 * ({@code "place_like"})다. 그래서 {@code countTasteSignals} 의 비교는 <b>항상 0 건</b>이었다.
+	 *
+	 * <p>계측이 아직 없어서 결과가 0 인 것과 구분이 안 됐다 — 위 문단이 "지금은 0 이 정상" 이라고
+	 * 말하고 있었으므로, 계측이 붙는 날 0 이 계속 나와도 <b>그게 정상인 줄 알았을 것</b>이다.
+	 * 배치는 그동안 초록이다.
+	 *
+	 * <p>그래서 목록도 대소문자도 여기서 정하지 않고 {@link EventType} 에 맡긴다. 수집을 막는
+	 * 목록({@code isBehaviorSignal})과 세는 목록이 <b>같은 파일에</b> 있어야 둘의 포함 관계를
+	 * 검사가 지킬 수 있다 — {@code EventTypeSignalSetsTest}.
 	 */
-	private static final String[] TASTE_SIGNAL_EVENTS = { "PLACE_LIKE", "PLACE_DISLIKE", "PLACE_VISIT", "PLACE_VIEW",
-			"ITINERARY_REMOVE", "ITINERARY_REPLACE", "ROUTE_SKIP" };
+	private static final Set<String> TASTE_SIGNAL_EVENTS = EventType.tasteSignalWireNames();
 
 	private final JdbcTemplate jdbc;
 
@@ -143,7 +158,11 @@ public class TasteVectorFoldService {
 		}
 
 		SurveySource survey = latestUserScopeSnapshot(userId, asOf);
-		int newEvents = countTasteSignals(userId, watermark, asOf);
+
+		// 🔴 행동을 볼지 말지를 여기서 가른다 (S15P21E201-549). 설문은 그대로 접는다 —
+		//    끈 것은 "행동으로 추측하지 마라" 이지 "내가 고른 것도 잊으라" 가 아니다.
+		//    그래서 이 사람의 벡터는 사라지지 않고 evidence=SURVEY 만으로 남는다.
+		int newEvents = allowsBehaviorPersonalization(userId) ? countTasteSignals(userId, watermark, asOf) : 0;
 
 		// 🔴 성분이 하나도 없는 벡터를 만들지 않는다. "취향이 없는 사람" 과
 		//    "아직 안 물어본 사람" 은 다르고, 한 번 섞으면 되돌릴 수 없다.
@@ -299,10 +318,37 @@ public class TasteVectorFoldService {
 	}
 
 	/**
+	 * 이 사람의 행동을 개인화 입력으로 써도 되는가 — S15P21E201-549.
+	 *
+	 * <h2>🔴 수집을 막는 것만으로는 부족하다</h2>
+	 *
+	 * 입구({@code EventIngestService})가 이미 행동 이벤트를 안 받는데 여기서 또 보는 이유는
+	 * <b>표에 남아 있는 과거</b> 때문이다. 이 배치는 {@code catchup=True} 로 <b>지난 구간을
+	 * 거슬러 채운다</b>. 입구를 막기 전에 쌓인 행동이 그대로 있고, 끄기 전 구간을 backfill 하면
+	 * 그 행동이 다시 벡터로 접힌다. 개인화를 끈 사람의 프로필이 <b>배치가 도는 새벽에</b>
+	 * 되살아나고, 아무도 안 본다.
+	 *
+	 * <p>끄는 순간 그 행동 이벤트를 지우기는 한다({@code PersonalizationService}). 그래도 여기를
+	 * 막는다 — 지우는 쪽이 한 종류를 빠뜨리면 이쪽이 잡고, 이쪽만 있으면 지우는 쪽이 빠뜨린
+	 * 것이 조용히 쌓인다. 둘 다 있어야 어느 한쪽의 실수가 사고가 되지 않는다.
+	 *
+	 * <p>🔴 계정을 못 찾으면 <b>안 보는 쪽</b>이다. 입구와 같은 규칙이다.
+	 */
+	private boolean allowsBehaviorPersonalization(UUID userId) {
+		String sql = "SELECT count(*) FROM app_user WHERE user_id = ? AND personalization_mode = 'BEHAVIOR_ENABLED'";
+		Integer enabled = this.jdbc.queryForObject(sql, Integer.class, userId);
+		return enabled != null && enabled > 0;
+	}
+
+	/**
 	 * 표시 이후 <b>도착한</b> 취향 신호의 수.
 	 *
 	 * <p>구간은 {@code (watermark, asOf]} — 왼쪽은 열고 오른쪽은 닫는다. 그래야 구간을 이어
 	 * 붙일 때 경계의 한 건이 두 구간에 다 들리거나 어느 구간에도 안 들리는 일이 없다.
+	 *
+	 * <p>🔴 부르기 전에 {@link #allowsBehaviorPersonalization(UUID)} 를 통과해야 한다.
+	 * 이 메서드 자체는 동의를 보지 않는다 — 세는 일과 봐도 되는지 판정하는 일을 한 곳에
+	 * 섞으면, 나중에 다른 곳에서 이것을 부를 때 판정이 딸려오는지 아닌지를 알 수 없다.
 	 */
 	private int countTasteSignals(UUID userId, OffsetDateTime watermark, OffsetDateTime asOf) {
 		// 🔴 `= ANY (?)` 에 자바 String[] 을 그대로 넘기지 않는다. 그러려면 java.sql.Array 로

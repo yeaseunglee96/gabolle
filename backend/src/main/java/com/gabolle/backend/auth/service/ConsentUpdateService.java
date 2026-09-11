@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.gabolle.backend.auth.api.UserConsentsResponse;
 import com.gabolle.backend.auth.config.AuthProperties;
+import com.gabolle.backend.user.application.BehaviorPersonalizationReset;
 import com.gabolle.backend.user.domain.AppUser;
 import com.gabolle.backend.user.domain.ConsentStatus;
 import com.gabolle.backend.user.domain.ConsentType;
@@ -76,13 +77,16 @@ public class ConsentUpdateService {
 
 	private final AuthProperties properties;
 
+	private final BehaviorPersonalizationReset behaviorReset;
+
 	private final Clock clock;
 
 	public ConsentUpdateService(AppUserRepository userRepository, UserConsentRepository consentRepository,
-			AuthProperties properties, Clock clock) {
+			AuthProperties properties, BehaviorPersonalizationReset behaviorReset, Clock clock) {
 		this.userRepository = userRepository;
 		this.consentRepository = consentRepository;
 		this.properties = properties;
+		this.behaviorReset = behaviorReset;
 		this.clock = clock;
 	}
 
@@ -119,6 +123,22 @@ public class ConsentUpdateService {
 		if (behavior != null) {
 			user.changePersonalizationMode(behavior
 					? PersonalizationMode.BEHAVIOR_ENABLED : PersonalizationMode.EXPLICIT_ONLY);
+
+			// 🔴 끄면 이미 만들어 둔 것을 지운다 — S15P21E201-549.
+			//
+			//    이 줄이 없을 때 무슨 일이 있었나: 스위치와 동의 기록만 바뀌고 취향 벡터·미리
+			//    만든 피드·행동 이벤트는 그대로 남았다. 껐다고 눌러도 추천은 어제 프로필로
+			//    나오고, 배치가 backfill 하면 그 프로필이 다시 자란다. 사용자가 보기에 스위치가
+			//    거짓말을 한다.
+			//
+			//    🔴 같은 트랜잭션이다. 갈라 두면 "껐다고 나오는데 벡터는 남아 있는" 상태가
+			//       생기고, 그 상태는 아무 오류도 안 내면서 방침 위반이다.
+			//
+			//    켜는 쪽에서는 아무것도 복구하지 않는다. 지운 것은 지운 것이고 다음 배치가
+			//    그 이후의 행동으로 새로 접는다.
+			if (!behavior) {
+				this.behaviorReset.forget(userId);
+			}
 		}
 
 		return describe(user);

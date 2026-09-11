@@ -74,7 +74,17 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 		"com.gabolle.backend.story.domain",
 		// S15P21E201-137 — 위 scanBasePackages 에 place 를 더하면서 그 빈들이 쓰는 표 매핑도
 		// 함께 올린다. 매핑이 없으면 빈은 만들어지고 첫 질의에서 터진다.
-		"com.gabolle.backend.place.domain"
+		"com.gabolle.backend.place.domain",
+		// 🔴 2026-09-11 (S15P21E201-549) — feed·preference 를 더했다. 위 문단이 경고한 실패가
+		// <b>두 번째로</b> 났다. 계정 삭제와 개인화 초기화가 취향 벡터(user_taste_vector·
+		// user_taste_weight)와 미리 만든 피드(feed_build·user_feed·community_feed)를 JPQL 로
+		// 지우는데, 그 엔티티가 이 영속성 단위에 없어서
+		// "Could not resolve root entity 'UserFeedEntry'" 로 실행에서 터졌다 — CI 가 잡았다.
+		//
+		// 🔴 로컬에서는 이 실패가 안 보인다. Docker 가 없는 PC 에서는 Postgres 검사가 통째로
+		// 건너뛰어지므로, 이 목록이 좁다는 사실은 CI 에 올려야 비로소 드러난다.
+		"com.gabolle.backend.feed.domain",
+		"com.gabolle.backend.preference.domain"
 })
 @EnableJpaRepositories(basePackages = {
 		"com.gabolle.backend.auth.repository",

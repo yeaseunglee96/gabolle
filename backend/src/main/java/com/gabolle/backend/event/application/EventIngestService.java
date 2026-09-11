@@ -12,6 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.gabolle.backend.event.domain.EventType;
 import com.gabolle.backend.event.domain.Producer;
+import com.gabolle.backend.user.domain.PersonalizationMode;
+import com.gabolle.backend.user.repository.AppUserRepository;
 
 /**
  * 이벤트 적재 — 응용 계층 (S15P21E201-352).
@@ -44,11 +46,17 @@ import com.gabolle.backend.event.domain.Producer;
  * DB 없이 띄우면 {@code /api/v1/events} 는 <b>아예 없다.</b> 있는 척하면서 메모리에 적는 것보다
  * 없는 편이 낫다 — 있는 척하는 쪽이 방금 그 고장이었다.
  *
- * <h2>🔴 아직 못 하는 것 — 탈퇴 익명화 (NFR-08)</h2>
- * 탈퇴 정책은 "계정은 삭제, 이벤트는 익명화" 다. 지우면 과거 추천 평가를 재현할 수 없다.
- * {@code user_id} 가 이제 실컬럼이라 {@code UPDATE event_outbox SET user_id = NULL WHERE
- * user_id = ?} 를 쓸 수는 있게 됐지만, 아직 어느 탈퇴 흐름도 이걸 부르지 않는다 —
- * 별도 티켓이 필요하다.
+ * <h2>탈퇴 익명화 (NFR-08) — 2026-09-11 정정</h2>
+ * 여기 <i>"아직 어느 탈퇴 흐름도 이걸 부르지 않는다"</i> 고 적혀 있었다. <b>사실이 아니다.</b>
+ * {@code AccountDeletionService.detachEvents} 가 부른다 — S15P21E201-425 가 들어올 때 붙었는데
+ * 이 문단만 안 고쳐졌다. 낡은 실측을 지우지 않고 정정한 날짜와 함께 남긴다(팀 규칙 1절).
+ *
+ * <p>탈퇴 정책은 그대로 "계정은 삭제, 이벤트는 익명화" 다. 지우면 과거 추천 평가를 재현할 수 없다.
+ *
+ * <h2>🔴 행동 기반 개인화를 끈 사람 (S15P21E201-549)</h2>
+ * 탈퇴와 <b>다르게</b> 다룬다. 껐으면 행동 관찰 이벤트({@link EventType#isBehaviorSignal()})를
+ * <b>아예 적지 않는다</b> — 익명화로는 부족하기 때문이다. 이유는
+ * {@link #collectsBehaviorOf(java.util.UUID)} 에 있다.
  *
  * <p>🔴 이 표에는 {@code user_id} 외래키를 걸지 않는다. FK 가 있으면 CASCADE 로 이벤트가 같이
  * 지워지거나 RESTRICT 로 계정 삭제가 막힌다 — 둘 다 정책 위반이다.
@@ -67,11 +75,36 @@ public class EventIngestService {
 
 	private final OutboxService outboxService;
 
+	private final AppUserRepository users;
+
 	private final Clock clock;
 
-	public EventIngestService(OutboxService outboxService, Clock clock) {
+	public EventIngestService(OutboxService outboxService, AppUserRepository users, Clock clock) {
 		this.outboxService = outboxService;
+		this.users = users;
 		this.clock = clock;
+	}
+
+	/**
+	 * 이 이벤트가 어떻게 됐는가 — S15P21E201-549.
+	 *
+	 * <p>🔴 {@code boolean} 이었다. 상태가 셋이 되면서 열거형으로 바꿨다 — 껐다는 이유로
+	 * 안 적힌 것과 이미 있어서 안 적힌 것은 <b>같은 false 가 아니다.</b> 하나로 뭉치면
+	 * "왜 안 쌓이지" 를 조사할 때 둘을 구분할 방법이 없다.
+	 */
+	public enum Outcome {
+
+		/** 새로 적혔다. */
+		STORED,
+
+		/** 이미 같은 {@code eventId} 가 있었다. 재전송이고, 오류가 아니다. */
+		DUPLICATE,
+
+		/**
+		 * 🔴 <b>일부러 안 적었다.</b> 이 사람이 행동 기반 개인화를 껐고 이 이벤트는 행동 관찰이다.
+		 * 오류가 아니므로 앱은 화면에 아무것도 띄우지 않는다.
+		 */
+		NOT_COLLECTED
 	}
 
 	/**
@@ -79,11 +112,9 @@ public class EventIngestService {
 	 *
 	 * <p>🔴 이미 받은 {@code eventId} 면 <b>조용히 성공으로 응답한다.</b>
 	 * 재전송은 오류가 아니다 — 앱이 400 을 받으면 사용자에게 오류를 띄운다.
-	 *
-	 * @return 새로 적혔으면 true, 이미 있었으면 false (둘 다 성공 응답)
 	 */
 	@Transactional
-	public boolean ingestFromClient(UUID eventId, EventType type, int eventVersion, UUID userId, UUID tripId,
+	public Outcome ingestFromClient(UUID eventId, EventType type, int eventVersion, UUID userId, UUID tripId,
 			UUID requestId, OffsetDateTime occurredAt, Map<String, Object> payload) {
 
 		return append(eventId, type, eventVersion, Producer.CLIENT, userId, tripId, requestId, occurredAt, payload);
@@ -107,7 +138,40 @@ public class EventIngestService {
 		append(eventId, type, eventVersion, Producer.SERVER, userId, tripId, requestId, now, payload);
 	}
 
-	private boolean append(UUID eventId, EventType type, int eventVersion, Producer producer, UUID userId, UUID tripId,
+	/**
+	 * 이 사람의 행동을 지금 적어도 되는가 — S15P21E201-549.
+	 *
+	 * <h2>🔴 왜 {@code user_id} 만 비우지 않고 아예 안 적는가</h2>
+	 *
+	 * 탈퇴({@code AccountDeletionService.detachEvents})는 사람만 떼고 사건은 남긴다. 여기서
+	 * 같은 방법을 쓸 수 없다. 행동 이벤트는 대부분 축이 여행({@code AggregateAxis.TRIP})이라
+	 * {@code aggregate_id} 에 {@code trip_id} 가 들어 있고, 그 여행에는 주인이 있다.
+	 * <b>{@code user_id} 를 비워도 여행을 거쳐 그 사람으로 되돌아갈 수 있다.</b>
+	 * 탈퇴는 여행 자체가 함께 지워져서 그 길이 끊기지만, 개인화를 끈 사람의 여행은 남는다.
+	 *
+	 * <p>되돌릴 수 있는 가리기는 가린 것이 아니다. 그래서 적지 않는다.
+	 *
+	 * <h2>🔴 없는 사람과 모르는 사람을 다르게 다룬다</h2>
+	 *
+	 * <ul>
+	 * <li>{@code userId == null} — <b>적는다.</b> 사람이 안 붙은 이벤트는 이미 익명이라
+	 *     여기서 막아도 지켜지는 개인정보가 없고, 집계만 사라진다. 지금 HTTP 경로는
+	 *     인증을 요구하므로 이 값이 {@code null} 로 오는 것은 서버가 스스로 적는 자리다</li>
+	 * <li>사람은 있는데 <b>계정을 못 찾는다</b> — <b>안 적는다.</b> 실재하는 사람의 ID 인데
+	 *     동의를 확인할 수 없는 상태다. 그때는 모으지 않는 쪽이 맞다 — 실패는 조용한
+	 *     수집이 아니라 빈 자리로 나타나야 한다</li>
+	 * </ul>
+	 */
+	private boolean collectsBehaviorOf(UUID userId) {
+		if (userId == null) {
+			return true;
+		}
+		return this.users.findPersonalizationMode(userId)
+				.filter(PersonalizationMode.BEHAVIOR_ENABLED::equals)
+				.isPresent();
+	}
+
+	private Outcome append(UUID eventId, EventType type, int eventVersion, Producer producer, UUID userId, UUID tripId,
 			UUID requestId, OffsetDateTime occurredAt, Map<String, Object> payload) {
 
 		if (eventId == null) {
@@ -144,7 +208,18 @@ public class EventIngestService {
 				tripId,
 				producer);
 
-		return this.outboxService.appendReportingDuplicate(command).created();
+		// 🔴 형식 검사를 <b>전부 지난 뒤에</b> 동의를 본다 (S15P21E201-549). 명령을 다 만들고
+		//    나서 보는 이유가 그것이다 — 축 판정({@code aggregateIdOf})과 envelope 검사
+		//    ({@code withoutEnvelopeFields})도 형식 검사이고, 그 앞에서 끊으면 개인화를 끈
+		//    사람이 보낸 잘못된 이벤트가 202 를 받는다. 그러면 앱의 계측 버그가 "그 사람만
+		//    안 쌓인다" 로 보이고, 원인을 개인화에서 찾게 된다.
+		//
+		//    🔴 검사만 하고 <b>적지는 않는다.</b> 명령을 만드는 것은 부작용이 없다.
+		if (type.isBehaviorSignal() && !collectsBehaviorOf(userId)) {
+			return Outcome.NOT_COLLECTED;
+		}
+
+		return this.outboxService.appendReportingDuplicate(command).created() ? Outcome.STORED : Outcome.DUPLICATE;
 	}
 
 	/**

@@ -63,7 +63,7 @@ public class EventIngestController {
 		EventType type = EventType.fromWireName(req.eventType());
 		UUID subject = resolveSubject(req.userId(), authentication);
 
-		boolean stored = this.service.ingestFromClient(
+		EventIngestService.Outcome outcome = this.service.ingestFromClient(
 				req.eventId(),
 				type,
 				req.eventVersionOrDefault(),
@@ -73,10 +73,7 @@ public class EventIngestController {
 				req.occurredAt(),
 				req.payload());
 
-		IngestEventResponse body = stored ? IngestEventResponse.stored(req.eventId())
-				: IngestEventResponse.alreadyStored(req.eventId());
-
-		return ResponseEntity.status(HttpStatus.ACCEPTED).body(body);
+		return ResponseEntity.status(HttpStatus.ACCEPTED).body(IngestEventResponse.of(req.eventId(), outcome));
 	}
 
 	/**

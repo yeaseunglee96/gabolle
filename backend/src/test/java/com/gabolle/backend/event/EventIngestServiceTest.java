@@ -6,6 +6,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -19,12 +20,15 @@ import com.gabolle.backend.event.application.OutboxService;
 import com.gabolle.backend.event.domain.EventOutbox;
 import com.gabolle.backend.event.domain.EventType;
 import com.gabolle.backend.event.domain.Producer;
+import com.gabolle.backend.user.domain.PersonalizationMode;
+import com.gabolle.backend.user.repository.AppUserRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 /**
@@ -40,18 +44,30 @@ class EventIngestServiceTest {
     private static final Instant NOW = Instant.parse("2026-09-03T12:00:00Z");
 
     private OutboxService outboxService;
+    private AppUserRepository users;
     private EventIngestService service;
 
     @BeforeEach
     void setUp() {
         this.outboxService = mock(OutboxService.class);
-        this.service = new EventIngestService(this.outboxService, Clock.fixed(NOW, ZoneOffset.UTC));
+        this.users = mock(AppUserRepository.class);
+        this.service = new EventIngestService(this.outboxService, this.users, Clock.fixed(NOW, ZoneOffset.UTC));
         givenAppendReturns(true);
+        givenBehaviorPersonalization(PersonalizationMode.BEHAVIOR_ENABLED);
     }
 
     private void givenAppendReturns(boolean created) {
         given(this.outboxService.appendReportingDuplicate(any()))
                 .willReturn(new OutboxService.AppendResult(mock(EventOutbox.class), created));
+    }
+
+    /**
+     * 🔴 기본을 <b>켜짐</b>으로 두는 이유 — 이 파일의 나머지 검사는 개인화가 아니라 적재 경로를
+     * 잰다. 기본이 꺼짐이면 그 검사들이 전부 "안 적힘" 으로 통과해 버리고, 그건 적재가
+     * 깨져도 초록인 상태다. 꺼짐은 그것을 재는 검사에서만 명시적으로 만든다.
+     */
+    private void givenBehaviorPersonalization(PersonalizationMode mode) {
+        given(this.users.findPersonalizationMode(any())).willReturn(Optional.ofNullable(mode));
     }
 
     private OutboxAppendCommand captureCommand() {
@@ -72,24 +88,78 @@ class EventIngestServiceTest {
         UUID eventId = UUID.randomUUID();
         UUID requestId = UUID.randomUUID();
 
-        boolean created = this.service.ingestFromClient(eventId, EventType.RECOMMENDATION_IMPRESSION, 1,
+        EventIngestService.Outcome outcome = this.service.ingestFromClient(eventId,
+                EventType.RECOMMENDATION_IMPRESSION, 1,
                 UUID.randomUUID(), UUID.randomUUID(), requestId, at("2026-09-03T11:59:00Z"), Map.of("rank", 3));
 
-        assertThat(created).isTrue();
+        assertThat(outcome).isEqualTo(EventIngestService.Outcome.STORED);
         OutboxAppendCommand command = captureCommand();
         assertThat(command.eventId()).isEqualTo(eventId);
         assertThat(command.eventType()).isEqualTo("recommendation_impression");
     }
 
     @Test
-    @DisplayName("이미 받은 이벤트는 false 를 돌려준다 — 오류가 아니다")
+    @DisplayName("이미 받은 이벤트는 DUPLICATE 를 돌려준다 — 오류가 아니다")
     void duplicateIsReportedNotRejected() {
         givenAppendReturns(false);
 
-        boolean created = this.service.ingestFromClient(UUID.randomUUID(), EventType.RECOMMENDATION_IMPRESSION, 1,
+        EventIngestService.Outcome outcome = this.service.ingestFromClient(UUID.randomUUID(),
+                EventType.RECOMMENDATION_IMPRESSION, 1,
                 UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), at("2026-09-03T11:59:00Z"), Map.of());
 
-        assertThat(created).isFalse();
+        assertThat(outcome).isEqualTo(EventIngestService.Outcome.DUPLICATE);
+    }
+
+    // ── 행동 기반 개인화를 끈 사람 (S15P21E201-549) ───────────────────
+
+    @Test
+    @DisplayName("🔴 개인화를 끈 사람의 행동 이벤트는 적히지 않는다 — OutboxService 까지 가지도 않는다")
+    void behaviorEventOfOptedOutUserIsNotStored() {
+        givenBehaviorPersonalization(PersonalizationMode.EXPLICIT_ONLY);
+
+        EventIngestService.Outcome outcome = this.service.ingestFromClient(UUID.randomUUID(),
+                EventType.PLACE_VIEW, 1,
+                UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), at("2026-09-03T11:59:00Z"), Map.of());
+
+        assertThat(outcome).isEqualTo(EventIngestService.Outcome.NOT_COLLECTED);
+        verify(this.outboxService, never()).appendReportingDuplicate(any());
+    }
+
+    @Test
+    @DisplayName("🔴 계정을 못 찾으면 안 적는다 — 동의를 확인할 수 없으면 모으지 않는다")
+    void behaviorEventIsNotStoredWhenTheAccountIsUnknown() {
+        givenBehaviorPersonalization(null);
+
+        EventIngestService.Outcome outcome = this.service.ingestFromClient(UUID.randomUUID(),
+                EventType.PLACE_VIEW, 1,
+                UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), at("2026-09-03T11:59:00Z"), Map.of());
+
+        assertThat(outcome).isEqualTo(EventIngestService.Outcome.NOT_COLLECTED);
+        verify(this.outboxService, never()).appendReportingDuplicate(any());
+    }
+
+    @Test
+    @DisplayName("🔴 껐어도 행동 관찰이 아닌 이벤트는 그대로 적힌다 — 껐다는 것이 '내가 고른 것도 잊으라' 는 뜻은 아니다")
+    void nonBehaviorEventIsStoredEvenWhenPersonalizationIsOff() {
+        givenBehaviorPersonalization(PersonalizationMode.EXPLICIT_ONLY);
+
+        this.service.recordFromServer(UUID.randomUUID(), EventType.TRIP_CREATED, 1,
+                UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), Map.of());
+
+        assertThat(captureCommand().eventType()).isEqualTo("trip_created");
+    }
+
+    @Test
+    @DisplayName("🔴 형식이 틀린 이벤트는 껐든 켰든 400 이다 — 동의를 먼저 보면 앱의 계측 버그가 '그 사람만 안 쌓인다' 로 보인다")
+    void malformedBehaviorEventStillFailsWhenPersonalizationIsOff() {
+        givenBehaviorPersonalization(PersonalizationMode.EXPLICIT_ONLY);
+
+        Map<String, Object> payloadWithEnvelopeKey = new HashMap<>();
+        payloadWithEnvelopeKey.put("user_id", UUID.randomUUID().toString());
+
+        assertThatThrownBy(() -> this.service.ingestFromClient(UUID.randomUUID(), EventType.PLACE_VIEW, 1,
+                UUID.randomUUID(), null, null, at("2026-09-03T11:59:00Z"), payloadWithEnvelopeKey))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     // ── envelope 축 ─────────────────────────────────────────────
@@ -232,10 +302,11 @@ class EventIngestServiceTest {
     void placeEventsAreAcceptedWithoutARequestId() {
         UUID userId = UUID.randomUUID();
 
-        boolean created = this.service.ingestFromClient(UUID.randomUUID(), EventType.PLACE_LIKE, 1,
+        EventIngestService.Outcome outcome = this.service.ingestFromClient(UUID.randomUUID(),
+                EventType.PLACE_LIKE, 1,
                 userId, null, null, at("2026-09-03T11:59:00Z"), Map.of("place_id", "seomyeon-1"));
 
-        assertThat(created).isTrue();
+        assertThat(outcome).isEqualTo(EventIngestService.Outcome.STORED);
         OutboxAppendCommand command = captureCommand();
         assertThat(command.aggregateType()).isEqualTo("user");
         assertThat(command.aggregateId()).isEqualTo(userId);

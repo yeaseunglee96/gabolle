@@ -4,6 +4,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -23,6 +24,8 @@ import com.gabolle.backend.event.domain.EventOutbox;
 import com.gabolle.backend.event.domain.Producer;
 import com.gabolle.backend.event.presentation.EventIngestController;
 import com.gabolle.backend.event.presentation.EventIngestExceptionHandler;
+import com.gabolle.backend.user.domain.PersonalizationMode;
+import com.gabolle.backend.user.repository.AppUserRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -71,7 +74,14 @@ class AppEventContractTest {
 		this.outboxService = mock(OutboxService.class);
 		given(this.outboxService.appendReportingDuplicate(any()))
 				.willReturn(new OutboxService.AppendResult(mock(EventOutbox.class), true));
-		EventIngestService service = new EventIngestService(this.outboxService,
+
+		// 🔴 이 계약 검사는 <b>앱이 보내는 본문의 모양</b>을 잰다. 행동 기반 개인화가 켜져
+		//    있는 사람으로 고정해 두지 않으면, 본문이 맞는데도 수집 차단(S15P21E201-549)에
+		//    걸려 202 만 보고 통과해 버린다 — 모양이 깨져도 초록인 검사가 된다.
+		AppUserRepository users = mock(AppUserRepository.class);
+		given(users.findPersonalizationMode(any())).willReturn(Optional.of(PersonalizationMode.BEHAVIOR_ENABLED));
+
+		EventIngestService service = new EventIngestService(this.outboxService, users,
 				Clock.fixed(NOW, ZoneOffset.UTC));
 		this.mockMvc = MockMvcBuilders
 				.standaloneSetup(new EventIngestController(service))
