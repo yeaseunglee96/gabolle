@@ -191,10 +191,17 @@ export default function Place() {
             <Text color={color.text.body}>{tx('알레르기·식단 정보가 없어 주문 전 확인이 필요합니다.', 'Allergy and dietary information is not available for this place — please check before ordering.')}</Text>
           </View>
         ) : null}
-        <View style={styles.notice} accessibilityLiveRegion="polite">
-          <Text variant="title" weight="bold">{tx('상세 정보를 준비하고 있어요', 'Details are on the way')}</Text>
-          <Text color={color.text.body} style={styles.noticeCopy}>{tx('접근성·혼잡도·리뷰는 실제 장소 조회 API가 연결된 뒤 표시합니다. 확인되지 않은 정보는 임의로 보여드리지 않아요.', 'Accessibility, crowd levels, and reviews will show once the real place lookup API is connected. We never show unverified information.')}</Text>
-        </View>
+        {demoPlace ? (
+          // 데모 3곳은 실제로 있는 해운대·광안리·감천문화마을이다(savedPlaces.ts) — 장소 자체는
+          // 진짜다. 다만 place 표 적재 전(-547)이라 영업시간·가격대·접근성·혼잡도 같은 상세
+          // 정보만 아직 없다. 그래서 "장소가 가짜"가 아니라 "상세 정보가 아직" 이라고만 말한다.
+          // 예전엔 이 칸이 모든 장소(데모든 API든)에 무조건 떴는데, 그러면 이미 상세 정보가
+          // 있는 실제 API 장소에도 "아직 없다"는 틀린 안내가 나갔다.
+          <View style={styles.notice} accessibilityLiveRegion="polite">
+            <Text variant="title" weight="bold">{tx('상세 정보를 준비하고 있어요', 'Details are on the way')}</Text>
+            <Text color={color.text.body} style={styles.noticeCopy}>{tx('영업시간·가격대 같은 상세 정보는 곧 추가돼요. 확인되지 않은 정보는 임의로 보여드리지 않아요.', "Details like hours and price level are coming soon. We never show unverified information.")}</Text>
+          </View>
+        ) : null}
         <View style={styles.actions}>
           <Button label={isSaved ? tx('내 여행 후보에서 빼기', 'Remove from candidates') : tx('내 여행 후보에 저장', 'Save to candidates')} variant="ghost" onPress={() => void toggleSaved()} />
           <Button label={tx('한국어로 말하기', 'Speak Korean')} onPress={() => setPhraseModalOpen(true)} containerStyle={styles.speakAction} />
