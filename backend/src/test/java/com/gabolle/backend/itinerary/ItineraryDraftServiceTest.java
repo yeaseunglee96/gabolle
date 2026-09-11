@@ -3,6 +3,7 @@ package com.gabolle.backend.itinerary;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +19,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import com.gabolle.backend.itinerary.application.ItineraryDraftService;
+import com.gabolle.backend.place.service.OpeningHoursFilterPort;
 import com.gabolle.backend.itinerary.application.ItineraryLegPlanner;
 import com.gabolle.backend.itinerary.application.port.TravelTime;
 import com.gabolle.backend.itinerary.domain.ItineraryItem;
@@ -44,6 +46,15 @@ import static org.mockito.Mockito.when;
  */
 class ItineraryDraftServiceTest {
 
+	/**
+	 * 영업시간을 모른다고만 답하는 문 — S15P21E201-857 로 생성자에 들어왔다.
+	 *
+	 * <p>이 검사들이 재는 것은 날짜 배분과 시각 배정이다. 모름은 자리 배정을 안 바꾸므로
+	 * 여기서는 예전과 같은 결과가 나와야 한다 — 그것이 이 값을 고른 이유다.
+	 */
+	private static final OpeningHoursFilterPort ALWAYS_UNKNOWN =
+			(placeId, at) -> OpeningHoursFilterPort.Answer.NOT_COLLECTED;
+
 	private static final Clock CLOCK = Clock.fixed(Instant.parse("2026-09-05T00:00:00Z"), ZoneOffset.UTC);
 
 	private TripRepository tripRepository;
@@ -65,7 +76,7 @@ class ItineraryDraftServiceTest {
 		when(noTravelTime.getIfAvailable()).thenReturn(null);
 
 		ItineraryLegPlanner legPlanner = new ItineraryLegPlanner(this.placeRepository, noTravelTime);
-		this.service = new ItineraryDraftService(this.tripRepository, itineraryRepository, CLOCK, 4, legPlanner);
+		this.service = new ItineraryDraftService(this.tripRepository, itineraryRepository, CLOCK, 4, legPlanner, ALWAYS_UNKNOWN);
 
 		// 좌표를 모르는 장소만 다루는 테스트들이 기본으로 쓴다 — 거리는 항상 null 이 된다.
 		when(this.placeRepository.findByPlaceIdIn(anyCollection())).thenReturn(List.of());
@@ -126,7 +137,7 @@ class ItineraryDraftServiceTest {
 		when(provider.getIfAvailable()).thenReturn(port);
 		ItineraryLegPlanner legPlanner = new ItineraryLegPlanner(this.placeRepository, provider);
 		ItineraryDraftService withTravelTime = new ItineraryDraftService(this.tripRepository,
-				mock(ItineraryRepository.class), CLOCK, 4, legPlanner);
+				mock(ItineraryRepository.class), CLOCK, 4, legPlanner, ALWAYS_UNKNOWN);
 
 		ItineraryDraft draft = withTravelTime.assemble(commandOf("trip_1", plannedPlaces(3)));
 
@@ -185,6 +196,104 @@ class ItineraryDraftServiceTest {
 	void emptyPlacesIsRejected() {
 		assertThatThrownBy(() -> this.service.assemble(commandOf("trip_1", List.of())))
 				.isInstanceOf(IllegalStateException.class);
+	}
+
+	@Test
+	@DisplayName("그 시각에 닫는 곳은 그 자리에 안 놓는다 — 다음 후보가 앞으로 온다")
+	void closedPlaceIsNotSeatedInThatSlot() {
+		Trip trip = tripWithWindow(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 10));
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
+
+		List<ItineraryDraftCommand.PlannedPlace> places = plannedPlaces(2);
+		UUID first = places.get(0).placeId();
+		// 순위 1등이 09:00 에 닫는다. 그 자리는 2등이 받아야 한다.
+		ItineraryDraftService service = serviceWith((placeId, at) ->
+				placeId.equals(first) && at.toLocalTime().equals(LocalTime.of(9, 0))
+						? OpeningHoursFilterPort.Answer.CLOSED
+						: OpeningHoursFilterPort.Answer.OPEN);
+
+		ItineraryDraft draft = service.assemble(commandOf("trip_1", places));
+
+		assertThat(draft.items()).extracting(ItineraryDraft.DraftItem::placeId)
+				.containsExactly(places.get(1).placeId(), first);
+		assertThat(draft.items().get(0).warningCodes()).doesNotContain("OPENING_HOURS_CLOSED");
+	}
+
+	@Test
+	@DisplayName("영업시간을 모르는 곳은 순위 그대로 앉는다 — 모름을 닫힘처럼 다루면 2,355곳이 통째로 빠진다")
+	void unknownHoursKeepTheRankOrder() {
+		Trip trip = tripWithWindow(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 10));
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
+
+		List<ItineraryDraftCommand.PlannedPlace> places = plannedPlaces(3);
+		ItineraryDraft draft = serviceWith((placeId, at) -> OpeningHoursFilterPort.Answer.NOT_COLLECTED)
+				.assemble(commandOf("trip_1", places));
+
+		assertThat(draft.items()).extracting(ItineraryDraft.DraftItem::placeId)
+				.containsExactly(places.get(0).placeId(), places.get(1).placeId(), places.get(2).placeId());
+	}
+
+	@Test
+	@DisplayName("모르는 곳이 아는 곳에 자리를 안 뺏긴다 — 모름과 열림이 섞여도 순위가 유지된다")
+	void unknownIsSeatedAheadOfAKnownOpenPlace() {
+		Trip trip = tripWithWindow(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 10));
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
+
+		List<ItineraryDraftCommand.PlannedPlace> places = plannedPlaces(2);
+		UUID first = places.get(0).placeId();
+		// 1등은 영업시간을 모르고 2등은 연다. 모름을 닫힘처럼 다루면 2등이 앞으로 온다.
+		ItineraryDraft draft = serviceWith((placeId, at) -> placeId.equals(first)
+				? OpeningHoursFilterPort.Answer.NOT_COLLECTED
+				: OpeningHoursFilterPort.Answer.OPEN)
+				.assemble(commandOf("trip_1", places));
+
+		assertThat(draft.items()).extracting(ItineraryDraft.DraftItem::placeId)
+				.as("모르는 것과 닫힌 것은 다르다")
+				.containsExactly(first, places.get(1).placeId());
+	}
+
+	@Test
+	@DisplayName("남은 후보가 전부 닫혀 있으면 그대로 놓고 경고를 붙인다 — 빈 자리를 남기지 않는다")
+	void allClosedStillSeatsThePlaceWithAWarning() {
+		Trip trip = tripWithWindow(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 10));
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
+
+		List<ItineraryDraftCommand.PlannedPlace> places = plannedPlaces(2);
+		ItineraryDraft draft = serviceWith((placeId, at) -> OpeningHoursFilterPort.Answer.CLOSED)
+				.assemble(commandOf("trip_1", places));
+
+		assertThat(draft.items()).hasSize(2);
+		assertThat(draft.items()).allSatisfy((item) ->
+				assertThat(item.warningCodes()).contains("OPENING_HOURS_CLOSED"));
+	}
+
+	@Test
+	@DisplayName("활동 시간대가 없으면 문을 묻지 않는다 — 시각이 없으면 판정할 수가 없다")
+	void withoutATimeWindowNothingIsAsked() {
+		Trip trip = tripOf(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 10));
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
+
+		List<ItineraryDraftCommand.PlannedPlace> places = plannedPlaces(2);
+		ItineraryDraft draft = serviceWith((placeId, at) -> {
+			throw new AssertionError("시각이 없는데 문에 물었다");
+		}).assemble(commandOf("trip_1", places));
+
+		assertThat(draft.items()).extracting(ItineraryDraft.DraftItem::placeId)
+				.containsExactly(places.get(0).placeId(), places.get(1).placeId());
+	}
+
+	private ItineraryDraftService serviceWith(OpeningHoursFilterPort openingHours) {
+		@SuppressWarnings("unchecked")
+		ObjectProvider<TravelTimePort> noTravelTime = mock(ObjectProvider.class);
+		when(noTravelTime.getIfAvailable()).thenReturn(null);
+		return new ItineraryDraftService(this.tripRepository, mock(ItineraryRepository.class), CLOCK, 4,
+				new ItineraryLegPlanner(this.placeRepository, noTravelTime), openingHours);
+	}
+
+	/** 09:00~17:00 활동 시간대를 가진 여행. 두 항목이면 칸이 09:00 과 13:00 이다. */
+	private Trip tripWithWindow(LocalDate startDate, LocalDate finishDate) {
+		return new Trip("itn_trip_1", "usr_1", startDate, finishDate, null, null, null, 2, null, "Asia/Seoul",
+				null, LocalTime.of(9, 0), LocalTime.of(17, 0), Instant.now());
 	}
 
 	private Trip tripOf(LocalDate startDate, LocalDate finishDate) {
