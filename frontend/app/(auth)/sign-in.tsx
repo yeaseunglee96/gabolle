@@ -4,8 +4,9 @@ import { useLocalSearchParams, useRouter, type Href } from 'expo-router';
 import { ApiClientError } from '@/api/client';
 import { useAuth } from '@/auth/AuthProvider';
 import { loginWithOAuth } from '@/auth/oauth';
+import { navigateAfterOAuthComplete } from '@/auth/oauthNavigation';
 import type { OAuthProvider } from '@/auth/authApi';
-import { consumePendingReturnTo, isSafeReturnPath, savePendingReturnTo } from '@/auth/pendingReturnTo';
+import { resolveDestination, savePendingReturnTo } from '@/auth/pendingReturnTo';
 import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
 import { Eyebrow } from '@/components/Eyebrow';
@@ -16,15 +17,6 @@ import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { useLayout } from '@/layout/useLayout';
 
-// URL 의 returnTo 가 있으면 그걸 쓰고, 없으면(회원가입 뒤 이메일 인증처럼 앱을 벗어났다
-// 돌아온 경우) 저장해 둔 값으로 대신한다 — pendingReturnTo.ts 참고.
-// 🔴 그 둘 다 없을 때의 기본값은 /home 이다. 로그인은 목적지가 아니라 수단이라 — 로그인
-// 자체가 하려던 일이 아니라면 방금 로그인한 사람에게 보여줄 화면은 홈이 맞다 (jaehyeon 님 제안).
-async function resolveDestination(returnTo?: string): Promise<Href> {
-  if (isSafeReturnPath(returnTo)) return returnTo as Href;
-  const pending = await consumePendingReturnTo();
-  return (pending ?? '/home') as Href;
-}
 // 🔴 401 을 password/social 로 나눠서 말한다. 소셜 버튼에는 애초에 비밀번호가 없으니
 // "비밀번호가 틀렸다" 는 말은 거짓이고, 이 문구 하나가 실제 사고를 가렸다 — 2026-09-07,
 // 백엔드의 challenge/refresh/logout 엔드포인트가 통째로 사라져 소셜 로그인이 전부 401을
@@ -49,35 +41,17 @@ export default function SignIn() {
   const [busy, setBusy] = useState(false); const [provider, setProvider] = useState<OAuthProvider | null>(null); const [feedback, setFeedback] = useState<{ danger: boolean; text: string } | null>(passwordReset === 'success' ? { danger: false, text: tx('비밀번호가 변경됐어요. 새 비밀번호로 로그인해 주세요.', 'Your password was changed. Sign in with your new password.') } : null);
   const eligible = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()) && password.length > 0;
   useEffect(() => { void savePendingReturnTo(returnTo); }, [returnTo]);
-  async function submit() { if (!eligible || busy || provider) return; setBusy(true); setFeedback(null); try { await signIn(email, password); router.replace(await resolveDestination(returnTo)); } catch (e) { setFeedback({ danger: true, text: errorMessage(e, tx, 'password') }); } finally { setBusy(false); } }
+  async function submit() { if (!eligible || busy || provider) return; setBusy(true); setFeedback(null); try { await signIn(email, password); router.replace((await resolveDestination(returnTo)) as Href); } catch (e) { setFeedback({ danger: true, text: errorMessage(e, tx, 'password') }); } finally { setBusy(false); } }
   async function social(next: OAuthProvider) {
     if (busy || provider) return;
     setProvider(next);
     setFeedback(null);
     try {
-      const result = await loginWithOAuth(next);
-      if (result.status === 'LOGGED_IN') {
-        await acceptTokens(result);
-        router.replace(await resolveDestination(returnTo));
-      } else if (result.status === 'SIGNUP_REQUIRED') {
-        router.push({
-          pathname: '/oauth-signup',
-          params: {
-            provider: next,
-            signupTicket: result.signupTicket,
-            email: result.prefill.email ?? '',
-            displayName: result.prefill.displayName,
-            language: result.prefill.language,
-            emailProvided: String(result.prefill.emailProvided),
-            ...(returnTo ? { returnTo } : {}),
-          },
-        });
-      } else {
-        router.push({
-          pathname: '/oauth-link',
-          params: { provider: result.provider, linkTicket: result.linkTicket, maskedEmail: result.maskedEmail, ...(returnTo ? { returnTo } : {}) },
-        });
-      }
+      // 웹에서는 loginWithOAuth가 현재 페이지를 제공자 화면으로 그대로 넘긴다
+      // (S15P21E201-830) — 이 아래는 실행되지 않고, 완료 뒤 분기는
+      // oauth/[provider]/callback.tsx가 같은 navigateAfterOAuthComplete로 이어받는다.
+      const result = await loginWithOAuth(next, returnTo);
+      await navigateAfterOAuthComplete({ result, provider: next, returnTo, router, acceptTokens });
     } catch (e) {
       setFeedback({ danger: true, text: errorMessage(e, tx, 'social') });
     } finally {

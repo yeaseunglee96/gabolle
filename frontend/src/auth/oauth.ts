@@ -1,7 +1,9 @@
+import { Platform } from 'react-native';
 import * as Crypto from 'expo-crypto';
 import * as WebBrowser from 'expo-web-browser';
 import { ApiClientError } from '@/api/client';
 import { completeOAuth, createOAuthChallenge, type OAuthCompleteResult, type OAuthProvider } from './authApi';
+import { savePendingOAuth } from './pendingOAuth';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -31,7 +33,18 @@ const CALLBACK_BASE_URL = process.env.EXPO_PUBLIC_OAUTH_CALLBACK_BASE_URL ?? 'ht
 function base64Url(value: string) { return value.replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_'); }
 function verifier() { return Array.from(Crypto.getRandomBytes(48), (byte) => byte.toString(16).padStart(2, '0')).join(''); }
 
-export async function loginWithOAuth(provider: OAuthProvider): Promise<OAuthCompleteResult> {
+// S15P21E201-830 — 모바일 웹 브라우저는 window.open(아래 WebBrowser.openAuthSessionAsync가
+// 웹에서 쓰는 방식)로 여는 팝업을 넷 다(구글·카카오·네이버·애플) 팝업 차단으로 막는다.
+// 눌러도 아무 일도 안 일어난 것처럼 보인다. 앱은 같은 함수가 앱 안의 브라우저 화면을
+// 써서 차단기가 끼어들 자리가 없다 — 웹만 그렇다.
+//
+// 그래서 웹에서는 팝업 대신 현재 페이지를 그대로 제공자 인증 화면으로 넘긴다. 되돌아올
+// 주소(redirectUri)와 허용 목록은 그대로라 서버는 바꿀 것이 없다. code_verifier·state·
+// nonce는 이 함수의 지역 변수라 페이지가 넘어가면 사라지므로, 넘어가기 전에
+// pendingOAuth.ts에 잠깐 저장해 두고 착지 화면(oauth/[provider]/callback.tsx)이 돌아와서
+// 그것으로 완료를 잇는다 — 그래서 이 함수는 웹에서 결과를 반환하지 않는다(페이지 자체가
+// 다시 로드되므로 이 호출의 나머지는 실행되지 않는다).
+export async function loginWithOAuth(provider: OAuthProvider, returnTo?: string | null): Promise<OAuthCompleteResult> {
   const config = PROVIDERS[provider];
   if (!config.clientId) throw new ApiClientError(`${provider.toUpperCase()} 로그인 설정이 필요해요.`, 'OAUTH_NOT_CONFIGURED', 0);
   const redirectUri = `${CALLBACK_BASE_URL}/oauth/${provider}/callback`;
@@ -51,6 +64,13 @@ export async function loginWithOAuth(provider: OAuthProvider): Promise<OAuthComp
   });
   if (config.scope) params.set('scope', config.scope);
   const authorizationUrl = `${config.authorizationEndpoint}?${params.toString()}`;
+
+  if (Platform.OS === 'web') {
+    await savePendingOAuth({ provider, redirectUri, codeVerifier, state: challenge.state, nonce: challenge.nonce, returnTo });
+    window.location.assign(authorizationUrl);
+    return new Promise<OAuthCompleteResult>(() => {}); // 페이지가 곧 떠난다 — 이 약속은 안 풀린다.
+  }
+
   const result = await WebBrowser.openAuthSessionAsync(authorizationUrl, redirectUri);
   if (result.type === 'cancel' || result.type === 'dismiss') throw new ApiClientError('로그인이 취소되었어요.', 'OAUTH_CANCELLED', 0);
   if (result.type !== 'success') throw new ApiClientError('소셜 로그인을 완료하지 못했어요.', 'OAUTH_FAILED', 0);
