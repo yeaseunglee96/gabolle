@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import com.gabolle.backend.assistant.application.AssistantRateLimitExceededException;
 import com.gabolle.backend.assistant.application.AssistantVendorException;
 import com.gabolle.backend.common.api.ApiError;
 import com.gabolle.backend.common.api.ApiResponse;
@@ -33,6 +34,13 @@ public class AssistantExceptionHandler {
 	public ResponseEntity<ApiResponse<Void>> handleVendorFailure(AssistantVendorException exception) {
 		return ResponseEntity.status(exception.getStatus()).body(ApiResponse.failure(
 				new ApiError(exception.getCode(), exception.getMessage()), requestId()));
+	}
+
+	/** 이 사용자가 1분 한도를 넘겼다. */
+	@ExceptionHandler(AssistantRateLimitExceededException.class)
+	public ResponseEntity<ApiResponse<Void>> handleRateLimitExceeded(AssistantRateLimitExceededException exception) {
+		return ResponseEntity.status(exception.getStatus()).body(ApiResponse.failure(
+				new ApiError("ASSISTANT_RATE_LIMITED", exception.getMessage()), requestId()));
 	}
 
 	private String requestId() {

@@ -1,16 +1,24 @@
 package com.gabolle.backend.assistant.application;
 
+import java.util.List;
+import java.util.Locale;
+import java.util.UUID;
+
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
+import com.gabolle.backend.assistant.config.AssistantProperties;
+import com.gabolle.backend.assistant.domain.AssistantChatRequest;
 import com.gabolle.backend.assistant.domain.AssistantReply;
+import com.gabolle.backend.assistant.domain.AssistantTurn;
 
 /**
  * 사용자 메시지 하나를 AI 업체에 넘기고 답을 그대로 돌려준다 — S15P21E201-802.
  *
- * <p>대화 기록을 서버가 들고 있지 않는다 — S15P21E201-628 계약의 {@code conversationId} 는
- * 화면이 대화창 안에서만 쓰는 값이고, 이번 티켓 범위는 메시지 한 통을 답 하나로 바꾸는
- * 것까지다. 여러 턴을 서버가 기억해야 하는 요구가 생기면 그때 별도 티켓으로 늘린다.
+ * <p>대화 기록을 서버가 저장하지 않는다 — 화면이 이미 갖고 있는 최근 몇 턴({@code history})을
+ * 매 요청마다 함께 보내고, 이 서비스는 그것을 다듬어(개수·길이 제한) 벤더에 그대로 넘길
+ * 뿐이다. 무상태라 서버 재시작·여러 인스턴스 사이에서도 문제가 없다 — 대신 대화가 화면을
+ * 새로고침하면 끊긴다(이 티켓 범위에서는 받아들이는 트레이드오프).
  *
  * <p>🔴 원문을 로그로 남기지 않는다 — {@code TranslationService} 와 같은 이유로 이 클래스는
  * 로거를 아예 갖지 않는다.
@@ -21,13 +29,28 @@ public class AssistantChatService {
 
 	private static final int MAX_MESSAGE_LENGTH = 1000;
 
+	/** 히스토리 한 턴도 같은 한도를 쓴다 — 화면이 보내는 값이라 별도로 더 열어 둘 이유가 없다. */
+	private static final int MAX_TURN_LENGTH = 1000;
+
 	private final AssistantVendorPort vendor;
 
-	public AssistantChatService(AssistantVendorPort vendor) {
+	private final AssistantRateLimiter rateLimiter;
+
+	private final AssistantProperties properties;
+
+	public AssistantChatService(AssistantVendorPort vendor, AssistantRateLimiter rateLimiter,
+			AssistantProperties properties) {
 		this.vendor = vendor;
+		this.rateLimiter = rateLimiter;
+		this.properties = properties;
 	}
 
-	public AssistantReply chat(String message) {
+	/**
+	 * @throws IllegalArgumentException 메시지가 비었거나 너무 길다 — 400
+	 * @throws AssistantRateLimitExceededException 이 사용자가 1분 한도를 넘겼다 — 429
+	 * @throws AssistantVendorException 업체 호출 실패 — 502
+	 */
+	public AssistantReply chat(UUID userId, String message, String language, List<AssistantTurn> history) {
 		if (message == null || message.isBlank()) {
 			throw new IllegalArgumentException("message 는 비어 있을 수 없습니다.");
 		}
@@ -35,7 +58,38 @@ public class AssistantChatService {
 			throw new IllegalArgumentException("message 는 " + MAX_MESSAGE_LENGTH + "자를 넘을 수 없습니다.");
 		}
 
+		// 🔴 벤더를 부르기 전에 막는다 — 한도를 넘긴 요청이 무료 티어 호출을 쓰면 안 된다.
+		this.rateLimiter.checkAndRecord(userId);
+
+		// 🔴 우리 클라이언트는 'ko'/'en' 만 보내지만, Accept-Language 는 표준적으로
+		// "en-US,en;q=0.9" 같은 모양도 올 수 있다 — 접두어만 본다.
+		String normalizedLanguage = language != null && language.toLowerCase(Locale.ROOT).startsWith("en")
+				? "en" : "ko";
+		List<AssistantTurn> trimmedHistory = trimHistory(history);
+
 		// 🔴 실패하면 여기서 던진 AssistantVendorException 이 그대로 위로 올라간다.
-		return this.vendor.reply(message);
+		return this.vendor.reply(new AssistantChatRequest(message, normalizedLanguage, trimmedHistory));
+	}
+
+	private List<AssistantTurn> trimHistory(List<AssistantTurn> history) {
+		if (history == null || history.isEmpty()) {
+			return List.of();
+		}
+		int maxTurns = this.properties.getMaxHistoryTurns();
+		int fromIndex = Math.max(0, history.size() - maxTurns);
+		return history.subList(fromIndex, history.size()).stream()
+				.map(turn -> new AssistantTurn(normalizeRole(turn.role()), truncate(turn.text())))
+				.toList();
+	}
+
+	private String normalizeRole(String role) {
+		return "assistant".equalsIgnoreCase(role) ? "assistant" : "user";
+	}
+
+	private String truncate(String text) {
+		if (text == null) {
+			return "";
+		}
+		return text.length() > MAX_TURN_LENGTH ? text.substring(0, MAX_TURN_LENGTH) : text;
 	}
 }
