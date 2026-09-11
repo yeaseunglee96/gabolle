@@ -663,14 +663,18 @@ DB 가 서로 다른 표가 되고, 그건 **두 DB 의 응답을 합치려는 �
 ### 11.1. 올리기 전에 한 줄로 검증한다
 
 배포하는 사람은 **살아 있는 DB 를 건드리기 전에** 이 한 줄을 돌린다. 빈 postgres 를
-띄워 `schema.sql` → `0001` → `0002` → `0003` 을 순서대로 먹이고, **두 번 돌려도 안
+띄워 `schema.sql` → `migrations/` **전부**를 번호 순서대로 먹이고, **두 번 돌려도 안
 깨지는지**까지 본다. 끝에 `OK` 가 찍히지 않으면 **올리지 않는다.**
+
+> 🔴 **2026-09-11 — 여기에 `0005`·`0006` 이 빠져 있었다.** 목록을 손으로 적어 둔 탓이다 —
+> 마이그레이션을 더할 때마다 이 줄을 같이 고쳐야 했고, 두 번 빠뜨렸다. 이제
+> **`000*.sql` 로 받는다** — 파일을 더하면 저절로 들어온다. 손으로 적은 목록은
+> **적는 사람이 잊는 순간 조용히 틀린다.**
 
 ```bash
 docker run --rm --user postgres -v "$PWD/survey-recommend:/s:ro" postgres:16-alpine sh -c \
  'export PGDATA=/tmp/d; initdb -A trust >/dev/null 2>&1 && pg_ctl -w -o "-k /tmp -h \"\"" start >/dev/null 2>&1 &&
-  for f in /s/schema.sql /s/migrations/0001_*.sql /s/migrations/0002_*.sql /s/migrations/0003_*.sql \
-           /s/migrations/0001_*.sql /s/migrations/0002_*.sql /s/migrations/0003_*.sql; do
+  for f in /s/schema.sql /s/migrations/000*.sql /s/migrations/000*.sql; do
     psql -h /tmp -U postgres -q -v ON_ERROR_STOP=1 -f "$f" || exit 1; done && echo OK'
 ```
 
@@ -695,6 +699,10 @@ docker exec -i survey-postgres psql -U survey -d survey -v ON_ERROR_STOP=1 \
   < survey-recommend/migrations/0003_add_pairwise.sql
 docker exec -i survey-postgres psql -U survey -d survey -v ON_ERROR_STOP=1 \
   < survey-recommend/migrations/0004_add_crowd.sql
+docker exec -i survey-postgres psql -U survey -d survey -v ON_ERROR_STOP=1 \
+  < survey-recommend/migrations/0005_more_slots.sql
+docker exec -i survey-postgres psql -U survey -d survey -v ON_ERROR_STOP=1 \
+  < survey-recommend/migrations/0006_add_sight_type.sql
 ```
 
 ### 11.1.1. 🔴 이 SQL 이 실제로 어디까지 확인됐나
@@ -705,7 +713,7 @@ docker exec -i survey-postgres psql -U survey -d survey -v ON_ERROR_STOP=1 \
 |---|---|
 | ✅ **확인함 (2026-09-10, `postgres:16-alpine`)** | 배포 대상과 **같은 이미지**에서 돌렸다. ① 빈 DB 에 옛 `schema.sql` → 옛 모양 응답 한 줄 → `0001`·`0002`·`0003`·`0004` 순서 → **옛 응답이 안 깨지고** 새 칸이 전부 `NULL`, `form_version` 은 `1` ② 넷을 **두 번 돌려도** 안 깨짐 (`NOTICE` 만 나오고 오류 없음) ③ 잘못된 값이 실제로 막힘 — 모르는 코드값 · `SELECTED` 인데 값 없음 · `SKIPPED` 인데 값 있음 · 상태 칸에 모르는 글자 · 모르는 나이대 · 모르는 거주기간 · `form_version` 0 · 모르는 장소 유형 · 모르는 시점 ④ 정상 값이 전부 통과 — `CROWD_BUSY` · `CROWD_EDGE` · `CROWD_QUIET` · `CROWD_VARIES` · 건너뜀 · 안 물어봤음 ⑤ **빈 DB 에 새 `schema.sql` 만 돌린 것과 마이그레이션 길이 완전히 같은 표를 만든다** — `information_schema.columns`(칸 이름 · 순서 · 자료형 · NULL 허용 · 기본값)와 `pg_constraint` · `pg_indexes` · `pg_views` 를 전부 뽑아 글자 단위로 대조해 **차이 0줄** |
 | ✅ **`0006` 도 확인함 (2026-09-10, `postgres:16-alpine`)** | 위와 같은 방식으로 다시 돌렸다. ① 빈 DB 에 옛 `schema.sql`(`09a653a8`) → 옛 모양 응답 한 줄(`NATURE` / 해운대해수욕장 / slot 1) → `0001`~`0006` 순서 → **옛 행이 글자 하나 안 바뀌고 그대로** ② `0001`~`0006` 을 **두 번 돌려도** 전부 성공하고 옛 행도 그대로 ③ **새 코드값 `SIGHT` 가 실제로 들어간다** (`form_version` 6 과 함께) — `0005` 가 겪은 *"이름이 있으니 조용히 건너뛰고 제약이 안 넓어지는"* 함정에 안 빠졌다는 뜻이다 ④ 모르는 코드값은 여전히 거부된다 (`NIGHTVIEW` · 소문자 `sight` 둘 다) ⑤ **빈 DB 에 새 `schema.sql` 만 돌린 것과 마이그레이션 길이 완전히 같은 표를 만든다** — 칸 · 제약 · 인덱스 · 뷰 **125줄을 글자 단위로 대조해 차이 0줄**, `recommendation_place_type_ok` 의 값 여덟 개와 그 순서까지 같다 |
-| 🔴 **확인 못 함** | 예전 판이 걱정하던 *"PostgreSQL 18 에서만 돌려 봤다"* 는 이제 해결됐다. 남은 것은 **배포 서버의 살아 있는 DB** 다 — 거기서는 아직 안 돌렸다. 돌리는 것은 배포하는 사람의 몫이고, 그 DB 는 지금 응답 0건이다 |
+| 🔴 **확인 못 함 — 배포 서버의 살아 있는 DB** | 거기서는 아직 안 돌렸다. 그 DB 는 지금 응답 0건이다. 🔴 **2026-09-11: 이것이 지금 가장 큰 구멍이다.** 위 11.1 의 배포 절차가 `0005`·`0006` 을 안 돌리게 적혀 있었고(고쳤다), 그대로 배포됐다면 살아 있는 DB 에서 **사람이 화면에서는 통과하고 DB 에서만 거절당한다** — 「관광 · 명소 · 경치」(`SIGHT`)를 고르면 `recommendation_place_type_ok` 위반, 「한 곳 더 적기」로 여섯째를 적으면 `recommendation_slot_ok` 위반. **응답자에게는 이유가 안 보인다.** 배포 서버에서 먼저 이 한 줄로 확인한다: `docker exec -i survey-postgres psql -U survey -d survey -tAc "SELECT conname, pg_get_constraintdef(oid) FROM pg_constraint WHERE conname IN ('recommendation_place_type_ok','recommendation_slot_ok');"` — `SIGHT` 가 없거나 `slot BETWEEN 1 AND 5` 면 `0005`·`0006` 을 순서대로 돌린다 |
 
 > 🟢 **잡은 것 하나** — 처음 쓴 제약 둘이 실제로는 **안 막고 있었다.**
 > `CHECK ((is_trap AND trap_correct IN (0,1)) OR ...)` 처럼 `OR` 로 늘어놓으면,
