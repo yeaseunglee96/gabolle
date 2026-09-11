@@ -19,6 +19,12 @@
 ALTER TABLE place_feature
     DROP CONSTRAINT ck_place_feature_type;
 
+-- 🔴 이 목록은 **누적**이다. 앞선 마이그레이션이 더한 것을 하나라도 빠뜨리면 그 갈래가
+--    조용히 금지된다 — 기존 행이 있으면 배포가 여기서 멈추고, 없으면 아무 일도 없다가
+--    나중에 그 갈래를 넣는 적재가 실패한다. 그래서 **바로 앞 마이그레이션의 목록을 그대로
+--    복사한 뒤 새 값만 더한다.** 지금 바로 앞은 V20260909020000 이고 SOLO_FRIENDLY ·
+--    BREAK_TIME · LAST_ORDER_TIME 이 그 파일에서 들어왔다.
+--    (이 규칙을 PlaceFeatureTypeConstraintTest 가 검사로 못 박는다.)
 ALTER TABLE place_feature
     ADD CONSTRAINT ck_place_feature_type
         CHECK (feature_type IN (
@@ -28,8 +34,9 @@ ALTER TABLE place_feature
             'POPULARITY_SCORE', 'CROWDING_SCORE', 'SHADE_SCORE', 'SLOPE_PERCENT',
             'STAIRS_PRESENT',
             'OPENING_HOURS', 'PRICE_LEVEL',
+            'SOLO_FRIENDLY', 'BREAK_TIME', 'LAST_ORDER_TIME',
             -- 이번에 더한 것
             'CHECK_IN_OUT'));
 
 COMMENT ON COLUMN place_feature.feature_type IS
-    '명세 6.2 의 피처 14종 + 영업시간·예상비용(S15P21E201-476) + 숙박 체크인·체크아웃(S15P21E201-852). 태그형은 feature_key 에 코드가 오고 나머지는 키가 없다. 🔴 안쪽 코드값에는 CHECK 를 걸지 않는다 — 화면 옵션과 온톨로지가 확정되면 같은 코드로 고정한다.';
+    '명세 6.2 의 피처 14종 + 영업시간·예상비용(S15P21E201-476) + 혼밥안심·브레이크타임·라스트오더(S15P21E201-265) + 숙박 체크인·체크아웃(S15P21E201-852). 태그형은 feature_key 에 코드가 오고 나머지는 키가 없다. 🔴 안쪽 코드값에는 CHECK 를 걸지 않는다 — 화면 옵션과 온톨로지가 확정되면 같은 코드로 고정한다.';
