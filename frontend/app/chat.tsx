@@ -3,7 +3,7 @@ import { Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native
 import { useRouter } from 'expo-router';
 
 import { understandAssistantMessage, type AssistantAction } from '@/assistant/intent';
-import { askAssistant } from '@/assistant/assistantApi';
+import { askAssistant, type AssistantTurn } from '@/assistant/assistantApi';
 import { useAuth } from '@/auth/AuthProvider';
 import { Button } from '@/components/Button';
 import { GabolleMascot } from '@/components/DongbaekMascot';
@@ -40,24 +40,39 @@ export default function Chat() {
   // 인사말은 언어 환경설정이 뒤늦게 준비돼도 반영돼야 해서 state 초깃값(마운트 시 한 번만 평가됨)에
   // 넣지 않고, 렌더마다 tx() 로 새로 계산해 목록 앞에 붙인다.
   const [messages, setMessages] = useState<Message[]>([]);
+  // 🔴 서버 응답을 기다리는 동안 true — 입력을 막고 "답변 준비 중" 표시를 보여준다. 이게
+  // 없으면 비동기 호출 중에 사용자가 여러 번 눌러 메시지를 겹쳐 보낼 수 있었다.
+  const [pending, setPending] = useState(false);
   // 🔴 id 발급을 ref 카운터로 둔다 — 서버 호출이 비동기라 연속으로 빠르게 보내면 messages
   // state 가 아직 안 바뀐 사이에 다음 send() 가 같은 id를 다시 계산할 수 있다(state 파생값은
   // 렌더 지연을 겪는다). 카운터는 그 지연과 무관하게 그 자리에서 바로 늘어난다.
   const nextIdRef = useRef(1);
+  // 서버가 저장하지 않는 대화라(무상태) 매 요청마다 화면이 최근 몇 턴을 함께 보낸다 — 서버
+  // (AssistantChatService)가 개수·길이를 다시 한 번 다듬으니 여기서는 넉넉히 최근 6개만 추린다.
+  const MAX_HISTORY_TURNS = 6;
+  function recentHistory(): AssistantTurn[] {
+    return messages.slice(-MAX_HISTORY_TURNS).map((message) => ({ role: message.role, text: message.text }));
+  }
   // 🔴 로그인 전에는 서버(AUTHENTICATED_ONLY)를 아예 부르지 않고 로컬 규칙으로 바로 넘어간다 —
   // 401 처리(토큰 갱신 시도 등)를 겪을 이유가 없다. 로그인 후에도 서버 호출이 실패하면
   // (네트워크 문제 등) 같은 로컬 규칙으로 자연스럽게 넘어간다 — 사용자는 항상 답을 받는다.
   async function send(value = input) {
     const content = value.trim();
-    if (!content) return;
+    if (!content || pending) return;
     setInput('');
+    const history = recentHistory();
     const userId = nextIdRef.current++;
     const assistantId = nextIdRef.current++;
     setMessages((current) => [...current, { id: userId, role: 'user', text: content }]);
-    const action = accessToken
-      ? await askAssistant(content, accessToken).catch(() => understandAssistantMessage(content))
-      : understandAssistantMessage(content);
-    setMessages((current) => [...current, { id: assistantId, role: 'assistant', text: action.reply, action }]);
+    setPending(true);
+    try {
+      const action = accessToken
+        ? await askAssistant(content, accessToken, history).catch(() => understandAssistantMessage(content))
+        : understandAssistantMessage(content);
+      setMessages((current) => [...current, { id: assistantId, role: 'assistant', text: action.reply, action }]);
+    } finally {
+      setPending(false);
+    }
   }
   function applyPlan(id: number, action: Extract<AssistantAction, { kind: 'plan' }>) { update(action.patch); setMessages((current) => current.map((item) => item.id === id ? { ...item, applied: true } : item)); }
 
@@ -79,10 +94,11 @@ export default function Chat() {
             {message.action?.kind === 'phrase' ? <View style={styles.actionCard}><Text variant="title" weight="bold">{message.action.korean}</Text><Text variant="caption" color={color.text.muted}>{message.action.pronunciation}</Text><Button label={tx('크게 보고 듣기', 'View large & listen')} variant="field" onPress={() => router.push('/field/speak')} /></View> : null}
             {message.action?.kind === 'navigate' ? <Button label={message.action.label} variant="ghost" onPress={() => router.push((message.action as Extract<AssistantAction, { kind: 'navigate' }>).href as never)} /> : null}
           </View>)}
+          {pending ? <View accessibilityLabel={tx('답변 준비 중', 'Preparing a reply')} style={[styles.bubble, desktop && styles.bubbleDesktop, styles.assistantBubble]}><Text color={color.text.body}>{tx('생각하는 중…', 'Thinking…')}</Text></View> : null}
         </ScrollView>
-        {messages.length === 0 ? <View style={styles.suggestionSection}><Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx('이렇게 물어보세요', 'Try asking like this')}</Text><View style={styles.suggestions}>{SUGGESTIONS.map((suggestion) => <Pressable key={suggestion} accessibilityRole="button" onPress={() => send(suggestion)} style={styles.suggestion}><Text variant="body" weight="medium">{suggestion}</Text></Pressable>)}</View></View> : null}
+        {messages.length === 0 ? <View style={styles.suggestionSection}><Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx('이렇게 물어보세요', 'Try asking like this')}</Text><View style={styles.suggestions}>{SUGGESTIONS.map((suggestion) => <Pressable key={suggestion} accessibilityRole="button" accessibilityState={{ disabled: pending }} disabled={pending} onPress={() => send(suggestion)} style={styles.suggestion}><Text variant="body" weight="medium">{suggestion}</Text></Pressable>)}</View></View> : null}
         {!desktop ? tools : null}
-        <View style={styles.composer}><TextInput accessibilityLabel={tx('가볼래 AI에게 메시지', 'Message to GABOLLE AI')} value={input} onChangeText={setInput} onSubmitEditing={() => send()} returnKeyType="send" multiline placeholder={tx('예: 광안리 맛집 위주로 2명 일정 짜줘', 'e.g. plan a trip for 2 focused on Gwangalli restaurants')} placeholderTextColor={color.text.muted} style={styles.input} /><Pressable accessibilityRole="button" accessibilityLabel={tx('메시지 보내기', 'Send message')} accessibilityState={{ disabled: !input.trim() }} disabled={!input.trim()} onPress={() => send()} style={[styles.send, !input.trim() && styles.sendDisabled]}><Text weight="bold" color={color.text.onAction}>↑</Text></Pressable></View>
+        <View style={styles.composer}><TextInput accessibilityLabel={tx('가볼래 AI에게 메시지', 'Message to GABOLLE AI')} value={input} onChangeText={setInput} onSubmitEditing={() => send()} editable={!pending} returnKeyType="send" multiline placeholder={tx('예: 광안리 맛집 위주로 2명 일정 짜줘', 'e.g. plan a trip for 2 focused on Gwangalli restaurants')} placeholderTextColor={color.text.muted} style={styles.input} /><Pressable accessibilityRole="button" accessibilityLabel={tx('메시지 보내기', 'Send message')} accessibilityState={{ disabled: !input.trim() || pending }} disabled={!input.trim() || pending} onPress={() => send()} style={[styles.send, (!input.trim() || pending) && styles.sendDisabled]}><Text weight="bold" color={color.text.onAction}>↑</Text></Pressable></View>
         <Text variant="caption" color={color.text.muted} style={styles.disclaimer}>{tx('안전 조건은 AI가 변경하지 않으며, 일정 적용 전 반드시 확인합니다.', 'The AI never changes your safety conditions, and you always review before applying to your itinerary.')}</Text>
       </View>
     </View>
