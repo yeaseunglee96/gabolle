@@ -138,24 +138,38 @@ public class AuthController {
 	}
 
 	/**
-	 * 계정과 그 사람의 데이터를 지운다 (S15P21E201-425).
+	 * 계정과 그 사람의 데이터를 지운다 (S15P21E201-425, 확인 방식은 -837).
 	 *
-	 * <p>🔴 되돌릴 수 없다. 그래서 비밀번호를 다시 받아 확인하고, 틀리면 아무것도 지우지 않는다.
+	 * <p>🔴 되돌릴 수 없다. 그래서 사용자가 직접 친 확인 값을 받고, 다르면 아무것도 지우지 않는다.
+	 * 비밀번호는 가진 계정만 함께 보내면 되는데, 보냈으면 맞아야 한다 — 소셜로만 가입한 계정에는
+	 * 비밀번호가 없어서 그것을 필수로 두면 그 사람들이 탈퇴를 못 한다.
 	 * 성공하면 본문 없이 204 다 — 지운 뒤에 돌려줄 것이 없다.
 	 */
 	@DeleteMapping("/me")
 	public ResponseEntity<Void> deleteAccount(@Valid @RequestBody DeleteAccountRequest request,
 			Authentication authentication) {
-		accountDeletionService.delete(authenticatedUserId(authentication), request.password());
+		accountDeletionService.delete(authenticatedUserId(authentication), request.confirmation(),
+				request.password());
 		return ResponseEntity.noContent().build();
 	}
 
+	/**
+	 * S15P21E201-317 — {@code X-Session-Token} 이 실려 오면, 가입 직전까지 그 익명 세션으로
+	 * 만든 여행을 이 계정으로 승계한다.
+	 *
+	 * <p>🔴 {@code Authentication}/{@code SecurityContext} 를 거치지 않고 헤더를 직접 읽는다.
+	 * {@code /signup} 은 {@code SecurityConfig} 의 {@code permitAll()} 이라 익명 인증 필터가
+	 * 돌긴 하지만, 그 필터가 채우는 principal({@code "anon:" + sessionId})은 "로그인이
+	 * 필요한 기존 경로를 열지 않는다" 는 것이 원래 목적이다(그 필터 문서 참고) — 승계 여부를
+	 * 그 우회 경로에 얹기보다, 이 자리에서만 쓰는 목적을 헤더로 명시하는 편이 더 분명하다.
+	 */
 	@PostMapping("/signup")
 	public ResponseEntity<ApiResponse<LocalAuthService.Registration>> signup(@Valid @RequestBody LocalSignupRequest request,
-			@RequestHeader(value = "X-Request-Id", required = false) String requestId) {
+			@RequestHeader(value = "X-Request-Id", required = false) String requestId,
+			@RequestHeader(value = "X-Session-Token", required = false) String sessionToken) {
 		LocalAuthService.Registration registration = localAuthService.register(new AuthCommands.Register(request.email(),
-				request.password(), request.displayName(), request.language(), request.ageGateAccepted(), request.deviceId(),
-				request.consents(), request.behaviorPersonalizationEnabled()));
+				request.password(), request.displayName(), request.language(), request.ageGateAcceptedOrFalse(),
+				request.deviceId(), request.consents(), request.behaviorPersonalizationEnabledOrFalse(), sessionToken));
 		return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(registration, resolveRequestId(requestId)));
 	}
 
@@ -203,7 +217,7 @@ public class AuthController {
 
 	@PostMapping("/logout")
 	public ResponseEntity<Void> logout(@Valid @RequestBody LogoutRequest request) {
-		tokenService.logout(request.refreshToken(), request.allDevices());
+		tokenService.logout(request.refreshToken(), request.allDevicesOrFalse());
 		return ResponseEntity.noContent().build();
 	}
 

@@ -308,9 +308,62 @@ public class JpaTripRepository implements TripRepository {
 		return new SaveOutcome(existingTrip, existingSnapshot, false);
 	}
 
+	/**
+	 * S15P21E201-317 — 가입 시 익명 여행 승계.
+	 *
+	 * <p>🔴 <b>네이티브 SQL 로만 옮긴다.</b> {@code trip.owner_user_id}·{@code trip_member.user_id}
+	 * 는 둘 다 {@code updatable = false} 다(엔티티 주석 참고) — Hibernate 가 엔티티를 고쳐 저장하는
+	 * 평소 경로로는 그 두 칸을 <b>조용히 안 바꾼다.</b> 그래서 그 경로를 안 쓰고
+	 * {@link EntityManager#createNativeQuery(String)} 로 직접 UPDATE 한다.
+	 *
+	 * <p>여행마다 trip → trip_member(OWNER 행) → preference_snapshot → constraint_snapshot
+	 * 순으로 옮긴다. 뒤의 두 스냅샷 표는 도메인({@link Trip}·{@link TripMember})에 없는,
+	 * 순수 인프라 칸이라({@code JpaTripRepository.save} 가 저장할 때만 쓴다) 여기서도
+	 * SQL로만 다룬다 — 남겨 두면 승계된 여행의 취향·제약이 사라진 익명 세션 UUID를
+	 * 계속 가리키는 채로 남는다.
+	 */
+	@Override
+	@Transactional
+	public int claimAnonymousTrips(String sessionId, String newOwnerId, Instant at) {
+		UUID session = UUID.fromString(sessionId);
+		UUID newOwner = UUID.fromString(newOwnerId);
+		OffsetDateTime now = toOffset(at);
+
+		List<TripJpaEntity> anonymousTrips = tripJpaRepository.findByOwnerTypeAndOwnerUserId("ANONYMOUS", session);
+		if (anonymousTrips.isEmpty()) {
+			return 0;
+		}
+
+		for (TripJpaEntity entity : anonymousTrips) {
+			UUID tripId = entity.tripId();
+
+			entityManager.createNativeQuery(
+					"UPDATE trip SET owner_user_id = ?1, owner_type = 'USER', updated_at = ?2 WHERE trip_id = ?3")
+					.setParameter(1, newOwner).setParameter(2, now).setParameter(3, tripId)
+					.executeUpdate();
+
+			entityManager.createNativeQuery(
+					"UPDATE trip_member SET user_id = ?1 WHERE trip_id = ?2 AND user_id = ?3 AND role = 'OWNER'")
+					.setParameter(1, newOwner).setParameter(2, tripId).setParameter(3, session)
+					.executeUpdate();
+
+			entityManager.createNativeQuery(
+					"UPDATE preference_snapshot SET user_id = ?1 WHERE trip_id = ?2 AND user_id = ?3")
+					.setParameter(1, newOwner).setParameter(2, tripId).setParameter(3, session)
+					.executeUpdate();
+
+			entityManager.createNativeQuery(
+					"UPDATE constraint_snapshot SET user_id = ?1 WHERE trip_id = ?2 AND user_id = ?3")
+					.setParameter(1, newOwner).setParameter(2, tripId).setParameter(3, session)
+					.executeUpdate();
+		}
+
+		return anonymousTrips.size();
+	}
+
 	private static TripJpaEntity toEntity(Trip t) {
 		return new TripJpaEntity(
-				UUID.fromString(t.tripId()), UUID.fromString(t.createdBy()),
+				UUID.fromString(t.tripId()), UUID.fromString(t.createdBy()), t.ownerType().name(),
 				t.startDate(), t.finishDate(),
 				t.originLat(), t.originLng(),
 				t.budgetKrw() == null ? null : t.budgetKrw().longValue(),
@@ -326,6 +379,7 @@ public class JpaTripRepository implements TripRepository {
 		return Trip.builder()
 				.tripId(e.tripId().toString())
 				.createdBy(e.ownerUserId().toString())
+				.ownerType(Trip.OwnerType.valueOf(e.ownerType()))
 				.startDate(e.startDate())
 				.finishDate(e.endDate())
 				.originLat(e.originLat())

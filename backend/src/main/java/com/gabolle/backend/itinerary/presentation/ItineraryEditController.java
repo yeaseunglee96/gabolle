@@ -190,6 +190,43 @@ public class ItineraryEditController {
 	}
 
 	/**
+	 * 남은 하루를 다시 계획한다 — S15P21E201-308. 지나간 방문지는 그대로 두고, 아직 안 간
+	 * 방문지의 시각만 실제 도착·출발 기록을 반영해 다시 매긴다. 장소와 순서는 순서 바꾸기와
+	 * 달리 하나도 바뀌지 않는다 — {@link ItineraryEditService#replanDay} 주석 참고.
+	 *
+	 * <p>바탕 판은 순서 바꾸기와 같은 방식으로 받는다 — {@code If-Match} 헤더나
+	 * {@code baseVersion} 쿼리, 둘 다 없으면 400 이다. 재계획도 편집이라 낡은 판 위에서
+	 * 계산하면 다른 사람의 편집을 덮어쓸 수 있다(API-09).
+	 *
+	 * <p>🔴 속도 계수는 아직 이 경로에 배선하지 않아 항상 {@code null} 을 넘긴다. 계수를
+	 * 물어오는 배선은 뒤따르는 작업의 몫이다.
+	 *
+	 * <p>응답은 순서 바꾸기·고정과 같은 모양이다. 새 자원을 만든 것이 아니라 있는 판을
+	 * 고친 것이라 {@code 201} 이 아니라 {@code 200} 이다.
+	 */
+	@PostMapping(value = "/days/{dayIndex}/replan")
+	public ApiResponse<ItineraryEditResponse> replanDay(
+			@PathVariable String itineraryId,
+			@PathVariable int dayIndex,
+			@RequestHeader(value = "If-Match", required = false) String ifMatch,
+			@RequestParam(value = "baseVersion", required = false) Integer baseVersionParam,
+			Authentication authentication) {
+
+		String editor = AuthenticatedUsers.requireId(authentication).toString();
+		this.itineraryAccess.requireEditor(itineraryId, editor);
+
+		Integer baseVersion = baseVersionParam != null ? baseVersionParam : parseIfMatch(ifMatch);
+		if (baseVersion == null) {
+			throw new MissingBaseVersionException();
+		}
+
+		ItineraryVersion saved = this.editService.replanDay(itineraryId, dayIndex, baseVersion, null, editor);
+		ItineraryDetailResponse detail = this.queryService.getDetail(itineraryId, editor);
+
+		return ApiResponse.success(ItineraryEditResponse.of(detail, saved), "req_" + UUID.randomUUID());
+	}
+
+	/**
 	 * 며칠째가 실제로 여행 안에 있는 날인가. 여행 시작일에 {@code dayIndex} 를 더해 본다.
 	 *
 	 * <p>🔴 여행 마지막 날을 넘으면 거부한다. 그 항목은 어느 날 화면에도 안 나타나므로

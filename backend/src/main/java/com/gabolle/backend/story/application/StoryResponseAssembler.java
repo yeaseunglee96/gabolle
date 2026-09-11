@@ -111,7 +111,9 @@ public class StoryResponseAssembler {
 					new StoryResponse.Author(story.getAuthorUserId().toString(), displayName),
 					story.getBody(),
 					story.getRegion(),
-					place == null ? null : new StoryResponse.PlaceRef(place.getPlaceId().toString(), place.getNameKo()),
+					place == null ? null
+							: new StoryResponse.PlaceRef(place.getPlaceId().toString(), place.getNameKo(),
+									place.getLat(), place.getLng()),
 					story.getTripId() == null ? null : story.getTripId().toString(),
 					images,
 					story.getVisibility().name(),

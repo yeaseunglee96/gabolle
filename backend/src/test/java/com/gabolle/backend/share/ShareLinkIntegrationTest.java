@@ -287,8 +287,8 @@ class ShareLinkIntegrationTest {
 	private UUID insertTrip(UUID ownerUserId, LocalDate start, LocalDate end, OffsetDateTime now) {
 		UUID id = UUID.randomUUID();
 		this.jdbc.update(
-				"INSERT INTO trip (trip_id, owner_user_id, start_date, end_date, created_at, updated_at) "
-						+ "VALUES (?, ?, ?, ?, ?, ?)",
+				"INSERT INTO trip (trip_id, owner_user_id, owner_type, start_date, end_date, created_at, updated_at) "
+						+ "VALUES (?, ?, 'USER', ?, ?, ?, ?)",
 				id, ownerUserId, start, end, now, now);
 		return id;
 	}

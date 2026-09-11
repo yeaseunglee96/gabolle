@@ -36,7 +36,12 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class AnonymousSessionAuthenticationFilter extends OncePerRequestFilter {
 
 	public static final String HEADER_NAME = "X-Session-Token";
-	private static final String ANONYMOUS_PRINCIPAL_PREFIX = "anon:";
+	/**
+	 * 🔴 S15P21E201-317 — {@code public} 이다. {@code AuthenticatedUsers.requireOwner} 가 이
+	 * 접두사로 "이 principal 이 익명 세션인가" 를 판정한다. 문자열을 양쪽에 따로 적어 두면
+	 * 한쪽만 바뀐 날 조용히 어긋난다.
+	 */
+	public static final String ANONYMOUS_PRINCIPAL_PREFIX = "anon:";
 
 	private final AnonymousSessionService anonymousSessionService;
 

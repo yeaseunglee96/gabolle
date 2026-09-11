@@ -5,7 +5,9 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.MultiValueMap;
 
 /**
  * 로그인 토큰을 매 요청의 헤더에 실어 보내는 얇은 래퍼 — S15P21E201-779.
@@ -39,6 +41,30 @@ public final class AuthedClient {
 
 	public <T> ResponseEntity<T> get(String path, ParameterizedTypeReference<T> responseType) {
 		return rest.exchange(path, HttpMethod.GET, authed(null), responseType);
+	}
+
+	/**
+	 * 본문을 실은 {@code DELETE} — S15P21E201-837 (탈퇴).
+	 *
+	 * <p>🔴 {@code DELETE} 에 본문을 싣는 것은 흔하지 않지만 탈퇴 계약이 그렇다(확인 값이나
+	 * 비밀번호를 질의 문자열에 넣으면 접속 기록에 남는다). {@code TestRestTemplate.delete} 는
+	 * 본문을 못 실으므로 {@code exchange} 를 쓴다.
+	 */
+	public <T> ResponseEntity<T> delete(String path, Object body, Class<T> responseType) {
+		return rest.exchange(path, HttpMethod.DELETE, authed(body), responseType);
+	}
+
+	/**
+	 * 파일 업로드 — S15P21E201-782. {@code multipart/form-data}는 본문이 아니라 헤더의
+	 * Content-Type이 경계(boundary)를 정하므로, {@link #authed}가 만드는 일반 JSON 헤더를
+	 * 그대로 못 쓴다.
+	 */
+	public <T> ResponseEntity<T> postMultipart(String path, MultiValueMap<String, Object> parts,
+			ParameterizedTypeReference<T> responseType) {
+		HttpHeaders headers = new HttpHeaders();
+		headers.setBearerAuth(bearerToken);
+		headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+		return rest.exchange(path, HttpMethod.POST, new HttpEntity<>(parts, headers), responseType);
 	}
 
 	private <B> HttpEntity<B> authed(B body) {

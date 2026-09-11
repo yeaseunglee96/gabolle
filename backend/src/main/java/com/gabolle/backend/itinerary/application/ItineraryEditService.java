@@ -1,8 +1,12 @@
 package com.gabolle.backend.itinerary.application;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Objects;
+import com.gabolle.backend.itinerary.domain.ItineraryItemActual;
+import com.gabolle.backend.itinerary.domain.ItineraryItemActualRepository;
 import com.gabolle.backend.itinerary.domain.ItineraryLeg;
 import com.gabolle.backend.trip.domain.Trip;
 import com.gabolle.backend.trip.domain.TripRepository;
@@ -18,8 +22,10 @@ import com.gabolle.backend.itinerary.domain.StaleItineraryVersionException;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 import org.springframework.context.annotation.Profile;
@@ -85,15 +91,23 @@ public class ItineraryEditService {
 
     private final Clock clock;
 
+    /**
+     * 재계획이 "지금까지 실제로 어땠나" 를 읽는 문 — S15P21E201-308. {@link ItineraryDelayProjector}
+     * 가 예상 시각을 세우려면 실제 도착·출발 기록이 있어야 하고, 그 기록의 저장소가 이것이다.
+     */
+    private final ItineraryItemActualRepository actualRepository;
+
     public ItineraryEditService(ItineraryRepository repository, PlaceEventSchedulePort eventSchedule,
                                 ItineraryLegPlanner legPlanner, TripRepository tripRepository,
-                                ItineraryOpeningHoursChecker openingHours, Clock clock) {
+                                ItineraryOpeningHoursChecker openingHours, Clock clock,
+                                ItineraryItemActualRepository actualRepository) {
         this.repository = repository;
         this.eventSchedule = eventSchedule;
         this.legPlanner = legPlanner;
         this.tripRepository = tripRepository;
         this.openingHours = openingHours;
         this.clock = clock;
+        this.actualRepository = actualRepository;
     }
 
     /**
@@ -302,6 +316,107 @@ public class ItineraryEditService {
     }
 
     /**
+     * 남은 하루를 다시 계획한다 — S15P21E201-308.
+     *
+     * <p>순서는 다른 편집과 같다 — 판 번호를 검증하고, 바탕 판을 읽어 새 내용을 만들고,
+     * 한 트랜잭션으로 저장한다. 다른 점은 새 내용을 만드는 방법이다 — 항목을 옮기거나
+     * 더하는 것이 아니라 {@link ItineraryDelayProjector} 로 남은 방문지의 예상 시각을 구하고,
+     * 그 결과를 {@link ItineraryRevision#withReplannedDay} 에 넘겨 시각만 다시 매긴다.
+     *
+     * <p>🔴 {@code factor} 는 이 티켓에서는 배선하지 않는다. 계수를 물어와 여기 넘기는 일은
+     * 뒤따르는 작업의 몫이라 지금은 호출부({@link ItineraryEditController})가 {@code null}
+     * 을 넘긴다 — {@code null} 이면 {@link ItineraryDelayProjector} 가 계수를 안 곱하고
+     * 계획대로 민다.
+     *
+     * <p>이미 다녀온 방문지({@code Entry.visited() == true}) 는 시각 지도에 넣지 않는다.
+     * {@link ItineraryRevision#withReplannedDay} 는 지도에 없는 항목을 그대로 복사하므로,
+     * 여기서 넣지 않는 것만으로 "지나간 방문지는 그대로 있다" 는 완료 기준이 지켜진다.
+     *
+     * @param factor 속도 계수. {@code null} 이면 계획대로 민다
+     * @throws StaleItineraryVersionException 그 사이 다른 편집이 있었다 (409)
+     * @throws NoSuchElementException 그런 일정이 없다 (404)
+     */
+    @Transactional
+    public ItineraryVersion replanDay(String itineraryId, int dayIndex, int baseVersion,
+                                      BigDecimal factor, String editorUserId) {
+
+        Itinerary itinerary = repository.findById(itineraryId)
+                .orElseThrow(() -> new NoSuchElementException("일정을 찾을 수 없습니다: " + itineraryId));
+
+        int next = itinerary.nextVersionFrom(baseVersion);
+
+        ItineraryContent base = repository.findContent(itineraryId, baseVersion)
+                .orElseThrow(() -> new IllegalStateException(
+                        "바탕 판의 내용이 없습니다: itineraryId=" + itineraryId + ", version=" + baseVersion));
+
+        Instant now = clock.instant();
+
+        List<ItineraryItemActual> actuals = this.actualRepository.findByItineraryId(itineraryId);
+        ItineraryDelayProjector.Projection projection = ItineraryDelayProjector.project(
+                base.items(), base.legs(), actuals, dayIndex, factor, now);
+
+        // 다녀온 방문지는 지도에 넣지 않는다 — withReplannedDay 가 지도에 없는 항목을
+        // 그대로 복사하므로 그것으로 충분하다.
+        Map<String, LocalDate> visitDateByItemKey = new HashMap<>();
+        for (ItineraryItem item : base.items()) {
+            visitDateByItemKey.put(item.itemKey(), item.visitDate());
+        }
+
+        Map<String, LocalTime> newStartTimeByItemKey = new HashMap<>();
+        Map<String, LocalTime> newEndTimeByItemKey = new HashMap<>();
+        List<String> overflowing = new ArrayList<>();
+        for (ItineraryDelayProjector.Entry entry : projection.entries()) {
+            if (entry.visited()) {
+                continue;
+            }
+            // 계획 머문 시간이 없던 항목(사용자가 손으로 더한 장소)은 도착과 출발이 같은
+            // 순간으로 나온다. 그 값을 시각으로 적으면 시작과 끝이 같아져 항목이 스스로를
+            // 거부한다. 애초에 이 항목에 대해 우리가 말할 수 있는 것이 없으므로 손대지
+            // 않고 원래대로 둔다 — 없는 시간을 지어내지 않는 쪽이 맞다.
+            if (!entry.predictedDeparture().isAfter(entry.predictedArrival())) {
+                continue;
+            }
+
+            // 밀린 일정이 자정을 넘어가면 그날 안에 적을 수 없다. LocalTime 으로 바꾸면
+            // 00:30 처럼 되감겨서 "새벽에 갔다" 는 거짓이 조용히 저장된다. 다음 날로
+            // 옮기는 것은 그 날의 계획을 다시 짜는 다른 일이라 여기서 하지 않는다.
+            LocalDate visitDate = visitDateByItemKey.get(entry.itemKey());
+            if (visitDate != null && !LocalDate.ofInstant(entry.predictedDeparture(),
+                    ItineraryDelayProjector.ZONE).equals(visitDate)) {
+                overflowing.add(entry.itemKey());
+                continue;
+            }
+
+            newStartTimeByItemKey.put(entry.itemKey(),
+                    LocalTime.ofInstant(entry.predictedArrival(), ItineraryDelayProjector.ZONE));
+            newEndTimeByItemKey.put(entry.itemKey(),
+                    LocalTime.ofInstant(entry.predictedDeparture(), ItineraryDelayProjector.ZONE));
+        }
+
+        if (!overflowing.isEmpty()) {
+            throw new ReplanOverflowsDayException(dayIndex, overflowing);
+        }
+
+        String newVersionId = UUID.randomUUID().toString();
+        ItineraryRevision.Draft draft = ItineraryRevision.withReplannedDay(base, newVersionId, dayIndex,
+                newStartTimeByItemKey, newEndTimeByItemKey, now);
+
+        ItineraryVersion candidate = new ItineraryVersion(
+                newVersionId,
+                itineraryId,
+                next,
+                baseVersion,
+                ItineraryVersion.Operation.REPLAN_DAY,
+                editorUserId,
+                "req_edit_" + UUID.randomUUID(),
+                // 엔진을 돌리지 않았으므로 판 값 다섯이 비어 들어온다 — 순서 바꾸기·고정과 같다.
+                new ItineraryVersion.Versions(null, null, null, null, null),
+                now);
+
+        return repository.appendVersion(candidate, draft.items(), draft.legs(), draft.exclusions());
+    }
+
+    /**
      * 순서를 바꾼 그날의 구간을 다시 만들어 끼운다 — S15P21E201-755.
      *
      * <p>{@code withReorderedDay} 는 그날 구간을 <b>버린 채로</b> 준다. 순서가 바뀌면 "A 에서
@@ -432,6 +547,34 @@ public class ItineraryEditService {
      * 있게 만드는 자리다 — 화면이 그 날짜를 그대로 제시하면 사용자는 한 번 더 누르는 것으로 끝난다.
      * 날짜와 며칠째를 둘 다 담는데, 화면은 며칠째로 탭을 옮기고 날짜로 사람이 읽을 문장을 만든다.
      */
+    /**
+     * 다시 짠 시간표가 그날 안에 안 들어간다 — 422 로 답할 자리다.
+     *
+     * <p>남은 방문지를 지금부터 이어 붙이면 자정을 넘는 상황이다. 이때 시각을 그대로 적으면
+     * {@code LocalTime} 이 00:30 처럼 되감겨 "새벽에 갔다" 는 거짓이 조용히 저장된다.
+     * 잘라서 23:59 에 맞추는 것도 지어내기이고, 다음 날로 넘기는 것은 그 날의 계획을 다시
+     * 짜는 다른 일이다. 그래서 아무것도 저장하지 않고 어느 방문지가 넘치는지 알려 준다 —
+     * 사용자가 무엇을 뺄지 정하는 편이 서버가 정하는 것보다 낫다.
+     *
+     * <p>이 상황을 미리 보는 자리는 지연 경고 조회다. 거기서 하루를 넘길 항목이 이미
+     * {@code atRiskItemIds} 로 구분돼 나간다.
+     */
+    public static class ReplanOverflowsDayException extends RuntimeException {
+
+        private final int dayIndex;
+
+        private final List<String> overflowingItemKeys;
+
+        public ReplanOverflowsDayException(int dayIndex, List<String> overflowingItemKeys) {
+            super("남은 일정이 그날 안에 들어가지 않습니다. 방문지를 빼거나 순서를 바꿔 주세요.");
+            this.dayIndex = dayIndex;
+            this.overflowingItemKeys = List.copyOf(overflowingItemKeys);
+        }
+
+        public int dayIndex()                      { return dayIndex; }
+        public List<String> overflowingItemKeys()  { return overflowingItemKeys; }
+    }
+
     public static class PlaceClosedOnDayException extends RuntimeException {
 
         private final String placeId;

@@ -98,14 +98,25 @@ class TripCreateAppPayloadIntegrationTest {
 		return new UsernamePasswordAuthenticationToken(this.userId.toString(), null, List.of());
 	}
 
-	/** {@code tripApi.ts} 의 {@code toCreateTripPayload} 와 같은 모양. 차원 이름은 그 파일의 문자열 그대로다. */
+	/**
+	 * {@code tripApi.ts} 의 {@code toCreateTripPayload} 와 같은 모양. 차원 이름은 그 파일의
+	 * 문자열 그대로다.
+	 *
+	 * <p>🔴 2026-09-10 — 출발지 좌표를 실제 값으로 바꿨다. 그전까지 여기에 {@code null} 이
+	 * 박혀 있었는데, 그것은 앱이 좌표를 받아 두고도 안 보내던 결함(S15P21E201-791)을 <b>사실로
+	 * 고정</b>하고 있던 것이다. 그 결함이 고쳐졌으므로(!479) 이 본문도 따라간다.
+	 *
+	 * <p>고정한 본문이 낡으면 검사는 초록인데 지키는 것이 없다 — 앱이 실제로 보내는 모양이
+	 * 아니라 <b>예전에 보내던 모양</b>을 지키게 되기 때문이다. 이 파일의 존재 이유가 정확히
+	 * 그 어긋남을 잡는 것이라, 프런트가 요청 모양을 바꾸면 여기도 같이 바꾼다.
+	 */
 	private static String appPayload(String transportDimensionName) {
 		return """
 				{
 				  "startDate": "2026-09-10",
 				  "finishDate": "2026-09-12",
-				  "originLat": null,
-				  "originLng": null,
+				  "originLat": 35.1587,
+				  "originLng": 129.1604,
 				  "budgetKrw": 100000,
 				  "partySize": 1,
 				  "timeWindow": "09:00-18:00",

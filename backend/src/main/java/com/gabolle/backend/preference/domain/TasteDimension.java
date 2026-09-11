@@ -39,5 +39,16 @@ public enum TasteDimension {
 	SLOPE_PREFERENCE,
 
 	/** 그늘 — 여름 부산에서 그늘진 길을 얼마나 원하는가. */
-	SHADE_PREFERENCE
+	SHADE_PREFERENCE,
+
+	/**
+	 * 씀씀이 성향 — S15P21E201-709.
+	 *
+	 * <p>🔴 아직 {@code user_place_code_map} 에 실제 대조 행이 없다. 씀씀이(가격대)를 나타내는
+	 * {@code place_feature_type} 이 온톨로지에 아직 없어서다 — 짝지을 종류를 정하는 것은 place
+	 * 담당의 결정이라 여기서 지어내지 않는다. 그때까지 {@code PlaceFeatureCodeMapTest} 의
+	 * {@code UNPAIRED_BY_DESIGN} 목록에 있다. 같은 이유로 {@code PreferenceAlignmentWeights}
+	 * 에도 없다 — 짝이 없으면 채점기가 애초에 이 차원의 점수를 구할 일이 없다.
+	 */
+	SPEND_PROFILE
 }

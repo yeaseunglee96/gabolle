@@ -124,6 +124,26 @@ public class UserTasteVector {
 				observedUntil, vectorVersion, ontologyVersion, createdAt);
 	}
 
+	/**
+	 * 성분은 그대로 두고 "어디까지 봤는가" 만 앞으로 옮긴다 — MLOps Phase 1.
+	 *
+	 * <p>🔴 <b>판을 새로 만들지 않는 경우가 있다.</b> 설문도 안 바뀌고 새 행동도 없었다면
+	 * 새 판은 앞 판과 성분이 글자 하나 다르지 않다. 그런 판을 날마다 쌓으면
+	 * {@code version} 이 아무것도 뜻하지 않게 되고, "이 추천은 3판으로 나왔다" 가 정보가
+	 * 아니게 된다.
+	 *
+	 * <p>그래도 <b>본 구간은 넓어졌다.</b> 그 사실을 안 적으면 다음 배치가 같은 구간을 다시
+	 * 훑는다 — 결과는 같은데 일은 두 번 한다.
+	 *
+	 * <p>이것이 과거를 고치는 것이 아닌 이유: 이 값은 "무엇을 좋아하는가" 가 아니라
+	 * "어디까지 확인했는가" 다. 확인한 구간이 넓어진 것은 사실이고, 사실을 적는 것은 재현을
+	 * 깨지 않는다. 성분({@code user_taste_weight})은 한 줄도 안 바뀐다.
+	 */
+	public void advanceWatermark(OffsetDateTime observedUntil, int additionalEvents) {
+		this.observedUntil = observedUntil;
+		this.observedEventCount += additionalEvents;
+	}
+
 	/** 다음 판에 자리를 내준다. 행은 남는다 — 과거 추천을 설명하려면 필요하다. */
 	public void supersede(OffsetDateTime at) {
 		this.supersededAt = at;

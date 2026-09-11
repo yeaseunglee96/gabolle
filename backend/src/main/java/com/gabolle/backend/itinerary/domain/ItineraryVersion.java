@@ -174,7 +174,11 @@ public class ItineraryVersion {
         /** 🔴 S15P21E201-467 — 사용자가 고른 장소를 그 날의 마지막에 더한다. 축제를 일정에
          * 넣는 경로가 이것이다. 더한 항목은 고정된 상태로 들어가고(재계산이 그것을 빼면
          * 안 되므로) 시각은 뒤따르는 재계산이 정한다 — {@link ItineraryRevision#withAddedItem}. */
-        ADD_ITEM;
+        ADD_ITEM,
+        /** S15P21E201-308 — 남은 하루 재계획. 장소·순서·구간은 그대로 두고 아직 지나지
+         * 않은 방문지의 시각만 다시 매긴다. {@link ItineraryRevision#withReplannedDay} 가
+         * 규칙을 정한다. */
+        REPLAN_DAY;
 
         /** 최초 생성만 baseVersion 이 없다. */
         public boolean requiresBaseVersion() {

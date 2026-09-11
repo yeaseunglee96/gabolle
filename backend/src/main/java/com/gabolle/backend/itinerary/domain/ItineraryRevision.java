@@ -1,7 +1,9 @@
 package com.gabolle.backend.itinerary.domain;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
@@ -286,6 +288,73 @@ public final class ItineraryRevision {
                 .toList();
 
         return new Draft(all, keptLegs, copyExclusions(base.exclusions(), newVersionId));
+    }
+
+    /**
+     * 남은 하루를 다시 계획한다 — S15P21E201-308.
+     *
+     * <p>{@link #withReorderedDay} 와 짝을 이루지만 규칙은 정반대다. 순서 바꾸기는 자리를
+     * 바꾸므로 그 순간 구간("A 에서 B 로 몇 미터")이 더 이상 참이 아니어서 버려야 하고,
+     * 재계획은 자리를 하나도 안 바꾸므로 구간이 여전히 참이다 — 시간표만 밀렸다고 두 장소
+     * 사이의 거리가 달라지지 않는다. 그래서 여기서는 {@code base.legs()} 를
+     * {@link #copyLegs} 로 그대로 옮긴다.
+     *
+     * <p>{@code newStartTimeByItemKey} 에 없는 항목은 시각을 포함해 그대로 복사된다 — 다른
+     * 날의 항목이 그렇고, 같은 날이라도 이미 지나간 방문지가 그렇다({@code visited} 항목을
+     * 호출자가 지도에 안 담아서 여기까지 그대로 전해진다). 순번({@code sequence})·
+     * 장소({@code placeId})·{@code itemKey}·고정 여부({@code locked})는 지도에 있는
+     * 항목이라도 손대지 않는다 — 재계획은 시각만 다시 매기는 일이다.
+     *
+     * @param newStartTimeByItemKey 새로 매길 시작 시각. 지도에 없으면 기존 값을 그대로 둔다
+     * @param newEndTimeByItemKey 새로 매길 종료 시각. 위와 같다
+     * @throws DayIndexOutOfRangeException {@code dayIndex} 가 음수다
+     */
+    public static Draft withReplannedDay(ItineraryContent base, String newVersionId, int dayIndex,
+            Map<String, LocalTime> newStartTimeByItemKey, Map<String, LocalTime> newEndTimeByItemKey,
+            Instant now) {
+
+        if (dayIndex < 0) {
+            throw new DayIndexOutOfRangeException(dayIndex);
+        }
+
+        List<ItineraryItem> copied = copyItems(base.items(), newVersionId, now, null, false);
+
+        List<ItineraryItem> replanned = new ArrayList<>(copied.size());
+        for (ItineraryItem item : copied) {
+            if (item.dayIndex() != dayIndex || !newStartTimeByItemKey.containsKey(item.itemKey())) {
+                replanned.add(item);
+                continue;
+            }
+
+            LocalTime newStart = newStartTimeByItemKey.get(item.itemKey());
+            LocalTime newEnd = newEndTimeByItemKey.get(item.itemKey());
+            // 시작·종료로 머무는 시간을 다시 잰다 — 별도의 stayMinutes 지도를 받지 않는다.
+            Integer newStayMinutes = (newStart != null && newEnd != null)
+                    ? (int) Duration.between(newStart, newEnd).toMinutes()
+                    : item.stayMinutes();
+
+            replanned.add(new ItineraryItem(
+                    item.itineraryItemId(),
+                    item.itineraryVersionId(),
+                    item.itemKey(),
+                    item.dayIndex(),
+                    item.visitDate(),
+                    item.sequence(),
+                    item.placeId(),
+                    newStart,
+                    newEnd,
+                    newStayMinutes,
+                    item.locked(),
+                    item.estimatedCostKrw(),
+                    item.dataStatus(),
+                    item.reasonCodes(),
+                    item.warningCodes(),
+                    item.sourceRequestId(),
+                    now));
+        }
+
+        return new Draft(replanned, copyLegs(base.legs(), newVersionId, now),
+                copyExclusions(base.exclusions(), newVersionId));
     }
 
     private static void requireSameSet(List<ItineraryItem> dayItems, List<String> dayOrder, int dayIndex) {
