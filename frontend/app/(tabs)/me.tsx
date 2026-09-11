@@ -6,8 +6,11 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { ApiClientError } from '@/api/client';
 import { useAuth } from '@/auth/AuthProvider';
+import type { OAuthProvider } from '@/auth/authApi';
+import { linkOAuthProvider } from '@/auth/oauth';
 import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
+import { SocialProviderIcon } from '@/components/SocialProviderIcon';
 import { TabBar } from '@/components/TabBar';
 import { Text } from '@/components/Text';
 import { Eyebrow } from '@/components/Eyebrow';
@@ -26,6 +29,23 @@ function InfoRow({ label, value, onPress, disabled = false }: { label: string; v
 // 어딘가에만 있으면 사용자는 못 찾고, 못 찾으면 켠 적 없는 사람처럼 취급된다.
 function ConsentRow({ label, description, value, onValueChange }: { label: string; description: string; value: boolean; onValueChange: (next: boolean) => void }) {
   return <View style={styles.consentRow}><View style={styles.consentCopy}><Text weight="bold">{label}</Text><Text variant="caption" color={color.text.muted}>{description}</Text></View><Toggle value={value} onValueChange={onValueChange} /></View>;
+}
+
+// 구글·카카오 아이콘은 그 자체가 다색이라 흰 바탕에 보이지만, 애플·네이버 아이콘은
+// sign-in.tsx의 브랜드색 버튼 위에 놓일 흰색 그림이라(SocialProviderIcon.tsx) 이 화면의
+// 흰 배경에서는 흰색 위에 흰색이 되어 안 보인다. 그 둘만 브랜드색 배지를 뒤에 깔아 준다.
+const SOCIAL_BADGE_BG: Partial<Record<OAuthProvider, string>> = { apple: '#000000', naver: '#03c75a' };
+
+// S15P21E201-832 — 연결 여부를 서버가 목록으로 돌려주지 않아(그런 조회 API가 없다) "연결됨"
+// 배지는 못 띄운다. 눌렀을 때 결과(연결됨/이미 다른 계정에 연결됨)만 그 자리에서 보여준다 —
+// 없는 상태를 지어내지 않는다.
+function SocialLinkRow({ provider, name, busy, onPress }: { provider: OAuthProvider; name: string; busy: boolean; onPress: () => void }) {
+  const { tx } = useI18n();
+  const badgeBg = SOCIAL_BADGE_BG[provider];
+  return <Pressable accessibilityRole="button" accessibilityLabel={tx(`${name} 계정 연결하기`, `Connect ${name} account`)} accessibilityState={{ disabled: busy }} disabled={busy} onPress={onPress} style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}>
+    <View style={styles.socialLabel}><View style={[styles.socialLinkMark, badgeBg ? { backgroundColor: badgeBg } : null]}><SocialProviderIcon provider={provider} /></View><Text weight="bold">{name}</Text></View>
+    <Text variant="caption" color={color.text.body}>{busy ? tx('연결하는 중…', 'Connecting…') : tx('연결하기', 'Connect')}</Text>
+  </Pressable>;
 }
 
 export default function Me() {
@@ -49,6 +69,8 @@ export default function Me() {
   const [deletePassword, setDeletePassword] = useState('');
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [linkingProvider, setLinkingProvider] = useState<OAuthProvider | null>(null);
+  const [linkFeedback, setLinkFeedback] = useState<{ danger: boolean; text: string } | null>(null);
   useEffect(() => { setDisplayName(user?.displayName ?? (visualPreview ? '진미리' : '')); setProfileLanguage(user?.language?.toUpperCase() === 'EN' ? 'EN' : 'KO'); }, [user, visualPreview]);
   useEffect(() => {
     if (!profileOwner) { setAvatarUri(null); return; }
@@ -91,6 +113,27 @@ export default function Me() {
       setFeedback({ danger: true, text: cause instanceof ApiClientError ? cause.message : tx('프로필을 저장하지 못했어요.', 'Could not save your profile.') });
     } finally {
       setSaving(false);
+    }
+  }
+  // S15P21E201-832 — 웹에서는 linkOAuthProvider가 현재 페이지를 제공자 화면으로 그대로
+  // 넘긴다(S15P21E201-830과 같은 방식). 이 아래는 실행되지 않고, 결과는 착지 화면
+  // (oauth/[provider]/callback.tsx)이 보여준 뒤 "설정으로 돌아가기"로 이 화면에 돌아온다.
+  // 네이티브(앱)에서는 그 왕복 없이 여기서 바로 결과를 받는다.
+  async function connectProvider(provider: OAuthProvider) {
+    if (!accessToken || linkingProvider) return;
+    setLinkingProvider(provider);
+    setLinkFeedback(null);
+    try {
+      const result = await linkOAuthProvider(provider, accessToken, '/me');
+      if (result.status === 'TAKEN') {
+        setLinkFeedback({ danger: true, text: tx('이미 다른 계정에 연결된 소셜 계정이에요.', 'This social account is already connected to a different account.') });
+      } else {
+        setLinkFeedback({ danger: false, text: result.alreadyLinked ? tx('이미 연결되어 있어요.', 'Already connected.') : tx('계정을 연결했어요.', 'Account connected.') });
+      }
+    } catch (cause) {
+      setLinkFeedback({ danger: true, text: cause instanceof ApiClientError ? cause.message : tx('연결하지 못했어요. 잠시 후 다시 시도해 주세요.', 'Could not connect. Please try again shortly.') });
+    } finally {
+      setLinkingProvider(null);
     }
   }
   async function openDeletion() {
@@ -136,6 +179,11 @@ export default function Me() {
         value={behaviorPersonalization}
         onValueChange={setBehaviorPersonalization}
       />
+    </View>
+    <View style={styles.group}>
+      <View style={styles.groupHeader}><Text weight="bold">{tx('연결된 소셜 계정', 'Connected social accounts')}</Text><Text variant="caption" color={color.text.muted}>{tx('다른 방식으로 로그인해도 같은 계정으로 이어가려면 연결해 두세요.', 'Connect these so signing in a different way still lands on this same account.')}</Text></View>
+      {(['google', 'apple', 'kakao', 'naver'] as const).map((item) => <SocialLinkRow key={item} provider={item} name={item === 'google' ? 'Google' : item === 'apple' ? 'Apple' : item === 'kakao' ? 'Kakao' : 'Naver'} busy={linkingProvider === item} onPress={() => void connectProvider(item)} />)}
+      {linkFeedback && <View accessibilityRole="alert" style={[styles.feedback, linkFeedback.danger && styles.feedbackDanger]}><Text variant="caption" weight="bold" color={linkFeedback.danger ? color.state.danger : color.state.success}>{linkFeedback.text}</Text></View>}
     </View>
     <View style={styles.group}>
       <InfoRow label={tx('이용약관', 'Terms of Service')} value="›" onPress={() => router.push('/legal/terms')} />
@@ -194,6 +242,9 @@ const styles = StyleSheet.create({
   feedback: { marginTop: spacing[3], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.state.successBg },
   feedbackDanger: { backgroundColor: color.state.dangerBg },
   group: { marginTop: spacing[4], overflow: 'hidden', borderRadius: radius.lg, backgroundColor: color.surface.card },
+  groupHeader: { gap: spacing[1], padding: spacing[4], borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: color.surface.border },
+  socialLabel: { flexDirection: 'row', alignItems: 'center', gap: spacing[3] },
+  socialLinkMark: { width: 28, height: 28, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   row: { minHeight: 62, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[3], paddingHorizontal: spacing[4], borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: color.surface.border },
   rowPressed: { opacity: 0.7, backgroundColor: color.surface.tint }, rowDisabled: { opacity: 0.58 },
   consentRow: { minHeight: 62, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[3], paddingHorizontal: spacing[4], paddingVertical: spacing[3] },
