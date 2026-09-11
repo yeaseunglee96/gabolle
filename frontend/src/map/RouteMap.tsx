@@ -103,9 +103,19 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
           const content = document.createElement('button');
           const pointLayer = points.find((layer) => layer.stops.some((item) => item.id === stop.id));
           const markerColor = pointLayer?.color ?? color.brand.navy;
-          content.type = 'button'; content.textContent = pointLayer ? pointLayer.label : String(stop.number);
+          content.type = 'button';
           content.setAttribute('aria-label', pointLayer ? `${pointLayer.label} ${stop.name}` : tx(`${stop.number}번 ${stop.name}`, `Stop ${stop.number} ${stop.name}`));
-          Object.assign(content.style, { minWidth: '34px', height: '34px', padding: '0 8px', borderRadius: '999px', border: `3px solid ${stop.id === selectedId ? color.brand.orange : markerColor}`, background: color.canvas, color: markerColor, fontWeight: '700', cursor: 'pointer', boxShadow: '0 4px 12px rgba(11,29,58,.18)' });
+          if (stop.imageUrl) {
+            const img = document.createElement('img');
+            img.src = stop.imageUrl;
+            img.alt = '';
+            Object.assign(img.style, { width: '100%', height: '100%', objectFit: 'cover', borderRadius: '999px' });
+            content.appendChild(img);
+            Object.assign(content.style, { width: '40px', height: '40px', padding: '0', overflow: 'hidden', borderRadius: '999px', border: `3px solid ${stop.id === selectedId ? color.brand.orange : markerColor}`, background: color.canvas, cursor: 'pointer', boxShadow: '0 4px 12px rgba(11,29,58,.18)' });
+          } else {
+            content.textContent = pointLayer ? pointLayer.label : String(stop.number);
+            Object.assign(content.style, { minWidth: '34px', height: '34px', padding: '0 8px', borderRadius: '999px', border: `3px solid ${stop.id === selectedId ? color.brand.orange : markerColor}`, background: color.canvas, color: markerColor, fontWeight: '700', cursor: 'pointer', boxShadow: '0 4px 12px rgba(11,29,58,.18)' });
+          }
           content.onclick = () => onSelect(stop.id);
           const overlay = new maps.CustomOverlay({ position, content, yAnchor: 0.5 });
           overlay.setMap(map); overlaysRef.current.push(overlay);
