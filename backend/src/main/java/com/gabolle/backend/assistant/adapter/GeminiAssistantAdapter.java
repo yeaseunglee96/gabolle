@@ -1,5 +1,7 @@
 package com.gabolle.backend.assistant.adapter;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -21,7 +23,9 @@ import com.gabolle.backend.assistant.application.AssistantVendorException;
 import com.gabolle.backend.assistant.application.AssistantVendorPort;
 import com.gabolle.backend.assistant.config.AssistantProperties;
 import com.gabolle.backend.assistant.domain.AssistantActionKind;
+import com.gabolle.backend.assistant.domain.AssistantChatRequest;
 import com.gabolle.backend.assistant.domain.AssistantReply;
+import com.gabolle.backend.assistant.domain.AssistantTurn;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
@@ -110,6 +114,15 @@ public class GeminiAssistantAdapter implements AssistantVendorPort {
 			정중히 범위를 안내하고, 이 챗봇이 실제로 할 수 있는 것으로 돌아오게 유도한다.
 			""";
 
+	private static final String ENGLISH_DIRECTIVE = """
+
+
+			🔴 답변 언어 — 이번 요청은 영어 사용자다. reply · label · korean(원문은 한국어 그대로
+			두되 설명은 영어로) · pronunciation 등 사용자에게 보여줄 모든 텍스트를 영어로 써라.
+			kind 값과 href 값 자체는 위에서 정한 그대로(navigate/phrase/help,
+			'/plan/basic' 등)를 그대로 쓴다 — 번역하지 않는다.
+			""";
+
 	private final AssistantProperties properties;
 
 	private final ObjectMapper objectMapper;
@@ -125,7 +138,7 @@ public class GeminiAssistantAdapter implements AssistantVendorPort {
 	}
 
 	@Override
-	public AssistantReply reply(String message) {
+	public AssistantReply reply(AssistantChatRequest request) {
 		String apiKey = this.properties.getApiKey();
 		if (apiKey == null || apiKey.isBlank()) {
 			throw new AssistantVendorException("ASSISTANT_VENDOR_NOT_CONFIGURED",
@@ -134,7 +147,8 @@ public class GeminiAssistantAdapter implements AssistantVendorPort {
 
 		Client client = Client.builder().apiKey(apiKey).build();
 
-		Content systemInstruction = Content.fromParts(Part.fromText(SYSTEM_PROMPT));
+		String systemPrompt = "en".equals(request.language()) ? SYSTEM_PROMPT + ENGLISH_DIRECTIVE : SYSTEM_PROMPT;
+		Content systemInstruction = Content.fromParts(Part.fromText(systemPrompt));
 		GenerateContentConfig config = GenerateContentConfig.builder()
 				.systemInstruction(systemInstruction)
 				.responseMimeType("application/json")
@@ -142,9 +156,11 @@ public class GeminiAssistantAdapter implements AssistantVendorPort {
 				.maxOutputTokens((int) this.properties.getMaxTokens())
 				.build();
 
+		List<Content> conversation = toConversation(request);
+
 		String rawJson;
 		try {
-			GenerateContentResponse response = client.models.generateContent(this.properties.getModel(), message,
+			GenerateContentResponse response = client.models.generateContent(this.properties.getModel(), conversation,
 					config);
 			rawJson = response.text();
 		}
@@ -178,6 +194,22 @@ public class GeminiAssistantAdapter implements AssistantVendorPort {
 		}
 
 		return toDomain(parsed);
+	}
+
+	/**
+	 * 이전 대화({@code request.history()}) 뒤에 이번 메시지를 이어 붙인다 — 이래야 모델이
+	 * "그거 말고 다른 데는?" 같은 이어지는 말을 알아듣는다. {@code AssistantChatService} 가
+	 * 이미 개수·길이를 다듬어 둔 값이라 여기서는 벤더 API 모양(역할 있는 {@link Content} 목록)
+	 * 으로 옮기기만 한다.
+	 */
+	private List<Content> toConversation(AssistantChatRequest request) {
+		List<Content> conversation = new ArrayList<>();
+		for (AssistantTurn turn : request.history()) {
+			String role = "assistant".equals(turn.role()) ? "model" : "user";
+			conversation.add(Content.builder().role(role).parts(Part.fromText(turn.text())).build());
+		}
+		conversation.add(Content.builder().role("user").parts(Part.fromText(request.message())).build());
+		return conversation;
 	}
 
 	AssistantReply toDomain(GeminiStructuredReply parsed) {
