@@ -1,5 +1,6 @@
 package com.gabolle.backend.place.service;
 
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -55,8 +56,16 @@ import tools.jackson.databind.ObjectMapper;
  *
  * <h2>🔴 못 거른 조건을 숨기지 않는다</h2>
  *
- * 영업시간은 칸이 없어 지금 거를 수 없다. 조용히 무시하면 호출자는 걸러진 줄 알고 영업이 끝난 곳을
- * 추천한다. 그래서 {@code notApplied} 에 적어 내보낸다.
+ * 영업시간은 이제 <b>일부 장소에만</b> 있다(S15P21E201-852 가 관광공사 자료에서 268곳을 넣었고
+ * 상가정보 2,355곳에는 없다). 그래서 문 닫은 곳은 실제로 빼내면서도, 후보 하나라도 영업시간을
+ * 모르는 채 남았으면 <b>이 조건을 적용했다고 말하지 않는다</b> — {@code notApplied} 에
+ * {@code NOT_COLLECTED} 로 적는다. 절반만 걸러진 목록을 "영업 중인 곳" 이라고 부르면 호출자는
+ * 그것을 믿고 쓴다.
+ *
+ * <p>🔴 여기서는 영업시간 문({@code OpeningHoursFilterPort})을 부르지 않는다. 후보가 수백인
+ * 자리에서 장소마다 물으면 질의가 장소 수만큼 나가고, 그것이 이 클래스가 지키기로 한
+ * 완료 기준("질의 개수가 장소 수에 비례하지 않는다")을 정면으로 깬다. 아래에서 이미 한 번에
+ * 읽어 둔 피처를 {@link OpeningHoursValue} 로 직접 판정한다.
  *
  * <h2>🔴 자르기가 두 번 일어난다 — 둘 다 "거리" 가 아니다</h2>
  *
@@ -90,8 +99,6 @@ public class PlaceCandidateQueryService {
 
 	private final PlaceFeatureRepository placeFeatureRepository;
 
-	private final OpeningHoursFilterPort openingHoursFilter;
-
 	private final ObjectMapper objectMapper;
 
 	/**
@@ -104,11 +111,10 @@ public class PlaceCandidateQueryService {
 	private final int maxScanned;
 
 	public PlaceCandidateQueryService(PlaceRepository placeRepository,
-			PlaceFeatureRepository placeFeatureRepository, OpeningHoursFilterPort openingHoursFilter,
+			PlaceFeatureRepository placeFeatureRepository,
 			ObjectMapper objectMapper, PlaceProperties properties) {
 		this.placeRepository = placeRepository;
 		this.placeFeatureRepository = placeFeatureRepository;
-		this.openingHoursFilter = openingHoursFilter;
 		this.objectMapper = objectMapper;
 		this.maxScanned = properties.getCandidateMaxScanned();
 	}
@@ -181,10 +187,25 @@ public class PlaceCandidateQueryService {
 
 		List<PlaceCandidateResponse.Candidate> candidates = new ArrayList<>();
 		Set<String> datasetVersions = new LinkedHashSet<>();
+		OffsetDateTime openNowAt = request.openNowAt();
+		boolean someHoursUnknown = false;
 		for (Place place : withinRadius) {
 			List<PlaceFeature> features = featuresByPlace.getOrDefault(place.getPlaceId(), List.of());
 			if (!hasAll(features, required) || hasAny(features, excluded)) {
 				continue;
+			}
+			if (openNowAt != null) {
+				OpeningHoursFilterPort.Answer answer = openingHoursAt(features, openNowAt);
+				if (answer == OpeningHoursFilterPort.Answer.CLOSED) {
+					// 원천이 "그 시각에 닫는다" 고 말한 곳이다. 빼는 것이 틀릴 여지가 없다.
+					continue;
+				}
+				if (answer == OpeningHoursFilterPort.Answer.NOT_COLLECTED) {
+					// 🔴 빼지 않는다. 모른다고 후보에서 지우면 영업시간을 아직 안 넣은
+					//    2,355곳이 통째로 사라진다 — 조건을 건 사용자에게는 그것이 "그 시각에
+					//    여는 곳이 없다" 로 보인다.
+					someHoursUnknown = true;
+				}
 			}
 			if (place.getDatasetVersion() != null) {
 				datasetVersions.add(place.getDatasetVersion());
@@ -203,16 +224,38 @@ public class PlaceCandidateQueryService {
 			candidates = new ArrayList<>(candidates.subList(0, limit));
 		}
 
-		// 🔴 요청은 받았지만 못 건 조건을 적어 내보낸다.
-		if (request.openNowAt() != null && !this.openingHoursFilter.isAvailable()) {
-			notApplied.add(new PlaceCandidateResponse.NotApplied(
-					"OPENING_HOURS", this.openingHoursFilter.unavailableReason()));
+		// 🔴 걸렀다고 말할 수 있는 것과 못 하는 것을 가른다. 하나라도 모르는 채 남았으면
+		//    이 조건은 "적용했다" 고 말하지 않는다.
+		if (openNowAt != null) {
+			if (someHoursUnknown) {
+				notApplied.add(new PlaceCandidateResponse.NotApplied(
+						OpeningHoursFilterPort.CHECK, OpeningHoursFilterPort.REASON_NOT_COLLECTED));
+			}
+			else {
+				applied.add(OpeningHoursFilterPort.CHECK);
+			}
 		}
 
 		int minimum = request.minimumCountOrDefault();
 		return new PlaceCandidateResponse(candidates, candidates.size(), minimum,
 				candidates.size() < minimum, List.copyOf(applied), List.copyOf(notApplied),
 				scanTruncated, List.copyOf(datasetVersions));
+	}
+
+	/**
+	 * 이미 읽어 둔 피처에서 영업시간 하나를 찾아 판정한다.
+	 *
+	 * <p>행이 없으면 모른다다 — 이것이 지금 대부분의 장소에서 나오는 답이고, 그것이 정상
+	 * 상태다({@code OpeningHoursLoader} 가 관광공사 268곳에만 넣었다).
+	 */
+	private static OpeningHoursFilterPort.Answer openingHoursAt(List<PlaceFeature> features,
+			OffsetDateTime at) {
+		for (PlaceFeature feature : features) {
+			if (PlaceFeatureOpeningHoursFilter.FEATURE_TYPE.equals(feature.getFeatureType())) {
+				return OpeningHoursValue.answerAt(feature.getValue(), at);
+			}
+		}
+		return OpeningHoursFilterPort.Answer.NOT_COLLECTED;
 	}
 
 	private Map<UUID, List<PlaceFeature>> loadFeatures(List<Place> places) {
