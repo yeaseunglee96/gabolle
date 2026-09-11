@@ -94,8 +94,6 @@ export default function TripCollaborate() {
 
       {actionError && <View accessibilityRole="alert" style={styles.errorCard}><Text color={color.state.danger}>{actionError}</Text></View>}
 
-      <View style={styles.notice}><Text variant="caption" color={color.text.body}>{tx('최근 변경 이력은 이 목록을 돌려주는 서버 협업 조회 API에 그 항목이 추가되면 표시합니다.', "Recent activity will show once the server's collaboration API includes that data.")}</Text></View>
-
       {isOwner && <Button label={tx('동행자 초대하기', 'Invite a companion')} onPress={() => router.push(`/${id}/share`)} containerStyle={styles.inviteButton} />}
     </>}
   </Screen>;
@@ -112,6 +110,5 @@ const styles = StyleSheet.create({
   actionButtonDanger: { minWidth: 88, minHeight: 44, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full, backgroundColor: color.state.dangerBg },
   actionDisabled: { opacity: 0.5 },
   errorCard: { marginTop: spacing[3], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.state.dangerBg },
-  notice: { marginTop: spacing[4], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.subtle },
   inviteButton: { marginTop: spacing[4] },
 });
