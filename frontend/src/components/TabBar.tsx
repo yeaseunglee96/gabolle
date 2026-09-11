@@ -5,7 +5,7 @@
 import { Image, Pressable, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
-import { color, spacing } from '@/design/tokens';
+import { color, radius, spacing } from '@/design/tokens';
 import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
 import { useI18n } from '@/i18n';
@@ -82,8 +82,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing[2],
     backgroundColor: color.surface.card,
     borderWidth: 1,
-    borderColor: '#f0ebe3',
-    borderRadius: 20,
+    borderColor: color.surface.border,
+    borderRadius: radius.lg,
     shadowColor: color.brand.navy,
     shadowOpacity: 0.13,
     shadowRadius: 8,
