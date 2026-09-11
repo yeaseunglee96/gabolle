@@ -158,8 +158,22 @@ export function getMe(accessToken: string) { return apiRequest<AuthUser>('/api/v
 export function updateMe(accessToken: string, input: { displayName?: string; language?: SignupLanguage }) {
   return apiRequest<AuthUser>('/api/v1/auth/me', { method: 'PATCH', accessToken, body: input });
 }
-export function deleteMe(accessToken: string, password: string) {
-  return apiRequest<void>('/api/v1/auth/me', { method: 'DELETE', accessToken, body: { password }, skipUnauthorizedHandling: true });
+// 박재현 님 계약(S15P21E201-837, 2026-09-11, back/dev MR !598): 소셜로만 가입한 계정은
+// local_credential 행이 아예 없어 비밀번호를 못 받는다 — 본인 확인을 비밀번호에서 사용자가
+// 직접 치는 확인 값으로 옮겼다. confirmation은 필수이고 "DELETE"와 대소문자·앞뒤 공백까지
+// 정확히 같아야 한다("입력한 그대로 보낸다" — 화면이 다듬어 보내면 확인이 아니라 형식이
+// 된다). password는 선택이고, 비밀번호로 가입한 계정에서만 의미가 있다 — 화면은 아예 비밀번호
+// 칸을 안 그리는 쪽을 택했다(jaehyeon 님 권고, 두 종류 계정이 같은 화면을 쓸 수 있다).
+export function deleteMe(accessToken: string, confirmation: string) {
+  return apiRequest<void>('/api/v1/auth/me', { method: 'DELETE', accessToken, body: { confirmation }, skipUnauthorizedHandling: true });
+}
+
+// 계정 삭제 전 안내 화면이 보여줄 실제 영향 수(S15P21E201-188/195). 실제로 지워지는 범위와
+// 같은 기준으로 센 값이다 — reviewCount는 이 백엔드에 리뷰 도메인이 없어 칸 자체가 없다.
+export type AccountDeletionPreview = { ownedTripCount: number; itineraryCount: number; recordCount: number };
+
+export function getAccountDeletionPreview(accessToken: string) {
+  return apiRequest<AccountDeletionPreview>('/api/v1/auth/me/deletion-preview', { accessToken });
 }
 export function refreshWebSession() { return apiRequest<AuthTokens>('/api/v1/auth/web/refresh', { method: 'POST', skipUnauthorizedHandling: true }); }
 export function refreshMobileSession(refreshToken: string) { return apiRequest<AuthTokens>('/api/v1/auth/refresh', { method: 'POST', body: { refreshToken }, skipUnauthorizedHandling: true }); }
