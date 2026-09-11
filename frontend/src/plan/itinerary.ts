@@ -126,8 +126,16 @@ export async function pollItineraryJob(jobId: string, accessToken: string | null
   }
 }
 
+// S15P21E201-268(BE) 응답 계약: ItineraryDto 일곱 칸에 순서 바꾸기 전용 두 칸이 더 실려
+// 온다. 영업시간을 실제로 어겼으면 warnings, 어겼는지조차 못 봤으면(자료 없음 등) notChecked —
+// 두 목록이 함께 올 수 있고(한 곳은 닫혀 있고 다른 곳은 자료가 없는 경우), 하나만 보여 주면
+// 화면이 거짓말을 한다(제보: jaehyeon, 2026-09-11, S15P21E201-852). 이 값은 이 응답에만 실려
+// 오고 이후 활동 이력(loadItineraryVersions)에는 안 남으므로 저장해 두지 않으면 사라진다.
+export type ItineraryOpeningHoursWarning = { code: string; itemId: string; placeId: string; at: string };
+export type ItineraryOpeningHoursNotChecked = { check: string; reason: string };
+
 export type ItineraryReorderResult =
-  | { state: 'success'; itinerary: ItineraryDto }
+  | { state: 'success'; itinerary: ItineraryDto; warnings: ItineraryOpeningHoursWarning[]; notChecked: ItineraryOpeningHoursNotChecked[] }
   | { state: 'conflict'; latestVersion: number; message: string }
   | { state: 'mismatch'; message: string }
   | { state: 'lockedItemMoved'; message: string }
@@ -135,14 +143,13 @@ export type ItineraryReorderResult =
 
 export async function reorderItineraryDay(input: { itineraryId: string; dayIndex: number; itemKeys: string[]; baseVersion: number; accessToken: string | null }): Promise<ItineraryReorderResult> {
   try {
-    return {
-      state: 'success',
-      itinerary: await apiRequest<ItineraryDto>(`/api/v1/itineraries/${encodeURIComponent(input.itineraryId)}/days/${input.dayIndex}/reorder`, {
-        method: 'POST',
-        accessToken: input.accessToken,
-        body: { itemKeys: input.itemKeys, baseVersion: input.baseVersion },
-      }),
-    };
+    const dto = await apiRequest<ItineraryDto & { warnings?: ItineraryOpeningHoursWarning[]; notChecked?: ItineraryOpeningHoursNotChecked[] }>(`/api/v1/itineraries/${encodeURIComponent(input.itineraryId)}/days/${input.dayIndex}/reorder`, {
+      method: 'POST',
+      accessToken: input.accessToken,
+      body: { itemKeys: input.itemKeys, baseVersion: input.baseVersion },
+    });
+    const { warnings, notChecked, ...itinerary } = dto;
+    return { state: 'success', itinerary, warnings: warnings ?? [], notChecked: notChecked ?? [] };
   } catch (error) {
     if (error instanceof ApiClientError && error.status === 400 && error.code === 'ITINERARY_DAY_ORDER_MISMATCH') {
       return { state: 'mismatch', message: '순서 목록이 이 날짜의 장소와 맞지 않아요. 새로고침 후 다시 시도해 주세요.' };

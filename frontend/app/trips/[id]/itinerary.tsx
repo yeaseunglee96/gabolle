@@ -129,6 +129,9 @@ export default function ItineraryScreen() {
   const [replanBusy, setReplanBusy] = useState(false);
   const [replanOverflowIds, setReplanOverflowIds] = useState<string[] | null>(null);
   const [syncDisconnected, setSyncDisconnected] = useState(false);
+  // 순서 바꾸기 응답에만 실려 오는 영업시간 경고(S15P21E201-268/-852) — 활동 이력엔 안 남으므로
+  // 그 자리에서 받은 문장을 이 상태에 직접 담아 둔다. 다음 편집을 시작하면 지운다.
+  const [openingHoursNotice, setOpeningHoursNotice] = useState<string[]>([]);
 
   const refreshVersions = useCallback(async (targetId: string) => {
     const next = await loadItineraryVersions(targetId, accessToken);
@@ -312,7 +315,7 @@ export default function ItineraryScreen() {
   const startReorder = () => {
     if (!day) return;
     setOrderDraft(day.items.map((item) => item.id));
-    setConflict(null); setActionMessage(null);
+    setConflict(null); setActionMessage(null); setOpeningHoursNotice([]);
   };
 
   const cancelReorder = () => setOrderDraft(null);
@@ -348,13 +351,26 @@ export default function ItineraryScreen() {
 
   const saveReorder = async () => {
     if (!itinerary || !orderDraft) return;
-    setReorderBusy(true); setConflict(null); setActionMessage(null);
+    setReorderBusy(true); setConflict(null); setActionMessage(null); setOpeningHoursNotice([]);
     const outcome = await reorderItineraryDay({ itineraryId: itinerary.id, dayIndex: selectedDay, itemKeys: orderDraft, baseVersion: itinerary.version, accessToken });
     setReorderBusy(false);
     if (outcome.state === 'success') {
       setResult({ state: 'success', itinerary: outcome.itinerary });
       setOrderDraft(null);
       setActionMessage(tx('순서를 저장했어요.', 'Saved the new order.'));
+      // 경고(문 닫힌 시각)와 못 한 검사(자료 없음)는 함께 올 수 있다 — 한쪽만 보여 주면
+      // 나머지를 "확인했고 문제 없음"으로 잘못 읽는다(제보: jaehyeon, S15P21E201-852).
+      const itemsById = new Map(outcome.itinerary.days[selectedDay]?.items.map((entry) => [entry.id, entry]) ?? []);
+      const closedMessages = outcome.warnings
+        .filter((warning) => warning.code === 'OPENING_HOURS_CLOSED')
+        .map((warning) => {
+          const title = itemsById.get(warning.itemId)?.title ?? tx('이 장소', 'this place');
+          return tx(`${title}은(는) 이 시각에 영업하지 않아요.`, `${title} is closed at this time.`);
+        });
+      const notCheckedMessages = outcome.notChecked.map((entry) => entry.reason === 'NOT_COLLECTED'
+        ? tx('일부 장소는 영업시간 정보가 없어 확인하지 못했어요.', "We couldn't check opening hours for some places — no data yet.")
+        : tx('시각이 없는 항목이 있어 일부는 확인하지 못했어요.', "Some items have no visit time, so we couldn't check them."));
+      setOpeningHoursNotice([...closedMessages, ...notCheckedMessages]);
     } else if (outcome.state === 'conflict') setConflict(outcome.message);
     else setActionMessage(outcome.message);
   };
@@ -377,6 +393,7 @@ export default function ItineraryScreen() {
       {conflict ? <View accessibilityRole="alert" style={styles.conflict}><Text variant="body" weight="bold">{tx('최신 일정과 충돌했어요', 'Conflicted with the latest itinerary')}</Text><Text variant="caption" color={color.text.body}>{conflict}</Text><Button label={tx('최신 일정 불러오기', 'Load latest itinerary')} variant="ghost" onPress={() => void reload()} /></View> : null}
       {actionMessage ? <View accessibilityRole="alert" style={styles.actionNotice}><Text variant="caption" color={color.text.body}>{actionMessage}</Text></View> : null}
       {latestWarnings.length ? <View style={styles.warningNotice}>{latestWarnings.map((message, index) => <Text key={index} variant="caption" color={color.text.body}>{message}</Text>)}</View> : null}
+      {openingHoursNotice.length ? <View accessibilityRole="alert" style={styles.warningNotice}>{openingHoursNotice.map((message, index) => <Text key={index} variant="caption" color={color.text.body}>{message}</Text>)}</View> : null}
       {dayOutOfRange ? <View style={styles.actionNotice}><Text variant="caption" color={color.text.body}>{tx(`요청한 날짜가 없어서 1일차를 보여드려요. (전체 ${itinerary.days.length}일)`, `That day doesn't exist, so day 1 is shown instead. (${itinerary.days.length} days total)`)}</Text></View> : null}
 
       <View accessibilityRole="tablist" style={styles.dayTabs}>
