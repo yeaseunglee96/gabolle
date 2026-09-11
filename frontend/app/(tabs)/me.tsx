@@ -6,7 +6,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { ApiClientError } from '@/api/client';
 import { useAuth } from '@/auth/AuthProvider';
-import type { OAuthProvider } from '@/auth/authApi';
+import { getAccountDeletionPreview, type AccountDeletionPreview, type OAuthProvider } from '@/auth/authApi';
 import { linkOAuthProvider } from '@/auth/oauth';
 import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
@@ -19,7 +19,11 @@ import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { useBehaviorConsent } from '@/personalization/behaviorConsent';
 import { usePlan } from '@/plan/PlanProvider';
-import { loadTrips } from '@/trip/trips';
+
+// 박재현 님 계약(S15P21E201-837) — 서버가 대소문자·앞뒤 공백까지 정확히 이 값과 비교한다.
+// 언어별로 문구를 바꾸면 서버가 어느 언어인지 판정해야 해서, 화면은 안내만 각 언어로 하고
+// 실제로 보내는 값은 이 하나로 고정한다.
+const DELETE_CONFIRMATION_PHRASE = 'DELETE';
 
 function InfoRow({ label, value, onPress, disabled = false }: { label: string; value: string; onPress?: () => void; disabled?: boolean }) {
   return <Pressable accessibilityRole={onPress ? 'button' : undefined} accessibilityState={{ disabled }} disabled={disabled || !onPress} onPress={onPress} style={({ pressed }) => [styles.row, pressed && styles.rowPressed, disabled && styles.rowDisabled]}><Text weight="bold">{label}</Text><Text variant="caption" color={disabled ? color.text.muted : color.text.body}>{value}</Text></Pressable>;
@@ -65,8 +69,8 @@ export default function Me() {
   const [saving, setSaving] = useState(false);
   const [feedback, setFeedback] = useState<{ danger: boolean; text: string } | null>(null);
   const [deleteStep, setDeleteStep] = useState<0 | 1 | 2>(0);
-  const [savedTripCount, setSavedTripCount] = useState(0);
-  const [deletePassword, setDeletePassword] = useState('');
+  const [deletionPreview, setDeletionPreview] = useState<AccountDeletionPreview | null>(null);
+  const [deleteConfirmation, setDeleteConfirmation] = useState('');
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [linkingProvider, setLinkingProvider] = useState<OAuthProvider | null>(null);
@@ -137,23 +141,34 @@ export default function Me() {
     }
   }
   async function openDeletion() {
-    const trips = await loadTrips(accessToken);
-    setSavedTripCount(trips.state === 'success' ? trips.trips.length : 0);
-    setDeletePassword('');
+    if (accessToken) {
+      try { setDeletionPreview(await getAccountDeletionPreview(accessToken)); } catch { setDeletionPreview(null); }
+    }
+    setDeleteConfirmation('');
     setDeleteError(null);
     setDeleteStep(1);
   }
-  function closeDeletion() { if (!deleting) { setDeleteStep(0); setDeletePassword(''); setDeleteError(null); } }
+  function closeDeletion() { if (!deleting) { setDeleteStep(0); setDeleteConfirmation(''); setDeleteError(null); } }
+  // S15P21E201-837 — 소셜로만 가입한 계정은 비밀번호가 없어 비밀번호로는 본인 확인을 할 수
+  // 없다. 그래서 비밀번호 칸을 아예 안 그리고, 사용자가 직접 친 확인 값(DELETE)만 받는다 —
+  // 두 종류 계정이 같은 화면을 쓴다(jaehyeon 님 권고). 서버와 정확히 같은 기준(대소문자·
+  // 앞뒤 공백까지)으로 버튼을 잠가 둬야 사용자가 400을 먼저 만나지 않는다.
+  const deleteConfirmed = deleteConfirmation === DELETE_CONFIRMATION_PHRASE;
   async function confirmDeletion() {
-    if (!deletePassword || deleting) return;
+    if (!deleteConfirmed || deleting) return;
     setDeleting(true);
     setDeleteError(null);
     try {
-      await deleteAccount(deletePassword);
+      await deleteAccount(deleteConfirmation);
       await plan.clear();
     } catch (cause) {
-      const incorrect = cause instanceof ApiClientError && (cause.status === 401 || cause.code === 'INVALID_CREDENTIALS');
-      setDeleteError(incorrect ? tx('비밀번호가 올바르지 않아요. 다시 입력해 주세요.', 'The password is incorrect. Try again.') : cause instanceof ApiClientError ? cause.message : tx('계정을 삭제하지 못했어요. 잠시 후 다시 시도해 주세요.', 'Could not delete the account. Try again later.'));
+      const notConfirmed = cause instanceof ApiClientError && cause.code === 'DELETION_NOT_CONFIRMED';
+      const unavailable = cause instanceof ApiClientError && cause.code === 'ACCOUNT_UNAVAILABLE';
+      setDeleteError(
+        notConfirmed ? tx('입력한 값이 달라요. 다시 입력해 주세요.', 'What you typed does not match. Try again.')
+          : unavailable ? tx('이미 삭제된 계정이에요.', 'This account has already been deleted.')
+          : cause instanceof ApiClientError ? cause.message : tx('계정을 삭제하지 못했어요. 잠시 후 다시 시도해 주세요.', 'Could not delete the account. Try again later.'),
+      );
       setDeleting(false);
     }
   }
@@ -200,19 +215,20 @@ export default function Me() {
           <Text variant="caption" weight="bold" color={color.state.danger}>{tx('1 / 2 · 삭제 내용 확인', '1 / 2 · Review deletion')}</Text>
           <Text variant="display" weight="bold">{tx('삭제되는 내용을 확인해 주세요', 'Review what will be deleted')}</Text>
           <View style={styles.impactList}>
-            <View style={styles.impactRow}><Text variant="title" weight="bold" color={color.text.accent}>{savedTripCount}</Text><Text style={styles.impactCopy}>{tx('내 계정의 여행과 일정·추천 데이터가 삭제돼요.', "Your account's trips and itinerary/recommendation data will be deleted.")}</Text></View>
-            <View style={styles.impactRow}><Text variant="title" weight="bold" color={color.text.accent}>0</Text><Text style={styles.impactCopy}>{tx('현재 기록 기능이 연결되지 않아 삭제할 여행 기록은 없어요.', 'Travel records are not connected yet, so there are no records to delete.')}</Text></View>
+            <View style={styles.impactRow}><Text variant="title" weight="bold" color={color.text.accent}>{deletionPreview?.ownedTripCount ?? '—'}</Text><Text style={styles.impactCopy}>{tx('내가 만든 여행이 삭제돼요.', 'Trips you created will be deleted.')}</Text></View>
+            <View style={styles.impactRow}><Text variant="title" weight="bold" color={color.text.accent}>{deletionPreview?.itineraryCount ?? '—'}</Text><Text style={styles.impactCopy}>{tx('그 여행들의 일정이 삭제돼요.', "Those trips' itineraries will be deleted.")}</Text></View>
+            <View style={styles.impactRow}><Text variant="title" weight="bold" color={color.text.accent}>{deletionPreview?.recordCount ?? '—'}</Text><Text style={styles.impactCopy}>{tx('작성한 여행 기록이 삭제돼요.', 'Travel records you wrote will be deleted.')}</Text></View>
           </View>
           <View style={styles.reviewNotice}><Text weight="bold">{tx('리뷰는 익명으로 남아요', 'Reviews remain anonymous')}</Text><Text variant="caption" color={color.text.body}>{tx('리뷰 기능이 연결되면 작성자 정보만 제거하고 내용은 익명으로 유지해요.', 'When reviews are connected, author details are removed while content remains anonymous.')}</Text></View>
           <Text accessibilityRole="alert" weight="bold" color={color.state.danger}>{tx('계정 삭제는 되돌릴 수 없습니다.', 'Account deletion cannot be undone.')}</Text>
           <View style={styles.modalActions}><Button label={tx('취소', 'Cancel')} variant="ghost" onPress={closeDeletion} containerStyle={styles.modalAction} /><Button label={tx('계속', 'Continue')} onPress={() => setDeleteStep(2)} containerStyle={styles.modalAction} /></View>
         </> : <>
           <Text variant="caption" weight="bold" color={color.state.danger}>{tx('2 / 2 · 본인 확인', '2 / 2 · Verify identity')}</Text>
-          <Text variant="display" weight="bold">{tx('비밀번호를 다시 입력해 주세요', 'Enter your password again')}</Text>
-          <Text color={color.text.body}>{tx('비밀번호가 맞아야 계정과 데이터가 삭제됩니다.', 'Your account is deleted only after the password is verified.')}</Text>
-          <TextInput accessibilityLabel={tx('계정 삭제 확인 비밀번호', 'Password to confirm account deletion')} secureTextEntry autoFocus value={deletePassword} onChangeText={(value) => { setDeletePassword(value); setDeleteError(null); }} onSubmitEditing={() => void confirmDeletion()} placeholder={tx('비밀번호', 'Password')} placeholderTextColor={color.text.muted} style={[styles.input, deleteError && styles.inputError]} />
+          <Text variant="display" weight="bold">{tx('삭제하려면 DELETE를 입력해 주세요', 'Type DELETE to confirm')}</Text>
+          <Text color={color.text.body}>{tx('대문자 DELETE를 정확히 입력해야 계정과 데이터가 삭제됩니다.', 'Your account is deleted only after you type DELETE exactly.')}</Text>
+          <TextInput accessibilityLabel={tx('계정 삭제 확인 입력', 'Text to confirm account deletion')} autoCapitalize="none" autoCorrect={false} autoFocus value={deleteConfirmation} onChangeText={(value) => { setDeleteConfirmation(value); setDeleteError(null); }} onSubmitEditing={() => void confirmDeletion()} placeholder="DELETE" placeholderTextColor={color.text.muted} style={[styles.input, deleteError && styles.inputError]} />
           {deleteError ? <Text accessibilityRole="alert" color={color.state.danger}>{deleteError}</Text> : null}
-          <View style={styles.modalActions}><Button label={tx('이전', 'Back')} variant="ghost" disabled={deleting} onPress={() => { setDeleteStep(1); setDeleteError(null); }} containerStyle={styles.modalAction} /><Pressable accessibilityRole="button" accessibilityState={{ disabled: !deletePassword || deleting }} disabled={!deletePassword || deleting} onPress={() => void confirmDeletion()} style={[styles.deleteConfirm, (!deletePassword || deleting) && styles.deleteConfirmDisabled]}><Text weight="bold" color={color.text.onAction}>{tx('계정 영구 삭제', 'Delete permanently')}</Text></Pressable></View>
+          <View style={styles.modalActions}><Button label={tx('이전', 'Back')} variant="ghost" disabled={deleting} onPress={() => { setDeleteStep(1); setDeleteError(null); }} containerStyle={styles.modalAction} /><Pressable accessibilityRole="button" accessibilityState={{ disabled: !deleteConfirmed || deleting }} disabled={!deleteConfirmed || deleting} onPress={() => void confirmDeletion()} style={[styles.deleteConfirm, (!deleteConfirmed || deleting) && styles.deleteConfirmDisabled]}><Text weight="bold" color={color.text.onAction}>{tx('계정 영구 삭제', 'Delete permanently')}</Text></Pressable></View>
         </>}
       </View></View>
     </Modal>
