@@ -15,7 +15,11 @@ import { Button } from '@/components/Button';
 import { useAuth } from '@/auth/AuthProvider';
 import { useI18n } from '@/i18n';
 import { DIALECT_PHRASES } from '@/discovery/dialectPhrases';
+import { RouteMap } from '@/map/RouteMap';
+import type { MapStop } from '@/map/types';
 import { loadItinerary } from '@/plan/itinerary';
+import { getTripStories } from '@/social/stories';
+import { loadTrips } from '@/trip/trips';
 import { loadWeatherForecast, type SkyCondition, type WeatherLoadResult } from '@/trip/weather';
 
 const SKY_LABEL: Record<SkyCondition, readonly [string, string]> = {
@@ -93,6 +97,39 @@ function DialectFlashcards() {
   );
 }
 
+// S15P21E201-248 — 여행 종료일이 지나면 이 탭에 추억 지도 카드를 띄운다. 계획한 경로가
+// 아니라 실제로 쓴 기록(story)의 장소를 방문 순서(created_at)대로 이어 그린다 — 서버가
+// 그 순서를 보장한다(S15P21E201-829). 좌표 없는 기록은 선에서 빠진다(지어내지 않는다).
+type MemoryMapState =
+  | { status: 'not-ended' }
+  | { status: 'loading' }
+  | { status: 'ready'; stops: MapStop[] }
+  | { status: 'unavailable' };
+
+function isTripEnded(endDate: string | null): boolean {
+  if (!endDate) return false;
+  const today = new Date().toISOString().slice(0, 10);
+  return endDate < today;
+}
+
+function MemoryMapCard({ tripId, stops }: { tripId: string; stops: MapStop[] }) {
+  const { tx } = useI18n();
+  const router = useRouter();
+  return (
+    <View style={styles.memoryCard}>
+      <Text variant="title" weight="bold" style={styles.prepTitle}>{tx('추억 지도', 'Memory map')}</Text>
+      {stops.length > 0 ? (
+        <>
+          <RouteMap stops={stops} selectedId="" onSelect={(id) => router.push(`/feed/${id}`)} height={220} />
+          <Text variant="caption" color={color.text.muted}>{tx('마커를 누르면 그 기록으로 이동해요.', 'Tap a marker to open that record.')}</Text>
+        </>
+      ) : (
+        <Text variant="body" color={color.text.muted}>{tx('이 여행에는 위치가 있는 기록이 아직 없어요.', 'This trip has no records with a location yet.')}</Text>
+      )}
+    </View>
+  );
+}
+
 export default function Prepare() {
   const router = useRouter();
   const { tx } = useI18n();
@@ -101,6 +138,31 @@ export default function Prepare() {
   const tripId = id ?? 'demo-trip';
   const [firstDayDate, setFirstDayDate] = useState<string | null>(null);
   const [weather, setWeather] = useState<WeatherLoadResult | null>(null);
+  const [memoryMap, setMemoryMap] = useState<MemoryMapState>({ status: 'loading' });
+
+  useEffect(() => {
+    let cancelled = false;
+    void loadTrips(accessToken).then(async (result) => {
+      if (cancelled) return;
+      const trip = result.state === 'success' ? result.trips.find((item) => item.tripId === tripId) : null;
+      if (!trip || !isTripEnded(trip.endDate)) { setMemoryMap({ status: 'not-ended' }); return; }
+      const storiesResult = await getTripStories(tripId, accessToken);
+      if (cancelled) return;
+      if (storiesResult.state !== 'success') { setMemoryMap({ status: 'unavailable' }); return; }
+      const stops: MapStop[] = storiesResult.items
+        .filter((story) => story.place?.lat != null && story.place?.lng != null)
+        .map((story, index) => ({
+          id: story.id,
+          number: index + 1,
+          name: story.place?.name ?? story.body.slice(0, 20),
+          latitude: story.place!.lat as number,
+          longitude: story.place!.lng as number,
+          imageUrl: story.images[0]?.url,
+        }));
+      setMemoryMap({ status: 'ready', stops });
+    });
+    return () => { cancelled = true; };
+  }, [tripId, accessToken]);
 
   useEffect(() => {
     let cancelled = false;
@@ -128,6 +190,8 @@ export default function Prepare() {
           </Text>
         </View>
       </View>
+
+      {memoryMap.status === 'ready' && <MemoryMapCard tripId={tripId} stops={memoryMap.stops} />}
 
       <View style={styles.weatherCard}>
         {weather?.state === 'success' ? (
@@ -218,6 +282,13 @@ const styles = StyleSheet.create({
   },
   title: {
     marginTop: spacing[1],
+  },
+  memoryCard: {
+    marginTop: spacing[6],
+    backgroundColor: color.surface.card,
+    borderRadius: radius.lg,
+    padding: spacing[4],
+    gap: spacing[3],
   },
   weatherCard: {
     marginTop: spacing[6],
