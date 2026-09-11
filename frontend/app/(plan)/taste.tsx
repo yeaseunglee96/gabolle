@@ -158,7 +158,22 @@ export default function Taste() {
   };
   const mustVisitWarningList = mustVisitWarnings(draft.mustVisitPlaces);
   function next() { completeStep(2); router.push('/plan/conditions'); }
-  function skipAll() { update({ preferences: [], atmospheres: [], localityLevel: null, quietLevel: null, touristLevel: null, foods: [], preferenceAnswerStatus: { category: 'SKIPPED', atmosphere: 'SKIPPED', locality: 'SKIPPED', quietness: 'SKIPPED', touristPreference: 'SKIPPED', foodPreference: 'SKIPPED' } }); next(); }
+  // 이미 답한 항목(SELECTED)은 그대로 두고, 아직 안 건드린 항목(UNKNOWN)만 건너뜀 처리한다 —
+  // 개별 질문의 "건너뛰기"가 다른 질문 답을 지우지 않는 것과 같은 규칙이다. 전부 지우면
+  // 카테고리를 3개 고르고 "선택 완료"까지 누른 뒤 나머지를 건너뛰었는데 최종 확인 화면에
+  // 카테고리가 "선택 안 함"으로 나오는 식으로, 이미 낸 답이 조용히 사라진다.
+  function skipAll() {
+    const patch: Partial<typeof draft> = {};
+    const status = { ...draft.preferenceAnswerStatus };
+    if (status.category === 'UNKNOWN') { patch.preferences = []; status.category = 'SKIPPED'; }
+    if (status.atmosphere === 'UNKNOWN') { patch.atmospheres = []; status.atmosphere = 'SKIPPED'; }
+    if (status.locality === 'UNKNOWN') { patch.localityLevel = null; status.locality = 'SKIPPED'; }
+    if (status.quietness === 'UNKNOWN') { patch.quietLevel = null; status.quietness = 'SKIPPED'; }
+    if (status.touristPreference === 'UNKNOWN') { patch.touristLevel = null; status.touristPreference = 'SKIPPED'; }
+    if (status.foodPreference === 'UNKNOWN') { patch.foods = []; status.foodPreference = 'SKIPPED'; }
+    update({ ...patch, preferenceAnswerStatus: status });
+    next();
+  }
   const answerStatuses = [
     draft.preferenceAnswerStatus.category,
     draft.preferenceAnswerStatus.atmosphere,
