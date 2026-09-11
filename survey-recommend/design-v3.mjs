@@ -46,6 +46,10 @@
    🔴 v2 와 다른 씨앗·다른 이름이다. 속성이 바뀌었으므로 v2 응답과 합칠 수 없다.
       같은 setId 아래 서로 다른 질문이 생기는 것을 막으려고 이름부터 가른다.
       (survey-place 는 2026-09-11 에 지웠다 — 합칠 대상이 애초에 없었다.) */
+import { readFileSync, writeFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
+
 const SEED = 20260911;
 const DESIGN_ID = "recommend-v3-seed-20260911";
 
@@ -315,4 +319,21 @@ if (process.argv.includes("--check")) {
   process.exit(0);
 }
 
-console.log(JSON.stringify(design, null, 2));
+const json = JSON.stringify(design, null, 2);
+
+if (process.argv.includes("--print")) {
+  console.log(json);
+} else {
+  /* index.html 안의 문항 블록을 통째로 다시 쓴다 (v2 design.mjs 와 같은 방식) */
+  const here = dirname(fileURLToPath(import.meta.url));
+  const target = join(here, "index.html");
+  const html = readFileSync(target, "utf8");
+  const open = '<script id="design" type="application/json">';
+  const close = "<" + "/script>";
+  const i = html.indexOf(open);
+  if (i < 0) { console.error("index.html 에 문항 블록이 없다"); process.exit(1); }
+  const j = html.indexOf(close, i);
+  const LF = String.fromCharCode(10);
+  writeFileSync(target, html.slice(0, i + open.length) + LF + json + LF + html.slice(j), "utf8");
+  console.log("index.html 의 문항 " + design.sets.length + "개를 다시 썼다 (" + DESIGN_ID + ")");
+}
