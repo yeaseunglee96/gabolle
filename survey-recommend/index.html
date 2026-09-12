@@ -255,6 +255,11 @@ h2.section { font-size: 30px; line-height: 1.1; letter-spacing: -.03em; font-wei
 .pq { margin: 30px 0 0; }
 .pq + .pq { margin-top: 36px; border-top: 1px solid var(--line); }
 .pqh { font-size: 13px; color: var(--muted); margin: 16px 0 0; }
+/* 🔴 장면 — 여행의 때 (S15P21E201-864). 문항 위에 한 줄로 앉는다.
+      뒤에 「3 / 8」 이 붙어 진행률을 겸한다 — 전에는 전체가 몇 문항인지
+      화면 어디에도 없었다. 크기·색은 잠정이다. 화면 전체 가독성은 따로 손본다. */
+.pqw { font-size: 12.5px; color: var(--muted-2); letter-spacing: .03em; margin: 16px 0 0; }
+.pqw + .pqh { margin-top: 5px; font-size: 15px; color: var(--ink); }
 .pairs { display: grid; gap: 12px; margin: 12px 0 0; }
 .pcard {
   display: block; width: 100%; padding: 16px 18px; text-align: left;
@@ -598,8 +603,11 @@ textarea.u { min-height: 96px; font-size: 17px; line-height: 1.5; resize: vertic
        ══════════════════════════════════════════════════════════ -->
   <section id="scPair" class="screen">
     <h2 class="section" style="margin-top:44px">둘 중 어디로<br>가시겠어요?</h2>
+    <!-- 🔴 서사를 여기서 먼저 세운다 (S15P21E201-864). 안 세우면 다음 화면의
+             「첫날 저녁」 이 아무 맥락 없이 튀어나와 그냥 또 다른 잡음이 된다. -->
     <p class="hint" id="pairLede">가게 이름도 사진도 없어요. <b style="color:var(--ink)">조건만 보고</b> 끌리는 쪽을 골라 주세요.
-      정답이 없는 문항이에요 — <b style="color:var(--ink)">네 장</b>이면 끝납니다.</p>
+      정답이 없는 문항이에요 — <b style="color:var(--ink)">네 장</b>이면 끝납니다.<br>
+      <b style="color:var(--ink)">부산에서 1박 2일</b>을 보낸다고 생각하고, 도착한 날 저녁부터 떠나기 전까지 여덟 번만 골라 주세요.</p>
     <div id="pairBody"></div>
     <button class="btn-big" id="pairNext" style="margin-top:36px"><span id="pairNextLabel">다음</span><span class="arrow">→</span></button>
     <p class="small" id="pairLeft" style="margin-top:12px"></p>
@@ -687,8 +695,8 @@ textarea.u { min-height: 96px; font-size: 17px; line-height: 1.5; resize: vertic
      ══════════════════════════════════════════════════════════════════ -->
 <script id="design" type="application/json">
 {
-  "designId": "recommend-v3-seed-20260911",
-  "seed": 20260911,
+  "designId": "recommend-v3-seed-20260912",
+  "seed": 20260912,
   "perPage": 2,
   "msBuckets": [
     1500,
@@ -710,7 +718,6 @@ textarea.u { min-height: 96px; font-size: 17px; line-height: 1.5; resize: vertic
   "blocks": {
     "eat": {
       "label": "먹는 곳",
-      "lead": "저녁 먹을 곳을 고른다면",
       "types": [
         "FOOD",
         "CAFE",
@@ -747,7 +754,6 @@ textarea.u { min-height: 96px; font-size: 17px; line-height: 1.5; resize: vertic
     },
     "see": {
       "label": "보는 곳",
-      "lead": "구경할 곳을 고른다면",
       "types": [
         "SIGHT",
         "NATURE",
@@ -782,7 +788,6 @@ textarea.u { min-height: 96px; font-size: 17px; line-height: 1.5; resize: vertic
     },
     "play": {
       "label": "하는 곳",
-      "lead": "한 가지 해 본다면",
       "types": [
         "MARKET",
         "ACTIVITY"
@@ -822,41 +827,22 @@ textarea.u { min-height: 96px; font-size: 17px; line-height: 1.5; resize: vertic
       "trap": false,
       "alternatives": [
         {
-          "walkMin": 8,
-          "price": 40000,
+          "walkMin": 15,
+          "price": 70000,
           "queueMin": 20,
-          "sameStreet": 0,
-          "fame": "SNS_FAMOUS"
+          "sameStreet": 12,
+          "fame": "LOCAL_ONLY"
         },
         {
           "walkMin": 3,
-          "price": 70000,
-          "queueMin": 0,
-          "sameStreet": 0,
-          "fame": "SNS_FAMOUS"
-        }
-      ]
-    },
-    {
-      "setId": "eat02",
-      "block": "eat",
-      "trap": false,
-      "alternatives": [
-        {
-          "walkMin": 15,
-          "price": 70000,
+          "price": 40000,
           "queueMin": 40,
           "sameStreet": 3,
-          "fame": "LOCAL_ONLY"
-        },
-        {
-          "walkMin": 25,
-          "price": 40000,
-          "queueMin": 20,
-          "sameStreet": 3,
-          "fame": "LOCAL_ONLY"
+          "fame": "SNS_FAMOUS"
         }
-      ]
+      ],
+      "when": "첫날 저녁",
+      "lead": "부산에 도착해 첫 끼를 먹습니다"
     },
     {
       "setId": "see01",
@@ -864,20 +850,45 @@ textarea.u { min-height: 96px; font-size: 17px; line-height: 1.5; resize: vertic
       "trap": false,
       "alternatives": [
         {
-          "walkMin": 25,
-          "slope": "FLAT",
-          "shade": "SHADED",
-          "crowd": "PACKED",
+          "walkMin": 8,
+          "slope": "GENTLE",
+          "shade": "SUNNY",
+          "crowd": "SOME",
           "fame": "SNS_FAMOUS"
         },
         {
           "walkMin": 15,
           "slope": "STEEP",
           "shade": "SHADED",
-          "crowd": "PACKED",
+          "crowd": "QUIET",
           "fame": "LOCAL_ONLY"
         }
-      ]
+      ],
+      "when": "첫날 밤",
+      "lead": "밥을 먹고 숙소 근처를 한 바퀴 돕니다"
+    },
+    {
+      "setId": "see02",
+      "block": "see",
+      "trap": false,
+      "alternatives": [
+        {
+          "walkMin": 25,
+          "slope": "FLAT",
+          "shade": "SUNNY",
+          "crowd": "QUIET",
+          "fame": "LOCAL_ONLY"
+        },
+        {
+          "walkMin": 3,
+          "slope": "FLAT",
+          "shade": "SHADED",
+          "crowd": "PACKED",
+          "fame": "SNS_FAMOUS"
+        }
+      ],
+      "when": "이튿날 아침",
+      "lead": "아침에 나와 어디부터 볼지 고릅니다"
     },
     {
       "setId": "tr01",
@@ -899,28 +910,9 @@ textarea.u { min-height: 96px; font-size: 17px; line-height: 1.5; resize: vertic
           "sameStreet": 3,
           "fame": "LOCAL_ONLY"
         }
-      ]
-    },
-    {
-      "setId": "see02",
-      "block": "see",
-      "trap": false,
-      "alternatives": [
-        {
-          "walkMin": 8,
-          "slope": "FLAT",
-          "shade": "SUNNY",
-          "crowd": "QUIET",
-          "fame": "SNS_FAMOUS"
-        },
-        {
-          "walkMin": 25,
-          "slope": "GENTLE",
-          "shade": "SUNNY",
-          "crowd": "SOME",
-          "fame": "SNS_FAMOUS"
-        }
-      ]
+      ],
+      "when": "이튿날 점심",
+      "lead": "걷다 보니 점심때가 됐습니다"
     },
     {
       "setId": "play01",
@@ -928,20 +920,22 @@ textarea.u { min-height: 96px; font-size: 17px; line-height: 1.5; resize: vertic
       "trap": false,
       "alternatives": [
         {
-          "walkMin": 25,
-          "cost": 0,
-          "indoor": "INDOOR",
-          "crowd": "QUIET",
-          "fame": "SNS_FAMOUS"
-        },
-        {
           "walkMin": 15,
           "cost": 10000,
-          "indoor": "OUTDOOR",
-          "crowd": "PACKED",
+          "indoor": "INDOOR",
+          "crowd": "SOME",
           "fame": "LOCAL_ONLY"
+        },
+        {
+          "walkMin": 25,
+          "cost": 0,
+          "indoor": "OUTDOOR",
+          "crowd": "QUIET",
+          "fame": "SNS_FAMOUS"
         }
-      ]
+      ],
+      "when": "이튿날 오후",
+      "lead": "오후에 한 가지 해 봅니다"
     },
     {
       "setId": "play02",
@@ -949,20 +943,45 @@ textarea.u { min-height: 96px; font-size: 17px; line-height: 1.5; resize: vertic
       "trap": false,
       "alternatives": [
         {
-          "walkMin": 3,
+          "walkMin": 8,
           "cost": 30000,
           "indoor": "OUTDOOR",
-          "crowd": "QUIET",
-          "fame": "LOCAL_ONLY"
+          "crowd": "PACKED",
+          "fame": "SNS_FAMOUS"
         },
         {
           "walkMin": 3,
-          "cost": 0,
+          "cost": 30000,
           "indoor": "INDOOR",
-          "crowd": "SOME",
-          "fame": "SNS_FAMOUS"
+          "crowd": "PACKED",
+          "fame": "LOCAL_ONLY"
         }
-      ]
+      ],
+      "when": "해 기울 무렵",
+      "lead": "돌아가기 전에 하나만 더 해 볼 참입니다"
+    },
+    {
+      "setId": "eat02",
+      "block": "eat",
+      "trap": false,
+      "alternatives": [
+        {
+          "walkMin": 25,
+          "price": 10000,
+          "queueMin": 0,
+          "sameStreet": 12,
+          "fame": "SNS_FAMOUS"
+        },
+        {
+          "walkMin": 8,
+          "price": 20000,
+          "queueMin": 20,
+          "sameStreet": 0,
+          "fame": "LOCAL_ONLY"
+        }
+      ],
+      "when": "마지막 저녁",
+      "lead": "부산에서의 마지막 저녁입니다"
     },
     {
       "setId": "mx01",
@@ -973,20 +992,22 @@ textarea.u { min-height: 96px; font-size: 17px; line-height: 1.5; resize: vertic
       "trap": false,
       "alternatives": [
         {
-          "walkMin": 3,
-          "cost": 10000,
-          "indoor": "INDOOR",
+          "walkMin": 15,
+          "cost": 0,
+          "indoor": "OUTDOOR",
           "crowd": "SOME",
           "fame": "LOCAL_ONLY"
         },
         {
-          "walkMin": 25,
-          "price": 20000,
-          "queueMin": 40,
+          "walkMin": 8,
+          "price": 40000,
+          "queueMin": 0,
           "sameStreet": 12,
           "fame": "SNS_FAMOUS"
         }
-      ]
+      ],
+      "when": "떠나기 전",
+      "lead": "기차 시간까지 한 시간 남았습니다"
     }
   ]
 }
@@ -2071,15 +2092,29 @@ function buildPairQuestion(i) {
   const wrap = document.createElement("div");
   wrap.className = "pq";
 
+  const _set = PAIR_SETS[i];
+
+  /* 🔴 여덟 문항이 부산 1박 2일의 시간 순서로 흐른다 (S15P21E201-864).
+        전에는 덩어리마다 한 줄이었다 — 「저녁 먹을 곳을 고른다면」 이 두 번
+        연달아 나오고 다음 문항에서 상황이 통째로 갈아엎어졌다. 짝 비교는
+        그 자체로 지치는 형식이라, 장면까지 매번 새로 주면 대충 찍게 된다.
+
+        🔴 문구는 design 블록이 문항마다 들고 있고 여기서는 적기만 한다.
+           화면과 설계에 두 벌을 두면 반드시 어긋난다.
+
+        🔴 뒤에 「3 / 8」 을 붙인다. 전에는 「3번째 질문」 이라고만 해서
+           전체가 몇 개인지 화면 어디에도 없었다 — 끝이 안 보이는 것이
+           길이 자체보다 지치게 한다. */
+  if (_set.when) {
+    const w = document.createElement("p");
+    w.className = "pqw";
+    w.textContent = _set.when + "  ·  " + (i + 1) + " / " + PAIR_SETS.length;
+    wrap.appendChild(w);
+  }
+
   const h = document.createElement("p");
   h.className = "pqh";
-  /* 🔴 덩어리마다 묻는 자리가 다르다. 「저녁 먹을 곳을 고른다면」 과
-        「구경할 곳을 고른다면」 은 사람이 저울질하는 것이 아예 다르다.
-        섞인 문항에는 자리를 안 붙인다 — 두 카드가 서로 다른 자리라서. */
-  const _set = PAIR_SETS[i];
-  const _blk = Array.isArray(_set.blocks) ? null : _set.block;
-  const _lead = (_blk && DESIGN.blocks && DESIGN.blocks[_blk]) ? DESIGN.blocks[_blk].lead : null;
-  h.textContent = (i + 1) + "번째 질문 — " + (_lead ? _lead + ", " : "") + "어느 쪽으로 가시겠어요?";
+  h.textContent = (_set.lead ? _set.lead + ". " : "") + "어느 쪽으로 가시겠어요?";
   wrap.appendChild(h);
 
   /* 🔴 위아래를 문항마다 무작위로 뒤집는다. 고정하면 "위쪽을 더 고른다" 는
