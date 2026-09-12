@@ -3125,8 +3125,13 @@ function buildPairQuestion(i) {
     svg.appendChild(use); mid.appendChild(svg);
     const nm = document.createElement("span");
     nm.className = "nm";
-    /* 같은 값이면 이름 뒤에 「=」 — 색만으로는 색을 못 보는 사람에게 안 전해진다 */
-    nm.textContent = u.name + (same ? " =" : "");
+    /* 🔴 「=」를 뺐다 (S15P21E201-887). 같은 값일 때 이름 뒤에 「=」를 붙였었다 —
+          색만으로는 색을 못 보는 사람에게 "같다" 가 안 전해진다는 이유였다.
+          그런데 **같은 값은 두 칸에 글자 그대로 똑같이 적혀 있다.** 「SNS 에서
+          유명 / SNS 에서 유명」 을 보고 같은 줄인 걸 모르는 사람은 없다.
+          기호는 뜻을 더한 게 아니라 읽을 것을 하나 더 만들었다.
+          흐리게 칠하는 것은 그대로 둔다 — 아래 안내 한 줄이 그것을 설명한다. */
+    nm.textContent = u.name;
     mid.appendChild(nm);
     tab.append(L, mid, R);
   }
