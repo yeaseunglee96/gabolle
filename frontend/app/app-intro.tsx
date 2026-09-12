@@ -67,7 +67,13 @@ function FeaturePreview({ index }: { index: number }) {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color.brand.ivory },
-  top: { height: 56, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing[6] },
+  // 🔴 marginTop — 전역 언어 배지(GlobalLanguageBadge)가 모든 화면 우측 상단에
+  //    절대좌표(top: insets.top + 8)로 떠 있다. 이 줄이 원래 화면 맨 위(marginTop
+  //    없음)에 있어서 오른쪽의 "건너뛰기" 버튼과 배지가 같은 자리에 겹쳐, 실사용
+  //    리포트로 "각각 누르기 어렵다"는 결함이 나왔다(2026-09-12). home.tsx 의 종 모양
+  //    버튼도 같은 이유로 이미 한 번 겹쳤었다(S15P21E201 사용자 리포트) — 같은 값으로
+  //    내려 배지 아래로 피한다.
+  top: { height: 56, marginTop: spacing[6], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing[6] },
   logoButton: { minWidth: 100, minHeight: 44, alignItems: 'flex-start', justifyContent: 'center', borderRadius: radius.sm }, logo: { width: 100, height: 24 },
   skip: { minWidth: 64, minHeight: 44, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full }, pressed: { opacity: 0.65, transform: [{ scale: 0.97 }] },
   page: { flex: 1, justifyContent: 'center', paddingHorizontal: spacing[6], paddingBottom: 140 },

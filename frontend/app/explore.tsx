@@ -120,7 +120,7 @@ function LocalBranchList({ facetKey }: { facetKey: string }) {
 
 const styles = StyleSheet.create({
   screen: { backgroundColor: color.brand.ivory },
-  topBar: { minHeight: 52, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing[3] },
+  topBar: { minHeight: 52, marginTop: spacing[6], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing[3] },
   back: { width: 44, height: 44, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.card },
   pressed: { opacity: 0.72, transform: [{ scale: 0.96 }] },
   logo: { width: 96, height: 28 },

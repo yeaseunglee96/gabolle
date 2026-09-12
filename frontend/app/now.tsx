@@ -189,7 +189,7 @@ export default function Now() {
 }
 
 const styles = StyleSheet.create({
-  header: { minHeight: 52, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  header: { minHeight: 52, marginTop: spacing[6], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   backButton: { width: 44, height: 44, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.card },
   headerSpacer: { width: 44 },
   intro: { marginTop: spacing[2], marginBottom: spacing[4] },

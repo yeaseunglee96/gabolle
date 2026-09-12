@@ -108,7 +108,10 @@ export default function SpendProfileScreen() {
 const styles = StyleSheet.create({
   screen: { backgroundColor: color.brand.ivory },
   centerScreen: { alignItems: 'center', justifyContent: 'center' },
-  topBar: { minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[2] },
+  // 🔴 marginTop — Screen 의 기본 paddingTop(24) 만으로는 전역 언어 배지(우측 상단
+  //    절대좌표)를 못 피한다(home.tsx·app-intro.tsx 에서 실사용 리포트로 확인된 것과
+  //    같은 자리). "전체 건너뛰기" 가 배지와 겹치던 결함을 여기도 같은 값으로 고친다.
+  topBar: { minHeight: 44, marginTop: spacing[6], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[2] },
   logo: { width: 88, height: 24 },
   stepPill: { paddingHorizontal: spacing[3], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: color.brand.navy },
   skipAll: { minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[2] },
