@@ -389,7 +389,7 @@ function check(b) {
         이미 숫자만 남도록 정규화해 둔다. */
   if (b.phone != null && b.phone !== "") {
     if (typeof b.phone !== "string" || !PHONE_RE.test(b.phone)) {
-      return "전화번호 형식이 올바르지 않아요. (예: 010-1234-5678, 비워 두셔도 됩니다)";
+      return "전화번호는 숫자만 11자리로 적어 주세요. (예: 01012345678, 비워 두셔도 됩니다)";
     }
   }
 
