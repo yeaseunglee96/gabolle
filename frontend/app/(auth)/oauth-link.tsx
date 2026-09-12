@@ -109,7 +109,7 @@ export default function OAuthLink() {
 }
 
 const styles = StyleSheet.create({
-  topBar: { minHeight: 52, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing[2] },
+  topBar: { minHeight: 52, marginTop: spacing[6], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing[2] },
   logo: { width: 112, height: 32 },
   backLink: { alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center' },
   title: { marginTop: spacing[3] },
