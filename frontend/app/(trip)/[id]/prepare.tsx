@@ -172,6 +172,7 @@ function TripSummaryCard({ tripId, title, visitCount, photoUrl }: { tripId: stri
 
 export default function Prepare() {
   const { tx } = useI18n();
+  const router = useRouter();
   const { accessToken } = useAuth();
   const { id } = useLocalSearchParams<{ id: string }>();
   const tripId = id ?? 'demo-trip';
@@ -273,6 +274,12 @@ export default function Prepare() {
         )}
       </View>
 
+      <View style={styles.souvenirCard}>
+        <Text variant="title" weight="bold" style={styles.prepTitle}>{tx('기념품샵 둘러보기', 'Browse souvenir shops')}</Text>
+        <Text variant="body" color={color.text.body}>{tx('마지막 방문지 근처 기념품샵을 가까운 순서로 보여드려요.', "We'll show souvenir shops near your last stop, closest first.")}</Text>
+        <Button label={tx('기념품샵 보기', 'View souvenir shops')} variant="ghost" onPress={() => router.push(`/${tripId}/souvenirs`)} />
+      </View>
+
       <View style={styles.prepCard}>
         <Text variant="title" weight="bold" style={styles.prepTitle}>
           {tx('가볼래가 챙긴 준비물', 'What GABOLLE packed for you')}
@@ -355,6 +362,13 @@ const styles = StyleSheet.create({
   },
   weatherRain: {
     color: color.text.heading,
+  },
+  souvenirCard: {
+    marginTop: spacing[4],
+    backgroundColor: color.surface.card,
+    borderRadius: radius.md,
+    padding: spacing[4],
+    gap: spacing[2],
   },
   prepCard: {
     marginTop: spacing[4],
