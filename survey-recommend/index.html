@@ -535,6 +535,22 @@ h2.section { font-size: 30px; line-height: 1.1; letter-spacing: -.03em; font-wei
 .pask { display: flex; align-items: flex-start; gap: 8px; margin: 12px 0 0;
         font-size: 14px; line-height: 1.5; color: var(--m3-on-surface-variant); }
 .pask .ic { margin-top: 2px; }
+
+/* ── 여행 스타일 선택지 — Outlined 카드 (2차, S15P21E201-876) ────── */
+.m3-opts { display: flex; flex-direction: column; gap: 8px; margin: 24px 0 0; }
+.m3-opt { display: flex; align-items: center; gap: 12px; min-height: 72px;
+          padding: 12px 16px; border: 1px solid var(--m3-outline); border-radius: 12px;
+          background: transparent; color: var(--m3-primary); font: inherit;
+          text-align: left; cursor: pointer; width: 100%; }
+.m3-opt .t { font-size: 16px; font-weight: 500; line-height: 1.4; }
+.m3-opt .s { font-size: 14px; line-height: 1.45; color: var(--m3-on-surface-variant);
+             margin-top: 2px; }
+/* 🔴 「아직 안 정했어요」 처럼 부제가 없는 줄은 낮고 흐리다 — 답이 아니라
+      빠져나가는 자리라서, 다른 선택지와 같은 무게로 보이면 안 된다 */
+.m3-opt.plain { min-height: 56px; color: var(--m3-on-surface-variant); }
+.m3-opt[aria-checked="true"] { border: 2px solid var(--m3-primary);
+                               background: var(--m3-selected); padding: 11px 15px; }
+.m3-skiprow { display: flex; justify-content: flex-end; margin-top: 16px; }
 @media (max-width: 359px) {
   .ptab { grid-template-columns: 1fr 76px 1fr; }
   .pcell { font-size: 15px; }
@@ -1016,42 +1032,52 @@ textarea.u { min-height: 96px; font-size: 17px; line-height: 1.5; resize: vertic
           만들어진 화면은 이 자리(scPair 와 scMain 사이)에 끼워진다.
        ══════════════════════════════════════════════════════════ -->
 
-  <!-- ══ 본 화면 ═══════════════════════════════════════════════ -->
-  <section id="scMain" class="screen">
+  <!-- ══ 나에 대해 — 나이대 · 산 기간 · 전화번호 ═══════════════════
+       🔴 2차 (S15P21E201-876). 전에는 본 화면 맨 위에 있었다. 본 화면이
+          세로 1,710px 이었던 이유의 절반이 이 세 칸이고, 그 아래 「추천하는
+          곳」과 성격이 아예 다르다 — 이쪽은 **고르는 일**, 저쪽은 **적는 일**이다.
+          고르는 일끼리 모으면 여행 스타일 네 문항에서 자연스럽게 이어진다.
+       🔴 나이대 · 산 기간은 여전히 필수다. 안 고르면 「다음」이 안 눌린다.
+       ══════════════════════════════════════════════════════════ -->
+  <section id="scAbout" class="screen">
+    <h2 class="m3-h2" style="margin:24px 0 0">나에 대해<br>세 가지만</h2>
+    <p class="m3-p" style="margin-top:8px">누구인지 알려고 여쭙는 게 아니라, <b style="color:var(--m3-primary)">어떤 분들이 답해 주셨는지</b>를 나중에 살펴보려고 여쭙습니다.</p>
 
-    <h2 class="section" style="margin-top:44px">먼저 몇 가지만</h2>
-    <!-- 🔴 2026-09-10: "어느 쪽으로 치우쳐 있는지" 를 "어떤 분들이 답해 주셨는지"
-         로 바꿨다. 뜻은 같은데(표본 구성을 나중에 본다) 앞의 말은 읽는 사람을
-         겨누는 것으로 들린다 — "치우침" 은 우리끼리 쓰는 분석 용어이지 참여자에게
-         할 말이 아니다. 문장을 통째로 빼지는 않는다: 왜 나이대를 묻는지 설명이
-         없으면 "안 모은다더니 왜 묻지" 가 되어 더 이상해진다. -->
-    <p class="hint">누구인지 알려고 여쭙는 게 아니라, <b>어떤 분들이 답해 주셨는지</b>를 나중에 살펴보려고 여쭙습니다. 전화번호만은 예외로, <b>경품 추첨을 위해 선택으로</b> 받습니다 — 비워 두셔도 제출됩니다.</p>
-
-    <div class="field-block first">
-      <div class="field-label">나이대 — 하나 골라 주세요</div>
+    <div style="margin-top:28px">
+      <div class="m3-lab">나이대</div>
       <!-- 🔴 범위를 여기에도 적는다 (S15P21E201-867). 고지를 넘겨 버린 사람은
            칩 셋만 보고 "내 나이가 없네" 에서 멈추는데, 그게 빠진 것인지
            일부러인지 화면이 말해 주지 않으면 그 사람은 우리 잘못으로 읽는다. -->
-      <p class="guard">이 설문은 <b>20대 ~ 70대</b>만 받습니다.</p>
-      <div class="chips" id="ageChips"></div>
-    </div>
-    <div class="field-block">
-      <div class="field-label">부산에 얼마나 사셨어요? — 하나 골라 주세요</div>
-      <div class="chips" id="yearChips"></div>
-    </div>
-    <div class="field-block" id="phoneBlock">
-      <div class="field-label">전화번호 (선택) — 경품 추첨에만 씁니다. 추첨이 끝나면 지웁니다.</div>
-      <!-- 🔴 숫자만 받는다 (S15P21E201-869). 전에는 하이픈이 그대로 쳐졌고
-               보내기 직전에 숫자만 남겼다 — 화면이 받는 모양과 저장하는 모양이
-               달랐다. 이제 칸이 하이픈을 안 받으므로 예시 문구도 같이 바꾼다.
-               🔴 거부하지 않고 **지운다.** 하이픈을 넣는 건 나쁜 습관이 아니라
-                  그냥 습관이라, 혼내는 대신 칸이 알아서 치운다. -->
-      <input type="text" class="u" id="phoneInput" inputmode="numeric" autocomplete="tel" maxlength="11"
-        placeholder="01012345678 (선택, 비워 두셔도 됩니다)" enterkeyhint="next">
-      <p class="guard" id="phoneGuard" style="display:none">숫자만, 휴대전화 번호로 적어 주세요 (예: 01012345678). 원치 않으시면 비워 두셔도 됩니다.</p>
+      <p class="m3-help" style="margin:4px 0 10px"><span>이 설문은 <b>20대 ~ 70대</b>만 받습니다</span></p>
+      <div class="m3-chips" id="ageChips"></div>
     </div>
 
-    <h2 class="section" style="margin-top:56px">추천하는 곳<br>세 군데</h2>
+    <div style="margin-top:28px">
+      <div class="m3-lab">부산에 얼마나 사셨어요?</div>
+      <div class="m3-chips" id="yearChips" style="margin-top:10px"></div>
+    </div>
+
+    <div style="margin-top:28px" id="phoneBlock">
+      <div class="m3-field">
+        <label for="phoneInput">전화번호 (선택)</label>
+        <!-- 🔴 숫자만 받는다 (S15P21E201-869). 전에는 하이픈이 그대로 쳐졌고
+                 보내기 직전에 숫자만 남겼다 — 화면이 받는 모양과 저장하는 모양이
+                 달랐다. 🔴 거부하지 않고 지운다. -->
+        <input type="text" id="phoneInput" inputmode="numeric" autocomplete="tel" maxlength="11"
+          placeholder="01012345678" enterkeyhint="next">
+      </div>
+      <p class="m3-help"><span>경품 추첨에만 씁니다. 추첨이 끝나면 지웁니다</span></p>
+      <p class="m3-help" id="phoneGuard" style="display:none;color:var(--m3-warn)"><span>숫자만, 휴대전화 번호로 적어 주세요 (예: 01012345678)</span></p>
+    </div>
+
+    <div style="margin-top:auto;padding:24px 0 8px">
+      <button class="m3-btn m3-filled" id="aboutNext" disabled>나이대와 산 기간을 골라 주세요</button>
+    </div>
+  </section>
+
+  <!-- ══ 본 화면 ═══════════════════════════════════════════════ -->
+  <section id="scMain" class="screen">
+    <h2 class="m3-h2" style="margin:24px 0 0">추천하는 곳<br>세 군데</h2>
     <!-- 🔴 이 상자가 이 화면에서 가장 중요한 한 줄이다 (S15P21E201-754).
          갈래 여덟이 세로로 늘어서 있으면 사람은 **여덟을 다 채워야 하는 줄 안다.**
          그 순간 "이건 6분짜리가 아니구나" 가 되어 시작도 전에 나간다.
@@ -1963,28 +1989,46 @@ $("skip2").addEventListener("click", goIntro);
 if (hasSeenWelcome()) { show("scIntro"); } else { show("scW0"); startPhotoCycle(); }
 
 /* ── 조각 만들기 (word-radio) ────────────────────────────────── */
-function buildChips(box, list, onPick, getNow, small) {
+/* 🔴 2차 (S15P21E201-876). 같은 함수가 두 가지를 그린다 —
+      · seg 가 거짓이면 **Filter 칩** (나이대 · 산 기간 · 갈래). 여러 줄로 흐른다
+      · seg 가 참이면 **Segmented 버튼** (낮 · 밤 · 상관없음). 셋이 한 줄에 붙는다
+      선택지가 셋이고 서로 배타적이면 Segmented 가 맞다 — 칩처럼 흩어 놓으면
+      "여러 개 고를 수 있나" 로 읽힌다. */
+function chipIcon() {
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("class", "ic ic-18"); svg.setAttribute("aria-hidden", "true");
+  const use = document.createElementNS("http://www.w3.org/2000/svg", "use");
+  use.setAttribute("href", "#i-check");
+  svg.appendChild(use);
+  return svg;
+}
+
+function buildChips(box, list, onPick, getNow, seg) {
   box.textContent = "";
-  if (small) box.classList.add("small");
+  box.className = seg ? "m3-seg" : "m3-chips";
+  box.setAttribute("role", "radiogroup");
+  const repaint = () => box.querySelectorAll("button").forEach(c =>
+    c.setAttribute("aria-pressed", String(c.dataset.v === String(getNow()))));
   for (const o of list) {
     const b = document.createElement("button");
     b.type = "button";
-    b.className = "chip" + (getNow() === o.v ? " on" : "");
+    b.className = seg ? "" : "m3-chip";
     b.dataset.v = o.v;
-    const dot = document.createElement("span");
-    dot.className = "dot";
-    b.appendChild(dot);
+    b.setAttribute("role", "radio");
+    b.appendChild(chipIcon());
     b.appendChild(document.createTextNode(o.t));
     b.addEventListener("click", () => {
       onPick(o.v);
-      box.querySelectorAll(".chip").forEach(c => c.classList.toggle("on", c.dataset.v === getNow()));
+      repaint();
       paint();
     });
     box.appendChild(b);
   }
+  repaint();
 }
-buildChips($("ageChips"),  AGE,   v => { state.ageBand = v; },    () => state.ageBand);
-buildChips($("yearChips"), YEARS, v => { state.busanYears = v; }, () => state.busanYears);
+buildChips($("ageChips"),  AGE,   v => { state.ageBand = v;    paintAbout(); }, () => state.ageBand);
+buildChips($("yearChips"), YEARS, v => { state.busanYears = v; paintAbout(); }, () => state.busanYears);
+$("aboutNext").addEventListener("click", goMain);
 
 /* ── 전화번호 (선택) ─────────────────────────────────────────── */
 $("phoneInput").addEventListener("input", e => {
@@ -2469,7 +2513,7 @@ function paint() {
         멈춰 두면 일곱 곳을 적은 사람에게 "7 / 3" 이 나오고, 그 순간 이
         표시를 아무도 안 믿는다. */
   $("cof").textContent = " / " + Math.max(NEED, n) + " 곳";
-  $("progNow").style.width = Math.round((14 / SCREENS_TOTAL) * 100) + "%";
+  $("progNow").style.width = Math.round((15 / SCREENS_TOTAL) * 100) + "%";
 
   document.querySelectorAll(".cat").forEach(art => {
     const c = Number(art.dataset.cat);
@@ -2526,7 +2570,7 @@ function paint() {
 
 /* ══════════════════════════════════════════════════════════════════
    화면 순서 — 웰컴 3장 → 고지·동의 → **전제 한 장** → **짝 비교 4장**
-              → 개인화 네 문항 → 장소 추천 (하한 세 곳)
+              → 개인화 네 문항 → **나에 대해** → 장소 추천 (하한 세 곳)
    🔴 짝 비교가 장소 추천보다 **앞**이다. 뒤에 두면 장소 칸을 다 적고 지친
       사람이 두 장 중 아무거나 찍고, 그러면 그 여덟 문항은 아무것도 안 재고
       자리만 먹는다.
@@ -2537,7 +2581,9 @@ function paint() {
       웰컴 3 · 고지 1 · 전제 1 · 짝 비교 4 · 여행 스타일 4 · 본 화면 1 · 완료 1.
       단계 안의 숫자(now / total)와 다른 것을 센다. 둘을 같게 하면
       「4 / 4」 인데 막대가 절반인 화면이 나와 사람이 표시를 안 믿는다. */
-const SCREENS_TOTAL = 15;
+/* 🔴 2026-09-12 (S15P21E201-876) 열다섯 → 열여섯. 「나에 대해」 한 장이 늘었다 —
+      나이대 · 산 기간 · 전화번호를 본 화면에서 떼어 냈다. */
+const SCREENS_TOTAL = 16;
 function setTop(now, total, what, seen, back) {
   $("cnum").textContent = String(now);
   $("cof").textContent = " / " + total + " " + what;
@@ -2794,67 +2840,65 @@ PERSONAL_QUESTIONS.forEach((q, qi) => {
   sec.id = "scQ" + (qi + 1);
 
   const h = document.createElement("h2");
-  h.className = "section";
-  h.style.marginTop = "44px";
+  h.className = "m3-h2";
+  h.style.margin = "24px 0 0";
   h.innerHTML = q.title;                       /* 위 상수의 고정된 글이다. 사람이 적은 글이 아니다 */
   sec.appendChild(h);
 
-  /* 머리말은 첫 문항에만. 세 번 반복하면 읽지 않는다 */
-  if (qi === 0) {
-    const l = document.createElement("p");
-    l.className = "hint";
-    l.textContent = SPEND_LEAD.lede;
-    sec.appendChild(l);
-  }
+  /* 🔴 "고르면 바로 넘어가요" 를 네 화면 모두에 둔다 (S15P21E201-876).
+        머리말은 첫 문항에만 두지만 이 한 줄은 **동작을 알리는 말**이라
+        매 화면에 있어야 한다 — 두 번째 화면에서 처음 누른 사람이
+        갑자기 화면이 바뀌면 잘못 눌렀다고 생각한다. */
+  const lead = document.createElement("p");
+  lead.className = "m3-lab";
+  lead.style.margin = "8px 0 0";
+  lead.textContent = qi === 0 ? SPEND_LEAD.lede : "고르면 바로 넘어가요";
+  sec.appendChild(lead);
 
   const box = document.createElement("div");
-  box.className = "opts";
+  box.className = "m3-opts";
   box.setAttribute("role", "radiogroup");
   for (const o of q.options) {
     const b = document.createElement("button");
     b.type = "button";
-    b.className = "opt";
+    b.className = "m3-opt" + (o.s ? "" : " plain");
     b.setAttribute("role", "radio");
     b.setAttribute("aria-checked", "false");
     b.dataset.v = o.v === null ? "" : o.v;     /* 빈 문자열 = 건너뛰기 선택지 */
     const dot = document.createElement("span");
-    dot.className = "dot";
+    dot.className = "m3-radio";
     b.appendChild(dot);
     const txt = document.createElement("span");
-    const t = document.createElement("b");
-    t.textContent = o.t;
+    const t = document.createElement("span");
+    t.className = "t"; t.textContent = o.t;
     txt.appendChild(t);
-    if (o.s) { const s = document.createElement("s"); s.textContent = o.s; txt.appendChild(s); }
+    if (o.s) { const sb = document.createElement("span"); sb.className = "s"; sb.textContent = o.s; txt.appendChild(sb); }
     b.appendChild(txt);
-    /* 누르면 고르기만 하고 넘어가지 않는다. 손이 미끄러진 사람이 되돌릴 수 있어야 한다.
-       넘어가는 것은 "다음" 하나가 한다 */
-    b.addEventListener("click", () => pickPersonal(qi, o.v));
+    /* 🔴 2026-09-12 (S15P21E201-876) 고르면 **바로 넘어간다.**
+          앞 판은 "누르면 고르기만 하고 넘어가지 않는다 — 손이 미끄러진 사람이
+          되돌릴 수 있어야 한다" 였다. 그 걱정은 남아 있지만, 이제 앱 바에
+          뒤로 버튼이 늘 있어서 되돌릴 수 있다. 대신 「다음」 버튼을 네 번
+          누르던 것이 없어진다.
+          🔴 200ms 를 기다린다 — 고른 표시를 한 번은 보여 주고 넘어가야
+             "내가 뭘 골랐지" 가 안 생긴다. */
+    b.addEventListener("click", () => {
+      pickPersonal(qi, o.v);
+      setTimeout(() => goPersonal(qi + 1), 200);
+    });
     box.appendChild(b);
   }
   sec.appendChild(box);
 
-  const next = document.createElement("button");
-  next.type = "button"; next.className = "btn-big"; next.style.marginTop = "36px";
-  /* 🔴 안 골라도 넘어간다. 다음 버튼을 막지 않는다 — 막으면 아무거나 찍는다.
-        안 고르고 넘어간 것은 "봤는데 건너뛰었다" 로 저장된다.
-        (짝 비교는 반대로 막는다. 거기서는 강제 선택이 문항의 본체다.) */
-  next.innerHTML = '<span>다음</span><span class="arrow">→</span>';
-  next.addEventListener("click", () => goPersonal(qi + 1));
-  sec.appendChild(next);
-
-  const nav = document.createElement("div");
-  nav.className = "navrow";
-  const back = document.createElement("button");
-  back.type = "button"; back.className = "btn-ghost"; back.textContent = "이전";
-  back.addEventListener("click", () => goPersonal(qi - 1));
-  nav.appendChild(back);
-
   /* 🔴 건너뛰기가 항상 보인다. 숨겨 두지 않는다.
         1 · 2번 문항은 마지막 선택지("잘 모르겠어요" · "아직 안 정했어요")가 곧
         건너뛰기지만, 3 · 4번 문항은 마지막 선택지가 답("그날그날 달라요")이라
-        건너뛸 자리가 없다. 그래서 네 화면 모두 이 버튼을 같은 자리에 둔다. */
+        건너뛸 자리가 없다. 그래서 네 화면 모두 이 버튼을 같은 자리에 둔다.
+        🔴 이전은 앱 바의 뒤로 화살표가 진다 (setTop 이 붙인다). */
+  const nav = document.createElement("div");
+  nav.className = "m3-skiprow";
   const skip = document.createElement("button");
-  skip.type = "button"; skip.className = "btn-ghost"; skip.textContent = "건너뛰기";
+  skip.type = "button"; skip.className = "m3-btn m3-text"; skip.style.width = "auto";
+  skip.innerHTML = '건너뛰기 <svg class="ic" aria-hidden="true"><use href="#i-skip"/></svg>';
   skip.addEventListener("click", () => { pickPersonal(qi, null); goPersonal(qi + 1); });
   nav.appendChild(skip);
   sec.appendChild(nav);
@@ -2863,7 +2907,8 @@ PERSONAL_QUESTIONS.forEach((q, qi) => {
     /* 전체 건너뛰기 — 그때도 네 문항이 전부 "건너뜀" 으로 저장된다.
        아무것도 저장 안 하는 것과 다르다: "물어봤는데 안 답했다" 는 정보다 */
     const all = document.createElement("button");
-    all.type = "button"; all.className = "linkbtn";
+    all.type = "button"; all.className = "m3-btn m3-text";
+    all.style.cssText = "width:auto;margin:16px auto 0";
     all.textContent = "네 문항 모두 건너뛰기";
     all.addEventListener("click", () => {
       for (let i = 0; i < PERSONAL_QUESTIONS.length; i++) pickPersonal(i, null);
@@ -2899,19 +2944,20 @@ function paintPersonal(qi) {
   const q = PERSONAL_QUESTIONS[qi];
   const now     = q.store === "crowd" ? state.crowd     : state.spend[q.key];
   const skipped = q.store === "crowd" ? state.crowdSkip : !!state.spendSkip[q.key];
-  document.querySelectorAll("#scQ" + (qi + 1) + " .opt").forEach(b => {
+  document.querySelectorAll("#scQ" + (qi + 1) + " .m3-opt").forEach(b => {
     /* 빈 dataset.v = 건너뛰기 선택지. 그것도 "골랐다" 로 보여 준다 —
        눌렀는데 아무 일도 안 일어나면 사람은 고장 난 줄 알고 아무거나 다시 누른다 */
     const mine = b.dataset.v === "" ? skipped : b.dataset.v === now;
-    b.classList.toggle("on", mine);
     b.setAttribute("aria-checked", String(mine));
+    /* 라디오 그림도 같이 (2차 부품은 .on 이 아니라 안쪽 점이 진다) */
+    b.querySelector(".m3-radio").classList.toggle("on", mine);
   });
 }
 
 /* i 번째 문항 화면으로 간다. -1 이면 짝 비교 마지막 장, 4 이면 장소 추천 */
 function goPersonal(i) {
   if (i < 0) { goPair(PAIR_PAGES - 1); return; }
-  if (i >= PERSONAL_QUESTIONS.length) { goMain(); return; }
+  if (i >= PERSONAL_QUESTIONS.length) { goAbout(); return; }
   paintPersonal(i);
   show("scQ" + (i + 1));
   $("top").classList.remove("hide");
@@ -2920,6 +2966,26 @@ function goPersonal(i) {
 }
 
 /* ── 장소 추천 화면 ──────────────────────────────────────────── */
+/* 🔴 나이대 · 산 기간 · 전화번호 한 장 (S15P21E201-876).
+      고르는 일끼리 모아 여행 스타일 네 문항 바로 뒤에 둔다. */
+function goAbout() {
+  show("scAbout");
+  $("top").classList.remove("hide");
+  setTop(14, SCREENS_TOTAL, "나에 대해", 14, () => goPersonal(PERSONAL_QUESTIONS.length - 1));
+  paintAbout();
+  window.scrollTo(0, 0);
+}
+
+/* 나이대와 산 기간을 다 골라야 다음으로 간다. 왜 못 가는지도 버튼이 말한다 */
+function paintAbout() {
+  const ok = !!state.ageBand && !!state.busanYears;
+  const b = $("aboutNext");
+  b.disabled = !ok;
+  b.textContent = ok ? "추천하는 곳 적으러 가기"
+    : !state.ageBand && !state.busanYears ? "나이대와 산 기간을 골라 주세요"
+    : !state.ageBand ? "나이대를 골라 주세요" : "부산에 얼마나 사셨는지 골라 주세요";
+}
+
 function goMain() {
   show("scMain");
   $("top").classList.remove("hide");
