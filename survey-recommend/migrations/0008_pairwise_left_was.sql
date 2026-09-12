@@ -33,6 +33,24 @@
 --
 -- 🔴 두 번 돌려도 안 깨져야 한다. 배포가 두 번 돌 수 있다.
 --
+-- ── 🔴 이 SQL 이 실제로 어디까지 확인됐나 ────────────────────────────
+-- 거짓으로 안심하지 않도록 적어 둔다. 2026-09-12, postgres:16-alpine —
+-- **배포 대상과 같은 이미지**에서 돌렸다.
+--
+--   ① 빈 DB 에 옛 schema.sql(top_was) → 0008        종료 0
+--   ② 같은 DB 에 0008 을 **두 번째로** 다시          종료 0 (두 번 돌려도 안 깨진다)
+--   ③ 빈 DB 에 새 schema.sql 만
+--   ④ ①과 ③의 표를 글자 단위로 대조                  **차이 0줄**
+--      (information_schema.columns 168줄 — 칸 이름 · 순서 · 자료형 · NULL 허용 ·
+--       기본값, 그리고 pg_constraint · pg_indexes · pg_views 전부)
+--   ⑤ 값이 든 표에서도 — form_version 7 · top_was 1 인 행을 넣고 0008 을 돌린 뒤
+--      left_was 가 **1 그대로** 남는 것을 확인. 이어서 form_version 8 · left_was 0
+--      인 새 행도 들어간다
+--   ⑥ 뷰 pairwise_choice_real 이 **left_was** 로 내보낸다
+--   ⑦ 제약 이름이 pairwise_choice_left_was_ok 다
+--
+-- 🔴 **살아 있는 DB 에는 아직 안 돌렸다.** 위는 전부 빈 검사용 DB 다.
+--
 -- 돌리는 법:
 --   docker exec -i survey-postgres psql -U survey -d survey -v ON_ERROR_STOP=1 \
 --     < survey-recommend/migrations/0008_pairwise_left_was.sql
