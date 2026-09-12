@@ -3,20 +3,23 @@
 // 날씨는 GET /api/v1/weather 로 실제 값을 받는다(S15P21E201-378) — 준비물 목록은
 // 아직 하드코딩 목업이다(별도 티켓 범위).
 import { useEffect, useState } from 'react';
-import { Image, Pressable, StyleSheet, View } from 'react-native';
+import { Image, Pressable, Share as NativeShare, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as Speech from 'expo-speech';
 
+import { ApiClientError } from '@/api/client';
 import { color, radius, spacing } from '@/design/tokens';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { Eyebrow } from '@/components/Eyebrow';
+import { Button } from '@/components/Button';
 import { useAuth } from '@/auth/AuthProvider';
 import { useI18n } from '@/i18n';
 import { DIALECT_PHRASES } from '@/discovery/dialectPhrases';
 import { RouteMap } from '@/map/RouteMap';
 import type { MapStop } from '@/map/types';
 import { loadItinerary } from '@/plan/itinerary';
+import { issueShareLink } from '@/share/sharedItinerary';
 import { getTripStories } from '@/social/stories';
 import { loadTrips } from '@/trip/trips';
 import { loadWeatherForecast, type SkyCondition, type WeatherLoadResult } from '@/trip/weather';
@@ -129,14 +132,54 @@ function MemoryMapCard({ tripId, stops }: { tripId: string; stops: MapStop[] }) 
   );
 }
 
+// S15P21E201-251 — 여행이 끝난 뒤 "부산에서의 N일" 한 장으로 되돌아보게 한다.
+// 총 이동 거리는 넣지 않는다 — 실제 이동 경로 길이인지 장소 간 직선 거리 합인지
+// 상세설계서에 정해져 있지 않아서다(같은 이유로 "먹은 음식"도 없다 — story.place에
+// category가 없어 식당/카페인지 구분할 근거 자체가 없다). 근거 없는 숫자는 안 보여준다.
+function TripSummaryCard({ tripId, title, visitCount, photoUrl }: { tripId: string; title: string; visitCount: number; photoUrl: string | null }) {
+  const { tx } = useI18n();
+  const { accessToken } = useAuth();
+  const [sharing, setSharing] = useState(false);
+  const [shareError, setShareError] = useState('');
+
+  async function share() {
+    if (!accessToken || sharing) return;
+    setSharing(true);
+    setShareError('');
+    try {
+      const issued = await issueShareLink(tripId, accessToken);
+      await NativeShare.share({ title, message: tx(`${title} 일정을 공유해요.\n${issued.shareUrl}`, `Sharing my ${title} itinerary.\n${issued.shareUrl}`), url: issued.shareUrl });
+    } catch (cause) {
+      setShareError(cause instanceof ApiClientError ? cause.message : tx('공유 링크를 만들지 못했어요. 잠시 후 다시 시도해 주세요.', 'Could not create the share link. Please try again shortly.'));
+    } finally {
+      setSharing(false);
+    }
+  }
+
+  return (
+    <View style={styles.summaryCard}>
+      {photoUrl ? <Image source={{ uri: photoUrl }} style={styles.summaryPhoto} /> : null}
+      <Text variant="title" weight="bold">{title}</Text>
+      <View style={styles.summaryStat}>
+        <Text variant="display" weight="bold" color={color.brand.orange}>{visitCount}</Text>
+        <Text variant="caption" color={color.text.muted}>{tx('방문지', 'Places visited')}</Text>
+      </View>
+      <Button label={sharing ? tx('공유 링크 만드는 중…', 'Creating share link…') : tx('여행 공유하기', 'Share this trip')} variant="ghost" disabled={sharing} onPress={() => void share()} />
+      {shareError ? <Text variant="caption" color={color.state.danger}>{shareError}</Text> : null}
+    </View>
+  );
+}
+
 export default function Prepare() {
   const { tx } = useI18n();
   const { accessToken } = useAuth();
   const { id } = useLocalSearchParams<{ id: string }>();
   const tripId = id ?? 'demo-trip';
   const [firstDayDate, setFirstDayDate] = useState<string | null>(null);
+  const [tripTitle, setTripTitle] = useState<string | null>(null);
   const [weather, setWeather] = useState<WeatherLoadResult | null>(null);
   const [memoryMap, setMemoryMap] = useState<MemoryMapState>({ status: 'loading' });
+  const [tripSummary, setTripSummary] = useState<{ visitCount: number; photoUrl: string | null } | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -158,6 +201,10 @@ export default function Prepare() {
           imageUrl: story.images[0]?.url,
         }));
       setMemoryMap({ status: 'ready', stops });
+      setTripSummary({
+        visitCount: storiesResult.items.filter((story) => story.place != null).length,
+        photoUrl: storiesResult.items.find((story) => story.images[0]?.url)?.images[0]?.url ?? null,
+      });
     });
     return () => { cancelled = true; };
   }, [tripId, accessToken]);
@@ -168,6 +215,7 @@ export default function Prepare() {
       if (cancelled) return;
       const date = result.state === 'success' ? (result.itinerary.days[0]?.date ?? null) : null;
       setFirstDayDate(date);
+      setTripTitle(result.state === 'success' ? result.itinerary.title : null);
       if (!date) { setWeather({ state: 'unavailable', message: '일정을 아직 못 불러왔어요.' }); return; }
       void loadWeatherForecast(date, accessToken).then((weatherResult) => { if (!cancelled) setWeather(weatherResult); });
     });
@@ -188,6 +236,10 @@ export default function Prepare() {
           </Text>
         </View>
       </View>
+
+      {memoryMap.status === 'ready' && tripSummary && tripTitle && (
+        <TripSummaryCard tripId={tripId} title={tripTitle} visitCount={tripSummary.visitCount} photoUrl={tripSummary.photoUrl} />
+      )}
 
       {memoryMap.status === 'ready' && <MemoryMapCard tripId={tripId} stops={memoryMap.stops} />}
 
@@ -268,6 +320,23 @@ const styles = StyleSheet.create({
     borderRadius: radius.lg,
     padding: spacing[4],
     gap: spacing[3],
+  },
+  summaryCard: {
+    marginTop: spacing[6],
+    backgroundColor: color.surface.card,
+    borderRadius: radius.lg,
+    padding: spacing[4],
+    gap: spacing[2],
+  },
+  summaryPhoto: {
+    width: '100%',
+    height: 160,
+    borderRadius: radius.md,
+    marginBottom: spacing[2],
+    backgroundColor: color.surface.soft,
+  },
+  summaryStat: {
+    alignItems: 'flex-start',
   },
   weatherCard: {
     marginTop: spacing[6],
