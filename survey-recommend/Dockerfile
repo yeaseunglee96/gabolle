@@ -19,12 +19,17 @@ WORKDIR /app
 COPY package.json ./
 RUN npm install --omit=dev --no-audit --no-fund
 
-# 🔴 places.json 과 design.mjs 를 빠뜨리면 앱이 시작하자마자 죽는다.
-#    server.mjs 가 뜨는 자리에서 둘 다 읽는다 — places.json 은 가게 이름 색인(53,716곳),
-#    design.mjs 는 짝 비교 문항 정의다. 없으면 ENOENT 로 죽고 컨테이너가 재시작을
+# 🔴 places.json 을 빠뜨리면 앱이 시작하자마자 죽는다 — 가게 이름 색인(53,716곳)을
+#    server.mjs 가 뜨는 자리에서 읽는다. 없으면 ENOENT 로 죽고 컨테이너가 재시작을
 #    반복하며 502 가 된다. 2026-09-10 배포에서 실제로 그렇게 죽었다 (S15P21E201-754).
-#    화면 파일만 바뀌는 게 아니라 **읽는 파일이 늘면 이 줄도 같이 늘어야 한다.**
-COPY server.mjs index.html places.json design.mjs ./
+#    **읽는 파일이 늘면 이 줄도 같이 늘어야 한다.**
+#
+# 🔴 2026-09-12 (S15P21E201-884) 정정 — design.mjs 를 뺐다. 위 주석이 *"design.mjs
+#    는 짝 비교 문항 정의다. 없으면 ENOENT 로 죽는다"* 라고 적고 있었는데 **사실이
+#    아니었다.** server.mjs 는 그 파일을 열지 않는다 — 문항은 index.html 안의
+#    <script id="design"> 블록에 들어 있고 거기서 읽는다. 생성기는 개발할 때만
+#    돌리는 도구라 이미지에 있을 이유가 없다.
+COPY server.mjs index.html places.json ./
 COPY assets ./assets
 COPY fonts ./fonts
 

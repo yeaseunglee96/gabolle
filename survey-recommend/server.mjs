@@ -135,7 +135,7 @@ function searchPlaces(qRaw, guRaw) {
 
 /* ── 짝 비교 문항 정의 — 🔴 여기에 다시 적지 않는다 (S15P21E201-754) ───
  * index.html 안의 <script id="design"> 블록을 그대로 읽어 쓴다. 그 블록을
- * 만드는 것은 design.mjs 다 (손으로 고치지 않는다).
+ * 만드는 것은 design-v4.mjs 다 (손으로 고치지 않는다).
  *
  * 왜 이렇게 하나: 문항 목록을 서버에도 한 벌 적으면 두 벌이 되고, 두 벌은
  * 반드시 어긋난다. 어긋나면 사람은 화면에서 다 답하고 서버에서 거절당한다.
@@ -153,24 +153,46 @@ function readDesign(html) {
 const DESIGN = readDesign(PAGE.toString("utf8"));
 /* 🔴 문항이 없으면 뜨지 않는다. 그냥 뜨면 짝 비교 답이 전부 거절당하는데,
       화면에는 400 만 보이고 왜인지는 아무도 모른다. */
-if (!DESIGN || !Array.isArray(DESIGN.sets) || DESIGN.sets.length === 0) {
-  console.error("index.html 에 짝 비교 문항이 없다 — node design.mjs 를 먼저 돌려 주세요.");
+if (!DESIGN || !Array.isArray(DESIGN.variants) || DESIGN.variants.length === 0) {
+  console.error("index.html 에 짝 비교 문항이 없다 — node design-v4.mjs 를 먼저 돌려 주세요.");
   process.exit(1);
 }
-/* 🔴 함정이 없으면 뜨지 않는다. 함정이 없으면 아무거나 찍은 사람이
-      "아무거나 좋아하는 사람" 으로 학습되고, 그건 결과만 봐서는 안 보인다. */
-const TRAP_SET = DESIGN.sets.find(s => s.trap) || null;
-if (!TRAP_SET || (TRAP_SET.trapCorrect !== 0 && TRAP_SET.trapCorrect !== 1)) {
-  console.error("짝 비교 문항에 함정이 없다 — design.mjs 의 TRAP_AT 을 확인해 주세요.");
-  process.exit(1);
+
+/* ── 🔴 문항지가 **두 벌**이다 (S15P21E201-884) ────────────────────────
+ * 사람마다 한 벌만 받고, 어느 벌이었는지가 제출에 designId 로 실려 온다.
+ * 서버는 **그 벌의 문항 정의로만** 검사한다.
+ *
+ * 🔴 벌을 안 가르고 문항 이름(set_id)만 보면 정합성이 깨진다. 두 벌의
+ *    eat01 은 **이름이 같고 내용이 다른 문항**이라, 섞으면 a벌 사람이 낸
+ *    답에 b벌 카드 조건이 적힌다. 그 응답은 겉보기에 멀쩡하고 계수만
+ *    조용히 틀어진다 — 표를 아무리 봐도 안 보인다.
+ * ─────────────────────────────────────────────────────────────────── */
+const VARIANTS = new Map();
+for (const v of DESIGN.variants) {
+  if (!v || typeof v.designId !== "string" || !Array.isArray(v.sets) || v.sets.length === 0) {
+    console.error("짝 비교 문항지 한 벌이 비어 있다 — design-v4.mjs 를 다시 돌려 주세요.");
+    process.exit(1);
+  }
+  /* 🔴 함정이 없는 벌이 있으면 뜨지 않는다. 함정이 없으면 아무거나 찍은
+        사람이 "아무거나 좋아하는 사람" 으로 학습되고, 그건 결과만 봐서는
+        안 보인다. **벌마다** 확인한다 — 한 벌만 보면 나머지가 샌다. */
+  const trap = v.sets.find(x => x.trap) || null;
+  if (!trap || (trap.trapCorrect !== 0 && trap.trapCorrect !== 1)) {
+    console.error(v.designId + " 에 함정 문항이 없다 — design-v4.mjs 의 TRAP_AT 을 확인해 주세요.");
+    process.exit(1);
+  }
+  if (VARIANTS.has(v.designId)) {
+    console.error("문항지 이름이 겹친다: " + v.designId);
+    process.exit(1);
+  }
+  /* set_id → 문항 정의. 🔴 화면이 보낸 조건값을 믿지 않고 여기서 찾아 쓴다 */
+  VARIANTS.set(v.designId, { designId: v.designId, sets: v.sets, byId: new Map(v.sets.map(x => [x.setId, x])) });
 }
-/* set_id → 문항 정의. 🔴 화면이 보낸 조건값을 믿지 않고 여기서 찾아 쓴다 */
-const SET_BY_ID = new Map(DESIGN.sets.map(s => [s.setId, s]));
 /* 한 장에 몇 문항인가 — 표의 page_no 를 화면과 같은 규칙으로 여기서 센다 */
 const PER_PAGE = DESIGN.perPage || 2;
 /* 응답 시간 구간의 최댓값. 화면도 표(ms_bucket 제약)도 같은 수에서 나온다 */
 const MS_BUCKET_MAX = (DESIGN.msBuckets || []).length;
-console.log(`짝 비교 문항 ${DESIGN.sets.length}개 (${DESIGN.designId})`);
+console.log(`짝 비교 ${VARIANTS.size}벌 × ${DESIGN.variants[0].sets.length}문항 (${DESIGN.family})`);
 
 /* 🔴 이 응답이 어느 판의 설문에 답했나 — schema.sql · migrations/0002 참고.
       1 = 짝 비교도 세 문항도 없던 판 · 2 = 세 문항이 붙은 판 · 3 = 짝 비교까지 ·
@@ -189,7 +211,12 @@ console.log(`짝 비교 문항 ${DESIGN.sets.length}개 (${DESIGN.designId})`);
           🔴 이 번호가 top_was / left_was 의 뜻을 가른다. 7 이하 행의 0/1 은
              "위에 있던 쪽" 이고 8 이상은 "왼쪽에 있던 쪽" 이다. 안 올리면
              두 판을 합쳐 위치 편향을 뺄 때 방향이 섞인다. */
-const FORM_VERSION = 8;
+/* 🔴 9 로 올렸다 (S15P21E201-884). 저장되는 모양은 안 바뀌었지만 **문항이
+      통째로 바뀌었다** — 카드가 다섯 칸에서 네 칸이 되었고(비슷한 가게를
+      뺐다) 문항지가 두 벌이 됐다. 나중에 응답을 합칠 때 8 이하와 9 이상을
+      섞으면 안 된다: 같은 이름의 문항(eat01)이 다른 질문이기 때문이다.
+      어느 벌이었는지는 pairwise_design_id 가 따로 말해 준다. */
+const FORM_VERSION = 9;
 
 const pool = new pg.Pool({
   connectionString: process.env.DATABASE_URL,
@@ -360,8 +387,10 @@ function readPairwise(v) {
     return { error: "두 곳 중 고르기 답을 읽지 못했어요." };
   }
   /* 🔴 화면과 서버가 서로 다른 문항을 들고 있으면 그 응답은 못 쓴다 —
-        s01 이 서로 다른 질문이 되어 버린다. */
-  if (v.designId !== DESIGN.designId) {
+        eat01 이 서로 다른 질문이 되어 버린다. 아래 검사는 전부 **이 벌의**
+        문항 정의로만 한다 (S15P21E201-884). */
+  const variant = typeof v.designId === "string" ? VARIANTS.get(v.designId) : null;
+  if (!variant) {
     return { error: "화면이 오래됐어요. 새로고침한 뒤 다시 해 주세요." };
   }
   if (!Array.isArray(v.choices)) return { error: "두 곳 중 고르기 답을 읽지 못했어요." };
@@ -375,7 +404,7 @@ function readPairwise(v) {
       return { error: "두 곳 중 고르기 답을 읽지 못했어요." };
     }
     /* 🔴 모르는 set_id 를 메시지에 그대로 되돌려 주지 않는다 */
-    const set = typeof c.setId === "string" ? SET_BY_ID.get(c.setId) : null;
+    const set = typeof c.setId === "string" ? variant.byId.get(c.setId) : null;
     if (!set) return { error: "두 곳 중 고르기에 모르는 문항이 있어요." };
     if (seen.has(set.setId)) return { error: "두 곳 중 고르기 답이 겹쳐서 왔어요." };
     seen.add(set.setId);
@@ -401,7 +430,7 @@ function readPairwise(v) {
       setId: set.setId,
       isTrap: !!set.trap,
       trapCorrect: set.trap ? set.trapCorrect : null,
-      pageNo: Math.floor(DESIGN.sets.indexOf(set) / PER_PAGE) + 1,
+      pageNo: Math.floor(variant.sets.indexOf(set) / PER_PAGE) + 1,
       chosen: c.chosen, leftWas: c.leftWas, msBucket: c.msBucket,
       block: mixed ? "mixed" : (set.block || null),
       a0Block: mixed ? set.blocks[0] : null,
@@ -410,12 +439,12 @@ function readPairwise(v) {
     });
   }
 
-  if (rows.length !== DESIGN.sets.length) {
-    return { error: `두 곳 중 고르기 ${DESIGN.sets.length}문항을 모두 골라 주세요.` };
+  if (rows.length !== variant.sets.length) {
+    return { error: `두 곳 중 고르기 ${variant.sets.length}문항을 모두 골라 주세요.` };
   }
   if (trapPassed === null) return { error: "두 곳 중 고르기 문항을 모두 골라 주세요." };
 
-  return { status: "ANSWERED", designId: DESIGN.designId, trapPassed, rows };
+  return { status: "ANSWERED", designId: variant.designId, trapPassed, rows };
 }
 
 /* 들어온 응답이 쓸 수 있는 모양인가. 아니면 왜 아닌지를 사람이 읽을 말로 돌려준다 */
@@ -520,7 +549,7 @@ async function insert(b, spend, pair, crowd) {
     const id = rows[0].id;
     for (const c of pair.rows) {
       /* 🔴 문항 하나 = 줄 하나. 보여준 두 카드의 조건이 이 줄에 그대로
-            들어간다 — 나중에 design.mjs 를 안 열어도 이 표만으로 계수를 낼 수
+            들어간다 — 나중에 design-v4.mjs 를 안 열어도 이 표만으로 계수를 낼 수
             있게. 조건값은 화면이 보낸 것이 아니라 서버가 문항 정의에서 찾은 것이다. */
       await client.query(
         /* 🔴 v3 부터 카드 조건은 JSONB 다. 덩어리마다 속성이 달라 칸으로 못 박는다.
