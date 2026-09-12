@@ -1,5 +1,5 @@
 import { apiRequest, ApiClientError } from '@/api/client';
-import { createTripAndRecommendationJob } from '@/api/tripApi';
+import { cloneSharedTripAndJob, createTripAndRecommendationJob } from '@/api/tripApi';
 import type { PlanDraft } from '@/plan/PlanProvider';
 
 export type RecommendationJobState = 'idle' | 'submitting' | 'accepted' | 'polling' | 'completed' | 'conflict' | 'consent-required' | 'failed' | 'cancelled' | 'unavailable';
@@ -35,6 +35,6 @@ function toFailure(error: unknown, jobId: string | null = null): RecommendationJ
   return { state: 'failed', jobId, progress: null, stage: null, canCancel: false, errorMessage: error instanceof Error ? error.message : '일정을 만들지 못했어요. 잠시 후 다시 시도해 주세요.', resultRef: null };
 }
 export function createRecommendationJobAdapter(accessToken: string | null): RecommendationJobAdapter { return {
-  async submit(draft) { try { return acceptJob(await createTripAndRecommendationJob(draft, accessToken)); } catch (error) { return toFailure(error); } },
+  async submit(draft) { try { return acceptJob(draft.cloneShareToken ? await cloneSharedTripAndJob(draft.cloneShareToken, draft, accessToken) : await createTripAndRecommendationJob(draft, accessToken)); } catch (error) { return toFailure(error); } },
   async poll(jobId, previous) { try { return adaptPolledJob(jobId, await apiRequest<RecommendationJobPollDto>(`/api/v1/jobs/${encodeURIComponent(jobId)}`, { accessToken }), previous); } catch (error) { return toFailure(error, jobId); } },
 }; }
