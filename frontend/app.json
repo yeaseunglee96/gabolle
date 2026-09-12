@@ -9,7 +9,8 @@
     "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.gabolle.app"
+      "bundleIdentifier": "com.gabolle.app",
+      "associatedDomains": ["applinks:j15e201.p.ssafy.io"]
     },
     "android": {
       "package": "com.gabolle.app",
@@ -25,7 +26,21 @@
         "android.permission.ACCESS_FINE_LOCATION",
         "android.permission.CAMERA"
       ],
-      "versionCode": 2
+      "versionCode": 2,
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "https",
+              "host": "j15e201.p.ssafy.io",
+              "pathPrefix": "/oauth"
+            }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
