@@ -22,16 +22,19 @@ public class RecommendationJobExceptionHandler {
 	/** 여행이 없거나 요청자가 그 여행의 회원이 아니다 — 둘 다 404 (FR-SEC-01). */
 	@ExceptionHandler(TripQueryService.TripNotFoundException.class)
 	public ResponseEntity<ApiResponse<Void>> handleTripNotFound(TripQueryService.TripNotFoundException e) {
+		// 🔴 아래 handleInvalid와 같은 이유로 번역 키 대신 문장을 넣는다.
 		return ResponseEntity.status(HttpStatus.NOT_FOUND)
-				.body(ApiResponse.failure(new ApiError("TRIP_NOT_FOUND", "error.trip.notFound"), requestId()));
+				.body(ApiResponse.failure(new ApiError("TRIP_NOT_FOUND", "해당 여행을 찾을 수 없어요."), requestId()));
 	}
 
 	/** 없는 작업 번호(또는 남의 작업 번호 — 둘을 구분해 응답하지 않는다). */
 	@ExceptionHandler(RecommendationJobController.JobNotFoundException.class)
 	public ResponseEntity<ApiResponse<Void>> handleJobNotFound(
 			RecommendationJobController.JobNotFoundException e) {
+		// 🔴 아래 handleInvalid와 같은 이유로 번역 키 대신 문장을 넣는다 — 프론트가 이 코드를
+		// 따로 처리하지 않으면 message가 그대로 화면에 뜬다.
 		return ResponseEntity.status(HttpStatus.NOT_FOUND)
-				.body(ApiResponse.failure(new ApiError("JOB_NOT_FOUND", "error.job.notFound"), requestId()));
+				.body(ApiResponse.failure(new ApiError("JOB_NOT_FOUND", "해당 작업을 찾을 수 없어요."), requestId()));
 	}
 
 	/**
@@ -54,8 +57,13 @@ public class RecommendationJobExceptionHandler {
 	 */
 	@ExceptionHandler({ IllegalArgumentException.class, IllegalStateException.class })
 	public ResponseEntity<ApiResponse<Void>> handleInvalid(RuntimeException e) {
+		// 🔴 message는 번역 키가 아니라 사람이 읽는 문장이어야 한다 — 위 handleJobNotReady와
+		// 같은 원칙이다. "error.recommendationJob.validation" 을 그대로 넣어 뒀던 것을
+		// 프론트가 번역 없이 화면에 그대로 띄워, 사용자에게 문자열 코드가 노출됐다
+		// (S15P21E201 사용자 리포트). 자세한 원인(e.getMessage())은 fields에만 싣는다.
 		return ResponseEntity.badRequest().body(ApiResponse.failure(
-				new ApiError("RECOMMENDATION_JOB_VALIDATION_FAILED", "error.recommendationJob.validation",
+				new ApiError("RECOMMENDATION_JOB_VALIDATION_FAILED",
+						"입력한 조건을 확인할 수 없어요. 조건을 다시 확인한 뒤 시도해 주세요.",
 						List.of(e.getMessage())),
 				requestId()));
 	}
