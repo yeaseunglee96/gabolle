@@ -24,7 +24,7 @@ const DEFAULT_COLOR: Record<Variant, string> = {
   eyebrow: color.text.eyebrow,
 };
 
-const SIZE: Record<Variant, { size: number; lineHeight: number }> = {
+const SIZE: Record<Variant, { size: number; lineHeight: number; letterSpacing: number }> = {
   hero: typeTokens.hero,
   display: typeTokens.display,
   title: typeTokens.title,
@@ -46,7 +46,7 @@ const FONT_FAMILY: Record<Weight, string> = {
 };
 
 export function Text({ variant = 'body', color: colorOverride, weight = 'regular', style, ...rest }: TextProps) {
-  const { size, lineHeight } = SIZE[variant];
+  const { size, lineHeight, letterSpacing } = SIZE[variant];
   return (
     <RNText
       {...rest}
@@ -55,6 +55,7 @@ export function Text({ variant = 'body', color: colorOverride, weight = 'regular
           fontFamily: FONT_FAMILY[weight],
           fontSize: size,
           lineHeight,
+          letterSpacing,
           fontWeight: FONT_WEIGHT[weight],
           color: colorOverride ?? DEFAULT_COLOR[variant],
         },
