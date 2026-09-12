@@ -5,10 +5,11 @@
 // 홈·챗봇·현장 도구 어디서 들어와도 같은 경험이 되도록 맞춘 것(구조 정리, UX 통합).
 // 번역 업체 계약과 무관하게 기기 TTS·클립보드·지도 링크로 완결할 수 있는 택시 카드는
 // 그대로 Expo 네이티브 API로 동작시킨다.
-import { useState } from 'react';
-import { Image, Linking, Pressable, StyleSheet, View } from 'react-native';
+import { useRef, useState } from 'react';
+import { Image, Linking, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import * as Clipboard from 'expo-clipboard';
+import * as Speech from 'expo-speech';
 
 import { color, radius, spacing } from '@/design/tokens';
 import { Screen } from '@/components/Screen';
@@ -16,6 +17,8 @@ import { Text } from '@/components/Text';
 import { Eyebrow } from '@/components/Eyebrow';
 import { PlacePhraseBrowser } from '@/components/PlacePhraseBrowser';
 import { useI18n } from '@/i18n';
+
+const CUSTOM_PHRASE_MAX_LENGTH = 120;
 
 type Tab = 'speak' | 'taxi';
 
@@ -35,6 +38,27 @@ export default function Speak() {
   const { tab: initialTab } = useLocalSearchParams<{ tab?: string }>();
   const [tab, setTab] = useState<Tab>(initialTab === 'taxi' ? 'taxi' : 'speak');
   const [copied, setCopied] = useState(false);
+  // 목록에 없는 문장을 직접 입력해 들려주는 기능(S15P21E201 사용자 리포트) — 번역은
+  // 안 한다. 입력한 한국어 그대로 기기 TTS로 읽어 줄 뿐이다. 번역까지 하려면 번역
+  // 업체 계약이 있어야 하는데(S15P21E201-77·281, 아직 진행 전) 그건 이 화면이 할 수
+  // 있는 일이 아니라 정직하게 "그대로 읽어드려요"라고만 적는다.
+  const [customPhrase, setCustomPhrase] = useState('');
+  const [customSpeaking, setCustomSpeaking] = useState(false);
+  const customPlayToken = useRef(0);
+
+  function speakCustomPhrase() {
+    const text = customPhrase.trim();
+    if (!text) return;
+    const token = ++customPlayToken.current;
+    const finish = () => { if (customPlayToken.current === token) setCustomSpeaking(false); };
+    try {
+      Speech.stop();
+      setCustomSpeaking(true);
+      Speech.speak(text, { language: 'ko-KR', rate: 0.95, onDone: finish, onStopped: finish, onError: finish });
+    } catch {
+      finish();
+    }
+  }
 
   async function copyAddress() {
     await Clipboard.setStringAsync(TAXI_ADDRESS);
@@ -77,6 +101,34 @@ export default function Speak() {
 
       {tab === 'speak' ? (
         <View style={styles.speakSection}>
+          <View style={styles.customCard}>
+            <Text variant="body" weight="bold">{tx('내가 원하는 문장 말하기', 'Speak your own sentence')}</Text>
+            <Text variant="caption" color={color.text.muted} style={styles.customHint}>
+              {tx('아래 목록에 없는 문장은 한국어로 입력하면 그대로 읽어드려요. 번역은 아직 안 돼요.', "If it's not in the list below, type it in Korean and we'll read it aloud as-is. Translation isn't available yet.")}
+            </Text>
+            <TextInput
+              accessibilityLabel={tx('직접 입력할 한국어 문장', 'Your Korean sentence')}
+              value={customPhrase}
+              onChangeText={(text) => setCustomPhrase(text.slice(0, CUSTOM_PHRASE_MAX_LENGTH))}
+              placeholder={tx('예: 얼음 빼주세요', 'e.g. 얼음 빼주세요')}
+              placeholderTextColor={color.text.muted}
+              multiline
+              style={styles.customInput}
+            />
+            <View style={styles.customFooter}>
+              <Text variant="caption" color={color.text.muted}>{`${customPhrase.length}/${CUSTOM_PHRASE_MAX_LENGTH}`}</Text>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={tx('입력한 문장 듣기', 'Play the entered sentence')}
+                accessibilityState={{ disabled: !customPhrase.trim() }}
+                disabled={!customPhrase.trim()}
+                onPress={speakCustomPhrase}
+                style={[styles.customSpeakButton, !customPhrase.trim() && styles.customSpeakButtonDisabled]}
+              >
+                <Text variant="caption" weight="bold" color={color.text.onAction}>{customSpeaking ? tx('재생 중', 'Playing') : tx('▶ 말하기', '▶ Speak')}</Text>
+              </Pressable>
+            </View>
+          </View>
           <PlacePhraseBrowser onOpenTaxiCard={() => setTab('taxi')} />
         </View>
       ) : (
@@ -155,6 +207,44 @@ const styles = StyleSheet.create({
   },
   speakSection: {
     marginTop: spacing[4],
+  },
+  customCard: {
+    marginBottom: spacing[4],
+    backgroundColor: color.surface.card,
+    borderRadius: radius.lg,
+    padding: spacing[4],
+    gap: spacing[2],
+  },
+  customHint: {
+    marginBottom: spacing[1],
+  },
+  customInput: {
+    minHeight: 56,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: color.surface.field,
+    backgroundColor: color.brand.ivory,
+    color: color.text.heading,
+    fontSize: 15,
+    paddingHorizontal: spacing[3],
+    paddingVertical: spacing[2],
+    textAlignVertical: 'top',
+  },
+  customFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  customSpeakButton: {
+    minHeight: 40,
+    paddingHorizontal: spacing[4],
+    borderRadius: radius.full,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: color.brand.navy,
+  },
+  customSpeakButtonDisabled: {
+    opacity: 0.4,
   },
   taxiCard: {
     marginTop: spacing[4],
