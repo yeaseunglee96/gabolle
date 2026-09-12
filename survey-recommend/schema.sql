@@ -282,10 +282,14 @@ CREATE TABLE IF NOT EXISTS pairwise_choice (
   -- 화면 3장 중 몇 번째 장이었나 (한 장에 두 문항)
   page_no       SMALLINT    NOT NULL,
 
-  -- 고른 쪽 (alt0 / alt1). 화면의 위/아래가 아니다
+  -- 고른 쪽 (alt0 / alt1). 화면의 좌/우가 아니다
   chosen        SMALLINT    NOT NULL,
-  -- 🔴 화면에서 위에 있던 쪽. 안 남기면 위치 편향을 나중에 못 뺀다
-  top_was       SMALLINT    NOT NULL,
+  -- 🔴 화면에서 **왼쪽**에 있던 쪽. 안 남기면 위치 편향을 나중에 못 뺀다.
+  --    🔴 2026-09-12 (S15P21E201-875) top_was → left_was. 2차 화면부터 카드
+  --       두 장이 위·아래가 아니라 좌·우로 놓인다. 값과 뜻은 그대로이고
+  --       가리키는 방향만 바뀌었다 — 어느 쪽인지는 form_version 이 가른다
+  --       (7 이하면 위, 8 이상이면 왼쪽). migrations/0008 참고.
+  left_was      SMALLINT    NOT NULL,
   -- 🔴 걸린 시간은 초가 아니라 구간으로만 (0~7)
   ms_bucket     SMALLINT    NOT NULL,
 
@@ -319,7 +323,7 @@ CREATE TABLE IF NOT EXISTS pairwise_choice (
   alt1              JSONB,
 
   CONSTRAINT pairwise_choice_chosen_ok    CHECK (chosen    IN (0, 1)),
-  CONSTRAINT pairwise_choice_top_was_ok   CHECK (top_was   IN (0, 1)),
+  CONSTRAINT pairwise_choice_left_was_ok  CHECK (left_was  IN (0, 1)),
   CONSTRAINT pairwise_choice_ms_bucket_ok CHECK (ms_bucket BETWEEN 0 AND 7),
   CONSTRAINT pairwise_choice_page_no_ok   CHECK (page_no   BETWEEN 1 AND 99),
   CONSTRAINT pairwise_choice_fame_ok      CHECK (

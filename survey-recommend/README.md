@@ -659,6 +659,8 @@ docker exec -i survey-postgres psql -U survey -d survey -c \
 | **`migrations/0004_add_crowd.sql`** | 북적임 문항 (`crowd_pref` · `crowd_pref_status`) |
 | **`migrations/0005_more_slots.sql`** | 장소 칸 상한 5 → 10 (`recommendation_slot_ok`) |
 | **`migrations/0006_add_sight_type.sql`** | 장소 갈래 일곱 → **여덟** — `SIGHT` 를 `recommendation_place_type_ok` 에 더한다 (2.1절) |
+| **`migrations/0007_pairwise_blocks.sql`** | 짝 비교를 덩어리 셋으로 — `pairwise_choice` 에 `block` · `alt0`/`alt1`(JSONB) |
+| **`migrations/0008_pairwise_left_was.sql`** | 🔴 짝 비교 카드가 위·아래에서 **좌·우**로 — `top_was` → `left_was` (칸 · 제약 · 뷰). **값은 안 건드린다.** 뜻을 가르는 것은 `form_version` 이다 — 7 이하는 「위」, **8 이상은 「왼쪽」** |
 
 🔴 **`schema.sql` 과 `migrations/` 는 같은 결과를 내야 한다.** 칸 이름 · 제약 이름 ·
 제약 내용을 한 글자도 다르지 않게 맞춘다. 한쪽만 고치면 새로 띄운 DB 와 살아 있는
@@ -710,6 +712,10 @@ docker exec -i survey-postgres psql -U survey -d survey -v ON_ERROR_STOP=1 \
   < survey-recommend/migrations/0005_more_slots.sql
 docker exec -i survey-postgres psql -U survey -d survey -v ON_ERROR_STOP=1 \
   < survey-recommend/migrations/0006_add_sight_type.sql
+docker exec -i survey-postgres psql -U survey -d survey -v ON_ERROR_STOP=1 \
+  < survey-recommend/migrations/0007_pairwise_blocks.sql
+docker exec -i survey-postgres psql -U survey -d survey -v ON_ERROR_STOP=1 \
+  < survey-recommend/migrations/0008_pairwise_left_was.sql
 ```
 
 ### 11.1.1. 🔴 이 SQL 이 실제로 어디까지 확인됐나
