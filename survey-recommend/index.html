@@ -391,8 +391,8 @@ code { font-family: var(--mono); font-size: .92em; }
 
 /* ── 진행 표시 (설문 본문) ──────────────────────────────────────── */
 #top {
-  position: sticky; top: 0; z-index: 20; background: var(--paper);
-  margin: 0 -22px; padding: 14px 22px 10px; border-bottom: 1px solid var(--ink);
+  position: sticky; top: 0; z-index: 20; background: var(--m3-surface);
+  margin: 0 -22px; padding: 0 16px 8px;
 }
 #top.hide { display: none; }
 #topRow { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
@@ -505,6 +505,40 @@ h2.section { font-size: 30px; line-height: 1.1; letter-spacing: -.03em; font-wei
 /* 반전된 바탕에서도 읽히는 밝기 */
 .pcard.on .lbl, .pcard.on .prow .k { color: var(--dark-label); }
 .ask { font-size: 12.5px; color: var(--muted); margin: 12px 0 0; }
+
+/* ── 짝 비교 표 (2차, S15P21E201-875) ─────────────────────────────
+   🔴 가운데 열에 속성 이름과 아이콘을 **한 번만** 그린다. 좌우가 같은 것을
+      나눠 쓰므로 비대칭이 생길 수가 없다.
+   🔴 열 전체가 누르는 자리다. 머리 칸만 눌러야 하면 손가락이 작은 라디오를
+      찾아야 한다.
+   ────────────────────────────────────────────────────────────── */
+.ptab { display: grid; grid-template-columns: 1fr 96px 1fr;
+        border: 1px solid var(--m3-outline); border-radius: 12px; overflow: hidden;
+        margin: 12px 0 0; }
+.pcell { padding: 12px 8px; display: flex; flex-direction: column; align-items: center;
+         justify-content: center; gap: 4px; text-align: center; font-size: 16px;
+         font-weight: 600; color: var(--m3-primary); background: transparent;
+         border: 0; border-top: 1px solid var(--m3-outline-variant); font: inherit;
+         font-size: 16px; font-weight: 600; cursor: pointer; }
+.ptab > .pcell:nth-child(-n+3) { border-top: 0; padding-top: 16px; }
+.pcell.mid { cursor: default; font-size: 14px; font-weight: 400;
+             color: var(--m3-on-surface-variant); }
+.pcell.mid .nm { line-height: 1.35; }
+/* 🔴 좌우 값이 같은 줄은 흐려진다. 자리는 그대로 두고 색만 빠진다 —
+      없애면 사람이 "이 조건은 왜 없지" 를 찾는다. 다른 줄만 눈에 남는 것이
+      목적이다. 카드 다섯 줄 중 넷~다섯이 다른 것이 이 설문의 구조라
+      「다르다」를 줄일 수 없다면 「같다」를 물러나게 한다. */
+.pcell.same { color: var(--m3-outline); font-weight: 400; }
+.pcell.on { background: var(--m3-selected); }
+.phead { flex-direction: row; gap: 8px; font-size: 14px; }
+.ptab .pcell:focus-visible { outline: 2px solid var(--m3-primary); outline-offset: -2px; }
+.pask { display: flex; align-items: flex-start; gap: 8px; margin: 12px 0 0;
+        font-size: 14px; line-height: 1.5; color: var(--m3-on-surface-variant); }
+.pask .ic { margin-top: 2px; }
+@media (max-width: 359px) {
+  .ptab { grid-template-columns: 1fr 76px 1fr; }
+  .pcell { font-size: 15px; }
+}
 
 /* ── 🔴 "안 채워도 된다" 를 말하는 상자 (S15P21E201-754) ──────────
    갈래 여덟이 세로로 늘어서 있으면 사람은 여덟을 다 채워야 하는 줄 안다.
@@ -805,11 +839,20 @@ textarea.u { min-height: 96px; font-size: 17px; line-height: 1.5; resize: vertic
     <code>index.html</code> 맨 위 <code>CONFIG</code> 를 채운 뒤 올려 주세요.
     (남은 칸: <span id="cfgWarnList"></span>)</div>
 
+  <!-- ══ 공용 머리줄 — 짝 비교 · 여행 스타일 · 본 화면이 나눠 쓴다 ════════
+       🔴 2차 (S15P21E201-875). 앱 바 + 진행 막대로 바꿨다. 진행 막대는
+          **전체 열다섯 장 기준**이라, 지금 어디쯤인지가 처음으로 화면에 보인다.
+          전에는 단계 안의 숫자(「2 / 4 두 곳 중 고르기」)만 있어서 끝이
+          얼마나 남았는지를 알 수가 없었다.
+       🔴 뒤로 버튼은 화면마다 하는 일이 달라 setTop 이 받아서 붙인다.
+       ══════════════════════════════════════════════════════════ -->
   <div id="top" class="hide">
-    <div id="topRow">
-      <span id="brand">가볼래 · 설문</span>
-      <span id="counter"><b id="cnum">0</b><span class="of" id="cof"> / 5 추천한 곳</span></span>
+    <div class="m3-appbar">
+      <button type="button" class="back" id="topBack" aria-label="이전"><svg class="ic ic-24" aria-hidden="true"><use href="#i-back"/></svg></button>
+      <span class="ttl">가볼래 · 설문</span>
+      <span class="step"><b id="cnum">0</b><span id="cof"> / 5 추천한 곳</span></span>
     </div>
+    <div class="m3-prog"><i id="progNow" style="width:0"></i><u></u><s></s></div>
   </div>
 
   <!-- ══ 첫 화면 : 고지 + 동의 ══════════════════════════════════ -->
@@ -946,7 +989,9 @@ textarea.u { min-height: 96px; font-size: 17px; line-height: 1.5; resize: vertic
              둘을 못 갈랐다 (design.mjs 의 PICK 주석에 숫자가 있다).
        ══════════════════════════════════════════════════════════ -->
   <section id="scPair" class="screen">
-    <h2 class="section" style="margin-top:44px">둘 중 어디로<br>가시겠어요?</h2>
+    <!-- 🔴 큰 제목을 뺐다 (S15P21E201-875). 앱 바에 「2 / 4 · 고르기」 가 있고
+             문항마다 장면 줄이 따로 있어, 「둘 중 어디로 가시겠어요?」 가
+             화면마다 같은 자리에서 같은 말을 되풀이했다. 세로 자리만 먹는다. -->
     <!-- 🔴 2026-09-12 정정 (S15P21E201-868). 이 자리에 「부산에서 1박 2일을
              보낸다고 생각하고」 가 있었다 (S15P21E201-864 에서 붙였다).
              바로 앞 화면(scPremise)이 「부산이 아니라 해외로 여행을 간다고
@@ -1774,17 +1819,27 @@ const PAIR_PAGES = Math.ceil(PAIR_SETS.length / PER_PAGE);
       보여줄지는 DESIGN.blocks[덩어리].attributes 가 정한다.
    🔴 「역에서 걸어서」는 모든 덩어리에 같은 뜻으로 들어간다 — 그게 자다.
       이 줄을 덩어리마다 다르게 적으면 덩어리끼리 비교가 안 된다. */
+/* 🔴 ic 는 아이콘 스프라이트의 id 다 (S15P21E201-875). 2차 화면부터 속성
+      이름과 아이콘을 **표 가운데 열에 한 번만** 그린다 — 좌우가 같은 것을
+      나눠 쓰므로 「한쪽에만 다른 그림」이 생길 수가 없다. 짝 비교가 지켜야
+      하는 첫 번째 선(카드에 장소 그림 금지)을 규칙이 아니라 구조로 만든 것이다. */
 const ATTR_UI = {
-  walkMin:    { name: "역에서 걸어서",          fmt: v => v + "분" },
-  price:      { name: "한 끼 가격",            fmt: v => (v / 10000) + "만원" },
-  queueMin:   { name: "줄서기",                fmt: v => v === 0 ? "줄 없음" : v + "분" },
-  sameStreet: { name: "같은 골목의 비슷한 가게", fmt: v => v === 0 ? "없음 (외딴집)" : v + "곳" },
-  slope:      { name: "오르막",                fmt: v => v === "FLAT" ? "평지" : v === "GENTLE" ? "완만한 오르막" : "가파른 오르막" },
-  shade:      { name: "볕",                   fmt: v => v === "SHADED" ? "그늘이 많아요" : "볕이 들어요" },
-  crowd:      { name: "사람",                 fmt: v => v === "QUIET" ? "한산해요" : v === "SOME" ? "적당해요" : "붐벼요" },
-  cost:       { name: "비용",                 fmt: v => v === 0 ? "무료" : (v / 10000) + "만원" },
-  indoor:     { name: "실내·실외",             fmt: v => v === "INDOOR" ? "실내예요" : "실외예요" },
-  fame:       { name: "알려진 정도",            fmt: v => v === "SNS_FAMOUS" ? "SNS 에서 유명" : "동네에서만 알려짐" }
+  walkMin:    { ic: "i-walk",   name: "역에서 걸어서",       fmt: v => v + "분" },
+  price:      { ic: "i-money",  name: "한 끼 가격",          fmt: v => (v / 10000) + "만원" },
+  queueMin:   { ic: "i-queue",  name: "줄서기",             fmt: v => v === 0 ? "줄 없음" : v + "분" },
+  sameStreet: { ic: "i-shops",  name: "비슷한 가게",         fmt: v => v === 0 ? "없음 (외딴집)" : v + "곳" },
+  slope:      { ic: "i-slope",  name: "오르막",             fmt: v => v === "FLAT" ? "평지" : v === "GENTLE" ? "완만" : "가파름" },
+  /* 🔴 표가 되면서 값이 짧아야 한다 (S15P21E201-875). 좌우 칸이 각각 130px
+        남짓이라 「동네에서만 알려짐」 은 「짐」 한 글자가 다음 줄로 떨어졌다.
+        뜻은 가운데 열의 속성 이름이 지고 있으므로 값은 짧아도 통한다 —
+        「알려진 정도 : 동네에서만」 으로 읽힌다.
+        🔴 좌우 길이도 맞춘다. 「그늘」 옆에 「볕이 들어요」 가 있으면 한쪽이
+           길어서 더 중요해 보인다. */
+  shade:      { ic: "i-sun",    name: "볕",                fmt: v => v === "SHADED" ? "그늘" : "볕" },
+  crowd:      { ic: "i-people", name: "사람",              fmt: v => v === "QUIET" ? "한산" : v === "SOME" ? "적당" : "붐빔" },
+  cost:       { ic: "i-money",  name: "비용",              fmt: v => v === 0 ? "무료" : (v / 10000) + "만원" },
+  indoor:     { ic: "i-roof",   name: "실내·실외",          fmt: v => v === "INDOOR" ? "실내" : "실외" },
+  fame:       { ic: "i-fame",   name: "알려진 정도",         fmt: v => v === "SNS_FAMOUS" ? "SNS 에서 유명" : "동네에서만" }
 };
 
 /* 그 카드에 어떤 줄을 어떤 순서로 보여줄까 — 공통 칸 먼저, 그다음 덩어리 속성 */
@@ -1828,10 +1883,10 @@ const state = {
   /* "건너뛰기를 눌렀다" 는 화면 표시에만 쓴다 (spendSkip 과 같은 이유) */
   crowdSkip: false,
   /* 짝 비교 — 문항마다 { chosen, msBucket }. 아직 안 고른 문항은 null.
-     🔴 topWas 는 따로 둔다. "화면에서 위에 있던 쪽" 은 답이 아니라 화면이
+     🔴 leftWas 는 따로 둔다. "화면에서 왼쪽에 있던 쪽" 은 답이 아니라 화면이
         정한 것이고, 이전 장으로 돌아왔다 가도 안 바뀌어야 한다. */
   pair: new Array(PAIR_SETS.length).fill(null),
-  pairTopWas: new Array(PAIR_SETS.length).fill(null),
+  pairLeftWas: new Array(PAIR_SETS.length).fill(null),
   /* 🔴 갈래 여덟. 갈래마다 줄이 여럿 있을 수 있다 (S15P21E201-754).
         유형은 **갈래가 정한다** — 줄 안에서 고르지 않는다.
         갈래마다 빈 줄 하나로 시작하고, **한 곳을 다 적으면 저절로 는다**
@@ -2413,7 +2468,8 @@ function paint() {
      🔴 분모는 하한(NEED)이되, 그것을 넘기면 넘긴 수를 분모로 쓴다. 하한에
         멈춰 두면 일곱 곳을 적은 사람에게 "7 / 3" 이 나오고, 그 순간 이
         표시를 아무도 안 믿는다. */
-  $("cof").textContent = " / " + Math.max(NEED, n) + " 추천한 곳";
+  $("cof").textContent = " / " + Math.max(NEED, n) + " 곳";
+  $("progNow").style.width = Math.round((14 / SCREENS_TOTAL) * 100) + "%";
 
   document.querySelectorAll(".cat").forEach(art => {
     const c = Number(art.dataset.cat);
@@ -2477,9 +2533,21 @@ function paint() {
    ══════════════════════════════════════════════════════════════════ */
 
 /* 진행 표시 한 줄. 단계마다 세는 것이 다르다 */
-function setTop(now, total, what) {
+/* 🔴 진행 막대는 전체 열다섯 장 기준이다 (S15P21E201-875) —
+      웰컴 3 · 고지 1 · 전제 1 · 짝 비교 4 · 여행 스타일 4 · 본 화면 1 · 완료 1.
+      단계 안의 숫자(now / total)와 다른 것을 센다. 둘을 같게 하면
+      「4 / 4」 인데 막대가 절반인 화면이 나와 사람이 표시를 안 믿는다. */
+const SCREENS_TOTAL = 15;
+function setTop(now, total, what, seen, back) {
   $("cnum").textContent = String(now);
   $("cof").textContent = " / " + total + " " + what;
+  if (seen !== undefined) {
+    $("progNow").style.width = Math.round((seen / SCREENS_TOTAL) * 100) + "%";
+  }
+  /* 뒤로가 할 일은 화면마다 다르다. 없으면 버튼을 감춘다 */
+  const b = $("topBack");
+  b.onclick = back || null;
+  b.style.visibility = back ? "visible" : "hidden";
 }
 
 /* ── 짝 비교 ─────────────────────────────────────────────────── */
@@ -2517,7 +2585,7 @@ function goPair(p) {
   renderPairPage(p);
   show("scPair");
   $("top").classList.remove("hide");
-  setTop(p + 1, PAIR_PAGES, "두 곳 중 고르기");
+  setTop(p + 1, PAIR_PAGES, "고르기", 5 + p + 1, () => goPair(p - 1));
   window.scrollTo(0, 0);
   /* 🔴 이 장의 문항 전부가 지금 동시에 보이기 시작한다.
         이전 장에서 되돌아온 경우 이미 답한 문항도 다시 잡히지만, 그 문항의
@@ -2571,61 +2639,104 @@ function buildPairQuestion(i) {
   h.textContent = (_set.lead ? _set.lead + ". " : "") + "어느 쪽으로 가시겠어요?";
   wrap.appendChild(h);
 
-  /* 🔴 위아래를 문항마다 무작위로 뒤집는다. 고정하면 "위쪽을 더 고른다" 는
+  /* 🔴 좌우를 문항마다 무작위로 뒤집는다. 고정하면 "왼쪽을 더 고른다" 는
         위치 편향이 통째로 결과에 섞이고 나중에 분리할 수 없다.
         한 번 정한 순서는 이전 장으로 돌아왔다 와도 안 바뀐다 —
         바뀌면 방금 본 것과 달라져서 사람이 혼란스럽다.
-        🔴 어느 쪽이 위였는지를 응답에 남긴다(top_was). 안 남기면 못 뺀다. */
-  if (state.pairTopWas[i] === null) state.pairTopWas[i] = Math.random() < 0.5 ? 0 : 1;
-  const top = state.pairTopWas[i], bottom = 1 - top;
+        🔴 어느 쪽이 왼쪽이었는지를 응답에 남긴다(left_was). 안 남기면 못 뺀다.
+        🔴 2차 화면부터 위·아래가 아니라 좌·우다 (S15P21E201-875). */
+  if (state.pairLeftWas[i] === null) state.pairLeftWas[i] = Math.random() < 0.5 ? 0 : 1;
+  const left = state.pairLeftWas[i], right = 1 - left;
   const now = state.pair[i];
+  const set = PAIR_SETS[i];
 
-  const box = document.createElement("div");
-  box.className = "pairs";
-  box.setAttribute("role", "radiogroup");
-  for (const [idx, label] of [[top, "가"], [bottom, "나"]]) {
-    const b = document.createElement("button");
-    b.type = "button";
-    b.className = "pcard" + (now && now.chosen === idx ? " on" : "");
-    b.setAttribute("role", "radio");
-    b.setAttribute("aria-checked", String(!!(now && now.chosen === idx)));
+  const tab = document.createElement("div");
+  tab.className = "ptab";
+  tab.setAttribute("role", "radiogroup");
+  tab.setAttribute("aria-label", (_set.when || "") + " 문항");
 
-    const lbl = document.createElement("span");
-    lbl.className = "lbl";
-    lbl.textContent = label;
-    b.appendChild(lbl);
+  const cell = (cls, side) => {
+    const el = document.createElement(side === undefined ? "div" : "button");
+    el.className = "pcell " + cls;
+    if (side !== undefined) { el.type = "button"; el.dataset.side = String(side); }
+    return el;
+  };
 
-    const set = PAIR_SETS[i];
-    const alt = set.alternatives[idx];
-    const blk = blockOfCard(set, idx);
-    /* 🔴 섞인 문항은 두 카드의 덩어리가 다르다. 그때만 카드 머리에 덩어리를 적는다 —
-          안 적으면 사람이 「왜 한쪽에만 가격이 있지」 하고 헷갈린다. */
-    if (Array.isArray(set.blocks) && DESIGN.blocks && DESIGN.blocks[blk]) {
-      const cap = document.createElement("div");
-      cap.className = "prow";
-      const ck = document.createElement("span"); ck.className = "k"; ck.textContent = "어디";
-      const cv = document.createElement("span"); cv.className = "v"; cv.textContent = DESIGN.blocks[blk].label;
-      cap.appendChild(ck); cap.appendChild(cv);
-      b.appendChild(cap);
-    }
-    for (const key of rowsForBlock(blk)) {
-      if (alt[key] === undefined) continue;
-      const u = ATTR_UI[key];
-      const row = document.createElement("div");
-      row.className = "prow";
-      const k = document.createElement("span"); k.className = "k"; k.textContent = u.name;
-      const v = document.createElement("span"); v.className = "v"; v.textContent = u.fmt(alt[key]);
-      row.appendChild(k); row.appendChild(v);
-      b.appendChild(row);
-    }
-    b.addEventListener("click", () => pickPair(i, idx));
-    box.appendChild(b);
+  /* ① 머리 — 가 / 나 */
+  for (const [n, side] of [[0, 0], [1, 1]]) {
+    const alt = side === 0 ? left : right;
+    const head = cell("phead", side);
+    head.setAttribute("role", "radio");
+    head.setAttribute("aria-checked", String(!!(now && now.chosen === alt)));
+    const dot = document.createElement("span");
+    dot.className = "m3-radio" + (now && now.chosen === alt ? " on" : "");
+    head.appendChild(dot);
+    head.append(n === 0 ? "가" : "나");
+    if (side === 0) { tab.appendChild(head); tab.appendChild(cell("mid")); }
+    else tab.appendChild(head);
   }
-  wrap.appendChild(box);
+
+  /* ② 섞인 문항만 「어디」 줄 — 두 카드의 덩어리가 다를 때다 */
+  if (Array.isArray(set.blocks) && DESIGN.blocks) {
+    const mid = cell("mid");
+    const nm = document.createElement("span"); nm.className = "nm"; nm.textContent = "어디";
+    mid.appendChild(nm);
+    const L = cell("val", 0), R = cell("val", 1);
+    L.textContent = DESIGN.blocks[blockOfCard(set, left)].label;
+    R.textContent = DESIGN.blocks[blockOfCard(set, right)].label;
+    tab.append(L, mid, R);
+  }
+
+  /* ③ 속성 줄 — 가운데에 아이콘과 이름을 한 번만 */
+  const keys = [];
+  for (const k of rowsForBlock(blockOfCard(set, left))) keys.push(k);
+  for (const k of rowsForBlock(blockOfCard(set, right))) if (!keys.includes(k)) keys.push(k);
+  for (const key of keys) {
+    const u = ATTR_UI[key];
+    const lv = set.alternatives[left][key], rv = set.alternatives[right][key];
+    if (lv === undefined && rv === undefined) continue;
+    const same = lv === rv;
+    const L = cell("val" + (same ? " same" : ""), 0);
+    const R = cell("val" + (same ? " same" : ""), 1);
+    L.textContent = lv === undefined ? "—" : u.fmt(lv);
+    R.textContent = rv === undefined ? "—" : u.fmt(rv);
+    const mid = cell("mid" + (same ? " same" : ""));
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("class", "ic"); svg.setAttribute("aria-hidden", "true");
+    const use = document.createElementNS("http://www.w3.org/2000/svg", "use");
+    use.setAttribute("href", "#" + u.ic);
+    svg.appendChild(use); mid.appendChild(svg);
+    const nm = document.createElement("span");
+    nm.className = "nm";
+    /* 같은 값이면 이름 뒤에 「=」 — 색만으로는 색을 못 보는 사람에게 안 전해진다 */
+    nm.textContent = u.name + (same ? " =" : "");
+    mid.appendChild(nm);
+    tab.append(L, mid, R);
+  }
+
+  /* ④ 고른 열 전체에 색을 칠한다 — 머리 칸만 칠하면 무엇을 골랐는지가
+        표 위쪽에서만 보이고, 값을 다시 훑을 때는 안 보인다 */
+  if (now) {
+    const side = now.chosen === left ? "0" : "1";
+    for (const c of tab.querySelectorAll('[data-side="' + side + '"]')) c.classList.add("on");
+  }
+
+  /* ⑤ 열 아무 곳이나 누르면 그 열을 고른다 */
+  tab.addEventListener("click", e => {
+    const c = e.target.closest("[data-side]");
+    if (!c) return;
+    pickPair(i, c.dataset.side === "0" ? left : right);
+  });
+  wrap.appendChild(tab);
 
   const ask = document.createElement("p");
-  ask.className = "ask";
-  ask.textContent = "둘 다 아니어도, 그나마 끌리는 쪽으로 골라 주세요.";
+  ask.className = "pask";
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("class", "ic"); svg.setAttribute("aria-hidden", "true");
+  const use = document.createElementNS("http://www.w3.org/2000/svg", "use");
+  use.setAttribute("href", "#i-info");
+  svg.appendChild(use); ask.appendChild(svg);
+  ask.append("둘 다 아니어도 그나마 끌리는 쪽으로. 흐린 줄은 두 곳이 같아요.");
   wrap.appendChild(ask);
   return wrap;
 }
@@ -2804,7 +2915,7 @@ function goPersonal(i) {
   paintPersonal(i);
   show("scQ" + (i + 1));
   $("top").classList.remove("hide");
-  setTop(i + 1, PERSONAL_QUESTIONS.length, "여행 스타일");
+  setTop(i + 1, PERSONAL_QUESTIONS.length, "스타일", 9 + i + 1, () => goPersonal(i - 1));
   window.scrollTo(0, 0);
 }
 
@@ -3023,7 +3134,7 @@ $("submit").addEventListener("click", async () => {
         return a === null ? null : {
           setId: s.setId,
           chosen: a.chosen,
-          topWas: state.pairTopWas[i],   /* 화면에서 위에 있던 쪽 */
+          leftWas: state.pairLeftWas[i],  /* 화면에서 왼쪽에 있던 쪽 */
           msBucket: a.msBucket
         };
       }).filter(Boolean)

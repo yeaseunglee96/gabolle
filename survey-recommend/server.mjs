@@ -151,7 +151,12 @@ console.log(`짝 비교 문항 ${DESIGN.sets.length}개 (${DESIGN.designId})`);
       🔴 6 도 같다. 안 올리면 "SIGHT 로 적힌 곳이 하나도 없다 → 사람들이
          관광지를 안 추천한다" 로 읽는데, 사실은 그 갈래가 생기기 전 응답이라
          고를 수가 없었다. */
-const FORM_VERSION = 7;
+/*    7 = 짝 비교가 덩어리 셋이 된 판 (migrations/0007).
+      8 = 짝 비교 카드가 위·아래에서 **좌·우**로 간 판 (migrations/0008).
+          🔴 이 번호가 top_was / left_was 의 뜻을 가른다. 7 이하 행의 0/1 은
+             "위에 있던 쪽" 이고 8 이상은 "왼쪽에 있던 쪽" 이다. 안 올리면
+             두 판을 합쳐 위치 편향을 뺄 때 방향이 섞인다. */
+const FORM_VERSION = 8;
 
 const pool = new pg.Pool({
   connectionString: process.env.DATABASE_URL,
@@ -341,7 +346,7 @@ function readPairwise(v) {
     if (!set) return { error: "두 곳 중 고르기에 모르는 문항이 있어요." };
     if (seen.has(set.setId)) return { error: "두 곳 중 고르기 답이 겹쳐서 왔어요." };
     seen.add(set.setId);
-    if (!isBit(c.chosen) || !isBit(c.topWas)) {
+    if (!isBit(c.chosen) || !isBit(c.leftWas)) {
       return { error: "두 곳 중 고르기에서 어느 쪽을 고르셨는지 읽지 못했어요." };
     }
     if (!okBucket(c.msBucket)) return { error: "두 곳 중 고르기 답을 읽지 못했어요." };
@@ -364,7 +369,7 @@ function readPairwise(v) {
       isTrap: !!set.trap,
       trapCorrect: set.trap ? set.trapCorrect : null,
       pageNo: Math.floor(DESIGN.sets.indexOf(set) / PER_PAGE) + 1,
-      chosen: c.chosen, topWas: c.topWas, msBucket: c.msBucket,
+      chosen: c.chosen, leftWas: c.leftWas, msBucket: c.msBucket,
       block: mixed ? "mixed" : (set.block || null),
       a0Block: mixed ? set.blocks[0] : null,
       a1Block: mixed ? set.blocks[1] : null,
@@ -490,10 +495,10 @@ async function insert(b, spend, pair, crowd) {
               옛 응답을 읽기 위한 자리이지 새 응답이 쓸 자리가 아니다. */
         `INSERT INTO pairwise_choice
            (response_id, design_id, set_id, is_trap, trap_correct, page_no,
-            chosen, top_was, ms_bucket, block, alt0_block, alt1_block, alt0, alt1)
+            chosen, left_was, ms_bucket, block, alt0_block, alt1_block, alt0, alt1)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`,
         [id, pair.designId, c.setId, c.isTrap, c.trapCorrect, c.pageNo,
-         c.chosen, c.topWas, c.msBucket, c.block, c.a0Block, c.a1Block,
+         c.chosen, c.leftWas, c.msBucket, c.block, c.a0Block, c.a1Block,
          JSON.stringify(c.a0), JSON.stringify(c.a1)]
       );
     }
