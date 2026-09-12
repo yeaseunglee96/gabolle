@@ -1259,7 +1259,7 @@ textarea.u { min-height: 96px; font-size: 17px; line-height: 1.5; resize: vertic
       <p class="m3-help" id="draftNote"><span></span></p>
 
       <button type="button" class="m3-btn m3-tonal" id="keepBtn" disabled>
-        <svg class="ic" aria-hidden="true"><use href="#i-add"/></svg><span id="keepLabel">다음 장소 추천하기</span></button>
+        <svg class="ic" aria-hidden="true"><use href="#i-add"/></svg><span id="keepLabel">이 장소 추천하기</span></button>
     </div>
 
     <!-- 🔴 열 곳을 담으면 위 칸이 통째로 사라진다. 왜 사라졌는지 말해 준다 -->
@@ -2329,7 +2329,20 @@ const dLim     = $("dLimited");
 const aclist   = $("aclist");
 const acStatus = $("acStatus");
 
-/* 칸 아래 한 줄짜리 알림. 지금은 「먼저 담아 주세요」 하나만 쓴다 */
+/* ── 담는 버튼에 적히는 말 ──────────────────────────────────────
+ * 🔴 아직 한 곳도 없으면 **「이 장소」**, 있으면 **「다음 장소」**다
+ *    (S15P21E201-880). 첫 카드에서 "다음 장소" 라고 하면 앞에 뭔가 있었다는
+ *    말이 되는데, 그 위는 비어 있다.
+ * 🔴 한 곳에서만 정한다. 이 말은 버튼에도 쓰이고 「안 넣고 제출했을 때」
+ *    막힘 문구에도 쓰이는데, 두 벌로 적어 두면 한쪽만 고치게 되고 그러면
+ *    화면에 없는 버튼을 누르라고 안내하게 된다.
+ * ─────────────────────────────────────────────────────────── */
+const keepWord = () =>
+  editing              ? "고친 내용 저장하기"
+  : filledCount() === 0 ? "이 장소 추천하기"
+  :                       "다음 장소 추천하기";
+
+/* 칸 아래 한 줄짜리 알림. 지금은 「먼저 추천해 주세요」 하나만 쓴다 */
 function say(msg) {
   const n = $("draftNote");
   n.querySelector("span").textContent = msg;
@@ -2597,8 +2610,7 @@ function paintDraft() {
      🔴 한 글자도 안 적었을 때는 안 따진다 — 시작도 안 한 사람을 재촉하는 것이
         되고, 바로 위에 「첫 번째 곳」이라고 적혀 있어 할 일은 이미 분명하다. */
   $("keepLabel").textContent =
-    isFull(draft)     ? (editing ? "고친 내용 저장하기" : "다음 장소 추천하기")
-    : isEmpty(draft)  ? "다음 장소 추천하기"
+    isFull(draft) || isEmpty(draft) ? keepWord()
     : !draft.name     ? "장소 이름을 적어 주세요"
     : !draft.whenGood ? "언제 가면 좋은지 골라 주세요"
     :                   "왜 추천하는지 적어 주세요";
@@ -3242,7 +3254,7 @@ $("submit").addEventListener("click", async () => {
         고치던 것을 담지 않고 제출하는 경우도 같은 자리에서 걸린다. */
   if (!isEmpty(draft)) {
     trouble.push({ text: (editing ? "고치고 계신 곳" : "적고 계신 곳") +
-      "을 「" + (editing ? "고친 내용 저장하기" : "다음 장소 추천하기") + "」로 넣어 주세요. 안 넣으면 같이 안 갑니다." });
+      "을 「" + keepWord() + "」로 넣어 주세요. 안 넣으면 같이 안 갑니다." });
   }
 
   /* 🔴 개인정보 검사가 먼저다. 덜 채운 것보다 먼저 알려야 다시 안 적는다.
