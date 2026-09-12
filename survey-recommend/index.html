@@ -850,18 +850,18 @@ textarea.u { min-height: 96px; font-size: 17px; line-height: 1.5; resize: vertic
       "trap": false,
       "alternatives": [
         {
-          "walkMin": 15,
-          "slope": "FLAT",
-          "shade": "SUNNY",
-          "crowd": "QUIET",
-          "fame": "LOCAL_ONLY"
-        },
-        {
-          "walkMin": 3,
+          "walkMin": 8,
           "slope": "GENTLE",
           "shade": "SUNNY",
-          "crowd": "PACKED",
+          "crowd": "SOME",
           "fame": "SNS_FAMOUS"
+        },
+        {
+          "walkMin": 15,
+          "slope": "STEEP",
+          "shade": "SHADED",
+          "crowd": "QUIET",
+          "fame": "LOCAL_ONLY"
         }
       ],
       "when": "첫날 밤",
@@ -873,17 +873,17 @@ textarea.u { min-height: 96px; font-size: 17px; line-height: 1.5; resize: vertic
       "trap": false,
       "alternatives": [
         {
-          "walkMin": 8,
-          "slope": "STEEP",
-          "shade": "SHADED",
+          "walkMin": 25,
+          "slope": "FLAT",
+          "shade": "SUNNY",
           "crowd": "QUIET",
           "fame": "LOCAL_ONLY"
         },
         {
-          "walkMin": 15,
-          "slope": "STEEP",
+          "walkMin": 3,
+          "slope": "FLAT",
           "shade": "SHADED",
-          "crowd": "SOME",
+          "crowd": "PACKED",
           "fame": "SNS_FAMOUS"
         }
       ],
@@ -920,18 +920,18 @@ textarea.u { min-height: 96px; font-size: 17px; line-height: 1.5; resize: vertic
       "trap": false,
       "alternatives": [
         {
-          "walkMin": 25,
-          "cost": 0,
+          "walkMin": 15,
+          "cost": 10000,
           "indoor": "INDOOR",
-          "crowd": "PACKED",
-          "fame": "SNS_FAMOUS"
-        },
-        {
-          "walkMin": 8,
-          "cost": 30000,
-          "indoor": "OUTDOOR",
           "crowd": "SOME",
           "fame": "LOCAL_ONLY"
+        },
+        {
+          "walkMin": 25,
+          "cost": 0,
+          "indoor": "OUTDOOR",
+          "crowd": "QUIET",
+          "fame": "SNS_FAMOUS"
         }
       ],
       "when": "이튿날 오후",
@@ -943,17 +943,17 @@ textarea.u { min-height: 96px; font-size: 17px; line-height: 1.5; resize: vertic
       "trap": false,
       "alternatives": [
         {
-          "walkMin": 25,
-          "cost": 10000,
-          "indoor": "INDOOR",
-          "crowd": "QUIET",
+          "walkMin": 8,
+          "cost": 30000,
+          "indoor": "OUTDOOR",
+          "crowd": "PACKED",
           "fame": "SNS_FAMOUS"
         },
         {
-          "walkMin": 15,
-          "cost": 0,
-          "indoor": "OUTDOOR",
-          "crowd": "QUIET",
+          "walkMin": 3,
+          "cost": 30000,
+          "indoor": "INDOOR",
+          "crowd": "PACKED",
           "fame": "LOCAL_ONLY"
         }
       ],
@@ -967,15 +967,15 @@ textarea.u { min-height: 96px; font-size: 17px; line-height: 1.5; resize: vertic
       "alternatives": [
         {
           "walkMin": 25,
-          "price": 20000,
+          "price": 10000,
           "queueMin": 0,
-          "sameStreet": 0,
+          "sameStreet": 12,
           "fame": "SNS_FAMOUS"
         },
         {
           "walkMin": 8,
-          "price": 70000,
-          "queueMin": 0,
+          "price": 20000,
+          "queueMin": 20,
           "sameStreet": 0,
           "fame": "LOCAL_ONLY"
         }
@@ -986,24 +986,24 @@ textarea.u { min-height: 96px; font-size: 17px; line-height: 1.5; resize: vertic
     {
       "setId": "mx01",
       "blocks": [
-        "see",
-        "play"
+        "play",
+        "eat"
       ],
       "trap": false,
       "alternatives": [
         {
-          "walkMin": 8,
-          "slope": "GENTLE",
-          "shade": "SHADED",
-          "crowd": "PACKED",
-          "fame": "SNS_FAMOUS"
-        },
-        {
           "walkMin": 15,
           "cost": 0,
           "indoor": "OUTDOOR",
-          "crowd": "PACKED",
+          "crowd": "SOME",
           "fame": "LOCAL_ONLY"
+        },
+        {
+          "walkMin": 8,
+          "price": 40000,
+          "queueMin": 0,
+          "sameStreet": 12,
+          "fame": "SNS_FAMOUS"
         }
       ],
       "when": "떠나기 전",

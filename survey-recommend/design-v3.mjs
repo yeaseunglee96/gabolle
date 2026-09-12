@@ -215,12 +215,40 @@ function costOf(pair, counts, keys) {
   return c;
 }
 
+/* 🔴 아직 한 번도 안 쓴 수준을 이 쌍이 몇 개나 데려오나 (2026-09-12, S15P21E201-864).
+      합계만 보고 고르면 안 쓴 수준이 남는다 — 낮게 나온 수준을 두 번 쓰는 쌍이
+      안 쓴 수준을 처음 쓰는 쌍보다 합계가 작을 수 있기 때문이다. 실제로 첫 판과
+      이 판 모두에서 「한 끼 가격 1만원」이 여덟 문항 어디에도 안 나왔다.
+
+      🔴 한 번도 안 나온 수준은 **무게를 아예 못 잰다.** 그리고 1만원은
+         돼지국밥 · 밀면 같은 부산 향토음식 자리다 — 콜드 스타트 문서가
+         "부산 향토음식이 전부 낮은 가격대다" 라며 경고한 바로 그 구간이라,
+         비어 있으면 그 가격대가 조용히 밀린다.
+
+      그래서 **안 쓴 수준을 몇 개 데려오나를 먼저 보고**, 같으면 합계로 가른다. */
+function freshCount(pair, counts, keys) {
+  const fresh = new Set();
+  for (const alt of pair) for (const k of keys) {
+    const key = levelKey(k, alt[k]);
+    if ((counts.get(key) ?? 0) === 0) fresh.add(key);
+  }
+  return fresh.size;
+}
+
 function bump(pair, counts, keys) {
   for (const alt of pair) for (const k of keys) {
     const key = levelKey(k, alt[k]);
     counts.set(key, (counts.get(key) ?? 0) + 1);
   }
 }
+
+/* ── 🔴 한 번에 몇 개를 후보로 뽑아 놓고 고를 것인가 ──────────────────
+   40 이었다. 40 개 중에서는 "안 쓴 수준을 전부 데려오는 쌍" 이 안 걸린다 —
+   먹는 곳의 조합이 288 개이고 그중 아직 안 쓴 수준 넷을 한꺼번에 채우는 쌍은
+   몇 개 안 되기 때문이다. 실제로 40 일 때 「한 끼 가격 1만원」이 여덟 문항
+   어디에도 안 나왔다. 200 이면 걸린다 (2026-09-12 실측: 200·600·2000 모두
+   빠진 수준 0). 더 키워도 결과가 같아 제일 작은 수를 쓴다. */
+const CANDIDATES = 200;
 
 /* ── 한 덩어리에서 문항 n개 ───────────────────────────────────────── */
 function setsForBlock(block, n) {
@@ -234,7 +262,7 @@ function setsForBlock(block, n) {
   while (chosen.length < n) {
     const cands = [];
     let guard = 0;
-    while (cands.length < 40 && guard++ < 40000) {
+    while (cands.length < CANDIDATES && guard++ < 400000) {
       const a = pick(pool), b = pick(pool);
       if (differCount(a, b, keys) < 3) continue;        /* 너무 비슷하면 답이 흐려진다 */
       /* 🔴 공통 자가 양쪽 같으면 그 문항은 자 맞추기에 아무것도 안 보탠다.
@@ -248,7 +276,9 @@ function setsForBlock(block, n) {
       cands.push([a, b]);
     }
     if (cands.length === 0) throw new Error(block + ": 쌍을 못 만들었다 — 제약이 너무 빡빡하다");
-    cands.sort((x, y) => costOf(x, counts, keys) - costOf(y, counts, keys));
+    /* 안 쓴 수준을 많이 데려오는 쌍 먼저, 같으면 적게 나온 수준을 쓰는 쌍 먼저 */
+    cands.sort((x, y) => freshCount(y, counts, keys) - freshCount(x, counts, keys)
+                      || costOf(x, counts, keys) - costOf(y, counts, keys));
     const best = cands[0];
     seen.add(JSON.stringify(best));
     bump(best, counts, keys);
@@ -434,11 +464,36 @@ if (sets.length !== PER_PAGE * PAGES) {
   process.exit(1);
 }
 
+/* ── 🔴 한 번도 안 나온 수준을 센다 ───────────────────────────────────
+   조용히 비어 있으면 아무도 못 알아챈다 — 계수가 하나 없는 채로 결과가 나오고,
+   그 가격대·그 등급의 장소가 이유 없이 밀린다. --check 와 실제 쓰기 양쪽에서
+   찍는다. 함정도 카드이므로 같이 센다. */
+function missingLevels() {
+  const seen = new Set();
+  for (const one of sets) {
+    const blocks = one.blocks || [one.block, one.block];
+    one.alternatives.forEach((alt, i) => {
+      for (const k of Object.keys(alt)) seen.add((k === "walkMin" ? "공통" : blocks[i]) + "." + k + "=" + alt[k]);
+    });
+  }
+  const miss = [];
+  for (const v of COMMON.walkMin.levels) if (!seen.has("공통.walkMin=" + v)) miss.push("공통 걷기 " + v);
+  for (const b of Object.keys(BLOCKS))
+    for (const [k, spec] of Object.entries(BLOCKS[b].attrs))
+      for (const v of spec.levels) if (!seen.has(b + "." + k + "=" + v)) miss.push(BLOCKS[b].label + " " + k + " " + v);
+  return miss;
+}
+
+const MISSING = missingLevels();
+
 if (process.argv.includes("--check")) {
   console.log("설계  : " + DESIGN_ID);
   console.log("문항  : " + sets.length + " (진짜 " + realCount + " + 함정 " + (sets.length - realCount) + ") · 화면 " + PAGES + "장 × " + PER_PAGE);
   console.log("계수  : " + coefs + "  (공통 " + Object.keys(COMMON).length + " + 덩어리별 속성 + 덩어리 " + (Object.keys(BLOCKS).length - 1) + ")");
   console.log("표본  : 관측 " + needObs + "개 필요 → 1인당 " + realCount + "문항이면 최소 " + needPeople + "명");
+  console.log(MISSING.length === 0
+    ? "빠진 수준: 없음 — 모든 수준이 적어도 한 번 나온다"
+    : "🔴 빠진 수준 " + MISSING.length + "개 (무게를 못 잰다): " + MISSING.join(" · "));
   for (const [i, s] of sets.entries()) {
     const where = s.trap ? "함정"
       : (s.blocks ? s.blocks.map(b => BLOCKS[b].label).join(" ↔ ") : BLOCKS[s.block].label);
@@ -464,4 +519,5 @@ if (process.argv.includes("--print")) {
   const LF = String.fromCharCode(10);
   writeFileSync(target, html.slice(0, i + open.length) + LF + json + LF + html.slice(j), "utf8");
   console.log("index.html 의 문항 " + design.sets.length + "개를 다시 썼다 (" + DESIGN_ID + ")");
+  if (MISSING.length) console.log("🔴 빠진 수준 " + MISSING.length + "개 (무게를 못 잰다): " + MISSING.join(" · "));
 }
