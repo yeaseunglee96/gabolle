@@ -43,7 +43,7 @@ const PAGE = readFileSync(join(HERE, "index.html"));
  * ────────────────────────────────────────────────────────────────── */
 const STATIC_FILES = {
   "/assets/gwangan-bridge.jpg":       { file: "assets/gwangan-bridge.jpg",       type: "image/jpeg" },
-  "/assets/haeundae-beach.jpg":       { file: "assets/haeundae-beach.jpg",       type: "image/jpeg" },
+  "/assets/gamcheon-village.jpg":     { file: "assets/gamcheon-village.jpg",     type: "image/jpeg" },
   "/assets/gwangalli-beach.jpg":      { file: "assets/gwangalli-beach.jpg",      type: "image/jpeg" },
   "/assets/huinnyeoul.jpg":           { file: "assets/huinnyeoul.jpg",           type: "image/jpeg" },
   "/assets/busan-night-panorama.jpg": { file: "assets/busan-night-panorama.jpg", type: "image/jpeg" },
@@ -51,10 +51,35 @@ const STATIC_FILES = {
   "/fonts/PretendardVariable.woff2":  { file: "fonts/PretendardVariable.woff2",  type: "font/woff2" },
   "/fonts/LICENSE-Pretendard.txt":    { file: "fonts/LICENSE-Pretendard.txt",    type: "text/plain; charset=utf-8" }
 };
-/* 목록에 적힌 파일만 이때 읽는다 — 목록에 없는 파일은 이 서버가 존재조차 모른다 */
+/* 목록에 적힌 파일만 이때 읽는다 — 목록에 없는 파일은 이 서버가 존재조차 모른다.
+   🔴 목록에 있는데 파일이 없으면 여기서 죽는다. 그게 맞다 — 502 가 뜨고
+      docker logs 에 어느 파일인지 적힌다. 조용히 빈 사진을 내주는 것보다 낫다. */
 for (const entry of Object.values(STATIC_FILES)) {
   entry.body = readFileSync(join(HERE, entry.file));
 }
+
+/* ── 🔴 화면이 부르는 파일과 이 목록이 어긋나 있지 않은가 (S15P21E201-881) ──
+ * 2026-09-12 에 실제로 어긋났다. 웰컴 사진 한 장을 감천문화마을 사진으로
+ * 바꾸면서 index.html 만 고치고 **이 목록을 안 고쳤다.** 그러면 둘이 터진다:
+ *   · 지운 사진(haeundae-beach.jpg)이 목록에 남아 → 위 readFileSync 가
+ *     ENOENT 로 죽고, 컨테이너가 재시작을 반복하며 **502**
+ *   · 새 사진이 목록에 없어 → 브라우저가 **404**, 화면은 까맣게 뜬다
+ * 배포 전에 잡은 건 Dockerfile 주석을 읽다가였다. **운이었다.**
+ *
+ * 그래서 시작할 때 index.html 이 부르는 assets/ · fonts/ 를 전부 뽑아
+ * 이 목록과 맞춰 본다. 어긋나면 **죽지는 않고 크게 적는다** — 사진 한 장
+ * 때문에 설문 전체를 못 열게 만들 이유는 없고, 로그 첫 줄에 뜨면 배포한
+ * 사람이 바로 본다.
+ * ─────────────────────────────────────────────────────────────────── */
+const wanted = new Set(
+  (PAGE.toString("utf8").match(/(?:assets|fonts)\/[A-Za-z0-9_-]+(?:\.[A-Za-z0-9]+)+/g) || [])
+    .map(p => "/" + p)
+);
+const missing = [...wanted].filter(p => !Object.prototype.hasOwnProperty.call(STATIC_FILES, p));
+const unused  = Object.keys(STATIC_FILES).filter(p => !wanted.has(p));
+if (missing.length) console.error("🔴 화면이 부르는데 서버 목록에 없다 (404 가 난다): " + missing.join(" "));
+if (unused.length)  console.error("🔴 서버 목록에 있는데 화면이 안 부른다 (지운 사진이 남아 있나): " + unused.join(" "));
+if (!missing.length && !unused.length) console.log("정적 파일 목록과 화면이 맞는다 (" + wanted.size + "개)");
 
 /* ── 🔴 가게 이름 검색 색인 — 시작할 때 한 번만 메모리에 올린다 (S15P21E201-754) ──
  * places.json 은 build-places.mjs 가 부산 음식점 CSV(87MB, 이 저장소 밖)에서
