@@ -42,11 +42,19 @@ const PAGE = readFileSync(join(HERE, "index.html"));
  * Cache-Control 로 브라우저·CDN 에 일주일(604800초) 캐시를 허락한다.
  * ────────────────────────────────────────────────────────────────── */
 const STATIC_FILES = {
-  "/assets/gwangan-bridge.jpg":       { file: "assets/gwangan-bridge.jpg",       type: "image/jpeg" },
-  "/assets/gamcheon-village.jpg":     { file: "assets/gamcheon-village.jpg",     type: "image/jpeg" },
-  "/assets/gwangalli-beach.jpg":      { file: "assets/gwangalli-beach.jpg",      type: "image/jpeg" },
-  "/assets/huinnyeoul.jpg":           { file: "assets/huinnyeoul.jpg",           type: "image/jpeg" },
-  "/assets/busan-night-panorama.jpg": { file: "assets/busan-night-panorama.jpg", type: "image/jpeg" },
+  /* 🔴 사진마다 두 판이다 (S15P21E201-882) — 좁은 창은 위(1080px), 넓은 창은
+        아래(2560px). 화면이 시작할 때 한 쪽을 고른다. 열 줄 다 있어야 한다:
+        빠지면 그 화면만 404 로 까맣게 뜨고, 아래 시작 검사가 그걸 잡는다. */
+  "/assets/gwangan-bridge.jpg":           { file: "assets/gwangan-bridge.jpg",           type: "image/jpeg" },
+  "/assets/gamcheon-village.jpg":         { file: "assets/gamcheon-village.jpg",         type: "image/jpeg" },
+  "/assets/gwangalli-beach.jpg":          { file: "assets/gwangalli-beach.jpg",          type: "image/jpeg" },
+  "/assets/huinnyeoul.jpg":               { file: "assets/huinnyeoul.jpg",               type: "image/jpeg" },
+  "/assets/busan-night-panorama.jpg":     { file: "assets/busan-night-panorama.jpg",     type: "image/jpeg" },
+  "/assets/gwangan-bridge-big.jpg":       { file: "assets/gwangan-bridge-big.jpg",       type: "image/jpeg" },
+  "/assets/gamcheon-village-big.jpg":     { file: "assets/gamcheon-village-big.jpg",     type: "image/jpeg" },
+  "/assets/gwangalli-beach-big.jpg":      { file: "assets/gwangalli-beach-big.jpg",      type: "image/jpeg" },
+  "/assets/huinnyeoul-big.jpg":           { file: "assets/huinnyeoul-big.jpg",           type: "image/jpeg" },
+  "/assets/busan-night-panorama-big.jpg": { file: "assets/busan-night-panorama-big.jpg", type: "image/jpeg" },
   "/assets/CREDITS.md":               { file: "assets/CREDITS.md",               type: "text/markdown; charset=utf-8" },
   "/fonts/PretendardVariable.woff2":  { file: "fonts/PretendardVariable.woff2",  type: "font/woff2" },
   "/fonts/LICENSE-Pretendard.txt":    { file: "fonts/LICENSE-Pretendard.txt",    type: "text/plain; charset=utf-8" }
