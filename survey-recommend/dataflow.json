@@ -1,0 +1,38 @@
+{
+  "part": "survey-recommend",
+  "label": "추천 장소 설문",
+  "note": "부산에 살아 본 사람에게 \"어디를 왜 추천하는지\" 를 받는다. 인터넷에서 긁은 유명한 곳 말고",
+
+  "nodes": [
+    {
+      "id": "sr.page",
+      "stage": "view",
+      "kind": "screen",
+      "label": "추천 장소 화면",
+      "note": "나이대·부산에 산 기간 → 추천하는 곳 다섯 (유형·이름·낮밤·기간 한정인지·왜)",
+      "evidence": { "file": "survey-recommend/index.html" }
+    },
+    {
+      "id": "sr.db",
+      "stage": "store",
+      "kind": "db",
+      "label": "설문 전용 DB",
+      "note": "팀 서버의 이 설문 전용 데이터베이스. 서비스 DB 와 섞지 않는다 — 동의 범위가 다르기 때문이다",
+      "evidence": { "all": ["survey-recommend/server.mjs", "survey-recommend/schema.sql"] }
+    }
+  ],
+
+  "edges": [
+    { "from": "sr.page", "to": "sr.db", "label": "응답", "state": "ok" },
+    {
+      "from": "sr.db", "to": "be.db.place", "label": "추천 후보 목록",
+      "state": "planned",
+      "why": "받은 곳을 서비스 장소 표에 넣는 코드가 아직 없다. 사람이 보고 고르는 단계가 먼저다"
+    },
+    {
+      "from": "sr.db", "to": "bd.p.weights", "label": "\"왜\" 라고 적은 이유",
+      "state": "planned",
+      "why": "개인화의 재료가 될 자리지만 아직 읽는 쪽이 없다"
+    }
+  ]
+}

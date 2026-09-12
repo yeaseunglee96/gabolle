@@ -1,0 +1,38 @@
+{
+  "part": "eval",
+  "label": "순위 검증",
+  "note": "우리가 매긴 순위가 말이 되는지 바깥 채점표로 겨뤄 본다. 목표가 아니라 하한 경보다",
+
+  "nodes": [
+    {
+      "id": "ev.truth",
+      "stage": "source",
+      "kind": "external",
+      "label": "바깥 채점표",
+      "note": "미쉐린·블루리본처럼 사람이 이미 매겨 둔 목록. 손으로 적은 86행이다. 이것을 목표로 삼으면 관광객이 아는 곳만 남으므로, 하한 경보 하나로만 쓴다",
+      "evidence": { "file": "eval/food-ranking/01-fetch-truth.mjs" }
+    },
+    {
+      "id": "ev.judge",
+      "stage": "process",
+      "kind": "batch",
+      "label": "겨뤄 보기",
+      "note": "정답표와 맞춰 보고, 나눠 보고, 흔들어 봐도 같은 답이 나오는지 본다. 미리 적어 둔 기준을 나중에 고치지 못하게 사전등록 파일을 남긴다",
+      "evidence": { "all": [
+        "eval/food-ranking/05-evaluate.mjs",
+        "eval/food-ranking/06-stability.mjs",
+        "eval/food-ranking/07-final-judgement.mjs"
+      ] }
+    }
+  ],
+
+  "edges": [
+    { "from": "ev.truth",     "to": "ev.judge", "label": "정답 목록",   "state": "ok" },
+    { "from": "bd.st.staged", "to": "ev.judge", "label": "우리 신호",   "state": "ok" },
+    {
+      "from": "ev.judge", "to": "bd.p.weights", "label": "경보",
+      "state": "partial",
+      "why": "사람이 볼 때만 돈다. 자동으로 가중치를 고치지 않는다 — 그렇게 하면 채점표가 목표가 되어 버린다"
+    }
+  ]
+}
