@@ -8,6 +8,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
+import * as Location from 'expo-location';
 
 import { BrandLogoLink } from '@/components/BrandLogoLink';
 import { Button } from '@/components/Button';
@@ -15,7 +16,7 @@ import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { Eyebrow } from '@/components/Eyebrow';
 import { color, radius, spacing } from '@/design/tokens';
-import { getFacets, type FacetKeyEntry, type FacetsLoadResult } from '@/discovery/localExplore';
+import { getFacets, getNearbyPlaces, type FacetKeyEntry, type FacetsLoadResult, type NearbyPlacesLoadResult } from '@/discovery/localExplore';
 import { useI18n } from '@/i18n';
 
 // 여덟 갈래의 실제 값(jaehyeon 님 확인) — 서버가 이 여덟을 항상 함께 돌려주므로, 응답에서
@@ -29,12 +30,16 @@ function flattenLocalFacets(result: FacetsLoadResult): FacetKeyEntry[] | null {
   return local.length ? local : flat;
 }
 
+type LocationState = 'detecting' | 'granted' | 'denied';
+
 export default function LocalExplore() {
   const router = useRouter();
   const { tx } = useI18n();
   const [result, setResult] = useState<FacetsLoadResult>({ state: 'success', facets: [] });
   const [loading, setLoading] = useState(true);
   const [openKey, setOpenKey] = useState<string | null>(null);
+  const [locationState, setLocationState] = useState<LocationState>('detecting');
+  const [coords, setCoords] = useState<{ latitude: number; longitude: number } | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -42,7 +47,21 @@ export default function LocalExplore() {
     setLoading(false);
   }, []);
 
+  const detectLocation = useCallback(async () => {
+    setLocationState('detecting');
+    try {
+      const permission = await Location.requestForegroundPermissionsAsync();
+      if (!permission.granted) { setLocationState('denied'); return; }
+      const position = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+      setCoords({ latitude: position.coords.latitude, longitude: position.coords.longitude });
+      setLocationState('granted');
+    } catch {
+      setLocationState('denied');
+    }
+  }, []);
+
   useEffect(() => { void load(); }, [load]);
+  useEffect(() => { void detectLocation(); }, [detectLocation]);
 
   const facets = flattenLocalFacets(result);
 
@@ -94,7 +113,7 @@ export default function LocalExplore() {
                     <Text variant="title" color={disabled ? color.text.muted : color.text.heading}>{open ? '︿' : '﹀'}</Text>
                   </View>
                 </Pressable>
-                {open ? <LocalBranchList facetKey={facet.featureKey} /> : null}
+                {open ? <LocalBranchList facetKey={facet.featureKey} coords={coords} locationState={locationState} onRetryLocation={() => void detectLocation()} /> : null}
               </View>
             );
           })}
@@ -104,16 +123,65 @@ export default function LocalExplore() {
   );
 }
 
-// 열린 갈래 하나의 장소 목록. GET /api/v1/places/nearby 응답 모양을 아직 못 받아서(요청 칸만
-// 확인됨 — jaehyeon 님께 여쭤 놓은 상태) 실제 카드는 아직 못 그린다. 지어낸 응답 모양으로
-// 화면을 만들면 실제 계약이 오는 순간 조용히 깨지므로, 여기서는 "무엇을 기다리는지"를 정직하게
-// 보여준다 — 다른 일곱 갈래는 이 갈래와 무관하게 정상 동작한다(완료 기준: 한 갈래 실패가 나머지를
-// 막지 않는다).
-function LocalBranchList({ facetKey }: { facetKey: string }) {
+// 열린 갈래 하나의 장소 목록 — GET /api/v1/places/nearby(S15P21E201-469)를 그 갈래를 열 때만
+// 부른다(화면 진입 시 8개를 한꺼번에 안 부르는 완료 기준). 한 갈래의 실패가 나머지 일곱 갈래를
+// 막지 않도록, 이 컴포넌트 안에서만 상태를 갖는다.
+function LocalBranchList({ facetKey, coords, locationState, onRetryLocation }: {
+  facetKey: string;
+  coords: { latitude: number; longitude: number } | null;
+  locationState: 'detecting' | 'granted' | 'denied';
+  onRetryLocation: () => void;
+}) {
   const { tx } = useI18n();
+  const [result, setResult] = useState<NearbyPlacesLoadResult | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!coords) return;
+    let active = true;
+    setLoading(true);
+    (async () => {
+      const next = await getNearbyPlaces({ lat: coords.latitude, lng: coords.longitude, facetKey });
+      if (active) { setResult(next); setLoading(false); }
+    })();
+    return () => { active = false; };
+  }, [coords, facetKey]);
+
+  if (locationState === 'detecting') {
+    return <View style={styles.branchBody}><Text color={color.text.body}>{tx('현재 위치를 확인하고 있어요…', 'Checking your current location…')}</Text></View>;
+  }
+  if (locationState === 'denied') {
+    return <View style={styles.branchBody}>
+      <Text color={color.text.body}>{tx('위치 권한이 꺼져 있어요. 근처 장소를 찾으려면 위치가 필요해요.', 'Location permission is off. We need it to find nearby places.')}</Text>
+      <Button label={tx('위치 권한 다시 요청', 'Ask for location again')} variant="ghost" onPress={onRetryLocation} containerStyle={styles.branchRetry} />
+    </View>;
+  }
+  if (loading || !result) {
+    return <View accessibilityLiveRegion="polite" style={styles.branchBody}><ActivityIndicator color={color.brand.orange} /></View>;
+  }
+  if (result.state !== 'success') {
+    return <View style={styles.branchBody}>
+      <Text color={color.text.body}>{result.message}</Text>
+      <Button label={tx('다시 시도', 'Try again')} variant="ghost" onPress={() => coords && void getNearbyPlaces({ lat: coords.latitude, lng: coords.longitude, facetKey }).then(setResult)} containerStyle={styles.branchRetry} />
+    </View>;
+  }
+  if (result.items.length === 0) {
+    return <View style={styles.branchBody}><Text color={color.text.body}>{tx('근처에 이 갈래의 장소가 없어요.', 'No places in this category nearby.')}</Text></View>;
+  }
   return (
     <View style={styles.branchBody}>
-      <Text color={color.text.body}>{tx('이 갈래의 장소 목록은 좌표 검색 API 응답 모양이 확정되면 이어서 채웁니다.', 'The place list for this category will be filled in once the coordinate-search API response shape is confirmed.')}</Text>
+      {result.radiusExpanded && (
+        <View style={styles.expandedNotice}><Text variant="caption" weight="bold" color={color.brand.orange}>{tx(`반경을 ${result.effectiveRadiusM.toLocaleString()}m로 넓혔습니다`, `Widened the search radius to ${result.effectiveRadiusM.toLocaleString()}m`)}</Text></View>
+      )}
+      {result.items.map((item) => (
+        <View key={item.placeId} style={styles.placeRow}>
+          <View style={styles.grow}>
+            <Text weight="bold">{item.nameKo}</Text>
+            {item.address ? <Text variant="caption" color={color.text.muted}>{item.address}</Text> : null}
+          </View>
+          <Text variant="caption" weight="bold" color={color.text.accent}>{tx(`${item.distanceM.toLocaleString()}m`, `${item.distanceM.toLocaleString()}m`)}</Text>
+        </View>
+      ))}
     </View>
   );
 }
@@ -134,5 +202,9 @@ const styles = StyleSheet.create({
   branchRight: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
   countBadge: { minWidth: 28, minHeight: 24, paddingHorizontal: spacing[2], borderRadius: radius.full, backgroundColor: color.surface.soft, alignItems: 'center', justifyContent: 'center' },
   countBadgeDisabled: { backgroundColor: color.surface.field },
-  branchBody: { padding: spacing[4], paddingTop: 0 },
+  branchBody: { padding: spacing[4], paddingTop: 0, gap: spacing[2] },
+  branchRetry: { alignSelf: 'flex-start' },
+  expandedNotice: { padding: spacing[2], borderRadius: radius.md, backgroundColor: color.surface.tint },
+  placeRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], paddingVertical: spacing[2], borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: color.surface.border },
+  grow: { flex: 1 },
 });

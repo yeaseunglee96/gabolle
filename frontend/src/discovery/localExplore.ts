@@ -27,7 +27,45 @@ export async function getFacets(signal?: AbortSignal): Promise<FacetsLoadResult>
   }
 }
 
-// 🔴 jaehyeon 님이 요청 칸(lat·lng·radiusMeters·facetKey·purpose·limit)은 확인해 줬지만 응답
-// 모양은 아직 못 받았다 — 물어봐 둔 상태다. 그때까지는 이 함수를 만들지 않는다. 지어낸 타입으로
-// 화면을 만들면 실제 응답이 오는 순간 다시 고쳐야 하고, 그 사이에 잘못된 필드를 가정하고 만든
-// 화면이 조용히 깨진다.
+// 근처 장소 조회 — NearbyPlaceController#nearby(S15P21E201-469)와 필드 단위로 맞춘 실제 계약.
+// facetKey 를 주면 여덟 갈래 표식으로 좁힌다(purpose 는 gabolle.place.purposes 설정이 아직
+// 비어 있어 이 화면에서는 안 쓴다 — 컨트롤러 javadoc 참고).
+export type NearbyPlaceItem = {
+  placeId: string;
+  nameKo: string;
+  nameEn: string | null;
+  category: string | null;
+  address: string | null;
+  lat: number;
+  lng: number;
+  distanceM: number;
+};
+export type NearbyPlacesDto = {
+  items: NearbyPlaceItem[];
+  requestedRadiusM: number;
+  effectiveRadiusM: number;
+  radiusExpanded: boolean;
+  expansionSteps: number;
+  scanTruncated: boolean;
+  limit: number;
+  purposeApplied: boolean;
+  facetKeyApplied: boolean;
+};
+
+export type NearbyPlacesLoadResult = { state: 'success' } & NearbyPlacesDto | FacetsFailure;
+
+export async function getNearbyPlaces(
+  params: { lat: number; lng: number; facetKey?: string; radiusMeters?: number; limit?: number },
+  signal?: AbortSignal,
+): Promise<NearbyPlacesLoadResult> {
+  const query = new URLSearchParams({ lat: String(params.lat), lng: String(params.lng) });
+  if (params.facetKey) query.set('facetKey', params.facetKey);
+  if (params.radiusMeters) query.set('radiusMeters', String(params.radiusMeters));
+  if (params.limit) query.set('limit', String(params.limit));
+  try {
+    const dto = await apiRequest<NearbyPlacesDto>(`/api/v1/places/nearby?${query.toString()}`, { signal });
+    return { state: 'success', ...dto };
+  } catch (error) {
+    return toFailure(error);
+  }
+}
