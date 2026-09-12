@@ -101,13 +101,18 @@ const BLOCKS = {
             적었는데, 그쪽이 재는 것은 길의 비용이고 여기서 재는 것은
             그 장소를 그래도 갈 만한가다. 다른 질문이다. */
       slope: { levels: ["FLAT", "GENTLE", "STEEP"],   lowerIsBetter: true, axis: "SLOPE_PREFERENCE" },
-      shade: { levels: ["SHADED", "SUNNY"],           lowerIsBetter: null, axis: "SHADE_PREFERENCE" },
+      /* 🔴 daylightOnly — 밤 장면에서는 뜻이 없는 칸이다 (S15P21E201-868).
+            아래 buildSets 가 밤 장면에 이 칸을 가진 덩어리를 못 두게 막는다. */
+      shade: { levels: ["SHADED", "SUNNY"],           lowerIsBetter: null, axis: "SHADE_PREFERENCE", daylightOnly: true },
       crowd: { levels: ["QUIET", "SOME", "PACKED"],   lowerIsBetter: null, axis: "QUIETNESS" },
       fame:  { levels: ["LOCAL_ONLY", "SNS_FAMOUS"],  lowerIsBetter: null, axis: "TOURIST_PREFERENCE" }
     }
   },
   play: {
-    label: "하는 곳",
+    /* 🔴 "하는 곳" 이었다 (2026-09-12, S15P21E201-868). 사람이 직접 해 보고
+       어색하다고 했다 — 시장 · 체험 · 목욕탕 · 공연이 다 들어가는 자리라
+       "하는" 이 아무것도 안 가리킨다. "노는 곳" 이 셋의 짝에 붙는다. */
+    label: "노는 곳",
     types: ["MARKET", "ACTIVITY"],
     attrs: {
       cost:   { levels: [0, 10000, 30000],           lowerIsBetter: true, axis: "SPEND_PROFILE" },
@@ -383,15 +388,32 @@ const TRAP = {
 
    🔴 함정은 TRAP_AT 자리에 그대로 둔다. 그 자리가 「점심」이라 먹는 곳 쌍인
       함정이 장면과 어긋나지 않는다. 아래 buildSets 가 그것을 검사한다. */
+/* 🔴 2026-09-12 (S15P21E201-868) — 두 가지를 고쳤다. 사람이 직접 여덟 문항을
+      끝까지 해 보고 찾은 것이다.
+
+   ① **지명을 뺐다.** 첫 판의 장면은 "부산에 도착해" · "부산에서의 마지막 저녁"
+      이었다. 그런데 바로 앞 화면(scPremise)은 **"부산이 아니라 해외로 여행을
+      간다고 생각하고 골라 주세요"** 라고 말한다. 한 화면 넘기는 사이에 목적지가
+      바뀌었고, 답하는 사람은 둘 중 하나를 고르게 되는데 **어느 쪽을 골랐는지는
+      답에 안 남는다.** 전제 화면이 이미 목적지를 정하므로 장면은 **시간 흐름만**
+      말한다.
+
+   ② **밤에 보는 곳을 안 둔다.** 첫 판은 「첫날 밤」에 보는 곳을 뒀는데, 보는
+      곳에는 「볕 / 그늘」 칸이 있다. **밤에 그늘은 아무 뜻이 없다.** 뻔한 쌍을
+      거르는 규칙이 "잃는 칸 2 대 얻는 칸 3" 으로 통과시켰지만 그 셋 중 하나가
+      죽은 칸이라 실제로는 2 대 2였고, 사람이 "당연히 아래 아닌가" 라고 느꼈다.
+
+      🔴 그래서 night 를 표시로 남기고 buildSets 가 검사한다. 다음에 장면을
+         옮길 때 사람이 기억하지 않아도 걸린다. */
 const SCENES = [
-  { setId: "eat01",  when: "첫날 저녁",    lead: "부산에 도착해 첫 끼를 먹습니다" },
-  { setId: "see01",  when: "첫날 밤",      lead: "밥을 먹고 숙소 근처를 한 바퀴 돕니다" },
-  { setId: "see02",  when: "이튿날 아침",  lead: "아침에 나와 어디부터 볼지 고릅니다" },
-  { setId: "tr01",   when: "이튿날 점심",  lead: "걷다 보니 점심때가 됐습니다" },
-  { setId: "play01", when: "이튿날 오후",  lead: "오후에 한 가지 해 봅니다" },
-  { setId: "play02", when: "해 기울 무렵", lead: "돌아가기 전에 하나만 더 해 볼 참입니다" },
-  { setId: "eat02",  when: "마지막 저녁",  lead: "부산에서의 마지막 저녁입니다" },
-  { setId: "mx01",   when: "떠나기 전",    lead: "기차 시간까지 한 시간 남았습니다" }
+  { setId: "eat01",  when: "첫날 저녁",                 lead: "도착한 날 저녁, 첫 끼를 먹습니다" },
+  { setId: "play01", when: "첫날 밤",   night: true,    lead: "밥을 먹고 밤에 한 군데 더 들릅니다" },
+  { setId: "see01",  when: "이튿날 아침",               lead: "아침에 나와 어디부터 볼지 고릅니다" },
+  { setId: "tr01",   when: "이튿날 점심",               lead: "걷다 보니 점심때가 됐습니다" },
+  { setId: "see02",  when: "이튿날 오후",               lead: "점심을 먹고 한 곳 더 봅니다" },
+  { setId: "play02", when: "해 기울 무렵",              lead: "돌아가기 전에 하나만 더 해 볼 참입니다" },
+  { setId: "eat02",  when: "마지막 저녁",               lead: "이 여행의 마지막 저녁입니다" },
+  { setId: "mx01",   when: "떠나기 전",                 lead: "돌아가는 시간까지 한 시간 남았습니다" }
 ];
 
 /* ── 조립 ─────────────────────────────────────────────────────────── */
@@ -422,6 +444,20 @@ function buildSets() {
   }
   if (sets[TRAP_AT].setId !== TRAP.setId) {
     throw new Error("함정이 " + (TRAP_AT + 1) + "번째 자리에 없다 — SCENES 순서와 TRAP_AT 을 맞춰라");
+  }
+
+  /* 🔴 밤 장면에 "낮에만 뜻이 있는 칸" 을 가진 덩어리를 두지 않는다.
+        사람이 기억해야 하는 규칙은 결국 안 지켜진다. 여기서 멈춘다. */
+  for (const [i, one] of sets.entries()) {
+    if (!SCENES[i].night) continue;
+    for (const b of one.blocks || [one.block]) {
+      const bad = Object.entries(BLOCKS[b].attrs).filter(([, spec]) => spec.daylightOnly).map(([k]) => k);
+      if (bad.length) {
+        throw new Error("밤 장면 「" + SCENES[i].when + "」 에 " + BLOCKS[b].label
+          + " 을 뒀는데 그 덩어리에 낮에만 뜻이 있는 칸이 있다: " + bad.join(", ")
+          + " — SCENES 에서 그 자리를 다른 덩어리로 바꿔라");
+      }
+    }
   }
   return sets;
 }
