@@ -11,7 +11,6 @@ import { color, radius, spacing } from '@/design/tokens';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { Eyebrow } from '@/components/Eyebrow';
-import { Button } from '@/components/Button';
 import { useAuth } from '@/auth/AuthProvider';
 import { useI18n } from '@/i18n';
 import { DIALECT_PHRASES } from '@/discovery/dialectPhrases';
@@ -131,7 +130,6 @@ function MemoryMapCard({ tripId, stops }: { tripId: string; stops: MapStop[] }) 
 }
 
 export default function Prepare() {
-  const router = useRouter();
   const { tx } = useI18n();
   const { accessToken } = useAuth();
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -242,26 +240,7 @@ export default function Prepare() {
         ))}
       </View>
 
-      <View style={styles.rainCard}>
-        <Text variant="caption" weight="bold" color={color.text.accent}>
-          {tx('비 예보 대응', 'Responding to the rain forecast')}
-        </Text>
-        <Text variant="title" weight="bold" style={styles.rainTitle}>
-          {tx('야외 1곳을 실내 코스로 바꿀까요?', 'Swap 1 outdoor stop for an indoor one?')}
-        </Text>
-        <Text variant="caption" style={styles.rainDesc}>
-          {tx('흰여울 → 국립해양박물관 · 이동 12분 감소', 'Huinnyeoul → National Maritime Museum · 12 min less travel')}
-        </Text>
-      </View>
-
       <DialectFlashcards />
-
-      <Button
-        label={tx('대체 일정 미리보기', 'Preview the alternative plan')}
-        variant="field"
-        containerStyle={styles.cta}
-        onPress={() => router.push(`/${tripId}/result`)}
-      />
     </Screen>
   );
 }
@@ -332,22 +311,6 @@ const styles = StyleSheet.create({
   },
   prepDesc: {
     color: color.text.body,
-  },
-  rainCard: {
-    marginTop: spacing[4],
-    backgroundColor: color.surface.soft,
-    borderRadius: radius.md,
-    padding: spacing[4],
-    gap: spacing[1],
-  },
-  rainTitle: {
-    marginTop: spacing[1],
-  },
-  rainDesc: {
-    color: color.text.body,
-  },
-  cta: {
-    marginTop: spacing[6],
   },
   dialectSection: {
     marginTop: spacing[4],
