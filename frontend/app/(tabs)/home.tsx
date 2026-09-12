@@ -40,6 +40,7 @@ const arrowRightIcon = require('../../assets/icons/home/arrow-right.png');
 const festivalIcon = require('../../assets/icons/common/festival.png');
 const compassWhiteIcon = require('../../assets/icons/common/compass-white.png');
 const mapIcon = require('../../assets/icons/home/map.png');
+const speakerIcon = require('../../assets/icons/common/speaker.png');
 const SAVED_PLACES_KEY = 'gabolle.saved-home-places';
 
 function RecommendationCard({ item, index, liked, onToggleLike, desktop }: {
@@ -150,6 +151,14 @@ export default function Home() {
           <View style={styles.barLabel}><Image source={mapIcon} resizeMode="contain" style={styles.barIcon} /><Text variant="body" weight="medium" color={color.text.heading}>{tx('축제·야시장 등 로컬 8종 둘러보기', 'Explore 8 local categories')}</Text></View><Text weight="bold" color={color.brand.orange}>›</Text>
         </Pressable>
 
+        {/* 예전에는 이 자리 대신 채팅 버튼 위에 떠 있는 작은 칩이었다 — 챗봇 버튼과 겹쳐 쌓여
+            있어 하나의 메뉴처럼 보이는데 실제로는 서로 다른 곳(채팅 대 현장 도구 화면)으로
+            가서 헷갈린다는 지적(S15P21E201 사용자 리포트)이 있었다. 위 세 줄(축제·지금 갈 곳·
+            로컬 탐색)과 같은 자리로 옮겨, 챗봇 버튼과는 시각적으로 완전히 분리했다. */}
+        <Pressable accessibilityRole="button" accessibilityLabel={tx('현장 도구 열기', 'Open on-the-go tools')} accessibilityHint={tx('현장 말하기와 메뉴판 번역을 한곳에서 씁니다', 'Use on-the-go phrases and menu translation in one place')} onPress={() => router.push('/field/translate')} style={({ pressed }) => [styles.fieldToolsBar, pressed && styles.weatherBarPressed]}>
+          <View style={styles.barLabel}><Image source={speakerIcon} resizeMode="contain" style={styles.barIcon} /><Text variant="body" weight="medium" color={color.text.heading}>{tx('현장 도구 — 말하기·번역', 'On-the-go tools — phrases & translation')}</Text></View><Text weight="bold" color={color.brand.orange}>›</Text>
+        </Pressable>
+
         <View style={styles.heading}>
           <Text variant="display" weight="bold" color={color.text.heading} style={styles.headingTitle}>{tx('오늘 어디 가볼래?', 'Where shall we go today?')}</Text>
           <Text variant="body" color={color.text.muted}>{tx('AI가 취향에 맞는 부산 여행을 제안해드려요', 'AI suggests a Busan trip that matches your taste')}</Text>
@@ -185,7 +194,6 @@ export default function Home() {
       </ScrollView>
 
       <View style={styles.floatingStack}>
-        <Pressable accessibilityRole="button" accessibilityLabel={tx('현장 도구 열기', 'Open on-the-go tools')} accessibilityHint={tx('현장 말하기와 메뉴판 번역을 한곳에서 씁니다', 'Use on-the-go phrases and menu translation in one place')} onPress={() => router.push('/field/translate')} style={({ pressed }) => [styles.floatingChip, pressed && styles.assistantButtonPressed]}><Text variant="caption" weight="bold" color={color.text.heading}>{tx('현장 도구', 'On-the-go tools')}</Text></Pressable>
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={tx('가볼래 여행 도우미 열기', 'Open GABOLLE travel assistant')}
@@ -206,7 +214,10 @@ export default function Home() {
 const styles = StyleSheet.create({
   shell: { flex: 1, backgroundColor: color.canvas },
   screenContent: { paddingTop: spacing[2], paddingBottom: spacing[3] },
-  header: { minHeight: 52, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  // marginTop: 우측 상단에 전역 언어 배지(GlobalLanguageBadge)가 떠 있어서, 이 화면처럼
+  // 알림종을 헤더 오른쪽 끝에 두면 배지가 그 위에 겹쳐 종이 안 보인다(S15P21E201 사용자
+  // 리포트). 배지가 끝나는 자리 아래로 헤더를 내려서 겹치지 않게 한다.
+  header: { minHeight: 52, marginTop: spacing[6], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   logo: { width: 100, height: 22 },
   bell: { width: 40, height: 40, borderRadius: radius.full, backgroundColor: color.surface.soft, alignItems: 'center', justifyContent: 'center' },
   bellIcon: { width: 20, height: 20 },
@@ -217,6 +228,7 @@ const styles = StyleSheet.create({
   weatherBarPressed: { opacity: 0.78, transform: [{ scale: 0.99 }] },
   nowBar: { minHeight: 44, marginTop: spacing[2], paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.brand.navy, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   exploreBar: { minHeight: 44, marginTop: spacing[2], paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.field, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  fieldToolsBar: { minHeight: 44, marginTop: spacing[2], paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.surface.soft, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   heading: { gap: spacing[1], marginTop: spacing[4], marginHorizontal: spacing[1] },
   headingTitle: { fontSize: 28, lineHeight: 34 },
   carousel: { gap: spacing[3], paddingHorizontal: spacing[1], paddingVertical: spacing[4] },
@@ -241,7 +253,6 @@ const styles = StyleSheet.create({
   // 뒀었는데, 그 값이 탭바 높이를 감안 안 해서 화면 중간쯤에 떠 있었다(실기기 확인).
   // 이제 탭바 바로 위(spacing[2])에 붙이고, 그 위로 자주 쓰는 현장 도구 두 개를 쌓는다.
   floatingStack: { position: 'absolute', right: spacing[2], bottom: spacing[2], alignItems: 'flex-end', gap: spacing[2], zIndex: 3 },
-  floatingChip: { minHeight: 40, justifyContent: 'center', paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.field, shadowColor: color.brand.navy, shadowOpacity: 0.12, shadowRadius: 8, shadowOffset: { width: 0, height: 3 }, elevation: 3 },
   assistantButton: { minWidth: 44, minHeight: 44, flexDirection: 'row', alignItems: 'center' },
   assistantButtonPressed: { opacity: 0.78, transform: [{ scale: 0.96 }] },
   assistantLabel: { marginRight: -spacing[2], paddingLeft: spacing[3], paddingRight: spacing[4], paddingVertical: spacing[2], borderRadius: radius.full, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.field, shadowColor: color.brand.navy, shadowOpacity: 0.12, shadowRadius: 8, shadowOffset: { width: 0, height: 3 }, elevation: 3 },

@@ -11,6 +11,9 @@ import { useI18n } from '@/i18n';
 import { defaultTabForCategory, PLACE_PHRASES, PLACE_TABS, type PlacePhrase, type PlaceTabKey } from '@/field/placePhrases';
 import { Text } from './Text';
 
+const NORMAL_RATE = 0.95;
+const SLOW_RATE = 0.55;
+
 type PlacePhraseBrowserProps = {
   category?: string | null;
   onOpenTaxiCard?: () => void;
@@ -22,6 +25,9 @@ export function PlacePhraseBrowser({ category, onOpenTaxiCard }: PlacePhraseBrow
   const [tab, setTab] = useState<PlaceTabKey>(() => defaultTabForCategory(category));
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [speakingId, setSpeakingId] = useState<string | null>(null);
+  // 속도(rate)도 함께 들고 있는다 — id만 보면 "느리게"를 눌러도 "보통" 버튼이 재생 중으로
+  // 바뀌는 버그가 난다(둘 다 같은 phrase.id를 쓰기 때문). 어느 버튼을 눌렀는지까지 구분한다.
+  const [speakingRate, setSpeakingRate] = useState<number | null>(null);
   // speak()를 빠르게 다시 누르면(같은 문장의 다른 속도, 또는 다른 문장) Speech.stop()이
   // 취소한 "이전" 재생의 onDone/onError가 뒤늦게 도착해 방금 시작한 재생의 상태를
   // null로 덮어쓴다(S15P21E201-771). 매 호출마다 토큰을 새로 발급해 자기 차례가 아니면 무시한다.
@@ -34,10 +40,11 @@ export function PlacePhraseBrowser({ category, onOpenTaxiCard }: PlacePhraseBrow
 
   function speak(phrase: PlacePhrase, rate: number) {
     const token = ++playTokenRef.current;
-    const finish = () => { if (playTokenRef.current === token) setSpeakingId(null); };
+    const finish = () => { if (playTokenRef.current === token) { setSpeakingId(null); setSpeakingRate(null); } };
     try {
       Speech.stop();
       setSpeakingId(phrase.id);
+      setSpeakingRate(rate);
       Speech.speak(phrase.ko, { language: 'ko-KR', rate, onDone: finish, onStopped: finish, onError: finish });
     } catch {
       // 소리 기능이 없는 브라우저에서도 글자는 그대로 보인다.
@@ -71,11 +78,11 @@ export function PlacePhraseBrowser({ category, onOpenTaxiCard }: PlacePhraseBrow
                 <>
                   <Text variant="body" color={color.text.body} style={styles.enText}>{phrase.en}</Text>
                   <View style={styles.speedRow}>
-                    <Pressable accessibilityRole="button" accessibilityLabel={tx('보통 속도로 듣기', 'Listen at normal speed')} onPress={() => speak(phrase, 0.95)} style={styles.speedButton}>
-                      <Text variant="caption" weight="bold" color={color.text.onAction}>{speakingId === phrase.id ? tx('재생 중', 'Playing') : tx('▶ 보통', '▶ Normal')}</Text>
+                    <Pressable accessibilityRole="button" accessibilityLabel={tx('보통 속도로 듣기', 'Listen at normal speed')} onPress={() => speak(phrase, NORMAL_RATE)} style={styles.speedButton}>
+                      <Text variant="caption" weight="bold" color={color.text.onAction}>{speakingId === phrase.id && speakingRate === NORMAL_RATE ? tx('재생 중', 'Playing') : tx('▶ 보통', '▶ Normal')}</Text>
                     </Pressable>
-                    <Pressable accessibilityRole="button" accessibilityLabel={tx('느린 속도로 듣기', 'Listen at slow speed')} onPress={() => speak(phrase, 0.55)} style={[styles.speedButton, styles.speedButtonSlow]}>
-                      <Text variant="caption" weight="bold" color={color.text.onAction}>{tx('▶ 느리게', '▶ Slow')}</Text>
+                    <Pressable accessibilityRole="button" accessibilityLabel={tx('느린 속도로 듣기', 'Listen at slow speed')} onPress={() => speak(phrase, SLOW_RATE)} style={[styles.speedButton, styles.speedButtonSlow]}>
+                      <Text variant="caption" weight="bold" color={color.text.onAction}>{speakingId === phrase.id && speakingRate === SLOW_RATE ? tx('재생 중', 'Playing') : tx('▶ 느리게', '▶ Slow')}</Text>
                     </Pressable>
                   </View>
                 </>
