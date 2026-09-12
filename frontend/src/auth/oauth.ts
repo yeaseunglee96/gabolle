@@ -62,7 +62,12 @@ async function beginOAuthChallenge(provider: OAuthProvider) {
 // 네이티브(앱)는 팝업 차단이 끼어들 자리가 없는 앱 안 브라우저 화면을 쓰므로
 // S15P21E201-830 이전 방식 그대로 코드를 바로 받아 온다.
 async function runNativeAuthSession(authorizationUrl: string, redirectUri: string, expectedState: string) {
-  const result = await WebBrowser.openAuthSessionAsync(authorizationUrl, redirectUri);
+  // preferUniversalLinks: true 가 없으면 expo-web-browser 는 iOS 에서 https 리다이렉트를
+  // ASWebAuthenticationSession 의 callbackURLScheme(옛 커스텀 스킴 전용 방식)으로 열어서
+  // Associated Domains(앱과 j15e201.p.ssafy.io 를 연결하는 iOS 기능, S15P21E201-872)를 아예
+  // 안 쓴다 — 그래서 콜백 화면이 "처리하고 있어요"에서 안 닫혔다(node_modules/expo-web-browser/
+  // ios/WebAuthSession.swift 확인, 2026-09-12).
+  const result = await WebBrowser.openAuthSessionAsync(authorizationUrl, redirectUri, { preferUniversalLinks: true });
   if (result.type === 'cancel' || result.type === 'dismiss') throw new ApiClientError('로그인이 취소되었어요.', 'OAUTH_CANCELLED', 0);
   if (result.type !== 'success') throw new ApiClientError('소셜 로그인을 완료하지 못했어요.', 'OAUTH_FAILED', 0);
   const callback = new URL(result.url);
