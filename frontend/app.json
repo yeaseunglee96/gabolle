@@ -10,7 +10,11 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.gabolle.app",
-      "associatedDomains": ["applinks:j15e201.p.ssafy.io"]
+      "appleTeamId": "LXS8LP2F8H",
+      "associatedDomains": ["applinks:j15e201.p.ssafy.io"],
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "com.gabolle.app",
@@ -38,7 +42,10 @@
               "pathPrefix": "/oauth"
             }
           ],
-          "category": ["BROWSABLE", "DEFAULT"]
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
         }
       ]
     },
