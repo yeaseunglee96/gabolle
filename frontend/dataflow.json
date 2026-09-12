@@ -1,0 +1,50 @@
+{
+  "part": "frontend",
+  "label": "앱 화면",
+  "note": "🔴 코드는 이 브랜치에 없다. 여기 있는 frontend/ 폴더는 자리표시자이고, 실제 앱은 프론트 쪽 브랜치에 있다",
+
+  "nodes": [
+    {
+      "id": "fe.app",
+      "stage": "view",
+      "kind": "screen",
+      "label": "여행 앱",
+      "state": "ok",
+      "note": "폰에서 도는 앱. 출발지·기간·예산·기분·음식·테마를 받아 일정을 보여주고 고치게 한다. 🔴 이 브랜치의 frontend/ 는 빈 자리표시자다 — 한 번 그것을 실제 코드로 착각해 검사를 만들었다가 파이프라인이 빨개진 뒤에야 알았다",
+      "evidence": { "ref": "origin/front/dev:frontend/package.json" }
+    },
+    {
+      "id": "fe.plan",
+      "stage": "view",
+      "kind": "screen",
+      "label": "여행 조건 입력",
+      "state": "ok",
+      "note": "언어·출발지·기간·인원·예산·기분·음식 8종·테마 10종. 여기서 고른 것이 개인화의 유일한 재료다",
+      "evidence": { "ref": "origin/front/dev:frontend/app.json" }
+    },
+    {
+      "id": "fe.field",
+      "stage": "view",
+      "kind": "screen",
+      "label": "현장 도구",
+      "state": "planned",
+      "why": "메뉴판 촬영 번역·음성 통역은 아직 견본이다. 온디바이스 모델을 고르는 중이라 붙일 것이 없다",
+      "note": "인터넷 없이 도는 것이 전제다. 로밍 데이터가 없는 외국인 관광객이 대상이라 서버로 보내는 방식은 답이 아니다",
+      "evidence": { "human": "붙일 모델이 정해지지 않았다" }
+    }
+  ],
+
+  "edges": [
+    { "from": "fe.plan",  "to": "be.sv.auth",      "label": "익명 세션",   "state": "ok" },
+    { "from": "fe.plan",  "to": "be.sv.reco",      "label": "여행 조건",   "state": "ok" },
+    { "from": "be.sv.itinerary", "to": "fe.app",   "label": "일정",        "state": "ok" },
+    { "from": "be.sv.route",     "to": "fe.app",   "label": "지도·경로",   "state": "ok" },
+    { "from": "fe.app",   "to": "be.sv.event",     "label": "누른 기록",   "state": "ok" },
+    { "from": "fe.app",   "to": "be.sv.share",     "label": "공유·여행기", "state": "ok" },
+    {
+      "from": "ai.model", "to": "fe.field", "label": "폰 안의 모델",
+      "state": "planned",
+      "why": "고르는 중이다. 폰에 올릴 만한 크기로 줄이는 것이 아직 안 끝났다"
+    }
+  ]
+}

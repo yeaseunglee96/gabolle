@@ -1,0 +1,241 @@
+{
+  "part": "bigData",
+  "label": "빅데이터",
+  "note": "바깥에서 받아온 것으로 \"이 길을 걸을 만한가\" 를 판정하는 값을 만든다. 화면은 여기 없다",
+
+  "_읽는 법": [
+    "이 파일은 ci/status/flow/build-flow.mjs 가 읽어서 가동 상태 페이지의 흐름도가 된다.",
+    "쓰는 법과 칸의 뜻은 ci/status/flow/README.md 에 있다.",
+    "evidence 에 적은 경로는 **git 이 추적하는 파일**이어야 한다. data/ 는 .gitignore 라",
+    "여기 적으면 내 PC 에서는 초록이고 CI 에서는 빨강이 된다 — 그림이 사람마다 달라진다."
+  ],
+
+  "nodes": [
+    {
+      "id": "bd.src.osm",
+      "stage": "source",
+      "kind": "external",
+      "label": "OSM 전국 PBF",
+      "note": "대한민국 전체 286MB 압축본. 여기서 부산만 잘라 쓴다",
+      "evidence": { "file": "bigData/collect/osm-pbf.mjs" }
+    },
+    {
+      "id": "bd.src.overpass",
+      "stage": "source",
+      "kind": "external",
+      "label": "Overpass API",
+      "note": "OSM 에 조건을 걸어 물어보는 공개 서버. 공용이라 focus 구역(중구·동구)만 부른다 — 면적 상한 200km2 가 코드로 걸려 있다",
+      "evidence": { "file": "bigData/collect/overpass.mjs" }
+    },
+    {
+      "id": "bd.src.terrain",
+      "stage": "source",
+      "kind": "external",
+      "label": "고도 타일",
+      "note": "AWS Terrain Tiles. 국토지리정보원 5m DEM 이 오면 교체할 임시 대체품이다",
+      "evidence": { "file": "bigData/collect/terrain.mjs" }
+    },
+    {
+      "id": "bd.src.bims",
+      "stage": "source",
+      "kind": "external",
+      "label": "BIMS 실시간 버스",
+      "note": "🔴 소급 수집이 안 된다. 오늘 안 켜면 한 달 뒤에 한 달치가 영영 없다",
+      "evidence": { "file": "bigData/collect/bims-poll.mjs" }
+    },
+    {
+      "id": "bd.src.subway",
+      "stage": "source",
+      "kind": "external",
+      "label": "도시철도 출구",
+      "note": "부산교통공사 출구별 엘리베이터·에스컬레이터 표. 역은 있어도 출구가 비어 있던 자리를 채운다",
+      "evidence": { "file": "bigData/collect/subway.mjs" }
+    },
+    {
+      "id": "bd.src.tourapi",
+      "stage": "source",
+      "kind": "external",
+      "label": "관광공사 관광정보",
+      "note": "영업시간·휴무일. 문 닫은 곳을 피해 일정을 짜려면 이것 없이는 성립하지 않는다",
+      "evidence": { "file": "bigData/collect/tourapi.mjs" }
+    },
+    {
+      "id": "bd.src.tourapibf",
+      "stage": "source",
+      "kind": "external",
+      "label": "관광공사 무장애",
+      "note": "경사도 계단도 다 통과한 뒤 문 앞에서 막히는 경우를 말할 수 있게 한다",
+      "evidence": { "file": "bigData/collect/tourapi-barrier-free.mjs" }
+    },
+    {
+      "id": "bd.src.permits",
+      "stage": "source",
+      "kind": "external",
+      "label": "인허가 (LOCALDATA)",
+      "note": "행정안전부 지방행정 인허가. 조작할 수 없는 관측 신호인 영업 지속기간이 여기서 나온다",
+      "evidence": { "file": "bigData/collect/localdata-permits.mjs" }
+    },
+    {
+      "id": "bd.src.trees",
+      "stage": "source",
+      "kind": "external",
+      "label": "가로수 현황",
+      "note": "계산으로는 절대 못 만드는 데이터다. 여름 부산에서 그늘은 걷느냐 마느냐를 가른다",
+      "evidence": { "file": "bigData/collect/street-trees.mjs" }
+    },
+    {
+      "id": "bd.src.sbiz",
+      "stage": "source",
+      "kind": "external",
+      "label": "상가정보 (소상공인)",
+      "state": "partial",
+      "why": "받아오는 스크립트가 없다 — 사람이 분기마다 직접 내려받아 놓는다",
+      "note": "약 16만 행, 분기 2벌. 장소를 잇는 세 재료 중 하나다",
+      "evidence": { "human": "사람이 손으로 받는다. 저장소에 수집기가 없다" }
+    },
+    {
+      "id": "bd.src.ridership",
+      "stage": "source",
+      "kind": "external",
+      "label": "역 승하차 인원",
+      "state": "planned",
+      "why": "출처 목록에는 있는데 아직 아무도 받아오지 않았다",
+      "note": "유동인구를 조작 불가능한 방식으로 재는 신호가 될 자리",
+      "evidence": { "human": "아직 없다" }
+    },
+
+    {
+      "id": "bd.p.extract",
+      "stage": "process",
+      "kind": "batch",
+      "label": "부산만 잘라내기",
+      "note": "전국 PBF 에서 부산 전역 POI·도로를 뽑는다. 64초. 전역을 Overpass 로 긁지 않는 이유가 이것이다",
+      "evidence": { "file": "bigData/collect/pbf_extract.py" }
+    },
+    {
+      "id": "bd.p.link",
+      "stage": "process",
+      "kind": "batch",
+      "label": "같은 가게로 잇기",
+      "note": "🔴 파이프라인에서 제일 어렵고 제일 중요하다. 인허가·상가정보·관광공사 셋을 한 줄로 모은다. 이름 25.3% 가 겹치고 주소 태그 10.3% 가 어긋난다. 여기서 막히면 뒤가 전부 막힌다",
+      "evidence": { "file": "bigData/process/place-link.mjs" }
+    },
+    {
+      "id": "bd.p.coord",
+      "stage": "process",
+      "kind": "batch",
+      "label": "좌표 맞추기",
+      "note": "인허가 좌표계(EPSG:5174)를 세계 표준(WGS84)으로 바꾸고, 맞는지 데이터로 증명한다",
+      "evidence": { "file": "bigData/process/permits-wgs84.mjs" }
+    },
+    {
+      "id": "bd.p.slope",
+      "stage": "process",
+      "kind": "batch",
+      "label": "구간별 경사",
+      "note": "고도 타일 × 도로·보행로. 기준선을 손으로 정하지 않고 실측으로 먼저 보정한다. 부산 전역 67,676구간 / 7초",
+      "evidence": { "all": ["bigData/process/slope.mjs", "bigData/process/calibrate-slope.mjs"] }
+    },
+    {
+      "id": "bd.p.shade",
+      "stage": "process",
+      "kind": "batch",
+      "label": "그늘",
+      "note": "가로수 그늘 + 건물 높이 × 태양 고도로 시각별 그림자. 여름 부산에서 이게 경로를 바꾼다",
+      "evidence": { "all": ["bigData/process/shade.mjs", "bigData/process/shadow.mjs"] }
+    },
+    {
+      "id": "bd.p.access",
+      "stage": "process",
+      "kind": "batch",
+      "label": "접근성 판정",
+      "note": "지하철 출구 단위 접근성 + 휠체어 통행 판정. 계단·경사·문 앞 셋을 같이 본다",
+      "evidence": { "all": ["bigData/process/subway-access.mjs", "bigData/process/wheelchair-verdict.mjs"] }
+    },
+    {
+      "id": "bd.p.hours",
+      "stage": "process",
+      "kind": "batch",
+      "label": "영업시간 정규화",
+      "note": "자유 문장을 \"요일 → (열림, 닫힘)\" 구간으로 바꾼다",
+      "evidence": { "file": "bigData/process/opening-hours.mjs" }
+    },
+    {
+      "id": "bd.p.vista",
+      "stage": "process",
+      "kind": "batch",
+      "label": "경치 근사",
+      "note": "OSM 에서 뽑은 세 축(물가·녹지·상대고도)의 근사값이다. 실제로 보이는 경치를 잰 것이 아니다",
+      "evidence": { "file": "bigData/process/vista.mjs" }
+    },
+    {
+      "id": "bd.p.bus",
+      "stage": "process",
+      "kind": "batch",
+      "label": "버스 노선 판정",
+      "note": "290노선 중 관광에 중요한 것을 먼저 수집하도록 순위를 매긴다",
+      "evidence": { "all": ["bigData/process/bims-score.mjs", "bigData/collect/bims-route-stops.mjs"] }
+    },
+
+    {
+      "id": "bd.p.weights",
+      "stage": "process",
+      "kind": "batch",
+      "label": "가중치 정하기",
+      "state": "partial",
+      "why": "🔴 재는 기계는 다 만들었는데 답이 아직 없다 — 짝 비교 응답이 충분히 안 모였다. 그동안 추천은 아무도 추정하지 않은 값으로 돌고 있다",
+      "note": "다섯 축(가격·걷는 거리·줄서기·골목 밀집·알려진 정도)에 각각 얼마나 무게를 둘지를 짝 비교 응답에서 추정한다. 장소별 점수를 배우는 것이 아니라 축의 무게 하나를 정하는 일이고, 그건 100명이면 충분하다",
+      "evidence": { "all": ["bigData/process/choice-design.mjs", "bigData/process/choice-fit.mjs"] }
+    },
+
+    {
+      "id": "bd.st.staged",
+      "stage": "store",
+      "kind": "file",
+      "label": "staged 파일",
+      "state": "ok",
+      "note": "구간별 경사·그늘·경치·지하철출구가 NDJSON 으로 앉는 자리. 산출물 옆에 실행 지문(_run-*.json — git 커밋·node 버전·입력 해시)이 같이 남는다. 🔴 커밋하지 않는다 — 수집기가 언제든 다시 만든다",
+      "evidence": { "file": "bigData/mlops/manifest.mjs" }
+    },
+    {
+      "id": "bd.st.morning",
+      "stage": "store",
+      "kind": "batch",
+      "label": "아침 보고",
+      "note": "팀 서버(EC2)에서 cron 이 돌린다. Airflow 를 세우지 않은 자리를 이것이 메운다 — 배치가 다섯 단계, 하루 한 번이다",
+      "evidence": { "file": "bigData/deploy/run-morning-report.sh" }
+    }
+  ],
+
+  "edges": [
+    { "from": "bd.src.osm",       "to": "bd.p.extract", "label": "전국 PBF",        "state": "ok" },
+    { "from": "bd.src.overpass",  "to": "bd.p.extract", "label": "focus 구역만",    "state": "ok" },
+    { "from": "bd.p.extract",     "to": "bd.p.slope",   "label": "도로·보행로",     "state": "ok" },
+    { "from": "bd.src.terrain",   "to": "bd.p.slope",   "label": "고도",            "state": "ok" },
+    { "from": "bd.p.extract",     "to": "bd.p.shade",   "label": "건물 높이",       "state": "ok" },
+    { "from": "bd.src.trees",     "to": "bd.p.shade",   "label": "나무 위치",       "state": "ok" },
+    { "from": "bd.p.extract",     "to": "bd.p.vista",   "label": "물가·녹지",       "state": "ok" },
+    { "from": "bd.src.subway",    "to": "bd.p.access",  "label": "출구 표",         "state": "ok" },
+    { "from": "bd.src.tourapibf", "to": "bd.p.access",  "label": "무장애 정보",     "state": "ok" },
+    { "from": "bd.src.tourapi",   "to": "bd.p.hours",   "label": "영업시간 문장",   "state": "ok" },
+    { "from": "bd.src.permits",   "to": "bd.p.coord",   "label": "인허가 원본",     "state": "ok" },
+    { "from": "bd.p.coord",       "to": "bd.p.link",    "label": "좌표 맞춘 가게",  "state": "ok" },
+    { "from": "bd.src.sbiz",      "to": "bd.p.link",    "label": "상가 목록",       "state": "ok" },
+    { "from": "bd.src.tourapi",   "to": "bd.p.link",    "label": "관광공사 장소",   "state": "ok" },
+    { "from": "bd.src.bims",      "to": "bd.p.bus",     "label": "실시간 위치",     "state": "ok" },
+
+    { "from": "bd.p.slope",  "to": "bd.st.staged", "label": "segment-slope",    "state": "ok" },
+    { "from": "bd.p.shade",  "to": "bd.st.staged", "label": "segment-shade",    "state": "ok" },
+    { "from": "bd.p.vista",  "to": "bd.st.staged", "label": "segment-vista",    "state": "ok" },
+    { "from": "bd.p.access", "to": "bd.st.staged", "label": "subway-entrance",  "state": "ok" },
+    { "from": "bd.p.hours",  "to": "bd.st.staged", "label": "영업시간",         "state": "ok" },
+    { "from": "bd.p.link",   "to": "bd.st.staged", "label": "이어진 가게",      "state": "ok" },
+    { "from": "bd.p.bus",    "to": "bd.st.morning","label": "노선 점수",        "state": "ok" },
+
+    {
+      "from": "bd.p.weights", "to": "be.sv.reco", "label": "축의 무게",
+      "state": "broken",
+      "why": "정해진 값이 없어 아무것도 안 나간다. 추천은 지금 아무도 추정하지 않은 기본값으로 돌고 있다"
+    }
+  ]
+}
