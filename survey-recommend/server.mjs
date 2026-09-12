@@ -213,7 +213,10 @@ const WHEN_GOOD   = new Set(["DAY", "NIGHT", "ANY"]);
          schema.sql · migrations/0005_more_slots.sql 의 recommendation_slot_ok
          상한(10)과도 같아야 한다. 어긋나면 사람은 화면에서 통과하고 여기서,
          또는 여기서 통과하고 DB 에서 거절당한다. */
-const NEED = 5;
+/* 🔴 하한 다섯 → 셋 (2026-09-12, S15P21E201-870). index.html 의 NEED 와
+      반드시 같아야 한다 — 한쪽만 고치면 사람이 화면에서 통과하고 여기서
+      거절당한다. DB 제약은 상한만 보므로 마이그레이션이 없다. */
+const NEED = 3;
 const MAX_SLOTS = 10;
 
 /* ── 맨 앞의 개인화 세 문항 (오는 교통 · 숙소 · 식사) ────────────────
@@ -399,7 +402,7 @@ function check(b) {
         🔴 빈 칸은 여기 오기 전에 pruneEmptySlots() 가 이미 걷어냈다 —
            그래서 여기 남은 것은 전부 "적은 칸" 이고, 아래 검사는 전부 통과해야 한다. */
   if (!Array.isArray(rs)) return "추천하는 곳을 읽지 못했어요.";
-  if (rs.length < NEED) return "추천하는 곳 다섯 군데를 채워 주세요.";
+  if (rs.length < NEED) return "추천하는 곳 " + NEED + "군데를 채워 주세요.";
   if (rs.length > MAX_SLOTS) return `추천하는 곳은 ${MAX_SLOTS}군데까지 받아요.`;
 
   /* 🔴 같은 유형이 여러 번 와도 받는다. 맛집 다섯 곳은 정상적인 응답이다.
