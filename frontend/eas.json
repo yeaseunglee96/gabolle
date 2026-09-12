@@ -18,6 +18,14 @@
     }
   },
   "submit": {
-    "production": {}
+    "production": {
+      "ios": {
+        "ascAppId": "6811252919"
+      }
+    }
+  },
+  "cli": {
+    "appVersionSource": "remote",
+    "promptToConfigurePushNotifications": false
   }
 }
