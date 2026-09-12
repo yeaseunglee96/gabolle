@@ -1864,13 +1864,40 @@ const WELCOME_PHOTOS = [
       감천문화마을 사진으로 바꿨다 — 색색의 집이 화면을 꽉 채워서
       **어느 쪽이 잘려도** 부산으로 보인다. 파일도 같이 지웠고 출처
       한 줄(CREDITS_LINE)과 assets/CREDITS.md 에서도 뺐다. */
+/* ── 🔴 사진이 두 판이다 (S15P21E201-882) ──────────────────────────
+ * 흐릿하다는 말을 듣고 재 봤더니, 1707px 짜리 창(화면배율 1.5)에서 사진을
+ * **2.35배로 늘려** 그리고 있었다. 사진이 1080px 인데 화면이 실제로는
+ * 2538px 을 필요로 했다.
+ *
+ * 원인은 사진이 나빠서가 아니라 **디자인이 바뀐 걸 사진이 못 따라간 것**이다.
+ * 1080px 은 사진이 **작은 카드 안**에 들어가던 1차 때 정한 크기인데,
+ * 2차에서 사진이 **화면 전체 배경**이 되면서 아무도 그 숫자를 다시 안 봤다.
+ *
+ *   sm — 1080px. 폰·좁은 창. 다섯 장 합쳐 661KB
+ *   lg — 2560px. 노트북·데스크톱. 다섯 장 합쳐 2,592KB
+ *
+ * 🔴 파노라마(lg)만 1790px 이다. 그 사진은 가로로 찍힌 원본을 **세로로 잘라**
+ *    쓰는 것이라, 원본 높이(3183px)가 허용하는 가로가 거기까지다. 지금 쓰는
+ *    것과 **자른 자리가 같다** — 원본에서 같은 창을 다시 떠서 만들었고,
+ *    지금 파일과 밝기 차이가 0.16/255 인 것으로 확인했다.
+ * 🔴 파일 이름을 둘 다 **여기에 글자 그대로** 적는다. 이름을 코드로 만들어
+ *    내면(예: replace(".jpg","-big.jpg")) server.mjs 의 시작 검사가 그 파일을
+ *    못 찾는다 — 그 검사는 이 파일에서 "assets/…" 를 글자로 훑는다.
+ * ─────────────────────────────────────────────────────────────── */
 const PHOTO_SRC = {
-  gwangan:    "assets/gwangan-bridge.jpg",
-  gamcheon:   "assets/gamcheon-village.jpg",
-  gwangalli:  "assets/gwangalli-beach.jpg",
-  huinnyeoul: "assets/huinnyeoul.jpg",
-  panorama:   "assets/busan-night-panorama.jpg"
+  gwangan:    { sm: "assets/gwangan-bridge.jpg",       lg: "assets/gwangan-bridge-big.jpg" },
+  gamcheon:   { sm: "assets/gamcheon-village.jpg",     lg: "assets/gamcheon-village-big.jpg" },
+  gwangalli:  { sm: "assets/gwangalli-beach.jpg",      lg: "assets/gwangalli-beach-big.jpg" },
+  huinnyeoul: { sm: "assets/huinnyeoul.jpg",           lg: "assets/huinnyeoul-big.jpg" },
+  panorama:   { sm: "assets/busan-night-panorama.jpg", lg: "assets/busan-night-panorama-big.jpg" }
 };
+
+/* 🔴 **시작할 때 한 번 고르고 도중에 안 바꾼다.** 창을 넓혔다고 사진을 갈아
+      끼우면 보고 있던 화면이 깜빡이고, 이미 받은 것 위에 또 받는다.
+      기준은 창의 CSS 가로다 — 폰은 390~430, 태블릿 세로는 768~834,
+      노트북부터 1280 이상이라 900 이 그 사이에 넉넉히 들어간다. */
+const BIG_PHOTOS = window.innerWidth >= 900;
+const photoSrc = key => PHOTO_SRC[key][BIG_PHOTOS ? "lg" : "sm"];
 
 /* ── 상태 ────────────────────────────────────────────────────────
    제출 버튼을 누르기 전까지 이 값들은 이 창 안에만 있다.
@@ -2141,7 +2168,7 @@ let wPhotoIdx = 0, wPhotoTimer = null;
       도착할 때까지 어두운 바탕이 비쳐서, 부드럽게 바뀌는 게 아니라 한 번
       껌뻑인다. **우리 서버의 파일이라 바깥으로 나가는 요청이 아니다** —
       고지의 "접속 기록도 남기지 않습니다" 약속과 상관없다. */
-for (const k in PHOTO_SRC) { const pre = new Image(); pre.src = PHOTO_SRC[k]; }
+for (const k in PHOTO_SRC) { const pre = new Image(); pre.src = photoSrc(k); }
 
 /* 겹쳐 둔 두 층. wShown 은 지금 보이는 쪽이다 */
 const wLayers = [$("wbg0"), $("wbg0b")];
@@ -2153,7 +2180,7 @@ function paintWelcomePhoto(i) {
   /* 🔴 안 보이는 층에 새 사진을 먼저 깔고, 그 다음에 투명도를 넘긴다.
         보이는 층에 바로 깔면 사진이 도착하는 순간 통째로 바뀐다. */
   const into = 1 - wShown;
-  wLayers[into].style.backgroundImage = 'url("' + PHOTO_SRC[p.key] + '")';
+  wLayers[into].style.backgroundImage = 'url("' + photoSrc(p.key) + '")';
   wLayers[into].style.backgroundPosition = p.pos || "center";
   wLayers[into].style.opacity = "1";
   wLayers[wShown].style.opacity = "0";
@@ -2169,8 +2196,8 @@ function startPhotoCycle() {
   }, 2600);
 }
 function stopPhotoCycle() { if (wPhotoTimer) { clearInterval(wPhotoTimer); wPhotoTimer = null; } }
-$("wbg1").style.backgroundImage = 'url("' + PHOTO_SRC.gamcheon + '")';
-$("wbg2").style.backgroundImage = 'url("' + PHOTO_SRC.panorama + '")';
+$("wbg1").style.backgroundImage = 'url("' + photoSrc("gamcheon") + '")';
+$("wbg2").style.backgroundImage = 'url("' + photoSrc("panorama") + '")';
 /* 눌러서 다음 사진으로 — 자동으로 넘어가길 기다리지 않아도 된다 */
 /* 🔴 두 층 모두에 건다. 위에 있는 층이 클릭을 가로채므로 한쪽만 걸면
       사진이 한 번 바뀐 뒤로 눌러도 안 넘어간다. */
