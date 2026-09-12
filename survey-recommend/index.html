@@ -1311,8 +1311,8 @@ textarea.u { min-height: 96px; font-size: 17px; line-height: 1.5; resize: vertic
      ══════════════════════════════════════════════════════════════════ -->
 <script id="design" type="application/json">
 {
-  "designId": "recommend-v3-seed-20260912",
-  "seed": 20260912,
+  "family": "recommend-v4-seed-20260913",
+  "seed": 20260913,
   "perPage": 2,
   "msBuckets": [
     1500,
@@ -1351,11 +1351,6 @@ textarea.u { min-height: 96px; font-size: 17px; line-height: 1.5; resize: vertic
           20,
           40
         ],
-        "sameStreet": [
-          0,
-          3,
-          12
-        ],
         "fame": [
           "LOCAL_ONLY",
           "SNS_FAMOUS"
@@ -1364,7 +1359,6 @@ textarea.u { min-height: 96px; font-size: 17px; line-height: 1.5; resize: vertic
       "axes": {
         "price": "SPEND_PROFILE",
         "queueMin": "QUIETNESS",
-        "sameStreet": "ATMOSPHERE",
         "fame": "TOURIST_PREFERENCE"
       }
     },
@@ -1431,199 +1425,384 @@ textarea.u { min-height: 96px; font-size: 17px; line-height: 1.5; resize: vertic
       "axes": {
         "cost": "SPEND_PROFILE",
         "indoor": "SHADE_PREFERENCE",
-        "crowd": "ATMOSPHERE",
+        "crowd": "QUIETNESS",
         "fame": "TOURIST_PREFERENCE"
       }
     }
   },
-  "sets": [
+  "variants": [
     {
-      "setId": "eat01",
-      "block": "eat",
-      "trap": false,
-      "alternatives": [
+      "designId": "recommend-v4-seed-20260913-a",
+      "sets": [
         {
-          "walkMin": 15,
-          "price": 70000,
-          "queueMin": 20,
-          "sameStreet": 12,
-          "fame": "LOCAL_ONLY"
+          "setId": "eat01",
+          "block": "eat",
+          "trap": false,
+          "alternatives": [
+            {
+              "walkMin": 15,
+              "price": 20000,
+              "queueMin": 40,
+              "fame": "SNS_FAMOUS"
+            },
+            {
+              "walkMin": 25,
+              "price": 70000,
+              "queueMin": 20,
+              "fame": "LOCAL_ONLY"
+            }
+          ],
+          "when": "첫날 저녁",
+          "lead": "도착한 날 저녁, 첫 끼를 먹습니다"
         },
         {
-          "walkMin": 3,
-          "price": 40000,
-          "queueMin": 40,
-          "sameStreet": 3,
-          "fame": "SNS_FAMOUS"
+          "setId": "play01",
+          "block": "play",
+          "trap": false,
+          "alternatives": [
+            {
+              "walkMin": 25,
+              "cost": 10000,
+              "indoor": "INDOOR",
+              "crowd": "QUIET",
+              "fame": "SNS_FAMOUS"
+            },
+            {
+              "walkMin": 3,
+              "cost": 30000,
+              "indoor": "OUTDOOR",
+              "crowd": "QUIET",
+              "fame": "LOCAL_ONLY"
+            }
+          ],
+          "when": "첫날 밤",
+          "lead": "밥을 먹고 밤에 한 군데 더 들릅니다"
+        },
+        {
+          "setId": "see01",
+          "block": "see",
+          "trap": false,
+          "alternatives": [
+            {
+              "walkMin": 15,
+              "slope": "STEEP",
+              "shade": "SHADED",
+              "crowd": "SOME",
+              "fame": "LOCAL_ONLY"
+            },
+            {
+              "walkMin": 25,
+              "slope": "FLAT",
+              "shade": "SUNNY",
+              "crowd": "PACKED",
+              "fame": "SNS_FAMOUS"
+            }
+          ],
+          "when": "이튿날 아침",
+          "lead": "아침에 나와 어디부터 볼지 고릅니다"
+        },
+        {
+          "setId": "tr01",
+          "block": "eat",
+          "trap": true,
+          "trapCorrect": 0,
+          "alternatives": [
+            {
+              "walkMin": 3,
+              "price": 20000,
+              "queueMin": 0,
+              "fame": "LOCAL_ONLY"
+            },
+            {
+              "walkMin": 25,
+              "price": 20000,
+              "queueMin": 40,
+              "fame": "LOCAL_ONLY"
+            }
+          ],
+          "when": "이튿날 점심",
+          "lead": "걷다 보니 점심때가 됐습니다"
+        },
+        {
+          "setId": "see02",
+          "block": "see",
+          "trap": false,
+          "alternatives": [
+            {
+              "walkMin": 8,
+              "slope": "GENTLE",
+              "shade": "SHADED",
+              "crowd": "SOME",
+              "fame": "SNS_FAMOUS"
+            },
+            {
+              "walkMin": 3,
+              "slope": "GENTLE",
+              "shade": "SUNNY",
+              "crowd": "QUIET",
+              "fame": "LOCAL_ONLY"
+            }
+          ],
+          "when": "이튿날 오후",
+          "lead": "점심을 먹고 한 곳 더 봅니다"
+        },
+        {
+          "setId": "play02",
+          "block": "play",
+          "trap": false,
+          "alternatives": [
+            {
+              "walkMin": 15,
+              "cost": 0,
+              "indoor": "OUTDOOR",
+              "crowd": "PACKED",
+              "fame": "SNS_FAMOUS"
+            },
+            {
+              "walkMin": 8,
+              "cost": 0,
+              "indoor": "INDOOR",
+              "crowd": "PACKED",
+              "fame": "LOCAL_ONLY"
+            }
+          ],
+          "when": "해 기울 무렵",
+          "lead": "돌아가기 전에 하나만 더 해 볼 참입니다"
+        },
+        {
+          "setId": "eat02",
+          "block": "eat",
+          "trap": false,
+          "alternatives": [
+            {
+              "walkMin": 3,
+              "price": 40000,
+              "queueMin": 0,
+              "fame": "SNS_FAMOUS"
+            },
+            {
+              "walkMin": 8,
+              "price": 10000,
+              "queueMin": 20,
+              "fame": "LOCAL_ONLY"
+            }
+          ],
+          "when": "마지막 저녁",
+          "lead": "이 여행의 마지막 저녁입니다"
+        },
+        {
+          "setId": "mx01",
+          "blocks": [
+            "play",
+            "eat"
+          ],
+          "trap": false,
+          "alternatives": [
+            {
+              "walkMin": 15,
+              "cost": 30000,
+              "indoor": "INDOOR",
+              "crowd": "QUIET",
+              "fame": "SNS_FAMOUS"
+            },
+            {
+              "walkMin": 8,
+              "price": 40000,
+              "queueMin": 20,
+              "fame": "SNS_FAMOUS"
+            }
+          ],
+          "when": "떠나기 전",
+          "lead": "돌아가는 시간까지 한 시간 남았습니다"
         }
-      ],
-      "when": "첫날 저녁",
-      "lead": "도착한 날 저녁, 첫 끼를 먹습니다"
+      ]
     },
     {
-      "setId": "play01",
-      "block": "play",
-      "trap": false,
-      "alternatives": [
+      "designId": "recommend-v4-seed-20260913-b",
+      "sets": [
         {
-          "walkMin": 15,
-          "cost": 10000,
-          "indoor": "INDOOR",
-          "crowd": "SOME",
-          "fame": "LOCAL_ONLY"
+          "setId": "eat01",
+          "block": "eat",
+          "trap": false,
+          "alternatives": [
+            {
+              "walkMin": 8,
+              "price": 70000,
+              "queueMin": 40,
+              "fame": "SNS_FAMOUS"
+            },
+            {
+              "walkMin": 25,
+              "price": 10000,
+              "queueMin": 0,
+              "fame": "SNS_FAMOUS"
+            }
+          ],
+          "when": "첫날 저녁",
+          "lead": "도착한 날 저녁, 첫 끼를 먹습니다"
         },
         {
-          "walkMin": 25,
-          "cost": 0,
-          "indoor": "OUTDOOR",
-          "crowd": "QUIET",
-          "fame": "SNS_FAMOUS"
-        }
-      ],
-      "when": "첫날 밤",
-      "lead": "밥을 먹고 밤에 한 군데 더 들릅니다"
-    },
-    {
-      "setId": "see01",
-      "block": "see",
-      "trap": false,
-      "alternatives": [
-        {
-          "walkMin": 8,
-          "slope": "GENTLE",
-          "shade": "SUNNY",
-          "crowd": "SOME",
-          "fame": "SNS_FAMOUS"
+          "setId": "play01",
+          "block": "play",
+          "trap": false,
+          "alternatives": [
+            {
+              "walkMin": 8,
+              "cost": 10000,
+              "indoor": "OUTDOOR",
+              "crowd": "SOME",
+              "fame": "SNS_FAMOUS"
+            },
+            {
+              "walkMin": 25,
+              "cost": 10000,
+              "indoor": "INDOOR",
+              "crowd": "QUIET",
+              "fame": "LOCAL_ONLY"
+            }
+          ],
+          "when": "첫날 밤",
+          "lead": "밥을 먹고 밤에 한 군데 더 들릅니다"
         },
         {
-          "walkMin": 15,
-          "slope": "STEEP",
-          "shade": "SHADED",
-          "crowd": "QUIET",
-          "fame": "LOCAL_ONLY"
-        }
-      ],
-      "when": "이튿날 아침",
-      "lead": "아침에 나와 어디부터 볼지 고릅니다"
-    },
-    {
-      "setId": "tr01",
-      "block": "eat",
-      "trap": true,
-      "trapCorrect": 0,
-      "alternatives": [
-        {
-          "walkMin": 3,
-          "price": 20000,
-          "queueMin": 0,
-          "sameStreet": 3,
-          "fame": "LOCAL_ONLY"
+          "setId": "see01",
+          "block": "see",
+          "trap": false,
+          "alternatives": [
+            {
+              "walkMin": 3,
+              "slope": "FLAT",
+              "shade": "SUNNY",
+              "crowd": "SOME",
+              "fame": "SNS_FAMOUS"
+            },
+            {
+              "walkMin": 15,
+              "slope": "FLAT",
+              "shade": "SHADED",
+              "crowd": "SOME",
+              "fame": "LOCAL_ONLY"
+            }
+          ],
+          "when": "이튿날 아침",
+          "lead": "아침에 나와 어디부터 볼지 고릅니다"
         },
         {
-          "walkMin": 25,
-          "price": 20000,
-          "queueMin": 40,
-          "sameStreet": 3,
-          "fame": "LOCAL_ONLY"
-        }
-      ],
-      "when": "이튿날 점심",
-      "lead": "걷다 보니 점심때가 됐습니다"
-    },
-    {
-      "setId": "see02",
-      "block": "see",
-      "trap": false,
-      "alternatives": [
-        {
-          "walkMin": 25,
-          "slope": "FLAT",
-          "shade": "SUNNY",
-          "crowd": "QUIET",
-          "fame": "LOCAL_ONLY"
+          "setId": "tr01",
+          "block": "eat",
+          "trap": true,
+          "trapCorrect": 0,
+          "alternatives": [
+            {
+              "walkMin": 3,
+              "price": 20000,
+              "queueMin": 0,
+              "fame": "LOCAL_ONLY"
+            },
+            {
+              "walkMin": 25,
+              "price": 20000,
+              "queueMin": 40,
+              "fame": "LOCAL_ONLY"
+            }
+          ],
+          "when": "이튿날 점심",
+          "lead": "걷다 보니 점심때가 됐습니다"
         },
         {
-          "walkMin": 3,
-          "slope": "FLAT",
-          "shade": "SHADED",
-          "crowd": "PACKED",
-          "fame": "SNS_FAMOUS"
-        }
-      ],
-      "when": "이튿날 오후",
-      "lead": "점심을 먹고 한 곳 더 봅니다"
-    },
-    {
-      "setId": "play02",
-      "block": "play",
-      "trap": false,
-      "alternatives": [
-        {
-          "walkMin": 8,
-          "cost": 30000,
-          "indoor": "OUTDOOR",
-          "crowd": "PACKED",
-          "fame": "SNS_FAMOUS"
+          "setId": "see02",
+          "block": "see",
+          "trap": false,
+          "alternatives": [
+            {
+              "walkMin": 8,
+              "slope": "STEEP",
+              "shade": "SHADED",
+              "crowd": "PACKED",
+              "fame": "LOCAL_ONLY"
+            },
+            {
+              "walkMin": 25,
+              "slope": "STEEP",
+              "shade": "SHADED",
+              "crowd": "QUIET",
+              "fame": "SNS_FAMOUS"
+            }
+          ],
+          "when": "이튿날 오후",
+          "lead": "점심을 먹고 한 곳 더 봅니다"
         },
         {
-          "walkMin": 3,
-          "cost": 30000,
-          "indoor": "INDOOR",
-          "crowd": "PACKED",
-          "fame": "LOCAL_ONLY"
-        }
-      ],
-      "when": "해 기울 무렵",
-      "lead": "돌아가기 전에 하나만 더 해 볼 참입니다"
-    },
-    {
-      "setId": "eat02",
-      "block": "eat",
-      "trap": false,
-      "alternatives": [
-        {
-          "walkMin": 25,
-          "price": 10000,
-          "queueMin": 0,
-          "sameStreet": 12,
-          "fame": "SNS_FAMOUS"
+          "setId": "play02",
+          "block": "play",
+          "trap": false,
+          "alternatives": [
+            {
+              "walkMin": 3,
+              "cost": 30000,
+              "indoor": "INDOOR",
+              "crowd": "PACKED",
+              "fame": "LOCAL_ONLY"
+            },
+            {
+              "walkMin": 15,
+              "cost": 30000,
+              "indoor": "OUTDOOR",
+              "crowd": "PACKED",
+              "fame": "SNS_FAMOUS"
+            }
+          ],
+          "when": "해 기울 무렵",
+          "lead": "돌아가기 전에 하나만 더 해 볼 참입니다"
         },
         {
-          "walkMin": 8,
-          "price": 20000,
-          "queueMin": 20,
-          "sameStreet": 0,
-          "fame": "LOCAL_ONLY"
-        }
-      ],
-      "when": "마지막 저녁",
-      "lead": "이 여행의 마지막 저녁입니다"
-    },
-    {
-      "setId": "mx01",
-      "blocks": [
-        "play",
-        "eat"
-      ],
-      "trap": false,
-      "alternatives": [
-        {
-          "walkMin": 15,
-          "cost": 0,
-          "indoor": "OUTDOOR",
-          "crowd": "SOME",
-          "fame": "LOCAL_ONLY"
+          "setId": "eat02",
+          "block": "eat",
+          "trap": false,
+          "alternatives": [
+            {
+              "walkMin": 3,
+              "price": 40000,
+              "queueMin": 20,
+              "fame": "LOCAL_ONLY"
+            },
+            {
+              "walkMin": 15,
+              "price": 20000,
+              "queueMin": 40,
+              "fame": "LOCAL_ONLY"
+            }
+          ],
+          "when": "마지막 저녁",
+          "lead": "이 여행의 마지막 저녁입니다"
         },
         {
-          "walkMin": 8,
-          "price": 40000,
-          "queueMin": 0,
-          "sameStreet": 12,
-          "fame": "SNS_FAMOUS"
+          "setId": "mx01",
+          "blocks": [
+            "see",
+            "play"
+          ],
+          "trap": false,
+          "alternatives": [
+            {
+              "walkMin": 8,
+              "slope": "STEEP",
+              "shade": "SHADED",
+              "crowd": "QUIET",
+              "fame": "LOCAL_ONLY"
+            },
+            {
+              "walkMin": 15,
+              "cost": 0,
+              "indoor": "INDOOR",
+              "crowd": "SOME",
+              "fame": "SNS_FAMOUS"
+            }
+          ],
+          "when": "떠나기 전",
+          "lead": "돌아가는 시간까지 한 시간 남았습니다"
         }
-      ],
-      "when": "떠나기 전",
-      "lead": "돌아가는 시간까지 한 시간 남았습니다"
+      ]
     }
   ]
 }
@@ -2052,7 +2231,24 @@ const PERSONAL_QUESTIONS = SPEND_QUESTIONS.concat([CROWD_QUESTION]);
    s01~s05 · tr01 은 그 설문과 같은 문항이라 응답을 합칠 수 있다.
    ══════════════════════════════════════════════════════════════════ */
 const DESIGN = JSON.parse(document.getElementById("design").textContent);
-const PAIR_SETS = DESIGN.sets;
+/* ── 🔴 문항지가 두 벌이다 (S15P21E201-884) ────────────────────────
+ * 한 사람은 여전히 8문항만 받는다 — 설문 길이는 그대로다. 다만 **사람마다
+ * 다른 벌**을 받는다.
+ *
+ * 왜 나눴나: 문항 하나는 방정식 하나다. 모두에게 같은 8문항을 주면 함정을
+ * 뺀 방정식이 7개인데 풀 미지수는 11개라 **사람을 아무리 늘려도 안 풀린다**
+ * (400명이 와도 다들 같은 7개를 풀고 간다). 두 벌이면 14개가 되어 풀린다.
+ *
+ * 🔴 **열 때 한 번 고르고 도중에 안 바꾼다.** 새로고침하면 다른 벌이 나올 수
+ *    있는데, 제출 전에는 아무것도 저장되지 않으므로 문제가 안 된다.
+ * 🔴 **어느 벌이었는지는 제출할 때 designId 로 같이 간다.** 표의
+ *    response.pairwise_design_id · pairwise_choice.design_id 가 그것을 받는다
+ *    (그 칸들은 처음부터 있었다 — 마이그레이션이 필요 없다).
+ * 🔴 반반은 저장하지 않는다. 사람을 세지 않는다는 고지와 어긋나지 않게,
+ *    그 자리에서 동전만 던진다. 50명이면 25 ± 4 로 갈린다.
+ * ─────────────────────────────────────────────────────────────── */
+const VARIANT = DESIGN.variants[Math.floor(Math.random() * DESIGN.variants.length)];
+const PAIR_SETS = VARIANT.sets;
 const PER_PAGE = DESIGN.perPage;
 const PAIR_PAGES = Math.ceil(PAIR_SETS.length / PER_PAGE);
 
@@ -2075,7 +2271,6 @@ const ATTR_UI = {
   walkMin:    { ic: "i-walk",   name: "역에서 걸어서",       fmt: v => v + "분" },
   price:      { ic: "i-money",  name: "한 끼 가격",          fmt: v => (v / 10000) + "만원" },
   queueMin:   { ic: "i-queue",  name: "줄서기",             fmt: v => v === 0 ? "줄 없음" : v + "분" },
-  sameStreet: { ic: "i-shops",  name: "비슷한 가게",         fmt: v => v === 0 ? "없음 (외딴집)" : v + "곳" },
   slope:      { ic: "i-slope",  name: "오르막",             fmt: v => v === "FLAT" ? "평지" : v === "GENTLE" ? "완만" : "가파름" },
   /* 🔴 표가 되면서 값이 짧아야 한다 (S15P21E201-875). 좌우 칸이 각각 130px
         남짓이라 「동네에서만 알려짐」 은 「짐」 한 글자가 다음 줄로 떨어졌다.
@@ -3368,7 +3563,7 @@ $("submit").addEventListener("click", async () => {
              서버가 판정한다 — 화면이 정하면 "통과했다" 를 그냥 보낼 수 있다.
              표에서는 is_trap 으로 갈라져 계수 계산에서 빠진다. */
     pairwise: {
-      designId: DESIGN.designId,
+      designId: VARIANT.designId,
       choices: PAIR_SETS.map((s, i) => {
         const a = state.pair[i];
         return a === null ? null : {
