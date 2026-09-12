@@ -20,17 +20,21 @@ export async function getLastVisitedPlace(itineraryId: string, accessToken: stri
   if (itineraryResult.state !== 'success') return itineraryResult;
   const { days } = itineraryResult.itinerary;
 
+  // 날짜별 페이스 조회는 서로 의존하지 않으므로 병렬로 부른다 — 날짜가 많은 여행일수록
+  // 순차 호출은 화면 로딩을 불필요하게 늘린다.
+  const paceResults = await Promise.all(days.map((_, dayIndex) => loadItineraryPace(itineraryId, dayIndex, accessToken)));
+
   let lastVisitedPlaceId: string | null = null;
-  for (let dayIndex = 0; dayIndex < days.length; dayIndex += 1) {
-    const paceResult = await loadItineraryPace(itineraryId, dayIndex, accessToken);
-    if (paceResult.state !== 'success') continue; // 하루 조회 실패가 나머지 날짜를 막지 않는다
-    const itemsById = new Map(days[dayIndex].items.map((item) => [item.id, item.placeId]));
+  days.forEach((day, dayIndex) => {
+    const paceResult = paceResults[dayIndex];
+    if (paceResult.state !== 'success') return; // 하루 조회 실패가 나머지 날짜를 막지 않는다
+    const itemsById = new Map(day.items.map((item) => [item.id, item.placeId]));
     for (const paceItem of paceResult.pace.items) {
       if (!paceItem.visited) continue;
       const placeId = itemsById.get(paceItem.itemId);
       if (placeId) lastVisitedPlaceId = placeId;
     }
-  }
+  });
   if (!lastVisitedPlaceId) return { state: 'none' };
 
   try {
