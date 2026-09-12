@@ -134,7 +134,12 @@ services:
         max-file: "3"
 
   minio:
-    image: minio/minio:RELEASE.2024-10-13T13-34-11Z
+    # 🔴 quay.io 에서 받는다 (S15P21E201-866, 2026-09-12). 도커 허브에서
+    #    `minio/minio` 가 사라졌다 — 우리 태그도 `latest` 도 401 이고 저장소 조회는
+    #    404 다. 지금 떠 있는 컨테이너는 이미 받아 둔 것이라 도는 중이지만,
+    #    **새로 띄우거나 다른 PC 에서 올리면 막힌다.** 태그는 그대로다 — 판을
+    #    올리는 것이 아니라 같은 판을 다른 창고에서 받는 것뿐이다.
+    image: quay.io/minio/minio:RELEASE.2024-10-13T13-34-11Z
     restart: unless-stopped
     networks:
       - data_net
