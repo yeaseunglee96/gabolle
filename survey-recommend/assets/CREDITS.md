@@ -21,7 +21,7 @@
 | 파일명 | 무엇 | 출처 URL (원본 페이지) | 촬영자 | 라이선스 | 내려받은 날 | 픽셀 크기 | 웹용 재저장 |
 |---|---|---|---|---|---|---|---|
 | `gwangan-bridge.jpg` | 광안대교 (낮, 항공) | https://commons.wikimedia.org/wiki/File:Gwangan_Bridge1.jpg | Glabb | CC BY-SA 3.0 | 2026-09-09 | 4000 × 2250 | 웹용으로 가로 1080px·품질 80 으로 다시 저장함 |
-| `haeundae-beach.jpg` | 해운대 해수욕장 | https://commons.wikimedia.org/wiki/File:Haeundae_Beach_Busan_(45698772572).jpg | bryan... (Flickr 사용자 `bryansjs`) | CC BY-SA 2.0 | 2026-09-09 | 6720 × 4480 | 웹용으로 가로 1080px·품질 80 으로 다시 저장함 |
+| `gamcheon-village.jpg` | 감천문화마을 (옥천로에서, 해 질 무렵) | https://commons.wikimedia.org/wiki/File:Colorful_houses_in_Gamcheon_Culture_Village_at_sunset_in_Busan_South_Korea.jpg | Basile Morin | CC BY-SA 4.0 | 2026-09-12 | 6043 × 3777 | 웹용으로 가로 1080px·품질 80 으로 다시 저장함 |
 | `gwangalli-beach.jpg` | 광안리 해수욕장 | https://commons.wikimedia.org/wiki/File:Gwangalli_Beach.jpg | Chelsea Hicks | CC BY 2.0 | 2026-09-09 | 4752 × 3168 | 웹용으로 가로 1080px·품질 80 으로 다시 저장함 |
 | `huinnyeoul.jpg` | 흰여울 문화마을 (영도) | https://commons.wikimedia.org/wiki/File:Huinnyeoul_culture_village,_Busan_on_October_25th,_2019.jpg | Choi2451 | CC0 | 2026-09-09 | 4032 × 3024 | 웹용으로 가로 1080px·품질 80 으로 다시 저장함 |
 | `busan-night-panorama.jpg` | 부산 야경 — 광안대교와 마린시티 | https://commons.wikimedia.org/wiki/File:Gwangan_Bridge_seen_Marine_City_at_Night_01.jpg | Jeena Paradies | CC BY 2.0 | 2026-09-09 | 5889 × 3183 | 웹용으로 가로 1440px·품질 80 으로 다시 저장함 |
@@ -56,18 +56,37 @@ Commons 의 자동 메타데이터(`extmetadata`)는 이 다섯 중 **둘에 대
 
 ---
 
+## 🔴 2026-09-12 — 해운대 사진을 감천문화마을 사진으로 바꿨다 (S15P21E201-879)
+
+**`haeundae-beach.jpg` 는 저장소에서 지웠다.** 라이선스 문제가 아니라 **구도** 때문이다.
+
+그 사진은 위쪽 절반이 하늘이고 백사장과 사람은 아래쪽에 몰려 있었다. 설문의 배경
+사진은 화면을 꽉 채우게(`background-size: cover`) 깔리는데, 화면이 가로로 넓으면
+위아래가 잘려 **가운데 띠만 남는다** — 그 띠가 하필 하늘과 **공사 중인 고층 건물**
+이라, 부산 바다를 보여 주려던 자리에 공사장이 보였다.
+
+새로 받은 감천문화마을 사진은 **색색의 집이 화면을 꽉 채워서 어느 쪽이 잘려도**
+부산으로 보인다. Commons 의 *Quality image* 로 뽑힌 사진이다.
+
+| | |
+|---|---|
+| 라이선스 | **CC BY-SA 4.0** — 페이지 원문의 `{{self|cc-by-sa-4.0}}` 를 직접 읽어 확인했다 (아래 「함정」 참고) |
+| 촬영자 | **Basile Morin** (본인 촬영, `{{own}}`) |
+| 찍은 날 | 2024-06-13 |
+| 좌표 | 35.097142, 129.010302 |
+
+남은 네 장은 그대로다. 지운 사진은 git 이력에 남아 있다.
+
 ## 손댄 것
 
-`haeundae-beach.jpg` 만 **품질 85로 다시 인코딩**했다. 원본이 5,189,541 바이트라
-"파일당 5MB 이하" 기준을 십진 기준(5,000,000 바이트)으로 보면 넘었다.
-**픽셀은 하나도 자르지 않았다** — 크기는 6720 × 4480 그대로이고, 줄어든 것은
-파일 용량뿐이다 (5,189,541 → 3,458,583 바이트). 나머지 넷은 내려받은 원본 그대로다.
+`gamcheon-village.jpg` 는 Commons 의 1280px 축소본을 받아 **가로 1080px · 품질 80**
+으로 다시 저장했다 (373KB → 200KB). 나머지 넷은 앞서 받은 그대로다.
 
 ## 검증
 
-다섯 장 모두 아래를 통과했다 (종료 코드 0).
+받을 때 다섯 장 모두 아래를 통과했다 (종료 코드 0).
 
-- 가로 2000px 이상
+- 가로 2000px 이상 (**원본 기준**이다. 저장소에 들어 있는 것은 웹용 1080px 재저장본이다)
 - 파일당 5,000,000 바이트 이하
 - Pillow(**파이썬 이미지 처리 꾸러미**)로 열었을 때 `format == "JPEG"`
 

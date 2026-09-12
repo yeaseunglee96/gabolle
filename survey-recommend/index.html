@@ -350,6 +350,12 @@ code { font-family: var(--mono); font-size: .92em; }
   position: absolute; inset: 0; background-size: cover; background-position: center;
   background-color: var(--dark-bg);
 }
+/* 🔴 첫 화면의 두 층만 투명도가 움직인다 (S15P21E201-879).
+      0.7초는 "바뀐 걸 알아챌 만큼 길고, 기다린다고 느끼기엔 짧은" 자리다.
+      🔴 움직임을 끈 사람에게는 안 준다 — 그 사람에게는 그냥 바로 바뀐다. */
+#scW0 .wbg { transition: opacity .7s ease-in-out; }
+#wbg0b { opacity: 0; }
+@media (prefers-reduced-motion: reduce) { #scW0 .wbg { transition: none; } }
 .screen.welcome .wscrim {
   position: absolute; inset: 0; pointer-events: none;
   background: linear-gradient(180deg, rgba(20,20,18,0) 30%, rgba(20,20,18,.55) 55%, rgba(20,20,18,.96) 78%);
@@ -884,8 +890,13 @@ textarea.u { min-height: 96px; font-size: 17px; line-height: 1.5; resize: vertic
         「받는 것」은 고지 화면 첫 줄이다. 제목 「이름도, 이메일도 묻지 않아요」는
         남는다.
      ════════════════════════════════════════════════════════════ -->
+<!-- 🔴 첫 화면만 사진 층이 **둘**이다 (S15P21E201-879). 한 층에서 사진만
+         갈아 끼우면 그 순간 통째로 바뀌어 깜빡임으로 읽힌다. 두 층을 겹쳐 두고
+         새 사진을 아래층에 깔아 둔 뒤 서로 투명도를 넘기면 건너 페이드가 된다.
+         둘째·셋째 화면은 사진이 한 장씩이라 층이 하나면 된다. -->
 <section id="scW0" class="screen welcome m3-welcome on">
   <div class="wbg" id="wbg0"></div>
+  <div class="wbg" id="wbg0b"></div>
   <div class="wscrim2"></div>
   <div class="wcontent">
     <div class="m3-appbar">
@@ -911,7 +922,7 @@ textarea.u { min-height: 96px; font-size: 17px; line-height: 1.5; resize: vertic
       <button type="button" class="m3-btn m3-text" id="skip1">건너뛰기</button>
     </div>
     <div class="wfoot">
-      <div class="wcap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>해운대 해수욕장 · 아침 산책</div>
+      <div class="wcap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>감천문화마을 · 해 질 무렵</div>
       <h1 class="m3-h1">이름도, 이메일도<br>묻지 않아요</h1>
       <p class="m3-p">답은 추천을 만드는 데만 쓰고 1년 뒤 지웁니다. 전화번호는 경품 추첨에만 쓰고, 남기지 않으시면 이 응답이 누구의 것인지 저희도 알 수 없습니다.</p>
       <div class="m3-dots" id="wdots1"><span></span><span class="now"></span><span></span></div>
@@ -1186,7 +1197,7 @@ textarea.u { min-height: 96px; font-size: 17px; line-height: 1.5; resize: vertic
        ═══════════════════════════════════════════════════════════ -->
   <section id="scMain" class="screen">
     <h2 class="m3-h2" style="margin:24px 0 0">추천하는 곳<br>세 군데</h2>
-    <p class="m3-p" style="margin-top:8px"><b style="color:var(--m3-primary)">아는 곳만</b> 한 곳씩 적어서 담아 주세요. 모두 합해 <b style="color:var(--m3-primary)">세 곳</b>이면 되고, <b style="color:var(--m3-primary)">열 곳까지</b> 받습니다.</p>
+    <p class="m3-p" style="margin-top:8px"><b style="color:var(--m3-primary)">아는 곳만</b> 한 곳씩 적어서 추천해 주세요. 모두 합해 <b style="color:var(--m3-primary)">세 곳</b>이면 되고, <b style="color:var(--m3-primary)">열 곳까지</b> 받습니다.</p>
 
     <!-- 담은 곳. 아무것도 안 담았으면 이 자리는 통째로 비어 있다 -->
     <div class="kept" id="kept"></div>
@@ -1248,7 +1259,7 @@ textarea.u { min-height: 96px; font-size: 17px; line-height: 1.5; resize: vertic
       <p class="m3-help" id="draftNote"><span></span></p>
 
       <button type="button" class="m3-btn m3-tonal" id="keepBtn" disabled>
-        <svg class="ic" aria-hidden="true"><use href="#i-add"/></svg><span id="keepLabel">이 곳 담기</span></button>
+        <svg class="ic" aria-hidden="true"><use href="#i-add"/></svg><span id="keepLabel">다음 장소 추천하기</span></button>
     </div>
 
     <!-- 🔴 열 곳을 담으면 위 칸이 통째로 사라진다. 왜 사라졌는지 말해 준다 -->
@@ -1256,7 +1267,7 @@ textarea.u { min-height: 96px; font-size: 17px; line-height: 1.5; resize: vertic
 
     <div id="stop"></div>
 
-    <button class="m3-btn m3-filled" id="submit" style="margin-top:24px" disabled><span id="submitLabel">세 곳 더 담으면 제출</span></button>
+    <button class="m3-btn m3-filled" id="submit" style="margin-top:24px" disabled><span id="submitLabel">세 곳 더 추천하면 제출</span></button>
     <p class="m3-help" style="margin-top:12px;display:block">제출하면 되돌릴 수 없어요. 낸 뒤에는 그 응답 하나만 빼 드릴 수 없습니다.</p>
   </section>
 
@@ -1646,7 +1657,7 @@ const CONFIG = {
    함께 적었다. 원본·라이선스 전문은 survey-recommend/assets/CREDITS.md.
    ─────────────────────────────────────────────────────────────── */
 const CREDITS_LINE =
-  "사진: 광안대교 Glabb(CC BY-SA 3.0) · 해운대 해수욕장 bryansjs(CC BY-SA 2.0) · " +
+  "사진: 광안대교 Glabb(CC BY-SA 3.0) · 감천문화마을 Basile Morin(CC BY-SA 4.0) · " +
   "광안리 해수욕장 Chelsea Hicks(CC BY 2.0) · 흰여울 문화마을 Choi2451(CC0) · " +
   "부산 야경 Jeena Paradies(CC BY 2.0) — 출처 Wikimedia Commons";
 
@@ -1837,14 +1848,25 @@ function isValidPhone(raw) {
 /* 🔴 해운대를 회전에서 뺐다 (S15P21E201-874). 2차부터 웰컴 2장이 해운대
       사진을 고정으로 쓰는데, 회전에도 들어 있으면 1장과 2장이 연달아 같은
       사진이 되는 순간이 생긴다. num 은 사진 카드가 없어지면서 안 쓴다. */
+/* 🔴 pos 는 **사진에서 어디를 보여 줄지**다 (S15P21E201-879).
+      사진은 가로로 긴데 화면은 그때그때 모양이 달라서, 넘치는 쪽이 잘린다.
+      기본값(가운데)을 쓰면 하늘이 넓은 사진은 **하늘만 남는다** — 해운대
+      사진이 딱 그래서, 백사장과 사람은 다 잘려 나가고 위쪽의 공사 중인
+      건물만 보였다. 그래서 사진마다 남길 곳을 손으로 정해 둔다.
+      세로 값이 클수록 아래쪽을 남긴다 (50% 가 가운데). */
 const WELCOME_PHOTOS = [
-  { key: "gwangan",   name: "광안대교",        sub: "밤에 조명이 켜질 때" },
-  { key: "gwangalli", name: "광안리 해수욕장",  sub: "해질 때" },
-  { key: "huinnyeoul",name: "영도 흰여울길",    sub: "바다 바로 옆 골목" }
+  { key: "gwangan",   name: "광안대교",        sub: "밤에 조명이 켜질 때", pos: "center" },
+  { key: "gwangalli", name: "광안리 해수욕장",  sub: "해질 때",            pos: "center 72%" },
+  { key: "huinnyeoul",name: "영도 흰여울길",    sub: "바다 바로 옆 골목",   pos: "center 68%" }
 ];
+/* 🔴 haeundae-beach.jpg 는 걷어냈다 (S15P21E201-879). 둘째 화면에 쓰던
+      사진인데 화면이 가로로 넓으면 하늘과 공사 중인 건물만 보였다.
+      감천문화마을 사진으로 바꿨다 — 색색의 집이 화면을 꽉 채워서
+      **어느 쪽이 잘려도** 부산으로 보인다. 파일도 같이 지웠고 출처
+      한 줄(CREDITS_LINE)과 assets/CREDITS.md 에서도 뺐다. */
 const PHOTO_SRC = {
   gwangan:    "assets/gwangan-bridge.jpg",
-  haeundae:   "assets/haeundae-beach.jpg",
+  gamcheon:   "assets/gamcheon-village.jpg",
   gwangalli:  "assets/gwangalli-beach.jpg",
   huinnyeoul: "assets/huinnyeoul.jpg",
   panorama:   "assets/busan-night-panorama.jpg"
@@ -2115,10 +2137,27 @@ let wPhotoIdx = 0, wPhotoTimer = null;
 /* 🔴 2차부터 사진이 카드가 아니라 화면 전체다 (S15P21E201-874).
       그래서 바꾸는 대상이 .wcard 가 아니라 .wbg 이고, 사진 이름은
       캡션 한 줄로 합쳐 적는다. */
+/* 🔴 미리 받아 둔다 (S15P21E201-879). 안 받아 두면 처음 넘어갈 때 사진이
+      도착할 때까지 어두운 바탕이 비쳐서, 부드럽게 바뀌는 게 아니라 한 번
+      껌뻑인다. **우리 서버의 파일이라 바깥으로 나가는 요청이 아니다** —
+      고지의 "접속 기록도 남기지 않습니다" 약속과 상관없다. */
+for (const k in PHOTO_SRC) { const pre = new Image(); pre.src = PHOTO_SRC[k]; }
+
+/* 겹쳐 둔 두 층. wShown 은 지금 보이는 쪽이다 */
+const wLayers = [$("wbg0"), $("wbg0b")];
+let wShown = 0;
+
 function paintWelcomePhoto(i) {
   const p = WELCOME_PHOTOS[i];
-  $("wbg0").style.backgroundImage = 'url("' + PHOTO_SRC[p.key] + '")';
   $("wcap0").textContent = p.name + " · " + p.sub;
+  /* 🔴 안 보이는 층에 새 사진을 먼저 깔고, 그 다음에 투명도를 넘긴다.
+        보이는 층에 바로 깔면 사진이 도착하는 순간 통째로 바뀐다. */
+  const into = 1 - wShown;
+  wLayers[into].style.backgroundImage = 'url("' + PHOTO_SRC[p.key] + '")';
+  wLayers[into].style.backgroundPosition = p.pos || "center";
+  wLayers[into].style.opacity = "1";
+  wLayers[wShown].style.opacity = "0";
+  wShown = into;
 }
 function startPhotoCycle() {
   wPhotoIdx = 0;
@@ -2130,13 +2169,15 @@ function startPhotoCycle() {
   }, 2600);
 }
 function stopPhotoCycle() { if (wPhotoTimer) { clearInterval(wPhotoTimer); wPhotoTimer = null; } }
-$("wbg1").style.backgroundImage = 'url("' + PHOTO_SRC.haeundae + '")';
+$("wbg1").style.backgroundImage = 'url("' + PHOTO_SRC.gamcheon + '")';
 $("wbg2").style.backgroundImage = 'url("' + PHOTO_SRC.panorama + '")';
 /* 눌러서 다음 사진으로 — 자동으로 넘어가길 기다리지 않아도 된다 */
-$("wbg0").addEventListener("click", () => {
+/* 🔴 두 층 모두에 건다. 위에 있는 층이 클릭을 가로채므로 한쪽만 걸면
+      사진이 한 번 바뀐 뒤로 눌러도 안 넘어간다. */
+wLayers.forEach(el => el.addEventListener("click", () => {
   wPhotoIdx = (wPhotoIdx + 1) % WELCOME_PHOTOS.length;
   paintWelcomePhoto(wPhotoIdx);
-});
+}));
 
 /* ── 웰컴 : 화면 전환 ────────────────────────────────────────── */
 let SEEN_KEY = "gabolle_survey_welcome_seen";
@@ -2556,8 +2597,8 @@ function paintDraft() {
      🔴 한 글자도 안 적었을 때는 안 따진다 — 시작도 안 한 사람을 재촉하는 것이
         되고, 바로 위에 「첫 번째 곳」이라고 적혀 있어 할 일은 이미 분명하다. */
   $("keepLabel").textContent =
-    isFull(draft)     ? (editing ? "고친 것 담기" : "이 곳 담기")
-    : isEmpty(draft)  ? "이 곳 담기"
+    isFull(draft)     ? (editing ? "고친 내용 저장하기" : "다음 장소 추천하기")
+    : isEmpty(draft)  ? "다음 장소 추천하기"
     : !draft.name     ? "장소 이름을 적어 주세요"
     : !draft.whenGood ? "언제 가면 좋은지 골라 주세요"
     :                   "왜 추천하는지 적어 주세요";
@@ -2598,7 +2639,7 @@ function keepPlace() {
 function editKept(sl) {
   if (isFull(draft)) keepPlace();
   if (!isEmpty(draft)) {
-    say("지금 적고 계신 곳을 마저 적어서 담은 뒤에 고쳐 주세요.");
+    say("지금 적고 계신 곳을 마저 적어서 추천한 뒤에 고쳐 주세요.");
     $("draftCard").scrollIntoView({ behavior: "smooth", block: "center" });
     return;
   }
@@ -2644,7 +2685,7 @@ function paint() {
         그것들은 이 화면에서 고칠 수 없거나 한 줄로 말할 수 없기 때문이다. */
   const left = NEED - n;
   $("submitLabel").textContent = left > 0
-    ? (CNT[left] || String(left)) + " 곳 더 담으면 제출" : "제출하기";
+    ? (CNT[left] || String(left)) + " 곳 더 추천하면 제출" : "제출하기";
   $("submit").disabled = left > 0;
 }
 
@@ -3201,7 +3242,7 @@ $("submit").addEventListener("click", async () => {
         고치던 것을 담지 않고 제출하는 경우도 같은 자리에서 걸린다. */
   if (!isEmpty(draft)) {
     trouble.push({ text: (editing ? "고치고 계신 곳" : "적고 계신 곳") +
-      "을 「" + (editing ? "고친 것 담기" : "이 곳 담기") + "」로 담아 주세요. 담지 않으면 같이 안 갑니다." });
+      "을 「" + (editing ? "고친 내용 저장하기" : "다음 장소 추천하기") + "」로 넣어 주세요. 안 넣으면 같이 안 갑니다." });
   }
 
   /* 🔴 개인정보 검사가 먼저다. 덜 채운 것보다 먼저 알려야 다시 안 적는다.
