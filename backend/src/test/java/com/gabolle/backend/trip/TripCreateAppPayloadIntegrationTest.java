@@ -102,6 +102,12 @@ class TripCreateAppPayloadIntegrationTest {
 	 * {@code tripApi.ts} 의 {@code toCreateTripPayload} 와 같은 모양. 차원 이름은 그 파일의
 	 * 문자열 그대로다.
 	 *
+	 * <p>🔴 2026-09-14 — {@code category} 값을 {@code ["BEACH","CAFE"]} 에서 바꿨다. <b>그 두
+	 * 낱말은 앱에서 온 것이 아니었다</b> — 앱의 어휘는 여섯이다({@code SEA_BEACH}·{@code CITY}·
+	 * {@code CAFE_HEALING}·{@code CULTURE_TEMPLE}·{@code FOOD}·{@code NATURE_WALK}).
+	 * S15P21E201-915 가 {@code CATEGORY} 에 사전 강제를 걸었으므로 <b>지어낸 낱말로 되돌리면
+	 * DB 가 거부한다.</b>
+	 *
 	 * <p>🔴 2026-09-10 — 출발지 좌표를 실제 값으로 바꿨다. 그전까지 여기에 {@code null} 이
 	 * 박혀 있었는데, 그것은 앱이 좌표를 받아 두고도 안 보내던 결함(S15P21E201-791)을 <b>사실로
 	 * 고정</b>하고 있던 것이다. 그 결함이 고쳐졌으므로(!479) 이 본문도 따라간다.
@@ -122,7 +128,7 @@ class TripCreateAppPayloadIntegrationTest {
 				  "timeWindow": "09:00-18:00",
 				  "timezone": "Asia/Seoul",
 				  "preferences": [
-				    { "dimension": "category",          "value": "[\\"BEACH\\",\\"CAFE\\"]", "answerStatus": "SELECTED" },
+				    { "dimension": "category",          "value": "[\\"SEA_BEACH\\",\\"CAFE_HEALING\\"]", "answerStatus": "SELECTED" },
 				    { "dimension": "atmosphere",        "value": null, "answerStatus": "UNKNOWN" },
 				    { "dimension": "locality",          "value": null, "answerStatus": "UNKNOWN" },
 				    { "dimension": "quietness",         "value": null, "answerStatus": "UNKNOWN" },
