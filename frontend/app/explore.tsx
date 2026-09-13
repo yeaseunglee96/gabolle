@@ -23,11 +23,14 @@ import { useI18n } from '@/i18n';
 // 이 값과 일치하는 항목만 골라 순서는 서버가 준 그대로 둔다. 화면 쪽에서 새로 만들지 않는다.
 const KNOWN_FACET_KEYS = new Set(['FESTIVAL', 'NIGHT_MARKET', 'TRADITIONAL_MARKET', 'ACTIVITY', 'WALK', 'NATURE', 'NIGHT_VIEW', 'SOUVENIR_SHOP']);
 
+// S15P21E201-898: 장소가 0곳인 갈래는 목록에서 아예 뺀다(지우는 게 아니라 거르는 것 —
+// 적재가 돌아 placeCount 가 늘면 다음 조회에서 코드 변경 없이 다시 나타난다).
 function flattenLocalFacets(result: FacetsLoadResult): FacetKeyEntry[] | null {
   if (result.state !== 'success') return null;
   const flat = result.facets.flatMap((group) => group.keys);
   const local = flat.filter((entry) => KNOWN_FACET_KEYS.has(entry.featureKey));
-  return local.length ? local : flat;
+  const withPlaces = (local.length ? local : flat).filter((entry) => entry.placeCount > 0);
+  return withPlaces;
 }
 
 type LocationState = 'detecting' | 'granted' | 'denied';
@@ -93,24 +96,26 @@ export default function LocalExplore() {
         </View>
       ) : null}
 
-      {!loading && facets ? (
+      {!loading && facets && facets.length === 0 ? (
+        <View style={styles.stateCard}><Text color={color.text.body}>{tx('지금은 둘러볼 수 있는 갈래가 없어요. 자료가 들어오면 다시 열어 드릴게요.', 'No categories to explore right now — check back once new places are added.')}</Text></View>
+      ) : null}
+
+      {!loading && facets && facets.length > 0 ? (
         <View style={styles.accordion}>
           {facets.map((facet) => {
-            const disabled = facet.placeCount === 0;
             const open = openKey === facet.featureKey;
             return (
               <View key={facet.featureKey} style={styles.branch}>
                 <Pressable
                   accessibilityRole="button"
-                  accessibilityState={{ expanded: open, disabled }}
-                  disabled={disabled}
+                  accessibilityState={{ expanded: open }}
                   onPress={() => setOpenKey(open ? null : facet.featureKey)}
-                  style={[styles.branchHeader, disabled && styles.branchHeaderDisabled]}
+                  style={styles.branchHeader}
                 >
-                  <Text variant="body" weight="bold" color={disabled ? color.text.muted : color.text.heading}>{facet.labelKo}</Text>
+                  <Text variant="body" weight="bold" color={color.text.heading}>{facet.labelKo}</Text>
                   <View style={styles.branchRight}>
-                    <View style={[styles.countBadge, disabled && styles.countBadgeDisabled]}><Text variant="caption" weight="bold" color={disabled ? color.text.muted : color.text.body}>{facet.placeCount}</Text></View>
-                    <Text variant="title" color={disabled ? color.text.muted : color.text.heading}>{open ? '︿' : '﹀'}</Text>
+                    <View style={styles.countBadge}><Text variant="caption" weight="bold" color={color.text.body}>{facet.placeCount}</Text></View>
+                    <Text variant="title" color={color.text.heading}>{open ? '︿' : '﹀'}</Text>
                   </View>
                 </Pressable>
                 {open ? <LocalBranchList facetKey={facet.featureKey} coords={coords} locationState={locationState} onRetryLocation={() => void detectLocation()} /> : null}
@@ -198,10 +203,8 @@ const styles = StyleSheet.create({
   accordion: { gap: spacing[2] },
   branch: { borderRadius: radius.lg, backgroundColor: color.surface.card, overflow: 'hidden' },
   branchHeader: { minHeight: 56, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing[4] },
-  branchHeaderDisabled: { opacity: 0.55 },
   branchRight: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
   countBadge: { minWidth: 28, minHeight: 24, paddingHorizontal: spacing[2], borderRadius: radius.full, backgroundColor: color.surface.soft, alignItems: 'center', justifyContent: 'center' },
-  countBadgeDisabled: { backgroundColor: color.surface.field },
   branchBody: { padding: spacing[4], paddingTop: 0, gap: spacing[2] },
   branchRetry: { alignSelf: 'flex-start' },
   expandedNotice: { padding: spacing[2], borderRadius: radius.md, backgroundColor: color.surface.tint },
