@@ -19,15 +19,16 @@ import { useI18n } from '@/i18n';
 type Message = { id: number; role: 'user' | 'assistant'; text: string; action?: AssistantAction; applied?: boolean };
 // 🔴 아래 예시 문구는 한국어 입력만 인식하는 이해 로직(src/assistant/intent.ts)에 맞춘 것이다.
 // 영어로 바꾸면 그 매처가 알아듣지 못해 기능이 깨지므로, 영어 모드에서도 예시는 한국어로 남긴다.
-const SUGGESTIONS = ['해운대와 광안리 2명 맛집 일정 짜줘', '사진 부탁할 때 한국어 문장 알려줘', '메뉴판 번역하고 싶어'];
+const SUGGESTIONS = ['해운대와 광안리 2명 맛집 일정 짜줘', '사진 부탁할 때 한국어 문장 알려줘', '부산 로컬 스팟 보여줘'];
 // 은행 앱 챗봇처럼 "대화 없이 바로 실행" 목록을 넓혔다 — 사용자가 직접 요청한 방향
 // (자유 대화보다 우리 기능으로 바로 연결)이라 실제로 동작하는 화면만 올린다.
+// S15P21E201-909: "지금 갈 곳"·"부산 축제"는 -900으로 진입점을 뺀 화면이라 여기서도 뺐다 —
+// 홈에서는 숨겨 놓고 챗봇으로는 계속 안내하면 이 목록의 원칙이 깨진다.
 const QUICK_TOOLS = [
   { labelKo: '일정 만들기', labelEn: 'Plan a trip', hintKo: '대화 조건 적용', hintEn: 'Applies chat conditions', href: '/plan/basic' },
-  { labelKo: '현장 도구', labelEn: 'On-the-go tools', hintKo: '현장 말하기·메뉴판 번역', hintEn: 'On-the-go phrases · menu translation', href: '/field/translate' },
+  { labelKo: '현장 도구', labelEn: 'On-the-go tools', hintKo: '현장 말하기·날씨 준비물', hintEn: 'On-the-go phrases · weather prep', href: '/field/translate' },
   { labelKo: '내 여행 보기', labelEn: 'View my trips', hintKo: '저장한 일정 열기', hintEn: 'Open your saved itineraries', href: '/trips' },
-  { labelKo: '지금 갈 곳 찾기', labelEn: 'Find places to go now', hintKo: '남는 시간에 바로', hintEn: 'Right now, right nearby', href: '/now' },
-  { labelKo: '부산 축제 보기', labelEn: 'See Busan festivals', hintKo: '내 날짜에 열리는 것만', hintEn: 'Only ones on your dates', href: '/festivals' },
+  { labelKo: '로컬 탐색', labelEn: 'Explore locally', hintKo: '축제·전통시장 등 8종', hintEn: '8 local categories', href: '/explore' },
 ] as const;
 
 export default function Chat() {
