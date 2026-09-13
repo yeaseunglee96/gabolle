@@ -22,9 +22,11 @@ type Tab = {
 };
 
 // APP 01에서 내보낸 실제 아이콘을 사용한다.
+// S15P21E201-906: 출시 전 피드를 뺐다(제품 결정, 2026-09-13) — 기능 오류 위험을 줄이려고
+// 하단 탭을 4개(홈·여행 만들기·내 여행·마이페이지)로 되돌린다. feed.tsx 화면과 라우트,
+// TabKey의 'feed'는 그대로 둔다 — 다시 켤 때 이 배열에 한 줄만 되돌리면 된다.
 const TABS: Tab[] = [
   { key: 'home', icon: require('../../assets/icons/home/home.png'), labelKo: '홈', labelEn: 'Home', route: '/home' },
-  { key: 'feed', icon: require('../../assets/icons/home/heart.png'), labelKo: '피드', labelEn: 'Feed', route: '/feed' },
   { key: 'schedule', icon: require('../../assets/icons/home/plus.png'), labelKo: '여행 만들기', labelEn: 'Create', route: '/plan/basic' },
   { key: 'map', icon: require('../../assets/icons/home/map.png'), labelKo: '내 여행', labelEn: 'My trips', route: '/trips' },
   { key: 'me', icon: require('../../assets/icons/home/user.png'), labelKo: '마이페이지', labelEn: 'Profile', route: '/me' },
