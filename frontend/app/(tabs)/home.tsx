@@ -37,8 +37,6 @@ const bellIcon = require('../../assets/icons/home/bell.png');
 const heartIcon = require('../../assets/icons/home/heart.png');
 const arrowLeftIcon = require('../../assets/icons/home/arrow-left.png');
 const arrowRightIcon = require('../../assets/icons/home/arrow-right.png');
-const festivalIcon = require('../../assets/icons/common/festival.png');
-const compassWhiteIcon = require('../../assets/icons/common/compass-white.png');
 const mapIcon = require('../../assets/icons/home/map.png');
 const speakerIcon = require('../../assets/icons/common/speaker.png');
 const SAVED_PLACES_KEY = 'gabolle.saved-home-places';
@@ -139,13 +137,9 @@ export default function Home() {
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        <Pressable accessibilityRole="button" accessibilityLabel={tx('부산 축제 찾아보기', 'Explore Busan festivals')} onPress={() => router.push('/festivals')} style={({ pressed }) => [styles.weatherBar, pressed && styles.weatherBarPressed]}>
-          <View style={styles.barLabel}><Image source={festivalIcon} resizeMode="contain" style={styles.barIcon} /><Text variant="body" weight="medium" color={color.text.heading}>{tx('내 날짜에 열리는 부산 축제 찾기', 'Find Busan festivals on my dates')}</Text></View><Text weight="bold" color={color.brand.orange}>›</Text>
-        </Pressable>
-
-        <Pressable accessibilityRole="button" accessibilityLabel={tx('지금 갈 곳 찾기', 'Find places to go now')} onPress={() => router.push('/now')} style={({ pressed }) => [styles.nowBar, pressed && styles.weatherBarPressed]}>
-          <View style={styles.barLabel}><Image source={compassWhiteIcon} resizeMode="contain" style={styles.barIcon} /><Text variant="body" weight="medium" color={color.text.onAction}>{tx('지금 남는 시간, 갈 곳 찾기', 'Got free time now? Find a place')}</Text></View><Text weight="bold" color={color.text.onAction}>›</Text>
-        </Pressable>
+        {/* S15P21E201-900: "부산 축제 찾아보기"(→/festivals)·"지금 갈 곳"(→/now) 바는 최초
+            배포에서 뺐다 — 축제 기간 자료가 전부 만료됐고 지금 갈 곳 API가 운영에서 404라
+            둘 다 진짜 값을 못 준다. 화면·라우트는 그대로 있어 자료가 들어오면 되돌리면 된다. */}
 
         <Pressable accessibilityRole="button" accessibilityLabel={tx('부산 로컬 탐색', 'Explore Busan like a local')} onPress={() => router.push('/explore')} style={({ pressed }) => [styles.exploreBar, pressed && styles.weatherBarPressed]}>
           <View style={styles.barLabel}><Image source={mapIcon} resizeMode="contain" style={styles.barIcon} /><Text variant="body" weight="medium" color={color.text.heading}>{tx('축제·야시장 등 로컬 8종 둘러보기', 'Explore 8 local categories')}</Text></View><Text weight="bold" color={color.brand.orange}>›</Text>
@@ -153,8 +147,8 @@ export default function Home() {
 
         {/* 예전에는 이 자리 대신 채팅 버튼 위에 떠 있는 작은 칩이었다 — 챗봇 버튼과 겹쳐 쌓여
             있어 하나의 메뉴처럼 보이는데 실제로는 서로 다른 곳(채팅 대 현장 도구 화면)으로
-            가서 헷갈린다는 지적(S15P21E201 사용자 리포트)이 있었다. 위 세 줄(축제·지금 갈 곳·
-            로컬 탐색)과 같은 자리로 옮겨, 챗봇 버튼과는 시각적으로 완전히 분리했다. */}
+            가서 헷갈린다는 지적(S15P21E201 사용자 리포트)이 있었다. 위 로컬 탐색 줄과 같은
+            자리로 옮겨, 챗봇 버튼과는 시각적으로 완전히 분리했다. */}
         <Pressable accessibilityRole="button" accessibilityLabel={tx('현장 도구 열기', 'Open on-the-go tools')} accessibilityHint={tx('현장 말하기와 메뉴판 번역을 한곳에서 씁니다', 'Use on-the-go phrases and menu translation in one place')} onPress={() => router.push('/field/translate')} style={({ pressed }) => [styles.fieldToolsBar, pressed && styles.weatherBarPressed]}>
           <View style={styles.barLabel}><Image source={speakerIcon} resizeMode="contain" style={styles.barIcon} /><Text variant="body" weight="medium" color={color.text.heading}>{tx('현장 도구 — 말하기·번역', 'On-the-go tools — phrases & translation')}</Text></View><Text weight="bold" color={color.brand.orange}>›</Text>
         </Pressable>
@@ -224,9 +218,7 @@ const styles = StyleSheet.create({
   scrollContent: { paddingBottom: spacing[6] },
   barLabel: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], flexShrink: 1 },
   barIcon: { width: 18, height: 18 },
-  weatherBar: { minHeight: 44, marginTop: spacing[2], paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.state.warningBg, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   weatherBarPressed: { opacity: 0.78, transform: [{ scale: 0.99 }] },
-  nowBar: { minHeight: 44, marginTop: spacing[2], paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.brand.navy, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   exploreBar: { minHeight: 44, marginTop: spacing[2], paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.field, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   fieldToolsBar: { minHeight: 44, marginTop: spacing[2], paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.surface.soft, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   heading: { gap: spacing[1], marginTop: spacing[4], marginHorizontal: spacing[1] },

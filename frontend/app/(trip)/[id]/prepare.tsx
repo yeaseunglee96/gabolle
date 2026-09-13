@@ -274,11 +274,8 @@ export default function Prepare() {
         )}
       </View>
 
-      <View style={styles.souvenirCard}>
-        <Text variant="title" weight="bold" style={styles.prepTitle}>{tx('기념품샵 둘러보기', 'Browse souvenir shops')}</Text>
-        <Text variant="body" color={color.text.body}>{tx('마지막 방문지 근처 기념품샵을 가까운 순서로 보여드려요.', "We'll show souvenir shops near your last stop, closest first.")}</Text>
-        <Button label={tx('기념품샵 보기', 'View souvenir shops')} variant="ghost" onPress={() => router.push(`/${tripId}/souvenirs`)} />
-      </View>
+      {/* S15P21E201-900: 기념품샵 진입 카드는 최초 배포에서 뺐다 — 기념품샵 갈래 장소가
+          0곳이라 눌러도 항상 빈 목록만 나온다. /{tripId}/souvenirs 라우트는 그대로 있다. */}
 
       <View style={styles.prepCard}>
         <Text variant="title" weight="bold" style={styles.prepTitle}>
@@ -362,13 +359,6 @@ const styles = StyleSheet.create({
   },
   weatherRain: {
     color: color.text.heading,
-  },
-  souvenirCard: {
-    marginTop: spacing[4],
-    backgroundColor: color.surface.card,
-    borderRadius: radius.md,
-    padding: spacing[4],
-    gap: spacing[2],
   },
   prepCard: {
     marginTop: spacing[4],
