@@ -157,13 +157,26 @@ public class PlaceCandidateQueryService {
 		if (!categories.isEmpty()) {
 			applied.add("CATEGORY");
 		}
+		// 갈래가 비어 있는 장소는 요청이 갈래를 좁혔는지와 무관하게 언제나 뺀다 — S15P21E201-899.
+		//
+		// 적재가 갈래를 비우는 것은 "앱의 여섯 낱말 중 이것을 가리키는 것이 없다" 는 뜻이다
+		// (TourApiCategory 가 레포츠·숙박을 그렇게 둔다). 그 뜻대로라면 어떤 취향으로도 안
+		// 골라져야 하는데, 갈래 검사가 categories 가 빈 요청에서 통째로 건너뛰어져서 오히려
+		// 전부 골라지고 있었다 — 취향을 건너뛴 사용자의 일정에 호텔과 레지던스가 관광지처럼
+		// 들어갔다(운영 실측 2026-09-13, 반경 15km 후보 2,355곳 중 78곳).
+		//
+		// 숙소 지정과 필수 방문지 지정은 PlaceRepository.findByCategoryIn 을 따로 쓰므로
+		// 여기서 빼도 그쪽은 그대로다.
+		applied.add("NON_EMPTY_CATEGORY");
 
 		Map<UUID, Long> distances = new HashMap<>();
 		List<Place> withinRadius = new ArrayList<>();
 		for (Place place : scanned) {
-			if (!categories.isEmpty()
-					&& (place.getCategory() == null
-							|| !categories.contains(place.getCategory().toLowerCase(Locale.ROOT)))) {
+			String placeCategory = place.getCategory();
+			if (placeCategory == null || placeCategory.isBlank()) {
+				continue;
+			}
+			if (!categories.isEmpty() && !categories.contains(placeCategory.toLowerCase(Locale.ROOT))) {
 				continue;
 			}
 			double meters = GeoDistance.meters(lat, lng, place.getLat(), place.getLng());
