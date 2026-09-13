@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import com.gabolle.backend.place.domain.InterestTagCode;
 import com.gabolle.backend.recommendation.support.PostgresIntegrationTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,7 +39,12 @@ class PlaceFeatureCodeMapTest extends PostgresIntegrationTest {
 	 * 둘을 구별할 수 없어서, 검사를 통과시키려고 아무 대조나 넣게 된다.
 	 * 명세 4.3 의 M1 확정 취향 차원 여덟에 인기·혼잡이 없다 — 랭킹 가중치로만 쓰인다.
 	 */
-	private static final List<String> UNPAIRED_BY_DESIGN = List.of("POPULARITY_SCORE", "CROWDING_SCORE");
+	// 🔴 INTEREST_TAG 가 여기 들어온 이유 (S15P21E201-904). 탐색 아코디언은 **취향 차원이
+	//    아니다** — 사용자가 온보딩에서 고르는 것이 아니라 그 자리에서 훑어보는 목록이다.
+	//    전에는 취향 CATEGORY 줄이 이 갈래를 가리켜서 짝이 있는 것처럼 보였고, 그 바람에
+	//    온보딩 여섯 낱말과 탐색 여덟 낱말이 한 서랍에 섞였다. 짝을 끊은 것이 그 티켓이다.
+	private static final List<String> UNPAIRED_BY_DESIGN = List.of("POPULARITY_SCORE", "CROWDING_SCORE",
+			"INTEREST_TAG");
 
 	/**
 	 * 추정값을 저장할 수 없는 피처 — S15P21E201-666.
@@ -108,7 +114,7 @@ class PlaceFeatureCodeMapTest extends PostgresIntegrationTest {
 			//    "저장할 수 있는가" 를 물을 때도 그 종류만 VERIFIED 로 넣는다 — 안 그러면
 			//    이 검사가 막으려는 것에 스스로 걸린다.
 			String status = SAFETY_FEATURE_TYPES.contains(type) ? "VERIFIED" : "ESTIMATED";
-			assertThatCode(() -> insertFeature(placeId, type, tagLike ? "PROBE" : null, status))
+			assertThatCode(() -> insertFeature(placeId, type, tagLike ? probeKey(type) : null, status))
 					.as("대조표에 있는데 저장할 수 없는 피처 종류: " + type)
 					.doesNotThrowAnyException();
 		}
@@ -180,11 +186,11 @@ class PlaceFeatureCodeMapTest extends PostgresIntegrationTest {
 		assertThatThrownBy(() -> insertFeature(placeId, "SHADE_SCORE", null))
 				.isInstanceOf(DataIntegrityViolationException.class);
 
-		insertFeature(placeId, "INTEREST_TAG", "SEA");
-		assertThatThrownBy(() -> insertFeature(placeId, "INTEREST_TAG", "SEA"))
+		insertFeature(placeId, "INTEREST_TAG", "WALK");
+		assertThatThrownBy(() -> insertFeature(placeId, "INTEREST_TAG", "WALK"))
 				.isInstanceOf(DataIntegrityViolationException.class);
 		// 다른 태그는 들어간다
-		assertThatCode(() -> insertFeature(placeId, "INTEREST_TAG", "ALLEY")).doesNotThrowAnyException();
+		assertThatCode(() -> insertFeature(placeId, "INTEREST_TAG", "NATURE")).doesNotThrowAnyException();
 	}
 
 	@Test
@@ -247,7 +253,7 @@ class PlaceFeatureCodeMapTest extends PostgresIntegrationTest {
 		UUID placeId = insertPlace();
 
 		for (String type : SAFETY_FEATURE_TYPES) {
-			String key = type.endsWith("_TAG") ? "PROBE" : null;
+			String key = type.endsWith("_TAG") ? probeKey(type) : null;
 			assertThatThrownBy(() -> insertFeature(placeId, type, key, "ESTIMATED"))
 					.as("추정값이 저장돼 버리는 안전 피처: " + type
 							+ " — 하드 필터가 이 행을 근거로 후보를 통과시킨다")
@@ -259,7 +265,7 @@ class PlaceFeatureCodeMapTest extends PostgresIntegrationTest {
 	@DisplayName("🔴 같은 네 종이 VERIFIED·UNKNOWN 은 여전히 받는다 — UNKNOWN 은 지울 상태가 아니라 남길 사실이다")
 	void safetyFeatureStillAcceptsVerifiedAndUnknown() {
 		for (String type : SAFETY_FEATURE_TYPES) {
-			String key = type.endsWith("_TAG") ? "PROBE" : null;
+			String key = type.endsWith("_TAG") ? probeKey(type) : null;
 
 			UUID verifiedPlace = insertPlace();
 			assertThatCode(() -> insertFeature(verifiedPlace, type, key, "VERIFIED"))
@@ -290,6 +296,93 @@ class PlaceFeatureCodeMapTest extends PostgresIntegrationTest {
 	}
 
 	// ── 넣는 도구들 ───────────────────────────────────────────────────────────
+
+	// ── S15P21E201-904: 검사를 낱말 수준까지 내린다 ──────────────────────────
+	//
+	// 🔴 위 검사들은 「차원 ↔ 표식 종류」 짝까지만 본다. 그래서 CATEGORY → INTEREST_TAG
+	//    짝이 있으니 초록인데, 정작 그 서랍 안에서 온보딩 여섯 낱말과 탐색 여덟 낱말이
+	//    섞여 있었다. 같은 사고가 한 층 아래에서 난 것이다. 아래가 그 층을 막는다.
+
+	@Test
+	@DisplayName("🔴 온보딩 사전과 탐색 사전은 낱말이 하나도 겹치지 않는다")
+	void categoryAndInterestDictionariesAreDisjoint() {
+		List<String> shared = this.jdbcTemplate.queryForList("""
+				SELECT c.feature_key FROM place_feature_code c
+				WHERE c.feature_type = 'CATEGORY_TAG'
+				  AND EXISTS (SELECT 1 FROM place_feature_code i
+				               WHERE i.feature_type = 'INTEREST_TAG'
+				                 AND i.feature_key = c.feature_key)
+				""", String.class);
+
+		assertThat(shared)
+				.as("두 사전에 같은 낱말이 있으면 그 낱말은 쓴 사람에 따라 두 뜻이 된다 — "
+						+ "데이터만 봐서는 구별할 수 없고 되돌릴 수도 없다")
+				.isEmpty();
+	}
+
+	@Test
+	@DisplayName("🔴 탐색 여덟 갈래가 자바 목록과 DB 사전에 똑같이 있다")
+	void interestTagDictionaryMatchesTheEnum() {
+		List<String> inDb = this.jdbcTemplate.queryForList(
+				"SELECT feature_key FROM place_feature_code WHERE feature_type = 'INTEREST_TAG'",
+				String.class);
+
+		assertThat(inDb)
+				.as("자바 enum 과 DB 사전은 자동으로 이어지지 않는다 — 같은 목록을 두 곳에 "
+						+ "따로 적는 것이고, 어긋나면 알려주는 것이 이 검사뿐이다")
+				.containsExactlyInAnyOrderElementsOf(
+						InterestTagCode.displayOrder().stream().map(Enum::name).toList());
+	}
+
+	@Test
+	@DisplayName("🔴 사전에 없는 낱말은 DB 가 거부한다 — 둘러보기 낱말을 온보딩 서랍에 넣으려 하면 막힌다")
+	void wordsOutsideTheDictionaryAreRejected() {
+		UUID placeId = insertPlace();
+
+		// 🔴 지금 강제되는 것은 CATEGORY_TAG 하나다. INTEREST_TAG(둘러보기 여덟 갈래)는
+		//    아직 강제하지 않는다 — 이미 쓰인 검사 여럿이 그 갈래에 아무 낱말이나 넣기
+		//    때문이다. 그 갈래의 어긋남은 아래 두 검사(사전 대조·겹침 없음)가 잡는다.
+		assertThatThrownBy(() -> insertFeature(placeId, "CATEGORY_TAG", "FESTIVAL", "VERIFIED"))
+				.as("FESTIVAL 은 둘러보기 사전의 낱말이다. 온보딩 서랍에 들어가면 "
+						+ "두 사전이 다시 섞인다")
+				.isInstanceOf(DataIntegrityViolationException.class);
+
+		assertThatThrownBy(() -> insertFeature(placeId, "CATEGORY_TAG", "NOT_A_REAL_CODE", "VERIFIED"))
+				.as("사전에 없는 낱말은 오타든 새 낱말이든 일단 막는다 — 새 낱말이면 "
+						+ "place_feature_code 에 행을 더한다(스키마는 안 고친다)")
+				.isInstanceOf(DataIntegrityViolationException.class);
+	}
+
+	@Test
+	@DisplayName("이미 쌓인 표식의 낱말이 전부 사전에 있다 — 강제 대상 갈래만 본다")
+	void everyStoredWordIsInTheDictionary() {
+		List<String> orphans = this.jdbcTemplate.queryForList("""
+				SELECT DISTINCT f.feature_type || ':' || f.feature_key
+				  FROM place_feature f
+				 WHERE f.dictionary_key IS NOT NULL
+				   AND NOT EXISTS (SELECT 1 FROM place_feature_code c
+				                    WHERE c.feature_type = f.feature_type
+				                      AND c.feature_key = f.feature_key)
+				""", String.class);
+
+		assertThat(orphans).as("외래키가 막고 있어야 한다. 비어 있지 않다면 제약이 빠진 것이다").isEmpty();
+	}
+
+	/**
+	 * 시험이 넣어 볼 낱말. 🔴 사전이 있는 갈래는 **사전에 있는 낱말**이어야 한다
+	 * (S15P21E201-904) — 아무 낱말이나 쓰면 외래키가 막는다. 그게 이 티켓이 만든 장치다.
+	 * 사전이 아직 없는 갈래(분위기·알레르기 등)는 강제 대상이 아니라 아무 낱말이나 된다.
+	 */
+	// 🔴 낱말 고를 때 주의: 시험들이 DB 를 나눠 쓰므로, 다른 시험이 **건수를 단언하는 낱말**
+	//    (FESTIVAL=1 · SOUVENIR_SHOP=0 — PlaceFacetInterestTagIntegrationTest)을 쓰면 그쪽이
+	//    깨진다. 아무도 세지 않는 낱말을 쓴다.
+	private static String probeKey(String featureType) {
+		return switch (featureType) {
+			case "CATEGORY_TAG" -> "FOOD";
+			case "INTEREST_TAG" -> "WALK";
+			default -> "PROBE";
+		};
+	}
 
 	private UUID insertPlace() {
 		UUID placeId = UUID.randomUUID();
