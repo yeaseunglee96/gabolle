@@ -501,7 +501,7 @@ public class RecommendationService {
 	private ItineraryDraftCommand buildDraftCommand(RecommendationJob job, CandidateAssembly assembly) {
 		List<ItineraryDraftCommand.PlannedPlace> places = assembly.returnedItems().stream()
 				.map((p) -> new ItineraryDraftCommand.PlannedPlace(p.placeId(), p.finalRank(),
-						p.reasonCodes(), p.warningCodes()))
+						p.reasonCodes(), p.warningCodes(), p.category()))
 				.toList();
 
 		return new ItineraryDraftCommand(job.getRequestId(), job.getTripId().toString(), job.getUserId().toString(),
@@ -520,7 +520,7 @@ public class RecommendationService {
 			CandidateAssembly assembly) {
 		List<ItineraryDraftCommand.PlannedPlace> pool = assembly.returnedItems().stream()
 				.map((p) -> new ItineraryDraftCommand.PlannedPlace(p.placeId(), p.finalRank(),
-						p.reasonCodes(), p.warningCodes()))
+						p.reasonCodes(), p.warningCodes(), p.category()))
 				.toList();
 		RecommendationCommand.ItineraryEdit edit = command.edit();
 		int dayIndex = edit.dayIndex() == null ? -1 : edit.dayIndex();

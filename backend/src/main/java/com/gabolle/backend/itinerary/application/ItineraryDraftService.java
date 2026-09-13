@@ -61,6 +61,10 @@ public class ItineraryDraftService implements ItineraryDraftPort {
     /** 하루에 배정할 최대 항목 수. 프리셋·설정이 없으면 4 — 이 값 자체가 제품 결정은 아니다. */
     private final int maxItemsPerDay;
 
+    private final int maxFoodPerDay;
+
+    private final String foodCategory;
+
     /**
      * 구간(leg) 계산 — S15P21E201-755 뽑아내기. 생성과 편집(순서 바꾸기) 두 경로가 같은 규칙을
      * 써야 해서 {@link ItineraryLegPlanner} 로 뽑았다. 자세한 이유는 그 클래스 머리말에 있다.
@@ -79,11 +83,15 @@ public class ItineraryDraftService implements ItineraryDraftPort {
 
     public ItineraryDraftService(TripRepository tripRepository, ItineraryRepository itineraryRepository, Clock clock,
             @Value("${gabolle.itinerary.max-items-per-day:4}") int maxItemsPerDay,
+            @Value("${gabolle.itinerary.max-food-per-day:3}") int maxFoodPerDay,
+            @Value("${gabolle.itinerary.food-category:FOOD}") String foodCategory,
             ItineraryLegPlanner legPlanner, OpeningHoursFilterPort openingHours) {
         this.tripRepository = tripRepository;
         this.itineraryRepository = itineraryRepository;
         this.clock = clock;
         this.maxItemsPerDay = maxItemsPerDay;
+        this.maxFoodPerDay = maxFoodPerDay;
+        this.foodCategory = foodCategory;
         this.legPlanner = legPlanner;
         this.openingHours = openingHours;
     }
@@ -153,6 +161,13 @@ public class ItineraryDraftService implements ItineraryDraftPort {
      * <p><b>추천 결과를 줄이는 것이 아니다.</b> 순위표는 그대로 다 남아서 대체 장소 제시와
      * 재계산이 쓴다({@code ItineraryRevisionCommand.rankedPool}). 여기서 정하는 것은
      * "일정에 실제로 놓는 수" 뿐이다.
+     *
+     * <h2>하루에 밥집이 몇 곳인가 — S15P21E201-903</h2>
+     *
+     * 운영 후보의 89%가 음식점이라 순위대로만 담으면 하루가 전부 밥집이 된다. 그래서 첫
+     * 배분에서는 밥집을 하루 {@link #maxFoodPerDay} 곳까지만 앉히고 나머지 자리를 명소로
+     * 채운다. 명소가 모자라 자리가 남으면 미뤄 둔 밥집으로 메운다 — 끼니 상한 때문에 자리를
+     * 비워 두는 것보다 갈 곳이 있는 편이 낫다.
      */
     private List<List<ItineraryDraftCommand.PlannedPlace>> distributeByDay(
             List<ItineraryDraftCommand.PlannedPlace> places, int days) {
@@ -162,17 +177,55 @@ public class ItineraryDraftService implements ItineraryDraftPort {
             byDay.add(new ArrayList<>());
         }
 
-        int day = 0;
+        int[] foodPerDay = new int[days];
+        List<ItineraryDraftCommand.PlannedPlace> deferredFood = new ArrayList<>();
+
         for (ItineraryDraftCommand.PlannedPlace place : places) {
-            while (day < days && byDay.get(day).size() >= this.maxItemsPerDay) {
-                day++;
+            if (isFood(place) && !seat(byDay, foodPerDay, place, true)) {
+                deferredFood.add(place);
             }
-            if (day >= days) {
-                break;
+            else if (!isFood(place)) {
+                seat(byDay, foodPerDay, place, false);
             }
-            byDay.get(day).add(place);
+        }
+
+        // 명소가 모자라 빈 자리가 남으면 미뤄 둔 밥집으로 채운다. 끼니 상한 때문에 자리를
+        // 비워 두는 것보다, 덜 이상적이어도 갈 곳이 있는 편이 낫다.
+        for (ItineraryDraftCommand.PlannedPlace place : deferredFood) {
+            seat(byDay, foodPerDay, place, false);
         }
         return byDay;
+    }
+
+    /**
+     * 순위가 높은 날부터 자리를 찾아 앉힌다. 앉혔으면 {@code true}.
+     *
+     * @param respectFoodCap 밥집 상한을 지킬지. 첫 배분에서는 지키고, 명소가 모자라 남은
+     *     자리를 메울 때는 안 지킨다
+     */
+    private boolean seat(List<List<ItineraryDraftCommand.PlannedPlace>> byDay, int[] foodPerDay,
+            ItineraryDraftCommand.PlannedPlace place, boolean respectFoodCap) {
+
+        boolean food = isFood(place);
+        for (int day = 0; day < byDay.size(); day++) {
+            if (byDay.get(day).size() >= this.maxItemsPerDay) {
+                continue;
+            }
+            if (food && respectFoodCap && foodPerDay[day] >= this.maxFoodPerDay) {
+                continue;
+            }
+            byDay.get(day).add(place);
+            if (food) {
+                foodPerDay[day]++;
+            }
+            return true;
+        }
+        return false;
+    }
+
+    /** 갈래를 모르면 밥집이 아닌 것으로 다룬다 — 모르는 것을 끼니로 세지 않는다. */
+    private boolean isFood(ItineraryDraftCommand.PlannedPlace place) {
+        return place.category() != null && place.category().equalsIgnoreCase(this.foodCategory);
     }
 
     /**

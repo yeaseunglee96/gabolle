@@ -147,7 +147,7 @@ public class CandidateAssembler {
 			if (returned) {
 				returnedCount++;
 				returnedItems.add(new RecommendedPlace(candidate.placeId(), finalRank, finalScore,
-						annotated.reasonCodes(), List.copyOf(warnings)));
+						annotated.reasonCodes(), List.copyOf(warnings), categoryOf(candidate)));
 			}
 		}
 
@@ -237,6 +237,19 @@ public class CandidateAssembler {
 	 * @param batch 후보가 <b>편집자가 정한 순서대로</b> 들어 있어야 한다. 들어온 순서가
 	 *     곧 순위다 — 여기서 정렬하지 않는다
 	 */
+	/**
+	 * 후보의 갈래({@code place.category}) — S15P21E201-903.
+	 *
+	 * <p>{@code BaselineCandidateScorer} 가 이미 {@code featureValues} 에 {@code "category"} 로
+	 * 실어 둔다. 일정을 짜는 쪽이 "이 자리가 밥집인가" 를 알아야 하루 구성을 정할 수 있어서
+	 * 여기서 꺼내 {@link RecommendedPlace} 로 옮긴다. 없으면 {@code null} 이고, 그때는 일정
+	 * 쪽이 갈래를 모르는 것으로 다룬다 — 지어내지 않는다.
+	 */
+	private static String categoryOf(EngineCandidate candidate) {
+		Object value = candidate.featureValues() == null ? null : candidate.featureValues().get("category");
+		return (value instanceof String text && !text.isBlank()) ? text : null;
+	}
+
 	public CandidateAssembly assembleFixedOrder(UUID requestId, EngineCandidateBatch batch, int topK,
 			UnknownExclusionThreshold threshold, ConstraintSeverity unspecifiedSeverity,
 			OffsetDateTime createdAt) {
@@ -283,7 +296,7 @@ public class CandidateAssembler {
 			if (returned) {
 				returnedCount++;
 				returnedItems.add(new RecommendedPlace(candidate.placeId(), rank, null,
-						candidate.reasonCodes(), List.copyOf(warnings)));
+						candidate.reasonCodes(), List.copyOf(warnings), categoryOf(candidate)));
 			}
 		}
 
