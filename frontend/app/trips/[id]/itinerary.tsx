@@ -246,12 +246,21 @@ export default function ItineraryScreen() {
   const paceByItemId = useMemo(() => new Map((pace?.items ?? []).map((entry) => [entry.itemId, entry] as const)), [pace]);
   const paceEstimated = pace?.paceFactor == null;
 
+  // S15P21E201-911 — 도착·출발 기록 PUT은 itinerary.version을 안 올린다(actualArrivedAt만
+  // 바뀐다, 실측 확인). pace를 불러오는 effect는 version 변화로만 재실행되므로, 그 effect에
+  // 기대서는 "도착 찍기" 직후 화면이 영영 안 바뀐다 — 여기서 명시적으로 다시 불러온다.
+  const refreshPaceAfterActual = async () => {
+    if (!itinerary) return;
+    const next = await loadItineraryPace(itinerary.id, selectedDay, accessToken);
+    if (next.state === 'success') setPace(next.pace);
+  };
+
   const recordArrival = async (item: ItineraryItemDto) => {
     if (!itinerary) return;
     setActualBusyItemId(item.id);
     const outcome = await recordItineraryItemActual({ itineraryId: itinerary.id, itemId: item.id, arrivedAt: new Date().toISOString(), departedAt: null, accessToken });
     setActualBusyItemId(null);
-    if (outcome.state === 'success') setResult({ state: 'success', itinerary: outcome.itinerary });
+    if (outcome.state === 'success') { setResult({ state: 'success', itinerary: outcome.itinerary }); void refreshPaceAfterActual(); }
     else if (outcome.state !== 'conflict') setActionMessage(outcome.message);
   };
 
@@ -263,7 +272,7 @@ export default function ItineraryScreen() {
     setActualBusyItemId(item.id);
     const outcome = await recordItineraryItemActual({ itineraryId: itinerary.id, itemId: item.id, arrivedAt: existingArrival, departedAt: new Date().toISOString(), accessToken });
     setActualBusyItemId(null);
-    if (outcome.state === 'success') setResult({ state: 'success', itinerary: outcome.itinerary });
+    if (outcome.state === 'success') { setResult({ state: 'success', itinerary: outcome.itinerary }); void refreshPaceAfterActual(); }
     else if (outcome.state !== 'conflict') setActionMessage(outcome.message);
   };
 
