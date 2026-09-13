@@ -72,6 +72,48 @@ class PlaceCandidateQueryServiceTest {
 				PlaceEvidenceStatus.VERIFIED, "manual", "src-1", OffsetDateTime.now(), "v1", OffsetDateTime.now());
 	}
 
+	/**
+	 * S15P21E201-899 — 적재가 갈래를 비워 둔 장소는 어떤 요청에서도 후보가 아니다.
+	 *
+	 * <p>비운다는 것은 "앱의 여섯 낱말 중 이것을 가리키는 것이 없다" 는 뜻이다. 그런데 갈래
+	 * 검사가 {@code categories} 가 빈 요청에서 통째로 건너뛰어져, 취향을 건너뛴 사용자에게는
+	 * 오히려 전부 후보가 됐다 — 운영에서 호텔과 레지던스가 관광지 자리에 들어갔다.
+	 */
+	@Test
+	@DisplayName("갈래가 빈 장소는 갈래를 안 좁힌 요청에서도 후보에서 빠진다")
+	void blankCategoryPlaceIsAlwaysExcluded() {
+		Place hotel = Place.imported(UUID.randomUUID(), "그랜드 조선 부산", null, "부산 해운대구",
+				CENTER_LAT, CENTER_LNG, "tourapi", "src-2", OffsetDateTime.now(), OffsetDateTime.now(), "v1");
+		given(this.placeRepository.findWithinBoundingBox(any(Double.class), any(Double.class), any(Double.class),
+				any(Double.class), any(Limit.class))).willReturn(List.of(hotel));
+		given(this.placeFeatureRepository.findByPlaceIdIn(any())).willReturn(List.of());
+
+		PlaceCandidateResponse response = this.service.findCandidates(request());
+
+		assertThat(response.candidates()).isEmpty();
+	}
+
+	@Test
+	@DisplayName("갈래가 공백뿐인 장소도 후보에서 빠진다")
+	void whitespaceCategoryPlaceIsExcluded() {
+		Place blank = Place.imported(UUID.randomUUID(), "이름만 있는 곳", "   ", "부산 해운대구",
+				CENTER_LAT, CENTER_LNG, "tourapi", "src-3", OffsetDateTime.now(), OffsetDateTime.now(), "v1");
+		given(this.placeRepository.findWithinBoundingBox(any(Double.class), any(Double.class), any(Double.class),
+				any(Double.class), any(Limit.class))).willReturn(List.of(blank));
+		given(this.placeFeatureRepository.findByPlaceIdIn(any())).willReturn(List.of());
+
+		assertThat(this.service.findCandidates(request()).candidates()).isEmpty();
+	}
+
+	/** 갈래가 있는 장소는 그대로 나온다 — 이 수정이 정상 경로를 막지 않는다. */
+	@Test
+	@DisplayName("갈래가 있는 장소는 갈래를 안 좁혀도 그대로 후보다")
+	void categorizedPlaceStillPasses() {
+		given(this.placeFeatureRepository.findByPlaceIdIn(any())).willReturn(List.of());
+
+		assertThat(this.service.findCandidates(request()).candidates()).hasSize(1);
+	}
+
 	@Test
 	@DisplayName("정상 JSON 값은 그대로 응답에 실린다")
 	void wellFormedValueIsIncluded() {
