@@ -139,10 +139,20 @@ public class ItineraryDraftService implements ItineraryDraftPort {
     }
 
     /**
-     * 순위대로 날짜에 배분한다. 하루가 {@link #maxItemsPerDay} 를 채우면 다음 날로 넘긴다 —
-     * 남는 후보를 버리지 않는다. 여행 마지막 날까지 다 찬 뒤에는(총 후보가 날짜 수 ×
-     * 하루 최대치보다 많을 때) 더 넘길 날이 없으므로 그 이후는 전부 마지막 날에 쌓인다 —
-     * 실제로는 topK 가 이 상황을 사실상 막는다.
+     * 순위대로 날짜에 배분한다. 하루가 {@link #maxItemsPerDay} 를 채우면 다음 날로 넘기고,
+     * 모든 날이 다 차면 <b>남은 후보는 일정에 넣지 않는다</b> — S15P21E201-902.
+     *
+     * <p>예전에는 더 넘길 날이 없으면 남은 것을 전부 마지막 날에 쌓았다. 그 자리 javadoc 은
+     * "실제로는 topK 가 이 상황을 사실상 막는다" 고 적어 두었는데 <b>그 가정이 틀렸다.</b>
+     * 추천은 기본 10곳을 내놓고 하루 상한은 4라서, 1일 여행이면 {@code days - 1 == 0} 이라
+     * 넘길 날이 아예 없어 10곳이 통째로 하루에 들어갔다(2026-09-13 실사용 확인).
+     *
+     * <p>넘치는 것을 마지막 날에 쌓는 것보다 안 넣는 것이 맞다. 하루에 열 곳은 일정이 아니고,
+     * 그렇게 쌓인 날은 이동 시간도 머무는 시간도 계산이 안 맞는다.
+     *
+     * <p><b>추천 결과를 줄이는 것이 아니다.</b> 순위표는 그대로 다 남아서 대체 장소 제시와
+     * 재계산이 쓴다({@code ItineraryRevisionCommand.rankedPool}). 여기서 정하는 것은
+     * "일정에 실제로 놓는 수" 뿐이다.
      */
     private List<List<ItineraryDraftCommand.PlannedPlace>> distributeByDay(
             List<ItineraryDraftCommand.PlannedPlace> places, int days) {
@@ -154,8 +164,11 @@ public class ItineraryDraftService implements ItineraryDraftPort {
 
         int day = 0;
         for (ItineraryDraftCommand.PlannedPlace place : places) {
-            while (day < days - 1 && byDay.get(day).size() >= this.maxItemsPerDay) {
+            while (day < days && byDay.get(day).size() >= this.maxItemsPerDay) {
                 day++;
+            }
+            if (day >= days) {
+                break;
             }
             byDay.get(day).add(place);
         }
