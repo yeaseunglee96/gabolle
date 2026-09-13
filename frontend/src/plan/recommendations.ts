@@ -18,14 +18,43 @@ export type RecommendationViewModel = { state: RecommendationViewState; courses:
 
 const t = (ko: string, en: string) => (getApiLanguage() === 'en' ? en : ko);
 
+// S15P21E201-910: 이 사전은 한때 BEACH_PREFERENCE 등 다섯 개였는데 백엔드 계약이 통째로
+// 갈아엎어진 뒤에도(BaselineCandidateScorer·RecommendationCodes, back/dev) 안 따라가서,
+// 실제로 오는 코드와 하나도 안 겹쳐 모든 카드가 안전장치 문구만 중복 표시하고 있었다.
+// 지금 실제로 오는 코드로 교체한다.
 const REASON: Record<string, [string, string]> = {
-  BEACH_PREFERENCE: ['바다 취향 반영', 'Matches your beach preference'],
-  LOCAL_FOOD: ['로컬 음식 선호', 'Local food you like'],
-  LOW_WALKING: ['보행 부담 고려', 'Considers walking limits'],
-  QUIET_PLACE: ['조용한 장소 선호', 'Quiet place preference'],
-  ACCESSIBLE_ROUTE: ['이동 제약 고려', 'Considers mobility needs'],
+  NEAR_ORIGIN: ['출발지에서 가까움', 'Close to your starting point'],
+  TAG_MATCH_INTEREST: ['관심 카테고리와 일치', 'Matches your interests'],
+  TAG_MATCH_ATMOSPHERE: ['선호 분위기와 일치', 'Matches your preferred mood'],
+  TAG_MATCH_CUISINE: ['음식 취향과 일치', 'Matches your food preferences'],
+  POPULAR: ['인기 있는 곳', 'A popular spot'],
+  EDITORIAL_PICK: ['에디터 추천', "Editor's pick"],
+  DIVERSITY_RERANKED: ['다양성을 위해 순서 조정됨', 'Reordered for variety'],
 };
-export const reasonLabel = (code: string) => t(...(REASON[code] ?? ['추천 조건 반영', 'Reflects your conditions']));
+
+// TOP_CONTRIBUTOR_<축 이름> — 축 이름은 score_components 맵의 키를 대소문자까지 그대로
+// 붙인 것이라 고정된 목록이 아니다(RecommendationCodes.java 주석: 대문자로 바꾸면 코드와
+// 어긋난다). 아는 축은 문구를 달고, 모르는 축이 와도 최소한 서로 다른 텍스트가 보이도록
+// 축 이름을 그대로 보여준다 — 전부 같은 안전장치 문구로 뭉개지 않는다.
+const TOP_CONTRIBUTOR_PREFIX = 'TOP_CONTRIBUTOR_';
+const AXIS_LABEL: Record<string, [string, string]> = {
+  distance: ['거리', 'distance'],
+  interest: ['관심 카테고리', 'your interests'],
+  atmosphere: ['분위기', 'mood'],
+  cuisine: ['음식 취향', 'food preferences'],
+  preferenceAlignment: ['취향 일치도', 'preference match'],
+  popularity: ['인기도', 'popularity'],
+};
+
+export const reasonLabel = (code: string): string => {
+  if (REASON[code]) return t(...REASON[code]);
+  if (code.startsWith(TOP_CONTRIBUTOR_PREFIX)) {
+    const axis = code.slice(TOP_CONTRIBUTOR_PREFIX.length);
+    const label = AXIS_LABEL[axis];
+    return label ? t(`${label[0]} 점수가 가장 높음`, `Highest score in ${label[1]}`) : t(`${axis} 점수가 가장 높음`, `Highest score in ${axis}`);
+  }
+  return t('추천 조건 반영', 'Reflects your conditions');
+};
 
 export function adaptRecommendationResult(dto: RecommendationJobResultDto): RecommendationViewModel {
   const placeCount = dto.placeCount ?? null;
