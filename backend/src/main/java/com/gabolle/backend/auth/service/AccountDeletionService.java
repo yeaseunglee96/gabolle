@@ -189,15 +189,24 @@ public class AccountDeletionService {
 	 */
 	@Transactional(readOnly = true)
 	public AccountDeletionPreviewResponse preview(UUID userId) {
+		// 지운 여행은 세지 않는다 — S15P21E201-913. 사용자가 "내 여행" 에서 보는 목록은
+		// deletedAt 이 빈 것만 내주는데(JpaTripRepository.findTripsForMember), 여기서는 그
+		// 조건이 빠져 있어 목록에 한 개뿐인 계정에 "3개가 삭제돼요" 가 떴다. 바로 아래
+		// recordCount 는 같은 조건을 이미 걸고 있었다 — 한 메서드 안에서 기준이 갈렸던 것이다.
+		//
+		// 되돌릴 수 없는 동작의 안내 숫자라, 실제로 지워질 것보다 크게 보이면 사용자가 무엇을
+		// 잃는지 잘못 알고 결정하게 된다.
 		long ownedTripCount = this.entityManager
-				.createQuery("SELECT count(t) FROM TripJpaEntity t WHERE t.ownerUserId = :userId", Long.class)
+				.createQuery("SELECT count(t) FROM TripJpaEntity t WHERE t.ownerUserId = :userId "
+						+ "AND t.deletedAt IS NULL", Long.class)
 				.setParameter("userId", userId)
 				.getSingleResult();
 
 		long itineraryCount = this.entityManager
 				.createQuery("""
 						SELECT count(i) FROM ItineraryJpaEntity i WHERE i.tripId IN
-						(SELECT t.tripId FROM TripJpaEntity t WHERE t.ownerUserId = :userId)
+						(SELECT t.tripId FROM TripJpaEntity t WHERE t.ownerUserId = :userId
+						 AND t.deletedAt IS NULL)
 						""", Long.class)
 				.setParameter("userId", userId)
 				.getSingleResult();

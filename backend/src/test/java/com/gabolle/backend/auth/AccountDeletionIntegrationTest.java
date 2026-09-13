@@ -166,6 +166,25 @@ class AccountDeletionIntegrationTest extends AuthPostgresIntegrationTest {
 		assertThat(this.credentialRepository.findByUserUserId(this.userId)).isPresent();
 	}
 
+	/**
+	 * S15P21E201-913 — 이미 지운 여행이 안내 숫자에 섞이던 자리.
+	 *
+	 * <p>"내 여행" 목록은 {@code deleted_at} 이 빈 것만 내주는데 미리보기는 그 조건이 없어서,
+	 * 목록에 한 개뿐인 계정에 "3개가 삭제돼요" 가 떴다. 되돌릴 수 없는 동작의 안내 숫자라
+	 * 실제보다 크게 보이면 사용자가 무엇을 잃는지 잘못 알고 결정하게 된다.
+	 */
+	@Test
+	@DisplayName("preview — 이미 지운 여행과 그 일정은 세지 않는다")
+	void previewSkipsSoftDeletedTrips() {
+		UUID deletedTrip = createTrip(this.userId);
+		this.jdbcTemplate.update("UPDATE trip SET deleted_at = now() WHERE trip_id = ?", deletedTrip);
+
+		AccountDeletionPreviewResponse preview = this.accountDeletionService.preview(this.userId);
+
+		// 살아 있는 여행은 setUp 이 만든 하나뿐이다.
+		assertThat(preview.ownedTripCount()).isEqualTo(1);
+	}
+
 	@Test
 	@DisplayName("🔴 삭제하면 본인 기록도 (deleted_at 찍는 방식으로) 사라지고, 남의 기록은 그대로다")
 	void deletesOwnStoriesButNotOthers() {
