@@ -142,7 +142,9 @@ export default function Home() {
             둘 다 진짜 값을 못 준다. 화면·라우트는 그대로 있어 자료가 들어오면 되돌리면 된다. */}
 
         <Pressable accessibilityRole="button" accessibilityLabel={tx('부산 로컬 탐색', 'Explore Busan like a local')} onPress={() => router.push('/explore')} style={({ pressed }) => [styles.exploreBar, pressed && styles.weatherBarPressed]}>
-          <View style={styles.barLabel}><Image source={mapIcon} resizeMode="contain" style={styles.barIcon} /><Text variant="body" weight="medium" color={color.text.heading}>{tx('축제·야시장 등 로컬 8종 둘러보기', 'Explore 8 local categories')}</Text></View><Text weight="bold" color={color.brand.orange}>›</Text>
+          {/* S15P21E201-914: 갈래 개수는 GET /api/v1/places/facets 가 정한다(explore.tsx) —
+              여기서 숫자를 박으면 백엔드가 갈래를 늘리거나 줄일 때마다 다시 어긋난다. */}
+          <View style={styles.barLabel}><Image source={mapIcon} resizeMode="contain" style={styles.barIcon} /><Text variant="body" weight="medium" color={color.text.heading}>{tx('축제·야시장 등 로컬 카테고리 둘러보기', 'Explore local categories')}</Text></View><Text weight="bold" color={color.brand.orange}>›</Text>
         </Pressable>
 
         {/* 예전에는 이 자리 대신 채팅 버튼 위에 떠 있는 작은 칩이었다 — 챗봇 버튼과 겹쳐 쌓여
