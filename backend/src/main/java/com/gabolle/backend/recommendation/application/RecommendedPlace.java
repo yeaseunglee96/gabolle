@@ -21,5 +21,6 @@ public record RecommendedPlace(
 		int finalRank,
 		Double finalScore,
 		List<String> reasonCodes,
-		List<String> warningCodes) {
+		List<String> warningCodes,
+		String category) {
 }

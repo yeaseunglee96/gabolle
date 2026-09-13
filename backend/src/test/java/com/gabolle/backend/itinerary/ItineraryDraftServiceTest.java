@@ -7,6 +7,7 @@ import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -76,7 +77,7 @@ class ItineraryDraftServiceTest {
 		when(noTravelTime.getIfAvailable()).thenReturn(null);
 
 		ItineraryLegPlanner legPlanner = new ItineraryLegPlanner(this.placeRepository, noTravelTime);
-		this.service = new ItineraryDraftService(this.tripRepository, itineraryRepository, CLOCK, 4, legPlanner, ALWAYS_UNKNOWN);
+		this.service = new ItineraryDraftService(this.tripRepository, itineraryRepository, CLOCK, 4, 3, "FOOD", legPlanner, ALWAYS_UNKNOWN);
 
 		// 좌표를 모르는 장소만 다루는 테스트들이 기본으로 쓴다 — 거리는 항상 null 이 된다.
 		when(this.placeRepository.findByPlaceIdIn(anyCollection())).thenReturn(List.of());
@@ -89,6 +90,52 @@ class ItineraryDraftServiceTest {
 	 * 전부 마지막 날에 쌓았다. 1일 여행은 넘길 날이 아예 없어 추천 10곳이 통째로 하루에
 	 * 들어갔다 — 운영에서 실제로 그랬다.
 	 */
+	/**
+	 * S15P21E201-903 — 운영 후보의 89%가 음식점이라 순위대로만 담으면 하루가 전부 밥집이 된다.
+	 * 실제로 그랬다 — 하루에 밥집 열 곳이 들어간 일정이 나왔다.
+	 */
+	@Test
+	@DisplayName("밥집이 순위를 다 차지해도 하루에 끼니 수(3)까지만 들어가고 나머지는 명소로 채운다")
+	void foodIsCappedPerDayAndAttractionsFillTheRest() {
+		Trip trip = tripOf(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 10));
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
+
+		// 순위 상위가 전부 밥집이고 명소는 뒤에 있다 — 운영 후보 분포와 같은 모양이다.
+		ItineraryDraft draft = this.service.assemble(commandOf("trip_1", plannedPlacesOf(
+				"FOOD", "FOOD", "FOOD", "FOOD", "FOOD", "CULTURE_TEMPLE", "NATURE_WALK")));
+
+		assertThat(draft.items()).hasSize(4);
+		List<String> categories = draft.items().stream()
+				.map(this::categoryOfItem)
+				.toList();
+		assertThat(categories.stream().filter("FOOD"::equals).count()).isEqualTo(3);
+	}
+
+	/** 명소가 모자라면 빈 자리를 미뤄 둔 밥집으로 채운다 — 자리를 비워 두지 않는다. */
+	@Test
+	@DisplayName("명소가 없으면 밥집으로 남은 자리를 채운다")
+	void remainingSeatsAreFilledWithFoodWhenNoAttractionExists() {
+		Trip trip = tripOf(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 10));
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
+
+		ItineraryDraft draft = this.service.assemble(commandOf("trip_1",
+				plannedPlacesOf("FOOD", "FOOD", "FOOD", "FOOD", "FOOD", "FOOD")));
+
+		assertThat(draft.items()).hasSize(4);
+	}
+
+	/** 갈래를 모르면 밥집으로 세지 않는다 — 모르는 것을 끼니로 세지 않는다. */
+	@Test
+	@DisplayName("갈래를 모르는 장소는 끼니로 세지 않는다")
+	void unknownCategoryIsNotCountedAsFood() {
+		Trip trip = tripOf(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 10));
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
+
+		ItineraryDraft draft = this.service.assemble(commandOf("trip_1", plannedPlaces(6)));
+
+		assertThat(draft.items()).hasSize(4);
+	}
+
 	@Test
 	@DisplayName("하루짜리 여행에 10곳을 줘도 하루 상한(4)만 들어간다")
 	void singleDayTripNeverExceedsTheDailyCap() {
@@ -170,7 +217,7 @@ class ItineraryDraftServiceTest {
 		when(provider.getIfAvailable()).thenReturn(port);
 		ItineraryLegPlanner legPlanner = new ItineraryLegPlanner(this.placeRepository, provider);
 		ItineraryDraftService withTravelTime = new ItineraryDraftService(this.tripRepository,
-				mock(ItineraryRepository.class), CLOCK, 4, legPlanner, ALWAYS_UNKNOWN);
+				mock(ItineraryRepository.class), CLOCK, 4, 3, "FOOD", legPlanner, ALWAYS_UNKNOWN);
 
 		ItineraryDraft draft = withTravelTime.assemble(commandOf("trip_1", plannedPlaces(3)));
 
@@ -319,7 +366,7 @@ class ItineraryDraftServiceTest {
 		@SuppressWarnings("unchecked")
 		ObjectProvider<TravelTimePort> noTravelTime = mock(ObjectProvider.class);
 		when(noTravelTime.getIfAvailable()).thenReturn(null);
-		return new ItineraryDraftService(this.tripRepository, mock(ItineraryRepository.class), CLOCK, 4,
+		return new ItineraryDraftService(this.tripRepository, mock(ItineraryRepository.class), CLOCK, 4, 3, "FOOD",
 				new ItineraryLegPlanner(this.placeRepository, noTravelTime), openingHours);
 	}
 
@@ -334,10 +381,29 @@ class ItineraryDraftServiceTest {
 				Instant.now());
 	}
 
+	/** 갈래를 지정해 만든다 — 하루 구성 검사(S15P21E201-903)가 쓴다. */
+	/** {@link #plannedPlacesOf} 가 만든 장소의 갈래 — 초안 항목에는 placeId 만 있어서 되짚는다. */
+	private final Map<UUID, String> categoryByPlaceId = new HashMap<>();
+
+	private String categoryOfItem(ItineraryDraft.DraftItem item) {
+		return this.categoryByPlaceId.get(item.placeId());
+	}
+
+	private List<ItineraryDraftCommand.PlannedPlace> plannedPlacesOf(String... categories) {
+		List<ItineraryDraftCommand.PlannedPlace> places = new ArrayList<>();
+		for (int i = 0; i < categories.length; i++) {
+			UUID placeId = UUID.randomUUID();
+			this.categoryByPlaceId.put(placeId, categories[i]);
+			places.add(new ItineraryDraftCommand.PlannedPlace(placeId, i + 1, List.of("REASON"),
+					List.of(), categories[i]));
+		}
+		return places;
+	}
+
 	private List<ItineraryDraftCommand.PlannedPlace> plannedPlaces(int count) {
 		List<ItineraryDraftCommand.PlannedPlace> places = new ArrayList<>();
 		for (int i = 1; i <= count; i++) {
-			places.add(new ItineraryDraftCommand.PlannedPlace(UUID.randomUUID(), i, List.of("REASON"), List.of()));
+			places.add(new ItineraryDraftCommand.PlannedPlace(UUID.randomUUID(), i, List.of("REASON"), List.of(), null));
 		}
 		return places;
 	}
