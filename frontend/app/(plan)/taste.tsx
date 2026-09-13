@@ -13,6 +13,7 @@ import { PlanDesktopShell } from '@/plan/PlanDesktopShell';
 import { type MustVisitPlace, type PreferenceDimension, usePlan } from '@/plan/PlanProvider';
 import { CONFLICT_LABEL_PAIR, conflictingFoodCode, FOODS } from '@/plan/foodConflicts';
 import { bilingualPlaceName, searchPlacesByName, type PlaceSearchItem } from '@/discovery/places';
+import { getPlaceCategories } from '@/discovery/placeCategories';
 import { haversineDistanceKm } from '@/utils/geo';
 import { useI18n } from '@/i18n';
 
@@ -90,6 +91,23 @@ export default function Taste() {
   const [mustVisitNotice, setMustVisitNotice] = useState<string | null>(null);
   const mustVisitDebounce = useRef<ReturnType<typeof setTimeout> | null>(null);
   const mustVisitAbort = useRef<AbortController | null>(null);
+  // S15P21E201-897: 추천 후보 비교에 쓰이는 place.category 값이 지금 갈래 몇 개는 0곳이라
+  // 그걸 고르면 일정 생성이 ERROR_NO_CANDIDATES 로 실패하고 재시도해도 안 풀린다(엔진 규칙).
+  // 그래서 CATEGORIES 여섯 개 중 서버가 "지금 장소가 있다" 고 낸 것만 카드로 보여준다.
+  const [categoryAvailability, setCategoryAvailability] = useState<'loading' | 'ready' | 'unavailable'>('loading');
+  const [availableCategoryCodes, setAvailableCategoryCodes] = useState<Set<string>>(new Set());
+  useEffect(() => {
+    const controller = new AbortController();
+    void getPlaceCategories(controller.signal).then((result) => {
+      if (controller.signal.aborted) return;
+      if (result.state !== 'success') { setCategoryAvailability('unavailable'); return; }
+      const codes = new Set(result.categories.filter((item) => item.placeCount > 0).map((item) => item.code));
+      setAvailableCategoryCodes(codes);
+      setCategoryAvailability(codes.size > 0 ? 'ready' : 'unavailable');
+    });
+    return () => controller.abort();
+  }, []);
+  const visibleCategories = categoryAvailability === 'ready' ? CATEGORIES.filter((item) => availableCategoryCodes.has(item.key)) : [];
   const goToPanel = (index: number) => setPanelIndex(Math.max(0, Math.min(5, index)));
   const advancePanel = () => {
     if (advanceTimer.current) clearTimeout(advanceTimer.current);
@@ -183,7 +201,7 @@ export default function Taste() {
     draft.preferenceAnswerStatus.foodPreference,
   ];
   const multiSelectReady = panelIndex === 0
-    ? draft.preferences.length > 0
+    ? categoryAvailability !== 'ready' || draft.preferences.length > 0
     : panelIndex === 1
       ? draft.atmospheres.length > 0
       : panelIndex === 5
@@ -204,8 +222,16 @@ export default function Taste() {
       <Animated.View key={kind === 'phone' ? panelIndex : 'desktop'} entering={kind === 'phone' ? FadeInRight.duration(180).reduceMotion(ReduceMotion.System) : undefined} exiting={kind === 'phone' ? FadeOutLeft.duration(120).reduceMotion(ReduceMotion.System) : undefined} style={[styles.animatedContent, kind === 'tablet' && styles.animatedContentWide]}>
       {(kind === 'tablet' || panelIndex === 0) && <View style={kind === 'tablet' ? styles.categoryColumn : undefined}>
       <Section title={tx('여행 카테고리', 'Travel categories')} description={tx('최대 3개까지 선택할 수 있어요.', 'Choose up to 3.')} skipped={draft.preferenceAnswerStatus.category === 'SKIPPED'} onSkip={() => skipAndAdvance('category', { preferences: [] })}>
-        <View style={styles.imageGrid}>{CATEGORIES.map((item) => { const selected = draft.preferences.includes(item.key); return <Pressable key={item.key} accessibilityRole="checkbox" accessibilityState={{ checked: selected }} onPress={() => toggleCategory(item.key)} style={[styles.imageCard, kind === 'phone' && styles.imageCardPhone, kind === 'tablet' && styles.imageCardWide, selected && styles.imageCardSelected]}><Image source={item.image} resizeMode="cover" accessibilityIgnoresInvertColors style={[styles.cardImage, kind === 'phone' && styles.cardImagePhone]} />{selected && <View style={styles.check}><Text weight="bold" color={color.text.onAction}>✓</Text></View>}<Text variant="caption" weight="bold" color={selected ? color.brand.orange : color.text.heading} style={styles.cardLabel}>{tx(item.labelKo, item.labelEn)}</Text></Pressable>; })}</View>
-        <Text accessibilityRole={feedback ? 'alert' : undefined} variant="caption" color={feedback ? color.state.danger : color.text.muted} style={styles.selectionHint}>{feedback ?? tx(`${draft.preferences.length}개 선택됨 · 최대 3개`, `${draft.preferences.length} selected · up to 3`)}</Text>
+        {categoryAvailability === 'loading' ? (
+          <Text variant="caption" color={color.text.muted}>{tx('고를 수 있는 카테고리를 불러오고 있어요…', 'Loading available categories…')}</Text>
+        ) : categoryAvailability === 'unavailable' ? (
+          <Text variant="caption" color={color.text.muted}>{tx('지금은 고를 수 있는 여행 카테고리가 없어요. 모든 곳에서 추천해 드릴게요.', "No travel categories are available right now — we'll recommend from everywhere.")}</Text>
+        ) : (
+          <>
+            <View style={styles.imageGrid}>{visibleCategories.map((item) => { const selected = draft.preferences.includes(item.key); return <Pressable key={item.key} accessibilityRole="checkbox" accessibilityState={{ checked: selected }} onPress={() => toggleCategory(item.key)} style={[styles.imageCard, kind === 'phone' && styles.imageCardPhone, kind === 'tablet' && styles.imageCardWide, selected && styles.imageCardSelected]}><Image source={item.image} resizeMode="cover" accessibilityIgnoresInvertColors style={[styles.cardImage, kind === 'phone' && styles.cardImagePhone]} />{selected && <View style={styles.check}><Text weight="bold" color={color.text.onAction}>✓</Text></View>}<Text variant="caption" weight="bold" color={selected ? color.brand.orange : color.text.heading} style={styles.cardLabel}>{tx(item.labelKo, item.labelEn)}</Text></Pressable>; })}</View>
+            <Text accessibilityRole={feedback ? 'alert' : undefined} variant="caption" color={feedback ? color.state.danger : color.text.muted} style={styles.selectionHint}>{feedback ?? tx(`${draft.preferences.length}개 선택됨 · 최대 3개`, `${draft.preferences.length} selected · up to 3`)}</Text>
+          </>
+        )}
       </Section>
       <View style={styles.paceSection}>
         <Text variant="title" weight="bold">{tx('여행 기분', 'Trip pace')}</Text>
