@@ -200,12 +200,18 @@ export default function Taste() {
     draft.preferenceAnswerStatus.touristPreference,
     draft.preferenceAnswerStatus.foodPreference,
   ];
+  // 건너뛴 질문은 답한 것으로 본다 — S15P21E201-905. 건너뛰기는 고른 값을 비우고 상태만
+  // SKIPPED 로 바꾸므로, 개수만 보면 건너뛴 사람이 버튼을 못 누른다. 음식 취향은 마지막
+  // 질문이라 넘어갈 곳도 없어 그 자리에 갇혔다(앞 질문들은 자동으로 다음으로 넘어가 가려져
+  // 있었을 뿐 같은 결함이다).
+  const answered = (dimension: PreferenceDimension, chosen: boolean) =>
+    chosen || draft.preferenceAnswerStatus[dimension] === 'SKIPPED';
   const multiSelectReady = panelIndex === 0
-    ? categoryAvailability !== 'ready' || draft.preferences.length > 0
+    ? categoryAvailability !== 'ready' || answered('category', draft.preferences.length > 0)
     : panelIndex === 1
-      ? draft.atmospheres.length > 0
+      ? answered('atmosphere', draft.atmospheres.length > 0)
       : panelIndex === 5
-        ? draft.foods.length > 0
+        ? answered('foodPreference', draft.foods.length > 0)
         : true;
   return <PlanDesktopShell><Screen scroll wide style={styles.canvas}>
     {kind === 'phone' && <View style={styles.topBar}><Pressable accessibilityRole="button" accessibilityLabel={tx('뒤로 가기', 'Go back')} onPress={() => router.canGoBack() ? router.back() : router.replace('/plan/basic')} style={styles.back}><Text variant="title">‹</Text></Pressable><BrandLogoLink imageStyle={styles.logo} /><View style={styles.stepPill}><Text variant="caption" weight="bold">2 / 4</Text></View></View>}
