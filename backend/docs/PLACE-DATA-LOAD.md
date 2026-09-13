@@ -58,11 +58,14 @@ wc -l /tmp/load.env    # 네 줄이면 정상
 
 뒤 셋은 장소에 붙는 값이라 ①이 먼저다. 넷 다 두 번 돌려도 행이 안 는다.
 
+`GABOLLE_JWT_SECRET` 을 임시값으로 준다. 2 단계에서 빌린 네 줄에는 이 값이 없는데, 기동할 때 32자 이상을 요구하는 검사가 있어 없으면 앱이 뜨지도 못하고 죽는다
+(`authStartupValidator`). 적재기는 토큰을 만들지 않으므로 **운영의 진짜 값을 가져올 필요가 없다** — 아무 32자 이상이면 된다. 2026-09-13 실측.
+
 ```bash
 VER=tourapi-busan-20260911
 IMG=local-route-backend:candidate
 NET=local-route-personalization_data_net
-RUN="docker run --rm --network $NET --env-file /tmp/load.env -v /home/ubuntu/load:/load $IMG"
+RUN="docker run --rm --network $NET --env-file /tmp/load.env \n  -e GABOLLE_JWT_SECRET=loader-only-throwaway-value-0123456789abcdef \n  -v /home/ubuntu/load:/load $IMG"
 
 # ① 장소 328곳
 $RUN --gabolle.place.loader.tourapi=/load/tourapi-busan.ndjson \
@@ -91,13 +94,18 @@ $RUN --gabolle.place.loader.barrier-free=/load/tourapi-barrier-free-busan.ndjson
 | ① | `새로 넣은 장소 328곳` · `갈래별 — {CITY=47, CULTURE_TEMPLE=162, NATURE_WALK=23, SEA_BEACH=2}` |
 | ② | `새로 붙인 106` · `갈래별 — {ACTIVITY=22, FESTIVAL=14, NATURE=22, NIGHT_VIEW=5, TRADITIONAL_MARKET=33, WALK=10}` |
 | ③ | `새로 넣은 268` · `붙일 장소가 없어 넘긴 328` |
-| ④ | `새로 붙인 130` · `코드별 {STROLLER=13, WHEELCHAIR=117}` · `붙일 장소가 없어 넘긴 0` |
+| ④ | `새로 붙인 111` · `코드별 {STROLLER=13, WHEELCHAIR=117}` · `붙일 장소가 없어 넘긴 18` |
 
 ③ 의 328 은 정상이다 — 음식점을 일부러 안 넣었고 그 줄들이 붙을 자리가 없다. 그보다
 크면 ①을 안 돌린 것이다.
 
-④ 는 0 이 정상이다 — 무장애 179곳이 전부 관광공사 656곳 안에 있다. 0 이 아니면
-①을 안 돌렸거나 수집분이 어긋난 것이다.
+④ 의 18 이 정상이다. 무장애 179곳은 전부 관광공사 656곳 안에 있지만, 656 중 음식
+328곳은 ①이 일부러 안 넣는다. 무장애 179곳 가운데 32곳이 그 음식점이고, 그중
+접근성을 실제로 말한 18곳이 붙을 자리를 못 찾는다 — 빠진 것이 아니라 대상이 아닌
+것이다. 이 값이 크게 늘면 그때는 ①을 안 돌린 것이다.
+
+이 자리는 2026-09-13 까지 `넘긴 0` 으로 적혀 있었고 "0 이 아니면 잘못된 것" 이라고
+까지 못 박혀 있었다. 실제로 돌려 보니 18 이었다 — 문서가 음식 제외를 안 셈에 넣었다.
 
 ## 5. 뒷정리
 
