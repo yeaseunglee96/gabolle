@@ -28,8 +28,7 @@
       "predictiveBackGestureEnabled": false,
       "permissions": [
         "android.permission.ACCESS_COARSE_LOCATION",
-        "android.permission.ACCESS_FINE_LOCATION",
-        "android.permission.CAMERA"
+        "android.permission.ACCESS_FINE_LOCATION"
       ],
       "versionCode": 2,
       "intentFilters": [
@@ -64,14 +63,6 @@
         "expo-location",
         {
           "locationWhenInUsePermission": "현재 위치 주변의 여행지 안내와 방문 확인을 위해 위치를 사용합니다. 거부해도 일정 생성은 이용할 수 있습니다."
-        }
-      ],
-      [
-        "expo-camera",
-        {
-          "cameraPermission": "메뉴와 안내문을 촬영해 번역하기 위해 카메라를 사용합니다. 촬영 이미지는 기기에 저장하지 않습니다.",
-          "microphonePermission": false,
-          "recordAudioAndroid": false
         }
       ],
       [
