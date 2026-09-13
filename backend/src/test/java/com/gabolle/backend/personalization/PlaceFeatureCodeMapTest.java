@@ -335,12 +335,15 @@ class PlaceFeatureCodeMapTest extends PostgresIntegrationTest {
 	}
 
 	@Test
-	@DisplayName("🔴 사전에 없는 낱말은 DB 가 거부한다 — 온보딩 낱말을 탐색 서랍에 넣으려 하면 막힌다")
+	@DisplayName("🔴 사전에 없는 낱말은 DB 가 거부한다 — 둘러보기 낱말을 온보딩 서랍에 넣으려 하면 막힌다")
 	void wordsOutsideTheDictionaryAreRejected() {
 		UUID placeId = insertPlace();
 
-		assertThatThrownBy(() -> insertFeature(placeId, "INTEREST_TAG", "FOOD", "VERIFIED"))
-				.as("FOOD 는 온보딩 사전(CATEGORY_TAG)의 낱말이다. 탐색 서랍에 들어가면 "
+		// 🔴 지금 강제되는 것은 CATEGORY_TAG 하나다. INTEREST_TAG(둘러보기 여덟 갈래)는
+		//    아직 강제하지 않는다 — 이미 쓰인 검사 여럿이 그 갈래에 아무 낱말이나 넣기
+		//    때문이다. 그 갈래의 어긋남은 아래 두 검사(사전 대조·겹침 없음)가 잡는다.
+		assertThatThrownBy(() -> insertFeature(placeId, "CATEGORY_TAG", "FESTIVAL", "VERIFIED"))
+				.as("FESTIVAL 은 둘러보기 사전의 낱말이다. 온보딩 서랍에 들어가면 "
 						+ "두 사전이 다시 섞인다")
 				.isInstanceOf(DataIntegrityViolationException.class);
 
@@ -351,7 +354,7 @@ class PlaceFeatureCodeMapTest extends PostgresIntegrationTest {
 	}
 
 	@Test
-	@DisplayName("이미 쌓인 표식의 낱말이 전부 사전에 있다 — 사전이 있는 두 갈래만 본다")
+	@DisplayName("이미 쌓인 표식의 낱말이 전부 사전에 있다 — 강제 대상 갈래만 본다")
 	void everyStoredWordIsInTheDictionary() {
 		List<String> orphans = this.jdbcTemplate.queryForList("""
 				SELECT DISTINCT f.feature_type || ':' || f.feature_key

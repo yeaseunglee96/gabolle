@@ -119,12 +119,20 @@ INSERT INTO place_feature_code (feature_type, feature_key, label_ko, note) VALUE
     ('INTEREST_TAG', 'NIGHT_VIEW',         '야경',     '탐색 여덟 갈래'),
     ('INTEREST_TAG', 'SOUVENIR_SHOP',      '기념품샵', '탐색 여덟 갈래. 원천에 신호가 없어 아직 0곳');
 
--- 🔴 강제는 **사전을 가진 두 갈래에만** 건다.
+-- 🔴 강제는 **새 자료가 들어올 갈래 하나에만** 건다 — CATEGORY_TAG.
 --
 -- 나머지 태그형(분위기·음식종류·알레르기·식단·접근성)은 어디에도 선언된 사전이 없다 —
 -- 자바 enum 도 없고 CHECK 도 없다. 그 낱말 목록을 여기서 지어내면 그 순간 "저장소가 정한
 -- 사전" 이 되어 버리고, 실제로 쓰이던 값이 배포 때 거부된다. **모르는 것을 아는 척하지
 -- 않는다.** 그 갈래들의 사전은 각자 주인이 정할 때 이 표에 행을 더하면 된다.
+--
+-- 🔴 INTEREST_TAG(둘러보기 여덟 갈래)는 **이번에 강제하지 않는다.**
+--    지금 그 갈래는 여덟 낱말로 깨끗하고 새 자료가 들어올 예정이 없다. 반면 이미 쓰인
+--    자동 검사 20개가 그 갈래에 아무 낱말이나 넣어 가짜 장소를 만든다 — 지금 막으면 남이
+--    만든 검사 여덟 파일을 그 의도를 모른 채 고치게 된다. 어긋남은 아래 두 장치가 잡는다:
+--      · 자바 목록(InterestTagCode)과 이 사전이 같은지 대조하는 검사
+--      · 두 사전에 같은 낱말이 있는지 보는 검사
+--    강제까지 올리는 일은 검사 정리와 함께 후속 티켓으로 간다.
 --
 -- 방법은 생성 칼럼이다. 강제 대상일 때만 값이 차고, 아니면 NULL 이라 복합 외래키가
 -- 통과시킨다(MATCH SIMPLE — 칸 하나라도 NULL 이면 검사하지 않는다).
@@ -132,11 +140,11 @@ INSERT INTO place_feature_code (feature_type, feature_key, label_ko, note) VALUE
 ALTER TABLE place_feature
     ADD COLUMN dictionary_key VARCHAR(50)
         GENERATED ALWAYS AS (
-            CASE WHEN feature_type IN ('CATEGORY_TAG', 'INTEREST_TAG') THEN feature_key END
+            CASE WHEN feature_type = 'CATEGORY_TAG' THEN feature_key END
         ) STORED;
 
 COMMENT ON COLUMN place_feature.dictionary_key IS
-    'S15P21E201-904 — 사전 강제용 그림자 칸. 사전이 있는 갈래일 때만 feature_key 를 비추고 아니면 NULL 이라, 외래키가 그 갈래만 검사한다. 🔴 사람이 채우는 칸이 아니다.';
+    'S15P21E201-904 — 사전 강제용 그림자 칸. 지금은 CATEGORY_TAG 일 때만 feature_key 를 비추고 아니면 NULL 이라, 외래키가 그 갈래만 검사한다. 다른 갈래를 강제 대상에 넣으려면 이 CASE 에 더한다. 🔴 사람이 채우는 칸이 아니다.';
 
 -- 🔴 이 제약을 더하는 순간 사전에 없는 낱말이 한 줄이라도 있으면 **배포가 여기서 멈춘다.**
 --    일부러 그렇게 뒀다 — 조용히 넘어가면 두 사전이 섞인 채로 다음 사람에게 넘어간다.

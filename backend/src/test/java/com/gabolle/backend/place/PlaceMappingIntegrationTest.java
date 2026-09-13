@@ -163,7 +163,10 @@ class PlaceMappingIntegrationTest extends PlacePostgresIntegrationTest {
 		assertThat(preferences).extracting(UserPlaceCodeMap::getUserInputCode)
 				.contains("CATEGORY", "ATMOSPHERE", "LOCALITY", "QUIETNESS",
 						"TOURIST_PREFERENCE", "FOOD_PREFERENCE", "SLOPE_PREFERENCE", "SHADE_PREFERENCE");
-		assertThat(preferences).extracting(UserPlaceCodeMap::getPlaceFeatureType).contains("INTEREST_TAG");
+		// 🔴 CATEGORY 는 이제 CATEGORY_TAG 를 가리킨다 (S15P21E201-904). 전에는 INTEREST_TAG 를
+		//    가리켰고, 그래서 둘러보기 화면이 취향 CATEGORY 줄에 얹혀 나왔다 — 그 바람에 온보딩
+		//    여섯 낱말과 둘러보기 여덟 낱말이 한 서랍에 섞였다.
+		assertThat(preferences).extracting(UserPlaceCodeMap::getPlaceFeatureType).contains("CATEGORY_TAG");
 	}
 
 	@Test
