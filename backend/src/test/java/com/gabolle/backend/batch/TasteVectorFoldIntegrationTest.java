@@ -30,6 +30,17 @@ import static org.assertj.core.api.Assertions.assertThat;
  * <p>여기서 확인하는 것은 "숫자가 예쁘게 나오나" 가 아니다. <b>같은 구간을 두 번 봐도 같은
  * 결과인가</b>, 그리고 <b>안 물어본 것을 0 으로 적지 않는가</b> 다. 그 둘이 이 배치에서
  * 조용히 틀릴 수 있는 전부이고, DB 제약이 못 잡는 부분이다.
+ *
+ * <h2>🔴 2026-09-14 — 픽스처의 취향 낱말을 진짜 어휘로 바꿨다 (S15P21E201-915)</h2>
+ *
+ * 원래 {@code CAFE}·{@code MARKET}·{@code MUSEUM} 을 쓰고 있었다. <b>앱에 없는 낱말들이다</b>
+ * — 앱의 어휘는 여섯이다({@code SEA_BEACH}·{@code CITY}·{@code CAFE_HEALING}·
+ * {@code CULTURE_TEMPLE}·{@code FOOD}·{@code NATURE_WALK}). 915 가 {@code preference_answer}
+ * 의 {@code CATEGORY} 에 사전 강제를 걸었으므로 <b>지어낸 낱말로 되돌리면 DB 가 거부한다.</b>
+ *
+ * <p>🔴 <b>바꾼 것은 낱말뿐이고 개수는 그대로다.</b> 이 검사들이 단언하는 것은 낱말이 아니라
+ * 성분의 <b>개수</b>와 <b>차원</b>이라, 개수를 유지해야 의도가 보존된다. 낱말을 하나 더 넣거나
+ * 빼면 {@code weightCount()} 단언이 깨진다.
  */
 class TasteVectorFoldIntegrationTest extends BatchPostgresTest {
 
@@ -66,7 +77,7 @@ class TasteVectorFoldIntegrationTest extends BatchPostgresTest {
 	void skippedDimensionsProduceNoRow() {
 		UUID userId = this.fixtures.newUser();
 		UUID snapshot = this.fixtures.newUserScopeSnapshot(userId, DAY1);
-		this.fixtures.selectedCodes(snapshot, "CATEGORY", "CAFE", "MARKET");
+		this.fixtures.selectedCodes(snapshot, "CATEGORY", "CAFE_HEALING", "FOOD");
 		this.fixtures.skipped(snapshot, "FOOD_PREFERENCE");
 
 		TasteVectorFoldOutcome outcome = this.foldService.fold(userId, DAY2);
@@ -105,7 +116,7 @@ class TasteVectorFoldIntegrationTest extends BatchPostgresTest {
 	void foldingTheSameWindowTwiceIsIdempotent() {
 		UUID userId = this.fixtures.newUser();
 		UUID snapshot = this.fixtures.newUserScopeSnapshot(userId, DAY1);
-		this.fixtures.selectedCodes(snapshot, "CATEGORY", "CAFE");
+		this.fixtures.selectedCodes(snapshot, "CATEGORY", "CAFE_HEALING");
 
 		TasteVectorFoldOutcome first = this.foldService.fold(userId, DAY2);
 		TasteVectorFoldOutcome second = this.foldService.fold(userId, DAY2);
@@ -123,7 +134,7 @@ class TasteVectorFoldIntegrationTest extends BatchPostgresTest {
 	void quietWindowOnlyAdvancesTheWatermark() {
 		UUID userId = this.fixtures.newUser();
 		UUID snapshot = this.fixtures.newUserScopeSnapshot(userId, DAY1);
-		this.fixtures.selectedCodes(snapshot, "CATEGORY", "CAFE");
+		this.fixtures.selectedCodes(snapshot, "CATEGORY", "CAFE_HEALING");
 
 		TasteVectorFoldOutcome first = this.foldService.fold(userId, DAY2);
 		TasteVectorFoldOutcome next = this.foldService.fold(userId, DAY3);
@@ -143,11 +154,11 @@ class TasteVectorFoldIntegrationTest extends BatchPostgresTest {
 	void newSurveySupersedesTheOldVector() {
 		UUID userId = this.fixtures.newUser();
 		UUID first = this.fixtures.newUserScopeSnapshot(userId, DAY1);
-		this.fixtures.selectedCodes(first, "CATEGORY", "CAFE");
+		this.fixtures.selectedCodes(first, "CATEGORY", "CAFE_HEALING");
 		this.foldService.fold(userId, DAY2);
 
 		UUID second = this.fixtures.newUserScopeSnapshot(userId, DAY2);
-		this.fixtures.selectedCodes(second, "CATEGORY", "MARKET", "MUSEUM");
+		this.fixtures.selectedCodes(second, "CATEGORY", "FOOD", "CULTURE_TEMPLE");
 
 		TasteVectorFoldOutcome outcome = this.foldService.fold(userId, DAY3);
 
@@ -167,7 +178,7 @@ class TasteVectorFoldIntegrationTest extends BatchPostgresTest {
 	void lateArrivingEventsAreStillCounted() {
 		UUID userId = this.fixtures.newUser();
 		UUID snapshot = this.fixtures.newUserScopeSnapshot(userId, DAY1);
-		this.fixtures.selectedCodes(snapshot, "CATEGORY", "CAFE");
+		this.fixtures.selectedCodes(snapshot, "CATEGORY", "CAFE_HEALING");
 		this.foldService.fold(userId, DAY2);
 
 		// 🔴 8월 1일에 **일어난** 일이 8월 2일에 **도착했다** — 비행기 모드였다가 켠 경우다.
@@ -189,7 +200,7 @@ class TasteVectorFoldIntegrationTest extends BatchPostgresTest {
 	void eventsAreNeverCountedTwice() {
 		UUID userId = this.fixtures.newUser();
 		UUID snapshot = this.fixtures.newUserScopeSnapshot(userId, DAY1);
-		this.fixtures.selectedCodes(snapshot, "CATEGORY", "CAFE");
+		this.fixtures.selectedCodes(snapshot, "CATEGORY", "CAFE_HEALING");
 		this.fixtures.tasteSignal(userId, EventType.PLACE_LIKE, DAY1.plusHours(1), DAY1.plusHours(1));
 
 		this.foldService.fold(userId, DAY2);
@@ -219,7 +230,7 @@ class TasteVectorFoldIntegrationTest extends BatchPostgresTest {
 	void tripScopedPreferencesDoNotLeakIntoTheAccountVector() {
 		UUID userId = this.fixtures.newUser();
 		UUID accountSnapshot = this.fixtures.newUserScopeSnapshot(userId, DAY1);
-		this.fixtures.selectedCodes(accountSnapshot, "CATEGORY", "CAFE");
+		this.fixtures.selectedCodes(accountSnapshot, "CATEGORY", "CAFE_HEALING");
 
 		TasteVectorFoldOutcome outcome = this.foldService.fold(userId, DAY2);
 
@@ -235,7 +246,7 @@ class TasteVectorFoldIntegrationTest extends BatchPostgresTest {
 	void deletedAccountsAreNeverSelected() {
 		UUID deleted = this.fixtures.newDeletedUser();
 		UUID snapshot = this.fixtures.newUserScopeSnapshot(deleted, DAY1);
-		this.fixtures.selectedCodes(snapshot, "CATEGORY", "CAFE");
+		this.fixtures.selectedCodes(snapshot, "CATEGORY", "CAFE_HEALING");
 
 		List<UUID> stale = this.batchService.staleUsers(DAY2, 500).userIds();
 
@@ -250,7 +261,7 @@ class TasteVectorFoldIntegrationTest extends BatchPostgresTest {
 	void staleUsersOnlyIncludesUsersBehindTheWatermark() {
 		UUID behind = this.fixtures.newUser();
 		UUID snapshot = this.fixtures.newUserScopeSnapshot(behind, DAY1);
-		this.fixtures.selectedCodes(snapshot, "CATEGORY", "CAFE");
+		this.fixtures.selectedCodes(snapshot, "CATEGORY", "CAFE_HEALING");
 
 		assertThat(this.batchService.staleUsers(DAY2, 500).userIds()).contains(behind);
 
@@ -268,7 +279,7 @@ class TasteVectorFoldIntegrationTest extends BatchPostgresTest {
 		// 뒤처진 사람 셋을 만든다.
 		for (int i = 0; i < 3; i++) {
 			UUID user = this.fixtures.newUser();
-			this.fixtures.selectedCodes(this.fixtures.newUserScopeSnapshot(user, DAY1), "CATEGORY", "CAFE");
+			this.fixtures.selectedCodes(this.fixtures.newUserScopeSnapshot(user, DAY1), "CATEGORY", "CAFE_HEALING");
 		}
 
 		// 🔴 둘만 달라고 하면 셋 중 둘이 온다. 그때 "둘 왔다" 만으로는 마침 둘이었는지
@@ -285,7 +296,7 @@ class TasteVectorFoldIntegrationTest extends BatchPostgresTest {
 	@DisplayName("상한에 안 걸리면 truncated 는 거짓이다 — 늘 참이면 경고가 무의미해진다")
 	void truncationIsFalseWhenEverythingFits() {
 		UUID user = this.fixtures.newUser();
-		this.fixtures.selectedCodes(this.fixtures.newUserScopeSnapshot(user, DAY1), "CATEGORY", "CAFE");
+		this.fixtures.selectedCodes(this.fixtures.newUserScopeSnapshot(user, DAY1), "CATEGORY", "CAFE_HEALING");
 
 		TasteVectorBatchService.StalePage whole = this.batchService.staleUsers(DAY2, 500);
 

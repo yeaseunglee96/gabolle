@@ -95,7 +95,7 @@ class ShareLinkJourneyFunctionalTest extends FunctionalJourneyTest {
 		double originLat = 35.1152;
 		double originLng = 129.0423;
 		for (int i = 0; i < 12; i++) {
-			UUID placeId = this.placeFixture.insertPlace("공유테스트장소" + i, "ShareTestPlace" + i, "CAFE",
+			UUID placeId = this.placeFixture.insertPlace("공유테스트장소" + i, "ShareTestPlace" + i, "CAFE_HEALING",
 					originLat + (i * 0.001), originLng + (i * 0.001));
 			this.placeFixture.insertTagFeature(placeId, "INTEREST_TAG", "SEA", "VERIFIED", "{\"present\": true}");
 			this.seededPlaceIds.add(placeId);
@@ -105,7 +105,7 @@ class ShareLinkJourneyFunctionalTest extends FunctionalJourneyTest {
 		LocalDate start = LocalDate.now().plusDays(10);
 		LocalDate finish = start.plusDays(1);
 		CreateTripRequest.PreferenceAnswerInput categoryAnswer = new CreateTripRequest.PreferenceAnswerInput(
-				"CATEGORY", "{\"codes\": [\"CAFE\"]}", "SELECTED");
+				"CATEGORY", "{\"codes\": [\"CAFE_HEALING\"]}", "SELECTED");
 		CreateTripRequest.ConstraintInput walkingConstraint = new CreateTripRequest.ConstraintInput(
 				"MOBILITY", "MAX_WALKING_METERS", "SOFT", "LTE", null, 2000.0, "SELECTED", null);
 		CreateTripRequest tripRequest = new CreateTripRequest(start, finish, originLat, originLng, null, 2, null,
