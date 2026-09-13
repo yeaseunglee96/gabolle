@@ -93,24 +93,24 @@ class AppFoodVocabularyTest {
 		for (String sub : subs) {
 			assertThat(AppFoodVocabulary.cuisineTags(sub, "어느돼지국밥밀면가게"))
 					.isSubsetOf(APP_FOOD_CODES);
-			assertThat(AppFoodVocabulary.interestTags(sub)).isSubsetOf(APP_CATEGORY_CODES);
+			assertThat(AppFoodVocabulary.categoryTags(sub)).isSubsetOf(APP_CATEGORY_CODES);
 		}
 	}
 
 	@Test
 	@DisplayName("관심 태그는 언제나 FOOD 를 담고, 카페에만 CAFE_HEALING 이 더 붙는다")
 	void 관심_태그() {
-		assertThat(AppFoodVocabulary.interestTags("카페")).containsExactly("FOOD", "CAFE_HEALING");
-		assertThat(AppFoodVocabulary.interestTags("횟집")).containsExactly("FOOD");
+		assertThat(AppFoodVocabulary.categoryTags("카페")).containsExactly("FOOD", "CAFE_HEALING");
+		assertThat(AppFoodVocabulary.categoryTags("횟집")).containsExactly("FOOD");
 		// 🔴 빵집은 안 넣는다 — 앉을 자리가 있는지 자료에 없다.
-		assertThat(AppFoodVocabulary.interestTags("빵/도넛")).containsExactly("FOOD");
+		assertThat(AppFoodVocabulary.categoryTags("빵/도넛")).containsExactly("FOOD");
 	}
 
 	@Test
 	@DisplayName("🔴 음식점 자료로는 바다·도심·문화·자연을 못 채운다. 채우지 않는다")
 	void 자료가_없는_갈래는_안_채운다() {
 		for (String sub : new String[] { "카페", "횟집", "백반/한정식", "요리 주점", "뷔페" }) {
-			assertThat(AppFoodVocabulary.interestTags(sub))
+			assertThat(AppFoodVocabulary.categoryTags(sub))
 					.doesNotContain("SEA_BEACH", "CITY", "CULTURE_TEMPLE", "NATURE_WALK");
 		}
 	}

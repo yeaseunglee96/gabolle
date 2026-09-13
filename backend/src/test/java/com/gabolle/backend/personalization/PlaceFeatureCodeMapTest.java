@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import com.gabolle.backend.place.domain.InterestTagCode;
 import com.gabolle.backend.recommendation.support.PostgresIntegrationTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -290,6 +291,74 @@ class PlaceFeatureCodeMapTest extends PostgresIntegrationTest {
 	}
 
 	// ── 넣는 도구들 ───────────────────────────────────────────────────────────
+
+	// ── S15P21E201-904: 검사를 낱말 수준까지 내린다 ──────────────────────────
+	//
+	// 🔴 위 검사들은 「차원 ↔ 표식 종류」 짝까지만 본다. 그래서 CATEGORY → INTEREST_TAG
+	//    짝이 있으니 초록인데, 정작 그 서랍 안에서 온보딩 여섯 낱말과 탐색 여덟 낱말이
+	//    섞여 있었다. 같은 사고가 한 층 아래에서 난 것이다. 아래가 그 층을 막는다.
+
+	@Test
+	@DisplayName("🔴 온보딩 사전과 탐색 사전은 낱말이 하나도 겹치지 않는다")
+	void categoryAndInterestDictionariesAreDisjoint() {
+		List<String> shared = this.jdbcTemplate.queryForList("""
+				SELECT c.feature_key FROM place_feature_code c
+				WHERE c.feature_type = 'CATEGORY_TAG'
+				  AND EXISTS (SELECT 1 FROM place_feature_code i
+				               WHERE i.feature_type = 'INTEREST_TAG'
+				                 AND i.feature_key = c.feature_key)
+				""", String.class);
+
+		assertThat(shared)
+				.as("두 사전에 같은 낱말이 있으면 그 낱말은 쓴 사람에 따라 두 뜻이 된다 — "
+						+ "데이터만 봐서는 구별할 수 없고 되돌릴 수도 없다")
+				.isEmpty();
+	}
+
+	@Test
+	@DisplayName("🔴 탐색 여덟 갈래가 자바 목록과 DB 사전에 똑같이 있다")
+	void interestTagDictionaryMatchesTheEnum() {
+		List<String> inDb = this.jdbcTemplate.queryForList(
+				"SELECT feature_key FROM place_feature_code WHERE feature_type = 'INTEREST_TAG'",
+				String.class);
+
+		assertThat(inDb)
+				.as("자바 enum 과 DB 사전은 자동으로 이어지지 않는다 — 같은 목록을 두 곳에 "
+						+ "따로 적는 것이고, 어긋나면 알려주는 것이 이 검사뿐이다")
+				.containsExactlyInAnyOrderElementsOf(
+						InterestTagCode.displayOrder().stream().map(Enum::name).toList());
+	}
+
+	@Test
+	@DisplayName("🔴 사전에 없는 낱말은 DB 가 거부한다 — 온보딩 낱말을 탐색 서랍에 넣으려 하면 막힌다")
+	void wordsOutsideTheDictionaryAreRejected() {
+		UUID placeId = insertPlace();
+
+		assertThatThrownBy(() -> insertFeature(placeId, "INTEREST_TAG", "FOOD", "VERIFIED"))
+				.as("FOOD 는 온보딩 사전(CATEGORY_TAG)의 낱말이다. 탐색 서랍에 들어가면 "
+						+ "두 사전이 다시 섞인다")
+				.isInstanceOf(DataIntegrityViolationException.class);
+
+		assertThatThrownBy(() -> insertFeature(placeId, "CATEGORY_TAG", "NOT_A_REAL_CODE", "VERIFIED"))
+				.as("사전에 없는 낱말은 오타든 새 낱말이든 일단 막는다 — 새 낱말이면 "
+						+ "place_feature_code 에 행을 더한다(스키마는 안 고친다)")
+				.isInstanceOf(DataIntegrityViolationException.class);
+	}
+
+	@Test
+	@DisplayName("이미 쌓인 표식의 낱말이 전부 사전에 있다")
+	void everyStoredWordIsInTheDictionary() {
+		List<String> orphans = this.jdbcTemplate.queryForList("""
+				SELECT DISTINCT f.feature_type || ':' || f.feature_key
+				  FROM place_feature f
+				 WHERE f.feature_key IS NOT NULL
+				   AND NOT EXISTS (SELECT 1 FROM place_feature_code c
+				                    WHERE c.feature_type = f.feature_type
+				                      AND c.feature_key = f.feature_key)
+				""", String.class);
+
+		assertThat(orphans).as("외래키가 막고 있어야 한다. 비어 있지 않다면 제약이 빠진 것이다").isEmpty();
+	}
 
 	private UUID insertPlace() {
 		UUID placeId = UUID.randomUUID();

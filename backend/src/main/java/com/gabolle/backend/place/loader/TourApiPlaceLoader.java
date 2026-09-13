@@ -39,7 +39,7 @@ import com.gabolle.backend.place.repository.PlaceRepository;
  * <tr><th>칸</th><th>자료</th><th>채우나</th></tr>
  * <tr><td>{@code place.category}</td><td>원천 대분류 {@code cat1}</td>
  *     <td>🟢 옮길 낱말이 있는 것만 — {@link TourApiCategory}</td></tr>
- * <tr><td>{@code INTEREST_TAG:<갈래>}</td><td>같은 판정</td><td>🟢 갈래가 있는 것만</td></tr>
+ * <tr><td>{@code CATEGORY_TAG:<갈래>}</td><td>같은 판정</td><td>🟢 갈래가 있는 것만</td></tr>
  * <tr><td>{@code CUISINE_TAG}·{@code ATMOSPHERE_TAG}·{@code POPULARITY_SCORE}</td>
  *     <td>🔴 이 자료에 없다</td><td>비운다</td></tr>
  * <tr><td>{@code ACCESSIBILITY_TAG}·{@code STAIRS_PRESENT}</td>
@@ -106,8 +106,11 @@ public class TourApiPlaceLoader {
 					//    수집분 자체는 datasetVersion 이 말해 준다.
 					null, datasetVersion));
 
+			// 🔴 갈래는 CATEGORY_TAG 다 (S15P21E201-904). TourApiCategory 가 내는 여섯
+			//    낱말은 온보딩 취향의 사전이고, 탐색 아코디언의 여덟 낱말과 다른 사전이다.
+			//    두 사전이 INTEREST_TAG 한 서랍에 같이 있던 것을 갈랐다.
 			if (category != null) {
-				features.add(feature(placeId, row.contentId(), "INTEREST_TAG", category,
+				features.add(feature(placeId, row.contentId(), "CATEGORY_TAG", category,
 						collectedAt, datasetVersion));
 			}
 		}

@@ -18,6 +18,7 @@ import com.gabolle.backend.place.api.PlaceFacetResponse;
 import com.gabolle.backend.place.api.PlaceFacetResponse.FacetItem;
 import com.gabolle.backend.place.api.PlaceFacetResponse.FacetKeyCount;
 import com.gabolle.backend.place.domain.InterestTagCode;
+import com.gabolle.backend.place.domain.MatchKind;
 import com.gabolle.backend.place.domain.PlaceFeature;
 import com.gabolle.backend.place.domain.UserInputKind;
 import com.gabolle.backend.place.domain.UserPlaceCodeMap;
@@ -50,6 +51,9 @@ import com.gabolle.backend.place.repository.UserPlaceCodeMapRepository;
 @Profile({"db", "dev"})
 public class PlaceFacetService {
 
+	/** 탐색 아코디언 항목의 userInputCode. 취향 차원이 아니라는 뜻이다 (S15P21E201-904). */
+	private static final String EXPLORE_INPUT_CODE = "EXPLORE";
+
 	private final UserPlaceCodeMapRepository codeMapRepository;
 
 	private final PlaceFeatureRepository placeFeatureRepository;
@@ -64,10 +68,17 @@ public class PlaceFacetService {
 		List<UserPlaceCodeMap> codeMaps =
 				this.codeMapRepository.findByIdUserInputKindOrderByIdUserInputCodeAsc(UserInputKind.PREFERENCE);
 
-		List<String> featureTypes = codeMaps.stream()
+		List<String> featureTypes = new ArrayList<>(codeMaps.stream()
 				.map(UserPlaceCodeMap::getPlaceFeatureType)
 				.distinct()
-				.toList();
+				.toList());
+		// 🔴 탐색 아코디언은 대조표에서 파생하지 않는다 (S15P21E201-904). 전에는 취향
+		//    CATEGORY 줄이 INTEREST_TAG 를 가리켜서 그 줄에 얹혀 나왔는데, 그 바람에 온보딩
+		//    여섯 낱말과 탐색 여덟 낱말이 한 서랍에 섞였다. 이제 CATEGORY 는 CATEGORY_TAG 를
+		//    가리키므로, 탐색 갈래는 자기 사전(InterestTagCode)에서 직접 만든다.
+		if (!featureTypes.contains(InterestTagCode.FEATURE_TYPE)) {
+			featureTypes.add(InterestTagCode.FEATURE_TYPE);
+		}
 
 		// 🔴 여기서 evidenceStatus <> UNKNOWN 까지만 걸러진 행을 받는다. "확인된 부재"
 		// (VERIFIED + 값 false) 를 걸러내는 것은 toFacetItem 의 indicatesPresence() 몫이다 —
@@ -75,12 +86,19 @@ public class PlaceFacetService {
 		Map<String, List<PlaceFeature>> featuresByType = groupByFeatureType(
 				this.placeFeatureRepository.findByFeatureTypeIn(featureTypes));
 
-		List<FacetItem> items = codeMaps.stream()
+		List<FacetItem> items = new ArrayList<>(codeMaps.stream()
 				.map(codeMap -> toFacetItem(codeMap,
 						featuresByType.getOrDefault(codeMap.getPlaceFeatureType(), List.of())))
-				.toList();
+				.toList());
+		// 대조표에 INTEREST_TAG 를 가리키는 줄이 하나도 없을 때만 더한다 — 있으면 두 번 나간다.
+		boolean mapHasExplore = codeMaps.stream()
+				.anyMatch(codeMap -> InterestTagCode.FEATURE_TYPE.equals(codeMap.getPlaceFeatureType()));
+		if (!mapHasExplore) {
+			items.add(exploreFacetItem(
+					featuresByType.getOrDefault(InterestTagCode.FEATURE_TYPE, List.of())));
+		}
 
-		return new PlaceFacetResponse(items, OffsetDateTime.now(ZoneOffset.UTC));
+		return new PlaceFacetResponse(List.copyOf(items), OffsetDateTime.now(ZoneOffset.UTC));
 	}
 
 	private Map<String, List<PlaceFeature>> groupByFeatureType(List<PlaceFeature> rows) {
@@ -107,6 +125,21 @@ public class PlaceFacetService {
 	 * 들어 있어 더해도 값이 그대로고, 다른 갈래는 원래 있던 키만 더해지므로 이전 합산과 같다.
 	 */
 	private FacetItem toFacetItem(UserPlaceCodeMap codeMap, List<PlaceFeature> features) {
+		Map<String, Set<UUID>> placeIdsByKey = placeIdsByKey(features);
+
+		List<FacetKeyCount> keys = InterestTagCode.FEATURE_TYPE.equals(codeMap.getPlaceFeatureType())
+				? interestTagKeys(placeIdsByKey)
+				: plainKeys(placeIdsByKey);
+		long total = keys.stream().mapToLong(FacetKeyCount::placeCount).sum();
+
+		return new FacetItem(codeMap.getUserInputCode(), codeMap.getPlaceFeatureType(), codeMap.getMatchKind(),
+				total, keys);
+	}
+
+	/**
+	 * 장소 표식을 키별로 모은다. 확인된 부재(indicatesPresence 가 거짓)는 여기서 빠진다.
+	 */
+	private Map<String, Set<UUID>> placeIdsByKey(List<PlaceFeature> features) {
 		Map<String, Set<UUID>> placeIdsByKey = new LinkedHashMap<>();
 		for (PlaceFeature feature : features) {
 			if (!feature.indicatesPresence()) {
@@ -115,13 +148,21 @@ public class PlaceFacetService {
 			placeIdsByKey.computeIfAbsent(feature.getFeatureKey(), key -> new LinkedHashSet<>())
 					.add(feature.getPlaceId());
 		}
+		return placeIdsByKey;
+	}
 
-		List<FacetKeyCount> keys = InterestTagCode.FEATURE_TYPE.equals(codeMap.getPlaceFeatureType())
-				? interestTagKeys(placeIdsByKey)
-				: plainKeys(placeIdsByKey);
+	/**
+	 * 탐색 아코디언 갈래 (S15P21E201-904).
+	 *
+	 * <p>🔴 이 항목은 <b>취향 차원이 아니다.</b> 그래서 대조표에 짝이 없고, userInputCode 로
+	 * {@code EXPLORE} 를 쓴다 — 취향 여덟 차원 중 하나를 빌려 쓰면 그 차원과 이 화면이 다시
+	 * 엮이고, 그게 이 티켓이 푼 문제였다. 앱은 이 값을 안 보고 {@code keys} 의 여덟 낱말만
+	 * 골라 쓴다.
+	 */
+	private FacetItem exploreFacetItem(List<PlaceFeature> features) {
+		List<FacetKeyCount> keys = interestTagKeys(placeIdsByKey(features));
 		long total = keys.stream().mapToLong(FacetKeyCount::placeCount).sum();
-
-		return new FacetItem(codeMap.getUserInputCode(), codeMap.getPlaceFeatureType(), codeMap.getMatchKind(),
+		return new FacetItem(EXPLORE_INPUT_CODE, InterestTagCode.FEATURE_TYPE, MatchKind.TAG_OVERLAP,
 				total, keys);
 	}
 
