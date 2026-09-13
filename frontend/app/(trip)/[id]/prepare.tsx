@@ -21,7 +21,7 @@ import type { MapStop } from '@/map/types';
 import { loadItinerary } from '@/plan/itinerary';
 import { issueShareLink } from '@/share/sharedItinerary';
 import { getTripStories } from '@/social/stories';
-import { loadTrips } from '@/trip/trips';
+import { loadTripItineraries, loadTrips } from '@/trip/trips';
 import { loadWeatherForecast, type SkyCondition, type WeatherLoadResult } from '@/trip/weather';
 
 const SKY_LABEL: Record<SkyCondition, readonly [string, string]> = {
@@ -212,7 +212,20 @@ export default function Prepare() {
 
   useEffect(() => {
     let cancelled = false;
-    void loadItinerary(tripId, accessToken).then((result) => {
+    // S15P21E201-912: loadItinerary는 GET /api/v1/itineraries/{id}를 부르므로 일정 식별자가
+    // 필요하다 — 이 화면의 tripId(여행 식별자)를 그대로 넘기면 서버에 없는 자원을 찾아
+    // 404가 나고, 날씨·제목이 영영 안 뜬다. trips.ts의 다른 화면들과 같은 방식으로 먼저
+    // 일정 목록을 받아 그 첫 항목의 itineraryId를 쓴다.
+    void loadTripItineraries(tripId, accessToken).then(async (refsResult) => {
+      if (cancelled) return;
+      const itineraryId = refsResult.state === 'success' ? refsResult.itineraries[0]?.itineraryId : undefined;
+      if (!itineraryId) {
+        setFirstDayDate(null);
+        setTripTitle(null);
+        setWeather({ state: 'unavailable', message: '일정을 아직 못 불러왔어요.' });
+        return;
+      }
+      const result = await loadItinerary(itineraryId, accessToken);
       if (cancelled) return;
       const date = result.state === 'success' ? (result.itinerary.days[0]?.date ?? null) : null;
       setFirstDayDate(date);

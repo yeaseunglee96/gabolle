@@ -17,6 +17,7 @@ import { getLastVisitedPlace, type LastVisitedPlaceResult } from '@/discovery/la
 import { getNearbyPlaces, type NearbyPlacesLoadResult } from '@/discovery/localExplore';
 import { RouteMap } from '@/map/RouteMap';
 import type { MapStop } from '@/map/types';
+import { loadTripItineraries } from '@/trip/trips';
 
 const SOUVENIR_FACET_KEY = 'SOUVENIR_SHOP';
 
@@ -35,7 +36,14 @@ export default function Souvenirs() {
   useEffect(() => {
     let active = true;
     setLoading(true);
-    void getLastVisitedPlace(tripId, accessToken).then(async (originResult) => {
+    // S15P21E201-912: getLastVisitedPlace는 일정 식별자를 받는다 — 여기 tripId(여행
+    // 식별자)를 그대로 넘기면 서버에 없는 자원을 찾아 항상 실패한다. 먼저 일정 목록을
+    // 받아 그 첫 항목의 itineraryId로 바꿔 넘긴다(prepare.tsx와 같은 방식).
+    void loadTripItineraries(tripId, accessToken).then(async (refsResult) => {
+      if (!active) return;
+      const itineraryId = refsResult.state === 'success' ? refsResult.itineraries[0]?.itineraryId : undefined;
+      if (!itineraryId) { setOrigin({ state: 'unavailable', message: '일정을 아직 못 불러왔어요.' }); setLoading(false); return; }
+      const originResult = await getLastVisitedPlace(itineraryId, accessToken);
       if (!active) return;
       setOrigin(originResult);
       if (originResult.state !== 'success') { setLoading(false); return; }
