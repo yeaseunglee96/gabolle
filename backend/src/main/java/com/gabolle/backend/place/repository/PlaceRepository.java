@@ -143,4 +143,38 @@ public interface PlaceRepository extends JpaRepository<Place, UUID> {
 			ORDER BY p.nameKo, p.placeId
 			""")
 	List<Place> findByCategoryIn(@Param("categories") List<String> categories, Limit limit);
+
+	/**
+	 * 지금 장소가 하나라도 있는 {@code category} 값과 그 수 — S15P21E201-896.
+	 *
+	 * <p>취향 화면이 고를 수 있는 갈래를 정하는 데 쓴다. 추천 엔진은 앱이 보낸 갈래 코드를
+	 * {@code place.category} 와 글자 그대로 비교하므로({@code BaselineCandidateTranslator}),
+	 * 값이 하나도 없는 갈래를 고른 사용자는 후보 0 으로 일정 생성이 실패한다. 그 실패를
+	 * 막으려면 화면이 "지금 장소가 있는 갈래" 를 알아야 한다.
+	 *
+	 * <p><b>갈래 목록을 자바에 적지 않는다.</b> 있는 값을 세어서 그대로 낸다 — 그래야 적재가
+	 * 새 갈래를 넣으면 코드 변경 없이 나타나고, 서버가 앱의 어휘를 대신 확정하지 않는다.
+	 * {@code place.category} 는 값 목록이 확정되지 않은 자유 문자열이다({@code V20260904000000}
+	 * 마이그레이션 주석).
+	 *
+	 * <p>비교는 글자 그대로다 — 여기서 {@code LOWER} 를 쓰지 않는다. 같은 갈래가 대소문자만
+	 * 다르게 적재돼 있으면 두 줄로 나오는데, 그것이 사실이고 화면이 둘 다 못 맞춘다는 신호다.
+	 * 여기서 합쳐 버리면 그 어긋남이 조용히 숨는다.
+	 */
+	@Query("""
+			SELECT p.category AS code, COUNT(p) AS placeCount
+			FROM Place p
+			WHERE p.category IS NOT NULL AND p.category <> ''
+			GROUP BY p.category
+			ORDER BY COUNT(p) DESC, p.category ASC
+			""")
+	List<CategoryCount> countByCategory();
+
+	/** {@link #countByCategory()} 한 줄. */
+	interface CategoryCount {
+
+		String getCode();
+
+		long getPlaceCount();
+	}
 }
