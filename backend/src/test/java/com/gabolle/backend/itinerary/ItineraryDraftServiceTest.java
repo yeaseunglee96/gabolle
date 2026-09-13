@@ -82,8 +82,41 @@ class ItineraryDraftServiceTest {
 		when(this.placeRepository.findByPlaceIdIn(anyCollection())).thenReturn(List.of());
 	}
 
+	/**
+	 * S15P21E201-902 — 1일 여행에 하루 상한이 안 걸리던 자리.
+	 *
+	 * <p>배분이 "하루가 차면 다음 날로" 만 보고 더 넘길 날이 없을 때를 안 막아서, 남은 것을
+	 * 전부 마지막 날에 쌓았다. 1일 여행은 넘길 날이 아예 없어 추천 10곳이 통째로 하루에
+	 * 들어갔다 — 운영에서 실제로 그랬다.
+	 */
 	@Test
-	@DisplayName("순위대로 날짜에 배분한다 — 하루 4개를 채우면 다음 날로, 마지막 날은 넘치는 만큼 그대로 쌓인다")
+	@DisplayName("하루짜리 여행에 10곳을 줘도 하루 상한(4)만 들어간다")
+	void singleDayTripNeverExceedsTheDailyCap() {
+		Trip trip = tripOf(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 10));
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
+
+		ItineraryDraft draft = this.service.assemble(commandOf("trip_1", plannedPlaces(10)));
+
+		assertThat(draft.items()).hasSize(4);
+		assertThat(draft.items()).allMatch((item) -> item.dayIndex() == 0);
+	}
+
+	@Test
+	@DisplayName("모든 날이 차면 남는 후보는 일정에 안 넣는다 — 마지막 날에 쌓지 않는다")
+	void placesBeyondEveryDayCapAreDropped() {
+		Trip trip = tripOf(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 12));
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
+
+		ItineraryDraft draft = this.service.assemble(commandOf("trip_1", plannedPlaces(20)));
+
+		Map<Integer, Long> countByDay = draft.items().stream()
+				.collect(Collectors.groupingBy(ItineraryDraft.DraftItem::dayIndex, Collectors.counting()));
+		assertThat(draft.items()).hasSize(12);
+		assertThat(countByDay).containsEntry(0, 4L).containsEntry(1, 4L).containsEntry(2, 4L);
+	}
+
+	@Test
+	@DisplayName("순위대로 날짜에 배분한다 — 하루 4개를 채우면 다음 날로 넘긴다")
 	void distributesPlacesAcrossDaysByRankAndCarriesOverflowForward() {
 		// 3박4일 → days() = nights(2) + 1 = 3
 		Trip trip = tripOf(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 12));
