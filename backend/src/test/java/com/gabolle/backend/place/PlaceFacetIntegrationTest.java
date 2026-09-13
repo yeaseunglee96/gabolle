@@ -15,6 +15,7 @@ import com.gabolle.backend.place.api.PlaceFacetResponse.FacetItem;
 import com.gabolle.backend.place.api.PlaceFacetResponse.FacetKeyCount;
 import com.gabolle.backend.place.api.PlacePageResponse;
 import com.gabolle.backend.place.api.PlaceSummaryResponse;
+import com.gabolle.backend.place.domain.InterestTagCode;
 import com.gabolle.backend.place.domain.UserInputKind;
 import com.gabolle.backend.place.domain.UserPlaceCodeMap;
 import com.gabolle.backend.place.repository.UserPlaceCodeMapRepository;
@@ -63,10 +64,10 @@ class PlaceFacetIntegrationTest extends PlacePostgresIntegrationTest {
 	void facetFilteredListExcludesPlacesWithoutTheFeature() {
 		String token = this.fixture.token();
 		UUID withFeature = this.fixture.insertPlace("표식있음" + token, null, "ATTRACTION", 35.1, 129.0);
-		this.fixture.insertTagFeature(withFeature, "INTEREST_TAG", "SEA", "VERIFIED", "{\"present\": true}");
+		this.fixture.insertTagFeature(withFeature, "INTEREST_TAG", "NIGHT_MARKET", "VERIFIED", "{\"present\": true}");
 		UUID withoutFeature = this.fixture.insertPlace("표식없음" + token, null, "ATTRACTION", 35.1, 129.0);
 
-		PlacePageResponse page = this.placeSearchService.searchByFacet("INTEREST_TAG", "SEA", null);
+		PlacePageResponse page = this.placeSearchService.searchByFacet("INTEREST_TAG", "NIGHT_MARKET", null);
 
 		assertThat(page.items()).extracting(PlaceSummaryResponse::placeId)
 				.contains(withFeature)
@@ -78,16 +79,16 @@ class PlaceFacetIntegrationTest extends PlacePostgresIntegrationTest {
 	void facetResponseIncludesCounts() {
 		String token = this.fixture.token();
 		UUID place = this.fixture.insertPlace("건수확인" + token, null, "ATTRACTION", 35.1, 129.0);
-		this.fixture.insertTagFeature(place, "INTEREST_TAG", "SEA", "VERIFIED", "{\"present\": true}");
+		this.fixture.insertTagFeature(place, "INTEREST_TAG", "NIGHT_MARKET", "VERIFIED", "{\"present\": true}");
 
 		PlaceFacetResponse response = this.placeFacetService.facets();
 
+		// 🔴 탐색 갈래는 취향 CATEGORY 에 얹혀 있지 않다 (S15P21E201-904) — 갈래 이름으로 찾는다.
 		FacetItem category = response.facets().stream()
-				.filter(item -> "CATEGORY".equals(item.userInputCode()))
+				.filter(item -> "INTEREST_TAG".equals(item.placeFeatureType()))
 				.findFirst().orElseThrow();
-		assertThat(category.placeFeatureType()).isEqualTo("INTEREST_TAG");
 		assertThat(category.placeCount()).isGreaterThanOrEqualTo(1);
-		assertThat(category.keys()).extracting(FacetKeyCount::featureKey).contains("SEA");
+		assertThat(category.keys()).extracting(FacetKeyCount::featureKey).contains("NIGHT_MARKET");
 	}
 
 	@Test
@@ -98,8 +99,17 @@ class PlaceFacetIntegrationTest extends PlacePostgresIntegrationTest {
 
 		PlaceFacetResponse response = this.placeFacetService.facets();
 
-		// 대조표 행 수와 응답 항목 수가 같아야 한다 — 자바 쪽에 허용 목록이 있다면 여기서 개수가 갈린다.
-		assertThat(response.facets()).hasSize(allPreferenceRows.size());
+		// 대조표 행은 **하나도 빠짐없이** 나와야 한다 — 자바 쪽에 허용 목록이 있다면 여기서 갈린다.
+		//
+		// 🔴 항목이 대조표 행보다 하나 많다 (S15P21E201-904). 탐색 아코디언(INTEREST_TAG)은
+		//    취향 차원이 아니라서 대조표에 짝이 없고, 자기 사전(InterestTagCode)에서 직접
+		//    만들어진다. 전에는 취향 CATEGORY 줄이 그 갈래를 가리켜서 그 줄에 얹혀 나왔고,
+		//    그 바람에 온보딩 여섯 낱말과 탐색 여덟 낱말이 한 서랍에 섞였다.
+		assertThat(response.facets()).hasSize(allPreferenceRows.size() + 1);
+		assertThat(response.facets())
+				.filteredOn(item -> InterestTagCode.FEATURE_TYPE.equals(item.placeFeatureType()))
+				.as("탐색 갈래는 대조표와 무관하게 언제나 하나 나온다")
+				.hasSize(1);
 		for (UserPlaceCodeMap row : allPreferenceRows) {
 			assertThat(response.facets()).anySatisfy(item -> {
 				assertThat(item.userInputCode()).isEqualTo(row.getUserInputCode());
@@ -116,20 +126,24 @@ class PlaceFacetIntegrationTest extends PlacePostgresIntegrationTest {
 		// 통과시킨다. 값(JSONB) 안을 보는 것은 JPQL 이 못 하고 PlaceFeature.indicatesPresence() 가
 		// 자바에서 하므로, 그 필터가 실제로 걸리는지를 여기서 확인한다.
 		String token = this.fixture.token();
+		// 🔴 이 시험은 다른 시험과 안 섞이려고 **매번 다른 낱말**이 필요하다. 그런데 탐색·온보딩
+		//    갈래는 사전이 낱말을 강제하므로(S15P21E201-904) 지어낸 낱말을 못 쓴다. 그래서 아직
+		//    사전이 없는 갈래(ATMOSPHERE_TAG)로 잰다 — 이 시험이 확인하는 것은 "확인된 부재를
+		//    세지 않는가" 이지 어느 갈래인가가 아니다.
 		String key = "SEA-" + token;
 		UUID present = this.fixture.insertPlace("확인있음" + token, null, "ATTRACTION", 35.1, 129.0);
-		this.fixture.insertTagFeature(present, "INTEREST_TAG", key, "VERIFIED", "{\"present\": true}");
+		this.fixture.insertTagFeature(present, "ATMOSPHERE_TAG", key, "VERIFIED", "{\"present\": true}");
 		UUID confirmedAbsent = this.fixture.insertPlace("확인부재" + token, null, "ATTRACTION", 35.1, 129.0);
-		this.fixture.insertTagFeature(confirmedAbsent, "INTEREST_TAG", key, "VERIFIED", "false");
+		this.fixture.insertTagFeature(confirmedAbsent, "ATMOSPHERE_TAG", key, "VERIFIED", "false");
 
-		PlacePageResponse page = this.placeSearchService.searchByFacet("INTEREST_TAG", key, null);
+		PlacePageResponse page = this.placeSearchService.searchByFacet("ATMOSPHERE_TAG", key, null);
 		assertThat(page.items()).extracting(PlaceSummaryResponse::placeId)
 				.contains(present)
 				.doesNotContain(confirmedAbsent);
 
 		PlaceFacetResponse response = this.placeFacetService.facets();
 		FacetItem category = response.facets().stream()
-				.filter(item -> "CATEGORY".equals(item.userInputCode()))
+				.filter(item -> "ATMOSPHERE".equals(item.userInputCode()))
 				.findFirst().orElseThrow();
 		FacetKeyCount keyCount = category.keys().stream()
 				.filter(k -> key.equals(k.featureKey()))

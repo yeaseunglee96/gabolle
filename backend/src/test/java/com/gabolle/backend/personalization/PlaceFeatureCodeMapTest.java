@@ -39,7 +39,12 @@ class PlaceFeatureCodeMapTest extends PostgresIntegrationTest {
 	 * 둘을 구별할 수 없어서, 검사를 통과시키려고 아무 대조나 넣게 된다.
 	 * 명세 4.3 의 M1 확정 취향 차원 여덟에 인기·혼잡이 없다 — 랭킹 가중치로만 쓰인다.
 	 */
-	private static final List<String> UNPAIRED_BY_DESIGN = List.of("POPULARITY_SCORE", "CROWDING_SCORE");
+	// 🔴 INTEREST_TAG 가 여기 들어온 이유 (S15P21E201-904). 탐색 아코디언은 **취향 차원이
+	//    아니다** — 사용자가 온보딩에서 고르는 것이 아니라 그 자리에서 훑어보는 목록이다.
+	//    전에는 취향 CATEGORY 줄이 이 갈래를 가리켜서 짝이 있는 것처럼 보였고, 그 바람에
+	//    온보딩 여섯 낱말과 탐색 여덟 낱말이 한 서랍에 섞였다. 짝을 끊은 것이 그 티켓이다.
+	private static final List<String> UNPAIRED_BY_DESIGN = List.of("POPULARITY_SCORE", "CROWDING_SCORE",
+			"INTEREST_TAG");
 
 	/**
 	 * 추정값을 저장할 수 없는 피처 — S15P21E201-666.
@@ -109,7 +114,7 @@ class PlaceFeatureCodeMapTest extends PostgresIntegrationTest {
 			//    "저장할 수 있는가" 를 물을 때도 그 종류만 VERIFIED 로 넣는다 — 안 그러면
 			//    이 검사가 막으려는 것에 스스로 걸린다.
 			String status = SAFETY_FEATURE_TYPES.contains(type) ? "VERIFIED" : "ESTIMATED";
-			assertThatCode(() -> insertFeature(placeId, type, tagLike ? "PROBE" : null, status))
+			assertThatCode(() -> insertFeature(placeId, type, tagLike ? probeKey(type) : null, status))
 					.as("대조표에 있는데 저장할 수 없는 피처 종류: " + type)
 					.doesNotThrowAnyException();
 		}
@@ -181,11 +186,11 @@ class PlaceFeatureCodeMapTest extends PostgresIntegrationTest {
 		assertThatThrownBy(() -> insertFeature(placeId, "SHADE_SCORE", null))
 				.isInstanceOf(DataIntegrityViolationException.class);
 
-		insertFeature(placeId, "INTEREST_TAG", "SEA");
-		assertThatThrownBy(() -> insertFeature(placeId, "INTEREST_TAG", "SEA"))
+		insertFeature(placeId, "INTEREST_TAG", "WALK");
+		assertThatThrownBy(() -> insertFeature(placeId, "INTEREST_TAG", "WALK"))
 				.isInstanceOf(DataIntegrityViolationException.class);
 		// 다른 태그는 들어간다
-		assertThatCode(() -> insertFeature(placeId, "INTEREST_TAG", "ALLEY")).doesNotThrowAnyException();
+		assertThatCode(() -> insertFeature(placeId, "INTEREST_TAG", "NATURE")).doesNotThrowAnyException();
 	}
 
 	@Test
@@ -248,7 +253,7 @@ class PlaceFeatureCodeMapTest extends PostgresIntegrationTest {
 		UUID placeId = insertPlace();
 
 		for (String type : SAFETY_FEATURE_TYPES) {
-			String key = type.endsWith("_TAG") ? "PROBE" : null;
+			String key = type.endsWith("_TAG") ? probeKey(type) : null;
 			assertThatThrownBy(() -> insertFeature(placeId, type, key, "ESTIMATED"))
 					.as("추정값이 저장돼 버리는 안전 피처: " + type
 							+ " — 하드 필터가 이 행을 근거로 후보를 통과시킨다")
@@ -260,7 +265,7 @@ class PlaceFeatureCodeMapTest extends PostgresIntegrationTest {
 	@DisplayName("🔴 같은 네 종이 VERIFIED·UNKNOWN 은 여전히 받는다 — UNKNOWN 은 지울 상태가 아니라 남길 사실이다")
 	void safetyFeatureStillAcceptsVerifiedAndUnknown() {
 		for (String type : SAFETY_FEATURE_TYPES) {
-			String key = type.endsWith("_TAG") ? "PROBE" : null;
+			String key = type.endsWith("_TAG") ? probeKey(type) : null;
 
 			UUID verifiedPlace = insertPlace();
 			assertThatCode(() -> insertFeature(verifiedPlace, type, key, "VERIFIED"))
@@ -346,18 +351,34 @@ class PlaceFeatureCodeMapTest extends PostgresIntegrationTest {
 	}
 
 	@Test
-	@DisplayName("이미 쌓인 표식의 낱말이 전부 사전에 있다")
+	@DisplayName("이미 쌓인 표식의 낱말이 전부 사전에 있다 — 사전이 있는 두 갈래만 본다")
 	void everyStoredWordIsInTheDictionary() {
 		List<String> orphans = this.jdbcTemplate.queryForList("""
 				SELECT DISTINCT f.feature_type || ':' || f.feature_key
 				  FROM place_feature f
-				 WHERE f.feature_key IS NOT NULL
+				 WHERE f.dictionary_key IS NOT NULL
 				   AND NOT EXISTS (SELECT 1 FROM place_feature_code c
 				                    WHERE c.feature_type = f.feature_type
 				                      AND c.feature_key = f.feature_key)
 				""", String.class);
 
 		assertThat(orphans).as("외래키가 막고 있어야 한다. 비어 있지 않다면 제약이 빠진 것이다").isEmpty();
+	}
+
+	/**
+	 * 시험이 넣어 볼 낱말. 🔴 사전이 있는 갈래는 **사전에 있는 낱말**이어야 한다
+	 * (S15P21E201-904) — 아무 낱말이나 쓰면 외래키가 막는다. 그게 이 티켓이 만든 장치다.
+	 * 사전이 아직 없는 갈래(분위기·알레르기 등)는 강제 대상이 아니라 아무 낱말이나 된다.
+	 */
+	// 🔴 낱말 고를 때 주의: 시험들이 DB 를 나눠 쓰므로, 다른 시험이 **건수를 단언하는 낱말**
+	//    (FESTIVAL=1 · SOUVENIR_SHOP=0 — PlaceFacetInterestTagIntegrationTest)을 쓰면 그쪽이
+	//    깨진다. 아무도 세지 않는 낱말을 쓴다.
+	private static String probeKey(String featureType) {
+		return switch (featureType) {
+			case "CATEGORY_TAG" -> "FOOD";
+			case "INTEREST_TAG" -> "WALK";
+			default -> "PROBE";
+		};
 	}
 
 	private UUID insertPlace() {

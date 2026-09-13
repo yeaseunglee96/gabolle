@@ -119,23 +119,31 @@ INSERT INTO place_feature_code (feature_type, feature_key, label_ko, note) VALUE
     ('INTEREST_TAG', 'NIGHT_VIEW',         '야경',     '탐색 여덟 갈래'),
     ('INTEREST_TAG', 'SOUVENIR_SHOP',      '기념품샵', '탐색 여덟 갈래. 원천에 신호가 없어 아직 0곳');
 
--- 나머지 태그형 갈래(음식 종류·분위기·알레르기·식단·접근성)는 이번 티켓의 범위가 아니다.
--- 다만 외래키를 걸려면 **이미 쌓인 값이 사전에 있어야** 한다. 그래서 지금 실제로 쓰이고 있는
--- 값을 그대로 옮겨 담는다. 🔴 지어내지 않는다 — 데이터가 말한 것만 넣는다.
-INSERT INTO place_feature_code (feature_type, feature_key, note)
-SELECT DISTINCT pf.feature_type, pf.feature_key,
-       '이미 쌓여 있던 값에서 옮겨 담음 (S15P21E201-904). 갈래별 사전 정리는 별도'
-  FROM place_feature pf
- WHERE pf.feature_key IS NOT NULL
-   AND NOT EXISTS (SELECT 1 FROM place_feature_code c
-                    WHERE c.feature_type = pf.feature_type
-                      AND c.feature_key = pf.feature_key);
+-- 🔴 강제는 **사전을 가진 두 갈래에만** 건다.
+--
+-- 나머지 태그형(분위기·음식종류·알레르기·식단·접근성)은 어디에도 선언된 사전이 없다 —
+-- 자바 enum 도 없고 CHECK 도 없다. 그 낱말 목록을 여기서 지어내면 그 순간 "저장소가 정한
+-- 사전" 이 되어 버리고, 실제로 쓰이던 값이 배포 때 거부된다. **모르는 것을 아는 척하지
+-- 않는다.** 그 갈래들의 사전은 각자 주인이 정할 때 이 표에 행을 더하면 된다.
+--
+-- 방법은 생성 칼럼이다. 강제 대상일 때만 값이 차고, 아니면 NULL 이라 복합 외래키가
+-- 통과시킨다(MATCH SIMPLE — 칸 하나라도 NULL 이면 검사하지 않는다).
+-- 🔴 점수형·참거짓형(feature_key 가 NULL)도 같은 이유로 자동으로 빠진다.
+ALTER TABLE place_feature
+    ADD COLUMN dictionary_key VARCHAR(50)
+        GENERATED ALWAYS AS (
+            CASE WHEN feature_type IN ('CATEGORY_TAG', 'INTEREST_TAG') THEN feature_key END
+        ) STORED;
 
--- 🔴 feature_key 가 NULL 인 행(점수형·참거짓형)은 이 외래키가 검사하지 않는다.
---    복합 외래키는 어느 한 칸이 NULL 이면 통과시킨다(MATCH SIMPLE). 태그형만 걸린다.
+COMMENT ON COLUMN place_feature.dictionary_key IS
+    'S15P21E201-904 — 사전 강제용 그림자 칸. 사전이 있는 갈래일 때만 feature_key 를 비추고 아니면 NULL 이라, 외래키가 그 갈래만 검사한다. 🔴 사람이 채우는 칸이 아니다.';
+
+-- 🔴 이 제약을 더하는 순간 사전에 없는 낱말이 한 줄이라도 있으면 **배포가 여기서 멈춘다.**
+--    일부러 그렇게 뒀다 — 조용히 넘어가면 두 사전이 섞인 채로 다음 사람에게 넘어간다.
+--    멈추면 그 낱말을 사전에 넣을지(행 추가) 고칠지 사람이 정하면 된다.
 ALTER TABLE place_feature
     ADD CONSTRAINT fk_place_feature_code
-        FOREIGN KEY (feature_type, feature_key)
+        FOREIGN KEY (feature_type, dictionary_key)
         REFERENCES place_feature_code (feature_type, feature_key);
 
 -- ── 4. 대조표가 새 서랍을 가리키게 한다 ────────────────────────────────────
