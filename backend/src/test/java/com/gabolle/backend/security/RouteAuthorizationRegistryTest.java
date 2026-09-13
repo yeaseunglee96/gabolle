@@ -640,6 +640,8 @@ class RouteAuthorizationRegistryTest {
 				"장소는 공용 기준 데이터라 사용자별로 답이 다르지 않다. PlaceSearchIntegrationTest");
 		put(m, "GET /api/v1/places/facets", Policy.AUTHENTICATED_ONLY,
 				"갈래별 건수. 공용 기준 데이터다. PlaceFacetInterestTagIntegrationTest");
+		put(m, "GET /api/v1/places/categories", Policy.AUTHENTICATED_ONLY,
+				"적재된 place.category 값과 건수. 요청자와 무관한 공용 기준 데이터라 facets 와 같은 정책이다. PlaceCategoryServiceTest");
 		put(m, "GET /api/v1/routes/directions", Policy.AUTHENTICATED_ONLY,
 				"좌표 두 개로 답이 정해진다 — 우리 자원이 아니라 주인이 없다. 인증을 요구하는 것은 "
 						+ "우리 카카오 키로 남이 길찾기를 대신 쓰는 것을 막기 위해서다. RouteControllerTest");

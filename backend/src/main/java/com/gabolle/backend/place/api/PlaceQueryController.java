@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.gabolle.backend.common.api.ApiResponse;
 import com.gabolle.backend.place.domain.AccommodationCategories;
+import com.gabolle.backend.place.service.PlaceCategoryService;
 import com.gabolle.backend.place.service.PlaceFacetService;
 import com.gabolle.backend.place.service.PlaceRequestException;
 import com.gabolle.backend.place.service.PlaceSearchService;
@@ -39,9 +40,28 @@ public class PlaceQueryController {
 
 	private final PlaceFacetService placeFacetService;
 
-	public PlaceQueryController(PlaceSearchService placeSearchService, PlaceFacetService placeFacetService) {
+	private final PlaceCategoryService placeCategoryService;
+
+	public PlaceQueryController(PlaceSearchService placeSearchService, PlaceFacetService placeFacetService,
+			PlaceCategoryService placeCategoryService) {
 		this.placeSearchService = placeSearchService;
 		this.placeFacetService = placeFacetService;
+		this.placeCategoryService = placeCategoryService;
+	}
+
+	/**
+	 * 지금 장소가 있는 갈래와 그 수 — S15P21E201-896.
+	 *
+	 * <p>취향 화면이 고를 수 있는 갈래를 정하는 데 쓴다. 추천 후보를 좁힐 때 실제로 비교되는
+	 * 값이 {@code place.category} 라, 여기 없는 갈래를 고르면 후보 0 으로 일정 생성이 실패한다.
+	 *
+	 * <p>바로 위 {@code facets} 와 <b>다른 것</b>이다 — 저쪽은 {@code place_feature} 표식이다.
+	 * 클래스 주석이 두 낱말을 갈라 둔 그 이유가 여기서도 그대로다.
+	 */
+	@GetMapping("/categories")
+	public ApiResponse<PlaceCategoryResponse> categories(
+			@RequestHeader(value = "X-Request-Id", required = false) String requestId) {
+		return ApiResponse.success(this.placeCategoryService.categories(), resolveRequestId(requestId));
 	}
 
 	/**
