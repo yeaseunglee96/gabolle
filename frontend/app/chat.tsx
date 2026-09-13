@@ -28,7 +28,9 @@ const QUICK_TOOLS = [
   { labelKo: '일정 만들기', labelEn: 'Plan a trip', hintKo: '대화 조건 적용', hintEn: 'Applies chat conditions', href: '/plan/basic' },
   { labelKo: '현장 도구', labelEn: 'On-the-go tools', hintKo: '현장 말하기·날씨 준비물', hintEn: 'On-the-go phrases · weather prep', href: '/field/translate' },
   { labelKo: '내 여행 보기', labelEn: 'View my trips', hintKo: '저장한 일정 열기', hintEn: 'Open your saved itineraries', href: '/trips' },
-  { labelKo: '로컬 탐색', labelEn: 'Explore locally', hintKo: '축제·전통시장 등 8종', hintEn: '8 local categories', href: '/explore' },
+  // S15P21E201-914: 갈래 개수는 GET /api/v1/places/facets 가 정한다(explore.tsx) — 여기서
+  // 숫자를 박으면 백엔드가 갈래를 늘리거나 줄일 때마다 다시 어긋난다. 숫자를 빼고 말한다.
+  { labelKo: '로컬 탐색', labelEn: 'Explore locally', hintKo: '축제·전통시장 등 다양한 카테고리', hintEn: 'Various local categories', href: '/explore' },
 ] as const;
 
 export default function Chat() {
