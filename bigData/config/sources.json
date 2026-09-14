@@ -178,11 +178,28 @@
       "script": "collect/tourapi.mjs",
       "endpoint": "https://apis.data.go.kr/B551011/KorService2",
       "areaCode": 6,
-      "status": "받음 (2026-09-08 · 부산 662곳 7종 · data/raw/tourapi/tourapi-busan.ndjson)",
+      "status": "커밋됨 (2026-09-11 실측 · 부산 656곳 7종 · 상세 629건·빈 것 27 · data/raw/tourapi/tourapi-busan.ndjson)",
       "//2026-09-08-실측": "🔴 버전 2 만 살아 있다. KorService1/areaBasedList1 은 HTTP 400 으로 죽었다. endpoint 는 오퍼레이션 앞까지의 공통 부분이고 수집기가 뒤에 areaBasedList2 · detailIntro2 를 붙인다. areaCode 6 = 부산.",
       "//필드": "🔴 영업시간 필드 이름이 분류마다 다르다 — 하나로 받으면 대부분이 빈다. 음식점(39) opentimefood · restdatefood / 관광지(12) usetime · restdate / 문화시설(14) usetimeculture · restdateculture. 그래서 수집기는 이름을 뭉개지 않고 원문 그대로 남긴다. 해석은 process/ 의 몫이다.",
-      "//분류별-부산-2026-09-08": "관광지 140 · 문화시설 35 · 축제행사 15 · 레포츠 30 · 숙박 65 · 쇼핑 49 · 음식점 328 = 662곳",
+      "//분류별-부산-2026-09-11": "관광지 138 · 문화시설 35 · 축제행사 14 · 레포츠 29 · 숙박 65 · 쇼핑 47 · 음식점 328 = 656곳. 🔴 날마다 줄고 있다 — 09-08 662곳 · 09-10 659곳 · 09-11 656곳. 어느 숫자도 틀리지 않았고 전부 그날의 진실이다. 그래서 숫자를 인용할 때 날짜를 함께 적는다. 이제 원본이 커밋돼 있으므로 인용은 파일을 세는 것이 맞다.", "//채움률-2026-09-11": "커밋된 원본 상세 629건을 직접 세었다. 영업시간 623곳(99.0%) · 주차 587곳(93.3%) · 대표메뉴 328곳(음식점 100%) · 문화재지정 138곳(관광지 100%). 🔴 가격 44곳(7.0%, 문화시설 usefee 30 + 축제 usetimefestival 14 — 식당 가격은 0곳)과 체류시간 4곳(0.6%)은 쓰지 않는다. 체류시간 네 값은 '약 1시간' · '30분' · '공연 및 전시별 상이' · '화-일 10:30 - 18:30'(영업시간이 잘못 들어감)이다. 🔴 유모차 정정: 2026-09-10 메모가 437곳(66.3%)이라고 적었는데 오늘 재니 값이 든 것은 108곳(17.2%), 칸이 있기만 한 것은 222곳(35.3%)이다. 어느 쪽도 437 이 아니라 그 숫자를 재현하지 못했다 — 왜 달랐는지는 확인 못 했다. 쓰려면 다시 재야 한다.",
       "note": "온톨로지의 bm:openingHoursNormalized 가 이것을 기다렸다. 호출 한도는 오퍼레이션마다 따로 걸리므로 BIMS 실시간 버스 폴링을 갉아먹지 않는다."
+    },
+    {
+      "id": "tourapi-en",
+      "name": "한국관광공사_영문 관광정보서비스_GW",
+      "gives": [
+        "장소 이름·소개 영문 번역"
+      ],
+      "license": "공공누리 (이용허락범위 제한 없음)",
+      "auth": "apikey",
+      "envVar": "DATA_GO_KR_KEY",
+      "applyUrl": "https://www.data.go.kr/data/15101753/openapi.do",
+      "script": "collect/tourapi-en.mjs",
+      "endpoint": "https://apis.data.go.kr/B551011/EngService2",
+      "areaCode": 6,
+      "status": "🔴 미신청 — 무료·개발단계 자동승인. tourapi(국문)와 같은 DATA_GO_KR_KEY 계정으로 활용신청만 하면 된다. 신청 안 하면 이 수집기는 종료 코드 2로 멈춘다.",
+      "//2026-09-11-확인": "data.go.kr Swagger Explore에서 Base URL과 오퍼레이션 이름(areaBasedList2·detailIntro2)까지 국문 서비스(KorService2)와 동일한 것을 문서로 확인했다 — 호출은 아직 안 해봤다. contentid가 국문·영문 서비스 간에 같은 값을 공유한다는 것은 TourAPI 4.0 문서 기준이고, 실제 겹침은 첫 실행 뒤 사람이 확인해야 한다(collect/tourapi-en.mjs 파일 머리말 참고).",
+      "note": "사용자(진미리)가 앱 출시를 앞두고 '한영 번역이 장소 이름까지 제대로 되어야 한다'고 지적하며 이 URL을 직접 찾아 전달했다(2026-09-11). 지금 앱은 UI 문구만 tx()로 영역화돼 있고 장소 이름·소개는 국문 그대로 나간다 — 이 데이터가 그 간극을 메운다."
     },
     {
       "id": "tourapi-barrier-free",
@@ -195,7 +212,7 @@
       "script": "collect/tourapi-barrier-free.mjs",
       "endpoint": "https://apis.data.go.kr/B551011/KorWithService2",
       "areaCode": 6,
-      "status": "받음 (2026-09-08 · 부산 182곳 · data/raw/tourapi/tourapi-barrier-free-busan.ndjson)",
+      "status": "커밋됨 (2026-09-11 실측 · 부산 179곳 · 상세 179건·빈 것 0 · data/raw/tourapi/tourapi-barrier-free-busan.ndjson)", "//채움률-2026-09-11": "🔴 레코드 단위로는 179건 전부에 내용이 있지만, **칸 단위로 보면 절반 이상이 비었다.** 빈 것은 null 이 아니라 빈 문자열이다. 쓸 만한 칸은 여섯: exit 82.7% · route 81.6% · parking 62.0% · elevator 53.1% · restroom 46.9% · braileblock 43.0%. 그 아래로 helpdog 24.6% · handicapetc 20.1% · guidehuman 13.4% · room 12.3% · wheelchair 9.5% · lactationroom 7.8% · stroller 7.3% · publictransport 7.3%. 🔴 promotion · bigprint · signguide · videoguide · hearingroom 다섯은 179건 전부가 빈 문자열이다(0%). hearinghandicapetc 는 1건(0.6%). 🔴 wheelchair 는 이름과 달리 '휠체어 대여' 칸이고 17곳뿐이다 — 접근 가능 여부는 exit·route 에 문장으로 들어 있다. 🔴 값이 갈래가 아니라 자유 문장이다: route 146건에 43가지 · exit 148건에 44가지 · restroom 41가지. 값이 든 칸 1,090개 중 232개(21.3%)에 '_무장애 편의시설' 같은 꼬리표가 붙어 같은 뜻을 다른 값으로 가른다. <br/> 태그가 섞인 값도 31건 있다. 쓰려면 파싱 규칙이 따로 필요하다. 🔴 2026-09-10 메모의 「상세 181건 전부에 내용이 있다 · 채움률이 높다」 는 레코드 단위 얘기였고 칸 단위로는 맞지 않는다.",
       "note": "🔴 왜 tourapi 와 따로 두었나 — 데이터셋이 다르고 인증신청도 따로 났다. 한쪽이 막혀도 다른 쪽은 돈다. 온톨로지의 bm:placeWheelchairAccessible 이 이것을 기다렸다. 지금 휠체어 규칙은 전부 길과 이동에만 걸려 있어서, 길을 다 통과하고도 문 앞에서 막히는 경우를 말할 수 없었다.",
       "//2026-09-08-실측": "🔴 버전 2 만 살아 있다. KorWithService1 은 HTTP 400 이다. 오퍼레이션은 areaBasedList2(목록) · detailWithTour2(상세).",
       "//필드": "detailWithTour2 가 내는 29개 (2026-09-08 실측): wheelchair · elevator · restroom · exit · parking · publictransport · route · ticketoffice · promotion · handicapetc · braileblock · helpdog · guidehuman · audioguide · bigprint · brailepromotion · guidesystem · blindhandicapetc · signguide · videoguide · hearingroom · hearinghandicapetc · stroller · lactationroom · babysparechair · infantsfamilyetc · room · auditorium · contenttypeid. 휠체어뿐 아니라 시각·청각·유아동반까지 함께 온다."
@@ -303,6 +320,43 @@
       "script": "collect/subway.mjs",
       "status": "받음 (40,544행 / CP949, 2026-01~06)",
       "note": "역 혼잡. 조작할 수 없는 관측 신호다 (CLAUDE.md 2절 — 리뷰 별점을 안 쓰는 것과 같은 이유)."
+    },
+    {
+      "id": "ftc-franchise-brands",
+      "name": "공정거래위원회_가맹정보_브랜드 목록",
+      "gives": [
+        "브랜드명",
+        "업종대분류·중분류",
+        "가맹본부",
+        "주요상품명"
+      ],
+      "license": "공공누리",
+      "auth": "apikey",
+      "envVar": "DATA_GO_KR_KEY",
+      "applyUrl": "https://www.data.go.kr/data/15125467/openapi.do",
+      "endpoint": null,
+      "script": null,
+      "status": "활용신청 완료 (2026-09-11). 🔴 End Point 미확인 — 아직 호출하지 않았다",
+      "//왜-받나": "카페 7,335곳에서 프랜차이즈를 걸러 개인 카페만 남기기 위해서다. 프랜차이즈는 가맹사업법상 정보공개서 등록이 의무라, 이 목록에 없으면 법적으로 프랜차이즈가 아니다 — 이름과 개수로 짐작하던 것을 사실로 바꾼다.",
+      "//짐작이-왜-실패했나": "🔴 2026-09-10 실측. ① 이름 빈도로는 절반도 못 거른다 — 빽다방 37곳이 35가지 이름이다(상호명에 지점이 붙는다). ② 이름 앞부분으로 묶으면 일반 명사가 브랜드로 잡힌다(`카페` 474곳). ③ 개수로도 못 가른다 — 히스피 26곳은 이디야 124곳보다 적지만 모모스 5곳보다 많다. 실제로 모모스·히스피·블랙업이 프랜차이즈로 잘려나갔다. 전국 프랜차이즈인가는 데이터에 없는 지식이고, 상가정보에 그 칸이 없다.",
+      "//주소": "🔴 지어내지 마라. data.go.kr 마이페이지 > 활용신청 상세에 End Point 가 있다. 지하철 시각표(btc-timetable)에서 짐작으로 찾다 다섯 번 실패한 전례가 바로 아래에 있다."
+    },
+    {
+      "id": "ftc-franchise-stores",
+      "name": "공정거래위원회_가맹정보_브랜드별 가맹점 현황",
+      "gives": [
+        "브랜드별 가맹점 수",
+        "평균매출금액",
+        "면적단위평균매출금액"
+      ],
+      "license": "공공누리",
+      "auth": "apikey",
+      "envVar": "DATA_GO_KR_KEY",
+      "applyUrl": "https://www.data.go.kr/data/15110241/openapi.do",
+      "endpoint": null,
+      "script": null,
+      "status": "활용신청 완료 (2026-09-11). 🔴 End Point 미확인 — 아직 호출하지 않았다",
+      "//왜-받나": "브랜드 목록만으로는 '등록된 프랜차이즈' 와 '직영 몇 곳뿐인 로컬 로스터리' 가 안 갈린다. 가맹점 수가 그것을 가른다 — 가맹점이 0이거나 아주 적으면 직영 위주다. 모모스를 살리고 컴포즈를 거르는 판정이 여기서 나온다."
     },
     {
       "id": "btc-timetable",
