@@ -50,7 +50,11 @@ function RecommendationCard({ item, index, liked, onToggleLike, desktop }: {
   return (
     <View style={[styles.card, desktop && styles.desktopCard]}>
       <ImageBackground source={item.image} resizeMode="cover" style={styles.cardImage} imageStyle={styles.cardImageRadius}>
-        <View style={styles.cardShade} />
+        {/* S15P21E201-919: 카드 전체를 20% 남색으로 덮으면 밝은 낮 사진에는 괜찮지만, 광안리처럼
+            원래 어두운 야경 사진에는 카드 전체가 거의 새까맣게 보인다. 위쪽은 거의 안 덮고
+            글자가 있는 아래쪽만 진하게 덮어서 사진 자체는 보이게 한다. */}
+        <View style={styles.cardShadeTop} />
+        <View style={styles.cardShadeBottom} />
         <Pressable accessibilityRole="button" accessibilityLabel={tx(`${title} 상세 보기`, `View details for ${title}`)} onPress={() => router.push(`/place/${item.id}`)} style={styles.cardLink} />
         <View style={styles.cardCounter}><Text variant="caption" weight="bold" color={color.text.onAction}>{index + 1}/3</Text></View>
         <Pressable accessibilityRole="button" accessibilityLabel={liked ? tx(`${title} 저장 취소`, `Unsave ${title}`) : tx(`${title} 저장`, `Save ${title}`)} onPress={(event) => { event.stopPropagation(); onToggleLike(); }} style={[styles.heartButton, liked && styles.heartButtonSelected]}>
@@ -231,7 +235,8 @@ const styles = StyleSheet.create({
   cardImage: { flex: 1 },
   cardLink: { ...StyleSheet.absoluteFill },
   cardImageRadius: { borderRadius: 24 },
-  cardShade: { ...StyleSheet.absoluteFill, backgroundColor: color.brand.navy, opacity: 0.2 },
+  cardShadeTop: { ...StyleSheet.absoluteFill, backgroundColor: color.brand.navy, opacity: 0.06 },
+  cardShadeBottom: { position: 'absolute', left: 0, right: 0, bottom: 0, height: '42%', backgroundColor: color.brand.navy, opacity: 0.55 },
   cardCounter: { position: 'absolute', right: spacing[4], top: spacing[3], paddingHorizontal: spacing[3], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: color.brand.navy },
   heartButton: { position: 'absolute', right: spacing[3], top: 48, width: 40, height: 40, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.action.primary },
   heartButtonSelected: { backgroundColor: color.brand.orange },

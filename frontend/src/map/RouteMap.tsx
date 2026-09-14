@@ -133,7 +133,11 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
           const line = new maps.Polyline({ path, strokeWeight: 5, strokeColor: route.color, strokeOpacity: 0.9, strokeStyle: 'solid' });
           line.setMap(map); overlaysRef.current.push(line);
         });
-        map.setBounds(bounds, 60, 60, 60, 60);
+        // S15P21E201-919: stop이 하나면 bounds 넓이가 0이라 setBounds가 지도를 최대 줌으로
+        // 밀어붙인다 — 고정 34px 마커가 화면 대부분을 덮어 장소 이름을 가린다. 하나일 때는
+        // bounds 대신 그 지점을 도시 단위 줌으로 그냥 센터링한다.
+        if (visibleStops.length <= 1) { map.setCenter(center); map.setLevel(5); }
+        else map.setBounds(bounds, 60, 60, 60, 60);
         setFailure(null);
       });
     };
