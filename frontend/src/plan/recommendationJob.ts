@@ -1,6 +1,7 @@
 import { apiRequest, ApiClientError, getApiLanguage } from '@/api/client';
 import { cloneSharedTripAndJob, createTripAndRecommendationJob } from '@/api/tripApi';
 import type { PlanDraft } from '@/plan/PlanProvider';
+import type { RecommendationJobStreamSnapshot } from '@/plan/recommendationJobStream';
 
 export type RecommendationJobState = 'idle' | 'submitting' | 'accepted' | 'polling' | 'completed' | 'conflict' | 'consent-required' | 'failed' | 'cancelled' | 'unavailable';
 // 'consent-required'의 requiredConsent: S15P21E201-549(백엔드, 2026-09-11)가 새로 건 403 둘.
@@ -41,6 +42,25 @@ export function adaptPolledJob(jobId: string, dto: RecommendationJobPollDto, pre
   const errorMessage = dto.failure ? (JOB_FAILURE_MESSAGE[dto.failure.code] ?? DEFAULT_JOB_FAILURE_MESSAGE)[isKo ? 0 : 1] : dto.status === 'EXPIRED' ? '일정 생성 작업이 만료됐어요. 다시 요청해 주세요.' : null;
   return { state, jobId, progress, stage: dto.progress.stage ?? previous?.stage ?? null, canCancel: false, errorMessage, resultRef: previous?.resultRef ?? null };
 }
+// S15P21E201-69 — SSE(GET /api/v1/jobs/{jobId}/progress)가 보내는 건 폴링과 모양이 다르다
+// ({jobId, status, stage, percent, code} — 중첩된 progress 객체가 아니다). 판정 로직은
+// adaptPolledJob 하나만 있으면 되므로, 여기서는 모양만 그 입력(RecommendationJobPollDto)으로
+// 바꿔 그대로 넘긴다 — 상태 매핑·진행률 역행 방지·실패 문구를 두 번 쓰지 않는다.
+export function adaptStreamedJob(
+  jobId: string,
+  snapshot: RecommendationJobStreamSnapshot,
+  previous?: RecommendationJobSnapshot,
+): RecommendationJobSnapshot {
+  return adaptPolledJob(jobId, {
+    jobId: snapshot.jobId,
+    status: snapshot.status,
+    progress: { stage: snapshot.stage ?? '', percent: snapshot.percent },
+    failure: snapshot.code ? { code: snapshot.code, detail: null } : null,
+    retryable: false,
+    pollAfterSeconds: null,
+  }, previous);
+}
+
 export interface RecommendationJobAdapter { submit(draft: PlanDraft): Promise<RecommendationJobSnapshot>; poll(jobId: string, previous?: RecommendationJobSnapshot): Promise<RecommendationJobSnapshot>; }
 function toFailure(error: unknown, jobId: string | null = null): RecommendationJobSnapshot {
   if (error instanceof ApiClientError && (error.status === 404 || error.status === 501 || error.code === 'NETWORK_ERROR')) return { ...unavailableJob(error.message), jobId };
