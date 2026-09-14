@@ -1283,7 +1283,11 @@ textarea.u { min-height: 96px; font-size: 17px; line-height: 1.5; resize: vertic
 
     <div style="padding:56px 0 0;display:flex;flex-direction:column;gap:24px;align-items:flex-start">
       <span style="color:var(--m3-accent)"><svg class="ic ic-48" aria-hidden="true"><use href="#i-done"/></svg></span>
-      <h1 class="m3-h1">세 군데,<br>잘 받았어요.<br>고맙습니다.</h1>
+      <!-- 🔴 (S15P21E201-932) 제목도 doneCount 와 같은 값을 받는다. 바로 아래
+           문단은 이미 "실제로 보낸 곳 수로 말한다" 는 원칙을 따르고 있었는데
+           (2026-09-10), 더 크게 보이는 제목만 "세 군데" 로 굳어 있어서
+           같은 화면 안에서 숫자 둘이 서로 달라 보이는 채로 남아 있었다. -->
+      <h1 class="m3-h1"><span id="doneN"></span> 군데,<br>잘 받았어요.<br>고맙습니다.</h1>
     <!-- 🔴 "다섯" 을 박아 두지 않는다. 여섯 곳을 적고 낸 사람에게 "다섯 군데
          받았습니다" 라고 하면, 하나를 잃어버린 줄 안다 (2026-09-10). -->
       <p class="m3-p"><span id="doneCount"></span> 받았습니다. 이 창은 닫으셔도 됩니다.</p>
@@ -3650,6 +3654,7 @@ $("submit").addEventListener("click", async () => {
     /* 🔴 실제로 보낸 곳 수로 말한다. 여섯 곳을 적은 사람에게 "다섯 군데" 라고
           하면 하나를 잃어버린 줄 안다 */
     const sentN = liveRows().length;
+    $("doneN").textContent = CNT[sentN] || String(sentN);
     $("doneCount").textContent = (CNT[sentN] || String(sentN)) + " 군데";
     $("doneTop").textContent = "응답 " + sentN + "곳";
     show("scDone");
