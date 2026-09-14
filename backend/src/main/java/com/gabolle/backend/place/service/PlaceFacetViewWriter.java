@@ -41,4 +41,10 @@ public class PlaceFacetViewWriter {
 	public void save(String facetKey, UUID tripId, OffsetDateTime viewedAt) {
 		this.repository.save(PlaceFacetView.of(facetKey, tripId, viewedAt));
 	}
+
+	/** 여행에 안 묶인 전역 탐색에서 연 기록 — S15P21E201-894. 트랜잭션 규칙은 위와 같다. */
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	public void saveGlobal(String facetKey, OffsetDateTime viewedAt) {
+		this.repository.save(PlaceFacetView.ofGlobal(facetKey, viewedAt));
+	}
 }
