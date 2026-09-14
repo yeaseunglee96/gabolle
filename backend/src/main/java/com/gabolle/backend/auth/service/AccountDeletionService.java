@@ -171,8 +171,25 @@ public class AccountDeletionService {
 		}
 
 		List<UUID> tripIds = ownedTripIds(userId);
-		deleteTripData(userId, tripIds);
+
+		// 🔴 이 네 줄의 순서는 취향이 아니라 외래키가 정한다 (2026-09-14). 넷이 걸려 있다.
+		//
+		//    recommendation_job.taste_vector_id              → user_taste_vector
+		//    feed_build.taste_vector_id                      → user_taste_vector
+		//    user_taste_vector.source_preference_snapshot_id → preference_snapshot
+		//    feed_build.constraint_snapshot_id               → constraint_snapshot
+		//    preference_snapshot.trip_id · constraint_snapshot.trip_id → trip
+		//
+		//    그래서 <b>추천 → 개인화 파생값 → 스냅샷 → 여행</b> 말고 다른 순서가 없다.
+		//    전에는 스냅샷이 첫 칸(그때 이름은 deleteTripData)에 같이 들어 있어서 벡터보다 먼저
+		//    지워졌고, 그 결과 <b>설문을 낸 뒤 배치가 한 번이라도 접은 사람은 탈퇴가 실패했다</b> —
+		//    fk_user_taste_vector_preference_snapshot 은 ON DELETE 가 없어 NO ACTION 이다.
+		//    트랜잭션이 하나라 500 만 나가고 아무것도 안 지워진다. 배치가 매일 다시 접으므로
+		//    다시 시도해도 성공하는 날이 없다.
+		deleteItineraryAndRecommendations(userId, tripIds);
 		deletePersonalizationArtifacts(userId);
+		deleteSnapshots(userId);
+		deleteTripsAndMemberships(userId, tripIds);
 		deleteStories(userId);
 		deleteLoginMeans(userId, credential);
 		detachEvents(userId);
@@ -231,13 +248,19 @@ public class AccountDeletionService {
 	}
 
 	/**
-	 * 여행과 그 아래 달린 것을 지운다.
+	 * 일정과 추천 기록을 지운다 — 삭제 사슬의 <b>첫 칸</b>.
 	 *
-	 * <p>🔴 순서가 곧 정확성이다. 자식을 먼저 지우지 않으면 외래키에 걸려 통째로 실패한다. JPQL 벌크
-	 * 삭제는 데이터베이스의 {@code ON DELETE CASCADE} 를 타지 않으므로, 자동으로 지워질 것도 여기서
-	 * 직접 적어야 한다.
+	 * <p>🔴 순서가 곧 정확성이다. 자식을 먼저 지우지 않으면 외래키에 걸려 통째로 실패한다.
+	 *
+	 * <p>🔴 <b>2026-09-14 — 스냅샷과 여행을 이 메서드에서 뺐다.</b> 예전에는 여행 아래 달린 것을
+	 * 전부 여기서 지웠는데, 그러면 설문 스냅샷이 <b>취향 벡터보다 먼저</b> 지워진다.
+	 * {@code user_taste_vector.source_preference_snapshot_id} 가 그 스냅샷을 가리키므로 탈퇴가
+	 * 외래키 위반으로 실패했다. 자세한 것은 {@link #delete} 안의 순서 주석.
+	 *
+	 * <p>여기서 하는 일은 <b>추천 사슬을 끊는 것</b>까지다 — {@code recommendation_job} 이 사라져야
+	 * 다음 칸에서 취향 벡터를 지울 수 있다({@code recommendation_job.taste_vector_id}).
 	 */
-	private void deleteTripData(UUID userId, List<UUID> tripIds) {
+	private void deleteItineraryAndRecommendations(UUID userId, List<UUID> tripIds) {
 		if (!tripIds.isEmpty()) {
 			// 🔴 2026-09-05 (S15P21E201-604) — 일정을 추천 작업보다 <b>먼저</b> 지운다.
 			//    itinerary_item·itinerary_versions 의 source_request_id 가
@@ -273,7 +296,22 @@ public class AccountDeletionService {
 				(SELECT j.requestId FROM RecommendationJob j WHERE j.userId = :userId)
 				""", "userId", userId);
 		execute("DELETE FROM RecommendationJob j WHERE j.userId = :userId", "userId", userId);
+	}
 
+	/**
+	 * 설문·제약 스냅샷을 지운다 — 삭제 사슬의 <b>셋째 칸</b>.
+	 *
+	 * <p>🔴 <b>개인화 파생값보다 뒤, 여행보다 앞</b>이어야 한다. 앞뒤로 외래키가 하나씩 걸려 있다.
+	 * <ul>
+	 * <li>앞: {@code user_taste_vector.source_preference_snapshot_id} 와
+	 *     {@code feed_build.constraint_snapshot_id} 가 이 스냅샷들을 가리킨다. 둘 다
+	 *     {@code ON DELETE} 가 없어 <b>NO ACTION</b> 이라, 가리키는 행이 살아 있으면 여기서 막힌다</li>
+	 * <li>뒤: {@code preference_snapshot.trip_id} · {@code constraint_snapshot.trip_id} 가 여행을
+	 *     가리킨다. 그래서 여행보다 먼저 지워야 한다</li>
+	 * </ul>
+	 * 가운데 자리가 하나뿐이고, 그 자리가 여기다.
+	 */
+	private void deleteSnapshots(UUID userId) {
 		execute("""
 				DELETE FROM ConstraintAnswerJpaEntity a WHERE a.constraintSnapshotId IN
 				(SELECT s.constraintSnapshotId FROM ConstraintSnapshotJpaEntity s WHERE s.userId = :userId)
@@ -284,7 +322,14 @@ public class AccountDeletionService {
 				(SELECT s.preferenceSnapshotId FROM PreferenceSnapshotJpaEntity s WHERE s.userId = :userId)
 				""", "userId", userId);
 		execute("DELETE FROM PreferenceSnapshotJpaEntity s WHERE s.userId = :userId", "userId", userId);
+	}
 
+	/**
+	 * 동행자 자격과 본인 소유 여행을 지운다 — 삭제 사슬의 <b>마지막 칸</b>.
+	 *
+	 * <p>스냅샷이 {@code trip_id} 로 여행을 가리키므로 반드시 그 뒤에 온다.
+	 */
+	private void deleteTripsAndMemberships(UUID userId, List<UUID> tripIds) {
 		// 🔴 남의 여행의 동행자 자격도 지운다 — 탈퇴했으면 그 여행에서도 빠지는 것이 맞다.
 		execute("DELETE FROM TripMemberJpaEntity m WHERE m.userId = :userId", "userId", userId);
 
@@ -355,8 +400,13 @@ public class AccountDeletionService {
 	 * 먼저 지우지 않으면 판을 못 지운다.
 	 *
 	 * <p>{@code recommendation_job.taste_vector_id} 도 같은 표를 가리키는데, 그쪽은
-	 * {@link #deleteTripData} 가 이미 이 사람의 추천 기록을 통째로 지운 뒤라 남아 있지 않다.
-	 * <b>이 메서드를 {@code deleteTripData} 보다 먼저 부르면 외래키에 걸려 탈퇴 전체가 실패한다.</b>
+	 * {@link #deleteItineraryAndRecommendations} 가 이미 이 사람의 추천 기록을 통째로 지운 뒤라
+	 * 남아 있지 않다. <b>이 메서드를 그보다 먼저 부르면 외래키에 걸려 탈퇴 전체가 실패한다.</b>
+	 *
+	 * <p>🔴 <b>뒤쪽에도 사슬이 있다 (2026-09-14).</b> 여기서 지우는 {@code user_taste_vector} 와
+	 * {@code feed_build} 가 이번에는 스냅샷을 가리킨다 — {@code source_preference_snapshot_id} ·
+	 * {@code constraint_snapshot_id}. 그래서 이 메서드는 {@link #deleteSnapshots} 보다 <b>먼저</b>
+	 * 와야 한다. 앞뒤가 다 막혀 있어 자리가 하나뿐이다: 추천 뒤, 스냅샷 앞.
 	 */
 	private void deletePersonalizationArtifacts(UUID userId) {
 		execute("""

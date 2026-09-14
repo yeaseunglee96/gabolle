@@ -342,6 +342,45 @@ class AccountDeletionIntegrationTest extends AuthPostgresIntegrationTest {
 		return socialUserId;
 	}
 
+	@Test
+	@DisplayName("🔴 취향 벡터가 있는 사람도 탈퇴된다 — 벡터가 설문 스냅샷을 가리키고 있어도")
+	void deletesAccountEvenWhenATasteVectorPointsAtThePreferenceSnapshot() {
+		// 배치(TasteVectorFoldService)가 한 번이라도 접은 사람을 그대로 재현한다.
+		// 계정 기본 설문 한 판 → 그 판을 가리키는 취향 벡터 한 개.
+		UUID snapshotId = UUID.randomUUID();
+		this.jdbcTemplate.update("""
+				INSERT INTO preference_snapshot
+				  (preference_snapshot_id, user_id, trip_id, version, scope, survey_version, created_at)
+				VALUES (?, ?, NULL, 1, 'USER', 'test-survey-v1', now())
+				""", snapshotId, this.userId);
+		this.jdbcTemplate.update("""
+				INSERT INTO user_taste_vector
+				  (taste_vector_id, user_id, version, source_preference_snapshot_id,
+				   observed_event_count, vector_version, ontology_version, created_at)
+				VALUES (?, ?, 1, ?, 0, 'test-v1', 'test-onto-v1', now())
+				""", UUID.randomUUID(), this.userId, snapshotId);
+
+		// 🔴 고치기 전에는 여기서 통째로 실패했다. deleteTripData 가 preference_snapshot 을
+		//    먼저 지우는데 user_taste_vector 가 아직 그것을 가리키고 있었고,
+		//    fk_user_taste_vector_preference_snapshot 은 ON DELETE 가 없어 NO ACTION 이다.
+		//    트랜잭션이 하나라 500 만 나가고 아무것도 안 지워진다 — 배치가 매일 다시 접으므로
+		//    다시 눌러도 성공하는 날이 없다. App Store 5.1.1(v) 가 요구하는 바로 그 기능이다.
+		this.accountDeletionService.delete(this.userId, CONFIRM, PASSWORD);
+
+		assertThat(this.userRepository.findById(this.userId))
+			.get()
+			.extracting(AppUser::getStatus)
+			.isEqualTo(UserStatus.DELETED);
+
+		Integer vectors = this.jdbcTemplate.queryForObject(
+				"SELECT count(*) FROM user_taste_vector WHERE user_id = ?", Integer.class, this.userId);
+		assertThat(vectors).as("취향 벡터도 함께 지워진다").isZero();
+
+		Integer snapshots = this.jdbcTemplate.queryForObject(
+				"SELECT count(*) FROM preference_snapshot WHERE user_id = ?", Integer.class, this.userId);
+		assertThat(snapshots).as("설문 스냅샷도 함께 지워진다").isZero();
+	}
+
 	private UUID createTrip(UUID owner) {
 		UUID trip = UUID.randomUUID();
 		this.jdbcTemplate.update("""
