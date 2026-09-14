@@ -78,7 +78,7 @@ export default function Trips() {
 
   const trips = result.state === 'success' ? result.trips : [];
 
-  return <View style={styles.shell}><Screen scroll wide style={styles.canvas}>
+  return <View style={styles.shell}><Screen scroll wide withTabBar style={styles.canvas}>
     <View style={styles.header}><View style={styles.headerCopy}><Eyebrow>{tx('여행 목록', 'My trips')}</Eyebrow><Text variant="display" weight="bold" style={styles.title}>{tx('내 여행', 'My trips')}</Text><Text color={color.text.body}>{tx('내가 만들었거나 초대받은 여행이에요.', "Trips you've created or been invited to.")}</Text></View><View style={styles.headerActions}><Button label={tx('부슐랭', 'My places')} variant="ghost" onPress={() => router.push('/collection')} containerStyle={styles.newTrip} /><Button label={tx('새 여행', 'New trip')} onPress={() => router.push('/plan/basic')} containerStyle={styles.newTrip} /></View></View>
 
     {!accessToken ? <View style={styles.state}><Text weight="bold">{tx('로그인하면 내 여행을 볼 수 있어요.', 'Sign in to see your trips.')}</Text><Button label={tx('로그인', 'Sign in')} onPress={() => router.push('/sign-in')} containerStyle={styles.emptyCta} /></View> : null}

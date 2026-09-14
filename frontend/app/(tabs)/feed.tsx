@@ -75,7 +75,7 @@ export default function Feed() {
     return true;
   };
 
-  return <View style={styles.shell}><Screen scroll>
+  return <View style={styles.shell}><Screen scroll withTabBar>
     <View style={styles.headerRow}><View><Eyebrow>{tx('여행 기록 피드', 'Travel story feed')}</Eyebrow><Text variant="display" weight="bold" style={styles.headerTitle}>{tx('여행 이야기', 'Travel stories')}</Text></View>{accessToken ? <Button label={tx('기록 남기기', 'Write')} onPress={() => router.push('/feed/compose')} containerStyle={styles.writeButton} /> : null}</View>
 
     <View accessibilityRole="tablist" style={styles.scopeTabs}>

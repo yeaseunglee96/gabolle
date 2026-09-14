@@ -157,7 +157,7 @@ export default function Home() {
 
   return (
     <View style={styles.shell}>
-    <Screen wide style={styles.screenContent}>
+    <Screen wide withTabBar style={styles.screenContent}>
       <View style={styles.header}>
         <BrandLogoLink href="/home" imageStyle={styles.logo} />
         <Pressable accessibilityRole="button" accessibilityLabel={tx('알림 확인', 'Check notifications')} onPress={() => router.push('/notifications')} style={styles.bell}><Image source={bellIcon} resizeMode="contain" style={styles.bellIcon} /></Pressable>
