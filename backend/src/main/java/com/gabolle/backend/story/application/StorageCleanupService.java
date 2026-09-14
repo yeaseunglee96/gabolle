@@ -8,9 +8,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import com.gabolle.backend.story.domain.StorageCleanupEntry;
 import com.gabolle.backend.story.repository.StorageCleanupRepository;
@@ -34,6 +36,16 @@ import com.gabolle.backend.story.storage.StoragePort;
  * {@code TransactionSynchronizationManager.registerSynchronization(afterCommit)} 로 풀어 뒀다 —
  * 같은 패턴을 쓴다. 트랜잭션이 없는 곳(예: {@link #retryPending})에서 부르면 그 자리에서
  * 바로 실행한다.
+ *
+ * <h2>🔴 {@code afterCommit} 안에서 새로 쓸 때는 반드시 {@code REQUIRES_NEW} 다</h2>
+ * {@link #enqueue}(실패한 키를 대기열에 남기는 DB 쓰기)가 {@code afterCommit} 콜백 안에서 불릴 수
+ * 있다. 그 시점엔 방금 커밋된 트랜잭션의 동기화가 아직 안 지워진 채로 남아 있어서
+ * ({@code TransactionSynchronizationManager.clearSynchronization} 은 {@code afterCommit} 다음
+ * 단계에서 돈다), 평범한 {@code @Transactional}(REQUIRED)로 새 저장소 호출을 하면 그 죽은
+ * 동기화에 올라타 버린다 — 예외 없이 조용히 아무것도 안 쓰인다(CI 파이프라인 193756/193865 에서
+ * {@code storage_cleanup_queue} 조회가 빈 결과로 실패하며 실측했다). {@link TransactionTemplate}
+ * 을 {@code PROPAGATION_REQUIRES_NEW} 로 만들어 쓰면 그 동기화를 미뤄두고 진짜 새 트랜잭션을
+ * 연다 — 트랜잭션이 없는 경로에서 불러도 REQUIRED 와 똑같이 동작하니 손해가 없다.
  */
 @Service
 @Profile({ "db", "dev" })
@@ -47,11 +59,15 @@ public class StorageCleanupService {
 
 	private final Clock clock;
 
+	private final TransactionTemplate requiresNewTransaction;
+
 	public StorageCleanupService(StoragePort storagePort, StorageCleanupRepository storageCleanupRepository,
-			Clock clock) {
+			Clock clock, PlatformTransactionManager transactionManager) {
 		this.storagePort = storagePort;
 		this.storageCleanupRepository = storageCleanupRepository;
 		this.clock = clock;
+		this.requiresNewTransaction = new TransactionTemplate(transactionManager);
+		this.requiresNewTransaction.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
 	}
 
 	/**
@@ -85,15 +101,17 @@ public class StorageCleanupService {
 
 	private void enqueue(String storageKey, String reason, Exception cause) {
 		try {
-			Instant now = this.clock.instant();
-			String message = cause.getMessage();
-			this.storageCleanupRepository.findById(storageKey).ifPresentOrElse(
-					entry -> {
-						entry.recordFailure(now, message);
-						this.storageCleanupRepository.save(entry);
-					},
-					() -> this.storageCleanupRepository.save(
-							new StorageCleanupEntry(storageKey, reason, now, message)));
+			this.requiresNewTransaction.executeWithoutResult(status -> {
+				Instant now = this.clock.instant();
+				String message = cause.getMessage();
+				this.storageCleanupRepository.findById(storageKey).ifPresentOrElse(
+						entry -> {
+							entry.recordFailure(now, message);
+							this.storageCleanupRepository.save(entry);
+						},
+						() -> this.storageCleanupRepository.save(
+								new StorageCleanupEntry(storageKey, reason, now, message)));
+			});
 		}
 		catch (RuntimeException persistFailure) {
 			// 대기열 기록 자체가 실패해도 호출자의 트랜잭션을 깨서는 안 된다 — 클래스 설명의 계약.

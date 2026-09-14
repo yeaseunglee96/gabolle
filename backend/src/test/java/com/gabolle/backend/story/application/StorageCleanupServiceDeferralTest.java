@@ -7,6 +7,7 @@ import java.time.ZoneOffset;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import com.gabolle.backend.story.domain.StorageCleanupEntry;
@@ -17,6 +18,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 /**
  * S15P21E201-945 — {@code deleteOrEnqueue} 가 진행 중인 트랜잭션이 있으면 저장소 호출을 커밋
@@ -28,8 +30,13 @@ class StorageCleanupServiceDeferralTest {
 	private final StoragePort storagePort = mock(StoragePort.class);
 	private final StorageCleanupRepository storageCleanupRepository = mock(StorageCleanupRepository.class);
 	private final Clock clock = Clock.fixed(Instant.parse("2026-09-14T00:00:00Z"), ZoneOffset.UTC);
+	// 🔴 두 테스트 다 storagePort.delete 가 성공하는 경로만 재므로 enqueue() 가 안 불리고,
+	// 따라서 이 트랜잭션 매니저도 실제로 쓰이지 않는다(verifyNoInteractions 로 그것도 확인한다).
+	// REQUIRES_NEW 트랜잭션으로 실제 DB에 쓰는 경로는 Postgres 가 있어야 재는 통합 테스트
+	// (StorageCleanupServiceTest 등) 의 몫이다.
+	private final PlatformTransactionManager transactionManager = mock(PlatformTransactionManager.class);
 	private final StorageCleanupService service = new StorageCleanupService(this.storagePort,
-			this.storageCleanupRepository, this.clock);
+			this.storageCleanupRepository, this.clock, this.transactionManager);
 
 	@AfterEach
 	void clearSynchronization() {
@@ -44,6 +51,7 @@ class StorageCleanupServiceDeferralTest {
 		this.service.deleteOrEnqueue("story/x.jpg", StorageCleanupEntry.REASON_STORY_DELETED);
 
 		verify(this.storagePort).delete("story/x.jpg");
+		verifyNoInteractions(this.transactionManager);
 	}
 
 	@Test
