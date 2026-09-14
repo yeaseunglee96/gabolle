@@ -201,12 +201,14 @@ class OAuthAccountServiceTest {
 	}
 
 	@Test
-	@DisplayName("🔴 같은 이메일의 로컬 계정이 있으면 연결 티켓과 함께 409 다 — 자동으로 붙이지 않는다")
-	void doesNotImplicitlyLinkSocialIdentityToLocalEmail() {
+	@DisplayName("🔴 메일 인증을 안 끝낸 로컬 계정과 같은 이메일이면 연결 티켓과 함께 409 다 — 여기는 비밀번호를 묻는다")
+	void unverifiedLocalAccountStillRequiresPassword() {
 		AppUser owner = AppUser.register("여행자", "KO", NOW, "2026-01", PersonalizationMode.EXPLICIT_ONLY,
 				UserStatus.ACTIVE);
 		LocalCredential credential = mock(LocalCredential.class);
 		when(credential.getUser()).thenReturn(owner);
+		// S15P21E201-923 — 인증 전에는 그 주소가 이 사람 것인지 우리가 확인하지 못했다. 자동 연결의 전제가 없다.
+		when(credential.getEmailVerifiedAt()).thenReturn(null);
 		when(identityRepository.findByProviderAndProviderSubject(AuthProvider.GOOGLE, "google-subject"))
 				.thenReturn(Optional.empty());
 		when(credentialRepository.findByEmail("traveler@example.com")).thenReturn(Optional.of(credential));
@@ -224,6 +226,125 @@ class OAuthAccountServiceTest {
 		assertThat(link.provider()).isEqualTo(AuthProvider.GOOGLE);
 		// 🔴 옛 앱이 동의까지 보냈어도(oneStep) 연결 필요가 먼저다 — 계정을 새로 만들지 않는다.
 		verify(userRepository, never()).save(any(AppUser.class));
+		verify(identityRepository, never()).save(any(AuthIdentity.class));
+	}
+
+	@Test
+	@DisplayName("메일 인증을 끝낸 비밀번호 계정과 같은 이메일이면 비밀번호를 묻지 않고 그 계정에 붙는다")
+	void attachesToVerifiedLocalAccountWithSameEmail() {
+		AppUser owner = AppUser.register("여행자", "KO", NOW, "2026-01", PersonalizationMode.EXPLICIT_ONLY,
+				UserStatus.ACTIVE);
+		LocalCredential credential = mock(LocalCredential.class);
+		when(credential.getUser()).thenReturn(owner);
+		when(credential.getEmailVerifiedAt()).thenReturn(NOW);
+		when(identityRepository.findByProviderAndProviderSubject(AuthProvider.GOOGLE, "google-subject"))
+				.thenReturn(Optional.empty());
+		when(credentialRepository.findByEmail("traveler@example.com")).thenReturn(Optional.of(credential));
+		when(tokenService.issue(eq(owner), anyString(), anyString()))
+				.thenReturn(mock(AuthTokenService.IssuedTokens.class));
+
+		OAuthAccountService.Outcome outcome = service.authenticate(AuthProvider.GOOGLE, profile("KO"), "device-1", null,
+				false, false);
+
+		assertThat(outcome).isInstanceOf(OAuthAccountService.LoggedIn.class);
+		assertThat(((OAuthAccountService.LoggedIn) outcome).user()).isSameAs(owner);
+		verify(userRepository, never()).save(any(AppUser.class));
+		verify(identityRepository).save(any(AuthIdentity.class));
+		verify(ticketService, never()).issueLink(any(), anyString(), anyString(), any(), anyString());
+		verify(ticketService, never()).issueSignup(any(), anyString(), anyString(), anyString(), anyString(), anyString());
+	}
+
+	@Test
+	@DisplayName("같은 이메일을 쓰는 다른 소셜 계정이 있으면 계정이 하나 더 생기지 않고 거기에 붙는다")
+	void attachesToExistingSocialAccountWithSameEmail() {
+		AppUser owner = AppUser.register("여행자", "KO", NOW, "2026-01", PersonalizationMode.EXPLICIT_ONLY,
+				UserStatus.ACTIVE);
+		AuthIdentity naver = AuthIdentity.link(owner, AuthProvider.NAVER, "naver-subject", "traveler@example.com");
+		when(identityRepository.findByProviderAndProviderSubject(AuthProvider.GOOGLE, "google-subject"))
+				.thenReturn(Optional.empty());
+		when(credentialRepository.findByEmail("traveler@example.com")).thenReturn(Optional.empty());
+		when(identityRepository.findAllByProviderEmailAndUnlinkedAtIsNull("traveler@example.com"))
+				.thenReturn(List.of(naver));
+		when(identityRepository.findAllByUserUserId(owner.getUserId())).thenReturn(List.of(naver));
+		when(tokenService.issue(eq(owner), anyString(), anyString()))
+				.thenReturn(mock(AuthTokenService.IssuedTokens.class));
+
+		OAuthAccountService.Outcome outcome = service.authenticate(AuthProvider.GOOGLE, profile("KO"), "device-1", null,
+				false, false);
+
+		assertThat(outcome).isInstanceOf(OAuthAccountService.LoggedIn.class);
+		assertThat(((OAuthAccountService.LoggedIn) outcome).user()).isSameAs(owner);
+		verify(userRepository, never()).save(any(AppUser.class));
+		verify(identityRepository).save(any(AuthIdentity.class));
+	}
+
+	@Test
+	@DisplayName("유효하지 않다고 표시된 주소로는 안 붙는다 — 그 주소는 이미 남의 것일 수 있다")
+	void doesNotAttachThroughAnEmailMarkedInvalid() {
+		AppUser owner = AppUser.register("여행자", "KO", NOW, "2026-01", PersonalizationMode.EXPLICIT_ONLY,
+				UserStatus.ACTIVE);
+		AuthIdentity kakao = AuthIdentity.link(owner, AuthProvider.KAKAO, "kakao-subject", "traveler@example.com");
+		// 카카오는 그 주소가 다른 카카오계정으로 옮겨가면 유효하지 않다고 답한다(S15P21E201-741).
+		kakao.recordProviderEmail("traveler@example.com", Boolean.TRUE, Boolean.FALSE);
+		when(identityRepository.findByProviderAndProviderSubject(AuthProvider.GOOGLE, "google-subject"))
+				.thenReturn(Optional.empty());
+		when(credentialRepository.findByEmail("traveler@example.com")).thenReturn(Optional.empty());
+		when(identityRepository.findAllByProviderEmailAndUnlinkedAtIsNull("traveler@example.com"))
+				.thenReturn(List.of(kakao));
+		when(ticketService.issueSignup(eq(AuthProvider.GOOGLE), eq("google-subject"), eq("traveler@example.com"),
+				anyString(), anyString(), anyString()))
+				.thenReturn(new OAuthSignupTicketService.IssuedTicket("raw-ticket", NOW.plusSeconds(600)));
+
+		OAuthAccountService.Outcome outcome = service.authenticate(AuthProvider.GOOGLE, profile("KO"), "device-1", null,
+				false, false);
+
+		assertThat(outcome).isInstanceOf(OAuthAccountService.SignupRequired.class);
+		verify(identityRepository, never()).save(any(AuthIdentity.class));
+	}
+
+	@Test
+	@DisplayName("같은 제공자가 이미 붙어 있는 계정에는 안 붙는다 — 같은 주소를 든 다른 계정이다")
+	void doesNotAttachWhenTheSameProviderIsAlreadyLinked() {
+		AppUser owner = AppUser.register("여행자", "KO", NOW, "2026-01", PersonalizationMode.EXPLICIT_ONLY,
+				UserStatus.ACTIVE);
+		AuthIdentity alreadyGoogle = AuthIdentity.link(owner, AuthProvider.GOOGLE, "another-google-subject",
+				"traveler@example.com");
+		when(identityRepository.findByProviderAndProviderSubject(AuthProvider.GOOGLE, "google-subject"))
+				.thenReturn(Optional.empty());
+		when(credentialRepository.findByEmail("traveler@example.com")).thenReturn(Optional.empty());
+		when(identityRepository.findAllByProviderEmailAndUnlinkedAtIsNull("traveler@example.com"))
+				.thenReturn(List.of(alreadyGoogle));
+		when(identityRepository.findAllByUserUserId(owner.getUserId())).thenReturn(List.of(alreadyGoogle));
+		when(ticketService.issueSignup(eq(AuthProvider.GOOGLE), eq("google-subject"), eq("traveler@example.com"),
+				anyString(), anyString(), anyString()))
+				.thenReturn(new OAuthSignupTicketService.IssuedTicket("raw-ticket", NOW.plusSeconds(600)));
+
+		OAuthAccountService.Outcome outcome = service.authenticate(AuthProvider.GOOGLE, profile("KO"), "device-1", null,
+				false, false);
+
+		assertThat(outcome).isInstanceOf(OAuthAccountService.SignupRequired.class);
+		verify(identityRepository, never()).save(any(AuthIdentity.class));
+	}
+
+	@Test
+	@DisplayName("쓸 수 없는 계정에는 안 붙는다 — 탈퇴한 계정이 같은 주소를 들고 있어도 새로 가입한다")
+	void doesNotAttachToUnavailableAccount() {
+		AppUser deleted = AppUser.register("여행자", "KO", NOW, "2026-01", PersonalizationMode.EXPLICIT_ONLY,
+				UserStatus.DELETED);
+		AuthIdentity naver = AuthIdentity.link(deleted, AuthProvider.NAVER, "naver-subject", "traveler@example.com");
+		when(identityRepository.findByProviderAndProviderSubject(AuthProvider.GOOGLE, "google-subject"))
+				.thenReturn(Optional.empty());
+		when(credentialRepository.findByEmail("traveler@example.com")).thenReturn(Optional.empty());
+		when(identityRepository.findAllByProviderEmailAndUnlinkedAtIsNull("traveler@example.com"))
+				.thenReturn(List.of(naver));
+		when(ticketService.issueSignup(eq(AuthProvider.GOOGLE), eq("google-subject"), eq("traveler@example.com"),
+				anyString(), anyString(), anyString()))
+				.thenReturn(new OAuthSignupTicketService.IssuedTicket("raw-ticket", NOW.plusSeconds(600)));
+
+		OAuthAccountService.Outcome outcome = service.authenticate(AuthProvider.GOOGLE, profile("KO"), "device-1", null,
+				false, false);
+
+		assertThat(outcome).isInstanceOf(OAuthAccountService.SignupRequired.class);
 		verify(identityRepository, never()).save(any(AuthIdentity.class));
 	}
 

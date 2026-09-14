@@ -2,6 +2,7 @@ package com.gabolle.backend.auth.service;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.util.Comparator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -41,9 +42,13 @@ import com.gabolle.backend.user.repository.UserConsentRepository;
  *   <li>{@link LoggedIn} — 이미 붙어 있는 소셜 신원. 동의를 다시 묻지 않는다.</li>
  *   <li>{@link SignupRequired} — 처음 보는 신원. 계정을 만들지 않고 10분짜리 가입 티켓과 미리 채울 값을 준다.
  *       {@link #completeSignup} 이 그 티켓으로 계정을 만든다.</li>
- *   <li>{@link OAuthLinkRequiredException}(409) — 같은 이메일의 로컬 계정이 있다. 연결 티켓을 싣고, {@link #linkWithPassword}
- *       가 비밀번호를 확인한 뒤 붙인다. 이메일이 같다고 자동으로 붙이지 않는 이유는 {@code DEC-AUTH-010} 이 소유한다.</li>
+ *   <li>{@link OAuthLinkRequiredException}(409) — 메일 인증을 안 끝낸 로컬 계정이 같은 이메일을 쓰고 있다. 연결 티켓을
+ *       싣고, {@link #linkWithPassword} 가 비밀번호를 확인한 뒤 붙인다.</li>
  * </ul>
+ *
+ * <p><b>2026-09-14 (S15P21E201-923) — 같은 이메일이면 자동으로 붙인다.</b> 처음 보는 신원이라도 그 이메일을 이미
+ * 쓰고 있는 계정이 있으면 새 계정을 만들지 않고 그 계정에 붙인 뒤 {@link LoggedIn} 으로 답한다. 그전까지는 제공자를
+ * 바꿔 로그인할 때마다 계정이 갈라졌다. 고르는 기준과 붙이지 않는 경우는 {@link #autoLinkTarget} 이 소유한다.
  *
  * <p>🔴 <b>옛 앱과의 호환.</b> 지금 배포된 앱은 첫 요청에 14세 확인과 동의를 함께 보낸다. 그 요청이 오면 예전처럼
  * 한 번에 계정을 만들어 {@link LoggedIn} 으로 답한다({@link #authenticate} 의 {@code oneStep}). 동의가 없으면 티켓이다.
@@ -143,9 +148,17 @@ public class OAuthAccountService {
 		}
 
 		String email = normalizeEmailOrNull(profile.email());
-		LinkRequired link = linkRequiredIfLocalAccountExists(provider, profile.subject(), email, deviceId);
-		if (link != null) {
-			return link;
+		Optional<LocalCredential> local = findLocalCredential(email);
+
+		AppUser attachTo = autoLinkTarget(provider, email, local);
+		if (attachTo != null) {
+			AuthIdentity linked = AuthIdentity.link(attachTo, provider, profile.subject(), email);
+			applyProviderEmail(linked, profile, email);
+			identityRepository.save(linked);
+			return issue(attachTo, deviceId, email);
+		}
+		if (local.isPresent()) {
+			return linkRequired(provider, profile.subject(), email, local.get().getUser(), deviceId);
 		}
 
 		boolean oneStep = ageGateAccepted && rawConsents != null && !rawConsents.isEmpty();
@@ -184,10 +197,16 @@ public class OAuthAccountService {
 		if (existing.isPresent()) {
 			return login(existing.get(), null, deviceId);
 		}
-		LinkRequired link = linkRequiredIfLocalAccountExists(ticket.getProvider(), ticket.getProviderSubject(),
-				ticket.getProviderEmail(), deviceId);
-		if (link != null) {
-			return link;
+		Optional<LocalCredential> local = findLocalCredential(ticket.getProviderEmail());
+		AppUser attachTo = autoLinkTarget(ticket.getProvider(), ticket.getProviderEmail(), local);
+		if (attachTo != null) {
+			identityRepository.save(AuthIdentity.link(attachTo, ticket.getProvider(), ticket.getProviderSubject(),
+					ticket.getProviderEmail()));
+			return issue(attachTo, deviceId, ticket.getProviderEmail());
+		}
+		if (local.isPresent()) {
+			return linkRequired(ticket.getProvider(), ticket.getProviderSubject(), ticket.getProviderEmail(),
+					local.get().getUser(), deviceId);
 		}
 
 		String finalName = (displayName == null || displayName.isBlank()) ? ticket.getDisplayName() : displayName;
@@ -318,21 +337,60 @@ public class OAuthAccountService {
 		identity.recordProviderEmail(normalizedEmail, profile.emailVerified(), profile.emailValid());
 	}
 
+	/** 이메일을 안 주는 provider 는 겹칠지 볼 수가 없으니 질의도 하지 않는다. */
+	private Optional<LocalCredential> findLocalCredential(String email) {
+		return email == null ? Optional.empty() : credentialRepository.findByEmail(email);
+	}
+
 	/**
-	 * 같은 이메일의 로컬 계정이 있으면 연결 티켓을 만들어 {@link LinkRequired} 를 돌려준다. 없으면 {@code null} 이고
-	 * 호출자는 그대로 진행한다. 이메일을 안 주는 provider 는 겹칠지 볼 수가 없으니 질의도 하지 않는다.
+	 * 이 이메일을 이미 쓰고 있는 계정 — 있으면 새 계정을 만들지 않고 거기에 신원을 붙인다 (S15P21E201-923).
+	 *
+	 * <p>계정을 {@code (provider, provider_subject)} 로만 찾던 동안은 같은 사람이 제공자를 바꿔 로그인할 때마다
+	 * 계정이 하나씩 늘었다. 한 사람의 같은 주소로 네이버·카카오·애플에 계정이 세 개 생긴 것을 실제로 확인했고,
+	 * 그 사람이 한쪽에서 만든 여행은 다른 쪽에서 보이지 않는다. {@code DEC-AUTH-010} 이 자동 연결을 막고 있었으나
+	 * 그 근거(남의 주소로 소셜 계정을 만들면 비밀번호 없이 들어온다)는 로컬 가입이 메일 인증을 거치도록 바뀌면서
+	 * 절반이 사라졌다 — 비밀번호 계정의 주소는 우리가 확인한 주소다.
+	 *
+	 * <p>고르는 순서는 <b>확인된 비밀번호 계정이 먼저</b>고, 없으면 그 주소로 연결돼 있는 소셜 신원 가운데 가장 먼저
+	 * 가입한 계정이다. 같은 주소로 이미 갈라져 있는 계정들을 합치지는 않으므로 <b>어느 하나를 골라야 하고</b>, 그 기준이
+	 * 호출 순서나 DB 반환 순서에 달려 있으면 같은 사람이 같은 조건에서 다른 계정에 붙는다.
+	 *
+	 * <p>붙이지 않는 경우가 셋이다. 메일 인증을 안 끝낸 비밀번호 계정은 그 주소가 그 사람 것인지 우리가 확인하지
+	 * 못했으므로 예전처럼 비밀번호를 묻는다. 카카오가 유효하지 않다고 답한 주소({@code email_valid=false})는 이미 다른
+	 * 카카오계정으로 옮겨갔을 수 있어 그대로 믿으면 <b>엉뚱한 사람에게 이어진다.</b> 그리고 대상 계정에 같은 제공자가
+	 * 이미 붙어 있으면 같은 주소를 든 <b>다른</b> 계정이 온 것이라 자동으로 처리할 자리가 아니다.
 	 */
-	private LinkRequired linkRequiredIfLocalAccountExists(AuthProvider provider, String subject, String email,
-			String deviceId) {
+	private AppUser autoLinkTarget(AuthProvider provider, String email, Optional<LocalCredential> local) {
 		if (email == null) {
 			return null;
 		}
-		Optional<LocalCredential> local = credentialRepository.findByEmail(email);
-		if (local.isEmpty()) {
-			return null;
+		if (local.isPresent()) {
+			LocalCredential credential = local.get();
+			if (credential.getEmailVerifiedAt() == null) {
+				return null;
+			}
+			return canAttach(provider, credential.getUser()) ? credential.getUser() : null;
 		}
-		OAuthSignupTicketService.IssuedTicket ticket = ticketService.issueLink(provider, subject, email,
-				local.get().getUser(), deviceId);
+		return identityRepository.findAllByProviderEmailAndUnlinkedAtIsNull(email).stream()
+				.filter((identity) -> !Boolean.FALSE.equals(identity.getEmailValid()))
+				.map(AuthIdentity::getUser)
+				.filter((user) -> canAttach(provider, user))
+				.min(Comparator.comparing(AppUser::getCreatedAt, Comparator.nullsLast(Comparator.naturalOrder())))
+				.orElse(null);
+	}
+
+	private boolean canAttach(AuthProvider provider, AppUser user) {
+		if (user == null || user.getStatus() != UserStatus.ACTIVE) {
+			return false;
+		}
+		return identityRepository.findAllByUserUserId(user.getUserId()).stream()
+				.noneMatch((identity) -> identity.isActive() && identity.getProvider() == provider);
+	}
+
+	/** 비밀번호를 확인하고 붙이는 옛 경로 — 메일 인증을 안 끝낸 계정에만 남는다. */
+	private LinkRequired linkRequired(AuthProvider provider, String subject, String email, AppUser user,
+			String deviceId) {
+		OAuthSignupTicketService.IssuedTicket ticket = ticketService.issueLink(provider, subject, email, user, deviceId);
 		return new LinkRequired(ticket.rawTicket(), ticket.expiresAt(), com.gabolle.backend.auth.api.OAuthLoginResponse
 				.mask(email), provider);
 	}

@@ -135,9 +135,50 @@ class OAuthTwoStepSignupIntegrationTest extends AuthPostgresIntegrationTest {
 	}
 
 	@Test
-	@DisplayName("🔴 같은 이메일의 로컬 계정이 있으면 409 + 연결 티켓이고, 비밀번호를 확인하면 그 계정에 붙는다")
+	@DisplayName("메일 인증을 끝낸 비밀번호 계정과 같은 이메일이면 비밀번호를 묻지 않고 그 계정에 붙는다")
+	void verifiedLocalAccountIsAttachedWithoutPassword() {
+		AppUser existing = seedLocalAccount("올바른비밀번호1!", true);
+		long usersBefore = userRepository.count();
+
+		OAuthAccountService.Outcome outcome = accountService.authenticate(AuthProvider.GOOGLE, profile(), "device-1",
+				null, false, false);
+
+		OAuthAccountService.LoggedIn result = (OAuthAccountService.LoggedIn) outcome;
+		assertThat(result.user().getUserId()).isEqualTo(existing.getUserId());
+		assertThat(result.tokens().accessToken()).isNotBlank();
+		assertThat(userRepository.count()).isEqualTo(usersBefore);
+		assertThat(identityRepository.findByProviderAndProviderSubject(AuthProvider.GOOGLE, subject))
+				.get()
+				.satisfies(identity -> assertThat(identity.getUser().getUserId()).isEqualTo(existing.getUserId()));
+		// 비밀번호를 묻지 않았으므로 연결 티켓도 안 나간다.
+		assertThat(ticketRows("LINK")).isZero();
+	}
+
+	@Test
+	@DisplayName("같은 이메일로 다른 소셜에 로그인하면 계정이 하나 더 생기지 않고 먼저 만든 계정에 붙는다")
+	void secondProviderAttachesToTheFirstSocialAccount() {
+		String naverSubject = "naver-" + UUID.randomUUID();
+		OAuthAccountService.SignupRequired signup = (OAuthAccountService.SignupRequired) accountService.authenticate(
+				AuthProvider.NAVER,
+				new OAuthProviderClient.OAuthUserProfile(naverSubject, email, "여행자", "KO", null, null), "device-1",
+				null, false, false);
+		OAuthAccountService.LoggedIn first = (OAuthAccountService.LoggedIn) accountService.completeSignup(
+				signup.signupTicket(), null, null, Map.of("TERMS_OF_SERVICE", true, "PRIVACY_POLICY", true), false,
+				"device-1");
+		long usersAfterFirst = userRepository.count();
+
+		OAuthAccountService.Outcome outcome = accountService.authenticate(AuthProvider.GOOGLE, profile(), "device-1",
+				null, false, false);
+
+		assertThat(((OAuthAccountService.LoggedIn) outcome).user().getUserId()).isEqualTo(first.user().getUserId());
+		assertThat(userRepository.count()).isEqualTo(usersAfterFirst);
+		assertThat(identityRepository.findAllByUserUserId(first.user().getUserId())).hasSize(2);
+	}
+
+	@Test
+	@DisplayName("🔴 메일 인증 전인 로컬 계정과 같은 이메일이면 409 + 연결 티켓이고, 비밀번호를 확인하면 그 계정에 붙는다")
 	void linkTicketThenPasswordAttachesIdentityToExistingAccount() {
-		AppUser existing = seedLocalAccount("올바른비밀번호1!");
+		AppUser existing = seedLocalAccount("올바른비밀번호1!", false);
 		long usersBefore = userRepository.count();
 
 		OAuthAccountService.Outcome outcome = accountService.authenticate(AuthProvider.GOOGLE, profile(), "device-1",
@@ -218,15 +259,26 @@ class OAuthTwoStepSignupIntegrationTest extends AuthPostgresIntegrationTest {
 				.satisfies(identity -> assertThat(identity.getProviderEmail()).isNull());
 	}
 
-	/** 이메일·비밀번호로 가입한 계정 하나. 이메일 인증까지 끝난 상태로 둔다. */
 	private AppUser seedLocalAccount(String rawPassword) {
+		return seedLocalAccount(rawPassword, true);
+	}
+
+	/**
+	 * 이메일·비밀번호로 가입한 계정 하나.
+	 *
+	 * <p>메일 인증 여부가 S15P21E201-923 부터 갈래를 가른다 — 인증을 끝낸 주소는 우리가 확인한 주소라 소셜이 바로
+	 * 붙고, 인증 전이면 예전처럼 비밀번호를 묻는다.
+	 */
+	private AppUser seedLocalAccount(String rawPassword, boolean emailVerified) {
 		String localEmail = "local-" + UUID.randomUUID() + "@example.com";
 		AppUser user = userRepository.save(AppUser.register("기존 사용자", "KO", Instant.now(), "2026-01",
 				PersonalizationMode.EXPLICIT_ONLY, UserStatus.ACTIVE));
 		LocalCredential credential = credentialRepository.save(
 				LocalCredential.create(user, localEmail, passwordEncoder.encode(rawPassword)));
-		jdbc.update("UPDATE local_credential SET email_verified_at = now() WHERE local_credential_id = ?",
-				credential.getLocalCredentialId());
+		if (emailVerified) {
+			jdbc.update("UPDATE local_credential SET email_verified_at = now() WHERE local_credential_id = ?",
+					credential.getLocalCredentialId());
+		}
 		// 소셜 쪽 이메일이 이 계정과 같아야 연결 흐름에 걸린다.
 		this.email = localEmail;
 		return user;
