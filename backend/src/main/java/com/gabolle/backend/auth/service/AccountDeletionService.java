@@ -19,6 +19,7 @@ import com.gabolle.backend.auth.repository.AuthIdentityRepository;
 import com.gabolle.backend.auth.repository.AuthSessionRepository;
 import com.gabolle.backend.auth.repository.LocalCredentialRepository;
 import com.gabolle.backend.user.domain.AppUser;
+import com.gabolle.backend.user.domain.UserStatus;
 import com.gabolle.backend.user.repository.AppUserRepository;
 import com.gabolle.backend.user.repository.UserConsentRepository;
 
@@ -55,6 +56,15 @@ import com.gabolle.backend.user.repository.UserConsentRepository;
 @Profile({"db", "dev"})
 public class AccountDeletionService {
 
+	/**
+	 * 사용자가 탈퇴 화면에서 직접 쳐야 하는 값 — S15P21E201-837.
+	 *
+	 * <p>🔴 한국어 문구가 아니라 고정 영문이다. 앱이 KO·EN 두 언어를 쓰므로 문구를 언어별로 두면
+	 * 서버가 어느 언어로 온 요청인지 알아야 하고, 그 판정이 틀리면 탈퇴가 막힌다. 화면이
+	 * <i>"탈퇴하려면 DELETE 를 입력하세요"</i> 를 각 언어로 안내하고 값 자체는 이것 하나로 보낸다.
+	 */
+	public static final String CONFIRMATION_PHRASE = "DELETE";
+
 	@PersistenceContext
 	private EntityManager entityManager;
 
@@ -86,26 +96,79 @@ public class AccountDeletionService {
 	}
 
 	/**
-	 * 비밀번호를 다시 확인하고 지운다.
+	 * 탈퇴 확인을 받고 지운다 — S15P21E201-837.
 	 *
 	 * <p>🔴 한 트랜잭션이다. 도중에 실패하면 아무것도 지워지지 않은 상태로 돌아간다. 반쯤 지워진
 	 * 계정은 로그인도 안 되고 데이터도 못 찾는, 아무도 손댈 수 없는 상태가 된다.
+	 *
+	 * <h2>왜 비밀번호를 필수에서 내렸나 (2026-09-11)</h2>
+	 *
+	 * 그전에는 {@code local_credential} 이 없으면 {@code LOCAL_CREDENTIAL_REQUIRED} 로 끊었다.
+	 * 그런데 소셜로만 가입한 계정에는 그 행이 아예 없다 — {@code OAuthAccountService} 는 가입을
+	 * 끝낼 때 자격증명을 만들지 않는다({@code OAuthSignupRequest} 가 이메일·비밀번호를 안 받는다).
+	 * 그래서 <b>소셜 사용자에게는 계정을 지울 길이 하나도 없었다.</b> 비밀번호 재설정으로 하나
+	 * 만들어 볼 수도 없다 — {@code AuthOneTimeToken} 이 {@code local_credential} 에 NOT NULL 로
+	 * 매달려 있어 자격증명이 없으면 재설정이 시작조차 안 된다.
+	 *
+	 * <p>그래서 본인 확인을 <b>사용자가 직접 치는 값</b>({@link #CONFIRMATION_PHRASE})으로 옮겼다.
+	 * 두 종류의 계정이 같은 흐름을 타므로 화면이 계정 종류를 먼저 알아낼 필요가 없다.
+	 *
+	 * <h2>🔴 이 변경으로 약해지는 것</h2>
+	 *
+	 * 원래 비밀번호 재확인은 <i>"로그인한 채 자리를 비운 사이 남이 눌러 지우는 것"</i> 을 막으려는
+	 * 것이었다. 확인 값은 화면에 적힌 것을 따라 치면 되므로 그 상황은 못 막는다. 받아들인 근거는
+	 * 균형이다 — 지금도 로그인 상태면 남이 여행·일정·기록을 지울 수 있고 그쪽에는 재확인이 없다.
+	 * 탈퇴만 높게 잠가 두면 소셜 사용자는 아예 못 지우는 대가를 치른다.
+	 *
+	 * <p>대신 실수로 누르는 것은 막는다. 확인을 참·거짓 한 칸으로 안 받는 이유가 그것이다 —
+	 * 참·거짓이면 화면이 기본값으로 채워 보낼 수 있고, 그러면 확인이 아니라 형식이 된다.
+	 *
+	 * <p>나중에 소셜 재로그인 증명을 <b>선택 항목으로</b> 얹을 수 있게 계약을 열어 뒀다. 그때는
+	 * 이 자리에 증명 검사를 하나 더하면 되고 이미 나간 앱은 안 깨진다.
+	 *
+	 * @param confirmation 사용자가 직접 친 확인 값. {@link #CONFIRMATION_PHRASE} 와 정확히 같아야 한다
+	 * @param password     비밀번호로 가입한 계정만 보낸다. 비워도 되지만 <b>보냈으면 맞아야 한다</b>
 	 */
 	@Transactional
-	public void delete(UUID userId, String password) {
-		LocalCredential credential = this.credentialRepository.findByUserUserId(userId)
-				.orElseThrow(() -> new AuthException("LOCAL_CREDENTIAL_REQUIRED",
-						"비밀번호로 가입한 계정만 이 방법으로 탈퇴할 수 있습니다.", HttpStatus.CONFLICT));
-
-		// 🔴 비밀번호를 먼저 확인한다. 틀리면 아무것도 지우지 않는다.
-		if (!this.passwordEncoder.matches(password, credential.getPasswordHash())) {
-			throw new AuthException("INVALID_CREDENTIALS", "비밀번호가 올바르지 않습니다.",
-					HttpStatus.UNAUTHORIZED);
+	public void delete(UUID userId, String confirmation, String password) {
+		// 🔴 확인 값이 맨 먼저다. 이것이 틀리면 계정을 조회조차 하지 않는다.
+		if (!CONFIRMATION_PHRASE.equals(confirmation)) {
+			throw new AuthException("DELETION_NOT_CONFIRMED",
+					"탈퇴를 확인하려면 '" + CONFIRMATION_PHRASE + "' 를 정확히 입력해야 합니다.",
+					HttpStatus.BAD_REQUEST);
 		}
 
+		// 🔴 계정이 쓸 수 있는 상태인지가 비밀번호보다 먼저다. 순서를 반대로 뒀다가 CI 에서 잡혔다
+		// (2026-09-11, 파이프라인 189067) — 이미 지운 계정에 비밀번호를 실어 다시 부르면 자격증명이
+		// 없으므로 "이 계정에는 비밀번호가 없습니다(소셜 계정입니다)" 가 나갔다. 사실과 다른 안내이고,
+		// 쓸 수 없는 계정에 대해 "비밀번호가 있는 계정인가" 를 알려 주는 것이기도 하다.
 		AppUser user = this.userRepository.findById(userId)
 				.orElseThrow(() -> new AuthException("ACCOUNT_UNAVAILABLE", "사용할 수 없는 계정입니다.",
 						HttpStatus.UNAUTHORIZED));
+
+		// 🔴 이미 지운 계정을 또 지우지 않는다 (S15P21E201-837). 전에는 자격증명이 사라진 덕분에
+		// 두 번째 호출이 LOCAL_CREDENTIAL_REQUIRED 로 막혔는데, 자격증명이 선택이 된 지금은 그
+		// 우연한 방어가 없다. 접속 표는 발급 시점부터 30분 살아 있으므로 탈퇴 직후에도 같은 표로
+		// 한 번 더 부를 수 있다 — 그때 익명화가 두 번 도는 것을 여기서 끊는다.
+		if (user.getStatus() == UserStatus.DELETED) {
+			throw new AuthException("ACCOUNT_UNAVAILABLE", "사용할 수 없는 계정입니다.", HttpStatus.UNAUTHORIZED);
+		}
+
+		LocalCredential credential = this.credentialRepository.findByUserUserId(userId).orElse(null);
+
+		// 🔴 비밀번호는 선택이지만 보냈으면 반드시 맞아야 한다. 틀린 것을 조용히 무시하면 사용자는
+		// 자기가 한 겹 더 확인했다고 믿는데 실제로는 그 겹이 없었던 것이 된다.
+		if (password != null && !password.isBlank()) {
+			if (credential == null) {
+				throw new AuthException("PASSWORD_NOT_SET",
+						"이 계정에는 비밀번호가 없습니다. 소셜 로그인으로 가입한 계정입니다.",
+						HttpStatus.BAD_REQUEST);
+			}
+			if (!this.passwordEncoder.matches(password, credential.getPasswordHash())) {
+				throw new AuthException("INVALID_CREDENTIALS", "비밀번호가 올바르지 않습니다.",
+						HttpStatus.UNAUTHORIZED);
+			}
+		}
 
 		List<UUID> tripIds = ownedTripIds(userId);
 		deleteTripData(userId, tripIds);
@@ -230,7 +293,11 @@ public class AccountDeletionService {
 	private void deleteLoginMeans(UUID userId, LocalCredential credential) {
 		this.sessionRepository.deleteAll(this.sessionRepository.findAllByUserUserId(userId));
 		this.identityRepository.deleteAll(this.identityRepository.findAllByUserUserId(userId));
-		this.credentialRepository.delete(credential);
+		// 🔴 소셜로만 가입한 계정은 자격증명이 없다 (S15P21E201-837). 그 계정에서 지울 것은
+		// 소셜 신원(auth_identity) 쪽이고, 여기서 null 을 넘기면 지울 행이 없다는 뜻이다.
+		if (credential != null) {
+			this.credentialRepository.delete(credential);
+		}
 		this.consentRepository.deleteAll(this.consentRepository.findAllByUserUserId(userId));
 	}
 

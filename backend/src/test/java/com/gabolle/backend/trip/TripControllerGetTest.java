@@ -76,6 +76,8 @@ class TripControllerGetTest {
                   "finishDate": "2026-09-08",
                   "budgetKrw": 300000,
                   "partySize": 2,
+                  "originLat": 35.1587,
+                  "originLng": 129.1604,
                   "timezone": "Asia/Seoul",
                   "constraints": [
                     { "type": "MOBILITY", "constraintKey": "MAX_WALKING_METERS", "severity": "HARD", "operator": "LTE", "threshold": 5000.0, "answerStatus": "SELECTED" }
@@ -115,7 +117,9 @@ class TripControllerGetTest {
                 {
                   "startDate": "2026-09-06",
                   "finishDate": "2026-09-08",
-                  "partySize": 1
+                  "partySize": 1,
+                  "originLat": 35.1587,
+                  "originLng": 129.1604
                 }""";
 
         String created = this.mockMvc.perform(post("/api/v1/trips")

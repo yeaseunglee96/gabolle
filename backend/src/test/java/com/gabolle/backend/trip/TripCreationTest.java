@@ -118,7 +118,7 @@ class TripCreationTest {
     void skippedAndUnknownPreferencesAreDistinctWithoutValues() {
         var withSkipAndUnknown = new TripCreationService.Command("usr_1",
                 LocalDate.of(2026, 9, 6), LocalDate.of(2026, 9, 8),
-                null, null, null, 1, null, null,
+                35.1587, 129.1604, null, 1, null, null, // 출발지 좌표 - 이 검사가 재는 것은 취향 상태 구분이지 좌표가 아니다
                 List.of(
                         new PreferenceSnapshot.PreferenceAnswer("theme", null, PreferenceSnapshot.AnswerStatus.SKIPPED),
                         new PreferenceSnapshot.PreferenceAnswer("locality", null, PreferenceSnapshot.AnswerStatus.UNKNOWN)),
@@ -153,7 +153,7 @@ class TripCreationTest {
     void constraintNoneAndUnknownAreDistinctWithoutValues() {
         var withNoneAndUnknown = new TripCreationService.Command("usr_1",
                 LocalDate.of(2026, 9, 6), LocalDate.of(2026, 9, 8),
-                null, null, null, 1, null, null, List.of(),
+                35.1587, 129.1604, null, 1, null, null, List.of(), // 출발지 좌표 - 이 검사가 재는 것은 제약 상태 구분이지 좌표가 아니다
                 List.of(
                         new TripCreationService.Command.ConstraintInput("DIET", "HALAL", TripConstraint.Severity.SOFT,
                                 null, null, null, TripConstraint.EvidenceStatus.NEEDS_REVIEW,
@@ -294,7 +294,7 @@ class TripCreationTest {
     void sensitiveFreeTextConstraintIsRejected() {
         var withAllergy = new TripCreationService.Command("usr_1",
                 LocalDate.of(2026, 9, 6), LocalDate.of(2026, 9, 8),
-                null, null, null, 1, null, null, List.of(),
+                35.1587, 129.1604, null, 1, null, null, List.of(), // 출발지 좌표 - 이 검사가 재는 것은 민감 제약 거부이지 좌표가 아니다
                 List.of(new TripCreationService.Command.ConstraintInput(
                         "ALLERGY", "OTHER", TripConstraint.Severity.HARD, "EXCLUDES", null, null,
                         TripConstraint.EvidenceStatus.NEEDS_REVIEW, TripConstraint.AnswerStatus.NONE, null)));
@@ -308,7 +308,7 @@ class TripCreationTest {
     void codedAllergyConstraintIsAllowed() {
         var withAllergy = new TripCreationService.Command("usr_1",
                 LocalDate.of(2026, 9, 6), LocalDate.of(2026, 9, 8),
-                null, null, null, 1, null, null, List.of(),
+                35.1587, 129.1604, null, 1, null, null, List.of(), // 출발지 좌표 - 이 검사가 재는 것은 코드로 된 알레르기 저장이지 좌표가 아니다
                 List.of(new TripCreationService.Command.ConstraintInput(
                         "ALLERGY", "PEANUT", TripConstraint.Severity.HARD, "EXCLUDES", null, null,
                         TripConstraint.EvidenceStatus.NEEDS_REVIEW, TripConstraint.AnswerStatus.SELECTED, null)));
@@ -323,7 +323,7 @@ class TripCreationTest {
     void requiredDietConstraintIsRejected() {
         var withRequiredDiet = new TripCreationService.Command("usr_1",
                 LocalDate.of(2026, 9, 6), LocalDate.of(2026, 9, 8),
-                null, null, null, 1, null, null, List.of(),
+                35.1587, 129.1604, null, 1, null, null, List.of(), // 출발지 좌표 - 이 검사가 재는 것은 DIET+REQUIRED 자유 입력 거부이지 좌표가 아니다
                 List.of(new TripCreationService.Command.ConstraintInput(
                         "DIET", "OTHER", TripConstraint.Severity.HARD, "EXCLUDES", null, null,
                         TripConstraint.EvidenceStatus.NEEDS_REVIEW, TripConstraint.AnswerStatus.NONE,
@@ -338,7 +338,7 @@ class TripCreationTest {
     void codedRequiredDietConstraintIsAllowed() {
         var withHalal = new TripCreationService.Command("usr_1",
                 LocalDate.of(2026, 9, 6), LocalDate.of(2026, 9, 8),
-                null, null, null, 1, null, null, List.of(),
+                35.1587, 129.1604, null, 1, null, null, List.of(), // 출발지 좌표 - 이 검사가 재는 것은 코드로 된 DIET+REQUIRED 저장이지 좌표가 아니다
                 List.of(new TripCreationService.Command.ConstraintInput(
                         "DIET", "HALAL", TripConstraint.Severity.HARD, "EXCLUDES", null, null,
                         TripConstraint.EvidenceStatus.NEEDS_REVIEW, TripConstraint.AnswerStatus.SELECTED,
@@ -354,7 +354,7 @@ class TripCreationTest {
     void preferredDietConstraintIsAllowed() {
         var withPreferredDiet = new TripCreationService.Command("usr_1",
                 LocalDate.of(2026, 9, 6), LocalDate.of(2026, 9, 8),
-                null, null, null, 1, null, null, List.of(),
+                35.1587, 129.1604, null, 1, null, null, List.of(), // 출발지 좌표 - 이 검사가 재는 것은 DIET+PREFERRED 저장이지 좌표가 아니다
                 List.of(new TripCreationService.Command.ConstraintInput(
                         "DIET", "VEGETARIAN", TripConstraint.Severity.SOFT, "EXCLUDES", null, null,
                         TripConstraint.EvidenceStatus.NEEDS_REVIEW, TripConstraint.AnswerStatus.SELECTED,

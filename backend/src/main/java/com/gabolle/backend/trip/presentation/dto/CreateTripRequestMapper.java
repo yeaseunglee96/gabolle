@@ -1,10 +1,12 @@
 package com.gabolle.backend.trip.presentation.dto;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.gabolle.backend.trip.application.TripCreationService;
 import com.gabolle.backend.trip.domain.PreferenceDimensions;
 import com.gabolle.backend.trip.domain.PreferenceSnapshot;
+import com.gabolle.backend.trip.domain.Trip;
 import com.gabolle.backend.trip.domain.TripConstraint;
 
 /**
@@ -23,6 +25,15 @@ public final class CreateTripRequestMapper {
     }
 
     public static TripCreationService.Command toCommand(CreateTripRequest r, String userId) {
+        return toCommand(r, userId, Trip.OwnerType.USER);
+    }
+
+    /**
+     * S15P21E201-317 — 익명 세션이 여행을 만드는 경로가 쓴다. {@code ownerType} 만 더할 뿐,
+     * 그 외 번역 규칙(차원 이름 정규화 등)은 위 오버로드와 똑같다.
+     */
+    public static TripCreationService.Command toCommand(CreateTripRequest r, String userId,
+            Trip.OwnerType ownerType) {
         List<TripCreationService.Command.ConstraintInput> constraints =
                 r.constraints() == null ? List.of()
                         : r.constraints().stream().map(c ->
@@ -39,7 +50,7 @@ public final class CreateTripRequestMapper {
                                 parseDietRequirement(c.dietRequirement())))
                         .toList();
 
-        List<PreferenceSnapshot.PreferenceAnswer> preferences =
+        List<PreferenceSnapshot.PreferenceAnswer> preferences = new ArrayList<>(
                 r.preferences() == null ? List.of()
                         : r.preferences().stream()
                                 .map(p -> new PreferenceSnapshot.PreferenceAnswer(
@@ -51,7 +62,17 @@ public final class CreateTripRequestMapper {
                                         //    도메인 어휘로 바꾸는 것은 이 번역 계층의 일이다.
                                         PreferenceDimensions.normalize(p.dimension()),
                                         p.value(), parsePreferenceAnswerStatus(p.answerStatus())))
-                                .toList();
+                                .toList());
+
+        // 🔴 S15P21E201-709 — spendProfile 은 별도 칸으로 받지만, 여기서부터는 다른 여덟
+        //    차원과 똑같은 PreferenceAnswer 로 합쳐서 계정 기본값 겹치기 등 나머지 흐름을
+        //    그대로 탄다. dimension 이 고정값이라 PreferenceDimensions.normalize 를 거칠
+        //    필요가 없다 — 그 차원은 이미 CHECK 어휘 그대로다.
+        if (r.spendProfile() != null) {
+            preferences.add(new PreferenceSnapshot.PreferenceAnswer(
+                    "SPEND_PROFILE", r.spendProfile().value(),
+                    parsePreferenceAnswerStatus(r.spendProfile().answerStatus())));
+        }
 
         return new TripCreationService.Command(
                 userId, r.startDate(), r.finishDate(),
@@ -60,6 +81,7 @@ public final class CreateTripRequestMapper {
                 r.timeWindow(), r.timezone(),
                 preferences,
                 constraints,
+                ownerType,
                 r.accommodationPlaceId(),
                 r.englishMenuRequiredOrDefault(),
                 r.foreignCardRequiredOrDefault(),

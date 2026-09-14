@@ -2,6 +2,8 @@ package com.gabolle.backend.auth;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import org.junit.jupiter.api.AfterEach;
@@ -47,6 +49,9 @@ class AccountDeletionIntegrationTest extends AuthPostgresIntegrationTest {
 
 	private static final String PASSWORD = "DeleteMe!2026";
 
+	/** 사용자가 탈퇴 화면에서 직접 치는 값 — S15P21E201-837. */
+	private static final String CONFIRM = AccountDeletionService.CONFIRMATION_PHRASE;
+
 	@Autowired
 	private AccountDeletionService accountDeletionService;
 
@@ -78,6 +83,9 @@ class AccountDeletionIntegrationTest extends AuthPostgresIntegrationTest {
 
 	private UUID otherTripId;
 
+	/** S15P21E201-837 — 소셜로만 가입한 계정. 만든 것만 tearDown 에서 지운다. */
+	private final List<UUID> socialUserIds = new ArrayList<>();
+
 	@BeforeEach
 	void setUp() {
 		this.email = "erase-" + UUID.randomUUID().toString().substring(0, 8) + "@example.com";
@@ -101,6 +109,15 @@ class AccountDeletionIntegrationTest extends AuthPostgresIntegrationTest {
 			this.jdbcTemplate.update("DELETE FROM auth_session WHERE user_id = ?", user);
 			this.jdbcTemplate.update("DELETE FROM app_user WHERE user_id = ?", user);
 		}
+		// S15P21E201-837 — auth_identity 는 app_user 에 ON DELETE CASCADE 로 달려 있지만,
+		// 지우는 순서를 코드로 못 박아 둔다. 이 표가 남으면 provider_subject 유일 제약에 걸려
+		// 다음 실행이 깨진다.
+		for (UUID user : this.socialUserIds) {
+			this.jdbcTemplate.update("DELETE FROM auth_identity WHERE user_id = ?", user);
+			this.jdbcTemplate.update("DELETE FROM auth_session WHERE user_id = ?", user);
+			this.jdbcTemplate.update("DELETE FROM app_user WHERE user_id = ?", user);
+		}
+		this.socialUserIds.clear();
 	}
 
 	@Test
@@ -108,7 +125,7 @@ class AccountDeletionIntegrationTest extends AuthPostgresIntegrationTest {
 	void deletesLoginMeansAndBlocksLogin() {
 		assertThat(this.credentialRepository.findByUserUserId(this.userId)).isPresent();
 
-		this.accountDeletionService.delete(this.userId, PASSWORD);
+		this.accountDeletionService.delete(this.userId, CONFIRM, PASSWORD);
 
 		assertThat(this.credentialRepository.findByUserUserId(this.userId)).isEmpty();
 		assertThat(countByUser("local_credential", this.userId)).isZero();
@@ -123,7 +140,7 @@ class AccountDeletionIntegrationTest extends AuthPostgresIntegrationTest {
 	@Test
 	@DisplayName("🔴 계정 행은 남지만 개인을 알아볼 값이 없다 — 남의 일정 이력이 이 행을 가리키기 때문")
 	void accountRowRemainsButCarriesNoPersonalData() {
-		this.accountDeletionService.delete(this.userId, PASSWORD);
+		this.accountDeletionService.delete(this.userId, CONFIRM, PASSWORD);
 
 		AppUser remaining = this.userRepository.findById(this.userId).orElseThrow();
 		assertThat(remaining.getStatus()).isEqualTo(UserStatus.DELETED);
@@ -155,7 +172,7 @@ class AccountDeletionIntegrationTest extends AuthPostgresIntegrationTest {
 		UUID myStory = createStory(this.userId);
 		UUID otherStory = createStory(this.otherUserId);
 
-		this.accountDeletionService.delete(this.userId, PASSWORD);
+		this.accountDeletionService.delete(this.userId, CONFIRM, PASSWORD);
 
 		assertThat(storyDeletedAt(myStory)).isNotNull();
 		assertThat(storyDeletedAt(otherStory)).isNull();
@@ -166,7 +183,7 @@ class AccountDeletionIntegrationTest extends AuthPostgresIntegrationTest {
 	void deletesOwnTrips() {
 		assertThat(tripExists(this.tripId)).isTrue();
 
-		this.accountDeletionService.delete(this.userId, PASSWORD);
+		this.accountDeletionService.delete(this.userId, CONFIRM, PASSWORD);
 
 		assertThat(tripExists(this.tripId)).isFalse();
 	}
@@ -174,7 +191,7 @@ class AccountDeletionIntegrationTest extends AuthPostgresIntegrationTest {
 	@Test
 	@DisplayName("완료 기준 — 틀린 비밀번호는 거부되고 아무것도 지워지지 않는다")
 	void wrongPasswordDeletesNothing() {
-		assertThatThrownBy(() -> this.accountDeletionService.delete(this.userId, "NotThePassword!1"))
+		assertThatThrownBy(() -> this.accountDeletionService.delete(this.userId, CONFIRM, "NotThePassword!1"))
 				.isInstanceOf(AuthException.class)
 				.extracting(exception -> ((AuthException) exception).getCode())
 				.isEqualTo("INVALID_CREDENTIALS");
@@ -188,7 +205,7 @@ class AccountDeletionIntegrationTest extends AuthPostgresIntegrationTest {
 	@Test
 	@DisplayName("🔴 남의 계정과 여행은 손대지 않는다")
 	void otherPeopleAreUntouched() {
-		this.accountDeletionService.delete(this.userId, PASSWORD);
+		this.accountDeletionService.delete(this.userId, CONFIRM, PASSWORD);
 
 		assertThat(tripExists(this.otherTripId)).isTrue();
 		assertThat(this.credentialRepository.findByUserUserId(this.otherUserId)).isPresent();
@@ -197,14 +214,80 @@ class AccountDeletionIntegrationTest extends AuthPostgresIntegrationTest {
 	}
 
 	@Test
-	@DisplayName("이미 지운 계정을 다시 지우려 하면 비밀번호 수단이 없다고 거절한다")
+	@DisplayName("이미 지운 계정을 다시 지우려 하면 쓸 수 없는 계정이라고 거절한다 — 검사 순서를 못 박는다")
 	void deletingTwiceIsRejected() {
-		this.accountDeletionService.delete(this.userId, PASSWORD);
+		this.accountDeletionService.delete(this.userId, CONFIRM, PASSWORD);
 
-		assertThatThrownBy(() -> this.accountDeletionService.delete(this.userId, PASSWORD))
+		// 🔴 S15P21E201-837 이전에는 자격증명이 사라진 덕분에 LOCAL_CREDENTIAL_REQUIRED 로 막혔다.
+		// 비밀번호가 선택이 된 지금은 그 우연한 방어가 없어서 상태를 직접 본다.
+		//
+		// 🔴 이 검사는 **순서**도 함께 못 박는다. 비밀번호를 실어 보내는 것이 핵심이다 — 계정 상태를
+		// 비밀번호보다 나중에 보면, 자격증명이 이미 사라졌으므로 PASSWORD_NOT_SET("소셜 계정입니다")
+		// 이 나간다. 사실과 다른 안내이고, 쓸 수 없는 계정에 대해 "비밀번호가 있는 계정인가" 를
+		// 알려 주는 것이기도 하다. 실제로 그렇게 짰다가 CI 에서 잡혔다(파이프라인 189067).
+		assertThatThrownBy(() -> this.accountDeletionService.delete(this.userId, CONFIRM, PASSWORD))
 				.isInstanceOf(AuthException.class)
 				.extracting(exception -> ((AuthException) exception).getCode())
-				.isEqualTo("LOCAL_CREDENTIAL_REQUIRED");
+				.isEqualTo("ACCOUNT_UNAVAILABLE");
+	}
+
+	// ── S15P21E201-837 · 소셜로만 가입한 계정 ────────────────────────────────────
+
+	@Test
+	@DisplayName("완료 기준 — 소셜로만 가입한 계정이 확인 값만으로 탈퇴된다 (비밀번호가 없다)")
+	void socialOnlyAccountCanBeDeletedWithConfirmationAlone() {
+		UUID socialUserId = createSocialOnlyUser("apple-" + UUID.randomUUID());
+		assertThat(this.credentialRepository.findByUserUserId(socialUserId)).isEmpty();
+		assertThat(countByUser("auth_identity", socialUserId)).isEqualTo(1);
+
+		this.accountDeletionService.delete(socialUserId, CONFIRM, null);
+
+		// 소셜 계정의 로그인 수단은 auth_identity 다. 그것이 남으면 지운 것이 아니다.
+		assertThat(countByUser("auth_identity", socialUserId)).isZero();
+		assertThat(countByUser("auth_session", socialUserId)).isZero();
+
+		AppUser remaining = this.userRepository.findById(socialUserId).orElseThrow();
+		assertThat(remaining.getStatus()).isEqualTo(UserStatus.DELETED);
+		assertThat(remaining.getDisplayName()).isEqualTo("탈퇴한 사용자");
+	}
+
+	@Test
+	@DisplayName("🔴 확인 값이 다르면 400 이고 아무것도 지워지지 않는다")
+	void wrongConfirmationDeletesNothing() {
+		assertThatThrownBy(() -> this.accountDeletionService.delete(this.userId, "delete", PASSWORD))
+				.isInstanceOf(AuthException.class)
+				.extracting(exception -> ((AuthException) exception).getCode())
+				.isEqualTo("DELETION_NOT_CONFIRMED");
+
+		assertThat(this.credentialRepository.findByUserUserId(this.userId)).isPresent();
+		assertThat(tripExists(this.tripId)).isTrue();
+		assertThat(this.userRepository.findById(this.userId).orElseThrow().getStatus())
+				.isEqualTo(UserStatus.ACTIVE);
+	}
+
+	@Test
+	@DisplayName("🔴 비밀번호는 선택이지만 보냈으면 맞아야 한다 — 비밀번호 없는 계정에 보내면 거절한다")
+	void passwordSentToAnAccountThatHasNoneIsRejected() {
+		UUID socialUserId = createSocialOnlyUser("kakao-" + UUID.randomUUID());
+
+		assertThatThrownBy(() -> this.accountDeletionService.delete(socialUserId, CONFIRM, "anything"))
+				.isInstanceOf(AuthException.class)
+				.extracting(exception -> ((AuthException) exception).getCode())
+				.isEqualTo("PASSWORD_NOT_SET");
+
+		assertThat(countByUser("auth_identity", socialUserId)).isEqualTo(1);
+		assertThat(this.userRepository.findById(socialUserId).orElseThrow().getStatus())
+				.isEqualTo(UserStatus.ACTIVE);
+	}
+
+	@Test
+	@DisplayName("비밀번호로 가입한 계정도 확인 값만으로 탈퇴된다 — 두 종류가 같은 흐름을 탄다")
+	void passwordAccountCanAlsoBeDeletedWithConfirmationAlone() {
+		this.accountDeletionService.delete(this.userId, CONFIRM, null);
+
+		assertThat(this.credentialRepository.findByUserUserId(this.userId)).isEmpty();
+		assertThat(this.userRepository.findById(this.userId).orElseThrow().getStatus())
+				.isEqualTo(UserStatus.DELETED);
 	}
 
 	// ── 도구 ──────────────────────────────────────────────────────────────────
@@ -221,11 +304,30 @@ class AccountDeletionIntegrationTest extends AuthPostgresIntegrationTest {
 		});
 	}
 
+	/**
+	 * 소셜로만 가입한 계정 — S15P21E201-837.
+	 *
+	 * <p>🔴 {@code local_credential} 을 만들지 않는다. 그것이 이 테스트의 전부다 — 실제 소셜 가입
+	 * 경로({@code OAuthAccountService}) 도 자격증명을 만들지 않는다.
+	 */
+	private UUID createSocialOnlyUser(String providerSubject) {
+		UUID socialUserId = this.transactionTemplate.execute(status -> this.userRepository
+				.save(AppUser.register("소셜 여행자", "KO", Instant.now(), "2026-01",
+						PersonalizationMode.EXPLICIT_ONLY, UserStatus.ACTIVE))
+				.getUserId());
+		this.jdbcTemplate.update("""
+				INSERT INTO auth_identity (identity_id, user_id, provider, provider_subject, provider_email, linked_at)
+				VALUES (?, ?, 'APPLE', ?, NULL, now())
+				""", UUID.randomUUID(), socialUserId, providerSubject);
+		this.socialUserIds.add(socialUserId);
+		return socialUserId;
+	}
+
 	private UUID createTrip(UUID owner) {
 		UUID trip = UUID.randomUUID();
 		this.jdbcTemplate.update("""
-				INSERT INTO trip (trip_id, owner_user_id, start_date, end_date, created_at, updated_at)
-				VALUES (?, ?, ?, ?, now(), now())
+				INSERT INTO trip (trip_id, owner_user_id, owner_type, start_date, end_date, created_at, updated_at)
+				VALUES (?, ?, 'USER', ?, ?, now(), now())
 				""", trip, owner, LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 12));
 		return trip;
 	}

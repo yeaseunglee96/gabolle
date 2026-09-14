@@ -87,12 +87,29 @@ class TripConditionRulesTest {
 	}
 
 	@Test
-	@DisplayName("출발지 좌표가 없어도 거부하지 않는다 — 지금 앱이 그렇게 보낸다")
-	void missingOriginCoordinatesAreNotRejectedYet() {
-		// 이 검사는 "아직 켜지 않은 규칙" 을 고정한다. 프런트가 좌표를 실어 보내기 시작하면
-		// 이 검사를 뒤집고 규칙을 켠다 — 순서를 바꾸면 서버가 배포된 앱을 막는다.
-		// 근거는 TripConditionRules 머리말에 적어 뒀다.
-		assertThat(checkWith(START.plusDays(2), 2, 100_000, null, null, null)).isEmpty();
+	@DisplayName("출발지 좌표가 없으면 거부한다 — 앱이 좌표를 실어 보내기 시작했다(S15P21E201-791, !479)")
+	void missingOriginCoordinatesAreRejected() {
+		// 2026-09-10 - 좌표 없이도 통과하던 것을 뒤집었다. 켜 두었으면 배포된 앱이 여행을
+		// 하나도 못 만들었을 것이라 그 결함이 고쳐질 때까지 일부러 꺼 뒀었는데, 이제 앱이
+		// 좌표를 실어 보내므로 켠다. 근거는 TripConditionRules 머리말에 적어 뒀다.
+		assertThat(checkWith(START.plusDays(2), 2, 100_000, null, null, null))
+				.extracting(Violation::field).containsExactly("originLat");
+	}
+
+	@Test
+	@DisplayName("출발지 좌표는 하나만 있어도 거부한다 — 위도만으로는 아무 데도 못 가리킨다")
+	void oneOriginCoordinateWithoutTheOtherIsRejected() {
+		assertThat(checkWith(START.plusDays(2), 2, 100_000, 35.15, null, null))
+				.extracting(Violation::field).containsExactly("originLat");
+
+		assertThat(checkWith(START.plusDays(2), 2, 100_000, null, 129.16, null))
+				.extracting(Violation::field).containsExactly("originLat");
+	}
+
+	@Test
+	@DisplayName("출발지 좌표가 둘 다 있으면 통과한다")
+	void bothOriginCoordinatesPresentIsAllowed() {
+		assertThat(checkWith(START.plusDays(2), 2, 100_000, 35.15, 129.16, null)).isEmpty();
 	}
 
 	@Test

@@ -58,6 +58,12 @@ dependencies {
 	// minio 8.6.0 이 전이로 받아오는 bcprov-jdk18on 1.81 은 GHSA-574f-3g2m-x479 를 아직
 	// 안 고쳤다 — 명시로 최신 고정판을 올려 그걸 덮어쓴다(위 minio 주석 참고).
 	implementation 'org.bouncycastle:bcprov-jdk18on:1.85.2'
+	// S15P21E201-802 — 자연어 여행 도우미가 Google Gemini(무료 티어, gemini-2.5-flash)를 부른다.
+	// 공식 Google Gen AI Java SDK. Claude(anthropic-java)에서 이쪽으로 바꿨다 — 크레딧
+	// 결제 없이 쓸 수 있어야 한다는 요구가 나중에 생겨서다. 포트/어댑터로 나눠 둔 덕분에
+	// 갈아끼운 것은 이 의존성과 adapter 패키지뿐이고, 나머지(도메인·서비스·컨트롤러)는
+	// 그대로다.
+	implementation 'com.google.genai:google-genai:1.65.0'
 	testImplementation 'org.springframework.boot:spring-boot-starter-actuator-test'
 	testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
 	testImplementation 'org.springframework.boot:spring-boot-starter-flyway-test'
@@ -116,4 +122,12 @@ tasks.withType(Javadoc).configureEach {
 
 tasks.named('test') {
 	useJUnitPlatform()
+	testLogging {
+		// 🔴 원인 메시지("No qualifying bean of type ...")가 콘솔에 안 찍혀서 CI 실패의
+		//    진짜 이유를 못 읽던 문제 — 예외 클래스+줄번호만 남고 원인 체인 메시지는 잘렸다.
+		exceptionFormat = 'full'
+		showCauses = true
+		showExceptions = true
+		showStackTraces = true
+	}
 }

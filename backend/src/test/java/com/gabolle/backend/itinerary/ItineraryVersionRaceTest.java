@@ -15,6 +15,7 @@ import com.gabolle.backend.itinerary.domain.ItineraryRepository;
 import com.gabolle.backend.itinerary.domain.ItineraryVersion;
 import com.gabolle.backend.itinerary.domain.StaleItineraryVersionException;
 import com.gabolle.backend.itinerary.infra.InMemoryItineraryRepository;
+import com.gabolle.backend.itinerary.support.FakeItineraryItemActualRepository;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -153,7 +154,11 @@ class ItineraryVersionRaceTest {
                 (placeId, from, to) -> PlaceEventSchedule.unscheduled(),
                 // 구간 계획기와 영업시간 검사기는 순서 바꾸기에서만 쓰인다. 이 검사는 고정만
                 // 부르고, 여행 저장소도 비어 있어 그 갈래에 닿지 않는다.
-                null, new InMemoryTripRepository(), null, Clock.systemUTC());
+                null, new InMemoryTripRepository(), null, Clock.systemUTC(),
+                // 실제 시각 저장소는 재계획(S15P21E201-308)만 읽는다. 이 검사가 보는 것은
+                // 판 번호 경쟁이라 그 자리에 닿지 않지만, 빈 대역을 줘서 나중에 닿게 되더라도
+                // NPE 가 아니라 "기록이 없는 일정" 으로 이어지게 한다.
+                new FakeItineraryItemActualRepository());
         repo.seed("itn_1", "trp_1", 5);
 
         // 🔴 바탕 판에 내용이 있어야 한다 — 편집은 그것을 새 판으로 복사한다(S15P21E201-662).

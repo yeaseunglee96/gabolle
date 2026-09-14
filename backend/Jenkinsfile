@@ -97,6 +97,38 @@ pipeline {
             }
         }
 
+        // 🔴 S15P21E201-811 — disableConcurrentBuilds()(위 options)는 이 잡 혼자
+        //    중복 실행되는 것만 막는다. backend-deploy·frontend-deploy·
+        //    infra-personalization-deploy 세 잡은 서로 다른 잡이라 그걸로 안 막힌다.
+        //    실측(2026-09-10) — infra-personalization-deploy와 backend-deploy(JVM
+        //    콜드 부팅)가 동시에 돌면서 4코어 호스트 load average가 8.18까지 치솟았고,
+        //    그 여파로 airflow-api-server가 몇 분간 크래시루프했다.
+        //
+        //    Jenkins의 Lockable Resources 플러그인을 쓰지 않는다 — 이 서버에 설치돼
+        //    있는지 확인할 방법이 없었다(docs/SERVER-SETUP.md 5절에 명시적으로 설치를
+        //    적어 둔 플러그인은 Generic Webhook Trigger뿐이다). 대신 세 Jenkinsfile이
+        //    같은 잠금 디렉터리 이름을 쓰는 mkdir 기반 상호 배제를 쓴다 — mkdir은
+        //    POSIX에서 원자적이라(이미 있으면 실패) 플러그인 없이도 안전하다. 세
+        //    Jenkinsfile 다 agent any라 같은 Jenkins 컨테이너 안에서 도므로 파일
+        //    시스템을 공유한다.
+        stage('Wait for exclusive deploy slot') {
+            steps {
+                script {
+                    env.DEPLOY_LOCK_ACQUIRED = 'false'
+                    int waitedSec = 0
+                    int maxWaitSec = 1200 // 20분 — 못 얻으면 무한정 큐에 쌓이지 않고 실패시킨다
+                    while (sh(script: 'mkdir /tmp/gabolle-deploy.lock', returnStatus: true) != 0) {
+                        if (waitedSec >= maxWaitSec) {
+                            error('다른 배포 파이프라인이 20분 넘게 락을 안 놓았습니다 — /tmp/gabolle-deploy.lock 을 Jenkins 컨테이너 안에서 직접 확인하세요.')
+                        }
+                        sleep(10)
+                        waitedSec += 10
+                    }
+                    env.DEPLOY_LOCK_ACQUIRED = 'true'
+                }
+            }
+        }
+
         stage('Build Image') {
             steps {
                 dir('backend') {
@@ -145,6 +177,12 @@ pipeline {
                     string(credentialsId: 'gabolle-kakao-client-secret', variable: 'GABOLLE_KAKAO_CLIENT_SECRET'),
                     string(credentialsId: 'gabolle-naver-client-id', variable: 'GABOLLE_NAVER_CLIENT_ID'),
                     string(credentialsId: 'gabolle-naver-client-secret', variable: 'GABOLLE_NAVER_CLIENT_SECRET'),
+                    // S15P21E201-825 — 애플 로그인. 자격증명 이름은 이예승 승인분 그대로다.
+                    //    개인키(.p8)는 여러 줄이지만 서버가 \n 표기도 받으므로 한 줄로 넣어도 된다.
+                    string(credentialsId: 'gabolle-apple-client-id', variable: 'GABOLLE_APPLE_CLIENT_ID'),
+                    string(credentialsId: 'gabolle-apple-team-id', variable: 'GABOLLE_APPLE_TEAM_ID'),
+                    string(credentialsId: 'gabolle-apple-key-id', variable: 'GABOLLE_APPLE_KEY_ID'),
+                    string(credentialsId: 'gabolle-apple-private-key', variable: 'GABOLLE_APPLE_PRIVATE_KEY'),
                     string(credentialsId: 'gabolle-s3-access-key', variable: 'GABOLLE_S3_ACCESS_KEY'),
                     string(credentialsId: 'gabolle-s3-secret-key', variable: 'GABOLLE_S3_SECRET_KEY')
                 ]) {
@@ -174,13 +212,36 @@ pipeline {
                     //    계정이 운영 DB 에 실제로 있는지 확인한다. 실수했더라도 아래
                     //    Health Check 가 :latest(마지막으로 검증된 이미지)로 되돌리고,
                     //    그 이미지는 이 설정을 모르는 판이라 정상 기동한다.
+                    //
+                    // 🔴 S15P21E201-798/-799 (2026-09-10) — 이 컨테이너는 CPU·메모리 상한이
+                    //    전혀 없었고, JVM도 -Xmx 없이 떠서 컨테이너 인식 기본 로직으로
+                    //    호스트 전체 메모리(15GiB) 기준 최대 힙을 11.6GiB로 자동 설정하고
+                    //    있었다(고지혁 실측, S15P21E201-784/785). 서버에 스왑이 0B라 완충이
+                    //    없어서, 메모리 누수나 트래픽 급증 한 번이면 OOM 킬러가 오고 무엇이
+                    //    죽을지 커널이 정하는 상태였다(백엔드 자신일 수도, personalization
+                    //    스택의 다른 컨테이너일 수도 있다).
+                    //
+                    //    --memory="2g" 로 컨테이너 상한을 걸고 -Xmx1536m 으로 JVM 힙도
+                    //    별도로 고정한다(둘 다 거는 것이 가장 안전 — 컨테이너 상한만 걸면
+                    //    JVM 논-힙 영역(메타스페이스·스레드 스택 등)과 합쳐 상한을 넘을 수
+                    //    있다). --memory-swap 을 --memory 와 같은 값으로 주면 추가 스왑
+                    //    사용을 0으로 묶는다(호스트 스왑이 원래 0B이므로 실질적으로는
+                    //    현재 상태와 같다 — 스왑을 새로 여는 것이 아니라 컨테이너가 그
+                    //    없는 스왑에 기대지 않게 명시하는 것).
+                    //    --cpus="2.0" 은 21개 컨테이너 전부 CPU 상한이 없던 것 중 하나를
+                    //    고친다(S15P21E201-798) — 응답 지연이 사용자에게 바로 보이는
+                    //    컨테이너라 airflow 워커(1.5)보다 넉넉히 잡는다.
                     sh '''
                         docker run -d --name backend \
                             --network local-route-personalization_data_net \
                             -p 8080:8080 \
+                            --cpus="2.0" \
+                            --memory="2g" \
+                            --memory-swap="2g" \
                             -v /srv/gabolle/uploads:/data/uploads \
                             -e GABOLLE_STORAGE_ROOT=/data/uploads \
                             -e SPRING_PROFILES_ACTIVE=dev \
+                            -e JAVA_TOOL_OPTIONS="-Xmx1536m" \
                             -e GABOLLE_SERVICE_VERSION="${GIT_COMMIT}" \
                             -e GABOLLE_DEPLOYMENT_ENVIRONMENT=dev \
                             -e GABOLLE_STORAGE_PROVIDER=s3 \
@@ -203,6 +264,11 @@ pipeline {
                             -e GABOLLE_KAKAO_CLIENT_SECRET="$GABOLLE_KAKAO_CLIENT_SECRET" \
                             -e GABOLLE_NAVER_CLIENT_ID="$GABOLLE_NAVER_CLIENT_ID" \
                             -e GABOLLE_NAVER_CLIENT_SECRET="$GABOLLE_NAVER_CLIENT_SECRET" \
+                            -e GABOLLE_APPLE_CLIENT_ID="$GABOLLE_APPLE_CLIENT_ID" \
+                            -e GABOLLE_APPLE_TEAM_ID="$GABOLLE_APPLE_TEAM_ID" \
+                            -e GABOLLE_APPLE_KEY_ID="$GABOLLE_APPLE_KEY_ID" \
+                            -e GABOLLE_APPLE_PRIVATE_KEY="$GABOLLE_APPLE_PRIVATE_KEY" \
+                            -e GABOLLE_APPLE_ALLOWED_CLIENT_IDS="com.gabolle.app" \
                             -e GABOLLE_ADMIN_EMAILS="$GABOLLE_ADMIN_EMAILS" \
                             local-route-backend:candidate
                     '''
@@ -296,7 +362,13 @@ pipeline {
                             string(credentialsId: 'gabolle-kakao-client-secret', variable: 'GABOLLE_KAKAO_CLIENT_SECRET'),
                             string(credentialsId: 'gabolle-naver-client-id', variable: 'GABOLLE_NAVER_CLIENT_ID'),
                             string(credentialsId: 'gabolle-naver-client-secret', variable: 'GABOLLE_NAVER_CLIENT_SECRET'),
-                            string(credentialsId: 'gabolle-s3-access-key', variable: 'GABOLLE_S3_ACCESS_KEY'),
+                            // S15P21E201-825 — 애플 로그인. 자격증명 이름은 이예승 승인분 그대로다.
+                    //    개인키(.p8)는 여러 줄이지만 서버가 \n 표기도 받으므로 한 줄로 넣어도 된다.
+                    string(credentialsId: 'gabolle-apple-client-id', variable: 'GABOLLE_APPLE_CLIENT_ID'),
+                    string(credentialsId: 'gabolle-apple-team-id', variable: 'GABOLLE_APPLE_TEAM_ID'),
+                    string(credentialsId: 'gabolle-apple-key-id', variable: 'GABOLLE_APPLE_KEY_ID'),
+                    string(credentialsId: 'gabolle-apple-private-key', variable: 'GABOLLE_APPLE_PRIVATE_KEY'),
+                    string(credentialsId: 'gabolle-s3-access-key', variable: 'GABOLLE_S3_ACCESS_KEY'),
                             string(credentialsId: 'gabolle-s3-secret-key', variable: 'GABOLLE_S3_SECRET_KEY')
                         ]) {
                             sh 'docker stop backend || true'
@@ -305,9 +377,13 @@ pipeline {
                                 docker run -d --name backend \
                                     --network local-route-personalization_data_net \
                                     -p 8080:8080 \
+                                    --cpus="2.0" \
+                                    --memory="2g" \
+                                    --memory-swap="2g" \
                                     -v /srv/gabolle/uploads:/data/uploads \
                                     -e GABOLLE_STORAGE_ROOT=/data/uploads \
                                     -e SPRING_PROFILES_ACTIVE=dev \
+                                    -e JAVA_TOOL_OPTIONS="-Xmx1536m" \
                                     -e GABOLLE_SERVICE_VERSION="${GIT_COMMIT}-rollback" \
                                     -e GABOLLE_DEPLOYMENT_ENVIRONMENT=dev \
                                     -e GABOLLE_STORAGE_PROVIDER=s3 \
@@ -330,6 +406,11 @@ pipeline {
                                     -e GABOLLE_KAKAO_CLIENT_SECRET="$GABOLLE_KAKAO_CLIENT_SECRET" \
                                     -e GABOLLE_NAVER_CLIENT_ID="$GABOLLE_NAVER_CLIENT_ID" \
                                     -e GABOLLE_NAVER_CLIENT_SECRET="$GABOLLE_NAVER_CLIENT_SECRET" \
+                                    -e GABOLLE_APPLE_CLIENT_ID="$GABOLLE_APPLE_CLIENT_ID" \
+                                    -e GABOLLE_APPLE_TEAM_ID="$GABOLLE_APPLE_TEAM_ID" \
+                                    -e GABOLLE_APPLE_KEY_ID="$GABOLLE_APPLE_KEY_ID" \
+                                    -e GABOLLE_APPLE_PRIVATE_KEY="$GABOLLE_APPLE_PRIVATE_KEY" \
+                                    -e GABOLLE_APPLE_ALLOWED_CLIENT_IDS="com.gabolle.app" \
                                     -e GABOLLE_ADMIN_EMAILS="$GABOLLE_ADMIN_EMAILS" \
                                     local-route-backend:latest
                             '''
@@ -342,6 +423,17 @@ pipeline {
     }
 
     post {
+        // 🔴 S15P21E201-811 — 위 "Wait for exclusive deploy slot"에서 실제로 잡은
+        //    락만 놓는다. 락을 기다리다 타임아웃으로 실패한 경우(env.DEPLOY_LOCK_ACQUIRED
+        //    가 'true'가 아님)까지 rmdir을 부르면, 그건 이 빌드가 잡은 락이 아니라
+        //    **다른 빌드가 지금 쓰고 있는 락**을 지우는 것이 된다 — 상호 배제가 깨진다.
+        always {
+            script {
+                if (env.DEPLOY_LOCK_ACQUIRED == 'true') {
+                    sh 'rmdir /tmp/gabolle-deploy.lock || true'
+                }
+            }
+        }
         success {
             script {
                 sendMMNotify(true, [
