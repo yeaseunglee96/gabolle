@@ -10,7 +10,8 @@ import { color, radius, spacing } from '@/design/tokens';
 import { useLayout } from '@/layout/useLayout';
 import { PlanDesktopShell } from '@/plan/PlanDesktopShell';
 import { usePlan } from '@/plan/PlanProvider';
-import { createRecommendationJobAdapter, type RecommendationJobSnapshot, unavailableJob } from '@/plan/recommendationJob';
+import { adaptStreamedJob, createRecommendationJobAdapter, type RecommendationJobSnapshot, unavailableJob } from '@/plan/recommendationJob';
+import { openJobProgressStream, supportsJobProgressStream } from '@/plan/recommendationJobStream';
 import { loadRecommendationResult } from '@/plan/recommendations';
 import { loadItinerary, type ItineraryDto } from '@/plan/itinerary';
 import { useI18n } from '@/i18n';
@@ -72,16 +73,43 @@ export default function Generating() {
     const activeJobId = job.jobId;
     let cancelled = false;
     let timer: ReturnType<typeof setTimeout> | undefined;
+    let closeStream: (() => void) | null = null;
     const delayTimer = setTimeout(() => setDelayed(true), 10000);
-    const poll = async () => {
-      const next = await adapter.poll(activeJobId, jobRef.current);
-      if (cancelled) return;
-      setJob(next);
-      if (next.state === 'accepted' || next.state === 'polling') timer = setTimeout(poll, 2000);
+
+    const startPolling = () => {
+      if (timer) return; // 스트림이 오류를 두 번 알려도 폴링 루프가 중복으로 돌지 않는다.
+      const poll = async () => {
+        const next = await adapter.poll(activeJobId, jobRef.current);
+        if (cancelled) return;
+        setJob(next);
+        if (next.state === 'accepted' || next.state === 'polling') timer = setTimeout(poll, 2000);
+      };
+      timer = setTimeout(poll, 2000);
     };
-    timer = setTimeout(poll, 2000);
-    return () => { cancelled = true; clearTimeout(delayTimer); if (timer) clearTimeout(timer); };
-  }, [adapter, isWorking, job.jobId, previewJob]);
+
+    // S15P21E201-69 — 열리면 실시간으로 받고, 실패하거나 지원하지 않으면 조용히
+    // 폴링으로 갈아탄다. 화면 쪽에서는 어느 경로로 왔든 같은 setJob 이 받는다.
+    if (supportsJobProgressStream()) {
+      closeStream = openJobProgressStream(activeJobId, accessToken, {
+        onSnapshot: (snapshot) => {
+          if (cancelled) return;
+          setJob(adaptStreamedJob(activeJobId, snapshot, jobRef.current));
+        },
+        onDone: () => { /* 서버가 끝 상태를 보내고 스스로 닫았다 — 더 할 일 없음 */ },
+        onError: () => { if (!cancelled) startPolling(); },
+      });
+    }
+    else {
+      startPolling();
+    }
+
+    return () => {
+      cancelled = true;
+      clearTimeout(delayTimer);
+      if (timer) clearTimeout(timer);
+      closeStream?.();
+    };
+  }, [accessToken, adapter, isWorking, job.jobId, previewJob]);
   useEffect(() => {
     if (job.state !== 'completed' || previewJob || !job.jobId) return;
     let cancelled = false;
