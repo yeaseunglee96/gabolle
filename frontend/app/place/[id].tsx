@@ -11,7 +11,7 @@ import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
-import { bilingualPlaceName, formatFeatureSlot, getPlace, hasLocalityScore, needsFoodSafetyCheck, type Place as ApiPlace } from '@/discovery/places';
+import { bilingualPlaceName, formatFeatureSlot, getPlace, hasFoodSafetyConfirmed, hasLocalityScore, needsFoodSafetyCheck, type Place as ApiPlace } from '@/discovery/places';
 import { DEMO_PLACES, SAVED_PLACES_KEY } from '@/discovery/savedPlaces';
 import { useI18n } from '@/i18n';
 import { isAtLeast } from '@/layout/breakpoints';
@@ -182,6 +182,14 @@ export default function Place() {
             <Text color={color.text.body}>{tx('알레르기·식단 정보가 없어 주문 전 확인이 필요합니다.', 'Allergy and dietary information is not available for this place — please check before ordering.')}</Text>
           </View>
         ) : null}
+        {/* S15P21E201-325: "확인 못 함"(위 배너)과 "확인했고 문제 없음"을 다른 표시로 보여준다 —
+            아무것도 안 보이는 빈 자리를 사용자가 "안전 확인됨"으로 착각하지 않게 한다. */}
+        {resolved.apiPlace && hasFoodSafetyConfirmed(resolved.apiPlace) ? (
+          <View style={styles.safetyConfirmed} accessibilityRole="text">
+            <Text variant="caption" weight="bold" color={color.state.success}>{tx('확인됨', 'Confirmed')}</Text>
+            <Text color={color.text.body}>{tx('알레르기·식단 정보를 확인했고, 등록된 유발 성분이 없습니다.', "Allergy and dietary info has been checked — no listed allergens or restrictions.")}</Text>
+          </View>
+        ) : null}
         {demoPlace ? (
           // 데모 3곳은 실제로 있는 해운대·광안리·감천문화마을이다(savedPlaces.ts) — 장소 자체는
           // 진짜다. 다만 place 표 적재 전(-547)이라 영업시간·가격대·접근성·혼잡도 같은 상세
@@ -238,6 +246,7 @@ const styles = StyleSheet.create({
   infoRows: { marginTop: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card, overflow: 'hidden' },
   infoRow: { minHeight: 52, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[3], paddingHorizontal: spacing[4], borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: color.surface.border },
   safetyNotice: { gap: spacing[1], marginTop: spacing[4], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.state.dangerBg },
+  safetyConfirmed: { gap: spacing[1], marginTop: spacing[4], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.state.successBg },
   notice: { gap: spacing[3], marginTop: spacing[4], padding: spacing[4], borderWidth: 1, borderColor: color.surface.border, borderRadius: radius.lg, backgroundColor: color.surface.card },
   noticeCopy: { lineHeight: 22 },
   actions: { gap: spacing[3], marginTop: spacing[4] },
