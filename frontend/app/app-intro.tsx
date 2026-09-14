@@ -27,20 +27,11 @@ export default function AppIntro() {
   const { width } = useWindowDimensions();
   const [pageWidth, setPageWidth] = useState(width);
   const pager = useRef<ScrollView>(null);
-  const dragStart = useRef(0);
-  const latestOffset = useRef(0);
-  const settleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [page, setPage] = useState(0);
   const go = (index: number) => {
     const next = Math.max(0, Math.min(PAGES.length - 1, index));
     pager.current?.scrollTo({ x: next * pageWidth, animated: true });
     setPage(next);
-  };
-  const settle = (offset = latestOffset.current) => {
-    if (settleTimer.current) clearTimeout(settleTimer.current);
-    const nearest = Math.max(0, Math.min(PAGES.length - 1, Math.round(offset / pageWidth)));
-    pager.current?.scrollTo({ x: nearest * pageWidth, animated: true });
-    setPage(nearest);
   };
   const finish = async () => {
     await AsyncStorage.setItem(INTRO_SEEN_KEY, 'true');
@@ -51,7 +42,10 @@ export default function AppIntro() {
 
   return <SafeAreaView style={styles.screen} onLayout={(event) => setPageWidth(event.nativeEvent.layout.width)}>
     <View style={styles.top}><Pressable accessibilityRole="link" accessibilityLabel={tx('GABOLLE 시작 화면으로 이동', 'Go to the GABOLLE start screen')} onPress={() => router.replace('/')} style={({ pressed }) => [styles.logoButton, pressed && styles.pressed]}><Image source={logo} resizeMode="contain" style={styles.logo} /></Pressable><Pressable accessibilityRole="button" onPress={() => void finish()} style={({ pressed }) => [styles.skip, pressed && styles.pressed]}><Text variant="caption" weight="bold" color={color.text.body}>{tx('건너뛰기', 'Skip')}</Text></Pressable></View>
-    <ScrollView ref={pager} horizontal bounces={false} showsHorizontalScrollIndicator={false} snapToInterval={pageWidth} snapToAlignment="start" disableIntervalMomentum decelerationRate="fast" scrollEventThrottle={16} onScroll={(event) => { latestOffset.current = event.nativeEvent.contentOffset.x; setPage(Math.max(0, Math.min(PAGES.length - 1, Math.round(latestOffset.current / pageWidth)))); }} onScrollBeginDrag={(event) => { dragStart.current = event.nativeEvent.contentOffset.x; if (settleTimer.current) clearTimeout(settleTimer.current); }} onScrollEndDrag={() => { settleTimer.current = setTimeout(() => settle(), 120); }} onMomentumScrollEnd={(event) => settle(event.nativeEvent.contentOffset.x)}>
+    {/* S15P21E201-928: snapToInterval + 수동 scrollTo(settle) 조합이 iOS 네이티브 스크롤
+        모멘텀과 겹쳐 스와이프가 멈추는 결함으로 실기기에서 보고됐다. 네이티브
+        pagingEnabled 하나로 바꾸면 페이지 스냅을 OS가 직접 처리해 이 충돌이 없다. */}
+    <ScrollView ref={pager} horizontal pagingEnabled bounces={false} showsHorizontalScrollIndicator={false} decelerationRate="fast" scrollEventThrottle={16} onScroll={(event) => setPage(Math.max(0, Math.min(PAGES.length - 1, Math.round(event.nativeEvent.contentOffset.x / pageWidth))))} onMomentumScrollEnd={(event) => setPage(Math.max(0, Math.min(PAGES.length - 1, Math.round(event.nativeEvent.contentOffset.x / pageWidth))))}>
       {PAGES.map((item, index) => <View key={item.id} style={[styles.page, { width: pageWidth }]}><FeaturePreview index={index} /><View style={styles.copy}><Eyebrow>{tx(item.eyebrowKo, item.eyebrowEn)}</Eyebrow><Text variant="display" weight="bold" style={styles.title}>{tx(item.titleKo, item.titleEn)}</Text><Text variant="body" color={color.text.body} style={styles.description}>{tx(item.descriptionKo, item.descriptionEn)}</Text></View></View>)}
     </ScrollView>
     <View style={styles.footer}><View accessibilityLabel={tx(`${PAGES.length}개 중 ${page + 1}번째`, `${page + 1} of ${PAGES.length}`)} style={styles.dots}>{PAGES.map((item, index) => <View key={item.id} style={[styles.dot, index === page && styles.dotActive]} />)}</View><Button label={page === PAGES.length - 1 ? tx('시작하기', 'Get started') : tx('다음', 'Next')} onPress={() => page === PAGES.length - 1 ? void finish() : go(page + 1)} containerStyle={styles.next} /></View>
