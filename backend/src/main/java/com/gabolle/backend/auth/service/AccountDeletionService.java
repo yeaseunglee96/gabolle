@@ -374,6 +374,14 @@ public class AccountDeletionService {
 				(SELECT v.tasteVectorId FROM UserTasteVector v WHERE v.userId = :userId)
 				""", "userId", userId);
 		execute("DELETE FROM UserTasteVector v WHERE v.userId = :userId", "userId", userId);
+
+		// 🔴 실제 방문 시각으로 만든 개인 속도 계수도 개인화 파생값이다 (S15P21E201-304 · 549 후속).
+		//
+		//    user_pace_factor 는 app_user 에 ON DELETE CASCADE 로 묶여 있는데, 이 서비스는
+		//    계정 행을 지우지 않고 익명화하므로(delete 의 anonymizeForDeletion) 그 CASCADE 가
+		//    영영 돌지 않는다. 표에 선언된 것과 실제로 일어나는 일이 다르다 — 그래서 여기서
+		//    직접 지운다. 같은 규칙을 BehaviorPersonalizationReset.forget 도 쓴다.
+		execute("DELETE FROM PaceFactorJpaEntity p WHERE p.userId = :userId", "userId", userId);
 	}
 
 	/**

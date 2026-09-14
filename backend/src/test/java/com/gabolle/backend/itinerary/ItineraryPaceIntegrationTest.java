@@ -267,6 +267,28 @@ class ItineraryPaceIntegrationTest {
 		assertThat(currentRows).isEqualTo(1);
 	}
 
+	// ── 행동 개인화 스위치 (S15P21E201-549 후속) ──────────────────────────────
+
+	@Test
+	@DisplayName("행동 개인화를 끈 사람에게는 속도 계수를 만들지 않는다 — 표에도 행이 안 생긴다")
+	void behaviorPersonalizationOffLeavesNoPaceFactor() throws Exception {
+		// 켜져 있으면 paceFactor 1.5 가 나오는 바로 그 데이터를 쓴다
+		// (fiveOrMoreRecordsChangePredictedArrival 와 같은 씨앗). 달라지는 것은 스위치뿐이다.
+		seedFiveOverlongVisitsAndOneUpcomingItem();
+		this.jdbc.update("UPDATE app_user SET personalization_mode = 'EXPLICIT_ONLY' WHERE user_id = ?",
+				this.ownerId);
+
+		this.mockMvc.perform(get("/api/v1/itineraries/{id}/days/0/pace", this.itineraryId).principal(asOwner()))
+				.andExpect(status().isOk())
+				// 🔴 화면은 계속 나온다. 계수만 없다 — 표본이 모자랄 때와 같은 모양이라
+				//    부르는 쪽이 이미 다루는 경우다(twoRecordsAreNotEnoughForAFactor).
+				.andExpect(jsonPath("$.data.paceFactor").value(nullValue()));
+
+		Integer rows = this.jdbc.queryForObject("SELECT count(*) FROM user_pace_factor WHERE user_id = ?",
+				Integer.class, this.ownerId);
+		assertThat(rows).as("개인화를 끈 사람의 행동으로 프로필을 만들지 않는다").isZero();
+	}
+
 	// ── 여행 기간·참여자 검증 ───────────────────────────────────────────────
 
 	@Test
@@ -347,11 +369,26 @@ class ItineraryPaceIntegrationTest {
 		return ((List<T>) value).get(0);
 	}
 
+	/**
+	 * 🔴 {@code BEHAVIOR_ENABLED} 로 심는다 (S15P21E201-549 후속).
+	 *
+	 * <p>속도 계수는 <b>행동으로 만드는 사람별 프로필</b>이라 개인화를 끈 사람에게는 만들지
+	 * 않는다({@code PaceFactorService.recompute}). 이 파일의 검사 대부분은 "계수가 나온다" 를
+	 * 재는 것이라 켠 계정이어야 한다.
+	 *
+	 * <p>예전에는 여기가 {@code EXPLICIT_ONLY} 였다. 그때는 아무도 그 값을 안 봤으니 통과했고,
+	 * 그래서 <b>끈 사람에게도 계수가 쌓이는 것</b>을 이 파일이 못 잡았다. 끈 쪽은 이제
+	 * {@link #behaviorPersonalizationOffLeavesNoPaceFactor} 가 따로 잡는다.
+	 */
 	private void createUser(UUID userId, OffsetDateTime now) {
+		createUser(userId, now, "BEHAVIOR_ENABLED");
+	}
+
+	private void createUser(UUID userId, OffsetDateTime now, String personalizationMode) {
 		this.jdbc.update(
 				"INSERT INTO app_user (user_id, display_name, language, personalization_mode, status, "
-						+ "created_at, updated_at) VALUES (?, 'test', 'ko', 'EXPLICIT_ONLY', 'ACTIVE', ?, ?)",
-				userId, now, now);
+						+ "created_at, updated_at) VALUES (?, 'test', 'ko', ?, 'ACTIVE', ?, ?)",
+				userId, personalizationMode, now, now);
 	}
 
 	private void insertMember(UUID tripId, UUID userId, String role, OffsetDateTime now) {
