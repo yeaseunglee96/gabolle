@@ -200,6 +200,18 @@ public class TripCreationService {
         //
         //    계정 기본값이 아직 하나도 없으면(지금은 저장하는 경로가 없다) storedPreferences
         //    가 그대로 나온다 — 즉 이 줄은 동작을 바꾸지 않는다.
+        //
+        //    ┈┈ 🔴 정정 (2026-09-15 · S15P21E201-639) ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈
+        //    위 두 문단은 **이제 절반만 맞다.** 지우지 않고 남기는 것은 그때의 판단이
+        //    틀린 것이 아니라 범위가 늘었기 때문이다.
+        //
+        //      · "반대 방향은 없다" → **빈칸을 채우는 방향은 생겼다** (아래 ⑥).
+        //        여전히 **덮어쓰지는 않는다** — 계정에 이미 있는 답은 안 건드린다.
+        //      · "지금은 저장하는 경로가 없다" → 이제 있다. 다만 HTTP 경로가 아니라
+        //        여행을 만들 때 안에서 채운다.
+        //      · "이 줄은 동작을 바꾸지 않는다" → 두 번째 여행부터 **실제로 채운다.**
+        //        첫 여행은 채울 것이 없으므로 그때는 여전히 그대로다.
+        //    ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈
         List<PreferenceSnapshot.PreferenceAnswer> mergedPreferences =
                 preferenceDefaults.overlayDefaults(command.userId(), storedPreferences);
 
@@ -213,6 +225,27 @@ public class TripCreationService {
         TripRepository.SaveOutcome outcome = repository.saveWithIdempotency(
                 command.userId(), idempotencyKey, fingerprint,
                 trip, constraints, owner, snapshot);
+
+        // ⑥ 🔴 S15P21E201-639 — 이 여행에서 고른 답으로 계정 기본값의 **빈칸만** 채운다.
+        //
+        //    위 ④ 의 주석이 "반대 방향은 없다" 고 적어 두었고, **덮어쓰기는 여전히 없다.**
+        //    계정에 그 차원의 답이 이미 있으면 seedMissing 이 건드리지 않는다. 명세 2.2 가
+        //    막은 것은 "이번 여행만 조용한 곳" 이 **이미 있는** 프로필을 조용히 갈아치우는
+        //    일이고, 빈칸을 채우는 것은 그 일이 아니다.
+        //
+        //    🔴 왜 이제 와서 여는가 — 겹치기만 두고 채우는 길을 안 만들었더니, 계정 기본값을
+        //    가진 사람이 소비 성향 한 차원뿐이었다(2026-09-15 실측: USER 스냅샷 9건 전부
+        //    SPEND_PROFILE). 채울 것이 없으니 겹치기가 아무 일도 안 했고, 같은 사람이 두 번째
+        //    여행에서도 처음부터 다시 답했다. 어느 차원을 이어받는지는 CARRY_OVER 에 있다.
+        //
+        //    🔴 storedPreferences 를 넘긴다 — mergedPreferences 가 아니다. 겹친 뒤의 목록에는
+        //    계정 기본값이 이미 섞여 있어서, 그것을 도로 넣으면 제자리걸음이다.
+        //
+        //    🔴 실제로 만들어졌을 때만 한다. 같은 키로 다시 온 요청(created=false)은 여행을
+        //    안 만들었으므로 취향도 새로 정한 것이 아니다.
+        if (outcome.created()) {
+            preferenceDefaults.seedMissing(command.userId(), storedPreferences);
+        }
 
         return new Result(outcome.trip(), outcome.snapshot(), outcome.created());
     }

@@ -158,6 +158,79 @@ class PreferenceDefaultsOverlayTest {
 		assertThat(saved.tripId()).isNull();
 	}
 
+	// ── 빈칸만 채우기 (S15P21E201-639) ────────────────────────────────────────
+	//
+	// 🔴 아래 검사들이 지키는 것은 하나다 — **덮어쓰지 않는다.**
+	//    명세 2.2 가 막은 것("여행 답이 이미 있는 프로필을 갈아치우는 일")은 여전히 막혀
+	//    있어야 하고, 그것이 막혀 있는지는 코드를 읽어서는 알 수 없다.
+
+	@Test
+	@DisplayName("🔴 계정이 비어 있으면 여행에서 고른 답이 계정에 남는다 — 두 번째 여행부터 안 묻는 부분")
+	void 빈칸이면_채운다() {
+		List<String> seeded = this.service.seedMissing(USER, List.of(
+				selected("QUIETNESS", "0.8"), selected("LOCALITY", "0.6")));
+
+		assertThat(seeded).containsExactlyInAnyOrder("QUIETNESS", "LOCALITY");
+		assertThat(this.service.find(USER)).get()
+				.satisfies((s) -> assertThat(s.answers()).hasSize(2));
+	}
+
+	@Test
+	@DisplayName("🔴 계정에 이미 있는 답은 덮지 않는다 — 명세 2.2 가 막은 바로 그것")
+	void 이미_있으면_안_덮는다() {
+		this.service.replace(USER, List.of(selected("QUIETNESS", "0.1")));
+
+		List<String> seeded = this.service.seedMissing(USER, List.of(selected("QUIETNESS", "0.9")));
+
+		assertThat(seeded).isEmpty();
+		assertThat(this.service.find(USER)).get().satisfies((s) -> {
+			assertThat(s.answers()).hasSize(1);
+			// 🔴 0.9 로 바뀌었다면 "이번 여행만 조용한 곳" 이 영구 취향이 된 것이다.
+			assertThat(s.answers().get(0).valueJson()).isEqualTo("0.1");
+			// 채울 것이 없으면 판도 새로 쓰지 않는다 — created_at 만 다른 판이 쌓이면
+			// "언제 정한 취향인가" 를 나중에 못 본다.
+			assertThat(s.version()).isEqualTo(1);
+		});
+	}
+
+	@Test
+	@DisplayName("🔴 이어받지 않기로 한 차원은 안 들어간다 — 카테고리·분위기·그늘·소비성향")
+	void 이어받지_않는_차원은_뺀다() {
+		List<String> seeded = this.service.seedMissing(USER, List.of(
+				selected("CATEGORY", "\"SEA\""),          // 이번엔 바다, 다음엔 문화
+				selected("ATMOSPHERE", "\"CALM\""),       // 여행 성격에 따라 다르다
+				selected("SHADE_PREFERENCE", "0.9"),      // 9월엔 그늘, 12월엔 볕
+				selected("SPEND_PROFILE", "\"MID\""),     // SpendProfileService 가 따로 맡는다
+				selected("SLOPE_PREFERENCE", "0.2")));    // 몸에 붙은 것 — 이것만 이어받는다
+
+		assertThat(seeded).containsExactly("SLOPE_PREFERENCE");
+	}
+
+	@Test
+	@DisplayName("🔴 건너뛴 답은 계정에 안 남는다 — 겹치기가 건너뜀을 되살리지 않는 것과 짝이다")
+	void 건너뛴_것은_안_남긴다() {
+		List<String> seeded = this.service.seedMissing(USER, List.of(
+				new PreferenceAnswer("QUIETNESS", null, AnswerStatus.SKIPPED),
+				new PreferenceAnswer("LOCALITY", null, AnswerStatus.UNKNOWN)));
+
+		assertThat(seeded).isEmpty();
+		assertThat(this.service.find(USER)).isEmpty();
+	}
+
+	@Test
+	@DisplayName("채운 뒤에는 겹치기가 그 값을 다음 여행에 넣는다 — 두 걸음이 이어지는지")
+	void 채운_뒤에_겹쳐진다() {
+		this.service.seedMissing(USER, List.of(selected("QUIETNESS", "0.8")));
+
+		// 다음 여행: 조용함을 안 물어봤다(UNKNOWN)
+		List<PreferenceAnswer> merged = this.service.overlayDefaults(USER,
+				List.of(new PreferenceAnswer("QUIETNESS", null, AnswerStatus.UNKNOWN)));
+
+		assertThat(merged).hasSize(1);
+		assertThat(merged.get(0).valueJson()).isEqualTo("0.8");
+		assertThat(merged.get(0).status()).isEqualTo(AnswerStatus.SELECTED);
+	}
+
 	private static PreferenceAnswer selected(String dimension, String value) {
 		return new PreferenceAnswer(dimension, value, AnswerStatus.SELECTED);
 	}
