@@ -46,6 +46,10 @@ import com.gabolle.backend.place.repository.PlaceRepository;
  *     <td>🔴 안전·접근성. 추정하면 안 되고 DB 도 막는다
  *     ({@code ck_place_feature_safety_never_estimated})</td><td>비운다. 무장애 자료가 따로 있다</td></tr>
  * <tr><td>영업시간</td><td>상세 단계에 있다</td><td>비운다 — {@code S15P21E201-852}</td></tr>
+ * <tr><td>{@code place.photo_url}</td><td>{@code firstimage}</td>
+ *     <td>🟡 저작권 유형이 {@code Type1} 인 것만 (S15P21E201-146). 사진 있는 546곳 중
+ *     대부분(468곳, 86%)이 {@code Type3}(제3자 저작물, 재사용 전 저작권자 허락 필요)라 비운다 —
+ *     아래 {@link #FREE_TO_USE_COPYRIGHT_TYPE} 참고</td></tr>
  * </table>
  *
  * <p>🔴 <b>갈래가 없는 장소도 넣는다.</b> 레포츠 29곳·숙박 65곳이 그렇다. 갈래로는 안 나오지만
@@ -67,6 +71,18 @@ public class TourApiPlaceLoader {
 	private static final int NAME_MAX = 200;
 
 	private static final int ADDRESS_MAX = 300;
+
+	/**
+	 * 관광공사 사진의 저작권 유형(cpyrhtDivCd) 중 자유 이용이 확인된 값 — S15P21E201-146.
+	 *
+	 * <p>{@code Type1}(공공누리 제1유형)은 출처를 표시하면 자유 이용이 된다. {@code Type3}은
+	 * 제3자 저작물이라 재사용 전 저작권자의 별도 허락이 필요하다 — 그래서 이것만 쓴다. 실측
+	 * (2026-09-15): 사진 있는 546곳 중 Type1 은 78곳(14%), Type3 이 468곳(86%)이다.
+	 */
+	private static final String FREE_TO_USE_COPYRIGHT_TYPE = "Type1";
+
+	/** {@code place.photo_source} 에 넣는 출처 표기 — {@code photo_url} 과 반드시 짝이다. */
+	private static final String PHOTO_SOURCE_LABEL = "한국관광공사 공공누리 제1유형";
 
 	private final PlaceRepository placeRepository;
 
@@ -98,13 +114,17 @@ public class TourApiPlaceLoader {
 				// 이미 있거나(DB) 이 덩어리 안에서 중복된 contentid 다.
 				continue;
 			}
-			String category = TourApiCategory.of(row.cat1(), row.cat3());
+			String category = TourApiCategory.of(row.contentId(), row.cat1(), row.cat3());
+			boolean freeToUsePhoto = row.firstImage() != null
+					&& FREE_TO_USE_COPYRIGHT_TYPE.equals(row.copyrightType());
 			places.add(Place.imported(placeId, cut(row.title(), NAME_MAX), category,
 					cut(row.address(), ADDRESS_MAX), row.lat(), row.lng(),
 					SOURCE_TYPE, row.contentId(), collectedAt,
 					// 🔴 원천에 "이 사실이 언제 관측됐나" 칸이 없다. 지어내지 않고 비운다 —
 					//    수집분 자체는 datasetVersion 이 말해 준다.
-					null, datasetVersion));
+					null, datasetVersion,
+					freeToUsePhoto ? row.firstImage() : null,
+					freeToUsePhoto ? PHOTO_SOURCE_LABEL : null));
 
 			// 🔴 갈래는 CATEGORY_TAG 다 (S15P21E201-904). TourApiCategory 가 내는 여섯
 			//    낱말은 온보딩 취향의 사전이고, 탐색 아코디언의 여덟 낱말과 다른 사전이다.
