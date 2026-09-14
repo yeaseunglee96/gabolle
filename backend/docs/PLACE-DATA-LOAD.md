@@ -54,9 +54,9 @@ wc -l /tmp/load.env    # 네 줄이면 정상
 
 🔴 `/tmp/load.env` 에 DB 비밀번호가 들어 있다. **5 단계에서 지운다.**
 
-## 3. 적재 넷 — 순서를 지킨다
+## 3. 적재 다섯 — 순서를 지킨다
 
-뒤 셋은 장소에 붙는 값이라 ①이 먼저다. 넷 다 두 번 돌려도 행이 안 는다.
+뒤 넷은 장소에 붙는 값이라 ①이 먼저다. 다섯 다 두 번 돌려도 행이 안 는다.
 
 `GABOLLE_JWT_SECRET` 을 임시값으로 준다. 2 단계에서 빌린 네 줄에는 이 값이 없는데, 기동할 때 32자 이상을 요구하는 검사가 있어 없으면 앱이 뜨지도 못하고 죽는다
 (`authStartupValidator`). 적재기는 토큰을 만들지 않으므로 **운영의 진짜 값을 가져올 필요가 없다** — 아무 32자 이상이면 된다. 2026-09-13 실측.
@@ -82,6 +82,11 @@ $RUN --gabolle.place.loader.opening-hours=/load/opening-hours.ndjson \
 # ④ 접근성 130곳
 $RUN --gabolle.place.loader.barrier-free=/load/tourapi-barrier-free-busan.ndjson \
      --gabolle.place.loader.dataset-version=$VER
+
+# ⑤ 축제 회차 (S15P21E201-863)
+# 수집분 버전을 안 준다 — 이 적재기만 그 인자를 요구하지 않는다. 만드는 것이 장소에 붙는
+# 표식이 아니라 회차 그 자체이고, 그 표에는 어느 수집분에서 왔는지 적는 칸이 없다.
+$RUN --gabolle.place.loader.festival=/load/tourapi-festival-busan.ndjson
 ```
 
 적재를 마치면 애플리케이션이 계속 떠 있으므로 로그에 마침 줄이 보이면 `Ctrl+C` 로
