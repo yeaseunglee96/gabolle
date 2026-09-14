@@ -16,7 +16,7 @@ import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { Card } from '@/components/Card';
 import { Button } from '@/components/Button';
-import { RouteMap } from '@/map/RouteMap';
+import { RouteMap, type CurrentLocation } from '@/map/RouteMap';
 import { city3dUrlForStops, openCity3D } from '@/map/city3d';
 
 const pinIcon = require('../../../assets/icons/common/pin.png');
@@ -148,6 +148,19 @@ export default function Map() {
   const [selectedId, setSelectedId] = useState(stops[0].id);
   const [locationPermission, setLocationPermission] = useState<'checking' | 'undetermined' | 'granted' | 'denied'>(Platform.OS === 'web' ? 'granted' : 'checking');
   const [requestingLocation, setRequestingLocation] = useState(false);
+  const [currentLocation, setCurrentLocation] = useState<CurrentLocation | null>(null);
+
+  // 웹은 이 화면에서 위치 권한을 앞서 확인하지 않고(위 locationPermission 이 그대로 'granted'인
+  // 이유) 브라우저 Geolocation API 를 직접 부른다 — 프롬프트는 브라우저가 알아서 띄운다.
+  // 거부해도 실패 콜백만 조용히 무시한다: 현재 위치 점만 빠지고 경로·단계별 안내는
+  // 그대로 보여야 한다(완료 기준 1·3).
+  useEffect(() => {
+    if (Platform.OS !== 'web' || typeof navigator === 'undefined' || !navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(
+      (position) => setCurrentLocation({ latitude: position.coords.latitude, longitude: position.coords.longitude }),
+      () => {},
+    );
+  }, []);
 
   useEffect(() => {
     if (Platform.OS === 'web') return;
@@ -232,7 +245,7 @@ export default function Map() {
       )}
 
       <View style={styles.mapStage}>
-        <RouteMap stops={stops} selectedId={selectedId} onSelect={selectStopFromMap} routes={routes} points={points} onBackToList={() => router.back()} height={widthTier(width) === 'sm' ? 420 : 600} />
+        <RouteMap stops={stops} selectedId={selectedId} onSelect={selectStopFromMap} routes={routes} points={points} currentLocation={currentLocation} onBackToList={() => router.back()} height={widthTier(width) === 'sm' ? 420 : 600} />
         {isAtLeast(width, 'md') ? <View style={styles.floatingLayers}><LayerControls /></View> : null}
       </View>
       {widthTier(width) === 'sm' ? <LayerControls /> : null}

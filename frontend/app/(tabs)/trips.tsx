@@ -4,6 +4,7 @@ import { useFocusEffect, useRouter } from 'expo-router';
 
 import { useAuth } from '@/auth/AuthProvider';
 import { Button } from '@/components/Button';
+import { Eyebrow } from '@/components/Eyebrow';
 import { Screen } from '@/components/Screen';
 import { TabBar } from '@/components/TabBar';
 import { Text } from '@/components/Text';
@@ -75,7 +76,7 @@ export default function Trips() {
   const trips = result.state === 'success' ? result.trips : [];
 
   return <View style={styles.shell}><Screen scroll wide style={styles.canvas}>
-    <View style={styles.header}><View style={styles.headerCopy}><Text variant="eyebrow" weight="bold">MY TRIPS</Text><Text variant="display" weight="bold" style={styles.title}>{tx('내 여행', 'My trips')}</Text><Text color={color.text.body}>{tx('내가 만들었거나 초대받은 여행이에요.', "Trips you've created or been invited to.")}</Text></View><Button label={tx('새 여행', 'New trip')} variant="ghost" onPress={() => router.push('/plan/basic')} containerStyle={styles.newTrip} /></View>
+    <View style={styles.header}><View style={styles.headerCopy}><Eyebrow>{tx('여행 목록', 'My trips')}</Eyebrow><Text variant="display" weight="bold" style={styles.title}>{tx('내 여행', 'My trips')}</Text><Text color={color.text.body}>{tx('내가 만들었거나 초대받은 여행이에요.', "Trips you've created or been invited to.")}</Text></View><View style={styles.headerActions}><Button label={tx('부슐랭', 'My places')} variant="ghost" onPress={() => router.push('/collection')} containerStyle={styles.newTrip} /><Button label={tx('새 여행', 'New trip')} onPress={() => router.push('/plan/basic')} containerStyle={styles.newTrip} /></View></View>
 
     {!accessToken ? <View style={styles.state}><Text weight="bold">{tx('로그인하면 내 여행을 볼 수 있어요.', 'Sign in to see your trips.')}</Text><Button label={tx('로그인', 'Sign in')} onPress={() => router.push('/sign-in')} containerStyle={styles.emptyCta} /></View> : null}
 
@@ -127,7 +128,7 @@ export default function Trips() {
 
 const styles = StyleSheet.create({
   shell: { flex: 1, backgroundColor: color.brand.ivory }, canvas: { backgroundColor: color.brand.ivory },
-  header: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: spacing[3] }, headerCopy: { flex: 1, minWidth: 0 }, title: { marginTop: spacing[1], marginBottom: spacing[2] }, newTrip: { width: 84, minHeight: 44, flexShrink: 0 },
+  header: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: spacing[3] }, headerCopy: { flex: 1, minWidth: 0 }, title: { marginTop: spacing[1], marginBottom: spacing[2] }, headerActions: { gap: spacing[2] }, newTrip: { width: 96, minHeight: 44, flexShrink: 0 },
   feedback: { minHeight: 48, marginTop: spacing[4], paddingHorizontal: spacing[4], borderRadius: radius.md, backgroundColor: color.brand.navy, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[3] }, state: { minHeight: 220, alignItems: 'center', justifyContent: 'center', gap: spacing[3] },
   empty: { minHeight: 320, marginTop: spacing[6], padding: spacing[6], borderRadius: radius.lg, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center', gap: spacing[3] }, emptyMark: { width: 68, height: 68, borderRadius: radius.full, backgroundColor: color.surface.tint, alignItems: 'center', justifyContent: 'center' }, emptyIcon: { width: 32, height: 32 }, center: { maxWidth: 300, textAlign: 'center' }, emptyCta: { minWidth: 180, marginTop: spacing[2], backgroundColor: color.brand.navy },
   list: { marginTop: spacing[6], gap: spacing[3] }, card: { padding: spacing[4], borderRadius: radius.lg, borderWidth: 1, borderColor: '#ece6dc', backgroundColor: color.surface.card, gap: spacing[3], shadowColor: color.brand.navy, shadowOpacity: 0.06, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 2 }, cardPressed: { opacity: 0.72, transform: [{ scale: 0.99 }] }, cardTop: { flexDirection: 'row', alignItems: 'center', gap: spacing[3] }, cardCopy: { flex: 1, gap: spacing[1] }, meta: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] }, metaPill: { paddingHorizontal: spacing[3], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: color.surface.soft },

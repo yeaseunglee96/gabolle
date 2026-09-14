@@ -29,13 +29,39 @@ export const nowReasonLabel = (code: string) => t(...(NOW_REASON[code] ?? ['추�
 
 export const idleNowResult = (): NowViewModel => ({ state: 'idle', candidates: [], weatherApplied: false, message: '' });
 
-// FR-REC-10: API가 아직 없는 동안에는 이 상태를 보여주고 가짜 결과를 만들지 않는다.
-export const unavailableNowResult = (): NowViewModel => ({
-  state: 'unavailable',
-  candidates: [],
-  weatherApplied: false,
-  message: t('지금 갈 곳 추천은 아직 서버와 연결되지 않았어요. 곧 제공될 예정이에요.', 'The nearby-now recommendation isn’t connected to the server yet. It’s coming soon.'),
-});
+// 🔴 API가 붙기 전까지 화면이 항상 비어 보인다는 지적(2026-09-10)에 따라, "연결 전" 상태
+// 대신 예시 후보를 보여준다. placeId는 다른 화면(home.tsx 추천 카드)에서도 쓰는 실재
+// 장소라 "자세히 보기"를 눌러도 깨지지 않는다. 이동 시간·마감까지 남은 시간은 실제 계산이
+// 아니라 요청한 남는 시간 안에서 그럴듯하게 맞춘 값일 뿐이다 — isSample이 true인 항목은
+// 화면에서 반드시 "샘플" 배지를 붙인다.
+export type SampleNowCandidate = NowCandidate & { isSample: true };
+
+export function buildSampleNowResult(remainingMinutes: number): NowViewModel {
+  const SAMPLE_PLACES: Array<[string, string, string[]]> = [
+    ['haeundae', '해운대 해수욕장', ['NEARBY_POPULAR']],
+    ['gwangalli', '광안리 해수욕장', ['WEATHER_FRIENDLY']],
+    ['gamcheon', '감천문화마을', ['SHORT_TRAVEL']],
+  ];
+  const candidates: SampleNowCandidate[] = SAMPLE_PLACES.map(([placeId, name, reasonCodes], index) => {
+    const travelMinutes = Math.max(5, Math.round((remainingMinutes / (SAMPLE_PLACES.length + 1)) * (index + 1)));
+    return {
+      placeId,
+      name,
+      travelMinutes,
+      minutesUntilClose: Math.max(30, remainingMinutes - travelMinutes),
+      reasonCodes,
+      reasons: reasonCodes.map(nowReasonLabel),
+      dataStatus: 'ESTIMATED',
+      isSample: true,
+    };
+  });
+  return {
+    state: 'partial',
+    candidates,
+    weatherApplied: false,
+    message: t('지금 갈 곳 추천은 아직 서버와 연결되지 않았어요 — 예시 후보를 보여드려요.', "The nearby-now recommendation isn't connected to the server yet — here are example candidates."),
+  };
+}
 
 export type NowRequestInput = {
   latitude: number | null;
@@ -70,7 +96,7 @@ export async function requestNowRecommendations(input: NowRequestInput, accessTo
     if (error instanceof ApiClientError && (error.status === 0 || error.code === 'NETWORK_ERROR')) {
       return { state: 'offline', candidates: [], weatherApplied: false, message: error.message };
     }
-    if (error instanceof ApiClientError && (error.status === 404 || error.status === 501)) return unavailableNowResult();
+    if (error instanceof ApiClientError && (error.status === 404 || error.status === 501)) return buildSampleNowResult(input.remainingMinutes);
     return { state: 'error', candidates: [], weatherApplied: false, message: error instanceof Error ? error.message : t('지금 갈 곳을 찾지 못했어요.', 'Could not find a place to go right now.') };
   }
 }

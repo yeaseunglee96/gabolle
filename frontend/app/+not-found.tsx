@@ -6,6 +6,7 @@ import { BrandLogoLink } from '@/components/BrandLogoLink';
 import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
+import { Eyebrow } from '@/components/Eyebrow';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { isAtLeast } from '@/layout/breakpoints';
@@ -25,7 +26,7 @@ export default function NotFoundScreen() {
         <View style={[styles.messagePanel, isDesktop && styles.desktopMessagePanel]}>
           <BrandLogoLink href={homeHref} imageStyle={styles.logo} />
           <View style={styles.message}>
-            <Text variant="caption" weight="bold" color={color.brand.orange}>404 · LOST IN BUSAN</Text>
+            <Eyebrow>{tx('404 · 길을 잃었어요', '404 · Lost in Busan')}</Eyebrow>
             <Text variant="hero" weight="bold" color={color.text.onAction}>
               {tx('길을 잠깐\n벗어났어요', "You've strayed off\nthe path")}
             </Text>

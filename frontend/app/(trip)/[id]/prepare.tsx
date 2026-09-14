@@ -1,7 +1,8 @@
 // 16 여행 준비·날씨 — Figma 16_여행 준비·날씨 실측 그대로.
 //
-// 날씨·준비물은 전부 하드코딩 목업이다. 실제 기상청 API 연동 전까지는 이 값 그대로 둔다.
-import { useState } from 'react';
+// 날씨는 GET /api/v1/weather 로 실제 값을 받는다(S15P21E201-378) — 준비물 목록은
+// 아직 하드코딩 목업이다(별도 티켓 범위).
+import { useEffect, useState } from 'react';
 import { Image, Pressable, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as Speech from 'expo-speech';
@@ -9,10 +10,29 @@ import * as Speech from 'expo-speech';
 import { color, radius, spacing } from '@/design/tokens';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
+import { Eyebrow } from '@/components/Eyebrow';
 import { Button } from '@/components/Button';
-import { LanguageBadge } from '@/components/LanguageBadge';
+import { useAuth } from '@/auth/AuthProvider';
 import { useI18n } from '@/i18n';
 import { DIALECT_PHRASES } from '@/discovery/dialectPhrases';
+import { RouteMap } from '@/map/RouteMap';
+import type { MapStop } from '@/map/types';
+import { loadItinerary } from '@/plan/itinerary';
+import { getTripStories } from '@/social/stories';
+import { loadTrips } from '@/trip/trips';
+import { loadWeatherForecast, type SkyCondition, type WeatherLoadResult } from '@/trip/weather';
+
+const SKY_LABEL: Record<SkyCondition, readonly [string, string]> = {
+  CLEAR: ['맑음', 'Clear'],
+  PARTLY_CLOUDY: ['구름 조금', 'Partly cloudy'],
+  CLOUDY: ['흐림', 'Cloudy'],
+};
+
+function formatDepartureDate(value: string) {
+  const date = new Date(`${value}T00:00:00`);
+  if (Number.isNaN(date.getTime())) return null;
+  return { ko: `${date.getMonth() + 1}월 ${date.getDate()}일`, en: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) };
+}
 
 const PREP_ITEMS = [
   { icon: require('../../../assets/icons/common/umbrella.png'), nameKo: '접이식 우산', nameEn: 'Folding umbrella', descKo: '오후 비 예보', descEn: 'Rain forecast in the afternoon' },
@@ -77,43 +97,130 @@ function DialectFlashcards() {
   );
 }
 
+// S15P21E201-248 — 여행 종료일이 지나면 이 탭에 추억 지도 카드를 띄운다. 계획한 경로가
+// 아니라 실제로 쓴 기록(story)의 장소를 방문 순서(created_at)대로 이어 그린다 — 서버가
+// 그 순서를 보장한다(S15P21E201-829). 좌표 없는 기록은 선에서 빠진다(지어내지 않는다).
+type MemoryMapState =
+  | { status: 'not-ended' }
+  | { status: 'loading' }
+  | { status: 'ready'; stops: MapStop[] }
+  | { status: 'unavailable' };
+
+function isTripEnded(endDate: string | null): boolean {
+  if (!endDate) return false;
+  const today = new Date().toISOString().slice(0, 10);
+  return endDate < today;
+}
+
+function MemoryMapCard({ tripId, stops }: { tripId: string; stops: MapStop[] }) {
+  const { tx } = useI18n();
+  const router = useRouter();
+  return (
+    <View style={styles.memoryCard}>
+      <Text variant="title" weight="bold" style={styles.prepTitle}>{tx('추억 지도', 'Memory map')}</Text>
+      {stops.length > 0 ? (
+        <>
+          <RouteMap stops={stops} selectedId="" onSelect={(id) => router.push(`/feed/${id}`)} height={220} />
+          <Text variant="caption" color={color.text.muted}>{tx('마커를 누르면 그 기록으로 이동해요.', 'Tap a marker to open that record.')}</Text>
+        </>
+      ) : (
+        <Text variant="body" color={color.text.muted}>{tx('이 여행에는 위치가 있는 기록이 아직 없어요.', 'This trip has no records with a location yet.')}</Text>
+      )}
+    </View>
+  );
+}
+
 export default function Prepare() {
   const router = useRouter();
   const { tx } = useI18n();
+  const { accessToken } = useAuth();
   const { id } = useLocalSearchParams<{ id: string }>();
   const tripId = id ?? 'demo-trip';
+  const [firstDayDate, setFirstDayDate] = useState<string | null>(null);
+  const [weather, setWeather] = useState<WeatherLoadResult | null>(null);
+  const [memoryMap, setMemoryMap] = useState<MemoryMapState>({ status: 'loading' });
+
+  useEffect(() => {
+    let cancelled = false;
+    void loadTrips(accessToken).then(async (result) => {
+      if (cancelled) return;
+      const trip = result.state === 'success' ? result.trips.find((item) => item.tripId === tripId) : null;
+      if (!trip || !isTripEnded(trip.endDate)) { setMemoryMap({ status: 'not-ended' }); return; }
+      const storiesResult = await getTripStories(tripId, accessToken);
+      if (cancelled) return;
+      if (storiesResult.state !== 'success') { setMemoryMap({ status: 'unavailable' }); return; }
+      const stops: MapStop[] = storiesResult.items
+        .filter((story) => story.place?.lat != null && story.place?.lng != null)
+        .map((story, index) => ({
+          id: story.id,
+          number: index + 1,
+          name: story.place?.name ?? story.body.slice(0, 20),
+          latitude: story.place!.lat as number,
+          longitude: story.place!.lng as number,
+          imageUrl: story.images[0]?.url,
+        }));
+      setMemoryMap({ status: 'ready', stops });
+    });
+    return () => { cancelled = true; };
+  }, [tripId, accessToken]);
+
+  useEffect(() => {
+    let cancelled = false;
+    void loadItinerary(tripId, accessToken).then((result) => {
+      if (cancelled) return;
+      const date = result.state === 'success' ? (result.itinerary.days[0]?.date ?? null) : null;
+      setFirstDayDate(date);
+      if (!date) { setWeather({ state: 'unavailable', message: '일정을 아직 못 불러왔어요.' }); return; }
+      void loadWeatherForecast(date, accessToken).then((weatherResult) => { if (!cancelled) setWeather(weatherResult); });
+    });
+    return () => { cancelled = true; };
+  }, [tripId, accessToken]);
+
+  const departure = firstDayDate ? formatDepartureDate(firstDayDate) : null;
 
   return (
     <Screen scroll>
       <View style={styles.headerRow}>
         <View style={styles.headerCopy}>
-          <Text variant="eyebrow" weight="bold">
-            {tx('여행 전 · 8월 24일 출발', 'Before the trip · Departing Aug 24')}
-          </Text>
+          <Eyebrow>
+            {departure ? tx(`여행 전 · ${departure.ko} 출발`, `Before the trip · Departing ${departure.en}`) : tx('여행 전', 'Before the trip')}
+          </Eyebrow>
           <Text variant="display" weight="bold" style={styles.title}>
             {tx('부산 여행 준비', 'Getting ready for Busan')}
           </Text>
         </View>
-        <LanguageBadge />
       </View>
 
+      {memoryMap.status === 'ready' && <MemoryMapCard tripId={tripId} stops={memoryMap.stops} />}
+
       <View style={styles.weatherCard}>
-        <View style={styles.weatherTopRow}>
-          <Text variant="hero" weight="bold" color={color.text.heading}>
-            24°
-          </Text>
-          <View style={styles.weatherStatus}>
-            <Text variant="body" weight="bold">
-              {tx('맑음 · 체감 25°', 'Clear · Feels like 25°')}
+        {weather?.state === 'success' ? (
+          <>
+            <View style={styles.weatherTopRow}>
+              <Text variant="hero" weight="bold" color={color.text.heading}>
+                {weather.forecast.maxTemperature != null ? `${Math.round(weather.forecast.maxTemperature)}°` : tx('미확인', 'N/A')}
+              </Text>
+              <View style={styles.weatherStatus}>
+                <Text variant="body" weight="bold">
+                  {weather.forecast.skyCondition ? tx(...SKY_LABEL[weather.forecast.skyCondition]) : tx('하늘 상태 미확인', 'Sky condition unknown')}
+                  {weather.forecast.minTemperature != null && weather.forecast.maxTemperature != null ? ` · ${Math.round(weather.forecast.minTemperature)}~${Math.round(weather.forecast.maxTemperature)}°` : ''}
+                </Text>
+              </View>
+            </View>
+            <Text variant="body" weight="medium" style={styles.weatherRain}>
+              {weather.forecast.precipitationProbability != null
+                ? tx(`강수확률 ${weather.forecast.precipitationProbability}%`, `${weather.forecast.precipitationProbability}% chance of rain`)
+                : tx('강수확률 미확인', 'Rain chance unknown')}
             </Text>
-            <Text variant="caption" weight="medium" color={color.state.success}>
-              {tx('미세먼지 좋음', 'Fine dust: Good')}
-            </Text>
-          </View>
-        </View>
-        <Text variant="body" weight="medium" style={styles.weatherRain}>
-          {tx('오후 5시 강수 60% · 일몰 19:04', '60% chance of rain at 5 PM · Sunset 19:04')}
-        </Text>
+            {weather.forecast.precipitationProbability != null && weather.forecast.precipitationProbability >= 60 ? (
+              <Text variant="caption" weight="bold" color={color.brand.orange}>{tx('☂ 우산을 챙기세요', '☂ Bring an umbrella')}</Text>
+            ) : null}
+          </>
+        ) : weather ? (
+          <Text variant="body" color={color.text.muted}>{tx('예보를 가져오지 못했습니다.', 'Could not load the forecast.')}</Text>
+        ) : (
+          <Text variant="body" color={color.text.muted}>{tx('예보를 불러오는 중…', 'Loading the forecast…')}</Text>
+        )}
       </View>
 
       <View style={styles.prepCard}>
@@ -168,9 +275,20 @@ const styles = StyleSheet.create({
   headerCopy: {
     flex: 1,
     gap: spacing[1],
+    // 우측 상단에 상시 떠 있는 언어 배지(GlobalLanguageBadge)와 겹치지 않게
+    // 제목 영역 오른쪽에 여백을 둔다 — 이 자리에 배지가 인라인으로 있던 것을
+    // 전역 배지로 옮기면서(S15P21E201-261) 대신 남겨 둔 여백이다.
+    paddingRight: 140,
   },
   title: {
     marginTop: spacing[1],
+  },
+  memoryCard: {
+    marginTop: spacing[6],
+    backgroundColor: color.surface.card,
+    borderRadius: radius.lg,
+    padding: spacing[4],
+    gap: spacing[3],
   },
   weatherCard: {
     marginTop: spacing[6],

@@ -6,6 +6,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { color, radius, spacing } from '@/design/tokens';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
+import { Eyebrow } from '@/components/Eyebrow';
 import { Button } from '@/components/Button';
 import { BrandLogoLink } from '@/components/BrandLogoLink';
 import { parseLanguage, parseMobility, useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
@@ -48,7 +49,7 @@ export default function AgeGate() {
   return (
     <Screen wide style={kind === 'tablet' ? styles.webCanvas : styles.canvas}>
       <View style={[styles.panel, kind === 'tablet' && styles.webPanel]}>
-      {kind === 'tablet' && <View style={styles.webIntro}><Text variant="eyebrow" weight="bold" color={color.brand.orange}>GABOLLE · BUSAN</Text><Text variant="display" weight="bold" color={color.text.onAction} style={styles.webIntroTitle}>{tx('누구나 안심하고\n부산을 여행하도록', 'So anyone can travel\nBusan with confidence')}</Text><Text variant="body" color={color.text.onDarkMuted}>{tx('연령 확인은 안전한 서비스 이용을 위한 최소한의 절차예요. 생년월일은 수집하지 않습니다.', 'Age verification is a minimal step to keep the service safe. We do not collect your birth date.')}</Text><View style={styles.webTrust}><Text variant="caption" weight="bold" color={color.text.onAction}>{tx('✓ 생년월일 미수집', '✓ No birth date collected')}</Text><Text variant="caption" weight="bold" color={color.text.onAction}>{tx('✓ 한 번만 확인', '✓ Verified only once')}</Text></View></View>}
+      {kind === 'tablet' && <View style={styles.webIntro}><Eyebrow>{tx('가볼래 · 부산', 'GABOLLE · Busan')}</Eyebrow><Text variant="display" weight="bold" color={color.text.onAction} style={styles.webIntroTitle}>{tx('누구나 안심하고\n부산을 여행하도록', 'So anyone can travel\nBusan with confidence')}</Text><Text variant="body" color={color.text.onDarkMuted}>{tx('연령 확인은 안전한 서비스 이용을 위한 최소한의 절차예요. 생년월일은 수집하지 않습니다.', 'Age verification is a minimal step to keep the service safe. We do not collect your birth date.')}</Text><View style={styles.webTrust}><Text variant="caption" weight="bold" color={color.text.onAction}>{tx('✓ 생년월일 미수집', '✓ No birth date collected')}</Text><Text variant="caption" weight="bold" color={color.text.onAction}>{tx('✓ 한 번만 확인', '✓ Verified only once')}</Text></View></View>}
       <View style={[styles.gateContent, kind === 'tablet' && styles.webGateContent]}>
       <View style={styles.header}><BrandLogoLink href={kind === 'tablet' ? '/' : '/home'} imageStyle={styles.logo} /><View style={styles.step}><Text variant="caption" weight="bold" color={color.brand.orange}>{tx('가입 전 확인', 'Before you continue')}</Text></View></View>
       <View style={styles.body}>
@@ -93,13 +94,13 @@ const styles = StyleSheet.create({
   webTrust: { marginTop: spacing[4], gap: spacing[2] },
   header: { minHeight: 52, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   logo: { width: 100, height: 24 },
-  step: { paddingHorizontal: spacing[3], paddingVertical: spacing[2], borderRadius: radius.full, backgroundColor: '#fff1e8' },
+  step: { paddingHorizontal: spacing[3], paddingVertical: spacing[2], borderRadius: radius.full, backgroundColor: color.surface.tint },
   body: {
     flex: 1,
     justifyContent: 'center',
     gap: spacing[3],
   },
-  ageMark: { width: 64, height: 64, marginBottom: spacing[2], borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: '#fff1e8', borderWidth: 1, borderColor: '#f7cdbd' },
+  ageMark: { width: 64, height: 64, marginBottom: spacing[2], borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.tint, borderWidth: 1, borderColor: '#f7cdbd' },
   description: {
     color: color.text.body,
   },

@@ -6,13 +6,18 @@
 // 실제 GPS 판정 로직은 없다 — "위치 기반 방문 인증 완료" 배지는 고정 목업이다.
 import { useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 
+import { sendAppEvent } from '@/analytics/appEvents';
+import { useAuth } from '@/auth/AuthProvider';
 import { color, radius, spacing } from '@/design/tokens';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
+import { Eyebrow } from '@/components/Eyebrow';
 import { Button } from '@/components/Button';
+import { Toggle } from '@/components/Toggle';
 import { useI18n } from '@/i18n';
+import { useBehaviorConsent } from '@/personalization/behaviorConsent';
 
 type FeedbackKey = 'sea' | 'alley' | 'photo' | 'local' | 'move' | 'accurate';
 
@@ -37,10 +42,35 @@ const STAR_COUNT = 5;
 export default function CheckIn() {
   const router = useRouter();
   const { tx } = useI18n();
+  const { id: tripId } = useLocalSearchParams<{ id?: string }>();
+  const { accessToken } = useAuth();
+  const { enabled: reflectInRecommendations, setEnabled: setReflectInRecommendations } = useBehaviorConsent();
   const [rating, setRating] = useState(5);
   const [feedback, setFeedback] = useState<Set<FeedbackKey>>(() => new Set(['sea', 'alley', 'accurate']));
   const [accuracy, setAccuracy] = useState<Accuracy>('accurate');
   const [note, setNote] = useState('');
+
+  // 후기를 저장하면 방문 이벤트를 보낸다 — 동의가 꺼져 있으면 sendAppEvent 가 아무것도 안 보낸다.
+  //
+  // 🔴 화면은 서버를 기다리지 않는다. 후기 저장은 사용자에게 이미 끝난 일이고, 이벤트가
+  //    못 갔다고 뒤로가기가 늦어지면 그건 사용자가 손해를 보는 것이다.
+  // 🔴 한마디(자유 입력)는 담지 않는다. 담긴 것은 "썼는가" 뿐이다 — 자유 입력 원문은
+  //    이벤트 표에 남기지 않기로 한 규칙이 있고, 서버 SensitivePayloadGuard 도 그것을 막는다.
+  // 🔴 어느 장소인지는 아직 못 담는다. 이 화면의 장소는 고정 목업이라 place_id 가 없다.
+  function saveReview() {
+    sendAppEvent({
+      type: 'place_visit',
+      accessToken,
+      tripId,
+      payload: {
+        rating,
+        chips: [...feedback],
+        accuracy,
+        has_note: note.trim().length > 0,
+      },
+    });
+    router.back();
+  }
 
   function toggleFeedback(key: FeedbackKey) {
     setFeedback((prev) => {
@@ -56,9 +86,9 @@ export default function CheckIn() {
 
   return (
     <Screen scroll>
-      <Text variant="eyebrow" weight="bold">
+      <Eyebrow>
         {tx('방문 후 · 8월 24일 16:42', 'After your visit · Aug 24, 16:42')}
-      </Text>
+      </Eyebrow>
       <Text variant="display" weight="bold" style={styles.title}>
         {tx('여행은 어떠셨나요?', 'How was your trip?')}
       </Text>
@@ -152,11 +182,32 @@ export default function CheckIn() {
         </Text>
       </View>
 
+      {/* 켜는 자리를 여기 둔 이유 — 방문 직후가 "무엇을 켜는지" 를 사용자가 이해하는 유일한
+          순간이다. 온보딩에서 물으면 무엇을 켜는지 모르고 켜고, 그 동의는 동의가 아니다.
+          기본은 꺼짐이고, 마이페이지에서 언제든 다시 끌 수 있다. */}
+      <View style={styles.consentCard}>
+        <View style={styles.consentCopy}>
+          <Text variant="body" weight="bold">
+            {tx('이 후기를 다음 추천에 반영할까요?', 'Use this review for your next recommendations?')}
+          </Text>
+          <Text variant="caption" style={styles.consentDesc}>
+            {tx(
+              '저장·제외·일정 수정·체크인 후기를 보고 추천 순서를 바꿔요. 마이페이지에서 언제든 끌 수 있어요.',
+              'We reorder recommendations using your saves, exclusions, itinerary edits, and check-in reviews. You can turn this off anytime in My page.',
+            )}
+          </Text>
+        </View>
+        <Toggle
+          value={reflectInRecommendations}
+          onValueChange={setReflectInRecommendations}
+        />
+      </View>
+
       <Button
         label={tx('후기 저장하기', 'Save review')}
         variant="field"
         containerStyle={styles.cta}
-        onPress={() => router.back()}
+        onPress={saveReview}
       />
     </Screen>
   );
@@ -247,7 +298,23 @@ const styles = StyleSheet.create({
     color: color.text.heading,
     minHeight: 24,
   },
-  cta: {
+  consentCard: {
     marginTop: spacing[6],
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing[3],
+    backgroundColor: color.surface.soft,
+    borderRadius: radius.md,
+    padding: spacing[4],
+  },
+  consentCopy: {
+    flex: 1,
+    gap: spacing[1],
+  },
+  consentDesc: {
+    color: color.text.body,
+  },
+  cta: {
+    marginTop: spacing[4],
   },
 });

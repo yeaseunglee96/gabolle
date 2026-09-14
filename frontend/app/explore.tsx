@@ -13,6 +13,7 @@ import { BrandLogoLink } from '@/components/BrandLogoLink';
 import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
+import { Eyebrow } from '@/components/Eyebrow';
 import { color, radius, spacing } from '@/design/tokens';
 import { getFacets, type FacetKeyEntry, type FacetsLoadResult } from '@/discovery/localExplore';
 import { useI18n } from '@/i18n';
@@ -56,7 +57,7 @@ export default function LocalExplore() {
       </View>
 
       <View style={styles.heading}>
-        <Text variant="eyebrow" weight="bold">LOCAL EXPLORE</Text>
+        <Eyebrow>{tx('로컬 탐색', 'Local explore')}</Eyebrow>
         <Text variant="display" weight="bold">{tx('부산 로컬 탐색', 'Explore Busan like a local')}</Text>
         <Text color={color.text.body}>{tx('갈래를 눌러 열면 그 자리에서 장소를 찾아요.', 'Tap a category to load places for it.')}</Text>
       </View>

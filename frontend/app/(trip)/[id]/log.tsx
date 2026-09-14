@@ -8,6 +8,7 @@ import { Share, StyleSheet, View } from 'react-native';
 import { color, radius, spacing } from '@/design/tokens';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
+import { Eyebrow } from '@/components/Eyebrow';
 import { Button } from '@/components/Button';
 import { useI18n } from '@/i18n';
 
@@ -33,9 +34,9 @@ export default function Log() {
 
   return (
     <Screen scroll>
-      <Text variant="eyebrow" weight="bold">
+      <Eyebrow>
         {tx('여행 후 · 자동 회고', 'After the trip · Auto recap')}
-      </Text>
+      </Eyebrow>
       <Text variant="display" weight="bold" style={styles.title}>
         {tx('부산에서 보낸 2일', '2 days in Busan')}
       </Text>

@@ -6,10 +6,12 @@ import { Image, Pressable, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { color, spacing } from '@/design/tokens';
+import { isAtLeast } from '@/layout/breakpoints';
+import { useLayout } from '@/layout/useLayout';
 import { useI18n } from '@/i18n';
 import { Text } from './Text';
 
-export type TabKey = 'home' | 'schedule' | 'map' | 'saved' | 'me';
+export type TabKey = 'home' | 'feed' | 'schedule' | 'map' | 'saved' | 'me';
 
 type Tab = {
   key: TabKey;
@@ -22,6 +24,7 @@ type Tab = {
 // APP 01에서 내보낸 실제 아이콘을 사용한다.
 const TABS: Tab[] = [
   { key: 'home', icon: require('../../assets/icons/home/home.png'), labelKo: '홈', labelEn: 'Home', route: '/home' },
+  { key: 'feed', icon: require('../../assets/icons/home/heart.png'), labelKo: '피드', labelEn: 'Feed', route: '/feed' },
   { key: 'schedule', icon: require('../../assets/icons/home/plus.png'), labelKo: '여행 만들기', labelEn: 'Create', route: '/plan/basic' },
   { key: 'map', icon: require('../../assets/icons/home/map.png'), labelKo: '내 여행', labelEn: 'My trips', route: '/trips' },
   { key: 'me', icon: require('../../assets/icons/home/user.png'), labelKo: '마이페이지', labelEn: 'Profile', route: '/me' },
@@ -30,6 +33,13 @@ const TABS: Tab[] = [
 export function TabBar({ active }: { active: TabKey }) {
   const router = useRouter();
   const { tx } = useI18n();
+  const { width } = useLayout();
+
+  // 이 바는 휴대폰 폭(하단 고정 탭) 전용이다 — breakpoints.ts 의 반응형 표를 보면
+  // 600px 부터는 상단 가로 바로 바뀌어야 한다. 그 화면은 아직 없으니, 없는 것을
+  // 지어내 보여주는 대신 desktop 폭에서는 아무것도 안 그린다(home.tsx 의 데스크톱
+  // 리다이렉트와 같은 판단). 화면 가운데 붕 뜬 모바일 탭바보다는 없는 쪽이 낫다.
+  if (isAtLeast(width, 'md')) return null;
 
   return (
     <View style={styles.bar}>

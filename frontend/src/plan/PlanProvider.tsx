@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 
 import { getApiLanguage } from '@/api/client';
+import { useAuth } from '@/auth/AuthProvider';
 import { conflictingFoodCode, foodLabel } from './foodConflicts';
 
 const tx = (ko: string, en: string) => (getApiLanguage() === 'en' ? en : ko);
@@ -59,7 +60,19 @@ export type PlanDraft = {
 };
 
 const VERSION = 1;
-const STORAGE_KEY = '@gabolle/plan-draft';
+
+// S15P21E201-810 — 초안을 계정별로 나눠 저장한다.
+//
+// 전에는 열쇠가 '@gabolle/plan-draft' 하나였다. 그래서 같은 브라우저를 쓰는 모든 계정이
+// 같은 초안을 봤다 — 로그인한 사람이 바뀌어도 앞 사람이 넣은 날짜·예산·출발지가 1단계에
+// 그대로 떠 있었다. 공용 PC 에서는 앞 사람이 어디로 언제 가려 했는지가 보인다.
+const STORAGE_PREFIX = '@gabolle/plan-draft';
+const ANONYMOUS_KEY = `${STORAGE_PREFIX}:anonymous`;
+
+// 계정 구분이 없던 시절의 열쇠. 남겨 두면 옛 값이 계속 남아 있으므로 한 번 지운다.
+const LEGACY_STORAGE_KEY = STORAGE_PREFIX;
+
+const storageKeyFor = (userId: string | null) => (userId ? `${STORAGE_PREFIX}:${userId}` : ANONYMOUS_KEY);
 export const EMPTY_PLAN: PlanDraft = { startDate: '', endDate: '', travelers: 1, adults: 1, children: 0, origin: '', originLat: null, originLng: null, transport: 'TRANSIT', budgetKrw: 100000, dayStartTime: '09:00', dayEndTime: '18:00', walkingLevel: 'MEDIUM', companionType: 'SOLO', preferences: [], preferenceAnswerStatus: { category: 'UNKNOWN', atmosphere: 'UNKNOWN', locality: 'UNKNOWN', quietness: 'UNKNOWN', touristPreference: 'UNKNOWN', foodPreference: 'UNKNOWN' }, atmospheres: [], localityLevel: null, quietLevel: null, touristLevel: null, foods: [], dietTypes: [], allergies: [], allergyStatus: 'UNKNOWN', allergyAnswered: false, dietStatus: 'UNKNOWN', dietAnswered: false, maxWalkingDistanceM: null, slopeConstraint: null, stairsConstraint: null, shadePreference: null, wheelchair: null, stroller: null, luggage: null, accessibilityNeeds: [], travelAreas: [], maxCompletedStep: 0, paceLevel: null, englishMenuRequired: false, foreignCardRequired: false, soloDiningPreferred: false, accommodation: '', maxTransfers: null, mustVisitPlaces: [] };
 
 const VOLATILE_CONSTRAINTS: Partial<PlanDraft> = {
@@ -83,26 +96,59 @@ type PlanContextValue = {
 const PlanContext = createContext<PlanContextValue | null>(null);
 
 export function PlanProvider({ children }: { children: ReactNode }) {
+  const { user, ready: authReady } = useAuth();
+  const storageKey = storageKeyFor(user?.userId ?? null);
+
   const [draft, setDraft] = useState<PlanDraft>(EMPTY_PLAN);
-  const [ready, setReady] = useState(false);
+  // 어느 열쇠까지 읽어 왔는지. 계정이 바뀌면 이 값과 storageKey 가 어긋나고, 그 동안에는
+  // 저장을 멈춘다 — 안 그러면 앞 계정의 초안이 새 계정 자리에 그대로 복사된다.
+  const [hydratedKey, setHydratedKey] = useState<string | null>(null);
   const [foodConflictNotice, setFoodConflictNotice] = useState<string | null>(null);
   const changedBeforeHydration = useRef(false);
+  const ready = hydratedKey !== null;
 
   useEffect(() => {
-    AsyncStorage.getItem(STORAGE_KEY).then((raw) => {
-      if (!raw) return;
-      try {
-        const stored = JSON.parse(raw) as { version?: number; draft?: PlanDraft };
-        if (stored.version === VERSION && stored.draft && !changedBeforeHydration.current) setDraft({ ...EMPTY_PLAN, ...stored.draft, ...VOLATILE_CONSTRAINTS });
-      } catch {
-        void AsyncStorage.removeItem(STORAGE_KEY);
+    // 로그인 상태를 알기 전에는 아무것도 읽지 않는다. 세션을 되살리는 동안에는 user 가
+    // 잠깐 null 이라, 이 조건이 없으면 그 순간 익명 열쇠를 읽어 초안을 비우고, 뒤이어
+    // 계정 열쇠로 옮기면서 그 빈 초안을 저장된 것 위에 덮어쓴다. 새로고침 한 번에 입력이
+    // 사라진다 — 실제로 그렇게 됐다.
+    if (!authReady) return;
+    if (hydratedKey === storageKey) return;
+
+    // 로그인하지 않고 채운 초안은 로그인 뒤에도 그대로 쓴다. 확인 화면에 "로그인하고 일정
+    // 만들기" 가 있어서, 여기서 비우면 네 단계를 처음부터 다시 채우게 된다.
+    if (hydratedKey === ANONYMOUS_KEY && storageKey !== ANONYMOUS_KEY) {
+      void AsyncStorage.removeItem(ANONYMOUS_KEY);
+      setHydratedKey(storageKey);
+      return;
+    }
+
+    let cancelled = false;
+    changedBeforeHydration.current = false;
+    AsyncStorage.getItem(storageKey).then((raw) => {
+      if (cancelled) return;
+      let restored: PlanDraft | null = null;
+      if (raw) {
+        try {
+          const stored = JSON.parse(raw) as { version?: number; draft?: PlanDraft };
+          if (stored.version === VERSION && stored.draft) restored = { ...EMPTY_PLAN, ...stored.draft, ...VOLATILE_CONSTRAINTS };
+        } catch {
+          void AsyncStorage.removeItem(storageKey);
+        }
       }
-    }).finally(() => setReady(true));
-  }, []);
+      // 이 계정으로 저장해 둔 것이 없으면 기본값으로 되돌린다. 화면에 남아 있는 값이
+      // 앞 계정의 것이기 때문이다.
+      if (!changedBeforeHydration.current) setDraft(restored ?? EMPTY_PLAN);
+    }).finally(() => { if (!cancelled) setHydratedKey(storageKey); });
+    return () => { cancelled = true; };
+  }, [authReady, hydratedKey, storageKey]);
+
+  useEffect(() => { void AsyncStorage.removeItem(LEGACY_STORAGE_KEY); }, []);
 
   useEffect(() => {
-    if (ready) void AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({ version: VERSION, draft: { ...draft, ...VOLATILE_CONSTRAINTS } }));
-  }, [draft, ready]);
+    if (hydratedKey !== storageKey) return;
+    void AsyncStorage.setItem(storageKey, JSON.stringify({ version: VERSION, draft: { ...draft, ...VOLATILE_CONSTRAINTS } }));
+  }, [draft, hydratedKey, storageKey]);
 
   // 3단계 알레르기·식단(제외 재료)이 바뀔 때마다 2단계에서 이미 고른 음식과 다시 대조한다.
   // 단계를 오간 뒤에도 매번 다시 계산되도록 draft.foods 는 의존성에 넣지 않는다 — 이 효과 자체가 foods 를 바꾸므로 넣으면 무한 루프가 된다.
@@ -122,11 +168,11 @@ export function PlanProvider({ children }: { children: ReactNode }) {
     ready,
     update: (patch) => { if (!ready) changedBeforeHydration.current = true; setDraft((current) => ({ ...current, ...patch })); },
     completeStep: (step) => setDraft((current) => ({ ...current, maxCompletedStep: Math.max(current.maxCompletedStep, step) })),
-    clear: async () => { setDraft(EMPTY_PLAN); await AsyncStorage.removeItem(STORAGE_KEY); },
+    clear: async () => { setDraft(EMPTY_PLAN); await AsyncStorage.removeItem(storageKey); },
     basicComplete: Boolean(draft.startDate && draft.endDate && draft.endDate >= draft.startDate && draft.travelers > 0),
     foodConflictNotice,
     clearFoodConflictNotice: () => setFoodConflictNotice(null),
-  }), [draft, ready, foodConflictNotice]);
+  }), [draft, ready, storageKey, foodConflictNotice]);
 
   return <PlanContext.Provider value={value}>{children}</PlanContext.Provider>;
 }

@@ -30,6 +30,7 @@ const WATCHED = [
   { name: 'EXPO_PUBLIC_GOOGLE_CLIENT_ID', lost: '구글 로그인 버튼이 설정 안내로 떨어진다' },
   { name: 'EXPO_PUBLIC_NAVER_CLIENT_ID', lost: '네이버 로그인 버튼이 설정 안내로 떨어진다' },
   { name: 'EXPO_PUBLIC_KAKAO_CLIENT_ID', lost: '카카오 로그인 버튼이 설정 안내로 떨어진다' },
+  { name: 'EXPO_PUBLIC_APPLE_CLIENT_ID', lost: '애플 로그인 버튼이 설정 안내로 떨어진다' },
 ];
 
 const missing = WATCHED.filter(({ name }) => !(process.env[name] ?? '').trim());

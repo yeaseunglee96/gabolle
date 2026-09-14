@@ -1,4 +1,19 @@
 import { apiRequest, ApiClientError } from '@/api/client';
+import { loadBehaviorConsent } from '@/personalization/behaviorConsent';
+
+// 가입 요청에 실을 행동 개인화 동의. 값을 코드에 박지 않고 사용자가 정한 것을 읽는다.
+//
+// 🔴 서버는 behaviorPersonalizationEnabled 가 true 면 consents 에도
+//    BEHAVIOR_PERSONALIZATION: true 가 있어야 가입을 받는다(ConsentPolicy). 둘을 같이 만든다.
+// 🔴 이 값이 서버로 가는 유일한 순간이 가입이다. 가입 뒤에 토글을 바꾸면 그 변경은
+//    기기에만 남는다 — 서버에 동의를 바꿀 API 가 아직 없다.
+async function behaviorPersonalizationConsent() {
+  const enabled = await loadBehaviorConsent();
+  return {
+    behaviorPersonalizationEnabled: enabled,
+    extraConsents: enabled ? { BEHAVIOR_PERSONALIZATION: true } : {},
+  };
+}
 
 export type SignupLanguage = 'KO' | 'EN';
 
@@ -19,7 +34,7 @@ export type Registration = {
 };
 export type AuthUser = { userId: string; email: string; displayName: string; language: string; status: string };
 export type AuthTokens = { accessToken: string; refreshToken: string | null; expiresIn: number; sessionId: string; user: AuthUser };
-export type OAuthProvider = 'google' | 'naver' | 'kakao';
+export type OAuthProvider = 'google' | 'naver' | 'kakao' | 'apple';
 export type OAuthChallenge = { state: string; nonce: string; expiresAt: string };
 
 // 소셜 인증(POST /auth/oauth/{provider}) 뒤 셋 중 하나로 갈린다 — S15P21E201-689/-690.
@@ -40,7 +55,8 @@ export type OAuthLinkRequiredResult = {
 };
 export type OAuthCompleteResult = OAuthLoginResult | OAuthSignupRequiredResult | OAuthLinkRequiredResult;
 
-export function signup(input: SignupInput) {
+export async function signup(input: SignupInput) {
+  const { behaviorPersonalizationEnabled, extraConsents } = await behaviorPersonalizationConsent();
   return apiRequest<Registration>('/api/v1/auth/signup', { method: 'POST', body: {
     email: input.email.trim(),
     password: input.password,
@@ -50,8 +66,9 @@ export function signup(input: SignupInput) {
     consents: {
       TERMS_OF_SERVICE: input.termsAccepted,
       PRIVACY_POLICY: input.privacyAccepted,
+      ...extraConsents,
     },
-    behaviorPersonalizationEnabled: false,
+    behaviorPersonalizationEnabled,
   } });
 }
 
@@ -86,10 +103,11 @@ export function completeOAuth(provider: OAuthProvider, input: {
   });
 }
 
-export function completeOAuthSignup(input: {
+export async function completeOAuthSignup(input: {
   signupTicket: string; displayName: string; language: SignupLanguage; ageGateAccepted: boolean;
   deviceId?: string; termsAccepted: boolean; privacyAccepted: boolean;
 }) {
+  const { behaviorPersonalizationEnabled, extraConsents } = await behaviorPersonalizationConsent();
   return apiRequest<OAuthLoginResult>('/api/v1/auth/oauth/signup', {
     method: 'POST', skipUnauthorizedHandling: true, body: {
       signupTicket: input.signupTicket,
@@ -97,8 +115,8 @@ export function completeOAuthSignup(input: {
       language: input.language,
       ageGateAccepted: input.ageGateAccepted,
       deviceId: input.deviceId,
-      consents: { TERMS_OF_SERVICE: input.termsAccepted, PRIVACY_POLICY: input.privacyAccepted },
-      behaviorPersonalizationEnabled: false,
+      consents: { TERMS_OF_SERVICE: input.termsAccepted, PRIVACY_POLICY: input.privacyAccepted, ...extraConsents },
+      behaviorPersonalizationEnabled,
     },
   });
 }
@@ -108,12 +126,54 @@ export function completeOAuthLink(input: { linkTicket: string; password: string;
     method: 'POST', skipUnauthorizedHandling: true, body: input,
   });
 }
+
+// jaehyeon 님 계약(S15P21E201-690, 2026-09-11): POST /auth/oauth/{provider}/link.
+// completeOAuthLink(위)와 다르다 — 그건 로그인 전에 409를 받고 비밀번호로 붙이는 쪽이고,
+// 이건 이미 로그인한 계정에 소셜 신원을 직접 붙이는 쪽이다(설정 화면, S15P21E201-832).
+// 이메일을 전혀 안 보므로 애플·기본 동의 카카오처럼 이메일을 안 주는 제공자도 그대로 된다.
+// 같은 신원을 같은 계정에 다시 연결하면 alreadyLinked=true로 200(멱등)이고, 다른 계정에
+// 이미 붙어 있으면 409 OAUTH_IDENTITY_TAKEN이다 — 그건 오류로 던지지 않고 정상 결과로 접어
+// 넣는다(completeOAuth의 LINK_REQUIRED 처리와 같은 방식).
+export type OAuthIdentityLinkResult =
+  | { status: 'LINKED'; providerEmail: string | null; alreadyLinked: boolean }
+  | { status: 'TAKEN' };
+
+export async function linkOAuthAccount(
+  provider: OAuthProvider,
+  input: { authorizationCode: string; redirectUri: string; codeVerifier: string; state: string; nonce: string },
+  accessToken: string,
+): Promise<OAuthIdentityLinkResult> {
+  try {
+    const dto = await apiRequest<{ provider: OAuthProvider; providerEmail: string | null; linkedAt: string; alreadyLinked: boolean }>(
+      `/api/v1/auth/oauth/${provider}/link`,
+      { method: 'POST', accessToken, body: input },
+    );
+    return { status: 'LINKED', providerEmail: dto.providerEmail, alreadyLinked: dto.alreadyLinked };
+  } catch (cause) {
+    if (cause instanceof ApiClientError && cause.code === 'OAUTH_IDENTITY_TAKEN') return { status: 'TAKEN' };
+    throw cause;
+  }
+}
 export function getMe(accessToken: string) { return apiRequest<AuthUser>('/api/v1/auth/me', { accessToken }); }
 export function updateMe(accessToken: string, input: { displayName?: string; language?: SignupLanguage }) {
   return apiRequest<AuthUser>('/api/v1/auth/me', { method: 'PATCH', accessToken, body: input });
 }
-export function deleteMe(accessToken: string, password: string) {
-  return apiRequest<void>('/api/v1/auth/me', { method: 'DELETE', accessToken, body: { password }, skipUnauthorizedHandling: true });
+// 박재현 님 계약(S15P21E201-837, 2026-09-11, back/dev MR !598): 소셜로만 가입한 계정은
+// local_credential 행이 아예 없어 비밀번호를 못 받는다 — 본인 확인을 비밀번호에서 사용자가
+// 직접 치는 확인 값으로 옮겼다. confirmation은 필수이고 "DELETE"와 대소문자·앞뒤 공백까지
+// 정확히 같아야 한다("입력한 그대로 보낸다" — 화면이 다듬어 보내면 확인이 아니라 형식이
+// 된다). password는 선택이고, 비밀번호로 가입한 계정에서만 의미가 있다 — 화면은 아예 비밀번호
+// 칸을 안 그리는 쪽을 택했다(jaehyeon 님 권고, 두 종류 계정이 같은 화면을 쓸 수 있다).
+export function deleteMe(accessToken: string, confirmation: string) {
+  return apiRequest<void>('/api/v1/auth/me', { method: 'DELETE', accessToken, body: { confirmation }, skipUnauthorizedHandling: true });
+}
+
+// 계정 삭제 전 안내 화면이 보여줄 실제 영향 수(S15P21E201-188/195). 실제로 지워지는 범위와
+// 같은 기준으로 센 값이다 — reviewCount는 이 백엔드에 리뷰 도메인이 없어 칸 자체가 없다.
+export type AccountDeletionPreview = { ownedTripCount: number; itineraryCount: number; recordCount: number };
+
+export function getAccountDeletionPreview(accessToken: string) {
+  return apiRequest<AccountDeletionPreview>('/api/v1/auth/me/deletion-preview', { accessToken });
 }
 export function refreshWebSession() { return apiRequest<AuthTokens>('/api/v1/auth/web/refresh', { method: 'POST', skipUnauthorizedHandling: true }); }
 export function refreshMobileSession(refreshToken: string) { return apiRequest<AuthTokens>('/api/v1/auth/refresh', { method: 'POST', body: { refreshToken }, skipUnauthorizedHandling: true }); }
