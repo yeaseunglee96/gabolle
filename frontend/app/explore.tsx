@@ -171,7 +171,11 @@ function LocalBranchList({ facetKey, coords, locationState, onRetryLocation }: {
     </View>;
   }
   if (result.items.length === 0) {
-    return <View style={styles.branchBody}><Text color={color.text.body}>{tx('근처에 이 갈래의 장소가 없어요.', 'No places in this category nearby.')}</Text></View>;
+    // S15P21E201-919: 갈래 배지 개수(부산 전체 집계)와 이 목록(반경 안 검색)은 서로 다른
+    // 걸 잰다 — 배지에 숫자가 있어도 반경 안에는 없을 수 있다. "아예 없다"처럼 읽히지
+    // 않도록 실제로 넓혀 본 반경을 밝힌다.
+    const radiusKm = (result.effectiveRadiusM / 1000).toLocaleString(undefined, { maximumFractionDigits: 1 });
+    return <View style={styles.branchBody}><Text color={color.text.body}>{tx(`${radiusKm}km 이내에는 이 갈래의 장소가 없어요. 부산 전체에는 있을 수 있어요.`, `No places in this category within ${radiusKm}km. There may be some elsewhere in Busan.`)}</Text></View>;
   }
   return (
     <View style={styles.branchBody}>
