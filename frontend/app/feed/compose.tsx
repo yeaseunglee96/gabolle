@@ -10,7 +10,7 @@ import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
-import { resizeForUpload } from '@/social/imageResize';
+import { MAX_UPLOAD_BYTES, measureBytes, resizeForUpload } from '@/social/imageResize';
 import { createStory, uploadStoryImage, VISIBILITY_LABEL, type StoryVisibility } from '@/social/stories';
 
 const MAX_IMAGES = 3;
@@ -68,12 +68,23 @@ export default function ComposeStory() {
     try {
       const resized = await resizeForUpload(originalUri);
       setImages((prev) => prev.map((image, position) => position === index ? { ...image, localUri: resized.uri } : image));
+      // 줄인 뒤에도 상한을 넘으면 보내지 않는다 — 올라가기를 기다린 끝에 실패를
+      // 보는 대신, 여기서 실제 크기와 함께 이유를 말한다 (S15P21E201-955).
+      // 못 재면(null) 막지 않는다. 판정은 서버가 하고 413 처리가 받아 준다.
+      const bytes = await measureBytes(resized.uri);
+      if (bytes !== null && bytes > MAX_UPLOAD_BYTES) {
+        const mb = (bytes / (1024 * 1024)).toFixed(1);
+        setImages((prev) => prev.map((image, position) => position === index
+          ? { ...image, uploading: false, error: tx(`줄여도 ${mb}MB 라 올릴 수 없어요. 한 장은 3MB까지예요.`, `Still ${mb}MB after resizing — each photo must be 3MB or less.`) }
+          : image));
+        return;
+      }
       const outcome = await uploadStoryImage({ uri: resized.uri, fileName: 'story.jpg', mimeType: 'image/jpeg' }, accessToken);
       setImages((prev) => prev.map((image, position) => position === index
         ? (outcome.state === 'success' ? { ...image, imageUrl: outcome.imageUrl, uploading: false, error: null } : { ...image, uploading: false, error: outcome.message })
         : image));
     } catch {
-      setImages((prev) => prev.map((image, position) => position === index ? { ...image, uploading: false, error: tx('사진을 처리하지 못했어요.', 'Could not process the photo.') } : image));
+      setImages((prev) => prev.map((image, position) => position === index ? { ...image, uploading: false, error: tx('사진을 처리하지 못했어요. 다른 사진으로 해보거나, 3MB 이하로 줄여서 올려주세요.', 'Could not process the photo. Try another one, or resize it to 3MB or less.') } : image));
     }
   };
 
@@ -133,7 +144,7 @@ export default function ComposeStory() {
     />
     <Text variant="caption" color={color.text.muted} style={styles.counter}>{body.trim().length}/{BODY_MAX}</Text>
 
-    <Text variant="caption" weight="bold" style={styles.label}>{tx('사진 (최대 3장)', 'Photos (up to 3)')}</Text>
+    <Text variant="caption" weight="bold" style={styles.label}>{tx('사진 (최대 3장 · 한 장 3MB까지)', 'Photos (up to 3 · 3MB each)')}</Text>
     <View style={styles.imageRow}>
       {images.map((image, index) => <View key={`${image.localUri}-${index}`} style={styles.imageSlot}>
         <Image source={{ uri: image.localUri }} resizeMode="cover" accessibilityLabel={tx('선택한 사진', 'Selected photo')} style={styles.imagePreview} />
