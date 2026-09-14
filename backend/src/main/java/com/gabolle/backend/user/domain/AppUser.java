@@ -70,6 +70,16 @@ public class AppUser {
 	@Column(name = "frequent_origin_label", length = 100)
 	private String frequentOriginLabel;
 
+	/**
+	 * 프로필 사진 주소 (S15P21E201-844). 사진 파일은 업로드 자리에 올라가고 여기엔 주소만 남는다.
+	 *
+	 * <p>{@code null} 은 "안 골랐다" 다. 빈 문자열을 쓰지 않는 이유는 화면이 그것을 주소로 알고
+	 * 깨진 이미지를 그리기 때문이고, DB 쪽에도 같은 규칙이 걸려 있다
+	 * ({@code ck_app_user_avatar_url_not_blank}).
+	 */
+	@Column(name = "avatar_url", length = 500)
+	private String avatarUrl;
+
 	protected AppUser() {
 	}
 
@@ -105,6 +115,21 @@ public class AppUser {
 			throw new IllegalArgumentException("표시 이름은 비울 수 없다");
 		}
 		this.displayName = displayName;
+	}
+
+	/**
+	 * 프로필 사진을 바꾸거나 뗀다 (S15P21E201-844). 주소가 우리 업로드 자리에서 나온 것인지는
+	 * 부르는 쪽이 확인한 뒤 넘긴다 — 그 판정에 필요한 설정을 이 엔티티가 알 이유가 없다.
+	 *
+	 * <p>{@code null} 이 "뗀다" 다. 빈 문자열은 받지 않는다 — 이름과 달리 사진은 없어도 되는
+	 * 값이라 지우는 길을 열어야 하고, 그 길을 {@code null} 하나로만 둔다. 빈 문자열까지 지우기로
+	 * 받으면 "안 골랐다" 를 표현하는 방법이 둘이 되고 화면은 그 둘을 다르게 그린다.
+	 */
+	public void changeAvatarUrl(String avatarUrl) {
+		if (avatarUrl != null && avatarUrl.isBlank()) {
+			throw new IllegalArgumentException("프로필 사진 주소는 빈 문자열일 수 없다 — 떼려면 null 을 넘긴다");
+		}
+		this.avatarUrl = avatarUrl;
 	}
 
 	/** 표시 언어를 바꾼다. 값 정규화는 부르는 쪽이 끝낸 뒤 넘긴다. */
@@ -278,5 +303,9 @@ public class AppUser {
 
 	public String getFrequentOriginLabel() {
 		return frequentOriginLabel;
+	}
+
+	public String getAvatarUrl() {
+		return avatarUrl;
 	}
 }

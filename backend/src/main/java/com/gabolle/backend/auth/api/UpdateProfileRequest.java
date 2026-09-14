@@ -29,5 +29,21 @@ import jakarta.validation.constraints.Size;
  */
 public record UpdateProfileRequest(
 		@Size(min = 1, max = 30) String displayName,
-		String language) {
+		String language,
+		@Size(max = 500) String avatarUrl) {
+
+	/**
+	 * 사진을 떼라는 요청인가 (S15P21E201-844).
+	 *
+	 * <p>🔴 이름과 사진은 "빈 값" 의 뜻이 반대다. 이름은 없는 계정을 만들 수 없어서 빈 문자열을
+	 * 거부하지만, 사진은 <b>원래 없어도 되는 값</b>이라 떼는 길이 필요하다. 그런데 Jackson 은
+	 * "키를 안 보냈다" 와 "null 을 보냈다" 를 똑같이 {@code null} 로 준다 — 그래서 {@code null}
+	 * 하나로는 "안 바꾼다" 와 "뗀다" 를 가를 수 없다.
+	 *
+	 * <p>그래서 <b>빈 문자열이 떼기</b>다. 키를 안 보내면 그 값은 그대로 둔다. 저장되는 값 쪽은
+	 * 여전히 {@code null} 하나뿐이라({@code AppUser.changeAvatarUrl}) 표에 빈 문자열이 남지 않는다.
+	 */
+	public boolean removesAvatar() {
+		return avatarUrl != null && avatarUrl.isBlank();
+	}
 }
