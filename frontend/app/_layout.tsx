@@ -10,7 +10,6 @@ import { AuthProvider } from '@/auth/AuthProvider';
 import { AppErrorBoundary } from '@/components/AppErrorBoundary';
 import { ApiAvailabilityBanner } from '@/components/ApiAvailabilityBanner';
 import { BuildInfoBadge } from '@/components/BuildInfoBadge';
-import { GlobalLanguageBadge } from '@/components/GlobalLanguageBadge';
 import { CollectionProvider } from '@/collection/CollectionProvider';
 import { OnboardingPreferencesProvider } from '@/onboarding/OnboardingPreferences';
 import { PlanProvider } from '@/plan/PlanProvider';
@@ -32,7 +31,6 @@ export default function RootLayout() {
         <OnboardingPreferencesProvider>
           <ApiAvailabilityBanner />
           <BuildInfoBadge />
-          <GlobalLanguageBadge />
           <AuthProvider>
             <PlanProvider>
               <CollectionProvider>
