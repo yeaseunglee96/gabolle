@@ -1,5 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
-import { AppState, Image, ImageBackground, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Image, ImageBackground, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -19,11 +18,7 @@ const logo = require('../assets/brand/gabolle-logo-figma.png');
 const nightLogo = require('../assets/brand/gabolle-logo-night.png');
 const welcomeImage = require('../assets/images/welcome-busan.png');
 const webHeroImage = require('../assets/home/web-hero.png');
-const mobileWelcomeVideo = require('../assets/video/busan-tram-portrait.mp4');
-const tramLandscapeVideo = require('../assets/video/busan-tram-landscape.mp4');
-const tramSunsetVideo = require('../assets/video/busan-tram-sunset.mp4');
 const webWelcomeVideo = require('../assets/video/busan-coast-sunset.mp4');
-const beachNightVideo = require('../assets/video/busan-beach-night.mp4');
 type WelcomeLanguage = { code: Extract<LanguageCode, 'ko' | 'en'>; label: string };
 const LANGUAGES: WelcomeLanguage[] = [{ code: 'ko', label: '한국어' }, { code: 'en', label: 'English' }];
 const FEATURES = [
@@ -32,38 +27,15 @@ const FEATURES = [
   { icon: require('../assets/icons/home/users.png'), titleKo: '함께 여행 설계', titleEn: 'Plan together', bodyKo: '동행자와 조건을 공유하고\n모두에게 맞는 일정을 만들어요.', bodyEn: 'Share conditions with companions\nand build a trip that works for everyone.' },
 ] as const;
 
-const VIDEO_BY_TIME = {
-  dawn: [beachNightVideo, mobileWelcomeVideo],
-  morning: [mobileWelcomeVideo, tramLandscapeVideo],
-  day: [tramLandscapeVideo, mobileWelcomeVideo],
-  sunset: [tramSunsetVideo, webWelcomeVideo],
-  night: [beachNightVideo, tramSunsetVideo],
-} as const;
-
-// 부산 시간대별 영상이라 기기의 로컬 타임존이 아니라 Asia/Seoul 시각으로 고른다 —
-// 그렇지 않으면 해외에서 접속한 여행자에게는 시간대가 어긋난 영상이 뜬다.
+// 부산 시간대별로 로고 밝기를 고르느라 기기의 로컬 타임존이 아니라 Asia/Seoul 시각을 쓴다 —
+// 그렇지 않으면 해외에서 접속한 여행자에게는 시간대가 어긋난 로고가 뜬다.
 function seoulHour(date = new Date()) {
   return Number(new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Seoul', hourCycle: 'h23', hour: 'numeric' }).format(date));
-}
-
-function videosForCurrentTime() {
-  const hour = seoulHour();
-  if (hour < 7) return VIDEO_BY_TIME.dawn;
-  if (hour < 11) return VIDEO_BY_TIME.morning;
-  if (hour < 17) return VIDEO_BY_TIME.day;
-  if (hour < 20) return VIDEO_BY_TIME.sunset;
-  return VIDEO_BY_TIME.night;
 }
 
 function shouldUseLightWelcomeLogo() {
   const hour = seoulHour();
   return hour < 7 || hour >= 17;
-}
-
-function pickWelcomeVideo(previous?: number) {
-  const candidates = videosForCurrentTime();
-  const alternatives = previous === undefined ? candidates : candidates.filter((source) => source !== previous);
-  return alternatives[Math.floor(Math.random() * alternatives.length)] ?? candidates[0];
 }
 
 export default function Welcome() {
@@ -73,18 +45,6 @@ export default function Welcome() {
   const { tx } = useI18n();
   const { user } = useAuth();
   const isDesktop = isAtLeast(width, 'lg');
-  const [welcomeVideo, setWelcomeVideo] = useState<number>(() => pickWelcomeVideo());
-  const appState = useRef(AppState.currentState);
-
-  useEffect(() => {
-    const subscription = AppState.addEventListener('change', (nextState) => {
-      if (appState.current !== 'active' && nextState === 'active') {
-        setWelcomeVideo((current) => pickWelcomeVideo(current));
-      }
-      appState.current = nextState;
-    });
-    return () => subscription.remove();
-  }, []);
 
   const chooseLanguage = (next: WelcomeLanguage['code']) => {
     setPreferences(next, mobility);
@@ -97,8 +57,10 @@ export default function Welcome() {
 
   if (!isDesktop) {
     const lightLogo = shouldUseLightWelcomeLogo();
+    // S15P21E201-925: 실기기(저사양·데이터 절약 모드 아님에도)에서 배경 영상 화질이
+    // 너무 나쁘다는 실사용 리포트로 영상을 뺐다 — 처음에 로고와 같이 쓰던 정적 사진으로 되돌린다.
     return <View style={styles.mobileScreen}>
-      <ScenicVideo poster={welcomeImage} source={welcomeVideo} />
+      <Image source={welcomeImage} resizeMode="cover" style={styles.mobileBackgroundImage} />
       <StatusBar style="light" />
       <SafeAreaView edges={['top', 'bottom']} style={styles.mobileSafeArea}>
         <View style={styles.mobileBrand}><Pressable accessibilityRole="button" accessibilityLabel={tx('GABOLLE 시작하기', 'Start GABOLLE')} accessibilityHint={tx('서비스 소개 화면으로 이동합니다', 'Goes to the service introduction screen')} onPress={() => startOnboarding()} style={({ pressed }) => [styles.logoLink, pressed && styles.pressed]}><Image source={lightLogo ? nightLogo : logo} resizeMode="contain" style={styles.mobileLogo} /></Pressable><Text variant="display" weight="bold" color={color.brand.orange}>{tx('부산 가볼래?', 'Shall we go to Busan?')}</Text></View>
