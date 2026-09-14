@@ -17,6 +17,11 @@ export type CollectionPlace = {
   photoUri: string | null;
   note: string | null;
   addedAt: string;
+  // S15P21E201-919: 카카오 지도 자동완성으로 고른 장소만 좌표가 있다 — 직접 타이핑한
+  // 장소는 이전처럼 null이다. VERSION을 안 올린 이유: 기존 저장 데이터는 이 두 칸이
+  // 없을 뿐 그대로 유효하고(선택 필드), 읽는 쪽은 항상 null 가능성을 이미 대비해야 한다.
+  lat: number | null;
+  lng: number | null;
 };
 
 export type CollectionList = {
@@ -50,7 +55,7 @@ function pruneOrphanedPlaces(places: Record<string, CollectionPlace>, lists: Col
   return next;
 }
 
-type NewPlaceInput = { name: string; category?: string | null; locality?: string | null; photoUri?: string | null; note?: string | null };
+type NewPlaceInput = { name: string; category?: string | null; locality?: string | null; photoUri?: string | null; note?: string | null; lat?: number | null; lng?: number | null };
 
 type CollectionContextValue = {
   ready: boolean;
@@ -109,7 +114,7 @@ export function CollectionProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const addNewPlaceToList = useCallback((listId: string, input: NewPlaceInput) => {
-    const place: CollectionPlace = { id: uid(), name: input.name, category: input.category ?? null, locality: input.locality ?? null, photoUri: input.photoUri ?? null, note: input.note ?? null, addedAt: new Date().toISOString() };
+    const place: CollectionPlace = { id: uid(), name: input.name, category: input.category ?? null, locality: input.locality ?? null, photoUri: input.photoUri ?? null, note: input.note ?? null, addedAt: new Date().toISOString(), lat: input.lat ?? null, lng: input.lng ?? null };
     setData((current) => ({
       places: { ...current.places, [place.id]: place },
       lists: current.lists.map((list) => list.id === listId ? { ...list, placeIds: [place.id, ...list.placeIds] } : list),
