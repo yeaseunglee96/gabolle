@@ -22,6 +22,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import com.gabolle.backend.common.security.GlobalAuthExceptionHandler;
 import com.gabolle.backend.place.support.PlaceFixture;
 import com.gabolle.backend.review.presentation.ReviewExceptionHandler;
 import com.gabolle.backend.review.presentation.VisitVerificationController;
@@ -50,6 +51,9 @@ class VisitVerificationIntegrationTest extends ReviewPostgresIntegrationTest {
 	private ReviewExceptionHandler exceptionHandler;
 
 	@Autowired
+	private GlobalAuthExceptionHandler globalAuthExceptionHandler;
+
+	@Autowired
 	private JdbcTemplate jdbcTemplate;
 
 	private MockMvc mockMvc;
@@ -61,11 +65,15 @@ class VisitVerificationIntegrationTest extends ReviewPostgresIntegrationTest {
 	@BeforeEach
 	void setUp() {
 		this.mockMvc = MockMvcBuilders.standaloneSetup(this.controller)
-				.setControllerAdvice(this.exceptionHandler)
+				// 🔴 GlobalAuthExceptionHandler 를 함께 등록한다 — 정밀 위치 미동의는
+				//    AuthException(403) 으로 나가는데, 리뷰 도메인 처리기만 걸면 그 예외가
+				//    번역되지 않아 500 으로 보인다 (S15P21E201-549 후속).
+				.setControllerAdvice(this.exceptionHandler, this.globalAuthExceptionHandler)
 				.build();
 		this.placeFixture = new PlaceFixture(this.jdbcTemplate);
 		this.userId = UUID.randomUUID();
 		createUser(this.userId);
+		grantPreciseLocation(this.userId);
 	}
 
 	private void createUser(UUID id) {
@@ -74,6 +82,20 @@ class VisitVerificationIntegrationTest extends ReviewPostgresIntegrationTest {
 				"INSERT INTO app_user (user_id, display_name, language, personalization_mode, status, created_at, updated_at) "
 						+ "VALUES (?, 'test', 'ko', 'EXPLICIT_ONLY', 'ACTIVE', ?, ?)",
 				id, now, now);
+	}
+
+	/**
+	 * 🔴 방문 인증은 <b>정밀 위치 동의가 있어야</b> 지난다 (S15P21E201-549 후속).
+	 *
+	 * <p>이 줄이 없으면 아래 검사들이 전부 403 으로 죽는다. 그것이 정상이다 — 동의 없이
+	 * 방문을 판정하지 않는다는 것이 그 변경의 내용이고,
+	 * {@link #verificationIsRefusedWithoutPreciseLocationConsent()} 가 그 쪽을 잰다.
+	 */
+	private void grantPreciseLocation(UUID id) {
+		this.jdbcTemplate.update(
+				"INSERT INTO user_consent (consent_id, user_id, consent_type, status, policy_version, decided_at) "
+						+ "VALUES (?, ?, 'PRECISE_LOCATION', 'GRANTED', '2026-01', ?)",
+				UUID.randomUUID(), id, OffsetDateTime.now(ZoneOffset.UTC));
 	}
 
 	private Authentication as(UUID id) {
@@ -95,6 +117,80 @@ class VisitVerificationIntegrationTest extends ReviewPostgresIntegrationTest {
 				"SELECT count(*) FROM place_visit_verification WHERE place_id = ? AND user_id = ?", Integer.class,
 				placeId, userId);
 		return count == null ? 0 : count;
+	}
+
+	// ── 정밀 위치 동의 (S15P21E201-549 후속) ─────────────────────────────────
+
+	/**
+	 * 🔴 이 검사가 없을 때 무엇이 통과했나.
+	 *
+	 * <p>{@code ConsentType.PRECISE_LOCATION} 은 열거형과 응답 DTO 에만 있었고 <b>아무도 안
+	 * 봤다.</b> 동의를 한 번도 안 한 사람의 좌표로 방문을 판정해 {@code place_visit_verification}
+	 * 에 행을 남겼다 — {@code docs/recommendation-data-collection-p0.md} 11.4 가 "위치 미동의
+	 * 사용자의 방문 여부를 추측해서 채우지 않는다" 고 적어 둔 바로 그 일이다.
+	 */
+	@Test
+	@DisplayName("🔴 정밀 위치에 동의하지 않았으면 방문 인증이 거절된다 — 행도 안 남는다")
+	void verificationIsRefusedWithoutPreciseLocationConsent() throws Exception {
+		UUID stranger = UUID.randomUUID();
+		createUser(stranger);
+		UUID placeId = this.placeFixture.insertPlace("동의없음장소", null, "BEACH", 35.1587, 129.1604);
+
+		this.mockMvc.perform(post("/api/v1/places/{placeId}/visit-verifications", placeId)
+				.contentType(MediaType.APPLICATION_JSON)
+				.principal(as(stranger))
+				.content(requestBody(35.1587, 129.1604, 10)))
+				.andExpect(status().isForbidden())
+				.andExpect(jsonPath("$.error.code").value("PRECISE_LOCATION_CONSENT_REQUIRED"));
+
+		assertThat(verificationRowCount(placeId, stranger)).isZero();
+	}
+
+	@Test
+	@DisplayName("🔴 철회가 옛 동의를 이긴다 — 방침 판이 같아도 나중 결정이 이긴다")
+	void aLaterRevocationBeatsAnEarlierGrant() throws Exception {
+		UUID quitter = UUID.randomUUID();
+		createUser(quitter);
+		grantPreciseLocation(quitter);
+		this.jdbcTemplate.update(
+				"UPDATE user_consent SET status = 'REVOKED', decided_at = ? "
+						+ "WHERE user_id = ? AND consent_type = 'PRECISE_LOCATION'",
+				OffsetDateTime.now(ZoneOffset.UTC).plusSeconds(1), quitter);
+		UUID placeId = this.placeFixture.insertPlace("철회장소", null, "BEACH", 35.1587, 129.1604);
+
+		this.mockMvc.perform(post("/api/v1/places/{placeId}/visit-verifications", placeId)
+				.contentType(MediaType.APPLICATION_JSON)
+				.principal(as(quitter))
+				.content(requestBody(35.1587, 129.1604, 10)))
+				.andExpect(status().isForbidden());
+
+		assertThat(verificationRowCount(placeId, quitter)).isZero();
+	}
+
+	/**
+	 * 🔴 방침 판이 올라가도 이미 동의한 사람은 계속 쓸 수 있어야 한다.
+	 *
+	 * <p>{@code user_consent} 는 판마다 행이 쌓이는데, 판정을 <b>현재 판</b>으로 찾으면
+	 * 방침을 새로 올리는 날 동의한 사람 전원이 조용히 미동의가 되고 방문 인증이 그날부터
+	 * 403 을 낸다. 코드는 아무것도 안 바뀌었으므로 원인을 찾기 어렵다. 그래서 판을 가리지
+	 * 않고 <b>가장 최근 결정</b>을 본다.
+	 */
+	@Test
+	@DisplayName("🔴 옛 방침 판에 동의했어도 통과한다 — 판을 올리는 날 전원이 막히면 안 된다")
+	void aGrantOnAnOlderPolicyVersionStillCounts() throws Exception {
+		UUID veteran = UUID.randomUUID();
+		createUser(veteran);
+		this.jdbcTemplate.update(
+				"INSERT INTO user_consent (consent_id, user_id, consent_type, status, policy_version, decided_at) "
+						+ "VALUES (?, ?, 'PRECISE_LOCATION', 'GRANTED', '2025-07', ?)",
+				UUID.randomUUID(), veteran, OffsetDateTime.now(ZoneOffset.UTC).minusSeconds(60));
+		UUID placeId = this.placeFixture.insertPlace("옛판장소", null, "BEACH", 35.1587, 129.1604);
+
+		this.mockMvc.perform(post("/api/v1/places/{placeId}/visit-verifications", placeId)
+				.contentType(MediaType.APPLICATION_JSON)
+				.principal(as(veteran))
+				.content(requestBody(35.1587, 129.1604, 10)))
+				.andExpect(status().isOk());
 	}
 
 	@Test
@@ -146,8 +242,13 @@ class VisitVerificationIntegrationTest extends ReviewPostgresIntegrationTest {
 				.andExpect(jsonPath("$.data.verified").value(true))
 				.andExpect(jsonPath("$.data.distanceM").value(199));
 
+		// 🔴 둘째 사용자에게도 동의를 준다 (S15P21E201-549). createUser 는 계정만 만들고
+		//    동의는 안 준다 — 그 구분이 일부러 있는 것이라
+		//    verificationIsRefusedWithoutPreciseLocationConsent 가 그 상태를 쓴다.
+		//    여기서 재려는 것은 거리 경계이지 동의가 아니므로 명시적으로 켠다.
 		UUID secondUser = UUID.randomUUID();
 		createUser(secondUser);
+		grantPreciseLocation(secondUser);
 		double[] point201 = northOf(35.1587, 129.1604, 201);
 		this.mockMvc.perform(post("/api/v1/places/{placeId}/visit-verifications", placeId)
 						.principal(as(secondUser))

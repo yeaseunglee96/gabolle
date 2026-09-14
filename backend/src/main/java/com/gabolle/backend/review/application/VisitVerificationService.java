@@ -14,6 +14,7 @@ import com.gabolle.backend.place.service.GeoDistance;
 import com.gabolle.backend.review.config.ReviewProperties;
 import com.gabolle.backend.review.domain.PlaceVisitVerification;
 import com.gabolle.backend.review.repository.PlaceVisitVerificationRepository;
+import com.gabolle.backend.user.application.ConsentGuard;
 
 /**
  * 방문 인증 판정 — S15P21E201-279.
@@ -40,13 +41,17 @@ public class VisitVerificationService {
 
 	private final ReviewProperties properties;
 
+	private final ConsentGuard consentGuard;
+
 	private final Clock clock;
 
 	public VisitVerificationService(PlaceRepository placeRepository,
-			PlaceVisitVerificationRepository verificationRepository, ReviewProperties properties, Clock clock) {
+			PlaceVisitVerificationRepository verificationRepository, ReviewProperties properties,
+			ConsentGuard consentGuard, Clock clock) {
 		this.placeRepository = placeRepository;
 		this.verificationRepository = verificationRepository;
 		this.properties = properties;
+		this.consentGuard = consentGuard;
 		this.clock = clock;
 	}
 
@@ -66,6 +71,19 @@ public class VisitVerificationService {
 	 */
 	@Transactional
 	public VisitVerificationOutcome verify(UUID placeId, UUID userId, double lat, double lng, int accuracyM) {
+		// 🔴 좌표를 보기 전에 동의를 본다 — S15P21E201-549 후속.
+		//
+		//    이 검사만 순서가 거꾸로다(다른 검사는 형식 → 동의 순인데 여기는 동의가 먼저다).
+		//    이유는 여기서 다루는 값이 <b>기기의 현재 좌표</b>이기 때문이다. 형식을 먼저 보면
+		//    동의 없는 사람의 좌표가 이미 이 메서드 안에 들어와 거리 계산까지 지난 뒤에
+		//    거절된다 — 저장은 안 되지만 예외 메시지·스택·로그에 남을 자리가 그만큼 늘어난다.
+		//
+		//    docs/recommendation-data-collection-p0.md 11.4:
+		//    "정밀 위치 별도 동의가 없으면 수집하지 않는다",
+		//    "위치 미동의 사용자의 방문 여부를 추측해서 채우지 않는다".
+		//    이 메서드가 바로 그 "방문 여부를 채우는" 자리다.
+		this.consentGuard.requirePreciseLocation(userId);
+
 		Place place = this.placeRepository.findById(placeId)
 				.orElseThrow(() -> new PlaceNotFoundException(placeId));
 		if (!place.hasCoordinates()) {

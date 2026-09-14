@@ -94,7 +94,7 @@ class SbizPlaceLoaderIntegrationTest extends PlacePostgresIntegrationTest {
 		assertThat(features).extracting(f -> f.get("feature_type") + ":" + f.get("feature_key"))
 				// 🔴 여기가 "CUISINE_TAG:한식" 이던 것이 S15P21E201-635 의 버그다. 채점기는
 				//    앱이 보낸 코드와 이 값을 글자 그대로 비교하므로 한 건도 안 맞았다.
-				.containsExactly("CUISINE_TAG:PORK_SOUP", "INTEREST_TAG:FOOD");
+				.containsExactly("CATEGORY_TAG:FOOD", "CUISINE_TAG:PORK_SOUP");
 		assertThat(features).allSatisfy(f -> {
 			// 🔴 업종 칸에서 옮긴 것이지 가게에 직접 확인한 것이 아니다.
 			assertThat(f.get("evidence_status")).isEqualTo("ESTIMATED");
@@ -103,6 +103,8 @@ class SbizPlaceLoaderIntegrationTest extends PlacePostgresIntegrationTest {
 	}
 
 	@Test
+	// 🔴 containsExactly 는 순서까지 본다. 갈래 이름이 INTEREST_TAG → CATEGORY_TAG 로
+	//    바뀌면서 가나다 정렬 순서가 달라졌다 (S15P21E201-904).
 	@DisplayName("카페는 관심 태그가 둘이다 — FOOD 하나뿐이면 순서를 못 바꾼다")
 	void 카페는_CAFE_HEALING_도_붙는다() {
 		load(csv(row("MA010", "어느 커피", "", "음식", "카페", "부산광역시 해운대구 구남로 1", "129.16", "35.16")));
@@ -112,10 +114,10 @@ class SbizPlaceLoaderIntegrationTest extends PlacePostgresIntegrationTest {
 				WHERE source_type = 'SBIZ' ORDER BY feature_type, feature_key
 				""", String.class);
 
-		// 🔴 모든 음식점에 INTEREST_TAG:FOOD 하나만 붙으면 후보가 전부 똑같이 맞아서
+		// 🔴 모든 음식점에 CATEGORY_TAG:FOOD 하나만 붙으면 후보가 전부 똑같이 맞아서
 		//    겹침 비율이 다 같아진다 — 그 항이 순서를 한 칸도 못 바꾼다.
 		assertThat(keys).containsExactly(
-				"CUISINE_TAG:CAFE_DESSERT", "INTEREST_TAG:CAFE_HEALING", "INTEREST_TAG:FOOD");
+				"CATEGORY_TAG:CAFE_HEALING", "CATEGORY_TAG:FOOD", "CUISINE_TAG:CAFE_DESSERT");
 	}
 
 	@Test
@@ -128,7 +130,7 @@ class SbizPlaceLoaderIntegrationTest extends PlacePostgresIntegrationTest {
 				String.class);
 
 		// 백반/한정식 10,640곳 안에 돼지국밥집이 537곳 섞여 있다. 통째로 붙이면 95% 가 오답이다.
-		assertThat(keys).containsExactly("INTEREST_TAG:FOOD");
+		assertThat(keys).containsExactly("CATEGORY_TAG:FOOD");
 	}
 
 	@Test

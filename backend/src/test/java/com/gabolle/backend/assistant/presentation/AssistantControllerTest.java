@@ -1,9 +1,13 @@
 package com.gabolle.backend.assistant.presentation;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -17,16 +21,19 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.gabolle.backend.assistant.application.AssistantChatService;
+import com.gabolle.backend.assistant.application.AssistantRateLimiter;
 import com.gabolle.backend.assistant.application.AssistantVendorException;
 import com.gabolle.backend.assistant.application.AssistantVendorPort;
+import com.gabolle.backend.assistant.config.AssistantProperties;
 import com.gabolle.backend.assistant.domain.AssistantActionKind;
+import com.gabolle.backend.assistant.domain.AssistantChatRequest;
 import com.gabolle.backend.assistant.domain.AssistantReply;
 
 /**
  * {@code POST /api/v1/assistant/messages} 의 HTTP 경계 — S15P21E201-802.
  *
  * <p>{@code TranslateControllerTest} 와 같은 방식으로 컨트롤러+예외 처리기만 세워 HTTP 계약을
- * 잰다. 실제 Claude 호출·구조화 출력 파싱은 어댑터 쪽 몫이라 여기서는 벤더를 스텁으로 대신한다.
+ * 잰다. 실제 Gemini 호출·구조화 출력 파싱은 어댑터 쪽 몫이라 여기서는 벤더를 스텁으로 대신한다.
  *
  * <p>MVP 범위는 은행 앱 챗봇처럼 관련 화면으로 안내하는 것까지다 — 여기서는 그중 navigate 를
  * 검증한다.
@@ -35,11 +42,15 @@ class AssistantControllerTest {
 
 	private MockMvc mockMvc;
 	private StubVendor vendor;
+	private AssistantProperties properties;
 
 	@BeforeEach
 	void setUp() {
 		this.vendor = new StubVendor();
-		AssistantChatService service = new AssistantChatService(this.vendor);
+		this.properties = new AssistantProperties();
+		Clock clock = Clock.fixed(Instant.parse("2026-09-11T00:00:00Z"), ZoneOffset.UTC);
+		AssistantRateLimiter rateLimiter = new AssistantRateLimiter(this.properties, clock);
+		AssistantChatService service = new AssistantChatService(this.vendor, rateLimiter, this.properties);
 
 		this.mockMvc = MockMvcBuilders.standaloneSetup(new AssistantController(service))
 				.setControllerAdvice(new AssistantExceptionHandler())
@@ -61,6 +72,26 @@ class AssistantControllerTest {
 				.andExpect(jsonPath("$.data.kind").value("navigate"))
 				.andExpect(jsonPath("$.data.href").value("/plan/basic"))
 				.andExpect(jsonPath("$.data.label").value("여행 만들기"));
+	}
+
+	@Test
+	@DisplayName("history 를 함께 보내도 그대로 받아 벤더에 전달한다")
+	void historyIsForwardedToVendor() throws Exception {
+		this.mockMvc.perform(post("/api/v1/assistant/messages")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content("""
+								{"message":"거기로 갈래", "history":[
+									{"role":"user","text":"부산 여행 만들고 싶어"},
+									{"role":"assistant","text":"새 여행 만들기로 안내할게요."}
+								]}""")
+						.principal(asUser()))
+				.andExpect(status().isOk());
+
+		assertThatHistoryHasSize(2);
+	}
+
+	private void assertThatHistoryHasSize(int size) {
+		assertThat(this.vendor.lastRequest.history()).hasSize(size);
 	}
 
 	@Test
@@ -88,12 +119,34 @@ class AssistantControllerTest {
 				.andExpect(jsonPath("$.error.code").value("ASSISTANT_INVALID_REQUEST"));
 	}
 
+	@Test
+	@DisplayName("🔴 1분 한도를 넘기면 429 다")
+	void rateLimitExceededReturns429() throws Exception {
+		this.properties.setMaxRequestsPerMinute(1);
+		Authentication user = asUser();
+
+		this.mockMvc.perform(post("/api/v1/assistant/messages")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content("{\"message\":\"하나\"}")
+						.principal(user))
+				.andExpect(status().isOk());
+
+		this.mockMvc.perform(post("/api/v1/assistant/messages")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content("{\"message\":\"둘\"}")
+						.principal(user))
+				.andExpect(status().isTooManyRequests())
+				.andExpect(jsonPath("$.error.code").value("ASSISTANT_RATE_LIMITED"));
+	}
+
 	private static final class StubVendor implements AssistantVendorPort {
 
 		boolean shouldFail = false;
+		AssistantChatRequest lastRequest;
 
 		@Override
-		public AssistantReply reply(String message) {
+		public AssistantReply reply(AssistantChatRequest request) {
+			this.lastRequest = request;
 			if (this.shouldFail) {
 				throw new AssistantVendorException("ASSISTANT_VENDOR_UNAVAILABLE", "AI 여행 도우미 호출에 실패했습니다.",
 						HttpStatus.BAD_GATEWAY);

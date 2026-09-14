@@ -143,9 +143,11 @@ class ResearchQueueLoaderIntegrationTest extends PlacePostgresIntegrationTest {
 				String.class, milmyeon);
 		assertThat(keys).contains("MILMYEON");
 
-		// 모든 장소에 FOOD 관심 태그가 붙는다 — AppFoodVocabulary 의 규칙이다.
+		// 모든 장소에 FOOD 갈래 표식이 붙는다 — AppFoodVocabulary 의 규칙이다.
+		// 🔴 갈래는 CATEGORY_TAG 다 (S15P21E201-904). 전에는 INTEREST_TAG 였는데, 그 갈래는
+		//    둘러보기 화면의 여덟 낱말이 쓰는 자리라 두 사전이 한 서랍에 섞여 있었다.
 		Integer food = this.jdbcTemplate.queryForObject(
-				"SELECT COUNT(*) FROM place_feature WHERE feature_type = 'INTEREST_TAG' "
+				"SELECT COUNT(*) FROM place_feature WHERE feature_type = 'CATEGORY_TAG' "
 						+ "AND feature_key = 'FOOD' AND source_version = ?",
 				Integer.class, DATASET);
 		assertThat(food).isEqualTo(3);

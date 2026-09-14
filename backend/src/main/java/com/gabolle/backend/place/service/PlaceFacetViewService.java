@@ -62,6 +62,21 @@ public class PlaceFacetViewService {
 		}
 	}
 
+	/**
+	 * 여행에 안 묶인 전역 탐색에서 갈래를 열었다는 사실을 남긴다 — S15P21E201-894.
+	 *
+	 * <p>실패를 삼키는 규칙은 {@link #record} 와 같다. 집계도 같은 표를 세므로 여행 안 열람과
+	 * <b>한 숫자로 합쳐진다</b> — 나누면 더하는 것을 잊은 자리에서 숫자가 반쪽이 된다.
+	 */
+	public void recordGlobal(String facetKey) {
+		try {
+			this.writer.saveGlobal(facetKey, OffsetDateTime.now(this.clock));
+		}
+		catch (RuntimeException ex) {
+			log.warn("갈래 열람 기록에 실패했습니다 — 화면은 그대로 둡니다. facetKey={}, 전역 탐색", facetKey, ex);
+		}
+	}
+
 	/** 갈래별 열람 수를 많은 순으로. 한 번도 안 열린 갈래는 여기 안 나온다. */
 	@Transactional(readOnly = true)
 	public List<FacetViewCount> counts() {

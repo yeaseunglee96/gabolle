@@ -56,16 +56,18 @@ public class TripMemberService {
 		List<TripMember> members = this.tripRepository.findMembers(tripId);
 
 		// 🔴 참여자마다 질의하지 않는다 — 한 번에 읽는다(티켓 완료 기준).
-		Map<UUID, String> displayNames = this.appUserRepository
+		// S15P21E201-844 — 이름만 뽑던 것을 사용자 자체로 바꿨다. 프로필 사진 주소가 더해지면서
+		// 필요한 칸이 둘이 됐고, 칸마다 맵을 하나씩 만들면 다음 칸이 생길 때 또 늘어난다.
+		Map<UUID, AppUser> profiles = this.appUserRepository
 				.findAllById(members.stream().map(m -> UUID.fromString(m.userId())).toList())
 				.stream()
-				.collect(Collectors.toMap(AppUser::getUserId, AppUser::getDisplayName));
+				.collect(Collectors.toMap(AppUser::getUserId, user -> user));
 
 		List<TripMembersResponse.Member> dtos = members.stream()
 				.sorted(Comparator
 						.comparing((TripMember m) -> m.role() == TripMember.Role.OWNER ? 0 : 1)
 						.thenComparing(TripMember::joinedAt))
-				.map(m -> toMemberDto(m, requesterId, displayNames))
+				.map(m -> toMemberDto(m, requesterId, profiles))
 				.toList();
 
 		return new TripMembersResponse(dtos, view.role().name(), view.role().canEdit());
@@ -94,10 +96,10 @@ public class TripMemberService {
 		TripMember updated = this.membershipRepository.changeRole(tripId, targetUserId, newRole)
 				.orElseThrow(TripMemberNotFoundException::new);
 
-		String displayName = this.appUserRepository.findById(UUID.fromString(targetUserId))
-				.map(AppUser::getDisplayName)
-				.orElse(null);
-		return toMemberDto(updated, requesterId, Map.of(UUID.fromString(targetUserId), displayName));
+		Map<UUID, AppUser> profile = this.appUserRepository.findById(UUID.fromString(targetUserId))
+				.map(user -> Map.of(user.getUserId(), user))
+				.orElseGet(Map::of);
+		return toMemberDto(updated, requesterId, profile);
 	}
 
 	/**
@@ -137,16 +139,18 @@ public class TripMemberService {
 	}
 
 	private TripMembersResponse.Member toMemberDto(TripMember member, String requesterId,
-			Map<UUID, String> displayNames) {
-		String displayName = displayNames.get(UUID.fromString(member.userId()));
+			Map<UUID, AppUser> profiles) {
+		// 탈퇴 등으로 app_user 행이 없으면 이름도 사진도 없다 — 그 경우를 null 둘로 그대로 내보낸다.
+		AppUser profile = profiles.get(UUID.fromString(member.userId()));
 		return new TripMembersResponse.Member(
 				member.userId(),
-				displayName,
+				profile == null ? null : profile.getDisplayName(),
 				member.role().name(),
 				member.joinedAt().toString(),
 				member.invitedBy(),
 				member.invitedAt() == null ? null : member.invitedAt().toString(),
-				member.userId().equals(requesterId));
+				member.userId().equals(requesterId),
+				profile == null ? null : profile.getAvatarUrl());
 	}
 
 	/** 요청자가 그 여행의 소유자가 아니다. */

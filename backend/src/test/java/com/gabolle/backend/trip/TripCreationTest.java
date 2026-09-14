@@ -1,5 +1,8 @@
 package com.gabolle.backend.trip;
 
+import com.gabolle.backend.auth.service.AuthException;
+import com.gabolle.backend.user.support.ConsentGuards;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -19,11 +22,13 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.springframework.http.HttpStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -33,6 +38,18 @@ class TripCreationTest {
 
     private static final Instant NOW = Instant.parse("2026-09-03T00:00:00Z");
 
+    /**
+     * 🔴 민감 제약을 저장하는 검사만 이 값을 쓴다 — S15P21E201-549.
+     *
+     * <p>다른 검사들이 쓰는 {@code "usr_1"} 은 UUID 가 아니다. 건강 동의 검사는 사용자를
+     * UUID 로 찾는데, 형식이 아니면 <b>동의를 확인할 수 없으므로 막는 쪽</b>이라 그 값으로는
+     * 403 이 난다. 운영에서는 {@code TripController} 가 인증 주체({@code UUID})를 문자열로
+     * 바꿔 넘기므로 언제나 UUID 다 — {@code "usr_1"} 이 검사 전용 값이었을 뿐이다.
+     *
+     * <p>민감 제약을 안 쓰는 검사는 가드를 지나지 않으므로 그대로 {@code "usr_1"} 을 쓴다.
+     */
+    private static final String CONSENTING_USER = UUID.randomUUID().toString();
+
     private InMemoryTripRepository repository;
     private TripCreationService service;
 
@@ -41,7 +58,7 @@ class TripCreationTest {
         repository = new InMemoryTripRepository();
         Clock clock = Clock.fixed(NOW, ZoneOffset.UTC);
         service = new TripCreationService(repository, clock,
-                new PreferenceDefaultsService(repository, clock));
+                new PreferenceDefaultsService(repository, clock), ConsentGuards.granting());
     }
 
     private TripCreationService.Command command() {
@@ -303,10 +320,76 @@ class TripCreationTest {
                 () -> service.create(withAllergy, null));
     }
 
+    // 건강·식이 동의 (S15P21E201-549)
+
+    /**
+     * 🔴 이 검사가 없을 때 무엇이 통과했나.
+     *
+     * <p>{@code ConsentType.HEALTH_CONSTRAINTS} 는 열거형과 응답 DTO 에만 있었고 아무도 안
+     * 봤다. 동의를 한 번도 안 한 사람의 알레르기가 그대로 표에 들어갔다. 자유 입력 거부는
+     * 평문 보관을 막는 것이지 <b>동의 없는 수집</b>을 막는 것이 아니다 — 코드로 된 값은
+     * 그 거부를 지나간다.
+     */
+    @Test
+    @DisplayName("🔴 건강 동의가 없으면 알레르기가 저장되지 않는다 - 여행도 안 만들어진다")
+    void sensitiveConstraintNeedsHealthConsent() {
+        TripCreationService refusing = new TripCreationService(repository, Clock.fixed(NOW, ZoneOffset.UTC),
+                new PreferenceDefaultsService(repository, Clock.fixed(NOW, ZoneOffset.UTC)),
+                ConsentGuards.refusing());
+
+        var withAllergy = new TripCreationService.Command(CONSENTING_USER,
+                LocalDate.of(2026, 9, 6), LocalDate.of(2026, 9, 8),
+                35.1587, 129.1604, null, 1, null, null, List.of(),
+                List.of(new TripCreationService.Command.ConstraintInput(
+                        "ALLERGY", "PEANUT", TripConstraint.Severity.HARD, "EXCLUDES", null, null,
+                        TripConstraint.EvidenceStatus.NEEDS_REVIEW, TripConstraint.AnswerStatus.SELECTED, null)));
+
+        var refused = assertThrows(AuthException.class, () -> refusing.create(withAllergy, null));
+        assertEquals("HEALTH_CONSENT_REQUIRED", refused.getCode());
+        assertEquals(HttpStatus.FORBIDDEN, refused.getStatus());
+    }
+
+    @Test
+    @DisplayName("민감하지 않은 제약은 건강 동의 없이도 저장된다 - 이동 제약까지 막으면 안 된다")
+    void ordinaryConstraintDoesNotNeedHealthConsent() {
+        TripCreationService refusing = new TripCreationService(repository, Clock.fixed(NOW, ZoneOffset.UTC),
+                new PreferenceDefaultsService(repository, Clock.fixed(NOW, ZoneOffset.UTC)),
+                ConsentGuards.refusing());
+
+        var result = refusing.create(command(), null);
+
+        assertEquals(1, repository.findConstraints(result.trip().tripId()).size());
+    }
+
+    /**
+     * 🔴 {@code DIET} 는 {@code dietRequirement} 가 민감 여부를 가른다 — 종류 이름만으로는
+     * 안 갈린다. 그 판정을 {@code TripConstraint.isSensitive} 에 맡기고 있다는 것을 여기서
+     * 확인한다. 목록을 여기 다시 적으면 두 벌이 되고, 한쪽만 늘어나는 날 조용히 새어 나간다.
+     */
+    @Test
+    @DisplayName("DIET+PREFERRED 는 건강 동의 없이도 저장된다 - 민감한 것은 REQUIRED 뿐이다")
+    void preferredDietDoesNotNeedHealthConsent() {
+        TripCreationService refusing = new TripCreationService(repository, Clock.fixed(NOW, ZoneOffset.UTC),
+                new PreferenceDefaultsService(repository, Clock.fixed(NOW, ZoneOffset.UTC)),
+                ConsentGuards.refusing());
+
+        var withPreferredDiet = new TripCreationService.Command(CONSENTING_USER,
+                LocalDate.of(2026, 9, 6), LocalDate.of(2026, 9, 8),
+                35.1587, 129.1604, null, 1, null, null, List.of(),
+                List.of(new TripCreationService.Command.ConstraintInput(
+                        "DIET", "VEGETARIAN", TripConstraint.Severity.SOFT, "EXCLUDES", null, null,
+                        TripConstraint.EvidenceStatus.NEEDS_REVIEW, TripConstraint.AnswerStatus.SELECTED,
+                        TripConstraint.DietRequirement.PREFERRED)));
+
+        var result = refusing.create(withPreferredDiet, null);
+
+        assertEquals("VEGETARIAN", repository.findConstraints(result.trip().tripId()).get(0).constraintKey());
+    }
+
     @Test
     @DisplayName("2026-09-04 회귀 - 코드로 된 알레르기(PEANUT)는 저장된다 (고지혁 님 리뷰)")
     void codedAllergyConstraintIsAllowed() {
-        var withAllergy = new TripCreationService.Command("usr_1",
+        var withAllergy = new TripCreationService.Command(CONSENTING_USER,
                 LocalDate.of(2026, 9, 6), LocalDate.of(2026, 9, 8),
                 35.1587, 129.1604, null, 1, null, null, List.of(), // 출발지 좌표 - 이 검사가 재는 것은 코드로 된 알레르기 저장이지 좌표가 아니다
                 List.of(new TripCreationService.Command.ConstraintInput(
@@ -336,7 +419,7 @@ class TripCreationTest {
     @Test
     @DisplayName("코드로 된 DIET+REQUIRED(예: HALAL)는 저장된다 - 구조화된 값이다")
     void codedRequiredDietConstraintIsAllowed() {
-        var withHalal = new TripCreationService.Command("usr_1",
+        var withHalal = new TripCreationService.Command(CONSENTING_USER,
                 LocalDate.of(2026, 9, 6), LocalDate.of(2026, 9, 8),
                 35.1587, 129.1604, null, 1, null, null, List.of(), // 출발지 좌표 - 이 검사가 재는 것은 코드로 된 DIET+REQUIRED 저장이지 좌표가 아니다
                 List.of(new TripCreationService.Command.ConstraintInput(

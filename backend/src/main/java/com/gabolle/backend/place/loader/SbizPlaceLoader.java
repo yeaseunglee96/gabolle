@@ -32,8 +32,8 @@ import com.gabolle.backend.place.repository.PlaceRepository;
  * <table border="1">
  * <caption>place_feature 14종 중 이 적재가 건드리는 것</caption>
  * <tr><th>피처</th><th>자료</th><th>채우나</th></tr>
- * <tr><td>{@code INTEREST_TAG:FOOD}</td><td>대분류가 "음식" 이다</td><td>🟢 전부</td></tr>
- * <tr><td>{@code INTEREST_TAG:CAFE_HEALING}</td><td>소분류가 "카페" 다</td><td>🟢 카페만</td></tr>
+ * <tr><td>{@code CATEGORY_TAG:FOOD}</td><td>대분류가 "음식" 이다</td><td>🟢 전부</td></tr>
+ * <tr><td>{@code CATEGORY_TAG:CAFE_HEALING}</td><td>소분류가 "카페" 다</td><td>🟢 카페만</td></tr>
  * <tr><td>{@code CUISINE_TAG:<앱 코드>}</td><td>소분류 + 상호명 → {@link AppFoodVocabulary}</td>
  *     <td>🟢 가를 수 있는 것만</td></tr>
  * <tr><td>{@code ATMOSPHERE_TAG}</td><td>🔴 없다</td><td>비운다</td></tr>
@@ -130,8 +130,12 @@ public class SbizPlaceLoader {
 
 			// 🔴 앱이 보내는 낱말만 넣는다. 채점이 글자 그대로 비교하므로 여기 다른 낱말을
 			//    적으면 그 항이 조용히 0 이 된다 — AppFoodVocabulary 참조.
-			for (String interest : AppFoodVocabulary.interestTags(row.subCategory())) {
-				features.add(feature(placeId, row.storeId(), "INTEREST_TAG", interest, collectedAt, datasetVersion));
+			// 🔴 갈래는 CATEGORY_TAG 다 (S15P21E201-904). 전에는 INTEREST_TAG 에 넣었는데
+			//    그 갈래는 탐색 아코디언의 여덟 낱말이 쓰는 자리라 두 사전이 한 서랍에 섞여
+			//    있었다. 지금은 place_feature_code 조회표가 외래키로 갈라 놓는다 — 여기에
+			//    탐색 쪽 낱말을 적으면 DB 가 그 자리에서 거부한다.
+			for (String category : AppFoodVocabulary.categoryTags(row.subCategory())) {
+				features.add(feature(placeId, row.storeId(), "CATEGORY_TAG", category, collectedAt, datasetVersion));
 			}
 			for (String cuisine : AppFoodVocabulary.cuisineTags(row.subCategory(), row.name())) {
 				features.add(feature(placeId, row.storeId(), "CUISINE_TAG", cuisine, collectedAt, datasetVersion));

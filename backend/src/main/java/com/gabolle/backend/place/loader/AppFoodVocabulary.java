@@ -140,10 +140,10 @@ public final class AppFoodVocabulary {
 	}
 
 	/**
-	 * 이 가게에 붙일 {@code INTEREST_TAG} 코드들. 언제나 {@code FOOD} 가 들어 있다 —
+	 * 이 가게에 붙일 {@code CATEGORY_TAG} 코드들 (S15P21E201-904 전에는 {@code INTEREST_TAG} 였다). 언제나 {@code FOOD} 가 들어 있다 —
 	 * 대분류가 "음식" 인 행만 여기까지 온다.
 	 */
-	public static Set<String> interestTags(String subCategory) {
+	public static Set<String> categoryTags(String subCategory) {
 		Set<String> tags = new LinkedHashSet<>();
 		tags.add("FOOD");
 		if (CAFE_SUB_CATEGORY.equals(subCategory == null ? "" : subCategory.trim())) {

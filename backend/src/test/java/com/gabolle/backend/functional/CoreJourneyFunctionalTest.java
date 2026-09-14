@@ -109,7 +109,7 @@ class CoreJourneyFunctionalTest extends FunctionalJourneyTest {
 		double originLat = 35.1152;
 		double originLng = 129.0423;
 		for (int i = 0; i < 12; i++) {
-			UUID placeId = this.placeFixture.insertPlace("여정테스트장소" + i, "JourneyPlace" + i, "CAFE",
+			UUID placeId = this.placeFixture.insertPlace("여정테스트장소" + i, "JourneyPlace" + i, "CAFE_HEALING",
 					originLat + (i * 0.001), originLng + (i * 0.001));
 			this.placeFixture.insertTagFeature(placeId, "INTEREST_TAG", "SEA", "VERIFIED", "{\"present\": true}");
 			this.seededPlaceIds.add(placeId);
@@ -127,10 +127,14 @@ class CoreJourneyFunctionalTest extends FunctionalJourneyTest {
 		//    그대로 쓴다). "SEA"로 줬더니 위에서 심은 place.category="CAFE"와 안 맞아 후보가
 		//    0건이 되고 dataset_version을 못 구해 VERSION_UNRESOLVED로 실패했다 — 심은 장소
 		//    category와 반드시 같은 문자열을 써야 한다.
+		//    🔴 2026-09-14 (S15P21E201-915) — 그 문자열을 "CAFE" 에서 "CAFE_HEALING" 으로 바꿨다.
+		//    앱의 어휘 여섯에 "CAFE" 는 없고, 이제 preference_answer 의 CATEGORY 에 사전 강제가
+		//    걸려 DB 가 거부한다. 🔴 심는 장소의 category 도 같이 바꿨다 — 둘은 짝이라 한쪽만
+		//    바꾸면 위에 적힌 그 실패(후보 0건 → VERSION_UNRESOLVED)가 그대로 재현된다.
 		LocalDate start = LocalDate.now().plusDays(7);
 		LocalDate finish = start.plusDays(1);
 		CreateTripRequest.PreferenceAnswerInput categoryAnswer = new CreateTripRequest.PreferenceAnswerInput(
-				"CATEGORY", "{\"codes\": [\"CAFE\"]}", "SELECTED");
+				"CATEGORY", "{\"codes\": [\"CAFE_HEALING\"]}", "SELECTED");
 		CreateTripRequest.ConstraintInput walkingConstraint = new CreateTripRequest.ConstraintInput(
 				"MOBILITY", "MAX_WALKING_METERS", "SOFT", "LTE", null, 2000.0, "SELECTED", null);
 		CreateTripRequest tripRequest = new CreateTripRequest(start, finish, 35.1152, 129.0423, null, 2, null, null,

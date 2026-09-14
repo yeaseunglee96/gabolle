@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import com.gabolle.backend.place.api.PlaceCandidateRequest;
 import com.gabolle.backend.place.domain.UserInputKind;
 import com.gabolle.backend.place.repository.UserPlaceCodeMapRepository;
+import com.gabolle.backend.preference.application.PreferenceJson;
 import com.gabolle.backend.recommendation.config.BaselineEngineProperties;
 import com.gabolle.backend.recommendation.domain.RequestLocation;
 import com.gabolle.backend.trip.domain.PreferenceSnapshot;
@@ -83,7 +84,11 @@ public class BaselineCandidateTranslator {
 				categories,
 				List.of(), // requiredFeatures — 🔴 절대 채우지 않는다
 				List.of(), // excludedFeatures — 🔴 절대 채우지 않는다
-				null, // openNowAt — 영업시간 필터는 아직 없다
+				// openNowAt 은 비운 채로 둔다 — S15P21E201-857.
+				// 이 조회는 여행 전체에 한 번 부르고 시각 칸은 한 순간이다. 여기에 첫날
+				// 아침을 넣으면 화요일 오후에 방문할 곳까지 월요일 아침 기준으로 걸러진다.
+				// 영업시간은 항목을 자리에 앉히는 단계(ItineraryDraftService)에서 본다.
+				null,
 				null, // minimumCount — 모자라면 모자란 채로 돌려받는다
 				// 🔴 candidateLimit(200) 이었다 (S15P21E201-724). 장소 조회는 점수를 모르므로
 				//    limit 을 "가까운 순" 으로 자른다. 여기에 200 을 주면 채점기는 가까운

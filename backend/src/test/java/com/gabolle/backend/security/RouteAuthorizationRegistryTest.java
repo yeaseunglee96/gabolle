@@ -556,6 +556,10 @@ class RouteAuthorizationRegistryTest {
 		put(m, "POST /api/v1/trips/{}/facet-views/{}", Policy.OWNED,
 				"그 여행의 회원만 그 여행 이름으로 갈래 열람을 남긴다 — 아무나 남기면 집계를 부풀릴 수 "
 						+ "있다. FacetViewFunctionalTest (-475)");
+		put(m, "POST /api/v1/facet-views/{}", Policy.AUTHENTICATED_ONLY,
+				"여행에 안 묶인 전역 탐색에서 남기는 갈래 열람이다. 여행 번호를 아예 받지 않으므로 남의 "
+						+ "여행에는 무엇도 남길 수 없고, 그래서 소유자 검사가 아니라 로그인만 요구한다 — 열어 두면 "
+						+ "아무나 집계를 부풀릴 수 있다. FacetViewFunctionalTest (-894)");
 		put(m, "GET /api/v1/admin/facet-views", Policy.ADMIN_ONLY,
 				"갈래별 이용 집계는 운영 판단용이다. 경로 앞자리가 실제 보호 장치다. "
 						+ "FacetViewFunctionalTest (-475)");
@@ -640,6 +644,8 @@ class RouteAuthorizationRegistryTest {
 				"장소는 공용 기준 데이터라 사용자별로 답이 다르지 않다. PlaceSearchIntegrationTest");
 		put(m, "GET /api/v1/places/facets", Policy.AUTHENTICATED_ONLY,
 				"갈래별 건수. 공용 기준 데이터다. PlaceFacetInterestTagIntegrationTest");
+		put(m, "GET /api/v1/places/categories", Policy.AUTHENTICATED_ONLY,
+				"적재된 place.category 값과 건수. 요청자와 무관한 공용 기준 데이터라 facets 와 같은 정책이다. PlaceCategoryServiceTest");
 		put(m, "GET /api/v1/routes/directions", Policy.AUTHENTICATED_ONLY,
 				"좌표 두 개로 답이 정해진다 — 우리 자원이 아니라 주인이 없다. 인증을 요구하는 것은 "
 						+ "우리 카카오 키로 남이 길찾기를 대신 쓰는 것을 막기 위해서다. RouteControllerTest");

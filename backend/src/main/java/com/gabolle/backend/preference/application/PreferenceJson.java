@@ -1,4 +1,4 @@
-package com.gabolle.backend.recommendation.adapter;
+package com.gabolle.backend.preference.application;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,17 +50,29 @@ import tools.jackson.databind.ObjectMapper;
  * 학습되면서 아무 오류도 안 난다.</b> 지금은 그 두 축의 항이 빠진 채로 간다(0 이 아니다).
  * 사람이 정할 일이다.
  *
- * <p>{@link BaselineCandidateTranslator}·{@link BaselineCandidateScorer} 가 함께 쓴다 —
+ * <p>{@code BaselineCandidateTranslator}·{@code BaselineCandidateScorer} 가 함께 쓴다 —
  * 취향 답을 읽는 방법이 둘로 갈리면 "카테고리 필터에 쓴 코드" 와 "관심 태그 점수에 쓴 코드"
  * 가 조용히 달라질 수 있다.
+ *
+ * <h2>🔴 2026-09-14 — 셋째 사용자가 생겨서 자리를 옮겼다 (S15P21E201-787 후속)</h2>
+ *
+ * 원래 이 클래스는 {@code recommendation.adapter} 안의 package-private 이었다. 그래서
+ * {@code TasteVectorFoldService}(설문·행동을 취향 벡터로 접는 배치)는 이것을 못 쓰고
+ * <b>같은 파싱을 자기 안에 다시 썼다</b> — 그리고 그 사본은 위의 -635 수정을 못 받은
+ * <b>고치기 전 판</b>이었다. 결과는 이 문서 맨 위 표와 똑같다: 태그형은 한 줄도 안 접히고,
+ * 점수형은 1~5 를 0~1 로 알고 계산해 다섯 답이 <b>전부 같은 값</b>이 됐다. 아무 오류도 안 났다.
+ *
+ * <p>그래서 {@code preference} 아래로 옮겨 공개한다. 배치가 {@code recommendation.adapter} 를
+ * 들여다보는 것은 방향이 반대이고, 무엇보다 <b>같은 규칙이 두 벌이면 한쪽만 고쳐진다</b> —
+ * 이번이 그 증거다.
  */
-final class PreferenceJson {
+public final class PreferenceJson {
 
 	private PreferenceJson() {
 	}
 
 	/** 태그형 답의 코드 목록. 그 차원을 안 골랐으면(SELECTED 가 아니면) 빈 목록이다. 모양은 {@link #parseCodes}. */
-	static List<String> codesFor(PreferenceSnapshot snapshot, String dimension, ObjectMapper objectMapper) {
+	public static List<String> codesFor(PreferenceSnapshot snapshot, String dimension, ObjectMapper objectMapper) {
 		if (snapshot == null) {
 			return List.of();
 		}
@@ -73,7 +85,7 @@ final class PreferenceJson {
 	}
 
 	/** 점수형 답의 값(0~1). 못 읽거나 안 골랐으면 {@code null} 이다 — 0 으로 채우지 않는다. {@link #parseScore}. */
-	static Double scoreFor(PreferenceSnapshot snapshot, String dimension, ObjectMapper objectMapper) {
+	public static Double scoreFor(PreferenceSnapshot snapshot, String dimension, ObjectMapper objectMapper) {
 		if (snapshot == null) {
 			return null;
 		}
@@ -97,7 +109,7 @@ final class PreferenceJson {
 	 * <p>🔴 <b>한쪽을 버리지 않는 이유</b>는 {@code PreferenceDimensions} 와 같다 — 이미 저장된
 	 * 답과 이미 배포된 앱이 둘 다 있고, 어느 쪽도 "지금 당장" 고칠 수 없다.
 	 */
-	private static List<String> parseCodes(String valueJson, ObjectMapper objectMapper) {
+	public static List<String> parseCodes(String valueJson, ObjectMapper objectMapper) {
 		JsonNode node = readTree(valueJson, objectMapper);
 		if (node == null) {
 			return List.of();
@@ -142,7 +154,7 @@ final class PreferenceJson {
 	 * 답했다" 는 뜻이고 {@code null} 은 "이 축을 안 본다" 는 뜻이라, 채점기에서 전혀 다르게
 	 * 동작한다(전자는 항이 들어가고 후자는 항이 빠진다).
 	 */
-	private static Double parseScore(String valueJson, ObjectMapper objectMapper) {
+	public static Double parseScore(String valueJson, ObjectMapper objectMapper) {
 		JsonNode node = readTree(valueJson, objectMapper);
 		if (node == null) {
 			return null;

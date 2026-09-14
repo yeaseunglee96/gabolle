@@ -26,6 +26,11 @@ public record TripMembersResponse(List<Member> members, String myRole, boolean c
 			/** 초대한 사람의 사용자 ID. 소유자이거나 초대 흔적이 없는 옛 행이면 {@code null}. */
 			String invitedBy,
 			String invitedAt,
-			boolean isMe) {
+			boolean isMe,
+			/**
+			 * 프로필 사진 주소 (S15P21E201-844). 안 골랐거나 {@code app_user} 행이 없으면 {@code null}
+			 * 이고, 화면은 {@code displayName} 과 같은 규칙으로 기본 그림을 그린다.
+			 */
+			String avatarUrl) {
 	}
 }

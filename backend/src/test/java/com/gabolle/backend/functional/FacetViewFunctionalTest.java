@@ -31,6 +31,9 @@ class FacetViewFunctionalTest extends FunctionalJourneyTest {
 
 	private static final String COUNTS = "/api/v1/admin/facet-views";
 
+	/** 여행에 안 묶인 전역 탐색이 쓰는 자리 — S15P21E201-894. */
+	private static final String GLOBAL_FACET_VIEWS = "/api/v1/facet-views";
+
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 
@@ -171,6 +174,10 @@ class FacetViewFunctionalTest extends FunctionalJourneyTest {
 		return response;
 	}
 
+	private ResponseEntity<String> openGlobalFacet(AuthedClient authed, String facetKey) {
+		return authed.post(GLOBAL_FACET_VIEWS + "/" + facetKey, Map.of(), String.class);
+	}
+
 	/** 갈래별 열람 수를 지도로. 다른 검사가 남긴 기록과 섞이므로 "이상" 으로만 비교한다. */
 	private Map<String, Long> countsByFacet(AuthedClient authed, String emailPrefix) {
 		List<Map<String, Object>> rows = JsonPath.read(adminCounts(authed, emailPrefix).getBody(), "$.data");
@@ -179,5 +186,42 @@ class FacetViewFunctionalTest extends FunctionalJourneyTest {
 			counts.put((String) row.get("facetKey"), ((Number) row.get("views")).longValue());
 		}
 		return counts;
+	}
+	@Test
+	@DisplayName("완료 기준 — 여행 없이도 갈래 열람이 남고, 여행 안 기록과 같은 집계에 들어간다 (-894)")
+	void aFacetOpenedOutsideAnyTripIsRecordedInTheSameCount() {
+		AuthedClient authed = loginAsNewUser("facet-global");
+		String tripId = createTrip(authed);
+
+		// 같은 갈래를 여행 안에서 한 번, 여행 밖에서 두 번 연다.
+		assertThat(openFacet(authed, tripId, "SEA_BEACH").getStatusCode()).isEqualTo(HttpStatus.ACCEPTED);
+		assertThat(openGlobalFacet(authed, "SEA_BEACH").getStatusCode()).isEqualTo(HttpStatus.ACCEPTED);
+		assertThat(openGlobalFacet(authed, "SEA_BEACH").getStatusCode()).isEqualTo(HttpStatus.ACCEPTED);
+
+		// 🔴 표를 나누지 않았으므로 셋이 한 숫자로 합쳐진다. 나뉘어 있으면 이 단정이 2 에서 멈춘다.
+		assertThat(countsByFacet(authed, "facet-global").get("SEA_BEACH")).isGreaterThanOrEqualTo(3);
+	}
+
+	@Test
+	@DisplayName("여행 밖 기록은 여행에 안 묶인다 — 그 행의 여행 번호가 비어 있다 (-894)")
+	void aGlobalRecordCarriesNoTripId() {
+		AuthedClient authed = loginAsNewUser("facet-global-null");
+		String facetKey = "GLOBAL_ONLY_" + System.nanoTime() % 100000;
+
+		assertThat(openGlobalFacet(authed, facetKey).getStatusCode()).isEqualTo(HttpStatus.ACCEPTED);
+
+		Integer withoutTrip = this.jdbcTemplate.queryForObject(
+				"SELECT count(*) FROM place_facet_view WHERE facet_key = ? AND trip_id IS NULL",
+				Integer.class, facetKey);
+		assertThat(withoutTrip).isEqualTo(1);
+	}
+
+	@Test
+	@DisplayName("로그인하지 않으면 여행 밖 기록도 남길 수 없다 — 열어 두면 아무나 집계를 부풀린다 (-894)")
+	void anonymousCannotRecordGlobalFacetView() {
+		ResponseEntity<String> response = this.rest.postForEntity(GLOBAL_FACET_VIEWS + "/NIGHT_VIEW",
+				Map.of(), String.class);
+
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
 	}
 }

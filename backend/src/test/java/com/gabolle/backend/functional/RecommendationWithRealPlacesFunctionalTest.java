@@ -56,6 +56,17 @@ import com.jayway.jsonpath.JsonPath;
 class RecommendationWithRealPlacesFunctionalTest extends FunctionalJourneyTest {
 
 	/**
+	 * 🔴 이 여정은 여행 조건에 알레르기(민감 제약)를 실어 보낸다 — S15P21E201-549 로
+	 * 건강·식이 동의가 없으면 여행 생성이 403 이다. 동의를 켜고 가입하는 것이 이 여정에서
+	 * 재려는 것(추천에 실제 장소가 담기는가)에 닿기 위한 전제다.
+	 *
+	 * <p>🔴 공용 헬퍼의 기본값을 바꾸지 않고 여기서만 켠다. 전부 켜 두면 동의를 안 받았을 때
+	 * 막히는지를 아무 여정도 안 재게 된다.
+	 */
+	private static final java.util.Map<String, Boolean> HEALTH_CONSENT =
+			java.util.Map.of("HEALTH_CONSTRAINTS", true);
+
+	/**
 	 * 부산 남구 우암동 언저리. 표본 200곳 중 반경 5km(엔진 기본값) 안에 97곳이 들어와
 	 * 후보가 넉넉하다. 전체 2,355곳을 적재해 두었으면 그보다 훨씬 많다.
 	 */
@@ -119,7 +130,7 @@ class RecommendationWithRealPlacesFunctionalTest extends FunctionalJourneyTest {
 	@DisplayName("장소가 있는데 추천 엔진이 없으면 모든 추천이 조용히 실패한다")
 	void theEngineMustBeWiredWhenPlacesExist() {
 		ensurePlaces();
-		AuthedClient authed = loginAsNewUser("rec-wiring");
+		AuthedClient authed = loginAsNewUser("rec-wiring", HEALTH_CONSENT);
 
 		String tripId = createTrip(authed);
 		String jobId = requestRecommendation(authed, tripId);
@@ -138,7 +149,7 @@ class RecommendationWithRealPlacesFunctionalTest extends FunctionalJourneyTest {
 	@DisplayName("장소를 넣으면 추천 후보가 0건이 아니다 — 이것이 이 티켓의 완료 기준이다")
 	void recommendationFindsCandidatesOncePlacesExist() {
 		ensurePlaces();
-		AuthedClient authed = loginAsNewUser("rec-real");
+		AuthedClient authed = loginAsNewUser("rec-real", HEALTH_CONSENT);
 
 		String tripId = createTrip(authed);
 		String jobId = requestRecommendation(authed, tripId);
@@ -160,7 +171,7 @@ class RecommendationWithRealPlacesFunctionalTest extends FunctionalJourneyTest {
 	@DisplayName("추천 결과에 실제 가게 이름이 담긴다 — 빈 목록이 아니라 사람이 갈 수 있는 곳이다")
 	void theResultCarriesRealPlaceNames() {
 		ensurePlaces();
-		AuthedClient authed = loginAsNewUser("rec-names");
+		AuthedClient authed = loginAsNewUser("rec-names", HEALTH_CONSENT);
 
 		String tripId = createTrip(authed);
 		String jobId = requestRecommendation(authed, tripId);
@@ -185,7 +196,7 @@ class RecommendationWithRealPlacesFunctionalTest extends FunctionalJourneyTest {
 	@DisplayName("고른 갈래에 맞는 곳이 없으면 그렇다고 말한다 — 버전 오류로 뭉개지지 않는다")
 	void anEmptyCategorySaysSoInsteadOfBlamingVersions() {
 		ensurePlaces();
-		AuthedClient authed = loginAsNewUser("rec-empty-category");
+		AuthedClient authed = loginAsNewUser("rec-empty-category", HEALTH_CONSENT);
 
 		// 적재된 장소는 전부 음식점이다. 바다만 고르면 후보가 0곳이 된다.
 		String tripId = createTrip(authed, "SEA_BEACH");

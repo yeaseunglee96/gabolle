@@ -58,7 +58,7 @@ class EventSubjectAuthorizationTest {
 	void setUp() {
 		this.service = mock(EventIngestService.class);
 		when(this.service.ingestFromClient(any(), any(EventType.class), anyInt(), any(), any(), any(), any(),
-				any())).thenReturn(true);
+				any())).thenReturn(EventIngestService.Outcome.STORED);
 		this.mockMvc = MockMvcBuilders
 				.standaloneSetup(new EventIngestController(this.service))
 				.setControllerAdvice(new EventIngestExceptionHandler())

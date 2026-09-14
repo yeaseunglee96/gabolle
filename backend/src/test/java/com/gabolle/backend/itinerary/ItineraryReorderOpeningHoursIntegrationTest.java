@@ -6,8 +6,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -42,19 +43,25 @@ import com.gabolle.backend.recommendation.support.TestDatabase;
 import com.gabolle.testslice.ItinerarySliceApplication;
 
 /**
- * 순서를 바꿨을 때 영업시간 위반을 순서는 그대로 두고 알려 주는가 — S15P21E201-268 의 마지막
- * 완료 기준.
+ * 일정을 편집했을 때 영업시간 위반이 응답에 실리는가 — S15P21E201-268 · -858.
+ *
+ * <p>처음에는 순서 바꾸기만 재는 클래스였다(`-268` 의 마지막 완료 기준). `-858` 에서 장소
+ * 더하기와 되돌리기도 같은 판정을 싣게 되어 그 둘을 여기서 함께 잰다 — 세 경로가 같은 씨앗
+ * 데이터를 쓰므로 클래스를 하나 더 만드는 것보다 낫다.
  *
  * <p>다른 두 검사가 이미 옆에 있다. {@link ItineraryReorderIntegrationTest} 는 권한과 검증
  * (409 · 400 · 403 · 404)을, {@link ItineraryReorderLegRebuildIntegrationTest} 는 바뀐 날의
  * 이동시간이 다시 채워지는지를 잰다. 여기서는 <b>경고가 나가는지</b>만 잰다.
  *
  * <h2>가짜 문을 세우는 이유</h2>
- * 운영에는 영업시간 데이터가 한 건도 없고, 그래서 실제 구현
- * ({@code NotCollectedOpeningHoursFilter})은 "수집 안 했다" 만 답한다. 그 상태로는 위반이 잡히는
- * 갈래를 볼 수 없다. 그래서 {@link SwitchableOpeningHours} 로 <b>답을 정할 수 있는 문</b>을 세운다 —
- * 실제 인터페이스의 계약(못 볼 때는 {@code isAvailable()} 이 거짓이고 {@code isOpenAt} 은 부르면
- * 안 된다)을 그대로 지킨다. 그 문 하나로 네 상황을 다 재현하므로 컨텍스트도 하나면 된다.
+ * 실제 구현({@code PlaceFeatureOpeningHoursFilter})은 적재된 값을 읽는다. 그 값을 여기서
+ * 만들려면 장소마다 영업시간 JSON 을 심어야 하고, 그러면 이 검사가 <b>재려는 것</b>(경고가
+ * 순서를 안 건드리고 나가는가)보다 값 모양이 더 큰 자리를 차지한다. 값 모양은 DB 없이 도는
+ * {@code OpeningHoursValueTest} 가 따로 잰다.
+ *
+ * <p>그래서 {@link SwitchableOpeningHours} 로 <b>답을 정할 수 있는 문</b>을 세운다. 🔴 실제
+ * 계약과 같은 세 갈래(연다 · 닫는다 · 모른다)를 그대로 돌려준다 — 가짜가 두 갈래로 줄이면
+ * "모른다" 갈래가 검사에서 빠지고, 그것이 이 기능에서 가장 틀리기 쉬운 자리다.
  */
 @SpringBootTest(classes = ItinerarySliceApplication.class, properties = {
 		"spring.profiles.active=db",
@@ -68,46 +75,40 @@ class ItineraryReorderOpeningHoursIntegrationTest {
 	/**
 	 * 답을 시험마다 정할 수 있는 영업시간 문.
 	 *
-	 * <p>🔴 {@code available} 이 거짓일 때 {@link #isOpenAt} 은 <b>예외를 던진다.</b> 실제 구현이
-	 * 그렇게 하기로 약속했기 때문이다 — "모른다" 를 "열려 있다" 로 바꾸지 않는다는 약속이고, 이
-	 * 가짜가 그 자리에서 조용히 참을 답하면 검사는 초록인데 운영에서만 틀린 안심이 나간다.
+	 * <p>장소마다 답을 따로 심을 수 있고, 심지 않은 장소는 {@code fallback} 을 받는다. 이 빈은
+	 * 검사 클래스 하나에 하나뿐이라 {@code @BeforeEach} 에서 매번 되돌린다 — 안 되돌리면 앞
+	 * 시험이 심어 둔 "닫힘" 이 다음 시험으로 흘러가고, 실행 순서에 따라 결과가 달라진다.
 	 */
 	static class SwitchableOpeningHours implements OpeningHoursFilterPort {
 
-		private boolean available = true;
+		private final Map<UUID, Answer> answers = new HashMap<>();
 
-		private String unavailableReason = "NOT_COLLECTED";
+		private Answer fallback = Answer.OPEN;
 
-		private final Set<UUID> closedPlaces = new HashSet<>();
-
-		void answerAvailable(Set<UUID> closed) {
-			this.available = true;
-			this.closedPlaces.clear();
-			this.closedPlaces.addAll(closed);
+		/** 되돌린다 — 전부 열려 있고 심어 둔 답은 없다. */
+		void reset() {
+			this.answers.clear();
+			this.fallback = Answer.OPEN;
 		}
 
-		void answerUnavailable(String reason) {
-			this.available = false;
-			this.unavailableReason = reason;
-			this.closedPlaces.clear();
+		/** 이 장소들만 닫혀 있고 나머지는 열려 있다. */
+		void closed(Set<UUID> places) {
+			places.forEach((place) -> this.answers.put(place, Answer.CLOSED));
 		}
 
-		@Override
-		public boolean isAvailable() {
-			return this.available;
+		/** 이 장소들만 모른다. */
+		void notCollected(Set<UUID> places) {
+			places.forEach((place) -> this.answers.put(place, Answer.NOT_COLLECTED));
 		}
 
-		@Override
-		public String unavailableReason() {
-			return this.unavailableReason;
+		/** 심어 두지 않은 장소의 기본 답을 바꾼다 — 아무것도 안 넣은 상태를 재현한다. */
+		void fallback(Answer answer) {
+			this.fallback = answer;
 		}
 
 		@Override
-		public boolean isOpenAt(UUID placeId, OffsetDateTime at) {
-			if (!this.available) {
-				throw new IllegalStateException("isAvailable() 이 거짓인데 isOpenAt 이 불렸다");
-			}
-			return !this.closedPlaces.contains(placeId);
+		public Answer openAt(UUID placeId, OffsetDateTime at) {
+			return this.answers.getOrDefault(placeId, this.fallback);
 		}
 	}
 
@@ -176,7 +177,7 @@ class ItineraryReorderOpeningHoursIntegrationTest {
 				.setControllerAdvice(this.editExceptionHandler, this.queryExceptionHandler)
 				.build();
 
-		this.openingHours.answerAvailable(Set.of());
+		this.openingHours.reset();
 
 		OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
 		this.ownerId = UUID.randomUUID();
@@ -209,7 +210,7 @@ class ItineraryReorderOpeningHoursIntegrationTest {
 	@Test
 	@DisplayName("문 닫은 시간에 걸리는 순서를 보내면 순서가 유지된 채 경고가 온다")
 	void reorderKeepsRequestedOrderAndReturnsClosedWarning() throws Exception {
-		this.openingHours.answerAvailable(Set.of(this.placeC));
+		this.openingHours.closed(Set.of(this.placeC));
 
 		reorderDay(0, List.of(this.keyC.toString(), this.keyA.toString(), this.keyB.toString()), 1)
 				.andExpect(status().isOk())
@@ -240,13 +241,30 @@ class ItineraryReorderOpeningHoursIntegrationTest {
 	@Test
 	@DisplayName("영업시간을 아직 수집하지 않았으면 경고 대신 못 한 검사로 알린다")
 	void reorderReportsUncheckedWhenOpeningHoursAreNotCollected() throws Exception {
-		this.openingHours.answerUnavailable("NOT_COLLECTED");
+		this.openingHours.fallback(OpeningHoursFilterPort.Answer.NOT_COLLECTED);
 
 		reorderDay(0, List.of(this.keyC.toString(), this.keyA.toString(), this.keyB.toString()), 1)
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.data.days[0].items[0].id").value(this.keyC.toString()))
 				// 🔴 빈 경고 목록만 보내면 "확인했고 문제 없음" 으로 읽힌다. 그래서 왜 못 봤는지를 싣는다.
 				.andExpect(jsonPath("$.data.warnings.length()").value(0))
+				.andExpect(jsonPath("$.data.notChecked.length()").value(1))
+				.andExpect(jsonPath("$.data.notChecked[0].check").value("OPENING_HOURS"))
+				.andExpect(jsonPath("$.data.notChecked[0].reason").value("NOT_COLLECTED"));
+	}
+
+	@Test
+	@DisplayName("🔴 한 곳은 닫혀 있고 다른 곳은 모르면 경고와 못 한 검사가 함께 온다")
+	void reorderReportsBothWhenOnlySomePlacesHaveHours() throws Exception {
+		this.openingHours.closed(Set.of(this.placeC));
+		this.openingHours.notCollected(Set.of(this.placeA));
+
+		reorderDay(0, List.of(this.keyC.toString(), this.keyA.toString(), this.keyB.toString()), 1)
+				.andExpect(status().isOk())
+				// 🔴 둘 중 하나만 올라오면 화면이 거짓말을 한다. 경고만 오면 "나머지는 확인했고
+				//    문제 없음" 으로 읽히고, 못 한 검사만 오면 실제 위반이 묻힌다.
+				.andExpect(jsonPath("$.data.warnings.length()").value(1))
+				.andExpect(jsonPath("$.data.warnings[0].placeId").value(this.placeC.toString()))
 				.andExpect(jsonPath("$.data.notChecked.length()").value(1))
 				.andExpect(jsonPath("$.data.notChecked[0].check").value("OPENING_HOURS"))
 				.andExpect(jsonPath("$.data.notChecked[0].reason").value("NOT_COLLECTED"));
@@ -266,6 +284,70 @@ class ItineraryReorderOpeningHoursIntegrationTest {
 				.andExpect(jsonPath("$.data.notChecked.length()").value(1))
 				.andExpect(jsonPath("$.data.notChecked[0].check").value("OPENING_HOURS"))
 				.andExpect(jsonPath("$.data.notChecked[0].reason").value("NO_ITEM_TIME"));
+	}
+
+	@Test
+	@DisplayName("장소를 더하면 그 날짜의 기존 항목 위반이 응답에 실린다")
+	void addItemCarriesOpeningHoursForThatDay() throws Exception {
+		UUID placeD = UUID.randomUUID();
+		insertPlace(placeD, "D 범어사", 35.28, 129.06, OffsetDateTime.now(ZoneOffset.UTC));
+		this.openingHours.closed(Set.of(this.placeC));
+
+		addItem(placeD, 0, 1)
+				.andExpect(status().isCreated())
+				// 예전에는 이 두 칸이 함께 비어 나갔고 화면은 그것을 "확인했고 문제 없음" 으로 읽었다.
+				.andExpect(jsonPath("$.data.warnings.length()").value(1))
+				.andExpect(jsonPath("$.data.warnings[0].code").value("OPENING_HOURS_CLOSED"))
+				.andExpect(jsonPath("$.data.warnings[0].placeId").value(this.placeC.toString()))
+				// 더한 항목은 아직 시각이 없다. 그 사실도 함께 올라간다.
+				.andExpect(jsonPath("$.data.notChecked[0].reason").value("NO_ITEM_TIME"));
+	}
+
+	@Test
+	@DisplayName("더한 항목 자체는 시각이 없어 판정 대상이 아니다 — 그 사실을 못 한 검사로 알린다")
+	void addedItemHasNoTimeYetSoItIsReportedAsUnchecked() throws Exception {
+		UUID placeD = UUID.randomUUID();
+		insertPlace(placeD, "D 범어사", 35.28, 129.06, OffsetDateTime.now(ZoneOffset.UTC));
+
+		addItem(placeD, 0, 1)
+				.andExpect(status().isCreated())
+				// 시각은 그 날짜 재계산이 정하고 화면이 이어서 부른다. 그때까지는 판정할 수 없다 —
+				// 여는 것으로 넘기면 화면이 "확인했고 문제 없음" 으로 읽는다.
+				.andExpect(jsonPath("$.data.warnings.length()").value(0))
+				.andExpect(jsonPath("$.data.notChecked.length()").value(1))
+				.andExpect(jsonPath("$.data.notChecked[0].check").value("OPENING_HOURS"))
+				.andExpect(jsonPath("$.data.notChecked[0].reason").value("NO_ITEM_TIME"));
+	}
+
+	@Test
+	@DisplayName("되돌리면 되살린 판 전체의 영업시간 판정이 실린다")
+	void revertCarriesOpeningHoursForEveryDay() throws Exception {
+		this.openingHours.closed(Set.of(this.placeC));
+		reorderDay(0, List.of(this.keyC.toString(), this.keyA.toString(), this.keyB.toString()), 1)
+				.andExpect(status().isOk());
+
+		revertTo(1, 2)
+				.andExpect(status().isCreated())
+				// 되살린 판에도 C 가 있으므로 위반이 그대로 있다. 되돌리기가 위반을 없애 주지 않는다.
+				.andExpect(jsonPath("$.data.warnings.length()").value(1))
+				.andExpect(jsonPath("$.data.warnings[0].placeId").value(this.placeC.toString()));
+	}
+
+	private ResultActions addItem(UUID placeId, int dayIndex, int baseVersion) throws Exception {
+		String body = "{\"placeId\":\"" + placeId + "\",\"dayIndex\":" + dayIndex
+				+ ",\"baseVersion\":" + baseVersion + "}";
+		return this.mockMvc.perform(post("/api/v1/itineraries/{id}/items", this.itineraryId)
+				.contentType(MediaType.APPLICATION_JSON)
+				.principal(as(this.ownerId))
+				.content(body));
+	}
+
+	private ResultActions revertTo(int toVersion, int baseVersion) throws Exception {
+		String body = "{\"toVersion\":" + toVersion + ",\"baseVersion\":" + baseVersion + "}";
+		return this.mockMvc.perform(post("/api/v1/itineraries/{id}/revert", this.itineraryId)
+				.contentType(MediaType.APPLICATION_JSON)
+				.principal(as(this.ownerId))
+				.content(body));
 	}
 
 	private ResultActions reorderDay(int dayIndex, List<String> itemKeys, int baseVersion) throws Exception {

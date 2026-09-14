@@ -153,7 +153,8 @@ public class ItineraryEditController {
 		ItineraryDetailResponse detail = this.queryService.getDetail(itineraryId, editor);
 
 		return ResponseEntity.status(HttpStatus.CREATED)
-				.body(ApiResponse.success(ItineraryEditResponse.of(detail, saved),
+				.body(ApiResponse.success(ItineraryEditResponse.of(detail, saved,
+						this.editService.openingHoursForDay(itineraryId, saved.version(), request.dayIndex())),
 						"req_" + UUID.randomUUID()));
 	}
 
@@ -223,7 +224,9 @@ public class ItineraryEditController {
 		ItineraryVersion saved = this.editService.replanDay(itineraryId, dayIndex, baseVersion, null, editor);
 		ItineraryDetailResponse detail = this.queryService.getDetail(itineraryId, editor);
 
-		return ApiResponse.success(ItineraryEditResponse.of(detail, saved), "req_" + UUID.randomUUID());
+		return ApiResponse.success(ItineraryEditResponse.of(detail, saved,
+				this.editService.openingHoursForDay(itineraryId, saved.version(), dayIndex)),
+				"req_" + UUID.randomUUID());
 	}
 
 	/**
@@ -308,7 +311,9 @@ public class ItineraryEditController {
 				editor);
 		ItineraryDetailResponse detail = this.queryService.getDetail(itineraryId, editor);
 		return ResponseEntity.status(HttpStatus.CREATED)
-				.body(ApiResponse.success(ItineraryEditResponse.of(detail, saved), "req_" + UUID.randomUUID()));
+				.body(ApiResponse.success(ItineraryEditResponse.of(detail, saved,
+						this.editService.openingHoursForAll(itineraryId, saved.version())),
+						"req_" + UUID.randomUUID()));
 	}
 
 	private ItineraryEditResponse applyLock(String itineraryId, String itemKey, boolean locked,
@@ -325,7 +330,8 @@ public class ItineraryEditController {
 
 		ItineraryVersion saved = this.editService.setItemLocked(itineraryId, itemKey, locked, baseVersion, editor);
 		ItineraryDetailResponse detail = this.queryService.getDetail(itineraryId, editor);
-		return ItineraryEditResponse.of(detail, saved);
+		return ItineraryEditResponse.of(detail, saved,
+				this.editService.openingHoursForItem(itineraryId, saved.version(), itemKey));
 	}
 
 	/** {@code If-Match: "7"} · {@code If-Match: W/"7"} · {@code If-Match: 7} 을 모두 받는다. */

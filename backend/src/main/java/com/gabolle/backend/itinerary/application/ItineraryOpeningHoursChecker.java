@@ -25,31 +25,41 @@ import com.gabolle.backend.place.service.OpeningHoursFilterPort;
  * 돌려주고, 부르는 쪽이 그것을 응답에 실어 보낸다.
  *
  * <h2>못 본 것을 조용히 넘기지 않는다</h2>
- * {@code place} 표에 영업시간 칸이 아직 없다. 그 칸의 모양은 담당 티켓(-88 · -97 · -300 계열)이
- * 정하기로 하고 S15P21E201-262 가 일부러 비워 뒀다. 그래서 지금은 영업시간을 묻는 문
- * ({@link OpeningHoursFilterPort})이 "수집 안 했다" 고 답한다.
+ * 영업시간이 <b>일부 장소에만</b> 있다. S15P21E201-852 가 관광공사 자료에서 268곳을 넣었고
+ * 상가정보 2,355곳에는 아직 없다. 그래서 문({@link OpeningHoursFilterPort})의 답이 장소마다
+ * 다르다 — 연다 · 닫는다 · 모른다.
  *
- * <p>그때 위반이 없다고 답하면 <b>틀린 안심</b>을 준다 — 화면은 "영업시간 확인했고 문제 없음" 과
- * "영업시간을 볼 수 없었음" 을 구분할 수 없게 된다. 그래서 위반 목록과 별도로
+ * <p>모르는 것을 위반 없음으로 접으면 <b>틀린 안심</b>을 준다. 화면은 "영업시간 확인했고 문제
+ * 없음" 과 "영업시간을 볼 수 없었음" 을 구분할 수 없게 된다. 그래서 위반 목록과 별도로
  * {@link Result#notChecked()} 에 <b>무슨 검사를 왜 못 했는지</b>를 담아 올린다. 같은 어휘를
  * 장소 후보 조회가 이미 쓰고 있다({@code PlaceCandidateResponse.notApplied} — 값도
  * {@code OPENING_HOURS} · {@code NOT_COLLECTED} 로 같다).
  *
- * <p>영업시간 칸이 생기고 그것을 읽는 구현이 붙으면 이 클래스는 한 줄도 안 고쳐도 된다. 문이
- * {@code isAvailable()} 로 참을 답하는 순간 위반이 실제로 잡히기 시작한다.
+ * <p>하루치 항목 하나하나에 문을 따로 묻는다. 항목이 한 자리 수라 질의 수가 문제가 되지
+ * 않는 자리이고, 대신 <b>항목마다 다른 시각</b>을 물을 수 있다. 후보 목록처럼 대상이 수백인
+ * 자리는 한 번에 읽어 둔 피처로 직접 판정한다({@code PlaceCandidateQueryService}).
+ *
+ * <h2>부르는 자리</h2>
+ * 일정 편집 다섯 경로가 전부 이것을 지난다(S15P21E201-858) — 순서 바꾸기·장소 더하기·재계획은
+ * 요청에 날짜가 있어 {@link #checkDay}, 고정·해제는 그 항목의 날짜로 {@link #checkDay},
+ * 되돌리기는 판 전체가 바뀌므로 {@link #checkAll} 이다. 예전에는 순서 바꾸기 하나만 지났고
+ * 나머지 넷은 빈 결과를 보내 화면이 그것을 "확인했고 문제 없음" 으로 읽었다.
  */
 @Component
 @Profile({ "db", "dev" })
 public class ItineraryOpeningHoursChecker {
 
 	/** 응답에 실리는 검사 이름. 장소 후보 조회가 쓰는 값과 같다. */
-	public static final String CHECK = "OPENING_HOURS";
+	public static final String CHECK = OpeningHoursFilterPort.CHECK;
 
 	/** 위반 하나의 종류 — "그 시각에 그 집은 문을 닫는다". */
 	public static final String VIOLATION_CLOSED = "OPENING_HOURS_CLOSED";
 
 	/** 방문 시각이 없는 항목이 있어 그 항목만은 판정하지 못했다. */
 	public static final String REASON_NO_ITEM_TIME = "NO_ITEM_TIME";
+
+	/** 그 장소의 영업시간을 아직 아무도 안 넣어서 판정하지 못했다. */
+	public static final String REASON_NOT_COLLECTED = OpeningHoursFilterPort.REASON_NOT_COLLECTED;
 
 	private final OpeningHoursFilterPort openingHours;
 
@@ -75,13 +85,6 @@ public class ItineraryOpeningHoursChecker {
 	 * @param dayIndex 며칠째
 	 */
 	public Result checkDay(List<ItineraryItem> items, int dayIndex) {
-		if (!this.openingHours.isAvailable()) {
-			// 🔴 isOpenAt 을 부르지 않는다. 그 구현은 불리면 예외를 던지기로 약속했고,
-			//    "모른다" 를 "열려 있다" 로 바꾸지 않는 것이 그 약속의 요점이다.
-			return new Result(List.of(),
-					List.of(new NotChecked(CHECK, this.openingHours.unavailableReason())));
-		}
-
 		List<Violation> violations = new ArrayList<>();
 		Set<String> reasons = new LinkedHashSet<>();
 
@@ -97,8 +100,14 @@ public class ItineraryOpeningHoursChecker {
 			}
 
 			OffsetDateTime at = item.visitDate().atTime(startTime).atZone(ZONE).toOffsetDateTime();
-			if (!this.openingHours.isOpenAt(UUID.fromString(placeId), at)) {
-				violations.add(new Violation(VIOLATION_CLOSED, item.itemKey(), placeId, at.toString()));
+			// 🔴 세 갈래를 그대로 옮긴다. 모른다를 위반으로도, 통과로도 접지 않는다.
+			switch (this.openingHours.openAt(UUID.fromString(placeId), at)) {
+				case CLOSED ->
+					violations.add(new Violation(VIOLATION_CLOSED, item.itemKey(), placeId, at.toString()));
+				case NOT_COLLECTED -> reasons.add(REASON_NOT_COLLECTED);
+				case OPEN -> {
+					// 봤고 문제 없다. 적을 것이 없다.
+				}
 			}
 		}
 
@@ -106,6 +115,29 @@ public class ItineraryOpeningHoursChecker {
 				.map((reason) -> new NotChecked(CHECK, reason))
 				.toList();
 		return new Result(List.copyOf(violations), notChecked);
+	}
+
+	/**
+	 * 일정 전체를 날짜별로 판정해 하나로 합친다 — S15P21E201-858.
+	 *
+	 * <p>되돌리기처럼 <b>한 날이 아니라 판 전체</b>가 바뀌는 편집이 쓴다. 되살린 판의 위반이
+	 * 어느 날에 있을지 모르므로 한 날만 보는 것으로는 빠뜨린다.
+	 *
+	 * <p>위반은 이어 붙이고 못 한 검사는 <b>이유별로 한 번만</b> 남긴다. 사흘 모두 영업시간을
+	 * 모른다고 세 줄을 올리면 화면이 같은 문구를 세 번 보여 준다 — 사용자가 알아야 하는 것은
+	 * "몇 번 못 봤나" 가 아니라 "무엇을 못 봤나" 다.
+	 */
+	public Result checkAll(List<ItineraryItem> items) {
+		List<Integer> days = items.stream().map(ItineraryItem::dayIndex).distinct().sorted().toList();
+		List<Violation> violations = new ArrayList<>();
+		Set<String> reasons = new LinkedHashSet<>();
+		for (int dayIndex : days) {
+			Result result = checkDay(items, dayIndex);
+			violations.addAll(result.violations());
+			result.notChecked().forEach((notChecked) -> reasons.add(notChecked.reason()));
+		}
+		return new Result(List.copyOf(violations),
+				reasons.stream().map((reason) -> new NotChecked(CHECK, reason)).toList());
 	}
 
 	/**

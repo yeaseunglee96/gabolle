@@ -1,6 +1,7 @@
 package com.gabolle.backend.event.domain;
 
 import java.util.EnumSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
@@ -110,6 +111,50 @@ public enum EventType {
     EDITORIAL_PICK_PUBLISHED(Producer.SERVER, false, VersionRequirement.NONE, null),
     /** 🔴 축 미정 — 사전 계산 배치의 단위를 정해야 한다 */
     FEED_CANDIDATE_PRECOMPUTED(Producer.SERVER, false, VersionRequirement.NONE, null);
+
+    /**
+     * 개인화가 <b>행동으로 보는</b> 이벤트 — S15P21E201-549.
+     *
+     * <h2>이 목록이 정하는 것</h2>
+     * 사용자가 행동 기반 개인화를 껐을 때 <b>적지 않을 것</b>, 그리고 껐을 때
+     * <b>이미 적힌 것 중 지울 것</b>이 이 목록이다. 두 곳이 같은 목록을 봐야 하므로
+     * 여기 한 번만 적는다 — 목록이 둘이 되면 한쪽만 늘어나고, 그 어긋남은
+     * "껐는데 이 종류만 계속 쌓이는" 모양으로 나타나서 화면에서는 안 보인다.
+     *
+     * <h2>🔴 무엇이 빠졌는지가 이 목록의 절반이다</h2>
+     * <ul>
+     * <li>{@code PREFERENCE_SET} · {@code CONSTRAINT_SET} · {@code TRIP_CREATED} 는
+     *     <b>사람이 직접 넣은 것</b>이다. 행동을 안 보겠다는 것이 "내가 고른 것도 잊으라" 는
+     *     뜻은 아니다 — {@code PersonalizationMode.EXPLICIT_ONLY} 라는 이름이 그것이다</li>
+     * <li>{@code RECOMMENDATION_REQUESTED} · {@code RECOMMENDATION_FAILED} 는 서버가 무엇을
+     *     처리했는가의 <b>운영 기록</b>이다. 이것까지 끊으면 개인화를 끈 사람의 장애를
+     *     조사할 수 없다</li>
+     * <li>{@code EDITORIAL_PICK_PUBLISHED} · {@code FEED_CANDIDATE_PRECOMPUTED} 는 애초에
+     *     특정 사용자의 사건이 아니다</li>
+     * </ul>
+     *
+     * <p>🔴 {@code TasteVectorFoldService.TASTE_SIGNAL_EVENTS}(벡터가 <b>세는</b> 것)는 이
+     * 목록의 <b>부분집합</b>이다. 같지 않다 — 세는 것은 아직 좁고, 안 모으는 것은 넓어야 한다.
+     * 그 포함 관계는 {@code EventTypeBehaviorSignalTest} 가 지킨다.
+     */
+    private static final Set<EventType> BEHAVIOR_SIGNALS = EnumSet.of(
+            PLACE_VIEW, PLACE_LIKE, PLACE_DISLIKE, PLACE_VISIT,
+            ITINERARY_LOCK, ITINERARY_REMOVE, ITINERARY_REPLACE,
+            ROUTE_SKIP, ROUTE_DEVIATION, RECOMMENDATION_IMPRESSION);
+
+    /**
+     * 취향 벡터가 <b>세는</b> 이벤트 — {@code TasteVectorFoldService} 가 쓴다.
+     *
+     * <p>{@link #BEHAVIOR_SIGNALS} 의 <b>부분집합</b>이다. 두 목록이 다른 것은 의도다 —
+     * <b>세는 것은 지금 좁고, 안 모으는 것은 넓어야 한다.</b> 세는 목록에 없다고 모아도 되는
+     * 것은 아니다.
+     *
+     * <p>🔴 그 포함 관계를 {@code EventTypeSignalSetsTest} 가 강제한다. 여기서 한쪽만 늘리면
+     * "세기는 하는데 껐어도 모이는" 종류가 생기고, 그건 어느 화면에도 안 나타난다.
+     */
+    private static final Set<EventType> TASTE_SIGNALS = EnumSet.of(
+            PLACE_LIKE, PLACE_DISLIKE, PLACE_VISIT, PLACE_VIEW,
+            ITINERARY_REMOVE, ITINERARY_REPLACE, ROUTE_SKIP);
 
     private final Producer expectedProducer;
     private final boolean requiredForM1;
@@ -229,6 +274,51 @@ public enum EventType {
 
     public boolean requiredForM1() {
         return requiredForM1;
+    }
+
+    /**
+     * 이 이벤트가 <b>행동 관찰</b>인가 — S15P21E201-549.
+     *
+     * <p>{@code true} 면 행동 기반 개인화를 끈 사람에게는 적지 않고, 끄는 순간 이미 적힌
+     * 것도 지운다. 목록과 그 근거는 {@link #BEHAVIOR_SIGNALS} 에 있다.
+     */
+    public boolean isBehaviorSignal() {
+        return BEHAVIOR_SIGNALS.contains(this);
+    }
+
+    /**
+     * 행동 관찰 이벤트의 {@code event_type} 문자열 — 표를 직접 훑는 쪽(JPQL·JDBC)이 쓴다.
+     *
+     * <p>🔴 이름을 손으로 다시 적지 않게 하려고 있다. 손으로 적으면 열거형에 종류가
+     * 하나 늘어도 그 문자열 목록은 안 늘고, 그 어긋남은 아무 검사도 빨갛게 만들지 않는다.
+     */
+    public static Set<String> behaviorSignalWireNames() {
+        return wireNamesOf(BEHAVIOR_SIGNALS);
+    }
+
+    /** 이 이벤트를 취향 벡터가 세는가. 목록과 근거는 {@link #TASTE_SIGNALS}. */
+    public boolean isTasteSignal() {
+        return TASTE_SIGNALS.contains(this);
+    }
+
+    /**
+     * 취향 신호의 {@code event_type} 문자열.
+     *
+     * <p>🔴 2026-09-11 이전에는 이 목록이 {@code TasteVectorFoldService} 안에 손으로 적은
+     * <b>대문자</b> 문자열이었다. 실제로 표에 들어가는 값은 {@link #wireName()} 이 만드는
+     * 소문자라 <b>비교가 한 건도 안 맞았다</b>(S15P21E201-549). 대소문자를 정하는 곳을
+     * {@code wireName()} 하나로 모아서 같은 실수가 다시 안 나게 한다.
+     */
+    public static Set<String> tasteSignalWireNames() {
+        return wireNamesOf(TASTE_SIGNALS);
+    }
+
+    private static Set<String> wireNamesOf(Set<EventType> types) {
+        Set<String> names = new LinkedHashSet<>();
+        for (EventType type : types) {
+            names.add(type.wireName());
+        }
+        return names;
     }
 
     public VersionRequirement versionRequirement() {

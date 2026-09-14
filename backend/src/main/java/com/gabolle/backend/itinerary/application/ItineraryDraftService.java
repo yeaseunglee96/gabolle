@@ -4,6 +4,8 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -16,6 +18,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
+import com.gabolle.backend.place.service.OpeningHoursFilterPort;
 import com.gabolle.backend.itinerary.domain.Itinerary;
 import com.gabolle.backend.itinerary.domain.ItineraryContent;
 import com.gabolle.backend.itinerary.domain.ItineraryExclusion;
@@ -58,20 +61,39 @@ public class ItineraryDraftService implements ItineraryDraftPort {
     /** 하루에 배정할 최대 항목 수. 프리셋·설정이 없으면 4 — 이 값 자체가 제품 결정은 아니다. */
     private final int maxItemsPerDay;
 
+    private final int maxFoodPerDay;
+
+    private final String foodCategory;
+
     /**
      * 구간(leg) 계산 — S15P21E201-755 뽑아내기. 생성과 편집(순서 바꾸기) 두 경로가 같은 규칙을
      * 써야 해서 {@link ItineraryLegPlanner} 로 뽑았다. 자세한 이유는 그 클래스 머리말에 있다.
      */
     private final ItineraryLegPlanner legPlanner;
 
+    /**
+     * 그 시각에 문을 여는가 — S15P21E201-857.
+     *
+     * <p>후보를 고르는 단계가 아니라 <b>자리에 앉히는 단계</b>에서 묻는다. 후보 조회는 여행
+     * 전체에 한 번 부르고 시각 칸은 한 순간이라, 거기에 첫날 아침을 넣으면 화요일 오후에
+     * 방문할 곳까지 월요일 아침 기준으로 걸러진다. 항목마다 날짜와 시각이 다른 이 자리에서만
+     * 제대로 물을 수 있다.
+     */
+    private final OpeningHoursFilterPort openingHours;
+
     public ItineraryDraftService(TripRepository tripRepository, ItineraryRepository itineraryRepository, Clock clock,
             @Value("${gabolle.itinerary.max-items-per-day:4}") int maxItemsPerDay,
-            ItineraryLegPlanner legPlanner) {
+            @Value("${gabolle.itinerary.max-food-per-day:3}") int maxFoodPerDay,
+            @Value("${gabolle.itinerary.food-category:FOOD}") String foodCategory,
+            ItineraryLegPlanner legPlanner, OpeningHoursFilterPort openingHours) {
         this.tripRepository = tripRepository;
         this.itineraryRepository = itineraryRepository;
         this.clock = clock;
         this.maxItemsPerDay = maxItemsPerDay;
+        this.maxFoodPerDay = maxFoodPerDay;
+        this.foodCategory = foodCategory;
         this.legPlanner = legPlanner;
+        this.openingHours = openingHours;
     }
 
     /**
@@ -101,19 +123,18 @@ public class ItineraryDraftService implements ItineraryDraftPort {
             LocalDate visitDate = trip.startDate().plusDays(dayIndex);
             List<UUID> placeIdsToday = new ArrayList<>(dayPlaces.size());
 
-            for (int i = 0; i < dayPlaces.size(); i++) {
-                ItineraryDraftCommand.PlannedPlace place = dayPlaces.get(i);
+            List<Placed> placedToday = placeIntoSlots(trip, dayPlaces, visitDate);
+
+            for (int i = 0; i < placedToday.size(); i++) {
+                Placed placed = placedToday.get(i);
+                ItineraryDraftCommand.PlannedPlace place = placed.place();
                 placeIdsToday.add(place.placeId());
 
-                // 🔴 시각은 여행이 실제 시각을 들고 있을 때만 배정한다. 프리셋
-                //    ("MORNING_TO_EVENING")을 시각으로 바꾸는 규칙은 아직 확정되지 않았고
-                //    (V20260904010000 마이그레이션 주석), 없는 규칙을 여기서 지어내면
-                //    그 값이 계약이 된다. 없으면 시각을 비우고 UNKNOWN 으로 표시한다.
-                Slot slot = slotFor(trip, i, dayPlaces.size());
+                Slot slot = placed.slot();
                 items.add(new ItineraryDraft.DraftItem(
                         dayIndex, visitDate, i + 1, place.placeId(),
                         UUID.randomUUID(), slot.start(), slot.end(), slot.stayMinutes(),
-                        slot.dataStatus(), place.reasonCodes(), place.warningCodes()));
+                        slot.dataStatus(), place.reasonCodes(), placed.warningCodes()));
             }
             placeIdsByDay.add(placeIdsToday);
         }
@@ -126,10 +147,27 @@ public class ItineraryDraftService implements ItineraryDraftPort {
     }
 
     /**
-     * 순위대로 날짜에 배분한다. 하루가 {@link #maxItemsPerDay} 를 채우면 다음 날로 넘긴다 —
-     * 남는 후보를 버리지 않는다. 여행 마지막 날까지 다 찬 뒤에는(총 후보가 날짜 수 ×
-     * 하루 최대치보다 많을 때) 더 넘길 날이 없으므로 그 이후는 전부 마지막 날에 쌓인다 —
-     * 실제로는 topK 가 이 상황을 사실상 막는다.
+     * 순위대로 날짜에 배분한다. 하루가 {@link #maxItemsPerDay} 를 채우면 다음 날로 넘기고,
+     * 모든 날이 다 차면 <b>남은 후보는 일정에 넣지 않는다</b> — S15P21E201-902.
+     *
+     * <p>예전에는 더 넘길 날이 없으면 남은 것을 전부 마지막 날에 쌓았다. 그 자리 javadoc 은
+     * "실제로는 topK 가 이 상황을 사실상 막는다" 고 적어 두었는데 <b>그 가정이 틀렸다.</b>
+     * 추천은 기본 10곳을 내놓고 하루 상한은 4라서, 1일 여행이면 {@code days - 1 == 0} 이라
+     * 넘길 날이 아예 없어 10곳이 통째로 하루에 들어갔다(2026-09-13 실사용 확인).
+     *
+     * <p>넘치는 것을 마지막 날에 쌓는 것보다 안 넣는 것이 맞다. 하루에 열 곳은 일정이 아니고,
+     * 그렇게 쌓인 날은 이동 시간도 머무는 시간도 계산이 안 맞는다.
+     *
+     * <p><b>추천 결과를 줄이는 것이 아니다.</b> 순위표는 그대로 다 남아서 대체 장소 제시와
+     * 재계산이 쓴다({@code ItineraryRevisionCommand.rankedPool}). 여기서 정하는 것은
+     * "일정에 실제로 놓는 수" 뿐이다.
+     *
+     * <h2>하루에 밥집이 몇 곳인가 — S15P21E201-903</h2>
+     *
+     * 운영 후보의 89%가 음식점이라 순위대로만 담으면 하루가 전부 밥집이 된다. 그래서 첫
+     * 배분에서는 밥집을 하루 {@link #maxFoodPerDay} 곳까지만 앉히고 나머지 자리를 명소로
+     * 채운다. 명소가 모자라 자리가 남으면 미뤄 둔 밥집으로 메운다 — 끼니 상한 때문에 자리를
+     * 비워 두는 것보다 갈 곳이 있는 편이 낫다.
      */
     private List<List<ItineraryDraftCommand.PlannedPlace>> distributeByDay(
             List<ItineraryDraftCommand.PlannedPlace> places, int days) {
@@ -139,14 +177,55 @@ public class ItineraryDraftService implements ItineraryDraftPort {
             byDay.add(new ArrayList<>());
         }
 
-        int day = 0;
+        int[] foodPerDay = new int[days];
+        List<ItineraryDraftCommand.PlannedPlace> deferredFood = new ArrayList<>();
+
         for (ItineraryDraftCommand.PlannedPlace place : places) {
-            while (day < days - 1 && byDay.get(day).size() >= this.maxItemsPerDay) {
-                day++;
+            if (isFood(place) && !seat(byDay, foodPerDay, place, true)) {
+                deferredFood.add(place);
             }
-            byDay.get(day).add(place);
+            else if (!isFood(place)) {
+                seat(byDay, foodPerDay, place, false);
+            }
+        }
+
+        // 명소가 모자라 빈 자리가 남으면 미뤄 둔 밥집으로 채운다. 끼니 상한 때문에 자리를
+        // 비워 두는 것보다, 덜 이상적이어도 갈 곳이 있는 편이 낫다.
+        for (ItineraryDraftCommand.PlannedPlace place : deferredFood) {
+            seat(byDay, foodPerDay, place, false);
         }
         return byDay;
+    }
+
+    /**
+     * 순위가 높은 날부터 자리를 찾아 앉힌다. 앉혔으면 {@code true}.
+     *
+     * @param respectFoodCap 밥집 상한을 지킬지. 첫 배분에서는 지키고, 명소가 모자라 남은
+     *     자리를 메울 때는 안 지킨다
+     */
+    private boolean seat(List<List<ItineraryDraftCommand.PlannedPlace>> byDay, int[] foodPerDay,
+            ItineraryDraftCommand.PlannedPlace place, boolean respectFoodCap) {
+
+        boolean food = isFood(place);
+        for (int day = 0; day < byDay.size(); day++) {
+            if (byDay.get(day).size() >= this.maxItemsPerDay) {
+                continue;
+            }
+            if (food && respectFoodCap && foodPerDay[day] >= this.maxFoodPerDay) {
+                continue;
+            }
+            byDay.get(day).add(place);
+            if (food) {
+                foodPerDay[day]++;
+            }
+            return true;
+        }
+        return false;
+    }
+
+    /** 갈래를 모르면 밥집이 아닌 것으로 다룬다 — 모르는 것을 끼니로 세지 않는다. */
+    private boolean isFood(ItineraryDraftCommand.PlannedPlace place) {
+        return place.category() != null && place.category().equalsIgnoreCase(this.foodCategory);
     }
 
     /**
@@ -159,6 +238,88 @@ public class ItineraryDraftService implements ItineraryDraftPort {
             return new Slot(null, null, null, "UNKNOWN");
         }
     }
+
+    /**
+     * 그 날의 장소를 시간 칸에 앉힌다 — S15P21E201-857.
+     *
+     * <p>칸을 앞에서부터 채우면서, 그 시각에 <b>닫는다고 원천이 말한</b> 장소는 그 자리에
+     * 놓지 않고 다음 후보를 본다. 후보는 순위 순으로 훑으므로 걸리는 것이 없으면 순위가
+     * 그대로 유지된다.
+     *
+     * <h2>모른다를 닫힘처럼 다루지 않는다</h2>
+     * 영업시간이 들어간 장소는 관광공사 268곳뿐이다(S15P21E201-852). 모름을 닫힘으로 보면
+     * 아직 안 넣은 2,355곳이 일정에서 통째로 빠지고, 사용자에게는 그것이 "갈 데가 없다" 로
+     * 보인다. 그래서 모름은 앉힌다.
+     *
+     * <h2>바꿀 후보가 없으면 그대로 놓고 적는다</h2>
+     * 남은 후보가 전부 그 시각에 닫혀 있으면 순위 그대로 앉히고 그 항목의 경고에
+     * {@code OPENING_HOURS_CLOSED} 를 더한다. 빈 자리를 남기지 않는 이유는 일정에 구멍이
+     * 생기면 사용자가 그날 무엇을 할지 알 수 없기 때문이고, 조용히 앉히지 않는 이유는
+     * 화면이 그것을 "확인했고 문제 없음" 으로 읽기 때문이다.
+     *
+     * <h2>시각이 없으면 아무것도 안 한다</h2>
+     * 여행이 활동 시간대를 안 정했으면 칸에 시각이 없고, 시각이 없으면 문이 열렸는지 물어볼
+     * 수가 없다. 그때는 순위 그대로 앉힌다.
+     */
+    private List<Placed> placeIntoSlots(Trip trip, List<ItineraryDraftCommand.PlannedPlace> dayPlaces,
+                                        LocalDate visitDate) {
+
+        int count = dayPlaces.size();
+        List<Placed> placed = new ArrayList<>(count);
+        boolean[] used = new boolean[count];
+
+        for (int slotIndex = 0; slotIndex < count; slotIndex++) {
+            Slot slot = slotFor(trip, slotIndex, count);
+            OffsetDateTime at = (slot.start() == null) ? null
+                    : visitDate.atTime(slot.start()).atZone(ZONE).toOffsetDateTime();
+
+            int chosen = -1;
+            if (at != null) {
+                for (int i = 0; i < count; i++) {
+                    if (used[i]) {
+                        continue;
+                    }
+                    if (this.openingHours.openAt(dayPlaces.get(i).placeId(), at)
+                            != OpeningHoursFilterPort.Answer.CLOSED) {
+                        chosen = i;
+                        break;
+                    }
+                }
+            }
+
+            boolean forced = chosen < 0;
+            if (forced) {
+                for (int i = 0; i < count; i++) {
+                    if (!used[i]) {
+                        chosen = i;
+                        break;
+                    }
+                }
+            }
+
+            used[chosen] = true;
+            ItineraryDraftCommand.PlannedPlace place = dayPlaces.get(chosen);
+            List<String> warnings = place.warningCodes();
+            if (forced && at != null
+                    && this.openingHours.openAt(place.placeId(), at) == OpeningHoursFilterPort.Answer.CLOSED) {
+                warnings = new ArrayList<>(warnings == null ? List.of() : warnings);
+                warnings.add(ItineraryOpeningHoursChecker.VIOLATION_CLOSED);
+            }
+            placed.add(new Placed(place, slot, warnings));
+        }
+        return placed;
+    }
+
+    /**
+     * 한 자리에 앉은 결과.
+     *
+     * @param warningCodes 후보의 경고에 이 자리에서 생긴 것을 더한 목록
+     */
+    private record Placed(ItineraryDraftCommand.PlannedPlace place, Slot slot, List<String> warningCodes) {
+    }
+
+    /** 방문 시각을 절대 시각으로 바꿀 때 쓰는 시간대. 판정기와 같은 값이다. */
+    private static final ZoneId ZONE = ZoneId.of("Asia/Seoul");
 
     /**
      * 하루의 활동 시간대를 그 날 항목 수로 균등하게 나눈다.

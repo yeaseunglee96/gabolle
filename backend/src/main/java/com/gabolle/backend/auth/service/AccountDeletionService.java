@@ -172,6 +172,7 @@ public class AccountDeletionService {
 
 		List<UUID> tripIds = ownedTripIds(userId);
 		deleteTripData(userId, tripIds);
+		deletePersonalizationArtifacts(userId);
 		deleteStories(userId);
 		deleteLoginMeans(userId, credential);
 		detachEvents(userId);
@@ -188,15 +189,24 @@ public class AccountDeletionService {
 	 */
 	@Transactional(readOnly = true)
 	public AccountDeletionPreviewResponse preview(UUID userId) {
+		// 지운 여행은 세지 않는다 — S15P21E201-913. 사용자가 "내 여행" 에서 보는 목록은
+		// deletedAt 이 빈 것만 내주는데(JpaTripRepository.findTripsForMember), 여기서는 그
+		// 조건이 빠져 있어 목록에 한 개뿐인 계정에 "3개가 삭제돼요" 가 떴다. 바로 아래
+		// recordCount 는 같은 조건을 이미 걸고 있었다 — 한 메서드 안에서 기준이 갈렸던 것이다.
+		//
+		// 되돌릴 수 없는 동작의 안내 숫자라, 실제로 지워질 것보다 크게 보이면 사용자가 무엇을
+		// 잃는지 잘못 알고 결정하게 된다.
 		long ownedTripCount = this.entityManager
-				.createQuery("SELECT count(t) FROM TripJpaEntity t WHERE t.ownerUserId = :userId", Long.class)
+				.createQuery("SELECT count(t) FROM TripJpaEntity t WHERE t.ownerUserId = :userId "
+						+ "AND t.deletedAt IS NULL", Long.class)
 				.setParameter("userId", userId)
 				.getSingleResult();
 
 		long itineraryCount = this.entityManager
 				.createQuery("""
 						SELECT count(i) FROM ItineraryJpaEntity i WHERE i.tripId IN
-						(SELECT t.tripId FROM TripJpaEntity t WHERE t.ownerUserId = :userId)
+						(SELECT t.tripId FROM TripJpaEntity t WHERE t.ownerUserId = :userId
+						 AND t.deletedAt IS NULL)
 						""", Long.class)
 				.setParameter("userId", userId)
 				.getSingleResult();
@@ -326,14 +336,80 @@ public class AccountDeletionService {
 	}
 
 	/**
+	 * 개인화가 만들어 둔 파생값을 지운다 — S15P21E201-549/566.
+	 *
+	 * <h2>🔴 여기가 비어 있었다</h2>
+	 *
+	 * 2026-09-11 까지 탈퇴는 계정·여행·일정·기록은 지우면서 <b>그 사람을 재료로 만든 것</b>은
+	 * 그대로 뒀다. {@code user_taste_vector} · {@code user_taste_weight} · {@code feed_build} ·
+	 * {@code user_feed} · {@code community_feed} 의 행이 살아 있는 {@code user_id} 를 들고
+	 * 남았다 — 계정 행은 비웠지만 그 행들이 가리키는 대상은 여전히 그 사람이다.
+	 *
+	 * <p>Google Play 의 계정 삭제 요건은 <b>"데이터 안전 양식에 적은 것 전부"</b> 를 함께 지우라고
+	 * 한다. 취향 벡터는 그 양식에서 "개인화" 목적으로 적을 값이므로 범위 안이다.
+	 *
+	 * <h2>🔴 순서</h2>
+	 *
+	 * 외래키 때문에 <b>피드 줄 → 피드 세대 → 취향 성분 → 취향 판</b> 이다.
+	 * {@code feed_build.taste_vector_id} 가 {@code user_taste_vector} 를 가리키므로 세대를
+	 * 먼저 지우지 않으면 판을 못 지운다.
+	 *
+	 * <p>{@code recommendation_job.taste_vector_id} 도 같은 표를 가리키는데, 그쪽은
+	 * {@link #deleteTripData} 가 이미 이 사람의 추천 기록을 통째로 지운 뒤라 남아 있지 않다.
+	 * <b>이 메서드를 {@code deleteTripData} 보다 먼저 부르면 외래키에 걸려 탈퇴 전체가 실패한다.</b>
+	 */
+	private void deletePersonalizationArtifacts(UUID userId) {
+		execute("""
+				DELETE FROM UserFeedEntry e WHERE e.id.buildId IN
+				(SELECT b.buildId FROM FeedBuild b WHERE b.userId = :userId)
+				""", "userId", userId);
+		execute("""
+				DELETE FROM CommunityFeedEntry e WHERE e.id.buildId IN
+				(SELECT b.buildId FROM FeedBuild b WHERE b.userId = :userId)
+				""", "userId", userId);
+		execute("DELETE FROM FeedBuild b WHERE b.userId = :userId", "userId", userId);
+
+		execute("""
+				DELETE FROM UserTasteWeight w WHERE w.id.tasteVectorId IN
+				(SELECT v.tasteVectorId FROM UserTasteVector v WHERE v.userId = :userId)
+				""", "userId", userId);
+		execute("DELETE FROM UserTasteVector v WHERE v.userId = :userId", "userId", userId);
+	}
+
+	/**
 	 * 이벤트 기록에서 사람만 떼어 낸다.
 	 *
 	 * <p>🔴 지우지 않는 이유. 이벤트는 "무슨 일이 몇 번 일어났나" 를 보는 집계의 원본이라, 지우면
 	 * 지난 통계가 소급해서 바뀐다. {@code user_id} 는 비울 수 있는 칸이라 사람만 떼어 내고 사건은
 	 * 남긴다.
+	 *
+	 * <h2>🔴 {@code partition_key} 도 함께 지운다 (2026-09-11)</h2>
+	 *
+	 * {@code user_id} 만 비우면 익명화가 안 된다. {@code partition_key} 는
+	 * {@code EventIngestService.partitionKeyOf} 가 <b>사용자 UUID 문자열 그대로</b> 넣는 칸이라,
+	 * 사람을 뗀 뒤에도 그 칸으로 같은 사람의 이벤트를 전부 다시 묶을 수 있었다. 비운 것이
+	 * 아니라 <b>한 칸 옆으로 옮겨 둔 것</b>이었다.
+	 *
+	 * <p>{@code NOT NULL} 이라 비울 수는 없어서 {@code aggregate_id} 로 바꾼다 — 사용자 ID 가
+	 * 없을 때 원래 쓰는 값이 그것이다(같은 메서드). 브로커로 보낼 때 필요한 "같은 대상은 같은
+	 * 칸" 도 그대로 지켜진다.
+	 *
+	 * <h2>🔴 이 한 문장만 native SQL 이다 — 클래스 머리말의 규칙에 대한 예외</h2>
+	 *
+	 * 이유가 둘이다. {@code EventOutbox.partitionKey} 에 {@code @Column(updatable = false)} 가
+	 * 붙어 있고, UUID 를 문자열로 바꾸는 일을 JPQL 의 {@code cast} 에 맡기면 방언에 따라
+	 * 결과가 갈린다. {@code aggregate_id::text} 는 갈리지 않는다.
+	 *
+	 * <p>머리말이 native SQL 을 피하라고 한 이유(운영은 {@code gabolle} schema 인데 손으로 쓴
+	 * SQL 이 그것을 안 물려받는 문제)는 {@code spring.datasource.hikari.schema} 가 연결 자체에
+	 * 스키마를 걸면서 없어졌다 — {@code docs/DB-STANDARD.md} 2절, S15P21E201-546.
+	 * 그 한 줄이 지워지면 이 문장이 먼저 죽는다.
 	 */
 	private void detachEvents(UUID userId) {
-		execute("UPDATE EventOutbox e SET e.userId = null WHERE e.userId = :userId", "userId", userId);
+		this.entityManager.createNativeQuery("""
+				UPDATE event_outbox SET user_id = NULL, partition_key = aggregate_id::text
+				 WHERE user_id = :userId
+				""").setParameter("userId", userId).executeUpdate();
 	}
 
 	private void execute(String jpql, String parameterName, Object value) {

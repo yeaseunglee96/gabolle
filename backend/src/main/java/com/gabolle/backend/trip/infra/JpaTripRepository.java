@@ -435,13 +435,34 @@ public class JpaTripRepository implements TripRepository {
 	}
 
 	private static TripConstraint toDomain(ConstraintAnswerJpaEntity e, String tripId) {
+		// 🔴 S15P21E201 사용자 리포트 — value 를 항상 null 로 읽어 왔다. WHEELCHAIR·STROLLER·
+		// HEAVY_LUGGAGE·STAIRS_AVOIDANCE 는 threshold(미터)가 아니라 value("true")로 답을
+		// 싣는데, 여기서 value 를 버리고 threshold 만 복원하다 보니 answerStatus=SELECTED인데
+		// value·threshold 가 둘 다 null인 TripConstraint 가 만들어져 생성자가 거부했다
+		// (recommendation-jobs 요청이 400 RECOMMENDATION_JOB_VALIDATION_FAILED로 실패 —
+		// trip 생성 자체는 원본 값을 그대로 써서 통과하므로 이 read 경로에서만 재현된다).
 		return new TripConstraint(
 				e.constraintAnswerId().toString(), tripId, e.constraintType(), e.constraintKey(),
 				e.hard() ? TripConstraint.Severity.HARD : TripConstraint.Severity.SOFT,
 				defaultOperatorFor(e.constraintType()),
-				null, extractMeters(e.valueJson()),
+				extractValue(e.valueJson()), extractMeters(e.valueJson()),
 				TripConstraint.EvidenceStatus.NEEDS_REVIEW,
 				e.answerStatus(), PersonalizationScope.TRIP, e.dietRequirement());
+	}
+
+	/**
+	 * {@link #valueJsonOf} 가 문자열 값에 씌운 JSON 문자열 인코딩({@code "\"escaped\""})을
+	 * 되돌린다. meters 객체({@code {"meters":N}})는 여기서 다루지 않는다 — 그건 threshold
+	 * 쪽({@link #extractMeters})의 몫이라 둘 다 값을 낼 일이 없다(하나가 채워지면 나머지는
+	 * null).
+	 */
+	private static String extractValue(String valueJson) {
+		if (valueJson == null || valueJson.length() < 2
+				|| valueJson.charAt(0) != '"' || valueJson.charAt(valueJson.length() - 1) != '"') {
+			return null;
+		}
+		String inner = valueJson.substring(1, valueJson.length() - 1);
+		return inner.replace("\\\"", "\"").replace("\\\\", "\\");
 	}
 
 	private static String defaultOperatorFor(String type) {
