@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import com.gabolle.backend.place.api.PlaceCandidateRequest;
 import com.gabolle.backend.place.domain.UserInputKind;
 import com.gabolle.backend.place.repository.UserPlaceCodeMapRepository;
+import com.gabolle.backend.preference.application.PreferenceJson;
 import com.gabolle.backend.recommendation.config.BaselineEngineProperties;
 import com.gabolle.backend.recommendation.domain.RequestLocation;
 import com.gabolle.backend.trip.domain.PreferenceSnapshot;

@@ -17,13 +17,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.gabolle.backend.event.domain.EventType;
+import com.gabolle.backend.preference.application.PreferenceJson;
 import com.gabolle.backend.preference.domain.TasteDimension;
 import com.gabolle.backend.preference.domain.UserTasteVector;
 import com.gabolle.backend.preference.domain.UserTasteWeight;
 import com.gabolle.backend.preference.repository.UserTasteVectorRepository;
 import com.gabolle.backend.preference.repository.UserTasteWeightRepository;
 
-import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 /**
@@ -220,9 +220,33 @@ public class TasteVectorFoldService {
 	 * 그때부터 추천은 물어본 적도 없이 "이 사람은 카페에 관심 없다" 를 근거로 카페를 뺀다.
 	 *
 	 * <p>모양은 두 가지고 <b>차원 이름으로 가르지 않고 값의 모양으로 가른다.</b> 어떤 차원이
-	 * 태그형이고 어떤 것이 점수형인지는 화면 계약이 아직 확정하지 않았다
-	 * ({@code PreferenceJson} 의 같은 문제). 목록을 여기 박으면 그 목록이 틀린 날 조용히
-	 * 성분이 사라진다.
+	 * 태그형이고 어떤 것이 점수형인지는 화면 계약이 아직 확정하지 않았다. 목록을 여기 박으면
+	 * 그 목록이 틀린 날 조용히 성분이 사라진다.
+	 *
+	 * <h2>🔴 2026-09-14 — 여기서 다시 파싱하고 있었고, 그 사본이 낡아 있었다</h2>
+	 *
+	 * 이 메서드는 {@link PreferenceJson} 과 <b>같은 일을 자기 안에 다시 써 놓고</b> 있었다.
+	 * 그런데 그 사본은 {@code {"codes":[...]}} 와 {@code {"score":0~1}} 만 아는
+	 * <b>S15P21E201-635 이전 판</b>이었다. 앱이 실제로 보내는 것은 다르다 — 태그형은 맨 배열
+	 * {@code ["SEA_BEACH","FOOD"]} 이고, 점수형은 맨 정수 <b>1~5</b>(화면의 5단계 슬라이더)다.
+	 *
+	 * <p>그래서 실제로 이렇게 접히고 있었다.
+	 *
+	 * <ul>
+	 * <li>태그형 세 차원({@code CATEGORY}·{@code ATMOSPHERE}·{@code FOOD_PREFERENCE}) —
+	 *     {@code path("codes")} 가 배열 노드에서 비어 나와 <b>성분이 한 줄도 안 만들어졌다</b></li>
+	 * <li>점수형 세 차원 — {@code toWeight(3) = 3*2-1 = 5.0} 이 {@code +1.0} 으로 잘렸다.
+	 *     1·2·3·4·5 가 <b>전부 {@code +1.0}</b> 이 된다. "전혀 아니다" 와 "매우 그렇다" 를
+	 *     고른 두 사람의 벡터가 <b>완전히 같아진다</b></li>
+	 * </ul>
+	 *
+	 * <p>둘 다 오류가 안 난다. {@code ck_user_taste_weight_range} 는 {@code 1.0} 을 정상으로
+	 * 받고, 배치는 초록이고, 로그에는 성분 수만 찍힌다.
+	 *
+	 * <p>🔴 <b>그래서 눈금을 여기서 다시 정하지 않고 {@link PreferenceJson} 에 맡긴다.</b>
+	 * 그쪽이 이미 두 모양과 두 눈금을 다 알고, 무엇보다 <b>규칙이 한 벌이어야</b> 채점기
+	 * ({@code BaselineCandidateScorer})가 보는 취향과 벡터가 접는 취향이 안 갈린다. 이번이
+	 * 갈렸을 때 무슨 일이 나는지의 증거다.
 	 */
 	private List<UserTasteWeight> foldSurvey(UUID tasteVectorId, SurveySource survey, OffsetDateTime asOf) {
 		List<UserTasteWeight> result = new ArrayList<>();
@@ -238,24 +262,19 @@ public class TasteVectorFoldService {
 				log.warn("모르는 취향 차원이라 성분으로 접지 못했다 dimension={} snapshot={}", answer.dimension(), survey.snapshotId());
 				continue;
 			}
-			JsonNode value = readTree(answer.valueJson());
-			if (value == null) {
-				continue;
-			}
 
-			JsonNode codes = value.path("codes");
-			if (codes.isArray() && !codes.isEmpty()) {
-				for (JsonNode code : codes) {
-					String text = code.asText(null);
-					if (text != null && !text.isBlank()) {
-						// 고른 태그는 +1 이다. 사람이 직접 고른 것이라 뒷받침 수가 필요 없다.
-						result.add(UserTasteWeight.fromSurvey(tasteVectorId, dimension, text.trim(), 1.0, asOf));
-					}
+			List<String> codes = PreferenceJson.parseCodes(answer.valueJson(), this.objectMapper);
+			if (!codes.isEmpty()) {
+				for (String code : codes) {
+					// 고른 태그는 +1 이다. 사람이 직접 고른 것이라 뒷받침 수가 필요 없다.
+					result.add(UserTasteWeight.fromSurvey(tasteVectorId, dimension, code, 1.0, asOf));
 				}
 				continue;
 			}
 
-			Double score = readScore(value);
+			// 🔴 여기 오는 값은 PreferenceJson 이 이미 0~1 로 맞춰 준 것이다 (1~5 슬라이더는
+			//    (raw-1)/4 로 옮겨진다). toWeight 의 "0~1 을 받는다" 전제가 이제 실제로 참이다.
+			Double score = PreferenceJson.parseScore(answer.valueJson(), this.objectMapper);
 			if (score != null) {
 				result.add(UserTasteWeight.fromSurvey(tasteVectorId, dimension, SCORE_CODE, toWeight(score), asOf));
 			}
@@ -372,27 +391,6 @@ public class TasteVectorFoldService {
 		catch (IllegalArgumentException ex) {
 			return null;
 		}
-	}
-
-	private JsonNode readTree(String json) {
-		if (json == null || json.isBlank()) {
-			return null;
-		}
-		try {
-			return this.objectMapper.readTree(json);
-		}
-		catch (RuntimeException ex) {
-			log.warn("취향 답의 값을 읽지 못했다 — 성분으로 접지 않는다. value={}", json, ex);
-			return null;
-		}
-	}
-
-	private static Double readScore(JsonNode value) {
-		if (value.isNumber()) {
-			return value.doubleValue();
-		}
-		JsonNode score = value.path("score");
-		return score.isNumber() ? score.doubleValue() : null;
 	}
 
 	/** 한 판의 고른 답 묶음. */
