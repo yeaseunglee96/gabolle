@@ -87,7 +87,8 @@ public class FollowService {
 				this.clock.instant());
 		return new UserProfileResponse(target.toString(), user.getDisplayName(),
 				this.userFollowRepository.countByKeyFolloweeUserId(target),
-				this.userFollowRepository.countByKeyFollowerUserId(target), stories, following, me);
+				this.userFollowRepository.countByKeyFollowerUserId(target), stories, following, me,
+				user.getAvatarUrl());
 	}
 
 	private FollowResponse status(UUID me, UUID target, boolean following) {
