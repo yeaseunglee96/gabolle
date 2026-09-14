@@ -75,6 +75,12 @@ export async function signup(input: SignupInput) {
 export function resendEmailVerification(email: string) {
   return apiRequest<void>('/api/v1/auth/email-verification/resend', { method: 'POST', body: { email: email.trim() } });
 }
+// S15P21E201-941 — 메일 링크가 화면으로 오면서 확인을 화면이 부른다. skipUnauthorizedHandling 을
+// 켜는 이유는 재설정 확인과 같다 — 이 요청은 로그인한 사람이 부르는 것이 아니라 메일에서 온
+// 사람이 부르므로, 401 을 받았다고 로그인 화면으로 밀어내면 실패 이유를 못 보여 준다.
+export function confirmEmailVerification(token: string) {
+  return apiRequest<void>('/api/v1/auth/email-verification/confirm', { method: 'POST', body: { token }, skipUnauthorizedHandling: true });
+}
 export function requestPasswordReset(email: string) {
   return apiRequest<void>('/api/v1/auth/password-reset/request', { method: 'POST', body: { email: email.trim() }, skipUnauthorizedHandling: true });
 }
