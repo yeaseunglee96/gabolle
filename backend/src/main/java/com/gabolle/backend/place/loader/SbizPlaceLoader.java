@@ -63,11 +63,18 @@ import com.gabolle.backend.place.repository.PlaceRepository;
  * "맛집 & 먹거리" 와 같은 것을 가리킨다. 나머지 다섯은 이 자료에 없다. 그 다섯만 고른
  * 사용자는 후보가 0건인데, <b>그것이 사실이다</b> — 그 갈래의 장소를 아직 아무도 안 넣었다.
  *
- * <p>🔴 <b>{@code category} 는 카페도 {@code FOOD} 로 둔다.</b> 카페에 {@code INTEREST_TAG:
- * CAFE_HEALING} 은 붙지만 {@code category} 는 한 칸뿐이라 둘을 같이 못 적는다. 여기서 카페만
- * {@code CAFE_HEALING} 으로 바꾸면 "맛집 & 먹거리" 를 고른 사용자에게서 카페 7,335곳이
- * <b>사라진다.</b> 한 칸에 여러 갈래를 담는 것은 표를 바꾸는 일이라 여기서 혼자 정하지 않는다 —
- * 지금은 {@code CAFE_HEALING} <b>만</b> 고른 사용자의 후보가 0건이다.
+ * <h2>🔴 정정 (2026-09-15, S15P21E201-106) — 카페는 이제 {@code category} 가 {@code CAFE_HEALING}
+ * 이다. 위 문단은 그 전 결정이라 더 이상 사실이 아니다. 지우지 않고 이유를 남긴다</h2>
+ *
+ * 카페에는 {@code CATEGORY_TAG:CAFE_HEALING} 이 붙지만 {@code category} 는 한 칸뿐이라 둘을
+ * 같이 못 담는다 — 그래서 <b>{@code FOOD} 로 둘지 {@code CAFE_HEALING} 으로 둘지</b> 둘 중
+ * 하나를 정해야 했다. {@code FOOD} 로 두면 "카페·힐링" 만 고른 사용자의 후보가 0건이고,
+ * {@code CAFE_HEALING} 으로 바꾸면 "맛집 & 먹거리" 를 고른 사용자에게서 카페 7,335곳이 빠진다.
+ *
+ * <p>음식점 추천에 카페가 섞이는 쪽이 더 나쁘다는 판단으로 후자를 골랐다. 한 칸에 여러 갈래를
+ * 담는 것(표를 바꾸는 일)은 그대로 하지 않는다 — {@code place_feature} 의 {@code CATEGORY_TAG:
+ * FOOD} 는 지우지 않고 남겨 둔다. 후보 필터는 {@code category} 한 칸만 보므로 그 태그는 이제
+ * 안 쓰일 뿐이고, 지우는 것은 이번 결정보다 큰 변경이라 하지 않는다.
  */
 @Component
 @Profile({ "db", "dev" })
@@ -121,7 +128,11 @@ public class SbizPlaceLoader {
 				// 이미 있거나(DB) 이 덩어리 안에서 중복된 상가업소번호다.
 				continue;
 			}
-			places.add(Place.imported(placeId, cut(row.displayName(), NAME_MAX), "FOOD",
+			Set<String> categoryTags = AppFoodVocabulary.categoryTags(row.subCategory());
+			// 🔴 카페는 place.category 도 CAFE_HEALING 이다 (S15P21E201-106, 2026-09-15
+			//    정정 — 전에는 카페도 여기 FOOD 를 넣었다. 아래 클래스 주석 참고).
+			String category = categoryTags.contains("CAFE_HEALING") ? "CAFE_HEALING" : "FOOD";
+			places.add(Place.imported(placeId, cut(row.displayName(), NAME_MAX), category,
 					cut(row.address(), ADDRESS_MAX), row.lat(), row.lng(),
 					SOURCE_TYPE, row.storeId(), collectedAt,
 					// 🔴 원천에 "이 사실이 언제 관측됐나" 칸이 없다. 지어내지 않고 비운다 —
@@ -134,8 +145,11 @@ public class SbizPlaceLoader {
 			//    그 갈래는 탐색 아코디언의 여덟 낱말이 쓰는 자리라 두 사전이 한 서랍에 섞여
 			//    있었다. 지금은 place_feature_code 조회표가 외래키로 갈라 놓는다 — 여기에
 			//    탐색 쪽 낱말을 적으면 DB 가 그 자리에서 거부한다.
-			for (String category : AppFoodVocabulary.categoryTags(row.subCategory())) {
-				features.add(feature(placeId, row.storeId(), "CATEGORY_TAG", category, collectedAt, datasetVersion));
+			// 🔴 카페의 FOOD 태그도 그대로 넣는다 — place.category 가 CAFE_HEALING 으로
+			//    바뀌어 후보 필터(place.category 만 본다)에는 더 안 걸리지만, 이 태그를
+			//    지울 이유도 없다. 지우는 것은 이번 결정보다 큰 변경이다.
+			for (String tag : categoryTags) {
+				features.add(feature(placeId, row.storeId(), "CATEGORY_TAG", tag, collectedAt, datasetVersion));
 			}
 			for (String cuisine : AppFoodVocabulary.cuisineTags(row.subCategory(), row.name())) {
 				features.add(feature(placeId, row.storeId(), "CUISINE_TAG", cuisine, collectedAt, datasetVersion));
