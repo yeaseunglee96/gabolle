@@ -9,7 +9,7 @@
 //    넣으면 웹에서만 보이고 휴대폰에서는 빈칸이 된다.
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import { ActivityIndicator, Image, Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Image, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { useAuth } from '@/auth/AuthProvider';
@@ -23,7 +23,8 @@ import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
-import { loadFeed, relativeStoryTime, reportStory, setFollowing, VISIBILITY_LABEL, type FeedLoadResult, type FeedScope, type StoryDto, type StoryReportReason } from '@/social/stories';
+import { createStory, loadFeed, relativeStoryTime, reportStory, setFollowing, VISIBILITY_LABEL, type FeedLoadResult, type FeedScope, type StoryDto, type StoryReportReason, type StoryVisibility } from '@/social/stories';
+import { useStoryImages } from '@/social/useStoryImages';
 
 /**
  * 보관소에서 이 피드를 찾는 열쇠 — S15P21E201-957.
@@ -33,6 +34,9 @@ import { loadFeed, relativeStoryTime, reportStory, setFollowing, VISIBILITY_LABE
  * 것을 버리고 다시 부르게 된다.
  */
 const FEED_KEY = (scope: FeedScope, signedIn: boolean) => ['feed', scope, signedIn] as const;
+
+/** 본문 상한 — 글쓰기 화면(compose.tsx)과 같은 값이어야 한다. */
+const BODY_MAX = 500;
 
 /** 사진 장수에 따라 칸을 다르게 쓴다 — 한 장은 넓게, 여러 장은 정사각으로 나눈다. */
 function StoryImages({ images, compact }: { images: StoryDto['images']; compact: boolean }) {
@@ -135,6 +139,118 @@ function placesInFeed(items: StoryDto[]) {
     else counted.set(name, { name, count: 1 });
   }
   return [...counted.values()].sort((a, b) => b.count - a.count).slice(0, 8);
+}
+
+/**
+ * 피드 맨 위에서 바로 쓰는 글쓰기 카드 — 넓은 화면 전용.
+ *
+ * <p>폰은 기존대로 「기록」 버튼으로 /feed/compose 에 간다. 좁은 화면에서 본문·사진·
+ * 공개범위를 한 카드에 넣으면 정작 보러 온 목록이 한참 밀려 내려간다.
+ *
+ * <p>🔴 사진 처리는 {@link useStoryImages} 한 곳에서 온다 — 글쓰기 화면과 같은 코드다.
+ * 줄이기(1600px)·EXIF 제거·3MB 판정 규칙이 두 벌이 되지 않게 하려고 뺐다.
+ *
+ * <p>🔴 인계 문서의 「장소」·「여행 연결」 버튼은 넣지 않았다. createStory 는
+ * placeId·tripId 를 받지만 <b>고르는 화면이 저장소 어디에도 없다</b> — 기존 글쓰기
+ * 화면도 자유 입력 「지역」만 받는다. 눌러도 아무 일이 없는 버튼을 두는 대신 그
+ * 자유 입력을 같은 자리에 둔다. 선택기가 생기면 그때 바꾼다.
+ */
+function InlineCompose({ onPosted }: { onPosted: () => void }) {
+  const { tx } = useI18n();
+  const { accessToken } = useAuth();
+  const [body, setBody] = useState('');
+  const [region, setRegion] = useState('');
+  const [regionOpen, setRegionOpen] = useState(false);
+  const [visibility, setVisibility] = useState<StoryVisibility>('PUBLIC');
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const { images, addImage, retryImage, removeImage, anyUploading, uploadedUrls, canAddMore, clearImages } = useStoryImages(accessToken, tx);
+
+  const bodyValid = body.trim().length >= 1 && body.trim().length <= BODY_MAX;
+  const canPost = bodyValid && !anyUploading && !submitting;
+
+  const post = async () => {
+    if (!canPost) return;
+    setSubmitting(true);
+    setError(null);
+    const outcome = await createStory({
+      body: body.trim(),
+      imageUrls: uploadedUrls,
+      region: region.trim() || undefined,
+      visibility,
+      accessToken,
+    });
+    setSubmitting(false);
+    if (outcome.state !== 'success') { setError(outcome.message); return; }
+    setBody(''); setRegion(''); setRegionOpen(false); clearImages();
+    onPosted();
+  };
+
+  // 공개 범위는 셋뿐이라 눌러서 돌린다 — 넓은 화면 도구 행에 드롭다운을 하나 더
+  // 띄우는 것보다 조용하다. 지금 값이 버튼에 그대로 적혀 있어 무엇인지 보인다.
+  const cycleVisibility = () => {
+    const order: StoryVisibility[] = ['PUBLIC', 'FOLLOWERS', 'PRIVATE'];
+    setVisibility(order[(order.indexOf(visibility) + 1) % order.length]);
+  };
+
+  return <View style={styles.compose}>
+    <TextInput
+      accessibilityLabel={tx('기록 내용', 'Record body')}
+      style={styles.composeInput}
+      placeholder={tx('이번 부산 여행, 어땠어요?', 'How was your trip to Busan?')}
+      placeholderTextColor={color.text.muted}
+      value={body}
+      onChangeText={setBody}
+      maxLength={BODY_MAX}
+      multiline
+    />
+
+    {images.length ? <View style={styles.composeImages}>
+      {images.map((image, index) => <View key={`${image.localUri}-${index}`} style={styles.composeImageSlot}>
+        <Image source={{ uri: image.localUri }} resizeMode="cover" accessibilityLabel={tx('고른 사진', 'Selected photo')} style={styles.composeImage} />
+        {image.uploading ? <View style={styles.composeImageOverlay}><ActivityIndicator color={color.text.onAction} /></View> : null}
+        {image.error ? <Pressable accessibilityRole="button" accessibilityLabel={tx('업로드 다시 시도', 'Retry upload')} onPress={() => retryImage(index)} style={styles.composeImageOverlay}>
+          <Text variant="caption" weight="bold" color={color.text.onAction}>{tx('다시 시도', 'Retry')}</Text>
+        </Pressable> : null}
+        <Pressable accessibilityRole="button" accessibilityLabel={tx('사진 삭제', 'Remove photo')} onPress={() => removeImage(index)} style={styles.composeImageRemove}>
+          <Text weight="bold" color={color.text.onAction}>×</Text>
+        </Pressable>
+      </View>)}
+    </View> : null}
+
+    {/* 사진이 상한을 넘었을 때만 그 이유가 뜬다 — 미리 겁주지 않는다 (S15P21E201-955). */}
+    {images.map((image, index) => image.error
+      ? <Text key={`image-error-${index}`} variant="caption" color={color.state.danger}>{image.error}</Text>
+      : null)}
+
+    {regionOpen ? <TextInput
+      accessibilityLabel={tx('지역', 'Region')}
+      style={styles.composeRegion}
+      placeholder={tx('예: 해운대구', 'e.g. Haeundae-gu')}
+      placeholderTextColor={color.text.muted}
+      value={region}
+      onChangeText={setRegion}
+      maxLength={60}
+    /> : null}
+
+    <View style={styles.composeTools}>
+      <Pressable accessibilityRole="button" accessibilityLabel={tx('사진 추가', 'Add photo')} disabled={!canAddMore} onPress={() => void addImage()} style={[styles.toolButton, !canAddMore && styles.busy]}>
+        <Image source={require('../../assets/icons/common/camera.png')} resizeMode="contain" accessibilityLabel="" style={styles.toolIcon} />
+        <Text variant="body" color={color.text.body}>{tx(`사진 ${images.length}/3`, `Photos ${images.length}/3`)}</Text>
+      </Pressable>
+      <Pressable accessibilityRole="button" accessibilityLabel={tx('지역 적기', 'Add a region')} accessibilityState={{ expanded: regionOpen }} onPress={() => setRegionOpen((open) => !open)} style={[styles.toolButton, regionOpen && styles.toolButtonOn]}>
+        <Image source={require('../../assets/icons/common/pin.png')} resizeMode="contain" accessibilityLabel="" style={styles.toolIcon} />
+        <Text variant="body" color={color.text.body}>{region.trim() || tx('지역', 'Region')}</Text>
+      </Pressable>
+      <Pressable accessibilityRole="button" accessibilityLabel={tx('공개 범위 바꾸기', 'Change visibility')} onPress={cycleVisibility} style={styles.toolButton}>
+        <Text variant="caption" weight="bold" color={color.text.muted}>{tx(...VISIBILITY_LABEL[visibility])}</Text>
+      </Pressable>
+      <View style={styles.grow} />
+      <Button label={submitting ? tx('올리는 중…', 'Posting…') : tx('게시', 'Post')} disabled={!canPost} onPress={() => void post()} containerStyle={styles.composePost} />
+    </View>
+
+    {error ? <Text variant="caption" color={color.state.danger}>{error}</Text> : null}
+  </View>;
 }
 
 function EmptyState({ scope, signedIn, compact, onSeeAll, onWrite }: {
@@ -273,6 +389,12 @@ export default function Feed() {
         </View>
       : null}
 
+    {/* 넓은 화면에서만 맨 위에 둔다. 올리고 나면 이 범위를 낡은 것으로 표시해
+        다시 불러온다 — 방금 쓴 글이 목록에 바로 보이게. */}
+    {wide && signedIn
+      ? <InlineCompose onPosted={() => void queryClient.invalidateQueries({ queryKey: key })} />
+      : null}
+
     {loading
       ? <View accessibilityLiveRegion="polite" style={styles.stateCard}><ActivityIndicator color={color.brand.orange} /><Text variant="title" weight="bold">{tx('피드를 불러오고 있어요', 'Loading the feed')}</Text></View>
       : null}
@@ -408,4 +530,19 @@ const styles = StyleSheet.create({
   grow: { flex: 1, minWidth: 0 },
 
   loadMore: { marginTop: spacing[4] },
+
+  // 인라인 글쓰기 — 넓은 화면에서 피드 맨 위에 놓인다.
+  compose: { gap: spacing[3], marginTop: spacing[4], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.border },
+  composeInput: { minHeight: 64, fontSize: 18, lineHeight: 24, color: color.text.heading },
+  composeRegion: { minHeight: 40, paddingHorizontal: spacing[3], borderRadius: radius.sm, backgroundColor: color.surface.soft, color: color.text.heading },
+  composeImages: { flexDirection: 'row', gap: spacing[2] },
+  composeImageSlot: { flex: 1, aspectRatio: 1, borderRadius: radius.md, backgroundColor: color.surface.soft, overflow: 'hidden' },
+  composeImage: { width: '100%', height: '100%' },
+  composeImageOverlay: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(11,29,58,0.45)' },
+  composeImageRemove: { position: 'absolute', top: spacing[1], right: spacing[1], width: 24, height: 24, borderRadius: radius.full, backgroundColor: 'rgba(11,29,58,0.6)', alignItems: 'center', justifyContent: 'center' },
+  composeTools: { flexDirection: 'row', alignItems: 'center', gap: spacing[1], paddingTop: spacing[3], borderTopWidth: 1, borderTopColor: color.surface.border, flexWrap: 'wrap' },
+  toolButton: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], minHeight: 36, paddingHorizontal: spacing[3], borderRadius: radius.sm },
+  toolButtonOn: { backgroundColor: color.surface.soft },
+  toolIcon: { width: 16, height: 16, tintColor: color.brand.navy },
+  composePost: { width: 'auto', minWidth: 96, paddingHorizontal: spacing[4], backgroundColor: color.brand.navy },
 });
