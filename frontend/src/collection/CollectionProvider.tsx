@@ -17,6 +17,11 @@ export type CollectionPlace = {
   photoUri: string | null;
   note: string | null;
   addedAt: string;
+  // S15P21E201-919: 카카오 지도 자동완성으로 고른 장소만 좌표가 있다 — 직접 타이핑한
+  // 장소는 이전처럼 null이다. VERSION을 안 올린 이유: 기존 저장 데이터는 이 두 칸이
+  // 없을 뿐 그대로 유효하고(선택 필드), 읽는 쪽은 항상 null 가능성을 이미 대비해야 한다.
+  lat: number | null;
+  lng: number | null;
 };
 
 export type CollectionList = {
@@ -38,7 +43,19 @@ function uid() {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
-type NewPlaceInput = { name: string; category?: string | null; locality?: string | null; photoUri?: string | null; note?: string | null };
+// 장소는 여러 리스트가 같이 쓸 수 있어 리스트 하나를 지운다고 장소까지 지우면 안 된다 —
+// 하지만 그 장소를 쓰는 리스트가 하나도 안 남으면 얘기가 다르다. 그대로 두면 places에
+// 고아로 계속 쌓여 totalPlaceCount와 "최근 추가한 장소"에 리스트 하나 없는 유령 장소로
+// 영원히 남는다(리스트에서 빼거나 리스트를 지우는 것 말고는 places를 건드릴 방법이
+// 아예 없어서 사용자가 직접 치울 수도 없다). 리스트가 바뀔 때마다 이 함수로 정리한다.
+function pruneOrphanedPlaces(places: Record<string, CollectionPlace>, lists: CollectionList[]): Record<string, CollectionPlace> {
+  const referenced = new Set(lists.flatMap((list) => list.placeIds));
+  const next: Record<string, CollectionPlace> = {};
+  for (const [id, place] of Object.entries(places)) if (referenced.has(id)) next[id] = place;
+  return next;
+}
+
+type NewPlaceInput = { name: string; category?: string | null; locality?: string | null; photoUri?: string | null; note?: string | null; lat?: number | null; lng?: number | null };
 
 type CollectionContextValue = {
   ready: boolean;
@@ -88,12 +105,16 @@ export function CollectionProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const deleteList = useCallback((listId: string) => {
-    // 장소 자체는 다른 리스트에서도 쓸 수 있으므로 지우지 않는다 — 이 리스트의 참조만 없앤다.
-    setData((current) => ({ ...current, lists: current.lists.filter((list) => list.id !== listId) }));
+    // 장소 자체는 다른 리스트에서도 쓸 수 있으므로 지우지 않는다 — 이 리스트의 참조만 없애고,
+    // 그 결과 어느 리스트에도 안 남은 장소만 pruneOrphanedPlaces가 함께 정리한다.
+    setData((current) => {
+      const lists = current.lists.filter((list) => list.id !== listId);
+      return { lists, places: pruneOrphanedPlaces(current.places, lists) };
+    });
   }, []);
 
   const addNewPlaceToList = useCallback((listId: string, input: NewPlaceInput) => {
-    const place: CollectionPlace = { id: uid(), name: input.name, category: input.category ?? null, locality: input.locality ?? null, photoUri: input.photoUri ?? null, note: input.note ?? null, addedAt: new Date().toISOString() };
+    const place: CollectionPlace = { id: uid(), name: input.name, category: input.category ?? null, locality: input.locality ?? null, photoUri: input.photoUri ?? null, note: input.note ?? null, addedAt: new Date().toISOString(), lat: input.lat ?? null, lng: input.lng ?? null };
     setData((current) => ({
       places: { ...current.places, [place.id]: place },
       lists: current.lists.map((list) => list.id === listId ? { ...list, placeIds: [place.id, ...list.placeIds] } : list),
@@ -105,7 +126,10 @@ export function CollectionProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const removePlaceFromList = useCallback((listId: string, placeId: string) => {
-    setData((current) => ({ ...current, lists: current.lists.map((list) => list.id === listId ? { ...list, placeIds: list.placeIds.filter((id) => id !== placeId) } : list) }));
+    setData((current) => {
+      const lists = current.lists.map((list) => list.id === listId ? { ...list, placeIds: list.placeIds.filter((id) => id !== placeId) } : list);
+      return { lists, places: pruneOrphanedPlaces(current.places, lists) };
+    });
   }, []);
 
   const listsContaining = useCallback((placeId: string) => data.lists.filter((list) => list.placeIds.includes(placeId)), [data.lists]);

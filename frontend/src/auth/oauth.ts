@@ -7,23 +7,44 @@ import { savePendingOAuth, type PendingOAuthIntent } from './pendingOAuth';
 
 WebBrowser.maybeCompleteAuthSession();
 
-const PROVIDERS: Record<OAuthProvider, { clientId?: string; authorizationEndpoint: string; scope?: string }> = {
+type ProviderConfig = {
+  clientId?: string;
+  authorizationEndpoint: string;
+  scope?: string;
+  // 애플만 채운다 — 아래 apple 항목의 주석이 이유를 소유한다.
+  responseMode?: string;
+  authRedirectPath?: string;
+};
+
+const PROVIDERS: Record<OAuthProvider, ProviderConfig> = {
   google: { clientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID, authorizationEndpoint: 'https://accounts.google.com/o/oauth2/v2/auth', scope: 'openid email profile' },
   naver: { clientId: process.env.EXPO_PUBLIC_NAVER_CLIENT_ID, authorizationEndpoint: 'https://nid.naver.com/oauth2.0/authorize', scope: 'name email' },
   kakao: { clientId: process.env.EXPO_PUBLIC_KAKAO_CLIENT_ID, authorizationEndpoint: 'https://kauth.kakao.com/oauth/authorize', scope: 'profile_nickname account_email' },
-  // 애플에는 scope 를 아예 안 보낸다. 이름이든 이메일이든 하나라도 요청하면 애플이
-  //    response_mode=form_post 를 요구하고, 안 보내면 요청 자체를 거절한다 —
+  // S15P21E201-833 — 애플에만 이메일을 요청하고, 그래서 애플에만 돌아오는 자리가 둘로 갈린다.
+  //
+  //    애플은 이름이든 이메일이든 하나라도 요청하면 결과를 쿼리가 아니라 HTTP POST 로 보내겠다고
+  //    요구한다(response_mode=form_post). 안 보내면 요청 자체를 거절한다 —
   //    "response_mode must be form_post when name or email scope is requested" (2026-09-10 실측).
-  //    그런데 이 프런트는 정적 SPA 라 POST 본문을 받을 서버가 없다.
+  //    이 프런트는 정적 화면이라 POST 본문을 받을 수 없어서 그동안 이메일을 아예 안 받았고,
+  //    그 결과 애플로 가입한 계정에는 이메일이 어디에도 없었다.
   //
-  //    그래서 이메일을 안 받기로 한다. 서버는 애초에 이메일 없는 소셜 가입을 지원한다 —
-  //    auth_identity.provider_email 이 NULL 허용이고, 가입 화면에는 emailProvided=false 로
-  //    알려 준다(OAuthAccountService 클래스 주석). 사용자는 가입 화면에서 이메일을 직접 적는다.
+  //    이제 그 POST 를 받는 서버 경로가 있다(AppleFormPostController, S15P21E201-833). 그래서
+  //    애플에 넘기는 redirect_uri 만 그 경로로 옮긴다. 서버는 받은 code·state 를 그대로 붙여
+  //    아래 CALLBACK_BASE_URL 의 콜백 화면으로 302 로 넘기므로, 화면이 착지하는 자리는 그대로다.
   //
-  //    이메일을 애플에서 받아 오려면 redirect_uri 를 POST 를 받을 수 있는 서버 경로로 옮기고
-  //    거기서 다시 화면으로 넘겨야 한다. 애플 개발자 콘솔에도 그 주소를 새로 등록해야 해서
-  //    이번 변경 범위 밖이다.
-  apple: { clientId: process.env.EXPO_PUBLIC_APPLE_CLIENT_ID, authorizationEndpoint: 'https://appleid.apple.com/auth/authorize' },
+  //    🔴 name 은 요청하지 않는다. 이름은 서명 밖의 값이라 신원에 쓸 수 없고, email 만 요청해도
+  //    POST 요구는 똑같이 생기므로 잃는 것이 없다. 이메일도 이 POST 본문에서 읽지 않는다 —
+  //    서명된 id_token 의 email 클레임으로 들어온다.
+  //
+  //    🔴 이 주소는 애플 개발자 콘솔의 Return URLs 에 등록돼 있어야 한다(2026-09-13 등록 확인).
+  //    콘솔에 없으면 애플이 "Invalid web redirect url" 로 거절해 애플 로그인이 통째로 죽는다.
+  apple: {
+    clientId: process.env.EXPO_PUBLIC_APPLE_CLIENT_ID,
+    authorizationEndpoint: 'https://appleid.apple.com/auth/authorize',
+    scope: 'email',
+    responseMode: 'form_post',
+    authRedirectPath: '/api/v1/auth/oauth/apple/form-post',
+  },
 };
 
 // redirect URI 는 provider 개발자센터에 등록한 값과 백엔드 GABOLLE_OAUTH_ALLOWED_REDIRECT_URIS 와
@@ -39,12 +60,18 @@ function verifier() { return Array.from(Crypto.getRandomBytes(48), (byte) => byt
 async function beginOAuthChallenge(provider: OAuthProvider) {
   const config = PROVIDERS[provider];
   if (!config.clientId) throw new ApiClientError(`${provider.toUpperCase()} 로그인 설정이 필요해요.`, 'OAUTH_NOT_CONFIGURED', 0);
-  const redirectUri = `${CALLBACK_BASE_URL}/oauth/${provider}/callback`;
+  // 화면이 실제로 착지하는 자리. 넷 다 같고 애플도 여기로 온다 — 애플의 POST 를 받은 서버가
+  // code·state 를 붙여 이 주소로 302 로 넘기기 때문이다.
+  const landingUri = `${CALLBACK_BASE_URL}/oauth/${provider}/callback`;
+  // 제공자에게 넘기는 주소. 애플만 서버의 POST 수신 경로로 갈린다(S15P21E201-833).
+  // 🔴 코드 교환에도 이 값을 그대로 써야 한다 — 제공자는 인증 때 받은 redirect_uri 와
+  //    교환 때 받은 값이 글자까지 같기를 요구하고, 다르면 코드 교환이 거절된다.
+  const redirectUri = config.authRedirectPath ? `${CALLBACK_BASE_URL}${config.authRedirectPath}` : landingUri;
   const codeVerifier = verifier();
   const digest = await Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256, codeVerifier, { encoding: Crypto.CryptoEncoding.BASE64 });
   const challenge = await createOAuthChallenge(provider, redirectUri, base64Url(digest));
-  // scope 가 없는 제공자(애플)는 그 칸을 아예 빼고 보낸다. 빈 문자열로 보내면 요청한 것으로
-  // 읽혀서 같은 거절을 받는다.
+  // scope 가 없는 제공자는 그 칸을 아예 빼고 보낸다. 빈 문자열로 보내면 요청한 것으로
+  // 읽혀서 거절을 받는다.
   const params = new URLSearchParams({
     client_id: config.clientId,
     redirect_uri: redirectUri,
@@ -55,14 +82,22 @@ async function beginOAuthChallenge(provider: OAuthProvider) {
     code_challenge_method: 'S256',
   });
   if (config.scope) params.set('scope', config.scope);
+  if (config.responseMode) params.set('response_mode', config.responseMode);
   const authorizationUrl = `${config.authorizationEndpoint}?${params.toString()}`;
-  return { redirectUri, codeVerifier, challenge, authorizationUrl };
+  return { redirectUri, landingUri, codeVerifier, challenge, authorizationUrl };
 }
 
 // 네이티브(앱)는 팝업 차단이 끼어들 자리가 없는 앱 안 브라우저 화면을 쓰므로
 // S15P21E201-830 이전 방식 그대로 코드를 바로 받아 온다.
-async function runNativeAuthSession(authorizationUrl: string, redirectUri: string, expectedState: string) {
-  const result = await WebBrowser.openAuthSessionAsync(authorizationUrl, redirectUri);
+// 두 번째 인자는 제공자에게 넘긴 redirect_uri 가 아니라 **앱 안 브라우저가 착지하기를 기다리는
+// 주소**다. 애플만 둘이 다르다 — 애플은 서버의 POST 수신 경로로 보내고 그 서버가 여기로 넘긴다.
+async function runNativeAuthSession(authorizationUrl: string, landingUri: string, expectedState: string) {
+  // preferUniversalLinks: true 가 없으면 expo-web-browser 는 iOS 에서 https 리다이렉트를
+  // ASWebAuthenticationSession 의 callbackURLScheme(옛 커스텀 스킴 전용 방식)으로 열어서
+  // Associated Domains(앱과 j15e201.p.ssafy.io 를 연결하는 iOS 기능, S15P21E201-872)를 아예
+  // 안 쓴다 — 그래서 콜백 화면이 "처리하고 있어요"에서 안 닫혔다(node_modules/expo-web-browser/
+  // ios/WebAuthSession.swift 확인, 2026-09-12).
+  const result = await WebBrowser.openAuthSessionAsync(authorizationUrl, landingUri, { preferUniversalLinks: true });
   if (result.type === 'cancel' || result.type === 'dismiss') throw new ApiClientError('로그인이 취소되었어요.', 'OAUTH_CANCELLED', 0);
   if (result.type !== 'success') throw new ApiClientError('소셜 로그인을 완료하지 못했어요.', 'OAUTH_FAILED', 0);
   const callback = new URL(result.url);
@@ -101,7 +136,7 @@ export async function loginWithOAuth(provider: OAuthProvider, returnTo?: string 
     await beginWebRedirect('login', provider, returnTo, built);
     return new Promise<OAuthCompleteResult>(() => {}); // 페이지가 곧 떠난다 — 이 약속은 안 풀린다.
   }
-  const authorizationCode = await runNativeAuthSession(built.authorizationUrl, redirectUri, challenge.state);
+  const authorizationCode = await runNativeAuthSession(built.authorizationUrl, built.landingUri, challenge.state);
   return completeOAuth(provider, { authorizationCode, redirectUri, codeVerifier, state: challenge.state, nonce: challenge.nonce });
 }
 
@@ -117,6 +152,6 @@ export async function linkOAuthProvider(provider: OAuthProvider, accessToken: st
     await beginWebRedirect('link', provider, returnTo, built);
     return new Promise<OAuthIdentityLinkResult>(() => {});
   }
-  const authorizationCode = await runNativeAuthSession(built.authorizationUrl, redirectUri, challenge.state);
+  const authorizationCode = await runNativeAuthSession(built.authorizationUrl, built.landingUri, challenge.state);
   return linkOAuthAccount(provider, { authorizationCode, redirectUri, codeVerifier, state: challenge.state, nonce: challenge.nonce }, accessToken);
 }

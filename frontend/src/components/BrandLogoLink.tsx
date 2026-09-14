@@ -3,7 +3,7 @@ import { useRouter } from 'expo-router';
 import { radius } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 
-const logo = require('../../assets/brand/gabolle-logo-figma.png');
+const logo = require('../../assets/brand/gabolle-logo-hd.png');
 
 export function BrandLogoLink({ imageStyle, href = '/home' }: { imageStyle?: StyleProp<ImageStyle>; href?: string }) {
   const router = useRouter();

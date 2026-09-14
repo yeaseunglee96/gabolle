@@ -208,8 +208,8 @@ export default function Me() {
       <InfoRow label={tx('이용약관', 'Terms of Service')} value="›" onPress={() => router.push('/legal/terms')} />
       <InfoRow label={tx('개인정보 처리방침', 'Privacy Policy')} value="›" onPress={() => router.push('/legal/privacy')} />
       <InfoRow label={tx('오픈소스 고지', 'Open-source notices')} value="›" onPress={() => router.push('/legal/open-source')} />
+      <InfoRow label={tx('공공데이터 출처', 'Public data sources')} value="›" onPress={() => router.push('/legal/data-sources')} />
     </View>
-    <Text variant="caption" color={color.text.muted} style={styles.notice}>{tx('완료 여행·저장 장소·리뷰 수는 실제 조회 API가 연결된 뒤 표시합니다.', 'Trip, saved-place, and review counts will appear after their APIs are connected.')}</Text>
     <Button label={tx('로그아웃', 'Sign out')} variant="ghost" onPress={() => void (async () => { await signOut(); await plan.clear(); })()} containerStyle={styles.logout} />
     <View style={styles.dangerZone}><Text variant="caption" weight="bold" color={color.state.danger}>{tx('계정 관리', 'Account')}</Text><Text variant="caption" color={color.text.body}>{tx('계정과 개인 데이터를 영구적으로 삭제할 수 있어요.', 'Permanently delete your account and personal data.')}</Text><Pressable accessibilityRole="button" onPress={() => void openDeletion()} style={({ pressed }) => [styles.deleteEntry, pressed && styles.rowPressed]}><Text weight="bold" color={color.state.danger}>{tx('계정 삭제', 'Delete account')}</Text><Text variant="title" color={color.state.danger}>›</Text></Pressable></View>
   </Screen><TabBar active="me" />
@@ -269,7 +269,7 @@ const styles = StyleSheet.create({
   rowPressed: { opacity: 0.7, backgroundColor: color.surface.tint }, rowDisabled: { opacity: 0.58 },
   consentRow: { minHeight: 62, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[3], paddingHorizontal: spacing[4], paddingVertical: spacing[3] },
   consentCopy: { flex: 1, gap: spacing[1] },
-  notice: { marginTop: spacing[4], lineHeight: 20 }, logout: { marginTop: 'auto', marginBottom: spacing[4], borderColor: color.brand.orange },
+  logout: { marginTop: 'auto', marginBottom: spacing[4], borderColor: color.brand.orange },
   dangerZone: { gap: spacing[2], marginBottom: spacing[4], padding: spacing[4], borderWidth: 1, borderColor: color.state.dangerBg, borderRadius: radius.lg, backgroundColor: color.state.dangerBg },
   deleteEntry: { minHeight: 48, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.card },
   modalBackdrop: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing[4], backgroundColor: 'rgba(11,29,58,0.62)' },

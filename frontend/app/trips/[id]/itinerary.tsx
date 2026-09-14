@@ -26,6 +26,8 @@ import {
   type ItineraryDto,
   type ItineraryItemDto,
   type ItineraryLoadResult,
+  type ItineraryOpeningHoursNotChecked,
+  type ItineraryOpeningHoursWarning,
   type ItineraryPaceDto,
   type ItineraryPaceItemDto,
   type ItineraryRhythmDto,
@@ -39,6 +41,23 @@ const WARNING_LABEL: Record<string, [string, string]> = {
   RECALC_NO_CANDIDATE: ['뺀 자리를 채울 다른 장소를 찾지 못해 비워 뒀어요.', "We couldn't find another place to fill the removed spot, so it's left empty."],
   RECALC_TIMES_RESHUFFLED: ['다시 계산하면서 고정된 장소의 시각도 함께 조정됐어요.', 'Recalculating also adjusted the times of locked places.'],
 };
+
+// 영업시간 경고(S15P21E201-268/-858) — 편집 다섯 갈래 중 넷(더하기 제외, 재계산은 비동기라
+// 이 응답에 못 싣는다)이 warnings·notChecked를 함께 돌려준다. 되돌리기는 여러 날에 걸친
+// 위반이 함께 올 수 있어 하루가 아니라 일정 전체에서 항목을 찾는다.
+function describeOpeningHoursIssues(itinerary: ItineraryDto, warnings: ItineraryOpeningHoursWarning[], notChecked: ItineraryOpeningHoursNotChecked[], tx: (ko: string, en: string) => string): string[] {
+  const itemsById = new Map(itinerary.days.flatMap((day) => day.items).map((item) => [item.id, item]));
+  const closedMessages = warnings
+    .filter((warning) => warning.code === 'OPENING_HOURS_CLOSED')
+    .map((warning) => {
+      const title = itemsById.get(warning.itemId)?.title ?? tx('이 장소', 'this place');
+      return tx(`${title}은(는) 이 시각에 영업하지 않아요.`, `${title} is closed at this time.`);
+    });
+  const notCheckedMessages = notChecked.map((entry) => entry.reason === 'NOT_COLLECTED'
+    ? tx('일부 장소는 영업시간 정보가 없어 확인하지 못했어요.', "We couldn't check opening hours for some places — no data yet.")
+    : tx('시각이 없는 항목이 있어 일부는 확인하지 못했어요.', "Some items have no visit time, so we couldn't check them."));
+  return [...closedMessages, ...notCheckedMessages];
+}
 
 function formatTime(value: string) {
   const date = new Date(value);
@@ -129,6 +148,9 @@ export default function ItineraryScreen() {
   const [replanBusy, setReplanBusy] = useState(false);
   const [replanOverflowIds, setReplanOverflowIds] = useState<string[] | null>(null);
   const [syncDisconnected, setSyncDisconnected] = useState(false);
+  // 순서 바꾸기 응답에만 실려 오는 영업시간 경고(S15P21E201-268/-852) — 활동 이력엔 안 남으므로
+  // 그 자리에서 받은 문장을 이 상태에 직접 담아 둔다. 다음 편집을 시작하면 지운다.
+  const [openingHoursNotice, setOpeningHoursNotice] = useState<string[]>([]);
 
   const refreshVersions = useCallback(async (targetId: string) => {
     const next = await loadItineraryVersions(targetId, accessToken);
@@ -224,12 +246,21 @@ export default function ItineraryScreen() {
   const paceByItemId = useMemo(() => new Map((pace?.items ?? []).map((entry) => [entry.itemId, entry] as const)), [pace]);
   const paceEstimated = pace?.paceFactor == null;
 
+  // S15P21E201-911 — 도착·출발 기록 PUT은 itinerary.version을 안 올린다(actualArrivedAt만
+  // 바뀐다, 실측 확인). pace를 불러오는 effect는 version 변화로만 재실행되므로, 그 effect에
+  // 기대서는 "도착 찍기" 직후 화면이 영영 안 바뀐다 — 여기서 명시적으로 다시 불러온다.
+  const refreshPaceAfterActual = async () => {
+    if (!itinerary) return;
+    const next = await loadItineraryPace(itinerary.id, selectedDay, accessToken);
+    if (next.state === 'success') setPace(next.pace);
+  };
+
   const recordArrival = async (item: ItineraryItemDto) => {
     if (!itinerary) return;
     setActualBusyItemId(item.id);
     const outcome = await recordItineraryItemActual({ itineraryId: itinerary.id, itemId: item.id, arrivedAt: new Date().toISOString(), departedAt: null, accessToken });
     setActualBusyItemId(null);
-    if (outcome.state === 'success') setResult({ state: 'success', itinerary: outcome.itinerary });
+    if (outcome.state === 'success') { setResult({ state: 'success', itinerary: outcome.itinerary }); void refreshPaceAfterActual(); }
     else if (outcome.state !== 'conflict') setActionMessage(outcome.message);
   };
 
@@ -241,16 +272,20 @@ export default function ItineraryScreen() {
     setActualBusyItemId(item.id);
     const outcome = await recordItineraryItemActual({ itineraryId: itinerary.id, itemId: item.id, arrivedAt: existingArrival, departedAt: new Date().toISOString(), accessToken });
     setActualBusyItemId(null);
-    if (outcome.state === 'success') setResult({ state: 'success', itinerary: outcome.itinerary });
+    if (outcome.state === 'success') { setResult({ state: 'success', itinerary: outcome.itinerary }); void refreshPaceAfterActual(); }
     else if (outcome.state !== 'conflict') setActionMessage(outcome.message);
   };
 
   const confirmReplan = async () => {
     if (!itinerary) return;
-    setReplanBusy(true); setConflict(null); setActionMessage(null); setReplanOverflowIds(null);
+    setReplanBusy(true); setConflict(null); setActionMessage(null); setReplanOverflowIds(null); setOpeningHoursNotice([]);
     const outcome = await replanItineraryDay({ itineraryId: itinerary.id, dayIndex: selectedDay, baseVersion: itinerary.version, accessToken });
     setReplanBusy(false); setReplanConfirming(false);
-    if (outcome.state === 'success') { setResult({ state: 'success', itinerary: outcome.itinerary }); setActionMessage(tx('남은 일정을 다시 계획했어요.', 'Replanned the rest of the day.')); }
+    if (outcome.state === 'success') {
+      setResult({ state: 'success', itinerary: outcome.itinerary });
+      setActionMessage(tx('남은 일정을 다시 계획했어요.', 'Replanned the rest of the day.'));
+      setOpeningHoursNotice(describeOpeningHoursIssues(outcome.itinerary, outcome.warnings, outcome.notChecked, tx));
+    }
     else if (outcome.state === 'conflict') setConflict(outcome.message);
     else if (outcome.state === 'overflow') { setReplanOverflowIds(outcome.itemIds); setActionMessage(outcome.message); }
     else setActionMessage(outcome.message);
@@ -268,10 +303,10 @@ export default function ItineraryScreen() {
 
   const toggleLock = async (item: ItineraryItemDto) => {
     if (!itinerary) return;
-    setBusyItemId(item.id); setConflict(null); setActionMessage(null);
+    setBusyItemId(item.id); setConflict(null); setActionMessage(null); setOpeningHoursNotice([]);
     const next = await setItineraryItemLocked({ itineraryId: itinerary.id, itemId: item.id, locked: !item.locked, baseVersion: itinerary.version, accessToken });
     setBusyItemId(null);
-    if (next.state === 'success') setResult({ state: 'success', itinerary: next.itinerary });
+    if (next.state === 'success') { setResult({ state: 'success', itinerary: next.itinerary }); setOpeningHoursNotice(describeOpeningHoursIssues(next.itinerary, next.warnings, next.notChecked, tx)); }
     else if (next.state === 'conflict') setConflict(next.message);
     else setResult(next);
   };
@@ -300,10 +335,15 @@ export default function ItineraryScreen() {
 
   const revert = async () => {
     if (!itinerary) return;
-    setRevertBusy(true); setConflict(null); setActionMessage(null);
+    setRevertBusy(true); setConflict(null); setActionMessage(null); setOpeningHoursNotice([]);
     const outcome = await revertItinerary({ itineraryId: itinerary.id, baseVersion: itinerary.version, accessToken });
     setRevertBusy(false);
-    if (outcome.state === 'success') { setResult({ state: 'success', itinerary: outcome.itinerary }); void refreshVersions(outcome.itinerary.id); setActionMessage(tx('최근 변경을 되돌렸어요.', 'Reverted your last change.')); }
+    if (outcome.state === 'success') {
+      setResult({ state: 'success', itinerary: outcome.itinerary });
+      void refreshVersions(outcome.itinerary.id);
+      setActionMessage(tx('최근 변경을 되돌렸어요.', 'Reverted your last change.'));
+      setOpeningHoursNotice(describeOpeningHoursIssues(outcome.itinerary, outcome.warnings, outcome.notChecked, tx));
+    }
     else if (outcome.state === 'conflict') setConflict(outcome.message);
     else if (outcome.state === 'noOp') setActionMessage(outcome.message);
     else setResult(outcome);
@@ -312,7 +352,7 @@ export default function ItineraryScreen() {
   const startReorder = () => {
     if (!day) return;
     setOrderDraft(day.items.map((item) => item.id));
-    setConflict(null); setActionMessage(null);
+    setConflict(null); setActionMessage(null); setOpeningHoursNotice([]);
   };
 
   const cancelReorder = () => setOrderDraft(null);
@@ -348,13 +388,14 @@ export default function ItineraryScreen() {
 
   const saveReorder = async () => {
     if (!itinerary || !orderDraft) return;
-    setReorderBusy(true); setConflict(null); setActionMessage(null);
+    setReorderBusy(true); setConflict(null); setActionMessage(null); setOpeningHoursNotice([]);
     const outcome = await reorderItineraryDay({ itineraryId: itinerary.id, dayIndex: selectedDay, itemKeys: orderDraft, baseVersion: itinerary.version, accessToken });
     setReorderBusy(false);
     if (outcome.state === 'success') {
       setResult({ state: 'success', itinerary: outcome.itinerary });
       setOrderDraft(null);
       setActionMessage(tx('순서를 저장했어요.', 'Saved the new order.'));
+      setOpeningHoursNotice(describeOpeningHoursIssues(outcome.itinerary, outcome.warnings, outcome.notChecked, tx));
     } else if (outcome.state === 'conflict') setConflict(outcome.message);
     else setActionMessage(outcome.message);
   };
@@ -377,6 +418,7 @@ export default function ItineraryScreen() {
       {conflict ? <View accessibilityRole="alert" style={styles.conflict}><Text variant="body" weight="bold">{tx('최신 일정과 충돌했어요', 'Conflicted with the latest itinerary')}</Text><Text variant="caption" color={color.text.body}>{conflict}</Text><Button label={tx('최신 일정 불러오기', 'Load latest itinerary')} variant="ghost" onPress={() => void reload()} /></View> : null}
       {actionMessage ? <View accessibilityRole="alert" style={styles.actionNotice}><Text variant="caption" color={color.text.body}>{actionMessage}</Text></View> : null}
       {latestWarnings.length ? <View style={styles.warningNotice}>{latestWarnings.map((message, index) => <Text key={index} variant="caption" color={color.text.body}>{message}</Text>)}</View> : null}
+      {openingHoursNotice.length ? <View accessibilityRole="alert" style={styles.warningNotice}>{openingHoursNotice.map((message, index) => <Text key={index} variant="caption" color={color.text.body}>{message}</Text>)}</View> : null}
       {dayOutOfRange ? <View style={styles.actionNotice}><Text variant="caption" color={color.text.body}>{tx(`요청한 날짜가 없어서 1일차를 보여드려요. (전체 ${itinerary.days.length}일)`, `That day doesn't exist, so day 1 is shown instead. (${itinerary.days.length} days total)`)}</Text></View> : null}
 
       <View accessibilityRole="tablist" style={styles.dayTabs}>

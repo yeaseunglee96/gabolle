@@ -175,6 +175,22 @@ export type AccountDeletionPreview = { ownedTripCount: number; itineraryCount: n
 export function getAccountDeletionPreview(accessToken: string) {
   return apiRequest<AccountDeletionPreview>('/api/v1/auth/me/deletion-preview', { accessToken });
 }
+
+// 가입 뒤 동의를 읽고 바꾸는 자리 — S15P21E201-735(고지혁 님 · MR !585/!600, 2026-09-11).
+// PATCH는 부분 수정이다 — 보낸 항목만 바뀌고 안 보낸 항목은 그대로다. TERMS_OF_SERVICE·
+// PRIVACY_POLICY는 이 경로로 못 끈다(서버가 400 REQUIRED_CONSENT_NOT_REVOCABLE로 거부한다) —
+// 그건 철회가 아니라 탈퇴다.
+export type ConsentName = 'BEHAVIOR_PERSONALIZATION' | 'PRECISE_LOCATION' | 'HEALTH_CONSTRAINTS';
+export type ConsentItem = { consentType: string; status: 'GRANTED' | 'REVOKED'; policyVersion: string; decidedAt: string };
+export type MyConsents = { behaviorPersonalizationEnabled: boolean; consents: ConsentItem[] };
+
+export function getMyConsents(accessToken: string) {
+  return apiRequest<MyConsents>('/api/v1/auth/me/consents', { accessToken });
+}
+
+export function updateMyConsents(accessToken: string, consents: Partial<Record<ConsentName, boolean>>) {
+  return apiRequest<MyConsents>('/api/v1/auth/me/consents', { method: 'PATCH', accessToken, body: { consents } });
+}
 export function refreshWebSession() { return apiRequest<AuthTokens>('/api/v1/auth/web/refresh', { method: 'POST', skipUnauthorizedHandling: true }); }
 export function refreshMobileSession(refreshToken: string) { return apiRequest<AuthTokens>('/api/v1/auth/refresh', { method: 'POST', body: { refreshToken }, skipUnauthorizedHandling: true }); }
 export function logoutWebSession() { return apiRequest<void>('/api/v1/auth/web/logout', { method: 'POST', skipUnauthorizedHandling: true }); }

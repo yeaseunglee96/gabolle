@@ -102,3 +102,34 @@ function membersActionFailure(error: unknown): Exclude<TripMemberActionResult, {
   if (error instanceof ApiClientError && error.status === 403) return { state: 'forbidden', message: error.message };
   return { state: 'error', message: error instanceof Error ? error.message : '요청을 처리하지 못했어요.' };
 }
+
+// 최근 변경 — S15P21E201-327·-687. 서버 계약(박재현 님, MR !251, 2026-09-07):
+//   GET /api/v1/trips/{tripId}/activity?limit=
+// 새 이력 표를 안 만들고 일정의 판(itinerary_versions)을 역순으로 읽은 것이다(DEC-COL-001) —
+// 그래서 판을 안 만드는 변경(초대 발급, 역할 변경, 참여자 제거)은 여기 안 나온다. 지어내지
+// 않는다 — 이 목록은 "일정 자체가 바뀐 기록"만 보여준다는 뜻이고, 화면 문구도 그렇게 맞춘다.
+export type TripActivityOperation = 'CREATE' | 'REGENERATE' | 'REGENERATE_DAY' | 'REPLACE_ITEM' | 'REMOVE_ITEM' | 'LOCK_ITEM' | 'REORDER' | 'REVERT' | 'ADD_ITEM';
+export type TripActivityEntry = {
+  itineraryId: string;
+  version: number;
+  operation: TripActivityOperation;
+  actorId: string;
+  actorName: string | null;
+  isMe: boolean;
+  at: string;
+  baseVersion: number | null;
+  revertedFromVersion: number | null;
+  warningCodes: string[];
+};
+export type TripActivityView = { tripId: string; entries: TripActivityEntry[]; limit: number; myRole: TripMemberRole };
+export type TripActivityResult = { state: 'success' } & TripActivityView | { state: 'forbidden' | 'error'; message: string };
+
+export async function getTripActivity(tripId: string, accessToken: string | null, limit = 20): Promise<TripActivityResult> {
+  try {
+    const view = await apiRequest<TripActivityView>(`/api/v1/trips/${encodeURIComponent(tripId)}/activity?limit=${limit}`, { accessToken });
+    return { state: 'success', ...view };
+  } catch (error) {
+    if (error instanceof ApiClientError && error.status === 403) return { state: 'forbidden', message: error.message };
+    return { state: 'error', message: error instanceof Error ? error.message : '최근 변경을 불러오지 못했어요.' };
+  }
+}

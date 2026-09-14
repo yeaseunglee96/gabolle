@@ -66,7 +66,7 @@ export default function Notifications() {
       <View style={styles.empty}>
         <View style={styles.icon}><Image source={bellIcon} resizeMode="contain" style={styles.iconImage} /></View>
         <Text variant="title" weight="bold">{tx('아직 도착한 알림이 없어요', 'No notifications yet')}</Text>
-        <Text variant="body" color={color.text.muted} style={styles.description}>{tx('여행 일정 생성과 변경 알림 API가 연결되면 이곳에서 확인할 수 있어요.', "Once the trip creation and change alert API is connected, you'll see them here.")}</Text>
+        <Text variant="body" color={color.text.muted} style={styles.description}>{tx('여행 일정이 만들어지거나 바뀌면 이곳에서 알려드려요.', "We'll let you know here when a trip is created or changed.")}</Text>
         <View accessibilityLiveRegion="polite" style={styles.permissionCard}>
           <View style={[styles.statusDot, { backgroundColor: statusCopy.tone }]} />
           <View style={styles.permissionCopy}><Text variant="body" weight="bold">{statusCopy.label}</Text><Text variant="caption" color={color.text.body}>{statusCopy.body}</Text></View>
@@ -79,7 +79,7 @@ export default function Notifications() {
 }
 
 const styles = StyleSheet.create({
-  header: { minHeight: 52, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  header: { minHeight: 52, marginTop: spacing[6], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   backButton: { width: 44, height: 44, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.card },
   headerSpacer: { width: 44 },
   empty: { flex: 1, minHeight: 420, alignItems: 'center', justifyContent: 'center', gap: spacing[3], paddingHorizontal: spacing[6] },

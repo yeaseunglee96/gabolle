@@ -8,7 +8,7 @@ const t = (ko: string, en: string) => (getApiLanguage() === 'en' ? en : ko);
 export type AssistantAction =
   | { kind: 'plan'; reply: string; summary: string[]; patch: Partial<PlanDraft> }
   | { kind: 'phrase'; reply: string; korean: string; pronunciation: string }
-  | { kind: 'navigate'; reply: string; label: string; href: '/field/translate' | '/trips' | '/festivals' | '/now' | '/explore' | '/plan/basic' }
+  | { kind: 'navigate'; reply: string; label: string; href: '/field/translate' | '/trips' | '/explore' | '/plan/basic' }
   | { kind: 'help'; reply: string };
 
 const AREAS: Array<[string, string]> = [['해운대', 'HAEUNDAE'], ['광안리', 'GWANGALLI'], ['송정', 'SONGJEONG'], ['남포동', 'NAMPO'], ['영도', 'YEONGDO'], ['서면', 'SEOMYEON']];
@@ -29,11 +29,12 @@ export function understandAssistantMessage(raw: string): AssistantAction {
     const phrase = PHRASES.find((item) => includesAny(text, item.match));
     return phrase ? { kind: 'phrase', reply: t('현장에서 바로 보여주거나 들려줄 수 있게 준비했어요.', "I've got it ready to show or read aloud on the spot."), korean: phrase.korean, pronunciation: phrase.pronunciation } : { kind: 'navigate', reply: t('상황별 문장을 고를 수 있는 현장 도구로 안내할게요.', "I'll take you to the on-the-go tool where you can pick a phrase for your situation."), label: t('현장 도구 열기', 'Open on-the-go tools'), href: '/field/translate' };
   }
-  if (includesAny(text.toLowerCase(), ['번역', '메뉴판', 'translate'])) return { kind: 'navigate', reply: t('메뉴판이나 안내문 번역 기능으로 이동할 수 있어요.', 'I can take you to the menu or sign translation feature.'), label: t('번역 도구 열기', 'Open translation tool'), href: '/field/translate' };
+  // S15P21E201-909: 메뉴판 카메라 번역은 -907로 뺐다. "번역"이라고 해도 실제로 되는 것은
+  // 상황별 한국어 문장뿐이라, 없는 기능을 약속하지 않고 그 사실을 그대로 말한다.
+  if (includesAny(text.toLowerCase(), ['번역', '메뉴판', 'translate'])) return { kind: 'navigate', reply: t('메뉴판 사진 번역은 아직 준비 중이에요. 대신 상황별 한국어 문장은 바로 보여드릴 수 있어요.', "Menu photo translation isn't ready yet — but I can show you Korean phrases for your situation right away."), label: t('현장 도구 열기', 'Open on-the-go tools'), href: '/field/translate' };
   if (includesAny(text, ['내 일정', '여행 목록', '만든 일정'])) return { kind: 'navigate', reply: t('저장한 여행 목록을 열어드릴게요.', "I'll open your saved trip list."), label: t('내 여행 보기', 'View my trips'), href: '/trips' };
-  if (includesAny(text, ['축제'])) return { kind: 'navigate', reply: t('지금 열리는 부산 축제를 보여드릴게요.', "I'll show you the Busan festivals happening now."), label: t('부산 축제 보기', 'See Busan festivals'), href: '/festivals' };
-  if (includesAny(text, ['지금 갈', '남는 시간', '시간 남'])) return { kind: 'navigate', reply: t('지금 바로 갈 수 있는 곳을 찾아드릴게요.', "I'll find places you can go right now."), label: t('지금 갈 곳 찾기', 'Find places to go now'), href: '/now' };
-  if (includesAny(text, ['로컬', '야시장', '둘러보'])) return { kind: 'navigate', reply: t('부산 로컬 스팟 8종을 보여드릴게요.', "I'll show you 8 local Busan spots."), label: t('로컬 탐색 열기', 'Open local exploring'), href: '/explore' };
+  // S15P21E201-914: 갈래 개수는 GET /api/v1/places/facets 가 정한다 — 숫자를 박지 않는다.
+  if (includesAny(text, ['로컬', '야시장', '둘러보'])) return { kind: 'navigate', reply: t('부산 로컬 스팟을 보여드릴게요.', "I'll show you local Busan spots."), label: t('로컬 탐색 열기', 'Open local exploring'), href: '/explore' };
   if (includesAny(text, ['일정', '여행', '코스', '짜줘', '추천'])) {
     const patch: Partial<PlanDraft> = {}; const summary: string[] = [];
     const dates = text.match(/20\d{2}[-./]\d{1,2}[-./]\d{1,2}/g)?.map((value) => value.replace(/[./]/g, '-').split('-').map((part, index) => index ? part.padStart(2, '0') : part).join('-')) ?? [];
@@ -47,5 +48,5 @@ export function understandAssistantMessage(raw: string): AssistantAction {
     if (preferences.length) { patch.preferences = preferences; patch.preferenceAnswerStatus = { category: 'SELECTED', atmosphere: 'UNKNOWN', locality: 'UNKNOWN', quietness: 'UNKNOWN', touristPreference: 'UNKNOWN', foodPreference: 'UNKNOWN' }; summary.push(t(`취향 ${preferences.length}개`, `${preferences.length} preferences`)); }
     return { kind: 'plan', patch, summary, reply: summary.length ? t('요청에서 아래 조건을 찾았어요. 확인 후 일정 만들기에 적용할게요.', "I found these conditions in your request. I'll apply them to trip planning once you confirm.") : t('날짜와 인원, 가고 싶은 지역이나 분위기를 조금 더 알려주세요.', 'Tell me a bit more about your dates, number of travelers, or the area/mood you want.') };
   }
-  return { kind: 'help', reply: t('부산 일정 만들기, 한국어 현장 문장, 메뉴 번역, 내 여행 찾기를 도와드릴 수 있어요.', 'I can help you build a Busan itinerary, find on-the-go Korean phrases, translate menus, or find your saved trips.') };
+  return { kind: 'help', reply: t('부산 일정 만들기, 한국어 현장 문장, 로컬 스팟 탐색, 내 여행 찾기를 도와드릴 수 있어요.', 'I can help you build a Busan itinerary, find on-the-go Korean phrases, explore local spots, or find your saved trips.') };
 }

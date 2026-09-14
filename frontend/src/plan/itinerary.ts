@@ -41,8 +41,21 @@ export type ItineraryLoadResult =
   | { state: 'success'; itinerary: ItineraryDto }
   | { state: 'unavailable' | 'offline' | 'error'; message: string };
 
+// S15P21E201-268/-858(BE) 응답 계약: 편집 응답 다섯 갈래(순서 바꾸기·더하기·재계획·
+// 고정/해제·되돌리기) 모두 ItineraryDto 위에 이 두 칸을 더 실어 보낸다. 영업시간을 실제로
+// 어겼으면 warnings, 어겼는지조차 못 봤으면(자료 없음 등) notChecked — 두 목록이 함께 올 수
+// 있고(한 곳은 닫혀 있고 다른 곳은 자료가 없는 경우), 하나만 보여 주면 화면이 거짓말을 한다
+// (제보: jaehyeon, 2026-09-11, S15P21E201-852/-858). 이 값은 각 편집 응답에만 실려 오고
+// 이후 활동 이력(loadItineraryVersions)에는 안 남으므로 저장해 두지 않으면 사라진다.
+export type ItineraryOpeningHoursWarning = { code: string; itemId: string; placeId: string; at: string };
+export type ItineraryOpeningHoursNotChecked = { check: string; reason: string };
+
+function parseOpeningHoursFields(dto: { warnings?: ItineraryOpeningHoursWarning[]; notChecked?: ItineraryOpeningHoursNotChecked[] }) {
+  return { warnings: dto.warnings ?? [], notChecked: dto.notChecked ?? [] };
+}
+
 export type ItineraryMutationResult =
-  | { state: 'success'; itinerary: ItineraryDto }
+  | { state: 'success'; itinerary: ItineraryDto; warnings: ItineraryOpeningHoursWarning[]; notChecked: ItineraryOpeningHoursNotChecked[] }
   | { state: 'conflict'; latestVersion: number; message: string }
   | { state: 'unavailable' | 'offline' | 'error'; message: string };
 
@@ -67,7 +80,8 @@ export async function loadItinerary(id: string, accessToken: string | null): Pro
 
 export async function setItineraryItemLocked(input: { itineraryId: string; itemId: string; locked: boolean; baseVersion: number; accessToken: string | null }): Promise<ItineraryMutationResult> {
   try {
-    return { state: 'success', itinerary: await apiRequest<ItineraryDto>(`/api/v1/itineraries/${encodeURIComponent(input.itineraryId)}/items/${encodeURIComponent(input.itemId)}/lock`, { method: 'POST', accessToken: input.accessToken, body: { locked: input.locked, baseVersion: input.baseVersion } }) };
+    const dto = await apiRequest<ItineraryDto & { warnings?: ItineraryOpeningHoursWarning[]; notChecked?: ItineraryOpeningHoursNotChecked[] }>(`/api/v1/itineraries/${encodeURIComponent(input.itineraryId)}/items/${encodeURIComponent(input.itemId)}/lock`, { method: 'POST', accessToken: input.accessToken, body: { locked: input.locked, baseVersion: input.baseVersion } });
+    return { state: 'success', itinerary: dto, ...parseOpeningHoursFields(dto) };
   } catch (error) {
     return failure(error);
   }
@@ -127,7 +141,7 @@ export async function pollItineraryJob(jobId: string, accessToken: string | null
 }
 
 export type ItineraryReorderResult =
-  | { state: 'success'; itinerary: ItineraryDto }
+  | { state: 'success'; itinerary: ItineraryDto; warnings: ItineraryOpeningHoursWarning[]; notChecked: ItineraryOpeningHoursNotChecked[] }
   | { state: 'conflict'; latestVersion: number; message: string }
   | { state: 'mismatch'; message: string }
   | { state: 'lockedItemMoved'; message: string }
@@ -135,14 +149,12 @@ export type ItineraryReorderResult =
 
 export async function reorderItineraryDay(input: { itineraryId: string; dayIndex: number; itemKeys: string[]; baseVersion: number; accessToken: string | null }): Promise<ItineraryReorderResult> {
   try {
-    return {
-      state: 'success',
-      itinerary: await apiRequest<ItineraryDto>(`/api/v1/itineraries/${encodeURIComponent(input.itineraryId)}/days/${input.dayIndex}/reorder`, {
-        method: 'POST',
-        accessToken: input.accessToken,
-        body: { itemKeys: input.itemKeys, baseVersion: input.baseVersion },
-      }),
-    };
+    const dto = await apiRequest<ItineraryDto & { warnings?: ItineraryOpeningHoursWarning[]; notChecked?: ItineraryOpeningHoursNotChecked[] }>(`/api/v1/itineraries/${encodeURIComponent(input.itineraryId)}/days/${input.dayIndex}/reorder`, {
+      method: 'POST',
+      accessToken: input.accessToken,
+      body: { itemKeys: input.itemKeys, baseVersion: input.baseVersion },
+    });
+    return { state: 'success', itinerary: dto, ...parseOpeningHoursFields(dto) };
   } catch (error) {
     if (error instanceof ApiClientError && error.status === 400 && error.code === 'ITINERARY_DAY_ORDER_MISMATCH') {
       return { state: 'mismatch', message: '순서 목록이 이 날짜의 장소와 맞지 않아요. 새로고침 후 다시 시도해 주세요.' };
@@ -159,7 +171,8 @@ export type ItineraryRevertResult = ItineraryMutationResult | { state: 'noOp'; m
 export async function revertItinerary(input: { itineraryId: string; baseVersion: number; toVersion?: number; accessToken: string | null }): Promise<ItineraryRevertResult> {
   try {
     const body = input.toVersion == null ? { baseVersion: input.baseVersion } : { baseVersion: input.baseVersion, toVersion: input.toVersion };
-    return { state: 'success', itinerary: await apiRequest<ItineraryDto>(`/api/v1/itineraries/${encodeURIComponent(input.itineraryId)}/revert`, { method: 'POST', accessToken: input.accessToken, body }) };
+    const dto = await apiRequest<ItineraryDto & { warnings?: ItineraryOpeningHoursWarning[]; notChecked?: ItineraryOpeningHoursNotChecked[] }>(`/api/v1/itineraries/${encodeURIComponent(input.itineraryId)}/revert`, { method: 'POST', accessToken: input.accessToken, body });
+    return { state: 'success', itinerary: dto, ...parseOpeningHoursFields(dto) };
   } catch (error) {
     if (error instanceof ApiClientError && error.status === 422 && error.code === 'ITINERARY_NOTHING_TO_REVERT') return { state: 'noOp', message: '되돌릴 변경 사항이 없어요.' };
     return failure(error);
@@ -235,7 +248,7 @@ export async function loadItineraryRhythm(itineraryId: string, accessToken: stri
 }
 
 export type ItineraryReplanResult =
-  | { state: 'success'; itinerary: ItineraryDto }
+  | { state: 'success'; itinerary: ItineraryDto; warnings: ItineraryOpeningHoursWarning[]; notChecked: ItineraryOpeningHoursNotChecked[] }
   | { state: 'conflict'; latestVersion: number; message: string }
   | { state: 'overflow'; itemIds: string[]; message: string }
   | { state: 'unavailable' | 'offline' | 'error'; message: string };
@@ -244,13 +257,11 @@ export type ItineraryReplanResult =
 // baseVersion은 쿼리로 보낸다 — 서버가 If-Match 헤더·baseVersion 쿼리 둘 다 받는다.
 export async function replanItineraryDay(input: { itineraryId: string; dayIndex: number; baseVersion: number; accessToken: string | null }): Promise<ItineraryReplanResult> {
   try {
-    return {
-      state: 'success',
-      itinerary: await apiRequest<ItineraryDto>(
-        `/api/v1/itineraries/${encodeURIComponent(input.itineraryId)}/days/${input.dayIndex}/replan?baseVersion=${input.baseVersion}`,
-        { method: 'POST', accessToken: input.accessToken },
-      ),
-    };
+    const dto = await apiRequest<ItineraryDto & { warnings?: ItineraryOpeningHoursWarning[]; notChecked?: ItineraryOpeningHoursNotChecked[] }>(
+      `/api/v1/itineraries/${encodeURIComponent(input.itineraryId)}/days/${input.dayIndex}/replan?baseVersion=${input.baseVersion}`,
+      { method: 'POST', accessToken: input.accessToken },
+    );
+    return { state: 'success', itinerary: dto, ...parseOpeningHoursFields(dto) };
   } catch (error) {
     // 남은 일정이 그날 안에 안 들어가면 아무것도 저장하지 않고 넘치는 항목 id를 실어 거부한다.
     if (error instanceof ApiClientError && error.status === 422 && error.code === 'ITINERARY_REPLAN_OVERFLOWS_DAY') {
@@ -265,14 +276,12 @@ export async function replanItineraryDay(input: { itineraryId: string; dayIndex:
 // 채워 보내야 하는 시점(출발 기록)에는 이미 아는 도착 시각을 호출부에서 함께 실어야 한다.
 export async function recordItineraryItemActual(input: { itineraryId: string; itemId: string; arrivedAt: string | null; departedAt: string | null; accessToken: string | null }): Promise<ItineraryMutationResult> {
   try {
-    return {
-      state: 'success',
-      itinerary: await apiRequest<ItineraryDto>(`/api/v1/itineraries/${encodeURIComponent(input.itineraryId)}/items/${encodeURIComponent(input.itemId)}/actual`, {
-        method: 'PUT',
-        accessToken: input.accessToken,
-        body: { arrivedAt: input.arrivedAt, departedAt: input.departedAt },
-      }),
-    };
+    const dto = await apiRequest<ItineraryDto & { warnings?: ItineraryOpeningHoursWarning[]; notChecked?: ItineraryOpeningHoursNotChecked[] }>(`/api/v1/itineraries/${encodeURIComponent(input.itineraryId)}/items/${encodeURIComponent(input.itemId)}/actual`, {
+      method: 'PUT',
+      accessToken: input.accessToken,
+      body: { arrivedAt: input.arrivedAt, departedAt: input.departedAt },
+    });
+    return { state: 'success', itinerary: dto, ...parseOpeningHoursFields(dto) };
   } catch (error) {
     return failure(error);
   }

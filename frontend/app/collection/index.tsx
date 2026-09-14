@@ -38,6 +38,7 @@ export default function CollectionHome() {
         <Text variant="body" weight="bold" color={color.text.onAction}>{tx(`📍 ${totalPlaceCount}곳`, `📍 ${totalPlaceCount} places`)}</Text>
         <Text variant="body" weight="bold" color={color.text.onAction}>{tx(`📋 ${lists.length}개 리스트`, `📋 ${lists.length} lists`)}</Text>
       </View>
+      <Text variant="caption" color={color.text.onAction} style={styles.deviceOnlyNotice}>{tx('이 기기에만 저장돼요. 앱을 지우면 사라져요.', 'Saved only on this device — it disappears if you delete the app.')}</Text>
     </View>
 
     <View style={styles.sectionHeading}><Text variant="title" weight="bold">{tx('내 리스트', 'My lists')}</Text><Button label={tx('+ 새 리스트', '+ New list')} variant="ghost" onPress={() => setCreating(true)} containerStyle={styles.newListButton} /></View>
@@ -81,6 +82,7 @@ const styles = StyleSheet.create({
   hero: { gap: spacing[2], padding: spacing[6], borderRadius: radius.lg, backgroundColor: color.brand.navy },
   heroTitle: { marginTop: spacing[1] },
   heroStats: { flexDirection: 'row', gap: spacing[4], marginTop: spacing[3] },
+  deviceOnlyNotice: { marginTop: spacing[3], opacity: 0.72 },
   sectionHeading: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: spacing[6] },
   sectionTitle: { marginTop: spacing[8], marginBottom: spacing[2] },
   newListButton: { width: 'auto', paddingHorizontal: spacing[4] },

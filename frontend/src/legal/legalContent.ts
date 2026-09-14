@@ -20,3 +20,11 @@ export const PRIVACY_SECTIONS: LegalSection[] = [
   { title: ['6. 안전성 확보 조치', '6. Security'], paragraphs: [['비밀번호는 해시로 저장하고 인증 토큰에는 만료 시간을 적용합니다. 접근 권한 관리와 암호화 통신 등 구체적인 보호조치는 운영 환경 검증 후 갱신합니다.', 'Passwords are hashed and authentication tokens expire. Details of access control, encrypted transport, and other safeguards will be updated after production verification.']] },
   { title: ['7. 책임자와 시행일', '7. Privacy contact and effective date'], paragraphs: [['개인정보 보호책임자 이름·연락처·이메일, 방침 버전과 시행일은 팀 확정 후 이 화면에 반영합니다. 확정 전인 항목을 임의로 기재하지 않습니다.', 'The privacy officer name, contact details, policy version, and effective date will be added after team confirmation. We do not invent unconfirmed legal details.']] },
 ];
+
+// 공공데이터포털에서 받는 두 API 모두 "공공저작물 자유이용허락 표시기준 제1유형"(출처표시) 라이선스다 —
+// 상업적 이용·2차 저작물 제작은 자유롭지만 출처 표시가 조건이라 이 화면으로 표시한다(S15P21E201-285 후속).
+export const DATA_SOURCES_SECTIONS: LegalSection[] = [
+  { title: ['1. 날씨 정보', '1. Weather data'], paragraphs: [['"여행 준비" 화면의 기온·강수확률은 기상청 단기예보 조회서비스(공공데이터포털, data.go.kr)를 활용해 제공합니다.', 'Temperature and precipitation probability on the "Trip prep" screen are provided using the Korea Meteorological Administration’s short-term forecast service (data.go.kr).']] },
+  { title: ['2. 관광 정보', '2. Tourism data'], paragraphs: [['여행지·문화·자연 정보 일부는 한국관광공사의 관광정보 서비스(공공데이터포털, data.go.kr)를 활용해 제공합니다.', 'Some place, culture, and nature information is provided using the Korea Tourism Organization’s tourism information service (data.go.kr).']] },
+  { title: ['3. 이용 조건', '3. License'], paragraphs: [['두 자료 모두 "공공저작물 자유이용허락 표시기준 제1유형(출처표시)"에 따라 출처를 표시하고 이용합니다.', 'Both datasets are used under the "Korea Open Government License Type 1 (Attribution)," which requires crediting the source.']] },
+];

@@ -13,6 +13,7 @@ import { PlanDesktopShell } from '@/plan/PlanDesktopShell';
 import { type MustVisitPlace, type PreferenceDimension, usePlan } from '@/plan/PlanProvider';
 import { CONFLICT_LABEL_PAIR, conflictingFoodCode, FOODS } from '@/plan/foodConflicts';
 import { bilingualPlaceName, searchPlacesByName, type PlaceSearchItem } from '@/discovery/places';
+import { getPlaceCategories } from '@/discovery/placeCategories';
 import { haversineDistanceKm } from '@/utils/geo';
 import { useI18n } from '@/i18n';
 
@@ -90,6 +91,23 @@ export default function Taste() {
   const [mustVisitNotice, setMustVisitNotice] = useState<string | null>(null);
   const mustVisitDebounce = useRef<ReturnType<typeof setTimeout> | null>(null);
   const mustVisitAbort = useRef<AbortController | null>(null);
+  // S15P21E201-897: 추천 후보 비교에 쓰이는 place.category 값이 지금 갈래 몇 개는 0곳이라
+  // 그걸 고르면 일정 생성이 ERROR_NO_CANDIDATES 로 실패하고 재시도해도 안 풀린다(엔진 규칙).
+  // 그래서 CATEGORIES 여섯 개 중 서버가 "지금 장소가 있다" 고 낸 것만 카드로 보여준다.
+  const [categoryAvailability, setCategoryAvailability] = useState<'loading' | 'ready' | 'unavailable'>('loading');
+  const [availableCategoryCodes, setAvailableCategoryCodes] = useState<Set<string>>(new Set());
+  useEffect(() => {
+    const controller = new AbortController();
+    void getPlaceCategories(controller.signal).then((result) => {
+      if (controller.signal.aborted) return;
+      if (result.state !== 'success') { setCategoryAvailability('unavailable'); return; }
+      const codes = new Set(result.categories.filter((item) => item.placeCount > 0).map((item) => item.code));
+      setAvailableCategoryCodes(codes);
+      setCategoryAvailability(codes.size > 0 ? 'ready' : 'unavailable');
+    });
+    return () => controller.abort();
+  }, []);
+  const visibleCategories = categoryAvailability === 'ready' ? CATEGORIES.filter((item) => availableCategoryCodes.has(item.key)) : [];
   const goToPanel = (index: number) => setPanelIndex(Math.max(0, Math.min(5, index)));
   const advancePanel = () => {
     if (advanceTimer.current) clearTimeout(advanceTimer.current);
@@ -158,7 +176,22 @@ export default function Taste() {
   };
   const mustVisitWarningList = mustVisitWarnings(draft.mustVisitPlaces);
   function next() { completeStep(2); router.push('/plan/conditions'); }
-  function skipAll() { update({ preferences: [], atmospheres: [], localityLevel: null, quietLevel: null, touristLevel: null, foods: [], preferenceAnswerStatus: { category: 'SKIPPED', atmosphere: 'SKIPPED', locality: 'SKIPPED', quietness: 'SKIPPED', touristPreference: 'SKIPPED', foodPreference: 'SKIPPED' } }); next(); }
+  // 이미 답한 항목(SELECTED)은 그대로 두고, 아직 안 건드린 항목(UNKNOWN)만 건너뜀 처리한다 —
+  // 개별 질문의 "건너뛰기"가 다른 질문 답을 지우지 않는 것과 같은 규칙이다. 전부 지우면
+  // 카테고리를 3개 고르고 "선택 완료"까지 누른 뒤 나머지를 건너뛰었는데 최종 확인 화면에
+  // 카테고리가 "선택 안 함"으로 나오는 식으로, 이미 낸 답이 조용히 사라진다.
+  function skipAll() {
+    const patch: Partial<typeof draft> = {};
+    const status = { ...draft.preferenceAnswerStatus };
+    if (status.category === 'UNKNOWN') { patch.preferences = []; status.category = 'SKIPPED'; }
+    if (status.atmosphere === 'UNKNOWN') { patch.atmospheres = []; status.atmosphere = 'SKIPPED'; }
+    if (status.locality === 'UNKNOWN') { patch.localityLevel = null; status.locality = 'SKIPPED'; }
+    if (status.quietness === 'UNKNOWN') { patch.quietLevel = null; status.quietness = 'SKIPPED'; }
+    if (status.touristPreference === 'UNKNOWN') { patch.touristLevel = null; status.touristPreference = 'SKIPPED'; }
+    if (status.foodPreference === 'UNKNOWN') { patch.foods = []; status.foodPreference = 'SKIPPED'; }
+    update({ ...patch, preferenceAnswerStatus: status });
+    next();
+  }
   const answerStatuses = [
     draft.preferenceAnswerStatus.category,
     draft.preferenceAnswerStatus.atmosphere,
@@ -167,12 +200,18 @@ export default function Taste() {
     draft.preferenceAnswerStatus.touristPreference,
     draft.preferenceAnswerStatus.foodPreference,
   ];
+  // 건너뛴 질문은 답한 것으로 본다 — S15P21E201-905. 건너뛰기는 고른 값을 비우고 상태만
+  // SKIPPED 로 바꾸므로, 개수만 보면 건너뛴 사람이 버튼을 못 누른다. 음식 취향은 마지막
+  // 질문이라 넘어갈 곳도 없어 그 자리에 갇혔다(앞 질문들은 자동으로 다음으로 넘어가 가려져
+  // 있었을 뿐 같은 결함이다).
+  const answered = (dimension: PreferenceDimension, chosen: boolean) =>
+    chosen || draft.preferenceAnswerStatus[dimension] === 'SKIPPED';
   const multiSelectReady = panelIndex === 0
-    ? draft.preferences.length > 0
+    ? categoryAvailability !== 'ready' || answered('category', draft.preferences.length > 0)
     : panelIndex === 1
-      ? draft.atmospheres.length > 0
+      ? answered('atmosphere', draft.atmospheres.length > 0)
       : panelIndex === 5
-        ? draft.foods.length > 0
+        ? answered('foodPreference', draft.foods.length > 0)
         : true;
   return <PlanDesktopShell><Screen scroll wide style={styles.canvas}>
     {kind === 'phone' && <View style={styles.topBar}><Pressable accessibilityRole="button" accessibilityLabel={tx('뒤로 가기', 'Go back')} onPress={() => router.canGoBack() ? router.back() : router.replace('/plan/basic')} style={styles.back}><Text variant="title">‹</Text></Pressable><BrandLogoLink imageStyle={styles.logo} /><View style={styles.stepPill}><Text variant="caption" weight="bold">2 / 4</Text></View></View>}
@@ -189,8 +228,16 @@ export default function Taste() {
       <Animated.View key={kind === 'phone' ? panelIndex : 'desktop'} entering={kind === 'phone' ? FadeInRight.duration(180).reduceMotion(ReduceMotion.System) : undefined} exiting={kind === 'phone' ? FadeOutLeft.duration(120).reduceMotion(ReduceMotion.System) : undefined} style={[styles.animatedContent, kind === 'tablet' && styles.animatedContentWide]}>
       {(kind === 'tablet' || panelIndex === 0) && <View style={kind === 'tablet' ? styles.categoryColumn : undefined}>
       <Section title={tx('여행 카테고리', 'Travel categories')} description={tx('최대 3개까지 선택할 수 있어요.', 'Choose up to 3.')} skipped={draft.preferenceAnswerStatus.category === 'SKIPPED'} onSkip={() => skipAndAdvance('category', { preferences: [] })}>
-        <View style={styles.imageGrid}>{CATEGORIES.map((item) => { const selected = draft.preferences.includes(item.key); return <Pressable key={item.key} accessibilityRole="checkbox" accessibilityState={{ checked: selected }} onPress={() => toggleCategory(item.key)} style={[styles.imageCard, kind === 'phone' && styles.imageCardPhone, kind === 'tablet' && styles.imageCardWide, selected && styles.imageCardSelected]}><Image source={item.image} resizeMode="cover" accessibilityIgnoresInvertColors style={[styles.cardImage, kind === 'phone' && styles.cardImagePhone]} />{selected && <View style={styles.check}><Text weight="bold" color={color.text.onAction}>✓</Text></View>}<Text variant="caption" weight="bold" color={selected ? color.brand.orange : color.text.heading} style={styles.cardLabel}>{tx(item.labelKo, item.labelEn)}</Text></Pressable>; })}</View>
-        <Text accessibilityRole={feedback ? 'alert' : undefined} variant="caption" color={feedback ? color.state.danger : color.text.muted} style={styles.selectionHint}>{feedback ?? tx(`${draft.preferences.length}개 선택됨 · 최대 3개`, `${draft.preferences.length} selected · up to 3`)}</Text>
+        {categoryAvailability === 'loading' ? (
+          <Text variant="caption" color={color.text.muted}>{tx('고를 수 있는 카테고리를 불러오고 있어요…', 'Loading available categories…')}</Text>
+        ) : categoryAvailability === 'unavailable' ? (
+          <Text variant="caption" color={color.text.muted}>{tx('지금은 고를 수 있는 여행 카테고리가 없어요. 모든 곳에서 추천해 드릴게요.', "No travel categories are available right now — we'll recommend from everywhere.")}</Text>
+        ) : (
+          <>
+            <View style={styles.imageGrid}>{visibleCategories.map((item) => { const selected = draft.preferences.includes(item.key); return <Pressable key={item.key} accessibilityRole="checkbox" accessibilityState={{ checked: selected }} onPress={() => toggleCategory(item.key)} style={[styles.imageCard, kind === 'phone' && styles.imageCardPhone, kind === 'tablet' && styles.imageCardWide, selected && styles.imageCardSelected]}><Image source={item.image} resizeMode="cover" accessibilityIgnoresInvertColors style={[styles.cardImage, kind === 'phone' && styles.cardImagePhone]} />{selected && <View style={styles.check}><Text weight="bold" color={color.text.onAction}>✓</Text></View>}<Text variant="caption" weight="bold" color={selected ? color.brand.orange : color.text.heading} style={styles.cardLabel}>{tx(item.labelKo, item.labelEn)}</Text></Pressable>; })}</View>
+            <Text accessibilityRole={feedback ? 'alert' : undefined} variant="caption" color={feedback ? color.state.danger : color.text.muted} style={styles.selectionHint}>{feedback ?? tx(`${draft.preferences.length}개 선택됨 · 최대 3개`, `${draft.preferences.length} selected · up to 3`)}</Text>
+          </>
+        )}
       </Section>
       <View style={styles.paceSection}>
         <Text variant="title" weight="bold">{tx('여행 기분', 'Trip pace')}</Text>
@@ -249,7 +296,7 @@ export default function Taste() {
 }
 
 const styles = StyleSheet.create({
-  canvas: { backgroundColor: color.brand.ivory }, topBar: { minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }, back: { width: 36, height: 36, borderRadius: radius.full, backgroundColor: color.surface.subtle, alignItems: 'center', justifyContent: 'center' }, logo: { width: 86, height: 22 }, stepPill: { paddingHorizontal: spacing[3], paddingVertical: spacing[2], borderRadius: radius.full, backgroundColor: color.surface.subtle }, headingRow: { marginTop: spacing[4], gap: spacing[3] }, subtitle: { marginTop: spacing[1] }, skipAll: { alignSelf: 'flex-end', minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[3] }, questionProgress: { gap: spacing[2], marginBottom: spacing[3] }, questionMeta: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }, questionDots: { flexDirection: 'row', gap: spacing[2] }, questionDot: { flex: 1, height: 4, borderRadius: radius.full, backgroundColor: color.surface.field }, questionDotCurrent: { backgroundColor: color.brand.orange }, questionDotAnswered: { opacity: 0.72, backgroundColor: color.brand.orange }, answerSummary: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[1] }, answerChip: { minHeight: 32, justifyContent: 'center', paddingHorizontal: spacing[2], borderRadius: radius.full, backgroundColor: color.surface.subtle }, content: { gap: spacing[4] }, contentWide: { flexDirection: 'row', alignItems: 'flex-start' }, animatedContent: { width: '100%' }, animatedContentWide: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[4] }, section: { gap: spacing[3], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.border }, sectionHeader: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: spacing[2] }, sectionCopy: { flex: 1, gap: spacing[1] }, skip: { minHeight: 44, justifyContent: 'center' },
+  canvas: { backgroundColor: color.brand.ivory }, topBar: { minHeight: 44, marginTop: spacing[6], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }, back: { width: 36, height: 36, borderRadius: radius.full, backgroundColor: color.surface.subtle, alignItems: 'center', justifyContent: 'center' }, logo: { width: 86, height: 22 }, stepPill: { paddingHorizontal: spacing[3], paddingVertical: spacing[2], borderRadius: radius.full, backgroundColor: color.surface.subtle }, headingRow: { marginTop: spacing[4], gap: spacing[3] }, subtitle: { marginTop: spacing[1] }, skipAll: { alignSelf: 'flex-end', minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[3] }, questionProgress: { gap: spacing[2], marginBottom: spacing[3] }, questionMeta: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }, questionDots: { flexDirection: 'row', gap: spacing[2] }, questionDot: { flex: 1, height: 4, borderRadius: radius.full, backgroundColor: color.surface.field }, questionDotCurrent: { backgroundColor: color.brand.orange }, questionDotAnswered: { opacity: 0.72, backgroundColor: color.brand.orange }, answerSummary: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[1] }, answerChip: { minHeight: 32, justifyContent: 'center', paddingHorizontal: spacing[2], borderRadius: radius.full, backgroundColor: color.surface.subtle }, content: { gap: spacing[4] }, contentWide: { flexDirection: 'row', alignItems: 'flex-start' }, animatedContent: { width: '100%' }, animatedContentWide: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[4] }, section: { gap: spacing[3], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.border }, sectionHeader: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: spacing[2] }, sectionCopy: { flex: 1, gap: spacing[1] }, skip: { minHeight: 44, justifyContent: 'center' },
   imageGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[3] }, imageCard: { position: 'relative', width: '47%', borderRadius: radius.md, overflow: 'hidden', borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.surface.card }, imageCardPhone: { width: '47%' }, imageCardWide: { width: '30%' }, imageCardSelected: { borderWidth: 2, borderColor: color.brand.orange, backgroundColor: color.surface.warm }, cardImage: { width: '100%', height: 110 }, cardImagePhone: { height: 88 }, cardLabel: { textAlign: 'center', paddingVertical: spacing[2] }, check: { position: 'absolute', top: spacing[2], right: spacing[2], width: 24, height: 24, borderRadius: radius.full, backgroundColor: color.brand.orange, alignItems: 'center', justifyContent: 'center' }, selectionHint: { textAlign: 'center' }, detailColumn: { gap: spacing[4] }, detailColumnWide: { width: 360, flexGrow: 0, flexShrink: 0, flexBasis: 'auto' }, categoryColumn: { flex: 1, width: 0, minWidth: 0, gap: spacing[4] }, detailNav: { display: 'none' }, detailNavButton: { minHeight: 44, minWidth: 72, paddingHorizontal: spacing[3], borderRadius: radius.full, borderWidth: 1, borderColor: color.surface.field, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.card }, detailNavButtonDisabled: { opacity: 0.35 }, mobileActions: { marginTop: spacing[4], flexDirection: 'row', alignItems: 'center', gap: spacing[3] }, previousLink: { minWidth: 86, minHeight: 48, alignItems: 'center', justifyContent: 'center' }, inlineCta: { flex: 1, marginTop: 0, backgroundColor: color.brand.navy }, chips: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] }, foodConflictNotice: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[2], marginBottom: spacing[2], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.state.warningBg }, chip: { minHeight: 44, borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.full, paddingHorizontal: spacing[3], alignItems: 'center', justifyContent: 'center' }, chipDesktop: { borderColor: color.surface.border, backgroundColor: color.surface.subtle }, selected: { backgroundColor: color.action.primary, borderColor: color.action.primary }, selectedDesktop: { backgroundColor: color.surface.warm, borderColor: color.brand.orange }, foodChipWrap: { gap: spacing[1] }, chipBlocked: { opacity: 0.5 }, scale: { gap: spacing[2] }, scaleLabels: { flexDirection: 'row', justifyContent: 'space-between' }, scalePoints: { flexDirection: 'row', justifyContent: 'space-between', borderRadius: radius.full, backgroundColor: color.surface.soft, padding: spacing[1] }, scalePointsDesktop: { backgroundColor: color.surface.subtle }, scalePoint: { width: 44, height: 44, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center' }, scalePointSelected: { backgroundColor: color.action.primary }, scalePointSelectedDesktop: { backgroundColor: color.brand.orange }, paceSection: { gap: spacing[3], marginTop: spacing[4], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.border }, paceGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] }, paceCard: { minWidth: '100%', gap: spacing[1], padding: spacing[3], borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.brand.ivory }, paceCardSelected: { borderWidth: 2, borderColor: color.brand.orange, backgroundColor: color.surface.warm }, cta: { marginTop: spacing[4], backgroundColor: color.brand.navy },
   mustVisitSection: { gap: spacing[2], marginTop: spacing[4], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.border },
   mustVisitInput: { minHeight: 48, borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.brand.ivory, color: color.text.heading, fontSize: 15, paddingHorizontal: spacing[3] },

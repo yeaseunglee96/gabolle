@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { ImageBackground, StyleSheet, View } from 'react-native';
+import { ImageBackground, Platform, StyleSheet, View } from 'react-native';
 
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
@@ -27,7 +27,12 @@ export function PlanDesktopShell({ children }: { children: ReactNode }) {
 
 const styles = StyleSheet.create({
   page: { flex: 1, flexDirection: 'row', backgroundColor: color.brand.ivory },
-  hero: { width: 420, minHeight: '100%', justifyContent: 'flex-end' },
+  // 🔴 `minHeight: '100%'`는 조상 체인에 실제 픽셀 높이를 가진 것이 하나도 없으면(이 화면이
+  // 그렇다 — Screen이 스크롤 컨테이너라 높이를 위로 못 물려준다) 퍼센트가 못 풀려서, 웹에서
+  // 배경 이미지가 자기 원본 픽셀 높이(1844px)를 그대로 떠안는 사고가 났다. 그러면 cover 크롭이
+  // 하늘만 남기고 다리·바다를 전부 잘라낸다. `100vh`는 조상 체인과 무관하게 뷰포트 기준으로
+  // 바로 풀려서 이 문제 자체가 안 생긴다. 네이티브에는 vh 단위가 없으므로 웹에서만 쓴다.
+  hero: { width: 420, justifyContent: 'flex-end', ...Platform.select({ web: { height: '100vh' as unknown as number }, default: { flex: 1 } }) },
   shade: { position: 'absolute', inset: 0, backgroundColor: 'rgba(11,29,58,0.35)' },
   copy: { gap: spacing[3], paddingHorizontal: spacing[8], paddingBottom: 48 },
   tag: { alignSelf: 'flex-start', paddingHorizontal: spacing[3], paddingVertical: spacing[2], borderRadius: radius.full, backgroundColor: 'rgba(242,101,50,0.72)' },

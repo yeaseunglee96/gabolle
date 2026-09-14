@@ -24,7 +24,7 @@ export default function SignUp() {
   const { returnTo } = useLocalSearchParams<{ returnTo?: string }>();
   const { kind } = useLayout();
   const { tx } = useI18n();
-  const { language: onboardingLanguage } = useOnboardingPreferences();
+  const { language: onboardingLanguage, setLanguage: setOnboardingLanguage } = useOnboardingPreferences();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [passwordConfirm, setPasswordConfirm] = useState('');
@@ -141,7 +141,7 @@ export default function SignUp() {
         </Field>
 
         <Field label={tx('언어', 'Language')}>
-          <View accessibilityRole="radiogroup" style={styles.languageRow}>{(['KO', 'EN'] as const).map((value) => <Pressable accessibilityRole="radio" accessibilityState={{ selected: language === value }} key={value} onPress={() => setLanguage(value)} style={[styles.language, language === value && styles.languageSelected]}><Text variant="body" weight="bold" color={language === value ? color.text.onAction : color.text.heading}>{value === 'KO' ? '한국어' : 'English'}</Text></Pressable>)}</View>
+          <View accessibilityRole="radiogroup" style={styles.languageRow}>{(['KO', 'EN'] as const).map((value) => <Pressable accessibilityRole="radio" accessibilityState={{ selected: language === value }} key={value} onPress={() => { setLanguage(value); setOnboardingLanguage(value === 'KO' ? 'ko' : 'en'); }} style={[styles.language, language === value && styles.languageSelected]}><Text variant="body" weight="bold" color={language === value ? color.text.onAction : color.text.heading}>{value === 'KO' ? '한국어' : 'English'}</Text></Pressable>)}</View>
         </Field>
 
         <View style={styles.agreements}>
@@ -173,7 +173,7 @@ function CheckRow({ checked, label, onPress }: { checked: boolean; label: string
 
 const styles = StyleSheet.create({
   subtitle: { marginTop: spacing[1] },
-  topBar: { minHeight: 52, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing[2] },
+  topBar: { minHeight: 52, marginTop: spacing[6], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing[2] },
   logo: { width: 112, height: 32 },
   backLink: { alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center' },
   columns: { width: '100%' },

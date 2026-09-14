@@ -1,5 +1,7 @@
-import { apiRequest } from '@/api/client';
+import { apiRequest, getApiLanguage } from '@/api/client';
 import type { PlanDraft, PreferenceAnswerStatus } from '@/plan/PlanProvider';
+
+const tx = (ko: string, en: string) => (getApiLanguage() === 'en' ? en : ko);
 
 export type PreferenceAnswerInput = {
   dimension: string;
@@ -143,4 +145,32 @@ export async function createTripAndRecommendationJob(
       },
     },
   );
+}
+
+type CloneTripDto = { tripId: string; jobId: string | null };
+
+/**
+ * 공유 일정을 "내 조건"으로 복제한다(S15P21E201-164/-340). 백엔드가 여행 생성과 추천 Job 접수를
+ * 한 번의 호출(POST /api/v1/shares/{token}/clone)로 같이 처리한다 — 일반 생성처럼 두 번 부르지 않는다.
+ *
+ * jobId 가 null 로 오는 경우(원본이 제약을 하나도 안 답해 constraint_snapshot 이 없는 경우, 백엔드
+ * javadoc 의 "알려진 한계")는 이 화면에서는 실제로 생기지 않는다 — plan 흐름이 항상 제약 4종을
+ * (UNKNOWN 이라도) 채워 보내기 때문이다. 그래도 서버가 null 을 주면 실패로 다뤄 재시도를 안내한다.
+ */
+export async function cloneSharedTripAndJob(
+  token: string,
+  draft: PlanDraft,
+  accessToken: string | null,
+): Promise<RecommendationJobAcceptedDto> {
+  const payload = toCreateTripPayload(draft);
+  const cloned = await apiRequest<CloneTripDto>(`/api/v1/shares/${encodeURIComponent(token)}/clone`, {
+    method: 'POST',
+    accessToken,
+    headers: { 'Idempotency-Key': stableIdempotencyKey(payload) },
+    body: payload,
+  });
+  if (!cloned.jobId) {
+    throw new Error(tx('일정 생성 요청이 접수되지 않았어요. 조건을 다시 확인한 뒤 시도해 주세요.', 'The itinerary request was not accepted. Please review your choices and try again.'));
+  }
+  return { jobId: cloned.jobId };
 }

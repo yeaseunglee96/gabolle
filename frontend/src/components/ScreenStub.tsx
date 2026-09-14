@@ -43,17 +43,20 @@ const styles = StyleSheet.create({
     fontFamily: fontFamily.regular,
     fontSize: type.caption.size,
     lineHeight: type.caption.lineHeight,
+    letterSpacing: type.caption.letterSpacing,
   },
   title: {
     color: color.text.heading,
     fontFamily: fontFamily.bold,
     fontSize: type.title.size,
     lineHeight: type.title.lineHeight,
+    letterSpacing: type.title.letterSpacing,
   },
   specId: {
     color: color.text.muted,
     fontFamily: fontFamily.regular,
     fontSize: type.caption.size,
     lineHeight: type.caption.lineHeight,
+    letterSpacing: type.caption.letterSpacing,
   },
 });

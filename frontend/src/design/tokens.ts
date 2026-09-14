@@ -105,13 +105,19 @@ export const fontFamily = {
 // 🔴 body 는 Figma 실측(10~13px)이 아니라 15px 이다. 실수로 되돌리지 않는다.
 //    이 앱의 차별점이 접근성(휠체어·알레르기)인데 본문이 11px 이면 그 자체로 모순이고,
 //    iOS 최소 권장이 11pt·Android 12sp 인데 그마저 *캡션* 기준이다.
+//
+// letterSpacing(자간, S15P21E201-641)은 Figma 실측 값이 아니다 — 실측할 자간 자체가
+// 디자인 파일에 없었다. 그래서 가독성 쪽으로 보수적으로만 정했다: 작은 글자(caption)는
+// 살짝 벌려 뭉쳐 보이지 않게 하고, 큰 글자(display·hero)는 살짝 좁혀 헤드라인이 늘어져
+// 보이지 않게 한다. body·title 은 그대로 0 — 이 앱은 접근성이 차별점이라, 본문 자간을
+// taste 로 좁히는 모험을 하지 않는다.
 export const type = {
-  caption: { size: 11, lineHeight: 14 },
-  body: { size: 15, lineHeight: 22 },
-  title: { size: 18, lineHeight: 24 },
-  display: { size: 22, lineHeight: 28 },
+  caption: { size: 11, lineHeight: 14, letterSpacing: 0.1 },
+  body: { size: 15, lineHeight: 22, letterSpacing: 0 },
+  title: { size: 18, lineHeight: 24, letterSpacing: 0 },
+  display: { size: 22, lineHeight: 28, letterSpacing: -0.15 },
   /** 01 Welcome 히어로 브랜드 타이틀 전용(Figma 실측 34px). 다른 화면엔 이 크기가 없어서 추가했다. */
-  hero: { size: 34, lineHeight: 40 },
+  hero: { size: 34, lineHeight: 40, letterSpacing: -0.25 },
 } as const;
 
 // Figma 는 반경이 10종(18·14·34·5·16·13·15·12·20…)이고 14.75847053527832 같은 값도 있다.
