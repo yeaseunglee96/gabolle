@@ -16,7 +16,6 @@ import { DEMO_PLACES, SAVED_PLACES_KEY } from '@/discovery/savedPlaces';
 import { useI18n } from '@/i18n';
 import { isAtLeast } from '@/layout/breakpoints';
 import { PlacePhraseModal } from '@/components/PlacePhraseModal';
-import { listAvailableMapApps, type AvailableMapProvider } from '@/utils/externalMaps';
 
 // 데모 3곳·저장 키는 src/discovery/savedPlaces.ts 로 옮겼다 — (tabs)/saved.tsx 도 같은 값을 쓴다.
 const PLACES = DEMO_PLACES;
@@ -36,7 +35,6 @@ export default function Place() {
   const demoPlace = id && id in PLACES ? PLACES[id as keyof typeof PLACES] : null;
   const [isSaved, setIsSaved] = useState(false);
   const [feedback, setFeedback] = useState('');
-  const [mapApps, setMapApps] = useState<AvailableMapProvider[]>([]);
   const [remote, setRemote] = useState<RemoteState>({ status: 'loading' });
   const [retryCount, setRetryCount] = useState(0);
   const [phraseModalOpen, setPhraseModalOpen] = useState(false);
@@ -44,8 +42,8 @@ export default function Place() {
   const heroReveal = useRef(new Animated.Value(0)).current;
 
   // 데모 3곳은 로컬 값을, 그 밖의 id 는 방금 받아온 API 응답을 같은 모양으로 맞춘다.
-  // useMemo 로 묶는다 — 안 묶으면 매 렌더 새 객체가 생겨서 아래 지도 앱 조회 effect 가
-  // resolved 를 의존성으로 삼다가 무한 재실행에 빠진다(setMapApps → 재렌더 → 새 resolved → 재실행).
+  // useMemo 로 묶는다 — 안 묶으면 매 렌더 새 객체가 생겨 resolved 를 의존성으로 삼는
+  // 아래 effect 들이 재실행 루프에 빠질 수 있다.
   const resolved = useMemo(() => (
     demoPlace
       ? { title: tx(demoPlace.titleKo, demoPlace.titleEn), subtitle: tx(demoPlace.subtitleKo, demoPlace.subtitleEn), apiPlace: null as ApiPlace | null }
@@ -79,13 +77,6 @@ export default function Place() {
       });
     return () => { active = false; controller.abort(); };
   }, [id, demoPlace, retryCount]);
-
-  useEffect(() => {
-    if (!resolved) return;
-    let active = true;
-    void listAvailableMapApps({ name: resolved.title, latitude: resolved.apiPlace?.lat, longitude: resolved.apiPlace?.lng }).then((apps) => { if (active) setMapApps(apps); });
-    return () => { active = false; };
-  }, [resolved]);
 
   useEffect(() => {
     if (!id || !resolved) return;
@@ -206,7 +197,6 @@ export default function Place() {
           <Button label={isSaved ? tx('내 여행 후보에서 빼기', 'Remove from candidates') : tx('내 여행 후보에 저장', 'Save to candidates')} variant="ghost" onPress={() => void toggleSaved()} />
           <Button label={tx('한국어로 말하기', 'Speak Korean')} onPress={() => setPhraseModalOpen(true)} containerStyle={styles.speakAction} />
           {taxiPlaceId ? <Button label={tx('택시 기사에게 보여주기', 'Show to a taxi driver')} onPress={() => router.push(`/taxi-card/${taxiPlaceId}`)} containerStyle={styles.speakAction} /> : null}
-          <View style={styles.mapRow}>{mapApps.map((app) => <Button key={app.key} label={tx(`${app.labelKo}으로 이동`, `Open in ${app.labelEn}`)} onPress={() => void app.open()} containerStyle={styles.mapAction} />)}</View>
           {feedback ? <Text accessibilityLiveRegion="polite" color={color.text.body} style={styles.feedback}>{feedback}</Text> : null}
         </View>
       </> : null}
@@ -253,7 +243,5 @@ const styles = StyleSheet.create({
   actions: { gap: spacing[3], marginTop: spacing[4] },
   feedback: { textAlign: 'center' },
   speakAction: { backgroundColor: color.brand.navy },
-  mapRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] },
-  mapAction: { flex: 1, minWidth: 160, backgroundColor: color.brand.navy },
   recoveryButton: { marginTop: spacing[2] },
 });
