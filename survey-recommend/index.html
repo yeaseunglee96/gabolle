@@ -3129,11 +3129,17 @@ function buildPairQuestion(i) {
   const keys = [];
   for (const k of rowsForBlock(blockOfCard(set, left))) keys.push(k);
   for (const k of rowsForBlock(blockOfCard(set, right))) if (!keys.includes(k)) keys.push(k);
+  /* 🔴 (S15P21E201-927) 안내 줄의 "흐린 줄은 두 곳이 같아요" 는 이 문항에
+        실제로 흐려진 줄이 있을 때만 뜻이 있다. 없는데도 뜨면 참여자가 화면에
+        없는 줄을 찾는다 (2026-09-13 실측). 그래서 루프를 돌며 하나라도
+        같았는지를 따로 기억해 뒀다가 안내문에 반영한다. */
+  let hasSame = false;
   for (const key of keys) {
     const u = ATTR_UI[key];
     const lv = set.alternatives[left][key], rv = set.alternatives[right][key];
     if (lv === undefined && rv === undefined) continue;
     const same = lv === rv;
+    if (same) hasSame = true;
     const L = cell("val" + (same ? " same" : ""), 0);
     const R = cell("val" + (same ? " same" : ""), 1);
     L.textContent = lv === undefined ? "—" : u.fmt(lv);
@@ -3179,7 +3185,7 @@ function buildPairQuestion(i) {
   const use = document.createElementNS("http://www.w3.org/2000/svg", "use");
   use.setAttribute("href", "#i-info");
   svg.appendChild(use); ask.appendChild(svg);
-  ask.append("둘 다 아니어도 그나마 끌리는 쪽으로. 흐린 줄은 두 곳이 같아요.");
+  ask.append("둘 다 아니어도 그나마 끌리는 쪽으로." + (hasSame ? " 흐린 줄은 두 곳이 같아요." : ""));
   wrap.appendChild(ask);
   return wrap;
 }
