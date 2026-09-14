@@ -212,6 +212,11 @@
 .m3-p  { font-size: 16px; line-height: 1.6; margin: 0; text-wrap: pretty;
          color: var(--m3-on-surface-variant); }
 .m3-lab { font-size: 14px; font-weight: 500; color: var(--m3-on-surface-variant); }
+/* 🔴 (S15P21E201-930) 몇 번째 곳인지 — 글자보다 배지가 먼저 눈에 든다 */
+.m3-stepdot { display: inline-flex; align-items: center; justify-content: center;
+  width: 22px; height: 22px; border-radius: 50%; margin-right: 8px;
+  background: var(--m3-primary); color: var(--m3-on-primary);
+  font-size: 13px; font-weight: 700; vertical-align: -5px; }
 .m3-progwrap { padding: 0 16px; }
 
 /* ── 웰컴 — 사진이 화면 전체를 덮는다 ───────────────────────────────
@@ -1209,7 +1214,10 @@ textarea.u { min-height: 96px; font-size: 17px; line-height: 1.5; resize: vertic
          ─────────────────────────────────────────────────────── -->
     <div class="m3-card" id="draftCard">
       <div>
-        <div class="m3-lab" id="draftStep">첫 번째 곳</div>
+        <!-- 🔴 (S15P21E201-930) 숫자를 배지로 키운 것 — "한 곳씩" 이 위 안내문에만
+             있으면 카드부터 채우기 시작하는 사람에게는 안 보인다. 채우기 직전에
+             눈이 가는 이 라벨 자리에 몇 번째인지·총 몇 곳인지를 같이 둔다. -->
+        <div class="m3-lab" id="draftStep"><span class="m3-stepdot" id="draftStepDot">1</span><span id="draftStepText">첫 번째 곳</span></div>
         <div class="m3-chips" id="typeChips" style="margin-top:10px"></div>
       </div>
 
@@ -1245,7 +1253,7 @@ textarea.u { min-height: 96px; font-size: 17px; line-height: 1.5; resize: vertic
         <div class="m3-field">
           <label for="dReason">왜 추천하세요? — 이 칸이 제일 중요해요</label>
           <textarea id="dReason" maxlength="500" aria-describedby="whyEg"
-            placeholder="한 줄이어도 좋아요. “왜 여기냐” 가 없으면 그냥 장소 목록이라 저희가 쓸 수 없어요."></textarea>
+            placeholder="이 곳 하나에 대한 이유만 적어 주세요. 한 줄이어도 좋아요. “왜 여기냐” 가 없으면 그냥 장소 목록이라 저희가 쓸 수 없어요."></textarea>
         </div>
         <!-- 🔴 예시는 placeholder 가 아니라 따로 한 줄로 둔다 (S15P21E201-869).
                  placeholder 는 첫 글자를 치는 순간 사라지는데, 무엇을 적을지가
@@ -2832,7 +2840,10 @@ function paintDraft() {
   document.querySelectorAll("#typeChips button").forEach(b =>
     b.setAttribute("aria-pressed", String(b.dataset.v === draft.type)));
 
-  dName.placeholder = def.eg;
+  /* 🔴 (S15P21E201-930) "한 곳만 적어 주세요" 를 덧붙였다 — 예시만 있으면
+        예시의 형식(가게 이름 / 장소 이름)은 전해져도 "한 번에 하나" 는 안
+        전해진다. 갈래마다 eg 를 따로 안 고치려고 여기서 한 번에 붙인다. */
+  dName.placeholder = def.eg + " (한 곳만 적어 주세요)";
   /* 🔴 자동완성이 없는 갈래는 combobox 로 만들지 않는다 (S15P21E201-869).
         역할만 붙여 놓고 목록을 안 주면 화면 낭독기가 "목록에서 고르세요" 라고
         읽어 주는데 고를 것이 없다. */
@@ -2858,7 +2869,13 @@ function paintDraft() {
   $("dLimMark").classList.toggle("on", draft.limited);
 
   $("rCount").textContent = dReason.value.length + " / 500";
-  $("draftStep").textContent = editing ? "고치는 중" : (ORD[n] || (n + 1)) + " 번째 곳";
+  /* 🔴 (S15P21E201-930) 하한(NEED=3) 안에서는 "· 총 3곳 중" 을 같이 적는다.
+        그 뒤로는 이미 하한을 넘겨 자유롭게 더 적는 것이라 총 개수를 안 건다 —
+        "총 3곳 중" 이 계속 붙으면 넷째부터는 오히려 거짓말이 된다. */
+  $("draftStepDot").hidden = editing;
+  $("draftStepDot").textContent = String(n + 1);
+  $("draftStepText").textContent = editing ? "고치는 중"
+    : (ORD[n] || (n + 1)) + " 번째 곳" + (n < NEED ? " · 총 " + NEED + "곳 중" : "");
   /* 🔴 안 눌리는 버튼은 **왜 안 눌리는지를 자기가 말한다.** 이 화면의 다른 두
         버튼(「나에 대해」의 다음 · 아래 제출)이 이미 그렇게 한다. 회색 버튼만
         놓아 두면 낮/밤을 안 고른 사람이 무엇이 빠졌는지 영영 모른다.
