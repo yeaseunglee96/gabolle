@@ -200,6 +200,19 @@ public class TripCreationService {
         //
         //    계정 기본값이 아직 하나도 없으면(지금은 저장하는 경로가 없다) storedPreferences
         //    가 그대로 나온다 — 즉 이 줄은 동작을 바꾸지 않는다.
+        //
+        //    ┈┈ 🔴 정정 (2026-09-15 · S15P21E201-639) ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈
+        //    위 두 문단은 **이제 절반만 맞다.** 지우지 않고 남기는 것은 그때의 판단이
+        //    틀린 것이 아니라 범위가 늘었기 때문이다.
+        //
+        //      · "반대 방향은 없다" → **이어받는 방향이 생겼다** (아래 ⑥). 2.2 가 막은 것은
+        //        "모르게 바뀌는 일" 인데, 이 줄이 값을 화면에 채워 보여 주게 되면서 그
+        //        전제가 달라졌다. 보고 고친 것이 반영되는 것은 모르게 바뀌는 일이 아니다.
+        //      · "지금은 저장하는 경로가 없다" → 이제 있다. 다만 HTTP 경로가 아니라
+        //        여행을 만들 때 안에서 옮긴다.
+        //      · "이 줄은 동작을 바꾸지 않는다" → 두 번째 여행부터 **실제로 채운다.**
+        //        첫 여행은 채울 것이 없으므로 그때는 여전히 그대로다.
+        //    ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈
         List<PreferenceSnapshot.PreferenceAnswer> mergedPreferences =
                 preferenceDefaults.overlayDefaults(command.userId(), storedPreferences);
 
@@ -213,6 +226,36 @@ public class TripCreationService {
         TripRepository.SaveOutcome outcome = repository.saveWithIdempotency(
                 command.userId(), idempotencyKey, fingerprint,
                 trip, constraints, owner, snapshot);
+
+        // ⑥ 🔴 S15P21E201-639 — 이 여행에서 **고른** 답을 계정 기본값으로 이어받는다.
+        //
+        //    🔴 왜 여는가 — 겹치기만 두고 채우는 길을 안 만들었더니, 계정 기본값을 가진
+        //    사람이 소비 성향 한 차원뿐이었다(2026-09-15 실측: USER 스냅샷 9건 전부
+        //    SPEND_PROFILE). 채울 것이 없으니 겹치기가 아무 일도 안 했고, 같은 사람이 두 번째
+        //    여행에서도 처음부터 다시 답했다. 어느 차원을 이어받는지는 CARRY_OVER 에 있다.
+        //
+        //    🔴 "빈칸만 채운다" 로 먼저 만들었다가 되돌렸다. 계정 기본값을 고치는 화면이
+        //    없어서(소비 성향 하나만 있다) 사용자가 첫 답에 영구히 갇히기 때문이다 —
+        //    화면의 값을 고쳐도 그 여행에만 적용되고 계정은 그대로라, 다음 여행에 또 옛
+        //    값이 채워진다. **매번 다시 묻는 것보다 나쁘다.** 까닭 전부는
+        //    PreferenceDefaultsService javadoc 의 「빈칸만 채운다 로 먼저 만들었다가
+        //    되돌렸다」 절에 있다.
+        //
+        //    🔴 명세 2.2 와 어긋나 보이지만 전제가 달라졌다. 2.2 가 막은 것은 "사용자가
+        //    **모르게** 프로필이 바뀌는 일" 이고, 그때는 계정 기본값이 화면에 안 보였다.
+        //    이제 위 ④ 의 겹치기가 그것을 화면에 채워 보여 준다 — 보고 고친 것이 반영되는
+        //    것은 모르게 바뀌는 일이 아니다. 오히려 반영이 안 되는 쪽이 놀랍다.
+        //
+        //    SKIPPED("이번 여행만 이 조건 빼고")와 UNKNOWN(안 물어봤다)은 그대로 안 건드린다.
+        //
+        //    🔴 storedPreferences 를 넘긴다 — mergedPreferences 가 아니다. 겹친 뒤의 목록에는
+        //    계정 기본값이 이미 섞여 있어서, 사용자가 답하지 않은 차원까지 "고른 것" 이 된다.
+        //
+        //    🔴 실제로 만들어졌을 때만 한다. 같은 키로 다시 온 요청(created=false)은 여행을
+        //    안 만들었으므로 취향도 새로 정한 것이 아니다.
+        if (outcome.created()) {
+            preferenceDefaults.carryOver(command.userId(), storedPreferences);
+        }
 
         return new Result(outcome.trip(), outcome.snapshot(), outcome.created());
     }
