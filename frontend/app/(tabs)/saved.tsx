@@ -64,7 +64,7 @@ export default function Saved() {
     setCards((current) => current.filter((card) => card.placeId !== placeId));
   }
 
-  return <View style={styles.shell}><Screen scroll style={styles.screen}>
+  return <View style={styles.shell}><Screen scroll withTabBar style={styles.screen}>
     <View style={styles.heading}><Eyebrow>{tx('저장 목록', 'Saved')}</Eyebrow><Text variant="display" weight="bold">{tx('저장한 장소', 'Saved places')}</Text></View>
 
     {state === 'loading' && <ActivityIndicator style={styles.spinner} color={color.action.primary} />}

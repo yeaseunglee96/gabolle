@@ -14,6 +14,20 @@ import { Text } from './Text';
 
 export type TabKey = 'home' | 'feed' | 'schedule' | 'map' | 'saved' | 'me';
 
+/** 막대 자체의 높이. 아래 {@link TAB_BAR_SPACE} 와 styles.bar 가 이 값을 함께 쓴다. */
+const TAB_BAR_HEIGHT = 64;
+
+/**
+ * 이 막대가 화면 아래에서 차지하는 높이 — S15P21E201-939.
+ *
+ * 막대 높이에 위쪽 간격을 더한 값이고, 시스템 버튼 영역(안전영역)은 여기 안 넣는다. 그건
+ * 화면마다 {@code Screen} 이 따로 더하므로 여기까지 넣으면 두 번 들어간다.
+ *
+ * Screen 이 {@code withTabBar} 를 받으면 이 값만큼 내용 아래에 자리를 비운다 — 안 비우면
+ * 스크롤을 끝까지 내려도 마지막 내용이 막대 뒤에 남는다.
+ */
+export const TAB_BAR_SPACE = TAB_BAR_HEIGHT + spacing[2];
+
 type Tab = {
   key: TabKey;
   icon: number;
@@ -83,7 +97,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     width: '100%',
     maxWidth: 328,
-    height: 64,
+    height: TAB_BAR_HEIGHT,
     marginHorizontal: spacing[4],
     paddingHorizontal: spacing[2],
     backgroundColor: color.surface.card,

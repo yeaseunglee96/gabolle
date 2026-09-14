@@ -172,7 +172,7 @@ export default function Me() {
       setDeleting(false);
     }
   }
-  return <View style={styles.shell}><Screen scroll>
+  return <View style={styles.shell}><Screen scroll withTabBar>
     <View style={styles.heading}><Eyebrow>{tx('내 계정', 'Account')}</Eyebrow><Text variant="display" weight="bold">{tx('마이페이지', 'My page')}</Text></View>
     <View style={styles.profile}><View style={styles.avatar}>{avatarUri ? <Image source={{ uri: avatarUri }} resizeMode="cover" accessibilityLabel={tx('현재 프로필 사진', 'Current profile photo')} style={styles.avatarPhoto} /> : <Text variant="title" weight="bold" color={color.text.onAction}>{(user?.displayName || displayName || tx('여행자', 'Traveler')).slice(0, 1)}</Text>}</View><View style={styles.profileCopy}><Text variant="title" weight="bold">{user?.displayName || displayName || tx('여행자', 'Traveler')}</Text><Text variant="caption" color={color.text.muted}>{user?.email || (visualPreview ? 'miri@example.com' : tx('계정 정보를 불러오지 못했어요', 'Account information is unavailable'))}</Text><Text variant="caption" color={color.text.muted}>{tx('사진은 현재 기기에, 이름과 언어는 계정에 저장돼요.', 'The photo is stored on this device; name and language are saved to your account.')}</Text></View>{(user || visualPreview) && <Pressable accessibilityRole="button" accessibilityState={{ expanded: editing }} onPress={() => { setEditing((value) => !value); setFeedback(null); }} style={({ pressed }) => [styles.editButton, pressed && styles.rowPressed]}><Text variant="caption" weight="bold" color={color.brand.orange}>{editing ? tx('취소', 'Cancel') : tx('프로필 편집', 'Edit profile')}</Text></Pressable>}</View>
     {editing && <View style={styles.editPanel}>
