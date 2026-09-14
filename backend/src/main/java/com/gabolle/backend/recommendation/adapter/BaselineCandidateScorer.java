@@ -17,6 +17,7 @@ import com.gabolle.backend.place.api.PlaceFeatureView;
 import com.gabolle.backend.place.domain.FeaturePresence;
 import com.gabolle.backend.place.domain.MatchKind;
 import com.gabolle.backend.place.domain.UserPlaceCodeMap;
+import com.gabolle.backend.preference.application.PreferenceJson;
 import com.gabolle.backend.recommendation.config.BaselineEngineProperties;
 import com.gabolle.backend.recommendation.config.PreferenceAlignmentWeights;
 import com.gabolle.backend.recommendation.domain.CoarseArea;

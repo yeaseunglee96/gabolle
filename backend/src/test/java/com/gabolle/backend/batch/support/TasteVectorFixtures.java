@@ -58,8 +58,31 @@ public final class TasteVectorFixtures {
 		return snapshotId;
 	}
 
-	/** 고른 태그형 답. 예: {@code CATEGORY} 에 {@code ["CAFE","MARKET"]}. */
+	/**
+	 * 고른 태그형 답 — <b>앱이 실제로 보내는 모양</b>인 맨 배열이다. 예: {@code ["CAFE","MARKET"]}.
+	 *
+	 * <h2>🔴 2026-09-14 — 여기가 {@code {"codes":[...]}} 였다 (S15P21E201-787 후속)</h2>
+	 *
+	 * 앱은 맨 배열을 보내는데({@code PreferenceJson} 의 표, S15P21E201-635) 이 픽스처가 감싼
+	 * 모양을 심고 있었다. 그래서 접기가 태그형을 <b>한 줄도 못 읽는</b> 동안에도 이 파일의
+	 * 검사는 전부 초록이었다.
+	 *
+	 * <p>이 파일 아래 {@code tasteSignal} 의 주석이 <i>"픽스처가 버그와 같은 방향으로 틀려
+	 * 있으면 검사는 그 버그를 지켜 준다"</i> 라고 적어 둔 그 일이 <b>한 칸 옆에서 그대로 다시
+	 * 일어났다.</b> 감싼 모양은 지우지 않고 {@link #selectedCodesWrapped} 로 남긴다 — 그쪽도
+	 * 아직 받아야 하는 모양이라(이미 저장된 답이 있다) 둘 다 검사해야 한다.
+	 */
 	public void selectedCodes(UUID snapshotId, String dimension, String... codes) {
+		StringBuilder json = new StringBuilder("[");
+		for (int i = 0; i < codes.length; i++) {
+			json.append(i == 0 ? "" : ",").append('"').append(codes[i]).append('"');
+		}
+		json.append(']');
+		insertAnswer(snapshotId, dimension, json.toString(), "SELECTED");
+	}
+
+	/** 감싼 태그형 답 {@code {"codes":[...]}} — 옛 모양. 이미 저장된 답이 이렇게 생겼다. */
+	public void selectedCodesWrapped(UUID snapshotId, String dimension, String... codes) {
 		StringBuilder json = new StringBuilder("{\"codes\":[");
 		for (int i = 0; i < codes.length; i++) {
 			json.append(i == 0 ? "" : ",").append('"').append(codes[i]).append('"');
@@ -68,7 +91,18 @@ public final class TasteVectorFixtures {
 		insertAnswer(snapshotId, dimension, json.toString(), "SELECTED");
 	}
 
-	/** 고른 점수형 답. 예: {@code QUIETNESS} 에 {@code 0.75}. */
+	/**
+	 * 고른 점수형 답 — <b>앱이 실제로 보내는 모양</b>인 맨 정수 1~5 (화면의 5단계 슬라이더).
+	 *
+	 * <p>🔴 {@code PreferenceJson} 이 {@code (raw-1)/4} 로 0~1 에 맞춘다. 그래서 1 은 0.0,
+	 * 3 은 0.5, 5 는 1.0 이고, 접기의 {@code toWeight} 를 지나면 각각 -1.0 · 0.0 · +1.0 이 된다.
+	 * 고치기 전에는 이 셋이 <b>전부 +1.0</b> 이었다.
+	 */
+	public void selectedLikert(UUID snapshotId, String dimension, int level) {
+		insertAnswer(snapshotId, dimension, Integer.toString(level), "SELECTED");
+	}
+
+	/** 감싼 점수형 답 {@code {"score":0~1}} — 이 엔진이 정한 옛 계약. 눈금을 다시 안 바꾼다. */
 	public void selectedScore(UUID snapshotId, String dimension, double score) {
 		insertAnswer(snapshotId, dimension, "{\"score\":" + score + "}", "SELECTED");
 	}
