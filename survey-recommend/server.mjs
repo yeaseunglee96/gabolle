@@ -135,7 +135,7 @@ function searchPlaces(qRaw, guRaw) {
 
 /* ── 짝 비교 문항 정의 — 🔴 여기에 다시 적지 않는다 (S15P21E201-754) ───
  * index.html 안의 <script id="design"> 블록을 그대로 읽어 쓴다. 그 블록을
- * 만드는 것은 design-v4.mjs 다 (손으로 고치지 않는다).
+ * 만드는 것은 design-v5.mjs 다 (손으로 고치지 않는다).
  *
  * 왜 이렇게 하나: 문항 목록을 서버에도 한 벌 적으면 두 벌이 되고, 두 벌은
  * 반드시 어긋난다. 어긋나면 사람은 화면에서 다 답하고 서버에서 거절당한다.
@@ -154,23 +154,27 @@ const DESIGN = readDesign(PAGE.toString("utf8"));
 /* 🔴 문항이 없으면 뜨지 않는다. 그냥 뜨면 짝 비교 답이 전부 거절당하는데,
       화면에는 400 만 보이고 왜인지는 아무도 모른다. */
 if (!DESIGN || !Array.isArray(DESIGN.variants) || DESIGN.variants.length === 0) {
-  console.error("index.html 에 짝 비교 문항이 없다 — node design-v4.mjs 를 먼저 돌려 주세요.");
+  console.error("index.html 에 짝 비교 문항이 없다 — node design-v5.mjs 를 먼저 돌려 주세요.");
   process.exit(1);
 }
 
-/* ── 🔴 문항지가 **두 벌**이다 (S15P21E201-884) ────────────────────────
+/* ── 🔴 문항지가 **네 벌**이다 (S15P21E201-884) ────────────────────────
  * 사람마다 한 벌만 받고, 어느 벌이었는지가 제출에 designId 로 실려 온다.
  * 서버는 **그 벌의 문항 정의로만** 검사한다.
  *
- * 🔴 벌을 안 가르고 문항 이름(set_id)만 보면 정합성이 깨진다. 두 벌의
+ * 🔴 벌을 안 가르고 문항 이름(set_id)만 보면 정합성이 깨진다. 네 벌의
  *    eat01 은 **이름이 같고 내용이 다른 문항**이라, 섞으면 a벌 사람이 낸
  *    답에 b벌 카드 조건이 적힌다. 그 응답은 겉보기에 멀쩡하고 계수만
  *    조용히 틀어진다 — 표를 아무리 봐도 안 보인다.
+ *
+ * 🔴 벌 개수를 이 파일에 적지 않는다. `DESIGN.variants` 를 그대로 돈다 —
+ *    2026-09-14 에 두 벌에서 네 벌이 됐고, 여기 숫자가 박혀 있었다면 그때
+ *    새 벌 둘이 조용히 거절당했을 것이다.
  * ─────────────────────────────────────────────────────────────────── */
 const VARIANTS = new Map();
 for (const v of DESIGN.variants) {
   if (!v || typeof v.designId !== "string" || !Array.isArray(v.sets) || v.sets.length === 0) {
-    console.error("짝 비교 문항지 한 벌이 비어 있다 — design-v4.mjs 를 다시 돌려 주세요.");
+    console.error("짝 비교 문항지 한 벌이 비어 있다 — design-v5.mjs 를 다시 돌려 주세요.");
     process.exit(1);
   }
   /* 🔴 함정이 없는 벌이 있으면 뜨지 않는다. 함정이 없으면 아무거나 찍은
@@ -178,7 +182,7 @@ for (const v of DESIGN.variants) {
         안 보인다. **벌마다** 확인한다 — 한 벌만 보면 나머지가 샌다. */
   const trap = v.sets.find(x => x.trap) || null;
   if (!trap || (trap.trapCorrect !== 0 && trap.trapCorrect !== 1)) {
-    console.error(v.designId + " 에 함정 문항이 없다 — design-v4.mjs 의 TRAP_AT 을 확인해 주세요.");
+    console.error(v.designId + " 에 함정 문항이 없다 — design-v5.mjs 의 TRAP_AT 을 확인해 주세요.");
     process.exit(1);
   }
   if (VARIANTS.has(v.designId)) {
@@ -192,7 +196,10 @@ for (const v of DESIGN.variants) {
 const PER_PAGE = DESIGN.perPage || 2;
 /* 응답 시간 구간의 최댓값. 화면도 표(ms_bucket 제약)도 같은 수에서 나온다 */
 const MS_BUCKET_MAX = (DESIGN.msBuckets || []).length;
-console.log(`짝 비교 ${VARIANTS.size}벌 × ${DESIGN.variants[0].sets.length}문항 (${DESIGN.family})`);
+/* 🔴 벌 이름을 하나로 못 찍는다 — 한 판에 v4(언 벌)와 v5(새 벌)가 섞여 있다.
+      표에 남는 것도 벌마다의 designId 이므로 그대로 늘어놓는다. */
+console.log(`짝 비교 ${VARIANTS.size}벌 × ${DESIGN.variants[0].sets.length}문항`);
+for (const id of VARIANTS.keys()) console.log(`  ${id}`);
 
 /* 🔴 이 응답이 어느 판의 설문에 답했나 — schema.sql · migrations/0002 참고.
       1 = 짝 비교도 세 문항도 없던 판 · 2 = 세 문항이 붙은 판 · 3 = 짝 비교까지 ·
@@ -549,7 +556,7 @@ async function insert(b, spend, pair, crowd) {
     const id = rows[0].id;
     for (const c of pair.rows) {
       /* 🔴 문항 하나 = 줄 하나. 보여준 두 카드의 조건이 이 줄에 그대로
-            들어간다 — 나중에 design-v4.mjs 를 안 열어도 이 표만으로 계수를 낼 수
+            들어간다 — 나중에 design-v5.mjs 를 안 열어도 이 표만으로 계수를 낼 수
             있게. 조건값은 화면이 보낸 것이 아니라 서버가 문항 정의에서 찾은 것이다. */
       await client.query(
         /* 🔴 v3 부터 카드 조건은 JSONB 다. 덩어리마다 속성이 달라 칸으로 못 박는다.

@@ -1819,8 +1819,373 @@ textarea.u { min-height: 96px; font-size: 17px; line-height: 1.5; resize: vertic
           "lead": "돌아가는 시간까지 한 시간 남았습니다"
         }
       ]
+    },
+    {
+      "designId": "recommend-v5-seed-20260914-c",
+      "sets": [
+        {
+          "setId": "eat01",
+          "block": "eat",
+          "trap": false,
+          "alternatives": [
+            {
+              "walkMin": 25,
+              "price": 70000,
+              "queueMin": 0,
+              "fame": "LOCAL_ONLY"
+            },
+            {
+              "walkMin": 8,
+              "price": 10000,
+              "queueMin": 40,
+              "fame": "LOCAL_ONLY"
+            }
+          ],
+          "when": "첫날 저녁",
+          "lead": "도착한 날 저녁, 첫 끼를 먹습니다"
+        },
+        {
+          "setId": "play01",
+          "block": "play",
+          "trap": false,
+          "alternatives": [
+            {
+              "walkMin": 25,
+              "cost": 0,
+              "crowd": "SOME",
+              "fame": "LOCAL_ONLY"
+            },
+            {
+              "walkMin": 8,
+              "cost": 30000,
+              "crowd": "PACKED",
+              "fame": "LOCAL_ONLY"
+            }
+          ],
+          "when": "첫날 밤",
+          "lead": "밥을 먹고 밤에 한 군데 더 들릅니다"
+        },
+        {
+          "setId": "see01",
+          "block": "see",
+          "trap": false,
+          "alternatives": [
+            {
+              "walkMin": 8,
+              "slope": "GENTLE",
+              "shade": "SUNNY",
+              "crowd": "QUIET",
+              "fame": "LOCAL_ONLY"
+            },
+            {
+              "walkMin": 15,
+              "slope": "FLAT",
+              "shade": "SHADED",
+              "crowd": "PACKED",
+              "fame": "SNS_FAMOUS"
+            }
+          ],
+          "when": "이튿날 아침",
+          "lead": "아침에 나와 어디부터 볼지 고릅니다"
+        },
+        {
+          "setId": "tr01",
+          "block": "eat",
+          "trap": true,
+          "trapCorrect": 0,
+          "alternatives": [
+            {
+              "walkMin": 3,
+              "price": 20000,
+              "queueMin": 0,
+              "fame": "LOCAL_ONLY"
+            },
+            {
+              "walkMin": 25,
+              "price": 20000,
+              "queueMin": 40,
+              "fame": "LOCAL_ONLY"
+            }
+          ],
+          "when": "이튿날 점심",
+          "lead": "걷다 보니 점심때가 됐습니다"
+        },
+        {
+          "setId": "see02",
+          "block": "see",
+          "trap": false,
+          "alternatives": [
+            {
+              "walkMin": 25,
+              "slope": "FLAT",
+              "shade": "SHADED",
+              "crowd": "SOME",
+              "fame": "SNS_FAMOUS"
+            },
+            {
+              "walkMin": 3,
+              "slope": "FLAT",
+              "shade": "SUNNY",
+              "crowd": "QUIET",
+              "fame": "LOCAL_ONLY"
+            }
+          ],
+          "when": "이튿날 오후",
+          "lead": "점심을 먹고 한 곳 더 봅니다"
+        },
+        {
+          "setId": "play02",
+          "block": "play",
+          "trap": false,
+          "alternatives": [
+            {
+              "walkMin": 3,
+              "cost": 30000,
+              "crowd": "SOME",
+              "fame": "LOCAL_ONLY"
+            },
+            {
+              "walkMin": 8,
+              "cost": 0,
+              "crowd": "SOME",
+              "fame": "LOCAL_ONLY"
+            }
+          ],
+          "when": "해 기울 무렵",
+          "lead": "돌아가기 전에 하나만 더 해 볼 참입니다"
+        },
+        {
+          "setId": "eat02",
+          "block": "eat",
+          "trap": false,
+          "alternatives": [
+            {
+              "walkMin": 3,
+              "price": 40000,
+              "queueMin": 40,
+              "fame": "SNS_FAMOUS"
+            },
+            {
+              "walkMin": 25,
+              "price": 10000,
+              "queueMin": 20,
+              "fame": "SNS_FAMOUS"
+            }
+          ],
+          "when": "마지막 저녁",
+          "lead": "이 여행의 마지막 저녁입니다"
+        },
+        {
+          "setId": "mx01",
+          "blocks": [
+            "eat",
+            "see"
+          ],
+          "trap": false,
+          "alternatives": [
+            {
+              "walkMin": 3,
+              "price": 40000,
+              "queueMin": 0,
+              "fame": "SNS_FAMOUS"
+            },
+            {
+              "walkMin": 15,
+              "slope": "STEEP",
+              "shade": "SHADED",
+              "crowd": "QUIET",
+              "fame": "LOCAL_ONLY"
+            }
+          ],
+          "when": "떠나기 전",
+          "lead": "돌아가는 시간까지 한 시간 남았습니다"
+        }
+      ]
+    },
+    {
+      "designId": "recommend-v5-seed-20260914-d",
+      "sets": [
+        {
+          "setId": "eat01",
+          "block": "eat",
+          "trap": false,
+          "alternatives": [
+            {
+              "walkMin": 15,
+              "price": 20000,
+              "queueMin": 40,
+              "fame": "SNS_FAMOUS"
+            },
+            {
+              "walkMin": 25,
+              "price": 20000,
+              "queueMin": 40,
+              "fame": "LOCAL_ONLY"
+            }
+          ],
+          "when": "첫날 저녁",
+          "lead": "도착한 날 저녁, 첫 끼를 먹습니다"
+        },
+        {
+          "setId": "play01",
+          "block": "play",
+          "trap": false,
+          "alternatives": [
+            {
+              "walkMin": 3,
+              "cost": 30000,
+              "crowd": "SOME",
+              "fame": "SNS_FAMOUS"
+            },
+            {
+              "walkMin": 25,
+              "cost": 10000,
+              "crowd": "SOME",
+              "fame": "SNS_FAMOUS"
+            }
+          ],
+          "when": "첫날 밤",
+          "lead": "밥을 먹고 밤에 한 군데 더 들릅니다"
+        },
+        {
+          "setId": "see01",
+          "block": "see",
+          "trap": false,
+          "alternatives": [
+            {
+              "walkMin": 25,
+              "slope": "FLAT",
+              "shade": "SUNNY",
+              "crowd": "QUIET",
+              "fame": "LOCAL_ONLY"
+            },
+            {
+              "walkMin": 15,
+              "slope": "STEEP",
+              "shade": "SHADED",
+              "crowd": "PACKED",
+              "fame": "LOCAL_ONLY"
+            }
+          ],
+          "when": "이튿날 아침",
+          "lead": "아침에 나와 어디부터 볼지 고릅니다"
+        },
+        {
+          "setId": "tr01",
+          "block": "eat",
+          "trap": true,
+          "trapCorrect": 0,
+          "alternatives": [
+            {
+              "walkMin": 3,
+              "price": 20000,
+              "queueMin": 0,
+              "fame": "LOCAL_ONLY"
+            },
+            {
+              "walkMin": 25,
+              "price": 20000,
+              "queueMin": 40,
+              "fame": "LOCAL_ONLY"
+            }
+          ],
+          "when": "이튿날 점심",
+          "lead": "걷다 보니 점심때가 됐습니다"
+        },
+        {
+          "setId": "see02",
+          "block": "see",
+          "trap": false,
+          "alternatives": [
+            {
+              "walkMin": 15,
+              "slope": "GENTLE",
+              "shade": "SHADED",
+              "crowd": "SOME",
+              "fame": "LOCAL_ONLY"
+            },
+            {
+              "walkMin": 3,
+              "slope": "STEEP",
+              "shade": "SHADED",
+              "crowd": "SOME",
+              "fame": "SNS_FAMOUS"
+            }
+          ],
+          "when": "이튿날 오후",
+          "lead": "점심을 먹고 한 곳 더 봅니다"
+        },
+        {
+          "setId": "play02",
+          "block": "play",
+          "trap": false,
+          "alternatives": [
+            {
+              "walkMin": 3,
+              "cost": 30000,
+              "crowd": "SOME",
+              "fame": "SNS_FAMOUS"
+            },
+            {
+              "walkMin": 25,
+              "cost": 10000,
+              "crowd": "PACKED",
+              "fame": "SNS_FAMOUS"
+            }
+          ],
+          "when": "해 기울 무렵",
+          "lead": "돌아가기 전에 하나만 더 해 볼 참입니다"
+        },
+        {
+          "setId": "eat02",
+          "block": "eat",
+          "trap": false,
+          "alternatives": [
+            {
+              "walkMin": 3,
+              "price": 10000,
+              "queueMin": 40,
+              "fame": "SNS_FAMOUS"
+            },
+            {
+              "walkMin": 15,
+              "price": 40000,
+              "queueMin": 20,
+              "fame": "LOCAL_ONLY"
+            }
+          ],
+          "when": "마지막 저녁",
+          "lead": "이 여행의 마지막 저녁입니다"
+        },
+        {
+          "setId": "mx01",
+          "blocks": [
+            "see",
+            "play"
+          ],
+          "trap": false,
+          "alternatives": [
+            {
+              "walkMin": 8,
+              "slope": "GENTLE",
+              "shade": "SHADED",
+              "crowd": "PACKED",
+              "fame": "LOCAL_ONLY"
+            },
+            {
+              "walkMin": 25,
+              "cost": 30000,
+              "crowd": "QUIET",
+              "fame": "SNS_FAMOUS"
+            }
+          ],
+          "when": "떠나기 전",
+          "lead": "돌아가는 시간까지 한 시간 남았습니다"
+        }
+      ]
     }
-  ]
+  ],
+  "newFamily": "recommend-v5-seed-20260914"
 }
 </script>
 
