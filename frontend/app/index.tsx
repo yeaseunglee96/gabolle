@@ -75,8 +75,10 @@ export default function Welcome() {
       <Pressable accessibilityRole="link" accessibilityLabel={tx('GABOLLE 홈', 'GABOLLE home')} onPress={() => router.replace('/')} style={({ pressed }) => [styles.logoLink, pressed && styles.pressed]}><Image source={logo} resizeMode="contain" style={styles.webLogo} /></Pressable>
       {/* S15P21E201-900: "부산 축제" 내비 항목은 최초 배포에서 뺐다 — 가진 축제 기간
           자료가 전부 만료돼 화면을 열어도 보여줄 게 없다. /festivals 라우트는 그대로 있다.
-          S15P21E201-906: "피드"도 출시 전 제품 결정으로 뺐다. /feed 라우트는 그대로 있다. */}
-      <View style={styles.webNav}><NavItem label={tx('홈', 'Home')} onPress={() => router.replace('/')} /><NavItem label={tx('여행 만들기', 'Plan a trip')} onPress={startPlanning} /><NavItem label={tx('내 여행', 'My trips')} onPress={() => router.push(user ? '/trips' : '/sign-in')} /></View>
+          S15P21E201-906: "피드"도 출시 전 제품 결정으로 뺐다. /feed 라우트는 그대로 있다.
+          🔴 2026-09-14: "피드"를 다시 켰다. 위 문장은 지우지 않고 남긴다 — 뒤집은
+          결정이라는 사실이 보여야 한다. "부산 축제"는 그대로 빠져 있다. */}
+      <View style={styles.webNav}><NavItem label={tx('홈', 'Home')} onPress={() => router.replace('/')} /><NavItem label={tx('피드', 'Feed')} onPress={() => router.push(user ? '/feed' : '/sign-in')} /><NavItem label={tx('여행 만들기', 'Plan a trip')} onPress={startPlanning} /><NavItem label={tx('내 여행', 'My trips')} onPress={() => router.push(user ? '/trips' : '/sign-in')} /></View>
       <View style={styles.accountActions}>
         <Pressable accessibilityRole="button" accessibilityLabel={tx(`언어를 ${language === 'ko' ? 'English' : '한국어'}로 변경`, `Change language to ${language === 'ko' ? 'English' : 'Korean'}`)} onPress={() => chooseLanguage(language === 'ko' ? 'en' : 'ko')} style={styles.localeButton}><Text variant="caption" weight="bold">{language.toUpperCase()}</Text></Pressable>
         {user ? (
