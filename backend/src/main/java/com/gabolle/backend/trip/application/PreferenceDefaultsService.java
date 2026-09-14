@@ -13,6 +13,7 @@ import java.util.Set;
 
 import org.springframework.stereotype.Service;
 
+import com.gabolle.backend.trip.domain.PreferenceDimensions;
 import com.gabolle.backend.trip.domain.PreferenceSnapshot;
 import com.gabolle.backend.trip.domain.TripRepository;
 
@@ -285,6 +286,101 @@ public class PreferenceDefaultsService {
 		}
 		replace(userId, List.copyOf(kept.values()));
 		return List.copyOf(changed);
+	}
+
+	/**
+	 * 계정 기본 취향 중 <b>보낸 차원만</b> 바꾼다 — 온보딩과 마이페이지가 쓴다
+	 * (S15P21E201-639).
+	 *
+	 * <p>{@link #carryOver} 와 하는 일은 같지만 <b>부르는 쪽이 다르다.</b> 저쪽은 여행을
+	 * 만들 때 곁다리로 따라오는 것이고, 이쪽은 사용자가 <b>계정 취향을 고치려고 직접</b>
+	 * 부르는 것이다. 그래서 규칙 둘이 다르다.
+	 *
+	 * <table border="1">
+	 * <caption>같은 답이 두 경로에서 다르게 다뤄지는 자리</caption>
+	 * <tr><th>답</th><th>{@link #carryOver} (여행 만들 때)</th><th>여기 (직접 고칠 때)</th></tr>
+	 * <tr><td>{@code SELECTED}</td><td>저장</td><td>저장</td></tr>
+	 * <tr><td>{@code SKIPPED}</td><td>아무것도 안 함</td><td>아무것도 안 함</td></tr>
+	 * <tr><td>{@code UNKNOWN}</td><td>아무것도 안 함</td><td>🔴 <b>그 차원을 지운다</b></td></tr>
+	 * </table>
+	 *
+	 * <p>🔴 {@code UNKNOWN} 이 갈리는 까닭은 <b>같은 값이 두 곳에서 다른 뜻</b>이기 때문이다.
+	 * 여행을 만들 때의 {@code UNKNOWN} 은 "화면이 그 차원을 안 물어봤다" 라서 사용자의
+	 * 의사가 없다. 마이페이지에서 온 {@code UNKNOWN} 은 <b>"이 취향을 잊어 달라"</b> 다 —
+	 * 사용자가 그 화면을 보고 지운 것이다. 뭉개면 지우기가 아예 불가능해진다.
+	 *
+	 * <p>🔴 {@link #replace} javadoc 의 <i>"부분 갱신으로 만들면 '지웠다' 와 '안 보냈다' 를
+	 * 구분할 수 없다"</i> 는 경고를 이 규칙이 푼다 — 지우기는 {@code UNKNOWN} 으로
+	 * <b>명시적으로</b> 오고, 안 보낸 차원은 그대로 남는다.
+	 *
+	 * @param answers 바꿀 차원만. 앱 이름({@code locality})과 어휘({@code LOCALITY}) 둘 다 받는다
+	 * @return 실제로 바뀐 차원 이름. 바뀐 것이 없으면 빈 목록이고 저장도 하지 않는다
+	 * @throws IllegalArgumentException 계정 기본값으로 둘 수 없는 차원이 섞여 있을 때.
+	 *         🔴 조용히 버리지 않는다 — 버리면 화면은 저장된 줄 알고 다음에 빈칸을 본다
+	 */
+	public List<String> putTaste(String userId, List<PreferenceSnapshot.PreferenceAnswer> answers) {
+		if (userId == null || answers == null || answers.isEmpty()) {
+			return List.of();
+		}
+		Map<String, PreferenceSnapshot.PreferenceAnswer> kept = new LinkedHashMap<>();
+		this.repository.findUserDefaults(userId).ifPresent(defaults -> {
+			for (PreferenceSnapshot.PreferenceAnswer answer : defaults.answers()) {
+				kept.put(key(answer.dimension()), answer);
+			}
+		});
+
+		List<String> changed = new ArrayList<>();
+		for (PreferenceSnapshot.PreferenceAnswer answer : answers) {
+			String dimension = PreferenceDimensions.normalize(answer.dimension());
+			if (!CARRY_OVER.contains(dimension)) {
+				throw new IllegalArgumentException(
+						"계정 기본값으로 둘 수 없는 차원입니다: " + answer.dimension()
+						+ " (둘 수 있는 것: " + String.join(", ", CARRY_OVER) + ")");
+			}
+			PreferenceSnapshot.PreferenceAnswer existing = kept.get(dimension);
+			switch (answer.status()) {
+				case SELECTED -> {
+					if (existing != null && existing.status() == PreferenceSnapshot.AnswerStatus.SELECTED
+							&& Objects.equals(existing.valueJson(), answer.valueJson())) {
+						continue; // 같은 값이다. 판을 새로 쓸 이유가 없다
+					}
+					kept.put(dimension, new PreferenceSnapshot.PreferenceAnswer(
+							dimension, answer.valueJson(), PreferenceSnapshot.AnswerStatus.SELECTED));
+					changed.add(dimension);
+				}
+				case UNKNOWN -> {
+					if (existing == null) {
+						continue; // 없는 것을 지울 수는 없다
+					}
+					kept.remove(dimension);
+					changed.add(dimension);
+				}
+				case SKIPPED -> {
+					// 물어봤는데 안 답했다. 계정을 안 건드린다 — carryOver 와 같다
+				}
+			}
+		}
+		if (changed.isEmpty()) {
+			return List.of();
+		}
+		replace(userId, List.copyOf(kept.values()));
+		return List.copyOf(changed);
+	}
+
+	/**
+	 * 계정 기본 취향 중 <b>이어받는 다섯</b>만 추린다 — 온보딩·마이페이지 화면이 읽는다.
+	 *
+	 * <p>{@link #find} 와 달리 {@code SPEND_PROFILE} 을 빼고 준다. 그 차원은
+	 * {@code GET /api/v1/me/preferences/spend} 가 따로 맡고 있어서, 두 화면이 같은 값을
+	 * 각자 그리면 한쪽만 고쳤을 때 어긋난다.
+	 */
+	public List<PreferenceSnapshot.PreferenceAnswer> findTaste(String userId) {
+		return this.repository.findUserDefaults(userId)
+				.map(PreferenceSnapshot::answers)
+				.orElseGet(List::of)
+				.stream()
+				.filter(a -> CARRY_OVER.contains(key(a.dimension())))
+				.toList();
 	}
 
 	private static String key(String dimension) {
