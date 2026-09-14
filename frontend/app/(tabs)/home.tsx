@@ -234,7 +234,10 @@ const styles = StyleSheet.create({
   desktopCard: { flex: 1, width: undefined, minWidth: 0 },
   cardImage: { flex: 1 },
   cardLink: { ...StyleSheet.absoluteFill },
-  cardImageRadius: { borderRadius: 24 },
+  // S15P21E201-924: width/height를 명시하지 않으면 배경 이미지가 카드 크기(300x340)가
+  // 아니라 원본 사진의 실제 픽셀 크기(예: 720x926)로 렌더링되고, 카드는 그 중 왼쪽 위만
+  // 잘라서 보여준다. 세로로 긴 사진(광안리·감천)은 왼쪽 위가 하늘뿐이라 내용이 안 보였다.
+  cardImageRadius: { borderRadius: 24, width: '100%', height: '100%' },
   cardShadeTop: { ...StyleSheet.absoluteFill, backgroundColor: color.brand.navy, opacity: 0.06 },
   cardShadeBottom: { position: 'absolute', left: 0, right: 0, bottom: 0, height: '42%', backgroundColor: color.brand.navy, opacity: 0.55 },
   cardCounter: { position: 'absolute', right: spacing[4], top: spacing[3], paddingHorizontal: spacing[3], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: color.brand.navy },
