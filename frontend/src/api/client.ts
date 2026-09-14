@@ -91,16 +91,25 @@ async function writeStoredAnonymousSessionToken(token: string): Promise<void> {
 }
 
 async function requestAnonymousSessionToken(): Promise<string | null> {
+  // 이 fetch 에 타임아웃이 없으면 응답이 안 오는 동안 영영 안 끝나고, ensureAnonymousSessionToken()의
+  // anonymousSessionPromise 도 settle 되지 않아 그대로 남는다 — 이후 모든 API 요청이 이 프라미스를
+  // 그대로 돌려받아 앱 전체가 멈춘다(S15P21E201-929). performRequest() 의 타임아웃은 이 fetch 뒤에
+  // 시작하므로 여기를 보호하지 못한다.
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), API_TIMEOUT_MS);
   try {
     const response = await fetch(`${API_BASE_URL}/api/v1/auth/anonymous`, {
       method: 'POST',
       headers: { Accept: 'application/json' },
+      signal: controller.signal,
     });
     if (!response.ok) return null;
     const envelope = (await response.json()) as ApiEnvelope<{ sessionId: string; sessionToken: string; issuedAt: string }>;
     return envelope.data?.sessionToken ?? null;
   } catch {
     return null;
+  } finally {
+    clearTimeout(timeout);
   }
 }
 
