@@ -258,7 +258,10 @@ export default function MePreferences() {
 
   const toggle = (row: OpenRow) => setOpen((current) => (sameRow(current, row) ? null : row));
 
-  if (query.isPending) {
+  // 🔴 isPending 이 아니라 isLoading 이다. 읽기를 아예 안 켜는 자리(로그인 전 · 화면
+  //    미리보기)에서 isPending 은 영원히 참이라 돌아가는 동그라미에 갇힌다. isLoading 은
+  //    "지금 실제로 받아오는 중" 만 참이다.
+  if (query.isLoading) {
     return <Screen style={styles.centerScreen}><ActivityIndicator color={color.brand.orange} /></Screen>;
   }
 
