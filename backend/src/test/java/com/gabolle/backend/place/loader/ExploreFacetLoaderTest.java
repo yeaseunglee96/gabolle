@@ -126,6 +126,7 @@ class ExploreFacetLoaderTest {
 	}
 
 	private static TourApiPlaceRow row(String contentId, String contentTypeId, String cat1, String cat3) {
-		return new TourApiPlaceRow(contentId, contentTypeId, cat1, cat3, "금정산", "부산 금정구", 35.2, 129.0);
+		return new TourApiPlaceRow(contentId, contentTypeId, cat1, cat3, "금정산", "부산 금정구", 35.2, 129.0,
+				null, null);
 	}
 }

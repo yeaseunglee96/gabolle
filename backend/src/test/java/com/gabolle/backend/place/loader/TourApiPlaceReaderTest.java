@@ -98,6 +98,32 @@ class TourApiPlaceReaderTest {
 	}
 
 	@Test
+	@DisplayName("🔴 사진과 저작권 유형(cpyrhtDivCd)을 그대로 옮긴다 — 걸러내는 건 TourApiPlaceLoader 몫이다")
+	void firstImageAndCopyrightTypeArePassedThrough() throws IOException {
+		Path file = write(listLine(itemWithPhoto("1", "12", "A01", "A01010400", "금정산",
+				"부산 금정구", "129.0", "35.2", "http://tong.visitkorea.or.kr/x.jpg", "Type3")));
+
+		TourApiPlaceReader.Loaded loaded = TourApiPlaceReader.read(file);
+
+		assertThat(loaded.rows()).hasSize(1);
+		TourApiPlaceRow row = loaded.rows().get(0);
+		assertThat(row.firstImage()).isEqualTo("http://tong.visitkorea.or.kr/x.jpg");
+		assertThat(row.copyrightType()).isEqualTo("Type3");
+	}
+
+	@Test
+	@DisplayName("사진 주소가 없으면 둘 다 null 이다 — 지어내지 않는다")
+	void noPhotoMeansBothFieldsAreNull() throws IOException {
+		Path file = write(listLine(item("1", "12", "A01", "A01010400", "금정산", "부산 금정구", "129.0", "35.2")));
+
+		TourApiPlaceReader.Loaded loaded = TourApiPlaceReader.read(file);
+
+		TourApiPlaceRow row = loaded.rows().get(0);
+		assertThat(row.firstImage()).isNull();
+		assertThat(row.copyrightType()).isNull();
+	}
+
+	@Test
 	@DisplayName("항목이 하나면 배열이 아니라 객체로 온다 — 공공데이터 응답의 흔한 모양이다")
 	void singleItemComesAsObject() throws IOException {
 		String raw = "{\"response\":{\"body\":{\"items\":{\"item\":"
@@ -137,6 +163,13 @@ class TourApiPlaceReaderTest {
 			out.append(",\"mapy\":\"").append(mapy).append('"');
 		}
 		return out.append('}').toString();
+	}
+
+	private static String itemWithPhoto(String contentId, String contentTypeId, String cat1, String cat3,
+			String title, String addr1, String mapx, String mapy, String firstImage, String cpyrhtDivCd) {
+		String base = item(contentId, contentTypeId, cat1, cat3, title, addr1, mapx, mapy);
+		return base.substring(0, base.length() - 1)
+				+ ",\"firstimage\":\"" + firstImage + "\",\"cpyrhtDivCd\":\"" + cpyrhtDivCd + "\"}";
 	}
 
 	/** JSON 문자열 안에 JSON 을 넣는다 — 수집기가 원문을 그대로 보관하는 방식 그대로다. */
