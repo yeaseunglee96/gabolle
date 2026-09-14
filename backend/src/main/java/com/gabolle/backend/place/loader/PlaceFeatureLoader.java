@@ -1,7 +1,6 @@
 package com.gabolle.backend.place.loader;
 
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -12,9 +11,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.gabolle.backend.place.domain.PlaceEvidenceStatus;
-import com.gabolle.backend.place.domain.PlaceFeature;
-import com.gabolle.backend.place.repository.PlaceFeatureRepository;
 import com.gabolle.backend.place.repository.PlaceRepository;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 
 /**
  * {@link PlaceFeatureNdjsonReader} 가 읽은 사실을 {@code place_feature} 에 넣는다.
@@ -31,9 +31,19 @@ import com.gabolle.backend.place.repository.PlaceRepository;
  *
  * {@link SbizPlaceLoader#saveChunk} 와 같은 규칙이다. 같은 파일을 두 번 돌려도 행이 두 배가 되지
  * 않는 것이 여기서 지키는 전부고, "새 판으로 갱신한다" 는 별개의 결정이라 여기서 미리 정하지 않는다.
- * 표에 {@code (place_id, feature_type)} 유일 색인이 걸려 있어({@code uq_place_feature_unkeyed})
- * 두 번째 실행은 어차피 DB 가 막지만, 막힌 것을 예외로 받는 것과 미리 세어서 건너뛰는 것은 다르다 —
- * 앞의 것은 덩어리 전체를 되돌린다.
+ * 표에 {@code (place_id, feature_type) WHERE feature_key IS NULL} 부분 유일 색인이 걸려 있다
+ * ({@code uq_place_feature_unkeyed}).
+ *
+ * <h2>🔴 S15P21E201-948 — "먼저 조회해서 없으면 넣는다" 가 아니라 {@code ON CONFLICT DO NOTHING} 이다</h2>
+ *
+ * 전에는 {@code findAllById} 로 기존 행을 미리 읽어 메모리 {@code Set} 으로 중복을 걸렀다. 이 적재는
+ * 사람이 CLI 로 한 번 돌리는 것이 정상 경로라 동시 실행 확률은 낮지만, 같은 파일을 실수로 두 번
+ * 동시에 돌리거나 서버 두 대에서 각각 돌리면 그 사이(읽고 나서 쓰기 전) 다른 실행이 같은 사실을
+ * 먼저 넣을 수 있다 — 그러면 이 트랜잭션의 insert 가 유일 색인 위반으로 실패하고, PostgreSQL 은
+ * 트랜잭션 안에서 문장 하나가 실패하면 그 트랜잭션 전체를 못 쓰게 만든다({@code JpaItineraryRepository}
+ * ·{@code JpaItineraryItemActualRepository} 클래스 주석이 같은 실측을 남겨 뒀다). 그래서 여기서도
+ * 같은 해법을 쓴다 — 행마다 {@code ON CONFLICT DO NOTHING} 으로 넣어, 충돌해도 예외 없이 그 행만
+ * 건너뛴다.
  *
  * <h2>🔴 {@code ESTIMATED} 로 넣는다</h2>
  *
@@ -46,13 +56,26 @@ import com.gabolle.backend.place.repository.PlaceRepository;
 @Profile({ "db", "dev" })
 public class PlaceFeatureLoader {
 
+	/**
+	 * {@code feature_key} 는 이 로더가 항상 {@code null} 로 넣으므로({@code SbizPlaceLoader.featureIdOf}
+	 * 세 번째 인자) 부분 색인 {@code uq_place_feature_unkeyed} 의 조건과 같은 {@code WHERE} 를 준다 —
+	 * 대상이 부분 색인이면 {@code ON CONFLICT} 도 같은 조건을 적어야 그 색인을 가리킨다.
+	 */
+	private static final String INSERT_IF_ABSENT = """
+			INSERT INTO place_feature
+			    (place_feature_id, place_id, feature_type, feature_key, value, evidence_status,
+			     source_type, source_id, observed_at, source_version, created_at)
+			VALUES (?1, ?2, ?3, NULL, ?4::jsonb, ?5, ?6, ?7, ?8, ?9, ?10)
+			ON CONFLICT (place_id, feature_type) WHERE feature_key IS NULL DO NOTHING
+			""";
+
 	private final PlaceRepository placeRepository;
 
-	private final PlaceFeatureRepository placeFeatureRepository;
+	@PersistenceContext
+	private EntityManager entityManager;
 
-	public PlaceFeatureLoader(PlaceRepository placeRepository, PlaceFeatureRepository placeFeatureRepository) {
+	public PlaceFeatureLoader(PlaceRepository placeRepository) {
 		this.placeRepository = placeRepository;
-		this.placeFeatureRepository = placeFeatureRepository;
 	}
 
 	/**
@@ -90,14 +113,7 @@ public class PlaceFeatureLoader {
 		Set<UUID> knownPlaces = new HashSet<>();
 		this.placeRepository.findAllById(placeIds).forEach(place -> knownPlaces.add(place.getPlaceId()));
 
-		List<UUID> featureIds = facts.stream()
-				.map(fact -> SbizPlaceLoader.featureIdOf(fact.storeId(), fact.featureType(), null))
-				.toList();
-		Set<UUID> existingFeatures = new HashSet<>();
-		this.placeFeatureRepository.findAllById(featureIds)
-				.forEach(feature -> existingFeatures.add(feature.getPlaceFeatureId()));
-
-		List<PlaceFeature> rows = new ArrayList<>(facts.size());
+		int inserted = 0;
 		int missingPlace = 0;
 		int alreadyPresent = 0;
 		for (PlaceFeatureNdjsonReader.Fact fact : facts) {
@@ -107,21 +123,30 @@ public class PlaceFeatureLoader {
 				continue;
 			}
 			UUID featureId = SbizPlaceLoader.featureIdOf(fact.storeId(), fact.featureType(), null);
-			// existingFeatures 에 더하는 것이 곧 이 덩어리 안의 중복 검사이기도 하다.
-			if (!existingFeatures.add(featureId)) {
-				alreadyPresent++;
-				continue;
-			}
-			rows.add(PlaceFeature.imported(featureId, placeId, fact.featureType(), null, fact.value(),
-					PlaceEvidenceStatus.ESTIMATED, sourceType, fact.storeId(),
+			int affected = this.entityManager.createNativeQuery(INSERT_IF_ABSENT)
+					.setParameter(1, featureId)
+					.setParameter(2, placeId)
+					.setParameter(3, fact.featureType())
+					.setParameter(4, fact.value())
+					.setParameter(5, PlaceEvidenceStatus.ESTIMATED.name())
+					.setParameter(6, sourceType)
+					.setParameter(7, fact.storeId())
 					// 🔴 원천에 "이 사실이 언제 관측됐나" 칸이 없다. 지어내지 않고 비운다 —
-					//    어느 산출물인지는 sourceVersion 이 말해 준다.
-					null, datasetVersion, collectedAt));
+					// 어느 산출물인지는 sourceVersion 이 말해 준다.
+					.setParameter(8, (OffsetDateTime) null)
+					.setParameter(9, datasetVersion)
+					.setParameter(10, collectedAt)
+					.executeUpdate();
+			if (affected == 1) {
+				inserted++;
+			}
+			else {
+				// 🔴 같은 덩어리 안의 중복도 여기서 걸린다 — 앞선 행이 같은 트랜잭션 안에서 이미
+				// 커밋 전 상태로 들어가 있어, 뒤이은 행의 INSERT 가 그 행과 충돌한다.
+				alreadyPresent++;
+			}
 		}
-		if (!rows.isEmpty()) {
-			this.placeFeatureRepository.saveAll(rows);
-		}
-		return new Saved(rows.size(), missingPlace, alreadyPresent);
+		return new Saved(inserted, missingPlace, alreadyPresent);
 	}
 
 }
