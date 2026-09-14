@@ -14,7 +14,7 @@
 // 그 순간 세 질문 중 둘이 조용히 지워지는 길이 열린다.
 import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { ActivityIndicator, Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Image, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { useAuth } from '@/auth/AuthProvider';
@@ -24,6 +24,7 @@ import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
+import { isAtLeast } from '@/layout/breakpoints';
 import {
   getSpendProfile,
   MEAL_VARIES_CODE,
@@ -181,6 +182,15 @@ export default function MePreferences() {
   const router = useRouter();
   const { tx } = useI18n();
   const { accessToken } = useAuth();
+  const { width } = useWindowDimensions();
+  // 1024 이상 — breakpoints.ts 의 표에서 사이드바가 들어가는 폭이다.
+  //
+  // 🔴 인계 문서의 왼쪽 「마이페이지 하위 메뉴」는 만들지 않았다. 다섯 줄 가운데 셋
+  //    (프로필 · 연결된 소셜 계정 · 약관·고지)은 별도 화면이 아니라 설정 화면 안의
+  //    구역이라 갈 곳이 없다. 링크 다섯 중 셋이 아무 데도 안 가는 내비는 없는 것보다
+  //    나쁘다. 문서 자신도 그 메뉴를 "제안이며 마이페이지 본 화면과 함께 도입한다" 고
+  //    적어 두었고, 그 본 화면의 넓은 배치는 S15P21E201-956 몫이다.
+  const wide = isAtLeast(width, 'lg');
   const queryClient = useQueryClient();
   const [open, setOpen] = useState<OpenRow | null>(null);
   const [toast, setToast] = useState<string | null>(null);
@@ -265,7 +275,7 @@ export default function MePreferences() {
     return <Screen style={styles.centerScreen}><ActivityIndicator color={color.brand.orange} /></Screen>;
   }
 
-  return <Screen scroll style={styles.screen}>
+  return <Screen scroll wide={wide} style={styles.screen}>
     <View style={styles.header}>
       <Pressable accessibilityRole="button" accessibilityLabel={tx('뒤로', 'Back')} onPress={() => router.back()} style={styles.back}>
         <Text weight="bold">‹</Text>
@@ -279,22 +289,32 @@ export default function MePreferences() {
     <Text color={color.text.body} style={styles.intro}>
       {tx('여행을 만들 때 이 답이 미리 채워져요. 여기서 고치면 다음 여행부터 바뀌어요.',
         'These are filled in when you plan a trip. Changes here apply from your next trip.')}
+      {/* 넓은 화면은 한 줄이 길어서 이 한마디가 들어갈 자리가 있다. 고치면 이미 만든
+          여행까지 바뀌는 줄 알고 손대기를 망설이는 것을 막는다. */}
+      {wide ? tx(' 이미 만든 여행은 그대로예요.', ' Trips you already made stay as they are.') : ''}
     </Text>
 
-    {answeredCount === 0 && <View style={styles.emptyCard}>
-      <Image source={require('../../assets/mascot/dongbaek-thinking.png')} style={styles.emptyMascot} resizeMode="contain" />
-      <Text variant="title" weight="bold">{tx('아직 기억된 취향이 없어요', 'No preferences saved yet')}</Text>
-      <Text variant="caption" color={color.text.body} style={styles.emptyBody}>
-        {tx('처음에 건너뛰셨어요. 지금 답하면 여행을 만들 때 미리 채워 드려요.',
-          'You skipped these at the start. Answer now and we will fill them in when you plan.')}
-      </Text>
-      <Button
-        label={tx('8개 답하기 · 약 1분', 'Answer 8 questions · about a minute')}
-        containerStyle={styles.emptyCta}
-        onPress={() => setOpen({ group: 'spend', key: SPEND_QUESTIONS[0].key })}
-      />
+    {/* 넓은 화면에서는 가로로 눕는다 — 세로로 쌓으면 마스코트 하나가 화면 절반을 먹는다. */}
+    {answeredCount === 0 && <View style={[styles.emptyCard, wide && styles.emptyCardWide]}>
+      <Image source={require('../../assets/mascot/dongbaek-thinking.png')} style={[styles.emptyMascot, wide && styles.emptyMascotWide]} resizeMode="contain" />
+      <View style={[styles.emptyCopy, wide && styles.emptyCopyWide]}>
+        <Text variant="title" weight="bold">{tx('아직 기억된 취향이 없어요', 'No preferences saved yet')}</Text>
+        <Text variant="caption" color={color.text.body} style={wide ? undefined : styles.emptyBody}>
+          {tx('처음에 건너뛰셨어요. 지금 답하면 여행을 만들 때 미리 채워 드려요.',
+            'You skipped these at the start. Answer now and we will fill them in when you plan.')}
+        </Text>
+        <Button
+          label={tx('8개 답하기 · 약 1분', 'Answer 8 questions · about a minute')}
+          containerStyle={[styles.emptyCta, wide && styles.emptyCtaWide]}
+          onPress={() => setOpen({ group: 'spend', key: SPEND_QUESTIONS[0].key })}
+        />
+      </View>
     </View>}
 
+    {/* 넓은 화면에서는 두 그룹을 나란히. 🔴 alignItems 를 'flex-start' 로 둬야 한 쪽 줄을
+        펼쳤을 때 반대쪽 카드가 같이 늘어나지 않는다 — 늘어나면 빈 흰 바탕이 생긴다. */}
+    <View style={wide ? styles.groupsWide : undefined}>
+    <View style={wide ? styles.groupColumn : undefined}>
     <Eyebrow>{tx('여행 스타일 세 질문', 'Three questions about your style')}</Eyebrow>
     <View style={styles.group}>
       {SPEND_QUESTIONS.map((question) => {
@@ -327,7 +347,9 @@ export default function MePreferences() {
         </Row>;
       })}
     </View>
+    </View>
 
+    <View style={wide ? styles.groupColumn : undefined}>
     <Eyebrow>{tx('취향 다섯', 'Five travel tastes')}</Eyebrow>
     <View style={styles.group}>
       {TASTE_QUESTIONS.map((question) => {
@@ -380,21 +402,26 @@ export default function MePreferences() {
         </Row>;
       })}
     </View>
+    </View>
+    </View>
 
-    {answeredCount > 0 && <View style={styles.dangerCard}>
-      <Text variant="caption" weight="bold" color={color.state.danger}>{tx('기억 지우기', 'Forget everything')}</Text>
-      <Text variant="caption" color={color.text.body}>
-        {tx('여덟 답을 모두 지워요. 다음 여행부터는 빈칸으로 시작해요.',
-          'Clears all eight answers. Your next trip starts blank.')}
-      </Text>
+    {/* 넓은 화면에서는 설명과 버튼이 한 줄에 눕는다. */}
+    {answeredCount > 0 && <View style={[styles.dangerCard, wide && styles.dangerCardWide]}>
+      <View style={styles.dangerCopy}>
+        <Text variant="caption" weight="bold" color={color.state.danger}>{tx('기억 지우기', 'Forget everything')}</Text>
+        <Text variant="caption" color={color.text.body}>
+          {tx('여덟 답을 모두 지워요. 다음 여행부터는 빈칸으로 시작해요.',
+            'Clears all eight answers. Your next trip starts blank.')}
+        </Text>
+      </View>
       {clearConfirm
-        ? <View style={styles.confirmRow}>
+        ? <View style={[styles.confirmRow, wide && styles.confirmRowWide]}>
             <Button label={tx('취소', 'Cancel')} variant="ghost" containerStyle={styles.confirmButton} onPress={() => setClearConfirm(false)} />
             <Pressable accessibilityRole="button" onPress={clearAll} style={styles.dangerConfirm}>
               <Text weight="bold" color={color.text.onAction}>{tx('모두 지우기', 'Clear all')}</Text>
             </Pressable>
           </View>
-        : <Pressable accessibilityRole="button" onPress={() => setClearConfirm(true)} style={styles.dangerButton}>
+        : <Pressable accessibilityRole="button" onPress={() => setClearConfirm(true)} style={[styles.dangerButton, wide && styles.dangerButtonWide]}>
             <Text weight="bold" color={color.state.danger}>{tx('기억된 취향 모두 지우기 ›', 'Clear all saved preferences ›')}</Text>
           </Pressable>}
     </View>}
@@ -420,9 +447,20 @@ const styles = StyleSheet.create({
   headerCopy: { gap: spacing[1] },
   intro: { marginTop: spacing[3], marginBottom: spacing[6] },
   emptyCard: { alignItems: 'center', gap: spacing[2], padding: spacing[4], marginBottom: spacing[6], borderRadius: radius.lg, backgroundColor: color.surface.card },
+  emptyCardWide: { flexDirection: 'row', gap: spacing[6], padding: spacing[6] },
   emptyMascot: { width: 88, height: 88 },
+  emptyMascotWide: { width: 104, height: 104 },
+  emptyCopy: { alignItems: 'center', gap: spacing[2], alignSelf: 'stretch' },
+  emptyCopyWide: { flex: 1, alignItems: 'flex-start', justifyContent: 'center' },
   emptyBody: { textAlign: 'center' },
   emptyCta: { minHeight: 46, alignSelf: 'stretch', marginTop: spacing[2] },
+  // 🔴 width: 'auto' 가 있어야 줄어든다. Button 의 기본 스타일에 width: '100%' 가 박혀
+  //    있어서 alignSelf 만으로는 아무 일도 안 일어난다 — 조용히 안 먹는 자리다.
+  emptyCtaWide: { alignSelf: 'flex-start', width: 'auto', paddingHorizontal: spacing[6] },
+  // 🔴 alignItems: 'flex-start' — 한 쪽 줄을 펼쳤을 때 반대쪽 카드가 같이 늘어나지 않게.
+  //    늘어나면 그만큼 빈 흰 바탕이 생기고, 그게 "여기 뭔가 빠졌나" 로 읽힌다.
+  groupsWide: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[6] },
+  groupColumn: { flex: 1 },
   group: { marginTop: spacing[2], marginBottom: spacing[6], borderRadius: radius.lg, backgroundColor: color.surface.card, overflow: 'hidden' },
   row: { borderTopWidth: 1, borderTopColor: color.surface.border },
   rowOpen: { backgroundColor: color.surface.tint },
@@ -445,8 +483,12 @@ const styles = StyleSheet.create({
   chip: { minHeight: 44, justifyContent: 'center', paddingHorizontal: 14, borderRadius: radius.full, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.card },
   chipSelected: { backgroundColor: color.brand.navy, borderColor: color.brand.navy },
   dangerCard: { gap: spacing[2], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.state.dangerBg },
+  dangerCardWide: { flexDirection: 'row', alignItems: 'center', gap: spacing[6], padding: spacing[6] },
+  dangerCopy: { flex: 1, gap: spacing[1] },
   dangerButton: { minHeight: 48, alignItems: 'center', justifyContent: 'center', borderRadius: radius.md, backgroundColor: color.surface.card, marginTop: spacing[1] },
+  dangerButtonWide: { marginTop: 0, paddingHorizontal: spacing[6] },
   confirmRow: { flexDirection: 'row', gap: spacing[2], marginTop: spacing[1] },
+  confirmRowWide: { marginTop: 0, minWidth: 280 },
   confirmButton: { flex: 1, minHeight: 44 },
   dangerConfirm: { flex: 1, minHeight: 44, alignItems: 'center', justifyContent: 'center', borderRadius: radius.md, backgroundColor: color.state.danger },
   toast: { marginTop: spacing[4], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.state.successBg },

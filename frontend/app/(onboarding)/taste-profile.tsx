@@ -11,7 +11,7 @@
 // 뜻이다). 보내면 저장한 것처럼 보이지만 실제로는 안 남는다 — 그 어긋남이 나중에
 // "왜 기록이 없지" 를 만든다. 대신 아무것도 안 보낸다.
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Image, Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Image, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { useAuth } from '@/auth/AuthProvider';
@@ -21,6 +21,7 @@ import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
+import { isAtLeast } from '@/layout/breakpoints';
 import { FOODS } from '@/plan/foodConflicts';
 import {
   countTasteAnswers,
@@ -52,14 +53,17 @@ function Dots({ step, settled }: { step: number; settled: Set<number> }) {
   </View>;
 }
 
-function Scale({ label, value, low, high, onChange }: { label: string; value: number | undefined; low: string; high: string; onChange: (value: number) => void }) {
+// 🔴 넓은 화면에서 고른 것을 주황으로 바꾼다. 폰에서는 남색이다 — 인계 문서가 정한 것이고,
+// 까닭은 바탕이 다르기 때문이다. 폰은 아이보리 바탕 위에 바로 놓이고, 넓은 화면은 흰 카드
+// 안에 들어가서 남색이 너무 무겁다.
+function Scale({ label, value, low, high, desktop, onChange }: { label: string; value: number | undefined; low: string; high: string; desktop: boolean; onChange: (value: number) => void }) {
   const { tx } = useI18n();
   return <View accessibilityRole="radiogroup" accessibilityLabel={label}>
     <View style={styles.scaleEnds}>
       <Text variant="caption" color={color.text.muted}>{low}</Text>
       <Text variant="caption" color={color.text.muted}>{high}</Text>
     </View>
-    <View style={styles.scaleTrack}>
+    <View style={[styles.scaleTrack, desktop && styles.scaleTrackDesktop]}>
       {[1, 2, 3, 4, 5].map((point) => (
         <Pressable
           key={point}
@@ -67,7 +71,7 @@ function Scale({ label, value, low, high, onChange }: { label: string; value: nu
           accessibilityLabel={tx(`${label} ${point}단계`, `${label} level ${point}`)}
           accessibilityState={{ selected: value === point }}
           onPress={() => onChange(point)}
-          style={[styles.scalePoint, value === point && styles.scalePointSelected]}
+          style={[styles.scalePoint, value === point && (desktop ? styles.scalePointSelectedDesktop : styles.scalePointSelected)]}
         >
           <Text weight="bold" color={value === point ? color.text.onAction : color.text.body}>{point}</Text>
         </Pressable>
@@ -76,7 +80,7 @@ function Scale({ label, value, low, high, onChange }: { label: string; value: nu
   </View>;
 }
 
-function FoodChips({ values, onChange }: { values: string[]; onChange: (values: string[]) => void }) {
+function FoodChips({ values, desktop, onChange }: { values: string[]; desktop: boolean; onChange: (values: string[]) => void }) {
   const { tx } = useI18n();
   return <View style={styles.chips}>
     {FOODS.map(([code, labelKo, labelEn]) => {
@@ -86,9 +90,9 @@ function FoodChips({ values, onChange }: { values: string[]; onChange: (values: 
         accessibilityRole="checkbox"
         accessibilityState={{ checked: selected }}
         onPress={() => onChange(selected ? values.filter((value) => value !== code) : [...values, code])}
-        style={[styles.chip, selected && styles.chipSelected]}
+        style={[styles.chip, selected && (desktop ? styles.chipSelectedDesktop : styles.chipSelected)]}
       >
-        <Text weight="bold" color={selected ? color.text.onAction : color.text.heading}>{tx(labelKo, labelEn)}</Text>
+        <Text weight="bold" color={selected ? (desktop ? color.brand.orange : color.text.onAction) : color.text.heading}>{tx(labelKo, labelEn)}</Text>
       </Pressable>;
     })}
   </View>;
@@ -98,6 +102,10 @@ export default function TasteProfileScreen() {
   const router = useRouter();
   const { tx } = useI18n();
   const { accessToken, ready } = useAuth();
+  const { width } = useWindowDimensions();
+  // 1024 이상 — 사이드바가 들어가는 폭(breakpoints.ts 의 표). 이 화면에는 사이드바가
+  // 없지만, 그 폭부터 한 열로 늘어진 문항이 읽기 어려워지는 것은 같다.
+  const wide = isAtLeast(width, 'lg');
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<TasteAnswers>({});
   const [settled, setSettled] = useState<Set<number>>(new Set());
@@ -190,7 +198,24 @@ export default function TasteProfileScreen() {
 
   const question = TASTE_QUESTIONS[step];
 
+  const skipLink = <Pressable
+    accessibilityRole="button"
+    accessibilityLabel={tx(question.skip.ko, question.skip.en)}
+    disabled={submitting}
+    onPress={() => skipQuestion(question.key, step)}
+    style={styles.skipQuestion}
+  >
+    <Text weight="bold" color={color.text.muted}>{tx(question.skip.ko, question.skip.en)}</Text>
+  </Pressable>;
+
+  const backLink = step > 0
+    ? <Pressable accessibilityRole="button" accessibilityLabel={tx('이전 질문으로', 'Previous question')} disabled={submitting} onPress={() => setStep(step - 1)} style={styles.backLink}>
+        <Text weight="bold" color={color.brand.navy}>{tx('‹ 이전', '‹ Back')}</Text>
+      </Pressable>
+    : <View />;
+
   return <Screen scroll style={styles.screen}>
+    <View style={wide ? styles.column : undefined}>
     <View style={styles.topBar}>
       <BrandLogoLink href="/home" imageStyle={styles.logo} />
       <View style={styles.stepPill}>
@@ -203,63 +228,63 @@ export default function TasteProfileScreen() {
 
     <Dots step={step} settled={settled} />
 
-    {step === 0 && <View style={styles.heading}>
-      <Text variant="display" weight="bold">{tx('여행 취향을 5개만 여쭤볼게요', 'Just 5 questions about your travel taste')}</Text>
-      <Text color={color.text.body}>{tx('보통 어떤 여행을 좋아하시는지 알면 추천 순서가 달라져요. 건너뛰셔도 돼요.',
-        'Knowing what you usually enjoy changes the order of our recommendations. Feel free to skip.')}</Text>
-    </View>}
+    {/* 넓은 화면에서는 문항 한 덩어리를 카드에 담는다. 담지 않으면 1440 폭에서 글자 몇
+        줄이 허공에 떠 있는 것처럼 보인다 — 폭을 좁히는 것만으로는 안 된다. */}
+    <View style={wide ? styles.card : undefined}>
+      {step === 0 && <View style={styles.heading}>
+        <Text variant="display" weight="bold">{tx('여행 취향을 5개만 여쭤볼게요', 'Just 5 questions about your travel taste')}</Text>
+        <Text color={color.text.body}>{tx('보통 어떤 여행을 좋아하시는지 알면 추천 순서가 달라져요. 건너뛰셔도 돼요.',
+          'Knowing what you usually enjoy changes the order of our recommendations. Feel free to skip.')}</Text>
+      </View>}
 
-    <Text variant="title" weight="bold" style={styles.question}>{tx(question.title.ko, question.title.en)}</Text>
+      <Text variant="title" weight="bold" style={styles.question}>{tx(question.title.ko, question.title.en)}</Text>
 
-    {question.kind === 'scale' && <Scale
-      label={tx(question.title.ko, question.title.en)}
-      value={answers[question.key]}
-      low={tx(question.low.ko, question.low.en)}
-      high={tx(question.high.ko, question.high.en)}
-      onChange={(value) => answer(question.key, value, step)}
-    />}
+      {question.kind === 'scale' && <Scale
+        label={tx(question.title.ko, question.title.en)}
+        value={answers[question.key]}
+        low={tx(question.low.ko, question.low.en)}
+        high={tx(question.high.ko, question.high.en)}
+        desktop={wide}
+        onChange={(value) => answer(question.key, value, step)}
+      />}
 
-    {question.kind === 'multi' && <View style={styles.multi}>
-      <FoodChips values={foodDraft} onChange={setFoodDraft} />
-      <Button
-        label={tx('선택 완료', 'Done')}
-        disabled={foodDraft.length === 0}
-        containerStyle={styles.multiCta}
-        onPress={() => answer('foods', foodDraft, step)}
-      />
-    </View>}
+      {question.kind === 'multi' && <View style={styles.multi}>
+        <FoodChips values={foodDraft} desktop={wide} onChange={setFoodDraft} />
+        <Button
+          label={tx('선택 완료', 'Done')}
+          disabled={foodDraft.length === 0}
+          containerStyle={styles.multiCta}
+          onPress={() => answer('foods', foodDraft, step)}
+        />
+      </View>}
 
-    {question.kind === 'choice' && <View style={styles.options}>
-      {question.options.map((option) => (
-        <Pressable
-          key={option.value}
-          accessibilityRole="button"
-          accessibilityLabel={tx(option.label.ko, option.label.en)}
-          disabled={submitting}
-          onPress={() => answer('slope', option.value, step)}
-          style={({ pressed }) => [styles.option, pressed && styles.optionPressed, answers.slope === option.value && styles.optionPressed]}
-        >
-          <Text weight="bold">{tx(option.label.ko, option.label.en)}</Text>
-          {option.desc && <Text variant="caption" color={color.text.body} style={styles.optionDesc}>{tx(option.desc.ko, option.desc.en)}</Text>}
-        </Pressable>
-      ))}
-    </View>}
+      {question.kind === 'choice' && <View style={[styles.options, wide && styles.optionsDesktop]}>
+        {question.options.map((option) => (
+          <Pressable
+            key={option.value}
+            accessibilityRole="button"
+            accessibilityLabel={tx(option.label.ko, option.label.en)}
+            disabled={submitting}
+            onPress={() => answer('slope', option.value, step)}
+            style={({ pressed }) => [styles.option, wide && styles.optionDesktop, pressed && styles.optionPressed, answers.slope === option.value && styles.optionPressed]}
+          >
+            <Text weight="bold">{tx(option.label.ko, option.label.en)}</Text>
+            {option.desc && <Text variant="caption" color={color.text.body} style={styles.optionDesc}>{tx(option.desc.ko, option.desc.en)}</Text>}
+          </Pressable>
+        ))}
+      </View>}
 
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={tx(question.skip.ko, question.skip.en)}
-      disabled={submitting}
-      onPress={() => skipQuestion(question.key, step)}
-      style={styles.skipQuestion}
-    >
-      <Text weight="bold" color={color.text.muted}>{tx(question.skip.ko, question.skip.en)}</Text>
-    </Pressable>
+      {/* 넓은 화면에서는 「이전」과 「건너뛰기」가 카드 안 같은 줄에 있다. 폰에서는
+          건너뛰기가 문항 바로 아래(엄지가 닿는 자리), 이전은 맨 아래다. */}
+      {wide && <View style={styles.cardFooter}>{backLink}{skipLink}</View>}
+    </View>
+
+    {!wide && skipLink}
 
     <View style={styles.footer}>
-      {step > 0 && <Pressable accessibilityRole="button" accessibilityLabel={tx('이전 질문으로', 'Previous question')} disabled={submitting} onPress={() => setStep(step - 1)} style={styles.backLink}>
-        <Text weight="bold" color={color.brand.navy}>{tx('‹ 이전', '‹ Back')}</Text>
-      </Pressable>}
+      {!wide && backLink}
       {submitting && <ActivityIndicator color={color.brand.orange} />}
+    </View>
     </View>
   </Screen>;
 }
@@ -267,6 +292,11 @@ export default function TasteProfileScreen() {
 const styles = StyleSheet.create({
   screen: { backgroundColor: color.brand.ivory },
   centerScreen: { alignItems: 'center', justifyContent: 'center' },
+  // 넓은 화면에서 읽는 열. Screen 이 이미 720 으로 묶고 있지만 문항 하나를 읽기에는
+  // 그것도 넓다 — 눈이 줄 끝에서 다음 줄 앞으로 돌아오는 거리가 멀어진다.
+  column: { width: '100%', maxWidth: 560, alignSelf: 'center' },
+  card: { marginTop: spacing[4], padding: spacing[6], borderRadius: radius.lg, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.border },
+  cardFooter: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: spacing[4], paddingTop: spacing[3], borderTopWidth: 1, borderTopColor: color.surface.border },
   // 🔴 marginTop — Screen 의 기본 paddingTop 만으로는 전역 언어 배지(우측 상단 절대좌표)를
   //    못 피한다. spend-profile 과 같은 값으로 맞춘다.
   topBar: { minHeight: 44, marginTop: spacing[6], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[2] },
@@ -282,15 +312,21 @@ const styles = StyleSheet.create({
   question: { marginTop: spacing[6], marginBottom: spacing[4] },
   scaleEnds: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: spacing[2] },
   scaleTrack: { flexDirection: 'row', justifyContent: 'space-between', padding: spacing[1], borderRadius: radius.full, backgroundColor: color.surface.soft },
+  scaleTrackDesktop: { backgroundColor: color.surface.subtle },
   scalePoint: { width: 56, height: 56, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center' },
   scalePointSelected: { backgroundColor: color.brand.navy },
+  scalePointSelectedDesktop: { backgroundColor: color.brand.orange },
   multi: { gap: spacing[4] },
   multiCta: { minHeight: 46 },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] },
   chip: { minHeight: 44, justifyContent: 'center', paddingHorizontal: 14, borderRadius: radius.full, borderWidth: 1, borderColor: color.surface.field },
   chipSelected: { backgroundColor: color.brand.navy, borderColor: color.brand.navy },
+  chipSelectedDesktop: { backgroundColor: color.surface.warm, borderColor: color.brand.orange },
   options: { gap: spacing[3] },
+  // 넓은 화면에서는 두 카드를 한 줄에 나란히 — 세로로 쌓으면 카드 하나가 화면 폭을 다 먹는다.
+  optionsDesktop: { flexDirection: 'row' },
   option: { minHeight: 64, gap: spacing[1], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.field },
+  optionDesktop: { flex: 1, minHeight: 80, borderRadius: radius.md },
   optionPressed: { borderColor: color.brand.orange, backgroundColor: color.surface.tint },
   optionDesc: { lineHeight: 18 },
   skipQuestion: { minHeight: 44, alignItems: 'center', justifyContent: 'center', marginTop: spacing[4] },
