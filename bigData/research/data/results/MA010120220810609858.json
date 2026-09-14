@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220810609858",
+  "worker": "haiku-8",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["수미식당 동구 부산 백반", "수미식당 수정동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산 동구 고관로 109-9"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "점심엔 국과 백반, 저녁엔 회와 해물 메뉴", "sources": [0, 1]},
+    {"type": "플랫폼 순위·평점", "note": "백반 평점을 근거로 들며, 동구의 숨은맛집으로 평가", "sources": [0]},
+    {"type": "조리·재료", "note": "제철 해산물만 취급하는 신선한 재료 사용", "sources": [1]},
+    {"type": "서비스·사람", "note": "이순자 대표는 수정동 최고의 손맛으로 인정받음", "sources": [1]},
+    {"type": "동네·시장 지목", "note": "수정전통시장 인근 현지인 맛집", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["백반", "회"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

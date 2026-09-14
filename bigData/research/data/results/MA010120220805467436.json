@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220805467436",
+  "worker": "haiku-14",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["뉴러우멘관즈 수영구 부산", "뉴러우멘관즈 남천1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["망고플레이트", "다이닝코드", "트립닷컴", "카카오 스토리"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "기관 선정", "note": "2024년 빕그루망 선정, 미슐랭 빕 구르망 선정", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "대만식 우육면으로 유명", "sources": [1, 2]},
+    {"type": "조리·재료", "note": "현지 맛을 잘 표현한 우육면, 고소한 땅콩 소스 량멘", "sources": [1, 2]},
+    {"type": "가격·가성비", "note": "가격 거품이 없는 곳", "sources": [0, 1]},
+    {"type": "혼잡·수요", "note": "인기 있는 맛집으로 웨이팅이 있을 수 있음", "sources": [2]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": true,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["우육면", "완탕면", "량멘", "만두"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

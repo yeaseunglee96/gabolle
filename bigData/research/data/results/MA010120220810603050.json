@@ -1,0 +1,25 @@
+{
+  "id": "MA010120220810603050",
+  "worker": "haiku-29",
+  "researchedAt": "2026-09-09T10:32:00Z",
+  "queries": ["배산정 연제구 부산", "배산정 연산3동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1803695"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "오리불고기 전문점", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["오리불고기"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

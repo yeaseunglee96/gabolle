@@ -1,0 +1,27 @@
+{
+  "id": "MA0101202507A0030866",
+  "worker": "haiku-23",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["램블 북구 부산", "램블 만덕1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 북구 만덕고개길 63"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "분위기·전망", "note": "4층 복합 감성카페로 마운틴과 시티뷰를 즐길 수 있는 공간", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "100% 소고기 수제패티 버거와 미국식 브런치", "sources": [1]},
+    {"type": "서비스·사람", "note": "각 층마다 다른 분위기(LP개인음악존, 루프탑, 엔띠끄 등)", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["버거", "브런치"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "영업시간 10:00~21:00. 스테이크하우스 브런치카페. 공간대여 가능"
+}

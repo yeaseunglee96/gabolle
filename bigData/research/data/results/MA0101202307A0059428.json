@@ -1,0 +1,29 @@
+{
+  "id": "MA0101202307A0059428",
+  "worker": "haiku-69",
+  "researchedAt": "2026-09-10T00:05:00Z",
+  "queries": ["스바루 수영구 부산", "스바루 수영동 일식당"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=yGbNpSRwydgI", "https://guide.michelin.com/kr/ko/seoul-capital-area/kr-seoul/restaurant/subaru"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "스시, 우동, 메밀국수 전문점", "sources": [0]},
+    {"type": "메뉴 희소성", "note": "정통 일본식 메밀국수와 우동", "sources": [0]},
+    {"type": "기관 선정", "note": "미슐랭 Bib Gourmand 등재", "sources": [1]},
+    {"type": "가격·가성비", "note": "점심 특선 저가 고품질", "sources": [0]},
+    {"type": "동네·시장 지목", "note": "팔도시장의 숨은 스시집", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["스시", "우동", "메밀국수"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "영업시간 11:30~20:00, 15:00~17:00 쉼, 수요일 휴무, 수영역 3번 출구 도보 5분"
+}

@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220807800560",
+  "worker": "haiku-45",
+  "researchedAt": "2026-09-09T13:39:30Z",
+  "queries": ["문카츠야 강서구 부산", "문카츠야 대저2동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://www.diningcode.com/profile.php?rid=YLMKRbBwEZeH"],
+  "stillOpen": false,
+  "whyPeopleGo": [{"type": "간판 메뉴 지목", "note": "돈까스 전문점, 저렴한 가격", "sources": [0]}],
+  "newTypes": [],
+  "descriptors": {"yearsClaimed": null, "generations": null, "queueing": null, "parking": null, "audience": "mixed", "signatureDishes": ["돈까스", "우동"], "priceBand": "cheap"},
+  "notFound": null,
+  "notes": "폐업 신고됨"
+}

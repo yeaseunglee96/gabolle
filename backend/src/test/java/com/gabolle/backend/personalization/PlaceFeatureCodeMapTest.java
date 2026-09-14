@@ -58,6 +58,11 @@ class PlaceFeatureCodeMapTest extends PostgresIntegrationTest {
 	@Test
 	@DisplayName("🔴 취향 차원 여덟이 전부 장소 피처와 짝이 있다 — 하나라도 빠지면 그 취향은 영영 매칭되지 않는다")
 	void everyPreferenceDimensionHasAPlaceFeature() {
+		// 🔴 S15P21E201-709 — SPEND_PROFILE(아홉째 차원)은 일부러 뺐다. 씀씀이(가격대)를
+		// 나타내는 place_feature_type 이 온톨로지에 아직 없어서, 짝지을 종류를 정하는 것은
+		// place 담당의 결정이다. 그 결정 전에 여기 넣으면 이 검사가 늘 실패하고, 실패가
+		// "빠뜨렸다"인지 "아직 결정 전이다"인지 이 검사만 봐서는 구분이 안 된다 — 그래서
+		// 결정이 나올 때까지는 이 검사 대상에서 뺀다(TasteDimension.SPEND_PROFILE javadoc 참고).
 		List<String> unmapped = this.jdbcTemplate.queryForList("""
 				SELECT d.dimension FROM (VALUES
 				    ('CATEGORY'), ('ATMOSPHERE'), ('LOCALITY'), ('QUIETNESS'),

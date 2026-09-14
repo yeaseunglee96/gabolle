@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220813996362",
+  "worker": "haiku-10",
+  "researchedAt": "2026-09-09T15:05:00Z",
+  "queries": ["공원칼국수 남구 부산", "공원칼국수 대연4동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산 남구 유엔평화로 110"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "혼잡·수요", "note": "웨이팅이 있을 정도로 인기 있는 집", "sources": [0]},
+    {"type": "맛 묘사", "note": "물총조개가 한 가득, 시원한 국물의 칼국수, 야들야들한 보쌈", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": true,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["물총조개칼국수", "보쌈"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "UN 기념공원 맞은편, 무료 주차 가능(1시간 기준, 오후 6시 이후 무료)"
+}

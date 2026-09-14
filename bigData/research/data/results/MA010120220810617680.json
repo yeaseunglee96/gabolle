@@ -1,0 +1,30 @@
+{
+  "id": "MA010120220810617680",
+  "worker": "haiku-8",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["홍성방 동구 부산 중국집", "홍성방 초량동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산 동구 중앙대로179번길 1"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "연차·역사", "note": "1971년부터 초량동에서 운영 중인 오래된 중화 요리 음식점", "sources": [0, 1]},
+    {"type": "원조·최초", "note": "1971년 만두 전문점으로 시작하여 중화 요리로 확장", "sources": [1]},
+    {"type": "간판 메뉴 지목", "note": "손으로 직접 빚은 물만두 전문", "sources": [0, 1]},
+    {"type": "조리·재료", "note": "손으로 직접 빚은 물만두와 정통 중식 요리", "sources": [1]},
+    {"type": "동네·시장 지목", "note": "부산역 앞 초량동 상해거리의 상징적 건물에 위치", "sources": [0, 1]},
+    {"type": "혼잡·수요", "note": "본관·신관 2개 지점을 동시에 운영할 정도의 인기", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": true,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["물만두"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

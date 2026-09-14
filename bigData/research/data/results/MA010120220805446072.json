@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220805446072",
+  "worker": "haiku-51",
+  "researchedAt": "2026-09-09T14:41:00Z",
+  "queries": ["홈런볼 해운대 부산", "홈런볼 우1동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "홈런볼은 음식점이 아니라 해태제과의 과자 제품(1981년 출시)",
+  "notes": "음식점으로 분류되지 않음"
+}

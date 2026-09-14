@@ -1,0 +1,23 @@
+{
+  "id": "MA010120220812285241",
+  "worker": "haiku-32",
+  "researchedAt": "2026-09-09T11:13:00Z",
+  "queries": ["에이치엠푸드 동래구 부산", "에이치엠푸드 명장2동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["부산광역시 동래구 반송로 299"],
+  "stillOpen": true,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": null,
+    "signatureDishes": [],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "식신, 트리플가이드에 고기/구이류 맛집으로 등재. 상세 정보 부족."
+}

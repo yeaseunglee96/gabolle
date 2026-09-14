@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220811049609",
+  "worker": "haiku-29",
+  "researchedAt": "2026-09-09T10:24:00Z",
+  "queries": ["안단테 사하구 부산", "안단테 다대1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=fRflP8It3pl0"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "파스타와 돈까스 전문점", "sources": [0]},
+    {"type": "가격·가성비", "note": "가성비 좋은 가격대", "sources": [0]},
+    {"type": "간판 메뉴 지목", "note": "매일 구워내는 수제 올리브빵", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["봉골레 파스타", "함박스테이크", "오일 파스타", "수제 올리브빵"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

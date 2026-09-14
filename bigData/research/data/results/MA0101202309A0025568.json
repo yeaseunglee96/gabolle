@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202309A0025568",
+  "worker": "haiku-46",
+  "researchedAt": "2026-09-09T13:50:00Z",
+  "queries": ["미포장횟집 해운대"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["http://duli.co.kr/web/splus/kmap/view.php?sigun=6260000&gugun=3330000&keyno=126&keyname=%EB%AF%B8%ED%8F%AC%EC%9E%A5%ED%9A%9F%EC%A7%91&keylink=3330000-101-2018-00293"],
+  "stillOpen": true,
+  "whyPeopleGo": [{"type": "맛 묘사", "note": "횟집", "sources": [0]}],
+  "newTypes": [],
+  "descriptors": {"yearsClaimed": null, "generations": null, "queueing": null, "parking": null, "audience": "mixed", "signatureDishes": ["회"], "priceBand": null},
+  "notFound": null,
+  "notes": ""
+}

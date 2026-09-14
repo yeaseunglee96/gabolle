@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220810684773",
+  "worker": "haiku-46",
+  "researchedAt": "2026-09-09T13:00:00Z",
+  "queries": ["만선 사상구 부산 횟집", "만선 회 물회 블로그"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=kbQrYCiTeNVW", "https://www.mangoplate.com/restaurants/c5xsy9uXc1J1"],
+  "stillOpen": true,
+  "whyPeopleGo": [{"type": "간판 메뉴 지목", "note": "생선회, 물회 전문", "sources": [0]}],
+  "newTypes": [],
+  "descriptors": {"yearsClaimed": null, "generations": null, "queueing": null, "parking": null, "audience": "mixed", "signatureDishes": ["생선회", "물회"], "priceBand": null},
+  "notFound": null,
+  "notes": ""
+}

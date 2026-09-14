@@ -160,6 +160,22 @@ public interface TripRepository {
     /** {@code created=false} 면 재시도였고 기존 여행을 돌려준 것이다. */
     record SaveOutcome(Trip trip, PreferenceSnapshot snapshot, boolean created) {}
 
+    /**
+     * 가입 시 익명 여행 승계 — S15P21E201-317.
+     *
+     * <p>{@code sessionId} 가 만든({@code ownerType=ANONYMOUS}) 여행을 전부 찾아 소유자를
+     * {@code newOwnerId}(방금 만든 회원)로 옮긴다. 여행 자체({@code createdBy}·{@code ownerType})와
+     * OWNER 참여자 행({@code TripMember})을 함께 옮겨야 한다 — 참여자 행이 그대로면
+     * "조회 권한 판정이 이 표를 본다"({@link TripMember} 문서)는 전제 때문에 승계돼도 목록에
+     * 안 보인다.
+     *
+     * <p>🔴 익명 여행이 하나도 없어도 <b>정상</b>이다 — 0 을 돌려준다. 이 메서드를 부르는
+     * 쪽(회원가입)은 그 결과로 실패 여부를 판단하지 않는다.
+     *
+     * @return 옮긴 여행 수
+     */
+    int claimAnonymousTrips(String sessionId, String newOwnerId, java.time.Instant at);
+
     /** 같은 키를 다른 내용으로 재사용했을 때 — API-09 가 409 로 거부하라고 한다. */
     class IdempotencyKeyConflictException extends RuntimeException {
         public IdempotencyKeyConflictException(String key) {

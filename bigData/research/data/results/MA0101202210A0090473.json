@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202210A0090473",
+  "worker": "haiku-53",
+  "researchedAt": "2026-09-09T15:32:00Z",
+  "queries": ["살몬브라더스 광안로 부산", "살몬브라더스 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=j2dKCad06UGR"],
+  "stillOpen": true,
+  "whyPeopleGo": [{"type": "간판 메뉴 지목", "note": "연어 초밥, 대왕연어초밥", "sources": [0]}],
+  "newTypes": [],
+  "descriptors": {"signatureDishes": ["연어초밥", "대왕연어초밥"]},
+  "notFound": null,
+  "notes": "카테고리는 경양식으로 기록되었으나 실제로는 연어 초밥 전문점. 광안로 49 2층. 운영시간 월~금 17:00-01:00, 토일 12:00-01:00, 화요일 휴무"
+}

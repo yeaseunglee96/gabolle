@@ -1,0 +1,19 @@
+{
+  "id": "MA0101202303A0090055",
+  "worker": "haiku-54",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["아따아따 수영구 부산", "아따아따 민락동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://kr.trip.com/moments/detail/busan-432-122305598/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "다이너마이트 텐도지동 시그니처 메뉴", "sources": [0]},
+    {"type": "분위기·전망", "note": "광안리 해수욕장 근처 일본의 작은 풍경", "sources": [0]},
+    {"type": "조리·재료", "note": "돼지가스, 치킨가스, 새우튀김 등 다양한 가스 메뉴를 버터와 함께", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {"yearsClaimed": null, "generations": null, "queueing": null, "parking": null, "audience": "mixed", "signatureDishes": ["다이너마이트 텐도지동", "돼지가스", "치킨가스", "새우튀김"], "priceBand": "moderate"},
+  "notFound": null,
+  "notes": ""
+}

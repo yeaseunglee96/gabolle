@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220810725458",
+  "worker": "haiku-15",
+  "researchedAt": "2026-09-08T22:44:32Z",
+  "queries": ["낙원각 사상구 부산", "낙원각 주례1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 사상구 사상로 7"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "연차·역사", "note": "2세대 47년 운영", "sources": [0] },
+    { "type": "간판 메뉴 지목", "note": "쟁반 짬뽕, 간짜장, 탕수육", "sources": [0] },
+    { "type": "서비스·사람", "note": "지역사회 나눔 활동", "sources": [0] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": 2,
+    "queueing": false,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["쟁반 짬뽕", "간짜장", "탕수육"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "매일 09:00~21:00, 전화 051-317-1774, 주례교차로 위치"
+}

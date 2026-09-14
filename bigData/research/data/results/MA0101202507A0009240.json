@@ -1,0 +1,29 @@
+{
+  "id": "MA0101202507A0009240",
+  "worker": "haiku-21",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["혜성고기집 동래구 부산", "혜성고기집 안락동 맛집"],
+  "found": true,
+  "confidence": "low",
+  "sources": ["https://www.siksinhot.com/theme/magazine/13369", "https://www.diningcode.com/list.dc?query=%EC%95%88%EB%9D%BD%EB%8F%99++%EA%B3%A0%EA%B9%83%EC%A7%91"],
+  "stillOpen": null,
+  "whyPeopleGo": [
+    {
+      "type": "플랫폼 순위·평점",
+      "note": "식신과 다이닝코드의 안락동 맛집 추천 목록에 포함",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": [],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "플랫폼에 등재되어 있으나 구체적인 영업정보·메뉴·영업시간 등의 세부 정보를 얻을 수 없음"
+}

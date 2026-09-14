@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220810534558",
+  "worker": "haiku-38",
+  "researchedAt": "2026-09-09T15:45:00Z",
+  "queries": ["신필성참치 부산 사하구", "신필성참치 괴정동"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.koobig.com/384539"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "참치 전문점",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["참치"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": ""
+}

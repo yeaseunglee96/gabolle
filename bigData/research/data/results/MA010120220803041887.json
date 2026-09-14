@@ -1,0 +1,38 @@
+{
+  "id": "MA010120220803041887",
+  "worker": "haiku-1",
+  "researchedAt": "2026-09-09T01:37:00Z",
+  "queries": ["솔내음한정식 해운대", "솔내음한정식 달맞이길 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=BIG7wE9iKKCD", "https://www.siksinhot.com/P/371553"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "unique_view",
+      "note": "창밖으로 해운대 바다와 관왕대교를 감상하는 오션뷰 - 운치 있는 식사",
+      "sources": [0]
+    },
+    {
+      "type": "special_cuisine",
+      "note": "갈비찜 정식 - 정갈한 고급 한정식 코스 요리",
+      "sources": [0]
+    },
+    {
+      "type": "facility",
+      "note": "개별룸과 넓은 홀 구성 - 루프탑 야외공간 보유",
+      "sources": [0]
+    },
+    {
+      "type": "service",
+      "note": "상견례, 칠순잔치, 환갑잔치 등 특별행사 전문 - 무료주차 및 발렛파킹 제공",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["갈비찜 정식", "솔내음상"]
+  },
+  "notFound": null,
+  "notes": "3층 위치, 수요일 휴무, 특별행사 단체석 문의 가능, 발렛파킹 서비스"
+}

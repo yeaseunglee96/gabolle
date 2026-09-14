@@ -1,0 +1,46 @@
+{
+  "id": "MA010120220812599371",
+  "worker": "haiku-65",
+  "researchedAt": "2026-09-09T22:36:05.018Z",
+  "queries": [
+    "노이 부산진구 전포동",
+    "노이 서전로 경양식"
+  ],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.diningcode.com/profile.php?rid=yTm91L8qzVyN"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "파스타와 스테이크 전문점",
+      "sources": [
+        0
+      ]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "전포동 카페거리의 세련된 식당",
+      "sources": [
+        0
+      ]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "young-adults",
+    "signatureDishes": [
+      "파스타",
+      "스테이크"
+    ],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "영업시간 평일 12:00-22:00, 토일 11:30-22:00, 라스트오더 21:00, 2층 위치"
+}

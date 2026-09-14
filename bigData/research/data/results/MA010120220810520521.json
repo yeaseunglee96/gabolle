@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220810520521",
+  "worker": "haiku-51",
+  "researchedAt": "2026-09-09T14:35:00Z",
+  "queries": ["아날로그키친 서구 부산", "아날로그키친 충무동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://korea.haogiayensao.com/busan/search/?q=analog+kitchen", "https://www.diningcode.com/list.dc?query=%EB%B6%80%EC%82%B0+%EC%84%9C%EA%B5%AC+%EC%B6%A9%EB%AC%B4%EB%8F%99"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "서비스·사람",
+      "note": "사장과 직원의 친절한 서비스로 방문객들의 호평을 받음",
+      "sources": [0, 1]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "음식 가성비가 좋다는 평가",
+      "sources": [0, 1]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "아날로그 감성의 분위기",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": true,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": [],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "예약 필수. 점심시간에 대기가 있을 수 있음"
+}

@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220813760555",
+  "worker": "haiku-71",
+  "researchedAt": "2026-09-10T12:00:00Z",
+  "queries": ["구름속의산책 서구 부산", "구름속의산책 송도 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://triple.guide/restaurants/00da7944-4ca0-4210-bd55-c58e42675e00", "https://www.tripadvisor.com/Restaurant_Review-g297884-d18341090-Reviews-Walk_In_The_Clouds-Busan.html", "https://www.diningcode.com/profile.php?rid=HoNLpxw5hh9I"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "연차·역사",
+      "note": "28년 운영 중인 오래된 양식점",
+      "sources": [1]
+    },
+    {
+      "type": "조리·재료",
+      "note": "재료 손질에 신경 쓰는 주인(브로콜리 등 하나하나 신경)",
+      "sources": [2]
+    },
+    {
+      "type": "플랫폼 순위·평점",
+      "note": "Tripadvisor 부산 레스토랑 중 #103위",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 28,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["스테이크"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

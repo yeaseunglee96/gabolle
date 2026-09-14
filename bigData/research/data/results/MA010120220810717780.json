@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220810717780",
+  "worker": "haiku-14",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["77돌곱창 사상구 부산", "77돌곱창 감전동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["식신", "다이닝코드", "당근", "방문관광"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "연차·역사", "note": "1985년 개업, 40년 이상의 전통", "sources": [0, 1]},
+    {"type": "기관 선정", "note": "백년가게(century-old establishment) 선정", "sources": [2, 3]},
+    {"type": "간판 메뉴 지목", "note": "한우곱창전골 전문 (유일한 메뉴)", "sources": [1, 3]},
+    {"type": "조리·재료", "note": "한우를 손질해서 돌판에 끓임, 진하고 매콤하고 살짝 단맛", "sources": [0, 1]},
+    {"type": "현지인 지지", "note": "동네 단골들이 찾는 오랜 맛집", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 40,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["한우곱창전골"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "유일한 메뉴인 한우곱창전골만 제공"
+}

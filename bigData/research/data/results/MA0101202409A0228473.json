@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202409A0228473",
+  "worker": "haiku-61",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["버디 해운대구 부산", "버디 우1동 맛집"],
+  "found": false,
+  "confidence": "low",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "경양식 버디는 검색되지 않음. 모던바 버디BAR만 검색됨",
+  "notes": ""
+}

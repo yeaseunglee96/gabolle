@@ -1,0 +1,31 @@
+{
+  "id": "MA010120220803814633",
+  "worker": "haiku-56",
+  "researchedAt": "2026-09-09T06:37:13Z",
+  "queries": ["수영빈대떡 수영구 부산", "수영빈대떡 광안 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": [
+    "https://www.diningcode.com/list.dc?query=%EB%B6%80%EC%82%B0%EC%88%98%EC%98%81%EA%B5%AC+%EB%B9%88%EB%8C%80%EB%96%A1"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "빈대떡 전문점",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["빈대떡"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

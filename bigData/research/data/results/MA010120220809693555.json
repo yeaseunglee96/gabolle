@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220809693555",
+  "worker": "haiku-19",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["기리 부산진구 부산", "기리 부전1동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": [],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "돈카츠 전문",
+      "sources": []
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["안심 카츠"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": ""
+}

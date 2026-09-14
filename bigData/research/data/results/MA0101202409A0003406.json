@@ -1,0 +1,28 @@
+{
+  "id": "MA0101202409A0003406",
+  "worker": "haiku-24",
+  "researchedAt": "2026-09-09T10:26:15.2132113+09:00",
+  "queries": ["굿투게더 남구 부산", "굿투게더 용호2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1759479", "https://www.siksinhot.com/theme/magazine/7895", "https://www.diningcode.com/list.dc?query=%EB%B6%80%EC%82%B0%EC%9A%A9%ED%98%B8%EB%8F%99+%EC%96%91%EC%8B%9D%EC%A7%91"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "분위기·전망", "note": "오픈키친 구조, 아늑한 모던인테리어", "sources": [0]},
+    {"type": "서비스·사람", "note": "정중한 대접, 식전 스프와 식후 우유푸딩 제공", "sources": [0, 1]},
+    {"type": "운영·접근 편의", "note": "가게 앞 주차장, 포장/배달 가능, 유아의자 비치", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "파스타, 스테이크 등 이탈리아 양식 전문", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "available",
+    "audience": "family",
+    "signatureDishes": ["파스타", "스테이크", "감자튀김"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": ""
+}

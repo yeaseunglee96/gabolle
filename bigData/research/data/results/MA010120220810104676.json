@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220810104676",
+  "worker": "haiku-13",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["비스포레 수영구 부산", "비스포레 민락동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["식신", "다이닝코드", "망고플레이트"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "손수만든 라자냐와 파스타 전문",
+      "sources": [0, 1]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "루프탑과 테라스에서 즐기는 민락강변 경치",
+      "sources": [1]
+    },
+    {
+      "type": "조리·재료",
+      "note": "이탈리안 정통 요리",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "upscale",
+    "signatureDishes": ["갈릭&크림치즈 라자냐", "모시조개파스타", "로즈마리 안심 스테이크"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": "민락역 근처, 40대 여성에게 인기"
+}

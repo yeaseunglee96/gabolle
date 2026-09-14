@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202302A0041014",
+  "worker": "haiku-54",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["남해호 해운대구 부산", "남해호 중1동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색에서 해운대구 중1동의 남해호를 찾을 수 없음",
+  "notes": ""
+}

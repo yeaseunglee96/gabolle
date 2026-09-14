@@ -1,0 +1,38 @@
+{
+  "id": "MA010120220810629957",
+  "worker": "haiku-1",
+  "researchedAt": "2026-09-09T01:05:00Z",
+  "queries": ["한방왕족발 부산진구", "한방왕족발 새싹로 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=6TRZIG1AKPCB", "https://triple.guide/restaurants/c05e4b0a-9830-48b4-a8be-6fc35bf4ecbc"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "specialty",
+      "note": "한약재로 우려낸 족발 - 비린내 없는 깨끗한 한약 향",
+      "sources": [0]
+    },
+    {
+      "type": "texture",
+      "note": "윤기 좔좔한 껍데기와 부드러운 고기의 완벽한 조화 - 쫄깃한 식감",
+      "sources": [0]
+    },
+    {
+      "type": "menu",
+      "note": "반반 족발(35,000원) - 일반 족발과 양념 족발을 동시에 즐길 수 있음",
+      "sources": [0]
+    },
+    {
+      "type": "atmosphere",
+      "note": "깨끗하고 넓은 인테리어 - 가족 모임과 술자리 모두에 적합",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["한방족발", "불족발", "반반조합"]
+  },
+  "notFound": null,
+  "notes": "전용 주차장 없음 - 어린이대공원 주차장 이용 권장, 1/3주 일요일 휴무, 배달 가능"
+}

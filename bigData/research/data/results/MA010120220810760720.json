@@ -1,0 +1,44 @@
+{
+  "id": "MA010120220810760720",
+  "worker": "haiku-21",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["해도 동래구 부산", "해도 온천동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=lAvYLF9nWS80", "https://polle.com/place/27Y4wD/%ED%95%B4%EB%8F%84"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "메뉴 희소성",
+      "note": "오마카세는 고급 초밥의 특별한 경험",
+      "sources": [0, 1]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "초밥 치고 런치오마카세 5만원 가성비 좋음",
+      "sources": [0, 1]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "온천동 오마카세 전문점으로 알려짐",
+      "sources": [0, 1]
+    },
+    {
+      "type": "플랫폼 순위·평점",
+      "note": "다이닝코드, 뽈레 등 맛집 플랫폼에 등재",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["오마카세", "모듬초밥"],
+    "priceBand": "medium"
+  },
+  "notFound": null,
+  "notes": ""
+}

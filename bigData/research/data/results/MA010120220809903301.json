@@ -1,0 +1,43 @@
+{
+  "id": "MA010120220809903301",
+  "worker": "haiku-50",
+  "researchedAt": "2026-09-09T05:28:38Z",
+  "queries": ["달자아구찜 해운대구 부산", "달자아구찜 중1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.siksinhot.com/P/1758682",
+    "https://www.diningcode.com/profile.php?rid=zsDUsZpGHWW6",
+    "https://triple.guide/restaurants/2c3d82b1-722a-4c31-a250-0869b33a31d4"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "맛 묘사",
+      "note": "부드러운 아구살과 매콤한 양념",
+      "sources": [0, 1]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "해운대 바다 전망을 보며 식사할 수 있는 넓은 공간",
+      "sources": [1]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "해운대 아구찜 전문점",
+      "sources": [0, 1, 2]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["아구찜 중", "아구찜 소", "갈치조림"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": ""
+}

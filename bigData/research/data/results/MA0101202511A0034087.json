@@ -1,0 +1,58 @@
+{
+  "id": "MA0101202511A0034087",
+  "worker": "haiku-65",
+  "researchedAt": "2026-09-09T22:32:59.131Z",
+  "queries": [
+    "소수인 부산진구 회 초밥",
+    "소수인 부전로 부산 일식"
+  ],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://triple.guide/restaurants/1fd074f8-d0a6-4ab6-a375-34226241935e",
+    "https://www.instagram.com/busan_sosuin/"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "신선한 해산물 소요리 전문 이자카야",
+      "sources": [
+        0,
+        1
+      ]
+    },
+    {
+      "type": "조리·재료",
+      "note": "신선한 해산물로 만든 독특한 소요리",
+      "sources": [
+        0,
+        1
+      ]
+    },
+    {
+      "type": "맛 묘사",
+      "note": "맥주리 초밥, 가지 덴가쿠, 고등어 덮밥이 인기",
+      "sources": [
+        0,
+        1
+      ]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "young-adults",
+    "signatureDishes": [
+      "초밥",
+      "소요리",
+      "회"
+    ],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": "영업시간 17:00-24:00, 연락처 051-808-4036, 부산 롯데호텔 근처"
+}

@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220810777454",
+  "worker": "haiku-27",
+  "researchedAt": "2026-09-09T01:36:15Z",
+  "queries": ["내일또내일 동래구 부산", "내일또내일 온천3동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "경양식 내일또내일의 구체적 정보 없음",
+  "notes": ""
+}

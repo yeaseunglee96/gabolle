@@ -1,0 +1,47 @@
+{
+  "id": "MA0101202504A0064547",
+  "worker": "haiku-2",
+  "researchedAt": "2026-09-08T16:43:11.248Z",
+  "queries": ["타이가텐푸라 마츠도 해운대 부산", "타이가텐푸라&마츠도 달맞이길 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": [
+    "https://www.diningcode.com/profile.php?rid=XYnJaOfVPEYN",
+    "https://kr.trip.com/moments/detail/busan-432-17063078/"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "맛 묘사",
+      "note": "겉은 바삭하고 속은 촉촉한 튀김으로 기름지지 않은 식감",
+      "sources": [0]
+    },
+    {
+      "type": "조리·재료",
+      "note": "후쿠오카 텐푸라 타카오에서 전수받은 레시피와 신선한 재료 사용",
+      "sources": [0]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "다찌식 다이닝으로 일본스러운 디자인, 해리단길 위치로 분위기 좋음",
+      "sources": [1]
+    },
+    {
+      "type": "혼잡·수요",
+      "note": "평일에도 웨이팅이 있을 정도로 부산 대표 텐동 맛집",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": "some",
+    "parking": null,
+    "audience": null,
+    "signatureDishes": ["에비텐동", "아나고텐동", "타이가텐동"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "캐치테이블 예약으로 원격대기 가능. 브레이크타임 15:30-17:00"
+}

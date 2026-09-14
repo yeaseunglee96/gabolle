@@ -1,0 +1,47 @@
+{
+  "id": "MA010120220805489251",
+  "worker": "haiku-3",
+  "researchedAt": "2026-09-08T16:53:33.797Z",
+  "queries": ["합천일류돼지국밥 사상구 부산", "합천일류돼지국밥 괘법동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.siksinhot.com/P/265913",
+    "https://polle.com/place/321vEN/%ED%95%A9%EC%B2%9C%EC%9D%BC%EB%A5%98%20%EB%8F%BC%EC%A7%80%EA%B5%AD%EB%B0%A5"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "연차·역사",
+      "note": "부산의 3대 국밥집으로 알려짐",
+      "sources": [0, 1]
+    },
+    {
+      "type": "운영·접근 편의",
+      "note": "24시간 영업으로 언제든 방문 가능",
+      "sources": [0, 1]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "부드러운 수육이 듬뿍 들어간 국밥, 돼지우동도 특징",
+      "sources": [0, 1]
+    },
+    {
+      "type": "서비스·사람",
+      "note": "밥과 반찬 무한셀프",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "easy",
+    "audience": null,
+    "signatureDishes": ["돼지국밥", "돼지우동"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

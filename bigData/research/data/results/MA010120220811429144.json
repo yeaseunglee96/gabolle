@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220811429144",
+  "worker": "haiku-15",
+  "researchedAt": "2026-09-08T22:45:30Z",
+  "queries": ["할매팥빙수단팥죽 남구 부산", "할매팥빙수단팥죽 용호1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 남구 용호로90번길 24"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "연차·역사", "note": "40년+ 운영, 2세대 운영", "sources": [0] },
+    { "type": "기관 선정", "note": "백년가게 지정, 방송 다수 출연", "sources": [0] },
+    { "type": "간판 메뉴 지목", "note": "팥빙수, 단팥죽, 붕어빵", "sources": [0] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": 2,
+    "queueing": false,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["팥빙수", "단팥죽", "붕어빵"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "09:00~22:00 (여름 23:00까지), 전화 051-623-9946"
+}

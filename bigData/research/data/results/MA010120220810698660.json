@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220810698660",
+  "worker": "haiku-35",
+  "researchedAt": "2026-09-09T02:10:44.184Z",
+  "queries": ["부산가든 북구 부산", "부산가든 만덕2동 맛집", "부산가든 만덕"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "3회 검색 결과 영도 위치로만 검색되며 만덕에서는 찾을 수 없음",
+  "notes": ""
+}

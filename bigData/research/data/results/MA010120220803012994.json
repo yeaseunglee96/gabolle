@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220803012994",
+  "worker": "haiku-4",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["대건명가돼지국밥 동구 부산", "대건명가돼지국밥 초량 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 동구 중앙대로 232"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "맛 묘사", "note": "38시간 우려낸 진하고 진한 국물, 흰국밥", "sources": [0]},
+    {"type": "재료", "note": "국산 돼지뼈만 사용", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["돼지국밥", "내장국밥"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "고풍스러운 한옥 인테리어, 부산역에서 도보 5분"
+}

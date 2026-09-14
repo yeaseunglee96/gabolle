@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220810649667",
+  "worker": "haiku-34",
+  "researchedAt": "2026-09-09T06:48:00Z",
+  "queries": ["수림관 중국집 부산진구", "수림관 당감1동 맛집", "수림관 당감로 부산 후기"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://www.siksinhot.com/P/682335"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "동네·시장 지목",
+      "note": "부산진구 당감동의 지역 중국집",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["중국 요리"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

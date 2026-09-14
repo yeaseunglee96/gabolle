@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202504A0000481",
+  "worker": "haiku-59",
+  "researchedAt": "2026-09-09T07:53:31Z",
+  "queries": ["미까사에스뚜까사 수영구 부산", "미까사에스뚜까사 남천 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "해당 이름의 식당이 웹 검색 결과에 나타나지 않음. 남천역 맛집 Top 100, 다이닝코드 등 주요 맛집 플랫폼에서도 발견 불가",
+  "notes": "경양식 카테고리로 등록. 정확한 영업 여부 미확인"
+}

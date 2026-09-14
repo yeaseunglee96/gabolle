@@ -1,0 +1,24 @@
+{
+  "id": "MA010120220810156844",
+  "worker": "haiku-3",
+  "researchedAt": "2026-09-09T03:20:00.000Z",
+  "found": true,
+  "confidence": "medium",
+  "sources": [
+    "https://www.google.com/maps/place/%EC%98%A4%EB%8E%85%EB%AC%B4%EB%9D%BC"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": null,
+    "signatureDishes": [],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "Google Maps에 등재되어 있음. 전화: 051-784-8859. 상세 정보는 웹에서 찾을 수 없음."
+}

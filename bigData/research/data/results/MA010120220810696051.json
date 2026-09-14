@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220810696051",
+  "worker": "haiku-39",
+  "researchedAt": "2026-09-09T10:24:00Z",
+  "queries": ["가쯔렛 북구 부산", "가쯔렛 화명3동 일식"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://triple.guide/restaurants/48ca8a06-fb88-4a4c-a148-08a07075934a"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "메뉴 희소성", "note": "초콜릿파이 안에 넣은 돈까스라는 독특한 메뉴", "sources": [0]},
+    {"type": "간판 메뉴 지목", "note": "일식 돈까스로 알려짐", "sources": [0]},
+    {"type": "미디어 노출", "note": "언론 보도, 트리플 추천", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": null,
+    "signatureDishes": ["초콜릿파이 돈까스", "일식 돈까스"],
+    "priceBand": "moderate"
+  },
+  "notes": "정식명칭: 가쯔렛 화명 본점, 주소: 부산광역시 북구 화명신도시로 132, 화명역에서 4분 거리 (지하철 2호선), 일식 돈까스 전문"
+}

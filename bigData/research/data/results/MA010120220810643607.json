@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220810643607",
+  "worker": "haiku-29",
+  "researchedAt": "2026-09-09T10:15:00Z",
+  "queries": ["대림숯불갈비 부산진구 부산", "대림숯불갈비 개금1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=lb8xj6ZobQSI", "https://www.siksinhot.com/P/751396"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "숯불갈비 전문점, 돼지갈비·소고기·육회", "sources": [0, 1]},
+    {"type": "현지인 지지", "note": "개금동 오래된 고깃집으로 현지인들의 신뢰", "sources": [0, 1]},
+    {"type": "가격·가성비", "note": "점심특선으로 가성비 좋음", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["돼지갈비", "소고기", "육회"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

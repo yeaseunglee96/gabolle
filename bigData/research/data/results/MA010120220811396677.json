@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220811396677",
+  "worker": "haiku-67",
+  "researchedAt": "2026-09-09T22:36:00.000Z",
+  "queries": ["돼지고기구이 구남로 해운대", "돼지고기 구이 중1동 구남로"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://triple.guide/restaurants/8bacf85a-76bf-4c85-89a7-8c1c65c54482", "https://www.daangn.com/kr/local-profile/%EA%B5%AC%EB%82%A8%EB%A1%9C%EC%8A%A4-r3suoks28ekr/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "돼지고기 구이 전문",
+      "sources": [0, 1]
+    },
+    {
+      "type": "조리·재료",
+      "note": "8가지 특제 소스, 다양한 반찬이 정갈하게 차려짐",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["돼지고기 구이"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "돼지고기 구이/찜. 구남로 지역의 돼지고기 구이 전문점."
+}

@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220810768389",
+  "worker": "haiku-10",
+  "researchedAt": "2026-09-09T14:40:00Z",
+  "queries": ["소문난동래파전 동래구 부산", "소문난동래파전 온천1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산 동래구 온천1동 208-8"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "미디어 노출", "note": "백종원의 3대천왕, 생생정보 방송 출연", "sources": [0]},
+    {"type": "맛 묘사", "note": "오징어, 새우, 홍합 등 해물과 돼지고기 파전, 막걸리 조합", "sources": [0]},
+    {"type": "간판 메뉴 지목", "note": "파전 전문점", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "local",
+    "signatureDishes": ["파전"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

@@ -1,0 +1,19 @@
+{
+  "id": "MA010120220810792561",
+  "worker": "haiku-53",
+  "researchedAt": "2026-09-09T05:46:43.8167057Z",
+  "queries": ["서가앤쿡 연제구 부산", "서가앤쿡 연산4동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/416270", "https://www.diningcode.com/profile.php?rid=LisyuEyq6b3D"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "가격·가성비", "note": "스테이크와 파스타를 가성비 있게 즐길 수 있으며 세트 메뉴 구성이 좋다", "sources": [0, 1]},
+    {"type": "운영·접근 편의", "note": "무료 주차 2시간, 연산역 12번 출구 도보 1분", "sources": [0]},
+    {"type": "간판 메뉴 지목", "note": "소고기 등심 스테이크 토마토 파스타, 소고기 파히타", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {"signatureDishes": ["소고기 등심 스테이크 토마토 파스타", "소고기 파히타", "베제노제 파스타", "소고기 김치 필라프", "베이컨 카보나라"], "priceBand": "cheap", "audience": "mixed"},
+  "notFound": null,
+  "notes": ""
+}

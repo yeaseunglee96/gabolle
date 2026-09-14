@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220808606536",
+  "worker": "haiku-8",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["삼삼횟집 수영구 부산 민락", "삼삼횟집 민락동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산 수영구 광안해변로278번길 22"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "곁들임·차림", "note": "초밥을 직접 만들어 먹는 특색 있는 식사 방식", "sources": [0, 1]},
+    {"type": "메뉴 희소성", "note": "1인용 회를 직접 초밥으로 만들어 먹는 독특한 경험", "sources": [1]},
+    {"type": "플랫폼 순위·평점", "note": "다이닝코드 민락동 회센터 평점을 근거로 든다", "sources": [1]},
+    {"type": "가격·가성비", "note": "높은 회 퀄리티에 푸짐한 인심", "sources": [1]},
+    {"type": "동네·시장 지목", "note": "민락동 광안리 회센터의 유명 맛집", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["접시밥/초밥"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

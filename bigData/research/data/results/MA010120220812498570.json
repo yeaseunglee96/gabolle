@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220812498570",
+  "worker": "haiku-41",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["산들밥상 강서구 부산", "산들밥상 명지2동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "검색에서 명지2동의 산들밥상을 찾을 수 없음",
+  "notes": ""
+}

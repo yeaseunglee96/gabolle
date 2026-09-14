@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220814200225",
+  "worker": "haiku-61",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["쏘행성 부산진구 부산", "쏘행성 부전2동 맛집"],
+  "found": false,
+  "confidence": "low",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹에서 검색되지 않음. 쏘카(카셰어링) 정보만 나옴",
+  "notes": ""
+}

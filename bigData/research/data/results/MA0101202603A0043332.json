@@ -1,0 +1,34 @@
+{
+  "id": "MA0101202603A0043332",
+  "worker": "haiku-66",
+  "researchedAt": "2026-09-10T12:42:00Z",
+  "queries": ["크림어스 광안 부산", "크림어스 수영구"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1881526"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "신선한 생화 케이크 전문",
+      "sources": [0]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "광안리 디저트 맛집",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["생화케이크"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "광안리 근처 데저트샵, 카카오채널 크림어스"
+}

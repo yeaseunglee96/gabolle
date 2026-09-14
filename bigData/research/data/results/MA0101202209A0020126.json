@@ -1,0 +1,37 @@
+{
+  "id": "MA0101202209A0020126",
+  "worker": "haiku-63",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["더베이베이커리 광안 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.diningcode.com/profile.php?rid=JUSiPI7QYzH8",
+    "https://breadly.udadada.com/bakeries/cmmx1j2rp00skpej1wj0d39ir"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "소형 베이커리로 다양한 빵 종류 제공",
+      "sources": [0, 1]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "광안리 카페 거리의 핫플로 멋진 공간",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": "웨이팅 기계, 원격 웨이팅 가능",
+    "parking": null,
+    "audience": "young",
+    "signatureDishes": ["밤팥빵", "모찌빵", "맘모스빵"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "금련산역 1번 출구에서 도보 5분. 오픈 시간 맞춰 나옴"
+}

@@ -1,0 +1,21 @@
+{
+  "id": "MA010120220803426302",
+  "worker": "haiku-52",
+  "researchedAt": "2026-09-09T14:49:00Z",
+  "queries": ["달인막창 해운대구 부산", "달인막창 중1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1097519", "https://www.diningcode.com/profile.php?rid=lxdJZsecobrZ", "https://kr.trip.com/moments/detail/busan-432-16647454/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "소곱창 전문점", "sources": [0, 1]},
+    {"type": "맛 묘사", "note": "대창 맛집으로 평판", "sources": [2]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["소곱창", "막창"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

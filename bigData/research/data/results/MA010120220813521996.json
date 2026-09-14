@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220813521996",
+  "worker": "haiku-37",
+  "researchedAt": "2026-09-09T11:23:43.0136153+09:00",
+  "queries": ["흰여울맛국수 부산 영도", "흰여울맛국수 흰여울길 153"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.tabling.co.kr/place/677cd74066de5f0698926ca4"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "동네·시장 지목", "note": "흰여울문화마을 내 위치 - 숨은 골목 맛집", "sources": [0] },
+    { "type": "간판 메뉴 지목", "note": "잔치국수, 김밥, 콩국수 등 국수 요리 전문", "sources": [0] },
+    { "type": "가격·가성비", "note": "저렴한 가격대 소박한 음식점", "sources": [0] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["잔치국수", "김밥", "콩국수"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "영도 흰여울길 카페 지역 근처 골목에 위치. 카드 미수용."
+}

@@ -1,0 +1,56 @@
+{
+  "id": "MA0101202305A0206264",
+  "worker": "haiku-65",
+  "researchedAt": "2026-09-09T22:32:59.131Z",
+  "queries": [
+    "태닝돈광안리점 부산",
+    "태닝돈 광안해변로 백반"
+  ],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.diningcode.com/profile.php?rid=GfuB9dbcjVmU",
+    "https://kr.trip.com/moments/detail/busan-432-119456914/"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "혼잡·수요",
+      "note": "부산 광안리 여름 핫플레이스",
+      "sources": [
+        0,
+        1
+      ]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "루프탑에서 광안대교 야경 볼 수 있음, 해변 바로 앞",
+      "sources": [
+        0,
+        1
+      ]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "흑돼지 고기 전문",
+      "sources": [
+        0,
+        1
+      ]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": [
+      "흑돼지"
+    ],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "광안해변로 251, 1층 루프탑 위치"
+}

@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220810486060",
+  "worker": "haiku-18",
+  "researchedAt": "2026-09-09T10:55:00Z",
+  "queries": ["삼송 광복동 초밥", "삼송 중구 부산 회"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 중구 광복로55번길 13"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "연차·역사",
+      "note": "65년 전통으로 부산에서 가장 오래된 일식집",
+      "sources": [0]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "김초밥(후토마끼)과 초밥 정식이 대표 메뉴",
+      "sources": [0]
+    },
+    {
+      "type": "미디어 노출",
+      "note": "생활의 달인과 수요미식회에 출연한 식당",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["김초밥", "초밥 정식"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": ""
+}

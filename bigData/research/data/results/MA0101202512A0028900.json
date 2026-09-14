@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202512A0028900",
+  "worker": "haiku-33",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["파베 남구 부산", "파베 문현1동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색에서 파베 관련 구체적 정보를 찾을 수 없음",
+  "notes": ""
+}

@@ -1,0 +1,27 @@
+{
+  "id": "MA0101202310A0084278",
+  "worker": "haiku-58",
+  "researchedAt": "2026-09-09T16:53:00Z",
+  "queries": ["하데나 해운대구 부산", "하데나 중1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://triple.guide/restaurants/b5d3a728-56f0-4207-af06-68340c735b4c", "https://www.instagram.com/p/DD_rEEsyW_w/", "https://kr.trip.com/moments/detail/haeundae-gu-2016633-131476221/", "https://www.catchtable.net/shop/Hadena"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "분위기·전망", "note": "일본 전통 가옥을 콘셉트로 한 고즈넉한 분위기", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "아구애 덮밥 (아구 덮밥)", "sources": [2]},
+    {"type": "맛 묘사", "note": "정성 있게 준비된 일식 요리", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["아구 덮밥"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "운영시간 11:30-19:00. 인스타그램 @hadena_haeundae 활동 중. 혼자 먹기 편한 작고 조용한 공간"
+}

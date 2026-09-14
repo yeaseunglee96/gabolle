@@ -1,0 +1,25 @@
+{
+  "id": "MA010120220810584048",
+  "worker": "haiku-43",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["내내식당 동구 부산", "내내식당 좌천동 중국음식"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://www.daangn.com/kr/local-profile/%EB%82%B4%EB%82%B4%EC%8B%9D%EB%8B%B9-6zaahbn3i7iq/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "현지인 지지", "note": "지역 주민들이 이용하는 식당으로 당근에 등록됨", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": [],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "좌천동 한식당, 전화 051-464-8179"
+}

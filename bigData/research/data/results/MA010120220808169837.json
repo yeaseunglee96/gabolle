@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220808169837",
+  "worker": "haiku-22",
+  "researchedAt": "2026-09-09T01:18:00.000Z",
+  "queries": ["춘향전 연제구 부산", "춘향전 연산1동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": [
+    "https://www.keyzard.cc/ssongs_yummy/nb/224032029104"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "서비스·사람", "note": "단체모임·회식장소로 좋음", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "group",
+    "signatureDishes": [],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "술집, 영업시간 17:00~01:00 (라스트오더 00:30)"
+}

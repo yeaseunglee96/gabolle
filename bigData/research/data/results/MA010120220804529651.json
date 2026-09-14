@@ -1,0 +1,43 @@
+{
+  "id": "MA010120220804529651",
+  "worker": "haiku-56",
+  "researchedAt": "2026-09-09T06:37:13Z",
+  "queries": ["안쵸비 수영구 부산", "안쵸비 민락동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.siksinhot.com/P/1005967",
+    "https://www.diningcode.com/profile.php?rid=4IlyUhebNrWY",
+    "https://steemit.com/tasteem/@kkkdh0828/tasteem-199879"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "대파파스타가 시그니처 메뉴",
+      "sources": [0, 1]
+    },
+    {
+      "type": "메뉴 희소성",
+      "note": "이탈리안 아란치니(튀긴 쌀 볼)가 특별함",
+      "sources": [0, 1]
+    },
+    {
+      "type": "맛 묘사",
+      "note": "광안리의 유명한 파스타 맛집",
+      "sources": [2]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["대파파스타", "아란치니", "트러플크림파스타"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

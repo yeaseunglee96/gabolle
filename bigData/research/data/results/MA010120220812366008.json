@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220812366008",
+  "worker": "haiku-12",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["시골한방돼지국밥 서구 부산", "시골한방돼지국밥 부민동 국밥"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://triple.guide/restaurants/1a980491-60c3-4f0d-a429-0c00bc7e5406", "https://www.diningcode.com/profile.php?rid=owOvWu7mfmqC"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "맛 묘사", "note": "담백한 국물의 뜨끈한 돼지국밥", "sources": [0, 1]},
+    {"type": "곁들임·차림", "note": "기본 반찬으로 소면이 나와서 다른 국밥집과 구별됨", "sources": [1]},
+    {"type": "조리·재료", "note": "잡내 없는 푸짐한 고기가 들어간 국밥", "sources": [1]},
+    {"type": "플랫폼 순위·평점", "note": "다이닝코드에서 별점을 근거로 국밥 맛집으로 평가받음", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["돼지국밥", "수육", "순대"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220814378478",
+  "worker": "haiku-53",
+  "researchedAt": "2026-09-09T15:25:00Z",
+  "queries": ["마라도일식당 민락동", "마라도일식당 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://triple.guide/restaurants/74f3731b-ce40-48a3-a072-7b7a0327c9ae", "https://www.diningcode.com/profile.php?rid=7Tp7b6Fah67r"],
+  "stillOpen": true,
+  "whyPeopleGo": [{"type": "간판 메뉴 지목", "note": "오마카세 일식, 40년 전통", "sources": [0, 1]}, {"type": "분위기·전망", "note": "신선한 회", "sources": [1]}],
+  "newTypes": [],
+  "descriptors": {"signatureDishes": ["오마카세 14만원", "회"]},
+  "notFound": null,
+  "notes": "카테고리는 일식 회/초밥으로 기록됨. 영업시간 평일 18:00-20:00(1차), 주말 17:50-19:50(1차), 2차 20:00-22:00. 전화: 0507-1535-3493"
+}

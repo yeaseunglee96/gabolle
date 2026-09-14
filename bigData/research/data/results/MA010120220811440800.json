@@ -1,0 +1,43 @@
+{
+  "id": "MA010120220811440800",
+  "worker": "haiku-63",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["젠스시 해운대구 부산", "젠스시 중1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.siksinhot.com/P/256749",
+    "https://www.diningcode.com/profile.php?rid=Uqb50rUiiyZB",
+    "https://www.tripadvisor.com/Restaurant_Review-g297884-d4032711-Reviews-Zensushi-Busan.html"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "오마카세 스시 전문점",
+      "sources": [0, 1, 2]
+    },
+    {
+      "type": "플랫폼 순위·평점",
+      "note": "트립어드바이저에서 부산 레스토랑 중 127위",
+      "sources": [2]
+    },
+    {
+      "type": "조리·재료",
+      "note": "신선한 스시를 실시간으로 준비하는 방식",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": ["부산 중급 스시의 전설"],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["오마카세 스시"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": "부산 TOP 3 스시/오마카세 중 하나로 알려짐. 저녁 18:00~22:00 営業"
+}

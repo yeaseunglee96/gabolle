@@ -1,0 +1,49 @@
+{
+  "id": "MA010120220808425458",
+  "worker": "haiku-13",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["제로베이스 수영구 부산", "제로베이스 민락동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["미슐랭가이드", "캐치테이블", "식신"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "기관 선정",
+      "note": "2025 미슐랭 가이드 남한국 등재",
+      "sources": [0]
+    },
+    {
+      "type": "메뉴 희소성",
+      "note": "신선한 해산물에 따라 매번 다른 메뉴 제공",
+      "sources": [1, 2]
+    },
+    {
+      "type": "조리·재료",
+      "note": "셰프의 새로운 해석을 담은 전통 일식",
+      "sources": [1]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "현대적 인테리어와 고전 조리 스타일의 대비",
+      "sources": [1]
+    },
+    {
+      "type": "서비스·사람",
+      "note": "셰프와의 자연스러운 대화",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["오마카세", "일식 코스"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": ""
+}

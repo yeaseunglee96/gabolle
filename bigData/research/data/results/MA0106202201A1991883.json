@@ -1,0 +1,39 @@
+{
+  "id": "MA0106202201A1991883",
+  "worker": "haiku-18",
+  "researchedAt": "2026-09-09T10:05:00Z",
+  "queries": ["이재모피자 중구 부산", "이재모피자 광복동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 중구 광복중앙로 31"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "대물림",
+      "note": "사장이 어머니 이름을 따서 개점한 개인 사업가의 가게",
+      "sources": [0]
+    },
+    {
+      "type": "조리·재료",
+      "note": "임실의 100% 천연 치즈와 유기농 설탕을 사용한 옛날 두꺼운 도우 피자",
+      "sources": [0]
+    },
+    {
+      "type": "혼잡·수요",
+      "note": "주말 점심에 1시간 이상 웨이팅이 필요한 인기 맛집",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": true,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["치즈 피자"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": ""
+}

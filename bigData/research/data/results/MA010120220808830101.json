@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220808830101",
+  "worker": "haiku-45",
+  "researchedAt": "2026-09-09T13:42:00Z",
+  "queries": ["이타쇼 수영구 부산", "이타쇼 광안2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1594904", "https://www.diningcode.com/profile.php?rid=ASniqNchQo5s"],
+  "stillOpen": true,
+  "whyPeopleGo": [{"type": "간판 메뉴 지목", "note": "숙성 사시미, 일식 요리 전문점", "sources": [0, 1]}, {"type": "분위기·전망", "note": "광안리 야경 뷰, 럭셔리한 분위기", "sources": [0]}],
+  "newTypes": [],
+  "descriptors": {"yearsClaimed": null, "generations": null, "queueing": null, "parking": null, "audience": "mixed", "signatureDishes": ["숙성 사시미", "갈치 가라아게"], "priceBand": "expensive"},
+  "notFound": null,
+  "notes": ""
+}

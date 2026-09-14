@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220813668858",
+  "worker": "haiku-36",
+  "researchedAt": "2026-09-09T02:15:56Z",
+  "queries": ["토로 영도구 부산", "토로 동삼2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=BLtDAEb8fhCD", "https://www.wegive.co.kr/contents/wetownDetail/2869186"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "맛 묘사", "note": "에이징 처리된 안심과 채끝 스테이크가 맛있음", "sources": [0]},
+    {"type": "분위기·전망", "note": "영도 바다를 한눈에 볼 수 있는 옥상 포토존", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["채끝 스테이크", "안심"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "주택을 개조한 이탈리안 레스토랑. 주말 예약 추천"
+}

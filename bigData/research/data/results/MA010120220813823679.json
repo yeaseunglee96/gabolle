@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220813823679",
+  "worker": "haiku-37",
+  "researchedAt": "2026-09-09T11:23:43.0136153+09:00",
+  "queries": ["해로 부산 영도 회초밥", "해로 남항새싹4길 일식"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://www.diningcode.com/profile.php?rid=fXZTxt5GPXpk"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "간판 메뉴 지목", "note": "돈까스 전문점", "sources": [0] },
+    { "type": "운영·접근 편의", "note": "100% 예약제 운영 - 안정적인 대기 없음", "sources": [0] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["돈까스", "쌀국수"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "영도 휘누을문화마을 위치. 일일 11:00-16:00, 100% 예약제"
+}

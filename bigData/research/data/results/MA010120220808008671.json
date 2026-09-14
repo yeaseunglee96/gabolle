@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220808008671",
+  "worker": "haiku-73",
+  "researchedAt": "2026-09-09T23:29:49.528Z",
+  "queries": ["키야키 부산진구 부산", "키야키 전포1동 맛집"],
+  "found": false,
+  "confidence": "low",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "전포1동 일식 회/초밥 맛집 검색에 '키야키'는 나오지 않음. '야키쵸리' 등 다른 일식점만 검색됨",
+  "notes": ""
+}

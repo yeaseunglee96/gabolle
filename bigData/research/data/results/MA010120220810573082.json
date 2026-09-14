@@ -1,0 +1,61 @@
+{
+  "id": "MA010120220810573082",
+  "worker": "haiku-16",
+  "researchedAt": "2026-09-08T23:02:45.443Z",
+  "queries": [
+    "몬베튼 부산진구 경양식",
+    "몬베튼 서전로58번길"
+  ],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.tabling.co.kr/restaurant/6607",
+    "https://triple.guide/restaurants/596fe153-0648-4eb5-8c8a-284832b59bf0"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "유럽 감성, 테라스, 감성 있는 공간",
+      "sources": [
+        0
+      ]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "수제버거, 파스타, 크림 파스타",
+      "sources": [
+        0
+      ]
+    },
+    {
+      "type": "운영·접근 편의",
+      "note": "전포역 도보 2분, 애견동반 가능, 예약/포장 가능",
+      "sources": [
+        0
+      ]
+    },
+    {
+      "type": "조리·재료",
+      "note": "호주/싱가포르/미국 셰프 경력",
+      "sources": [
+        0
+      ]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": [
+      "수제버거",
+      "파스타"
+    ],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "위치: 서전로58번길 62, 1층, 영업 11:00~22:00 (라스트오더 21:00), 전포역 8번 출구 도보 2분, 애견동반/예약/포장 가능"
+}

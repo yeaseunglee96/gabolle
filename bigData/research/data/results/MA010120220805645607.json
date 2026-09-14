@@ -1,0 +1,34 @@
+{
+  "id": "MA010120220805645607",
+  "worker": "haiku-19",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["87식당 남구 부산", "87식당 문현4동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://www.dongnealba.com/job-ad/62fde5b7e40ea00ca3ea6562"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "라멘, 덮밥 전문",
+      "sources": [0]
+    },
+    {
+      "type": "운영·접근 편의",
+      "note": "배달 주력, 포장 가능",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["라멘", "덮밥"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

@@ -1,0 +1,39 @@
+{
+  "id": "MA0101202210A0056891",
+  "worker": "haiku-66",
+  "researchedAt": "2026-09-10T12:00:00Z",
+  "queries": ["루프탑193 해운대구 부산", "루프탑193 중2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://hotplacehunter.co.kr/sns/article/52731/", "https://hotplacehunter.co.kr/local/article/53316/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "루프탑에서 해운대 바다를 한눈에 담을 수 있는 탁 트인 바다 뷰",
+      "sources": [0]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "비프 웰링턴(Beef Wellington)",
+      "sources": [0]
+    },
+    {
+      "type": "맛 묘사",
+      "note": "브런치 맛집으로 알려짐",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["비프 웰링턴", "Black First French", "Chili Cheese Omelette"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

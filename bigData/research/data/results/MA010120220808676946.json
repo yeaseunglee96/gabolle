@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220808676946",
+  "worker": "haiku-23",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["노티스 중구 부산", "노티스 중앙동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 중구 대교로 135"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "분위기·전망", "note": "루프탑에서 부산항대교와 북항친수공원의 야경을 조망할 수 있는 뷰", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "NOTICE COOKIE와 NOTICE GIFTBOX 대표메뉴", "sources": [1]},
+    {"type": "운영·접근 편의", "note": "넓은 전용 주차장과 키오스크 주문 방식으로 편리한 방문 경험", "sources": [1, 2]}
+  ],
+  "newTypes": ["건축·공간 재해석"],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "full",
+    "audience": "mixed",
+    "signatureDishes": ["NOTICE COOKIE", "NOTICE GIFTBOX"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "1950년 지어진 쌀 창고를 현대적으로 재해석한 복합 문화공간"
+}

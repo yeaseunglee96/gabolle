@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220810732512",
+  "worker": "haiku-44",
+  "researchedAt": "2026-09-09T11:19:00Z",
+  "queries": ["별난돼지 사상구 부산", "별난돼지 주례1동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://triple.guide/restaurants/c02798e0-22d1-4a57-8548-782df4d3b0ec"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "맛 묘사",
+      "note": "돼지고기 구이 전문점으로 뒷고기와 김치찌개가 유명",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["뒷고기", "김치찌개"],
+    "priceBand": "affordable"
+  },
+  "notFound": null,
+  "notes": ""
+}

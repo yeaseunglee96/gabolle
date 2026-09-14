@@ -1,0 +1,44 @@
+{
+  "id": "MA0101202306A0082344",
+  "worker": "haiku-21",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["유유카츠 해운대구 부산", "유유카츠 좌동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=t0jXklvendmW", "https://www.tabling.co.kr/restaurant/12181"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "조리·재료",
+      "note": "제주 흑돼지를 240시간 숙성해 사용하는 눈에 띄는 수고",
+      "sources": [0, 1]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "넓고 깨끗한 내부 설계, 오픈 주방으로 신뢰감",
+      "sources": [0]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "검은 튀김옷 제주 흑돼지 로스/히레카츠로 알려짐",
+      "sources": [0, 1]
+    },
+    {
+      "type": "플랫폼 순위·평점",
+      "note": "다이닝코드, 테이블링 등 플랫폼 등재",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "available",
+    "audience": "mixed",
+    "signatureDishes": ["제주흑돼지 로스카츠", "제주흑돼지 히레카츠"],
+    "priceBand": "medium"
+  },
+  "notFound": null,
+  "notes": ""
+}

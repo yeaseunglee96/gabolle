@@ -1,0 +1,15 @@
+{
+  "id": "MA0106202410A0436068",
+  "worker": "haiku-45",
+  "researchedAt": "2026-09-09T13:36:30Z",
+  "queries": ["김씨마구로 영도구 부산", "김씨마구로 동삼3동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.tabling.co.kr/place/677cd90266de5f06989588fd", "https://www.diningcode.com/profile.php?rid=3VIjA1nmINK2"],
+  "stillOpen": true,
+  "whyPeopleGo": [{"type": "간판 메뉴 지목", "note": "회전초밥, 신선한 마구로 전문점", "sources": [0, 1]}],
+  "newTypes": [],
+  "descriptors": {"yearsClaimed": null, "generations": null, "queueing": null, "parking": null, "audience": "mixed", "signatureDishes": ["회전초밥", "마구로"], "priceBand": "medium"},
+  "notFound": null,
+  "notes": ""
+}

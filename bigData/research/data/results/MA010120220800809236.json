@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220800809236",
+  "worker": "haiku-38",
+  "researchedAt": "2026-09-09T16:00:00Z",
+  "queries": ["부네치아횟집 부산", "부네치아횟집 신평2동"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "부네치아라는 이름의 구체적인 횟집을 찾을 수 없었다. 부산의 부네치아는 장림포구라는 관광지명이며 그 지역의 맛술촌에는 여러 음식점이 있지만 부네치아횟집이라는 정확한 가게는 확인되지 않았다.",
+  "notes": ""
+}

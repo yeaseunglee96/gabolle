@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202406A0371753",
+  "worker": "haiku-24",
+  "researchedAt": "2026-09-09T10:26:15.2132113+09:00",
+  "queries": ["일인당 중구 부산", "일인당 대청동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색 결과에서 해당 가게 정보를 찾을 수 없음",
+  "notes": ""
+}

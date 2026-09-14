@@ -1,0 +1,25 @@
+{
+  "id": "MA010120220810584822",
+  "worker": "haiku-11",
+  "researchedAt": "2026-09-09T01:05:00Z",
+  "queries": ["쇼진 해운대 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 해운대구 구남로 9"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "맛 묘사", "note": "가이세키 전문점으로 계절 신선한 재료 사용", "sources": [0] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["장어덮밥", "가이세키"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": "라마다 앙코르 해운대 호텔 2층"
+}

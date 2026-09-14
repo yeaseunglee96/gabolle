@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220810807764",
+  "worker": "haiku-14",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["온천입구기장곰장어 동래구 부산", "온천입구기장곰장어 명륜동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["식신", "다이닝코드", "트립가이드", "K-trip-tips"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "연차·역사", "note": "1980년부터 시작, 40년 전통", "sources": [1, 3]},
+    {"type": "기관 선정", "note": "백년가게 선정", "sources": [3]},
+    {"type": "간판 메뉴 지목", "note": "곰장어구이 전문", "sources": [0, 1]},
+    {"type": "조리·재료", "note": "신선한 곰장어와 국내산 고춧가루, 쫄깃한 식감의 매콤한 양념 맛", "sources": [0, 1]},
+    {"type": "현지인 지지", "note": "부모님 추천으로 오는 오래된 단골들이 많음", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 40,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["곰장어구이"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "전국 택배 배송 가능"
+}

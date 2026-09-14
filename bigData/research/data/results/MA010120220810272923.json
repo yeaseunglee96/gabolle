@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220810272923",
+  "worker": "haiku-47",
+  "researchedAt": "2026-09-09T12:35:00Z",
+  "queries": ["송정면가 해운대구 부산", "송정면가 송정동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=1pBzhWf5K1yY"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "송정 밀면, 물밀면", "sources": [0]},
+    {"type": "분위기·전망", "note": "KT타워 바로 옆, 넓은 주차장 구비", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["밀면", "물밀면"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "영업시간 10:30-20:00 (화요일 정기휴무). 맛, 서비스, 분위기 모두 평가 우수"
+}

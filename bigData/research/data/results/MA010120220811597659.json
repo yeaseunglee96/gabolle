@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220811597659",
+  "worker": "haiku-12",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["우마이도 금정구 부산", "우마이도 장전동 회"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/257826", "https://www.diningcode.com/profile.php?rid=3EP98Xn1Xqew"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "연차·역사", "note": "2008년부터 운영 중인 16년 이상 전통의 라멘 전문점", "sources": [0, 1]},
+    {"type": "기관 선정", "note": "블루리본 상 9회 수상", "sources": [0, 1]},
+    {"type": "조리·재료", "note": "정통 하카타 라멘 - 면, 육수, 교자를 직접 만듦", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "톤코츠 라멘과 수타 우동이 특별함", "sources": [0, 1]},
+    {"type": "플랫폼 순위·평점", "note": "식신, 다이닝코드, 망고플레이트 등 주요 플랫폼에 소개됨", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 16,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["톤코츠라멘", "교자", "우동"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

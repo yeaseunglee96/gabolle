@@ -1,0 +1,26 @@
+{
+  "id": "MA0101202306A0089378",
+  "worker": "haiku-20",
+  "researchedAt": "2026-09-09T12:26:30Z",
+  "queries": ["이홍델 동래구", "이홍델 명륜동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["부산광역시 동래구 충렬대로181번길 7 2층"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "간판 메뉴 지목", "note": "디저트 전문 브런치 카페", "sources": [0] },
+    { "type": "맛 묘사", "note": "디저트의 맛이 뛰어난 것으로 평가", "sources": [0] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "all",
+    "signatureDishes": ["디저트"],
+    "priceBand": "regular"
+  },
+  "notFound": null,
+  "notes": "원래 분류는 경양식이나 실제는 디저트/브런치 카페"
+}

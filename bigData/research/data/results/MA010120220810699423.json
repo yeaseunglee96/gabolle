@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220810699423",
+  "worker": "haiku-14",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["삼락하동재첩국 사상구 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산일보", "부산역사문화대전", "다이닝코드"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "연차·역사", "note": "30년 이상 같은 자리에서 운영", "sources": [0]},
+    {"type": "기관 선정", "note": "백년가게 선정(30년 이상 경력)", "sources": [0]},
+    {"type": "간판 메뉴 지목", "note": "재첩국 전문점", "sources": [0]},
+    {"type": "동네·시장 지목", "note": "삼락재첩거리의 대표 가게", "sources": [1, 2]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 30,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["재첩국", "열무비빔김치"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

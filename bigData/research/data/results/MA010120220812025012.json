@@ -1,0 +1,18 @@
+{
+  "id": "MA010120220812025012",
+  "worker": "haiku-65",
+  "researchedAt": "2026-09-09T22:34:55.224Z",
+  "queries": [
+    "영빈 부산진구 부전동 회",
+    "영빈 중앙대로 초밥"
+  ],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "검색 결과에 영빈에 대한 정보 없음. 부산진구, 부전동 일반 정보만 나타남.",
+  "notes": ""
+}

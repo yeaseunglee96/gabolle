@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220814244797",
+  "worker": "haiku-12",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["부산해물찜 서구 부산", "부산해물찜 동대신1동 해산물"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=eDdyPhlLsQvk", "https://www.visitbusan.net/index.do?menuCd=DOM_000000201002001000&uc_seq=1436&lang_cd=ko"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "해물찜과 아구찜이 시그니처 메뉴", "sources": [0, 1]},
+    {"type": "조리·재료", "note": "다양한 신선한 해산물을 사용한 찜 요리", "sources": [0, 1]},
+    {"type": "운영·접근 편의", "note": "지하철역에서 1분 거리로 접근이 편함", "sources": [0]},
+    {"type": "플랫폼 순위·평점", "note": "식신, 다이닝코드 등 주요 플랫폼에 소개됨", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["해물찜", "아구찜", "꽃게찜", "새우찜"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

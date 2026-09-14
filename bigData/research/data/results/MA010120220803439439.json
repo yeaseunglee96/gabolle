@@ -1,0 +1,23 @@
+{
+  "id": "MA010120220803439439",
+  "worker": "haiku-62",
+  "researchedAt": "2026-09-09T08:35:00Z",
+  "queries": ["난이케이크 수영구 부산", "난이케이크 민락동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.instagram.com/nan.e_cake_/", "https://pf.kakao.com/_iFUHb", "https://triple.guide/restaurants/e66382ac-a7cf-4f0f-8e1f-03c1ba94beb1"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "당일 레터링 케이크 전문점",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["레터링 케이크", "당일 케이크"]
+  },
+  "notFound": null,
+  "notes": "협찬 의심: 인스타그램 글에 협찬 태그가 있음"
+}

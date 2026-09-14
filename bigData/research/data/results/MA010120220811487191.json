@@ -1,0 +1,36 @@
+{
+  "id": "MA010120220811487191",
+  "worker": "haiku-2",
+  "researchedAt": "2026-09-08T16:43:11.248Z",
+  "queries": ["조방국밥 기장 부산"],
+  "found": true,
+  "confidence": "medium",
+  "sources": [
+    "https://www.diningcode.com/profile.php?rid=2SVFbHJwgNXA"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "맛 묘사",
+      "note": "처음엔 밀키하지만 제공할 때는 맑아지는 깨끗한 맛의 국물",
+      "sources": [0]
+    },
+    {
+      "type": "운영·접근 편의",
+      "note": "아침식사에 적합한 메뉴, 기장역 근처 접근성 좋음",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["순대국밥", "돼지국밥"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "기장역 도보 0.14km, 수요일 휴무"
+}

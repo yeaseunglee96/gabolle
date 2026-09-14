@@ -1,0 +1,34 @@
+{
+  "id": "MA0101202507A0015350",
+  "worker": "haiku-57",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["무카게야 부산", "무카게야 광안로"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=WyiJESzH6EMF"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "닭돼지뼈 이에계라멘, 츠케멘(담금국수) 전문",
+      "sources": [0]
+    },
+    {
+      "type": "메뉴 희소성",
+      "note": "미소지로케 일일 20그릇 한정판매",
+      "sources": [0]
+    },
+    {
+      "type": "현지인 지지",
+      "note": "혼밥의 성지, 데이트 장소로도 인기",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["닭돼지뼈 라멘", "츠케멘", "치킨 가라아게"],
+    "audience": "mixed"
+  },
+  "notFound": null,
+  "notes": "라멘 무카게야 광안본점, 혼자 먹기 좋은 카운터 좌석, 일본 현지 맛, 기린생맥주 제공"
+}

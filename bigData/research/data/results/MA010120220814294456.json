@@ -1,0 +1,34 @@
+{
+  "id": "MA010120220814294456",
+  "worker": "haiku-32",
+  "researchedAt": "2026-09-09T10:52:00Z",
+  "queries": ["미다래 서구 부산 초밥", "미다래 부민동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 서구 구덕로 224"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "돈까스, 퓨전일식 초밥 전문",
+      "sources": [0, 1]
+    },
+    {
+      "type": "현지인 지지",
+      "note": "동아대 부민캠퍼스 학생들이 자주 방문",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "college_students",
+    "signatureDishes": ["돈까스", "초밥"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "10:00~19:00 운영, 브레이크타임 15:00~17:00. 다이닝코드 등에 등재."
+}

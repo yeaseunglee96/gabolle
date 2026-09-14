@@ -40,8 +40,18 @@ public class TripJpaEntity {
 	@Column(name = "trip_id")
 	private UUID tripId;
 
+	/**
+	 * 🔴 S15P21E201-317 — {@code updatable = false} 다. 소유자는 여행 생성 이후 바뀌지 않는다는
+	 * 뜻이었는데, 딱 하나(익명 세션 승계) 예외가 생겼다. 그 예외는 이 엔티티를 고쳐 저장하는
+	 * 경로가 아니라 {@link JpaTripRepository#claimAnonymousTrips} 의 네이티브 SQL 로만 이뤄진다 —
+	 * 그래서 이 플래그는 그대로 둔다("보통은 안 바뀐다"는 사실은 여전히 참이다).
+	 */
 	@Column(name = "owner_user_id", nullable = false, updatable = false)
 	private UUID ownerUserId;
+
+	/** {@code USER} | {@code ANONYMOUS}. {@link com.gabolle.backend.trip.domain.Trip.OwnerType} 과 1:1. */
+	@Column(name = "owner_type", nullable = false, updatable = false, length = 20)
+	private String ownerType;
 
 	@Column(name = "start_date", nullable = false)
 	private LocalDate startDate;
@@ -113,7 +123,7 @@ public class TripJpaEntity {
 		// JPA 전용
 	}
 
-	TripJpaEntity(UUID tripId, UUID ownerUserId, LocalDate startDate, LocalDate endDate,
+	TripJpaEntity(UUID tripId, UUID ownerUserId, String ownerType, LocalDate startDate, LocalDate endDate,
 			Double originLat, Double originLng, Long budgetKrw, Integer partySize,
 			String timeWindow, String timezone, String[] travelModes,
 			LocalTime timeWindowStart, LocalTime timeWindowEnd,
@@ -122,6 +132,7 @@ public class TripJpaEntity {
 			OffsetDateTime createdAt, OffsetDateTime updatedAt, OffsetDateTime deletedAt) {
 		this.tripId = tripId;
 		this.ownerUserId = ownerUserId;
+		this.ownerType = ownerType;
 		this.startDate = startDate;
 		this.endDate = endDate;
 		this.originLat = originLat;
@@ -159,6 +170,7 @@ public class TripJpaEntity {
 
 	UUID tripId() { return tripId; }
 	UUID ownerUserId() { return ownerUserId; }
+	String ownerType() { return ownerType; }
 	LocalDate startDate() { return startDate; }
 	LocalDate endDate() { return endDate; }
 	Double originLat() { return originLat; }

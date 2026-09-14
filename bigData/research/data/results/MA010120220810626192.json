@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220810626192",
+  "worker": "haiku-43",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["송백숯불농원 동구 부산", "송백숯불농원 좌천동 갈비"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/675437"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "가격·가성비", "note": "점심 특선 메뉴가 푸짐함", "sources": [0]},
+    {"type": "간판 메뉴 지목", "note": "숯불갈비 전문점", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["갈비"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "10:00-22:00 영업"
+}

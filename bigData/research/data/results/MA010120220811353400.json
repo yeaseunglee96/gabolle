@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220811353400",
+  "worker": "haiku-7",
+  "researchedAt": "2026-09-08T22:09:18Z",
+  "queries": ["골목게장 본점 동구 부산", "골목게장 초량3동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=g9khmyum7G5o", "https://www.youtube.com/shorts/nZYGyIlI2no"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "국내산 간장게장, 양념게장 전문점", "sources": [0]},
+    {"type": "맛 묘사", "note": "밥도둑 끝판왕으로 불리는 게장맛", "sources": [1]},
+    {"type": "혼잡·수요", "note": "점심시간에 항상 웨이팅이 있는 인기 맛집", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": true,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["간장게장", "양념게장"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "부산역 초량역맛집 위치. 화~일 11:30~20:00 영업. 월요일 정기휴무. 꽃게탕도 제공."
+}

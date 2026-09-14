@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220810134901",
+  "worker": "haiku-39",
+  "researchedAt": "2026-09-09T10:24:00Z",
+  "queries": ["불미골오리 북구 부산", "불미골오리 화명3동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.fntoday.co.kr/news/articleView.html?idxno=365195", "https://www.diningcode.com/profile.php?rid=XmIPdTkqA04t"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "원조·최초", "note": "2대째 운영 중인 오리전문점", "sources": [0, 1]},
+    {"type": "조리·재료", "note": "참숯을 활용해 조리한 오리불고기", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "오리불고기로 알려짐", "sources": [0, 1]},
+    {"type": "분위기·전망", "note": "우드 인테리어, 쾌적한 분위기", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": 2,
+    "queueing": null,
+    "parking": true,
+    "audience": "families",
+    "signatureDishes": ["오리불고기", "오리참숯구이", "약오리백숙"],
+    "priceBand": "moderate"
+  },
+  "notes": "주소: 부산광역시 북구 용당로20번길 9 1층, 영업시간: 화-일 11:00~21:30 (15:00~17:00 브레이크타임), 월요일 휴무, 화명유료주차장 1시간 30분 무료, 아기의자 준비"
+}

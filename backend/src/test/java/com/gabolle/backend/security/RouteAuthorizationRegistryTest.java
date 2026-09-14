@@ -44,7 +44,7 @@ import org.springframework.web.bind.annotation.RestController;
  * 그래서 클래스 경로를 직접 훑어 애너테이션을 읽는다. DB 도 프로필도 필요 없고, 프로필 조건과
  * 무관하게 전부 보인다.
  *
- * <h2>정책 다섯 가지</h2>
+ * <h2>정책 일곱 가지</h2>
  * <ul>
  *   <li>{@code PRE_AUTH} — 로그인 <b>전에</b> 부르는 인증 흐름 자체. 열려 있는 것이 정상이고
  *       보호는 안쪽에 있다(연속 실패 잠금, 1회용 티켓, 비밀번호 확인)</li>
@@ -55,6 +55,12 @@ import org.springframework.web.bind.annotation.RestController;
  *   <li>{@code OTHER_USER_OK} — 남의 자원을 보는 것이 <b>기능 자체</b>다(프로필 보기, 팔로우).
  *       여기서 위험은 거부되지 않는 것이 아니라 <b>보여선 안 될 것이 섞이는 것</b>이다</li>
  *   <li>{@code AUTHENTICATED_ONLY} — 로그인만 하면 누구나 같은 답을 받는다. 자원에 주인이 없다</li>
+ *   <li>🔴 {@code INTERNAL_ONLY} — <b>사람이 아니라 기계</b>가 부른다(Airflow 배치). 위 여섯은
+ *       전부 "요청자가 누구인가" 를 묻는데, 이것은 요청자에게 신원이 <b>없다</b> —
+ *       공유 토큰 하나({@code X-Internal-Token})가 전부다. {@code ADMIN_ONLY} 로 분류하면
+ *       안 된다: 운영자 권한은 배포 설정의 이메일 목록에서 매 기동 계산되므로, 배치를 거기
+ *       끼우면 <b>목록을 고치는 사람이 자기가 배치를 멈춘다는 것을 모른 채 멈춘다</b>
+ *       (S15P21E201-772). 문이 다르다는 것이 이 정책의 존재 이유다</li>
  *   <li>🔴 {@code ADMIN_ONLY} — 운영자만. 자원의 주인이 <b>요청자가 아닌</b> 유일한 갈래다.
  *       나머지 다섯은 "내 것인가" 를 묻는데 이것은 "너는 운영자인가" 를 묻는다. 그래서
  *       {@code OWNED} 로 분류하면 안 된다 — 남의 것을 다루는 것이 기능이기 때문이다</li>
@@ -70,7 +76,7 @@ class RouteAuthorizationRegistryTest {
 
 	enum Policy {
 
-		PRE_AUTH, PUBLIC_TOKEN, OWNED, OTHER_USER_OK, AUTHENTICATED_ONLY, ADMIN_ONLY
+		PRE_AUTH, PUBLIC_TOKEN, OWNED, OTHER_USER_OK, AUTHENTICATED_ONLY, ADMIN_ONLY, INTERNAL_ONLY
 	}
 
 	private static final Map<String, Map.Entry<Policy, String>> POLICY = policies();
@@ -125,7 +131,12 @@ class RouteAuthorizationRegistryTest {
 		//    그 변경이 diff 에 남아 리뷰에서 보인다. 실제로 이 저장소의 SecurityConfig 주석은
 		//    "/oauth/ 아래 한 마디짜리 경로가 전부 열린다" 는 함정을 적어 두고 있다 — 두 마디로
 		//    두지 않으면 새 경로가 의도 없이 열린다.
-		assertThat(open).hasSize(18);
+		// 🔴 18 → 19 (2026-09-11, S15P21E201-833). 늘어난 하나는
+		//    POST /api/v1/auth/oauth/apple/form-post 다 — 애플이 form_post 로 결과를 되돌려 보내는
+		//    자리라 로그인 전에 애플 서버가 직접 부른다. 열어도 되는 근거는 그 경로가 판정을
+		//    하지 않는다는 것이다: 받은 값을 설정에 박힌 화면 주소로만 옮기고, state·nonce
+		//    검증은 화면이 이어서 부르는 코드 교환이 그대로 한다.
+		assertThat(open).hasSize(19);
 
 		// 표를 아는 사람이 실제로 열린 것과 대조할 수 있게 목록도 고정한다
 		assertThat(routesWith(Policy.PUBLIC_TOKEN)).containsExactlyInAnyOrder(
@@ -152,8 +163,11 @@ class RouteAuthorizationRegistryTest {
 		// 이 확인은 숫자 자체가 목적이 아니라, 누군가 정책을 대충 AUTHENTICATED_ONLY 로
 		// 몰아넣는 것을 눈에 띄게 하려는 것이다. 소유 자원을 그렇게 분류하면 남의 것을
 		// 거부하는지 아무도 안 재게 된다.
+		// S15P21E201-343 -- 진짜 주인 없는 자원(번역 중계, route/directions 와 같은 이유)을 하나 더
+		// 더해 31 대 31 로 동률이 됐다. 정책을 대충 몰아넣은 신호가 아니라 자연스러운 성장이라 >= 로
+		// 완화한다 -- 여러 개가 한꺼번에 AUTHENTICATED_ONLY 로 넘어가는 진짜 몰아넣기는 여전히 잡는다.
 		assertThat(routesWith(Policy.OWNED).size())
-				.isGreaterThan(routesWith(Policy.AUTHENTICATED_ONLY).size());
+				.isGreaterThanOrEqualTo(routesWith(Policy.AUTHENTICATED_ONLY).size());
 	}
 
 	// ---- 경로 열거 ----
@@ -185,14 +199,7 @@ class RouteAuthorizationRegistryTest {
 	private static Set<String> discoverRoutes() {
 		Set<String> routes = new TreeSet<>();
 		for (Class<?> controller : scanForControllers()) {
-			String base = classLevelPath(controller);
-			for (var method : controller.getDeclaredMethods()) {
-				collect(routes, base, method.getAnnotation(GetMapping.class));
-				collect(routes, base, method.getAnnotation(PostMapping.class));
-				collect(routes, base, method.getAnnotation(PutMapping.class));
-				collect(routes, base, method.getAnnotation(PatchMapping.class));
-				collect(routes, base, method.getAnnotation(DeleteMapping.class));
-			}
+			routes.addAll(routesOf(controller));
 		}
 		// 🔴 하나도 못 찾았으면 그것 자체가 실패다. 이 메서드가 조용히 빈 집합을 돌려주면
 		//    위의 모든 확인이 무의미하게 초록이 된다.
@@ -277,9 +284,70 @@ class RouteAuthorizationRegistryTest {
 		}
 	}
 
+	/**
+	 * 한 컨트롤러가 선언한 경로들.
+	 *
+	 * <p>🔴 {@code discoverRoutes} 에서 이 자리를 떼어낸 이유는 <b>회귀 검사가 직접 부를 자리가
+	 * 필요해서</b>다 — S15P21E201-836. 그 전에는 경로를 읽는 방식이 클래스 경로 스캔 안에만
+	 * 있어서, {@code path=} 로 쓴 매핑을 감사가 보는지 확인하려면 실제 컨트롤러를 하나 만들어야
+	 * 했다. 그런데 {@code @RestController} 를 붙인 순간 그것이 감사 대상에 들어가 표와 열린 경로
+	 * 수까지 건드린다. 이제 검사가 {@code @RestController} 없는 대역 클래스를 만들어 이 메서드만
+	 * 부를 수 있다.
+	 */
+	static Set<String> routesOf(Class<?> controller) {
+		Set<String> routes = new TreeSet<>();
+		String base = classLevelPath(controller);
+		for (var method : controller.getDeclaredMethods()) {
+			collect(routes, base, method.getAnnotation(GetMapping.class));
+			collect(routes, base, method.getAnnotation(PostMapping.class));
+			collect(routes, base, method.getAnnotation(PutMapping.class));
+			collect(routes, base, method.getAnnotation(PatchMapping.class));
+			collect(routes, base, method.getAnnotation(DeleteMapping.class));
+		}
+		return routes;
+	}
+
 	private static String classLevelPath(Class<?> controller) {
 		RequestMapping mapping = AnnotatedElementUtils.findMergedAnnotation(controller, RequestMapping.class);
-		return (mapping == null || mapping.value().length == 0) ? "" : mapping.value()[0];
+		if (mapping == null) {
+			return "";
+		}
+		String[] path = pathOf(mapping.value(), mapping.path());
+		return path.length == 0 ? "" : path[0];
+	}
+
+	/**
+	 * 🔴 {@code value} 와 {@code path} 를 <b>둘 다</b> 본다 — S15P21E201-836.
+	 *
+	 * <p>스프링에게 이 둘은 완전히 같은 별칭이다({@code @AliasFor}). 그런데 애너테이션 객체를
+	 * 직접 읽는 이 감사에게는 다르다 — {@code @PostMapping(path = "/x")} 로 쓰면 {@code value()}
+	 * 가 비어 있고, 그때 이 감사는 그 메서드의 경로를 <b>클래스 경로 그대로로 오인했다.</b>
+	 *
+	 * <p>그것이 왜 위험한가. 오인한 이름이 표에 없으면 "정책 없는 경로" 로 빨개지지만,
+	 * <b>클래스 경로가 이미 표에 있으면 조용히 통과한다.</b> 즉 {@code @RequestMapping("/api/v1/auth")}
+	 * 처럼 표에 있는 컨트롤러에 {@code path=} 로 새 경로를 더하면, 정책을 한 줄도 안 적고
+	 * 이 검사를 지나간다 — 이 검사가 막으려는 것이 정확히 그것이다.
+	 *
+	 * <p>실제로 겪었다. {@code S15P21E201-833} 에서 애플 착지 경로를 {@code path=} 로 썼고,
+	 * 감사는 그것을 {@code POST /api/v1/auth/oauth/apple} 로 봤다. 그때는 그 이름이 표에 없어
+	 * 빨개졌지만, 한 마디만 달랐으면 아무 일도 안 일어났을 것이다.
+	 *
+	 * <h2>🔴 실측 — 구멍은 메서드 쪽에만 있었다</h2>
+	 * 부수기 실험으로 확인했다. 이 메서드를 {@code return value} 로 되돌리면
+	 * {@code RouteDiscoveryReadsPathAttributeTest} 의 <b>메서드 매핑 검사 둘만</b> 빨개지고
+	 * 클래스 레벨 검사는 그대로 초록이다.
+	 *
+	 * <p>이유는 읽는 방식이 다르기 때문이다. 클래스 경로는
+	 * {@code AnnotatedElementUtils.findMergedAnnotation} 으로 읽는데 그쪽은 {@code @AliasFor} 를
+	 * 실제로 합쳐 준다. 메서드 매핑은 {@code method.getAnnotation(...)} — 순수 반사라 별칭을
+	 * 합치지 않고 선언된 값 그대로다. <b>같은 별칭인데 읽는 도구가 달라서 결과가 갈렸다.</b>
+	 *
+	 * <p>그래서 {@link #classLevelPath} 쪽 호출은 지금도 필요하지 않다. 그래도 남겨 두는 이유는
+	 * 두 자리가 같은 규칙으로 보이는 편이 다음 사람에게 안전하고, 읽는 도구를 나중에 바꿔도
+	 * 결과가 안 흔들리기 때문이다.
+	 */
+	private static String[] pathOf(String[] value, String[] path) {
+		return value.length > 0 ? value : path;
 	}
 
 	private static void collect(Set<String> routes, String base, Annotation annotation) {
@@ -290,23 +358,23 @@ class RouteAuthorizationRegistryTest {
 		String[] value;
 		if (annotation instanceof GetMapping a) {
 			verb = "GET";
-			value = a.value();
+			value = pathOf(a.value(), a.path());
 		}
 		else if (annotation instanceof PostMapping a) {
 			verb = "POST";
-			value = a.value();
+			value = pathOf(a.value(), a.path());
 		}
 		else if (annotation instanceof PutMapping a) {
 			verb = "PUT";
-			value = a.value();
+			value = pathOf(a.value(), a.path());
 		}
 		else if (annotation instanceof PatchMapping a) {
 			verb = "PATCH";
-			value = a.value();
+			value = pathOf(a.value(), a.path());
 		}
 		else if (annotation instanceof DeleteMapping a) {
 			verb = "DELETE";
-			value = a.value();
+			value = pathOf(a.value(), a.path());
 		}
 		else {
 			throw new IllegalArgumentException("모르는 매핑: " + annotation);
@@ -364,6 +432,13 @@ class RouteAuthorizationRegistryTest {
 				"웹은 리프레시 토큰을 쿠키로 주고받는다. 로그인 전 상태에서 오는 요청이다");
 		put(m, "POST /api/v1/auth/web/logout", Policy.PRE_AUTH,
 				"위와 같다. 남의 세션을 끊으려면 그 쿠키를 가지고 있어야 한다");
+		put(m, "POST /api/v1/auth/oauth/apple/form-post", Policy.PRE_AUTH,
+				"애플이 form_post 로 되돌려 보내는 자리 — 로그인 전에 애플 서버가 직접 부르므로 열려 있다. "
+						+ "판정을 하지 않는 경로다: 받은 code·state 를 설정에 박힌 화면 주소로만 옮기고"
+						+ "(요청이 준 주소를 쓰지 않아 open redirect 가 안 된다), state·nonce 검증은 화면이 "
+						+ "이어서 부르는 코드 교환이 한다. 폼 본문의 user(이름·이메일)는 서명 밖의 값이라 "
+						+ "받지도 않는다. provider 를 경로 변수로 두지 않고 apple 로 박은 것은 form_post 를 요구하는 제공자가 애플뿐이어서다. "
+						+ "AppleFormPostJourneyFunctionalTest (-833)");
 		put(m, "POST /api/v1/auth/oauth/{}/challenge", Policy.PRE_AUTH,
 				"🔴 소셜 로그인의 첫 요청이다. 막으면 브라우저가 열리기도 전에 401 이 난다 (-704)");
 		put(m, "POST /api/v1/auth/oauth/{}", Policy.PRE_AUTH,
@@ -391,10 +466,16 @@ class RouteAuthorizationRegistryTest {
 				"탈퇴하면 무엇이 지워지는지 미리 보여준다(-188). 대상이 인증 주체 자신뿐이라 남의 것을 지정할 자리가 없다. AccountDeletionIntegrationTest");
 		put(m, "DELETE /api/v1/auth/me", Policy.OWNED,
 				"탈퇴. 대상이 인증 주체 자신뿐이다. AccountDeletionIntegrationTest");
+		put(m, "GET /api/v1/me/preferences/spend", Policy.OWNED,
+				"계정 기본 씀씀이 성향 조회(-709). 대상이 경로에 없고 인증 주체로만 정해진다 — 남의 것을 지정할 방법이 없다. SpendProfileControllerTest");
+		put(m, "PUT /api/v1/me/preferences/spend", Policy.OWNED,
+				"위와 같다. SpendProfileControllerTest");
 
 		// ── 여행 ────────────────────────────────────────────────────────────────
 		put(m, "POST /api/v1/trips", Policy.AUTHENTICATED_ONLY,
-				"새로 만드는 것이라 기존 자원의 주인 개념이 없다. 소유자는 인증 주체로 박힌다");
+				"새로 만드는 것이라 기존 자원의 주인 개념이 없다. 소유자는 인증 주체로 박힌다. "
+				+ "S15P21E201-317 — 익명 세션(ROLE_ANONYMOUS)도 이 자리만은 통과한다. 만든 사람이 곧 "
+				+ "소유자가 되므로 익명이라도 남의 것을 건드릴 수 없다 — AuthenticatedUsers.requireOwner");
 		// 🔴 목록은 OWNED 가 아니라 AUTHENTICATED_ONLY 다 — 부를 때 자원을 지목하지 않기
 		//    때문이다. 위험은 "남의 것을 부르면 거부되는가" 가 아니라 "남의 여행이 목록에
 		//    섞이는가" 이고, 그것은 저장소가 참여 표로 거른다. TripListIntegrationTest 의
@@ -407,6 +488,11 @@ class RouteAuthorizationRegistryTest {
 				"삭제는 OWNER 만. 동행자는 403, 비회원과 없는 여행은 같은 404. TripDeleteIntegrationTest");
 		put(m, "GET /api/v1/trips/{}/itineraries", Policy.OWNED,
 				"참여자만. 비회원과 없는 여행이 같은 404. TripItineraryListIntegrationTest");
+		put(m, "GET /api/v1/trips/{}/stories", Policy.OWNED,
+				"참여자만. 비회원과 없는 여행이 같은 404 이고, 참여자에게도 그 기록의 공개 범위 판정"
+						+ "(StoryVisibilityPolicy.canView)을 한 번 더 지난다 — 여행에 달렸다는 이유로 남의 "
+						+ "나만 보기 기록이 새면 -137 에서 막은 구멍이 다시 열린다. "
+						+ "TripStoryJourneyFunctionalTest (-829)");
 		put(m, "GET /api/v1/trips/{}/activity", Policy.OWNED,
 				"참여자만. TripActivityIntegrationTest");
 		put(m, "GET /api/v1/trips/{}/members", Policy.OWNED,
@@ -451,12 +537,33 @@ class RouteAuthorizationRegistryTest {
 				"되돌리기는 편집 권한자만. ItineraryRevertIntegrationTest");
 		put(m, "PUT /api/v1/itineraries/{}/items/{}/actual", Policy.OWNED,
 				"그 여행의 편집자만 자기 일정의 방문 시각을 적는다 — 남의 여행은 존재를 감춘 404, VIEWER 는 403. ItineraryActualTimeIntegrationTest (-293)");
+		put(m, "GET /api/v1/itineraries/{}/days/{}/pace", Policy.OWNED,
+				"지연 경고 조회다. 보기만 하므로 VIEWER 도 본다 — 참여자가 아니면 존재를 감춘 404. ItineraryPaceIntegrationTest (-304)");
+		put(m, "GET /api/v1/itineraries/{}/rhythm", Policy.OWNED,
+				"여행 리듬 요약 조회다. 위와 같은 이유로 VIEWER 도 본다. ItineraryPaceIntegrationTest (-308)");
+		put(m, "POST /api/v1/itineraries/{}/days/{}/replan", Policy.OWNED,
+				"남은 하루 재계획은 판을 만드는 편집이라 편집 권한자만. ItineraryReplanIntegrationTest (-308)");
 
 		// ── 추천 작업 ────────────────────────────────────────────────────────────
 		put(m, "GET /api/v1/jobs/{}", Policy.OWNED,
 				"남의 작업 번호와 없는 번호를 같은 404 로 답한다. RecommendationResultAuthorizationTest");
+		put(m, "GET /api/v1/jobs/{}/progress", Policy.OWNED,
+				"진행률을 밀어 보내는 통로도 같은 소유자 검사를 지난다 — 이 자리만 열면 남의 계산이 "
+						+ "어디까지 갔는지가 옆문으로 샌다. RecommendationJobProgressStreamTest (-193)");
 		put(m, "GET /api/v1/recommendation-jobs/{}", Policy.OWNED,
 				"위와 같은 소유자 검사를 공유한다. RecommendationResultAuthorizationTest");
+
+		put(m, "POST /api/v1/trips/{}/facet-views/{}", Policy.OWNED,
+				"그 여행의 회원만 그 여행 이름으로 갈래 열람을 남긴다 — 아무나 남기면 집계를 부풀릴 수 "
+						+ "있다. FacetViewFunctionalTest (-475)");
+		put(m, "GET /api/v1/admin/facet-views", Policy.ADMIN_ONLY,
+				"갈래별 이용 집계는 운영 판단용이다. 경로 앞자리가 실제 보호 장치다. "
+						+ "FacetViewFunctionalTest (-475)");
+
+		// ── 코스 테마 ────────────────────────────────────────────────────────────
+		put(m, "GET /api/v1/course-categories", Policy.AUTHENTICATED_ONLY,
+				"자원에 주인이 없는 목록 조회다. 쓰이는 자리가 여행 만들기 안이라 로그인 뒤에 둔다. "
+						+ "CourseThemeContractFunctionalTest (-450)");
 
 		// ── 기록·피드·사용자 ─────────────────────────────────────────────────────
 		put(m, "POST /api/v1/stories", Policy.AUTHENTICATED_ONLY,
@@ -558,6 +665,37 @@ class RouteAuthorizationRegistryTest {
 				"집계 지표 조회. 개인 자원이 아니라 전체 이벤트를 기간으로 묶어 세므로 주인이 없다 — "
 						+ "관리자 전용으로 좁히려면 이 저장소에 아직 없는 역할 체계부터 있어야 한다 "
 						+ "(AnalyticsController 주석 참고). AnalyticsControllerTest");
+
+		// ── 도구 (-343) ──────────────────────────────────────────────────────────
+		put(m, "POST /api/v1/tools/translate", Policy.AUTHENTICATED_ONLY,
+				"문장 하나를 번역 업체에 대신 물어보는 창구라 우리 자원이 아니라 주인이 없다. "
+						+ "인증을 요구하는 것은 route/directions 와 같은 이유 — 우리 업체 키로 남이 대신 "
+						+ "번역을 돌리는 것(비용)을 막기 위해서다. TranslateControllerTest");
+
+		// ── 날씨 (-366) ──────────────────────────────────────────────────────────
+		put(m, "GET /api/v1/weather", Policy.AUTHENTICATED_ONLY,
+				"좌표·날짜로 답이 정해진다 — 우리 자원이 아니라 주인이 없다. 인증을 요구하는 것은 "
+						+ "route/directions·tools/translate 와 같은 이유 — 우리 기상청 키로 남이 대신 "
+						+ "조회를 돌리는 것(비용)을 막기 위해서다. WeatherControllerTest");
+
+		// ── AI 여행 도우미 (-802) ────────────────────────────────────────────────
+		put(m, "POST /api/v1/assistant/messages", Policy.AUTHENTICATED_ONLY,
+				"자연어 메시지 하나를 AI 업체(Claude)에 대신 물어보는 창구라 우리 자원이 아니라 "
+						+ "주인이 없다. 인증을 요구하는 것은 tools/translate 와 같은 이유 — 우리 업체 "
+						+ "키로 남이 대신 호출을 돌리는 것(비용)을 막기 위해서다. AssistantControllerTest");
+
+		// ── 기계용 내부 배치 (S15P21E201-772 · -787) ──────────────────────────────
+		//
+		// 🔴 사람 계정과 무관하다. SecurityConfig 의 "/internal/**" → hasRole("INTERNAL") 이
+		//    막고, 권한은 InternalTokenAuthenticationFilter 가 X-Internal-Token 헤더를 보고
+		//    심는다. 토큰을 설정하지 않으면 아무 권한도 안 심겨서 전부 거부된다 —
+		//    "설정을 깜빡했더니 열려 있었다" 가 되지 않는다.
+		put(m, "GET /internal/v1/batch/taste-vectors/stale", Policy.INTERNAL_ONLY,
+				"표시가 뒤처진 사람 목록. 사람 신원이 아니라 공유 토큰으로 연다. "
+						+ "InternalTokenAuthenticationFilterTest (-772)");
+		put(m, "POST /internal/v1/batch/taste-vectors/rebuild", Policy.INTERNAL_ONLY,
+				"넘긴 사람들의 취향 벡터를 다시 접는다. 같은 문·같은 토큰. "
+						+ "InternalTokenAuthenticationFilterTest (-772) · TasteVectorFoldIntegrationTest (-787)");
 
 		return m;
 	}

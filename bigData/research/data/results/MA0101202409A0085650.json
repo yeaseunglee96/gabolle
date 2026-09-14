@@ -1,0 +1,29 @@
+{
+  "id": "MA0101202409A0085650",
+  "worker": "haiku-51",
+  "researchedAt": "2026-09-09T14:56:00Z",
+  "queries": ["백석 광안리 부산", "백석 광안2동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://www.diningcode.com/profile.php?rid=DEnlkgJY2ngw", "https://www.instagram.com/p/DJoWc86vw4f/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "LP바로 고객이 선택한 음악을 즐기며 광안리의 밤을 감상",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": [],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "LP바/카페. 영업시간: 낮 12:00~18:00, 밤 19:00~02:00. 경양식이 아님"
+}

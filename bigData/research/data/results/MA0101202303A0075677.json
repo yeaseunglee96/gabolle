@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202303A0075677",
+  "worker": "haiku-27",
+  "researchedAt": "2026-09-09T01:36:15Z",
+  "queries": ["대동횟집 동래구 부산", "대동횟집 온천3동 맛집"],
+  "found": false,
+  "confidence": "low",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "경주의 대동횟집 정보는 나왔으나 온천3동 위치의 대동횟집은 확인 불가",
+  "notes": ""
+}

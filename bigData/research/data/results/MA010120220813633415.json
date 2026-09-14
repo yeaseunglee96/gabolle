@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220813633415",
+  "worker": "haiku-10",
+  "researchedAt": "2026-09-09T14:45:00Z",
+  "queries": ["오가다짬뽕 기장군 부산", "오가다짬뽕 기장읍 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산 기장군 기장읍 연화1길 157"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "분위기·전망", "note": "테라스에서 바다 풍경을 감상하며 식사", "sources": [0]},
+    {"type": "조리·재료", "note": "산지에서 신선한 해산물 직접 공수, 주문 즉시 조리", "sources": [0]},
+    {"type": "맛 묘사", "note": "백짬뽕과 활문어짬뽕, 부추 반죽 면발과 깊은 국물", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["백짬뽕", "활문어짬뽕"],
+    "priceBand": "normal"
+  },
+  "notFound": null,
+  "notes": ""
+}

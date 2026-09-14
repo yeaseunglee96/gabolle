@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220810696685",
+  "worker": "haiku-41",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["신흥갈비 사상구 부산", "신흥갈비 감전동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=yNc5yFyoHKZ8"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "대패 맛집으로 알려짐", "sources": [0]},
+    {"type": "서비스·사람", "note": "사장님의 친절한 서빙과 깔끔한 주방", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["대패", "등심", "돼지고기"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "식육점과 함께 있는 고깃집, 정갈한 쌈야채와 파절이 제공, 시골된장 된장찌개도 주문 가능"
+}

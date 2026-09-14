@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220811434177",
+  "worker": "haiku-61",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["사랑해횟집 수영구 부산", "사랑해횟집 민락동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=t6qfs4TNOwxV", "http://localmap.co.kr/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "연차·역사", "note": "1994년 오픈, 28년 영업 중", "sources": [0]},
+    {"type": "맛 묘사", "note": "민락동 횟집 밀집지역의 오래된 명물", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 28,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["회"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "민락수변로에 위치한 해변 인접 횟집"
+}

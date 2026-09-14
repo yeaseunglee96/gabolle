@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220812654361",
+  "worker": "haiku-11",
+  "researchedAt": "2026-09-09T00:25:00Z",
+  "queries": ["가또로스코 금정 부산", "가또로스코 부산대 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 금정구 부산대학로64번길 40"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "맛 묘사", "note": "가심비와 가성비가 좋은 오마카세 맛집", "sources": [1] },
+    { "type": "혼잡·수요", "note": "요즘 인기가 많아져서 예약 잡기가 점점 어려운 정도의 인기", "sources": [1] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": true,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": [],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": ""
+}

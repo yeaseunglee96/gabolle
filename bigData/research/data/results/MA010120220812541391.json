@@ -1,0 +1,42 @@
+{
+  "id": "MA010120220812541391",
+  "worker": "haiku-3",
+  "researchedAt": "2026-09-08T16:54:36.279Z",
+  "queries": ["용이초밥 수영구 부산", "용이초밥 광안2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.siksinhot.com/P/988189",
+    "https://www.diningcode.com/profile.php?rid=M5AF8tnRzMsk"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "광안대교와 광안리해수욕장을 한눈에 볼 수 있는 포토존",
+      "sources": [0, 1]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "1,950원이라는 저렴한 가격",
+      "sources": [1]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "회전초밥 전문점",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "easy",
+    "audience": "mixed",
+    "signatureDishes": ["회전초밥"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

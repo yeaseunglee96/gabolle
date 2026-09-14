@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220811610866",
+  "worker": "haiku-11",
+  "researchedAt": "2026-09-09T00:11:00Z",
+  "queries": ["하늘아래첫집 기장 부산", "하늘아래첫집 정관읍 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 기장군 정관읍 병산2로 54-23"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "연차·역사", "note": "30년 이상 일관된 맛으로 운영 중인 고기 전문점", "sources": [0, 1] },
+    { "type": "분위기·전망", "note": "삼각산 기슭의 별장 분위기로 전망 좋은 위치", "sources": [1] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 30,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["징기스칸", "장어구이", "훈연구이"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": ""
+}

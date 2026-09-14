@@ -113,11 +113,20 @@ public class RecommendationService {
 	 */
 	private final ObjectProvider<EditorialPickBaselineProvider> editorialPickProvider;
 
+	/**
+	 * 단계가 넘어갈 때마다 진행률을 남기고 화면에 밀어 보낸다 — S15P21E201-193.
+	 *
+	 * <p>선택 의존성으로 두지 않는다. 없으면 진행률이 조용히 사라지고, 화면은 계산이 멈춘
+	 * 것과 구분할 수 없다.
+	 */
+	private final JobProgressReporter progress;
+
 	public RecommendationService(ObjectProvider<RecommendationEnginePort> enginePort,
 			CandidateAssembler candidateAssembler, RecommendationRecorder recorder,
 			RecommendationProperties properties, Clock clock,
 			ObjectProvider<ItineraryDraftPort> itineraryDraftPort,
-			ObjectProvider<EditorialPickBaselineProvider> editorialPickProvider) {
+			ObjectProvider<EditorialPickBaselineProvider> editorialPickProvider,
+			JobProgressReporter progress) {
 		this.enginePort = enginePort;
 		this.candidateAssembler = candidateAssembler;
 		this.recorder = recorder;
@@ -125,6 +134,7 @@ public class RecommendationService {
 		this.clock = clock;
 		this.itineraryDraftPort = itineraryDraftPort;
 		this.editorialPickProvider = editorialPickProvider;
+		this.progress = progress;
 	}
 
 	/**
@@ -205,7 +215,11 @@ public class RecommendationService {
 			if (baseline != null) {
 				return baseline;
 			}
-			throw abandon(job, ex.getErrorCode(), JobStage.CANDIDATE_GENERATION, ex.isTimeout(), true,
+			// 🔴 S15P21E201-827 — 후보가 0곳인 것은 다시 불러도 안 달라진다. 자료가 들어와야
+			//    바뀌므로 재시도 가능으로 표시하지 않는다. 그 표시를 믿고 다시 부르는 쪽이
+			//    같은 실패를 반복하게 된다.
+			boolean retryable = !RecommendationCodes.ERROR_NO_CANDIDATES.equals(ex.getErrorCode());
+			throw abandon(job, ex.getErrorCode(), JobStage.CANDIDATE_GENERATION, ex.isTimeout(), retryable,
 					createdAt, startedNanos, ex);
 		}
 		catch (RuntimeException ex) {
@@ -221,6 +235,10 @@ public class RecommendationService {
 		// 후보가 만들어진 시각. 저장이 끝난 시각(completed_at)과 나누는 이유는, 저장이 느렸던
 		// 요청과 추천 계산이 느렸던 요청을 나중에 구분할 수 있어야 하기 때문이다.
 		OffsetDateTime generatedAt = OffsetDateTime.now(this.clock);
+
+		// S15P21E201-193 — 여기부터 엔진이 답한 버전을 확인한다. 단계 이름은 선언 순서가
+		// 아니라 실제로 지나가는 순서를 따른다(JobStage javadoc).
+		this.progress.advance(job, JobStage.VERSION_RESOLUTION);
 
 		List<String> missingVersions = resolveMissingVersions(batch.versions());
 		if (!missingVersions.isEmpty()) {
@@ -240,6 +258,8 @@ public class RecommendationService {
 		// 🔴 S15P21E201-550 — 엔진이 실제로 쓴 출발지의 **파생값만** 남긴다. 정밀 좌표를
 		//    담을 칸은 이 표에 아예 없다(RecommendationJob.originAreaCode javadoc).
 		job.applyOrigin(batch.resolvedLocation());
+
+		this.progress.advance(job, JobStage.RANKING);
 
 		CandidateAssembly assembly;
 		try {
@@ -290,6 +310,18 @@ public class RecommendationService {
 			throw new RecommendationFailedException(job.getRequestId(), job.getJobId(),
 					RecommendationCodes.ERROR_NO_FEASIBLE_RESULT,
 					stage, "반환할 수 있는 후보가 없다 (생성 " + assembly.generatedCount() + "건)", null);
+		}
+
+		// S15P21E201-193 — 일정을 조립하는 Job 이면 그 일이 바로 아래에서 시작된다. 이 보고를
+		// markCompleted 앞에 두는 이유가 있다: 저 호출이 상태를 SUCCEEDED 로 바꾸므로 그 뒤의
+		// 단계 보고는 markStage 가 무시한다(끝난 작업의 진행률을 되돌리지 않기 위해서다).
+		//
+		// 🔴 그래서 성공 경로에서는 PERSISTENCE 단계가 화면에 나가지 않는다. 진행률 표시
+		//    하나를 위해 "결과는 정해졌지만 일정 번호는 아직 없다" 는 기존 순서를 흔들지
+		//    않는다 — 그 순서에는 이유가 적혀 있다(RecommendationJob.assertItineraryAttachedIfRequired).
+		//    화면에서는 85%에서 100%로 넘어간다.
+		if (job.getJobType() == JobType.ITINERARY_GENERATION || editJob) {
+			this.progress.advance(job, JobStage.ROUTE_OPTIMIZATION);
 		}
 
 		job.markCompleted(generatedAt, completedAt, batch.fallbackMode(), batch.fallbackReason());

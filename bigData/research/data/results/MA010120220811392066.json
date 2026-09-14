@@ -1,0 +1,47 @@
+{
+  "id": "MA010120220811392066",
+  "worker": "haiku-3",
+  "researchedAt": "2026-09-08T16:51:37.024Z",
+  "queries": ["쌍둥이돼지국밥 남구 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.siksinhot.com/P/257472",
+    "https://www.diningcode.com/profile.php?rid=NlpRRrCBCPmE"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "연차·역사",
+      "note": "1996년 10월 개업으로 부산의 대표 돼지국밥 맛집",
+      "sources": [0, 1]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "유명한 항정살(돼지 목살) 고기",
+      "sources": [0, 1]
+    },
+    {
+      "type": "서비스·사람",
+      "note": "국물과 고기 무한 리필이 특징",
+      "sources": [0, 1]
+    },
+    {
+      "type": "현지인 지지",
+      "note": "학생 단골들이 많아 항상 줄을 서는 대표 맛집",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 30,
+    "generations": null,
+    "queueing": "long",
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["돼지국밥", "항정살"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

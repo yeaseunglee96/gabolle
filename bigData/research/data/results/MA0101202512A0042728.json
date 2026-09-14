@@ -1,0 +1,23 @@
+{
+  "id": "MA0101202512A0042728",
+  "worker": "haiku-72",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["광안리통영횟집 부산", "광안리통영횟집 민락동 횟집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/264895", "https://www.visitbusan.net/index.do?menuCd=DOM_000000201002001000&uc_seq=1124"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "분위기·전망", "note": "광안리 바다와 광안대교를 바라보며 즐기는 횟집", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "모듬회 전문, 신선한 횟감", "sources": [0]},
+    {"type": "동네·시장 지목", "note": "민락회타운의 유명한 횟집", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["모듬회"],
+    "priceBand": "moderate",
+    "audience": "mixed"
+  },
+  "notFound": null,
+  "notes": ""
+}

@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220807022030",
+  "worker": "haiku-37",
+  "researchedAt": "2026-09-09T11:23:43.0136153+09:00",
+  "queries": ["안코우 부산 영도 카페", "안코우 절영로 193"],
+  "found": true,
+  "confidence": "medium",
+  "sources": [],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "간판 메뉴 지목", "note": "샌드위치 전문점 - 새우아보카도, 모짜렐라바질 등 정성스러운 제조", "sources": [] },
+    { "type": "서비스·사람", "note": "펫프렌들리한 카페", "sources": [] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["샌드위치"],
+    "priceBand": "affordable"
+  },
+  "notFound": null,
+  "notes": "영도 절영로 샌드위치 카페. 실내 좌석 제한적이라 테이크아웃 많음. 펫동반 가능. 영업시간 11:00-19:00"
+}

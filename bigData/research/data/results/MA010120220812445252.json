@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220812445252",
+  "worker": "haiku-59",
+  "researchedAt": "2026-09-09T09:02:00Z",
+  "queries": ["조새호 부산 광안", "조새호 광안해변로 조개구이"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=IZW6IRpVRDn5"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "조개구이, 치즈 토핑, 도쿠도 새우",
+      "sources": ["https://www.diningcode.com/profile.php?rid=IZW6IRpVRDn5"]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "광안해변 바로 앞, 광안대교 뷰, 넓은 식당",
+      "sources": ["https://www.diningcode.com/profile.php?rid=IZW6IRpVRDn5"]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "parking": "광안타워 유료주차장, 비키니 유료주차장 (1시간 무료 쿠폰)"
+  },
+  "notes": "카테고리는 횟집이지만 실제는 조개구이 전문점"
+}

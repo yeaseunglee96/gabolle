@@ -1,0 +1,34 @@
+{
+  "id": "MA0101202406A0418028",
+  "worker": "haiku-59",
+  "researchedAt": "2026-09-09T08:09:00Z",
+  "queries": ["와루가키노아소비 수영구 부산", "와루가키노아소비 민락동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=WyiJESzH6EMF", "http://localmap.co.kr/web/splus/kmap/view.php?sigun=6260000&gugun=3380000&keyno=110&keyname=%EC%99%80%EB%A3%A8%EA%B0%80%ED%82%A4%EB%85%B8+%EC%95%84%EC%86%8C%EB%B9%84&keylink=3380000-101-2017-00155"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "일본 라멘/라면 전문점",
+      "sources": [0]
+    },
+    {
+      "type": "맛 묘사",
+      "note": "진한 라멘이 맛있는 일식 맛집",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["톤코츠 라멘", "아부라소바"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "11:00 ~ 24:00 영업. 인스타그램 @warugaki_asobi. 협소한 공간 약 7석"
+}

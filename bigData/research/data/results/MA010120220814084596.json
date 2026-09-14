@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220814084596",
+  "worker": "haiku-69",
+  "researchedAt": "2026-09-10T00:12:00Z",
+  "queries": ["돈까스예찬 부산진구", "돈까스예찬 서면"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=xYIuBGa2Vk3a"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "돈까스 전문점", "sources": [0]},
+    {"type": "조리·재료", "note": "주문 즉시 튀겨서 바삭함 유지", "sources": [0]},
+    {"type": "운영·접근 편의", "note": "셀프 바 있음", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["돈까스"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "영업시간 10:50~20:40, 3,5주 일요일 휴무, 서면시장 근처"
+}

@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220811396499",
+  "worker": "haiku-38",
+  "researchedAt": "2026-09-09T15:30:00Z",
+  "queries": ["태영청둥오리집 부산 남구", "태영청둥오리집 감만2동"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["http://duli.co.kr/web/splus/kmap/view.php?sigun=6260000&gugun=3311000&keyno=109&keyname=%EB%AA%85%EB%9F%89%EC%A0%9C%ED%85%8C%EC%A7%84%EC%98%A4%EB%A6%AC&keylink=3311000-101-2015-00167"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "청둥오리 전문점",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["청둥오리"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": ""
+}

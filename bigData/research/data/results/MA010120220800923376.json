@@ -1,0 +1,25 @@
+{
+  "id": "MA010120220800923376",
+  "worker": "haiku-59",
+  "researchedAt": "2026-09-09T08:52:00Z",
+  "queries": ["미우 부산 해운대 돼지고기", "미우 구남로 구이 찜"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=D85u3sp0TYwh"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "숯불갈비, 한우 프리미엄 부위(황제살), 돼지 갈비",
+      "sources": ["https://www.diningcode.com/profile.php?rid=D85u3sp0TYwh"]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "윈도우 석에서 오픈뷰, 위스키·와인 맛집",
+      "sources": ["https://www.diningcode.com/profile.php?rid=D85u3sp0TYwh"]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {},
+  "notes": "해운대 구남로 위치"
+}

@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220810694022",
+  "worker": "haiku-45",
+  "researchedAt": "2026-09-09T13:38:00Z",
+  "queries": ["해송반점 북구 부산", "해송반점 덕천3동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/677437", "https://www.diningcode.com/profile.php?rid=L1ElCXHkIZTh"],
+  "stillOpen": true,
+  "whyPeopleGo": [{"type": "연차·역사", "note": "30년 전통의 사천짜장면 전문점", "sources": [0, 1]}, {"type": "간판 메뉴 지목", "note": "사천짜장면, 간짜장", "sources": [0, 1]}],
+  "newTypes": [],
+  "descriptors": {"yearsClaimed": null, "generations": null, "queueing": null, "parking": null, "audience": "mixed", "signatureDishes": ["사천짜장면", "간짜장"], "priceBand": "cheap"},
+  "notFound": null,
+  "notes": ""
+}

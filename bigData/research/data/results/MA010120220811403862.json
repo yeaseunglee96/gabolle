@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220811403862",
+  "worker": "haiku-10",
+  "researchedAt": "2026-09-09T14:35:00Z",
+  "queries": ["예이제신관 해운대구 부산", "예이제신관 중1동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "같은 이름의 식당을 찾지 못함. 같은 거리에 예이제(한정식)가 있으나 번지수 다름(24 vs 29)",
+  "notes": ""
+}

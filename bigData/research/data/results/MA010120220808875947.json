@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220808875947",
+  "worker": "haiku-20",
+  "researchedAt": "2026-09-09T11:26:30Z",
+  "queries": ["삼합불패 남구 부산", "삼합불패 대연1동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색에서 '삼합불패' 식당 정보 없음",
+  "notes": ""
+}

@@ -1,0 +1,39 @@
+{
+  "id": "MA0101202406A0400680",
+  "worker": "haiku-18",
+  "researchedAt": "2026-09-09T10:40:00Z",
+  "queries": ["노마스56 남구 부산", "노마스56 용호4동"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 남구 용호로232번길 21"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "파스타와 브런치가 대표 메뉴인 카페 겸 식당",
+      "sources": [0]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "버스정류장 근처 넓고 쾌적한 실내 공간",
+      "sources": [0]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "아메리카노 1,500원으로 저렴한 가격대",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["파스타", "브런치"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

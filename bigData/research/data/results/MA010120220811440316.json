@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220811440316",
+  "worker": "haiku-7",
+  "researchedAt": "2026-09-08T22:09:18Z",
+  "queries": ["연합횟집 수영구 부산", "연합횟집 남천1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=leh0LZKRFaQX", "https://triple.guide/restaurants/b90c0800-ee55-4341-9818-041ec6c1f377", "https://2.violet097.com/entry/%EC%A0%84%ED%98%84%EB%AC%B4%EA%B3%84%ED%9A%8D-%EB%B6%80%EC%82%B0-%EB%82%A8%EC%B2%9C%EB%8F%99-%EC%84%B8%EB%A1%9C%EC%8D%B0%EA%B8%B0%ED%9A%8C-%EC%84%B8%EB%A1%9C%ED%9A%8C-%EC%97%B0%ED%95%A9%ED%9A%9F%EC%A7%91"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "대물림", "note": "1979년부터 시작하여 3대가 이어 운영하는 노포", "sources": [0]},
+    {"type": "간판 메뉴 지목", "note": "세로썰기회 전문으로 독특한 조리 방식", "sources": [2]},
+    {"type": "맛 묘사", "note": "신선한 해산물과 독특한 회 썰기 방식의 조합", "sources": [0]},
+    {"type": "미디어 노출", "note": "전현무계획에 방영된 유명 맛집", "sources": [2]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": 3,
+    "queueing": true,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["회", "세로썰기회", "물회"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": "평일 11:30~22:30 영업. 예약 필수. 공영주차장 인근, 현금 2,500원 정산."
+}

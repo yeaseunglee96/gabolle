@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220811409539",
+  "worker": "haiku-59",
+  "researchedAt": "2026-09-09T08:30:00Z",
+  "queries": ["하씨횟집 부산 민락동", "하씨횟집 민락수변로 회"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://www.diningcode.com/profile.php?rid=0ppYyypRpaEA"],
+  "stillOpen": false,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "하씨횟집은 폐점으로 표시되어 있음",
+  "notes": "민락동 회타운 지역의 전(前) 횟집, 이미 폐업한 것으로 보임"
+}

@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202305A0082753",
+  "worker": "haiku-53",
+  "researchedAt": "2026-09-09T06:30:00Z",
+  "queries": ["쿠치가 민락동 부산", "쿠치가 초밥 일식"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색 결과에서 부산 민락동의 일식당 쿠치가 정보를 찾지 못함",
+  "notes": ""
+}

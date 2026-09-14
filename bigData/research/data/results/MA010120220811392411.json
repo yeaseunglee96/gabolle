@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220811392411",
+  "worker": "haiku-14",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["초원복국 남구 부산", "초원복국 대연3동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["식신", "다이닝코드", "메뉴판", "링크투플레이스"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "원조·최초", "note": "한국 최고의 복국 전문점, 최초 인증 셰프 운영", "sources": [0, 1]},
+    {"type": "연차·역사", "note": "1983년 개업, 1991년 현 위치로 이전한 40년 이상 노포", "sources": [0, 1]},
+    {"type": "기관 선정", "note": "2002년 부산 지역 음식점 지정, 2005년 APEC 지정", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "복국이 대표 메뉴로 유명", "sources": [1]},
+    {"type": "조리·재료", "note": "복수육, 복 샤브, 복 코스 등 다양한 요리 제공", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 43,
+    "generations": 1,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["복국", "복수육", "복 샤브", "복불고기"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

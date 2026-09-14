@@ -1,0 +1,34 @@
+{
+  "id": "MA010120220810292532",
+  "worker": "haiku-31",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["니시나리 동구 부산", "니시나리 초량3동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1493685", "https://triple.guide/restaurants/dd358e94-30a6-4153-9773-0bafde042647"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "쿠시카츠 (꼬치 튀김)",
+      "sources": [0, 1]
+    },
+    {
+      "type": "맛 묘사",
+      "note": "깔끔한 안주",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["쿠시카츠"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "초량로14번길 61, 초량시장 입구, 금토일 18:00~02:00 / 화수목 18:00~01:00"
+}

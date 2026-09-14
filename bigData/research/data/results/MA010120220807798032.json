@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220807798032",
+  "worker": "haiku-31",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["안스시 사하구 부산", "안스시 하단1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=7XgfkvBp0MMJ"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "운영·접근 편의",
+      "note": "혼밥하기 좋음",
+      "sources": [0]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "초밥 세트, 우동 세트",
+      "sources": [0]
+    },
+    {
+      "type": "조리·재료",
+      "note": "스리라차 기반 특제소스",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "solo",
+    "signatureDishes": ["초밥 세트", "우동 세트"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "11:00~22:00 영업 (15:00~17:00 브레이크), 매주 월요일 휴무"
+}

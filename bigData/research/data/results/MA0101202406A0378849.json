@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202406A0378849",
+  "worker": "haiku-59",
+  "researchedAt": "2026-09-09T08:13:40Z",
+  "queries": ["공원 수영구 광안 부산", "공원 광안 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "해당 이름의 식당이 웹 검색 결과에 나타나지 않음. 광안리 수변공원 주변 맛집들은 검색되나 '공원'이라는 식당은 미확인",
+  "notes": "경양식 카테고리로 등록"
+}

@@ -1,0 +1,42 @@
+{
+  "id": "MA0101202305A0036537",
+  "worker": "haiku-63",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["풍천만 해운대구 부산", "풍천만 중1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.diningcode.com/profile.php?rid=2LbEGGQrv4Yp",
+    "https://m.tripinfo.co.kr/info.html?content_id=3028633&content_type_id=39"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "민물장어 전문점으로 특화",
+      "sources": [0, 1]
+    },
+    {
+      "type": "조리·재료",
+      "note": "100% 국산 재래종 민물장어, 유기농 채소, 프리미엄 숯불로 정성껏 구워냄",
+      "sources": [0, 1]
+    },
+    {
+      "type": "현지인 지지",
+      "note": "해운대 중심 위치로 접근성 좋고 현지인과 관광객 모두에게 인기",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["민물장어 숯불 구이"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "주소 달맞이길 22는 중1동으로 확인됨"
+}

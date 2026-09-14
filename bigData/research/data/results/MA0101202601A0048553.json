@@ -1,0 +1,29 @@
+{
+  "id": "MA0101202601A0048553",
+  "worker": "haiku-38",
+  "researchedAt": "2026-09-09T16:30:00Z",
+  "queries": ["스콘티 부산 빵", "스콘티 범일동"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.daangn.com/kr/local-profile/%EC%8A%A4%EC%BD%98%EC%A0%84%EB%AC%B8%EC%A0%90-%EC%8A%A4%EC%BD%98%ED%8B%B0-y73fchk3gefq/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "스콘 전문점",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["스콘"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": ""
+}

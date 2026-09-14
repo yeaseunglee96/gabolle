@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220806800914",
+  "worker": "haiku-41",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["동경왕돈까스 영도구 부산", "동경왕돈까스 영선1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://autoreserve.com/ko/restaurants/pon5YURWTsuMDd3HxVRT", "https://www.threads.com/@kidmstyle/post/DbA0qF2EifJ/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "왕돈까스 전문점", "sources": [0]},
+    {"type": "현지인 지지", "note": "영도의 로컬 돈까스 맛집으로 추천", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["왕돈까스"],
+    "priceBand": "affordable"
+  },
+  "notFound": null,
+  "notes": "전화 051-415-0478, 월요일 10:30-14:00, 일요일 휴무"
+}

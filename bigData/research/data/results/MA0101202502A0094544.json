@@ -1,0 +1,34 @@
+{
+  "id": "MA0101202502A0094544",
+  "worker": "haiku-59",
+  "researchedAt": "2026-09-09T08:00:10Z",
+  "queries": ["지즈 수영구 부산", "지즈 광안 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=GCh2QH8q4mGW", "https://www.tabling.co.kr/place/68a3d95d11c8e44915eb2ba5"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "맛 묘사",
+      "note": "정통 톤까스(돈까스/카츠), 신선한 맛",
+      "sources": [0, 1]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "톤까스 전문점, 리필 가능한 밥과 국",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "부산집·바다주차장 유료",
+    "audience": "mixed",
+    "signatureDishes": ["톤까스", "카츠"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "광안리 남천 지역. 11:30 ~ 20:30 영업 (15:00 ~ 17:00 휴식). 오픈 주방 좌석 제공. 친절한 직원"
+}

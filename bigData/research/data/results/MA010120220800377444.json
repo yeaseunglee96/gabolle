@@ -1,0 +1,44 @@
+{
+  "id": "MA010120220800377444",
+  "worker": "haiku-31",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["모리돈까스 동래구 부산", "모리돈까스 사직1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/797535", "https://www.diningcode.com/profile.php?rid=0eyDqrBbSywG"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "조리·재료",
+      "note": "손으로 직접 만드는 돈까스",
+      "sources": [1]
+    },
+    {
+      "type": "연차·역사",
+      "note": "9년째 자리를 지키는 부산 사직동 맛집",
+      "sources": [1]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "돈까스, 냉모밀 정식",
+      "sources": [0, 1]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "냉모밀 정식 10,000원으로 가성비 좋음",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 9,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["돈까스", "냉모밀 정식"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "사직역 3번 출구 바로 앞, 10:30~20:30 영업, 051-506-7112"
+}

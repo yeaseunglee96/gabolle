@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220811419947",
+  "worker": "haiku-17",
+  "researchedAt": "2026-09-09T09:35:00Z",
+  "queries": ["대연삼겹살 남구 부산", "대연삼겹살 대연4동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=tgM8eTVXsgSs", "https://triple.guide/restaurants/f7ff149b-cc7a-4522-bfdf-4c588ffcf2f6"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "조리·재료", "note": "신선한 고기를 사용하며 반찬을 집에서 직접 만든다", "sources": [0, 1]},
+    {"type": "가격·가성비", "note": "가성비가 좋아 재방문의사가 높다", "sources": [0]},
+    {"type": "운영·접근 편의", "note": "주말에는 웨이팅이 있을 수 있으나 가성비 좋은 고기집", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": true,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["생삼겹", "목살", "돼지갈비"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

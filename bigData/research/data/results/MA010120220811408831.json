@@ -1,0 +1,49 @@
+{
+  "id": "MA010120220811408831",
+  "worker": "haiku-60",
+  "researchedAt": "2026-09-09T10:08:00Z",
+  "queries": ["청도횟집 수영구 부산", "청도횟집 민락동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://brunch.co.kr/@bakilhong66uhji/657", "https://triple.guide/restaurants/65f81763-7268-4bca-9bcc-71121ae11648"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "연차·역사",
+      "note": "55년 이상 운영된 노포",
+      "sources": [0]
+    },
+    {
+      "type": "서비스·사람",
+      "note": "사장이 직접 회를 치며 한국 최고의 회 자르기 기술자 자부",
+      "sources": [0]
+    },
+    {
+      "type": "원조·최초",
+      "note": "노무현 대통령 시절 청와대에 초대되어 요리한 경력",
+      "sources": [0]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "오마카세 스타일 회 모둠, 매운탕",
+      "sources": [0, 1]
+    },
+    {
+      "type": "맛 묘사",
+      "note": "사장이 만드는 비린내 없는 특별한 스파이스와 조리법",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 55,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["오마카세 회 모둠", "매운탕"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "민락동 광안해변 근처 위치. 사장의 회 자르기 실력과 대통령 봉사 경력이 주요 차별화 요소"
+}

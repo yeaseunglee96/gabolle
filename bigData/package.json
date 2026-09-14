@@ -17,6 +17,10 @@
     "link": "node --max-old-space-size=6144 process/place-link.mjs",
     "calibrate": "node process/calibrate-slope.mjs",
     "slope": "node --max-old-space-size=4096 process/slope.mjs",
+    "select": "node --max-old-space-size=4096 process/select-2000.mjs",
+    "truth:link": "node --max-old-space-size=4096 process/truth-link.mjs",
+    "queue": "node research/queue.mjs",
+    "queue:test": "node research/queue.test.mjs",
     "verify": "node test/verify.mjs",
     "choice:design": "node process/choice-design.mjs",
     "choice:fit": "node process/choice-fit.mjs"

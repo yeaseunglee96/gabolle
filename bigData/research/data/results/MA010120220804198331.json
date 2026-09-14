@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220804198331",
+  "worker": "haiku-7",
+  "researchedAt": "2026-09-08T22:09:18Z",
+  "queries": ["초량1941 부산 카페", "초량1941 초량6동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://visitbusan.net/index.do?menuCd=DOM_000000201002001000&uc_seq=245&lang_cd=ko", "https://www.diningcode.com/profile.php?rid=FuA4tSuiCrgk"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "분위기·전망", "note": "1941년 지어진 옛 가옥을 개조한 빈티지 감성의 카페", "sources": [0]},
+    {"type": "간판 메뉴 지목", "note": "생강 우유, 바닐라 우유 등 특색 있는 우유 전문", "sources": [1]},
+    {"type": "동네·시장 지목", "note": "이바구길 초량 관광 문화지구의 명소", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 1941,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "tourists",
+    "signatureDishes": ["생강 우유", "바닐라 우유", "과일 산도"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "이바구길 초량 관광지 위치. 11:00~19:00 영업. 56,000명 이상이 방문 희망."
+}

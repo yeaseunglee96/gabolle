@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220811436091",
+  "worker": "haiku-47",
+  "researchedAt": "2026-09-09T12:50:00Z",
+  "queries": ["남천칼국수 수영구 부산", "남천칼국수 남천1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.tabling.co.kr/place/677cc8dc66de5f069877c61b", "https://triple.guide/restaurants/3e53366b-2d73-4c15-94b5-3a3565e8eb41", "https://www.diningcode.com/profile.php?rid=pO7ekPT6AT2h"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "칼국수, 김밥, 비빔칼국수", "sources": [0, 1, 2]},
+    {"type": "연차·역사", "note": "1999년부터 운영해온 오랜 칼국수 맛집", "sources": [1, 2]},
+    {"type": "맛 묘사", "note": "얼큰하고 깔끔한 칼국수, 칼칼한 맛", "sources": [2]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["칼국수", "김밥"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "영업시간 10:00-21:00 (매월 첫째 일요일 휴무). 광안리 남천동 지역 장기 영업 가게. 셀프 반찬, 배달 많이 함"
+}

@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220809750377",
+  "worker": "haiku-34",
+  "researchedAt": "2026-09-09T06:29:00Z",
+  "queries": ["홀리크랩 부산진구", "홀리크랩 당감4동 경양식", "홀리크랩 부산 경양식"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "3번의 검색으로도 부산진구 당감4동에 있는 홀리크랩을 찾을 수 없음. 검색 결과는 서울 강남 청담동의 폐점된 홀리크랩만 나옴",
+  "notes": ""
+}

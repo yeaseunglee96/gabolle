@@ -1,0 +1,47 @@
+{
+  "id": "MA010120220814003504",
+  "worker": "haiku-3",
+  "researchedAt": "2026-09-08T16:48:19.433Z",
+  "queries": ["선창횟집 해운대구 부산", "선창횟집 중동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": [
+    "https://www.siksinhot.com/P/256507",
+    "https://www.diningcode.com/profile.php?rid=upMr6TtXxE41"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "맛 묘사",
+      "note": "신선한 회와 쫄깃한 식감, 깊은 맛의 코스 요리",
+      "sources": [0, 1]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "해운대 해변과 광안대교의 오션뷰, 고급스러운 인테리어와 개별룸",
+      "sources": [0, 1]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "가격이 비싸다고 느껴지지 않을 정도로 가성비가 좋다",
+      "sources": [1]
+    },
+    {
+      "type": "대물림",
+      "note": "40년 이상 운영해온 가게로 현재 2대째 운영 중",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 40,
+    "generations": 2,
+    "queueing": null,
+    "parking": "easy",
+    "audience": "mixed",
+    "signatureDishes": ["회코스5", "회코스7"],
+    "priceBand": "high"
+  },
+  "notFound": null,
+  "notes": ""
+}

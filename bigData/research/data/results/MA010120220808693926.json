@@ -1,0 +1,44 @@
+{
+  "id": "MA010120220808693926",
+  "worker": "haiku-13",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["쥬가정효 해운대구 부산", "쥬가정효 우1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["식신", "TripAdvisor", "망고플레이트", "polle"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "카이세키 스타일 정통 일식 코스",
+      "sources": [0, 1, 2]
+    },
+    {
+      "type": "플랫폼 순위·평점",
+      "note": "TripAdvisor 부산 내 410위 (총 6,243개)",
+      "sources": [1]
+    },
+    {
+      "type": "현지인 지지",
+      "note": "회사 저녁, 모임, 데이트 등 특별한 자리의 선택",
+      "sources": [0, 2]
+    },
+    {
+      "type": "서비스·사람",
+      "note": "부산에서 예약하기 가장 어려운 고급 식당으로 알려짐",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["카이세키 코스"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": ""
+}

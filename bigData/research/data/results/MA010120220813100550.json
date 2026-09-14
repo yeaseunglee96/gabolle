@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220813100550",
+  "worker": "haiku-62",
+  "researchedAt": "2026-09-10T12:11:00Z",
+  "queries": ["갈삼구이 민락", "갈삼구이 광안리"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/459836", "https://www.diningcode.com/profile.php?rid=D34eDyQWK8hy"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "갈과 삼겹살을 함께 먹는 갈삼구이 전문", "sources": [0, 1]},
+    {"type": "조리·재료", "note": "프리미엄 돼지고기(Duroc) 사용", "sources": [1]},
+    {"type": "분위기·전망", "note": "광안해변을 바라보는 해양 전망", "sources": [0, 1]},
+    {"type": "곁들임·차림", "note": "남은 국물에 볶음밥을 해먹을 수 있음", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["갈삼구이", "조개"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "민락수변로 7번, 4층"
+}

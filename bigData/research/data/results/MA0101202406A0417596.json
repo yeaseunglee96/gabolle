@@ -1,0 +1,61 @@
+{
+  "id": "MA0101202406A0417596",
+  "worker": "haiku-16",
+  "researchedAt": "2026-09-08T22:58:40.482Z",
+  "queries": [
+    "헷츠 수영구 부산 일식",
+    "헷츠 수영로575번길 회"
+  ],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://triple.guide/restaurants/e3d4660c-443c-4883-9d5c-26245f076418",
+    "https://www.diningcode.com/profile.php?rid=gvBzW3AkWB5b"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "로스카츠, 히레카츠 돈가스 전문",
+      "sources": [
+        1
+      ]
+    },
+    {
+      "type": "조리·재료",
+      "note": "솔잎과 누룩 소금으로 염지한 부드러운 식감",
+      "sources": [
+        0
+      ]
+    },
+    {
+      "type": "혼잡·수요",
+      "note": "웨이팅이 필수인 인기 맛집",
+      "sources": [
+        0
+      ]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "광안리 로컬 인기 맛집",
+      "sources": [
+        1
+      ]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": "always",
+    "parking": "지우주차장 인접 (현금 1천원 지원)",
+    "audience": "mixed",
+    "signatureDishes": [
+      "로스카츠",
+      "히레카츠"
+    ],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "위치: 수영로575번길 10 103호, 연락처 0507-1438-4995, 월~금 11:10~20:30 (브레이크 15:30~17:00), 토~일 11:10~20:30, 라스트오더 20:00/20:30"
+}

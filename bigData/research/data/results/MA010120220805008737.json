@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220805008737",
+  "worker": "haiku-31",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["고추불고기 해운대구 부산", "고추불고기 반송2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=nXWAYzbe8WOx"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "꼼장어, 연탄불고기",
+      "sources": [0]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "대나무 인테리어 실내 포장마차 분위기",
+      "sources": [0]
+    },
+    {
+      "type": "조리·재료",
+      "note": "양질의 반찬",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["꼼장어", "연탄불고기"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "해운대구 반송동, 테이블과 좌석 모두 있음"
+}

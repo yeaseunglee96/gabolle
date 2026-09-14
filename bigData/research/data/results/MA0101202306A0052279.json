@@ -1,0 +1,34 @@
+{
+  "id": "MA0101202306A0052279",
+  "worker": "haiku-31",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["부자돼지 연제구 부산", "부자돼지 연산6동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=w9QQ97g2ptxH"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "생삼겹살, 돼지갈비",
+      "sources": [0]
+    },
+    {
+      "type": "조리·재료",
+      "note": "고기가 쫄깃하고 고소함, 밑반찬이 깔끔하고 맛있음",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "family",
+    "signatureDishes": ["생삼겹살", "돼지갈비"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "연산동 최고의 고깃집, 제주생오겹살 기본"
+}

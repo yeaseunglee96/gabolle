@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220810530421",
+  "worker": "haiku-46",
+  "researchedAt": "2026-09-09T12:30:00Z",
+  "queries": ["신동아식당 사하구 부산", "신동아식당 신평1동 을숙도"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색 결과에 부산 사하구 을숙도대로 581의 신동아식당에 대한 정보를 찾을 수 없음 (구내식당으로 분류될 가능성)",
+  "notes": ""
+}

@@ -1,0 +1,23 @@
+{
+  "id": "MA010120220810616631",
+  "worker": "haiku-72",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["오감일식점 부전동 부산", "오감일식점 일식 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.daangn.com/kr/local-profile/522884/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "가격·가성비", "note": "회덮밥이 15,000원부터로 가성비 좋음", "sources": [0]},
+    {"type": "간판 메뉴 지목", "note": "회덮밥, 사시미 전문", "sources": [0]},
+    {"type": "맛 묘사", "note": "신선한 횟감과 기본 찬으로 가성비 좋은 회덮밥", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["회덮밥", "사시미"],
+    "priceBand": "cheap",
+    "audience": "local"
+  },
+  "notFound": null,
+  "notes": ""
+}

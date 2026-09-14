@@ -1,0 +1,38 @@
+{
+  "id": "MA0101202411A0112095",
+  "worker": "haiku-40",
+  "researchedAt": "2026-09-09T13:52:00Z",
+  "queries": ["윤율 강서구 부산", "윤율 녹산동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://m.cafe.daum.net/bikemania/3OsB/2414",
+    "https://www.diningcode.com/profile.php?rid=rM26A2hIupt4",
+    "http://localmap.co.kr/web/splus/kmap/view.php?sigun=6260000&gugun=3360000&keyno=202&keyname=%EC%9C%A4%EC%9C%A8&keylink=3360000-101-2024-00192"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "메뉴 희소성",
+      "note": "베트남음식 전문. 쌀국수, 볶음밥 등 다양한 베트남 요리",
+      "sources": [1, 2]
+    },
+    {
+      "type": "운영·접근 편의",
+      "note": "넓은 매장, 주차장 완비, 개별룸 및 키즈룸 구비",
+      "sources": [0, 1, 2]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "family",
+    "signatureDishes": ["베트남3가지플레터", "소고기쌀국수"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "0507-1399-2516, 정기휴무 수요일, 월~목 11:00~16:00(라스트15:20), 금~일 11:00~20:50(라스트20:20)"
+}

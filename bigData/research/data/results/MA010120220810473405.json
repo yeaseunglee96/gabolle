@@ -1,0 +1,25 @@
+{
+  "id": "MA010120220810473405",
+  "worker": "haiku-11",
+  "researchedAt": "2026-09-09T00:46:00Z",
+  "queries": ["장모님기사식당 중구 부산", "장모님기사식당 영주 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 중구 동영로 85-1"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "미디어 노출", "note": "유명한 유튜브 채널과 방송에 소개된 부산의 인기 있는 기사식당", "sources": [0, 1] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["회비빔밥", "순두부찌개"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

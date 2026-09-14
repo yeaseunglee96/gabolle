@@ -1,0 +1,25 @@
+{
+  "id": "MA010120220811617082",
+  "worker": "haiku-11",
+  "researchedAt": "2026-09-09T00:21:00Z",
+  "queries": ["돈까스겸 금정 부산", "돈까스겸 부산대 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 금정구 부산대학로63번길 48"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "맛 묘사", "note": "얇고 바삭한 튀김 옷과 두툼한 속살을 자랑하는 수제 생 등심 돈가스가 대표", "sources": [1, 2] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["수제 생 등심 돈가스", "수제 생 치킨가스"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

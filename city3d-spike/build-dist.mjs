@@ -16,6 +16,28 @@ const HERE = import.meta.dirname;
 const ROOT = path.resolve(HERE, '..');
 const DIST = path.join(HERE, 'dist');
 
+// 🔴 땅 높이는 **정리본**을 담는다 (S15P21E201-805).
+//
+// serve.mjs 와 **같은 것을 골라야 한다.** 여기서만 원본을 담으면 로컬에서는
+// 고쳐진 화면을 보고 서버에서는 가짜 능선이 그대로인 화면이 뜬다 — 로컬에서
+// 되던 것이 서버에서만 깨지는, 가장 찾기 어려운 종류의 버그다.
+//
+//   node build-dist.mjs          정리본 (기본)
+//   node build-dist.mjs --raw    원본 — 비교용 꾸러미를 만들 때만
+const RAW_DEM = process.argv.includes('--raw');
+const DEM15 = path.join(ROOT, RAW_DEM ? 'bigData/data/raw/dem/15' : 'bigData/data/clean/dem/15');
+
+// 정리본이 없으면 **여기서는 멈춘다.** serve.mjs 는 경고만 하고 원본으로 넘어가지만
+// (화면을 아예 못 띄우면 곤란하니까), 배포 꾸러미는 다르다 — 조용히 원본이 실려
+// 올라가면 "화면만 옛날로 돌아간" 것을 아무도 모른다.
+if (!fs.existsSync(DEM15)) {
+  console.error(`🔴 땅 높이 타일이 없습니다: ${path.relative(ROOT, DEM15)}`);
+  console.error(RAW_DEM
+    ? '   먼저 받으세요:  cd ../bigData && node collect/terrain.mjs'
+    : '   먼저 구우세요:  node dem-clean-tiles.mjs');
+  process.exit(1);
+}
+
 // 어디에서 무엇을 가져와 dist 의 어디에 놓을지.
 // 로컬 서버(serve.mjs)의 주소 규칙과 **같은 모양**이어야 한다 — 다르면 로컬에서 되던 것이
 // 서버에서만 깨진다. 그게 가장 찾기 어려운 종류의 버그다.
@@ -24,7 +46,7 @@ const COPY = [
   { from: path.join(HERE, 'node_modules/maplibre-gl/dist'), to: path.join(DIST, 'lib'),
     only: /^maplibre-gl(-shared|-worker)?\.(mjs|css)$/ },
   { from: path.join(HERE, 'public/dem-tiles'), to: path.join(DIST, 'dem') },
-  { from: path.join(ROOT, 'bigData/data/raw/dem/15'), to: path.join(DIST, 'dem/15') },
+  { from: DEM15, to: path.join(DIST, 'dem/15') },
 ];
 
 let files = 0;
@@ -69,6 +91,9 @@ const MUST = [
 const missing = MUST.filter((m) => !fs.existsSync(path.join(DIST, m)));
 
 console.log(`\n파일 ${files.toLocaleString()} 개 · ${(bytes / 1048576).toFixed(1)} MB → dist/`);
+console.log(RAW_DEM
+  ? '🔴 땅 높이: **원본** (--raw) — 매립지의 가짜 능선이 그대로 실렸습니다. 비교용 꾸러미입니다.'
+  : '땅 높이: 정리본 (가짜 능선을 걷어낸 것)');
 if (missing.length) {
   console.error('빠진 것이 있습니다: ' + missing.join(', '));
   process.exit(1);

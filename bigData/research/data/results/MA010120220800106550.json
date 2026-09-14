@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220800106550",
+  "worker": "haiku-20",
+  "researchedAt": "2026-09-09T10:15:30Z",
+  "queries": ["꾼 남구 부산", "꾼 대연5동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "다이닝코드에서 찾은 '꾼'은 서울 성신여대 근처에 있는 다른 가게. 대연5동 위치의 '꾼'은 웹 검색 결과에 없음",
+  "notes": ""
+}

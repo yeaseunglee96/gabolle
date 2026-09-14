@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220808149974",
+  "worker": "haiku-28",
+  "researchedAt": "2026-09-09T10:05:00Z",
+  "queries": ["1966노을 강서구 부산", "1966노을 가덕도동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://travel.davidbro.com/142", "https://travel.davidbro.com/174"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "돈가스, 수제 햄버거 전문", "sources": [0]},
+    {"type": "분위기·전망", "note": "바다가 보이는 인테리어, 인스타그래밍 명소로 평가", "sources": [1]},
+    {"type": "현지인 지지", "note": "가덕도 주민들이 찾는 식당", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["돈가스", "수제 햄버거"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "1966정원 브랜드로 가덕도에 여러 지점이 있음 (대항점, 천성항점)"
+}

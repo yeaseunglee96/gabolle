@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220811436219",
+  "worker": "haiku-8",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["다다우동 남구 부산 우동", "다다우동 대연1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산 남구 유엔평화로 7-1"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "연차·역사", "note": "40년 전통의 우동 전문점", "sources": [0, 1]},
+    {"type": "기관 선정", "note": "블루리본 상을 2014년부터 매해 수상 중", "sources": [0, 1]},
+    {"type": "조리·재료", "note": "일본식 우동에 한국스러운 맛 조합, 매일 아침 멸치와 다시다로 국물을 냄", "sources": [0, 1]},
+    {"type": "맛 묘사", "note": "손으로 만들어 탱글탱글한 면발", "sources": [1]},
+    {"type": "운영·접근 편의", "note": "대연역 도보 2분, 15,000원 이상 주문 시 옆 주차장 1시간 무료", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["우동"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

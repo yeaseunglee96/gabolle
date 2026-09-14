@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202604A0014636",
+  "worker": "haiku-25",
+  "researchedAt": "2026-09-09T10:46:00Z",
+  "queries": ["계단집 중구 부산", "계단집 동광동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "중구 동광동의 계단집 경양식에 대한 정보를 웹에서 찾을 수 없음",
+  "notes": ""
+}

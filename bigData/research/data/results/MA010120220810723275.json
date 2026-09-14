@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220810723275",
+  "worker": "haiku-46",
+  "researchedAt": "2026-09-09T12:10:00Z",
+  "queries": ["막구 북구 부산", "막구 만덕3동 맛집", "막구 만덕3로 부산 블로그"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=lyUf6QFtpMu2"],
+  "stillOpen": true,
+  "whyPeopleGo": [{"type": "현지인 지지", "note": "부산 만덕 주민들이 많이 찾는 로컬 맛집", "sources": [0]}, {"type": "가격·가성비", "note": "1인분 9천원대 저가 막창 구이", "sources": [0]}],
+  "newTypes": [],
+  "descriptors": {"yearsClaimed": null, "generations": null, "queueing": null, "parking": null, "audience": "locals", "signatureDishes": ["돼지막창", "소막창"], "priceBand": "cheap"},
+  "notFound": null,
+  "notes": ""
+}

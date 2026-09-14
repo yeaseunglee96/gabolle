@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202512A0030533",
+  "worker": "haiku-73",
+  "researchedAt": "2026-09-09T23:25:24.530Z",
+  "queries": ["램블맨션 부산진구 부산", "램블맨션 전포1동 맛집"],
+  "found": false,
+  "confidence": "low",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "검색에는 전포동 '램블'(브런치/파스타)만 나옴. 데이터상 '램블맨션'(경양식)과는 이름 및 업종이 일치하지 않음",
+  "notes": ""
+}

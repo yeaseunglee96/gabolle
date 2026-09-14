@@ -36,12 +36,30 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class AnonymousSessionAuthenticationFilter extends OncePerRequestFilter {
 
 	public static final String HEADER_NAME = "X-Session-Token";
-	private static final String ANONYMOUS_PRINCIPAL_PREFIX = "anon:";
+	/**
+	 * 🔴 S15P21E201-317 — {@code public} 이다. {@code AuthenticatedUsers.requireOwner} 가 이
+	 * 접두사로 "이 principal 이 익명 세션인가" 를 판정한다. 문자열을 양쪽에 따로 적어 두면
+	 * 한쪽만 바뀐 날 조용히 어긋난다.
+	 */
+	public static final String ANONYMOUS_PRINCIPAL_PREFIX = "anon:";
 
 	private final AnonymousSessionService anonymousSessionService;
 
 	public AnonymousSessionAuthenticationFilter(AnonymousSessionService anonymousSessionService) {
 		this.anonymousSessionService = anonymousSessionService;
+	}
+
+	/**
+	 * 오류 디스패치에서도 돈다 — S15P21E201-790. {@code HmacJwtAuthenticationFilter} 와 같은
+	 * 이유다.
+	 *
+	 * <p>여기까지 뒤집는 이유는 익명 세션도 신원이기 때문이다. 안 뒤집으면 익명 세션으로
+	 * 여행을 만들다 요청 하나가 잘못됐을 때 4xx 가 401 로 바뀌고, 화면은 그것을 "세션이
+	 * 끊겼다" 로 읽어 그때까지 담아 둔 익명 여행을 잃는다.
+	 */
+	@Override
+	protected boolean shouldNotFilterErrorDispatch() {
+		return false;
 	}
 
 	@Override

@@ -1,0 +1,37 @@
+{
+  "id": "MA010120220808055093",
+  "worker": "haiku-40",
+  "researchedAt": "2026-09-09T13:14:00Z",
+  "queries": ["현빈스시 사하구 부산", "현빈스시 다대2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.siksinhot.com/P/1224295",
+    "https://www.diningcode.com/profile.php?rid=cgmib8IEg4ka"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "가격·가성비",
+      "note": "단품 1천~3천원, 세트 1~2만원의 저렴한 가격대. 모듬회/모듬스시 가성비 좋음",
+      "sources": [0, 1]
+    },
+    {
+      "type": "메뉴 희소성",
+      "note": "스시, 사시미, 소바, 우동, 라멘, 규동 등 다양한 일식 메뉴",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["모듬스시", "모듬회", "초밥"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "051-900-4561, 5년 이상 영업 중"
+}

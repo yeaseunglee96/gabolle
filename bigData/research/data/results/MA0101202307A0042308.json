@@ -1,0 +1,26 @@
+{
+  "id": "MA0101202307A0042308",
+  "worker": "haiku-11",
+  "researchedAt": "2026-09-09T01:01:00Z",
+  "queries": ["은하갈비 초량 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 동구 초량중로 86"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "연차·역사", "note": "초량 돼지갈비 골목의 역사 초창기부터 지금까지 동일한 상호로 장사하는 유일한 식당", "sources": [0, 1] },
+    { "type": "맛 묘사", "note": "옛날 방식 그대로 은박지 포일에 싸서 끓이고 직접 만든 양념에 재운 돼지갈비", "sources": [1] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": false,
+    "audience": "mixed",
+    "signatureDishes": ["돼지갈비"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": ""
+}

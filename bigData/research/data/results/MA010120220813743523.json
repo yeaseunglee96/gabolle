@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220813743523",
+  "worker": "haiku-12",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["볼피노 기장군 부산", "볼피노 기장해안로 경양식"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://kr.trip.com/moments/detail/busan-432-12277023/", "https://polle.com/place/4I97J0/%EB%B3%BC%ED%94%BC%EB%85%B8"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "서비스·사람", "note": "유명 셰프 김지운이 운영하는 레스토랑 - 마레마, 쿠치올로 등도 운영 중", "sources": [0]},
+    {"type": "간판 메뉴 지목", "note": "생면 파스타 전문점 - 나폴리탈 요리 특화", "sources": [0, 1]},
+    {"type": "기관 선정", "note": "2022년 미슐랭 가이드 포함", "sources": [0]},
+    {"type": "분위기·전망", "note": "힐튼 호텔 B2층 위치, 바다로 둘러싸인 오션뷰 환경", "sources": [0, 1]},
+    {"type": "플랫폼 순위·평점", "note": "트립닷컴, 뽈레 등 주요 맛집 플랫폼에 소개됨", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["생면파스타", "트러플 탈리아텔레"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": ""
+}

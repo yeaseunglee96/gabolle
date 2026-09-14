@@ -1,0 +1,34 @@
+{
+  "id": "MA0106202201A1870903",
+  "worker": "haiku-57",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["엣지993더위 해운대", "엣지993 해운대"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=zcVkqQLEpRJZ"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "해운대 바다의 환상적인 루프탑 전망, 해수욕장과 해변열차가 보임",
+      "sources": [0]
+    },
+    {
+      "type": "메뉴 희소성",
+      "note": "각국의 와인과 생맥주, 칵테일 제공",
+      "sources": [0]
+    },
+    {
+      "type": "운영·접근 편의",
+      "note": "루프탑에 계절용품(양산, 패딩, 담요) 준비",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["와인", "칵테일"],
+    "audience": "mixed"
+  },
+  "notFound": null,
+  "notes": "루프탑 카페/바, 펜션 겸용시설, 해운대 미포 위치, 낮에는 음료/디저트, 저녁에는 주류"
+}

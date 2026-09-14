@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220806636887",
+  "worker": "haiku-53",
+  "researchedAt": "2026-09-09T07:30:00Z",
+  "queries": ["이태리식탁 해운대", "이태리식탁 우1동"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.tabling.co.kr/place/677ccc4a66de5f06987ed06c", "https://www.diningcode.com/profile.php?rid=qsuDwvuVvrAU"],
+  "stillOpen": true,
+  "whyPeopleGo": [{"type": "간판 메뉴 지목", "note": "파스타와 피자 전문점", "sources": [0, 1]}, {"type": "분위기·전망", "note": "해리단길 근처 좋은 분위기", "sources": [1]}],
+  "newTypes": [],
+  "descriptors": {"signatureDishes": ["파스타", "피자"]},
+  "notFound": null,
+  "notes": "영업시간 월-화, 목-토, 일 11:30-20:30, 수요일 휴무. 빈티지 스타일 인테리어, 자연채광"
+}

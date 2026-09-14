@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220802915863",
+  "worker": "haiku-12",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["영남냉면 서구 부산", "영남냉면 동대신동 냉면"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/271259"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "연차·역사", "note": "34년 전통의 냉면·밀면 전문점", "sources": [0]},
+    {"type": "간판 메뉴 지목", "note": "함흥식 냉면, 평양식 냉면, 밀면 등 다양한 종류 제공", "sources": [0]},
+    {"type": "조리·재료", "note": "자체 제조로 만드는 냉면", "sources": [0]},
+    {"type": "플랫폼 순위·평점", "note": "식신, 다이닝코드 등 주요 플랫폼에 소개됨", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 34,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["함흥식 냉면", "평양식 냉면", "밀면"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

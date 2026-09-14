@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220811394813",
+  "worker": "haiku-1",
+  "researchedAt": "2026-09-09T02:46:00Z",
+  "queries": ["진미횟집 광안 수영구"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=FX1Z8YfEBdq3", "https://www.siksinhot.com/P/361737"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "heritage",
+      "note": "20년 이상 운영 - 광안리 현지인 추천 횟집",
+      "sources": [0]
+    },
+    {
+      "type": "specialty",
+      "note": "세꼬시 전문점 - 가을 고등어, 광안리 광어, 도미 등",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 20,
+    "signatureDishes": ["세꼬시"]
+  },
+  "notFound": null,
+  "notes": "11:00~22:00 영업(무휴), 1시간 무료주차"
+}

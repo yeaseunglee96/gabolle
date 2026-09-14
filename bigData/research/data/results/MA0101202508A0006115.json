@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202508A0006115",
+  "worker": "haiku-20",
+  "researchedAt": "2026-09-09T10:41:15Z",
+  "queries": ["블랙캣 동구 부산", "블랙캣 초량1동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "블랙캣은 영화/만화/엔터테인먼트 사업의 이름이거나 고양이 카페로만 나타남. 초량1동 경양식 가게 정보 없음",
+  "notes": ""
+}

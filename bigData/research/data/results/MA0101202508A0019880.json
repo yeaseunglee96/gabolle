@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202508A0019880",
+  "worker": "haiku-51",
+  "researchedAt": "2026-09-09T14:56:00Z",
+  "queries": ["란콰이펑누들 광안리 부산", "란콰이펑누들 남천2동 맛집"],
+  "found": false,
+  "confidence": "low",
+  "sources": ["https://www.diningcode.com/profile.php?rid=Tdl8Q65PnVwM"],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "부산 광안리/남천2동 란콰이펑누들 지점에 대한 구체적 정보를 찾을 수 없음. 서울 지점들만 검색됨",
+  "notes": "홍콩식 우육탕면 전문 체인, 서울에 여러 지점 있음"
+}

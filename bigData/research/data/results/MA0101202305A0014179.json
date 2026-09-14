@@ -1,0 +1,27 @@
+{
+  "id": "MA0101202305A0014179",
+  "worker": "haiku-69",
+  "researchedAt": "2026-09-10T00:14:00Z",
+  "queries": ["우마이미세 해운대", "우마이미세 우동"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=Wb8jKzbYmxuI", "https://www.instagram.com/umai.mise.official/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "함박스테이크 전문 일식당", "sources": [0]},
+    {"type": "분위기·전망", "note": "중앙에서 조리 과정 직접 관찰 가능", "sources": [0]},
+    {"type": "곁들임·차림", "note": "밥/계란 무한 리필", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["햄버그스테이크"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "메뉴 15,000~24,000원, 월 15일 만원의 행복 이벤트"
+}

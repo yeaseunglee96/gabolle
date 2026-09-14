@@ -157,6 +157,60 @@ class PrivacyCleanupIntegrationTest extends PrivacyPostgresIntegrationTest {
 		assertThat(run.getExpiredSessionsDeleted()).isGreaterThanOrEqualTo(1);
 	}
 
+	/**
+	 * 기준선의 경계 — S15P21E201-362.
+	 *
+	 * <h3>왜 열흘 차이로는 부족한가</h3>
+	 * 위 검사들은 만료를 열흘 전으로, 살아 있는 것을 열흘 뒤로 두고 잰다. 그러면 <b>기준선
+	 * 계산이 틀려도 통과한다</b> — 설정값을 아예 안 읽고 0일로 굳었어도, 단위를 시간으로
+	 * 잘못 썼어도, 부등호가 뒤집혀 있어도 그 두 값은 여전히 갈린다.
+	 *
+	 * <p>이 티켓의 전제가 <i>"배치가 돌기만 하고 아무것도 안 지우는 상태가 제일 위험하다"</i>
+	 * 인데, 그 반대편 위험도 같다 — <b>기준선이 너무 넓어 아직 지울 때가 아닌 것을 지우는
+	 * 것.</b> 개인정보 자리에서 덜 지운 것은 나중에 지울 수 있지만 더 지운 것은 되돌릴 수 없다.
+	 *
+	 * <p>그래서 경계 양쪽 한 시간씩을 잰다. 이 검사 설정의 유예는 1일이므로 25시간 전은
+	 * 지워지고 23시간 전은 남아야 한다. 이 두 줄이 함께 통과하는 것은 <b>설정된 값이 실제로
+	 * 쓰였다</b>는 뜻이기도 하다 — 0일이면 23시간짜리가 지워지고, 7일이면 25시간짜리가 남는다.
+	 */
+	@Test
+	@DisplayName("완료 기준 — 유예 기준선 바로 안쪽 세션은 남고 바로 밖은 지워진다")
+	void cleanup_respectsTheConfiguredSessionGraceBoundary() {
+		Instant now = Instant.now();
+
+		AuthSession justOutside = this.sessionRepository.save(AuthSession.issue(user(), UUID.randomUUID(),
+				"rt-hash-" + UUID.randomUUID(), "device-just-outside", now.minusSeconds(25 * 3600)));
+		AuthSession justInside = this.sessionRepository.save(AuthSession.issue(user(), UUID.randomUUID(),
+				"rt-hash-" + UUID.randomUUID(), "device-just-inside", now.minusSeconds(23 * 3600)));
+
+		this.cleanupService.cleanup();
+
+		assertThat(this.sessionRepository.findById(justOutside.getSessionId()))
+				.withFailMessage("유예 기준선 밖(25시간 전 만료)인데 남아 있다 — 기준선이 너무 넓다")
+				.isEmpty();
+		assertThat(this.sessionRepository.findById(justInside.getSessionId()))
+				.withFailMessage("유예 기준선 안(23시간 전 만료)인데 지워졌다 — 지울 때가 아닌 것을 지웠다")
+				.isPresent();
+	}
+
+	@Test
+	@DisplayName("완료 기준 — 보존 기준선 바로 안쪽 이벤트는 남고 바로 밖은 지워진다")
+	void cleanup_respectsTheConfiguredEventRetentionBoundary() {
+		Instant now = Instant.now();
+
+		UUID justOutside = insertEvent(now.minusSeconds(25 * 3600), true);
+		UUID justInside = insertEvent(now.minusSeconds(23 * 3600), true);
+
+		this.cleanupService.cleanup();
+
+		assertThat(countEvent(justOutside))
+				.withFailMessage("보존 기준선 밖(25시간 전)인데 남아 있다 — 기준선이 너무 넓다")
+				.isZero();
+		assertThat(countEvent(justInside))
+				.withFailMessage("보존 기준선 안(23시간 전)인데 지워졌다 — 지울 때가 아닌 것을 지웠다")
+				.isEqualTo(1);
+	}
+
 	private AppUser user() {
 		return this.userRepository.getReferenceById(this.userId);
 	}

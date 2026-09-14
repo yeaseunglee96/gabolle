@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220808085654",
+  "worker": "haiku-26",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["옥샘 동래구 부산", "옥샘 복산동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=AcFAk1Cghnus"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "연차·역사",
+      "note": "30년 역사의 오래된 전통 음식점",
+      "sources": [0]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "돌솥쌈밥 전문점",
+      "sources": [0]
+    },
+    {
+      "type": "동네·시장 지목",
+      "note": "동래시장 뒤 골목에 위치한 로컬 맛집",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 30,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["돌솥쌈밥", "돼지고기"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

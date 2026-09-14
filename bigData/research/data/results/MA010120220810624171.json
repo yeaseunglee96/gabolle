@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220810624171",
+  "worker": "haiku-23",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["안창팽나무집 부산진구", "안창팽나무집 범천2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 부산진구 안창로"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "백숙 전문점", "sources": [0, 1]},
+    {"type": "맛 묘사", "note": "맛있는 백숙과 푸짐한 한끼", "sources": [1]},
+    {"type": "현지인 지지", "note": "안창마을 오래된 식당으로 지역 주민의 사랑받는 가게", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["백숙"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "안창마을에 위치한 오래된 식당으로 낡은 시설이지만 분위기 있음"
+}

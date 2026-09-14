@@ -1,0 +1,38 @@
+{
+  "id": "MA010120220810606469",
+  "worker": "haiku-1",
+  "researchedAt": "2026-09-09T01:09:00Z",
+  "queries": ["춘하추동밀면 부산진구", "춘하추동밀면 서면문화로 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=uhAPJTh0cGlE", "https://www.siksinhot.com/P/256671"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "signature_dish",
+      "note": "살얼음 떠있는 물밀면 - 시원한 여름의 별미",
+      "sources": [0]
+    },
+    {
+      "type": "specialty",
+      "note": "7일간 우려낸 사골 육수 - 깊고 진한 맛",
+      "sources": [0]
+    },
+    {
+      "type": "unique_flavor",
+      "note": "한약재 향의 독특한 육수 - 부산 밀면의 특징",
+      "sources": [0]
+    },
+    {
+      "type": "quality",
+      "note": "신선한 수제 만두 - 쫄깃한 면발과 완벽한 조화",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["물밀면", "비빔밀면", "수제만두"]
+  },
+  "notFound": null,
+  "notes": "온육수 셀프 서빙 가능, 주차 불가능 - 근처 유료주차장 이용, 서면역 9번 출구에서 도보 5분, 2층 넓은 좌석"
+}

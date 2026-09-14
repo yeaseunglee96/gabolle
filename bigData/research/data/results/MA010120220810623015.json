@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220810623015",
+  "worker": "haiku-24",
+  "researchedAt": "2026-09-09T10:26:15.2132113+09:00",
+  "queries": ["만포정 부산진구 부산", "만포정 범천2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=h9NCCd1tAR4y"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "오리불고기/오리백숙 전문점", "sources": [0]},
+    {"type": "미디어 노출", "note": "TV 출연, 연예인 방문", "sources": [0]},
+    {"type": "연차·역사", "note": "35년째 장사", "sources": [0]},
+    {"type": "조리·재료", "note": "고춧가루 외 모든 재료 국내산", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 35,
+    "generations": null,
+    "queueing": null,
+    "parking": "available",
+    "audience": "mixed",
+    "signatureDishes": ["오리불고기", "오리백숙", "옻오리백숙", "생오리구이"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": "예약/단체 이용 가능, 발렛파킹 있음"
+}

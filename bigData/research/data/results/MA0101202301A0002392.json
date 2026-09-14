@@ -1,0 +1,19 @@
+{
+  "id": "MA0101202301A0002392",
+  "worker": "haiku-54",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["자무카 해운대구 부산", "자무카 우1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.instagram.com/zamuka_haeundae/", "https://www.diningcode.com/profile.php?rid=WnpL8xoMazOC", "https://kr.trip.com/moments/detail/haeundae-gu-2016633-122141420/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "분위기·전망", "note": "경성시대 고급스러운 분위기, 아늑한 이자카야 공간", "sources": [0, 2]},
+    {"type": "간판 메뉴 지목", "note": "철판요리(철판명란, 함박스테이크) 전문점", "sources": [0, 1]},
+    {"type": "운영·접근 편의", "note": "해운대역 7번 출구 도보 7분, 유료 주차장 있음", "sources": [1, 2]}
+  ],
+  "newTypes": [],
+  "descriptors": {"yearsClaimed": null, "generations": null, "queueing": null, "parking": true, "audience": "adult", "signatureDishes": ["철판명란", "함박스테이크"], "priceBand": "moderate"},
+  "notFound": null,
+  "notes": "월-금 18:00-05:00, 토-일 17:30-05:00 운영 (라스트오더 04:00)"
+}

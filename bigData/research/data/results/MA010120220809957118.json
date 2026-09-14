@@ -1,0 +1,38 @@
+{
+  "id": "MA010120220809957118",
+  "worker": "haiku-1",
+  "researchedAt": "2026-09-09T00:40:00Z",
+  "queries": ["대성반점 중구 부산", "대성반점 대영로 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=UXv50cpxuLl2", "https://www.daangn.com/kr/local-profile/%EB%8C%80%EC%84%B1%EB%B0%98%EC%A0%90-v8g8iy1efspq/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "signature_dish",
+      "note": "간짜장(6,000원) - 옛날 간짜장 맛 그대로 - 고소하고 진한 맛",
+      "sources": [0]
+    },
+    {
+      "type": "quality",
+      "note": "탕수육(20,000원) - 바삭한 옛날식 튀김 - 신선한 식감",
+      "sources": [0]
+    },
+    {
+      "type": "value",
+      "note": "가성비 좋은 서민적인 가족외식 장소 - 저렴한 가격",
+      "sources": [0]
+    },
+    {
+      "type": "atmosphere",
+      "note": "부산역 인근 편리한 위치 - 점심 예약 필수",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["간짜장", "탕수육"]
+  },
+  "notFound": null,
+  "notes": "부산역 정거장 1번 출구에서 도보 10분, 점심시간 예약 필수, 평일 점심만 운영"
+}

@@ -1,0 +1,29 @@
+{
+  "id": "MA0101202211A0004608",
+  "worker": "haiku-25",
+  "researchedAt": "2026-09-09T10:32:15Z",
+  "queries": ["봄스시 금정구 부산", "봄스시 구서1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/map?areaNo=200&filterList=243"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "맛 묘사",
+      "note": "평점을 근거로 든다",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": [],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": ""
+}

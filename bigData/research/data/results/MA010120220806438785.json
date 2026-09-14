@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220806438785",
+  "worker": "haiku-8",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["박대포소금구이 중구 부산 부평", "박대포소금구이 부평동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산 중구 광복로 15"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "소금구이 전문", "sources": [0, 1]},
+    {"type": "맛 묘사", "note": "부드럽고 입에서 녹아버리는 소금구이의 맛", "sources": [0, 1]},
+    {"type": "곁들임·차림", "note": "기본으로 제공되는 밥과 고기 조합이 잘 구성됨", "sources": [1]},
+    {"type": "동네·시장 지목", "note": "부평동 족발 골목 라인의 인기 고깃집", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": false,
+    "audience": "mixed",
+    "signatureDishes": ["소금구이"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

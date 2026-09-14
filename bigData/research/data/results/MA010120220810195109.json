@@ -1,0 +1,38 @@
+{
+  "id": "MA010120220810195109",
+  "worker": "haiku-1",
+  "researchedAt": "2026-09-09T00:25:00Z",
+  "queries": ["일미밀면 중구 부산", "일미밀면 대청로 후기"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=BwuHXQwcWTiJ", "https://www.visitbusan.net/index.do?menuCd=DOM_000000202003001000&uc_seq=2285&lang_cd=ko"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "signature_dish",
+      "note": "240시간 우린 뼈 육수로 만든 깊은 맛의 밀면 - 한약재 향의 특징적 맛",
+      "sources": [0]
+    },
+    {
+      "type": "quality",
+      "note": "쫄깃하고 만족스러운 면, 진하고 깊은 육수",
+      "sources": [0]
+    },
+    {
+      "type": "value",
+      "note": "가성비 좋은 수육(5,000원) - 오후 중반 소진되는 인기 메뉴",
+      "sources": [0]
+    },
+    {
+      "type": "heritage",
+      "note": "노포 감성의 오래된 로컬 명점 - SBS '생활의 달인' 출연",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["밀면", "비빔밀면", "수육"]
+  },
+  "notFound": null,
+  "notes": "주차장 없음 - 국제시장 인근. 한 명당 한 가지 음식 주문 정책. 수육은 주말 오후 중반 소진"
+}

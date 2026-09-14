@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220812194563",
+  "worker": "haiku-34",
+  "researchedAt": "2026-09-09T06:39:00Z",
+  "queries": ["박리우 베트남 부산", "박리우 장림 베트남식"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "2번의 검색으로도 음식점 정보를 찾을 수 없음. 베트남의 박리에우(Bạc Liêu) 지역 정보만 나옴",
+  "notes": ""
+}

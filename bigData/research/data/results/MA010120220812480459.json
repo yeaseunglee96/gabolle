@@ -1,0 +1,42 @@
+{
+  "id": "MA010120220812480459",
+  "worker": "haiku-40",
+  "researchedAt": "2026-09-09T13:30:00Z",
+  "queries": ["낫개스시 사하구 부산", "낫개스시 다대2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.114.co.kr/search/detail?comp_id=3190289&comp_tp_cd=TEL&upjong_cd=851301",
+    "https://www.diningcode.com/profile.php?rid=YuFMJiMecowN"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "가격·가성비",
+      "note": "런치세트 11,000~18,000원의 합리적 가격대",
+      "sources": [0, 1]
+    },
+    {
+      "type": "조리·재료",
+      "note": "신선한 회를 사용, 고급 재료",
+      "sources": [1]
+    },
+    {
+      "type": "운영·접근 편의",
+      "note": "포장 및 배달 가능",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["런치세트", "연어알덮밥"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "051-262-3888, 11:00~22:00, 세인트마린 1층"
+}

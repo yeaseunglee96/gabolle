@@ -1,0 +1,29 @@
+{
+  "id": "MA0101202406A0364584",
+  "worker": "haiku-14",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["코듀로이펠라즈 수영구 부산", "코듀로이펠라즈 민락동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["다이닝코드", "카즈", "당근", "뽈레"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "분위기·전망", "note": "분위기 좋은 칵테일 바, 광안리 위치", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "로컬라이징 테마 시그니처 칵테일 전문", "sources": [0, 1]},
+    {"type": "메뉴 희소성", "note": "밀양애플, 모모스 원두 등을 활용한 특이한 맛의 칵테일", "sources": [0, 1]},
+    {"type": "혼잡·수요", "note": "예약 없으면 대기가 많을 정도로 인기 많음", "sources": [0, 1]},
+    {"type": "서비스·사람", "note": "매장 규모가 넓고 유료 콜키지 가능", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": true,
+    "parking": false,
+    "audience": "mixed",
+    "signatureDishes": ["로컬라이징 시그니처 칵테일", "밀양애플 칵테일", "모모스 원두 칵테일"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": "칵테일바 (데이터 카테고리는 백반/한정식이나 실제는 칵테일바)"
+}

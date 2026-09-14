@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202406A0407102",
+  "worker": "haiku-53",
+  "researchedAt": "2026-09-09T07:30:00Z",
+  "queries": ["아로하광안 민락동", "아로하광안 광안해변로"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=F7dIL9nnHZEM", "https://user.tabling.co.kr/place/677cd7f766de5f069893abd2"],
+  "stillOpen": true,
+  "whyPeopleGo": [{"type": "간판 메뉴 지목", "note": "파스타, 칵테일 바", "sources": [0]}, {"type": "분위기·전망", "note": "광안리 해변 근처 좋은 분위기", "sources": [0, 1]}],
+  "newTypes": [],
+  "descriptors": {"signatureDishes": ["치즈 쭈꾸미 삼겹살", "게 크림 파스타"]},
+  "notFound": null,
+  "notes": "영업시간 월-목, 일 17:00-03:00, 금-토 17:00-04:00. 칵테일 바와 요리주점"
+}

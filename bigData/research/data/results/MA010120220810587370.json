@@ -1,0 +1,34 @@
+{
+  "id": "MA010120220810587370",
+  "worker": "haiku-1",
+  "researchedAt": "2026-09-09T02:32:00Z",
+  "queries": ["합천식당 부산진구"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=bMvY8dEc0t4g", "https://busan.grandculture.net/Contents/Index?dataType=0403&contents_id=GC042P25269"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "heritage",
+      "note": "1960년대 개점 - 60년 이상 운영 중인 조방 골목 원조 식당",
+      "sources": [0]
+    },
+    {
+      "type": "management",
+      "note": "2대째 운영 - 창립자 김우자 이후 며느리 이영임이 운영",
+      "sources": [0]
+    },
+    {
+      "type": "specialty",
+      "note": "1960년대 후반부터 돼지국밥 전문화 - 조방 거리 대표점",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 60,
+    "signatureDishes": ["돼지국밥"]
+  },
+  "notFound": null,
+  "notes": "자유시장과 평화시장 사이 위치, 약 60석 규모"
+}

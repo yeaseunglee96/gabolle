@@ -26,23 +26,40 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  * 이 애노테이션이 있어야 이 슬라이스도 운영과 같은 경로(플레이스홀더 해석 포함)를 타서
  * 같은 종류의 버그를 다시 놓치지 않는다.
  */
+// 🔴 S15P21E201-317 — trip 을 더했다. LocalAuthService(auth)가 가입 시 익명 여행 승계를 위해
+//    AnonymousTripClaimService(trip.application)·JpaTripRepository(trip.infra) 를 물게
+//    됐다 — AuthSliceApplication 과 같은 이유다.
 @SpringBootApplication(scanBasePackages = {
 		"com.gabolle.backend.common",
 		"com.gabolle.backend.auth",
 		"com.gabolle.backend.user",
-		"com.gabolle.backend.privacy"
+		"com.gabolle.backend.privacy",
+		"com.gabolle.backend.trip",
+		// 🔴 S15P21E201-137 — place 를 더했다. 위의 trip 을 올리는 순간 그 패키지의 컨트롤러가
+		//    전부 함께 올라오고, 그중 TripFacetViewController(S15P21E201-475)가 place 쪽
+		//    서비스를 필수로 요구한다. 없으면 이 슬라이스가 통째로 못 뜬다.
+		//    AuthSliceApplication 이 같은 이유로 같은 줄을 갖고 있다.
+		"com.gabolle.backend.place",
+		// S15P21E201-440 — AuthSliceApplication 과 같은 이유로 event 도 더한다. trip 의
+		// SpendProfileService(-709)가 event 쪽 EventIngestService 를 필수로 요구한다.
+		"com.gabolle.backend.event"
 })
 @EnableScheduling
 @EntityScan(basePackages = {
 		"com.gabolle.backend.auth.domain",
 		"com.gabolle.backend.user.domain",
 		"com.gabolle.backend.event.domain",
-		"com.gabolle.backend.privacy.domain"
+		"com.gabolle.backend.privacy.domain",
+		"com.gabolle.backend.trip.infra",
+		"com.gabolle.backend.place.domain"
 })
 @EnableJpaRepositories(basePackages = {
 		"com.gabolle.backend.auth.repository",
 		"com.gabolle.backend.user.repository",
-		"com.gabolle.backend.privacy.repository"
+		"com.gabolle.backend.privacy.repository",
+		"com.gabolle.backend.trip.infra",
+		"com.gabolle.backend.place.repository",
+		"com.gabolle.backend.event.repository"
 })
 public class PrivacySliceApplication {
 }

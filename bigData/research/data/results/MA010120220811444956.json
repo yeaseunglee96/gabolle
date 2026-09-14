@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220811444956",
+  "worker": "haiku-46",
+  "researchedAt": "2026-09-09T13:50:00Z",
+  "queries": ["해운마루 해운대"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=O5WBYgiSZ4qd", "https://www.instagram.com/haeunmaru.busan/"],
+  "stillOpen": true,
+  "whyPeopleGo": [{"type": "분위기·전망", "note": "해운대 바다 전망 오션뷰", "sources": [0]}, {"type": "간판 메뉴 지목", "note": "자연산 횟집 물회 전문", "sources": [0]}],
+  "newTypes": [],
+  "descriptors": {"yearsClaimed": null, "generations": null, "queueing": null, "parking": null, "audience": "mixed", "signatureDishes": ["물회", "회", "생선구이"], "priceBand": "mid"},
+  "notFound": null,
+  "notes": ""
+}

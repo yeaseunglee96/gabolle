@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220810761957",
+  "worker": "haiku-9",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["부광반점 동래구 부산", "부광반점 복산동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["diningcode.com", "travel.davidbro.com"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "미디어 노출",
+      "note": "2017년 생활의 달인에 초마면과 탕수육의 달인으로 출연",
+      "sources": [0, 1]
+    },
+    {
+      "type": "메뉴 희소성",
+      "note": "사장이 직접 개발한 특이한 초마면 메뉴",
+      "sources": [0, 1]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "초마면과 바삭한 탕수육이 대표메뉴",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 1991,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "local",
+    "signatureDishes": ["초마면", "탕수육"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "1991년 8월 2일 오픈. 부산 3대 탕수육 맛집으로 거론됨"
+}

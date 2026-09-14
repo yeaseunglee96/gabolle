@@ -1,0 +1,27 @@
+{
+  "id": "MA0101202409A0040863",
+  "worker": "haiku-59",
+  "researchedAt": "2026-09-09T08:34:00Z",
+  "queries": ["네코인더키친 부산 해운대", "네코인더키친 좌동순환로 초밥"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1729771"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "모츠나베(내장 냄비), 고등어올리브파스타",
+      "sources": ["https://www.siksinhot.com/P/1729771"]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "타치석과 테이블석이 함께 있는 이자카야",
+      "sources": ["https://www.siksinhot.com/P/1729771"]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "parking": "근처 공영주차장 이용"
+  },
+  "notes": "카테고리는 일식 회/초밥이나 실제로는 이자카야로 모츠나베·파스타 등을 주로 취급"
+}

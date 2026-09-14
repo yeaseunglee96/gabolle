@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220806545203",
+  "worker": "haiku-11",
+  "researchedAt": "2026-09-09T00:26:00Z",
+  "queries": ["페이센동 전포 부산", "페이센동 전포동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 부산진구 서전로46번길 6"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "기관 선정", "note": "3년 연속 블루리본 선정되어 많은 분들이 만족하는 일식 덮밥 전문점", "sources": [0, 1] },
+    { "type": "맛 묘사", "note": "일본 가정식의 정갈함과 든든함을 담았으며 주문과 동시에 신선하게 조리", "sources": [0, 1] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": true,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["카츠동(돈등심)", "가라아게동"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "노키즈존"
+}

@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220813385689",
+  "worker": "haiku-15",
+  "researchedAt": "2026-09-08T22:41:35Z",
+  "queries": ["야키쵸리 부산진구 부산", "야키쵸리 전포1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 부산진구 전포대로223번길 14-2"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "간판 메뉴 지목", "note": "야키토리 (꼬치), 옥수수튀김, 치즈두부", "sources": [0] },
+    { "type": "조리·재료", "note": "마초같은 강한 소스 속 섬세한 재료 이해도", "sources": [0] },
+    { "type": "서비스·사람", "note": "오픈 키친, 요리에 대한 진정성", "sources": [0] },
+    { "type": "혼잡·수요", "note": "예약 필수, 재료 빨리 소진", "sources": [0] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": true,
+    "parking": false,
+    "audience": "mixed",
+    "signatureDishes": ["야키토리", "옥수수튀김", "치즈두부"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": "18:00~22:30 영업, 20:00~20:30 브레이크타임, 일요일 정기휴무, 예약제, 최소 1주전 예약 필요"
+}

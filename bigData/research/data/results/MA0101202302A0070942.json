@@ -1,0 +1,59 @@
+{
+  "id": "MA0101202302A0070942",
+  "worker": "haiku-16",
+  "researchedAt": "2026-09-08T22:55:10.550Z",
+  "queries": [
+    "킨교 부산 광안3동",
+    "킨교 일식 수영구"
+  ],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.diningcode.com/profile.php?rid=dw4BYIvksUgK"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "맛 묘사",
+      "note": "경양식 돈까스의 정석",
+      "sources": [
+        0
+      ]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "저렴한 가격대",
+      "sources": [
+        0
+      ]
+    },
+    {
+      "type": "조리·재료",
+      "note": "사장님이 직접 만드는 튀김",
+      "sources": [
+        0
+      ]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "반반 돈까스",
+      "sources": [
+        0
+      ]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "locals",
+    "signatureDishes": [
+      "반반 돈까스"
+    ],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "연락처 051-752-2268, 화~토 11:30~19:00, 일 11:30~14:30, 월 휴무, 소규모 매장"
+}

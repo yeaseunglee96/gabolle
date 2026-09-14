@@ -1,0 +1,25 @@
+{
+  "id": "MA010120220812014416",
+  "worker": "haiku-11",
+  "researchedAt": "2026-09-09T00:31:00Z",
+  "queries": ["사랑방 영도 부산", "사랑방 동삼동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 영도구 감지해변길 92"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "맛 묘사", "note": "조개구이, 해물라면, 해물모듬 등 신선한 해산물을 전문으로 하는 맛집", "sources": [0, 2] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["개불", "낙지", "조개구이", "해물모듬"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": ""
+}

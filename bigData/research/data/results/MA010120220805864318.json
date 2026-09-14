@@ -1,0 +1,38 @@
+{
+  "id": "MA010120220805864318",
+  "worker": "haiku-1",
+  "researchedAt": "2026-09-09T02:17:00Z",
+  "queries": ["수변최고돼지국밥 수영구 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/782895", "https://korean.visitkorea.or.kr/detail/ms_detail.do?cotid=82d02bcb-77d4-40d5-a92c-e9e12f00dfea"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "service",
+      "note": "24시간 365일 연중무휴 영업 - 언제든 돼지국밥 즐길 수 있음",
+      "sources": [0]
+    },
+    {
+      "type": "specialty",
+      "note": "깊고 진한 국물 - 고기 푸짐함이 특징",
+      "sources": [0]
+    },
+    {
+      "type": "location",
+      "note": "광안리 광안해변로 인근 - 해변 경치 좋은 위치",
+      "sources": [0]
+    },
+    {
+      "type": "scale",
+      "note": "민락본점 - 여러 지점 운영 중인 대표 지점",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["고기국밥", "항정국밥"]
+  },
+  "notFound": null,
+  "notes": "민락본점, 웨이팅 많을 시 테이블링 앱으로 원격 등록 가능, 여러 지점 운영"
+}

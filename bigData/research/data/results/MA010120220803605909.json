@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220803605909",
+  "worker": "haiku-59",
+  "researchedAt": "2026-09-09T08:26:00Z",
+  "queries": ["메이시스 부산 광안 도넛", "메이시스 수영로 빵 카페"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "광안 지역 빵/도넛 검색에도 불구하고 '메이시스'라는 카페는 찾을 수 없음",
+  "notes": "빵/도넛 카테고리로 등록"
+}

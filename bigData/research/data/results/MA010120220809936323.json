@@ -1,0 +1,38 @@
+{
+  "id": "MA010120220809936323",
+  "worker": "haiku-1",
+  "researchedAt": "2026-09-09T01:22:00Z",
+  "queries": ["공원집 부산진구 돼지고기", "공원집 가야공원로 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://www.diningcode.com/profile.php?rid=MyV6tskjAkQT", "https://triple.guide/restaurants/99d909ed-6b16-4922-a7cc-a477dd31eb16"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "unique_setting",
+      "note": "계곡물이 흐르는 야외 테이블 - 자연 경관 속에서 식사",
+      "sources": [0]
+    },
+    {
+      "type": "signature_dish",
+      "note": "오리불고기(45,000원) - 신선한 마리네이드 오리 구이",
+      "sources": [0]
+    },
+    {
+      "type": "quality",
+      "note": "깨끗하고 깊은 맛 - 넉넉한 포션의 오리고기",
+      "sources": [0]
+    },
+    {
+      "type": "atmosphere",
+      "note": "숲 속의 신비로운 분위기 - 악천후 시 실내 공간 이용 가능",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["오리불고기", "오리백숙"]
+  },
+  "notFound": null,
+  "notes": "자료 카테고리(돼지고기구이/찜)와 다르게 실제로는 오리고기 전문점, 무료 주차 가능, 반려동물 동반 가능"
+}

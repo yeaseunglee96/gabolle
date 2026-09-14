@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220809694181",
+  "worker": "haiku-62",
+  "researchedAt": "2026-09-10T12:03:00Z",
+  "queries": ["스시문 해운대구 부산", "스시문 중2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.daangn.com/kr/local-profile/288064/", "https://www.instagram.com/moonsushi_official/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "조리·재료", "note": "신선한 활어와 생연어를 직접 손질하여 주문 시점에 만드는 수제초밥", "sources": [0]},
+    {"type": "맛 묘사", "note": "국물맛이 일품인 와새우튀김우동", "sources": [0]},
+    {"type": "가격·가성비", "note": "점심특선으로 가성비 좋은 스시집", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["수제초밥", "와새우튀김우동", "수제돈까스"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

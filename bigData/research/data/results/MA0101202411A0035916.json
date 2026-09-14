@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202411A0035916",
+  "worker": "haiku-53",
+  "researchedAt": "2026-09-09T06:00:00Z",
+  "queries": ["테파스 수영구 부산", "테파스 광안2동 맛집", "테파스 경양식 부산"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색 결과에서 경양식당 테파스의 정보를 찾지 못함",
+  "notes": ""
+}

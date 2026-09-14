@@ -1,0 +1,25 @@
+{
+  "id": "MA0101202310A0005008",
+  "worker": "haiku-28",
+  "researchedAt": "2026-09-09T10:10:00Z",
+  "queries": ["에트렌느사직 동래구 부산", "에트렌느사직 사직3동 맛집"],
+  "found": true,
+  "confidence": "low",
+  "sources": ["https://guide.michelin.com/kr/ko/busan-region/busan_1025838/restaurant/l-etang"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "파스타 전문점", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["파스타"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "검색 결과에서 에트렌느는 파스타 전문점으로 별점 평가를 받고 있으나, 정확한 주소와 상세 정보는 제한적"
+}

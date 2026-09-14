@@ -1,0 +1,33 @@
+{
+  "id": "MA010120220800910914",
+  "worker": "haiku-1",
+  "researchedAt": "2026-09-09T02:20:00Z",
+  "queries": ["양산왕돼지국밥 해운대"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=Gu4YBX6c5Z1n", "https://korean.visitkorea.or.kr/detail/ms_detail.do?cotid=32c8d383-c662-4e2a-8120-fdd1527942d6"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "quality",
+      "note": "진한 국물과 부드러운 고기 - 깊고 만족스러운 맛",
+      "sources": [0]
+    },
+    {
+      "type": "service",
+      "note": "7:00~21:40 - 아침 일찍부터 저녁 늦게까지 운영",
+      "sources": [0]
+    },
+    {
+      "type": "menu",
+      "note": "수육, 순대국밥 등 다양한 메뉴 - 9,500~11,000원대",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["돼지국밥", "순대국밥", "수육백반"]
+  },
+  "notFound": null,
+  "notes": "7:00~21:40 영업(무휴), 라스트오더 21:00, 평일 점심 웨이팅, 셀프바 시골 막걸리"
+}

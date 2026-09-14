@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220810660189",
+  "worker": "haiku-28",
+  "researchedAt": "2026-09-09T10:00:00Z",
+  "queries": ["밀양꼬리식당 사상구 부산", "밀양꼬리식당 괘법동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://triple.guide/restaurants/2dd4a9f9-446e-4da1-9079-a4c746c4978a", "https://www.diningcode.com/profile.php?rid=ShIGCTc8m6kd", "https://www.threads.com/@_dukong_/post/DBRN1UFycev"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "연탄불에 구워먹는 돼지꼬리 야외 노상맛집", "sources": [0]},
+    {"type": "현지인 지지", "note": "아는 사람은 다 아는 사상 노포집", "sources": [1]},
+    {"type": "가격·가성비", "note": "저렴한 가격에 야외노상을 즐길 수 있다", "sources": [0]},
+    {"type": "분위기·전망", "note": "야외 테이블에서 즐기는 노상 분위기", "sources": [0]},
+    {"type": "플랫폼 순위·평점", "note": "다이닝코드 평점을 근거로 든다", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "야외 테이블 옆 7대 가량",
+    "audience": "local",
+    "signatureDishes": ["돼지꼬리", "돼지비계", "돼지껍데기"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202504A0097512",
+  "worker": "haiku-59",
+  "researchedAt": "2026-09-09T08:32:00Z",
+  "queries": ["옹드 부산 해운대 빵 도넛", "옹드 좌동순환로 베이커리 카페"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "해운대 빵/도넛 검색에도 불구하고 '옹드'라는 베이커리는 찾을 수 없음",
+  "notes": "빵/도넛 카테고리로 등록"
+}

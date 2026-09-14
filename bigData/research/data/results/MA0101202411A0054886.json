@@ -1,0 +1,39 @@
+{
+  "id": "MA0101202411A0054886",
+  "worker": "haiku-68",
+  "researchedAt": "2026-09-10T10:22:00Z",
+  "queries": ["마츠자키 수영구 광안2동 일식 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://guide.michelin.com/kr/ko/busan-region/busan_1025838/restaurant/matsuzaki"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "기관 선정",
+      "note": "2025 미쉐린 가이드 등재",
+      "sources": [0]
+    },
+    {
+      "type": "조리·재료",
+      "note": "젊은 주인장이 정성껏 준비하는 정통 일본 요리",
+      "sources": [0]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "소규모 오마카세 식당의 정갈한 분위기",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "couple",
+    "signatureDishes": ["오마카세", "카이세키"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": "오마카세 카이세키 전문 일식당. 2025 미쉐린 가이드 등재. 젊은 주인장이 직접 요리. 소규모 고급 식당. 주소: 수영로582번길 10"
+}

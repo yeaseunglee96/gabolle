@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220811442104",
+  "worker": "haiku-69",
+  "researchedAt": "2026-09-10T00:06:00Z",
+  "queries": ["아저씨대구탕 해운대구", "아저씨대구탕 중1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/257454", "https://www.diningcode.com/profile.php?rid=NPo8rj3vx7VI"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "대구탕, 대구뽈찜 전문점", "sources": [0, 1]},
+    {"type": "메뉴 희소성", "note": "시원한 국물의 대구탕", "sources": [1]},
+    {"type": "운영·접근 편의", "note": "아침 일찍 오픈해 해장용으로 좋음", "sources": [1]},
+    {"type": "현지인 지지", "note": "부산의 top 3 대구탕집", "sources": [1]},
+    {"type": "미디어 노출", "note": "허영만 백반기행, Elle 잡지 소개", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["대구탕", "대구뽈찜"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "영업시간 07:00~21:00, 연중무휴, 무/콩나물/미나리로 개운함"
+}

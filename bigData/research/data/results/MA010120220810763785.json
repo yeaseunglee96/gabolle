@@ -1,0 +1,31 @@
+{
+  "id": "MA010120220810763785",
+  "worker": "haiku-22",
+  "researchedAt": "2026-09-09T01:15:30.000Z",
+  "queries": ["다미초밥 동래구 부산", "다미초밥 온천1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.siksinhot.com/P/676753",
+    "https://www.diningcode.com/profile.php?rid=kE2C4s9UWusM",
+    "https://www.koobig.com/453601"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "조리·재료", "note": "일식 코스요리 전문", "sources": [0, 1]},
+    {"type": "분위기·전망", "note": "온천장역 근처 위치, 편리한 접근", "sources": [1]},
+    {"type": "운영·접근 편의", "note": "자체 주차장 있음, 개별 방 제공", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["일식 코스요리"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "온천장역 근처, 저녁 5시~새벽 2시 영업, 코스별 가격: 45,000원/50,000원/70,000원"
+}

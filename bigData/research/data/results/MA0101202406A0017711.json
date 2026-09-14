@@ -1,0 +1,39 @@
+{
+  "id": "MA0101202406A0017711",
+  "worker": "haiku-70",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["달맞이샌드 해운대 빵", "달맞이샌드 중1동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://www.busan.com/view/busan/view.php?code=20181023000419", "https://place.cashnote.kr/stores/1194", "https://www.kurly.com/goods/1001986739"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "원조·최초",
+      "note": "부산 달맞이길에서 탄생한 시그니처 디저트 브랜드",
+      "sources": [0]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "달맞이빵과 파이만주가 대표 메뉴",
+      "sources": [1]
+    },
+    {
+      "type": "기관 선정",
+      "note": "해운대 특산빵 공모전에 선정되어 공식 인정",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["달맞이빵", "파이만주"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "해운대달맞이빵으로도 불리는 브랜드"
+}

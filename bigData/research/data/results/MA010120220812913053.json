@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220812913053",
+  "worker": "haiku-17",
+  "researchedAt": "2026-09-09T09:42:30Z",
+  "queries": ["각방 부산진구 일식 회", "각방 부전 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=T1V07wAq4ANS", "https://polle.com/place/2851Po/%EA%B0%81%EB%B0%A9"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "일식 돈부리와 야끼도리를 전문으로 한다", "sources": [0, 1]},
+    {"type": "가격·가성비", "note": "합리적인 가격에 질 좋은 음식을 제공한다", "sources": [0]},
+    {"type": "조리·재료", "note": "연어가 두툼하게 썰어져 있고 부드럽다", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["반반덮밥", "닭꼬치덮밥", "연어덮밥", "장어덮밥"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

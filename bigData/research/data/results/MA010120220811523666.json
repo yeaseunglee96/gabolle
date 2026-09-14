@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220811523666",
+  "worker": "haiku-11",
+  "researchedAt": "2026-09-09T00:02:00Z",
+  "queries": ["하카다라멘 중구 부산", "하카다라멘 남포동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 중구 남포동3가 15-2"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "플랫폼 순위·평점", "note": "다이닝코드에서 남포동 라멘 맛집 1위 평가", "sources": [0, 1] },
+    { "type": "가격·가성비", "note": "가성비 좋은 일본식 생라멘 전문점", "sources": [1] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": false,
+    "audience": "mixed",
+    "signatureDishes": ["2인세트", "냉 라멘"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

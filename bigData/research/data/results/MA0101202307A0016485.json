@@ -1,0 +1,28 @@
+{
+  "id": "MA0101202307A0016485",
+  "worker": "haiku-61",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["암파스타레 수영구 부산", "암파스타레 광안1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1616579", "https://www.diningcode.com/profile.php?rid=vC5q092j4JoP", "https://impastare.com/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "서비스·사람", "note": "호텔 쉐프 4명, 현직 쉐프 3명이 운영", "sources": [0]},
+    {"type": "기관 선정", "note": "파스타 경연대회 수상 요리 제공", "sources": [0]},
+    {"type": "분위기·전망", "note": "정원처럼 꾸며진 외부, 아늑한 분위기", "sources": [0]},
+    {"type": "맛 묘사", "note": "제철 식재료 이용, 계절마다 변화하는 맛", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["파스타", "브런치", "스테이크"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": "광안리 해수욕장 도보 10분, 광안역 근처, 주택가 골목 내부"
+}

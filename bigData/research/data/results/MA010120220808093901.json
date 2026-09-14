@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220808093901",
+  "worker": "haiku-39",
+  "researchedAt": "2026-09-09T10:12:00Z",
+  "queries": ["승승괘법점 사상구 부산", "승승괘법점 덕포1동 돼지고기"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=YRjYpr4tt29B"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "삼겹살, 차돌우삼겹으로 알려짐", "sources": [0]},
+    {"type": "곁들임·차림", "note": "샐러드 바와 함께 제공", "sources": [0]},
+    {"type": "가격·가성비", "note": "샐러드 바 저렴 가격 (성인 1,700원)", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": null,
+    "signatureDishes": ["삼겹살", "차돌우삼겹"],
+    "priceBand": "moderate"
+  },
+  "notes": "주소: 부산광역시 사상구 사상로 276-1, 전화: 051-302-9298, 영업시간: 16:00~23:00 (마지막 주문 22:00)"
+}

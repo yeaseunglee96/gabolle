@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220807391843",
+  "worker": "haiku-34",
+  "researchedAt": "2026-09-09T06:52:00Z",
+  "queries": ["왕가 중국집 부산 동구", "왕가 수정1동 짜장면", "왕가 고관로 부산 동구 수정"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "3번의 검색으로도 부산 동구 수정1동의 왕가 음식점을 찾을 수 없음. 검색 결과는 아산, 대전의 왕가만 나옴",
+  "notes": ""
+}

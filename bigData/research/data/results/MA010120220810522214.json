@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220810522214",
+  "worker": "haiku-38",
+  "researchedAt": "2026-09-09T15:45:00Z",
+  "queries": ["희망 빵 부산", "희망 도넛 괴정동"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "희망이라는 구체적인 빵집을 찾을 수 없었다. 부산의 여러 빵집 정보가 나왔지만 괴정동의 희망이라는 정확한 가게는 확인되지 않았다.",
+  "notes": ""
+}

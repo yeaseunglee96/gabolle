@@ -1,0 +1,23 @@
+{
+  "id": "MA010120220814309757",
+  "worker": "haiku-72",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["이태원판자집 우동 부산", "이태원판자집 해운대 백반"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://triple.guide/restaurants/f5b799ad-47fa-42f2-b94e-0f2f1be92329", "https://www.diningcode.com/profile.php?rid=67oIaigw16sV"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "육회와 육사시미 전문", "sources": [0, 1]},
+    {"type": "조리·재료", "note": "감자탕이 감자탕 전문점과 견주어도 손색없을 정도로 훌륭함", "sources": [1]},
+    {"type": "혼잡·수요", "note": "평일 저녁 시간대에도 웨이팅이 있을 정도로 인기", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["육회", "육사시미", "감자탕"],
+    "priceBand": "moderate",
+    "audience": "mixed"
+  },
+  "notFound": null,
+  "notes": "카테고리는 '백반/한정식'이나 실제로는 '육회 및 육사시미 전문점'입니다. 18:00-03:00 영업 시간으로 야식 전문점입니다."
+}

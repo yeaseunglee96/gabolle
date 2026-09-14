@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220810612147",
+  "worker": "haiku-47",
+  "researchedAt": "2026-09-09T11:45:00Z",
+  "queries": ["임실치즈쌀피자 수영구 부산", "임실치즈쌀피자 광안2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1054460", "https://www.diningcode.com/profile.php?rid=6RvbK99VNRDE", "https://www.mangoplate.com/restaurants/BsFyy3q1SWDN"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "임실치즈와 우리쌀로 만든 특별한 쌀 피자", "sources": [0, 1]},
+    {"type": "맛 묘사", "note": "고소한 임실치즈의 맛을 제대로 보여주는 피자, 치즈 크러스트", "sources": [0, 1]},
+    {"type": "분위기·전망", "note": "레트로 동네 피자숍의 감성", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": false,
+    "audience": "mixed",
+    "signatureDishes": ["임실치즈 쌀 피자"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "영업시간 11:00-01:00. 임실치즈마을과는 다른 프랜차이즈 형태의 가게들도 있음"
+}

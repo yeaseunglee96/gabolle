@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220804976912",
+  "worker": "haiku-1",
+  "researchedAt": "2026-09-09T02:40:00Z",
+  "queries": ["디에이블 수영구 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=CokZpwh2KgLP", "https://www.siksinhot.com/P/420830"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "view",
+      "note": "관왕대교를 조망하는 광활한 오션뷰 - 광안리 데이트 명소",
+      "sources": [0]
+    },
+    {
+      "type": "signature",
+      "note": "디에이블 리소또, 소고기 등심 김치볶음밥 등 서양식 특선요리",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["리소또", "비프 텐더로인"]
+  },
+  "notFound": null,
+  "notes": "11:00~22:00 영업(라스트오더 21:15), 건물 지하 무료주차"
+}

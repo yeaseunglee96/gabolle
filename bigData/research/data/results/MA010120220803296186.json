@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220803296186",
+  "worker": "haiku-7",
+  "researchedAt": "2026-09-08T22:09:18Z",
+  "queries": ["맛나분식 금정구 부산", "맛나분식 금사회동동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=hStLNBQ7xjIQ", "https://polle.com/place/20Uaax/%EB%A7%9B%EB%82%98%EB%B6%84%EC%8B%9D", "https://www.visitbusan.net/index.do?menuCd=DOM_000000202003001000&uc_seq=2212&lang_cd=ko"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "계란만두로 유명한 대표 메뉴", "sources": [0]},
+    {"type": "연차·역사", "note": "45년 전통의 오래된 분식점", "sources": [1]},
+    {"type": "미디어 노출", "note": "생생정보통 맛집 소개, BTS 지민의 단골 분식집", "sources": [2]},
+    {"type": "가격·가성비", "note": "저렴한 가격으로 푸짐한 분식 제공", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "local",
+    "signatureDishes": ["계란만두", "떡볶이", "김밥"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "서동시장(서동미로시장) 내 위치. 11:00~20:00 영업. 근처 서2동 공용주차장 5~7분 거리."
+}

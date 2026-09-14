@@ -1,0 +1,42 @@
+{
+  "id": "MA0101202301A0045503",
+  "worker": "haiku-50",
+  "researchedAt": "2026-09-09T05:31:30Z",
+  "queries": ["주든 민락동 부산", "주든 광남로 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.diningcode.com/profile.php?rid=TVF28GzIfHZP",
+    "https://wanderlog.com/place/details/6658985/"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "독일식 크래프트 맥주 전문점",
+      "sources": [1]
+    },
+    {
+      "type": "플랫폼 순위·평점",
+      "note": "다이닝코드 등에 등재된 평점을 근거로 든다",
+      "sources": [0]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "광안리 해변 근처의 분위기 좋은 바",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["커리부어스트"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": ""
+}

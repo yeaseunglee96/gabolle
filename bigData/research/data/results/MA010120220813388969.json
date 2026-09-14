@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220813388969",
+  "worker": "haiku-67",
+  "researchedAt": "2026-09-09T22:36:00.000Z",
+  "queries": ["초이참치 부산진구 부산", "초이참치 부전2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://polle.com/place/1PY7y7/%EC%B4%88%EC%9D%B4%EC%B0%B8%EC%B9%98", "https://www.diningcode.com/profile.php?rid=6Pq081KlBpl6"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "참치 코스요리 전문",
+      "sources": [0, 1]
+    },
+    {
+      "type": "조리·재료",
+      "note": "참치 부위에 따라 다양한 코스 구성, 퀄리티 좋은 참치 사용",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["참치 코스요리"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": "일식 회/초밥. 참치 코스요리(40,000~100,000원). 월~토 17:00~02:00 운영, 일요일 휴무. 예약 필수."
+}

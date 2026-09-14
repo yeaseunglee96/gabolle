@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220810632301",
+  "worker": "haiku-31",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["진커피&도넛 부산진구 부산", "진커피&도넛 당감2동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "당감2동 카페/베이커리로 표시되었으나 웹 검색에서 구체적인 정보 미확인",
+  "notes": ""
+}

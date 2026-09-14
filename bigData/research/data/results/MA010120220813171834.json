@@ -1,0 +1,25 @@
+{
+  "id": "MA010120220813171834",
+  "worker": "haiku-28",
+  "researchedAt": "2026-09-09T10:00:00Z",
+  "queries": ["오리가 사상구 부산", "오리가 괘법동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["http://localmap.co.kr/web/splus/kmap/view.php?sigun=6260000&gugun=3390000&keyno=107&keyname=%EC%98%A4%EB%A6%AC%EA%B0%80&keylink=3390000-101-2014-00189"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "오리고기, 오리불고기 전문점", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["오리불고기"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "검색 결과에서 구체적인 평가나 특징에 대한 정보가 제한적"
+}

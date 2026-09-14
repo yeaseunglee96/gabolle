@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220811502950",
+  "worker": "haiku-66",
+  "researchedAt": "2026-09-10T12:10:00Z",
+  "queries": ["청사포경북횟집 해운대구 부산", "경북횟집 청사포 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/325644", "https://www.diningcode.com/profile.php?rid=8gKVYjDZo3B0"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "조리·재료",
+      "note": "숙성회 전문, 신선한 해산물",
+      "sources": [0]
+    },
+    {
+      "type": "원조·최초",
+      "note": "1986년 5월 1일 개점, 부산 유명 횟집",
+      "sources": [0]
+    },
+    {
+      "type": "곁들임·차림",
+      "note": "식초절임 회말이, 풍부한 반찬",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 1986,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["숙성회", "식초절임 회말이"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "해운대 미포 지역 유명 횟집. 예약 권장"
+}

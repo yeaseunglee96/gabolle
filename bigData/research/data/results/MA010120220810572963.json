@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220810572963",
+  "worker": "haiku-38",
+  "researchedAt": "2026-09-09T16:30:00Z",
+  "queries": ["합천횟집 부산", "합천횟집 범일동"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://www.diningcode.com/list.dc?query=%EB%B2%94%EC%9D%BC%EB%8F%99+%ED%9A%9F%EC%A7%91"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "생선회 전문점",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["생선회"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": ""
+}

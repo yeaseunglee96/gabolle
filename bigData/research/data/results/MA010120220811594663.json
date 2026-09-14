@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220811594663",
+  "worker": "haiku-29",
+  "researchedAt": "2026-09-09T10:10:00Z",
+  "queries": ["201과자점 금정구 부산", "201과자점 부곡4동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/396327", "https://triple.guide/restaurants/cf1dd830-9b75-4370-91cc-fb982b03871f"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "가격·가성비", "note": "저렴한 가격으로 다양한 베이커리 상품 제공", "sources": [0, 1]},
+    {"type": "동네·시장 지목", "note": "부곡동 지역의 오래된 빵집", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["팥빵", "소세지빵", "슈크림빵", "버터떡"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

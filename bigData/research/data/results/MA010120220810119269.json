@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220810119269",
+  "worker": "haiku-27",
+  "researchedAt": "2026-09-09T01:36:30Z",
+  "queries": ["와 동구 부산", "와 범일2동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "동구 및 범일2동의 일반 정보만 나왔고 일식 회/초밥 와의 구체적 정보 없음",
+  "notes": ""
+}

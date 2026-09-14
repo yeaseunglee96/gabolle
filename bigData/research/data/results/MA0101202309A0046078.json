@@ -1,0 +1,27 @@
+{
+  "id": "MA0101202309A0046078",
+  "worker": "haiku-61",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["달맞이체코빵 해운대구 부산", "달맞이체코빵 중2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://kr.trip.com/moments/detail/busan-432-122691445/", "https://triple.guide/restaurants/e1ba9a2d-3fb8-4107-aad6-673ece15c5fd"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "서비스·사람", "note": "70세 이상 할머니 자매가 운영", "sources": [0]},
+    {"type": "간판 메뉴 지목", "note": "체코 전통 굴뚝빵(트르들로) 전문", "sources": [0]},
+    {"type": "조리·재료", "note": "반죽부터 생크림, 함박소스까지 모두 수제", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["체코 굴뚝빵", "함박스테이크"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "달맞이길 193에 위치한 브런치카페"
+}

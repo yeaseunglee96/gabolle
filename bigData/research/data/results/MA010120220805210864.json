@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220805210864",
+  "worker": "haiku-7",
+  "researchedAt": "2026-09-08T22:09:18Z",
+  "queries": ["풍원장시골밥상집 기장군 부산", "풍원장시골밥상집 기장읍 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://pungwonjang.modoo.at/", "https://www.diningcode.com/profile.php?rid=6plzX6Ot7Ths", "https://korean.visitkorea.or.kr/detail/ms_detail.do?cotid=91274f8d-7f75-460d-9b96-d667485d29cd"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "맛 묘사", "note": "푸짐한 한정식으로 전통 한식의 맛", "sources": [1]},
+    {"type": "연차·역사", "note": "30년 전통의 역사 있는 식당", "sources": [1]},
+    {"type": "분위기·전망", "note": "정겨운 분위기의 단체석 구성", "sources": [2]},
+    {"type": "운영·접근 편의", "note": "넓은 전용 주차장 보유, 도시락 판매", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 30,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["돼지불고기 정식", "회 정식", "전복회 정식"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "기장읍 위치. 월~일 10:00~22:00 (월~금 15:00~15:30 휴게시간). 웹에서는 기장해안로 250으로 표기됨."
+}

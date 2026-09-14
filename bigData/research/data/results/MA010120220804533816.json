@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220804533816",
+  "worker": "haiku-31",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["안나의정원 금정구 부산", "안나의정원 남산동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://triple.guide/restaurants/e1ca02a8-0f76-4edf-9bc0-f553482fc0af", "https://www.diningcode.com/profile.php?rid=kRznmFDULSoD"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "수제 함박스테이크, 가지튀김",
+      "sources": [0, 1]
+    },
+    {
+      "type": "조리·재료",
+      "note": "정성과 손맛이 뛰어난 요리, 직접 만든 메뉴",
+      "sources": [0, 1]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "정원 같은 분위기",
+      "sources": []
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["수제 함박스테이크", "가지튀김", "동파육 덮밥"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "부산 금정구 금샘로 580, 051-518-3571"
+}

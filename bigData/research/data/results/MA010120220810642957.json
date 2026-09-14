@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220810642957",
+  "worker": "haiku-41",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["몽짬뽕 부산진구 부산", "몽짬뽕 개금2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/432816", "https://www.diningcode.com/profile.php?rid=GpuL27zzrz1a", "https://triple.guide/restaurants/ce766127-46c9-4ef5-8fe0-338a797b473b", "https://www.instagram.com/p/ChPC-0PBi-A/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "혼잡·수요", "note": "점심시간 40분대기로 수요가 높음", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "고기짬뽕으로 알려진 가게", "sources": [0, 1, 2]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": "40분",
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["몽짬뽕", "고기짬뽕", "옛날짜장면", "갈비만두"],
+    "priceBand": "affordable"
+  },
+  "notFound": null,
+  "notes": "월~토요일 11:00-15:00 영업(점심시간만), 일요일 휴무"
+}

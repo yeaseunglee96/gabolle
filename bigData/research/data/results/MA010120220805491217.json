@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220805491217",
+  "worker": "haiku-62",
+  "researchedAt": "2026-09-10T12:12:00Z",
+  "queries": ["도시어부 광안1동", "도시어부 횟집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색에서 가게 정보를 찾을 수 없음",
+  "notes": ""
+}

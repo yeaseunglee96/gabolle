@@ -1,0 +1,29 @@
+{
+  "id": "MA0101202406A0083226",
+  "worker": "haiku-14",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["쿠지라스토랑 수영구 부산", "쿠지라스토랑 광안1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["다이닝코드", "루리웹", "로컬맵"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "아부라소바 전문점으로 유명", "sources": [0, 1]},
+    {"type": "혼잡·수요", "note": "오픈할 때 만석이 될 정도로 인기 있음, 웨이팅 있음", "sources": [1, 2]},
+    {"type": "맛 묘사", "note": "계란노른자, 부드러운 고기, 아삭한 채소의 조화로운 맛", "sources": [0, 1]},
+    {"type": "메뉴 희소성", "note": "아부라소바만 제공하는 전문점, 서울까지 지점을 냈을 정도", "sources": [0]},
+    {"type": "현지인 지지", "note": "라멘 매니아들이 찾는 가게", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": true,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["아부라소바"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "광안종합시장 위치, 카운터 스타일 좌석, 키오스크 주문"
+}

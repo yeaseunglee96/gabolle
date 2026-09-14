@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220814074139",
+  "worker": "haiku-4",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["박민호간장게장 기장군 부산", "박민호간장게장 기장읍 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 기장군 기장읍 차성로 336"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "맛 묘사", "note": "밥도둑 간장게장, 풍성한 해산물 모듬", "sources": [0]},
+    {"type": "현지인 지지", "note": "방문자 리뷰와 블로그 리뷰 수를 근거로 든다", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["양념게장", "간장게장"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "농림축산식품부 인증 안심식당"
+}

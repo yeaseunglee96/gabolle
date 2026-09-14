@@ -1,0 +1,66 @@
+{
+  "id": "MA010120220811447214",
+  "worker": "haiku-65",
+  "researchedAt": "2026-09-09T22:36:05.018Z",
+  "queries": [
+    "안동갈비 좌동순환로 부산",
+    "안동갈비 해운대 중1동"
+  ],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.siksinhot.com/P/431536",
+    "https://www.diningcode.com/profile.php?rid=vb6bc3eyPEhi"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "원조·최초",
+      "note": "해운대 지역의 오래된 갈비 맛집",
+      "sources": [
+        0,
+        1
+      ]
+    },
+    {
+      "type": "조리·재료",
+      "note": "국내산 1++ 한우만을 엄격하게 선별",
+      "sources": [
+        0,
+        1
+      ]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "한우 생갈비 전문",
+      "sources": [
+        0,
+        1
+      ]
+    },
+    {
+      "type": "메뉴 희소성",
+      "note": "갈비, 생갈비, 안창살 3가지만 제공",
+      "sources": [
+        0,
+        1
+      ]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "가능",
+    "audience": "mixed",
+    "signatureDishes": [
+      "안동갈비",
+      "생갈비",
+      "안창살"
+    ],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": "영업시간 17:00-24:00, 예약 가능, 가격 25,000원(갈비), 33,000원(안창살)"
+}
