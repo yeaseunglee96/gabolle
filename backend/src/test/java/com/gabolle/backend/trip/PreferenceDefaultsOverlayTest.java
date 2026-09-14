@@ -349,6 +349,43 @@ class PreferenceDefaultsOverlayTest {
 		assertThat(this.service.findTaste(USER)).isEmpty();
 	}
 
+	@Test
+	@DisplayName("🔴 취향을 저장해도 소비 성향 답이 안 사라진다 — replace 는 전체 교체라 여기가 무너지기 쉽다")
+	void 소비성향은_안_지워진다() {
+		// /spend 가 먼저 저장해 둔 상태에서 시작한다.
+		this.service.replace(USER, List.of(selected("SPEND_PROFILE", "\"MID\"")));
+
+		this.service.putTaste(USER, List.of(selected("QUIETNESS", "0.8")));
+
+		// 🔴 putTaste 는 replace(전체 교체)로 저장한다. 바뀐 차원만 넘기면 나머지가 통째로
+		//    사라진다 — 사용자는 세 질문에 답한 적 없는 사람이 되고, 다시 물어볼 화면도 없다.
+		assertThat(this.service.find(USER)).get().satisfies((snapshot) ->
+				assertThat(snapshot.answers())
+						.extracting(PreferenceAnswer::dimension)
+						.containsExactlyInAnyOrder("SPEND_PROFILE", "QUIETNESS"));
+	}
+
+	@Test
+	@DisplayName("🔴 여행에서 이어받은 값과 마이페이지에서 고친 값이 서로 안 덮는다")
+	void 이어받기와_직접_고치기가_안_덮는다() {
+		// 여행을 만들면서 경사 답이 계정으로 따라 올라온다.
+		this.service.carryOver(USER, List.of(selected("SLOPE_PREFERENCE", "\"AVOID\"")));
+
+		// 그 뒤 마이페이지에서 다른 차원을 고친다.
+		this.service.putTaste(USER, List.of(selected("QUIETNESS", "0.8")));
+
+		assertThat(this.service.findTaste(USER))
+				.extracting(PreferenceAnswer::dimension)
+				.containsExactlyInAnyOrder("SLOPE_PREFERENCE", "QUIETNESS");
+
+		// 반대 방향도 같다 — 나중에 만든 여행이 마이페이지에서 고친 것을 지우지 않는다.
+		this.service.carryOver(USER, List.of(selected("LOCALITY", "0.6")));
+
+		assertThat(this.service.findTaste(USER))
+				.extracting(PreferenceAnswer::dimension)
+				.containsExactlyInAnyOrder("SLOPE_PREFERENCE", "QUIETNESS", "LOCALITY");
+	}
+
 	private static PreferenceAnswer selected(String dimension, String value) {
 		return new PreferenceAnswer(dimension, value, AnswerStatus.SELECTED);
 	}

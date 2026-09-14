@@ -43,7 +43,9 @@ class TastePreferencesControllerTest {
 	@BeforeEach
 	void setUp() {
 		this.service = mock(PreferenceDefaultsService.class);
-		this.mockMvc = MockMvcBuilders.standaloneSetup(new TastePreferencesController(this.service)).build();
+		this.mockMvc = MockMvcBuilders.standaloneSetup(new TastePreferencesController(this.service))
+				.setControllerAdvice(new TastePreferencesExceptionHandler())
+				.build();
 	}
 
 	private static Authentication principal() {
@@ -108,5 +110,40 @@ class TastePreferencesControllerTest {
 								"""))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.data.answers.length()").value(2));
+	}
+
+	@Test
+	@DisplayName("🔴 못 두는 차원을 보내면 500 이 아니라 400 이다 — 「서버 고장」과 「보낸 것이 잘못됐다」는 정반대다")
+	void 거절은_400이다() throws Exception {
+		// 🔴 이 시험이 없어서 구멍이 초록 불 아래에 있었다. 컨트롤러와 서비스 javadoc 은
+		//    "400 으로 거절한다" 고 적었지만 그 경로를 맡는 advice 가 없어 500 이 났다.
+		//    주석은 실행되지 않는다 — 응답 코드를 확인하는 것은 이 줄뿐이다.
+		given(this.service.putTaste(eq(USER_ID.toString()), any()))
+				.willThrow(new IllegalArgumentException("계정 기본값으로 둘 수 없는 차원입니다: CATEGORY"));
+
+		this.mockMvc.perform(put("/api/v1/me/preferences/taste")
+						.principal(principal())
+						.contentType(MediaType.APPLICATION_JSON)
+						.content("""
+								{"answers":[{"dimension":"category","value":"[\\"CAFE\\"]","answerStatus":"SELECTED"}]}
+								"""))
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.error.code").value("TASTE_PREFERENCES_REJECTED"));
+	}
+
+	@Test
+	@DisplayName("🔴 모르는 answerStatus 도 400 이다 — 컨트롤러가 던지는 자리라 서비스까지 가지 않는다")
+	void 모르는_상태도_400이다() throws Exception {
+		this.mockMvc.perform(put("/api/v1/me/preferences/taste")
+						.principal(principal())
+						.contentType(MediaType.APPLICATION_JSON)
+						.content("""
+								{"answers":[{"dimension":"locality","value":"0.6","answerStatus":"MAYBE"}]}
+								"""))
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.error.code").value("TASTE_PREFERENCES_REJECTED"));
+
+		// 값이 잘못됐으면 저장까지 가지 않는다.
+		then(this.service).should(org.mockito.Mockito.never()).putTaste(any(), any());
 	}
 }
