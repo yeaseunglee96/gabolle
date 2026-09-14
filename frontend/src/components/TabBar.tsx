@@ -3,6 +3,7 @@
 // 1차 배포에서는 모든 탭이 유효한 화면으로 이동한다. 서버 데이터가 없어도 각 화면에서
 // 빈 상태와 다음 행동을 안내해 사용자가 막히지 않게 한다.
 import { Image, Pressable, StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 
 import { color, radius, spacing } from '@/design/tokens';
@@ -36,6 +37,10 @@ export function TabBar({ active }: { active: TabKey }) {
   const router = useRouter();
   const { tx } = useI18n();
   const { width } = useLayout();
+  // S15P21E201-926: 이 바는 각 화면에서 Screen(SafeAreaView) 밖의 형제 노드로 그려져
+  // 그 보호를 못 받는다 — 고정 margin만 쓰면 안드로이드 엣지투엣지 렌더링에서 기기
+  // 시스템 하단 내비게이션 바(제스처바·버튼바)에 가려진다. 하단 인셋을 직접 더한다.
+  const insets = useSafeAreaInsets();
 
   // 이 바는 휴대폰 폭(하단 고정 탭) 전용이다 — breakpoints.ts 의 반응형 표를 보면
   // 600px 부터는 상단 가로 바로 바뀌어야 한다. 그 화면은 아직 없으니, 없는 것을
@@ -44,7 +49,7 @@ export function TabBar({ active }: { active: TabKey }) {
   if (isAtLeast(width, 'md')) return null;
 
   return (
-    <View style={styles.bar}>
+    <View style={[styles.bar, { marginBottom: spacing[2] + insets.bottom }]}>
       {TABS.map((tab) => {
         const selected = tab.key === active;
         return (
@@ -80,7 +85,6 @@ const styles = StyleSheet.create({
     maxWidth: 328,
     height: 64,
     marginHorizontal: spacing[4],
-    marginBottom: spacing[2],
     paddingHorizontal: spacing[2],
     backgroundColor: color.surface.card,
     borderWidth: 1,
