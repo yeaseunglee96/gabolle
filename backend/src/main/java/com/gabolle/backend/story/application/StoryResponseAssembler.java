@@ -12,6 +12,7 @@ import java.util.UUID;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
+import com.gabolle.backend.common.security.HtmlOutputEncoder;
 import com.gabolle.backend.place.domain.Place;
 import com.gabolle.backend.place.repository.PlaceRepository;
 import com.gabolle.backend.story.domain.Story;
@@ -96,8 +97,11 @@ public class StoryResponseAssembler {
 		for (Story story : stories) {
 			AppUser author = authors.get(story.getAuthorUserId());
 			// 탈퇴한 계정은 행이 남아 있되 이름이 비워진다(DEC-AUTH-009) — 그때는 "탈퇴한 사용자" 로 낸다.
-			String displayName = (author == null || author.getDeletedAt() != null || author.getDisplayName() == null
-					|| author.getDisplayName().isBlank()) ? "탈퇴한 사용자" : author.getDisplayName();
+			// 🔴 S15P21E201-835 — displayName 은 회원가입 때 사용자가 자유롭게 정하는 값이라
+			//    story.body 와 같은 종류의 입력이다. 인코딩한다.
+			String displayName = HtmlOutputEncoder.forHtml(
+					(author == null || author.getDeletedAt() != null || author.getDisplayName() == null
+							|| author.getDisplayName().isBlank()) ? "탈퇴한 사용자" : author.getDisplayName());
 			Place place = story.getPlaceId() == null ? null : places.get(story.getPlaceId());
 			List<StoryResponse.Image> images = new ArrayList<>();
 			for (StoryImage image : imagesByStory.getOrDefault(story.getStoryId(), List.of())) {
@@ -109,7 +113,9 @@ public class StoryResponseAssembler {
 			out.add(new StoryResponse(
 					story.getStoryId().toString(),
 					new StoryResponse.Author(story.getAuthorUserId().toString(), displayName),
-					story.getBody(),
+					// 🔴 S15P21E201-835 — ZAP 이 잡은 지속형 XSS. 도메인은 원문을 그대로 갖고,
+					//    응답으로 나가는 여기서만 인코딩한다(클래스 상단 HtmlOutputEncoder 참고).
+					HtmlOutputEncoder.forHtml(story.getBody()),
 					story.getRegion(),
 					place == null ? null
 							: new StoryResponse.PlaceRef(place.getPlaceId().toString(), place.getNameKo(),
