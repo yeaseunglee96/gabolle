@@ -1,5 +1,6 @@
 // 라우터 뼈대의 진입점 — 모든 화면이 이 Stack 을 거쳐 뜬다.
 // 헤더는 화면마다 다르게 만들 것이므로 기본은 꺼둔다.
+import { QueryClientProvider } from '@tanstack/react-query';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import { View } from 'react-native';
@@ -13,6 +14,7 @@ import { BuildInfoBadge } from '@/components/BuildInfoBadge';
 import { CollectionProvider } from '@/collection/CollectionProvider';
 import { OnboardingPreferencesProvider } from '@/onboarding/OnboardingPreferences';
 import { PlanProvider } from '@/plan/PlanProvider';
+import { queryClient } from '@/api/queryClient';
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
@@ -28,6 +30,9 @@ export default function RootLayout() {
   return (
     <AppErrorBoundary>
       <SafeAreaProvider>
+        {/* 🔴 서버 데이터 보관소는 가장 바깥에 둔다 (S15P21E201-957) — 아래 공급자들도
+            이 보관소를 쓸 수 있어야 하고, 화면이 바뀌어도 이 층은 안 사라진다. */}
+        <QueryClientProvider client={queryClient}>
         <OnboardingPreferencesProvider>
           <ApiAvailabilityBanner />
           <BuildInfoBadge />
@@ -44,6 +49,7 @@ export default function RootLayout() {
             </PlanProvider>
           </AuthProvider>
         </OnboardingPreferencesProvider>
+        </QueryClientProvider>
       </SafeAreaProvider>
     </AppErrorBoundary>
   );
