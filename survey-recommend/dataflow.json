@@ -16,7 +16,7 @@
       "kind": "screen",
       "label": "설문 화면",
       "note": "링크 하나로 열려서 끝나는 단독 페이지. 앱이 아니다. 셋을 한 번에 받는다 — 추천하는 곳 다섯 군데(유형·이름·낮밤·왜) · 짝 비교 여덟 문항(먹는 곳·보는 곳·하는 곳 덩어리 셋) · 지불 의사 세 문항. 참여 범위는 20대~70대다 — 그 밖의 사람이 끝까지 하고 막히던 일이 있었다",
-      "evidence": { "all": ["survey-recommend/index.html", "survey-recommend/design-v4.mjs"] }
+      "evidence": { "all": ["survey-recommend/index.html", "survey-recommend/design-v5.mjs"] }
     },
     {
       "id": "sr.db",
