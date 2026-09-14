@@ -48,7 +48,10 @@ export default function SpendProfileScreen() {
       // 저장에 실패해도 이 화면에 사람을 가둬 두지 않는다 — 다음에 홈에 들어올 때
       // 상태가 여전히 UNKNOWN이면 다시 물어볼 기회가 있다.
     } finally {
-      router.replace('/home');
+      // 세 질문 다음은 취향 다섯이다 (S15P21E201-960). 🔴 여기서 "이미 답했나" 를 다시
+      // 재지 않는다 — 그 판단은 taste-profile 자신이 서버에 물어서 하고, 답이 있으면
+      // 스스로 홈으로 보낸다. 두 곳에서 재면 한쪽만 고쳐진다.
+      router.replace('/taste-profile');
     }
   };
 

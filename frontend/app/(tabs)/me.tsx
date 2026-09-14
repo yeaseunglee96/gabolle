@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { ActivityIndicator, Image, Modal, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
@@ -19,6 +20,7 @@ import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { useBehaviorConsent } from '@/personalization/behaviorConsent';
 import { usePlan } from '@/plan/PlanProvider';
+import { countAnswered, loadAccountPreferences, PREFERENCE_TOTAL, PREFERENCES_KEY } from '@/preferences/accountPreferences';
 
 // 박재현 님 계약(S15P21E201-837) — 서버가 대소문자·앞뒤 공백까지 정확히 이 값과 비교한다.
 // 언어별로 문구를 바꾸면 서버가 어느 언어인지 판정해야 해서, 화면은 안내만 각 언어로 하고
@@ -58,6 +60,15 @@ export default function Me() {
   const { user, accessToken, signOut, updateProfile, deleteAccount } = useAuth();
   const { language, tx } = useI18n();
   const plan = usePlan();
+  // 「여행 취향」 줄에 「n / 8 답함」을 보여준다. 🔴 그 줄을 눌러 열리는 화면
+  // (app/me/preferences.tsx)과 **같은 캐시 열쇠**를 쓴다 — 각자 읽으면 한쪽만 새로 읽혀
+  // 줄의 숫자와 화면의 목록이 어긋난다.
+  const preferencesQuery = useQuery({
+    queryKey: PREFERENCES_KEY,
+    enabled: Boolean(accessToken),
+    queryFn: () => loadAccountPreferences(accessToken),
+  });
+  const answeredPreferences = preferencesQuery.data ? countAnswered(preferencesQuery.data) : null;
   const { enabled: behaviorPersonalization, setEnabled: setBehaviorPersonalization } = useBehaviorConsent();
   const visualPreview = __DEV__ && preview === 'ui';
   const profileOwner = user?.userId ?? (visualPreview ? 'preview' : null);
@@ -187,7 +198,19 @@ export default function Me() {
     {feedback && <View accessibilityRole="alert" style={[styles.feedback, feedback.danger && styles.feedbackDanger]}><Text variant="caption" weight="bold" color={feedback.danger ? color.state.danger : color.state.success}>{feedback.text}</Text></View>}
     <View style={styles.group}>
       <InfoRow label={tx('언어', 'Language')} value={language === 'ko' ? '한국어' : 'English'} disabled />
-      <InfoRow label={tx('여행 조건 관리', 'Trip preferences')} value={tx('여행 만들기에서 수정', 'Edit while planning')} disabled />
+      {/* S15P21E201-960 — 이 줄은 「여행 만들기에서 수정」이라고 적힌 채 꺼져 있었다. 그래서
+          계정에 기억된 취향을 고치려면 여행을 새로 만드는 수밖에 없었는데, 여행에서 고친 값은
+          그 여행에만 적용돼서 사실상 첫 답에 갇혔다. 이제 여기서 바로 고친다. */}
+      <InfoRow
+        label={tx('여행 취향', 'Travel preferences')}
+        value={answeredPreferences === null
+          ? '›'
+          : answeredPreferences > 0
+            ? tx(`${answeredPreferences} / ${PREFERENCE_TOTAL} 답함 ›`, `${answeredPreferences} / ${PREFERENCE_TOTAL} answered ›`)
+            : tx('아직 없음 ›', 'None yet ›')}
+        onPress={() => router.push('/me/preferences')}
+        disabled={!user}
+      />
       {/* S15P21E201-847 — /user/[id] 화면은 이미 내 기록을 전부(공개·팔로워·나만 보기) 보여주고
           삭제까지 되는데, 이 설정 화면에서 거기로 가는 길이 없었다. 다른 사람 프로필을 보다가
           우연히 자기 자신일 때만 닿을 수 있었다. */}

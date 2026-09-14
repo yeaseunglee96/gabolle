@@ -1,0 +1,303 @@
+// 온보딩 ③ 취향 다섯 — 로컬성·조용함·관광지·음식·경사 (S15P21E201-960).
+// 세 질문(spend-profile.tsx) 바로 다음 단계이고, 틀은 그 화면을 그대로 따른다.
+//
+// 🔴 전부 건너뛰어도 저장하지 않는다 — 그리고 그래도 갇히지 않는다.
+// 이 화면에 들어오는 길은 세 질문이 끝나는 자리 하나뿐이고(home.tsx 는 세 질문이
+// UNKNOWN 일 때만 온보딩으로 보낸다), 세 질문에 답한 뒤에는 그 길이 닫힌다. 그래서
+// "물어봤지만 안 답했다" 를 계정에 적어 둘 필요가 없다.
+//
+// 🔴 인계 문서는 "전부 건너뛰면 SKIPPED 로 보낸다" 고 적었는데 그러지 않았다. 서버의
+// 취향 경로는 SKIPPED 를 받으면 아무것도 하지 않는다(계정을 안 건드리는 것이 그 값의
+// 뜻이다). 보내면 저장한 것처럼 보이지만 실제로는 안 남는다 — 그 어긋남이 나중에
+// "왜 기록이 없지" 를 만든다. 대신 아무것도 안 보낸다.
+import { useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, Image, Pressable, StyleSheet, View } from 'react-native';
+import { useRouter } from 'expo-router';
+
+import { useAuth } from '@/auth/AuthProvider';
+import { BrandLogoLink } from '@/components/BrandLogoLink';
+import { Button } from '@/components/Button';
+import { Screen } from '@/components/Screen';
+import { Text } from '@/components/Text';
+import { color, radius, spacing } from '@/design/tokens';
+import { useI18n } from '@/i18n';
+import { FOODS } from '@/plan/foodConflicts';
+import {
+  countTasteAnswers,
+  getTasteProfile,
+  putTasteProfile,
+  TASTE_QUESTIONS,
+  type TasteAnswers,
+  type TasteChanges,
+  type TasteKey,
+  type TasteValue,
+} from '@/preferences/tasteProfile';
+
+// 여행 만들기 취향 화면(app/(plan)/taste.tsx)의 advancePanel 과 같은 값이다. 고른 것이
+// 눈에 남을 만큼은 머물고, 기다린다는 느낌은 안 드는 길이다.
+const ADVANCE_MS = 220;
+
+function Dots({ step, settled }: { step: number; settled: Set<number> }) {
+  return <View style={styles.dots}>
+    {TASTE_QUESTIONS.map((question, index) => (
+      <View
+        key={question.key}
+        style={[
+          styles.dot,
+          index === step && styles.dotCurrent,
+          index !== step && settled.has(index) && styles.dotSettled,
+        ]}
+      />
+    ))}
+  </View>;
+}
+
+function Scale({ label, value, low, high, onChange }: { label: string; value: number | undefined; low: string; high: string; onChange: (value: number) => void }) {
+  const { tx } = useI18n();
+  return <View accessibilityRole="radiogroup" accessibilityLabel={label}>
+    <View style={styles.scaleEnds}>
+      <Text variant="caption" color={color.text.muted}>{low}</Text>
+      <Text variant="caption" color={color.text.muted}>{high}</Text>
+    </View>
+    <View style={styles.scaleTrack}>
+      {[1, 2, 3, 4, 5].map((point) => (
+        <Pressable
+          key={point}
+          accessibilityRole="radio"
+          accessibilityLabel={tx(`${label} ${point}단계`, `${label} level ${point}`)}
+          accessibilityState={{ selected: value === point }}
+          onPress={() => onChange(point)}
+          style={[styles.scalePoint, value === point && styles.scalePointSelected]}
+        >
+          <Text weight="bold" color={value === point ? color.text.onAction : color.text.body}>{point}</Text>
+        </Pressable>
+      ))}
+    </View>
+  </View>;
+}
+
+function FoodChips({ values, onChange }: { values: string[]; onChange: (values: string[]) => void }) {
+  const { tx } = useI18n();
+  return <View style={styles.chips}>
+    {FOODS.map(([code, labelKo, labelEn]) => {
+      const selected = values.includes(code);
+      return <Pressable
+        key={code}
+        accessibilityRole="checkbox"
+        accessibilityState={{ checked: selected }}
+        onPress={() => onChange(selected ? values.filter((value) => value !== code) : [...values, code])}
+        style={[styles.chip, selected && styles.chipSelected]}
+      >
+        <Text weight="bold" color={selected ? color.text.onAction : color.text.heading}>{tx(labelKo, labelEn)}</Text>
+      </Pressable>;
+    })}
+  </View>;
+}
+
+export default function TasteProfileScreen() {
+  const router = useRouter();
+  const { tx } = useI18n();
+  const { accessToken, ready } = useAuth();
+  const [step, setStep] = useState(0);
+  const [answers, setAnswers] = useState<TasteAnswers>({});
+  const [settled, setSettled] = useState<Set<number>>(new Set());
+  const [foodDraft, setFoodDraft] = useState<string[]>([]);
+  const [checking, setChecking] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [done, setDone] = useState<number | null>(null);
+  const advanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => () => { if (advanceTimer.current) clearTimeout(advanceTimer.current); }, []);
+
+  // 이미 답한 계정이면 다시 묻지 않는다 — 서버 상태가 유일한 기준이다(spend-profile 과
+  // 같은 원칙). 🔴 경로가 아직 없는 서버에서도 화면은 뜬다. 물어보고 저장이 안 되는 것이,
+  // 첫 실행에서 빨간 화면을 보는 것보다 낫다.
+  useEffect(() => {
+    if (!ready) return;
+    if (!accessToken) { router.replace('/home'); return; }
+    let active = true;
+    void getTasteProfile(accessToken).then((saved) => {
+      if (!active) return;
+      if (countTasteAnswers(saved) > 0) { router.replace('/home'); return; }
+      setChecking(false);
+    }).catch(() => { if (active) setChecking(false); });
+    return () => { active = false; };
+  }, [ready, accessToken, router]);
+
+  const finish = async (finalAnswers: TasteAnswers) => {
+    if (submitting) return;
+    const answered = Object.entries(finalAnswers).filter(([, value]) => value !== undefined);
+    setSubmitting(true);
+    try {
+      if (answered.length > 0) {
+        await putTasteProfile(Object.fromEntries(answered) as TasteChanges, accessToken);
+      }
+    } catch {
+      // 저장에 실패해도 이 화면에 사람을 가둬 두지 않는다 — 마이페이지에서 다시 답할 수
+      // 있다. spend-profile 이 같은 자리에서 같은 선택을 한다.
+    } finally {
+      setSubmitting(false);
+      setDone(answered.length);
+    }
+  };
+
+  const goNext = (next: TasteAnswers, index: number) => {
+    setSettled((prev) => new Set(prev).add(index));
+    if (index + 1 < TASTE_QUESTIONS.length) setStep(index + 1);
+    else void finish(next);
+  };
+
+  const answer = (key: TasteKey, value: TasteValue, index: number) => {
+    const next = { ...answers, [key]: value };
+    setAnswers(next);
+    if (advanceTimer.current) clearTimeout(advanceTimer.current);
+    advanceTimer.current = setTimeout(() => goNext(next, index), ADVANCE_MS);
+  };
+
+  // 건너뛰기는 그 답을 **지운다**. 앞 단계로 돌아가 건너뛰면 아까 고른 값이 남아 있으면
+  // 안 된다 — 화면은 건너뛴 것으로 보이는데 저장은 되는 일이 생긴다.
+  const skipQuestion = (key: TasteKey, index: number) => {
+    const next = { ...answers };
+    delete next[key];
+    setAnswers(next);
+    // 음식은 고르는 중간 상태를 따로 들고 있다. 그것도 같이 비워야 한다 — 안 그러면
+    // 「이전」으로 돌아왔을 때 칩은 골라진 채인데 답은 지워진, 서로 안 맞는 화면이 된다.
+    if (key === 'foods') setFoodDraft([]);
+    goNext(next, index);
+  };
+
+  if (checking) {
+    return <Screen style={styles.centerScreen}><ActivityIndicator color={color.brand.orange} /></Screen>;
+  }
+
+  if (done !== null) {
+    return <Screen scroll style={styles.screen}>
+      <View style={styles.doneBody}>
+        <Image source={require('../../assets/mascot/dongbaek-idle.png')} style={styles.mascot} resizeMode="contain" />
+        <Text variant="display" weight="bold" style={styles.doneTitle}>
+          {done > 0
+            ? tx(`취향 ${done}개를 기억했어요`, `Saved ${done} preference${done > 1 ? 's' : ''}`)
+            : tx('괜찮아요, 나중에 답해도 돼요', 'No problem — you can answer later')}
+        </Text>
+        <Text color={color.text.body} style={styles.doneTitle}>
+          {tx('여행을 만들 때 미리 채워 드려요. 마이페이지 › 여행 취향에서 언제든 바꿀 수 있어요.',
+            'We will fill these in when you plan a trip. You can change them any time in My page › Travel preferences.')}
+        </Text>
+        <Button label={tx('홈으로', 'Go home')} containerStyle={styles.doneCta} onPress={() => router.replace('/home')} />
+      </View>
+    </Screen>;
+  }
+
+  const question = TASTE_QUESTIONS[step];
+
+  return <Screen scroll style={styles.screen}>
+    <View style={styles.topBar}>
+      <BrandLogoLink href="/home" imageStyle={styles.logo} />
+      <View style={styles.stepPill}>
+        <Text variant="caption" weight="bold" color={color.text.onAction}>{`${step + 1} / ${TASTE_QUESTIONS.length}`}</Text>
+      </View>
+      <Pressable accessibilityRole="button" accessibilityLabel={tx('전체 건너뛰기', 'Skip all')} disabled={submitting} onPress={() => void finish(answers)} style={styles.skipAll}>
+        <Text variant="caption" weight="bold" color={color.text.muted}>{tx('전체 건너뛰기', 'Skip all')}</Text>
+      </Pressable>
+    </View>
+
+    <Dots step={step} settled={settled} />
+
+    {step === 0 && <View style={styles.heading}>
+      <Text variant="display" weight="bold">{tx('여행 취향을 5개만 여쭤볼게요', 'Just 5 questions about your travel taste')}</Text>
+      <Text color={color.text.body}>{tx('보통 어떤 여행을 좋아하시는지 알면 추천 순서가 달라져요. 건너뛰셔도 돼요.',
+        'Knowing what you usually enjoy changes the order of our recommendations. Feel free to skip.')}</Text>
+    </View>}
+
+    <Text variant="title" weight="bold" style={styles.question}>{tx(question.title.ko, question.title.en)}</Text>
+
+    {question.kind === 'scale' && <Scale
+      label={tx(question.title.ko, question.title.en)}
+      value={answers[question.key]}
+      low={tx(question.low.ko, question.low.en)}
+      high={tx(question.high.ko, question.high.en)}
+      onChange={(value) => answer(question.key, value, step)}
+    />}
+
+    {question.kind === 'multi' && <View style={styles.multi}>
+      <FoodChips values={foodDraft} onChange={setFoodDraft} />
+      <Button
+        label={tx('선택 완료', 'Done')}
+        disabled={foodDraft.length === 0}
+        containerStyle={styles.multiCta}
+        onPress={() => answer('foods', foodDraft, step)}
+      />
+    </View>}
+
+    {question.kind === 'choice' && <View style={styles.options}>
+      {question.options.map((option) => (
+        <Pressable
+          key={option.value}
+          accessibilityRole="button"
+          accessibilityLabel={tx(option.label.ko, option.label.en)}
+          disabled={submitting}
+          onPress={() => answer('slope', option.value, step)}
+          style={({ pressed }) => [styles.option, pressed && styles.optionPressed, answers.slope === option.value && styles.optionPressed]}
+        >
+          <Text weight="bold">{tx(option.label.ko, option.label.en)}</Text>
+          {option.desc && <Text variant="caption" color={color.text.body} style={styles.optionDesc}>{tx(option.desc.ko, option.desc.en)}</Text>}
+        </Pressable>
+      ))}
+    </View>}
+
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={tx(question.skip.ko, question.skip.en)}
+      disabled={submitting}
+      onPress={() => skipQuestion(question.key, step)}
+      style={styles.skipQuestion}
+    >
+      <Text weight="bold" color={color.text.muted}>{tx(question.skip.ko, question.skip.en)}</Text>
+    </Pressable>
+
+    <View style={styles.footer}>
+      {step > 0 && <Pressable accessibilityRole="button" accessibilityLabel={tx('이전 질문으로', 'Previous question')} disabled={submitting} onPress={() => setStep(step - 1)} style={styles.backLink}>
+        <Text weight="bold" color={color.brand.navy}>{tx('‹ 이전', '‹ Back')}</Text>
+      </Pressable>}
+      {submitting && <ActivityIndicator color={color.brand.orange} />}
+    </View>
+  </Screen>;
+}
+
+const styles = StyleSheet.create({
+  screen: { backgroundColor: color.brand.ivory },
+  centerScreen: { alignItems: 'center', justifyContent: 'center' },
+  // 🔴 marginTop — Screen 의 기본 paddingTop 만으로는 전역 언어 배지(우측 상단 절대좌표)를
+  //    못 피한다. spend-profile 과 같은 값으로 맞춘다.
+  topBar: { minHeight: 44, marginTop: spacing[6], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[2] },
+  logo: { width: 88, height: 24 },
+  stepPill: { paddingHorizontal: spacing[3], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: color.brand.navy },
+  skipAll: { minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[2] },
+  dots: { flexDirection: 'row', gap: 6, marginTop: spacing[3] },
+  dot: { flex: 1, height: 4, borderRadius: radius.full, backgroundColor: color.surface.field },
+  dotCurrent: { backgroundColor: color.brand.orange },
+  // 답했거나 건너뛴 단계. 현재 단계와 구별되게 흐리다 — 같은 색이면 어디까지 왔는지 모른다.
+  dotSettled: { backgroundColor: color.brand.orange, opacity: 0.5 },
+  heading: { gap: spacing[2], marginTop: spacing[6], marginBottom: spacing[6] },
+  question: { marginTop: spacing[6], marginBottom: spacing[4] },
+  scaleEnds: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: spacing[2] },
+  scaleTrack: { flexDirection: 'row', justifyContent: 'space-between', padding: spacing[1], borderRadius: radius.full, backgroundColor: color.surface.soft },
+  scalePoint: { width: 56, height: 56, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center' },
+  scalePointSelected: { backgroundColor: color.brand.navy },
+  multi: { gap: spacing[4] },
+  multiCta: { minHeight: 46 },
+  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] },
+  chip: { minHeight: 44, justifyContent: 'center', paddingHorizontal: 14, borderRadius: radius.full, borderWidth: 1, borderColor: color.surface.field },
+  chipSelected: { backgroundColor: color.brand.navy, borderColor: color.brand.navy },
+  options: { gap: spacing[3] },
+  option: { minHeight: 64, gap: spacing[1], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.field },
+  optionPressed: { borderColor: color.brand.orange, backgroundColor: color.surface.tint },
+  optionDesc: { lineHeight: 18 },
+  skipQuestion: { minHeight: 44, alignItems: 'center', justifyContent: 'center', marginTop: spacing[4] },
+  footer: { minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: spacing[4] },
+  backLink: { minHeight: 44, justifyContent: 'center' },
+  doneBody: { alignItems: 'center', gap: spacing[3], marginTop: spacing[8] },
+  mascot: { width: 96, height: 96 },
+  doneTitle: { textAlign: 'center' },
+  doneCta: { minHeight: 46, alignSelf: 'stretch', marginTop: spacing[4] },
+});
