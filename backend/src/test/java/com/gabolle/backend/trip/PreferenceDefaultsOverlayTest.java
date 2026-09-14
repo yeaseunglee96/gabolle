@@ -158,69 +158,99 @@ class PreferenceDefaultsOverlayTest {
 		assertThat(saved.tripId()).isNull();
 	}
 
-	// ── 빈칸만 채우기 (S15P21E201-639) ────────────────────────────────────────
+	// ── 여행 답을 계정으로 이어받기 (S15P21E201-639) ──────────────────────────
 	//
-	// 🔴 아래 검사들이 지키는 것은 하나다 — **덮어쓰지 않는다.**
-	//    명세 2.2 가 막은 것("여행 답이 이미 있는 프로필을 갈아치우는 일")은 여전히 막혀
-	//    있어야 하고, 그것이 막혀 있는지는 코드를 읽어서는 알 수 없다.
+	// 🔴 아래 검사들이 지키는 것은 **갇히지 않는다** 이다.
+	//
+	//    처음에는 "계정에 비어 있을 때만 채운다" 로 만들었다. 명세 2.2 를 글자 그대로
+	//    지키는 쪽이었는데, 계정 기본값을 고치는 화면이 없어서(소비 성향 하나뿐) 사용자가
+	//    첫 답에 **영구히 갇혔다** — 화면의 값을 고쳐도 그 여행에만 적용되고 계정은 그대로라
+	//    다음 여행에 또 옛 값이 채워진다. 「고친_값이_계정에도_간다」 가 그 되돌림을 지킨다.
+	//
+	//    막는 것은 그대로 둔다 — 건너뛴 것과 안 물어본 것은 계정을 안 건드린다.
 
 	@Test
 	@DisplayName("🔴 계정이 비어 있으면 여행에서 고른 답이 계정에 남는다 — 두 번째 여행부터 안 묻는 부분")
 	void 빈칸이면_채운다() {
-		List<String> seeded = this.service.seedMissing(USER, List.of(
+		List<String> changed = this.service.carryOver(USER, List.of(
 				selected("QUIETNESS", "0.8"), selected("LOCALITY", "0.6")));
 
-		assertThat(seeded).containsExactlyInAnyOrder("QUIETNESS", "LOCALITY");
+		assertThat(changed).containsExactlyInAnyOrder("QUIETNESS", "LOCALITY");
 		assertThat(this.service.find(USER)).get()
 				.satisfies((s) -> assertThat(s.answers()).hasSize(2));
 	}
 
 	@Test
-	@DisplayName("🔴 계정에 이미 있는 답은 덮지 않는다 — 명세 2.2 가 막은 바로 그것")
-	void 이미_있으면_안_덮는다() {
-		this.service.replace(USER, List.of(selected("QUIETNESS", "0.1")));
+	@DisplayName("🔴 화면에서 고친 값이 계정에도 간다 — 안 그러면 첫 답에 영구히 갇힌다")
+	void 고친_값이_계정에도_간다() {
+		this.service.carryOver(USER, List.of(selected("QUIETNESS", "0.8")));
 
-		List<String> seeded = this.service.seedMissing(USER, List.of(selected("QUIETNESS", "0.9")));
+		// 다음 여행: 화면에 0.8 이 채워져 보였고, 사용자가 0.1 로 고쳤다
+		List<String> changed = this.service.carryOver(USER, List.of(selected("QUIETNESS", "0.1")));
 
-		assertThat(seeded).isEmpty();
+		assertThat(changed).containsExactly("QUIETNESS");
 		assertThat(this.service.find(USER)).get().satisfies((s) -> {
-			assertThat(s.answers()).hasSize(1);
-			// 🔴 0.9 로 바뀌었다면 "이번 여행만 조용한 곳" 이 영구 취향이 된 것이다.
+			// 🔴 0.8 이 그대로라면 사용자는 고칠 방법이 없다. 고치는 화면도 없다.
 			assertThat(s.answers().get(0).valueJson()).isEqualTo("0.1");
-			// 채울 것이 없으면 판도 새로 쓰지 않는다 — created_at 만 다른 판이 쌓이면
-			// "언제 정한 취향인가" 를 나중에 못 본다.
-			assertThat(s.version()).isEqualTo(1);
+			assertThat(s.version()).isEqualTo(2);
 		});
+	}
+
+	@Test
+	@DisplayName("🔴 값이 같으면 판을 새로 쓰지 않는다 — 화면이 채워진 값을 그대로 돌려보내기 때문")
+	void 같은_값이면_판을_안_쓴다() {
+		this.service.carryOver(USER, List.of(selected("QUIETNESS", "0.8")));
+
+		// 다음 여행: 사용자가 아무것도 안 고쳤다. 화면은 채워진 0.8 을 그대로 보낸다
+		List<String> changed = this.service.carryOver(USER, List.of(selected("QUIETNESS", "0.8")));
+
+		assertThat(changed).isEmpty();
+		// 판이 올랐다면 created_at 만 다른 판이 쌓여 "언제 정한 취향인가" 를 못 보게 된다.
+		assertThat(this.service.find(USER)).get()
+				.satisfies((s) -> assertThat(s.version()).isEqualTo(1));
 	}
 
 	@Test
 	@DisplayName("🔴 이어받지 않기로 한 차원은 안 들어간다 — 카테고리·분위기·그늘·소비성향")
 	void 이어받지_않는_차원은_뺀다() {
-		List<String> seeded = this.service.seedMissing(USER, List.of(
+		List<String> changed = this.service.carryOver(USER, List.of(
 				selected("CATEGORY", "\"SEA\""),          // 이번엔 바다, 다음엔 문화
 				selected("ATMOSPHERE", "\"CALM\""),       // 여행 성격에 따라 다르다
 				selected("SHADE_PREFERENCE", "0.9"),      // 9월엔 그늘, 12월엔 볕
 				selected("SPEND_PROFILE", "\"MID\""),     // SpendProfileService 가 따로 맡는다
 				selected("SLOPE_PREFERENCE", "0.2")));    // 몸에 붙은 것 — 이것만 이어받는다
 
-		assertThat(seeded).containsExactly("SLOPE_PREFERENCE");
+		assertThat(changed).containsExactly("SLOPE_PREFERENCE");
 	}
 
 	@Test
-	@DisplayName("🔴 건너뛴 답은 계정에 안 남는다 — 겹치기가 건너뜀을 되살리지 않는 것과 짝이다")
-	void 건너뛴_것은_안_남긴다() {
-		List<String> seeded = this.service.seedMissing(USER, List.of(
-				new PreferenceAnswer("QUIETNESS", null, AnswerStatus.SKIPPED),
-				new PreferenceAnswer("LOCALITY", null, AnswerStatus.UNKNOWN)));
+	@DisplayName("🔴 건너뛴 답은 계정을 안 건드린다 — 「이번 여행만 이 조건 빼고」 가 살아남아야 한다")
+	void 건너뛰면_계정은_그대로() {
+		this.service.carryOver(USER, List.of(selected("QUIETNESS", "0.8")));
 
-		assertThat(seeded).isEmpty();
+		// 다음 여행: 조용함을 **일부러 건너뛰었다**
+		List<String> changed = this.service.carryOver(USER,
+				List.of(new PreferenceAnswer("QUIETNESS", null, AnswerStatus.SKIPPED)));
+
+		assertThat(changed).isEmpty();
+		assertThat(this.service.find(USER)).get()
+				.satisfies((s) -> assertThat(s.answers().get(0).valueJson()).isEqualTo("0.8"));
+	}
+
+	@Test
+	@DisplayName("안 물어본 차원도 계정을 안 건드린다 — 사용자의 의사가 없다")
+	void 안_물어봤으면_그대로() {
+		List<String> changed = this.service.carryOver(USER,
+				List.of(new PreferenceAnswer("LOCALITY", null, AnswerStatus.UNKNOWN)));
+
+		assertThat(changed).isEmpty();
 		assertThat(this.service.find(USER)).isEmpty();
 	}
 
 	@Test
-	@DisplayName("채운 뒤에는 겹치기가 그 값을 다음 여행에 넣는다 — 두 걸음이 이어지는지")
-	void 채운_뒤에_겹쳐진다() {
-		this.service.seedMissing(USER, List.of(selected("QUIETNESS", "0.8")));
+	@DisplayName("이어받은 뒤에는 겹치기가 그 값을 다음 여행에 넣는다 — 두 걸음이 이어지는지")
+	void 이어받은_뒤에_겹쳐진다() {
+		this.service.carryOver(USER, List.of(selected("QUIETNESS", "0.8")));
 
 		// 다음 여행: 조용함을 안 물어봤다(UNKNOWN)
 		List<PreferenceAnswer> merged = this.service.overlayDefaults(USER,

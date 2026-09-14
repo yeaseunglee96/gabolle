@@ -7,6 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -64,7 +65,7 @@ import com.gabolle.backend.trip.domain.TripRepository;
  * {@link TripCreationService} 가 그것을 여행 스냅샷에 채운다. 값이 없으면 지금까지와
  * 똑같이 동작한다. 경로가 정해지면 컨트롤러 하나가 {@link #replace} 를 부르면 된다.
  *
- * <h2>🔴 2026-09-15 — 빈칸만 채우는 길을 열었다 (S15P21E201-639)</h2>
+ * <h2>🔴 2026-09-15 — 여행에서 고른 답을 계정에 이어받는다 (S15P21E201-639)</h2>
  *
  * <p>위 문단이 <i>"쓰기 쪽이 비어 있다"</i> 고 적어 둔 뒤로 실제로 무슨 일이 일어났는지를
  * 재 보니, <b>계정 기본값을 가진 사람이 소비 성향 한 차원뿐</b>이었다(2026-09-15 운영 DB:
@@ -72,16 +73,47 @@ import com.gabolle.backend.trip.domain.TripRepository;
  * 겹치기가 채울 것이 없었고, 그래서 <b>같은 사람이 두 번째 여행을 만들어도 처음부터 다시
  * 답해야 했다.</b> 이 클래스 javadoc 이 애초에 없애려던 그 상황이 그대로 남아 있었다.
  *
- * <p>그래서 {@link #seedMissing} 을 더한다. 이름 그대로 <b>비어 있는 차원만 채운다.</b>
+ * <p>그래서 {@link #carryOver} 를 더한다. 여행에서 <b>실제로 고른</b> 답을 계정 기본값으로
+ * 옮긴다.
  *
- * <h3>🔴 "덮어쓰지 않는다" 는 그대로다</h3>
+ * <h3>🔴 "빈칸만 채운다" 로 먼저 만들었다가 되돌렸다 — 갇히기 때문이다</h3>
  *
- * <p>이 클래스와 {@link TripCreationService} 는 <i>"여행에서 고친 값이 계정 기본값을
- * 덮어쓰지 않는다(명세 2.2)"</i> 를 지켜 왔고, 그것은 <b>바뀌지 않았다.</b>
- * {@link #seedMissing} 은 계정 기본값에 <b>그 차원의 답이 아직 없을 때만</b> 넣는다.
- * 이미 값이 있으면 손대지 않는다 — 그 규칙이 막으려던 것은 <i>"이번 여행만 조용한 곳"</i>
- * 이 <b>이미 있는</b> 프로필을 조용히 갈아치우는 일이었고, 빈칸을 채우는 것은 그 일이
- * 아니다. 갈아치우는 길은 여전히 없다.
+ * <p>처음에는 명세 2.2(<i>"여행에서 고친 값이 계정 기본값을 덮어쓰지 않는다"</i>)를 그대로
+ * 지키려고 <b>계정에 그 차원이 비어 있을 때만</b> 넣었다. 그런데 그러면 이렇게 된다.
+ *
+ * <pre>
+ *   첫 여행    조용한 곳 "4"  →  계정에 저장됨
+ *   두 번째    화면에 4가 채워짐 → 사용자가 "1" 로 고침
+ *              그 1 은 그 여행에만 적용. 계정은 여전히 4
+ *   세 번째    또 4 가 채워짐
+ *   ...        영원히 4
+ * </pre>
+ *
+ * <p>🔴 <b>계정 기본값을 고치는 화면이 없다</b>(2026-09-15 기준, 소비 성향 하나만 고칠 수
+ * 있다). 그래서 사용자는 <b>첫 답에 영구히 갇힌다.</b> 다리를 다쳤을 때 "경사 피하기" 로
+ * 답하면 다 나은 뒤에도 평생 언덕을 피해 다니는 추천을 받고, 되돌릴 방법이 없다.
+ *
+ * <p><b>그것은 매번 다시 묻는 것보다 나쁘다.</b> 귀찮은 쪽은 최소한 지금 상태를 반영한다.
+ *
+ * <h3>🔴 명세 2.2 의 전제가 바뀌었다</h3>
+ *
+ * <p>2.2 가 막으려던 것은 <i>"사용자가 모르게 프로필이 바뀌는 일"</i> 이고, 그것이 옳았던
+ * 까닭은 그때 <b>계정 기본값이 화면에 안 보였기</b> 때문이다 — 채워지지 않았으니 볼 수가
+ * 없었다.
+ *
+ * <p>이 티켓이 채우기를 만들면서 <b>그 값이 화면에 보이게 됐다.</b> 두 번째 여행부터
+ * 사용자는 채워진 값을 보고 그대로 두거나 고친다. <b>보고 고친 것이 반영되는 것은
+ * "모르게 바뀌는 일" 이 아니다.</b> 오히려 반영이 안 되는 쪽이 놀라운 일이다.
+ *
+ * <p>그래서 채우기와 고치기를 <b>같이</b> 둔다. 채우기만 넣고 고치기를 막으면 가둔다.
+ *
+ * <h3>안 건드리는 두 가지는 그대로다</h3>
+ *
+ * <ul>
+ * <li>{@code SKIPPED} — "이번 여행만 이 조건 빼고" 다. 계정을 안 건드린다.
+ *     {@link #overlayDefaults} 가 건너뜀을 되살리지 않는 것과 짝이다</li>
+ * <li>{@code UNKNOWN} — 아예 안 물어봤으니 사용자의 의사가 없다</li>
+ * </ul>
  *
  * <h3>🔴 다섯 차원만 이어받는다</h3>
  *
@@ -192,33 +224,35 @@ public class PreferenceDefaultsService {
 	}
 
 	/**
-	 * 이 여행에서 답한 것으로 계정 기본값의 <b>빈칸만</b> 채운다 (S15P21E201-639).
+	 * 이 여행에서 <b>고른</b> 답을 계정 기본값으로 이어받는다 (S15P21E201-639).
 	 *
-	 * <p>{@link #overlayDefaults} 의 반대 방향이지만 <b>덮어쓰기는 아니다.</b> 계정에 그
-	 * 차원의 {@code SELECTED} 답이 이미 있으면 건드리지 않는다 — 명세 2.2 가 막은 것은
-	 * <i>이미 있는</i> 프로필이 여행 답으로 갈아치워지는 일이고, 여기서는 그 일이 없다.
-	 *
-	 * <p>채우는 조건은 셋을 모두 만족할 때다.
+	 * <p>{@link #overlayDefaults} 의 반대 방향이다. 옮기는 조건은 둘이다.
 	 * <ol>
 	 * <li>여행에서 <b>실제로 고른</b> 답이다 ({@code SELECTED})
-	 *     — 🔴 건너뛴 것은 안 넣는다. {@link #overlayDefaults} 가 <i>"건너뛴 것은 기본값으로
-	 *     되살리지 않는다"</i> 이므로, 저장까지 안 하는 쪽이 앞뒤가 맞는다</li>
+	 *     — 🔴 {@code SKIPPED} 는 <i>"이번 여행만 이 조건 빼고"</i> 라서 계정을 안 건드린다.
+	 *     {@link #overlayDefaults} 가 건너뜀을 되살리지 않는 것과 짝이다.
+	 *     {@code UNKNOWN} 은 아예 안 물어봤으니 사용자의 의사가 없다</li>
 	 * <li>{@link #CARRY_OVER} 에 있는 차원이다 — 다음 여행에도 같을 것들만</li>
-	 * <li>계정에 그 차원의 {@code SELECTED} 답이 <b>아직 없다</b></li>
 	 * </ol>
 	 *
+	 * <p>🔴 <b>계정에 이미 값이 있어도 옮긴다.</b> 처음에는 "빈칸만" 으로 만들었다가
+	 * 되돌렸다 — 고치는 화면이 없어서 사용자가 첫 답에 영구히 갇히기 때문이다.
+	 * 까닭은 이 클래스 javadoc 의 「빈칸만 채운다 로 먼저 만들었다가 되돌렸다」 절에 있다.
+	 *
+	 * <p>🔴 <b>값이 같으면 저장하지 않는다.</b> 화면이 채워진 값을 그대로 돌려보내므로,
+	 * 사용자가 아무것도 안 고쳐도 같은 답이 매번 올라온다. 그때마다 판을 새로 쓰면
+	 * {@code created_at} 만 다른 판이 쌓이고 <b>"언제 정한 취향인가" 를 나중에 못 본다.</b>
+	 *
 	 * <p>🔴 <b>전체 교체로 저장한다.</b> {@link #replace} 는 부분 갱신이 아니므로, 지금 계정에
-	 * 있는 답을 전부 읽어 새 것을 얹은 <b>전부</b>를 다시 보낸다. 새 것만 보내면 나머지
+	 * 있는 답을 전부 읽어 바뀐 것을 얹은 <b>전부</b>를 다시 보낸다. 바뀐 것만 보내면 나머지
 	 * 차원이 사라진다 ({@link #replace} javadoc 의 경고가 그것이다).
 	 *
-	 * <p>🔴 <b>채울 것이 없으면 저장하지 않는다.</b> 여행을 만들 때마다 같은 내용으로 판을
-	 * 새로 쓰면 {@code created_at} 만 바뀐 판이 쌓이고, "언제 정한 취향인가" 를 나중에 못 본다.
-	 *
 	 * @param tripAnswers 이 여행에서 받은 답 (겹치기 <b>전</b>의 것이어야 한다 — 겹친 뒤의
-	 *        목록에는 계정 기본값이 섞여 있어, 그것을 다시 넣으면 제자리걸음이다)
-	 * @return 실제로 채운 차원 이름. 채울 것이 없었으면 빈 목록
+	 *        목록에는 계정 기본값이 섞여 있어, 사용자가 답하지 않은 차원까지 "고른 것" 으로
+	 *        보이게 된다)
+	 * @return 실제로 바뀐 차원 이름. 바뀐 것이 없으면 빈 목록이고 저장도 하지 않는다
 	 */
-	public List<String> seedMissing(String userId, List<PreferenceSnapshot.PreferenceAnswer> tripAnswers) {
+	public List<String> carryOver(String userId, List<PreferenceSnapshot.PreferenceAnswer> tripAnswers) {
 		if (userId == null || tripAnswers == null || tripAnswers.isEmpty()) {
 			return List.of();
 		}
@@ -229,7 +263,7 @@ public class PreferenceDefaultsService {
 			}
 		});
 
-		List<String> seeded = new ArrayList<>();
+		List<String> changed = new ArrayList<>();
 		for (PreferenceSnapshot.PreferenceAnswer answer : tripAnswers) {
 			if (answer.status() != PreferenceSnapshot.AnswerStatus.SELECTED) {
 				continue;
@@ -239,17 +273,18 @@ public class PreferenceDefaultsService {
 				continue;
 			}
 			PreferenceSnapshot.PreferenceAnswer existing = kept.get(dimension);
-			if (existing != null && existing.status() == PreferenceSnapshot.AnswerStatus.SELECTED) {
-				continue; // 🔴 이미 있다. 덮지 않는다
+			if (existing != null && existing.status() == PreferenceSnapshot.AnswerStatus.SELECTED
+					&& Objects.equals(existing.valueJson(), answer.valueJson())) {
+				continue; // 같은 값이다. 판을 새로 쓸 이유가 없다
 			}
 			kept.put(dimension, answer);
-			seeded.add(dimension);
+			changed.add(dimension);
 		}
-		if (seeded.isEmpty()) {
+		if (changed.isEmpty()) {
 			return List.of();
 		}
 		replace(userId, List.copyOf(kept.values()));
-		return List.copyOf(seeded);
+		return List.copyOf(changed);
 	}
 
 	private static String key(String dimension) {
