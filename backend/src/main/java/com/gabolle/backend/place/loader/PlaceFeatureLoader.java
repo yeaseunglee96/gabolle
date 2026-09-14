@@ -60,12 +60,17 @@ public class PlaceFeatureLoader {
 	 * {@code feature_key} 는 이 로더가 항상 {@code null} 로 넣으므로({@code SbizPlaceLoader.featureIdOf}
 	 * 세 번째 인자) 부분 색인 {@code uq_place_feature_unkeyed} 의 조건과 같은 {@code WHERE} 를 준다 —
 	 * 대상이 부분 색인이면 {@code ON CONFLICT} 도 같은 조건을 적어야 그 색인을 가리킨다.
+	 *
+	 * <p>🔴 {@code ?4::jsonb} 처럼 순번 파라미터 바로 뒤에 {@code ::} 캐스트를 붙이면 Hibernate 네이티브
+	 * 쿼리 파서가 {@code 4::jsonb} 를 파라미터 번호로 통째로 읽으려다 {@code ParameterLabelException}
+	 * ("Ordinal parameter label was not an integer")을 던진다(CI 파이프라인 193865 에서 실측) —
+	 * {@code CAST(... AS jsonb)} 로 쓴다.
 	 */
 	private static final String INSERT_IF_ABSENT = """
 			INSERT INTO place_feature
 			    (place_feature_id, place_id, feature_type, feature_key, value, evidence_status,
 			     source_type, source_id, observed_at, source_version, created_at)
-			VALUES (?1, ?2, ?3, NULL, ?4::jsonb, ?5, ?6, ?7, ?8, ?9, ?10)
+			VALUES (?1, ?2, ?3, NULL, CAST(?4 AS jsonb), ?5, ?6, ?7, ?8, ?9, ?10)
 			ON CONFLICT (place_id, feature_type) WHERE feature_key IS NULL DO NOTHING
 			""";
 
