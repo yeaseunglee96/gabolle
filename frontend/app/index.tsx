@@ -14,7 +14,7 @@ import { type LanguageCode, useOnboardingPreferences } from '@/onboarding/Onboar
 import { useI18n } from '@/i18n';
 import { useAuth } from '@/auth/AuthProvider';
 
-const logo = require('../assets/brand/gabolle-logo-figma.png');
+const logo = require('../assets/brand/gabolle-logo-hd.png');
 const nightLogo = require('../assets/brand/gabolle-logo-night.png');
 const welcomeImage = require('../assets/images/welcome-busan.png');
 const webHeroImage = require('../assets/home/web-hero.png');

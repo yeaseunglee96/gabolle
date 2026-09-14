@@ -62,7 +62,7 @@ export default function SignIn() {
       {kind === 'tablet' && <View style={styles.webIntro}><Eyebrow>{tx('가볼래 계정', 'GABOLLE Account')}</Eyebrow><Text variant="display" weight="bold" color={color.text.onAction} style={styles.webIntroTitle}>{tx('여행의 설렘은 그대로,\n일정은 안전하게', 'Keep the excitement,\nsave every plan.')}</Text><Text variant="body" color={color.text.onDarkMuted}>{tx('저장한 부산 여행과 동행자 일정을 어디서든 이어보세요.', 'Continue your saved Busan trips and shared plans anywhere.')}</Text></View>}
     <View style={styles.panel}>
     <Pressable accessibilityRole="link" accessibilityLabel={tx('GABOLLE 홈으로 이동', 'Go to the GABOLLE home')} onPress={() => router.replace(kind === 'phone' ? '/home' : '/')} style={({ pressed }) => [styles.logoLink, pressed && styles.pressed]}>
-      <Image source={require('../../assets/brand/gabolle-logo-figma.png')} resizeMode="contain" accessibilityIgnoresInvertColors style={styles.logo} />
+      <Image source={require('../../assets/brand/gabolle-logo-hd.png')} resizeMode="contain" accessibilityIgnoresInvertColors style={styles.logo} />
     </Pressable>
     <Text variant="display" weight="bold" style={styles.title}>{tx('로그인', 'Sign in')}</Text>
     <Text color={color.text.body} style={styles.subtitle}>{tx('부산 여행을 시작해볼까요?', 'Ready to explore Busan?')}</Text>

@@ -12,7 +12,7 @@ import { useI18n } from '@/i18n';
 import { isAtLeast } from '@/layout/breakpoints';
 
 const INTRO_SEEN_KEY = '@gabolle/app-intro-seen';
-const logo = require('../assets/brand/gabolle-logo-figma.png');
+const logo = require('../assets/brand/gabolle-logo-hd.png');
 const cameraIcon = require('../assets/icons/common/camera.png');
 const PAGES = [
   { id: 'ai-travel', eyebrowKo: 'AI 여행', eyebrowEn: 'AI travel', titleKo: '조건만 알려주면\n일정을 만들어요', titleEn: 'Tell us your conditions,\nwe build the itinerary', descriptionKo: '날짜와 취향, 이동 조건을 반영해 나만의 부산 여행을 구성해요.', descriptionEn: 'We put together your Busan trip using your dates, tastes, and mobility needs.' },

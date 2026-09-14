@@ -11,7 +11,7 @@ import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 
-const logo = require('../../../assets/brand/gabolle-logo-figma.png');
+const logo = require('../../../assets/brand/gabolle-logo-hd.png');
 
 export default function PasswordReset() {
   const router = useRouter();
