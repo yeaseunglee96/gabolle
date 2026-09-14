@@ -905,7 +905,11 @@ textarea.u { min-height: 96px; font-size: 17px; line-height: 1.5; resize: vertic
     </div>
     <div class="wfoot">
       <div class="wcap"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg><span id="wcap0"></span></div>
-      <h1 class="m3-h1">부산에서<br>좋았던 곳,<br>세 군데만</h1>
+      <!-- 🔴 (S15P21E201-931) "세 군데만" 을 뗐다 — 하한이 셋이지 상한이
+           아닌데(MAX_SLOTS=10), 열기도 전에 셋으로 못 박으면 딱 셋에서
+           멈춘다. 응답 대부분이 세 곳이었다는 것은 팀 안에서 나온 관찰이고,
+           이 파일에서 직접 세어 확인한 수치는 아니다 (DB 는 이번에 안 봄). -->
+      <h1 class="m3-h1">부산에서<br>좋았던 곳</h1>
       <p class="m3-p">관광지가 아니어도 괜찮아요. 자주 가는 곳, 알려주고 싶은 곳을 이유와 함께.</p>
       <div class="m3-dots" id="wdots0"><span class="now"></span><span></span><span></span></div>
       <button type="button" class="m3-btn m3-accentbtn" id="wnext0">다음 <svg class="ic" aria-hidden="true"><use href="#i-next"/></svg></button>
