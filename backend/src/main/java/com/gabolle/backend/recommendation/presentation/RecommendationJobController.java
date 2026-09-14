@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -58,13 +59,16 @@ public class RecommendationJobController {
 	/**
 	 * REC-01 — {@code 202} + 작업 번호. 계산이 끝나기 전에 돌아온다.
 	 *
-	 * <p>🔴 <b>아직 없는 것</b> — {@code Idempotency-Key}. 재시도로 같은 요청이 두 번 오면
-	 * Job 이 두 개 생긴다.
+	 * <p>{@code Idempotency-Key} 헤더를 주면 재시도가 안전해진다 — S15P21E201-944.
+	 * 같은 키 + 같은 본문으로 다시 오면 새 Job 을 만들지 않고 기존 Job 을 {@code 200}
+	 * 으로 돌려주고, 같은 키 + 다른 본문이면 {@code 409} 다({@link RecommendationJobExceptionHandler}
+	 * 가 처리한다). 헤더가 없으면 예전과 같다 — 매번 새 Job.
 	 */
 	@PostMapping("/api/v1/trips/{tripId}/recommendation-jobs")
 	public ResponseEntity<ApiResponse<RecommendationJobResponse>> create(
 			@PathVariable String tripId,
 			@RequestBody(required = false) CreateRecommendationJobRequest request,
+			@RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey,
 			Authentication authentication) {
 
 		CreateRecommendationJobRequest body = (request != null) ? request
@@ -75,11 +79,12 @@ public class RecommendationJobController {
 		//    만 싣는다) — 헤더 방식으로는 실제 클라이언트에서 이 API 가 동작할 수 없었다.
 		String requester = AuthenticatedUsers.requireId(authentication).toString();
 
-		RecommendationJob job = this.runner.enqueue(tripId, requester, body.preferenceSnapshotVersion(),
-				body.topK());
+		RecommendationJobRunner.EnqueueOutcome outcome = this.runner.enqueue(tripId, requester,
+				body.preferenceSnapshotVersion(), body.topK(), idempotencyKey);
 
-		return ResponseEntity.status(HttpStatus.ACCEPTED)
-				.body(ApiResponse.success(RecommendationJobResponse.of(job), "req_" + UUID.randomUUID()));
+		HttpStatus status = outcome.created() ? HttpStatus.ACCEPTED : HttpStatus.OK;
+		return ResponseEntity.status(status)
+				.body(ApiResponse.success(RecommendationJobResponse.of(outcome.job()), "req_" + UUID.randomUUID()));
 	}
 
 	/**

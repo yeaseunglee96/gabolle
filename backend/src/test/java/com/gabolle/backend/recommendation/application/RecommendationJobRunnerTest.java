@@ -15,6 +15,7 @@ import org.mockito.Mockito;
 import com.gabolle.backend.recommendation.domain.JobStatus;
 import com.gabolle.backend.recommendation.domain.JobType;
 import com.gabolle.backend.recommendation.domain.RecommendationJob;
+import com.gabolle.backend.recommendation.repository.RecommendationJobIdempotencyRepository;
 import com.gabolle.backend.recommendation.repository.RecommendationJobRepository;
 import com.gabolle.backend.trip.application.TripQueryService;
 import com.gabolle.backend.trip.domain.PersonalizationScope;
@@ -45,6 +46,7 @@ class RecommendationJobRunnerTest {
 	private RecommendationJobRepository jobRepository;
 	private RecommendationService recommendationService;
 	private RecommendationJobWorker worker;
+	private RecommendationJobIdempotencyRepository idempotencyRepository;
 	private RecommendationJobRunner runner;
 
 	private final String tripId = UUID.randomUUID().toString();
@@ -57,8 +59,9 @@ class RecommendationJobRunnerTest {
 		this.jobRepository = mock(RecommendationJobRepository.class);
 		this.recommendationService = mock(RecommendationService.class);
 		this.worker = mock(RecommendationJobWorker.class);
+		this.idempotencyRepository = mock(RecommendationJobIdempotencyRepository.class);
 		this.runner = new RecommendationJobRunner(this.tripQueryService, this.tripRepository, this.jobRepository,
-				this.recommendationService, this.worker);
+				this.recommendationService, this.worker, this.idempotencyRepository);
 
 		Trip trip = new Trip(this.tripId, this.userId, java.time.LocalDate.of(2026, 9, 10),
 				java.time.LocalDate.of(2026, 9, 11), null, null, null, 1, null, "Asia/Seoul", Instant.now());
@@ -108,5 +111,61 @@ class RecommendationJobRunnerTest {
 
 		assertThatThrownBy(() -> this.runner.enqueue(this.tripId, this.userId, 7, null))
 				.isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	@DisplayName("🔴 S15P21E201-944 — Idempotency-Key 가 없으면 예전처럼 매번 새 Job 을 만든다")
+	void withoutIdempotencyKeyAlwaysCreatesANewJob() {
+		when(this.tripRepository.findLatestConstraintSnapshotId(this.tripId))
+				.thenReturn(Optional.of(UUID.randomUUID().toString()));
+		RecommendationJob preparedJob = RecommendationJob.start(UUID.randomUUID(), UUID.randomUUID(),
+				UUID.fromString(this.userId), JobType.ITINERARY_GENERATION, OffsetDateTime.now());
+		when(this.recommendationService.prepare(any())).thenReturn(preparedJob);
+
+		RecommendationJobRunner.EnqueueOutcome outcome = this.runner.enqueue(this.tripId, this.userId, null, null,
+				null);
+
+		assertThat(outcome.created()).isTrue();
+		verify(this.jobRepository).save(preparedJob);
+		verify(this.idempotencyRepository, Mockito.never()).saveWithIdempotency(any(), anyString(), anyString(),
+				any());
+	}
+
+	@Test
+	@DisplayName("🔴 S15P21E201-944 — 같은 Idempotency-Key 로 재시도하면 새 Job 을 만들지 않는다")
+	void sameIdempotencyKeyDoesNotCreateASecondJob() {
+		when(this.tripRepository.findLatestConstraintSnapshotId(this.tripId))
+				.thenReturn(Optional.of(UUID.randomUUID().toString()));
+		RecommendationJob preparedJob = RecommendationJob.start(UUID.randomUUID(), UUID.randomUUID(),
+				UUID.fromString(this.userId), JobType.ITINERARY_GENERATION, OffsetDateTime.now());
+		when(this.recommendationService.prepare(any())).thenReturn(preparedJob);
+		when(this.idempotencyRepository.saveWithIdempotency(any(), anyString(), anyString(), any()))
+				.thenReturn(new RecommendationJobIdempotencyRepository.Claimed(preparedJob, false));
+
+		RecommendationJobRunner.EnqueueOutcome outcome = this.runner.enqueue(this.tripId, this.userId, null, null,
+				"retry-key");
+
+		assertThat(outcome.created()).isFalse();
+		assertThat(outcome.job()).isSameAs(preparedJob);
+		// 🔴 재시도로 확인된 기존 Job 은 다시 실행에 넘기지 않는다 — 이미 실행 중이거나 끝났다.
+		verify(this.worker, Mockito.never()).execute(any(), any());
+		verify(this.jobRepository, Mockito.never()).save(any());
+	}
+
+	@Test
+	@DisplayName("🔴 S15P21E201-944 — 같은 키를 다른 본문으로 재사용하면 충돌 예외가 그대로 올라온다")
+	void conflictingIdempotencyKeyPropagatesTheException() {
+		when(this.tripRepository.findLatestConstraintSnapshotId(this.tripId))
+				.thenReturn(Optional.of(UUID.randomUUID().toString()));
+		RecommendationJob preparedJob = RecommendationJob.start(UUID.randomUUID(), UUID.randomUUID(),
+				UUID.fromString(this.userId), JobType.ITINERARY_GENERATION, OffsetDateTime.now());
+		when(this.recommendationService.prepare(any())).thenReturn(preparedJob);
+		when(this.idempotencyRepository.saveWithIdempotency(any(), anyString(), anyString(), any()))
+				.thenThrow(new RecommendationJobIdempotencyConflictException("dup-key"));
+
+		assertThatThrownBy(() -> this.runner.enqueue(this.tripId, this.userId, null, null, "dup-key"))
+				.isInstanceOf(RecommendationJobIdempotencyConflictException.class);
+
+		verify(this.worker, Mockito.never()).execute(any(), any());
 	}
 }

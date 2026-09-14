@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.gabolle.backend.common.api.ApiError;
 import com.gabolle.backend.common.api.ApiResponse;
+import com.gabolle.backend.recommendation.application.RecommendationJobIdempotencyConflictException;
 import com.gabolle.backend.trip.application.TripQueryService;
 
 /**
@@ -65,6 +66,16 @@ public class RecommendationJobExceptionHandler {
 				new ApiError("RECOMMENDATION_JOB_VALIDATION_FAILED",
 						"입력한 조건을 확인할 수 없어요. 조건을 다시 확인한 뒤 시도해 주세요.",
 						List.of(e.getMessage())),
+				requestId()));
+	}
+
+	/** 🔴 S15P21E201-944 — 같은 Idempotency-Key 를 다른 본문으로 재사용했다. */
+	@ExceptionHandler(RecommendationJobIdempotencyConflictException.class)
+	public ResponseEntity<ApiResponse<Void>> handleIdempotencyConflict(
+			RecommendationJobIdempotencyConflictException e) {
+		return ResponseEntity.status(HttpStatus.CONFLICT).body(ApiResponse.failure(
+				new ApiError("RECOMMENDATION_JOB_IDEMPOTENCY_CONFLICT",
+						"같은 Idempotency-Key 가 다른 요청 내용으로 이미 쓰였어요."),
 				requestId()));
 	}
 
