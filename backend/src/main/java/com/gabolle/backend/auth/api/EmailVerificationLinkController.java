@@ -24,9 +24,13 @@ import org.springframework.web.bind.annotation.RestController;
  * <p>이 엔드포인트를 {@link AuthController} 에 넣지 않은 이유는 응답 모양이 다르기
  * 때문이다. 거기는 전부 {@code ApiResponse} 봉투를 돌려주는데 여기는 302 를 준다.
  *
- * <p>{@code gabolle.auth.email-verification-base-url} 을 이 경로로 맞춰 두어야 메일에
- * 들어가는 링크가 여기로 온다. 링크는 {@code LocalAuthService} 가
- * {@code base-url + "?token=" + rawToken} 으로 조립한다.
+ * <p><b>2026-09-14 (S15P21E201-941) — 새 메일은 여기로 오지 않는다.</b> 사람이 받는 링크에
+ * {@code api}·{@code v1} 이 보이면 주소만 보고 무엇인지 알 수 없어서, 링크를 화면 주소
+ * ({@code /auth/email/verify})로 옮겼다. 화면이 토큰을 받아 확인 API 를 부르고 결과를 보여 준다.
+ *
+ * <p>그래도 이 경로를 지우지 않는다. <b>이미 나간 메일의 링크가 여기로 온다.</b> 그 링크를
+ * 누른 사람에게는 아무 잘못이 없고, 지우면 그 사람만 인증을 못 끝낸다. 대신 이 경로가 끝낸 뒤
+ * 보내는 자리를 같은 화면으로 맞춰서, 옛 링크로 와도 완료 안내를 보게 했다.
  */
 @RestController
 @RequestMapping("/api/v1/auth")
