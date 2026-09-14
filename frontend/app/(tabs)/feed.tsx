@@ -23,6 +23,7 @@ import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
+import { RouteMap } from '@/map/RouteMap';
 import { createStory, loadFeed, relativeStoryTime, reportStory, setFollowing, VISIBILITY_LABEL, type FeedLoadResult, type FeedScope, type StoryDto, type StoryReportReason, type StoryVisibility } from '@/social/stories';
 import { useStoryImages } from '@/social/useStoryImages';
 
@@ -253,6 +254,46 @@ function InlineCompose({ onPosted }: { onPosted: () => void }) {
   </View>;
 }
 
+/**
+ * 추억 지도 — 좌표가 붙은 기록만 지도에 찍는다.
+ *
+ * <p>기존 {@link RouteMap} 을 그대로 쓴다. 마커를 누르면 그 기록으로 간다 —
+ * 여행 준비 화면의 추억 지도가 이미 그렇게 동작한다(S15P21E201-906 범위 밖 항목).
+ *
+ * <p>🔴 좌표가 하나도 없으면 카드를 아예 안 그린다. 빈 지도에 「0개」를 적어 두는
+ * 것은 자리만 차지하고 아무것도 알려주지 않는다.
+ *
+ * <p>🔴 지도는 웹에서만 그려진다. 휴대폰 앱에는 지도가 없고, 이 카드는 넓은 화면의
+ * 보조 칸에만 있으므로 폰에서는 애초에 안 보인다.
+ *
+ * <p>🔴 인계 문서의 「크게 보기」 링크는 넣지 않았다. 갈 곳이 없다 — 추억 지도는
+ * 여행별로만 있고(app/(trip)/[id]), 피드 전체를 담는 지도 화면은 저장소에 없다.
+ */
+function MemoryMap({ items, onOpenStory }: { items: StoryDto[]; onOpenStory: (id: string) => void }) {
+  const { tx } = useI18n();
+  const stops = items
+    .filter((story) => typeof story.place?.lat === 'number' && typeof story.place?.lng === 'number')
+    .map((story, index) => ({
+      id: story.id,
+      number: index + 1,
+      name: story.place?.name ?? story.region ?? tx('기록', 'Record'),
+      latitude: story.place?.lat as number,
+      longitude: story.place?.lng as number,
+    }));
+
+  if (!stops.length) return null;
+
+  return <View>
+    <Eyebrow>{tx('추억 지도', 'Memory map')}</Eyebrow>
+    <View style={styles.mapCard}>
+      <RouteMap stops={stops} selectedId={stops[0].id} onSelect={onOpenStory} height={200} />
+      <View style={styles.mapFooter}>
+        <Text variant="body">{tx(`좌표 있는 기록 ${stops.length}개`, `${stops.length} records with coordinates`)}</Text>
+      </View>
+    </View>
+  </View>;
+}
+
 function EmptyState({ scope, signedIn, compact, onSeeAll, onWrite }: {
   scope: FeedScope; signedIn: boolean; compact: boolean; onSeeAll: () => void; onWrite: () => void;
 }) {
@@ -437,6 +478,8 @@ export default function Feed() {
   </View>;
 
   const aside = <View style={styles.aside}>
+    <MemoryMap items={items} onOpenStory={(id) => router.push(`/feed/${id}`)} />
+
     <Eyebrow>{tx('이 피드에 나온 장소', 'Places in this feed')}</Eyebrow>
     <View style={styles.asideCard}>
       {places.length
@@ -471,6 +514,8 @@ const styles = StyleSheet.create({
   feedColumn: { flex: 1, minWidth: 0 },
   aside: { width: 320, gap: spacing[2] },
   asideCard: { borderWidth: 1, borderColor: color.surface.border, borderRadius: radius.md, backgroundColor: color.surface.card },
+  mapCard: { borderWidth: 1, borderColor: color.surface.border, borderRadius: radius.lg, backgroundColor: color.surface.card, overflow: 'hidden' },
+  mapFooter: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[2], paddingVertical: spacing[3], paddingHorizontal: spacing[4] },
   asideRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[3], paddingVertical: spacing[3], paddingHorizontal: spacing[4] },
   asideRowDivided: { borderTopWidth: 1, borderTopColor: color.surface.border },
 
