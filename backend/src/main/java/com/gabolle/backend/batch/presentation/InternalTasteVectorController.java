@@ -1,8 +1,12 @@
 package com.gabolle.backend.batch.presentation;
 
+import java.time.Clock;
+import java.time.Duration;
 import java.time.OffsetDateTime;
 
 import org.springframework.context.annotation.Profile;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -65,10 +69,63 @@ import jakarta.validation.Valid;
 @Profile({ "db", "dev" })
 public class InternalTasteVectorController {
 
+	/**
+	 * {@code asOf} 가 "지금" 보다 이만큼까지는 앞서도 받는다 — S15P21E201-772 후속.
+	 *
+	 * <p>🔴 <b>0 이 아닌 이유는 시계가 둘이기 때문이다.</b> {@code asOf} 를 만드는 것은 Airflow
+	 * 컨테이너이고 검사하는 것은 이 서버라, 둘의 시계가 몇 초 어긋나는 것만으로 정상적인 실행이
+	 * 막히면 안 된다. 손으로 돌린 DAG 는 {@code data_interval_end} 가 거의 "지금" 이라 특히 그렇다.
+	 *
+	 * <p>🔴 <b>한 시간이면 넉넉하고, 막으려는 사고와는 자릿수가 다르다.</b> 이 검사가 잡으려는
+	 * 것은 {@code -e 2030-01-01} 같은 실수이지 몇 초의 오차가 아니다.
+	 */
+	private static final Duration MAX_FUTURE_SKEW = Duration.ofHours(1);
+
 	private final TasteVectorBatchService batchService;
 
-	public InternalTasteVectorController(TasteVectorBatchService batchService) {
+	private final Clock clock;
+
+	public InternalTasteVectorController(TasteVectorBatchService batchService, Clock clock) {
 		this.batchService = batchService;
+		this.clock = clock;
+	}
+
+	/**
+	 * 미래의 {@code asOf} 를 막는다 — S15P21E201-772 후속.
+	 *
+	 * <h2>🔴 표시는 앞으로만 간다. 되돌리는 문이 없다</h2>
+	 *
+	 * {@code fold} 는 {@code user_taste_vector.observed_until} 을 {@code asOf} 로 밀어 놓고,
+	 * 다음부터는 {@code watermark} 가 {@code asOf} 보다 뒤가 아니면 {@code UNCHANGED} 로 넘긴다.
+	 * {@code observed_until} 에 CHECK 도 없다. 그래서 <b>한 번 2999년을 적으면 그 사람은 영영
+	 * 안 접힌다</b> — 손으로 {@code UPDATE} 하는 것 말고는 되돌릴 방법이 없다.
+	 *
+	 * <p>더 나쁜 것은 <b>그게 초록으로 보인다</b>는 점이다. {@code staleUsers} 가 빈 목록을 내고,
+	 * DAG 는 {@code AirflowSkipException} 으로 <b>실패가 아니라 건너뜀</b>이 되며, 로그에는
+	 * "표시가 뒤처진 사람이 없다" 만 남는다. 설문도 행동도 그날부터 벡터에 안 들어가는데
+	 * 아무 데도 빨간 것이 없다.
+	 *
+	 * <h2>🔴 이것은 "서버가 asOf 를 정한다" 가 아니다</h2>
+	 *
+	 * 이 클래스 머리말과 {@code TasteVectorFoldService} 가 <i>"서버가 시각을 정하지 않는다"</i> 고
+	 * 못 박아 둔 것은 backfill 때문이고, 그 판단은 그대로다. 여기서 하는 것은 <b>고르는 것이
+	 * 아니라 말이 안 되는 값을 거절하는 것</b>이다. 과거는 얼마든지 받는다 — backfill 은 전부
+	 * 과거이므로 이 검사에 한 번도 안 걸린다.
+	 *
+	 * <h2>🔴 봉투 없이 400 을 낸다</h2>
+	 *
+	 * 이 경로는 {@code ApiResponse} 봉투를 안 쓴다(위 머리말). 그래서 항목별 오류 코드를 만드는
+	 * {@code @RestControllerAdvice} 를 하나 더 두는 대신 {@link ResponseStatusException} 으로
+	 * 그대로 400 을 낸다 — 부르는 쪽이 사람이 아니라 DAG 이고, DAG 이 보는 것은 상태 코드와
+	 * 본문 한 줄이다.
+	 */
+	private void requireSaneAsOf(OffsetDateTime asOf) {
+		OffsetDateTime limit = OffsetDateTime.now(this.clock).plus(MAX_FUTURE_SKEW);
+		if (asOf.isAfter(limit)) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+					"asOf 가 미래다: " + asOf + " (허용 상한 " + limit + "). 표시는 되돌릴 수 없어서 "
+							+ "미래 시각을 한 번 적으면 그 사람은 영영 안 접힌다");
+		}
 	}
 
 	/**
@@ -80,6 +137,10 @@ public class InternalTasteVectorController {
 	@GetMapping("/stale")
 	public StaleUsersResponse stale(@RequestParam("asOf") OffsetDateTime asOf,
 			@RequestParam(name = "limit", defaultValue = "500") int limit) {
+		// 🔴 읽기만 하는 경로라 표시를 망가뜨리지는 않는다. 그래도 같이 막는다 — 미래 asOf 로
+		//    부르면 "전부 뒤처졌다" 는 목록이 나오고, 부르는 쪽은 그것을 그대로 rebuild 에 넘긴다.
+		//    잘못된 값은 쓰는 자리가 아니라 들어오는 자리에서 끊는 편이 낫다.
+		requireSaneAsOf(asOf);
 		TasteVectorBatchService.StalePage page = this.batchService.staleUsers(asOf, limit);
 		return new StaleUsersResponse(asOf, page.userIds().size(), page.truncated(), page.limit(), page.userIds());
 	}
@@ -87,6 +148,8 @@ public class InternalTasteVectorController {
 	/** 넘긴 사람들을 접는다. 한 사람의 실패는 배치를 멈추지 않는다. */
 	@PostMapping("/rebuild")
 	public TasteVectorBatchResponse rebuild(@Valid @RequestBody RebuildTasteVectorsRequest request) {
+		// 🔴 표시를 실제로 미는 자리다. 여기를 지나면 되돌릴 방법이 없다.
+		requireSaneAsOf(request.asOf());
 		TasteVectorBatchReport report = this.batchService.rebuild(request.userIds(), request.asOf());
 
 		return new TasteVectorBatchResponse(report.asOf(), report.processed(),
