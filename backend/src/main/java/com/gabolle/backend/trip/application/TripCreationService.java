@@ -26,8 +26,10 @@ import com.gabolle.backend.trip.domain.TravelModes;
 import com.gabolle.backend.trip.domain.TripConstraint;
 import com.gabolle.backend.trip.domain.TripMember;
 import com.gabolle.backend.trip.domain.TripRepository;
+import com.gabolle.backend.trip.domain.TravelArea;
 import com.gabolle.backend.trip.domain.TripSeedPlace;
 import com.gabolle.backend.trip.domain.TripSeedPlaceRepository;
+import com.gabolle.backend.trip.domain.TripTravelAreaRepository;
 import com.gabolle.backend.user.application.ConsentGuard;
 
 /**
@@ -67,14 +69,19 @@ public class TripCreationService {
      */
     private final Optional<TripSeedPlaceRepository> seedPlaces;
 
+    /** 여행 범위를 적는 자리 — S15P21E201-980. {@link #seedPlaces} 와 같은 이유로 Optional 이다. */
+    private final Optional<TripTravelAreaRepository> travelAreas;
+
     public TripCreationService(TripRepository repository, Clock clock,
                                PreferenceDefaultsService preferenceDefaults, ConsentGuard consentGuard,
-                               Optional<TripSeedPlaceRepository> seedPlaces) {
+                               Optional<TripSeedPlaceRepository> seedPlaces,
+                               Optional<TripTravelAreaRepository> travelAreas) {
         this.repository = repository;
         this.clock = clock;
         this.preferenceDefaults = preferenceDefaults;
         this.consentGuard = consentGuard;
         this.seedPlaces = seedPlaces;
+        this.travelAreas = travelAreas;
     }
 
     /**
@@ -271,6 +278,7 @@ public class TripCreationService {
         if (outcome.created()) {
             preferenceDefaults.carryOver(command.userId(), storedPreferences);
             saveMustVisitPlaces(outcome.trip().tripId(), command.mustVisitPlaceIds(), now);
+            saveTravelAreas(outcome.trip().tripId(), command.travelAreas());
         }
 
         return new Result(outcome.trip(), outcome.snapshot(), outcome.created());
@@ -305,6 +313,27 @@ public class TripCreationService {
         }
         if (!seeds.isEmpty()) {
             this.seedPlaces.get().saveAll(seeds);
+        }
+    }
+
+    /**
+     * 고른 여행 범위를 적는다 — S15P21E201-980.
+     *
+     * <p>🔴 모르는 코드는 버린다. 앱이 새 지역을 먼저 내보내는 날 여행 생성이 통째로 막히면
+     * 안 된다 — 모르는 지역은 "범위를 안 골랐다" 와 같게 다루는 편이 낫다.
+     *
+     * <p>새로 만든 여행일 때만 부른다({@link #saveMustVisitPlaces} 와 같은 이유).
+     */
+    private void saveTravelAreas(String tripId, List<String> codes) {
+        if (this.travelAreas.isEmpty() || codes.isEmpty()) {
+            return;
+        }
+        List<TravelArea> areas = new ArrayList<>();
+        for (String code : codes) {
+            TravelArea.of(code).filter((area) -> !areas.contains(area)).ifPresent(areas::add);
+        }
+        if (!areas.isEmpty()) {
+            this.travelAreas.get().saveAll(tripId, areas);
         }
     }
 
@@ -415,11 +444,20 @@ public class TripCreationService {
              *
              * <p>고른 순서를 그대로 쓴다. 새 여행일 때만 {@code trip_seed_place} 에 적힌다.
              */
-            List<String> mustVisitPlaceIds) {
+            List<String> mustVisitPlaceIds,
+
+            /**
+             * 여행 범위 코드 — S15P21E201-980. 비어 있으면 아무 일도 안 한다.
+             *
+             * <p>모르는 코드는 저장 단계에서 버린다({@link TravelArea#of}). 앱이 새 지역을
+             * 먼저 내보내는 날 여행 생성이 400 으로 막히면 안 된다.
+             */
+            List<String> travelAreas) {
 
         /** 안 준 목록을 빈 목록으로 고정한다 — 뒤쪽이 null 을 다시 보지 않게 한다. */
         public Command {
             mustVisitPlaceIds = mustVisitPlaceIds == null ? List.of() : List.copyOf(mustVisitPlaceIds);
+            travelAreas = travelAreas == null ? List.of() : List.copyOf(travelAreas);
         }
 
         /** 꼭 가고 싶은 장소가 없던 시절의 시그니처. 기존 호출부를 그대로 둔다. */
@@ -430,7 +468,19 @@ public class TripCreationService {
                 boolean foreignCardRequired, boolean soloFriendlyPriority, Integer maxTransitTransfers) {
             this(userId, startDate, finishDate, originLat, originLng, budgetKrw, partySize, timeWindow, timezone,
                     preferences, constraints, ownerType, accommodationPlaceId, englishMenuRequired,
-                    foreignCardRequired, soloFriendlyPriority, maxTransitTransfers, List.of());
+                    foreignCardRequired, soloFriendlyPriority, maxTransitTransfers, List.of(), List.of());
+        }
+
+        /** 여행 범위(980)가 생기기 전의 시그니처. 꼭 가고 싶은 장소까지만 받던 자리를 남긴다. */
+        public Command(String userId, LocalDate startDate, LocalDate finishDate, Double originLat, Double originLng,
+                Integer budgetKrw, int partySize, String timeWindow, String timezone,
+                List<PreferenceSnapshot.PreferenceAnswer> preferences, List<ConstraintInput> constraints,
+                Trip.OwnerType ownerType, String accommodationPlaceId, boolean englishMenuRequired,
+                boolean foreignCardRequired, boolean soloFriendlyPriority, Integer maxTransitTransfers,
+                List<String> mustVisitPlaceIds) {
+            this(userId, startDate, finishDate, originLat, originLng, budgetKrw, partySize, timeWindow, timezone,
+                    preferences, constraints, ownerType, accommodationPlaceId, englishMenuRequired,
+                    foreignCardRequired, soloFriendlyPriority, maxTransitTransfers, mustVisitPlaceIds, List.of());
         }
 
         /**

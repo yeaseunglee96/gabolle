@@ -42,7 +42,7 @@ class TripCreationServiceAccommodationTest {
 	void setUp() {
 		repository = new InMemoryTripRepository();
 		Clock clock = Clock.fixed(NOW, ZoneOffset.UTC);
-		service = new TripCreationService(repository, clock, new PreferenceDefaultsService(repository, clock), ConsentGuards.granting(), Optional.empty());
+		service = new TripCreationService(repository, clock, new PreferenceDefaultsService(repository, clock), ConsentGuards.granting(), Optional.empty(), Optional.empty());
 	}
 
 	private TripCreationService.Command command(String accommodationPlaceId, boolean englishMenu,

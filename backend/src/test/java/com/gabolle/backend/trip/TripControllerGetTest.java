@@ -141,6 +141,6 @@ class TripControllerGetTest {
 
     /** S15P21E201-547 — 생성자에 PreferenceDefaultsService 가 붙어 한 자리에 모았다. */
     private static TripCreationService newCreationService(InMemoryTripRepository repository, Clock clock) {
-        return new TripCreationService(repository, clock, new PreferenceDefaultsService(repository, clock), ConsentGuards.granting(), Optional.empty());
+        return new TripCreationService(repository, clock, new PreferenceDefaultsService(repository, clock), ConsentGuards.granting(), Optional.empty(), Optional.empty());
     }
 }

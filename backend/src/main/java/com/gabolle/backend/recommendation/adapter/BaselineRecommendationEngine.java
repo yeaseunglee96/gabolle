@@ -2,7 +2,10 @@ package com.gabolle.backend.recommendation.adapter;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.List;
+import java.util.Optional;
 import java.util.TreeSet;
 import java.util.UUID;
 
@@ -24,6 +27,8 @@ import com.gabolle.backend.recommendation.domain.FallbackMode;
 import com.gabolle.backend.recommendation.domain.RequestLocation;
 import com.gabolle.backend.trip.domain.PreferenceSnapshot;
 import com.gabolle.backend.trip.domain.Trip;
+import com.gabolle.backend.trip.domain.TravelArea;
+import com.gabolle.backend.trip.domain.TripTravelAreaRepository;
 import com.gabolle.backend.trip.domain.TripConstraint;
 import com.gabolle.backend.trip.domain.TripRepository;
 import com.gabolle.backend.trip.domain.TripSeedPlaceRepository;
@@ -76,14 +81,26 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 
 	private final UserPlaceCodeMapRepository codeMapRepository;
 
+	/**
+	 * 범위 안 후보가 이보다 적으면 출발지 기준으로 채운다 — S15P21E201-980.
+	 *
+	 * <p>하루에 네 곳씩 최대 이레를 배정하므로 스물여덟이 상한이고, 그 두 배쯤은 있어야
+	 * 갈래를 섞어 고를 수 있다. 정확한 근거가 있는 값은 아니고 운영을 보고 조정할 값이다.
+	 */
+	private static final int MIN_AREA_CANDIDATES = 60;
+
 	/** S15P21E201-338 — 복제 씨앗. 보통 여행은 비어 있어 아무 일도 하지 않는다({@link SeedBoost}). */
 	private final TripSeedPlaceRepository seedPlaceRepository;
+
+	/** S15P21E201-980 — 여행 범위. 안 고른 여행은 비어 있어 예전과 똑같이 돈다. */
+	private final Optional<TripTravelAreaRepository> travelAreas;
 
 	public BaselineRecommendationEngine(TripRepository tripRepository,
 			PlaceCandidateQueryService placeCandidateQueryService, BaselineCandidateTranslator translator,
 			BaselineCandidateScorer scorer, BaselineEngineProperties properties,
 			PreferenceAlignmentWeights alignmentWeights, UserPlaceCodeMapRepository codeMapRepository,
-			TripSeedPlaceRepository seedPlaceRepository) {
+			TripSeedPlaceRepository seedPlaceRepository,
+			Optional<TripTravelAreaRepository> travelAreas) {
 		this.tripRepository = tripRepository;
 		this.placeCandidateQueryService = placeCandidateQueryService;
 		this.translator = translator;
@@ -92,6 +109,7 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 		this.alignmentWeights = alignmentWeights;
 		this.codeMapRepository = codeMapRepository;
 		this.seedPlaceRepository = seedPlaceRepository;
+		this.travelAreas = travelAreas;
 	}
 
 	@Override
@@ -123,7 +141,7 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 		long candidateGenerationStart = System.nanoTime();
 		PlaceCandidateRequest queryRequest =
 				this.translator.translate(location, trip, preferenceSnapshot, constraints);
-		PlaceCandidateResponse response = this.placeCandidateQueryService.findCandidates(queryRequest);
+		PlaceCandidateResponse response = findCandidatesWithinTravelAreas(trip.tripId(), queryRequest);
 		long candidateGenerationMs = elapsedMs(candidateGenerationStart);
 
 		// 대조표는 배치당 한 번만 읽는다 — 후보마다 다시 읽으면 질의 수가 후보 수에 비례한다.
@@ -259,4 +277,57 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 	private static long elapsedMs(long startNanos) {
 		return (System.nanoTime() - startNanos) / 1_000_000L;
 	}
+
+	/**
+	 * 고른 여행 범위 안에서 후보를 고른다 — S15P21E201-980.
+	 *
+	 * <p>범위를 안 골랐으면 지금까지와 똑같다 — 출발지 하나를 중심으로 한 번 훑는다.
+	 *
+	 * <p>골랐으면 <b>지역마다 한 번씩</b> 훑어 합친다. 중심 하나에 반경을 키우는 방법은 쓸 수
+	 * 없다 — 해운대와 남포동을 같이 고르면 그 둘을 다 덮는 원이 부산 전체가 되어, 범위를
+	 * 골랐다는 말이 아무 뜻이 없어진다.
+	 *
+	 * <p>🔴 모자라면 출발지 기준 조회를 더해 채운다. 조건이 후보를 0곳으로 만들어 일정 생성이
+	 * 통째로 실패하는 일이 이미 있었다(큰 짐 조건). 범위 때문에 같은 일이 나면 안 된다 —
+	 * 범위는 "여기 위주로" 이지 "여기가 아니면 여행을 만들지 마라" 가 아니다.
+	 *
+	 * <p>점수 계산은 안 건드린다. 거리는 여전히 출발지 기준이고, 이 자리는 <b>무엇을 채점할
+	 * 것인가</b>만 정한다 — 가중치는 S15P21E201-106·452 의 범위다.
+	 */
+	private PlaceCandidateResponse findCandidatesWithinTravelAreas(String tripId, PlaceCandidateRequest base) {
+		List<TravelArea> areas = this.travelAreas.map((repository) -> repository.findByTripId(tripId))
+				.orElse(List.of());
+		if (areas.isEmpty()) {
+			return this.placeCandidateQueryService.findCandidates(base);
+		}
+
+		Map<String, PlaceCandidateResponse.Candidate> merged = new LinkedHashMap<>();
+		List<String> appliedFilters = new ArrayList<>(List.of("TRAVEL_AREA"));
+		for (TravelArea area : areas) {
+			PlaceCandidateRequest perArea = new PlaceCandidateRequest(
+					new PlaceCandidateRequest.Center(area.lat(), area.lng()), area.radiusM(),
+					base.categories(), base.requiredFeatures(), base.excludedFeatures(),
+					base.openNowAt(), base.minimumCount(), base.limit());
+			for (PlaceCandidateResponse.Candidate candidate
+					: this.placeCandidateQueryService.findCandidates(perArea).candidates()) {
+				merged.putIfAbsent(candidate.placeId().toString(), candidate);
+			}
+		}
+
+		PlaceCandidateResponse fromAreas = this.placeCandidateQueryService.findCandidates(base);
+		if (merged.size() < MIN_AREA_CANDIDATES) {
+			// 🔴 범위 안이 비었다. 출발지 기준 후보로 채우고 그 사실을 남긴다 — 조용히 채우면
+			//    "해운대를 골랐는데 왜 서면이 나오냐" 를 아무도 설명할 수 없다.
+			for (PlaceCandidateResponse.Candidate candidate : fromAreas.candidates()) {
+				merged.putIfAbsent(candidate.placeId().toString(), candidate);
+			}
+			appliedFilters.add("TRAVEL_AREA_WIDENED");
+		}
+
+		List<PlaceCandidateResponse.Candidate> candidates = List.copyOf(merged.values());
+		return new PlaceCandidateResponse(candidates, candidates.size(), fromAreas.minimumRequired(),
+				candidates.size() < fromAreas.minimumRequired(), appliedFilters, fromAreas.notApplied(),
+				fromAreas.scanTruncated(), fromAreas.datasetVersions());
+	}
+
 }
