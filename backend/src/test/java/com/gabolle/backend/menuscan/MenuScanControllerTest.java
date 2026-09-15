@@ -1,0 +1,243 @@
+package com.gabolle.backend.menuscan;
+
+import java.awt.Color;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.lang.reflect.RecordComponent;
+import java.nio.charset.StandardCharsets;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
+
+import javax.imageio.ImageIO;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+
+import com.gabolle.backend.menuscan.adapter.GmsMenuReader;
+import com.gabolle.backend.menuscan.application.MenuScanRateLimiter;
+import com.gabolle.backend.menuscan.application.MenuScanService;
+import com.gabolle.backend.menuscan.config.MenuScanProperties;
+import com.gabolle.backend.menuscan.presentation.MenuScanController;
+import com.gabolle.backend.menuscan.presentation.MenuScanExceptionHandler;
+import com.gabolle.backend.menuscan.presentation.dto.MenuScanResponse;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+/**
+ * S15P21E201-1025 — 메뉴판 읽기.
+ *
+ * <p>🔴 이 검사들이 지키는 것은 기능이 아니라 <b>안전</b>이다. 티켓 {@code -86} 이
+ * «메뉴판을 찍으면 알레르기 주의를 볼 수 있다» 인데, 모델이 못 읽은 것을 화면이
+ * 「없음」으로 그리면 <b>사람이 다친다.</b> 2026-09-16 에 고친 {@code -996} 과 같은 종류다.
+ */
+class MenuScanControllerTest {
+
+	private GmsMenuReader reader;
+	private MenuScanProperties properties;
+	private MockMvc mockMvc;
+
+	private final UUID userId = UUID.randomUUID();
+
+	@BeforeEach
+	void setUp() {
+		this.reader = mock(GmsMenuReader.class);
+		this.properties = new MenuScanProperties();
+		this.properties.setApiKey("test-key");
+
+		MenuScanRateLimiter limiter = new MenuScanRateLimiter(this.properties,
+				Clock.fixed(Instant.parse("2026-09-16T12:00:00Z"), ZoneOffset.UTC));
+		MenuScanService service = new MenuScanService(this.reader, limiter, this.properties);
+
+		this.mockMvc = MockMvcBuilders.standaloneSetup(new MenuScanController(service))
+				.setControllerAdvice(new MenuScanExceptionHandler())
+				.build();
+
+		when(this.reader.isConfigured()).thenReturn(true);
+	}
+
+	private static Authentication principal(UUID userId) {
+		return new UsernamePasswordAuthenticationToken(userId.toString(), null, List.of());
+	}
+
+	/** 진짜 JPEG 를 만든다 — 가짜 바이트로는 위치정보 제거가 도는지 잴 수 없다. */
+	private static byte[] jpeg() throws Exception {
+		BufferedImage image = new BufferedImage(40, 20, BufferedImage.TYPE_INT_RGB);
+		var g = image.createGraphics();
+		g.setColor(Color.WHITE);
+		g.fillRect(0, 0, 40, 20);
+		g.dispose();
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		ImageIO.write(image, "jpg", out);
+		return out.toByteArray();
+	}
+
+	private MockMultipartFile part(byte[] bytes) {
+		return new MockMultipartFile("image", "menu.jpg", "image/jpeg", bytes);
+	}
+
+	// ── 🔴 「없다」를 말할 수 없다 ────────────────────────────────────────────
+
+	/**
+	 * 🔴 이 검사가 이 기능의 핵심이다. 응답 모양에 «안전하다» 를 담을 칸이 <b>존재하면</b>
+	 * 언젠가 누군가 그린다. 칸이 없으면 그릴 수가 없다.
+	 */
+	@Test
+	@DisplayName("🔴 응답에 「안전·없음」을 담을 칸이 아예 없다")
+	void responseHasNoSafetyClaimField() {
+		List<String> names = Arrays.stream(MenuScanResponse.class.getRecordComponents())
+				.map(RecordComponent::getName).toList();
+		List<String> lineNames = Arrays.stream(MenuScanResponse.Line.class.getRecordComponents())
+				.map(RecordComponent::getName).toList();
+
+		assertThat(names).doesNotContain("safe", "hasAllergen", "allergenFree", "isSafe");
+		assertThat(lineNames).doesNotContain("safe", "hasAllergen", "allergenFree", "isSafe");
+		// 링크를 만들 칸도 없다 — 주입이 링크로 새는 길을 모양에서 막는다.
+		assertThat(lineNames).doesNotContain("link", "url", "href");
+	}
+
+	@Test
+	@DisplayName("🔴 사진에서 읽은 값은 언제나 ESTIMATED 다 — VERIFIED 를 붙이지 않는다")
+	void alwaysEstimated() throws Exception {
+		when(this.reader.read(any())).thenReturn(new GmsMenuReader.Result(
+				List.of(new MenuScanResponse.Line("새우튀김", List.of("새우"))), 0));
+
+		this.mockMvc.perform(multipart("/api/v1/menu-scans").file(part(jpeg()))
+						.principal(principal(this.userId)))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.data.evidenceStatus").value("ESTIMATED"))
+				.andExpect(jsonPath("$.data.lines[0].allergenWords[0]").value("새우"));
+	}
+
+	/**
+	 * 🔴 못 읽은 줄이 0 이어도 「전부 안전」이 아니다. 서버는 그 사실을 <b>주장하지 않고</b>
+	 * 읽은 것만 준다 — 판단은 화면이 문구로 한다.
+	 */
+	@Test
+	@DisplayName("🔴 알레르기 낱말을 못 찾아도 「없음」이라고 답하지 않는다")
+	void nothingFoundIsNotAClaimOfSafety() throws Exception {
+		when(this.reader.read(any())).thenReturn(new GmsMenuReader.Result(
+				List.of(new MenuScanResponse.Line("김밥", List.of())), 0));
+
+		this.mockMvc.perform(multipart("/api/v1/menu-scans").file(part(jpeg()))
+						.principal(principal(this.userId)))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.data.lines[0].allergenWords").isEmpty())
+				.andExpect(jsonPath("$.data.evidenceStatus").value("ESTIMATED"))
+				.andExpect(jsonPath("$.data.safe").doesNotExist())
+				.andExpect(jsonPath("$.data.hasAllergen").doesNotExist());
+	}
+
+	// ── 🔴 실패를 빈 결과로 바꾸지 않는다 ────────────────────────────────────
+
+	@Test
+	@DisplayName("🔴 설정이 없으면 빈 목록이 아니라 503 이다")
+	void unconfiguredIsFailureNotEmpty() throws Exception {
+		when(this.reader.isConfigured()).thenReturn(false);
+
+		this.mockMvc.perform(multipart("/api/v1/menu-scans").file(part(jpeg()))
+						.principal(principal(this.userId)))
+				.andExpect(status().isServiceUnavailable())
+				.andExpect(jsonPath("$.error.code").value("MENU_SCAN_UNAVAILABLE"));
+
+		verify(this.reader, never()).read(any());
+	}
+
+	@Test
+	@DisplayName("🔴 한도를 넘기면 조용히 빈 결과가 아니라 429 다")
+	void rateLimitedIsFailureNotEmpty() throws Exception {
+		this.properties.setPerMinuteLimit(1);
+		when(this.reader.read(any())).thenReturn(new GmsMenuReader.Result(List.of(), 0));
+
+		byte[] image = jpeg();
+		this.mockMvc.perform(multipart("/api/v1/menu-scans").file(part(image))
+				.principal(principal(this.userId))).andExpect(status().isOk());
+
+		this.mockMvc.perform(multipart("/api/v1/menu-scans").file(part(image))
+						.principal(principal(this.userId)))
+				.andExpect(status().isTooManyRequests())
+				.andExpect(jsonPath("$.error.code").value("MENU_SCAN_RATE_LIMITED"));
+	}
+
+	@Test
+	@DisplayName("이미지가 아니면 400 — 원본을 그대로 바깥으로 보내지 않는다")
+	void nonImageIsRejected() throws Exception {
+		this.mockMvc.perform(multipart("/api/v1/menu-scans")
+						.file(part("이건 그냥 글자다".getBytes()))
+						.principal(principal(this.userId)))
+				.andExpect(status().isBadRequest());
+
+		verify(this.reader, never()).read(any());
+	}
+
+	// ── 🔴 위치 정보를 지우고 보낸다 ─────────────────────────────────────────
+
+	/** 촬영 정보가 들어가는 칸(EXIF)을 흉내 내 원본에 심는다. 눈에 띄는 표식을 넣어 뒤에서 찾는다. */
+	private static final String GPS_MARKER = "GPS-SECRET-DO-NOT-LEAK";
+
+	private static byte[] withFakeExif(byte[] jpeg) throws Exception {
+		byte[] segment = ("Exif\0\0" + GPS_MARKER).getBytes(StandardCharsets.ISO_8859_1);
+		int length = segment.length + 2; // 길이 칸은 자기 자신 2바이트를 포함한다
+
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		out.write(jpeg, 0, 2);                       // 파일 시작 표시 FF D8
+		out.write(0xFF);
+		out.write(0xE1);                             // APP1 — EXIF 가 들어가는 칸
+		out.write((length >> 8) & 0xFF);
+		out.write(length & 0xFF);
+		out.write(segment);
+		out.write(jpeg, 2, jpeg.length - 2);
+		return out.toByteArray();
+	}
+
+	private static boolean contains(byte[] bytes, String marker) {
+		return new String(bytes, StandardCharsets.ISO_8859_1).contains(marker);
+	}
+
+	/**
+	 * 🔴 개인정보 처리방침에 <b>「보내기 전에 촬영 위치 정보를 지운다」</b> 가 적혀 있다.
+	 * 원본 바이트가 그대로 모델에 가면 <b>방침이 거짓이 된다.</b>
+	 *
+	 * <p>«바이트가 달라졌다» 로 재지 않는다 — 흰 사진은 다시 써도 바이트가 같아질 수 있어
+	 * 그 검사는 <b>통과해도 아무것도 증명하지 못한다.</b> 대신 원본에 표식을 심고
+	 * <b>그 표식이 사라졌는지</b> 를 본다.
+	 */
+	@Test
+	@DisplayName("🔴 사진에 딸려 온 촬영 정보는 모델에게 가지 않는다")
+	void metadataIsStrippedBeforeLeaving() throws Exception {
+		byte[] original = withFakeExif(jpeg());
+		// 표식이 실제로 심겼는지부터 본다 — 안 심겼으면 아래 검사는 공짜로 통과한다.
+		assertThat(contains(original, GPS_MARKER)).isTrue();
+
+		when(this.reader.read(any())).thenReturn(new GmsMenuReader.Result(List.of(), 0));
+
+		this.mockMvc.perform(multipart("/api/v1/menu-scans").file(part(original))
+				.principal(principal(this.userId))).andExpect(status().isOk());
+
+		ArgumentCaptor<byte[]> sent = ArgumentCaptor.forClass(byte[].class);
+		verify(this.reader).read(sent.capture());
+
+		assertThat(sent.getValue()).isNotEmpty();
+		assertThat(contains(sent.getValue(), GPS_MARKER))
+				.as("촬영 정보가 그대로 바깥 모델로 나갔다 — 처리방침이 거짓이 된다")
+				.isFalse();
+	}
+}
