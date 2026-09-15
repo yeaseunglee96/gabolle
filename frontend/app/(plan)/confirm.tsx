@@ -35,6 +35,22 @@ function formatDate(iso: string, locale: string, fallback: string) {
 }
 function Section({ title, path, hard, children }: { title: string; path: '/plan/basic' | '/plan/taste' | '/plan/conditions'; hard?: boolean; children: React.ReactNode }) { const router = useRouter(); const { tx } = useI18n(); return <View style={[styles.card, hard && styles.hardCard]}><View style={styles.cardHeader}><View style={styles.cardTitle}>{hard && <View style={styles.dot} />}<Text variant="title" weight="bold">{title}</Text></View><Pressable accessibilityRole="button" accessibilityLabel={tx(`${title} 수정`, `Edit ${title}`)} onPress={() => router.push(path)} style={styles.edit}><Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx('수정', 'Edit')}</Text></Pressable></View>{children}</View>; }
 
+/**
+ * 지역 코드의 이름 — S15P21E201-980. 기본 정보 화면의 {@code AREAS} 와 같은 목록이다.
+ *
+ * 두 곳에 같은 표가 생기지만, 확인 화면이 기본 정보 화면의 내부 상수를 끌어다 쓰면 그쪽
+ * 화면을 고칠 때 이 화면이 조용히 따라 깨진다. 모르는 코드는 코드 그대로 보여 준다.
+ */
+const AREA_NAMES: Record<string, [string, string]> = {
+  HAEUNDAE: ['해운대', 'Haeundae'],
+  GWANGALLI: ['광안리', 'Gwangalli'],
+  NAMPO: ['남포동', 'Nampo-dong'],
+  SEOMYEON: ['서면', 'Seomyeon'],
+  YEONGDO: ['영도', 'Yeongdo'],
+  SONGJEONG: ['송정', 'Songjeong'],
+};
+
+
 export default function Confirm() {
   const router = useRouter(); const { preview } = useLocalSearchParams<{ preview?: string }>(); const { kind } = useLayout(); const { tx, locale } = useI18n(); const { user, accessToken, ready: authReady } = useAuth(); const { draft, basicComplete } = usePlan(); const [job, setJob] = useState<RecommendationJobSnapshot | null>(preview === 'api-error' ? { state: 'unavailable', jobId: null, progress: null, stage: null, canCancel: false, errorMessage: tx('여행 생성 서버 연결을 확인하고 있어요. 잠시 후 다시 시도해 주세요.', 'Checking the itinerary server connection. Please try again shortly.'), resultRef: null } : null);
   const [apiUnavailable, setApiUnavailable] = useState(false);
@@ -68,6 +84,11 @@ export default function Confirm() {
   const usage = [draft.englishMenuRequired ? tx('영어 메뉴 필요', 'Needs English menu') : null, draft.foreignCardRequired ? tx('해외카드 결제 필요', 'Needs foreign card payment') : null, draft.soloDiningPreferred ? tx('혼밥 우선', 'Prefers solo dining') : null, draft.accommodation.trim() ? tx(`숙소: ${draft.accommodation.trim()}`, `Lodging: ${draft.accommodation.trim()}`) : null, draft.transport !== 'CAR' && draft.maxTransfers !== null ? tx(`최대 환승 ${draft.maxTransfers}회`, `Up to ${draft.maxTransfers} transfers`) : null].filter(Boolean).join(' · ') || tx('없음', 'None');
   // S15P21E201-975 — 고른 곳을 여기서도 보여 준다. 이 줄이 없던 동안에는 취향 단계에서 고른
   // 장소가 확인 화면 어디에도 안 나와서, 빠졌는지 들어갔는지 사용자가 알 길이 없었다.
+  // S15P21E201-980 — 고른 범위를 여기서도 보여 준다. 이 줄이 없던 동안 지역 칩이 확인
+  // 화면 어디에도 안 나와서, 반영됐는지 사용자가 알 길이 없었다.
+  const areas = draft.travelAreas.length
+    ? draft.travelAreas.map((code) => tx(AREA_NAMES[code]?.[0] ?? code, AREA_NAMES[code]?.[1] ?? code)).join(' · ')
+    : tx('선택 안 함', 'None selected');
   const mustVisit = draft.mustVisitPlaces.length
     ? draft.mustVisitPlaces.map((place) => tx(place.nameKo, place.nameEn ?? place.nameKo)).join(' · ')
     : tx('선택 안 함', 'None selected');
@@ -76,7 +97,7 @@ export default function Confirm() {
     {kind === 'phone' && <View style={styles.top}><Pressable accessibilityRole="button" accessibilityLabel={tx('뒤로 가기', 'Go back')} onPress={() => router.canGoBack() ? router.back() : router.replace('/plan/conditions')} style={styles.back}><Text variant="title">‹</Text></Pressable><BrandLogoLink imageStyle={styles.logo} /><View style={styles.pill}><Text variant="caption" weight="bold" color={color.brand.ivory}>4 / 4</Text></View></View>}
     <PlanStepHeader current={4} /><Text variant="display" weight="bold" style={styles.title}>{tx('여행 조건을 확인해 주세요', 'Review your trip details')}</Text><Text color={color.text.body} style={styles.subtitle}>{tx('일정을 만들기 전에 입력한 내용을 한 번 더 확인해요.', 'Check your choices once more before creating the itinerary.')}</Text>
     <View style={[styles.grid, kind === 'tablet' && styles.gridWide]}>
-      <Section title={tx('기본 정보', 'Trip basics')} path="/plan/basic"><Row label={tx('여행 날짜', 'Travel dates')} value={`${formatDate(draft.startDate, locale, tx('미입력', 'Not entered'))} ~ ${formatDate(draft.endDate, locale, tx('미입력', 'Not entered'))}`} /><Row label={tx('인원 · 출발지', 'Travelers · Starting point')} value={tx(`${draft.adults}명 성인 · ${draft.children}명 어린이 · ${draft.origin || '미입력'}`, `${draft.adults} adults · ${draft.children} children · ${draft.origin || 'Not entered'}`)} /><Row label={tx('예산 · 교통', 'Budget · Transport')} value={`${draft.budgetKrw === null ? tx('예산 미입력', 'Budget not entered') : tx(`${draft.budgetKrw.toLocaleString(locale)}원 (숙박비 제외)`, `KRW ${draft.budgetKrw.toLocaleString(locale)} excluding lodging`)} · ${tx(({ TRANSIT: '대중교통', WALK: '도보 위주', CAR: '자차' } as const)[draft.transport], ({ TRANSIT: 'Public transit', WALK: 'Mostly walking', CAR: 'Car' } as const)[draft.transport])}`} /><Row label={tx('이동 시간대', 'Daily hours')} value={draft.dayStartTime && draft.dayEndTime ? `${draft.dayStartTime} ~ ${draft.dayEndTime}` : tx('없음', 'None')} /></Section>
+      <Section title={tx('기본 정보', 'Trip basics')} path="/plan/basic"><Row label={tx('여행 날짜', 'Travel dates')} value={`${formatDate(draft.startDate, locale, tx('미입력', 'Not entered'))} ~ ${formatDate(draft.endDate, locale, tx('미입력', 'Not entered'))}`} /><Row label={tx('인원 · 출발지', 'Travelers · Starting point')} value={tx(`${draft.adults}명 성인 · ${draft.children}명 어린이 · ${draft.origin || '미입력'}`, `${draft.adults} adults · ${draft.children} children · ${draft.origin || 'Not entered'}`)} /><Row label={tx('예산 · 교통', 'Budget · Transport')} value={`${draft.budgetKrw === null ? tx('예산 미입력', 'Budget not entered') : tx(`${draft.budgetKrw.toLocaleString(locale)}원 (숙박비 제외)`, `KRW ${draft.budgetKrw.toLocaleString(locale)} excluding lodging`)} · ${tx(({ TRANSIT: '대중교통', WALK: '도보 위주', CAR: '자차' } as const)[draft.transport], ({ TRANSIT: 'Public transit', WALK: 'Mostly walking', CAR: 'Car' } as const)[draft.transport])}`} /><Row label={tx('여행 범위', 'Areas to visit')} value={areas} /><Row label={tx('이동 시간대', 'Daily hours')} value={draft.dayStartTime && draft.dayEndTime ? `${draft.dayStartTime} ~ ${draft.dayEndTime}` : tx('없음', 'None')} /></Section>
       <Section title={tx('여행 취향', 'Travel preferences')} path="/plan/taste"><Row label={tx('여행 기분', 'Trip pace')} value={draft.paceLevel === 'RELAXED' ? tx('여유롭게', 'Relaxed') : draft.paceLevel === 'BALANCED' ? tx('균형 있게', 'Balanced') : draft.paceLevel === 'PACKED' ? tx('알차게', 'Packed') : tx('선택 안 함 (균형 있게로 진행)', 'Not selected (defaults to Balanced)')} /><Row label={tx('카테고리', 'Categories')} value={names(tx, draft.preferences, '선택 안 함', 'None selected')} /><Row label={tx('분위기', 'Mood')} value={names(tx, draft.atmospheres, '선택 안 함', 'None selected')} /><Row label={tx('음식', 'Food')} value={names(tx, draft.foods, '선택 안 함', 'None selected')} /><Row label={tx('꼭 가고 싶은 장소', 'Must-visit places')} value={mustVisit} /></Section>
       <Section title={tx('반드시 지킬 조건', 'Required constraints')} path="/plan/conditions" hard><Row label={tx('알레르기', 'Allergies')} value={allergy} /><Row label={tx('식단', 'Diet')} value={diet} /><Row label={tx('보행 · 길 환경', 'Walking · Route')} value={environment} /><Row label={tx('이동 보조 · 짐', 'Mobility aids · Luggage')} value={assists} /><Row label={tx('이용 조건', 'Usage conditions')} value={usage} /><Text variant="caption" color={color.text.muted}>{tx('알레르기·식단 정보가 없는 장소는 안전하다고 추정하지 않아요.', 'We never assume a place is safe when allergy or diet information is missing.')}</Text>{hardUnknown &&<Pressable accessibilityRole="button" onPress={() => router.push('/plan/conditions')} style={styles.warning}><Text accessibilityRole="alert" variant="caption" weight="bold" color={color.state.danger}>{tx('미확인 필수 조건이 있어요. 제약 조건을 확인해 주세요 →', 'Some required constraints are unanswered. Review them →')}</Text></Pressable>}</Section>
     </View>
