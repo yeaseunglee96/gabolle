@@ -239,11 +239,24 @@ public class AccountDeletionService {
 	 */
 	private void deleteTripData(UUID userId, List<UUID> tripIds) {
 		if (!tripIds.isEmpty()) {
-			// 🔴 2026-09-05 (S15P21E201-604) — 일정을 추천 작업보다 <b>먼저</b> 지운다.
-			//    itinerary_item·itinerary_versions 의 source_request_id 가
-			//    recommendation_job.request_id 를 가리키게 되면서, 예전 순서(작업 먼저)로는
-			//    일정을 한 번이라도 만든 사용자의 탈퇴가 외래키 위반으로 통째로 실패한다.
-			//    이 메서드 머리말이 경고한 "순서가 곧 정확성" 이 실제로 걸린 자리다.
+			// 🔴 2026-09-15 (S15P21E201-977) — 두 표가 서로를 가리킨다. 한쪽을 통째로 먼저
+			//    지우는 것으로는 못 푼다.
+			//
+			//      itinerary_versions.source_request_id → recommendation_job.request_id
+			//      recommendation_job.itinerary_id      → itineraries.itinerary_id
+			//
+			//    2026-09-05 (S15P21E201-604) 은 앞의 것만 보고 "일정을 먼저" 로 정했는데,
+			//    그 뒤 V20260905120000 이 뒤의 것을 더하면서 반대 방향이 생겼다. 그래서 일정
+			//    묶음을 통째로 먼저 지우면 이번엔 추천 작업이 걸린다 — <b>일정을 한 번이라도
+			//    만든 계정은 탈퇴가 500 으로 실패했다.</b> 운영에서 실제로 그랬다.
+			//
+			//    푸는 자리는 <b>일정 행(itineraries)</b> 하나다. 그 위의 판·항목·구간은 작업을
+			//    가리키므로 작업보다 먼저 지우고, 일정 행 자체는 작업이 가리키므로 작업보다
+			//    나중에 지운다. 그래서 일정 묶음이 추천 작업을 사이에 두고 갈라진다.
+			//
+			//    🔴 itinerary_id 를 null 로 끊는 방법은 안 된다. ck_recommendation_job_result_present
+			//    가 "성공한 일정 생성 작업은 itinerary_id 가 있어야 한다" 를 요구한다 — 끊는 순간
+			//    그 CHECK 에 걸린다.
 			execute("""
 					DELETE FROM ItineraryLegJpaEntity l WHERE l.itineraryVersionId IN
 					(SELECT v.itineraryVersionId FROM ItineraryVersionJpaEntity v WHERE v.itineraryId IN
@@ -258,13 +271,16 @@ public class AccountDeletionService {
 					DELETE FROM ItineraryVersionJpaEntity v WHERE v.itineraryId IN
 					(SELECT i.itineraryId FROM ItineraryJpaEntity i WHERE i.tripId IN :tripIds)
 					""", "tripIds", tripIds);
-			execute("DELETE FROM ItineraryJpaEntity i WHERE i.tripId IN :tripIds", "tripIds", tripIds);
-
 			execute("""
 					DELETE FROM RecommendationCandidate c WHERE c.requestId IN
 					(SELECT j.requestId FROM RecommendationJob j WHERE j.tripId IN :tripIds)
 					""", "tripIds", tripIds);
 			execute("DELETE FROM RecommendationJob j WHERE j.tripId IN :tripIds", "tripIds", tripIds);
+
+			// 🔴 일정 행은 여기서 지운다 — 위 주석의 고리 때문이다. 추천 작업이 이 행을
+			//    가리키므로 작업보다 먼저 지울 수 없다. 이 줄을 위로 올리면 운영 탈퇴가
+			//    다시 깨진다.
+			execute("DELETE FROM ItineraryJpaEntity i WHERE i.tripId IN :tripIds", "tripIds", tripIds);
 		}
 
 		// 추천 기록은 여행 없이도 남을 수 있다 (지금 위치 기준 추천 등).

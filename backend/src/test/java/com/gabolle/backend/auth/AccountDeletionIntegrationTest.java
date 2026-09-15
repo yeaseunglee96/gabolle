@@ -102,7 +102,15 @@ class AccountDeletionIntegrationTest extends AuthPostgresIntegrationTest {
 		for (UUID user : new UUID[] {this.userId, this.otherUserId}) {
 			this.jdbcTemplate.update("DELETE FROM story WHERE author_user_id = ?", user);
 		}
+		// S15P21E201-977 — 일정·추천 작업을 만든 검사가 있어서 여행보다 먼저 치운다.
+		//    운영 삭제와 같은 순서다: 판 → 작업 → 일정 행.
 		for (UUID trip : new UUID[] {this.tripId, this.otherTripId}) {
+			this.jdbcTemplate.update("""
+					DELETE FROM itinerary_versions WHERE itinerary_id IN
+					(SELECT itinerary_id FROM itineraries WHERE trip_id = ?)
+					""", trip);
+			this.jdbcTemplate.update("DELETE FROM recommendation_job WHERE trip_id = ?", trip);
+			this.jdbcTemplate.update("DELETE FROM itineraries WHERE trip_id = ?", trip);
 			this.jdbcTemplate.update("DELETE FROM trip WHERE trip_id = ?", trip);
 		}
 		for (UUID user : new UUID[] {this.userId, this.otherUserId}) {
@@ -310,6 +318,73 @@ class AccountDeletionIntegrationTest extends AuthPostgresIntegrationTest {
 	}
 
 	// ── 도구 ──────────────────────────────────────────────────────────────────
+
+	/**
+	 * 🔴 S15P21E201-977 — 운영에서 탈퇴가 500 으로 실패하던 자리.
+	 *
+	 * <p>일정과 추천 작업이 서로를 가리킨다. {@code itinerary_versions.source_request_id} 가
+	 * 작업을 가리키고, {@code recommendation_job.itinerary_id} 가 일정을 가리킨다. 지우는
+	 * 순서가 뒤집혀 있으면 <b>일정을 한 번이라도 만든 계정은 탈퇴가 통째로 실패한다.</b>
+	 *
+	 * <p>이 검사가 없던 동안 이 파일의 다른 검사들은 전부 통과했다 — <b>일정도 추천 작업도
+	 * 한 번도 안 만들었기 때문이다.</b> 빈 여행만 지워 보고 있었다. 운영 계정은 예외 없이
+	 * 일정을 갖고 있다.
+	 */
+	@Test
+	@DisplayName("🔴 일정과 추천 작업이 있는 계정도 탈퇴가 된다 — 서로 가리키는 외래키")
+	void accountWithItineraryAndRecommendationJobIsDeleted() {
+		UUID itineraryId = createItineraryWithJob(this.userId, this.tripId);
+
+		this.accountDeletionService.delete(this.userId, CONFIRM, PASSWORD);
+
+		assertThat(tripExists(this.tripId)).isFalse();
+		assertThat(itineraryExists(itineraryId)).isFalse();
+	}
+
+	/**
+	 * 서로를 가리키는 일정과 추천 작업 한 벌 — S15P21E201-977.
+	 *
+	 * <p>작업을 먼저 넣는다. 일정 판의 {@code source_request_id} 가 작업의 {@code request_id}
+	 * 를 가리키고 그 칸은 비울 수 없다. 그다음 작업이 일정을 가리키게 돌려 채운다 — 이렇게
+	 * 해야 운영과 같은 고리가 된다.
+	 *
+	 * <p>🔴 작업 상태를 {@code RUNNING} 으로 둔다. {@code SUCCEEDED} 면
+	 * {@code ck_recommendation_job_versions_present} 가 모델·피처·온톨로지·정책·데이터셋
+	 * 판 다섯을 모두 요구한다 — 이 검사가 보려는 것은 외래키 고리이지 그 다섯 칸이 아니다.
+	 */
+	private UUID createItineraryWithJob(UUID owner, UUID trip) {
+		UUID jobId = UUID.randomUUID();
+		UUID requestId = UUID.randomUUID();
+		this.jdbcTemplate.update("""
+				INSERT INTO recommendation_job
+				  (job_id, request_id, user_id, trip_id, job_type, job_status, created_at)
+				VALUES (?, ?, ?, ?, 'ITINERARY_GENERATION', 'RUNNING', now())
+				""", jobId, requestId, owner, trip);
+
+		UUID itineraryId = UUID.randomUUID();
+		this.jdbcTemplate.update("""
+				INSERT INTO itineraries (itinerary_id, trip_id, latest_version, created_at)
+				VALUES (?, ?, 1, now())
+				""", itineraryId, trip);
+
+		this.jdbcTemplate.update("""
+				INSERT INTO itinerary_versions
+				  (itinerary_version_id, itinerary_id, version, operation, created_by, request_id,
+				   source_request_id, created_at)
+				VALUES (?, ?, 1, 'CREATE', ?, ?, ?, now())
+				""", UUID.randomUUID(), itineraryId, owner, "req_" + UUID.randomUUID(), requestId);
+
+		this.jdbcTemplate.update(
+				"UPDATE recommendation_job SET itinerary_id = ?, itinerary_version = 1 WHERE job_id = ?",
+				itineraryId, jobId);
+		return itineraryId;
+	}
+
+	private boolean itineraryExists(UUID itineraryId) {
+		Integer count = this.jdbcTemplate.queryForObject(
+				"SELECT count(*) FROM itineraries WHERE itinerary_id = ?", Integer.class, itineraryId);
+		return count != null && count > 0;
+	}
 
 	private UUID createUser(String address) {
 		return this.transactionTemplate.execute(status -> {
