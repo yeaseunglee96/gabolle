@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -18,6 +19,18 @@ public interface RecommendationJobRepository extends JpaRepository<Recommendatio
 	Optional<RecommendationJob> findByRequestId(UUID requestId);
 
 	boolean existsByRequestId(UUID requestId);
+
+	/**
+	 * 그 여행의 추천 작업을 최신순으로 — S15P21E201-1001.
+	 *
+	 * <p>지금까지 Job 을 되찾는 길은 {@code jobId} 하나뿐이었는데, 그 번호는 생성 응답에 한 번
+	 * 실려 나가고 어디에도 안 남는다. 그래서 화면을 다시 열면 이미 만든 추천을 못 찾았다.
+	 *
+	 * <p>🔴 <b>상한을 부르는 쪽이 {@code Pageable} 로 준다.</b> 한 여행의 Job 수에는 정해진
+	 * 천장이 없다 — 사용자가 추천을 다시 요청할 때마다 늘고, 일정 편집 Job 도 같은 여행에
+	 * 붙는다. 전부 돌려주는 조회는 지금은 빠르지만 그 사실이 조용히 바뀐다.
+	 */
+	List<RecommendationJob> findByTripIdOrderByCreatedAtDesc(UUID tripId, Pageable pageable);
 
 	// ── 지표 조회 (S15P21E201-160) ──────────────────────────────────────
 
