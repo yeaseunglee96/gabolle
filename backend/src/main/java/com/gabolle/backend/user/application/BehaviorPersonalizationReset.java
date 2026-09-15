@@ -26,6 +26,8 @@ import com.gabolle.backend.event.domain.EventType;
  * <li>접어 둔 취향 벡터({@code user_taste_vector} · {@code user_taste_weight})가 그대로 있고,</li>
  * <li>그 벡터로 미리 골라 둔 피드({@code feed_build} · {@code user_feed} ·
  *     {@code community_feed})가 계속 화면에 나가고,</li>
+ * <li>실제 방문 시각으로 만든 개인 속도 계수({@code user_pace_factor})가 남아 일정의 지연
+ *     예측을 계속 그 사람에 맞춰 그리고,</li>
  * <li>행동 관찰 원본({@code event_outbox})이 남아서 다시 켜거나 배치가 backfill 할 때
  *     <b>되살아난다.</b></li>
  * </ul>
@@ -111,7 +113,21 @@ public class BehaviorPersonalizationReset {
 				""", userId);
 		int vectors = execute("DELETE FROM UserTasteVector v WHERE v.userId = :userId", userId);
 
-		// 4. 행동 관찰 원본.
+		// 4. 실제 방문 시각으로 만든 개인 속도 계수 (S15P21E201-304 · 549 후속).
+		//
+		//    🔴 벡터와 같은 종류의 값이라 같은 스위치가 지운다 — "이 사람은 계획보다 30%
+		//       느리다" 는 행동으로 만든 사람별 프로필이다. 이 표는 549 가 스위치를 연결하기
+		//       하루 전에 다른 티켓으로 들어와서 한동안 아무도 안 지웠다.
+		//
+		//    🔴 판 체인 전체를 지운다(superseded_at 이 찍힌 옛 판까지). 현재 판만 지우면
+		//       "지금은 안 쓰지만 아직 남아 있는" 프로필이 되고, 그건 지운 것이 아니다.
+		//
+		//    🔴 user_pace_factor 는 app_user 에 ON DELETE CASCADE 로 묶여 있지만 그것에 기대지
+		//       않는다 — 여기서는 계정이 살아 있다. 탈퇴(AccountDeletionService)에서도 계정을
+		//       지우지 않고 익명화하므로 그쪽 역시 이 CASCADE 가 돌지 않는다.
+		int paceVersions = execute("DELETE FROM PaceFactorJpaEntity p WHERE p.userId = :userId", userId);
+
+		// 5. 행동 관찰 원본.
 		Set<String> behaviorSignals = EventType.behaviorSignalWireNames();
 		int events = this.entityManager
 				.createQuery("DELETE FROM EventOutbox e WHERE e.userId = :userId AND e.eventType IN :types")
@@ -119,8 +135,8 @@ public class BehaviorPersonalizationReset {
 				.setParameter("types", behaviorSignals)
 				.executeUpdate();
 
-		log.info("행동 기반 개인화를 껐다 — 파생값을 지웠다 user={} 취향판={} 피드줄={} 행동이벤트={}", userId, vectors, feedRows,
-				events);
+		log.info("행동 기반 개인화를 껐다 — 파생값을 지웠다 user={} 취향판={} 피드줄={} 속도계수판={} 행동이벤트={}", userId, vectors,
+				feedRows, paceVersions, events);
 	}
 
 	private int execute(String jpql, UUID userId) {
