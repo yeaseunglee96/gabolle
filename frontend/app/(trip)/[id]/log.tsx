@@ -10,6 +10,7 @@ import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { Eyebrow } from '@/components/Eyebrow';
 import { Button } from '@/components/Button';
+import { SampleNotice } from '@/components/SampleNotice';
 import { useI18n } from '@/i18n';
 
 const STATS = [
@@ -37,6 +38,12 @@ export default function Log() {
       <Eyebrow>
         {tx('여행 후 · 자동 회고', 'After the trip · Auto recap')}
       </Eyebrow>
+      {/* S15P21E201-1009 — 이 화면의 숫자와 시간표는 전부 지어낸 예시다. 표시가 없으면
+          사용자는 자기 여행이 이렇게 기록된 줄 안다. */}
+      <SampleNotice
+        badge={tx('샘플', 'Sample')}
+        description={tx('아래 숫자와 시간표는 화면을 보여주기 위한 예시예요. 실제 여행 기록이 아니에요.', 'The numbers and timeline below are placeholders — not your actual trip.')}
+      />
       <Text variant="display" weight="bold" style={styles.title}>
         {tx('부산에서 보낸 2일', '2 days in Busan')}
       </Text>
