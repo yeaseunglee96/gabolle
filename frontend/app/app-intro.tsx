@@ -19,13 +19,14 @@ const logo = require('../assets/brand/gabolle-logo-hd.png');
 // 어긋난다. 그 페이지를 빼고 실제로 있는 기능 둘만 남긴다.
 const PAGES = [
   { id: 'ai-travel', eyebrowKo: 'AI 여행', eyebrowEn: 'AI travel', titleKo: '조건만 알려주면\n일정을 만들어요', titleEn: 'Tell us your conditions,\nwe build the itinerary', descriptionKo: '날짜와 취향, 이동 조건을 반영해 나만의 부산 여행을 구성해요.', descriptionEn: 'We put together your Busan trip using your dates, tastes, and mobility needs.' },
+  { id: 'local-discovery', eyebrowKo: '부산 둘러보기', eyebrowEn: 'Explore Busan', titleKo: '장소를 찾고 저장해\n내 여행으로 이어가요', titleEn: 'Find and save places,\nthen add them to your trip', descriptionKo: '이름으로 장소를 찾고, 마음에 든 곳은 부슐랭과 꼭 갈 장소에 담을 수 있어요.', descriptionEn: 'Search places by name, then save favorites or add them as must-visits.' },
   { id: 'field-talk', eyebrowKo: '현장 말하기', eyebrowEn: 'Field talk', titleKo: '여행지에서 필요한 말을\n바로 보여주고 들려줘요', titleEn: 'The phrases you need on the road,\nshown and spoken instantly', descriptionKo: '식당과 택시에서 쓸 문장을 크게 보여주거나 한국어 음성으로 들려줘요.', descriptionEn: 'Restaurant and taxi phrases shown in large text or read aloud in Korean.' },
 ] as const;
 
 export default function AppIntro() {
   const router = useRouter();
   const { tx } = useI18n();
-  const { language = 'ko', mobility = 'none' } = useLocalSearchParams<{ language?: string; mobility?: string }>();
+  const { language = 'ko', mobility = 'none', returnTo } = useLocalSearchParams<{ language?: string; mobility?: string; returnTo?: string }>();
   const { width } = useWindowDimensions();
   const [pageWidth, setPageWidth] = useState(width);
   const pager = useRef<ScrollView>(null);
@@ -37,6 +38,7 @@ export default function AppIntro() {
   };
   const finish = async () => {
     await AsyncStorage.setItem(INTRO_SEEN_KEY, 'true');
+    if (returnTo === '/help') { router.replace('/help'); return; }
     router.replace({ pathname: '/age-gate', params: { language, mobility } });
   };
 
@@ -57,6 +59,7 @@ export default function AppIntro() {
 function FeaturePreview({ id }: { id: (typeof PAGES)[number]['id'] }) {
   const { tx } = useI18n();
   if (id === 'ai-travel') return <View style={styles.preview}><Text variant="caption" weight="bold" color={color.text.muted}>{tx('어떤 여행을 좋아하세요?', 'What kind of trip do you like?')}</Text><View style={styles.chips}><View style={styles.selectedChip}><Text variant="caption" weight="bold" color={color.text.onAction}>{tx('바다', 'Sea')}</Text></View><View style={styles.chip}><Text variant="caption" weight="bold">{tx('미식', 'Food')}</Text></View><View style={styles.chip}><Text variant="caption" weight="bold">{tx('골목', 'Alleys')}</Text></View></View><View style={styles.progress}><View style={styles.progressFill} /></View></View>;
+  if (id === 'local-discovery') return <View style={styles.preview}><View style={styles.searchPreview}><Text color={color.text.muted}>{tx('감천문화마을', 'Gamcheon Culture Village')}</Text><Text weight="bold" color={color.brand.orange}>⌕</Text></View><View style={styles.placePreview}><View style={styles.placeMark}><Text>📍</Text></View><View style={styles.placeCopy}><Text weight="bold">{tx('감천문화마을', 'Gamcheon Culture Village')}</Text><Text variant="caption" color={color.text.muted}>{tx('부산 사하구', 'Saha-gu, Busan')}</Text></View><View style={styles.savedBadge}><Text variant="caption" weight="bold" color={color.text.onAction}>＋</Text></View></View><Text variant="caption" color={color.text.body}>{tx('검색 → 저장 → 일정에 추가', 'Search → Save → Add to trip')}</Text></View>;
   return <View style={styles.ticket}><View style={styles.ticketTop}><Text variant="caption" weight="bold" color={color.text.onAction}>{tx('현장 말하기', 'Field talk')}</Text><Text variant="title" weight="bold" color={color.text.onAction}>{tx('사진 한 장 부탁드려도 될까요?', 'Could you take a photo for us?')}</Text></View><View style={styles.ticketBody}><Text variant="caption" color={color.text.muted}>sajin han jang butakdeuryeodo doelkkayo?</Text><View style={styles.dash} /><Text weight="bold" color={color.action.field}>{tx('▶ 한국어로 듣기', '▶ Listen in Korean')}</Text></View></View>;
 }
 
@@ -73,6 +76,8 @@ const styles = StyleSheet.create({
   skip: { minWidth: 64, minHeight: 44, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full }, pressed: { opacity: 0.65, transform: [{ scale: 0.97 }] },
   page: { flex: 1, justifyContent: 'center', paddingHorizontal: spacing[6], paddingBottom: 140 },
   preview: { minHeight: 210, justifyContent: 'center', gap: spacing[3], padding: spacing[6], borderRadius: 28, borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.surface.card, shadowColor: color.brand.navy, shadowOpacity: 0.08, shadowRadius: 16, shadowOffset: { width: 0, height: 8 }, elevation: 4 },
+  searchPreview: { minHeight: 48, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.surface.soft },
+  placePreview: { minHeight: 72, flexDirection: 'row', alignItems: 'center', gap: spacing[3], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.tint }, placeMark: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full, backgroundColor: color.surface.card }, placeCopy: { flex: 1, gap: spacing[1] }, savedBadge: { width: 36, height: 36, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full, backgroundColor: color.brand.orange },
   chips: { flexDirection: 'row', gap: spacing[2] }, chip: { paddingHorizontal: spacing[4], paddingVertical: spacing[2], borderRadius: radius.full, borderWidth: 1, borderColor: '#e3ddd4' }, selectedChip: { paddingHorizontal: spacing[4], paddingVertical: spacing[2], borderRadius: radius.full, backgroundColor: color.brand.orange },
   progress: { height: 6, overflow: 'hidden', borderRadius: radius.full, backgroundColor: '#eee9e1' }, progressFill: { width: '64%', height: 6, borderRadius: radius.full, backgroundColor: color.brand.orange },
   previewRow: { minHeight: 42, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: '#e8e2d9' },
