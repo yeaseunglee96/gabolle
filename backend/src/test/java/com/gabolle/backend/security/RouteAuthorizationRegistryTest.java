@@ -527,6 +527,10 @@ class RouteAuthorizationRegistryTest {
 				"비회원은 존재를 감춘 404. TripControllerGetTest · ItineraryAccessIntegrationTest");
 		put(m, "DELETE /api/v1/trips/{}", Policy.OWNED,
 				"삭제는 OWNER 만. 동행자는 403, 비회원과 없는 여행은 같은 404. TripDeleteIntegrationTest");
+		put(m, "POST /api/v1/trips/{}/name-suggestions", Policy.OWNED,
+				"참여자만. 남의 여행 ID 로 부르면 그 여행의 장소 목록이 이름 후보에 실려 "
+						+ "새어 나간다 — 비회원과 없는 여행은 같은 404. "
+						+ "TripNameSuggestionServiceTest (-1025)");
 		put(m, "PUT /api/v1/trips/{}/title", Policy.OWNED,
 				"이름은 OWNER·EDITOR 만 바꾼다. 보기 전용 동행자가 바꾸면 만든 사람의 목록에서 "
 						+ "자기 여행이 다른 이름으로 보인다 — VIEWER 는 403, 비회원과 없는 여행은 "
