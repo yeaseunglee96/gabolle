@@ -466,6 +466,28 @@ class RouteAuthorizationRegistryTest {
 				"탈퇴하면 무엇이 지워지는지 미리 보여준다(-188). 대상이 인증 주체 자신뿐이라 남의 것을 지정할 자리가 없다. AccountDeletionIntegrationTest");
 		put(m, "DELETE /api/v1/auth/me", Policy.OWNED,
 				"탈퇴. 대상이 인증 주체 자신뿐이다. AccountDeletionIntegrationTest");
+		// ── 컬렉션 (-1013) ──────────────────────────────────────────────────────
+		// 여덟 경로가 같은 근거를 공유한다 — 경로에 남의 번호를 넣을 자리가 없고(/me),
+		// 컬렉션은 언제나 주인과 함께 찾는다(findByIdAndUserId). 없는 것과 남의 것을
+		// 같은 404 로 답해 존재 자체를 안 흘린다. CollectionControllerTest
+		put(m, "GET /api/v1/me/collections", Policy.OWNED,
+				"내 컬렉션만 읽는다. 저장한 장소와 같은 방식이다. CollectionControllerTest (-1013)");
+		put(m, "POST /api/v1/me/collections", Policy.OWNED,
+				"내 것으로만 만들어진다 — 주인은 인증 주체에서 온다. CollectionControllerTest (-1013)");
+		put(m, "GET /api/v1/me/collections/{}", Policy.OWNED,
+				"남의 컬렉션은 없는 것과 같은 404 다. CollectionControllerTest (-1013)");
+		put(m, "PATCH /api/v1/me/collections/{}", Policy.OWNED,
+				"남의 컬렉션 이름을 못 고친다. 같은 404. CollectionControllerTest (-1013)");
+		put(m, "DELETE /api/v1/me/collections/{}", Policy.OWNED,
+				"남의 컬렉션을 못 지운다. 같은 404. CollectionControllerTest (-1013)");
+		put(m, "POST /api/v1/me/collections/{}/items", Policy.OWNED,
+				"남의 컬렉션에 못 담는다. 같은 404. CollectionControllerTest (-1013)");
+		put(m, "PATCH /api/v1/me/collections/{}/items/{}", Policy.OWNED,
+				"항목도 컬렉션 번호와 함께 찾는다 — 항목 번호만으로 찾으면 남의 컬렉션 항목을 "
+						+ "고칠 길이 열린다. CollectionControllerTest (-1013)");
+		put(m, "DELETE /api/v1/me/collections/{}/items/{}", Policy.OWNED,
+				"위와 같은 이유. CollectionControllerTest (-1013)");
+
 		put(m, "GET /api/v1/me/saved-places", Policy.OWNED,
 				"내가 저장한(하트) 장소. 경로에 남의 식별자를 넣을 자리가 없고(/me) 사용자 번호는 "
 						+ "인증 주체에서만 읽는다 — 취향 설정과 같은 방식이다. SavedPlaceControllerTest (-1013)");
