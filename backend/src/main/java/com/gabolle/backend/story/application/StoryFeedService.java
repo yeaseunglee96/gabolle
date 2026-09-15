@@ -44,11 +44,14 @@ public class StoryFeedService {
 
 	private final Clock clock;
 
+	private final BlockService blockService;
+
 	public StoryFeedService(StoryRepository storyRepository, StoryService storyService,
-			StoryResponseAssembler assembler, Clock clock) {
+			StoryResponseAssembler assembler, BlockService blockService, Clock clock) {
 		this.storyRepository = storyRepository;
 		this.storyService = storyService;
 		this.assembler = assembler;
+		this.blockService = blockService;
 		this.clock = clock;
 	}
 
@@ -101,6 +104,10 @@ public class StoryFeedService {
 	/** 한 사람의 기록(프로필). 요청자와 그 사람의 관계에 따라 보이는 범위가 다르다. */
 	@Transactional(readOnly = true)
 	public StoryFeedResponse authorFeed(UUID viewer, UUID author, String cursor, Integer limit) {
+		// 🔴 S15P21E201-990 — 그 사람이 나를 차단했으면 빈 목록이 아니라 403 이다.
+		//    빈 목록으로 답하면 화면이 "글이 없는 사람" 과 "나를 차단한 사람" 을 못 가르고,
+		//    팀이 정한 「차단되어 볼 수 없습니다」를 띄울 수 없다.
+		this.blockService.requireNotBlockedBy(author, viewer);
 		Instant now = this.clock.instant();
 		FeedCursor from = FeedCursor.decode(cursor);
 		int size = clamp(limit);

@@ -47,12 +47,30 @@ public interface StoryRepository extends JpaRepository<Story, UUID> {
 	String NOT_DELETED_AND_PUBLISHED =
 			" s.deleted_at IS NULL AND s.publish_at <= :now AND s.moderation_state = 'VISIBLE' ";
 
+	/**
+	 * 🔴 S15P21E201-990 — 나를 차단한 사람의 기록은 목록에서 빠진다.
+	 *
+	 * <p><b>방향에 주의한다.</b> 이 저장소에서 차단은 "내가 이 사람을 안 본다" 가 아니라
+	 * <b>"이 사람에게 내 것을 안 보여준다"</b> 이다. 그래서 거를 대상은 <b>내가 차단한 사람</b>이
+	 * 아니라 <b>나를 차단한 사람</b>이다 — {@code blocker = 글쓴이}, {@code blocked = 나}.
+	 * 반대로 쓰면 아무 오류 없이 정반대로 동작한다.
+	 *
+	 * <p><b>왜 목록에서는 조용히 빼는가.</b> 프로필·상세는 「차단되어 볼 수 없습니다」를 띄우지만
+	 * (그쪽은 {@code BlockService.requireNotBlockedBy} 가 막는다), 목록에서 그러면 그 사람 글
+	 * 하나 때문에 피드 전체가 실패한다. 목록은 빼고, 지목해서 여는 경로만 알린다.
+	 *
+	 * <p>🔴 <b>{@code :me} 가 있는 질의에만 쓸 수 있다.</b> 익명 피드
+	 * ({@link #findPublicFeedForAnonymous})에는 안 쓴다 — 익명인 사람은 차단할 대상이 아니다.
+	 */
+	String NOT_BLOCKED_BY_AUTHOR = " AND NOT EXISTS (SELECT 1 FROM user_block b"
+			+ " WHERE b.blocker_user_id = s.author_user_id AND b.blocked_user_id = :me) ";
+
 	String BEFORE_CURSOR = " AND (s.publish_at, s.story_id) < (CAST(:cursorAt AS timestamptz), CAST(:cursorId AS uuid)) ";
 
 	/** 전체 피드 — 공개(PUBLIC) 기록, 그리고 내 기록은 범위와 무관하게. */
 	@Query(value = "SELECT s.* FROM story s WHERE" + NOT_DELETED_AND_PUBLISHED
-			+ " AND (s.visibility = 'PUBLIC' OR s.author_user_id = :me)" + BEFORE_CURSOR + FEED_ORDER,
-			nativeQuery = true)
+			+ " AND (s.visibility = 'PUBLIC' OR s.author_user_id = :me)" + NOT_BLOCKED_BY_AUTHOR + BEFORE_CURSOR
+			+ FEED_ORDER, nativeQuery = true)
 	List<Story> findPublicFeed(@Param("me") UUID me, @Param("now") Instant now, @Param("cursorAt") Instant cursorAt,
 			@Param("cursorId") UUID cursorId, @Param("limit") int limit);
 
@@ -78,7 +96,10 @@ public interface StoryRepository extends JpaRepository<Story, UUID> {
 	@Query(value = "SELECT s.* FROM story s WHERE" + NOT_DELETED_AND_PUBLISHED
 			+ " AND s.visibility IN ('PUBLIC', 'FOLLOWERS')"
 			+ " AND s.author_user_id IN (SELECT f.followee_user_id FROM user_follow f WHERE f.follower_user_id = :me)"
-			+ BEFORE_CURSOR + FEED_ORDER, nativeQuery = true)
+			// 🔴 차단하면 팔로우가 양쪽 다 끊기므로(BlockService.block) 이 조건 없이도 안 나오는 것이
+			//    "지금은" 맞다. 그래도 건다 — 그 두 동작이 한 트랜잭션에 묶여 있다는 사실에 기대면,
+			//    나중에 누가 팔로우 해제를 떼어 내는 순간 차단이 말없이 새기 시작한다.
+			+ NOT_BLOCKED_BY_AUTHOR + BEFORE_CURSOR + FEED_ORDER, nativeQuery = true)
 	List<Story> findFollowingFeed(@Param("me") UUID me, @Param("now") Instant now,
 			@Param("cursorAt") Instant cursorAt, @Param("cursorId") UUID cursorId, @Param("limit") int limit);
 

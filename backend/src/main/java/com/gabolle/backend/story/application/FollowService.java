@@ -12,6 +12,7 @@ import com.gabolle.backend.story.domain.UserFollow;
 import com.gabolle.backend.story.presentation.dto.FollowResponse;
 import com.gabolle.backend.story.presentation.dto.UserProfileResponse;
 import com.gabolle.backend.story.repository.StoryRepository;
+import com.gabolle.backend.story.repository.UserBlockRepository;
 import com.gabolle.backend.story.repository.UserFollowRepository;
 import com.gabolle.backend.user.domain.AppUser;
 import com.gabolle.backend.user.repository.AppUserRepository;
@@ -30,6 +31,8 @@ public class FollowService {
 
 	private final UserFollowRepository userFollowRepository;
 
+	private final UserBlockRepository userBlockRepository;
+
 	private final AppUserRepository appUserRepository;
 
 	private final StoryRepository storyRepository;
@@ -38,9 +41,11 @@ public class FollowService {
 
 	private final Clock clock;
 
-	public FollowService(UserFollowRepository userFollowRepository, AppUserRepository appUserRepository,
-			StoryRepository storyRepository, StoryService storyService, Clock clock) {
+	public FollowService(UserFollowRepository userFollowRepository, UserBlockRepository userBlockRepository,
+			AppUserRepository appUserRepository, StoryRepository storyRepository, StoryService storyService,
+			Clock clock) {
 		this.userFollowRepository = userFollowRepository;
+		this.userBlockRepository = userBlockRepository;
 		this.appUserRepository = appUserRepository;
 		this.storyRepository = storyRepository;
 		this.storyService = storyService;
@@ -78,17 +83,31 @@ public class FollowService {
 		return status(me, target, false);
 	}
 
+	/**
+	 * 프로필 머리.
+	 *
+	 * <p>🔴 <b>차단당한 경우에도 404 를 내지 않는다</b> (S15P21E201-990). 팀이 「없는 사람인 척하지
+	 * 않기로」 정했고, 화면이 「차단되어 볼 수 없습니다」를 띄우려면 그 사람이 있다는 것까지는
+	 * 와야 한다. 대신 <b>속을 비워서</b> 보낸다 — 팔로워·팔로잉·기록 수는 전부 0 이다. 숫자를
+	 * 그대로 실어 보내면 화면이 가려도 응답에는 남아 있고, 그건 가린 것이 아니다.
+	 */
 	@Transactional(readOnly = true)
 	public UserProfileResponse profile(UUID viewer, UUID target) {
 		AppUser user = requireActiveUser(target);
 		boolean me = viewer.equals(target);
+		boolean blockedByUser = !me && this.userBlockRepository.isBlockedBy(target, viewer);
+		if (blockedByUser) {
+			return new UserProfileResponse(target.toString(), user.getDisplayName(), 0L, 0L, 0L, false, false,
+					user.getAvatarUrl(), this.userBlockRepository.hasBlocked(viewer, target), true);
+		}
 		boolean following = !me && this.userFollowRepository.existsByKey(new UserFollow.Key(viewer, target));
+		boolean blocked = !me && this.userBlockRepository.hasBlocked(viewer, target);
 		long stories = this.storyRepository.countAuthorStories(target, this.storyService.visibleScopesOf(target, viewer),
 				this.clock.instant());
 		return new UserProfileResponse(target.toString(), user.getDisplayName(),
 				this.userFollowRepository.countByKeyFolloweeUserId(target),
 				this.userFollowRepository.countByKeyFollowerUserId(target), stories, following, me,
-				user.getAvatarUrl());
+				user.getAvatarUrl(), blocked, false);
 	}
 
 	private FollowResponse status(UUID me, UUID target, boolean following) {
