@@ -63,6 +63,12 @@ export default function Permissions() {
     await AsyncStorage.setItem(PERMISSION_PREFERENCES_KEY, JSON.stringify({ notification: notificationGranted }));
     router.replace({ pathname: '/sign-in', params: { returnTo: path } });
   }
+  async function browseAsGuest() {
+    if (requesting) return;
+    setRequesting(true);
+    await AsyncStorage.setItem(PERMISSION_PREFERENCES_KEY, JSON.stringify({ notification: false }));
+    router.replace('/home');
+  }
 
   return (
     <Screen wide style={styles.screen}>
@@ -120,6 +126,7 @@ export default function Permissions() {
       </Pressable>
 
       <Button label={requesting ? tx('권한 확인 중…', 'Checking permissions…') : tx('선택하고 로그인·회원가입으로', 'Continue to sign in / sign up')} disabled={requesting} containerStyle={styles.cta} onPress={() => void continueTo('/home')} />
+      <Button label={tx('비회원으로 먼저 둘러보기', 'Browse as guest first')} variant="ghost" disabled={requesting} onPress={() => void browseAsGuest()} />
       </View>
       </View>
     </Screen>

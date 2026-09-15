@@ -101,7 +101,7 @@ export default function Welcome() {
           <Pressable accessibilityRole="button" accessibilityHint={tx('로그인 없이 여행 조건 입력을 시작합니다.', 'Start entering trip details without signing in.')} onPress={startPlanning} style={styles.primaryCta}><Text variant="body" weight="bold" color={color.text.onAction}>{tx('여행 계획 시작하기', 'Start planning')}</Text></Pressable>
           {/* 🔴 피드는 아직 로그인해야 볼 수 있다 — 서버가 익명 출입증을 받아 주지 않는다
               (운영에서 /api/v1/stories 가 401). 로그인 안 했으면 로그인으로 보낸다. */}
-          <Pressable accessibilityRole="link" onPress={() => router.push(user ? '/feed' : '/sign-in')} style={styles.ghostCta}><Text variant="body" weight="bold" color={color.text.onAction}>{user ? tx('피드 둘러보기 →', 'Browse the feed →') : tx('로그인하고 피드 보기 →', 'Sign in for the feed →')}</Text></Pressable>
+          <Pressable accessibilityRole="link" onPress={() => router.push('/feed')} style={styles.ghostCta}><Text variant="body" weight="bold" color={color.text.onAction}>{tx('피드 둘러보기 →', 'Browse the feed →')}</Text></Pressable>
         </View>
         {/* S15P21E201-900: "지금 갈 곳" 칩도 CTA와 같은 이유로 뺐다 — 지금 갈 곳 진입점을
             숨겨 놓고 이 문구만 남기면 약속하는 것과 실제가 어긋난다(MR !708 리뷰 코멘트). */}

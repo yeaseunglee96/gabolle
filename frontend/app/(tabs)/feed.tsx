@@ -426,7 +426,7 @@ export default function Feed() {
     {!signedIn
       ? <View style={styles.loginNotice}>
           <Text variant="caption" color={color.text.body}>{tx('로그인하면 기록을 남기고 팔로잉 피드를 볼 수 있어요.', 'Sign in to write records and see your following feed.')}</Text>
-          <Pressable accessibilityRole="link" onPress={() => router.push('/sign-in')}><Text variant="caption" weight="bold" color={color.brand.orange}>{tx('로그인 →', 'Sign in →')}</Text></Pressable>
+          <Pressable accessibilityRole="link" onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: '/feed' } })}><Text variant="caption" weight="bold" color={color.brand.orange}>{tx('로그인 →', 'Sign in →')}</Text></Pressable>
         </View>
       : null}
 
@@ -454,7 +454,7 @@ export default function Feed() {
           signedIn={signedIn}
           compact={compact}
           onSeeAll={() => setScope('ALL')}
-          onWrite={() => router.push(signedIn ? '/feed/compose' : '/sign-in')}
+          onWrite={() => router.push(signedIn ? '/feed/compose' : { pathname: '/sign-in', params: { returnTo: '/feed/compose' } })}
         />
       : null}
 
@@ -468,7 +468,7 @@ export default function Feed() {
           onUnfollow={() => void unfollow(story)}
           onOpen={() => router.push(`/feed/${story.id}`)}
           onOpenAuthor={() => router.push(`/user/${story.author.id}`)}
-          onReport={() => setReportingStoryId(story.id)}
+          onReport={() => signedIn ? setReportingStoryId(story.id) : router.push({ pathname: '/sign-in', params: { returnTo: '/feed' } })}
         />)}</View>
       : null}
 

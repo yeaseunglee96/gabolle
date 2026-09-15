@@ -4,7 +4,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { ApiClientError } from '@/api/client';
 import { resendEmailVerification, signup, type Registration, type SignupLanguage } from '@/auth/authApi';
-import { savePendingReturnTo } from '@/auth/pendingReturnTo';
+import { isSafeReturnPath, savePendingReturnTo } from '@/auth/pendingReturnTo';
 import { Card } from '@/components/Card';
 import { Eyebrow } from '@/components/Eyebrow';
 import { Button } from '@/components/Button';
@@ -159,6 +159,7 @@ export default function SignUp() {
 
         {error && <View accessibilityRole="alert" style={styles.errorBox}><ErrorText>{error}</ErrorText></View>}
         <Button label={submitting ? tx('가입 중…', 'Signing up…') : tx('회원가입', 'Sign up')} disabled={!canSubmit} onPress={() => void submit()} />
+        <Button label={tx('비회원으로 둘러보기', 'Browse as guest')} variant="ghost" onPress={() => router.replace(isSafeReturnPath(returnTo) ? returnTo : '/home')} />
         <Pressable accessibilityRole="link" onPress={() => router.replace({ pathname: '/sign-in', params: returnTo ? { returnTo } : {} })} style={styles.loginLink}><Text variant="body">{tx('이미 계정이 있나요? ', 'Already have an account? ')}<Text variant="body" weight="bold" color={color.brand.orange}>{tx('로그인', 'Sign in')}</Text></Text></Pressable>
           </View>
         </View>
