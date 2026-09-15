@@ -36,9 +36,22 @@ describe('여행 ID 로 다시 볼 추천 고르기', () => {
     await expect(findLatestRecommendationJob('trip-1', 'token')).resolves.toEqual({ state: 'none' });
   });
 
-  it('🔴 없는 여행(404)은 빈 목록과 다르게 다룬다', async () => {
+  it('🔴 없는 여행(404 TRIP_NOT_FOUND)은 빈 목록과 다르게 다룬다', async () => {
     respondWith({ data: null, error: { code: 'TRIP_NOT_FOUND', message: '여행을 찾을 수 없습니다.' }, meta: { requestId: 'r1' } }, 404);
     await expect(findLatestRecommendationJob('trip-1', 'token')).resolves.toEqual({ state: 'trip-not-found' });
+  });
+
+  // 🔴 배포 전 서버는 이 주소에 405 를 낸다 — 같은 주소의 POST(추천 생성)가 예전부터 있어서
+  // "없는 주소"가 아니라 "있는 주소인데 GET 은 안 받는다"이기 때문이다 (백엔드 실측 2026-09-15).
+  // 이것을 「그 여행을 찾을 수 없어요」로 그리면 멀쩡한 여행을 없다고 말하게 된다.
+  it('경로가 아직 배포 안 된 서버(405)는 「아직 없음」으로 다룬다', async () => {
+    respondWith({ data: null, error: { code: 'METHOD_NOT_ALLOWED', message: 'Request method GET is not supported' }, meta: { requestId: 'r1' } }, 405);
+    await expect(findLatestRecommendationJob('trip-1', 'token')).resolves.toEqual({ state: 'none' });
+  });
+
+  it('TRIP_NOT_FOUND 가 아닌 404 는 여행이 없다고 단정하지 않는다', async () => {
+    respondWith({ data: null, error: { code: 'NOT_FOUND', message: 'No handler' }, meta: { requestId: 'r1' } }, 404);
+    await expect(findLatestRecommendationJob('trip-1', 'token')).resolves.toEqual({ state: 'none' });
   });
 
   it('실패·만료만 남았으면 볼 수 있는 추천이 없다', async () => {

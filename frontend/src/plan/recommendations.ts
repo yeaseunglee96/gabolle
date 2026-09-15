@@ -104,10 +104,12 @@ export async function findLatestRecommendationJob(tripId: string, accessToken: s
     if (error instanceof ApiClientError && (error.status === 0 || error.code === 'NETWORK_ERROR')) return { state: 'offline', message: error.message };
     // 🔴 404 는 빈 목록과 다르다. 빈 목록은 "내 여행인데 아직 안 만들었다" 라 생성으로 이어
     // 주면 되고, 404 는 "그런 여행이 없다(또는 남의 여행이다)" 라 생성을 권하면 안 된다.
-    if (error instanceof ApiClientError && error.status === 404) return { state: 'trip-not-found' };
-    // 이 경로가 아직 배포되지 않은 서버는 404 가 아니라 501 을 낸다 — 그때 "그런 여행이 없다"
-    // 고 말하면 거짓말이 된다.
-    if (error instanceof ApiClientError && error.status === 501) return { state: 'none' };
+    // 서버는 그 404 에 TRIP_NOT_FOUND 를 반드시 싣는다 — 코드가 그 값일 때만 그렇게 읽는다.
+    if (error instanceof ApiClientError && error.status === 404 && error.code === 'TRIP_NOT_FOUND') return { state: 'trip-not-found' };
+    // 🔴 이 경로가 아직 배포되지 않은 서버는 405 를 낸다 (2026-09-15 백엔드 실측). 같은 주소의
+    // POST(추천 생성)는 예전부터 있어서 "없는 주소"(404)가 아니라 "있는 주소인데 GET 은 안
+    // 받는다"가 되기 때문이다. 그때 "그런 여행이 없다"고 말하면 멀쩡한 여행을 없다고 하는 것이다.
+    if (error instanceof ApiClientError && (error.status === 405 || error.status === 404)) return { state: 'none' };
     return { state: 'error', message: t('추천 결과를 불러오지 못했어요.', 'Could not load the recommendation result.') };
   }
 }
