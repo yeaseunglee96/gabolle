@@ -125,14 +125,24 @@ export default function Home() {
           </Pressable>
 
           {/* 현장 도구 — 로그인 없이도 쓸 수 있다(확인함). 챗봇 버튼과 화면 반대편이라
-              「겹쳐 보인다」는 리포트가 다시 나지 않는다. */}
+              「겹쳐 보인다」는 리포트가 다시 나지 않는다.
+
+              두 번째 카드가 「메뉴판 번역」이었다 — S15P21E201-981. 메뉴판 카메라 번역은
+              번역 API 업체가 안 정해져 이번 배포에서 통째로 뺐는데(-907, 2026-09-13) 홈의
+              버튼만 남아 있었다. 누르면 메뉴판 번역이 없는 현장 도구 화면으로 간다. 없는
+              기능을 이름으로 약속하는 것이 링크가 죽은 것보다 나쁘다 — 사용자는 자기가 길을
+              잘못 찾았다고 생각한다. 가는 곳(`/field/translate`)의 실제 제목으로 맞춘다.
+              업체가 정해져 그 기능이 생기면 그때 이름을 되돌린다. */}
           <View style={styles.fieldTools}>
-            {[{ path: '/field/speak', ko: '통역', en: 'Phrases' }, { path: '/field/translate', ko: '메뉴판 번역', en: 'Menu translation' }].map((tool) => (
+            {[
+              { path: '/field/speak', ko: '통역', en: 'Phrases', subKo: '택시·식당에서 바로', subEn: 'Taxis and restaurants' },
+              { path: '/field/translate', ko: '현장 도구', en: 'On-the-go tools', subKo: '한국어 문장·날씨', subEn: 'Phrases and weather' },
+            ].map((tool) => (
               <Pressable key={tool.path} accessibilityRole="button" onPress={() => router.push(tool.path)} style={({ pressed }) => [styles.fieldTool, pressed && styles.pressed]}>
                 <View style={styles.fieldToolIcon}><Image source={speakerIcon} resizeMode="contain" style={styles.fieldToolIconImage} /></View>
                 <View style={styles.fieldToolCopy}>
                   <Text weight="bold" numberOfLines={1}>{tx(tool.ko, tool.en)}</Text>
-                  <Text variant="caption" numberOfLines={1}>{tx('현장 도구', 'On-the-go')}</Text>
+                  <Text variant="caption" numberOfLines={1}>{tx(tool.subKo, tool.subEn)}</Text>
                 </View>
               </Pressable>
             ))}
