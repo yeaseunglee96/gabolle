@@ -43,12 +43,24 @@ export type Place = {
   priceLevel?: FeatureSlot;
 };
 
+// S15P21E201-1015 — 값이 없는 이유가 둘인데 한 문구로 뭉개고 있었다.
+//
+// 🔴 「아직 안 알아봤다」(NOT_COLLECTED)와 「알아봤는데 못 정했다」(UNKNOWN)는 다음에 할 일이
+// 서로 다르다. 앞은 수집 대상에 안 들어간 것이라 파이프라인을 손대야 하고, 뒤는 가서 봐야
+// 한다. 사용자에게도 다르다 — 「안 알아봤다」를 「없다」처럼 읽히게 두면, 알레르기에서 사람이
+// 다칠 수 있었던 것과 같은 종류의 거짓말이 된다(S15P21E201-996).
+export function missingValueLabel(slot: FeatureSlot, tx: (ko: string, en: string) => string): string {
+  return slot.evidenceStatus === 'NOT_COLLECTED'
+    ? tx('? 아직 안 알아봤어요', '? Not looked into yet')
+    : tx('알아봤지만 확인 못 했어요', 'Looked, but could not confirm');
+}
+
 // 값이 있어도 VERIFIED·ESTIMATED·UNKNOWN 셋 다 화면에는 보여준다(정보 없음과 다르다) —
 // UNKNOWN 은 "확인은 했는데 결과가 없다"는 뜻이라 그 자체가 정보다. 다만 추정값은
 // "추정"이라고 붙여 확정값과 헷갈리지 않게 한다.
 export function formatFeatureSlot(slot: FeatureSlot | undefined, tx: (ko: string, en: string) => string): string | null {
   if (!slot) return null;
-  if (slot.evidenceStatus === 'UNKNOWN' || slot.value == null) return tx('확인 안 됨', 'Unconfirmed');
+  if (slot.evidenceStatus === 'UNKNOWN' || slot.value == null) return missingValueLabel(slot, tx);
   const text = typeof slot.value === 'string' || typeof slot.value === 'number' ? String(slot.value) : JSON.stringify(slot.value);
   return slot.evidenceStatus === 'ESTIMATED' ? tx(`${text} (추정)`, `${text} (est.)`) : text;
 }
@@ -109,7 +121,7 @@ function toFeatureSlot(feature: PlaceFeature | undefined): FeatureSlot | undefin
 export function formatSoloFriendly(place: Place, tx: (ko: string, en: string) => string): string | null {
   const slot = toFeatureSlot(findFeature(place, 'SOLO_FRIENDLY'));
   if (!slot) return null;
-  if (slot.evidenceStatus === 'UNKNOWN' || slot.value == null) return tx('확인 안 됨', 'Unconfirmed');
+  if (slot.evidenceStatus === 'UNKNOWN' || slot.value == null) return missingValueLabel(slot, tx);
   const label = slot.value === true ? tx('혼밥하기 좋아요', 'Good for solo dining') : tx('혼밥은 어려울 수 있어요', 'May not suit solo diners');
   return slot.evidenceStatus === 'ESTIMATED' ? tx(`${label} (추정)`, `${label} (est.)`) : label;
 }
@@ -121,7 +133,7 @@ export function formatSoloFriendly(place: Place, tx: (ko: string, en: string) =>
 export function formatBreakTime(place: Place, tx: (ko: string, en: string) => string): string | null {
   const slot = toFeatureSlot(findFeature(place, 'BREAK_TIME'));
   if (!slot) return null;
-  if (slot.evidenceStatus === 'UNKNOWN' || slot.value == null) return tx('확인 안 됨', 'Unconfirmed');
+  if (slot.evidenceStatus === 'UNKNOWN' || slot.value == null) return missingValueLabel(slot, tx);
   const value = slot.value as { start?: unknown; end?: unknown };
   const text = typeof value?.start === 'string' && typeof value?.end === 'string' ? `${value.start}–${value.end}` : JSON.stringify(slot.value);
   return slot.evidenceStatus === 'ESTIMATED' ? tx(`${text} (추정)`, `${text} (est.)`) : text;
@@ -130,7 +142,7 @@ export function formatBreakTime(place: Place, tx: (ko: string, en: string) => st
 export function formatLastOrderTime(place: Place, tx: (ko: string, en: string) => string): string | null {
   const slot = toFeatureSlot(findFeature(place, 'LAST_ORDER_TIME'));
   if (!slot) return null;
-  if (slot.evidenceStatus === 'UNKNOWN' || slot.value == null) return tx('확인 안 됨', 'Unconfirmed');
+  if (slot.evidenceStatus === 'UNKNOWN' || slot.value == null) return missingValueLabel(slot, tx);
   const value = slot.value as { time?: unknown };
   const text = typeof value?.time === 'string' ? value.time : JSON.stringify(slot.value);
   return slot.evidenceStatus === 'ESTIMATED' ? tx(`${text} (추정)`, `${text} (est.)`) : text;
@@ -142,7 +154,7 @@ export function formatLastOrderTime(place: Place, tx: (ko: string, en: string) =
 export function formatStairsPresent(place: Place, tx: (ko: string, en: string) => string): string | null {
   const slot = toFeatureSlot(findFeature(place, 'STAIRS_PRESENT'));
   if (!slot) return null;
-  if (slot.evidenceStatus === 'UNKNOWN' || slot.value == null) return tx('확인 안 됨', 'Unconfirmed');
+  if (slot.evidenceStatus === 'UNKNOWN' || slot.value == null) return missingValueLabel(slot, tx);
   const label = slot.value === true ? tx('계단 있음', 'Has stairs') : tx('계단 없음', 'No stairs');
   return slot.evidenceStatus === 'ESTIMATED' ? tx(`${label} (추정)`, `${label} (est.)`) : label;
 }
@@ -152,7 +164,7 @@ export function formatStairsPresent(place: Place, tx: (ko: string, en: string) =
 export function formatSlopePercent(place: Place, tx: (ko: string, en: string) => string): string | null {
   const slot = toFeatureSlot(findFeature(place, 'SLOPE_PERCENT'));
   if (!slot) return null;
-  if (slot.evidenceStatus === 'UNKNOWN' || slot.value == null) return tx('확인 안 됨', 'Unconfirmed');
+  if (slot.evidenceStatus === 'UNKNOWN' || slot.value == null) return missingValueLabel(slot, tx);
   const text = typeof slot.value === 'number' ? `${slot.value}%` : JSON.stringify(slot.value);
   return slot.evidenceStatus === 'ESTIMATED' ? tx(`${text} (추정)`, `${text} (est.)`) : text;
 }
@@ -164,7 +176,7 @@ export function formatSlopePercent(place: Place, tx: (ko: string, en: string) =>
 export function formatCheckInOut(place: Place, tx: (ko: string, en: string) => string): string | null {
   const slot = toFeatureSlot(findFeature(place, 'CHECK_IN_OUT'));
   if (!slot) return null;
-  if (slot.evidenceStatus === 'UNKNOWN' || slot.value == null) return tx('확인 안 됨', 'Unconfirmed');
+  if (slot.evidenceStatus === 'UNKNOWN' || slot.value == null) return missingValueLabel(slot, tx);
   const value = slot.value as { checkIn?: unknown; checkOut?: unknown };
   const checkIn = typeof value?.checkIn === 'string' ? value.checkIn : null;
   const checkOut = typeof value?.checkOut === 'string' ? value.checkOut : null;
