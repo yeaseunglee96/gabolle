@@ -16,6 +16,10 @@ import com.gabolle.backend.event.domain.OutboxPublishStatus;
 import com.gabolle.backend.event.presentation.dto.AnalyticsKpiResponse;
 import com.gabolle.backend.event.repository.EventOutboxRepository;
 import com.gabolle.backend.event.repository.EventOutboxRepository.EventTypeCount;
+import com.gabolle.backend.recommendation.domain.JobStatus;
+import com.gabolle.backend.recommendation.repository.RecommendationJobRepository;
+import com.gabolle.backend.recommendation.repository.RecommendationJobRepository.ErrorCodeCount;
+import com.gabolle.backend.recommendation.repository.RecommendationJobRepository.JobStatusCount;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -37,14 +41,19 @@ class AnalyticsQueryServiceTest {
 	private static final Instant NOW = Instant.parse("2026-09-08T12:00:00Z");
 
 	private EventOutboxRepository repository;
+	private RecommendationJobRepository recommendationJobRepository;
 	private AnalyticsQueryService service;
 
 	@BeforeEach
 	void setUp() {
 		this.repository = mock(EventOutboxRepository.class);
-		this.service = new AnalyticsQueryService(this.repository, Clock.fixed(NOW, ZoneOffset.UTC));
+		this.recommendationJobRepository = mock(RecommendationJobRepository.class);
+		this.service = new AnalyticsQueryService(this.repository, this.recommendationJobRepository,
+				Clock.fixed(NOW, ZoneOffset.UTC));
 		given(this.repository.countByEventTypeBetween(any(), any())).willReturn(List.of());
 		given(this.repository.findByPublishedAtIsNullOrderBySeqAsc(any())).willReturn(List.of());
+		given(this.recommendationJobRepository.countByJobStatusBetween(any(), any())).willReturn(List.of());
+		given(this.recommendationJobRepository.countFailuresByErrorCodeBetween(any(), any())).willReturn(List.of());
 	}
 
 	private static OffsetDateTime at(String iso) {
@@ -56,6 +65,34 @@ class AnalyticsQueryServiceTest {
 			@Override
 			public String getEventType() {
 				return eventType;
+			}
+
+			@Override
+			public long getCount() {
+				return count;
+			}
+		};
+	}
+
+	private static JobStatusCount jobStatusCountOf(JobStatus status, long count) {
+		return new JobStatusCount() {
+			@Override
+			public JobStatus getJobStatus() {
+				return status;
+			}
+
+			@Override
+			public long getCount() {
+				return count;
+			}
+		};
+	}
+
+	private static ErrorCodeCount errorCodeCountOf(String errorCode, long count) {
+		return new ErrorCodeCount() {
+			@Override
+			public String getErrorCode() {
+				return errorCode;
 			}
 
 			@Override
@@ -167,5 +204,94 @@ class AnalyticsQueryServiceTest {
 		AnalyticsKpiResponse response = this.service.kpis(null, null);
 
 		assertThat(response.outboxHealth().publishedCount()).isEqualTo(9L);
+	}
+
+	// ── 추천 요청(Job) 건강도 ─────────────────────────────────────────
+
+	@Test
+	@DisplayName("상태별 건수를 그대로 옮긴다 — 진행 중인 것도 포함한다")
+	void mapsJobStatusCounts() {
+		given(this.recommendationJobRepository.countByJobStatusBetween(any(), any())).willReturn(List.of(
+				jobStatusCountOf(JobStatus.SUCCEEDED, 8L),
+				jobStatusCountOf(JobStatus.FAILED, 2L),
+				jobStatusCountOf(JobStatus.RUNNING, 3L)));
+
+		AnalyticsKpiResponse response = this.service.kpis(null, null);
+
+		assertThat(response.recommendationJobHealth().statusCounts()).containsExactlyInAnyOrder(
+				new AnalyticsKpiResponse.JobStatusCountEntry("SUCCEEDED", 8L),
+				new AnalyticsKpiResponse.JobStatusCountEntry("FAILED", 2L),
+				new AnalyticsKpiResponse.JobStatusCountEntry("RUNNING", 3L));
+	}
+
+	@Test
+	@DisplayName("성공률은 SUCCEEDED/(SUCCEEDED+FAILED) 이고, 진행 중·취소·만료는 분모에 안 넣는다")
+	void successRateExcludesNonTerminalStatuses() {
+		given(this.recommendationJobRepository.countByJobStatusBetween(any(), any())).willReturn(List.of(
+				jobStatusCountOf(JobStatus.SUCCEEDED, 3L),
+				jobStatusCountOf(JobStatus.FAILED, 1L),
+				jobStatusCountOf(JobStatus.RUNNING, 5L),
+				jobStatusCountOf(JobStatus.CANCELLED, 2L)));
+
+		AnalyticsKpiResponse response = this.service.kpis(null, null);
+
+		assertThat(response.recommendationJobHealth().successRatePercent()).isEqualTo(75.0);
+	}
+
+	@Test
+	@DisplayName("🔴 그 기간에 끝난 Job 이 하나도 없으면 성공률은 0 이 아니라 null 이다")
+	void successRateIsNullWhenNoTerminalJobs() {
+		given(this.recommendationJobRepository.countByJobStatusBetween(any(), any()))
+				.willReturn(List.of(jobStatusCountOf(JobStatus.RUNNING, 4L)));
+
+		AnalyticsKpiResponse response = this.service.kpis(null, null);
+
+		assertThat(response.recommendationJobHealth().successRatePercent()).isNull();
+	}
+
+	@Test
+	@DisplayName("성공한 Job 의 평균 처리 시간을 그대로 옮긴다")
+	void mapsAverageLatency() {
+		given(this.recommendationJobRepository.averageLatencyMsForSucceededBetween(any(), any())).willReturn(842.5);
+
+		AnalyticsKpiResponse response = this.service.kpis(null, null);
+
+		assertThat(response.recommendationJobHealth().averageLatencyMsForSucceeded()).isEqualTo(842.5);
+	}
+
+	@Test
+	@DisplayName("성공한 Job 이 없으면 평균 처리 시간은 null 이다")
+	void averageLatencyIsNullWhenNoSucceededJobs() {
+		given(this.recommendationJobRepository.averageLatencyMsForSucceededBetween(any(), any())).willReturn(null);
+
+		AnalyticsKpiResponse response = this.service.kpis(null, null);
+
+		assertThat(response.recommendationJobHealth().averageLatencyMsForSucceeded()).isNull();
+	}
+
+	@Test
+	@DisplayName("실패 사유별 건수를 그대로 옮긴다")
+	void mapsFailureBreakdown() {
+		given(this.recommendationJobRepository.countFailuresByErrorCodeBetween(any(), any()))
+				.willReturn(List.of(errorCodeCountOf("TIMEOUT", 4L), errorCodeCountOf("UPSTREAM_ERROR", 1L)));
+
+		AnalyticsKpiResponse response = this.service.kpis(null, null);
+
+		assertThat(response.recommendationJobHealth().failureBreakdown()).containsExactlyInAnyOrder(
+				new AnalyticsKpiResponse.ErrorCodeCountEntry("TIMEOUT", 4L),
+				new AnalyticsKpiResponse.ErrorCodeCountEntry("UPSTREAM_ERROR", 1L));
+	}
+
+	@Test
+	@DisplayName("주어진 범위 그대로 추천 Job 리포지토리에 넘긴다")
+	void passesResolvedRangeToRecommendationJobRepository() {
+		OffsetDateTime from = at("2026-09-07T00:00:00Z");
+		OffsetDateTime to = at("2026-09-08T00:00:00Z");
+
+		this.service.kpis(from, to);
+
+		verify(this.recommendationJobRepository).countByJobStatusBetween(from, to);
+		verify(this.recommendationJobRepository).averageLatencyMsForSucceededBetween(from, to);
+		verify(this.recommendationJobRepository).countFailuresByErrorCodeBetween(from, to);
 	}
 }

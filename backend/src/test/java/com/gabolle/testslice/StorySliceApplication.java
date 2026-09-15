@@ -33,7 +33,11 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 		"com.gabolle.backend.place.domain",
 		"com.gabolle.backend.trip.infra",
 		"com.gabolle.backend.moderation.domain",
-		"com.gabolle.backend.event.domain"
+		"com.gabolle.backend.event.domain",
+		// 🔴 S15P21E201-160 — RecommendationJobRepository(아래 @EnableJpaRepositories)가
+		// 관리하는 엔티티(RecommendationJob)의 표 매핑도 여기 없으면 "관리 대상 아님"으로
+		// 빈 자체를 못 만든다.
+		"com.gabolle.backend.recommendation.domain"
 })
 @EnableJpaRepositories(basePackages = {
 		"com.gabolle.backend.story.repository",
@@ -41,7 +45,11 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 		"com.gabolle.backend.place.repository",
 		"com.gabolle.backend.trip.infra",
 		"com.gabolle.backend.moderation.repository",
-		"com.gabolle.backend.event.repository"
+		"com.gabolle.backend.event.repository",
+		// 🔴 S15P21E201-160 — AnalyticsQueryService(event.application)가 생성자로
+		// RecommendationJobRepository 를 요구한다. event 를 스캔하는 순간 그 빈도 같이
+		// 요구된다(AuthSliceApplication 이 같은 이유로 먼저 겪었다).
+		"com.gabolle.backend.recommendation.repository"
 })
 public class StorySliceApplication {
 }

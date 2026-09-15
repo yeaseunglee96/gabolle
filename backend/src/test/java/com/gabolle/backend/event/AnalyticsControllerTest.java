@@ -43,7 +43,8 @@ class AnalyticsControllerTest {
 
 	private static AnalyticsKpiResponse emptyResponse(OffsetDateTime from, OffsetDateTime to) {
 		return new AnalyticsKpiResponse(from, to, List.of(),
-				new AnalyticsKpiResponse.OutboxHealthEntry(0, null, 0, 0));
+				new AnalyticsKpiResponse.OutboxHealthEntry(0, null, 0, 0),
+				new AnalyticsKpiResponse.RecommendationJobHealthEntry(List.of(), null, null, List.of()));
 	}
 
 	@Test
@@ -82,7 +83,10 @@ class AnalyticsControllerTest {
 		OffsetDateTime to = OffsetDateTime.parse("2026-09-08T12:00:00Z");
 		given(this.service.kpis(any(), any())).willReturn(new AnalyticsKpiResponse(from, to,
 				List.of(new AnalyticsKpiResponse.EventTypeCountEntry("trip_created", 4L)),
-				new AnalyticsKpiResponse.OutboxHealthEntry(3, 120L, 10, 1)));
+				new AnalyticsKpiResponse.OutboxHealthEntry(3, 120L, 10, 1),
+				new AnalyticsKpiResponse.RecommendationJobHealthEntry(
+						List.of(new AnalyticsKpiResponse.JobStatusCountEntry("SUCCEEDED", 8L)), 80.0, 842.5,
+						List.of(new AnalyticsKpiResponse.ErrorCodeCountEntry("TIMEOUT", 2L)))));
 
 		this.mockMvc.perform(get("/api/v1/analytics/kpis"))
 				.andExpect(status().isOk())
@@ -91,7 +95,13 @@ class AnalyticsControllerTest {
 				.andExpect(jsonPath("$.data.outboxHealth.pendingCount").value(3))
 				.andExpect(jsonPath("$.data.outboxHealth.oldestPendingAgeSeconds").value(120))
 				.andExpect(jsonPath("$.data.outboxHealth.publishedCount").value(10))
-				.andExpect(jsonPath("$.data.outboxHealth.failedCount").value(1));
+				.andExpect(jsonPath("$.data.outboxHealth.failedCount").value(1))
+				.andExpect(jsonPath("$.data.recommendationJobHealth.statusCounts[0].status").value("SUCCEEDED"))
+				.andExpect(jsonPath("$.data.recommendationJobHealth.statusCounts[0].count").value(8))
+				.andExpect(jsonPath("$.data.recommendationJobHealth.successRatePercent").value(80.0))
+				.andExpect(jsonPath("$.data.recommendationJobHealth.averageLatencyMsForSucceeded").value(842.5))
+				.andExpect(jsonPath("$.data.recommendationJobHealth.failureBreakdown[0].errorCode").value("TIMEOUT"))
+				.andExpect(jsonPath("$.data.recommendationJobHealth.failureBreakdown[0].count").value(2));
 	}
 
 	@Test
