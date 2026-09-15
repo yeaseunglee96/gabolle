@@ -1,0 +1,59 @@
+package com.gabolle.backend.menuscan.presentation;
+
+import java.io.IOException;
+import java.util.UUID;
+
+import org.springframework.http.MediaType;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.gabolle.backend.common.api.ApiResponse;
+import com.gabolle.backend.common.security.AuthenticatedUsers;
+import com.gabolle.backend.menuscan.application.MenuScanService;
+import com.gabolle.backend.menuscan.presentation.dto.MenuScanResponse;
+
+/**
+ * 메뉴판 사진에서 글자를 읽는다 — S15P21E201-1025.
+ *
+ * <pre>
+ * POST /api/v1/menu-scans      multipart/form-data, part 이름은 "image"
+ * </pre>
+ *
+ * <h2>🔴 왜 서버가 중계하나 — 앱에 키를 넣으면 추출된다</h2>
+ * React Native 번들은 열어볼 수 있다. 키는 <b>서버에만</b> 둔다.
+ *
+ * <pre>
+ * 앱  →  우리 서버  →  GMS 중계  →  모델
+ *               ↑ 키는 여기에만
+ * </pre>
+ *
+ * <h2>🔴 사진을 저장하지 않는다</h2>
+ * 요청에 실려 오고, 읽히고, 사라진다. 기록 사진 업로드 경로를 재활용하지 않는 이유는
+ * {@link MenuScanService} 의 javadoc 에 있다 — 그쪽은 <b>주소만 알면 로그인 없이 열린다.</b>
+ *
+ * <h2>🔴 응답이 「없다」를 말하지 않는다</h2>
+ * 이 API 가 주는 것은 <b>「이런 글자가 보인다」</b> 뿐이다. 「갑각류 없음」·「안전」 같은
+ * 판단을 담을 칸이 {@link MenuScanResponse} 에 <b>아예 없다.</b> 사람이 다칠 수 있는 자리라
+ * 화면이 그것을 지어낼 여지를 응답 모양에서 없앤다.
+ */
+@RestController
+public class MenuScanController {
+
+	private final MenuScanService service;
+
+	public MenuScanController(MenuScanService service) {
+		this.service = service;
+	}
+
+	@PostMapping(value = "/api/v1/menu-scans", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public ApiResponse<MenuScanResponse> scan(@RequestPart("image") MultipartFile image,
+			Authentication authentication) throws IOException {
+
+		UUID userId = AuthenticatedUsers.requireId(authentication);
+		return ApiResponse.success(this.service.scan(userId, image.getBytes()),
+				"req_" + UUID.randomUUID());
+	}
+}

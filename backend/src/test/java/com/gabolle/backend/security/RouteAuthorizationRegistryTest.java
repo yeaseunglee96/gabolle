@@ -466,6 +466,11 @@ class RouteAuthorizationRegistryTest {
 				"탈퇴하면 무엇이 지워지는지 미리 보여준다(-188). 대상이 인증 주체 자신뿐이라 남의 것을 지정할 자리가 없다. AccountDeletionIntegrationTest");
 		put(m, "DELETE /api/v1/auth/me", Policy.OWNED,
 				"탈퇴. 대상이 인증 주체 자신뿐이다. AccountDeletionIntegrationTest");
+		put(m, "POST /api/v1/menu-scans", Policy.AUTHENTICATED_ONLY,
+				"메뉴판 사진을 서버가 모델에 중계한다. 우리 자원이 아니라 주인이 없다 — 인증을 요구하는 것은 "
+						+ "tools/translate 와 같은 이유(우리 키로 남이 호출을 돌리는 비용)에 더해, "
+						+ "한도를 사람 단위로 세야 하기 때문이다. 사진은 저장하지 않는다. MenuScanControllerTest (-1025)");
+
 		// ── 컬렉션 (-1013) ──────────────────────────────────────────────────────
 		// 여덟 경로가 같은 근거를 공유한다 — 경로에 남의 번호를 넣을 자리가 없고(/me),
 		// 컬렉션은 언제나 주인과 함께 찾는다(findByIdAndUserId). 없는 것과 남의 것을
