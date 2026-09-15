@@ -8,10 +8,10 @@
 // 다시 받아 아래처럼 정했다.
 //
 //   현장 도구  남김 → 히어로 CTA 아래 2열 카드(통역 · 메뉴판 번역)
-//   로컬 탐색  옮김 → 「갈래로 둘러보기」 칩 + 「탐색 전체 →」 (바는 없앰)
+//   로컬 탐색  옮김 → 「갈래로 찾기」 칩 + 「탐색 전체 →」 (바는 없앰)
 //   알림 종    남김 → 머리 오른쪽. 🔴 미읽음 조회 API 가 없어 **점은 안 찍는다**
 //   큐레이션   교체 → 실제 기록 카드 3장 (사진·문구가 코드에 박혀 있던 것을 대체)
-//   하트       옮김 → 「부산 대표 장소」 카드. 같은 **장소** 엔티티라 저장·행동 이벤트가 그대로 맞는다
+//   하트       옮김 → 「부산 둘러보기」 카드. 같은 **장소** 엔티티라 저장·행동 이벤트가 그대로 맞는다
 //   챗봇       남김 → 우하단 플로팅
 import { useEffect, useState } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
@@ -198,11 +198,13 @@ export default function Home() {
           )}
         </View>
 
-        {/* ── 갈래로 둘러보기 (옛 로컬 탐색 바 자리) ── */}
+        {/* ── 갈래로 찾기 (옛 로컬 탐색 바 자리) ── */}
         {home.chips.length ? (
           <View style={styles.section}>
             <View style={styles.sectionHead}>
-              <Text variant="eyebrow" weight="bold">{tx('갈래로 둘러보기', 'Browse by category')}</Text>
+              {/* 🔴 「갈래로 둘러보기」였다. 아래 장소 카드가 「부산 둘러보기」가 되면서 같은 말이
+                  위아래로 붙어 두 구역이 같은 것으로 읽혔다 — 여기는 거르는 자리라 「찾기」다. */}
+              <Text variant="eyebrow" weight="bold">{tx('갈래로 찾기', 'Find by category')}</Text>
               <Pressable accessibilityRole="link" onPress={() => router.push('/explore')}><Text weight="bold" color={color.brand.navy}>{tx('탐색 전체 →', 'Explore all →')}</Text></Pressable>
             </View>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.rail}>
@@ -215,10 +217,12 @@ export default function Home() {
           </View>
         ) : null}
 
-        {/* ── 부산 대표 장소 (하트가 여기로 옮겨 왔다) ── */}
+        {/* ── 부산 둘러보기 (하트가 여기로 옮겨 왔다) ── */}
         {home.places.length ? (
           <View style={styles.sectionPadded}>
-            <Text variant="title" weight="bold">{tx('부산 대표 장소', 'Popular in Busan')}</Text>
+            {/* 🔴 「부산 대표 장소」였다가 2026-09-15 에 낮췄다. 고르는 방법이 부산 중심에서
+                가까운 순 넷이라 대표를 판정하는 자리가 없었다 — 제목만 대표를 약속하고 있었다. */}
+            <Text variant="title" weight="bold">{tx('부산 둘러보기', 'Browse Busan')}</Text>
             <View style={styles.placeGrid}>
               {home.places.map((place) => {
                 const liked = likedIds.has(place.placeId);
