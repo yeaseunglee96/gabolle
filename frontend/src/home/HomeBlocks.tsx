@@ -4,6 +4,7 @@
 //   · 여행 카드의 **제목** — TripSummaryDto 에 제목 칸이 없다(날짜·일수·인원·상태뿐)
 //   · 장소 카드의 **사진** — photoUrl 은 상세의 선택 필드이고 늘 비어 있다. 목록엔 칸도 없다.
 //     채우는 작업(S15P21E201-146)이 머지되고 목록 API 에 실리면 그때 넣는다.
+import { useState } from 'react';
 import { Image, Pressable, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
@@ -11,6 +12,8 @@ import { GabolleMascot } from '@/components/DongbaekMascot';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
+import { useAuth } from '@/auth/AuthProvider';
+import { resolveHomeTripDestination } from './tripNavigation';
 import type { FacetKeyEntry, NearbyPlaceItem } from '@/discovery/localExplore';
 import { relativeStoryTime, type StoryDto } from '@/social/stories';
 import type { TripSummaryDto } from '@/trip/trips';
@@ -200,13 +203,22 @@ function statusLabel(trip: TripSummaryDto, tx: Tx) {
 export function MyTripCard({ trip, signedIn, loaded }: { trip: TripSummaryDto | null; signedIn: boolean; loaded: boolean }) {
   const router = useRouter();
   const { tx } = useI18n();
+  const { accessToken } = useAuth();
+  const [opening, setOpening] = useState(false);
+  const openTrip = async () => {
+    if (!trip || opening) return;
+    setOpening(true);
+    const destination = await resolveHomeTripDestination(trip.tripId, accessToken);
+    setOpening(false);
+    router.push(destination as never);
+  };
   if (!signedIn) return null;
 
   return (
     <View style={styles.tripBlock}>
       <Text variant="eyebrow" weight="bold">{tx('내 여행', 'My trip')}</Text>
       {!loaded ? <View style={[styles.tripCard, styles.tripSkeleton]} /> : trip ? (
-        <Pressable accessibilityRole="button" onPress={() => router.push(`/trips/${trip.tripId}/itinerary`)} style={({ pressed }) => [styles.tripCard, pressed && styles.tripCardPressed]}>
+        <Pressable accessibilityRole="button" accessibilityState={{ busy: opening, disabled: opening }} disabled={opening} onPress={() => void openTrip()} style={({ pressed }) => [styles.tripCard, pressed && styles.tripCardPressed]}>
           <Text variant="caption" weight="bold" color={color.state.success}>{statusLabel(trip, tx)}</Text>
           {/* 🔴 여행에는 제목이 없다. 날짜를 제목 자리에 올린다 — 없는 이름을 지어내지 않는다. */}
           <Text variant="title" weight="bold">
@@ -215,7 +227,7 @@ export function MyTripCard({ trip, signedIn, loaded }: { trip: TripSummaryDto | 
           <Text color={color.text.body}>
             {tx(`${trip.dayCount}일 · ${trip.partySize}명`, `${trip.dayCount} days · ${trip.partySize} travelers`)}
           </Text>
-          <Text weight="bold" color={color.brand.navy} style={styles.tripGo}>{tx('일정 보기 →', 'View itinerary →')}</Text>
+          <Text weight="bold" color={color.brand.navy} style={styles.tripGo}>{opening ? tx('일정 찾는 중…', 'Finding itinerary…') : tx('일정 보기 →', 'View itinerary →')}</Text>
         </Pressable>
       ) : (
         <View style={styles.tripEmpty}>
