@@ -31,6 +31,10 @@ export type CreateTripPayload = {
   timezone: 'Asia/Seoul';
   preferences: PreferenceAnswerInput[];
   constraints: ConstraintInput[];
+  // S15P21E201-975 — 취향 단계에서 고른 "꼭 가고 싶은 장소". 서버는 이 목록을 여행 씨앗으로
+  // 적고 추천이 그 장소를 후보 앞에 세운다(-973). 이 칸이 생기기 전에는 고른 장소가 기기
+  // 안에만 남아서, 화면이 "일정에 반드시 포함돼요" 라고 적어 두고도 아무 영향이 없었다.
+  mustVisitPlaceIds: string[];
 };
 
 export type TripCreatedDto = {
@@ -89,6 +93,7 @@ export function toCreateTripPayload(draft: PlanDraft): CreateTripPayload {
   ];
 
   return {
+    mustVisitPlaceIds: draft.mustVisitPlaces.map((place) => place.placeId),
     startDate: draft.startDate,
     finishDate: draft.endDate,
     originLat: draft.originLat,

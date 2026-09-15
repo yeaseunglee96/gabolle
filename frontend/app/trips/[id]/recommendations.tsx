@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Image, Pressable, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { sendAppEvent } from '@/analytics/appEvents';
+import { loadRecommendationActions, saveRecommendationAction } from '@/plan/recommendationActions';
 import { useAuth } from '@/auth/AuthProvider';
 import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
@@ -26,8 +27,11 @@ export default function Recommendations() {
   const reload = useCallback(async () => {
     if (!jobId) { setView(unavailableRecommendations()); return; }
     setView((current) => ({ ...current, state: 'loading', message: tx('추천 결과를 확인하고 있어요.', 'Checking your recommendation result.') }));
-    setView(await loadRecommendationResult(jobId, accessToken));
-  }, [accessToken, jobId, tx]);
+    const next = await loadRecommendationResult(jobId, accessToken);
+    // 기기에 적어 둔 저장·제외를 되살린다 — S15P21E201-975. 서버 응답에는 이 판단이 없다.
+    const stored = await loadRecommendationActions(id ?? '');
+    setView({ ...next, courses: next.courses.map((course) => stored[course.id] ? { ...course, actionState: stored[course.id] } : course) });
+  }, [accessToken, id, jobId, tx]);
   useEffect(() => { void reload(); }, [reload]);
   // 저장·제외는 지금까지 화면 상태만 바꿨다. 이제 서버로도 간다 — 노출된 것 중에서 고른 것이라
   // 가장 깨끗한 취향 신호다. 되돌리기(idle)는 아무 뜻이 아니라 보내지 않는다.
@@ -36,6 +40,9 @@ export default function Recommendations() {
   //    이벤트도 두 건 적힌다. 그리고 버튼은 서버 응답을 기다리지 않는다.
   const updateAction = (courseId: string, actionState: RecommendationCourse['actionState']) => {
     setView((current) => ({ ...current, courses: current.courses.map((course) => course.id === courseId ? { ...course, actionState } : course) }));
+    // 🔴 기기에 적는다 — S15P21E201-975. 아래 행동 이벤트는 분석용이라 되읽지 않는다.
+    //    이것이 없던 동안 버튼은 눌려도 화면을 다시 열면 원래대로 돌아갔다.
+    void saveRecommendationAction(id ?? '', courseId, actionState === 'saved' || actionState === 'excluded' ? actionState : null);
     if (actionState === 'saved' || actionState === 'excluded') {
       sendAppEvent({ type: actionState === 'saved' ? 'place_like' : 'place_dislike', accessToken, tripId: id, payload: { place_id: courseId, surface: 'recommendations' } });
     }
