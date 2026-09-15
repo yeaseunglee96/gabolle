@@ -114,11 +114,6 @@ export async function findLatestRecommendationJob(tripId: string, accessToken: s
   }
 }
 
-export const tripNotFoundRecommendations = (): RecommendationViewModel => ({
-  state: 'error', courses: [], conflicts: [],
-  message: t('그 여행을 찾을 수 없어요. 내 여행에서 다시 골라 주세요.', 'We could not find that trip. Please pick it again from your trips.'),
-  itineraryId: null, placeCount: null, estimatedTravelMinutes: null,
-});
 
 export async function loadRecommendationResult(jobId: string, accessToken: string | null): Promise<RecommendationViewModel> {
   try {
