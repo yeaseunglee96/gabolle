@@ -142,6 +142,8 @@ public class FestivalQueryService {
 					place.getLat(),
 					place.getLng(),
 					place.getPhotoUrl(),
+					place.getPhotoSource(),
+					place.getPhotoSubject(),
 					period.getStartDate(),
 					period.getEndDate(),
 					toPriceLevel(priceLevelByPlace.get(place.getPlaceId())),
