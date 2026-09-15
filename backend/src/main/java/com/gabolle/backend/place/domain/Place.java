@@ -5,6 +5,8 @@ import java.util.UUID;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
@@ -101,6 +103,21 @@ public class Place {
 	/** 사진 출처 표기 문구. 저작권 표기 없이 남의 사진을 쓰지 않기 위해 주소와 짝으로 둔다. */
 	@Column(name = "photo_source", length = 100)
 	private String photoSource;
+
+	/**
+	 * 그 사진이 <b>무엇을 찍은 것인가</b> — S15P21E201-1006.
+	 *
+	 * <p>🔴 {@link #photoSource} 와 <b>다른 질문</b>이다. 그쪽은 «누가 준 사진인가»(출처),
+	 * 이쪽은 «무엇을 찍은 사진인가»(피사체)다. 한 칸에 담으면 둘 중 하나는 반드시 거짓이 되고,
+	 * 자유 문장으로 적으면 화면이 그것을 읽어 판단할 수 없다.
+	 *
+	 * <p>🔴 {@code null} 은 <b>모른다</b>는 뜻이다. 지금 있는 사진이 전부 여기다 —
+	 * 그것을 {@code SELF} 로 채우지 않는다. «안 알아본 것»을 «확인했더니 맞더라»로 뒤집는
+	 * 것이 이 저장소가 알레르기 표시에서 겪은 바로 그 사고다.
+	 */
+	@Enumerated(EnumType.STRING)
+	@Column(name = "photo_subject", length = 20)
+	private PhotoSubject photoSubject;
 
 	/**
 	 * 현장 안내용 지하철 출구 번호/이름 (S15P21E201-265). 예: "2호선 강남역 3번 출구".
@@ -233,6 +250,51 @@ public class Place {
 
 	public String getPhotoSource() {
 		return this.photoSource;
+	}
+
+	public PhotoSubject getPhotoSubject() {
+		return this.photoSubject;
+	}
+
+	/**
+	 * 이미 있는 장소에 사진을 붙인다 — S15P21E201-1006.
+	 *
+	 * <p>🔴 <b>장소 적재기는 이미 있는 장소를 건드리지 않는다.</b>(«이미 있는 장소는 건너뛴다 —
+	 * 고치지 않는다») 그 규칙은 그대로 두고, 사진만 따로 갱신할 길을 연다. 사진은 장소 본문과
+	 * 달리 <b>나중에 다른 원천에서 오는 값</b>이라 같은 규칙으로 묶으면 영영 못 채운다.
+	 *
+	 * <p>🔴 출처를 함께 받는다. 주소만 받는 메서드를 두지 않는 이유는, 그러면 언젠가
+	 * <b>출처 없는 사진</b>이 들어가기 때문이다 — {@link #photoSource} 가 있는 이유가 그것이다.
+	 *
+	 * @param photoSubject 무엇을 찍은 사진인가. <b>모르면 {@code null}</b> 을 준다 —
+	 *     모르는 것을 {@code SELF} 로 채우지 않는다
+	 */
+	public void attachPhoto(String photoUrl, String photoSource, PhotoSubject photoSubject) {
+		if (photoUrl == null || photoUrl.isBlank()) {
+			throw new IllegalArgumentException("photoUrl 없이 사진을 붙일 수 없다");
+		}
+		if (photoSource == null || photoSource.isBlank()) {
+			throw new IllegalArgumentException(
+					"photoSource 없이 사진을 붙일 수 없다 — 출처 표기 없이 남의 사진을 쓰지 않는다");
+		}
+		this.photoUrl = photoUrl;
+		this.photoSource = photoSource;
+		this.photoSubject = photoSubject;
+	}
+
+	/**
+	 * 사진이 무엇을 찍은 것인가 — S15P21E201-1006.
+	 *
+	 * <p>{@code EVENT} 가 아니라 {@code SELF} 인 이유: 이 값은 {@code place} 에 살고 식당·
+	 * 해수욕장도 같은 칸을 쓴다. «행사»는 축제에만 맞는 말이라 뜻이 안 통한다.
+	 */
+	public enum PhotoSubject {
+
+		/** 이 장소(축제 포함) 자체를 찍은 사진. */
+		SELF,
+
+		/** 이 축제가 <b>열리는 곳</b>을 찍은 사진. 축제 모습이 아니다. */
+		VENUE
 	}
 
 	public String getSubwayExit() {
