@@ -6,9 +6,10 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.gabolle.backend.story.domain.UploadedImage;
 import com.gabolle.backend.story.image.ImageFormat;
@@ -30,10 +31,20 @@ import com.gabolle.backend.story.storage.StoragePort;
  *   <li>{@code story/yyyy/MM/<uuid>.<ext>} 키를 만들어({@link Clock} 기준 UTC) 저장소에 쓴다</li>
  *   <li>{@link UploadedImage} 를 저장한다 — {@code byteSize} 는 정리한 <b>뒤</b>의 크기다</li>
  * </ol>
+ *
+ * <h2>🔴 S15P21E201-945 — 이 메서드에 {@code @Transactional} 을 안 둔다</h2>
+ * 저장소 쓰기({@code storagePort.put})는 네트워크 호출이다. 이 메서드 전체를 트랜잭션으로 묶으면
+ * 그 호출이 끝날 때까지 DB 커넥션 하나를 놀리며 붙잡는다. {@link UploadedImageRepository#save}
+ * 는 Spring Data 저장소 메서드라 그 자체로 자기 트랜잭션을 연다 — DB 삽입만 트랜잭션이 필요하고
+ * 그 앞의 저장소 쓰기는 필요 없다. 삽입이 실패하면 이미 올라간 파일이 고아로 남으므로, 그 경우
+ * 방금 쓴 키를 지워 보상한다(실패해도 삼킨다 — {@code StorageCleanupService.deleteOrEnqueue}
+ * 만큼 정교한 재시도까지는 필요 없다, 애초에 DB 행이 없어 드물게만 생기는 경로다).
  */
 @Service
 @Profile({ "db", "dev" })
 public class ImageUploadService {
+
+	private static final Logger log = LoggerFactory.getLogger(ImageUploadService.class);
 
 	private static final DateTimeFormatter KEY_DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy/MM");
 
@@ -49,7 +60,6 @@ public class ImageUploadService {
 		this.clock = clock;
 	}
 
-	@Transactional
 	public UploadedImage upload(UUID uploaderUserId, byte[] bytes) {
 		if (bytes == null || bytes.length == 0) {
 			throw new EmptyImageException();
@@ -70,7 +80,18 @@ public class ImageUploadService {
 
 		UploadedImage uploadedImage = new UploadedImage(
 				UUID.randomUUID(), uploaderUserId, key, imageUrl, format.contentType(), sanitized.length, now);
-		return this.uploadedImageRepository.save(uploadedImage);
+		try {
+			return this.uploadedImageRepository.save(uploadedImage);
+		}
+		catch (RuntimeException e) {
+			try {
+				this.storagePort.delete(key);
+			}
+			catch (RuntimeException cleanupFailure) {
+				log.warn("기록 저장에 실패한 뒤 고아가 된 파일도 못 지웠다: key={}", key, cleanupFailure);
+			}
+			throw e;
+		}
 	}
 
 	private String buildKey(ImageFormat format, Instant now) {
