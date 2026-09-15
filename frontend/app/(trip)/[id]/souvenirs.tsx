@@ -17,16 +17,21 @@ import { getLastVisitedPlace, type LastVisitedPlaceResult } from '@/discovery/la
 import { getNearbyPlaces, type NearbyPlacesLoadResult } from '@/discovery/localExplore';
 import { RouteMap } from '@/map/RouteMap';
 import type { MapStop } from '@/map/types';
+import { SelectTripFirst } from '@/trip/SelectTripFirst';
 import { loadTripItineraries } from '@/trip/trips';
 
 const SOUVENIR_FACET_KEY = 'SOUVENIR_SHOP';
 
+// 여행 식별자가 없으면 서버를 아예 안 부른다 (S15P21E201-1000).
 export default function Souvenirs() {
+  const { id } = useLocalSearchParams<{ id: string }>();
+  return id ? <SouvenirsForTrip tripId={id} /> : <SelectTripFirst />;
+}
+
+function SouvenirsForTrip({ tripId }: { tripId: string }) {
   const { tx } = useI18n();
   const router = useRouter();
   const { accessToken } = useAuth();
-  const { id } = useLocalSearchParams<{ id: string }>();
-  const tripId = id ?? 'demo-trip';
 
   const [origin, setOrigin] = useState<LastVisitedPlaceResult | null>(null);
   const [result, setResult] = useState<NearbyPlacesLoadResult | null>(null);

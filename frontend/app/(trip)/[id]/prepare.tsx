@@ -21,6 +21,7 @@ import type { MapStop } from '@/map/types';
 import { loadItinerary } from '@/plan/itinerary';
 import { issueShareLink } from '@/share/sharedItinerary';
 import { getTripStories } from '@/social/stories';
+import { SelectTripFirst } from '@/trip/SelectTripFirst';
 import { loadTripItineraries, loadTrips } from '@/trip/trips';
 import { loadWeatherForecast, type SkyCondition, type WeatherLoadResult } from '@/trip/weather';
 
@@ -170,12 +171,16 @@ function TripSummaryCard({ tripId, title, visitCount, photoUrl }: { tripId: stri
   );
 }
 
+// 여행 식별자가 없으면 서버를 아예 안 부른다 (S15P21E201-1000).
 export default function Prepare() {
+  const { id } = useLocalSearchParams<{ id: string }>();
+  return id ? <PrepareForTrip tripId={id} /> : <SelectTripFirst />;
+}
+
+function PrepareForTrip({ tripId }: { tripId: string }) {
   const { tx } = useI18n();
   const router = useRouter();
   const { accessToken } = useAuth();
-  const { id } = useLocalSearchParams<{ id: string }>();
-  const tripId = id ?? 'demo-trip';
   const [firstDayDate, setFirstDayDate] = useState<string | null>(null);
   const [tripTitle, setTripTitle] = useState<string | null>(null);
   const [weather, setWeather] = useState<WeatherLoadResult | null>(null);

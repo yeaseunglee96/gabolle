@@ -28,7 +28,10 @@ type TripsFailure = { state: 'unavailable' | 'offline' | 'error'; message: strin
 function failure(error: unknown): TripsFailure {
   if (error instanceof ApiClientError && error.code === 'NETWORK_ERROR') return { state: 'offline', message: error.message };
   if (error instanceof ApiClientError && (error.status === 404 || error.code === 'INVALID_RESPONSE')) return { state: 'unavailable', message: '내 여행 목록 API가 아직 준비되지 않았어요.' };
-  return { state: 'error', message: error instanceof Error ? error.message : '여행 목록을 불러오지 못했어요.' };
+  // S15P21E201-1000 — 여기 걸리는 것은 우리가 예상하지 못한 실패라, 서버가 준 문장이 사람에게
+  // 읽히는 말이라는 보장이 없다. 실제로 「Invalid UUID string: demo-trip」 같은 개발자용 문장이
+  // 화면에 그대로 나왔다. 앞의 두 갈래는 우리가 고른 문구를 쓰므로 그대로 둔다.
+  return { state: 'error', message: '여행 목록을 불러오지 못했어요.' };
 }
 
 export type TripsLoadResult = { state: 'success'; trips: TripSummaryDto[] } | TripsFailure;
