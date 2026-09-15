@@ -11,10 +11,16 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.gabolle.app",
       "appleTeamId": "LXS8LP2F8H",
-      "associatedDomains": ["applinks:j15e201.p.ssafy.io", "webcredentials:j15e201.p.ssafy.io"],
+      "associatedDomains": [
+        "applinks:j15e201.p.ssafy.io",
+        "webcredentials:j15e201.p.ssafy.io"
+      ],
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
-        "LSApplicationQueriesSchemes": ["kakaomap", "comgooglemaps"]
+        "LSApplicationQueriesSchemes": [
+          "kakaomap",
+          "comgooglemaps"
+        ]
       }
     },
     "android": {
@@ -75,7 +81,8 @@
       ],
       "expo-notifications",
       "expo-video",
-      "./plugins/withExtraTrustedRoots"
+      "./plugins/withExtraTrustedRoots",
+      "expo-web-browser"
     ],
     "extra": {
       "router": {},
