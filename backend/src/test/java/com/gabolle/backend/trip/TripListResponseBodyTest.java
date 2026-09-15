@@ -59,7 +59,7 @@ class TripListResponseBodyTest {
 		InMemoryTripRepository repository = new InMemoryTripRepository();
 		Clock clock = Clock.fixed(Instant.parse("2026-09-09T00:00:00Z"), ZoneOffset.UTC);
 		TripController controller = new TripController(
-				new TripCreationService(repository, clock, new PreferenceDefaultsService(repository, clock), ConsentGuards.granting(), Optional.empty()),
+				new TripCreationService(repository, clock, new PreferenceDefaultsService(repository, clock), ConsentGuards.granting(), Optional.empty(), Optional.empty()),
 				new TripQueryService(repository),
 				new TripDeletionService(repository, clock));
 		this.mockMvc = MockMvcBuilders.standaloneSetup(controller)

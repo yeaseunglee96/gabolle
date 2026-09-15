@@ -16,8 +16,10 @@ import org.junit.jupiter.api.Test;
 import com.gabolle.backend.trip.application.PreferenceDefaultsService;
 import com.gabolle.backend.trip.application.TripCreationService;
 import com.gabolle.backend.trip.domain.PreferenceSnapshot;
+import com.gabolle.backend.trip.domain.TravelArea;
 import com.gabolle.backend.trip.domain.TripSeedPlace;
 import com.gabolle.backend.trip.domain.TripSeedPlaceRepository;
+import com.gabolle.backend.trip.domain.TripTravelAreaRepository;
 import com.gabolle.backend.trip.infra.InMemoryTripRepository;
 import com.gabolle.backend.user.support.ConsentGuards;
 
@@ -50,18 +52,36 @@ class MustVisitSeedTest {
 		}
 	}
 
+	/** 저장된 범위를 그대로 들고 있는 가짜 저장소 — S15P21E201-980. */
+	private static final class RecordingAreas implements TripTravelAreaRepository {
+
+		private final java.util.Map<String, List<TravelArea>> saved = new java.util.LinkedHashMap<>();
+
+		@Override
+		public void saveAll(String tripId, List<TravelArea> areas) {
+			this.saved.put(tripId, List.copyOf(areas));
+		}
+
+		@Override
+		public List<TravelArea> findByTripId(String tripId) {
+			return this.saved.getOrDefault(tripId, List.of());
+		}
+	}
+
 	private InMemoryTripRepository repository;
 	private RecordingSeeds seeds;
+	private RecordingAreas areas;
 	private TripCreationService service;
 
 	@BeforeEach
 	void setUp() {
 		this.repository = new InMemoryTripRepository();
 		this.seeds = new RecordingSeeds();
+		this.areas = new RecordingAreas();
 		Clock clock = Clock.fixed(NOW, ZoneOffset.UTC);
 		this.service = new TripCreationService(this.repository, clock,
 				new PreferenceDefaultsService(this.repository, clock), ConsentGuards.granting(),
-				Optional.of(this.seeds));
+				Optional.of(this.seeds), Optional.of(this.areas));
 	}
 
 	@Test
@@ -117,7 +137,49 @@ class MustVisitSeedTest {
 		assertThat(this.seeds.findByTripId(result.trip().tripId())).isEmpty();
 	}
 
+
+	/**
+	 * S15P21E201-980 — 기본 정보 화면의 지역 칩이 화면에서만 받고 서버로 안 오던 자리.
+	 *
+	 * <p>해운대를 골라도 추천 스무 곳이 전부 출발지 근처였다. 서버가 받은 적이 없으니
+	 * 반영할 것도 없었다.
+	 */
+	@Test
+	@DisplayName("고른 여행 범위가 순서대로 남는다")
+	void chosenTravelAreasAreStoredInOrder() {
+		TripCreationService.Result result =
+				this.service.create(command(List.of(), List.of("SONGJEONG", "HAEUNDAE")), null);
+
+		assertThat(this.areas.findByTripId(result.trip().tripId()))
+				.containsExactly(TravelArea.SONGJEONG, TravelArea.HAEUNDAE);
+	}
+
+	/**
+	 * 🔴 앱이 새 지역을 먼저 내보내는 날 여행 생성 자체가 막히면 안 된다. 모르는 지역은
+	 * "범위를 안 골랐다" 와 같게 다루는 편이 낫다.
+	 */
+	@Test
+	@DisplayName("모르는 지역 코드는 버리고 나머지는 저장한다")
+	void unknownAreaCodeIsDroppedWithoutFailing() {
+		TripCreationService.Result result =
+				this.service.create(command(List.of(), List.of("GIJANG", "haeundae")), null);
+
+		assertThat(this.areas.findByTripId(result.trip().tripId())).containsExactly(TravelArea.HAEUNDAE);
+	}
+
+	@Test
+	@DisplayName("범위를 안 고르면 아무것도 안 적는다")
+	void noAreaStoresNothing() {
+		TripCreationService.Result result = this.service.create(command(List.of(), List.of()), null);
+
+		assertThat(this.areas.findByTripId(result.trip().tripId())).isEmpty();
+	}
+
 	private TripCreationService.Command command(List<String> mustVisitPlaceIds) {
+		return command(mustVisitPlaceIds, List.of());
+	}
+
+	private TripCreationService.Command command(List<String> mustVisitPlaceIds, List<String> travelAreas) {
 		return new TripCreationService.Command(
 				"usr_1",
 				LocalDate.of(2026, 10, 12), LocalDate.of(2026, 10, 13),
@@ -129,6 +191,7 @@ class MustVisitSeedTest {
 				List.of(),
 				com.gabolle.backend.trip.domain.Trip.OwnerType.USER,
 				null, false, false, false, null,
-				mustVisitPlaceIds);
+				mustVisitPlaceIds,
+				travelAreas);
 	}
 }

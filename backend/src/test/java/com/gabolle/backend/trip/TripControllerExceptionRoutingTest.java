@@ -49,7 +49,7 @@ class TripControllerExceptionRoutingTest {
 		InMemoryTripRepository repository = new InMemoryTripRepository();
 		Clock clock = Clock.fixed(Instant.parse("2026-09-03T00:00:00Z"), ZoneOffset.UTC);
 		TripCreationService creationService = new TripCreationService(repository, clock,
-				new PreferenceDefaultsService(repository, clock), ConsentGuards.granting(), Optional.empty());
+				new PreferenceDefaultsService(repository, clock), ConsentGuards.granting(), Optional.empty(), Optional.empty());
 		TripQueryService queryService = new TripQueryService(repository);
 
 		TripController controller = new TripController(creationService, queryService,

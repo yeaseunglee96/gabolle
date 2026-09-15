@@ -95,7 +95,24 @@ public record CreateTripRequest(
          * <p>이 칸이 생기기 전에는 앱이 고른 장소를 기기 안에만 두고 보내지 않았다. 화면은
          * "일정에 반드시 포함돼요" 라고 적어 두고 있었는데 서버는 그 목록을 받은 적이 없었다.
          */
-        List<String> mustVisitPlaceIds) {
+        List<String> mustVisitPlaceIds,
+
+        /**
+         * 기본 정보 화면에서 고른 여행 범위 — S15P21E201-980. 앱의 {@code AREAS} 코드다
+         * (HAEUNDAE·GWANGALLI·NAMPO·SEOMYEON·YEONGDO·SONGJEONG).
+         *
+         * <p>안 보내면 지금까지와 똑같이 동작한다 — 출발지 하나를 중심으로 후보를 고른다.
+         * 보내면 추천이 그 지역들에서 후보를 고른다.
+         *
+         * <p>이 칸이 생기기 전에는 칩이 화면에서만 받고 서버로 오지 않았다. 해운대를 골라도
+         * 추천 스무 곳이 전부 출발지 근처였다.
+         */
+        List<String> travelAreas) {
+
+    /** 안 보냈으면 빈 목록이다. */
+    public List<String> travelAreasOrEmpty() {
+        return travelAreas == null ? List.of() : travelAreas;
+    }
 
     /** 안 보냈으면 빈 목록이다 — 부르는 쪽이 매번 null 을 보지 않게 여기서 한 번 고른다. */
     public List<String> mustVisitPlaceIdsOrEmpty() {
@@ -115,7 +132,7 @@ public record CreateTripRequest(
             List<PreferenceAnswerInput> preferences,
             List<ConstraintInput> constraints) {
         this(startDate, finishDate, originLat, originLng, budgetKrw, partySize, timeWindow, timezone,
-                preferences, null, constraints, null, null, null, null, null, null);
+                preferences, null, constraints, null, null, null, null, null, null, null);
     }
 
     /**
@@ -131,7 +148,7 @@ public record CreateTripRequest(
             SpendProfileAnswerInput spendProfile,
             List<ConstraintInput> constraints) {
         this(startDate, finishDate, originLat, originLng, budgetKrw, partySize, timeWindow, timezone,
-                preferences, spendProfile, constraints, null, null, null, null, null, null);
+                preferences, spendProfile, constraints, null, null, null, null, null, null, null);
     }
 
     /**
@@ -154,7 +171,7 @@ public record CreateTripRequest(
             Integer maxTransitTransfers) {
         this(startDate, finishDate, originLat, originLng, budgetKrw, partySize, timeWindow, timezone,
                 preferences, spendProfile, constraints, accommodationPlaceId, englishMenuRequired,
-                foreignCardRequired, soloFriendlyPriority, maxTransitTransfers, null);
+                foreignCardRequired, soloFriendlyPriority, maxTransitTransfers, null, null);
     }
 
     /** 안 보냈으면 우선하지 않는 것으로 본다. */
