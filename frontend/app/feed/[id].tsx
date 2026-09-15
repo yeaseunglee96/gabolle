@@ -10,7 +10,8 @@ import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
-import { deleteStory, getCachedStory, getStory, relativeStoryTime, reportStory, VISIBILITY_LABEL, type StoryDto, type StoryReportReason } from '@/social/stories';
+import { BlockUserDialog } from '@/social/BlockUserDialog';
+import { deleteStory, getCachedStory, getStory, relativeStoryTime, reportStory, setBlocked, VISIBILITY_LABEL, type StoryDto, type StoryReportReason } from '@/social/stories';
 
 type State = { status: 'loading'; cached: StoryDto | null } | { status: 'loaded'; story: StoryDto } | { status: 'not-found' } | { status: 'error'; message: string };
 
@@ -24,6 +25,8 @@ export default function StoryDetail() {
   const [reported, setReported] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [confirmingBlock, setConfirmingBlock] = useState(false);
+  const [blockNotice, setBlockNotice] = useState('');
 
   const load = useCallback(async () => {
     if (!id) return;
@@ -47,6 +50,17 @@ export default function StoryDetail() {
     // 접수됐다는 안내를 보여준다"). feed.tsx의 목록 제거와 같은 원칙이다.
     if (outcome.state === 'success') setReported(true);
     return outcome.state === 'success';
+  };
+
+  // 차단은 「이 글」이 아니라 「이 사람」에 대한 것이다. 차단해도 이 글은 내 화면에서 그대로
+  // 보인다 — 거르는 일은 서버가 상대 쪽 화면에서 한다 (S15P21E201-991).
+  const confirmBlock = async () => {
+    const authorId = story?.author.id;
+    if (!authorId) return false;
+    const outcome = await setBlocked(authorId, true, accessToken);
+    if (outcome.state !== 'success') return false;
+    setBlockNotice(tx('이제 이 사용자에게 내 글이 보이지 않아요.', "This user can no longer see your posts."));
+    return true;
   };
 
   const confirmDelete = async () => {
@@ -128,9 +142,17 @@ export default function StoryDetail() {
                 </Pressable>
               )
             ) : (
-              <Pressable accessibilityRole="button" accessibilityLabel={tx('신고하기', 'Report')} onPress={() => setReporting(true)} style={styles.textAction}>
-                <Text variant="caption" weight="bold" color={color.text.muted}>{tx('신고', 'Report')}</Text>
-              </Pressable>
+              <>
+                <Pressable accessibilityRole="button" accessibilityLabel={tx('신고하기', 'Report')} onPress={() => setReporting(true)} style={styles.textAction}>
+                  <Text variant="caption" weight="bold" color={color.text.muted}>{tx('이 글 신고', 'Report this post')}</Text>
+                </Pressable>
+                {/* 🔴 신고와 차단을 같은 것처럼 보이게 하지 않는다 — 신고는 「이 글」에 대한
+                    것이고 차단은 「이 사람」에 대한 것이다. 구분선과 문구로 갈라 준다. */}
+                <View style={styles.actionDivider} />
+                <Pressable accessibilityRole="button" accessibilityLabel={tx('사용자 차단하기', 'Block this user')} onPress={() => setConfirmingBlock(true)} style={styles.textAction}>
+                  <Text variant="caption" weight="bold" color={color.state.danger}>{tx('사용자 차단', 'Block user')}</Text>
+                </Pressable>
+              </>
             )}
           </View>
         </View>
@@ -152,7 +174,14 @@ export default function StoryDetail() {
         </View>
       ) : null}
 
+      {blockNotice ? (
+        <View accessibilityLiveRegion="polite" style={styles.notice}>
+          <Text color={color.text.body}>{blockNotice}</Text>
+        </View>
+      ) : null}
+
       <ReportModal visible={reporting} onClose={() => setReporting(false)} onSubmit={submitReport} />
+      <BlockUserDialog visible={confirmingBlock} displayName={story?.author.displayName ?? ''} onClose={() => setConfirmingBlock(false)} onConfirm={confirmBlock} />
     </Screen>
   );
 }
@@ -171,6 +200,7 @@ const styles = StyleSheet.create({
   placeCard: { gap: spacing[1], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.tint },
   actionRow: { flexDirection: 'row', justifyContent: 'space-between' },
   textAction: { minHeight: 44, paddingHorizontal: spacing[2], alignItems: 'center', justifyContent: 'center' },
+  actionDivider: { width: 1, alignSelf: 'stretch', marginVertical: spacing[2], backgroundColor: color.surface.border },
   confirmRow: { flex: 1, gap: spacing[2] },
   confirmText: { textAlign: 'right' },
   confirmButtons: { flexDirection: 'row', justifyContent: 'flex-end', gap: spacing[2] },
