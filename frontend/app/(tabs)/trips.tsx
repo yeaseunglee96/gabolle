@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { ActivityIndicator, Image, Modal, Pressable, StyleSheet, View } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { useAuth } from '@/auth/AuthProvider';
 import { Button } from '@/components/Button';
@@ -24,6 +24,7 @@ function dateLabel(trip: TripSummaryDto, tx: (ko: string, en: string) => string)
 
 export default function Trips() {
   const router = useRouter();
+  const { open } = useLocalSearchParams<{ open?: string }>();
   const { tx } = useI18n();
   const { accessToken, user } = useAuth();
   const queryClient = useQueryClient();
@@ -51,6 +52,10 @@ export default function Trips() {
 
   const openTrip = async (trip: TripSummaryDto) => {
     if (openingTripId) return;
+    if (open === 'prepare') {
+      router.push(`/${trip.tripId}/prepare`);
+      return;
+    }
     setFeedback('');
     setOpeningTripId(trip.tripId);
     const outcome = await loadTripItineraries(trip.tripId, accessToken);
@@ -91,7 +96,7 @@ export default function Trips() {
   const trips = result.state === 'success' ? result.trips : [];
 
   return <View style={styles.shell}><Screen scroll wide withTabBar style={styles.canvas}>
-    <View style={styles.header}><View style={styles.headerCopy}><Eyebrow>{tx('여행 목록', 'My trips')}</Eyebrow><Text variant="display" weight="bold" style={styles.title}>{tx('내 여행', 'My trips')}</Text><Text color={color.text.body}>{tx('내가 만들었거나 초대받은 여행이에요.', "Trips you've created or been invited to.")}</Text></View><View style={styles.headerActions}><Button label={tx('부슐랭', 'My places')} variant="ghost" onPress={() => router.push('/collection')} containerStyle={styles.newTrip} /><Button label={tx('새 여행', 'New trip')} onPress={() => router.push('/plan/basic')} containerStyle={styles.newTrip} /></View></View>
+    <View style={styles.header}><View style={styles.headerCopy}><Eyebrow>{open === 'prepare' ? tx('날씨·준비물', 'Weather & packing') : tx('여행 목록', 'My trips')}</Eyebrow><Text variant="display" weight="bold" style={styles.title}>{open === 'prepare' ? tx('확인할 여행을 골라주세요', 'Choose a trip to check') : tx('내 여행', 'My trips')}</Text><Text color={color.text.body}>{open === 'prepare' ? tx('여행 카드를 누르면 출발일 예보와 준비물을 보여드려요.', 'Tap a trip to see its departure forecast and packing tips.') : tx('내가 만들었거나 초대받은 여행이에요.', "Trips you've created or been invited to.")}</Text></View><View style={styles.headerActions}><Button label={tx('부슐랭', 'My places')} variant="ghost" onPress={() => router.push('/collection')} containerStyle={styles.newTrip} /><Button label={tx('새 여행', 'New trip')} onPress={() => router.push('/plan/basic')} containerStyle={styles.newTrip} /></View></View>
 
     {!accessToken ? <View style={styles.state}><Text weight="bold">{tx('로그인하면 내 여행을 볼 수 있어요.', 'Sign in to see your trips.')}</Text><Button label={tx('로그인', 'Sign in')} onPress={() => router.push('/sign-in')} containerStyle={styles.emptyCta} /></View> : null}
 
@@ -103,7 +108,7 @@ export default function Trips() {
 
     {accessToken && !loading && result.state === 'success' && trips.length === 0 ? <View style={styles.empty}><View style={styles.emptyMark}><Image source={require('../../assets/icons/home/route.png')} accessibilityLabel={tx('여행 경로', 'Trip route')} style={styles.emptyIcon} /></View><Text variant="title" weight="bold">{tx('아직 만든 여행이 없어요', 'No trips yet')}</Text><Text color={color.text.body} style={styles.center}>{tx('여행을 만들면 이곳에 보여드려요.', "Once you create a trip, it'll show up here.")}</Text><Button label={tx('첫 여행 만들기', 'Create your first trip')} onPress={() => router.push('/plan/basic')} containerStyle={styles.emptyCta} /></View> : null}
 
-    {accessToken && !loading && result.state === 'success' && trips.length > 0 ? <View style={styles.list}>{trips.map((trip) => <Pressable key={trip.tripId} accessibilityRole="button" accessibilityState={{ busy: openingTripId === trip.tripId }} accessibilityLabel={tx(`${dateLabel(trip, tx)} 여행 열기`, `Open trip ${dateLabel(trip, tx)}`)} disabled={openingTripId === trip.tripId || removingTripId === trip.tripId} onPress={() => void openTrip(trip)} style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}>
+    {accessToken && !loading && result.state === 'success' && trips.length > 0 ? <View style={styles.list}>{trips.map((trip) => <Pressable key={trip.tripId} accessibilityRole="button" accessibilityState={{ busy: openingTripId === trip.tripId }} accessibilityLabel={open === 'prepare' ? tx(`${dateLabel(trip, tx)} 날씨와 준비물 보기`, `View weather and packing for ${dateLabel(trip, tx)}`) : tx(`${dateLabel(trip, tx)} 여행 열기`, `Open trip ${dateLabel(trip, tx)}`)} disabled={openingTripId === trip.tripId || removingTripId === trip.tripId} onPress={() => void openTrip(trip)} style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}>
       <View style={styles.cardTop}><View style={styles.cardCopy}><Text variant="title" weight="bold">{dateLabel(trip, tx)}</Text>{trip.role !== 'OWNER' ? <Text variant="caption" color={color.text.muted}>{tx('초대받은 여행', 'Invited trip')}</Text> : null}</View>{openingTripId === trip.tripId ? <ActivityIndicator color={color.brand.orange} /> : <Text variant="title" color={color.brand.orange}>›</Text>}</View>
       <View style={styles.meta}>
         {/* S15P21E201-919: 서버가 이미 주는 status를 화면이 안 읽어서, 일정 생성이 실패해도
