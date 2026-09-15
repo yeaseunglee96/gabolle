@@ -7,6 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import { useAuth } from '@/auth/AuthProvider';
 import { getFacets, getNearbyPlaces, type FacetGroup, type FacetKeyEntry, type NearbyPlaceItem } from '@/discovery/localExplore';
+import { getPlacesByFacet } from '@/discovery/places';
 import { loadFeed, type StoryDto } from '@/social/stories';
 import { loadTrips, type TripSummaryDto } from '@/trip/trips';
 import { loadWeatherForecast, type DailyForecastDto } from '@/trip/weather';
@@ -65,10 +66,12 @@ export type HomeData = {
   stories: StoryDto[] | null;
   chips: FacetKeyEntry[];
   weather: DailyForecastDto | null;
-  places: NearbyPlaceItem[];
+  places: HomePlaceItem[];
   trip: TripSummaryDto | null;
   tripsLoaded: boolean;
 };
+
+export type HomePlaceItem = Omit<NearbyPlaceItem, 'distanceM'> & { distanceM?: number };
 
 /**
  * @param enabled 데스크톱 홈에서만 켠다. 훅은 조건 없이 불러야 하는데(React 규칙) 폰 랜딩은
@@ -99,7 +102,19 @@ export function useHomeData(enabled = true): HomeData {
   const placesQuery = useQuery({
     queryKey: ['home', 'places'],
     enabled,
-    queryFn: () => getNearbyPlaces({ ...BUSAN, limit: PLACE_PICK_COUNT }),
+    queryFn: async (): Promise<HomePlaceItem[]> => {
+      const nearby = await getNearbyPlaces({ ...BUSAN, limit: PLACE_PICK_COUNT });
+      if (nearby.state === 'success' && nearby.items.length) return nearby.items.slice(0, PLACE_PICK_COUNT);
+
+      // 부산 중심 5km 안이 비면 섹션을 숨기지 않고, 실제로 데이터가 있는 로컬 갈래 하나를
+      // 부산 전체에서 조회한다. 홈 제목은 거리 순위나 대표성을 약속하지 않는 「부산 둘러보기」다.
+      const facets = await getFacets();
+      if (facets.state !== 'success') return [];
+      const group = facets.facets.find((item) => item.userInputCode === 'EXPLORE');
+      const key = group?.keys.find((item) => item.placeCount > 0 && item.labelKo);
+      if (!group || !key) return [];
+      return (await getPlacesByFacet(group.placeFeatureType, key.featureKey, PLACE_PICK_COUNT)).slice(0, PLACE_PICK_COUNT);
+    },
   });
 
   const tripsQuery = useQuery({
@@ -120,7 +135,7 @@ export function useHomeData(enabled = true): HomeData {
         : storiesQuery.data?.state === 'success' ? pickHeroStories(storiesQuery.data.items) : [],
     chips: facetsQuery.data?.state === 'success' ? pickChips(facetsQuery.data.facets) : [],
     weather: weatherQuery.data?.state === 'success' ? weatherQuery.data.forecast : null,
-    places: placesQuery.data?.state === 'success' ? placesQuery.data.items.slice(0, PLACE_PICK_COUNT) : [],
+    places: placesQuery.data ?? [],
     trip: tripsQuery.data?.state === 'success' ? pickActiveTrip(tripsQuery.data.trips) : null,
     tripsLoaded: tripsQuery.data?.state === 'success',
   };

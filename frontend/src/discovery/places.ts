@@ -197,3 +197,15 @@ export async function searchPlacesByName(query: string, signal?: AbortSignal): P
   const dto = await apiRequest<PlacePageDto>(`/api/v1/places?query=${encodeURIComponent(query)}&limit=8`, { signal });
   return dto.items.map(({ placeId, nameKo, nameEn, category, address, lat, lng }) => ({ placeId, nameKo, nameEn, category, address, lat, lng }));
 }
+
+/** 부산 전체에서 특정 로컬 갈래에 해당하는 장소를 찾는다. 거리 제한은 적용하지 않는다. */
+export async function getPlacesByFacet(
+  facetType: string,
+  facetKey: string,
+  limit = 20,
+  signal?: AbortSignal,
+): Promise<PlaceSearchItem[]> {
+  const query = new URLSearchParams({ facetType, facetKey, limit: String(limit) });
+  const dto = await apiRequest<PlacePageDto>(`/api/v1/places?${query.toString()}`, { signal });
+  return dto.items.map(({ placeId, nameKo, nameEn, category, address, lat, lng }) => ({ placeId, nameKo, nameEn, category, address, lat, lng }));
+}
