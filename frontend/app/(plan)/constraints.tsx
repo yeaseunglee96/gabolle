@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Button } from '@/components/Button';
@@ -12,6 +12,7 @@ import { PlanDesktopShell } from '@/plan/PlanDesktopShell';
 import { type ConstraintSelectionStatus, type PlanDraft, usePlan } from '@/plan/PlanProvider';
 import { useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
 import { useI18n } from '@/i18n';
+import { bilingualPlaceName, searchPlacesByName, type PlaceSearchItem } from '@/discovery/places';
 
 const ALLERGIES = [['PEANUT', '땅콩', 'Peanuts'], ['TREE_NUT', '견과류', 'Tree nuts'], ['SHELLFISH_CRUSTACEAN', '갑각류', 'Shellfish'], ['FISH', '생선', 'Fish'], ['EGG', '달걀', 'Egg'], ['MILK_DAIRY', '우유·유제품', 'Milk · dairy'], ['WHEAT', '밀', 'Wheat'], ['SOY', '대두', 'Soy']] as const;
 const DIETS = [['VEGETARIAN', '채식', 'Vegetarian'], ['VEGAN', '비건', 'Vegan'], ['HALAL', '할랄', 'Halal'], ['GLUTEN_FREE', '글루텐 프리', 'Gluten-free'], ['PESCATARIAN', '페스코', 'Pescatarian']] as const;
@@ -22,9 +23,21 @@ function Chip({ label, selected, onPress, radio = false }: { label: string; sele
 function Status({ label, value, answered, onChange }: { label: string; value: ConstraintSelectionStatus; answered: boolean; onChange: (value: ConstraintSelectionStatus) => void }) { const { tx } = useI18n(); return <View accessibilityRole="radiogroup" accessibilityLabel={tx(`${label} 여부`, `Has ${label}`)} style={styles.row}><Chip radio label={tx('해당 없음', 'None')} selected={answered && value === 'NONE'} onPress={() => onChange('NONE')} /><Chip radio label={tx('조건 선택', 'Select conditions')} selected={answered && value === 'VALUES'} onPress={() => onChange('VALUES')} /></View>; }
 function Binary({ label, value, onChange }: { label: string; value: boolean | null; onChange: (value: boolean) => void }) { const { tx } = useI18n(); return <View style={styles.binary}><Text style={styles.grow} weight="bold">{label}</Text><View accessibilityRole="radiogroup" accessibilityLabel={label} style={styles.row}><Chip radio label={tx('예', 'Yes')} selected={value === true} onPress={() => onChange(true)} /><Chip radio label={tx('아니요', 'No')} selected={value === false} onPress={() => onChange(false)} /></View></View>; }
 
+const accommodationStyles = StyleSheet.create({
+  suggestionList: { overflow: 'hidden', borderWidth: 1, borderColor: color.surface.border, borderRadius: radius.md, backgroundColor: color.surface.card },
+  suggestionItem: { minHeight: 56, justifyContent: 'center', gap: spacing[1], paddingHorizontal: spacing[3], paddingVertical: spacing[2], borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: color.surface.border },
+  suggestionPressed: { backgroundColor: color.surface.subtle },
+  selectedAccommodation: { gap: spacing[1], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.state.successBg },
+});
+
 export default function Constraints() {
   const router = useRouter(); const { kind } = useLayout(); const { tx } = useI18n(); const { mobility } = useOnboardingPreferences();
   const { draft, ready, update, completeStep } = usePlan(); const [panelIndex, setPanelIndex] = useState(0); const [validationRequested, setValidationRequested] = useState(false);
+  const [accommodationResults, setAccommodationResults] = useState<PlaceSearchItem[]>([]);
+  const [accommodationSearching, setAccommodationSearching] = useState(false);
+  const [accommodationSearched, setAccommodationSearched] = useState(false);
+  const accommodationDebounce = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const accommodationAbort = useRef<AbortController | null>(null);
   const valid = ready && draft.allergyAnswered && draft.dietAnswered && (draft.allergyStatus !== 'VALUES' || draft.allergies.length > 0) && (draft.dietStatus !== 'VALUES' || draft.dietTypes.length > 0);
   const safetyReady = valid && draft.allergyStatus !== 'UNKNOWN' && draft.dietStatus !== 'UNKNOWN';
   useEffect(() => { const patch: Partial<PlanDraft> = {}; if (mobility === 'wheelchair' && draft.wheelchair === null) patch.wheelchair = true; if (mobility === 'stroller' && draft.stroller === null) patch.stroller = true; if (mobility === 'slow' && draft.maxWalkingDistanceM === null) patch.maxWalkingDistanceM = 500; if (Object.keys(patch).length) update(patch); }, [draft.maxWalkingDistanceM, draft.stroller, draft.wheelchair, mobility, update]);
@@ -37,6 +50,36 @@ export default function Constraints() {
       [key === 'allergies' ? 'allergyAnswered' : 'dietAnswered']: true,
     });
   };
+  useEffect(() => () => {
+    if (accommodationDebounce.current) clearTimeout(accommodationDebounce.current);
+    accommodationAbort.current?.abort();
+  }, []);
+  const handleAccommodationChange = (value: string) => {
+    update({ accommodation: value, accommodationPlace: null });
+    if (accommodationDebounce.current) clearTimeout(accommodationDebounce.current);
+    accommodationAbort.current?.abort();
+    const query = value.trim();
+    if (query.length < 2) {
+      setAccommodationResults([]); setAccommodationSearching(false); setAccommodationSearched(false);
+      return;
+    }
+    setAccommodationSearching(true); setAccommodationSearched(false);
+    accommodationDebounce.current = setTimeout(() => {
+      const controller = new AbortController();
+      accommodationAbort.current = controller;
+      void searchPlacesByName(query, controller.signal).then((items) => {
+        if (!controller.signal.aborted) setAccommodationResults(items);
+      }).catch(() => {
+        if (!controller.signal.aborted) setAccommodationResults([]);
+      }).finally(() => {
+        if (!controller.signal.aborted) { setAccommodationSearching(false); setAccommodationSearched(true); }
+      });
+    }, 300);
+  };
+  const selectAccommodation = (item: PlaceSearchItem) => {
+    update({ accommodation: bilingualPlaceName(item.nameKo, item.nameEn), accommodationPlace: { ...item } });
+    setAccommodationResults([]); setAccommodationSearched(false);
+  };
   return <PlanDesktopShell><Screen scroll wide style={styles.canvas}>
     {kind === 'phone' && <View style={styles.top}><Pressable accessibilityRole="button" accessibilityLabel={tx('뒤로 가기', 'Go back')} onPress={() => router.canGoBack() ? router.back() : router.replace('/plan/taste')} style={styles.back}><Text variant="title">‹</Text></Pressable><BrandLogoLink imageStyle={styles.logo} /><View style={styles.pill}><Text variant="caption" weight="bold" color={color.brand.ivory}>3 / 4</Text></View></View>}
     <PlanStepHeader current={3} /><Text variant="display" weight="bold" style={styles.title}>{tx('제약 조건', 'Travel constraints')}</Text><Text color={color.text.body} style={styles.subtitle}>{tx('AI가 아래 조건을 임의로 완화하지 않습니다.', 'AI will not loosen these conditions without your consent.')}</Text>
@@ -48,8 +91,12 @@ export default function Constraints() {
         <Binary label={tx('혼밥 가능한 곳 우선', 'Prefer solo-dining friendly')} value={draft.soloDiningPreferred} onChange={(soloDiningPreferred) => update({ soloDiningPreferred })} />
         <View style={styles.accommodationField}>
           <Text weight="bold">{tx('숙소 지정 (선택)', 'Accommodation (optional)')}</Text>
-          <TextInput accessibilityLabel={tx('숙소 지정', 'Accommodation')} value={draft.accommodation} onChangeText={(accommodation) => update({ accommodation })} placeholder={tx('예: 해운대 호텔', 'e.g. Haeundae Hotel')} placeholderTextColor={color.text.muted} style={styles.accommodationInput} />
-          {draft.accommodation.trim().length > 0 && <Text variant="caption" color={color.text.muted}>{tx('매일 이곳에서 시작하고 이곳으로 돌아와요.', "You'll start and return here every day.")}</Text>}
+          <TextInput accessibilityLabel={tx('숙소 검색', 'Search accommodation')} value={draft.accommodation} onChangeText={handleAccommodationChange} placeholder={tx('숙소 이름을 2자 이상 입력하세요', 'Enter at least 2 characters')} placeholderTextColor={color.text.muted} style={styles.accommodationInput} />
+          {accommodationSearching && <Text variant="caption" color={color.text.muted}>{tx('장소를 찾고 있어요…', 'Searching places…')}</Text>}
+          {accommodationResults.length > 0 && <View accessibilityRole="list" style={accommodationStyles.suggestionList}>{accommodationResults.map((item) => <Pressable key={item.placeId} accessibilityRole="button" accessibilityLabel={tx(`${item.nameKo} 숙소로 선택`, `Choose ${item.nameEn ?? item.nameKo} as accommodation`)} onPress={() => selectAccommodation(item)} style={({ pressed }) => [accommodationStyles.suggestionItem, pressed && accommodationStyles.suggestionPressed]}><Text weight="bold">{bilingualPlaceName(item.nameKo, item.nameEn)}</Text><Text variant="caption" color={color.text.muted}>{item.address || tx('주소 정보 없음', 'Address unavailable')}</Text></Pressable>)}</View>}
+          {accommodationSearched && !accommodationSearching && accommodationResults.length === 0 && !draft.accommodationPlace && <Text accessibilityRole="alert" variant="caption" color={color.text.muted}>{tx('검색 결과가 없어요. 다른 숙소명이나 주소로 다시 찾아주세요.', 'No results. Try another name or address.')}</Text>}
+          {draft.accommodationPlace && <View style={accommodationStyles.selectedAccommodation}><Text variant="caption" weight="bold" color={color.state.success}>{tx('숙소 선택 완료', 'Accommodation selected')}</Text><Text variant="caption" color={color.text.body}>{draft.accommodationPlace.address || bilingualPlaceName(draft.accommodationPlace.nameKo, draft.accommodationPlace.nameEn)}</Text></View>}
+          {draft.accommodationPlace && <Text variant="caption" color={color.text.muted}>{tx('매일 이곳에서 시작하고 이곳으로 돌아와요.', "You'll start and return here every day.")}</Text>}
         </View>
         {draft.transport !== 'CAR' && <View style={styles.transfersField}>
           <Text weight="bold">{tx('최대 환승 횟수', 'Max transfers')}</Text>
