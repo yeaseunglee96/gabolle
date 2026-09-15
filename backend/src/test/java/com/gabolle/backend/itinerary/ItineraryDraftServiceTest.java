@@ -22,6 +22,7 @@ import org.mockito.ArgumentCaptor;
 
 import com.gabolle.backend.itinerary.application.ItineraryDraftService;
 import com.gabolle.backend.place.service.OpeningHoursFilterPort;
+import com.gabolle.backend.place.service.PlaceTimeFactFilterPort;
 import com.gabolle.backend.itinerary.application.ItineraryLegPlanner;
 import com.gabolle.backend.itinerary.application.port.TravelTime;
 import com.gabolle.backend.itinerary.domain.ItineraryItem;
@@ -60,6 +61,19 @@ class ItineraryDraftServiceTest {
 	private static final OpeningHoursFilterPort ALWAYS_UNKNOWN =
 			(placeId, at) -> OpeningHoursFilterPort.Answer.NOT_COLLECTED;
 
+	/** 브레이크타임·라스트오더를 모른다고만 답하는 문 — S15P21E201-94 로 생성자에 들어왔다. */
+	private static final PlaceTimeFactFilterPort ALWAYS_UNKNOWN_TIME_FACT = new PlaceTimeFactFilterPort() {
+		@Override
+		public OpeningHoursFilterPort.Answer breakTimeAt(UUID placeId, java.time.OffsetDateTime at) {
+			return OpeningHoursFilterPort.Answer.NOT_COLLECTED;
+		}
+
+		@Override
+		public OpeningHoursFilterPort.Answer lastOrderAt(UUID placeId, java.time.OffsetDateTime at) {
+			return OpeningHoursFilterPort.Answer.NOT_COLLECTED;
+		}
+	};
+
 	private static final Clock CLOCK = Clock.fixed(Instant.parse("2026-09-05T00:00:00Z"), ZoneOffset.UTC);
 
 	private TripRepository tripRepository;
@@ -81,7 +95,7 @@ class ItineraryDraftServiceTest {
 		when(noTravelTime.getIfAvailable()).thenReturn(null);
 
 		ItineraryLegPlanner legPlanner = new ItineraryLegPlanner(this.placeRepository, noTravelTime);
-		this.service = new ItineraryDraftService(this.tripRepository, itineraryRepository, CLOCK, 4, 3, "FOOD", legPlanner, ALWAYS_UNKNOWN);
+		this.service = new ItineraryDraftService(this.tripRepository, itineraryRepository, CLOCK, 4, 3, "FOOD", legPlanner, ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT);
 
 		// 좌표를 모르는 장소만 다루는 테스트들이 기본으로 쓴다 — 거리는 항상 null 이 된다.
 		when(this.placeRepository.findByPlaceIdIn(anyCollection())).thenReturn(List.of());
@@ -221,7 +235,8 @@ class ItineraryDraftServiceTest {
 		when(provider.getIfAvailable()).thenReturn(port);
 		ItineraryLegPlanner legPlanner = new ItineraryLegPlanner(this.placeRepository, provider);
 		ItineraryDraftService withTravelTime = new ItineraryDraftService(this.tripRepository,
-				mock(ItineraryRepository.class), CLOCK, 4, 3, "FOOD", legPlanner, ALWAYS_UNKNOWN);
+				mock(ItineraryRepository.class), CLOCK, 4, 3, "FOOD", legPlanner, ALWAYS_UNKNOWN,
+				ALWAYS_UNKNOWN_TIME_FACT);
 
 		ItineraryDraft draft = withTravelTime.assemble(commandOf("trip_1", plannedPlaces(3)));
 
@@ -366,12 +381,101 @@ class ItineraryDraftServiceTest {
 				.containsExactly(places.get(0).placeId(), places.get(1).placeId());
 	}
 
+	@Test
+	@DisplayName("🔴 S15P21E201-94 — 브레이크타임인 곳은 그 자리에 안 놓는다")
+	void breakTimePlaceIsNotSeatedInThatSlot() {
+		Trip trip = tripWithWindow(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 10));
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
+
+		List<ItineraryDraftCommand.PlannedPlace> places = plannedPlaces(2);
+		UUID first = places.get(0).placeId();
+		// 순위 1등이 09:00 에 브레이크타임이다. 그 자리는 2등이 받아야 한다.
+		ItineraryDraftService service = serviceWith(ALWAYS_UNKNOWN, new PlaceTimeFactFilterPort() {
+			@Override
+			public OpeningHoursFilterPort.Answer breakTimeAt(UUID placeId, java.time.OffsetDateTime at) {
+				return placeId.equals(first) && at.toLocalTime().equals(LocalTime.of(9, 0))
+						? OpeningHoursFilterPort.Answer.CLOSED
+						: OpeningHoursFilterPort.Answer.OPEN;
+			}
+
+			@Override
+			public OpeningHoursFilterPort.Answer lastOrderAt(UUID placeId, java.time.OffsetDateTime at) {
+				return OpeningHoursFilterPort.Answer.OPEN;
+			}
+		});
+
+		ItineraryDraft draft = service.assemble(commandOf("trip_1", places));
+
+		assertThat(draft.items()).extracting(ItineraryDraft.DraftItem::placeId)
+				.containsExactly(places.get(1).placeId(), first);
+		assertThat(draft.items().get(0).warningCodes()).doesNotContain("BREAK_TIME_CLOSED");
+	}
+
+	@Test
+	@DisplayName("🔴 S15P21E201-94 — 라스트오더를 지난 곳은 그 자리에 안 놓는다")
+	void lastOrderPassedPlaceIsNotSeatedInThatSlot() {
+		Trip trip = tripWithWindow(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 10));
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
+
+		List<ItineraryDraftCommand.PlannedPlace> places = plannedPlaces(2);
+		UUID first = places.get(0).placeId();
+		ItineraryDraftService service = serviceWith(ALWAYS_UNKNOWN, new PlaceTimeFactFilterPort() {
+			@Override
+			public OpeningHoursFilterPort.Answer breakTimeAt(UUID placeId, java.time.OffsetDateTime at) {
+				return OpeningHoursFilterPort.Answer.OPEN;
+			}
+
+			@Override
+			public OpeningHoursFilterPort.Answer lastOrderAt(UUID placeId, java.time.OffsetDateTime at) {
+				return placeId.equals(first) && at.toLocalTime().equals(LocalTime.of(9, 0))
+						? OpeningHoursFilterPort.Answer.CLOSED
+						: OpeningHoursFilterPort.Answer.OPEN;
+			}
+		});
+
+		ItineraryDraft draft = service.assemble(commandOf("trip_1", places));
+
+		assertThat(draft.items()).extracting(ItineraryDraft.DraftItem::placeId)
+				.containsExactly(places.get(1).placeId(), first);
+		assertThat(draft.items().get(0).warningCodes()).doesNotContain("LAST_ORDER_PASSED");
+	}
+
+	@Test
+	@DisplayName("🔴 S15P21E201-94 — 남은 후보가 전부 브레이크타임이어도 그대로 놓고 경고를 붙인다")
+	void allBreakTimeStillSeatsThePlaceWithAWarning() {
+		Trip trip = tripWithWindow(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 10));
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
+
+		List<ItineraryDraftCommand.PlannedPlace> places = plannedPlaces(2);
+		ItineraryDraftService service = serviceWith(ALWAYS_UNKNOWN, new PlaceTimeFactFilterPort() {
+			@Override
+			public OpeningHoursFilterPort.Answer breakTimeAt(UUID placeId, java.time.OffsetDateTime at) {
+				return OpeningHoursFilterPort.Answer.CLOSED;
+			}
+
+			@Override
+			public OpeningHoursFilterPort.Answer lastOrderAt(UUID placeId, java.time.OffsetDateTime at) {
+				return OpeningHoursFilterPort.Answer.OPEN;
+			}
+		});
+
+		ItineraryDraft draft = service.assemble(commandOf("trip_1", places));
+
+		assertThat(draft.items()).hasSize(2);
+		assertThat(draft.items()).allSatisfy((item) ->
+				assertThat(item.warningCodes()).contains("BREAK_TIME_CLOSED"));
+	}
+
 	private ItineraryDraftService serviceWith(OpeningHoursFilterPort openingHours) {
+		return serviceWith(openingHours, ALWAYS_UNKNOWN_TIME_FACT);
+	}
+
+	private ItineraryDraftService serviceWith(OpeningHoursFilterPort openingHours, PlaceTimeFactFilterPort timeFact) {
 		@SuppressWarnings("unchecked")
 		ObjectProvider<TravelTimePort> noTravelTime = mock(ObjectProvider.class);
 		when(noTravelTime.getIfAvailable()).thenReturn(null);
 		return new ItineraryDraftService(this.tripRepository, mock(ItineraryRepository.class), CLOCK, 4, 3, "FOOD",
-				new ItineraryLegPlanner(this.placeRepository, noTravelTime), openingHours);
+				new ItineraryLegPlanner(this.placeRepository, noTravelTime), openingHours, timeFact);
 	}
 
 	/**

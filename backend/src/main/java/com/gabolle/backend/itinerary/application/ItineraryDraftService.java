@@ -19,6 +19,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import com.gabolle.backend.place.service.OpeningHoursFilterPort;
+import com.gabolle.backend.place.service.PlaceTimeFactFilterPort;
 import com.gabolle.backend.itinerary.domain.Itinerary;
 import com.gabolle.backend.itinerary.domain.ItineraryContent;
 import com.gabolle.backend.itinerary.domain.ItineraryExclusion;
@@ -81,11 +82,20 @@ public class ItineraryDraftService implements ItineraryDraftPort {
      */
     private final OpeningHoursFilterPort openingHours;
 
+    /**
+     * 브레이크타임에 걸리는가 · 라스트오더를 지났는가 — S15P21E201-94.
+     *
+     * <p>{@link #openingHours} 와 같은 자리에서, 같은 이유로 묻는다 — 자리에 앉히는 단계에서
+     * 항목마다 다른 시각을 물어야 한다.
+     */
+    private final PlaceTimeFactFilterPort timeFact;
+
     public ItineraryDraftService(TripRepository tripRepository, ItineraryRepository itineraryRepository, Clock clock,
             @Value("${gabolle.itinerary.max-items-per-day:4}") int maxItemsPerDay,
             @Value("${gabolle.itinerary.max-food-per-day:3}") int maxFoodPerDay,
             @Value("${gabolle.itinerary.food-category:FOOD}") String foodCategory,
-            ItineraryLegPlanner legPlanner, OpeningHoursFilterPort openingHours) {
+            ItineraryLegPlanner legPlanner, OpeningHoursFilterPort openingHours,
+            PlaceTimeFactFilterPort timeFact) {
         this.tripRepository = tripRepository;
         this.itineraryRepository = itineraryRepository;
         this.clock = clock;
@@ -94,6 +104,7 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         this.foodCategory = foodCategory;
         this.legPlanner = legPlanner;
         this.openingHours = openingHours;
+        this.timeFact = timeFact;
     }
 
     /**
@@ -279,8 +290,7 @@ public class ItineraryDraftService implements ItineraryDraftPort {
                     if (used[i]) {
                         continue;
                     }
-                    if (this.openingHours.openAt(dayPlaces.get(i).placeId(), at)
-                            != OpeningHoursFilterPort.Answer.CLOSED) {
+                    if (violationAt(dayPlaces.get(i).placeId(), at) == null) {
                         chosen = i;
                         break;
                     }
@@ -300,14 +310,33 @@ public class ItineraryDraftService implements ItineraryDraftPort {
             used[chosen] = true;
             ItineraryDraftCommand.PlannedPlace place = dayPlaces.get(chosen);
             List<String> warnings = place.warningCodes();
-            if (forced && at != null
-                    && this.openingHours.openAt(place.placeId(), at) == OpeningHoursFilterPort.Answer.CLOSED) {
+            String violation = (forced && at != null) ? violationAt(place.placeId(), at) : null;
+            if (violation != null) {
                 warnings = new ArrayList<>(warnings == null ? List.of() : warnings);
-                warnings.add(ItineraryOpeningHoursChecker.VIOLATION_CLOSED);
+                warnings.add(violation);
             }
             placed.add(new Placed(place, slot, warnings));
         }
         return placed;
+    }
+
+    /**
+     * 그 시각에 그 장소가 걸리는 것이 있는가 — 있으면 경고 코드, 없으면 {@code null}.
+     *
+     * <p>영업시간 · 브레이크타임 · 라스트오더 셋을 이 순서로 본다. 셋 다 "모른다" 를 "문제
+     * 없음" 으로 접지 않는다 — {@link OpeningHoursFilterPort.Answer#CLOSED} 일 때만 걸린다.
+     */
+    private String violationAt(UUID placeId, OffsetDateTime at) {
+        if (this.openingHours.openAt(placeId, at) == OpeningHoursFilterPort.Answer.CLOSED) {
+            return ItineraryOpeningHoursChecker.VIOLATION_CLOSED;
+        }
+        if (this.timeFact.breakTimeAt(placeId, at) == OpeningHoursFilterPort.Answer.CLOSED) {
+            return ItineraryOpeningHoursChecker.VIOLATION_BREAK_TIME;
+        }
+        if (this.timeFact.lastOrderAt(placeId, at) == OpeningHoursFilterPort.Answer.CLOSED) {
+            return ItineraryOpeningHoursChecker.VIOLATION_LAST_ORDER;
+        }
+        return null;
     }
 
     /**
