@@ -38,6 +38,7 @@ import com.gabolle.backend.itinerary.presentation.ItineraryExceptionHandler;
 import com.gabolle.backend.itinerary.presentation.ItineraryQueryController;
 import com.gabolle.backend.itinerary.presentation.ItineraryQueryExceptionHandler;
 import com.gabolle.backend.place.service.OpeningHoursFilterPort;
+import com.gabolle.backend.place.service.PlaceTimeFactFilterPort;
 import com.gabolle.backend.recommendation.support.PostgresAvailableCondition;
 import com.gabolle.backend.recommendation.support.TestDatabase;
 import com.gabolle.testslice.ItinerarySliceApplication;
@@ -112,6 +113,35 @@ class ItineraryReorderOpeningHoursIntegrationTest {
 		}
 	}
 
+	/**
+	 * 브레이크타임·라스트오더용 가짜 문 — S15P21E201-94.
+	 *
+	 * <p>이 검사 파일은 이름 그대로 <b>영업시간(OPENING_HOURS)만</b> 잰다({@code
+	 * SwitchableOpeningHours} 의 클래스 주석 참고). 실제 구현({@code PlaceFeatureTimeFactFilter})을
+	 * 그대로 두면 이 씨앗 장소들에는 브레이크타임·라스트오더 값이 없어 매 항목마다 NOT_COLLECTED 가
+	 * 섞여 들어오고, {@code notChecked} 개수가 이 파일이 기대하는 값(영업시간 하나만 반영한 값)과
+	 * 어긋난다 — 이 검사가 재려는 것과 무관한 잡음이라 {@code SwitchableOpeningHours} 와 같은 이유로
+	 * 가짜로 대체하고 기본값을 {@code OPEN} 으로 둔다.
+	 */
+	static class SwitchableTimeFact implements PlaceTimeFactFilterPort {
+
+		private OpeningHoursFilterPort.Answer fallback = OpeningHoursFilterPort.Answer.OPEN;
+
+		void reset() {
+			this.fallback = OpeningHoursFilterPort.Answer.OPEN;
+		}
+
+		@Override
+		public OpeningHoursFilterPort.Answer breakTimeAt(UUID placeId, OffsetDateTime at) {
+			return this.fallback;
+		}
+
+		@Override
+		public OpeningHoursFilterPort.Answer lastOrderAt(UUID placeId, OffsetDateTime at) {
+			return this.fallback;
+		}
+	}
+
 	@TestConfiguration(proxyBeanMethods = false)
 	static class SwitchableOpeningHoursOverride {
 
@@ -119,6 +149,12 @@ class ItineraryReorderOpeningHoursIntegrationTest {
 		@Primary
 		SwitchableOpeningHours switchableOpeningHours() {
 			return new SwitchableOpeningHours();
+		}
+
+		@Bean
+		@Primary
+		SwitchableTimeFact switchableTimeFact() {
+			return new SwitchableTimeFact();
 		}
 	}
 
@@ -141,6 +177,9 @@ class ItineraryReorderOpeningHoursIntegrationTest {
 
 	@Autowired
 	private SwitchableOpeningHours openingHours;
+
+	@Autowired
+	private SwitchableTimeFact timeFact;
 
 	@Autowired
 	private JdbcTemplate jdbc;
@@ -178,6 +217,7 @@ class ItineraryReorderOpeningHoursIntegrationTest {
 				.build();
 
 		this.openingHours.reset();
+		this.timeFact.reset();
 
 		OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
 		this.ownerId = UUID.randomUUID();
@@ -281,9 +321,15 @@ class ItineraryReorderOpeningHoursIntegrationTest {
 		reorderDay(0, List.of(this.keyC.toString(), this.keyA.toString(), this.keyB.toString(), keyD.toString()), 1)
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.data.warnings.length()").value(0))
-				.andExpect(jsonPath("$.data.notChecked.length()").value(1))
+				// 🔴 S15P21E201-94 — 시각을 모르면 영업시간·브레이크타임·라스트오더 셋 다 못 잰다.
+				//    세 축 각각이 "이 항목은 시각이 없어 못 잰다" 를 따로 보고한다.
+				.andExpect(jsonPath("$.data.notChecked.length()").value(3))
 				.andExpect(jsonPath("$.data.notChecked[0].check").value("OPENING_HOURS"))
-				.andExpect(jsonPath("$.data.notChecked[0].reason").value("NO_ITEM_TIME"));
+				.andExpect(jsonPath("$.data.notChecked[0].reason").value("NO_ITEM_TIME"))
+				.andExpect(jsonPath("$.data.notChecked[1].check").value("BREAK_TIME"))
+				.andExpect(jsonPath("$.data.notChecked[1].reason").value("NO_ITEM_TIME"))
+				.andExpect(jsonPath("$.data.notChecked[2].check").value("LAST_ORDER_TIME"))
+				.andExpect(jsonPath("$.data.notChecked[2].reason").value("NO_ITEM_TIME"));
 	}
 
 	@Test
@@ -314,9 +360,14 @@ class ItineraryReorderOpeningHoursIntegrationTest {
 				// 시각은 그 날짜 재계산이 정하고 화면이 이어서 부른다. 그때까지는 판정할 수 없다 —
 				// 여는 것으로 넘기면 화면이 "확인했고 문제 없음" 으로 읽는다.
 				.andExpect(jsonPath("$.data.warnings.length()").value(0))
-				.andExpect(jsonPath("$.data.notChecked.length()").value(1))
+				// 🔴 S15P21E201-94 — 시각을 모르면 영업시간·브레이크타임·라스트오더 셋 다 못 잰다.
+				.andExpect(jsonPath("$.data.notChecked.length()").value(3))
 				.andExpect(jsonPath("$.data.notChecked[0].check").value("OPENING_HOURS"))
-				.andExpect(jsonPath("$.data.notChecked[0].reason").value("NO_ITEM_TIME"));
+				.andExpect(jsonPath("$.data.notChecked[0].reason").value("NO_ITEM_TIME"))
+				.andExpect(jsonPath("$.data.notChecked[1].check").value("BREAK_TIME"))
+				.andExpect(jsonPath("$.data.notChecked[1].reason").value("NO_ITEM_TIME"))
+				.andExpect(jsonPath("$.data.notChecked[2].check").value("LAST_ORDER_TIME"))
+				.andExpect(jsonPath("$.data.notChecked[2].reason").value("NO_ITEM_TIME"));
 	}
 
 	@Test
