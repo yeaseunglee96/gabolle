@@ -91,7 +91,13 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 		"com.gabolle.backend.user.repository",
 		"com.gabolle.backend.trip.infra",
 		"com.gabolle.backend.place.repository",
-		"com.gabolle.backend.event.repository"
+		"com.gabolle.backend.event.repository",
+		// 🔴 S15P21E201-160 — AnalyticsQueryService(event.application)가 생성자로
+		// RecommendationJobRepository 를 요구한다. event 를 스캔하는 순간 그 빈도 같이
+		// 요구된다 — place·trip 을 더했을 때와 같은 모양의 사고다. 위 @EntityScan 에는
+		// recommendation.domain 이 이미 있었지만, 저장소는 @EnableJpaRepositories 가
+		// 따로 정한다.
+		"com.gabolle.backend.recommendation.repository"
 })
 public class AuthSliceApplication {
 }
