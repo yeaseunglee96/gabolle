@@ -135,7 +135,7 @@ export function HeroStories({ stories, chips, signedIn }: { stories: StoryDto[] 
           </View>
           <View style={styles.chipRow}>
             {chips.map((chip) => (
-              <Pressable key={chip.featureKey} accessibilityRole="link" onPress={() => router.push('/explore')} style={({ pressed }) => [styles.chip, pressed && styles.chipPressed]}>
+              <Pressable key={chip.featureKey} accessibilityRole="link" onPress={() => router.push({ pathname: '/explore', params: { facet: chip.featureKey } })} style={({ pressed }) => [styles.chip, pressed && styles.chipPressed]}>
                 <Text weight="medium" color={color.text.onAction}>{chip.labelKo}</Text>
               </Pressable>
             ))}
