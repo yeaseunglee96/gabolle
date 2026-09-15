@@ -39,6 +39,18 @@ public class OriginSearchProperties {
 
 	private int maxLimit = 15;
 
+	/**
+	 * 검색을 가둘 사각형 — S15P21E201-979. {@code 왼쪽경도,아래위도,오른쪽경도,위쪽위도} 다.
+	 *
+	 * <p>기본값은 부산광역시를 덮는 상자다. 이 값이 없던 동안 카카오에 전국을 물어봐서,
+	 * "서면" 을 치면 부산 서면이 아니라 전남 순천시 서면의 장소만 여덟 개가 나왔다. 부산
+	 * 결과는 한 건도 없었다. 이 앱은 부산 여행만 다루므로 다른 지역을 보여 줄 이유가 없다.
+	 *
+	 * <p>빈 값으로 두면 제한 없이 부른다 — 부산 밖을 다루게 되는 날 설정만 비우면 된다.
+	 * 코드에 지역을 박지 않는 이유가 그것이다.
+	 */
+	private String searchRect = "128.75,34.88,129.32,35.39";
+
 	public String getProvider() {
 		return this.provider;
 	}
@@ -53,6 +65,14 @@ public class OriginSearchProperties {
 
 	public void setKakaoRestApiKey(String kakaoRestApiKey) {
 		this.kakaoRestApiKey = kakaoRestApiKey;
+	}
+
+	public String getSearchRect() {
+		return this.searchRect;
+	}
+
+	public void setSearchRect(String searchRect) {
+		this.searchRect = searchRect;
 	}
 
 	public String getKakaoBaseUrl() {
