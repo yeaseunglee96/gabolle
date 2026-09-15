@@ -13,8 +13,15 @@ import tools.jackson.databind.JsonNode;
  * 않는다.
  *
  * @param count items 의 개수. 화면이 목록 길이를 다시 세지 않아도 되게 한다.
+ * @param hasMore 🔴 상한에 걸려 <b>더 있는데 안 보낸</b> 회차가 있다 (S15P21E201-1011).
+ *     예전에는 행 수 상한이 아예 없어서 이 칸이 필요 없었다 — 대신 축제가 늘면 응답이
+ *     그만큼 커졌다. 상한을 두면서 이 칸을 <b>함께</b> 넣는다: 상한만 두고 알리지 않으면
+ *     목록이 <b>조용히 잘리고</b>, 그때 사용자에게는 "있던 축제가 사라졌다" 로 보인다.
+ *     참이면 화면은 {@code offset} 을 옮겨 다음 쪽을 더 받을 수 있다.
+ *     <p>🔴 {@code items}·{@code count} 의 이름과 뜻은 <b>바뀌지 않았다</b> — 칸이 하나
+ *     늘었을 뿐이라 이 응답을 이미 읽고 있는 화면은 그대로 동작한다.
  */
-public record FestivalResponse(List<FestivalItem> items, int count) {
+public record FestivalResponse(List<FestivalItem> items, int count, boolean hasMore) {
 
 	/**
 	 * @param title 회차 이름. {@code PlaceEventPeriod#getTitle()} 이 그대로 온다.
