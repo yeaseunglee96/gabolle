@@ -151,7 +151,10 @@ export function PlacePicks({ places }: { places: NearbyPlaceItem[] }) {
             {/* 장소 사진이 아직 안 온다 — 빈 칸을 두되 「사진 없음」이라고 적지는 않는다. */}
             <View style={styles.placeThumb} />
             <Text weight="bold" numberOfLines={1}>{place.nameKo}</Text>
-            <Text variant="caption" numberOfLines={1}>{place.category ?? place.address ?? ''}</Text>
+            {/* 🔴 `category` 를 그대로 그리면 화면에 「FOOD」 같은 **코드**가 뜬다. 그 코드를 한글로
+                바꿀 표가 없다 — assistant/intent.ts 에 여섯 개짜리가 있지만 챗봇 입력을 코드로
+                바꾸는 용도라 값이 더 늘면 그대로 새어 나온다. 주소는 늘 오고 사람이 읽을 수 있다. */}
+            <Text variant="caption" numberOfLines={1}>{place.address ?? ''}</Text>
           </Pressable>
         ))}
       </View>
