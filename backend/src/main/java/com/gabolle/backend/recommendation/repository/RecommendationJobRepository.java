@@ -22,7 +22,7 @@ public interface RecommendationJobRepository extends JpaRepository<Recommendatio
 	// ── 지표 조회 (S15P21E201-160) ──────────────────────────────────────
 
 	/**
-	 * 그 기간에 접수된 Job 을 상태별로 센다 — {@code GET /api/v1/analytics/kpis} 의 근거.
+	 * 그 기간에 접수된 Job 을 상태별로 센다 — {@code GET /api/v1/admin/analytics/kpis} 의 근거.
 	 *
 	 * <p>{@code createdAt} 기준이다 — "그 기간에 접수된 요청이 지금 어느 상태인가" 를 본다.
 	 * 아직 {@code PENDING}·{@code RUNNING} 인 것도 그대로 세어진다 — 진행 중인 것을 조용히

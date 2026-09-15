@@ -48,7 +48,7 @@ public interface EventOutboxRepository extends JpaRepository<EventOutbox, UUID> 
 	// ── 지표 조회 (S15P21E201-160) ──────────────────────────────────────
 
 	/**
-	 * 시간대별 종류별 건수 — {@code GET /api/v1/analytics/kpis} 의 근거.
+	 * 시간대별 종류별 건수 — {@code GET /api/v1/admin/analytics/kpis} 의 근거.
 	 *
 	 * <p>🔴 {@code occurredAt} 기준이다({@code receivedAt} 이 아니다). "언제 일어난 일인가" 를
 	 * 센다 — 서버가 늦게 받은 것과 실제로 늦게 일어난 것은 다른 질문이다.

@@ -4,7 +4,7 @@ import java.time.OffsetDateTime;
 import java.util.List;
 
 /**
- * {@code GET /api/v1/analytics/kpis} 응답 — S15P21E201-160 작업 내용 5번.
+ * {@code GET /api/v1/admin/analytics/kpis} 응답 — S15P21E201-160 작업 내용 5번.
  *
  * <p>🔴 <b>2026-09-15 갱신</b> — 이 티켓 2026-09-03 코멘트가 남겨 둔 "사업 KPI" 결정을 팀이
  * 이제 정했다: 추천 요청의 성공률·평균 처리 시간·실패 사유 분포({@link #recommendationJobHealth()}).
