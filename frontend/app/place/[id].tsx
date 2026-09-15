@@ -31,6 +31,8 @@ export default function Place() {
   const { tx } = useI18n();
   const { accessToken } = useAuth();
   const { width } = useWindowDimensions();
+  // S15P21E201-1015 — 넓은 화면에서만 본문과 행동 버튼을 나눈다(피드·일정과 같은 1024 기준).
+  const wide = isAtLeast(width, 'lg');
   const { id } = useLocalSearchParams<{ id?: string }>();
   const demoPlace = id && id in PLACES ? PLACES[id as keyof typeof PLACES] : null;
   const [isSaved, setIsSaved] = useState(false);
@@ -170,6 +172,10 @@ export default function Place() {
             </View>
           </View>
         )}
+        {/* S15P21E201-1015 — 넓은 화면에서 본문과 행동 버튼을 나눈다. 이 화면은 모든 목록의
+            종착지라 아래로만 쌓이면 저장 버튼이 한참 밑에 있다. 폰은 지금처럼 한 줄이다. */}
+        <View style={wide ? styles.wideGrid : undefined}>
+        <View style={wide ? styles.mainColumn : undefined}>
         {resolved.apiPlace && (formatFeatureSlot(resolved.apiPlace.openingHours, tx) || formatFeatureSlot(resolved.apiPlace.priceLevel, tx) || formatCheckInOut(resolved.apiPlace, tx)) ? (
           <View style={styles.infoRows}>
             {formatFeatureSlot(resolved.apiPlace.openingHours, tx) ? <View style={styles.infoRow}><Text variant="caption" weight="bold" color={color.text.muted}>{tx('영업시간', 'Hours')}</Text><Text variant="body">{formatFeatureSlot(resolved.apiPlace.openingHours, tx)}</Text></View> : null}
@@ -223,12 +229,16 @@ export default function Place() {
             <Text color={color.text.body} style={styles.noticeCopy}>{tx('영업시간·가격대 같은 상세 정보는 곧 추가돼요. 확인되지 않은 정보는 임의로 보여드리지 않아요.', "Details like hours and price level are coming soon. We never show unverified information.")}</Text>
           </View>
         ) : null}
+        </View>
+        <View style={wide ? styles.asideColumn : undefined}>
         <View style={styles.actions}>
           <Button label={isSaved ? tx('내 여행 후보에서 빼기', 'Remove from candidates') : tx('내 여행 후보에 저장', 'Save to candidates')} variant="ghost" onPress={() => void toggleSaved()} />
           <Button label={tx('한국어로 말하기', 'Speak Korean')} onPress={() => setPhraseModalOpen(true)} containerStyle={styles.speakAction} />
           {taxiPlaceId ? <Button label={tx('리뷰 보기', 'See reviews')} variant="ghost" onPress={() => router.push(`/place-reviews/${taxiPlaceId}`)} /> : null}
           {taxiPlaceId ? <Button label={tx('택시 기사에게 보여주기', 'Show to a taxi driver')} onPress={() => router.push(`/taxi-card/${taxiPlaceId}`)} containerStyle={styles.speakAction} /> : null}
           {feedback ? <Text accessibilityLiveRegion="polite" color={color.text.body} style={styles.feedback}>{feedback}</Text> : null}
+        </View>
+        </View>
         </View>
       </> : null}
 
@@ -272,7 +282,7 @@ const styles = StyleSheet.create({
   safetyConfirmed: { gap: spacing[1], marginTop: spacing[4], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.state.successBg },
   notice: { gap: spacing[3], marginTop: spacing[4], padding: spacing[4], borderWidth: 1, borderColor: color.surface.border, borderRadius: radius.lg, backgroundColor: color.surface.card },
   noticeCopy: { lineHeight: 22 },
-  actions: { gap: spacing[3], marginTop: spacing[4] },
+  actions: { gap: spacing[3], marginTop: spacing[4] }, wideGrid: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[6] }, mainColumn: { flex: 1, minWidth: 0 }, asideColumn: { width: 320 },
   feedback: { textAlign: 'center' },
   speakAction: { backgroundColor: color.brand.navy },
   recoveryButton: { marginTop: spacing[2] },
