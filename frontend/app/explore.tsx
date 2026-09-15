@@ -7,7 +7,7 @@
 // 않아도 되게 하려는 것). 그래서 여기엔 8개 이름의 하드코딩 배열이 없다.
 import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as Location from 'expo-location';
 
 import { BrandLogoLink } from '@/components/BrandLogoLink';
@@ -37,10 +37,12 @@ type LocationState = 'detecting' | 'granted' | 'denied';
 
 export default function LocalExplore() {
   const router = useRouter();
+  const { facet } = useLocalSearchParams<{ facet?: string }>();
   const { tx } = useI18n();
   const [result, setResult] = useState<FacetsLoadResult>({ state: 'success', facets: [] });
   const [loading, setLoading] = useState(true);
-  const [openKey, setOpenKey] = useState<string | null>(null);
+  const requestedFacet = facet && KNOWN_FACET_KEYS.has(facet) ? facet : null;
+  const [openKey, setOpenKey] = useState<string | null>(requestedFacet);
   const [locationState, setLocationState] = useState<LocationState>('detecting');
   const [coords, setCoords] = useState<{ latitude: number; longitude: number } | null>(null);
 
@@ -65,8 +67,14 @@ export default function LocalExplore() {
 
   useEffect(() => { void load(); }, [load]);
   useEffect(() => { void detectLocation(); }, [detectLocation]);
+  useEffect(() => { if (requestedFacet) setOpenKey(requestedFacet); }, [requestedFacet]);
 
   const facets = flattenLocalFacets(result);
+  // 홈에서 특정 갈래를 눌러 들어온 경우 그 갈래를 맨 위에서 바로 펼친다. 선택값을 버린 채
+  // 같은 첫 화면만 보여 주면 사용자는 버튼이 동작하지 않았다고 느낀다.
+  const visibleFacets = facets && requestedFacet
+    ? [...facets].sort((a, b) => Number(b.featureKey === requestedFacet) - Number(a.featureKey === requestedFacet))
+    : facets;
 
   return (
     <Screen scroll style={styles.screen}>
@@ -96,29 +104,29 @@ export default function LocalExplore() {
         </View>
       ) : null}
 
-      {!loading && facets && facets.length === 0 ? (
+      {!loading && visibleFacets && visibleFacets.length === 0 ? (
         <View style={styles.stateCard}><Text color={color.text.body}>{tx('지금은 둘러볼 수 있는 갈래가 없어요. 자료가 들어오면 다시 열어 드릴게요.', 'No categories to explore right now — check back once new places are added.')}</Text></View>
       ) : null}
 
-      {!loading && facets && facets.length > 0 ? (
+      {!loading && visibleFacets && visibleFacets.length > 0 ? (
         <View style={styles.accordion}>
-          {facets.map((facet) => {
-            const open = openKey === facet.featureKey;
+          {visibleFacets.map((facetEntry) => {
+            const open = openKey === facetEntry.featureKey;
             return (
-              <View key={facet.featureKey} style={styles.branch}>
+              <View key={facetEntry.featureKey} style={styles.branch}>
                 <Pressable
                   accessibilityRole="button"
                   accessibilityState={{ expanded: open }}
-                  onPress={() => setOpenKey(open ? null : facet.featureKey)}
+                  onPress={() => setOpenKey(open ? null : facetEntry.featureKey)}
                   style={styles.branchHeader}
                 >
-                  <Text variant="body" weight="bold" color={color.text.heading}>{facet.labelKo}</Text>
+                  <Text variant="body" weight="bold" color={color.text.heading}>{facetEntry.labelKo}</Text>
                   <View style={styles.branchRight}>
-                    <View style={styles.countBadge}><Text variant="caption" weight="bold" color={color.text.body}>{facet.placeCount}</Text></View>
+                    <View style={styles.countBadge}><Text variant="caption" weight="bold" color={color.text.body}>{facetEntry.placeCount}</Text></View>
                     <Text variant="title" color={color.text.heading}>{open ? '︿' : '﹀'}</Text>
                   </View>
                 </Pressable>
-                {open ? <LocalBranchList facetKey={facet.featureKey} coords={coords} locationState={locationState} onRetryLocation={() => void detectLocation()} /> : null}
+                {open ? <LocalBranchList facetKey={facetEntry.featureKey} coords={coords} locationState={locationState} onRetryLocation={() => void detectLocation()} /> : null}
               </View>
             );
           })}
@@ -145,6 +153,7 @@ function LocalBranchList({ facetKey, coords, locationState, onRetryLocation }: {
   locationState: 'detecting' | 'granted' | 'denied';
   onRetryLocation: () => void;
 }) {
+  const router = useRouter();
   const { tx } = useI18n();
   const [result, setResult] = useState<NearbyPlacesLoadResult | null>(null);
   const [loading, setLoading] = useState(false);
@@ -202,13 +211,20 @@ function LocalBranchList({ facetKey, coords, locationState, onRetryLocation }: {
         <View style={styles.expandedNotice}><Text variant="caption" weight="bold" color={color.brand.orange}>{tx(`반경을 ${result.effectiveRadiusM.toLocaleString()}m로 넓혔습니다`, `Widened the search radius to ${result.effectiveRadiusM.toLocaleString()}m`)}</Text></View>
       )}
       {result.items.map((item) => (
-        <View key={item.placeId} style={styles.placeRow}>
+        <Pressable
+          key={item.placeId}
+          accessibilityRole="link"
+          accessibilityLabel={tx(`${item.nameKo} 상세 보기`, `View details for ${item.nameEn ?? item.nameKo}`)}
+          onPress={() => router.push(`/place/${item.placeId}`)}
+          style={({ pressed }) => [styles.placeRow, pressed && styles.pressed]}
+        >
           <View style={styles.grow}>
             <Text weight="bold">{item.nameKo}</Text>
             {item.address ? <Text variant="caption" color={color.text.muted}>{item.address}</Text> : null}
           </View>
           <Text variant="caption" weight="bold" color={color.text.accent}>{tx(`${item.distanceM.toLocaleString()}m`, `${item.distanceM.toLocaleString()}m`)}</Text>
-        </View>
+          <Text variant="title" color={color.brand.orange}>›</Text>
+        </Pressable>
       ))}
     </View>
   );

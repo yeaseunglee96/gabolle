@@ -166,7 +166,7 @@ export default function Home() {
             <Text variant="caption" style={styles.sectionSub}>{tx('축제·전통시장·야경처럼 갈래로 부산을 둘러봐요.', 'Browse Busan by festivals, markets, night views and more.')}</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.rail}>
               {home.chips.map((chip) => (
-                <Pressable key={chip.featureKey} accessibilityRole="link" onPress={() => router.push('/explore')} style={({ pressed }) => [styles.chip, pressed && styles.pressed]}>
+                <Pressable key={chip.featureKey} accessibilityRole="link" onPress={() => router.push({ pathname: '/explore', params: { facet: chip.featureKey } })} style={({ pressed }) => [styles.chip, pressed && styles.pressed]}>
                   <Text weight="medium" color={color.text.heading}>{chip.labelKo}</Text>
                 </Pressable>
               ))}
