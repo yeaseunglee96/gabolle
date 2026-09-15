@@ -341,6 +341,38 @@ class AccountDeletionIntegrationTest extends AuthPostgresIntegrationTest {
 		assertThat(itineraryExists(itineraryId)).isFalse();
 	}
 
+	@Test
+	@DisplayName("🔴 사진 기록이 있는 계정도 탈퇴되고 업로드 행이 남지 않는다")
+	void accountWithStoryImageIsDeleted() {
+		UUID storyId = UUID.randomUUID();
+		UUID uploadId = UUID.randomUUID();
+		this.jdbcTemplate.update("""
+				INSERT INTO story
+				  (story_id, author_user_id, body, visibility, publish_at, created_at, updated_at)
+				VALUES (?, ?, '사진 기록', 'PUBLIC', now(), now(), now())
+				""", storyId, this.userId);
+		this.jdbcTemplate.update("""
+				INSERT INTO uploaded_image
+				  (uploaded_image_id, uploader_user_id, storage_key, image_url, content_type, byte_size, created_at)
+				VALUES (?, ?, ?, ?, 'image/jpeg', 128, now())
+				""", uploadId, this.userId, "account-delete/" + uploadId + ".jpg",
+				"https://example.com/" + uploadId + ".jpg");
+		this.jdbcTemplate.update("""
+				INSERT INTO story_image
+				  (story_image_id, story_id, uploaded_image_id, position, created_at)
+				VALUES (?, ?, ?, 1, now())
+				""", UUID.randomUUID(), storyId, uploadId);
+
+		this.accountDeletionService.delete(this.userId, CONFIRM, PASSWORD);
+
+		assertThat(this.jdbcTemplate.queryForObject(
+				"SELECT count(*) FROM story_image WHERE uploaded_image_id = ?", Integer.class, uploadId)).isZero();
+		assertThat(this.jdbcTemplate.queryForObject(
+				"SELECT count(*) FROM uploaded_image WHERE uploaded_image_id = ?", Integer.class, uploadId)).isZero();
+		assertThat(this.userRepository.findById(this.userId)).get()
+				.extracting(AppUser::getStatus).isEqualTo(UserStatus.DELETED);
+	}
+
 	/**
 	 * 서로를 가리키는 일정과 추천 작업 한 벌 — S15P21E201-977.
 	 *

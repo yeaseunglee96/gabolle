@@ -18,6 +18,8 @@ import com.gabolle.backend.auth.domain.LocalCredential;
 import com.gabolle.backend.auth.repository.AuthIdentityRepository;
 import com.gabolle.backend.auth.repository.AuthSessionRepository;
 import com.gabolle.backend.auth.repository.LocalCredentialRepository;
+import com.gabolle.backend.story.application.StorageCleanupService;
+import com.gabolle.backend.story.domain.StorageCleanupEntry;
 import com.gabolle.backend.user.domain.AppUser;
 import com.gabolle.backend.user.domain.UserStatus;
 import com.gabolle.backend.user.repository.AppUserRepository;
@@ -82,10 +84,12 @@ public class AccountDeletionService {
 
 	private final Clock clock;
 
+	private final StorageCleanupService storageCleanupService;
+
 	public AccountDeletionService(LocalCredentialRepository credentialRepository,
 			AuthSessionRepository sessionRepository, AuthIdentityRepository identityRepository,
 			UserConsentRepository consentRepository, AppUserRepository userRepository,
-			PasswordEncoder passwordEncoder, Clock clock) {
+			PasswordEncoder passwordEncoder, Clock clock, StorageCleanupService storageCleanupService) {
 		this.credentialRepository = credentialRepository;
 		this.sessionRepository = sessionRepository;
 		this.identityRepository = identityRepository;
@@ -93,6 +97,7 @@ public class AccountDeletionService {
 		this.userRepository = userRepository;
 		this.passwordEncoder = passwordEncoder;
 		this.clock = clock;
+		this.storageCleanupService = storageCleanupService;
 	}
 
 	/**
@@ -190,11 +195,33 @@ public class AccountDeletionService {
 		deletePersonalizationArtifacts(userId);
 		deleteSnapshots(userId);
 		deleteTripsAndMemberships(userId, tripIds);
+		deleteUploadedImages(userId);
 		deleteStories(userId);
 		deleteLoginMeans(userId, credential);
 		detachEvents(userId);
 
 		user.anonymizeForDeletion(this.clock.instant());
+	}
+
+	/**
+	 * 탈퇴한 사람이 올린 사진의 연결·DB 행·실제 파일을 함께 지운다 — S15P21E201-978.
+	 *
+	 * <p>{@code story_image}가 {@code uploaded_image}를 가리키므로 연결을 먼저 지운다. 파일 저장소
+	 * 삭제는 현재 DB 트랜잭션이 커밋된 뒤 실행되고, 실패하면 뒷정리 대기열에 남는다. 사진 한 장
+	 * 때문에 탈퇴 전체를 되돌리지 않으면서도 파일을 조용히 남기지 않는다.
+	 */
+	private void deleteUploadedImages(UUID userId) {
+		List<String> storageKeys = this.entityManager.createQuery(
+				"SELECT i.storageKey FROM UploadedImage i WHERE i.uploaderUserId = :userId", String.class)
+				.setParameter("userId", userId)
+				.getResultList();
+		execute("""
+				DELETE FROM StoryImage si WHERE si.uploadedImageId IN
+				(SELECT i.uploadedImageId FROM UploadedImage i WHERE i.uploaderUserId = :userId)
+				""", "userId", userId);
+		execute("DELETE FROM UploadedImage i WHERE i.uploaderUserId = :userId", "userId", userId);
+		storageKeys.forEach(key -> this.storageCleanupService.deleteOrEnqueue(
+				key, StorageCleanupEntry.REASON_ACCOUNT_DELETED));
 	}
 
 	/**
@@ -380,13 +407,9 @@ public class AccountDeletionService {
 	 * 주석 참고). 그래야 {@link #preview}의 {@code recordCount}(살아있는 기록만 센다)와
 	 * 실제 삭제 결과가 어긋나지 않는다.
 	 *
-	 * <p>🔴 <b>딸린 사진 파일은 여기서 지우지 않는다.</b> {@code StoryService.delete}는
-	 * {@code StorageCleanupService}로 파일 저장소의 실제 파일까지 지우는데, 이 메서드는
-	 * (클래스 상단이 정한 대로) JPQL 벌크 갱신 하나뿐이라 그 경로를 안 탄다. 그래서 이 사람의
-	 * 기록 사진은 DB에서는 안 보이지만 저장소에는 당분간 남는다 — 알려진 한계다. 사람 단위
-	 * 일괄 삭제 빈도가 낮고, 물리 파일 정리는 story 쪽 정기 청소(S15P21E201-226)가 이미
-	 * {@code storage_cleanup_queue}로 못 지운 키를 다시 시도하는 것과 같은 성격의 문제라
-	 * 그쪽에 맡긴다.
+	 * <p>딸린 사진은 이 메서드 직전의 {@link #deleteUploadedImages}가 연결과 업로드 행을 지우고,
+	 * 실제 파일도 커밋 뒤 삭제한다. 기록 행은 신고·검토 근거를 위해 익명화된 작성자와 함께
+	 * 소프트 삭제 상태로 남지만 사진 주소와 저장 키는 남지 않는다.
 	 */
 	private void deleteStories(UUID userId) {
 		this.entityManager.createQuery(
