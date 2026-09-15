@@ -58,6 +58,19 @@ public class GeminiAssistantAdapter implements AssistantVendorPort {
 
 	static final Set<String> ALLOWED_HREFS = Set.of("/plan/basic", "/trips", "/field/translate");
 
+	/** '/plan/basic' 으로 갈 때만 채운다 — days 는 1~30, people 은 1~20 을 벗어나면 버린다. */
+	private static final int MIN_DAYS = 1;
+	private static final int MAX_DAYS = 30;
+	private static final int MIN_PEOPLE = 1;
+	private static final int MAX_PEOPLE = 20;
+
+	/**
+	 * 🔴 {@code propertyOrdering} 을 명시한다 — Gemini 구조화 출력은 필드를 이 순서대로
+	 * 생성하는데, {@code properties} 를 {@code Map.of()} 로 주면 반복 순서가 보장되지 않아
+	 * (JVM 이 매번 무작위로 섞는다) 순서가 흐트러진다. 순서가 흐트러지면 {@code days}·
+	 * {@code people} 같은 뒤쪽 필드를 모델이 채우다 만 것처럼 빠뜨리는 문제가 실제로
+	 * 있었다(라이브 테스트로 확인, S15P21E201-985).
+	 */
 	private static final Schema RESPONSE_SCHEMA = Schema.builder()
 			.type(Type.Known.OBJECT)
 			.properties(Map.of(
@@ -66,12 +79,19 @@ public class GeminiAssistantAdapter implements AssistantVendorPort {
 					"korean", string(),
 					"pronunciation", string(),
 					"label", string(),
-					"href", stringEnum("/plan/basic", "/trips", "/field/translate")))
+					"href", stringEnum("/plan/basic", "/trips", "/field/translate"),
+					"days", integer(),
+					"people", integer()))
+			.propertyOrdering("kind", "reply", "korean", "pronunciation", "label", "href", "days", "people")
 			.required("kind", "reply")
 			.build();
 
 	private static Schema string() {
 		return Schema.builder().type(Type.Known.STRING).build();
+	}
+
+	private static Schema integer() {
+		return Schema.builder().type(Type.Known.INTEGER).build();
 	}
 
 	private static Schema stringEnum(String... values) {
@@ -90,6 +110,27 @@ public class GeminiAssistantAdapter implements AssistantVendorPort {
 			    '/trips'           — 내 여행 목록
 			    '/field/translate' — 현장 번역
 			  label 에는 그 화면으로 가는 짧은 한국어 버튼 문구를 채운다(예: "여행 만들기").
+
+			  🔴 href 가 '/plan/basic' 일 때 반드시 확인한다 — 사용자 메시지에 여행 일수나
+			  인원 숫자가 나와 있으면 반드시 days·people 을 채워야 한다(빠뜨리지 않는다). 아래
+			  입력→출력 예시와 정확히 같은 방식으로 채운다.
+
+			    입력: "부산 2박3일로 4명이서 여행 갈건데 만들어줘"
+			    출력: {"days": 3, "people": 4}
+			    (2박3일은 3일짜리 여행이다 — 밤을 잔 횟수가 아니라 날짜 수를 센다)
+
+			    입력: "1박2일로 여행 만들어줘"
+			    출력: {"days": 2}
+			    (인원 언급이 없으므로 people 은 채우지 않는다 — 숫자 2 를 people 에 넣지 않는다)
+
+			    입력: "당일치기로 혼자 여행 만들어줘"
+			    출력: {"days": 1, "people": 1}
+
+			    입력: "여행 만들고 싶어"
+			    출력: {} (일수·인원 언급이 전혀 없으므로 둘 다 비운다)
+
+			  메시지에 없는 값은 절대 추측하지 않는다. 특히 사람 수 언급이 없으면 people 은
+			  반드시 비운다 — 일수 숫자를 people 자리에 넣는 실수를 하지 않는다.
 			- phrase: 특정 한국어 표현/문구를 물어보거나 번역을 원하는 요청. korean·pronunciation
 			  을 채운다.
 			- help: 위 둘에 해당하지 않거나 애매한 요청, 또는 이 앱이 못 하는 것을 물었을 때.
@@ -226,8 +267,50 @@ public class GeminiAssistantAdapter implements AssistantVendorPort {
 				parsed.reply(),
 				kind == AssistantActionKind.PHRASE ? parsed.korean() : null,
 				kind == AssistantActionKind.PHRASE ? parsed.pronunciation() : null,
-				kind == AssistantActionKind.NAVIGATE ? parsed.label() : null,
-				kind == AssistantActionKind.NAVIGATE ? parsed.href() : null);
+				kind == AssistantActionKind.NAVIGATE ? label(parsed) : null,
+				kind == AssistantActionKind.NAVIGATE ? withPrefill(parsed.href(), parsed) : null);
+	}
+
+	private static final Map<String, String> DEFAULT_LABELS = Map.of(
+			"/plan/basic", "여행 만들기",
+			"/trips", "내 여행 보기",
+			"/field/translate", "번역 열기");
+
+	/**
+	 * 🔴 label 은 스키마에서 required 가 아니라, 모델이 이따금 비워서 준다(라이브 테스트로
+	 * 확인, S15P21E201-985) — 채워 넣을 값이 이 셋뿐이라 모델 프롬프트로 100% 잡으려 하기보다
+	 * href 별 기본 문구로 안전하게 채운다. 버튼은 항상 눌러야 하는 자리라 비워 둘 수 없다.
+	 */
+	private String label(GeminiStructuredReply parsed) {
+		if (parsed.label() != null && !parsed.label().isBlank()) {
+			return parsed.label();
+		}
+		return DEFAULT_LABELS.get(parsed.href());
+	}
+
+	/**
+	 * '/plan/basic' 으로 갈 때, 대화에서 뽑아낸 days·people 을 쿼리 파라미터로 실어 보낸다 —
+	 * 화면이 그 값으로 폼을 미리 채울 수 있게. 모델이 범위 밖 숫자를 지어내면(음수, 너무 큰 값
+	 * 등) 그 파라미터만 조용히 뺀다 — 전체 응답을 실패시킬 이유는 아니다.
+	 */
+	private String withPrefill(String href, GeminiStructuredReply parsed) {
+		if (!"/plan/basic".equals(href)) {
+			return href;
+		}
+		StringBuilder query = new StringBuilder();
+		appendIfInRange(query, "days", parsed.days(), MIN_DAYS, MAX_DAYS);
+		appendIfInRange(query, "people", parsed.people(), MIN_PEOPLE, MAX_PEOPLE);
+		return query.isEmpty() ? href : href + "?" + query;
+	}
+
+	private void appendIfInRange(StringBuilder query, String key, Integer value, int min, int max) {
+		if (value == null || value < min || value > max) {
+			return;
+		}
+		if (!query.isEmpty()) {
+			query.append("&");
+		}
+		query.append(key).append("=").append(value);
 	}
 
 	AssistantActionKind parseKind(String raw) {
