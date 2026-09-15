@@ -393,8 +393,32 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         //    판을 먼저 만들고 saveContent 로 내용을 나중에 넣었는데, 그 두 걸음 사이가
         //    "판은 있는데 내용이 없는" 상태였다. 저장소 인터페이스에서 그 걸음을 없앴다.
         this.itineraryRepository.create(itinerary, firstVersion, items, legs);
+        markTripReady(draft.tripId(), now);
 
         return new ItineraryHandle(itineraryId, 1);
+    }
+
+    /**
+     * 일정이 생겼으니 여행을 READY 로 옮긴다 — S15P21E201-964.
+     *
+     * <p>2026-09-15 까지 {@link Trip#markReady} 는 <b>어디에서도 불리지 않았다.</b> 그래서
+     * 모든 여행이 PLANNING 에 머물렀고, 내 여행 목록은 일정이 여러 판 쌓인 여행까지
+     * "일정 준비 중" 으로 보여 줬다. 목록만 보고는 일정이 만들어졌는지 알 수 없었다.
+     *
+     * <p>🔴 PLANNING 일 때만 옮긴다. 여행 중(IN_PROGRESS)인 여행의 일정을 다시 만들 때
+     * 무조건 READY 로 쓰면 진행 단계가 뒤로 밀린다. 끝난 여행과 지워진 여행은
+     * {@code markReady} 가 예외를 던지므로 그 앞에서 거른다 — 여기서 터지면 일정 저장까지
+     * 함께 굴러떨어지고, 그러면 <b>상태 한 칸 때문에 일정 생성이 실패한다.</b>
+     *
+     * <p>바깥 트랜잭션 안이라(머리말 참고) 일정과 상태가 같이 반영되거나 같이 안 된다.
+     */
+    private void markTripReady(String tripId, Instant now) {
+        this.tripRepository.findById(tripId)
+                .filter((trip) -> !trip.isDeleted() && trip.status() == Trip.Status.PLANNING)
+                .ifPresent((trip) -> {
+                    trip.markReady(now);
+                    this.tripRepository.updateStatus(trip);
+                });
     }
 
     // ------------------------------------------------------------------

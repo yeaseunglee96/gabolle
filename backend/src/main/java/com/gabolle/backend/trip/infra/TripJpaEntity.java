@@ -168,6 +168,17 @@ public class TripJpaEntity {
 		this.updatedAt = updatedAt;
 	}
 
+	/**
+	 * 상태 칸을 옮긴다 — S15P21E201-964. 어느 상태로 갈 수 있는지는 도메인
+	 * ({@link Trip#markReady}) 이 이미 판정했고 여기서는 옮겨 적기만 한다.
+	 *
+	 * <p>{@link #markDeleted} 와 같이 시각을 인자로 받는다 — 같은 이유다.
+	 */
+	void changeStatus(Trip.Status status, OffsetDateTime updatedAt) {
+		this.status = status;
+		this.updatedAt = updatedAt;
+	}
+
 	UUID tripId() { return tripId; }
 	UUID ownerUserId() { return ownerUserId; }
 	String ownerType() { return ownerType; }
