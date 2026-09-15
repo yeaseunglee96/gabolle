@@ -130,10 +130,6 @@ export function formatLastOrderTime(place: Place, tx: (ko: string, en: string) =
   return slot.evidenceStatus === 'ESTIMATED' ? tx(`${text} (추정)`, `${text} (est.)`) : text;
 }
 
-// 장소 이름 한글·영문 병기(S15P21E201-264) — 언어 설정과 무관하게 "해운대 해수욕장 (Haeundae
-// Beach)" 형태로 둘 다 보여준다. 영문 이름이 한국인 택시 기사에게는 쓸모없고, 한글 이름만
-// 보여주면 영어 사용자가 못 읽는다. 영문이 없으면 괄호 없이 한국어 원문만 보여준다 — 빈
-// 문자열을 보여주지 않는다.
 // 계단 유무(STAIRS_PRESENT, S15P21E201-540) — 참거짓형(FLAG) 피처, formatSoloFriendly와 같은
 // 이유로 boolean 라벨을 따로 붙인다. "정보 없음 = 계단 없음"으로 읽지 않는다(마이그레이션
 // 주석: "정보 없음은 UNKNOWN") — 모르면 모른다고 말한다.
@@ -155,6 +151,31 @@ export function formatSlopePercent(place: Place, tx: (ko: string, en: string) =>
   return slot.evidenceStatus === 'ESTIMATED' ? tx(`${text} (추정)`, `${text} (est.)`) : text;
 }
 
+// 숙박 체크인·체크아웃(CHECK_IN_OUT, S15P21E201-141·852) — 숙박은 영업시간(OPENING_HOURS)
+// 대신 이 표식이 온다(OpeningHoursReader.java 기준). 둘이 답하는 질문이 달라 한 자리에
+// 안 섞는다 — "영업시간" 줄은 숙박에서 그냥 안 뜨고(표식 자체가 없으므로), 이 줄이 그
+// 자리를 대신한다. checkIn·checkOut 은 하나만 있을 수 있다(원본 자료에 한쪽만 있는 경우).
+export function formatCheckInOut(place: Place, tx: (ko: string, en: string) => string): string | null {
+  const slot = toFeatureSlot(findFeature(place, 'CHECK_IN_OUT'));
+  if (!slot) return null;
+  if (slot.evidenceStatus === 'UNKNOWN' || slot.value == null) return tx('확인 안 됨', 'Unconfirmed');
+  const value = slot.value as { checkIn?: unknown; checkOut?: unknown };
+  const checkIn = typeof value?.checkIn === 'string' ? value.checkIn : null;
+  const checkOut = typeof value?.checkOut === 'string' ? value.checkOut : null;
+  const text = checkIn && checkOut
+    ? tx(`체크인 ${checkIn} · 체크아웃 ${checkOut}`, `Check-in ${checkIn} · Check-out ${checkOut}`)
+    : checkIn
+      ? tx(`체크인 ${checkIn}`, `Check-in ${checkIn}`)
+      : checkOut
+        ? tx(`체크아웃 ${checkOut}`, `Check-out ${checkOut}`)
+        : JSON.stringify(slot.value);
+  return slot.evidenceStatus === 'ESTIMATED' ? tx(`${text} (추정)`, `${text} (est.)`) : text;
+}
+
+// 장소 이름 한글·영문 병기(S15P21E201-264) — 언어 설정과 무관하게 "해운대 해수욕장 (Haeundae
+// Beach)" 형태로 둘 다 보여준다. 영문 이름이 한국인 택시 기사에게는 쓸모없고, 한글 이름만
+// 보여주면 영어 사용자가 못 읽는다. 영문이 없으면 괄호 없이 한국어 원문만 보여준다 — 빈
+// 문자열을 보여주지 않는다.
 export function bilingualPlaceName(nameKo: string, nameEn?: string | null) {
   const trimmedEn = nameEn?.trim();
   return trimmedEn ? `${nameKo} (${trimmedEn})` : nameKo;
