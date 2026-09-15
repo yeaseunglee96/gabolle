@@ -47,7 +47,12 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 		// 결과 조회·컨트롤러가 줄줄이 켜져서 itinerary 까지 따라온다. 이 슬라이스의 뜻은
 		// "추천만 올린다" 이므로 거기서 멈춘다.
 		"com.gabolle.backend.place",
-		"com.gabolle.backend.trip.infra"
+		"com.gabolle.backend.trip.infra",
+		// S15P21E201-106 — ThemeWeightResolver(recommendation.config)가 생성자로
+		// CourseThemeProperties 를 요구한다. 그 클래스는 coursetheme 패키지에 있어 이
+		// 목록 밖이었고, 이 슬라이스의 모든 통합 테스트가 빈을 못 찾아 컨텍스트부터
+		// 실패했다.
+		"com.gabolle.backend.coursetheme"
 })
 @EntityScan(basePackages = {
 		"com.gabolle.backend.event.domain",
