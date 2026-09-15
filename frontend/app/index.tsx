@@ -1,10 +1,11 @@
-import { Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Image, ImageBackground, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Text } from '@/components/Text';
 import { GabolleMascot } from '@/components/DongbaekMascot';
+import { PlanWebNav } from '@/plan/PlanWebNav';
 import { HeroStories, MyTripCard, PlacePicks, WeatherLine } from '@/home/HomeBlocks';
 import { useHomeData } from '@/home/useHomeData';
 import { color, radius, spacing } from '@/design/tokens';
@@ -17,6 +18,7 @@ import { useAuth } from '@/auth/AuthProvider';
 const logo = require('../assets/brand/gabolle-logo-hd.png');
 const nightLogo = require('../assets/brand/gabolle-logo-night.png');
 const welcomeImage = require('../assets/images/welcome-busan.png');
+const webHeroImage = require('../assets/home/web-hero.png');
 type WelcomeLanguage = { code: Extract<LanguageCode, 'ko' | 'en'>; label: string };
 const LANGUAGES: WelcomeLanguage[] = [{ code: 'ko', label: '한국어' }, { code: 'en', label: 'English' }];
 // 「특별한 기능」 카드 셋(AI 일정 만들기 · 실시간 경로 안내 · 함께 여행 설계)은 뺐다
@@ -70,27 +72,21 @@ export default function Welcome() {
 
   return <View style={styles.webShell}><ScrollView style={styles.webScreen} contentContainerStyle={styles.webContent}>
     <StatusBar style="dark" />
-    <SafeAreaView edges={['top']} style={styles.webHeader}>
-      <Pressable accessibilityRole="link" accessibilityLabel={tx('GABOLLE 홈', 'GABOLLE home')} onPress={() => router.replace('/')} style={({ pressed }) => [styles.logoLink, pressed && styles.pressed]}><Image source={logo} resizeMode="contain" style={styles.webLogo} /></Pressable>
-      {/* S15P21E201-900: "부산 축제" 내비 항목은 최초 배포에서 뺐다 — 가진 축제 기간
-          자료가 전부 만료돼 화면을 열어도 보여줄 게 없다. /festivals 라우트는 그대로 있다.
-          S15P21E201-906: "피드"도 출시 전 제품 결정으로 뺐다. /feed 라우트는 그대로 있다.
-          🔴 2026-09-14: "피드"를 다시 켰다. 위 문장은 지우지 않고 남긴다 — 뒤집은
-          결정이라는 사실이 보여야 한다. "부산 축제"는 그대로 빠져 있다. */}
-      <View style={styles.webNav}><NavItem label={tx('홈', 'Home')} onPress={() => router.replace('/')} /><NavItem label={tx('피드', 'Feed')} onPress={() => router.push(user ? '/feed' : '/sign-in')} /><NavItem label={tx('여행 만들기', 'Plan a trip')} onPress={startPlanning} /><NavItem label={tx('내 여행', 'My trips')} onPress={() => router.push(user ? '/trips' : '/sign-in')} /></View>
-      <View style={styles.accountActions}>
-        <Pressable accessibilityRole="button" accessibilityLabel={tx(`언어를 ${language === 'ko' ? 'English' : '한국어'}로 변경`, `Change language to ${language === 'ko' ? 'English' : 'Korean'}`)} onPress={() => chooseLanguage(language === 'ko' ? 'en' : 'ko')} style={styles.localeButton}><Text variant="caption" weight="bold">{language.toUpperCase()}</Text></Pressable>
-        {user ? (
-          <Pressable accessibilityRole="button" onPress={() => router.push('/me')} style={styles.signupButton}><Text variant="caption" weight="bold" color={color.text.onAction}>{user.displayName}</Text></Pressable>
-        ) : (
-          <>
-            <Pressable accessibilityRole="button" onPress={() => router.push('/sign-in')} style={styles.loginButton}><Text variant="caption" weight="bold">{tx('로그인', 'Sign in')}</Text></Pressable>
-            <Pressable accessibilityRole="button" onPress={() => startOnboarding()} style={styles.signupButton}><Text variant="caption" weight="bold" color={color.text.onAction}>{tx('회원가입', 'Sign up')}</Text></Pressable>
-          </>
-        )}
-      </View>
-    </SafeAreaView>
-    <View style={styles.heroSection}>
+    {/* 🔴 상단 바를 여기서 따로 그리지 않는다 (S15P21E201-970). 전에는 이 파일 안에 내비가
+        하나 더 박혀 있어서 **내비가 두 벌**이었고, 그래서 랜딩만 옛 모양(72px · 가운데 정렬 ·
+        작은 글자 · 활성 표식 없음)으로 남아 확정안 2c 가 안 먹었다. 이제 한 벌만 쓴다 —
+        언어·로그인·회원가입·이름 버튼도 그 안으로 옮겼다.
+
+        S15P21E201-900: "부산 축제" 내비 항목은 최초 배포에서 뺐다 — 가진 축제 기간 자료가
+        전부 만료돼 화면을 열어도 보여줄 게 없다. /festivals 라우트는 그대로 있다.
+        S15P21E201-906: "피드"도 출시 전 제품 결정으로 뺐다가 2026-09-14 에 다시 켰다 —
+        뒤집은 결정이라는 사실이 보이도록 이 문장을 남긴다. "부산 축제"는 그대로 빠져 있다. */}
+    <SafeAreaView edges={['top']}><PlanWebNav /></SafeAreaView>
+    {/* 배경 사진을 되살린다 (S15P21E201-970). 시안 1a 를 옮기면서 오른쪽 영상을 기록 카드로
+        바꿨는데, 그때 배경까지 통째로 걷어내서 네이비 단색 판이 됐다. 사진은 남기되 글자가
+        읽히도록 네이비를 덮는다 — 덮개가 없으면 흰 글자가 하늘·물빛 위에서 안 읽힌다. */}
+    <ImageBackground source={webHeroImage} resizeMode="cover" style={styles.heroSection}>
+      <View style={styles.heroBackdrop} />
       <View style={styles.heroCopy}><View style={styles.heroInner}>
         <View style={styles.heroBadge}><Text variant="caption" weight="bold" color={color.text.onAction}>AI TRAVEL PLANNER · BUSAN</Text></View>
         <Text variant="hero" weight="bold" color={color.text.onAction} style={styles.heroTitle}>{tx(`부산의 모든 여행,\n가볼래?`, `Every side of Busan,\nyours to explore.`)}</Text>
@@ -112,7 +108,7 @@ export default function Welcome() {
           문제가 여기서 시작됐다 — 그 자리에 지금 올라온 기록을 넣는다 (S15P21E201-970).
           🔴 비로그인에게도 보여준다. 익명 출입증으로 공개 글은 그대로 온다. */}
       <HeroStories stories={home.stories} chips={home.chips} signedIn={home.signedIn} />
-    </View>
+    </ImageBackground>
     {/* 두 블록이 다 비면(장소를 못 받았고 로그인도 안 했으면) 구역을 통째로 접는다 —
         안 그러면 아무것도 없는 여백 띠만 남아 화면이 고장난 것처럼 보인다. */}
     {home.places.length > 0 || user ? (
@@ -158,7 +154,10 @@ const styles = StyleSheet.create({
   // 날씨, 오른쪽은 지금 올라온 기록. 높이를 고정하지 않는다: 오른쪽 카드 셋이 내용에 따라
   // 늘어나는데 500 으로 묶어 두면 카드가 잘린다.
   heroSection: { flexDirection: 'row', alignItems: 'stretch', backgroundColor: color.brand.navy },
-  heroCopy: { width: 560, paddingLeft: 80, paddingRight: 40, paddingTop: 72, paddingBottom: 64, backgroundColor: color.brand.navy }, heroInner: { width: '100%' }, heroBadge: { alignSelf: 'flex-start', borderWidth: 1, borderColor: 'rgba(255,255,255,0.20)', borderRadius: radius.full, backgroundColor: 'rgba(255,255,255,0.10)', paddingHorizontal: spacing[4], paddingVertical: 6 }, heroTitle: { marginTop: 28, fontSize: 68, lineHeight: 71, letterSpacing: -2.4 }, heroDescription: { marginTop: 28, fontSize: 18, lineHeight: 29 }, heroActions: { flexDirection: 'row', gap: spacing[4], marginTop: 28 }, primaryCta: { minHeight: 52, borderRadius: radius.full, backgroundColor: color.brand.orange, paddingHorizontal: 40, alignItems: 'center', justifyContent: 'center' }, ghostCta: { minHeight: 52, borderRadius: radius.full, borderWidth: 1, borderColor: 'rgba(255,255,255,0.3)', paddingHorizontal: spacing[6], alignItems: 'center', justifyContent: 'center' }, heroChips: { flexDirection: 'row', gap: spacing[3], marginTop: 20 }, heroChip: { flexDirection: 'row', alignItems: 'center', gap: 6, borderRadius: radius.full, backgroundColor: 'rgba(255,255,255,0.07)', paddingHorizontal: 14, paddingVertical: 6 }, chipDot: { width: 6, height: 6, borderRadius: radius.full },
+  // 사진 위 덮개. 0.78 이면 흰 글자가 읽히면서 광안대교 윤곽이 남는다 — 1.0 이면 사진이
+  // 있으나 마나이고, 0.5 근처면 제목이 하늘빛에 묻힌다.
+  heroBackdrop: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(11,29,58,0.78)' },
+  heroCopy: { width: 560, paddingLeft: 80, paddingRight: 40, paddingTop: 72, paddingBottom: 64 }, heroInner: { width: '100%' }, heroBadge: { alignSelf: 'flex-start', borderWidth: 1, borderColor: 'rgba(255,255,255,0.20)', borderRadius: radius.full, backgroundColor: 'rgba(255,255,255,0.10)', paddingHorizontal: spacing[4], paddingVertical: 6 }, heroTitle: { marginTop: 28, fontSize: 68, lineHeight: 71, letterSpacing: -2.4 }, heroDescription: { marginTop: 28, fontSize: 18, lineHeight: 29 }, heroActions: { flexDirection: 'row', gap: spacing[4], marginTop: 28 }, primaryCta: { minHeight: 52, borderRadius: radius.full, backgroundColor: color.brand.orange, paddingHorizontal: 40, alignItems: 'center', justifyContent: 'center' }, ghostCta: { minHeight: 52, borderRadius: radius.full, borderWidth: 1, borderColor: 'rgba(255,255,255,0.3)', paddingHorizontal: spacing[6], alignItems: 'center', justifyContent: 'center' }, heroChips: { flexDirection: 'row', gap: spacing[3], marginTop: 20 }, heroChip: { flexDirection: 'row', alignItems: 'center', gap: 6, borderRadius: radius.full, backgroundColor: 'rgba(255,255,255,0.07)', paddingHorizontal: 14, paddingVertical: 6 }, chipDot: { width: 6, height: 6, borderRadius: radius.full },
   // 「특별한 기능」 카드 셋이 있던 자리다. 로그인해도 내용이 안 바뀌는 소개였고, 그 자리에
   // 장소와 내 여행이 들어왔다 (S15P21E201-970).
   lowerSection: { flexDirection: 'row', alignItems: 'flex-start', gap: 40, paddingHorizontal: 80, paddingTop: 48, paddingBottom: 64, maxWidth: 1440, width: '100%', alignSelf: 'center' },

@@ -217,14 +217,19 @@ const styles = StyleSheet.create({
   weatherRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[3], marginTop: spacing[6], paddingTop: spacing[6], borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.14)' },
   weatherHint: { marginLeft: 'auto' },
 
-  heroRight: { flex: 1, gap: spacing[3], minWidth: 0 },
+  // 시안 1a 의 오른쪽 칸 패딩(위 40 · 오른 80 · 아래 40 · 왼 24). 이게 없어서 카드와
+  // 「피드 전체 →」가 화면 오른쪽 끝에 붙었고, 칩 아래가 네이비 판 바닥에 닿아 다음 구역과
+  // 딱 붙어 보였다.
+  heroRight: { flex: 1, gap: spacing[3], minWidth: 0, paddingTop: 40, paddingRight: 80, paddingBottom: 40, paddingLeft: spacing[6] },
   heroRightHead: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', gap: spacing[3] },
   feedAll: { minHeight: 44, justifyContent: 'center' },
-  storyGrid: { flexDirection: 'row', gap: spacing[3] },
+  // 🔴 flex:1 만 주면 카드가 남은 칸을 전부 나눠 먹는다. 기록이 둘뿐이면 한 장이 500px 을
+  //    넘어가 사진이 화면 절반을 차지했다. 시안 폭(1440 에서 약 250)으로 상한을 둔다.
+  storyGrid: { flexDirection: 'row', gap: spacing[3], alignItems: 'flex-start' },
   signInPrompt: { gap: spacing[3], alignItems: 'flex-start', padding: spacing[4], borderRadius: radius.lg, backgroundColor: 'rgba(255,255,255,0.08)' },
   signInButton: { minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.surface.card },
-  storyCard: { flex: 1, minWidth: 0, borderRadius: radius.lg, overflow: 'hidden', backgroundColor: color.surface.card },
-  storySkeleton: { height: 260, backgroundColor: 'rgba(255,255,255,0.12)' },
+  storyCard: { flex: 1, minWidth: 0, maxWidth: 260, borderRadius: radius.lg, overflow: 'hidden', backgroundColor: color.surface.card },
+  storySkeleton: { height: 260, maxWidth: 260, backgroundColor: 'rgba(255,255,255,0.12)' },
   storyImage: { width: '100%', aspectRatio: 1, backgroundColor: color.surface.soft },
   storyBody: { gap: spacing[1], paddingHorizontal: spacing[4], paddingTop: 14, paddingBottom: spacing[4] },
   storyAuthor: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], marginTop: spacing[1] },
