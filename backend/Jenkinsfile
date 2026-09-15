@@ -186,7 +186,16 @@ pipeline {
                     string(credentialsId: 'gabolle-s3-access-key', variable: 'GABOLLE_S3_ACCESS_KEY'),
                     string(credentialsId: 'gabolle-s3-secret-key', variable: 'GABOLLE_S3_SECRET_KEY'),
                     // S15P21E201-285 — 기상청 단기예보 조회서비스 인증키(data.go.kr 개발계정).
-                    string(credentialsId: 'gabolle-kma-service-key', variable: 'GABOLLE_KMA_SERVICE_KEY')
+                    string(credentialsId: 'gabolle-kma-service-key', variable: 'GABOLLE_KMA_SERVICE_KEY'),
+                    // 🔴 S15P21E201-942 — /internal/** 을 여는 기계 전용 토큰
+                    // (InternalApiProperties 문서 참고). taste_vector_daily DAG
+                    // (infra/personalization, common/dev)이 X-Internal-Token 으로
+                    // 이 값을 보낸다 — 그쪽 compose.yaml 의 GABOLLE_INTERNAL_API_TOKEN
+                    // 과 반드시 같은 값이어야 한다. Credential 자체는 아직 만들지
+                    // 않았다 — 값이 없으면 empty string 이 되어 /internal/** 이
+                    // 전부 거부된 채로 남을 뿐, 이 잡이 실패하지는 않는다
+                    // (InternalApiProperties: 빈 값이면 문이 잠긴다).
+                    string(credentialsId: 'gabolle-internal-api-token', variable: 'GABOLLE_INTERNAL_API_TOKEN')
                 ]) {
                     sh 'docker stop backend || true'
                     sh 'docker rm backend || true'
