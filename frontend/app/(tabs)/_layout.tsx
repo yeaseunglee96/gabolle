@@ -1,12 +1,14 @@
-// 🔴 피드를 열었다 (S15P21E201-970). 전에는 로그인해야 볼 수 있었는데, 처음 온 사람에게
-// 보여줄 것이 서비스 소개뿐이라 홈이 비어 보이는 원인 중 하나였다.
+// 🔴 2026-09-15 — 피드를 비로그인에게 여는 것은 **프론트만으로는 안 된다.** 되돌린 기록을 남긴다.
 //
-// 열 수 있는 근거는 셋이다.
-//   · 서버에 익명 출입증이 있다 (S15P21E201-303, `/api/v1/auth/anonymous`)
-//   · api/client.ts 가 그 토큰을 알아서 붙인다 — 비로그인 요청도 서버에서 통과한다
-//   · feed.tsx 가 이미 `signedIn` 분기·캐시 키·로그아웃용 빈 상태를 갖고 있다
+// 한 번 `publicPaths` 에 `/feed` 를 넣었다. 근거는 서버에 익명 출입증이 있고(S15P21E201-303),
+// api/client.ts 가 그 토큰을 이미 붙이며, feed.tsx 가 로그아웃 분기를 갖고 있다는 것이었다.
+// 셋 다 맞는 사실이지만 **결론이 틀렸다.**
 //
-// 계정이 필요한 것(좋아요·팔로우·글쓰기·신고)은 그 자리에서 로그인을 물어본다 —
-// 그 유도 모달은 S15P21E201-971 몫이다.
+// 운영(j15e201.p.ssafy.io)에서 실제로 불러 보니, 새로 발급한 익명 출입증으로도
+// `GET /api/v1/stories` 가 **401** 이다(`/api/v1/weather` 도 같다). 익명 인증이 *통과하는 것*과
+// 그 엔드포인트가 *익명을 허용하는 것*은 다르다 — 스토리·날씨는 실제 계정을 요구한다.
+//
+// 그래서 열어 두면 로그아웃 사용자가 피드 탭에서 401 화면을 만난다. 서버가 익명을 받아 주기
+// 전까지는 닫아 둔다. 여는 일은 백엔드 몫이다.
 import { ProtectedRoute } from '@/auth/ProtectedRoute';
-export default function TabsLayout() { return <ProtectedRoute publicPaths={['/home', '/feed']} />; }
+export default function TabsLayout() { return <ProtectedRoute publicPaths={['/home']} />; }

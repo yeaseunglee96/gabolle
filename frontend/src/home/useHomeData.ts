@@ -6,7 +6,7 @@
 import { useQuery } from '@tanstack/react-query';
 
 import { useAuth } from '@/auth/AuthProvider';
-import { getFacets, getNearbyPlaces, type FacetKeyEntry, type NearbyPlaceItem } from '@/discovery/localExplore';
+import { getFacets, getNearbyPlaces, type FacetGroup, type FacetKeyEntry, type NearbyPlaceItem } from '@/discovery/localExplore';
 import { loadFeed, type StoryDto } from '@/social/stories';
 import { loadTrips, type TripSummaryDto } from '@/trip/trips';
 import { loadWeatherForecast, type DailyForecastDto } from '@/trip/weather';
@@ -35,6 +35,21 @@ function pickHeroStories(items: StoryDto[]): StoryDto[] {
   return [...withImage, ...rest].slice(0, HERO_STORY_COUNT);
 }
 
+/**
+ * 칩으로 쓸 갈래를 고른다.
+ *
+ * 🔴 **`EXPLORE` 묶음만 쓴다.** 운영에서 실제 응답을 확인하니 `labelKo` 가 오는 것은 이 묶음뿐이고
+ * `CATEGORY`·`FOOD_PREFERENCE` 는 전부 null 이다. 그냥 전부 펼쳐 앞에서 여섯을 자르면 CATEGORY 가
+ * 먼저 걸려서 **글자 없는 칩 여섯 개**가 된다.
+ *
+ * 장소가 0곳인 갈래도 뺀다 — 눌러도 빈 화면이 나온다(explore.tsx 가 같은 규칙을 쓴다).
+ */
+function pickChips(facets: FacetGroup[]): FacetKeyEntry[] {
+  const explore = facets.find((group) => group.userInputCode === 'EXPLORE');
+  if (!explore) return [];
+  return explore.keys.filter((key) => key.placeCount > 0 && key.labelKo).slice(0, FACET_CHIP_COUNT);
+}
+
 /** 예정·진행 중인 여행 하나. 끝난 여행은 홈에 올리지 않는다. */
 function pickActiveTrip(trips: TripSummaryDto[]): TripSummaryDto | null {
   const active = trips.filter((trip) => trip.status !== 'COMPLETED');
@@ -46,6 +61,7 @@ function pickActiveTrip(trips: TripSummaryDto[]): TripSummaryDto | null {
 }
 
 export type HomeData = {
+  signedIn: boolean;
   stories: StoryDto[] | null;
   chips: FacetKeyEntry[];
   weather: DailyForecastDto | null;
@@ -61,19 +77,22 @@ export type HomeData = {
 export function useHomeData(enabled = true): HomeData {
   const { accessToken } = useAuth();
 
-  // 🔴 비로그인도 그대로 부른다. 서버에 익명 출입증(S15P21E201-303)이 있어서 로그인 없이도
-  //    공개 글이 온다 — api/client.ts 가 X-Session-Token 을 알아서 붙인다.
+  // 🔴 로그인했을 때만 부른다. 운영에서 실제로 불러 보니 **익명 출입증으로는
+  //    `GET /api/v1/stories` 가 401** 이다(날씨도 같다). 익명 인증이 통과하는 것과 그 경로가
+  //    익명을 허용하는 것은 다르다. 안 부르면 될 것을 불러서 401 을 쌓지 않는다.
+  const signedIn = Boolean(accessToken);
   const storiesQuery = useQuery({
     queryKey: ['home', 'stories'],
-    enabled,
+    enabled: enabled && signedIn,
     queryFn: () => loadFeed({ scope: 'ALL', limit: 12, accessToken }),
   });
 
   const facetsQuery = useQuery({ queryKey: ['home', 'facets'], enabled, queryFn: () => getFacets() });
 
   const weatherQuery = useQuery({
+    // 날씨도 스토리와 같다 — 익명으로는 401 이다.
     queryKey: ['home', 'weather', today()],
-    enabled,
+    enabled: enabled && signedIn,
     queryFn: () => loadWeatherForecast(today(), accessToken),
   });
 
@@ -85,7 +104,7 @@ export function useHomeData(enabled = true): HomeData {
 
   const tripsQuery = useQuery({
     queryKey: ['home', 'trips'],
-    enabled: enabled && Boolean(accessToken),
+    enabled: enabled && signedIn,
     queryFn: () => loadTrips(accessToken),
   });
 
@@ -93,13 +112,13 @@ export function useHomeData(enabled = true): HomeData {
     // 🔴 null 은 **아직 불러오는 중**이라는 뜻만 가져야 한다. 실패까지 null 로 묶으면 화면이
     //    스켈레톤을 영원히 그린다 — 서버가 죽었을 때 실제로 그랬다. 실패는 빈 배열로 내려
     //    「아직 기록이 없어요」 자리로 보낸다.
-    stories: storiesQuery.isPending
-      ? null
-      : storiesQuery.data?.state === 'success' ? pickHeroStories(storiesQuery.data.items) : [],
-    // 장소가 하나도 없는 갈래는 칩으로 내지 않는다 — 눌러도 빈 화면이 나온다.
-    chips: facetsQuery.data?.state === 'success'
-      ? facetsQuery.data.facets.flatMap((group) => group.keys).filter((key) => key.placeCount > 0).slice(0, FACET_CHIP_COUNT)
-      : [],
+    signedIn,
+    stories: !signedIn
+      ? []
+      : storiesQuery.isPending
+        ? null
+        : storiesQuery.data?.state === 'success' ? pickHeroStories(storiesQuery.data.items) : [],
+    chips: facetsQuery.data?.state === 'success' ? pickChips(facetsQuery.data.facets) : [],
     weather: weatherQuery.data?.state === 'success' ? weatherQuery.data.forecast : null,
     places: placesQuery.data?.state === 'success' ? placesQuery.data.items.slice(0, PLACE_PICK_COUNT) : [],
     trip: tripsQuery.data?.state === 'success' ? pickActiveTrip(tripsQuery.data.trips) : null,

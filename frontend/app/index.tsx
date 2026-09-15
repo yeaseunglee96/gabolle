@@ -77,7 +77,7 @@ export default function Welcome() {
           S15P21E201-906: "피드"도 출시 전 제품 결정으로 뺐다. /feed 라우트는 그대로 있다.
           🔴 2026-09-14: "피드"를 다시 켰다. 위 문장은 지우지 않고 남긴다 — 뒤집은
           결정이라는 사실이 보여야 한다. "부산 축제"는 그대로 빠져 있다. */}
-      <View style={styles.webNav}><NavItem label={tx('홈', 'Home')} onPress={() => router.replace('/')} /><NavItem label={tx('피드', 'Feed')} onPress={() => router.push('/feed')} /><NavItem label={tx('여행 만들기', 'Plan a trip')} onPress={startPlanning} /><NavItem label={tx('내 여행', 'My trips')} onPress={() => router.push(user ? '/trips' : '/sign-in')} /></View>
+      <View style={styles.webNav}><NavItem label={tx('홈', 'Home')} onPress={() => router.replace('/')} /><NavItem label={tx('피드', 'Feed')} onPress={() => router.push(user ? '/feed' : '/sign-in')} /><NavItem label={tx('여행 만들기', 'Plan a trip')} onPress={startPlanning} /><NavItem label={tx('내 여행', 'My trips')} onPress={() => router.push(user ? '/trips' : '/sign-in')} /></View>
       <View style={styles.accountActions}>
         <Pressable accessibilityRole="button" accessibilityLabel={tx(`언어를 ${language === 'ko' ? 'English' : '한국어'}로 변경`, `Change language to ${language === 'ko' ? 'English' : 'Korean'}`)} onPress={() => chooseLanguage(language === 'ko' ? 'en' : 'ko')} style={styles.localeButton}><Text variant="caption" weight="bold">{language.toUpperCase()}</Text></Pressable>
         {user ? (
@@ -99,9 +99,9 @@ export default function Welcome() {
             전부 만료돼 눌러도 빈 화면이 나온다. /festivals 라우트는 그대로 있다. */}
         <View style={styles.heroActions}>
           <Pressable accessibilityRole="button" accessibilityHint={tx('로그인 없이 여행 조건 입력을 시작합니다.', 'Start entering trip details without signing in.')} onPress={startPlanning} style={styles.primaryCta}><Text variant="body" weight="bold" color={color.text.onAction}>{tx('여행 계획 시작하기', 'Start planning')}</Text></Pressable>
-          {/* 피드는 로그인 없이도 볼 수 있다 — 서버의 익명 출입증으로 공개 글이 그대로 온다.
-              계정이 필요한 것(좋아요·팔로우·글쓰기)은 그 자리에서 로그인을 물어본다. */}
-          <Pressable accessibilityRole="link" onPress={() => router.push('/feed')} style={styles.ghostCta}><Text variant="body" weight="bold" color={color.text.onAction}>{tx('피드 둘러보기 →', 'Browse the feed →')}</Text></Pressable>
+          {/* 🔴 피드는 아직 로그인해야 볼 수 있다 — 서버가 익명 출입증을 받아 주지 않는다
+              (운영에서 /api/v1/stories 가 401). 로그인 안 했으면 로그인으로 보낸다. */}
+          <Pressable accessibilityRole="link" onPress={() => router.push(user ? '/feed' : '/sign-in')} style={styles.ghostCta}><Text variant="body" weight="bold" color={color.text.onAction}>{user ? tx('피드 둘러보기 →', 'Browse the feed →') : tx('로그인하고 피드 보기 →', 'Sign in for the feed →')}</Text></Pressable>
         </View>
         {/* S15P21E201-900: "지금 갈 곳" 칩도 CTA와 같은 이유로 뺐다 — 지금 갈 곳 진입점을
             숨겨 놓고 이 문구만 남기면 약속하는 것과 실제가 어긋난다(MR !708 리뷰 코멘트). */}
@@ -111,7 +111,7 @@ export default function Welcome() {
       {/* 히어로 오른쪽은 영상이었다. 로그인해도 본문이 그대로라 「내 것이 하나도 없다」는
           문제가 여기서 시작됐다 — 그 자리에 지금 올라온 기록을 넣는다 (S15P21E201-970).
           🔴 비로그인에게도 보여준다. 익명 출입증으로 공개 글은 그대로 온다. */}
-      <HeroStories stories={home.stories} chips={home.chips} />
+      <HeroStories stories={home.stories} chips={home.chips} signedIn={home.signedIn} />
     </View>
     {/* 두 블록이 다 비면(장소를 못 받았고 로그인도 안 했으면) 구역을 통째로 접는다 —
         안 그러면 아무것도 없는 여백 띠만 남아 화면이 고장난 것처럼 보인다. */}

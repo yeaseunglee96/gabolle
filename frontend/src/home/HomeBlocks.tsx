@@ -77,28 +77,42 @@ function StoryCard({ story }: { story: StoryDto }) {
   );
 }
 
-export function HeroStories({ stories, chips }: { stories: StoryDto[] | null; chips: FacetKeyEntry[] }) {
+export function HeroStories({ stories, chips, signedIn }: { stories: StoryDto[] | null; chips: FacetKeyEntry[]; signedIn: boolean }) {
   const router = useRouter();
   const { tx } = useI18n();
   return (
     <View style={styles.heroRight}>
       <View style={styles.heroRightHead}>
         <Text variant="eyebrow" weight="bold">{tx('지금 부산에서 남긴 기록', 'Just shared in Busan')}</Text>
-        <Pressable accessibilityRole="link" onPress={() => router.push('/feed')} style={styles.feedAll}>
-          <Text weight="bold" color={color.text.onAction}>{tx('피드 전체 →', 'See all →')}</Text>
-        </Pressable>
+        {signedIn ? (
+          <Pressable accessibilityRole="link" onPress={() => router.push('/feed')} style={styles.feedAll}>
+            <Text weight="bold" color={color.text.onAction}>{tx('피드 전체 →', 'See all →')}</Text>
+          </Pressable>
+        ) : null}
       </View>
 
-      <View style={styles.storyGrid}>
-        {stories === null
-          // 로딩 중에는 같은 크기의 회색 칸을 둔다 — 카드가 늦게 들어오며 아래가 밀리지 않게.
-          ? [0, 1, 2].map((slot) => <View key={slot} style={[styles.storyCard, styles.storySkeleton]} />)
-          : stories.map((story) => <StoryCard key={story.id} story={story} />)}
-      </View>
-
-      {stories !== null && stories.length === 0 ? (
-        <Text variant="caption" color={color.text.onDarkMuted}>{tx('아직 남겨진 기록이 없어요. 첫 기록을 남겨 보세요.', 'No records yet — be the first to share one.')}</Text>
-      ) : null}
+      {/* 🔴 로그인 안 한 사람에게 「아직 기록이 없어요」라고 하면 거짓말이다 — 기록은 있는데
+          서버가 익명에게는 안 준다(스토리 조회가 401). 못 보는 이유를 그대로 적는다. */}
+      {!signedIn ? (
+        <View style={styles.signInPrompt}>
+          <Text color={color.text.onDarkMuted}>{tx('다른 여행자들이 남긴 기록은 로그인하면 볼 수 있어요.', 'Sign in to see what other travelers shared.')}</Text>
+          <Pressable accessibilityRole="button" onPress={() => router.push('/sign-in')} style={styles.signInButton}>
+            <Text weight="bold" color={color.brand.navy}>{tx('로그인하고 보기', 'Sign in to view')}</Text>
+          </Pressable>
+        </View>
+      ) : (
+        <>
+          <View style={styles.storyGrid}>
+            {stories === null
+              // 로딩 중에는 같은 크기의 회색 칸을 둔다 — 카드가 늦게 들어오며 아래가 밀리지 않게.
+              ? [0, 1, 2].map((slot) => <View key={slot} style={[styles.storyCard, styles.storySkeleton]} />)
+              : stories.map((story) => <StoryCard key={story.id} story={story} />)}
+          </View>
+          {stories !== null && stories.length === 0 ? (
+            <Text variant="caption" color={color.text.onDarkMuted}>{tx('아직 남겨진 기록이 없어요. 첫 기록을 남겨 보세요.', 'No records yet — be the first to share one.')}</Text>
+          ) : null}
+        </>
+      )}
 
       {/* 🔴 칩은 「장소 태그」가 아니라 places/facets 의 갈래다. 장소에 태그 칸이 없어서
           시안대로는 못 만든다. 눌렀을 때 가는 곳도 피드 필터가 아니라 이미 있는 로컬 탐색이다
@@ -204,6 +218,8 @@ const styles = StyleSheet.create({
   heroRightHead: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', gap: spacing[3] },
   feedAll: { minHeight: 44, justifyContent: 'center' },
   storyGrid: { flexDirection: 'row', gap: spacing[3] },
+  signInPrompt: { gap: spacing[3], alignItems: 'flex-start', padding: spacing[4], borderRadius: radius.lg, backgroundColor: 'rgba(255,255,255,0.08)' },
+  signInButton: { minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.surface.card },
   storyCard: { flex: 1, minWidth: 0, borderRadius: radius.lg, overflow: 'hidden', backgroundColor: color.surface.card },
   storySkeleton: { height: 260, backgroundColor: 'rgba(255,255,255,0.12)' },
   storyImage: { width: '100%', aspectRatio: 1, backgroundColor: color.surface.soft },
