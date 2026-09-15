@@ -71,6 +71,43 @@ public class WeatherService {
 	}
 
 	public WeatherForecastResult getForecast(WeatherQuery query) {
+		return forecast(query, true);
+	}
+
+	/**
+	 * 캐시에 이미 있는 것만 답한다 — <b>기상청을 부르지 않는다</b> (S15P21E201-993).
+	 *
+	 * <p>🔴 로그인하지 않은 사람이 오는 길이다. 문턱을 없앤 대신 이 경계를 둔다 — 익명
+	 * 출입증은 누구나 발급받을 수 있어서, 이 길에서 벤더를 부르면 좌표를 바꿔가며 우리 키의
+	 * 호출 한도를 태울 수 있다. 미리 받아 두는 작업({@code WeatherPrefetchScheduler})이
+	 * 부산 격자를 채워 두므로, 부산 안이라면 이 길로도 값이 나온다.
+	 *
+	 * @throws ForecastNotPreparedException 아직 안 받아 둔 격자·회차다
+	 */
+	public WeatherForecastResult getForecastFromCache(WeatherQuery query) {
+		return forecast(query, false);
+	}
+
+	/**
+	 * 한 격자의 이번 발표 회차를 받아 캐시에 채운다. 이미 있으면 아무것도 안 한다.
+	 *
+	 * @return 실제로 기상청을 불러 새로 채웠으면 {@code true}
+	 */
+	public boolean prefetch(KmaGridCoordinate grid) {
+		ZonedDateTime nowInSeoul = ZonedDateTime.now(this.clock).withZoneSameInstant(KST);
+		KmaBaseTime baseTime = KmaBaseTimeCalculator.calculate(nowInSeoul.toLocalDateTime());
+		String cacheKey = cacheKey(grid, baseTime);
+		Instant now = Instant.now(this.clock);
+
+		if (this.cacheRepository.findFreshForecastJson(cacheKey, now).isPresent()) {
+			return false;
+		}
+		String rawJson = this.vendor.fetchForecastJson(grid.nx(), grid.ny(), baseTime);
+		this.cacheRepository.save(cacheKey, rawJson, now, now.plus(this.properties.getCacheTtl()));
+		return true;
+	}
+
+	private WeatherForecastResult forecast(WeatherQuery query, boolean mayCallVendor) {
 		KmaGridCoordinate grid = KmaGridConverter.toGrid(query.lat(), query.lon());
 		ZonedDateTime nowInSeoul = ZonedDateTime.now(this.clock).withZoneSameInstant(KST);
 		KmaBaseTime baseTime = KmaBaseTimeCalculator.calculate(nowInSeoul.toLocalDateTime());
@@ -85,6 +122,9 @@ public class WeatherService {
 		if (cacheHit) {
 			rawJson = cached.get();
 		}
+		else if (!mayCallVendor) {
+			throw new ForecastNotPreparedException(grid);
+		}
 		else {
 			// 🔴 실패하면 여기서 던진 WeatherVendorException 이 그대로 위로 올라간다.
 			rawJson = this.vendor.fetchForecastJson(grid.nx(), grid.ny(), baseTime);
@@ -98,6 +138,20 @@ public class WeatherService {
 						"date 가 이 발표 회차의 단기예보 범위를 벗어났습니다: " + query.date()));
 
 		return new WeatherForecastResult(grid, forecast, cacheHit);
+	}
+
+	/**
+	 * 미리 받아 둔 것이 없다 — S15P21E201-993.
+	 *
+	 * <p>부산 밖 좌표이거나, 미리 받아 두는 작업이 아직 그 회차를 못 채웠을 때다. 로그인한
+	 * 사람에게는 이 예외가 나지 않는다(그 길은 기상청을 부른다).
+	 */
+	public static class ForecastNotPreparedException extends RuntimeException {
+
+		public ForecastNotPreparedException(KmaGridCoordinate grid) {
+			super("아직 준비되지 않은 지역이에요. 로그인하면 바로 받아올 수 있어요. (격자 " + grid.nx() + "," + grid.ny() + ")");
+		}
+
 	}
 
 	private String cacheKey(KmaGridCoordinate grid, KmaBaseTime baseTime) {
