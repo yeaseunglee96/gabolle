@@ -116,14 +116,32 @@ export function HeroStories({ stories, chips, signedIn }: { stories: StoryDto[] 
 
       {/* 🔴 칩은 「장소 태그」가 아니라 places/facets 의 갈래다. 장소에 태그 칸이 없어서
           시안대로는 못 만든다. 눌렀을 때 가는 곳도 피드 필터가 아니라 이미 있는 로컬 탐색이다
-          — 피드에는 태그로 거르는 조회가 없다(그건 S15P21E201-971). */}
-      <View style={styles.chipRow}>
-        {chips.map((chip) => (
-          <Pressable key={chip.featureKey} accessibilityRole="link" onPress={() => router.push('/explore')} style={({ pressed }) => [styles.chip, pressed && styles.chipPressed]}>
-            <Text weight="medium" color={color.text.onAction}>{chip.labelKo}</Text>
-          </Pressable>
-        ))}
-      </View>
+          — 피드에는 태그로 거르는 조회가 없다(그건 S15P21E201-971).
+
+          🔴 2026-09-15 에 제목을 붙였다(-989). 그전에는 알약 몇 개만 떠 있어서 그것이 로컬
+          탐색으로 가는 입구라는 것을 알 수 없었다 — 이 앱에서 로컬 탐색은 하단 탭에도 상단
+          바에도 없고 이 칩이 거의 유일한 길이다. 위 기록 구역과 같은 머리 모양을 쓴다.
+
+          🔴 갈래를 하나도 못 받으면 **머리까지 통째로 접는다.** 제목만 남고 아래가 비면
+          고장난 화면으로 보인다 — 아래 장소 블록이 같은 이유로 같은 판단을 한다. 갈래 조회가
+          비는 것은 드문 일이 아니다(서버가 안 붙은 개발 환경에서 실제로 그랬다). */}
+      {chips.length ? (
+        <>
+          <View style={styles.heroRightHead}>
+            <Text variant="eyebrow" weight="bold">{tx('로컬 탐색', 'Explore locally')}</Text>
+            <Pressable accessibilityRole="link" onPress={() => router.push('/explore')} style={styles.feedAll}>
+              <Text weight="bold" color={color.text.onAction}>{tx('전체 →', 'See all →')}</Text>
+            </Pressable>
+          </View>
+          <View style={styles.chipRow}>
+            {chips.map((chip) => (
+              <Pressable key={chip.featureKey} accessibilityRole="link" onPress={() => router.push('/explore')} style={({ pressed }) => [styles.chip, pressed && styles.chipPressed]}>
+                <Text weight="medium" color={color.text.onAction}>{chip.labelKo}</Text>
+              </Pressable>
+            ))}
+          </View>
+        </>
+      ) : null}
     </View>
   );
 }
@@ -239,7 +257,7 @@ const styles = StyleSheet.create({
   storyAvatar: { width: 20, height: 20, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.brand.navy },
 
   chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2], marginTop: spacing[1] },
-  chip: { minHeight: 36, justifyContent: 'center', paddingHorizontal: 14, borderRadius: radius.full, backgroundColor: 'rgba(255,255,255,0.1)' },
+  chip: { minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: 'rgba(255,255,255,0.1)' },
   chipPressed: { backgroundColor: color.brand.orange },
 
   placesBlock: { flex: 1, gap: spacing[4], minWidth: 0 },

@@ -8,7 +8,8 @@
 // 다시 받아 아래처럼 정했다.
 //
 //   현장 도구  남김 → 히어로 CTA 아래 2열 카드(통역 · 메뉴판 번역)
-//   로컬 탐색  옮김 → 「갈래로 찾기」 칩 + 「탐색 전체 →」 (바는 없앰)
+//   로컬 탐색  옮김 → 「로컬 탐색」 칩 구역 + 「전체 →」 (바는 없앰). 2026-09-15 에 기록 피드
+//                     위로 올렸다 — 스크롤해야 보이는 자리라 사실상 숨어 있었다(-989)
 //   알림 종    남김 → 머리 오른쪽. 🔴 미읽음 조회 API 가 없어 **점은 안 찍는다**
 //   큐레이션   교체 → 실제 기록 카드 3장 (사진·문구가 코드에 박혀 있던 것을 대체)
 //   하트       옮김 → 「부산 둘러보기」 카드. 같은 **장소** 엔티티라 저장·행동 이벤트가 그대로 맞는다
@@ -149,6 +150,30 @@ export default function Home() {
           </View>
         </View>
 
+        {/* ── 로컬 탐색 (옛 로컬 탐색 바 자리) ──
+            🔴 2026-09-15 에 기록 피드 **아래**에서 여기로 올렸다. 로컬 탐색으로 가는 길이 이
+            칩과 챗봇 둘뿐인데(하단 탭에도 데스크톱 상단 바에도 없다) 스크롤해야 보이는 자리에
+            있어서 사실상 숨어 있었다. 제목도 「갈래로 찾기」라 눌렀을 때 어디로 가는지 알 수
+            없었다 — 목적지 이름을 그대로 적는다. 탭·상단 바로 꺼내는 것은 내비게이션 구조를
+            건드리는 일이라 디자인 재작업 뒤로 미뤘다(S15P21E201-989). */}
+        {home.chips.length ? (
+          <View style={styles.section}>
+            <View style={styles.sectionHead}>
+              <Text variant="title" weight="bold">{tx('로컬 탐색', 'Explore locally')}</Text>
+              <Pressable accessibilityRole="link" onPress={() => router.push('/explore')}><Text weight="bold" color={color.brand.navy}>{tx('전체 →', 'See all →')}</Text></Pressable>
+            </View>
+            {/* 칩 글자만으로는 무엇을 하는 곳인지 모른다 — 한 줄로 적어 둔다. */}
+            <Text variant="caption" style={styles.sectionSub}>{tx('축제·전통시장·야경처럼 갈래로 부산을 둘러봐요.', 'Browse Busan by festivals, markets, night views and more.')}</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.rail}>
+              {home.chips.map((chip) => (
+                <Pressable key={chip.featureKey} accessibilityRole="link" onPress={() => router.push('/explore')} style={({ pressed }) => [styles.chip, pressed && styles.pressed]}>
+                  <Text weight="medium" color={color.text.heading}>{chip.labelKo}</Text>
+                </Pressable>
+              ))}
+            </ScrollView>
+          </View>
+        ) : null}
+
         {/* ── 지금 부산에서 남긴 기록 ── */}
         <View style={styles.section}>
           <View style={styles.sectionHead}>
@@ -197,25 +222,6 @@ export default function Home() {
             </ScrollView>
           )}
         </View>
-
-        {/* ── 갈래로 찾기 (옛 로컬 탐색 바 자리) ── */}
-        {home.chips.length ? (
-          <View style={styles.section}>
-            <View style={styles.sectionHead}>
-              {/* 🔴 「갈래로 둘러보기」였다. 아래 장소 카드가 「부산 둘러보기」가 되면서 같은 말이
-                  위아래로 붙어 두 구역이 같은 것으로 읽혔다 — 여기는 거르는 자리라 「찾기」다. */}
-              <Text variant="eyebrow" weight="bold">{tx('갈래로 찾기', 'Find by category')}</Text>
-              <Pressable accessibilityRole="link" onPress={() => router.push('/explore')}><Text weight="bold" color={color.brand.navy}>{tx('탐색 전체 →', 'Explore all →')}</Text></Pressable>
-            </View>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.rail}>
-              {home.chips.map((chip) => (
-                <Pressable key={chip.featureKey} accessibilityRole="link" onPress={() => router.push('/explore')} style={({ pressed }) => [styles.chip, pressed && styles.pressed]}>
-                  <Text weight="medium" color={color.text.heading}>{chip.labelKo}</Text>
-                </Pressable>
-              ))}
-            </ScrollView>
-          </View>
-        ) : null}
 
         {/* ── 부산 둘러보기 (하트가 여기로 옮겨 왔다) ── */}
         {home.places.length ? (
@@ -334,6 +340,7 @@ const styles = StyleSheet.create({
   section: { gap: spacing[3], paddingTop: spacing[8] },
   sectionPadded: { gap: spacing[3], paddingTop: spacing[8], paddingHorizontal: spacing[6] },
   sectionHead: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', gap: spacing[3], paddingHorizontal: spacing[6] },
+  sectionSub: { marginTop: -spacing[1], paddingHorizontal: spacing[6] },
   sectionNote: { paddingHorizontal: spacing[6] },
   rail: { gap: spacing[3], paddingHorizontal: spacing[6] },
 
@@ -347,7 +354,7 @@ const styles = StyleSheet.create({
   signInCopy: { flex: 1, gap: spacing[2] },
   signInButton: { alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.brand.navy },
 
-  chip: { minHeight: 36, justifyContent: 'center', paddingHorizontal: 14, borderRadius: radius.full, backgroundColor: color.surface.soft },
+  chip: { minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.surface.soft },
 
   placeGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[3] },
   placeCard: { width: '47%', gap: spacing[1] },
