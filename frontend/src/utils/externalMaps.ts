@@ -36,6 +36,47 @@ export const WEB_PROVIDERS = PROVIDERS.filter((provider) => provider.key !== 'ap
 
 export type AvailableMapProvider = { key: MapProviderKey; labelKo: string; labelEn: string; open: () => Promise<void> };
 
+// 경로로 열기 — S15P21E201-753 / 명세 4절.
+//
+// 🔴 대중교통 단계별 안내(역 이름·출구 번호·버스 번호)는 이 앱이 못 준다. 그 자료를 주는
+// 공개 API 업체가 아직 정해지지 않아서, 서버의 TRANSIT 응답은 steps 가 늘 빈 배열이다.
+// 채울 수 없는 것을 채우려 하지 말고 할 수 있는 앱으로 넘긴다 — 다만 목적지만 찍어 보내면
+// 사용자가 거기서 길찾기를 다시 눌러야 한다. 출발·도착을 함께 넘겨 경로를 연다.
+//
+// 🔴 위 PROVIDERS 와 주소 형식이 다르다(그쪽은 장소 보기, 이쪽은 길찾기). 각 업체가 공개한
+// 형식만 쓴다 — 지어낸 주소는 눌러도 아무 데도 안 가고, 그건 버튼이 없는 것보다 나쁘다.
+export type RouteEnds = { originLat: number; originLng: number; destLat: number; destLng: number; destName: string };
+
+const ROUTE_URLS: Record<MapProviderKey, { app: (r: RouteEnds) => string; web: (r: RouteEnds) => string }> = {
+  kakao: {
+    app: (r) => `kakaomap://route?sp=${r.originLat},${r.originLng}&ep=${r.destLat},${r.destLng}&by=PUBLICTRANSIT`,
+    web: (r) => `https://map.kakao.com/link/to/${encodeURIComponent(r.destName)},${r.destLat},${r.destLng}`,
+  },
+  google: {
+    app: (r) => `comgooglemaps://?saddr=${r.originLat},${r.originLng}&daddr=${r.destLat},${r.destLng}&directionsmode=transit`,
+    web: (r) => `https://www.google.com/maps/dir/?api=1&origin=${r.originLat},${r.originLng}&destination=${r.destLat},${r.destLng}&travelmode=transit`,
+  },
+  apple: {
+    app: (r) => `maps://?saddr=${r.originLat},${r.originLng}&daddr=${r.destLat},${r.destLng}&dirflg=r`,
+    web: (r) => `https://maps.apple.com/?saddr=${r.originLat},${r.originLng}&daddr=${r.destLat},${r.destLng}&dirflg=r`,
+  },
+};
+
+export function routeMapUrl(provider: MapProviderKey, route: RouteEnds, target: 'app' | 'web'): string {
+  return ROUTE_URLS[provider][target](route);
+}
+
+/** 설치 여부 판정은 장소 열기와 같은 규칙을 쓴다 — 여는 주소만 경로용으로 바꾼다. */
+export async function listAvailableRouteMapApps(route: RouteEnds): Promise<AvailableMapProvider[]> {
+  const apps = await listAvailableMapApps({ name: route.destName, latitude: route.destLat, longitude: route.destLng });
+  return apps.map((app) => ({
+    ...app,
+    // 앱 주소가 안 열리면(설치 판정이 빗나갔거나 형식을 못 받는 판) 웹 주소로 물러선다.
+    open: () => Linking.openURL(routeMapUrl(app.key, route, Platform.OS === 'web' ? 'web' : 'app'))
+      .catch(() => Linking.openURL(routeMapUrl(app.key, route, 'web'))),
+  }));
+}
+
 export async function listAvailableMapApps(destination: MapDestination): Promise<AvailableMapProvider[]> {
   if (Platform.OS === 'web') {
     return WEB_PROVIDERS.map((provider) => ({ key: provider.key, labelKo: provider.labelKo, labelEn: provider.labelEn, open: () => Linking.openURL(provider.webUrl(destination)) }));
