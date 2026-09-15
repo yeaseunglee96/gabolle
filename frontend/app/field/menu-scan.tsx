@@ -25,6 +25,7 @@ import { Eyebrow } from '@/components/Eyebrow';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
+import { findDishImage } from '@/field/dishImages';
 import { allergenNotice, emptyNotice, scanMenu, unreadNotice, type MenuScan } from '@/field/menuScan';
 import { useI18n } from '@/i18n';
 import { isAtLeast } from '@/layout/breakpoints';
@@ -119,6 +120,9 @@ function ScanResult({ scan, onRetry }: { scan: MenuScan; onRetry: () => void }) 
   const allergen = allergenNotice(scan, tx);
   const unread = unreadNotice(scan, tx);
   const empty = emptyNotice(scan, tx);
+  // 🔴 사전에 없거나 앞에 재료가 남으면 null 이다 — 「새우국밥」에 「국밥」 사진이 붙지
+  //    않는다. 사진이 한 장도 없는 동안에는 전부 null 이라 화면이 지금과 똑같다.
+  const dishes = scan.lines.map((line) => findDishImage(line.text));
 
   return <View style={styles.result}>
     {/* 🔴 알레르기 안내가 제일 위다. 그리고 「찾은 낱말」과 「직접 확인하라」는 함께 온다 —
@@ -137,10 +141,17 @@ function ScanResult({ scan, onRetry }: { scan: MenuScan; onRetry: () => void }) 
       ? <View style={styles.stateCard}><Text variant="title" weight="bold">{empty}</Text></View>
       : <View style={styles.lines}>
           <Text variant="caption" weight="bold" color={color.text.muted}>{tx('사진에서 읽은 글자 · 추정', 'Text read from the photo · estimated')}</Text>
+          {/* 🔴 예시 사진도 하나의 주장이다. 한 장이라도 붙는 날에만 이 줄이 뜬다 —
+              「이 식당의 음식」으로 읽히면 축제 사진에서 고친 것과 같은 거짓말이 된다. */}
+          {dishes.some((dish) => dish !== null) && (
+            <View style={styles.exampleNotice}><Text variant="caption" weight="bold">{tx('사진은 예시예요 — 이 식당의 음식이 아니에요', 'Photos are examples — not this restaurant’s dishes')}</Text></View>
+          )}
           {scan.lines.map((line, index) => <View key={`${index}-${line.text}`} style={styles.line}>
+            {dishes[index] && <Image source={dishes[index]!.image.asset} resizeMode="cover" accessibilityLabel={tx(`${dishes[index]!.key} 예시 사진`, `Example photo of ${dishes[index]!.key}`)} style={styles.dishThumb} />}
             <View style={styles.lineCopy}>
               <Text>{line.text}</Text>
               {line.allergenWords.length > 0 && <Text variant="caption" color={color.brand.orange}>{line.allergenWords.join(' · ')}</Text>}
+              {dishes[index] && <Text variant="caption" color={color.text.muted}>{tx(`예시 · ${dishes[index]!.image.source}`, `Example · ${dishes[index]!.image.source}`)}</Text>}
             </View>
             {/* 우리가 이미 보여주고 있는 글자를 그대로 소리내 준다 — 지어내는 것이 없다.
                 식당에서 손가락으로 가리키는 것보다 이쪽이 빠르다. */}
@@ -172,6 +183,8 @@ const styles = StyleSheet.create({
   allergenCard: { gap: spacing[2], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.state.warningBg },
   wordRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] },
   word: { paddingHorizontal: spacing[3], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: color.brand.orange },
+  exampleNotice: { padding: spacing[2], borderRadius: radius.md, backgroundColor: color.surface.tint },
+  dishThumb: { width: 56, height: 56, borderRadius: radius.md, backgroundColor: color.surface.tint },
   unreadCard: { padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.tint },
   lines: { gap: spacing[2], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card },
   line: { flexDirection: 'row', alignItems: 'center', gap: spacing[3], paddingVertical: spacing[2] },
