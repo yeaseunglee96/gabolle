@@ -31,6 +31,17 @@ export default function Translate() {
 
   const tools: Tool[] = [
     {
+      // 🔴 2026-09-16 — 아래 머리말이 "업체가 정해지면 그때 새로 만든다" 고 적어 둔 그것이다.
+      // 업체가 정해진 것이 아니라, 이미 우리 저장소에서 돌고 있던 것을 찾았다 —
+      // visual-geocode 가 사진 속 간판 글씨를 읽는 데 쓰는 GMS(교육용 API 중계)다.
+      // "번역"이 아니라 "읽기"로 범위를 좁혔다. 지어내지 않는 만큼만 한다 (S15P21E201-329).
+      key: 'menu',
+      icon: '판',
+      title: tx('메뉴판 읽기', 'Read a menu'),
+      desc: tx('찍으면 적힌 글자를 읽어 드려요. 알레르기 낱말도 같이 찾아요', 'Take a photo and we read the text, including allergy-related words'),
+      onPress: () => router.push('/field/menu-scan'),
+    },
+    {
       key: 'phrase',
       icon: '말',
       title: tx('장소별 한국어', 'Korean phrases by situation'),
