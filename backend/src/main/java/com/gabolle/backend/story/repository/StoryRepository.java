@@ -56,6 +56,24 @@ public interface StoryRepository extends JpaRepository<Story, UUID> {
 	List<Story> findPublicFeed(@Param("me") UUID me, @Param("now") Instant now, @Param("cursorAt") Instant cursorAt,
 			@Param("cursorId") UUID cursorId, @Param("limit") int limit);
 
+	/**
+	 * 로그인하지 않은 사람의 전체 피드 — 공개(PUBLIC) 기록만 — S15P21E201-974.
+	 *
+	 * <p>🔴 <b>왜 {@link #findPublicFeed} 에 {@code null} 을 넣지 않고 질의를 따로 두나.</b>
+	 * 거기에 {@code :me = null} 을 넘겨도 지금은 결과가 같다 — SQL 에서
+	 * {@code author_user_id = NULL} 은 참이 되지 않으므로 공개 글만 남는다. 그런데 그것은
+	 * <b>세 값 논리에 기댄 안전</b>이고, 누군가 그 줄을 {@code COALESCE(:me, …)} 같은 것으로
+	 * 고치는 순간 <b>말없이</b> 남의 비공개 기록이 익명에게 나간다. 새는 쪽이 조용한 종류의
+	 * 사고라, 조건 자체를 아예 두지 않는 질의를 따로 둔다.
+	 *
+	 * <p>{@link #NOT_DELETED_AND_PUBLISHED} 를 쓴다 — 이 상수를 안 쓰면 신고된 기록이 이
+	 * 피드에만 보인다(위 상수 설명).
+	 */
+	@Query(value = "SELECT s.* FROM story s WHERE" + NOT_DELETED_AND_PUBLISHED + " AND s.visibility = 'PUBLIC'"
+			+ BEFORE_CURSOR + FEED_ORDER, nativeQuery = true)
+	List<Story> findPublicFeedForAnonymous(@Param("now") Instant now, @Param("cursorAt") Instant cursorAt,
+			@Param("cursorId") UUID cursorId, @Param("limit") int limit);
+
 	/** 팔로잉 피드 — 내가 팔로우한 사람의 PUBLIC·FOLLOWERS 기록. */
 	@Query(value = "SELECT s.* FROM story s WHERE" + NOT_DELETED_AND_PUBLISHED
 			+ " AND s.visibility IN ('PUBLIC', 'FOLLOWERS')"

@@ -23,6 +23,9 @@ import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
@@ -106,6 +109,27 @@ class StoryFeedIntegrationTest {
 		return this.json.readTree(result.getResponse().getContentAsString()).get("data");
 	}
 
+	/**
+	 * 익명 출입증만 든 사람 — {@code AnonymousSessionAuthenticationFilter} 가 심는 모양 그대로다
+	 * (principal 이 {@code "anon:<세션id>"} 문자열, 권한은 {@code ROLE_ANONYMOUS}).
+	 *
+	 * <p>🔴 <b>UUID 가 아닌 principal</b> 이라는 점이 핵심이다. 이것 때문에
+	 * {@code AuthenticatedUsers.requireId} 가 401 을 던지고 있었다 — S15P21E201-974.
+	 */
+	private static Authentication anonymous() {
+		return new UsernamePasswordAuthenticationToken("anon:" + UUID.randomUUID(), null,
+				List.of(new SimpleGrantedAuthority("ROLE_ANONYMOUS")));
+	}
+
+	private JsonNode feedAs(Authentication who, String scope, String cursor) throws Exception {
+		var request = get("/api/v1/stories").principal(who).param("scope", scope).param("limit", "50");
+		if (cursor != null) {
+			request = request.param("cursor", cursor);
+		}
+		MvcResult result = this.mockMvc.perform(request).andExpect(status().isOk()).andReturn();
+		return this.json.readTree(result.getResponse().getContentAsString()).get("data");
+	}
+
 	private static List<String> ids(JsonNode page) {
 		List<String> out = new ArrayList<>();
 		page.get("items").forEach((n) -> out.add(n.get("id").asText()));
@@ -149,6 +173,43 @@ class StoryFeedIntegrationTest {
 			}
 		}
 		throw new AssertionError("피드에 없다: " + id);
+	}
+
+	@Test
+	@DisplayName("🔴 익명 출입증만 든 사람의 전체 피드에는 PUBLIC 만 나온다 — FOLLOWERS·PRIVATE 이 새면 사고다")
+	void anonymousFeedShowsOnlyPublicStories() throws Exception {
+		UUID openToAll = StoryFixture.insertStory(this.jdbc, this.stranger, "익명도 보는 공개", "PUBLIC",
+				this.now.minus(Duration.ofHours(1)));
+		UUID followersOnly = StoryFixture.insertStory(this.jdbc, this.followed, "팔로워 전용", "FOLLOWERS",
+				this.now.minus(Duration.ofHours(2)));
+		UUID strangerPrivate = StoryFixture.insertStory(this.jdbc, this.stranger, "남 비공개", "PRIVATE",
+				this.now.minus(Duration.ofHours(3)));
+		UUID minePrivate = StoryFixture.insertStory(this.jdbc, this.me, "내 비공개", "PRIVATE",
+				this.now.minus(Duration.ofHours(4)));
+		UUID notYetPublished = StoryFixture.insertStory(this.jdbc, this.stranger, "아직 공개 전", "PUBLIC",
+				this.now.plus(Duration.ofDays(1)));
+
+		Set<String> seen = new HashSet<>();
+		String cursor = null;
+		int pages = 0;
+		do {
+			JsonNode page = feedAs(anonymous(), "ALL", cursor);
+			seen.addAll(ids(page));
+			cursor = page.get("nextCursor").isNull() ? null : page.get("nextCursor").asText();
+		}
+		while (cursor != null && ++pages < 200);
+
+		assertThat(seen).contains(openToAll.toString());
+		assertThat(seen).doesNotContain(followersOnly.toString(), strangerPrivate.toString(), minePrivate.toString(),
+				notYetPublished.toString());
+	}
+
+	@Test
+	@DisplayName("🔴 익명이 팔로잉 피드를 부르면 400 이다 — 401 이면 앱이 출입증 만료로 보고 다시 받아 재시도해 고리가 된다")
+	void anonymousFollowingFeedIsRejectedWithBadRequest() throws Exception {
+		this.mockMvc.perform(get("/api/v1/stories").principal(anonymous()).param("scope", "FOLLOWING"))
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.error.code").value("STORY_FEED_LOGIN_REQUIRED"));
 	}
 
 	@Test
