@@ -13,6 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.MinIOContainer;
+import org.testcontainers.utility.DockerImageName;
 
 import com.gabolle.backend.story.storage.S3FileStorage;
 import com.gabolle.backend.story.storage.StorageProperties;
@@ -79,7 +80,21 @@ class S3FileStorageTest {
 		} else {
 			Assumptions.assumeTrue(DockerClientFactory.instance().isDockerAvailable(),
 					"MinIO 를 못 구한다 — " + ENDPOINT_KEY + " 를 주거나 도커를 켜십시오");
-			MinIOContainer container = new MinIOContainer("minio/minio:RELEASE.2024-10-13T13-34-11Z");
+			// 🔴 2026-09-15 (S15P21E201-866) — quay.io 에서 받는다. 도커 허브가 `minio/minio` 공개
+			//    배포를 접어서 `.gitlab-ci.yml` 의 services 는 2026-09-12 에 옮겼는데, 이 줄만 남아
+			//    있었다. CI 는 위 환경변수 길로 가므로 여기 안 닿지만, 도커만 켜고 환경변수 없이
+			//    돌리는 개발자 PC 는 전부 여기서 pull 이 404 로 죽는다 (실측 2026-09-15:
+			//    `pull access denied for minio/minio, repository does not exist`).
+			//
+			//    태그는 그대로 둔다 — 판을 올리는 것이 아니라 같은 판을 다른 창고에서 받는 것뿐이라,
+			//    테스트가 겪는 MinIO 는 어제와 똑같다.
+			//
+			//    🔴 asCompatibleSubstituteFor 가 필요하다 — Testcontainers 는 이미지 이름이 자기가 아는
+			//       것과 다르면 «호환되는지 확인할 수 없다» 며 거부한다. 창고만 바뀌고 같은 이미지라는
+			//       것을 코드로 말해 줘야 한다 (실측 2026-09-15: 이 줄 없이 quay.io 만 쓰면 여전히 죽는다).
+			MinIOContainer container = new MinIOContainer(
+					DockerImageName.parse("quay.io/minio/minio:RELEASE.2024-10-13T13-34-11Z")
+						.asCompatibleSubstituteFor("minio/minio"));
 			container.start();
 			endpoint = container.getS3URL();
 			accessKey = container.getUserName();
