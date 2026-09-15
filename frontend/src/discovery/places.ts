@@ -77,6 +77,17 @@ export function needsFoodSafetyCheck(place: Place) {
   return !hasAllergenInfo || !hasDietInfo;
 }
 
+// S15P21E201-325: "확인 못 함"과 "확인했고 문제 없음"을 화면에서 다르게 보여줘야 한다 —
+// 안 그러면 needsFoodSafetyCheck 가 false 인 자리에 아무것도 안 뜨고, 그 빈 자리를
+// 사용자는 "안전하다고 확인됨"과 구분 못 한다. 두 태그가 전부 있어야만(=행이 없다는
+// 뜻이 아니어야만) "확인됨"이고, 식음료 장소가 아니면 이 표시 자체가 의미 없다.
+export function hasFoodSafetyConfirmed(place: Place) {
+  if (!isFoodPlace(place.category)) return false;
+  const hasAllergenInfo = place.features.some((feature) => feature.featureType === 'ALLERGEN_TAG');
+  const hasDietInfo = place.features.some((feature) => feature.featureType === 'DIETARY_SUPPORT_TAG');
+  return hasAllergenInfo && hasDietInfo;
+}
+
 // 장소 이름 한글·영문 병기(S15P21E201-264) — 언어 설정과 무관하게 "해운대 해수욕장 (Haeundae
 // Beach)" 형태로 둘 다 보여준다. 영문 이름이 한국인 택시 기사에게는 쓸모없고, 한글 이름만
 // 보여주면 영어 사용자가 못 읽는다. 영문이 없으면 괄호 없이 한국어 원문만 보여준다 — 빈

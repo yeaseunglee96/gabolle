@@ -14,6 +14,20 @@ import { Text } from './Text';
 
 export type TabKey = 'home' | 'feed' | 'schedule' | 'map' | 'saved' | 'me';
 
+/** 막대 자체의 높이. 아래 {@link TAB_BAR_SPACE} 와 styles.bar 가 이 값을 함께 쓴다. */
+const TAB_BAR_HEIGHT = 64;
+
+/**
+ * 이 막대가 화면 아래에서 차지하는 높이 — S15P21E201-939.
+ *
+ * 막대 높이에 위쪽 간격을 더한 값이고, 시스템 버튼 영역(안전영역)은 여기 안 넣는다. 그건
+ * 화면마다 {@code Screen} 이 따로 더하므로 여기까지 넣으면 두 번 들어간다.
+ *
+ * Screen 이 {@code withTabBar} 를 받으면 이 값만큼 내용 아래에 자리를 비운다 — 안 비우면
+ * 스크롤을 끝까지 내려도 마지막 내용이 막대 뒤에 남는다.
+ */
+export const TAB_BAR_SPACE = TAB_BAR_HEIGHT + spacing[2];
+
 type Tab = {
   key: TabKey;
   icon: number;
@@ -26,8 +40,13 @@ type Tab = {
 // S15P21E201-906: 출시 전 피드를 뺐다(제품 결정, 2026-09-13) — 기능 오류 위험을 줄이려고
 // 하단 탭을 4개(홈·여행 만들기·내 여행·마이페이지)로 되돌린다. feed.tsx 화면과 라우트,
 // TabKey의 'feed'는 그대로 둔다 — 다시 켤 때 이 배열에 한 줄만 되돌리면 된다.
+//
+// 🔴 2026-09-14: 다시 켰다. 위 결정을 뒤집은 것이라 위 문단을 지우지 않고 남긴다.
+// 무엇을 「기능 오류」로 걱정했는지가 커밋에도 쪽지에도 안 적혀 있어서, 그 우려가
+// 해소됐는지는 확인되지 않은 채다. 다시 빼야 하면 이 줄 하나만 지우면 된다.
 const TABS: Tab[] = [
   { key: 'home', icon: require('../../assets/icons/home/home.png'), labelKo: '홈', labelEn: 'Home', route: '/home' },
+  { key: 'feed', icon: require('../../assets/icons/home/heart.png'), labelKo: '피드', labelEn: 'Feed', route: '/feed' },
   { key: 'schedule', icon: require('../../assets/icons/home/plus.png'), labelKo: '여행 만들기', labelEn: 'Create', route: '/plan/basic' },
   { key: 'map', icon: require('../../assets/icons/home/map.png'), labelKo: '내 여행', labelEn: 'My trips', route: '/trips' },
   { key: 'me', icon: require('../../assets/icons/home/user.png'), labelKo: '마이페이지', labelEn: 'Profile', route: '/me' },
@@ -83,7 +102,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     width: '100%',
     maxWidth: 328,
-    height: 64,
+    height: TAB_BAR_HEIGHT,
     marginHorizontal: spacing[4],
     paddingHorizontal: spacing[2],
     backgroundColor: color.surface.card,

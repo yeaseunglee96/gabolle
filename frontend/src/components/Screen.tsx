@@ -1,10 +1,19 @@
 // 모든 화면이 거치는 뼈대: 세이프에어리어 + 배경 + 좌우 여백.
 // 폴드8 을 펼쳐 태블릿 폭이 되면 글자가 화면 끝까지 늘어나 못 읽으므로 최대 폭을 제한하고
 // 가운데 정렬한다. 2단 레이아웃은 아직 정해지지 않았다(Split.tsx 참고) — 그건 여기 몫이 아니다.
-import { ScrollView, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  View,
+  type StyleProp,
+  type ViewStyle,
+} from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { ReactNode } from 'react';
 
+import { TAB_BAR_SPACE } from '@/components/TabBar';
 import { color, gutter, spacing } from '@/design/tokens';
 import { useLayout } from '@/layout/useLayout';
 
@@ -26,28 +35,56 @@ type ScreenProps = {
   scroll?: boolean;
   /** 2단 레이아웃(Split)을 쓰는 화면만 켠다. 태블릿 최대폭이 480 → 1024 로 넓어진다. */
   wide?: boolean;
+  /**
+   * 이 화면이 TabBar 를 형제로 그리는가 (S15P21E201-939).
+   *
+   * TabBar 는 Screen 밖에 있어서 Screen 이 그 존재를 알 방법이 없다. 안 알려 주면 스크롤을
+   * 끝까지 내려도 마지막 내용이 막대 뒤에 남는다 — 갤럭시 실기기에서 그렇게 보였다.
+   */
+  withTabBar?: boolean;
   style?: StyleProp<ViewStyle>;
 };
 
-export function Screen({ children, scroll = false, wide = false, style }: ScreenProps) {
+export function Screen({ children, scroll = false, wide = false, withTabBar = false, style }: ScreenProps) {
   const { kind } = useLayout();
+  const insets = useSafeAreaInsets();
+
+  // 하단만 SafeAreaView 에 안 맡기고 내용 여백으로 처리한다 (S15P21E201-939).
+  //
+  // SafeAreaView 가 아래쪽에 패딩을 넣으면 그 띠는 **스크롤 밖**이라 내용이 거기까지
+  // 올라오지 못한다. 화면 아래가 그냥 비는 것으로 끝나면 괜찮은데, 안드로이드는 최근
+  // 판부터 화면을 시스템 버튼 아래까지 깔기 때문에(edge-to-edge 가 기본) 그 띠만큼
+  // **내용이 잘린 채로 스크롤이 끝난다.** 여백으로 넣으면 내용이 시스템 버튼 위까지
+  // 스크롤된 뒤 그만큼 남고, 그게 사용자가 기대하는 동작이다.
+  //
+  // style 보다 뒤에 두는 것이 중요하다 — 화면이 style 로 준 paddingBottom 이 이 값을
+  // 덮으면 그 화면만 다시 가린다. 아래쪽 여백은 여기가 소유한다.
   const contentStyle = [
     styles.content,
     kind === 'tablet' && (wide ? styles.tabletWide : styles.tablet),
     style,
+    { paddingBottom: spacing[8] + insets.bottom + (withTabBar ? TAB_BAR_SPACE : 0) },
   ];
 
-  if (scroll) {
-    return (
-      <SafeAreaView style={styles.screen}>
-        <ScrollView contentContainerStyle={contentStyle}>{children}</ScrollView>
-      </SafeAreaView>
-    );
-  }
+  // 안드로이드에는 behavior 를 주지 않는다. 키보드가 올라올 때 화면을 밀어 올리는 일은
+  // app.json 의 softwareKeyboardLayoutMode="pan" 이 맡는다 — edge-to-edge 에서는 RN 의
+  // 회피 계산과 시스템의 창 크기 조정이 겹쳐 두 번 밀리는 일이 알려져 있어서, 한쪽에만
+  // 맡긴다. iOS 는 그 설정이 없으므로 여기서 padding 으로 민다.
+  const keyboardBehavior = Platform.OS === 'ios' ? 'padding' : undefined;
+
+  const body = scroll ? (
+    <ScrollView contentContainerStyle={contentStyle} keyboardShouldPersistTaps="handled">
+      {children}
+    </ScrollView>
+  ) : (
+    <View style={[styles.flex, ...contentStyle]}>{children}</View>
+  );
 
   return (
-    <SafeAreaView style={styles.screen}>
-      <View style={[styles.flex, ...contentStyle]}>{children}</View>
+    <SafeAreaView style={styles.screen} edges={['top', 'left', 'right']}>
+      <KeyboardAvoidingView style={styles.flex} behavior={keyboardBehavior}>
+        {body}
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }

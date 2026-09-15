@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Image, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 
 import { useAuth } from '@/auth/AuthProvider';
@@ -10,18 +9,15 @@ import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
-import { resizeForUpload } from '@/social/imageResize';
-import { createStory, uploadStoryImage, VISIBILITY_LABEL, type StoryVisibility } from '@/social/stories';
+import { createStory, VISIBILITY_LABEL, type StoryVisibility } from '@/social/stories';
+import { MAX_STORY_IMAGES, useStoryImages } from '@/social/useStoryImages';
 
-const MAX_IMAGES = 3;
 const BODY_MAX = 500;
 // 업로드 실패 뒤 화면을 새로 고쳐도 쓰던 글이 남아 있어야 한다(S15P21E201-198 완료 기준).
 // 사진은 로컬 uri가 새로고침 뒤 의미가 없어질 수 있어(웹의 blob: URL 등) 글·지역·공개
 // 설정만 남긴다 — 사진은 다시 골라야 하지만 가장 아까운 글은 잃지 않는다.
 const DRAFT_KEY = 'gabolle.story-compose-draft';
 type PublishTiming = 'AFTER_TRIP' | 'NOW';
-
-type PendingImage = { localUri: string; originalUri: string; imageUrl: string | null; uploading: boolean; error: string | null };
 
 export default function ComposeStory() {
   const router = useRouter();
@@ -31,7 +27,6 @@ export default function ComposeStory() {
   const [region, setRegion] = useState('');
   const [visibility, setVisibility] = useState<StoryVisibility>('PUBLIC');
   const [publishTiming, setPublishTiming] = useState<PublishTiming>('AFTER_TRIP');
-  const [images, setImages] = useState<PendingImage[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const draftLoaded = useRef(false);
@@ -57,44 +52,12 @@ export default function ComposeStory() {
     void AsyncStorage.setItem(DRAFT_KEY, JSON.stringify({ body, region, visibility, publishTiming }));
   }, [body, region, visibility, publishTiming]);
 
+  // 사진은 공용 훅이 맡는다 — 피드의 인라인 글쓰기와 같은 코드를 쓴다
+  // (S15P21E201-958). 줄이기·3MB 판정·재시도 규칙이 두 벌이 되지 않게 하려고.
+  const { images, addImage, retryImage, removeImage, anyUploading, uploadedUrls, canAddMore } = useStoryImages(accessToken, tx);
+
   const bodyValid = body.trim().length >= 1 && body.trim().length <= BODY_MAX;
-  const anyUploading = images.some((image) => image.uploading);
   const canSubmit = bodyValid && !anyUploading && !submitting;
-
-  // 원본을 그대로 올리지 않는다 — 다시 인코딩해서 가장 긴 변을 1600px로 줄이고 그
-  // 과정에서 촬영 위치 정보(EXIF)도 함께 뗀다(S15P21E201-204). 재시도도 이 함수를
-  // 다시 타서, 실패했던 것을 원본 그대로 올려버리는 일이 없게 한다.
-  const processAndUpload = async (index: number, originalUri: string) => {
-    try {
-      const resized = await resizeForUpload(originalUri);
-      setImages((prev) => prev.map((image, position) => position === index ? { ...image, localUri: resized.uri } : image));
-      const outcome = await uploadStoryImage({ uri: resized.uri, fileName: 'story.jpg', mimeType: 'image/jpeg' }, accessToken);
-      setImages((prev) => prev.map((image, position) => position === index
-        ? (outcome.state === 'success' ? { ...image, imageUrl: outcome.imageUrl, uploading: false, error: null } : { ...image, uploading: false, error: outcome.message })
-        : image));
-    } catch {
-      setImages((prev) => prev.map((image, position) => position === index ? { ...image, uploading: false, error: tx('사진을 처리하지 못했어요.', 'Could not process the photo.') } : image));
-    }
-  };
-
-  const addImage = async () => {
-    if (images.length >= MAX_IMAGES) return;
-    const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.8 });
-    if (result.canceled) return;
-    const asset = result.assets[0];
-    const index = images.length;
-    setImages((prev) => [...prev, { localUri: asset.uri, originalUri: asset.uri, imageUrl: null, uploading: true, error: null }]);
-    void processAndUpload(index, asset.uri);
-  };
-
-  const retryImage = (index: number) => {
-    const image = images[index];
-    if (!image || image.uploading) return;
-    setImages((prev) => prev.map((item, position) => position === index ? { ...item, uploading: true, error: null } : item));
-    void processAndUpload(index, image.originalUri);
-  };
-
-  const removeImage = (index: number) => setImages((prev) => prev.filter((_, position) => position !== index));
 
   const submit = async () => {
     if (!canSubmit) return;
@@ -102,7 +65,7 @@ export default function ComposeStory() {
     setError(null);
     const outcome = await createStory({
       body: body.trim(),
-      imageUrls: images.filter((image) => image.imageUrl).map((image) => image.imageUrl as string),
+      imageUrls: uploadedUrls,
       region: region.trim() || undefined,
       visibility,
       publishAt: publishTiming === 'NOW' ? new Date().toISOString() : undefined,
@@ -133,7 +96,7 @@ export default function ComposeStory() {
     />
     <Text variant="caption" color={color.text.muted} style={styles.counter}>{body.trim().length}/{BODY_MAX}</Text>
 
-    <Text variant="caption" weight="bold" style={styles.label}>{tx('사진 (최대 3장)', 'Photos (up to 3)')}</Text>
+    <Text variant="caption" weight="bold" style={styles.label}>{tx('사진 (최대 3장 · 한 장 3MB까지)', 'Photos (up to 3 · 3MB each)')}</Text>
     <View style={styles.imageRow}>
       {images.map((image, index) => <View key={`${image.localUri}-${index}`} style={styles.imageSlot}>
         <Image source={{ uri: image.localUri }} resizeMode="cover" accessibilityLabel={tx('선택한 사진', 'Selected photo')} style={styles.imagePreview} />
@@ -145,7 +108,7 @@ export default function ComposeStory() {
         ) : null}
         <Pressable accessibilityRole="button" accessibilityLabel={tx('사진 삭제', 'Remove photo')} onPress={() => removeImage(index)} style={styles.imageRemove}><Text weight="bold" color={color.text.onAction}>×</Text></Pressable>
       </View>)}
-      {images.length < MAX_IMAGES ? <Pressable accessibilityRole="button" accessibilityLabel={tx('사진 추가', 'Add photo')} onPress={() => void addImage()} style={styles.imageAdd}><Text variant="title" color={color.text.muted}>+</Text></Pressable> : null}
+      {canAddMore ? <Pressable accessibilityRole="button" accessibilityLabel={tx('사진 추가', 'Add photo')} onPress={() => void addImage()} style={styles.imageAdd}><Text variant="title" color={color.text.muted}>+</Text></Pressable> : null}
     </View>
     <Text variant="caption" color={color.text.muted} style={styles.hint}>{tx('사진의 위치 정보는 자동으로 제거되고, 위치는 지역 단위로만 저장돼요.', 'Location data is automatically removed from photos, and only a general region is stored.')}</Text>
 

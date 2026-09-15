@@ -1,6 +1,7 @@
-import { useCallback, useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
 import { ActivityIndicator, Image, Modal, Pressable, StyleSheet, View } from 'react-native';
-import { useFocusEffect, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 
 import { useAuth } from '@/auth/AuthProvider';
 import { Button } from '@/components/Button';
@@ -13,6 +14,9 @@ import { useI18n } from '@/i18n';
 import { deleteTrip, loadTripItineraries, loadTrips, type TripItineraryRefDto, type TripsLoadResult, type TripSummaryDto } from '@/trip/trips';
 import { leaveTrip } from '@/trip/collaboration';
 
+/** 보관소에서 이 목록을 찾는 열쇠. 사람이 바뀌면 남의 목록을 보면 안 되므로 사용자 id 를 넣는다. */
+const TRIPS_KEY = (userId: string | undefined) => ['trips', userId ?? 'anonymous'] as const;
+
 function dateLabel(trip: TripSummaryDto, tx: (ko: string, en: string) => string) {
   if (!trip.startDate) return tx('날짜 미확인', 'Date unknown');
   return trip.endDate && trip.endDate !== trip.startDate ? `${trip.startDate} – ${trip.endDate}` : trip.startDate;
@@ -22,22 +26,26 @@ export default function Trips() {
   const router = useRouter();
   const { tx } = useI18n();
   const { accessToken, user } = useAuth();
-  const [result, setResult] = useState<TripsLoadResult>({ state: 'success', trips: [] });
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [openingTripId, setOpeningTripId] = useState<string | null>(null);
   const [feedback, setFeedback] = useState('');
   const [picker, setPicker] = useState<{ tripId: string; itineraries: TripItineraryRefDto[] } | null>(null);
   const [confirmTarget, setConfirmTarget] = useState<TripSummaryDto | null>(null);
   const [removingTripId, setRemovingTripId] = useState<string | null>(null);
 
-  const reload = useCallback(async () => {
-    if (!accessToken) { setLoading(false); return; }
-    setLoading(true);
-    setResult(await loadTrips(accessToken));
-    setLoading(false);
-  }, [accessToken]);
-
-  useFocusEffect(useCallback(() => { void reload(); }, [reload]));
+  // 🔴 화면 밖 보관소에서 읽는다 (S15P21E201-957). 탭을 오가며 이 화면이 사라졌다
+  // 다시 만들어져도, 보관소는 그대로라 서버를 다시 안 부른다. 낡았을 때만(기본 30초)
+  // 조용히 다시 불러오면서 이전 값을 계속 보여준다.
+  //
+  // useFocusEffect 로 매번 부르던 것을 뺐다 — 그게 이 티켓이 고치려는 바로 그 동작이다.
+  const tripsQuery = useQuery({
+    queryKey: TRIPS_KEY(user?.userId),
+    queryFn: () => loadTrips(accessToken as string),
+    enabled: Boolean(accessToken),
+  });
+  const result: TripsLoadResult = tripsQuery.data ?? { state: 'success', trips: [] };
+  const loading = tripsQuery.isPending;
+  const reload = tripsQuery.refetch;
 
   const openItinerary = (itineraryId: string) => router.push(`/trips/${itineraryId}/itinerary`);
 
@@ -69,7 +77,11 @@ export default function Trips() {
         : { state: 'error' as const, message: tx('로그인이 필요해요.', 'Please sign in.') };
     setRemovingTripId(null);
     if (outcome.state === 'success') {
-      setResult((current) => current.state === 'success' ? { state: 'success', trips: current.trips.filter((item) => item.tripId !== trip.tripId) } : current);
+      // 지운 여행을 보관소에서도 바로 뺀다 — 서버에 다시 묻지 않고 화면이 즉시 맞는다.
+      queryClient.setQueryData<TripsLoadResult>(TRIPS_KEY(user?.userId), (current) =>
+        current && current.state === 'success'
+          ? { state: 'success', trips: current.trips.filter((item) => item.tripId !== trip.tripId) }
+          : current);
       setFeedback(trip.role === 'OWNER' ? tx('여행을 삭제했어요.', 'Trip deleted.') : tx('여행에서 나갔어요.', 'You left the trip.'));
     } else {
       setFeedback('message' in outcome ? outcome.message : tx('처리하지 못했어요.', 'Could not process the request.'));
@@ -78,7 +90,7 @@ export default function Trips() {
 
   const trips = result.state === 'success' ? result.trips : [];
 
-  return <View style={styles.shell}><Screen scroll wide style={styles.canvas}>
+  return <View style={styles.shell}><Screen scroll wide withTabBar style={styles.canvas}>
     <View style={styles.header}><View style={styles.headerCopy}><Eyebrow>{tx('여행 목록', 'My trips')}</Eyebrow><Text variant="display" weight="bold" style={styles.title}>{tx('내 여행', 'My trips')}</Text><Text color={color.text.body}>{tx('내가 만들었거나 초대받은 여행이에요.', "Trips you've created or been invited to.")}</Text></View><View style={styles.headerActions}><Button label={tx('부슐랭', 'My places')} variant="ghost" onPress={() => router.push('/collection')} containerStyle={styles.newTrip} /><Button label={tx('새 여행', 'New trip')} onPress={() => router.push('/plan/basic')} containerStyle={styles.newTrip} /></View></View>
 
     {!accessToken ? <View style={styles.state}><Text weight="bold">{tx('로그인하면 내 여행을 볼 수 있어요.', 'Sign in to see your trips.')}</Text><Button label={tx('로그인', 'Sign in')} onPress={() => router.push('/sign-in')} containerStyle={styles.emptyCta} /></View> : null}
