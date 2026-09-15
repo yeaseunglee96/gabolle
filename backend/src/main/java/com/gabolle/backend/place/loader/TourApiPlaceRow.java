@@ -15,6 +15,11 @@ package com.gabolle.backend.place.loader;
  * @param address 지번·도로명이 섞여 온다. 원문 그대로 옮긴다
  * @param lat 위도 ({@code mapy})
  * @param lng 경도 ({@code mapx})
+ * @param firstImage 대표 사진 주소 ({@code firstimage}). 없으면 {@code null}
+ * @param copyrightType 사진 저작권 유형 ({@code cpyrhtDivCd}). {@code Type1}(공공누리 제1유형 —
+ *     출처를 표시하면 자유 이용) 과 {@code Type3}(제3자 저작물 — 재사용 전 저작권자의 별도 허락이
+ *     필요) 이 섞여 온다. <b>호출자가 반드시 이 값을 보고 걸러야 한다</b> — {@link TourApiPlaceLoader}
+ *     참고. 실측(2026-09-15): 사진 있는 546곳 중 Type3 가 468곳(86%), Type1 은 78곳뿐이다
  */
 public record TourApiPlaceRow(
 		String contentId,
@@ -24,5 +29,7 @@ public record TourApiPlaceRow(
 		String title,
 		String address,
 		double lat,
-		double lng) {
+		double lng,
+		String firstImage,
+		String copyrightType) {
 }

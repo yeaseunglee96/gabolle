@@ -169,7 +169,8 @@ public final class TourApiPlaceReader {
 		double lng = Double.parseDouble(mapx);
 		double lat = Double.parseDouble(mapy);
 		return new TourApiPlaceRow(contentId, text(item, "contenttypeid"), text(item, "cat1"),
-				text(item, "cat3"), title, text(item, "addr1"), lat, lng);
+				text(item, "cat3"), title, text(item, "addr1"), lat, lng,
+				text(item, "firstimage"), text(item, "cpyrhtDivCd"));
 	}
 
 	private static String text(JsonNode node, String field) {

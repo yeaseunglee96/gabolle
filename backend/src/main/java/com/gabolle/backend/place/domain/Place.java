@@ -87,9 +87,13 @@ public class Place {
 	private String addressEn;
 
 	/**
-	 * 대표 사진 주소. 🔴 지금은 채우는 경로가 없어 항상 {@code null} 이다 — 외부 사진 검색
-	 * (-146 · -480)이 붙어야 값이 생긴다. 칸을 먼저 만든 이유는 화면이 사진 자리를 비워 두는
-	 * 형태로 미리 만들어질 수 있게 하기 위해서다.
+	 * 대표 사진 주소.
+	 *
+	 * <p>🔴 정정 (2026-09-15, S15P21E201-146) — 위 문단은 더 이상 사실이 아니다. 지우지
+	 * 않고 이유를 남긴다: 만들 당시엔 채우는 경로가 없어 항상 {@code null} 이었다("외부 사진
+	 * 검색(-146·-480)이 붙어야 값이 생긴다"). 지금은 {@code TourApiPlaceLoader} 가 관광공사
+	 * 자료 중 <b>저작권 유형이 {@code Type1}(공공누리 제1유형)인 것만</b> 채운다 — 대부분인
+	 * {@code Type3}(제3자 저작물)는 재사용 전 저작권자 허락이 필요해 비워 둔다.
 	 */
 	@Column(name = "photo_url", length = 500)
 	private String photoUrl;
@@ -129,6 +133,21 @@ public class Place {
 	public static Place imported(UUID placeId, String nameKo, String category, String address,
 			Double lat, Double lng, String sourceType, String sourceId,
 			OffsetDateTime collectedAt, OffsetDateTime observedAt, String datasetVersion) {
+		return imported(placeId, nameKo, category, address, lat, lng, sourceType, sourceId,
+				collectedAt, observedAt, datasetVersion, null, null);
+	}
+
+	/**
+	 * 사진까지 같이 넣는 판 — S15P21E201-146.
+	 *
+	 * @param photoUrl 대표 사진 주소. 자유 이용이 확인된 사진만 넣는다 — {@code photoSource} 와
+	 *     반드시 짝으로 채운다. 모르면 {@code null} — 지어내지 않는다
+	 * @param photoSource 사진 출처 표기 문구. {@code photoUrl} 이 있으면 이것도 있어야 한다
+	 */
+	public static Place imported(UUID placeId, String nameKo, String category, String address,
+			Double lat, Double lng, String sourceType, String sourceId,
+			OffsetDateTime collectedAt, OffsetDateTime observedAt, String datasetVersion,
+			String photoUrl, String photoSource) {
 		Place place = new Place();
 		place.placeId = placeId;
 		place.nameKo = nameKo;
@@ -142,6 +161,8 @@ public class Place {
 		place.collectedAt = collectedAt;
 		place.observedAt = observedAt;
 		place.datasetVersion = datasetVersion;
+		place.photoUrl = photoUrl;
+		place.photoSource = photoSource;
 		return place;
 	}
 

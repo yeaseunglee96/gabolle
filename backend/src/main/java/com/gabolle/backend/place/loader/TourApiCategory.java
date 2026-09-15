@@ -1,5 +1,7 @@
 package com.gabolle.backend.place.loader;
 
+import java.util.Set;
+
 /**
  * 관광공사 분류를 <b>앱이 보내는 낱말</b>로 옮긴다 — S15P21E201-854.
  *
@@ -43,11 +45,29 @@ package com.gabolle.backend.place.loader;
  * <p>그래서 {@code SEA_BEACH} 를 고른 사용자의 후보는 0 건에서 <b>두 곳</b>이 된다. 적지만
  * 0 과 2 는 다르다. 해안 산책로·항구·등대·섬 6곳을 여기 넣으면 숫자는 늘지만 「해변」 을 고른
  * 사람에게 등대가 나온다 — 넓히는 것도 채점 기준 결정이라 같이 미뤘다.
+ *
+ * <h2>🔴 정정 (2026-09-15, S15P21E201-106) — 그중 둘만 넣기로 정했다</h2>
+ *
+ * cat3 {@code A01010500}(자연 안의 「해안 산책로/철길」 묶음)에 셋이 있다 — 송도반도(부산
+ * 국가지질공원, contentid 2614725) · 절영해안산책로(252561) · 해운대 그린레일웨이
+ * (미포~송정 구간, 2822343). <b>cat3 로는 셋을 못 가른다</b> — 같은 소분류다.
+ *
+ * <p>절영해안산책로·그린레일웨이 둘은 이름 그대로 바닷가를 걷는 길이라 "해변" 을 고른
+ * 사람에게 나와도 낯설지 않다. 송도반도는 지질공원 성격이 더 커서 뺐다. 애매하면 안
+ * 붙인다는 이 저장소의 규칙대로, cat3 대신 <b>contentid 로 둘만 콕 집는다</b> — 위 문단이
+ * 걱정한 "등대·항구까지 넓히면" 은 여전히 하지 않는다. {@code SEA_BEACH} 는 2 곳에서
+ * <b>네 곳</b>이 된다.
  */
 final class TourApiCategory {
 
 	/** 자연 안에서 해수욕장·해변. 실측에서 감지해변·부산 송도해수욕장 둘이 여기다. */
 	private static final String CAT3_BEACH = "A01011200";
+
+	/**
+	 * cat3 {@code A01010500} 셋 중 「바닷가를 걷는 길」 둘만 — 위 클래스 javadoc 정정 참고.
+	 * 송도반도(2614725)는 일부러 뺐다.
+	 */
+	private static final Set<String> COASTAL_WALK_CONTENT_IDS = Set.of("252561", "2822343");
 
 	private TourApiCategory() {
 	}
@@ -55,8 +75,13 @@ final class TourApiCategory {
 	/**
 	 * 앱이 보내는 갈래 낱말. 옮길 낱말이 없으면 {@code null} 이다 — <b>호출자는 그것을 정상으로
 	 * 다뤄야 한다.</b>
+	 *
+	 * @param contentId 관광공사 식별자. {@link #COASTAL_WALK_CONTENT_IDS} 콕 집기에만 쓴다
 	 */
-	static String of(String cat1, String cat3) {
+	static String of(String contentId, String cat1, String cat3) {
+		if (COASTAL_WALK_CONTENT_IDS.contains(contentId)) {
+			return "SEA_BEACH";
+		}
 		if (cat1 == null) {
 			return null;
 		}
