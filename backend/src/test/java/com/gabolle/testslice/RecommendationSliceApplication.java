@@ -48,10 +48,15 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 		// "추천만 올린다" 이므로 거기서 멈춘다.
 		"com.gabolle.backend.place",
 		"com.gabolle.backend.trip.infra",
-		// S15P21E201-106 — ThemeWeightResolver(recommendation.config)가 생성자로
-		// CourseThemeProperties 를 요구한다. 그 클래스는 coursetheme 패키지에 있어 이
-		// 목록 밖이었고, 이 슬라이스의 모든 통합 테스트가 빈을 못 찾아 컨텍스트부터
-		// 실패했다.
+		// S15P21E201-106 — 테마 설정과 ThemeWeightResolver 가 여기 있다. 추천이 테마별
+		// 가중치를 먹이려면 둘 다 필요하다.
+		//
+		// 🔴 이 줄이 처음 들어온 경위 (2026-09-15). ThemeWeightResolver 가 recommendation
+		// .config 에 있던 동안, 생성자가 요구하는 CourseThemeProperties 가 목록 밖이라
+		// 이 슬라이스가 컨텍스트부터 죽었다. 그때는 이 줄이 유일한 고침이었는데, 같은
+		// 이유로 다른 슬라이스 넷도 함께 죽고 있었다(통합 테스트 131건). 그래서
+		// resolver 를 설정 옆(coursetheme)으로 옮겨 원인을 없앴고, 이 줄은 남긴다 —
+		// 이제는 "이 슬라이스가 테마를 쓴다" 는 뜻이지 빈을 주워 담는 땜질이 아니다.
 		"com.gabolle.backend.coursetheme"
 })
 @EntityScan(basePackages = {

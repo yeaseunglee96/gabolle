@@ -1,4 +1,4 @@
-package com.gabolle.backend.recommendation.config;
+package com.gabolle.backend.coursetheme;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -6,7 +6,6 @@ import java.util.Map;
 
 import org.springframework.stereotype.Component;
 
-import com.gabolle.backend.coursetheme.CourseThemeProperties;
 import com.gabolle.backend.recommendation.config.BaselineEngineProperties.Weights;
 
 /**
@@ -35,6 +34,20 @@ import com.gabolle.backend.recommendation.config.BaselineEngineProperties.Weight
  *
  * <p>대신 <b>모르는 축 이름은 기동을 막는다</b>(생성자). 오타는 사람이 고칠 수 있는 자리에서
  * 나야 하고, 조용히 무시되면 값을 적어 둔 사람은 반영됐다고 믿는다.
+ *
+ * <h2>🔴 왜 {@code recommendation} 이 아니라 여기에 있나 (2026-09-15)</h2>
+ *
+ * 처음에는 {@code recommendation.config} 에 뒀다가 <b>통합 테스트 131건을 깨뜨렸다.</b> 이
+ * 클래스는 생성자로 {@link CourseThemeProperties} 를 요구하는데, 테스트 슬라이스 중
+ * {@code recommendation} 을 스캔하는 것은 다섯인 반면 {@code coursetheme} 까지 스캔하는 것은
+ * 하나뿐이었다. 나머지 넷에서 <b>빈을 못 찾아 컨텍스트부터 죽었다</b> — 추천과 무관한
+ * 여행·협업·일정 테스트까지 함께.
+ *
+ * <p>슬라이스 넷에 스캔 경로를 더하는 것은 땜질이다. <b>추천을 스캔하는 슬라이스가 앞으로
+ * 하나 더 생길 때마다 같은 자리에서 또 깨진다.</b> 그래서 클래스를 <b>자기가 읽는 설정 옆으로</b>
+ * 옮겼다 — {@code coursetheme} 를 스캔하는 곳은 설정과 이 계산을 함께 얻고, 안 쓰는 곳은
+ * 둘 다 없다. 없어서 생기는 문제도 없다. 이 클래스를 실제로 부르는 쪽은 그때 이 패키지를
+ * 스캔하면 되고, 그건 <b>진짜 의존</b>이라 드러나는 편이 맞다.
  */
 @Component
 public class ThemeWeightResolver {

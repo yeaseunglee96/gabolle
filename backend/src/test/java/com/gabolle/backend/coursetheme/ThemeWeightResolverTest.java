@@ -1,4 +1,4 @@
-package com.gabolle.backend.recommendation.config;
+package com.gabolle.backend.coursetheme;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -7,7 +7,6 @@ import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import com.gabolle.backend.coursetheme.CourseThemeProperties;
 import com.gabolle.backend.recommendation.config.BaselineEngineProperties.Weights;
 
 import static org.assertj.core.api.Assertions.assertThat;
