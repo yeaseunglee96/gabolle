@@ -22,6 +22,7 @@ import com.gabolle.backend.story.application.FollowService;
 import com.gabolle.backend.story.application.StoryCoauthorService;
 import com.gabolle.backend.story.application.StoryFeedService;
 import com.gabolle.backend.story.application.StoryService;
+import com.gabolle.backend.story.domain.UserBlock;
 import com.gabolle.backend.story.domain.UserFollow;
 
 /**
@@ -130,6 +131,26 @@ public class StoryExceptionHandler {
 	public ResponseEntity<ApiResponse<Void>> handleSelfFollow(UserFollow.SelfFollowException e) {
 		return ResponseEntity.badRequest()
 				.body(ApiResponse.failure(new ApiError("FOLLOW_SELF", e.getMessage(), List.of("userId")), requestId()));
+	}
+
+	@ExceptionHandler(UserBlock.SelfBlockException.class)
+	public ResponseEntity<ApiResponse<Void>> handleSelfBlock(UserBlock.SelfBlockException e) {
+		return ResponseEntity.badRequest()
+				.body(ApiResponse.failure(new ApiError("BLOCK_SELF", e.getMessage(), List.of("userId")), requestId()));
+	}
+
+	/**
+	 * 나를 차단한 사람의 프로필·기록을 열었다 — S15P21E201-990.
+	 *
+	 * <p>🔴 <b>404 가 아니라 403 이다.</b> 팀이 「없는 사람인 척하지 않기로」 정했다. 화면이
+	 * 「차단되어 볼 수 없습니다」를 띄우려면 "없다" 와 "막혔다" 를 가를 수 있어야 한다. 이것은
+	 * 차단 사실을 상대에게 알린다는 뜻이기도 하다 — 혼란은 없애지만 다른 계정을 만들 동기를 준다.
+	 * 그 트레이드오프는 티켓에 결정 사항으로 남겼고, 바꾸려면 이 한 곳과 화면 문구만 고치면 된다.
+	 */
+	@ExceptionHandler(UserBlock.BlockedByUserException.class)
+	public ResponseEntity<ApiResponse<Void>> handleBlockedByUser(UserBlock.BlockedByUserException e) {
+		return ResponseEntity.status(HttpStatus.FORBIDDEN)
+				.body(ApiResponse.failure(new ApiError("BLOCKED_BY_USER", e.getMessage(), List.of()), requestId()));
 	}
 
 	@ExceptionHandler(FollowService.UserNotFoundException.class)
