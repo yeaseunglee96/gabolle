@@ -79,6 +79,15 @@ public class InMemoryTripRepository implements TripRepository {
         trips.put(trip.tripId(), trip);
     }
 
+    /**
+     * S15P21E201-964 — 위 {@link #softDelete} 와 같은 이유로 저장을 한 번 거친다.
+     * 상태를 바꾸는 규칙은 도메인이 이미 태웠으므로 여기서는 넣기만 한다.
+     */
+    @Override
+    public void updateStatus(Trip trip) {
+        trips.put(trip.tripId(), trip);
+    }
+
     @Override
     public List<TripConstraint> findConstraints(String tripId) {
         return constraints.getOrDefault(tripId, List.of());

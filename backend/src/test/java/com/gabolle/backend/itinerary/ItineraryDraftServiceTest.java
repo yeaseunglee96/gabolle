@@ -18,6 +18,7 @@ import org.springframework.beans.factory.ObjectProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
 import com.gabolle.backend.itinerary.application.ItineraryDraftService;
 import com.gabolle.backend.place.service.OpeningHoursFilterPort;
@@ -34,8 +35,11 @@ import com.gabolle.backend.trip.domain.TripRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -368,6 +372,52 @@ class ItineraryDraftServiceTest {
 		when(noTravelTime.getIfAvailable()).thenReturn(null);
 		return new ItineraryDraftService(this.tripRepository, mock(ItineraryRepository.class), CLOCK, 4, 3, "FOOD",
 				new ItineraryLegPlanner(this.placeRepository, noTravelTime), openingHours);
+	}
+
+	/**
+	 * S15P21E201-964 — 일정이 생겼는데도 여행이 PLANNING 에 머물던 자리.
+	 *
+	 * <p>{@code Trip.markReady} 는 진작 있었지만 <b>운영 코드에서 한 번도 불리지 않았다.</b>
+	 * 그래서 {@code GET /api/v1/trips} 가 모든 여행을 PLANNING 으로 내려보냈고, 내 여행
+	 * 목록은 일정이 여러 판 쌓인 여행까지 "일정 준비 중" 으로 보여 줬다.
+	 */
+	@Test
+	@DisplayName("일정을 처음 저장하면 여행이 준비 중에서 일정 있음으로 바뀐다")
+	void persistMovesTripFromPlanningToReady() {
+		Trip trip = tripOf(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 11));
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
+
+		this.service.persist(this.service.assemble(commandOf("trip_1", plannedPlaces(2))));
+
+		ArgumentCaptor<Trip> saved = ArgumentCaptor.forClass(Trip.class);
+		verify(this.tripRepository).updateStatus(saved.capture());
+		assertThat(saved.getValue().status()).isEqualTo(Trip.Status.READY);
+	}
+
+	/**
+	 * 🔴 PLANNING 일 때만 옮긴다. 여행 중인 여행의 일정을 다시 만들 때도 READY 로 쓰면
+	 * 진행 단계가 뒤로 밀린다 — 목록에서 "여행 중" 이던 것이 "일정 있음" 으로 돌아간다.
+	 */
+	@Test
+	@DisplayName("여행 중인 여행은 일정을 다시 만들어도 단계가 뒤로 밀리지 않는다")
+	void persistDoesNotDowngradeTripAlreadyUnderway() {
+		Trip trip = Trip.builder()
+				.tripId("itn_trip_1")
+				.createdBy("usr_1")
+				.ownerType(Trip.OwnerType.USER)
+				.startDate(LocalDate.of(2026, 9, 10))
+				.finishDate(LocalDate.of(2026, 9, 11))
+				.partySize(2)
+				.timezone("Asia/Seoul")
+				.status(Trip.Status.IN_PROGRESS)
+				.createdAt(Instant.now())
+				.build();
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
+
+		this.service.persist(this.service.assemble(commandOf("trip_1", plannedPlaces(2))));
+
+		verify(this.tripRepository, never()).updateStatus(any());
+		assertThat(trip.status()).isEqualTo(Trip.Status.IN_PROGRESS);
 	}
 
 	/** 09:00~17:00 활동 시간대를 가진 여행. 두 항목이면 칸이 09:00 과 13:00 이다. */

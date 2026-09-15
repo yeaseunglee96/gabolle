@@ -134,6 +134,23 @@ public class JpaTripRepository implements TripRepository {
 		tripJpaRepository.save(entity);
 	}
 
+	/**
+	 * 상태 칸만 옮긴다 — S15P21E201-964. 위 {@link #softDelete} 와 같은 이유로 읽어서
+	 * 고치지, {@code toEntity(trip)} 로 만든 객체를 통째로 덮어쓰지 않는다.
+	 *
+	 * <p>🔴 {@code @Transactional} 을 새로 열지 않는다. 이 자리를 부르는 것은 일정이
+	 * 처음 저장되는 트랜잭션 안이고({@code ItineraryDraftService.persist}), 여기서 새
+	 * 트랜잭션을 열면 일정 저장이 뒤에서 굴러떨어져도 상태만 READY 로 남는다.
+	 * 저장 자체는 바깥 트랜잭션이 끝날 때 함께 반영된다.
+	 */
+	@Override
+	public void updateStatus(Trip trip) {
+		TripJpaEntity entity = tripJpaRepository.findById(UUID.fromString(trip.tripId()))
+				.orElseThrow(() -> new IllegalStateException("상태를 바꾸려는 여행이 표에 없다: tripId=" + trip.tripId()));
+		entity.changeStatus(trip.status(), toOffset(trip.updatedAt()));
+		tripJpaRepository.save(entity);
+	}
+
 	@Override
 	public List<TripConstraint> findConstraints(String tripId) {
 		UUID id = UUID.fromString(tripId);
