@@ -5,6 +5,7 @@ import { apiRequest, ApiClientError } from '@/api/client';
 // 서버가 항상 전부 돌려준다(건수 0인 갈래도 옴). 🔴 목록을 화면에 박지 않는다 — 갈래가 늘거나
 // 이름이 바뀌어도 앱을 다시 배포하지 않게 하려는 것이 서버가 labelKo까지 함께 주는 이유다.
 export type FacetKeyEntry = { featureKey: string; placeCount: number; labelKo: string };
+export type LocalFacetEntry = FacetKeyEntry & { placeFeatureType: string };
 export type FacetGroup = { userInputCode: string; placeFeatureType: string; matchKind: string; placeCount: number; keys: FacetKeyEntry[] };
 export type FacetsDto = { facets: FacetGroup[]; generatedAt: string };
 
@@ -25,6 +26,13 @@ export async function getFacets(signal?: AbortSignal): Promise<FacetsLoadResult>
   } catch (error) {
     return toFailure(error);
   }
+}
+
+export function flattenLocalFacets(result: FacetsLoadResult, knownKeys: ReadonlySet<string>): LocalFacetEntry[] | null {
+  if (result.state !== 'success') return null;
+  const flat = result.facets.flatMap((group) => group.keys.map((entry) => ({ ...entry, placeFeatureType: group.placeFeatureType })));
+  const local = flat.filter((entry) => knownKeys.has(entry.featureKey));
+  return (local.length ? local : flat).filter((entry) => entry.placeCount > 0 && entry.labelKo);
 }
 
 // 근처 장소 조회 — NearbyPlaceController#nearby(S15P21E201-469)와 필드 단위로 맞춘 실제 계약.

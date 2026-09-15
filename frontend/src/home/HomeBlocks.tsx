@@ -14,7 +14,8 @@ import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { useAuth } from '@/auth/AuthProvider';
 import { resolveHomeTripDestination } from './tripNavigation';
-import type { FacetKeyEntry, NearbyPlaceItem } from '@/discovery/localExplore';
+import type { FacetKeyEntry } from '@/discovery/localExplore';
+import type { HomePlaceItem } from './useHomeData';
 import { relativeStoryTime, type StoryDto } from '@/social/stories';
 import type { TripSummaryDto } from '@/trip/trips';
 import type { DailyForecastDto } from '@/trip/weather';
@@ -151,7 +152,7 @@ export function HeroStories({ stories, chips, signedIn }: { stories: StoryDto[] 
 
 // ── 장소 넷 ───────────────────────────────────────────────────────────────────
 
-export function PlacePicks({ places }: { places: NearbyPlaceItem[] }) {
+export function PlacePicks({ places }: { places: HomePlaceItem[] }) {
   const router = useRouter();
   const { tx } = useI18n();
   // 한 곳도 못 받았으면 블록을 통째로 접는다 — 제목만 남고 아래가 비면 고장난 화면으로 보인다.

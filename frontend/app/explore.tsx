@@ -1,12 +1,11 @@
 // 로컬 탐색 화면 (S15P21E201-472, 상세설계서 v2 P-17). 8개 갈래(축제·야시장·전통시장·액티비티·
-// 산책·자연·야경·기념품샵)를 아코디언으로 접었다 펴며 보여준다. 한 번에 하나만 열리고, 열 때
-// 그 갈래의 장소만 부른다 — 화면 진입 시 8개를 한꺼번에 부르지 않는다.
+// 산책·자연·야경·기념품샵) 중 하나를 고르고, 내 근처와 부산 전체를 전환해 본다.
 //
 // 갈래 이름·순서는 GET /api/v1/places/facets 응답을 그대로 쓴다(jaehyeon 님 2026-09-08:
 // "목록을 화면 코드에 박지 마세요" — 서버가 갈래를 추가하거나 이름을 바꿔도 앱을 다시 배포하지
 // 않아도 되게 하려는 것). 그래서 여기엔 8개 이름의 하드코딩 배열이 없다.
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as Location from 'expo-location';
 
@@ -16,7 +15,8 @@ import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { Eyebrow } from '@/components/Eyebrow';
 import { color, radius, spacing } from '@/design/tokens';
-import { getFacets, getNearbyPlaces, type FacetKeyEntry, type FacetsLoadResult, type NearbyPlacesLoadResult } from '@/discovery/localExplore';
+import { flattenLocalFacets, getFacets, getNearbyPlaces, type FacetsLoadResult, type LocalFacetEntry, type NearbyPlacesLoadResult } from '@/discovery/localExplore';
+import { getPlacesByFacet, type PlaceSearchItem } from '@/discovery/places';
 import { useI18n } from '@/i18n';
 
 // 여덟 갈래의 실제 값(jaehyeon 님 확인) — 서버가 이 여덟을 항상 함께 돌려주므로, 응답에서
@@ -25,15 +25,8 @@ const KNOWN_FACET_KEYS = new Set(['FESTIVAL', 'NIGHT_MARKET', 'TRADITIONAL_MARKE
 
 // S15P21E201-898: 장소가 0곳인 갈래는 목록에서 아예 뺀다(지우는 게 아니라 거르는 것 —
 // 적재가 돌아 placeCount 가 늘면 다음 조회에서 코드 변경 없이 다시 나타난다).
-function flattenLocalFacets(result: FacetsLoadResult): FacetKeyEntry[] | null {
-  if (result.state !== 'success') return null;
-  const flat = result.facets.flatMap((group) => group.keys);
-  const local = flat.filter((entry) => KNOWN_FACET_KEYS.has(entry.featureKey));
-  const withPlaces = (local.length ? local : flat).filter((entry) => entry.placeCount > 0);
-  return withPlaces;
-}
-
 type LocationState = 'detecting' | 'granted' | 'denied';
+type ExploreScope = 'nearby' | 'all';
 
 export default function LocalExplore() {
   const router = useRouter();
@@ -42,7 +35,8 @@ export default function LocalExplore() {
   const [result, setResult] = useState<FacetsLoadResult>({ state: 'success', facets: [] });
   const [loading, setLoading] = useState(true);
   const requestedFacet = facet && KNOWN_FACET_KEYS.has(facet) ? facet : null;
-  const [openKey, setOpenKey] = useState<string | null>(requestedFacet);
+  const [selectedKey, setSelectedKey] = useState<string | null>(requestedFacet);
+  const [scope, setScope] = useState<ExploreScope>('all');
   const [locationState, setLocationState] = useState<LocationState>('detecting');
   const [coords, setCoords] = useState<{ latitude: number; longitude: number } | null>(null);
 
@@ -82,14 +76,18 @@ export default function LocalExplore() {
 
   useEffect(() => { void load(); }, [load]);
   useEffect(() => { void restoreGrantedLocation(); }, [restoreGrantedLocation]);
-  useEffect(() => { if (requestedFacet) setOpenKey(requestedFacet); }, [requestedFacet]);
+  useEffect(() => { if (requestedFacet) setSelectedKey(requestedFacet); }, [requestedFacet]);
 
-  const facets = flattenLocalFacets(result);
+  const facets = flattenLocalFacets(result, KNOWN_FACET_KEYS);
   // 홈에서 특정 갈래를 눌러 들어온 경우 그 갈래를 맨 위에서 바로 펼친다. 선택값을 버린 채
   // 같은 첫 화면만 보여 주면 사용자는 버튼이 동작하지 않았다고 느낀다.
   const visibleFacets = facets && requestedFacet
     ? [...facets].sort((a, b) => Number(b.featureKey === requestedFacet) - Number(a.featureKey === requestedFacet))
     : facets;
+  useEffect(() => {
+    if (!selectedKey && visibleFacets?.length) setSelectedKey(visibleFacets[0].featureKey);
+  }, [selectedKey, visibleFacets]);
+  const selectedFacet = visibleFacets?.find((entry) => entry.featureKey === selectedKey) ?? visibleFacets?.[0] ?? null;
 
   return (
     <Screen scroll style={styles.screen}>
@@ -104,7 +102,7 @@ export default function LocalExplore() {
       <View style={styles.heading}>
         <Eyebrow>{tx('로컬 탐색', 'Local explore')}</Eyebrow>
         <Text variant="display" weight="bold">{tx('부산 로컬 탐색', 'Explore Busan like a local')}</Text>
-        <Text color={color.text.body}>{tx('갈래를 눌러 열면 그 자리에서 장소를 찾아요.', 'Tap a category to load places for it.')}</Text>
+        <Text color={color.text.body}>{tx('관심 갈래를 고르고 내 근처 또는 부산 전체에서 찾아보세요.', 'Choose a category, then search nearby or across Busan.')}</Text>
       </View>
 
       {loading ? (
@@ -124,27 +122,24 @@ export default function LocalExplore() {
       ) : null}
 
       {!loading && visibleFacets && visibleFacets.length > 0 ? (
-        <View style={styles.accordion}>
-          {visibleFacets.map((facetEntry) => {
-            const open = openKey === facetEntry.featureKey;
-            return (
-              <View key={facetEntry.featureKey} style={styles.branch}>
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityState={{ expanded: open }}
-                  onPress={() => setOpenKey(open ? null : facetEntry.featureKey)}
-                  style={styles.branchHeader}
-                >
-                  <Text variant="body" weight="bold" color={color.text.heading}>{facetEntry.labelKo}</Text>
-                  <View style={styles.branchRight}>
-                    <View style={styles.countBadge}><Text variant="caption" weight="bold" color={color.text.body}>{facetEntry.placeCount}</Text></View>
-                    <Text variant="title" color={color.text.heading}>{open ? '︿' : '﹀'}</Text>
-                  </View>
-                </Pressable>
-                {open ? <LocalBranchList facetKey={facetEntry.featureKey} coords={coords} locationState={locationState} onRetryLocation={() => void detectLocation()} /> : null}
-              </View>
-            );
-          })}
+        <View style={styles.results}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoryRail}>
+            {visibleFacets.map((entry) => {
+              const selected = entry.featureKey === selectedFacet?.featureKey;
+              return <Pressable key={entry.featureKey} accessibilityRole="button" accessibilityState={{ selected }} onPress={() => setSelectedKey(entry.featureKey)} style={[styles.categoryChip, selected && styles.categoryChipSelected]}>
+                <Text weight="bold" color={selected ? color.text.onAction : color.text.heading}>{selected ? '✓ ' : ''}{entry.labelKo} · {entry.placeCount}</Text>
+              </Pressable>;
+            })}
+          </ScrollView>
+          <View accessibilityRole="tablist" style={styles.scopeSwitch}>
+            {(['nearby', 'all'] as const).map((value) => {
+              const selected = scope === value;
+              return <Pressable key={value} accessibilityRole="tab" accessibilityState={{ selected }} onPress={() => setScope(value)} style={[styles.scopeOption, selected && styles.scopeOptionSelected]}>
+                <Text weight="bold" color={selected ? color.text.onAction : color.text.body}>{selected ? '✓ ' : ''}{value === 'nearby' ? tx('내 근처', 'Nearby') : tx('부산 전체', 'All Busan')}</Text>
+              </Pressable>;
+            })}
+          </View>
+          {selectedFacet ? <LocalBranchList facet={selectedFacet} scope={scope} coords={coords} onRetryLocation={() => void detectLocation()} /> : null}
         </View>
       ) : null}
     </Screen>
@@ -162,15 +157,16 @@ export default function LocalExplore() {
  */
 const BUSAN_CENTER = { lat: 35.1796, lng: 129.0756 };
 
-function LocalBranchList({ facetKey, coords, locationState, onRetryLocation }: {
-  facetKey: string;
+function LocalBranchList({ facet, scope, coords, onRetryLocation }: {
+  facet: LocalFacetEntry;
+  scope: ExploreScope;
   coords: { latitude: number; longitude: number } | null;
-  locationState: 'detecting' | 'granted' | 'denied';
   onRetryLocation: () => void;
 }) {
-  const router = useRouter();
   const { tx } = useI18n();
   const [result, setResult] = useState<NearbyPlacesLoadResult | null>(null);
+  const [allItems, setAllItems] = useState<PlaceSearchItem[] | null>(null);
+  const [allError, setAllError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   // 위치를 모르면 부산 중심으로 찾는다 — S15P21E201-982.
@@ -189,19 +185,34 @@ function LocalBranchList({ facetKey, coords, locationState, onRetryLocation }: {
     let active = true;
     setLoading(true);
     (async () => {
-      const next = await getNearbyPlaces({ lat: center.lat, lng: center.lng, facetKey });
+      if (scope === 'all') {
+        try {
+          const items = await getPlacesByFacet(facet.placeFeatureType, facet.featureKey);
+          if (active) { setAllItems(items); setAllError(null); setLoading(false); }
+        } catch (error) {
+          if (active) { setAllItems([]); setAllError(error instanceof Error ? error.message : tx('장소를 불러오지 못했어요.', 'Could not load places.')); setLoading(false); }
+        }
+        return;
+      }
+      const next = await getNearbyPlaces({ lat: center.lat, lng: center.lng, facetKey: facet.featureKey });
       if (active) { setResult(next); setLoading(false); }
     })();
     return () => { active = false; };
-  }, [center.lat, center.lng, facetKey]);
+  }, [center.lat, center.lng, facet.featureKey, facet.placeFeatureType, scope, tx]);
 
-  if (loading || !result) {
+  if (loading || (scope === 'nearby' && !result) || (scope === 'all' && !allItems)) {
     return <View accessibilityLiveRegion="polite" style={styles.branchBody}><ActivityIndicator color={color.brand.orange} /></View>;
   }
+  if (scope === 'all') {
+    if (allError) return <View style={styles.branchBody}><Text color={color.text.body}>{allError}</Text></View>;
+    if (!allItems?.length) return <View style={styles.branchBody}><Text color={color.text.body}>{tx('부산 전체에서도 이 갈래의 장소를 찾지 못했어요.', 'No places in this category were found across Busan.')}</Text></View>;
+    return <PlaceRows items={allItems} />;
+  }
+  if (!result) return null;
   if (result.state !== 'success') {
     return <View style={styles.branchBody}>
       <Text color={color.text.body}>{result.message}</Text>
-      <Button label={tx('다시 시도', 'Try again')} variant="ghost" onPress={() => void getNearbyPlaces({ lat: center.lat, lng: center.lng, facetKey }).then(setResult)} containerStyle={styles.branchRetry} />
+      <Button label={tx('다시 시도', 'Try again')} variant="ghost" onPress={() => void getNearbyPlaces({ lat: center.lat, lng: center.lng, facetKey: facet.featureKey }).then(setResult)} containerStyle={styles.branchRetry} />
     </View>;
   }
   if (result.items.length === 0) {
@@ -225,7 +236,15 @@ function LocalBranchList({ facetKey, coords, locationState, onRetryLocation }: {
       {result.radiusExpanded && (
         <View style={styles.expandedNotice}><Text variant="caption" weight="bold" color={color.brand.orange}>{tx(`반경을 ${result.effectiveRadiusM.toLocaleString()}m로 넓혔습니다`, `Widened the search radius to ${result.effectiveRadiusM.toLocaleString()}m`)}</Text></View>
       )}
-      {result.items.map((item) => (
+      <PlaceRows items={result.items} showDistance />
+    </View>
+  );
+}
+
+function PlaceRows({ items, showDistance = false }: { items: Array<PlaceSearchItem | import('@/discovery/localExplore').NearbyPlaceItem>; showDistance?: boolean }) {
+  const router = useRouter();
+  const { tx } = useI18n();
+  return <View style={styles.placeList}>{items.map((item) => (
         <Pressable
           key={item.placeId}
           accessibilityRole="link"
@@ -237,12 +256,10 @@ function LocalBranchList({ facetKey, coords, locationState, onRetryLocation }: {
             <Text weight="bold">{item.nameKo}</Text>
             {item.address ? <Text variant="caption" color={color.text.muted}>{item.address}</Text> : null}
           </View>
-          <Text variant="caption" weight="bold" color={color.text.accent}>{tx(`${item.distanceM.toLocaleString()}m`, `${item.distanceM.toLocaleString()}m`)}</Text>
+          {showDistance && 'distanceM' in item ? <Text variant="caption" weight="bold" color={color.text.accent}>{item.distanceM.toLocaleString()}m</Text> : null}
           <Text variant="title" color={color.brand.orange}>›</Text>
         </Pressable>
-      ))}
-    </View>
-  );
+      ))}</View>;
 }
 
 const styles = StyleSheet.create({
@@ -254,11 +271,14 @@ const styles = StyleSheet.create({
   spacer: { width: 44 },
   heading: { gap: spacing[2], marginBottom: spacing[6] },
   stateCard: { gap: spacing[3], marginTop: spacing[4], padding: spacing[6], borderRadius: radius.lg, backgroundColor: color.surface.card, alignItems: 'center' },
-  accordion: { gap: spacing[2] },
-  branch: { borderRadius: radius.lg, backgroundColor: color.surface.card, overflow: 'hidden' },
-  branchHeader: { minHeight: 56, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing[4] },
-  branchRight: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
-  countBadge: { minWidth: 28, minHeight: 24, paddingHorizontal: spacing[2], borderRadius: radius.full, backgroundColor: color.surface.soft, alignItems: 'center', justifyContent: 'center' },
+  results: { gap: spacing[4] },
+  categoryRail: { gap: spacing[2], paddingRight: spacing[4] },
+  categoryChip: { minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.border },
+  categoryChipSelected: { backgroundColor: color.brand.navy, borderColor: color.brand.navy },
+  scopeSwitch: { flexDirection: 'row', padding: spacing[1], borderRadius: radius.full, backgroundColor: color.surface.soft },
+  scopeOption: { flex: 1, minHeight: 44, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full },
+  scopeOptionSelected: { backgroundColor: color.brand.orange },
+  placeList: { gap: spacing[2] },
   branchBody: { padding: spacing[4], paddingTop: 0, gap: spacing[2] },
   branchRetry: { alignSelf: 'flex-start' },
   expandedNotice: { padding: spacing[2], borderRadius: radius.md, backgroundColor: color.surface.tint },
