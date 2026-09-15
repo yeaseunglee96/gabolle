@@ -13,16 +13,22 @@ import org.springframework.transaction.annotation.Transactional;
 import com.gabolle.backend.event.domain.EventOutbox;
 import com.gabolle.backend.event.domain.OutboxPublishStatus;
 import com.gabolle.backend.event.presentation.dto.AnalyticsKpiResponse;
+import com.gabolle.backend.event.presentation.dto.AnalyticsKpiResponse.ErrorCodeCountEntry;
 import com.gabolle.backend.event.presentation.dto.AnalyticsKpiResponse.EventTypeCountEntry;
+import com.gabolle.backend.event.presentation.dto.AnalyticsKpiResponse.JobStatusCountEntry;
 import com.gabolle.backend.event.presentation.dto.AnalyticsKpiResponse.OutboxHealthEntry;
+import com.gabolle.backend.event.presentation.dto.AnalyticsKpiResponse.RecommendationJobHealthEntry;
 import com.gabolle.backend.event.repository.EventOutboxRepository;
+import com.gabolle.backend.recommendation.domain.JobStatus;
+import com.gabolle.backend.recommendation.repository.RecommendationJobRepository;
 
 /**
  * 지표 조회 — S15P21E201-160 작업 내용 5번.
  *
- * <p>🔴 <b>"무엇을 KPI 로 삼을 것인가" 는 이 서비스가 정하지 않는다.</b> 그 결정은 이
- * 티켓의 2026-09-03 코멘트가 팀에 넘긴 채로 남아 있다. 여기서는 그 결정과 무관하게 이미
- * 참인 값 둘만 낸다 — {@link #kpis} 의 클래스 주석에 이유를 적었다.
+ * <p>🔴 <b>2026-09-15 갱신</b> — "무엇을 KPI 로 삼을 것인가" 를 이 티켓의 2026-09-03 코멘트가
+ * 팀에 넘긴 채로 남겨 뒀었다. 팀이 이제 추천 요청의 성공률·처리 시간·실패 사유를 고르면서
+ * {@link #recommendationJobHealth} 를 더했다. 그 전까지 이미 참이던 값 둘(이벤트 종류별
+ * 건수·Outbox 적체)은 그대로 둔다.
  *
  * <p>{@code no-db} 프로필에는 이 빈이 없다 — {@link EventIngestService} 와 같은 규칙이다.
  * DB 없이 셀 수 있는 값이 아니라서, 있는 척하며 빈 값을 내는 대신 아예 없앤다.
@@ -33,10 +39,14 @@ public class AnalyticsQueryService {
 
 	private final EventOutboxRepository repository;
 
+	private final RecommendationJobRepository recommendationJobRepository;
+
 	private final Clock clock;
 
-	public AnalyticsQueryService(EventOutboxRepository repository, Clock clock) {
+	public AnalyticsQueryService(EventOutboxRepository repository,
+			RecommendationJobRepository recommendationJobRepository, Clock clock) {
 		this.repository = repository;
+		this.recommendationJobRepository = recommendationJobRepository;
 		this.clock = clock;
 	}
 
@@ -67,7 +77,44 @@ public class AnalyticsQueryService {
 				this.repository.countByPublishedAtBetween(resolvedFrom, resolvedTo),
 				this.repository.countByPublishStatus(OutboxPublishStatus.FAILED));
 
-		return new AnalyticsKpiResponse(resolvedFrom, resolvedTo, eventCounts, outboxHealth);
+		RecommendationJobHealthEntry recommendationJobHealth = recommendationJobHealth(resolvedFrom, resolvedTo);
+
+		return new AnalyticsKpiResponse(resolvedFrom, resolvedTo, eventCounts, outboxHealth, recommendationJobHealth);
+	}
+
+	private RecommendationJobHealthEntry recommendationJobHealth(OffsetDateTime resolvedFrom,
+			OffsetDateTime resolvedTo) {
+
+		List<RecommendationJobRepository.JobStatusCount> statusCounts = this.recommendationJobRepository
+				.countByJobStatusBetween(resolvedFrom, resolvedTo);
+
+		long succeededCount = statusCounts.stream()
+				.filter(row -> row.getJobStatus() == JobStatus.SUCCEEDED)
+				.mapToLong(RecommendationJobRepository.JobStatusCount::getCount)
+				.sum();
+		long failedCount = statusCounts.stream()
+				.filter(row -> row.getJobStatus() == JobStatus.FAILED)
+				.mapToLong(RecommendationJobRepository.JobStatusCount::getCount)
+				.sum();
+		long terminalCount = succeededCount + failedCount;
+
+		Double successRatePercent = terminalCount == 0 ? null : succeededCount * 100.0 / terminalCount;
+
+		List<JobStatusCountEntry> statusCountEntries = statusCounts.stream()
+				.map(row -> new JobStatusCountEntry(row.getJobStatus().name(), row.getCount()))
+				.toList();
+
+		List<ErrorCodeCountEntry> failureBreakdown = this.recommendationJobRepository
+				.countFailuresByErrorCodeBetween(resolvedFrom, resolvedTo)
+				.stream()
+				.map(row -> new ErrorCodeCountEntry(row.getErrorCode(), row.getCount()))
+				.toList();
+
+		Double averageLatencyMsForSucceeded = this.recommendationJobRepository
+				.averageLatencyMsForSucceededBetween(resolvedFrom, resolvedTo);
+
+		return new RecommendationJobHealthEntry(statusCountEntries, successRatePercent, averageLatencyMsForSucceeded,
+				failureBreakdown);
 	}
 
 	/**
