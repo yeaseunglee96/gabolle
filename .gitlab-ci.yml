@@ -141,12 +141,22 @@ variables:
 #    CI_RUNNER_ID 를 함께 찍는 이유가 그것이다(어느 기계의 값인지 표시).
 #
 # allow_failure 다 — 이 잡은 아무것도 검증하지 않는다. 수치를 남기기만 한다.
+#
+# 🔴 **rules 를 반드시 적는다.** 처음에 rules 없이 뒀더니 MR 파이프라인에서
+#    **잡이 아예 안 생겼다**(파이프라인 196055 — 다른 잡 넷은 돌았다). rules 도
+#    only 도 없는 잡은 GitLab 기본값이 `only: [branches, tags]` 라서
+#    merge_request_event 파이프라인에서 조용히 빠진다. 오류도 경고도 안 난다.
+#    `ci/lint` 는 잡이 있다고 답하므로(문법만 본다) 그것으로는 못 잡는다 —
+#    `dry_run: true` 를 줘야 "이 ref 에서 실제로 만들어질 잡" 이 나온다.
 ci:hostinfo:
   stage: verify
   image: alpine:3.20
   allow_failure: true
   variables:
     GIT_STRATEGY: none
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH
   script:
     - echo "runner=$CI_RUNNER_ID  desc=$CI_RUNNER_DESCRIPTION"
     - echo "cores=$(nproc)"
