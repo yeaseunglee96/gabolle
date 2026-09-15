@@ -139,8 +139,11 @@ export function PlacePicks({ places }: { places: NearbyPlaceItem[] }) {
     <View style={styles.placesBlock}>
       <View style={styles.blockHead}>
         {/* 🔴 시안은 「{닉네임}님 취향에 가까운 곳」이었다. 취향 축(로컬성·조용함)과 장소 갈래는
-            서로 다른 체계라 이어 줄 값이 없어서, 취향을 반영한 척하지 않고 제목을 낮춘다. */}
-        <Text variant="display" weight="bold">{tx('부산 대표 장소', 'Popular in Busan')}</Text>
+            서로 다른 체계라 이어 줄 값이 없어서, 취향을 반영한 척하지 않고 제목을 낮춘다.
+            2026-09-15 에 한 번 더 낮췄다 — 「부산 대표 장소」라고 적었는데 고르는 방법이
+            **부산 중심에서 가까운 순 넷**이라 대표를 판정하는 자리가 어디에도 없었다. 대표 장소를
+            실제로 채우는 것은 자료 쪽 일이다(S15P21E201-920). */}
+        <Text variant="display" weight="bold">{tx('부산 둘러보기', 'Browse Busan')}</Text>
         <Pressable accessibilityRole="link" onPress={() => router.push('/explore')}>
           <Text color={color.text.body}>{tx('로컬 탐색에서 더 보기 →', 'Explore more →')}</Text>
         </Pressable>

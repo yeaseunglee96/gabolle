@@ -155,7 +155,7 @@ const styles = StyleSheet.create({
   // 늘어나는데 500 으로 묶어 두면 카드가 잘린다.
   // 🔴 overflow 를 반드시 잘라야 한다. ImageBackground 안의 사진은 칸 너비에 맞춰 늘어나는데
   //    세로는 제 비율을 지켜서, 좌우가 넓으면 섹션보다 세로로 길어진다. 안 자르면 그 초과분이
-  //    섹션 밖으로 흘러 **아래 구역을 덮는다** — 배포본에서 실제로 「부산 대표 장소」와
+  //    섹션 밖으로 흘러 **아래 구역을 덮는다** — 배포본에서 실제로 「부산 둘러보기」와
   //    「내 여행」 글자가 사진에 가렸다(섹션 546 · 사진 672 · 126 초과, 2026-09-15 실측).
   //    덮개는 섹션 크기라 그 초과분에는 닿지도 않아 사진이 날것으로 보였다.
   heroSection: { flexDirection: 'row', alignItems: 'stretch', overflow: 'hidden', backgroundColor: color.brand.navy },
