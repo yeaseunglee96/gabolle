@@ -43,7 +43,8 @@ import jakarta.persistence.PersistenceContext;
  * 트랜잭션 안에서 문장 하나가 실패하면 그 트랜잭션 전체를 못 쓰게 만든다({@code JpaItineraryRepository}
  * ·{@code JpaItineraryItemActualRepository} 클래스 주석이 같은 실측을 남겨 뒀다). 그래서 여기서도
  * 같은 해법을 쓴다 — 행마다 {@code ON CONFLICT DO NOTHING} 으로 넣어, 충돌해도 예외 없이 그 행만
- * 건너뛴다.
+ * 건너뛴다. (대상 색인을 왜 안 적는지는 {@link #INSERT_IF_ABSENT} 참고 — 이 표에는 서로 다른
+ * 이유로 충돌할 수 있는 유일 제약이 둘이다.)
  *
  * <h2>🔴 {@code ESTIMATED} 로 넣는다</h2>
  *
@@ -57,9 +58,19 @@ import jakarta.persistence.PersistenceContext;
 public class PlaceFeatureLoader {
 
 	/**
-	 * {@code feature_key} 는 이 로더가 항상 {@code null} 로 넣으므로({@code SbizPlaceLoader.featureIdOf}
-	 * 세 번째 인자) 부분 색인 {@code uq_place_feature_unkeyed} 의 조건과 같은 {@code WHERE} 를 준다 —
-	 * 대상이 부분 색인이면 {@code ON CONFLICT} 도 같은 조건을 적어야 그 색인을 가리킨다.
+	 * 🔴 S15P21E201-948 후속(2026-09-15) — 대상을 지정한 {@code ON CONFLICT} 를 버리고
+	 * 대상 없는 {@code ON CONFLICT DO NOTHING} 으로 바꿨다.
+	 *
+	 * <p>이 문장이 실제로 맞설 수 있는 유일 제약이 <b>둘</b>이다 — 기본키({@code place_feature_id},
+	 * {@code featureIdOf(storeId, featureType, null)} 로 정해지는 결정적 값이라 같은 상가업소번호가
+	 * 두 번 들어오면 그대로 충돌한다)와 부분 색인 {@code uq_place_feature_unkeyed}
+	 * ({@code (place_id, feature_type) WHERE feature_key IS NULL} — 상가업소번호는 다른데 같은
+	 * 장소·같은 종류를 가리키면 충돌한다, 실제로 같은 장소에 상가업소번호가 여럿 걸리는 경우가 있다).
+	 * {@code ON CONFLICT} 에 대상을 적으면 PostgreSQL 은 <b>그 색인에서 난 충돌만</b> 흡수하고 다른
+	 * 색인에서 난 충돌은 그대로 예외로 던진다 — 부분 색인을 대상으로 뒀을 때 기본키 충돌이,
+	 * 기본키를 대상으로 뒀을 때 부분 색인 충돌이 각각 그렇게 새어 나가는 것을 둘 다 실측했다
+	 * ({@code PlaceFeatureLoaderIntegrationTest} 의 동시성 검사). 대상을 아예 안 적으면 PostgreSQL 이
+	 * 이 표의 모든 유일 제약을 대상으로 삼으므로 — 어느 쪽이 충돌하든 이 한 줄로 잡는다.
 	 *
 	 * <p>🔴 {@code ?4::jsonb} 처럼 순번 파라미터 바로 뒤에 {@code ::} 캐스트를 붙이면 Hibernate 네이티브
 	 * 쿼리 파서가 {@code 4::jsonb} 를 파라미터 번호로 통째로 읽으려다 {@code ParameterLabelException}
@@ -71,7 +82,7 @@ public class PlaceFeatureLoader {
 			    (place_feature_id, place_id, feature_type, feature_key, value, evidence_status,
 			     source_type, source_id, observed_at, source_version, created_at)
 			VALUES (?1, ?2, ?3, NULL, CAST(?4 AS jsonb), ?5, ?6, ?7, ?8, ?9, ?10)
-			ON CONFLICT (place_id, feature_type) WHERE feature_key IS NULL DO NOTHING
+			ON CONFLICT DO NOTHING
 			""";
 
 	private final PlaceRepository placeRepository;
