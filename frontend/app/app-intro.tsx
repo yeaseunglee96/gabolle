@@ -64,7 +64,7 @@ export default function AppIntro() {
 function FeaturePreview({ id }: { id: (typeof PAGES)[number]['id'] }) {
   const { tx } = useI18n();
   return <ImageBackground source={INTRO_IMAGES[id]} resizeMode="cover" imageStyle={styles.previewImage} style={styles.photoPreview}>
-    <View pointerEvents="none" style={styles.photoScrim} />
+    <View style={styles.photoScrim} />
     {id === 'ai-travel' ? <View style={styles.previewPanel}><Text variant="caption" weight="bold" color={color.text.heading}>{tx('어떤 여행을 좋아하세요?', 'What kind of trip do you like?')}</Text><View style={styles.chips}><View style={styles.selectedChip}><Text variant="caption" weight="bold" color={color.text.onAction}>{tx('바다', 'Sea')}</Text></View><View style={styles.chip}><Text variant="caption" weight="bold">{tx('미식', 'Food')}</Text></View><View style={styles.chip}><Text variant="caption" weight="bold">{tx('골목', 'Alleys')}</Text></View></View><View style={styles.progress}><View style={styles.progressFill} /></View></View> : null}
     {id === 'local-discovery' ? <><View style={styles.searchPreview}><Text color={color.text.heading}>{tx('감천문화마을', 'Gamcheon Culture Village')}</Text><Text weight="bold" color={color.brand.orange}>⌕</Text></View><View style={styles.placePreview}><View style={styles.placeMark}><Text>📍</Text></View><View style={styles.placeCopy}><Text weight="bold">{tx('감천문화마을', 'Gamcheon Culture Village')}</Text><Text variant="caption" color={color.text.muted}>{tx('부산 사하구', 'Saha-gu, Busan')}</Text></View><View style={styles.savedBadge}><Text variant="caption" weight="bold" color={color.text.onAction}>＋</Text></View></View></> : null}
     {id === 'field-talk' ? <View style={[styles.previewPanel, styles.fieldPanel]}><Text variant="caption" weight="bold" color={color.brand.orange}>{tx('현장 말하기', 'Field talk')}</Text><Text variant="title" weight="bold" color={color.text.onAction}>{tx('사진 한 장 부탁드려도 될까요?', 'Could you take a photo for us?')}</Text><Text variant="caption" color={color.text.onDarkMuted}>▶ {tx('한국어로 듣기', 'Listen in Korean')}</Text></View> : null}
@@ -86,7 +86,7 @@ const styles = StyleSheet.create({
   page: { flexGrow: 1, justifyContent: 'center', paddingHorizontal: spacing[6], paddingVertical: spacing[4] },
   photoPreview: { minHeight: 220, justifyContent: 'flex-end', gap: spacing[3], overflow: 'hidden', padding: spacing[4], borderRadius: 28, backgroundColor: color.surface.soft, shadowColor: color.brand.navy, shadowOpacity: 0.12, shadowRadius: 16, shadowOffset: { width: 0, height: 8 }, elevation: 4 },
   previewImage: { borderRadius: 28 },
-  photoScrim: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, backgroundColor: 'rgba(11,29,58,0.18)' },
+  photoScrim: { pointerEvents: 'none', position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, backgroundColor: 'rgba(11,29,58,0.18)' },
   previewPanel: { gap: spacing[2], padding: spacing[3], borderRadius: radius.md, backgroundColor: 'rgba(255,255,255,0.94)' },
   fieldPanel: { backgroundColor: 'rgba(11,29,58,0.92)' },
   searchPreview: { minHeight: 48, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.surface.soft },
