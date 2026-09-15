@@ -86,7 +86,8 @@ public final class CreateTripRequestMapper {
                 r.englishMenuRequiredOrDefault(),
                 r.foreignCardRequiredOrDefault(),
                 r.soloFriendlyPriorityOrDefault(),
-                r.maxTransitTransfers());
+                r.maxTransitTransfers(),
+                r.mustVisitPlaceIdsOrEmpty());
     }
 
     private static TripConstraint.Severity parseSeverity(String raw) {

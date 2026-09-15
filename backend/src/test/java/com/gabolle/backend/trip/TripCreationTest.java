@@ -1,5 +1,6 @@
 package com.gabolle.backend.trip;
 
+import java.util.Optional;
 import com.gabolle.backend.auth.service.AuthException;
 import com.gabolle.backend.user.support.ConsentGuards;
 
@@ -58,7 +59,7 @@ class TripCreationTest {
         repository = new InMemoryTripRepository();
         Clock clock = Clock.fixed(NOW, ZoneOffset.UTC);
         service = new TripCreationService(repository, clock,
-                new PreferenceDefaultsService(repository, clock), ConsentGuards.granting());
+                new PreferenceDefaultsService(repository, clock), ConsentGuards.granting(), Optional.empty());
     }
 
     private TripCreationService.Command command() {
@@ -335,7 +336,7 @@ class TripCreationTest {
     void sensitiveConstraintNeedsHealthConsent() {
         TripCreationService refusing = new TripCreationService(repository, Clock.fixed(NOW, ZoneOffset.UTC),
                 new PreferenceDefaultsService(repository, Clock.fixed(NOW, ZoneOffset.UTC)),
-                ConsentGuards.refusing());
+                ConsentGuards.refusing(), Optional.empty());
 
         var withAllergy = new TripCreationService.Command(CONSENTING_USER,
                 LocalDate.of(2026, 9, 6), LocalDate.of(2026, 9, 8),
@@ -354,7 +355,7 @@ class TripCreationTest {
     void ordinaryConstraintDoesNotNeedHealthConsent() {
         TripCreationService refusing = new TripCreationService(repository, Clock.fixed(NOW, ZoneOffset.UTC),
                 new PreferenceDefaultsService(repository, Clock.fixed(NOW, ZoneOffset.UTC)),
-                ConsentGuards.refusing());
+                ConsentGuards.refusing(), Optional.empty());
 
         var result = refusing.create(command(), null);
 
@@ -371,7 +372,7 @@ class TripCreationTest {
     void preferredDietDoesNotNeedHealthConsent() {
         TripCreationService refusing = new TripCreationService(repository, Clock.fixed(NOW, ZoneOffset.UTC),
                 new PreferenceDefaultsService(repository, Clock.fixed(NOW, ZoneOffset.UTC)),
-                ConsentGuards.refusing());
+                ConsentGuards.refusing(), Optional.empty());
 
         var withPreferredDiet = new TripCreationService.Command(CONSENTING_USER,
                 LocalDate.of(2026, 9, 6), LocalDate.of(2026, 9, 8),

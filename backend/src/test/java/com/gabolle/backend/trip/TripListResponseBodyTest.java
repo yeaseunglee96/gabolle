@@ -1,5 +1,6 @@
 package com.gabolle.backend.trip;
 
+import java.util.Optional;
 import com.gabolle.backend.user.support.ConsentGuards;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -58,7 +59,7 @@ class TripListResponseBodyTest {
 		InMemoryTripRepository repository = new InMemoryTripRepository();
 		Clock clock = Clock.fixed(Instant.parse("2026-09-09T00:00:00Z"), ZoneOffset.UTC);
 		TripController controller = new TripController(
-				new TripCreationService(repository, clock, new PreferenceDefaultsService(repository, clock), ConsentGuards.granting()),
+				new TripCreationService(repository, clock, new PreferenceDefaultsService(repository, clock), ConsentGuards.granting(), Optional.empty()),
 				new TripQueryService(repository),
 				new TripDeletionService(repository, clock));
 		this.mockMvc = MockMvcBuilders.standaloneSetup(controller)
