@@ -8,7 +8,6 @@
     "@tanstack/react-query": "^5.102.8",
     "expo": "~57.0.21",
     "expo-auth-session": "~57.0.11",
-    "expo-camera": "~57.0.4",
     "expo-clipboard": "~57.0.1",
     "expo-constants": "~57.0.16",
     "expo-crypto": "~57.0.2",
@@ -50,8 +49,8 @@
   "scripts": {
     "start": "expo start",
     "setup:web": "npm install --no-audit --no-fund && expo start --web",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
     "web": "expo start --web",
     "build:web": "node tools/check-public-env.mjs && expo export --platform web",
     "check:env": "node tools/check-public-env.mjs",
