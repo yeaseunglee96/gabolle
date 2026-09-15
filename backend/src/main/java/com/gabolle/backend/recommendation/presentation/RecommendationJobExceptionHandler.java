@@ -17,7 +17,11 @@ import com.gabolle.backend.trip.application.TripQueryService;
  * 추천 Job 생성·조회의 오류를 HTTP 로 번역한다 — {@code TripExceptionHandler} 와 같은
  * 패턴(개발계획서 4.2 "세밀한 예외 계층을 두지 않는다").
  */
-@RestControllerAdvice(assignableTypes = { RecommendationJobController.class, RecommendationResultController.class })
+// 🔴 S15P21E201-1013 — RecommendationActionController 를 더했다. 안 더하면 남의 여행에
+//    판단을 적으려 할 때 TripQueryService.TripNotFoundException 이 아무에게도 안 잡혀
+//    404 가 아니라 500 이 나간다. 그러면 "없는 여행" 과 "서버 고장" 이 구분되지 않는다.
+@RestControllerAdvice(assignableTypes = { RecommendationJobController.class, RecommendationResultController.class,
+		RecommendationActionController.class })
 public class RecommendationJobExceptionHandler {
 
 	/** 여행이 없거나 요청자가 그 여행의 회원이 아니다 — 둘 다 404 (FR-SEC-01). */

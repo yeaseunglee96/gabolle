@@ -513,6 +513,16 @@ class RouteAuthorizationRegistryTest {
 				"공유 주소 발급은 참여자만. ShareLinkIntegrationTest");
 		put(m, "POST /api/v1/trips/{}/recommendation-jobs", Policy.OWNED,
 				"내 여행에만 추천을 요청할 수 있다. RecommendationResultAuthorizationTest");
+		put(m, "GET /api/v1/trips/{}/recommendation-actions", Policy.OWNED,
+				"내 여행에서 내가 내린 판단만 읽는다 — 추천 요청과 같은 관문(TripQueryService.get)을 "
+						+ "지난다. 아직 아무것도 안 눌렀으면 빈 목록이고 404 가 아니다. "
+						+ "RecommendationActionAuthorizationTest (-1013)");
+		put(m, "PUT /api/v1/trips/{}/recommendation-actions/{}", Policy.OWNED,
+				"남의 여행 후보에 판단을 적을 수 없다. 같은 관문을 지난다. "
+						+ "RecommendationActionAuthorizationTest (-1013)");
+		put(m, "DELETE /api/v1/trips/{}/recommendation-actions/{}", Policy.OWNED,
+				"남의 여행 후보의 판단을 거둘 수 없다. 같은 관문을 지난다. "
+						+ "RecommendationActionAuthorizationTest (-1013)");
 		put(m, "GET /api/v1/trips/{}/recommendation-jobs", Policy.OWNED,
 				"내 여행의 추천만 되찾을 수 있다 — 요청과 같은 관문(TripQueryService.get)을 지난다. "
 						+ "추천이 없는 내 여행은 빈 목록이고 404 가 아니다. "
