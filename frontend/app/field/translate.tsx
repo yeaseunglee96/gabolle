@@ -15,7 +15,6 @@ import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { useI18n } from '@/i18n';
 
-const DEMO_TRIP_ID = 'demo-trip';
 const sunIcon = require('../../assets/icons/common/sun.png');
 
 type Tool = {
@@ -41,9 +40,11 @@ export default function Translate() {
     {
       key: 'weather',
       icon: sunIcon,
-      title: tx('날씨·준비물', 'Weather & what to bring'),
-      desc: tx('기상청 예보 기반 우산·옷차림 안내', 'Umbrella and clothing tips based on the weather forecast'),
-      onPress: () => router.push(`/${DEMO_TRIP_ID}/prepare`),
+      title: tx('내 여행 날씨·준비물', 'Weather & packing for my trip'),
+      desc: tx('여행을 고르면 출발일 예보와 준비물을 보여드려요', 'Choose a trip to see its departure forecast and packing tips'),
+      // 준비 화면은 여행 식별자가 꼭 필요하다. 고정된 demo-trip을 넘기면 실제 사용자에게
+      // 항상 "일정을 못 불러왔어요"가 보이므로, 먼저 본인의 여행을 고르게 한다.
+      onPress: () => router.push({ pathname: '/trips', params: { open: 'prepare' } }),
     },
   ];
 
