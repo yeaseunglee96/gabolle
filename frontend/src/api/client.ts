@@ -205,7 +205,11 @@ async function performRequest<T>(path: string, options: RequestOptions, isRetry:
       const refreshedToken = await refreshAccessToken();
       if (refreshedToken) return performRequest<T>(path, { ...options, accessToken: refreshedToken }, true);
     }
-    unauthorizedHandler?.();
+    // S15P21E201-997 — 회원 토큰 없이 부른 요청의 401 은 "세션이 끊겼다"가 아니라 "이 경로는
+    // 로그인이 필요하다"는 뜻이다. 서버가 익명 출입증에 401 을 주는 자리가 여럿인데, 그것을
+    // 전부 세션 만료로 읽어 로그인 화면으로 튕기면 로그인한 적 없는 사람이 화면을 보기도 전에
+    // 쫓겨난다. 튕기는 것은 회원 토큰을 들고 갔는데도 거절당했을 때(=갱신까지 실패)뿐이다.
+    if (accessToken) unauthorizedHandler?.();
   }
   if (response.status === 204) return undefined as T;
 
