@@ -8,8 +8,10 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HexFormat;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -24,6 +26,8 @@ import com.gabolle.backend.trip.domain.TravelModes;
 import com.gabolle.backend.trip.domain.TripConstraint;
 import com.gabolle.backend.trip.domain.TripMember;
 import com.gabolle.backend.trip.domain.TripRepository;
+import com.gabolle.backend.trip.domain.TripSeedPlace;
+import com.gabolle.backend.trip.domain.TripSeedPlaceRepository;
 import com.gabolle.backend.user.application.ConsentGuard;
 
 /**
@@ -54,12 +58,23 @@ public class TripCreationService {
      */
     private final ConsentGuard consentGuard;
 
+    /**
+     * 꼭 가고 싶은 장소를 적는 자리 — S15P21E201-973.
+     *
+     * <p>🔴 {@link Optional} 로 받는다. 이 저장소는 DB 프로필에만 있고 이 서비스는 프로필을
+     * 안 가린다 — 직접 주입하면 인메모리 프로필에서 컨텍스트가 안 뜬다. 비어 있으면 씨앗을
+     * 안 적고 여행 생성은 그대로 된다(씨앗은 추천을 거들 뿐 필수가 아니다).
+     */
+    private final Optional<TripSeedPlaceRepository> seedPlaces;
+
     public TripCreationService(TripRepository repository, Clock clock,
-                               PreferenceDefaultsService preferenceDefaults, ConsentGuard consentGuard) {
+                               PreferenceDefaultsService preferenceDefaults, ConsentGuard consentGuard,
+                               Optional<TripSeedPlaceRepository> seedPlaces) {
         this.repository = repository;
         this.clock = clock;
         this.preferenceDefaults = preferenceDefaults;
         this.consentGuard = consentGuard;
+        this.seedPlaces = seedPlaces;
     }
 
     /**
@@ -255,9 +270,42 @@ public class TripCreationService {
         //    안 만들었으므로 취향도 새로 정한 것이 아니다.
         if (outcome.created()) {
             preferenceDefaults.carryOver(command.userId(), storedPreferences);
+            saveMustVisitPlaces(outcome.trip().tripId(), command.mustVisitPlaceIds(), now);
         }
 
         return new Result(outcome.trip(), outcome.snapshot(), outcome.created());
+    }
+
+    /**
+     * 꼭 가고 싶은 장소를 씨앗으로 적는다 — S15P21E201-973.
+     *
+     * <p>공유 일정 복제가 쓰던 {@code trip_seed_place} 를 그대로 쓴다. 추천 엔진이 이미 그
+     * 표를 읽어 후보를 앞세우므로({@code SeedBoost}) 새 경로를 만들 이유가 없다.
+     *
+     * <p>🔴 새로 만든 여행일 때만 부른다. 같은 멱등 키로 다시 온 요청은 기존 여행을 돌려주는
+     * 것이고, 그 여행에는 씨앗이 이미 있다 — 다시 적으면 기본키(trip_id, place_id)에 걸린다.
+     *
+     * <p>🔴 저장소가 없으면(인메모리 프로필) 조용히 건너뛴다. 씨앗은 추천을 거들 뿐이라
+     * 없다고 여행 생성이 실패해야 할 이유가 없다.
+     *
+     * <p>순서는 사용자가 고른 순서 그대로다. 같은 장소를 두 번 고른 경우는 앞의 것만 남긴다 —
+     * 표의 기본키가 (여행, 장소)라 중복이 들어가면 트랜잭션 전체가 롤백된다.
+     */
+    private void saveMustVisitPlaces(String tripId, List<String> placeIds, Instant now) {
+        if (this.seedPlaces.isEmpty() || placeIds.isEmpty()) {
+            return;
+        }
+        List<TripSeedPlace> seeds = new ArrayList<>();
+        Set<String> seen = new LinkedHashSet<>();
+        for (String placeId : placeIds) {
+            if (placeId == null || placeId.isBlank() || !seen.add(placeId)) {
+                continue;
+            }
+            seeds.add(new TripSeedPlace(tripId, placeId, seen.size(), null, null, now));
+        }
+        if (!seeds.isEmpty()) {
+            this.seedPlaces.get().saveAll(seeds);
+        }
     }
 
     /**
@@ -360,7 +408,30 @@ public class TripCreationService {
             boolean foreignCardRequired,
             boolean soloFriendlyPriority,
             /** {@code null} 이면 제한 없음. {@code PRIVATE_CAR} 이동이면 저장 전에 무시된다. */
-            Integer maxTransitTransfers) {
+            Integer maxTransitTransfers,
+
+            /**
+             * 꼭 가고 싶은 장소의 {@code place_id} — S15P21E201-973. 비어 있으면 아무 일도 안 한다.
+             *
+             * <p>고른 순서를 그대로 쓴다. 새 여행일 때만 {@code trip_seed_place} 에 적힌다.
+             */
+            List<String> mustVisitPlaceIds) {
+
+        /** 안 준 목록을 빈 목록으로 고정한다 — 뒤쪽이 null 을 다시 보지 않게 한다. */
+        public Command {
+            mustVisitPlaceIds = mustVisitPlaceIds == null ? List.of() : List.copyOf(mustVisitPlaceIds);
+        }
+
+        /** 꼭 가고 싶은 장소가 없던 시절의 시그니처. 기존 호출부를 그대로 둔다. */
+        public Command(String userId, LocalDate startDate, LocalDate finishDate, Double originLat, Double originLng,
+                Integer budgetKrw, int partySize, String timeWindow, String timezone,
+                List<PreferenceSnapshot.PreferenceAnswer> preferences, List<ConstraintInput> constraints,
+                Trip.OwnerType ownerType, String accommodationPlaceId, boolean englishMenuRequired,
+                boolean foreignCardRequired, boolean soloFriendlyPriority, Integer maxTransitTransfers) {
+            this(userId, startDate, finishDate, originLat, originLng, budgetKrw, partySize, timeWindow, timezone,
+                    preferences, constraints, ownerType, accommodationPlaceId, englishMenuRequired,
+                    foreignCardRequired, soloFriendlyPriority, maxTransitTransfers, List.of());
+        }
 
         /**
          * 🔴 S15P21E201-317·456 이전의 시그니처를 그대로 남긴다 — 회원 전용·다섯 칸 없이

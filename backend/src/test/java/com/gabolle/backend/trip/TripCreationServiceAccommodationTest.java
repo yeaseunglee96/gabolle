@@ -1,5 +1,6 @@
 package com.gabolle.backend.trip;
 
+import java.util.Optional;
 import com.gabolle.backend.user.support.ConsentGuards;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -41,7 +42,7 @@ class TripCreationServiceAccommodationTest {
 	void setUp() {
 		repository = new InMemoryTripRepository();
 		Clock clock = Clock.fixed(NOW, ZoneOffset.UTC);
-		service = new TripCreationService(repository, clock, new PreferenceDefaultsService(repository, clock), ConsentGuards.granting());
+		service = new TripCreationService(repository, clock, new PreferenceDefaultsService(repository, clock), ConsentGuards.granting(), Optional.empty());
 	}
 
 	private TripCreationService.Command command(String accommodationPlaceId, boolean englishMenu,
