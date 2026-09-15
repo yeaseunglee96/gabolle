@@ -179,6 +179,10 @@ export async function uploadStoryImage(asset: ImagePickResult, accessToken: stri
 
 // jaehyeon 님 계약(2026-09-08 axmap): GET /api/v1/users/{userId}/profile. following은 서버가
 // "요청자가 이 사람을 팔로우 중인가"를 판정해 주므로 화면에서 따로 물어보지 않는다.
+// blocked 와 blockedByUser 는 서로 다른 값이다 (S15P21E201-990/-991) — A 가 B 를 차단해도
+// B 는 A 를 차단하지 않은 상태일 수 있다. 하나로 합치면 그 경우를 못 가른다.
+// blocked: 내가 이 사람을 차단했나 → 버튼이 「차단하기」인지 「차단 해제」인지를 정한다.
+// blockedByUser: 이 사람이 나를 차단했나 → 화면이 「차단되어 볼 수 없습니다」를 띄운다.
 export type UserProfileDto = {
   userId: string;
   displayName: string;
@@ -186,6 +190,8 @@ export type UserProfileDto = {
   followingCount: number;
   storyCount: number;
   following: boolean;
+  blocked?: boolean;
+  blockedByUser?: boolean;
 };
 
 export type ProfileLoadResult = { state: 'success'; profile: UserProfileDto } | FeedFailure;
@@ -273,6 +279,23 @@ export async function setFollowing(userId: string, following: boolean, accessTok
     return { state: 'success', following: dto.following, followerCount: dto.followerCount, followingCount: dto.followingCount };
   } catch (error) {
     if (error instanceof ApiClientError && error.status === 400 && error.code === 'FOLLOW_SELF') return { state: 'error', message: '자기 자신은 팔로우할 수 없어요.' };
+    return failure(error);
+  }
+}
+
+// 차단 — S15P21E201-990(서버)·-991(화면). 차단은 「내가 이 사람을 안 본다」가 아니라
+// 「이 사람에게 내 것을 안 보여준다」다. 그래서 차단한 쪽 화면에서는 상대가 그대로 보이고,
+// 거르는 일은 전부 서버가 한다 — 프론트는 목록에서 아무것도 빼지 않는다.
+export type BlockResult = { state: 'success'; blocked: boolean } | FeedFailure;
+
+export async function setBlocked(userId: string, blocked: boolean, accessToken: string | null): Promise<BlockResult> {
+  try {
+    const dto = await apiRequest<{ userId: string; blocked: boolean }>(
+      `/api/v1/users/${encodeURIComponent(userId)}/block`,
+      { method: blocked ? 'PUT' : 'DELETE', accessToken },
+    );
+    return { state: 'success', blocked: dto.blocked };
+  } catch (error) {
     return failure(error);
   }
 }

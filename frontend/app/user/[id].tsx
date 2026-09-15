@@ -11,7 +11,8 @@ import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
-import { getUserProfile, loadUserStories, relativeStoryTime, setFollowing, type FeedLoadResult, type StoryDto, type UserProfileDto } from '@/social/stories';
+import { BlockUserDialog } from '@/social/BlockUserDialog';
+import { getUserProfile, loadUserStories, relativeStoryTime, setBlocked, setFollowing, type FeedLoadResult, type StoryDto, type UserProfileDto } from '@/social/stories';
 
 type ProfileState = { status: 'loading' } | { status: 'loaded'; profile: UserProfileDto } | { status: 'unavailable'; message: string };
 
@@ -24,6 +25,9 @@ export default function UserProfile() {
   const [stories, setStories] = useState<FeedLoadResult>({ state: 'success', items: [], nextCursor: null });
   const [storiesLoading, setStoriesLoading] = useState(true);
   const [followBusy, setFollowBusy] = useState(false);
+  const [confirmingBlock, setConfirmingBlock] = useState(false);
+  const [blockBusy, setBlockBusy] = useState(false);
+  const [blockNotice, setBlockNotice] = useState('');
 
   const load = useCallback(async () => {
     if (!id) return;
@@ -46,6 +50,27 @@ export default function UserProfile() {
     if (outcome.state === 'success') {
       setState({ status: 'loaded', profile: { ...state.profile, following: outcome.following, followerCount: outcome.followerCount, followingCount: outcome.followingCount } });
     }
+  };
+
+  // 차단하면 팔로우가 서버에서 함께 끊기므로(S15P21E201-990) 화면도 다시 불러온다 —
+  // 따로 계산해 맞추면 서버와 조용히 갈라진다.
+  const confirmBlock = async () => {
+    if (state.status !== 'loaded' || !id) return false;
+    const outcome = await setBlocked(id, true, accessToken);
+    if (outcome.state !== 'success') return false;
+    setBlockNotice(tx('이제 이 사용자에게 내 글이 보이지 않아요.', "This user can no longer see your posts."));
+    await load();
+    return true;
+  };
+
+  const unblock = async () => {
+    if (state.status !== 'loaded' || !id || blockBusy) return;
+    setBlockBusy(true);
+    const outcome = await setBlocked(id, false, accessToken);
+    setBlockBusy(false);
+    if (outcome.state !== 'success') return;
+    setBlockNotice('');
+    await load();
   };
 
   const items = stories.state === 'success' ? stories.items : [];
@@ -79,19 +104,40 @@ export default function UserProfile() {
           {/* 문자열로 맞춰 비교한다 — 두 응답의 userId가 타입 선언과 다르게 오면(숫자 vs 문자열) !==가 늘 참이 되어 본인 프로필에도 팔로우 버튼이 뜬다. */}
           {accessToken && String(user?.userId ?? '') === String(state.profile.userId) ? (
             <Button label={tx('프로필 수정', 'Edit profile')} variant="ghost" onPress={() => router.push('/me')} containerStyle={styles.followButton} />
-          ) : accessToken ? (
-            <Button
-              label={followBusy ? tx('처리 중…', 'Working…') : state.profile.following ? tx('팔로잉', 'Following') : tx('팔로우', 'Follow')}
-              variant={state.profile.following ? 'ghost' : 'primary'}
-              disabled={followBusy}
-              onPress={() => void toggleFollow()}
-              containerStyle={styles.followButton}
-            />
+          ) : accessToken && !state.profile.blockedByUser ? (
+            <View style={styles.actionRow}>
+              <Button
+                label={followBusy ? tx('처리 중…', 'Working…') : state.profile.following ? tx('팔로잉', 'Following') : tx('팔로우', 'Follow')}
+                variant={state.profile.following ? 'ghost' : 'primary'}
+                disabled={followBusy || state.profile.blocked}
+                onPress={() => void toggleFollow()}
+                containerStyle={styles.followButton}
+              />
+              {/* 차단·해제는 같은 자리에서 바뀐다. 차단은 확인창을 거치고, 해제는 되돌리는
+                  동작이라 바로 한다 — 실수로 눌러도 잃는 것이 없다. */}
+              <Button
+                label={blockBusy ? tx('처리 중…', 'Working…') : state.profile.blocked ? tx('차단 해제', 'Unblock') : tx('차단하기', 'Block')}
+                variant="ghost"
+                disabled={blockBusy}
+                onPress={() => (state.profile.blocked ? void unblock() : setConfirmingBlock(true))}
+                containerStyle={styles.followButton}
+              />
+            </View>
           ) : null}
+
+          {blockNotice ? <Text accessibilityLiveRegion="polite" variant="caption" color={color.text.body}>{blockNotice}</Text> : null}
         </View>
       ) : null}
 
-      {state.status === 'loaded' ? (
+      {/* 🔴 차단당한 쪽이 보는 화면. 빈 화면도 404 도 아니다 — 없는 사람으로 만들면 실수로
+          눌렀을 때 상대가 계정이 사라졌다고 오해하고 되돌릴 길이 막힌다 (S15P21E201-991). */}
+      {state.status === 'loaded' && state.profile.blockedByUser ? (
+        <View accessibilityRole="alert" style={styles.stateCard}>
+          <Text variant="title" weight="bold">{tx('차단되어 볼 수 없습니다', 'Blocked — you cannot view this profile')}</Text>
+        </View>
+      ) : null}
+
+      {state.status === 'loaded' && !state.profile.blockedByUser ? (
         <View style={styles.list}>
           {storiesLoading ? <ActivityIndicator color={color.brand.orange} /> : null}
           {!storiesLoading && !items.length ? <Text color={color.text.body} style={styles.empty}>{tx('아직 공개된 기록이 없어요.', 'No public records yet.')}</Text> : null}
@@ -104,6 +150,13 @@ export default function UserProfile() {
           ))}
         </View>
       ) : null}
+
+      <BlockUserDialog
+        visible={confirmingBlock}
+        displayName={state.status === 'loaded' ? state.profile.displayName : ''}
+        onClose={() => setConfirmingBlock(false)}
+        onConfirm={confirmBlock}
+      />
     </Screen>
   );
 }
@@ -116,6 +169,7 @@ const styles = StyleSheet.create({
   statRow: { flexDirection: 'row', gap: spacing[4] },
   stat: { alignItems: 'flex-start' },
   followButton: { alignSelf: 'flex-start', paddingHorizontal: spacing[4] },
+  actionRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] },
   list: { gap: spacing[3], marginTop: spacing[4] },
   empty: { textAlign: 'center', marginTop: spacing[4] },
   card: { gap: spacing[2], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card },
