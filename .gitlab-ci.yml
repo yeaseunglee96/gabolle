@@ -572,9 +572,13 @@ frontend:unit:
     - cd frontend
     - npm ci --no-audit --no-fund
     - npm test -- --ci
+  # 🔴 이 파일이 바뀔 때도 돈다 (S15P21E201-1019, 2026-09-16). 이 잡의 정의가
+  #    ci/parts/frontend.yml 이 아니라 **여기** 있어서, 이 잡을 고쳐도 안 돌았다.
+  #    backend:build 가 S15P21E201-866 에서 같은 이유로 같은 줄을 받았다 —
+  #    **잡의 정의가 바뀌면 그 잡을 돌려 봐야 한다.**
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-      changes: ['frontend/**/*.ts', 'frontend/**/*.tsx']
+      changes: ['frontend/**/*.ts', 'frontend/**/*.tsx', '.gitlab-ci.yml']
 
 # ── 마이그레이션 버전이 거꾸로 가지 않는가 (S15P21E201-703) ────────────────────
 #
