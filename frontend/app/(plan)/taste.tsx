@@ -12,7 +12,8 @@ import { PlanStepHeader } from '@/plan/PlanStepHeader';
 import { PlanDesktopShell } from '@/plan/PlanDesktopShell';
 import { type MustVisitPlace, type PreferenceDimension, usePlan } from '@/plan/PlanProvider';
 import { CONFLICT_LABEL_PAIR, conflictingFoodCode, FOODS } from '@/plan/foodConflicts';
-import { bilingualPlaceName, searchPlacesByName, type PlaceSearchItem } from '@/discovery/places';
+import { searchPlacesByName, type PlaceSearchItem } from '@/discovery/places';
+import { placeNameForLanguage } from '@/discovery/romanize';
 import { categoryStand } from '@/discovery/categoryStand';
 import { getPlaceCategories } from '@/discovery/placeCategories';
 import { haversineDistanceKm } from '@/utils/geo';
@@ -81,7 +82,7 @@ function mustVisitWarnings(places: MustVisitPlace[]): MustVisitWarning[] {
 }
 
 export default function Taste() {
-  const router = useRouter(); const { kind } = useLayout(); const { tx } = useI18n(); const { draft, update, completeStep, foodConflictNotice, clearFoodConflictNotice } = usePlan();
+  const router = useRouter(); const { kind } = useLayout(); const { tx, language } = useI18n(); const { draft, update, completeStep, foodConflictNotice, clearFoodConflictNotice } = usePlan();
   const [feedback, setFeedback] = useState<string | null>(null);
   const [panelIndex, setPanelIndex] = useState(0);
   const advanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -288,7 +289,7 @@ export default function Taste() {
       {mustVisitSearching && <Text accessibilityLiveRegion="polite" variant="caption" color={color.text.muted}>{tx('검색 중…', 'Searching…')}</Text>}
       {mustVisitResults.length > 0 && <View accessibilityRole="list" style={styles.mustVisitList}>
         {mustVisitResults.map((item) => <Pressable key={item.placeId} accessibilityRole="button" accessibilityLabel={tx(`${item.nameKo} 추가`, `Add ${item.nameKo}`)} onPress={() => addMustVisit(item)} style={({ pressed }) => [styles.mustVisitItem, pressed && styles.mustVisitItemPressed]}>
-          <Text weight="bold">{bilingualPlaceName(item.nameKo, item.nameEn)}</Text>
+          <Text weight="bold">{placeNameForLanguage(item.nameKo, item.nameEn, language)}</Text>
           <Text variant="caption" color={color.text.muted}>{item.address}</Text>
         </Pressable>)}
       </View>}
@@ -296,7 +297,7 @@ export default function Taste() {
       {mustVisitNotice && <Text accessibilityRole="alert" variant="caption" color={color.state.danger}>{mustVisitNotice}</Text>}
       {draft.mustVisitPlaces.length > 0 && <View style={styles.mustVisitChips}>
         {draft.mustVisitPlaces.map((place) => <View key={place.placeId} style={styles.mustVisitChip}>
-          <Text weight="bold">{bilingualPlaceName(place.nameKo, place.nameEn)}</Text>
+          <Text weight="bold">{placeNameForLanguage(place.nameKo, place.nameEn, language)}</Text>
           <Pressable accessibilityRole="button" accessibilityLabel={tx(`${place.nameKo} 빼기`, `Remove ${place.nameKo}`)} onPress={() => removeMustVisit(place.placeId)} style={styles.mustVisitRemove}><Text weight="bold" color={color.text.muted}>×</Text></Pressable>
         </View>)}
       </View>}

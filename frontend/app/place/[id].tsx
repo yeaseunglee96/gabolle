@@ -11,7 +11,8 @@ import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
-import { bilingualPlaceName, formatBreakTime, formatCheckInOut, formatFeatureSlot, formatLastOrderTime, formatSlopePercent, formatSoloFriendly, formatStairsPresent, getPlace, hasFoodSafetyConfirmed, hasLocalityScore, needsFoodSafetyCheck, type Place as ApiPlace } from '@/discovery/places';
+import { formatBreakTime, formatCheckInOut, formatFeatureSlot, formatLastOrderTime, formatSlopePercent, formatSoloFriendly, formatStairsPresent, getPlace, hasFoodSafetyConfirmed, hasLocalityScore, needsFoodSafetyCheck, type Place as ApiPlace } from '@/discovery/places';
+import { placeNameForLanguage } from '@/discovery/romanize';
 import { DEMO_PLACES, SAVED_PLACES_KEY } from '@/discovery/savedPlaces';
 import { useI18n } from '@/i18n';
 import { isAtLeast } from '@/layout/breakpoints';
@@ -28,7 +29,7 @@ type RemoteState =
 
 export default function Place() {
   const router = useRouter();
-  const { tx } = useI18n();
+  const { tx, language } = useI18n();
   const { accessToken } = useAuth();
   const { width } = useWindowDimensions();
   // S15P21E201-1015 — 넓은 화면에서만 본문과 행동 버튼을 나눈다(피드·일정과 같은 1024 기준).
@@ -50,7 +51,7 @@ export default function Place() {
     demoPlace
       ? { title: tx(demoPlace.titleKo, demoPlace.titleEn), subtitle: tx(demoPlace.subtitleKo, demoPlace.subtitleEn), apiPlace: null as ApiPlace | null }
       : remote.status === 'loaded'
-        ? { title: bilingualPlaceName(remote.place.nameKo, remote.place.nameEn), subtitle: tx(remote.place.address, remote.place.addressEn ?? remote.place.address), apiPlace: remote.place }
+        ? { title: placeNameForLanguage(remote.place.nameKo, remote.place.nameEn, language), subtitle: tx(remote.place.address, remote.place.addressEn ?? remote.place.address), apiPlace: remote.place }
         : null
   ), [demoPlace, remote, tx]);
   const photoUrl = resolved?.apiPlace?.photoUrl ?? null;

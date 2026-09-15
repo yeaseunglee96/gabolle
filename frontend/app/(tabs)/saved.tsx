@@ -13,7 +13,8 @@ import { TabBar } from '@/components/TabBar';
 import { Text } from '@/components/Text';
 import { Eyebrow } from '@/components/Eyebrow';
 import { color, radius, spacing } from '@/design/tokens';
-import { bilingualPlaceName, getPlace, hasLocalityScore, needsFoodSafetyCheck } from '@/discovery/places';
+import { getPlace, hasLocalityScore, needsFoodSafetyCheck } from '@/discovery/places';
+import { placeNameForLanguage } from '@/discovery/romanize';
 import { useI18n } from '@/i18n';
 
 type SavedCard = { placeId: string; title: string; subtitle: string; image: number | { uri: string } | null; hasLocalityScore: boolean; needsFoodSafetyCheck: boolean };
@@ -22,14 +23,14 @@ type SavedCard = { placeId: string; title: string; subtitle: string; image: numb
 // place/[id].tsx와 같은 place/features 데이터를 쓰므로, 상세 화면에 이미 있던 두 배지
 // (로컬 점수 유무·알레르기 확인 필요)를 목록 카드에도 그대로 옮긴다 — 데모 장소는
 // features 자체가 없어 둘 다 자연히 꺼진 채로 남는다(지어내지 않는다).
-async function resolveSavedPlace(placeId: string, tx: (ko: string, en: string) => string): Promise<SavedCard | null> {
+async function resolveSavedPlace(placeId: string, tx: (ko: string, en: string) => string, language: 'ko' | 'en'): Promise<SavedCard | null> {
   if (placeId in DEMO_PLACES) {
     const demo = DEMO_PLACES[placeId as keyof typeof DEMO_PLACES];
     return { placeId, title: tx(demo.titleKo, demo.titleEn), subtitle: tx(demo.subtitleKo, demo.subtitleEn), image: demo.image, hasLocalityScore: false, needsFoodSafetyCheck: false };
   }
   try {
     const place = await getPlace(placeId);
-    return { placeId, title: bilingualPlaceName(place.nameKo, place.nameEn), subtitle: tx(place.address, place.addressEn ?? place.address), image: place.photoUrl ? { uri: place.photoUrl } : null, hasLocalityScore: hasLocalityScore(place), needsFoodSafetyCheck: needsFoodSafetyCheck(place) };
+    return { placeId, title: placeNameForLanguage(place.nameKo, place.nameEn, language), subtitle: tx(place.address, place.addressEn ?? place.address), image: place.photoUrl ? { uri: place.photoUrl } : null, hasLocalityScore: hasLocalityScore(place), needsFoodSafetyCheck: needsFoodSafetyCheck(place) };
   } catch (error) {
     // 삭제됐거나(404) 서버가 잠깐 안 되는 장소는 목록에서 조용히 뺀다 — 저장한 것 자체는
     // 기기에 그대로 남아 있으니 다음에 다시 시도하면 보일 수 있다.
@@ -40,7 +41,7 @@ async function resolveSavedPlace(placeId: string, tx: (ko: string, en: string) =
 
 export default function Saved() {
   const router = useRouter();
-  const { tx } = useI18n();
+  const { tx, language } = useI18n();
   const [state, setState] = useState<'loading' | 'ready'>('loading');
   const [cards, setCards] = useState<SavedCard[]>([]);
 
@@ -48,7 +49,7 @@ export default function Saved() {
     setState('loading');
     const raw = await AsyncStorage.getItem(SAVED_PLACES_KEY);
     const ids: string[] = (() => { try { const parsed = JSON.parse(raw ?? '[]'); return Array.isArray(parsed) ? parsed.filter((id): id is string => typeof id === 'string') : []; } catch { return []; } })();
-    const resolved = await Promise.all(ids.map((id) => resolveSavedPlace(id, tx)));
+    const resolved = await Promise.all(ids.map((id) => resolveSavedPlace(id, tx, language)));
     setCards(resolved.filter((card): card is SavedCard => card !== null));
     setState('ready');
   }, [tx]);

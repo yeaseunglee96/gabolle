@@ -12,7 +12,8 @@ import { PlanDesktopShell } from '@/plan/PlanDesktopShell';
 import { type ConstraintSelectionStatus, type PlanDraft, usePlan } from '@/plan/PlanProvider';
 import { useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
 import { useI18n } from '@/i18n';
-import { bilingualPlaceName, searchPlacesByName, type PlaceSearchItem } from '@/discovery/places';
+import { searchPlacesByName, type PlaceSearchItem } from '@/discovery/places';
+import { placeNameForLanguage } from '@/discovery/romanize';
 
 const ALLERGIES = [['PEANUT', '땅콩', 'Peanuts'], ['TREE_NUT', '견과류', 'Tree nuts'], ['SHELLFISH_CRUSTACEAN', '갑각류', 'Shellfish'], ['FISH', '생선', 'Fish'], ['EGG', '달걀', 'Egg'], ['MILK_DAIRY', '우유·유제품', 'Milk · dairy'], ['WHEAT', '밀', 'Wheat'], ['SOY', '대두', 'Soy']] as const;
 const DIETS = [['VEGETARIAN', '채식', 'Vegetarian'], ['VEGAN', '비건', 'Vegan'], ['HALAL', '할랄', 'Halal'], ['GLUTEN_FREE', '글루텐 프리', 'Gluten-free'], ['PESCATARIAN', '페스코', 'Pescatarian']] as const;
@@ -31,7 +32,7 @@ const accommodationStyles = StyleSheet.create({
 });
 
 export default function Constraints() {
-  const router = useRouter(); const { kind } = useLayout(); const { tx } = useI18n(); const { mobility } = useOnboardingPreferences();
+  const router = useRouter(); const { kind } = useLayout(); const { tx, language } = useI18n(); const { mobility } = useOnboardingPreferences();
   const { draft, ready, update, completeStep } = usePlan(); const [panelIndex, setPanelIndex] = useState(0); const [validationRequested, setValidationRequested] = useState(false);
   const [accommodationResults, setAccommodationResults] = useState<PlaceSearchItem[]>([]);
   const [accommodationSearching, setAccommodationSearching] = useState(false);
@@ -77,7 +78,7 @@ export default function Constraints() {
     }, 300);
   };
   const selectAccommodation = (item: PlaceSearchItem) => {
-    update({ accommodation: bilingualPlaceName(item.nameKo, item.nameEn), accommodationPlace: { ...item } });
+    update({ accommodation: placeNameForLanguage(item.nameKo, item.nameEn, language), accommodationPlace: { ...item } });
     setAccommodationResults([]); setAccommodationSearched(false);
   };
   return <PlanDesktopShell><Screen scroll wide style={styles.canvas}>
@@ -93,9 +94,9 @@ export default function Constraints() {
           <Text weight="bold">{tx('숙소 지정 (선택)', 'Accommodation (optional)')}</Text>
           <TextInput accessibilityLabel={tx('숙소 검색', 'Search accommodation')} value={draft.accommodation} onChangeText={handleAccommodationChange} placeholder={tx('숙소 이름을 2자 이상 입력하세요', 'Enter at least 2 characters')} placeholderTextColor={color.text.muted} style={styles.accommodationInput} />
           {accommodationSearching && <Text variant="caption" color={color.text.muted}>{tx('장소를 찾고 있어요…', 'Searching places…')}</Text>}
-          {accommodationResults.length > 0 && <View accessibilityRole="list" style={accommodationStyles.suggestionList}>{accommodationResults.map((item) => <Pressable key={item.placeId} accessibilityRole="button" accessibilityLabel={tx(`${item.nameKo} 숙소로 선택`, `Choose ${item.nameEn ?? item.nameKo} as accommodation`)} onPress={() => selectAccommodation(item)} style={({ pressed }) => [accommodationStyles.suggestionItem, pressed && accommodationStyles.suggestionPressed]}><Text weight="bold">{bilingualPlaceName(item.nameKo, item.nameEn)}</Text><Text variant="caption" color={color.text.muted}>{item.address || tx('주소 정보 없음', 'Address unavailable')}</Text></Pressable>)}</View>}
+          {accommodationResults.length > 0 && <View accessibilityRole="list" style={accommodationStyles.suggestionList}>{accommodationResults.map((item) => <Pressable key={item.placeId} accessibilityRole="button" accessibilityLabel={tx(`${item.nameKo} 숙소로 선택`, `Choose ${item.nameEn ?? item.nameKo} as accommodation`)} onPress={() => selectAccommodation(item)} style={({ pressed }) => [accommodationStyles.suggestionItem, pressed && accommodationStyles.suggestionPressed]}><Text weight="bold">{placeNameForLanguage(item.nameKo, item.nameEn, language)}</Text><Text variant="caption" color={color.text.muted}>{item.address || tx('주소 정보 없음', 'Address unavailable')}</Text></Pressable>)}</View>}
           {accommodationSearched && !accommodationSearching && accommodationResults.length === 0 && !draft.accommodationPlace && <Text accessibilityRole="alert" variant="caption" color={color.text.muted}>{tx('검색 결과가 없어요. 다른 숙소명이나 주소로 다시 찾아주세요.', 'No results. Try another name or address.')}</Text>}
-          {draft.accommodationPlace && <View style={accommodationStyles.selectedAccommodation}><Text variant="caption" weight="bold" color={color.state.success}>{tx('숙소 선택 완료', 'Accommodation selected')}</Text><Text variant="caption" color={color.text.body}>{draft.accommodationPlace.address || bilingualPlaceName(draft.accommodationPlace.nameKo, draft.accommodationPlace.nameEn)}</Text></View>}
+          {draft.accommodationPlace && <View style={accommodationStyles.selectedAccommodation}><Text variant="caption" weight="bold" color={color.state.success}>{tx('숙소 선택 완료', 'Accommodation selected')}</Text><Text variant="caption" color={color.text.body}>{draft.accommodationPlace.address || placeNameForLanguage(draft.accommodationPlace.nameKo, draft.accommodationPlace.nameEn, language)}</Text></View>}
           {draft.accommodationPlace && <Text variant="caption" color={color.text.muted}>{tx('매일 이곳에서 시작하고 이곳으로 돌아와요.', "You'll start and return here every day.")}</Text>}
         </View>
         {draft.transport !== 'CAR' && <View style={styles.transfersField}>
