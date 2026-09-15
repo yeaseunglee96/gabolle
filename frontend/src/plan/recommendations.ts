@@ -68,6 +68,58 @@ export function adaptRecommendationResult(dto: RecommendationJobResultDto): Reco
 
 export const unavailableRecommendations = (): RecommendationViewModel => ({ state: 'unavailable', courses: [], conflicts: [], message: t('아직 생성된 추천이 없어요. 여행 조건을 확인하고 생성을 시작해 주세요.', "No recommendations have been created yet. Check your trip conditions and start generating."), itineraryId: null, placeCount: null, estimatedTravelMinutes: null });
 
+// S15P21E201-1002 — 여행 ID 로 그 여행의 추천 작업 목록을 받아, 다시 볼 수 있는 결과를 고른다
+// (서버 경로는 S15P21E201-1001). 하나가 아니라 목록으로 오는 이유는 맨 앞이 답이 아니기
+// 때문이다 — 가장 최근 작업이 실패했으면 그 앞의 성공한 추천을 써야 한다. 맨 앞만 집으면
+// 재시도가 한 번 실패했다는 이유로 멀쩡히 있던 추천을 잃는다.
+type TripRecommendationJobDto = {
+  jobId: string;
+  type?: string | null;
+  status: 'PENDING' | 'RUNNING' | 'SUCCEEDED' | 'FAILED' | 'CANCELLED' | 'CANCELED' | 'EXPIRED';
+};
+
+export type TripRecommendationLookup =
+  | { state: 'found'; jobId: string }
+  | { state: 'in-progress'; jobId: string }
+  | { state: 'none' }
+  | { state: 'trip-not-found' }
+  | { state: 'offline'; message: string }
+  | { state: 'error'; message: string };
+
+// 일정 편집 작업(ITEM_REMOVE 등)도 같은 여행에 붙어 목록에 섞여 온다. 서버가 일부러 안 걸러
+// 주므로 여기서 거른다 — 이 화면이 볼 것은 일정 생성 작업뿐이다.
+const GENERATION_JOB_TYPE = 'ITINERARY_GENERATION';
+
+export async function findLatestRecommendationJob(tripId: string, accessToken: string | null): Promise<TripRecommendationLookup> {
+  try {
+    const jobs = await apiRequest<TripRecommendationJobDto[]>(`/api/v1/trips/${encodeURIComponent(tripId)}/recommendation-jobs`, { accessToken });
+    const generations = (Array.isArray(jobs) ? jobs : []).filter((job) => !job.type || job.type === GENERATION_JOB_TYPE);
+    const succeeded = generations.find((job) => job.status === 'SUCCEEDED');
+    if (succeeded) return { state: 'found', jobId: succeeded.jobId };
+    const running = generations.find((job) => job.status === 'PENDING' || job.status === 'RUNNING');
+    if (running) return { state: 'in-progress', jobId: running.jobId };
+    // 빈 목록도, 실패·취소·만료만 남은 것도 "지금 볼 수 있는 추천이 없다" 로 같다.
+    return { state: 'none' };
+  } catch (error) {
+    if (error instanceof ApiClientError && (error.status === 0 || error.code === 'NETWORK_ERROR')) return { state: 'offline', message: error.message };
+    // 🔴 404 는 빈 목록과 다르다. 빈 목록은 "내 여행인데 아직 안 만들었다" 라 생성으로 이어
+    // 주면 되고, 404 는 "그런 여행이 없다(또는 남의 여행이다)" 라 생성을 권하면 안 된다.
+    // 서버는 그 404 에 TRIP_NOT_FOUND 를 반드시 싣는다 — 코드가 그 값일 때만 그렇게 읽는다.
+    if (error instanceof ApiClientError && error.status === 404 && error.code === 'TRIP_NOT_FOUND') return { state: 'trip-not-found' };
+    // 🔴 이 경로가 아직 배포되지 않은 서버는 405 를 낸다 (2026-09-15 백엔드 실측). 같은 주소의
+    // POST(추천 생성)는 예전부터 있어서 "없는 주소"(404)가 아니라 "있는 주소인데 GET 은 안
+    // 받는다"가 되기 때문이다. 그때 "그런 여행이 없다"고 말하면 멀쩡한 여행을 없다고 하는 것이다.
+    if (error instanceof ApiClientError && (error.status === 405 || error.status === 404)) return { state: 'none' };
+    return { state: 'error', message: t('추천 결과를 불러오지 못했어요.', 'Could not load the recommendation result.') };
+  }
+}
+
+export const tripNotFoundRecommendations = (): RecommendationViewModel => ({
+  state: 'error', courses: [], conflicts: [],
+  message: t('그 여행을 찾을 수 없어요. 내 여행에서 다시 골라 주세요.', 'We could not find that trip. Please pick it again from your trips.'),
+  itineraryId: null, placeCount: null, estimatedTravelMinutes: null,
+});
+
 export async function loadRecommendationResult(jobId: string, accessToken: string | null): Promise<RecommendationViewModel> {
   try {
     return adaptRecommendationResult(await apiRequest<RecommendationJobResultDto>(`/api/v1/recommendation-jobs/${encodeURIComponent(jobId)}`, { accessToken }));

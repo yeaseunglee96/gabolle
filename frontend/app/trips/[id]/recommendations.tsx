@@ -11,7 +11,7 @@ import { TabBar } from '@/components/TabBar';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
-import { loadRecommendationResult, type RecommendationCourse, type RecommendationViewModel, unavailableRecommendations } from '@/plan/recommendations';
+import { findLatestRecommendationJob, loadRecommendationResult, type RecommendationCourse, type RecommendationViewModel, tripNotFoundRecommendations, unavailableRecommendations } from '@/plan/recommendations';
 
 function CourseCard({ course, onAction }: { course: RecommendationCourse; onAction: (state: RecommendationCourse['actionState']) => void }) {
   const { tx } = useI18n();
@@ -23,11 +23,24 @@ function CourseCard({ course, onAction }: { course: RecommendationCourse; onActi
 
 export default function Recommendations() {
   const router = useRouter(); const { accessToken } = useAuth(); const { tx } = useI18n(); const { id, jobId } = useLocalSearchParams<{ id: string; jobId?: string }>();
-  const [view, setView] = useState<RecommendationViewModel>(() => jobId ? { ...unavailableRecommendations(), state: 'loading', message: tx('추천 결과를 확인하고 있어요.', 'Checking your recommendation result.') } : unavailableRecommendations());
+  const [view, setView] = useState<RecommendationViewModel>(() => jobId || id ? { ...unavailableRecommendations(), state: 'loading', message: tx('추천 결과를 확인하고 있어요.', 'Checking your recommendation result.') } : unavailableRecommendations());
   const reload = useCallback(async () => {
-    if (!jobId) { setView(unavailableRecommendations()); return; }
+    // S15P21E201-1002 — jobId 는 추천을 막 만든 직후에만 주소에 실려 온다. 그것이 없다고
+    // 서버를 안 부르면 화면을 다시 열 때마다 "아직 생성된 추천이 없어요" 가 떴다. 실제로는
+    // 만들어 둔 추천이 서버에 있다. 이제 여행 ID 로 되찾아 온다.
+    if (!jobId && !id) { setView(unavailableRecommendations()); return; }
     setView((current) => ({ ...current, state: 'loading', message: tx('추천 결과를 확인하고 있어요.', 'Checking your recommendation result.') }));
-    const next = await loadRecommendationResult(jobId, accessToken);
+    let resolvedJobId = jobId;
+    if (!resolvedJobId) {
+      const lookup = await findLatestRecommendationJob(id, accessToken);
+      if (lookup.state === 'found' || lookup.state === 'in-progress') resolvedJobId = lookup.jobId;
+      // 🔴 "그런 여행이 없다"(404)와 "아직 안 만들었다"(빈 목록)를 같게 그리지 않는다.
+      // 앞은 오류이고, 뒤는 생성으로 이어 주면 되는 자리다.
+      else if (lookup.state === 'trip-not-found') { setView(tripNotFoundRecommendations()); return; }
+      else if (lookup.state === 'none') { setView(unavailableRecommendations()); return; }
+      else { setView({ ...unavailableRecommendations(), state: lookup.state, message: lookup.message }); return; }
+    }
+    const next = await loadRecommendationResult(resolvedJobId, accessToken);
     // 기기에 적어 둔 저장·제외를 되살린다 — S15P21E201-975. 서버 응답에는 이 판단이 없다.
     const stored = await loadRecommendationActions(id ?? '');
     setView({ ...next, courses: next.courses.map((course) => stored[course.id] ? { ...course, actionState: stored[course.id] } : course) });
