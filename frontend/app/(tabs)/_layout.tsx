@@ -11,4 +11,7 @@
 // 그래서 열어 두면 로그아웃 사용자가 피드 탭에서 401 화면을 만난다. 서버가 익명을 받아 주기
 // 전까지는 닫아 둔다. 여는 일은 백엔드 몫이다.
 import { ProtectedRoute } from '@/auth/ProtectedRoute';
-export default function TabsLayout() { return <ProtectedRoute publicPaths={['/home']} />; }
+
+// 탭 화면은 모두 둘러볼 수 있다. 개인 여행·계정 데이터는 각 화면이 비회원 상태로 감추고,
+// 저장·작성 같은 계정 작업을 누르는 순간에만 원래 목적지를 보존해 로그인으로 보낸다.
+export default function TabsLayout() { return <ProtectedRoute publicPaths={['/home', '/feed', '/trips', '/me']} />; }

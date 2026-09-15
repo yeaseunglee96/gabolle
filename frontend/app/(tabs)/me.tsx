@@ -47,7 +47,7 @@ export default function Me() {
 
   // 🔴 `?preview=ui` 를 그대로 들고 넘어간다. 안 넘기면 로그인 없이 화면만 보는 통로
   // (me/_layout.tsx 의 ProtectedRoute)가 넓은 화면에서만 끊겨 로그인 화면으로 튕긴다.
-  if (isAtLeast(width, 'lg')) return <Redirect href={preview ? `/me/profile?preview=${preview}` : '/me/profile'} />;
+  if (user && isAtLeast(width, 'lg')) return <Redirect href={preview ? `/me/profile?preview=${preview}` : '/me/profile'} />;
 
   const name = user?.displayName || tx('여행자', 'Traveler');
   const none = tx('아직 없음 ›', 'None yet ›');
@@ -55,7 +55,7 @@ export default function Me() {
   return <View style={styles.shell}><Screen scroll withTabBar>
     <View style={styles.heading}><Eyebrow>{tx('내 계정', 'Account')}</Eyebrow><Text variant="display" weight="bold">{tx('마이페이지', 'My page')}</Text></View>
 
-    <Pressable accessibilityRole="button" disabled={!user} onPress={() => router.push('/me/profile')} style={({ pressed }) => [styles.profile, pressed && styles.pressed]}>
+    <Pressable accessibilityRole="button" onPress={() => user ? router.push('/me/profile') : router.push({ pathname: '/sign-in', params: { returnTo: '/me/profile' } })} style={({ pressed }) => [styles.profile, pressed && styles.pressed]}>
       <View style={styles.avatar}>
         {avatarUri
           ? <Image source={{ uri: avatarUri }} resizeMode="cover" accessibilityLabel={tx('현재 프로필 사진', 'Current profile photo')} style={styles.avatarPhoto} />
@@ -63,7 +63,7 @@ export default function Me() {
       </View>
       <View style={styles.profileCopy}>
         <Text variant="title" weight="bold">{name}</Text>
-        <Text variant="caption" numberOfLines={1}>{user?.email || tx('계정 정보를 불러오지 못했어요', 'Account information is unavailable')}</Text>
+        <Text variant="caption" numberOfLines={1}>{user?.email || tx('로그인 없이 앱을 둘러보는 중이에요', 'Browsing the app without an account')}</Text>
       </View>
       <Text variant="caption" weight="bold" color={color.brand.orange}>{tx('프로필 ›', 'Profile ›')}</Text>
     </Pressable>
@@ -106,7 +106,7 @@ export default function Me() {
       </View>
     </View>
 
-    <Button label={tx('로그아웃', 'Sign out')} variant="ghost" onPress={() => setLogoutAsk(true)} containerStyle={styles.logout} />
+    {user ? <Button label={tx('로그아웃', 'Sign out')} variant="ghost" onPress={() => setLogoutAsk(true)} containerStyle={styles.logout} /> : <View style={styles.guestActions}><Button label={tx('로그인', 'Sign in')} onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: '/me' } })} /><Button label={tx('회원가입', 'Create account')} variant="ghost" onPress={() => router.push({ pathname: '/sign-up', params: { returnTo: '/me' } })} /></View>}
 
     <Modal visible={logoutAsk} transparent animationType="fade" onRequestClose={() => setLogoutAsk(false)}>
       <View style={styles.modalBackdrop}><View accessibilityViewIsModal style={styles.modalCard}>
@@ -136,6 +136,7 @@ const styles = StyleSheet.create({
   consentCopy: { flex: 1, gap: spacing[1] },
 
   logout: { marginTop: spacing[6], marginBottom: spacing[4], borderColor: color.brand.orange },
+  guestActions: { gap: spacing[2], marginTop: spacing[6], marginBottom: spacing[4] },
 
   modalBackdrop: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing[4], backgroundColor: 'rgba(11,29,58,0.62)' },
   modalCard: { width: '100%', maxWidth: 400, gap: spacing[3], padding: spacing[6], borderRadius: radius.lg, backgroundColor: color.brand.ivory },
