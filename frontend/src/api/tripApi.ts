@@ -39,6 +39,11 @@ export type CreateTripPayload = {
   // 이 칸이 생기기 전에는 칩이 화면에서만 받고 서버로 오지 않아서, 해운대를 골라도 추천
   // 스무 곳이 전부 출발지 근처였다.
   travelAreas: string[];
+  accommodationPlaceId: string | null;
+  englishMenuRequired: boolean;
+  foreignCardRequired: boolean;
+  soloFriendlyPriority: boolean;
+  maxTransitTransfers: number | null;
 };
 
 export type TripCreatedDto = {
@@ -99,6 +104,11 @@ export function toCreateTripPayload(draft: PlanDraft): CreateTripPayload {
   return {
     mustVisitPlaceIds: draft.mustVisitPlaces.map((place) => place.placeId),
     travelAreas: draft.travelAreas,
+    accommodationPlaceId: draft.accommodationPlace?.placeId ?? null,
+    englishMenuRequired: draft.englishMenuRequired,
+    foreignCardRequired: draft.foreignCardRequired,
+    soloFriendlyPriority: draft.soloDiningPreferred,
+    maxTransitTransfers: draft.transport === 'CAR' ? null : draft.maxTransfers,
     startDate: draft.startDate,
     finishDate: draft.endDate,
     originLat: draft.originLat,
