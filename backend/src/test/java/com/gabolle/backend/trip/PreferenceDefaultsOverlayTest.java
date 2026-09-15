@@ -1,6 +1,7 @@
 package com.gabolle.backend.trip;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -156,6 +157,233 @@ class PreferenceDefaultsOverlayTest {
 		// ck_preference_snapshot_scope_trip : (scope = 'TRIP') = (trip_id IS NOT NULL)
 		assertThat(saved.scope()).isEqualTo(PersonalizationScope.USER);
 		assertThat(saved.tripId()).isNull();
+	}
+
+	// ── 여행 답을 계정으로 이어받기 (S15P21E201-639) ──────────────────────────
+	//
+	// 🔴 아래 검사들이 지키는 것은 **갇히지 않는다** 이다.
+	//
+	//    처음에는 "계정에 비어 있을 때만 채운다" 로 만들었다. 명세 2.2 를 글자 그대로
+	//    지키는 쪽이었는데, 계정 기본값을 고치는 화면이 없어서(소비 성향 하나뿐) 사용자가
+	//    첫 답에 **영구히 갇혔다** — 화면의 값을 고쳐도 그 여행에만 적용되고 계정은 그대로라
+	//    다음 여행에 또 옛 값이 채워진다. 「고친_값이_계정에도_간다」 가 그 되돌림을 지킨다.
+	//
+	//    막는 것은 그대로 둔다 — 건너뛴 것과 안 물어본 것은 계정을 안 건드린다.
+
+	@Test
+	@DisplayName("🔴 계정이 비어 있으면 여행에서 고른 답이 계정에 남는다 — 두 번째 여행부터 안 묻는 부분")
+	void 빈칸이면_채운다() {
+		List<String> changed = this.service.carryOver(USER, List.of(
+				selected("QUIETNESS", "0.8"), selected("LOCALITY", "0.6")));
+
+		assertThat(changed).containsExactlyInAnyOrder("QUIETNESS", "LOCALITY");
+		assertThat(this.service.find(USER)).get()
+				.satisfies((s) -> assertThat(s.answers()).hasSize(2));
+	}
+
+	@Test
+	@DisplayName("🔴 화면에서 고친 값이 계정에도 간다 — 안 그러면 첫 답에 영구히 갇힌다")
+	void 고친_값이_계정에도_간다() {
+		this.service.carryOver(USER, List.of(selected("QUIETNESS", "0.8")));
+
+		// 다음 여행: 화면에 0.8 이 채워져 보였고, 사용자가 0.1 로 고쳤다
+		List<String> changed = this.service.carryOver(USER, List.of(selected("QUIETNESS", "0.1")));
+
+		assertThat(changed).containsExactly("QUIETNESS");
+		assertThat(this.service.find(USER)).get().satisfies((s) -> {
+			// 🔴 0.8 이 그대로라면 사용자는 고칠 방법이 없다. 고치는 화면도 없다.
+			assertThat(s.answers().get(0).valueJson()).isEqualTo("0.1");
+			assertThat(s.version()).isEqualTo(2);
+		});
+	}
+
+	@Test
+	@DisplayName("🔴 값이 같으면 판을 새로 쓰지 않는다 — 화면이 채워진 값을 그대로 돌려보내기 때문")
+	void 같은_값이면_판을_안_쓴다() {
+		this.service.carryOver(USER, List.of(selected("QUIETNESS", "0.8")));
+
+		// 다음 여행: 사용자가 아무것도 안 고쳤다. 화면은 채워진 0.8 을 그대로 보낸다
+		List<String> changed = this.service.carryOver(USER, List.of(selected("QUIETNESS", "0.8")));
+
+		assertThat(changed).isEmpty();
+		// 판이 올랐다면 created_at 만 다른 판이 쌓여 "언제 정한 취향인가" 를 못 보게 된다.
+		assertThat(this.service.find(USER)).get()
+				.satisfies((s) -> assertThat(s.version()).isEqualTo(1));
+	}
+
+	@Test
+	@DisplayName("🔴 이어받지 않기로 한 차원은 안 들어간다 — 카테고리·분위기·그늘·소비성향")
+	void 이어받지_않는_차원은_뺀다() {
+		List<String> changed = this.service.carryOver(USER, List.of(
+				selected("CATEGORY", "\"SEA\""),          // 이번엔 바다, 다음엔 문화
+				selected("ATMOSPHERE", "\"CALM\""),       // 여행 성격에 따라 다르다
+				selected("SHADE_PREFERENCE", "0.9"),      // 9월엔 그늘, 12월엔 볕
+				selected("SPEND_PROFILE", "\"MID\""),     // SpendProfileService 가 따로 맡는다
+				selected("SLOPE_PREFERENCE", "0.2")));    // 몸에 붙은 것 — 이것만 이어받는다
+
+		assertThat(changed).containsExactly("SLOPE_PREFERENCE");
+	}
+
+	@Test
+	@DisplayName("🔴 건너뛴 답은 계정을 안 건드린다 — 「이번 여행만 이 조건 빼고」 가 살아남아야 한다")
+	void 건너뛰면_계정은_그대로() {
+		this.service.carryOver(USER, List.of(selected("QUIETNESS", "0.8")));
+
+		// 다음 여행: 조용함을 **일부러 건너뛰었다**
+		List<String> changed = this.service.carryOver(USER,
+				List.of(new PreferenceAnswer("QUIETNESS", null, AnswerStatus.SKIPPED)));
+
+		assertThat(changed).isEmpty();
+		assertThat(this.service.find(USER)).get()
+				.satisfies((s) -> assertThat(s.answers().get(0).valueJson()).isEqualTo("0.8"));
+	}
+
+	@Test
+	@DisplayName("안 물어본 차원도 계정을 안 건드린다 — 사용자의 의사가 없다")
+	void 안_물어봤으면_그대로() {
+		List<String> changed = this.service.carryOver(USER,
+				List.of(new PreferenceAnswer("LOCALITY", null, AnswerStatus.UNKNOWN)));
+
+		assertThat(changed).isEmpty();
+		assertThat(this.service.find(USER)).isEmpty();
+	}
+
+	@Test
+	@DisplayName("이어받은 뒤에는 겹치기가 그 값을 다음 여행에 넣는다 — 두 걸음이 이어지는지")
+	void 이어받은_뒤에_겹쳐진다() {
+		this.service.carryOver(USER, List.of(selected("QUIETNESS", "0.8")));
+
+		// 다음 여행: 조용함을 안 물어봤다(UNKNOWN)
+		List<PreferenceAnswer> merged = this.service.overlayDefaults(USER,
+				List.of(new PreferenceAnswer("QUIETNESS", null, AnswerStatus.UNKNOWN)));
+
+		assertThat(merged).hasSize(1);
+		assertThat(merged.get(0).valueJson()).isEqualTo("0.8");
+		assertThat(merged.get(0).status()).isEqualTo(AnswerStatus.SELECTED);
+	}
+
+	// ── 온보딩·마이페이지가 직접 고치기 (S15P21E201-639) ──────────────────────
+	//
+	// 🔴 carryOver 와 갈리는 자리는 UNKNOWN 하나다. 여행에서 온 UNKNOWN 은 "안 물어봤다"
+	//    라서 계정을 안 건드리고, 마이페이지에서 온 UNKNOWN 은 "잊어 달라" 라서 지운다.
+	//    같은 값이 두 곳에서 다른 뜻이므로, 뭉개지 않았는지를 검사로 못 박는다.
+
+	@Test
+	@DisplayName("🔴 보낸 차원만 바뀌고 안 보낸 차원은 남는다 — 부분 갱신")
+	void 보낸_것만_바뀐다() {
+		this.service.putTaste(USER, List.of(selected("LOCALITY", "0.6"), selected("QUIETNESS", "0.8")));
+
+		List<String> changed = this.service.putTaste(USER, List.of(selected("LOCALITY", "0.2")));
+
+		assertThat(changed).containsExactly("LOCALITY");
+		assertThat(this.service.findTaste(USER)).hasSize(2);
+		assertThat(this.service.findTaste(USER))
+				.anySatisfy((a) -> assertThat(a.valueJson()).isEqualTo("0.2"))
+				.anySatisfy((a) -> assertThat(a.valueJson()).isEqualTo("0.8"));
+	}
+
+	@Test
+	@DisplayName("🔴 UNKNOWN 으로 보내면 그 차원을 지운다 — 마이페이지의 「잊어 주세요」")
+	void 지우기() {
+		this.service.putTaste(USER, List.of(selected("LOCALITY", "0.6"), selected("QUIETNESS", "0.8")));
+
+		List<String> changed = this.service.putTaste(USER,
+				List.of(new PreferenceAnswer("LOCALITY", null, AnswerStatus.UNKNOWN)));
+
+		assertThat(changed).containsExactly("LOCALITY");
+		assertThat(this.service.findTaste(USER)).hasSize(1);
+		assertThat(this.service.findTaste(USER).get(0).dimension()).isEqualTo("QUIETNESS");
+	}
+
+	@Test
+	@DisplayName("🔴 SKIPPED 는 지우기가 아니다 — 「물어봤는데 안 답했다」라 계정을 안 건드린다")
+	void 건너뜀은_지우기가_아니다() {
+		this.service.putTaste(USER, List.of(selected("LOCALITY", "0.6")));
+
+		List<String> changed = this.service.putTaste(USER,
+				List.of(new PreferenceAnswer("LOCALITY", null, AnswerStatus.SKIPPED)));
+
+		assertThat(changed).isEmpty();
+		assertThat(this.service.findTaste(USER)).hasSize(1);
+	}
+
+	@Test
+	@DisplayName("🔴 계정 기본값으로 둘 수 없는 차원은 거절한다 — 조용히 버리면 화면이 저장된 줄 안다")
+	void 못_두는_차원은_거절() {
+		// 여행마다 다른 것
+		assertThatThrownBy(() -> this.service.putTaste(USER, List.of(selected("CATEGORY", "\"SEA\""))))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessageContaining("CATEGORY");
+
+		// 다른 경로(/spend)가 맡고 있는 것 — 두 경로가 같은 차원을 쓰면 나중 것이 앞을 덮는다
+		assertThatThrownBy(() -> this.service.putTaste(USER, List.of(selected("SPEND_PROFILE", "\"MID\""))))
+				.isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	@DisplayName("앱이 보내는 camelCase 이름도 받는다 — 화면은 locality 로 보낸다")
+	void 앱_이름도_받는다() {
+		List<String> changed = this.service.putTaste(USER, List.of(selected("locality", "0.6")));
+
+		assertThat(changed).containsExactly("LOCALITY");
+		// 되돌려 줄 때는 어휘로 맞춘다 — 화면이 어느 칸인지 헷갈리지 않게
+		assertThat(this.service.findTaste(USER).get(0).dimension()).isEqualTo("LOCALITY");
+	}
+
+	@Test
+	@DisplayName("🔴 findTaste 는 소비 성향을 빼고 준다 — /spend 화면과 겹치면 한쪽만 고쳤을 때 어긋난다")
+	void 소비성향은_빼고_준다() {
+		this.service.replace(USER, List.of(
+				selected("QUIETNESS", "0.8"), selected("SPEND_PROFILE", "\"MID\"")));
+
+		assertThat(this.service.findTaste(USER)).hasSize(1);
+		assertThat(this.service.findTaste(USER).get(0).dimension()).isEqualTo("QUIETNESS");
+		// 계정에서 지워진 것은 아니다 — 안 보여줄 뿐이다
+		assertThat(this.service.find(USER)).get()
+				.satisfies((s) -> assertThat(s.answers()).hasSize(2));
+	}
+
+	@Test
+	@DisplayName("한 번도 저장한 적 없으면 빈 목록 — 오류가 아니다")
+	void 없으면_빈_목록() {
+		assertThat(this.service.findTaste(USER)).isEmpty();
+	}
+
+	@Test
+	@DisplayName("🔴 취향을 저장해도 소비 성향 답이 안 사라진다 — replace 는 전체 교체라 여기가 무너지기 쉽다")
+	void 소비성향은_안_지워진다() {
+		// /spend 가 먼저 저장해 둔 상태에서 시작한다.
+		this.service.replace(USER, List.of(selected("SPEND_PROFILE", "\"MID\"")));
+
+		this.service.putTaste(USER, List.of(selected("QUIETNESS", "0.8")));
+
+		// 🔴 putTaste 는 replace(전체 교체)로 저장한다. 바뀐 차원만 넘기면 나머지가 통째로
+		//    사라진다 — 사용자는 세 질문에 답한 적 없는 사람이 되고, 다시 물어볼 화면도 없다.
+		assertThat(this.service.find(USER)).get().satisfies((snapshot) ->
+				assertThat(snapshot.answers())
+						.extracting(PreferenceAnswer::dimension)
+						.containsExactlyInAnyOrder("SPEND_PROFILE", "QUIETNESS"));
+	}
+
+	@Test
+	@DisplayName("🔴 여행에서 이어받은 값과 마이페이지에서 고친 값이 서로 안 덮는다")
+	void 이어받기와_직접_고치기가_안_덮는다() {
+		// 여행을 만들면서 경사 답이 계정으로 따라 올라온다.
+		this.service.carryOver(USER, List.of(selected("SLOPE_PREFERENCE", "\"AVOID\"")));
+
+		// 그 뒤 마이페이지에서 다른 차원을 고친다.
+		this.service.putTaste(USER, List.of(selected("QUIETNESS", "0.8")));
+
+		assertThat(this.service.findTaste(USER))
+				.extracting(PreferenceAnswer::dimension)
+				.containsExactlyInAnyOrder("SLOPE_PREFERENCE", "QUIETNESS");
+
+		// 반대 방향도 같다 — 나중에 만든 여행이 마이페이지에서 고친 것을 지우지 않는다.
+		this.service.carryOver(USER, List.of(selected("LOCALITY", "0.6")));
+
+		assertThat(this.service.findTaste(USER))
+				.extracting(PreferenceAnswer::dimension)
+				.containsExactlyInAnyOrder("SLOPE_PREFERENCE", "QUIETNESS", "LOCALITY");
 	}
 
 	private static PreferenceAnswer selected(String dimension, String value) {

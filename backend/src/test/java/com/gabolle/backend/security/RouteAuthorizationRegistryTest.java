@@ -470,6 +470,12 @@ class RouteAuthorizationRegistryTest {
 				"계정 기본 씀씀이 성향 조회(-709). 대상이 경로에 없고 인증 주체로만 정해진다 — 남의 것을 지정할 방법이 없다. SpendProfileControllerTest");
 		put(m, "PUT /api/v1/me/preferences/spend", Policy.OWNED,
 				"위와 같다. SpendProfileControllerTest");
+		put(m, "GET /api/v1/me/preferences/taste", Policy.OWNED,
+				"계정 기본 취향 조회(-639). 온보딩 첫 실행과 마이페이지가 읽는다. 위 /spend 와 같은 근거로 OWNED — "
+				+ "대상이 경로에 없고 인증 주체로만 정해진다. TastePreferencesControllerTest");
+		put(m, "PUT /api/v1/me/preferences/taste", Policy.OWNED,
+				"위와 같다. 🔴 보낸 차원만 바뀌고 안 보낸 것은 남는다 — 지우기는 answerStatus=UNKNOWN 으로 온다. "
+				+ "TastePreferencesControllerTest");
 
 		// ── 여행 ────────────────────────────────────────────────────────────────
 		put(m, "POST /api/v1/trips", Policy.AUTHENTICATED_ONLY,
