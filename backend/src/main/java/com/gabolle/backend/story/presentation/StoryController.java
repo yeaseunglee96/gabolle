@@ -61,7 +61,15 @@ public class StoryController {
 			@RequestParam(value = "cursor", required = false) String cursor,
 			@RequestParam(value = "limit", required = false) Integer limit,
 			Authentication authentication) {
-		UUID viewer = AuthenticatedUsers.requireId(authentication);
+		// 🔴 S15P21E201-974 — 여기만 requireId 가 아니라 optionalId 다. 피드는 로그인 없이도
+		//    볼 수 있어야 한다(제품 결정). 익명 출입증만 들고 오면 viewer 가 null 이 되고,
+		//    StoryFeedService 가 그때 공개 기록만 내보낸다.
+		//
+		//    🔴 막고 있던 것이 SecurityConfig 가 아니라 이 한 줄이었다. 익명 필터가 심는
+		//    권한으로 anyRequest().authenticated() 는 이미 통과한다(장소 API 가 익명으로
+		//    200 이 나오는 이유). 그 뒤 requireId 가 principal "anon:<세션id>" 를 UUID 로
+		//    못 읽어 401 을 던지고 있었다.
+		UUID viewer = AuthenticatedUsers.optionalId(authentication).orElse(null);
 		return ApiResponse.success(this.feedService.feed(viewer, scope, cursor, limit), requestId());
 	}
 

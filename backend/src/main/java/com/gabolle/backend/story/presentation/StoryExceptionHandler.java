@@ -20,6 +20,7 @@ import com.gabolle.backend.common.api.ApiResponse;
 import com.gabolle.backend.story.application.FeedCursor;
 import com.gabolle.backend.story.application.FollowService;
 import com.gabolle.backend.story.application.StoryCoauthorService;
+import com.gabolle.backend.story.application.StoryFeedService;
 import com.gabolle.backend.story.application.StoryService;
 import com.gabolle.backend.story.domain.UserFollow;
 
@@ -103,6 +104,19 @@ public class StoryExceptionHandler {
 		return ResponseEntity.badRequest()
 				.body(ApiResponse.failure(new ApiError("STORY_COAUTHOR_NOT_TRIP_MEMBER", e.getMessage(),
 						List.of("userIds")), requestId()));
+	}
+
+	/**
+	 * 🔴 S15P21E201-974 — 로그인하지 않은 사람의 팔로잉 피드. <b>401 이 아니라 400</b>인
+	 * 이유는 {@code StoryFeedService.AnonymousFollowingFeedException} 에 적어 뒀다 —
+	 * 앱이 401 을 출입증 만료로 보고 다시 발급받아 재시도하기 때문이다.
+	 */
+	@ExceptionHandler(StoryFeedService.AnonymousFollowingFeedException.class)
+	public ResponseEntity<ApiResponse<Void>> handleAnonymousFollowing(
+			StoryFeedService.AnonymousFollowingFeedException e) {
+		return ResponseEntity.badRequest()
+				.body(ApiResponse.failure(new ApiError("STORY_FEED_LOGIN_REQUIRED", e.getMessage(), List.of("scope")),
+						requestId()));
 	}
 
 	@ExceptionHandler(FeedCursor.InvalidCursorException.class)
