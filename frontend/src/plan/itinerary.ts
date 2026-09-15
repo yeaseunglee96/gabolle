@@ -179,9 +179,20 @@ export async function revertItinerary(input: { itineraryId: string; baseVersion:
   }
 }
 
+// S15P21E201-1011 — 판 목록 응답이 배열에서 { items, count, hasMore } 로 바뀐다.
+//
+// 🔴 둘 다 읽는다. 서버와 화면은 따로 배포되므로 한쪽만 맞춰 두면 그 사이에 이 목록이
+// 비어 버리고, 그러면 되돌리기 버튼이 사라진다 — 돌아갈 수 있던 판이 없어진 것으로 보인다.
+//
+// hasMore 는 여기서 안 쓴다. 이 저장소에 판 목록을 그리는 화면이 없어서 알릴 자리가
+// 없다 — 쓰는 곳은 되돌리기 버튼(versions.length > 1)과 최신 판의 경고(versions[0])뿐이고,
+// 둘 다 맨 앞만 본다. 목록 화면이 생기면 그때 이 값을 함께 꺼낸다.
+type ItineraryVersionsPayload = ItineraryVersionEntryDto[] | { items: ItineraryVersionEntryDto[]; count?: number; hasMore?: boolean };
+
 export async function loadItineraryVersions(itineraryId: string, accessToken: string | null): Promise<{ state: 'success'; versions: ItineraryVersionEntryDto[] } | { state: 'unavailable' | 'offline' | 'error'; message: string }> {
   try {
-    return { state: 'success', versions: await apiRequest<ItineraryVersionEntryDto[]>(`/api/v1/itineraries/${encodeURIComponent(itineraryId)}/versions`, { accessToken }) };
+    const payload = await apiRequest<ItineraryVersionsPayload>(`/api/v1/itineraries/${encodeURIComponent(itineraryId)}/versions`, { accessToken });
+    return { state: 'success', versions: Array.isArray(payload) ? payload : payload.items ?? [] };
   } catch (error) {
     const result = failure(error);
     return result.state === 'conflict' ? { state: 'error', message: result.message } : result;
