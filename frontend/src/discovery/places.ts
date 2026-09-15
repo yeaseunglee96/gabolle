@@ -92,6 +92,48 @@ export function hasFoodSafetyConfirmed(place: Place) {
 // Beach)" 형태로 둘 다 보여준다. 영문 이름이 한국인 택시 기사에게는 쓸모없고, 한글 이름만
 // 보여주면 영어 사용자가 못 읽는다. 영문이 없으면 괄호 없이 한국어 원문만 보여준다 — 빈
 // 문자열을 보여주지 않는다.
+function findFeature(place: Place, featureType: string): PlaceFeature | undefined {
+  return place.features.find((feature) => feature.featureType === featureType);
+}
+
+function toFeatureSlot(feature: PlaceFeature | undefined): FeatureSlot | undefined {
+  if (!feature) return undefined;
+  return { value: (feature as { value?: unknown }).value, evidenceStatus: (feature as { evidenceStatus?: EvidenceStatus }).evidenceStatus ?? 'UNKNOWN' };
+}
+
+// 혼밥 안심(SOLO_FRIENDLY, S15P21E201-141·265) — 참거짓형(FLAG) 피처라 값이 boolean 이다.
+// formatFeatureSlot 은 문자열·숫자만 그대로 보여주므로(그 밖은 JSON.stringify) boolean 은
+// "true"/"false" 로 나가 사용자에게 뜻이 안 통한다 — 그래서 이 필드만 라벨을 따로 붙인다.
+export function formatSoloFriendly(place: Place, tx: (ko: string, en: string) => string): string | null {
+  const slot = toFeatureSlot(findFeature(place, 'SOLO_FRIENDLY'));
+  if (!slot) return null;
+  if (slot.evidenceStatus === 'UNKNOWN' || slot.value == null) return tx('확인 안 됨', 'Unconfirmed');
+  const label = slot.value === true ? tx('혼밥하기 좋아요', 'Good for solo dining') : tx('혼밥은 어려울 수 있어요', 'May not suit solo diners');
+  return slot.evidenceStatus === 'ESTIMATED' ? tx(`${label} (추정)`, `${label} (est.)`) : label;
+}
+
+// 브레이크타임·라스트오더(BREAK_TIME·LAST_ORDER_TIME, S15P21E201-141·265) — 값 모양이 아직
+// 마이그레이션 단계에서 확정되지 않았다(예상되는 모양만 문서에 있음). 그래서 예상 모양과
+// 맞으면 보기 좋게 합치고, 안 맞으면 formatFeatureSlot 과 같은 안전한 문자열화로 물러선다 —
+// 모르는 모양을 아는 척 파싱하지 않는다.
+export function formatBreakTime(place: Place, tx: (ko: string, en: string) => string): string | null {
+  const slot = toFeatureSlot(findFeature(place, 'BREAK_TIME'));
+  if (!slot) return null;
+  if (slot.evidenceStatus === 'UNKNOWN' || slot.value == null) return tx('확인 안 됨', 'Unconfirmed');
+  const value = slot.value as { start?: unknown; end?: unknown };
+  const text = typeof value?.start === 'string' && typeof value?.end === 'string' ? `${value.start}–${value.end}` : JSON.stringify(slot.value);
+  return slot.evidenceStatus === 'ESTIMATED' ? tx(`${text} (추정)`, `${text} (est.)`) : text;
+}
+
+export function formatLastOrderTime(place: Place, tx: (ko: string, en: string) => string): string | null {
+  const slot = toFeatureSlot(findFeature(place, 'LAST_ORDER_TIME'));
+  if (!slot) return null;
+  if (slot.evidenceStatus === 'UNKNOWN' || slot.value == null) return tx('확인 안 됨', 'Unconfirmed');
+  const value = slot.value as { time?: unknown };
+  const text = typeof value?.time === 'string' ? value.time : JSON.stringify(slot.value);
+  return slot.evidenceStatus === 'ESTIMATED' ? tx(`${text} (추정)`, `${text} (est.)`) : text;
+}
+
 export function bilingualPlaceName(nameKo: string, nameEn?: string | null) {
   const trimmedEn = nameEn?.trim();
   return trimmedEn ? `${nameKo} (${trimmedEn})` : nameKo;
