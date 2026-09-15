@@ -45,7 +45,7 @@ export default function CheckIn() {
   const { tx } = useI18n();
   const { id: tripId } = useLocalSearchParams<{ id?: string }>();
   const { accessToken } = useAuth();
-  const { enabled: reflectInRecommendations, setEnabled: setReflectInRecommendations } = useBehaviorConsent();
+  const { enabled: reflectInRecommendations, setEnabled: setReflectInRecommendations } = useBehaviorConsent(accessToken);
   const [rating, setRating] = useState(5);
   const [feedback, setFeedback] = useState<Set<FeedbackKey>>(() => new Set(['sea', 'alley', 'accurate']));
   const [accuracy, setAccuracy] = useState<Accuracy>('accurate');

@@ -31,12 +31,12 @@ import { PREFERENCE_TOTAL } from '@/preferences/accountPreferences';
 export default function Me() {
   const router = useRouter();
   const { preview } = useLocalSearchParams<{ preview?: string }>();
-  const { user, signOut } = useAuth();
+  const { user, signOut, accessToken } = useAuth();
   const { language, tx } = useI18n();
   const plan = usePlan();
   const { width } = useWindowDimensions();
   const { answeredPreferences, storyCount } = useMyPageCounts();
-  const { enabled: behaviorPersonalization, setEnabled: setBehaviorPersonalization } = useBehaviorConsent();
+  const { enabled: behaviorPersonalization, setEnabled: setBehaviorPersonalization } = useBehaviorConsent(accessToken);
   const [avatarUri, setAvatarUri] = useState<string | null>(null);
   const [logoutAsk, setLogoutAsk] = useState(false);
 
