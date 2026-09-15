@@ -28,6 +28,7 @@ import { TabBar } from '@/components/TabBar';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useHomeData } from '@/home/useHomeData';
+import { resolveHomeTripDestination } from '@/home/tripNavigation';
 import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
 import { useI18n } from '@/i18n';
@@ -47,6 +48,15 @@ export default function Home() {
   const home = useHomeData(!desktop);
   const [likedIds, setLikedIds] = useState<Set<string>>(new Set());
   const [saveFeedback, setSaveFeedback] = useState<string | null>(null);
+  const [openingTrip, setOpeningTrip] = useState(false);
+
+  const openHomeTrip = async (tripId: string) => {
+    if (openingTrip) return;
+    setOpeningTrip(true);
+    const destination = await resolveHomeTripDestination(tripId, accessToken);
+    setOpeningTrip(false);
+    router.push(destination as never);
+  };
 
   useEffect(() => {
     void AsyncStorage.getItem(SAVED_PLACES_KEY).then((raw) => {
@@ -262,7 +272,7 @@ export default function Home() {
           <View style={styles.sectionPadded}>
             <Text variant="eyebrow" weight="bold">{tx('내 여행', 'My trip')}</Text>
             {!home.tripsLoaded ? <View style={[styles.tripCard, styles.tripSkeleton]} /> : home.trip ? (
-              <Pressable accessibilityRole="button" onPress={() => router.push(`/trips/${home.trip!.tripId}/itinerary`)} style={({ pressed }) => [styles.tripCard, pressed && styles.pressed]}>
+              <Pressable accessibilityRole="button" accessibilityState={{ busy: openingTrip, disabled: openingTrip }} disabled={openingTrip} onPress={() => void openHomeTrip(home.trip!.tripId)} style={({ pressed }) => [styles.tripCard, pressed && styles.pressed]}>
                 <Text variant="caption" weight="bold" color={color.state.success}>
                   {home.trip.status === 'IN_PROGRESS' ? tx('진행 중', 'In progress') : home.trip.status === 'READY' ? tx('준비 완료', 'Ready') : tx('예정', 'Upcoming')}
                 </Text>
@@ -273,7 +283,7 @@ export default function Home() {
                     : tx('날짜 미정', 'Dates TBD')}
                 </Text>
                 <Text color={color.text.body}>{tx(`${home.trip.dayCount}일 · ${home.trip.partySize}명`, `${home.trip.dayCount} days · ${home.trip.partySize} travelers`)}</Text>
-                <Text weight="bold" color={color.brand.navy} style={styles.tripGo}>{tx('일정 보기 →', 'View itinerary →')}</Text>
+                <Text weight="bold" color={color.brand.navy} style={styles.tripGo}>{openingTrip ? tx('일정 찾는 중…', 'Finding itinerary…') : tx('일정 보기 →', 'View itinerary →')}</Text>
               </Pressable>
             ) : (
               <View style={styles.tripEmpty}>
