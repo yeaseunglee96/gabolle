@@ -24,6 +24,7 @@ import { useAuth } from '@/auth/AuthProvider';
 import { loadSavedPlaceIds, setSavedPlace } from '@/discovery/savedPlaces';
 import { BrandLogoLink } from '@/components/BrandLogoLink';
 import { GabolleMascot } from '@/components/DongbaekMascot';
+import { PlaceVisual } from '@/components/PlaceVisual';
 import { Screen } from '@/components/Screen';
 import { GettingStartedGuide } from '@/components/GettingStartedGuide';
 import { TabBar } from '@/components/TabBar';
@@ -247,9 +248,7 @@ export default function Home() {
                 return (
                   <View key={place.placeId} style={styles.placeCard}>
                     <Pressable accessibilityRole="button" onPress={() => router.push(`/place/${place.placeId}`)} style={({ pressed }) => [styles.placeThumbWrap, pressed && styles.pressed]}>
-                      {/* 장소 사진이 아직 안 온다(photoUrl 이 늘 비어 있다). 빈 칸을 두되
-                          「사진 없음」이라고 적지는 않는다. */}
-                      <View style={styles.placeThumb} />
+                      <PlaceVisual name={place.nameKo} address={place.address} />
                       <Pressable
                         accessibilityRole="button"
                         accessibilityLabel={liked ? tx(`${place.nameKo} 저장 취소`, `Unsave ${place.nameKo}`) : tx(`${place.nameKo} 저장`, `Save ${place.nameKo}`)}
@@ -371,7 +370,6 @@ const styles = StyleSheet.create({
   placeGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[3] },
   placeCard: { width: '47%', gap: spacing[1] },
   placeThumbWrap: { position: 'relative' },
-  placeThumb: { width: '100%', aspectRatio: 4 / 3, borderRadius: radius.md, backgroundColor: color.surface.soft },
   heartButton: { position: 'absolute', top: 0, right: 0, width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
   heartIcon: { width: 16, height: 16 },
   heartOn: { tintColor: color.brand.orange },

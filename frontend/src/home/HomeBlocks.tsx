@@ -12,6 +12,7 @@ import { Image, Pressable, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { GabolleMascot } from '@/components/DongbaekMascot';
+import { PlaceVisual } from '@/components/PlaceVisual';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
@@ -176,8 +177,7 @@ export function PlacePicks({ places }: { places: HomePlaceItem[] }) {
       <View style={styles.placeGrid}>
         {places.map((place) => (
           <Pressable key={place.placeId} accessibilityRole="button" onPress={() => router.push(`/place/${place.placeId}`)} style={({ pressed }) => [styles.placeCard, pressed && styles.pressed]}>
-            {/* 장소 사진이 아직 안 온다 — 빈 칸을 두되 「사진 없음」이라고 적지는 않는다. */}
-            <View style={styles.placeThumb} />
+            <PlaceVisual name={place.nameKo} address={place.address} />
             <Text weight="bold" numberOfLines={1}>{place.nameKo}</Text>
             {/* 🔴 `category` 를 그대로 그리면 화면에 「FOOD」 같은 **코드**가 뜬다. 그 코드를 한글로
                 바꿀 표가 없다 — assistant/intent.ts 에 여섯 개짜리가 있지만 챗봇 입력을 코드로
@@ -281,7 +281,6 @@ const styles = StyleSheet.create({
   blockHead: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', gap: spacing[3] },
   placeGrid: { flexDirection: 'row', gap: spacing[3] },
   placeCard: { flex: 1, minWidth: 0, gap: spacing[2] },
-  placeThumb: { width: '100%', aspectRatio: 4 / 3, borderRadius: radius.md, backgroundColor: color.surface.soft },
 
   tripBlock: { width: 360, gap: spacing[3] },
   // 시안은 패딩 20 인데 간격 토큰에 20 이 없다(4·8·12·16·24·32). 16 으로 내린다 —
