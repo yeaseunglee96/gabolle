@@ -19,9 +19,16 @@ import com.gabolle.backend.trip.application.TripQueryService;
  *
  * <p>지금까지 이 판단은 기기에만 있었다. 기기를 바꾸면 사라졌다.
  *
- * <p>🔴 <b>소유권 검사를 새로 짜지 않고 {@link TripQueryService#get} 을 지난다.</b>
- * 추천 요청·조회가 이미 지나는 관문이라 거절 모양이 같다 — 검사를 따로 만들면 두 경로의
- * 404 가 언젠가 갈라지고, 그 차이가 "있는데 너는 못 본다" 는 신호가 된다.
+ * <h2>🔴 권한 규칙이 하나다 — "그 여행의 참여자인가"</h2>
+ *
+ * 판단은 <b>여행별</b>이고 동행자가 함께 본다(2026-09-15 제품 결정). 공유는 "같이 일정짜기"
+ * 를 따로 만들어서가 아니라 <b>이미 있는 여행 초대</b>로 이뤄진다 — 사람은 초대를 받아야
+ * 참여자가 되고, 참여자면 읽고 쓸 수 있다.
+ *
+ * <p>그래서 역할 검사를 따로 짜지 않는다. {@link TripQueryService#get} 이 이미 "참여자가
+ * 아니면 여행 자체가 없는 것처럼 404" 를 하고 있고, <b>초대 장치가 곧 권한 장치</b>다.
+ * 추천 요청·조회가 지나는 관문과 같은 것이라 거절 모양도 같다 — 검사를 따로 만들면 두
+ * 경로의 404 가 언젠가 갈라지고, 그 차이가 "있는데 너는 못 본다" 는 신호가 된다.
  *
  * <p>🔴 {@code @ConditionalOnBean(TripQueryService.class)} — {@code RecommendationJobRunner}
  * 와 같은 이유다. 추천 도메인만 스캔하는 테스트 슬라이스에는 {@code TripQueryService} 빈이
@@ -46,14 +53,14 @@ public class RecommendationActionService {
 	}
 
 	/**
-	 * 이 여행에서 내가 내린 판단 전부.
+	 * 이 여행의 판단 전부 — 동행자가 남긴 것도 함께 온다.
 	 *
-	 * @throws TripQueryService.TripNotFoundException 여행이 없거나 요청자가 그 여행의 회원이 아니다
+	 * @throws TripQueryService.TripNotFoundException 여행이 없거나 요청자가 그 여행의 참여자가 아니다
 	 */
 	@Transactional(readOnly = true)
 	public List<RecommendationPlaceAction> list(String tripId, String userId) {
 		this.tripQueryService.get(tripId, userId);
-		return this.repository.findByUserIdAndTripId(UUID.fromString(userId), UUID.fromString(tripId));
+		return this.repository.findByTripId(UUID.fromString(tripId));
 	}
 
 	/**
@@ -63,6 +70,9 @@ public class RecommendationActionService {
 	 * 있고 통신이 끊기면 앱이 재시도한다 — "눌렀다" 를 더하는 방식이면 그때마다 행이 쌓이거나
 	 * 상태가 뒤집힌다. 그래서 "이 장소의 판단은 이것이다" 를 통째로 적는 모양으로 뒀다.
 	 *
+	 * <p>동행자가 이미 정해 둔 판단도 바꿀 수 있다 — 함께 쓰는 값이라 그것이 기능이다.
+	 * 대신 <b>마지막에 누가 정했는지</b>를 함께 적어, 바뀐 이유를 되짚을 수 있게 한다.
+	 *
 	 * @return 적히고 난 뒤의 판단
 	 */
 	@Transactional
@@ -70,18 +80,18 @@ public class RecommendationActionService {
 			RecommendationPlaceAction.Action action) {
 		this.tripQueryService.get(tripId, userId);
 
-		UUID user = UUID.fromString(userId);
 		UUID trip = UUID.fromString(tripId);
 		UUID place = UUID.fromString(placeId);
+		UUID decidedBy = UUID.fromString(userId);
 		OffsetDateTime now = OffsetDateTime.now(this.clock);
 
-		return this.repository.findByUserIdAndTripIdAndPlaceId(user, trip, place)
+		return this.repository.findByTripIdAndPlaceId(trip, place)
 				.map(existing -> {
-					existing.changeTo(action, now);
+					existing.changeTo(action, decidedBy, now);
 					return existing;
 				})
 				.orElseGet(() -> this.repository.save(
-						RecommendationPlaceAction.of(UUID.randomUUID(), user, trip, place, action, now)));
+						RecommendationPlaceAction.of(UUID.randomUUID(), trip, place, action, decidedBy, now)));
 	}
 
 	/**
@@ -90,11 +100,12 @@ public class RecommendationActionService {
 	 * <p>🔴 <b>없는 것을 지워도 성공이다.</b> 이미 지워진 뒤에 재시도가 도착하는 일이 흔하고,
 	 * 그때 404 를 내면 화면은 "지워졌는데 못 지웠다고 한다" 를 그린다. 지우기의 결과는
 	 * "그 판단이 없는 상태" 이고 그건 두 경우 모두 같다.
+	 *
+	 * <p>동행자가 정해 둔 판단도 거둘 수 있다 — {@link #put} 과 같은 이유다.
 	 */
 	@Transactional
 	public void remove(String tripId, String userId, String placeId) {
 		this.tripQueryService.get(tripId, userId);
-		this.repository.deleteByUserIdAndTripIdAndPlaceId(UUID.fromString(userId), UUID.fromString(tripId),
-				UUID.fromString(placeId));
+		this.repository.deleteByTripIdAndPlaceId(UUID.fromString(tripId), UUID.fromString(placeId));
 	}
 }

@@ -514,14 +514,16 @@ class RouteAuthorizationRegistryTest {
 		put(m, "POST /api/v1/trips/{}/recommendation-jobs", Policy.OWNED,
 				"내 여행에만 추천을 요청할 수 있다. RecommendationResultAuthorizationTest");
 		put(m, "GET /api/v1/trips/{}/recommendation-actions", Policy.OWNED,
-				"내 여행에서 내가 내린 판단만 읽는다 — 추천 요청과 같은 관문(TripQueryService.get)을 "
-						+ "지난다. 아직 아무것도 안 눌렀으면 빈 목록이고 404 가 아니다. "
+				"참여자인 여행의 판단만 읽는다 — 추천 요청과 같은 관문(TripQueryService.get)을 지난다. "
+						+ "판단은 사람별이 아니라 여행별이라 동행자가 남긴 것도 함께 온다(초대가 곧 공유 장치다). "
+						+ "아직 아무것도 안 눌렀으면 빈 목록이고 404 가 아니다. "
 						+ "RecommendationActionAuthorizationTest (-1013)");
 		put(m, "PUT /api/v1/trips/{}/recommendation-actions/{}", Policy.OWNED,
-				"남의 여행 후보에 판단을 적을 수 없다. 같은 관문을 지난다. "
-						+ "RecommendationActionAuthorizationTest (-1013)");
+				"참여자가 아닌 여행의 후보에는 판단을 적을 수 없다. 같은 관문을 지난다. "
+						+ "참여자면 역할과 무관하게 적을 수 있고, 동행자가 정해 둔 것도 바꿀 수 있다 — "
+						+ "함께 쓰는 값이라 그것이 기능이다. RecommendationActionAuthorizationTest (-1013)");
 		put(m, "DELETE /api/v1/trips/{}/recommendation-actions/{}", Policy.OWNED,
-				"남의 여행 후보의 판단을 거둘 수 없다. 같은 관문을 지난다. "
+				"참여자가 아닌 여행의 판단은 거둘 수 없다. 같은 관문을 지난다. "
 						+ "RecommendationActionAuthorizationTest (-1013)");
 		put(m, "GET /api/v1/trips/{}/recommendation-jobs", Policy.OWNED,
 				"내 여행의 추천만 되찾을 수 있다 — 요청과 같은 관문(TripQueryService.get)을 지난다. "
