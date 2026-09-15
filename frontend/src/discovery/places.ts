@@ -194,11 +194,6 @@ export function formatCheckInOut(place: Place, tx: (ko: string, en: string) => s
 // Beach)" 형태로 둘 다 보여준다. 영문 이름이 한국인 택시 기사에게는 쓸모없고, 한글 이름만
 // 보여주면 영어 사용자가 못 읽는다. 영문이 없으면 괄호 없이 한국어 원문만 보여준다 — 빈
 // 문자열을 보여주지 않는다.
-export function bilingualPlaceName(nameKo: string, nameEn?: string | null) {
-  const trimmedEn = nameEn?.trim();
-  return trimmedEn ? `${nameKo} (${trimmedEn})` : nameKo;
-}
-
 export function getPlace(placeId: string, signal?: AbortSignal) {
   return apiRequest<Place>(`/api/v1/places/${encodeURIComponent(placeId)}`, { signal });
 }

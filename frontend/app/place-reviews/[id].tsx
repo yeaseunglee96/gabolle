@@ -13,7 +13,8 @@ import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
-import { bilingualPlaceName, getPlace, type Place as ApiPlace } from '@/discovery/places';
+import { getPlace, type Place as ApiPlace } from '@/discovery/places';
+import { placeNameForLanguage } from '@/discovery/romanize';
 import { useI18n } from '@/i18n';
 import { loadPlaceReviews, submitPlaceReview, verifyPlaceVisit, type PlaceReviewDto, type ThreeStepScore, type VisitVerificationStatus } from '@/review/placeReviews';
 
@@ -40,7 +41,7 @@ type VerifyState = { kind: 'idle' } | { kind: 'checking' } | { kind: 'verified' 
 
 export default function PlaceReviews() {
   const router = useRouter();
-  const { tx } = useI18n();
+  const { tx, language } = useI18n();
   const { accessToken } = useAuth();
   const { id } = useLocalSearchParams<{ id: string }>();
 
@@ -119,7 +120,7 @@ export default function PlaceReviews() {
     }
   };
 
-  const title = place ? bilingualPlaceName(place.nameKo, place.nameEn) : '';
+  const title = place ? placeNameForLanguage(place.nameKo, place.nameEn, language) : '';
 
   return (
     <Screen scroll style={styles.screen}>
