@@ -15,16 +15,15 @@
 import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ActivityIndicator, Image, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
-import { useRouter } from 'expo-router';
 
 import { useAuth } from '@/auth/AuthProvider';
 import { Button } from '@/components/Button';
 import { Eyebrow } from '@/components/Eyebrow';
-import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { isAtLeast } from '@/layout/breakpoints';
+import { MyPageShell } from '@/me/MyPageShell';
 import {
   getSpendProfile,
   MEAL_VARIES_CODE,
@@ -179,7 +178,6 @@ function Chips({ options, values, onChange }: { options: { code: string; label: 
 // ── 화면 ────────────────────────────────────────────────────────────────────
 
 export default function MePreferences() {
-  const router = useRouter();
   const { tx } = useI18n();
   const { accessToken } = useAuth();
   const { width } = useWindowDimensions();
@@ -272,27 +270,17 @@ export default function MePreferences() {
   //    미리보기)에서 isPending 은 영원히 참이라 돌아가는 동그라미에 갇힌다. isLoading 은
   //    "지금 실제로 받아오는 중" 만 참이다.
   if (query.isLoading) {
-    return <Screen style={styles.centerScreen}><ActivityIndicator color={color.brand.orange} /></Screen>;
+    return <MyPageShell tab="preferences" title={tx('여행 취향', 'Travel preferences')}><ActivityIndicator color={color.brand.orange} /></MyPageShell>;
   }
 
-  return <Screen scroll wide={wide} style={styles.screen}>
-    <View style={styles.header}>
-      <Pressable accessibilityRole="button" accessibilityLabel={tx('뒤로', 'Back')} onPress={() => router.back()} style={styles.back}>
-        <Text weight="bold">‹</Text>
-      </Pressable>
-      <View style={styles.headerCopy}>
-        <Eyebrow>{tx('내 계정', 'My account')}</Eyebrow>
-        <Text variant="display" weight="bold">{tx('여행 취향', 'Travel preferences')}</Text>
-      </View>
-    </View>
-
-    <Text color={color.text.body} style={styles.intro}>
-      {tx('여행을 만들 때 이 답이 미리 채워져요. 여기서 고치면 다음 여행부터 바뀌어요.',
-        'These are filled in when you plan a trip. Changes here apply from your next trip.')}
-      {/* 넓은 화면은 한 줄이 길어서 이 한마디가 들어갈 자리가 있다. 고치면 이미 만든
-          여행까지 바뀌는 줄 알고 손대기를 망설이는 것을 막는다. */}
-      {wide ? tx(' 이미 만든 여행은 그대로예요.', ' Trips you already made stay as they are.') : ''}
-    </Text>
+  // 머리(뒤로 버튼·눈썹·제목·설명)는 MyPageShell 이 그린다 — 마이페이지 탭 다섯이 같은
+  // 머리를 쓰고, 넓은 화면에서는 그 자리에 왼쪽 메뉴가 함께 붙는다 (S15P21E201-965).
+  return <MyPageShell
+    tab="preferences"
+    title={tx('여행 취향', 'Travel preferences')}
+    description={tx('여행을 만들 때 이 답이 미리 채워져요. 여기서 고치면 다음 여행부터 바뀌어요. 이미 만든 여행은 그대로예요.',
+      'These are filled in when you plan a trip. Changes here apply from your next trip. Trips you already made stay as they are.')}
+  >
 
     {/* 넓은 화면에서는 가로로 눕는다 — 세로로 쌓으면 마스코트 하나가 화면 절반을 먹는다. */}
     {answeredCount === 0 && <View style={[styles.emptyCard, wide && styles.emptyCardWide]}>
@@ -429,7 +417,7 @@ export default function MePreferences() {
     {toast && <View style={styles.toast}>
       <Text variant="caption" weight="bold" color={color.state.success}>{toast}</Text>
     </View>}
-  </Screen>;
+  </MyPageShell>;
 }
 
 // 목록의 줄 이름. 문항 제목은 한 문장이라 줄에 안 맞는다.
