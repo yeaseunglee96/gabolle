@@ -23,10 +23,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * S15P21E201-160 — {@code GET /api/v1/analytics/kpis} 의 표현 계층.
+ * S15P21E201-160 — {@code GET /api/v1/admin/analytics/kpis} 의 표현 계층.
  *
  * <p>DB 없이 도는 슬라이스 테스트다 — {@link AnalyticsQueryService} 를 mock 으로 세운다
  * ({@code RecommendationResultAuthorizationTest} 와 같은 방식).
+ *
+ * <p>🔴 <b>이 검사는 운영자 잠금을 재지 않는다.</b> 여기는 {@code standaloneSetup} 이라
+ * {@code SecurityConfig} 가 없고, 따라서 {@code /api/v1/admin/**} 규칙도 없다 — 이 파일이
+ * 초록인 것은 "아무나 못 부른다" 의 근거가 <b>아니다</b>. 그 잠금은 경로 앞자리 하나가
+ * 전부이고, 그것이 지켜지는지는 {@code RouteAuthorizationRegistryTest} 의
+ * "운영자 경로가 모두 /api/v1/admin/ 아래에 있다" 가 잰다 (-1010).
  */
 class AnalyticsControllerTest {
 
@@ -53,7 +59,7 @@ class AnalyticsControllerTest {
 		given(this.service.kpis(null, null)).willReturn(
 				emptyResponse(OffsetDateTime.parse("2026-09-07T12:00:00Z"), OffsetDateTime.parse("2026-09-08T12:00:00Z")));
 
-		this.mockMvc.perform(get("/api/v1/analytics/kpis"))
+		this.mockMvc.perform(get("/api/v1/admin/analytics/kpis"))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.data.from").value("2026-09-07T12:00:00Z"))
 				.andExpect(jsonPath("$.data.to").value("2026-09-08T12:00:00Z"));
@@ -68,7 +74,7 @@ class AnalyticsControllerTest {
 		OffsetDateTime to = OffsetDateTime.parse("2026-09-02T00:00:00Z");
 		given(this.service.kpis(from, to)).willReturn(emptyResponse(from, to));
 
-		this.mockMvc.perform(get("/api/v1/analytics/kpis")
+		this.mockMvc.perform(get("/api/v1/admin/analytics/kpis")
 						.param("from", "2026-09-01T00:00:00Z")
 						.param("to", "2026-09-02T00:00:00Z"))
 				.andExpect(status().isOk());
@@ -88,7 +94,7 @@ class AnalyticsControllerTest {
 						List.of(new AnalyticsKpiResponse.JobStatusCountEntry("SUCCEEDED", 8L)), 80.0, 842.5,
 						List.of(new AnalyticsKpiResponse.ErrorCodeCountEntry("TIMEOUT", 2L)))));
 
-		this.mockMvc.perform(get("/api/v1/analytics/kpis"))
+		this.mockMvc.perform(get("/api/v1/admin/analytics/kpis"))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.data.eventCounts[0].eventType").value("trip_created"))
 				.andExpect(jsonPath("$.data.eventCounts[0].count").value(4))
@@ -109,7 +115,7 @@ class AnalyticsControllerTest {
 	void invalidRangeIsBadRequestNotServerError() throws Exception {
 		given(this.service.kpis(any(), any())).willThrow(new IllegalArgumentException("from 은 to 보다 앞이어야 한다"));
 
-		this.mockMvc.perform(get("/api/v1/analytics/kpis")
+		this.mockMvc.perform(get("/api/v1/admin/analytics/kpis")
 						.param("from", "2026-09-08T00:00:00Z")
 						.param("to", "2026-09-01T00:00:00Z"))
 				.andExpect(status().isBadRequest())
@@ -122,7 +128,7 @@ class AnalyticsControllerTest {
 		given(this.service.kpis(null, null)).willReturn(
 				emptyResponse(OffsetDateTime.now(), OffsetDateTime.now()));
 
-		this.mockMvc.perform(get("/api/v1/analytics/kpis"))
+		this.mockMvc.perform(get("/api/v1/admin/analytics/kpis"))
 				.andExpect(jsonPath("$.meta.requestId").isNotEmpty());
 	}
 }

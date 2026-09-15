@@ -30,7 +30,7 @@ import static org.mockito.Mockito.verify;
 import static org.springframework.data.domain.PageRequest.of;
 
 /**
- * S15P21E201-160 — {@code GET /api/v1/analytics/kpis} 의 응용 계층.
+ * S15P21E201-160 — {@code GET /api/v1/admin/analytics/kpis} 의 응용 계층.
  *
  * <p>🔴 이 티켓의 2026-09-03 코멘트가 "무엇을 KPI 로 삼을지는 팀 결정 대기" 라고 남겨
  * 뒀다. 그래서 여기서는 <b>사업 판단이 필요 없는 값</b>만 검증한다 — 종류별 건수와

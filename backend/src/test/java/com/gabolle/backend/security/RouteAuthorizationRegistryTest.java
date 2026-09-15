@@ -681,10 +681,10 @@ class RouteAuthorizationRegistryTest {
 				"이벤트 종류 목록. 공용 기준 데이터다");
 		put(m, "POST /api/v1/events", Policy.AUTHENTICATED_ONLY,
 				"행동 이벤트 적재. 주체는 인증에서 읽고 본문의 사용자 값을 신뢰하지 않아야 한다 — 아래 '남은 위험' 참고. EventIngestServiceTest");
-		put(m, "GET /api/v1/analytics/kpis", Policy.AUTHENTICATED_ONLY,
-				"집계 지표 조회. 개인 자원이 아니라 전체 이벤트를 기간으로 묶어 세므로 주인이 없다 — "
-						+ "관리자 전용으로 좁히려면 이 저장소에 아직 없는 역할 체계부터 있어야 한다 "
-						+ "(AnalyticsController 주석 참고). AnalyticsControllerTest");
+		put(m, "GET /api/v1/admin/analytics/kpis", Policy.ADMIN_ONLY,
+				"집계 지표 조회. 예전에는 AUTHENTICATED_ONLY 였는데, 익명 출입증이 생긴 뒤로 그것이 "
+						+ "'아무나' 와 같은 말이 됐다 — 내부 운영 숫자는 서비스 규모의 단서다. "
+						+ "경로 앞자리가 실제 보호 장치다. AnalyticsControllerTest (-1010)");
 
 		// ── 도구 (-343) ──────────────────────────────────────────────────────────
 		put(m, "POST /api/v1/tools/translate", Policy.AUTHENTICATED_ONLY,
