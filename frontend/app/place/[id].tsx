@@ -11,7 +11,7 @@ import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
-import { bilingualPlaceName, formatBreakTime, formatFeatureSlot, formatLastOrderTime, formatSoloFriendly, getPlace, hasFoodSafetyConfirmed, hasLocalityScore, needsFoodSafetyCheck, type Place as ApiPlace } from '@/discovery/places';
+import { bilingualPlaceName, formatBreakTime, formatFeatureSlot, formatLastOrderTime, formatSlopePercent, formatSoloFriendly, formatStairsPresent, getPlace, hasFoodSafetyConfirmed, hasLocalityScore, needsFoodSafetyCheck, type Place as ApiPlace } from '@/discovery/places';
 import { DEMO_PLACES, SAVED_PLACES_KEY } from '@/discovery/savedPlaces';
 import { useI18n } from '@/i18n';
 import { isAtLeast } from '@/layout/breakpoints';
@@ -184,6 +184,14 @@ export default function Place() {
             {formatSoloFriendly(resolved.apiPlace, tx) ? <View style={styles.infoRow}><Text variant="caption" weight="bold" color={color.text.muted}>{tx('혼밥', 'Solo dining')}</Text><Text variant="body">{formatSoloFriendly(resolved.apiPlace, tx)}</Text></View> : null}
             {formatBreakTime(resolved.apiPlace, tx) ? <View style={styles.infoRow}><Text variant="caption" weight="bold" color={color.text.muted}>{tx('브레이크타임', 'Break time')}</Text><Text variant="body">{formatBreakTime(resolved.apiPlace, tx)}</Text></View> : null}
             {formatLastOrderTime(resolved.apiPlace, tx) ? <View style={styles.infoRow}><Text variant="caption" weight="bold" color={color.text.muted}>{tx('라스트오더', 'Last order')}</Text><Text variant="body">{formatLastOrderTime(resolved.apiPlace, tx)}</Text></View> : null}
+          </View>
+        ) : null}
+        {/* S15P21E201-540: 이동약자 접근성 — 여기 있는 건 이 장소 자체의 경사·계단 정보다.
+            "구간(경로)" 단위 접근성은 아직 백엔드에 없어 이 증분에 없다 — 티켓 코멘트 참고. */}
+        {resolved.apiPlace && (formatStairsPresent(resolved.apiPlace, tx) || formatSlopePercent(resolved.apiPlace, tx)) ? (
+          <View style={styles.infoRows}>
+            {formatStairsPresent(resolved.apiPlace, tx) ? <View style={styles.infoRow}><Text variant="caption" weight="bold" color={color.text.muted}>{tx('계단', 'Stairs')}</Text><Text variant="body">{formatStairsPresent(resolved.apiPlace, tx)}</Text></View> : null}
+            {formatSlopePercent(resolved.apiPlace, tx) ? <View style={styles.infoRow}><Text variant="caption" weight="bold" color={color.text.muted}>{tx('경사도', 'Slope')}</Text><Text variant="body">{formatSlopePercent(resolved.apiPlace, tx)}</Text></View> : null}
           </View>
         ) : null}
         {resolved.apiPlace && needsFoodSafetyCheck(resolved.apiPlace) ? (

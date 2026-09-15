@@ -88,10 +88,6 @@ export function hasFoodSafetyConfirmed(place: Place) {
   return hasAllergenInfo && hasDietInfo;
 }
 
-// 장소 이름 한글·영문 병기(S15P21E201-264) — 언어 설정과 무관하게 "해운대 해수욕장 (Haeundae
-// Beach)" 형태로 둘 다 보여준다. 영문 이름이 한국인 택시 기사에게는 쓸모없고, 한글 이름만
-// 보여주면 영어 사용자가 못 읽는다. 영문이 없으면 괄호 없이 한국어 원문만 보여준다 — 빈
-// 문자열을 보여주지 않는다.
 function findFeature(place: Place, featureType: string): PlaceFeature | undefined {
   return place.features.find((feature) => feature.featureType === featureType);
 }
@@ -131,6 +127,31 @@ export function formatLastOrderTime(place: Place, tx: (ko: string, en: string) =
   if (slot.evidenceStatus === 'UNKNOWN' || slot.value == null) return tx('확인 안 됨', 'Unconfirmed');
   const value = slot.value as { time?: unknown };
   const text = typeof value?.time === 'string' ? value.time : JSON.stringify(slot.value);
+  return slot.evidenceStatus === 'ESTIMATED' ? tx(`${text} (추정)`, `${text} (est.)`) : text;
+}
+
+// 장소 이름 한글·영문 병기(S15P21E201-264) — 언어 설정과 무관하게 "해운대 해수욕장 (Haeundae
+// Beach)" 형태로 둘 다 보여준다. 영문 이름이 한국인 택시 기사에게는 쓸모없고, 한글 이름만
+// 보여주면 영어 사용자가 못 읽는다. 영문이 없으면 괄호 없이 한국어 원문만 보여준다 — 빈
+// 문자열을 보여주지 않는다.
+// 계단 유무(STAIRS_PRESENT, S15P21E201-540) — 참거짓형(FLAG) 피처, formatSoloFriendly와 같은
+// 이유로 boolean 라벨을 따로 붙인다. "정보 없음 = 계단 없음"으로 읽지 않는다(마이그레이션
+// 주석: "정보 없음은 UNKNOWN") — 모르면 모른다고 말한다.
+export function formatStairsPresent(place: Place, tx: (ko: string, en: string) => string): string | null {
+  const slot = toFeatureSlot(findFeature(place, 'STAIRS_PRESENT'));
+  if (!slot) return null;
+  if (slot.evidenceStatus === 'UNKNOWN' || slot.value == null) return tx('확인 안 됨', 'Unconfirmed');
+  const label = slot.value === true ? tx('계단 있음', 'Has stairs') : tx('계단 없음', 'No stairs');
+  return slot.evidenceStatus === 'ESTIMATED' ? tx(`${label} (추정)`, `${label} (est.)`) : label;
+}
+
+// 경사도(SLOPE_PERCENT, S15P21E201-540) — 점수형 피처, 값은 숫자(%)다. formatFeatureSlot을
+// 그대로 쓰면 "3.5"처럼 단위 없는 숫자만 나가 사용자가 뜻을 모른다 — % 를 붙인다.
+export function formatSlopePercent(place: Place, tx: (ko: string, en: string) => string): string | null {
+  const slot = toFeatureSlot(findFeature(place, 'SLOPE_PERCENT'));
+  if (!slot) return null;
+  if (slot.evidenceStatus === 'UNKNOWN' || slot.value == null) return tx('확인 안 됨', 'Unconfirmed');
+  const text = typeof slot.value === 'number' ? `${slot.value}%` : JSON.stringify(slot.value);
   return slot.evidenceStatus === 'ESTIMATED' ? tx(`${text} (추정)`, `${text} (est.)`) : text;
 }
 
