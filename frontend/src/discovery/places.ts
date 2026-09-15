@@ -22,7 +22,9 @@ import { apiRequest } from '@/api/client';
 // 받고, 화면에서는 없으면 지금처럼 자리표시만 보여준다.
 export type PlaceFeature = { featureType: string; [key: string]: unknown };
 
-export type EvidenceStatus = 'VERIFIED' | 'ESTIMATED' | 'UNKNOWN';
+// NOT_COLLECTED 는 DB 에 없는 값이고 응답 계층이 만들어 붙인다(백엔드 PlaceFeatureView) —
+// "아직 수집 대상에 안 들어갔다"는 뜻이라 UNKNOWN("가서 봤는데 못 정했다")과 다음 행동이 다르다.
+export type EvidenceStatus = 'VERIFIED' | 'ESTIMATED' | 'UNKNOWN' | 'NOT_COLLECTED';
 export type FeatureSlot = { value: unknown; evidenceStatus: EvidenceStatus };
 
 export type Place = {
@@ -64,28 +66,32 @@ function isFoodPlace(category: string) {
   return /FOOD|RESTAURANT|CAFE|맛집|카페|식당/i.test(category);
 }
 
-// 안전 정보(알레르기·식단) 확인 필요 여부 — S15P21E201-478·-141.
-// 대조표(user_place_code_map, S15P21E201-545 마이그레이션)의 짝: 알레르기 = ALLERGEN_TAG,
-// 식단 = DIETARY_SUPPORT_TAG. 둘 다 태그형이라 "해당 없음"과 "확인 안 됨"을 이 배열만으로는
-// 구분할 수 없다 — 행이 없으면 알레르기 유발 성분이 실제로 없는 것인지 아무도 확인을
-// 안 한 것인지 똑같이 아무 표식도 안 남는다. 그래서 이 둘만은 "없으면 안전하다"로 읽지
-// 않는다(기획서 2.1절 원칙 3) — 행이 하나도 없으면 무조건 확인 필요로 취급한다.
+// 안전 정보(알레르기·식단) — S15P21E201-478·-141. 대조표(user_place_code_map,
+// S15P21E201-545 마이그레이션)의 짝: 알레르기 = ALLERGEN_TAG, 식단 = DIETARY_SUPPORT_TAG.
+//
+// 🔴 2026-09-15 정정 (S15P21E201-996). 아래 "행이 없으면 아무 표식도 안 남는다"는 낡았다 —
+// 서버가 수집 안 된 종류에도 evidenceStatus:"NOT_COLLECTED" 행을 만들어 붙이도록 바뀌었다.
+// 그래서 행의 존재만 세던 옛 판정은 뒤집혔다: 아무도 조사하지 않은 장소가 "확인됨"이 됐고,
+// 화면은 "등록된 유발 성분이 없습니다"라고 말했다. 사람이 다칠 수 있는 정보다.
+// 이제 행의 존재가 아니라 evidenceStatus 를 본다 — VERIFIED 만 확인으로 친다.
+// ESTIMATED 는 원천이 확인해 준 값이 아니라 안전 표시에는 못 쓴다.
+function hasVerifiedFeature(place: Place, featureType: string) {
+  return place.features.some(
+    (feature) => feature.featureType === featureType && (feature as { evidenceStatus?: EvidenceStatus }).evidenceStatus === 'VERIFIED',
+  );
+}
+
 export function needsFoodSafetyCheck(place: Place) {
   if (!isFoodPlace(place.category)) return false;
-  const hasAllergenInfo = place.features.some((feature) => feature.featureType === 'ALLERGEN_TAG');
-  const hasDietInfo = place.features.some((feature) => feature.featureType === 'DIETARY_SUPPORT_TAG');
-  return !hasAllergenInfo || !hasDietInfo;
+  return !hasVerifiedFeature(place, 'ALLERGEN_TAG') || !hasVerifiedFeature(place, 'DIETARY_SUPPORT_TAG');
 }
 
 // S15P21E201-325: "확인 못 함"과 "확인했고 문제 없음"을 화면에서 다르게 보여줘야 한다 —
 // 안 그러면 needsFoodSafetyCheck 가 false 인 자리에 아무것도 안 뜨고, 그 빈 자리를
-// 사용자는 "안전하다고 확인됨"과 구분 못 한다. 두 태그가 전부 있어야만(=행이 없다는
-// 뜻이 아니어야만) "확인됨"이고, 식음료 장소가 아니면 이 표시 자체가 의미 없다.
+// 사용자는 "안전하다고 확인됨"과 구분 못 한다. 식음료 장소가 아니면 이 표시 자체가 의미 없다.
 export function hasFoodSafetyConfirmed(place: Place) {
   if (!isFoodPlace(place.category)) return false;
-  const hasAllergenInfo = place.features.some((feature) => feature.featureType === 'ALLERGEN_TAG');
-  const hasDietInfo = place.features.some((feature) => feature.featureType === 'DIETARY_SUPPORT_TAG');
-  return hasAllergenInfo && hasDietInfo;
+  return hasVerifiedFeature(place, 'ALLERGEN_TAG') && hasVerifiedFeature(place, 'DIETARY_SUPPORT_TAG');
 }
 
 function findFeature(place: Place, featureType: string): PlaceFeature | undefined {
