@@ -1,5 +1,6 @@
 package com.gabolle.backend.recommendation.presentation;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -85,6 +86,39 @@ public class RecommendationJobController {
 		HttpStatus status = outcome.created() ? HttpStatus.ACCEPTED : HttpStatus.OK;
 		return ResponseEntity.status(status)
 				.body(ApiResponse.success(RecommendationJobResponse.of(outcome.job()), "req_" + UUID.randomUUID()));
+	}
+
+	/**
+	 * 🔴 S15P21E201-1001 — <b>여행 번호로 그 여행의 추천 작업을 되찾는다.</b>
+	 *
+	 * <p>지금까지 Job 을 되찾는 길은 {@code jobId} 하나뿐이었다. 그런데 그 번호는 생성 응답에
+	 * 한 번 실려 나갈 뿐 어디에도 안 남아서, 화면을 나갔다 다시 열면 이미 만들어 둔 추천을
+	 * <b>찾을 방법이 없었다</b> — 사용자에게는 「아직 생성된 추천이 없어요」로 보였다.
+	 *
+	 * <p>최신순이다. 화면이 쓰는 것은 대개 맨 앞 하나지만 목록으로 준다 — 이유는
+	 * {@link RecommendationJobRunner#findJobsByTrip} 의 상한 설명에 있다.
+	 *
+	 * <h2>🔴 없는 여행과 추천이 없는 여행은 다르게 답한다</h2>
+	 * 없는 여행·남의 여행은 <b>404</b>({@code TRIP_NOT_FOUND}), 내 여행인데 추천을 만든 적이
+	 * 없으면 <b>200 + 빈 목록</b>이다. 둘을 같은 404 로 답하면 화면이 「아직 안 만들었으니
+	 * 만들자」와 「이 여행은 없다」를 갈라 그릴 수 없다.
+	 *
+	 * <p>이 응답은 <b>진행 상태</b>({@link RecommendationJobResponse})이지 결과가 아니다. 결과
+	 * (추천된 장소·일정)는 여기서 얻은 {@code jobId} 로 {@code GET /api/v1/recommendation-jobs/{jobId}}
+	 * 를 부른다 — {@link RecommendationResultController} 의 javadoc 이 그 둘이 다른 자원인
+	 * 이유를 적어 뒀다.
+	 */
+	@GetMapping("/api/v1/trips/{tripId}/recommendation-jobs")
+	public ApiResponse<List<RecommendationJobResponse>> listByTrip(@PathVariable String tripId,
+			Authentication authentication) {
+		// 🔴 POST 와 같은 자리에서 신원을 읽는다 — 헤더가 아니라 인증 주체다(S15P21E201-604).
+		String requester = AuthenticatedUsers.requireId(authentication).toString();
+
+		List<RecommendationJobResponse> jobs = this.runner.findJobsByTrip(tripId, requester).stream()
+				.map(RecommendationJobResponse::of)
+				.toList();
+
+		return ApiResponse.success(jobs, "req_" + UUID.randomUUID());
 	}
 
 	/**
