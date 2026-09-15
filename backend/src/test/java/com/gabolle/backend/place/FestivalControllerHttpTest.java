@@ -14,6 +14,9 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -53,6 +56,15 @@ class FestivalControllerHttpTest {
 
 	private MockMvc mockMvc;
 
+	/**
+	 * 회차 목록을 <b>더 없는 한 쪽</b>으로 감싼다 (S15P21E201-1011). 대부분의 검사는 쪽 나눔과
+	 * 무관해서 "이게 전부다" 인 쪽이면 충분하다 — 더 있는 경우는
+	 * {@link #reportsHasMoreWhenPageIsNotTheLast} 가 따로 본다.
+	 */
+	private static Page<PlaceEventPeriod> pageOf(PlaceEventPeriod... periods) {
+		return new PageImpl<>(List.of(periods));
+	}
+
 	@BeforeEach
 	void setUp() {
 		// 대부분의 테스트는 입장료 유무와 무관하다 — 기본값은 "행 없음"(빈 목록)으로 두고, 그것을
@@ -76,7 +88,7 @@ class FestivalControllerHttpTest {
 		//    UnfinishedStubbingException 을 던진다(OriginSearchFallbackTest 와 같은 함정).
 		PlaceEventPeriod period = fakePeriod(placeId, null, LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 5));
 		Place place = fakePlace(placeId, "이름없는축제", null, "부산 어딘가", 35.1, 129.0, null);
-		when(this.eventPeriodRepository.findOverlapping(any(), any())).thenReturn(List.of(period));
+		when(this.eventPeriodRepository.findOverlapping(any(), any(), any())).thenReturn(pageOf(period));
 		when(this.placeRepository.findAllById(any())).thenReturn(List.of(place));
 
 		this.mockMvc.perform(get("/api/v1/festivals")
@@ -96,7 +108,7 @@ class FestivalControllerHttpTest {
 		PlaceEventPeriod period = fakePeriod(placeId, "2026 진주 남강유등축제",
 				LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 10));
 		Place place = fakePlace(placeId, "남강", "Namgang", "경남 진주시 어딘가", 35.1, 128.0, null);
-		when(this.eventPeriodRepository.findOverlapping(any(), any())).thenReturn(List.of(period));
+		when(this.eventPeriodRepository.findOverlapping(any(), any(), any())).thenReturn(pageOf(period));
 		when(this.placeRepository.findAllById(any())).thenReturn(List.of(place));
 
 		this.mockMvc.perform(get("/api/v1/festivals")
@@ -115,7 +127,7 @@ class FestivalControllerHttpTest {
 		UUID placeId = UUID.randomUUID();
 		PlaceEventPeriod period = fakePeriod(placeId, "사진없음", LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 5));
 		Place place = fakePlace(placeId, "사진없는장소", null, "어딘가", 35.1, 129.0, null);
-		when(this.eventPeriodRepository.findOverlapping(any(), any())).thenReturn(List.of(period));
+		when(this.eventPeriodRepository.findOverlapping(any(), any(), any())).thenReturn(pageOf(period));
 		when(this.placeRepository.findAllById(any())).thenReturn(List.of(place));
 
 		this.mockMvc.perform(get("/api/v1/festivals")
@@ -131,7 +143,7 @@ class FestivalControllerHttpTest {
 		UUID placeId = UUID.randomUUID();
 		PlaceEventPeriod period = fakePeriod(placeId, "사진있음", LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 5));
 		Place place = fakePlace(placeId, "사진있는장소", null, "어딘가", 35.1, 129.0, "https://example.com/photo.jpg");
-		when(this.eventPeriodRepository.findOverlapping(any(), any())).thenReturn(List.of(period));
+		when(this.eventPeriodRepository.findOverlapping(any(), any(), any())).thenReturn(pageOf(period));
 		when(this.placeRepository.findAllById(any())).thenReturn(List.of(place));
 
 		this.mockMvc.perform(get("/api/v1/festivals")
@@ -147,7 +159,7 @@ class FestivalControllerHttpTest {
 		UUID placeId = UUID.randomUUID();
 		PlaceEventPeriod period = fakePeriod(placeId, "입장료없음", LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 5));
 		Place place = fakePlace(placeId, "입장료없는장소", null, "어딘가", 35.1, 129.0, null);
-		when(this.eventPeriodRepository.findOverlapping(any(), any())).thenReturn(List.of(period));
+		when(this.eventPeriodRepository.findOverlapping(any(), any(), any())).thenReturn(pageOf(period));
 		when(this.placeRepository.findAllById(any())).thenReturn(List.of(place));
 		// setUp() 의 기본 stub(빈 목록)을 그대로 쓴다 — 입장료 행이 없는 상태다.
 
@@ -165,7 +177,7 @@ class FestivalControllerHttpTest {
 		PlaceEventPeriod period = fakePeriod(placeId, "입장료있음", LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 5));
 		Place place = fakePlace(placeId, "입장료있는장소", null, "어딘가", 35.1, 129.0, null);
 		PlaceFeature priceLevel = fakePriceLevelFeature(placeId, "{\"level\": 2}", PlaceEvidenceStatus.ESTIMATED);
-		when(this.eventPeriodRepository.findOverlapping(any(), any())).thenReturn(List.of(period));
+		when(this.eventPeriodRepository.findOverlapping(any(), any(), any())).thenReturn(pageOf(period));
 		when(this.placeRepository.findAllById(any())).thenReturn(List.of(place));
 		when(this.placeFeatureRepository.findByPlaceIdIn(any())).thenReturn(List.of(priceLevel));
 
@@ -209,7 +221,7 @@ class FestivalControllerHttpTest {
 	@Test
 	@DisplayName("겹치는 축제가 없으면 404 가 아니라 200 과 빈 목록이다")
 	void emptyResultIs200WithEmptyList() throws Exception {
-		when(this.eventPeriodRepository.findOverlapping(any(), any())).thenReturn(List.of());
+		when(this.eventPeriodRepository.findOverlapping(any(), any(), any())).thenReturn(pageOf());
 
 		this.mockMvc.perform(get("/api/v1/festivals")
 						.param("startDate", "2026-10-01")
@@ -218,6 +230,43 @@ class FestivalControllerHttpTest {
 				.andExpect(jsonPath("$.data.items").isArray())
 				.andExpect(jsonPath("$.data.items").isEmpty())
 				.andExpect(jsonPath("$.data.count").value(0));
+	}
+
+	/**
+	 * 🔴 S15P21E201-1011 — 상한에 걸렸다는 사실이 응답에 실린다. 이것이 없으면 목록이
+	 * <b>조용히 잘리고</b>, 사용자에게는 있던 축제가 사라진 것으로 보인다.
+	 */
+	@Test
+	@DisplayName("🔴 더 있는데 상한에 걸리면 hasMore 가 참이다 — 조용히 자르지 않는다")
+	void reportsHasMoreWhenPageIsNotTheLast() throws Exception {
+		UUID placeId = UUID.randomUUID();
+		PlaceEventPeriod period = fakePeriod(placeId, "첫 쪽 축제",
+				LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 5));
+		Place place = fakePlace(placeId, "어딘가", null, "부산 어딘가", 35.1, 129.0, null);
+		// 한 쪽에 1건씩인데 전체가 2건 — 즉 다음 쪽이 있다.
+		when(this.eventPeriodRepository.findOverlapping(any(), any(), any()))
+				.thenReturn(new PageImpl<>(List.of(period), PageRequest.of(0, 1), 2));
+		when(this.placeRepository.findAllById(any())).thenReturn(List.of(place));
+
+		this.mockMvc.perform(get("/api/v1/festivals")
+						.param("startDate", "2026-10-01")
+						.param("endDate", "2026-10-05")
+						.param("size", "1"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.data.count").value(1))
+				.andExpect(jsonPath("$.data.hasMore").value(true));
+	}
+
+	@Test
+	@DisplayName("다음 쪽이 없으면 hasMore 가 거짓이다")
+	void hasMoreIsFalseOnTheLastPage() throws Exception {
+		when(this.eventPeriodRepository.findOverlapping(any(), any(), any())).thenReturn(pageOf());
+
+		this.mockMvc.perform(get("/api/v1/festivals")
+						.param("startDate", "2026-10-01")
+						.param("endDate", "2026-10-05"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.data.hasMore").value(false));
 	}
 
 	private PlaceEventPeriod fakePeriod(UUID placeId, String title, LocalDate startDate, LocalDate endDate) {

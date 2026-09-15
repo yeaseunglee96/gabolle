@@ -48,8 +48,14 @@ public class FestivalController {
 	public ApiResponse<FestivalResponse> festivals(
 			@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
 			@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+			@RequestParam(required = false) Integer page,
+			@RequestParam(required = false) Integer size,
 			@RequestHeader(value = "X-Request-Id", required = false) String requestId) {
-		FestivalResponse response = this.festivalQueryService.findOverlapping(startDate, endDate);
+
+		// 🔴 기본값을 여기서 정하지 않고 null 을 그대로 넘긴다. 컨트롤러와 서비스 양쪽에
+		//    기본값을 적으면 둘이 어긋나는 날이 오고, 그러면 쪽을 넘길 때 행이 겹치거나
+		//    건너뛰어진다 — 기본 쪽 크기를 아는 곳은 서비스 하나뿐이어야 한다.
+		FestivalResponse response = this.festivalQueryService.findOverlapping(startDate, endDate, page, size);
 		return ApiResponse.success(response, resolveRequestId(requestId));
 	}
 

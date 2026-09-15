@@ -31,22 +31,35 @@ public interface PlaceRepository extends JpaRepository<Place, UUID> {
 	 * 사용자가 {@code %} 를 넣으면 전체 스캔이 되고, {@code _} 를 넣으면 엉뚱한 것이 걸린다.
 	 * 이스케이프 문자는 {@code \} 로 고정했다.
 	 *
-	 * <p>정렬은 서비스 계층에서 한다 — 정확일치·접두일치·포함을 나누는 규칙이 SQL 로 표현하기에는
-	 * 길고, 이 규모(수백~수천 행)에서는 자바 정렬 비용이 무의미하다.
+	 * <p><b>보여주는 순서</b>는 서비스 계층에서 정한다 — 정확일치·접두일치·포함을 나누는 규칙이
+	 * SQL 로 표현하기에는 길고, 이 규모(수백~수천 행)에서는 자바 정렬 비용이 무의미하다.
+	 *
+	 * <p>🔴 <b>아래 {@code ORDER BY} 는 그것과 다른 일을 한다</b> (S15P21E201-1011). 서비스의
+	 * 정렬은 <b>이미 받아 온 행들을 어떤 차례로 보여줄까</b> 이고, 이 {@code ORDER BY} 는
+	 * <b>상한에 걸렸을 때 어느 행이 애초에 넘어올까</b> 다. 정렬이 없으면 SQL 은 그것을
+	 * 아무것도 약속하지 않아서, <b>같은 검색어에 매번 다른 결과가 나올 수 있다</b> — 서비스가
+	 * 뒤에서 아무리 잘 정렬해도 손에 든 것 자체가 매번 다르면 소용이 없다.
+	 * 바로 아래 경계상자 조회가 같은 이유로 이미 {@code ORDER BY} 를 달고 있다(-724).
 	 */
 	@Query("""
 			SELECT p FROM Place p
 			WHERE LOWER(p.nameKo) LIKE :pattern ESCAPE '\\'
 			   OR (p.nameEn IS NOT NULL AND LOWER(p.nameEn) LIKE :pattern ESCAPE '\\')
+			ORDER BY p.placeId
 			""")
 	List<Place> searchByName(@Param("pattern") String pattern, Limit limit);
 
-	/** 이름으로 찾되 종류로 한 번 더 거른다. {@code category} 는 자유 문자열이라 소문자로 맞춰 비교한다. */
+	/**
+	 * 이름으로 찾되 종류로 한 번 더 거른다. {@code category} 는 자유 문자열이라 소문자로 맞춰 비교한다.
+	 *
+	 * <p>🔴 {@code ORDER BY} 는 위 조회와 같은 이유다 (-1011).
+	 */
 	@Query("""
 			SELECT p FROM Place p
 			WHERE (LOWER(p.nameKo) LIKE :pattern ESCAPE '\\'
 			       OR (p.nameEn IS NOT NULL AND LOWER(p.nameEn) LIKE :pattern ESCAPE '\\'))
 			  AND LOWER(p.category) = LOWER(:category)
+			ORDER BY p.placeId
 			""")
 	List<Place> searchByNameAndCategory(@Param("pattern") String pattern,
 			@Param("category") String category, Limit limit);
