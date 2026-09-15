@@ -7,7 +7,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect, useRouter } from 'expo-router';
 
 import { ApiClientError } from '@/api/client';
-import { DEMO_PLACES, SAVED_PLACES_KEY } from '@/discovery/savedPlaces';
+import { useAuth } from '@/auth/AuthProvider';
+import { DEMO_PLACES, loadSavedPlaceIds, setSavedPlace } from '@/discovery/savedPlaces';
 import { Screen } from '@/components/Screen';
 import { TabBar } from '@/components/TabBar';
 import { Text } from '@/components/Text';
@@ -42,13 +43,13 @@ async function resolveSavedPlace(placeId: string, tx: (ko: string, en: string) =
 export default function Saved() {
   const router = useRouter();
   const { tx, language } = useI18n();
+  const { accessToken } = useAuth();
   const [state, setState] = useState<'loading' | 'ready'>('loading');
   const [cards, setCards] = useState<SavedCard[]>([]);
 
   const load = useCallback(async () => {
     setState('loading');
-    const raw = await AsyncStorage.getItem(SAVED_PLACES_KEY);
-    const ids: string[] = (() => { try { const parsed = JSON.parse(raw ?? '[]'); return Array.isArray(parsed) ? parsed.filter((id): id is string => typeof id === 'string') : []; } catch { return []; } })();
+    const ids = await loadSavedPlaceIds(accessToken);
     const resolved = await Promise.all(ids.map((id) => resolveSavedPlace(id, tx, language)));
     setCards(resolved.filter((card): card is SavedCard => card !== null));
     setState('ready');
@@ -59,9 +60,7 @@ export default function Saved() {
   useFocusEffect(useCallback(() => { void load(); }, [load]));
 
   async function unsave(placeId: string) {
-    const raw = await AsyncStorage.getItem(SAVED_PLACES_KEY);
-    const ids: string[] = (() => { try { const parsed = JSON.parse(raw ?? '[]'); return Array.isArray(parsed) ? parsed : []; } catch { return []; } })();
-    await AsyncStorage.setItem(SAVED_PLACES_KEY, JSON.stringify(ids.filter((id) => id !== placeId)));
+    await setSavedPlace(placeId, false, accessToken);
     setCards((current) => current.filter((card) => card.placeId !== placeId));
   }
 

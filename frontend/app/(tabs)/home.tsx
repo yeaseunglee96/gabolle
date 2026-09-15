@@ -21,6 +21,7 @@ import { Redirect, useRouter } from 'expo-router';
 
 import { sendAppEvent } from '@/analytics/appEvents';
 import { useAuth } from '@/auth/AuthProvider';
+import { loadSavedPlaceIds, setSavedPlace } from '@/discovery/savedPlaces';
 import { BrandLogoLink } from '@/components/BrandLogoLink';
 import { GabolleMascot } from '@/components/DongbaekMascot';
 import { Screen } from '@/components/Screen';
@@ -37,7 +38,6 @@ import { relativeStoryTime } from '@/social/stories';
 const bellIcon = require('../../assets/icons/home/bell.png');
 const heartIcon = require('../../assets/icons/home/heart.png');
 const speakerIcon = require('../../assets/icons/common/speaker.png');
-const SAVED_PLACES_KEY = 'gabolle.saved-home-places';
 
 export default function Home() {
   const router = useRouter();
@@ -58,19 +58,12 @@ export default function Home() {
     router.push(destination as never);
   };
 
+  // S15P21E201-1013 — 계정 것과 기기 것을 합쳐서 본다(로그인 안 했으면 기기 것만).
   useEffect(() => {
-    void AsyncStorage.getItem(SAVED_PLACES_KEY).then((raw) => {
-      if (!raw) return;
-      try {
-        const ids = JSON.parse(raw) as unknown;
-        if (Array.isArray(ids)) setLikedIds(new Set(ids.filter((id): id is string => typeof id === 'string')));
-      } catch {
-        void AsyncStorage.removeItem(SAVED_PLACES_KEY);
-      }
-    });
-  }, []);
+    void loadSavedPlaceIds(accessToken).then((ids) => setLikedIds(new Set(ids)));
+  }, [accessToken]);
 
-  // 하트는 기기에만 남고, 저장할 때 서버에도 신호를 보낸다.
+  // 하트는 계정에 남는다(로그인 안 했으면 기기에만). 저장할 때 분석용 신호도 함께 보낸다.
   //
   // 🔴 저장을 해제한 것은 "싫다"가 아니라 "취소"다. 추천 화면의 제외 버튼과 달리 이 하트에는
   //    싫다는 뜻이 없어서 해제에는 아무 이벤트도 보내지 않는다 — 없는 뜻을 만들지 않는다.
@@ -81,8 +74,8 @@ export default function Home() {
     const next = new Set(likedIds);
     saved ? next.add(placeId) : next.delete(placeId);
     setLikedIds(next);
-    void AsyncStorage.setItem(SAVED_PLACES_KEY, JSON.stringify([...next]));
-    setSaveFeedback(saved ? tx('이 기기에 장소를 저장했어요.', 'Saved this place on this device.') : tx('이 기기에서 저장을 해제했어요.', 'Unsaved this place on this device.'));
+    void setSavedPlace(placeId, saved, accessToken);
+    setSaveFeedback(saved ? tx('장소를 저장했어요.', 'Saved this place.') : tx('저장을 해제했어요.', 'Unsaved this place on this device.'));
     if (saved) sendAppEvent({ type: 'place_like', accessToken, payload: { place_id: placeId, surface: 'home' } });
   };
 

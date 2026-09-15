@@ -13,7 +13,7 @@ import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { formatBreakTime, formatCheckInOut, formatFeatureSlot, formatLastOrderTime, formatSlopePercent, formatSoloFriendly, formatStairsPresent, getPlace, hasFoodSafetyConfirmed, hasLocalityScore, needsFoodSafetyCheck, type Place as ApiPlace } from '@/discovery/places';
 import { placeNameForLanguage } from '@/discovery/romanize';
-import { DEMO_PLACES, SAVED_PLACES_KEY } from '@/discovery/savedPlaces';
+import { DEMO_PLACES, loadSavedPlaceIds, setSavedPlace } from '@/discovery/savedPlaces';
 import { useI18n } from '@/i18n';
 import { isAtLeast } from '@/layout/breakpoints';
 import { PlacePhraseModal } from '@/components/PlacePhraseModal';
@@ -81,31 +81,16 @@ export default function Place() {
     return () => { active = false; controller.abort(); };
   }, [id, demoPlace, retryCount]);
 
+  // S15P21E201-1013 — 계정에 저장된 것과 기기 것을 합쳐서 본다.
   useEffect(() => {
     if (!id || !resolved) return;
-    void AsyncStorage.getItem(SAVED_PLACES_KEY).then((raw) => {
-      try {
-        const savedIds = raw ? JSON.parse(raw) : [];
-        setIsSaved(Array.isArray(savedIds) && savedIds.includes(id));
-      } catch {
-        void AsyncStorage.removeItem(SAVED_PLACES_KEY);
-      }
-    });
-  }, [id, resolved]);
+    void loadSavedPlaceIds(accessToken).then((ids) => setIsSaved(ids.includes(id)));
+  }, [id, resolved, accessToken]);
 
   const toggleSaved = async () => {
     if (!id || !resolved) return;
-    const raw = await AsyncStorage.getItem(SAVED_PLACES_KEY);
-    let savedIds: string[] = [];
-    try {
-      const parsed = raw ? JSON.parse(raw) : [];
-      savedIds = Array.isArray(parsed) ? parsed : [];
-    } catch {
-      // 손상된 로컬 값은 현재 선택을 기준으로 안전하게 다시 만든다.
-    }
     const nextSaved = !isSaved;
-    const nextIds = nextSaved ? [...new Set([...savedIds, id])] : savedIds.filter((savedId) => savedId !== id);
-    await AsyncStorage.setItem(SAVED_PLACES_KEY, JSON.stringify(nextIds));
+    await setSavedPlace(id, nextSaved, accessToken);
     setIsSaved(nextSaved);
     setFeedback(nextSaved ? tx('내 여행 후보에 저장했어요.', 'Saved to your trip candidates.') : tx('저장을 해제했어요.', 'Removed from saved.'));
     // 저장할 때만 보낸다. 해제는 "싫다" 가 아니라 "취소" 다.
