@@ -53,6 +53,13 @@ services:
       GABOLLE_KAKAO_CLIENT_ID: ${GABOLLE_KAKAO_CLIENT_ID:-}
       GABOLLE_KAKAO_CLIENT_SECRET: ${GABOLLE_KAKAO_CLIENT_SECRET:-}
       GABOLLE_ASSISTANT_API_KEY: ${GABOLLE_ASSISTANT_API_KEY:-}
+      # 메뉴판 읽기(S15P21E201-1025)와 여행 이름 짓기가 같은 GMS 중계를 쓴다 — 키 하나로 둘 다 켜진다.
+      # 🔴 이 줄이 없으면 서버 .env 에 값을 넣어도 컨테이너 안까지 안 들어간다.
+      #    아래 나열에 있는 것만 전달되기 때문이다.
+      GABOLLE_MENU_SCAN_API_KEY: ${GABOLLE_MENU_SCAN_API_KEY:-}
+      # 🔴 기본값을 빈 값으로 두지 않는다. 빈 문자열은 「값이 없다」가 아니라 「빈 주소」로
+      #    전달돼서, 설정 파일의 기본 주소를 덮어쓰고 기능이 영영 안 켜진다.
+      GABOLLE_MENU_SCAN_BASE_URL: ${GABOLLE_MENU_SCAN_BASE_URL:-https://gms.ssafy.io/gmsapi/api.openai.com/v1}
     ports:
       - "${BACKEND_PORT:-8080}:8080"
     restart: unless-stopped
