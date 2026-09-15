@@ -153,7 +153,12 @@ const styles = StyleSheet.create({
   // 히어로는 더 이상 영상 배경이 아니라 **좌우 두 칸**이다 (S15P21E201-970) — 왼쪽은 소개와
   // 날씨, 오른쪽은 지금 올라온 기록. 높이를 고정하지 않는다: 오른쪽 카드 셋이 내용에 따라
   // 늘어나는데 500 으로 묶어 두면 카드가 잘린다.
-  heroSection: { flexDirection: 'row', alignItems: 'stretch', backgroundColor: color.brand.navy },
+  // 🔴 overflow 를 반드시 잘라야 한다. ImageBackground 안의 사진은 칸 너비에 맞춰 늘어나는데
+  //    세로는 제 비율을 지켜서, 좌우가 넓으면 섹션보다 세로로 길어진다. 안 자르면 그 초과분이
+  //    섹션 밖으로 흘러 **아래 구역을 덮는다** — 배포본에서 실제로 「부산 대표 장소」와
+  //    「내 여행」 글자가 사진에 가렸다(섹션 546 · 사진 672 · 126 초과, 2026-09-15 실측).
+  //    덮개는 섹션 크기라 그 초과분에는 닿지도 않아 사진이 날것으로 보였다.
+  heroSection: { flexDirection: 'row', alignItems: 'stretch', overflow: 'hidden', backgroundColor: color.brand.navy },
   // 사진 위 덮개. 0.78 이면 흰 글자가 읽히면서 광안대교 윤곽이 남는다 — 1.0 이면 사진이
   // 있으나 마나이고, 0.5 근처면 제목이 하늘빛에 묻힌다.
   heroBackdrop: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(11,29,58,0.78)' },
