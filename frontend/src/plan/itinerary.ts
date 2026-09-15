@@ -9,6 +9,15 @@ export type ItineraryItemDto = {
   walkingMeters?: number | null;
   locked: boolean;
   dataStatus?: 'VERIFIED' | 'ESTIMATED' | 'UNKNOWN';
+  // S15P21E201-1014 — 이 방문지로 오는 데 걸리는 시간(분). 그날 첫 방문지 앞에는 구간이
+  // 없어 null 이다. 서버는 2026-09-08(S15P21E201-179)부터 주는데 이 타입에 칸이 없어 화면이
+  // 못 읽고 있었다. 그래서 화면은 "9시에 여기, 11시에 저기" 만 말할 뿐 그 사이에 얼마나
+  // 걸리는지 말하지 못했고, 대신 페이스 API 의 delayMinutes 를 「지연」이라고 불렀다.
+  //
+  // 🔴 travelDataStatus 를 반드시 함께 본다. ESTIMATED(직선거리 어림값)를 실제 소요시간처럼
+  // 그리면 사용자가 그 시간에 맞춰 움직이다 늦는다. 이 기능 이전에 만들어진 판은 null 이다.
+  travelDurationMin?: number | null;
+  travelDataStatus?: 'VERIFIED' | 'ESTIMATED' | 'UNKNOWN' | null;
   // S15P21E201-744 — 이 항목이 가리키는 장소. "다녀오셨나요" 평가(S15P21E201-406)를
   // 어느 장소로 보낼지 여기서 얻는다. ItineraryDetailResponse.Item 기준.
   placeId: string;
