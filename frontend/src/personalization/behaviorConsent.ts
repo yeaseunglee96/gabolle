@@ -19,7 +19,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import { apiRequest } from '@/api/client';
+import { getMyConsents, updateMyConsents } from '@/auth/authApi';
 
 const BEHAVIOR_CONSENT_KEY = 'gabolle.behavior-personalization';
 
@@ -49,9 +49,7 @@ export async function setBehaviorConsent(enabled: boolean, accessToken?: string 
   try {
     // PATCH 다 — 보낸 항목만 바뀐다. 다른 동의(정밀 위치·건강 제약)를 같이 실어 보내면
     // 화면에 없는 그 동의들이 요청마다 조용히 덮인다.
-    await apiRequest<unknown>('/api/v1/auth/me/consents', {
-      method: 'PATCH', accessToken, body: { consents: { BEHAVIOR_PERSONALIZATION: enabled } },
-    });
+    await updateMyConsents(accessToken, { BEHAVIOR_PERSONALIZATION: enabled });
   } catch {
     // 서버에 못 남겨도 기기의 선택은 지킨다. 🔴 끄는 쪽이 기기에서 이미 적용됐으므로
     // 이벤트는 더 안 나간다 — 실패가 "동의 없이 보내는" 방향으로는 기울지 않는다.
@@ -67,7 +65,7 @@ export async function syncBehaviorConsentFromServer(accessToken: string | null):
   const device = await loadBehaviorConsent();
   if (!accessToken) return device;
   try {
-    const dto = await apiRequest<{ behaviorPersonalizationEnabled: boolean }>('/api/v1/auth/me/consents', { accessToken });
+    const dto = await getMyConsents(accessToken);
     const next = reconcileConsent(device, dto.behaviorPersonalizationEnabled);
     if (next !== device) await setBehaviorConsent(next);
     return next;
