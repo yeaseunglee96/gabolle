@@ -25,6 +25,8 @@ import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
 import { RouteMap } from '@/map/RouteMap';
 import { createStory, loadFeed, relativeStoryTime, reportStory, setFollowing, VISIBILITY_LABEL, type FeedLoadResult, type FeedScope, type StoryDto, type StoryReportReason, type StoryVisibility } from '@/social/stories';
+import { shouldPromptSignIn } from '@/social/signInPrompt';
+import { SignInPromptModal } from '@/social/SignInPromptModal';
 import { useStoryImages } from '@/social/useStoryImages';
 
 /**
@@ -341,6 +343,10 @@ export default function Feed() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [unfollowingId, setUnfollowingId] = useState<string | null>(null);
   const [reportingStoryId, setReportingStoryId] = useState<string | null>(null);
+  // S15P21E201-1012 — 로그인 유도. 🔴 주소를 나누지 않고 이 화면의 상태로만 다룬다.
+  // 주소를 가르면 뒤로 가기·공유 링크·검색이 전부 갈라진다.
+  const [promptingSignIn, setPromptingSignIn] = useState(false);
+  const [lastPromptedAt, setLastPromptedAt] = useState(0);
 
   const signedIn = Boolean(accessToken);
   const key = FEED_KEY(scope, signedIn);
@@ -367,10 +373,16 @@ export default function Feed() {
     const next = await loadFeed({ scope, cursor: result.nextCursor, accessToken });
     setLoadingMore(false);
     if (next.state !== 'success') return;
+    const seenCount = result.items.length + next.items.length;
     queryClient.setQueryData<FeedLoadResult>(key, (current) =>
       current && current.state === 'success'
         ? { state: 'success', items: [...current.items, ...next.items], nextCursor: next.nextCursor }
         : current);
+    // 더 보기까지 눌렀다는 것은 이 제품이 뭔지 이미 봤다는 뜻이다. 그때 권한다 — 막지는 않는다.
+    if (shouldPromptSignIn({ signedIn, seenCount, lastPromptedAt })) {
+      setLastPromptedAt(seenCount);
+      setPromptingSignIn(true);
+    }
   };
 
   const unfollow = async (story: StoryDto) => {
@@ -458,6 +470,8 @@ export default function Feed() {
         />
       : null}
 
+    {/* 계정이 필요한 행동(신고)을 누르면 곧바로 로그인 화면으로 보내지 않고 같은 창을 띄운다 —
+        왜 필요한지 모른 채 쫓겨난 것처럼 느끼게 하지 않는다 (S15P21E201-1012). */}
     {!loading && result.state === 'success' && items.length
       ? <View style={styles.list}>{items.map((story) => <StoryCard
           key={story.id}
@@ -468,7 +482,7 @@ export default function Feed() {
           onUnfollow={() => void unfollow(story)}
           onOpen={() => router.push(`/feed/${story.id}`)}
           onOpenAuthor={() => router.push(`/user/${story.author.id}`)}
-          onReport={() => signedIn ? setReportingStoryId(story.id) : router.push({ pathname: '/sign-in', params: { returnTo: '/feed' } })}
+          onReport={() => signedIn ? setReportingStoryId(story.id) : setPromptingSignIn(true)}
         />)}</View>
       : null}
 
@@ -501,6 +515,11 @@ export default function Feed() {
         ? <View style={styles.wideGrid}>{feedColumn}{aside}</View>
         : feedColumn}
       <ReportModal visible={reportingStoryId !== null} onClose={() => setReportingStoryId(null)} onSubmit={submitReport} />
+      <SignInPromptModal
+        visible={promptingSignIn}
+        onClose={() => setPromptingSignIn(false)}
+        onSignIn={() => { setPromptingSignIn(false); router.push({ pathname: '/sign-in', params: { returnTo: '/feed' } }); }}
+      />
     </Screen>
     <TabBar active="feed" />
   </View>;
