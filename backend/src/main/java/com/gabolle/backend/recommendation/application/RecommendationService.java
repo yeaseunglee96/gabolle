@@ -70,9 +70,17 @@ import com.gabolle.backend.recommendation.domain.RecommendationJob;
  * <p>🔴 컨트롤러는 {@code recommendation.presentation.RecommendationJobController} 에 있다
  * (S15P21E201-192). 이 첫 판이 지킨 것 — {@code data/error/meta.requestId} envelope(API-01),
  * {@code tripId} 소유·참여 관계 검증(FR-SEC-01, {@code TripQueryService} 를 그대로 재사용).
- * 🔴 <b>아직 안 지킨 것</b> — {@code Idempotency-Key}(API-09). 재시도로 같은 요청이 두 번
- * 오면 Job 이 두 개 생긴다. {@code TripRepository.saveWithIdempotency} 와 같은 패턴을
- * 다음 판에 넣는다.
+ *
+ * <p>🔴 <b>정정 (2026-09-15, S15P21E201-967)</b> — 여기 <i>"아직 안 지킨 것 —
+ * {@code Idempotency-Key}(API-09). 재시도로 같은 요청이 두 번 오면 Job 이 두 개 생긴다"</i>
+ * 라고 적혀 있었다. <b>지금은 지킨다.</b> S15P21E201-944 가 넣었다 —
+ * {@code RecommendationJobRunner.enqueue} 가 같은 키·같은 본문이면 있던 Job 을 그대로
+ * 돌려주고, 같은 키를 <b>다른 본문</b>으로 재사용하면 409 를 낸다
+ * ({@code RecommendationJobIdempotencyRepository} 가 표를 맡는다).
+ *
+ * <p>고친 자리가 <b>옆 클래스</b>라 이 줄이 안 지워졌고, 그 뒤 이 주석을 먼저 읽은 사람이
+ * <b>끝난 일을 다시 하려 했다.</b> 낡은 주석은 없는 주석보다 나쁘다 — 읽는 사람이 그것을
+ * 지금의 사실로 믿는다.
  */
 @Service
 @Profile({ "db", "dev" })
