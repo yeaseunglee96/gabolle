@@ -32,7 +32,8 @@ export type Registration = {
   email: string;
   status: string;
 };
-export type AuthUser = { userId: string; email: string; displayName: string; language: string; status: string };
+// avatarUrl 은 레코드 맨 끝에 붙은 칸이다(S15P21E201-844) — 안 고른 사람은 null 이고 화면이 기본 그림을 그린다.
+export type AuthUser = { userId: string; email: string; displayName: string; language: string; status: string; avatarUrl?: string | null };
 export type AuthTokens = { accessToken: string; refreshToken: string | null; expiresIn: number; sessionId: string; user: AuthUser };
 export type OAuthProvider = 'google' | 'naver' | 'kakao' | 'apple';
 export type OAuthChallenge = { state: string; nonce: string; expiresAt: string };
@@ -161,7 +162,7 @@ export async function linkOAuthAccount(
   }
 }
 export function getMe(accessToken: string) { return apiRequest<AuthUser>('/api/v1/auth/me', { accessToken }); }
-export function updateMe(accessToken: string, input: { displayName?: string; language?: SignupLanguage }) {
+export function updateMe(accessToken: string, input: { displayName?: string; language?: SignupLanguage; avatarUrl?: string | null }) {
   return apiRequest<AuthUser>('/api/v1/auth/me', { method: 'PATCH', accessToken, body: input });
 }
 // 박재현 님 계약(S15P21E201-837, 2026-09-11, back/dev MR !598): 소셜로만 가입한 계정은
