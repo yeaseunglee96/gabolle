@@ -374,6 +374,8 @@ const styles = StyleSheet.create({
 
   saveFeedback: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[3], marginTop: spacing[6], marginHorizontal: spacing[6], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.brand.navy },
 
-  assistantButton: { position: 'absolute', right: spacing[6], bottom: 100, width: 56, height: 56, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.border },
+  // 마스코트 자체가 이미 원형 배지다. 바깥 흰 원은 이중 테두리처럼 보여 시선만 끌므로
+  // 보이지 않게 하고, 손가락으로 누르는 56px 영역만 그대로 유지한다.
+  assistantButton: { position: 'absolute', right: spacing[6], bottom: 100, width: 56, height: 56, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full },
   assistantMascot: { width: 40, height: 40 },
 });
