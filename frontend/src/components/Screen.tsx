@@ -13,7 +13,6 @@ import {
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { ReactNode } from 'react';
 
-import { TAB_BAR_SPACE } from '@/components/TabBar';
 import { color, gutter, spacing } from '@/design/tokens';
 import { useLayout } from '@/layout/useLayout';
 
@@ -38,8 +37,8 @@ type ScreenProps = {
   /**
    * 이 화면이 TabBar 를 형제로 그리는가 (S15P21E201-939).
    *
-   * TabBar 는 Screen 밖에 있어서 Screen 이 그 존재를 알 방법이 없다. 안 알려 주면 스크롤을
-   * 끝까지 내려도 마지막 내용이 막대 뒤에 남는다 — 갤럭시 실기기에서 그렇게 보였다.
+   * TabBar는 Screen 아래의 형제라 하단 안전영역을 이미 차지한다. 이 값을 알려 주면 Screen이
+   * 같은 안전영역을 다시 더하지 않아 갤럭시 내비게이션 영역이 두 배로 벌어지지 않는다.
    */
   withTabBar?: boolean;
   style?: StyleProp<ViewStyle>;
@@ -54,8 +53,8 @@ export function Screen({ children, scroll = false, wide = false, withTabBar = fa
   // SafeAreaView 가 아래쪽에 패딩을 넣으면 그 띠는 **스크롤 밖**이라 내용이 거기까지
   // 올라오지 못한다. 화면 아래가 그냥 비는 것으로 끝나면 괜찮은데, 안드로이드는 최근
   // 판부터 화면을 시스템 버튼 아래까지 깔기 때문에(edge-to-edge 가 기본) 그 띠만큼
-  // **내용이 잘린 채로 스크롤이 끝난다.** 여백으로 넣으면 내용이 시스템 버튼 위까지
-  // 스크롤된 뒤 그만큼 남고, 그게 사용자가 기대하는 동작이다.
+  // **내용이 잘린 채로 스크롤이 끝난다.** 탭바가 없는 화면은 여백으로 넣어 보호하고,
+  // 탭바가 있는 화면은 그 형제 요소가 이미 안전영역을 차지하므로 또 넣지 않는다.
   //
   // style 보다 뒤에 두는 것이 중요하다 — 화면이 style 로 준 paddingBottom 이 이 값을
   // 덮으면 그 화면만 다시 가린다. 아래쪽 여백은 여기가 소유한다.
@@ -63,7 +62,7 @@ export function Screen({ children, scroll = false, wide = false, withTabBar = fa
     styles.content,
     kind === 'tablet' && (wide ? styles.tabletWide : styles.tablet),
     style,
-    { paddingBottom: spacing[8] + insets.bottom + (withTabBar ? TAB_BAR_SPACE : 0) },
+    { paddingBottom: screenBottomPadding(insets.bottom, withTabBar) },
   ];
 
   // 안드로이드에는 behavior 를 주지 않는다. 키보드가 올라올 때 화면을 밀어 올리는 일은
@@ -87,6 +86,12 @@ export function Screen({ children, scroll = false, wide = false, withTabBar = fa
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
+}
+
+export function screenBottomPadding(bottomInset: number, withTabBar: boolean) {
+  // 탭바는 absolute가 아니라 Screen 아래의 형제라 자기 높이와 안전영역을 이미 차지한다.
+  // 이 화면에서도 다시 더하면 갤럭시의 큰 내비게이션 영역이 두 번 들어간다.
+  return spacing[8] + (withTabBar ? 0 : bottomInset);
 }
 
 const styles = StyleSheet.create({
