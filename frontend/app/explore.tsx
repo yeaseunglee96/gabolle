@@ -65,8 +65,23 @@ export default function LocalExplore() {
     }
   }, []);
 
+  const restoreGrantedLocation = useCallback(async () => {
+    setLocationState('detecting');
+    try {
+      // 화면을 둘러보기만 해도 권한 팝업부터 띄우지 않는다. 이미 허용한 사람에게만 위치를
+      // 읽고, 처음이거나 거부한 사람은 부산 중심 결과를 먼저 보여 준 뒤 버튼으로 선택하게 한다.
+      const permission = await Location.getForegroundPermissionsAsync();
+      if (!permission.granted) { setLocationState('denied'); return; }
+      const position = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+      setCoords({ latitude: position.coords.latitude, longitude: position.coords.longitude });
+      setLocationState('granted');
+    } catch {
+      setLocationState('denied');
+    }
+  }, []);
+
   useEffect(() => { void load(); }, [load]);
-  useEffect(() => { void detectLocation(); }, [detectLocation]);
+  useEffect(() => { void restoreGrantedLocation(); }, [restoreGrantedLocation]);
   useEffect(() => { if (requestedFacet) setOpenKey(requestedFacet); }, [requestedFacet]);
 
   const facets = flattenLocalFacets(result);
