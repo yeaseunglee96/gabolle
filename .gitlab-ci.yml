@@ -315,6 +315,27 @@ claims:checkpoint:
 backend:build:
   stage: verify
   resource_group: backend-build
+  # 🔴 S15P21E201-983 — 이 잡만 백업 러너(2065)로 보낸다. 운영 호스트에서 뺀다.
+  #    back/dev 에 먼저 넣은 것과 같은 변경이다(MR !839).
+  #
+  #    실측 (ci:hostinfo 잡, 2026-09-15):
+  #      러너 2037 (운영·Jenkins 와 같은 EC2)  코어 4 · load 17.50 · 대기 21개
+  #      러너 2065 (백업, 다른 기계)            코어 4 · load  0.07 · 대기  1개
+  #
+  #    같은 4코어인데 한쪽은 코어당 4.4개가 줄 서 있었다. 태그가 없으면 먼저 집는
+  #    러너가 가져가는데 2037 은 동시 4개까지 집는다. 그래서 무거운 Gradle 빌드가
+  #    운영 서비스와 CPU 를 다퉜고, 오늘 운영 헬스체크가 반복해서 죽었다.
+  #
+  #    🔴 이 갈래에도 넣는 이유 — .gitlab-ci.yml 은 브랜치마다 따로다. 실측으로
+  #    bigData/dev 의 MR 8건 중 2건이 실제로 backend:build 를 돌렸고, 그중 하나가
+  #    2037 로 갔다. 드물어도 그 한 번이 운영을 흔든다.
+  #    (front/dev·ai/dev·map/dev 는 표본에서 0건이라 넣지 않았다 — 파일만 달라지고
+  #     효과가 없다.)
+  #
+  #    🔴 순서 — 러너 2065 에 heavy 태그를 먼저 달아 두었다. 태그를 가진 러너가
+  #    없는 상태에서 이 줄이 들어가면 모든 빌드가 영영 대기한다. 되돌릴 때는 이
+  #    줄을 먼저 지운다. 2065 는 run_untagged=true 라 태그 없는 잡도 계속 받는다.
+  tags: [heavy]
   image: eclipse-temurin:17-jdk
   services:
     - name: postgres:16-alpine
