@@ -94,42 +94,30 @@ function StoryCard({ story }: { story: StoryDto }) {
   );
 }
 
-export function HeroStories({ stories, chips, signedIn }: { stories: StoryDto[] | null; chips: FacetKeyEntry[]; signedIn: boolean }) {
+export function HeroStories({ stories, chips }: { stories: StoryDto[] | null; chips: FacetKeyEntry[] }) {
   const router = useRouter();
   const { tx, language } = useI18n();
   return (
     <View style={styles.heroRight}>
       <View style={styles.heroRightHead}>
         <Text variant="eyebrow" weight="bold">{tx('지금 부산에서 남긴 기록', 'Just shared in Busan')}</Text>
-        {signedIn ? (
-          <Pressable accessibilityRole="link" onPress={() => router.push('/feed')} style={styles.feedAll}>
-            <Text weight="bold" color={color.text.eyebrow}>{tx('피드 전체 →', 'See all →')}</Text>
-          </Pressable>
-        ) : null}
+        {/* 🔴 로그인 여부로 가리지 않는다 (S15P21E201-76, 진미리). 스토리 조회가 익명
+            출입증에 열렸다 — 2026-09-18 운영에서 실측했다(X-Session-Token 으로 200).
+            옛 주석은 「익명에게는 401」이라고 적혀 있었는데 그건 -974·995 전의 이야기다. */}
+        <Pressable accessibilityRole="link" onPress={() => router.push('/feed')} style={styles.feedAll}>
+          <Text weight="bold" color={color.text.eyebrow}>{tx('피드 전체 →', 'See all →')}</Text>
+        </Pressable>
       </View>
 
-      {/* 🔴 로그인 안 한 사람에게 「아직 기록이 없어요」라고 하면 거짓말이다 — 기록은 있는데
-          서버가 익명에게는 안 준다(스토리 조회가 401). 못 보는 이유를 그대로 적는다. */}
-      {!signedIn ? (
-        <View style={styles.signInPrompt}>
-          <Text color={color.text.body}>{tx('다른 여행자들이 남긴 기록은 로그인하면 볼 수 있어요.', 'Sign in to see what other travelers shared.')}</Text>
-          <Pressable accessibilityRole="button" onPress={() => router.push('/sign-in')} style={styles.signInButton}>
-            <Text weight="bold" color={color.brand.navy}>{tx('로그인하고 보기', 'Sign in to view')}</Text>
-          </Pressable>
-        </View>
-      ) : (
-        <>
-          <View style={styles.storyGrid}>
-            {stories === null
-              // 로딩 중에는 같은 크기의 회색 칸을 둔다 — 카드가 늦게 들어오며 아래가 밀리지 않게.
-              ? [0, 1, 2].map((slot) => <View key={slot} style={[styles.storyCard, styles.storySkeleton]} />)
-              : stories.map((story) => <StoryCard key={story.id} story={story} />)}
-          </View>
-          {stories !== null && stories.length === 0 ? (
-            <Text variant="caption" color={color.text.body}>{tx('아직 남겨진 기록이 없어요. 첫 기록을 남겨 보세요.', 'No records yet — be the first to share one.')}</Text>
-          ) : null}
-        </>
-      )}
+      <View style={styles.storyGrid}>
+        {stories === null
+          // 로딩 중에는 같은 크기의 회색 칸을 둔다 — 카드가 늦게 들어오며 아래가 밀리지 않게.
+          ? [0, 1, 2].map((slot) => <View key={slot} style={[styles.storyCard, styles.storySkeleton]} />)
+          : stories.map((story) => <StoryCard key={story.id} story={story} />)}
+      </View>
+      {stories !== null && stories.length === 0 ? (
+        <Text variant="caption" color={color.text.body}>{tx('아직 남겨진 기록이 없어요. 첫 기록을 남겨 보세요.', 'No records yet — be the first to share one.')}</Text>
+      ) : null}
 
       {/* 🔴 칩은 「장소 태그」가 아니라 places/facets 의 갈래다. 장소에 태그 칸이 없어서
           시안대로는 못 만든다. 눌렀을 때 가는 곳도 피드 필터가 아니라 이미 있는 로컬 탐색이다
@@ -292,8 +280,6 @@ const styles = StyleSheet.create({
   // 🔴 flex:1 만 주면 카드가 남은 칸을 전부 나눠 먹는다. 기록이 둘뿐이면 한 장이 500px 을
   //    넘어가 사진이 화면 절반을 차지했다. 시안 폭(1440 에서 약 250)으로 상한을 둔다.
   storyGrid: { flexDirection: 'row', gap: spacing[3], alignItems: 'flex-start' },
-  signInPrompt: { gap: spacing[3], alignItems: 'flex-start', padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.soft },
-  signInButton: { minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.surface.card },
   storyCard: { flex: 1, minWidth: 0, maxWidth: 260, borderRadius: radius.lg, overflow: 'hidden', backgroundColor: color.surface.card },
   storySkeleton: { height: 260, maxWidth: 260, backgroundColor: color.surface.soft },
   storyImage: { width: '100%', aspectRatio: 1, backgroundColor: color.surface.soft },

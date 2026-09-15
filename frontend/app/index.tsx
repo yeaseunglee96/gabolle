@@ -185,6 +185,9 @@ export default function Welcome() {
         <View style={styles.startBar}>
           <PlanStartBar wide accessToken={accessToken} onSubmit={startPlanFromBar} />
         </View>
+        {/* 🔴 「처음 오셨나요? 사용법 보기」는 뺐다 (2026-09-18 사용자 지시).
+            시안 p0 에는 날씨 줄 오른쪽에 그 링크가 있지만, 첫 화면에서 안내부터 권하지 않기로 했다.
+            안내 화면(/help)은 그대로 있고 마이페이지에서 들어간다. */}
         <View style={styles.headerMeta}>
           <WeatherLine forecast={home.weather} />
           <GettingStartedGuide />
@@ -192,9 +195,10 @@ export default function Welcome() {
       </View>
     </View>
 
-    {/* 시안의 내용 줄 — 전폭으로 쌓는다. 히어로 오른쪽에 끼워 넣지 않는다. */}
+    {/* 시안의 내용 줄 — 전폭으로 쌓는다. 히어로 오른쪽에 끼워 넣지 않는다.
+        🔴 로그인 안 해도 남의 기록이 보인다 (S15P21E201-76, 진미리). */}
     <View style={styles.rows}>
-      <HeroStories stories={home.stories} chips={home.chips} signedIn={home.signedIn} />
+      <HeroStories stories={home.stories} chips={home.chips} />
     </View>
 
     {/* 두 블록이 다 비면(장소를 못 받았고 로그인도 안 했으면) 구역을 통째로 접는다 —

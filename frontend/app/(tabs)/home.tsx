@@ -28,10 +28,10 @@ import type { StartBarValue } from '@/home/startBarValue';
 import { useAuth } from '@/auth/AuthProvider';
 import { loadSavedPlaceIds, setSavedPlace } from '@/discovery/savedPlaces';
 import { BrandLogoLink } from '@/components/BrandLogoLink';
+import { GettingStartedGuide } from '@/components/GettingStartedGuide';
 import { GabolleMascot } from '@/components/DongbaekMascot';
 import { PlaceVisual } from '@/components/PlaceVisual';
 import { Screen } from '@/components/Screen';
-import { GettingStartedGuide } from '@/components/GettingStartedGuide';
 import { TabBar } from '@/components/TabBar';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
@@ -190,7 +190,6 @@ export default function Home() {
         </View>
 
         {/* ── 히어로 ── */}
-        <GettingStartedGuide />
         <View style={styles.hero}>
           <View style={styles.heroBadge}><Text variant="caption" weight="bold" color={color.brand.orange}>AI TRAVEL PLANNER · BUSAN</Text></View>
           <Text weight="bold" color={color.brand.navy} style={styles.heroTitle}>{tx('부산의 모든 여행,\n가볼래?', 'Every side of Busan,\nyours to explore.')}</Text>
@@ -213,7 +212,8 @@ export default function Home() {
               이미 「현장 도구」(`/field/translate`) 목록의 항목 중 하나라서, 둘을 나란히 두면
               같은 기능이 입구가 둘로 보였다. 하나만 남기면 `fieldTool` 이 flex:1 이라 저절로
               한 줄을 다 채운다 — 스타일은 그대로 둔다. */}
-          <View style={styles.fieldTools}>
+          <GettingStartedGuide />
+        <View style={styles.fieldTools}>
             {[
               { path: '/field/translate', ko: '현장 도구', en: 'On-the-go tools', subKo: '한국어 문장·날씨', subEn: 'Phrases and weather' },
             ].map((tool) => (
@@ -256,24 +256,12 @@ export default function Home() {
         <View style={styles.section}>
           <View style={styles.sectionHead}>
             <Text variant="eyebrow" weight="bold">{tx('지금 부산에서 남긴 기록', 'Just shared in Busan')}</Text>
-            {signedIn ? (
-              <Pressable accessibilityRole="link" onPress={() => router.push('/feed')}><Text weight="bold" color={color.brand.navy}>{tx('피드 전체 →', 'See all →')}</Text></Pressable>
-            ) : null}
+            <Pressable accessibilityRole="link" onPress={() => router.push('/feed')}><Text weight="bold" color={color.brand.navy}>{tx('피드 전체 →', 'See all →')}</Text></Pressable>
           </View>
 
-          {/* 🔴 로그인 안 한 사람에게 「아직 기록이 없어요」라고 하면 거짓말이다 — 기록은 있는데
-              서버가 익명에게는 안 준다(스토리 조회가 401). 못 보는 이유를 그대로 적는다. */}
-          {!signedIn ? (
-            <View style={styles.signInCard}>
-              <GabolleMascot state="thinking" style={styles.signInMascot} />
-              <View style={styles.signInCopy}>
-                <Text>{tx('다른 여행자들이 남긴 기록은 로그인하면 볼 수 있어요.', 'Sign in to see what other travelers shared.')}</Text>
-                <Pressable accessibilityRole="button" onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: '/home' } })} style={({ pressed }) => [styles.signInButton, pressed && styles.pressed]}>
-                  <Text weight="bold" color={color.text.onAction}>{tx('로그인하고 보기', 'Sign in to view')}</Text>
-                </Pressable>
-              </View>
-            </View>
-          ) : home.stories === null ? (
+          {/* 🔴 로그인 여부로 가리지 않는다 (S15P21E201-76, 진미리). 스토리 조회가 익명
+              출입증에 열렸다 — 2026-09-18 운영에서 실측(X-Session-Token 으로 200). */}
+          {home.stories === null ? (
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.rail}>
               {[0, 1, 2].map((slot) => <View key={slot} style={[styles.storyCard, styles.storySkeleton]} />)}
             </ScrollView>
@@ -439,10 +427,6 @@ const styles = StyleSheet.create({
   storyCoverEmptyText: { textAlign: 'center' },
   storyBody: { gap: spacing[1], paddingHorizontal: spacing[4], paddingTop: spacing[3], paddingBottom: spacing[4] },
 
-  signInCard: { flexDirection: 'row', alignItems: 'center', gap: spacing[3], marginHorizontal: spacing[6], padding: spacing[4], borderRadius: radius.lg, borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.surface.card },
-  signInMascot: { width: 64, height: 64 },
-  signInCopy: { flex: 1, gap: spacing[2] },
-  signInButton: { alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.brand.navy },
 
   chip: { minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.surface.soft },
 
