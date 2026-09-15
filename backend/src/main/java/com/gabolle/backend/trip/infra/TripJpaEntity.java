@@ -106,6 +106,14 @@ public class TripJpaEntity {
 	@Column(name = "timezone", nullable = false)
 	private String timezone;
 
+	/**
+	 * 사용자가 붙인 이름 — S15P21E201-1023. {@code null} 이면 아직 이름이 없다.
+	 *
+	 * <p>길이 60 은 마이그레이션 {@code V20260915140000__trip_title.sql} 과 같은 값이다.
+	 */
+	@Column(name = "title", length = 60)
+	private String title;
+
 	@Enumerated(EnumType.STRING)
 	@Column(name = "status", nullable = false, length = 20)
 	private Trip.Status status;
@@ -128,7 +136,7 @@ public class TripJpaEntity {
 			String timeWindow, String timezone, String[] travelModes,
 			LocalTime timeWindowStart, LocalTime timeWindowEnd,
 			UUID accommodationPlaceId, boolean englishMenuRequired, boolean foreignCardRequired,
-			boolean soloFriendlyPriority, Integer maxTransitTransfers, Trip.Status status,
+			boolean soloFriendlyPriority, Integer maxTransitTransfers, String title, Trip.Status status,
 			OffsetDateTime createdAt, OffsetDateTime updatedAt, OffsetDateTime deletedAt) {
 		this.tripId = tripId;
 		this.ownerUserId = ownerUserId;
@@ -149,6 +157,7 @@ public class TripJpaEntity {
 		this.soloFriendlyPriority = soloFriendlyPriority;
 		this.maxTransitTransfers = maxTransitTransfers;
 		this.timezone = timezone;
+		this.title = title;
 		this.status = status;
 		this.createdAt = createdAt;
 		this.updatedAt = updatedAt;
@@ -179,7 +188,19 @@ public class TripJpaEntity {
 		this.updatedAt = updatedAt;
 	}
 
+	/**
+	 * 이름 칸만 옮겨 적는다 — S15P21E201-1023. 길이·제어문자 규칙은 도메인
+	 * ({@link Trip#rename}) 이 이미 판정했다.
+	 *
+	 * <p>{@link #changeStatus} 와 같이 시각을 인자로 받는다 — 같은 이유다.
+	 */
+	void changeTitle(String title, OffsetDateTime updatedAt) {
+		this.title = title;
+		this.updatedAt = updatedAt;
+	}
+
 	UUID tripId() { return tripId; }
+	String title() { return title; }
 	UUID ownerUserId() { return ownerUserId; }
 	String ownerType() { return ownerType; }
 	LocalDate startDate() { return startDate; }

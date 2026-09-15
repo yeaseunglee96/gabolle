@@ -75,6 +75,16 @@ public interface TripRepository {
      */
     void updateStatus(Trip trip);
 
+    /**
+     * 이름 칸만 저장한다 — S15P21E201-1023.
+     *
+     * <p>{@link #updateStatus(Trip)} 와 같은 모양이고 같은 이유다. 부르는 쪽이 도메인 규칙
+     * ({@link Trip#rename(String, java.time.Instant)})을 먼저 태우고, 그 결과가 든 여행을
+     * 그대로 넘긴다. 길이·제어문자 규칙을 여기서 다시 보면 같은 규칙이 두 곳에 생기고,
+     * 언젠가 한쪽만 바뀐다.
+     */
+    void updateTitle(Trip trip);
+
     /** 특정 판. 없으면 비어 있다. */
     Optional<PreferenceSnapshot> findSnapshot(String tripId, int version);
 

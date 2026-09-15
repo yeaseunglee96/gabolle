@@ -88,6 +88,12 @@ public class InMemoryTripRepository implements TripRepository {
         trips.put(trip.tripId(), trip);
     }
 
+    /** S15P21E201-1023 — 위 {@link #updateStatus} 와 같은 이유로 저장을 한 번 거친다. */
+    @Override
+    public void updateTitle(Trip trip) {
+        trips.put(trip.tripId(), trip);
+    }
+
     @Override
     public List<TripConstraint> findConstraints(String tripId) {
         return constraints.getOrDefault(tripId, List.of());
