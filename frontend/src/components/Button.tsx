@@ -45,7 +45,7 @@ export function Button({ label, variant = 'primary', disabled, containerStyle, a
         containerStyle,
       ]}
     >
-      <Text variant="body" weight="bold" color={LABEL_COLOR[variant]}>
+      <Text variant="body" weight="bold" color={LABEL_COLOR[variant]} style={styles.label}>
         {label}
       </Text>
     </Pressable>
@@ -55,11 +55,13 @@ export function Button({ label, variant = 'primary', disabled, containerStyle, a
 const styles = StyleSheet.create({
   base: {
     width: '100%',
+    minHeight: 48,
     borderRadius: radius.md,
     paddingVertical: spacing[3],
     alignItems: 'center',
     justifyContent: 'center',
   },
+  label: { textAlign: 'center' },
   primary: {
     backgroundColor: color.brand.navy,
   },

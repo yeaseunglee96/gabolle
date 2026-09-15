@@ -238,8 +238,8 @@ const styles = StyleSheet.create({
   avatarColumn: { alignItems: 'center', gap: spacing[2] },
   avatar: { overflow: 'hidden', borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.brand.navy },
   avatarPhoto: { width: '100%', height: '100%' },
-  photoButton: { minHeight: 36, justifyContent: 'center', paddingHorizontal: spacing[3], borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.full, backgroundColor: color.surface.card },
-  photoReset: { minHeight: 32, justifyContent: 'center', paddingHorizontal: spacing[2] },
+  photoButton: { minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[3], borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.full, backgroundColor: color.surface.card },
+  photoReset: { minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[3] },
   pressed: { opacity: 0.7 },
 
   fields: { flex: 1, gap: spacing[6], minWidth: 0 },
