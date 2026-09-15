@@ -131,6 +131,14 @@ export default function LocalExplore() {
 // 열린 갈래 하나의 장소 목록 — GET /api/v1/places/nearby(S15P21E201-469)를 그 갈래를 열 때만
 // 부른다(화면 진입 시 8개를 한꺼번에 안 부르는 완료 기준). 한 갈래의 실패가 나머지 일곱 갈래를
 // 막지 않도록, 이 컴포넌트 안에서만 상태를 갖는다.
+/**
+ * 내 위치를 못 쓸 때의 기준점 — S15P21E201-982. 부산 시청이다.
+ *
+ * 홈의 장소 카드가 이미 같은 좌표로 부른다(`useHomeData` 의 BUSAN). 이 화면이 재는 것도
+ * 애초에 부산 전체라, 위치를 모른다고 아무것도 못 보여 줄 이유가 없다.
+ */
+const BUSAN_CENTER = { lat: 35.1796, lng: 129.0756 };
+
 function LocalBranchList({ facetKey, coords, locationState, onRetryLocation }: {
   facetKey: string;
   coords: { latitude: number; longitude: number } | null;
@@ -141,33 +149,35 @@ function LocalBranchList({ facetKey, coords, locationState, onRetryLocation }: {
   const [result, setResult] = useState<NearbyPlacesLoadResult | null>(null);
   const [loading, setLoading] = useState(false);
 
+  // 위치를 모르면 부산 중심으로 찾는다 — S15P21E201-982.
+  //
+  // 그전에는 coords 가 없으면 여기서 그냥 돌아섰고, 아래 'denied' 분기가 권한 안내만
+  // 그렸다. 위치를 거부한 사람에게는 로컬 탐색이 통째로 빈 화면이었다 — 갈래 배지에
+  // "전통시장 33" 이라고 적혀 있는데 열면 아무것도 없었다.
+  //
+  // 이 화면이 재는 것은 애초에 부산 전체다. 배지 개수도 부산 전체 집계이고, 홈의 장소
+  // 카드도 같은 좌표(부산 중심)로 부른다. 내 위치는 있으면 더 가까운 순으로 보여 주는
+  // 것이지 없으면 못 보여 줄 값이 아니다.
+  const center = coords ? { lat: coords.latitude, lng: coords.longitude } : BUSAN_CENTER;
+  const usingFallback = !coords;
+
   useEffect(() => {
-    if (!coords) return;
     let active = true;
     setLoading(true);
     (async () => {
-      const next = await getNearbyPlaces({ lat: coords.latitude, lng: coords.longitude, facetKey });
+      const next = await getNearbyPlaces({ lat: center.lat, lng: center.lng, facetKey });
       if (active) { setResult(next); setLoading(false); }
     })();
     return () => { active = false; };
-  }, [coords, facetKey]);
+  }, [center.lat, center.lng, facetKey]);
 
-  if (locationState === 'detecting') {
-    return <View style={styles.branchBody}><Text color={color.text.body}>{tx('현재 위치를 확인하고 있어요…', 'Checking your current location…')}</Text></View>;
-  }
-  if (locationState === 'denied') {
-    return <View style={styles.branchBody}>
-      <Text color={color.text.body}>{tx('위치 권한이 꺼져 있어요. 근처 장소를 찾으려면 위치가 필요해요.', 'Location permission is off. We need it to find nearby places.')}</Text>
-      <Button label={tx('위치 권한 다시 요청', 'Ask for location again')} variant="ghost" onPress={onRetryLocation} containerStyle={styles.branchRetry} />
-    </View>;
-  }
   if (loading || !result) {
     return <View accessibilityLiveRegion="polite" style={styles.branchBody}><ActivityIndicator color={color.brand.orange} /></View>;
   }
   if (result.state !== 'success') {
     return <View style={styles.branchBody}>
       <Text color={color.text.body}>{result.message}</Text>
-      <Button label={tx('다시 시도', 'Try again')} variant="ghost" onPress={() => coords && void getNearbyPlaces({ lat: coords.latitude, lng: coords.longitude, facetKey }).then(setResult)} containerStyle={styles.branchRetry} />
+      <Button label={tx('다시 시도', 'Try again')} variant="ghost" onPress={() => void getNearbyPlaces({ lat: center.lat, lng: center.lng, facetKey }).then(setResult)} containerStyle={styles.branchRetry} />
     </View>;
   }
   if (result.items.length === 0) {
@@ -179,6 +189,15 @@ function LocalBranchList({ facetKey, coords, locationState, onRetryLocation }: {
   }
   return (
     <View style={styles.branchBody}>
+      {/* 내 위치를 못 쓴 채 부산 중심으로 찾았다는 사실을 밝힌다 — S15P21E201-982.
+          조용히 대신 보여 주면 거리 숫자가 왜 이런지 설명이 안 된다. 권한을 다시 물을
+          길도 여기 같이 둔다. */}
+      {usingFallback && (
+        <View style={styles.expandedNotice}>
+          <Text variant="caption" weight="bold" color={color.brand.orange}>{tx('내 위치를 몰라 부산 중심에서 찾았어요. 거리도 그 기준이에요.', 'We searched from the center of Busan because your location is unavailable. Distances use that point.')}</Text>
+          <Button label={tx('내 위치로 다시 찾기', 'Search from my location')} variant="ghost" onPress={onRetryLocation} containerStyle={styles.branchRetry} />
+        </View>
+      )}
       {result.radiusExpanded && (
         <View style={styles.expandedNotice}><Text variant="caption" weight="bold" color={color.brand.orange}>{tx(`반경을 ${result.effectiveRadiusM.toLocaleString()}m로 넓혔습니다`, `Widened the search radius to ${result.effectiveRadiusM.toLocaleString()}m`)}</Text></View>
       )}
