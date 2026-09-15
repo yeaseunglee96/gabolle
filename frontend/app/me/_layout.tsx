@@ -7,22 +7,11 @@
 // 🔴 ?preview=ui 통로도 여기서 같이 따라온다 — 개발 중에 로그인 없이 화면 모양만 볼 때
 // 쓰는 자리다(ProtectedRoute). 그 통로가 없으면 화면을 고칠 때마다 로그인을 해야 한다.
 //
-// 🔴 상단 바를 여기에 붙인다 (S15P21E201-970). 없을 때는 넓은 화면에서 /me/* 에 들어가면
-// 왼쪽 마이페이지 메뉴만 있고 **홈·피드·내 여행으로 나갈 길이 없었다.** 처음 마이페이지를
-// 만들 때(-965) 일부러 안 붙였는데, 그때는 이 바가 활성 항목을 /plan/basic 으로 하드코딩해서
-// 붙이면 마이페이지에서 「여행 만들기」가 현재 위치처럼 보였기 때문이다. -968 이 그것을
-// 라우트 판정으로 고쳤으므로 이제 붙는다.
-import { Slot } from 'expo-router';
-import { View } from 'react-native';
-
+// 🔴 상단 바는 여기서 붙이지 않는다 (S15P21E201-994). -970 에서 한 번 여기에 손으로
+// 붙였는데, 그건 증상만 막은 것이었다 — 마이페이지에만 없던 게 아니라 **50개 넘는 화면에
+// 없었다.** 이제 앱 뼈대(app/_layout.tsx)가 모든 화면에 한 번만 붙인다.
 import { ProtectedRoute } from '@/auth/ProtectedRoute';
-import { PlanWebNav } from '@/plan/PlanWebNav';
 
 export default function MeLayout() {
-  return (
-    <View style={{ flex: 1 }}>
-      <PlanWebNav />
-      <ProtectedRoute />
-    </View>
-  );
+  return <ProtectedRoute />;
 }

@@ -5,7 +5,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Text } from '@/components/Text';
 import { GabolleMascot } from '@/components/DongbaekMascot';
-import { PlanWebNav } from '@/plan/PlanWebNav';
 import { HeroStories, MyTripCard, PlacePicks, WeatherLine } from '@/home/HomeBlocks';
 import { useHomeData } from '@/home/useHomeData';
 import { color, radius, spacing } from '@/design/tokens';
@@ -72,16 +71,16 @@ export default function Welcome() {
 
   return <View style={styles.webShell}><ScrollView style={styles.webScreen} contentContainerStyle={styles.webContent}>
     <StatusBar style="dark" />
-    {/* 🔴 상단 바를 여기서 따로 그리지 않는다 (S15P21E201-970). 전에는 이 파일 안에 내비가
-        하나 더 박혀 있어서 **내비가 두 벌**이었고, 그래서 랜딩만 옛 모양(72px · 가운데 정렬 ·
-        작은 글자 · 활성 표식 없음)으로 남아 확정안 2c 가 안 먹었다. 이제 한 벌만 쓴다 —
-        언어·로그인·회원가입·이름 버튼도 그 안으로 옮겼다.
+    {/* 🔴 상단 바는 이 파일에 없다. 앱 뼈대(app/_layout.tsx)가 모든 화면에 한 번만 붙인다
+        (S15P21E201-994). 전에는 이 파일 안에 내비가 하나 더 박혀 있어서 **내비가 두 벌**이었고,
+        그래서 랜딩만 옛 모양(72px · 가운데 정렬 · 작은 글자 · 활성 표식 없음)으로 남아
+        확정안 2c 가 안 먹었다(-970). 그 뒤 한 벌로 합쳤지만 붙이는 자리는 여전히 화면마다
+        손으로 정했고, 그래서 이번엔 **바가 아예 없는 화면이 50개 넘게** 생겼다(-994).
 
         S15P21E201-900: "부산 축제" 내비 항목은 최초 배포에서 뺐다 — 가진 축제 기간 자료가
         전부 만료돼 화면을 열어도 보여줄 게 없다. /festivals 라우트는 그대로 있다.
         S15P21E201-906: "피드"도 출시 전 제품 결정으로 뺐다가 2026-09-14 에 다시 켰다 —
         뒤집은 결정이라는 사실이 보이도록 이 문장을 남긴다. "부산 축제"는 그대로 빠져 있다. */}
-    <SafeAreaView edges={['top']}><PlanWebNav /></SafeAreaView>
     {/* 배경 사진을 되살린다 (S15P21E201-970). 시안 1a 를 옮기면서 오른쪽 영상을 기록 카드로
         바꿨는데, 그때 배경까지 통째로 걷어내서 네이비 단색 판이 됐다. 사진은 남기되 글자가
         읽히도록 네이비를 덮는다 — 덮개가 없으면 흰 글자가 하늘·물빛 위에서 안 읽힌다. */}
