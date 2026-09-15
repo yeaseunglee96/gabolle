@@ -1,4 +1,4 @@
-import { Image, ImageBackground, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -85,7 +85,12 @@ export default function Welcome() {
     {/* 배경 사진을 되살린다 (S15P21E201-970). 시안 1a 를 옮기면서 오른쪽 영상을 기록 카드로
         바꿨는데, 그때 배경까지 통째로 걷어내서 네이비 단색 판이 됐다. 사진은 남기되 글자가
         읽히도록 네이비를 덮는다 — 덮개가 없으면 흰 글자가 하늘·물빛 위에서 안 읽힌다. */}
-    <ImageBackground source={webHeroImage} resizeMode="cover" style={styles.heroSection}>
+    <View style={styles.heroSection}>
+      {/* 🔴 ImageBackground 를 쓰지 않는다. RN 웹에서는 안쪽 사진이 **제 원본 크기(1536×672)**
+          그대로 왼쪽 위에 앉아서, 칸이 그보다 넓으면 오른쪽이 빈 네이비로 남았다(배포본에서
+          95px, 2026-09-15 실측). 절대배치로 네 변을 칸에 묶고 cover 로 채운다 — 이러면 폭이
+          얼마든 사진이 칸을 덮고 넘치는 쪽만 잘린다. */}
+      <Image source={webHeroImage} resizeMode="cover" style={styles.heroPhoto} />
       <View style={styles.heroBackdrop} />
       <View style={styles.heroCopy}><View style={styles.heroInner}>
         <View style={styles.heroBadge}><Text variant="caption" weight="bold" color={color.text.onAction}>AI TRAVEL PLANNER · BUSAN</Text></View>
@@ -108,7 +113,7 @@ export default function Welcome() {
           문제가 여기서 시작됐다 — 그 자리에 지금 올라온 기록을 넣는다 (S15P21E201-970).
           🔴 비로그인에게도 보여준다. 익명 출입증으로 공개 글은 그대로 온다. */}
       <HeroStories stories={home.stories} chips={home.chips} signedIn={home.signedIn} />
-    </ImageBackground>
+    </View>
     {/* 두 블록이 다 비면(장소를 못 받았고 로그인도 안 했으면) 구역을 통째로 접는다 —
         안 그러면 아무것도 없는 여백 띠만 남아 화면이 고장난 것처럼 보인다. */}
     {home.places.length > 0 || user ? (
@@ -161,6 +166,7 @@ const styles = StyleSheet.create({
   heroSection: { flexDirection: 'row', alignItems: 'stretch', overflow: 'hidden', backgroundColor: color.brand.navy },
   // 사진 위 덮개. 0.78 이면 흰 글자가 읽히면서 광안대교 윤곽이 남는다 — 1.0 이면 사진이
   // 있으나 마나이고, 0.5 근처면 제목이 하늘빛에 묻힌다.
+  heroPhoto: { ...StyleSheet.absoluteFill, width: '100%', height: '100%' },
   heroBackdrop: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(11,29,58,0.78)' },
   heroCopy: { width: 560, paddingLeft: 80, paddingRight: 40, paddingTop: 72, paddingBottom: 64 }, heroInner: { width: '100%' }, heroBadge: { alignSelf: 'flex-start', borderWidth: 1, borderColor: 'rgba(255,255,255,0.20)', borderRadius: radius.full, backgroundColor: 'rgba(255,255,255,0.10)', paddingHorizontal: spacing[4], paddingVertical: 6 }, heroTitle: { marginTop: 28, fontSize: 68, lineHeight: 71, letterSpacing: -2.4 }, heroDescription: { marginTop: 28, fontSize: 18, lineHeight: 29 }, heroActions: { flexDirection: 'row', gap: spacing[4], marginTop: 28 }, primaryCta: { minHeight: 52, borderRadius: radius.full, backgroundColor: color.brand.orange, paddingHorizontal: 40, alignItems: 'center', justifyContent: 'center' }, ghostCta: { minHeight: 52, borderRadius: radius.full, borderWidth: 1, borderColor: 'rgba(255,255,255,0.3)', paddingHorizontal: spacing[6], alignItems: 'center', justifyContent: 'center' }, heroChips: { flexDirection: 'row', gap: spacing[3], marginTop: 20 }, heroChip: { flexDirection: 'row', alignItems: 'center', gap: 6, borderRadius: radius.full, backgroundColor: 'rgba(255,255,255,0.07)', paddingHorizontal: 14, paddingVertical: 6 }, chipDot: { width: 6, height: 6, borderRadius: radius.full },
   // 「특별한 기능」 카드 셋이 있던 자리다. 로그인해도 내용이 안 바뀌는 소개였고, 그 자리에
