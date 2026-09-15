@@ -99,7 +99,7 @@ class RecommendationActionAuthorizationTest {
 	void putReturnsWhatWasWritten() throws Exception {
 		when(this.service.put(this.tripId, this.ownerId.toString(), this.placeId,
 				RecommendationPlaceAction.Action.EXCLUDED))
-				.thenReturn(action(RecommendationPlaceAction.Action.EXCLUDED));
+				.thenReturn(action(RecommendationPlaceAction.Action.EXCLUDED, this.ownerId));
 
 		this.mockMvc.perform(put("/api/v1/trips/{tripId}/recommendation-actions/{placeId}", this.tripId, this.placeId)
 						.contentType("application/json")
@@ -107,7 +107,27 @@ class RecommendationActionAuthorizationTest {
 						.principal(principal(this.ownerId)))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.data.placeId").value(this.placeId))
-				.andExpect(jsonPath("$.data.action").value("EXCLUDED"));
+				.andExpect(jsonPath("$.data.action").value("EXCLUDED"))
+				.andExpect(jsonPath("$.data.decidedByUserId").value(this.ownerId.toString()));
+	}
+
+	/**
+	 * 🔴 판단은 여행의 것이라 동행자가 남긴 것도 그대로 온다. 이 검사가 없으면 나중에
+	 * 누군가 "내 것만 보여야 한다" 고 고쳐도 아무 검사도 빨개지지 않는다.
+	 */
+	@Test
+	@DisplayName("🔴 동행자가 남긴 판단도 목록에 함께 온다 — 초대로 들어온 사람들이 함께 본다")
+	void listIncludesWhatOtherMembersDecided() throws Exception {
+		UUID companion = UUID.randomUUID();
+		when(this.service.list(this.tripId, this.ownerId.toString()))
+				.thenReturn(List.of(action(RecommendationPlaceAction.Action.EXCLUDED, companion)));
+
+		this.mockMvc.perform(get("/api/v1/trips/{tripId}/recommendation-actions", this.tripId)
+						.principal(principal(this.ownerId)))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.data.count").value(1))
+				.andExpect(jsonPath("$.data.items[0].action").value("EXCLUDED"))
+				.andExpect(jsonPath("$.data.items[0].decidedByUserId").value(companion.toString()));
 	}
 
 	/**
@@ -137,9 +157,9 @@ class RecommendationActionAuthorizationTest {
 		verify(this.service).remove(this.tripId, this.ownerId.toString(), this.placeId);
 	}
 
-	private RecommendationPlaceAction action(RecommendationPlaceAction.Action value) {
-		return RecommendationPlaceAction.of(UUID.randomUUID(), this.ownerId, UUID.fromString(this.tripId),
-				UUID.fromString(this.placeId), value, OffsetDateTime.now(ZoneOffset.UTC));
+	private RecommendationPlaceAction action(RecommendationPlaceAction.Action value, UUID decidedBy) {
+		return RecommendationPlaceAction.of(UUID.randomUUID(), UUID.fromString(this.tripId),
+				UUID.fromString(this.placeId), value, decidedBy, OffsetDateTime.now(ZoneOffset.UTC));
 	}
 
 	// ── 덮어쓰기 규칙 (서비스를 직접 부른다) ──────────────────────────────────
@@ -150,41 +170,50 @@ class RecommendationActionAuthorizationTest {
 	 * {@code uk_recommendation_place_action} 에 걸려 저장이 실패하거나, 제약이 없었다면
 	 * 같은 장소가 담김이면서 동시에 빠진 상태가 된다.
 	 */
+	/**
+	 * 🔴 동행자가 이미 정해 둔 판단을 내가 바꾸는 경우다. 여기서 <b>새 행이 생기면</b>
+	 * {@code uk_recommendation_place_action}(여행+장소에 행 하나)에 걸려 저장이 실패한다.
+	 * 제약이 없었다면 같은 장소가 담김이면서 동시에 빠진 상태가 된다.
+	 */
 	@Test
-	@DisplayName("🔴 이미 있는 판단에 다시 적으면 새로 만들지 않고 그 행을 바꾼다")
+	@DisplayName("🔴 동행자가 정해 둔 판단을 바꾸면 새로 만들지 않고 그 행을 바꾸고, 정한 사람이 나로 바뀐다")
 	void putOnExistingActionUpdatesInsteadOfInserting() {
 		RecommendationPlaceActionRepository repository = mock(RecommendationPlaceActionRepository.class);
 		TripQueryService tripQueryService = mock(TripQueryService.class);
 		RecommendationActionService real = new RecommendationActionService(tripQueryService, repository,
 				Clock.fixed(Instant.parse("2026-09-15T12:00:00Z"), ZoneOffset.UTC));
 
-		RecommendationPlaceAction existing = action(RecommendationPlaceAction.Action.SAVED);
-		when(repository.findByUserIdAndTripIdAndPlaceId(this.ownerId, UUID.fromString(this.tripId),
-				UUID.fromString(this.placeId))).thenReturn(Optional.of(existing));
+		UUID companion = UUID.randomUUID();
+		RecommendationPlaceAction existing = action(RecommendationPlaceAction.Action.SAVED, companion);
+		when(repository.findByTripIdAndPlaceId(UUID.fromString(this.tripId), UUID.fromString(this.placeId)))
+				.thenReturn(Optional.of(existing));
 
 		RecommendationPlaceAction result = real.put(this.tripId, this.ownerId.toString(), this.placeId,
 				RecommendationPlaceAction.Action.EXCLUDED);
 
 		assertThat(result).isSameAs(existing);
 		assertThat(result.getAction()).isEqualTo(RecommendationPlaceAction.Action.EXCLUDED);
+		// 마지막에 정한 사람이 바뀐다 — 공유 상태에서 "누가 뺐나" 에 답할 수 있어야 한다.
+		assertThat(result.getDecidedByUserId()).isEqualTo(this.ownerId);
 		verify(repository, never()).save(any());
 	}
 
 	@Test
-	@DisplayName("없던 판단은 새로 만든다")
+	@DisplayName("없던 판단은 새로 만들고 정한 사람을 적는다")
 	void putOnMissingActionInserts() {
 		RecommendationPlaceActionRepository repository = mock(RecommendationPlaceActionRepository.class);
 		TripQueryService tripQueryService = mock(TripQueryService.class);
 		RecommendationActionService real = new RecommendationActionService(tripQueryService, repository,
 				Clock.fixed(Instant.parse("2026-09-15T12:00:00Z"), ZoneOffset.UTC));
 
-		when(repository.findByUserIdAndTripIdAndPlaceId(any(), any(), any())).thenReturn(Optional.empty());
+		when(repository.findByTripIdAndPlaceId(any(), any())).thenReturn(Optional.empty());
 		when(repository.save(any())).thenAnswer(call -> call.getArgument(0));
 
 		RecommendationPlaceAction result = real.put(this.tripId, this.ownerId.toString(), this.placeId,
 				RecommendationPlaceAction.Action.SAVED);
 
 		assertThat(result.getAction()).isEqualTo(RecommendationPlaceAction.Action.SAVED);
+		assertThat(result.getDecidedByUserId()).isEqualTo(this.ownerId);
 		verify(repository).save(any());
 	}
 }
