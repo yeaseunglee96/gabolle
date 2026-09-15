@@ -538,6 +538,28 @@ backend:dependency-scan:
 #    테스트 결과가 달라질 수 없다.
 frontend:unit:
   stage: verify
+  # 🔴 S15P21E201-983 — 이 잡을 백업 러너(2065)로 보낸다. 운영 호스트에서 뺀다.
+  #
+  #    🔴 처음에는 "프론트는 가벼우니 안 옮겨도 된다" 고 판단했다. 근거가 소요
+  #    시간이었다(204~272초로 일정하다). **그 계측이 틀렸다.** 운영 서버에 붙어
+  #    ps 로 재 보니, 이 잡과 frontend:smoke 가 동시에 도는 동안:
+  #
+  #      node .../frontend/node_modules/.bin/…   103%
+  #      같은 프론트 node 프로세스 셋           28.5% · 28.2% · 26.8%
+  #      ─────────────────────────────────────────────
+  #      프론트 CI 합계                         약 190%  (4코어 중 2개)
+  #      java -jar /app/gabolle-backend.jar      9.8%   ← 실제 운영 앱
+  #
+  #    소요 시간이 일정한 것과 CPU 를 적게 쓰는 것은 다른 얘기였다. jest 는 워커를
+  #    여러 개 띄우므로 짧아도 굵다. 그리고 프론트 잡 10건 중 9건이 2037 로 갔다.
+  #
+  #    backend:build 를 옮긴 뒤에도 운영 load 가 17.84 였던 이유가 이것이다 —
+  #    빈자리를 프론트 CI 가 채우고 있었다.
+  #
+  #    2065 의 동시 실행을 1 → 2 로 올려 두었다(config.toml). 이 잡과 smoke 가
+  #    지금처럼 나란히 돌 수 있다. 잡당 cpus="2" 상한이 이미 걸려 있어 4코어를
+  #    넘지 않는다.
+  tags: [heavy]
   variables:
     npm_config_cache: $CI_PROJECT_DIR/.npm-cache
   cache:
