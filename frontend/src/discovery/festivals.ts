@@ -1,5 +1,5 @@
 import { apiRequest } from '@/api/client';
-import type { FeatureSlot } from '@/discovery/places';
+import type { FeatureSlot, PhotoSubject } from '@/discovery/places';
 
 // jaehyeon 님 계약(2026-09-07, S15P21E201-465): 쿼리는 startDate/endDate 다
 // (from/to/region 이 아니다). title 은 회차 이름이 없으면 키 자체가 빠지므로
@@ -19,6 +19,10 @@ export type Festival = {
   endDate: string;
   overlapDates: string[];
   photoUrl?: string | null;
+  // S15P21E201-1021 — 사진이 그 축제를 찍은 것이 아닐 수 있다. 둘 다 없으면 키째 안 오고,
+  // 그때 화면은 지금과 똑같이 그린다(서버 배포를 기다리지 않는다). 뜻은 places.ts 에 있다.
+  photoSource?: string | null;
+  photoSubject?: PhotoSubject | null;
   priceLevel?: FeatureSlot;
 };
 

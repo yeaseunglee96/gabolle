@@ -10,7 +10,7 @@ import { Text } from '@/components/Text';
 import { Eyebrow } from '@/components/Eyebrow';
 import { color, radius, spacing } from '@/design/tokens';
 import { festivalDisplayTitle, getFestivals, type Festival } from '@/discovery/festivals';
-import { formatFeatureSlot } from '@/discovery/places';
+import { formatFeatureSlot, photoLabels } from '@/discovery/places';
 import { useI18n } from '@/i18n';
 import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
@@ -83,16 +83,25 @@ export default function Festivals() {
     {state === 'ready' && sorted.length > 0 && sorted.some((festival) => 'isSample' in festival) && (
       <View style={styles.sampleNotice}><Text variant="caption" weight="bold">{tx('축제 API 연동 전이라 예시 일정을 보여드려요. 실제 날짜와 다를 수 있어요.', "The festival API isn't connected yet, so these are example dates — actual dates may differ.")}</Text></View>
     )}
-    {state === 'ready' && sorted.length > 0 && <View style={styles.grid}>{sorted.map((festival) => <View key={festival.placeId} style={[styles.card, isAtLeast(width, 'md') && styles.cardWide]}>
-      {festival.photoUrl ? <Image source={{ uri: festival.photoUrl }} resizeMode="cover" style={styles.image} /> : <View style={styles.imageFallback}><Text weight="bold" color={color.brand.orange}>GABOLLE</Text></View>}
-      <View style={styles.cardBody}>
-        <View style={styles.cardTopRow}>
-          <Text variant="caption" weight="bold" color={color.brand.orange}>{festival.startDate} — {festival.endDate}</Text>
-          {'isSample' in festival && <View style={styles.sampleBadge}><Text variant="caption" weight="bold">{tx('샘플', 'Sample')}</Text></View>}
+    {state === 'ready' && sorted.length > 0 && <View style={styles.grid}>{sorted.map((festival) => {
+      // 🔴 사진이 그 축제를 찍은 것이 아닐 수 있다 — 대부분은 열리는 장소 사진이다.
+      // 그대로 두면 「이 축제가 이렇게 생겼구나」로 읽힌다 (S15P21E201-1021).
+      const photo = photoLabels(festival, tx);
+      return <View key={festival.placeId} style={[styles.card, isAtLeast(width, 'md') && styles.cardWide]}>
+        {festival.photoUrl ? <View>
+          <Image source={{ uri: festival.photoUrl }} resizeMode="cover" style={styles.image} />
+          {photo.badge && <View style={styles.photoBadge}><Text variant="caption" weight="bold" color={color.text.onAction}>{photo.badge}</Text></View>}
+        </View> : <View style={styles.imageFallback}><Text weight="bold" color={color.brand.orange}>GABOLLE</Text></View>}
+        <View style={styles.cardBody}>
+          <View style={styles.cardTopRow}>
+            <Text variant="caption" weight="bold" color={color.brand.orange}>{festival.startDate} — {festival.endDate}</Text>
+            {'isSample' in festival && <View style={styles.sampleBadge}><Text variant="caption" weight="bold">{tx('샘플', 'Sample')}</Text></View>}
+          </View>
+          <Text variant="title" weight="bold">{tx(festivalDisplayTitle(festival), festival.nameEn ?? festivalDisplayTitle(festival))}</Text><Text color={color.text.body}>{festival.address}</Text><Text variant="caption" color={color.text.muted}>{formatFeatureSlot(festival.priceLevel, tx) ?? tx('입장료 정보 확인 필요', 'Admission fee info not available yet')}</Text>
+          {festival.photoUrl && photo.credit && <Text variant="caption" color={color.text.muted}>{photo.credit}</Text>}
         </View>
-        <Text variant="title" weight="bold">{tx(festivalDisplayTitle(festival), festival.nameEn ?? festivalDisplayTitle(festival))}</Text><Text color={color.text.body}>{festival.address}</Text><Text variant="caption" color={color.text.muted}>{formatFeatureSlot(festival.priceLevel, tx) ?? tx('입장료 정보 확인 필요', 'Admission fee info not available yet')}</Text>
-      </View>
-    </View>)}</View>}
+      </View>;
+    })}</View>}
   </Screen>;
 }
 
@@ -110,4 +119,5 @@ const styles = StyleSheet.create({
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[4] }, card: { width: '100%', overflow: 'hidden', borderRadius: radius.lg, backgroundColor: color.surface.card }, cardWide: { width: '48%' }, image: { width: '100%', height: 180 }, imageFallback: { height: 180, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.tint }, cardBody: { gap: spacing[2], padding: spacing[4] },
   cardTopRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   sampleBadge: { paddingHorizontal: spacing[2], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: color.surface.tint },
+  photoBadge: { position: 'absolute', top: spacing[2], left: spacing[2], paddingHorizontal: spacing[2], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: 'rgba(11,29,58,0.78)' },
 });

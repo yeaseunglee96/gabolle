@@ -55,6 +55,38 @@ export function missingValueLabel(slot: FeatureSlot, tx: (ko: string, en: string
     : tx('알아봤지만 확인 못 했어요', 'Looked, but could not confirm');
 }
 
+// S15P21E201-1021 — 사진이 그 장소를 찍은 것이 아닐 수 있다.
+//
+// 관광사진갤러리에서 받은 축제 사진 35건을 사진 자체의 제목과 대조해 보니, 그 축제를 찍은
+// 것은 1건이고 나머지는 **그 축제가 열리는 곳**을 찍은 것이었다(광안리 드론쇼 → 광안리
+// 해수욕장 사진). 그냥 띄우면 「이 축제가 이렇게 생겼구나」로 읽힌다 — 알레르기에서 고친
+// 것과 같은 종류다(S15P21E201-996). 다른 것을 같게 그리는 것.
+//
+// 🔴 출처 문구 하나에 싣지 않고 칸을 갈랐다. 「누가 준 사진인가」(photoSource)와 「무엇을 찍은
+// 사진인가」(photoSubject)는 다른 질문이라, 한 칸에 넣으면 둘 중 하나는 반드시 거짓말이 된다.
+// 그리고 한국어 문장에 섞어 두면 코드가 못 읽어서, 나중에 「행사장 사진은 빼자」 같은 것을
+// 아예 못 한다. evidenceStatus 와 같은 방식이다 — 뜻이 갈리면 값을 갈라 둔다.
+//
+// SELF 는 축제만이 아니라 식당·해수욕장에도 뜻이 통해야 해서 고른 이름이다(EVENT 는 안 통한다).
+export type PhotoSubject = 'SELF' | 'VENUE';
+
+/**
+ * 사진에 붙일 말 둘. 값이 없으면 null 이고, null 인 것은 화면에 줄을 만들지 않는다.
+ *
+ * 🔴 SELF 에는 배지를 안 단다. 그 장소를 찍은 사진인 것은 **기대한 대로**라 말할 것이 없고,
+ * 예외에만 표를 다는 편이 예외를 눈에 띄게 한다. 칸 자체가 안 왔을 때도 마찬가지다 —
+ * 모르는 것을 아는 척하지 않는다.
+ */
+export function photoLabels(
+  photo: { photoSource?: string | null; photoSubject?: PhotoSubject | null },
+  tx: (ko: string, en: string) => string,
+): { badge: string | null; credit: string | null } {
+  return {
+    badge: photo.photoSubject === 'VENUE' ? tx('행사장 사진', 'Venue photo') : null,
+    credit: photo.photoSource ? tx(`사진 제공: ${photo.photoSource}`, `Photo: ${photo.photoSource}`) : null,
+  };
+}
+
 // 값이 있어도 VERIFIED·ESTIMATED·UNKNOWN 셋 다 화면에는 보여준다(정보 없음과 다르다) —
 // UNKNOWN 은 "확인은 했는데 결과가 없다"는 뜻이라 그 자체가 정보다. 다만 추정값은
 // "추정"이라고 붙여 확정값과 헷갈리지 않게 한다.
