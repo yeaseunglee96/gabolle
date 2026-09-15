@@ -35,6 +35,10 @@ export type CreateTripPayload = {
   // 적고 추천이 그 장소를 후보 앞에 세운다(-973). 이 칸이 생기기 전에는 고른 장소가 기기
   // 안에만 남아서, 화면이 "일정에 반드시 포함돼요" 라고 적어 두고도 아무 영향이 없었다.
   mustVisitPlaceIds: string[];
+  // S15P21E201-980 — 기본 정보 화면에서 고른 여행 범위. 서버가 이 지역들에서 후보를 고른다.
+  // 이 칸이 생기기 전에는 칩이 화면에서만 받고 서버로 오지 않아서, 해운대를 골라도 추천
+  // 스무 곳이 전부 출발지 근처였다.
+  travelAreas: string[];
 };
 
 export type TripCreatedDto = {
@@ -94,6 +98,7 @@ export function toCreateTripPayload(draft: PlanDraft): CreateTripPayload {
 
   return {
     mustVisitPlaceIds: draft.mustVisitPlaces.map((place) => place.placeId),
+    travelAreas: draft.travelAreas,
     startDate: draft.startDate,
     finishDate: draft.endDate,
     originLat: draft.originLat,
