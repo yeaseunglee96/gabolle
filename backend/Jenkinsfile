@@ -281,6 +281,7 @@ pipeline {
                             -e GABOLLE_APPLE_PRIVATE_KEY="$GABOLLE_APPLE_PRIVATE_KEY" \
                             -e GABOLLE_APPLE_ALLOWED_CLIENT_IDS="com.gabolle.app" \
                             -e GABOLLE_KMA_SERVICE_KEY="$GABOLLE_KMA_SERVICE_KEY" \
+                            -e GABOLLE_INTERNAL_API_TOKEN="$GABOLLE_INTERNAL_API_TOKEN" \
                             -e GABOLLE_ADMIN_EMAILS="$GABOLLE_ADMIN_EMAILS" \
                             local-route-backend:candidate
                     '''
@@ -382,7 +383,8 @@ pipeline {
                     string(credentialsId: 'gabolle-apple-private-key', variable: 'GABOLLE_APPLE_PRIVATE_KEY'),
                     string(credentialsId: 'gabolle-s3-access-key', variable: 'GABOLLE_S3_ACCESS_KEY'),
                             string(credentialsId: 'gabolle-s3-secret-key', variable: 'GABOLLE_S3_SECRET_KEY'),
-                            string(credentialsId: 'gabolle-kma-service-key', variable: 'GABOLLE_KMA_SERVICE_KEY')
+                            string(credentialsId: 'gabolle-kma-service-key', variable: 'GABOLLE_KMA_SERVICE_KEY'),
+                            string(credentialsId: 'gabolle-internal-api-token', variable: 'GABOLLE_INTERNAL_API_TOKEN')
                         ]) {
                             sh 'docker stop backend || true'
                             sh 'docker rm backend || true'
@@ -425,6 +427,7 @@ pipeline {
                                     -e GABOLLE_APPLE_PRIVATE_KEY="$GABOLLE_APPLE_PRIVATE_KEY" \
                                     -e GABOLLE_APPLE_ALLOWED_CLIENT_IDS="com.gabolle.app" \
                                     -e GABOLLE_KMA_SERVICE_KEY="$GABOLLE_KMA_SERVICE_KEY" \
+                                    -e GABOLLE_INTERNAL_API_TOKEN="$GABOLLE_INTERNAL_API_TOKEN" \
                                     -e GABOLLE_ADMIN_EMAILS="$GABOLLE_ADMIN_EMAILS" \
                                     local-route-backend:latest
                             '''
