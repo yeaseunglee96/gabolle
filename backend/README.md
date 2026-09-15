@@ -51,7 +51,7 @@ health 확인:
 http://localhost:8080/actuator/health
 ```
 
-웹 로컬 개발에서는 `.env`의 `GABOLLE_CORS_ALLOWED_ORIGINS`에 Vite origin(예: `http://localhost:5173`)을 추가하고, HTTP이므로 `GABOLLE_WEB_REFRESH_COOKIE_SECURE=false`로 둡니다. 웹 로그인/OAuth 요청에는 `X-Client-Platform: WEB`을 보내고 fetch/axios에 `credentials: "include"`를 지정합니다. refresh token은 브라우저 저장소에 저장하지 않고 다음 API를 사용합니다.
+웹 로컬 개발에서는 `.env`의 `GABOLLE_CORS_ALLOWED_ORIGINS`에 화면이 떠 있는 origin이 들어 있어야 하고, HTTP이므로 `GABOLLE_WEB_REFRESH_COOKIE_SECURE=false`로 둡니다. `frontend`의 `npm run web`(`expo start --web`)은 **8081**로 뜨고, 8081이 이미 쓰이고 있으면 **8082**로 밀립니다 — `.env.example`에는 둘 다 들어 있습니다. 웹 로그인/OAuth 요청에는 `X-Client-Platform: WEB`을 보내고 fetch/axios에 `credentials: "include"`를 지정합니다. refresh token은 브라우저 저장소에 저장하지 않고 다음 API를 사용합니다.
 
 로그인 요청에 `deviceId`를 넣어 기기 바인딩을 활성화한 경우 `/web/refresh`에도 같은 값을 `X-Device-Id` 헤더로 전송합니다.
 
