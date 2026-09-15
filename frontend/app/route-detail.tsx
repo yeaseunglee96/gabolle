@@ -22,7 +22,7 @@ import { isAtLeast } from '@/layout/breakpoints';
 import { RouteMap } from '@/map/RouteMap';
 import type { MapStop } from '@/map/types';
 import { getRouteDirections, type RouteDirectionsResult, type TravelMode } from '@/map/routeDirections';
-import { listAvailableMapApps, type AvailableMapProvider } from '@/utils/externalMaps';
+import { listAvailableRouteMapApps, type AvailableMapProvider } from '@/utils/externalMaps';
 
 const MODE_LABEL: Record<TravelMode, readonly [string, string]> = {
   CAR: ['자동차', 'Car'],
@@ -77,9 +77,9 @@ export default function RouteDetail() {
   useEffect(() => {
     if (!hasCoords) return;
     let active = true;
-    void listAvailableMapApps({ name: destName, latitude: destLat, longitude: destLng }).then((apps) => { if (active) setMapApps(apps); });
+    void listAvailableRouteMapApps({ originLat: originLat!, originLng: originLng!, destLat: destLat!, destLng: destLng!, destName }).then((apps) => { if (active) setMapApps(apps); });
     return () => { active = false; };
-  }, [destLat, destLng, destName, hasCoords]);
+  }, [originLat, originLng, destLat, destLng, destName, hasCoords]);
 
   const stops: MapStop[] = useMemo(() => {
     if (!hasCoords) return [];
@@ -141,7 +141,7 @@ export default function RouteDetail() {
                 <Card style={styles.stepsCard}>
                   <Text variant="title" weight="bold" style={styles.stepsTitle}>{tx('단계별 안내', 'Step-by-step')}</Text>
                   {directions.steps.length === 0 ? (
-                    <Text color={color.text.body}>{tx('이 이동수단의 단계별 안내는 아직 준비되지 않았어요.', 'Step-by-step guidance is not available for this mode yet.')}</Text>
+                    <Text color={color.text.body}>{tx('단계별 안내는 이 앱에서 못 드려요. 아래 지도 앱 버튼을 누르면 대중교통 경로를 볼 수 있어요.', "We can not give step-by-step guidance here. Use the map app buttons below to see transit routes.")}</Text>
                   ) : (
                     <View style={styles.stepList}>
                       {directions.steps.map((step, index) => (
@@ -163,7 +163,7 @@ export default function RouteDetail() {
             <View style={styles.actions}>
               {destPlaceId ? <Button label={tx('택시 기사에게 보여주기', 'Show to a taxi driver')} onPress={() => router.push(`/taxi-card/${destPlaceId}`)} containerStyle={styles.actionButton} /> : null}
               {mapApps.map((app) => (
-                <Button key={app.key} variant="ghost" label={tx(`${app.labelKo}으로 이동`, `Open in ${app.labelEn}`)} onPress={() => void app.open()} containerStyle={styles.actionButton} />
+                <Button key={app.key} variant="ghost" label={tx(`${app.labelKo}에서 경로 열기`, `Open route in ${app.labelEn}`)} onPress={() => void app.open()} containerStyle={styles.actionButton} />
               ))}
             </View>
           </View>
@@ -195,7 +195,7 @@ const styles = StyleSheet.create({
   estimatedBadge: { paddingHorizontal: spacing[2], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: color.surface.tint },
   stepsCard: { gap: spacing[2] },
   stepsTitle: { marginBottom: spacing[1] },
-  stepList: { gap: spacing[3] },
+  stepList: { gap: spacing[3] }, mapAppsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2], marginTop: spacing[1] }, mapAppButton: { minHeight: 44, paddingHorizontal: spacing[4], borderRadius: radius.full, borderWidth: 1, borderColor: color.brand.navy, alignItems: 'center', justifyContent: 'center' },
   stepRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[3] },
   stepMarker: { width: 26, height: 26, borderRadius: radius.full, backgroundColor: color.brand.orange, alignItems: 'center', justifyContent: 'center' },
   grow: { flex: 1 },
