@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import com.gabolle.backend.story.domain.Story;
 import com.gabolle.backend.story.domain.StoryCoauthor;
+import com.gabolle.backend.story.domain.StoryVisibility;
 import com.gabolle.backend.story.domain.UserFollow;
 import com.gabolle.backend.story.repository.StoryCoauthorRepository;
 import com.gabolle.backend.story.repository.UserFollowRepository;
@@ -70,7 +71,24 @@ public class StoryVisibilityPolicy {
 		return this.coauthorRepository.existsByKey(new StoryCoauthor.Key(story.getStoryId(), user));
 	}
 
+	/**
+	 * @param viewer 로그인한 사람. <b>{@code null} 이면 로그인하지 않은 사람</b>이다 —
+	 *     익명 출입증만 들고 온 경우 (S15P21E201-995)
+	 */
 	public boolean canView(Story story, UUID viewer, Instant now) {
+		// 🔴 S15P21E201-995 — 로그인하지 않은 사람은 공개된 PUBLIC 만 본다. 여기서 먼저 끊는다.
+		//
+		//    아래 길로 흘려보내도 "대체로" 같은 답이 나온다 — isParticipant 는 null 에 false 를
+		//    주고 PRIVATE 는 어차피 false 다. 그런데 FOLLOWERS 가지는 다르다. 거기서
+		//    userFollowRepository.existsByKey(new UserFollow.Key(null, …)) 를 부르게 되는데,
+		//    복합 키의 한 칸이 null 인 조회는 **동작이 보장되지 않는다** — 예외가 날 수도,
+		//    조용히 false 가 될 수도 있다.
+		//
+		//    보안 판정을 그런 우연에 맡기지 않는다. 새는 쪽이 조용한 종류의 사고라, 규칙을
+		//    코드에 드러내 둔다. S15P21E201-974 가 피드 질의를 따로 둔 것과 같은 이유다.
+		if (viewer == null) {
+			return story.isPublishedAt(now) && story.getVisibility() == StoryVisibility.PUBLIC;
+		}
 		// 참여자는 공개 시각 전이든 나만 보기든 언제나 본다. 자기가 함께 쓰는 글을 못 보면
 		// 고칠 수도 없다 — 수정 경로가 먼저 상세 조회를 지나기 때문이다.
 		if (isParticipant(story, viewer)) {

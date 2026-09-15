@@ -2,12 +2,14 @@ package com.gabolle.backend.story;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import com.gabolle.backend.story.application.StoryVisibilityPolicy;
@@ -92,6 +94,45 @@ class StoryVisibilityPolicyTest {
 		Story story = story(author, StoryVisibility.PRIVATE, NOW.minus(1, ChronoUnit.DAYS));
 
 		assertThat(this.policy.canView(story, viewer, NOW)).isFalse();
+	}
+
+	// ── 로그인하지 않은 사람 (viewer == null) — S15P21E201-995 ──────────────────
+	//
+	// 🔴 아래 넷이 이 티켓의 안전 장치다. 피드(974)에 이어 상세도 익명에게 열었는데,
+	//    공개 글만 나가야 한다. FOLLOWERS 가 익명에게 새면 사고다.
+
+	@Test
+	@DisplayName("로그인하지 않은 사람도 공개된 PUBLIC 기록은 본다")
+	void anonymousSeesPublishedPublicStory() {
+		Story story = story(UUID.randomUUID(), StoryVisibility.PUBLIC, NOW.minus(1, ChronoUnit.DAYS));
+
+		assertThat(this.policy.canView(story, null, NOW)).isTrue();
+	}
+
+	@Test
+	@DisplayName("🔴 로그인하지 않은 사람에게 팔로워 전용 기록은 안 보인다 — 팔로우 저장소를 부르지도 않는다")
+	void anonymousCannotSeeFollowersOnlyStory() {
+		Story story = story(UUID.randomUUID(), StoryVisibility.FOLLOWERS, NOW.minus(1, ChronoUnit.DAYS));
+
+		assertThat(this.policy.canView(story, null, NOW)).isFalse();
+		// 복합 키에 null 을 넣는 조회는 동작이 보장되지 않는다. 그 길로 아예 안 간다.
+		verifyNoInteractions(this.userFollowRepository);
+	}
+
+	@Test
+	@DisplayName("🔴 로그인하지 않은 사람에게 나만 보기 기록은 안 보인다")
+	void anonymousCannotSeePrivateStory() {
+		Story story = story(UUID.randomUUID(), StoryVisibility.PRIVATE, NOW.minus(1, ChronoUnit.DAYS));
+
+		assertThat(this.policy.canView(story, null, NOW)).isFalse();
+	}
+
+	@Test
+	@DisplayName("🔴 공개 시각이 안 된 PUBLIC 기록은 로그인하지 않은 사람에게 안 보인다")
+	void anonymousCannotSeePublicStoryBeforePublishTime() {
+		Story story = story(UUID.randomUUID(), StoryVisibility.PUBLIC, NOW.plus(1, ChronoUnit.DAYS));
+
+		assertThat(this.policy.canView(story, null, NOW)).isFalse();
 	}
 
 	private static Story story(UUID author, StoryVisibility visibility, Instant publishAt) {
