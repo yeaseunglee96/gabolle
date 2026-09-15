@@ -214,6 +214,7 @@ export default function Place() {
         <View style={styles.actions}>
           <Button label={isSaved ? tx('내 여행 후보에서 빼기', 'Remove from candidates') : tx('내 여행 후보에 저장', 'Save to candidates')} variant="ghost" onPress={() => void toggleSaved()} />
           <Button label={tx('한국어로 말하기', 'Speak Korean')} onPress={() => setPhraseModalOpen(true)} containerStyle={styles.speakAction} />
+          {taxiPlaceId ? <Button label={tx('리뷰 보기', 'See reviews')} variant="ghost" onPress={() => router.push(`/place-reviews/${taxiPlaceId}`)} /> : null}
           {taxiPlaceId ? <Button label={tx('택시 기사에게 보여주기', 'Show to a taxi driver')} onPress={() => router.push(`/taxi-card/${taxiPlaceId}`)} containerStyle={styles.speakAction} /> : null}
           {feedback ? <Text accessibilityLiveRegion="polite" color={color.text.body} style={styles.feedback}>{feedback}</Text> : null}
         </View>
