@@ -109,12 +109,22 @@ class CuratedLandmarkMigrationIntegrationTest extends PlacePostgresIntegrationTe
 		}
 	}
 
+	/**
+	 * 🔴 <b>"한 벌만 있다" 는 이 DB 에서 셀 수 없다.</b> 처음에 그렇게 썼다가 CI 에서
+	 * 깨졌다 — {@code 해운대해수욕장} 이 <b>32벌</b> 나왔고, 전부 좌표도 출처도 없는
+	 * 행이었다. 일정 관련 통합 검사 여럿이 그 이름을 각자 넣고 <b>자기 일정에서 가리킨 채</b>
+	 * 남기기 때문이다(외래키가 걸려 지울 수도 없다).
+	 *
+	 * <p>그래서 세는 것을 그만두고 <b>있는지만</b> 본다. 중복을 안 만든다는 성질은
+	 * {@link #reapplyingTheMigrationDoesNotDuplicatePlaces} 가 <b>같은 DB 상태에서 전후를
+	 * 견줘</b> 확인한다 — 절대 개수가 아니라 변화량을 보므로 남이 무엇을 남겼든 흔들리지 않는다.
+	 */
 	@Test
-	@DisplayName("부산 대표 명소 네 곳이 각각 한 벌씩 정본으로 존재한다")
-	void migrationLeavesExactlyOnePlacePerCoreLandmark() {
-		CORE_LANDMARKS.forEach((nameKo, sourceId) -> assertThat(rowsNamed(nameKo))
-				.as("%s 는 정본이 하나여야 한다 — 없으면 적재가 안 된 것이고, 둘이면 가드가 샌 것이다", nameKo)
-				.hasSize(1));
+	@DisplayName("부산 대표 명소 네 곳이 이름으로 찾아진다")
+	void everyCoreLandmarkIsFindableByName() {
+		CORE_LANDMARKS.keySet().forEach(nameKo -> assertThat(rowsNamed(nameKo))
+				.as("%s 라는 이름의 장소가 하나도 없다 — 마이그레이션이 안 돌았다는 뜻이다", nameKo)
+				.isNotEmpty());
 	}
 
 	@Test
