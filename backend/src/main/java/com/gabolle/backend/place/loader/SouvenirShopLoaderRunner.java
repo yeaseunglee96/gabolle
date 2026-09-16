@@ -92,9 +92,9 @@ public class SouvenirShopLoaderRunner implements ApplicationRunner {
 		LOGGER.info("기념품샵 장소 적재 — 새로 넣은 곳 {}", placesInserted);
 
 		List<PlaceFeatureNdjsonReader.Fact> facts = List.of(
-				new PlaceFeatureNdjsonReader.Fact("TOURAPI", aihasi.contentId(), "CATEGORY_TAG", "SOUVENIR_SHOP", "true"),
-				new PlaceFeatureNdjsonReader.Fact("TOURAPI", aihasi.contentId(), "SOUVENIR_ITEM_TAG",
-						"HANDMADE_CHOPSTICKS", "true"));
+				new PlaceFeatureNdjsonReader.Fact(aihasi.contentId(), "CATEGORY_TAG", "true", "TOURAPI", "SOUVENIR_SHOP"),
+				new PlaceFeatureNdjsonReader.Fact(aihasi.contentId(), "SOUVENIR_ITEM_TAG", "true", "TOURAPI",
+						"HANDMADE_CHOPSTICKS"));
 		PlaceFeatureLoader.Saved saved = this.featureLoader.saveChunk(facts, SOURCE_TYPE, this.datasetVersion,
 				collectedAt);
 		LOGGER.info("기념품샵 표식 적재 끝 — {}", saved);

@@ -82,8 +82,8 @@ public class DesiredFoodTagLoaderRunner implements ApplicationRunner {
 			List<PlaceFeatureNdjsonReader.Fact> facts = new ArrayList<>();
 			for (SbizRow row : rows) {
 				for (String code : DesiredFoodVocabulary.desiredFoodTags(row.name())) {
-					facts.add(new PlaceFeatureNdjsonReader.Fact("SBIZ", row.storeId(),
-							DesiredFoodVocabulary.FEATURE_TYPE, code, "true"));
+					facts.add(new PlaceFeatureNdjsonReader.Fact(row.storeId(),
+							DesiredFoodVocabulary.FEATURE_TYPE, "true", "SBIZ", code));
 				}
 			}
 			if (!facts.isEmpty()) {

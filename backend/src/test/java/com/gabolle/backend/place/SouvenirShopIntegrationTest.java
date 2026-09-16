@@ -65,9 +65,9 @@ class SouvenirShopIntegrationTest extends PlacePostgresIntegrationTest {
 		assertThat(placesInserted).isEqualTo(1);
 
 		List<PlaceFeatureNdjsonReader.Fact> facts = List.of(
-				new PlaceFeatureNdjsonReader.Fact("TOURAPI", CONTENT_ID, "CATEGORY_TAG", "SOUVENIR_SHOP", "true"),
-				new PlaceFeatureNdjsonReader.Fact("TOURAPI", CONTENT_ID, "SOUVENIR_ITEM_TAG", "HANDMADE_CHOPSTICKS",
-						"true"));
+				new PlaceFeatureNdjsonReader.Fact(CONTENT_ID, "CATEGORY_TAG", "true", "TOURAPI", "SOUVENIR_SHOP"),
+				new PlaceFeatureNdjsonReader.Fact(CONTENT_ID, "SOUVENIR_ITEM_TAG", "true", "TOURAPI",
+						"HANDMADE_CHOPSTICKS"));
 		PlaceFeatureLoader.Saved saved = this.featureLoader.saveChunk(facts, SouvenirShopLoaderRunner.SOURCE_TYPE,
 				DATASET, now);
 
