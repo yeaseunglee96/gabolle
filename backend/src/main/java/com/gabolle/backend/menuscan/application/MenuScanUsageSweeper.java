@@ -15,7 +15,7 @@ import com.gabolle.backend.menuscan.repository.MenuScanUsageRepository;
 /**
  * 하루 지난 메뉴판 호출 기록을 쓸어 간다 — S15P21E201-1038.
  *
- * <h2>🔴 왜 부를 때 지우는 것만으로는 부족한가</h2>
+ * <h2>왜 부를 때 지우는 것만으로는 부족한가</h2>
  *
  * {@link MenuScanRateLimiter} 는 부를 때마다 <b>그 사람 것</b>을 치운다. 그것으로 돌아오는
  * 사용자의 행은 계속 묶인다. 하지만 <b>한 번 쓰고 안 돌아온</b> 사람의 행은 아무도 안
@@ -53,7 +53,7 @@ public class MenuScanUsageSweeper {
 	/**
 	 * 지난 기록을 지우고 몇 행을 지웠는지 돌려준다.
 	 *
-	 * <p>🔴 시험과 수동 실행이 cron 을 거치지 않고 바로 부를 수 있게 따로 열어 둔다 —
+	 * <p>시험과 수동 실행이 cron 을 거치지 않고 바로 부를 수 있게 따로 열어 둔다 —
 	 * {@code PrivacyCleanupScheduler} 가 같은 이유로 같은 모양이다.
 	 */
 	@Transactional

@@ -38,6 +38,11 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * <p>「재시작」은 새 {@link MenuScanRateLimiter} 를 하나 더 만들어 흉내 낸다. 앞선 인스턴스가
  * 세어 둔 것을 새 인스턴스가 그대로 보면, 그 수가 인스턴스가 아니라 표에 있다는 뜻이다.
  *
+ * <p>여기서 <b>확인하지 않는</b> 것이 하나 있다. 한도를 넘었을 때 그 트랜잭션이 되돌아가
+ * 방금 적은 행까지 사라지는 거동은 한도 계산기가 스프링 빈으로 불릴 때만 걸린다. 이 시험은
+ * 시계를 갈아 끼우려고 {@code new} 로 만들어 쓰므로 프록시가 없고, 그래서 그 되돌리기는
+ * 여기서 안 돌아간다. 운영 경로({@code MenuScanService} → 빈)에서는 걸린다.
+ *
  * <p>도커도 없고 {@code GABOLLE_TEST_DB_URL} 도 없으면 <b>건너뜀</b>으로 표시된다.
  */
 @SpringBootTest(classes = MenuScanSliceApplication.class, properties = {
@@ -85,7 +90,7 @@ class MenuScanQuotaPostgresTest {
 	}
 
 	@Test
-	@DisplayName("🔴 완료 기준 — 서버를 내렸다 올려도 그날 쓴 횟수가 이어진다")
+	@DisplayName("완료 기준 — 서버를 내렸다 올려도 그날 쓴 횟수가 이어진다")
 	void theCountSurvivesANewInstance() {
 		MenuScanRateLimiter before = limiterAt(NOW);
 		before.takeOrThrow(this.userId);
@@ -122,7 +127,7 @@ class MenuScanQuotaPostgresTest {
 	}
 
 	@Test
-	@DisplayName("🔴 완료 기준 — 한 번 쓰고 안 돌아온 사람의 기록도 청소가 지운다")
+	@DisplayName("완료 기준 — 한 번 쓰고 안 돌아온 사람의 기록도 청소가 지운다")
 	void theSweeperRemovesRowsOfUsersWhoNeverCameBack() {
 		limiterAt(NOW).takeOrThrow(this.userId);
 		assertThat(rowCount()).isEqualTo(1);
