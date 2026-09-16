@@ -83,8 +83,12 @@ export default function Home() {
     const next = new Set(likedIds);
     saved ? next.add(placeId) : next.delete(placeId);
     setLikedIds(next);
-    void setSavedPlace(placeId, saved, accessToken);
     setSaveFeedback(saved ? tx('장소를 저장했어요.', 'Saved this place.') : tx('저장을 해제했어요.', 'Unsaved this place on this device.'));
+    // 🔴 S15P21E201-1081 — 서버가 못 받았으면 뒤늦게라도 사실대로 고쳐 말한다.
+    //    하트는 즉시 반응해야 하므로 먼저 낙관적으로 그리고, 결과가 오면 문구만 바꾼다.
+    void setSavedPlace(placeId, saved, accessToken).then(({ sync }) => {
+      if (sync === 'failed') setSaveFeedback(tx('이 기기에만 저장했어요. 서버에 아직 반영하지 못했어요.', 'Saved on this device only — not synced to the server yet.'));
+    });
     if (saved) sendAppEvent({ type: 'place_like', accessToken, payload: { place_id: placeId, surface: 'home' } });
   };
 

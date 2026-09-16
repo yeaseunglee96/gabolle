@@ -90,9 +90,16 @@ export default function Place() {
   const toggleSaved = async () => {
     if (!id || !resolved) return;
     const nextSaved = !isSaved;
-    await setSavedPlace(id, nextSaved, accessToken);
+    const { sync } = await setSavedPlace(id, nextSaved, accessToken);
     setIsSaved(nextSaved);
-    setFeedback(nextSaved ? tx('내 여행 후보에 저장했어요.', 'Saved to your trip candidates.') : tx('저장을 해제했어요.', 'Removed from saved.'));
+    // 🔴 S15P21E201-1081 — 서버가 받지 못했으면 "저장했어요" 라고 말하지 않는다.
+    //    배포 중 502 가 나는 동안 이 화면은 서버에 안 간 저장을 성공이라고 알렸다.
+    //    기기의 선택은 그대로 지키되(다음 목록 조회에서 다시 맞춰진다) 말은 사실대로 한다.
+    if (sync === 'failed') {
+      setFeedback(tx('이 기기에만 저장했어요. 서버에 아직 반영하지 못했어요.', 'Saved on this device only — not synced to the server yet.'));
+    } else {
+      setFeedback(nextSaved ? tx('내 여행 후보에 저장했어요.', 'Saved to your trip candidates.') : tx('저장을 해제했어요.', 'Removed from saved.'));
+    }
     // 저장할 때만 보낸다. 해제는 "싫다" 가 아니라 "취소" 다.
     //
     // 🔴 목업 장소면 보내지 않는다 (2026-09-10). 이 화면은 id 가 DEMO_PLACES 에 있으면
