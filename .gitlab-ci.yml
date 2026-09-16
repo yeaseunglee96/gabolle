@@ -315,8 +315,24 @@ claims:checkpoint:
 #    한다 — GitLab 러너의 cache: paths 는 프로젝트 디렉터리 기준 상대경로만
 #    받는다. 캐시 키는 backend/gradle.lockfile 이다 — 의존성이 실제로 바뀔 때만
 #    새 캐시를 만든다(같은 파일을 OSV-Scanner 가 취약점 판정 기준으로도 쓴다).
+#
+# 🔴 S15P21E201-976 — 러너가 2대(2037·2065)뿐인데 이 잡이 여러 MR에서 동시에
+#    몰리면 러너 한 대가 이 잡을 여러 개 동시에 떠안는다(실측 2026-09-15,
+#    파이프라인 194832·195020 등 — 러너 2037 하나가 backend:build 3개 +
+#    frontend:smoke 를 한 번에 돌리고 있었다). Gradle 빌드는 CPU·메모리를
+#    많이 먹어서, 한 기계에서 여러 개가 겹치면 전부 같이 느려지고 뒤이어
+#    가벼운 잡(mr:gates·verify:mr-target)까지 pending 으로 밀린다.
+#
+#    resource_group 은 같은 그룹의 잡을 프로젝트 전체에서 동시에 하나만
+#    돌게 강제한다(GitLab CE 에서도 되는 기능). 대기는 남지만, 자원을
+#    나눠 먹으며 다 같이 느려지는 것보다 줄을 서서 하나씩 확실히 끝나는
+#    쪽이 총 처리시간이 짧다.
+#
+#    🔴 이 파일이 독립돼 있어(0.2절) common/dev(!807)·back/dev(!811)가 먼저
+#    받았다. ai/dev 는 이 커밋으로 그 수정을 그대로 옮겨 왔다.
 backend:build:
   stage: verify
+  resource_group: backend-build
   image: eclipse-temurin:17-jdk
   services:
     - name: postgres:16-alpine
