@@ -9,7 +9,7 @@ import { useRef, useState } from 'react';
 import { Image, Linking, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import * as Clipboard from 'expo-clipboard';
-import * as Speech from 'expo-speech';
+import { speakAloud as speakWithAudioSession, stopSpeaking } from '@/field/speakAloud';
 
 import { color, radius, spacing } from '@/design/tokens';
 import { Screen } from '@/components/Screen';
@@ -77,9 +77,9 @@ export default function Speak() {
     const token = ++customPlayToken.current;
     const finish = () => { if (customPlayToken.current === token) setCustomSpeaking(false); };
     try {
-      Speech.stop();
+      stopSpeaking();
       setCustomSpeaking(true);
-      Speech.speak(text, { language: speechLanguage, rate: 0.95, onDone: finish, onStopped: finish, onError: finish });
+      speakWithAudioSession(text, { language: speechLanguage, rate: 0.95, onDone: finish, onStopped: finish, onError: finish });
     } catch {
       finish();
     }
