@@ -78,10 +78,17 @@ export default function Welcome() {
         <ScrollView style={styles.mobileSafeArea} contentContainerStyle={styles.mobileContent}>
         <View style={styles.mobileBrand}><Pressable accessibilityRole="button" accessibilityLabel={tx('GABOLLE 시작하기', 'Start GABOLLE')} accessibilityHint={tx('서비스 소개 화면으로 이동합니다', 'Goes to the service introduction screen')} onPress={() => startOnboarding()} style={({ pressed }) => [styles.logoLink, pressed && styles.pressed]}><Image source={lightLogo ? nightLogo : logo} resizeMode="contain" style={styles.mobileLogo} /></Pressable><Text variant="display" weight="bold" color={color.brand.orange}>{tx('부산 가볼래?', 'Shall we go to Busan?')}</Text></View>
         <View style={styles.mobileActions}>
-          <View accessibilityRole="radiogroup" accessibilityLabel={tx('시작할 언어 선택', 'Select a language to start')} style={styles.languageRow}>{LANGUAGE_OPTIONS.map((item) => <LanguageFlag key={item.code} item={item} selected={language === item.code} onPress={() => startOnboarding(item.code)} />)}</View>
-          {/* 🔴 번역이 아직 없다는 사실을 숨기지 않는다. 다 된 척하면 고른 사람이 영어를 보고
-              "왜 안 바뀌지" 로 읽는다. 미리 말하면 그건 선택이 된다. */}
-          {needsTranslationNotice(language) ? <Text variant="caption" color="rgba(255,255,255,0.82)" style={styles.languageNotice}>{LANGUAGE_OPTIONS.find((o) => o.code === language)?.endonym} · Menus are in English for now. Place names and guides come in your language.</Text> : null}
+          {/* 🔴 사진 위에 반투명 칸을 띄우지 않는다. 배경이 노을이라 밝기가 자리마다 달라서
+              어떤 칸은 읽히고 어떤 칸은 안 읽힌다. 불투명한 흰 시트 위에 올리면 언제나 읽힌다. */}
+          <View style={styles.languageSheet}>
+            <Text variant="caption" weight="bold" color={color.text.muted} style={styles.languageSheetTitle}>{tx('언어 선택', 'Choose your language')}</Text>
+            <View accessibilityRole="radiogroup" accessibilityLabel={tx('시작할 언어 선택', 'Select a language to start')} style={styles.languageList}>
+              {LANGUAGE_OPTIONS.map((item) => <LanguageRow key={item.code} item={item} selected={language === item.code} onPress={() => startOnboarding(item.code)} />)}
+            </View>
+            {/* 🔴 번역이 아직 없다는 사실을 숨기지 않는다. 다 된 척하면 고른 사람이 영어를 보고
+                "왜 안 바뀌지" 로 읽는다. 미리 말하면 그건 선택이 된다. */}
+            {needsTranslationNotice(language) ? <Text variant="caption" color={color.text.muted} style={styles.languageNotice}>Menus are in English for now. Place names and guides come in your language.</Text> : null}
+          </View>
           <Pressable accessibilityRole="button" accessibilityHint={tx('로그인 없이 홈과 주요 기능을 둘러봅니다.', 'Browse the home screen and core features without signing in.')} onPress={browseAsGuest} style={({ pressed }) => [styles.guestButton, pressed && styles.pressed]}>
             <Text variant="body" weight="bold" color={color.text.onAction}>{tx('비회원으로 바로 둘러보기', 'Browse as guest')}</Text>
           </Pressable>
@@ -164,10 +171,24 @@ export default function Welcome() {
  * 골라야 하는 사람이 못 읽는다. 국기만 두지 않는 것도 같은 이유다 — 국기는 나라이지 말이 아니고,
  * 🇨🇳 과 🇹🇼 을 크기 작은 화면에서 가르기 어렵다.
  */
-function LanguageFlag({ item, selected, onPress }: { item: LanguageOption; selected: boolean; onPress: () => void }) {
-  return <Pressable accessibilityRole="radio" accessibilityState={{ selected }} accessibilityLabel={item.endonym} onPress={onPress} style={({ pressed }) => [styles.flagItem, pressed && styles.pressed]}>
-    <View style={[styles.flagCircle, selected && styles.flagCircleSelected]}><Text style={styles.flagGlyph}>{item.flag}</Text></View>
-    <Text variant="caption" weight={selected ? 'bold' : 'regular'} color={selected ? color.brand.orange : 'rgba(255,255,255,0.86)'} style={styles.flagLabel}>{item.endonym}</Text>
+/**
+ * 언어 한 줄 (S15P21E201-1109).
+ *
+ * 🔴 **그 언어로 쓴 이름이 주인공이다.** 앞선 판은 국기 동그라미였는데, 윈도우 브라우저에서
+ * 국기가 나라 글자(KR·US·JP)로 떠서 무슨 버튼인지 안 읽혔다. 국기는 나라이지 말도 아니다.
+ *
+ * 🔴 영어 이름을 작게 같이 적는다. 자기 말을 못 찾는 사람이 **읽을 수 있는 유일한 줄**이
+ * 그것이다 — 일본어를 모르는 사람에게 「日本語」 는 그림이다.
+ *
+ * 누르면 바로 시작한다. 고르는 것과 시작하는 것을 나누면 탭이 한 번 더 늘어난다.
+ */
+function LanguageRow({ item, selected, onPress }: { item: LanguageOption; selected: boolean; onPress: () => void }) {
+  return <Pressable accessibilityRole="radio" accessibilityState={{ selected }} accessibilityLabel={item.englishName === item.endonym ? item.endonym : `${item.endonym} · ${item.englishName}`} onPress={onPress} style={({ pressed }) => [styles.languageRow, selected && styles.languageRowSelected, pressed && styles.pressed]}>
+    <View style={styles.languageNames}>
+      <Text variant="title" weight="bold" color={selected ? color.text.onAction : color.text.heading}>{item.endonym}</Text>
+      {item.englishName !== item.endonym ? <Text variant="caption" color={selected ? 'rgba(255,255,255,0.78)' : color.text.muted}>{item.englishName}</Text> : null}
+    </View>
+    <Text variant="body" weight="bold" color={selected ? color.text.onAction : color.text.muted}>{selected ? '✓' : '›'}</Text>
   </Pressable>;
 }
 function NavItem({ label, onPress }: { label: string; onPress: () => void }) { return <Pressable accessibilityRole="link" onPress={onPress} style={styles.navItem}><Text variant="caption" weight="medium">{label}</Text></Pressable>; }
@@ -181,15 +202,14 @@ const styles = StyleSheet.create({
   mobileBrand: { alignItems: 'center', gap: spacing[3], paddingVertical: spacing[8] },
   mobileLogo: { width: 280, height: 70 },
   mobileActions: { width: '100%', maxWidth: 480, alignSelf: 'center', gap: spacing[2] },
-  languageList: { gap: spacing[3] },
-  // 다섯 개가 한 줄에 들어가야 한다 — 폰 폭 375 에서 각 칸이 최소 44 를 지키도록 flex 로 나눈다.
-  languageRow: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: spacing[1] },
-  flagItem: { flex: 1, minHeight: 76, alignItems: 'center', justifyContent: 'flex-start', gap: spacing[1], paddingVertical: spacing[1] },
-  flagCircle: { width: 48, height: 48, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: 'rgba(255,255,255,0.40)', backgroundColor: 'rgba(11,29,58,0.42)' },
-  flagCircleSelected: { borderColor: color.brand.orange, backgroundColor: 'rgba(255,253,248,0.96)' },
-  flagGlyph: { fontSize: 26, lineHeight: 34 },
-  flagLabel: { textAlign: 'center' },
-  languageNotice: { textAlign: 'center', marginTop: spacing[2], lineHeight: 18 },
+  // 불투명한 시트. 배경 사진의 밝기와 상관없이 글이 읽힌다.
+  languageSheet: { gap: spacing[2], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card },
+  languageSheetTitle: { letterSpacing: 0.4 },
+  languageList: { gap: spacing[2] },
+  languageRow: { minHeight: 56, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing[4], borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.card },
+  languageRowSelected: { borderColor: color.brand.navy, backgroundColor: color.brand.navy },
+  languageNames: { gap: 1 },
+  languageNotice: { marginTop: spacing[1], lineHeight: 18 },
   languageButton: { height: 58, borderRadius: 18, borderWidth: 1, borderColor: 'rgba(255,255,255,0.48)', backgroundColor: 'rgba(11,29,58,0.30)', paddingHorizontal: 20, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   languageButtonSelected: { borderWidth: 2, borderColor: color.brand.orange, backgroundColor: 'rgba(255,253,248,0.96)', shadowColor: color.brand.navy, shadowOpacity: 0.16, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 4 },
   languageAction: { width: 30, height: 30, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.12)' },

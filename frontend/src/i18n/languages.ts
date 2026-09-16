@@ -35,18 +35,25 @@ export type LanguageOption = {
   code: LanguageCode;
   /** 그 언어를 쓰는 사람이 읽을 수 있는 이름. 🔴 한국어로 "일본어" 라고 쓰지 않는다. */
   endonym: string;
-  /** 국기. 나라가 아니라 언어를 고르는 것이므로 대표 표기만 쓴다. */
-  flag: string;
+  /**
+   * 그 언어를 모르는 사람이 읽을 수 있는 이름.
+   *
+   * 🔴 국기 그림문자를 안 쓴다. 안드로이드·iOS 에서는 국기로 보이지만 **윈도우 브라우저에서는
+   * 나라 글자 두 개(KR·US·JP)로 보인다** — 실측으로 확인했다. 무슨 버튼인지 안 읽힌다.
+   * 그리고 국기는 나라이지 말이 아니다: 영어를 고르는 사람이 미국인일 이유가 없고,
+   * 🇨🇳 과 🇹🇼 은 작은 화면에서 서로 구별되지도 않는다.
+   */
+  englishName: string;
   /** 화면 문구가 이 언어로 번역돼 있나. 거짓이면 영어로 나온다. */
   uiTranslated: boolean;
 };
 
 export const LANGUAGE_OPTIONS: readonly LanguageOption[] = [
-  { code: 'ko', endonym: '한국어', flag: '🇰🇷', uiTranslated: true },
-  { code: 'en', endonym: 'English', flag: '🇺🇸', uiTranslated: true },
-  { code: 'ja', endonym: '日本語', flag: '🇯🇵', uiTranslated: false },
-  { code: 'zh-Hans', endonym: '简体中文', flag: '🇨🇳', uiTranslated: false },
-  { code: 'zh-Hant', endonym: '繁體中文', flag: '🇹🇼', uiTranslated: false },
+  { code: 'ko', endonym: '한국어', englishName: 'Korean', uiTranslated: true },
+  { code: 'en', endonym: 'English', englishName: 'English', uiTranslated: true },
+  { code: 'ja', endonym: '日本語', englishName: 'Japanese', uiTranslated: false },
+  { code: 'zh-Hans', endonym: '简体中文', englishName: 'Chinese (Simplified)', uiTranslated: false },
+  { code: 'zh-Hant', endonym: '繁體中文', englishName: 'Chinese (Traditional)', uiTranslated: false },
 ];
 
 /**
