@@ -753,6 +753,12 @@ class RouteAuthorizationRegistryTest {
 						+ "route/directions·tools/translate 와 같은 이유 — 우리 기상청 키로 남이 대신 "
 						+ "조회를 돌리는 것(비용)을 막기 위해서다. WeatherControllerTest");
 
+		// ── 대중교통 실시간 도착정보 (-988) ──────────────────────────────────────
+		put(m, "GET /api/v1/transit/nearby-bus-arrivals", Policy.AUTHENTICATED_ONLY,
+				"좌표로 답이 정해진다 — 우리 자원이 아니라 주인이 없다. 인증을 요구하는 것은 "
+						+ "weather 와 같은 이유 — 우리 TAGO 키로 남이 대신 조회를 돌리는 것(호출 한도 "
+						+ "소진)을 막기 위해서다.");
+
 		// ── AI 여행 도우미 (-802) ────────────────────────────────────────────────
 		put(m, "POST /api/v1/assistant/messages", Policy.AUTHENTICATED_ONLY,
 				"자연어 메시지 하나를 AI 업체(Claude)에 대신 물어보는 창구라 우리 자원이 아니라 "

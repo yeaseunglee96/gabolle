@@ -116,6 +116,31 @@ class GeminiAssistantAdapterTest {
 		assertThat(reply.label()).isEqualTo("여행 만들기");
 	}
 
+	// ── 대중교통 (S15P21E201-988) ────────────────────────────────────────
+
+	@Test
+	@DisplayName("navigate + '/field/transit' 는 허용된 href 로 통과한다")
+	void navigateToTransitFieldIsAllowed() {
+		GeminiStructuredReply parsed = new GeminiStructuredReply("navigate", "근처 버스 도착정보로 안내할게요.", null, null,
+				"버스 도착정보 보기", "/field/transit", null, null);
+
+		AssistantReply reply = this.adapter.toDomain(parsed);
+
+		assertThat(reply.kind()).isEqualTo(AssistantActionKind.NAVIGATE);
+		assertThat(reply.href()).isEqualTo("/field/transit");
+	}
+
+	@Test
+	@DisplayName("🔴 모델이 label 을 비우면 '/field/transit' 도 기본 문구로 채운다")
+	void blankLabelFallsBackToDefaultForTransit() {
+		GeminiStructuredReply parsed = new GeminiStructuredReply("navigate", "안내해 드릴게요.", null, null, null,
+				"/field/transit", null, null);
+
+		AssistantReply reply = this.adapter.toDomain(parsed);
+
+		assertThat(reply.label()).isEqualTo("버스 도착정보 보기");
+	}
+
 	@Test
 	@DisplayName("🔴 모델이 모르는 kind 를 지어내면 HELP 로 낮춘다")
 	void unknownKindFallsBackToHelp() {
