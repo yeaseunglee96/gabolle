@@ -14,8 +14,14 @@ import { Text } from './Text';
 
 export type TabKey = 'home' | 'feed' | 'schedule' | 'map' | 'saved' | 'me';
 
-/** 막대 자체의 높이. */
-const TAB_BAR_HEIGHT = 64;
+/**
+ * 막대 자체의 높이.
+ *
+ * 🔴 export 한다 — 탭바 위에 무언가를 띄우는 쪽(전역 배너, S15P21E201-1139)이 이 값을
+ * 알아야 탭바를 안 가린다. 같은 숫자를 저쪽에 또 적어 두면 여기서 64 를 바꾸는 날
+ * 조용히 어긋난다.
+ */
+export const TAB_BAR_HEIGHT = 64;
 
 type Tab = {
   key: TabKey;

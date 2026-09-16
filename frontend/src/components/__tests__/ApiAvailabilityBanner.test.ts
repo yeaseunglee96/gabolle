@@ -1,4 +1,5 @@
-import { shouldHideApiBanner, SHOW_AFTER_MS, watchApiUnavailable } from '../ApiAvailabilityBanner';
+import { bannerBottomOffset, shouldHideApiBanner, SHOW_AFTER_MS, watchApiUnavailable } from '../ApiAvailabilityBanner';
+import { TAB_BAR_HEIGHT } from '../TabBar';
 
 // S15P21E201-1107 — 폰에서 "서버 연결을 확인하고 있어요" 가 자꾸 떴다.
 // -1081 에서 5xx 를 끊김으로 세기 시작하면서, 배포 중 502 한 번이나 백그라운드 요청 하나가
@@ -89,4 +90,25 @@ describe('shouldHideApiBanner', () => {
     '서버 데이터를 쓰는 화면 %s에서는 연결 안내를 유지한다',
     (pathname) => expect(shouldHideApiBanner(pathname)).toBe(false),
   );
+});
+
+// S15P21E201-1139 — 배너가 화면 제목을 덮었다. 390 폭에서 「주변 버스」가 DOM 에는
+// 있는데 화면에는 한 글자도 안 보였다. 위에서 아래로 내리면서, 이번엔 탭바를 덮지
+// 않는지를 여기서 못 박는다. 🔴 이건 눈으로만 보면 다음 사람이 조용히 되돌린다.
+describe('배너는 무엇도 덮지 않는다', () => {
+  it('🔴 안전영역이 0이어도 탭바 높이보다 위에 뜬다', () => {
+    expect(bannerBottomOffset(0)).toBeGreaterThan(TAB_BAR_HEIGHT);
+  });
+
+  it('🔴 안전영역이 큰 기기(갤럭시 내비게이션 영역)에서도 탭바 위다', () => {
+    expect(bannerBottomOffset(48)).toBeGreaterThan(48 + TAB_BAR_HEIGHT);
+  });
+
+  it('🔴 홈의 AI 도우미 버튼(bottom 100 · 높이 68) 위에 뜬다 — 챗봇을 가리지 않는다', () => {
+    expect(bannerBottomOffset(0)).toBeGreaterThanOrEqual(100 + 68);
+  });
+
+  it('안전영역이 커지면 그만큼 같이 올라간다', () => {
+    expect(bannerBottomOffset(48) - bannerBottomOffset(0)).toBe(48);
+  });
 });
