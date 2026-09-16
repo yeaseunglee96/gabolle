@@ -17,7 +17,7 @@ import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { useAuth } from '@/auth/AuthProvider';
 import { resolveHomeTripDestination } from './tripNavigation';
-import type { FacetKeyEntry } from '@/discovery/localExplore';
+import { localFacetLabel, type FacetKeyEntry } from '@/discovery/localExplore';
 import type { HomePlaceItem } from './useHomeData';
 import { relativeStoryTime, type StoryDto } from '@/social/stories';
 import { tripDisplayTitle, type TripSummaryDto } from '@/trip/trips';
@@ -86,7 +86,7 @@ function StoryCard({ story }: { story: StoryDto }) {
 
 export function HeroStories({ stories, chips, signedIn }: { stories: StoryDto[] | null; chips: FacetKeyEntry[]; signedIn: boolean }) {
   const router = useRouter();
-  const { tx } = useI18n();
+  const { tx, language } = useI18n();
   return (
     <View style={styles.heroRight}>
       <View style={styles.heroRightHead}>
@@ -143,7 +143,7 @@ export function HeroStories({ stories, chips, signedIn }: { stories: StoryDto[] 
           <View style={styles.chipRow}>
             {chips.map((chip) => (
               <Pressable key={chip.featureKey} accessibilityRole="link" onPress={() => router.push({ pathname: '/explore', params: { facet: chip.featureKey } })} style={({ pressed }) => [styles.chip, pressed && styles.chipPressed]}>
-                <Text weight="medium" color={color.text.onAction}>{chip.labelKo}</Text>
+                <Text weight="medium" color={color.text.onAction}>{localFacetLabel(chip, language)}</Text>
               </Pressable>
             ))}
           </View>

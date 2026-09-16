@@ -25,6 +25,7 @@ import { loadSavedPlaceIds, setSavedPlace } from '@/discovery/savedPlaces';
 import { BrandLogoLink } from '@/components/BrandLogoLink';
 import { GabolleMascot } from '@/components/DongbaekMascot';
 import { Screen } from '@/components/Screen';
+import { GettingStartedGuide } from '@/components/GettingStartedGuide';
 import { TabBar } from '@/components/TabBar';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
@@ -33,6 +34,8 @@ import { resolveHomeTripDestination } from '@/home/tripNavigation';
 import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
 import { useI18n } from '@/i18n';
+import { localFacetLabel } from '@/discovery/localExplore';
+import { useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
 import { relativeStoryTime } from '@/social/stories';
 
 const bellIcon = require('../../assets/icons/home/bell.png');
@@ -41,14 +44,19 @@ const speakerIcon = require('../../assets/icons/common/speaker.png');
 
 export default function Home() {
   const router = useRouter();
-  const { tx } = useI18n();
+  const { tx, language } = useI18n();
   const { accessToken } = useAuth();
   const { width } = useLayout();
-  const desktop = isAtLeast(width, 'md');
+  const desktop = isAtLeast(width, 'lg');
+  const { hydrated, hasEnteredApp, markEnteredApp } = useOnboardingPreferences();
   const home = useHomeData(!desktop);
   const [likedIds, setLikedIds] = useState<Set<string>>(new Set());
   const [saveFeedback, setSaveFeedback] = useState<string | null>(null);
   const [openingTrip, setOpeningTrip] = useState(false);
+
+  useEffect(() => {
+    if (hydrated && !hasEnteredApp) markEnteredApp();
+  }, [hydrated, hasEnteredApp, markEnteredApp]);
 
   const openHomeTrip = async (tripId: string) => {
     if (openingTrip) return;
@@ -120,6 +128,7 @@ export default function Home() {
         </View>
 
         {/* ── 히어로 ── */}
+        <GettingStartedGuide />
         <View style={styles.hero}>
           <View style={styles.heroBadge}><Text variant="caption" weight="bold" color={color.brand.orange}>AI TRAVEL PLANNER · BUSAN</Text></View>
           <Text weight="bold" color={color.brand.navy} style={styles.heroTitle}>{tx('부산의 모든 여행,\n가볼래?', 'Every side of Busan,\nyours to explore.')}</Text>
@@ -170,7 +179,7 @@ export default function Home() {
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.rail}>
               {home.chips.map((chip) => (
                 <Pressable key={chip.featureKey} accessibilityRole="link" onPress={() => router.push({ pathname: '/explore', params: { facet: chip.featureKey } })} style={({ pressed }) => [styles.chip, pressed && styles.pressed]}>
-                  <Text weight="medium" color={color.text.heading}>{chip.labelKo}</Text>
+                  <Text weight="medium" color={color.text.heading}>{localFacetLabel(chip, language)}</Text>
                 </Pressable>
               ))}
             </ScrollView>
