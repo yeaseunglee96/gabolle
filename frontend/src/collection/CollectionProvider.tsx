@@ -65,6 +65,15 @@ type CollectionContextValue = {
   ready: boolean;
   /** 서버와 합쳐서 보여주고 있는가. 화면이 안내 문구를 고르는 데 쓴다. */
   syncedToServer: boolean;
+  /**
+   * 계정 것과 맞추는 일이 지금 어디까지 왔나.
+   *
+   * 🔴 'unreachable' 은 실패지만 **화면을 덮지 않는다.** 기기 것을 그대로 그리고 위에
+   * 작은 띠로만 알린다 — 리스트가 통째로 사라진 화면을 보여주는 것보다 낫고, 그건 사실도 아니다.
+   */
+  syncState: 'loading' | 'synced' | 'anonymous' | 'unreachable';
+  /** 못 맞췄을 때 다시 해 본다. */
+  retrySync: () => void;
   lists: CollectionList[];
   places: Record<string, CollectionPlace>;
   totalPlaceCount: number;
@@ -86,6 +95,9 @@ export function CollectionProvider({ children }: { children: ReactNode }) {
   // 🔴 로그인했으면 서버와 합친 것이 보인다. 안 했으면 지금까지처럼 기기 것만 보인다.
   // 화면이 이 값을 보고 안내 문구를 고른다 — 안 그러면 "계정에 저장돼요" 가 거짓이 된다.
   const [syncedToServer, setSyncedToServer] = useState(false);
+  const [syncState, setSyncState] = useState<'loading' | 'synced' | 'anonymous' | 'unreachable'>('loading');
+  // 「다시 시도」를 누르면 이 숫자가 올라가고, 아래 useEffect 가 다시 돈다.
+  const [syncAttempt, setSyncAttempt] = useState(0);
   const { accessToken } = useAuth();
 
   // 기기에서 읽고, 로그인했으면 서버와 합친다 (S15P21E201-1071).
@@ -107,14 +119,16 @@ export function CollectionProvider({ children }: { children: ReactNode }) {
       }
       if (!alive) return;
       setData(device);
+      setSyncState('loading');
       const result = await loadCollections(device, accessToken);
       if (!alive) return;
       setData(result.data);
       setSyncedToServer(result.state === 'success');
+      setSyncState(result.state === 'success' ? 'synced' : result.reason);
       setReady(true);
     })();
     return () => { alive = false; };
-  }, [accessToken]);
+  }, [accessToken, syncAttempt]);
 
   useEffect(() => {
     if (ready) void AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({ version: VERSION, data }));
@@ -163,6 +177,8 @@ export function CollectionProvider({ children }: { children: ReactNode }) {
   const value = useMemo<CollectionContextValue>(() => ({
     ready,
     syncedToServer,
+    syncState,
+    retrySync: () => setSyncAttempt((count) => count + 1),
     lists: data.lists,
     places: data.places,
     totalPlaceCount: Object.keys(data.places).length,
@@ -174,7 +190,7 @@ export function CollectionProvider({ children }: { children: ReactNode }) {
     addExistingPlaceToList,
     removePlaceFromList,
     listsContaining,
-  }), [ready, syncedToServer, data, createList, renameList, deleteList, addNewPlaceToList, addExistingPlaceToList, removePlaceFromList, listsContaining]);
+  }), [ready, syncedToServer, syncState, data, createList, renameList, deleteList, addNewPlaceToList, addExistingPlaceToList, removePlaceFromList, listsContaining]);
 
   return <CollectionContext.Provider value={value}>{children}</CollectionContext.Provider>;
 }
