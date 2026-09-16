@@ -66,6 +66,15 @@ public class ItineraryLegJpaEntity {
 	@Column(name = "data_status", length = 20, updatable = false)
 	private ItineraryItem.DataStatus dataStatus;
 
+	/**
+	 * 🔴 S15P21E201-1109 — 이 구간의 이동 요금(원).
+	 *
+	 * <p>{@code null} 은 "얼마인지 모른다" 이고 {@code 0} 은 "공짜다" 다. DB 쪽에도 같은
+	 * 뜻으로 적혀 있다({@code ck_itinerary_leg_fare_krw} 가 음수를 막는다).
+	 */
+	@Column(name = "fare_krw", updatable = false)
+	private Integer fareKrw;
+
 	@Column(name = "created_at", nullable = false, updatable = false)
 	private OffsetDateTime createdAt;
 
@@ -76,7 +85,7 @@ public class ItineraryLegJpaEntity {
 	ItineraryLegJpaEntity(UUID itineraryLegId, UUID itineraryVersionId, int dayIndex, int sequence,
 			UUID fromPlaceId, UUID toPlaceId, String travelMode, Integer distanceM, Integer durationMin,
 			Integer walkingMeters, Integer ascentM, Integer stairSteps,
-			ItineraryItem.DataStatus dataStatus, OffsetDateTime createdAt) {
+			ItineraryItem.DataStatus dataStatus, Integer fareKrw, OffsetDateTime createdAt) {
 		this.itineraryLegId = itineraryLegId;
 		this.itineraryVersionId = itineraryVersionId;
 		this.dayIndex = dayIndex;
@@ -90,6 +99,7 @@ public class ItineraryLegJpaEntity {
 		this.ascentM = ascentM;
 		this.stairSteps = stairSteps;
 		this.dataStatus = dataStatus;
+		this.fareKrw = fareKrw;
 		this.createdAt = createdAt;
 	}
 
@@ -106,5 +116,6 @@ public class ItineraryLegJpaEntity {
 	Integer ascentM() { return ascentM; }
 	Integer stairSteps() { return stairSteps; }
 	ItineraryItem.DataStatus dataStatus() { return dataStatus; }
+	Integer fareKrw() { return fareKrw; }
 	OffsetDateTime createdAt() { return createdAt; }
 }
