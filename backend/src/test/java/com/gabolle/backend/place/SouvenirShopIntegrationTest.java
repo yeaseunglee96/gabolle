@@ -46,6 +46,10 @@ class SouvenirShopIntegrationTest extends PlacePostgresIntegrationTest {
 	@BeforeEach
 	@AfterEach
 	void cleanUp() {
+		// 🔴 TourApiPlaceLoader.saveChunk 가 장소를 만들면서 CATEGORY_TAG 를
+		// source_type=TOURAPI 로 같이 넣는다 — place 를 지우기 전에 그것부터 지워야
+		// fk_place_feature_place 위반이 안 난다 (2026-09-16 CI 실측).
+		this.jdbcTemplate.update("DELETE FROM place_feature WHERE source_type = 'TOURAPI'");
 		this.jdbcTemplate.update("DELETE FROM place_feature WHERE source_type = '" + SouvenirShopLoaderRunner.SOURCE_TYPE + "'");
 		this.jdbcTemplate.update("DELETE FROM place WHERE source_id = '" + CONTENT_ID + "'");
 	}
