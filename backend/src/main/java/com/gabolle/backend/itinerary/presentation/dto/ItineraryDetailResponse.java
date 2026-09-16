@@ -40,7 +40,21 @@ public record ItineraryDetailResponse(
 		 * 응답에 함께 들어온다")의 마지막 남은 항목. {@code itinerary_versions.warning_codes}
 		 * 를 그대로 옮긴다. 경고가 없으면 빈 배열이지 {@code null} 이 아니다.
 		 */
-		List<String> warningCodes) {
+		List<String> warningCodes,
+
+		/**
+		 * 🔴 S15P21E201-1113 — 맨 뒤에 더한 칸이다. {@code trip.trip_id} 그대로다.
+		 *
+		 * <p>앱의 주소는 {@code /trips/{id}/itinerary} 인데 그 {@code id} 자리에 <b>일정 번호</b>가
+		 * 들어간다. 그래서 일정 화면에 서 있는 앱은 <b>자기가 어느 여행에 속하는지 알 방법이
+		 * 없었고</b>, 추천으로 넘어갈 때 일정 번호를 여행 번호인 척 넘겨
+		 * {@code GET /api/v1/trips/{tripId}/recommendation-jobs} 가 404 를 냈다. 화면은 그 404 를
+		 * 「아직 추천이 없어요」로 그렸다 — 실제로는 그 여행에 성공한 추천이 있었다(2026-09-16 실측).
+		 *
+		 * <p>목록을 한 번 더 받아 맞추게 하지 않는다. 일정은 반드시 여행 하나에 속하므로 이 칸은
+		 * 비지 않고, 아는 쪽이 알려주는 것이 부르는 쪽이 뒤지는 것보다 싸다.
+		 */
+		String tripId) {
 
 	/** 여행 기간의 날짜 하나 — 항목이 0개인 날도 포함된다(빈 {@code items}). */
 	public record Day(String date, List<Item> items) {
