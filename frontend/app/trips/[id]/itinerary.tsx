@@ -567,6 +567,18 @@ export default function ItineraryScreen() {
       </View>
       <Text variant="display" weight="bold" color={color.text.onAction} style={styles.heroTitle}>{itinerary?.title ?? tx('여행 일정', 'Itinerary')}</Text>
       {heroSummary ? <Text color={color.text.onDarkMuted}>{heroSummary}</Text> : null}
+      {/* S15P21E201-1113 — 지도로 가는 문. 이 화면에는 지도로 가는 길이 **아예 없었다**.
+          그래서 카카오 지도·경로선·3D 부산·그늘/휠체어 실측이 다 들어 있는 화면에 아무도
+          못 들어갔다(주소를 직접 쳐야만 보였다). 「추천 다시 보기」는 서버가 여행 번호를
+          실어 주는 판에서만 그린다 — 위 tripId 주석 참고. */}
+      {itinerary ? <View style={styles.heroActions}>
+        <Pressable accessibilityRole="button" onPress={() => router.push({ pathname: '/[id]/map', params: { id } })} style={styles.heroAction}>
+          <Text variant="caption" weight="bold" color={color.text.onAction}>{tx('지도 보기', 'View map')}</Text>
+        </Pressable>
+        {itinerary.tripId ? <Pressable accessibilityRole="button" onPress={() => router.push({ pathname: '/trips/[id]/recommendations', params: { id: itinerary.tripId as string } })} style={styles.heroAction}>
+          <Text variant="caption" weight="bold" color={color.text.onAction}>{tx('추천 다시 보기', 'See recommendations')}</Text>
+        </Pressable> : null}
+      </View> : null}
       {/* 일차 탭은 헤더에 붙어 있다 (시안 2.3 · 3.1) — 탭이 헤더에서 떨어져 있으면
           어느 날을 보고 있는지가 제목과 따로 놀아서, 스크롤을 내리면 둘 다 안 보인다.
           하루짜리 여행에는 고를 것이 없으므로 안 그린다. */}
@@ -702,6 +714,10 @@ const styles = StyleSheet.create({ shell: { flex: 1, backgroundColor: color.bran
   heroGhost: { minHeight: 36, paddingHorizontal: spacing[3], borderRadius: radius.full, borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.4)', alignItems: 'center', justifyContent: 'center' },
   heroTitle: { marginTop: spacing[2] },
   // 탭은 헤더 바닥에 붙는다 — 위쪽만 둥글고 아래는 각져서 헤더와 한 덩이로 보인다.
+  // 지도·추천으로 가는 문 (S15P21E201-1113). 일차 탭과 같은 반투명 흰색이라 헤더와 한 덩이로
+  // 보이고, 탭보다 위에 놓아 「어느 날을 보나」와 「어디로 가나」가 안 섞인다.
+  heroActions: { flexDirection: 'row', gap: spacing[2], marginTop: spacing[3], flexWrap: 'wrap' },
+  heroAction: { minHeight: 44, paddingHorizontal: spacing[3], justifyContent: 'center', borderRadius: radius.md, backgroundColor: 'rgba(255, 255, 255, 0.16)' },
   heroTabs: { flexDirection: 'row', gap: spacing[1], marginTop: spacing[4] },
   heroTab: { flex: 1, minHeight: 44, paddingHorizontal: spacing[2], borderTopLeftRadius: radius.md, borderTopRightRadius: radius.md, backgroundColor: 'rgba(255, 255, 255, 0.10)', alignItems: 'center', justifyContent: 'center' },
   heroTabActive: { backgroundColor: color.brand.ivory },
