@@ -46,6 +46,8 @@ export default function Saved() {
   const { accessToken } = useAuth();
   const [state, setState] = useState<'loading' | 'ready'>('loading');
   const [cards, setCards] = useState<SavedCard[]>([]);
+  // 저장 해제가 서버까지 못 갔을 때만 채워진다 (S15P21E201-1081).
+  const [notice, setNotice] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setState('loading');
@@ -60,12 +62,19 @@ export default function Saved() {
   useFocusEffect(useCallback(() => { void load(); }, [load]));
 
   async function unsave(placeId: string) {
-    await setSavedPlace(placeId, false, accessToken);
+    setNotice(null);
+    const { sync } = await setSavedPlace(placeId, false, accessToken);
     setCards((current) => current.filter((card) => card.placeId !== placeId));
+    // 🔴 S15P21E201-1081 — 서버가 못 받았으면 그 사실을 알린다. 안 알리면 다음에 이 탭을
+    //    다시 열었을 때 카드가 되살아나는데(load 가 서버 목록과 합치므로) 사용자는
+    //    "지웠는데 왜 또 있지" 만 겪고 이유를 모른다.
+    if (sync === 'failed') setNotice(tx('서버에 아직 반영하지 못했어요. 다시 열면 이 장소가 남아 있을 수 있어요.', 'Not synced to the server yet — this place may reappear next time you open this tab.'));
   }
 
   return <View style={styles.shell}><Screen scroll withTabBar style={styles.screen}>
     <View style={styles.heading}><Eyebrow>{tx('저장 목록', 'Saved')}</Eyebrow><Text variant="display" weight="bold">{tx('저장한 장소', 'Saved places')}</Text></View>
+
+    {notice ? <View style={styles.notice}><Text color={color.text.body}>{notice}</Text></View> : null}
 
     {state === 'loading' && <ActivityIndicator style={styles.spinner} color={color.action.primary} />}
 
@@ -103,6 +112,7 @@ const styles = StyleSheet.create({
   shell: { flex: 1, backgroundColor: color.brand.ivory },
   screen: { flex: 1, backgroundColor: color.brand.ivory },
   heading: { gap: spacing[2], marginBottom: spacing[6] },
+  notice: { padding: spacing[4], marginBottom: spacing[6], borderRadius: radius.md, backgroundColor: color.surface.tint },
   spinner: { marginTop: spacing[8] },
   empty: { flex: 1, minHeight: 360, alignItems: 'center', justifyContent: 'center', gap: spacing[3], padding: spacing[6], borderRadius: radius.lg, backgroundColor: color.surface.card },
   mark: { width: 72, height: 72, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full, backgroundColor: color.surface.tint },

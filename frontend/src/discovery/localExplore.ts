@@ -1,4 +1,4 @@
-import { apiRequest, ApiClientError } from '@/api/client';
+import { apiRequest, ApiClientError, isServerError } from '@/api/client';
 
 // jaehyeon 님 계약(2026-09-08 axmap): GET /api/v1/places/facets.
 // 여덟 갈래(축제·야시장·전통시장·액티비티·산책·자연·야경·기념품샵)는 서버 코드에 고정돼 있고
@@ -23,9 +23,17 @@ export type FacetsDto = { facets: FacetGroup[]; generatedAt: string };
 
 type FacetsFailure = { state: 'unavailable' | 'offline' | 'error'; message: string };
 
+// 🔴 S15P21E201-1081 — "아직 준비되지 않았어요" 는 404·501 일 때만 말한다.
+//
+// 예전에는 INVALID_RESPONSE 를 그 갈래로 보냈다. 그런데 배포 중 nginx 가 주는 502·503·504 는
+// 본문이 JSON 이 아니라 전부 INVALID_RESPONSE 로 떨어졌고, 그래서 **몇십 초 뒤면 되는 것**을
+// 화면이 "이 기능은 아직 없다" 고 말했다. 사용자는 그 말을 믿고 나갔다(2026-09-16 운영 실측).
+// routeDirections.ts·itinerary.ts 가 이미 상태 코드로 가르고 있었고, 그 방식이 맞다.
 function toFailure(error: unknown): FacetsFailure {
   if (error instanceof ApiClientError && error.code === 'NETWORK_ERROR') return { state: 'offline', message: error.message };
-  if (error instanceof ApiClientError && error.code === 'INVALID_RESPONSE') return { state: 'unavailable', message: '로컬 탐색 API가 아직 준비되지 않았어요.' };
+  if (error instanceof ApiClientError && (error.status === 404 || error.status === 501)) return { state: 'unavailable', message: '로컬 탐색 API가 아직 준비되지 않았어요.' };
+  // 5xx 는 'offline' 도 아니다 — 사용자의 인터넷은 멀쩡하므로 "연결을 확인해 주세요" 는 거짓말이다.
+  if (isServerError(error)) return { state: 'error', message: (error as ApiClientError).message };
   return { state: 'error', message: error instanceof Error ? error.message : '요청을 처리하지 못했어요.' };
 }
 
