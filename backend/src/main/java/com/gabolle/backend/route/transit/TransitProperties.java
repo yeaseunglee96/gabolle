@@ -46,6 +46,23 @@ public class TransitProperties {
 	 */
 	private double accessWalkSpeedKmh = 4.0;
 
+	/**
+	 * 정류장 사이를 <b>달리는</b> 속도(km/h) — S15P21E201-1123.
+	 *
+	 * <p>🔴 {@code RouteProperties.transitSpeedKmh}(18)와 다른 값이다. 저쪽은 기다리는
+	 * 시간과 환승까지 <b>뭉뚱그린</b> 값이라 그만큼 낮고, 이쪽은 차가 실제로 달리는 동안의
+	 * 속도다 — 기다리는 시간은 배차간격에서, 서는 시간은 아래 값에서 따로 온다.
+	 *
+	 * <p>🔴 <b>잰 값이 아니다.</b> 이 저장소의 다른 속도들과 같다.
+	 */
+	private double rideSpeedKmh = 22.0;
+
+	/**
+	 * 정류장 한 곳에 서느라 드는 초. 지나는 중간 정류장 수만큼 붙는다.
+	 * 🔴 잰 값이 아니다.
+	 */
+	private int dwellSecondsPerStop = 20;
+
 	public int getAccessRadiusM() {
 		return this.accessRadiusM;
 	}
@@ -76,5 +93,21 @@ public class TransitProperties {
 
 	public void setAccessWalkSpeedKmh(double accessWalkSpeedKmh) {
 		this.accessWalkSpeedKmh = accessWalkSpeedKmh;
+	}
+
+	public double getRideSpeedKmh() {
+		return this.rideSpeedKmh;
+	}
+
+	public void setRideSpeedKmh(double rideSpeedKmh) {
+		this.rideSpeedKmh = rideSpeedKmh;
+	}
+
+	public int getDwellSecondsPerStop() {
+		return this.dwellSecondsPerStop;
+	}
+
+	public void setDwellSecondsPerStop(int dwellSecondsPerStop) {
+		this.dwellSecondsPerStop = dwellSecondsPerStop;
 	}
 }
