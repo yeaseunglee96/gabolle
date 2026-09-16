@@ -4,6 +4,7 @@ import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 
 import { useAuth } from '@/auth/AuthProvider';
+import { MarkdownBody } from '@/components/MarkdownBody';
 import { PhotoGrid } from '@/components/PhotoGrid';
 import { Button } from '@/components/Button';
 import { ReportModal } from '@/components/ReportModal';
@@ -105,7 +106,9 @@ export default function StoryDetail() {
             ) : null}
           </View>
 
-          <Text color={color.text.body} style={styles.body}>{story.body}</Text>
+          {/* S15P21E201-1136 — 마크다운을 그린다. 마크다운을 안 쓴 기존 글은
+              문단 하나가 되므로 지금과 똑같이 보인다. */}
+          <MarkdownBody source={story.body} />
 
           {/* S15P21E201-1135 — 목록 카드와 **같은 배치**를 쓴다. 같은 글이 자리마다
               다르게 보이면 사용자는 올린 것과 보이는 것이 다르다고 느낀다. */}
@@ -197,7 +200,6 @@ const styles = StyleSheet.create({
   headerRow: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[2] },
   grow: { flex: 1, gap: spacing[1] },
   visibilityBadge: { minHeight: 28, paddingHorizontal: spacing[2], borderRadius: radius.full, backgroundColor: color.surface.soft, alignItems: 'center', justifyContent: 'center' },
-  body: { lineHeight: 24 },
   images: { marginTop: spacing[2] },
   placeCard: { gap: spacing[1], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.tint },
   actionRow: { flexDirection: 'row', justifyContent: 'space-between' },

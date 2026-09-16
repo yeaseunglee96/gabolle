@@ -14,6 +14,7 @@ import { useRouter } from 'expo-router';
 
 import { useAuth } from '@/auth/AuthProvider';
 import { PhotoGrid } from '@/components/PhotoGrid';
+import { markdownToPlain } from '@/social/markdown';
 import { Button } from '@/components/Button';
 import { Eyebrow } from '@/components/Eyebrow';
 import { ReportModal } from '@/components/ReportModal';
@@ -101,7 +102,9 @@ function StoryCard({ story, compact, showUnfollow, unfollowBusy, onUnfollow, onO
         : null}
     </View>
 
-    <Text color={color.text.body} style={styles.body}>{story.body}</Text>
+    {/* 🔴 S15P21E201-1136 — 목록에서는 효과를 벗긴다. 제목을 크게 그리면 카드 높이가
+        글마다 들쭉날쭉해져서 목록이 읽기 어려워진다. 온전한 모양은 상세에서만 보여준다. */}
+    <Text color={color.text.body} style={styles.body} numberOfLines={compact ? 3 : 6}>{markdownToPlain(story.body)}</Text>
     <StoryImages images={story.images} compact={compact} />
 
     <View style={styles.cardFooter}>
