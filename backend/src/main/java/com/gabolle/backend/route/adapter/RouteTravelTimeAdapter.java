@@ -62,7 +62,41 @@ public class RouteTravelTimeAdapter implements TravelTimePort {
 		}
 
 		return new TravelTime(leg.distanceM(), leg.durationMin(),
-				leg.estimated() ? ItineraryItem.DataStatus.ESTIMATED : ItineraryItem.DataStatus.VERIFIED);
+				leg.estimated() ? ItineraryItem.DataStatus.ESTIMATED : ItineraryItem.DataStatus.VERIFIED,
+				fareOf(leg));
+	}
+
+	/**
+	 * 이 구간의 이동 요금 — S15P21E201-1109.
+	 *
+	 * <h2>🔴 받아 놓고 버리던 값이다</h2>
+	 *
+	 * {@code KakaoMobilityRouteAdapter} 가 카카오모빌리티 응답에서 <b>택시 요금과 통행료를
+	 * 이미 파싱해</b> {@link RouteLeg} 에 담는데, 여기서 끊겨 아무도 안 읽고 있었다. 그동안
+	 * 화면의 「예상 비용」은 출처 없는 숫자였다.
+	 *
+	 * <h2>🔴 자동차일 때만 값이 있다. 나머지는 비운다</h2>
+	 *
+	 * 카카오모빌리티는 <b>자동차 경로만</b> 준다({@code supports} 가 {@code CAR} 에만 참을
+	 * 주는 이유). 그래서 도보·대중교통 구간에는 요금이 아예 없다.
+	 *
+	 * <p><b>그때 {@code 0} 을 넣지 않는다.</b> 0 은 "공짜" 라는 주장이고, 화면은 그것을
+	 * 「무료」로 그린다 — 모른다를 없다로 바꿔 말하는 것이다. 비워 두면 화면이 줄을 안 만든다.
+	 *
+	 * <p>대중교통 운임은 별건이다. 노선망이 들어오면 <b>탄 노선·구간·환승 횟수</b>로 계산할
+	 * 수 있다 — {@code RaptorPlanner} 의 결과가 그 셋을 이미 안다(S15P21E201-1104).
+	 */
+	private static Integer fareOf(RouteLeg leg) {
+		if (leg.mode() != TravelMode.CAR) {
+			return null;
+		}
+		Integer taxi = leg.taxiFareKrw();
+		if (taxi == null) {
+			// 자동차인데 업체가 요금을 안 준 경우다(경로는 줬지만 요금 칸이 빈 응답). 지어내지 않는다.
+			return null;
+		}
+		Integer toll = leg.tollFareKrw();
+		return (toll == null) ? taxi : taxi + toll;
 	}
 
 	private static TravelMode modeOf(String travelMode) {
