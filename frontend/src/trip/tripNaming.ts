@@ -119,6 +119,43 @@ export async function loadTripNameSuggestions(
 /** 이름이 모델이 지은 것인가. `TEMPLATE` 과 갈라 그리라고 있는 함수다. */
 export const isModelNamed = (source: TripNameSource) => source === 'MODEL';
 
+/**
+ * 후보를 화면에 몇 개까지 그리나 (시안 `design_handoff_trip_name`).
+ *
+ * 더 와도 앞에서 자른다. 고르는 일이 일이 되면 사람은 고르지 않고 건너뛴다.
+ */
+export const MAX_SHOWN_SUGGESTIONS = 5;
+
+export type TripNameStep = {
+  step: 'suggestions' | 'empty';
+  suggestions: string[];
+  source: TripNameSource;
+  discardedCount: number;
+};
+
+/**
+ * 후보를 받아 온 결과로 화면이 어느 자리에 서는지 정한다 (S15P21E201-1036).
+ *
+ * 🔴 **실패해도 오류 화면으로 가지 않는다.** 이름을 못 지은 것은 사람을 다치게 하지
+ * 않는다 — 직접 쓰거나 건너뛸 수 있는 자리로 보내면 된다. 그리고 그때 **후보를 지어내지
+ * 않는다.** 빈 목록으로 간다.
+ *
+ * 화면이 아니라 여기 두는 이유는 이 판단이 시험으로 지켜져야 하기 때문이다. 화면 안에
+ * 두면 「실패하면 오류를 띄우자」로 조용히 바뀌어도 아무것도 빨개지지 않는다.
+ */
+export function planNameStep(result: TripNameSuggestionsResult): TripNameStep {
+  if (result.state !== 'success') {
+    return { step: 'empty', suggestions: [], source: 'TEMPLATE', discardedCount: 0 };
+  }
+  const shown = result.suggestions.slice(0, MAX_SHOWN_SUGGESTIONS);
+  return {
+    step: shown.length > 0 ? 'suggestions' : 'empty',
+    suggestions: shown,
+    source: result.source,
+    discardedCount: result.discardedCount,
+  };
+}
+
 export type TripTitleCheck =
   | { ok: true; title: string | null }
   | { ok: false; reason: 'tooLong' | 'controlChar'; length?: number };
