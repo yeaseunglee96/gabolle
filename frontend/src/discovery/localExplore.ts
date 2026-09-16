@@ -67,6 +67,11 @@ export type NearbyPlaceItem = {
   lat: number;
   lng: number;
   distanceM: number;
+  // S15P21E201-1125 — 목록 응답에 사진이 실려 온다(백엔드 MR !992). 값이 없으면 칸 자체가
+  // 안 오므로 optional 이다. 🔴 photoUrl 을 쓰면 photoSource 도 반드시 같이 그린다 —
+  // 관광공사 공공누리라 출처 표기가 이용 조건이다.
+  photoUrl?: string | null;
+  photoSource?: string | null;
 };
 export type NearbyPlacesDto = {
   items: NearbyPlaceItem[];

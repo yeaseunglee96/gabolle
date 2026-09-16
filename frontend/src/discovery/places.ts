@@ -233,14 +233,16 @@ export function getPlace(placeId: string, signal?: AbortSignal) {
 // 계약: backend/src/main/java/com/gabolle/backend/place/api/PlaceQueryController.java (S15P21E201-462).
 // GET /api/v1/places?query=&limit= — query 와 facetType 은 정확히 하나만 보내야 한다(둘 다
 // 없거나 둘 다 있으면 400). 여기서는 이름 검색만 쓰므로 query 만 보낸다.
-export type PlaceSearchItem = { placeId: string; nameKo: string; nameEn: string | null; category: string; address: string; lat: number; lng: number };
+// photoUrl·photoSource 는 S15P21E201-1125 에서 열렸다(백엔드 MR !992). 값이 없으면 칸이
+// 안 오므로 optional 이다. 🔴 사진을 그리면 출처도 같이 그린다 — 공공누리 이용 조건이다.
+export type PlaceSearchItem = { placeId: string; nameKo: string; nameEn: string | null; category: string; address: string; lat: number; lng: number; photoUrl?: string | null; photoSource?: string | null };
 
 type PlacePageDto = { items: PlaceSearchItemDto[]; limit: number; nextCursor: string | null; hasNext: boolean; rankTruncated: boolean };
-type PlaceSearchItemDto = { placeId: string; nameKo: string; nameEn: string | null; category: string; address: string; lat: number; lng: number; matchedField: 'NAME_KO' | 'NAME_EN' | null };
+type PlaceSearchItemDto = { placeId: string; nameKo: string; nameEn: string | null; category: string; address: string; lat: number; lng: number; matchedField: 'NAME_KO' | 'NAME_EN' | null; photoUrl?: string | null; photoSource?: string | null };
 
 export async function searchPlacesByName(query: string, signal?: AbortSignal): Promise<PlaceSearchItem[]> {
   const dto = await apiRequest<PlacePageDto>(`/api/v1/places?query=${encodeURIComponent(query)}&limit=8`, { signal });
-  return dto.items.map(({ placeId, nameKo, nameEn, category, address, lat, lng }) => ({ placeId, nameKo, nameEn, category, address, lat, lng }));
+  return dto.items.map(({ placeId, nameKo, nameEn, category, address, lat, lng, photoUrl, photoSource }) => ({ placeId, nameKo, nameEn, category, address, lat, lng, photoUrl, photoSource }));
 }
 
 /** 부산 전체에서 특정 로컬 갈래에 해당하는 장소를 찾는다. 거리 제한은 적용하지 않는다. */
@@ -252,5 +254,5 @@ export async function getPlacesByFacet(
 ): Promise<PlaceSearchItem[]> {
   const query = new URLSearchParams({ facetType, facetKey, limit: String(limit) });
   const dto = await apiRequest<PlacePageDto>(`/api/v1/places?${query.toString()}`, { signal });
-  return dto.items.map(({ placeId, nameKo, nameEn, category, address, lat, lng }) => ({ placeId, nameKo, nameEn, category, address, lat, lng }));
+  return dto.items.map(({ placeId, nameKo, nameEn, category, address, lat, lng, photoUrl, photoSource }) => ({ placeId, nameKo, nameEn, category, address, lat, lng, photoUrl, photoSource }));
 }
