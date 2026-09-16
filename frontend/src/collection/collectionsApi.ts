@@ -177,6 +177,48 @@ export function mergeCollections(device: DeviceCollections, server: DeviceCollec
   return { merged: { lists: merged, places }, onlyOnDevice };
 }
 
+/**
+ * 서버가 아는 장소인가 — S15P21E201-1117.
+ *
+ * <p>서버 장소 id 는 UUID 다. 그런데 부슐랭에서 손으로 추가한 장소는 기기가 만든다 —
+ * {@code `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`}, 예를 들면
+ * {@code mfjk2x-a7b3c1}. 이것은 어떤 경우에도 UUID 가 아니다.
+ *
+ * <p>🔴 그런데 올릴 때 이것을 {@code kind: PLACE} 의 {@code placeId} 로 보내고 있었다.
+ * 서버는 {@code UUID placeId} 로 받으므로 값을 읽는 단계에서 400 이 나고, 바깥의 catch 가
+ * 그것을 삼켜서 그 장소는 조용히 사라진다. 사용자는 올라간 줄 안다.
+ * (2026-09-16 iOS 실기기 스윕에서 발견)
+ */
+const SERVER_PLACE_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+export function isServerPlaceId(value: string): boolean {
+  return SERVER_PLACE_ID.test(value);
+}
+
+/**
+ * 담을 것 하나를 서버 말로 옮긴다 — S15P21E201-1117.
+ *
+ * <p>서버는 처음부터 두 종류를 받게 돼 있었다. {@code PLACE} 는 서버에 있는 장소를
+ * 가리키는 것이고, {@code CUSTOM} 은 사용자가 손으로 적은 것이다 — 이름·지역·좌표·메모를
+ * 그대로 싣고 {@code placeId} 를 안 쓴다(CollectionController.addItem).
+ *
+ * <p>손으로 추가한 장소는 처음부터 {@code CUSTOM} 이었다. 클라이언트가 늘 {@code PLACE}
+ * 로 보낸 것이 잘못이다. 계약을 바꿀 일이 아니라 맞는 칸에 넣으면 되는 일이었다.
+ */
+export function buildItemRequest(placeId: string, place: CollectionPlace) {
+  if (isServerPlaceId(placeId)) {
+    return { kind: 'PLACE' as const, placeId, note: place.note ?? null };
+  }
+  return {
+    kind: 'CUSTOM' as const,
+    name: place.name,
+    locality: place.locality ?? null,
+    lat: place.lat ?? null,
+    lng: place.lng ?? null,
+    note: place.note ?? null,
+  };
+}
+
 async function createOnServer(list: CollectionList, places: Record<string, CollectionPlace>, accessToken: string) {
   const created = await apiRequest<ServerCollection>('/api/v1/me/collections', {
     method: 'POST',
@@ -190,15 +232,7 @@ async function createOnServer(list: CollectionList, places: Record<string, Colle
       await apiRequest<unknown>(`/api/v1/me/collections/${encodeURIComponent(created.collectionId)}/items`, {
         method: 'POST',
         accessToken,
-        body: {
-          kind: 'PLACE',
-          placeId,
-          name: place.name,
-          locality: place.locality ?? null,
-          lat: place.lat ?? null,
-          lng: place.lng ?? null,
-          note: place.note ?? null,
-        },
+        body: buildItemRequest(placeId, place),
       });
     } catch {
       // 🔴 장소 하나가 안 올라가도 리스트 전체를 버리지 않는다. 그 장소는 기기에 남아

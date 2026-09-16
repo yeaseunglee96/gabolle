@@ -191,3 +191,52 @@ describe('서버가 받아 줄 수 없는 리스트', () => {
     expect(retryable.state === 'success' && retryable.uploaded).toBe(0);
   });
 });
+
+// S15P21E201-1117 — 손으로 추가한 장소가 서버로 안 올라가던 것.
+//
+// 🔴 기기가 만드는 장소 id 는 `${Date.now().toString(36)}-${random}` 이라 절대 UUID 가
+//    아니다. 그것을 kind: PLACE 의 placeId 로 보내면 서버가 값을 읽는 단계에서 400 을
+//    내고, 바깥의 catch 가 그것을 삼켜서 장소가 조용히 사라진다.
+import { buildItemRequest, isServerPlaceId } from '../collectionsApi';
+
+describe('isServerPlaceId — 서버가 아는 장소인가', () => {
+  it('서버 장소 id(UUID)를 알아본다', () => {
+    expect(isServerPlaceId('7b8cd3bc-7cef-48ef-bda0-335bec095fc2')).toBe(true);
+    expect(isServerPlaceId('7B8CD3BC-7CEF-48EF-BDA0-335BEC095FC2')).toBe(true);
+  });
+
+  it('기기가 만든 id 를 서버 것으로 오해하지 않는다', () => {
+    // CollectionProvider 의 uid() 가 실제로 만드는 모양이다.
+    expect(isServerPlaceId('mfjk2x-a7b3c1')).toBe(false);
+    expect(isServerPlaceId('p1')).toBe(false);
+    expect(isServerPlaceId('')).toBe(false);
+    // 자릿수가 하나 모자란 것도 통과시키지 않는다.
+    expect(isServerPlaceId('7b8cd3bc-7cef-48ef-bda0-335bec095fc')).toBe(false);
+  });
+});
+
+describe('buildItemRequest — 담을 것을 서버 말로 옮긴다', () => {
+  const custom = { ...place('mfjk2x-a7b3c1', '할매국밥'), locality: '부산 서구', lat: 35.1, lng: 129.0, note: '아침에' };
+  const fromServer = { ...place('7b8cd3bc-7cef-48ef-bda0-335bec095fc2', '감천문화마을'), note: '오후에' };
+
+  it('손으로 추가한 장소는 CUSTOM 으로 보낸다 — 이름과 좌표가 그대로 실린다', () => {
+    expect(buildItemRequest(custom.id, custom)).toEqual({
+      kind: 'CUSTOM', name: '할매국밥', locality: '부산 서구', lat: 35.1, lng: 129.0, note: '아침에',
+    });
+  });
+
+  it('CUSTOM 에는 placeId 를 아예 넣지 않는다 — 그게 400 의 원인이었다', () => {
+    expect(buildItemRequest(custom.id, custom)).not.toHaveProperty('placeId');
+  });
+
+  it('서버 장소는 PLACE 로 보낸다', () => {
+    expect(buildItemRequest(fromServer.id, fromServer)).toEqual({
+      kind: 'PLACE', placeId: '7b8cd3bc-7cef-48ef-bda0-335bec095fc2', note: '오후에',
+    });
+  });
+
+  it('메모가 없으면 null 로 채운다', () => {
+    const noNote = place('mfjk2x-a7b3c1', '이름만 있는 곳');
+    expect(buildItemRequest(noNote.id, noNote)).toMatchObject({ kind: 'CUSTOM', note: null, locality: null, lat: null, lng: null });
+  });
+});
