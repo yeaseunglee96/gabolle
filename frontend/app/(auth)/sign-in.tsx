@@ -6,7 +6,7 @@ import { useAuth } from '@/auth/AuthProvider';
 import { loginWithOAuth } from '@/auth/oauth';
 import { navigateAfterOAuthComplete } from '@/auth/oauthNavigation';
 import type { OAuthProvider } from '@/auth/authApi';
-import { resolveDestination, savePendingReturnTo } from '@/auth/pendingReturnTo';
+import { guestDestination, resolveDestination, savePendingReturnTo } from '@/auth/pendingReturnTo';
 import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
 import { Eyebrow } from '@/components/Eyebrow';
@@ -34,7 +34,7 @@ function errorMessage(cause: unknown, tx: (ko: string, en: string) => string, co
   return cause instanceof ApiClientError ? cause.message : tx('로그인하지 못했어요.', 'Unable to sign in.');
 }
 export default function SignIn() {
-  const router = useRouter(); const { returnTo, passwordReset } = useLocalSearchParams<{ returnTo?: string; passwordReset?: string }>(); const { signIn, acceptTokens } = useAuth();
+  const router = useRouter(); const { returnTo, passwordReset, gated } = useLocalSearchParams<{ returnTo?: string; passwordReset?: string; gated?: string }>(); const { signIn, acceptTokens } = useAuth();
   const { tx } = useI18n();
   const { kind } = useLayout();
   const [email, setEmail] = useState(''); const [password, setPassword] = useState(''); const [show, setShow] = useState(false);
@@ -76,20 +76,19 @@ export default function SignIn() {
       <Pressable accessibilityRole="link" style={styles.forgot} onPress={() => router.push('/forgot-password')}><Text variant="caption" color={color.action.primary}>{tx('비밀번호를 잊으셨나요?', 'Forgot your password?')}</Text></Pressable>
       {feedback && <Card><Text accessibilityRole="alert" variant="caption" color={feedback.danger ? color.state.danger : color.text.body}>{feedback.text}</Text></Card>}
       <Button accessibilityRole="button" accessibilityState={{ disabled: !eligible || busy || !!provider, busy }} label={busy ? tx('로그인 중…', 'Signing in…') : tx('로그인', 'Sign in')} disabled={!eligible || busy || !!provider} onPress={() => void submit()} />
-      {/* 🔴 S15P21E201-1116 — returnTo 로 되돌려 보내지 않는다.
+      {/* 🔴 S15P21E201-1116 — 보호 화면에서 튕겨 온 것이면 returnTo 로 되돌아가지 않는다.
 
-          전에는 isSafeReturnPath(returnTo) ? returnTo : '/home' 이었다. 그런데 returnTo 가
-          로그인을 요구하는 화면(/me/* 는 ProtectedRoute 로 막혀 있다)이면 고리가 닫힌다 —
-          보호 화면 → 로그인 → 둘러보기 → 보호 화면 → 로그인 … 앱을 강제 종료하는 것 말고
-          빠져나올 방법이 없었다(2026-09-16 iOS 실기기에서 확인).
+          예전에는 언제나 returnTo 로 갔다. 그런데 그 자리가 로그인을 요구하는 화면이면
+          ProtectedRoute 가 다시 이리로 보내서 무한 왕복이 된다 — 2026-09-16 실기기에서
+          강제 종료 말고는 빠져나올 길이 없었다.
 
-          isSafeReturnPath 는 「안전한 주소인가」만 본다. /sign-in·/sign-up 을 예외로 둔 것을
-          보면 자기 자신으로 돌아오는 고리는 이미 의식하고 있었지만, 보호 화면을 거쳐 한 칸
-          건너 돌아오는 고리는 놓쳤다.
+          그렇다고 늘 홈으로 보내면 안 된다. 여행 만들기 4단계처럼 로그인이 필요 없는
+          자리에서 「로그인하고 일정 만들기」로 넘어온 사람은, 마음이 바뀌어 둘러보기를
+          눌렀을 때 채우던 4단계로 돌아가야 한다. 안드로이드 실기기에서 그 경로가 실제로
+          잘 도는 것을 확인했다.
 
-          이 버튼의 뜻은 「로그인 없이 볼 수 있는 곳으로 가겠다」이지 「원래 가려던 곳으로
-          가겠다」가 아니다. returnTo 는 로그인에 성공했을 때만 쓴다(resolveDestination). */}
-      <Pressable accessibilityRole="button" accessibilityHint={tx('로그인 없이 홈과 주요 기능을 둘러봅니다.', 'Browse the home screen and core features without signing in.')} style={styles.guest} onPress={() => router.replace('/home')}><Text variant="body" weight="bold" color={color.action.primary}>{tx('비회원으로 둘러보기', 'Browse as guest')}</Text></Pressable>
+          가르는 표시는 ProtectedRoute 가 붙여 준다(gated=1). 목록으로 추측하지 않는다. */}
+      <Pressable accessibilityRole="button" accessibilityHint={tx('로그인 없이 홈과 주요 기능을 둘러봅니다.', 'Browse the home screen and core features without signing in.')} style={styles.guest} onPress={() => router.replace(guestDestination(returnTo, gated) as Href)}><Text variant="body" weight="bold" color={color.action.primary}>{tx('비회원으로 둘러보기', 'Browse as guest')}</Text></Pressable>
     </View>
     <View style={styles.divider}><View style={styles.line} /><Text variant="caption">{tx('또는', 'or')}</Text><View style={styles.line} /></View>
     <View style={styles.socials}>{([
