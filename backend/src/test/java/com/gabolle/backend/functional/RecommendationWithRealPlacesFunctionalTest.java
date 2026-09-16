@@ -85,18 +85,39 @@ class RecommendationWithRealPlacesFunctionalTest extends FunctionalJourneyTest {
 	@Autowired
 	private SbizPlaceLoader loader;
 
-	/** 장소가 없으면 표본을 넣는다. 이미 있으면 그대로 쓴다 — 적재기는 같은 가게를 건너뛴다. */
+	/**
+	 * 표본이 아직 없으면 넣는다. 이미 있으면 그대로 쓴다 — 적재기는 같은 가게를 건너뛴다.
+	 *
+	 * <h2>🔴 "표가 비었나" 로 묻지 않는다</h2>
+	 *
+	 * 예전에는 {@code SELECT COUNT(*) FROM place} 가 0 일 때만 표본을 넣었다. 그런데
+	 * <b>장소를 심는 마이그레이션이 하나라도 생기면 그 수가 0 이 아니게 된다.</b> 그러면 이
+	 * 검사는 표본 200곳을 건너뛰고, 반경 5km 안에 후보가 없어 추천이
+	 * {@code ENGINE_NO_CANDIDATES} 로 실패한다 — 엔진이 고장난 것이 아니라 <b>먹일 것을 안
+	 * 넣은 것</b>인데, 실패 메시지는 엔진을 가리켜서 원인을 엉뚱한 데서 찾게 된다.
+	 *
+	 * <p>2026-09-16 에 실제로 그랬다. {@code V20260916210000__curated_core_busan_landmarks.sql}
+	 * 이 부산 대표 명소 <b>4곳</b>을 넣자 이 검사 두 건이 무너졌다(MR !982). 바다·자연 장소를
+	 * 넣는 뒤 마이그레이션도 같은 자리를 밟는다.
+	 *
+	 * <p>그래서 <b>이 검사가 넣은 표본이 있는지</b>를 묻는다. 그것이 원래 묻고 싶었던 것이고,
+	 * 남이 장소를 몇 곳 넣든 흔들리지 않는다.
+	 */
 	private void ensurePlaces() {
-		Integer places = this.jdbc.queryForObject("SELECT COUNT(*) FROM place", Integer.class);
-		if (places != null && places > 0) {
+		if (samplePlaceCount() > 0) {
 			return;
 		}
 		OffsetDateTime collectedAt = OffsetDateTime.now();
 		ResearchQueueReader.read(sampleFile(), 500,
 				chunk -> this.loader.saveChunk(chunk, SAMPLE_DATASET, collectedAt));
 
-		Integer loaded = this.jdbc.queryForObject("SELECT COUNT(*) FROM place", Integer.class);
-		assertThat(loaded).as("표본을 넣었는데 장소가 하나도 안 들어갔다").isNotNull().isPositive();
+		assertThat(samplePlaceCount()).as("표본을 넣었는데 장소가 하나도 안 들어갔다").isPositive();
+	}
+
+	private int samplePlaceCount() {
+		Integer count = this.jdbc.queryForObject("SELECT COUNT(*) FROM place WHERE dataset_version = ?",
+				Integer.class, SAMPLE_DATASET);
+		return count == null ? 0 : count;
 	}
 
 	/** 판독기가 경로를 받으므로 상주 표본을 임시 파일로 풀어 준다. */
