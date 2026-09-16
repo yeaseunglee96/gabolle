@@ -16,6 +16,7 @@ import { color, radius, spacing } from '@/design/tokens';
 import { useAuth } from '@/auth/AuthProvider';
 import { useI18n } from '@/i18n';
 import { useCollection } from '@/collection/CollectionProvider';
+import { COLLECTION_LIMITS } from '@/collection/collectionsApi';
 import { searchOrigins, type OriginCandidate } from '@/plan/origins';
 
 // S15P21E201-919: "카카오맵 자동완성으로 위치 자동 입력" 리포트 — 새 지도 SDK를 또 불러오는
@@ -150,7 +151,7 @@ export default function CollectionListDetail() {
       <Pressable accessibilityRole="button" accessibilityLabel={tx('사진 선택', 'Choose photo')} onPress={() => void pickPhoto()} style={styles.photoPicker}>
         {photoUri ? <Image source={{ uri: photoUri }} resizeMode="cover" style={styles.photoPreview} /> : <Text variant="caption" color={color.text.muted}>{tx('사진 추가 (선택)', 'Add photo (optional)')}</Text>}
       </Pressable>
-      <TextInput accessibilityLabel={tx('장소 이름', 'Place name')} value={name} onChangeText={handleNameChange} placeholder={tx('장소 이름 (검색해서 골라도 돼요)', 'Place name (search and pick, or type your own)')} placeholderTextColor={color.text.muted} style={styles.input} />
+      <TextInput accessibilityLabel={tx('장소 이름', 'Place name')} maxLength={COLLECTION_LIMITS.itemName} value={name} onChangeText={handleNameChange} placeholder={tx('장소 이름 (검색해서 골라도 돼요)', 'Place name (search and pick, or type your own)')} placeholderTextColor={color.text.muted} style={styles.input} />
       {searchResults.length > 0 && <View accessibilityRole="list" style={styles.suggestionList}>
         {searchResults.map((item) => <Pressable key={item.externalId} accessibilityRole="button" accessibilityLabel={tx(`${item.name} 선택`, `Choose ${item.name}`)} onPress={() => selectSuggestion(item)} style={({ pressed }) => [styles.suggestionItem, pressed && styles.suggestionItemPressed]}>
           <Text variant="body" weight="bold">{item.name}</Text>
@@ -177,13 +178,13 @@ export default function CollectionListDetail() {
         />
       </View>
       {categoryCode === WRITE_MY_OWN ? (
-        <TextInput accessibilityLabel={tx('카테고리 직접 쓰기', 'Write your own category')} value={category} onChangeText={setCategory} placeholder={tx('카테고리 직접 쓰기', 'Write your own category')} placeholderTextColor={color.text.muted} style={styles.input} />
+        <TextInput accessibilityLabel={tx('카테고리 직접 쓰기', 'Write your own category')} maxLength={COLLECTION_LIMITS.category} value={category} onChangeText={setCategory} placeholder={tx('카테고리 직접 쓰기', 'Write your own category')} placeholderTextColor={color.text.muted} style={styles.input} />
       ) : null}
       {localityCode === WRITE_MY_OWN ? (
-        <TextInput accessibilityLabel={tx('지역 직접 쓰기', 'Write your own area')} value={locality} onChangeText={setLocality} placeholder={tx('지역 직접 쓰기 (예: 영도구)', 'Write your own area (e.g. Yeongdo-gu)')} placeholderTextColor={color.text.muted} style={styles.input} />
+        <TextInput accessibilityLabel={tx('지역 직접 쓰기', 'Write your own area')} maxLength={COLLECTION_LIMITS.locality} value={locality} onChangeText={setLocality} placeholder={tx('지역 직접 쓰기 (예: 영도구)', 'Write your own area (e.g. Yeongdo-gu)')} placeholderTextColor={color.text.muted} style={styles.input} />
       ) : null}
       <Text variant="caption" color={color.text.muted}>{tx('돌려서 고르세요. 지역은 검색에서 고르면 자동으로 채워져요.', 'Spin to choose. Picking a search result fills the area for you.')}</Text>
-      <TextInput accessibilityLabel={tx('한줄 메모', 'One-line note')} value={note} onChangeText={setNote} placeholder={tx('한줄 메모 (선택)', 'One-line note (optional)')} placeholderTextColor={color.text.muted} style={styles.input} />
+      <TextInput accessibilityLabel={tx('한줄 메모', 'One-line note')} maxLength={COLLECTION_LIMITS.note} value={note} onChangeText={setNote} placeholder={tx('한줄 메모 (선택)', 'One-line note (optional)')} placeholderTextColor={color.text.muted} style={styles.input} />
       <Button label={tx('담기', 'Save')} disabled={!name.trim()} onPress={submitPlace} />
     </Card> : null}
 

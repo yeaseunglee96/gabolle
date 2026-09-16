@@ -48,8 +48,63 @@ export type DeviceCollections = {
   places: Record<string, CollectionPlace>;
 };
 
+/**
+ * 서버가 받아 주는 글자 수. 넘기면 400 이라 올릴 방법이 없다.
+ *
+ * 값의 주인은 서버다 — `Collection.NAME_MAX_LENGTH`·`DESCRIPTION_MAX_LENGTH` 와
+ * `CollectionItem` 의 이름·지역·메모 상한을 그대로 옮겨 적었다. 자바 상수를 타입스크립트에서
+ * 읽을 방법이 없어 두 곳에 적히는 것은 감수한다. 저쪽이 바뀌면 여기도 바꾼다.
+ *
+ * 화면은 입력칸의 `maxLength` 로 이 값을 쓰고, 여기서는 이미 기기에 남아 있는 긴 값을
+ * 걸러내는 데 쓴다. 막는 자리가 둘인 이유는 상한이 생기기 전에 만들어진 리스트가 기기에
+ * 남아 있기 때문이다 — 입력칸만 막으면 그것들은 계속 400 을 받는다.
+ */
+export const COLLECTION_LIMITS = {
+  name: 100,
+  description: 500,
+  itemName: 200,
+  locality: 100,
+  note: 500,
+  /**
+   * 카테고리만 서버 상한이 아니라 우리가 정한 값이다. 항목을 올릴 때 카테고리는 안 보내서
+   * 400 이 날 일이 없지만, 상한이 없는 입력칸을 하나만 남겨 두면 다음 사람이 그것을 규칙으로
+   * 읽는다. 지역과 같은 자리의 값이라 같은 수를 쓴다.
+   */
+  category: 100,
+} as const;
+
+/** 올릴 수 없는 리스트인가. 올릴 수 있으면 `null`. */
+export type UploadBlockReason = 'name-too-long' | 'description-too-long';
+
+/**
+ * 보내 보기 전에 서버가 거절할 것을 알 수 있는 경우를 가른다.
+ *
+ * 다시 시도해서 될 실패와 안 될 실패는 다르게 다뤄야 한다. 서버가 끊겼거나 500 이면 다음에
+ * 다시 올리면 되지만, 글자 수가 넘친 이름은 같은 값을 몇 번을 보내도 같은 400 이다. 그런
+ * 리스트를 재시도 목록에 두면 화면을 열 때마다 실패하는 요청이 한 번씩 나가고, 사용자는
+ * 자기 리스트가 계정에 없다는 것을 끝내 모른다.
+ */
+export function uploadBlockReason(list: CollectionList): UploadBlockReason | null {
+  if (codePoints(list.name.trim()) > COLLECTION_LIMITS.name) return 'name-too-long';
+  if (codePoints(list.description?.trim() ?? '') > COLLECTION_LIMITS.description) return 'description-too-long';
+  return null;
+}
+
+/**
+ * 서버와 같은 방식으로 센다.
+ *
+ * 자바스크립트의 `.length` 는 글자가 아니라 UTF-16 칸 수라, 이모지 하나가 둘로 세어진다.
+ * 서버는 `codePointCount` 로 세므로 그대로 쓰면 서버가 받아 줄 이름을 우리가 막는다.
+ * 입력칸의 `maxLength` 는 UTF-16 칸으로만 셀 수 있는데, 그쪽은 더 빡빡하게 막는 것이라
+ * 서버가 거절할 값이 새어 나가지는 않는다.
+ */
+function codePoints(value: string): number {
+  return [...value].length;
+}
+
 export type CollectionsLoadResult =
-  | { state: 'success'; data: DeviceCollections; uploaded: number }
+  /** `blocked` 는 서버가 받아 줄 수 없어 올리기를 건너뛴 리스트 수다. */
+  | { state: 'success'; data: DeviceCollections; uploaded: number; blocked: number }
   | { state: 'device-only'; data: DeviceCollections; reason: 'anonymous' | 'unreachable' };
 
 /**
@@ -178,13 +233,23 @@ export async function loadCollections(device: DeviceCollections, accessToken: st
 
   const { merged, onlyOnDevice } = mergeCollections(device, server);
   let uploaded = 0;
+  let blocked = 0;
   for (const list of onlyOnDevice) {
+    if (uploadBlockReason(list)) {
+      // 보내 봐야 400 이다. 요청을 아끼려는 것이 아니라, 될 리 없는 것을 계속 시도하면
+      // 화면이 「곧 올라간다」는 뜻으로 보이기 때문이다. 화면은 같은 판정을 써서 이
+      // 리스트에 기기 전용이라고 적는다.
+      blocked += 1;
+      continue;
+    }
     try {
       await createOnServer(list, merged.places, accessToken);
       uploaded += 1;
-    } catch {
-      // 못 올렸으면 기기에 그대로 둔다. 다음에 다시 올린다.
+    } catch (error) {
+      // 4xx 는 이 값으로는 안 된다는 뜻이라 다시 보내도 같다. 5xx 와 끊김은 다음에 다시
+      // 올린다 — 기기에 그대로 두는 것은 둘 다 같지만 세는 자리를 가른다.
+      if (error instanceof ApiClientError && error.status >= 400 && error.status < 500) blocked += 1;
     }
   }
-  return { state: 'success', data: merged, uploaded };
+  return { state: 'success', data: merged, uploaded, blocked };
 }
