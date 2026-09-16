@@ -125,7 +125,7 @@ public class PlaceFeatureLoader {
 	@Transactional
 	public Saved saveChunk(List<PlaceFeatureNdjsonReader.Fact> facts, String sourceType, String datasetVersion,
 			OffsetDateTime collectedAt) {
-		List<UUID> placeIds = facts.stream().map(fact -> placeIdOf(sourceType, fact.storeId())).toList();
+		List<UUID> placeIds = facts.stream().map(fact -> placeIdOf(fact.keySource(), fact.storeId())).toList();
 		Set<UUID> knownPlaces = new HashSet<>();
 		this.placeRepository.findAllById(placeIds).forEach(place -> knownPlaces.add(place.getPlaceId()));
 
@@ -133,12 +133,12 @@ public class PlaceFeatureLoader {
 		int missingPlace = 0;
 		int alreadyPresent = 0;
 		for (PlaceFeatureNdjsonReader.Fact fact : facts) {
-			UUID placeId = placeIdOf(sourceType, fact.storeId());
+			UUID placeId = placeIdOf(fact.keySource(), fact.storeId());
 			if (!knownPlaces.contains(placeId)) {
 				missingPlace++;
 				continue;
 			}
-			UUID featureId = featureIdOf(sourceType, fact.storeId(), fact.featureType());
+			UUID featureId = featureIdOf(fact.keySource(), fact.storeId(), fact.featureType());
 			int affected = this.entityManager.createNativeQuery(INSERT_IF_ABSENT)
 					.setParameter(1, featureId)
 					.setParameter(2, placeId)
@@ -167,6 +167,12 @@ public class PlaceFeatureLoader {
 
 	/**
 	 * 산출물의 열쇠로 장소 아이디를 만든다 — S15P21E201-1047.
+	 *
+	 * <h2>🔴 열쇠 체계는 {@code source_type} 과 다른 것이다</h2>
+	 *
+	 * <p>이 값은 {@link PlaceFeatureNdjsonReader.Fact#keySource()} 에서 온다. 처음에는
+	 * {@code source_type} 으로 만들려다 DB 통합 시험에 걸렸다 — 가격대는 {@code source_type}
+	 * 이 {@code RESEARCH_PRICEBAND} 인데 열쇠는 상가업소번호다. 둘은 서로 독립이다.
 	 *
 	 * <h2>🔴 원천마다 열쇠가 다르다</h2>
 	 *

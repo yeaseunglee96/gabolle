@@ -111,6 +111,21 @@ class PlaceSlopeReaderTest {
 	}
 
 	@Test
+	@DisplayName("🔴 열쇠 체계를 줄마다 들고 다닌다 — source_type 과 다른 것이다")
+	void factCarriesKeySource() throws Exception {
+		// 🔴 이 검사가 있는 이유. 처음 판은 place_feature.source_type 으로 장소 아이디를
+		//    만들었는데, 가격대는 source_type 이 RESEARCH_PRICEBAND(조사에서 왔다)이면서
+		//    열쇠는 상가업소번호다. 둘은 서로 독립이다 — 하나는 "값이 어디서 왔나",
+		//    하나는 "이 문자열을 무엇으로 읽나" 다. DB 통합 시험이 그것을 잡았다.
+		List<PlaceFeatureNdjsonReader.Fact> slopes = readAll(GAMCHEON);
+		assertThat(slopes.get(0).keySource()).isEqualTo(TourApiPlaceLoader.SOURCE_TYPE);
+
+		// 열쇠를 안 적은 기존 호출자는 상가업소번호로 본다 — 그 동작이 안 바뀌어야 한다.
+		var legacy = new PlaceFeatureNdjsonReader.Fact("MA0101", "PRICE_LEVEL", "{}");
+		assertThat(legacy.keySource()).isEqualTo(SbizPlaceLoader.SOURCE_TYPE);
+	}
+
+	@Test
 	@DisplayName("장소 아이디는 관광공사 열쇠로 만든다 — 상가 열쇠로 만들면 딴 곳을 가리킨다")
 	void placeIdComesFromTourApiKey() {
 		// 🔴 이것이 이 작업에서 가장 조용한 사고 자리다. 두 원천은 같은 모양의 결정적

@@ -59,11 +59,29 @@ public final class PlaceFeatureNdjsonReader {
 	/**
 	 * 장소 하나에 붙일 사실 하나.
 	 *
-	 * @param storeId 상가업소번호. {@link SbizPlaceLoader#placeIdOf} 가 이것으로 장소를 찾는다
-	 * @param featureType 지금은 {@code PRICE_LEVEL} 하나뿐이다
+	 * @param storeId 장소를 찾는 열쇠. 무엇으로 읽어야 하는지는 {@code keySource} 가 말한다
+	 * @param featureType {@code PRICE_LEVEL} · {@code SLOPE_PERCENT} 처럼 무엇에 대한 사실인가
 	 * @param value {@code place_feature.value} 에 그대로 들어갈 JSON 문자열
+	 * @param keySource 🔴 <b>열쇠가 어느 체계인가</b> — {@link SbizPlaceLoader#SOURCE_TYPE}(상가업소번호)
+	 *     이거나 {@link TourApiPlaceLoader#SOURCE_TYPE}({@code contentid})다
 	 */
-	public record Fact(String storeId, String featureType, String value) {
+	public record Fact(String storeId, String featureType, String value, String keySource) {
+
+		/**
+		 * 🔴 열쇠 체계는 {@code place_feature.source_type} 과 <b>다른 것이다.</b>
+		 *
+		 * <p>처음에 이 둘을 같은 것으로 보고 {@code source_type} 으로 장소 아이디를 만들려다
+		 * DB 통합 시험에 걸렸다. 가격대는 {@code source_type} 이 {@code RESEARCH_PRICEBAND}
+		 * (조사에서 왔다)인데 <b>열쇠는 상가업소번호</b>다. 둘은 서로 독립이다 —
+		 * 하나는 "값이 어디서 왔나", 하나는 "이 문자열을 무엇으로 읽나" 다.
+		 *
+		 * <p>그래서 읽는 쪽이 정한다. 파일을 파싱한 쪽이 그 열쇠가 무엇인지 안다.
+		 *
+		 * <p>이 생성자는 열쇠를 안 적은 기존 호출자를 위한 것이다 — 상가업소번호로 본다.
+		 */
+		public Fact(String storeId, String featureType, String value) {
+			this(storeId, featureType, value, SbizPlaceLoader.SOURCE_TYPE);
+		}
 	}
 
 	/**
@@ -165,7 +183,9 @@ public final class PlaceFeatureNdjsonReader {
 			copyNumber(node, payload, "radiusM");
 			copyNumber(node, payload, "segments");
 			copyNumber(node, payload, "walkLengthM");
-			out.add(new Fact(contentId, "SLOPE_PERCENT", write(payload)));
+			// 🔴 열쇠가 contentid 다. 안 적으면 상가업소번호로 읽혀 한 곳도 못 찾고,
+			//    그때 예외는 안 나고 "장소가 없어 못 넣음" 으로만 세어진다.
+			out.add(new Fact(contentId, "SLOPE_PERCENT", write(payload), TourApiPlaceLoader.SOURCE_TYPE));
 			return true;
 		});
 	}
