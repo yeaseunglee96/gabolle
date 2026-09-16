@@ -33,6 +33,17 @@ export type ItineraryDto = {
   fallbackMode?: 'MODEL' | 'RULE' | 'BASELINE' | null;
   myRole?: 'OWNER' | 'EDITOR' | 'VIEWER';
   canEdit?: boolean;
+  // S15P21E201-1113 — 이 일정이 어느 여행의 것인가.
+  //
+  // 🔴 앱의 주소 `/trips/{id}/itinerary` 의 {id} 자리에는 **여행 번호가 아니라 일정 번호**가
+  // 들어간다. 그래서 이 화면에 서 있는 앱은 자기가 어느 여행 소속인지 알 방법이 없었고,
+  // 추천 화면으로 넘어갈 때 일정 번호를 여행 번호인 척 넘겨 서버가 404(TRIP_NOT_FOUND)를
+  // 줬다. 화면은 그 404 를 「아직 생성된 추천이 없어요」로 그렸다 — 추천이 멀쩡히 있는데도.
+  //
+  // 서버가 맨 뒤에 더해 주기로 한 칸이다(s15p21e201-13, 2026-09-16). 아직 안 온 판에서는
+  // 그냥 없으므로 optional 이고, 없으면 추천으로 가는 버튼을 안 그린다 — 눌러서 빈 화면을
+  // 보여 주느니 안 보여 주는 편이 낫다.
+  tripId?: string;
 };
 
 export type ItineraryVersionEntryDto = {
