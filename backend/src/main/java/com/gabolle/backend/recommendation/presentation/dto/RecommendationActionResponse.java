@@ -31,7 +31,7 @@ public record RecommendationActionResponse(UUID placeId, RecommendationPlaceActi
 	 *
 	 * <p>모양은 다른 목록 응답과 같게 뒀다({@code items}·{@code count}·{@code hasMore}).
 	 *
-	 * @param hasMore 🔴 상한에 걸려 <b>더 있는데 안 보냈다</b> (S15P21E201-1037)
+	 * @param hasMore 상한에 걸려 <b>더 있는데 안 보냈다</b> (S15P21E201-1037)
 	 */
 	public record Page(List<RecommendationActionResponse> items, int count, boolean hasMore) {
 

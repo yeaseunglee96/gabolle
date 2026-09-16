@@ -197,7 +197,7 @@ class CollectionControllerTest {
 				null, 0, NOW);
 		when(this.collections.findByIdAndUserId(this.collectionId, this.ownerId)).thenReturn(Optional.of(mine()));
 		when(this.places.existsById(this.placeId)).thenReturn(true);
-		// 🔴 이미 있으면 업서트가 0 을 돌려준다 — 그래도 응답은 성공이고, 돌려주는 것은
+		// 이미 있으면 업서트가 0 을 돌려준다 — 그래도 응답은 성공이고, 돌려주는 것은
 		//    「지금 담겨 있는 그 항목」이다. 그전에는 목록을 통째로 읽어 비교했다.
 		when(this.items.insertPlaceItemIfAbsent(any(), eq(this.collectionId), eq(this.placeId), any(),
 				anyInt(), any())).thenReturn(0);

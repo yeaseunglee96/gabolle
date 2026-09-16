@@ -11,7 +11,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
  * 500 이 아니라 성공을 준다」. 그 판정을 DB 가 하므로 <b>진짜 PostgreSQL 위에서</b>
  * 확인해야 하고, 그러려면 세 리포지토리가 한 컨텍스트에 있어야 한다.
  *
- * <p>🔴 슬라이스를 새로 만든 이유. {@link PlaceSliceApplication} 은 {@code place} 만 훑고,
+ * <p>슬라이스를 새로 만든 이유. {@link PlaceSliceApplication} 은 {@code place} 만 훑고,
  * 거기에 컬렉션과 추천을 더하면 그 슬라이스를 쓰는 기존 테스트들의 컨텍스트가 같이
  * 무거워진다. 남의 테스트가 왜 느려졌는지 아무도 못 찾는 종류의 변경이라 따로 둔다.
  *

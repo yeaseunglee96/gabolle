@@ -29,7 +29,7 @@ public record SavedPlaceResponse(UUID placeId, OffsetDateTime savedAt) {
 	 * ({@code items}·{@code count}·{@code hasMore}) — 목록 응답마다 다른 모양을 만들면 화면이
 	 * 경로마다 다르게 읽어야 한다.
 	 *
-	 * @param hasMore 🔴 상한에 걸려 <b>더 있는데 안 보냈다</b> (S15P21E201-1037). 이 칸이
+	 * @param hasMore 상한에 걸려 <b>더 있는데 안 보냈다</b> (S15P21E201-1037). 이 칸이
 	 *     없으면 부르는 쪽이 「잘린 것」과 「이게 전부인 것」을 구분할 수 없고, 사용자에게는
 	 *     누른 적 있는 하트가 사라진 것으로 보인다
 	 */

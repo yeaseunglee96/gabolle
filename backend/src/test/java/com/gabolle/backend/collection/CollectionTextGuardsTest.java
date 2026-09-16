@@ -29,7 +29,7 @@ class CollectionTextGuardsTest {
 	private static final OffsetDateTime NOW = OffsetDateTime.parse("2026-09-16T09:00:00Z");
 
 	@Test
-	@DisplayName("🔴 완료 기준 — 열 폭을 넘는 컬렉션 이름은 도메인이 거절한다 (DB 까지 안 간다)")
+	@DisplayName("완료 기준 — 열 폭을 넘는 컬렉션 이름은 도메인이 거절한다 (DB 까지 안 간다)")
 	void aTooLongCollectionNameIsRejectedBeforeItReachesTheDatabase() {
 		String tooLong = "가".repeat(Collection.NAME_MAX_LENGTH + 1);
 
@@ -48,7 +48,7 @@ class CollectionTextGuardsTest {
 	}
 
 	@Test
-	@DisplayName("🔴 길이는 글자 수로 센다 — 이모지가 든 이름이 자바 길이 때문에 거부되면 안 된다")
+	@DisplayName("길이는 글자 수로 센다 — 이모지가 든 이름이 자바 길이 때문에 거부되면 안 된다")
 	void lengthIsCountedInCharactersNotJavaCodeUnits() {
 		// 이모지 하나는 자바 문자열에서 두 칸을 차지하지만 varchar 는 한 글자로 센다.
 		String withEmoji = "🍜".repeat(Collection.NAME_MAX_LENGTH);
@@ -83,7 +83,7 @@ class CollectionTextGuardsTest {
 	}
 
 	@Test
-	@DisplayName("🔴 완료 기준 — 항목의 이름·지역·사진 주소·메모도 각자 열 폭에서 멈춘다")
+	@DisplayName("완료 기준 — 항목의 이름·지역·사진 주소·메모도 각자 열 폭에서 멈춘다")
 	void collectionItemFieldsAreBoundedToTheirColumnWidths() {
 		UUID id = UUID.randomUUID();
 		UUID collectionId = UUID.randomUUID();
@@ -106,7 +106,7 @@ class CollectionTextGuardsTest {
 	}
 
 	@Test
-	@DisplayName("🔴 업서트로 들어가는 장소 항목의 메모도 같은 규칙을 지난다")
+	@DisplayName("업서트로 들어가는 장소 항목의 메모도 같은 규칙을 지난다")
 	void notesTakeTheSamePathWhetherTheyGoThroughTheEntityOrTheUpsert() {
 		assertThat(CollectionItem.normalizedNote("  바닷가 옆  ")).isEqualTo("바닷가 옆");
 		assertThat(CollectionItem.normalizedNote("   ")).isNull();

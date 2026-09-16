@@ -51,7 +51,7 @@ public record CollectionResponse(UUID collectionId, String name, String descript
 	/**
 	 * 내 컬렉션 목록.
 	 *
-	 * @param hasMore 🔴 상한에 걸려 <b>더 있는데 안 보냈다</b> (S15P21E201-1037). 컬렉션 안쪽
+	 * @param hasMore 상한에 걸려 <b>더 있는데 안 보냈다</b> (S15P21E201-1037). 컬렉션 안쪽
 	 *     항목이 잘린 것은 각 {@link CollectionResponse} 의 같은 이름 칸이 따로 알린다
 	 */
 	public record Page(List<CollectionResponse> items, int count, boolean hasMore) {

@@ -35,7 +35,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 /**
  * 어젯밤 연 경로 셋의 방어선이 <b>실제로 막는가</b> — S15P21E201-1037 의 완료 기준.
  *
- * <h2>🔴 왜 진짜 DB 여야 하나</h2>
+ * <h2>왜 진짜 DB 여야 하나</h2>
  *
  * 이 모듈들의 테스트는 지금까지 전부 컨트롤러를 홀로 세우고 서비스를 가짜로 끼운 것이었다.
  * 그 방식으로는 요청 모양과 상태 코드는 확인되지만, <b>마이그레이션에 적어 둔 제약이 정말
@@ -121,7 +121,7 @@ class EndpointGuardsPostgresTest {
 	// ── 멱등 ─────────────────────────────────────────────────────────────────
 
 	@Test
-	@DisplayName("🔴 완료 기준 — 같은 하트를 두 번 넣어도 예외가 아니고 행은 하나다")
+	@DisplayName("완료 기준 — 같은 하트를 두 번 넣어도 예외가 아니고 행은 하나다")
 	void savingTheSamePlaceTwiceIsNotAnError() {
 		assertThat(this.savedPlaces.insertIfAbsent(UUID.randomUUID(), this.userId, this.placeId, NOW))
 				.as("처음이라 한 행이 들어가야 한다")
@@ -137,7 +137,7 @@ class EndpointGuardsPostgresTest {
 	}
 
 	@Test
-	@DisplayName("🔴 완료 기준 — 같은 장소를 한 컬렉션에 두 번 담아도 항목은 하나다")
+	@DisplayName("완료 기준 — 같은 장소를 한 컬렉션에 두 번 담아도 항목은 하나다")
 	void addingTheSamePlaceToACollectionTwiceKeepsOneItem() {
 		this.items.insertPlaceItemIfAbsent(UUID.randomUUID(), this.collectionId, this.placeId, null, 0, NOW);
 
@@ -152,7 +152,7 @@ class EndpointGuardsPostgresTest {
 	}
 
 	@Test
-	@DisplayName("🔴 완료 기준 — 같은 후보의 판단을 두 번 적으면 덮어쓰고 행은 하나다")
+	@DisplayName("완료 기준 — 같은 후보의 판단을 두 번 적으면 덮어쓰고 행은 하나다")
 	void decidingTheSameCandidateTwiceOverwrites() {
 		UUID companion = this.userId;
 		this.actions.upsert(UUID.randomUUID(), this.tripId, this.placeId, "SAVED", companion, NOW);
@@ -169,7 +169,7 @@ class EndpointGuardsPostgresTest {
 	// ── 제약 ─────────────────────────────────────────────────────────────────
 
 	@Test
-	@DisplayName("🔴 완료 기준 — 장소를 가리킨다면서 place_id 가 빈 행은 DB 가 거부한다")
+	@DisplayName("완료 기준 — 장소를 가리킨다면서 place_id 가 빈 행은 DB 가 거부한다")
 	@Transactional
 	void placeItemWithoutAPlaceIsRejectedByTheDatabase() {
 		assertThatThrownBy(() -> this.jdbc.update("""
@@ -182,7 +182,7 @@ class EndpointGuardsPostgresTest {
 	}
 
 	@Test
-	@DisplayName("🔴 완료 기준 — 직접 적은 항목인데 이름이 공백이면 DB 가 거부한다")
+	@DisplayName("완료 기준 — 직접 적은 항목인데 이름이 공백이면 DB 가 거부한다")
 	@Transactional
 	void customItemWithoutANameIsRejectedByTheDatabase() {
 		assertThatThrownBy(() -> this.jdbc.update("""

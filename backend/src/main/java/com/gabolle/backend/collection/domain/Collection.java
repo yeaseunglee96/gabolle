@@ -23,7 +23,7 @@ import jakarta.persistence.Table;
 public class Collection {
 
 	/**
-	 * 이름의 최대 글자 수. 🔴 아래 {@code @Column(length)} 및 마이그레이션의
+	 * 이름의 최대 글자 수. 아래 {@code @Column(length)} 및 마이그레이션의
 	 * {@code varchar(100)} 과 같은 값이어야 한다 — 이 상수가 더 크면 DB 가 거부해 500 이 되고,
 	 * 더 작으면 DB 가 받아 줄 이름을 우리가 먼저 거절한다. {@code CollectionController} 의
 	 * {@code @Size} 도 이 상수를 읽는다.
@@ -85,7 +85,7 @@ public class Collection {
 	 * «제목 없음» 이 아니라 <b>거절</b>이 맞다 — 목록에 이름 없는 줄이 쌓이면 사용자가
 	 * 자기 것을 못 고른다. DB 의 {@code ck_collection_name_not_blank} 와 같은 것을 여기서도 본다.
 	 *
-	 * <p>🔴 2026-09-16 (S15P21E201-1037) — 길이도 여기서 본다. 그전에는 비었는지만 보고
+	 * <p>2026-09-16 (S15P21E201-1037) — 길이도 여기서 본다. 그전에는 비었는지만 보고
 	 * 넘겨서, 100자를 넘는 이름이 PostgreSQL 까지 가서 거부되고 500 으로 나갔다.
 	 */
 	private static String requireName(String name) {

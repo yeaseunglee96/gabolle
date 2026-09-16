@@ -36,7 +36,7 @@ public class CollectionService {
 	/**
 	 * 한 번에 돌려주는 컬렉션 최대 개수 — S15P21E201-1037.
 	 *
-	 * <p>🔴 상한을 두면 <b>알리는 칸을 함께</b> 둬야 한다({@code hasMore}). 상한만 두고 안
+	 * <p>상한을 두면 <b>알리는 칸을 함께</b> 둬야 한다({@code hasMore}). 상한만 두고 안
 	 * 알리면 목록이 조용히 잘리고, 사용자에게는 「내가 만든 목록이 없어졌다」로 보인다.
 	 * 같은 판단을 축제 목록과 일정 판 목록이 먼저 했다(S15P21E201-1011).
 	 */
@@ -219,7 +219,7 @@ public class CollectionService {
 	/**
 	 * 컬렉션과 그 안의 항목을 함께 들고 다니는 묶음.
 	 *
-	 * @param hasMore 🔴 항목이 상한에 걸려 <b>더 있는데 안 보냈다</b> (S15P21E201-1037)
+	 * @param hasMore 항목이 상한에 걸려 <b>더 있는데 안 보냈다</b> (S15P21E201-1037)
 	 */
 	public record Loaded(Collection collection, List<CollectionItem> items, boolean hasMore) {
 	}
@@ -227,7 +227,7 @@ public class CollectionService {
 	/**
 	 * 내 컬렉션 목록.
 	 *
-	 * @param hasMore 🔴 컬렉션 자체가 상한에 걸려 더 있는데 안 보냈다
+	 * @param hasMore 컬렉션 자체가 상한에 걸려 더 있는데 안 보냈다
 	 */
 	public record Listing(List<Loaded> items, boolean hasMore) {
 	}
@@ -235,7 +235,7 @@ public class CollectionService {
 	/**
 	 * 넣은 직후 그 행을 도로 못 읽었다 — 일어나면 안 되는 일이다.
 	 *
-	 * <p>🔴 {@code IllegalArgumentException}·{@code IllegalStateException} 이 아닌 <b>따로 만든
+	 * <p>{@code IllegalArgumentException}·{@code IllegalStateException} 이 아닌 <b>따로 만든
 	 * 예외</b>인 이유는 하나다. 그 둘은 {@code CollectionExceptionHandler} 가 400 으로 내리는데,
 	 * 이것은 부르는 쪽이 잘못한 것이 아니라 <b>우리 쪽 불변식이 깨진 것</b>이다. 400 으로
 	 * 내리면 사용자는 자기 입력을 고치려 들고, 우리는 서버 오류 그래프에서 이 사고를 못 본다.

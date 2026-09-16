@@ -27,7 +27,7 @@ public class SavedPlaceService {
 	/**
 	 * 한 번에 돌려주는 최대 개수 — S15P21E201-1037.
 	 *
-	 * <p>🔴 상한을 두면 <b>알리는 칸을 함께</b> 둬야 한다({@code hasMore}). 상한만 두고 안
+	 * <p>상한을 두면 <b>알리는 칸을 함께</b> 둬야 한다({@code hasMore}). 상한만 두고 안
 	 * 알리면 목록이 조용히 잘리고, 사용자에게는 「내가 누른 하트가 사라졌다」로 보인다.
 	 * 같은 판단을 축제 목록과 일정 판 목록이 먼저 했다(S15P21E201-1011).
 	 */
@@ -63,7 +63,7 @@ public class SavedPlaceService {
 	/**
 	 * 하트를 켠다. <b>몇 번을 보내도 같다.</b>
 	 *
-	 * <p>🔴 2026-09-16 (S15P21E201-1037) — 그전에는 {@code exists} 로 보고 없으면 넣었다.
+	 * <p>2026-09-16 (S15P21E201-1037) — 그전에는 {@code exists} 로 보고 없으면 넣었다.
 	 * 연타하면 두 요청이 둘 다 통과한 뒤 하나가 유일 제약에 걸려 500 이 나갔다. 지금은
 	 * 넣기와 판정을 DB 한 문장에서 끝낸다 — {@link SavedPlaceRepository#insertIfAbsent} 참고.
 	 *
@@ -91,7 +91,7 @@ public class SavedPlaceService {
 	/**
 	 * 잘라 온 목록과, 잘렸는지 여부.
 	 *
-	 * @param hasMore 🔴 상한에 걸려 <b>더 있는데 안 보냈다.</b> 이 칸이 없으면 부르는 쪽이
+	 * @param hasMore 상한에 걸려 <b>더 있는데 안 보냈다.</b> 이 칸이 없으면 부르는 쪽이
 	 *     「상한에 걸린 것」과 「이게 전부인 것」을 구분할 수 없다
 	 */
 	public record Page(List<SavedPlace> items, boolean hasMore) {

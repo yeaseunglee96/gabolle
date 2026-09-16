@@ -43,7 +43,7 @@ public class RecommendationActionService {
 	/**
 	 * 한 번에 돌려주는 최대 개수 — S15P21E201-1037.
 	 *
-	 * <p>🔴 상한을 두면 <b>알리는 칸을 함께</b> 둬야 한다({@code hasMore}). 상한만 두고 안
+	 * <p>상한을 두면 <b>알리는 칸을 함께</b> 둬야 한다({@code hasMore}). 상한만 두고 안
 	 * 알리면 목록이 조용히 잘리고, 동행자에게는 「담아 둔 곳이 사라졌다」로 보인다.
 	 */
 	public static final int MAX_ITEMS = 500;
@@ -97,7 +97,7 @@ public class RecommendationActionService {
 		UUID decidedBy = UUID.fromString(userId);
 		OffsetDateTime now = OffsetDateTime.now(this.clock);
 
-		// 🔴 찾아보고 없으면 넣는 대신 한 문장으로 끝낸다 — 동행자 둘이 같은 후보를 동시에
+		// 찾아보고 없으면 넣는 대신 한 문장으로 끝낸다 — 동행자 둘이 같은 후보를 동시에
 		//    누르면 그 사이로 둘 다 들어가 하나가 유일 제약에 걸려 500 이 됐다.
 		this.repository.upsert(UUID.randomUUID(), trip, place, action.name(), decidedBy, now);
 
@@ -124,7 +124,7 @@ public class RecommendationActionService {
 	/**
 	 * 잘라 온 판단 목록과, 잘렸는지 여부.
 	 *
-	 * @param hasMore 🔴 상한에 걸려 <b>더 있는데 안 보냈다</b>. 이 칸이 없으면 부르는 쪽이
+	 * @param hasMore 상한에 걸려 <b>더 있는데 안 보냈다</b>. 이 칸이 없으면 부르는 쪽이
 	 *     「잘린 것」과 「이게 전부인 것」을 구분할 수 없다
 	 */
 	public record Page(List<RecommendationPlaceAction> items, boolean hasMore) {
@@ -133,7 +133,7 @@ public class RecommendationActionService {
 	/**
 	 * 적은 직후 그 행을 도로 못 읽었다 — 일어나면 안 되는 일이다.
 	 *
-	 * <p>🔴 {@code IllegalArgumentException} 이 아닌 이유는 그것이
+	 * <p>{@code IllegalArgumentException} 이 아닌 이유는 그것이
 	 * {@code RecommendationJobExceptionHandler} 에서 400 이 되기 때문이다. 이것은 부르는 쪽
 	 * 잘못이 아니라 우리 쪽 불변식이 깨진 것이라 500 이 맞다.
 	 */

@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.gabolle.backend.place.domain.SavedPlace;
 
@@ -17,7 +18,7 @@ public interface SavedPlaceRepository extends JpaRepository<SavedPlace, UUID> {
 	/**
 	 * 내가 저장한 장소 — 저장 탭과 홈 캐러셀의 하트 표시를 되살린다. 최근에 저장한 것이 먼저다.
 	 *
-	 * <h2>🔴 상한을 두기로 바꿨다 (2026-09-16, S15P21E201-1037)</h2>
+	 * <h2>상한을 두기로 바꿨다 (2026-09-16, S15P21E201-1037)</h2>
 	 *
 	 * 처음 만들 때(-1013)의 판단은 <b>상한을 두지 않는다</b>였고, 근거는 「사람이 손으로 하트를
 	 * 누른 수만큼이라 사람 손이 상한이고, 끝없이 자라는 목록이 아니다」였다. 그 판단은 한 번에
@@ -40,7 +41,7 @@ public interface SavedPlaceRepository extends JpaRepository<SavedPlace, UUID> {
 	/**
 	 * 없으면 넣고, 이미 있으면 아무것도 안 한다 — S15P21E201-1037.
 	 *
-	 * <h2>🔴 왜 「있는지 보고 없으면 넣는다」가 아닌가</h2>
+	 * <h2>왜 「있는지 보고 없으면 넣는다」가 아닌가</h2>
 	 *
 	 * 그 방식은 두 요청 사이가 벌어진다. 하트를 빠르게 두 번 누르면 두 요청이 둘 다
 	 * {@code exists} 를 통과한 뒤 둘 다 넣으려 하고, {@code uk_saved_place} 에 걸린 쪽이
@@ -57,6 +58,13 @@ public interface SavedPlaceRepository extends JpaRepository<SavedPlace, UUID> {
 	 *
 	 * @return 실제로 넣었으면 1, 이미 있어서 아무것도 안 했으면 0
 	 */
+	//
+	// @Transactional 을 여기 붙인다 (S15P21E201-1037). @Modifying 질의는 트랜잭션을
+	//    요구하는데, Spring Data 는 기본 CRUD 에만 트랜잭션을 걸어 주고 직접 쓴 질의에는
+	//    안 걸어 준다. 부르는 서비스가 전부 @Transactional 이라 운영에서는 안 드러나고,
+	//    리포지토리를 곧장 부르는 시험에서 "flush 를 처리할 수 없다" 로 터졌다.
+	//    운영에서는 부모 트랜잭션에 합류하므로(REQUIRED) 동작이 달라지지 않는다.
+	@Transactional
 	@Modifying(clearAutomatically = true, flushAutomatically = true)
 	@Query(value = """
 			INSERT INTO saved_place (saved_place_id, user_id, place_id, created_at)

@@ -179,7 +179,7 @@ class RecommendationActionAuthorizationTest {
 	 * {@code uk_recommendation_place_action}(여행+장소에 행 하나)에 걸려 저장이 실패한다.
 	 * 제약이 없었다면 같은 장소가 담김이면서 동시에 빠진 상태가 된다.
 	 *
-	 * <p>🔴 2026-09-16 (S15P21E201-1037) — 그 판정을 이제 <b>DB 가 한 문장으로</b> 한다.
+	 * <p>2026-09-16 (S15P21E201-1037) — 그 판정을 이제 <b>DB 가 한 문장으로</b> 한다.
 	 * 「찾아보고 없으면 넣는」 방식은 동행자 둘이 동시에 누르면 그 사이로 둘 다 들어가
 	 * 하나가 500 이 됐고, 이 자리는 동시에 눌리는 것이 예외가 아니라 정상이다.
 	 *
@@ -188,7 +188,7 @@ class RecommendationActionAuthorizationTest {
 	 * {@code EndpointGuardsPostgresTest}.
 	 */
 	@Test
-	@DisplayName("🔴 판단을 적을 때 새로 만들지 않고 업서트 한 문장으로 맡긴다 — 정한 사람도 함께 넘긴다")
+	@DisplayName("판단을 적을 때 새로 만들지 않고 업서트 한 문장으로 맡긴다 — 정한 사람도 함께 넘긴다")
 	void putDelegatesToASingleUpsertStatement() {
 		RecommendationPlaceActionRepository repository = mock(RecommendationPlaceActionRepository.class);
 		TripQueryService tripQueryService = mock(TripQueryService.class);
@@ -214,7 +214,7 @@ class RecommendationActionAuthorizationTest {
 	/**
 	 * 넣은 직후 그 행을 도로 못 읽는 것은 <b>우리 쪽 불변식이 깨진 것</b>이다.
 	 *
-	 * <p>🔴 이때 400 을 주면 사용자는 자기 입력을 고치려 들고 우리는 서버 오류 그래프에서
+	 * <p>이때 400 을 주면 사용자는 자기 입력을 고치려 들고 우리는 서버 오류 그래프에서
 	 * 이 사고를 못 본다. 그래서 어드바이스가 안 잡는 예외를 따로 둔다.
 	 */
 	@Test

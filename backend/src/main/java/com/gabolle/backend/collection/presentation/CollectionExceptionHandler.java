@@ -66,7 +66,7 @@ public class CollectionExceptionHandler {
 	/**
 	 * 요청 본문의 칸이 규격을 벗어났다 — {@code @Valid} 가 걸러 준 것.
 	 *
-	 * <p>🔴 이것을 안 잡으면 Spring 기본 오류 화면이 나가고, 앱의 응답 봉투가 아니라서
+	 * <p>이것을 안 잡으면 Spring 기본 오류 화면이 나가고, 앱의 응답 봉투가 아니라서
 	 * 화면은 그것을 「예상하지 못한 서버 응답」으로 읽는다. 어느 칸이 왜 틀렸는지도 사라진다.
 	 */
 	@ExceptionHandler(MethodArgumentNotValidException.class)
