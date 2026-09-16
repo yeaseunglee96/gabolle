@@ -145,7 +145,7 @@ export default function Basics() {
     <Text color={color.text.body} style={styles.subtitle}>{tx('부산 여행의 기본을 알려주세요', 'Tell us the essentials for your Busan trip')}</Text>
 
     {kind === 'phone' && <View style={styles.questionProgress}>
-      <View style={styles.questionMeta}><Text variant="caption" weight="bold" color={color.brand.orange}>{tx('기본정보', 'Basics')} {panelIndex + 1} / {PANEL_LABELS.length}</Text><Text variant="caption" color={color.text.muted}>{tx(`약 ${Math.max(8, (PANEL_LABELS.length - panelIndex) * 8)}초 남음`, `About ${Math.max(8, (PANEL_LABELS.length - panelIndex) * 8)}s left`)}</Text></View>
+      <View style={styles.questionMeta}><Text variant="caption" weight="bold" color={color.brand.orange}>{tx('기본정보', 'Basics')} {panelIndex + 1} / {PANEL_LABELS.length}</Text></View>
       <View style={styles.questionDots}>{PANEL_LABELS.map(([ko, en], index) => <Pressable key={ko} accessibilityRole="button" accessibilityLabel={tx(`${ko} 항목으로 이동`, `Go to ${en}`)} onPress={() => goToPanel(index)} style={[styles.questionDot, index === panelIndex && styles.questionDotCurrent, !panelBlocked(index) && styles.questionDotAnswered]} />)}</View>
     </View>}
 
