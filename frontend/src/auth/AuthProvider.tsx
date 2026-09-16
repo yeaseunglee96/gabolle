@@ -6,6 +6,7 @@ import { getApiLanguage, setRefreshHandler, setUnauthorizedHandler } from '@/api
 import { deleteMe, getMe, login, logoutMobileSession, logoutWebSession, refreshMobileSession, refreshWebSession, updateMe, type AuthTokens, type AuthUser, type SignupLanguage } from './authApi';
 import { useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
 import { clearSavedTrips } from '@/trip/tripLibrary';
+import { restoreMobileAuth } from './restoreMobileAuth';
 
 const tx = (ko: string, en: string) => (getApiLanguage() === 'en' ? en : ko);
 
@@ -63,18 +64,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           if (active) { setAccessToken(tokens.accessToken); applyUser(currentUser); }
           return;
         }
-        const storedRefreshToken = await SecureStore.getItemAsync(REFRESH_TOKEN_KEY);
-        if (!storedRefreshToken) return;
-        const tokens = await refreshMobileSession(storedRefreshToken);
-        const currentUser = await getMe(tokens.accessToken);
+        const tokens = await restoreMobileAuth({
+          read: () => SecureStore.getItemAsync(REFRESH_TOKEN_KEY),
+          write: (token) => SecureStore.setItemAsync(REFRESH_TOKEN_KEY, token),
+          remove: () => SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY),
+        }, refreshMobileSession);
+        if (!tokens) return;
         if (active) {
           setAccessToken(tokens.accessToken);
           setRefreshToken(tokens.refreshToken);
-          applyUser(currentUser);
-          if (tokens.refreshToken) await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, tokens.refreshToken);
+          applyUser(tokens.user);
         }
       } catch {
-        if (Platform.OS !== 'web') await SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY);
+        // 일시적인 통신·저장소 오류로 로그인 정보를 지우지 않는다.
+        // 명시적인 세션 거부(401)는 restoreMobileAuth에서 처리한다.
       } finally {
         if (active) setReady(true);
       }
