@@ -466,6 +466,41 @@ class RouteAuthorizationRegistryTest {
 				"탈퇴하면 무엇이 지워지는지 미리 보여준다(-188). 대상이 인증 주체 자신뿐이라 남의 것을 지정할 자리가 없다. AccountDeletionIntegrationTest");
 		put(m, "DELETE /api/v1/auth/me", Policy.OWNED,
 				"탈퇴. 대상이 인증 주체 자신뿐이다. AccountDeletionIntegrationTest");
+		put(m, "POST /api/v1/menu-scans", Policy.AUTHENTICATED_ONLY,
+				"메뉴판 사진을 서버가 모델에 중계한다. 우리 자원이 아니라 주인이 없다 — 인증을 요구하는 것은 "
+						+ "tools/translate 와 같은 이유(우리 키로 남이 호출을 돌리는 비용)에 더해, "
+						+ "한도를 사람 단위로 세야 하기 때문이다. 사진은 저장하지 않는다. MenuScanControllerTest (-1025)");
+
+		// ── 컬렉션 (-1013) ──────────────────────────────────────────────────────
+		// 여덟 경로가 같은 근거를 공유한다 — 경로에 남의 번호를 넣을 자리가 없고(/me),
+		// 컬렉션은 언제나 주인과 함께 찾는다(findByIdAndUserId). 없는 것과 남의 것을
+		// 같은 404 로 답해 존재 자체를 안 흘린다. CollectionControllerTest
+		put(m, "GET /api/v1/me/collections", Policy.OWNED,
+				"내 컬렉션만 읽는다. 저장한 장소와 같은 방식이다. CollectionControllerTest (-1013)");
+		put(m, "POST /api/v1/me/collections", Policy.OWNED,
+				"내 것으로만 만들어진다 — 주인은 인증 주체에서 온다. CollectionControllerTest (-1013)");
+		put(m, "GET /api/v1/me/collections/{}", Policy.OWNED,
+				"남의 컬렉션은 없는 것과 같은 404 다. CollectionControllerTest (-1013)");
+		put(m, "PATCH /api/v1/me/collections/{}", Policy.OWNED,
+				"남의 컬렉션 이름을 못 고친다. 같은 404. CollectionControllerTest (-1013)");
+		put(m, "DELETE /api/v1/me/collections/{}", Policy.OWNED,
+				"남의 컬렉션을 못 지운다. 같은 404. CollectionControllerTest (-1013)");
+		put(m, "POST /api/v1/me/collections/{}/items", Policy.OWNED,
+				"남의 컬렉션에 못 담는다. 같은 404. CollectionControllerTest (-1013)");
+		put(m, "PATCH /api/v1/me/collections/{}/items/{}", Policy.OWNED,
+				"항목도 컬렉션 번호와 함께 찾는다 — 항목 번호만으로 찾으면 남의 컬렉션 항목을 "
+						+ "고칠 길이 열린다. CollectionControllerTest (-1013)");
+		put(m, "DELETE /api/v1/me/collections/{}/items/{}", Policy.OWNED,
+				"위와 같은 이유. CollectionControllerTest (-1013)");
+
+		put(m, "GET /api/v1/me/saved-places", Policy.OWNED,
+				"내가 저장한(하트) 장소. 경로에 남의 식별자를 넣을 자리가 없고(/me) 사용자 번호는 "
+						+ "인증 주체에서만 읽는다 — 취향 설정과 같은 방식이다. SavedPlaceControllerTest (-1013)");
+		put(m, "PUT /api/v1/me/saved-places/{}", Policy.OWNED,
+				"내 목록에만 더한다. 같은 이유로 남의 것에 닿을 길이 없다. SavedPlaceControllerTest (-1013)");
+		put(m, "DELETE /api/v1/me/saved-places/{}", Policy.OWNED,
+				"내 목록에서만 뺀다. 같은 이유. SavedPlaceControllerTest (-1013)");
+
 		put(m, "GET /api/v1/me/preferences/spend", Policy.OWNED,
 				"계정 기본 씀씀이 성향 조회(-709). 대상이 경로에 없고 인증 주체로만 정해진다 — 남의 것을 지정할 방법이 없다. SpendProfileControllerTest");
 		put(m, "PUT /api/v1/me/preferences/spend", Policy.OWNED,
@@ -492,6 +527,14 @@ class RouteAuthorizationRegistryTest {
 				"비회원은 존재를 감춘 404. TripControllerGetTest · ItineraryAccessIntegrationTest");
 		put(m, "DELETE /api/v1/trips/{}", Policy.OWNED,
 				"삭제는 OWNER 만. 동행자는 403, 비회원과 없는 여행은 같은 404. TripDeleteIntegrationTest");
+		put(m, "POST /api/v1/trips/{}/name-suggestions", Policy.OWNED,
+				"참여자만. 남의 여행 ID 로 부르면 그 여행의 장소 목록이 이름 후보에 실려 "
+						+ "새어 나간다 — 비회원과 없는 여행은 같은 404. "
+						+ "TripNameSuggestionServiceTest (-1025)");
+		put(m, "PUT /api/v1/trips/{}/title", Policy.OWNED,
+				"이름은 OWNER·EDITOR 만 바꾼다. 보기 전용 동행자가 바꾸면 만든 사람의 목록에서 "
+						+ "자기 여행이 다른 이름으로 보인다 — VIEWER 는 403, 비회원과 없는 여행은 "
+						+ "같은 404. TripTitleTest (-1023)");
 		put(m, "GET /api/v1/trips/{}/itineraries", Policy.OWNED,
 				"참여자만. 비회원과 없는 여행이 같은 404. TripItineraryListIntegrationTest");
 		put(m, "GET /api/v1/trips/{}/stories", Policy.OWNED,
@@ -513,6 +556,22 @@ class RouteAuthorizationRegistryTest {
 				"공유 주소 발급은 참여자만. ShareLinkIntegrationTest");
 		put(m, "POST /api/v1/trips/{}/recommendation-jobs", Policy.OWNED,
 				"내 여행에만 추천을 요청할 수 있다. RecommendationResultAuthorizationTest");
+		put(m, "GET /api/v1/trips/{}/recommendation-actions", Policy.OWNED,
+				"참여자인 여행의 판단만 읽는다 — 추천 요청과 같은 관문(TripQueryService.get)을 지난다. "
+						+ "판단은 사람별이 아니라 여행별이라 동행자가 남긴 것도 함께 온다(초대가 곧 공유 장치다). "
+						+ "아직 아무것도 안 눌렀으면 빈 목록이고 404 가 아니다. "
+						+ "RecommendationActionAuthorizationTest (-1013)");
+		put(m, "PUT /api/v1/trips/{}/recommendation-actions/{}", Policy.OWNED,
+				"참여자가 아닌 여행의 후보에는 판단을 적을 수 없다. 같은 관문을 지난다. "
+						+ "참여자면 역할과 무관하게 적을 수 있고, 동행자가 정해 둔 것도 바꿀 수 있다 — "
+						+ "함께 쓰는 값이라 그것이 기능이다. RecommendationActionAuthorizationTest (-1013)");
+		put(m, "DELETE /api/v1/trips/{}/recommendation-actions/{}", Policy.OWNED,
+				"참여자가 아닌 여행의 판단은 거둘 수 없다. 같은 관문을 지난다. "
+						+ "RecommendationActionAuthorizationTest (-1013)");
+		put(m, "GET /api/v1/trips/{}/recommendation-jobs", Policy.OWNED,
+				"내 여행의 추천만 되찾을 수 있다 — 요청과 같은 관문(TripQueryService.get)을 지난다. "
+						+ "추천이 없는 내 여행은 빈 목록이고 404 가 아니다. "
+						+ "RecommendationResultAuthorizationTest (-1001)");
 
 		// ── 초대·공유 ────────────────────────────────────────────────────────────
 		put(m, "POST /api/v1/trip-invites/{}/accept", Policy.AUTHENTICATED_ONLY,
@@ -616,6 +675,10 @@ class RouteAuthorizationRegistryTest {
 				"남의 프로필 보기가 기능이다. 위험은 비공개 항목이 섞이는 것. FollowIntegrationTest");
 		put(m, "GET /api/v1/users/{}/stories", Policy.OTHER_USER_OK,
 				"남의 기록 목록 보기가 기능이다. visibleScopesOf 가 팔로우 여부로 범위를 가른다. FollowIntegrationTest");
+		put(m, "PUT /api/v1/users/{}/block", Policy.OTHER_USER_OK,
+				"남을 차단하는 것이 기능이다. 주체는 인증에서만 읽어 남의 이름으로 차단할 수 없다. BlockIntegrationTest");
+		put(m, "DELETE /api/v1/users/{}/block", Policy.OTHER_USER_OK,
+				"차단 해제도 같다. 내가 건 차단만 풀 수 있다 — 지우는 키가 (나, 상대) 쌍이다. BlockIntegrationTest");
 		put(m, "PUT /api/v1/users/{}/follow", Policy.OTHER_USER_OK,
 				"남을 팔로우하는 것이 기능이다. 주체는 인증에서만 읽어 남의 이름으로 팔로우할 수 없다. FollowIntegrationTest");
 		put(m, "DELETE /api/v1/users/{}/follow", Policy.OTHER_USER_OK,
@@ -673,10 +736,10 @@ class RouteAuthorizationRegistryTest {
 				"이벤트 종류 목록. 공용 기준 데이터다");
 		put(m, "POST /api/v1/events", Policy.AUTHENTICATED_ONLY,
 				"행동 이벤트 적재. 주체는 인증에서 읽고 본문의 사용자 값을 신뢰하지 않아야 한다 — 아래 '남은 위험' 참고. EventIngestServiceTest");
-		put(m, "GET /api/v1/analytics/kpis", Policy.AUTHENTICATED_ONLY,
-				"집계 지표 조회. 개인 자원이 아니라 전체 이벤트를 기간으로 묶어 세므로 주인이 없다 — "
-						+ "관리자 전용으로 좁히려면 이 저장소에 아직 없는 역할 체계부터 있어야 한다 "
-						+ "(AnalyticsController 주석 참고). AnalyticsControllerTest");
+		put(m, "GET /api/v1/admin/analytics/kpis", Policy.ADMIN_ONLY,
+				"집계 지표 조회. 예전에는 AUTHENTICATED_ONLY 였는데, 익명 출입증이 생긴 뒤로 그것이 "
+						+ "'아무나' 와 같은 말이 됐다 — 내부 운영 숫자는 서비스 규모의 단서다. "
+						+ "경로 앞자리가 실제 보호 장치다. AnalyticsControllerTest (-1010)");
 
 		// ── 도구 (-343) ──────────────────────────────────────────────────────────
 		put(m, "POST /api/v1/tools/translate", Policy.AUTHENTICATED_ONLY,
@@ -689,6 +752,12 @@ class RouteAuthorizationRegistryTest {
 				"좌표·날짜로 답이 정해진다 — 우리 자원이 아니라 주인이 없다. 인증을 요구하는 것은 "
 						+ "route/directions·tools/translate 와 같은 이유 — 우리 기상청 키로 남이 대신 "
 						+ "조회를 돌리는 것(비용)을 막기 위해서다. WeatherControllerTest");
+
+		// ── 대중교통 실시간 도착정보 (-988) ──────────────────────────────────────
+		put(m, "GET /api/v1/transit/nearby-bus-arrivals", Policy.AUTHENTICATED_ONLY,
+				"좌표로 답이 정해진다 — 우리 자원이 아니라 주인이 없다. 인증을 요구하는 것은 "
+						+ "weather 와 같은 이유 — 우리 TAGO 키로 남이 대신 조회를 돌리는 것(호출 한도 "
+						+ "소진)을 막기 위해서다.");
 
 		// ── AI 여행 도우미 (-802) ────────────────────────────────────────────────
 		put(m, "POST /api/v1/assistant/messages", Policy.AUTHENTICATED_ONLY,

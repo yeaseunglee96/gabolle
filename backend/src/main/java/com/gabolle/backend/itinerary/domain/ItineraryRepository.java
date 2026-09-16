@@ -88,9 +88,26 @@ public interface ItineraryRepository {
      * <p>{@code ix_itinerary_version_itinerary (itinerary_id, version DESC)}
      * (V20260903150000)가 이 정렬을 위해 있는 색인이다.
      *
-     * @return 없는 일정이면 빈 목록
+     * <p>🔴 <b>쪽을 나눠 받는다</b> (S15P21E201-1011). 판은 <b>일정을 고칠 때마다 쌓인다</b> —
+     * 끝이 없는 목록이라 상한 없이 전부 돌려주면 오래 쓴 일정일수록 이 조회만 무거워진다.
+     * 정렬이 {@code version DESC} 로 완전히 정해져 있어서(같은 일정에 같은 판 번호가 둘일 수
+     * 없다) 쪽을 나눠도 같은 판이 두 번 나오거나 조용히 건너뛰어지지 않는다.
+     *
+     * @param page 0부터
+     * @param size 한 쪽에 실을 최대 판 수
+     * @return 없는 일정이면 빈 쪽
      */
-    List<ItineraryVersion> findVersions(String itineraryId);
+    VersionPage findVersions(String itineraryId, int page, int size);
+
+    /**
+     * 판 목록 한 쪽.
+     *
+     * @param hasMore 🔴 <b>더 있는데 안 보냈다.</b> 이 칸이 없으면 부르는 쪽이 "상한에 걸린 것"
+     *     과 "마침 그만큼 있는 것" 을 구분할 수 없고, 구분 못 하면 화면이 목록을 <b>조용히
+     *     자른다</b> — 사용자에게는 되돌릴 수 있던 판이 사라진 것으로 보인다
+     */
+    record VersionPage(List<ItineraryVersion> versions, boolean hasMore) {
+    }
 
     /**
      * 한 여행의 일정 전부 — S15P21E201-330(공유 조회) · 협업 화면의 최근 변경이 쓴다.

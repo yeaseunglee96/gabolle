@@ -14,8 +14,12 @@
 //  - gabolle-db-username   (Secret text) — app_user
 //  - gabolle-db-password   (Secret text)
 //  - gabolle-jwt-secret    (Secret text) — 32자 이상 운영용 값
-//  - gabolle-mail-username (Secret text) — 인증·재설정 메일 발신 계정 (SMTP 사용자)
-//  - gabolle-mail-password (Secret text) — 그 계정의 앱 비밀번호. 로그인 비밀번호가 아니다
+//  - gabolle-mail-host     (Secret text) — SMTP 서버 주소. 지금은 smtp-relay.brevo.com
+//  - gabolle-mail-username (Secret text) — SMTP 로그인 이름. 🔴 발신 주소가 아니다 —
+//    중계 업체는 계정마다 다른 로그인을 준다 (Brevo 는 9xxxxx@smtp-brevo.com 꼴)
+//  - gabolle-mail-password (Secret text) — SMTP key. 계정 로그인 비밀번호가 아니다
+//  - gabolle-mail-from     (Secret text) — 받는 사람에게 보이는 발신 주소.
+//    🔴 업체에서 **인증을 마친 발신자 주소**여야 한다. 아니면 접수 자체가 거부된다
 //  - gabolle-google-client-id     (Secret text) — Google OAuth 클라이언트 ID
 //  - gabolle-google-client-secret (Secret text)
 //  - gabolle-kakao-client-id      (Secret text) — Kakao 는 REST API 키가 client_id 다
@@ -35,6 +39,18 @@
 // 플랫폼별로 client ID 를 따로 발급하면 그것들을 콤마로 이어 넣을 자리다.
 //
 // 환경변수 이름의 정본은 backend/src/main/resources/application-dev.properties 다.
+//
+// 🔴 S15P21E201-1017 — 2026-09-16 이전에는 이 파일이 USERNAME 과 PASSWORD **둘만**
+//    컨테이너에 넣었다. HOST 를 안 넣으니 application-dev.properties 의 기본값
+//    smtp.gmail.com 이 그대로 쓰였다 — 자격증명만 다른 업체 것으로 갈아끼워도
+//    접속은 여전히 Gmail 로 간다. "환경변수 세 개만 바꾸면 된다" 는 인수인계
+//    문서의 설명이 이 파일 기준으로는 틀렸던 것이고, 그대로 했으면 인증 실패로
+//    끝났을 것이다. 그래서 HOST·PORT·FROM 을 여기서 명시적으로 넘긴다.
+//
+//    FROM 을 따로 두는 이유 — properties 의 기본값은 FROM 이 비면 USERNAME 을
+//    쓴다. Gmail 에서는 그 둘이 같은 주소라 맞아떨어졌지만, 중계 업체에서는
+//    로그인 이름과 발신 주소가 서로 다르다. 그대로 두면 로그인 이름이 발신
+//    주소로 나간다.
 //
 // 메일을 켜는 스위치는 GABOLLE_MAIL_ENABLED 다. 위 둘을 Jenkins 에 넣기 전에는
 // false 로 두어야 한다 — true 인데 발신 계정이 비어 있으면 SmtpEmailSender 가
@@ -169,6 +185,8 @@ pipeline {
                     string(credentialsId: 'gabolle-db-username', variable: 'GABOLLE_DB_USERNAME'),
                     string(credentialsId: 'gabolle-db-password', variable: 'GABOLLE_DB_PASSWORD'),
                     string(credentialsId: 'gabolle-jwt-secret', variable: 'GABOLLE_JWT_SECRET'),
+                    string(credentialsId: 'gabolle-mail-host', variable: 'GABOLLE_MAIL_HOST'),
+                    string(credentialsId: 'gabolle-mail-from', variable: 'GABOLLE_MAIL_FROM'),
                     string(credentialsId: 'gabolle-mail-username', variable: 'GABOLLE_MAIL_USERNAME'),
                     string(credentialsId: 'gabolle-mail-password', variable: 'GABOLLE_MAIL_PASSWORD'),
                     string(credentialsId: 'gabolle-google-client-id', variable: 'GABOLLE_GOOGLE_CLIENT_ID'),
@@ -186,7 +204,16 @@ pipeline {
                     string(credentialsId: 'gabolle-s3-access-key', variable: 'GABOLLE_S3_ACCESS_KEY'),
                     string(credentialsId: 'gabolle-s3-secret-key', variable: 'GABOLLE_S3_SECRET_KEY'),
                     // S15P21E201-285 — 기상청 단기예보 조회서비스 인증키(data.go.kr 개발계정).
-                    string(credentialsId: 'gabolle-kma-service-key', variable: 'GABOLLE_KMA_SERVICE_KEY')
+                    string(credentialsId: 'gabolle-kma-service-key', variable: 'GABOLLE_KMA_SERVICE_KEY'),
+                    // 🔴 S15P21E201-942 — /internal/** 을 여는 기계 전용 토큰
+                    // (InternalApiProperties 문서 참고). taste_vector_daily DAG
+                    // (infra/personalization, common/dev)이 X-Internal-Token 으로
+                    // 이 값을 보낸다 — 그쪽 compose.yaml 의 GABOLLE_INTERNAL_API_TOKEN
+                    // 과 반드시 같은 값이어야 한다. Credential 자체는 아직 만들지
+                    // 않았다 — 값이 없으면 empty string 이 되어 /internal/** 이
+                    // 전부 거부된 채로 남을 뿐, 이 잡이 실패하지는 않는다
+                    // (InternalApiProperties: 빈 값이면 문이 잠긴다).
+                    string(credentialsId: 'gabolle-internal-api-token', variable: 'GABOLLE_INTERNAL_API_TOKEN')
                 ]) {
                     sh 'docker stop backend || true'
                     sh 'docker rm backend || true'
@@ -257,6 +284,9 @@ pipeline {
                             -e GABOLLE_DB_PASSWORD="$GABOLLE_DB_PASSWORD" \
                             -e GABOLLE_JWT_SECRET="$GABOLLE_JWT_SECRET" \
                             -e GABOLLE_MAIL_ENABLED=true \
+                            -e GABOLLE_MAIL_HOST="$GABOLLE_MAIL_HOST" \
+                            -e GABOLLE_MAIL_PORT=587 \
+                            -e GABOLLE_MAIL_FROM="$GABOLLE_MAIL_FROM" \
                             -e GABOLLE_MAIL_USERNAME="$GABOLLE_MAIL_USERNAME" \
                             -e GABOLLE_MAIL_PASSWORD="$GABOLLE_MAIL_PASSWORD" \
                             -e GABOLLE_GOOGLE_CLIENT_ID="$GABOLLE_GOOGLE_CLIENT_ID" \
@@ -272,6 +302,7 @@ pipeline {
                             -e GABOLLE_APPLE_PRIVATE_KEY="$GABOLLE_APPLE_PRIVATE_KEY" \
                             -e GABOLLE_APPLE_ALLOWED_CLIENT_IDS="com.gabolle.app" \
                             -e GABOLLE_KMA_SERVICE_KEY="$GABOLLE_KMA_SERVICE_KEY" \
+                            -e GABOLLE_INTERNAL_API_TOKEN="$GABOLLE_INTERNAL_API_TOKEN" \
                             -e GABOLLE_ADMIN_EMAILS="$GABOLLE_ADMIN_EMAILS" \
                             local-route-backend:candidate
                     '''
@@ -357,6 +388,8 @@ pipeline {
                             string(credentialsId: 'gabolle-db-username', variable: 'GABOLLE_DB_USERNAME'),
                             string(credentialsId: 'gabolle-db-password', variable: 'GABOLLE_DB_PASSWORD'),
                             string(credentialsId: 'gabolle-jwt-secret', variable: 'GABOLLE_JWT_SECRET'),
+                            string(credentialsId: 'gabolle-mail-host', variable: 'GABOLLE_MAIL_HOST'),
+                            string(credentialsId: 'gabolle-mail-from', variable: 'GABOLLE_MAIL_FROM'),
                             string(credentialsId: 'gabolle-mail-username', variable: 'GABOLLE_MAIL_USERNAME'),
                             string(credentialsId: 'gabolle-mail-password', variable: 'GABOLLE_MAIL_PASSWORD'),
                             string(credentialsId: 'gabolle-google-client-id', variable: 'GABOLLE_GOOGLE_CLIENT_ID'),
@@ -373,7 +406,8 @@ pipeline {
                     string(credentialsId: 'gabolle-apple-private-key', variable: 'GABOLLE_APPLE_PRIVATE_KEY'),
                     string(credentialsId: 'gabolle-s3-access-key', variable: 'GABOLLE_S3_ACCESS_KEY'),
                             string(credentialsId: 'gabolle-s3-secret-key', variable: 'GABOLLE_S3_SECRET_KEY'),
-                            string(credentialsId: 'gabolle-kma-service-key', variable: 'GABOLLE_KMA_SERVICE_KEY')
+                            string(credentialsId: 'gabolle-kma-service-key', variable: 'GABOLLE_KMA_SERVICE_KEY'),
+                            string(credentialsId: 'gabolle-internal-api-token', variable: 'GABOLLE_INTERNAL_API_TOKEN')
                         ]) {
                             sh 'docker stop backend || true'
                             sh 'docker rm backend || true'
@@ -401,6 +435,9 @@ pipeline {
                                     -e GABOLLE_DB_PASSWORD="$GABOLLE_DB_PASSWORD" \
                                     -e GABOLLE_JWT_SECRET="$GABOLLE_JWT_SECRET" \
                                     -e GABOLLE_MAIL_ENABLED=true \
+                                    -e GABOLLE_MAIL_HOST="$GABOLLE_MAIL_HOST" \
+                                    -e GABOLLE_MAIL_PORT=587 \
+                                    -e GABOLLE_MAIL_FROM="$GABOLLE_MAIL_FROM" \
                                     -e GABOLLE_MAIL_USERNAME="$GABOLLE_MAIL_USERNAME" \
                                     -e GABOLLE_MAIL_PASSWORD="$GABOLLE_MAIL_PASSWORD" \
                                     -e GABOLLE_GOOGLE_CLIENT_ID="$GABOLLE_GOOGLE_CLIENT_ID" \
@@ -416,6 +453,7 @@ pipeline {
                                     -e GABOLLE_APPLE_PRIVATE_KEY="$GABOLLE_APPLE_PRIVATE_KEY" \
                                     -e GABOLLE_APPLE_ALLOWED_CLIENT_IDS="com.gabolle.app" \
                                     -e GABOLLE_KMA_SERVICE_KEY="$GABOLLE_KMA_SERVICE_KEY" \
+                                    -e GABOLLE_INTERNAL_API_TOKEN="$GABOLLE_INTERNAL_API_TOKEN" \
                                     -e GABOLLE_ADMIN_EMAILS="$GABOLLE_ADMIN_EMAILS" \
                                     local-route-backend:latest
                             '''
@@ -437,6 +475,14 @@ pipeline {
                 if (env.DEPLOY_LOCK_ACQUIRED == 'true') {
                     sh 'rmdir /tmp/gabolle-deploy.lock || true'
                 }
+                // 🔴 S15P21E201-891 — 이 잡은 새 빌드마다 :candidate 를 새로 만들고
+                //    Health Check 통과 시 :latest·:previous 로 옮긴다(위 Build
+                //    Image 주석). 옮기고 남은 옛 :candidate·:previous 층은 태그가
+                //    없는(dangling) 이미지로 남는데, 그걸 지우는 자리가 없었다
+                //    (S15P21E201-891 실측 — 182개·28GB). :latest·:previous·
+                //    :candidate 는 이름이 있는 태그라 prune 대상이 아니다 —
+                //    안전하게 이름 없는 것만 지운다.
+                sh 'docker image prune -f || true'
             }
         }
         success {

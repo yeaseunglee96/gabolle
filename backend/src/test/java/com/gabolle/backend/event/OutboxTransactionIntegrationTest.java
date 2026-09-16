@@ -161,6 +161,27 @@ class OutboxTransactionIntegrationTest extends PostgresIntegrationTest {
 	}
 
 	@Test
+	@DisplayName("🔴 S15P21E201-947 — OutboxAppendCommand 를 거치지 않고 바로 적어도 DB 가 막는다")
+	void dbRejectsRequestIdOnARecommendationRowEvenBypassingTheJavaGuard() {
+		// 🔴 OutboxAppendCommand 생성자의 자바 검사(RECOMMENDATION_AGGREGATE_TYPE.equals(...)
+		//    && requestId != null 이면 예외)를 일부러 거치지 않는다 — 배치 백필이나 다른 경로가
+		//    이 표에 직접 쓰는 상황을 흉내낸다. ck_event_outbox_request_id_excludes_recommendation
+		//    (V20260915050000)가 있어야 이 INSERT 가 막힌다. 이 파일은 원래
+		//    V20260914070000 이었다 — 이미 적용된 0915 판보다 번호가 작아 Flyway 가
+		//    기동을 거부했고, 그래서 0915 뒤로 옮겼다(S15P21E201-966).
+		this.transactionTemplate.executeWithoutResult((status) -> {
+			assertThatThrownBy(() -> this.jdbcTemplate.update("""
+					INSERT INTO event_outbox
+					  (event_id, event_type, event_version, aggregate_type, aggregate_id, request_id,
+					   partition_key, payload, occurred_at, received_at)
+					VALUES (?, 'recommendation_requested', 1, 'recommendation', ?, ?, ?, '{}'::jsonb, now(), now())
+					""", UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID().toString()))
+					.isInstanceOf(org.springframework.dao.DataIntegrityViolationException.class);
+			status.setRollbackOnly();
+		});
+	}
+
+	@Test
 	@DisplayName("트랜잭션 없이 부르면 조용히 넘어가지 않고 그 자리에서 막힌다")
 	void appendOutsideATransactionFailsLoudly() {
 		assertThatThrownBy(() -> this.outboxService.append(event(UUID.randomUUID(), UUID.randomUUID())))

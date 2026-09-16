@@ -29,6 +29,7 @@ import com.gabolle.backend.itinerary.domain.ItineraryVersion;
 import com.gabolle.backend.itinerary.presentation.ItineraryQueryController;
 import com.gabolle.backend.itinerary.presentation.dto.ItineraryDetailResponse;
 import com.gabolle.backend.itinerary.presentation.dto.ItineraryVersionSummaryResponse;
+import com.gabolle.backend.itinerary.presentation.dto.ItineraryVersionsResponse;
 import com.gabolle.backend.place.domain.Place;
 import com.gabolle.backend.place.repository.PlaceRepository;
 import com.gabolle.backend.recommendation.domain.FallbackMode;
@@ -146,15 +147,38 @@ public class ItineraryQueryService {
 	 *     요청자가 그 일정이 속한 여행의 회원이 아니다
 	 */
 	@Transactional(readOnly = true)
-	public List<ItineraryVersionSummaryResponse> listVersions(String itineraryId, String requesterUserId) {
+	public ItineraryVersionsResponse listVersions(String itineraryId, String requesterUserId, Integer page,
+			Integer size) {
 		this.itineraryAccess.requireMember(itineraryId, requesterUserId);
-		List<ItineraryVersion> versions = this.itineraryRepository.findVersions(itineraryId);
+
+		// 🔴 기본값을 여기서만 정한다 — 컨트롤러도 알고 있으면 둘이 어긋나는 날이 오고,
+		//    그러면 안 주고 부른 첫 쪽과 page=0 으로 부른 쪽의 크기가 달라져 판이 겹치거나
+		//    건너뛰어진다.
+		int pageNumber = (page == null) ? 0 : Math.max(page, 0);
+		int pageSize = (size == null) ? DEFAULT_VERSION_PAGE_SIZE
+				: Math.min(Math.max(size, 1), MAX_VERSION_PAGE_SIZE);
+
+		ItineraryRepository.VersionPage found = this.itineraryRepository.findVersions(itineraryId, pageNumber,
+				pageSize);
+		List<ItineraryVersion> versions = found.versions();
+
 		// 2026-09-07 — 판마다 만든 사람의 표시 이름을 싣는다. 이름 조회는 한 번(IN 질의)이다.
 		Map<String, String> names = this.actorNames.resolve(versions.stream().map(ItineraryVersion::createdBy).toList());
-		return versions.stream()
+		List<ItineraryVersionSummaryResponse> items = versions.stream()
 				.map(v -> ItineraryVersionSummaryResponse.of(v, names.get(v.createdBy())))
 				.toList();
+
+		return new ItineraryVersionsResponse(items, items.size(), found.hasMore());
 	}
+
+	/**
+	 * 판 목록의 기본 쪽 크기 (S15P21E201-1011). 되돌리기 화면이 한 번에 보여 주는 것보다
+	 * 넉넉하다 — 지금까지처럼 한 번만 부르는 화면은 보이는 동작이 사실상 달라지지 않는다.
+	 */
+	private static final int DEFAULT_VERSION_PAGE_SIZE = 50;
+
+	/** 부르는 쪽이 아무리 크게 달라고 해도 여기까지. 상한이 없으면 파라미터 하나로 상한이 풀린다. */
+	private static final int MAX_VERSION_PAGE_SIZE = 200;
 
 	/**
 	 * 여행 기간의 날짜를 전부 만든다. 🔴 항목이 0개인 날도 포함한다 — {@code itemsByDay} 에

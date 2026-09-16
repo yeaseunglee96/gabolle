@@ -42,7 +42,11 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 		"com.gabolle.backend.place",
 		// S15P21E201-440 — AuthSliceApplication 과 같은 이유로 event 도 더한다. trip 의
 		// SpendProfileService(-709)가 event 쪽 EventIngestService 를 필수로 요구한다.
-		"com.gabolle.backend.event"
+		"com.gabolle.backend.event",
+		// 🔴 S15P21E201-978 — AccountDeletionService 가 StorageCleanupService(story.application)를
+		// 생성자로 요구하게 됐다. AuthSliceApplication 이 같은 이유로 먼저 겪었다 — 그쪽 주석 참고.
+		"com.gabolle.backend.story.application",
+		"com.gabolle.backend.story.storage"
 })
 @EnableScheduling
 @EntityScan(basePackages = {
@@ -51,7 +55,14 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 		"com.gabolle.backend.event.domain",
 		"com.gabolle.backend.privacy.domain",
 		"com.gabolle.backend.trip.infra",
-		"com.gabolle.backend.place.domain"
+		"com.gabolle.backend.place.domain",
+		// 🔴 S15P21E201-160 — RecommendationJobRepository(아래 @EnableJpaRepositories)가
+		// 관리하는 엔티티(RecommendationJob)의 표 매핑도 여기 없으면 "관리 대상 아님"으로
+		// 빈 자체를 못 만든다.
+		"com.gabolle.backend.recommendation.domain",
+		// 🔴 S15P21E201-978 — AccountDeletionService.deleteUploadedImages 가 UploadedImage(story.
+		// domain)를 JPQL 로 직접 지운다. 엔티티 매핑이 없으면 "그런 엔티티 없음"으로 실행에서 터진다.
+		"com.gabolle.backend.story.domain"
 })
 @EnableJpaRepositories(basePackages = {
 		"com.gabolle.backend.auth.repository",
@@ -59,7 +70,14 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 		"com.gabolle.backend.privacy.repository",
 		"com.gabolle.backend.trip.infra",
 		"com.gabolle.backend.place.repository",
-		"com.gabolle.backend.event.repository"
+		"com.gabolle.backend.event.repository",
+		// 🔴 S15P21E201-160 — AnalyticsQueryService(event.application)가 생성자로
+		// RecommendationJobRepository 를 요구한다. event 를 스캔하는 순간 그 빈도 같이
+		// 요구된다(AuthSliceApplication 이 같은 이유로 먼저 겪었다).
+		"com.gabolle.backend.recommendation.repository",
+		// 🔴 S15P21E201-978 — 위 scanBasePackages 에 story.application 을 더하면서 그 서비스들이
+		// 쓰는 저장소도 함께 필요해졌다 (AuthSliceApplication 과 같은 이유).
+		"com.gabolle.backend.story.repository"
 })
 public class PrivacySliceApplication {
 }

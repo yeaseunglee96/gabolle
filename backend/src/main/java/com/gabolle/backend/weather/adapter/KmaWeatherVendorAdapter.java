@@ -85,10 +85,10 @@ public class KmaWeatherVendorAdapter implements WeatherVendorPort {
 					HttpStatus.BAD_GATEWAY);
 		}
 
-		// 🔴 공공데이터포털 서비스 키는 이미 URL 인코딩된 값으로 발급된다. UriComponentsBuilder
-		//    의 queryParam 으로 넣으면 다시 인코딩되어(이중 인코딩) 키가 깨진다 — 그래서 base
-		//    URL 과 나머지 파라미터만 빌더로 만들고, 서비스 키는 문자열로 그대로 이어 붙인다.
-		// toUriString() 이 만드는 "?a=1&b=2" 앞의 물음표를 & 로 바꿔, serviceKey 뒤에 그대로
+		// 🔴 인증키는 이미 URL 인코딩된 값으로 발급된다. UriComponentsBuilder 의 queryParam 으로
+		//    넣으면 다시 인코딩되어(이중 인코딩) 키가 깨진다 — 그래서 base URL 과 나머지
+		//    파라미터만 빌더로 만들고, 인증키는 문자열로 그대로 이어 붙인다.
+		// toUriString() 이 만드는 "?a=1&b=2" 앞의 물음표를 & 로 바꿔, authKey 뒤에 그대로
 		// 이어 붙일 수 있게 한다 — 물음표가 두 번 나오면 안 되기 때문이다.
 		String query = UriComponentsBuilder.newInstance()
 				.queryParam("numOfRows", NUM_OF_ROWS)
@@ -102,7 +102,9 @@ public class KmaWeatherVendorAdapter implements WeatherVendorPort {
 				.toUriString()
 				.replaceFirst("^\\?", "&");
 
-		URI uri = URI.create(this.properties.getKmaBaseUrl() + "/getVilageFcst?serviceKey=" + serviceKey + query);
+		// 🔴 인증 인자 이름이 기상청 API 허브는 authKey 다 (공공데이터포털은 serviceKey 였다).
+		//    주소와 이 이름 둘만 다르고 나머지 인자·응답 모양은 같다 — S15P21E201-1065.
+		URI uri = URI.create(this.properties.getKmaBaseUrl() + "/getVilageFcst?authKey=" + serviceKey + query);
 
 		try {
 			return this.restClient.get().uri(uri).retrieve().body(String.class);

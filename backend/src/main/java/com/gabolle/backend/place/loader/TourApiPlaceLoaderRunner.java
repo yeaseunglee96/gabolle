@@ -95,7 +95,7 @@ public class TourApiPlaceLoaderRunner implements ApplicationRunner {
 	private static String byCategory(List<TourApiPlaceRow> rows) {
 		Map<String, Integer> counts = new TreeMap<>();
 		for (TourApiPlaceRow row : rows) {
-			String category = TourApiCategory.of(row.cat1(), row.cat3());
+			String category = TourApiCategory.of(row.contentId(), row.cat1(), row.cat3());
 			counts.merge(category == null ? "(없음)" : category, 1, Integer::sum);
 		}
 		return counts.toString();

@@ -134,6 +134,38 @@ public class JpaTripRepository implements TripRepository {
 		tripJpaRepository.save(entity);
 	}
 
+	/**
+	 * 상태 칸만 옮긴다 — S15P21E201-964. 위 {@link #softDelete} 와 같은 이유로 읽어서
+	 * 고치지, {@code toEntity(trip)} 로 만든 객체를 통째로 덮어쓰지 않는다.
+	 *
+	 * <p>🔴 {@code @Transactional} 을 새로 열지 않는다. 이 자리를 부르는 것은 일정이
+	 * 처음 저장되는 트랜잭션 안이고({@code ItineraryDraftService.persist}), 여기서 새
+	 * 트랜잭션을 열면 일정 저장이 뒤에서 굴러떨어져도 상태만 READY 로 남는다.
+	 * 저장 자체는 바깥 트랜잭션이 끝날 때 함께 반영된다.
+	 */
+	@Override
+	public void updateStatus(Trip trip) {
+		TripJpaEntity entity = tripJpaRepository.findById(UUID.fromString(trip.tripId()))
+				.orElseThrow(() -> new IllegalStateException("상태를 바꾸려는 여행이 표에 없다: tripId=" + trip.tripId()));
+		entity.changeStatus(trip.status(), toOffset(trip.updatedAt()));
+		tripJpaRepository.save(entity);
+	}
+
+	/**
+	 * 이름 칸만 저장한다 — S15P21E201-1023.
+	 *
+	 * <p>{@link #updateStatus} 와 같은 모양이다. 읽어 온 행의 <b>그 칸만</b> 고치고,
+	 * {@code toEntity(trip)} 로 만든 객체를 통째로 덮어쓰지 않는다 — 덮어쓰면 이름을 바꾸는
+	 * 요청이 그 사이 다른 경로가 바꾼 칸(상태·삭제 시각)까지 옛 값으로 되돌린다.
+	 */
+	@Override
+	public void updateTitle(Trip trip) {
+		TripJpaEntity entity = tripJpaRepository.findById(UUID.fromString(trip.tripId()))
+				.orElseThrow(() -> new IllegalStateException("이름을 바꾸려는 여행이 표에 없다: tripId=" + trip.tripId()));
+		entity.changeTitle(trip.title(), toOffset(trip.updatedAt()));
+		tripJpaRepository.save(entity);
+	}
+
 	@Override
 	public List<TripConstraint> findConstraints(String tripId) {
 		UUID id = UUID.fromString(tripId);
@@ -371,7 +403,7 @@ public class JpaTripRepository implements TripRepository {
 				t.travelModes(), t.timeWindowStart(), t.timeWindowEnd(),
 				t.accommodationPlaceId() == null ? null : UUID.fromString(t.accommodationPlaceId()),
 				t.englishMenuRequired(), t.foreignCardRequired(), t.soloFriendlyPriority(),
-				t.maxTransitTransfers(), t.status(),
+				t.maxTransitTransfers(), t.title(), t.status(),
 				toOffset(t.createdAt()), toOffset(t.updatedAt()), toOffset(t.deletedAt()));
 	}
 
@@ -396,6 +428,7 @@ public class JpaTripRepository implements TripRepository {
 				.soloFriendlyPriority(e.soloFriendlyPriority())
 				.maxTransitTransfers(e.maxTransitTransfers())
 				.timezone(e.timezone())
+				.title(e.title())
 				.status(e.status())
 				.createdAt(toInstant(e.createdAt()))
 				.updatedAt(toInstant(e.updatedAt()))

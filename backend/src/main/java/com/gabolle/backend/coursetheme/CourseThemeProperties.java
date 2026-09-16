@@ -1,7 +1,9 @@
 package com.gabolle.backend.coursetheme;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
@@ -80,6 +82,25 @@ public class CourseThemeProperties {
 		 */
 		private Double touristPenalty;
 
+		/**
+		 * 점수 축마다 곱하는 배수 — S15P21E201-106 · 452.
+		 *
+		 * <p>키는 {@code BaselineEngineProperties.Weights} 의 축 이름 여섯 중 하나다
+		 * ({@code distance}·{@code interest}·{@code atmosphere}·{@code cuisine}·
+		 * {@code preferenceAlignment}·{@code popularity}). 안 적은 축은 <b>1.0</b> — 그
+		 * 테마에서 그 축을 안 건드린다는 뜻이다.
+		 *
+		 * <p>🔴 <b>기본값을 비워 두는 것이 이 칸의 설계다.</b> 지금 이 저장소에는 "어느 테마가
+		 * 어느 축을 몇 배로 봐야 하는가" 를 말해 주는 실측이 없다. 106 이 <i>"여기서 새 숫자를
+		 * 지어내지 않는다"</i> 고 못 박은 것이 그 뜻이다 — 값이 비면 계산은 지금까지와 한 글자도
+		 * 다르지 않게 돈다. 짝 비교 설문(마감 2026-09-18)이 교환율을 내놓으면 <b>그때 숫자만</b>
+		 * 이 자리에 적는다.
+		 *
+		 * <p>모르는 축 이름을 적으면 {@code ThemeWeightResolver} 가 <b>기동을 막는다.</b>
+		 * 오타 하나가 조용히 아무 일도 안 하는 것보다 안 뜨는 편이 낫다.
+		 */
+		private Map<String, Double> weightMultipliers = new LinkedHashMap<>();
+
 		public String getCode() {
 			return this.code;
 		}
@@ -126,6 +147,14 @@ public class CourseThemeProperties {
 
 		public void setTouristPenalty(Double touristPenalty) {
 			this.touristPenalty = touristPenalty;
+		}
+
+		public Map<String, Double> getWeightMultipliers() {
+			return this.weightMultipliers;
+		}
+
+		public void setWeightMultipliers(Map<String, Double> weightMultipliers) {
+			this.weightMultipliers = weightMultipliers;
 		}
 	}
 }

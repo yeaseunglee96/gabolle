@@ -13,6 +13,7 @@ import com.gabolle.backend.auth.repository.AuthSessionRepository;
 import com.gabolle.backend.auth.repository.LocalCredentialRepository;
 import com.gabolle.backend.auth.service.AccountDeletionService;
 import com.gabolle.backend.auth.service.AuthException;
+import com.gabolle.backend.story.application.StorageCleanupService;
 import com.gabolle.backend.user.repository.AppUserRepository;
 import com.gabolle.backend.user.repository.UserConsentRepository;
 
@@ -52,9 +53,11 @@ class AccountDeletionConfirmationTest {
 
 	private final PasswordEncoder passwordEncoder = mock(PasswordEncoder.class);
 
+	private final StorageCleanupService storageCleanupService = mock(StorageCleanupService.class);
+
 	private final AccountDeletionService service = new AccountDeletionService(this.credentialRepository,
 			this.sessionRepository, this.identityRepository, this.consentRepository, this.userRepository,
-			this.passwordEncoder, Clock.systemUTC());
+			this.passwordEncoder, Clock.systemUTC(), this.storageCleanupService);
 
 	@ParameterizedTest(name = "확인 값이 \"{0}\" 이면 거절한다")
 	@NullSource
@@ -70,7 +73,7 @@ class AccountDeletionConfirmationTest {
 				});
 
 		verifyNoInteractions(this.credentialRepository, this.sessionRepository, this.identityRepository,
-				this.consentRepository, this.userRepository, this.passwordEncoder);
+				this.consentRepository, this.userRepository, this.passwordEncoder, this.storageCleanupService);
 	}
 
 	@Test

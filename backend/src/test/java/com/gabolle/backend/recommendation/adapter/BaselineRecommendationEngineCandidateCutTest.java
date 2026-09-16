@@ -94,7 +94,7 @@ class BaselineRecommendationEngineCandidateCutTest {
 				new BaselineCandidateTranslator(PROPERTIES, this.codeMapRepository, this.objectMapper),
 				new BaselineCandidateScorer(this.objectMapper), PROPERTIES,
 				new PreferenceAlignmentWeights(null, null, null, null, null),
-				this.codeMapRepository, this.seedPlaceRepository);
+				this.codeMapRepository, this.seedPlaceRepository, Optional.empty());
 	}
 
 	@Test

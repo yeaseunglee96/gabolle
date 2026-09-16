@@ -14,6 +14,12 @@ import com.gabolle.backend.trip.domain.Trip;
 public record TripDto(
         String tripId,
         String createdBy,
+        /**
+         * 사용자가 붙인 이름 — S15P21E201-1023. {@code null} 이면 아직 이름이 없다.
+         * 서버가 날짜 문자열을 대신 채우지 않는다 — 그러면 사용자가 붙인 이름과
+         * 서버가 만든 이름이 같은 칸에서 구분이 안 된다.
+         */
+        String title,
         String startDate,
         String finishDate,
         Double originLat,
@@ -65,7 +71,7 @@ public record TripDto(
 
     public static TripDto of(Trip t, PreferenceSnapshot s) {
         return new TripDto(
-                t.tripId(), t.createdBy(),
+                t.tripId(), t.createdBy(), t.title(),
                 t.startDate().toString(), t.finishDate().toString(),
                 t.originLat(), t.originLng(),
                 t.budgetKrw(), t.partySize(),

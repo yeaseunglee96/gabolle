@@ -19,6 +19,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import com.gabolle.backend.place.service.OpeningHoursFilterPort;
+import com.gabolle.backend.place.service.PlaceTimeFactFilterPort;
 import com.gabolle.backend.itinerary.domain.Itinerary;
 import com.gabolle.backend.itinerary.domain.ItineraryContent;
 import com.gabolle.backend.itinerary.domain.ItineraryExclusion;
@@ -81,11 +82,20 @@ public class ItineraryDraftService implements ItineraryDraftPort {
      */
     private final OpeningHoursFilterPort openingHours;
 
+    /**
+     * 브레이크타임에 걸리는가 · 라스트오더를 지났는가 — S15P21E201-94.
+     *
+     * <p>{@link #openingHours} 와 같은 자리에서, 같은 이유로 묻는다 — 자리에 앉히는 단계에서
+     * 항목마다 다른 시각을 물어야 한다.
+     */
+    private final PlaceTimeFactFilterPort timeFact;
+
     public ItineraryDraftService(TripRepository tripRepository, ItineraryRepository itineraryRepository, Clock clock,
             @Value("${gabolle.itinerary.max-items-per-day:4}") int maxItemsPerDay,
             @Value("${gabolle.itinerary.max-food-per-day:3}") int maxFoodPerDay,
             @Value("${gabolle.itinerary.food-category:FOOD}") String foodCategory,
-            ItineraryLegPlanner legPlanner, OpeningHoursFilterPort openingHours) {
+            ItineraryLegPlanner legPlanner, OpeningHoursFilterPort openingHours,
+            PlaceTimeFactFilterPort timeFact) {
         this.tripRepository = tripRepository;
         this.itineraryRepository = itineraryRepository;
         this.clock = clock;
@@ -94,6 +104,7 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         this.foodCategory = foodCategory;
         this.legPlanner = legPlanner;
         this.openingHours = openingHours;
+        this.timeFact = timeFact;
     }
 
     /**
@@ -279,8 +290,7 @@ public class ItineraryDraftService implements ItineraryDraftPort {
                     if (used[i]) {
                         continue;
                     }
-                    if (this.openingHours.openAt(dayPlaces.get(i).placeId(), at)
-                            != OpeningHoursFilterPort.Answer.CLOSED) {
+                    if (violationAt(dayPlaces.get(i).placeId(), at) == null) {
                         chosen = i;
                         break;
                     }
@@ -300,14 +310,33 @@ public class ItineraryDraftService implements ItineraryDraftPort {
             used[chosen] = true;
             ItineraryDraftCommand.PlannedPlace place = dayPlaces.get(chosen);
             List<String> warnings = place.warningCodes();
-            if (forced && at != null
-                    && this.openingHours.openAt(place.placeId(), at) == OpeningHoursFilterPort.Answer.CLOSED) {
+            String violation = (forced && at != null) ? violationAt(place.placeId(), at) : null;
+            if (violation != null) {
                 warnings = new ArrayList<>(warnings == null ? List.of() : warnings);
-                warnings.add(ItineraryOpeningHoursChecker.VIOLATION_CLOSED);
+                warnings.add(violation);
             }
             placed.add(new Placed(place, slot, warnings));
         }
         return placed;
+    }
+
+    /**
+     * 그 시각에 그 장소가 걸리는 것이 있는가 — 있으면 경고 코드, 없으면 {@code null}.
+     *
+     * <p>영업시간 · 브레이크타임 · 라스트오더 셋을 이 순서로 본다. 셋 다 "모른다" 를 "문제
+     * 없음" 으로 접지 않는다 — {@link OpeningHoursFilterPort.Answer#CLOSED} 일 때만 걸린다.
+     */
+    private String violationAt(UUID placeId, OffsetDateTime at) {
+        if (this.openingHours.openAt(placeId, at) == OpeningHoursFilterPort.Answer.CLOSED) {
+            return ItineraryOpeningHoursChecker.VIOLATION_CLOSED;
+        }
+        if (this.timeFact.breakTimeAt(placeId, at) == OpeningHoursFilterPort.Answer.CLOSED) {
+            return ItineraryOpeningHoursChecker.VIOLATION_BREAK_TIME;
+        }
+        if (this.timeFact.lastOrderAt(placeId, at) == OpeningHoursFilterPort.Answer.CLOSED) {
+            return ItineraryOpeningHoursChecker.VIOLATION_LAST_ORDER;
+        }
+        return null;
     }
 
     /**
@@ -393,8 +422,32 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         //    판을 먼저 만들고 saveContent 로 내용을 나중에 넣었는데, 그 두 걸음 사이가
         //    "판은 있는데 내용이 없는" 상태였다. 저장소 인터페이스에서 그 걸음을 없앴다.
         this.itineraryRepository.create(itinerary, firstVersion, items, legs);
+        markTripReady(draft.tripId(), now);
 
         return new ItineraryHandle(itineraryId, 1);
+    }
+
+    /**
+     * 일정이 생겼으니 여행을 READY 로 옮긴다 — S15P21E201-964.
+     *
+     * <p>2026-09-15 까지 {@link Trip#markReady} 는 <b>어디에서도 불리지 않았다.</b> 그래서
+     * 모든 여행이 PLANNING 에 머물렀고, 내 여행 목록은 일정이 여러 판 쌓인 여행까지
+     * "일정 준비 중" 으로 보여 줬다. 목록만 보고는 일정이 만들어졌는지 알 수 없었다.
+     *
+     * <p>🔴 PLANNING 일 때만 옮긴다. 여행 중(IN_PROGRESS)인 여행의 일정을 다시 만들 때
+     * 무조건 READY 로 쓰면 진행 단계가 뒤로 밀린다. 끝난 여행과 지워진 여행은
+     * {@code markReady} 가 예외를 던지므로 그 앞에서 거른다 — 여기서 터지면 일정 저장까지
+     * 함께 굴러떨어지고, 그러면 <b>상태 한 칸 때문에 일정 생성이 실패한다.</b>
+     *
+     * <p>바깥 트랜잭션 안이라(머리말 참고) 일정과 상태가 같이 반영되거나 같이 안 된다.
+     */
+    private void markTripReady(String tripId, Instant now) {
+        this.tripRepository.findById(tripId)
+                .filter((trip) -> !trip.isDeleted() && trip.status() == Trip.Status.PLANNING)
+                .ifPresent((trip) -> {
+                    trip.markReady(now);
+                    this.tripRepository.updateStatus(trip);
+                });
     }
 
     // ------------------------------------------------------------------

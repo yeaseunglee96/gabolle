@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.context.annotation.Profile;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.gabolle.backend.place.api.FestivalResponse;
@@ -56,6 +58,15 @@ public class FestivalQueryService {
 	 */
 	private static final long MAX_RANGE_DAYS = 366;
 
+	/**
+	 * 쪽 크기를 안 주면 이만큼 (S15P21E201-1011). 한 여행 기간에 겹치는 축제가 이보다 많은
+	 * 일은 드물어서, 지금까지처럼 한 번만 부르는 화면은 <b>보이는 동작이 달라지지 않는다.</b>
+	 */
+	private static final int DEFAULT_PAGE_SIZE = 100;
+
+	/** 부르는 쪽이 아무리 크게 달라고 해도 여기까지. 상한이 없으면 파라미터 하나로 상한이 풀린다. */
+	private static final int MAX_PAGE_SIZE = 200;
+
 	private final PlaceEventPeriodRepository eventPeriodRepository;
 
 	private final PlaceRepository placeRepository;
@@ -72,10 +83,39 @@ public class FestivalQueryService {
 		this.objectMapper = objectMapper;
 	}
 
+	/** 쪽을 지정하지 않으면 첫 쪽을 기본 크기로 준다 — 지금까지 이 서비스를 부르던 코드가 그대로 온다. */
 	public FestivalResponse findOverlapping(LocalDate startDate, LocalDate endDate) {
+		return findOverlapping(startDate, endDate, null, null);
+	}
+
+	/**
+	 * 🔴 S15P21E201-1011 — 회차 수에 상한을 두고 쪽을 나눈다.
+	 *
+	 * <p>기간 상한({@link #MAX_RANGE_DAYS})은 <b>얼마나 넓게 찾을까</b>만 막는다. 한 기간
+	 * <i>안</i>에 회차가 몇 개인지는 못 막으므로, 축제가 쌓이면 이 응답만 계속 커졌다.
+	 *
+	 * <p>🔴 상한을 두면 <b>알리는 칸을 함께</b> 둬야 한다({@code hasMore}). 상한만 두고 안
+	 * 알리면 목록이 조용히 잘리고, 사용자에게는 "있던 축제가 사라졌다" 로 보인다 — 이 티켓이
+	 * 다른 목록들에 대해 지적하는 것이 정확히 그 상태다.
+	 *
+	 * <p>🔴 기본값을 <b>여기서만</b> 정한다. 부르는 쪽은 안 준 값을 {@code null} 로 그대로
+	 * 넘긴다 — 컨트롤러도 기본값을 알고 있으면 둘이 어긋나는 날이 오고, 그러면 안 주고 부른
+	 * 첫 쪽과 {@code page=0} 으로 부른 쪽의 크기가 달라져 행이 겹치거나 건너뛰어진다.
+	 *
+	 * @param page 0부터. {@code null} 이거나 음수면 0
+	 * @param size 한 쪽에 실을 최대 회차 수. {@code null} 이면 {@link #DEFAULT_PAGE_SIZE},
+	 *     {@link #MAX_PAGE_SIZE} 로 자르고, 1보다 작으면 1
+	 */
+	public FestivalResponse findOverlapping(LocalDate startDate, LocalDate endDate, Integer page, Integer size) {
 		validate(startDate, endDate);
 
-		List<PlaceEventPeriod> periods = this.eventPeriodRepository.findOverlapping(startDate, endDate);
+		int pageNumber = (page == null) ? 0 : Math.max(page, 0);
+		int pageSize = (size == null) ? DEFAULT_PAGE_SIZE : Math.min(Math.max(size, 1), MAX_PAGE_SIZE);
+
+		Page<PlaceEventPeriod> found = this.eventPeriodRepository.findOverlapping(startDate, endDate,
+				PageRequest.of(pageNumber, pageSize));
+		List<PlaceEventPeriod> periods = found.getContent();
+		boolean hasMore = found.hasNext();
 
 		List<UUID> placeIds = periods.stream().map(PlaceEventPeriod::getPlaceId).distinct().toList();
 		Map<UUID, Place> placesById = new HashMap<>();
@@ -102,13 +142,15 @@ public class FestivalQueryService {
 					place.getLat(),
 					place.getLng(),
 					place.getPhotoUrl(),
+					place.getPhotoSource(),
+					place.getPhotoSubject(),
 					period.getStartDate(),
 					period.getEndDate(),
 					toPriceLevel(priceLevelByPlace.get(place.getPlaceId())),
 					overlapDates(period, startDate, endDate)));
 		}
 
-		return new FestivalResponse(items, items.size());
+		return new FestivalResponse(items, items.size(), hasMore);
 	}
 
 	/**

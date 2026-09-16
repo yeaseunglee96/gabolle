@@ -9,6 +9,11 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -144,6 +149,54 @@ class PlaceFeatureLoaderIntegrationTest extends PlacePostgresIntegrationTest {
 		// "두 번째라 건너뛴 것" 과 "장소가 없어 못 넣은 것" 은 다른 사실이라 따로 센다.
 		assertThat(second.alreadyPresent()).isEqualTo(1);
 		assertThat(featureCount("RESEARCH_PRICEBAND")).isEqualTo(1);
+	}
+
+	@Test
+	@DisplayName("🔴 S15P21E201-948 — 같은 사실을 동시에 두 번 넣어도 예외 없이 하나만 남는다")
+	void 동시에_돌려도_예외_없이_하나만_남는다() throws Exception {
+		givenPlaces("MA0101");
+		PlaceFeatureNdjsonReader.Fact fact = onlyFact(
+				file("priceband.ndjson", "{\"placeId\":\"MA0101\",\"raw\":\"mid\",\"band\":\"MID\"}"));
+
+		// 🔴 진짜 경합을 만든다 — 순서대로 실행하면 두 번째 호출은 이미 커밋된 첫 트랜잭션을
+		// 보고 ON CONFLICT 로만 걸러지고, 그건 이 로더가 예전에도 처리하던 경우(재실행)다.
+		// 이 테스트가 재려는 것은 그게 아니라 "두 트랜잭션이 동시에 열려 있을 때" 다 — 그래서
+		// 두 스레드를 같은 순간에 풀어 준다.
+		CountDownLatch ready = new CountDownLatch(2);
+		CountDownLatch go = new CountDownLatch(1);
+		ExecutorService pool = Executors.newFixedThreadPool(2);
+		try {
+			List<Future<PlaceFeatureLoader.Saved>> futures = new ArrayList<>();
+			for (int i = 0; i < 2; i++) {
+				futures.add(pool.submit(() -> {
+					ready.countDown();
+					go.await(5, TimeUnit.SECONDS);
+					return this.featureLoader.saveChunk(List.of(fact), "RESEARCH_PRICEBAND", DATASET,
+							OffsetDateTime.now());
+				}));
+			}
+			ready.await(5, TimeUnit.SECONDS);
+			go.countDown();
+
+			int totalInserted = 0;
+			for (Future<PlaceFeatureLoader.Saved> future : futures) {
+				// 🔴 예전 코드(먼저 조회하고 없으면 넣기)라면 여기서 DataIntegrityViolationException
+				// 이 튀어나온다 — 두 스레드 다 "없다" 고 읽은 뒤 둘 다 넣으려 하기 때문이다.
+				totalInserted += future.get(5, TimeUnit.SECONDS).inserted();
+			}
+
+			assertThat(totalInserted).isEqualTo(1);
+			assertThat(featureCount("RESEARCH_PRICEBAND")).isEqualTo(1);
+		}
+		finally {
+			pool.shutdownNow();
+		}
+	}
+
+	private PlaceFeatureNdjsonReader.Fact onlyFact(Path path) {
+		List<PlaceFeatureNdjsonReader.Fact> facts = new ArrayList<>();
+		PlaceFeatureNdjsonReader.readPriceBands(path, 500, facts::addAll);
+		return facts.get(0);
 	}
 
 	/**

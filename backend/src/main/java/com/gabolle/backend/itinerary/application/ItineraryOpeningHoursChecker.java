@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import com.gabolle.backend.itinerary.domain.ItineraryItem;
 import com.gabolle.backend.place.service.OpeningHoursFilterPort;
+import com.gabolle.backend.place.service.PlaceTimeFactFilterPort;
 
 /**
  * 그날의 방문 시각이 장소의 영업시간을 어기는가 — S15P21E201-268 의 마지막 완료 기준.
@@ -55,6 +56,12 @@ public class ItineraryOpeningHoursChecker {
 	/** 위반 하나의 종류 — "그 시각에 그 집은 문을 닫는다". */
 	public static final String VIOLATION_CLOSED = "OPENING_HOURS_CLOSED";
 
+	/** 위반 하나의 종류 — "그 시각은 브레이크타임이다" — S15P21E201-94. */
+	public static final String VIOLATION_BREAK_TIME = "BREAK_TIME_CLOSED";
+
+	/** 위반 하나의 종류 — "그 시각은 이미 라스트오더를 지났다" — S15P21E201-94. */
+	public static final String VIOLATION_LAST_ORDER = "LAST_ORDER_PASSED";
+
 	/** 방문 시각이 없는 항목이 있어 그 항목만은 판정하지 못했다. */
 	public static final String REASON_NO_ITEM_TIME = "NO_ITEM_TIME";
 
@@ -63,6 +70,9 @@ public class ItineraryOpeningHoursChecker {
 
 	private final OpeningHoursFilterPort openingHours;
 
+	/** 브레이크타임·라스트오더를 아직 아무도 안 넣어서 판정하지 못했다 — S15P21E201-94. */
+	private final PlaceTimeFactFilterPort timeFact;
+
 	/**
 	 * 방문 시각을 절대 시각으로 바꿀 때 쓰는 시간대. 일정의 시각은 날짜와 시:분으로만 저장돼
 	 * 있어서 어느 지역의 시각인지가 값에 없다. 이 서비스는 국내 여행만 다루므로 응답의 다른
@@ -70,8 +80,9 @@ public class ItineraryOpeningHoursChecker {
 	 */
 	private static final ZoneId ZONE = ZoneId.of("Asia/Seoul");
 
-	public ItineraryOpeningHoursChecker(OpeningHoursFilterPort openingHours) {
+	public ItineraryOpeningHoursChecker(OpeningHoursFilterPort openingHours, PlaceTimeFactFilterPort timeFact) {
 		this.openingHours = openingHours;
+		this.timeFact = timeFact;
 	}
 
 	/**
@@ -86,7 +97,7 @@ public class ItineraryOpeningHoursChecker {
 	 */
 	public Result checkDay(List<ItineraryItem> items, int dayIndex) {
 		List<Violation> violations = new ArrayList<>();
-		Set<String> reasons = new LinkedHashSet<>();
+		Set<NotChecked> notChecked = new LinkedHashSet<>();
 
 		for (ItineraryItem item : items) {
 			if (item.dayIndex() != dayIndex) {
@@ -95,26 +106,44 @@ public class ItineraryOpeningHoursChecker {
 			LocalTime startTime = item.startTime();
 			String placeId = item.placeId();
 			if (startTime == null || placeId == null) {
-				reasons.add(REASON_NO_ITEM_TIME);
+				notChecked.add(new NotChecked(CHECK, REASON_NO_ITEM_TIME));
+				notChecked.add(new NotChecked(PlaceTimeFactFilterPort.BREAK_TIME_CHECK, REASON_NO_ITEM_TIME));
+				notChecked.add(new NotChecked(PlaceTimeFactFilterPort.LAST_ORDER_CHECK, REASON_NO_ITEM_TIME));
 				continue;
 			}
 
 			OffsetDateTime at = item.visitDate().atTime(startTime).atZone(ZONE).toOffsetDateTime();
+			UUID placeUuid = UUID.fromString(placeId);
 			// 🔴 세 갈래를 그대로 옮긴다. 모른다를 위반으로도, 통과로도 접지 않는다.
-			switch (this.openingHours.openAt(UUID.fromString(placeId), at)) {
+			switch (this.openingHours.openAt(placeUuid, at)) {
 				case CLOSED ->
 					violations.add(new Violation(VIOLATION_CLOSED, item.itemKey(), placeId, at.toString()));
-				case NOT_COLLECTED -> reasons.add(REASON_NOT_COLLECTED);
+				case NOT_COLLECTED -> notChecked.add(new NotChecked(CHECK, REASON_NOT_COLLECTED));
 				case OPEN -> {
 					// 봤고 문제 없다. 적을 것이 없다.
 				}
 			}
+			switch (this.timeFact.breakTimeAt(placeUuid, at)) {
+				case CLOSED ->
+					violations.add(new Violation(VIOLATION_BREAK_TIME, item.itemKey(), placeId, at.toString()));
+				case NOT_COLLECTED -> notChecked.add(
+						new NotChecked(PlaceTimeFactFilterPort.BREAK_TIME_CHECK, PlaceTimeFactFilterPort.REASON_NOT_COLLECTED));
+				case OPEN -> {
+					// 봤고 문제 없다.
+				}
+			}
+			switch (this.timeFact.lastOrderAt(placeUuid, at)) {
+				case CLOSED ->
+					violations.add(new Violation(VIOLATION_LAST_ORDER, item.itemKey(), placeId, at.toString()));
+				case NOT_COLLECTED -> notChecked.add(
+						new NotChecked(PlaceTimeFactFilterPort.LAST_ORDER_CHECK, PlaceTimeFactFilterPort.REASON_NOT_COLLECTED));
+				case OPEN -> {
+					// 봤고 문제 없다.
+				}
+			}
 		}
 
-		List<NotChecked> notChecked = reasons.stream()
-				.map((reason) -> new NotChecked(CHECK, reason))
-				.toList();
-		return new Result(List.copyOf(violations), notChecked);
+		return new Result(List.copyOf(violations), List.copyOf(notChecked));
 	}
 
 	/**
@@ -130,14 +159,13 @@ public class ItineraryOpeningHoursChecker {
 	public Result checkAll(List<ItineraryItem> items) {
 		List<Integer> days = items.stream().map(ItineraryItem::dayIndex).distinct().sorted().toList();
 		List<Violation> violations = new ArrayList<>();
-		Set<String> reasons = new LinkedHashSet<>();
+		Set<NotChecked> notChecked = new LinkedHashSet<>();
 		for (int dayIndex : days) {
 			Result result = checkDay(items, dayIndex);
 			violations.addAll(result.violations());
-			result.notChecked().forEach((notChecked) -> reasons.add(notChecked.reason()));
+			notChecked.addAll(result.notChecked());
 		}
-		return new Result(List.copyOf(violations),
-				reasons.stream().map((reason) -> new NotChecked(CHECK, reason)).toList());
+		return new Result(List.copyOf(violations), List.copyOf(notChecked));
 	}
 
 	/**

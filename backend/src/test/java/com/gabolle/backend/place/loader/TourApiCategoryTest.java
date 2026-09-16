@@ -21,45 +21,54 @@ class TourApiCategoryTest {
 	@Test
 	@DisplayName("자연 안에서 해수욕장만 SEA_BEACH 다 — 실측에서 감지해변·송도해수욕장 둘이 그 분류다")
 	void beachOnlyForTheBeachCode() {
-		assertThat(TourApiCategory.of("A01", "A01011200")).isEqualTo("SEA_BEACH");
+		assertThat(TourApiCategory.of("129999", "A01", "A01011200")).isEqualTo("SEA_BEACH");
 	}
 
 	@Test
 	@DisplayName("자연의 나머지는 NATURE_WALK — 산·수목원·계곡·강이 여기다")
 	void otherNatureIsNatureWalk() {
-		assertThat(TourApiCategory.of("A01", "A01010400")).isEqualTo("NATURE_WALK"); // 금정산
-		assertThat(TourApiCategory.of("A01", "A01010700")).isEqualTo("NATURE_WALK"); // 수목원
-		assertThat(TourApiCategory.of("A01", "A01010900")).isEqualTo("NATURE_WALK"); // 계곡
-		assertThat(TourApiCategory.of("A01", null)).isEqualTo("NATURE_WALK");
+		assertThat(TourApiCategory.of("129999", "A01", "A01010400")).isEqualTo("NATURE_WALK"); // 금정산
+		assertThat(TourApiCategory.of("129999", "A01", "A01010700")).isEqualTo("NATURE_WALK"); // 수목원
+		assertThat(TourApiCategory.of("129999", "A01", "A01010900")).isEqualTo("NATURE_WALK"); // 계곡
+		assertThat(TourApiCategory.of("129999", "A01", null)).isEqualTo("NATURE_WALK");
+	}
+
+	@Test
+	@DisplayName("🔴 절영해안산책로·해운대 그린레일웨이만 SEA_BEACH 다 — 같은 소분류(A01010500)의 송도반도는 아니다 (S15P21E201-106)")
+	void coastalWalkContentIdsAreBeach() {
+		// 🔴 contentid 로 콕 집는다 — 셋 다 cat3=A01010500 이라 소분류로는 못 가른다.
+		assertThat(TourApiCategory.of("252561", "A01", "A01010500")).isEqualTo("SEA_BEACH"); // 절영해안산책로
+		assertThat(TourApiCategory.of("2822343", "A01", "A01010500")).isEqualTo("SEA_BEACH"); // 그린레일웨이
+		assertThat(TourApiCategory.of("2614725", "A01", "A01010500")).isEqualTo("NATURE_WALK"); // 송도반도 — 일부러 뺐다
 	}
 
 	@Test
 	@DisplayName("인문은 CULTURE_TEMPLE, 쇼핑은 CITY")
 	void humanitiesAndShopping() {
-		assertThat(TourApiCategory.of("A02", "A02010100")).isEqualTo("CULTURE_TEMPLE");
-		assertThat(TourApiCategory.of("A04", "A04010200")).isEqualTo("CITY");
+		assertThat(TourApiCategory.of("129999", "A02", "A02010100")).isEqualTo("CULTURE_TEMPLE");
+		assertThat(TourApiCategory.of("129999", "A04", "A04010200")).isEqualTo("CITY");
 	}
 
 	@Test
 	@DisplayName("🔴 레포츠와 숙박은 비운다 — 억지로 넣으면 자연 산책에 실내 사격장이 섞인다")
 	void sportsAndLodgingHaveNoAppWord() {
-		assertThat(TourApiCategory.of("A03", "A03021600")).isNull(); // 실탄사격장
-		assertThat(TourApiCategory.of("A03", "A03022700")).isNull(); // 무장애숲길 — 걷는 길이지만 같은 대분류다
-		assertThat(TourApiCategory.of("B02", "B02010100")).isNull(); // 호텔
+		assertThat(TourApiCategory.of("129999", "A03", "A03021600")).isNull(); // 실탄사격장
+		assertThat(TourApiCategory.of("129999", "A03", "A03022700")).isNull(); // 무장애숲길 — 걷는 길이지만 같은 대분류다
+		assertThat(TourApiCategory.of("129999", "B02", "B02010100")).isNull(); // 호텔
 	}
 
 	@Test
 	@DisplayName("음식은 여기서 판정하지 않는다 — 판독기가 애초에 넘기지 않는다")
 	void foodIsNotThisMethodsJob() {
-		assertThat(TourApiCategory.of("A05", "A05020100")).isNull();
+		assertThat(TourApiCategory.of("129999", "A05", "A05020100")).isNull();
 	}
 
 	@Test
 	@DisplayName("모르는 대분류가 오면 비운다 — 지어내지 않는다")
 	void unknownCat1IsEmpty() {
-		assertThat(TourApiCategory.of("C01", null)).isNull();
-		assertThat(TourApiCategory.of(null, null)).isNull();
-		assertThat(TourApiCategory.of("", null)).isNull();
+		assertThat(TourApiCategory.of("129999", "C01", null)).isNull();
+		assertThat(TourApiCategory.of("129999", null, null)).isNull();
+		assertThat(TourApiCategory.of("129999", "", null)).isNull();
 	}
 
 	@Test
@@ -69,7 +78,7 @@ class TourApiCategoryTest {
 		String[] cat3s = { null, "A01011200", "A01010400", "A02010100", "A04010200", "A03021600" };
 		for (String cat1 : cat1s) {
 			for (String cat3 : cat3s) {
-				String produced = TourApiCategory.of(cat1, cat3);
+				String produced = TourApiCategory.of("129999", cat1, cat3);
 				if (produced != null) {
 					assertThat(produced)
 							.as("앱이 모르는 낱말이다: cat1=%s cat3=%s", cat1, cat3)

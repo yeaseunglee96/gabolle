@@ -52,7 +52,18 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 		//    이 슬라이스가 따라 넓어져야 하는데, 그러면 "인증만 올린다" 는 이 슬라이스의 뜻이
 		//    점점 사라진다. 언젠가는 trip 을 여기서 빼고 인증이 실제로 필요로 하는 것만
 		//    남기는 쪽을 봐야 한다 — 지금은 back/dev 를 세워 두는 것이 먼저라 미룬다.
-		"com.gabolle.backend.event"
+		"com.gabolle.backend.event",
+		// 🔴 S15P21E201-978 — AccountDeletionService 가 생성자로 StorageCleanupService(story.
+		// application)를 요구하게 됐다. event 를 더했을 때와 같은 모양의 사고다. story 전체가
+		// 아니라 application·storage 두 패키지만 더한다 — presentation(컨트롤러)은 이 슬라이스가
+		// 필요로 하지 않는다. application 을 더하면 그 패키지의 다른 서비스(StoryService 등)도
+		// 함께 빈으로 올라오는데, 그것들이 쓰는 저장소는 전부 story.repository 에 있어 아래
+		// @EnableJpaRepositories 에도 그 패키지를 더했다. storage 를 더한 것은
+		// StorageCleanupService 가 요구하는 StoragePort 의 기본 구현(LocalFileStorage)이 거기
+		// 있어서다 — @Profile({"db","dev"})·@ConditionalOnProperty(기본값 local) 라 이 슬라이스의
+		// db 프로필에서 MinIO 없이도 뜬다.
+		"com.gabolle.backend.story.application",
+		"com.gabolle.backend.story.storage"
 })
 // 🔴 엔티티는 인증 밖의 것도 올린다. 계정 삭제(S15P21E201-425)가 그 사람의 여행·일정·추천 기록을
 //    JPQL 로 지우는데, 엔티티가 이 영속성 단위에 없으면 "그런 엔티티 없다" 로 실행에서 터진다.
@@ -91,7 +102,17 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 		"com.gabolle.backend.user.repository",
 		"com.gabolle.backend.trip.infra",
 		"com.gabolle.backend.place.repository",
-		"com.gabolle.backend.event.repository"
+		"com.gabolle.backend.event.repository",
+		// 🔴 S15P21E201-160 — AnalyticsQueryService(event.application)가 생성자로
+		// RecommendationJobRepository 를 요구한다. event 를 스캔하는 순간 그 빈도 같이
+		// 요구된다 — place·trip 을 더했을 때와 같은 모양의 사고다. 위 @EntityScan 에는
+		// recommendation.domain 이 이미 있었지만, 저장소는 @EnableJpaRepositories 가
+		// 따로 정한다.
+		"com.gabolle.backend.recommendation.repository",
+		// 🔴 S15P21E201-978 — 위 scanBasePackages 에 story.application 을 더하면서 그 서비스들이
+		// 쓰는 저장소(StorageCleanupRepository·UploadedImageRepository·UserBlockRepository 등)도
+		// 함께 필요해졌다. 엔티티 매핑(story.domain)은 이미 있었다.
+		"com.gabolle.backend.story.repository"
 })
 public class AuthSliceApplication {
 }

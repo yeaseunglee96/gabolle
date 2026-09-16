@@ -142,16 +142,43 @@ class ItineraryVersionListingIntegrationTest {
 	void ownerListsVersionsNewestFirst() throws Exception {
 		mockMvc.perform(get("/api/v1/itineraries/{id}/versions", this.itineraryId).principal(asOwner()))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.data.length()").value(3))
-				.andExpect(jsonPath("$.data[0].version").value(3))
-				.andExpect(jsonPath("$.data[1].version").value(2))
-				.andExpect(jsonPath("$.data[2].version").value(1))
-				.andExpect(jsonPath("$.data[0].operation").value("REVERT"))
-				.andExpect(jsonPath("$.data[0].revertedFromVersion").value(1))
-				.andExpect(jsonPath("$.data[0].baseVersion").value(2))
-				.andExpect(jsonPath("$.data[1].revertedFromVersion").doesNotExist())
+				// 🔴 S15P21E201-1011 — 응답이 배열에서 봉투로 바뀌었다. 목록은 data.items 다.
+				.andExpect(jsonPath("$.data.items.length()").value(3))
+				.andExpect(jsonPath("$.data.count").value(3))
+				.andExpect(jsonPath("$.data.hasMore").value(false))
+				.andExpect(jsonPath("$.data.items[0].version").value(3))
+				.andExpect(jsonPath("$.data.items[1].version").value(2))
+				.andExpect(jsonPath("$.data.items[2].version").value(1))
+				.andExpect(jsonPath("$.data.items[0].operation").value("REVERT"))
+				.andExpect(jsonPath("$.data.items[0].revertedFromVersion").value(1))
+				.andExpect(jsonPath("$.data.items[0].baseVersion").value(2))
+				.andExpect(jsonPath("$.data.items[1].revertedFromVersion").doesNotExist())
 				.andExpect(jsonPath("$.meta.requestId").exists())
 				.andExpect(jsonPath("$.error").doesNotExist());
+	}
+
+	/**
+	 * 🔴 S15P21E201-1011 — 판은 일정을 고칠 때마다 쌓여 끝이 없다. 상한에 걸렸다는 사실이
+	 * 응답에 실려야 화면이 목록을 <b>조용히 자르지</b> 않는다.
+	 */
+	@Test
+	@DisplayName("🔴 size 로 자르면 hasMore 가 참이고, 다음 쪽은 이어지는 판을 준다")
+	void pagingReportsMoreAndContinues() throws Exception {
+		mockMvc.perform(get("/api/v1/itineraries/{id}/versions", this.itineraryId)
+						.param("size", "2").principal(asOwner()))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.data.items.length()").value(2))
+				.andExpect(jsonPath("$.data.hasMore").value(true))
+				.andExpect(jsonPath("$.data.items[0].version").value(3))
+				.andExpect(jsonPath("$.data.items[1].version").value(2));
+
+		// 다음 쪽 — 같은 판이 다시 나오거나 건너뛰어지지 않는다.
+		mockMvc.perform(get("/api/v1/itineraries/{id}/versions", this.itineraryId)
+						.param("size", "2").param("page", "1").principal(asOwner()))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.data.items.length()").value(1))
+				.andExpect(jsonPath("$.data.hasMore").value(false))
+				.andExpect(jsonPath("$.data.items[0].version").value(1));
 	}
 
 	@Test

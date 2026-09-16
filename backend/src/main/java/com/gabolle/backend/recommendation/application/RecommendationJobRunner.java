@@ -1,14 +1,21 @@
 package com.gabolle.backend.recommendation.application;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.HexFormat;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.annotation.Profile;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.gabolle.backend.recommendation.domain.JobType;
 import com.gabolle.backend.recommendation.domain.RecommendationJob;
+import com.gabolle.backend.recommendation.repository.RecommendationJobIdempotencyRepository;
 import com.gabolle.backend.recommendation.repository.RecommendationJobRepository;
 import com.gabolle.backend.trip.application.TripQueryService;
 import com.gabolle.backend.trip.domain.PreferenceSnapshot;
@@ -55,14 +62,17 @@ public class RecommendationJobRunner {
 
 	private final RecommendationJobWorker worker;
 
+	private final RecommendationJobIdempotencyRepository idempotencyRepository;
+
 	public RecommendationJobRunner(TripQueryService tripQueryService, TripRepository tripRepository,
 			RecommendationJobRepository jobRepository, RecommendationService recommendationService,
-			RecommendationJobWorker worker) {
+			RecommendationJobWorker worker, RecommendationJobIdempotencyRepository idempotencyRepository) {
 		this.tripQueryService = tripQueryService;
 		this.tripRepository = tripRepository;
 		this.jobRepository = jobRepository;
 		this.recommendationService = recommendationService;
 		this.worker = worker;
+		this.idempotencyRepository = idempotencyRepository;
 	}
 
 	/**
@@ -79,6 +89,57 @@ public class RecommendationJobRunner {
 	 *     상단 참고)
 	 */
 	public RecommendationJob enqueue(String tripId, String userId, Integer preferenceSnapshotVersion,
+			Integer topK) {
+		return enqueue(buildCommand(tripId, userId, preferenceSnapshotVersion, topK));
+	}
+
+	/**
+	 * {@link #enqueue(String, String, Integer, Integer)} 와 같지만 {@code Idempotency-Key}
+	 * 를 받는다 — S15P21E201-944.
+	 *
+	 * <p>🔴 <b>지금까지 이 자리에 재시도 방지가 전혀 없었다.</b> 같은 요청이 재시도로
+	 * 두 번 오면 Job 이 두 개 생겼다 — 추천 엔진 호출은 공짜가 아니고, 사용자에게도
+	 * "같은 여행에 일정이 두 번 생겼다" 로 보였다.
+	 *
+	 * <p>{@code TripCreationService}·{@code ShareCloneService}가 이미 같은 문제를 같은
+	 * 방식(키 확보 + Job 저장을 한 트랜잭션, 지문 대조)으로 풀어 뒀다 — 여기서도 그대로
+	 * 따른다({@link RecommendationJobIdempotencyRepository}).
+	 *
+	 * @param idempotencyKey {@code null}·빈 문자열이면 지금까지와 같다(매번 새 Job) —
+	 *     클라이언트 opt-in
+	 * @throws RecommendationJobIdempotencyConflictException 같은 키가 <b>다른 본문</b>으로
+	 *     이미 쓰였을 때
+	 */
+	public EnqueueOutcome enqueue(String tripId, String userId, Integer preferenceSnapshotVersion, Integer topK,
+			String idempotencyKey) {
+		if (idempotencyKey == null || idempotencyKey.isBlank()) {
+			return new EnqueueOutcome(enqueue(tripId, userId, preferenceSnapshotVersion, topK), true);
+		}
+
+		RecommendationCommand command = buildCommand(tripId, userId, preferenceSnapshotVersion, topK);
+		String fingerprint = fingerprintOf(tripId, userId, preferenceSnapshotVersion, topK);
+		RecommendationJob prepared = this.recommendationService.prepare(command);
+
+		// 🔴 이 호출이 끝나야(=커밋돼야) 아래 execute 를 부른다 — 클래스 상단 javadoc 과 같은 이유.
+		//    saveWithIdempotency 는 별도 빈의 @Transactional 메서드라 여기로 돌아온 시점에
+		//    이미 커밋돼 있다(프록시 경계 = 트랜잭션 경계).
+		RecommendationJobIdempotencyRepository.Claimed claimed = this.idempotencyRepository
+				.saveWithIdempotency(UUID.fromString(userId), idempotencyKey, fingerprint, prepared);
+
+		if (claimed.created()) {
+			this.worker.execute(claimed.job(), command);
+		}
+		// 🔴 claimed.created()가 거짓이면(=키 재사용) worker 를 다시 부르지 않는다 — 그
+		//    Job 은 이미 실행 중이거나 끝났다. 다시 실행하면 실행을 두 번 하는 것으로,
+		//    이 티켓이 막으려던 것과 같은 문제가 다른 자리에서 재현된다.
+		return new EnqueueOutcome(claimed.job(), claimed.created());
+	}
+
+	/** 새로 만들었으면 참, 같은 키로 이미 있던 Job 을 그대로 돌려주는 것이면 거짓. */
+	public record EnqueueOutcome(RecommendationJob job, boolean created) {
+	}
+
+	private RecommendationCommand buildCommand(String tripId, String userId, Integer preferenceSnapshotVersion,
 			Integer topK) {
 		TripQueryService.View view = this.tripQueryService.get(tripId, userId);
 
@@ -97,7 +158,7 @@ public class RecommendationJobRunner {
 				.orElseThrow(() -> new IllegalStateException(
 						"이 여행은 제약을 하나도 답하지 않아 추천을 요청할 수 없다: " + tripId));
 
-		RecommendationCommand command = new RecommendationCommand(
+		return new RecommendationCommand(
 				UUID.fromString(userId),
 				JobType.ITINERARY_GENERATION,
 				UUID.fromString(tripId),
@@ -111,8 +172,26 @@ public class RecommendationJobRunner {
 				null, // appVersion — 아직 헤더로 안 받는다(TripController 도 같은 상태)
 				topK,
 				null); // edit — 일정 생성은 편집이 아니다
+	}
 
-		return enqueue(command);
+	/**
+	 * 요청 본문의 지문 — {@code TripCreationService.fingerprintOf} 와 같은 방식(SHA-256 hex).
+	 *
+	 * <p>🔴 같은 키를 <b>다른 내용</b>으로 재사용하면 거부해야 하므로(API-09와 같은 원칙),
+	 * "같은 내용인가" 를 비교할 것이 필요하다. 클라이언트가 실제로 보낸 값(tripId·userId·
+	 * preferenceSnapshotVersion·topK)만 담는다 — 서버가 그 뒤에 파생한 값(constraintSnapshotId
+	 * 등)은 같은 입력이면 항상 같게 파생되므로 지문에 넣을 이유가 없다.
+	 */
+	private String fingerprintOf(String tripId, String userId, Integer preferenceSnapshotVersion, Integer topK) {
+		String raw = String.join("|", tripId, userId, String.valueOf(preferenceSnapshotVersion),
+				String.valueOf(topK));
+		try {
+			byte[] digest = MessageDigest.getInstance("SHA-256").digest(raw.getBytes(StandardCharsets.UTF_8));
+			return HexFormat.of().formatHex(digest);
+		}
+		catch (NoSuchAlgorithmException e) {
+			throw new IllegalStateException("SHA-256 이 없다", e);
+		}
 	}
 
 	/**
@@ -139,4 +218,37 @@ public class RecommendationJobRunner {
 	public Optional<RecommendationJob> findJob(String jobId) {
 		return this.jobRepository.findById(UUID.fromString(jobId));
 	}
+
+	/**
+	 * 그 여행의 추천 작업을 최신순으로 — S15P21E201-1001.
+	 *
+	 * <p>🔴 <b>소유권 검사를 여기서 새로 짜지 않고 {@link #enqueue(String, String, Integer,
+	 * Integer)} 와 <u>같은 관문</u>을 지난다</b> — {@code tripQueryService.get} 이다. 검사를
+	 * 따로 만들면 두 경로의 거절 모양이 언젠가 갈라지고, 그 차이 자체가 "있는데 너는 못
+	 * 본다" 는 신호가 된다({@link com.gabolle.backend.recommendation.presentation
+	 * .RecommendationJobController#get} 이 없는 번호와 남의 번호를 같은 404 로 답하는 것과
+	 * 같은 이유).
+	 *
+	 * <p>🔴 <b>내 여행인데 추천이 없으면 빈 목록이다 — 404 가 아니다.</b> 화면이 「아직 추천을
+	 * 안 만들었다」와 「그런 여행이 없다」를 갈라 그려야 하는데, 둘 다 404 면 가를 수가 없다.
+	 * 없는 여행·남의 여행만 {@link TripQueryService.TripNotFoundException} 으로 404 가 된다.
+	 *
+	 * @throws TripQueryService.TripNotFoundException 여행이 없거나 요청자가 그 여행의 회원이
+	 *     아니다 — FR-SEC-01
+	 */
+	public List<RecommendationJob> findJobsByTrip(String tripId, String userId) {
+		this.tripQueryService.get(tripId, userId);
+		return this.jobRepository.findByTripIdOrderByCreatedAtDesc(UUID.fromString(tripId),
+				PageRequest.of(0, MAX_JOBS_PER_TRIP));
+	}
+
+	/**
+	 * 한 여행에 대해 한 번에 돌려주는 Job 수의 상한.
+	 *
+	 * <p>화면이 실제로 쓰는 것은 <b>맨 앞 하나</b>다(가장 최근 추천). 그런데 하나만 돌려주면
+	 * 「가장 최근 것이 실패한 Job 이라 그 앞의 성공한 추천을 못 찾는」 경우에 화면이 할 수 있는
+	 * 일이 없어진다 — 목록으로 주고 <b>무엇을 고를지는 부르는 쪽이 정하게</b> 둔다. 그렇다고
+	 * 전부 줄 이유도 없다.
+	 */
+	private static final int MAX_JOBS_PER_TRIP = 20;
 }

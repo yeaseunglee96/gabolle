@@ -64,15 +64,7 @@ public class KakaoLocalOriginSearchAdapter implements OriginSearchPort {
 
 	@Override
 	public List<OriginCandidate> search(String query, int limit) {
-		// 🔴 fromHttpUrl 이 아니라 fromUriString 이다. Spring Framework 7(Boot 4)에서 앞의 것이
-		//    없어졌다 — 옛 예제를 그대로 옮기면 컴파일이 안 된다.
-		URI uri = UriComponentsBuilder.fromUriString(this.properties.getKakaoBaseUrl())
-				.path("/v2/local/search/keyword.json")
-				.queryParam("query", query)
-				.queryParam("size", limit)
-				.build()
-				.encode(StandardCharsets.UTF_8)
-				.toUri();
+		URI uri = uriFor(query, limit);
 		try {
 			String body = this.restClient.get().uri(uri)
 					.headers(this::applyHeaders)
@@ -84,6 +76,32 @@ public class KakaoLocalOriginSearchAdapter implements OriginSearchPort {
 			log.warn("출발지 검색 provider=KAKAO_LOCAL 호출 실패 status={}", statusOf(exception));
 			throw new IllegalStateException("카카오 로컬 검색 호출에 실패했습니다.", exception);
 		}
+	}
+
+	/**
+	 * 호출할 주소를 만든다 — S15P21E201-979 에서 검사할 수 있게 따로 뺐다.
+	 *
+	 * <p>🔴 rect 로 부산만 본다. 이것이 없던 동안 카카오에 전국을 물어봐서 "서면" 을 치면
+	 * 부산 서면이 아니라 전남 순천시 서면의 장소만 나왔다 — 부산 결과는 한 건도 없었다.
+	 * 지명에 "부산" 이 들어가야만 제대로 나오는 검색이었다.
+	 *
+	 * <p>x·y·radius 가 아니라 rect 인 이유는 radius 의 상한이 20km 라 부산이 다 안 들어가기
+	 * 때문이다(동래에서 기장까지 그보다 멀다). 값은 설정에 있고 비우면 제한 없이 부른다 —
+	 * 부산 밖을 다루게 되는 날 코드를 안 고치게 하려는 것이다.
+	 *
+	 * <p>🔴 fromHttpUrl 이 아니라 fromUriString 이다. Spring Framework 7(Boot 4)에서 앞의 것이
+	 * 없어졌다 — 옛 예제를 그대로 옮기면 컴파일이 안 된다.
+	 */
+	URI uriFor(String query, int limit) {
+		UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(this.properties.getKakaoBaseUrl())
+				.path("/v2/local/search/keyword.json")
+				.queryParam("query", query)
+				.queryParam("size", limit);
+		String rect = this.properties.getSearchRect();
+		if (rect != null && !rect.isBlank()) {
+			builder.queryParam("rect", rect);
+		}
+		return builder.build().encode(StandardCharsets.UTF_8).toUri();
 	}
 
 	private void applyHeaders(HttpHeaders headers) {

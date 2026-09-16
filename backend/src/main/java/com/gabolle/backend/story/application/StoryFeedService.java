@@ -44,30 +44,70 @@ public class StoryFeedService {
 
 	private final Clock clock;
 
+	private final BlockService blockService;
+
 	public StoryFeedService(StoryRepository storyRepository, StoryService storyService,
-			StoryResponseAssembler assembler, Clock clock) {
+			StoryResponseAssembler assembler, BlockService blockService, Clock clock) {
 		this.storyRepository = storyRepository;
 		this.storyService = storyService;
 		this.assembler = assembler;
+		this.blockService = blockService;
 		this.clock = clock;
 	}
 
+	/**
+	 * @param viewer 로그인한 사람. <b>{@code null} 이면 로그인하지 않은 사람</b>이다
+	 *     (익명 출입증만 들고 온 경우 — S15P21E201-974). 그때 {@code ALL} 은 공개 기록만
+	 *     내보내고 {@code FOLLOWING} 은 거절한다
+	 * @throws AnonymousFollowingFeedException 로그인하지 않은 사람이 {@code FOLLOWING} 을 물었을 때
+	 */
 	@Transactional(readOnly = true)
 	public StoryFeedResponse feed(UUID viewer, Scope scope, String cursor, Integer limit) {
 		Instant now = this.clock.instant();
 		FeedCursor from = FeedCursor.decode(cursor);
 		int size = clamp(limit);
 		List<Story> rows = switch (scope) {
-			case ALL -> this.storyRepository.findPublicFeed(viewer, now, from.publishAt(), from.storyId(), size + 1);
-			case FOLLOWING -> this.storyRepository.findFollowingFeed(viewer, now, from.publishAt(), from.storyId(),
-					size + 1);
+			case ALL -> viewer == null
+					? this.storyRepository.findPublicFeedForAnonymous(now, from.publishAt(), from.storyId(), size + 1)
+					: this.storyRepository.findPublicFeed(viewer, now, from.publishAt(), from.storyId(), size + 1);
+			case FOLLOWING -> {
+				if (viewer == null) {
+					throw new AnonymousFollowingFeedException();
+				}
+				yield this.storyRepository.findFollowingFeed(viewer, now, from.publishAt(), from.storyId(), size + 1);
+			}
 		};
 		return page(rows, size, viewer, now);
+	}
+
+	/**
+	 * 로그인하지 않은 사람이 팔로잉 피드를 물었다 — S15P21E201-974.
+	 *
+	 * <p>🔴 <b>401 이 아니라 400 으로 번역된다</b>({@code StoryExceptionHandler}). 뜻만 보면
+	 * "로그인이 필요하다" 라 401 이 맞아 보이는데, 앱의 요청 코드가 <b>401 을 출입증 만료로
+	 * 보고 다시 발급받아 재시도</b>한다. 익명에게는 몇 번을 다시 받아도 같은 답이 오므로
+	 * 그대로 고리가 된다. 팔로잉은 <b>계정이 있어야 뜻이 생기는 요청</b>이지 출입증이 상한
+	 * 상태가 아니다 — 그래서 "이 요청은 이렇게 부를 수 없다"(400)로 답하고, 로그인 유도는
+	 * 화면이 한다(S15P21E201-971).
+	 *
+	 * <p>빈 목록을 주지 않는 이유도 같다. 빈 목록은 <b>"팔로우한 사람이 아직 안 올렸다"</b> 와
+	 * 구분되지 않아서, 화면이 그 탭을 감출지 빈 상태를 띄울지 정할 근거가 없다.
+	 */
+	public static class AnonymousFollowingFeedException extends RuntimeException {
+
+		public AnonymousFollowingFeedException() {
+			super("팔로잉 피드는 로그인한 뒤에 볼 수 있어요.");
+		}
+
 	}
 
 	/** 한 사람의 기록(프로필). 요청자와 그 사람의 관계에 따라 보이는 범위가 다르다. */
 	@Transactional(readOnly = true)
 	public StoryFeedResponse authorFeed(UUID viewer, UUID author, String cursor, Integer limit) {
+		// 🔴 S15P21E201-990 — 그 사람이 나를 차단했으면 빈 목록이 아니라 403 이다.
+		//    빈 목록으로 답하면 화면이 "글이 없는 사람" 과 "나를 차단한 사람" 을 못 가르고,
+		//    팀이 정한 「차단되어 볼 수 없습니다」를 띄울 수 없다.
+		this.blockService.requireNotBlockedBy(author, viewer);
 		Instant now = this.clock.instant();
 		FeedCursor from = FeedCursor.decode(cursor);
 		int size = clamp(limit);

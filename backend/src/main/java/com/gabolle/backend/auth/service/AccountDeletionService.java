@@ -18,6 +18,8 @@ import com.gabolle.backend.auth.domain.LocalCredential;
 import com.gabolle.backend.auth.repository.AuthIdentityRepository;
 import com.gabolle.backend.auth.repository.AuthSessionRepository;
 import com.gabolle.backend.auth.repository.LocalCredentialRepository;
+import com.gabolle.backend.story.application.StorageCleanupService;
+import com.gabolle.backend.story.domain.StorageCleanupEntry;
 import com.gabolle.backend.user.domain.AppUser;
 import com.gabolle.backend.user.domain.UserStatus;
 import com.gabolle.backend.user.repository.AppUserRepository;
@@ -82,10 +84,12 @@ public class AccountDeletionService {
 
 	private final Clock clock;
 
+	private final StorageCleanupService storageCleanupService;
+
 	public AccountDeletionService(LocalCredentialRepository credentialRepository,
 			AuthSessionRepository sessionRepository, AuthIdentityRepository identityRepository,
 			UserConsentRepository consentRepository, AppUserRepository userRepository,
-			PasswordEncoder passwordEncoder, Clock clock) {
+			PasswordEncoder passwordEncoder, Clock clock, StorageCleanupService storageCleanupService) {
 		this.credentialRepository = credentialRepository;
 		this.sessionRepository = sessionRepository;
 		this.identityRepository = identityRepository;
@@ -93,6 +97,7 @@ public class AccountDeletionService {
 		this.userRepository = userRepository;
 		this.passwordEncoder = passwordEncoder;
 		this.clock = clock;
+		this.storageCleanupService = storageCleanupService;
 	}
 
 	/**
@@ -171,13 +176,52 @@ public class AccountDeletionService {
 		}
 
 		List<UUID> tripIds = ownedTripIds(userId);
-		deleteTripData(userId, tripIds);
+
+		// 🔴 이 네 줄의 순서는 취향이 아니라 외래키가 정한다 (2026-09-14). 넷이 걸려 있다.
+		//
+		//    recommendation_job.taste_vector_id              → user_taste_vector
+		//    feed_build.taste_vector_id                      → user_taste_vector
+		//    user_taste_vector.source_preference_snapshot_id → preference_snapshot
+		//    feed_build.constraint_snapshot_id               → constraint_snapshot
+		//    preference_snapshot.trip_id · constraint_snapshot.trip_id → trip
+		//
+		//    그래서 <b>추천 → 개인화 파생값 → 스냅샷 → 여행</b> 말고 다른 순서가 없다.
+		//    전에는 스냅샷이 첫 칸(그때 이름은 deleteTripData)에 같이 들어 있어서 벡터보다 먼저
+		//    지워졌고, 그 결과 <b>설문을 낸 뒤 배치가 한 번이라도 접은 사람은 탈퇴가 실패했다</b> —
+		//    fk_user_taste_vector_preference_snapshot 은 ON DELETE 가 없어 NO ACTION 이다.
+		//    트랜잭션이 하나라 500 만 나가고 아무것도 안 지워진다. 배치가 매일 다시 접으므로
+		//    다시 시도해도 성공하는 날이 없다.
+		deleteItineraryAndRecommendations(userId, tripIds);
 		deletePersonalizationArtifacts(userId);
+		deleteSnapshots(userId);
+		deleteTripsAndMemberships(userId, tripIds);
+		deleteUploadedImages(userId);
 		deleteStories(userId);
 		deleteLoginMeans(userId, credential);
 		detachEvents(userId);
 
 		user.anonymizeForDeletion(this.clock.instant());
+	}
+
+	/**
+	 * 탈퇴한 사람이 올린 사진의 연결·DB 행·실제 파일을 함께 지운다 — S15P21E201-978.
+	 *
+	 * <p>{@code story_image}가 {@code uploaded_image}를 가리키므로 연결을 먼저 지운다. 파일 저장소
+	 * 삭제는 현재 DB 트랜잭션이 커밋된 뒤 실행되고, 실패하면 뒷정리 대기열에 남는다. 사진 한 장
+	 * 때문에 탈퇴 전체를 되돌리지 않으면서도 파일을 조용히 남기지 않는다.
+	 */
+	private void deleteUploadedImages(UUID userId) {
+		List<String> storageKeys = this.entityManager.createQuery(
+				"SELECT i.storageKey FROM UploadedImage i WHERE i.uploaderUserId = :userId", String.class)
+				.setParameter("userId", userId)
+				.getResultList();
+		execute("""
+				DELETE FROM StoryImage si WHERE si.uploadedImageId IN
+				(SELECT i.uploadedImageId FROM UploadedImage i WHERE i.uploaderUserId = :userId)
+				""", "userId", userId);
+		execute("DELETE FROM UploadedImage i WHERE i.uploaderUserId = :userId", "userId", userId);
+		storageKeys.forEach(key -> this.storageCleanupService.deleteOrEnqueue(
+				key, StorageCleanupEntry.REASON_ACCOUNT_DELETED));
 	}
 
 	/**
@@ -231,19 +275,38 @@ public class AccountDeletionService {
 	}
 
 	/**
-	 * 여행과 그 아래 달린 것을 지운다.
+	 * 일정과 추천 기록을 지운다 — 삭제 사슬의 <b>첫 칸</b>.
 	 *
-	 * <p>🔴 순서가 곧 정확성이다. 자식을 먼저 지우지 않으면 외래키에 걸려 통째로 실패한다. JPQL 벌크
-	 * 삭제는 데이터베이스의 {@code ON DELETE CASCADE} 를 타지 않으므로, 자동으로 지워질 것도 여기서
-	 * 직접 적어야 한다.
+	 * <p>🔴 순서가 곧 정확성이다. 자식을 먼저 지우지 않으면 외래키에 걸려 통째로 실패한다.
+	 *
+	 * <p>🔴 <b>2026-09-14 — 스냅샷과 여행을 이 메서드에서 뺐다.</b> 예전에는 여행 아래 달린 것을
+	 * 전부 여기서 지웠는데, 그러면 설문 스냅샷이 <b>취향 벡터보다 먼저</b> 지워진다.
+	 * {@code user_taste_vector.source_preference_snapshot_id} 가 그 스냅샷을 가리키므로 탈퇴가
+	 * 외래키 위반으로 실패했다. 자세한 것은 {@link #delete} 안의 순서 주석.
+	 *
+	 * <p>여기서 하는 일은 <b>추천 사슬을 끊는 것</b>까지다 — {@code recommendation_job} 이 사라져야
+	 * 다음 칸에서 취향 벡터를 지울 수 있다({@code recommendation_job.taste_vector_id}).
 	 */
-	private void deleteTripData(UUID userId, List<UUID> tripIds) {
+	private void deleteItineraryAndRecommendations(UUID userId, List<UUID> tripIds) {
 		if (!tripIds.isEmpty()) {
-			// 🔴 2026-09-05 (S15P21E201-604) — 일정을 추천 작업보다 <b>먼저</b> 지운다.
-			//    itinerary_item·itinerary_versions 의 source_request_id 가
-			//    recommendation_job.request_id 를 가리키게 되면서, 예전 순서(작업 먼저)로는
-			//    일정을 한 번이라도 만든 사용자의 탈퇴가 외래키 위반으로 통째로 실패한다.
-			//    이 메서드 머리말이 경고한 "순서가 곧 정확성" 이 실제로 걸린 자리다.
+			// 🔴 2026-09-15 (S15P21E201-977) — 두 표가 서로를 가리킨다. 한쪽을 통째로 먼저
+			//    지우는 것으로는 못 푼다.
+			//
+			//      itinerary_versions.source_request_id → recommendation_job.request_id
+			//      recommendation_job.itinerary_id      → itineraries.itinerary_id
+			//
+			//    2026-09-05 (S15P21E201-604) 은 앞의 것만 보고 "일정을 먼저" 로 정했는데,
+			//    그 뒤 V20260905120000 이 뒤의 것을 더하면서 반대 방향이 생겼다. 그래서 일정
+			//    묶음을 통째로 먼저 지우면 이번엔 추천 작업이 걸린다 — <b>일정을 한 번이라도
+			//    만든 계정은 탈퇴가 500 으로 실패했다.</b> 운영에서 실제로 그랬다.
+			//
+			//    푸는 자리는 <b>일정 행(itineraries)</b> 하나다. 그 위의 판·항목·구간은 작업을
+			//    가리키므로 작업보다 먼저 지우고, 일정 행 자체는 작업이 가리키므로 작업보다
+			//    나중에 지운다. 그래서 일정 묶음이 추천 작업을 사이에 두고 갈라진다.
+			//
+			//    🔴 itinerary_id 를 null 로 끊는 방법은 안 된다. ck_recommendation_job_result_present
+			//    가 "성공한 일정 생성 작업은 itinerary_id 가 있어야 한다" 를 요구한다 — 끊는 순간
+			//    그 CHECK 에 걸린다.
 			execute("""
 					DELETE FROM ItineraryLegJpaEntity l WHERE l.itineraryVersionId IN
 					(SELECT v.itineraryVersionId FROM ItineraryVersionJpaEntity v WHERE v.itineraryId IN
@@ -258,13 +321,16 @@ public class AccountDeletionService {
 					DELETE FROM ItineraryVersionJpaEntity v WHERE v.itineraryId IN
 					(SELECT i.itineraryId FROM ItineraryJpaEntity i WHERE i.tripId IN :tripIds)
 					""", "tripIds", tripIds);
-			execute("DELETE FROM ItineraryJpaEntity i WHERE i.tripId IN :tripIds", "tripIds", tripIds);
-
 			execute("""
 					DELETE FROM RecommendationCandidate c WHERE c.requestId IN
 					(SELECT j.requestId FROM RecommendationJob j WHERE j.tripId IN :tripIds)
 					""", "tripIds", tripIds);
 			execute("DELETE FROM RecommendationJob j WHERE j.tripId IN :tripIds", "tripIds", tripIds);
+
+			// 🔴 일정 행은 여기서 지운다 — 위 주석의 고리 때문이다. 추천 작업이 이 행을
+			//    가리키므로 작업보다 먼저 지울 수 없다. 이 줄을 위로 올리면 운영 탈퇴가
+			//    다시 깨진다.
+			execute("DELETE FROM ItineraryJpaEntity i WHERE i.tripId IN :tripIds", "tripIds", tripIds);
 		}
 
 		// 추천 기록은 여행 없이도 남을 수 있다 (지금 위치 기준 추천 등).
@@ -273,7 +339,22 @@ public class AccountDeletionService {
 				(SELECT j.requestId FROM RecommendationJob j WHERE j.userId = :userId)
 				""", "userId", userId);
 		execute("DELETE FROM RecommendationJob j WHERE j.userId = :userId", "userId", userId);
+	}
 
+	/**
+	 * 설문·제약 스냅샷을 지운다 — 삭제 사슬의 <b>셋째 칸</b>.
+	 *
+	 * <p>🔴 <b>개인화 파생값보다 뒤, 여행보다 앞</b>이어야 한다. 앞뒤로 외래키가 하나씩 걸려 있다.
+	 * <ul>
+	 * <li>앞: {@code user_taste_vector.source_preference_snapshot_id} 와
+	 *     {@code feed_build.constraint_snapshot_id} 가 이 스냅샷들을 가리킨다. 둘 다
+	 *     {@code ON DELETE} 가 없어 <b>NO ACTION</b> 이라, 가리키는 행이 살아 있으면 여기서 막힌다</li>
+	 * <li>뒤: {@code preference_snapshot.trip_id} · {@code constraint_snapshot.trip_id} 가 여행을
+	 *     가리킨다. 그래서 여행보다 먼저 지워야 한다</li>
+	 * </ul>
+	 * 가운데 자리가 하나뿐이고, 그 자리가 여기다.
+	 */
+	private void deleteSnapshots(UUID userId) {
 		execute("""
 				DELETE FROM ConstraintAnswerJpaEntity a WHERE a.constraintSnapshotId IN
 				(SELECT s.constraintSnapshotId FROM ConstraintSnapshotJpaEntity s WHERE s.userId = :userId)
@@ -284,7 +365,14 @@ public class AccountDeletionService {
 				(SELECT s.preferenceSnapshotId FROM PreferenceSnapshotJpaEntity s WHERE s.userId = :userId)
 				""", "userId", userId);
 		execute("DELETE FROM PreferenceSnapshotJpaEntity s WHERE s.userId = :userId", "userId", userId);
+	}
 
+	/**
+	 * 동행자 자격과 본인 소유 여행을 지운다 — 삭제 사슬의 <b>마지막 칸</b>.
+	 *
+	 * <p>스냅샷이 {@code trip_id} 로 여행을 가리키므로 반드시 그 뒤에 온다.
+	 */
+	private void deleteTripsAndMemberships(UUID userId, List<UUID> tripIds) {
 		// 🔴 남의 여행의 동행자 자격도 지운다 — 탈퇴했으면 그 여행에서도 빠지는 것이 맞다.
 		execute("DELETE FROM TripMemberJpaEntity m WHERE m.userId = :userId", "userId", userId);
 
@@ -319,13 +407,9 @@ public class AccountDeletionService {
 	 * 주석 참고). 그래야 {@link #preview}의 {@code recordCount}(살아있는 기록만 센다)와
 	 * 실제 삭제 결과가 어긋나지 않는다.
 	 *
-	 * <p>🔴 <b>딸린 사진 파일은 여기서 지우지 않는다.</b> {@code StoryService.delete}는
-	 * {@code StorageCleanupService}로 파일 저장소의 실제 파일까지 지우는데, 이 메서드는
-	 * (클래스 상단이 정한 대로) JPQL 벌크 갱신 하나뿐이라 그 경로를 안 탄다. 그래서 이 사람의
-	 * 기록 사진은 DB에서는 안 보이지만 저장소에는 당분간 남는다 — 알려진 한계다. 사람 단위
-	 * 일괄 삭제 빈도가 낮고, 물리 파일 정리는 story 쪽 정기 청소(S15P21E201-226)가 이미
-	 * {@code storage_cleanup_queue}로 못 지운 키를 다시 시도하는 것과 같은 성격의 문제라
-	 * 그쪽에 맡긴다.
+	 * <p>딸린 사진은 이 메서드 직전의 {@link #deleteUploadedImages}가 연결과 업로드 행을 지우고,
+	 * 실제 파일도 커밋 뒤 삭제한다. 기록 행은 신고·검토 근거를 위해 익명화된 작성자와 함께
+	 * 소프트 삭제 상태로 남지만 사진 주소와 저장 키는 남지 않는다.
 	 */
 	private void deleteStories(UUID userId) {
 		this.entityManager.createQuery(
@@ -355,8 +439,13 @@ public class AccountDeletionService {
 	 * 먼저 지우지 않으면 판을 못 지운다.
 	 *
 	 * <p>{@code recommendation_job.taste_vector_id} 도 같은 표를 가리키는데, 그쪽은
-	 * {@link #deleteTripData} 가 이미 이 사람의 추천 기록을 통째로 지운 뒤라 남아 있지 않다.
-	 * <b>이 메서드를 {@code deleteTripData} 보다 먼저 부르면 외래키에 걸려 탈퇴 전체가 실패한다.</b>
+	 * {@link #deleteItineraryAndRecommendations} 가 이미 이 사람의 추천 기록을 통째로 지운 뒤라
+	 * 남아 있지 않다. <b>이 메서드를 그보다 먼저 부르면 외래키에 걸려 탈퇴 전체가 실패한다.</b>
+	 *
+	 * <p>🔴 <b>뒤쪽에도 사슬이 있다 (2026-09-14).</b> 여기서 지우는 {@code user_taste_vector} 와
+	 * {@code feed_build} 가 이번에는 스냅샷을 가리킨다 — {@code source_preference_snapshot_id} ·
+	 * {@code constraint_snapshot_id}. 그래서 이 메서드는 {@link #deleteSnapshots} 보다 <b>먼저</b>
+	 * 와야 한다. 앞뒤가 다 막혀 있어 자리가 하나뿐이다: 추천 뒤, 스냅샷 앞.
 	 */
 	private void deletePersonalizationArtifacts(UUID userId) {
 		execute("""
@@ -374,6 +463,14 @@ public class AccountDeletionService {
 				(SELECT v.tasteVectorId FROM UserTasteVector v WHERE v.userId = :userId)
 				""", "userId", userId);
 		execute("DELETE FROM UserTasteVector v WHERE v.userId = :userId", "userId", userId);
+
+		// 🔴 실제 방문 시각으로 만든 개인 속도 계수도 개인화 파생값이다 (S15P21E201-304 · 549 후속).
+		//
+		//    user_pace_factor 는 app_user 에 ON DELETE CASCADE 로 묶여 있는데, 이 서비스는
+		//    계정 행을 지우지 않고 익명화하므로(delete 의 anonymizeForDeletion) 그 CASCADE 가
+		//    영영 돌지 않는다. 표에 선언된 것과 실제로 일어나는 일이 다르다 — 그래서 여기서
+		//    직접 지운다. 같은 규칙을 BehaviorPersonalizationReset.forget 도 쓴다.
+		execute("DELETE FROM PaceFactorJpaEntity p WHERE p.userId = :userId", "userId", userId);
 	}
 
 	/**

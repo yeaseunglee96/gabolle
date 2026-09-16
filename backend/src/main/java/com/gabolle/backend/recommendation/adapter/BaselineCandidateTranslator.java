@@ -116,9 +116,10 @@ public class BaselineCandidateTranslator {
 	 *
 	 * <p>그러니 <b>{@code place} 를 채우는 쪽이 {@code category} 에 앱과 같은 코드를 넣어야 한다.</b>
 	 * 안 그러면 후보가 0건이 되고, 그 0건은 "조건에 맞는 곳이 없다" 로 보이지 "어휘가 안 맞는다"
-	 * 로는 안 보인다. 지금 적재되는 것은 상가정보 음식 업종뿐이라 {@code category} 는 {@code FOOD}
-	 * 하나이고, <b>나머지 다섯 갈래를 고른 사용자는 후보가 없다</b> — 그 갈래의 장소를 아직 안
-	 * 넣었기 때문이고, 그것은 사실이다 (S15P21E201-636).
+	 * 로는 안 보인다. 적재되는 것은 상가정보 음식 업종뿐이라 {@code category} 는 {@code FOOD} ·
+	 * {@code CAFE_HEALING}(카페만, S15P21E201-106) 둘뿐이고, <b>나머지 넷을 고른 사용자는
+	 * 후보가 없다</b> — 그 갈래의 장소를 아직 안 넣었기 때문이고, 그것은 사실이다
+	 * (S15P21E201-636).
 	 */
 	private List<String> extractCategoryCodes(PreferenceSnapshot preferenceSnapshot) {
 		if (preferenceSnapshot == null) {

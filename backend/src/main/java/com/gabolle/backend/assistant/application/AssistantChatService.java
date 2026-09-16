@@ -11,6 +11,7 @@ import com.gabolle.backend.assistant.config.AssistantProperties;
 import com.gabolle.backend.assistant.domain.AssistantChatRequest;
 import com.gabolle.backend.assistant.domain.AssistantReply;
 import com.gabolle.backend.assistant.domain.AssistantTurn;
+import com.gabolle.backend.user.application.ConsentGuard;
 
 /**
  * 사용자 메시지 하나를 AI 업체에 넘기고 답을 그대로 돌려준다 — S15P21E201-802.
@@ -22,6 +23,14 @@ import com.gabolle.backend.assistant.domain.AssistantTurn;
  *
  * <p>🔴 원문을 로그로 남기지 않는다 — {@code TranslationService} 와 같은 이유로 이 클래스는
  * 로거를 아예 갖지 않는다.
+ *
+ * <h2>🔴 2026-09-16 — 일정 참조(S15P21E201-987)</h2>
+ * {@code itineraryId}·{@code dayIndex} 가 함께 오면, 그 하루치 일정을 읽어 벤더에 얹는다.
+ * 이건 사용자가 직접 쓴 {@code message} 와는 다른 종류의 노출이라({@code ConsentGuard}
+ * javadoc 참고) 별도 동의({@code AI_ASSISTANT_ACCESS})를 확인한 뒤에만 한다. 동의가 없으면
+ * 이 요청 전체를 막는다 — "동의한 부분만 쏙 빼고 나머지는 그냥 답한다" 처럼 조용히 기능을
+ * 줄이지 않는다. 사용자가 명시적으로 일정 참조를 요청했는데 그 요청이 조용히 무시되면,
+ * 사용자는 자기가 왜 원하는 답을 못 받았는지 알 방법이 없다.
  */
 @Service
 @Profile({ "db", "dev" })
@@ -38,19 +47,31 @@ public class AssistantChatService {
 
 	private final AssistantProperties properties;
 
+	private final ConsentGuard consentGuard;
+
+	private final AssistantTripContextBuilder tripContextBuilder;
+
 	public AssistantChatService(AssistantVendorPort vendor, AssistantRateLimiter rateLimiter,
-			AssistantProperties properties) {
+			AssistantProperties properties, ConsentGuard consentGuard,
+			AssistantTripContextBuilder tripContextBuilder) {
 		this.vendor = vendor;
 		this.rateLimiter = rateLimiter;
 		this.properties = properties;
+		this.consentGuard = consentGuard;
+		this.tripContextBuilder = tripContextBuilder;
 	}
 
 	/**
 	 * @throws IllegalArgumentException 메시지가 비었거나 너무 길다 — 400
 	 * @throws AssistantRateLimitExceededException 이 사용자가 1분 한도를 넘겼다 — 429
+	 * @throws com.gabolle.backend.auth.service.AuthException {@code itineraryId} 를 보냈는데
+	 *     {@code AI_ASSISTANT_ACCESS} 동의가 없다 — 403
+	 * @throws com.gabolle.backend.itinerary.presentation.ItineraryQueryController.ItineraryNotFoundException
+	 *     그 일정이 없거나 요청자가 회원이 아니다 — 404
 	 * @throws AssistantVendorException 업체 호출 실패 — 502
 	 */
-	public AssistantReply chat(UUID userId, String message, String language, List<AssistantTurn> history) {
+	public AssistantReply chat(UUID userId, String message, String language, List<AssistantTurn> history,
+			String itineraryId, Integer dayIndex) {
 		if (message == null || message.isBlank()) {
 			throw new IllegalArgumentException("message 는 비어 있을 수 없습니다.");
 		}
@@ -67,8 +88,15 @@ public class AssistantChatService {
 				? "en" : "ko";
 		List<AssistantTurn> trimmedHistory = trimHistory(history);
 
+		String tripContext = null;
+		if (itineraryId != null && dayIndex != null) {
+			this.consentGuard.requireAiAssistantAccess(userId);
+			tripContext = this.tripContextBuilder.build(itineraryId, dayIndex, userId);
+		}
+
 		// 🔴 실패하면 여기서 던진 AssistantVendorException 이 그대로 위로 올라간다.
-		return this.vendor.reply(new AssistantChatRequest(message, normalizedLanguage, trimmedHistory));
+		return this.vendor.reply(
+				new AssistantChatRequest(message, normalizedLanguage, trimmedHistory, tripContext));
 	}
 
 	private List<AssistantTurn> trimHistory(List<AssistantTurn> history) {

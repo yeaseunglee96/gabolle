@@ -61,7 +61,15 @@ public class StoryController {
 			@RequestParam(value = "cursor", required = false) String cursor,
 			@RequestParam(value = "limit", required = false) Integer limit,
 			Authentication authentication) {
-		UUID viewer = AuthenticatedUsers.requireId(authentication);
+		// 🔴 S15P21E201-974 — 여기만 requireId 가 아니라 optionalId 다. 피드는 로그인 없이도
+		//    볼 수 있어야 한다(제품 결정). 익명 출입증만 들고 오면 viewer 가 null 이 되고,
+		//    StoryFeedService 가 그때 공개 기록만 내보낸다.
+		//
+		//    🔴 막고 있던 것이 SecurityConfig 가 아니라 이 한 줄이었다. 익명 필터가 심는
+		//    권한으로 anyRequest().authenticated() 는 이미 통과한다(장소 API 가 익명으로
+		//    200 이 나오는 이유). 그 뒤 requireId 가 principal "anon:<세션id>" 를 UUID 로
+		//    못 읽어 401 을 던지고 있었다.
+		UUID viewer = AuthenticatedUsers.optionalId(authentication).orElse(null);
 		return ApiResponse.success(this.feedService.feed(viewer, scope, cursor, limit), requestId());
 	}
 
@@ -73,9 +81,21 @@ public class StoryController {
 		return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(body, requestId()));
 	}
 
+	/**
+	 * 🔴 S15P21E201-995 — 피드와 마찬가지로 <b>로그인 없이도 열린다.</b> 익명은 공개(PUBLIC)
+	 * 글만 본다 ({@code StoryVisibilityPolicy.canView} 의 첫 분기).
+	 *
+	 * <p>974 가 목록을 열었는데 여기가 막혀 있어서 <b>피드는 보이는데 카드를 누르면 401</b> 인
+	 * 상태였다. 반쯤 열린 문이라 목록을 연 의미가 절반만 살았다.
+	 *
+	 * <p>못 보는 글은 <b>404</b> 다 — 403 도 401 도 아니다. 없음·지움·나만 보기·팔로워 전용이
+	 * 전부 같은 응답이어야 한다({@link StoryExceptionHandler} 주석). 응답이 갈리면 그 차이가
+	 * 곧 "그 글이 있다" 는 사실의 유출이다. 익명이 찔러도 <b>로그인한 남이 찌른 것과 똑같이</b>
+	 * 404 가 나간다.
+	 */
 	@GetMapping("/{storyId}")
 	public ApiResponse<StoryResponse> get(@PathVariable UUID storyId, Authentication authentication) {
-		UUID viewer = AuthenticatedUsers.requireId(authentication);
+		UUID viewer = AuthenticatedUsers.optionalId(authentication).orElse(null);
 		return ApiResponse.success(this.storyService.get(storyId, viewer), requestId());
 	}
 

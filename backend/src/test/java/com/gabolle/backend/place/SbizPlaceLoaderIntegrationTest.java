@@ -121,6 +121,20 @@ class SbizPlaceLoaderIntegrationTest extends PlacePostgresIntegrationTest {
 	}
 
 	@Test
+	@DisplayName("🔴 카페의 place.category 는 CAFE_HEALING 이다 — FOOD 로 두면 음식점 후보에 카페가 섞인다 (S15P21E201-106)")
+	void 카페의_카테고리는_CAFE_HEALING_이다() {
+		load(csv(row("MA010", "어느 커피", "", "음식", "카페", "부산광역시 해운대구 구남로 1", "129.16", "35.16")));
+
+		// 🔴 후보 필터(PlaceCandidateQueryService)는 place.category 한 칸만 본다.
+		//    place_feature 에 CATEGORY_TAG:FOOD 가 남아 있어도(위 테스트) 이 칸이
+		//    CAFE_HEALING 이면 "맛집" 을 고른 사용자의 후보에는 더 이상 안 걸린다.
+		List<String> categories = this.jdbcTemplate.queryForList(
+				"SELECT category FROM place WHERE source_type = 'SBIZ'", String.class);
+
+		assertThat(categories).containsExactly("CAFE_HEALING");
+	}
+
+	@Test
 	@DisplayName("🔴 가를 수 없는 업종에는 음식 태그를 안 붙인다 — 억지로 분류하지 않는다")
 	void 애매하면_안_붙인다() {
 		load(csv(row("MA011", "어느 백반집", "", "음식", "백반/한정식", "부산광역시 중구 광복로 1", "129.03", "35.10")));

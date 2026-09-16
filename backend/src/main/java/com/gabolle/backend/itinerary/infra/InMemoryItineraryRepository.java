@@ -111,11 +111,17 @@ public class InMemoryItineraryRepository implements ItineraryRepository {
      * ix_itinerary_version_itinerary (itinerary_id, version DESC)})과 같은 계약이다.
      */
     @Override
-    public List<ItineraryVersion> findVersions(String itineraryId) {
-        return versions.values().stream()
+    public VersionPage findVersions(String itineraryId, int page, int size) {
+        List<ItineraryVersion> all = versions.values().stream()
                 .filter(v -> v.itineraryId().equals(itineraryId))
                 .sorted((a, b) -> Integer.compare(b.version(), a.version()))
                 .toList();
+
+        // 🔴 long 으로 곱한다. page·size 는 요청에서 그대로 들어오는 값이라, int 로 곱하면
+        //    큰 page 에서 값이 넘쳐 음수가 되고 subList 가 예외를 던져 500 이 된다.
+        int from = (int) Math.min((long) page * size, all.size());
+        int to = (int) Math.min((long) from + size, all.size());
+        return new VersionPage(all.subList(from, to), to < all.size());
     }
 
     @Override

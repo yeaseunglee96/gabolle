@@ -10,13 +10,18 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.gabolle.backend.common.api.ApiError;
 import com.gabolle.backend.common.api.ApiResponse;
+import com.gabolle.backend.recommendation.application.RecommendationJobIdempotencyConflictException;
 import com.gabolle.backend.trip.application.TripQueryService;
 
 /**
  * 추천 Job 생성·조회의 오류를 HTTP 로 번역한다 — {@code TripExceptionHandler} 와 같은
  * 패턴(개발계획서 4.2 "세밀한 예외 계층을 두지 않는다").
  */
-@RestControllerAdvice(assignableTypes = { RecommendationJobController.class, RecommendationResultController.class })
+// 🔴 S15P21E201-1013 — RecommendationActionController 를 더했다. 안 더하면 남의 여행에
+//    판단을 적으려 할 때 TripQueryService.TripNotFoundException 이 아무에게도 안 잡혀
+//    404 가 아니라 500 이 나간다. 그러면 "없는 여행" 과 "서버 고장" 이 구분되지 않는다.
+@RestControllerAdvice(assignableTypes = { RecommendationJobController.class, RecommendationResultController.class,
+		RecommendationActionController.class })
 public class RecommendationJobExceptionHandler {
 
 	/** 여행이 없거나 요청자가 그 여행의 회원이 아니다 — 둘 다 404 (FR-SEC-01). */
@@ -65,6 +70,16 @@ public class RecommendationJobExceptionHandler {
 				new ApiError("RECOMMENDATION_JOB_VALIDATION_FAILED",
 						"입력한 조건을 확인할 수 없어요. 조건을 다시 확인한 뒤 시도해 주세요.",
 						List.of(e.getMessage())),
+				requestId()));
+	}
+
+	/** 🔴 S15P21E201-944 — 같은 Idempotency-Key 를 다른 본문으로 재사용했다. */
+	@ExceptionHandler(RecommendationJobIdempotencyConflictException.class)
+	public ResponseEntity<ApiResponse<Void>> handleIdempotencyConflict(
+			RecommendationJobIdempotencyConflictException e) {
+		return ResponseEntity.status(HttpStatus.CONFLICT).body(ApiResponse.failure(
+				new ApiError("RECOMMENDATION_JOB_IDEMPOTENCY_CONFLICT",
+						"같은 Idempotency-Key 가 다른 요청 내용으로 이미 쓰였어요."),
 				requestId()));
 	}
 

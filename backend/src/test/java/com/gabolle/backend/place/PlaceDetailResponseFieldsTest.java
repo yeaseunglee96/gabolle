@@ -48,16 +48,19 @@ class PlaceDetailResponseFieldsTest {
 	}
 
 	@Test
-	@DisplayName("이번 작업이 더한 다섯 칸이 실제로 있다 — 없으면 이번 작업이 반영 안 된 것이다")
+	@DisplayName("응답에 더해 온 칸이 전부 있다 — 없으면 그 작업이 반영 안 된 것이다")
 	void newFieldsWereActuallyAdded() {
 		List<String> names = Arrays.stream(PlaceDetailResponse.class.getRecordComponents())
 				.map(RecordComponent::getName)
 				.toList();
 
+		// photoSubject 는 2026-09-16 (S15P21E201-1039) 에 photoSource 바로 뒤로 들어왔다.
+		// 사진에 관한 세 칸을 붙여 두면 사진만 그리고 출처·피사체를 빠뜨리기 어렵다.
 		assertThat(names).containsSubsequence(
-				"addressEn", "photoUrl", "photoSource", "openingHours", "priceLevel", "resolvedLanguage");
+				"addressEn", "photoUrl", "photoSource", "photoSubject", "openingHours", "priceLevel",
+				"resolvedLanguage");
 		assertThat(names.size())
-				.as("기존 열 개 + 새 여섯 칸")
-				.isEqualTo(ORIGINAL_FIELD_NAMES.size() + 6);
+				.as("기존 열 개 + 뒤에 더해 온 일곱 칸")
+				.isEqualTo(ORIGINAL_FIELD_NAMES.size() + 7);
 	}
 }
