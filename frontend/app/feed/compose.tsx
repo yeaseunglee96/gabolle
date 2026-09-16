@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Image, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -9,7 +10,7 @@ import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
-import { createStory, VISIBILITY_LABEL, type StoryVisibility } from '@/social/stories';
+import { createStory, FEED_QUERY_PREFIX, VISIBILITY_LABEL, type StoryVisibility } from '@/social/stories';
 import { MAX_STORY_IMAGES, useStoryImages } from '@/social/useStoryImages';
 
 const BODY_MAX = 500;
@@ -22,6 +23,7 @@ type PublishTiming = 'AFTER_TRIP' | 'NOW';
 export default function ComposeStory() {
   const router = useRouter();
   const { accessToken } = useAuth();
+  const queryClient = useQueryClient();
   const { tx } = useI18n();
   const [body, setBody] = useState('');
   const [region, setRegion] = useState('');
@@ -74,6 +76,16 @@ export default function ComposeStory() {
     setSubmitting(false);
     if (outcome.state === 'success') {
       await AsyncStorage.removeItem(DRAFT_KEY);
+      // 🔴 S15P21E201-1124 — 돌아가기 전에 피드 보관본을 버린다.
+      //
+      //    이게 없으면 목록은 올리기 전에 받아 둔 것을 그대로 다시 보여준다.
+      //    사용자는 안 올라간 줄 알고 같은 글을 한 번 더 올리고, 앱을 껐다 켜야
+      //    두 개가 보인다(2026-09-16 iOS 실기기에서 실제로 201 이 두 번 찍혔다).
+      //
+      //    앞자리만 준다 — 전체·팔로잉과 로그인 여부까지 네 갈래라, 지금 어느
+      //    칸에 있는지 글쓰기 화면은 알 수 없다. react-query 는 앞자리가 같은
+      //    것을 전부 버린다.
+      await queryClient.invalidateQueries({ queryKey: FEED_QUERY_PREFIX });
       router.back();
     } else {
       setError(outcome.message);
