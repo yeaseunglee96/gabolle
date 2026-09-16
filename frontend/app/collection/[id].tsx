@@ -140,7 +140,7 @@ export default function CollectionListDetail() {
         {/* 🔴 어디에 저장되는지를 이 화면에서도 말한다. 홈에서만 말하면 여기 들어온
             사람은 못 본다 — 저장되는 곳은 화면마다 달라지지 않지만 사람의 기억은 달라진다. */}
         <Text variant="caption" color={color.text.muted}>{tx(
-          `${list.placeIds.length}곳 · ${syncedToServer ? '내 계정에 저장돼요' : '이 기기에만 저장돼요'}`,
+          `저장한 곳 ${list.placeIds.length} · ${syncedToServer ? '내 계정에 저장돼요' : '이 기기에만 저장돼요'}`,
           `${list.placeIds.length} place(s) · ${syncedToServer ? 'saved to your account' : 'saved on this device only'}`)}</Text>{list.description ? <Text variant="caption" color={color.text.muted}>{list.description}</Text> : null}</View>
       {confirmDelete ? <View style={styles.deleteConfirm}><Pressable accessibilityRole="button" onPress={() => setConfirmDelete(false)}><Text variant="caption" weight="bold" color={color.text.muted}>{tx('취소', 'Cancel')}</Text></Pressable><Pressable accessibilityRole="button" onPress={confirmDeleteList}><Text variant="caption" weight="bold" color={color.state.danger}>{tx('삭제 확정', 'Confirm delete')}</Text></Pressable></View> : <Pressable accessibilityRole="button" accessibilityLabel={tx('리스트 삭제', 'Delete list')} onPress={() => setConfirmDelete(true)}><Text variant="caption" weight="bold" color={color.state.danger}>{tx('삭제', 'Delete')}</Text></Pressable>}
     </View>

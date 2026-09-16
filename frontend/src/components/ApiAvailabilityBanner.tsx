@@ -8,13 +8,49 @@ import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { Text } from '@/components/Text';
 
+/**
+ * 🔴 배너를 띄우기 전에 기다리는 시간 (S15P21E201-1107).
+ *
+ * S15P21E201-1081 에서 5xx 를 "서버가 잠깐 못 받는다" 로 세기 시작하면서, 배포 중 502 한 번이나
+ * 백그라운드 요청 하나가 실패해도 이 배너가 **즉시** 떴다. 몇 초 뒤 저절로 사라지는데, 그 사이
+ * 화면 위쪽을 덮어서 사용자는 "자꾸 뜬다 · 뭔가 고장났다" 로 읽는다.
+ *
+ * 그래서 **끊긴 상태가 이 시간만큼 이어질 때만** 말한다. 잠깐 끊긴 것은 말할 가치가 없다 —
+ * 그 사이에 이미 다시 붙는다. 반대로 정말 안 되는 상태는 이 시간이 지나도 그대로라 반드시 뜬다.
+ *
+ * 사라질 때는 기다리지 않는다. 다시 붙었으면 그 즉시 치우는 것이 맞다.
+ */
+export const SHOW_AFTER_MS = 4000;
+
+/**
+ * 끊긴 상태가 {@link SHOW_AFTER_MS} 만큼 이어질 때만 참을 알린다. 다시 붙으면 즉시 거짓을 알린다.
+ *
+ * 🔴 화면 밖으로 뺀 이유는 **이 규칙이 시험 대상이기 때문**이다. "잠깐 끊긴 것은 안 띄운다" 는
+ * 눈으로 확인할 수 없다 — 안 뜨는 것을 봐야 하는데, 안 뜨는 화면은 아무것도 안 보인다.
+ */
+export function watchApiUnavailable(
+  subscribe: (listener: (unavailable: boolean) => void) => () => void,
+  onChange: (visible: boolean) => void,
+  delayMs: number = SHOW_AFTER_MS,
+): () => void {
+  let timer: ReturnType<typeof setTimeout> | null = null;
+  const clear = () => { if (timer) { clearTimeout(timer); timer = null; } };
+  const stop = subscribe((next) => {
+    clear();
+    // 붙었으면 즉시 치운다. 끊겼으면 잠시 지켜본다.
+    if (!next) { onChange(false); return; }
+    timer = setTimeout(() => onChange(true), delayMs);
+  });
+  return () => { clear(); stop(); };
+}
+
 export function ApiAvailabilityBanner() {
   const [unavailable, setUnavailable] = useState(false);
   const insets = useSafeAreaInsets();
   const { tx } = useI18n();
   const pathname = usePathname();
 
-  useEffect(() => subscribeApiAvailability(setUnavailable), []);
+  useEffect(() => watchApiUnavailable(subscribeApiAvailability, setUnavailable), []);
 
   // 앱을 소개하거나 로그인하는 단계에는 서버 데이터가 아직 필요 없다. 이 화면들에서
   // 전역 배너를 띄우면 로고·건너뛰기·입력 제목을 가려 첫인상만 망친다.

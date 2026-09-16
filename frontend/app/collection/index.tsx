@@ -46,7 +46,7 @@ export default function CollectionHome() {
       <Text variant="title" weight="bold" color={color.text.onAction} style={styles.heroTitle}>{tx('내가 직접 가보고, 좋아한 장소들을 모아보세요.', 'Gather the places you visited and loved.')}</Text>
       <View style={styles.heroStats}>
         <Text variant="body" weight="bold" color={color.text.onAction}>{tx(`📍 ${totalPlaceCount}곳`, `📍 ${totalPlaceCount} places`)}</Text>
-        <Text variant="body" weight="bold" color={color.text.onAction}>{tx(`📋 ${lists.length}개 리스트`, `📋 ${lists.length} lists`)}</Text>
+        <Text variant="body" weight="bold" color={color.text.onAction}>{tx(`리스트 ${lists.length}`, `${lists.length} lists`)}</Text>
       </View>
       {syncState === 'loading' ? (
         <Text variant="caption" color={color.text.onDarkMuted} style={styles.deviceOnlyNotice}>{tx('계정에 저장된 것을 불러오고 있어요.', 'Loading what is saved to your account…')}</Text>

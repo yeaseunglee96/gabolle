@@ -62,7 +62,8 @@
     "check:breakpoints": "node tools/check-breakpoints.mjs",
     "check:responsive": "node tools/check-responsive.mjs",
     "legal:generate": "node tools/generate-open-source-notices.mjs",
-    "verify:android-target-sdk": "node tools/verify-android-target-sdk.mjs"
+    "verify:android-target-sdk": "node tools/verify-android-target-sdk.mjs",
+    "eas-build-pre-install": "node tools/check-public-env.mjs"
   },
   "private": true
 }
