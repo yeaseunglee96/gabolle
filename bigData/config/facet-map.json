@@ -1,0 +1,128 @@
+{
+  "//": "관광공사 분류 → 탐색 갈래 판정표. 왜 이렇게 생겼는지는 docs/FACET-MAP.md 에 있다.",
+  "//우선순위": "🔴 primary(lclsSystm) 를 먼저 본다. 비어 있을 때만 legacy(cat1·cat3) 를 본다. 반대로 하면 원천의 72.3% 를 못 가른다 — 2026-09-16 실측으로 cat1 이 있는 것은 2,028곳 중 561곳(27.7%)뿐이고 lclsSystm1 은 2,028곳 전부에 있다.",
+  "//이름으로-맞히지-않는다": "이 표에는 장소 이름이 한 글자도 안 들어간다. \"남포동 야시장\" 이라는 이름에 야시장이 들어 있다는 이유로 갈래를 정하면 이름에 그 말이 없는 야시장은 영원히 안 나온다. 원천이 스스로 말한 코드만 쓴다.",
+  "//지역필터": "🔴 이 표를 쓰는 수집기는 지역을 areaCode 가 아니라 lDongRegnCd(부산=26)로 걸러야 한다. areaCode 로 거르면 부산 장소가 639곳이고 lDongRegnCd 로 거르면 2,218곳이다 (2026-09-16 실측). 지역 필터와 이 표는 **둘 다** 고쳐야 갈래가 는다 — 하나만 고치면 아무 변화가 없다.",
+
+  "measuredAt": "2026-09-16",
+  "measuredBy": "areaBasedList2 · lDongRegnCd=26 · contentTypeId 12·14·28·38·39 전수 2,028곳",
+  "confidenceLegend": {
+    "VERIFIED": "코드가 그 갈래를 가리키는 것을 실제 장소 이름 표본으로 확인했다",
+    "MIXED": "그 코드 안에 다른 갈래가 섞여 있다. 2단계(lclsSystm2)로는 못 가른다",
+    "NOT_COLLECTED": "원천에 그 갈래를 가리키는 코드가 없다. 그럴듯한 것으로 채우지 않는다"
+  },
+
+  "facets": [
+    {
+      "facet": "FESTIVAL",
+      "labelKo": "축제",
+      "primary": { "contentTypeId": ["15"] },
+      "legacy": { "contentTypeId": ["15"] },
+      "measured": { "busan": 71, "byLegacyFilter": 14 },
+      "confidence": "VERIFIED",
+      "note": "유형이 곧 갈래라 분류 코드를 안 본다. 그래서 이 갈래만 지역 필터를 고치는 것만으로 14 → 71 이 된다."
+    },
+    {
+      "facet": "TRADITIONAL_MARKET",
+      "labelKo": "전통시장",
+      "primary": { "lclsSystm2": ["SH06"] },
+      "legacy": { "cat3": ["A04010100", "A04010200"] },
+      "measured": { "busan": 57, "byLegacyFilter": 33 },
+      "confidence": "VERIFIED",
+      "note": "표본: 개금골목시장 · 거제시장 · 구서오시게시장"
+    },
+    {
+      "facet": "NATURE",
+      "labelKo": "자연",
+      "primary": { "lclsSystm2": ["NA01", "NA02", "NA04"] },
+      "legacy": { "cat1": ["A01"], "excludeCat3": ["A01010500"] },
+      "measured": { "busan": 64, "byLegacyFilter": 23 },
+      "confidence": "VERIFIED",
+      "note": "NA01 산 15(금련산·금정산) · NA02 바다 32(감지해변) · NA04 공원·지질 17(가야공원). 🔴 NA05 는 여기 안 넣었다 — 개금벚꽃길·고흐의 길이라 산책(WALK)에 가깝다. lclsSystm1=NA 전체는 74곳이고 그중 8곳은 표본이 적어 아직 안 갈랐다."
+    },
+    {
+      "facet": "SEA_BEACH",
+      "labelKo": "바다",
+      "primary": { "lclsSystm2": ["NA02"] },
+      "legacy": {},
+      "measured": { "busan": 32, "byLegacyFilter": 4 },
+      "confidence": "VERIFIED",
+      "note": "🔴 NATURE 의 부분집합이다. 두 갈래를 같이 쓰는 화면에서는 한 장소가 양쪽에 뜬다 — 그게 맞는지는 화면이 정한다. 표본: 감지해변 · 가덕도 · 감만시민부두. 🔴 32곳은 60 에 못 간다."
+    },
+    {
+      "facet": "NIGHT_VIEW",
+      "labelKo": "야경",
+      "primary": { "lclsSystm2": ["VE01"] },
+      "legacy": { "cat3": ["A02050600"] },
+      "measured": { "busan": 39, "byLegacyFilter": 5 },
+      "confidence": "VERIFIED",
+      "note": "표본: 가덕도 등대 · 가덕도외양포전망대 · 금빛노을브릿지. 🔴 원천은 이것을 「야경」이라고 말한 적이 없다 — 전망대·등대·다리다. 야경으로 옮기는 것은 번역이 아니라 판단이고, 틀렸을 때 사람이 목록에서 바로 보고 그 행만 지울 수 있어서 택했다 (TourApiExploreFacet 의 같은 판단을 잇는다). 🔴 39곳은 60 에 못 간다."
+    },
+    {
+      "facet": "CITY",
+      "labelKo": "도심",
+      "primary": { "lclsSystm2": ["VE03", "VE04"] },
+      "legacy": {},
+      "measured": { "busan": 93, "byLegacyFilter": 47 },
+      "confidence": "VERIFIED",
+      "note": "VE03 공원 51(강서체육공원·금강공원) · VE04 거리 42(광복로패션거리·광안리해변 테마거리)"
+    },
+    {
+      "facet": "CAFE_HEALING",
+      "labelKo": "카페",
+      "primary": { "lclsSystm2": ["FD05"] },
+      "legacy": {},
+      "measured": { "busan": 123, "byLegacyFilter": 26 },
+      "confidence": "VERIFIED",
+      "note": "표본: 공극샌드커피 · 구디너프 · 굿올데이즈카페"
+    },
+    {
+      "facet": "FOOD",
+      "labelKo": "맛집",
+      "primary": { "lclsSystm1": ["FD"], "excludeLclsSystm2": ["FD05"] },
+      "legacy": {},
+      "measured": { "busan": 392, "byLegacyFilter": 319 },
+      "confidence": "VERIFIED",
+      "note": "FD 전체 515 에서 카페(FD05) 123 을 뺀 값이다. 🔴 상가정보 적재의 2,355곳과는 다른 원천이라 그대로 더하면 안 된다 — 겹침은 아직 안 쟀다."
+    },
+    {
+      "facet": "ACTIVITY",
+      "labelKo": "액티비티",
+      "primary": { "lclsSystm2": ["LS02"] },
+      "legacy": { "cat1": ["A03"], "excludeCat3": ["A03022700"] },
+      "measured": { "busan": 16, "byLegacyFilter": 28, "lclsSystm1Total": 42 },
+      "confidence": "MIXED",
+      "note": "🔴 LS02 만 확실하다 — 광안리 SUP Zone · 광안리 해양레포츠센터 · 더베이101요트투어. LS01(25곳)에는 구포무장애숲길·남파랑길(걷는 길)과 동래베네스트 골프클럽(액티비티)이 **같이** 들어 있어 2단계로는 못 가른다. lclsSystm3 을 재거나 옛 cat3 를 보조로 써야 한다. 🔴 지금 확실한 것은 16곳이고 60 에 한참 못 간다."
+    },
+    {
+      "facet": "WALK",
+      "labelKo": "산책",
+      "primary": { "lclsSystm2": ["NA05"] },
+      "legacy": { "cat3": ["A03022700", "A01010500"] },
+      "measured": { "busan": 8, "byLegacyFilter": 10 },
+      "confidence": "MIXED",
+      "note": "🔴 NA05(8곳 — 개금벚꽃길 · 고흐의 길 · 낙동강하구에코센터)만으로는 옛 근거(10곳)보다도 적다. 걷는 길의 상당수가 LS01 에 골프장과 섞여 있다. 🔴 지금은 옛 cat3 를 함께 쓰는 것이 더 많이 잡는다 — 이 갈래는 primary 만으로 바꾸면 오히려 나빠진다."
+    },
+    {
+      "facet": "NIGHT_MARKET",
+      "labelKo": "야시장",
+      "primary": {},
+      "legacy": {},
+      "measured": { "busan": 0 },
+      "confidence": "NOT_COLLECTED",
+      "note": "🔴 새 분류체계에도 야시장을 가리키는 코드가 없다. SH06(시장 57곳) 안에 섞여 있을 수 있으나 2단계로는 못 가르고, 이름으로 고르는 것은 이 표가 하지 않는 일이다. 0 인 채로 둔다 — 그것이 지금 아는 사실이다."
+    },
+    {
+      "facet": "SOUVENIR_SHOP",
+      "labelKo": "기념품샵",
+      "primary": {},
+      "legacy": {},
+      "measured": { "busan": 0 },
+      "confidence": "NOT_COLLECTED",
+      "note": "🔴 원천에 기념품샵이 **있다는 것은 확인됐다** — SH04 안에 「감천문화마을기념품숍」이 있다. 그런데 SH04 는 895곳이고 약국·이불가게가 같이 들어 있어 2단계로는 못 가른다. 있다는 것과 가를 수 있다는 것은 다르다. 0 인 채로 둔다."
+    }
+  ],
+
+  "//60이라는-눈금": "🔴 「갈래당 60」은 엔진이 요구하는 수가 아니다. BaselineRecommendationEngine 의 MIN_AREA_CANDIDATES=60 은 **여행 범위(지역)당** 후보 수이고, 그 주석 스스로 「정확한 근거가 있는 값은 아니고 운영을 보고 조정할 값」이라고 적고 있다. 여기서 60 을 쓸 때는 **엔진 상수에서 빌려온 임시 눈금(근거 없음)** 으로만 쓴다.",
+  "//모자란-갈래": "🔴 이 원천만으로 60 에 못 가는 갈래: 바다 32 · 야경 39 · 액티비티 16(확실한 것만) · 산책 8 · 야시장 0 · 기념품샵 0. 이것은 「아직 안 채운 것」이 아니라 **지금 사실**이다. 다른 원천이 정해지기 전까지 「채울 예정」으로 적지 않는다."
+}
