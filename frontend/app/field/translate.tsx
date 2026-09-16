@@ -58,6 +58,15 @@ export default function Translate() {
       onPress: () => router.push('/field/exchange'),
     },
     {
+      // 🔴 백엔드(GET /api/v1/transit/nearby-bus-arrivals, S15P21E201-988)가 있는데 프론트가
+      // 없던 자리다. 정류소 앞에서 하는 판단은 "기다릴까, 택시 탈까" 하나라 현장 도구에 둔다.
+      key: 'bus',
+      icon: '버',
+      title: tx('주변 버스', 'Buses nearby'),
+      desc: tx('몇 분 뒤에 오는지 보고 기다릴지 정하세요', 'See how long the wait is before you decide'),
+      onPress: () => router.push('/field/bus'),
+    },
+    {
       key: 'weather',
       icon: sunIcon,
       title: tx('내 여행 날씨·준비물', 'Weather & packing for my trip'),
