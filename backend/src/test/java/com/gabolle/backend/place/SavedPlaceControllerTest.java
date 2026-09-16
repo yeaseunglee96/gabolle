@@ -5,6 +5,7 @@ import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -15,6 +16,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import com.gabolle.backend.event.application.EventIngestService;
+import com.gabolle.backend.event.domain.EventType;
 import com.gabolle.backend.place.api.PlaceExceptionHandler;
 import com.gabolle.backend.place.api.SavedPlaceController;
 import com.gabolle.backend.place.domain.SavedPlace;
@@ -23,6 +26,7 @@ import com.gabolle.backend.place.repository.SavedPlaceRepository;
 import com.gabolle.backend.place.service.SavedPlaceService;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -45,6 +49,7 @@ class SavedPlaceControllerTest {
 
 	private SavedPlaceRepository savedPlaces;
 	private PlaceRepository places;
+	private EventIngestService events;
 	private MockMvc mockMvc;
 
 	private final UUID userId = UUID.randomUUID();
@@ -54,7 +59,8 @@ class SavedPlaceControllerTest {
 	void setUp() {
 		this.savedPlaces = mock(SavedPlaceRepository.class);
 		this.places = mock(PlaceRepository.class);
-		SavedPlaceService service = new SavedPlaceService(this.savedPlaces, this.places,
+		this.events = mock(EventIngestService.class);
+		SavedPlaceService service = new SavedPlaceService(this.savedPlaces, this.places, this.events,
 				Clock.fixed(Instant.parse("2026-09-16T12:00:00Z"), ZoneOffset.UTC));
 
 		this.mockMvc = MockMvcBuilders.standaloneSetup(new SavedPlaceController(service))
@@ -95,6 +101,7 @@ class SavedPlaceControllerTest {
 	@DisplayName("하트를 켜면 204 이고 행이 하나 생긴다")
 	void saveCreatesRow() throws Exception {
 		when(this.places.existsById(this.placeId)).thenReturn(true);
+		when(this.savedPlaces.insertIfAbsent(any(), eq(this.userId), eq(this.placeId), any())).thenReturn(1);
 
 		this.mockMvc.perform(put("/api/v1/me/saved-places/{placeId}", this.placeId)
 						.principal(principal(this.userId)))
@@ -114,13 +121,84 @@ class SavedPlaceControllerTest {
 	@DisplayName("🔴 이미 켜진 하트를 다시 켜도 행이 더 생기지 않는다")
 	void savingTwiceDoesNotDuplicate() throws Exception {
 		when(this.places.existsById(this.placeId)).thenReturn(true);
-		when(this.savedPlaces.existsByUserIdAndPlaceId(this.userId, this.placeId)).thenReturn(true);
+		when(this.savedPlaces.insertIfAbsent(any(), eq(this.userId), eq(this.placeId), any())).thenReturn(0);
 
 		this.mockMvc.perform(put("/api/v1/me/saved-places/{placeId}", this.placeId)
 						.principal(principal(this.userId)))
 				.andExpect(status().isNoContent());
 
 		verify(this.savedPlaces, never()).save(any());
+	}
+
+	/**
+	 * 🔴 이 검사가 이 티켓의 이유다 — S15P21E201-1080.
+	 *
+	 * <p>{@code PLACE_LIKE} 는 이미 취향 신호 목록에 있고 접기 배치도 날마다 돈다. 그런데
+	 * {@code event_outbox} 가 비어 있었다. 부르는 자리가 없어서였다.
+	 */
+	@Test
+	@DisplayName("🔴 하트를 새로 켜면 place_like 를 남긴다 — 벡터가 셀 행동 신호")
+	void savingRecordsPlaceLike() throws Exception {
+		when(this.places.existsById(this.placeId)).thenReturn(true);
+		when(this.savedPlaces.insertIfAbsent(any(), eq(this.userId), eq(this.placeId), any())).thenReturn(1);
+
+		this.mockMvc.perform(put("/api/v1/me/saved-places/{placeId}", this.placeId)
+						.principal(principal(this.userId)))
+				.andExpect(status().isNoContent());
+
+		verify(this.events).recordFromServer(any(), eq(EventType.PLACE_LIKE), eq(1),
+				eq(this.userId), eq(null), eq(null), eq(Map.of("placeId", this.placeId.toString())));
+	}
+
+	/**
+	 * 🔴 연타와 재시도가 취향을 부풀리면 안 된다.
+	 *
+	 * <p>하트는 켜짐/꺼짐이라 "두 번 켠 상태" 가 없다. 누를 때마다 신호를 더하면 손가락이
+	 * 빠른 사람의 취향이 그만큼 세게 반영되는데, 그것은 취향이 아니라 <b>네트워크 사정</b>이다.
+	 *
+	 * <p>판정을 자바에서 다시 하지 않고 {@code insertIfAbsent} 가 돌려준 값을 쓴다 — 그
+	 * 판정이 {@code ON CONFLICT DO NOTHING} 안에 있어 동시 요청에서도 한쪽만 1 을 받는다.
+	 */
+	@Test
+	@DisplayName("🔴 이미 켜진 하트를 다시 켜면 place_like 를 남기지 않는다")
+	void savingAgainDoesNotRecordAnotherLike() throws Exception {
+		when(this.places.existsById(this.placeId)).thenReturn(true);
+		when(this.savedPlaces.insertIfAbsent(any(), eq(this.userId), eq(this.placeId), any())).thenReturn(0);
+
+		this.mockMvc.perform(put("/api/v1/me/saved-places/{placeId}", this.placeId)
+						.principal(principal(this.userId)))
+				.andExpect(status().isNoContent());
+
+		verify(this.events, never()).recordFromServer(any(), any(), anyInt(), any(), any(), any(), any());
+	}
+
+	/** 🔴 저장이 안 됐으면 이벤트도 없다. 없는 장소에 하트를 눌렀다는 신호는 거짓이다. */
+	@Test
+	@DisplayName("🔴 없는 장소면 place_like 도 안 남는다")
+	void unknownPlaceRecordsNothing() throws Exception {
+		when(this.places.existsById(this.placeId)).thenReturn(false);
+
+		this.mockMvc.perform(put("/api/v1/me/saved-places/{placeId}", this.placeId)
+						.principal(principal(this.userId)))
+				.andExpect(status().isNotFound());
+
+		verify(this.events, never()).recordFromServer(any(), any(), anyInt(), any(), any(), any(), any());
+	}
+
+	/**
+	 * 🔴 끄는 것은 "싫다" 가 아니다.
+	 *
+	 * <p>{@code PLACE_DISLIKE} 는 명시적인 불호 신호다. 하트 해제를 거기에 섞으면 "이제 관심
+	 * 없다" 가 "싫다" 로 학습된다. 해제를 남길지는 별도 판단이고, 지금은 안 남긴다.
+	 */
+	@Test
+	@DisplayName("🔴 하트를 꺼도 dislike 로 적지 않는다")
+	void removingDoesNotRecordDislike() throws Exception {
+		this.mockMvc.perform(delete("/api/v1/me/saved-places/{placeId}", this.placeId)
+						.principal(principal(this.userId)))
+				.andExpect(status().isNoContent());
+
+		verify(this.events, never()).recordFromServer(any(), any(), anyInt(), any(), any(), any(), any());
 	}
 
 	/**
