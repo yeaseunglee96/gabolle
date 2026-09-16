@@ -14,8 +14,12 @@
 //  - gabolle-db-username   (Secret text) — app_user
 //  - gabolle-db-password   (Secret text)
 //  - gabolle-jwt-secret    (Secret text) — 32자 이상 운영용 값
-//  - gabolle-mail-username (Secret text) — 인증·재설정 메일 발신 계정 (SMTP 사용자)
-//  - gabolle-mail-password (Secret text) — 그 계정의 앱 비밀번호. 로그인 비밀번호가 아니다
+//  - gabolle-mail-host     (Secret text) — SMTP 서버 주소. 지금은 smtp-relay.brevo.com
+//  - gabolle-mail-username (Secret text) — SMTP 로그인 이름. 🔴 발신 주소가 아니다 —
+//    중계 업체는 계정마다 다른 로그인을 준다 (Brevo 는 9xxxxx@smtp-brevo.com 꼴)
+//  - gabolle-mail-password (Secret text) — SMTP key. 계정 로그인 비밀번호가 아니다
+//  - gabolle-mail-from     (Secret text) — 받는 사람에게 보이는 발신 주소.
+//    🔴 업체에서 **인증을 마친 발신자 주소**여야 한다. 아니면 접수 자체가 거부된다
 //  - gabolle-google-client-id     (Secret text) — Google OAuth 클라이언트 ID
 //  - gabolle-google-client-secret (Secret text)
 //  - gabolle-kakao-client-id      (Secret text) — Kakao 는 REST API 키가 client_id 다
@@ -35,6 +39,18 @@
 // 플랫폼별로 client ID 를 따로 발급하면 그것들을 콤마로 이어 넣을 자리다.
 //
 // 환경변수 이름의 정본은 backend/src/main/resources/application-dev.properties 다.
+//
+// 🔴 S15P21E201-1017 — 2026-09-16 이전에는 이 파일이 USERNAME 과 PASSWORD **둘만**
+//    컨테이너에 넣었다. HOST 를 안 넣으니 application-dev.properties 의 기본값
+//    smtp.gmail.com 이 그대로 쓰였다 — 자격증명만 다른 업체 것으로 갈아끼워도
+//    접속은 여전히 Gmail 로 간다. "환경변수 세 개만 바꾸면 된다" 는 인수인계
+//    문서의 설명이 이 파일 기준으로는 틀렸던 것이고, 그대로 했으면 인증 실패로
+//    끝났을 것이다. 그래서 HOST·PORT·FROM 을 여기서 명시적으로 넘긴다.
+//
+//    FROM 을 따로 두는 이유 — properties 의 기본값은 FROM 이 비면 USERNAME 을
+//    쓴다. Gmail 에서는 그 둘이 같은 주소라 맞아떨어졌지만, 중계 업체에서는
+//    로그인 이름과 발신 주소가 서로 다르다. 그대로 두면 로그인 이름이 발신
+//    주소로 나간다.
 //
 // 메일을 켜는 스위치는 GABOLLE_MAIL_ENABLED 다. 위 둘을 Jenkins 에 넣기 전에는
 // false 로 두어야 한다 — true 인데 발신 계정이 비어 있으면 SmtpEmailSender 가
@@ -169,6 +185,8 @@ pipeline {
                     string(credentialsId: 'gabolle-db-username', variable: 'GABOLLE_DB_USERNAME'),
                     string(credentialsId: 'gabolle-db-password', variable: 'GABOLLE_DB_PASSWORD'),
                     string(credentialsId: 'gabolle-jwt-secret', variable: 'GABOLLE_JWT_SECRET'),
+                    string(credentialsId: 'gabolle-mail-host', variable: 'GABOLLE_MAIL_HOST'),
+                    string(credentialsId: 'gabolle-mail-from', variable: 'GABOLLE_MAIL_FROM'),
                     string(credentialsId: 'gabolle-mail-username', variable: 'GABOLLE_MAIL_USERNAME'),
                     string(credentialsId: 'gabolle-mail-password', variable: 'GABOLLE_MAIL_PASSWORD'),
                     string(credentialsId: 'gabolle-google-client-id', variable: 'GABOLLE_GOOGLE_CLIENT_ID'),
@@ -266,6 +284,9 @@ pipeline {
                             -e GABOLLE_DB_PASSWORD="$GABOLLE_DB_PASSWORD" \
                             -e GABOLLE_JWT_SECRET="$GABOLLE_JWT_SECRET" \
                             -e GABOLLE_MAIL_ENABLED=true \
+                            -e GABOLLE_MAIL_HOST="$GABOLLE_MAIL_HOST" \
+                            -e GABOLLE_MAIL_PORT=587 \
+                            -e GABOLLE_MAIL_FROM="$GABOLLE_MAIL_FROM" \
                             -e GABOLLE_MAIL_USERNAME="$GABOLLE_MAIL_USERNAME" \
                             -e GABOLLE_MAIL_PASSWORD="$GABOLLE_MAIL_PASSWORD" \
                             -e GABOLLE_GOOGLE_CLIENT_ID="$GABOLLE_GOOGLE_CLIENT_ID" \
@@ -367,6 +388,8 @@ pipeline {
                             string(credentialsId: 'gabolle-db-username', variable: 'GABOLLE_DB_USERNAME'),
                             string(credentialsId: 'gabolle-db-password', variable: 'GABOLLE_DB_PASSWORD'),
                             string(credentialsId: 'gabolle-jwt-secret', variable: 'GABOLLE_JWT_SECRET'),
+                            string(credentialsId: 'gabolle-mail-host', variable: 'GABOLLE_MAIL_HOST'),
+                            string(credentialsId: 'gabolle-mail-from', variable: 'GABOLLE_MAIL_FROM'),
                             string(credentialsId: 'gabolle-mail-username', variable: 'GABOLLE_MAIL_USERNAME'),
                             string(credentialsId: 'gabolle-mail-password', variable: 'GABOLLE_MAIL_PASSWORD'),
                             string(credentialsId: 'gabolle-google-client-id', variable: 'GABOLLE_GOOGLE_CLIENT_ID'),
@@ -412,6 +435,9 @@ pipeline {
                                     -e GABOLLE_DB_PASSWORD="$GABOLLE_DB_PASSWORD" \
                                     -e GABOLLE_JWT_SECRET="$GABOLLE_JWT_SECRET" \
                                     -e GABOLLE_MAIL_ENABLED=true \
+                                    -e GABOLLE_MAIL_HOST="$GABOLLE_MAIL_HOST" \
+                                    -e GABOLLE_MAIL_PORT=587 \
+                                    -e GABOLLE_MAIL_FROM="$GABOLLE_MAIL_FROM" \
                                     -e GABOLLE_MAIL_USERNAME="$GABOLLE_MAIL_USERNAME" \
                                     -e GABOLLE_MAIL_PASSWORD="$GABOLLE_MAIL_PASSWORD" \
                                     -e GABOLLE_GOOGLE_CLIENT_ID="$GABOLLE_GOOGLE_CLIENT_ID" \
