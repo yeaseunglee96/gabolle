@@ -47,12 +47,26 @@ public class MenuScanExceptionHandler {
 				requestId()));
 	}
 
-    /** 모델이 답을 줬는데 알아볼 수 없거나, 중계가 실패했다. 역시 빈 결과로 바꾸지 않는다. */
+	/**
+	 * 모델 쪽이 어긋났다. 역시 빈 결과로 바꾸지 않는다.
+	 *
+	 * <p>사용자에게 가는 문구는 갈래와 무관하게 같다 — 사진을 다시 찍는 것 말고 할 수 있는
+	 * 일이 없기 때문이다. 대신 <b>오류 코드는 가른다.</b> 운영에서 무엇이 막혔는지 알려면
+	 * 지금까지는 서버 로그를 열어야 했는데, 로그에 닿을 수 없는 사람이 대부분이다.
+	 */
 	@ExceptionHandler(GmsMenuReader.MenuReadFailedException.class)
 	public ResponseEntity<ApiResponse<Void>> handleReadFailed(GmsMenuReader.MenuReadFailedException e) {
 		return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(ApiResponse.failure(
-				new ApiError("MENU_SCAN_FAILED", "사진에서 글자를 읽지 못했어요. 더 밝은 곳에서 다시 찍어 주세요."),
+				new ApiError(codeFor(e.reason()), "사진에서 글자를 읽지 못했어요. 더 밝은 곳에서 다시 찍어 주세요."),
 				requestId()));
+	}
+
+	private static String codeFor(GmsMenuReader.MenuReadFailedException.Reason reason) {
+		return switch (reason) {
+			case UNREACHABLE -> "MENU_SCAN_VENDOR_UNREACHABLE";
+			case REJECTED -> "MENU_SCAN_VENDOR_REJECTED";
+			case UNPARSEABLE -> "MENU_SCAN_FAILED";
+		};
 	}
 
 	/** 사진이 없거나·너무 크거나·이미지가 아니다. */
