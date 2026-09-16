@@ -5,7 +5,7 @@
 import { useEffect, useState } from 'react';
 import { Image, Pressable, Share as NativeShare, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import * as Speech from 'expo-speech';
+import { speakAloud, stopSpeaking } from '@/field/speakAloud';
 
 import { ApiClientError } from '@/api/client';
 import { color, radius, spacing } from '@/design/tokens';
@@ -51,9 +51,9 @@ function DialectFlashcards() {
 
   function listen(phrase: (typeof DIALECT_PHRASES)[number]) {
     try {
-      Speech.stop();
+      stopSpeaking();
       setSpeakingId(phrase.id);
-      Speech.speak(phrase.dialect, { language: 'ko-KR', rate: 0.9, onDone: () => setSpeakingId(null), onStopped: () => setSpeakingId(null), onError: () => setSpeakingId(null) });
+      speakAloud(phrase.dialect, { language: 'ko-KR', rate: 0.9, onDone: () => setSpeakingId(null), onStopped: () => setSpeakingId(null), onError: () => setSpeakingId(null) });
     } catch {
       // 소리 기능이 없는 브라우저(Web Speech API 미지원 등)에서도 카드는 그대로 둔다.
       setSpeakingId(null);

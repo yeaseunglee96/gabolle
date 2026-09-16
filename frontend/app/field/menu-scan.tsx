@@ -16,7 +16,7 @@ import { useState } from 'react';
 import { ActivityIndicator, Image, Pressable, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
-import * as Speech from 'expo-speech';
+import { speakAloud } from '@/field/speakAloud';
 
 import { useAuth } from '@/auth/AuthProvider';
 import { BrandLogoLink } from '@/components/BrandLogoLink';
@@ -155,7 +155,7 @@ function ScanResult({ scan, onRetry }: { scan: MenuScan; onRetry: () => void }) 
             </View>
             {/* 우리가 이미 보여주고 있는 글자를 그대로 소리내 준다 — 지어내는 것이 없다.
                 식당에서 손가락으로 가리키는 것보다 이쪽이 빠르다. */}
-            <Pressable accessibilityRole="button" accessibilityLabel={tx(`${line.text} 한국어로 듣기`, `Hear ${line.text} in Korean`)} onPress={() => Speech.speak(line.text, { language: 'ko-KR' })} style={({ pressed }) => [styles.speak, pressed && styles.pressed]}>
+            <Pressable accessibilityRole="button" accessibilityLabel={tx(`${line.text} 한국어로 듣기`, `Hear ${line.text} in Korean`)} onPress={() => speakAloud(line.text, { language: 'ko-KR' })} style={({ pressed }) => [styles.speak, pressed && styles.pressed]}>
               <Text variant="caption" weight="bold" color={color.brand.navy}>{tx('듣기', 'Listen')}</Text>
             </Pressable>
           </View>)}
