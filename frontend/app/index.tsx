@@ -53,6 +53,12 @@ export default function Welcome() {
     chooseLanguage(next);
     router.push({ pathname: isDesktop ? '/age-gate' : '/app-intro', params: { language: next, mobility } });
   };
+  const browseAsGuest = () => {
+    // 첫 실행에서 로그인 수단이 막혀도 앱 전체를 확인할 수 있어야 한다. 언어 선택값은
+    // 그대로 보존하고, 저장·작성처럼 계정이 필요한 순간에만 로그인 이점을 설명한다.
+    chooseLanguage(language === 'en' ? 'en' : 'ko');
+    router.replace('/home');
+  };
   const startPlanning = () => router.push('/plan/basic');
 
   if (!isDesktop) {
@@ -64,7 +70,12 @@ export default function Welcome() {
       <StatusBar style="light" />
       <SafeAreaView edges={['top', 'bottom']} style={styles.mobileSafeArea}>
         <View style={styles.mobileBrand}><Pressable accessibilityRole="button" accessibilityLabel={tx('GABOLLE 시작하기', 'Start GABOLLE')} accessibilityHint={tx('서비스 소개 화면으로 이동합니다', 'Goes to the service introduction screen')} onPress={() => startOnboarding()} style={({ pressed }) => [styles.logoLink, pressed && styles.pressed]}><Image source={lightLogo ? nightLogo : logo} resizeMode="contain" style={styles.mobileLogo} /></Pressable><Text variant="display" weight="bold" color={color.brand.orange}>{tx('부산 가볼래?', 'Shall we go to Busan?')}</Text></View>
-        <View accessibilityRole="radiogroup" accessibilityLabel={tx('시작할 언어 선택', 'Select a language to start')} style={styles.languageList}>{LANGUAGES.map((item) => <LanguageButton key={item.code} item={item} selected={language === item.code} onPress={() => startOnboarding(item.code)} />)}</View>
+        <View style={styles.mobileActions}>
+          <View accessibilityRole="radiogroup" accessibilityLabel={tx('시작할 언어 선택', 'Select a language to start')} style={styles.languageList}>{LANGUAGES.map((item) => <LanguageButton key={item.code} item={item} selected={language === item.code} onPress={() => startOnboarding(item.code)} />)}</View>
+          <Pressable accessibilityRole="button" accessibilityHint={tx('로그인 없이 홈과 주요 기능을 둘러봅니다.', 'Browse the home screen and core features without signing in.')} onPress={browseAsGuest} style={({ pressed }) => [styles.guestButton, pressed && styles.pressed]}>
+            <Text variant="body" weight="bold" color={color.text.onAction}>{tx('비회원으로 바로 둘러보기', 'Browse as guest')}</Text>
+          </Pressable>
+        </View>
       </SafeAreaView>
     </View>;
   }
@@ -147,11 +158,13 @@ const styles = StyleSheet.create({
   mobileSafeArea: { flex: 1 },
   mobileBrand: { position: 'absolute', top: '13%', left: 0, right: 0, alignItems: 'center', gap: spacing[3] },
   mobileLogo: { width: 280, height: 70 },
-  languageList: { position: 'absolute', left: 24, right: 24, bottom: 44, alignSelf: 'center', gap: spacing[3] },
+  mobileActions: { position: 'absolute', left: 24, right: 24, bottom: 32, alignSelf: 'center', gap: spacing[2] },
+  languageList: { gap: spacing[3] },
   languageButton: { height: 58, borderRadius: 18, borderWidth: 1, borderColor: 'rgba(255,255,255,0.48)', backgroundColor: 'rgba(11,29,58,0.30)', paddingHorizontal: 20, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   languageButtonSelected: { borderWidth: 2, borderColor: color.brand.orange, backgroundColor: 'rgba(255,253,248,0.96)', shadowColor: color.brand.navy, shadowOpacity: 0.16, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 4 },
   languageAction: { width: 30, height: 30, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.12)' },
   languageActionSelected: { backgroundColor: color.brand.orange },
+  guestButton: { minHeight: 48, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full, backgroundColor: 'rgba(11,29,58,0.72)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.56)' },
   webScreen: { flex: 1, backgroundColor: color.brand.ivory }, webContent: { minHeight: '100%' }, webHeader: { minHeight: 72, paddingHorizontal: 72, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: color.brand.ivory, borderBottomWidth: 1, borderBottomColor: '#e8e3da' }, webLogo: { width: 113, height: 28 }, webNav: { flexDirection: 'row', alignItems: 'center', gap: 44 }, navItem: { paddingVertical: spacing[3] }, accountActions: { flexDirection: 'row', alignItems: 'center', gap: spacing[3] },
   localeButton: { minWidth: 38, height: 38, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: '#f6efe6' }, loginButton: { minWidth: 76, minHeight: 38, borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing[4] }, signupButton: { minWidth: 82, minHeight: 38, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing[4], backgroundColor: color.brand.navy },
   // 히어로는 더 이상 영상 배경이 아니라 **좌우 두 칸**이다 (S15P21E201-970) — 왼쪽은 소개와
