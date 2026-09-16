@@ -52,6 +52,21 @@ import jakarta.persistence.PersistenceContext;
  * 나중에 아무도 이 값을 의심하지 않는다. {@code PRICE_LEVEL} 은 안전 피처가 아니라
  * {@code ESTIMATED} 가 DB 에서 허용된다
  * ({@code ck_place_feature_safety_never_estimated} 는 알레르기·식단·접근성·계단만 막는다).
+ *
+ * <h2>🔴 S15P21E201-453·1047 — 상가업소번호(SBIZ) 전용이었다</h2>
+ *
+ * 처음엔 이 적재기가 {@link SbizPlaceLoader#placeIdOf}·{@link SbizPlaceLoader#featureIdOf} 를
+ * 그대로 불렀다. 그러면 TourAPI 로 적재한 장소(328곳, {@link TourApiPlaceLoader})에는 이 적재기로
+ * 사실을 못 붙인다 — 앞머리가 {@code SBIZ} 로 고정돼 있어 TourAPI 장소의 아이디({@code TOURAPI}
+ * 앞머리)와 절대 안 맞기 때문이다.
+ *
+ * <p>🔴 <b>열쇠 체계는 {@code source_type} 과 다른 것이다.</b> 처음에는 {@code place_feature.source_type}
+ * 으로 장소 아이디를 만들려다 DB 통합 시험에 걸렸다 — 가격대는 {@code source_type} 이
+ * {@code RESEARCH_PRICEBAND}(조사에서 왔다)인데 <b>열쇠는 상가업소번호</b>다. 둘은 서로 독립이다.
+ * 그래서 {@link PlaceFeatureNdjsonReader.Fact} 가 {@code keySource} 를 따로 들고 다니고, 읽는 쪽
+ * (파일을 파싱한 쪽)이 그 값을 정한다. {@link #placeIdOf}·{@link #featureIdOf} 가 그 값을 보고
+ * {@link SbizPlaceLoader}·{@link TourApiPlaceLoader} 중 어느 공식으로 계산할지 고른다 — <b>모르는
+ * 원천은 짐작하지 않고 거절한다.</b>
  */
 @Component
 @Profile({ "db", "dev" })
@@ -81,7 +96,7 @@ public class PlaceFeatureLoader {
 			INSERT INTO place_feature
 			    (place_feature_id, place_id, feature_type, feature_key, value, evidence_status,
 			     source_type, source_id, observed_at, source_version, created_at)
-			VALUES (?1, ?2, ?3, NULL, CAST(?4 AS jsonb), ?5, ?6, ?7, ?8, ?9, ?10)
+			VALUES (?1, ?2, ?3, ?4, CAST(?5 AS jsonb), ?6, ?7, ?8, ?9, ?10, ?11)
 			ON CONFLICT DO NOTHING
 			""";
 
@@ -138,20 +153,24 @@ public class PlaceFeatureLoader {
 				missingPlace++;
 				continue;
 			}
-			UUID featureId = featureIdOf(fact.keySource(), fact.storeId(), fact.featureType());
+			UUID featureId = featureIdOf(fact.keySource(), fact.storeId(), fact.featureType(), fact.featureKey());
 			int affected = this.entityManager.createNativeQuery(INSERT_IF_ABSENT)
 					.setParameter(1, featureId)
 					.setParameter(2, placeId)
 					.setParameter(3, fact.featureType())
-					.setParameter(4, fact.value())
-					.setParameter(5, PlaceEvidenceStatus.ESTIMATED.name())
-					.setParameter(6, sourceType)
-					.setParameter(7, fact.storeId())
+					// 🔴 태그형(DESIRED_FOOD_TAG·SOUVENIR_ITEM_TAG 등)은 이 칸이 있어야 한다
+					// (ck_place_feature_key_shape). 예전엔 이 자리가 SQL NULL 로 박혀 있었다 —
+					// 참거짓형·값형만 있던 시절엔 우연히 맞았지만 태그형이 생기며 어긋났다.
+					.setParameter(4, fact.featureKey())
+					.setParameter(5, fact.value())
+					.setParameter(6, PlaceEvidenceStatus.ESTIMATED.name())
+					.setParameter(7, sourceType)
+					.setParameter(8, fact.storeId())
 					// 🔴 원천에 "이 사실이 언제 관측됐나" 칸이 없다. 지어내지 않고 비운다 —
 					// 어느 산출물인지는 sourceVersion 이 말해 준다.
-					.setParameter(8, (OffsetDateTime) null)
-					.setParameter(9, datasetVersion)
-					.setParameter(10, collectedAt)
+					.setParameter(9, (OffsetDateTime) null)
+					.setParameter(10, datasetVersion)
+					.setParameter(11, collectedAt)
 					.executeUpdate();
 			if (affected == 1) {
 				inserted++;
@@ -184,7 +203,10 @@ public class PlaceFeatureLoader {
 	 * 끝난다 — 숫자만 이상하고 어디가 틀렸는지는 안 보인다. 그래서 모르는 원천은
 	 * <b>짐작하지 않고 거절한다.</b>
 	 */
-	private static UUID placeIdOf(String sourceType, String key) {
+	// 🔴 패키지 전용이다(private 가 아니다) — SubwayExitLoader(S15P21E201-479)가 같은 열쇠
+	// 체계로 장소를 찾아야 해서 이 계산을 그대로 재사용한다. 새 계산을 또 만들면 두 곳의
+	// 공식이 갈라질 여지가 생긴다.
+	static UUID placeIdOf(String sourceType, String key) {
 		if (TourApiPlaceLoader.SOURCE_TYPE.equals(sourceType)) {
 			return TourApiPlaceLoader.placeIdOf(key);
 		}
@@ -195,13 +217,20 @@ public class PlaceFeatureLoader {
 				"모르는 원천이다: " + sourceType + " — 장소 아이디를 짐작해서 만들지 않는다");
 	}
 
-	/** 같은 이유로 피처 아이디도 원천을 따라간다. 점수형이라 featureKey 는 없다. */
-	private static UUID featureIdOf(String sourceType, String key, String featureType) {
+	/**
+	 * 같은 이유로 피처 아이디도 원천을 따라간다.
+	 *
+	 * @param featureKey 태그형만 값이 있다(DESIRED_FOOD_TAG·SOUVENIR_ITEM_TAG 등, S15P21E201-453·448).
+	 *     참거짓형·값형(PRICE_LEVEL·SLOPE_PERCENT 등)은 {@code null} — {@code null} 이면 그대로
+	 *     문자열 {@code "null"} 로 이어붙는다({@link SbizPlaceLoader#featureIdOf} 와 같은 규칙이라
+	 *     여기서 고치지 않는다. 고치면 이미 적재된 행의 아이디가 새 공식과 어긋난다).
+	 */
+	static UUID featureIdOf(String sourceType, String key, String featureType, String featureKey) {
 		if (TourApiPlaceLoader.SOURCE_TYPE.equals(sourceType)) {
-			return TourApiPlaceLoader.featureIdOf(key, featureType, null);
+			return TourApiPlaceLoader.featureIdOf(key, featureType, featureKey);
 		}
 		if (SbizPlaceLoader.SOURCE_TYPE.equals(sourceType)) {
-			return SbizPlaceLoader.featureIdOf(key, featureType, null);
+			return SbizPlaceLoader.featureIdOf(key, featureType, featureKey);
 		}
 		throw new IllegalArgumentException(
 				"모르는 원천이다: " + sourceType + " — 피처 아이디를 짐작해서 만들지 않는다");
