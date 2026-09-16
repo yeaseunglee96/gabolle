@@ -49,11 +49,22 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Profile({ "db", "dev" })
-@ConditionalOnExpression("'${gabolle.place.loader.price-band:}' != ''")
+@ConditionalOnExpression("'${gabolle.place.loader.price-band:}' != '' "
+		+ "or '${gabolle.place.loader.place-slope:}' != ''")
 public class PlaceFeatureLoaderRunner implements ApplicationRunner {
 
 	/** {@code place_feature.source_type} — 가격대가 어디서 왔나. */
 	public static final String PRICE_BAND_SOURCE_TYPE = "RESEARCH_PRICEBAND";
+
+	/**
+	 * {@code place_feature.source_type} — 장소 경사가 어디서 왔나 (S15P21E201-1047).
+	 *
+	 * <p>🔴 이 값이 {@link TourApiPlaceLoader#SOURCE_TYPE} 이어야 하는 이유는 되짚기가 아니라
+	 * <b>장소 아이디</b> 때문이다. {@link PlaceFeatureLoader} 가 이 값을 보고 열쇠를
+	 * {@code contentid} 로 읽는다. 다른 이름을 주면 상가업소번호로 읽어 한 곳도 못 찾는다 —
+	 * 그리고 아무 오류도 안 난다.
+	 */
+	public static final String PLACE_SLOPE_SOURCE_TYPE = TourApiPlaceLoader.SOURCE_TYPE;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(PlaceFeatureLoaderRunner.class);
 
@@ -64,13 +75,17 @@ public class PlaceFeatureLoaderRunner implements ApplicationRunner {
 
 	private final String priceBandPath;
 
+	private final String placeSlopePath;
+
 	private final String datasetVersion;
 
 	public PlaceFeatureLoaderRunner(PlaceFeatureLoader loader,
 			@Value("${gabolle.place.loader.price-band:}") String priceBandPath,
+			@Value("${gabolle.place.loader.place-slope:}") String placeSlopePath,
 			@Value("${gabolle.place.loader.dataset-version:}") String datasetVersion) {
 		this.loader = loader;
 		this.priceBandPath = priceBandPath;
+		this.placeSlopePath = placeSlopePath;
 		this.datasetVersion = datasetVersion;
 	}
 
@@ -84,6 +99,10 @@ public class PlaceFeatureLoaderRunner implements ApplicationRunner {
 							+ "이 값으로 만든 추천을 나중에 되짚을 수 없다");
 		}
 		load("가격대", this.priceBandPath, PRICE_BAND_SOURCE_TYPE, PlaceFeatureNdjsonReader::readPriceBands);
+		// 🔴 장소 경사는 추정값이다 — 주변 길에서 유도했다(bigData/docs/PLACE-SLOPE.md).
+		//    실측이 아니라는 표시는 PlaceFeatureLoader 가 evidence_status 로 붙인다.
+		load("장소 경사", this.placeSlopePath, PLACE_SLOPE_SOURCE_TYPE,
+				PlaceFeatureNdjsonReader::readPlaceSlopes);
 	}
 
 	private void load(String label, String path, String sourceType,

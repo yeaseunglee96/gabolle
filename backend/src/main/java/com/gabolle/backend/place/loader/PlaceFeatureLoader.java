@@ -125,7 +125,7 @@ public class PlaceFeatureLoader {
 	@Transactional
 	public Saved saveChunk(List<PlaceFeatureNdjsonReader.Fact> facts, String sourceType, String datasetVersion,
 			OffsetDateTime collectedAt) {
-		List<UUID> placeIds = facts.stream().map(fact -> SbizPlaceLoader.placeIdOf(fact.storeId())).toList();
+		List<UUID> placeIds = facts.stream().map(fact -> placeIdOf(fact.keySource(), fact.storeId())).toList();
 		Set<UUID> knownPlaces = new HashSet<>();
 		this.placeRepository.findAllById(placeIds).forEach(place -> knownPlaces.add(place.getPlaceId()));
 
@@ -133,12 +133,12 @@ public class PlaceFeatureLoader {
 		int missingPlace = 0;
 		int alreadyPresent = 0;
 		for (PlaceFeatureNdjsonReader.Fact fact : facts) {
-			UUID placeId = SbizPlaceLoader.placeIdOf(fact.storeId());
+			UUID placeId = placeIdOf(fact.keySource(), fact.storeId());
 			if (!knownPlaces.contains(placeId)) {
 				missingPlace++;
 				continue;
 			}
-			UUID featureId = SbizPlaceLoader.featureIdOf(fact.storeId(), fact.featureType(), null);
+			UUID featureId = featureIdOf(fact.keySource(), fact.storeId(), fact.featureType());
 			int affected = this.entityManager.createNativeQuery(INSERT_IF_ABSENT)
 					.setParameter(1, featureId)
 					.setParameter(2, placeId)
@@ -163,6 +163,48 @@ public class PlaceFeatureLoader {
 			}
 		}
 		return new Saved(inserted, missingPlace, alreadyPresent);
+	}
+
+	/**
+	 * 산출물의 열쇠로 장소 아이디를 만든다 — S15P21E201-1047.
+	 *
+	 * <h2>🔴 열쇠 체계는 {@code source_type} 과 다른 것이다</h2>
+	 *
+	 * <p>이 값은 {@link PlaceFeatureNdjsonReader.Fact#keySource()} 에서 온다. 처음에는
+	 * {@code source_type} 으로 만들려다 DB 통합 시험에 걸렸다 — 가격대는 {@code source_type}
+	 * 이 {@code RESEARCH_PRICEBAND} 인데 열쇠는 상가업소번호다. 둘은 서로 독립이다.
+	 *
+	 * <h2>🔴 원천마다 열쇠가 다르다</h2>
+	 *
+	 * 상가정보는 <b>상가업소번호</b>({@code MA0101…})이고 관광공사는 <b>{@code contentid}</b> 다.
+	 * 둘 다 결정적 UUID 라 DB 를 안 읽고도 만들 수 있지만 <b>앞에 붙는 말이 다르다</b>
+	 * ({@code gabolle:place:SBIZ:} 대 {@code gabolle:place:TOURAPI:}).
+	 *
+	 * <p>🔴 <b>섞이면 아무 오류도 안 난다.</b> 있는 장소를 "없어서 못 넣음" 으로 세고 조용히
+	 * 끝난다 — 숫자만 이상하고 어디가 틀렸는지는 안 보인다. 그래서 모르는 원천은
+	 * <b>짐작하지 않고 거절한다.</b>
+	 */
+	private static UUID placeIdOf(String sourceType, String key) {
+		if (TourApiPlaceLoader.SOURCE_TYPE.equals(sourceType)) {
+			return TourApiPlaceLoader.placeIdOf(key);
+		}
+		if (SbizPlaceLoader.SOURCE_TYPE.equals(sourceType)) {
+			return SbizPlaceLoader.placeIdOf(key);
+		}
+		throw new IllegalArgumentException(
+				"모르는 원천이다: " + sourceType + " — 장소 아이디를 짐작해서 만들지 않는다");
+	}
+
+	/** 같은 이유로 피처 아이디도 원천을 따라간다. 점수형이라 featureKey 는 없다. */
+	private static UUID featureIdOf(String sourceType, String key, String featureType) {
+		if (TourApiPlaceLoader.SOURCE_TYPE.equals(sourceType)) {
+			return TourApiPlaceLoader.featureIdOf(key, featureType, null);
+		}
+		if (SbizPlaceLoader.SOURCE_TYPE.equals(sourceType)) {
+			return SbizPlaceLoader.featureIdOf(key, featureType, null);
+		}
+		throw new IllegalArgumentException(
+				"모르는 원천이다: " + sourceType + " — 피처 아이디를 짐작해서 만들지 않는다");
 	}
 
 }
