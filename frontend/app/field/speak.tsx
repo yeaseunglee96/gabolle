@@ -17,8 +17,11 @@ import { Text } from '@/components/Text';
 import { Eyebrow } from '@/components/Eyebrow';
 import { PlacePhraseBrowser } from '@/components/PlacePhraseBrowser';
 import { useI18n } from '@/i18n';
+import { useAuth } from '@/auth/AuthProvider';
+import { directionForLanguage, speechLanguageFor, translateText, TRANSLATE_MAX_LENGTH, type TranslationBlockedReason } from '@/field/translate';
 
-const CUSTOM_PHRASE_MAX_LENGTH = 120;
+// 🔴 서버가 받는 최대 길이와 같은 값을 쓴다 — 여기만 늘리면 400 을 받고 나서야 안다.
+const CUSTOM_PHRASE_MAX_LENGTH = TRANSLATE_MAX_LENGTH;
 
 type Tab = 'speak' | 'taxi';
 
@@ -34,30 +37,84 @@ const taxiIcon = require('../../assets/icons/common/taxi.png');
 const speakerIcon = require('../../assets/icons/common/speaker.png');
 
 export default function Speak() {
-  const { tx } = useI18n();
+  const { tx, language } = useI18n();
+  const { accessToken } = useAuth();
   const { tab: initialTab } = useLocalSearchParams<{ tab?: string }>();
   const [tab, setTab] = useState<Tab>(initialTab === 'taxi' ? 'taxi' : 'speak');
   const [copied, setCopied] = useState(false);
-  // 목록에 없는 문장을 직접 입력해 들려주는 기능(S15P21E201 사용자 리포트) — 번역은
-  // 안 한다. 입력한 한국어 그대로 기기 TTS로 읽어 줄 뿐이다. 번역까지 하려면 번역
-  // 업체 계약이 있어야 하는데(S15P21E201-77·281, 아직 진행 전) 그건 이 화면이 할 수
-  // 있는 일이 아니라 정직하게 "그대로 읽어드려요"라고만 적는다.
+  // 목록에 없는 문장을 직접 입력해 들려주는 기능.
+  //
+  // 🔴 2026-09-16 정정 (S15P21E201-1088). 여기 있던 "번역은 안 한다. 입력한 한국어 그대로
+  //    읽어 줄 뿐이다" 는 **도구가 목적과 정반대로 서 있던 것**이었다. 이 화면은 한국어를
+  //    못 하는 사람이 현장에서 쓰라고 만든 것인데, 영어 화면에서도 "한국어로 입력하세요"
+  //    라고 적혀 있었다. 한국어를 모르니까 이 화면에 온 사람에게 한국어를 요구한 것이다.
+  //    (사용자 지적)
+  //
+  //    맞는 방향은 **내 말로 쓰고 한국어로 들려주는 것**이다. 서버에 번역 경로가 이미
+  //    있으므로(POST /api/v1/tools/translate, S15P21E201-343) 그것을 부른다.
+  //
+  // 🔴 한국어 화면에서는 번역하지 않는다. 한국어로 써서 한국어로 말하면 되므로 부를 것이
+  //    없다 — 번역을 거치면 느려지기만 한다(directionForLanguage 가 null 을 준다).
+  const direction = directionForLanguage(language);
   const [customPhrase, setCustomPhrase] = useState('');
   const [customSpeaking, setCustomSpeaking] = useState(false);
+  const [translating, setTranslating] = useState(false);
+  const [spokenText, setSpokenText] = useState<string | null>(null);
+  const [translateNotice, setTranslateNotice] = useState<string | null>(null);
+  const [resultCopied, setResultCopied] = useState(false);
   const customPlayToken = useRef(0);
 
-  function speakCustomPhrase() {
-    const text = customPhrase.trim();
-    if (!text) return;
+  function blockedNotice(reason: TranslationBlockedReason): string {
+    if (reason === 'signed-out') return tx('번역은 로그인한 뒤에 쓸 수 있어요. 지금은 입력한 그대로 읽어드릴게요.', "Translation needs you to sign in. For now we'll read out what you typed, as it is.");
+    if (reason === 'not-built') return tx('번역 기능이 아직 서버에 없어요. 입력한 그대로 읽어드릴게요.', "Translation isn't on the server yet. We'll read out what you typed, as it is.");
+    if (reason === 'vendor') return tx('번역이 잠시 안 돼요. 잠시 후 다시 시도해 주세요. 지금은 입력한 그대로 읽어드릴게요.', "Translation is down for a moment — please try again shortly. For now we'll read out what you typed, as it is.");
+    return tx('번역하지 못했어요. 입력한 그대로 읽어드릴게요.', "We couldn't translate that. We'll read out what you typed, as it is.");
+  }
+
+  /** 기기 음성으로 읽는다. 🔴 언어를 문장에 맞춰 준다 — 영어를 한국어 음성으로 읽으면 못 알아듣는다. */
+  function speakAloud(text: string, speechLanguage: string) {
     const token = ++customPlayToken.current;
     const finish = () => { if (customPlayToken.current === token) setCustomSpeaking(false); };
     try {
       Speech.stop();
       setCustomSpeaking(true);
-      Speech.speak(text, { language: 'ko-KR', rate: 0.95, onDone: finish, onStopped: finish, onError: finish });
+      Speech.speak(text, { language: speechLanguage, rate: 0.95, onDone: finish, onStopped: finish, onError: finish });
     } catch {
       finish();
     }
+  }
+
+  async function speakCustomPhrase() {
+    const text = customPhrase.trim();
+    if (!text || translating) return;
+    setResultCopied(false);
+    // 한국어 화면 — 번역할 것이 없다. 종전 그대로 읽는다.
+    if (!direction) {
+      setSpokenText(null);
+      setTranslateNotice(null);
+      speakAloud(text, 'ko-KR');
+      return;
+    }
+    setTranslating(true);
+    const outcome = await translateText(text, direction, accessToken);
+    setTranslating(false);
+    if (outcome.state === 'translated') {
+      setSpokenText(outcome.text);
+      setTranslateNotice(null);
+      speakAloud(outcome.text, speechLanguageFor(direction));
+      return;
+    }
+    // 번역이 안 되면 막다른 길로 두지 않는다 — 왜 안 되는지 말하고, 원문이라도 읽어 준다.
+    // 🔴 이때는 원문의 언어로 읽는다. 영어 문장을 한국어 음성으로 읽으면 아무 쓸모가 없다.
+    setSpokenText(null);
+    setTranslateNotice(blockedNotice(outcome.reason));
+    speakAloud(text, language === 'en' ? 'en-US' : 'ko-KR');
+  }
+
+  async function copySpokenText() {
+    if (!spokenText) return;
+    await Clipboard.setStringAsync(spokenText);
+    setResultCopied(true);
   }
 
   async function copyAddress() {
@@ -102,15 +159,15 @@ export default function Speak() {
       {tab === 'speak' ? (
         <View style={styles.speakSection}>
           <View style={styles.customCard}>
-            <Text variant="body" weight="bold">{tx('내가 원하는 문장 말하기', 'Speak your own sentence')}</Text>
+            <Text variant="body" weight="bold">{tx('내가 원하는 문장 말하기', 'Say it in Korean')}</Text>
             <Text variant="caption" color={color.text.muted} style={styles.customHint}>
-              {tx('아래 목록에 없는 문장은 한국어로 입력하면 그대로 읽어드려요. 번역은 아직 안 돼요.', "If it's not in the list below, type it in Korean and we'll read it aloud as-is. Translation isn't available yet.")}
+              {tx('아래 목록에 없는 문장은 한국어로 입력하면 그대로 읽어드려요.', "Type it in English. We'll turn it into Korean, say it out loud, and show it so you can hand your phone over.")}
             </Text>
             <TextInput
-              accessibilityLabel={tx('직접 입력할 한국어 문장', 'Your Korean sentence')}
+              accessibilityLabel={tx('직접 입력할 한국어 문장', 'Your sentence in English')}
               value={customPhrase}
-              onChangeText={(text) => setCustomPhrase(text.slice(0, CUSTOM_PHRASE_MAX_LENGTH))}
-              placeholder={tx('예: 얼음 빼주세요', 'e.g. 얼음 빼주세요')}
+              onChangeText={(text) => { setCustomPhrase(text.slice(0, CUSTOM_PHRASE_MAX_LENGTH)); setSpokenText(null); setTranslateNotice(null); }}
+              placeholder={tx('예: 얼음 빼주세요', 'e.g. No ice, please')}
               placeholderTextColor={color.text.muted}
               multiline
               style={styles.customInput}
@@ -119,15 +176,48 @@ export default function Speak() {
               <Text variant="caption" color={color.text.muted}>{`${customPhrase.length}/${CUSTOM_PHRASE_MAX_LENGTH}`}</Text>
               <Pressable
                 accessibilityRole="button"
-                accessibilityLabel={tx('입력한 문장 듣기', 'Play the entered sentence')}
-                accessibilityState={{ disabled: !customPhrase.trim() }}
-                disabled={!customPhrase.trim()}
-                onPress={speakCustomPhrase}
-                style={[styles.customSpeakButton, !customPhrase.trim() && styles.customSpeakButtonDisabled]}
+                accessibilityLabel={tx('입력한 문장 듣기', 'Translate and play the sentence')}
+                accessibilityState={{ disabled: !customPhrase.trim() || translating, busy: translating }}
+                disabled={!customPhrase.trim() || translating}
+                onPress={() => void speakCustomPhrase()}
+                style={[styles.customSpeakButton, (!customPhrase.trim() || translating) && styles.customSpeakButtonDisabled]}
               >
-                <Text variant="caption" weight="bold" color={color.text.onAction}>{customSpeaking ? tx('재생 중', 'Playing') : tx('▶ 말하기', '▶ Speak')}</Text>
+                <Text variant="caption" weight="bold" color={color.text.onAction}>
+                  {translating ? tx('번역 중', 'Translating') : customSpeaking ? tx('재생 중', 'Playing') : direction ? tx('▶ 말하기', '▶ Say it in Korean') : tx('▶ 말하기', '▶ Speak')}
+                </Text>
               </Pressable>
             </View>
+
+            {/* 🔴 한국어를 화면에도 보여 준다 (S15P21E201-1088). 현장에서는 소리보다 화면을
+                내미는 것이 잘 통한다 — 시끄럽거나, 상대가 못 알아들었을 때 다시 말할 필요가 없다. */}
+            {spokenText ? (
+              <View accessibilityLiveRegion="polite" style={styles.translatedBox}>
+                <Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx('읽어드린 문장', 'Shown to them, in Korean')}</Text>
+                <Text variant="body" weight="bold" style={styles.translatedText}>{spokenText}</Text>
+                <View style={styles.translatedActions}>
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={tx('한국어 문장 복사', 'Copy the Korean sentence')}
+                    onPress={() => void copySpokenText()}
+                    style={styles.translatedAction}
+                  >
+                    <Text variant="caption" weight="bold">{resultCopied ? tx('복사했어요', 'Copied') : tx('복사', 'Copy')}</Text>
+                  </Pressable>
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={tx('한국어 문장 다시 듣기', 'Play the Korean sentence again')}
+                    onPress={() => speakAloud(spokenText, 'ko-KR')}
+                    style={styles.translatedAction}
+                  >
+                    <Text variant="caption" weight="bold">{tx('다시 듣기', 'Play again')}</Text>
+                  </Pressable>
+                </View>
+              </View>
+            ) : null}
+
+            {translateNotice ? (
+              <Text accessibilityLiveRegion="polite" variant="caption" color={color.text.muted} style={styles.customHint}>{translateNotice}</Text>
+            ) : null}
           </View>
           <PlacePhraseBrowser onOpenTaxiCard={() => setTab('taxi')} />
         </View>
@@ -243,6 +333,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: color.brand.navy,
   },
+  translatedBox: { gap: spacing[2], marginTop: spacing[3], padding: spacing[4], borderRadius: radius.md, backgroundColor: color.surface.tint },
+  translatedText: { lineHeight: 26 },
+  translatedActions: { flexDirection: 'row', gap: spacing[2] },
+  translatedAction: { minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[4], borderRadius: radius.full, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.card },
   customSpeakButtonDisabled: {
     opacity: 0.4,
   },
