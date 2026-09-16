@@ -8,6 +8,8 @@ import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
 import { Screen } from '@/components/Screen';
 import { TabBar } from '@/components/TabBar';
+import { WheelPicker } from '@/collection/WheelPicker';
+import { categoryLabel, localityLabel, PLACE_CATEGORY_LABELS, PLACE_LOCALITY_LABELS, sortCategoryCodes, WRITE_MY_OWN } from '@/discovery/placeCategoryLabels';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useAuth } from '@/auth/AuthProvider';
@@ -23,13 +25,32 @@ const SEARCH_MIN_QUERY_LENGTH = 2;
 
 export default function CollectionListDetail() {
   const router = useRouter();
-  const { tx } = useI18n();
+  const { tx, language } = useI18n();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { accessToken } = useAuth();
   const { lists, places, syncedToServer, addNewPlaceToList, removePlaceFromList, deleteList } = useCollection();
   const list = lists.find((entry) => entry.id === id);
   const [adding, setAdding] = useState(false);
   const [name, setName] = useState('');
+  // 🔴 휠에서 고른 **코드**와 직접 쓴 **문자열**을 따로 들고 있는다. 한 칸에 섞으면
+  // 나중에 어느 쪽인지 못 가른다 — 코드는 아는 값들의 집합이라 가를 수 있지만, 그건
+  // 표가 안 바뀔 때만 참이다.
+  const [categoryCode, setCategoryCode] = useState(WRITE_MY_OWN);
+  const [localityCode, setLocalityCode] = useState(WRITE_MY_OWN);
+  // 휠에 놓을 목록. 🔴 아는 코드를 표 순서대로 먼저 놓고, 맨 뒤에 「직접 쓰기」를 둔다.
+  //
+  // 🔴 서버가 주는 분류 목록(GET /places/categories)을 여기서 안 부른다 — 이 폼은 로그인
+  // 없이도 열리고, 목록을 못 받았을 때 휠이 비면 아무것도 못 고르게 된다. 아는 것만
+  // 먼저 놓고, 서버 목록을 붙이는 것은 따로 간다. **확인 못 함으로 남긴다.**
+  const categoryOptions = [
+    ...sortCategoryCodes(Object.keys(PLACE_CATEGORY_LABELS)).map((code) => ({ value: code, label: categoryLabel(code, language) })),
+    { value: WRITE_MY_OWN, label: tx('직접 쓰기', 'Write my own') },
+  ];
+  const localityOptions = [
+    ...Object.keys(PLACE_LOCALITY_LABELS).map((code) => ({ value: code, label: localityLabel(code, language) })),
+    { value: WRITE_MY_OWN, label: tx('직접 쓰기', 'Write my own') },
+  ];
+
   const [category, setCategory] = useState('');
   const [locality, setLocality] = useState('');
   const [note, setNote] = useState('');
@@ -70,7 +91,7 @@ export default function CollectionListDetail() {
     searchAbort.current?.abort();
     setName(candidate.name);
     setCoords({ lat: candidate.lat, lng: candidate.lng });
-    if (!locality.trim()) setLocality(candidate.address);
+    if (!locality.trim()) { setLocality(candidate.address); setLocalityCode(WRITE_MY_OWN); }
     setSearchResults([]); setSearched(false); setSearching(false);
   };
 
@@ -86,7 +107,7 @@ export default function CollectionListDetail() {
   const submitPlace = () => {
     const trimmed = name.trim();
     if (!trimmed) return;
-    addNewPlaceToList(list.id, { name: trimmed, category: category.trim() || null, locality: locality.trim() || null, photoUri, note: note.trim() || null, lat: coords?.lat ?? null, lng: coords?.lng ?? null });
+    addNewPlaceToList(list.id, { name: trimmed, category: categoryCode === WRITE_MY_OWN ? (category.trim() || null) : categoryCode, locality: localityCode === WRITE_MY_OWN ? (locality.trim() || null) : localityCode, photoUri, note: note.trim() || null, lat: coords?.lat ?? null, lng: coords?.lng ?? null });
     setName(''); setCategory(''); setLocality(''); setNote(''); setPhotoUri(null); setCoords(null); setSearchResults([]); setSearched(false); setAdding(false);
   };
 
@@ -123,10 +144,30 @@ export default function CollectionListDetail() {
       </View>}
       {!searching && searched && searchResults.length === 0 && <Text variant="caption" color={color.text.muted}>{tx('검색 결과가 없어요. 이름을 그대로 적어도 돼요.', 'No results — you can still type the name as-is.')}</Text>}
       {coords && <Text variant="caption" weight="bold" color={color.state.success}>{tx('📍 위치를 찾았어요 — 지역 칸에 주소를 채워 뒀어요.', '📍 Location found — filled in the area field with the address.')}</Text>}
+      {/* 🔴 돌려서 고르는 휠. 고르면 그 아래 입력칸이 사라진다 — 사람이 정한 규칙이다.
+          휠에서 고른 것과 직접 쓴 것이 한 칸에 섞이면 나중에 어느 쪽인지 못 가른다.
+          「직접 쓰기」를 고를 때만 쓸 수 있다. */}
       <View style={styles.row}>
-        <TextInput accessibilityLabel={tx('카테고리', 'Category')} value={category} onChangeText={setCategory} placeholder={tx('카테고리 (예: 카페)', 'Category (e.g. Café)')} placeholderTextColor={color.text.muted} style={[styles.input, styles.rowItem]} />
-        <TextInput accessibilityLabel={tx('지역', 'Locality')} value={locality} onChangeText={setLocality} placeholder={tx('지역 (예: 영도구)', 'Area (e.g. Yeongdo-gu)')} placeholderTextColor={color.text.muted} style={[styles.input, styles.rowItem]} />
+        <WheelPicker
+          label={tx('카테고리', 'Category')}
+          options={categoryOptions}
+          value={categoryCode}
+          onChange={setCategoryCode}
+        />
+        <WheelPicker
+          label={tx('지역', 'Area')}
+          options={localityOptions}
+          value={localityCode}
+          onChange={setLocalityCode}
+        />
       </View>
+      {categoryCode === WRITE_MY_OWN ? (
+        <TextInput accessibilityLabel={tx('카테고리 직접 쓰기', 'Write your own category')} value={category} onChangeText={setCategory} placeholder={tx('카테고리 직접 쓰기', 'Write your own category')} placeholderTextColor={color.text.muted} style={styles.input} />
+      ) : null}
+      {localityCode === WRITE_MY_OWN ? (
+        <TextInput accessibilityLabel={tx('지역 직접 쓰기', 'Write your own area')} value={locality} onChangeText={setLocality} placeholder={tx('지역 직접 쓰기 (예: 영도구)', 'Write your own area (e.g. Yeongdo-gu)')} placeholderTextColor={color.text.muted} style={styles.input} />
+      ) : null}
+      <Text variant="caption" color={color.text.muted}>{tx('돌려서 고르세요. 지역은 검색에서 고르면 자동으로 채워져요.', 'Spin to choose. Picking a search result fills the area for you.')}</Text>
       <TextInput accessibilityLabel={tx('한줄 메모', 'One-line note')} value={note} onChangeText={setNote} placeholder={tx('한줄 메모 (선택)', 'One-line note (optional)')} placeholderTextColor={color.text.muted} style={styles.input} />
       <Button label={tx('담기', 'Save')} disabled={!name.trim()} onPress={submitPlace} />
     </Card> : null}
