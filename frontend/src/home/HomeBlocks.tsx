@@ -4,6 +4,9 @@
 //   · 여행 카드의 **제목** — TripSummaryDto 에 제목 칸이 없다(날짜·일수·인원·상태뿐)
 //   · 장소 카드의 **사진** — photoUrl 은 상세의 선택 필드이고 늘 비어 있다. 목록엔 칸도 없다.
 //     채우는 작업(S15P21E201-146)이 머지되고 목록 API 에 실리면 그때 넣는다.
+//
+// 🔴 정정 (2026-09-16, S15P21E201-1023) — 위 둘 중 **제목은 이제 그린다.** 서버가
+// TripSummaryDto 에 `title` 을 주기 시작했다. 사진은 여전히 위 문단 그대로다.
 import { useState } from 'react';
 import { Image, Pressable, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -17,7 +20,7 @@ import { resolveHomeTripDestination } from './tripNavigation';
 import type { FacetKeyEntry } from '@/discovery/localExplore';
 import type { HomePlaceItem } from './useHomeData';
 import { relativeStoryTime, type StoryDto } from '@/social/stories';
-import type { TripSummaryDto } from '@/trip/trips';
+import { tripDisplayTitle, type TripSummaryDto } from '@/trip/trips';
 import type { DailyForecastDto } from '@/trip/weather';
 
 type Tx = (ko: string, en: string) => string;
@@ -221,9 +224,10 @@ export function MyTripCard({ trip, signedIn, loaded }: { trip: TripSummaryDto | 
       {!loaded ? <View style={[styles.tripCard, styles.tripSkeleton]} /> : trip ? (
         <Pressable accessibilityRole="button" accessibilityState={{ busy: opening, disabled: opening }} disabled={opening} onPress={() => void openTrip()} style={({ pressed }) => [styles.tripCard, pressed && styles.tripCardPressed]}>
           <Text variant="caption" weight="bold" color={color.state.success}>{statusLabel(trip, tx)}</Text>
-          {/* 🔴 여행에는 제목이 없다. 날짜를 제목 자리에 올린다 — 없는 이름을 지어내지 않는다. */}
+          {/* 🔴 이름이 있으면 이름, 없으면 날짜 (S15P21E201-1023). 없는 이름을 지어내지 않는
+              것은 그대로다 — 서버도 이름이 없을 때 날짜를 대신 채워 보내지 않는다. */}
           <Text variant="title" weight="bold">
-            {trip.startDate && trip.endDate ? `${formatDay(trip.startDate, tx)} ~ ${formatDay(trip.endDate, tx)}` : formatDay(trip.startDate, tx)}
+            {tripDisplayTitle(trip, trip.startDate && trip.endDate ? `${formatDay(trip.startDate, tx)} ~ ${formatDay(trip.endDate, tx)}` : formatDay(trip.startDate, tx))}
           </Text>
           <Text color={color.text.body}>
             {tx(`${trip.dayCount}일 · ${trip.partySize}명`, `${trip.dayCount} days · ${trip.partySize} travelers`)}
