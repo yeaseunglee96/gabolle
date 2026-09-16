@@ -28,6 +28,19 @@ public final class ItineraryWarningCodes {
      */
     public static final String RECALC_TIMES_RESHUFFLED = "RECALC_TIMES_RESHUFFLED";
 
+    /**
+     * 명소 자리를 채울 곳이 없어 <b>비워 뒀다</b> — S15P21E201-1129.
+     *
+     * <p>🔴 전에는 이 자리를 밥집으로 메웠다. 주석에 적힌 이유는 <i>"끼니 상한 때문에 자리를
+     * 비워 두는 것보다 갈 곳이 있는 편이 낫다"</i> 였는데, 그 결과가 <b>3일 12곳이 전부
+     * 음식점</b>인 일정이었다(2026-09-17, 바다·해변을 고른 사용자). 바다로 분류된 장소가
+     * 16곳뿐이라 명소가 금방 떨어지고 나머지를 밥집이 전부 메웠다.
+     *
+     * <p>메우면 <b>데이터가 모자라다는 사실이 안 보인다.</b> 사용자에게는 "이 앱은 밥집만
+     * 추천한다" 로 보이고, 팀에게는 아무 신호도 안 온다. 그래서 비워 두고 이 코드로 말한다.
+     */
+    public static final String SIGHT_SLOT_UNFILLED = "SIGHT_SLOT_UNFILLED";
+
     private ItineraryWarningCodes() {
     }
 }

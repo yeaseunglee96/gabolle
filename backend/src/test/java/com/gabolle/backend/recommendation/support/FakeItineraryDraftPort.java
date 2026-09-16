@@ -50,7 +50,7 @@ public class FakeItineraryDraftPort implements ItineraryDraftPort {
 		}
 		return new ItineraryDraft(command.tripId(), command.userId(), command.requestId(),
 				command.modelVersion(), command.featureVersion(), command.ontologyVersion(),
-				command.policyVersion(), command.datasetVersion(), items, List.of());
+				command.policyVersion(), command.datasetVersion(), items, List.of(), List.of());
 	}
 
 	@Override
