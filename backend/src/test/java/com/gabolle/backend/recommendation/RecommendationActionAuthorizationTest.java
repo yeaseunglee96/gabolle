@@ -24,7 +24,9 @@ import com.gabolle.backend.recommendation.repository.RecommendationPlaceActionRe
 import com.gabolle.backend.trip.application.TripQueryService;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -84,7 +86,8 @@ class RecommendationActionAuthorizationTest {
 	@Test
 	@DisplayName("🔴 아직 아무것도 안 누른 내 여행은 빈 목록이다 — 404 가 아니다")
 	void emptyTripIsEmptyListNotNotFound() throws Exception {
-		when(this.service.list(this.tripId, this.ownerId.toString())).thenReturn(List.of());
+		when(this.service.list(this.tripId, this.ownerId.toString()))
+				.thenReturn(new RecommendationActionService.Page(List.of(), false));
 
 		this.mockMvc.perform(get("/api/v1/trips/{tripId}/recommendation-actions", this.tripId)
 						.principal(principal(this.ownerId)))
@@ -120,7 +123,8 @@ class RecommendationActionAuthorizationTest {
 	void listIncludesWhatOtherMembersDecided() throws Exception {
 		UUID companion = UUID.randomUUID();
 		when(this.service.list(this.tripId, this.ownerId.toString()))
-				.thenReturn(List.of(action(RecommendationPlaceAction.Action.EXCLUDED, companion)));
+				.thenReturn(new RecommendationActionService.Page(
+						List.of(action(RecommendationPlaceAction.Action.EXCLUDED, companion)), false));
 
 		this.mockMvc.perform(get("/api/v1/trips/{tripId}/recommendation-actions", this.tripId)
 						.principal(principal(this.ownerId)))
@@ -174,46 +178,59 @@ class RecommendationActionAuthorizationTest {
 	 * 🔴 동행자가 이미 정해 둔 판단을 내가 바꾸는 경우다. 여기서 <b>새 행이 생기면</b>
 	 * {@code uk_recommendation_place_action}(여행+장소에 행 하나)에 걸려 저장이 실패한다.
 	 * 제약이 없었다면 같은 장소가 담김이면서 동시에 빠진 상태가 된다.
+	 *
+	 * <p>🔴 2026-09-16 (S15P21E201-1037) — 그 판정을 이제 <b>DB 가 한 문장으로</b> 한다.
+	 * 「찾아보고 없으면 넣는」 방식은 동행자 둘이 동시에 누르면 그 사이로 둘 다 들어가
+	 * 하나가 500 이 됐고, 이 자리는 동시에 눌리는 것이 예외가 아니라 정상이다.
+	 *
+	 * <p>그래서 여기서는 <b>서비스가 무엇을 시켰는지</b>만 본다. 「행이 하나로 유지되는가」는
+	 * 가짜 리포지토리로는 확인할 수 없는 성질이라 진짜 PostgreSQL 위에서 따로 본다 —
+	 * {@code EndpointGuardsPostgresTest}.
 	 */
 	@Test
-	@DisplayName("🔴 동행자가 정해 둔 판단을 바꾸면 새로 만들지 않고 그 행을 바꾸고, 정한 사람이 나로 바뀐다")
-	void putOnExistingActionUpdatesInsteadOfInserting() {
+	@DisplayName("🔴 판단을 적을 때 새로 만들지 않고 업서트 한 문장으로 맡긴다 — 정한 사람도 함께 넘긴다")
+	void putDelegatesToASingleUpsertStatement() {
 		RecommendationPlaceActionRepository repository = mock(RecommendationPlaceActionRepository.class);
 		TripQueryService tripQueryService = mock(TripQueryService.class);
 		RecommendationActionService real = new RecommendationActionService(tripQueryService, repository,
 				Clock.fixed(Instant.parse("2026-09-15T12:00:00Z"), ZoneOffset.UTC));
 
-		UUID companion = UUID.randomUUID();
-		RecommendationPlaceAction existing = action(RecommendationPlaceAction.Action.SAVED, companion);
+		RecommendationPlaceAction written = action(RecommendationPlaceAction.Action.EXCLUDED, this.ownerId);
 		when(repository.findByTripIdAndPlaceId(UUID.fromString(this.tripId), UUID.fromString(this.placeId)))
-				.thenReturn(Optional.of(existing));
+				.thenReturn(Optional.of(written));
 
 		RecommendationPlaceAction result = real.put(this.tripId, this.ownerId.toString(), this.placeId,
 				RecommendationPlaceAction.Action.EXCLUDED);
 
-		assertThat(result).isSameAs(existing);
+		verify(repository).upsert(any(), eq(UUID.fromString(this.tripId)), eq(UUID.fromString(this.placeId)),
+				eq("EXCLUDED"), eq(this.ownerId), any());
+		verify(repository, never()).save(any());
+
 		assertThat(result.getAction()).isEqualTo(RecommendationPlaceAction.Action.EXCLUDED);
 		// 마지막에 정한 사람이 바뀐다 — 공유 상태에서 "누가 뺐나" 에 답할 수 있어야 한다.
 		assertThat(result.getDecidedByUserId()).isEqualTo(this.ownerId);
-		verify(repository, never()).save(any());
 	}
 
+	/**
+	 * 넣은 직후 그 행을 도로 못 읽는 것은 <b>우리 쪽 불변식이 깨진 것</b>이다.
+	 *
+	 * <p>🔴 이때 400 을 주면 사용자는 자기 입력을 고치려 들고 우리는 서버 오류 그래프에서
+	 * 이 사고를 못 본다. 그래서 어드바이스가 안 잡는 예외를 따로 둔다.
+	 */
 	@Test
-	@DisplayName("없던 판단은 새로 만들고 정한 사람을 적는다")
-	void putOnMissingActionInserts() {
+	@DisplayName("적은 뒤 도로 못 읽으면 400 이 아니라 서버 오류로 올린다")
+	void aFailedReadBackIsNotTreatedAsABadRequest() {
 		RecommendationPlaceActionRepository repository = mock(RecommendationPlaceActionRepository.class);
 		TripQueryService tripQueryService = mock(TripQueryService.class);
 		RecommendationActionService real = new RecommendationActionService(tripQueryService, repository,
 				Clock.fixed(Instant.parse("2026-09-15T12:00:00Z"), ZoneOffset.UTC));
 
 		when(repository.findByTripIdAndPlaceId(any(), any())).thenReturn(Optional.empty());
-		when(repository.save(any())).thenAnswer(call -> call.getArgument(0));
 
-		RecommendationPlaceAction result = real.put(this.tripId, this.ownerId.toString(), this.placeId,
-				RecommendationPlaceAction.Action.SAVED);
-
-		assertThat(result.getAction()).isEqualTo(RecommendationPlaceAction.Action.SAVED);
-		assertThat(result.getDecidedByUserId()).isEqualTo(this.ownerId);
-		verify(repository).save(any());
+		assertThatThrownBy(() -> real.put(this.tripId, this.ownerId.toString(), this.placeId,
+				RecommendationPlaceAction.Action.SAVED))
+				.isInstanceOf(RecommendationActionService.WriteReadBackFailedException.class)
+				.as("IllegalArgumentException 이면 어드바이스가 400 으로 내린다")
+				.isNotInstanceOf(IllegalArgumentException.class);
 	}
 }

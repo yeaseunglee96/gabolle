@@ -27,7 +27,9 @@ import com.gabolle.backend.place.repository.PlaceRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -99,7 +101,7 @@ class CollectionControllerTest {
 	@Test
 	@DisplayName("컬렉션이 없으면 빈 목록이다 — 404 가 아니다")
 	void emptyListIsOk() throws Exception {
-		when(this.collections.findByUserIdOrderByUpdatedAtDesc(this.ownerId)).thenReturn(List.of());
+		when(this.collections.findByUserIdOrderByUpdatedAtDesc(eq(this.ownerId), any())).thenReturn(List.of());
 
 		this.mockMvc.perform(get("/api/v1/me/collections").principal(principal(this.ownerId)))
 				.andExpect(status().isOk())
@@ -114,17 +116,27 @@ class CollectionControllerTest {
 	void addPlaceItem() throws Exception {
 		when(this.collections.findByIdAndUserId(this.collectionId, this.ownerId)).thenReturn(Optional.of(mine()));
 		when(this.places.existsById(this.placeId)).thenReturn(true);
-		when(this.items.findByCollectionIdOrderByPositionAscCreatedAtAsc(this.collectionId))
-				.thenReturn(List.of());
-		when(this.items.save(any())).thenAnswer((call) -> call.getArgument(0));
+		// 업서트는 넣었는지(1) 이미 있었는지(0) 만 알려 주고, 돌려줄 항목은 도로 읽어 온다.
+		when(this.items.insertPlaceItemIfAbsent(any(), eq(this.collectionId), eq(this.placeId), any(),
+				anyInt(), any())).thenReturn(1);
+		CollectionItem stored = CollectionItem.ofPlace(UUID.randomUUID(), this.collectionId, this.placeId,
+				null, 0, NOW);
+		when(this.items.findByCollectionIdAndPlaceId(this.collectionId, this.placeId))
+				.thenReturn(Optional.of(stored));
+		// 응답은 컬렉션 전체를 도로 읽어 싣는다 — 그 조회도 같이 세워 둔다.
+		when(this.items.findByCollectionIdOrderByPositionAscCreatedAtAsc(eq(this.collectionId), any()))
+				.thenReturn(List.of(stored));
 
 		this.mockMvc.perform(post("/api/v1/me/collections/{id}/items", this.collectionId)
 						.contentType("application/json")
 						.content("{\"kind\":\"PLACE\",\"placeId\":\"" + this.placeId + "\"}")
 						.principal(principal(this.ownerId)))
-				.andExpect(status().isCreated());
+				.andExpect(status().isCreated())
+				.andExpect(jsonPath("$.data.items[0].kind").value("PLACE"))
+				.andExpect(jsonPath("$.data.items[0].placeId").value(this.placeId.toString()));
 
-		verify(this.items).save(any());
+		verify(this.items).insertPlaceItemIfAbsent(any(), eq(this.collectionId), eq(this.placeId), any(),
+				anyInt(), any());
 	}
 
 	/**
@@ -185,8 +197,12 @@ class CollectionControllerTest {
 				null, 0, NOW);
 		when(this.collections.findByIdAndUserId(this.collectionId, this.ownerId)).thenReturn(Optional.of(mine()));
 		when(this.places.existsById(this.placeId)).thenReturn(true);
-		when(this.items.findByCollectionIdOrderByPositionAscCreatedAtAsc(this.collectionId))
-				.thenReturn(List.of(already));
+		// 🔴 이미 있으면 업서트가 0 을 돌려준다 — 그래도 응답은 성공이고, 돌려주는 것은
+		//    「지금 담겨 있는 그 항목」이다. 그전에는 목록을 통째로 읽어 비교했다.
+		when(this.items.insertPlaceItemIfAbsent(any(), eq(this.collectionId), eq(this.placeId), any(),
+				anyInt(), any())).thenReturn(0);
+		when(this.items.findByCollectionIdAndPlaceId(this.collectionId, this.placeId))
+				.thenReturn(Optional.of(already));
 
 		this.mockMvc.perform(post("/api/v1/me/collections/{id}/items", this.collectionId)
 						.contentType("application/json")

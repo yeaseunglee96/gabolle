@@ -18,13 +18,13 @@ import com.gabolle.backend.collection.domain.CollectionItem;
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record CollectionResponse(UUID collectionId, String name, String description, int count,
-		List<Item> items, OffsetDateTime updatedAt) {
+		List<Item> items, boolean hasMore, OffsetDateTime updatedAt) {
 
 	public static CollectionResponse of(CollectionService.Loaded loaded) {
 		Collection collection = loaded.collection();
 		List<Item> items = loaded.items().stream().map(Item::of).toList();
 		return new CollectionResponse(collection.getId(), collection.getName(), collection.getDescription(),
-				items.size(), items, collection.getUpdatedAt());
+				items.size(), items, loaded.hasMore(), collection.getUpdatedAt());
 	}
 
 	/**
@@ -48,11 +48,17 @@ public record CollectionResponse(UUID collectionId, String name, String descript
 	}
 
 	/** 내 컬렉션 전부. 모양은 이 저장소의 다른 목록 응답과 같다 ({@code items}·{@code count}). */
-	public record Page(List<CollectionResponse> items, int count) {
+	/**
+	 * 내 컬렉션 목록.
+	 *
+	 * @param hasMore 🔴 상한에 걸려 <b>더 있는데 안 보냈다</b> (S15P21E201-1037). 컬렉션 안쪽
+	 *     항목이 잘린 것은 각 {@link CollectionResponse} 의 같은 이름 칸이 따로 알린다
+	 */
+	public record Page(List<CollectionResponse> items, int count, boolean hasMore) {
 
-		public static Page of(List<CollectionService.Loaded> loaded) {
-			List<CollectionResponse> items = loaded.stream().map(CollectionResponse::of).toList();
-			return new Page(items, items.size());
+		public static Page of(CollectionService.Listing listing) {
+			List<CollectionResponse> items = listing.items().stream().map(CollectionResponse::of).toList();
+			return new Page(items, items.size(), listing.hasMore());
 		}
 	}
 }

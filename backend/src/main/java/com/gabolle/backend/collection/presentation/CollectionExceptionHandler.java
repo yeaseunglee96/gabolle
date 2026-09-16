@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -59,6 +60,23 @@ public class CollectionExceptionHandler {
 		return ResponseEntity.badRequest().body(ApiResponse.failure(
 				new ApiError("COLLECTION_VALIDATION_FAILED", "입력한 내용을 확인해 주세요.",
 						List.of(e.getMessage())),
+				requestId()));
+	}
+
+	/**
+	 * 요청 본문의 칸이 규격을 벗어났다 — {@code @Valid} 가 걸러 준 것.
+	 *
+	 * <p>🔴 이것을 안 잡으면 Spring 기본 오류 화면이 나가고, 앱의 응답 봉투가 아니라서
+	 * 화면은 그것을 「예상하지 못한 서버 응답」으로 읽는다. 어느 칸이 왜 틀렸는지도 사라진다.
+	 */
+	@ExceptionHandler(MethodArgumentNotValidException.class)
+	public ResponseEntity<ApiResponse<Void>> handleValidation(MethodArgumentNotValidException e) {
+		List<String> fields = e.getBindingResult().getFieldErrors().stream()
+				.map((f) -> f.getField() + ": " + f.getDefaultMessage())
+				.toList();
+
+		return ResponseEntity.badRequest().body(ApiResponse.failure(
+				new ApiError("COLLECTION_VALIDATION_FAILED", "입력한 내용을 확인해 주세요.", fields),
 				requestId()));
 	}
 
