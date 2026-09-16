@@ -12,6 +12,7 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import com.gabolle.backend.place.domain.Place;
 
 /**
  * {@code PlaceDetailResponse} 의 직렬화 계약 — S15P21E201-476.
@@ -33,6 +34,7 @@ class PlaceDetailResponseSerializationTest {
 		assertThat(json.has("addressEn")).isFalse();
 		assertThat(json.has("photoUrl")).isFalse();
 		assertThat(json.has("photoSource")).isFalse();
+		assertThat(json.has("photoSubject")).isFalse();
 		assertThat(json.has("openingHours")).isFalse();
 		assertThat(json.has("priceLevel")).isFalse();
 	}
@@ -53,6 +55,28 @@ class PlaceDetailResponseSerializationTest {
 		assertThat(json.get("openingHours").get("evidenceStatus").asString()).isEqualTo("VERIFIED");
 		assertThat(json.get("openingHours").get("value").get("mon").asString()).isEqualTo("09:00-18:00");
 		assertThat(json.has("priceLevel")).isFalse();
+	}
+
+	/**
+	 * S15P21E201-1039 — 이 칸이 없으면 화면은 「이 장소를 찍은 사진」과 「이 장소가 들어
+	 * 있는 곳을 찍은 사진」을 구분할 방법이 없어, 주변 시설 사진을 이 장소 사진처럼 그린다.
+	 * 축제 응답에는 있고 여기에는 없던 것이 이 티켓이 고친 것이다.
+	 *
+	 * <p>값이 없을 때 키를 빼는 것도 함께 본다 — 「모르는 것을 아는 척하지 않는다」가
+	 * 화면 쪽 표시 함수의 전제이고, 빈 값이 키로 오면 그 전제가 깨진다.
+	 */
+	@Test
+	@DisplayName("사진이 무엇을 찍은 것인지가 상세 응답에 실린다 — 축제에만 있던 칸")
+	void thePhotoSubjectIsSerializedForPlacesToo() throws Exception {
+		PlaceDetailResponse response = sample("1-2-3 Test-dong", "https://example.com/p.jpg",
+				"한국관광공사 관광사진갤러리", Place.PhotoSubject.VENUE, null, null, "ko");
+
+		JsonNode json = writeAndRead(response);
+
+		assertThat(json.get("photoSubject").asString()).isEqualTo("VENUE");
+		assertThat(json.get("photoSource").asString())
+				.as("출처와 주제는 다른 질문이라 칸이 갈려 있다 — 둘 다 와야 한다")
+				.isEqualTo("한국관광공사 관광사진갤러리");
 	}
 
 	@Test
@@ -87,11 +111,17 @@ class PlaceDetailResponseSerializationTest {
 	private PlaceDetailResponse sample(String addressEn, String photoUrl, String photoSource,
 			PlaceDetailResponse.FeatureSlot openingHours, PlaceDetailResponse.FeatureSlot priceLevel,
 			String resolvedLanguage) {
+		return sample(addressEn, photoUrl, photoSource, null, openingHours, priceLevel, resolvedLanguage);
+	}
+
+	private PlaceDetailResponse sample(String addressEn, String photoUrl, String photoSource,
+			Place.PhotoSubject photoSubject, PlaceDetailResponse.FeatureSlot openingHours,
+			PlaceDetailResponse.FeatureSlot priceLevel, String resolvedLanguage) {
 		return new PlaceDetailResponse(
 				UUID.randomUUID(), "샘플장소", null, null, null, null, null,
 				new PlaceDetailResponse.Provenance(null, null, null, null, null),
 				List.of(),
 				new PlaceDetailResponse.ItineraryInclusion("UNAVAILABLE", "ITINERARY_NOT_SPECIFIED"),
-				addressEn, photoUrl, photoSource, openingHours, priceLevel, resolvedLanguage);
+				addressEn, photoUrl, photoSource, photoSubject, openingHours, priceLevel, resolvedLanguage);
 	}
 }
