@@ -18,6 +18,10 @@ const BUSAN = { lat: 35.1796, lng: 129.0756 };
 
 const HERO_STORY_COUNT = 3;
 const PLACE_PICK_COUNT = 4;
+// 후보를 넉넉히 받아 category 로 골고루 뽑을 여지를 둔다 — 부산 중심 5km 안이 특정
+// 갈래(식당 등)로 쏠려 있으면 그냥 가까운 순으로만 넷을 자를 때 넷 다 같은 갈래로
+// 몰릴 수 있다(사용자 실사용 리포트, 2026-09-16).
+const PLACE_CANDIDATE_POOL = 16;
 const FACET_CHIP_COUNT = 6;
 
 function today() {
@@ -34,6 +38,34 @@ function pickHeroStories(items: StoryDto[]): StoryDto[] {
   const withImage = items.filter((item) => item.images.length > 0);
   const rest = items.filter((item) => item.images.length === 0);
   return [...withImage, ...rest].slice(0, HERO_STORY_COUNT);
+}
+
+/**
+ * 가까운 순으로 받은 후보 중에서 갈래(`category`)가 겹치지 않게 최대 `count`개를 고른다.
+ * 넷 다 같은 갈래(예: 식당)로 몰리는 것을 막는다 — 부산 중심 5km 안이 그 갈래로 쏠려
+ * 있으면 실제로 그렇게 된다(사용자 실사용 리포트, 2026-09-16).
+ *
+ * 🔴 `category` 값의 정확한 목록은 모른다(places.ts의 isFoodPlace와 같은 사정) — 그래서
+ * 정해진 갈래 이름을 코드에 나열하지 않고, "이미 고른 갈래와 문자열이 같은가"만 본다.
+ * 서로 다른 곳이 우연히 같은 category 문자열을 가지면 같은 갈래로 취급되는 정도가
+ * 이 방식의 한계다. 가까운 순서 자체는 그대로 지킨다 — 갈래 안에서 순서를 바꾸지 않는다.
+ */
+function diversifyByCategory<T extends { category: string | null }>(items: T[], count: number): T[] {
+  const seenCategories = new Set<string>();
+  const picked: T[] = [];
+  const leftover: T[] = [];
+  for (const item of items) {
+    if (picked.length >= count) { leftover.push(item); continue; }
+    if (item.category && seenCategories.has(item.category)) { leftover.push(item); continue; }
+    if (item.category) seenCategories.add(item.category);
+    picked.push(item);
+  }
+  // 갈래 수가 count 보다 적으면(예: 갈래 둘뿐) 자리가 남는다 — 가까운 순서대로 채운다.
+  for (const item of leftover) {
+    if (picked.length >= count) break;
+    picked.push(item);
+  }
+  return picked;
 }
 
 /**
@@ -103,8 +135,8 @@ export function useHomeData(enabled = true): HomeData {
     queryKey: ['home', 'places'],
     enabled,
     queryFn: async (): Promise<HomePlaceItem[]> => {
-      const nearby = await getNearbyPlaces({ ...BUSAN, limit: PLACE_PICK_COUNT });
-      if (nearby.state === 'success' && nearby.items.length) return nearby.items.slice(0, PLACE_PICK_COUNT);
+      const nearby = await getNearbyPlaces({ ...BUSAN, limit: PLACE_CANDIDATE_POOL });
+      if (nearby.state === 'success' && nearby.items.length) return diversifyByCategory(nearby.items, PLACE_PICK_COUNT);
 
       // 부산 중심 5km 안이 비면 섹션을 숨기지 않고, 실제로 데이터가 있는 로컬 갈래 하나를
       // 부산 전체에서 조회한다. 홈 제목은 거리 순위나 대표성을 약속하지 않는 「부산 둘러보기」다.
