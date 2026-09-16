@@ -1,5 +1,9 @@
 // 부슐랭 홈 — 내가 만든 리스트와 최근 담은 장소를 한눈에 본다.
-// SNS(피드·코스)와 무관한 개인 아카이브라 전부 기기에만 저장된다(CollectionProvider).
+// SNS(피드·코스)와 무관한 개인 아카이브다.
+//
+// 🔴 정정 (2026-09-16, S15P21E201-1071) — "전부 기기에만 저장된다" 는 이제 사실이 아니다.
+// 로그인하면 계정에 저장된다. 안 했으면 여전히 기기에만 남는다. 아래 안내 문구가 그 둘을
+// 갈라서 말한다 — 화면이 저장되는 곳을 틀리게 말하면 사용자가 잃을 것을 잃는다.
 import { useState } from 'react';
 import { Image, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -15,7 +19,7 @@ import { useCollection } from '@/collection/CollectionProvider';
 export default function CollectionHome() {
   const router = useRouter();
   const { tx } = useI18n();
-  const { ready, lists, places, totalPlaceCount, recentPlaces, createList } = useCollection();
+  const { ready, syncedToServer, lists, places, totalPlaceCount, recentPlaces, createList } = useCollection();
   const [creating, setCreating] = useState(false);
   const [newName, setNewName] = useState('');
 
@@ -38,7 +42,9 @@ export default function CollectionHome() {
         <Text variant="body" weight="bold" color={color.text.onAction}>{tx(`📍 ${totalPlaceCount}곳`, `📍 ${totalPlaceCount} places`)}</Text>
         <Text variant="body" weight="bold" color={color.text.onAction}>{tx(`📋 ${lists.length}개 리스트`, `📋 ${lists.length} lists`)}</Text>
       </View>
-      <Text variant="caption" color={color.text.onAction} style={styles.deviceOnlyNotice}>{tx('이 기기에만 저장돼요. 앱을 지우면 사라져요.', 'Saved only on this device — it disappears if you delete the app.')}</Text>
+      <Text variant="caption" color={color.text.onAction} style={styles.deviceOnlyNotice}>{syncedToServer
+        ? tx('내 계정에 저장돼요. 다른 기기에서도 보여요.', "Saved to your account — you'll see it on your other devices.")
+        : tx('이 기기에만 저장돼요. 로그인하면 계정에 저장돼요.', 'Saved only on this device — sign in to keep it on your account.')}</Text>
     </View>
 
     <View style={styles.sectionHeading}><Text variant="title" weight="bold">{tx('내 리스트', 'My lists')}</Text><Button label={tx('+ 새 리스트', '+ New list')} variant="ghost" onPress={() => setCreating(true)} containerStyle={styles.newListButton} /></View>
