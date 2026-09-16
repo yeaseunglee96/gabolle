@@ -118,6 +118,11 @@ export const type = {
   body: { size: 15, lineHeight: 23, letterSpacing: 0 },
   title: { size: 18, lineHeight: 24, letterSpacing: 0 },
   display: { size: 22, lineHeight: 28, letterSpacing: -0.15 },
+  /** 상단 바 1층(유틸 바)의 작은 글자 전용 — 시안 실측 13px (S15P21E201-1103).
+   *  caption(11)은 언어·로그인 같은 **누를 수 있는 글자**로 쓰기에 작고, body(15)는 유틸 바
+   *  높이 36 안에서 본문처럼 무겁다. 인계 문서가 「caption 을 쓰거나 13 을 추가」로 열어 둔
+   *  자리라 추가했다 — 화면에 숫자를 직접 쓰는 것은 파트 규칙이 금지한다. */
+  util: { size: 13, lineHeight: 18, letterSpacing: 0 },
   /** 01 Welcome 히어로 브랜드 타이틀 전용(Figma 실측 34px). 다른 화면엔 이 크기가 없어서 추가했다. */
   hero: { size: 34, lineHeight: 40, letterSpacing: -0.25 },
 } as const;
