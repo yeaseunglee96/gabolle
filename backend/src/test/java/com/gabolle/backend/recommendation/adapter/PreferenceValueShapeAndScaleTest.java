@@ -146,7 +146,7 @@ class PreferenceValueShapeAndScaleTest {
 
 	private EngineCandidate score(PlaceCandidateResponse.Candidate candidate, PreferenceSnapshot snapshot) {
 		return this.scorer.score(candidate, snapshot, List.of(), RADIUS_M, WEIGHTS, ALIGNMENT_WEIGHTS,
-				this.preferenceCodeMap, List.of());
+				this.preferenceCodeMap, List.of(), List.of(), 0.05);
 	}
 
 	@SuppressWarnings("unchecked")
