@@ -243,11 +243,16 @@ export default function Home() {
                       <View style={styles.placeThumb} />
                       <Pressable
                         accessibilityRole="button"
+                        accessibilityState={{ selected: liked }}
                         accessibilityLabel={liked ? tx(`${place.nameKo} 저장 취소`, `Unsave ${place.nameKo}`) : tx(`${place.nameKo} 저장`, `Save ${place.nameKo}`)}
                         onPress={() => (signedIn ? toggleLike(place.placeId) : router.push('/sign-in'))}
                         style={styles.heartButton}
                       >
-                        <Image source={heartIcon} resizeMode="contain" style={[styles.heartIcon, liked ? styles.heartOn : styles.heartOff]} />
+                        {/* 색만으로 저장 여부를 나타내지 않는다(팀 UX 가이드라인 11번) —
+                            저장했을 때만 배경 원이 함께 나타난다. */}
+                        <View style={[styles.heartBackdrop, liked && styles.heartBackdropOn]}>
+                          <Image source={heartIcon} resizeMode="contain" style={[styles.heartIcon, liked ? styles.heartOn : styles.heartOff]} />
+                        </View>
                       </Pressable>
                     </Pressable>
                     <Text weight="bold" numberOfLines={1}>{place.nameKo}</Text>
@@ -364,6 +369,8 @@ const styles = StyleSheet.create({
   placeThumbWrap: { position: 'relative' },
   placeThumb: { width: '100%', aspectRatio: 4 / 3, borderRadius: radius.md, backgroundColor: color.surface.soft },
   heartButton: { position: 'absolute', top: 0, right: 0, width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
+  heartBackdrop: { width: 28, height: 28, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full },
+  heartBackdropOn: { backgroundColor: color.surface.card, shadowColor: color.brand.navy, shadowOpacity: 0.15, shadowRadius: 4, shadowOffset: { width: 0, height: 1 }, elevation: 2 },
   heartIcon: { width: 16, height: 16 },
   heartOn: { tintColor: color.brand.orange },
   heartOff: { tintColor: color.text.muted },
