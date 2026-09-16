@@ -134,7 +134,9 @@ public class ItineraryQueryService {
 				fallbackMode,
 				access.role().name(),
 				access.role().canEdit(),
-				content.version().warningCodes());
+				content.version().warningCodes(),
+				// S15P21E201-1113 — 이미 손에 있는 값이다. 여행을 다시 조회하지 않는다.
+				trip.tripId());
 	}
 
 	/**
