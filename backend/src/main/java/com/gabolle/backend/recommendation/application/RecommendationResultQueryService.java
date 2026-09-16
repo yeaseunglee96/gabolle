@@ -96,7 +96,7 @@ public class RecommendationResultQueryService {
 			String errorMessage = (jobStatus == JobStatus.FAILED) ? job.getErrorCode() : null;
 			return new RecommendationResultResponse(
 					"FAILED", List.of(), itineraryId, job.getFallbackMode(), List.of(), errorMessage,
-					0, null, job.getRequestId().toString());
+					0, null, job.getRequestId().toString(), tripId(job));
 		}
 
 		List<RecommendationCandidate> returnedCandidates = this.candidateRepository
@@ -141,7 +141,17 @@ public class RecommendationResultQueryService {
 
 		return new RecommendationResultResponse(
 				status, items, itineraryId, job.getFallbackMode(), List.copyOf(conflicts), null,
-				items.size(), estimatedTravelMinutes(itineraryId), job.getRequestId().toString());
+				items.size(), estimatedTravelMinutes(itineraryId), job.getRequestId().toString(), tripId(job));
+	}
+
+	/**
+	 * 이 작업이 어느 여행의 것인가 — S15P21E201-1084.
+	 *
+	 * <p>여행에 매이지 않은 작업이면 {@code null} 이다. 빈 문자열이나 지어낸 값을 넣지 않는다 —
+	 * 앱이 그 값으로 주소를 만들기 때문에, 없는 것을 있는 것처럼 주면 앱이 없는 여행을 부른다.
+	 */
+	private String tripId(RecommendationJob job) {
+		return (job.getTripId() != null) ? job.getTripId().toString() : null;
 	}
 
 	/**

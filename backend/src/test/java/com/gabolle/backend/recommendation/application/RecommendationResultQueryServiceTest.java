@@ -246,4 +246,41 @@ class RecommendationResultQueryServiceTest {
 		assertThat(response.items()).isEmpty();
 		assertThat(response.errorMessage()).isEqualTo("ENGINE_TIMEOUT");
 	}
+
+	// S15P21E201-1084 — 앱의 추천 화면은 경로에 작업 번호만 들고 있어서, 담아두기·빼기를 보낼
+	// 주소(/api/v1/trips/{tripId}/recommendation-actions)를 응답에서 받지 못하면 알 수 없다.
+
+	@Test
+	@DisplayName("🔴 성공 응답에 tripId 가 실린다 — 앱이 담아두기·빼기를 보낼 주소다")
+	void succeededJobCarriesTripId() {
+		UUID tripId = UUID.randomUUID();
+		RecommendationJob job = succeededJob(FallbackMode.BASELINE);
+		job.applyRequestContext(tripId, 1, null, null, null, null, null, "test");
+		when(this.candidateRepository.findByRequestIdAndReturnedTrueOrderByFinalRankAsc(this.requestId))
+				.thenReturn(List.of(returnedCandidateBuilder().build()));
+
+		assertThat(this.service.buildResult(job).tripId()).isEqualTo(tripId.toString());
+	}
+
+	@Test
+	@DisplayName("🔴 실패 응답에도 tripId 가 실린다 — 실패한 요청도 그 여행의 요청이다")
+	void failedJobCarriesTripId() {
+		UUID tripId = UUID.randomUUID();
+		RecommendationJob failed = RecommendationJob.start(UUID.randomUUID(), this.requestId, UUID.randomUUID(),
+				JobType.ITINERARY_GENERATION, OffsetDateTime.now());
+		failed.applyRequestContext(tripId, 1, null, null, null, null, null, "test");
+		failed.markFailed("ENGINE_TIMEOUT", com.gabolle.backend.recommendation.domain.JobStage.RANKING,
+				OffsetDateTime.now(), true, true);
+
+		assertThat(this.service.buildResult(failed).tripId()).isEqualTo(tripId.toString());
+	}
+
+	@Test
+	@DisplayName("여행에 안 매인 작업은 tripId 가 null 이다 — 지어내지 않는다")
+	void jobWithoutTripHasNullTripId() {
+		when(this.candidateRepository.findByRequestIdAndReturnedTrueOrderByFinalRankAsc(this.requestId))
+				.thenReturn(List.of(returnedCandidateBuilder().build()));
+
+		assertThat(this.service.buildResult(succeededJob(FallbackMode.BASELINE)).tripId()).isNull();
+	}
 }

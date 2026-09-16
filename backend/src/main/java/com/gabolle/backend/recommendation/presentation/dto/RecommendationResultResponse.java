@@ -38,7 +38,23 @@ public record RecommendationResultResponse(
 		 *
 		 * <p>결과가 실패({@code FAILED})여도 채운다 — 실패한 요청도 그 요청이다.
 		 */
-		String requestId) {
+		String requestId,
+		/**
+		 * 🔴 이 추천이 어느 여행의 것인가 — 2026-09-16 추가 (S15P21E201-1084).
+		 *
+		 * <p>앱의 추천 화면 주소는 {@code /trips/{jobId}/recommendations?jobId={jobId}} 다. 경로의
+		 * 칸에 들어 있는 것이 <b>작업 번호이지 여행 번호가 아니다</b>(생성 화면이 그렇게 보낸다).
+		 * 그래서 앱은 담아두기·빼기를 보낼 주소
+		 * ({@code /api/v1/trips/{tripId}/recommendation-actions}, S15P21E201-1013)를 알 수 없었고,
+		 * 그 판단이 기기에만 남아 <b>동행자가 서로의 판단을 못 봤다</b>.
+		 *
+		 * <p>{@code recommendation_job.trip_id} 는 이미 있는 칸이다. 없던 값을 만든 것이 아니라
+		 * <b>있던 값을 공개한 것</b>이다 — {@code requestId} 를 실을 때(-735)와 같은 이유다.
+		 *
+		 * <p>실패({@code FAILED}) 응답에서도 채운다. 실패한 요청도 그 여행의 요청이다.
+		 * 여행에 매이지 않은 작업이면 {@code null} 이다 — 지어내지 않는다.
+		 */
+		String tripId) {
 
 	public record Item(
 			/** {@code place_id}. */
