@@ -4,7 +4,7 @@ import { Text as RNText, type TextProps as RNTextProps } from 'react-native';
 
 import { color, fontFamily, type as typeTokens } from '@/design/tokens';
 
-type Variant = 'hero' | 'display' | 'title' | 'body' | 'caption' | 'eyebrow';
+type Variant = 'hero' | 'display' | 'title' | 'body' | 'util' | 'caption' | 'eyebrow';
 
 type Weight = 'regular' | 'medium' | 'bold';
 
@@ -20,6 +20,7 @@ const DEFAULT_COLOR: Record<Variant, string> = {
   display: color.text.heading,
   title: color.text.heading,
   body: color.text.body,
+  util: color.text.muted,
   caption: color.text.muted,
   eyebrow: color.text.eyebrow,
 };
@@ -29,6 +30,7 @@ const SIZE: Record<Variant, { size: number; lineHeight: number; letterSpacing: n
   display: typeTokens.display,
   title: typeTokens.title,
   body: typeTokens.body,
+  util: typeTokens.util,
   caption: typeTokens.caption,
   eyebrow: typeTokens.caption,
 };
