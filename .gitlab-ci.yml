@@ -35,6 +35,30 @@
 # 권한은 가진 사람이 언제든 우회할 수 있지만 필수 파이프라인은 모두에게 똑같이 걸린다.
 # 그래서 지켜야 할 것은 전부 잡(job)으로 만든다.
 
+# ── 🔴 낡은 파이프라인은 끊는다 (S15P21E201-1069) ───────────────────────────
+#
+# 브랜치에 커밋을 하나 더 올리면, 직전 커밋을 검사하던 파이프라인은 **이미 답이
+# 필요 없는 것**이 된다. 우리가 알고 싶은 것은 언제나 **가장 최신 코드가 성한가**
+# 이지, 3분 전 코드가 성했는가가 아니다.
+#
+# 🔴 이 설정이 back/dev 에만 없어서 2026-09-16 오전에 팀 전체가 멈췄다.
+#    MR !918 의 낡은 파이프라인(#197959, 이미 갈아치워진 커밋)의 backend:build 가
+#    29분째 pending 인 채로 `resource_group: backend-build`(프로젝트 전체에서
+#    동시 하나만 — 그 잡 주석 참고) 를 붙잡고 있었고, 그 뒤로 back/dev 를 향한
+#    MR 전부(!926 !924 !918 !917 !915)와 승격 MR !903 이 waiting_for_resource
+#    로 줄을 섰다. heavy 태그를 가진 러너가 2065 한 대뿐이라 그 잡은 슬롯을
+#    못 받고, 자물쇠는 안 놓는다 — 죽은 파이프라인 하나가 파트 전체를 세운다.
+#
+#    front/dev · common/dev · main 에는 이 블록이 이미 있었다. back/dev 만
+#    빠져 있었다(bigData/dev · ai/dev 도 같은 누락 — 후속으로 같이 넣는다).
+#
+# 🔴 `interruptible: true` 만으로는 안 끊긴다. 아래 workflow 의 auto_cancel 이
+#    "무엇을 계기로 끊을지" 를 정하고, 잡 쪽 interruptible 이 "이 잡은 끊겨도
+#    되는가" 를 정한다. 둘 다 있어야 동작한다.
+workflow:
+  auto_cancel:
+    on_new_commit: interruptible
+
 # ── 파트 CI 잡을 끌어온다 ─────────────────────────────────────────────────────
 #
 # 🔴 2026-09-09 실측 — 여섯 파트가 전부 이 파일 하나(공용 442줄)에 자기 잡을
@@ -94,6 +118,12 @@ include:
 
 default:
   image: node:20-alpine
+  # 🔴 기본은 "끊겨도 된다" 로 둔다. verify 잡들은 전부 읽고 판정만 하므로
+  #    중간에 죽어도 남는 것이 없다.
+  #
+  #    반대로 release 단계(version · promote)는 태그를 push 하고 MR 을 머지한다 —
+  #    쓰다 만 상태가 남을 수 있어서 그 둘만 아래에서 interruptible: false 로 덮는다.
+  interruptible: true
   before_script:
     - apk add --no-cache git bash
     # 🔴 어느 판이 돌았는지 남긴다. 빨개졌을 때 '어제와 판이 다르네' 를 3초에 안다.
@@ -743,6 +773,9 @@ verify:bigdata:
 #    AXMAP_BOT_TOKEN 으로 붙였다. 만료일은 docs/HANDOVER.md 에 있다.
 version:
   stage: release
+  # 🔴 이 잡은 끊지 않는다. 태그를 만들어 push 하는 도중에 죽으면 "태그는 붙었는데
+  #    push 는 안 된" 상태나 그 반대가 남는다. 새 커밋이 왔다고 버릴 수 있는 일이 아니다.
+  interruptible: false
   script:
     - git fetch --tags --quiet
     - |
@@ -844,6 +877,9 @@ jira:
 #    있으므로(G3 — 헤드가 바뀌면 표가 효력을 잃는다) 바뀐 내용은 새로 표를 받아야 한다.
 promote:
   stage: release
+  # 🔴 이 잡도 끊지 않는다. MR 을 만들고 머지까지 하므로, 도중에 죽으면 "MR 은
+  #    열렸는데 머지는 안 된" 상태가 남는다.
+  interruptible: false
   variables:
     GIT_DEPTH: 0
   script:
