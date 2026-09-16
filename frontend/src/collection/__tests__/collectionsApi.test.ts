@@ -1,4 +1,4 @@
-import { loadCollections, mergeCollections, serverToDevice, type DeviceCollections, type ServerCollection } from '../collectionsApi';
+import { COLLECTION_LIMITS, loadCollections, mergeCollections, serverToDevice, uploadBlockReason, type DeviceCollections, type ServerCollection } from '../collectionsApi';
 
 // 부슐랭을 서버로 옮긴다 (S15P21E201-1071).
 //
@@ -140,5 +140,54 @@ describe('불러오기', () => {
     expect(result.state === 'success' && result.uploaded).toBe(0);
     // 못 올렸어도 화면에서는 안 사라진다.
     expect(result.data.lists.map((l) => l.name)).toContain('기기에만 있는 리스트');
+  });
+});
+
+describe('서버가 받아 줄 수 없는 리스트', () => {
+  const tooLongName = '가'.repeat(COLLECTION_LIMITS.name + 1);
+
+  it('이름이 상한을 넘으면 올릴 수 없다고 판정한다', () => {
+    expect(uploadBlockReason(list('x', tooLongName, []))).toBe('name-too-long');
+    expect(uploadBlockReason(list('x', '가'.repeat(COLLECTION_LIMITS.name), []))).toBeNull();
+  });
+
+  it('설명이 상한을 넘어도 판정한다', () => {
+    const withDescription = { ...list('x', '짧은 이름', []), description: '나'.repeat(COLLECTION_LIMITS.description + 1) };
+    expect(uploadBlockReason(withDescription)).toBe('description-too-long');
+  });
+
+  it('보내 보지도 않는다 — 몇 번을 보내도 같은 400 이다', async () => {
+    const posted: string[] = [];
+    mockServer((method, url) => {
+      if (method === 'GET') return ok(serverPage([]));
+      if (method === 'POST' && url.endsWith('/collections')) { posted.push(url); return ok({ collectionId: 'n1', name: '', description: null, count: 0, items: [], updatedAt: '' }); }
+      return ok({});
+    });
+    const stuck: DeviceCollections = { lists: [list('local-long', tooLongName, [])], places: {} };
+    const result = await loadCollections(stuck, 'token');
+    expect(posted).toHaveLength(0);
+    expect(result.state === 'success' && result.blocked).toBe(1);
+    // 올리지 못해도 화면에서는 안 사라진다.
+    expect(result.data.lists.map((l) => l.name)).toContain(tooLongName);
+  });
+
+  it('400 을 받은 것은 못 올린 것으로 세고, 500 은 다음에 다시 올릴 것으로 남긴다', async () => {
+    const reject = (status: number) => mockServer((method, url) => {
+      if (method === 'GET') return ok(serverPage([]));
+      if (method === 'POST' && url.endsWith('/collections')) {
+        return new Response(JSON.stringify({ data: null, error: { code: 'BAD', message: '거절' }, meta: { requestId: 'r' } }), { status, headers: { 'content-type': 'application/json' } });
+      }
+      return ok({});
+    });
+    const one: DeviceCollections = { lists: [list('local-1', '바다 보러', [])], places: {} };
+
+    reject(400);
+    const rejected = await loadCollections(one, 'token');
+    expect(rejected.state === 'success' && rejected.blocked).toBe(1);
+
+    reject(500);
+    const retryable = await loadCollections(one, 'token');
+    expect(retryable.state === 'success' && retryable.blocked).toBe(0);
+    expect(retryable.state === 'success' && retryable.uploaded).toBe(0);
   });
 });
