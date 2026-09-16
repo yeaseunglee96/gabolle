@@ -14,10 +14,23 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "gabolle.weather")
 public class WeatherProperties {
 
-	/** 공공데이터포털이 발급하는 기상청 단기예보 조회서비스 인증키. 비어 있으면 호출이 즉시 명확한 실패로 끝난다. */
+	/** 기상청 API 허브가 발급하는 인증키. 비어 있으면 호출이 즉시 명확한 실패로 끝난다. */
 	private String kmaServiceKey = "";
 
-	private String kmaBaseUrl = "https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0";
+	/**
+	 * 🔴 <b>2026-09-16 에 공공데이터포털에서 기상청 API 허브로 옮겼다 — S15P21E201-1065.</b>
+	 *
+	 * <p>같은 이름의 같은 API 다. 인자({@code numOfRows}·{@code pageNo}·{@code dataType}·
+	 * {@code base_date}·{@code base_time}·{@code nx}·{@code ny})도 응답 모양도 같아서
+	 * 파서·캐시·미리받기는 한 줄도 안 고쳤다. <b>다른 것은 주소와 인증 인자 이름 둘뿐이다</b>
+	 * ({@code serviceKey} → {@code authKey}, {@code KmaWeatherVendorAdapter} 참고).
+	 *
+	 * <p><b>왜 옮겼나.</b> 공공데이터포털은 서비스마다 활용신청을 따로 눌러야 하는데 단기예보
+	 * 조회서비스가 신청돼 있지 않아 모든 호출이 {@code SERVICE_KEY_IS_NOT_REGISTERED_ERROR}
+	 * 로 거절됐다. 그래서 부산 격자 99칸이 <b>매시간 전부 실패</b>했고, 미리 받아 둔 것만 읽는
+	 * 비로그인 사용자에게는 홈 날씨가 통째로 비어 있었다.
+	 */
+	private String kmaBaseUrl = "https://apihub.kma.go.kr/api/typ02/openApi/VilageFcstInfoService_2.0";
 
 	private Duration connectTimeout = Duration.ofSeconds(2);
 

@@ -61,6 +61,11 @@ services:
       # 🔴 기본값을 빈 값으로 두지 않는다. 빈 문자열은 「값이 없다」가 아니라 「빈 주소」로
       #    전달돼서, 설정 파일의 기본 주소를 덮어쓰고 기능이 영영 안 켜진다.
       GABOLLE_MENU_SCAN_BASE_URL: ${GABOLLE_MENU_SCAN_BASE_URL:-https://gms.ssafy.io/gmsapi/api.openai.com/v1}
+      # 🔴 이 줄이 빠져 있었다(S15P21E201-1065). 설정 파일은 GABOLLE_KMA_SERVICE_KEY 를 읽는데
+      #    여기 나열에 없어서, compose 로 띄우면 .env 에 키를 넣어도 컨테이너 안까지 안 갔다.
+      #    운영은 Jenkinsfile 의 docker run 이 따로 넘겨 주고 있어 안 드러났다.
+      #    값은 기상청 API 허브(apihub.kma.go.kr)의 인증키다 — 공공데이터포털 키가 아니다.
+      GABOLLE_KMA_SERVICE_KEY: ${GABOLLE_KMA_SERVICE_KEY:-}
     ports:
       - "${BACKEND_PORT:-8080}:8080"
     restart: unless-stopped
