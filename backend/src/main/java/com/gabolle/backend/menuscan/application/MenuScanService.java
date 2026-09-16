@@ -3,6 +3,7 @@ package com.gabolle.backend.menuscan.application;
 import java.io.IOException;
 import java.util.UUID;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import com.gabolle.backend.menuscan.adapter.GmsMenuReader;
@@ -30,6 +31,7 @@ import com.gabolle.backend.menuscan.presentation.dto.MenuScanResponse;
  * 조용한 실패가 특히 위험한 자리다.
  */
 @Service
+@Profile({ "db", "dev" })
 public class MenuScanService {
 
 	private final GmsMenuReader reader;
