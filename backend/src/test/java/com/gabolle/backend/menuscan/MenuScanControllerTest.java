@@ -11,6 +11,8 @@ import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.time.OffsetDateTime;
+import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 
@@ -26,6 +28,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.gabolle.backend.menuscan.adapter.GmsMenuReader;
 import com.gabolle.backend.menuscan.application.MenuScanRateLimiter;
+import com.gabolle.backend.menuscan.domain.MenuScanUsage;
+import com.gabolle.backend.menuscan.repository.MenuScanUsageRepository;
 import com.gabolle.backend.menuscan.application.MenuScanService;
 import com.gabolle.backend.menuscan.config.MenuScanProperties;
 import com.gabolle.backend.menuscan.presentation.MenuScanController;
@@ -63,7 +67,11 @@ class MenuScanControllerTest {
 		this.properties = new MenuScanProperties();
 		this.properties.setApiKey("test-key");
 
-		MenuScanRateLimiter limiter = new MenuScanRateLimiter(this.properties,
+		// 한도 집계가 표로 옮겨 갔다 (S15P21E201-1038). 여기서는 그 표를 메모리로 흉내 내
+		// 「같은 사람이 창 안에서 몇 번 불렀나」 만 실제로 센다 — 이 시험이 보는 것은 한도가
+		// 걸렸을 때 429 가 나가는가이지 표가 어떻게 생겼는가가 아니다.
+		MenuScanUsageRepository usage = inMemoryUsage();
+		MenuScanRateLimiter limiter = new MenuScanRateLimiter(this.properties, usage,
 				Clock.fixed(Instant.parse("2026-09-16T12:00:00Z"), ZoneOffset.UTC));
 		MenuScanService service = new MenuScanService(this.reader, limiter, this.properties);
 
@@ -72,6 +80,27 @@ class MenuScanControllerTest {
 				.build();
 
 		when(this.reader.isConfigured()).thenReturn(true);
+	}
+
+	/** 표 대신 목록 하나에 적는 가짜. 세는 규칙만 진짜와 같게 둔다. */
+	private static MenuScanUsageRepository inMemoryUsage() {
+		List<MenuScanUsage> rows = new ArrayList<>();
+		MenuScanUsageRepository usage = mock(MenuScanUsageRepository.class);
+
+		when(usage.save(any(MenuScanUsage.class))).thenAnswer((call) -> {
+			MenuScanUsage row = call.getArgument(0);
+			rows.add(row);
+			return row;
+		});
+		when(usage.countByUserIdAndScannedAtAfter(any(), any())).thenAnswer((call) -> {
+			UUID userId = call.getArgument(0);
+			OffsetDateTime since = call.getArgument(1);
+			return rows.stream()
+					.filter((row) -> row.getUserId().equals(userId) && row.getScannedAt().isAfter(since))
+					.count();
+		});
+		when(usage.deleteExpiredFor(any(), any())).thenReturn(0);
+		return usage;
 	}
 
 	private static Authentication principal(UUID userId) {

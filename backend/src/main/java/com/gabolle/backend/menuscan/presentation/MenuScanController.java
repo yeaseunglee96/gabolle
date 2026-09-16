@@ -3,6 +3,7 @@ package com.gabolle.backend.menuscan.presentation;
 import java.io.IOException;
 import java.util.UUID;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -38,8 +39,14 @@ import com.gabolle.backend.menuscan.presentation.dto.MenuScanResponse;
  * 이 API 가 주는 것은 <b>「이런 글자가 보인다」</b> 뿐이다. 「갑각류 없음」·「안전」 같은
  * 판단을 담을 칸이 {@link MenuScanResponse} 에 <b>아예 없다.</b> 사람이 다칠 수 있는 자리라
  * 화면이 그것을 지어낼 여지를 응답 모양에서 없앤다.
+ *
+ * <p>🔴 {@code @Profile({"db","dev"})} — 2026-09-16 (S15P21E201-1038) 에 붙였다. 이 저장소의
+ * 컨트롤러 50개가 전부 갖고 있는데 이것 하나만 없었다. 그 상태에서는 DB 없이 띄우는
+ * 프로필에서 <b>이 경로 하나만 살아 있고</b> 나머지는 없는 앱이 된다. 지금은 한도 집계가
+ * 표에 있어 DB 가 없으면 동작 자체가 성립하지 않으므로 배선도 그렇게 맞춘다.
  */
 @RestController
+@Profile({ "db", "dev" })
 public class MenuScanController {
 
 	private final MenuScanService service;
