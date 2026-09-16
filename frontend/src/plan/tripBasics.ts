@@ -46,7 +46,7 @@ export function validateTripBasics(draft: PlanDraft, today = localToday()): Trip
   const start = minutes(draft.dayStartTime); const end = minutes(draft.dayEndTime);
   if (Number.isNaN(start)) errors.dayStartTime = '시작 시각을 HH:MM 형식으로 입력해 주세요.';
   if (Number.isNaN(end)) errors.dayEndTime = '종료 시각을 HH:MM 형식으로 입력해 주세요.';
-  if (!errors.dayStartTime && !errors.dayEndTime && end <= start) errors.dayEndTime = '종료 시각은 시작 시각보다 느져야 해요.';
+  if (!errors.dayStartTime && !errors.dayEndTime && end <= start) errors.dayEndTime = '종료 시각은 시작 시각보다 늦어야 해요.';
   if (draft.transport !== 'CAR' && draft.transport !== 'TRANSIT' && draft.transport !== 'WALK') errors.transport = '이동수단을 선택해 주세요.';
   return errors;
 }
