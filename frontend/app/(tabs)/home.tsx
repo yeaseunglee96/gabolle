@@ -34,6 +34,7 @@ import { resolveHomeTripDestination } from '@/home/tripNavigation';
 import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
 import { useI18n } from '@/i18n';
+import { localFacetLabel } from '@/discovery/localExplore';
 import { useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
 import { relativeStoryTime } from '@/social/stories';
 
@@ -43,7 +44,7 @@ const speakerIcon = require('../../assets/icons/common/speaker.png');
 
 export default function Home() {
   const router = useRouter();
-  const { tx } = useI18n();
+  const { tx, language } = useI18n();
   const { accessToken } = useAuth();
   const { width } = useLayout();
   const desktop = isAtLeast(width, 'lg');
@@ -178,7 +179,7 @@ export default function Home() {
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.rail}>
               {home.chips.map((chip) => (
                 <Pressable key={chip.featureKey} accessibilityRole="link" onPress={() => router.push({ pathname: '/explore', params: { facet: chip.featureKey } })} style={({ pressed }) => [styles.chip, pressed && styles.pressed]}>
-                  <Text weight="medium" color={color.text.heading}>{chip.labelKo}</Text>
+                  <Text weight="medium" color={color.text.heading}>{localFacetLabel(chip, language)}</Text>
                 </Pressable>
               ))}
             </ScrollView>

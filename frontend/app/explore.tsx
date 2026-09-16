@@ -15,7 +15,7 @@ import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { Eyebrow } from '@/components/Eyebrow';
 import { color, radius, spacing } from '@/design/tokens';
-import { flattenLocalFacets, getFacets, getNearbyPlaces, type FacetsLoadResult, type LocalFacetEntry, type NearbyPlacesLoadResult } from '@/discovery/localExplore';
+import { flattenLocalFacets, getFacets, getNearbyPlaces, localFacetLabel, localPlaceName, type FacetsLoadResult, type LocalFacetEntry, type NearbyPlacesLoadResult } from '@/discovery/localExplore';
 import { getPlacesByFacet, type PlaceSearchItem } from '@/discovery/places';
 import { useI18n } from '@/i18n';
 
@@ -31,7 +31,7 @@ type ExploreScope = 'nearby' | 'all';
 export default function LocalExplore() {
   const router = useRouter();
   const { facet } = useLocalSearchParams<{ facet?: string }>();
-  const { tx } = useI18n();
+  const { tx, language } = useI18n();
   const [result, setResult] = useState<FacetsLoadResult>({ state: 'success', facets: [] });
   const [loading, setLoading] = useState(true);
   const requestedFacet = facet && KNOWN_FACET_KEYS.has(facet) ? facet : null;
@@ -127,7 +127,7 @@ export default function LocalExplore() {
             {visibleFacets.map((entry) => {
               const selected = entry.featureKey === selectedFacet?.featureKey;
               return <Pressable key={entry.featureKey} accessibilityRole="button" accessibilityState={{ selected }} onPress={() => setSelectedKey(entry.featureKey)} style={[styles.categoryChip, selected && styles.categoryChipSelected]}>
-                <Text weight="bold" color={selected ? color.text.onAction : color.text.heading}>{selected ? '✓ ' : ''}{entry.labelKo} · {entry.placeCount}</Text>
+                <Text weight="bold" color={selected ? color.text.onAction : color.text.heading}>{selected ? '✓ ' : ''}{localFacetLabel(entry, language)} · {entry.placeCount}</Text>
               </Pressable>;
             })}
           </ScrollView>
@@ -139,6 +139,7 @@ export default function LocalExplore() {
               </Pressable>;
             })}
           </View>
+          <Text variant="caption">{scope === 'all' ? tx('부산 전체는 거리 제한 없이 찾아요.', 'All Busan searches without a distance limit.') : tx('내 근처는 반경 안에서 찾아요. 결과의 검색 범위를 확인하거나 부산 전체로 바꿔 보세요.', 'Nearby searches within a radius. Check the range shown with results, or switch to All Busan.')}</Text>
           {selectedFacet ? <LocalBranchList facet={selectedFacet} scope={scope} coords={coords} onRetryLocation={() => void detectLocation()} /> : null}
         </View>
       ) : null}
@@ -178,26 +179,27 @@ function LocalBranchList({ facet, scope, coords, onRetryLocation }: {
   // 이 화면이 재는 것은 애초에 부산 전체다. 배지 개수도 부산 전체 집계이고, 홈의 장소
   // 카드도 같은 좌표(부산 중심)로 부른다. 내 위치는 있으면 더 가까운 순으로 보여 주는
   // 것이지 없으면 못 보여 줄 값이 아니다.
-  const center = coords ? { lat: coords.latitude, lng: coords.longitude } : BUSAN_CENTER;
+  const center = scope === 'nearby' && coords ? { lat: coords.latitude, lng: coords.longitude } : BUSAN_CENTER;
   const usingFallback = !coords;
 
   useEffect(() => {
     let active = true;
+    const controller = new AbortController();
     setLoading(true);
     (async () => {
       if (scope === 'all') {
         try {
-          const items = await getPlacesByFacet(facet.placeFeatureType, facet.featureKey);
+          const items = await getPlacesByFacet(facet.placeFeatureType, facet.featureKey, 20, controller.signal);
           if (active) { setAllItems(items); setAllError(null); setLoading(false); }
         } catch (error) {
           if (active) { setAllItems([]); setAllError(error instanceof Error ? error.message : tx('장소를 불러오지 못했어요.', 'Could not load places.')); setLoading(false); }
         }
         return;
       }
-      const next = await getNearbyPlaces({ lat: center.lat, lng: center.lng, facetKey: facet.featureKey });
+      const next = await getNearbyPlaces({ lat: center.lat, lng: center.lng, facetKey: facet.featureKey }, controller.signal);
       if (active) { setResult(next); setLoading(false); }
     })();
-    return () => { active = false; };
+    return () => { active = false; controller.abort(); };
   }, [center.lat, center.lng, facet.featureKey, facet.placeFeatureType, scope, tx]);
 
   if (loading || (scope === 'nearby' && !result) || (scope === 'all' && !allItems)) {
@@ -224,6 +226,7 @@ function LocalBranchList({ facet, scope, coords, onRetryLocation }: {
   }
   return (
     <View style={styles.branchBody}>
+      <Text variant="caption">{tx(`검색 범위: ${(result.effectiveRadiusM / 1000).toLocaleString()}km 이내`, `Search range: within ${(result.effectiveRadiusM / 1000).toLocaleString()} km`)}</Text>
       {/* 내 위치를 못 쓴 채 부산 중심으로 찾았다는 사실을 밝힌다 — S15P21E201-982.
           조용히 대신 보여 주면 거리 숫자가 왜 이런지 설명이 안 된다. 권한을 다시 물을
           길도 여기 같이 둔다. */}
@@ -243,7 +246,7 @@ function LocalBranchList({ facet, scope, coords, onRetryLocation }: {
 
 function PlaceRows({ items, showDistance = false }: { items: Array<PlaceSearchItem | import('@/discovery/localExplore').NearbyPlaceItem>; showDistance?: boolean }) {
   const router = useRouter();
-  const { tx } = useI18n();
+  const { tx, language } = useI18n();
   return <View style={styles.placeList}>{items.map((item) => (
         <Pressable
           key={item.placeId}
@@ -253,7 +256,7 @@ function PlaceRows({ items, showDistance = false }: { items: Array<PlaceSearchIt
           style={({ pressed }) => [styles.placeRow, pressed && styles.pressed]}
         >
           <View style={styles.grow}>
-            <Text weight="bold">{item.nameKo}</Text>
+            <Text weight="bold">{localPlaceName(item, language)}</Text>
             {item.address ? <Text variant="caption" color={color.text.muted}>{item.address}</Text> : null}
           </View>
           {showDistance && 'distanceM' in item ? <Text variant="caption" weight="bold" color={color.text.accent}>{item.distanceM.toLocaleString()}m</Text> : null}
