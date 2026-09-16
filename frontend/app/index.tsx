@@ -68,7 +68,8 @@ export default function Welcome() {
     return <View style={styles.mobileScreen}>
       <Image source={welcomeImage} resizeMode="cover" style={styles.mobileBackgroundImage} />
       <StatusBar style="light" />
-      <SafeAreaView edges={['top', 'bottom']} style={styles.mobileSafeArea}>
+      <SafeAreaView edges={['top', 'bottom', 'left', 'right']} style={styles.mobileSafeArea}>
+        <ScrollView style={styles.mobileSafeArea} contentContainerStyle={styles.mobileContent}>
         <View style={styles.mobileBrand}><Pressable accessibilityRole="button" accessibilityLabel={tx('GABOLLE 시작하기', 'Start GABOLLE')} accessibilityHint={tx('서비스 소개 화면으로 이동합니다', 'Goes to the service introduction screen')} onPress={() => startOnboarding()} style={({ pressed }) => [styles.logoLink, pressed && styles.pressed]}><Image source={lightLogo ? nightLogo : logo} resizeMode="contain" style={styles.mobileLogo} /></Pressable><Text variant="display" weight="bold" color={color.brand.orange}>{tx('부산 가볼래?', 'Shall we go to Busan?')}</Text></View>
         <View style={styles.mobileActions}>
           <View accessibilityRole="radiogroup" accessibilityLabel={tx('시작할 언어 선택', 'Select a language to start')} style={styles.languageList}>{LANGUAGES.map((item) => <LanguageButton key={item.code} item={item} selected={language === item.code} onPress={() => startOnboarding(item.code)} />)}</View>
@@ -76,6 +77,7 @@ export default function Welcome() {
             <Text variant="body" weight="bold" color={color.text.onAction}>{tx('비회원으로 바로 둘러보기', 'Browse as guest')}</Text>
           </Pressable>
         </View>
+        </ScrollView>
       </SafeAreaView>
     </View>;
   }
@@ -156,9 +158,10 @@ const styles = StyleSheet.create({
   webShell: { flex: 1, backgroundColor: color.brand.ivory },
   pressed: { opacity: 0.78 }, logoLink: { borderRadius: radius.sm }, mobileScreen: { flex: 1, width: '100%', height: '100%', overflow: 'hidden', backgroundColor: color.brand.navy }, mobileBackgroundImage: { ...StyleSheet.absoluteFill, width: '100%', height: '100%' },
   mobileSafeArea: { flex: 1 },
-  mobileBrand: { position: 'absolute', top: '13%', left: 0, right: 0, alignItems: 'center', gap: spacing[3] },
+  mobileContent: { flexGrow: 1, justifyContent: 'space-between', gap: spacing[8], paddingHorizontal: spacing[6], paddingTop: spacing[8], paddingBottom: spacing[6] },
+  mobileBrand: { alignItems: 'center', gap: spacing[3], paddingVertical: spacing[8] },
   mobileLogo: { width: 280, height: 70 },
-  mobileActions: { position: 'absolute', left: 24, right: 24, bottom: 32, alignSelf: 'center', gap: spacing[2] },
+  mobileActions: { width: '100%', maxWidth: 480, alignSelf: 'center', gap: spacing[2] },
   languageList: { gap: spacing[3] },
   languageButton: { height: 58, borderRadius: 18, borderWidth: 1, borderColor: 'rgba(255,255,255,0.48)', backgroundColor: 'rgba(11,29,58,0.30)', paddingHorizontal: 20, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   languageButtonSelected: { borderWidth: 2, borderColor: color.brand.orange, backgroundColor: 'rgba(255,253,248,0.96)', shadowColor: color.brand.navy, shadowOpacity: 0.16, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 4 },
