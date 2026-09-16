@@ -3,6 +3,7 @@ package com.gabolle.backend.recommendation.presentation.dto;
 import java.util.List;
 import java.util.UUID;
 
+import com.gabolle.backend.recommendation.application.RecommendationActionService;
 import com.gabolle.backend.recommendation.domain.RecommendationPlaceAction;
 
 /**
@@ -25,13 +26,20 @@ public record RecommendationActionResponse(UUID placeId, RecommendationPlaceActi
 	}
 
 	/** 한 여행의 판단 전부 — 동행자가 남긴 것도 함께 온다. */
-	public record Page(List<RecommendationActionResponse> items, int count) {
+	/**
+	 * 이 여행의 판단 전부.
+	 *
+	 * <p>모양은 다른 목록 응답과 같게 뒀다({@code items}·{@code count}·{@code hasMore}).
+	 *
+	 * @param hasMore 상한에 걸려 <b>더 있는데 안 보냈다</b> (S15P21E201-1037)
+	 */
+	public record Page(List<RecommendationActionResponse> items, int count, boolean hasMore) {
 
-		public static Page of(List<RecommendationPlaceAction> actions) {
-			List<RecommendationActionResponse> items = actions.stream()
+		public static Page of(RecommendationActionService.Page page) {
+			List<RecommendationActionResponse> items = page.items().stream()
 					.map(RecommendationActionResponse::of)
 					.toList();
-			return new Page(items, items.size());
+			return new Page(items, items.size(), page.hasMore());
 		}
 	}
 }

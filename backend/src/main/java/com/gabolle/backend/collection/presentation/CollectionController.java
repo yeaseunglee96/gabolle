@@ -3,6 +3,10 @@ package com.gabolle.backend.collection.presentation;
 import java.util.UUID;
 
 import org.springframework.context.annotation.Profile;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -17,6 +21,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.gabolle.backend.collection.application.CollectionService;
+import com.gabolle.backend.collection.domain.Collection;
+import com.gabolle.backend.collection.domain.CollectionItem;
 import com.gabolle.backend.collection.presentation.dto.CollectionResponse;
 import com.gabolle.backend.common.api.ApiResponse;
 import com.gabolle.backend.common.security.AuthenticatedUsers;
@@ -66,7 +72,7 @@ public class CollectionController {
 	}
 
 	@PostMapping
-	public ResponseEntity<ApiResponse<CollectionResponse>> create(@RequestBody NameRequest request,
+	public ResponseEntity<ApiResponse<CollectionResponse>> create(@Valid @RequestBody NameRequest request,
 			Authentication authentication) {
 		UUID userId = AuthenticatedUsers.requireId(authentication);
 		UUID id = this.service.create(userId, name(request), description(request)).getId();
@@ -76,7 +82,7 @@ public class CollectionController {
 
 	@PatchMapping("/{collectionId}")
 	public ApiResponse<CollectionResponse> rename(@PathVariable UUID collectionId,
-			@RequestBody NameRequest request, Authentication authentication) {
+			@Valid @RequestBody NameRequest request, Authentication authentication) {
 		UUID userId = AuthenticatedUsers.requireId(authentication);
 		this.service.rename(userId, collectionId, name(request), description(request));
 		return ok(CollectionResponse.of(this.service.get(userId, collectionId)));
@@ -104,7 +110,7 @@ public class CollectionController {
 	 */
 	@PostMapping("/{collectionId}/items")
 	public ResponseEntity<ApiResponse<CollectionResponse>> addItem(@PathVariable UUID collectionId,
-			@RequestBody ItemRequest request, Authentication authentication) {
+			@Valid @RequestBody ItemRequest request, Authentication authentication) {
 
 		UUID userId = AuthenticatedUsers.requireId(authentication);
 		if (request == null || request.kind() == null) {
@@ -128,7 +134,7 @@ public class CollectionController {
 
 	@PatchMapping("/{collectionId}/items/{itemId}")
 	public ApiResponse<CollectionResponse> editItem(@PathVariable UUID collectionId, @PathVariable UUID itemId,
-			@RequestBody ItemRequest request, Authentication authentication) {
+			@Valid @RequestBody ItemRequest request, Authentication authentication) {
 
 		UUID userId = AuthenticatedUsers.requireId(authentication);
 		this.service.editItem(userId, collectionId, itemId, request.name(), request.locality(), request.lat(),
@@ -156,13 +162,27 @@ public class CollectionController {
 		return (request == null) ? null : request.description();
 	}
 
-	/** 컬렉션의 이름과 설명. */
-	public record NameRequest(String name, String description) {
+	/**
+	 * 컬렉션의 이름과 설명.
+	 *
+	 * <p>상한은 {@link Collection} 의 상수에서 읽는다 (S15P21E201-1037) — 여기에 숫자를
+	 * 다시 적으면 열을 넓히는 날 한쪽만 고쳐진다. 도메인도 같은 상수로 한 번 더 보므로,
+	 * 이 어노테이션이 없어도 값은 안전하다. 여기 있는 이유는 <b>어느 칸이 틀렸는지</b>를
+	 * 응답에 담아 주기 위해서다.
+	 */
+	public record NameRequest(
+			@NotBlank(message = "이름은 비울 수 없어요")
+			@Size(max = Collection.NAME_MAX_LENGTH, message = "이름이 너무 길어요") String name,
+			@Size(max = Collection.DESCRIPTION_MAX_LENGTH, message = "설명이 너무 길어요") String description) {
 	}
 
 	/** 담을 것. {@code kind} 에 따라 채우는 칸이 다르다 — 위 {@link #addItem} 참고. */
-	public record ItemRequest(com.gabolle.backend.collection.domain.CollectionItem.Kind kind, UUID placeId,
-			String name, String locality, Double lat, Double lng, String photoUrl, String note,
+	public record ItemRequest(CollectionItem.Kind kind, UUID placeId,
+			@Size(max = CollectionItem.NAME_MAX_LENGTH, message = "이름이 너무 길어요") String name,
+			@Size(max = CollectionItem.LOCALITY_MAX_LENGTH, message = "지역이 너무 길어요") String locality,
+			Double lat, Double lng,
+			@Size(max = CollectionItem.PHOTO_URL_MAX_LENGTH, message = "사진 주소가 너무 길어요") String photoUrl,
+			@Size(max = CollectionItem.NOTE_MAX_LENGTH, message = "메모가 너무 길어요") String note,
 			Integer position) {
 	}
 }

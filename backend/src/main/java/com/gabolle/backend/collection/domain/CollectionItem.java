@@ -37,6 +37,20 @@ import jakarta.persistence.Table;
 @Table(name = "collection_item")
 public class CollectionItem {
 
+	/**
+	 * 아래 넷은 각각 이 클래스의 {@code @Column(length)} 및 마이그레이션의 {@code varchar} 폭과
+	 * 같은 값이다. 한쪽만 고치면 그 순간부터 DB 가 거부할 값을 우리가 통과시키거나(→500),
+	 * DB 가 받아 줄 값을 우리가 거절한다. {@code CollectionController} 의 {@code @Size} 도
+	 * 이 상수들을 읽는다.
+	 */
+	public static final int NAME_MAX_LENGTH = 200;
+
+	public static final int LOCALITY_MAX_LENGTH = 100;
+
+	public static final int PHOTO_URL_MAX_LENGTH = 500;
+
+	public static final int NOTE_MAX_LENGTH = 500;
+
 	@Id
 	@Column(name = "collection_item_id", nullable = false, updatable = false)
 	private UUID id;
@@ -100,7 +114,7 @@ public class CollectionItem {
 		item.collectionId = collectionId;
 		item.kind = Kind.PLACE;
 		item.placeId = placeId;
-		item.note = blankToNull(note);
+		item.note = noteOrNull(note);
 		item.position = position;
 		item.createdAt = now;
 		item.updatedAt = now;
@@ -115,11 +129,11 @@ public class CollectionItem {
 		item.collectionId = collectionId;
 		item.kind = Kind.CUSTOM;
 		item.name = requireName(name);
-		item.locality = blankToNull(locality);
+		item.locality = localityOrNull(locality);
 		item.lat = lat;
 		item.lng = lng;
-		item.photoUrl = blankToNull(photoUrl);
-		item.note = blankToNull(note);
+		item.photoUrl = photoUrlOrNull(photoUrl);
+		item.note = noteOrNull(note);
 		item.position = position;
 		item.createdAt = now;
 		item.updatedAt = now;
@@ -134,7 +148,7 @@ public class CollectionItem {
 	 * 시각이 실제와 맞는다.
 	 */
 	public void edit(String note, Integer position, OffsetDateTime now) {
-		this.note = blankToNull(note);
+		this.note = noteOrNull(note);
 		if (position != null) {
 			this.position = position;
 		}
@@ -149,22 +163,48 @@ public class CollectionItem {
 					"장소 항목의 이름·좌표·사진은 여기서 못 고친다 — 그 값들은 장소 표의 것이다");
 		}
 		this.name = requireName(name);
-		this.locality = blankToNull(locality);
+		this.locality = localityOrNull(locality);
 		this.lat = lat;
 		this.lng = lng;
-		this.photoUrl = blankToNull(photoUrl);
+		this.photoUrl = photoUrlOrNull(photoUrl);
 		edit(note, position, now);
 	}
 
+	/**
+	 * 2026-09-16 (S15P21E201-1037) — 아래 넷은 비었는지만 보고 길이를 안 봤다. 열 폭을
+	 * 넘는 값은 자바 검사를 전부 통과한 뒤 PostgreSQL 에서 거부돼 500 으로 나갔다.
+	 * 각 상수는 이 클래스 위쪽 {@code @Column(length)} 및 마이그레이션과 같은 값이다.
+	 */
 	private static String requireName(String name) {
-		if (name == null || name.isBlank()) {
+		String trimmed = (name == null) ? "" : name.trim();
+		if (trimmed.isEmpty()) {
 			throw new IllegalArgumentException("직접 적은 항목에는 이름이 있어야 한다");
 		}
-		return name.trim();
+		return TextFields.requiredLine(trimmed, "항목 이름", NAME_MAX_LENGTH);
 	}
 
-	private static String blankToNull(String value) {
-		return (value == null || value.isBlank()) ? null : value.trim();
+	private static String localityOrNull(String value) {
+		return TextFields.optionalLine(value, "지역", LOCALITY_MAX_LENGTH);
+	}
+
+	private static String photoUrlOrNull(String value) {
+		return TextFields.optionalLine(value, "사진 주소", PHOTO_URL_MAX_LENGTH);
+	}
+
+	private static String noteOrNull(String value) {
+		return TextFields.optionalText(value, "메모", NOTE_MAX_LENGTH);
+	}
+
+	/**
+	 * 메모를 이 엔티티와 <b>똑같이</b> 다듬어 돌려준다 — S15P21E201-1037.
+	 *
+	 * <p>장소 항목은 이제 업서트 한 문장으로 들어간다(경쟁을 없애려고). 그 길은 엔티티를
+	 * 거치지 않으므로 다듬기도 건너뛴다 — 그러면 같은 메모가 들어온 경로에 따라 다르게
+	 * 저장되고, 500자를 넘는 메모는 다시 DB 에서 거부돼 500 이 된다. 규칙을 두 벌로 적지 않고
+	 * 이 자리를 열어 준다.
+	 */
+	public static String normalizedNote(String value) {
+		return noteOrNull(value);
 	}
 
 	public UUID getId() {

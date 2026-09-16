@@ -23,6 +23,7 @@ import com.gabolle.backend.place.repository.SavedPlaceRepository;
 import com.gabolle.backend.place.service.SavedPlaceService;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -68,7 +69,7 @@ class SavedPlaceControllerTest {
 	@Test
 	@DisplayName("저장한 것이 없으면 빈 목록이다 — 404 가 아니다")
 	void emptyListIsOkNotNotFound() throws Exception {
-		when(this.savedPlaces.findByUserIdOrderByCreatedAtDesc(this.userId)).thenReturn(List.of());
+		when(this.savedPlaces.findByUserIdOrderByCreatedAtDesc(eq(this.userId), any())).thenReturn(List.of());
 
 		this.mockMvc.perform(get("/api/v1/me/saved-places").principal(principal(this.userId)))
 				.andExpect(status().isOk())
@@ -82,7 +83,7 @@ class SavedPlaceControllerTest {
 	void listReturnsSavedPlaces() throws Exception {
 		SavedPlace saved = SavedPlace.of(UUID.randomUUID(), this.userId, this.placeId,
 				OffsetDateTime.parse("2026-09-16T12:00:00Z"));
-		when(this.savedPlaces.findByUserIdOrderByCreatedAtDesc(this.userId)).thenReturn(List.of(saved));
+		when(this.savedPlaces.findByUserIdOrderByCreatedAtDesc(eq(this.userId), any())).thenReturn(List.of(saved));
 
 		this.mockMvc.perform(get("/api/v1/me/saved-places").principal(principal(this.userId)))
 				.andExpect(status().isOk())
@@ -94,13 +95,14 @@ class SavedPlaceControllerTest {
 	@DisplayName("하트를 켜면 204 이고 행이 하나 생긴다")
 	void saveCreatesRow() throws Exception {
 		when(this.places.existsById(this.placeId)).thenReturn(true);
-		when(this.savedPlaces.existsByUserIdAndPlaceId(this.userId, this.placeId)).thenReturn(false);
 
 		this.mockMvc.perform(put("/api/v1/me/saved-places/{placeId}", this.placeId)
 						.principal(principal(this.userId)))
 				.andExpect(status().isNoContent());
 
-		verify(this.savedPlaces).save(any());
+		// 「있는지 보고 없으면 넣는」 대신 한 문장으로 넣는다 — 연타의 사이를 없애려고.
+		verify(this.savedPlaces).insertIfAbsent(any(), eq(this.userId), eq(this.placeId), any());
+		verify(this.savedPlaces, never()).save(any());
 	}
 
 	/**
@@ -152,12 +154,12 @@ class SavedPlaceControllerTest {
 	@DisplayName("🔴 목록은 언제나 요청자 자신의 것만 읽는다 — 경로에 남의 번호를 넣을 자리가 없다")
 	void listAlwaysReadsTheRequestersOwnList() throws Exception {
 		UUID other = UUID.randomUUID();
-		when(this.savedPlaces.findByUserIdOrderByCreatedAtDesc(other)).thenReturn(List.of());
+		when(this.savedPlaces.findByUserIdOrderByCreatedAtDesc(eq(other), any())).thenReturn(List.of());
 
 		this.mockMvc.perform(get("/api/v1/me/saved-places").principal(principal(other)))
 				.andExpect(status().isOk());
 
-		verify(this.savedPlaces).findByUserIdOrderByCreatedAtDesc(other);
-		verify(this.savedPlaces, never()).findByUserIdOrderByCreatedAtDesc(this.userId);
+		verify(this.savedPlaces).findByUserIdOrderByCreatedAtDesc(eq(other), any());
+		verify(this.savedPlaces, never()).findByUserIdOrderByCreatedAtDesc(eq(this.userId), any());
 	}
 }

@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.context.annotation.Profile;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +32,18 @@ import com.gabolle.backend.place.service.PlaceNotFoundException;
 @Service
 @Profile({ "db", "dev" })
 public class CollectionService {
+
+	/**
+	 * 한 번에 돌려주는 컬렉션 최대 개수 — S15P21E201-1037.
+	 *
+	 * <p>상한을 두면 <b>알리는 칸을 함께</b> 둬야 한다({@code hasMore}). 상한만 두고 안
+	 * 알리면 목록이 조용히 잘리고, 사용자에게는 「내가 만든 목록이 없어졌다」로 보인다.
+	 * 같은 판단을 축제 목록과 일정 판 목록이 먼저 했다(S15P21E201-1011).
+	 */
+	public static final int MAX_COLLECTIONS = 100;
+
+	/** 한 컬렉션이 한 번에 돌려주는 항목 최대 개수. 담기는 개수에 끝이 없었다. */
+	public static final int MAX_ITEMS_PER_COLLECTION = 500;
 
 	private final CollectionRepository collections;
 
@@ -57,28 +70,37 @@ public class CollectionService {
 	 * 그 수가 화면에서 보이는 목록 길이에 그대로 비례한다.
 	 */
 	@Transactional(readOnly = true)
-	public List<Loaded> list(UUID userId) {
-		List<Collection> mine = this.collections.findByUserIdOrderByUpdatedAtDesc(userId);
+	public Listing list(UUID userId) {
+		List<Collection> mine = this.collections
+				.findByUserIdOrderByUpdatedAtDesc(userId, PageRequest.of(0, MAX_COLLECTIONS + 1));
+
+		boolean hasMore = mine.size() > MAX_COLLECTIONS;
+		if (hasMore) {
+			mine = mine.subList(0, MAX_COLLECTIONS);
+		}
 		if (mine.isEmpty()) {
-			return List.of();
+			return new Listing(List.of(), false);
 		}
 
 		Map<UUID, List<CollectionItem>> byCollection = new LinkedHashMap<>();
+		List<UUID> ids = mine.stream().map(Collection::getId).toList();
+		int ceiling = ids.size() * MAX_ITEMS_PER_COLLECTION;
 		for (CollectionItem item : this.items
-				.findByCollectionIdInOrderByPositionAscCreatedAtAsc(mine.stream().map(Collection::getId).toList())) {
+				.findByCollectionIdInOrderByPositionAscCreatedAtAsc(ids, PageRequest.of(0, ceiling))) {
 			byCollection.computeIfAbsent(item.getCollectionId(), (key) -> new java.util.ArrayList<>()).add(item);
 		}
 
-		return mine.stream()
-				.map((collection) -> new Loaded(collection,
-						byCollection.getOrDefault(collection.getId(), List.of())))
+		List<Loaded> loaded = mine.stream()
+				.map((collection) -> load(collection, byCollection.getOrDefault(collection.getId(), List.of())))
 				.toList();
+		return new Listing(loaded, hasMore);
 	}
 
 	@Transactional(readOnly = true)
 	public Loaded get(UUID userId, UUID collectionId) {
 		Collection collection = mine(userId, collectionId);
-		return new Loaded(collection, this.items.findByCollectionIdOrderByPositionAscCreatedAtAsc(collectionId));
+		return load(collection, this.items.findByCollectionIdOrderByPositionAscCreatedAtAsc(collectionId,
+				PageRequest.of(0, MAX_ITEMS_PER_COLLECTION + 1)));
 	}
 
 	@Transactional
@@ -120,17 +142,14 @@ public class CollectionService {
 		}
 
 		OffsetDateTime now = now();
-		for (CollectionItem existing : this.items
-				.findByCollectionIdOrderByPositionAscCreatedAtAsc(collectionId)) {
-			if (placeId.equals(existing.getPlaceId())) {
-				return existing;
-			}
-		}
-
-		CollectionItem item = this.items.save(CollectionItem.ofPlace(UUID.randomUUID(), collectionId, placeId,
-				note, nextPosition(collectionId), now));
+		this.items.insertPlaceItemIfAbsent(UUID.randomUUID(), collectionId, placeId,
+				CollectionItem.normalizedNote(note), nextPosition(collectionId), now);
 		collection.touch(now);
-		return item;
+
+		// 넣었든 이미 있었든, 돌려주는 것은 «지금 담겨 있는 그 항목» 하나다.
+		return this.items.findByCollectionIdAndPlaceId(collectionId, placeId)
+				.orElseThrow(() -> new WriteReadBackFailedException(
+						"방금 담은 장소를 도로 읽지 못했다: collectionId=" + collectionId + " placeId=" + placeId));
 	}
 
 	/** 사용자가 직접 적은 것을 담는다. 사진은 화면이 먼저 올리고 <b>그 주소</b>를 준다. */
@@ -191,8 +210,42 @@ public class CollectionService {
 		return OffsetDateTime.now(this.clock);
 	}
 
-	/** 컬렉션과 그 안의 항목을 함께 들고 다니는 묶음. */
-	public record Loaded(Collection collection, List<CollectionItem> items) {
+	/** 항목이 상한을 넘었으면 잘라서 {@link Loaded} 로 묶는다. 자른 사실은 그 안에 남는다. */
+	private static Loaded load(Collection collection, List<CollectionItem> found) {
+		boolean hasMore = found.size() > MAX_ITEMS_PER_COLLECTION;
+		return new Loaded(collection, hasMore ? found.subList(0, MAX_ITEMS_PER_COLLECTION) : found, hasMore);
+	}
+
+	/**
+	 * 컬렉션과 그 안의 항목을 함께 들고 다니는 묶음.
+	 *
+	 * @param hasMore 항목이 상한에 걸려 <b>더 있는데 안 보냈다</b> (S15P21E201-1037)
+	 */
+	public record Loaded(Collection collection, List<CollectionItem> items, boolean hasMore) {
+	}
+
+	/**
+	 * 내 컬렉션 목록.
+	 *
+	 * @param hasMore 컬렉션 자체가 상한에 걸려 더 있는데 안 보냈다
+	 */
+	public record Listing(List<Loaded> items, boolean hasMore) {
+	}
+
+	/**
+	 * 넣은 직후 그 행을 도로 못 읽었다 — 일어나면 안 되는 일이다.
+	 *
+	 * <p>{@code IllegalArgumentException}·{@code IllegalStateException} 이 아닌 <b>따로 만든
+	 * 예외</b>인 이유는 하나다. 그 둘은 {@code CollectionExceptionHandler} 가 400 으로 내리는데,
+	 * 이것은 부르는 쪽이 잘못한 것이 아니라 <b>우리 쪽 불변식이 깨진 것</b>이다. 400 으로
+	 * 내리면 사용자는 자기 입력을 고치려 들고, 우리는 서버 오류 그래프에서 이 사고를 못 본다.
+	 * 아무 어드바이스도 안 잡으므로 500 으로 나간다.
+	 */
+	public static class WriteReadBackFailedException extends RuntimeException {
+
+		public WriteReadBackFailedException(String message) {
+			super(message);
+		}
 	}
 
 	/** 없는 컬렉션이거나, 있어도 내 것이 아니다. <b>둘을 구분해 답하지 않는다.</b> */
