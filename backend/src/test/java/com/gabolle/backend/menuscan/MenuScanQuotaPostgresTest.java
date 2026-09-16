@@ -136,8 +136,12 @@ class MenuScanQuotaPostgresTest {
 		MenuScanUsageSweeper sweeper = new MenuScanUsageSweeper(this.usage,
 				Clock.fixed(NOW.plusSeconds(25 * 60 * 60), ZoneOffset.UTC));
 
-		assertThat(sweeper.sweep()).isEqualTo(1);
-		assertThat(rowCount()).isZero();
+		int removed = sweeper.sweep();
+
+		// 청소기는 사용자를 가리지 않는다. 앞선 시험이 남긴 행까지 함께 지우므로 «몇 행을
+		// 지웠나» 로는 판정할 수 없다 — 이 시험의 사용자 것이 사라졌는지로 본다.
+		assertThat(rowCount()).as("이 사용자의 지난 기록이 남아 있으면 안 된다").isZero();
+		assertThat(removed).as("적어도 이 사용자의 한 행은 지웠어야 한다").isGreaterThanOrEqualTo(1);
 	}
 
 	@Test
@@ -147,9 +151,10 @@ class MenuScanQuotaPostgresTest {
 
 		MenuScanUsageSweeper sweeper = new MenuScanUsageSweeper(this.usage,
 				Clock.fixed(NOW.plusSeconds(60), ZoneOffset.UTC));
+		sweeper.sweep();
 
-		assertThat(sweeper.sweep()).isZero();
-		assertThat(rowCount()).isEqualTo(1);
+		// 위와 같은 이유로 지운 행 수가 아니라 이 사용자의 행이 남았는지로 본다.
+		assertThat(rowCount()).as("창 안의 기록을 지우면 한도가 풀린다").isEqualTo(1);
 	}
 
 	private int rowCount() {
