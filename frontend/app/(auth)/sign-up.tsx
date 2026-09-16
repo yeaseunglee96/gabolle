@@ -121,23 +121,35 @@ export default function SignUp() {
           <Text variant="body" style={styles.subtitle}>{tx('여행을 저장하고 어디서든 이어보세요.', 'Save your trip and continue it anywhere.')}</Text>
           <View style={styles.form}>
         <Field label={tx('이메일', 'Email')}>
-          <TextInput accessibilityLabel={tx('이메일', 'Email')} autoCapitalize="none" autoComplete="email" keyboardType="email-address" onBlur={() => setEmailTouched(true)} onChangeText={(value) => { setEmail(value); setDuplicateEmail(false); }} placeholder="name@example.com" placeholderTextColor={color.text.muted} style={[styles.input, ((emailTouched && !emailValid) || duplicateEmail) && styles.inputError]} value={email} />
+          <View style={[styles.inputRow, ((emailTouched && !emailValid) || duplicateEmail) && styles.inputError]}>
+            <TextInput accessibilityLabel={tx('이메일', 'Email')} autoCapitalize="none" autoComplete="email" keyboardType="email-address" onBlur={() => setEmailTouched(true)} onChangeText={(value) => { setEmail(value); setDuplicateEmail(false); }} placeholder="name@example.com" placeholderTextColor={color.text.muted} style={styles.inputWithClear} value={email} />
+            {email.length > 0 && <Pressable accessibilityRole="button" accessibilityLabel={tx('이메일 지우기', 'Clear email')} onPress={() => setEmail('')} style={styles.clear}><Text variant="body" color={color.text.muted}>✕</Text></Pressable>}
+          </View>
           {emailTouched && !emailValid && <ErrorText>{tx('올바른 이메일 주소를 입력해 주세요.', 'Please enter a valid email address.')}</ErrorText>}
           {duplicateEmail && <View style={styles.inlineRow}><ErrorText>{tx('이미 가입된 이메일이에요.', 'This email is already registered.')}</ErrorText><Pressable accessibilityRole="link" onPress={() => router.push({ pathname: '/sign-in', params: returnTo ? { returnTo } : {} })}><Text variant="caption" weight="bold" color={color.brand.orange}>{tx('로그인하기', 'Sign in')}</Text></Pressable></View>}
         </Field>
 
         <Field label={tx('비밀번호', 'Password')}>
-          <TextInput accessibilityLabel={tx('비밀번호', 'Password')} autoCapitalize="none" autoComplete="new-password" onChangeText={setPassword} placeholder={tx('영문·숫자·특수문자 포함 8~64자', '8-64 characters with letters, numbers, and symbols')} placeholderTextColor={color.text.muted} secureTextEntry style={styles.input} value={password} />
+          <View style={styles.inputRow}>
+            <TextInput accessibilityLabel={tx('비밀번호', 'Password')} autoCapitalize="none" autoComplete="new-password" onChangeText={setPassword} placeholder={tx('영문·숫자·특수문자 포함 8~64자', '8-64 characters with letters, numbers, and symbols')} placeholderTextColor={color.text.muted} secureTextEntry style={styles.inputWithClear} value={password} />
+            {password.length > 0 && <Pressable accessibilityRole="button" accessibilityLabel={tx('비밀번호 지우기', 'Clear password')} onPress={() => setPassword('')} style={styles.clear}><Text variant="body" color={color.text.muted}>✕</Text></Pressable>}
+          </View>
           <View style={styles.ruleRow}><Rule ok={passwordChecks.length} label={tx('8~64자', '8-64 characters')} /><Rule ok={passwordChecks.letter} label={tx('영문', 'Letters')} /><Rule ok={passwordChecks.number} label={tx('숫자', 'Numbers')} /><Rule ok={passwordChecks.special} label={tx('특수문자 (!@#$% 등)', 'Symbols (!@#$% etc.)')} /></View>
         </Field>
 
         <Field label={tx('비밀번호 확인', 'Confirm password')}>
-          <TextInput accessibilityLabel={tx('비밀번호 확인', 'Confirm password')} autoCapitalize="none" autoComplete="new-password" onChangeText={setPasswordConfirm} placeholder={tx('한 번 더 입력하세요', 'Enter it once more')} placeholderTextColor={color.text.muted} secureTextEntry style={[styles.input, passwordConfirm.length > 0 && !passwordMatches && styles.inputError]} value={passwordConfirm} />
+          <View style={[styles.inputRow, passwordConfirm.length > 0 && !passwordMatches && styles.inputError]}>
+            <TextInput accessibilityLabel={tx('비밀번호 확인', 'Confirm password')} autoCapitalize="none" autoComplete="new-password" onChangeText={setPasswordConfirm} placeholder={tx('한 번 더 입력하세요', 'Enter it once more')} placeholderTextColor={color.text.muted} secureTextEntry style={styles.inputWithClear} value={passwordConfirm} />
+            {passwordConfirm.length > 0 && <Pressable accessibilityRole="button" accessibilityLabel={tx('비밀번호 확인 지우기', 'Clear password confirmation')} onPress={() => setPasswordConfirm('')} style={styles.clear}><Text variant="body" color={color.text.muted}>✕</Text></Pressable>}
+          </View>
           {passwordConfirm.length > 0 && <Text variant="caption" color={passwordMatches ? color.state.success : color.state.danger}>{passwordMatches ? tx('비밀번호가 일치해요.', 'Passwords match.') : tx('비밀번호가 일치하지 않아요.', 'Passwords do not match.')}</Text>}
         </Field>
 
         <Field label={tx('이름', 'Name')}>
-          <TextInput accessibilityLabel={tx('이름', 'Name')} autoComplete="name" maxLength={30} onChangeText={setDisplayName} placeholder={tx('1~30자', '1-30 characters')} placeholderTextColor={color.text.muted} style={[styles.input, displayName.length > 0 && !nameValid && styles.inputError]} value={displayName} />
+          <View style={[styles.inputRow, displayName.length > 0 && !nameValid && styles.inputError]}>
+            <TextInput accessibilityLabel={tx('이름', 'Name')} autoComplete="name" maxLength={30} onChangeText={setDisplayName} placeholder={tx('1~30자', '1-30 characters')} placeholderTextColor={color.text.muted} style={styles.inputWithClear} value={displayName} />
+            {displayName.length > 0 && <Pressable accessibilityRole="button" accessibilityLabel={tx('이름 지우기', 'Clear name')} onPress={() => setDisplayName('')} style={styles.clear}><Text variant="body" color={color.text.muted}>✕</Text></Pressable>}
+          </View>
           <Text variant="caption" color={nameValid ? color.state.success : color.text.muted}>{tx(`${displayName.trim().length}/30자`, `${displayName.trim().length}/30`)}</Text>
         </Field>
 
@@ -189,6 +201,9 @@ const styles = StyleSheet.create({
   form: { marginTop: spacing[6], gap: spacing[4] },
   field: { gap: spacing[2] },
   input: { minHeight: 52, borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.card, color: color.text.heading, fontSize: 15, paddingHorizontal: spacing[4] },
+  inputRow: { minHeight: 52, flexDirection: 'row', alignItems: 'center', borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.card },
+  inputWithClear: { flex: 1, minWidth: 0, color: color.text.heading, fontSize: 15, paddingHorizontal: spacing[4], paddingVertical: spacing[3] },
+  clear: { minWidth: 36, minHeight: 44, alignItems: 'center', justifyContent: 'center' },
   inputError: { borderColor: color.state.danger },
   inlineRow: { flexDirection: 'row', justifyContent: 'space-between', gap: spacing[2] },
   ruleRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[3] },
