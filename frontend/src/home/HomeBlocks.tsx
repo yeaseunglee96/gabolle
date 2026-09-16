@@ -177,7 +177,7 @@ export function PlacePicks({ places }: { places: HomePlaceItem[] }) {
       <View style={styles.placeGrid}>
         {places.map((place) => (
           <Pressable key={place.placeId} accessibilityRole="button" onPress={() => router.push(`/place/${place.placeId}`)} style={({ pressed }) => [styles.placeCard, pressed && styles.pressed]}>
-            <PlaceVisual name={place.nameKo} address={place.address} />
+            <PlaceVisual name={place.nameKo} address={place.address} photoUrl={place.photoUrl} photoSource={place.photoSource} />
             <Text weight="bold" numberOfLines={1}>{place.nameKo}</Text>
             {/* 🔴 `category` 를 그대로 그리면 화면에 「FOOD」 같은 **코드**가 뜬다. 그 코드를 한글로
                 바꿀 표가 없다 — assistant/intent.ts 에 여섯 개짜리가 있지만 챗봇 입력을 코드로
