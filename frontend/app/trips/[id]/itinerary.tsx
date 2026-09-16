@@ -537,14 +537,6 @@ export default function ItineraryScreen() {
   // 방문지 수 — 모든 날의 정차를 합친다.
   const stopCount = itinerary ? itinerary.days.reduce((sum, day) => sum + day.items.length, 0) : 0;
 
-  // 어디서 나온 일정인가. 🔴 MODEL 이 아니면 그대로 말한다 — 규칙으로 만든 것을
-  // 「모델 추천」이라고 부르면 사용자는 우리가 안 한 일을 했다고 믿는다.
-  // 🔴 서버가 이 칸을 안 주면 아무 말도 안 한다. 「기본 추천」으로 넘겨짚지 않는다.
-  const planLabel = itinerary?.fallbackMode === 'MODEL' ? tx('모델 추천', 'Model pick')
-    : itinerary?.fallbackMode === 'RULE' ? tx('규칙 추천', 'Rule pick')
-    : itinerary?.fallbackMode === 'BASELINE' ? tx('기본 추천', 'Baseline pick')
-    : null;
-
   // 헤더 요약 — 🔴 값이 있는 것만 잇는다. 「미확인」이라고 적힌 칸은 정보가 아니라 잡음이다.
   const heroSummary = itinerary ? [
     itinerary.days.length > 0 ? tx(`${itinerary.days.length}일`, `${itinerary.days.length} days`) : null,
@@ -567,7 +559,12 @@ export default function ItineraryScreen() {
     <View style={styles.hero}>
       <View style={styles.heroTop}>
         <Pressable accessibilityRole="button" accessibilityLabel={tx('뒤로 가기', 'Go back')} onPress={() => router.canGoBack() ? router.back() : router.replace('/home')} style={styles.heroBack}><Text variant="title" color={color.text.onAction}>‹</Text></Pressable>
-        {itinerary ? <View style={styles.heroBadge}><Text variant="caption" weight="bold" color={color.text.onAction}>{tx(`초안 v${itinerary.version}${planLabel ? ` · ${planLabel}` : ''}`, `Draft v${itinerary.version}${planLabel ? ` · ${planLabel}` : ''}`)}</Text></View> : null}
+        {/* 🔴 「초안 v1 · 기본 추천」 배지를 뺐다 (S15P21E201-1106). 우리가 아는 것을 그대로
+            내보인 말이지 사용자가 알아야 할 것이 아니었다 — 「초안」은 이미 저장된 여행에
+            대고 아직 안 끝났다고 말하고, 「v1」은 편집할 때마다 올라가 불안만 주고,
+            「기본 추천」(fallbackMode=BASELINE)은 좋은 건지 나쁜 건지 알 수 없다.
+            🔴 값을 버린 것이 아니다. version 은 되돌리기가 그대로 쓰고 fallbackMode 도
+            응답에 남아 있다. 헤더에 안 그릴 뿐이다. */}
         {/* ⋯ — 시안 3.1. 늘 놓을 자리가 없는 것(통계·전체 일정·다시 계산·되돌리기)을 여기 담는다.
             화면에 다 늘어놓으면 정작 하루의 동선이 아래로 밀려 한 칸도 안 보인다. */}
         {itinerary ? <Pressable accessibilityRole="button" accessibilityLabel={tx('더 보기', 'More')} accessibilityState={{ expanded: menuOpen }} onPress={() => setMenuOpen((open) => !open)} style={styles.heroBack}><Text variant="title" color={color.text.onAction}>⋯</Text></Pressable> : <View style={styles.heroBackSpacer} />}
@@ -706,7 +703,6 @@ const styles = StyleSheet.create({ shell: { flex: 1, backgroundColor: color.bran
   heroTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[2] },
   heroBack: { width: 44, height: 44, marginLeft: -spacing[3], alignItems: 'center', justifyContent: 'center' },
   heroBackSpacer: { width: 44, height: 44 },
-  heroBadge: { paddingHorizontal: spacing[3], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: 'rgba(255, 255, 255, 0.14)' },
   heroGhost: { minHeight: 36, paddingHorizontal: spacing[3], borderRadius: radius.full, borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.4)', alignItems: 'center', justifyContent: 'center' },
   heroTitle: { marginTop: spacing[2] },
   // 탭은 헤더 바닥에 붙는다 — 위쪽만 둥글고 아래는 각져서 헤더와 한 덩이로 보인다.
