@@ -224,3 +224,45 @@ export async function updateTripTitle(
     return failure(error);
   }
 }
+
+// ── 같은 질문을 두 번 하지 않는다 ────────────────────────────────────────────
+//
+// 이름 붙이기는 건너뛸 수 있는 일이다. 그런데 건너뛴 사람에게 일정을 열 때마다 다시
+// 물으면, 건너뛰기가 「나중에 또 물어볼게요」가 되어 버린다. 그건 건너뛸 수 있다고
+// 말해 놓고 안 놓아주는 것이다.
+//
+// 기기에만 적는다 — 서버에 칸을 만들 만한 값이 아니고, 기기를 바꾸면 한 번 더 묻는
+// 정도는 괜찮다. 🔴 다만 **못 읽었을 때 「안 물어봤다」로 넘어가지 않는다**. 저장소가
+// 막힌 기기에서 매번 묻게 되기 때문이다 — 읽기 실패는 「물어봤다」로 친다.
+
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const NAME_ASKED_PREFIX = '@gabolle/nameAsked:';
+
+export async function markTripNameAsked(tripId: string) {
+  try {
+    await AsyncStorage.setItem(`${NAME_ASKED_PREFIX}${tripId}`, '1');
+  } catch {
+    // 못 적어도 흐름을 막지 않는다. 다음에 한 번 더 묻게 될 뿐이다.
+  }
+}
+
+export async function wasTripNameAsked(tripId: string) {
+  try {
+    return (await AsyncStorage.getItem(`${NAME_ASKED_PREFIX}${tripId}`)) === '1';
+  } catch {
+    // 🔴 못 읽었으면 「물어봤다」로 친다. 반대로 두면 저장소가 막힌 기기에서 매번 묻는다.
+    return true;
+  }
+}
+
+/**
+ * 이름을 물어볼 자리인가.
+ *
+ * 🔴 이름이 이미 있으면 안 묻는다. 「이름을 붙일까요?」는 이름이 없는 사람에게만 할 말이다.
+ * 이미 붙인 사람에게 그렇게 물으면 붙인 이름이 없는 것처럼 들린다.
+ */
+export function shouldAskTripName(input: { title: string | null | undefined; alreadyAsked: boolean }) {
+  if (input.alreadyAsked) return false;
+  return !(input.title ?? '').trim();
+}

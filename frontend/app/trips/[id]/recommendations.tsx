@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Image, Pressable, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { shouldAskTripName, wasTripNameAsked } from '@/trip/tripNaming';
+import { loadTrips } from '@/trip/trips';
 import { sendAppEvent } from '@/analytics/appEvents';
 import { loadRecommendationActions, saveRecommendationAction } from '@/plan/recommendationActions';
 import { useAuth } from '@/auth/AuthProvider';
@@ -36,6 +38,29 @@ function CourseCard({ course, onAction }: { course: RecommendationCourse; onActi
 
 export default function Recommendations() {
   const router = useRouter(); const { accessToken } = useAuth(); const { tx } = useI18n(); const { id, jobId } = useLocalSearchParams<{ id: string; jobId?: string }>();
+  // 완성된 일정으로 가기 전에 한 번만 이름을 물어본다 (S15P21E201-1036).
+  //
+  // 🔴 이 화면이 사슬에서 **여행 id 와 일정 id 를 둘 다 아는 유일한 자리**다. 주소의 id 는
+  // 여행 id 이고(76행이 tripId 로 쓴다), 일정 id 는 view.itineraryId 다. 일정 화면으로 가면
+  // 여행 id 를 잃는다 — 서버가 주는 일정 정보에 그 칸이 없다.
+  //
+  // 🔴 이미 이름이 있거나 한 번 물어봤으면 **묻지 않고 그냥 지나간다.** 같은 질문을 두 번
+  // 하면 건너뛰기가 「나중에 또 물어볼게요」가 된다.
+  const openItinerary = async (itineraryId: string) => {
+    const target = `/trips/${itineraryId}/itinerary`;
+    try {
+      const [trips, alreadyAsked] = await Promise.all([loadTrips(accessToken), wasTripNameAsked(id)]);
+      const title = trips.state === 'success' ? trips.trips.find((trip) => trip.tripId === id)?.title : null;
+      if (shouldAskTripName({ title, alreadyAsked })) {
+        router.push(`/${id}/name?next=${encodeURIComponent(target)}` as never);
+        return;
+      }
+    } catch {
+      // 🔴 물어볼지 정하다 실패하면 **묻지 않고 지나간다.** 일정을 보러 가는 길을
+      // 이름 짓기 때문에 막지 않는다.
+    }
+    router.push(target);
+  };
   const [view, setView] = useState<RecommendationViewModel>(() => jobId || id ? { ...unavailableRecommendations(), state: 'loading', message: tx('추천 결과를 확인하고 있어요.', 'Checking your recommendation result.') } : unavailableRecommendations());
   const reload = useCallback(async () => {
     // S15P21E201-1002 — 「다시 열면 빈 화면」의 진짜 원인 (2026-09-16 배포본에서 실측).
@@ -121,7 +146,8 @@ export default function Recommendations() {
             </View>
           </View>
         : <View style={styles.list}>{view.courses.map((course) => <CourseCard key={course.id} course={course} onAction={(state) => updateAction(course.id, state)} />)}</View>}
-      <Button accessibilityRole="button" accessibilityState={{ disabled: !view.itineraryId }} label={tx('이 일정으로 보기', 'View this itinerary')} disabled={!view.itineraryId} containerStyle={styles.cta} onPress={() => { if (view.itineraryId) router.push(`/trips/${view.itineraryId}/itinerary`); }} />
+      <Button accessibilityRole="button" accessibilityState={{ disabled: !view.itineraryId }} label={tx('이 일정으로 보기', 'View this itinerary')} disabled={!view.itineraryId} containerStyle={styles.cta} onPress={() => { if (view.itineraryId) void openItinerary(view.itineraryId); }} />
+      {view.itineraryId ? <Text variant="caption" color={color.text.muted} style={styles.reason}>{tx('다음에 여행 이름을 붙일 수 있어요. 건너뛰어도 괜찮아요.', 'You can name your trip next. Skipping is fine.')}</Text> : null}
       {!view.itineraryId && <Text variant="caption" color={color.text.muted} style={styles.reason}>{tx('완성된 일정이 생기면 상세 일정으로 이동할 수 있어요.', 'You can move to the full itinerary once it’s ready.')}</Text>}
     </Screen><TabBar active="schedule" /></View>;
 }

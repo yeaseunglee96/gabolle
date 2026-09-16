@@ -13,6 +13,7 @@ import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { deleteTrip, loadTripItineraries, loadTrips, tripDisplayTitle, type TripItineraryRefDto, type TripsLoadResult, type TripSummaryDto } from '@/trip/trips';
 import { leaveTrip } from '@/trip/collaboration';
+import { TripNameSheet } from '@/trip/TripNameSheet';
 
 /** 보관소에서 이 목록을 찾는 열쇠. 사람이 바뀌면 남의 목록을 보면 안 되므로 사용자 id 를 넣는다. */
 const TRIPS_KEY = (userId: string | undefined) => ['trips', userId ?? 'anonymous'] as const;
@@ -44,6 +45,8 @@ export default function Trips() {
   const [picker, setPicker] = useState<{ tripId: string; itineraries: TripItineraryRefDto[] } | null>(null);
   const [confirmTarget, setConfirmTarget] = useState<TripSummaryDto | null>(null);
   const [removingTripId, setRemovingTripId] = useState<string | null>(null);
+  // 이름을 바꾸거나 붙이려고 연 여행. null 이면 안 열려 있다.
+  const [naming, setNaming] = useState<TripSummaryDto | null>(null);
 
   // 🔴 화면 밖 보관소에서 읽는다 (S15P21E201-957). 탭을 오가며 이 화면이 사라졌다
   // 다시 만들어져도, 보관소는 그대로라 서버를 다시 안 부른다. 낡았을 때만(기본 30초)
@@ -120,13 +123,24 @@ export default function Trips() {
     {accessToken && !loading && result.state === 'success' && trips.length === 0 ? <View style={styles.empty}><View style={styles.emptyMark}><Image source={require('../../assets/icons/home/route.png')} accessibilityLabel={tx('여행 경로', 'Trip route')} style={styles.emptyIcon} /></View><Text variant="title" weight="bold">{tx('아직 만든 여행이 없어요', 'No trips yet')}</Text><Text color={color.text.body} style={styles.center}>{tx('여행을 만들면 이곳에 보여드려요.', "Once you create a trip, it'll show up here.")}</Text><Button label={tx('첫 여행 만들기', 'Create your first trip')} onPress={() => router.push('/plan/basic')} containerStyle={styles.emptyCta} /></View> : null}
 
     {accessToken && !loading && result.state === 'success' && trips.length > 0 ? <View style={styles.list}>{trips.map((trip) => <Pressable key={trip.tripId} accessibilityRole="button" accessibilityState={{ busy: openingTripId === trip.tripId }} accessibilityLabel={open === 'prepare' ? tx(`${cardTitle(trip, tx)} 날씨와 준비물 보기`, `View weather and packing for ${cardTitle(trip, tx)}`) : tx(`${cardTitle(trip, tx)} 여행 열기`, `Open trip ${cardTitle(trip, tx)}`)} disabled={openingTripId === trip.tripId || removingTripId === trip.tripId} onPress={() => void openTrip(trip)} style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}>
-      <View style={styles.cardTop}><View style={styles.cardCopy}><Text variant="title" weight="bold">{cardTitle(trip, tx)}</Text>{trip.role !== 'OWNER' ? <Text variant="caption" color={color.text.muted}>{tx('초대받은 여행', 'Invited trip')}</Text> : null}</View>{openingTripId === trip.tripId ? <ActivityIndicator color={color.brand.orange} /> : <Text variant="title" color={color.brand.orange}>›</Text>}</View>
+      <View style={styles.cardTop}><View style={styles.cardCopy}><Text variant="title" weight="bold">{cardTitle(trip, tx)}</Text>{trip.title?.trim() ? <Text variant="caption" color={color.text.muted}>{dateLabel(trip, tx)}</Text> : null}{trip.role !== 'OWNER' ? <Text variant="caption" color={color.text.muted}>{tx('초대받은 여행', 'Invited trip')}</Text> : null}</View>{openingTripId === trip.tripId ? <ActivityIndicator color={color.brand.orange} /> : <Text variant="title" color={color.brand.orange}>›</Text>}</View>
       <View style={styles.meta}>
         {/* S15P21E201-919: 서버가 이미 주는 status를 화면이 안 읽어서, 일정 생성이 실패해도
             정상 여행과 카드가 똑같이 보였다 — PLANNING(아직 일정 없음)만 눈에 띄게 표시한다. */}
         {trip.status === 'PLANNING' ? <View style={styles.statusPillPending}><Text variant="caption" weight="bold" color={color.state.danger}>{tx('일정 준비 중', 'Itinerary pending')}</Text></View> : null}
         <View style={styles.metaPill}><Text variant="caption" weight="bold">{tx(`${trip.dayCount}일`, `${trip.dayCount} days`)}</Text></View><View style={styles.metaPill}><Text variant="caption" weight="bold">{tx(`${trip.partySize}명`, `${trip.partySize} travelers`)}</Text></View>
       </View>
+      <View style={styles.cardActions}>
+      {/* 🔴 VIEWER 만 이름을 못 바꾼다. 서버가 그렇게 정했다(TripTitleService) — OWNER 뿐
+          아니라 EDITOR 도 바꿀 수 있다. 여기서 더 좁히면 있는 권한을 화면이 숨기게 된다. */}
+      {trip.role !== 'VIEWER' ? <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={trip.title?.trim() ? tx('여행 이름 바꾸기', 'Rename trip') : tx('여행 이름 붙이기', 'Name trip')}
+        onPress={(event) => { event.stopPropagation(); setNaming(trip); }}
+        style={({ pressed }) => [styles.removeButton, pressed && styles.removeButtonPressed]}
+      >
+        <Text variant="caption" weight="bold" color={color.brand.navy} numberOfLines={1}>{trip.title?.trim() ? tx('이름 바꾸기', 'Rename') : tx('이름 붙이기', 'Name it')}</Text>
+      </Pressable> : <View />}
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={trip.role === 'OWNER' ? tx('여행 삭제', 'Delete trip') : tx('여행에서 나가기', 'Leave trip')}
@@ -137,8 +151,28 @@ export default function Trips() {
       >
         <Text variant="caption" weight="bold" color={color.state.danger}>{removingTripId === trip.tripId ? tx('처리 중…', 'Working…') : trip.role === 'OWNER' ? tx('여행 삭제', 'Delete trip') : tx('여행에서 나가기', 'Leave trip')}</Text>
       </Pressable>
+      </View>
     </Pressable>)}</View> : null}
   </Screen><TabBar active="map" />
+
+  {naming ? <TripNameSheet
+    tripId={naming.tripId}
+    currentTitle={naming.title}
+    dateLabel={naming.startDate ? dateLabel(naming, tx) : null}
+    accessToken={accessToken}
+    onClose={() => setNaming(null)}
+    onSaved={(title) => {
+      const tripId = naming.tripId;
+      setNaming(null);
+      // 🔴 서버를 다시 부르지 않고 보관소의 그 한 줄만 바꾼다. 다시 부르면 카드가 잠깐
+      // 옛 이름으로 있다가 바뀌는데, 방금 바꾼 사람에게는 그게 "안 바뀌었다" 로 보인다.
+      queryClient.setQueryData<TripsLoadResult>(TRIPS_KEY(user?.userId), (current) =>
+        current && current.state === 'success'
+          ? { state: 'success', trips: current.trips.map((item) => item.tripId === tripId ? { ...item, title } : item) }
+          : current);
+      setFeedback(title ? tx('이름을 저장했어요.', 'Name saved.') : tx('이름을 지웠어요. 카드에 날짜가 보여요.', 'Name cleared — the card shows the dates.'));
+    }}
+  /> : null}
 
   <Modal visible={!!picker} transparent animationType="fade" onRequestClose={() => setPicker(null)}>
     <View style={styles.modalBackdrop}><View accessibilityViewIsModal style={styles.modalCard}>
@@ -169,6 +203,7 @@ const styles = StyleSheet.create({
   empty: { minHeight: 320, marginTop: spacing[6], padding: spacing[6], borderRadius: radius.lg, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center', gap: spacing[3] }, emptyMark: { width: 68, height: 68, borderRadius: radius.full, backgroundColor: color.surface.tint, alignItems: 'center', justifyContent: 'center' }, emptyIcon: { width: 32, height: 32 }, center: { maxWidth: 300, textAlign: 'center' }, emptyCta: { minWidth: 180, marginTop: spacing[2], backgroundColor: color.brand.navy },
   list: { marginTop: spacing[6], gap: spacing[3] }, card: { padding: spacing[4], borderRadius: radius.lg, borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.surface.card, gap: spacing[3], shadowColor: color.brand.navy, shadowOpacity: 0.06, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 2 }, cardPressed: { opacity: 0.72, transform: [{ scale: 0.99 }] }, cardTop: { flexDirection: 'row', alignItems: 'center', gap: spacing[3] }, cardCopy: { flex: 1, gap: spacing[1] }, meta: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] }, metaPill: { paddingHorizontal: spacing[3], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: color.surface.soft },
   statusPillPending: { paddingHorizontal: spacing[3], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: color.state.dangerBg, borderWidth: 1, borderColor: color.state.danger },
+  cardActions: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: spacing[2] },
   removeButton: { alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[3] }, removeButtonPressed: { opacity: 0.6 },
   modalBackdrop: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing[4], backgroundColor: 'rgba(11,29,58,0.62)' },
   modalCard: { width: '100%', maxWidth: 480, gap: spacing[3], padding: spacing[6], borderRadius: radius.lg, backgroundColor: color.brand.ivory },
