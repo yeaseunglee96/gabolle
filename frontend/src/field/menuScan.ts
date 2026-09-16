@@ -39,6 +39,13 @@ export type MenuScanResult =
 
 type Translate = (ko: string, en: string) => string;
 
+/** 무엇이 왜 막혔는지 화면까지 가져간다 — S15P21E201-1121 과 같은 이유다. */
+function describeCause(error: unknown): string {
+  if (error instanceof Error && error.message) return error.message.slice(0, 120);
+  if (typeof error === 'string' && error) return error.slice(0, 120);
+  return '알 수 없는 오류';
+}
+
 /**
  * 사진을 줄여서 보낸다.
  *
@@ -51,13 +58,34 @@ export async function scanMenu(uri: string, accessToken: string | null, tx: Tran
     return { state: 'error', message: tx('로그인한 뒤에 쓸 수 있어요.', 'Please sign in to use this.') };
   }
   try {
-    const resized = await resizeForUpload(uri);
+    // 🔴 S15P21E201-1121 — 줄이기가 실패해도 여기서 끝내지 않는다.
+    //
+    //    2026-09-17 안드로이드 실기기에서 메뉴판 읽기가 실패했는데, 서버 기록에
+    //    /api/v1/menu-scans 요청이 한 줄도 없었다. 기록 사진 업로드와 같은 자리에서
+    //    막힌 것이다 — 이 파일이 그 줄이기를 그대로 쓰기 때문이다.
+    //
+    //    원본을 보내도 되는 근거: 이 사진의 위치 정보를 지우는 것은 두 겹이다.
+    //    화면 쪽(여기)과 서버 쪽(MenuScanService 가 ImageMetadataStripper.toCleanJpeg 로
+    //    픽셀만 남겨 다시 쓴다). 그 클래스 주석이 "서버가 마지막 문" 이라고 적어 둔 이유가
+    //    바로 이것이다 — 화면이 한 곳에서 빠뜨려도 약속이 깨지지 않게.
+    //    그러니 앞 겹이 실패해도 「촬영 위치 정보는 보내기 전에 지워요」는 지켜진다.
+    //
+    //    크기는 서버가 8MB 에서 413 을 주고, 아래 errorMessage 가 그 말을 이미 한다.
+    let uploadUri = uri;
+    let resizeFailure: string | null = null;
+    try {
+      const resized = await resizeForUpload(uri);
+      uploadUri = resized.uri;
+    } catch (error) {
+      resizeFailure = describeCause(error);
+    }
+
     const formData = new FormData();
-    if (typeof window !== 'undefined' && typeof Blob !== 'undefined' && resized.uri.startsWith('blob:')) {
-      formData.append('image', await (await fetch(resized.uri)).blob(), 'menu.jpg');
+    if (typeof window !== 'undefined' && typeof Blob !== 'undefined' && uploadUri.startsWith('blob:')) {
+      formData.append('image', await (await fetch(uploadUri)).blob(), 'menu.jpg');
     } else {
       // React Native 의 FormData 는 { uri, name, type } 을 파일로 받는다 (web 의 File 과 다르다).
-      formData.append('image', { uri: resized.uri, name: 'menu.jpg', type: 'image/jpeg' } as unknown as Blob);
+      formData.append('image', { uri: uploadUri, name: 'menu.jpg', type: 'image/jpeg' } as unknown as Blob);
     }
     const dto = await apiRequest<MenuScan>('/api/v1/menu-scans', { method: 'POST', accessToken, body: formData });
     return { state: 'success', scan: normalizeScan(dto) };
