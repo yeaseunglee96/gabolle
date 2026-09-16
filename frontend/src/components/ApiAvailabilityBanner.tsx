@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
+import { usePathname } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { subscribeApiAvailability } from '@/api/client';
@@ -11,10 +12,13 @@ export function ApiAvailabilityBanner() {
   const [unavailable, setUnavailable] = useState(false);
   const insets = useSafeAreaInsets();
   const { tx } = useI18n();
+  const pathname = usePathname();
 
   useEffect(() => subscribeApiAvailability(setUnavailable), []);
 
-  if (!unavailable) return null;
+  // 앱을 소개하거나 로그인하는 단계에는 서버 데이터가 아직 필요 없다. 이 화면들에서
+  // 전역 배너를 띄우면 로고·건너뛰기·입력 제목을 가려 첫인상만 망친다.
+  if (!unavailable || shouldHideApiBanner(pathname)) return null;
 
   return (
     <View
@@ -39,6 +43,10 @@ export function ApiAvailabilityBanner() {
       </View>
     </View>
   );
+}
+
+export function shouldHideApiBanner(pathname: string) {
+  return ['/', '/app-intro', '/age-gate', '/sign-in', '/sign-up', '/permissions'].includes(pathname);
 }
 
 const styles = StyleSheet.create({

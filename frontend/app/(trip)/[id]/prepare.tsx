@@ -13,6 +13,7 @@ import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { Eyebrow } from '@/components/Eyebrow';
 import { Button } from '@/components/Button';
+import { SampleNotice } from '@/components/SampleNotice';
 import { useAuth } from '@/auth/AuthProvider';
 import { useI18n } from '@/i18n';
 import { DIALECT_PHRASES } from '@/discovery/dialectPhrases';
@@ -21,6 +22,7 @@ import type { MapStop } from '@/map/types';
 import { loadItinerary } from '@/plan/itinerary';
 import { issueShareLink } from '@/share/sharedItinerary';
 import { getTripStories } from '@/social/stories';
+import { SelectTripFirst } from '@/trip/SelectTripFirst';
 import { loadTripItineraries, loadTrips } from '@/trip/trips';
 import { loadWeatherForecast, type SkyCondition, type WeatherLoadResult } from '@/trip/weather';
 
@@ -170,12 +172,16 @@ function TripSummaryCard({ tripId, title, visitCount, photoUrl }: { tripId: stri
   );
 }
 
+// 여행 식별자가 없으면 서버를 아예 안 부른다 (S15P21E201-1000).
 export default function Prepare() {
+  const { id } = useLocalSearchParams<{ id: string }>();
+  return id ? <PrepareForTrip tripId={id} /> : <SelectTripFirst />;
+}
+
+function PrepareForTrip({ tripId }: { tripId: string }) {
   const { tx } = useI18n();
   const router = useRouter();
   const { accessToken } = useAuth();
-  const { id } = useLocalSearchParams<{ id: string }>();
-  const tripId = id ?? 'demo-trip';
   const [firstDayDate, setFirstDayDate] = useState<string | null>(null);
   const [tripTitle, setTripTitle] = useState<string | null>(null);
   const [weather, setWeather] = useState<WeatherLoadResult | null>(null);
@@ -294,6 +300,12 @@ export default function Prepare() {
         <Text variant="title" weight="bold" style={styles.prepTitle}>
           {tx('가볼래가 챙긴 준비물', 'What GABOLLE packed for you')}
         </Text>
+        {/* S15P21E201-1009 — 이 목록만 고정 목업이다. 같은 화면의 날씨는 실제 값이라
+            화면 전체에 표시를 달면 진짜인 것까지 가짜라고 말하게 된다. */}
+        <SampleNotice
+          badge={tx('샘플', 'Sample')}
+          description={tx('준비물 목록은 아직 고정된 예시예요. 위의 날씨는 실제 예보예요.', 'This packing list is still a fixed example. The weather above is a real forecast.')}
+        />
         {PREP_ITEMS.map((item) => (
           <View key={item.nameKo} style={styles.prepRow}>
             <Image source={item.icon} resizeMode="contain" style={styles.prepIcon} />

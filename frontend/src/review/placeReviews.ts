@@ -52,6 +52,28 @@ export function scoreFromStep(step: ThreeStepScore): number | null {
   return null;
 }
 
+// 방문 인증(GPS) — S15P21E201-279·-291. POST /api/v1/places/{placeId}/visit-verifications 를
+// 그대로 옮긴다(VisitVerificationController.java 기준). status 는 서버가 이미 화면에 그대로
+// 보여줄 수 있는 message 를 같이 주므로, 화면은 문구를 새로 짓지 않고 그대로 쓴다.
+export type VisitVerificationStatus = 'VERIFIED' | 'TOO_FAR' | 'LOW_ACCURACY';
+export type VisitVerificationDto = { verified: boolean; distanceM: number | null; status: VisitVerificationStatus; message: string };
+export type VisitVerificationResult =
+  | { state: 'success'; outcome: VisitVerificationDto }
+  | { state: 'unavailable' | 'offline' | 'error'; message: string };
+
+export async function verifyPlaceVisit(input: { placeId: string; lat: number; lng: number; accuracyM: number; accessToken: string | null }): Promise<VisitVerificationResult> {
+  try {
+    const outcome = await apiRequest<VisitVerificationDto>(`/api/v1/places/${encodeURIComponent(input.placeId)}/visit-verifications`, {
+      method: 'POST',
+      accessToken: input.accessToken,
+      body: { lat: input.lat, lng: input.lng, accuracyM: input.accuracyM },
+    });
+    return { state: 'success', outcome };
+  } catch (error) {
+    return failure(error);
+  }
+}
+
 export async function submitPlaceReview(input: { placeId: string; food: ThreeStepScore; price: ThreeStepScore; accessibility: ThreeStepScore; onsite: ThreeStepScore; body?: string; region?: string; accessToken: string | null }): Promise<PlaceReviewSubmitResult> {
   try {
     const review = await apiRequest<PlaceReviewDto>(`/api/v1/places/${encodeURIComponent(input.placeId)}/reviews`, {

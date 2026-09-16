@@ -43,7 +43,7 @@ const styles = StyleSheet.create({
   icon: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center', borderRadius: radius.md, backgroundColor: color.surface.card },
   iconImage: { width: 24, height: 24 },
   copy: { flex: 1, gap: spacing[1] },
-  action: { minHeight: 36, alignSelf: 'flex-start', justifyContent: 'center', marginTop: spacing[1], paddingHorizontal: spacing[2], borderRadius: radius.sm, backgroundColor: color.surface.card },
+  action: { minHeight: 44, alignSelf: 'flex-start', justifyContent: 'center', marginTop: spacing[1], paddingHorizontal: spacing[3], borderRadius: radius.sm, backgroundColor: color.surface.card },
   pressed: { opacity: 0.7 },
   busy: { opacity: 0.5 },
 });

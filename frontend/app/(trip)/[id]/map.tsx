@@ -16,6 +16,7 @@ import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { Card } from '@/components/Card';
 import { Button } from '@/components/Button';
+import { SampleNotice } from '@/components/SampleNotice';
 import { RouteMap, type CurrentLocation } from '@/map/RouteMap';
 import { city3dUrlForStops, openCity3D } from '@/map/city3d';
 
@@ -244,6 +245,13 @@ export default function Map() {
         />
       )}
 
+      {/* S15P21E201-1009 — 지도에 찍히는 정류지는 고정된 예시 일정이다(DAY_STOPS_SEED).
+          이 화면이 여행 주소 안에 있어서, 표시가 없으면 자기 일정이 그려진 줄 안다. */}
+      <SampleNotice
+        badge={tx('샘플 일정', 'Sample itinerary')}
+        description={tx('지도에 찍힌 장소는 화면을 보여주기 위한 예시 일정이에요. 내가 만든 일정이 아니에요.', 'The stops on this map are an example itinerary for this screen — not the trip you created.')}
+      />
+
       <View style={styles.mapStage}>
         <RouteMap stops={stops} selectedId={selectedId} onSelect={selectStopFromMap} routes={routes} points={points} currentLocation={currentLocation} onBackToList={() => router.back()} height={widthTier(width) === 'sm' ? 420 : 600} />
         {isAtLeast(width, 'md') ? <View style={styles.floatingLayers}><LayerControls /></View> : null}
@@ -272,6 +280,14 @@ export default function Map() {
       </View>
 
       <Text variant="title" weight="bold" style={styles.sectionTitle}>{tx('실측 경로 비교', 'Measured route comparison')}</Text>
+
+      {/* S15P21E201-1009 — 🔴 이 숫자는 지어낸 것이 아니라 실측이다. 다만 고정된 두 구간을
+          잰 것이라 이 여행의 경로가 아니다. 「샘플」이라고 적으면 실측을 가짜라고 말하게 되고,
+          아무 말도 안 하면 자기 여행을 잰 것으로 읽힌다. 그래서 둘 다 적는다. */}
+      <SampleNotice
+        badge={tx('예시 구간', 'Example route')}
+        description={tx('아래는 정해진 두 구간을 실제로 재어 본 값이에요. 이 여행의 경로를 잰 것은 아니에요.', 'These are real measurements of two fixed routes — not of this trip.')}
+      />
 
       <View style={styles.comparisons}><ComparisonCard route={SHADE_ROUTE} /><ComparisonCard route={WHEELCHAIR_ROUTE} /></View>
 

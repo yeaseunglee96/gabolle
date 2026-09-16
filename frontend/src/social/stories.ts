@@ -1,6 +1,6 @@
 import { Platform } from 'react-native';
 
-import { apiRequest, ApiClientError } from '@/api/client';
+import { apiRequest, ApiClientError, API_BASE_URL } from '@/api/client';
 
 export type StoryVisibility = 'PUBLIC' | 'FOLLOWERS' | 'PRIVATE';
 export type FeedScope = 'ALL' | 'FOLLOWING';
@@ -36,8 +36,17 @@ export type StoryDto = {
 // 들어왔을 때 API 응답을 기다리지 않고 먼저 보여주는 자리표시로 쓴다.
 const storyCache = new Map<string, StoryDto>();
 
+export function resolveStoryImageUrl(url: string) {
+  if (/^(https?:|data:|blob:|file:)/i.test(url)) return url;
+  return `${API_BASE_URL}${url.startsWith('/') ? '' : '/'}${url}`;
+}
+
+function withDisplayImageUrls(story: StoryDto): StoryDto {
+  return { ...story, images: story.images.map((image) => ({ ...image, url: resolveStoryImageUrl(image.url) })) };
+}
+
 export function cacheStories(items: StoryDto[]) {
-  for (const item of items) storyCache.set(item.id, item);
+  for (const item of items) storyCache.set(item.id, withDisplayImageUrls(item));
 }
 
 export function getCachedStory(id: string): StoryDto | null {
@@ -48,7 +57,7 @@ export type StoryLoadResult = { state: 'success'; story: StoryDto } | { state: '
 
 export async function getStory(id: string, accessToken: string | null): Promise<StoryLoadResult> {
   try {
-    const story = await apiRequest<StoryDto>(`/api/v1/stories/${encodeURIComponent(id)}`, { accessToken });
+    const story = withDisplayImageUrls(await apiRequest<StoryDto>(`/api/v1/stories/${encodeURIComponent(id)}`, { accessToken }));
     storyCache.set(story.id, story);
     return { state: 'success', story };
   } catch (error) {
@@ -98,8 +107,9 @@ export async function loadFeed(input: { scope: FeedScope; cursor?: string | null
     if (input.cursor) params.set('cursor', input.cursor);
     params.set('limit', String(input.limit ?? 20));
     const dto = await apiRequest<{ items: StoryDto[]; nextCursor: string | null }>(`/api/v1/stories?${params.toString()}`, { accessToken: input.accessToken });
-    cacheStories(dto.items);
-    return { state: 'success', items: dto.items, nextCursor: dto.nextCursor };
+    const items = dto.items.map(withDisplayImageUrls);
+    cacheStories(items);
+    return { state: 'success', items, nextCursor: dto.nextCursor };
   } catch (error) {
     return failure(error);
   }
@@ -120,7 +130,7 @@ export async function createStory(input: {
   accessToken: string | null;
 }): Promise<StoryMutationResult> {
   try {
-    const story = await apiRequest<StoryDto>('/api/v1/stories', {
+    const story = withDisplayImageUrls(await apiRequest<StoryDto>('/api/v1/stories', {
       method: 'POST',
       accessToken: input.accessToken,
       body: {
@@ -132,7 +142,7 @@ export async function createStory(input: {
         tripId: input.tripId,
         publishAt: input.publishAt,
       },
-    });
+    }));
     return { state: 'success', story };
   } catch (error) {
     return failure(error);
@@ -169,6 +179,10 @@ export async function uploadStoryImage(asset: ImagePickResult, accessToken: stri
 
 // jaehyeon 님 계약(2026-09-08 axmap): GET /api/v1/users/{userId}/profile. following은 서버가
 // "요청자가 이 사람을 팔로우 중인가"를 판정해 주므로 화면에서 따로 물어보지 않는다.
+// blocked 와 blockedByUser 는 서로 다른 값이다 (S15P21E201-990/-991) — A 가 B 를 차단해도
+// B 는 A 를 차단하지 않은 상태일 수 있다. 하나로 합치면 그 경우를 못 가른다.
+// blocked: 내가 이 사람을 차단했나 → 버튼이 「차단하기」인지 「차단 해제」인지를 정한다.
+// blockedByUser: 이 사람이 나를 차단했나 → 화면이 「차단되어 볼 수 없습니다」를 띄운다.
 export type UserProfileDto = {
   userId: string;
   displayName: string;
@@ -176,6 +190,8 @@ export type UserProfileDto = {
   followingCount: number;
   storyCount: number;
   following: boolean;
+  blocked?: boolean;
+  blockedByUser?: boolean;
 };
 
 export type ProfileLoadResult = { state: 'success'; profile: UserProfileDto } | FeedFailure;
@@ -197,8 +213,9 @@ export async function loadUserStories(userId: string, accessToken: string | null
     if (cursor) params.set('cursor', cursor);
     const query = params.toString();
     const dto = await apiRequest<{ items: StoryDto[]; nextCursor: string | null }>(`/api/v1/users/${encodeURIComponent(userId)}/stories${query ? `?${query}` : ''}`, { accessToken });
-    cacheStories(dto.items);
-    return { state: 'success', items: dto.items, nextCursor: dto.nextCursor };
+    const items = dto.items.map(withDisplayImageUrls);
+    cacheStories(items);
+    return { state: 'success', items, nextCursor: dto.nextCursor };
   } catch (error) {
     return failure(error);
   }
@@ -215,7 +232,7 @@ export type TripStoriesResult = { state: 'success'; items: StoryDto[] } | { stat
 export async function getTripStories(tripId: string, accessToken: string | null): Promise<TripStoriesResult> {
   try {
     const dto = await apiRequest<{ items: StoryDto[] }>(`/api/v1/trips/${encodeURIComponent(tripId)}/stories`, { accessToken });
-    return { state: 'success', items: dto.items };
+    return { state: 'success', items: dto.items.map(withDisplayImageUrls) };
   } catch (error) {
     if (error instanceof ApiClientError && error.status === 404) return { state: 'not-found' };
     return failure(error);
@@ -262,6 +279,23 @@ export async function setFollowing(userId: string, following: boolean, accessTok
     return { state: 'success', following: dto.following, followerCount: dto.followerCount, followingCount: dto.followingCount };
   } catch (error) {
     if (error instanceof ApiClientError && error.status === 400 && error.code === 'FOLLOW_SELF') return { state: 'error', message: '자기 자신은 팔로우할 수 없어요.' };
+    return failure(error);
+  }
+}
+
+// 차단 — S15P21E201-990(서버)·-991(화면). 차단은 「내가 이 사람을 안 본다」가 아니라
+// 「이 사람에게 내 것을 안 보여준다」다. 그래서 차단한 쪽 화면에서는 상대가 그대로 보이고,
+// 거르는 일은 전부 서버가 한다 — 프론트는 목록에서 아무것도 빼지 않는다.
+export type BlockResult = { state: 'success'; blocked: boolean } | FeedFailure;
+
+export async function setBlocked(userId: string, blocked: boolean, accessToken: string | null): Promise<BlockResult> {
+  try {
+    const dto = await apiRequest<{ userId: string; blocked: boolean }>(
+      `/api/v1/users/${encodeURIComponent(userId)}/block`,
+      { method: blocked ? 'PUT' : 'DELETE', accessToken },
+    );
+    return { state: 'success', blocked: dto.blocked };
+  } catch (error) {
     return failure(error);
   }
 }

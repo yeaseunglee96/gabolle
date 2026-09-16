@@ -16,6 +16,8 @@ type OnboardingPreferencesValue = {
   language: LanguageCode;
   mobility: MobilityCode;
   hydrated: boolean;
+  hasEnteredApp: boolean;
+  markEnteredApp: () => void;
   setLanguage: (language: LanguageCode) => void;
   setPreferences: (language: LanguageCode, mobility: MobilityCode) => void;
   reset: () => void;
@@ -42,14 +44,17 @@ export function OnboardingPreferencesProvider({ children }: { children: ReactNod
   const [language, setLanguage] = useState<LanguageCode>('ko');
   const [mobility, setMobility] = useState<MobilityCode>('none');
   const [hydrated, setHydrated] = useState(false);
+  const [hasEnteredApp, setHasEnteredApp] = useState(false);
   const changedBeforeHydration = useRef(false);
 
   useEffect(() => {
     let active = true;
     void AsyncStorage.getItem(STORAGE_KEY).then((raw) => {
-      if (!active || !raw || changedBeforeHydration.current) return;
+      if (!active || !raw) return;
       try {
-        const stored = JSON.parse(raw) as { language?: unknown; mobility?: unknown };
+        const stored = JSON.parse(raw) as { language?: unknown; mobility?: unknown; hasEnteredApp?: unknown };
+        if (stored.hasEnteredApp === true) setHasEnteredApp(true);
+        if (changedBeforeHydration.current) return;
         if (typeof stored.language === 'string' && LANGUAGE_CODES.some((code) => code === stored.language)) {
           setLanguage(stored.language as LanguageCode);
         }
@@ -57,8 +62,10 @@ export function OnboardingPreferencesProvider({ children }: { children: ReactNod
           setMobility(stored.mobility as MobilityCode);
         }
       } catch {
-        void AsyncStorage.removeItem(STORAGE_KEY);
+        void AsyncStorage.removeItem(STORAGE_KEY).catch(() => {});
       }
+    }).catch(() => {
+      // 저장소를 읽지 못해도 첫 화면을 영원히 가로막지 않는다.
     }).finally(() => {
       if (active) setHydrated(true);
     });
@@ -68,26 +75,29 @@ export function OnboardingPreferencesProvider({ children }: { children: ReactNod
   useEffect(() => {
     if (!hydrated) return;
     setApiLanguage(language);
-    void AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({ language, mobility }));
-  }, [hydrated, language, mobility]);
+    void AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({ language, mobility, hasEnteredApp })).catch(() => {});
+  }, [hydrated, language, mobility, hasEnteredApp]);
 
   const value = useMemo<OnboardingPreferencesValue>(
-    () => ({ language, mobility, hydrated, setLanguage: (nextLanguage) => {
+    () => ({ language, mobility, hydrated, hasEnteredApp, markEnteredApp: () => setHasEnteredApp(true), setLanguage: (nextLanguage) => {
       if (!hydrated) changedBeforeHydration.current = true;
+      setApiLanguage(nextLanguage);
       setLanguage(nextLanguage);
     }, setPreferences: (nextLanguage, nextMobility) => {
       if (!hydrated) changedBeforeHydration.current = true;
+      setApiLanguage(nextLanguage);
       setLanguage(nextLanguage);
       setMobility(nextMobility);
     },
     // 로그아웃·계정 삭제 때 부른다 — 같은 기기에서 다음 사람이 로그인하면 이 값들이
-    // 그 사람 것처럼 보인다(S15P21E201-740). 기본값으로 되돌리고 저장된 값도 지운다.
+    // 그 사람 것처럼 보인다(S15P21E201-740). 개인 설정만 초기화하고 앱 이용 이력은 유지한다.
     reset: () => {
+      setApiLanguage('ko');
       setLanguage('ko');
       setMobility('none');
-      void AsyncStorage.removeItem(STORAGE_KEY);
+      void AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({ language: 'ko', mobility: 'none', hasEnteredApp })).catch(() => {});
     } }),
-    [hydrated, language, mobility],
+    [hydrated, language, mobility, hasEnteredApp],
   );
 
   return <OnboardingPreferencesContext.Provider value={value}>{children}</OnboardingPreferencesContext.Provider>;

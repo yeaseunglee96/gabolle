@@ -15,7 +15,6 @@ import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { useI18n } from '@/i18n';
 
-const DEMO_TRIP_ID = 'demo-trip';
 const sunIcon = require('../../assets/icons/common/sun.png');
 
 type Tool = {
@@ -32,6 +31,17 @@ export default function Translate() {
 
   const tools: Tool[] = [
     {
+      // 🔴 2026-09-16 — 아래 머리말이 "업체가 정해지면 그때 새로 만든다" 고 적어 둔 그것이다.
+      // 업체가 정해진 것이 아니라, 이미 우리 저장소에서 돌고 있던 것을 찾았다 —
+      // visual-geocode 가 사진 속 간판 글씨를 읽는 데 쓰는 GMS(교육용 API 중계)다.
+      // "번역"이 아니라 "읽기"로 범위를 좁혔다. 지어내지 않는 만큼만 한다 (S15P21E201-329).
+      key: 'menu',
+      icon: '판',
+      title: tx('메뉴판 읽기', 'Read a menu'),
+      desc: tx('찍으면 적힌 글자를 읽어 드려요. 알레르기 낱말도 같이 찾아요', 'Take a photo and we read the text, including allergy-related words'),
+      onPress: () => router.push('/field/menu-scan'),
+    },
+    {
       key: 'phrase',
       icon: '말',
       title: tx('장소별 한국어', 'Korean phrases by situation'),
@@ -41,9 +51,11 @@ export default function Translate() {
     {
       key: 'weather',
       icon: sunIcon,
-      title: tx('날씨·준비물', 'Weather & what to bring'),
-      desc: tx('기상청 예보 기반 우산·옷차림 안내', 'Umbrella and clothing tips based on the weather forecast'),
-      onPress: () => router.push(`/${DEMO_TRIP_ID}/prepare`),
+      title: tx('내 여행 날씨·준비물', 'Weather & packing for my trip'),
+      desc: tx('여행을 고르면 출발일 예보와 준비물을 보여드려요', 'Choose a trip to see its departure forecast and packing tips'),
+      // 준비 화면은 여행 식별자가 꼭 필요하다. 고정된 demo-trip을 넘기면 실제 사용자에게
+      // 항상 "일정을 못 불러왔어요"가 보이므로, 먼저 본인의 여행을 고르게 한다.
+      onPress: () => router.push({ pathname: '/trips', params: { open: 'prepare' } }),
     },
   ];
 

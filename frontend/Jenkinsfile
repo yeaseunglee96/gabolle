@@ -219,6 +219,11 @@ pipeline {
                 if (env.DEPLOY_LOCK_ACQUIRED == 'true') {
                     sh 'rmdir /tmp/gabolle-deploy.lock || true'
                 }
+                // 🔴 S15P21E201-891 — 매 빌드가 이미지를 새로 만들면서 옛 중간
+                //    층이 이름 없는(dangling) 이미지로 남는다(S15P21E201-891
+                //    실측 — 서버 전체 182개·28GB). 이름 있는 태그는 건드리지
+                //    않으므로 안전하다.
+                sh 'docker image prune -f || true'
             }
         }
         success {

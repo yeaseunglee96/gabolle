@@ -9,6 +9,15 @@ export type ItineraryItemDto = {
   walkingMeters?: number | null;
   locked: boolean;
   dataStatus?: 'VERIFIED' | 'ESTIMATED' | 'UNKNOWN';
+  // S15P21E201-1014 — 이 방문지로 오는 데 걸리는 시간(분). 그날 첫 방문지 앞에는 구간이
+  // 없어 null 이다. 서버는 2026-09-08(S15P21E201-179)부터 주는데 이 타입에 칸이 없어 화면이
+  // 못 읽고 있었다. 그래서 화면은 "9시에 여기, 11시에 저기" 만 말할 뿐 그 사이에 얼마나
+  // 걸리는지 말하지 못했고, 대신 페이스 API 의 delayMinutes 를 「지연」이라고 불렀다.
+  //
+  // 🔴 travelDataStatus 를 반드시 함께 본다. ESTIMATED(직선거리 어림값)를 실제 소요시간처럼
+  // 그리면 사용자가 그 시간에 맞춰 움직이다 늦는다. 이 기능 이전에 만들어진 판은 null 이다.
+  travelDurationMin?: number | null;
+  travelDataStatus?: 'VERIFIED' | 'ESTIMATED' | 'UNKNOWN' | null;
   // S15P21E201-744 — 이 항목이 가리키는 장소. "다녀오셨나요" 평가(S15P21E201-406)를
   // 어느 장소로 보낼지 여기서 얻는다. ItineraryDetailResponse.Item 기준.
   placeId: string;
@@ -179,9 +188,20 @@ export async function revertItinerary(input: { itineraryId: string; baseVersion:
   }
 }
 
+// S15P21E201-1011 — 판 목록 응답이 배열에서 { items, count, hasMore } 로 바뀐다.
+//
+// 🔴 둘 다 읽는다. 서버와 화면은 따로 배포되므로 한쪽만 맞춰 두면 그 사이에 이 목록이
+// 비어 버리고, 그러면 되돌리기 버튼이 사라진다 — 돌아갈 수 있던 판이 없어진 것으로 보인다.
+//
+// hasMore 는 여기서 안 쓴다. 이 저장소에 판 목록을 그리는 화면이 없어서 알릴 자리가
+// 없다 — 쓰는 곳은 되돌리기 버튼(versions.length > 1)과 최신 판의 경고(versions[0])뿐이고,
+// 둘 다 맨 앞만 본다. 목록 화면이 생기면 그때 이 값을 함께 꺼낸다.
+type ItineraryVersionsPayload = ItineraryVersionEntryDto[] | { items: ItineraryVersionEntryDto[]; count?: number; hasMore?: boolean };
+
 export async function loadItineraryVersions(itineraryId: string, accessToken: string | null): Promise<{ state: 'success'; versions: ItineraryVersionEntryDto[] } | { state: 'unavailable' | 'offline' | 'error'; message: string }> {
   try {
-    return { state: 'success', versions: await apiRequest<ItineraryVersionEntryDto[]>(`/api/v1/itineraries/${encodeURIComponent(itineraryId)}/versions`, { accessToken }) };
+    const payload = await apiRequest<ItineraryVersionsPayload>(`/api/v1/itineraries/${encodeURIComponent(itineraryId)}/versions`, { accessToken });
+    return { state: 'success', versions: Array.isArray(payload) ? payload : payload.items ?? [] };
   } catch (error) {
     const result = failure(error);
     return result.state === 'conflict' ? { state: 'error', message: result.message } : result;

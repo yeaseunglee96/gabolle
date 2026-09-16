@@ -6,6 +6,10 @@
 //
 // 🔴 ?preview=ui 통로도 여기서 같이 따라온다 — 개발 중에 로그인 없이 화면 모양만 볼 때
 // 쓰는 자리다(ProtectedRoute). 그 통로가 없으면 화면을 고칠 때마다 로그인을 해야 한다.
+//
+// 🔴 상단 바는 여기서 붙이지 않는다 (S15P21E201-994). -970 에서 한 번 여기에 손으로
+// 붙였는데, 그건 증상만 막은 것이었다 — 마이페이지에만 없던 게 아니라 **50개 넘는 화면에
+// 없었다.** 이제 앱 뼈대(app/_layout.tsx)가 모든 화면에 한 번만 붙인다.
 import { ProtectedRoute } from '@/auth/ProtectedRoute';
 
 export default function MeLayout() {
