@@ -29,8 +29,23 @@ public class MenuScanProperties {
 
 	private Duration connectTimeout = Duration.ofSeconds(3);
 
-	/** 사진을 읽는 일이라 번역보다 오래 걸린다. */
-	private Duration readTimeout = Duration.ofSeconds(30);
+	/**
+	 * 바깥 모델을 기다리는 시간 — S15P21E201-1083.
+	 *
+	 * <p>이 값을 올리기 전에 읽을 것: <b>앱은 12초에 요청을 끊는다</b>
+	 * ({@code frontend/src/api/client.ts} 의 {@code API_TIMEOUT_MS}, 이 경로만 따로 늘리지
+	 * 않는다). 서버가 그보다 오래 기다리면 <b>읽기가 성공해도 사용자는 그 결과를 못 받는다</b> —
+	 * 앱이 이미 끊었기 때문이다. 그러면 바깥 호출값은 치르고, 그 사람의 하루 한도도 한 번
+	 * 깎이고(한도는 부르기 <i>전에</i> 센다), 화면에는 실패로 보여 다시 누른다.
+	 *
+	 * <p>그래서 예산은 <b>연결 + 읽기 &lt; 앱 대기 시간</b> 이다. 3 + 8 = 11 초로 1초를 남겼다.
+	 * 늘려야 한다면 이 숫자만 올리지 말고 앱 쪽 대기 시간을 이 경로에 한해 함께 늘린다.
+	 * 규칙은 {@code context/decisions.md} 의 {@code DEC-LATENCY-001} 이 소유한다.
+	 *
+	 * <p>8초가 실제 메뉴판 사진에 충분한지는 <b>아직 안 재 봤다.</b> 운영에 열쇠가 들어간 뒤
+	 * 실제 응답 시간을 재서 조정한다.
+	 */
+	private Duration readTimeout = Duration.ofSeconds(8);
 
 	/**
 	 * 받을 수 있는 사진 크기.
