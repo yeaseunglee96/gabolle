@@ -1,5 +1,5 @@
 // 부슐랭 리스트 상세 — 장소를 담고, 한줄메모를 남기고, 뺀다.
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Image, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -9,7 +9,8 @@ import { Card } from '@/components/Card';
 import { Screen } from '@/components/Screen';
 import { TabBar } from '@/components/TabBar';
 import { WheelPicker } from '@/collection/WheelPicker';
-import { categoryLabel, localityLabel, PLACE_CATEGORY_LABELS, PLACE_LOCALITY_LABELS, sortCategoryCodes, WRITE_MY_OWN } from '@/discovery/placeCategoryLabels';
+import { categoryLabel, categoryWheelCodes, localityLabel, PLACE_LOCALITY_LABELS, WRITE_MY_OWN } from '@/discovery/placeCategoryLabels';
+import { getPlaceCategories } from '@/discovery/placeCategories';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useAuth } from '@/auth/AuthProvider';
@@ -35,6 +36,9 @@ export default function CollectionListDetail() {
   // 🔴 휠에서 고른 **코드**와 직접 쓴 **문자열**을 따로 들고 있는다. 한 칸에 섞으면
   // 나중에 어느 쪽인지 못 가른다 — 코드는 아는 값들의 집합이라 가를 수 있지만, 그건
   // 표가 안 바뀔 때만 참이다.
+  // 서버가 주는 분류 목록. 🔴 못 받으면 null 로 두고, 휠은 우리가 아는 코드로 채운다 —
+  // 휠이 비면 그날은 분류를 아예 못 고르게 된다.
+  const [serverCategories, setServerCategories] = useState<string[] | null>(null);
   const [categoryCode, setCategoryCode] = useState(WRITE_MY_OWN);
   const [localityCode, setLocalityCode] = useState(WRITE_MY_OWN);
   // 휠에 놓을 목록. 🔴 아는 코드를 표 순서대로 먼저 놓고, 맨 뒤에 「직접 쓰기」를 둔다.
@@ -42,8 +46,19 @@ export default function CollectionListDetail() {
   // 🔴 서버가 주는 분류 목록(GET /places/categories)을 여기서 안 부른다 — 이 폼은 로그인
   // 없이도 열리고, 목록을 못 받았을 때 휠이 비면 아무것도 못 고르게 된다. 아는 것만
   // 먼저 놓고, 서버 목록을 붙이는 것은 따로 간다. **확인 못 함으로 남긴다.**
+  // 분류 목록을 한 번 불러온다. 🔴 실패해도 아무것도 안 한다 — 휠은 아는 코드로 이미
+  // 채워져 있고, 「목록을 못 받았어요」를 띄우는 것은 사용자가 할 수 있는 일이 없는 안내다.
+  useEffect(() => {
+    const controller = new AbortController();
+    void (async () => {
+      const result = await getPlaceCategories(controller.signal);
+      if (result.state === 'success') setServerCategories(result.categories.map((item) => item.code));
+    })();
+    return () => controller.abort();
+  }, []);
+
   const categoryOptions = [
-    ...sortCategoryCodes(Object.keys(PLACE_CATEGORY_LABELS)).map((code) => ({ value: code, label: categoryLabel(code, language) })),
+    ...categoryWheelCodes(serverCategories).map((code) => ({ value: code, label: categoryLabel(code, language) })),
     { value: WRITE_MY_OWN, label: tx('직접 쓰기', 'Write my own') },
   ];
   const localityOptions = [
