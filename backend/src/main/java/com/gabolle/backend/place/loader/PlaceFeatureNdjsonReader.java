@@ -120,6 +120,64 @@ public final class PlaceFeatureNdjsonReader {
 		});
 	}
 
+	/**
+	 * 장소 경사 산출물({@code data/staged/place-slope.ndjson})을 읽는다 — S15P21E201-1047.
+	 *
+	 * <p>한 줄은 이렇다.
+	 * {@code {"contentid":"126508","featureType":"SLOPE_PERCENT","slopePercent":16.4,
+	 * "segments":37,"walkLengthM":4820,"radiusM":200}}
+	 *
+	 * <h2>🔴 값 모양은 채점기가 정한다</h2>
+	 *
+	 * 점수형 피처는 {@code value} 가 숫자이거나 {@code {"score": …}} 여야 읽힌다
+	 * ({@code BaselineCandidateScorer.extractPlaceScore}). 그래서 {@code score} 에 담는다.
+	 * 옆에 붙는 {@code radiusM}·{@code segments}·{@code walkLengthM} 은 채점기가 안 읽지만
+	 * <b>이 값이 어떻게 나왔는지</b>를 행 안에 남긴다 — 나중에 반경을 바꿨을 때 어느 행이
+	 * 옛 반경으로 만들어졌는지 알 수 있어야 한다.
+	 *
+	 * <h2>🔴 이 값은 추정이다</h2>
+	 *
+	 * 실측이 아니라 주변 길에서 유도한 값이다({@code bigData/docs/PLACE-SLOPE.md}).
+	 * {@link PlaceFeatureLoader} 가 {@code evidence_status} 를 {@code ESTIMATED} 로 넣는다.
+	 * 🔴 경사는 DB 가 추정을 막는 네 종({@code ALLERGEN_TAG}·{@code DIETARY_SUPPORT_TAG}·
+	 * {@code ACCESSIBILITY_TAG}·{@code STAIRS_PRESENT})에 <b>들어 있지 않다</b> — 그래서
+	 * 저장할 수 있다. 계단을 여기에 섞어 넣으면 안 되는 이유이기도 하다.
+	 *
+	 * <h2>🔴 범위를 벗어난 값은 버리지 않고 멈춘다</h2>
+	 *
+	 * 경사는 0~100 퍼센트다. 벗어난 값이 오면 산출물이 이상한 것이고, 조용히 버리면
+	 * 개수만 줄고 아무도 못 알아챈다.
+	 */
+	public static Counts readPlaceSlopes(Path file, int chunkSize, Consumer<List<Fact>> chunkConsumer) {
+		return read(file, chunkSize, chunkConsumer, (node, out) -> {
+			String contentId = text(node, "contentid");
+			JsonNode percent = node.path("slopePercent");
+			if (contentId == null || !percent.isNumber()) {
+				return false;
+			}
+			double value = percent.asDouble();
+			if (value < 0 || value > 100) {
+				throw new IllegalArgumentException(
+						"장소 경사 산출물에 범위를 벗어난 값이 있다: " + value + "% (contentid " + contentId + ")");
+			}
+			ObjectNode payload = MAPPER.createObjectNode();
+			payload.put("score", value);
+			copyNumber(node, payload, "radiusM");
+			copyNumber(node, payload, "segments");
+			copyNumber(node, payload, "walkLengthM");
+			out.add(new Fact(contentId, "SLOPE_PERCENT", write(payload)));
+			return true;
+		});
+	}
+
+	/** 있으면 그대로 옮긴다. 없으면 만들어 넣지 않는다. */
+	private static void copyNumber(JsonNode from, ObjectNode to, String field) {
+		JsonNode value = from.path(field);
+		if (value.isNumber()) {
+			to.put(field, value.asDouble());
+		}
+	}
+
 	/** 한 줄을 사실로 바꾼다. 열쇠나 값이 없으면 {@code false} 를 돌려 그 줄을 버린다. */
 	private interface LineMapper {
 
