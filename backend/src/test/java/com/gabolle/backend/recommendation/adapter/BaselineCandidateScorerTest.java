@@ -197,17 +197,51 @@ class BaselineCandidateScorerTest {
 	}
 
 	@Test
-	@DisplayName("🔴 MOBILITY 미확인의 severity 는 제약 자신의 severity 를 옮긴다 — SOFT 면 PREFERRED")
-	void 이동제약_미확인_severity는_제약값을_따른다() {
+	@DisplayName("🔴 MOBILITY 미확인은 FAIL 이 아니라 경고다 — S15P21E201-540")
+	void 이동제약_미확인은_FAIL이_아니라_경고다() {
 		TripConstraint stroller = mobility("STROLLER", TripConstraint.Severity.SOFT);
 		PlaceCandidateResponse.Candidate candidate = candidate(List.of());
 
 		EngineCandidate result = score(candidate, null, List.of(stroller));
 
-		assertThat(result.unknownFacts()).anySatisfy(fact -> {
-			assertThat(fact.get("fact")).isEqualTo("ACCESSIBILITY_UNVERIFIED");
-			assertThat(fact.get("severity")).isEqualTo("PREFERRED");
-		});
+		assertThat(result.constraintVerdict()).isNotEqualTo(ConstraintVerdict.FAIL);
+		assertThat(result.warningCodes()).contains("ACCESSIBILITY_UNVERIFIED");
+	}
+
+	@Test
+	@DisplayName("🔴 휠체어를 하드 제약으로 켜도 표식 없는 곳은 안 빠진다 — 이게 안 되면 추천이 0건이 된다")
+	void 휠체어_하드제약이어도_표식없는_곳은_안빠진다() {
+		// 🔴 이 검사가 이 티켓의 이유다. 운영 실측(2026-09-16)에서 접근성 표식이 붙은
+		//    장소는 2,683곳 중 102곳(4%)뿐이다. 미확인을 탈락으로 세면 96%가 사라지고
+		//    반경 조건까지 겹치면 결과가 0건이 된다 — 추천 실패 18건 중 8건이 그랬다.
+		TripConstraint wheelchair = mobility("WHEELCHAIR", TripConstraint.Severity.HARD);
+		PlaceCandidateResponse.Candidate candidate = candidate(List.of());
+
+		EngineCandidate result = score(candidate, null, List.of(wheelchair));
+
+		assertThat(result.constraintVerdict()).isNotEqualTo(ConstraintVerdict.FAIL);
+		assertThat(result.violations()).isEmpty();
+		// 🔴 severity 를 REQUIRED 로 단 미확인 사실이 남으면 임계값 설정(기본 REQUIRED)이
+		//    그 후보를 뺀다. 그래서 그 자리가 비어 있어야 한다.
+		assertThat(result.unknownFacts())
+				.noneSatisfy(fact -> assertThat(fact.get("fact")).isEqualTo("ACCESSIBILITY_UNVERIFIED"));
+		assertThat(result.preRankScore()).as("점수가 null 이면 후보에서 빠진다").isNotNull();
+		assertThat(result.warningCodes()).contains("ACCESSIBILITY_UNVERIFIED");
+	}
+
+	@Test
+	@DisplayName("🔴 안 재 본 곳은 재 보고 갈 수 있는 곳보다 뒤로 밀린다 — 빼지 않는 대신 감점한다")
+	void 미확인은_확인된_곳보다_점수가_낮다() {
+		TripConstraint wheelchair = mobility("WHEELCHAIR", TripConstraint.Severity.HARD);
+
+		EngineCandidate verified = score(
+				candidate(List.of(tag("ACCESSIBILITY_TAG", "WHEELCHAIR", "VERIFIED", "true"))),
+				null, List.of(wheelchair));
+		EngineCandidate unverified = score(candidate(List.of()), null, List.of(wheelchair));
+
+		assertThat(unverified.preRankScore())
+				.as("미확인이 확인된 곳과 같은 점수면 뒤로 밀리지 않는다")
+				.isLessThan(verified.preRankScore());
 	}
 
 	@Test
