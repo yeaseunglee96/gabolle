@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Text } from '@/components/Text';
+import { GettingStartedGuide } from '@/components/GettingStartedGuide';
 import { GabolleMascot } from '@/components/DongbaekMascot';
 import { HeroStories, MyTripCard, PlacePicks, WeatherLine } from '@/home/HomeBlocks';
 import { useHomeData } from '@/home/useHomeData';
@@ -120,6 +121,7 @@ export default function Welcome() {
             숨겨 놓고 이 문구만 남기면 약속하는 것과 실제가 어긋난다(MR !708 리뷰 코멘트). */}
         <View style={styles.heroChips}><HeroChip dot={color.state.success} label={tx('맞춤 일정', 'Tailored itinerary')} /><HeroChip dot={color.state.rating} label={tx('설명 가능한 추천', 'Explainable picks')} /></View>
         <WeatherLine forecast={home.weather} />
+        <GettingStartedGuide />
       </View></View>
       {/* 히어로 오른쪽은 영상이었다. 로그인해도 본문이 그대로라 「내 것이 하나도 없다」는
           문제가 여기서 시작됐다 — 그 자리에 지금 올라온 기록을 넣는다 (S15P21E201-970).

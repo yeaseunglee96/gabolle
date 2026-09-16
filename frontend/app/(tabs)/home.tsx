@@ -25,6 +25,7 @@ import { loadSavedPlaceIds, setSavedPlace } from '@/discovery/savedPlaces';
 import { BrandLogoLink } from '@/components/BrandLogoLink';
 import { GabolleMascot } from '@/components/DongbaekMascot';
 import { Screen } from '@/components/Screen';
+import { GettingStartedGuide } from '@/components/GettingStartedGuide';
 import { TabBar } from '@/components/TabBar';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
@@ -120,6 +121,7 @@ export default function Home() {
         </View>
 
         {/* ── 히어로 ── */}
+        <GettingStartedGuide />
         <View style={styles.hero}>
           <View style={styles.heroBadge}><Text variant="caption" weight="bold" color={color.brand.orange}>AI TRAVEL PLANNER · BUSAN</Text></View>
           <Text weight="bold" color={color.brand.navy} style={styles.heroTitle}>{tx('부산의 모든 여행,\n가볼래?', 'Every side of Busan,\nyours to explore.')}</Text>
