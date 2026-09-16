@@ -549,10 +549,6 @@ export default function ItineraryScreen() {
 
   // ── 네이비 헤더 (시안 design_handoff_itinerary 2·3절) ──────────────────────
   //
-  // 🔴 배지에 「초안 v3 · 모델 추천」처럼 **어디서 나온 일정인지**를 적는다. fallbackMode 가
-  // MODEL 이 아니면 그대로 말한다 — 규칙으로 만든 일정을 「모델 추천」이라고 부르면
-  // 사용자는 우리가 안 한 일을 했다고 믿는다.
-  //
   // 🔴 요약은 값이 있는 것만 적는다. 도보·비용은 서버에 없을 때가 있고, 그때 「미확인」이라고
   // 적힌 칸은 정보가 아니라 잡음이다.
   return <View style={styles.shell}><Screen scroll wide withTabBar style={styles.canvas}>
