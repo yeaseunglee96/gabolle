@@ -72,11 +72,15 @@ export function PlacePhraseBrowser({ category, onOpenTaxiCard }: PlacePhraseBrow
           const expanded = expandedId === phrase.id;
           return (
             <Pressable key={phrase.id} accessibilityRole="button" accessibilityState={{ expanded }} onPress={() => setExpandedId(expanded ? null : phrase.id)} style={[styles.phraseCard, expanded && styles.phraseCardExpanded]}>
-              <Text variant={expanded ? 'display' : 'title'} weight="bold">{phrase.ko}</Text>
-              <Text variant="caption" color={color.text.muted}>{phrase.pronunciation}</Text>
+              {/* 사용자 실사용 리포트(2026-09-16): 여행자는 영어 뜻을 이미 알고 한국어를
+                  찾으러 온다 — 한국어를 먼저 크게 보여주면 "그게 무슨 뜻인지" 되짚어야 한다.
+                  뜻(en)을 먼저 보여주고, 누르면 그제서야 한국어·발음·듣기 버튼이 나오게
+                  순서를 뒤집는다. */}
+              <Text variant={expanded ? 'display' : 'title'} weight="bold">{phrase.en}</Text>
               {expanded ? (
                 <>
-                  <Text variant="body" color={color.text.body} style={styles.enText}>{phrase.en}</Text>
+                  <Text variant="body" weight="bold" color={color.text.body} style={styles.enText}>{phrase.ko}</Text>
+                  <Text variant="caption" color={color.text.muted}>{phrase.pronunciation}</Text>
                   <View style={styles.speedRow}>
                     <Pressable accessibilityRole="button" accessibilityLabel={tx('보통 속도로 듣기', 'Listen at normal speed')} onPress={() => speak(phrase, NORMAL_RATE)} style={styles.speedButton}>
                       <Text variant="caption" weight="bold" color={color.text.onAction}>{speakingId === phrase.id && speakingRate === NORMAL_RATE ? tx('재생 중', 'Playing') : tx('▶ 보통', '▶ Normal')}</Text>
