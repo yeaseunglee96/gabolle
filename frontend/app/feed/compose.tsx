@@ -5,6 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 
 import { useAuth } from '@/auth/AuthProvider';
+import { RegionPicker } from '@/components/RegionPicker';
 import { MarkdownBody } from '@/components/MarkdownBody';
 import { PhotoGrid } from '@/components/PhotoGrid';
 import { looksLikeMarkdown } from '@/social/markdown';
@@ -32,6 +33,8 @@ export default function ComposeStory() {
   // S15P21E201-1136 — 쓴 것이 어떻게 보일지 미리 본다.
   const [preview, setPreview] = useState(false);
   const [region, setRegion] = useState('');
+  // 우리 DB 장소를 고르면 채워진다. 손으로 고쳐 쓰면 다시 비워진다 (RegionPicker).
+  const [placeId, setPlaceId] = useState<string | undefined>(undefined);
   const [visibility, setVisibility] = useState<StoryVisibility>('PUBLIC');
   const [publishTiming, setPublishTiming] = useState<PublishTiming>('AFTER_TRIP');
   const [submitting, setSubmitting] = useState(false);
@@ -74,6 +77,9 @@ export default function ComposeStory() {
       body: body.trim(),
       imageUrls: uploadedUrls,
       region: region.trim() || undefined,
+      // 🔴 우리 DB 장소를 골랐을 때만 실려 간다. 카카오 검색 결과에는 placeId 가 아예
+      // 없으므로(regionSearch.ts) 저장하면 안 되는 것이 여기로 흘러들 수 없다.
+      placeId,
       visibility,
       publishAt: publishTiming === 'NOW' ? new Date().toISOString() : undefined,
       accessToken,
@@ -164,7 +170,15 @@ export default function ComposeStory() {
     <Text variant="caption" color={color.text.muted} style={styles.hint}>{tx('사진의 위치 정보는 자동으로 제거되고, 위치는 지역 단위로만 저장돼요.', 'Location data is automatically removed from photos, and only a general region is stored.')}</Text>
 
     <Text variant="caption" weight="bold" style={styles.label}>{tx('지역 (선택)', 'Region (optional)')}</Text>
-    <TextInput accessibilityLabel={tx('지역', 'Region')} style={styles.input} placeholder={tx('예: 해운대구', 'e.g. Haeundae-gu')} placeholderTextColor={color.text.muted} value={region} onChangeText={setRegion} maxLength={60} />
+    {/* S15P21E201-1145 — 피드 탭 안 글쓰기와 **같은 부품**을 쓴다. 두 화면이 다르게
+        동작하면 같은 앱에서 지역을 고르는 방법이 두 가지가 된다. */}
+    <RegionPicker
+      region={region}
+      onChangeRegion={setRegion}
+      placeId={placeId}
+      onChangePlaceId={setPlaceId}
+      accessToken={accessToken}
+    />
 
     <Text variant="caption" weight="bold" style={styles.label}>{tx('공개 시점', 'Publish timing')}</Text>
     <View accessibilityRole="radiogroup" style={styles.visibilityRow}>
@@ -209,7 +223,6 @@ const styles = StyleSheet.create({
   // 사유는 사진 위에 얹히므로 좁다. 줄바꿈을 허용하고 가운데로 모은다.
   imageErrorReason: { marginTop: spacing[1], paddingHorizontal: spacing[2], textAlign: 'center' },
   imageRemove: { position: 'absolute', top: 4, right: 4, width: 24, height: 24, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(11,29,58,0.72)' },
-  input: { minHeight: 48, paddingHorizontal: spacing[3], borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.md, color: color.text.heading, backgroundColor: color.surface.card },
   visibilityRow: { flexDirection: 'row', gap: spacing[2] },
   visibilityOption: { flex: 1, minHeight: 44, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.md, backgroundColor: color.surface.card },
   visibilityOptionSelected: { backgroundColor: color.brand.navy, borderColor: color.brand.navy },
