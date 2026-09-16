@@ -167,7 +167,9 @@ export default function ComposeStory() {
       }}
     /> : null}
     {canAddMore ? <Pressable accessibilityRole="button" accessibilityLabel={tx('사진 추가', 'Add photo')} onPress={() => void addImage()} style={styles.imageAddRow}><Text variant="caption" weight="bold" color={color.action.primary}>{tx('+ 사진 추가', '+ Add photo')}</Text></Pressable> : null}
-    <Text variant="caption" color={color.text.muted} style={styles.hint}>{tx('사진의 위치 정보는 자동으로 제거되고, 위치는 지역 단위로만 저장돼요.', 'Location data is automatically removed from photos, and only a general region is stored.')}</Text>
+    {/* S15P21E201-1146 — 약관 제6조의2 를 화면 말로 옮긴다. 약관에 적혀 있다고
+        화면에서 숨기면, 사용자는 자기 사진이 어디에 쓰이는지 모른 채 올리게 된다. */}
+    <Text variant="caption" color={color.text.muted} style={styles.hint}>{tx('사진의 위치 정보는 자동으로 제거되고, 위치는 지역 단위로만 저장돼요. 장소를 연결하면 그 장소 소개에도 사진이 함께 보일 수 있고, 글을 지우면 거기서도 빠져요.', 'Location data is removed from photos, and only a general region is stored. If you link a place, your photo may also appear on that place — and it comes down when you delete the record.')}</Text>
 
     <Text variant="caption" weight="bold" style={styles.label}>{tx('지역 (선택)', 'Region (optional)')}</Text>
     {/* S15P21E201-1145 — 피드 탭 안 글쓰기와 **같은 부품**을 쓴다. 두 화면이 다르게
