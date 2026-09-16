@@ -113,7 +113,9 @@ export const fontFamily = {
 // taste 로 좁히는 모험을 하지 않는다.
 export const type = {
   caption: { size: 11, lineHeight: 14, letterSpacing: 0.1 },
-  body: { size: 15, lineHeight: 22, letterSpacing: 0 },
+  // lineHeight 는 22 였다가 23으로 올렸다 — 22/15는 146.7%로 팀 UX 가이드라인 39번
+  // ("본문의 행간을 150% 이상이어야 읽기가 쉽습니다")에 못 미쳤다. 23/15 = 153.3%.
+  body: { size: 15, lineHeight: 23, letterSpacing: 0 },
   title: { size: 18, lineHeight: 24, letterSpacing: 0 },
   display: { size: 22, lineHeight: 28, letterSpacing: -0.15 },
   /** 01 Welcome 히어로 브랜드 타이틀 전용(Figma 실측 34px). 다른 화면엔 이 크기가 없어서 추가했다. */
