@@ -20,7 +20,8 @@ import { useI18n } from '@/i18n';
 import { useAuth } from '@/auth/AuthProvider';
 import { directionForLanguage, speechLanguageFor, translateText, TRANSLATE_MAX_LENGTH, type TranslationBlockedReason } from '@/field/translate';
 
-// 🔴 서버가 받는 최대 길이와 같은 값을 쓴다 — 여기만 늘리면 400 을 받고 나서야 안다.
+// 입력칸 상한은 번역 모듈과 한 값을 쓴다 — 두 벌이 되면 화면은 받아 놓고 보낼 때 잘린다.
+// (서버 한도와는 다른 값이다. 왜 120 인지는 TRANSLATE_MAX_LENGTH 주석 참고.)
 const CUSTOM_PHRASE_MAX_LENGTH = TRANSLATE_MAX_LENGTH;
 
 type Tab = 'speak' | 'taxi';
