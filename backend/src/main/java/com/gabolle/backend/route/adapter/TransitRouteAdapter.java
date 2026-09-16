@@ -17,6 +17,7 @@ import com.gabolle.backend.route.application.RouteProviderPort;
 import com.gabolle.backend.route.domain.RouteLeg;
 import com.gabolle.backend.route.domain.RouteQuery;
 import com.gabolle.backend.route.domain.TravelMode;
+import com.gabolle.backend.route.transit.HeadwayJourneyPlanner;
 import com.gabolle.backend.route.transit.RaptorPlanner;
 import com.gabolle.backend.route.transit.TransitNetwork;
 import com.gabolle.backend.route.transit.TransitNetworkPort;
@@ -58,6 +59,13 @@ public class TransitRouteAdapter implements RouteProviderPort {
 
 	static final String REASON_NO_DEPARTURE_TIME =
 			"출발 시각을 몰라 하루의 여러 시각을 재서 가운데 값으로 답했습니다.";
+
+	/**
+	 * 🔴 배차간격으로 낸 값이라는 것을 화면까지 들고 간다 — S15P21E201-1123.
+	 * "이 차를 타면 이 시각에 도착한다" 가 아니라 "평균 이만큼 걸린다" 이다.
+	 */
+	static final String REASON_HEADWAY_ESTIMATE =
+			"시각표가 없어 노선의 평균 배차간격과 정거장 수로 계산한 값입니다.";
 
 	private static final ZoneId KST = ZoneId.of("Asia/Seoul");
 
@@ -109,12 +117,35 @@ public class TransitRouteAdapter implements RouteProviderPort {
 				? planner.plan(network, origins, destinations, minuteOfDay(query))
 				: planner.planTypical(network, origins, destinations);
 
-		if (journey.isEmpty()) {
-			// 🔴 좌표를 로그에 남기지 않는다 — 사용자가 어디에 있었는지가 로그에 쌓인다.
-			log.debug("대중교통 경로를 못 찾았다 (정류장 {}곳 → {}곳)", origins.size(), destinations.size());
-			return Optional.empty();
+		if (journey.isPresent()) {
+			return Optional.of(toLeg(network, journey.get(), exact ? null : REASON_NO_DEPARTURE_TIME));
 		}
-		return Optional.of(toLeg(network, journey.get(), exact));
+
+		// 🔴 시각표가 없으면 위의 탐색기는 아무것도 못 찾는다 — 운행 한 대 한 대의 출발시각을
+		//    보는 방식이기 때문이다. 부산 버스에는 그 자료가 없다(BIMS 가 시각표를 안 준다).
+		//    그래서 배차간격으로 낸다. 시각표가 생기면(지하철) 위쪽이 먼저 답하므로 여기까지
+		//    안 온다 — 좋은 답이 있을 때 덜 좋은 답으로 덮지 않는다.
+		//
+		// 🔴 <b>출발 시각을 아는 요청에는 이 길을 안 쓴다.</b> 배차간격은 "평균 이만큼
+		//    걸린다" 를 낼 뿐 "그 시각에 차가 있다" 를 모른다. 시각을 알고 물었는데 위에서
+		//    빈 값이 왔다면 그 답은 <b>"그 시각에는 못 간다"</b> 이고(막차가 지났거나
+		//    첫차 전이다), 그걸 평균값으로 덮으면 없는 차를 타라고 말하는 것이 된다.
+		//    `returnsEmptyAfterLastTrain` 이 지키는 것이 정확히 이것이다.
+		//
+		//    실제 쓰임에서는 이 제한이 아무것도 잃지 않는다 — 일정 구간을 재는 쪽도
+		//    경로 API 도 출발 시각 없이 부른다(RouteQuery 5인자 생성자).
+		if (!exact) {
+			Optional<RaptorPlanner.Journey> byHeadway = new HeadwayJourneyPlanner(
+					this.properties.getRideSpeedKmh(), this.properties.getDwellSecondsPerStop())
+							.plan(network, origins, destinations);
+			if (byHeadway.isPresent()) {
+				return Optional.of(toLeg(network, byHeadway.get(), REASON_HEADWAY_ESTIMATE));
+			}
+		}
+
+		// 🔴 좌표를 로그에 남기지 않는다 — 사용자가 어디에 있었는지가 로그에 쌓인다.
+		log.debug("대중교통 경로를 못 찾았다 (정류장 {}곳 → {}곳)", origins.size(), destinations.size());
+		return Optional.empty();
 	}
 
 	/**
@@ -152,7 +183,10 @@ public class TransitRouteAdapter implements RouteProviderPort {
 		return kst.getHour() * 60 + kst.getMinute();
 	}
 
-	private RouteLeg toLeg(TransitNetwork network, RaptorPlanner.Journey journey, boolean exact) {
+	/**
+	 * @param estimateReason 어림값이면 그 이유, 실제 시각표로 정확히 잰 것이면 {@code null}
+	 */
+	private RouteLeg toLeg(TransitNetwork network, RaptorPlanner.Journey journey, String estimateReason) {
 		List<RouteLeg.Step> steps = new ArrayList<>();
 		int distanceM = 0;
 		for (RaptorPlanner.Ride ride : journey.rides()) {
@@ -176,7 +210,7 @@ public class TransitRouteAdapter implements RouteProviderPort {
 		}
 
 		return new RouteLeg(TravelMode.TRANSIT, distanceM, journey.durationMin(), null, null,
-				journey.transferCount(), !exact, exact ? null : REASON_NO_DEPARTURE_TIME,
+				journey.transferCount(), estimateReason != null, estimateReason,
 				PROVIDER_TRANSIT_NETWORK, List.of(), List.copyOf(steps));
 	}
 
