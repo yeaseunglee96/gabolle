@@ -57,6 +57,13 @@ public class BaselineCandidateScorer {
 	 */
 	private static final double MOBILITY_WARNING_PENALTY = 0.05;
 
+	/**
+	 * 접근성을 <b>안 재 봤다</b>는 경고. "못 간다" 가 아니라 "모른다" 다 —
+	 * {@code ACCESS_VERIFIED_UNAVAILABLE}(재 보고 안 된다고 나온 곳)과 다른 사실이라
+	 * 자리를 따로 둔다. 화면은 이 둘을 갈라 그릴 수 있어야 한다.
+	 */
+	static final String ACCESSIBILITY_UNVERIFIED_WARNING = "ACCESSIBILITY_UNVERIFIED";
+
 	private final ObjectMapper objectMapper;
 
 	public BaselineCandidateScorer(ObjectMapper objectMapper) {
@@ -200,6 +207,10 @@ public class BaselineCandidateScorer {
 			total -= MOBILITY_WARNING_PENALTY;
 		}
 		if (warnings.contains("WALKING_OVER_LIMIT")) {
+			total -= MOBILITY_WARNING_PENALTY;
+		}
+		// S15P21E201-540 — 접근성 미확인도 같은 폭으로 깎는다. 빼지는 않고 뒤로 민다.
+		if (warnings.contains(ACCESSIBILITY_UNVERIFIED_WARNING)) {
 			total -= MOBILITY_WARNING_PENALTY;
 		}
 		total = Math.max(0.0, total);
@@ -358,6 +369,46 @@ public class BaselineCandidateScorer {
 		}
 	}
 
+	/**
+	 * 이동 제약(휠체어·유아차·무거운 짐·계단 회피·보행 상한)을 본다.
+	 *
+	 * <h2>🔴 S15P21E201-540 — "안 재 봤다" 를 탈락으로 세지 않는다</h2>
+	 *
+	 * 예전에는 접근성 표식이 <b>없는</b> 장소를 {@code unknownFacts} 에 REQUIRED 등급으로
+	 * 넣었고, 기본 설정({@code gabolle.recommendation.unknown-exclusion-threshold=REQUIRED})이
+	 * 그 후보를 결과에서 뺐다. 표식이 있는 것과 없는 것을 <b>같게 다룬 것</b>이다.
+	 *
+	 * <p>그 전제가 데이터와 맞지 않는다. 2026-09-16 운영 실측으로 접근성 표식이 붙은 장소는
+	 * 전체 2,683곳 중 <b>102곳(4%)</b>이다. 그래서 휠체어 조건을 켜면 96%가 사라지고, 반경
+	 * 조건까지 겹치면 <b>후보가 0건</b>이 된다. 실제로 그날까지 쌓인 추천 실패 18건 중
+	 * <b>8건</b>이 전부 이 자리({@code CONSTRAINT_EVALUATION} 단계)에서 죽었다.
+	 *
+	 * <p>그래서 둘을 가른다.
+	 *
+	 * <table border="1">
+	 * <caption>접근성 표식에 따른 판정</caption>
+	 * <tr><th>표식</th><th>뜻</th><th>판정</th></tr>
+	 * <tr><td>PRESENT</td><td>재 봤고 갈 수 있다</td><td>통과</td></tr>
+	 * <tr><td>ABSENT</td><td><b>재 봤고 못 간다</b></td><td>여전히 탈락 — 데이터가 없는 게 아니라 있는 것이다</td></tr>
+	 * <tr><td>UNVERIFIED</td><td>안 재 봤다</td><td><b>경고 + 감점.</b> 빼지 않고 뒤로 민다</td></tr>
+	 * </table>
+	 *
+	 * <p>이것은 같은 함수 위쪽의 {@code STAIRS_PRESENT} · {@code WALKING_OVER_LIMIT} 이 이미
+	 * 하고 있는 처리와 같다 — 이 자리만 다르게 돼 있었다.
+	 *
+	 * <h2>전역 설정을 내리지 않은 이유</h2>
+	 *
+	 * {@code unknown-exclusion-threshold} 를 {@code NONE} 으로 두면 이 문제는 풀리지만
+	 * <b>알레르기 미확인까지 같이 풀린다.</b> 그 enum 의 주석이 왜 안 되는지 적어 뒀다 —
+	 * 사용자가 식당에 전화해 땅콩기름을 쓰는지 확인할 수는 없다. 다이얼은 눈금이 하나뿐이라
+	 * 안전 제약과 편의 제약을 못 가른다. 그래서 다이얼이 아니라 이 자리를 고친다.
+	 *
+	 * <h2>화면이 알아야 하는 것</h2>
+	 *
+	 * 감점된 후보에는 {@link #ACCESSIBILITY_UNVERIFIED_WARNING} 이 붙어 응답까지 간다.
+	 * 「휠체어로 갈 수 있음」은 지킬 수 없는 약속이므로(경사가 완만해도 입구에 계단 세 칸이면
+	 * 못 간다) 화면은 <b>잰 것을 그대로</b> 말해야 한다 — 이 경고가 그 재료다.
+	 */
 	private void evaluateMobility(PlaceCandidateResponse.Candidate candidate, TripConstraint constraint,
 			List<UserPlaceCodeMap> constraintCodeMap, List<Map<String, Object>> violations,
 			List<Map<String, Object>> unknownFacts, List<String> warnings) {
@@ -389,9 +440,11 @@ public class BaselineCandidateScorer {
 		}
 		switch (bucketFor(candidate, featureType, key)) {
 			// 🔴 방향이 알레르기와 반대다 — 여기는 "없다고 확인됨" 이 FAIL 이다.
+			//    재 보고 안 된다고 나온 곳은 그대로 뺀다. 그건 데이터가 없는 게 아니라 있는 것이다.
 			case ABSENT -> violations.add(Map.of("code", "ACCESS_VERIFIED_UNAVAILABLE", "featureKey", key));
-			case UNVERIFIED -> unknownFacts.add(Map.of("fact", "ACCESSIBILITY_UNVERIFIED", "featureKey", key,
-					"severity", severityOf(constraint)));
+			// 🔴 S15P21E201-540 — "안 재 봤다" 는 FAIL 이 아니다. 경고 + 감점이다.
+			//    같은 함수 위쪽의 STAIRS_PRESENT · WALKING_OVER_LIMIT 과 같은 처리다.
+			case UNVERIFIED -> warnings.add(ACCESSIBILITY_UNVERIFIED_WARNING);
 			case PRESENT -> {
 				// 검증된 접근 가능 — 통과 기여.
 			}
