@@ -13,7 +13,18 @@ public record ItineraryDraft(
         String tripId, String userId, UUID requestId,
         String modelVersion, String featureVersion, String ontologyVersion,
         String policyVersion, String datasetVersion,
-        List<DraftItem> items, List<DraftLeg> legs) {
+        List<DraftItem> items, List<DraftLeg> legs,
+        /**
+         * 이 판을 만들면서 있었던 일 — {@code itinerary_versions.warning_codes} 로 간다.
+         * 🔴 항목 경고와 대상이 다르다. <b>담을 항목 행 자체가 없는 사실</b>(빈 시간대 등)이
+         * 여기로 온다 — {@code ItineraryWarningCodes} javadoc 참고.
+         */
+        List<String> warningCodes) {
+
+    public ItineraryDraft {
+        warningCodes = (warningCodes == null) ? List.of() : List.copyOf(warningCodes);
+    }
+
 
     public record DraftItem(int dayIndex, LocalDate visitDate, int sequence, UUID placeId,
             UUID itemKey, LocalTime startTime, LocalTime endTime, Integer stayMinutes,
