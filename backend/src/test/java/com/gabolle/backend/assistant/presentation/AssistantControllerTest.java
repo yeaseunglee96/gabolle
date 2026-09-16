@@ -1,6 +1,10 @@
 package com.gabolle.backend.assistant.presentation;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -22,12 +26,14 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.gabolle.backend.assistant.application.AssistantChatService;
 import com.gabolle.backend.assistant.application.AssistantRateLimiter;
+import com.gabolle.backend.assistant.application.AssistantTripContextBuilder;
 import com.gabolle.backend.assistant.application.AssistantVendorException;
 import com.gabolle.backend.assistant.application.AssistantVendorPort;
 import com.gabolle.backend.assistant.config.AssistantProperties;
 import com.gabolle.backend.assistant.domain.AssistantActionKind;
 import com.gabolle.backend.assistant.domain.AssistantChatRequest;
 import com.gabolle.backend.assistant.domain.AssistantReply;
+import com.gabolle.backend.user.application.ConsentGuard;
 
 /**
  * {@code POST /api/v1/assistant/messages} 의 HTTP 경계 — S15P21E201-802.
@@ -43,6 +49,7 @@ class AssistantControllerTest {
 	private MockMvc mockMvc;
 	private StubVendor vendor;
 	private AssistantProperties properties;
+	private AssistantTripContextBuilder tripContextBuilder;
 
 	@BeforeEach
 	void setUp() {
@@ -50,7 +57,10 @@ class AssistantControllerTest {
 		this.properties = new AssistantProperties();
 		Clock clock = Clock.fixed(Instant.parse("2026-09-11T00:00:00Z"), ZoneOffset.UTC);
 		AssistantRateLimiter rateLimiter = new AssistantRateLimiter(this.properties, clock);
-		AssistantChatService service = new AssistantChatService(this.vendor, rateLimiter, this.properties);
+		ConsentGuard consentGuard = mock(ConsentGuard.class);
+		this.tripContextBuilder = mock(AssistantTripContextBuilder.class);
+		AssistantChatService service = new AssistantChatService(this.vendor, rateLimiter, this.properties,
+				consentGuard, this.tripContextBuilder);
 
 		this.mockMvc = MockMvcBuilders.standaloneSetup(new AssistantController(service))
 				.setControllerAdvice(new AssistantExceptionHandler())
@@ -137,6 +147,21 @@ class AssistantControllerTest {
 						.principal(user))
 				.andExpect(status().isTooManyRequests())
 				.andExpect(jsonPath("$.error.code").value("ASSISTANT_RATE_LIMITED"));
+	}
+
+	@Test
+	@DisplayName("itineraryId·dayIndex 를 보내면 동의 확인 후 일정 요약을 벤더에 실어 보낸다")
+	void itineraryContextIsForwardedToVendor() throws Exception {
+		given(this.tripContextBuilder.build(eq("itin-1"), eq(0), any())).willReturn("첫날 일정 요약");
+		Authentication user = asUser();
+
+		this.mockMvc.perform(post("/api/v1/assistant/messages")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content("{\"message\":\"오늘 뭐 챙겨야 해?\", \"itineraryId\":\"itin-1\", \"dayIndex\":0}")
+						.principal(user))
+				.andExpect(status().isOk());
+
+		assertThat(this.vendor.lastRequest.tripContext()).isEqualTo("첫날 일정 요약");
 	}
 
 	private static final class StubVendor implements AssistantVendorPort {

@@ -3,6 +3,7 @@ package com.gabolle.backend.assistant.presentation;
 import java.util.UUID;
 
 import org.springframework.context.annotation.Profile;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -11,6 +12,7 @@ import com.gabolle.backend.assistant.application.AssistantRateLimitExceededExcep
 import com.gabolle.backend.assistant.application.AssistantVendorException;
 import com.gabolle.backend.common.api.ApiError;
 import com.gabolle.backend.common.api.ApiResponse;
+import com.gabolle.backend.itinerary.presentation.ItineraryQueryController;
 
 /**
  * 여행 도우미의 실패를 명확한 상태코드로 번역한다 — S15P21E201-802.
@@ -41,6 +43,14 @@ public class AssistantExceptionHandler {
 	public ResponseEntity<ApiResponse<Void>> handleRateLimitExceeded(AssistantRateLimitExceededException exception) {
 		return ResponseEntity.status(exception.getStatus()).body(ApiResponse.failure(
 				new ApiError("ASSISTANT_RATE_LIMITED", exception.getMessage()), requestId()));
+	}
+
+	/** itineraryId 로 넘겼는데 그 일정이 없거나 요청자가 회원이 아니다 — S15P21E201-987. */
+	@ExceptionHandler(ItineraryQueryController.ItineraryNotFoundException.class)
+	public ResponseEntity<ApiResponse<Void>> handleItineraryNotFound(
+			ItineraryQueryController.ItineraryNotFoundException exception) {
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.failure(
+				new ApiError("ITINERARY_NOT_FOUND", "일정을 찾을 수 없습니다."), requestId()));
 	}
 
 	private String requestId() {
