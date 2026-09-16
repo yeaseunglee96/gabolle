@@ -219,8 +219,17 @@ class RecommendationWithRealPlacesFunctionalTest extends FunctionalJourneyTest {
 		ensurePlaces();
 		AuthedClient authed = loginAsNewUser("rec-empty-category", HEALTH_CONSENT);
 
-		// 적재된 장소는 전부 음식점이다. 바다만 고르면 후보가 0곳이 된다.
-		String tripId = createTrip(authed, "SEA_BEACH");
+		// 🔴 "후보가 0곳" 을 <b>갈래</b>로 만들지 않는다. 예전에는 "적재된 장소는 전부
+		//    음식점이니 바다를 고르면 0곳" 이었는데, 그 전제는 바다 장소를 넣는
+		//    마이그레이션 하나로 무너진다 — 2026-09-16 에 실제로 그랬다(MR !984 가
+		//    바다·자연 18곳을 넣자 이 작업이 SUCCEEDED 로 끝나 이 검사가 빨개졌다).
+		//
+		//    그래서 <b>거리</b>로 만든다. 엔진의 후보 질의 반경은 5km 고정이고 넓히지
+		//    않으므로(BaselineEngineProperties.radiusM = 5000), 부산에서 멀리 떨어진
+		//    바다 한가운데를 출발지로 두면 <b>무엇을 적재하든</b> 후보가 0곳이다.
+		//    이 검사가 보려는 것은 "갈래가 비었나" 가 아니라 "후보가 없을 때 무슨 코드로
+		//    말하는가" 이므로, 0곳이 되는 이유는 아무래도 좋다.
+		String tripId = createTripFarFromAnyPlace(authed);
 		String jobId = requestRecommendation(authed, tripId);
 		String body = pollUntil(() -> authed.get("/api/v1/jobs/" + jobId, String.class), response -> {
 			String status = JsonPath.read(response, "$.data.status");
@@ -238,10 +247,24 @@ class RecommendationWithRealPlacesFunctionalTest extends FunctionalJourneyTest {
 	}
 
 	private String createTrip(AuthedClient authed) {
-		return createTrip(authed, "FOOD");
+		return createTrip(authed, "FOOD", ORIGIN_LAT, ORIGIN_LNG);
 	}
 
 	private String createTrip(AuthedClient authed, String categoryCode) {
+		return createTrip(authed, categoryCode, ORIGIN_LAT, ORIGIN_LNG);
+	}
+
+	/**
+	 * 반경 5km 안에 장소가 하나도 없을 수밖에 없는 출발지로 여행을 만든다 — 남해 먼바다다.
+	 *
+	 * <p>이 좌표에 장소가 적재될 일은 없다. 바다 위라서다. 그래서 이 검사는 <b>앞으로
+	 * 무엇을 적재하든</b> 안 흔들린다.
+	 */
+	private String createTripFarFromAnyPlace(AuthedClient authed) {
+		return createTrip(authed, "SEA_BEACH", 34.60, 128.40);
+	}
+
+	private String createTrip(AuthedClient authed, String categoryCode, double originLat, double originLng) {
 		// 알레르기를 "없다"(NONE)로 답한다. 실제 사용자가 "알레르기 없음" 을 고르는 것과
 		//    같고, 서버가 제약을 최소 하나 요구하기 때문이기도 하다(RecommendationJobRunner).
 		//
@@ -251,8 +274,8 @@ class RecommendationWithRealPlacesFunctionalTest extends FunctionalJourneyTest {
 		Map<String, Object> request = Map.ofEntries(
 				Map.entry("startDate", "2026-10-01"),
 				Map.entry("finishDate", "2026-10-02"),
-				Map.entry("originLat", ORIGIN_LAT),
-				Map.entry("originLng", ORIGIN_LNG),
+				Map.entry("originLat", originLat),
+				Map.entry("originLng", originLng),
 				Map.entry("partySize", 2),
 				Map.entry("timeWindow", "09:00-18:00"),
 				Map.entry("timezone", "Asia/Seoul"),
