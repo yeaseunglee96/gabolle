@@ -104,6 +104,34 @@ public class BusanBusNetworkPort implements TransitNetworkPort {
 		}
 	}
 
+	/**
+	 * {@code "04:20"} 을 자정부터의 분으로. 값이 없거나 모양이 다르면 {@code fallback}.
+	 *
+	 * <p>🔴 {@code 24:00} 이 넘는 값을 쓰는 원천이 있다(새벽 1시를 25:00 으로 적는 식).
+	 * 하루 범위로 되접는다 — 안 그러면 노선 하나가 통째로 안 실린다.
+	 */
+	private static int minuteOfDay(JsonNode node, int fallback) {
+		if (node == null || node.isNull()) {
+			return fallback;
+		}
+		String raw = node.asString();
+		int colon = (raw == null) ? -1 : raw.indexOf(':');
+		if (colon <= 0) {
+			return fallback;
+		}
+		try {
+			int hour = Integer.parseInt(raw.substring(0, colon).trim());
+			int minute = Integer.parseInt(raw.substring(colon + 1).trim());
+			if (minute < 0 || minute > 59) {
+				return fallback;
+			}
+			return Math.floorMod(hour * 60 + minute, TransitNetwork.MINUTES_PER_DAY);
+		}
+		catch (NumberFormatException notATime) {
+			return fallback;
+		}
+	}
+
 	/** {@code {"정류장id": [위도, 경도, 이름, 종류]}}. 배열로 둔 것은 0.8MB 를 지키기 위해서다. */
 	private static List<TransitNetwork.Stop> readStops(JsonNode node) {
 		List<TransitNetwork.Stop> stops = new ArrayList<>();
@@ -131,9 +159,13 @@ public class BusanBusNetworkPort implements TransitNetworkPort {
 			if (stopIds.size() < 2) {
 				continue;
 			}
+			// 🔴 첫차·막차가 없는 노선은 하루 종일 다니는 것으로 본다. 모르는 것을 "안 다닌다"
+			//    로 두면 그 노선이 조용히 사라진다 — BIMS 수집본에서는 290개 중 288개에 값이 있다.
+			int first = minuteOfDay(route.get("first"), 0);
+			int last = minuteOfDay(route.get("last"), TransitNetwork.MINUTES_PER_DAY - 1);
 			routes.add(new TransitNetwork.Route(route.get("id").asString(),
 					route.get("num").asString() + "번", TransitNetwork.Kind.BUS, stopIds,
-					route.get("headway").asInt()));
+					route.get("headway").asInt(), first, last));
 		}
 		return routes;
 	}
