@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRef, useState } from 'react';
-import { Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Image, ImageBackground, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -13,6 +13,11 @@ import { useLayout } from '@/layout/useLayout';
 
 const INTRO_SEEN_KEY = '@gabolle/app-intro-seen';
 const logo = require('../assets/brand/gabolle-logo-hd.png');
+const INTRO_IMAGES = {
+  'ai-travel': require('../assets/home/haeundae.png'),
+  'local-discovery': require('../assets/home/gamcheon.png'),
+  'field-talk': require('../assets/home/gwangalli.png'),
+} as const;
 // S15P21E201-907로 메뉴판 카메라 번역 기능 자체를 출시 전 배포에서 뺐다 — 이 온보딩
 // 소개 화면에 "메뉴판을 찍고 바로 이해해요" 페이지가 남아 있으면, 앱에 없는 기능을
 // 광고하는 셈이라 chat.tsx QUICK_TOOLS와 같은 원칙(실제로 동작하는 화면만 올린다)에
@@ -49,7 +54,7 @@ export default function AppIntro() {
         모멘텀과 겹쳐 스와이프가 멈추는 결함으로 실기기에서 보고됐다. 네이티브
         pagingEnabled 하나로 바꾸면 페이지 스냅을 OS가 직접 처리해 이 충돌이 없다. */}
     <ScrollView ref={pager} horizontal pagingEnabled bounces={false} showsHorizontalScrollIndicator={false} decelerationRate="fast" scrollEventThrottle={16} onScroll={(event) => setPage(Math.max(0, Math.min(PAGES.length - 1, Math.round(event.nativeEvent.contentOffset.x / pageWidth))))} onMomentumScrollEnd={(event) => setPage(Math.max(0, Math.min(PAGES.length - 1, Math.round(event.nativeEvent.contentOffset.x / pageWidth))))}>
-      {PAGES.map((item) => <ScrollView key={item.id} style={{ width: pageWidth }} contentContainerStyle={styles.page}><FeaturePreview id={item.id} /><View style={styles.copy}><Eyebrow>{tx(item.eyebrowKo, item.eyebrowEn)}</Eyebrow><Text variant="display" weight="bold" style={styles.title}>{tx(item.titleKo, item.titleEn)}</Text><Text variant="body" color={color.text.body} style={styles.description}>{tx(item.descriptionKo, item.descriptionEn)}</Text></View></ScrollView>)}
+      {PAGES.map((item) => <ScrollView key={item.id} style={{ width: pageWidth }} contentContainerStyle={styles.page} showsVerticalScrollIndicator={false}><FeaturePreview id={item.id} /><View style={styles.copy}><Eyebrow>{tx(item.eyebrowKo, item.eyebrowEn)}</Eyebrow><Text variant="display" weight="bold" style={styles.title}>{tx(item.titleKo, item.titleEn)}</Text><Text variant="body" color={color.text.body} style={styles.description}>{tx(item.descriptionKo, item.descriptionEn)}</Text></View></ScrollView>)}
     </ScrollView>
     <View style={styles.footer}><View accessibilityLabel={tx(`${PAGES.length}개 중 ${page + 1}번째`, `${page + 1} of ${PAGES.length}`)} style={styles.dots}>{PAGES.map((item, index) => <View key={item.id} style={[styles.dot, index === page && styles.dotActive]} />)}</View><Button label={page === PAGES.length - 1 ? tx('시작하기', 'Get started') : tx('다음', 'Next')} onPress={() => page === PAGES.length - 1 ? void finish() : go(page + 1)} containerStyle={styles.next} /></View>
     </View>
@@ -58,9 +63,12 @@ export default function AppIntro() {
 
 function FeaturePreview({ id }: { id: (typeof PAGES)[number]['id'] }) {
   const { tx } = useI18n();
-  if (id === 'ai-travel') return <View style={styles.preview}><Text variant="caption" weight="bold" color={color.text.muted}>{tx('어떤 여행을 좋아하세요?', 'What kind of trip do you like?')}</Text><View style={styles.chips}><View style={styles.selectedChip}><Text variant="caption" weight="bold" color={color.text.onAction}>{tx('바다', 'Sea')}</Text></View><View style={styles.chip}><Text variant="caption" weight="bold">{tx('미식', 'Food')}</Text></View><View style={styles.chip}><Text variant="caption" weight="bold">{tx('골목', 'Alleys')}</Text></View></View><View style={styles.progress}><View style={styles.progressFill} /></View></View>;
-  if (id === 'local-discovery') return <View style={styles.preview}><View style={styles.searchPreview}><Text color={color.text.muted}>{tx('감천문화마을', 'Gamcheon Culture Village')}</Text><Text weight="bold" color={color.brand.orange}>⌕</Text></View><View style={styles.placePreview}><View style={styles.placeMark}><Text>📍</Text></View><View style={styles.placeCopy}><Text weight="bold">{tx('감천문화마을', 'Gamcheon Culture Village')}</Text><Text variant="caption" color={color.text.muted}>{tx('부산 사하구', 'Saha-gu, Busan')}</Text></View><View style={styles.savedBadge}><Text variant="caption" weight="bold" color={color.text.onAction}>＋</Text></View></View><Text variant="caption" color={color.text.body}>{tx('검색 → 저장 → 일정에 추가', 'Search → Save → Add to trip')}</Text></View>;
-  return <View style={styles.ticket}><View style={styles.ticketTop}><Text variant="caption" weight="bold" color={color.text.onAction}>{tx('현장 말하기', 'Field talk')}</Text><Text variant="title" weight="bold" color={color.text.onAction}>{tx('사진 한 장 부탁드려도 될까요?', 'Could you take a photo for us?')}</Text></View><View style={styles.ticketBody}><Text variant="caption" color={color.text.muted}>sajin han jang butakdeuryeodo doelkkayo?</Text><View style={styles.dash} /><Text weight="bold" color={color.action.field}>{tx('▶ 한국어로 듣기', '▶ Listen in Korean')}</Text></View></View>;
+  return <ImageBackground source={INTRO_IMAGES[id]} resizeMode="cover" imageStyle={styles.previewImage} style={styles.photoPreview}>
+    <View style={styles.photoScrim} />
+    {id === 'ai-travel' ? <View style={styles.previewPanel}><Text variant="caption" weight="bold" color={color.text.heading}>{tx('어떤 여행을 좋아하세요?', 'What kind of trip do you like?')}</Text><View style={styles.chips}><View style={styles.selectedChip}><Text variant="caption" weight="bold" color={color.text.onAction}>{tx('바다', 'Sea')}</Text></View><View style={styles.chip}><Text variant="caption" weight="bold">{tx('미식', 'Food')}</Text></View><View style={styles.chip}><Text variant="caption" weight="bold">{tx('골목', 'Alleys')}</Text></View></View><View style={styles.progress}><View style={styles.progressFill} /></View></View> : null}
+    {id === 'local-discovery' ? <><View style={styles.searchPreview}><Text color={color.text.heading}>{tx('감천문화마을', 'Gamcheon Culture Village')}</Text><Text weight="bold" color={color.brand.orange}>⌕</Text></View><View style={styles.placePreview}><View style={styles.placeMark}><Text>📍</Text></View><View style={styles.placeCopy}><Text weight="bold">{tx('감천문화마을', 'Gamcheon Culture Village')}</Text><Text variant="caption" color={color.text.muted}>{tx('부산 사하구', 'Saha-gu, Busan')}</Text></View><View style={styles.savedBadge}><Text variant="caption" weight="bold" color={color.text.onAction}>＋</Text></View></View></> : null}
+    {id === 'field-talk' ? <View style={[styles.previewPanel, styles.fieldPanel]}><Text variant="caption" weight="bold" color={color.brand.orange}>{tx('현장 말하기', 'Field talk')}</Text><Text variant="title" weight="bold" color={color.text.onAction}>{tx('사진 한 장 부탁드려도 될까요?', 'Could you take a photo for us?')}</Text><Text variant="caption" color={color.text.onDarkMuted}>▶ {tx('한국어로 듣기', 'Listen in Korean')}</Text></View> : null}
+  </ImageBackground>;
 }
 
 const styles = StyleSheet.create({
@@ -76,13 +84,16 @@ const styles = StyleSheet.create({
   logoButton: { minWidth: 100, minHeight: 44, alignItems: 'flex-start', justifyContent: 'center', borderRadius: radius.sm }, logo: { width: 100, height: 24 },
   skip: { minWidth: 64, minHeight: 44, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full }, pressed: { opacity: 0.65, transform: [{ scale: 0.97 }] },
   page: { flexGrow: 1, justifyContent: 'center', paddingHorizontal: spacing[6], paddingVertical: spacing[4] },
-  preview: { minHeight: 210, justifyContent: 'center', gap: spacing[3], padding: spacing[6], borderRadius: 28, borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.surface.card, shadowColor: color.brand.navy, shadowOpacity: 0.08, shadowRadius: 16, shadowOffset: { width: 0, height: 8 }, elevation: 4 },
+  photoPreview: { minHeight: 220, justifyContent: 'flex-end', gap: spacing[3], overflow: 'hidden', padding: spacing[4], borderRadius: 28, backgroundColor: color.surface.soft, shadowColor: color.brand.navy, shadowOpacity: 0.12, shadowRadius: 16, shadowOffset: { width: 0, height: 8 }, elevation: 4 },
+  previewImage: { borderRadius: 28 },
+  photoScrim: { pointerEvents: 'none', position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, backgroundColor: 'rgba(11,29,58,0.18)' },
+  previewPanel: { gap: spacing[2], padding: spacing[3], borderRadius: radius.md, backgroundColor: 'rgba(255,255,255,0.94)' },
+  fieldPanel: { backgroundColor: 'rgba(11,29,58,0.92)' },
   searchPreview: { minHeight: 48, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.surface.soft },
   placePreview: { minHeight: 72, flexDirection: 'row', alignItems: 'center', gap: spacing[3], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.tint }, placeMark: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full, backgroundColor: color.surface.card }, placeCopy: { flex: 1, gap: spacing[1] }, savedBadge: { width: 36, height: 36, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full, backgroundColor: color.brand.orange },
   chips: { flexDirection: 'row', gap: spacing[2] }, chip: { paddingHorizontal: spacing[4], paddingVertical: spacing[2], borderRadius: radius.full, borderWidth: 1, borderColor: '#e3ddd4' }, selectedChip: { paddingHorizontal: spacing[4], paddingVertical: spacing[2], borderRadius: radius.full, backgroundColor: color.brand.orange },
   progress: { height: 6, overflow: 'hidden', borderRadius: radius.full, backgroundColor: '#eee9e1' }, progressFill: { width: '64%', height: 6, borderRadius: radius.full, backgroundColor: color.brand.orange },
   previewRow: { minHeight: 42, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: '#e8e2d9' },
-  ticket: { minHeight: 210, overflow: 'hidden', borderRadius: 28, backgroundColor: color.surface.card, shadowColor: color.brand.navy, shadowOpacity: 0.08, shadowRadius: 16, shadowOffset: { width: 0, height: 8 }, elevation: 4 }, ticketTop: { gap: spacing[2], padding: spacing[6], backgroundColor: color.brand.navy }, ticketBody: { flex: 1, gap: spacing[3], padding: spacing[6] }, dash: { borderTopWidth: 1, borderStyle: 'dashed', borderColor: '#c9c3bb' },
   copy: { gap: spacing[3], marginTop: spacing[6] }, title: { fontSize: 30, lineHeight: 38 }, description: { maxWidth: 330, lineHeight: 24 },
   footer: { flexShrink: 0, gap: spacing[4], paddingHorizontal: spacing[6], paddingTop: spacing[2], paddingBottom: spacing[6] },
   dots: { height: 10, flexDirection: 'row', justifyContent: 'center', gap: spacing[2] }, dot: { width: 8, height: 8, borderRadius: radius.full, backgroundColor: '#ded8cf' }, dotActive: { width: 24, backgroundColor: color.brand.orange }, next: { minHeight: 54, borderRadius: radius.full, backgroundColor: color.brand.orange },
