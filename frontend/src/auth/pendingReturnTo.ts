@@ -32,3 +32,22 @@ export async function resolveDestination(returnTo?: string | null): Promise<stri
   const pending = await consumePendingReturnTo();
   return pending ?? '/home';
 }
+
+/**
+ * 「비회원으로 둘러보기」를 눌렀을 때 갈 곳 — S15P21E201-1116.
+ *
+ * <p>이 버튼의 뜻은 「로그인 없이 볼 수 있는 곳으로 가겠다」이다. 그러니 돌아갈 자리가
+ * 로그인을 요구하는 화면이면 거기로 가면 안 된다 — 가 봐야 ProtectedRoute 가 다시
+ * 로그인 화면으로 보내고, 그 고리는 앱을 강제 종료해야 끊긴다.
+ *
+ * <p>로그인을 요구하는 화면인지는 {@code gated} 가 말해 준다. ProtectedRoute 가 막아서
+ * 보낼 때만 붙인다. 화면 목록을 여기에 적어 두고 맞춰 보는 방법도 있지만, 목록은 화면이
+ * 늘 때마다 낡고 낡은 목록은 없는 것보다 나쁘다.
+ *
+ * <p>로그인에 성공했을 때 갈 곳은 이것이 아니라 {@link resolveDestination} 이 정한다 —
+ * 그때는 보호 화면이어도 들어갈 수 있으므로 returnTo 를 그대로 쓴다.
+ */
+export function guestDestination(returnTo?: string | null, gated?: string | null): string {
+  if (gated === '1') return '/home';
+  return isSafeReturnPath(returnTo) ? returnTo : '/home';
+}
