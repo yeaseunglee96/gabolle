@@ -101,9 +101,19 @@ export default function ComposeStory() {
       {images.map((image, index) => <View key={`${image.localUri}-${index}`} style={styles.imageSlot}>
         <Image source={{ uri: image.localUri }} resizeMode="cover" accessibilityLabel={tx('선택한 사진', 'Selected photo')} style={styles.imagePreview} />
         {image.uploading ? <View style={styles.imageOverlay}><ActivityIndicator color={color.text.onAction} /></View> : null}
+        {/* 🔴 S15P21E201-1122 — 실패 사유를 함께 보여 준다.
+
+            전에는 image.error 를 조건으로만 쓰고 내용을 그리지 않았다. useStoryImages 는
+            「줄여도 4.2MB 라 올릴 수 없어요」처럼 이유를 정확히 만들어 넣는데, 화면에는
+            「실패 · 다시 시도」만 떴다. 그러면 사용자는 왜 실패했는지 모른 채 같은 사진으로
+            계속 재시도한다 — 크기가 문제일 때 재시도는 언제나 같은 결과다.
+
+            S15P21E201-955 가 고치려던 것이 정확히 이것이다(「지금은 실패한 뒤에야 안다」).
+            문구는 그때 만들어졌는데 화면에 닿지 못하고 있었다. */}
         {image.error ? (
           <Pressable accessibilityRole="button" accessibilityLabel={tx('업로드 다시 시도', 'Retry upload')} onPress={() => retryImage(index)} style={styles.imageOverlay}>
             <Text variant="caption" weight="bold" color={color.text.onAction}>{tx('실패 · 다시 시도', 'Failed · Retry')}</Text>
+            <Text variant="caption" color={color.text.onDarkMuted} style={styles.imageErrorReason}>{image.error}</Text>
           </Pressable>
         ) : null}
         <Pressable accessibilityRole="button" accessibilityLabel={tx('사진 삭제', 'Remove photo')} hitSlop={10} onPress={() => removeImage(index)} style={styles.imageRemove}><Text weight="bold" color={color.text.onAction}>×</Text></Pressable>
@@ -152,6 +162,8 @@ const styles = StyleSheet.create({
   imageSlot: { width: 88, height: 88, borderRadius: radius.md, overflow: 'hidden', backgroundColor: color.surface.soft },
   imagePreview: { width: '100%', height: '100%' },
   imageOverlay: { ...StyleSheet.absoluteFill, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(11,29,58,0.55)' },
+  // 사유는 사진 위에 얹히므로 좁다. 줄바꿈을 허용하고 가운데로 모은다.
+  imageErrorReason: { marginTop: spacing[1], paddingHorizontal: spacing[2], textAlign: 'center' },
   imageRemove: { position: 'absolute', top: 4, right: 4, width: 24, height: 24, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(11,29,58,0.72)' },
   imageAdd: { width: 88, height: 88, borderRadius: radius.md, borderWidth: 1, borderStyle: 'dashed', borderColor: color.surface.field, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.card },
   input: { minHeight: 48, paddingHorizontal: spacing[3], borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.md, color: color.text.heading, backgroundColor: color.surface.card },
