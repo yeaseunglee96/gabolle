@@ -11,6 +11,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.test.web.servlet.MockMvc;
@@ -60,12 +61,23 @@ class SavedPlaceControllerTest {
 		this.savedPlaces = mock(SavedPlaceRepository.class);
 		this.places = mock(PlaceRepository.class);
 		this.events = mock(EventIngestService.class);
-		SavedPlaceService service = new SavedPlaceService(this.savedPlaces, this.places, this.events,
-				Clock.fixed(Instant.parse("2026-09-16T12:00:00Z"), ZoneOffset.UTC));
+		SavedPlaceService service = new SavedPlaceService(this.savedPlaces, this.places,
+				providerOf(this.events), Clock.fixed(Instant.parse("2026-09-16T12:00:00Z"), ZoneOffset.UTC));
 
 		this.mockMvc = MockMvcBuilders.standaloneSetup(new SavedPlaceController(service))
 				.setControllerAdvice(new PlaceExceptionHandler())
 				.build();
+	}
+
+	/**
+	 * 🔴 {@code ObjectProvider} 를 흉내 낸다. {@code null} 을 주면 「빈이 없는 슬라이스」다 —
+	 * {@code PlaceSliceApplication} 이 실제로 그 상태이고, 그걸 안 재서 CI 가 145건 빨개졌다.
+	 */
+	private static ObjectProvider<EventIngestService> providerOf(EventIngestService bean) {
+		@SuppressWarnings("unchecked")
+		ObjectProvider<EventIngestService> provider = mock(ObjectProvider.class);
+		when(provider.getIfAvailable()).thenReturn(bean);
+		return provider;
 	}
 
 	private static Authentication principal(UUID userId) {
@@ -183,6 +195,36 @@ class SavedPlaceControllerTest {
 				.andExpect(status().isNotFound());
 
 		verify(this.events, never()).recordFromServer(any(), any(), anyInt(), any(), any(), any(), any());
+	}
+
+	/**
+	 * 🔴 2026-09-16 CI 회귀 — 이벤트 빈이 없는 컨텍스트에서도 하트는 저장돼야 한다.
+	 *
+	 * <p>처음에는 {@code EventIngestService} 를 그냥 받았다. 그랬더니
+	 * {@code PlaceSliceApplication}(장소만 스캔하는 시험 컨텍스트)에 그 빈이 없어 <b>컨텍스트가
+	 * 통째로 안 뜨고</b>, 이벤트와 무관한 장소 검사 <b>145건</b>이 한꺼번에 빨개졌다.
+	 *
+	 * <p>이 검사는 그 상태를 그대로 만든다 — 빈이 없을 때({@code getIfAvailable() == null})
+	 * <b>저장은 되고 이벤트만 안 남는</b> 것을 고정한다. 신호 하나가 비는 것이 사용자의 저장을
+	 * 실패시키는 것보다 낫다.
+	 */
+	@Test
+	@DisplayName("🔴 이벤트 빈이 없는 슬라이스에서도 하트는 저장된다 — 신호만 안 남는다")
+	void savingWorksWhenEventBeanIsAbsent() throws Exception {
+		SavedPlaceService noEvents = new SavedPlaceService(this.savedPlaces, this.places,
+				providerOf(null), Clock.fixed(Instant.parse("2026-09-16T12:00:00Z"), ZoneOffset.UTC));
+		MockMvc mvc = MockMvcBuilders.standaloneSetup(new SavedPlaceController(noEvents))
+				.setControllerAdvice(new PlaceExceptionHandler())
+				.build();
+
+		when(this.places.existsById(this.placeId)).thenReturn(true);
+		when(this.savedPlaces.insertIfAbsent(any(), eq(this.userId), eq(this.placeId), any())).thenReturn(1);
+
+		mvc.perform(put("/api/v1/me/saved-places/{placeId}", this.placeId)
+						.principal(principal(this.userId)))
+				.andExpect(status().isNoContent());
+
+		verify(this.savedPlaces).insertIfAbsent(any(), eq(this.userId), eq(this.placeId), any());
 	}
 
 	/**

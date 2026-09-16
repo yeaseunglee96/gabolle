@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -40,12 +41,24 @@ public class SavedPlaceService {
 
 	private final PlaceRepository placeRepository;
 
-	private final EventIngestService events;
+	/**
+	 * 🔴 <b>{@code ObjectProvider} 인 이유 — 2026-09-16 CI 실측.</b>
+	 *
+	 * <p>처음에는 그냥 받았다. 그랬더니 {@code PlaceSliceApplication}(장소 도메인만 스캔하는
+	 * 시험 컨텍스트)이 <b>통째로 안 떴다</b> — 그 슬라이스는 {@code com.gabolle.backend.common}
+	 * 과 {@code .place} 만 스캔해서 {@code EventIngestService} 빈이 없다. 이벤트와 아무 상관
+	 * 없는 장소 검사 <b>145건</b>이 한꺼번에 빨개졌다.
+	 *
+	 * <p>슬라이스의 스캔 범위를 넓히는 방법도 있지만, 그러면 {@code event} 와 {@code user} 의
+	 * 빈·엔티티·리포지토리가 장소 검사에 전부 딸려 들어온다. <b>이 클래스 하나 때문에 남의
+	 * 검사 환경을 넓히지 않는다.</b> 같은 판단을 {@code RecommendationService} 가 이미 했다.
+	 */
+	private final ObjectProvider<EventIngestService> events;
 
 	private final Clock clock;
 
 	public SavedPlaceService(SavedPlaceRepository savedPlaceRepository, PlaceRepository placeRepository,
-			EventIngestService events, Clock clock) {
+			ObjectProvider<EventIngestService> events, Clock clock) {
 		this.savedPlaceRepository = savedPlaceRepository;
 		this.placeRepository = placeRepository;
 		this.events = events;
@@ -125,7 +138,13 @@ public class SavedPlaceService {
 	 * 추천 카드에서 누른 하트를 노출과 잇는 것은 {@code requestId} 를 받는 경로가 생긴 뒤다.
 	 */
 	private void recordLike(UUID userId, UUID placeId) {
-		this.events.recordFromServer(UUID.randomUUID(), EventType.PLACE_LIKE, 1,
+		// 🔴 빈이 없으면 안 적는다. 하트 자체는 이미 저장됐고, 신호 하나가 비는 것이
+		//    저장을 실패시키는 것보다 낫다 — 이 경로는 사용자가 기다리는 화면이다.
+		EventIngestService ingest = this.events.getIfAvailable();
+		if (ingest == null) {
+			return;
+		}
+		ingest.recordFromServer(UUID.randomUUID(), EventType.PLACE_LIKE, 1,
 				userId, null, null, Map.of("placeId", placeId.toString()));
 	}
 
