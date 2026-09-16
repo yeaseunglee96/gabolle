@@ -27,6 +27,9 @@ const { chromium } = require('playwright')
 mkdirSync(OUT, { recursive: true })
 
 // ── 고정 자료 ───────────────────────────────────────────────────────────────
+// 🔴 description 은 전부 null 이다. 서버가 늘 null 로 준다 —
+//    backend ItineraryQueryService: "description — place 표에 설명 칸이 없다".
+//    채워 두면 실제보다 나은 화면을 보게 된다.
 // 🔴 평소엔 같이 안 보이는 것들을 한 화면에 모은다 — 상태 셋(확인됨·추정·미확인), 고정된 곳,
 //    무료인 곳, 설명이 없는 곳, 구간 시간이 없는 곳. 다 채워진 자료만 찍으면 빈 값에서
 //    깨지는 것을 영영 못 본다.
@@ -37,14 +40,14 @@ const ITINERARY = {
   myRole: 'OWNER', canEdit: true,
   days: [
     day('2026-09-19', [
-      { id: 'i1', placeId: 'p1', startsAt: '2026-09-19T09:30:00', title: '해운대 해수욕장', description: '아침 바다를 걷기 좋은 시간대예요.', estimatedCostKrw: 0, walkingMeters: 400, locked: false, dataStatus: 'VERIFIED', travelDurationMin: null, travelDataStatus: null },
+      { id: 'i1', placeId: 'p1', startsAt: '2026-09-19T09:30:00', title: '해운대 해수욕장', description: null, estimatedCostKrw: 0, walkingMeters: 400, locked: false, dataStatus: 'VERIFIED', travelDurationMin: null, travelDataStatus: null },
       { id: 'i2', placeId: 'p2', startsAt: '2026-09-19T11:00:00', title: '동백섬 누리마루', description: null, estimatedCostKrw: null, walkingMeters: 1200, locked: true, dataStatus: 'ESTIMATED', travelDurationMin: 18, travelDataStatus: 'ESTIMATED' },
-      { id: 'i3', placeId: 'p3', startsAt: '2026-09-19T13:00:00', title: '광안리 밀면집', description: '줄이 길면 옆 골목 분점도 같은 집이에요.', estimatedCostKrw: 18000, walkingMeters: 600, locked: false, dataStatus: 'UNKNOWN', travelDurationMin: 24, travelDataStatus: 'VERIFIED' },
-      { id: 'i4', placeId: 'p4', startsAt: '2026-09-19T16:30:00', title: '흰여울문화마을', description: '계단이 많아 편한 신발을 권해요.', estimatedCostKrw: 0, walkingMeters: 900, locked: false, dataStatus: 'VERIFIED', travelDurationMin: 35, travelDataStatus: 'VERIFIED' },
+      { id: 'i3', placeId: 'p3', startsAt: '2026-09-19T13:00:00', title: '광안리 밀면집', description: null, estimatedCostKrw: 18000, walkingMeters: 600, locked: false, dataStatus: 'UNKNOWN', travelDurationMin: 24, travelDataStatus: 'VERIFIED' },
+      { id: 'i4', placeId: 'p4', startsAt: '2026-09-19T16:30:00', title: '흰여울문화마을', description: null, estimatedCostKrw: 0, walkingMeters: 900, locked: false, dataStatus: 'VERIFIED', travelDurationMin: 35, travelDataStatus: 'VERIFIED' },
     ]),
     day('2026-09-20', [
       { id: 'j1', placeId: 'p5', startsAt: '2026-09-20T10:00:00', title: '자갈치시장', description: null, estimatedCostKrw: 12000, walkingMeters: 700, locked: false, dataStatus: 'VERIFIED', travelDurationMin: null, travelDataStatus: null },
-      { id: 'j2', placeId: 'p6', startsAt: '2026-09-20T12:30:00', title: '감천문화마을', description: '오르막이 이어져요.', estimatedCostKrw: null, walkingMeters: 1500, locked: false, dataStatus: 'ESTIMATED', travelDurationMin: 22, travelDataStatus: 'ESTIMATED' },
+      { id: 'j2', placeId: 'p6', startsAt: '2026-09-20T12:30:00', title: '감천문화마을', description: null, estimatedCostKrw: null, walkingMeters: 1500, locked: false, dataStatus: 'ESTIMATED', travelDurationMin: 22, travelDataStatus: 'ESTIMATED' },
     ]),
     day('2026-09-21', [
       { id: 'k1', placeId: 'p7', startsAt: '2026-09-21T09:00:00', title: '송도 케이블카', description: null, estimatedCostKrw: 15000, walkingMeters: 300, locked: false, dataStatus: 'VERIFIED', travelDurationMin: null, travelDataStatus: null },
@@ -60,7 +63,7 @@ const VERSIONS = [
 const browser = await chromium.launch()
 const shots = []
 
-async function shoot(name, width, height, { withData = true, route = '/trips/demo/itinerary' } = {}) {
+async function shoot(name, width, height, { withData = true, route = '/trips/demo/itinerary', act } = {}) {
   const page = await browser.newPage({ viewport: { width, height }, deviceScaleFactor: 2 })
   const errors = []
   page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text().slice(0, 160)) })
@@ -74,6 +77,8 @@ async function shoot(name, width, height, { withData = true, route = '/trips/dem
   })
   await page.goto(`${BASE}${route}`, { waitUntil: 'load', timeout: 90000 })
   await page.waitForTimeout(3500)
+  // 평소엔 안 보이는 상태(펼침, 더 보기 패널)도 찍는다. 규칙이 「상태가 여럿이면 여럿 다」다.
+  if (act) { await act(page); await page.waitForTimeout(600) }
   // 🔴 로그인으로 튕긴 것을 「찍었다」로 세지 않는다. 화면 이름은 그대로인데 그림은 다른
   //    화면이면, 나중에 그것을 보고 엉뚱한 화면을 고치게 된다.
   const landed = new URL(page.url()).pathname
@@ -85,6 +90,8 @@ async function shoot(name, width, height, { withData = true, route = '/trips/dem
 await shoot('폰-390-일정', 390, 844)
 await shoot('넓은화면-1280-일정', 1280, 900)
 await shoot('폰-390-서버못닿음', 390, 844, { withData: false })
+await shoot('폰-390-펼침', 390, 844, { act: async (page) => { await page.getByRole('button', { name: /해운대 해수욕장/ }).first().click() } })
+await shoot('폰-390-더보기', 390, 844, { act: async (page) => { await page.getByRole('button', { name: /더 보기|More/ }).first().click() } })
 
 console.log(JSON.stringify(shots, null, 2))
 await browser.close()

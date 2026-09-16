@@ -67,6 +67,19 @@ function formatTime(value: string) {
   return Number.isNaN(date.getTime()) ? value.slice(11, 16) || value : date.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false });
 }
 
+// 1000m 이상은 km 한 자리로 (시안 1절). 「1200m」보다 「1.2km」가 걷는 거리로 읽힌다.
+function formatWalk(meters: number) {
+  return meters >= 1000 ? `${(meters / 1000).toFixed(1)}km` : `${meters}m`;
+}
+
+// 「9월 19일 (금)」 — 시안 3.2. 날짜를 못 읽으면 지어내지 않고 「n일차」로만 적는다.
+function formatDayHeading(value: string, index: number, tx: (ko: string, en: string) => string) {
+  const date = new Date(`${value}T00:00:00`);
+  if (Number.isNaN(date.getTime())) return tx(`${index + 1}일차`, `Day ${index + 1}`);
+  const weekday = ['일', '월', '화', '수', '목', '금', '토'][date.getDay()];
+  return tx(`${date.getMonth() + 1}월 ${date.getDate()}일 (${weekday})`, date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', weekday: 'short' }));
+}
+
 function formatDate(value: string, index: number) {
   const date = new Date(`${value}T00:00:00`);
   return Number.isNaN(date.getTime()) ? `DAY ${index + 1}` : `${date.getMonth() + 1}.${date.getDate()} · DAY ${index + 1}`;
@@ -81,7 +94,10 @@ function RouteStrip({ items, times, tx }: { items: ItineraryItemDto[]; times: st
   if (!items.length) return null;
   return <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.strip}>
     {items.map((item, index) => {
-      const travel = formatTravelLabel(item, tx);
+      const travel = [
+        item.walkingMeters == null ? null : tx(`도보 ${formatWalk(item.walkingMeters)}`, `${formatWalk(item.walkingMeters)} walk`),
+        formatTravelLabel(item, tx),
+      ].filter(Boolean).join(' · ');
       return <View key={item.id} style={styles.stripEntry}>
         {index > 0 ? <View style={styles.segment}>
           <View style={styles.segmentLine} />
@@ -98,12 +114,23 @@ function RouteStrip({ items, times, tx }: { items: ItineraryItemDto[]; times: st
   </ScrollView>;
 }
 
-function ItemCard({ item, displayTime, canEdit, lockBusy, excludeBusy, dayBusy, onLock, onExclude, reorderMode, canMoveUp, canMoveDown, moveBusy, onMoveUp, onMoveDown, pace, estimated, actualBusy, onRecordArrival, onRecordDeparture, accessToken }: { item: ItineraryItemDto; displayTime: string; canEdit: boolean; lockBusy: boolean; excludeBusy: boolean; dayBusy: boolean; onLock: () => void; onExclude: () => void; reorderMode: boolean; canMoveUp: boolean; canMoveDown: boolean; moveBusy: boolean; onMoveUp: () => void; onMoveDown: () => void; pace?: ItineraryPaceItemDto; estimated?: boolean; actualBusy?: boolean; onRecordArrival?: () => void; onRecordDeparture?: () => void; accessToken: string | null }) {
+// 정차 한 칸 — 시안 design_handoff_itinerary 2.5(넓은 화면) · 3.3(폰).
+//
+// 🔴 폰의 본체는 **세로 노선도**다. 번호 원을 세로선으로 잇고 구간에 「도보 1.2km」를 적는다.
+//    가로 스트립은 넓은 화면에만 둔다 — 폰에서 가로로 스크롤하는 노선은 한 번에 두 칸밖에
+//    안 보여서 하루가 어떻게 생겼는지를 못 보여준다.
+//
+// 🔴 시안의 한 줄 설명은 **실제로는 안 나온다.** 서버가 description 을 늘 null 로 준다
+//    (backend ItineraryQueryService: "description — place 표에 설명 칸이 없다").
+//    칸은 남겨 두되 없는 것을 있는 척 채우지 않는다.
+//
+// 평소엔 접어 두고 누르면 펼쳐서 나머지(비용·도보·페이스·제외·평가)를 보여준다.
+// 시안도 「펼침 실제 동작」이라고 적어 두었다.
+function StopRow({ item, index, isLast, displayTime, wide, expanded, onToggleExpand, canEdit, lockBusy, excludeBusy, dayBusy, onLock, onExclude, reorderMode, canMoveUp, canMoveDown, moveBusy, onMoveUp, onMoveDown, pace, estimated, actualBusy, onRecordArrival, onRecordDeparture, accessToken }: { item: ItineraryItemDto; index: number; isLast: boolean; displayTime: string; wide: boolean; expanded: boolean; onToggleExpand: () => void; canEdit: boolean; lockBusy: boolean; excludeBusy: boolean; dayBusy: boolean; onLock: () => void; onExclude: () => void; reorderMode: boolean; canMoveUp: boolean; canMoveDown: boolean; moveBusy: boolean; onMoveUp: () => void; onMoveDown: () => void; pace?: ItineraryPaceItemDto; estimated?: boolean; actualBusy?: boolean; onRecordArrival?: () => void; onRecordDeparture?: () => void; accessToken: string | null }) {
   const { tx } = useI18n();
   const disabled = !canEdit || lockBusy || excludeBusy || dayBusy;
 
-  // 다녀오셨나요 평가(S15P21E201-406) — 방문 예정 시각이 지난 카드에만 띄운다.
-  // 이미 평가했는지는 그 장소의 리뷰 목록에서 mine 표시로 안다(카드마다 한 번씩 확인).
+  // 다녀오셨나요 평가(S15P21E201-406) — 방문 예정 시각이 지난 칸에만 띄운다.
   const isPastVisit = useMemo(() => new Date(item.startsAt).getTime() < Date.now(), [item.startsAt]);
   const [reviewStatus, setReviewStatus] = useState<'checking' | 'can-review' | 'reviewed'>('checking');
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
@@ -121,10 +148,9 @@ function ItemCard({ item, displayTime, canEdit, lockBusy, excludeBusy, dayBusy, 
     if (result.state === 'success') { setReviewStatus('reviewed'); return true; }
     return false;
   };
-  // S15P21E201-1014 — 값이 없으면 칸을 만들지 않는다. 비용·도보는 서버에 자료가 없어 늘
-  // null 이고, 그걸 「미확인」이라고 적어 두면 빈 칸 둘이 카드에서 제일 눈에 띈다.
-  // 이 방문지 자료가 어디까지 확인된 것인가 (시안 1절). 다른 화면(now.tsx ·
-  // recommendations.tsx)과 같은 문구를 쓴다 — 같은 값을 화면마다 다르게 부르면 안 된다.
+
+  // 이 방문지 자료가 어디까지 확인된 것인가 (시안 1절). now.tsx·recommendations.tsx 와 같은
+  // 문구를 쓴다 — 같은 값을 화면마다 다르게 부르면 안 된다.
   //
   // 🔴 서버가 이 칸을 안 주면 아무것도 안 그린다. 「미확인」과 「칸이 없음」은 다른 말이고,
   // 없는 것을 「미확인」이라고 적으면 조사해 보고 못 찾은 척이 된다.
@@ -132,27 +158,81 @@ function ItemCard({ item, displayTime, canEdit, lockBusy, excludeBusy, dayBusy, 
   const STATUS_CHIP = { VERIFIED: styles.statusVerified, ESTIMATED: styles.statusEstimated, UNKNOWN: styles.statusUnknown } as const;
   const STATUS_COLOR = { VERIFIED: color.state.success, ESTIMATED: color.state.warning, UNKNOWN: color.text.muted } as const;
 
+  // 🔴 값이 없으면 칸을 만들지 않는다. 비용·도보는 서버에 자료가 없을 때가 있고, 그걸
+  // 「미확인」이라고 적어 두면 빈 칸이 화면에서 제일 눈에 띈다.
+  const walkLabel = item.walkingMeters == null ? null : tx(`도보 ${formatWalk(item.walkingMeters)}`, `${formatWalk(item.walkingMeters)} walk`);
   const facts = [
+    walkLabel,
     formatTravelLabel(item, tx),
-    item.walkingMeters == null ? null : tx(`도보 ${item.walkingMeters.toLocaleString()}m`, `${item.walkingMeters.toLocaleString()}m walk`),
     item.estimatedCostKrw == null ? null : item.estimatedCostKrw === 0 ? tx('무료', 'Free') : tx(`${item.estimatedCostKrw.toLocaleString()}원`, `${item.estimatedCostKrw.toLocaleString()} KRW`),
   ].filter((fact): fact is string => fact !== null);
-  return <><View style={styles.itemRow}><Text variant="body" weight="bold" color={color.brand.orange} style={styles.time}>{formatTime(displayTime)}</Text><View style={[styles.itemCard, pace?.atRisk && styles.itemCardAtRisk]}><View style={styles.itemTitleRow}><View style={styles.grow}><View style={styles.titleLine}><Text variant="body" weight="bold" style={styles.titleText}>{item.title}</Text>{item.dataStatus ? <View style={[styles.statusChip, STATUS_CHIP[item.dataStatus]]}><Text variant="caption" weight="bold" color={STATUS_COLOR[item.dataStatus]}>{STATUS_LABEL[item.dataStatus]}</Text></View> : null}</View>{item.description ? <Text variant="caption" color={color.text.body}>{item.description}</Text> : null}</View><View style={styles.itemActions}>{reorderMode ? (item.locked ? <View style={styles.lockBadge}><Text variant="caption" weight="bold" color={color.text.onAction}>{tx('고정됨', 'Locked')}</Text></View> : <View style={styles.moveButtons}><Pressable accessibilityRole="button" accessibilityLabel={tx(`${item.title} 위로 이동`, `Move ${item.title} up`)} accessibilityState={{ disabled: !canMoveUp || moveBusy }} disabled={!canMoveUp || moveBusy} onPress={onMoveUp} style={[styles.moveButton, (!canMoveUp || moveBusy) && styles.actionDisabled]}><Text variant="caption" weight="bold" color={color.brand.navy}>▲</Text></Pressable><Pressable accessibilityRole="button" accessibilityLabel={tx(`${item.title} 아래로 이동`, `Move ${item.title} down`)} accessibilityState={{ disabled: !canMoveDown || moveBusy }} disabled={!canMoveDown || moveBusy} onPress={onMoveDown} style={[styles.moveButton, (!canMoveDown || moveBusy) && styles.actionDisabled]}><Text variant="caption" weight="bold" color={color.brand.navy}>▼</Text></Pressable></View>) : <>{canEdit ? <Pressable accessibilityRole="button" accessibilityLabel={tx(`${item.title} ${item.locked ? '고정 해제' : '고정'}`, `${item.title} ${item.locked ? 'unlock' : 'lock'}`)} accessibilityState={{ selected: item.locked, busy: lockBusy, disabled }} disabled={disabled} onPress={onLock} style={[styles.lockButton, item.locked && styles.lockButtonActive, disabled && styles.actionDisabled]}><Text variant="caption" weight="bold" color={item.locked ? color.text.onAction : color.brand.navy}>{lockBusy ? tx('처리 중', 'Processing') : item.locked ? tx('고정됨', 'Locked') : tx('고정', 'Lock')}</Text></Pressable> : item.locked ? <View style={styles.lockBadge}><Text variant="caption" weight="bold" color={color.text.onAction}>{tx('고정됨', 'Locked')}</Text></View> : null}<Pressable accessibilityRole="button" accessibilityLabel={tx(`${item.title} 제외`, `Exclude ${item.title}`)} accessibilityState={{ busy: excludeBusy, disabled }} disabled={disabled} onPress={onExclude} style={[styles.excludeButton, disabled && styles.actionDisabled]}><Text variant="caption" weight="bold" color={color.state.danger}>{excludeBusy ? tx('처리 중', 'Processing') : tx('제외', 'Exclude')}</Text></Pressable></>}</View></View>{facts.length ? <View style={styles.metaRow}>{facts.map((fact) => <Text key={fact} variant="caption" color={color.text.muted}>{fact}</Text>)}</View> : null}
-    {pace && !reorderMode ? <View style={styles.paceRow}>
-      {pace.visited ? <Text variant="caption" weight="bold" color={color.state.success}>{tx(`도착 ${pace.predictedArrival ? formatTime(pace.predictedArrival) : '--:--'}${pace.predictedDeparture ? ` · 출발 ${formatTime(pace.predictedDeparture)}` : ''}`, `Arrived ${pace.predictedArrival ? formatTime(pace.predictedArrival) : '--:--'}${pace.predictedDeparture ? ` · Left ${formatTime(pace.predictedDeparture)}` : ''}`)}</Text>
-        : <Text variant="caption" weight="bold" color={pace.atRisk ? color.state.danger : color.text.muted}>{tx(`예상 도착 ${pace.predictedArrival ? formatTime(pace.predictedArrival) : '--:--'}${estimated ? ' (추정)' : ''}`, `Est. arrival ${pace.predictedArrival ? formatTime(pace.predictedArrival) : '--:--'}${estimated ? ' (est.)' : ''}`)}{pace.atRisk ? ` · ${tx('하루를 넘길 위험', 'Risks running past the day')}` : ''}</Text>}
-      {(onRecordArrival || onRecordDeparture) ? <View style={styles.actualButtons}>
-        {!pace.visited ? <Pressable accessibilityRole="button" accessibilityLabel={tx(`${item.title} 도착 찍기`, `Mark arrival at ${item.title}`)} accessibilityState={{ busy: actualBusy }} disabled={actualBusy} onPress={onRecordArrival} style={[styles.actualButton, actualBusy && styles.actionDisabled]}><Text variant="caption" weight="bold" color={color.brand.navy}>{tx('도착 찍기', 'Mark arrival')}</Text></Pressable>
-          : !pace.predictedDeparture ? <Pressable accessibilityRole="button" accessibilityLabel={tx(`${item.title} 출발 찍기`, `Mark departure at ${item.title}`)} accessibilityState={{ busy: actualBusy }} disabled={actualBusy} onPress={onRecordDeparture} style={[styles.actualButton, actualBusy && styles.actionDisabled]}><Text variant="caption" weight="bold" color={color.brand.navy}>{tx('출발 찍기', 'Mark departure')}</Text></Pressable> : null}
-      </View> : null}
+
+  // 구간 라벨 — 🔴 이 값들은 **이 방문지로 들어오는** 구간이다(backend ItineraryQueryService
+  // 의 incomingLeg). 다음 칸까지가 아니다. 그래서 노드 **위**에 그린다.
+  const legLabel = [walkLabel, formatTravelLabel(item, tx)].filter(Boolean).join(' · ');
+
+  const lockControl = reorderMode
+    ? (item.locked
+      ? <View style={styles.lockBadge}><Text variant="caption" weight="bold" color={color.text.onAction}>{tx('고정됨', 'Locked')}</Text></View>
+      : <View style={styles.moveButtons}>
+        <Pressable accessibilityRole="button" accessibilityLabel={tx(`${item.title} 위로 이동`, `Move ${item.title} up`)} accessibilityState={{ disabled: !canMoveUp || moveBusy }} disabled={!canMoveUp || moveBusy} onPress={onMoveUp} style={[styles.moveButton, (!canMoveUp || moveBusy) && styles.actionDisabled]}><Text variant="caption" weight="bold" color={color.brand.navy}>▲</Text></Pressable>
+        <Pressable accessibilityRole="button" accessibilityLabel={tx(`${item.title} 아래로 이동`, `Move ${item.title} down`)} accessibilityState={{ disabled: !canMoveDown || moveBusy }} disabled={!canMoveDown || moveBusy} onPress={onMoveDown} style={[styles.moveButton, (!canMoveDown || moveBusy) && styles.actionDisabled]}><Text variant="caption" weight="bold" color={color.brand.navy}>▼</Text></Pressable>
+      </View>)
+    : canEdit
+      ? <Pressable accessibilityRole="button" accessibilityLabel={tx(`${item.title} ${item.locked ? '고정 해제' : '고정'}`, `${item.title} ${item.locked ? 'unlock' : 'lock'}`)} accessibilityState={{ selected: item.locked, busy: lockBusy, disabled }} disabled={disabled} onPress={onLock} style={[styles.lockTouch, disabled && styles.actionDisabled]}><Text variant="body">{lockBusy ? '…' : item.locked ? '🔒' : '🔓'}</Text></Pressable>
+      : item.locked ? <View style={styles.lockTouch}><Text variant="body">🔒</Text></View> : null;
+
+  return <>
+    {/* 구간 — 세로선과 「도보 1.2km」. 넓은 화면은 위쪽 가로 노선도가 같은 것을 보여주므로 생략한다. */}
+    {index > 0 && !wide ? <View style={styles.segmentRow}>
+      <View style={styles.rail}><View style={styles.railLine} /></View>
+      {legLabel ? <View style={styles.segmentLabel}><Text variant="caption" weight="bold" color={color.brand.navy}>{legLabel}</Text></View> : null}
     </View> : null}
-    {isPastVisit && !reorderMode ? (
-      reviewStatus === 'reviewed' ? <View style={styles.reviewedBadge}><Text variant="caption" weight="bold" color={color.state.success}>{tx('평가함', 'Reviewed')}</Text></View>
-      : reviewStatus === 'can-review' ? <Pressable accessibilityRole="button" accessibilityLabel={tx(`${item.title} 다녀오셨나요? 평가하기`, `Review your visit to ${item.title}`)} onPress={() => setReviewModalOpen(true)} style={styles.reviewButton}><Text variant="caption" weight="bold" color={color.brand.navy}>{tx('다녀오셨나요?', 'Did you visit?')}</Text></Pressable>
-      : null
-    ) : null}
-  </View></View>
-  {isPastVisit ? <PlaceReviewModal visible={reviewModalOpen} placeTitle={item.title} onClose={() => setReviewModalOpen(false)} onSubmit={submitReview} /> : null}
+    <View style={[styles.stopRow, wide && styles.stopRowWide]}>
+      <View style={styles.rail}>
+        <View style={[styles.node, index === 0 && styles.nodeFirst, wide && styles.nodeWide]}><Text variant="caption" weight="bold" color={color.text.onAction}>{index + 1}</Text></View>
+        {!isLast && !wide ? <View style={styles.railLine} /> : null}
+      </View>
+      <View style={[styles.stopBody, pace?.atRisk && styles.stopBodyAtRisk]}>
+        <View style={styles.stopHead}>
+          {/* 🔴 펼치는 손잡이는 제목 덩이에만 둔다. 행 전체를 Pressable 로 감싸면 그 안의
+              자물쇠가 「버튼 안의 버튼」이 되고, 웹에서는 그게 허용되지 않는다. */}
+          <Pressable accessibilityRole="button" accessibilityState={{ expanded }} accessibilityLabel={tx(`${item.title} ${expanded ? '접기' : '자세히'}`, `${item.title} ${expanded ? 'collapse' : 'details'}`)} onPress={onToggleExpand} style={styles.grow}>
+            <View style={styles.titleLine}>
+              <Text variant={wide ? 'title' : 'body'} weight="bold" style={styles.titleText}>{item.title}</Text>
+              {item.dataStatus ? <View style={[styles.statusChip, STATUS_CHIP[item.dataStatus]]}><Text variant="caption" weight="bold" color={STATUS_COLOR[item.dataStatus]}>{STATUS_LABEL[item.dataStatus]}</Text></View> : null}
+            </View>
+            {/* 🔴 서버가 늘 null 로 주는 칸이다. 있으면 그리고 없으면 줄을 만들지 않는다. */}
+            {item.description ? <Text variant="caption" color={color.text.body} numberOfLines={expanded ? undefined : 1}>{item.description}</Text> : null}
+          </Pressable>
+          <View style={[styles.stopRight, wide && styles.stopRightWide]}>
+            <View style={wide ? styles.stopRightStack : undefined}>
+              <Text variant={wide ? 'title' : 'body'} weight="bold" color={color.brand.navy}>{formatTime(displayTime)}</Text>
+              {wide && item.estimatedCostKrw != null ? <Text variant="caption" color={color.text.muted}>{item.estimatedCostKrw === 0 ? tx('무료', 'Free') : tx(`${item.estimatedCostKrw.toLocaleString()}원`, `${item.estimatedCostKrw.toLocaleString()} KRW`)}</Text> : null}
+            </View>
+            {lockControl}
+          </View>
+        </View>
+        {expanded ? <View style={styles.stopDetail}>
+          {facts.length ? <View style={styles.metaRow}>{facts.map((fact) => <Text key={fact} variant="caption" color={color.text.muted}>{fact}</Text>)}</View> : null}
+          {pace && !reorderMode ? <View style={styles.paceRow}>
+            {pace.visited ? <Text variant="caption" weight="bold" color={color.state.success}>{tx(`도착 ${pace.predictedArrival ? formatTime(pace.predictedArrival) : '--:--'}${pace.predictedDeparture ? ` · 출발 ${formatTime(pace.predictedDeparture)}` : ''}`, `Arrived ${pace.predictedArrival ? formatTime(pace.predictedArrival) : '--:--'}${pace.predictedDeparture ? ` · Left ${formatTime(pace.predictedDeparture)}` : ''}`)}</Text>
+              : <Text variant="caption" weight="bold" color={pace.atRisk ? color.state.danger : color.text.muted}>{tx(`예상 도착 ${pace.predictedArrival ? formatTime(pace.predictedArrival) : '--:--'}${estimated ? ' (추정)' : ''}`, `Est. arrival ${pace.predictedArrival ? formatTime(pace.predictedArrival) : '--:--'}${estimated ? ' (est.)' : ''}`)}{pace.atRisk ? ` · ${tx('하루를 넘길 위험', 'Risks running past the day')}` : ''}</Text>}
+            {(onRecordArrival || onRecordDeparture) ? <View style={styles.actualButtons}>
+              {!pace.visited ? <Pressable accessibilityRole="button" accessibilityLabel={tx(`${item.title} 도착 찍기`, `Mark arrival at ${item.title}`)} accessibilityState={{ busy: actualBusy }} disabled={actualBusy} onPress={onRecordArrival} style={[styles.actualButton, actualBusy && styles.actionDisabled]}><Text variant="caption" weight="bold" color={color.brand.navy}>{tx('도착 찍기', 'Mark arrival')}</Text></Pressable>
+                : !pace.predictedDeparture ? <Pressable accessibilityRole="button" accessibilityLabel={tx(`${item.title} 출발 찍기`, `Mark departure at ${item.title}`)} accessibilityState={{ busy: actualBusy }} disabled={actualBusy} onPress={onRecordDeparture} style={[styles.actualButton, actualBusy && styles.actionDisabled]}><Text variant="caption" weight="bold" color={color.brand.navy}>{tx('출발 찍기', 'Mark departure')}</Text></Pressable> : null}
+            </View> : null}
+          </View> : null}
+          {!reorderMode && canEdit ? <Pressable accessibilityRole="button" accessibilityLabel={tx(`${item.title} 제외`, `Exclude ${item.title}`)} accessibilityState={{ busy: excludeBusy, disabled }} disabled={disabled} onPress={onExclude} style={[styles.excludeButton, disabled && styles.actionDisabled]}><Text variant="caption" weight="bold" color={color.state.danger}>{excludeBusy ? tx('처리 중', 'Processing') : tx('이 장소 제외', 'Remove this place')}</Text></Pressable> : null}
+          {isPastVisit && !reorderMode ? (
+            reviewStatus === 'reviewed' ? <View style={styles.reviewedBadge}><Text variant="caption" weight="bold" color={color.state.success}>{tx('평가함', 'Reviewed')}</Text></View>
+            : reviewStatus === 'can-review' ? <Pressable accessibilityRole="button" accessibilityLabel={tx(`${item.title} 다녀오셨나요? 평가하기`, `Review your visit to ${item.title}`)} onPress={() => setReviewModalOpen(true)} style={styles.reviewButton}><Text variant="caption" weight="bold" color={color.brand.navy}>{tx('다녀오셨나요?', 'Did you visit?')}</Text></Pressable>
+            : null
+          ) : null}
+        </View> : null}
+      </View>
+    </View>
+    {isPastVisit ? <PlaceReviewModal visible={reviewModalOpen} placeTitle={item.title} onClose={() => setReviewModalOpen(false)} onSubmit={submitReview} /> : null}
   </>;
 }
 
@@ -190,6 +270,9 @@ export default function ItineraryScreen() {
   // 순서 바꾸기 응답에만 실려 오는 영업시간 경고(S15P21E201-268/-852) — 활동 이력엔 안 남으므로
   // 그 자리에서 받은 문장을 이 상태에 직접 담아 둔다. 다음 편집을 시작하면 지운다.
   const [openingHoursNotice, setOpeningHoursNotice] = useState<string[]>([]);
+  // ⋯ 패널과 펼친 정차. 둘 다 화면에만 있는 상태라 서버에 안 보낸다.
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [expandedItemId, setExpandedItemId] = useState<string | null>(null);
 
   const refreshVersions = useCallback(async (targetId: string) => {
     const next = await loadItineraryVersions(targetId, accessToken);
@@ -264,6 +347,13 @@ export default function ItineraryScreen() {
     return orderDraft.map((itemId) => itemsById.get(itemId)).filter((entry): entry is ItineraryItemDto => Boolean(entry));
   }, [day, orderDraft]);
   const dayTravelMinutes = useMemo(() => totalTravelMinutes(displayedItems), [displayedItems]);
+  // 🔴 값이 없는 칸을 0 으로 세지 않는다. 자료가 있는 칸만 더하므로 이 합계는 「적어도 이만큼」이다.
+  const dayWalkingMeters = useMemo(() => displayedItems.reduce((sum, item) => sum + (item.walkingMeters ?? 0), 0), [displayedItems]);
+  const dayCostKrw = useMemo(() => displayedItems.reduce((sum, item) => sum + (item.estimatedCostKrw ?? 0), 0), [displayedItems]);
+  const dayFacts = useMemo(() => [
+    dayWalkingMeters > 0 ? tx(`도보 ${formatWalk(dayWalkingMeters)}`, `${formatWalk(dayWalkingMeters)} on foot`) : null,
+    dayCostKrw > 0 ? tx(`${dayCostKrw.toLocaleString()}원`, `${dayCostKrw.toLocaleString()} KRW`) : null,
+  ].filter(Boolean).join(' · '), [dayWalkingMeters, dayCostKrw, tx]);
   const canReorder = canEdit && (day?.items.filter((item) => !item.locked).length ?? 0) > 1;
 
   // 지연 경고(S15P21E201-96·314). 날짜를 바꾸면 그 날짜 것을 새로 받는다 — 표본이
@@ -478,7 +568,9 @@ export default function ItineraryScreen() {
       <View style={styles.heroTop}>
         <Pressable accessibilityRole="button" accessibilityLabel={tx('뒤로 가기', 'Go back')} onPress={() => router.canGoBack() ? router.back() : router.replace('/home')} style={styles.heroBack}><Text variant="title" color={color.text.onAction}>‹</Text></Pressable>
         {itinerary ? <View style={styles.heroBadge}><Text variant="caption" weight="bold" color={color.text.onAction}>{tx(`초안 v${itinerary.version}${planLabel ? ` · ${planLabel}` : ''}`, `Draft v${itinerary.version}${planLabel ? ` · ${planLabel}` : ''}`)}</Text></View> : null}
-        {canEdit && versions.length > 1 ? <Pressable accessibilityRole="button" accessibilityLabel={tx('최근 변경 취소', 'Undo last change')} accessibilityState={{ busy: revertBusy, disabled: revertBusy }} disabled={revertBusy} onPress={() => void revert()} style={[styles.heroGhost, revertBusy && styles.actionDisabled]}><Text variant="caption" weight="bold" color={color.text.onAction}>{revertBusy ? tx('처리 중', 'Processing') : tx('되돌리기', 'Undo')}</Text></Pressable> : <View style={styles.heroBackSpacer} />}
+        {/* ⋯ — 시안 3.1. 늘 놓을 자리가 없는 것(통계·전체 일정·다시 계산·되돌리기)을 여기 담는다.
+            화면에 다 늘어놓으면 정작 하루의 동선이 아래로 밀려 한 칸도 안 보인다. */}
+        {itinerary ? <Pressable accessibilityRole="button" accessibilityLabel={tx('더 보기', 'More')} accessibilityState={{ expanded: menuOpen }} onPress={() => setMenuOpen((open) => !open)} style={styles.heroBack}><Text variant="title" color={color.text.onAction}>⋯</Text></Pressable> : <View style={styles.heroBackSpacer} />}
       </View>
       <Text variant="display" weight="bold" color={color.text.onAction} style={styles.heroTitle}>{itinerary?.title ?? tx('여행 일정', 'Itinerary')}</Text>
       {heroSummary ? <Text color={color.text.onDarkMuted}>{heroSummary}</Text> : null}
@@ -487,23 +579,30 @@ export default function ItineraryScreen() {
           하루짜리 여행에는 고를 것이 없으므로 안 그린다. */}
       {itinerary && viewMode === 'day' && itinerary.days.length > 1 ? <View accessibilityRole="tablist" style={styles.heroTabs}>
         {itinerary.days.map((entry, index) => <Pressable key={`hero-${entry.date}-${index}`} accessibilityRole="tab" accessibilityLabel={tx(`${index + 1}일차`, `Day ${index + 1}`)} accessibilityState={{ selected: selectedDay === index }} onPress={() => selectDay(index)} style={[styles.heroTab, selectedDay === index && styles.heroTabActive]}>
-          <Text variant="caption" weight="bold" numberOfLines={1} color={selectedDay === index ? color.brand.navy : color.text.onDarkMuted}>{formatDate(entry.date, index)}</Text>
+          <Text variant="caption" weight="bold" numberOfLines={1} color={selectedDay === index ? color.brand.navy : color.text.onDarkMuted}>{tx(`${index + 1}일차`, `Day ${index + 1}`)}</Text>
         </Pressable>)}
       </View> : null}
     </View>
-    {loading ? <View accessibilityLabel={tx('일정을 불러오고 있어요', 'Loading itinerary')} style={styles.timeline}>{[0, 1, 2].map((key) => (
-      <View key={key} style={styles.itemRow}>
-        <Skeleton width={40} height={16} style={styles.time} />
-        <View style={styles.itemCard}><Skeleton width="60%" height={16} /><View style={styles.metaRow}><Skeleton width="30%" height={12} /><Skeleton width="30%" height={12} /></View></View>
+    {loading ? <View accessibilityLabel={tx('일정을 불러오고 있어요', 'Loading itinerary')} style={styles.route}>{[0, 1, 2].map((key) => (
+      <View key={key} style={styles.stopRow}>
+        <View style={styles.rail}><Skeleton width={32} height={32} /></View>
+        <View style={styles.stopBody}><Skeleton width="60%" height={16} /><View style={styles.metaRow}><Skeleton width="30%" height={12} /><Skeleton width="30%" height={12} /></View></View>
       </View>
     ))}</View> : null}
     {!loading && result.state !== 'success' ? <View style={styles.stateCard}><Text variant="title" weight="bold">{result.state === 'offline' ? tx('인터넷 연결을 확인해 주세요', 'Please check your internet connection') : result.state === 'unavailable' ? tx('일정 API를 기다리고 있어요', 'Waiting for the itinerary API') : tx('일정을 불러오지 못했어요', 'Could not load the itinerary')}</Text><Text color={color.text.body}>{result.message}</Text><Button label={tx('다시 시도', 'Try again')} variant="ghost" onPress={() => void reload()} /></View> : null}
-    {!loading && itinerary ? <><View style={styles.stats}>{stats.map((stat) => <View key={stat.key} style={styles.stat}><Text variant="title" weight="bold">{stat.value}</Text><Text variant="caption" color={color.text.muted}>{stat.label}</Text></View>)}</View>
-      {!canEdit ? <View style={styles.viewerNotice}><Text variant="caption" weight="bold" color={color.text.muted}>{tx('보기 전용 — 이 일정을 편집할 권한이 없어요.', "View only — you don't have permission to edit this itinerary.")}</Text></View> : null}
-      {rhythm ? <View style={styles.rhythmCard}>
-        <Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx('여행 리듬', 'Trip rhythm')}</Text>
-        <Text variant="caption" color={color.text.body}>{tx(`하루 평균 ${rhythm.averageItemsPerDay}곳`, `${rhythm.averageItemsPerDay} places/day avg.`)}{rhythm.travelShare != null ? tx(` · 이동 비중 ${Math.round(rhythm.travelShare * 100)}%`, ` · ${Math.round(rhythm.travelShare * 100)}% travel time`) : ''}{rhythm.plannedVsActual != null ? tx(` · 계획 대비 실제 ${rhythm.plannedVsActual}배`, ` · ${rhythm.plannedVsActual}x planned pace`) : ''}</Text>
+    {!loading && itinerary ? <>
+      {menuOpen ? <View style={styles.menuPanel}>
+        <View style={styles.stats}>{stats.map((stat) => <View key={stat.key} style={styles.stat}><Text variant="title" weight="bold">{stat.value}</Text><Text variant="caption" color={color.text.muted}>{stat.label}</Text></View>)}</View>
+        {rhythm ? <Text variant="caption" color={color.text.body}>{tx(`하루 평균 ${rhythm.averageItemsPerDay}곳`, `${rhythm.averageItemsPerDay} places/day avg.`)}{rhythm.travelShare != null ? tx(` · 이동 비중 ${Math.round(rhythm.travelShare * 100)}%`, ` · ${Math.round(rhythm.travelShare * 100)}% travel time`) : ''}{rhythm.plannedVsActual != null ? tx(` · 계획 대비 실제 ${rhythm.plannedVsActual}배`, ` · ${rhythm.plannedVsActual}x planned pace`) : ''}</Text> : null}
+        <View style={styles.menuActions}>
+          <Pressable accessibilityRole="button" onPress={() => { selectView(viewMode === 'all' ? 'day' : 'all'); setMenuOpen(false); }} style={styles.recalcButton}><Text variant="caption" weight="bold" color={color.brand.navy}>{viewMode === 'all' ? tx('날짜별 보기', 'By day') : tx('전체 일정 보기', 'All days')}</Text></Pressable>
+          {canReorder && !reorderMode ? <Pressable accessibilityRole="button" accessibilityLabel={tx('일정 순서 변경', 'Reorder itinerary')} accessibilityState={{ disabled: excludingItemId !== null }} disabled={excludingItemId !== null} onPress={() => { startReorder(); setMenuOpen(false); }} style={[styles.recalcButton, excludingItemId !== null && styles.actionDisabled]}><Text variant="caption" weight="bold" color={color.brand.navy}>{tx('순서 변경', 'Reorder')}</Text></Pressable> : null}
+          {canEdit ? <Pressable accessibilityRole="button" accessibilityLabel={tx('이 날짜 다시 계산', 'Recalculate this day')} accessibilityState={{ busy: dayActionBusy }} disabled={dayActionBusy || !day?.items.length || excludingItemId !== null} onPress={() => void recalculateDay()} style={[styles.recalcButton, (dayActionBusy || !day?.items.length || excludingItemId !== null) && styles.actionDisabled]}><Text variant="caption" weight="bold" color={color.brand.navy}>{dayActionBusy ? tx('계산 중', 'Calculating') : tx('다시 계산', 'Recalculate')}</Text></Pressable> : null}
+          {canEdit ? <Pressable accessibilityRole="button" accessibilityLabel={tx('남은 하루 다시 계획', 'Replan the rest of the day')} accessibilityState={{ busy: replanBusy }} disabled={replanBusy || !day?.items.length || excludingItemId !== null} onPress={() => { setReplanConfirming(true); setMenuOpen(false); }} style={[styles.recalcButton, (replanBusy || !day?.items.length || excludingItemId !== null) && styles.actionDisabled]}><Text variant="caption" weight="bold" color={color.brand.navy}>{tx('다시 계획', 'Replan')}</Text></Pressable> : null}
+          {canEdit && versions.length > 1 ? <Pressable accessibilityRole="button" accessibilityLabel={tx('최근 변경 취소', 'Undo last change')} accessibilityState={{ busy: revertBusy, disabled: revertBusy }} disabled={revertBusy} onPress={() => void revert()} style={[styles.recalcButton, revertBusy && styles.actionDisabled]}><Text variant="caption" weight="bold" color={color.brand.navy}>{revertBusy ? tx('처리 중', 'Processing') : tx('되돌리기', 'Undo')}</Text></Pressable> : null}
+        </View>
       </View> : null}
+      {!canEdit ? <View style={styles.viewerNotice}><Text variant="caption" weight="bold" color={color.text.muted}>{tx('보기 전용 — 이 일정을 편집할 권한이 없어요.', "View only — you don't have permission to edit this itinerary.")}</Text></View> : null}
       {syncDisconnected ? <View accessibilityRole="alert" style={styles.conflict}><Text variant="body" weight="bold">{tx('실시간 동기화가 끊겼습니다', 'Live sync lost')}</Text><Text variant="caption" color={color.text.body}>{tx('네트워크 연결을 확인해 주세요. 보고 있는 화면은 최신이 아닐 수 있어요.', 'Please check your network connection. What you see may not be up to date.')}</Text><Button label={tx('새로고침', 'Refresh')} variant="ghost" onPress={() => void manualSyncRefresh()} /></View> : null}
       {conflict ? <View accessibilityRole="alert" style={styles.conflict}><Text variant="body" weight="bold">{tx('최신 일정과 충돌했어요', 'Conflicted with the latest itinerary')}</Text><Text variant="caption" color={color.text.body}>{conflict}</Text><Button label={tx('최신 일정 불러오기', 'Load latest itinerary')} variant="ghost" onPress={() => void reload()} /></View> : null}
       {actionMessage ? <View accessibilityRole="alert" style={styles.actionNotice}><Text variant="caption" color={color.text.body}>{actionMessage}</Text></View> : null}
@@ -511,27 +610,27 @@ export default function ItineraryScreen() {
       {openingHoursNotice.length ? <View accessibilityRole="alert" style={styles.warningNotice}>{openingHoursNotice.map((message, index) => <Text key={index} variant="caption" color={color.text.body}>{message}</Text>)}</View> : null}
       {dayOutOfRange ? <View style={styles.actionNotice}><Text variant="caption" color={color.text.body}>{tx(`요청한 날짜가 없어서 1일차를 보여드려요. (전체 ${itinerary.days.length}일)`, `That day doesn't exist, so day 1 is shown instead. (${itinerary.days.length} days total)`)}</Text></View> : null}
 
-      <View accessibilityRole="tablist" style={styles.dayTabs}>
-        <Pressable accessibilityRole="tab" accessibilityState={{ selected: viewMode === 'all' }} onPress={() => selectView('all')} style={[styles.dayTab, viewMode === 'all' && styles.dayTabActive]}><Text variant="caption" weight="bold" color={viewMode === 'all' ? color.text.onAction : color.text.body}>{tx('전체 일정', 'All days')}</Text></Pressable>
-        <Pressable accessibilityRole="tab" accessibilityState={{ selected: viewMode === 'day' }} onPress={() => selectView('day')} style={[styles.dayTab, viewMode === 'day' && styles.dayTabActive]}><Text variant="caption" weight="bold" color={viewMode === 'day' ? color.text.onAction : color.text.body}>{tx('날짜별 보기', 'By day')}</Text></Pressable>
-      </View>
-
       {viewMode === 'all' ? (
-        <View style={styles.timeline}>
+        <View style={styles.route}>
           {itinerary.days.map((entry, dayIndex) => (
             <View key={`${entry.date}-${dayIndex}`}>
-              <Pressable accessibilityRole="button" accessibilityLabel={tx(`${dayIndex + 1}일차만 보기`, `View only day ${dayIndex + 1}`)} onPress={() => { selectView('day'); selectDay(dayIndex); }} style={styles.allDayHeading}>
-                <Text variant="title" weight="bold">{formatDate(entry.date, dayIndex)}</Text>
+              <Pressable accessibilityRole="button" accessibilityLabel={tx(`${dayIndex + 1}일차만 보기`, `View only day ${dayIndex + 1}`)} onPress={() => { selectView('day'); selectDay(dayIndex); }} style={styles.dayLine}>
+                <Text variant="body" weight="bold">{formatDayHeading(entry.date, dayIndex, tx)}</Text>
+                <Text variant="caption" color={color.text.muted}>{tx(`${entry.items.length}곳`, `${entry.items.length} stops`)}</Text>
               </Pressable>
-              {entry.items.length ? entry.items.map((item) => (
-                <ItemCard key={item.id} item={item} displayTime={item.startsAt} canEdit={false} lockBusy={false} excludeBusy={false} dayBusy={false} onLock={() => {}} onExclude={() => {}} reorderMode={false} canMoveUp={false} canMoveDown={false} moveBusy={false} onMoveUp={() => {}} onMoveDown={() => {}} accessToken={accessToken} />
+              {entry.items.length ? entry.items.map((item, index) => (
+                <StopRow key={item.id} item={item} index={index} isLast={index === entry.items.length - 1} displayTime={item.startsAt} wide={wide} expanded={expandedItemId === item.id} onToggleExpand={() => setExpandedItemId((current) => current === item.id ? null : item.id)} canEdit={false} lockBusy={false} excludeBusy={false} dayBusy={false} onLock={() => {}} onExclude={() => {}} reorderMode={false} canMoveUp={false} canMoveDown={false} moveBusy={false} onMoveUp={() => {}} onMoveDown={() => {}} accessToken={accessToken} />
               )) : <View style={styles.empty}><Text variant="caption" color={color.text.muted}>{tx('이 날짜에는 아직 장소가 없어요.', 'No places for this day yet.')}</Text></View>}
             </View>
           ))}
         </View>
       ) : (
         <>
-          <View style={styles.sectionHeading}><Text variant="title" weight="bold">{tx('일정 요약', 'Itinerary summary')}</Text><View style={styles.sectionHeadingRight}><Text variant="caption" color={color.text.muted}>{tx(`${day?.items.length ?? 0}개 장소`, `${day?.items.length ?? 0} places`)}</Text>{reorderMode ? <><Pressable accessibilityRole="button" accessibilityLabel={tx('순서 변경 취소', 'Cancel reordering')} accessibilityState={{ disabled: reorderBusy }} disabled={reorderBusy} onPress={cancelReorder} style={[styles.recalcButton, reorderBusy && styles.actionDisabled]}><Text variant="caption" weight="bold" color={color.brand.navy}>{tx('취소', 'Cancel')}</Text></Pressable><Pressable accessibilityRole="button" accessibilityLabel={tx('순서 저장', 'Save order')} accessibilityState={{ busy: reorderBusy }} disabled={reorderBusy} onPress={() => void saveReorder()} style={[styles.recalcButtonPrimary, reorderBusy && styles.actionDisabled]}><Text variant="caption" weight="bold" color={color.text.onAction}>{reorderBusy ? tx('저장 중', 'Saving') : tx('저장', 'Save')}</Text></Pressable></> : <>{canReorder ? <Pressable accessibilityRole="button" accessibilityLabel={tx('일정 순서 변경', 'Reorder itinerary')} accessibilityState={{ disabled: excludingItemId !== null }} disabled={excludingItemId !== null} onPress={startReorder} style={[styles.recalcButton, excludingItemId !== null && styles.actionDisabled]}><Text variant="caption" weight="bold" color={color.brand.navy}>{tx('순서 변경', 'Reorder')}</Text></Pressable> : null}{canEdit ? <Pressable accessibilityRole="button" accessibilityLabel={tx('이 날짜 다시 계산', 'Recalculate this day')} accessibilityState={{ busy: dayActionBusy }} disabled={dayActionBusy || !day?.items.length || excludingItemId !== null} onPress={() => void recalculateDay()} style={[styles.recalcButton, (dayActionBusy || !day?.items.length || excludingItemId !== null) && styles.actionDisabled]}><Text variant="caption" weight="bold" color={color.brand.navy}>{dayActionBusy ? tx('계산 중', 'Calculating') : tx('다시 계산', 'Recalculate')}</Text></Pressable> : null}{canEdit ? <Pressable accessibilityRole="button" accessibilityLabel={tx('남은 하루 다시 계획', 'Replan the rest of the day')} accessibilityState={{ busy: replanBusy }} disabled={replanBusy || !day?.items.length || excludingItemId !== null} onPress={() => setReplanConfirming(true)} style={[styles.recalcButton, (replanBusy || !day?.items.length || excludingItemId !== null) && styles.actionDisabled]}><Text variant="caption" weight="bold" color={color.brand.navy}>{tx('다시 계획', 'Replan')}</Text></Pressable> : null}</>}</View></View>
+          {/* 날짜 줄 — 시안 3.2. 왼쪽에 「9월 19일 (금)」, 오른쪽에 그날 합계. */}
+          <View style={styles.dayLine}>
+            <Text variant="body" weight="bold">{day ? formatDayHeading(day.date, selectedDay, tx) : tx(`${selectedDay + 1}일차`, `Day ${selectedDay + 1}`)}</Text>
+            {dayFacts ? <Text variant="caption" color={color.text.muted}>{dayFacts}</Text> : null}
+          </View>
           {pace?.atRiskItemIds.length ? <View accessibilityRole="alert" style={styles.warningNotice}><Text variant="caption" weight="bold" color={color.state.danger}>{tx(`${pace.atRiskItemIds.length}곳이 하루를 넘길 위험이 있어요.${paceEstimated ? ' (기록이 적어 추정값이에요)' : ''}`, `${pace.atRiskItemIds.length} place(s) risk running past the day.${paceEstimated ? ' (estimated — few records yet)' : ''}`)}</Text></View> : null}
           {replanConfirming ? <View accessibilityRole="alert" style={styles.actionNotice}>
             <Text variant="body" weight="bold">{tx('남은 방문지의 시각을 다시 매길까요?', 'Retime the remaining visits?')}</Text>
@@ -542,20 +641,29 @@ export default function ItineraryScreen() {
             </View>
           </View> : null}
           {replanOverflowIds?.length ? <View accessibilityRole="alert" style={styles.warningNotice}><Text variant="caption" color={color.text.body}>{tx(`넘치는 방문지 ${replanOverflowIds.length}곳 — 하루 안에 다 들어가지 않아요.`, `${replanOverflowIds.length} visit(s) overflow — they don't fit in the day.`)}</Text></View> : null}
-          {reorderMode ? <View style={styles.reorderHint}><Text variant="caption" color={color.text.body}>{tx('화살표로 순서를 바꾼 뒤 저장하세요. 고정된 장소는 자리를 옮길 수 없어요.', 'Use the arrows to reorder, then save. Locked places keep their spot.')}</Text></View> : null}
-          {/* 순서를 바꾸는 중에는 노선도를 숨긴다 — 아직 저장 안 된 순서를 확정된 동선처럼
-              그리면 무엇이 진짜인지 헷갈린다. */}
-          {!reorderMode ? <RouteStrip items={displayedItems} times={slotTimes} tx={tx} /> : null}
+          {reorderMode ? <View style={styles.reorderBar}>
+            <Text variant="caption" color={color.text.body} style={styles.grow}>{tx('화살표로 순서를 바꾼 뒤 저장하세요. 고정된 장소는 자리를 옮길 수 없어요.', 'Use the arrows to reorder, then save. Locked places keep their spot.')}</Text>
+            <Pressable accessibilityRole="button" accessibilityLabel={tx('순서 변경 취소', 'Cancel reordering')} accessibilityState={{ disabled: reorderBusy }} disabled={reorderBusy} onPress={cancelReorder} style={[styles.recalcButton, reorderBusy && styles.actionDisabled]}><Text variant="caption" weight="bold" color={color.brand.navy}>{tx('취소', 'Cancel')}</Text></Pressable>
+            <Pressable accessibilityRole="button" accessibilityLabel={tx('순서 저장', 'Save order')} accessibilityState={{ busy: reorderBusy }} disabled={reorderBusy} onPress={() => void saveReorder()} style={[styles.recalcButtonPrimary, reorderBusy && styles.actionDisabled]}><Text variant="caption" weight="bold" color={color.text.onAction}>{reorderBusy ? tx('저장 중', 'Saving') : tx('저장', 'Save')}</Text></Pressable>
+          </View> : null}
+          {/* 가로 노선도는 넓은 화면에만 — 폰에서는 아래 세로 노선이 같은 일을 더 잘한다.
+              순서를 바꾸는 중에는 숨긴다: 아직 저장 안 된 순서를 확정된 동선처럼 그리면
+              무엇이 진짜인지 헷갈린다. */}
+          {!reorderMode && wide ? <RouteStrip items={displayedItems} times={slotTimes} tx={tx} /> : null}
           {displayedItems.length ? <View style={wide ? styles.wideGrid : undefined}>
             <View style={wide ? styles.timelineColumn : undefined}>
-              <View style={styles.timeline}>{displayedItems.map((item, index) => <ItemCard key={item.id} item={item} displayTime={slotTimes[index] ?? item.startsAt} canEdit={canEdit} lockBusy={busyItemId === item.id} excludeBusy={excludingItemId === item.id} dayBusy={dayActionBusy || excludingItemId !== null} onLock={() => void toggleLock(item)} onExclude={() => setExcludeConfirming(item)} reorderMode={reorderMode} canMoveUp={index > 0 && !item.locked && !displayedItems[index - 1].locked} canMoveDown={index < displayedItems.length - 1 && !item.locked && !displayedItems[index + 1].locked} moveBusy={reorderBusy} onMoveUp={() => moveDraftItem(index, -1)} onMoveDown={() => moveDraftItem(index, 1)} pace={paceByItemId.get(item.id)} estimated={paceEstimated} actualBusy={actualBusyItemId === item.id} onRecordArrival={() => void recordArrival(item)} onRecordDeparture={() => void recordDeparture(item)} accessToken={accessToken} />)}</View>
+              <View style={styles.route}>{displayedItems.map((item, index) => <StopRow key={item.id} item={item} index={index} isLast={index === displayedItems.length - 1} displayTime={slotTimes[index] ?? item.startsAt} wide={wide} expanded={expandedItemId === item.id} onToggleExpand={() => setExpandedItemId((current) => current === item.id ? null : item.id)} canEdit={canEdit} lockBusy={busyItemId === item.id} excludeBusy={excludingItemId === item.id} dayBusy={dayActionBusy || excludingItemId !== null} onLock={() => void toggleLock(item)} onExclude={() => setExcludeConfirming(item)} reorderMode={reorderMode} canMoveUp={index > 0 && !item.locked && !displayedItems[index - 1].locked} canMoveDown={index < displayedItems.length - 1 && !item.locked && !displayedItems[index + 1].locked} moveBusy={reorderBusy} onMoveUp={() => moveDraftItem(index, -1)} onMoveDown={() => moveDraftItem(index, 1)} pace={paceByItemId.get(item.id)} estimated={paceEstimated} actualBusy={actualBusyItemId === item.id} onRecordArrival={() => void recordArrival(item)} onRecordDeparture={() => void recordDeparture(item)} accessToken={accessToken} />)}</View>
             </View>
-            {/* 넓은 화면에서만 옆 칸을 붙인다. 폰에서는 이 요약이 목록을 밀어내기만 한다 —
-                티켓도 모바일은 지금 구조를 그대로 두라고 적었다. */}
-            {wide ? <View style={styles.aside}>
+            {/* 이동 요약 — 시안 2.5(넓은 화면 오른쪽 고정) · 3.4(폰은 목록 아래). 폰에도 둔다:
+                「이 하루가 얼마나 걷는 하루인가」는 정차를 하나씩 봐서는 안 나오는 값이다. */}
+            <View style={wide ? styles.aside : undefined}>
               <View style={styles.asideCard}>
                 <Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx(`${selectedDay + 1}일차 이동 요약`, `Day ${selectedDay + 1} travel summary`)}</Text>
                 <Text variant="title" weight="bold">{tx(`${displayedItems.length}곳`, `${displayedItems.length} stops`)}</Text>
+                {dayWalkingMeters > 0 ? <View accessibilityLabel={tx(`정차별 도보 비중`, 'Walking share per stop')} style={styles.shareBar}>
+                  {displayedItems.map((item) => item.walkingMeters ? <View key={item.id} style={[styles.shareSlice, { flex: item.walkingMeters }]} /> : null)}
+                </View> : null}
+                {dayWalkingMeters > 0 ? <Text variant="caption" color={color.text.body}>{tx(`도보 ${formatWalk(dayWalkingMeters)}`, `${formatWalk(dayWalkingMeters)} on foot`)}</Text> : null}
                 {dayTravelMinutes > 0
                   ? <Text variant="caption" color={color.text.body}>{tx(`이동 합계 ${dayTravelMinutes}분`, `${dayTravelMinutes}m travel in total`)}</Text>
                   : <Text variant="caption" color={color.text.muted}>{tx('이 날짜는 구간 이동 시간이 아직 없어요.', 'No leg travel times for this day yet.')}</Text>}
@@ -563,12 +671,19 @@ export default function ItineraryScreen() {
                     빈 값을 그리지 않고, 없다는 것을 그대로 적는다. */}
                 <Text variant="caption" color={color.text.muted}>{tx('대중교통 안내 — 아직 없어요', 'Transit directions — not available yet')}</Text>
               </View>
-            </View> : null}
+            </View>
           </View> : <View style={styles.empty}><Text variant="body" weight="bold">{tx('이 날짜에는 아직 장소가 없어요.', 'No places for this day yet.')}</Text></View>}
         </>
       )}
     </> : null}
   </Screen>
+  {/* 하단 고정 줄 — 시안 3.5.
+      🔴 시안의 「저장」(초안을 내 여행으로 확정)은 안 만들었다. 부를 API 가 없다 —
+      src/plan/itinerary.ts 에 확정 함수가 없고, 이 화면은 이미 「내 여행」에서 열리는
+      저장된 일정이다. 누르면 아무 일도 안 나는 버튼은 없는 버튼보다 나쁘다. */}
+  {!wide && itinerary && canReorder && !reorderMode ? <View style={styles.bottomBar}>
+    <Button label={tx('순서 수정', 'Reorder')} variant="ghost" onPress={startReorder} />
+  </View> : null}
   <ExcludeConfirmModal
     visible={excludeConfirming !== null}
     placeTitle={excludeConfirming?.title ?? ''}
@@ -600,6 +715,37 @@ const styles = StyleSheet.create({ shell: { flex: 1, backgroundColor: color.bran
   heroTabActive: { backgroundColor: color.brand.ivory },
   // 방문지 제목 옆 상태 배지
   titleLine: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], flexWrap: 'wrap' },
+  // ── 세로 노선도 (시안 3.3) ────────────────────────────────────────────────
+  // 왼쪽 레일에 번호 원과 3px 세로선, 오른쪽에 내용. 선은 노드 아래에서 다음 노드까지
+  // 끊기지 않아야 한다 — 끊기면 「이 다음에 저기」라는 말이 안 된다.
+  route: { marginTop: spacing[3], marginBottom: spacing[4] },
+  rail: { width: 32, alignItems: 'center' },
+  railLine: { width: 3, flex: 1, minHeight: spacing[4], borderRadius: radius.full, backgroundColor: color.brand.navy },
+  segmentRow: { flexDirection: 'row', alignItems: 'stretch', gap: spacing[3], minHeight: 44 },
+  segmentLabel: { flex: 1, justifyContent: 'center' },
+  stopRow: { flexDirection: 'row', gap: spacing[3], alignItems: 'stretch' },
+  stopRowWide: { borderBottomWidth: 1, borderBottomColor: color.surface.border, paddingVertical: spacing[3] },
+  stopBody: { flex: 1, minWidth: 0, gap: spacing[2], paddingBottom: spacing[3] },
+  stopBodyAtRisk: { borderLeftWidth: 3, borderLeftColor: color.state.danger, paddingLeft: spacing[3] },
+  stopHead: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[2] },
+  stopRight: { flexDirection: 'row', alignItems: 'center', gap: spacing[1] },
+  stopRightWide: { alignItems: 'flex-start' },
+  stopRightStack: { alignItems: 'flex-end' },
+  stopDetail: { gap: spacing[2], paddingTop: spacing[2], borderTopWidth: 1, borderTopColor: color.surface.border },
+  lockTouch: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
+  nodeWide: { width: 40, height: 40 },
+  // 날짜 줄 (시안 3.2) — 왼쪽 날짜, 오른쪽 그날 합계
+  dayLine: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: spacing[2], flexWrap: 'wrap', marginTop: spacing[4] },
+  // ⋯ 패널 — 늘 놓을 자리가 없는 것들
+  menuPanel: { gap: spacing[3], marginTop: spacing[4], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.border },
+  menuActions: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] },
+  reorderBar: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: spacing[2], marginTop: spacing[3], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.soft },
+  // 하단 고정 줄 — 탭바 위에 형제로 놓는다. absolute 로 띄우면 목록 끝이 그만큼 가린다.
+  bottomBar: { paddingHorizontal: gutter, paddingBottom: spacing[2] },
+  // 정차별 도보 비중 (시안 2.5 · 3.4)
+  shareBar: { flexDirection: 'row', gap: 2, height: 6, borderRadius: radius.full, overflow: 'hidden' },
+  shareSlice: { backgroundColor: color.brand.orange, borderRadius: radius.full },
+
   titleText: { flexShrink: 1 },
   statusChip: { paddingHorizontal: spacing[2], paddingVertical: 2, borderRadius: radius.full },
   statusVerified: { backgroundColor: color.state.successBg },
