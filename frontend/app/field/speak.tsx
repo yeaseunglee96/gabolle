@@ -5,9 +5,9 @@
 // 홈·챗봇·현장 도구 어디서 들어와도 같은 경험이 되도록 맞춘 것(구조 정리, UX 통합).
 // 번역 업체 계약과 무관하게 기기 TTS·클립보드·지도 링크로 완결할 수 있는 택시 카드는
 // 그대로 Expo 네이티브 API로 동작시킨다.
-import { useRef, useState } from 'react';
-import { Image, Linking, Pressable, StyleSheet, TextInput, View } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { useEffect, useRef, useState } from 'react';
+import { Image, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as Clipboard from 'expo-clipboard';
 import { speakAloud as speakWithAudioSession, stopSpeaking } from '@/field/speakAloud';
 
@@ -19,6 +19,7 @@ import { PlacePhraseBrowser } from '@/components/PlacePhraseBrowser';
 import { useI18n } from '@/i18n';
 import { useAuth } from '@/auth/AuthProvider';
 import { directionForLanguage, speechLanguageFor, translateText, TRANSLATE_MAX_LENGTH, type TranslationBlockedReason } from '@/field/translate';
+import { canSearchDestination, destinationSubtitle, searchTaxiDestinations, type TaxiDestinationOutcome } from '@/field/taxiDestination';
 
 // 입력칸 상한은 번역 모듈과 한 값을 쓴다 — 두 벌이 되면 화면은 받아 놓고 보낼 때 잘린다.
 // (서버 한도와는 다른 값이다. 왜 120 인지는 TRANSLATE_MAX_LENGTH 주석 참고.)
@@ -26,23 +27,15 @@ const CUSTOM_PHRASE_MAX_LENGTH = TRANSLATE_MAX_LENGTH;
 
 type Tab = 'speak' | 'taxi';
 
-const MAP_APPS = [
-  { id: 'kakao', labelKo: '카카오맵', labelEn: 'KakaoMap', url: `https://map.kakao.com/link/search/${encodeURIComponent('부산 영도구 영선동4가 605-3')}` },
-  { id: 'google', labelKo: 'Google', labelEn: 'Google', url: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent('부산 영도구 영선동4가 605-3')}` },
-  { id: 'apple', labelKo: 'Apple 지도', labelEn: 'Apple Maps', url: `https://maps.apple.com/?q=${encodeURIComponent('부산 영도구 영선동4가 605-3')}` },
-] as const;
-// 🔴 이 한국어 주소는 번역 대상이 아니다 — 실제로 택시 기사에게 보여줄 한국어 주소라,
-// 영어로 바뀌면 현장에서 그대로 쓸모가 없어진다.
-const TAXI_ADDRESS = '부산 영도구 영선동4가 605-3';
 const taxiIcon = require('../../assets/icons/common/taxi.png');
 const speakerIcon = require('../../assets/icons/common/speaker.png');
 
 export default function Speak() {
+  const router = useRouter();
   const { tx, language } = useI18n();
   const { accessToken } = useAuth();
   const { tab: initialTab } = useLocalSearchParams<{ tab?: string }>();
   const [tab, setTab] = useState<Tab>(initialTab === 'taxi' ? 'taxi' : 'speak');
-  const [copied, setCopied] = useState(false);
   // 목록에 없는 문장을 직접 입력해 들려주는 기능.
   //
   // 🔴 2026-09-16 정정 (S15P21E201-1088). 여기 있던 "번역은 안 한다. 입력한 한국어 그대로
@@ -64,6 +57,34 @@ export default function Speak() {
   const [translateNotice, setTranslateNotice] = useState<string | null>(null);
   const [resultCopied, setResultCopied] = useState(false);
   const customPlayToken = useRef(0);
+
+  // 택시 목적지 고르기 (S15P21E201-1141).
+  //
+  // 🔴 글자를 칠 때마다 서버를 때리지 않는다. 마지막 타자 뒤 잠깐을 기다렸다가 한 번만 쏜다 —
+  //    「해운대해수욕장」을 그대로 치면 그렇지 않을 때 여덟 번이 나간다.
+  //
+  // 🔴 늦게 온 답이 먼저 온 답을 덮지 않게 이전 요청을 취소한다. 안 그러면 「해운」의 결과가
+  //    「해운대」의 결과를 밀어내, 사용자가 방금 친 것과 다른 목록을 보게 된다.
+  const [destinationQuery, setDestinationQuery] = useState('');
+  const [destination, setDestination] = useState<TaxiDestinationOutcome>({ state: 'idle' });
+  const [destinationSearching, setDestinationSearching] = useState(false);
+
+  useEffect(() => {
+    if (!canSearchDestination(destinationQuery)) {
+      setDestination({ state: 'idle' });
+      setDestinationSearching(false);
+      return;
+    }
+    const controller = new AbortController();
+    const timer = setTimeout(async () => {
+      setDestinationSearching(true);
+      const outcome = await searchTaxiDestinations(destinationQuery, controller.signal);
+      if (controller.signal.aborted) return;
+      setDestination(outcome);
+      setDestinationSearching(false);
+    }, 250);
+    return () => { controller.abort(); clearTimeout(timer); };
+  }, [destinationQuery]);
 
   function blockedNotice(reason: TranslationBlockedReason): string {
     if (reason === 'signed-out') return tx('번역은 로그인한 뒤에 쓸 수 있어요. 지금은 입력한 그대로 읽어드릴게요.', "Translation needs you to sign in. For now we'll read out what you typed, as it is.");
@@ -118,16 +139,10 @@ export default function Speak() {
     setResultCopied(true);
   }
 
-  async function copyAddress() {
-    await Clipboard.setStringAsync(TAXI_ADDRESS);
-    setCopied(true);
-  }
-
   return (
     <Screen scroll>
-      <Eyebrow>
-        {tx('여행 중 · 흰여울문화마을', 'Traveling · Huinnyeoul Culture Village')}
-      </Eyebrow>
+      {/* 🔴 여기에도 흰여울문화마을이 박혀 있었다 — 어디에 있든 그렇게 적혔다 (S15P21E201-1141). */}
+      <Eyebrow>{tx('여행 중', 'On your trip')}</Eyebrow>
       <Text variant="display" weight="bold" style={styles.title}>
         {tx('현장에서 바로 쓰기', 'Use it right now')}
       </Text>
@@ -223,45 +238,97 @@ export default function Speak() {
           <PlacePhraseBrowser onOpenTaxiCard={() => setTab('taxi')} />
         </View>
       ) : (
-        <View style={styles.taxiCard}>
-          <Text variant="body" weight="bold">
-            {tx('택시 기사님께 보여주세요', 'Show this to the taxi driver')}
+        // 🔴 여기는 예전에 흰여울문화마을 주소가 박혀 있던 자리다 (S15P21E201-1141).
+        //    어디로 가든 같은 카드가 나와서, 다른 곳에 가려는 사람에게는 **틀린 주소를
+        //    자신 있게 보여주는 화면**이었다. 그 카드를 기사에게 보여주면 진짜로 다른 데로 간다.
+        //
+        // 🔴 「길찾기 앱으로 열기」(카카오맵·Google·Apple) 줄도 같이 걷어냈다. 우리 앱에서
+        //    하던 일을 남의 앱에서 끝내게 만드는 자리였다 (사용자 보고 11번).
+        //
+        // 🔴 화면에 질문을 하나만 둔다 — 「어디로 가세요?」. 고르면 이미 있는 진짜 택시 카드
+        //    (`/taxi-card/[id]`)로 보낸다. 새로 만들지 않고 길만 냈다.
+        <View style={styles.taxiPane}>
+          <Text variant="body" weight="bold">{tx('어디로 가세요?', 'Where are you going?')}</Text>
+          <Text variant="caption" color={color.text.body}>
+            {tx('고르면 기사님께 보여줄 카드를 만들어 드려요.', "Pick one and we'll make a card to show the driver.")}
           </Text>
-          <Text variant="title" weight="bold" color={color.action.field} style={styles.taxiPlace}>
-            {tx('흰여울문화마을 안내센터', 'Huinnyeoul Culture Village Info Center')}
-          </Text>
-          <View style={styles.taxiAddressRow}>
-            <Text variant="body" weight="medium" style={styles.taxiAddress}>
-              {TAXI_ADDRESS}
-            </Text>
-            <Pressable accessibilityRole="button" accessibilityLabel={tx('주소 복사', 'Copy address')} onPress={() => void copyAddress()}>
-              <Text variant="caption" weight="bold" color={color.text.accent}>
-                {copied ? tx('복사됨 ✓', 'Copied ✓') : tx('주소 복사', 'Copy address')}
-              </Text>
-            </Pressable>
+
+          <View style={styles.searchRow}>
+            <TextInput
+              accessibilityLabel={tx('목적지 이름', 'Destination name')}
+              value={destinationQuery}
+              onChangeText={setDestinationQuery}
+              placeholder={tx('예: 해운대해수욕장', 'e.g. Haeundae Beach')}
+              placeholderTextColor={color.text.muted}
+              returnKeyType="search"
+              autoCorrect={false}
+              style={styles.searchInput}
+            />
+            {/* 🔴 지우기 버튼은 필수다 — 한 글자씩 지우게 두면 다시 검색하려는 사람이 지친다.
+                검색 필드 오른쪽에 「검색」 버튼은 두지 않는다. 치는 대로 찾아 준다. */}
+            {destinationQuery.length > 0 ? (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={tx('입력한 목적지 지우기', 'Clear destination')}
+                onPress={() => setDestinationQuery('')}
+                style={({ pressed }) => [styles.clearButton, pressed && styles.pressed]}
+              >
+                <Text variant="caption" weight="bold" color={color.text.body}>✕</Text>
+              </Pressable>
+            ) : null}
           </View>
-          <Text variant="caption" style={styles.taxiNotice}>
-            {tx('※ 하차 후 경사 없는 우회 진입로 안내', '※ After getting off, use the step-free detour entrance')}
-          </Text>
+
+          {/* 🔴 두 글자가 될 때까지는 「결과 없음」을 띄우지 않는다. 아직 다 치지도 않은
+              사람에게 없다고 말하면 고장으로 읽힌다. */}
+          {destination.state === 'idle' && destinationQuery.trim().length > 0 ? (
+            <Text variant="caption" color={color.text.muted}>
+              {tx('두 글자 이상 입력해 주세요', 'Type at least two characters')}
+            </Text>
+          ) : null}
+
+          {destinationSearching ? (
+            <Text variant="caption" color={color.text.muted}>{tx('찾는 중…', 'Searching…')}</Text>
+          ) : null}
+
+          {destination.state === 'empty' ? (
+            <Text accessibilityLiveRegion="polite" variant="caption" color={color.text.muted}>
+              {tx('그 이름의 장소를 못 찾았어요. 다르게 적어 보세요.', "We couldn't find that place. Try another spelling.")}
+            </Text>
+          ) : null}
+
+          {destination.state === 'blocked' ? (
+            <Text accessibilityLiveRegion="polite" variant="caption" color={color.text.muted}>
+              {destination.reason === 'signed-out'
+                ? tx('로그인하면 장소를 찾을 수 있어요.', 'Sign in to search for places.')
+                : tx('지금은 장소를 못 찾았어요. 잠시 후 다시 시도해 주세요.', "We couldn't search right now. Please try again shortly.")}
+            </Text>
+          ) : null}
+
+          {destination.state === 'ready' ? (
+            <View style={styles.destinationList}>
+              {destination.items.map((item) => {
+                const subtitle = destinationSubtitle(item);
+                return (
+                  <Pressable
+                    key={item.placeId}
+                    accessibilityRole="button"
+                    accessibilityLabel={tx(`${item.nameKo} 택시 카드 열기`, `Open taxi card for ${item.nameKo}`)}
+                    onPress={() => router.push(`/taxi-card/${item.placeId}`)}
+                    style={({ pressed }) => [styles.destinationItem, pressed && styles.pressed]}
+                  >
+                    <View style={styles.destinationBody}>
+                      <Text variant="body" weight="bold">{item.nameKo}</Text>
+                      {/* 주소가 없으면 아예 안 적는다 — 「정보 없음」은 줄만 차지한다. */}
+                      {subtitle ? <Text variant="caption" color={color.text.body}>{subtitle}</Text> : null}
+                    </View>
+                    <Text variant="title" weight="bold" color={color.action.secondary}>›</Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          ) : null}
         </View>
       )}
-
-      {tab === 'taxi' ? (
-        <>
-          <Text variant="body" weight="bold" style={styles.mapAppsTitle}>
-            {tx('길찾기 앱으로 열기', 'Open in a map app')}
-          </Text>
-          <View style={styles.mapAppsRow}>
-            {MAP_APPS.map((app) => (
-              <Pressable accessibilityRole="link" accessibilityLabel={tx(`${app.labelKo}에서 목적지 열기`, `Open destination in ${app.labelEn}`)} key={app.id} onPress={() => void Linking.openURL(app.url)} style={({ pressed }) => [styles.mapAppButton, pressed && styles.pressed]}>
-                <Text variant="body" weight="bold" color={color.action.field}>
-                  {tx(app.labelKo, app.labelEn)}
-                </Text>
-              </Pressable>
-            ))}
-          </View>
-        </>
-      ) : null}
     </Screen>
   );
 }
@@ -341,43 +408,12 @@ const styles = StyleSheet.create({
   customSpeakButtonDisabled: {
     opacity: 0.4,
   },
-  taxiCard: {
-    marginTop: spacing[4],
-    backgroundColor: color.surface.card,
-    borderRadius: radius.lg,
-    padding: spacing[4],
-    gap: spacing[1],
-  },
-  taxiPlace: {
-    marginTop: spacing[1],
-  },
-  taxiAddressRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: spacing[1],
-  },
-  taxiAddress: {
-    flex: 1,
-  },
-  taxiNotice: {
-    marginTop: spacing[2],
-    color: color.text.body,
-  },
-  mapAppsTitle: {
-    marginTop: spacing[6],
-    marginBottom: spacing[3],
-  },
-  mapAppsRow: {
-    flexDirection: 'row',
-    gap: spacing[2],
-  },
-  mapAppButton: {
-    flex: 1,
-    alignItems: 'center',
-    backgroundColor: color.surface.card,
-    borderRadius: radius.md,
-    paddingVertical: spacing[3],
-  },
+  taxiPane: { gap: spacing[3], marginTop: spacing[4] },
+  searchRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], minHeight: 56, paddingHorizontal: spacing[4], borderRadius: radius.md, backgroundColor: color.surface.card },
+  searchInput: { flex: 1, minHeight: 56, fontSize: 16, color: color.text.heading },
+  clearButton: { width: 32, height: 32, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full, backgroundColor: color.surface.tint },
+  destinationList: { gap: spacing[2] },
+  destinationItem: { flexDirection: 'row', alignItems: 'center', gap: spacing[3], minHeight: 64, paddingHorizontal: spacing[4], paddingVertical: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.card },
+  destinationBody: { flex: 1, gap: spacing[1] },
   pressed: { opacity: 0.72, transform: [{ scale: 0.98 }] },
 });
