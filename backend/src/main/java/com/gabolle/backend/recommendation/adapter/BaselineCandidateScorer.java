@@ -18,6 +18,8 @@ import com.gabolle.backend.place.domain.FeaturePresence;
 import com.gabolle.backend.place.domain.MatchKind;
 import com.gabolle.backend.place.domain.UserPlaceCodeMap;
 import com.gabolle.backend.preference.application.PreferenceJson;
+import com.gabolle.backend.preference.domain.TasteDimension;
+import com.gabolle.backend.preference.domain.UserTasteWeight;
 import com.gabolle.backend.recommendation.config.BaselineEngineProperties;
 import com.gabolle.backend.recommendation.config.PreferenceAlignmentWeights;
 import com.gabolle.backend.recommendation.domain.CoarseArea;
@@ -74,7 +76,8 @@ public class BaselineCandidateScorer {
 	public EngineCandidate score(PlaceCandidateResponse.Candidate candidate,
 			PreferenceSnapshot preferenceSnapshot, List<TripConstraint> constraints, int radiusM,
 			BaselineEngineProperties.Weights weights, PreferenceAlignmentWeights alignmentWeights,
-			List<UserPlaceCodeMap> preferenceCodeMap, List<UserPlaceCodeMap> constraintCodeMap) {
+			List<UserPlaceCodeMap> preferenceCodeMap, List<UserPlaceCodeMap> constraintCodeMap,
+			List<UserTasteWeight> tasteWeights, double tasteVectorMultiplier) {
 
 		List<Map<String, Object>> violations = new ArrayList<>();
 		List<Map<String, Object>> unknownFacts = new ArrayList<>();
@@ -137,6 +140,10 @@ public class BaselineCandidateScorer {
 				featureValues, scoreComponents, reasonCodes);
 		total += applyTagComponent(candidate, preferenceSnapshot, preferenceCodeMap, "FOOD_PREFERENCE",
 				weights.cuisine(), "cuisine", "TAG_MATCH_CUISINE", "cuisineTagOverlap",
+				featureValues, scoreComponents, reasonCodes);
+
+		// ── 접힌 취향 벡터의 덧점수 (S15P21E201-943) ────────────────────────
+		total += applyTasteVectorComponent(candidate, preferenceCodeMap, tasteWeights, tasteVectorMultiplier,
 				featureValues, scoreComponents, reasonCodes);
 
 		// ── 점수형 선호 다섯 — LOCALITY·QUIETNESS·TOURIST_PREFERENCE·SHADE_PREFERENCE·SLOPE_PREFERENCE
@@ -465,6 +472,92 @@ public class BaselineCandidateScorer {
 	// ══════════════════════════════════════════════════════════════════════
 	// 점수 — 태그 겹침 · 점수형 선호 정렬
 	// ══════════════════════════════════════════════════════════════════════
+
+	/**
+	 * 접힌 취향 벡터가 {@code CATEGORY} 겹침에 더하는 덧점수 — S15P21E201-943.
+	 *
+	 * <h2>🔴 기존 채점을 바꾸지 않는다. 더하기만 한다</h2>
+	 *
+	 * {@code PreferenceSnapshot} 기반 채점은 이미 돌고 있고 발표가 그것으로 돈다. 벡터를
+	 * <b>대신</b> 쓰게 바꾸면 ① 아직 벡터가 없는 사람(지금 대부분)이 갑자기 취향 반영 0 이 되거나
+	 * ② 접기 배치의 결함이 그대로 추천을 망가뜨린다. <b>있으면 더하고 없으면 지금과 완전히 같다</b>
+	 * 로 두면 위험이 한쪽으로만 간다.
+	 *
+	 * <h2>겹침 비율을 그대로 흉내 낸다 — 다만 가중치로 잰다</h2>
+	 *
+	 * {@link #applyTagComponent} 는 <b>맞은 개수 ÷ 고른 개수</b>다. 여기서는 <b>맞은 성분의
+	 * 가중치 합 ÷ 벡터의 CATEGORY 성분 개수</b>를 쓴다. 두 가지가 따라온다.
+	 * <ul>
+	 * <li>전부 맞고 가중치가 1.0 이면 1.0 — 기존 비율과 같은 축이다</li>
+	 * <li>가중치가 <b>음수</b>면(싫어하는 갈래) 총점이 <b>내려간다.</b> 개수만 세면 못 하는 일이고,
+	 *     벡터를 쓰는 이유의 절반이 이것이다</li>
+	 * </ul>
+	 *
+	 * <h2>🔴 지금 이 항이 맞출 수 있는 낱말은 사실상 하나다</h2>
+	 *
+	 * 온보딩 취향 여섯 중 장소에 실제로 붙는 것은 {@code FOOD}(모든 장소 — 그래서 변별력이 없다)와
+	 * {@code CAFE_HEALING} 둘뿐이다. 나머지 넷({@code CITY}·{@code CULTURE_TEMPLE}·
+	 * {@code NATURE_WALK}·{@code SEA_BEACH})은 붙는 장소가 없다 — S15P21E201-1108.
+	 * 이 항의 효과가 작아 보인다면 배수가 아니라 <b>그쪽</b>을 먼저 본다.
+	 *
+	 * @param tasteWeights 이 사용자의 현재 판 성분 전부. 요청당 한 번 읽어서 넘어온다 —
+	 *     후보마다 다시 읽으면 "질의 개수가 후보 수에 비례하면 안 된다" 를 어긴다
+	 */
+	private double applyTasteVectorComponent(PlaceCandidateResponse.Candidate candidate,
+			List<UserPlaceCodeMap> preferenceCodeMap, List<UserTasteWeight> tasteWeights,
+			double multiplier, Map<String, Object> featureValues, Map<String, Object> scoreComponents,
+			List<String> reasonCodes) {
+
+		String featureType = featureTypeFor(preferenceCodeMap, "CATEGORY").orElse(null);
+		List<UserTasteWeight> categoryWeights = (tasteWeights == null) ? List.of()
+				: tasteWeights.stream().filter((w) -> w.getDimension() == TasteDimension.CATEGORY).toList();
+
+		if (featureType == null || categoryWeights.isEmpty()) {
+			// 🔴 벡터가 없는 사람이 지금 대부분이다. 그때는 이 항이 아예 없었던 것과 같아야 한다 —
+			//    값을 0.0 으로 적지 않고 null 로 둔다("겹친 게 없다" 와 "잴 것이 없다" 는 다르다).
+			featureValues.put("tasteVectorOverlap", null);
+			scoreComponents.put("tasteVectorContribution", componentDetail(multiplier, null, null));
+			return 0.0;
+		}
+
+		Set<String> placeTags = new LinkedHashSet<>();
+		for (PlaceFeatureView feature : candidate.features()) {
+			if (featureType.equals(feature.featureType()) && feature.featureKey() != null
+					&& FeaturePresence.indicatesPresence(feature.evidenceStatus(), rawValue(feature))) {
+				placeTags.add(feature.featureKey());
+			}
+		}
+
+		Map<String, Object> matched = new LinkedHashMap<>();
+		double sum = 0.0;
+		for (UserTasteWeight weight : categoryWeights) {
+			if (placeTags.contains(weight.getCode())) {
+				matched.put(weight.getCode(), weight.getWeight());
+				sum += weight.getWeight();
+			}
+		}
+		double ratio = sum / categoryWeights.size();
+
+		featureValues.put("tasteVectorOverlap", ratio);
+		// 🔴 evidence 를 함께 남긴다. 지금은 전부 SURVEY 라 이 항이 설문을 두 번 세는 중인데,
+		//    그 사실을 나중에 되짚으려면 무엇을 근거로 더했는지가 행에 남아 있어야 한다.
+		scoreComponents.put("tasteVectorContribution", componentDetail(multiplier, ratio,
+				Map.of("matched", matched, "componentCount", categoryWeights.size(),
+						"evidence", evidenceSummary(categoryWeights))));
+		if (!matched.isEmpty()) {
+			reasonCodes.add("TASTE_VECTOR_MATCH");
+		}
+		return multiplier * ratio;
+	}
+
+	/** 성분들이 무엇을 근거로 접혔는지 — {@code SURVEY} · {@code INTERACTION} · {@code BLENDED} 별 개수. */
+	private static Map<String, Integer> evidenceSummary(List<UserTasteWeight> weights) {
+		Map<String, Integer> counts = new LinkedHashMap<>();
+		for (UserTasteWeight weight : weights) {
+			counts.merge(weight.getEvidence().name(), 1, Integer::sum);
+		}
+		return counts;
+	}
 
 	private double applyTagComponent(PlaceCandidateResponse.Candidate candidate, PreferenceSnapshot preferenceSnapshot,
 			List<UserPlaceCodeMap> preferenceCodeMap, String preferenceCode,

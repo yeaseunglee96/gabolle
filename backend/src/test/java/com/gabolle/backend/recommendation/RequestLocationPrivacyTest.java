@@ -252,6 +252,7 @@ class RequestLocationPrivacyTest {
 
 		return this.scorer.score(candidate, null, List.of(), 5_000,
 				new BaselineEngineProperties.Weights(null, null, null, null, null, null),
-				new PreferenceAlignmentWeights(null, null, null, null, null), List.of(), List.of());
+				new PreferenceAlignmentWeights(null, null, null, null, null), List.of(), List.of(),
+				List.of(), 0.05);
 	}
 }
