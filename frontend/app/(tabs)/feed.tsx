@@ -13,6 +13,7 @@ import { ActivityIndicator, Image, Pressable, StyleSheet, TextInput, View } from
 import { useRouter } from 'expo-router';
 
 import { useAuth } from '@/auth/AuthProvider';
+import { RegionPicker } from '@/components/RegionPicker';
 import { composeEntryFor } from '@/social/composeEntry';
 import { PhotoGrid } from '@/components/PhotoGrid';
 import { markdownToPlain } from '@/social/markdown';
@@ -168,6 +169,8 @@ function InlineCompose({ onPosted }: { onPosted: () => void }) {
   const [body, setBody] = useState('');
   const [region, setRegion] = useState('');
   const [regionOpen, setRegionOpen] = useState(false);
+  // 우리 DB 장소를 고르면 채워진다. 손으로 고쳐 쓰면 다시 비워진다 (RegionPicker).
+  const [placeId, setPlaceId] = useState<string | undefined>(undefined);
   const [visibility, setVisibility] = useState<StoryVisibility>('PUBLIC');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -184,12 +187,15 @@ function InlineCompose({ onPosted }: { onPosted: () => void }) {
       body: body.trim(),
       imageUrls: uploadedUrls,
       region: region.trim() || undefined,
+      // 🔴 우리 DB 장소를 골랐을 때만 실려 간다. 카카오 검색 결과에는 placeId 가 아예
+      // 없으므로(regionSearch.ts) 저장하면 안 되는 것이 여기로 흘러들 수 없다.
+      placeId,
       visibility,
       accessToken,
     });
     setSubmitting(false);
     if (outcome.state !== 'success') { setError(outcome.message); return; }
-    setBody(''); setRegion(''); setRegionOpen(false); clearImages();
+    setBody(''); setRegion(''); setPlaceId(undefined); setRegionOpen(false); clearImages();
     onPosted();
   };
 
@@ -239,14 +245,14 @@ function InlineCompose({ onPosted }: { onPosted: () => void }) {
       ? <Text key={`image-error-${index}`} variant="caption" color={color.state.danger}>{image.error}</Text>
       : null)}
 
-    {regionOpen ? <TextInput
-      accessibilityLabel={tx('지역', 'Region')}
-      style={styles.composeRegion}
-      placeholder={tx('예: 해운대구', 'e.g. Haeundae-gu')}
-      placeholderTextColor={color.text.muted}
-      value={region}
-      onChangeText={setRegion}
-      maxLength={60}
+    {/* S15P21E201-1145 — 자유 입력 한 칸이던 것을 검색으로 바꾼다. 우리 DB 장소를
+        고르면 placeId 가 따라와 글이 그 장소에 달린다. 손으로 고쳐 쓰는 길은 그대로다. */}
+    {regionOpen ? <RegionPicker
+      region={region}
+      onChangeRegion={setRegion}
+      placeId={placeId}
+      onChangePlaceId={setPlaceId}
+      accessToken={accessToken}
     /> : null}
 
     <View style={styles.composeTools}>
@@ -618,7 +624,6 @@ const styles = StyleSheet.create({
   // 인라인 글쓰기 — 넓은 화면에서 피드 맨 위에 놓인다.
   compose: { gap: spacing[3], marginTop: spacing[4], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.border },
   composeInput: { minHeight: 64, fontSize: 18, lineHeight: 24, color: color.text.heading },
-  composeRegion: { minHeight: 40, paddingHorizontal: spacing[3], borderRadius: radius.sm, backgroundColor: color.surface.soft, color: color.text.heading },
   composeImages: { flexDirection: 'row', gap: spacing[2] },
   composeImageOverlay: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(11,29,58,0.45)' },
   composeImageRemove: { position: 'absolute', top: spacing[1], right: spacing[1], width: 24, height: 24, borderRadius: radius.full, backgroundColor: 'rgba(11,29,58,0.6)', alignItems: 'center', justifyContent: 'center' },
