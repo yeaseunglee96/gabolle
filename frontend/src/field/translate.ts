@@ -37,7 +37,20 @@ export type TranslationOutcome =
 
 type TranslateResponseDto = { translatedText: string; cached: boolean; provider: string };
 
-/** 서버가 받는 최대 길이와 맞춘다. 넘기면 400 이 오므로 보내기 전에 자른다. */
+/**
+ * 이 화면이 받는 최대 길이.
+ *
+ * 🔴 **서버 한도와 같은 값이 아니다.** 서버는 2000자까지 받는다
+ * (`TranslationRequest.MAX_SOURCE_LENGTH`). 120 은 이 화면이 스스로 정한 값이고, 원래
+ * 있던 입력칸 상한을 그대로 이어받은 것이다.
+ *
+ * 짧게 두는 이유는 **소리로 나가기 때문**이다. 현장에서 상대에게 들려주는 한마디인데
+ * 길면 듣는 쪽이 못 따라오고, 화면에 띄워 내밀기에도 길다. 서버가 더 받는다고 해서
+ * 이 칸을 늘릴 이유가 되지는 않는다.
+ *
+ * (앞선 주석에 "서버가 받는 최대 길이와 맞춘다" 고 적혀 있었는데 사실이 아니었다.
+ *  실제로 서버 코드를 열어 보고 2026-09-16 에 고쳤다.)
+ */
 export const TRANSLATE_MAX_LENGTH = 120;
 
 /**
