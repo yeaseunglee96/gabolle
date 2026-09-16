@@ -115,7 +115,7 @@ class BusanBusNetworkIntegrationTest {
 		assertThat(nextIndex).as("이 노선에 다음 정류장이 없다").isNotEqualTo(index);
 		TransitNetwork.Stop to = loaded.stop(route.stopIds().get(nextIndex));
 
-		Optional<RaptorPlanner.Journey> journey = new HeadwayJourneyPlanner(22.0, 20)
+		Optional<RaptorPlanner.Journey> journey = new HeadwayJourneyPlanner(14.4)
 				.plan(loaded, Map.of(from.id(), 0), Map.of(to.id(), 0),
 						TransitRouteAdapter.TYPICAL_DAYTIME_MINUTE);
 
