@@ -72,17 +72,33 @@ describe('모르면 안 보여준다', () => {
   });
 });
 
-describe('사진이 한 장도 없는 지금', () => {
+describe('실제 사전', () => {
   it('🔴 사전이 비어 있어도 아무것도 안 터진다 — 그냥 사진이 안 나온다', () => {
-    expect(Object.keys(DISH_IMAGES)).toHaveLength(0);
-    expect(findDishImage('할매순대국밥')).toBeNull();
+    // 사진이 한 장도 없던 때에도, 앞으로 어떤 이유로 사전이 비어도 같아야 한다.
+    expect(matchDishKey('할매순대국밥', [])).toBeNull();
   });
 
-  it('사진이 들어오면 출처와 라이선스가 반드시 같이 있다', () => {
+  it('사진이 들어왔으니 실제로 붙는다', () => {
+    // 2026-09-16 에 22장이 들어왔다. 「30개 중 22개」이고 여덟은 일부러 비웠다.
+    expect(Object.keys(DISH_IMAGES).length).toBeGreaterThan(0);
+    const hit = findDishImage('할매순대국밥 9,000');
+    expect(hit?.key).toBe('순대국밥');
+    expect(hit?.image.source).toContain('관광사진갤러리');
+  });
+
+  it('🔴 일부러 비운 여덟에는 사진이 안 붙는다 — 다시 찾지 마라', () => {
+    // 「비슷하면 받는다」로 낮추면 콩국수가 「땅콩국수」, 회가 「경복궁 경회루」로 온다.
+    for (const dish of ['콩국수', '칼국수', '회', '짜장면', '탕수육', '순두부찌개', '해물파전', '소고기국밥']) {
+      expect(findDishImage(dish)).toBeNull();
+    }
+  });
+
+  it('모든 사진에 출처와 라이선스가 같이 있다', () => {
     for (const [key, image] of Object.entries(DISH_IMAGES)) {
-      expect(typeof image.source).toBe('string');
       expect(image.source.length).toBeGreaterThan(0);
       expect(image.license.length).toBeGreaterThan(0);
+      // 🔴 확인 안 한 유형 번호를 적지 않는다 — 신청 화면에 적힌 문구 그대로다.
+      expect(image.license).not.toMatch(/공공누리/);
       // 열쇠에 공백이 있으면 꼬리 일치가 절대 안 맞는다 (정규화가 공백을 지우므로).
       expect(key).not.toMatch(/\s/);
     }

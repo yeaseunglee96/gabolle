@@ -32,14 +32,42 @@ export type DishImage = {
  * 기준이 된다. 사진 수집은 S15P21E201-1026 에서 DB 세션이 맡았다.
  */
 export const DISH_IMAGES: Record<string, DishImage> = {
-  // 예: 순대국밥: { asset: require('../../assets/dishes/sundae-gukbap.jpg'),
-  //                source: '한국관광공사 관광사진갤러리', license: '이용허락범위 제한 없음' },
+  // 🔴 22/30. 여기 없는 여덟은 **못 찾은 것이 아니라 일부러 비웠다.** 다시 찾지 마라 —
+  //    「비슷하면 받는다」로 기준을 낮추면 이렇게 된다(2026-09-16 실측):
   //
-  // 🔴 2026-09-16 정정 — 이 자리에 「공공누리 제1유형(출처표시)」라고 적어 뒀었다.
-  //    **확인된 것이 아니다.** 신청 화면에 적힌 것은 「이용허락범위 제한 없음」이고
-  //    공공누리 유형 표기가 없다(데이터 세션 확인). 방향은 안전한 쪽이지만(제한 없음이
-  //    제1유형보다 더 자유롭다) **확인 안 한 유형 번호를 적으면 그게 나중에 근거로
-  //    쓰인다.** 사진마다 신청 화면에 적힌 문구를 **있는 그대로** 옮긴다.
+  //      콩국수  → 「땅콩국수」        다른 음식
+  //      짜장면  → 「짜장면박물관」     음식이 아님
+  //      회      → 「경복궁 경회루」    글자만 겹친다
+  //      칼국수  → 「멍게칼국수」       다른 음식
+  //
+  //    비운 것: 소고기국밥 · 칼국수 · 콩국수 · 순두부찌개 · 해물파전 · 회 · 짜장면 · 탕수육
+  //    채우고 싶으면 **사람이 한 장씩 골라 넣는다.** 30개는 눈으로 볼 수 있는 크기다.
+  //
+  // 사진은 관광사진갤러리 원본을 **긴 변 480px · 품질 78** 로 줄인 것이다(16.5MB → 0.72MB).
+  // 원본과 촬영자 정보는 bigData/data/staged/dish-photos.ndjson 에 있다 — 원천이 사진을
+  // 내리면 다시 못 만들어서 그쪽은 커밋해 두었다.
+  돼지국밥: { asset: require('../../assets/dishes/dwaeji-gukbap.jpg'), source: '한국관광공사 관광사진갤러리', license: '이용허락범위 제한 없음 (공공데이터포털)' },
+  순대국밥: { asset: require('../../assets/dishes/sundae-gukbap.jpg'), source: '한국관광공사 관광사진갤러리', license: '이용허락범위 제한 없음 (공공데이터포털)' },
+  콩나물국밥: { asset: require('../../assets/dishes/kongnamul-gukbap.jpg'), source: '한국관광공사 관광사진갤러리', license: '이용허락범위 제한 없음 (공공데이터포털)' },
+  밀면: { asset: require('../../assets/dishes/milmyeon.jpg'), source: '한국관광공사 관광사진갤러리', license: '이용허락범위 제한 없음 (공공데이터포털)' },
+  물냉면: { asset: require('../../assets/dishes/mul-naengmyeon.jpg'), source: '한국관광공사 관광사진갤러리', license: '이용허락범위 제한 없음 (공공데이터포털)' },
+  비빔냉면: { asset: require('../../assets/dishes/bibim-naengmyeon.jpg'), source: '한국관광공사 관광사진갤러리', license: '이용허락범위 제한 없음 (공공데이터포털)' },
+  잔치국수: { asset: require('../../assets/dishes/janchi-guksu.jpg'), source: '한국관광공사 관광사진갤러리', license: '이용허락범위 제한 없음 (공공데이터포털)' },
+  김치찌개: { asset: require('../../assets/dishes/kimchi-jjigae.jpg'), source: '한국관광공사 관광사진갤러리', license: '이용허락범위 제한 없음 (공공데이터포털)' },
+  된장찌개: { asset: require('../../assets/dishes/doenjang-jjigae.jpg'), source: '한국관광공사 관광사진갤러리', license: '이용허락범위 제한 없음 (공공데이터포털)' },
+  부대찌개: { asset: require('../../assets/dishes/budae-jjigae.jpg'), source: '한국관광공사 관광사진갤러리', license: '이용허락범위 제한 없음 (공공데이터포털)' },
+  삼겹살: { asset: require('../../assets/dishes/samgyeopsal.jpg'), source: '한국관광공사 관광사진갤러리', license: '이용허락범위 제한 없음 (공공데이터포털)' },
+  갈비탕: { asset: require('../../assets/dishes/galbitang.jpg'), source: '한국관광공사 관광사진갤러리', license: '이용허락범위 제한 없음 (공공데이터포털)' },
+  삼계탕: { asset: require('../../assets/dishes/samgyetang.jpg'), source: '한국관광공사 관광사진갤러리', license: '이용허락범위 제한 없음 (공공데이터포털)' },
+  불고기: { asset: require('../../assets/dishes/bulgogi.jpg'), source: '한국관광공사 관광사진갤러리', license: '이용허락범위 제한 없음 (공공데이터포털)' },
+  비빔밥: { asset: require('../../assets/dishes/bibimbap.jpg'), source: '한국관광공사 관광사진갤러리', license: '이용허락범위 제한 없음 (공공데이터포털)' },
+  김밥: { asset: require('../../assets/dishes/gimbap.jpg'), source: '한국관광공사 관광사진갤러리', license: '이용허락범위 제한 없음 (공공데이터포털)' },
+  떡볶이: { asset: require('../../assets/dishes/tteokbokki.jpg'), source: '한국관광공사 관광사진갤러리', license: '이용허락범위 제한 없음 (공공데이터포털)' },
+  순대: { asset: require('../../assets/dishes/sundae.jpg'), source: '한국관광공사 관광사진갤러리', license: '이용허락범위 제한 없음 (공공데이터포털)' },
+  어묵: { asset: require('../../assets/dishes/eomuk.jpg'), source: '한국관광공사 관광사진갤러리', license: '이용허락범위 제한 없음 (공공데이터포털)' },
+  씨앗호떡: { asset: require('../../assets/dishes/ssiat-hotteok.jpg'), source: '한국관광공사 관광사진갤러리', license: '이용허락범위 제한 없음 (공공데이터포털)' },
+  파전: { asset: require('../../assets/dishes/pajeon.jpg'), source: '한국관광공사 관광사진갤러리', license: '이용허락범위 제한 없음 (공공데이터포털)' },
+  짬뽕: { asset: require('../../assets/dishes/jjamppong.jpg'), source: '한국관광공사 관광사진갤러리', license: '이용허락범위 제한 없음 (공공데이터포털)' },
 };
 
 /**
@@ -49,14 +77,25 @@ export const DISH_IMAGES: Record<string, DishImage> = {
  * 재료인지 모른다. 그런데 재료가 바뀌면 사진이 거짓말이 되고, **그건 알레르기 문제로
  * 되돌아간다.** 그래서 모르면 안 보여준다.
  *
- * 목록은 **식약처가 표시를 의무화한 알레르기 유발 식품 22종**이다. 우리가 지어낸 것이
+ * 뿌리는 **식약처가 표시를 의무화한 알레르기 유발 식품 22종**이다. 우리가 지어낸 것이
  * 아니라 이미 있는 기준이라, 늘리거나 줄일 때 근거를 댈 수 있다. 낱말이 여러 형태로
  * 쓰이는 것(쇠고기·소고기)은 둘 다 넣는다.
  */
 export const INGREDIENT_WORDS = [
+  // ── 식약처 22종 (개별 이름) ─────────────────────────────────────────
   '새우', '게', '오징어', '조개', '홍합', '전복', '굴', '고등어', '잣', '호두', '땅콩',
   '우유', '계란', '달걀', '메밀', '밀', '대두', '콩', '복숭아', '토마토', '아황산',
   '닭', '쇠고기', '소고기', '돼지',
+
+  // ── 🔴 묶음 낱말 — 여기부터는 우리가 더한 것이다 (2026-09-16) ───────
+  //
+  // 22종은 **개별 이름만** 담고 있다. 그래서 「해물파전」이 「파전」 사진을 받아 갔다.
+  // 시험이 잡았다. 「해물」은 조개·오징어·새우를 한꺼번에 뜻하는 말이라 **알레르기의
+  // 핵심인데 22종 어느 낱말과도 글자가 안 겹친다.**
+  //
+  // 줄을 갈라 둔 것은 일부러다 — 위쪽은 **근거가 있는 목록**이고 아래쪽은 **우리 판단**이다.
+  // 섞어 두면 나중에 누가 「식약처 목록이니까 맞겠지」로 읽는다.
+  '해물', '해산물', '모둠',
 ] as const;
 
 /** 가격·중량·괄호·기호를 떼고 한글만 남긴다. 「돼지국밥(특) 11,000」 → 「돼지국밥」 */

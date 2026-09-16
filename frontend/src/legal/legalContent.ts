@@ -31,5 +31,10 @@ export const PRIVACY_SECTIONS: LegalSection[] = [
 export const DATA_SOURCES_SECTIONS: LegalSection[] = [
   { title: ['1. 날씨 정보', '1. Weather data'], paragraphs: [['"여행 준비" 화면의 기온·강수확률은 기상청 단기예보 조회서비스(공공데이터포털, data.go.kr)를 활용해 제공합니다.', 'Temperature and precipitation probability on the "Trip prep" screen are provided using the Korea Meteorological Administration’s short-term forecast service (data.go.kr).']] },
   { title: ['2. 관광 정보', '2. Tourism data'], paragraphs: [['여행지·문화·자연 정보 일부는 한국관광공사의 관광정보 서비스(공공데이터포털, data.go.kr)를 활용해 제공합니다.', 'Some place, culture, and nature information is provided using the Korea Tourism Organization’s tourism information service (data.go.kr).']] },
-  { title: ['3. 이용 조건', '3. License'], paragraphs: [['두 자료 모두 "공공저작물 자유이용허락 표시기준 제1유형(출처표시)"에 따라 출처를 표시하고 이용합니다.', 'Both datasets are used under the "Korea Open Government License Type 1 (Attribution)," which requires crediting the source.']] },
+  // 🔴 2026-09-16 (S15P21E201-1026) — 메뉴판 읽기의 예시 사진은 위 둘과 **다른 서비스**이고
+  // **이용허락 조건도 다르다.** 「제1유형」으로 묶어 적으면 확인 안 한 유형 번호를 근거로
+  // 만드는 것이다. 활용신청 화면에 적힌 문구는 「이용허락범위 제한 없음」이고 공공누리 유형
+  // 표기가 없다. 있는 그대로 적는다.
+  { title: ['3. 음식 예시 사진', '3. Example dish photos'], paragraphs: [['"메뉴판 읽기"에서 메뉴 이름 옆에 보여드리는 음식 사진은 한국관광공사 관광사진갤러리(공공데이터포털, data.go.kr)의 자료이며, 이용허락범위에 제한이 없는 사진만 골라 씁니다. 촬영자 정보는 수집본에 함께 보관합니다.', 'The dish photos shown beside menu names in "Read a menu" come from the Korea Tourism Organization Photo Gallery (data.go.kr). We use only photos with no usage restrictions, and photographer credits are kept with our collected data.'], ['🔴 이 사진은 그 식당의 음식이 아니라 같은 이름의 음식을 보여주는 예시입니다. 화면에도 그렇게 적혀 있습니다.', 'These photos are examples of the same dish, not the food served at that restaurant. The screen says so as well.']] },
+  { title: ['4. 이용 조건', '4. License'], paragraphs: [['날씨·관광 정보 두 자료는 "공공저작물 자유이용허락 표시기준 제1유형(출처표시)"에 따라 출처를 표시하고 이용합니다.', 'The weather and tourism datasets are used under the "Korea Open Government License Type 1 (Attribution)," which requires crediting the source.']] },
 ];
