@@ -6,7 +6,7 @@ import { useAuth } from '@/auth/AuthProvider';
 import { loginWithOAuth } from '@/auth/oauth';
 import { navigateAfterOAuthComplete } from '@/auth/oauthNavigation';
 import type { OAuthProvider } from '@/auth/authApi';
-import { isSafeReturnPath, resolveDestination, savePendingReturnTo } from '@/auth/pendingReturnTo';
+import { resolveDestination, savePendingReturnTo } from '@/auth/pendingReturnTo';
 import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
 import { Eyebrow } from '@/components/Eyebrow';
@@ -76,7 +76,20 @@ export default function SignIn() {
       <Pressable accessibilityRole="link" style={styles.forgot} onPress={() => router.push('/forgot-password')}><Text variant="caption" color={color.action.primary}>{tx('비밀번호를 잊으셨나요?', 'Forgot your password?')}</Text></Pressable>
       {feedback && <Card><Text accessibilityRole="alert" variant="caption" color={feedback.danger ? color.state.danger : color.text.body}>{feedback.text}</Text></Card>}
       <Button accessibilityRole="button" accessibilityState={{ disabled: !eligible || busy || !!provider, busy }} label={busy ? tx('로그인 중…', 'Signing in…') : tx('로그인', 'Sign in')} disabled={!eligible || busy || !!provider} onPress={() => void submit()} />
-      <Pressable accessibilityRole="button" accessibilityHint={tx('로그인 없이 홈과 주요 기능을 둘러봅니다.', 'Browse the home screen and core features without signing in.')} style={styles.guest} onPress={() => router.replace(isSafeReturnPath(returnTo) ? returnTo : '/home')}><Text variant="body" weight="bold" color={color.action.primary}>{tx('비회원으로 둘러보기', 'Browse as guest')}</Text></Pressable>
+      {/* 🔴 S15P21E201-1116 — returnTo 로 되돌려 보내지 않는다.
+
+          전에는 isSafeReturnPath(returnTo) ? returnTo : '/home' 이었다. 그런데 returnTo 가
+          로그인을 요구하는 화면(/me/* 는 ProtectedRoute 로 막혀 있다)이면 고리가 닫힌다 —
+          보호 화면 → 로그인 → 둘러보기 → 보호 화면 → 로그인 … 앱을 강제 종료하는 것 말고
+          빠져나올 방법이 없었다(2026-09-16 iOS 실기기에서 확인).
+
+          isSafeReturnPath 는 「안전한 주소인가」만 본다. /sign-in·/sign-up 을 예외로 둔 것을
+          보면 자기 자신으로 돌아오는 고리는 이미 의식하고 있었지만, 보호 화면을 거쳐 한 칸
+          건너 돌아오는 고리는 놓쳤다.
+
+          이 버튼의 뜻은 「로그인 없이 볼 수 있는 곳으로 가겠다」이지 「원래 가려던 곳으로
+          가겠다」가 아니다. returnTo 는 로그인에 성공했을 때만 쓴다(resolveDestination). */}
+      <Pressable accessibilityRole="button" accessibilityHint={tx('로그인 없이 홈과 주요 기능을 둘러봅니다.', 'Browse the home screen and core features without signing in.')} style={styles.guest} onPress={() => router.replace('/home')}><Text variant="body" weight="bold" color={color.action.primary}>{tx('비회원으로 둘러보기', 'Browse as guest')}</Text></Pressable>
     </View>
     <View style={styles.divider}><View style={styles.line} /><Text variant="caption">{tx('또는', 'or')}</Text><View style={styles.line} /></View>
     <View style={styles.socials}>{([
