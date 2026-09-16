@@ -73,4 +73,26 @@ class SmtpEmailSenderFromHeaderTest {
 
 		assertThat(sent.get(0).getSubject()).isEqualTo("가볼래 이메일 인증");
 	}
+
+	/**
+	 * S15P21E201-1017 — 중계 업체가 From 을 자기 도메인으로 바꿔 보내므로, 답장이 갈 곳을
+	 * 따로 실어야 한다. 이게 없으면 사용자가 답장을 눌러도 아무도 안 보는 주소로 간다.
+	 */
+	@Test
+	void repliesGoBackToTheRealAddressEvenIfTheRelayRewritesFrom() throws Exception {
+		sender("가볼래").sendEmailVerification("user@example.test", "https://example.test/verify?token=x");
+
+		InternetAddress replyTo = (InternetAddress) sent.get(0).getReplyTo()[0];
+		assertThat(replyTo.getAddress()).isEqualTo(ADDRESS);
+		assertThat(replyTo.getPersonal()).isEqualTo("가볼래");
+	}
+
+	@Test
+	void keepsTheReplyAddressWhenNoNameIsConfigured() throws Exception {
+		sender("  ").sendPasswordReset("user@example.test", "https://example.test/reset?token=x");
+
+		InternetAddress replyTo = (InternetAddress) sent.get(0).getReplyTo()[0];
+		assertThat(replyTo.getAddress()).isEqualTo(ADDRESS);
+		assertThat(replyTo.getPersonal()).isNull();
+	}
 }
