@@ -1,9 +1,10 @@
 // 기록 상세 — 피드 카드를 누르면 오는 화면 (S15P21E201-228).
 import { useCallback, useState } from 'react';
-import { ActivityIndicator, Image, Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 
 import { useAuth } from '@/auth/AuthProvider';
+import { PhotoGrid } from '@/components/PhotoGrid';
 import { Button } from '@/components/Button';
 import { ReportModal } from '@/components/ReportModal';
 import { Screen } from '@/components/Screen';
@@ -106,12 +107,14 @@ export default function StoryDetail() {
 
           <Text color={color.text.body} style={styles.body}>{story.body}</Text>
 
+          {/* S15P21E201-1135 — 목록 카드와 **같은 배치**를 쓴다. 같은 글이 자리마다
+              다르게 보이면 사용자는 올린 것과 보이는 것이 다르다고 느낀다. */}
           {story.images.length ? (
-            <View style={styles.images}>
-              {story.images.map((image) => (
-                <Image key={image.url} source={{ uri: image.url }} resizeMode="cover" accessibilityLabel={tx('여행 기록 사진', 'Trip record photo')} style={styles.image} />
-              ))}
-            </View>
+            <PhotoGrid
+              photos={story.images.map((image) => ({ uri: image.url }))}
+              accessibilityLabel={tx('여행 기록 사진', 'Trip record photo')}
+              style={styles.images}
+            />
           ) : null}
 
           {story.place ? (
@@ -195,8 +198,7 @@ const styles = StyleSheet.create({
   grow: { flex: 1, gap: spacing[1] },
   visibilityBadge: { minHeight: 28, paddingHorizontal: spacing[2], borderRadius: radius.full, backgroundColor: color.surface.soft, alignItems: 'center', justifyContent: 'center' },
   body: { lineHeight: 24 },
-  images: { gap: spacing[2] },
-  image: { width: '100%', aspectRatio: 4 / 3, borderRadius: radius.md, backgroundColor: color.surface.soft },
+  images: { marginTop: spacing[2] },
   placeCard: { gap: spacing[1], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.tint },
   actionRow: { flexDirection: 'row', justifyContent: 'space-between' },
   textAction: { minHeight: 44, paddingHorizontal: spacing[2], alignItems: 'center', justifyContent: 'center' },

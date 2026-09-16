@@ -13,6 +13,7 @@ import { ActivityIndicator, Image, Pressable, StyleSheet, TextInput, View } from
 import { useRouter } from 'expo-router';
 
 import { useAuth } from '@/auth/AuthProvider';
+import { PhotoGrid } from '@/components/PhotoGrid';
 import { Button } from '@/components/Button';
 import { Eyebrow } from '@/components/Eyebrow';
 import { ReportModal } from '@/components/ReportModal';
@@ -37,20 +38,17 @@ const FEED_KEY = feedQueryKey;
 const BODY_MAX = 500;
 
 /** 사진 장수에 따라 칸을 다르게 쓴다 — 한 장은 넓게, 여러 장은 정사각으로 나눈다. */
+// S15P21E201-1135 — 사진을 가로로 줄 세우던 것을 장수·방향에 따른 배치로 바꾼다.
+// 배치 규칙은 @/social/photoGrid 한 곳에 있고, 작성 미리보기·글 상세도 같은 것을 쓴다.
 function StoryImages({ images, compact }: { images: StoryDto['images']; compact: boolean }) {
   const { tx } = useI18n();
-  const shown = images.slice(0, 3);
-  if (!shown.length) return null;
-  const single = shown.length === 1;
-  return <View style={[styles.images, compact && styles.imagesCompact]}>
-    {shown.map((image) => <Image
-      key={image.url}
-      source={{ uri: image.url }}
-      resizeMode="cover"
-      accessibilityLabel={tx('여행 기록 사진', 'Trip record photo')}
-      style={[styles.image, single && styles.imageWide]}
-    />)}
-  </View>;
+  if (!images.length) return null;
+  return <PhotoGrid
+    photos={images.map((image) => ({ uri: image.url }))}
+    compact={compact}
+    accessibilityLabel={tx('여행 기록 사진', 'Trip record photo')}
+    style={styles.images}
+  />;
 }
 
 /** 이름 첫 글자를 둥근 칸에 넣는다. 프로필 사진은 StoryDto 계약에 아직 없다. */
@@ -203,18 +201,27 @@ function InlineCompose({ onPosted }: { onPosted: () => void }) {
       multiline
     />
 
-    {images.length ? <View style={styles.composeImages}>
-      {images.map((image, index) => <View key={`${image.localUri}-${index}`} style={styles.composeImageSlot}>
-        <Image source={{ uri: image.localUri }} resizeMode="cover" accessibilityLabel={tx('고른 사진', 'Selected photo')} style={styles.composeImage} />
-        {image.uploading ? <View style={styles.composeImageOverlay}><ActivityIndicator color={color.text.onAction} /></View> : null}
-        {image.error ? <Pressable accessibilityRole="button" accessibilityLabel={tx('업로드 다시 시도', 'Retry upload')} onPress={() => retryImage(index)} style={styles.composeImageOverlay}>
-          <Text variant="caption" weight="bold" color={color.text.onAction}>{tx('다시 시도', 'Retry')}</Text>
-        </Pressable> : null}
-        <Pressable accessibilityRole="button" accessibilityLabel={tx('사진 삭제', 'Remove photo')} onPress={() => removeImage(index)} style={styles.composeImageRemove}>
-          <Text weight="bold" color={color.text.onAction}>×</Text>
-        </Pressable>
-      </View>)}
-    </View> : null}
+    {/* S15P21E201-1135 — 글쓰기가 두 곳(여기와 app/feed/compose.tsx)에 있는데
+        둘이 다른 모양이면 같은 앱에서 사진이 두 가지로 보인다. 같은 부품을 쓴다. */}
+    {images.length ? <PhotoGrid
+      photos={images.map((image) => ({ uri: image.localUri }))}
+      compact
+      accessibilityLabel={tx('고른 사진', 'Selected photo')}
+      style={styles.composeImages}
+      renderOverlay={(index) => {
+        const image = images[index];
+        if (!image) return null;
+        return <>
+          {image.uploading ? <View style={styles.composeImageOverlay}><ActivityIndicator color={color.text.onAction} /></View> : null}
+          {image.error ? <Pressable accessibilityRole="button" accessibilityLabel={tx('업로드 다시 시도', 'Retry upload')} onPress={() => retryImage(index)} style={styles.composeImageOverlay}>
+            <Text variant="caption" weight="bold" color={color.text.onAction}>{tx('다시 시도', 'Retry')}</Text>
+          </Pressable> : null}
+          <Pressable accessibilityRole="button" accessibilityLabel={tx('사진 삭제', 'Remove photo')} onPress={() => removeImage(index)} style={styles.composeImageRemove}>
+            <Text weight="bold" color={color.text.onAction}>×</Text>
+          </Pressable>
+        </>;
+      }}
+    /> : null}
 
     {/* 사진이 상한을 넘었을 때만 그 이유가 뜬다 — 미리 겁주지 않는다 (S15P21E201-955). */}
     {images.map((image, index) => image.error
@@ -577,10 +584,8 @@ const styles = StyleSheet.create({
 
   body: { lineHeight: 22 },
 
-  images: { flexDirection: 'row', gap: spacing[2] },
-  imagesCompact: { gap: spacing[1] },
-  image: { flex: 1, aspectRatio: 1, borderRadius: radius.md, backgroundColor: color.surface.soft },
-  imageWide: { aspectRatio: 16 / 9 },
+  // 배치는 PhotoGrid 가 정한다 (S15P21E201-1135) — 여기서는 위아래 간격만 준다.
+  images: { marginTop: spacing[2] },
 
   cardFooter: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[2], flexWrap: 'wrap' },
   detailLink: { minHeight: 44, justifyContent: 'center' },
@@ -595,8 +600,6 @@ const styles = StyleSheet.create({
   composeInput: { minHeight: 64, fontSize: 18, lineHeight: 24, color: color.text.heading },
   composeRegion: { minHeight: 40, paddingHorizontal: spacing[3], borderRadius: radius.sm, backgroundColor: color.surface.soft, color: color.text.heading },
   composeImages: { flexDirection: 'row', gap: spacing[2] },
-  composeImageSlot: { flex: 1, aspectRatio: 1, borderRadius: radius.md, backgroundColor: color.surface.soft, overflow: 'hidden' },
-  composeImage: { width: '100%', height: '100%' },
   composeImageOverlay: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(11,29,58,0.45)' },
   composeImageRemove: { position: 'absolute', top: spacing[1], right: spacing[1], width: 24, height: 24, borderRadius: radius.full, backgroundColor: 'rgba(11,29,58,0.6)', alignItems: 'center', justifyContent: 'center' },
   composeTools: { flexDirection: 'row', alignItems: 'center', gap: spacing[1], paddingTop: spacing[3], borderTopWidth: 1, borderTopColor: color.surface.border, flexWrap: 'wrap' },
