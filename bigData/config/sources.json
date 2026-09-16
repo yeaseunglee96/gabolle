@@ -185,6 +185,29 @@
       "note": "온톨로지의 bm:openingHoursNormalized 가 이것을 기다렸다. 호출 한도는 오퍼레이션마다 따로 걸리므로 BIMS 실시간 버스 폴링을 갉아먹지 않는다."
     },
     {
+      "id": "tourapi-festival",
+      "name": "한국관광공사 TourAPI 축제·행사 회차",
+      "gives": [
+        "축제 회차 기간 (시작일·종료일)",
+        "축제 장소·좌표",
+        "축제 사진 목록"
+      ],
+      "license": "이용허락범위 제한 없음",
+      "//라이선스": "🔴 신청 화면에 적힌 문구를 그대로 옮긴 것이다. 공공누리 유형 표기가 없어서 「공공누리 제1유형(출처표시)」이라고 적지 않았다 — 안전한 쪽으로 틀려도 확인 안 한 것을 근거로 만드는 것은 같다 (인수인계 26.09.16 F-4). 응답의 cpyrhtDivCd 는 수집기가 원문 그대로 남긴다.",
+      "auth": "apikey",
+      "envVar": "DATA_GO_KR_KEY",
+      "applyUrl": "https://www.data.go.kr/",
+      "script": "collect/tourapi-festival.mjs",
+      "endpoint": "https://apis.data.go.kr/B551011/KorService2",
+      "lDongRegnCd": 26,
+      "//지역코드-2026-09-16-실측": "🔴 areaCode 가 아니라 lDongRegnCd(법정동 시도코드, 부산=26)로 거른다. searchFestival2 를 eventStartDate=20260101 로 전국 728건 전수 조회해 직접 세었다 — areacode 가 빈 칸으로 오는 것 715건(98.2%), lDongRegnCd 가 빈 것 0건. 그래서 areaCode=6 으로 거르면 4건, lDongRegnCd=26 으로 거르면 61건이다(15배). lDongRegnCd 로만 잡히는 것이 57건. 🔴 이 항목에 areaCode 를 추가하지 마십시오 — 다음 사람이 그쪽을 쓰게 됩니다.",
+      "//F-1-정정": "인수인계 문서는 「전국 축제 279건 중 278건이 areaCode 빈 칸」이라고 적었고 2026-09-16 실측은 「728건 중 715건」이다. 비율과 결론은 같고 모수가 다르다 — 조회 조건이 달랐던 것으로 보이며 어느 쪽이 틀린 것이 아니다. 낡은 실측을 지우지 않고 둘 다 남긴다.",
+      "//오퍼레이션": "searchFestival2(목록 — 장소와 기간이 한 응답에 온다) · detailIntro2(상세) · detailImage2(사진 목록). 🔴 적재 순서는 장소 → 기간 → 사진이고 수집기가 파일에 그 순서로 남긴다. 뒤집으면 기간이 전부 버려진다 (인수인계 C-2).",
+      "//활용신청": "🔴 2026-09-16 실측 — tourapi(국문 KorService2) 신청 하나로 searchFestival2 가 그대로 200 을 준다. 축제용으로 따로 신청할 것은 없었다. 다만 일일 한도는 오퍼레이션당 1,000건이라 축제 몫은 따로 센다 (인수인계 F-5).",
+      "status": "수집기 커밋됨 (2026-09-16 · 부산 축제 61건 · 적재 대기)",
+      "note": "축제 화면이 늘 비어 있던 이유다 — 적재기와 화면은 있는데 수집기가 없었다. 2026-09-16 실측으로 GET /festivals 가 count 0 이었다."
+    },
+    {
       "id": "tourapi-en",
       "name": "한국관광공사_영문 관광정보서비스_GW",
       "gives": [
