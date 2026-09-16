@@ -82,6 +82,24 @@ async function loadEnv() {
 }
 
 /** 엔드포인트를 지어내지 않는다 — config/sources.json 에서 읽는다. */
+/**
+ * 🔴 지역을 areaCode 가 아니라 lDongRegnCd 로 거른다 — S15P21E201-1031
+ *
+ *   관광공사 응답에는 지역 칸이 둘 있고 하나가 거의 비어 있다.
+ *     areacode      관광용 지역코드 (부산 = 6)   ← 대부분 빈 문자열로 온다
+ *     lDongRegnCd   법정동 시도코드 (부산 = 26)  ← 전부 차 있다
+ *
+ *   2026-09-16 실측 (areaBasedList2, contentTypeId 7종 전수):
+ *     areaCode=6 으로 거르면        639곳
+ *     lDongRegnCd=26 으로 거르면  2,218곳   ← 1,579곳을 놓치고 있었다
+ *     관광지 135→351 · 문화시설 32→120 · 쇼핑 47→980 · 음식점 319→515
+ *
+ *   감천문화마을이 검색에 없던 것도 이것 때문이다 — areacode 와 cat1 이 둘 다
+ *   빈 채로 등록돼 있어 지역 필터에서 통째로 빠졌다 (S15P21E201-920).
+ *
+ *   🔴 areaCode 로 되돌리지 마라. 되돌리면 부산 장소의 71% 가 조용히 사라지고
+ *      아무 오류도 안 난다.
+ */
 async function resolveSource() {
   const p = join(ROOT, 'config/sources.json')
   if (!existsSync(p)) return { base: null, from: 'config/sources.json 없음' }
@@ -93,7 +111,7 @@ async function resolveSource() {
     : base
       ? 'config/sources.json tourapi-en.endpoint'
       : 'config/sources.json 에 tourapi-en.endpoint 없음'
-  return { base, from, areaCode: src?.areaCode ?? null }
+  return { base, from, regnCd: src?.lDongRegnCd ?? null }
 }
 
 /** 공공데이터포털은 오류도 HTTP 200 으로 돌려준다 — 국문 수집기와 같은 판정. */
@@ -117,11 +135,11 @@ function classify(text) {
 async function main() {
   await loadEnv()
   const key = process.env.DATA_GO_KR_KEY
-  const { base, from, areaCode } = await resolveSource()
+  const { base, from, regnCd } = await resolveSource()
 
   log('한국관광공사 영문 관광정보 수집 (이름·소개 번역문)')
   log(`  엔드포인트 ${base ?? '(없음)'}   ← ${from}`)
-  log(`  지역코드   ${areaCode ?? '(없음)'}`)
+  log(`  지역       lDongRegnCd=${regnCd ?? '(없음)'}   🔴 areaCode 가 아니다`)
   log(`  저장       ${OUT_FILE}`)
   log(`  호출 상한  ${MAX_CALLS}회 (목록 쪽당 ${ROWS_PER_PAGE}건)`)
 
@@ -130,8 +148,9 @@ async function main() {
     log('   config/sources.json 의 tourapi-en.endpoint 를 채우거나 .env 에 TOURAPI_EN_ENDPOINT 를 넣으십시오.')
     process.exit(2)
   }
-  if (areaCode == null) {
-    log('🔴 지역코드가 없습니다. config/sources.json 의 tourapi-en.areaCode 를 채우십시오.')
+  if (regnCd == null) {
+    log('🔴 법정동 시도코드가 없습니다. config/sources.json 의 tourapi-en.lDongRegnCd 를 채우십시오.')
+    log('   🔴 areaCode 로 바꿔 끼우지 마십시오 — 부산 장소의 71% 가 조용히 빠집니다 (2026-09-16 실측).')
     process.exit(2)
   }
   if (!key) {
@@ -195,7 +214,7 @@ async function main() {
     let got = 0
     for (let page = 1; ; page++) {
       const j = await fetchRaw('areaBasedList2',
-        { areaCode, contentTypeId: typeId, numOfRows: ROWS_PER_PAGE, pageNo: page },
+        { lDongRegnCd: regnCd, contentTypeId: typeId, numOfRows: ROWS_PER_PAGE, pageNo: page },
         { stage: 'list', contentTypeId: typeId, page })
       if (!j) break
       const body = j?.response?.body ?? {}
@@ -230,7 +249,7 @@ async function main() {
   stamp(join(ROOT, 'data/staged/_tourapi-en-run'), {
     step: 'collect/tourapi-en',
     inputs: [join(ROOT, 'config/sources.json')],
-    params: { endpointFrom: from, areaCode, rowsPerPage: ROWS_PER_PAGE, maxCalls: MAX_CALLS, startedAt },
+    params: { endpointFrom: from, lDongRegnCd: regnCd, rowsPerPage: ROWS_PER_PAGE, maxCalls: MAX_CALLS, startedAt },
     result: { calls, places: targets.length, details, empty, perType, out: 'data/raw/tourapi/tourapi-busan-en.ndjson' },
   })
 
