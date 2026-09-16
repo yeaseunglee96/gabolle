@@ -182,7 +182,8 @@
       "status": "커밋됨 (2026-09-11 실측 · 부산 656곳 7종 · 상세 629건·빈 것 27 · data/raw/tourapi/tourapi-busan.ndjson)",
       "//2026-09-08-실측": "🔴 버전 2 만 살아 있다. KorService1/areaBasedList1 은 HTTP 400 으로 죽었다. endpoint 는 오퍼레이션 앞까지의 공통 부분이고 수집기가 뒤에 areaBasedList2 · detailIntro2 를 붙인다. areaCode 6 = 부산.",
       "//필드": "🔴 영업시간 필드 이름이 분류마다 다르다 — 하나로 받으면 대부분이 빈다. 음식점(39) opentimefood · restdatefood / 관광지(12) usetime · restdate / 문화시설(14) usetimeculture · restdateculture. 그래서 수집기는 이름을 뭉개지 않고 원문 그대로 남긴다. 해석은 process/ 의 몫이다.",
-      "//분류별-부산-2026-09-11": "관광지 138 · 문화시설 35 · 축제행사 14 · 레포츠 29 · 숙박 65 · 쇼핑 47 · 음식점 328 = 656곳. 🔴 날마다 줄고 있다 — 09-08 662곳 · 09-10 659곳 · 09-11 656곳. 어느 숫자도 틀리지 않았고 전부 그날의 진실이다. 그래서 숫자를 인용할 때 날짜를 함께 적는다. 이제 원본이 커밋돼 있으므로 인용은 파일을 세는 것이 맞다.", "//채움률-2026-09-11": "커밋된 원본 상세 629건을 직접 세었다. 영업시간 623곳(99.0%) · 주차 587곳(93.3%) · 대표메뉴 328곳(음식점 100%) · 문화재지정 138곳(관광지 100%). 🔴 가격 44곳(7.0%, 문화시설 usefee 30 + 축제 usetimefestival 14 — 식당 가격은 0곳)과 체류시간 4곳(0.6%)은 쓰지 않는다. 체류시간 네 값은 '약 1시간' · '30분' · '공연 및 전시별 상이' · '화-일 10:30 - 18:30'(영업시간이 잘못 들어감)이다. 🔴 유모차 정정: 2026-09-10 메모가 437곳(66.3%)이라고 적었는데 오늘 재니 값이 든 것은 108곳(17.2%), 칸이 있기만 한 것은 222곳(35.3%)이다. 어느 쪽도 437 이 아니라 그 숫자를 재현하지 못했다 — 왜 달랐는지는 확인 못 했다. 쓰려면 다시 재야 한다.",
+      "//분류별-부산-2026-09-11": "관광지 138 · 문화시설 35 · 축제행사 14 · 레포츠 29 · 숙박 65 · 쇼핑 47 · 음식점 328 = 656곳. 🔴 날마다 줄고 있다 — 09-08 662곳 · 09-10 659곳 · 09-11 656곳. 어느 숫자도 틀리지 않았고 전부 그날의 진실이다. 그래서 숫자를 인용할 때 날짜를 함께 적는다. 이제 원본이 커밋돼 있으므로 인용은 파일을 세는 것이 맞다.",
+      "//채움률-2026-09-11": "커밋된 원본 상세 629건을 직접 세었다. 영업시간 623곳(99.0%) · 주차 587곳(93.3%) · 대표메뉴 328곳(음식점 100%) · 문화재지정 138곳(관광지 100%). 🔴 가격 44곳(7.0%, 문화시설 usefee 30 + 축제 usetimefestival 14 — 식당 가격은 0곳)과 체류시간 4곳(0.6%)은 쓰지 않는다. 체류시간 네 값은 '약 1시간' · '30분' · '공연 및 전시별 상이' · '화-일 10:30 - 18:30'(영업시간이 잘못 들어감)이다. 🔴 유모차 정정: 2026-09-10 메모가 437곳(66.3%)이라고 적었는데 오늘 재니 값이 든 것은 108곳(17.2%), 칸이 있기만 한 것은 222곳(35.3%)이다. 어느 쪽도 437 이 아니라 그 숫자를 재현하지 못했다 — 왜 달랐는지는 확인 못 했다. 쓰려면 다시 재야 한다.",
       "note": "온톨로지의 bm:openingHoursNormalized 가 이것을 기다렸다. 호출 한도는 오퍼레이션마다 따로 걸리므로 BIMS 실시간 버스 폴링을 갉아먹지 않는다."
     },
     {
@@ -229,7 +230,9 @@
     {
       "id": "tourapi-barrier-free",
       "name": "한국관광공사_무장애 여행 정보",
-      "gives": ["장소별 무장애 시설 여부"],
+      "gives": [
+        "장소별 무장애 시설 여부"
+      ],
       "license": "공공누리",
       "auth": "apikey",
       "envVar": "DATA_GO_KR_KEY",
@@ -238,7 +241,8 @@
       "endpoint": "https://apis.data.go.kr/B551011/KorWithService2",
       "lDongRegnCd": 26,
       "//지역코드-2026-09-16": "🔴 areaCode 6 에서 lDongRegnCd 26 으로 바꿨다 (S15P21E201-1031). 관광공사 응답의 areacode 는 대부분 빈 문자열로 와서, 그것으로 거르면 부산 장소가 639곳이고 lDongRegnCd 로 거르면 2,218곳이다 — 1,579곳을 놓치고 있었다. 감천문화마을(S15P21E201-920)이 안 나오던 것도 이것 때문이다. 🔴 areaCode 로 되돌리지 마라 — 되돌리면 71%가 조용히 사라지고 아무 오류도 안 난다.",
-      "status": "커밋됨 (2026-09-11 실측 · 부산 179곳 · 상세 179건·빈 것 0 · data/raw/tourapi/tourapi-barrier-free-busan.ndjson)", "//채움률-2026-09-11": "🔴 레코드 단위로는 179건 전부에 내용이 있지만, **칸 단위로 보면 절반 이상이 비었다.** 빈 것은 null 이 아니라 빈 문자열이다. 쓸 만한 칸은 여섯: exit 82.7% · route 81.6% · parking 62.0% · elevator 53.1% · restroom 46.9% · braileblock 43.0%. 그 아래로 helpdog 24.6% · handicapetc 20.1% · guidehuman 13.4% · room 12.3% · wheelchair 9.5% · lactationroom 7.8% · stroller 7.3% · publictransport 7.3%. 🔴 promotion · bigprint · signguide · videoguide · hearingroom 다섯은 179건 전부가 빈 문자열이다(0%). hearinghandicapetc 는 1건(0.6%). 🔴 wheelchair 는 이름과 달리 '휠체어 대여' 칸이고 17곳뿐이다 — 접근 가능 여부는 exit·route 에 문장으로 들어 있다. 🔴 값이 갈래가 아니라 자유 문장이다: route 146건에 43가지 · exit 148건에 44가지 · restroom 41가지. 값이 든 칸 1,090개 중 232개(21.3%)에 '_무장애 편의시설' 같은 꼬리표가 붙어 같은 뜻을 다른 값으로 가른다. <br/> 태그가 섞인 값도 31건 있다. 쓰려면 파싱 규칙이 따로 필요하다. 🔴 2026-09-10 메모의 「상세 181건 전부에 내용이 있다 · 채움률이 높다」 는 레코드 단위 얘기였고 칸 단위로는 맞지 않는다.",
+      "status": "커밋됨 (2026-09-11 실측 · 부산 179곳 · 상세 179건·빈 것 0 · data/raw/tourapi/tourapi-barrier-free-busan.ndjson)",
+      "//채움률-2026-09-11": "🔴 레코드 단위로는 179건 전부에 내용이 있지만, **칸 단위로 보면 절반 이상이 비었다.** 빈 것은 null 이 아니라 빈 문자열이다. 쓸 만한 칸은 여섯: exit 82.7% · route 81.6% · parking 62.0% · elevator 53.1% · restroom 46.9% · braileblock 43.0%. 그 아래로 helpdog 24.6% · handicapetc 20.1% · guidehuman 13.4% · room 12.3% · wheelchair 9.5% · lactationroom 7.8% · stroller 7.3% · publictransport 7.3%. 🔴 promotion · bigprint · signguide · videoguide · hearingroom 다섯은 179건 전부가 빈 문자열이다(0%). hearinghandicapetc 는 1건(0.6%). 🔴 wheelchair 는 이름과 달리 '휠체어 대여' 칸이고 17곳뿐이다 — 접근 가능 여부는 exit·route 에 문장으로 들어 있다. 🔴 값이 갈래가 아니라 자유 문장이다: route 146건에 43가지 · exit 148건에 44가지 · restroom 41가지. 값이 든 칸 1,090개 중 232개(21.3%)에 '_무장애 편의시설' 같은 꼬리표가 붙어 같은 뜻을 다른 값으로 가른다. <br/> 태그가 섞인 값도 31건 있다. 쓰려면 파싱 규칙이 따로 필요하다. 🔴 2026-09-10 메모의 「상세 181건 전부에 내용이 있다 · 채움률이 높다」 는 레코드 단위 얘기였고 칸 단위로는 맞지 않는다.",
       "note": "🔴 왜 tourapi 와 따로 두었나 — 데이터셋이 다르고 인증신청도 따로 났다. 한쪽이 막혀도 다른 쪽은 돈다. 온톨로지의 bm:placeWheelchairAccessible 이 이것을 기다렸다. 지금 휠체어 규칙은 전부 길과 이동에만 걸려 있어서, 길을 다 통과하고도 문 앞에서 막히는 경우를 말할 수 없었다.",
       "//2026-09-08-실측": "🔴 버전 2 만 살아 있다. KorWithService1 은 HTTP 400 이다. 오퍼레이션은 areaBasedList2(목록) · detailWithTour2(상세).",
       "//필드": "detailWithTour2 가 내는 29개 (2026-09-08 실측): wheelchair · elevator · restroom · exit · parking · publictransport · route · ticketoffice · promotion · handicapetc · braileblock · helpdog · guidehuman · audioguide · bigprint · brailepromotion · guidesystem · blindhandicapetc · signguide · videoguide · hearingroom · hearinghandicapetc · stroller · lactationroom · babysparechair · infantsfamilyetc · room · auditorium · contenttypeid. 휠체어뿐 아니라 시각·청각·유아동반까지 함께 온다."
@@ -305,7 +309,13 @@
     {
       "id": "btc-elevator",
       "name": "부산교통공사_엘리베이터 정보",
-      "gives": ["호선", "역명", "출입구번호", "상세위치", "시작층/종료층"],
+      "gives": [
+        "호선",
+        "역명",
+        "출입구번호",
+        "상세위치",
+        "시작층/종료층"
+      ],
       "license": "이용허락범위 제한 없음",
       "auth": "none",
       "url": "https://www.data.go.kr/data/15119875/fileData.do",
@@ -317,7 +327,13 @@
     {
       "id": "btc-station-facility",
       "name": "부산교통공사_역사 편의시설현황",
-      "gives": ["에스컬레이터", "외부경사로", "엘리베이터 내부/외부", "휠체어리프트", "시각장애인 유도로"],
+      "gives": [
+        "에스컬레이터",
+        "외부경사로",
+        "엘리베이터 내부/외부",
+        "휠체어리프트",
+        "시각장애인 유도로"
+      ],
       "license": "이용허락범위 제한 없음",
       "auth": "none",
       "url": "https://www.data.go.kr/data/15052664/fileData.do",
@@ -328,7 +344,14 @@
     {
       "id": "btc-station-info",
       "name": "부산교통공사_도시철도역사정보",
-      "gives": ["역번호", "역사명", "노선", "역 위경도", "환승역구분", "도로명주소"],
+      "gives": [
+        "역번호",
+        "역사명",
+        "노선",
+        "역 위경도",
+        "환승역구분",
+        "도로명주소"
+      ],
       "license": "이용허락범위 제한 없음",
       "auth": "none",
       "url": "https://www.data.go.kr/data/15043686/fileData.do",
@@ -339,7 +362,13 @@
     {
       "id": "btc-ridership",
       "name": "부산교통공사_시간대별 승하차인원",
-      "gives": ["역번호", "일자", "요일", "승/하차", "시간대별 인원"],
+      "gives": [
+        "역번호",
+        "일자",
+        "요일",
+        "승/하차",
+        "시간대별 인원"
+      ],
       "license": "이용허락범위 제한 없음",
       "auth": "none",
       "url": "https://www.data.go.kr/data/3057229/fileData.do",
@@ -387,7 +416,11 @@
     {
       "id": "btc-timetable",
       "name": "부산교통공사_부산도시철도 열차시각표 조회 서비스",
-      "gives": ["첫차", "막차", "열차별 시각"],
+      "gives": [
+        "첫차",
+        "막차",
+        "열차별 시각"
+      ],
       "license": "이용허락범위 제한 없음",
       "auth": "apikey",
       "envVar": "DATA_GO_KR_KEY",
@@ -401,7 +434,9 @@
     {
       "id": "btc-transfer-walk",
       "name": "부산 도시철도 환승 통로 도보거리",
-      "gives": ["환승역 내부 도보 거리·소요시간"],
+      "gives": [
+        "환승역 내부 도보 거리·소요시간"
+      ],
       "license": "해당 없음",
       "auth": "none",
       "url": null,
@@ -412,7 +447,14 @@
     {
       "id": "localdata-permits",
       "name": "행정안전부 지방행정 인허가 데이터 (LOCALDATA) — 부산 음식점 5종",
-      "gives": ["영업 지속기간(인허가일자·폐업일자)", "폐업 이력 124,910곳", "소재지면적", "좌표(EPSG:5174)", "업태구분", "상호·주소"],
+      "gives": [
+        "영업 지속기간(인허가일자·폐업일자)",
+        "폐업 이력 124,910곳",
+        "소재지면적",
+        "좌표(EPSG:5174)",
+        "업태구분",
+        "상호·주소"
+      ],
       "license": "공공누리 제1유형 (출처표시)",
       "licenseNote": "출처만 표시하면 상업적 이용·변형·재배포 모두 가능. 표기는 '행정안전부 지방행정 인허가 데이터'. 🔴 CLAUDE.md 1절의 네이버·카카오 금지와 무관하다 — 저장·가공에 제약이 없다.",
       "auth": "none",
@@ -424,6 +466,63 @@
       "scope": "부산 16개 구·군 (3250000~3400000). 🔴 광역시 코드 6260000 을 넣으면 0건이 온다 — 음식점 인허가는 구·군이 낸다",
       "note": "🔴 키도 활용신청도 없이 받아지는 몇 안 되는 출처. Referer 헤더만 필요하다. CLAUDE.md 2절이 요구한 '조작할 수 없는 관측 신호 = 영업 지속기간' 을 실제로 가진 데이터다 — 폐업이 영업 중의 2배라 죽은 가게까지 보인다. 업종 5종의 칸 39개가 완전히 같아 합쳐 다룰 수 있다. 함정 셋: (1) Content-Type 이 UTF-8 이라고 거짓말하는데 실제는 CP949 다 (2) 좌표는 EPSG:5174 다 — 이름매칭 31곳 오차 중앙값 20.4m(5174) vs 317.2m(5181), 육지경계 포함률 99.97% vs 95.17% 로 갈랐다. 다만 변환은 collect 가 아니라 process 의 몫이라 원문 그대로 저장한다 (3) 헤더에 칸이 있다고 값이 있는 게 아니다 — 홈페이지·건물소유구분명은 183,144행 중 0건이다. 자세한 것은 docs/PERMITS.md.",
       "docs": "docs/PERMITS.md"
+    },
+    {
+      "id": "tourapi-ja",
+      "name": "한국관광공사_일문 관광정보서비스_GW",
+      "gives": [
+        "장소 이름(일본어)",
+        "장소 소개(일본어)",
+        "주소",
+        "contentid"
+      ],
+      "license": "공공누리 (이용허락범위 제한 없음)",
+      "licenseNote": "사진 자료는 명예훼손·인격권 침해 용도와 기업 CI·BI 활용을 금한다. 이미지는 공공누리 1·3유형.",
+      "auth": "apikey",
+      "endpoint": "https://apis.data.go.kr/B551011/JpnService2",
+      "script": "collect/tourapi-i18n.mjs",
+      "status": "활용신청 승인됨 (2026-09-16 실측 — areaCode2 로 resultCode 0000 확인). 수집 완료 (2026-09-16 · 목록만).",
+      "note": "🔴 국문과 반대로 areaCode 로 거른다. lDongRegnCd 로 거르면 0건이다 (2026-09-16 실측). 분류 번호도 다르다 — 국문 12·14·15·28·32·38·39 / 다국어 76~85. 국문 번호로 물으면 전부 0건이 오고 아무 오류도 안 난다. 부산 164건. 국문 2,218곳에 견주면 열 배 넘게 적은데, 관광공사가 번역해 둔 것만 있기 때문이라 우리가 늘릴 수 없다. 🔴 contentid 는 국문과 다른 공간이다 — 실측 겹침 0.0%. 조인하면 되는 척하면서 0건이 된다. 좌표나 제목 괄호 안 한글로 이어야 하고 그래도 30% 안팎이다.",
+      "derived": "data/raw/tourapi/tourapi-busan-ja.ndjson",
+      "areaCode": 6
+    },
+    {
+      "id": "tourapi-zh-hans",
+      "name": "한국관광공사_중문간체 관광정보서비스_GW",
+      "gives": [
+        "장소 이름(중국어 간체)",
+        "장소 소개(중국어 간체)",
+        "주소",
+        "contentid"
+      ],
+      "license": "공공누리 (이용허락범위 제한 없음)",
+      "licenseNote": "사진 자료는 명예훼손·인격권 침해 용도와 기업 CI·BI 활용을 금한다. 이미지는 공공누리 1·3유형.",
+      "auth": "apikey",
+      "endpoint": "https://apis.data.go.kr/B551011/ChsService2",
+      "script": "collect/tourapi-i18n.mjs",
+      "status": "활용신청 승인됨 (2026-09-16 실측 — areaCode2 로 resultCode 0000 확인). 수집 완료 (2026-09-16 · 목록만).",
+      "note": "🔴 국문과 반대로 areaCode 로 거른다. lDongRegnCd 로 거르면 0건이다 (2026-09-16 실측). 분류 번호도 다르다 — 국문 12·14·15·28·32·38·39 / 다국어 76~85. 국문 번호로 물으면 전부 0건이 오고 아무 오류도 안 난다. 부산 154건. 국문 2,218곳에 견주면 열 배 넘게 적은데, 관광공사가 번역해 둔 것만 있기 때문이라 우리가 늘릴 수 없다. 🔴 contentid 는 국문과 다른 공간이다 — 실측 겹침 0.0%. 조인하면 되는 척하면서 0건이 된다. 좌표나 제목 괄호 안 한글로 이어야 하고 그래도 30% 안팎이다.",
+      "derived": "data/raw/tourapi/tourapi-busan-zh-hans.ndjson",
+      "areaCode": 6
+    },
+    {
+      "id": "tourapi-zh-hant",
+      "name": "한국관광공사_중문번체 관광정보서비스_GW",
+      "gives": [
+        "장소 이름(중국어 번체)",
+        "장소 소개(중국어 번체)",
+        "주소",
+        "contentid"
+      ],
+      "license": "공공누리 (이용허락범위 제한 없음)",
+      "licenseNote": "사진 자료는 명예훼손·인격권 침해 용도와 기업 CI·BI 활용을 금한다. 이미지는 공공누리 1·3유형.",
+      "auth": "apikey",
+      "endpoint": "https://apis.data.go.kr/B551011/ChtService2",
+      "script": "collect/tourapi-i18n.mjs",
+      "status": "활용신청 승인됨 (2026-09-16 실측 — areaCode2 로 resultCode 0000 확인). 수집 완료 (2026-09-16 · 목록만).",
+      "note": "🔴 국문과 반대로 areaCode 로 거른다. lDongRegnCd 로 거르면 0건이다 (2026-09-16 실측). 분류 번호도 다르다 — 국문 12·14·15·28·32·38·39 / 다국어 76~85. 국문 번호로 물으면 전부 0건이 오고 아무 오류도 안 난다. 부산 137건. 국문 2,218곳에 견주면 열 배 넘게 적은데, 관광공사가 번역해 둔 것만 있기 때문이라 우리가 늘릴 수 없다. 🔴 contentid 는 국문과 다른 공간이다 — 실측 겹침 0.0%. 조인하면 되는 척하면서 0건이 된다. 좌표나 제목 괄호 안 한글로 이어야 하고 그래도 30% 안팎이다.",
+      "derived": "data/raw/tourapi/tourapi-busan-zh-hant.ndjson",
+      "areaCode": 6
     }
   ],
   "banned": [
