@@ -144,8 +144,8 @@ public class TransitRouteAdapter implements RouteProviderPort {
 		//    실제 쓰임에서는 이 제한이 아무것도 잃지 않는다 — 일정 구간을 재는 쪽도
 		//    경로 API 도 출발 시각 없이 부른다(RouteQuery 5인자 생성자).
 		if (!exact) {
-			Optional<RaptorPlanner.Journey> byHeadway = new HeadwayJourneyPlanner(
-					this.properties.getRideSpeedKmh(), this.properties.getDwellSecondsPerStop())
+			Optional<RaptorPlanner.Journey> byHeadway =
+					new HeadwayJourneyPlanner(this.properties.getRideSpeedKmh())
 							.plan(network, origins, destinations, TYPICAL_DAYTIME_MINUTE);
 			if (byHeadway.isPresent()) {
 				return Optional.of(toLeg(network, byHeadway.get(), REASON_HEADWAY_ESTIMATE));

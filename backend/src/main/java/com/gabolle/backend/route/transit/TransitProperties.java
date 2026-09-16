@@ -47,21 +47,36 @@ public class TransitProperties {
 	private double accessWalkSpeedKmh = 4.0;
 
 	/**
-	 * 정류장 사이를 <b>달리는</b> 속도(km/h) — S15P21E201-1123.
+	 * 버스가 노선을 따라 실제로 나아가는 속도(km/h) — <b>정차 시간을 포함한 표정속도</b>다.
 	 *
-	 * <p>🔴 {@code RouteProperties.transitSpeedKmh}(18)와 다른 값이다. 저쪽은 기다리는
-	 * 시간과 환승까지 <b>뭉뚱그린</b> 값이라 그만큼 낮고, 이쪽은 차가 실제로 달리는 동안의
-	 * 속도다 — 기다리는 시간은 배차간격에서, 서는 시간은 아래 값에서 따로 온다.
+	 * <h2>🟢 이 값은 잰 값이다 — 이 저장소에서 드문 경우다</h2>
 	 *
-	 * <p>🔴 <b>잰 값이 아니다.</b> 이 저장소의 다른 속도들과 같다.
+	 * BIMS 실시간 관측 기록(<code>bigData/data/raw/transit/bims-2026-08-26·27.ndjson</code>,
+	 * 60초 간격 폴링)을 전부 파싱해서 냈다. 다시 재려면
+	 * <code>node bigData/analysis/bims-travel-times.mjs</code>.
+	 *
+	 * <pre>
+	 * 응답 5,275줄 · 차량 135대 · 운행 구간 439건 · 관측 11,897km · 821시간
+	 * 표정속도 중앙값 14.4 km/h   (노선별 12.4 · 13.6 · 14.5 · 15.1 · 16.9)
+	 * 정류장 한 칸 중앙값 92초    (평균 간격 368m)
+	 * </pre>
+	 *
+	 * <h2>🔴 정차 시간을 따로 두지 않는 이유</h2>
+	 *
+	 * 처음에는 "차내 22km/h + 정류장당 20초" 로 나눠 두었다. <b>둘 다 내가 정한 값이었고
+	 * 합치면 한 칸에 80초가 나왔다 — 실제는 92초다.</b> 관측이 재 주는 것은 "달리는 속도"가
+	 * 아니라 <b>"정차까지 포함해 실제로 얼마나 나아갔나"</b> 이므로, 그 모양 그대로 하나의
+	 * 값으로 둔다. 지어낸 값 둘보다 잰 값 하나가 낫다.
+	 *
+	 * <p>🔴 그래서 정류장 사이 거리에 <b>우회 계수를 곱하지 않는다.</b> 위 속도가 정류장
+	 * 좌표를 직선으로 이어 잰 거리 기준이라, 곱하면 같은 보정을 두 번 하게 된다.
+	 *
+	 * <h2>한계</h2>
+	 *
+	 * 관측된 노선은 <b>다섯 개(15·23·96·111·126)이고 전부 일반버스</b>다. 급행·마을버스는
+	 * 이 값을 그대로 쓴다 — 재지 않았다는 뜻이고, 폴링 대상이 늘면 종류별로 갈라야 한다.
 	 */
-	private double rideSpeedKmh = 22.0;
-
-	/**
-	 * 정류장 한 곳에 서느라 드는 초. 지나는 중간 정류장 수만큼 붙는다.
-	 * 🔴 잰 값이 아니다.
-	 */
-	private int dwellSecondsPerStop = 20;
+	private double rideSpeedKmh = 14.4;
 
 	public int getAccessRadiusM() {
 		return this.accessRadiusM;
@@ -101,13 +116,5 @@ public class TransitProperties {
 
 	public void setRideSpeedKmh(double rideSpeedKmh) {
 		this.rideSpeedKmh = rideSpeedKmh;
-	}
-
-	public int getDwellSecondsPerStop() {
-		return this.dwellSecondsPerStop;
-	}
-
-	public void setDwellSecondsPerStop(int dwellSecondsPerStop) {
-		this.dwellSecondsPerStop = dwellSecondsPerStop;
 	}
 }

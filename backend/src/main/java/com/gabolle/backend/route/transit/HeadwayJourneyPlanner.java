@@ -40,32 +40,18 @@ import java.util.Optional;
 public final class HeadwayJourneyPlanner {
 
 	/**
-	 * 정류장 사이를 달리는 속도(km/h). 🔴 잰 값이 아니다 — {@code RouteProperties} 의
-	 * 속도들과 같은 성격이고 같은 이유로 언젠가 실제 이동 기록으로 맞춰야 한다.
-	 * 서는 시간은 아래에서 따로 더하므로 이것은 <b>달리는 동안의</b> 속도다.
+	 * 정차까지 포함해 노선을 따라 나아가는 속도(km/h) — <b>표정속도</b>.
+	 * 🟢 BIMS 관측으로 잰 값이다. 근거는 {@link TransitProperties#getRideSpeedKmh()}.
 	 */
 	private final double rideSpeedKmh;
 
-	/** 정류장 한 곳에 서느라 드는 초. 중간에 지나는 정류장 수만큼 붙는다. */
-	private final int dwellSecondsPerStop;
-
 	private static final double EARTH_RADIUS_M = 6_371_000;
 
-	/**
-	 * 정류장 사이 직선거리에 곱하는 값. 정류장은 서로 가까워서 직선과 도로가 크게 다르지
-	 * 않지만 같지도 않다. 🔴 잰 값이 아니다.
-	 */
-	private static final double SEGMENT_DETOUR = 1.15;
-
-	public HeadwayJourneyPlanner(double rideSpeedKmh, int dwellSecondsPerStop) {
+	public HeadwayJourneyPlanner(double rideSpeedKmh) {
 		if (rideSpeedKmh <= 0) {
-			throw new IllegalArgumentException("차내 속도는 0보다 커야 한다: " + rideSpeedKmh);
-		}
-		if (dwellSecondsPerStop < 0) {
-			throw new IllegalArgumentException("정차 시간은 0 이상이어야 한다: " + dwellSecondsPerStop);
+			throw new IllegalArgumentException("표정속도는 0보다 커야 한다: " + rideSpeedKmh);
 		}
 		this.rideSpeedKmh = rideSpeedKmh;
-		this.dwellSecondsPerStop = dwellSecondsPerStop;
 	}
 
 	/**
@@ -155,11 +141,10 @@ public final class HeadwayJourneyPlanner {
 			}
 			meters += haversineM(a.lat(), a.lng(), b.lat(), b.lng());
 		}
-		double runningSec = (meters * SEGMENT_DETOUR) / (this.rideSpeedKmh * 1000.0 / 3600.0);
-		// 마지막 정류장은 내리는 곳이라 서는 시간을 안 센다.
-		int intermediateStops = Math.max(0, to - from - 1);
-		double dwellSec = (double) intermediateStops * this.dwellSecondsPerStop;
-		return Math.max(1, (int) Math.round((runningSec + dwellSec) / 60.0));
+		// 🔴 우회 계수를 곱하지 않는다. 표정속도를 정류장 좌표의 직선 합으로 쟀기 때문에
+		//    여기서 또 늘리면 같은 보정을 두 번 한다.
+		double seconds = meters / (this.rideSpeedKmh * 1000.0 / 3600.0);
+		return Math.max(1, (int) Math.round(seconds / 60.0));
 	}
 
 	private static double haversineM(double lat1, double lng1, double lat2, double lng2) {
