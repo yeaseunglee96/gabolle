@@ -5,7 +5,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 
 import { useAuth } from '@/auth/AuthProvider';
+import { MarkdownBody } from '@/components/MarkdownBody';
 import { PhotoGrid } from '@/components/PhotoGrid';
+import { looksLikeMarkdown } from '@/social/markdown';
 import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
@@ -27,6 +29,8 @@ export default function ComposeStory() {
   const queryClient = useQueryClient();
   const { tx } = useI18n();
   const [body, setBody] = useState('');
+  // S15P21E201-1136 — 쓴 것이 어떻게 보일지 미리 본다.
+  const [preview, setPreview] = useState(false);
   const [region, setRegion] = useState('');
   const [visibility, setVisibility] = useState<StoryVisibility>('PUBLIC');
   const [publishTiming, setPublishTiming] = useState<PublishTiming>('AFTER_TRIP');
@@ -109,6 +113,17 @@ export default function ComposeStory() {
     />
     <Text variant="caption" color={color.text.muted} style={styles.counter}>{body.trim().length}/{BODY_MAX}</Text>
 
+    {/* S15P21E201-1136 — 쓴 것이 어떻게 보일지 미리 본다.
+        🔴 마크다운을 몰라도 된다. 그냥 쓰면 평범한 글이 되므로 아무것도 막지 않고,
+        글을 쓰기 시작했을 때만 이 줄이 생겨 빈 화면을 어지럽히지 않는다. */}
+    {body.trim() ? <View style={styles.previewRow}>
+      <Pressable accessibilityRole="button" accessibilityState={{ expanded: preview }} onPress={() => setPreview((on) => !on)} style={styles.previewToggle}>
+        <Text variant="caption" weight="bold" color={color.action.primary}>{preview ? tx('← 다시 쓰기', '← Back to editing') : tx('미리보기', 'Preview')}</Text>
+      </Pressable>
+      {looksLikeMarkdown(body) ? <Text variant="caption" color={color.text.muted}>{tx('굵게 · 목록 · 제목이 적용돼요', 'Bold, lists and headings will apply')}</Text> : null}
+    </View> : null}
+    {preview && body.trim() ? <View style={styles.previewBox}><MarkdownBody source={body} /></View> : null}
+
     <Text variant="caption" weight="bold" style={styles.label}>{tx(`사진 (최대 ${MAX_STORY_IMAGES}장)`, `Photos (up to ${MAX_STORY_IMAGES})`)}</Text>
 
     {/* 🔴 S15P21E201-1135 — 사진을 가로로 줄 세우던 것을 장수·방향에 따른 배치로 바꾼다.
@@ -183,6 +198,9 @@ const styles = StyleSheet.create({
   title: { marginTop: spacing[4], marginBottom: spacing[4] },
   bodyInput: { minHeight: 120, padding: spacing[3], borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.md, backgroundColor: color.surface.card, color: color.text.heading, textAlignVertical: 'top' },
   counter: { textAlign: 'right', marginTop: spacing[1] },
+  previewRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], marginTop: spacing[1] },
+  previewToggle: { minHeight: 44, justifyContent: 'center' },
+  previewBox: { marginTop: spacing[1], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.soft },
   label: { marginTop: spacing[6], marginBottom: spacing[2] },
   imageGrid: { marginTop: spacing[2] },
   // 배치에 빈 칸을 끼울 자리가 없어 「사진 추가」를 아래로 내렸다 (S15P21E201-1135).
