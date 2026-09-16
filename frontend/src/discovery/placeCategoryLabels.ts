@@ -70,3 +70,23 @@ export function sortCategoryCodes(codes: readonly string[], table = PLACE_CATEGO
   const unknown = codes.filter((code) => !order.includes(code));
   return [...known, ...unknown];
 }
+
+/**
+ * 휠에 놓을 분류 목록을 정한다 (S15P21E201-1071).
+ *
+ * 서버가 주는 목록(`GET /api/v1/places/categories`)을 쓰되, **못 받았으면 우리가 아는
+ * 코드로 채운다.**
+ *
+ * 🔴 **휠이 비면 아무것도 못 고른다.** 이 폼은 로그인 없이도 열리고, 서버가 안 되는 날에도
+ * 사용자는 장소를 담는다. 「목록을 못 받았어요」라고 비워 두면 그날은 분류를 못 고른다 —
+ * 그건 서버 사정이지 사용자 사정이 아니다.
+ *
+ * 🔴 **서버가 준 코드를 버리지 않는다.** 표에 없는 코드도 그대로 들어간다(`sortCategoryCodes`
+ * 가 뒤로 보낸다). 버리면 서버에는 있는 분류를 영영 못 고른다.
+ */
+export function categoryWheelCodes(serverCodes: readonly string[] | null | undefined) {
+  const known = Object.keys(PLACE_CATEGORY_LABELS);
+  if (!serverCodes || serverCodes.length === 0) return known;
+  // 서버가 준 것 + 우리가 아는 것을 합친다. 둘 중 하나만 쓰면 한쪽이 사라진다.
+  return sortCategoryCodes([...new Set([...serverCodes, ...known])]);
+}
