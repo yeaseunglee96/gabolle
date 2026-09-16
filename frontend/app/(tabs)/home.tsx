@@ -377,8 +377,9 @@ const styles = StyleSheet.create({
 
   saveFeedback: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[3], marginTop: spacing[6], marginHorizontal: spacing[6], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.brand.navy },
 
-  // 마스코트 자체가 이미 원형 배지다. 바깥 흰 원은 이중 테두리처럼 보여 시선만 끌므로
-  // 보이지 않게 하고, 손가락으로 누르는 56px 영역만 그대로 유지한다.
-  assistantButton: { position: 'absolute', right: spacing[6], bottom: 100, width: 56, height: 56, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full },
-  assistantMascot: { width: 40, height: 40 },
+  // 마스코트 자체가 이미 원형 배지라 바깥에 흰 원을 또 두르지 않는다(이중 테두리로
+  // 시선만 끔) — 그 결정은 그대로 두되, 사용자 실사용 리포트(2026-09-16)로 "챗봇
+  // 아이콘이 너무 작다"는 지적을 받아 버튼·마스코트 크기 자체를 키운다.
+  assistantButton: { position: 'absolute', right: spacing[6], bottom: 100, width: 68, height: 68, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full },
+  assistantMascot: { width: 60, height: 60 },
 });
