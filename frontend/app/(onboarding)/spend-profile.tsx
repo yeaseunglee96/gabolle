@@ -81,7 +81,7 @@ export default function SpendProfileScreen() {
 
     {step === 0 && <View style={styles.heading}><Text variant="display" weight="bold">{tx(header.titleKo, header.titleEn)}</Text><Text color={color.text.body}>{tx(header.bodyKo, header.bodyEn)}</Text></View>}
 
-    <Text variant="title" weight="bold" style={styles.question}>{question.titleKo('USER')}</Text>
+    <Text variant="title" weight="bold" style={styles.question}>{tx(question.titleKo('USER'), question.titleEn('USER'))}</Text>
 
     <View style={styles.options}>
       {question.options.map((option) => (
