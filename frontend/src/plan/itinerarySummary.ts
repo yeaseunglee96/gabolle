@@ -9,10 +9,19 @@ type Tx = (ko: string, en: string) => string;
 // 서버가 주는 것은 이 방문지로 오는 데 걸리는 시간(travelDurationMin)이다. 그대로
 // 「이동 38분」이라고 말한다. 어림값(ESTIMATED)이면 그렇다고 붙인다 — 어림을 실제
 // 소요시간처럼 그리면 사용자가 그 시간에 맞춰 움직이다 늦는다.
-export function formatTravelLabel(item: ItineraryItemDto, tx: Tx): string | null {
+// S15P21E201-1119 — fromOrigin 은 그날 **첫 방문지**의 구간이다. 서버가 주는 순서 1번
+// 구간은 장소와 장소 사이가 아니라 **출발지 → 첫 장소** 라서, 그냥 「이동」이라고 하면
+// 어디서 오는 이동인지 알 수 없다. 이 구간이 하루 중 제일 길다(실측 38분·40분).
+export function formatTravelLabel(item: ItineraryItemDto, tx: Tx, fromOrigin = false): string | null {
   if (item.travelDurationMin == null) return null;
   const minutes = Math.round(item.travelDurationMin);
-  return item.travelDataStatus === 'ESTIMATED'
+  const estimated = item.travelDataStatus === 'ESTIMATED';
+  if (fromOrigin) {
+    return estimated
+      ? tx(`출발지에서 ${minutes}분 (어림)`, `${minutes}m from start (est.)`)
+      : tx(`출발지에서 ${minutes}분`, `${minutes}m from start`);
+  }
+  return estimated
     ? tx(`이동 ${minutes}분 (어림)`, `${minutes}m travel (est.)`)
     : tx(`이동 ${minutes}분`, `${minutes}m travel`);
 }

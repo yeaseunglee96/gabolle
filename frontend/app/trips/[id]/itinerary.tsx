@@ -96,12 +96,16 @@ function RouteStrip({ items, times, tx }: { items: ItineraryItemDto[]; times: st
     {items.map((item, index) => {
       const travel = [
         item.walkingMeters == null ? null : tx(`도보 ${formatWalk(item.walkingMeters)}`, `${formatWalk(item.walkingMeters)} walk`),
-        formatTravelLabel(item, tx),
+        formatTravelLabel(item, tx, index === 0),
       ].filter(Boolean).join(' · ');
       return <View key={item.id} style={styles.stripEntry}>
-        {index > 0 ? <View style={styles.segment}>
+        {/* 🔴 S15P21E201-1119 — 여태 index > 0 이라 **그날 첫 구간이 통째로 안 그려졌다.**
+            서버는 순서 1번 구간(출발지 → 첫 장소)을 제대로 주는데 화면이 건너뛰었고,
+            그게 하루 중 제일 긴 구간이라(실측 38분·40분) 구간을 더한 값이 요약과 안 맞았다
+            — 1일차 화면 3+3+1=7분 대 요약 45분. 값이 있으면 첫 칸에도 그린다. */}
+        {index > 0 || travel ? <View style={styles.segment}>
           <View style={styles.segmentLine} />
-          {/* 구간 라벨이 없을 수도 있다 — 그날 첫 방문지 앞이나 좌표가 없어 못 잰 구간. 없으면 선만 긋는다. */}
+          {/* 구간 라벨이 없을 수도 있다 — 좌표가 없어 못 잰 구간. 없으면 선만 긋는다. */}
           {travel ? <Text variant="caption" weight="bold" color={color.brand.navy}>{travel}</Text> : null}
         </View> : null}
         <View style={styles.stop}>
@@ -163,13 +167,13 @@ function StopRow({ item, index, isLast, displayTime, wide, expanded, onToggleExp
   const walkLabel = item.walkingMeters == null ? null : tx(`도보 ${formatWalk(item.walkingMeters)}`, `${formatWalk(item.walkingMeters)} walk`);
   const facts = [
     walkLabel,
-    formatTravelLabel(item, tx),
+    formatTravelLabel(item, tx, index === 0),
     item.estimatedCostKrw == null ? null : item.estimatedCostKrw === 0 ? tx('무료', 'Free') : tx(`${item.estimatedCostKrw.toLocaleString()}원`, `${item.estimatedCostKrw.toLocaleString()} KRW`),
   ].filter((fact): fact is string => fact !== null);
 
   // 구간 라벨 — 🔴 이 값들은 **이 방문지로 들어오는** 구간이다(backend ItineraryQueryService
   // 의 incomingLeg). 다음 칸까지가 아니다. 그래서 노드 **위**에 그린다.
-  const legLabel = [walkLabel, formatTravelLabel(item, tx)].filter(Boolean).join(' · ');
+  const legLabel = [walkLabel, formatTravelLabel(item, tx, index === 0)].filter(Boolean).join(' · ');
 
   const lockControl = reorderMode
     ? (item.locked
@@ -184,7 +188,8 @@ function StopRow({ item, index, isLast, displayTime, wide, expanded, onToggleExp
 
   return <>
     {/* 구간 — 세로선과 「도보 1.2km」. 넓은 화면은 위쪽 가로 노선도가 같은 것을 보여주므로 생략한다. */}
-    {index > 0 && !wide ? <View style={styles.segmentRow}>
+    {/* S15P21E201-1119 — 첫 방문지에도 들어오는 구간이 있다 (출발지에서 온다). 위 주석 참고. */}
+    {(index > 0 || legLabel) && !wide ? <View style={styles.segmentRow}>
       <View style={styles.rail}><View style={styles.railLine} /></View>
       {legLabel ? <View style={styles.segmentLabel}><Text variant="caption" weight="bold" color={color.brand.navy}>{legLabel}</Text></View> : null}
     </View> : null}
