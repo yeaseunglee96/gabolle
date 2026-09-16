@@ -63,7 +63,8 @@ public class AssistantController {
 				? List.of()
 				: request.history().stream().map(turn -> new AssistantTurn(turn.role(), turn.text())).toList();
 
-		AssistantReply reply = this.assistantChatService.chat(userId, request.message(), language, history);
+		AssistantReply reply = this.assistantChatService.chat(userId, request.message(), language, history,
+				request.itineraryId(), request.dayIndex());
 
 		return ApiResponse.success(AssistantMessageResponseDto.from(reply), resolveRequestId(requestId));
 	}

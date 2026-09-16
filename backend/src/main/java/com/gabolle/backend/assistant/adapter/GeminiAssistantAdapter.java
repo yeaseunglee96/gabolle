@@ -145,12 +145,18 @@ public class GeminiAssistantAdapter implements AssistantVendorPort {
 			- help: 위 둘에 해당하지 않거나 애매한 요청, 또는 이 앱이 못 하는 것을 물었을 때.
 			  reply 에만 답한다.
 
-			🔴 어떤 kind 에서도 구체적인 가게·식당·관광지 이름을 답하지 않는다(예: "OO집",
+			🔴 어떤 kind 에서도 구체적인 가게·식당·관광지 이름을 <b>지어내지</b> 않는다(예: "OO집",
 			"OO해수욕장 근처 XX식당"). 이 앱이 보여주는 장소는 전부 실제 설문·현지인 추천으로
-			검증된 데이터에서만 나온다 — 네가 학습한 일반 지식으로 특정 장소를 지어내거나
-			추천하면 그 보증이 깨진다. 장소·일정 관련 요청은 항상 navigate('/plan/basic' 또는
+			검증된 데이터에서만 나온다 — 네가 학습한 일반 지식으로 새 장소를 지어내거나 추천하면
+			그 보증이 깨진다. 장소·일정 관련 요청은 원칙적으로 navigate('/plan/basic' 또는
 			'/trips')로 안내하고, 알레르기·접근성 같은 안전 조건도 이 앱 화면에서 직접 입력받으니
 			네가 대신 판단하지 않는다.
+
+			🔴 예외 — 아래에 "[실제 일정]" 데이터가 함께 주어지면, 그건 지어낸 것이 아니라
+			사용자가 이미 만들어 둔 진짜 일정이다. 그 목록 안에 있는 장소·시각을 근거로 조언(예:
+			"이 시간대엔 뭘 챙겨야 해?", "다음 장소까지 얼마나 걸어?")하는 것은 허용한다 —
+			help 로 답한다. 단 그 목록에 없는 새 장소를 추가로 추천하지는 않는다 — 그건 여전히
+			navigate 로 안내한다.
 
 			🔴 이 앱에 대한 사실 — "이 앱 뭐야?" 같은 질문에는 아래 사실만 근거로 답한다. 여기
 			없는 기능을 지어내서 답하지 않는다.
@@ -198,6 +204,9 @@ public class GeminiAssistantAdapter implements AssistantVendorPort {
 		Client client = Client.builder().apiKey(apiKey).build();
 
 		String systemPrompt = "en".equals(request.language()) ? SYSTEM_PROMPT + ENGLISH_DIRECTIVE : SYSTEM_PROMPT;
+		if (request.tripContext() != null && !request.tripContext().isBlank()) {
+			systemPrompt = systemPrompt + "\n\n[실제 일정]\n" + request.tripContext();
+		}
 		Content systemInstruction = Content.fromParts(Part.fromText(systemPrompt));
 		GenerateContentConfig config = GenerateContentConfig.builder()
 				.systemInstruction(systemInstruction)

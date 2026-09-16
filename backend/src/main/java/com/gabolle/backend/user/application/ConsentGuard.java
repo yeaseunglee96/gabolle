@@ -148,6 +148,20 @@ public class ConsentGuard {
 				"건강·식이 정보 사용에 동의해야 이 항목을 저장할 수 있습니다.");
 	}
 
+	/**
+	 * AI 도우미가 내 여행 일정을 읽고 답하는 것에 대한 동의 — S15P21E201-987.
+	 *
+	 * <p>일반 채팅 메시지({@code AssistantChatService.chat} 의 {@code message})는 사용자가
+	 * 그 자리에서 직접 쓴 것이라 이 동의 없이도 벤더에 넘어간다({@code -802} 범위). 여기서
+	 * 막는 것은 그것과 다르다 — 사용자가 이미 만들어 둔 일정(장소·시각 등)을 서버가 <b>대신
+	 * 꺼내서</b> 벤더에 얹는 것이다. 자기가 방금 입력한 문장과 서버가 조회해 얹는 데이터는
+	 * 다른 종류의 노출이라 별도 동의로 가른다.
+	 */
+	public void requireAiAssistantAccess(UUID userId) {
+		require(userId, ConsentType.AI_ASSISTANT_ACCESS, "AI_ASSISTANT_ACCESS_CONSENT_REQUIRED",
+				"AI 도우미가 내 여행 일정을 참고하게 하려면 동의가 필요합니다.");
+	}
+
 	private void require(UUID userId, ConsentType type, String code, String message) {
 		if (!isGranted(userId, type)) {
 			throw new AuthException(code, message, HttpStatus.FORBIDDEN);
