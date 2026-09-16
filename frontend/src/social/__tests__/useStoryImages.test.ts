@@ -10,8 +10,13 @@ import { useStoryImages } from '../useStoryImages';
 jest.mock('expo-image-picker', () => ({
   launchImageLibraryAsync: jest.fn(),
 }));
+// 🔴 S15P21E201-1134 — 가짜 모듈에 상수를 빠뜨리면 undefined 가 되고, 크기 비교가
+// 언제나 거짓이 되어 **검사가 시험에서만 조용히 꺼진다.** 실제 값과 같이 적어 둔다.
 jest.mock('../imageResize', () => ({
+  MAX_PICK_BYTES: 30 * 1024 * 1024,
   MAX_UPLOAD_BYTES: 3 * 1024 * 1024,
+  MAX_PICK_LABEL: '30MB',
+  MAX_UPLOAD_LABEL: '3MB',
   measureBytes: jest.fn(),
   resizeForUpload: jest.fn(),
 }));
@@ -104,5 +109,56 @@ describe('useStoryImages — 사진 한 장 올리기', () => {
     resize.resizeForUpload.mockClear();
     await act(async () => { result.current.retryImage(0); });
     await waitFor(() => expect(resize.resizeForUpload).toHaveBeenCalledWith('file:///orig.jpg'));
+  });
+});
+
+// S15P21E201-1134 — 고르기 상한과 전송 상한은 다른 것을 잰다.
+//
+// 전에는 하나(3MB)가 둘을 겸해서, 요즘 휴대폰 사진(5~15MB)이 **줄이기도 해 보기 전에**
+// 거절당했다. 고른 원본은 30MB 까지 받고, 실제로 서버에 가는 바이트만 3MB 로 잰다.
+describe('useStoryImages — 고르기 상한(30MB)과 전송 상한(3MB)', () => {
+  it('🔴 25MB 원본을 골라도 거절하지 않는다 — 줄이면 서버 상한 안에 들어온다', async () => {
+    pick({ uri: 'file:///big.jpg', fileName: 'big.jpg', mimeType: 'image/jpeg' });
+    resize.resizeForUpload.mockResolvedValue({ uri: 'file:///small.jpg' });
+    // 원본은 25MB, 줄인 뒤는 0.9MB
+    resize.measureBytes
+      .mockResolvedValueOnce(25 * 1024 * 1024)
+      .mockResolvedValueOnce(Math.round(0.9 * 1024 * 1024));
+
+    const { result } = renderHook(() => useStoryImages('token', tx));
+    await act(async () => { await result.current.addImage(); });
+    await waitFor(() => expect(result.current.images[0]?.uploading).toBe(false));
+
+    expect(result.current.images[0]?.error).toBeNull();
+    expect(stories.uploadStoryImage).toHaveBeenCalledTimes(1);
+  });
+
+  it('40MB 원본은 줄이기를 시도하지도 않고 거절한다 — 통째로 메모리에 올리면 앱이 죽는다', async () => {
+    pick({ uri: 'file:///huge.jpg', fileName: 'huge.jpg', mimeType: 'image/jpeg' });
+    resize.measureBytes.mockResolvedValueOnce(40 * 1024 * 1024);
+
+    const { result } = renderHook(() => useStoryImages('token', tx));
+    await act(async () => { await result.current.addImage(); });
+    await waitFor(() => expect(result.current.images[0]?.uploading).toBe(false));
+
+    expect(result.current.images[0]?.error).toContain('30MB');
+    expect(resize.resizeForUpload).not.toHaveBeenCalled();
+    expect(stories.uploadStoryImage).not.toHaveBeenCalled();
+  });
+
+  it('줄이기가 실패하고 원본이 서버 상한을 넘으면 전송 상한으로 말한다', async () => {
+    pick({ uri: 'file:///mid.jpg', fileName: 'mid.jpg', mimeType: 'image/jpeg' });
+    resize.resizeForUpload.mockRejectedValue(new Error('decoder failed'));
+    // 원본 10MB — 고르기 상한(30MB)은 통과하지만 전송 상한(3MB)은 넘는다
+    resize.measureBytes
+      .mockResolvedValueOnce(10 * 1024 * 1024)
+      .mockResolvedValueOnce(10 * 1024 * 1024);
+
+    const { result } = renderHook(() => useStoryImages('token', tx));
+    await act(async () => { await result.current.addImage(); });
+    await waitFor(() => expect(result.current.images[0]?.uploading).toBe(false));
+
+    expect(result.current.images[0]?.error).toContain('3MB');
+    expect(stories.uploadStoryImage).not.toHaveBeenCalled();
   });
 });
