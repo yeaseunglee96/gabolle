@@ -34,6 +34,7 @@ import { resolveHomeTripDestination } from '@/home/tripNavigation';
 import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
 import { useI18n } from '@/i18n';
+import { useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
 import { relativeStoryTime } from '@/social/stories';
 
 const bellIcon = require('../../assets/icons/home/bell.png');
@@ -45,11 +46,16 @@ export default function Home() {
   const { tx } = useI18n();
   const { accessToken } = useAuth();
   const { width } = useLayout();
-  const desktop = isAtLeast(width, 'md');
+  const desktop = isAtLeast(width, 'lg');
+  const { hydrated, hasEnteredApp, markEnteredApp } = useOnboardingPreferences();
   const home = useHomeData(!desktop);
   const [likedIds, setLikedIds] = useState<Set<string>>(new Set());
   const [saveFeedback, setSaveFeedback] = useState<string | null>(null);
   const [openingTrip, setOpeningTrip] = useState(false);
+
+  useEffect(() => {
+    if (hydrated && !hasEnteredApp) markEnteredApp();
+  }, [hydrated, hasEnteredApp, markEnteredApp]);
 
   const openHomeTrip = async (tripId: string) => {
     if (openingTrip) return;

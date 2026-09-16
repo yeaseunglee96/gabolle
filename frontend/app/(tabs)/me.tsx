@@ -23,6 +23,7 @@ import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { isAtLeast } from '@/layout/breakpoints';
 import { InfoRow } from '@/me/InfoRow';
+import { AppLanguageSetting } from '@/me/AppLanguageSetting';
 import { useMyPageCounts } from '@/me/MyPageShell';
 import { useBehaviorConsent } from '@/personalization/behaviorConsent';
 import { usePlan } from '@/plan/PlanProvider';
@@ -32,7 +33,7 @@ export default function Me() {
   const router = useRouter();
   const { preview } = useLocalSearchParams<{ preview?: string }>();
   const { user, signOut, accessToken } = useAuth();
-  const { language, tx } = useI18n();
+  const { tx } = useI18n();
   const plan = usePlan();
   const { width } = useWindowDimensions();
   const { answeredPreferences, storyCount } = useMyPageCounts();
@@ -92,7 +93,7 @@ export default function Me() {
 
     <Text variant="eyebrow" weight="bold" style={styles.groupLabel}>{tx('앱', 'App')}</Text>
     <View style={styles.group}>
-      <InfoRow first label={tx('언어', 'Language')} value={`${language === 'ko' ? '한국어' : 'English'} ›`} onPress={() => router.push('/me/profile')} disabled={!user} />
+      <AppLanguageSetting />
       <InfoRow label={tx('도움말·문의', 'Help & support')} description={tx('앱 소개, 자주 묻는 질문, 문제 해결', 'App tour, FAQs, and troubleshooting')} value="›" onPress={() => router.push('/help')} />
       <InfoRow label={tx('약관·고지', 'Terms & notices')} value="›" onPress={() => router.push('/me/terms')} />
       {/* 처음 켜는 자리는 첫 체크인 화면이고, 여기는 **언제든 끄는 자리**다. 끄는 길이 설정
