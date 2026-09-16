@@ -49,6 +49,15 @@ export default function Translate() {
       onPress: () => router.push('/field/speak'),
     },
     {
+      // 🔴 백엔드(GET /api/v1/exchange-rates, S15P21E201-1079)가 있는데 프론트가 없던 자리다.
+      // 외국인이 부산에서 가장 자주 하는 계산이라 현장 도구의 첫 줄 가까이에 둔다.
+      key: 'exchange',
+      icon: '₩',
+      title: tx('환율 계산', 'Currency'),
+      desc: tx('가격표를 보고 바로 내 돈으로 바꿔 보세요', 'Turn a price tag into your own money'),
+      onPress: () => router.push('/field/exchange'),
+    },
+    {
       key: 'weather',
       icon: sunIcon,
       title: tx('내 여행 날씨·준비물', 'Weather & packing for my trip'),
