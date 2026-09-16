@@ -17,9 +17,16 @@ import { usePlan } from '@/plan/PlanProvider';
 import { useI18n } from '@/i18n';
 
 type Message = { id: number; role: 'user' | 'assistant'; text: string; action?: AssistantAction; applied?: boolean };
-// 🔴 아래 예시 문구는 한국어 입력만 인식하는 이해 로직(src/assistant/intent.ts)에 맞춘 것이다.
-// 영어로 바꾸면 그 매처가 알아듣지 못해 기능이 깨지므로, 영어 모드에서도 예시는 한국어로 남긴다.
-const SUGGESTIONS = ['해운대와 광안리 2명 맛집 일정 짜줘', '사진 부탁할 때 한국어 문장 알려줘', '부산 로컬 스팟 보여줘'];
+// 사용자 실사용 리포트(2026-09-16): 영어 모드에서도 이 예시가 한국어로만 떴다 — 예전엔
+// "한국어 매처(src/assistant/intent.ts)가 영어를 못 알아들으니 영어 모드에서도 한국어로
+// 보여준다"는 절충이었는데, 그러면 영어만 읽는 사용자에게는 예시 자체가 안 읽힌다.
+// 화면에 보이는 라벨(ko/en)과 실제로 보내는 문장(ko, 매처가 아는 말)을 나눠서 둘 다
+// 해결한다 — 버튼은 tx(ko,en)로 보이고, 눌렀을 때는 항상 ko를 보낸다.
+const SUGGESTIONS = [
+  { ko: '해운대와 광안리 2명 맛집 일정 짜줘', en: 'Plan a food-focused trip for 2 in Haeundae and Gwangalli' },
+  { ko: '사진 부탁할 때 한국어 문장 알려줘', en: 'Show me the Korean phrase for asking someone to take a photo' },
+  { ko: '부산 로컬 스팟 보여줘', en: 'Show me local Busan spots' },
+] as const;
 // 은행 앱 챗봇처럼 "대화 없이 바로 실행" 목록을 넓혔다 — 사용자가 직접 요청한 방향
 // (자유 대화보다 우리 기능으로 바로 연결)이라 실제로 동작하는 화면만 올린다.
 // S15P21E201-909: "지금 갈 곳"·"부산 축제"는 -900으로 진입점을 뺀 화면이라 여기서도 뺐다 —
@@ -101,7 +108,7 @@ export default function Chat() {
           {/* S15P21E201-919: 이 둘이 ScrollView 밖의 고정 높이 형제로 있으면, 대화 시작 전
               화면에서 인사말 말풍선이 있는 messages 영역을 거의 다 밀어내 겹쳐 보였다.
               스크롤되는 영역 안으로 옮겨서 고정 공간을 안 차지하게 한다. */}
-          {messages.length === 0 ? <View style={styles.suggestionSection}><Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx('이렇게 물어보세요', 'Try asking like this')}</Text><View style={styles.suggestions}>{SUGGESTIONS.map((suggestion) => <Pressable key={suggestion} accessibilityRole="button" accessibilityState={{ disabled: pending }} disabled={pending} onPress={() => send(suggestion)} style={styles.suggestion}><Text variant="body" weight="medium">{suggestion}</Text></Pressable>)}</View></View> : null}
+          {messages.length === 0 ? <View style={styles.suggestionSection}><Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx('이렇게 물어보세요', 'Try asking like this')}</Text><View style={styles.suggestions}>{SUGGESTIONS.map((suggestion) => <Pressable key={suggestion.ko} accessibilityRole="button" accessibilityState={{ disabled: pending }} disabled={pending} onPress={() => send(suggestion.ko)} style={styles.suggestion}><Text variant="body" weight="medium">{tx(suggestion.ko, suggestion.en)}</Text></Pressable>)}</View></View> : null}
           {!desktop ? tools : null}
         </ScrollView>
         <View style={styles.composer}><TextInput accessibilityLabel={tx('가볼래 AI에게 메시지', 'Message to GABOLLE AI')} value={input} onChangeText={setInput} onSubmitEditing={() => send()} editable={!pending} returnKeyType="send" multiline placeholder={tx('예: 광안리 맛집 위주로 2명 일정 짜줘', 'e.g. plan a trip for 2 focused on Gwangalli restaurants')} placeholderTextColor={color.text.muted} style={styles.input} /><Pressable accessibilityRole="button" accessibilityLabel={tx('메시지 보내기', 'Send message')} accessibilityState={{ disabled: !input.trim() || pending }} disabled={!input.trim() || pending} onPress={() => send()} style={[styles.send, (!input.trim() || pending) && styles.sendDisabled]}><Text weight="bold" color={color.text.onAction}>↑</Text></Pressable></View>
