@@ -7,6 +7,7 @@ import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import tools.jackson.databind.JsonNode;
+import com.gabolle.backend.place.domain.Place;
 
 /**
  * 장소 상세 (S15P21E201-476 · -217 · -430 부분).
@@ -35,6 +36,15 @@ import tools.jackson.databind.JsonNode;
  *        검색(-146 · -480)이 붙어야 값이 생긴다. 값이 없을 때도 칸을 미리 만들어 둔 이유는 화면이
  *        사진 자리를 비워 두는 형태로 먼저 만들어질 수 있게 하기 위해서다. 없으면 키 자체가 빠진다
  * @param photoSource 사진 출처 표기 문구. {@code photoUrl} 과 짝이다. 없으면 키 자체가 빠진다
+ * @param photoSubject 그 사진이 <b>무엇을 찍은 것인가</b> — S15P21E201-1039.
+ *        {@code SELF}=이 장소를 찍은 사진, {@code VENUE}=이 장소가 <b>들어 있는 곳</b>을 찍은 사진.
+ *        <p>🔴 이 칸이 없으면 화면은 둘을 구분할 방법이 없어 <b>주변 시설 사진을 이 장소
+ *        사진처럼</b> 그린다. 축제에서 먼저 드러난 문제이고(-1021 실측: 부산 축제 사진 35건 중
+ *        축제를 실제로 찍은 것은 1건), 식당·해수욕장도 같은 자료에서 온다.
+ *        <p>🔴 출처({@code photoSource})와 <b>다른 질문</b>이라 칸을 갈랐다 — 「누가 준 사진인가」와
+ *        「무엇을 찍은 사진인가」를 한 칸에 담으면 둘 중 하나는 반드시 거짓말이 된다.
+ *        값이 없으면 키가 빠진다. 모르는 것을 아는 척하지 않는다 — 화면도 칸이 없으면 아무 말도
+ *        안 하도록 되어 있다
  * @param openingHours {@code place_feature} 의 {@code OPENING_HOURS} 표식. 그 표식에 행이 있으면
  *        (VERIFIED·ESTIMATED·UNKNOWN 무엇이든) 실리고, 행이 아예 없으면({@code NOT_COLLECTED})
  *        키 자체가 빠진다. 🔴 이 값은 {@link #features()} 에도 그대로 들어 있다 — 같은 사실이 두
@@ -62,6 +72,7 @@ public record PlaceDetailResponse(
 		@JsonInclude(JsonInclude.Include.NON_NULL) String addressEn,
 		@JsonInclude(JsonInclude.Include.NON_NULL) String photoUrl,
 		@JsonInclude(JsonInclude.Include.NON_NULL) String photoSource,
+		@JsonInclude(JsonInclude.Include.NON_NULL) Place.PhotoSubject photoSubject,
 		@JsonInclude(JsonInclude.Include.NON_NULL) FeatureSlot openingHours,
 		@JsonInclude(JsonInclude.Include.NON_NULL) FeatureSlot priceLevel,
 		String resolvedLanguage) {

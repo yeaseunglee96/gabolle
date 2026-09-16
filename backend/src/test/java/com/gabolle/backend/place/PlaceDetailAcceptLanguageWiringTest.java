@@ -107,6 +107,6 @@ class PlaceDetailAcceptLanguageWiringTest {
 				new PlaceDetailResponse.Provenance(null, null, null, null, null),
 				List.of(),
 				new PlaceDetailResponse.ItineraryInclusion("UNAVAILABLE", "ITINERARY_NOT_SPECIFIED"),
-				null, null, null, null, null, "ko");
+				null, null, null, null, null, null, "ko");
 	}
 }
