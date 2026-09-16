@@ -107,4 +107,75 @@ class PlaceFeatureLoaderTest {
 		assertThat(counts.skippedNoValue()).isEqualTo(2);
 	}
 
+	@Test
+	@DisplayName("가격대 사실은 namespace 가 SBIZ 로 고정된다 — 앞으로도 상가업소번호 산출물이라서다")
+	void 가격대는_SBIZ_네임스페이스다() {
+		List<PlaceFeatureNdjsonReader.Fact> facts = priceBands(
+				file("priceband.ndjson", "{\"placeId\":\"MA0101\",\"raw\":\"mid\",\"band\":\"MID\"}"));
+
+		assertThat(facts.get(0).keySource()).isEqualTo("SBIZ");
+	}
+
+	// ── 혼밥 안심·브레이크타임·라스트오더 (S15P21E201-453·479) ──────────────────
+
+	private static List<PlaceFeatureNdjsonReader.Fact> visitorFacts(Path path) {
+		List<PlaceFeatureNdjsonReader.Fact> facts = new ArrayList<>();
+		PlaceFeatureNdjsonReader.readVisitorFacts(path, 500, facts::addAll);
+		return facts;
+	}
+
+	@Test
+	@DisplayName("TourAPI 출처 장소에 혼밥 안심·브레이크타임을 붙인다")
+	void 방문객_사실을_읽는다() {
+		Path path = file("visitor-facts.ndjson",
+				"{\"namespace\":\"TOURAPI\",\"storeId\":\"129156\",\"featureType\":\"SOLO_FRIENDLY\",\"value\":true}",
+				"{\"namespace\":\"TOURAPI\",\"storeId\":\"129156\",\"featureType\":\"BREAK_TIME\","
+						+ "\"value\":{\"start\":\"15:00\",\"end\":\"17:00\"}}");
+
+		List<PlaceFeatureNdjsonReader.Fact> facts = visitorFacts(path);
+
+		assertThat(facts).hasSize(2);
+		assertThat(facts.get(0).keySource()).isEqualTo("TOURAPI");
+		assertThat(facts.get(0).storeId()).isEqualTo("129156");
+		assertThat(facts.get(0).featureKey()).isNull();
+		assertThat(value(facts.get(0)).asBoolean()).isTrue();
+		assertThat(value(facts.get(1)).path("start").asText()).isEqualTo("15:00");
+	}
+
+	@Test
+	@DisplayName("🔴 모르는 namespace 가 오면 멈춘다 — 오타를 조용히 두면 엉뚱한 장소 id 로 계산된다")
+	void 모르는_namespace는_멈춘다() {
+		Path path = file("visitor-facts.ndjson",
+				"{\"namespace\":\"KAKAO\",\"storeId\":\"1\",\"featureType\":\"SOLO_FRIENDLY\",\"value\":true}");
+
+		assertThatThrownBy(() -> PlaceFeatureNdjsonReader.readVisitorFacts(path, 500, chunk -> {
+		})).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("KAKAO");
+	}
+
+	@Test
+	@DisplayName("🔴 모르는 featureType 이 오면 멈춘다")
+	void 모르는_featureType은_멈춘다() {
+		Path path = file("visitor-facts.ndjson",
+				"{\"namespace\":\"TOURAPI\",\"storeId\":\"1\",\"featureType\":\"WHEELCHAIR_OK\",\"value\":true}");
+
+		assertThatThrownBy(() -> PlaceFeatureNdjsonReader.readVisitorFacts(path, 500, chunk -> {
+		})).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("WHEELCHAIR_OK");
+	}
+
+	@Test
+	@DisplayName("값이 없는 줄은 버리고 버린 수를 센다")
+	void 방문객_사실도_버린_줄을_센다() {
+		Path path = file("visitor-facts.ndjson",
+				"{\"namespace\":\"TOURAPI\",\"storeId\":\"129156\",\"featureType\":\"SOLO_FRIENDLY\",\"value\":true}",
+				// value 가 없다
+				"{\"namespace\":\"TOURAPI\",\"storeId\":\"129157\",\"featureType\":\"SOLO_FRIENDLY\"}");
+
+		PlaceFeatureNdjsonReader.Counts counts = PlaceFeatureNdjsonReader.readVisitorFacts(path, 500, chunk -> {
+		});
+
+		assertThat(counts.total()).isEqualTo(2);
+		assertThat(counts.usable()).isEqualTo(1);
+		assertThat(counts.skippedNoValue()).isEqualTo(1);
+	}
+
 }

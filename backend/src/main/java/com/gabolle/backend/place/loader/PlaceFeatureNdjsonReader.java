@@ -45,11 +45,28 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * {@code value} 는 JSONB 라 아무 모양이나 들어간다. 그래서 <b>모르는 낱말이 오면 멈춘다.</b>
  * 조용히 버리면 개수만 줄고 아무도 못 알아챈다 — {@code priceband-normalize.mjs} 가 같은 이유로
  * 같은 선택을 했다.
+ *
+ * <h2>🔴 SBIZ 전용이 아니다 (S15P21E201-453·1047)</h2>
+ *
+ * {@link #readPriceBands} 는 상가업소번호(SBIZ)만 다루던 시절 이름 그대로 남아 있지만,
+ * {@link Fact} 에 {@code keySource} 가 생기면서 이 읽개가 내는 사실은 어느 출처의 장소에도 붙을 수
+ * 있다. {@link #readVisitorFacts} 가 TourAPI 출처 장소(관광공사 contentid)에 혼밥 안심·
+ * 브레이크타임·라스트오더를 붙이는 것, {@link #readPlaceSlopes} 가 같은 장소에 경사를 붙이는 것이
+ * 그 사례다.
  */
 public final class PlaceFeatureNdjsonReader {
 
 	/** 가격대 등급 — {@code priceband-normalize.mjs} 가 낱말 열하나를 접어 만든 넷. */
 	static final Set<String> PRICE_BANDS = Set.of("LOW", "MID", "MID_HIGH", "HIGH");
+
+	/**
+	 * {@link #readVisitorFacts} 가 받는 종류 — S15P21E201-453·479. 셋 다 참거짓형·값형이라
+	 * {@code featureKey} 가 없다({@code V20260909020000__place_feature_solo_friendly_and_time_facts.sql}).
+	 */
+	static final Set<String> VISITOR_FEATURE_TYPES = Set.of("SOLO_FRIENDLY", "BREAK_TIME", "LAST_ORDER_TIME");
+
+	/** 지금 이 적재기가 장소를 찾을 수 있는 출처. 새 출처가 생기면 여기부터 늘린다. */
+	static final Set<String> NAMESPACES = Set.of("SBIZ", "TOURAPI");
 
 	private static final ObjectMapper MAPPER = new ObjectMapper();
 
@@ -60,15 +77,18 @@ public final class PlaceFeatureNdjsonReader {
 	 * 장소 하나에 붙일 사실 하나.
 	 *
 	 * @param storeId 장소를 찾는 열쇠. 무엇으로 읽어야 하는지는 {@code keySource} 가 말한다
-	 * @param featureType {@code PRICE_LEVEL} · {@code SLOPE_PERCENT} 처럼 무엇에 대한 사실인가
+	 * @param featureType {@code PRICE_LEVEL} · {@code SLOPE_PERCENT} · {@code SOLO_FRIENDLY} ·
+	 *     {@code DESIRED_FOOD_TAG} 처럼 무엇에 대한 사실인가
 	 * @param value {@code place_feature.value} 에 그대로 들어갈 JSON 문자열
 	 * @param keySource 🔴 <b>열쇠가 어느 체계인가</b> — {@link SbizPlaceLoader#SOURCE_TYPE}(상가업소번호)
-	 *     이거나 {@link TourApiPlaceLoader#SOURCE_TYPE}({@code contentid})다
+	 *     이거나 {@link TourApiPlaceLoader#SOURCE_TYPE}({@code contentid})다 (S15P21E201-1047)
+	 * @param featureKey 태그형만 값이 있다 — {@code DESIRED_FOOD_TAG}·{@code SOUVENIR_ITEM_TAG} 등
+	 *     (S15P21E201-453·448). 참거짓형·값형은 {@code null}
 	 */
-	public record Fact(String storeId, String featureType, String value, String keySource) {
+	public record Fact(String storeId, String featureType, String value, String keySource, String featureKey) {
 
 		/**
-		 * 🔴 열쇠 체계는 {@code place_feature.source_type} 과 <b>다른 것이다.</b>
+		 * 🔴 열쇠 체계는 {@code place_feature.source_type} 과 <b>다른 것이다.</b>(S15P21E201-1047)
 		 *
 		 * <p>처음에 이 둘을 같은 것으로 보고 {@code source_type} 으로 장소 아이디를 만들려다
 		 * DB 통합 시험에 걸렸다. 가격대는 {@code source_type} 이 {@code RESEARCH_PRICEBAND}
@@ -77,10 +97,15 @@ public final class PlaceFeatureNdjsonReader {
 		 *
 		 * <p>그래서 읽는 쪽이 정한다. 파일을 파싱한 쪽이 그 열쇠가 무엇인지 안다.
 		 *
-		 * <p>이 생성자는 열쇠를 안 적은 기존 호출자를 위한 것이다 — 상가업소번호로 본다.
+		 * <p>이 생성자는 열쇠·태그키를 안 적은 기존 호출자를 위한 것이다 — 상가업소번호로 본다.
 		 */
 		public Fact(String storeId, String featureType, String value) {
-			this(storeId, featureType, value, SbizPlaceLoader.SOURCE_TYPE);
+			this(storeId, featureType, value, SbizPlaceLoader.SOURCE_TYPE, null);
+		}
+
+		/** 🔴 태그키를 안 적은 호출자를 위한 것이다(S15P21E201-1047 이 만든 4-인자 자리). */
+		public Fact(String storeId, String featureType, String value, String keySource) {
+			this(storeId, featureType, value, keySource, null);
 		}
 	}
 
@@ -134,6 +159,41 @@ public final class PlaceFeatureNdjsonReader {
 				value.put("raw", raw);
 			}
 			out.add(new Fact(storeId, "PRICE_LEVEL", write(value)));
+			return true;
+		});
+	}
+
+	/**
+	 * 혼밥 안심·브레이크타임·라스트오더 산출물을 읽는다 — S15P21E201-453·479.
+	 *
+	 * <p>한 줄은 {@code {"namespace":"TOURAPI","storeId":"129156","featureType":"SOLO_FRIENDLY","value":true}}
+	 * 다. {@code value} 는 참거짓형이면 JSON 리터럴 {@code true}/{@code false}, 시각형이면
+	 * {@code {"start":"15:00","end":"17:00"}}(BREAK_TIME) · {@code {"time":"21:30"}}(LAST_ORDER_TIME)
+	 * 같은 객체다 — 어느 모양이든 그대로 옮긴다({@code place_feature.value} 가 JSONB 라 모양을
+	 * 여기서 정하지 않는다, 클래스 문서 "읽는 쪽이 값의 모양을 정하는 자리" 참고).
+	 *
+	 * <p>🔴 {@code namespace}·{@code featureType} 이 모르는 값이면 멈춘다 — {@link #readPriceBands} 와
+	 * 같은 이유다. 특히 {@code namespace} 오타는 조용히 두면 엉뚱한 장소 아이디를 계산해 "장소가
+	 * 없어 못 넣음" 으로 세어지고, 그 오타를 알아챌 방법이 없다.
+	 */
+	public static Counts readVisitorFacts(Path file, int chunkSize, Consumer<List<Fact>> chunkConsumer) {
+		return read(file, chunkSize, chunkConsumer, (node, out) -> {
+			String namespace = text(node, "namespace");
+			String storeId = text(node, "storeId");
+			String featureType = text(node, "featureType");
+			JsonNode valueNode = node.path("value");
+			if (namespace == null || storeId == null || featureType == null || valueNode.isMissingNode()) {
+				return false;
+			}
+			if (!NAMESPACES.contains(namespace)) {
+				throw new IllegalArgumentException(
+						"모르는 namespace 다: " + namespace + " (아는 것: " + NAMESPACES + ")");
+			}
+			if (!VISITOR_FEATURE_TYPES.contains(featureType)) {
+				throw new IllegalArgumentException(
+						"모르는 featureType 이다: " + featureType + " (아는 것: " + VISITOR_FEATURE_TYPES + ")");
+			}
+			out.add(new Fact(storeId, featureType, valueNode.toString(), namespace));
 			return true;
 		});
 	}

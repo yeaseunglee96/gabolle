@@ -28,6 +28,8 @@ import com.gabolle.backend.place.loader.PlaceFeatureNdjsonReader;
 import com.gabolle.backend.place.loader.ResearchQueueReader;
 import com.gabolle.backend.place.loader.SbizPlaceLoader;
 import com.gabolle.backend.place.loader.SbizRow;
+import com.gabolle.backend.place.loader.TourApiPlaceLoader;
+import com.gabolle.backend.place.loader.TourApiPlaceRow;
 import com.gabolle.backend.place.support.PlacePostgresIntegrationTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -53,6 +55,9 @@ class PlaceFeatureLoaderIntegrationTest extends PlacePostgresIntegrationTest {
 	@Autowired
 	private PlaceFeatureLoader featureLoader;
 
+	@Autowired
+	private TourApiPlaceLoader tourApiPlaceLoader;
+
 	@TempDir
 	Path tempDir;
 
@@ -60,8 +65,8 @@ class PlaceFeatureLoaderIntegrationTest extends PlacePostgresIntegrationTest {
 	@AfterEach
 	void cleanUp() {
 		this.jdbcTemplate.update(
-				"DELETE FROM place_feature WHERE source_type IN ('SBIZ', 'RESEARCH_PRICEBAND')");
-		this.jdbcTemplate.update("DELETE FROM place WHERE source_type = 'SBIZ'");
+				"DELETE FROM place_feature WHERE source_type IN ('SBIZ', 'RESEARCH_PRICEBAND', 'RESEARCH_VISITOR_FACTS')");
+		this.jdbcTemplate.update("DELETE FROM place WHERE source_type IN ('SBIZ', 'TOURAPI')");
 	}
 
 	/** 상가업소번호로 장소 하나를 만든다. 값이 붙을 자리가 있어야 하기 때문이다. */
@@ -71,6 +76,14 @@ class PlaceFeatureLoaderIntegrationTest extends PlacePostgresIntegrationTest {
 			rows.add(new SbizRow(storeId, "어느 집", "", "백반/한정식", "부산광역시 중구 광복로 1", 35.10, 129.03));
 		}
 		this.placeLoader.saveChunk(rows, DATASET, OffsetDateTime.now());
+	}
+
+	/** 관광공사 contentid 로 장소 하나를 만든다 — S15P21E201-453 이 namespace 를 일반화한 대상. */
+	private void givenTourApiPlace(String contentId) {
+		this.tourApiPlaceLoader.saveChunk(
+				List.of(new TourApiPlaceRow(contentId, "12", "A01", null, "가덕도 등대", "부산광역시 강서구 외양포로 10",
+						35.10, 129.03, null, null)),
+				DATASET, OffsetDateTime.now());
 	}
 
 	private Path file(String name, String... lines) {
@@ -149,6 +162,31 @@ class PlaceFeatureLoaderIntegrationTest extends PlacePostgresIntegrationTest {
 		// "두 번째라 건너뛴 것" 과 "장소가 없어 못 넣은 것" 은 다른 사실이라 따로 센다.
 		assertThat(second.alreadyPresent()).isEqualTo(1);
 		assertThat(featureCount("RESEARCH_PRICEBAND")).isEqualTo(1);
+	}
+
+	@Test
+	@DisplayName("🔴 S15P21E201-453 — TourAPI 출처 장소에도 사실을 붙일 수 있다 (전에는 SBIZ 전용이라 못 붙었다)")
+	void TourAPI_장소에도_붙는다() {
+		givenTourApiPlace("129156");
+
+		PlaceFeatureLoader.Saved[] saved = { new PlaceFeatureLoader.Saved(0, 0, 0) };
+		PlaceFeatureNdjsonReader.readVisitorFacts(
+				file("visitor-facts.ndjson",
+						"{\"namespace\":\"TOURAPI\",\"storeId\":\"129156\",\"featureType\":\"SOLO_FRIENDLY\",\"value\":true}"),
+				500,
+				chunk -> saved[0] = saved[0]
+						.plus(this.featureLoader.saveChunk(chunk, "RESEARCH_VISITOR_FACTS", DATASET, OffsetDateTime.now())));
+
+		assertThat(saved[0].inserted()).isEqualTo(1);
+		assertThat(saved[0].missingPlace()).isZero();
+		Map<String, Object> row = this.jdbcTemplate.queryForMap("""
+				SELECT feature_type, feature_key, value::text AS value, evidence_status, source_type, source_id
+				FROM place_feature WHERE source_type = 'RESEARCH_VISITOR_FACTS'
+				""");
+		assertThat(row.get("feature_type")).isEqualTo("SOLO_FRIENDLY");
+		assertThat(row.get("feature_key")).isNull();
+		assertThat((String) row.get("value")).isEqualTo("true");
+		assertThat(row.get("source_id")).isEqualTo("129156");
 	}
 
 	@Test
