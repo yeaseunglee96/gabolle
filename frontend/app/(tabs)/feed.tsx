@@ -13,6 +13,7 @@ import { ActivityIndicator, Image, Pressable, StyleSheet, TextInput, View } from
 import { useRouter } from 'expo-router';
 
 import { useAuth } from '@/auth/AuthProvider';
+import { composeEntryFor } from '@/social/composeEntry';
 import { PhotoGrid } from '@/components/PhotoGrid';
 import { markdownToPlain } from '@/social/markdown';
 import { Button } from '@/components/Button';
@@ -141,10 +142,17 @@ function placesInFeed(items: StoryDto[]) {
 }
 
 /**
- * 피드 맨 위에서 바로 쓰는 글쓰기 카드 — 넓은 화면 전용.
+ * 피드 맨 위에서 바로 쓰는 글쓰기 카드 — 데스크톱 폭(1024+) 전용.
  *
  * <p>폰은 기존대로 「기록」 버튼으로 /feed/compose 에 간다. 좁은 화면에서 본문·사진·
  * 공개범위를 한 카드에 넣으면 정작 보러 온 목록이 한참 밀려 내려간다.
+ *
+ * <p>🔴 S15P21E201-1142 — 전에는 {@code wide}(1440+)에서만 켰다. 그런데 헤더의 「기록」
+ * 버튼은 {@code compact}(1024 미만)에서만 나오므로 **1024~1439 구간에는 글 쓸 입구가
+ * 하나도 없었다.** 흔한 데스크톱 창 폭이 통째로 비어 있었던 것이다.
+ *
+ * <p>목록이 비었을 때만 빈 화면 안내에 버튼이 있어서, **글이 하나라도 쌓이면 입구가
+ * 사라졌다** — 처음 써 본 사람은 되는데 쓰고 나면 다시 못 쓴다. 그래서 더 안 보였다.
  *
  * <p>🔴 사진 처리는 {@link useStoryImages} 한 곳에서 온다 — 글쓰기 화면과 같은 코드다.
  * 줄이기(1600px)·EXIF 제거·3MB 판정 규칙이 두 벌이 되지 않게 하려고 뺐다.
@@ -354,6 +362,9 @@ export default function Feed() {
   const [lastPromptedAt, setLastPromptedAt] = useState(0);
 
   const signedIn = Boolean(accessToken);
+  // 🔴 S15P21E201-1142 — 글쓰기 입구는 여기서 고르지 않고 composeEntry 한 곳에서 받는다.
+  // 조건을 화면 두 곳에 나눠 적었더니 그 사이 폭(600~1023)에 입구가 하나도 없었다.
+  const composeEntry = composeEntryFor(width, signedIn);
   const key = FEED_KEY(scope, signedIn);
 
   // 화면 밖 보관소에서 읽는다 — 탭을 오가도 다시 안 부른다 (S15P21E201-957).
@@ -431,7 +442,7 @@ export default function Feed() {
         {scopeButton('ALL', tx('전체', 'All'))}
         {scopeButton('FOLLOWING', tx('팔로잉', 'Following'))}
       </View>
-      {compact && signedIn
+      {composeEntry === 'headerButton'
         ? <Button label={tx('기록', 'Write')} onPress={() => router.push('/feed/compose')} containerStyle={styles.writeButton} />
         : null}
     </View>
@@ -447,9 +458,15 @@ export default function Feed() {
         </View>
       : null}
 
-    {/* 넓은 화면에서만 맨 위에 둔다. 올리고 나면 이 범위를 낡은 것으로 표시해
-        다시 불러온다 — 방금 쓴 글이 목록에 바로 보이게. */}
-    {wide && signedIn
+    {/* 🔴 S15P21E201-1142 — 데스크톱 폭(1024+)이면 맨 위에 둔다. 전에는 1440+ 였고,
+        헤더 버튼은 1024 미만에서만 나와서 그 사이 폭에 입구가 없었다.
+
+        경계값을 새로 만들지 않고 이미 있는 compact 를 쓴다 — 폭 숫자를 화면 코드에
+        적지 않는다는 이 파일의 규칙 그대로다(layout/breakpoints.ts 만 쓴다).
+
+        올리고 나면 이 범위를 낡은 것으로 표시해 다시 불러온다 — 방금 쓴 글이 목록에
+        바로 보이게. */}
+    {composeEntry === 'inline'
       ? <InlineCompose onPosted={() => void queryClient.invalidateQueries({ queryKey: key })} />
       : null}
 
