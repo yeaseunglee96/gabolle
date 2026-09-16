@@ -30,6 +30,10 @@
 //    전용 최소권한 access key. 루트 자격(minioadmin)이 아니다 — gabolle-photos 버킷에만
 //    Put/Get/Delete/ListBucket 권한이 있다.
 //  - gabolle-s3-secret-key  (Secret text)
+//  - gabolle-menu-scan-api-key  (Secret text) — S15P21E201-1101, 메뉴판 사진에서 글자를
+//    읽는 모델 키. 여행 이름 추천도 같은 키를 쓴다(gabolle.trip-naming.api-key 가 같은
+//    환경 변수를 읽는다). 비워 두면 기동은 되고 메뉴판 호출만 503 MENU_SCAN_UNAVAILABLE
+//    로 끝난다 — 키가 없다는 것과 못 읽었다는 것을 서버가 일부러 다르게 말한다.
 //
 // 소셜 항목은 여섯 개인데 컨테이너로 넣는 환경변수는 일곱 개다.
 // GABOLLE_GOOGLE_ALLOWED_CLIENT_IDS 는 Credential 을 따로 만들지 않고 Google client ID 를
@@ -203,6 +207,8 @@ pipeline {
                     string(credentialsId: 'gabolle-apple-private-key', variable: 'GABOLLE_APPLE_PRIVATE_KEY'),
                     string(credentialsId: 'gabolle-s3-access-key', variable: 'GABOLLE_S3_ACCESS_KEY'),
                     string(credentialsId: 'gabolle-s3-secret-key', variable: 'GABOLLE_S3_SECRET_KEY'),
+                    // S15P21E201-1101 — 메뉴판 읽기와 여행 이름 추천이 함께 쓰는 모델 키.
+                    string(credentialsId: 'gabolle-menu-scan-api-key', variable: 'GABOLLE_MENU_SCAN_API_KEY'),
                     // S15P21E201-285 — 기상청 단기예보 조회서비스 인증키(data.go.kr 개발계정).
                     string(credentialsId: 'gabolle-kma-service-key', variable: 'GABOLLE_KMA_SERVICE_KEY'),
                     // 🔴 S15P21E201-942 — /internal/** 을 여는 기계 전용 토큰
@@ -302,6 +308,7 @@ pipeline {
                             -e GABOLLE_APPLE_PRIVATE_KEY="$GABOLLE_APPLE_PRIVATE_KEY" \
                             -e GABOLLE_APPLE_ALLOWED_CLIENT_IDS="com.gabolle.app" \
                             -e GABOLLE_KMA_SERVICE_KEY="$GABOLLE_KMA_SERVICE_KEY" \
+                            -e GABOLLE_MENU_SCAN_API_KEY="$GABOLLE_MENU_SCAN_API_KEY" \
                             -e GABOLLE_INTERNAL_API_TOKEN="$GABOLLE_INTERNAL_API_TOKEN" \
                             -e GABOLLE_ADMIN_EMAILS="$GABOLLE_ADMIN_EMAILS" \
                             local-route-backend:candidate
@@ -406,6 +413,7 @@ pipeline {
                     string(credentialsId: 'gabolle-apple-private-key', variable: 'GABOLLE_APPLE_PRIVATE_KEY'),
                     string(credentialsId: 'gabolle-s3-access-key', variable: 'GABOLLE_S3_ACCESS_KEY'),
                             string(credentialsId: 'gabolle-s3-secret-key', variable: 'GABOLLE_S3_SECRET_KEY'),
+                            string(credentialsId: 'gabolle-menu-scan-api-key', variable: 'GABOLLE_MENU_SCAN_API_KEY'),
                             string(credentialsId: 'gabolle-kma-service-key', variable: 'GABOLLE_KMA_SERVICE_KEY'),
                             string(credentialsId: 'gabolle-internal-api-token', variable: 'GABOLLE_INTERNAL_API_TOKEN')
                         ]) {
@@ -453,6 +461,7 @@ pipeline {
                                     -e GABOLLE_APPLE_PRIVATE_KEY="$GABOLLE_APPLE_PRIVATE_KEY" \
                                     -e GABOLLE_APPLE_ALLOWED_CLIENT_IDS="com.gabolle.app" \
                                     -e GABOLLE_KMA_SERVICE_KEY="$GABOLLE_KMA_SERVICE_KEY" \
+                                    -e GABOLLE_MENU_SCAN_API_KEY="$GABOLLE_MENU_SCAN_API_KEY" \
                                     -e GABOLLE_INTERNAL_API_TOKEN="$GABOLLE_INTERNAL_API_TOKEN" \
                                     -e GABOLLE_ADMIN_EMAILS="$GABOLLE_ADMIN_EMAILS" \
                                     local-route-backend:latest
