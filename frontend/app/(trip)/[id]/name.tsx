@@ -31,6 +31,7 @@ import {
   checkTripTitle,
   isModelNamed,
   loadTripNameSuggestions,
+  markTripNameAsked,
   planNameStep,
   updateTripTitle,
   type TripNameSource,
@@ -66,7 +67,7 @@ function fullRange(trip: TripSummaryDto | null) {
 
 export default function TripName() {
   const router = useRouter();
-  const { id } = useLocalSearchParams<{ id?: string }>();
+  const { id, next } = useLocalSearchParams<{ id?: string; next?: string }>();
   const tripId = id ?? '';
   const { tx } = useI18n();
   const { accessToken, user } = useAuth();
@@ -108,8 +109,15 @@ export default function TripName() {
     return () => { alive = false; };
   }, [tripId, accessToken]);
 
+  // 🔴 여기서 남긴다 — 저장했든 건너뛰었든 "한 번 물어봤다" 는 같다. 저장할 때만 남기면
+  // 건너뛴 사람에게 일정을 열 때마다 다시 묻게 되고, 그건 건너뛸 수 있다고 말해 놓고
+  // 안 놓아주는 것이다.
+  useEffect(() => { void markTripNameAsked(tripId); }, [tripId]);
+
   /** 이름을 안 붙이고 넘어간다. PUT 을 안 보낸다 — 이름 없음이 이미 기본이다. */
   const goOn = async () => {
+    // 부른 쪽이 갈 곳을 정해 줬으면 그리로 간다 — 추천 화면에서 끼어든 경우다.
+    if (next) { router.replace(next as never); return; }
     const outcome = await loadTripItineraries(tripId, accessToken);
     if (outcome.state === 'success' && outcome.itineraries.length === 1) {
       router.replace(`/trips/${outcome.itineraries[0].itineraryId}/itinerary`);
