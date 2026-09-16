@@ -141,6 +141,31 @@ class GeminiAssistantAdapterTest {
 		assertThat(reply.label()).isEqualTo("버스 도착정보 보기");
 	}
 
+	// ── 환율 (S15P21E201-1079) ───────────────────────────────────────────
+
+	@Test
+	@DisplayName("navigate + '/field/exchange-rate' 는 허용된 href 로 통과한다")
+	void navigateToExchangeRateFieldIsAllowed() {
+		GeminiStructuredReply parsed = new GeminiStructuredReply("navigate", "오늘의 환율로 안내할게요.", null, null,
+				"환율 보기", "/field/exchange-rate", null, null);
+
+		AssistantReply reply = this.adapter.toDomain(parsed);
+
+		assertThat(reply.kind()).isEqualTo(AssistantActionKind.NAVIGATE);
+		assertThat(reply.href()).isEqualTo("/field/exchange-rate");
+	}
+
+	@Test
+	@DisplayName("🔴 모델이 label 을 비우면 '/field/exchange-rate' 도 기본 문구로 채운다")
+	void blankLabelFallsBackToDefaultForExchangeRate() {
+		GeminiStructuredReply parsed = new GeminiStructuredReply("navigate", "안내해 드릴게요.", null, null, null,
+				"/field/exchange-rate", null, null);
+
+		AssistantReply reply = this.adapter.toDomain(parsed);
+
+		assertThat(reply.label()).isEqualTo("환율 보기");
+	}
+
 	@Test
 	@DisplayName("🔴 모델이 모르는 kind 를 지어내면 HELP 로 낮춘다")
 	void unknownKindFallsBackToHelp() {

@@ -56,7 +56,8 @@ public class GeminiAssistantAdapter implements AssistantVendorPort {
 
 	static final String PROVIDER_NAME = "GEMINI";
 
-	static final Set<String> ALLOWED_HREFS = Set.of("/plan/basic", "/trips", "/field/translate", "/field/transit");
+	static final Set<String> ALLOWED_HREFS = Set.of("/plan/basic", "/trips", "/field/translate", "/field/transit",
+			"/field/exchange-rate");
 
 	/** '/plan/basic' 으로 갈 때만 채운다 — days 는 1~30, people 은 1~20 을 벗어나면 버린다. */
 	private static final int MIN_DAYS = 1;
@@ -79,7 +80,8 @@ public class GeminiAssistantAdapter implements AssistantVendorPort {
 					"korean", string(),
 					"pronunciation", string(),
 					"label", string(),
-					"href", stringEnum("/plan/basic", "/trips", "/field/translate", "/field/transit"),
+					"href", stringEnum("/plan/basic", "/trips", "/field/translate", "/field/transit",
+							"/field/exchange-rate"),
 					"days", integer(),
 					"people", integer()))
 			.propertyOrdering("kind", "reply", "korean", "pronunciation", "label", "href", "days", "people")
@@ -105,12 +107,13 @@ public class GeminiAssistantAdapter implements AssistantVendorPort {
 			분류해 답한다.
 
 			- navigate: 이 앱의 다른 화면으로 보내 달라는 요청(여행/일정을 만들고 싶다, 내
-			  여행을 보고 싶다, 현장에서 쓸 번역이 필요하다, 버스가 언제 오는지 보고 싶다 등).
-			  href 는 아래 넷 중 하나만 쓴다.
-			    '/plan/basic'      — 새 여행 만들기(일정·조건 입력 시작)
-			    '/trips'           — 내 여행 목록
-			    '/field/translate' — 현장 번역
-			    '/field/transit'   — 근처 버스 정류소·실시간 도착정보
+			  여행을 보고 싶다, 현장에서 쓸 번역이 필요하다, 버스가 언제 오는지 보고 싶다,
+			  환율이 궁금하다 등). href 는 아래 다섯 중 하나만 쓴다.
+			    '/plan/basic'        — 새 여행 만들기(일정·조건 입력 시작)
+			    '/trips'             — 내 여행 목록
+			    '/field/translate'   — 현장 번역
+			    '/field/transit'     — 근처 버스 정류소·실시간 도착정보
+			    '/field/exchange-rate' — 오늘의 환율
 			  label 에는 그 화면으로 가는 짧은 한국어 버튼 문구를 채운다(예: "여행 만들기").
 
 			  🔴 버스·지하철 도착시간을 묻는 요청은 항상 navigate('/field/transit')로만
@@ -118,6 +121,10 @@ public class GeminiAssistantAdapter implements AssistantVendorPort {
 			  도착"처럼 지어내서 답하지 않는다. 지하철은 이 화면이 아직 실시간 정보를 못 주니
 			  (버스만 가능), 지하철을 구체적으로 물으면 help 로 "버스 실시간 정보만 아직
 			  가능해요" 처럼 안내한다.
+
+			  🔴 환율을 묻는 요청도 항상 navigate('/field/exchange-rate')로만 안내한다 —
+			  "1달러에 1,350원이에요" 처럼 구체적인 환율 숫자를 네가 직접 답하지 않는다.
+			  네가 아는 환율은 오래된 값일 수 있고, 실제 환율은 매 영업일 바뀐다.
 
 			  🔴 href 가 '/plan/basic' 일 때 반드시 확인한다 — 사용자 메시지에 여행 일수나
 			  인원 숫자가 나와 있으면 반드시 days·people 을 채워야 한다(빠뜨리지 않는다). 아래
@@ -172,7 +179,7 @@ public class GeminiAssistantAdapter implements AssistantVendorPort {
 			- 가장 큰 특징: 장소·코스 추천이 AI 가 지어낸 것이 아니라, 실제 설문과 부산 현지인
 			  추천 데이터를 바탕으로 한다.
 			- 이 챗봇이 안내할 수 있는 기능은 여행 일정 만들기, 내 여행 관리, 현장 번역, 근처
-			  버스 실시간 도착정보 네 가지다.
+			  버스 실시간 도착정보, 오늘의 환율 다섯 가지다.
 
 			🔴 이 앱·여행과 무관한 요청(날씨·시사·다른 서비스·코딩·일반 상식·잡담 등)은 help 로
 			답하되, 아는 척 답하지 않는다 — "저는 가볼래 여행 관련해서만 도와드릴 수 있어요" 처럼
@@ -302,7 +309,8 @@ public class GeminiAssistantAdapter implements AssistantVendorPort {
 			"/plan/basic", "여행 만들기",
 			"/trips", "내 여행 보기",
 			"/field/translate", "번역 열기",
-			"/field/transit", "버스 도착정보 보기");
+			"/field/transit", "버스 도착정보 보기",
+			"/field/exchange-rate", "환율 보기");
 
 	/**
 	 * 🔴 label 은 스키마에서 required 가 아니라, 모델이 이따금 비워서 준다(라이브 테스트로

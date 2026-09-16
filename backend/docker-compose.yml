@@ -66,6 +66,10 @@ services:
       #    운영은 Jenkinsfile 의 docker run 이 따로 넘겨 주고 있어 안 드러났다.
       #    값은 기상청 API 허브(apihub.kma.go.kr)의 인증키다 — 공공데이터포털 키가 아니다.
       GABOLLE_KMA_SERVICE_KEY: ${GABOLLE_KMA_SERVICE_KEY:-}
+      # 🔴 S15P21E201-988 을 만들 때 이 줄을 빠뜨렸었다 — 위 KMA 키와 같은 증상(설정 파일은
+      #    읽는데 여기 나열에 없어 컨테이너 안까지 안 감)이라 여기서 같이 고친다.
+      GABOLLE_TRANSIT_SERVICE_KEY: ${GABOLLE_TRANSIT_SERVICE_KEY:-}
+      GABOLLE_EXCHANGE_RATE_AUTH_KEY: ${GABOLLE_EXCHANGE_RATE_AUTH_KEY:-}
     ports:
       - "${BACKEND_PORT:-8080}:8080"
     restart: unless-stopped
