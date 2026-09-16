@@ -626,5 +626,8 @@ const styles = StyleSheet.create({
   toolButton: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], minHeight: 36, paddingHorizontal: spacing[3], borderRadius: radius.sm },
   toolButtonOn: { backgroundColor: color.surface.soft },
   toolIcon: { width: 16, height: 16, tintColor: color.brand.navy },
-  composePost: { width: 'auto', minWidth: 96, paddingHorizontal: spacing[4], backgroundColor: color.brand.navy },
+  // 🔴 S15P21E201-1144 — 배경색을 여기 칠하지 않는다. Button 의 variant='primary' 가
+  // 이미 같은 남색을 «안쪽» 에 칠하고, 안쪽에만 모서리가 있다. 바깥 껍데기에 같은 색을
+  // 덧칠하면 둥근 버튼 뒤에 네모난 판이 깔려 각져 보인다 — 두 색이 같아 네모만 보였다.
+  composePost: { width: 'auto', minWidth: 96, paddingHorizontal: spacing[4] },
 });
