@@ -24,19 +24,14 @@ import { useI18n } from '@/i18n';
 import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
 import { RouteMap } from '@/map/RouteMap';
-import { createStory, loadFeed, relativeStoryTime, reportStory, setFollowing, VISIBILITY_LABEL, type FeedLoadResult, type FeedScope, type StoryDto, type StoryReportReason, type StoryVisibility } from '@/social/stories';
+import { createStory, feedQueryKey, loadFeed, relativeStoryTime, reportStory, setFollowing, VISIBILITY_LABEL, type FeedLoadResult, type FeedScope, type StoryDto, type StoryReportReason, type StoryVisibility } from '@/social/stories';
 import { shouldPromptSignIn } from '@/social/signInPrompt';
 import { SignInPromptModal } from '@/social/SignInPromptModal';
 import { useStoryImages } from '@/social/useStoryImages';
 
-/**
- * 보관소에서 이 피드를 찾는 열쇠 — S15P21E201-957.
- *
- * <p>범위(전체·팔로잉)마다 따로 담는다. 토큰이 아니라 "로그인했는가" 만 넣는다 —
- * 토큰은 갱신될 때마다 값이 바뀌어서, 넣으면 로그인 상태가 그대로인데도 보관한
- * 것을 버리고 다시 부르게 된다.
- */
-const FEED_KEY = (scope: FeedScope, signedIn: boolean) => ['feed', scope, signedIn] as const;
+// 열쇠는 src/social/stories.ts 로 옮겼다 — 글쓰기 화면도 같은 것을 써야 해서다
+// (S15P21E201-1124). 이름은 그대로 둬서 아래 쓰는 곳들을 건드리지 않는다.
+const FEED_KEY = feedQueryKey;
 
 /** 본문 상한 — 글쓰기 화면(compose.tsx)과 같은 값이어야 한다. */
 const BODY_MAX = 500;

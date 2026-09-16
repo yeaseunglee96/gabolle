@@ -99,6 +99,21 @@ function failure(error: unknown): FeedFailure {
   return { state: 'error', message: error instanceof Error ? error.message : '요청을 처리하지 못했어요.' };
 }
 
+/**
+ * 피드를 보관소(react-query)에서 찾는 열쇠 — S15P21E201-1124.
+ *
+ * <p>🔴 이 열쇠가 화면 파일 안에 있던 동안, 글쓰기 화면은 올린 뒤 무엇을 버려야
+ * 하는지 알 수 없었다. 그래서 목록이 그대로였고, 사용자는 안 올라간 줄 알고 같은
+ * 글을 한 번 더 올렸다(2026-09-16 iOS 실기기에서 실제로 201 이 두 번 찍혔다).
+ * 두 곳이 같은 것을 가리켜야 하는 값은 두 곳 중 하나에 두면 반드시 어긋난다.
+ *
+ * <p>범위(전체·팔로잉)마다 따로 담는다. 토큰이 아니라 "로그인했는가" 만 넣는다 —
+ * 토큰은 갱신될 때마다 값이 바뀌어서, 넣으면 로그인 상태가 그대로인데도 보관한
+ * 것을 버리고 다시 부르게 된다(S15P21E201-957).
+ */
+export const FEED_QUERY_PREFIX = ['feed'] as const;
+export const feedQueryKey = (scope: FeedScope, signedIn: boolean) =>
+  [...FEED_QUERY_PREFIX, scope, signedIn] as const;
 export type FeedLoadResult = { state: 'success'; items: StoryDto[]; nextCursor: string | null } | FeedFailure;
 
 export async function loadFeed(input: { scope: FeedScope; cursor?: string | null; limit?: number; accessToken: string | null }): Promise<FeedLoadResult> {
