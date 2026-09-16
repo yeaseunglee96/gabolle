@@ -31,6 +31,15 @@ import java.util.Objects;
  */
 public final class TransitNetwork {
 
+	/** 하루는 1,440분이다. 운행 시간대를 분으로 다룰 때 쓴다. */
+	public static final int MINUTES_PER_DAY = 24 * 60;
+
+	private static void requireMinuteOfDay(int value, String what) {
+		if (value < 0 || value >= MINUTES_PER_DAY) {
+			throw new IllegalArgumentException(what + " 시각이 하루 범위를 벗어났다: " + value);
+		}
+	}
+
 	/** 대중교통 종류. 요금·환승 규칙이 달라서 섞지 않는다. */
 	public enum Kind {
 
@@ -74,8 +83,39 @@ public final class TransitNetwork {
 	 * @param kind 버스인가 지하철인가
 	 * @param stopIds 서는 순서대로의 정류장 id. <b>순서가 곧 그래프의 간선이다</b>
 	 * @param headwayMin 배차간격(분). 출발 시각을 모를 때 평균 대기를 내는 데 쓴다
+	 * @param firstMinOfDay 첫차 시각(자정부터 분)
+	 * @param lastMinOfDay 막차 시각(자정부터 분). 🔴 {@code firstMinOfDay} 보다 <b>작을 수 있다</b> —
+	 *     자정을 넘겨 다니는 노선이다(예: 23:30~01:10). {@link #runsAt(int)} 가 그것을 본다
 	 */
-	public record Route(String id, String name, Kind kind, List<String> stopIds, int headwayMin) {
+	public record Route(String id, String name, Kind kind, List<String> stopIds, int headwayMin,
+			int firstMinOfDay, int lastMinOfDay) {
+
+		/**
+		 * 운행 시간대를 모르는 노선 — <b>하루 종일 다니는 것으로 본다.</b>
+		 *
+		 * <p>🔴 모르는 것을 "안 다닌다" 로 두면 그 노선이 조용히 사라진다. 없는 답이 틀린 답보다
+		 * 낫다는 규칙은 <b>지어낼 때</b>의 이야기이고, 여기서는 지어내는 것이 아니라 <b>거르는</b>
+		 * 것이라 방향이 반대다.
+		 */
+		public Route(String id, String name, Kind kind, List<String> stopIds, int headwayMin) {
+			this(id, name, kind, stopIds, headwayMin, 0, MINUTES_PER_DAY - 1);
+		}
+
+		/**
+		 * 그 시각에 이 노선이 다니는가.
+		 *
+		 * <p>🔴 이것이 없으면 <b>심야버스가 낮 경로로 추천된다.</b> 2026-09-16 에 실제로 그랬다 —
+		 * 부산역→해운대를 물었더니 {@code 1003(심야)}(22:40~23:45)이 나왔다. 그 노선의 배차가
+		 * 실측 10분이라 낮 노선(채운 값 20분)보다 대기가 짧게 계산돼 이긴 것이다. 숫자만 보면
+		 * 합리적인 선택이었지만 사람에게는 <b>오지 않는 버스</b>다.
+		 */
+		public boolean runsAt(int minuteOfDay) {
+			if (this.firstMinOfDay <= this.lastMinOfDay) {
+				return minuteOfDay >= this.firstMinOfDay && minuteOfDay <= this.lastMinOfDay;
+			}
+			// 자정을 넘겨 다닌다 — 첫차 이후이거나 막차 이전이면 운행 중이다.
+			return minuteOfDay >= this.firstMinOfDay || minuteOfDay <= this.lastMinOfDay;
+		}
 
 		public Route {
 			requireText(id, "노선 id");
@@ -91,6 +131,8 @@ public final class TransitNetwork {
 			if (headwayMin <= 0) {
 				throw new IllegalArgumentException("노선 " + id + " 의 배차간격은 1분 이상이어야 한다: " + headwayMin);
 			}
+			requireMinuteOfDay(firstMinOfDay, "노선 " + id + " 의 첫차");
+			requireMinuteOfDay(lastMinOfDay, "노선 " + id + " 의 막차");
 			stopIds = List.copyOf(stopIds);
 		}
 	}

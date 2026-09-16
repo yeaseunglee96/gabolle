@@ -74,10 +74,12 @@ public final class HeadwayJourneyPlanner {
 	 * @param network 노선망
 	 * @param originAccessMin 출발 후보 정류장 → 거기까지 걸어가는 분
 	 * @param destinationAccessMin 도착 후보 정류장 → 거기서 목적지까지 걸어가는 분
-	 * @return 경로. 한 번에 가는 노선이 없으면 빈 값
+	 * @param referenceMinuteOfDay 이 시각에 다니는 노선만 본다 (자정부터 분)
+	 * @return 경로. 그 시각에 한 번에 가는 노선이 없으면 빈 값
 	 */
 	public Optional<RaptorPlanner.Journey> plan(TransitNetwork network,
-			Map<String, Integer> originAccessMin, Map<String, Integer> destinationAccessMin) {
+			Map<String, Integer> originAccessMin, Map<String, Integer> destinationAccessMin,
+			int referenceMinuteOfDay) {
 
 		RaptorPlanner.Journey best = null;
 
@@ -88,6 +90,12 @@ public final class HeadwayJourneyPlanner {
 			for (String routeId : network.routesAt(fromStopId)) {
 				TransitNetwork.Route route = network.route(routeId);
 				if (route == null) {
+					continue;
+				}
+				// 🔴 그 시각에 안 다니는 노선은 안 본다. 이게 없으면 심야버스가 낮 경로로
+				//    추천된다 — 배차가 짧아서 대기 시간 계산에서 이기기 때문이다.
+				//    2026-09-16 에 부산역→해운대가 실제로 `1003(심야)`(22:40~23:45)로 나왔다.
+				if (!route.runsAt(referenceMinuteOfDay)) {
 					continue;
 				}
 				int fromIndex = network.sequenceOf(routeId, fromStopId);

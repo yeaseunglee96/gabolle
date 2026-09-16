@@ -116,7 +116,8 @@ class BusanBusNetworkIntegrationTest {
 		TransitNetwork.Stop to = loaded.stop(route.stopIds().get(nextIndex));
 
 		Optional<RaptorPlanner.Journey> journey = new HeadwayJourneyPlanner(22.0, 20)
-				.plan(loaded, Map.of(from.id(), 0), Map.of(to.id(), 0));
+				.plan(loaded, Map.of(from.id(), 0), Map.of(to.id(), 0),
+						TransitRouteAdapter.TYPICAL_DAYTIME_MINUTE);
 
 		assertThat(journey).as("한 정거장 옆인데 경로를 못 찾았다").isPresent();
 		// 🔴 기다리는 시간이 없으면 한 정거장은 1분이 된다. 배차간격의 절반이 붙어야 한다 —
@@ -124,6 +125,46 @@ class BusanBusNetworkIntegrationTest {
 		assertThat(journey.get().durationMin())
 				.as("한 정거장 옆인데 %d분이다 — 기다리는 시간이 안 붙었다", journey.get().durationMin())
 				.isGreaterThanOrEqualTo(3);
+	}
+
+	@Test
+	@DisplayName("🔴 낮 경로에 심야버스를 추천하지 않는다 — 오지 않는 버스를 타라고 말하면 안 된다")
+	void aNightOnlyRouteIsNeverSuggestedForADaytimeTrip() {
+		// 🔴 2026-09-16 에 실제로 났다. 부산역→해운대를 물었더니 `1003(심야)`(22:40~23:45)이
+		//    나왔다 — 그 노선의 배차가 실측 10분이라, 채운 값 20분을 쓰는 낮 노선보다 대기가
+		//    짧게 계산돼 이겼다. 숫자만 보면 합리적이었지만 사람에게는 오지 않는 버스다.
+		Optional<RouteLeg> leg = adapter().find(new RouteQuery(
+				BUSAN_STATION_LAT, BUSAN_STATION_LNG, HAEUNDAE_LAT, HAEUNDAE_LNG, TravelMode.TRANSIT));
+
+		assertThat(leg).isPresent();
+		assertThat(leg.get().steps()).isNotEmpty();
+		assertThat(leg.get().steps())
+				.as("낮에 다니지 않는 노선을 추천했다: %s", leg.get().steps())
+				.noneMatch(step -> step.name().contains("심야"));
+	}
+
+	@Test
+	@DisplayName("노선망의 운행 시간대가 실제로 실린다 — 안 실으면 위 검사가 우연히 통과할 수 있다")
+	void routesCarryTheirServiceWindow() {
+		TransitNetwork loaded = network();
+
+		// 하루 종일(0~1439)로만 채워져 있으면 첫차·막차를 안 읽은 것이다.
+		long withRealWindow = loaded.stops().stream().limit(0).count()
+				+ countRoutesWithRealServiceWindow(loaded);
+		assertThat(withRealWindow)
+				.as("첫차·막차가 실린 노선이 없다 — 파일에서 안 읽고 있다")
+				.isGreaterThan(100);
+	}
+
+	private static long countRoutesWithRealServiceWindow(TransitNetwork loaded) {
+		return loaded.stops().stream()
+				.flatMap(stop -> loaded.routesAt(stop.id()).stream())
+				.distinct()
+				.map(loaded::route)
+				.filter(route -> route != null)
+				.filter(route -> route.firstMinOfDay() != 0
+						|| route.lastMinOfDay() != TransitNetwork.MINUTES_PER_DAY - 1)
+				.count();
 	}
 
 	@Test

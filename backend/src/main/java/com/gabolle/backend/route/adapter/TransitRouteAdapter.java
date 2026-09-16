@@ -67,6 +67,15 @@ public class TransitRouteAdapter implements RouteProviderPort {
 	static final String REASON_HEADWAY_ESTIMATE =
 			"시각표가 없어 노선의 평균 배차간격과 정거장 수로 계산한 값입니다.";
 
+	/**
+	 * 출발 시각을 모를 때 "언제쯤 가는가" 로 삼는 시각 — 13:00.
+	 *
+	 * <p>🔴 아무 값이나 고른 것이 아니다. 앱의 기본 일정 시간대가 {@code 09:00-18:00} 이고
+	 * 그 한가운데다. 이 값이 필요한 이유는 <b>노선마다 다니는 시간이 다르기 때문</b>이다 —
+	 * 기준이 없으면 심야버스가 낮 경로로 추천된다(S15P21E201-1123).
+	 */
+	static final int TYPICAL_DAYTIME_MINUTE = 13 * 60;
+
 	private static final ZoneId KST = ZoneId.of("Asia/Seoul");
 
 	private static final double EARTH_RADIUS_M = 6_371_000;
@@ -137,7 +146,7 @@ public class TransitRouteAdapter implements RouteProviderPort {
 		if (!exact) {
 			Optional<RaptorPlanner.Journey> byHeadway = new HeadwayJourneyPlanner(
 					this.properties.getRideSpeedKmh(), this.properties.getDwellSecondsPerStop())
-							.plan(network, origins, destinations);
+							.plan(network, origins, destinations, TYPICAL_DAYTIME_MINUTE);
 			if (byHeadway.isPresent()) {
 				return Optional.of(toLeg(network, byHeadway.get(), REASON_HEADWAY_ESTIMATE));
 			}
