@@ -6,7 +6,7 @@
 //
 // secondary·field 는 16~23(여행 준비 이후 화면들) 실측에서 추가했다 — 그 화면들의 전폭 CTA 가
 // action.primary 와 다른 파랑(action.secondary·action.field)을 쓴다(tokens.ts 주석 참고).
-import { useRef } from 'react';
+import { useMemo, useRef } from 'react';
 import { AccessibilityInfo, Animated, Pressable, StyleSheet, type GestureResponderEvent, type PressableProps, type StyleProp, type ViewStyle } from 'react-native';
 
 import { color, radius, spacing } from '@/design/tokens';
@@ -35,10 +35,12 @@ const LABEL_COLOR: Record<ButtonVariant, string> = {
 // 쓰는 화면 테스트가 통째로 깨진다 — 그래서 별도 설정이 필요 없는 RN 내장 Animated를 쓴다.
 // 🔴 reduce-motion(기기의 "동작 줄이기" 접근성 설정)은 **앱 전체에 하나뿐인 값**이라
 // 모듈에서 한 번만 묻는다. 버튼 인스턴스마다 useState+useEffect 로 물으면 버튼을 그릴 때마다
-// 비동기 조회와 그 결과로 인한 setState 가 따라붙고, 설문처럼 버튼을 계속 다시 그리는 화면에서
-// 그 비용이 쌓인다 — SpendProfileScreen 테스트가 190ms→739ms 로 3.9배 느려져(팀원 A/B 실측,
-// 2026-09-16) 2코어 CI 컨테이너의 5초 제한을 넘겼다. 값은 누르는 순간에만 읽으므로 이 값이
-// 바뀌어도 다시 그릴 필요가 없다. 그래서 상태가 아니라 모듈 변수가 맞다.
+// 비동기 조회와 그 결과로 인한 setState 가 따라붙는다. 값은 누르는 순간에만 읽으므로 이 값이
+// 바뀌어도 다시 그릴 필요가 없다 — 그래서 상태가 아니라 모듈 변수가 맞다.
+//
+// 🔴 다만 **이것이 느림의 주범은 아니었다.** 처음엔 그렇게 짚었는데 이 수정만으로는
+// 739ms→726ms 로 거의 안 줄었다(이예승 님 재측정, 2026-09-16). 주범은 아래 보간 객체다.
+// 틀린 진단을 지우지 않고 남겨 둔다 — 다음 사람이 같은 곳을 다시 파지 않게.
 let reducedMotion = false;
 void Promise.resolve(AccessibilityInfo.isReduceMotionEnabled?.())
   .then((value) => { reducedMotion = Boolean(value); })
@@ -47,10 +49,22 @@ AccessibilityInfo.addEventListener?.('reduceMotionChanged', (value) => { reduced
 
 export function Button({ label, variant = 'primary', disabled, containerStyle, accessibilityRole, accessibilityState, onPressIn, onPressOut, ...rest }: ButtonProps) {
   const pressProgress = useRef(new Animated.Value(0)).current;
-  const animatedStyle = {
+  // 🔴 보간 객체를 렌더마다 새로 만들지 않는다 — 이것이 느림의 **진짜 주범**이었다.
+  //
+  // interpolate() 는 부를 때마다 새 애니메이션 노드를 만들어 pressProgress 에 붙인다. 버튼이
+  // 다시 그려질 때마다 노드가 하나씩 더 붙고, 값이 바뀔 때 갱신해야 할 노드가 계속 늘어난다.
+  // 설문 화면은 질문을 넘길 때마다 버튼을 다시 그리므로 그게 누적된다.
+  //
+  // pressProgress 는 useRef 라 절대 안 바뀌므로 보간 노드는 버튼당 한 번만 만들어진다.
+  // 애니메이션 동작과 느낌은 전혀 바뀌지 않는다.
+  //
+  // 실측 (이예승 님, 같은 기계·같은 명령, SpendProfileScreen 의 그 테스트):
+  //   애니메이션 전 190ms · 애니메이션 추가 739ms · reduce-motion 모듈로 올림 726ms
+  //   · 여기에 이 useMemo 까지 326ms
+  const animatedStyle = useMemo(() => ({
     opacity: pressProgress.interpolate({ inputRange: [0, 1], outputRange: [1, 0.82] }),
     transform: [{ scale: pressProgress.interpolate({ inputRange: [0, 1], outputRange: [1, 0.98] }) }],
-  };
+  }), [pressProgress]);
   const animateTo = (value: number, duration: number) => {
     Animated.timing(pressProgress, { toValue: value, duration: reducedMotion ? 0 : duration, useNativeDriver: true }).start();
   };
