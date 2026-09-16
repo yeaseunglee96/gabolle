@@ -6,7 +6,8 @@
 //
 // secondary·field 는 16~23(여행 준비 이후 화면들) 실측에서 추가했다 — 그 화면들의 전폭 CTA 가
 // action.primary 와 다른 파랑(action.secondary·action.field)을 쓴다(tokens.ts 주석 참고).
-import { Pressable, StyleSheet, type PressableProps, type StyleProp, type ViewStyle } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { AccessibilityInfo, Animated, Pressable, StyleSheet, type GestureResponderEvent, type PressableProps, type StyleProp, type ViewStyle } from 'react-native';
 
 import { color, radius, spacing } from '@/design/tokens';
 import { Text } from './Text';
@@ -27,28 +28,52 @@ const LABEL_COLOR: Record<ButtonVariant, string> = {
   ghost: color.brand.navy,
 };
 
-export function Button({ label, variant = 'primary', disabled, containerStyle, accessibilityRole, accessibilityState, ...rest }: ButtonProps) {
+// 사용자 요청(2026-09-16, 토스 참고): 예전엔 눌림 스타일이 Pressable의 pressed 값으로 순간
+// 전환됐다(스타일이 그 프레임에 바로 바뀜) — 토스 버튼 특유의 "살짝 부드럽게 눌리는" 느낌이
+// 없었다. RN 내장 Animated로 스케일·투명도에 시간(duration)을 줘서 부드럽게 만든다.
+// 🔴 reanimated(react-native-worklets)는 이 저장소 Jest 설정에 목(mock)이 없어 Button을
+// 쓰는 화면 테스트가 통째로 깨진다 — 그래서 별도 설정이 필요 없는 RN 내장 Animated를 쓴다.
+export function Button({ label, variant = 'primary', disabled, containerStyle, accessibilityRole, accessibilityState, onPressIn, onPressOut, ...rest }: ButtonProps) {
+  const [reducedMotion, setReducedMotion] = useState(false);
+  useEffect(() => {
+    let active = true;
+    void AccessibilityInfo.isReduceMotionEnabled?.().then((value) => { if (active) setReducedMotion(value); });
+    return () => { active = false; };
+  }, []);
+  const pressProgress = useRef(new Animated.Value(0)).current;
+  const animatedStyle = {
+    opacity: pressProgress.interpolate({ inputRange: [0, 1], outputRange: [1, 0.82] }),
+    transform: [{ scale: pressProgress.interpolate({ inputRange: [0, 1], outputRange: [1, 0.98] }) }],
+  };
+  const animateTo = (value: number, duration: number) => {
+    Animated.timing(pressProgress, { toValue: value, duration: reducedMotion ? 0 : duration, useNativeDriver: true }).start();
+  };
+  const handlePressIn = (event: GestureResponderEvent) => { animateTo(1, 90); onPressIn?.(event); };
+  const handlePressOut = (event: GestureResponderEvent) => { animateTo(0, 150); onPressOut?.(event); };
+
   return (
-    <Pressable
-      {...rest}
-      accessibilityRole={accessibilityRole ?? 'button'}
-      accessibilityState={{ ...accessibilityState, disabled: Boolean(disabled) }}
-      disabled={disabled}
-      style={({ pressed }) => [
-        styles.base,
-        variant === 'primary' && styles.primary,
-        variant === 'secondary' && styles.secondary,
-        variant === 'field' && styles.field,
-        variant === 'ghost' && styles.ghost,
-        disabled && styles.disabled,
-        pressed && !disabled && styles.pressed,
-        containerStyle,
-      ]}
-    >
-      <Text variant="body" weight="bold" color={LABEL_COLOR[variant]} style={styles.label}>
-        {label}
-      </Text>
-    </Pressable>
+    <Animated.View style={[containerStyle, !disabled && animatedStyle]}>
+      <Pressable
+        {...rest}
+        accessibilityRole={accessibilityRole ?? 'button'}
+        accessibilityState={{ ...accessibilityState, disabled: Boolean(disabled) }}
+        disabled={disabled}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        style={[
+          styles.base,
+          variant === 'primary' && styles.primary,
+          variant === 'secondary' && styles.secondary,
+          variant === 'field' && styles.field,
+          variant === 'ghost' && styles.ghost,
+          disabled && styles.disabled,
+        ]}
+      >
+        <Text variant="body" weight="bold" color={LABEL_COLOR[variant]} style={styles.label}>
+          {label}
+        </Text>
+      </Pressable>
+    </Animated.View>
   );
 }
 
@@ -78,9 +103,5 @@ const styles = StyleSheet.create({
   },
   disabled: {
     opacity: 0.4,
-  },
-  pressed: {
-    opacity: 0.82,
-    transform: [{ scale: 0.98 }],
   },
 });
