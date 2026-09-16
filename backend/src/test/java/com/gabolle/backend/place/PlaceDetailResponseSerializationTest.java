@@ -58,7 +58,7 @@ class PlaceDetailResponseSerializationTest {
 	}
 
 	/**
-	 * 🔴 S15P21E201-1039 — 이 칸이 없으면 화면은 「이 장소를 찍은 사진」과 「이 장소가 들어
+	 * S15P21E201-1039 — 이 칸이 없으면 화면은 「이 장소를 찍은 사진」과 「이 장소가 들어
 	 * 있는 곳을 찍은 사진」을 구분할 방법이 없어, 주변 시설 사진을 이 장소 사진처럼 그린다.
 	 * 축제 응답에는 있고 여기에는 없던 것이 이 티켓이 고친 것이다.
 	 *
@@ -66,7 +66,7 @@ class PlaceDetailResponseSerializationTest {
 	 * 화면 쪽 표시 함수의 전제이고, 빈 값이 키로 오면 그 전제가 깨진다.
 	 */
 	@Test
-	@DisplayName("🔴 사진이 무엇을 찍은 것인지가 상세 응답에 실린다 — 축제에만 있던 칸")
+	@DisplayName("사진이 무엇을 찍은 것인지가 상세 응답에 실린다 — 축제에만 있던 칸")
 	void thePhotoSubjectIsSerializedForPlacesToo() throws Exception {
 		PlaceDetailResponse response = sample("1-2-3 Test-dong", "https://example.com/p.jpg",
 				"한국관광공사 관광사진갤러리", Place.PhotoSubject.VENUE, null, null, "ko");
