@@ -71,8 +71,15 @@ class DesiredFoodTagIntegrationTest extends PlacePostgresIntegrationTest {
 	private Path queueFile(String storeId, String name) {
 		try {
 			Path path = this.tempDir.resolve("queue.ndjson");
-			String line = "{\"id\":\"%s\",\"name\":\"%s\",\"branch\":null,\"roadAddr\":\"부산광역시 해운대구 중동1로43번길 23\","
-					+ "\"gu\":\"해운대구\",\"hdong\":\"중1동\",\"category\":\"백반/한정식\",\"lon\":129.16,\"lat\":35.16}"
+			// 🔴 괄호가 있어야 한다. `.formatted(...)` 는 `+` 보다 먼저 묶여서, 괄호가 없으면
+			//    뒤쪽 조각 하나에만 붙는다 — 그 조각에는 %s 가 없으니 아무 일도 안 일어나고
+			//    앞 조각의 %s 두 개가 글자 그대로 파일에 적힌다. 그러면 이 검사는 "%s" 라는
+			//    이름의 가게를 찾게 되고, 낱말 매칭이 0건이라 붙일 표식도 0건이 된다
+			//    (2026-09-16 CI 실측 — `expected: 1 but was: 0` 의 원인이 이것이었다).
+			String line = ("{\"id\":\"%s\",\"name\":\"%s\",\"branch\":null,"
+					+ "\"roadAddr\":\"부산광역시 해운대구 중동1로43번길 23\","
+					+ "\"gu\":\"해운대구\",\"hdong\":\"중1동\",\"category\":\"백반/한정식\","
+					+ "\"lon\":129.16,\"lat\":35.16}")
 					.formatted(storeId, name);
 			Files.writeString(path, line + "\n", StandardCharsets.UTF_8);
 			return path;

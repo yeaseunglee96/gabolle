@@ -55,7 +55,7 @@ class SouvenirShopIntegrationTest extends PlacePostgresIntegrationTest {
 	}
 
 	@Test
-	@DisplayName("아이하시가 장소로 들어가고 SOUVENIR_SHOP·HANDMADE_CHOPSTICKS 표식이 붙는다")
+	@DisplayName("아이하시가 장소로 들어가고 SOUVENIR_SHOP(INTEREST_TAG)·HANDMADE_CHOPSTICKS 표식이 붙는다")
 	void 아이하시가_들어간다() {
 		OffsetDateTime now = OffsetDateTime.now();
 		TourApiPlaceRow row = new TourApiPlaceRow(CONTENT_ID, "38", "A04", "A04010700",
@@ -65,7 +65,7 @@ class SouvenirShopIntegrationTest extends PlacePostgresIntegrationTest {
 		assertThat(placesInserted).isEqualTo(1);
 
 		List<PlaceFeatureNdjsonReader.Fact> facts = List.of(
-				new PlaceFeatureNdjsonReader.Fact(CONTENT_ID, "CATEGORY_TAG", "true", "TOURAPI", "SOUVENIR_SHOP"),
+				new PlaceFeatureNdjsonReader.Fact(CONTENT_ID, "INTEREST_TAG", "true", "TOURAPI", "SOUVENIR_SHOP"),
 				new PlaceFeatureNdjsonReader.Fact(CONTENT_ID, "SOUVENIR_ITEM_TAG", "true", "TOURAPI",
 						"HANDMADE_CHOPSTICKS"));
 		PlaceFeatureLoader.Saved saved = this.featureLoader.saveChunk(facts, SouvenirShopLoaderRunner.SOURCE_TYPE,
@@ -80,6 +80,11 @@ class SouvenirShopIntegrationTest extends PlacePostgresIntegrationTest {
 				""", SouvenirShopLoaderRunner.SOURCE_TYPE);
 		Set<String> keys = rows.stream().map(r -> r.get("feature_type") + ":" + r.get("feature_key"))
 				.collect(java.util.stream.Collectors.toSet());
-		assertThat(keys).containsExactlyInAnyOrder("CATEGORY_TAG:SOUVENIR_SHOP", "SOUVENIR_ITEM_TAG:HANDMADE_CHOPSTICKS");
+		// 🔴 INTEREST_TAG 다, CATEGORY_TAG 가 아니다. /explore 아코디언이 보는 서랍이
+		//    INTEREST_TAG 이고(TourApiExploreFacet javadoc), 운영에서도 탐색 여덟 갈래가
+		//    전부 그 타입으로 붙어 있다(2026-09-16 실측 — 축제 14 · 전통시장 33 · 액티비티 22 …).
+		//    CATEGORY_TAG 로 넣으면 place_feature_code 외래키에 걸려 아예 안 들어가고,
+		//    설령 사전에 낱말을 더해 넣더라도 탐색 화면은 그 행을 못 본다.
+		assertThat(keys).containsExactlyInAnyOrder("INTEREST_TAG:SOUVENIR_SHOP", "SOUVENIR_ITEM_TAG:HANDMADE_CHOPSTICKS");
 	}
 }
