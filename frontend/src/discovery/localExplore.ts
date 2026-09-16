@@ -1,3 +1,7 @@
+// 🔴 언어 다섯을 다 받는다 (S15P21E201-1109). 이 함수가 'ko' | 'en' 만 받으면 부르는 쪽
+// 열다섯 곳이 각자 떨어뜨려야 하고, 한 곳만 빠뜨리면 일본어 사용자가 한국어 이름을 본다.
+// 떨어뜨리는 일은 **여기 한 자리**에서 한다.
+import { resolveTextLanguage, type LanguageCode } from '@/i18n/languages';
 import { apiRequest, ApiClientError, isServerError } from '@/api/client';
 
 // jaehyeon 님 계약(2026-09-08 axmap): GET /api/v1/places/facets.
@@ -10,12 +14,12 @@ const ENGLISH_FACET_LABELS: Record<string, string> = {
   FESTIVAL: 'Festivals', NIGHT_MARKET: 'Night markets', TRADITIONAL_MARKET: 'Traditional markets',
   ACTIVITY: 'Activities', WALK: 'Walks', NATURE: 'Nature', NIGHT_VIEW: 'Night views', SOUVENIR_SHOP: 'Souvenir shops',
 };
-export function localFacetLabel(entry: FacetKeyEntry, language: 'ko' | 'en'): string {
-  if (language === 'ko') return entry.labelKo;
+export function localFacetLabel(entry: FacetKeyEntry, language: LanguageCode): string {
+  if (resolveTextLanguage(language) === 'ko') return entry.labelKo;
   return entry.labelEn?.trim() || ENGLISH_FACET_LABELS[entry.featureKey] || entry.labelKo;
 }
-export function localPlaceName(place: { nameKo: string; nameEn: string | null }, language: 'ko' | 'en'): string {
-  return language === 'en' ? place.nameEn?.trim() || place.nameKo : place.nameKo;
+export function localPlaceName(place: { nameKo: string; nameEn: string | null }, language: LanguageCode): string {
+  return resolveTextLanguage(language) === 'en' ? place.nameEn?.trim() || place.nameKo : place.nameKo;
 }
 export type LocalFacetEntry = FacetKeyEntry & { placeFeatureType: string };
 export type FacetGroup = { userInputCode: string; placeFeatureType: string; matchKind: string; placeCount: number; keys: FacetKeyEntry[] };

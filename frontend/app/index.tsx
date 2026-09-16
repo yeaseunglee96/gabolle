@@ -9,6 +9,7 @@ import { GabolleMascot } from '@/components/DongbaekMascot';
 import { HeroStories, MyTripCard, PlacePicks, WeatherLine } from '@/home/HomeBlocks';
 import { useHomeData } from '@/home/useHomeData';
 import { color, radius, spacing } from '@/design/tokens';
+import { LANGUAGE_OPTIONS, needsTranslationNotice, type LanguageOption } from '@/i18n/languages';
 import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
 import { type LanguageCode, useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
@@ -19,8 +20,8 @@ const logo = require('../assets/brand/gabolle-logo-hd.png');
 const nightLogo = require('../assets/brand/gabolle-logo-night.png');
 const welcomeImage = require('../assets/images/welcome-busan.png');
 const webHeroImage = require('../assets/home/web-hero.png');
-type WelcomeLanguage = { code: Extract<LanguageCode, 'ko' | 'en'>; label: string };
-const LANGUAGES: WelcomeLanguage[] = [{ code: 'ko', label: '한국어' }, { code: 'en', label: 'English' }];
+// 🔴 언어 목록은 src/i18n/languages.ts 한 곳에 있다 (S15P21E201-1109). 여기 다시 적으면
+//    언어를 늘릴 때 한쪽만 늘어난다.
 // 「특별한 기능」 카드 셋(AI 일정 만들기 · 실시간 경로 안내 · 함께 여행 설계)은 뺐다
 // (S15P21E201-970). 로그인해도 안 바뀌는 소개였고, 그 자리에 실제 데이터인 장소와 내 여행이
 // 들어왔다. 되살릴 일이 있으면 git 이력에 그대로 있다.
@@ -47,10 +48,12 @@ export default function Welcome() {
   // 바뀌면 안 되므로 조건 없이 위에서 부른다 — 폰에서는 그린 것이 없어 값만 놀고 끝난다.
   const home = useHomeData(isDesktop);
 
-  const chooseLanguage = (next: WelcomeLanguage['code']) => {
+  const chooseLanguage = (next: LanguageCode) => {
     setPreferences(next, mobility);
   };
-  const startOnboarding = (next: WelcomeLanguage['code'] = language === 'en' ? 'en' : 'ko') => {
+  // 아무것도 안 고르고 로고를 눌렀을 때는 **지금 언어 그대로** 간다 — 예전에는 한국어·영어
+  // 둘뿐이라 'en' 이 아니면 'ko' 로 접었는데, 이제 일본어를 고른 사람이 한국어로 떨어진다.
+  const startOnboarding = (next: LanguageCode = language) => {
     chooseLanguage(next);
     router.push({ pathname: isDesktop ? '/age-gate' : '/app-intro', params: { language: next, mobility } });
   };
@@ -75,7 +78,10 @@ export default function Welcome() {
         <ScrollView style={styles.mobileSafeArea} contentContainerStyle={styles.mobileContent}>
         <View style={styles.mobileBrand}><Pressable accessibilityRole="button" accessibilityLabel={tx('GABOLLE 시작하기', 'Start GABOLLE')} accessibilityHint={tx('서비스 소개 화면으로 이동합니다', 'Goes to the service introduction screen')} onPress={() => startOnboarding()} style={({ pressed }) => [styles.logoLink, pressed && styles.pressed]}><Image source={lightLogo ? nightLogo : logo} resizeMode="contain" style={styles.mobileLogo} /></Pressable><Text variant="display" weight="bold" color={color.brand.orange}>{tx('부산 가볼래?', 'Shall we go to Busan?')}</Text></View>
         <View style={styles.mobileActions}>
-          <View accessibilityRole="radiogroup" accessibilityLabel={tx('시작할 언어 선택', 'Select a language to start')} style={styles.languageList}>{LANGUAGES.map((item) => <LanguageButton key={item.code} item={item} selected={language === item.code} onPress={() => startOnboarding(item.code)} />)}</View>
+          <View accessibilityRole="radiogroup" accessibilityLabel={tx('시작할 언어 선택', 'Select a language to start')} style={styles.languageRow}>{LANGUAGE_OPTIONS.map((item) => <LanguageFlag key={item.code} item={item} selected={language === item.code} onPress={() => startOnboarding(item.code)} />)}</View>
+          {/* 🔴 번역이 아직 없다는 사실을 숨기지 않는다. 다 된 척하면 고른 사람이 영어를 보고
+              "왜 안 바뀌지" 로 읽는다. 미리 말하면 그건 선택이 된다. */}
+          {needsTranslationNotice(language) ? <Text variant="caption" color="rgba(255,255,255,0.82)" style={styles.languageNotice}>{LANGUAGE_OPTIONS.find((o) => o.code === language)?.endonym} · Menus are in English for now. Place names and guides come in your language.</Text> : null}
           <Pressable accessibilityRole="button" accessibilityHint={tx('로그인 없이 홈과 주요 기능을 둘러봅니다.', 'Browse the home screen and core features without signing in.')} onPress={browseAsGuest} style={({ pressed }) => [styles.guestButton, pressed && styles.pressed]}>
             <Text variant="body" weight="bold" color={color.text.onAction}>{tx('비회원으로 바로 둘러보기', 'Browse as guest')}</Text>
           </Pressable>
@@ -151,9 +157,18 @@ export default function Welcome() {
   </View>;
 }
 
-function LanguageButton({ item, selected, onPress }: { item: WelcomeLanguage; selected: boolean; onPress: () => void }) {
-  const startLabel = item.code === 'ko' ? '한국어로 시작하기' : 'Start in English';
-  return <Pressable accessibilityRole="radio" accessibilityState={{ selected }} accessibilityLabel={startLabel} onPress={onPress} style={({ pressed }) => [styles.languageButton, selected && styles.languageButtonSelected, pressed && styles.pressed]}><Text variant="title" weight="bold" color={selected ? color.brand.navy : color.text.onAction}>{item.label}</Text><View style={[styles.languageAction, selected && styles.languageActionSelected]}><Text variant="body" weight="bold" color={selected ? color.text.onAction : color.text.onAction}>{selected ? '✓' : '→'}</Text></View></Pressable>;
+/**
+ * 국기 동그라미 하나 = 언어 하나 (S15P21E201-1109).
+ *
+ * 🔴 이름을 **그 언어로** 적는다 — 日本語·简体中文. 한국어로 "일본어" 라고 적으면 정작 그것을
+ * 골라야 하는 사람이 못 읽는다. 국기만 두지 않는 것도 같은 이유다 — 국기는 나라이지 말이 아니고,
+ * 🇨🇳 과 🇹🇼 을 크기 작은 화면에서 가르기 어렵다.
+ */
+function LanguageFlag({ item, selected, onPress }: { item: LanguageOption; selected: boolean; onPress: () => void }) {
+  return <Pressable accessibilityRole="radio" accessibilityState={{ selected }} accessibilityLabel={item.endonym} onPress={onPress} style={({ pressed }) => [styles.flagItem, pressed && styles.pressed]}>
+    <View style={[styles.flagCircle, selected && styles.flagCircleSelected]}><Text style={styles.flagGlyph}>{item.flag}</Text></View>
+    <Text variant="caption" weight={selected ? 'bold' : 'regular'} color={selected ? color.brand.orange : 'rgba(255,255,255,0.86)'} style={styles.flagLabel}>{item.endonym}</Text>
+  </Pressable>;
 }
 function NavItem({ label, onPress }: { label: string; onPress: () => void }) { return <Pressable accessibilityRole="link" onPress={onPress} style={styles.navItem}><Text variant="caption" weight="medium">{label}</Text></Pressable>; }
 function HeroChip({ dot, label }: { dot: string; label: string }) { return <View style={styles.heroChip}><View style={[styles.chipDot, { backgroundColor: dot }]} /><Text variant="caption" color="rgba(255,255,255,0.78)">{label}</Text></View>; }
@@ -167,6 +182,14 @@ const styles = StyleSheet.create({
   mobileLogo: { width: 280, height: 70 },
   mobileActions: { width: '100%', maxWidth: 480, alignSelf: 'center', gap: spacing[2] },
   languageList: { gap: spacing[3] },
+  // 다섯 개가 한 줄에 들어가야 한다 — 폰 폭 375 에서 각 칸이 최소 44 를 지키도록 flex 로 나눈다.
+  languageRow: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: spacing[1] },
+  flagItem: { flex: 1, minHeight: 76, alignItems: 'center', justifyContent: 'flex-start', gap: spacing[1], paddingVertical: spacing[1] },
+  flagCircle: { width: 48, height: 48, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: 'rgba(255,255,255,0.40)', backgroundColor: 'rgba(11,29,58,0.42)' },
+  flagCircleSelected: { borderColor: color.brand.orange, backgroundColor: 'rgba(255,253,248,0.96)' },
+  flagGlyph: { fontSize: 26, lineHeight: 34 },
+  flagLabel: { textAlign: 'center' },
+  languageNotice: { textAlign: 'center', marginTop: spacing[2], lineHeight: 18 },
   languageButton: { height: 58, borderRadius: 18, borderWidth: 1, borderColor: 'rgba(255,255,255,0.48)', backgroundColor: 'rgba(11,29,58,0.30)', paddingHorizontal: 20, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   languageButtonSelected: { borderWidth: 2, borderColor: color.brand.orange, backgroundColor: 'rgba(255,253,248,0.96)', shadowColor: color.brand.navy, shadowOpacity: 0.16, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 4 },
   languageAction: { width: 30, height: 30, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.12)' },

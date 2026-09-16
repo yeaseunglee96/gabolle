@@ -1,3 +1,7 @@
+// 🔴 언어 다섯을 다 받는다 (S15P21E201-1109). 이 함수가 'ko' | 'en' 만 받으면 부르는 쪽
+// 열다섯 곳이 각자 떨어뜨려야 하고, 한 곳만 빠뜨리면 일본어 사용자가 한국어 이름을 본다.
+// 떨어뜨리는 일은 **여기 한 자리**에서 한다.
+import { resolveTextLanguage, type LanguageCode } from '@/i18n/languages';
 // 한글 이름을 소리 나는 대로 적어 준다 — 명세 4절 / S15P21E201-430.
 //
 // 🔴 이것은 **공식 영어 이름이 아니다.** 장소의 영어 이름(`nameEn`)은 대부분 null 이고
@@ -43,9 +47,9 @@ export function romanizeKorean(text: string): string | null {
  * - 한국어 화면: 한글 그대로. 영어 이름이 있으면 괄호로 덧붙인다(지금까지와 같다)
  * - 영어 화면: 영어 이름이 있으면 그것을, 없으면 **한글 + 읽는 법**
  */
-export function placeNameForLanguage(nameKo: string, nameEn: string | null | undefined, language: 'ko' | 'en'): string {
+export function placeNameForLanguage(nameKo: string, nameEn: string | null | undefined, language: LanguageCode): string {
   const trimmedEn = nameEn?.trim();
-  if (language === 'ko') return trimmedEn ? `${nameKo} (${trimmedEn})` : nameKo;
+  if (resolveTextLanguage(language) === 'ko') return trimmedEn ? `${nameKo} (${trimmedEn})` : nameKo;
   if (trimmedEn) return `${trimmedEn} (${nameKo})`;
   const reading = romanizeKorean(nameKo);
   return reading ? `${nameKo} (${reading})` : nameKo;

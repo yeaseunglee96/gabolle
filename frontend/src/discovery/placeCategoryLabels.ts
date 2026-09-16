@@ -1,3 +1,7 @@
+// 🔴 언어 다섯을 다 받는다 (S15P21E201-1109). 이 함수가 'ko' | 'en' 만 받으면 부르는 쪽
+// 열다섯 곳이 각자 떨어뜨려야 하고, 한 곳만 빠뜨리면 일본어 사용자가 한국어 이름을 본다.
+// 떨어뜨리는 일은 **여기 한 자리**에서 한다.
+import { resolveTextLanguage, type LanguageCode } from '@/i18n/languages';
 // 장소 분류 코드를 사람이 읽는 말로 (S15P21E201-1071). 시안 `design_handoff_collection`.
 //
 // 서버는 `GET /api/v1/places/categories` 로 **코드만** 준다(`{ code, placeCount }[]`).
@@ -49,13 +53,13 @@ export const WRITE_MY_OWN = '__WRITE_MY_OWN__';
  * 🔴 「기타」·「알 수 없음」 같은 말로 바꾸지 않는다. 그건 서버가 보낸 것을 우리가
  * 지운 것이지 사용자에게 도움이 되는 것이 아니다.
  */
-export function categoryLabel(code: string, language: 'ko' | 'en', table = PLACE_CATEGORY_LABELS) {
+export function categoryLabel(code: string, language: LanguageCode, table = PLACE_CATEGORY_LABELS) {
   const pair = table[code];
   if (!pair) return code;
-  return language === 'en' ? pair[1] : pair[0];
+  return resolveTextLanguage(language) === 'en' ? pair[1] : pair[0];
 }
 
-export const localityLabel = (code: string, language: 'ko' | 'en') =>
+export const localityLabel = (code: string, language: LanguageCode) =>
   categoryLabel(code, language, PLACE_LOCALITY_LABELS);
 
 /**
