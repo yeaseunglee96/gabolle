@@ -88,6 +88,66 @@ class GmsMenuReaderFailureTest {
 	}
 
 	@Test
+	@DisplayName("갈래가 예외에 실린다 — 응답 코드가 여기서 갈린다")
+	void theReasonRidesOnTheException() throws Exception {
+		HttpServer server = HttpServer.create(new InetSocketAddress(0), 0);
+		server.createContext("/chat/completions", exchange -> {
+			byte[] payload = "{\"error\":\"열려 있지 않은 키\"}".getBytes(StandardCharsets.UTF_8);
+			exchange.sendResponseHeaders(401, payload.length);
+			try (OutputStream out = exchange.getResponseBody()) {
+				out.write(payload);
+			}
+		});
+		server.start();
+		int deadPort;
+		try (ServerSocket socket = new ServerSocket(0)) {
+			deadPort = socket.getLocalPort();
+		}
+		try {
+			GmsMenuReader rejected = readerPointedAt("http://127.0.0.1:" + server.getAddress().getPort());
+			GmsMenuReader unreachable = readerPointedAt("http://127.0.0.1:" + deadPort);
+
+			assertThat(reasonOf(rejected)).isEqualTo(GmsMenuReader.MenuReadFailedException.Reason.REJECTED);
+			assertThat(reasonOf(unreachable)).isEqualTo(GmsMenuReader.MenuReadFailedException.Reason.UNREACHABLE);
+		}
+		finally {
+			server.stop(0);
+		}
+	}
+
+	@Test
+	@DisplayName("모델이 알아볼 수 없는 답을 주면 못 읽은 것으로 가른다 — 모델 탓과 우리 탓을 안 섞는다")
+	void anUnparseableAnswerIsItsOwnReason() throws Exception {
+		HttpServer server = HttpServer.create(new InetSocketAddress(0), 0);
+		server.createContext("/chat/completions", exchange -> {
+			byte[] payload = "이건 JSON 이 아니다".getBytes(StandardCharsets.UTF_8);
+			exchange.sendResponseHeaders(200, payload.length);
+			try (OutputStream out = exchange.getResponseBody()) {
+				out.write(payload);
+			}
+		});
+		server.start();
+		try {
+			GmsMenuReader reader = readerPointedAt("http://127.0.0.1:" + server.getAddress().getPort());
+
+			assertThat(reasonOf(reader)).isEqualTo(GmsMenuReader.MenuReadFailedException.Reason.UNPARSEABLE);
+		}
+		finally {
+			server.stop(0);
+		}
+	}
+
+	private GmsMenuReader.MenuReadFailedException.Reason reasonOf(GmsMenuReader reader) {
+		try {
+			reader.read(ANY_IMAGE);
+			throw new AssertionError("실패하지 않았다");
+		}
+		catch (GmsMenuReader.MenuReadFailedException exception) {
+			return exception.reason();
+		}
+	}
+
+	@Test
 	@DisplayName("두 실패의 메시지가 서로 다르다 — 로그 한 줄로 갈려야 한다")
 	void theTwoFailuresAreDistinguishable() throws Exception {
 		int deadPort;
