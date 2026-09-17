@@ -1,0 +1,62 @@
+{
+  "generatedAt": "2026-09-17T15:11:06.968Z",
+  "tourApiPlaces": {
+    "collected": 656,
+    "loadedIntoDb": 328,
+    "excludedFood": 328
+  },
+  "sbizPlacesInDb": 2355,
+  "calibration": {
+    "axis": "SLOPE_PERCENT",
+    "measured": 9999,
+    "measuredOn": "2026-09-17",
+    "computed": 2682,
+    "ok": false
+  },
+  "axes": [
+    {
+      "axis": "SLOPE_PERCENT",
+      "label": "경사",
+      "tourLines": 2213,
+      "tourExpected": 327,
+      "sbizLines": 2355,
+      "sbizExpected": 2355,
+      "expected": 2682,
+      "valueMin": 0,
+      "valueMax": 44.8
+    },
+    {
+      "axis": "QUIETNESS_SCORE",
+      "label": "조용함",
+      "tourLines": 654,
+      "tourExpected": 326,
+      "sbizLines": 2355,
+      "sbizExpected": 2355,
+      "expected": 2681,
+      "valueMin": 0,
+      "valueMax": 95
+    },
+    {
+      "axis": "LOCALITY_SCORE",
+      "label": "로컬",
+      "tourLines": 498,
+      "tourExpected": 239,
+      "sbizLines": 2230,
+      "sbizExpected": 2230,
+      "expected": 2469,
+      "valueMin": 0,
+      "valueMax": 100
+    },
+    {
+      "axis": "SHADE_SCORE",
+      "label": "그늘",
+      "tourLines": 363,
+      "tourExpected": 187,
+      "sbizLines": 1749,
+      "sbizExpected": 1749,
+      "expected": 1936,
+      "valueMin": 0,
+      "valueMax": 99.9
+    }
+  ]
+}
