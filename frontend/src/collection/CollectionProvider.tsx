@@ -7,7 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { useAuth } from '@/auth/AuthProvider';
 
-import { isServerId, loadCollections, samePendingDelete, type PendingDelete } from './collectionsApi';
+import { isServerId, loadCollections, samePendingDelete, type PendingDelete, type PendingRename } from './collectionsApi';
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 
 const STORAGE_KEY = '@gabolle/collection';
@@ -119,6 +119,17 @@ export function CollectionProvider({ children }: { children: ReactNode }) {
   // useCallback 의 가둔 값은 낡을 수 있어서 둔다.
   const dataRef = useRef<CollectionData>(EMPTY);
   const setPendingDeletes = (next: PendingDelete[]) => { pendingDeletesRef.current = next; setPendingDeletesState(next); };
+  // 🔴 S15P21E201-1153 — 아직 서버에 못 보낸 이름·설명 고치기.
+  //    지우기와 달리 같은 리스트를 여러 번 고칠 수 있다. 그때는 쌓지 않고 마지막 값으로
+  //    덮는다 — 중간 이름을 서버에 보낼 이유가 없다.
+  const [pendingRenames, setPendingRenamesState] = useState<PendingRename[]>([]);
+  const pendingRenamesRef = useRef<PendingRename[]>([]);
+  const setPendingRenames = (next: PendingRename[]) => { pendingRenamesRef.current = next; setPendingRenamesState(next); };
+  const queueRename = (entry: PendingRename) => {
+    const rest = pendingRenamesRef.current.filter((existing) => existing.collectionId !== entry.collectionId);
+    setPendingRenames([...rest, entry]);
+  };
+
   const queueDelete = (entry: PendingDelete) => {
     const current = pendingDeletesRef.current;
     if (current.some((existing) => samePendingDelete(existing, entry))) return;
@@ -138,10 +149,11 @@ export function CollectionProvider({ children }: { children: ReactNode }) {
       try {
         const raw = await AsyncStorage.getItem(STORAGE_KEY);
         if (raw) {
-          const stored = JSON.parse(raw) as { version?: number; data?: CollectionData; pendingDeletes?: PendingDelete[] };
+          const stored = JSON.parse(raw) as { version?: number; data?: CollectionData; pendingDeletes?: PendingDelete[]; pendingRenames?: PendingRename[] };
           if (stored.version === VERSION && stored.data) device = stored.data;
           // 저장해 둔 것이 없으면 빈 목록이다 — 예전 판으로 저장된 것도 그대로 읽힌다.
           if (Array.isArray(stored.pendingDeletes)) setPendingDeletes(stored.pendingDeletes);
+          if (Array.isArray(stored.pendingRenames)) setPendingRenames(stored.pendingRenames);
         }
       } catch {
         void AsyncStorage.removeItem(STORAGE_KEY);
@@ -149,10 +161,11 @@ export function CollectionProvider({ children }: { children: ReactNode }) {
       if (!alive) return;
       setData(device);
       setSyncState('loading');
-      const result = await loadCollections(device, accessToken, pendingDeletesRef.current);
+      const result = await loadCollections(device, accessToken, pendingDeletesRef.current, pendingRenamesRef.current);
       if (!alive) return;
       setData(result.data);
       setPendingDeletes(result.pendingDeletes);
+      setPendingRenames(result.pendingRenames);
       setSyncedToServer(result.state === 'success');
       setSyncState(result.state === 'success' ? 'synced' : result.reason);
       setReady(true);
@@ -161,8 +174,8 @@ export function CollectionProvider({ children }: { children: ReactNode }) {
   }, [accessToken, syncAttempt]);
 
   useEffect(() => {
-    if (ready) void AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({ version: VERSION, data, pendingDeletes }));
-  }, [data, pendingDeletes, ready]);
+    if (ready) void AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({ version: VERSION, data, pendingDeletes, pendingRenames }));
+  }, [data, pendingDeletes, pendingRenames, ready]);
 
   const createList = useCallback((name: string, description?: string) => {
     const list: CollectionList = { id: uid(), name, description: description?.trim() || null, placeIds: [], createdAt: new Date().toISOString() };
@@ -171,7 +184,11 @@ export function CollectionProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const renameList = useCallback((listId: string, name: string, description?: string) => {
-    setData((current) => ({ ...current, lists: current.lists.map((list) => list.id === listId ? { ...list, name, description: description?.trim() || null } : list) }));
+    const nextDescription = description?.trim() || null;
+    // 🔴 S15P21E201-1153 — 서버가 아는 리스트면 서버에도 고치라고 적어 둔다.
+    //    기기에만 있는 리스트는 아직 서버에 없으니, 나중에 통째로 올라갈 때 새 이름으로 간다.
+    if (isServerId(listId)) queueRename({ collectionId: listId, name, description: nextDescription });
+    setData((current) => ({ ...current, lists: current.lists.map((list) => list.id === listId ? { ...list, name, description: nextDescription } : list) }));
   }, []);
 
   const deleteList = useCallback((listId: string) => {
