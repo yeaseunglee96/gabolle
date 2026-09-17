@@ -1,31 +1,38 @@
 // 앱(폰)의 지도 — S15P21E201-1140.
 //
-// 🔴 **폰에는 지도가 없었다.** `RouteMap.tsx` 가 `Platform.OS === 'web'` 일 때만 지도를 그리고,
-//    폰에서는 「앱 지도 연동을 준비하고 있어요」 라는 자리표시자가 나왔다. 사용자 보고
-//    3번(「앱 지도가 안 돼」)은 연동이 끊긴 것이 아니라 **만든 적이 없던 것**이다.
+// 🔴 2026-09-17 정정 — 이 파일은 한 번 `react-native-maps`(iOS=애플 지도,
+//    안드로이드=Google Maps)로 만들어졌다가, 그날 바로 카카오로 다시 바꿨다. 실수를
+//    되짚는다: 처음 결정은 "iOS는 키가 필요 없다"는 것만 보고 골랐는데, 그러면 **지도가
+//    화면마다 다른 회사 것으로 보인다** — 웹은 카카오, 폰은 애플/구글. 이 앱은 부산
+//    구석구석의 한글 주소·상호가 중요한 여행 앱이라, 지도 자체도 웹과 같은 곳(카카오)이어야
+//    장소가 같은 이름으로 나온다. 그래서 되돌린다 — 웹(`RouteMap.tsx`)과 같은 카카오
+//    지도를, 폰에서는 `react-native-webview` 안에 띄운다.
 //
-// 🔴 이 파일은 `RouteMap.native.tsx` 다. 이름 가운데의 `.native` 는 **번들러가 폰에서만 이
-//    파일을 쓴다는 표시**다 — 웹은 옆의 `RouteMap.tsx` 를 그대로 쓴다. 웹 지도(카카오)는
-//    잘 돌고 있으므로 건드리지 않는다.
+// 🔴 카카오는 폰용 네이티브 SDK가 없다 — 웹에 쓰는 것과 같은 JavaScript SDK를
+//    WebView 안에서 돌린다. 그래서 **웹이 쓰는 것과 같은 키**
+//    (`EXPO_PUBLIC_KAKAO_MAP_JS_KEY`)가 필요하다. 웹은 이미 EAS/Jenkins 빌드에 이 키가
+//    들어가 있다(docs/MAP-RECOVERY.md) — 폰 빌드(EAS)에도 같은 값을 넣어야 하는데,
+//    **그건 이 저장소의 코드로 못 하는 일이라 그대로 남겨 둔다.** 아래 `docs/MAP-RECOVERY.md`
+//    의 새 항목이 그 일을 적는다.
 //
-// 🔴 왜 카카오가 아니라 `react-native-maps` 인가.
-//    · **iOS 는 키가 아예 필요 없다** — 애플 지도를 쓴다. 키를 받는 절차 없이 아이폰에서
-//      바로 지도가 뜬다. 이게 결정적이었다
-//    · 카카오는 폰용 SDK 가 없어 WebView 안에 웹 지도를 넣어야 하고, 그러면 웹에 쓰는 키가
-//      EAS 빌드에도 들어가야 한다. 지금 `eas.json` 에는 그 값이 없다
+// 🔴 이 파일은 `RouteMap.native.tsx` 다. 이름 가운데의 `.native` 는 **번들러가 폰에서만
+//    이 파일을 쓴다는 표시**다 — 웹은 옆의 `RouteMap.tsx` 를 그대로 쓴다.
 //
-// 🔴 안드로이드만 Google Maps 키가 필요하다. 없으면 **회색 네모**가 뜨는데, 회색 네모는
-//    사용자에게 "고장났다" 로 읽힌다. 그래서 키가 없으면 지도 대신 이유를 적는다.
-import { useEffect, useMemo, useRef } from 'react';
+// 🔴 데이터가 바뀔 때마다 WebView를 새로 안 그린다. `source.html` 을 바꾸면 페이지 전체가
+//    다시 로드돼 지도가 깜빡이고 카카오 스크립트도 매번 다시 받는다. 그래서 HTML은
+//    **키가 바뀔 때만**(사실상 앱 켜져 있는 동안 한 번) 만들고, `stops`·`selectedId` 같은
+//    실제 변경은 `injectJavaScript` 로 이미 떠 있는 페이지 안의 함수만 다시 부른다 —
+//    웹 버전이 지도 객체(`mapRef.current`)를 재사용하는 것과 같은 원리다.
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import MapView, { Marker, Polyline, type LatLng } from 'react-native-maps';
+import { WebView, type WebViewMessageEvent } from 'react-native-webview';
 
 import { Button } from '@/components/Button';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 
-import { androidMapKeyMissing } from './androidMapKey';
+import { buildKakaoMapHtml } from './kakaoMapHtml';
 
 import type { MapStop } from './types';
 
@@ -46,13 +53,12 @@ type RouteMapProps = {
 
 /**
  * 🔴 기본값 배열을 **파일 수준에서 한 번만** 만든다. 함수 시그니처에 `points = []` 라고
- * 쓰면 이 컴포넌트가 다시 그려질 때마다 새 배열이 생기고, 그게 `useMemo`·`useEffect` 의
- * 의존성으로 들어가 매번 다시 돈다. 웹 지도가 같은 실수로 무한 루프에 빠진 적이 있다
- * (S15P21E201-435). 여기서 되풀이하지 않는다.
+ * 쓰면 이 컴포넌트가 다시 그려질 때마다 새 배열이 생기고, 그게 `useEffect` 의 의존성으로
+ * 들어가 매번 다시 돈다(S15P21E201-435, 웹 지도가 겪었다).
  */
 const NO_POINT_LAYERS: MapPointLayer[] = [];
 
-const coordinate = (stop: MapStop): LatLng => ({ latitude: stop.latitude, longitude: stop.longitude });
+type WebViewOutMessage = { type: 'sdkLoaded' | 'ready' | 'select' | 'scriptError'; payload?: unknown };
 
 export function RouteMap({
   stops,
@@ -65,87 +71,109 @@ export function RouteMap({
   height = 340,
 }: RouteMapProps) {
   const { tx } = useI18n();
-  const mapRef = useRef<MapView | null>(null);
+  const webViewRef = useRef<WebView | null>(null);
+  const sdkReadyRef = useRef(false);
+  const [scriptFailed, setScriptFailed] = useState(false);
+  const appKey = process.env.EXPO_PUBLIC_KAKAO_MAP_JS_KEY;
+  // 키가 바뀔 일은 앱이 켜져 있는 동안 없다시피 하다 — appKey 만 의존성으로 둬서
+  // stops·selectedId 가 바뀔 때마다 HTML을 다시 만들어 WebView를 재시작하지 않는다.
+  const html = useMemo(() => (appKey ? buildKakaoMapHtml(appKey) : ''), [appKey]);
+
   const visibleStops = useMemo(() => [...stops, ...points.flatMap((layer) => layer.stops)], [points, stops]);
-  const keyMissing = androidMapKeyMissing();
 
+  const sendRender = () => {
+    if (!sdkReadyRef.current || !webViewRef.current) return;
+    const data = {
+      stops,
+      points,
+      routes: routes ?? [{ id: 'selected', color: color.brand.orange, stops }],
+      selectedId,
+      currentLocation: currentLocation ?? null,
+      colors: { navy: color.brand.navy, orange: color.brand.orange, canvas: color.canvas },
+    };
+    webViewRef.current.injectJavaScript(`window.__renderKakaoMap(${JSON.stringify(data)}); true;`);
+  };
+
+  // stops·points·routes·selectedId·currentLocation 이 바뀔 때마다 이미 떠 있는 지도에
+  // 새 데이터를 밀어 넣는다. sdk 가 아직 안 떴으면(sdkReadyRef.current === false) 아무 일도
+  // 안 하고, onMessage 의 'sdkLoaded' 처리부가 뜬 직후 한 번 sendRender() 를 부른다.
   useEffect(() => {
-    if (keyMissing || !visibleStops.length) return;
-    // 지도가 자리를 잡기 전에 범위를 맞추면 아무 데도 안 맞는다. 한 프레임 뒤에 맞춘다.
-    const timer = setTimeout(() => {
-      // 🔴 장소가 하나면 범위의 넓이가 0 이라 지도가 최대 배율로 튄다 — 마커가 화면을 덮어
-      //    어디인지 알 수 없게 된다. 웹 지도가 S15P21E201-919 에서 같은 것을 겪었다.
-      if (visibleStops.length === 1) {
-        mapRef.current?.animateCamera({ center: coordinate(visibleStops[0]), zoom: 14 }, { duration: 0 });
-        return;
-      }
-      mapRef.current?.fitToCoordinates(visibleStops.map(coordinate), {
-        edgePadding: { top: 56, right: 44, bottom: 56, left: 44 },
-        animated: false,
-      });
-    }, 120);
-    return () => clearTimeout(timer);
-  }, [keyMissing, visibleStops]);
+    sendRender();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stops, points, routes, selectedId, currentLocation]);
 
-  useEffect(() => {
-    if (keyMissing) return;
-    const selected = visibleStops.find((stop) => stop.id === selectedId);
-    if (selected) mapRef.current?.animateCamera({ center: coordinate(selected) }, { duration: 280 });
-  }, [keyMissing, selectedId, visibleStops]);
+  const onMessage = (event: WebViewMessageEvent) => {
+    let message: WebViewOutMessage;
+    try {
+      message = JSON.parse(event.nativeEvent.data);
+    } catch {
+      return;
+    }
+    if (message.type === 'sdkLoaded') {
+      sdkReadyRef.current = true;
+      sendRender();
+      return;
+    }
+    if (message.type === 'select' && typeof message.payload === 'string') {
+      onSelect(message.payload);
+      return;
+    }
+    if (message.type === 'scriptError') setScriptFailed(true);
+  };
 
-  // 🔴 키가 없으면 회색 네모 대신 이유를 적는다. 고칠 사람이 읽는 한 줄도 화면에 낸다 —
-  //    웹 지도가 같은 방식으로 원인을 말하고, 그 덕에 2026-09-07 배포본의 원인을 찾았다.
-  if (keyMissing) {
+  // ① 키가 아예 없다 — 웹(RouteMap.tsx)과 완전히 같은 문구를 쓴다. 원인이 같기 때문이다
+  //    (EXPO_PUBLIC_ 값은 빌드 순간 문자열로 박히므로, 폰 빌드에도 이 키가 EAS 환경
+  //    변수로 들어가야 한다 — docs/MAP-RECOVERY.md 참고).
+  if (!appKey) {
     return (
       <View style={[styles.fallback, { minHeight: height }]}>
-        <Text variant="title" weight="bold">{tx('이 빌드에 안드로이드 지도 키가 안 들어갔어요', 'This build has no Android map key')}</Text>
+        <Text variant="title" weight="bold">{tx('지도 키가 이 빌드에 안 들어갔어요', 'This build was made without a map key')}</Text>
         <Text variant="body" style={styles.description}>
           {tx(
-            '안드로이드에서 지도를 그리려면 빌드할 때 구글 지도 키가 함께 들어가야 합니다. 방문 순서와 장소 목록은 아래에서 그대로 볼 수 있어요.',
-            'Drawing a map on Android needs a Google Maps key baked in at build time. You can still use the visit order and place list below.',
+            '앱 지도를 그리려면 빌드할 때 카카오 지도 키가 함께 들어가야 하는데, 이 빌드에는 빈 값이 들어갔습니다. 방문 순서와 장소 목록은 아래에서 그대로 볼 수 있어요.',
+            'The app map needs a Kakao map key baked in at build time, and this build got an empty one. You can still use the visit order and place list below.',
           )}
         </Text>
-        <Text variant="caption" style={styles.tech}>GOOGLE_MAPS_ANDROID_API_KEY = (빈 값) · EAS 빌드 환경 변수로 넣어야 한다</Text>
+        <Text variant="caption" style={styles.tech}>EXPO_PUBLIC_KAKAO_MAP_JS_KEY = (빈 값) · EAS 빌드 환경 변수로 넣어야 한다</Text>
         {onBackToList ? <Button label={tx('목록으로 돌아가기', 'Back to list')} variant="ghost" onPress={onBackToList} /> : null}
       </View>
     );
   }
 
-  // 그릴 것이 없으면 빈 자리만 둔다. 없는 지도를 그리려다 첫 좌표를 읽고 터지지 않게 한다.
-  if (!stops.length) return <View style={[styles.empty, { height }]} />;
+  // ② 스크립트를 못 받았다 — 웹의 「지도 파일을 못 받았어요」와 같은 자리다. 다만 폰에서는
+  //    서버 CSP(웹의 두 번째 실패 원인)가 적용되지 않는다 — WebView가 로드하는 것은
+  //    우리 서버가 아니라 이 자리에서 만든 HTML 문자열이라 우리 nginx 응답 헤더를 안 거친다.
+  //    🔴 대신 카카오 콘솔의 "사이트 도메인" 등록이 이 경로(출처가 없는 로컬 HTML)에서도
+  //    똑같이 통하는지는 **확인하지 못했다** — 실기기 빌드가 나와야 알 수 있다.
+  if (scriptFailed) {
+    return (
+      <View style={[styles.fallback, { minHeight: height }]}>
+        <Text variant="title" weight="bold">{tx('지도 파일을 못 받았어요', 'Could not fetch the map file')}</Text>
+        <Text variant="body" style={styles.description}>
+          {tx(
+            '카카오 지도 파일을 받지 못했습니다. 네트워크가 막혔거나, 이 앱이 카카오 개발자 콘솔에 등록되지 않았을 수 있습니다.',
+            'The Kakao map file could not be fetched. The network may be blocked, or this app may not be registered in the Kakao developer console.',
+          )}
+        </Text>
+        {onBackToList ? <Button label={tx('목록으로 돌아가기', 'Back to list')} variant="ghost" onPress={onBackToList} /> : null}
+      </View>
+    );
+  }
 
-  const routeLayers = routes ?? [{ id: 'selected', color: color.brand.orange, stops }];
+  if (!stops.length) return <View style={[styles.empty, { height }]} />;
 
   return (
     <View style={[styles.shell, { height }]}>
-      <MapView
-        ref={mapRef}
+      <WebView
+        ref={webViewRef}
         style={styles.map}
-        initialRegion={{ ...coordinate(stops[0]), latitudeDelta: 0.08, longitudeDelta: 0.08 }}
-        showsCompass
-        showsScale
-        showsUserLocation={Boolean(currentLocation)}
-        toolbarEnabled={false}
-      >
-        {routeLayers.map((route) => (route.stops.length > 1 ? (
-          <Polyline key={route.id} coordinates={route.stops.map(coordinate)} strokeColor={route.color} strokeWidth={5} />
-        ) : null))}
-        {visibleStops.map((stop) => {
-          const layer = points.find((item) => item.stops.some((entry) => entry.id === stop.id));
-          return (
-            <Marker
-              key={stop.id}
-              coordinate={coordinate(stop)}
-              title={stop.name}
-              // 🔴 순서가 없는 점(주변 장소 같은 것)에 번호를 붙이지 않는다. 방문 순서가 아닌데
-              //    숫자를 보여주면 "1번부터 가면 되는구나" 로 읽힌다.
-              description={layer ? layer.label : tx(`${stop.number}번째 방문`, `Stop ${stop.number}`)}
-              pinColor={stop.id === selectedId ? color.brand.orange : (layer?.color ?? color.brand.navy)}
-              onPress={() => onSelect(stop.id)}
-            />
-          );
-        })}
-      </MapView>
+        originWhitelist={['*']}
+        source={{ html }}
+        onMessage={onMessage}
+        onError={() => setScriptFailed(true)}
+        javaScriptEnabled
+        domStorageEnabled
+      />
       {onBackToList ? (
         <View style={styles.backRow}>
           <Button label={tx('목록으로 돌아가기', 'Back to list')} variant="ghost" onPress={onBackToList} />
@@ -157,7 +185,7 @@ export function RouteMap({
 
 const styles = StyleSheet.create({
   shell: { width: '100%', borderRadius: radius.lg, overflow: 'hidden', backgroundColor: color.surface.soft },
-  map: { width: '100%', height: '100%' },
+  map: { width: '100%', height: '100%', backgroundColor: 'transparent' },
   backRow: { position: 'absolute', left: spacing[3], bottom: spacing[3] },
   empty: { width: '100%', borderRadius: radius.lg, backgroundColor: color.surface.soft },
   fallback: {
@@ -166,6 +194,5 @@ const styles = StyleSheet.create({
     alignItems: 'center', justifyContent: 'center', padding: spacing[6], gap: spacing[2],
   },
   description: { color: color.text.body, textAlign: 'center', maxWidth: 420 },
-  // 고칠 사람이 읽는 한 줄. 여행자에게는 작고 흐리게 보인다.
   tech: { color: color.text.muted, textAlign: 'center', maxWidth: 460 },
 });
