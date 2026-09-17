@@ -1,6 +1,6 @@
 // 기록 상세 — 피드 카드를 누르면 오는 화면 (S15P21E201-228).
 import { useCallback, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Image, Pressable, StyleSheet, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 
 import { useAuth } from '@/auth/AuthProvider';
@@ -16,6 +16,67 @@ import { BlockUserDialog } from '@/social/BlockUserDialog';
 import { deleteStory, getCachedStory, getStory, relativeStoryTime, reportStory, setBlocked, VISIBILITY_LABEL, type StoryDto, type StoryReportReason } from '@/social/stories';
 
 type State = { status: 'loading'; cached: StoryDto | null } | { status: 'loaded'; story: StoryDto } | { status: 'not-found' } | { status: 'error'; message: string };
+
+/**
+ * 상세 전용 사진 격자 — 3열 2행, 넘치면 마지막 칸에 「+N」 (S15P21E201-1177, 시안 2a).
+ *
+ * 🔴 목록·작성 미리보기가 쓰는 `PhotoGrid` 를 안 쓴다. 그 부품은 **장수에 따라 배치를
+ * 바꾸는** 것이 일이고(한 장은 넓게, 넷은 사분면), 여기는 **다 보여주는 갤러리**라 하는
+ * 일이 다르다. 한 부품에 두 성격을 넣으면 한쪽을 고칠 때마다 다른 쪽이 흔들린다.
+ *
+ * 🔴 그래서 목록과 상세의 사진 배치가 달라진다. 이건 시안이 그렇게 정한 것이다 —
+ * 목록은 커버 한 장, 상세는 전부. 「같은 글이 자리마다 다르게 보이면 안 된다」는 예전
+ * 판단(S15P21E201-1135)과 어긋나 보이지만, 그때는 **같은 갤러리를 다르게 그리는** 것이
+ * 문제였고 지금은 **커버와 갤러리라는 다른 것**이다.
+ */
+function DetailPhotoGrid({ images }: { images: StoryDto['images'] }) {
+  const { tx } = useI18n();
+  if (!images.length) return null;
+  const SLOTS = 6;
+  const shown = images.slice(0, SLOTS);
+  const rest = images.length - shown.length;
+  return (
+    <View accessibilityLabel={tx('여행 기록 사진', 'Trip record photos')} style={styles.grid}>
+      {shown.map((image, index) => (
+        <View key={image.url} style={styles.gridCell}>
+          <Image source={{ uri: image.url }} resizeMode="cover" style={styles.gridImage} accessibilityIgnoresInvertColors />
+          {/* 마지막 칸에만, 그리고 남은 장수가 있을 때만 덮는다. */}
+          {rest > 0 && index === shown.length - 1
+            ? <View style={styles.gridMore}><Text variant="title" weight="bold" color={color.text.onAction}>+{rest}</Text></View>
+            : null}
+        </View>
+      ))}
+    </View>
+  );
+}
+
+/**
+ * 장소 제목 블록 — 시안 2a 의 맨 위 (S15P21E201-1177).
+ *
+ * 🔴 시안은 제목 아래에 **주소**를 넣으라고 하는데 그 칸이 없다. `StoryDto` 의 place 는
+ * `{ id, name, lat, lng }` 뿐이다. 없는 것을 지어내지 않고, 있는 `region` 을 대신 쓴다.
+ * 주소가 계약에 생기면 그때 바꾼다.
+ */
+function PlaceHeading({ story, onOpen }: { story: StoryDto; onOpen: () => void }) {
+  const { tx } = useI18n();
+  if (!story.place) return null;
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={tx(`${story.place.name} 상세 보기`, `View details for ${story.place.name}`)}
+      onPress={onOpen}
+      style={({ pressed }) => [styles.placeHeading, pressed && styles.pressed]}
+    >
+      <Text variant="display" weight="bold" color={color.text.heading}>{story.place.name}</Text>
+      {story.region
+        ? <View style={styles.placeMetaRow}>
+            <Image source={require('../../assets/icons/common/pin.png')} resizeMode="contain" accessibilityIgnoresInvertColors style={styles.placePin} />
+            <Text variant="body" color={color.text.body}>{story.region}</Text>
+          </View>
+        : null}
+    </Pressable>
+  );
+}
 
 export default function StoryDetail() {
   const router = useRouter();
@@ -106,26 +167,16 @@ export default function StoryDetail() {
             ) : null}
           </View>
 
+          {/* 🔴 시안 2a 의 순서 (S15P21E201-1177): 사진 → 장소 제목 → 본문.
+              전에는 본문이 맨 위였다. 기록을 다시 열었을 때 먼저 보고 싶은 것은
+              글이 아니라 그때의 사진이라는 것이 이 순서의 뜻이다. */}
+          <DetailPhotoGrid images={story.images} />
+
+          <PlaceHeading story={story} onOpen={() => router.push(`/place/${story.place!.id}`)} />
+
           {/* S15P21E201-1136 — 마크다운을 그린다. 마크다운을 안 쓴 기존 글은
               문단 하나가 되므로 지금과 똑같이 보인다. */}
           <MarkdownBody source={story.body} />
-
-          {/* S15P21E201-1135 — 목록 카드와 **같은 배치**를 쓴다. 같은 글이 자리마다
-              다르게 보이면 사용자는 올린 것과 보이는 것이 다르다고 느낀다. */}
-          {story.images.length ? (
-            <PhotoGrid
-              photos={story.images.map((image) => ({ uri: image.url }))}
-              accessibilityLabel={tx('여행 기록 사진', 'Trip record photo')}
-              style={styles.images}
-            />
-          ) : null}
-
-          {story.place ? (
-            <Pressable accessibilityRole="button" accessibilityLabel={tx(`${story.place.name} 상세 보기`, `View details for ${story.place.name}`)} onPress={() => router.push(`/place/${story.place!.id}`)} style={({ pressed }) => [styles.placeCard, pressed && styles.pressed]}>
-              <Text variant="caption" weight="bold" color={color.text.accent}>{tx('연결된 장소', 'Linked place')}</Text>
-              <Text variant="body" weight="bold">{story.place.name}</Text>
-            </Pressable>
-          ) : null}
 
           <View style={styles.actionRow}>
             {!confirmingDelete && (
@@ -202,6 +253,19 @@ const styles = StyleSheet.create({
   visibilityBadge: { minHeight: 28, paddingHorizontal: spacing[2], borderRadius: radius.full, backgroundColor: color.surface.soft, alignItems: 'center', justifyContent: 'center' },
   images: { marginTop: spacing[2] },
   placeCard: { gap: spacing[1], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.tint },
+  // ── 상세 2a (S15P21E201-1177) ──────────────────────────────────────────────
+  //
+  // 사진 격자: 3열. 셀은 정사각(aspectRatio 1)이라 폭이 바뀌어도 줄이 맞는다.
+  // 시안은 "각 행 140" 이라고 적었는데 그건 시안 폭 기준의 결과값이다 — 숫자를 박으면
+  // 좁은 폰에서 넘치고 넓은 화면에서 빈다. 비율로 둔다.
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+  gridCell: { position: 'relative', flexBasis: '31.5%', flexGrow: 1, aspectRatio: 1, borderRadius: radius.md, overflow: 'hidden', backgroundColor: color.surface.soft },
+  gridImage: { width: '100%', height: '100%' },
+  gridMore: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(11,29,58,0.45)' },
+
+  placeHeading: { gap: spacing[2] },
+  placeMetaRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
+  placePin: { width: 16, height: 16 },
   actionRow: { flexDirection: 'row', justifyContent: 'space-between' },
   textAction: { minHeight: 44, paddingHorizontal: spacing[2], alignItems: 'center', justifyContent: 'center' },
   actionDivider: { width: 1, alignSelf: 'stretch', marginVertical: spacing[2], backgroundColor: color.surface.border },
