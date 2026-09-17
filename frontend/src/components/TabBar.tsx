@@ -62,8 +62,19 @@ export function TabBar({ active }: { active: TabKey }) {
   // 리다이렉트와 같은 판단). 화면 가운데 붕 뜬 모바일 탭바보다는 없는 쪽이 낫다.
   if (isAtLeast(width, 'md')) return null;
 
+  // 🔴 받침(dock)에 담아 **띄운다** (S15P21E201-1155).
+  //
+  // 전에는 이 막대가 Screen 옆에 나란히 선 보통 형제라 **레이아웃 높이를 실제로 먹었다.**
+  // 그래서 알약 좌·우 여백과 아래쪽은 화면 배경일 뿐이고, 내용이 거기까지 올라오지 못했다.
+  // 사용자가 「하단 영역 전체가 불투명」이라고 적은 것이 그 상태다 — 불투명해서가 아니라
+  // **그 자리에 내용이 없어서**였고, 폭을 328 로 줄인 의미가 사라져 있었다.
+  //
+  // 🔴 `pointerEvents="box-none"` 이 핵심이다. 받침은 화면 폭 전체를 덮지만 **자기는 손짓을
+  // 안 받고 자식(알약)에게만 넘긴다.** 이게 없으면 알약 바깥의 빈 자리가 아래 내용의
+  // 터치를 통째로 가로챈다 — 보이기는 하는데 안 눌리는 상태가 된다.
   return (
-    <View style={[styles.bar, { marginBottom: tabBarBottomMargin(insets.bottom) }]}>
+    <View pointerEvents="box-none" style={[styles.dock, { paddingBottom: tabBarBottomMargin(insets.bottom) }]}>
+    <View style={styles.bar}>
       {TABS.map((tab) => {
         const selected = tab.key === active;
         return (
@@ -87,6 +98,7 @@ export function TabBar({ active }: { active: TabKey }) {
         );
       })}
     </View>
+    </View>
   );
 }
 
@@ -96,6 +108,14 @@ export function tabBarBottomMargin(bottomInset: number) {
 }
 
 const styles = StyleSheet.create({
+  // 받침 — 화면 아래에 깔리되 자기는 아무것도 안 그린다. 알약을 가운데 세우는 일만 한다.
+  dock: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    alignItems: 'center',
+  },
   bar: {
     flexDirection: 'row',
     alignItems: 'center',
