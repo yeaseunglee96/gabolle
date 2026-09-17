@@ -300,4 +300,22 @@ public class Place {
 	public String getSubwayExit() {
 		return this.subwayExit;
 	}
+
+	/**
+	 * 이미 있는 장소에 지하철 출구 안내를 붙인다 — S15P21E201-479.
+	 *
+	 * <p>{@link #attachPhoto} 와 같은 이유로 따로 있다. 지하철 출구는 장소를 적재할 때 함께
+	 * 오는 값이 아니라 <b>나중에 조사해서 채우는 값</b>이라, 장소 적재기의 «이미 있는 장소는
+	 * 건너뛴다» 규칙에 묶으면 영영 못 채운다.
+	 *
+	 * @param subwayExit 예: {@code "2호선 강남역 3번 출구"}. 비우려면(확인해 보니 지하철로
+	 *     못 가는 곳이었다 등) 이 메서드를 부르지 않는다 — 빈 문자열을 넣지 않는다
+	 */
+	public void assignSubwayExit(String subwayExit) {
+		if (subwayExit == null || subwayExit.isBlank()) {
+			throw new IllegalArgumentException(
+					"subwayExit 없이 지하철 출구를 붙일 수 없다 — 모르면 이 메서드를 부르지 않는다");
+		}
+		this.subwayExit = subwayExit;
+	}
 }

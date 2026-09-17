@@ -45,11 +45,28 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * {@code value} 는 JSONB 라 아무 모양이나 들어간다. 그래서 <b>모르는 낱말이 오면 멈춘다.</b>
  * 조용히 버리면 개수만 줄고 아무도 못 알아챈다 — {@code priceband-normalize.mjs} 가 같은 이유로
  * 같은 선택을 했다.
+ *
+ * <h2>🔴 SBIZ 전용이 아니다 (S15P21E201-453·1047)</h2>
+ *
+ * {@link #readPriceBands} 는 상가업소번호(SBIZ)만 다루던 시절 이름 그대로 남아 있지만,
+ * {@link Fact} 에 {@code keySource} 가 생기면서 이 읽개가 내는 사실은 어느 출처의 장소에도 붙을 수
+ * 있다. {@link #readVisitorFacts} 가 TourAPI 출처 장소(관광공사 contentid)에 혼밥 안심·
+ * 브레이크타임·라스트오더를 붙이는 것, {@link #readPlaceSlopes} 가 같은 장소에 경사를 붙이는 것이
+ * 그 사례다.
  */
 public final class PlaceFeatureNdjsonReader {
 
 	/** 가격대 등급 — {@code priceband-normalize.mjs} 가 낱말 열하나를 접어 만든 넷. */
 	static final Set<String> PRICE_BANDS = Set.of("LOW", "MID", "MID_HIGH", "HIGH");
+
+	/**
+	 * {@link #readVisitorFacts} 가 받는 종류 — S15P21E201-453·479. 셋 다 참거짓형·값형이라
+	 * {@code featureKey} 가 없다({@code V20260909020000__place_feature_solo_friendly_and_time_facts.sql}).
+	 */
+	static final Set<String> VISITOR_FEATURE_TYPES = Set.of("SOLO_FRIENDLY", "BREAK_TIME", "LAST_ORDER_TIME");
+
+	/** 지금 이 적재기가 장소를 찾을 수 있는 출처. 새 출처가 생기면 여기부터 늘린다. */
+	static final Set<String> NAMESPACES = Set.of("SBIZ", "TOURAPI");
 
 	private static final ObjectMapper MAPPER = new ObjectMapper();
 
@@ -59,11 +76,37 @@ public final class PlaceFeatureNdjsonReader {
 	/**
 	 * 장소 하나에 붙일 사실 하나.
 	 *
-	 * @param storeId 상가업소번호. {@link SbizPlaceLoader#placeIdOf} 가 이것으로 장소를 찾는다
-	 * @param featureType 지금은 {@code PRICE_LEVEL} 하나뿐이다
+	 * @param storeId 장소를 찾는 열쇠. 무엇으로 읽어야 하는지는 {@code keySource} 가 말한다
+	 * @param featureType {@code PRICE_LEVEL} · {@code SLOPE_PERCENT} · {@code SOLO_FRIENDLY} ·
+	 *     {@code DESIRED_FOOD_TAG} 처럼 무엇에 대한 사실인가
 	 * @param value {@code place_feature.value} 에 그대로 들어갈 JSON 문자열
+	 * @param keySource 🔴 <b>열쇠가 어느 체계인가</b> — {@link SbizPlaceLoader#SOURCE_TYPE}(상가업소번호)
+	 *     이거나 {@link TourApiPlaceLoader#SOURCE_TYPE}({@code contentid})다 (S15P21E201-1047)
+	 * @param featureKey 태그형만 값이 있다 — {@code DESIRED_FOOD_TAG}·{@code SOUVENIR_ITEM_TAG} 등
+	 *     (S15P21E201-453·448). 참거짓형·값형은 {@code null}
 	 */
-	public record Fact(String storeId, String featureType, String value) {
+	public record Fact(String storeId, String featureType, String value, String keySource, String featureKey) {
+
+		/**
+		 * 🔴 열쇠 체계는 {@code place_feature.source_type} 과 <b>다른 것이다.</b>(S15P21E201-1047)
+		 *
+		 * <p>처음에 이 둘을 같은 것으로 보고 {@code source_type} 으로 장소 아이디를 만들려다
+		 * DB 통합 시험에 걸렸다. 가격대는 {@code source_type} 이 {@code RESEARCH_PRICEBAND}
+		 * (조사에서 왔다)인데 <b>열쇠는 상가업소번호</b>다. 둘은 서로 독립이다 —
+		 * 하나는 "값이 어디서 왔나", 하나는 "이 문자열을 무엇으로 읽나" 다.
+		 *
+		 * <p>그래서 읽는 쪽이 정한다. 파일을 파싱한 쪽이 그 열쇠가 무엇인지 안다.
+		 *
+		 * <p>이 생성자는 열쇠·태그키를 안 적은 기존 호출자를 위한 것이다 — 상가업소번호로 본다.
+		 */
+		public Fact(String storeId, String featureType, String value) {
+			this(storeId, featureType, value, SbizPlaceLoader.SOURCE_TYPE, null);
+		}
+
+		/** 🔴 태그키를 안 적은 호출자를 위한 것이다(S15P21E201-1047 이 만든 4-인자 자리). */
+		public Fact(String storeId, String featureType, String value, String keySource) {
+			this(storeId, featureType, value, keySource, null);
+		}
 	}
 
 	/**
@@ -118,6 +161,101 @@ public final class PlaceFeatureNdjsonReader {
 			out.add(new Fact(storeId, "PRICE_LEVEL", write(value)));
 			return true;
 		});
+	}
+
+	/**
+	 * 혼밥 안심·브레이크타임·라스트오더 산출물을 읽는다 — S15P21E201-453·479.
+	 *
+	 * <p>한 줄은 {@code {"namespace":"TOURAPI","storeId":"129156","featureType":"SOLO_FRIENDLY","value":true}}
+	 * 다. {@code value} 는 참거짓형이면 JSON 리터럴 {@code true}/{@code false}, 시각형이면
+	 * {@code {"start":"15:00","end":"17:00"}}(BREAK_TIME) · {@code {"time":"21:30"}}(LAST_ORDER_TIME)
+	 * 같은 객체다 — 어느 모양이든 그대로 옮긴다({@code place_feature.value} 가 JSONB 라 모양을
+	 * 여기서 정하지 않는다, 클래스 문서 "읽는 쪽이 값의 모양을 정하는 자리" 참고).
+	 *
+	 * <p>🔴 {@code namespace}·{@code featureType} 이 모르는 값이면 멈춘다 — {@link #readPriceBands} 와
+	 * 같은 이유다. 특히 {@code namespace} 오타는 조용히 두면 엉뚱한 장소 아이디를 계산해 "장소가
+	 * 없어 못 넣음" 으로 세어지고, 그 오타를 알아챌 방법이 없다.
+	 */
+	public static Counts readVisitorFacts(Path file, int chunkSize, Consumer<List<Fact>> chunkConsumer) {
+		return read(file, chunkSize, chunkConsumer, (node, out) -> {
+			String namespace = text(node, "namespace");
+			String storeId = text(node, "storeId");
+			String featureType = text(node, "featureType");
+			JsonNode valueNode = node.path("value");
+			if (namespace == null || storeId == null || featureType == null || valueNode.isMissingNode()) {
+				return false;
+			}
+			if (!NAMESPACES.contains(namespace)) {
+				throw new IllegalArgumentException(
+						"모르는 namespace 다: " + namespace + " (아는 것: " + NAMESPACES + ")");
+			}
+			if (!VISITOR_FEATURE_TYPES.contains(featureType)) {
+				throw new IllegalArgumentException(
+						"모르는 featureType 이다: " + featureType + " (아는 것: " + VISITOR_FEATURE_TYPES + ")");
+			}
+			out.add(new Fact(storeId, featureType, valueNode.toString(), namespace));
+			return true;
+		});
+	}
+
+	/**
+	 * 장소 경사 산출물({@code data/staged/place-slope.ndjson})을 읽는다 — S15P21E201-1047.
+	 *
+	 * <p>한 줄은 이렇다.
+	 * {@code {"contentid":"126508","featureType":"SLOPE_PERCENT","slopePercent":16.4,
+	 * "segments":37,"walkLengthM":4820,"radiusM":200}}
+	 *
+	 * <h2>🔴 값 모양은 채점기가 정한다</h2>
+	 *
+	 * 점수형 피처는 {@code value} 가 숫자이거나 {@code {"score": …}} 여야 읽힌다
+	 * ({@code BaselineCandidateScorer.extractPlaceScore}). 그래서 {@code score} 에 담는다.
+	 * 옆에 붙는 {@code radiusM}·{@code segments}·{@code walkLengthM} 은 채점기가 안 읽지만
+	 * <b>이 값이 어떻게 나왔는지</b>를 행 안에 남긴다 — 나중에 반경을 바꿨을 때 어느 행이
+	 * 옛 반경으로 만들어졌는지 알 수 있어야 한다.
+	 *
+	 * <h2>🔴 이 값은 추정이다</h2>
+	 *
+	 * 실측이 아니라 주변 길에서 유도한 값이다({@code bigData/docs/PLACE-SLOPE.md}).
+	 * {@link PlaceFeatureLoader} 가 {@code evidence_status} 를 {@code ESTIMATED} 로 넣는다.
+	 * 🔴 경사는 DB 가 추정을 막는 네 종({@code ALLERGEN_TAG}·{@code DIETARY_SUPPORT_TAG}·
+	 * {@code ACCESSIBILITY_TAG}·{@code STAIRS_PRESENT})에 <b>들어 있지 않다</b> — 그래서
+	 * 저장할 수 있다. 계단을 여기에 섞어 넣으면 안 되는 이유이기도 하다.
+	 *
+	 * <h2>🔴 범위를 벗어난 값은 버리지 않고 멈춘다</h2>
+	 *
+	 * 경사는 0~100 퍼센트다. 벗어난 값이 오면 산출물이 이상한 것이고, 조용히 버리면
+	 * 개수만 줄고 아무도 못 알아챈다.
+	 */
+	public static Counts readPlaceSlopes(Path file, int chunkSize, Consumer<List<Fact>> chunkConsumer) {
+		return read(file, chunkSize, chunkConsumer, (node, out) -> {
+			String contentId = text(node, "contentid");
+			JsonNode percent = node.path("slopePercent");
+			if (contentId == null || !percent.isNumber()) {
+				return false;
+			}
+			double value = percent.asDouble();
+			if (value < 0 || value > 100) {
+				throw new IllegalArgumentException(
+						"장소 경사 산출물에 범위를 벗어난 값이 있다: " + value + "% (contentid " + contentId + ")");
+			}
+			ObjectNode payload = MAPPER.createObjectNode();
+			payload.put("score", value);
+			copyNumber(node, payload, "radiusM");
+			copyNumber(node, payload, "segments");
+			copyNumber(node, payload, "walkLengthM");
+			// 🔴 열쇠가 contentid 다. 안 적으면 상가업소번호로 읽혀 한 곳도 못 찾고,
+			//    그때 예외는 안 나고 "장소가 없어 못 넣음" 으로만 세어진다.
+			out.add(new Fact(contentId, "SLOPE_PERCENT", write(payload), TourApiPlaceLoader.SOURCE_TYPE));
+			return true;
+		});
+	}
+
+	/** 있으면 그대로 옮긴다. 없으면 만들어 넣지 않는다. */
+	private static void copyNumber(JsonNode from, ObjectNode to, String field) {
+		JsonNode value = from.path(field);
+		if (value.isNumber()) {
+			to.put(field, value.asDouble());
+		}
 	}
 
 	/** 한 줄을 사실로 바꾼다. 열쇠나 값이 없으면 {@code false} 를 돌려 그 줄을 버린다. */

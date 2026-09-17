@@ -162,7 +162,22 @@ public class EventIngestService {
 	 *     수집이 아니라 빈 자리로 나타나야 한다</li>
 	 * </ul>
 	 */
-	private boolean collectsBehaviorOf(UUID userId) {
+	/**
+	 * 🔴 <b>public 인 이유</b> — S15P21E201-1080. 이 판정을 <b>Outbox 에 적기 전에</b> 해야 하는
+	 * 곳이 이 클래스 밖에 하나 생겼다. {@code ITINERARY_REMOVE} 는 행동 신호인데, 그 이벤트는
+	 * 트랜잭션 때문에 {@code RecommendationRecorder} 경로로 나가야 한다({@code removeItem} 쪽에는
+	 * 트랜잭션이 <b>일부러</b> 없다 — {@code RecommendationJobRunner} 클래스 주석).
+	 *
+	 * <p>그 경로는 {@code OutboxService} 를 직접 부르므로 이 검사를 안 지난다. 그래서 명령을
+	 * 조립하는 자리에서 이것을 부른다. <b>규칙을 거기서 다시 쓰지 않으려고</b> 메서드를 여는
+	 * 것이다 — 두 곳에 같은 판정을 두면 한쪽만 바뀌고, 그 어긋남은 「껐는데 이 종류만 계속
+	 * 쌓이는」 모양이라 화면에 안 나타난다({@link com.gabolle.backend.event.domain.EventType}
+	 * 의 {@code BEHAVIOR_SIGNALS} 주석과 같은 이유).
+	 *
+	 * <p>🔴 <b>이것은 임시 방편이다.</b> 우회로 자체를 막는 것은 S15P21E201-1096 이다 —
+	 * 입구({@code OutboxService})에서 걸러야 <b>다음에 생길 경로</b>도 저절로 막힌다.
+	 */
+	public boolean collectsBehaviorOf(UUID userId) {
 		if (userId == null) {
 			return true;
 		}

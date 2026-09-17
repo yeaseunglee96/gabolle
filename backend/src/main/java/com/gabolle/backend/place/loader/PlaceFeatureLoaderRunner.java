@@ -29,6 +29,18 @@ import org.springframework.stereotype.Component;
  *   --gabolle.place.loader.dataset-version=staged-busan-202609
  * </pre>
  *
+ * <h2>혼밥 안심·브레이크타임·라스트오더 (S15P21E201-453·479)</h2>
+ *
+ * <pre>
+ * java -jar gabolle-backend.jar \
+ *   --spring.profiles.active=dev \
+ *   --gabolle.place.loader.visitor-facts=/tmp/visitor-facts.ndjson \
+ *   --gabolle.place.loader.dataset-version=staged-busan-202609
+ * </pre>
+ *
+ * 산출물 모양은 {@link PlaceFeatureNdjsonReader#readVisitorFacts} 참고. 가격대와 달리
+ * {@code namespace} 를 함께 적어야 한다 — TourAPI 출처 장소에도 붙는 첫 산출물이라서다.
+ *
  * <h2>🔴 유명세는 여기서 안 넣는다 (S15P21E201-861)</h2>
  *
  * 이 실행기의 앞선 판은 가격대와 유명세를 함께 넣었다. 유명세는 그 사이
@@ -49,11 +61,26 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Profile({ "db", "dev" })
-@ConditionalOnExpression("'${gabolle.place.loader.price-band:}' != ''")
+@ConditionalOnExpression("'${gabolle.place.loader.price-band:}' != '' "
+		+ "or '${gabolle.place.loader.visitor-facts:}' != '' "
+		+ "or '${gabolle.place.loader.place-slope:}' != ''")
 public class PlaceFeatureLoaderRunner implements ApplicationRunner {
 
 	/** {@code place_feature.source_type} — 가격대가 어디서 왔나. */
 	public static final String PRICE_BAND_SOURCE_TYPE = "RESEARCH_PRICEBAND";
+
+	/** {@code place_feature.source_type} — 혼밥 안심·브레이크타임·라스트오더가 어디서 왔나. */
+	public static final String VISITOR_FACTS_SOURCE_TYPE = "RESEARCH_VISITOR_FACTS";
+
+	/**
+	 * {@code place_feature.source_type} — 장소 경사가 어디서 왔나 (S15P21E201-1047).
+	 *
+	 * <p>🔴 이 값이 {@link TourApiPlaceLoader#SOURCE_TYPE} 이어야 하는 이유는 되짚기가 아니라
+	 * <b>장소 아이디</b> 때문이다. {@link PlaceFeatureLoader} 가 이 값을 보고 열쇠를
+	 * {@code contentid} 로 읽는다. 다른 이름을 주면 상가업소번호로 읽어 한 곳도 못 찾는다 —
+	 * 그리고 아무 오류도 안 난다.
+	 */
+	public static final String PLACE_SLOPE_SOURCE_TYPE = TourApiPlaceLoader.SOURCE_TYPE;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(PlaceFeatureLoaderRunner.class);
 
@@ -64,13 +91,21 @@ public class PlaceFeatureLoaderRunner implements ApplicationRunner {
 
 	private final String priceBandPath;
 
+	private final String visitorFactsPath;
+
+	private final String placeSlopePath;
+
 	private final String datasetVersion;
 
 	public PlaceFeatureLoaderRunner(PlaceFeatureLoader loader,
 			@Value("${gabolle.place.loader.price-band:}") String priceBandPath,
+			@Value("${gabolle.place.loader.visitor-facts:}") String visitorFactsPath,
+			@Value("${gabolle.place.loader.place-slope:}") String placeSlopePath,
 			@Value("${gabolle.place.loader.dataset-version:}") String datasetVersion) {
 		this.loader = loader;
 		this.priceBandPath = priceBandPath;
+		this.visitorFactsPath = visitorFactsPath;
+		this.placeSlopePath = placeSlopePath;
 		this.datasetVersion = datasetVersion;
 	}
 
@@ -84,6 +119,11 @@ public class PlaceFeatureLoaderRunner implements ApplicationRunner {
 							+ "이 값으로 만든 추천을 나중에 되짚을 수 없다");
 		}
 		load("가격대", this.priceBandPath, PRICE_BAND_SOURCE_TYPE, PlaceFeatureNdjsonReader::readPriceBands);
+		load("방문객 안내", this.visitorFactsPath, VISITOR_FACTS_SOURCE_TYPE, PlaceFeatureNdjsonReader::readVisitorFacts);
+		// 🔴 장소 경사는 추정값이다 — 주변 길에서 유도했다(bigData/docs/PLACE-SLOPE.md).
+		//    실측이 아니라는 표시는 PlaceFeatureLoader 가 evidence_status 로 붙인다.
+		load("장소 경사", this.placeSlopePath, PLACE_SLOPE_SOURCE_TYPE,
+				PlaceFeatureNdjsonReader::readPlaceSlopes);
 	}
 
 	private void load(String label, String path, String sourceType,

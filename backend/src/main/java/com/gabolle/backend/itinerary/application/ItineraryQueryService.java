@@ -134,7 +134,9 @@ public class ItineraryQueryService {
 				fallbackMode,
 				access.role().name(),
 				access.role().canEdit(),
-				content.version().warningCodes());
+				content.version().warningCodes(),
+				// S15P21E201-1113 — 이미 손에 있는 값이다. 여행을 다시 조회하지 않는다.
+				trip.tripId());
 	}
 
 	/**
@@ -229,6 +231,9 @@ public class ItineraryQueryService {
 		String travelDataStatus = (incoming && incomingLeg.dataStatus() != null)
 				? incomingLeg.dataStatus().name()
 				: null;
+		// 🔴 S15P21E201-1109 — 요금도 같은 incoming 하나에 묶인다. 구간이 이 항목으로 들어오는
+		//    것이 아니면 남의 요금이므로 비운다. 모르는 것을 0 으로 채우지 않는다.
+		Integer travelFareKrw = incoming ? incomingLeg.fareKrw() : null;
 
 		return new ItineraryDetailResponse.Item(
 				item.itemKey(),
@@ -245,7 +250,8 @@ public class ItineraryQueryService {
 				// 값이지만, 항목이 가리키는 값을 그대로 돌려주는 쪽이 의도가 분명하다.
 				item.placeId(),
 				travelDurationMin,
-				travelDataStatus);
+				travelDataStatus,
+				travelFareKrw);
 	}
 
 	/** {@code visit_date} + {@code start_time} 을 ISO-8601 로 합친다. 시간대는 항상 Asia/Seoul 이다(API-03). */

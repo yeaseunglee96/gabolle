@@ -28,6 +28,7 @@ import com.gabolle.backend.itinerary.application.port.TravelTime;
 import com.gabolle.backend.itinerary.domain.ItineraryItem;
 import com.gabolle.backend.itinerary.application.port.TravelTimePort;
 import com.gabolle.backend.itinerary.domain.ItineraryRepository;
+import com.gabolle.backend.itinerary.domain.ItineraryWarningCodes;
 import com.gabolle.backend.place.repository.PlaceRepository;
 import com.gabolle.backend.recommendation.application.port.ItineraryDraft;
 import com.gabolle.backend.recommendation.application.port.ItineraryDraftCommand;
@@ -111,11 +112,17 @@ class ItineraryDraftServiceTest {
 	/**
 	 * S15P21E201-903 — 운영 후보의 89%가 음식점이라 순위대로만 담으면 하루가 전부 밥집이 된다.
 	 * 실제로 그랬다 — 하루에 밥집 열 곳이 들어간 일정이 나왔다.
+	 *
+	 * <p>🔴 S15P21E201-1129 로 <b>상한을 정하는 것이 바뀌었다.</b> 예전에는 설정값 3 이
+	 * 하루가 몇 시간이든 그대로 상한이었는데, 이제는 <b>그 여행의 활동 시간대에 실제로
+	 * 들어가는 끼니 수</b>가 상한이다. 09:00~18:00(운영 여행 60건 중 49건)은 점심과 저녁만
+	 * 들어가므로 <b>2</b> 다 — 9시에 시작하는 여행에 아침을 끼워 넣지 않는다.
 	 */
 	@Test
-	@DisplayName("밥집이 순위를 다 차지해도 하루에 끼니 수(3)까지만 들어가고 나머지는 명소로 채운다")
-	void foodIsCappedPerDayAndAttractionsFillTheRest() {
-		Trip trip = tripOf(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 10));
+	@DisplayName("09~18시 여행은 끼니가 둘이라 밥집이 순위를 다 차지해도 둘까지만 들어간다")
+	void foodIsCappedByTheMealsThatFitInTheWindow() {
+		Trip trip = tripOf(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 10),
+				LocalTime.of(9, 0), LocalTime.of(18, 0));
 		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
 
 		// 순위 상위가 전부 밥집이고 명소는 뒤에 있다 — 운영 후보 분포와 같은 모양이다.
@@ -126,20 +133,73 @@ class ItineraryDraftServiceTest {
 		List<String> categories = draft.items().stream()
 				.map(this::categoryOfItem)
 				.toList();
-		assertThat(categories.stream().filter("FOOD"::equals).count()).isEqualTo(3);
+		assertThat(categories.stream().filter("FOOD"::equals).count()).isEqualTo(2);
 	}
 
-	/** 명소가 모자라면 빈 자리를 미뤄 둔 밥집으로 채운다 — 자리를 비워 두지 않는다. */
+	/**
+	 * S15P21E201-1129 — 밥집은 밥 때에 놓는다. 자리 순서가 아니라 <b>그 칸의 시각</b>이 정한다.
+	 *
+	 * <p>09:00~18:00 에 네 곳이면 칸이 2시간 15분씩 넷이고, 그중 점심·저녁에 60분 이상
+	 * 걸리는 것은 둘째와 넷째다. 첫 칸(09:00~11:15)은 아침 시간대에 30분 걸치지만 스친
+	 * 것이라 명소 자리다 — 아침 먹고 나온 사람에게 9시에 또 밥을 권하지 않는다.
+	 */
 	@Test
-	@DisplayName("명소가 없으면 밥집으로 남은 자리를 채운다")
-	void remainingSeatsAreFilledWithFoodWhenNoAttractionExists() {
-		Trip trip = tripOf(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 10));
+	@DisplayName("밥집은 점심·저녁 칸에만 들어가고 오전 첫 칸은 명소가 차지한다")
+	void foodIsSeatedOnlyIntoMealSlots() {
+		Trip trip = tripOf(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 10),
+				LocalTime.of(9, 0), LocalTime.of(18, 0));
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
+
+		ItineraryDraft draft = this.service.assemble(commandOf("trip_1", plannedPlacesOf(
+				"FOOD", "FOOD", "FOOD", "FOOD", "FOOD", "CULTURE_TEMPLE", "NATURE_WALK")));
+
+		List<ItineraryDraft.DraftItem> today = draft.items().stream()
+				.sorted((a, b) -> Integer.compare(a.sequence(), b.sequence()))
+				.toList();
+		assertThat(today.stream().map(ItineraryDraft.DraftItem::startTime))
+				.containsExactly(LocalTime.of(9, 0), LocalTime.of(11, 15),
+						LocalTime.of(13, 30), LocalTime.of(15, 45));
+		assertThat(today.stream().map(this::categoryOfItem).map("FOOD"::equals))
+				.containsExactly(false, true, false, true);
+	}
+
+	/**
+	 * 🔴 S15P21E201-1129 — <b>예전에는 여기서 빈 자리를 밥집으로 메웠다.</b> 이제 안 메운다.
+	 *
+	 * <p>메우는 쪽이 친절해 보였지만, 운영에서 그 결과는 3일 12곳이 전부 음식점인 일정이었다.
+	 * 바다로 분류된 장소가 16곳뿐이라 명소가 금방 떨어지고 나머지를 밥집이 전부 가져갔다.
+	 * 메우면 데이터가 모자라다는 사실이 화면에도 팀에게도 안 보인다. 그래서 비워 두고,
+	 * 판에 {@code SIGHT_SLOT_UNFILLED} 를 남겨 <b>말한다.</b>
+	 */
+	@Test
+	@DisplayName("명소가 없으면 빈 자리를 밥집으로 메우지 않고 그 사실을 판에 남긴다")
+	void unfilledSightSlotsAreLeftEmptyAndReported() {
+		Trip trip = tripOf(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 10),
+				LocalTime.of(9, 0), LocalTime.of(18, 0));
 		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
 
 		ItineraryDraft draft = this.service.assemble(commandOf("trip_1",
 				plannedPlacesOf("FOOD", "FOOD", "FOOD", "FOOD", "FOOD", "FOOD")));
 
+		// 하루 상한은 4 지만 끼니가 둘뿐이라 둘만 들어간다. 나머지 넷은 버린다.
+		assertThat(draft.items()).hasSize(2);
+		assertThat(draft.warningCodes()).containsExactly(ItineraryWarningCodes.SIGHT_SLOT_UNFILLED);
+	}
+
+	/** 아침까지 들어가는 긴 여행은 끼니가 셋이다 — 설정 상한(3)이 그 위를 막는다. */
+	@Test
+	@DisplayName("07~21시 여행은 아침까지 끼니가 셋이다")
+	void aLongWindowAdmitsBreakfastToo() {
+		Trip trip = tripOf(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 10),
+				LocalTime.of(7, 0), LocalTime.of(21, 0));
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
+
+		ItineraryDraft draft = this.service.assemble(commandOf("trip_1", plannedPlacesOf(
+				"FOOD", "FOOD", "FOOD", "FOOD", "FOOD", "CULTURE_TEMPLE", "NATURE_WALK")));
+
 		assertThat(draft.items()).hasSize(4);
+		assertThat(draft.items().stream().map(this::categoryOfItem).filter("FOOD"::equals).count())
+				.isEqualTo(3);
 	}
 
 	/** 갈래를 모르면 밥집으로 세지 않는다 — 모르는 것을 끼니로 세지 않는다. */
@@ -533,6 +593,12 @@ class ItineraryDraftServiceTest {
 	private Trip tripOf(LocalDate startDate, LocalDate finishDate) {
 		return new Trip("itn_trip_1", "usr_1", startDate, finishDate, null, null, null, 2, null, "Asia/Seoul",
 				Instant.now());
+	}
+
+	/** 활동 시간대까지 정한 여행 — 끼니가 몇 번인지는 이 두 값이 정한다(S15P21E201-1129). */
+	private Trip tripOf(LocalDate startDate, LocalDate finishDate, LocalTime windowStart, LocalTime windowEnd) {
+		return new Trip("itn_trip_1", "usr_1", startDate, finishDate, null, null, null, 2,
+				windowStart + "-" + windowEnd, "Asia/Seoul", null, windowStart, windowEnd, Instant.now());
 	}
 
 	/** 갈래를 지정해 만든다 — 하루 구성 검사(S15P21E201-903)가 쓴다. */

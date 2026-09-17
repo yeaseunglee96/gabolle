@@ -12,6 +12,7 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Component;
 
 import com.gabolle.backend.place.api.PlaceCandidateRequest;
@@ -19,6 +20,9 @@ import com.gabolle.backend.place.api.PlaceCandidateResponse;
 import com.gabolle.backend.place.domain.UserInputKind;
 import com.gabolle.backend.place.domain.UserPlaceCodeMap;
 import com.gabolle.backend.place.repository.UserPlaceCodeMapRepository;
+import com.gabolle.backend.preference.domain.UserTasteWeight;
+import com.gabolle.backend.preference.repository.UserTasteVectorRepository;
+import com.gabolle.backend.preference.repository.UserTasteWeightRepository;
 import com.gabolle.backend.place.service.PlaceCandidateQueryService;
 import com.gabolle.backend.recommendation.config.BaselineEngineProperties;
 import com.gabolle.backend.recommendation.config.PreferenceAlignmentWeights;
@@ -95,12 +99,31 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 	/** S15P21E201-980 — 여행 범위. 안 고른 여행은 비어 있어 예전과 똑같이 돈다. */
 	private final Optional<TripTravelAreaRepository> travelAreas;
 
+	/**
+	 * 접힌 취향 벡터를 읽는 통로 — S15P21E201-943.
+	 *
+	 * <h2>🔴 {@code ObjectProvider} 인 이유 — 2026-09-16 실측</h2>
+	 *
+	 * 이 클래스를 띄우는 시험 슬라이스가 <b>아홉</b>인데 그중 {@code preference} 패키지를
+	 * 스캔하는 것은 사실상 없다. 그냥 받으면 그 여덟이 전부 컨텍스트 로딩에서 죽는다 —
+	 * 같은 실수를 오늘 {@code SavedPlaceService} 에서 한 번 했고(장소 검사 145건이 한꺼번에
+	 * 빨개졌다), 그때 배운 것을 여기서는 먼저 확인했다.
+	 *
+	 * <p>없으면 <b>빈 목록</b>으로 본다 — 벡터가 없는 사람과 같은 취급이라 채점이 지금과
+	 * 완전히 같아진다. 이 항은 덧점수라서 빠져도 기존 점수가 안 흔들린다.
+	 */
+	private final ObjectProvider<UserTasteVectorRepository> tasteVectors;
+
+	private final ObjectProvider<UserTasteWeightRepository> tasteWeightRepository;
+
 	public BaselineRecommendationEngine(TripRepository tripRepository,
 			PlaceCandidateQueryService placeCandidateQueryService, BaselineCandidateTranslator translator,
 			BaselineCandidateScorer scorer, BaselineEngineProperties properties,
 			PreferenceAlignmentWeights alignmentWeights, UserPlaceCodeMapRepository codeMapRepository,
 			TripSeedPlaceRepository seedPlaceRepository,
-			Optional<TripTravelAreaRepository> travelAreas) {
+			Optional<TripTravelAreaRepository> travelAreas,
+			ObjectProvider<UserTasteVectorRepository> tasteVectors,
+			ObjectProvider<UserTasteWeightRepository> tasteWeightRepository) {
 		this.tripRepository = tripRepository;
 		this.placeCandidateQueryService = placeCandidateQueryService;
 		this.translator = translator;
@@ -110,6 +133,29 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 		this.codeMapRepository = codeMapRepository;
 		this.seedPlaceRepository = seedPlaceRepository;
 		this.travelAreas = travelAreas;
+		this.tasteVectors = tasteVectors;
+		this.tasteWeightRepository = tasteWeightRepository;
+	}
+
+	/**
+	 * 이 사용자의 <b>현재 판</b> 성분들. 없으면 빈 목록이다 — S15P21E201-943.
+	 *
+	 * <p>질의는 둘이다: 현재 판 하나를 찾고({@code superseded_at IS NULL}), 그 판의 성분을 읽는다.
+	 * <b>후보 수와 무관하게 요청당 두 번</b>이다.
+	 *
+	 * <p>🔴 빈 목록을 돌려주는 경우가 셋이고 <b>셋 다 정상</b>이다 — 빈으로 못 올라온 슬라이스,
+	 * 아직 접힌 적 없는 사용자(지금 대부분), 사용자를 모르는 요청. 셋 다 이 항이 0 이 되고
+	 * 채점은 벡터가 없던 때와 완전히 같다.
+	 */
+	private List<UserTasteWeight> currentTasteWeights(UUID userId) {
+		UserTasteVectorRepository vectors = this.tasteVectors.getIfAvailable();
+		UserTasteWeightRepository weights = this.tasteWeightRepository.getIfAvailable();
+		if (userId == null || vectors == null || weights == null) {
+			return List.of();
+		}
+		return vectors.findByUserIdAndSupersededAtIsNull(userId)
+				.map((vector) -> weights.findByIdTasteVectorId(vector.getTasteVectorId()))
+				.orElseGet(List::of);
 	}
 
 	@Override
@@ -150,6 +196,11 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 		List<UserPlaceCodeMap> constraintCodeMap =
 				this.codeMapRepository.findByIdUserInputKindOrderByIdUserInputCodeAsc(UserInputKind.CONSTRAINT);
 
+		// 🔴 S15P21E201-943 — 취향 벡터는 요청당 한 번만 읽는다. 후보마다 읽으면 질의 개수가
+		//    후보 수에 비례하는데, 이 클래스가 대조표를 배치당 한 번만 읽는 이유와 같다.
+		//    벡터가 없는 사람은 빈 목록이고, 그러면 채점이 지금과 완전히 같다.
+		List<UserTasteWeight> tasteWeights = currentTasteWeights(request.userId());
+
 		// 🔴 S15P21E201-827 — 후보가 0곳이면 여기서 멈춘다.
 		//
 		//    이 검사가 없으면 아래 resolveDatasetVersion 이 빈 목록을 받아 null 을 내고,
@@ -180,7 +231,8 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 		List<EngineCandidate> candidates = new ArrayList<>(response.candidates().size());
 		for (PlaceCandidateResponse.Candidate candidate : response.candidates()) {
 			candidates.add(this.scorer.score(candidate, preferenceSnapshot, constraints, this.properties.radiusM(),
-					this.properties.weights(), this.alignmentWeights, preferenceCodeMap, constraintCodeMap));
+					this.properties.weights(), this.alignmentWeights, preferenceCodeMap, constraintCodeMap,
+					tasteWeights, this.properties.tasteVectorMultiplier()));
 		}
 		// 🔴 S15P21E201-338 — 복제 씨앗을 앞세운다. 점수만 올리고 제약 판정은 그대로다(SeedBoost 참고).
 		candidates = SeedBoost.apply(candidates, this.seedPlaceRepository.findByTripId(trip.tripId()));

@@ -18,6 +18,8 @@ import com.gabolle.backend.place.domain.FeaturePresence;
 import com.gabolle.backend.place.domain.MatchKind;
 import com.gabolle.backend.place.domain.UserPlaceCodeMap;
 import com.gabolle.backend.preference.application.PreferenceJson;
+import com.gabolle.backend.preference.domain.TasteDimension;
+import com.gabolle.backend.preference.domain.UserTasteWeight;
 import com.gabolle.backend.recommendation.config.BaselineEngineProperties;
 import com.gabolle.backend.recommendation.config.PreferenceAlignmentWeights;
 import com.gabolle.backend.recommendation.domain.CoarseArea;
@@ -55,6 +57,13 @@ public class BaselineCandidateScorer {
 	 */
 	private static final double MOBILITY_WARNING_PENALTY = 0.05;
 
+	/**
+	 * 접근성을 <b>안 재 봤다</b>는 경고. "못 간다" 가 아니라 "모른다" 다 —
+	 * {@code ACCESS_VERIFIED_UNAVAILABLE}(재 보고 안 된다고 나온 곳)과 다른 사실이라
+	 * 자리를 따로 둔다. 화면은 이 둘을 갈라 그릴 수 있어야 한다.
+	 */
+	static final String ACCESSIBILITY_UNVERIFIED_WARNING = "ACCESSIBILITY_UNVERIFIED";
+
 	private final ObjectMapper objectMapper;
 
 	public BaselineCandidateScorer(ObjectMapper objectMapper) {
@@ -74,7 +83,8 @@ public class BaselineCandidateScorer {
 	public EngineCandidate score(PlaceCandidateResponse.Candidate candidate,
 			PreferenceSnapshot preferenceSnapshot, List<TripConstraint> constraints, int radiusM,
 			BaselineEngineProperties.Weights weights, PreferenceAlignmentWeights alignmentWeights,
-			List<UserPlaceCodeMap> preferenceCodeMap, List<UserPlaceCodeMap> constraintCodeMap) {
+			List<UserPlaceCodeMap> preferenceCodeMap, List<UserPlaceCodeMap> constraintCodeMap,
+			List<UserTasteWeight> tasteWeights, double tasteVectorMultiplier) {
 
 		List<Map<String, Object>> violations = new ArrayList<>();
 		List<Map<String, Object>> unknownFacts = new ArrayList<>();
@@ -139,6 +149,10 @@ public class BaselineCandidateScorer {
 				weights.cuisine(), "cuisine", "TAG_MATCH_CUISINE", "cuisineTagOverlap",
 				featureValues, scoreComponents, reasonCodes);
 
+		// ── 접힌 취향 벡터의 덧점수 (S15P21E201-943) ────────────────────────
+		total += applyTasteVectorComponent(candidate, preferenceCodeMap, tasteWeights, tasteVectorMultiplier,
+				featureValues, scoreComponents, reasonCodes);
+
 		// ── 점수형 선호 다섯 — LOCALITY·QUIETNESS·TOURIST_PREFERENCE·SHADE_PREFERENCE·SLOPE_PREFERENCE
 		//
 		// 🔴 이 다섯은 weights.preferenceAlignment(기본 0.10) 하나를 나눠 쓴다. 나누는 방식이
@@ -193,6 +207,10 @@ public class BaselineCandidateScorer {
 			total -= MOBILITY_WARNING_PENALTY;
 		}
 		if (warnings.contains("WALKING_OVER_LIMIT")) {
+			total -= MOBILITY_WARNING_PENALTY;
+		}
+		// S15P21E201-540 — 접근성 미확인도 같은 폭으로 깎는다. 빼지는 않고 뒤로 민다.
+		if (warnings.contains(ACCESSIBILITY_UNVERIFIED_WARNING)) {
 			total -= MOBILITY_WARNING_PENALTY;
 		}
 		total = Math.max(0.0, total);
@@ -351,6 +369,46 @@ public class BaselineCandidateScorer {
 		}
 	}
 
+	/**
+	 * 이동 제약(휠체어·유아차·무거운 짐·계단 회피·보행 상한)을 본다.
+	 *
+	 * <h2>🔴 S15P21E201-540 — "안 재 봤다" 를 탈락으로 세지 않는다</h2>
+	 *
+	 * 예전에는 접근성 표식이 <b>없는</b> 장소를 {@code unknownFacts} 에 REQUIRED 등급으로
+	 * 넣었고, 기본 설정({@code gabolle.recommendation.unknown-exclusion-threshold=REQUIRED})이
+	 * 그 후보를 결과에서 뺐다. 표식이 있는 것과 없는 것을 <b>같게 다룬 것</b>이다.
+	 *
+	 * <p>그 전제가 데이터와 맞지 않는다. 2026-09-16 운영 실측으로 접근성 표식이 붙은 장소는
+	 * 전체 2,683곳 중 <b>102곳(4%)</b>이다. 그래서 휠체어 조건을 켜면 96%가 사라지고, 반경
+	 * 조건까지 겹치면 <b>후보가 0건</b>이 된다. 실제로 그날까지 쌓인 추천 실패 18건 중
+	 * <b>8건</b>이 전부 이 자리({@code CONSTRAINT_EVALUATION} 단계)에서 죽었다.
+	 *
+	 * <p>그래서 둘을 가른다.
+	 *
+	 * <table border="1">
+	 * <caption>접근성 표식에 따른 판정</caption>
+	 * <tr><th>표식</th><th>뜻</th><th>판정</th></tr>
+	 * <tr><td>PRESENT</td><td>재 봤고 갈 수 있다</td><td>통과</td></tr>
+	 * <tr><td>ABSENT</td><td><b>재 봤고 못 간다</b></td><td>여전히 탈락 — 데이터가 없는 게 아니라 있는 것이다</td></tr>
+	 * <tr><td>UNVERIFIED</td><td>안 재 봤다</td><td><b>경고 + 감점.</b> 빼지 않고 뒤로 민다</td></tr>
+	 * </table>
+	 *
+	 * <p>이것은 같은 함수 위쪽의 {@code STAIRS_PRESENT} · {@code WALKING_OVER_LIMIT} 이 이미
+	 * 하고 있는 처리와 같다 — 이 자리만 다르게 돼 있었다.
+	 *
+	 * <h2>전역 설정을 내리지 않은 이유</h2>
+	 *
+	 * {@code unknown-exclusion-threshold} 를 {@code NONE} 으로 두면 이 문제는 풀리지만
+	 * <b>알레르기 미확인까지 같이 풀린다.</b> 그 enum 의 주석이 왜 안 되는지 적어 뒀다 —
+	 * 사용자가 식당에 전화해 땅콩기름을 쓰는지 확인할 수는 없다. 다이얼은 눈금이 하나뿐이라
+	 * 안전 제약과 편의 제약을 못 가른다. 그래서 다이얼이 아니라 이 자리를 고친다.
+	 *
+	 * <h2>화면이 알아야 하는 것</h2>
+	 *
+	 * 감점된 후보에는 {@link #ACCESSIBILITY_UNVERIFIED_WARNING} 이 붙어 응답까지 간다.
+	 * 「휠체어로 갈 수 있음」은 지킬 수 없는 약속이므로(경사가 완만해도 입구에 계단 세 칸이면
+	 * 못 간다) 화면은 <b>잰 것을 그대로</b> 말해야 한다 — 이 경고가 그 재료다.
+	 */
 	private void evaluateMobility(PlaceCandidateResponse.Candidate candidate, TripConstraint constraint,
 			List<UserPlaceCodeMap> constraintCodeMap, List<Map<String, Object>> violations,
 			List<Map<String, Object>> unknownFacts, List<String> warnings) {
@@ -382,9 +440,11 @@ public class BaselineCandidateScorer {
 		}
 		switch (bucketFor(candidate, featureType, key)) {
 			// 🔴 방향이 알레르기와 반대다 — 여기는 "없다고 확인됨" 이 FAIL 이다.
+			//    재 보고 안 된다고 나온 곳은 그대로 뺀다. 그건 데이터가 없는 게 아니라 있는 것이다.
 			case ABSENT -> violations.add(Map.of("code", "ACCESS_VERIFIED_UNAVAILABLE", "featureKey", key));
-			case UNVERIFIED -> unknownFacts.add(Map.of("fact", "ACCESSIBILITY_UNVERIFIED", "featureKey", key,
-					"severity", severityOf(constraint)));
+			// 🔴 S15P21E201-540 — "안 재 봤다" 는 FAIL 이 아니다. 경고 + 감점이다.
+			//    같은 함수 위쪽의 STAIRS_PRESENT · WALKING_OVER_LIMIT 과 같은 처리다.
+			case UNVERIFIED -> warnings.add(ACCESSIBILITY_UNVERIFIED_WARNING);
 			case PRESENT -> {
 				// 검증된 접근 가능 — 통과 기여.
 			}
@@ -465,6 +525,92 @@ public class BaselineCandidateScorer {
 	// ══════════════════════════════════════════════════════════════════════
 	// 점수 — 태그 겹침 · 점수형 선호 정렬
 	// ══════════════════════════════════════════════════════════════════════
+
+	/**
+	 * 접힌 취향 벡터가 {@code CATEGORY} 겹침에 더하는 덧점수 — S15P21E201-943.
+	 *
+	 * <h2>🔴 기존 채점을 바꾸지 않는다. 더하기만 한다</h2>
+	 *
+	 * {@code PreferenceSnapshot} 기반 채점은 이미 돌고 있고 발표가 그것으로 돈다. 벡터를
+	 * <b>대신</b> 쓰게 바꾸면 ① 아직 벡터가 없는 사람(지금 대부분)이 갑자기 취향 반영 0 이 되거나
+	 * ② 접기 배치의 결함이 그대로 추천을 망가뜨린다. <b>있으면 더하고 없으면 지금과 완전히 같다</b>
+	 * 로 두면 위험이 한쪽으로만 간다.
+	 *
+	 * <h2>겹침 비율을 그대로 흉내 낸다 — 다만 가중치로 잰다</h2>
+	 *
+	 * {@link #applyTagComponent} 는 <b>맞은 개수 ÷ 고른 개수</b>다. 여기서는 <b>맞은 성분의
+	 * 가중치 합 ÷ 벡터의 CATEGORY 성분 개수</b>를 쓴다. 두 가지가 따라온다.
+	 * <ul>
+	 * <li>전부 맞고 가중치가 1.0 이면 1.0 — 기존 비율과 같은 축이다</li>
+	 * <li>가중치가 <b>음수</b>면(싫어하는 갈래) 총점이 <b>내려간다.</b> 개수만 세면 못 하는 일이고,
+	 *     벡터를 쓰는 이유의 절반이 이것이다</li>
+	 * </ul>
+	 *
+	 * <h2>🔴 지금 이 항이 맞출 수 있는 낱말은 사실상 하나다</h2>
+	 *
+	 * 온보딩 취향 여섯 중 장소에 실제로 붙는 것은 {@code FOOD}(모든 장소 — 그래서 변별력이 없다)와
+	 * {@code CAFE_HEALING} 둘뿐이다. 나머지 넷({@code CITY}·{@code CULTURE_TEMPLE}·
+	 * {@code NATURE_WALK}·{@code SEA_BEACH})은 붙는 장소가 없다 — S15P21E201-1108.
+	 * 이 항의 효과가 작아 보인다면 배수가 아니라 <b>그쪽</b>을 먼저 본다.
+	 *
+	 * @param tasteWeights 이 사용자의 현재 판 성분 전부. 요청당 한 번 읽어서 넘어온다 —
+	 *     후보마다 다시 읽으면 "질의 개수가 후보 수에 비례하면 안 된다" 를 어긴다
+	 */
+	private double applyTasteVectorComponent(PlaceCandidateResponse.Candidate candidate,
+			List<UserPlaceCodeMap> preferenceCodeMap, List<UserTasteWeight> tasteWeights,
+			double multiplier, Map<String, Object> featureValues, Map<String, Object> scoreComponents,
+			List<String> reasonCodes) {
+
+		String featureType = featureTypeFor(preferenceCodeMap, "CATEGORY").orElse(null);
+		List<UserTasteWeight> categoryWeights = (tasteWeights == null) ? List.of()
+				: tasteWeights.stream().filter((w) -> w.getDimension() == TasteDimension.CATEGORY).toList();
+
+		if (featureType == null || categoryWeights.isEmpty()) {
+			// 🔴 벡터가 없는 사람이 지금 대부분이다. 그때는 이 항이 아예 없었던 것과 같아야 한다 —
+			//    값을 0.0 으로 적지 않고 null 로 둔다("겹친 게 없다" 와 "잴 것이 없다" 는 다르다).
+			featureValues.put("tasteVectorOverlap", null);
+			scoreComponents.put("tasteVectorContribution", componentDetail(multiplier, null, null));
+			return 0.0;
+		}
+
+		Set<String> placeTags = new LinkedHashSet<>();
+		for (PlaceFeatureView feature : candidate.features()) {
+			if (featureType.equals(feature.featureType()) && feature.featureKey() != null
+					&& FeaturePresence.indicatesPresence(feature.evidenceStatus(), rawValue(feature))) {
+				placeTags.add(feature.featureKey());
+			}
+		}
+
+		Map<String, Object> matched = new LinkedHashMap<>();
+		double sum = 0.0;
+		for (UserTasteWeight weight : categoryWeights) {
+			if (placeTags.contains(weight.getCode())) {
+				matched.put(weight.getCode(), weight.getWeight());
+				sum += weight.getWeight();
+			}
+		}
+		double ratio = sum / categoryWeights.size();
+
+		featureValues.put("tasteVectorOverlap", ratio);
+		// 🔴 evidence 를 함께 남긴다. 지금은 전부 SURVEY 라 이 항이 설문을 두 번 세는 중인데,
+		//    그 사실을 나중에 되짚으려면 무엇을 근거로 더했는지가 행에 남아 있어야 한다.
+		scoreComponents.put("tasteVectorContribution", componentDetail(multiplier, ratio,
+				Map.of("matched", matched, "componentCount", categoryWeights.size(),
+						"evidence", evidenceSummary(categoryWeights))));
+		if (!matched.isEmpty()) {
+			reasonCodes.add("TASTE_VECTOR_MATCH");
+		}
+		return multiplier * ratio;
+	}
+
+	/** 성분들이 무엇을 근거로 접혔는지 — {@code SURVEY} · {@code INTERACTION} · {@code BLENDED} 별 개수. */
+	private static Map<String, Integer> evidenceSummary(List<UserTasteWeight> weights) {
+		Map<String, Integer> counts = new LinkedHashMap<>();
+		for (UserTasteWeight weight : weights) {
+			counts.merge(weight.getEvidence().name(), 1, Integer::sum);
+		}
+		return counts;
+	}
 
 	private double applyTagComponent(PlaceCandidateResponse.Candidate candidate, PreferenceSnapshot preferenceSnapshot,
 			List<UserPlaceCodeMap> preferenceCodeMap, String preferenceCode,

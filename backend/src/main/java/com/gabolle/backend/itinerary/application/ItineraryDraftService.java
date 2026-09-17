@@ -123,7 +123,8 @@ public class ItineraryDraftService implements ItineraryDraftPort {
                 .orElseThrow(() -> new IllegalStateException("여행을 찾을 수 없다: " + command.tripId()));
 
         int days = trip.days();
-        List<List<ItineraryDraftCommand.PlannedPlace>> byDay = distributeByDay(command.places(), days);
+        Distribution distribution = distributeByDay(command.places(), days, mealsPerDay(trip));
+        List<List<ItineraryDraftCommand.PlannedPlace>> byDay = distribution.byDay();
 
         List<ItineraryDraft.DraftItem> items = new ArrayList<>();
         // 구간을 만들 때 필요한, 날짜별 "그 날 다녀올 장소" 원본 순서.
@@ -152,9 +153,13 @@ public class ItineraryDraftService implements ItineraryDraftPort {
 
         List<ItineraryDraft.DraftLeg> legs = this.legPlanner.buildLegs(trip, placeIdsByDay);
 
+        List<String> draftWarnings = distribution.sightSlotUnfilled()
+                ? List.of(ItineraryWarningCodes.SIGHT_SLOT_UNFILLED)
+                : List.of();
+
         return new ItineraryDraft(command.tripId(), command.userId(), command.requestId(),
                 command.modelVersion(), command.featureVersion(), command.ontologyVersion(),
-                command.policyVersion(), command.datasetVersion(), items, legs);
+                command.policyVersion(), command.datasetVersion(), items, legs, draftWarnings);
     }
 
     /**
@@ -180,8 +185,8 @@ public class ItineraryDraftService implements ItineraryDraftPort {
      * 채운다. 명소가 모자라 자리가 남으면 미뤄 둔 밥집으로 메운다 — 끼니 상한 때문에 자리를
      * 비워 두는 것보다 갈 곳이 있는 편이 낫다.
      */
-    private List<List<ItineraryDraftCommand.PlannedPlace>> distributeByDay(
-            List<ItineraryDraftCommand.PlannedPlace> places, int days) {
+    private Distribution distributeByDay(
+            List<ItineraryDraftCommand.PlannedPlace> places, int days, int mealsPerDay) {
 
         List<List<ItineraryDraftCommand.PlannedPlace>> byDay = new ArrayList<>(days);
         for (int i = 0; i < days; i++) {
@@ -189,23 +194,71 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         }
 
         int[] foodPerDay = new int[days];
-        List<ItineraryDraftCommand.PlannedPlace> deferredFood = new ArrayList<>();
 
+        // 🔴 미뤄 둔 밥집으로 빈 자리를 메우지 않는다 (S15P21E201-1129).
+        //
+        //    전에는 메웠다. 앉지 못한 밥집을 모아 뒀다가, 끼니 상한을 무시하고 남은 자리에
+        //    전부 밀어 넣었다. 이유는 "자리를 비워 두는 것보다 갈 곳이 있는 편이 낫다"
+        //    였는데, 그 결과가 3일 12곳이 전부 음식점인 일정이었다 — 바다로 분류된 장소가
+        //    16곳뿐이라 명소가 금방 떨어지고 나머지를 밥집이 메웠다.
+        //
+        //    메우면 데이터가 모자라다는 사실이 아무 데도 안 보인다. 사용자에게는 "이 앱은
+        //    밥집만 추천한다" 로 보이고 팀에게는 신호가 안 온다. 그래서 비워 두고 말한다.
+        int rejectedFood = 0;
         for (ItineraryDraftCommand.PlannedPlace place : places) {
-            if (isFood(place) && !seat(byDay, foodPerDay, place, true)) {
-                deferredFood.add(place);
-            }
-            else if (!isFood(place)) {
-                seat(byDay, foodPerDay, place, false);
+            if (!seat(byDay, foodPerDay, place, mealsPerDay) && isFood(place)) {
+                rejectedFood++;
             }
         }
 
-        // 명소가 모자라 빈 자리가 남으면 미뤄 둔 밥집으로 채운다. 끼니 상한 때문에 자리를
-        // 비워 두는 것보다, 덜 이상적이어도 갈 곳이 있는 편이 낫다.
-        for (ItineraryDraftCommand.PlannedPlace place : deferredFood) {
-            seat(byDay, foodPerDay, place, false);
+        // 자리는 남았는데 앉힐 것이 밥집밖에 없었던 경우에만 경고한다. 하루가 꽉 차서
+        // 밥집이 밀린 것은 정상이고, 그건 빈 자리를 만들지 않는다.
+        boolean roomLeft = byDay.stream().anyMatch(day -> day.size() < this.maxItemsPerDay);
+        return new Distribution(byDay, roomLeft && rejectedFood > 0);
+    }
+
+    /** 날짜별 배분 결과와, 명소가 모자라 빈 자리가 남았는지. */
+    private record Distribution(List<List<ItineraryDraftCommand.PlannedPlace>> byDay, boolean sightSlotUnfilled) { }
+
+    /**
+     * 고정된 식사 시각대 — 이 시간에 사람은 밥을 먹는다.
+     *
+     * <p>🔴 <b>개수가 아니라 시각이 정하게 한다</b>(S15P21E201-1129). 전에는 "하루에 밥집
+     * 최대 3곳" 이라는 개수 상한이었는데, 그 값은 <b>하루가 몇 시간이든 똑같았다.</b>
+     * 09~18시 여행이든 07~22시 여행이든 3곳이다. 사람이 다니는 방식과 안 맞는다.
+     */
+    private static final LocalTime[][] MEAL_BANDS = {
+            { LocalTime.of(7, 0), LocalTime.of(9, 30) },    // 아침
+            { LocalTime.of(11, 30), LocalTime.of(14, 0) },  // 점심
+            { LocalTime.of(17, 0), LocalTime.of(20, 0) },   // 저녁
+    };
+
+    /** 식사 시간대가 활동 시간과 이만큼은 겹쳐야 "그 끼니를 먹는 여행" 으로 본다. */
+    private static final long MEAL_OVERLAP_MINUTES = 60;
+
+    /**
+     * 그 여행의 하루에 끼니가 몇 번 들어가나 — 활동 시간대와 겹치는 식사 시간대의 수.
+     *
+     * <p>09:00~18:00 이면 점심(150분 겹침)과 저녁(60분 겹침)으로 <b>2</b>다. 아침은 30분만
+     * 겹쳐서 안 센다. 활동 시간대를 안 정한 여행은 점심·저녁이 있다고 보고 <b>2</b>를 준다 —
+     * 모름을 0으로 두면 밥집이 한 곳도 안 들어간다.
+     */
+    private int mealsPerDay(Trip trip) {
+        LocalTime start = trip.timeWindowStart();
+        LocalTime end = trip.timeWindowEnd();
+        if (start == null || end == null || !end.isAfter(start)) {
+            return Math.min(2, this.maxFoodPerDay);
         }
-        return byDay;
+        int meals = 0;
+        for (LocalTime[] band : MEAL_BANDS) {
+            LocalTime from = band[0].isAfter(start) ? band[0] : start;
+            LocalTime to = band[1].isBefore(end) ? band[1] : end;
+            if (to.isAfter(from) && Duration.between(from, to).toMinutes() >= MEAL_OVERLAP_MINUTES) {
+                meals++;
+            }
+        }
+        // 🔴 설정 상한을 넘지 않는다. 그 값은 이제 "최대 이만큼" 이지 "언제나 이만큼" 이 아니다.
+        return Math.min(meals, this.maxFoodPerDay);
     }
 
     /**
@@ -215,14 +268,14 @@ public class ItineraryDraftService implements ItineraryDraftPort {
      *     자리를 메울 때는 안 지킨다
      */
     private boolean seat(List<List<ItineraryDraftCommand.PlannedPlace>> byDay, int[] foodPerDay,
-            ItineraryDraftCommand.PlannedPlace place, boolean respectFoodCap) {
+            ItineraryDraftCommand.PlannedPlace place, int mealsPerDay) {
 
         boolean food = isFood(place);
         for (int day = 0; day < byDay.size(); day++) {
             if (byDay.get(day).size() >= this.maxItemsPerDay) {
                 continue;
             }
-            if (food && respectFoodCap && foodPerDay[day] >= this.maxFoodPerDay) {
+            if (food && foodPerDay[day] >= mealsPerDay) {
                 continue;
             }
             byDay.get(day).add(place);
@@ -284,16 +337,18 @@ public class ItineraryDraftService implements ItineraryDraftPort {
             OffsetDateTime at = (slot.start() == null) ? null
                     : visitDate.atTime(slot.start()).atZone(ZONE).toOffsetDateTime();
 
+            // 🔴 이 칸이 밥 먹는 시각인가 (S15P21E201-1129). 맞으면 밥집을, 아니면 밥집이
+            //    아닌 곳을 먼저 찾는다. 같은 조건이면 순위가 높은 쪽이 먼저다.
+            boolean wantFood = overlapsMealBand(slot);
+
             int chosen = -1;
             if (at != null) {
-                for (int i = 0; i < count; i++) {
-                    if (used[i]) {
-                        continue;
-                    }
-                    if (violationAt(dayPlaces.get(i).placeId(), at) == null) {
-                        chosen = i;
-                        break;
-                    }
+                chosen = firstOpen(dayPlaces, used, at, wantFood);
+                if (chosen < 0) {
+                    // 원하는 종류가 없다. 종류를 포기하고 영업시간만 본다 — 자리를 비우는
+                    // 것보다는 낫다. 이 칸이 "밥 때인데 밥집이 없다" 는 사실은 이미
+                    // distributeByDay 가 SIGHT_SLOT_UNFILLED 로 말한다.
+                    chosen = firstOpen(dayPlaces, used, at, !wantFood);
                 }
             }
 
@@ -318,6 +373,55 @@ public class ItineraryDraftService implements ItineraryDraftPort {
             placed.add(new Placed(place, slot, warnings));
         }
         return placed;
+    }
+
+    /** 그 시각에 문을 연 후보 중, 원하는 종류의 첫 번째. 없으면 {@code -1}. */
+    private int firstOpen(List<ItineraryDraftCommand.PlannedPlace> dayPlaces, boolean[] used,
+            OffsetDateTime at, boolean food) {
+
+        for (int i = 0; i < dayPlaces.size(); i++) {
+            if (used[i] || isFood(dayPlaces.get(i)) != food) {
+                continue;
+            }
+            if (violationAt(dayPlaces.get(i).placeId(), at) == null) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * 이 칸이 밥 먹는 시각인가 — 식사 시각대와 {@link #MEAL_OVERLAP_MINUTES} 이상 겹치면.
+     *
+     * <p>🔴 <b>스치기만 한 것은 안 센다.</b> 운영에서 가장 흔한 09:00~18:00 · 하루 4곳이면
+     * 첫 칸이 09:00~11:15 인데, 이게 아침(~09:30)에 30분 걸린다. 겹치기만 하면 센다는
+     * 규칙이면 <b>오전 첫 자리가 밥집이 된다</b> — 아침 먹고 나온 사람에게 9시에 또 밥을
+     * 권하는 꼴이다. {@link #mealsPerDay} 도 같은 30분을 안 세므로, 같은 잣대를 써야 칸 수와
+     * 끼니 수가 맞는다. 그 여행의 칸은 이렇게 갈린다:
+     *
+     * <pre>
+     *   09:00~11:15  아침과 30분   → 명소
+     *   11:15~13:30  점심과 120분  → 밥집
+     *   13:30~15:45  점심과 30분   → 명소
+     *   15:45~18:00  저녁과 60분   → 밥집
+     * </pre>
+     *
+     * <p>칸 자체가 60분보다 짧으면 그 길이를 기준으로 삼는다 — 안 그러면 짧은 칸은 통째로
+     * 점심 안에 들어가 있어도 영영 밥 때가 아니게 된다.
+     */
+    private static boolean overlapsMealBand(Slot slot) {
+        if (slot.start() == null || slot.end() == null) {
+            return false;
+        }
+        long required = Math.min(MEAL_OVERLAP_MINUTES, Duration.between(slot.start(), slot.end()).toMinutes());
+        for (LocalTime[] band : MEAL_BANDS) {
+            LocalTime from = band[0].isAfter(slot.start()) ? band[0] : slot.start();
+            LocalTime to = band[1].isBefore(slot.end()) ? band[1] : slot.end();
+            if (to.isAfter(from) && Duration.between(from, to).toMinutes() >= required) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -395,7 +499,7 @@ public class ItineraryDraftService implements ItineraryDraftPort {
                 draft.policyVersion(), draft.datasetVersion());
         ItineraryVersion firstVersion = new ItineraryVersion(itineraryVersionId, itineraryId, 1, null,
                 ItineraryVersion.Operation.CREATE, draft.userId(), requestIdString, versions, now,
-                requestIdString);
+                requestIdString, draft.warningCodes());
 
         List<ItineraryItem> items = new ArrayList<>(draft.items().size());
         for (ItineraryDraft.DraftItem draftItem : draft.items()) {

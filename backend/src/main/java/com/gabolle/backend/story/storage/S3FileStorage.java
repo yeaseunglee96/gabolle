@@ -64,8 +64,12 @@ public class S3FileStorage implements StoragePort {
 
 	public S3FileStorage(StorageProperties properties) {
 		this.s3Properties = properties.getS3();
+		// 🔴 지역을 반드시 준다. 안 주면 SDK 가 객체를 넣기 전에 버킷 위치를 서버에 묻고,
+		//    그 호출에는 s3:GetBucketLocation 권한이 필요하다 — 운영 정책에 그것이 없어서
+		//    2026-09-17 새벽까지 사진이 한 장도 안 올라갔다. 근거는 StorageProperties.S3.region.
 		this.client = MinioClient.builder()
 				.endpoint(this.s3Properties.getEndpoint())
+				.region(this.s3Properties.getRegion())
 				.credentials(this.s3Properties.getAccessKey(), this.s3Properties.getSecretKey())
 				.build();
 	}

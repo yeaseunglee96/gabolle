@@ -272,6 +272,76 @@ class ItineraryRecalculationIntegrationTest {
 	}
 
 	/**
+	 * 🔴 S15P21E201-1080 — 뺀 장소를 행동 신호로 남긴다.
+	 *
+	 * <p>이 이벤트가 없어서 취향 벡터에 행동이 한 건도 안 들어가고 있었다. {@code event_outbox}
+	 * 가 통째로 비어 있었고, 접기 배치는 늘 {@code rebuilt=0} 이었다.
+	 *
+	 * <p>🔴 <b>요청이 아니라 반영을 적는다.</b> 이 이벤트는 {@code removeItem} 이 Job 을 만들 때가
+	 * 아니라 제외가 실제로 새 판에 들어가는 <b>recorder 트랜잭션</b>에서 난다. 일정이 그대로인데
+	 * 「이 장소를 거부했다」가 남으면 랭커는 일어나지 않은 일을 배운다.
+	 */
+	@Test
+	@DisplayName("🔴 항목을 빼면 itinerary_remove 가 남는다 — 벡터가 셀 행동 신호")
+	void removeRecordsBehaviorSignal() {
+		enableBehaviorPersonalization();
+		this.engine.willReturn(FakeRecommendationEngine.batchOf(List.of(
+				FakeRecommendationEngine.passing(this.placeE, 0.90))));
+
+		RecommendationJob job = runSynchronously(removeCommand(1, this.keyA));
+		assertThat(job.getJobStatus()).isEqualTo(JobStatus.SUCCEEDED);
+
+		// 🔴 이 여행의 것만 센다. 표 전체를 세면 같은 종류를 쓰는 다른 검사가 생기는 순간
+		//    이 검사가 그 검사 때문에 빨개진다 — 원인이 여기 있는 것처럼 보이면서.
+		List<java.util.Map<String, Object>> rows = this.jdbc.queryForList(
+				"SELECT aggregate_type, aggregate_id, user_id, trip_id, payload::text AS payload "
+						+ "FROM event_outbox WHERE event_type = ? AND trip_id = ?",
+				"itinerary_remove", this.tripId);
+
+		assertThat(rows).as("뺀 장소가 이벤트로 남아야 한다").hasSize(1);
+		assertThat(rows.get(0).get("aggregate_type")).isEqualTo("trip");
+		assertThat(rows.get(0).get("aggregate_id")).hasToString(this.tripId.toString());
+		assertThat(rows.get(0).get("user_id")).hasToString(this.userId.toString());
+		// 어느 장소를 뺐는지가 payload 에 있어야 접기가 셀 수 있다.
+		assertThat((String) rows.get(0).get("payload")).contains(this.placeA.toString());
+	}
+
+	/**
+	 * 🔴 개인화를 끈 사람은 안 남긴다 — S15P21E201-549 의 규칙이 이 경로에도 걸리는지.
+	 *
+	 * <p>이 경로는 {@code RecommendationRecorder} 를 지나 {@code OutboxService} 를 직접 부르므로
+	 * {@code EventIngestService} 안의 동의 검사를 <b>안 지난다.</b> 그래서 명령을 조립하는 자리에서
+	 * 따로 거른다. 우회로 자체를 막는 것은 S15P21E201-1096 이다.
+	 *
+	 * <p>🔴 이 검사가 {@code PersonalizationFixture} 의 기본값({@code EXPLICIT_ONLY})을 그대로
+	 * 쓰는 것이 중요하다 — 위 검사가 일부러 켠 것과 짝이다.
+	 */
+	@Test
+	@DisplayName("🔴 행동 개인화를 끈 사람은 항목을 빼도 itinerary_remove 가 안 남는다")
+	void removeRecordsNothingWhenBehaviorPersonalizationIsOff() {
+		this.engine.willReturn(FakeRecommendationEngine.batchOf(List.of(
+				FakeRecommendationEngine.passing(this.placeE, 0.90))));
+
+		RecommendationJob job = runSynchronously(removeCommand(1, this.keyA));
+		assertThat(job.getJobStatus()).isEqualTo(JobStatus.SUCCEEDED);
+
+		// 🔴 일정은 정상으로 바뀌어야 한다. 「안 적는다」가 「동작을 막는다」가 되면 안 된다.
+		assertThat(content(2).exclusions()).extracting(ItineraryExclusion::placeId)
+				.containsExactly(this.placeA.toString());
+
+		Integer count = this.jdbc.queryForObject(
+				"SELECT count(*) FROM event_outbox WHERE event_type = ? AND trip_id = ?",
+				Integer.class, "itinerary_remove", this.tripId);
+		assertThat(count).as("껐는데 남으면 동의를 어긴 것이다").isZero();
+	}
+
+	/** 기본 fixture 는 EXPLICIT_ONLY(행동 개인화 OFF)로 사람을 넣는다. 켜야 하는 검사만 이것을 부른다. */
+	private void enableBehaviorPersonalization() {
+		this.jdbc.update("UPDATE app_user SET personalization_mode = ? WHERE user_id = ?",
+				"BEHAVIOR_ENABLED", this.userId);
+	}
+
+	/**
 	 * 제외 목록은 판에 매달려 복사된다 — 별도 조회 없이 "몇 번을 재계산해도 다시 안 나온다" 가 성립한다.
 	 * 재계산은 고정 항목(B)만 남기고 나머지를 비운 뒤 채운다.
 	 */

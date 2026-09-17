@@ -2,6 +2,8 @@ package com.gabolle.backend.place.api;
 
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import com.gabolle.backend.place.domain.Place;
 
 /**
@@ -23,11 +25,35 @@ public record NearbyPlaceItem(
 		double lat,
 		double lng,
 		long distanceM,
-		boolean hasPhoto) {
+		/**
+		 * 사진이 있는가. 🔴 {@code photoUrl} 이 생긴 뒤에도 <b>남겨 둔다</b> — 지금 화면이
+		 * 이 칸을 읽고 있고, 칸을 빼면 그 화면이 깨진다. 새 칸은 맨 뒤에 더한다.
+		 */
+		boolean hasPhoto,
+
+		/**
+		 * 🔴 S15P21E201-1120 — 맨 뒤에 더한 칸이다. 대표 사진 주소.
+		 *
+		 * <p>홈 「부산 둘러보기」 카드와 탐색 목록이 사진을 못 그리던 이유가 이 칸이 없어서다.
+		 * 사진이 없어서가 아니다 — 운영에 사진이 붙은 장소가 72곳 있는데(2026-09-16 실측,
+		 * 문화·사찰 42 · 도심 16 · 자연 9 · 바다 1) 목록 응답이 그 주소를 안 실었다.
+		 *
+		 * <p>값이 없으면 키 자체가 빠진다. 앱은 모르는 키를 무시하므로 맨 뒤에 더하는 것은
+		 * 지금 화면을 깨지 않는다.
+		 */
+		@JsonInclude(JsonInclude.Include.NON_NULL) String photoUrl,
+		/**
+		 * 🔴 {@code photoUrl} 과 <b>반드시 짝이다.</b> {@code Place.photoUrl} 의 주석이
+		 * "photoUrl 이 있으면 이것도 있어야 한다" 고 못박아 뒀다 — 관광공사 공공누리 사진이라
+		 * <b>출처 표기 없이 내보내면 라이선스 문제</b>가 된다. 사진만 주고 이 칸을 빼면 화면이
+		 * 표기할 방법이 없어진다.
+		 */
+		@JsonInclude(JsonInclude.Include.NON_NULL) String photoSource) {
 
 	public static NearbyPlaceItem from(Place place, long distanceM) {
 		return new NearbyPlaceItem(place.getPlaceId(), place.getNameKo(), place.getNameEn(),
 				place.getCategory(), place.getAddress(), place.getLat(), place.getLng(), distanceM,
-				place.getPhotoUrl() != null && !place.getPhotoUrl().isBlank());
+				place.getPhotoUrl() != null && !place.getPhotoUrl().isBlank(),
+				place.getPhotoUrl(), place.getPhotoSource());
 	}
 }

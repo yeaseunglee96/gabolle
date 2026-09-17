@@ -40,7 +40,21 @@ public record ItineraryDetailResponse(
 		 * 응답에 함께 들어온다")의 마지막 남은 항목. {@code itinerary_versions.warning_codes}
 		 * 를 그대로 옮긴다. 경고가 없으면 빈 배열이지 {@code null} 이 아니다.
 		 */
-		List<String> warningCodes) {
+		List<String> warningCodes,
+
+		/**
+		 * 🔴 S15P21E201-1113 — 맨 뒤에 더한 칸이다. {@code trip.trip_id} 그대로다.
+		 *
+		 * <p>앱의 주소는 {@code /trips/{id}/itinerary} 인데 그 {@code id} 자리에 <b>일정 번호</b>가
+		 * 들어간다. 그래서 일정 화면에 서 있는 앱은 <b>자기가 어느 여행에 속하는지 알 방법이
+		 * 없었고</b>, 추천으로 넘어갈 때 일정 번호를 여행 번호인 척 넘겨
+		 * {@code GET /api/v1/trips/{tripId}/recommendation-jobs} 가 404 를 냈다. 화면은 그 404 를
+		 * 「아직 추천이 없어요」로 그렸다 — 실제로는 그 여행에 성공한 추천이 있었다(2026-09-16 실측).
+		 *
+		 * <p>목록을 한 번 더 받아 맞추게 하지 않는다. 일정은 반드시 여행 하나에 속하므로 이 칸은
+		 * 비지 않고, 아는 쪽이 알려주는 것이 부르는 쪽이 뒤지는 것보다 싸다.
+		 */
+		String tripId) {
 
 	/** 여행 기간의 날짜 하나 — 항목이 0개인 날도 포함된다(빈 {@code items}). */
 	public record Day(String date, List<Item> items) {
@@ -98,6 +112,22 @@ public record ItineraryDetailResponse(
 			 * 그리면 사용자는 그 시간에 맞춰 움직이다 늦는다. 참·거짓이 아닌 이유는 "어림잡았다"
 			 * 와 "아무것도 못 쟀다" 가 화면에 서로 다르게 그려져야 하기 때문이다.
 			 */
-			String travelDataStatus) {
+			String travelDataStatus,
+			/**
+			 * 🔴 S15P21E201-1109 — 이 항목으로 들어오는 구간의 <b>이동 요금(원)</b>.
+			 *
+			 * <p><b>{@code null} 은 "얼마인지 모른다" 이고 {@code 0} 은 "공짜다" 다.</b> 화면이
+			 * 둘을 같게 그리면 요금 출처가 없는 이동수단이 전부 「무료」로 보인다. 모르면
+			 * <b>줄을 만들지 않는 것</b>이 맞다.
+			 *
+			 * <p>지금 값이 있는 것은 자동차 계열(택시·자가용·렌터카)뿐이다 — 카카오모빌리티가
+			 * 택시 요금과 통행료를 주기 때문이다. 도보에는 요금이라는 것이 없고, 대중교통은
+			 * 업체가 주지 않는다(노선망이 들어오면 계산한다 — S15P21E201-1104).
+			 *
+			 * <p>🔴 <b>{@code estimatedCostKrw} 와 더하지 마라.</b> 이쪽은 "가는 데 드는 돈",
+			 * 저쪽은 "그 장소에 들어가는 데 드는 돈" 이다. 합치면 입장료 자료가 없는 지금
+			 * "교통비만 낸 합계" 가 "총비용" 으로 읽힌다.
+			 */
+			Integer travelFareKrw) {
 	}
 }

@@ -10,6 +10,8 @@ import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestClientResponseException;
 
 import com.gabolle.backend.menuscan.config.MenuScanProperties;
 import com.gabolle.backend.menuscan.presentation.dto.MenuScanResponse;
@@ -35,6 +37,16 @@ import tools.jackson.databind.ObjectMapper;
  * </ul>
  *
  * 권한을 안 주면 주입의 상한이 <b>「화면에 이상한 글자가 뜬다」</b> 로 내려간다.
+ *
+ * <h2>모델 호출이 실패하면 감싸서 올린다 — S15P21E201-1102</h2>
+ *
+ * 예전에는 {@code retrieve()} 가 던지는 것을 아무도 안 받았다. 그래서 키가 틀리거나
+ * 서버가 바깥으로 못 나가면 <b>봉투 없는 500</b> 이 그대로 나갔다 — 화면은 「사진을 읽지
+ * 못했어요」 라고만 말하고, 무엇이 막힌 것인지는 로그를 열기 전에는 알 수 없었다. 운영에
+ * 키를 넣은 날 그 상태가 그대로 드러났다(2026-09-16).
+ *
+ * 그래서 <b>닿지 못한 것</b>과 <b>거절당한 것</b>을 나눠 감싼다. 둘 다 502 로 나가지만
+ * 메시지가 다르므로 로그 한 줄로 갈린다. 사용자에게 가는 문구는 그대로다.
  *
  * <h2>🔴 「없다」를 묻지 않는다</h2>
  * 모델에게 <b>「알레르기가 있나 없나」를 묻지 않는다.</b> 그렇게 물으면 모델이 «없음» 이라고
@@ -101,14 +113,29 @@ public class GmsMenuReader {
 								Map.of("type", "text", "text", "이 메뉴판에서 보이는 글자를 옮겨 적어라."),
 								Map.of("type", "image_url", "image_url", Map.of("url", dataUrl))))));
 
-		String raw = this.restClient
-				.post()
-				.uri(this.properties.getBaseUrl() + "/chat/completions")
-				.header("Authorization", "Bearer " + this.properties.getApiKey())
-				.contentType(MediaType.APPLICATION_JSON)
-				.body(body)
-				.retrieve()
-				.body(String.class);
+		String raw;
+		try {
+			raw = this.restClient
+					.post()
+					.uri(this.properties.getBaseUrl() + "/chat/completions")
+					.header("Authorization", "Bearer " + this.properties.getApiKey())
+					.contentType(MediaType.APPLICATION_JSON)
+					.body(body)
+					.retrieve()
+					.body(String.class);
+		}
+		catch (RestClientResponseException exception) {
+			// 모델 쪽이 받기는 했는데 거절했다 — 키가 틀렸거나, 모델 이름이 안 열려 있거나,
+			// 그쪽 한도다. 상태 코드를 메시지에 실어야 로그만 보고 셋을 가를 수 있다.
+			throw new MenuReadFailedException(MenuReadFailedException.Reason.REJECTED,
+					"모델이 요청을 거절했다 (HTTP " + exception.getStatusCode().value() + ")", exception);
+		}
+		catch (RestClientException exception) {
+			// 모델 쪽에 닿지도 못했다 — 이름 풀이 실패, 연결 거부, 시간 초과. 배포된 서버가
+			// 바깥으로 못 나가는 상황이 여기로 온다.
+			throw new MenuReadFailedException(MenuReadFailedException.Reason.UNREACHABLE,
+					"모델에 닿지 못했다", exception);
+		}
 
 		return parse(raw);
 	}
@@ -147,7 +174,8 @@ public class GmsMenuReader {
 			return new Result(List.copyOf(lines), unread);
 		}
 		catch (RuntimeException exception) {
-			throw new MenuReadFailedException("사진에서 글자를 읽지 못했습니다", exception);
+			throw new MenuReadFailedException(MenuReadFailedException.Reason.UNPARSEABLE,
+					"사진에서 글자를 읽지 못했습니다", exception);
 		}
 	}
 
@@ -164,8 +192,33 @@ public class GmsMenuReader {
 	/** 🔴 못 읽었다. <b>빈 결과로 바꾸지 않는다</b> — 빈 결과는 「없다」로 읽힌다. */
 	public static class MenuReadFailedException extends RuntimeException {
 
-		public MenuReadFailedException(String message, Throwable cause) {
+		/**
+		 * 어디서 어긋났는가.
+		 *
+		 * <p>셋은 <b>사람이 할 일이 다르다.</b> {@code UNREACHABLE} 은 서버가 바깥으로 나가는
+		 * 길을 보는 일이고, {@code REJECTED} 는 키와 모델 이름을 보는 일이며,
+		 * {@code UNPARSEABLE} 은 우리 쪽 파싱을 보는 일이다. 사용자에게 가는 문구는 셋 다
+		 * 같지만 오류 코드를 갈라 두면 <b>응답 한 번으로</b> 어느 쪽인지 안다 — 운영 로그에
+		 * 닿을 수 없는 사람도 판정할 수 있어야 한다.
+		 */
+		public enum Reason {
+			/** 모델 쪽에 닿지도 못했다 — 이름 풀이 실패, 연결 거부, 시간 초과. */
+			UNREACHABLE,
+			/** 모델이 받기는 했는데 거절했다 — 키, 모델 이름, 그쪽 한도. */
+			REJECTED,
+			/** 모델이 답을 줬는데 우리가 알아볼 수 없다. */
+			UNPARSEABLE,
+		}
+
+		private final Reason reason;
+
+		public MenuReadFailedException(Reason reason, String message, Throwable cause) {
 			super(message, cause);
+			this.reason = reason;
+		}
+
+		public Reason reason() {
+			return this.reason;
 		}
 	}
 }

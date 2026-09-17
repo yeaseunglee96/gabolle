@@ -52,6 +52,22 @@ public class ItineraryLeg {
      */
     private final ItineraryItem.DataStatus dataStatus;
 
+    /**
+     * 🔴 S15P21E201-1109 — 이 구간의 이동 요금(원).
+     *
+     * <p><b>{@code null} 은 "얼마인지 모른다" 이고 {@code 0} 은 "공짜다" 다.</b> 둘을 같게
+     * 다루면 요금 출처가 없는 이동수단이 화면에서 전부 「무료」가 된다.
+     *
+     * <p>지금 값이 있는 것은 <b>자동차 계열(택시·자가용·렌터카)뿐</b>이다 — 카카오모빌리티가
+     * 택시 요금과 통행료를 주기 때문이다. 도보에는 요금이라는 것이 없고, 대중교통은 업체가
+     * 주지 않는다. 대중교통 운임은 노선망이 들어오면 탄 노선·구간·환승 횟수로 계산한다
+     * (S15P21E201-1104).
+     *
+     * <p>🔴 <b>입장료와 합치지 않는다.</b> 요금은 구간의 성질이고 입장료는 장소의 성질이다.
+     * 합치면 입장료가 없는 지금 "교통비만 낸 합계" 가 "총비용" 으로 읽힌다.
+     */
+    private final Integer fareKrw;
+
     private final Instant createdAt;
 
     /**
@@ -63,14 +79,29 @@ public class ItineraryLeg {
                         Integer distanceM, Integer durationMin, Integer walkingMeters,
                         Integer ascentM, Integer stairSteps, Instant createdAt) {
         this(itineraryLegId, itineraryVersionId, dayIndex, sequence, fromPlaceId, toPlaceId, travelMode,
-                distanceM, durationMin, walkingMeters, ascentM, stairSteps, null, createdAt);
+                distanceM, durationMin, walkingMeters, ascentM, stairSteps, null, null, createdAt);
+    }
+
+    /**
+     * 요금 없이 만든다 — S15P21E201-1109 이전의 생성자를 그대로 남긴다.
+     *
+     * <p>부르는 곳이 여럿이라 한 번에 안 고친다. 요금을 모르는 것이 기본값이고, 그것이
+     * 지금 대부분의 구간에서 맞는 값이다.
+     */
+    public ItineraryLeg(String itineraryLegId, String itineraryVersionId, int dayIndex, int sequence,
+                        String fromPlaceId, String toPlaceId, String travelMode,
+                        Integer distanceM, Integer durationMin, Integer walkingMeters,
+                        Integer ascentM, Integer stairSteps, ItineraryItem.DataStatus dataStatus,
+                        Instant createdAt) {
+        this(itineraryLegId, itineraryVersionId, dayIndex, sequence, fromPlaceId, toPlaceId, travelMode,
+                distanceM, durationMin, walkingMeters, ascentM, stairSteps, dataStatus, null, createdAt);
     }
 
     public ItineraryLeg(String itineraryLegId, String itineraryVersionId, int dayIndex, int sequence,
                         String fromPlaceId, String toPlaceId, String travelMode,
                         Integer distanceM, Integer durationMin, Integer walkingMeters,
                         Integer ascentM, Integer stairSteps, ItineraryItem.DataStatus dataStatus,
-                        Instant createdAt) {
+                        Integer fareKrw, Instant createdAt) {
 
         if (dayIndex < 0) {
             throw new IllegalArgumentException("dayIndex 는 0 이상이어야 한다: " + dayIndex);
@@ -87,6 +118,11 @@ public class ItineraryLeg {
         if (travelMode == null || travelMode.isBlank()) {
             throw new IllegalArgumentException("travelMode 는 필수다");
         }
+        if (fareKrw != null && fareKrw < 0) {
+            // 🔴 음수 요금은 "할인" 이 아니라 자료가 어긋난 것이다. 조용히 통과시키면
+            //    하루 합계가 줄어들고, 사람은 그것을 실제 금액으로 읽는다.
+            throw new IllegalArgumentException("fareKrw 는 0 이상이어야 한다: " + fareKrw);
+        }
 
         this.itineraryLegId = itineraryLegId;
         this.itineraryVersionId = itineraryVersionId;
@@ -101,6 +137,7 @@ public class ItineraryLeg {
         this.ascentM = ascentM;
         this.stairSteps = stairSteps;
         this.dataStatus = dataStatus;
+        this.fareKrw = fareKrw;
         this.createdAt = createdAt;
     }
 
@@ -117,6 +154,7 @@ public class ItineraryLeg {
     public Integer ascentM()           { return ascentM; }
     public Integer stairSteps()        { return stairSteps; }
     public ItineraryItem.DataStatus dataStatus() { return dataStatus; }
+    public Integer fareKrw()           { return fareKrw; }
 
     public Instant createdAt()         { return createdAt; }
 }
