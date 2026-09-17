@@ -314,3 +314,38 @@ export async function setBlocked(userId: string, blocked: boolean, accessToken: 
     return failure(error);
   }
 }
+
+// 팔로워·팔로잉·차단 목록 — S15P21E201-1179(서버)·-1180/-1181(화면).
+//
+// 🔴 following은 목록 주인이 아니라 "지금 보는 사람"(로그인한 나) 기준이다 — 서버 계약이
+// 그렇다(RelationItemResponse.following 문서 참고). 남의 팔로워 목록을 보면서도 내 팔로우
+// 버튼 상태가 맞게 나오는 이유가 이것이다.
+export type RelationItem = { userId: string; displayName: string; avatarUrl?: string; following: boolean };
+export type RelationListResult = { state: 'success'; items: RelationItem[]; nextCursor: string | null } | FeedFailure;
+
+async function loadRelationList(path: string, accessToken: string | null, cursor?: string | null): Promise<RelationListResult> {
+  try {
+    const params = new URLSearchParams();
+    if (cursor) params.set('cursor', cursor);
+    const query = params.toString();
+    const dto = await apiRequest<{ items: RelationItem[]; nextCursor: string | null }>(`${path}${query ? `?${query}` : ''}`, { accessToken });
+    return { state: 'success', items: dto.items, nextCursor: dto.nextCursor };
+  } catch (error) {
+    return failure(error);
+  }
+}
+
+/** 이 사람을 팔로우하는 사람들. */
+export function loadFollowers(userId: string, accessToken: string | null, cursor?: string | null): Promise<RelationListResult> {
+  return loadRelationList(`/api/v1/users/${encodeURIComponent(userId)}/followers`, accessToken, cursor);
+}
+
+/** 이 사람이 팔로우하는 사람들. */
+export function loadFollowing(userId: string, accessToken: string | null, cursor?: string | null): Promise<RelationListResult> {
+  return loadRelationList(`/api/v1/users/${encodeURIComponent(userId)}/following`, accessToken, cursor);
+}
+
+/** 내가 차단한 사람들 — userId는 반드시 본인이어야 한다(서버가 아니면 403). */
+export function loadMyBlocks(userId: string, accessToken: string | null, cursor?: string | null): Promise<RelationListResult> {
+  return loadRelationList(`/api/v1/users/${encodeURIComponent(userId)}/blocks`, accessToken, cursor);
+}

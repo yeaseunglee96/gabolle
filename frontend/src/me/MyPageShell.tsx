@@ -21,13 +21,17 @@ import { isAtLeast } from '@/layout/breakpoints';
 import { countAnswered, loadAccountPreferences, PREFERENCE_TOTAL, PREFERENCES_KEY } from '@/preferences/accountPreferences';
 import { getUserProfile } from '@/social/stories';
 
-export type MyPageTab = 'profile' | 'preferences' | 'posts' | 'identities' | 'terms';
+export type MyPageTab = 'profile' | 'preferences' | 'posts' | 'identities' | 'blocked' | 'terms';
 
 const TABS: Array<{ key: MyPageTab; path: string; ko: string; en: string }> = [
   { key: 'profile', path: '/me/profile', ko: '프로필', en: 'Profile' },
   { key: 'preferences', path: '/me/preferences', ko: '여행 취향', en: 'Travel preferences' },
   { key: 'posts', path: '/me/posts', ko: '내 기록', en: 'My records' },
   { key: 'identities', path: '/me/identities', ko: '연결된 소셜 계정', en: 'Connected accounts' },
+  // S15P21E201-1181 — 알림·차단된 계정처럼 스토어 심사가 보는 기본 기능이 마이페이지에
+  // 없었다(사용자 리포트). 알림은 화면이 이미 있다(app/notifications.tsx, 홈 종 아이콘) —
+  // 여기서는 새로 만들지 않고 같은 화면으로 가는 입구만 하나 더 둔다.
+  { key: 'blocked', path: '/me/blocked', ko: '차단된 계정', en: 'Blocked accounts' },
   { key: 'terms', path: '/me/terms', ko: '약관·고지', en: 'Terms & notices' },
 ];
 
@@ -46,9 +50,12 @@ export function useMyPageCounts() {
     enabled: Boolean(accessToken && user?.userId),
     queryFn: () => getUserProfile(user!.userId, accessToken),
   });
+  const profile = profileQuery.data?.state === 'success' ? profileQuery.data.profile : null;
   return {
     answeredPreferences: preferencesQuery.data ? countAnswered(preferencesQuery.data) : null,
-    storyCount: profileQuery.data?.state === 'success' ? profileQuery.data.profile.storyCount : null,
+    storyCount: profile?.storyCount ?? null,
+    followerCount: profile?.followerCount ?? null,
+    followingCount: profile?.followingCount ?? null,
   };
 }
 
