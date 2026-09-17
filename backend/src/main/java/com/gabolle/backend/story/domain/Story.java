@@ -113,6 +113,29 @@ public class Story {
 	@Column(name = "reply_count", nullable = false)
 	private int replyCount;
 
+	/**
+	 * 🔴 S15P21E201-1201 — 글을 <b>눌러서 연</b> 횟수. 노출 수가 아니다.
+	 *
+	 * <p>규칙은 사장님이 정했다 — <b>사람 × 글 × 하루 한 번</b>, <b>작성자 본인은 안 센다</b>,
+	 * <b>비회원은 센다</b>(익명 세션으로 식별). 낱개는 {@code story_view} 에 90일만 남고,
+	 * 그 뒤에는 이 칸만 남는다 — <b>그래서 이 칸은 되찾을 수 없다.</b>
+	 *
+	 * <p>낱개를 세지 않고 칸에 담는 이유는 {@code replyCount} 와 같다. 피드 한 장에 글이
+	 * 여럿인데 글마다 조회 낱개를 세면 그 수만큼 질의가 붙는다.
+	 */
+	@Column(name = "view_count", nullable = false)
+	private int viewCount;
+
+	/**
+	 * 🔴 S15P21E201-1201 — 공유 링크 <b>복사 버튼을 누른</b> 횟수.
+	 *
+	 * <p>화면에서 부르는 말은 「인용수」지만 이름은 {@code linkCopyCount} 다.
+	 * <b>우리가 아는 것은 「복사 버튼을 눌렀다」뿐이다</b> — 복사한 사람이 인용했는지,
+	 * 어디에 붙였는지, 붙이긴 했는지 우리는 모른다. 이름이 모르는 것을 주장하면 안 된다.
+	 */
+	@Column(name = "link_copy_count", nullable = false)
+	private int linkCopyCount;
+
 	protected Story() {
 	}
 
@@ -183,6 +206,26 @@ public class Story {
 		if (this.replyCount > 0) {
 			this.replyCount--;
 		}
+	}
+
+	/**
+	 * 누군가 이 글을 열었다 — S15P21E201-1201.
+	 *
+	 * <p>🔴 <b>조회 낱개를 넣는 것과 같은 트랜잭션에서 부른다.</b> 따로 세면 「열리긴 했는데
+	 * 수가 안 오른」 상태가 생긴다 — {@code trip_share_link.view_count} 주석이 같은 이유를
+	 * 적어 뒀고, 그 자리가 먼저 겪은 일이다.
+	 *
+	 * <p>🔴 <b>내려가지 않는다.</b> 낱개는 90일 뒤에 지워지지만 누적은 누적이다. 지우면서
+	 * 이 칸을 같이 내리면 <b>어제까지의 조회가 사라진다.</b> {@code ck_story_view_count} 가
+	 * 음수를 막지만, 0 위에서 줄어드는 것은 DB 도 못 막는다.
+	 */
+	public void recordView() {
+		this.viewCount++;
+	}
+
+	/** 누군가 이 글의 링크를 복사했다 — S15P21E201-1201. {@link #recordView()} 와 같은 규칙이다. */
+	public void recordLinkCopy() {
+		this.linkCopyCount++;
 	}
 
 	private static String requireBody(String body) {
@@ -260,6 +303,8 @@ public class Story {
 	public UUID getLastEditedBy()     { return lastEditedBy; }
 	public UUID getParentStoryId()    { return parentStoryId; }
 	public int getReplyCount()        { return replyCount; }
+	public int getViewCount()         { return viewCount; }
+	public int getLinkCopyCount()     { return linkCopyCount; }
 
 	/** 신고를 받아 검토 대기로 바꾼다. 이미 대기·삭제 상태면 아무것도 하지 않는다. */
 	public void markUnderReview() {
