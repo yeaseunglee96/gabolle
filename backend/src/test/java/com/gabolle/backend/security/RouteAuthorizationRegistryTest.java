@@ -641,6 +641,12 @@ class RouteAuthorizationRegistryTest {
 				"내가 볼 수 있는 것만 나오는 목록이다. 공개 범위 판정이 canView 다. StoryFeedIntegrationTest");
 		put(m, "GET /api/v1/stories/{}", Policy.OTHER_USER_OK,
 				"남의 기록을 보는 것이 기능이다. PRIVATE 는 작성자 아닌 사람에게 404. StoryCrudIntegrationTest");
+		// 🔴 S15P21E201-1183 — 댓글 목록은 그 글을 볼 수 있는가와 같은 판정이다.
+		//    requireVisible 을 그대로 지나므로 볼 수 없는 글이면 목록도 404 다 —
+		//    「댓글은 있는데 글은 못 본다」가 되면 그것으로 글의 존재가 샌다.
+		put(m, "GET /api/v1/stories/{}/replies", Policy.OTHER_USER_OK,
+				"남의 기록의 댓글을 보는 것이 기능이다. 볼 수 없는 글이면 404 — "
+						+ "StoryReplyIntegrationTest.cannotReplyToAStoryYouCannotSee 가 같은 판정을 잰다");
 		put(m, "PATCH /api/v1/stories/{}", Policy.OWNED,
 				"수정은 작성자만 — requireAuthor. StoryCrudIntegrationTest");
 		put(m, "DELETE /api/v1/stories/{}", Policy.OWNED,

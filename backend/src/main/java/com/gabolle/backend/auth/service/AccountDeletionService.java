@@ -499,6 +499,27 @@ public class AccountDeletionService {
 	 * 소프트 삭제 상태로 남지만 사진 주소와 저장 키는 남지 않는다.
 	 */
 	private void deleteStories(UUID userId) {
+		// 🔴 S15P21E201-1183 — 댓글을 지우기 전에 부모의 세기를 먼저 내린다.
+		//
+		//    순서가 반대면 안 된다. 아래 UPDATE 가 deleted_at 을 찍고 나면 "이 사람이 쓴 댓글"
+		//    을 더는 고를 수 없다 — 조건이 deleted_at IS NULL 이라서다. 그러면 세기가 영영
+		//    안 내려가고, story.reply_count 는 5 인데 실제로 보이는 댓글은 4 인 상태가 남는다.
+		//
+		//    🔴 낱개로 세지 않고 한 문장으로 내린다. 탈퇴 한 번에 댓글이 수백 개일 수 있고,
+		//    그때 부모마다 조회하면 질의가 그 수만큼 나간다 — 이 클래스가 피하려는 바로 그 모양이다.
+		//
+		//    자식 댓글은 건드리지 않는다. 지운 사람의 댓글에 달린 남의 답글은 그대로 남는다.
+		this.entityManager.createQuery("""
+				UPDATE Story p SET p.replyCount = p.replyCount -
+				    (SELECT count(r) FROM Story r
+				      WHERE r.parentStoryId = p.storyId AND r.authorUserId = :userId AND r.deletedAt IS NULL)
+				 WHERE p.storyId IN
+				    (SELECT r2.parentStoryId FROM Story r2
+				      WHERE r2.authorUserId = :userId AND r2.deletedAt IS NULL AND r2.parentStoryId IS NOT NULL)
+				""")
+				.setParameter("userId", userId)
+				.executeUpdate();
+
 		this.entityManager.createQuery(
 				"UPDATE Story s SET s.deletedAt = :now WHERE s.authorUserId = :userId AND s.deletedAt IS NULL")
 				.setParameter("now", this.clock.instant())

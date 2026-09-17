@@ -104,6 +104,10 @@ public class StoryService {
 	public StoryResponse create(UUID authorUserId, StoryCreateRequest request) {
 		Instant now = this.clock.instant();
 
+		if (request.parentStoryId() != null) {
+			return createReply(authorUserId, request, now);
+		}
+
 		Trip trip = null;
 		if (request.tripId() != null) {
 			trip = this.tripRepository.findById(request.tripId().toString())
@@ -134,6 +138,66 @@ public class StoryService {
 		this.storyImageRepository.saveAll(attached);
 
 		return this.assembler.one(story, authorUserId, now);
+	}
+
+	/**
+	 * 댓글을 만든다 — S15P21E201-1183.
+	 *
+	 * <h2>🔴 볼 수 있는 글에만 달 수 있다</h2>
+	 *
+	 * {@link #requireVisible} 을 지난다. 그 판정이 없으면 <b>비공개 글에 댓글을 달아 그 글의
+	 * 존재를 알아낼 수 있다</b> — 404 를 주는 이유가 「없다」가 아니라 「당신에게는 없다」인
+	 * 자리라, 댓글이 그 구멍을 열면 안 된다.
+	 *
+	 * <p>🔴 <b>댓글에 댓글을 다는 것도 같은 경로다.</b> 부모가 댓글이어도 막지 않는다 — 깊이
+	 * 제한은 없고, 그 댓글이 보이면 거기에 달 수 있다.
+	 *
+	 * <h2>🔴 사용자가 못 고르는 것</h2>
+	 *
+	 * 공개범위·공개시각·여행·장소·지역은 요청에 있어도 <b>안 읽는다</b>. 댓글에는 그 개념이
+	 * 없고, {@link Story#reply} 가 그 값을 자기가 정한다. 조용히 무시하는 대신 요청 DTO 쪽에
+	 * 그렇게 적어 두었다.
+	 *
+	 * <h2>세기는 부모에게만</h2>
+	 *
+	 * {@code addReply()} 를 <b>부모 하나에만</b> 부른다. 할아버지까지 올라가지 않는다 —
+	 * {@code reply_count} 의 뜻이 「직접 달린 것」이라서다.
+	 */
+	private StoryResponse createReply(UUID authorUserId, StoryCreateRequest request, Instant now) {
+		Story parent = requireVisible(request.parentStoryId(), authorUserId, now);
+
+		List<UploadedImage> images = resolveImages(authorUserId, request.imageUrlsOrEmpty());
+
+		Story reply = Story.reply(UUID.randomUUID(), authorUserId, parent.getStoryId(), request.body(), now);
+		this.storyRepository.save(reply);
+
+		List<StoryImage> attached = new ArrayList<>(images.size());
+		for (int i = 0; i < images.size(); i++) {
+			attached.add(new StoryImage(UUID.randomUUID(), reply.getStoryId(),
+					images.get(i).getUploadedImageId(), i + 1, now));
+		}
+		this.storyImageRepository.saveAll(attached);
+
+		// 🔴 같은 트랜잭션에서 올린다. 따로 세면 「댓글은 달렸는데 수가 안 오른」 상태가 생긴다 —
+		//    trip_share_link.view_count 가 같은 이유로 같은 방식을 쓴다.
+		parent.addReply();
+
+		return this.assembler.one(reply, authorUserId, now);
+	}
+
+	/**
+	 * 이 글에 직접 달린 댓글 — S15P21E201-1183.
+	 *
+	 * <p>🔴 <b>볼 수 있는 글의 댓글만</b> 준다. 목록을 여는 것도 조회라 {@link #requireVisible}
+	 * 을 똑같이 지난다.
+	 */
+	@Transactional(readOnly = true)
+	public List<StoryResponse> replies(UUID storyId, UUID viewer, int limit) {
+		Instant now = this.clock.instant();
+		Story parent = requireVisible(storyId, viewer, now);
+		List<Story> replies = this.storyRepository.findReplies(parent.getStoryId(),
+				org.springframework.data.domain.PageRequest.of(0, limit));
+		return this.assembler.many(replies, viewer, now);
 	}
 
 	/**
@@ -204,6 +268,16 @@ public class StoryService {
 		Instant now = this.clock.instant();
 		Story story = requireAuthor(storyId, editor, now);
 		story.markDeleted(now);
+
+		// 🔴 S15P21E201-1183 — 댓글을 지우면 부모의 세기를 내린다. 같은 트랜잭션이라
+		//    「지웠는데 수가 그대로」인 상태가 안 생긴다.
+		//
+		//    🔴 이 댓글에 달린 자식은 건드리지 않는다. 부모가 지워졌다고 자식까지 지우면
+		//    남의 글이 사라진다. 자식은 계속 이 글을 가리키고, 화면이 그 자리를
+		//    「삭제된 댓글」로 그린다.
+		if (story.isReply()) {
+			this.storyRepository.findActiveById(story.getParentStoryId()).ifPresent(Story::removeReply);
+		}
 
 		List<StoryImage> images = this.storyImageRepository.findByStoryIdOrderByPositionAsc(storyId);
 		if (!images.isEmpty()) {
