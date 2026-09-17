@@ -198,9 +198,92 @@ public class AccountDeletionService {
 		deleteUploadedImages(userId);
 		deleteStories(userId);
 		deleteLoginMeans(userId, credential);
+		deleteUserOwnedRows(userId);
 		detachEvents(userId);
 
 		user.anonymizeForDeletion(this.clock.instant());
+	}
+
+	/**
+	 * 🔴 <b>{@code ON DELETE CASCADE} 에만 기대던 표들</b> — S15P21E201-1157.
+	 *
+	 * <h2>왜 이 목록이 필요한가</h2>
+	 *
+	 * 이 서비스는 {@code app_user} 행을 <b>지우지 않고 익명화</b>한다({@link #delete} 의
+	 * {@code anonymizeForDeletion}). {@code itinerary_versions.created_by} 가 {@code NOT NULL} 로
+	 * 매달려 있어 계정 행을 지우면 남의 일정 편집 이력까지 지워야 하기 때문이고, 그 판단 자체는
+	 * 맞다.
+	 *
+	 * <p>그런데 그 결과로 <b>{@code app_user} 를 가리키는 {@code ON DELETE CASCADE} 열아홉 개가
+	 * 한 번도 발동하지 않는다.</b> 부모가 안 지워지니 자식도 안 지워진다. 그리고 <b>오류가 안 난다</b> —
+	 * 탈퇴는 성공으로 끝나고 자료만 남는다. 2026-09-17 운영 실측에서 {@code saved_place} 1건과
+	 * {@code menu_scan_usage} 10건이 탈퇴 뒤에도 그대로 있었다.
+	 *
+	 * <h2>🔴 새 표를 만드는 사람에게</h2>
+	 *
+	 * <b>{@code ON DELETE CASCADE} 를 달았다고 탈퇴 정리가 끝난 것이 아니다.</b> 계정 행이 안
+	 * 지워지는 한 그 선언은 아무것도 하지 않는다. 사람을 가리키는 표를 새로 만들면 <b>이 목록에도
+	 * 한 줄을 더해야</b> 한다.
+	 *
+	 * <h2>목록을 한 곳에 모아 둔 이유</h2>
+	 *
+	 * 삭제가 메서드 여덟 개에 흩어져 있어 <b>"무엇을 지우는가" 를 한눈에 볼 자리가 없었다.</b>
+	 * 다음 티켓이 {@code pg_constraint} 에서 {@code app_user} 참조 외래키를 뽑아 이 목록과
+	 * 대조하는 CI 검사를 붙인다 — 그때 대조할 대상이 이 상수다.
+	 *
+	 * <p>🔴 그 검사가 필요한 이유는 "표가 늘어나서" 가 아니다. <b>2026-09-17 에 이 외래키 수를
+	 * 사람이 네 번 셌고 네 번 다 달랐다</b>(29 · 34 · 34 · 29). 손으로 세면 틀린다.
+	 *
+	 * <h2>여기 없는 것</h2>
+	 *
+	 * 순서가 중요한 것들({@code itinerary} → 개인화 파생값 → 스냅샷 → {@code trip})은 위의 전용
+	 * 메서드에 그대로 둔다. 그 순서에는 이유가 있고({@link #delete} 주석), 목록으로 펴면 그 이유가
+	 * 사라진다. 이 목록은 <b>"그 사람의 행을 그냥 지우면 되는 것"</b> 만 담는다.
+	 */
+	static final List<OwnedRows> USER_OWNED_ROWS = List.of(
+			new OwnedRows("SavedPlace", "userId"),
+			new OwnedRows("Collection", "userId"),
+			new OwnedRows("PlaceReview", "userId"),
+			new OwnedRows("PlaceVisitVerification", "userId"),
+			new OwnedRows("MenuScanUsage", "userId"),
+			// 🔴 팔로우·차단은 사람을 가리키는 칸이 둘이다. 한쪽만 지우면 "내가 없는데 나를
+			//    팔로우한 기록" 이 남는다.
+			new OwnedRows("UserFollow", "key.followerUserId"),
+			new OwnedRows("UserFollow", "key.followeeUserId"),
+			new OwnedRows("UserBlock", "key.blockerUserId"),
+			new OwnedRows("UserBlock", "key.blockedUserId"),
+			// 🔴 이 둘은 남이 참조한다 — trip_member.trip_invite_id 와
+			//    trip_seed_place.source_share_link_id. 둘 다 ON DELETE SET NULL 이라
+			//    (V20260907130000) 남의 참여·씨앗은 남고 이 사람의 초대 기록만 끊긴다.
+			//    그 자리를 다시 만들지 않는다 — 2026-09-05 에 같은 종류의 외래키가 탈퇴를
+			//    통째로 깨뜨린 적이 있다.
+			new OwnedRows("TripInviteJpaEntity", "createdBy"),
+			new OwnedRows("TripShareLink", "createdBy"),
+			// 🔴 이 칸은 @ManyToOne 이라 경로가 한 칸 더 들어간다. 지워도 안전한 이유는
+			//    가입/연결을 끝내기 전의 10분짜리 1회용 티켓이라서다.
+			new OwnedRows("OAuthSignupTicket", "existingUser.userId"));
+
+	/**
+	 * 지울 표 하나 — 엔티티 이름과 그 사람을 가리키는 칸.
+	 *
+	 * @param entityName JPQL 이 쓰는 <b>엔티티</b> 이름이다. DB 표 이름이 아니다
+	 * @param userField 그 사람을 가리키는 칸의 JPQL 경로 (묻힌 키·관계면 점이 들어간다)
+	 */
+	record OwnedRows(String entityName, String userField) {
+	}
+
+	/**
+	 * {@link #USER_OWNED_ROWS} 의 표에서 이 사람의 행을 지운다.
+	 *
+	 * <p>🔴 <b>순서를 신경 쓰지 않아도 되는 것만</b> 이 목록에 있다. 자식이 매달린 셋은 DB 가
+	 * 알아서 처리한다 — {@code collection_item} 은 {@code CASCADE} 로 같이 지워지고, 초대·공유
+	 * 링크를 가리키는 둘은 {@code SET NULL} 로 칸만 비워진다.
+	 */
+	private void deleteUserOwnedRows(UUID userId) {
+		for (OwnedRows owned : USER_OWNED_ROWS) {
+			execute("DELETE FROM %s e WHERE e.%s = :userId".formatted(owned.entityName(), owned.userField()),
+					"userId", userId);
+		}
 	}
 
 	/**
