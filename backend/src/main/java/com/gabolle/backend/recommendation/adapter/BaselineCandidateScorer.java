@@ -18,6 +18,7 @@ import com.gabolle.backend.place.domain.FeaturePresence;
 import com.gabolle.backend.place.domain.MatchKind;
 import com.gabolle.backend.place.domain.UserPlaceCodeMap;
 import com.gabolle.backend.preference.application.PreferenceJson;
+import com.gabolle.backend.recommendation.application.RecommendationCodes;
 import com.gabolle.backend.preference.domain.TasteDimension;
 import com.gabolle.backend.preference.domain.UserTasteWeight;
 import com.gabolle.backend.recommendation.config.BaselineEngineProperties;
@@ -58,11 +59,13 @@ public class BaselineCandidateScorer {
 	private static final double MOBILITY_WARNING_PENALTY = 0.05;
 
 	/**
-	 * 접근성을 <b>안 재 봤다</b>는 경고. "못 간다" 가 아니라 "모른다" 다 —
-	 * {@code ACCESS_VERIFIED_UNAVAILABLE}(재 보고 안 된다고 나온 곳)과 다른 사실이라
-	 * 자리를 따로 둔다. 화면은 이 둘을 갈라 그릴 수 있어야 한다.
+	 * 접근성을 <b>안 재 봤다</b>는 경고.
+	 *
+	 * <p>🔴 값은 {@link RecommendationCodes#WARNING_ACCESSIBILITY_UNVERIFIED} 하나뿐이다
+	 * (S15P21E201-1158). 여기서 문자열을 다시 적지 않는다 — 세는 쪽({@code ItineraryQueryService})이
+	 * 다른 갈래에 있어서, 두 벌이 되면 한쪽만 고쳐지는 날 <b>경고가 조용히 0건이 된다.</b>
 	 */
-	static final String ACCESSIBILITY_UNVERIFIED_WARNING = "ACCESSIBILITY_UNVERIFIED";
+	static final String ACCESSIBILITY_UNVERIFIED_WARNING = RecommendationCodes.WARNING_ACCESSIBILITY_UNVERIFIED;
 
 	private final ObjectMapper objectMapper;
 
@@ -408,6 +411,20 @@ public class BaselineCandidateScorer {
 	 * 감점된 후보에는 {@link #ACCESSIBILITY_UNVERIFIED_WARNING} 이 붙어 응답까지 간다.
 	 * 「휠체어로 갈 수 있음」은 지킬 수 없는 약속이므로(경사가 완만해도 입구에 계단 세 칸이면
 	 * 못 간다) 화면은 <b>잰 것을 그대로</b> 말해야 한다 — 이 경고가 그 재료다.
+	 *
+	 * <p>🔴 <b>정정 (2026-09-17, S15P21E201-1158) — 위 줄의 "응답까지 간다" 는 절반만 참이었다.</b>
+	 *
+	 * <ul>
+	 * <li><b>추천 결과</b>({@code GET /api/v1/recommendation-jobs/{jobId}})로는 <b>가고 있었다.</b>
+	 * {@code RecommendationResultQueryService.mobilityWarnings} 의 {@code code.startsWith("ACCESS")}
+	 * 에 걸려 항목마다 {@code mobilityWarnings} 로, 그리고 최상위 {@code conflicts} 로 나간다.</li>
+	 * <li><b>일정 상세</b>({@code ItineraryDetailResponse})로는 <b>안 갔다.</b> 값이
+	 * {@code itinerary_item.warning_codes} 에 저장까지 되는데 응답 DTO 에 담는 칸이 없었다.
+	 * 「화면이 알아야 하는 것」이라고 적어 두고 마지막 한 칸이 안 이어져 있었다.</li>
+	 * </ul>
+	 *
+	 * <p>이 티켓이 뒤쪽을 이었다. 옛 문장을 지우지 않는 이유는, 그 문장을 믿고 <b>「이미 나간다」로
+	 * 읽은 사람이 실제로 있었기 때문</b>이다 — 무엇이 가고 무엇이 안 갔는지를 함께 남긴다.
 	 */
 	private void evaluateMobility(PlaceCandidateResponse.Candidate candidate, TripConstraint constraint,
 			List<UserPlaceCodeMap> constraintCodeMap, List<Map<String, Object>> violations,
