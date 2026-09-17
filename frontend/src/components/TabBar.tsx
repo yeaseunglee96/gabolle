@@ -80,6 +80,11 @@ export function TabBar({ active }: { active: TabKey }) {
         return (
           <Pressable
             key={tab.key}
+            // 🔴 testID 는 언어와 무관하다 (S15P21E201-1193). accessibilityLabel 은
+            //    5개국어로 바뀌므로 자동화가 그것으로 탭을 찾으면 언어를 바꾸는 순간
+            //    깨진다. 2026-09-17 iOS 회차가 정확히 그래서 온보딩 본문의 「AI 여행」을
+            //    탭바로 착각했다. 이름은 새로 만들지 않고 이미 있는 key 를 쓴다.
+            testID={`tab-${tab.key}`}
             accessibilityRole="tab"
             accessibilityLabel={tx(tab.labelKo, tab.labelEn)}
             accessibilityState={{ selected, disabled: !tab.route }}

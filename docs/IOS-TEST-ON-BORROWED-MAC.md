@@ -217,6 +217,133 @@ Xcode → Window → Devices and Simulators → 기기 선택 → View Device Lo
 
 ---
 
+## 4-3. 🔴 자동화로 돌릴 때 — 2026-09-17 에 7회차가 통째로 날아간 이유
+
+첫 시도(2026-09-17 밤, iPhone 12 Pro · iOS 26.6.2 · build 22)는 **7회차 모두 온보딩을
+못 넘어 기능 검증이 0%** 였다. 스크린샷 95장 중 앱 메인 화면은 **0장**이다.
+
+이유가 셋이었고, **셋 다 아래 절차로 막을 수 있다.**
+
+### ① 글자로 요소를 찾으면 안 된다
+
+이 앱은 **5개국어**다. 영어로 바꾸면 탭 이름이 `Home`·`Feed`·`Create`·`My trips`·`Profile`
+로 전부 달라진다. 그때 자동화는 온보딩 **본문 글자**를 탭바로 착각했다.
+
+```
+❌ 요소 없음: 홈              ← 진짜 탭바는 화면에 없었다
+✅ 탭: 여행                   ← 온보딩 소개문의 「AI 여행」을 누른 것
+```
+
+→ **`testID` 로만 찾는다.** `S15P21E201-1191`·`-1193` 에서 아래 이름들을 박아 뒀다.
+
+| 화면 | testID |
+|---|---|
+| 언어 선택 | `lang-ko` `lang-en` `lang-ja` `lang-zh-Hans` `lang-zh-Hant` · `start-gabolle` |
+| 앱 소개(3장) | `app-intro-primary` (다음/시작하기) · `app-intro-skip` (건너뛰기) |
+| 나이 확인 | `age-gate-check` · `age-gate-continue` |
+| 권한 안내 | `permissions-continue` · `permissions-browse-guest` · `permissions-later` |
+| 탭바 | `tab-home` `tab-feed` `tab-schedule` `tab-map` `tab-me` |
+
+이 이름들은 `frontend/src/components/__tests__/entryTestIds.test.tsx` 와
+`frontend/app/__tests__/appIntroAccessibility.test.tsx` 가 지킨다. 누가 조용히 바꾸면
+프론트 CI 가 먼저 빨개진다.
+
+### ② 안 보이는 페이지가 눌리던 문제 — 고쳤다
+
+앱 소개는 가로 캐러셀인데 세 장을 동시에 그려 둔다. 예전에는 **안 보이는 장까지
+접근성 트리에 있어서**, 3장에 있는데 2장의 글자가 눌려 캐러셀이 뒤로 밀렸다.
+
+`S15P21E201-1191` 에서 보이는 장만 남기도록 고쳤다. **build 23 이후**에서만 유효하다 —
+그 전 빌드로 돌리면 같은 일이 또 난다.
+
+### ③ 🔴 로그가 「완료」를 찍었다고 통과가 아니다
+
+첫 시도의 5~7회차는 **모든 항목에 `✅ 완료`** 를 찍었는데, 그 회차 마지막 화면은
+**언어 선택 첫 화면**이었다. 아무 데도 못 갔는데 성공만 출력한 것이다.
+그래서 보고서 하나는 「20/20 성공·완료 기준 충족」이라고 썼고, 다른 하나는
+「기능 테스트 0%·미달성」이라고 썼다. **뒤엣것이 사실이었다.**
+
+→ **못 찾으면 그 자리에서 실패시킨다.** 아래 `tap_id`·`must_see` 가 그 규칙이다.
+
+### 들어가는 길 — 이 순서 그대로
+
+```
+언어 선택  lang-ko 또는 start-gabolle
+   ↓
+앱 소개    app-intro-skip  (건너뛰기 한 번이면 3장을 다 건너뛴다)
+   ↓
+나이 확인  age-gate-check → age-gate-continue
+   ↓
+권한 안내  permissions-browse-guest  (비회원으로 먼저 둘러보기)
+   ↓
+메인       tab-home 이 보이면 도착한 것이다   ← 여기까지 와야 시나리오를 시작한다
+```
+
+### 최소 뼈대 (Python · Appium)
+
+```python
+from appium.webdriver.common.appiumby import AppiumBy
+
+def tap_id(driver, test_id, timeout=10):
+    """testID 로 찾아 누른다. 못 찾으면 **그 자리에서 실패**시킨다."""
+    el = WebDriverWait(driver, timeout).until(
+        lambda d: d.find_element(AppiumBy.ACCESSIBILITY_ID, test_id))
+    el.click()
+    return el
+
+def must_see(driver, test_id, timeout=10):
+    """이 화면에 도착했는지 확인한다. 없으면 실패 — 로그만 찍고 넘어가지 않는다."""
+    return WebDriverWait(driver, timeout).until(
+        lambda d: d.find_element(AppiumBy.ACCESSIBILITY_ID, test_id))
+
+def enter_app(driver):
+    tap_id(driver, "lang-ko")
+    tap_id(driver, "app-intro-skip")
+    tap_id(driver, "age-gate-check")
+    tap_id(driver, "age-gate-continue")
+    tap_id(driver, "permissions-browse-guest")
+    must_see(driver, "tab-home")          # 🔴 여기서 실패하면 그 뒤는 볼 필요가 없다
+```
+
+> **`ACCESSIBILITY_ID` 로 찾는다.** React Native 의 `testID` 는 iOS 에서
+> accessibility identifier 로 나간다.
+
+### 시나리오를 어떻게 자동화에 나누는가
+
+**자동화가 대신할 수 있는 것은 「돌아다니기」뿐이다.** 크래시 0건을 세는 데는
+그것으로 충분하다 — 그게 `S15P21E201-250` 의 완료 기준이다.
+
+| # | 자동화로 | 사람 눈이 필요한가 |
+|---|---|---|
+| 1 첫 실행 | `enter_app()` | 사진·글자 잘림 |
+| 2 회원가입 | 화면 진입까지 | **메일이 앱으로 돌아오는가** |
+| 3 구글 로그인 | 화면 진입까지 | **테스터 목록 밖 계정** (4-2 ①) |
+| 4 여행 만들기 | `tab-schedule` → 4단계 | 결과가 말이 되는가 |
+| 5 일정 열람 | `tab-map` → 여행 → 일차 전환 | 시각·이동 시간 (4-2 ②) |
+| 6 여행 지도 | 지도 보기 진입 | **지도가 그려지는가** (4-2 ②) |
+| 7 현장 도구 | 홈 → 현장 도구 | **소리가 나는가** |
+| 8 기록 작성 | `tab-feed` → 작성 | **사진이 올라가는가** (4-2 ④) |
+| 9 내 여행·부슐랭 | `tab-map` → 부슐랭 | **이름 고치기 반영** (4-2 ③) |
+| 10 설정·약관 | `tab-me` → 약관 | 열리는가 |
+
+**오른쪽 칸은 자동화로 판정하지 않는다.** 소리·사진·지도 타일은 요소가 있다고 해서
+동작한 것이 아니다. 자동화는 **거기까지 데려다주는 일**만 하고, 판정은 화면 캡처와
+사람이 한다.
+
+### 크래시를 세는 법
+
+```python
+before = driver.query_app_state("com.gabolle.app")   # 4 = 앞에서 돌고 있음
+... 시나리오 ...
+after  = driver.query_app_state("com.gabolle.app")
+assert after == 4, "앱이 꺼졌다 — 크래시"
+```
+
+안드로이드 쪽은 프로세스 번호가 안 바뀌는 것으로 셌다. iOS 는 위 `query_app_state`
+가 같은 역할을 한다. **로그가 아니라 이 값으로 판정한다.**
+
+---
+
 ## 5. 🔴 뒷정리 — 빌린 기계에서 반드시 한다
 
 끝나면 **순서대로** 한다. 하나라도 빼먹으면 남의 기계에 내 기기 기록이 남는다.
