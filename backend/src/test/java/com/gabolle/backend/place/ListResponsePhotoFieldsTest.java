@@ -22,6 +22,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  * <ul>
  *   <li>S15P21E201-1120 — 사진 주소·출처가 상세에만 있었다</li>
  *   <li>S15P21E201-1194 — 영문 주소가 상세에만 있었다. 목록은 이름만 두 언어였다</li>
+ *   <li>S15P21E201-1205 — 「무엇을 찍은 사진인가」가 상세에만 있었다. 목록은 사진을 싣는데
+ *       그것이 무엇을 찍은 것인지 말할 방법이 없었다</li>
  * </ul>
  *
  * <p>칸을 더해 놓고 값을 안 옮기면 화면은 여전히 그것을 못 그린다. 그 종류의 실수는 컴파일도
@@ -95,10 +97,10 @@ class ListResponsePhotoFieldsTest {
 		// 뒤에서 자리가 바뀌어도 안 걸린다.
 		assertThat(componentNames(PlaceSummaryResponse.class)).containsExactly(
 				"placeId", "nameKo", "nameEn", "category", "address", "lat", "lng", "matchedField",
-				"photoUrl", "photoSource", "addressEn");
+				"photoUrl", "photoSource", "addressEn", "photoSubject");
 		assertThat(componentNames(NearbyPlaceItem.class)).containsExactly(
 				"placeId", "nameKo", "nameEn", "category", "address", "lat", "lng", "distanceM", "hasPhoto",
-				"photoUrl", "photoSource", "addressEn");
+				"photoUrl", "photoSource", "addressEn", "photoSubject");
 	}
 
 	@Test
@@ -147,6 +149,39 @@ class ListResponsePhotoFieldsTest {
 		Place place = placeWithPhoto(PHOTO, SOURCE);
 		ReflectionTestUtils.setField(place, "addressEn", addressEn);
 		return place;
+	}
+
+	@Test
+	@DisplayName("목록 셋이 「무엇을 찍은 사진인가」를 싣는다 — 사진은 싣는데 그 뜻은 못 싣던 자리")
+	void listsCarryPhotoSubject() {
+		Place place = placeWithPhoto(PHOTO, SOURCE);
+		ReflectionTestUtils.setField(place, "photoSubject", Place.PhotoSubject.VENUE);
+
+		assertThat(PlaceSummaryResponse.of(place, null).photoSubject()).isEqualTo(Place.PhotoSubject.VENUE);
+		assertThat(PlaceSummaryResponse.ofFacetMatch(place).photoSubject()).isEqualTo(Place.PhotoSubject.VENUE);
+		assertThat(NearbyPlaceItem.from(place, 30L).photoSubject()).isEqualTo(Place.PhotoSubject.VENUE);
+	}
+
+	@Test
+	@DisplayName("🔴 SELF 를 VENUE 로 바꿔 보내지 않는다 — 뱃지가 엉뚱한 사진에 붙는다")
+	void photoSubjectIsCarriedAsIs() {
+		Place place = placeWithPhoto(PHOTO, SOURCE);
+		ReflectionTestUtils.setField(place, "photoSubject", Place.PhotoSubject.SELF);
+
+		assertThat(PlaceSummaryResponse.of(place, null).photoSubject())
+				.isEqualTo(place.getPhotoSubject()).isEqualTo(Place.PhotoSubject.SELF);
+		assertThat(NearbyPlaceItem.from(place, 30L).photoSubject())
+				.isEqualTo(place.getPhotoSubject()).isEqualTo(Place.PhotoSubject.SELF);
+	}
+
+	@Test
+	@DisplayName("무엇을 찍었는지 모르면 그 키는 아예 안 나간다 — SELF 로 지어내지 않는다")
+	void unknownPhotoSubjectCarriesNull() {
+		Place place = placeWithPhoto(PHOTO, SOURCE);
+
+		assertThat(PlaceSummaryResponse.of(place, null).photoSubject()).isNull();
+		assertThat(PlaceSummaryResponse.ofFacetMatch(place).photoSubject()).isNull();
+		assertThat(NearbyPlaceItem.from(place, 30L).photoSubject()).isNull();
 	}
 
 	private static List<String> componentNames(Class<?> record) {
