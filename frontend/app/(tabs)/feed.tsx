@@ -61,70 +61,114 @@ function Avatar({ name, compact }: { name: string; compact: boolean }) {
   </View>;
 }
 
+/**
+ * 커버 — 카드 맨 위의 사진 자리 (S15P21E201-1177).
+ *
+ * 🔴 사진이 없으면 **회색 빈 칸을 두지 않는다.** tint 카드에 본문을 크게 넣는다. 시안이
+ * 「자주 틀리는 것」 4번으로 못박은 자리다 — 빈 회색은 「사진을 못 불러왔다」로 읽힌다.
+ *
+ * 사진이 여러 장이면 아래 가운데에 점을 찍는다. 넘기는 기능은 아직 없다 — 점은 **몇 장인지
+ * 알리는 표시**일 뿐이고, 없는 기능을 있는 것처럼 보이게 하지 않으려고 첫 점만 진하게 둔다.
+ */
+function StoryCover({ story, compact, onOpen }: { story: StoryDto; compact: boolean; onOpen: () => void }) {
+  const { tx } = useI18n();
+  const photos = story.images ?? [];
+  const dots = Math.min(photos.length, 5);
+
+  const inner = photos.length
+    ? <>
+        <Image source={{ uri: photos[0].url }} resizeMode="cover" style={styles.coverImage} accessibilityIgnoresInvertColors />
+        {dots > 1
+          ? <View style={styles.dots}>{Array.from({ length: dots }).map((_, index) => (
+              <View key={index} style={[styles.dot, index === 0 && styles.dotFirst]} />
+            ))}</View>
+          : null}
+      </>
+    : <View style={styles.coverEmpty}>
+        <Text variant={compact ? 'display' : 'title'} weight="bold" color={color.text.heading} numberOfLines={5} style={styles.coverEmptyText}>
+          {markdownToPlain(story.body)}
+        </Text>
+      </View>;
+
+  return (
+    <Pressable
+      accessibilityRole="link"
+      accessibilityLabel={tx('기록 자세히 보기', 'View record details')}
+      onPress={onOpen}
+      style={[styles.cover, compact ? styles.coverPhone : styles.coverWide]}
+    >
+      {inner}
+    </Pressable>
+  );
+}
+
 function StoryCard({ story, compact, showUnfollow, unfollowBusy, onUnfollow, onOpen, onOpenAuthor, onReport }: {
   story: StoryDto; compact: boolean; showUnfollow: boolean; unfollowBusy: boolean;
   onUnfollow: () => void; onOpen: () => void; onOpenAuthor: () => void; onReport: () => void;
 }) {
   const { tx } = useI18n();
-  const place = story.place?.name ?? story.region ?? null;
-  // 좌표가 있는 기록만 지도에 찍힌다 — 없는 것을 있다고 말하지 않는다 (S15P21E201-829).
-  const mapped = typeof story.place?.lat === 'number' && typeof story.place?.lng === 'number';
+  const hasPhoto = (story.images?.length ?? 0) > 0;
 
-  return <View style={[styles.card, compact && styles.cardCompact]}>
-    <View style={styles.cardHeader}>
+  // 제목은 장소 이름이다. 장소가 없으면 「OO의 기록」 — 비워 두지 않는다(시안 「자주 틀리는 것」 5번).
+  const title = story.place?.name ?? tx(`${story.author.displayName}의 기록`, `${story.author.displayName}'s record`);
+
+  return <View style={[styles.card, compact ? styles.cardCompact : styles.cardInGrid]}>
+    <View style={styles.coverWrap}>
+      <StoryCover story={story} compact={compact} onOpen={onOpen} />
+
+      {/* 좌상단 작성자 알약 — 사진 위에 얹히므로 배경을 깔아 글자가 읽히게 한다. */}
       <Pressable
         accessibilityRole="link"
         accessibilityLabel={tx(`${story.author.displayName} 프로필 보기`, `View ${story.author.displayName}'s profile`)}
         onPress={onOpenAuthor}
-        style={styles.authorRow}
+        style={styles.authorPill}
       >
-        <Avatar name={story.author.displayName} compact={compact} />
-        <View style={styles.authorText}>
-          <Text variant="body" weight="bold" color={color.text.heading}>{story.author.displayName}</Text>
-          <Text variant="caption" color={color.text.muted}>{relativeStoryTime(story.createdAt, tx)}{place ? ` · ${place}` : ''}</Text>
-        </View>
+        <View style={styles.authorPillAvatar}><Text variant="caption" weight="bold" color={color.text.onAction}>{story.author.displayName.slice(0, 1)}</Text></View>
+        <Text variant="caption" weight="bold" color={color.text.heading} numberOfLines={1}>{story.author.displayName}</Text>
       </Pressable>
-      {story.mine && story.visibility !== 'PUBLIC'
-        ? <View style={styles.visibilityBadge}><Text variant="caption" weight="bold" color={color.text.muted}>{tx(...VISIBILITY_LABEL[story.visibility])}</Text></View>
-        : null}
-      {showUnfollow
-        ? <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={tx(`${story.author.displayName} 언팔로우`, `Unfollow ${story.author.displayName}`)}
-            accessibilityState={{ busy: unfollowBusy }}
-            disabled={unfollowBusy}
-            onPress={onUnfollow}
-            style={[styles.pillButton, unfollowBusy && styles.busy]}
-          ><Text variant="caption" weight="bold" color={color.text.body}>{unfollowBusy ? tx('처리 중', 'Working') : tx('팔로잉', 'Following')}</Text></Pressable>
-        : null}
-      {!story.mine
-        ? <Pressable accessibilityRole="button" accessibilityLabel={tx('신고하기', 'Report')} onPress={onReport} style={styles.menuButton}>
-            <Text variant="body" weight="bold" color={color.text.muted}>⋯</Text>
-          </Pressable>
-        : null}
+
+      {/* 우상단 — 내 글이면 공개 범위, 남의 글이면 신고. 시안의 하트 자리는 아직 안 쓴다(아래 참고). */}
+      <View style={styles.coverActions}>
+        {story.mine && story.visibility !== 'PUBLIC'
+          ? <View style={styles.visibilityBadge}><Text variant="caption" weight="bold" color={color.text.muted}>{tx(...VISIBILITY_LABEL[story.visibility])}</Text></View>
+          : null}
+        {showUnfollow
+          ? <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={tx(`${story.author.displayName} 언팔로우`, `Unfollow ${story.author.displayName}`)}
+              accessibilityState={{ busy: unfollowBusy }}
+              disabled={unfollowBusy}
+              onPress={onUnfollow}
+              style={[styles.pillButton, unfollowBusy && styles.busy]}
+            ><Text variant="caption" weight="bold" color={color.text.body}>{unfollowBusy ? tx('처리 중', 'Working') : tx('팔로잉', 'Following')}</Text></Pressable>
+          : null}
+        {!story.mine
+          ? <Pressable accessibilityRole="button" accessibilityLabel={tx('신고하기', 'Report')} onPress={onReport} style={styles.menuButton}>
+              <Text variant="body" weight="bold" color={color.text.muted}>⋯</Text>
+            </Pressable>
+          : null}
+      </View>
     </View>
 
-    {/* 🔴 S15P21E201-1136 — 목록에서는 효과를 벗긴다. 제목을 크게 그리면 카드 높이가
-        글마다 들쭉날쭉해져서 목록이 읽기 어려워진다. 온전한 모양은 상세에서만 보여준다. */}
-    {/* 🔴 본문 자체가 글로 가는 문이다 (S15P21E201-1169). 전에는 아래 「기록 자세히 보기」
-        한 곳만 눌렸는데, 목록에서 글을 읽다 더 보고 싶으면 본문을 누르는 것이 먼저 나오는
-        행동이다. 「자세히 보기」는 그대로 둔다 — 화면 낭독기에는 그쪽이 분명한 이름이다. */}
-    <Pressable accessibilityRole="link" accessibilityLabel={tx('기록 자세히 보기', 'View record details')} onPress={onOpen}>
-      <Text color={color.text.body} style={styles.body} numberOfLines={compact ? 3 : 6}>{markdownToPlain(story.body)}</Text>
+    <Pressable accessibilityRole="link" accessibilityLabel={tx('기록 자세히 보기', 'View record details')} onPress={onOpen} style={styles.cardBody}>
+      <Text variant="body" weight="bold" color={color.text.heading} numberOfLines={1}>{title}</Text>
+
+      {/* 🔴 사진이 없는 글은 본문을 커버에 이미 크게 그렸다. 여기서 또 그리면 같은 글이 두 번
+          나온다 — 9/16 에 「N곳」이 두 번 나온 것과 같은 종류다. 시안도 "아래 본문 미리보기는
+          생략" 이라고 적었다. */}
+      {hasPhoto
+        ? <Text variant="body" color={color.text.body} numberOfLines={2} style={styles.body}>{markdownToPlain(story.body)}</Text>
+        : null}
+
+      {/* 메타 한 줄.
+          🔴 시안은 여기에 「답글 N · 조회 N」을 넣으라고 한다. 그 칸이 **서버에 아직 없다** —
+          story 표에 parent 칸도, 조회 표도 없다(마이그레이션 전수 확인, 2026-09-17).
+          0 을 하드코딩해 그리지 않는다. 모르는 것을 아는 척하는 것이라, 서버가 칸을 주는 날
+          자연히 나타나게 둔다(S15P21E201-1177 의 백엔드 몫). 지금은 시각과 지역만 말한다. */}
+      <Text variant="caption" color={color.text.muted}>
+        {relativeStoryTime(story.createdAt, tx)}{story.region ? ` · ${story.region}` : ''}
+      </Text>
     </Pressable>
-    <StoryImages images={story.images} compact={compact} />
-
-    <View style={styles.cardFooter}>
-      <Pressable accessibilityRole="link" accessibilityLabel={tx('기록 자세히 보기', 'View record details')} onPress={onOpen} style={styles.detailLink}>
-        <Text variant="body" weight="bold" color={color.brand.navy}>{compact ? tx('자세히 →', 'Details →') : tx('기록 자세히 보기 →', 'View this record →')}</Text>
-      </Pressable>
-      {mapped
-        ? <View style={styles.mappedRow}>
-            <Image source={require('../../assets/icons/common/pin.png')} resizeMode="contain" accessibilityLabel={tx('장소 표시', 'Place marker')} style={styles.pin} />
-            <Text variant="caption" color={color.text.muted}>{tx('지도에 표시됨', 'Shown on the map')}</Text>
-          </View>
-        : null}
-    </View>
   </View>;
 }
 
@@ -510,7 +554,7 @@ export default function Feed() {
     {/* 계정이 필요한 행동(신고)을 누르면 곧바로 로그인 화면으로 보내지 않고 같은 창을 띄운다 —
         왜 필요한지 모른 채 쫓겨난 것처럼 느끼게 하지 않는다 (S15P21E201-1012). */}
     {!loading && result.state === 'success' && items.length
-      ? <View style={styles.list}>{items.map((story) => <StoryCard
+      ? <View style={compact ? styles.list : styles.listWide}>{items.map((story) => <StoryCard
           key={story.id}
           story={story}
           compact={compact}
@@ -625,12 +669,42 @@ const styles = StyleSheet.create({
   emptyPrimary: { width: 'auto', minWidth: 180, paddingHorizontal: spacing[4], backgroundColor: color.brand.navy },
 
   list: { gap: spacing[3], marginTop: spacing[4] },
+  // 🔴 넓은 화면은 2열 (S15P21E201-1177). flexWrap 이라 폭이 모자라면 자연히 한 열이 된다 —
+  //    열 수를 폭으로 계산해 박아 두지 않는다. minWidth 280 이 한 장의 최소 폭이다.
+  listWide: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[4], marginTop: spacing[4] },
+  cardInGrid: { flexGrow: 1, flexBasis: 280, minWidth: 280 },
 
-  card: { gap: spacing[3], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.border },
+  // ── 카드 (S15P21E201-1177) ──────────────────────────────────────────────────
+  //
+  // 커버 사진이 맨 위에 오고 그 위에 작성자·동작이 얹힌다. 카드 자체의 여백은 없앴다 —
+  // 사진이 카드 끝까지 닿아야 시안의 인상이 난다. 글 부분만 안쪽 여백을 갖는다.
+  card: { borderRadius: radius.lg, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.border, overflow: 'hidden' },
+  coverWrap: { position: 'relative' },
+  cover: { width: '100%', backgroundColor: color.surface.soft },
+  /** 폰은 높이를 고정한다 — 사진 비율이 제각각이어도 카드 높이가 들쭉날쭉하지 않게. */
+  coverPhone: { height: 300 },
+  /** 넓은 화면은 정사각. 2열로 놓을 때 줄이 맞는다. */
+  coverWide: { aspectRatio: 1 },
+  coverImage: { width: '100%', height: '100%' },
+  // 🔴 사진이 없을 때 — 회색 빈 칸 대신 tint 에 본문을 크게. 시안 「자주 틀리는 것」 4번.
+  coverEmpty: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing[6], backgroundColor: color.surface.tint },
+  coverEmptyText: { textAlign: 'center' },
+  dots: { position: 'absolute', left: 0, right: 0, bottom: spacing[3], flexDirection: 'row', justifyContent: 'center', gap: spacing[1] },
+  dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: color.surface.card, opacity: 0.5 },
+  dotFirst: { opacity: 1 },
+  authorPill: {
+    position: 'absolute', top: spacing[3], left: spacing[3],
+    flexDirection: 'row', alignItems: 'center', gap: spacing[2],
+    maxWidth: '70%', minHeight: 32, paddingVertical: spacing[1], paddingHorizontal: spacing[2],
+    borderRadius: radius.full,
+    // 사진 위에 얹히므로 반투명 배경을 깐다. 안 깔면 밝은 사진에서 이름이 사라진다 —
+    // 오늘 상태바에서 겪은 것과 같은 종류다.
+    backgroundColor: 'rgba(255,253,248,0.92)',
+  },
+  authorPillAvatar: { width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: color.brand.navy },
+  coverActions: { position: 'absolute', top: spacing[3], right: spacing[3], flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
+  cardBody: { gap: spacing[1], padding: spacing[4] },
   cardCompact: { padding: spacing[4] },
-  cardHeader: { flexDirection: 'row', alignItems: 'center', gap: spacing[3] },
-  authorRow: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: spacing[3], minWidth: 0 },
-  authorText: { flex: 1, minWidth: 0 },
   avatar: { width: 40, height: 40, borderRadius: radius.full, backgroundColor: color.brand.navy, alignItems: 'center', justifyContent: 'center' },
   avatarCompact: { width: 36, height: 36 },
 
@@ -643,10 +717,6 @@ const styles = StyleSheet.create({
 
   // 배치는 PhotoGrid 가 정한다 (S15P21E201-1135) — 여기서는 위아래 간격만 준다.
   images: { marginTop: spacing[2] },
-
-  cardFooter: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[2], flexWrap: 'wrap' },
-  detailLink: { minHeight: 44, justifyContent: 'center' },
-  mappedRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[1] },
   pin: { width: 14, height: 14, tintColor: color.text.muted },
   grow: { flex: 1, minWidth: 0 },
 
