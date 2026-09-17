@@ -121,8 +121,15 @@ public class PlaceFacetService {
 	 *
 	 * <p>keys 를 만드는 규칙은 갈래마다 갈린다({@link #interestTagKeys}, {@link #plainKeys}) —
 	 * INTEREST_TAG(로컬 8갈래, -473)만 여덟 개를 항상 채워야 하고 다른 표식 종류는 지금처럼 데이터가
-	 * 있는 키만 준다. total 은 그 keys 의 건수 합으로 다시 구한다 — INTEREST_TAG 는 0건짜리 키도
-	 * 들어 있어 더해도 값이 그대로고, 다른 갈래는 원래 있던 키만 더해지므로 이전 합산과 같다.
+	 * 있는 키만 준다. total 은 그 keys 의 건수 합에 {@link #keylessCount} 를 더해 구한다.
+	 *
+	 * <p>🔴 <b>정정 (2026-09-17, S15P21E201-1149)</b> — 여기 <i>"다른 갈래는 원래 있던 키만
+	 * 더해지므로 이전 합산과 같다"</i> 고 적혀 있었고, 그 문장이 틀렸다. {@code featureKey} 가
+	 * 언제나 {@code null} 인 갈래(점수형 다섯 — LOCALITY_SCORE · QUIETNESS_SCORE · SHADE_SCORE ·
+	 * SLOPE_PERCENT · TOURIST_RATIO)는 <b>"원래 있던 키" 가 하나도 없다.</b> {@link #plainKeys} 가
+	 * null 키 묶음을 버리므로 keys 가 비고, 그래서 <b>자료가 몇 행이든 합계가 0 이었다.</b>
+	 * 위 문단이 처음부터 적어 둔 계산 규칙("featureKey 가 없는 행의 건수 + 키별 건수의 합")이
+	 * 맞았고 구현이 그 앞 절반을 빠뜨린 것이라, 명세가 아니라 코드를 고쳤다.
 	 */
 	private FacetItem toFacetItem(UserPlaceCodeMap codeMap, List<PlaceFeature> features) {
 		Map<String, Set<UUID>> placeIdsByKey = placeIdsByKey(features);
@@ -130,7 +137,7 @@ public class PlaceFacetService {
 		List<FacetKeyCount> keys = InterestTagCode.FEATURE_TYPE.equals(codeMap.getPlaceFeatureType())
 				? interestTagKeys(placeIdsByKey)
 				: plainKeys(placeIdsByKey);
-		long total = keys.stream().mapToLong(FacetKeyCount::placeCount).sum();
+		long total = keys.stream().mapToLong(FacetKeyCount::placeCount).sum() + keylessCount(placeIdsByKey);
 
 		return new FacetItem(codeMap.getUserInputCode(), codeMap.getPlaceFeatureType(), codeMap.getMatchKind(),
 				total, keys);
@@ -160,8 +167,9 @@ public class PlaceFacetService {
 	 * 골라 쓴다.
 	 */
 	private FacetItem exploreFacetItem(List<PlaceFeature> features) {
-		List<FacetKeyCount> keys = interestTagKeys(placeIdsByKey(features));
-		long total = keys.stream().mapToLong(FacetKeyCount::placeCount).sum();
+		Map<String, Set<UUID>> placeIdsByKey = placeIdsByKey(features);
+		List<FacetKeyCount> keys = interestTagKeys(placeIdsByKey);
+		long total = keys.stream().mapToLong(FacetKeyCount::placeCount).sum() + keylessCount(placeIdsByKey);
 		return new FacetItem(EXPLORE_INPUT_CODE, InterestTagCode.FEATURE_TYPE, MatchKind.TAG_OVERLAP,
 				total, keys);
 	}
@@ -191,6 +199,22 @@ public class PlaceFacetService {
 		extras.sort(Comparator.comparing(FacetKeyCount::featureKey));
 		keys.addAll(extras);
 		return keys;
+	}
+
+	/**
+	 * {@code featureKey} 가 없는 묶음의 크기 — S15P21E201-1149.
+	 *
+	 * <p>점수형({@code SCORE_COMPARE})과 참거짓형 표식은 이 열쇠가 <b>언제나</b> {@code null} 이다.
+	 * 값 자체가 답이라 같은 종류 안에서 더 나눌 것이 없기 때문이다(태그형만 「바다」·「시장」처럼
+	 * 나뉜다). 그래서 그 갈래의 묶음은 null 키 하나뿐이고, {@link #plainKeys} 가 그것을 버린다.
+	 *
+	 * <p>🔴 <b>이 값을 {@code keys} 에 넣지 않는 것이 의도다.</b> 합계에만 더한다. keys 는 화면이
+	 * 하위 갈래로 그리는 목록이라, {@code featureKey} 가 null 인 항목이 섞이면 화면이 이름 없는
+	 * 칸을 그리려 든다. 「몇 곳인가」는 합계가 답하고, 「무엇으로 나뉘나」는 keys 가 답한다 —
+	 * 점수형은 뒤의 질문에 답이 없는 것이 정상이다.
+	 */
+	private static long keylessCount(Map<String, Set<UUID>> placeIdsByKey) {
+		return placeIdsByKey.getOrDefault(null, Set.of()).size();
 	}
 
 	/** 그 밖의 갈래는 지금처럼 데이터가 있는 키만, 이름 순으로 돌려준다. */
