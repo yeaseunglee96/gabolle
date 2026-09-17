@@ -63,7 +63,9 @@ import org.springframework.stereotype.Component;
 @Profile({ "db", "dev" })
 @ConditionalOnExpression("'${gabolle.place.loader.price-band:}' != '' "
 		+ "or '${gabolle.place.loader.visitor-facts:}' != '' "
-		+ "or '${gabolle.place.loader.place-slope:}' != ''")
+		+ "or '${gabolle.place.loader.place-slope:}' != '' "
+		+ "or '${gabolle.place.loader.place-quietness:}' != '' "
+		+ "or '${gabolle.place.loader.place-locality:}' != ''")
 public class PlaceFeatureLoaderRunner implements ApplicationRunner {
 
 	/** {@code place_feature.source_type} — 가격대가 어디서 왔나. */
@@ -82,6 +84,29 @@ public class PlaceFeatureLoaderRunner implements ApplicationRunner {
 	 */
 	public static final String PLACE_SLOPE_SOURCE_TYPE = TourApiPlaceLoader.SOURCE_TYPE;
 
+	/**
+	 * {@code place_feature.source_type} — 조용함·로컬성이 어디서 왔나 (S15P21E201-1167).
+	 *
+	 * <p>🔴 <b>경사({@link #PLACE_SLOPE_SOURCE_TYPE})처럼 {@code TOURAPI} 를 쓰지 않는다.</b> 이유가
+	 * 둘이다.
+	 *
+	 * <ul>
+	 * <li>이 값은 <b>관광공사에서 온 것이 아니다.</b> 도로 등급에서 유도한 우리 계산이다
+	 * ({@code bigData/process/place-quietness.mjs}). {@code source_type} 은 "값이 어디서 왔나" 를
+	 * 적는 칸이므로 원천 이름을 빌려 쓰면 거짓말이 된다.</li>
+	 * <li>🔴 <b>되돌릴 수 없게 된다.</b> 적재 절차서의 되돌리기가
+	 * {@code DELETE … WHERE source_type = ?} 인데, {@code TOURAPI} 로 넣으면 관광공사에서 실제로
+	 * 온 표식들과 한 덩어리가 되어 <b>조용함만 지울 수 없다.</b></li>
+	 * </ul>
+	 *
+	 * <p>열쇠를 무엇으로 읽을지는 이 값과 <b>무관하다</b> — 그건 {@code Fact.keySource} 가 줄마다
+	 * 따로 들고 온다(한 파일에 관광공사와 상가가 섞여 있어도 각각 맞게 붙는다).
+	 */
+	public static final String DERIVED_QUIETNESS_SOURCE_TYPE = "DERIVED_QUIETNESS";
+
+	/** {@code place_feature.source_type} — 로컬성이 어디서 왔나. {@link #DERIVED_QUIETNESS_SOURCE_TYPE} 과 같은 이유. */
+	public static final String DERIVED_LOCALITY_SOURCE_TYPE = "DERIVED_LOCALITY";
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(PlaceFeatureLoaderRunner.class);
 
 	/** 한 트랜잭션에 넣는 사실 수. 파일이 1,000줄 아래라 한 번에 넣어도 되지만 규칙을 같게 둔다. */
@@ -95,17 +120,25 @@ public class PlaceFeatureLoaderRunner implements ApplicationRunner {
 
 	private final String placeSlopePath;
 
+	private final String placeQuietnessPath;
+
+	private final String placeLocalityPath;
+
 	private final String datasetVersion;
 
 	public PlaceFeatureLoaderRunner(PlaceFeatureLoader loader,
 			@Value("${gabolle.place.loader.price-band:}") String priceBandPath,
 			@Value("${gabolle.place.loader.visitor-facts:}") String visitorFactsPath,
 			@Value("${gabolle.place.loader.place-slope:}") String placeSlopePath,
+			@Value("${gabolle.place.loader.place-quietness:}") String placeQuietnessPath,
+			@Value("${gabolle.place.loader.place-locality:}") String placeLocalityPath,
 			@Value("${gabolle.place.loader.dataset-version:}") String datasetVersion) {
 		this.loader = loader;
 		this.priceBandPath = priceBandPath;
 		this.visitorFactsPath = visitorFactsPath;
 		this.placeSlopePath = placeSlopePath;
+		this.placeQuietnessPath = placeQuietnessPath;
+		this.placeLocalityPath = placeLocalityPath;
 		this.datasetVersion = datasetVersion;
 	}
 
@@ -124,6 +157,16 @@ public class PlaceFeatureLoaderRunner implements ApplicationRunner {
 		//    실측이 아니라는 표시는 PlaceFeatureLoader 가 evidence_status 로 붙인다.
 		load("장소 경사", this.placeSlopePath, PLACE_SLOPE_SOURCE_TYPE,
 				PlaceFeatureNdjsonReader::readPlaceSlopes);
+		// 🔴 조용함·로컬성은 산출물이 0~100 인데 채점기 눈금은 0~1 이다. 읽는 쪽에서 나누고
+		//    그 결과를 noiseP90 으로 검산한다 — PlaceFeatureNdjsonReader.readPlaceScores 참고.
+		//    적재기 하나가 관광공사 파일과 상가 파일을 다 읽으므로, 두 파일을 각각 한 번씩
+		//    같은 속성으로 돌리면 된다(경사처럼 상가 절반을 마이그레이션으로 넣지 않는다).
+		load("장소 조용함", this.placeQuietnessPath, DERIVED_QUIETNESS_SOURCE_TYPE,
+				(file, chunkSize, chunkConsumer) -> PlaceFeatureNdjsonReader.readPlaceScores(
+						file, "quietnessScore", "QUIETNESS_SCORE", chunkSize, chunkConsumer));
+		load("장소 로컬성", this.placeLocalityPath, DERIVED_LOCALITY_SOURCE_TYPE,
+				(file, chunkSize, chunkConsumer) -> PlaceFeatureNdjsonReader.readPlaceScores(
+						file, "localityScore", "LOCALITY_SCORE", chunkSize, chunkConsumer));
 	}
 
 	private void load(String label, String path, String sourceType,
