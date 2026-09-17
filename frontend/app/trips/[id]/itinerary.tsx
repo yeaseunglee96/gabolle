@@ -38,12 +38,10 @@ import {
 import { formatTravelLabel, itineraryStats, totalTravelMinutes } from '@/plan/itinerarySummary';
 import { loadPlaceReviews, submitPlaceReview } from '@/review/placeReviews';
 import { useI18n } from '@/i18n';
+import { describeWarningCodes } from '@/plan/warningLabels';
 import { ExcludeConfirmModal } from '@/components/ExcludeConfirmModal';
 
-const WARNING_LABEL: Record<string, [string, string]> = {
-  RECALC_NO_CANDIDATE: ['뺀 자리를 채울 다른 장소를 찾지 못해 비워 뒀어요.', "We couldn't find another place to fill the removed spot, so it's left empty."],
-  RECALC_TIMES_RESHUFFLED: ['다시 계산하면서 고정된 장소의 시각도 함께 조정됐어요.', 'Recalculating also adjusted the times of locked places.'],
-};
+// 경고 문구는 src/plan/warningLabels.ts 로 옮겼다 — 시험이 붙들게 하려고 (S15P21E201-1150).
 
 // 영업시간 경고(S15P21E201-268/-858) — 편집 다섯 갈래 중 넷(더하기 제외, 재계산은 비동기라
 // 이 응답에 못 싣는다)이 warnings·notChecked를 함께 돌려준다. 되돌리기는 여러 날에 걸친
@@ -342,7 +340,13 @@ export default function ItineraryScreen() {
   // S15P21E201-1014 — 통계는 값이 있는 것만 만든다. 판정은 itinerarySummary.ts 에 있다.
   const stats = useMemo(() => (itinerary ? itineraryStats(itinerary, tx) : []), [itinerary, tx]);
   const canEdit = itinerary?.canEdit !== false;
-  const latestWarnings = useMemo(() => versions[0]?.warningCodes?.map((code) => (WARNING_LABEL[code] ? tx(...WARNING_LABEL[code]) : code)) ?? [], [versions, tx]);
+  // 🔴 S15P21E201-1150 — 모르는 코드는 안 그린다.
+  //
+  //    전에는 짝이 없으면 코드를 그대로 그렸다(`: code`). 그래서 백엔드가 경고를
+  //    하나 늘리자 화면에 SIGHT_SLOT_UNFILLED 가 영문 대문자 그대로 떴다
+  //    (2026-09-17 실기기 확인). 읽을 수 없는 경고는 못 본 것과 같고,
+  //    암호가 뜨면 경고 칸 자체를 못 믿게 된다.
+  const latestWarnings = useMemo(() => describeWarningCodes(versions[0]?.warningCodes, tx), [versions, tx]);
   const reorderMode = orderDraft !== null;
   const slotTimes = useMemo(() => day?.items.map((item) => item.startsAt) ?? [], [day]);
   const displayedItems = useMemo(() => {
