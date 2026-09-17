@@ -18,23 +18,23 @@ class BarrierFreeAccessibilityTest {
 	@Test
 	@DisplayName("원천이 휠체어 접근 가능이라고 쓴 문장에만 붙인다")
 	void wheelchairOnlyWhenTheSourceSaysSo() {
-		assertThat(BarrierFreeAccessibility.of("주출입구는 턱이 없어 휠체어 접근 가능함_무장애 편의시설", ""))
+		assertThat(BarrierFreeAccessibility.of("주출입구는 턱이 없어 휠체어 접근 가능함_무장애 편의시설", "", ""))
 				.containsExactly("WHEELCHAIR");
-		assertThat(BarrierFreeAccessibility.of("주출입구는 경사로가 있어 휠체어 접근 가능함", ""))
+		assertThat(BarrierFreeAccessibility.of("주출입구는 경사로가 있어 휠체어 접근 가능함", "", ""))
 				.containsExactly("WHEELCHAIR");
 	}
 
 	@Test
 	@DisplayName("문 모양만 적힌 것은 접근성 이야기가 아니다")
 	void doorShapeIsNotAnAccessibilityClaim() {
-		assertThat(BarrierFreeAccessibility.of("여닫이문", "")).isEmpty();
-		assertThat(BarrierFreeAccessibility.of("자동문", "")).isEmpty();
+		assertThat(BarrierFreeAccessibility.of("여닫이문", "", "")).isEmpty();
+		assertThat(BarrierFreeAccessibility.of("자동문", "", "")).isEmpty();
 	}
 
 	@Test
 	@DisplayName("주출입구에 계단이 있다고 적힌 곳은 안 붙는다 — 이 한 줄이 판정을 좁게 만든 이유다")
 	void mainEntranceWithStairsGetsNothing() {
-		assertThat(BarrierFreeAccessibility.of("주출입구는 계단이 있고 보조출입구는 무단차임", ""))
+		assertThat(BarrierFreeAccessibility.of("주출입구는 계단이 있고 보조출입구는 무단차임", "", ""))
 				.as("보조출입구가 무단차라는 말에 이끌려 붙이면 사람을 계단 앞에 보낸다")
 				.isEmpty();
 	}
@@ -42,30 +42,69 @@ class BarrierFreeAccessibilityTest {
 	@Test
 	@DisplayName("뜻이 같아도 문구가 다르면 안 붙는다 — 모름으로 남는 손해가 더 작다")
 	void sameMeaningDifferentWordsIsLeftUnknown() {
-		assertThat(BarrierFreeAccessibility.of("높낮이 차가 없어 휠체어를 이용하여 출입가능", "")).isEmpty();
-		assertThat(BarrierFreeAccessibility.of("주출입구에 경사로 설치되어 있음", "")).isEmpty();
+		assertThat(BarrierFreeAccessibility.of("높낮이 차가 없어 휠체어를 이용하여 출입가능", "", "")).isEmpty();
+		assertThat(BarrierFreeAccessibility.of("주출입구에 경사로 설치되어 있음", "", "")).isEmpty();
 	}
 
+	/**
+	 * 🔴 2026-09-17 — {@code route} 칸을 함께 읽기로 한 근거.
+	 *
+	 * <p>수집본 179건 실측: 그 문구가 {@code exit} 에 117건, {@code route} 에 93건 있고
+	 * 합집합이 127건이다. <b>route 로만 늘어나는 것이 10건</b> — 원천이 「출입구」와
+	 * 「거기까지 가는 길」을 나눠 적었을 뿐 같은 사실이다.
+	 */
+	@Test
+	@DisplayName("🔴 경로 칸에만 그 문구가 있어도 붙인다 — 원천이 나눠 적었을 뿐이다")
+	void routeAloneIsEnough() {
+		assertThat(BarrierFreeAccessibility.of("", "무단차 거리로 휠체어 접근 가능함", ""))
+				.containsExactly("WHEELCHAIR");
+		assertThat(BarrierFreeAccessibility.of("", "출입구까지 단차가 없어 휠체어 접근 가능함", ""))
+				.containsExactly("WHEELCHAIR");
+	}
+
+	/** 둘 다 말해도 코드는 하나다 — 같은 사실을 두 번 세지 않는다. */
+	@Test
+	@DisplayName("출입구와 경로가 둘 다 말해도 코드는 하나다")
+	void bothColumnsStillOneCode() {
+		assertThat(BarrierFreeAccessibility.of("주출입구는 휠체어 접근 가능함", "휠체어 접근 가능", ""))
+				.containsExactly("WHEELCHAIR");
+	}
+
+	/**
+	 * 🔴 칸을 더 읽는 것과 문구를 넓히는 것은 다른 일이다.
+	 *
+	 * <p>실측에서 「휠체어」는 나오는데 그 문구가 없는 22건을 읽어 보니 반대 뜻이 섞여
+	 * 있었다 — <b>낮은 턱 있음</b>, 경사 경고문, 내부 테이블 이야기. 규칙을 넓히면
+	 * 이것들이 함께 들어온다.
+	 */
+	@Test
+	@DisplayName("🔴 경로 칸이라고 문구가 느슨해지지는 않는다")
+	void routeUsesTheSameStrictPhrase() {
+		assertThat(BarrierFreeAccessibility.of("", "출입통로가 넓어 휠체어, 전동 스쿠터 진입 쉬움. 낮은 턱 있음.", ""))
+				.as("턱이 있다고 적힌 곳이다").isEmpty();
+		assertThat(BarrierFreeAccessibility.of("", "경사도 10도 내외의 경사구간 있음, 휠체어 사용자 등 중증장애인 주의", ""))
+				.as("경고문이지 접근 가능하다는 말이 아니다").isEmpty();
+	}
 	@Test
 	@DisplayName("유모차 칸은 값이 있으면 붙인다")
 	void strollerWhenTheFieldHasAValue() {
-		assertThat(BarrierFreeAccessibility.of("", "대여가능")).containsExactly("STROLLER");
-		assertThat(BarrierFreeAccessibility.of("", "유모차 있음")).containsExactly("STROLLER");
+		assertThat(BarrierFreeAccessibility.of("", "", "대여가능")).containsExactly("STROLLER");
+		assertThat(BarrierFreeAccessibility.of("", "", "유모차 있음")).containsExactly("STROLLER");
 	}
 
 	@Test
 	@DisplayName("둘 다 해당하면 둘 다 붙는다")
 	void bothCodesCanApply() {
-		assertThat(BarrierFreeAccessibility.of("주출입구는 턱이 없어 휠체어 접근 가능함", "대여가능"))
+		assertThat(BarrierFreeAccessibility.of("주출입구는 턱이 없어 휠체어 접근 가능함", "", "대여가능"))
 				.containsExactly("WHEELCHAIR", "STROLLER");
 	}
 
 	@Test
 	@DisplayName("빈 칸과 없는 값에는 아무것도 안 붙는다 — 행이 없는 것은 접근 불가가 아니라 모른다다")
 	void emptyMeansUnknownNotInaccessible() {
-		assertThat(BarrierFreeAccessibility.of("", "")).isEmpty();
-		assertThat(BarrierFreeAccessibility.of(null, null)).isEmpty();
-		assertThat(BarrierFreeAccessibility.of("   ", "   ")).isEmpty();
+		assertThat(BarrierFreeAccessibility.of("", "", "")).isEmpty();
+		assertThat(BarrierFreeAccessibility.of(null, "", null)).isEmpty();
+		assertThat(BarrierFreeAccessibility.of("   ", "", "   ")).isEmpty();
 	}
 
 	@Test
@@ -74,7 +113,7 @@ class BarrierFreeAccessibilityTest {
 		String[] sentences = { "엘리베이터 있음", "주출입구는 턱이 없어 휠체어 접근 가능함", "대여가능", "" };
 		for (String exit : sentences) {
 			for (String stroller : sentences) {
-				assertThat(BarrierFreeAccessibility.of(exit, stroller)).doesNotContain("HEAVY_LUGGAGE");
+				assertThat(BarrierFreeAccessibility.of(exit, "", stroller)).doesNotContain("HEAVY_LUGGAGE");
 			}
 		}
 	}
