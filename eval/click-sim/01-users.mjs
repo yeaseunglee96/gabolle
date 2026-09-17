@@ -27,7 +27,12 @@ const N = Number(get("--n", 200));
 const plan = JSON.parse(fs.readFileSync(path.join(HERE, "findings", "00-plan.json"), "utf8"));
 const next = rng(plan.seed);
 
-/** 태그마다 -1~+1 가중치. mode 가 주어지면 그 방향으로 몰아 준다 (정반대 쌍). */
+/**
+ * 태그는 -1~+1 가중치, 점수형은 0~1 선호값. mode 가 주어지면 그 방향으로 몰아 준다.
+ *
+ * 🔴 점수형이 다시 생겼다 — 경사(slopePercent)가 배포에 2682곳 붙어 있다(lib/axes.mjs).
+ *    facets 가 0 으로 내던 것은 그 엔드포인트가 점수형을 못 세기 때문이었다.
+ */
 function makeTaste(mode) {
 	const tag = {};
 	for (const axis of TAG_AXES) {
@@ -40,7 +45,14 @@ function makeTaste(mode) {
 			tag[axis.key][value] = w;
 		});
 	}
-	return { tag, score: {} };
+	const score = {};
+	for (const axis of SCORE_AXES) {
+		// 정반대 쌍은 평지 선호(0.1) 대 급경사 선호(0.9) 로 갈라 세운다.
+		score[axis.key] = mode === undefined
+			? Math.round(next() * 100) / 100
+			: (mode === "a" ? 0.1 : 0.9);
+	}
+	return { tag, score };
 }
 
 const users = [
@@ -65,5 +77,5 @@ fs.writeFileSync(path.join(HERE, "data", "users.json"), JSON.stringify({
 }, null, 2) + "\n", "utf8");
 
 console.log(`가상 사용자 ${users.length}명 → data/users.json`);
-console.log(`  취향 축: ${TAG_AXES.map((a) => a.key).join(", ")}  (점수형 ${SCORE_AXES.length}개 — 배포 실측 0곳)`);
+console.log(`  취향 축: ${[...TAG_AXES, ...SCORE_AXES].map((a) => a.key).join(", ")}`);
 console.log(`  정반대 쌍: ${users[0].userId} ↔ ${users[1].userId}`);

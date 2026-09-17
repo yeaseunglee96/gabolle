@@ -18,7 +18,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { rng } from "./lib/rng.mjs";
-import { TAG_AXES } from "./lib/axes.mjs";
+import { TAG_AXES, SCORE_AXES } from "./lib/axes.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const read = (f) => JSON.parse(fs.readFileSync(path.join(HERE, f), "utf8"));
@@ -55,7 +55,7 @@ const next = rng(plan.seed + 1);
  *    없다는 다른 사실이고, 0 으로 뭉개면 데이터가 비어 있다는 사실 자체가 클릭률에
  *    녹아 사라진다.
  */
-function affinity(taste, tags) {
+function affinity(taste, tags, featureValues) {
 	let sum = 0;
 	let counted = 0;
 	for (const axis of TAG_AXES) {
@@ -70,6 +70,18 @@ function affinity(taste, tags) {
 	}
 	if (counted === 0) return null;
 	// -1~+1 평균을 0~1 확률로 옮긴다.
+	// 🔴 점수형도 함께 센다 — 경사가 살아 있다(lib/axes.mjs). 장소 값은 채점기가 남긴
+	//    featureValues 에서 읽고, 사용자 선호값과의 거리로 잰다. 값이 없으면 안 센다.
+	for (const axis of SCORE_AXES) {
+		const want = taste.score?.[axis.key];
+		let have = featureValues?.[axis.key];
+		if (want === undefined || have === undefined || have === null) continue;
+		if (axis.scale) have = have / axis.scale;
+		// 1 - 거리 를 -1~+1 로 옮겨 태그 가중치와 같은 축에 둔다.
+		sum += (1 - Math.abs(want - have)) * 2 - 1;
+		counted++;
+	}
+	if (counted === 0) return null;
 	return Math.min(1, Math.max(0, (sum / counted + 1) / 2));
 }
 
@@ -90,7 +102,7 @@ for (const row of rankings.rankings) {
 			placeId: c.placeId, finalRank: c.finalRank, originalRank: c.originalRank,
 			datasetVersion: plan.datasetVersion,
 		});
-		const a = affinity(taste, c.tags);
+		const a = affinity(taste, c.tags, c.featureValues);
 		if (a === null) { unscored++; continue; }   // 피처가 없으면 좋아할 근거도 없다
 		if (next() < a) {
 			clicks++;
