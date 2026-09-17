@@ -20,7 +20,7 @@
 // 🔴 사진은 서버에 남지 않는다. 요청에 실려 가고, 글자를 읽고, 사라진다. 기록 사진 업로드
 //    경로를 재활용하려다 그만뒀다 — 그쪽은 주소를 아는 사람이면 누구나 여는 자리인데
 //    (피드가 <img> 로 부른다), 메뉴판 사진에는 얼굴·영수증이 같이 찍힌다.
-import { apiRequest, ApiClientError } from '@/api/client';
+import { apiRequest, ApiClientError, ApiUnavailableError } from '@/api/client';
 import { resizeForUpload } from '@/social/imageResize';
 
 export type MenuLine = { text: string; allergenWords: string[] };
@@ -124,6 +124,15 @@ function errorMessage(error: unknown, tx: Translate): string {
     if (error.status === 413) return tx('사진이 너무 커요. 더 작게 찍어 주세요.', 'That photo is too large. Please take a smaller one.');
     if (error.status === 415) return tx('JPEG, PNG 사진만 읽을 수 있어요.', 'Only JPEG and PNG photos can be read.');
     if (error.status === 401) return tx('로그인한 뒤에 쓸 수 있어요.', 'Please sign in to use this.');
+  }
+  // 🔴 S15P21E201-1187 — 서버에 닿지도 못했으면 그 이유를 붙인다.
+  //
+  // 「사진을 읽지 못했어요」는 **글자를 못 알아봤다**는 뜻으로 읽힌다. 그런데 실제로는
+  // 요청이 나가지도 못한 경우가 있고, 그때 이 말은 사람을 엉뚱한 곳으로 보낸다
+  // (2026-09-17 안드로이드 실기기에서 실제로 그랬다 — 사진 탓인 줄 알고 다른 사진으로
+  // 여러 번 다시 시도했다).
+  if (error instanceof ApiUnavailableError && error.cause) {
+    return `${error.message} (${error.cause})`;
   }
   return tx('사진을 읽지 못했어요. 다시 시도해 주세요.', 'Could not read the photo. Please try again.');
 }

@@ -1,6 +1,6 @@
 import { Platform } from 'react-native';
 
-import { apiRequest, ApiClientError, API_BASE_URL } from '@/api/client';
+import { apiRequest, ApiClientError, ApiUnavailableError, API_BASE_URL } from '@/api/client';
 
 export type StoryVisibility = 'PUBLIC' | 'FOLLOWERS' | 'PRIVATE';
 export type FeedScope = 'ALL' | 'FOLLOWING';
@@ -188,6 +188,17 @@ export async function uploadStoryImage(asset: ImagePickResult, accessToken: stri
   } catch (error) {
     if (error instanceof ApiClientError && error.status === 413) return { state: 'error', message: '사진이 너무 커요. 3MB 이하로 올려주세요.' };
     if (error instanceof ApiClientError && error.status === 415) return { state: 'error', message: 'JPEG, PNG, WebP 사진만 올릴 수 있어요.' };
+    // 🔴 S15P21E201-1187 — 사진이 안 올라갈 때는 **왜인지를 화면에 붙인다.**
+    //
+    // 다른 화면에서 「서버에 연결할 수 없어요」는 그것만으로 충분하다 — 사용자가 할 일은
+    // 기다리는 것뿐이다. 그런데 사진 업로드가 100% 실패하는 상태에서는 그 말이 거짓이다.
+    // 서버는 멀쩡하고(같은 순간 다른 요청은 다 200) 요청이 나가지도 못한 것이다.
+    //
+    // 이 자리는 **사용자가 제보를 남기는 자리**이기도 하다. 원인 한 줄이 화면에 있으면
+    // 그 한 줄이 그대로 제보가 된다. 없으면 서버 기록에도 안 남아 아무도 못 고친다.
+    if (error instanceof ApiUnavailableError && error.cause) {
+      return { state: 'offline', message: `${error.message} (${error.cause})` };
+    }
     return failure(error);
   }
 }
