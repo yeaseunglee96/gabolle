@@ -68,6 +68,7 @@ export type NearbyPlaceItem = {
   nameEn: string | null;
   category: string | null;
   address: string | null;
+  addressEn?: string;
   lat: number;
   lng: number;
   distanceM: number;
