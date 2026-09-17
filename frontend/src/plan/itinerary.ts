@@ -107,6 +107,19 @@ export async function setItineraryItemLocked(input: { itineraryId: string; itemI
   }
 }
 
+// S15P21E201-467(BE) — 사용자가 고른 장소를 그 날의 마지막에 더한다. 응답은 고정·해제와
+// 같은 모양(일정 전체 + 경고)이고, 재계산 Job 은 서버가 접수하지 않는다 — 화면이 응답의
+// 새 판 번호로 recalculateItineraryDay 를 이어 불러야 시각이 채워진다(서버 주석 그대로).
+// dayIndex 는 0 이 첫날이다. 여행 기간을 벗어나면 400, 판이 낡았으면 409다.
+export async function addItineraryItem(input: { itineraryId: string; placeId: string; dayIndex: number; baseVersion: number; accessToken: string | null }): Promise<ItineraryMutationResult> {
+  try {
+    const dto = await apiRequest<ItineraryDto & { warnings?: ItineraryOpeningHoursWarning[]; notChecked?: ItineraryOpeningHoursNotChecked[] }>(`/api/v1/itineraries/${encodeURIComponent(input.itineraryId)}/items`, { method: 'POST', accessToken: input.accessToken, body: { placeId: input.placeId, dayIndex: input.dayIndex, baseVersion: input.baseVersion } });
+    return { state: 'success', itinerary: dto, ...parseOpeningHoursFields(dto) };
+  } catch (error) {
+    return failure(error);
+  }
+}
+
 export type ItineraryJobAcceptedResult =
   | { state: 'accepted'; jobId: string }
   | { state: 'conflict'; latestVersion: number; message: string }
