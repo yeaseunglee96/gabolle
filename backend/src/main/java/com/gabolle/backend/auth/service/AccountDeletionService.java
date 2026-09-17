@@ -252,6 +252,10 @@ public class AccountDeletionService {
 			new OwnedRows("UserFollow", "key.followeeUserId"),
 			new OwnedRows("UserBlock", "key.blockerUserId"),
 			new OwnedRows("UserBlock", "key.blockedUserId"),
+			// 🔴 글에 단 좋아요·싫어요. ON DELETE CASCADE 가 걸려 있지만 위에 적은 이유로
+			//    한 번도 안 터진다 — 새 표라서 처음부터 여기 넣는다(효준님 !1056 의 당부).
+			//    묻힌 키의 필드 이름이 팔로우·차단과 다르다(key 가 아니라 id).
+			new OwnedRows("StoryReaction", "id.userId"),
 			// 🔴 이 둘은 남이 참조한다 — trip_member.trip_invite_id 와
 			//    trip_seed_place.source_share_link_id. 둘 다 ON DELETE SET NULL 이라
 			//    (V20260907130000) 남의 참여·씨앗은 남고 이 사람의 초대 기록만 끊긴다.

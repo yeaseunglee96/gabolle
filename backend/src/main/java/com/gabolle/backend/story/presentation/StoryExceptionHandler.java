@@ -21,6 +21,7 @@ import com.gabolle.backend.story.application.FeedCursor;
 import com.gabolle.backend.story.application.FollowService;
 import com.gabolle.backend.story.application.StoryCoauthorService;
 import com.gabolle.backend.story.application.StoryFeedService;
+import com.gabolle.backend.story.application.StoryReactionService;
 import com.gabolle.backend.story.application.StoryService;
 import com.gabolle.backend.story.domain.UserBlock;
 import com.gabolle.backend.story.domain.UserFollow;
@@ -36,7 +37,8 @@ import com.gabolle.backend.story.domain.UserFollow;
  * 하나뿐이면 두 컨트롤러가 같은 예외에 다른 응답을 낼 일이 없다.
  */
 @RestControllerAdvice(
-		assignableTypes = { StoryController.class, UserSocialController.class, StoryCoauthorController.class })
+		assignableTypes = { StoryController.class, UserSocialController.class, StoryCoauthorController.class,
+				StoryReactionController.class })
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class StoryExceptionHandler {
 
@@ -105,6 +107,21 @@ public class StoryExceptionHandler {
 		return ResponseEntity.badRequest()
 				.body(ApiResponse.failure(new ApiError("STORY_COAUTHOR_NOT_TRIP_MEMBER", e.getMessage(),
 						List.of("userIds")), requestId()));
+	}
+
+	/**
+	 * 🔴 내가 함께 쓰는 글에 반응하려 했다 — <b>409</b>.
+	 *
+	 * <p>403 {@code STORY_FORBIDDEN} 과 가르는 이유는 이 파일 맨 위의 규칙 그대로다 —
+	 * 403 은 「보이는 글을 남이 고치거나 지우려 할 때」다. 이것은 정반대로 <b>내 글이라서</b>
+	 * 막힌 것이라, 같은 코드로 답하면 화면이 「남의 글이라 안 된다」를 띄운다.
+	 *
+	 * <p>404 도 아니다. 글은 분명히 보이고 사용자도 그것을 보고 있다.
+	 */
+	@ExceptionHandler(StoryReactionService.OwnReactionNotAllowedException.class)
+	public ResponseEntity<ApiResponse<Void>> handleOwnReaction(StoryReactionService.OwnReactionNotAllowedException e) {
+		return ResponseEntity.status(HttpStatus.CONFLICT)
+				.body(ApiResponse.failure(new ApiError("STORY_REACTION_OWN", e.getMessage(), List.of()), requestId()));
 	}
 
 	/**

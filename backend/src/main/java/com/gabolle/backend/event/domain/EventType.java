@@ -107,6 +107,31 @@ public enum EventType {
             EnumSet.of(Producer.CLIENT, Producer.SERVER)),
     ROUTE_DEVIATION(Producer.CLIENT, false, VersionRequirement.NONE, AggregateAxis.TRIP),
 
+    // ── 글(story)에 달린 반응 ──────────────────────────────────────
+
+    /**
+     * 글에 좋아요를 눌렀다 — 화면의 하트가 이것이다.
+     *
+     * <p>🔴 축이 {@code USER} 다. "이 사건은 누구에게 일어난 일인가" 로 되물으면 누른 사람이다.
+     * 글 자체는 축이 될 수 없다 — {@code aggregate_id} 가 UUID 이긴 하지만, 그러면 한 사람의
+     * 행동 이력을 한 줄로 읽을 수 없고 개인화가 읽는 것이 바로 그 줄이다. 글 번호는 payload 의
+     * {@code storyId} 가 들고 있다 — {@link #PLACE_LIKE} 가 장소 번호를 그렇게 다룬다.
+     *
+     * <p>🔴 {@code Producer.SERVER} 만 받는다. {@link #PLACE_LIKE} 는 앱이 직접 보내는 것도
+     * 받지만(수집 API 가 먼저 있었다), 이쪽은 서버가 쓰는 것이 첫 자리다. 앱이 직접 보낼 수
+     * 있게 해 두면 <b>자기 글에는 못 단다는 규칙을 피해 인기순을 올릴 수 있다</b> — 표에는 안
+     * 쌓여도 이벤트가 쌓이고, 그걸 세는 배치가 나중에 생긴다.
+     */
+    STORY_LIKE(Producer.SERVER, false, VersionRequirement.NONE, AggregateAxis.USER),
+
+    /**
+     * 글에 싫어요를 눌렀다.
+     *
+     * <p>🔴 <b>이 저장소에서 DISLIKE 를 실제로 발행하는 첫 자리다.</b>
+     * {@link #PLACE_DISLIKE} 는 종류만 있고 쓰는 곳이 없다 — 화면에 장소 싫어요가 없다.
+     */
+    STORY_DISLIKE(Producer.SERVER, false, VersionRequirement.NONE, AggregateAxis.USER),
+
     /** 🔴 축 미정 — 여행에도 추천 요청에도 속하지 않는다. 편집 기획 단위가 필요하다 */
     EDITORIAL_PICK_PUBLISHED(Producer.SERVER, false, VersionRequirement.NONE, null),
     /** 🔴 축 미정 — 사전 계산 배치의 단위를 정해야 한다 */
@@ -140,7 +165,8 @@ public enum EventType {
     private static final Set<EventType> BEHAVIOR_SIGNALS = EnumSet.of(
             PLACE_VIEW, PLACE_LIKE, PLACE_DISLIKE, PLACE_VISIT,
             ITINERARY_LOCK, ITINERARY_REMOVE, ITINERARY_REPLACE,
-            ROUTE_SKIP, ROUTE_DEVIATION, RECOMMENDATION_IMPRESSION);
+            ROUTE_SKIP, ROUTE_DEVIATION, RECOMMENDATION_IMPRESSION,
+            STORY_LIKE, STORY_DISLIKE);
 
     /**
      * 취향 벡터가 <b>세는</b> 이벤트 — {@code TasteVectorFoldService} 가 쓴다.
