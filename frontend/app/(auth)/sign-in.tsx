@@ -34,7 +34,7 @@ function errorMessage(cause: unknown, tx: (ko: string, en: string) => string, co
   return cause instanceof ApiClientError ? cause.message : tx('로그인하지 못했어요.', 'Unable to sign in.');
 }
 export default function SignIn() {
-  const router = useRouter(); const { returnTo, passwordReset, gated } = useLocalSearchParams<{ returnTo?: string; passwordReset?: string; gated?: string }>(); const { signIn, acceptTokens } = useAuth();
+  const router = useRouter(); const { returnTo, passwordReset, gated } = useLocalSearchParams<{ returnTo?: string; passwordReset?: string; gated?: string }>(); const { signIn, acceptTokens, user, ready } = useAuth();
   const { tx } = useI18n();
   const { kind } = useLayout();
   const [email, setEmail] = useState(''); const [password, setPassword] = useState(''); const [show, setShow] = useState(false);
@@ -45,11 +45,36 @@ export default function SignIn() {
   const [busy, setBusy] = useState(false); const [provider, setProvider] = useState<OAuthProvider | null>(null); const [feedback, setFeedback] = useState<{ danger: boolean; text: string } | null>(passwordReset === 'success' ? { danger: false, text: tx('비밀번호가 변경됐어요. 새 비밀번호로 로그인해 주세요.', 'Your password was changed. Sign in with your new password.') } : null);
   const eligible = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()) && password.length > 0;
   useEffect(() => { void savePendingReturnTo(returnTo); }, [returnTo]);
-  async function submit() { if (!eligible || busy || provider) return; setBusy(true); setFeedback(null); try { await signIn(email, password); router.replace((await resolveDestination(returnTo)) as Href); } catch (e) { setFeedback({ danger: true, text: errorMessage(e, tx, 'password') }); } finally { setBusy(false); } }
+
+  // 🔴 S15P21E201-1199 — **로그인한 사람에게 로그인 화면을 보여주지 않는다.**
+  //
+  // 구글로 로그인하고 홈에서 뒤로 가기를 한 번 누르면 이 화면이 다시 뜨는 것이 이 결함이었다.
+  // app.json 의 App Link(`https://j15e201.p.ssafy.io/oauth/**`)가 로그인 착지 주소와
+  // 글자 그대로 겹쳐, 착지하는 순간 안드로이드가 앱을 한 번 더 열면서 콜백 화면을
+  // 위에 **쌓기** 때문이다. 그 뒤 `router.replace` 는 **맨 위 한 칸만** 바꾸므로
+  // 아래에 남은 이 화면은 안 지워진다.
+  //
+  // 아래 칸을 지우는 수단은 없다. 대신 **이 화면이 스스로 비킨다** — 어떤 경로로
+  // 왔는지(뒤로 가기·딥링크·상태 복원)와 무관하게 같은 판단이 선다.
+  //
+  // 이 화면에서 방금 로그인한 경우는 제외한다 — 그쪽은 submit·social 이 직접
+  // 목적지로 보낸다. 둘이 같이 움직이면 한 번 갈 길을 두 번 간다.
+  const signedInHere = useRef(false);
+  const leaving = useRef(false);
+  useEffect(() => {
+    if (!ready || !user || signedInHere.current || leaving.current) return;
+    leaving.current = true;
+    // 쌓인 칸이 있으면 그만 돌려보내고(=이 화면이 없어진다), 혼자면 홈으로 바꾼다.
+    // 바꾸는 쪽이 중요하다 — 그래야 다음 뒤로 가기가 앱을 빠져나가는 원래 일을 한다.
+    if (router.canGoBack()) router.back();
+    else router.replace('/home');
+  }, [ready, user, router]);
+  async function submit() { if (!eligible || busy || provider) return; setBusy(true); setFeedback(null); signedInHere.current = true; try { await signIn(email, password); router.replace((await resolveDestination(returnTo)) as Href); } catch (e) { setFeedback({ danger: true, text: errorMessage(e, tx, 'password') }); } finally { setBusy(false); } }
   async function social(next: OAuthProvider) {
     if (busy || provider) return;
     setProvider(next);
     setFeedback(null);
+    signedInHere.current = true;
     try {
       // 웹에서는 loginWithOAuth가 현재 페이지를 제공자 화면으로 그대로 넘긴다
       // (S15P21E201-830) — 이 아래는 실행되지 않고, 완료 뒤 분기는
