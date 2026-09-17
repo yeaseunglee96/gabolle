@@ -108,7 +108,20 @@ wc -l /tmp/load.env    # 네 줄이면 정상
 VER=tourapi-busan-20260911
 IMG=local-route-backend:candidate
 NET=local-route-personalization_data_net
-RUN="docker run --rm --network $NET --env-file /tmp/load.env \n  -e GABOLLE_JWT_SECRET=loader-only-throwaway-value-0123456789abcdef \n  -v /home/ubuntu/load:/load $IMG"
+
+# 🔴 적재기는 일을 마쳐도 앱이 계속 떠 있다. 그래서 **마침 줄이 보이면 스스로 내린다.**
+#    아래 아홉 단계는 파일이 둘인 것까지 세면 열두 번 도는데, 사람이 열두 번 Ctrl+C 를
+#    기억해야 하는 절차는 반드시 한 번 빠진다 (S15P21E201-1214).
+run() {
+  cid=$(docker run -d --network "$NET" --env-file /tmp/load.env \
+    -e GABOLLE_JWT_SECRET=loader-only-throwaway-value-0123456789abcdef \
+    -v /home/ubuntu/load:/load "$IMG" "$@") || return 1
+  # 로그를 따라가다 마침(또는 기동 실패) 줄에서 끊는다. 10분은 넘을 일이 없다.
+  timeout 600 docker logs -f "$cid" 2>&1 | sed -u '/적재를 마쳤다\|APPLICATION FAILED TO START/q'
+  docker rm -f "$cid" > /dev/null
+  echo "  (컨테이너 내림: ${cid:0:12})"
+}
+RUN=run
 
 # ① 장소 328곳
 $RUN --gabolle.place.loader.tourapi=/load/tourapi-busan.ndjson \
@@ -176,8 +189,20 @@ $RUN --gabolle.place.loader.place-shade=/load/place-shade-sbiz.ndjson \
 > 대조할 다른 산출값이 없어 범위 검사(0~100)만이 눈금을 지키는 유일한 장치다.
 > 나중에 산출물이 0~1 로 바뀌면 그 검산이 **빨갛게 터진다** — 두 번 나눈 값(0.009)은 범위 검사를 통과해 버리기 때문이다.
 
-적재를 마치면 애플리케이션이 계속 떠 있으므로 로그에 마침 줄이 보이면 `Ctrl+C` 로
-끊는다. `--rm` 이라 컨테이너는 남지 않는다.
+> 🔴 **2026-09-18 정정 — 여기 「마침 줄이 보이면 `Ctrl+C` 로 끊는다」고 적혀 있었다.**
+>
+> 적재기는 일을 마쳐도 앱이 계속 떠 있는 것이 맞다. 그런데 **그 뒷정리를 사람에게
+> 맡기고 있었다.** 위 `run()` 이 이제 마침 줄에서 스스로 끊고 컨테이너를 내린다 —
+> **아무것도 기억하지 않아도 된다.**
+>
+> **왜 고쳤나.** 같은 날 새벽 적재 리허설에서 컨테이너 둘이 할 일을 끝내고도
+> **36분·4분씩 떠 있었다.** 그 사이 기계의 메모리가 모자라 **뒤에서 돌던 작업 둘이
+> 정리됐고**, 그중 하나가 리허설의 마지막 단계였다. 자료가 틀어지지는 않았지만
+> **그 단계를 못 돌렸다.** 자바 하나가 수백 MB 다. 열두 번 돌리는 절차에서 몇 번만
+> 놓쳐도 기계가 넘어간다.
+>
+> ⚠️ **판정은 여전히 로그 줄이다.** 적재기는 일을 마쳐도 스스로 안 끝나므로
+> **종료 코드로 성공/실패를 가를 수 없다.** 위 4절의 숫자를 본다.
 
 ## 4. 로그에서 확인할 숫자
 
