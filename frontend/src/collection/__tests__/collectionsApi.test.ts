@@ -202,21 +202,21 @@ describe('서버가 받아 줄 수 없는 리스트', () => {
 // 🔴 기기가 만드는 장소 id 는 `${Date.now().toString(36)}-${random}` 이라 절대 UUID 가
 //    아니다. 그것을 kind: PLACE 의 placeId 로 보내면 서버가 값을 읽는 단계에서 400 을
 //    내고, 바깥의 catch 가 그것을 삼켜서 장소가 조용히 사라진다.
-import { buildItemRequest, isServerPlaceId } from '../collectionsApi';
+import { buildItemRequest, isServerId } from '../collectionsApi';
 
-describe('isServerPlaceId — 서버가 아는 장소인가', () => {
+describe('isServerId — 서버가 아는 장소인가', () => {
   it('서버 장소 id(UUID)를 알아본다', () => {
-    expect(isServerPlaceId('7b8cd3bc-7cef-48ef-bda0-335bec095fc2')).toBe(true);
-    expect(isServerPlaceId('7B8CD3BC-7CEF-48EF-BDA0-335BEC095FC2')).toBe(true);
+    expect(isServerId('7b8cd3bc-7cef-48ef-bda0-335bec095fc2')).toBe(true);
+    expect(isServerId('7B8CD3BC-7CEF-48EF-BDA0-335BEC095FC2')).toBe(true);
   });
 
   it('기기가 만든 id 를 서버 것으로 오해하지 않는다', () => {
     // CollectionProvider 의 uid() 가 실제로 만드는 모양이다.
-    expect(isServerPlaceId('mfjk2x-a7b3c1')).toBe(false);
-    expect(isServerPlaceId('p1')).toBe(false);
-    expect(isServerPlaceId('')).toBe(false);
+    expect(isServerId('mfjk2x-a7b3c1')).toBe(false);
+    expect(isServerId('p1')).toBe(false);
+    expect(isServerId('')).toBe(false);
     // 자릿수가 하나 모자란 것도 통과시키지 않는다.
-    expect(isServerPlaceId('7b8cd3bc-7cef-48ef-bda0-335bec095fc')).toBe(false);
+    expect(isServerId('7b8cd3bc-7cef-48ef-bda0-335bec095fc')).toBe(false);
   });
 });
 
@@ -376,5 +376,107 @@ describe('restoreUnuploaded — 못 올린 것을 서버 것 위에 얹는다', 
   it('이미 서버에 있는 것을 두 번 넣지 않는다', () => {
     const out = restoreUnuploaded(fresh, previous, new Set(['a', 'zzz']));
     expect(out.lists[0].placeIds).toEqual(['a', 'zzz']);
+  });
+});
+
+// S15P21E201-1148 — 지운 것이 되살아나던 것.
+//
+// 🔴 이 시험이 지키는 것은 셋이다.
+//    (1) 보류해 둔 지우기를 서버로 보낸다
+//    (2) 못 보낸 것은 버리지 않는다 — 다음에 다시 보낸다
+//    (3) 못 보낸 동안에도 화면에는 다시 안 나타난다
+import { samePendingDelete, type PendingDelete } from '../collectionsApi';
+
+describe('지우기를 서버로 보낸다 (S15P21E201-1148)', () => {
+  const srvList = serverList('srv-1', '바다 보러', [{ placeId: 'p1', name: '광안리', position: 0 }]);
+  const empty: DeviceCollections = { lists: [], places: {} };
+
+  it('보류해 둔 리스트 지우기를 DELETE 로 보낸다', async () => {
+    const deleted: string[] = [];
+    mockServer((method, url) => {
+      if (method === 'DELETE') { deleted.push(url); return ok({}); }
+      return ok(serverPage([srvList]));
+    });
+
+    const result = await loadCollections(empty, 'token', [{ kind: 'list', collectionId: 'srv-1' }]);
+
+    expect(deleted).toHaveLength(1);
+    expect(deleted[0]).toContain('/me/collections/srv-1');
+    if (result.state !== 'success') throw new Error('성공이어야 한다');
+    expect(result.pendingDeletes).toEqual([]);
+  });
+
+  it('항목 지우기는 itemId 로 보낸다', async () => {
+    const deleted: string[] = [];
+    mockServer((method, url) => {
+      if (method === 'DELETE') { deleted.push(url); return ok({}); }
+      return ok(serverPage([srvList]));
+    });
+
+    await loadCollections(empty, 'token', [{ kind: 'item', collectionId: 'srv-1', itemId: 'srv-1-item-0' }]);
+
+    expect(deleted[0]).toContain('/me/collections/srv-1/items/srv-1-item-0');
+  });
+
+  it('🔴 5xx 면 버리지 않는다 — 다음에 다시 보낸다', async () => {
+    mockServer((method) => {
+      if (method === 'DELETE') return new Response(JSON.stringify({ data: null, error: { code: 'BOOM', message: '실패' }, meta: { requestId: 'r' } }), { status: 500, headers: { 'content-type': 'application/json' } });
+      return ok(serverPage([srvList]));
+    });
+
+    const queued: PendingDelete[] = [{ kind: 'list', collectionId: 'srv-1' }];
+    const result = await loadCollections(empty, 'token', queued);
+
+    if (result.state !== 'success') throw new Error('성공이어야 한다');
+    expect(result.pendingDeletes).toEqual(queued);
+  });
+
+  it('404 는 이미 없다는 뜻이라 지운 것으로 친다', async () => {
+    mockServer((method) => {
+      if (method === 'DELETE') return new Response(JSON.stringify({ data: null, error: { code: 'NOT_FOUND', message: '없음' }, meta: { requestId: 'r' } }), { status: 404, headers: { 'content-type': 'application/json' } });
+      return ok(serverPage([srvList]));
+    });
+
+    const result = await loadCollections(empty, 'token', [{ kind: 'list', collectionId: 'srv-1' }]);
+
+    if (result.state !== 'success') throw new Error('성공이어야 한다');
+    expect(result.pendingDeletes).toEqual([]);
+  });
+
+  it('🔴 못 보낸 동안에도 화면에 다시 안 나타난다', async () => {
+    mockServer((method) => {
+      if (method === 'DELETE') return new Response(JSON.stringify({ data: null, error: { code: 'BOOM', message: '실패' }, meta: { requestId: 'r' } }), { status: 503, headers: { 'content-type': 'application/json' } });
+      return ok(serverPage([srvList]));
+    });
+
+    const result = await loadCollections(empty, 'token', [{ kind: 'list', collectionId: 'srv-1' }]);
+
+    if (result.state !== 'success') throw new Error('성공이어야 한다');
+    // 서버는 계속 돌려주지만 지운 것이므로 없는 셈 친다.
+    expect(result.data.lists.map((l) => l.id)).not.toContain('srv-1');
+  });
+
+  it('로그인 전에는 보내지 않고 그대로 들고 있는다', async () => {
+    const queued: PendingDelete[] = [{ kind: 'list', collectionId: 'srv-1' }];
+    const result = await loadCollections(empty, null, queued);
+
+    expect(result.state).toBe('device-only');
+    expect(result.pendingDeletes).toEqual(queued);
+  });
+});
+
+describe('samePendingDelete — 같은 것을 두 번 적지 않으려고', () => {
+  it('같은 리스트 지우기는 같다고 본다', () => {
+    expect(samePendingDelete({ kind: 'list', collectionId: 'a' }, { kind: 'list', collectionId: 'a' })).toBe(true);
+    expect(samePendingDelete({ kind: 'list', collectionId: 'a' }, { kind: 'list', collectionId: 'b' })).toBe(false);
+  });
+
+  it('항목은 리스트와 항목이 둘 다 같아야 같다', () => {
+    expect(samePendingDelete({ kind: 'item', collectionId: 'a', itemId: 'x' }, { kind: 'item', collectionId: 'a', itemId: 'x' })).toBe(true);
+    expect(samePendingDelete({ kind: 'item', collectionId: 'a', itemId: 'x' }, { kind: 'item', collectionId: 'a', itemId: 'y' })).toBe(false);
+  });
+
+  it('종류가 다르면 다르다', () => {
+    expect(samePendingDelete({ kind: 'list', collectionId: 'a' }, { kind: 'item', collectionId: 'a', itemId: 'a' })).toBe(false);
   });
 });
