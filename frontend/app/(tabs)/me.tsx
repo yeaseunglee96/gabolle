@@ -36,7 +36,7 @@ export default function Me() {
   const { tx } = useI18n();
   const plan = usePlan();
   const { width } = useWindowDimensions();
-  const { answeredPreferences, storyCount } = useMyPageCounts();
+  const { answeredPreferences, storyCount, followerCount, followingCount } = useMyPageCounts();
   const { enabled: behaviorPersonalization, setEnabled: setBehaviorPersonalization } = useBehaviorConsent(accessToken);
   const [avatarUri, setAvatarUri] = useState<string | null>(null);
   const [logoutAsk, setLogoutAsk] = useState(false);
@@ -78,6 +78,20 @@ export default function Me() {
         onPress={() => router.push('/me/posts')}
         disabled={!user}
       />
+      {/* 🔴 S15P21E201-1180 — 인스타그램처럼 팔로워·팔로잉을 눌러 목록으로 들어갈 수 있어야
+          한다는 사용자 리포트. 숫자만 있던 자리를 실제 목록 화면으로 잇는다. */}
+      <InfoRow
+        label={tx('팔로워', 'Followers')}
+        value={followerCount === null ? '›' : tx(`${followerCount}명 ›`, `${followerCount} ›`)}
+        onPress={() => user && router.push(`/user/${user.userId}/followers`)}
+        disabled={!user}
+      />
+      <InfoRow
+        label={tx('팔로잉', 'Following')}
+        value={followingCount === null ? '›' : tx(`${followingCount}명 ›`, `${followingCount} ›`)}
+        onPress={() => user && router.push(`/user/${user.userId}/following`)}
+        disabled={!user}
+      />
       <InfoRow
         label={tx('여행 취향', 'Travel preferences')}
         value={answeredPreferences === null
@@ -94,6 +108,11 @@ export default function Me() {
     <Text variant="eyebrow" weight="bold" style={styles.groupLabel}>{tx('앱', 'App')}</Text>
     <View style={styles.group}>
       <AppLanguageSetting />
+      {/* 🔴 S15P21E201-1181 — 알림·차단된 계정처럼 스토어 심사가 보는 기본 기능이 마이페이지
+          안에서 안 보였다는 사용자 리포트. 알림 화면은 이미 있다(app/notifications.tsx,
+          홈 종 아이콘) — 여기서는 같은 화면으로 가는 입구만 하나 더 둔다. */}
+      <InfoRow label={tx('알림', 'Notifications')} value="›" onPress={() => router.push('/notifications')} />
+      <InfoRow label={tx('차단된 계정', 'Blocked accounts')} value="›" onPress={() => router.push('/me/blocked')} disabled={!user} />
       <InfoRow label={tx('도움말·문의', 'Help & support')} description={tx('앱 소개, 자주 묻는 질문, 문제 해결', 'App tour, FAQs, and troubleshooting')} value="›" onPress={() => router.push('/help')} />
       <InfoRow label={tx('약관·고지', 'Terms & notices')} value="›" onPress={() => router.push('/me/terms')} />
       {/* 처음 켜는 자리는 첫 체크인 화면이고, 여기는 **언제든 끄는 자리**다. 끄는 길이 설정

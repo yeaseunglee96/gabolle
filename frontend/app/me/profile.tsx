@@ -8,12 +8,12 @@
 // 🔴 시안의 「{제공자} 로그인 · 변경 불가」에서 제공자 이름은 **뺐다.** 지금 서버가 주는 계정
 // 정보(AuthUser)에 가입 제공자 칸이 없어서 지어낼 수밖에 없기 때문이다.
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Image, Modal, Pressable, StyleSheet, TextInput, View, useWindowDimensions } from 'react-native';
+import { ActivityIndicator, Image, Modal, Pressable, Share, StyleSheet, TextInput, View, useWindowDimensions } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 
-import { ApiClientError } from '@/api/client';
+import { ApiClientError, APP_WEB_BASE_URL } from '@/api/client';
 import { useAuth } from '@/auth/AuthProvider';
 import { getAccountDeletionPreview, type AccountDeletionPreview } from '@/auth/authApi';
 import { uploadStoryImage } from '@/social/stories';
@@ -22,7 +22,7 @@ import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { isAtLeast } from '@/layout/breakpoints';
-import { MyPageShell } from '@/me/MyPageShell';
+import { MyPageShell, useMyPageCounts } from '@/me/MyPageShell';
 import { usePlan } from '@/plan/PlanProvider';
 
 // 박재현 님 계약(S15P21E201-837) — 서버가 대소문자·앞뒤 공백까지 정확히 이 값과 비교한다.
@@ -34,8 +34,24 @@ export default function MyPageProfile() {
   const { user, accessToken, updateProfile, deleteAccount } = useAuth();
   const { language, tx } = useI18n();
   const plan = usePlan();
+  const router = useRouter();
   const { width } = useWindowDimensions();
   const desktop = isAtLeast(width, 'lg');
+
+  // 🔴 S15P21E201-1180 — 인스타그램식 기록·팔로워·팔로잉 숫자. MyPageShell이 이미 같은
+  // 프로필 질의를 하고 있어서(사이드 메뉴 숫자), 새로 부르지 않고 그 결과를 같이 쓴다 —
+  // react-query 캐시 열쇠가 같아 요청이 하나로 합쳐진다.
+  const { storyCount, followerCount, followingCount } = useMyPageCounts();
+
+  async function shareProfile() {
+    if (!user?.userId) return;
+    const url = `${APP_WEB_BASE_URL}/user/${user.userId}`;
+    try {
+      await Share.share({ title: tx('가볼래 프로필 공유', 'Share GABOLLE profile'), message: tx(`제 가볼래 프로필을 확인해 보세요.\n${url}`, `Check out my GABOLLE profile.\n${url}`), url });
+    } catch {
+      // 사용자가 공유 시트를 닫은 것도 실패로 취급하지 않는다 — 별도 안내가 필요 없다.
+    }
+  }
 
   const visualPreview = __DEV__ && preview === 'ui';
   const profileOwner = user?.userId ?? (visualPreview ? 'preview' : null);
@@ -166,6 +182,20 @@ export default function MyPageProfile() {
 
   return (
     <MyPageShell tab="profile" title={tx('프로필', 'Profile')} description={tx('피드와 기록에 보이는 이름과 사진이에요.', 'This is the name and photo people see on your posts.')}>
+      {user ? (
+        <View style={styles.statCard}>
+          <View style={styles.statRow}>
+            <View style={styles.stat}><Text variant="title" weight="bold">{storyCount ?? '—'}</Text><Text variant="caption" color={color.text.muted}>{tx('기록', 'Records')}</Text></View>
+            <Pressable accessibilityRole="button" onPress={() => router.push(`/user/${user.userId}/followers`)} style={styles.stat}><Text variant="title" weight="bold">{followerCount ?? '—'}</Text><Text variant="caption" color={color.text.muted}>{tx('팔로워', 'Followers')}</Text></Pressable>
+            <Pressable accessibilityRole="button" onPress={() => router.push(`/user/${user.userId}/following`)} style={styles.stat}><Text variant="title" weight="bold">{followingCount ?? '—'}</Text><Text variant="caption" color={color.text.muted}>{tx('팔로잉', 'Following')}</Text></Pressable>
+          </View>
+          <View style={styles.statActions}>
+            <Button label={tx('내 피드 보기', 'View my posts')} variant="ghost" compact onPress={() => router.push('/me/posts')} />
+            <Button label={tx('프로필 공유', 'Share profile')} variant="ghost" compact onPress={() => void shareProfile()} />
+          </View>
+        </View>
+      ) : null}
+
       <View style={[styles.card, desktop && styles.cardDesktop]}>
         <View style={styles.avatarColumn}>
           <View style={[styles.avatar, { width: avatarSize, height: avatarSize }]}>
@@ -263,6 +293,10 @@ export default function MyPageProfile() {
 }
 
 const styles = StyleSheet.create({
+  statCard: { gap: spacing[3], marginBottom: spacing[4], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card },
+  statRow: { flexDirection: 'row', justifyContent: 'space-around' },
+  stat: { alignItems: 'center' },
+  statActions: { flexDirection: 'row', gap: spacing[2], paddingTop: spacing[3], borderTopWidth: 1, borderTopColor: color.surface.border },
   card: { gap: spacing[6], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card },
   cardDesktop: { flexDirection: 'row', alignItems: 'flex-start', padding: spacing[6], borderWidth: 1, borderColor: color.surface.border },
   avatarColumn: { alignItems: 'center', gap: spacing[2] },
