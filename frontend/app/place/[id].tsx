@@ -141,14 +141,17 @@ export default function Place() {
             <Animated.View style={[StyleSheet.absoluteFill, { opacity: heroReveal, transform: [{ scale: heroReveal.interpolate({ inputRange: [0, 1], outputRange: [1.04, 1] }) }] }]}>
               <ImageBackground source={{ uri: resolved.apiPlace.photoUrl }} resizeMode="cover" style={styles.heroFill} imageStyle={styles.heroImage} onLoad={() => setHeroLoaded(true)} onError={() => setHeroLoaded(true)}>
                 <View style={styles.shade} />
+                <View style={styles.shadeLow} />
+                <View style={styles.shadeLower} />
+                <View style={styles.shadeLowest} />
                 <View style={styles.heroCopy}>
-                  <Text variant="display" weight="bold" color={color.text.onAction}>{resolved.title}</Text>
-                  <Text color={color.text.onAction}>{resolved.subtitle}</Text>
+                  <Text variant="display" weight="bold" color={color.text.onAction} style={styles.heroText}>{resolved.title}</Text>
+                  <Text color={color.text.onAction} style={styles.heroText}>{resolved.subtitle}</Text>
                   {hasLocalityScore(resolved.apiPlace) ? (
                     <View style={styles.scoreBadge}><Text variant="caption" weight="bold" color={color.text.onAction}>{tx('로컬 점수 있음', 'Has locality score')}</Text></View>
                   ) : null}
                   {resolved.apiPlace.photoSource ? (
-                    <Text variant="caption" color={color.text.onAction} style={styles.photoCredit}>{tx(`사진 제공: ${resolved.apiPlace.photoSource}`, `Photo: ${resolved.apiPlace.photoSource}`)}</Text>
+                    <Text testID="place-photo-credit" variant="caption" color={color.text.onAction} style={[styles.photoCredit, styles.heroText]}>{tx(`사진 제공: ${resolved.apiPlace.photoSource}`, `Photo: ${resolved.apiPlace.photoSource}`)}</Text>
                   ) : null}
                 </View>
               </ImageBackground>
@@ -270,10 +273,23 @@ const styles = StyleSheet.create({
   heroImage: { borderRadius: radius.lg },
   heroPlaceholder: { backgroundColor: color.surface.soft },
   heroPlain: { backgroundColor: color.brand.navy, padding: spacing[4] },
-  shade: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(8, 27, 53, 0.25)' },
+  // 🔴 S15P21E201-1203 — 예전엔 사진 전체에 25% 를 균일하게 깔았다. 그런데 글자는 전부
+  //    아래쪽에 모여 있다 — 위는 필요 없이 어두워지고, 아래는 글자를 띄울 만큼 어두워지지
+  //    않았다. 사진 속에 글자가 들어 있으면(축제 현수막 같은 것) 그 위에서 뭉개졌다.
+  //
+  //    expo-linear-gradient 를 들이면 네이티브 모듈이 늘어 빌드 구성이 달라진다.
+  //    그만한 일이 아니라 반투명 층을 겹쳐 근사한다 — 아래로 갈수록 누적되어 짬어진다.
+  shade: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(8, 27, 53, 0.18)' },
+  shadeLow: { position: 'absolute', left: 0, right: 0, bottom: 0, height: '70%', backgroundColor: 'rgba(8, 27, 53, 0.16)' },
+  shadeLower: { position: 'absolute', left: 0, right: 0, bottom: 0, height: '45%', backgroundColor: 'rgba(8, 27, 53, 0.18)' },
+  shadeLowest: { position: 'absolute', left: 0, right: 0, bottom: 0, height: '24%', backgroundColor: 'rgba(8, 27, 53, 0.22)' },
+  // 사진이 어떤 색이든 글자 윤곽이 서게 한다. 능짐 안 가리면서 가장 확실하다.
+  heroText: { textShadowColor: 'rgba(8, 27, 53, 0.9)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 6 },
   heroCopy: { gap: spacing[1], padding: spacing[4] },
   scoreBadge: { alignSelf: 'flex-start', marginTop: spacing[2], borderRadius: radius.full, paddingHorizontal: spacing[3], paddingVertical: spacing[1], backgroundColor: 'rgba(255,255,255,0.18)' },
-  photoCredit: { marginTop: spacing[1], opacity: 0.8 },
+  // 🔴 opacity 0.8 을 뽑았다 (S15P21E201-1203). 이 줄은 공공누리 이용 조건이라
+  //    읽힐 수 있어야 한다 — 지켜야 하는 표기를 일부러 흐리게 할 이유가 없다.
+  photoCredit: { marginTop: spacing[1] },
   infoRows: { marginTop: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card, overflow: 'hidden' },
   infoRow: { minHeight: 52, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[3], paddingHorizontal: spacing[4], borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: color.surface.border },
   safetyNotice: { gap: spacing[1], marginTop: spacing[4], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.state.dangerBg },
