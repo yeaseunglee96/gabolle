@@ -85,6 +85,28 @@ public final class StoryFixture {
 				follower, followee);
 	}
 
+	/**
+	 * 커서 순서를 시험할 때 쓴다 — S15P21E201-1179. {@code now()} 는 같은 트랜잭션
+	 * 안에서 매번 같은 값을 줄 수 있어(Postgres 는 트랜잭션 시작 시각을 고정한다), 맺은 시각이
+	 * 갈리는 것을 보이려면 값을 직접 정해 넣어야 한다.
+	 */
+	public static void insertFollow(JdbcTemplate jdbc, UUID follower, UUID followee, Instant createdAt) {
+		jdbc.update("INSERT INTO user_follow (follower_user_id, followee_user_id, created_at) VALUES (?, ?, ?)",
+				follower, followee, createdAt.atOffset(ZoneOffset.UTC));
+	}
+
+	/** S15P21E201-1179. */
+	public static void insertBlock(JdbcTemplate jdbc, UUID blocker, UUID blocked) {
+		jdbc.update("INSERT INTO user_block (blocker_user_id, blocked_user_id, created_at) VALUES (?, ?, now())",
+				blocker, blocked);
+	}
+
+	/** {@link #insertFollow(JdbcTemplate, UUID, UUID, Instant)} 와 같은 이유. */
+	public static void insertBlock(JdbcTemplate jdbc, UUID blocker, UUID blocked, Instant createdAt) {
+		jdbc.update("INSERT INTO user_block (blocker_user_id, blocked_user_id, created_at) VALUES (?, ?, ?)",
+				blocker, blocked, createdAt.atOffset(ZoneOffset.UTC));
+	}
+
 	public static Authentication as(UUID userId) {
 		return new UsernamePasswordAuthenticationToken(userId.toString(), null, List.of());
 	}

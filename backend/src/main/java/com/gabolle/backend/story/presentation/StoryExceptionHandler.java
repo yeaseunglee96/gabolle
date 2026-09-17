@@ -17,8 +17,10 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 
 import com.gabolle.backend.common.api.ApiError;
 import com.gabolle.backend.common.api.ApiResponse;
+import com.gabolle.backend.story.application.BlockService;
 import com.gabolle.backend.story.application.FeedCursor;
 import com.gabolle.backend.story.application.FollowService;
+import com.gabolle.backend.story.application.RelationCursor;
 import com.gabolle.backend.story.application.StoryCoauthorService;
 import com.gabolle.backend.story.application.StoryFeedService;
 import com.gabolle.backend.story.application.StoryReactionService;
@@ -168,6 +170,20 @@ public class StoryExceptionHandler {
 	public ResponseEntity<ApiResponse<Void>> handleBlockedByUser(UserBlock.BlockedByUserException e) {
 		return ResponseEntity.status(HttpStatus.FORBIDDEN)
 				.body(ApiResponse.failure(new ApiError("BLOCKED_BY_USER", e.getMessage(), List.of()), requestId()));
+	}
+
+	@ExceptionHandler(RelationCursor.InvalidCursorException.class)
+	public ResponseEntity<ApiResponse<Void>> handleRelationCursor(RelationCursor.InvalidCursorException e) {
+		return ResponseEntity.badRequest()
+				.body(ApiResponse.failure(new ApiError("FEED_CURSOR_INVALID", e.getMessage(), List.of("cursor")),
+						requestId()));
+	}
+
+	/** 남의 차단 목록을 물었다 — S15P21E201-1179. */
+	@ExceptionHandler(BlockService.BlockListForbiddenException.class)
+	public ResponseEntity<ApiResponse<Void>> handleBlockListForbidden(BlockService.BlockListForbiddenException e) {
+		return ResponseEntity.status(HttpStatus.FORBIDDEN)
+				.body(ApiResponse.failure(new ApiError("BLOCK_LIST_FORBIDDEN", e.getMessage(), List.of()), requestId()));
 	}
 
 	@ExceptionHandler(FollowService.UserNotFoundException.class)

@@ -1,6 +1,7 @@
 package com.gabolle.backend.story.application;
 
 import java.time.Clock;
+import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.context.annotation.Profile;
@@ -11,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.gabolle.backend.story.domain.UserBlock;
 import com.gabolle.backend.story.domain.UserFollow;
 import com.gabolle.backend.story.presentation.dto.BlockResponse;
+import com.gabolle.backend.story.presentation.dto.RelationListResponse;
 import com.gabolle.backend.story.repository.UserBlockRepository;
 import com.gabolle.backend.story.repository.UserFollowRepository;
 import com.gabolle.backend.user.domain.AppUser;
@@ -115,6 +117,35 @@ public class BlockService {
 	@Transactional(readOnly = true)
 	public boolean isBlockedBy(UUID target, UUID me) {
 		return me != null && !me.equals(target) && this.userBlockRepository.isBlockedBy(target, me);
+	}
+
+	/**
+	 * 내가 차단한 사람 목록 — 설정 화면의 「차단된 계정」. S15P21E201-1179.
+	 *
+	 * <p>🔴 <b>누구나 남의 차단 목록을 볼 수 없다</b> — 팔로워·팔로잉과 다르다. 팔로우는 공개
+	 * 관계지만 차단은 <b>차단한 사람의 판단이 새어 나가면 안 되는 정보</b>다. 그래서 {@code me}
+	 * 가 아니면 목록이 아니라 자기 것인지부터 확인한다.
+	 */
+	@Transactional(readOnly = true)
+	public RelationListResponse myBlocks(UUID viewer, UUID me, String cursor, Integer limit) {
+		if (!viewer.equals(me)) {
+			throw new BlockListForbiddenException();
+		}
+		RelationCursor from = RelationCursor.decode(cursor);
+		int size = StoryFeedService.clamp(limit);
+		// 🔴 following 은 여기서 물어볼 필요가 없다 — S15P21E201-1179. block() 이 차단하는
+		//    순간 팔로우를 양쪽 다 끊으므로(unfollowBothWays), 차단한 사람이 목록에 있다는 것
+		//    자체가 이미 "팔로우 아님" 을 보장한다. 질의를 하나 더 보내는 대신 빈 집합을 준다.
+		return RelationCursor.page(this.userBlockRepository.findBlocked(me, from.relatedAt(), from.userId(), size + 1),
+				size, Set.of());
+	}
+
+	/** 남의 차단 목록을 물었다 — 403 으로 답할 자리다. */
+	public static class BlockListForbiddenException extends RuntimeException {
+
+		public BlockListForbiddenException() {
+			super("차단 목록은 본인만 볼 수 있습니다.");
+		}
 	}
 
 	private void unfollowBothWays(UUID me, UUID target) {

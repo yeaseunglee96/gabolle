@@ -704,6 +704,16 @@ class RouteAuthorizationRegistryTest {
 				"남을 팔로우하는 것이 기능이다. 주체는 인증에서만 읽어 남의 이름으로 팔로우할 수 없다. FollowIntegrationTest");
 		put(m, "DELETE /api/v1/users/{}/follow", Policy.OTHER_USER_OK,
 				"언팔로우도 같다. 주체는 인증에서만 읽는다. FollowIntegrationTest");
+		// ── 관계 목록 (-1179) ────────────────────────────────────────────────────
+		put(m, "GET /api/v1/users/{}/followers", Policy.OTHER_USER_OK,
+				"남의 팔로워 목록 보기가 기능이다. 그 사람이 나를 차단했으면 403 으로 막는다 — 기록 목록과 같은 규칙이다. RelationListIntegrationTest");
+		put(m, "GET /api/v1/users/{}/following", Policy.OTHER_USER_OK,
+				"남의 팔로잉 목록 보기가 기능이다. 차단 시 403 도 같다. 응답의 following 칸은 목록 주인이 아니라 보는 사람 기준으로 채운다. RelationListIntegrationTest");
+		// 🔴 차단 목록만 OWNED 다. 「내가 누구를 차단했는가」는 남이 알면 안 되는 값이다 —
+		//    차단당한 사람이 그것을 알면 차단의 뜻이 없어진다. userId 가 본인이 아니면
+		//    BLOCK_LIST_FORBIDDEN 으로 403 이고, 그것을 재는 시험이 blockListIsPrivate 다.
+		put(m, "GET /api/v1/users/{}/blocks", Policy.OWNED,
+				"내가 차단한 사람 목록이다. userId 가 본인이 아니면 403. RelationListIntegrationTest");
 
 		// ── 신고와 검토 (-254 · -267) ────────────────────────────────────────────
 		put(m, "POST /api/v1/stories/{}/reports", Policy.OTHER_USER_OK,
