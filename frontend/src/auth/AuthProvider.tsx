@@ -38,10 +38,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
     if (Platform.OS !== 'web') void SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY);
   };
+  // 🔴 S15P21E201-1168 — 여기서 계정 언어로 화면 언어를 되돌리지 않는다.
+  //
+  //    이 계정 칸(currentUser.language)은 KO·EN 둘뿐이다(SignupLanguage). 화면 언어는
+  //    다섯이다(ko·en·ja·zh-Hans·zh-Hant, S15P21E201-1109). 예전엔 로그인·토큰 갱신·
+  //    앱 재시작마다 이 값으로 preferences.language 를 덮어썼는데, 계정 대부분이 기본값
+  //    KO 라 일본어·중국어를 고른 사람이 로그인하는 순간(또는 온보딩 화면을 넘기다 갱신이
+  //    한 번 도는 순간) 한국어로 되돌아갔다 — 신고된 그 증상이다.
+  //
+  //    방향은 반대여야 맞다: 화면 언어가 바뀌면 그것을 계정에 올린다. 로그인 중에 사용자가
+  //    직접 언어를 바꾸는 경우는 src/me/AppLanguageSetting.tsx 가 이미 이렇게 한다
+  //    (updateProfile 로 먼저 서버에 쓰고 그다음 화면 상태를 바꾼다). 여기 applyUser 는
+  //    로그인 응답을 반영하는 자리이지, 계정 값을 화면에 되먹이는 자리가 아니다.
   const applyUser = (currentUser: AuthUser) => {
     setUser(currentUser);
-    const profileLanguage = currentUser.language?.toUpperCase() === 'EN' ? 'en' : currentUser.language?.toUpperCase() === 'KO' ? 'ko' : null;
-    if (profileLanguage && profileLanguage !== preferences.language) preferences.setLanguage(profileLanguage);
   };
   useEffect(() => {
     setUnauthorizedHandler(() => { clearSession(); router.replace('/sign-in'); });
