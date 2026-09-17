@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<style>
+@font-face{font-family:Pretendard;font-weight:400;font-display:swap;src:url("fonts/Pretendard-Regular.woff2") format("woff2")}
+@font-face{font-family:Pretendard;font-weight:500;font-display:swap;src:url("fonts/Pretendard-Medium.woff2") format("woff2")}
+@font-face{font-family:Pretendard;font-weight:600;font-display:swap;src:url("fonts/Pretendard-SemiBold.woff2") format("woff2")}
+@font-face{font-family:Pretendard;font-weight:700;font-display:swap;src:url("fonts/Pretendard-Bold.woff2") format("woff2")}
+body{margin:0;background:#ece7df;font-family:Pretendard,-apple-system,"Malgun Gothic",sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#0b1d3a}a:hover{color:#f26532}
+</style>
+</helmet>
+<section id="turn1" style="display:flex;flex-direction:column;gap:32px;padding:40px;box-sizing:border-box">
+<div style="font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#f26532">피드 목록 /feed · 상세(2a) 기준 시안 6종 — 모바일 <a href="#1a">1a</a>–<a href="#1c">1c</a> · 데스크톱 <a href="#1d">1d</a>–<a href="#1f">1f</a></div>
+
+<div style="display:flex;flex-wrap:wrap;align-items:flex-start;gap:40px">
+
+<!-- 1a 트위터형 -->
+<div id="1a" style="display:flex;flex-direction:column;gap:12px">
+  <div style="display:flex;align-items:center;gap:8px"><span style="padding:2px 8px;border-radius:999px;background:#0b1d3a;color:#fff;font-size:11px;line-height:14px;font-weight:700">1a</span><span style="font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#f26532">모바일 · 트위터형 — 글 우선, 사진 스트립, 장소는 시각 옆 캡션</span></div>
+  <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" width="{{ frameW }}" height="{{ frameH }}" hint-size="390px,844px">
+  <div data-screen-label="list-mobile-a" style="font-family:Pretendard,-apple-system,'Malgun Gothic',sans-serif;position:relative;width:100%;height:100%;background:#fffdf8;display:flex;flex-direction:column">
+    <div style="flex:1;min-height:0;overflow:auto;padding:64px 24px 32px;display:flex;flex-direction:column">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding-bottom:12px">
+        <div style="font-size:22px;line-height:28px;letter-spacing:-.15px;font-weight:700;color:#152238">피드</div>
+        <div style="display:flex;gap:4px;padding:4px;border-radius:999px;background:#f8f3eb"><span style="min-height:32px;padding:0 14px;border-radius:999px;background:#0b1d3a;display:flex;align-items:center;font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#fff">전체</span><span style="min-height:32px;padding:0 14px;border-radius:999px;display:flex;align-items:center;font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#667882">팔로잉</span></div>
+      </div>
+      <sc-for list="{{ stories }}" as="s" hint-placeholder-count="3">
+        <div style="display:flex;gap:12px;padding:16px 0;border-top:1px solid #e8e4dd">
+          <div style="width:36px;height:36px;border-radius:999px;background:#0b1d3a;display:flex;align-items:center;justify-content:center;font-size:15px;line-height:22px;font-weight:700;color:#fff;flex-shrink:0">{{ s.initial }}</div>
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;align-items:baseline;gap:6px;flex-wrap:wrap"><span style="font-size:15px;line-height:22px;font-weight:700;color:#152238">{{ s.author }}</span><span style="font-size:11px;line-height:14px;letter-spacing:.1px;color:#64748b">{{ s.when }}</span><sc-if value="{{ s.hasPlace }}" hint-placeholder-val="{{ true }}"><span style="display:inline-flex;align-items:center;gap:3px;font-size:11px;line-height:14px;letter-spacing:.1px;color:#64748b"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.2"><path d="M12 22s7-6.5 7-12a7 7 0 1 0-14 0c0 5.5 7 12 7 12z"></path><circle cx="12" cy="10" r="2.5"></circle></svg>{{ s.place }}</span></sc-if></div>
+            <div style="font-size:15px;line-height:22px;color:#152238;text-wrap:pretty">{{ s.body }}</div>
+            <sc-if value="{{ s.hasImages }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;gap:4px;border-radius:14px;overflow:hidden;height:140px">
+                <sc-for list="{{ s.images }}" as="im" hint-placeholder-count="2"><div style="flex:1;background:{{ im.bg }}"></div></sc-for>
+                <sc-if value="{{ s.more }}" hint-placeholder-val="{{ false }}"><div style="width:64px;flex-shrink:0;background:rgba(11,29,58,.55);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#fff">{{ s.moreLabel }}</div></sc-if>
+              </div>
+            </sc-if>
+            <div style="display:flex;align-items:center;gap:20px">
+              <div style="min-height:32px;display:flex;align-items:center;gap:6px;font-size:11px;line-height:14px;letter-spacing:.1px;color:#64748b"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linejoin="round"><path d="M12 21s-7-4.6-9-9.3C1.6 8 4 4.5 7.5 4.5c2 0 3.4 1.1 4.5 2.6 1.1-1.5 2.5-2.6 4.5-2.6C20 4.5 22.4 8 21 11.7 19 16.4 12 21 12 21z"></path></svg>{{ s.likes }}</div>
+              <div style="min-height:32px;display:flex;align-items:center;gap:6px;font-size:11px;line-height:14px;letter-spacing:.1px;color:#64748b"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"></path><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"></path></svg>{{ s.quotes }}</div>
+              <div style="min-height:32px;display:flex;align-items:center;gap:6px;font-size:11px;line-height:14px;letter-spacing:.1px;color:#64748b"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-8 8H8l-5 3 1.5-4.5A8 8 0 1 1 21 12z"></path></svg>{{ s.replies }}</div>
+              <div style="flex:1"></div>
+              <div style="display:flex;gap:4px;font-size:11px;line-height:14px;letter-spacing:.1px;color:#64748b"><span>조회</span><span>{{ s.views }}</span></div>
+            </div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+    <div style="position:absolute;right:24px;bottom:96px;width:56px;height:56px;border-radius:999px;background:#f26532;box-shadow:0 6px 16px rgba(242,101,50,.35);display:flex;align-items:center;justify-content:center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"></path></svg></div>
+    <div style="display:flex;align-items:center;align-self:center;width:calc(100% - 32px);max-width:328px;height:64px;margin:0 16px 8px;padding:0 8px;box-sizing:border-box;background:#fff;border:1px solid #e8e4dd;border-radius:20px;box-shadow:0 -2px 8px rgba(11,29,58,.13);flex-shrink:0">
+      <div style="flex:1;min-height:53px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px"><img src="assets/tab-home.png" alt="" style="width:26px;height:26px"><span style="font-size:11px;line-height:14px;letter-spacing:.1px;color:#64748b">홈</span></div>
+      <div style="position:relative;flex:1;min-height:53px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px"><div style="position:absolute;top:0;width:18px;height:3px;border-radius:2px;background:#f26532"></div><img src="assets/tab-heart.png" alt="" style="width:26px;height:26px;filter:brightness(.6)"><span style="font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#0b1d3a">피드</span></div>
+      <div style="flex:1;min-height:53px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px"><div style="width:32px;height:32px;border-radius:16px;background:#f26532;display:flex;align-items:center;justify-content:center"><img src="assets/tab-plus.png" alt="" style="width:34px;height:34px"></div><span style="font-size:11px;line-height:14px;letter-spacing:.1px;color:#64748b">여행 만들기</span></div>
+      <div style="flex:1;min-height:53px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px"><img src="assets/tab-map.png" alt="" style="width:26px;height:26px"><span style="font-size:11px;line-height:14px;letter-spacing:.1px;color:#64748b">내 여행</span></div>
+      <div style="flex:1;min-height:53px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px"><img src="assets/tab-user.png" alt="" style="width:26px;height:26px"><span style="font-size:11px;line-height:14px;letter-spacing:.1px;color:#64748b">마이페이지</span></div>
+    </div>
+  </div>
+  </x-import>
+</div>
+
+<!-- 1b 에어비앤비형 -->
+<div id="1b" style="display:flex;flex-direction:column;gap:12px">
+  <div style="display:flex;align-items:center;gap:8px"><span style="padding:2px 8px;border-radius:999px;background:#0b1d3a;color:#fff;font-size:11px;line-height:14px;font-weight:700">1b</span><span style="font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#f26532">모바일 · 에어비앤비형 — 사진 우선 카드, 제목=장소(없으면 작성자), 「지도 표시하기」 플로팅</span></div>
+  <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" width="{{ frameW }}" height="{{ frameH }}" hint-size="390px,844px">
+  <div data-screen-label="list-mobile-b" style="font-family:Pretendard,-apple-system,'Malgun Gothic',sans-serif;position:relative;width:100%;height:100%;background:#fffdf8;display:flex;flex-direction:column">
+    <div style="flex:1;min-height:0;overflow:auto;padding:64px 24px 32px;display:flex;flex-direction:column;gap:24px">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+        <div style="font-size:22px;line-height:28px;letter-spacing:-.15px;font-weight:700;color:#152238">피드</div>
+        <div style="display:flex;gap:4px;padding:4px;border-radius:999px;background:#f8f3eb"><span style="min-height:32px;padding:0 14px;border-radius:999px;background:#0b1d3a;display:flex;align-items:center;font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#fff">전체</span><span style="min-height:32px;padding:0 14px;border-radius:999px;display:flex;align-items:center;font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#667882">팔로잉</span></div>
+      </div>
+      <sc-for list="{{ stories }}" as="s" hint-placeholder-count="2">
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="position:relative;height:300px;border-radius:20px;overflow:hidden;background:{{ s.cover }}">
+            <sc-if value="{{ s.noImages }}" hint-placeholder-val="{{ false }}"><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:32px;box-sizing:border-box;font-size:22px;line-height:30px;letter-spacing:-.15px;font-weight:700;color:#152238;text-align:center;text-wrap:pretty">{{ s.body }}</div></sc-if>
+            <div style="position:absolute;top:12px;left:12px;display:flex;align-items:center;gap:6px;padding:6px 10px 6px 6px;border-radius:999px;background:rgba(255,253,248,.92)"><div style="width:24px;height:24px;border-radius:999px;background:#0b1d3a;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff">{{ s.initial }}</div><span style="font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#152238">{{ s.author }}</span></div>
+            <div style="position:absolute;top:12px;right:12px;width:36px;height:36px;border-radius:999px;background:rgba(255,253,248,.92);display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0b1d3a" stroke-width="2" stroke-linejoin="round"><path d="M12 21s-7-4.6-9-9.3C1.6 8 4 4.5 7.5 4.5c2 0 3.4 1.1 4.5 2.6 1.1-1.5 2.5-2.6 4.5-2.6C20 4.5 22.4 8 21 11.7 19 16.4 12 21 12 21z"></path></svg></div>
+            <sc-if value="{{ s.hasImages }}" hint-placeholder-val="{{ true }}"><div style="position:absolute;bottom:12px;left:0;right:0;display:flex;justify-content:center;gap:5px"><sc-for list="{{ s.dots }}" as="d" hint-placeholder-count="3"><div style="width:6px;height:6px;border-radius:999px;background:#fff;opacity:{{ d.op }}"></div></sc-for></div></sc-if>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:2px">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px">
+              <div style="min-width:0;font-size:15px;line-height:22px;font-weight:700;color:#152238;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ s.title }}</div>
+              <div style="display:flex;align-items:center;gap:4px;flex-shrink:0;font-size:15px;line-height:22px;color:#152238"><svg width="14" height="14" viewBox="0 0 24 24" fill="#f26532"><path d="M12 21s-7-4.6-9-9.3C1.6 8 4 4.5 7.5 4.5c2 0 3.4 1.1 4.5 2.6 1.1-1.5 2.5-2.6 4.5-2.6C20 4.5 22.4 8 21 11.7 19 16.4 12 21 12 21z"></path></svg>{{ s.likes }}</div>
+            </div>
+            <sc-if value="{{ s.hasImages }}" hint-placeholder-val="{{ true }}"><div style="font-size:15px;line-height:22px;color:#667882;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">{{ s.body }}</div></sc-if>
+            <div style="display:flex;gap:6px;font-size:11px;line-height:14px;letter-spacing:.1px;color:#64748b"><span>{{ s.when }}</span><span>·</span><span>답글 {{ s.replies }}</span><span>·</span><span>조회 {{ s.views }}</span></div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+    <div style="position:absolute;left:50%;transform:translateX(-50%);bottom:96px;height:48px;padding:0 20px;border-radius:999px;background:#0b1d3a;box-shadow:0 6px 16px rgba(11,29,58,.3);display:flex;align-items:center;gap:8px;font-size:15px;line-height:22px;font-weight:700;color:#fff;white-space:nowrap">지도 표시하기<img src="assets/tab-map.png" alt="" style="width:20px;height:20px;filter:brightness(4)"></div>
+    <div style="display:flex;align-items:center;align-self:center;width:calc(100% - 32px);max-width:328px;height:64px;margin:0 16px 8px;padding:0 8px;box-sizing:border-box;background:#fff;border:1px solid #e8e4dd;border-radius:20px;box-shadow:0 -2px 8px rgba(11,29,58,.13);flex-shrink:0">
+      <div style="flex:1;min-height:53px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px"><img src="assets/tab-home.png" alt="" style="width:26px;height:26px"><span style="font-size:11px;line-height:14px;letter-spacing:.1px;color:#64748b">홈</span></div>
+      <div style="position:relative;flex:1;min-height:53px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px"><div style="position:absolute;top:0;width:18px;height:3px;border-radius:2px;background:#f26532"></div><img src="assets/tab-heart.png" alt="" style="width:26px;height:26px;filter:brightness(.6)"><span style="font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#0b1d3a">피드</span></div>
+      <div style="flex:1;min-height:53px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px"><div style="width:32px;height:32px;border-radius:16px;background:#f26532;display:flex;align-items:center;justify-content:center"><img src="assets/tab-plus.png" alt="" style="width:34px;height:34px"></div><span style="font-size:11px;line-height:14px;letter-spacing:.1px;color:#64748b">여행 만들기</span></div>
+      <div style="flex:1;min-height:53px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px"><img src="assets/tab-map.png" alt="" style="width:26px;height:26px"><span style="font-size:11px;line-height:14px;letter-spacing:.1px;color:#64748b">내 여행</span></div>
+      <div style="flex:1;min-height:53px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px"><img src="assets/tab-user.png" alt="" style="width:26px;height:26px"><span style="font-size:11px;line-height:14px;letter-spacing:.1px;color:#64748b">마이페이지</span></div>
+    </div>
+  </div>
+  </x-import>
+</div>
+
+<!-- 1c 하이브리드 -->
+<div id="1c" style="display:flex;flex-direction:column;gap:12px">
+  <div style="display:flex;align-items:center;gap:8px"><span style="padding:2px 8px;border-radius:999px;background:#0b1d3a;color:#fff;font-size:11px;line-height:14px;font-weight:700">1c</span><span style="font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#f26532">모바일 · 하이브리드 — 트위터 구조 + 장소 칩이 사진 위 제목, 상세와 같은 지표 행</span></div>
+  <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" width="{{ frameW }}" height="{{ frameH }}" hint-size="390px,844px">
+  <div data-screen-label="list-mobile-c" style="font-family:Pretendard,-apple-system,'Malgun Gothic',sans-serif;position:relative;width:100%;height:100%;background:#fffdf8;display:flex;flex-direction:column">
+    <div style="flex:1;min-height:0;overflow:auto;padding:64px 24px 32px;display:flex;flex-direction:column">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding-bottom:12px">
+        <div style="font-size:22px;line-height:28px;letter-spacing:-.15px;font-weight:700;color:#152238">피드</div>
+        <div style="display:flex;gap:4px;padding:4px;border-radius:999px;background:#f8f3eb"><span style="min-height:32px;padding:0 14px;border-radius:999px;background:#0b1d3a;display:flex;align-items:center;font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#fff">전체</span><span style="min-height:32px;padding:0 14px;border-radius:999px;display:flex;align-items:center;font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#667882">팔로잉</span></div>
+      </div>
+      <sc-for list="{{ stories }}" as="s" hint-placeholder-count="3">
+        <div style="display:flex;flex-direction:column;gap:12px;padding:16px 0;border-top:1px solid #e8e4dd">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:36px;height:36px;border-radius:999px;background:#0b1d3a;display:flex;align-items:center;justify-content:center;font-size:15px;line-height:22px;font-weight:700;color:#fff;flex-shrink:0">{{ s.initial }}</div>
+            <div style="flex:1;min-width:0"><div style="font-size:15px;line-height:22px;font-weight:700;color:#152238">{{ s.author }}</div><div style="font-size:11px;line-height:14px;letter-spacing:.1px;color:#64748b">{{ s.when }}</div></div>
+            <sc-if value="{{ s.hasPlace }}" hint-placeholder-val="{{ true }}"><div style="max-width:150px;display:flex;align-items:center;gap:4px;padding:6px 10px;border-radius:999px;background:#fff1e8"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#f26532" stroke-width="2.2"><path d="M12 22s7-6.5 7-12a7 7 0 1 0-14 0c0 5.5 7 12 7 12z"></path><circle cx="12" cy="10" r="2.5"></circle></svg><span style="font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#f26532;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ s.place }}</span></div></sc-if>
+          </div>
+          <div style="font-size:15px;line-height:22px;color:#152238;text-wrap:pretty">{{ s.body }}</div>
+          <sc-if value="{{ s.hasImages }}" hint-placeholder-val="{{ true }}">
+            <div style="position:relative;height:200px;border-radius:14px;overflow:hidden;background:{{ s.cover }}">
+              <sc-if value="{{ s.more }}" hint-placeholder-val="{{ false }}"><div style="position:absolute;right:10px;bottom:10px;padding:4px 10px;border-radius:999px;background:rgba(11,29,58,.7);font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#fff">{{ s.countLabel }}</div></sc-if>
+            </div>
+          </sc-if>
+          <div style="display:flex;align-items:center;gap:20px">
+            <div style="min-height:32px;display:flex;align-items:center;gap:6px;font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#152238"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f26532" stroke-width="2" stroke-linejoin="round"><path d="M12 21s-7-4.6-9-9.3C1.6 8 4 4.5 7.5 4.5c2 0 3.4 1.1 4.5 2.6 1.1-1.5 2.5-2.6 4.5-2.6C20 4.5 22.4 8 21 11.7 19 16.4 12 21 12 21z"></path></svg>{{ s.likes }}</div>
+            <div style="min-height:32px;display:flex;align-items:center;gap:6px;font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#152238"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#667882" stroke-width="2" stroke-linecap="round"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"></path><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"></path></svg>{{ s.quotes }}</div>
+            <div style="min-height:32px;display:flex;align-items:center;gap:6px;font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#152238"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#667882" stroke-width="2" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-8 8H8l-5 3 1.5-4.5A8 8 0 1 1 21 12z"></path></svg>{{ s.replies }}</div>
+            <div style="flex:1"></div>
+            <div style="display:flex;gap:4px;font-size:11px;line-height:14px;letter-spacing:.1px;color:#64748b"><span>조회</span><span>{{ s.views }}</span></div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+    <div style="display:flex;align-items:center;align-self:center;width:calc(100% - 32px);max-width:328px;height:64px;margin:0 16px 8px;padding:0 8px;box-sizing:border-box;background:#fff;border:1px solid #e8e4dd;border-radius:20px;box-shadow:0 -2px 8px rgba(11,29,58,.13);flex-shrink:0">
+      <div style="flex:1;min-height:53px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px"><img src="assets/tab-home.png" alt="" style="width:26px;height:26px"><span style="font-size:11px;line-height:14px;letter-spacing:.1px;color:#64748b">홈</span></div>
+      <div style="position:relative;flex:1;min-height:53px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px"><div style="position:absolute;top:0;width:18px;height:3px;border-radius:2px;background:#f26532"></div><img src="assets/tab-heart.png" alt="" style="width:26px;height:26px;filter:brightness(.6)"><span style="font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#0b1d3a">피드</span></div>
+      <div style="flex:1;min-height:53px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px"><div style="width:32px;height:32px;border-radius:16px;background:#f26532;display:flex;align-items:center;justify-content:center"><img src="assets/tab-plus.png" alt="" style="width:34px;height:34px"></div><span style="font-size:11px;line-height:14px;letter-spacing:.1px;color:#64748b">여행 만들기</span></div>
+      <div style="flex:1;min-height:53px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px"><img src="assets/tab-map.png" alt="" style="width:26px;height:26px"><span style="font-size:11px;line-height:14px;letter-spacing:.1px;color:#64748b">내 여행</span></div>
+      <div style="flex:1;min-height:53px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px"><img src="assets/tab-user.png" alt="" style="width:26px;height:26px"><span style="font-size:11px;line-height:14px;letter-spacing:.1px;color:#64748b">마이페이지</span></div>
+    </div>
+  </div>
+  </x-import>
+</div>
+
+</div>
+
+<div style="display:flex;flex-wrap:wrap;align-items:flex-start;gap:40px">
+
+<!-- 1d 데스크톱 트위터형 -->
+<div id="1d" style="display:flex;flex-direction:column;gap:12px">
+  <div style="display:flex;align-items:center;gap:8px"><span style="padding:2px 8px;border-radius:999px;background:#0b1d3a;color:#fff;font-size:11px;line-height:14px;font-weight:700">1d</span><span style="font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#f26532">데스크톱 · 트위터형 — 중앙 640 타임라인 + 우측 320 추억 지도</span></div>
+  <x-import component-from-global-scope="ChromeWindow" from="./browser-window.jsx" width="{{ webW }}" height="{{ webH }}" url="gabolle.app/feed" hint-size="1280px,860px">
+  <div data-screen-label="list-desktop-d" style="width:100%;height:100%;overflow:auto;background:#fffdf8;display:flex;flex-direction:column">
+    <div style="height:36px;padding:0 40px;background:#f8f3eb;display:flex;align-items:center;justify-content:flex-end;gap:16px;flex-shrink:0;font-size:13px;line-height:18px;color:#667882"><span><b style="color:#0b1d3a">KO</b> | EN</span><span>로그인</span><span>회원가입</span></div>
+    <div style="height:60px;padding:0 40px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e8e4dd;flex-shrink:0">
+      <img src="assets/logo.png" alt="GABOLLE" style="width:120px;height:28px;object-fit:contain">
+      <div style="display:flex;gap:4px;padding:4px;border-radius:999px;background:#f8f3eb"><span style="min-height:32px;padding:0 14px;border-radius:999px;display:flex;align-items:center;font-size:15px;line-height:22px;font-weight:500;color:#667882">홈</span><span style="min-height:32px;padding:0 14px;border-radius:999px;background:#0b1d3a;display:flex;align-items:center;font-size:15px;line-height:22px;font-weight:700;color:#fff">피드</span><span style="min-height:32px;padding:0 14px;border-radius:999px;display:flex;align-items:center;font-size:15px;line-height:22px;font-weight:500;color:#667882">내 여행</span></div>
+      <div style="height:40px;padding:0 16px;border-radius:14px;background:#0b1d3a;display:flex;align-items:center;font-size:14px;font-weight:700;color:#fff">여행 만들기</div>
+    </div>
+    <div style="width:100%;max-width:1040px;box-sizing:border-box;align-self:center;padding:24px 24px 48px;display:flex;align-items:flex-start;gap:32px">
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:16px">
+          <div style="font-size:22px;line-height:28px;letter-spacing:-.15px;font-weight:700;color:#152238">피드</div>
+          <div style="display:flex;gap:4px;padding:4px;border-radius:999px;background:#f8f3eb"><span style="min-height:32px;padding:0 14px;border-radius:999px;background:#0b1d3a;display:flex;align-items:center;font-size:15px;line-height:22px;font-weight:700;color:#fff">전체</span><span style="min-height:32px;padding:0 14px;border-radius:999px;display:flex;align-items:center;font-size:15px;line-height:22px;font-weight:700;color:#667882">팔로잉</span></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:0 0 16px;border-bottom:1px solid #e8e4dd">
+          <div style="width:40px;height:40px;border-radius:999px;background:#0b1d3a;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#fff;flex-shrink:0">나</div>
+          <div style="flex:1;height:48px;padding:0 6px 0 16px;box-sizing:border-box;border-radius:999px;background:#fff;border:1px solid #e4ddd3;display:flex;align-items:center;gap:8px"><span style="flex:1;font-size:15px;line-height:22px;color:#64748b">이번 여행, 어땠어요?</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#667882" stroke-width="2" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"></path><circle cx="12" cy="13" r="3.5"></circle></svg><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#667882" stroke-width="2"><path d="M12 22s7-6.5 7-12a7 7 0 1 0-14 0c0 5.5 7 12 7 12z"></path><circle cx="12" cy="10" r="2.5"></circle></svg><div style="width:36px;height:36px;border-radius:999px;background:#0b1d3a;opacity:.4;display:flex;align-items:center;justify-content:center;margin-left:4px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"></path><path d="M6 11l6-6 6 6"></path></svg></div></div>
+        </div>
+        <sc-for list="{{ stories }}" as="s" hint-placeholder-count="3">
+          <div style="display:flex;gap:12px;padding:20px 0;border-bottom:1px solid #e8e4dd">
+            <div style="width:40px;height:40px;border-radius:999px;background:#0b1d3a;display:flex;align-items:center;justify-content:center;font-size:15px;line-height:22px;font-weight:700;color:#fff;flex-shrink:0">{{ s.initial }}</div>
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:8px">
+              <div style="display:flex;align-items:baseline;gap:6px;flex-wrap:wrap"><span style="font-size:15px;line-height:22px;font-weight:700;color:#152238">{{ s.author }}</span><span style="font-size:11px;line-height:14px;letter-spacing:.1px;color:#64748b">{{ s.when }}</span><sc-if value="{{ s.hasPlace }}" hint-placeholder-val="{{ true }}"><span style="display:inline-flex;align-items:center;gap:3px;font-size:11px;line-height:14px;letter-spacing:.1px;color:#64748b"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.2"><path d="M12 22s7-6.5 7-12a7 7 0 1 0-14 0c0 5.5 7 12 7 12z"></path><circle cx="12" cy="10" r="2.5"></circle></svg>{{ s.place }}</span></sc-if></div>
+              <div style="font-size:15px;line-height:22px;color:#152238;text-wrap:pretty">{{ s.body }}</div>
+              <sc-if value="{{ s.hasImages }}" hint-placeholder-val="{{ true }}">
+                <div style="display:flex;gap:4px;border-radius:14px;overflow:hidden;height:200px">
+                  <sc-for list="{{ s.images }}" as="im" hint-placeholder-count="2"><div style="flex:1;background:{{ im.bg }}"></div></sc-for>
+                  <sc-if value="{{ s.more }}" hint-placeholder-val="{{ false }}"><div style="width:96px;flex-shrink:0;background:rgba(11,29,58,.55);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#fff">{{ s.moreLabel }}</div></sc-if>
+                </div>
+              </sc-if>
+              <div style="display:flex;align-items:center;gap:24px">
+                <div style="min-height:32px;display:flex;align-items:center;gap:6px;font-size:11px;line-height:14px;letter-spacing:.1px;color:#64748b"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linejoin="round"><path d="M12 21s-7-4.6-9-9.3C1.6 8 4 4.5 7.5 4.5c2 0 3.4 1.1 4.5 2.6 1.1-1.5 2.5-2.6 4.5-2.6C20 4.5 22.4 8 21 11.7 19 16.4 12 21 12 21z"></path></svg>{{ s.likes }}</div>
+                <div style="min-height:32px;display:flex;align-items:center;gap:6px;font-size:11px;line-height:14px;letter-spacing:.1px;color:#64748b"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"></path><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"></path></svg>{{ s.quotes }}</div>
+                <div style="min-height:32px;display:flex;align-items:center;gap:6px;font-size:11px;line-height:14px;letter-spacing:.1px;color:#64748b"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-8 8H8l-5 3 1.5-4.5A8 8 0 1 1 21 12z"></path></svg>{{ s.replies }}</div>
+                <div style="flex:1"></div>
+                <div style="display:flex;gap:4px;font-size:11px;line-height:14px;letter-spacing:.1px;color:#64748b"><span>조회</span><span>{{ s.views }}</span></div>
+              </div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="width:320px;flex-shrink:0;display:flex;flex-direction:column;gap:8px;padding-top:44px;position:sticky;top:0">
+        <div style="font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#f26532">추억 지도</div>
+        <div style="border:1px solid #e8e4dd;border-radius:20px;background:#fff;overflow:hidden">
+          <div style="position:relative;height:240px;background:#f8f3eb">
+            <sc-for list="{{ pins }}" as="p" hint-placeholder-count="3"><div style="position:absolute;left:{{ p.x }};top:{{ p.y }};transform:translate(-50%,-100%);padding:4px 8px;border-radius:999px;background:#fff;border:1px solid #e4ddd3;box-shadow:0 2px 6px rgba(11,29,58,.12);font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#152238;white-space:nowrap">{{ p.name }}</div></sc-for>
+          </div>
+          <div style="padding:12px 16px;font-size:15px;line-height:22px;color:#667882">좌표 있는 기록 {{ mappedCount }}개</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </x-import>
+</div>
+
+<!-- 1e 데스크톱 에어비앤비형 -->
+<div id="1e" style="display:flex;flex-direction:column;gap:12px">
+  <div style="display:flex;align-items:center;gap:8px"><span style="padding:2px 8px;border-radius:999px;background:#0b1d3a;color:#fff;font-size:11px;line-height:14px;font-weight:700">1e</span><span style="font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#f26532">데스크톱 · 에어비앤비형 — 왼쪽 2열 사진 카드, 오른쪽 지도 고정(핀=장소명)</span></div>
+  <x-import component-from-global-scope="ChromeWindow" from="./browser-window.jsx" width="{{ webW }}" height="{{ webH }}" url="gabolle.app/feed" hint-size="1280px,860px">
+  <div data-screen-label="list-desktop-e" style="width:100%;height:100%;overflow:hidden;background:#fffdf8;display:flex;flex-direction:column">
+    <div style="height:36px;padding:0 40px;background:#f8f3eb;display:flex;align-items:center;justify-content:flex-end;gap:16px;flex-shrink:0;font-size:13px;line-height:18px;color:#667882"><span><b style="color:#0b1d3a">KO</b> | EN</span><span>로그인</span><span>회원가입</span></div>
+    <div style="height:60px;padding:0 40px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e8e4dd;flex-shrink:0">
+      <img src="assets/logo.png" alt="GABOLLE" style="width:120px;height:28px;object-fit:contain">
+      <div style="display:flex;gap:4px;padding:4px;border-radius:999px;background:#f8f3eb"><span style="min-height:32px;padding:0 14px;border-radius:999px;display:flex;align-items:center;font-size:15px;line-height:22px;font-weight:500;color:#667882">홈</span><span style="min-height:32px;padding:0 14px;border-radius:999px;background:#0b1d3a;display:flex;align-items:center;font-size:15px;line-height:22px;font-weight:700;color:#fff">피드</span><span style="min-height:32px;padding:0 14px;border-radius:999px;display:flex;align-items:center;font-size:15px;line-height:22px;font-weight:500;color:#667882">내 여행</span></div>
+      <div style="height:40px;padding:0 16px;border-radius:14px;background:#0b1d3a;display:flex;align-items:center;font-size:14px;font-weight:700;color:#fff">여행 만들기</div>
+    </div>
+    <div style="flex:1;min-height:0;display:flex">
+      <div style="flex:1;min-width:0;overflow:auto;padding:24px 24px 48px 40px;display:flex;flex-direction:column;gap:20px">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div style="font-size:22px;line-height:28px;letter-spacing:-.15px;font-weight:700;color:#152238">기록 {{ total }}개</div>
+          <div style="display:flex;gap:4px;padding:4px;border-radius:999px;background:#f8f3eb"><span style="min-height:32px;padding:0 14px;border-radius:999px;background:#0b1d3a;display:flex;align-items:center;font-size:15px;line-height:22px;font-weight:700;color:#fff">전체</span><span style="min-height:32px;padding:0 14px;border-radius:999px;display:flex;align-items:center;font-size:15px;line-height:22px;font-weight:700;color:#667882">팔로잉</span></div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px">
+          <sc-for list="{{ stories }}" as="s" hint-placeholder-count="4">
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <div style="position:relative;aspect-ratio:1;border-radius:20px;overflow:hidden;background:{{ s.cover }}">
+                <sc-if value="{{ s.noImages }}" hint-placeholder-val="{{ false }}"><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:28px;box-sizing:border-box;font-size:18px;line-height:26px;font-weight:700;color:#152238;text-align:center;text-wrap:pretty">{{ s.body }}</div></sc-if>
+                <div style="position:absolute;top:12px;left:12px;display:flex;align-items:center;gap:6px;padding:6px 10px 6px 6px;border-radius:999px;background:rgba(255,253,248,.92)"><div style="width:24px;height:24px;border-radius:999px;background:#0b1d3a;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff">{{ s.initial }}</div><span style="font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#152238">{{ s.author }}</span></div>
+                <div style="position:absolute;top:12px;right:12px;width:36px;height:36px;border-radius:999px;background:rgba(255,253,248,.92);display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0b1d3a" stroke-width="2" stroke-linejoin="round"><path d="M12 21s-7-4.6-9-9.3C1.6 8 4 4.5 7.5 4.5c2 0 3.4 1.1 4.5 2.6 1.1-1.5 2.5-2.6 4.5-2.6C20 4.5 22.4 8 21 11.7 19 16.4 12 21 12 21z"></path></svg></div>
+                <sc-if value="{{ s.hasImages }}" hint-placeholder-val="{{ true }}"><div style="position:absolute;bottom:12px;left:0;right:0;display:flex;justify-content:center;gap:5px"><sc-for list="{{ s.dots }}" as="d" hint-placeholder-count="3"><div style="width:6px;height:6px;border-radius:999px;background:#fff;opacity:{{ d.op }}"></div></sc-for></div></sc-if>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:2px">
+                <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px">
+                  <div style="min-width:0;font-size:15px;line-height:22px;font-weight:700;color:#152238;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ s.title }}</div>
+                  <div style="display:flex;align-items:center;gap:4px;flex-shrink:0;font-size:15px;line-height:22px;color:#152238"><svg width="14" height="14" viewBox="0 0 24 24" fill="#f26532"><path d="M12 21s-7-4.6-9-9.3C1.6 8 4 4.5 7.5 4.5c2 0 3.4 1.1 4.5 2.6 1.1-1.5 2.5-2.6 4.5-2.6C20 4.5 22.4 8 21 11.7 19 16.4 12 21 12 21z"></path></svg>{{ s.likes }}</div>
+                </div>
+                <sc-if value="{{ s.hasImages }}" hint-placeholder-val="{{ true }}"><div style="font-size:15px;line-height:22px;color:#667882;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">{{ s.body }}</div></sc-if>
+                <div style="display:flex;gap:6px;font-size:11px;line-height:14px;letter-spacing:.1px;color:#64748b"><span>{{ s.when }}</span><span>·</span><span>답글 {{ s.replies }}</span><span>·</span><span>조회 {{ s.views }}</span></div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      <div style="width:520px;flex-shrink:0;padding:24px 40px 24px 0;box-sizing:border-box">
+        <div style="position:relative;height:100%;border-radius:20px;background:#f8f3eb;border:1px solid #e8e4dd;overflow:hidden">
+          <div style="position:absolute;inset:0;background-image:linear-gradient(#e8e4dd 1px,transparent 1px),linear-gradient(90deg,#e8e4dd 1px,transparent 1px);background-size:64px 64px;opacity:.6"></div>
+          <sc-for list="{{ pins }}" as="p" hint-placeholder-count="3"><div style="position:absolute;left:{{ p.x }};top:{{ p.y }};transform:translate(-50%,-100%);padding:6px 10px;border-radius:999px;background:{{ p.bg }};border:1px solid #e4ddd3;box-shadow:0 2px 8px rgba(11,29,58,.14);font-size:13px;line-height:16px;font-weight:700;color:{{ p.fg }};white-space:nowrap">{{ p.name }}</div></sc-for>
+          <div style="position:absolute;top:16px;right:16px;display:flex;flex-direction:column;gap:8px"><div style="width:40px;height:40px;border-radius:999px;background:#fff;border:1px solid #e4ddd3;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#0b1d3a">+</div><div style="width:40px;height:40px;border-radius:999px;background:#fff;border:1px solid #e4ddd3;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#0b1d3a">−</div></div>
+          <div style="position:absolute;left:16px;bottom:16px;padding:6px 10px;border-radius:8px;background:rgba(255,253,248,.92);font-size:11px;line-height:14px;letter-spacing:.1px;color:#64748b">RouteMap · 좌표 있는 기록 {{ mappedCount }}개</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </x-import>
+</div>
+
+<!-- 1f 데스크톱 하이브리드 -->
+<div id="1f" style="display:flex;flex-direction:column;gap:12px">
+  <div style="display:flex;align-items:center;gap:8px"><span style="padding:2px 8px;border-radius:999px;background:#0b1d3a;color:#fff;font-size:11px;line-height:14px;font-weight:700">1f</span><span style="font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#f26532">데스크톱 · 하이브리드 — 글 행 + 오른쪽 썸네일, 장소 칩, 우측 레일(지도·장소 목록)</span></div>
+  <x-import component-from-global-scope="ChromeWindow" from="./browser-window.jsx" width="{{ webW }}" height="{{ webH }}" url="gabolle.app/feed" hint-size="1280px,860px">
+  <div data-screen-label="list-desktop-f" style="width:100%;height:100%;overflow:auto;background:#fffdf8;display:flex;flex-direction:column">
+    <div style="height:36px;padding:0 40px;background:#f8f3eb;display:flex;align-items:center;justify-content:flex-end;gap:16px;flex-shrink:0;font-size:13px;line-height:18px;color:#667882"><span><b style="color:#0b1d3a">KO</b> | EN</span><span>로그인</span><span>회원가입</span></div>
+    <div style="height:60px;padding:0 40px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e8e4dd;flex-shrink:0">
+      <img src="assets/logo.png" alt="GABOLLE" style="width:120px;height:28px;object-fit:contain">
+      <div style="display:flex;gap:4px;padding:4px;border-radius:999px;background:#f8f3eb"><span style="min-height:32px;padding:0 14px;border-radius:999px;display:flex;align-items:center;font-size:15px;line-height:22px;font-weight:500;color:#667882">홈</span><span style="min-height:32px;padding:0 14px;border-radius:999px;background:#0b1d3a;display:flex;align-items:center;font-size:15px;line-height:22px;font-weight:700;color:#fff">피드</span><span style="min-height:32px;padding:0 14px;border-radius:999px;display:flex;align-items:center;font-size:15px;line-height:22px;font-weight:500;color:#667882">내 여행</span></div>
+      <div style="height:40px;padding:0 16px;border-radius:14px;background:#0b1d3a;display:flex;align-items:center;font-size:14px;font-weight:700;color:#fff">여행 만들기</div>
+    </div>
+    <div style="width:100%;max-width:1180px;box-sizing:border-box;align-self:center;padding:24px 24px 48px;display:flex;align-items:flex-start;gap:24px">
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:16px">
+          <div style="font-size:22px;line-height:28px;letter-spacing:-.15px;font-weight:700;color:#152238">피드</div>
+          <div style="display:flex;gap:4px;padding:4px;border-radius:999px;background:#f8f3eb"><span style="min-height:32px;padding:0 14px;border-radius:999px;background:#0b1d3a;display:flex;align-items:center;font-size:15px;line-height:22px;font-weight:700;color:#fff">전체</span><span style="min-height:32px;padding:0 14px;border-radius:999px;display:flex;align-items:center;font-size:15px;line-height:22px;font-weight:700;color:#667882">팔로잉</span></div>
+        </div>
+        <sc-for list="{{ stories }}" as="s" hint-placeholder-count="3">
+          <div style="display:flex;gap:20px;padding:20px 0;border-top:1px solid #e8e4dd">
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:10px">
+              <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+                <div style="width:32px;height:32px;border-radius:999px;background:#0b1d3a;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0">{{ s.initial }}</div>
+                <span style="font-size:15px;line-height:22px;font-weight:700;color:#152238">{{ s.author }}</span><span style="font-size:11px;line-height:14px;letter-spacing:.1px;color:#64748b">{{ s.when }}</span>
+                <sc-if value="{{ s.hasPlace }}" hint-placeholder-val="{{ true }}"><div style="display:flex;align-items:center;gap:4px;padding:5px 10px;border-radius:999px;background:#fff1e8"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#f26532" stroke-width="2.2"><path d="M12 22s7-6.5 7-12a7 7 0 1 0-14 0c0 5.5 7 12 7 12z"></path><circle cx="12" cy="10" r="2.5"></circle></svg><span style="font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#f26532">{{ s.place }}</span></div></sc-if>
+              </div>
+              <div style="font-size:18px;line-height:26px;color:#152238;text-wrap:pretty">{{ s.body }}</div>
+              <div style="display:flex;align-items:center;gap:24px">
+                <div style="min-height:32px;display:flex;align-items:center;gap:6px;font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#152238"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f26532" stroke-width="2" stroke-linejoin="round"><path d="M12 21s-7-4.6-9-9.3C1.6 8 4 4.5 7.5 4.5c2 0 3.4 1.1 4.5 2.6 1.1-1.5 2.5-2.6 4.5-2.6C20 4.5 22.4 8 21 11.7 19 16.4 12 21 12 21z"></path></svg>{{ s.likes }}</div>
+                <div style="min-height:32px;display:flex;align-items:center;gap:6px;font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#152238"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#667882" stroke-width="2" stroke-linecap="round"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"></path><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"></path></svg>{{ s.quotes }}</div>
+                <div style="min-height:32px;display:flex;align-items:center;gap:6px;font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#152238"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#667882" stroke-width="2" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-8 8H8l-5 3 1.5-4.5A8 8 0 1 1 21 12z"></path></svg>{{ s.replies }}</div>
+                <div style="flex:1"></div>
+                <div style="display:flex;gap:4px;font-size:11px;line-height:14px;letter-spacing:.1px;color:#64748b"><span>조회</span><span>{{ s.views }}</span></div>
+              </div>
+            </div>
+            <sc-if value="{{ s.hasImages }}" hint-placeholder-val="{{ true }}">
+              <div style="position:relative;width:180px;height:180px;flex-shrink:0;border-radius:14px;overflow:hidden;background:{{ s.cover }}">
+                <sc-if value="{{ s.more }}" hint-placeholder-val="{{ false }}"><div style="position:absolute;right:8px;bottom:8px;padding:4px 8px;border-radius:999px;background:rgba(11,29,58,.7);font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#fff">{{ s.countLabel }}</div></sc-if>
+              </div>
+            </sc-if>
+          </div>
+        </sc-for>
+      </div>
+      <div style="width:320px;flex-shrink:0;display:flex;flex-direction:column;gap:8px;padding-top:44px">
+        <div style="font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#f26532">추억 지도</div>
+        <div style="border:1px solid #e8e4dd;border-radius:20px;background:#fff;overflow:hidden">
+          <div style="position:relative;height:200px;background:#f8f3eb">
+            <sc-for list="{{ pins }}" as="p" hint-placeholder-count="3"><div style="position:absolute;left:{{ p.x }};top:{{ p.y }};transform:translate(-50%,-100%);padding:4px 8px;border-radius:999px;background:#fff;border:1px solid #e4ddd3;box-shadow:0 2px 6px rgba(11,29,58,.12);font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#152238;white-space:nowrap">{{ p.name }}</div></sc-for>
+          </div>
+          <div style="padding:12px 16px;font-size:15px;line-height:22px;color:#667882">좌표 있는 기록 {{ mappedCount }}개</div>
+        </div>
+        <div style="font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#f26532">이 피드에 나온 장소</div>
+        <div style="border:1px solid #e8e4dd;border-radius:14px;background:#fff">
+          <sc-for list="{{ pins }}" as="p" hint-placeholder-count="3">
+            <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-top:{{ p.border }}">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M12 22s7-6.5 7-12a7 7 0 1 0-14 0c0 5.5 7 12 7 12z"></path><circle cx="12" cy="10" r="2.5"></circle></svg>
+              <span style="flex:1;min-width:0;font-size:15px;line-height:22px;color:#667882">{{ p.name }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </div>
+  </x-import>
+</div>
+
+</div>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const g = ['linear-gradient(160deg,#d7cfc4,#efe8de)', 'linear-gradient(200deg,#e4ddd3,#f6f5f2)', 'linear-gradient(160deg,#cfc6ba,#e4ddd3)', 'linear-gradient(160deg,#e4ddd3,#f8f3eb)'];
+    const raw = [
+      { initial: 'H', author: 'HJ Jang', when: '17시간 전', place: 'The Kayon Resort Bali', body: '정글 속에 숨은 리조트. 아침에 발코니 문을 열면 새소리랑 강물 소리만 들려요. 조식은 8시 이전이 한산해요.', count: 8, likes: 128, quotes: 14, replies: 3, views: '2.3천' },
+      { initial: '민', author: '민지', when: '어제', place: '깡통시장', body: '비빔당면 한 그릇에 줄 서는 이유를 알았어요.', count: 0, likes: 42, quotes: 2, replies: 5, views: 880 },
+      { initial: 'J', author: '준호', when: '2일 전', place: '', body: '흰여울 골목이 좁으니 유아차는 큰길로 돌아가세요.', count: 1, likes: 19, quotes: 0, replies: 1, views: 410 },
+      { initial: 'S', author: '소연', when: '3일 전', place: '광안리해수욕장', body: '밤바다 위 다리 불빛이 생각보다 훨씬 가까워요. 해변 끝 카페 2층이 명당.', count: 3, likes: 77, quotes: 6, replies: 2, views: '1.1천' },
+    ];
+    const stories = raw.map((s, i) => {
+      const shown = Math.min(s.count, 2);
+      return { ...s, hasPlace: !!s.place, hasImages: s.count > 0, noImages: s.count === 0,
+        images: Array.from({ length: shown }, (_, k) => ({ bg: g[(i + k) % 4] })),
+        more: s.count > shown, moreLabel: '+' + (s.count - shown), countLabel: '1 / ' + s.count,
+        cover: s.count ? g[i % 4] : '#fff1e8',
+        dots: Array.from({ length: Math.min(s.count, 5) }, (_, k) => ({ op: k === 0 ? 1 : 0.5 })),
+        title: s.place || s.author + '의 기록' };
+    });
+    const pins = [
+      { name: 'The Kayon Resort Bali', x: '32%', y: '30%', bg: '#0b1d3a', fg: '#fff', border: 'none' },
+      { name: '깡통시장', x: '64%', y: '52%', bg: '#fff', fg: '#152238', border: '1px solid #e8e4dd' },
+      { name: '광안리해수욕장', x: '48%', y: '76%', bg: '#fff', fg: '#152238', border: '1px solid #e8e4dd' },
+    ];
+    return { frameW: 390, frameH: 844, webW: 1280, webH: 860, stories, pins, mappedCount: pins.length, total: stories.length };
+  }
+}
+</script>
+</body>
+</html>
