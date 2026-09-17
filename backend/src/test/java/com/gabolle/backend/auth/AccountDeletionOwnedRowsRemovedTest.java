@@ -1,0 +1,306 @@
+package com.gabolle.backend.auth;
+
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.support.TransactionTemplate;
+
+import com.gabolle.backend.auth.domain.LocalCredential;
+import com.gabolle.backend.auth.repository.LocalCredentialRepository;
+import com.gabolle.backend.auth.service.AccountDeletionService;
+import com.gabolle.backend.auth.support.AuthPostgresIntegrationTest;
+import com.gabolle.backend.user.domain.AppUser;
+import com.gabolle.backend.user.domain.PersonalizationMode;
+import com.gabolle.backend.user.domain.UserStatus;
+import com.gabolle.backend.user.repository.AppUserRepository;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+/**
+ * S15P21E201-1198 — {@code USER_OWNED_ROWS} 에 <b>지운다고 적어 둔 표가 실제로 지워지는가</b>.
+ *
+ * <h2>왜 필요한가</h2>
+ *
+ * S15P21E201-1157 이 <b>애플 심사 5.1.1(v)</b>(<i>「계정 삭제를 제공하면 이용자 자료가 실제로
+ * 지워져야 한다」</i>) 때문에 표 열한 개를 삭제 목록에 넣었다. 그런데 <b>그 열한 개 중 어느 것도
+ * 자료를 넣고 확인하는 검사가 없었다.</b>
+ *
+ * <p>있던 것은 둘이다. {@code AccountDeletionOwnedRowsTest} 는 <b>이름과 칸 경로가 실재하는지</b>를
+ * DB 없이 본다. {@code AccountDeletionIntegrationTest} 는 여행·기록·업로드 사진·취향 벡터를 본다 —
+ * <b>다른 표들</b>이다.
+ *
+ * <p>🔴 목록이 <b>문자열</b>이라 위험이 거기 있다. S15P21E201-1157 이 스스로 적어 뒀다 —
+ * <i>「오타는 컴파일을 통과하고 <b>탈퇴가 500 으로 죽는 순간에</b> 처음 드러난다」</i>. 그리고 더
+ * 나쁜 경우가 있다: <b>행이 안 지워져도 탈퇴는 성공으로 끝난다.</b> 이 서비스는 계정 행을
+ * 익명화만 하므로 {@code ON DELETE CASCADE} 가 한 번도 안 터지고, 오류도 안 난다.
+ *
+ * <h2>🔴 지우기 전에 「넣었는가」를 먼저 본다</h2>
+ *
+ * 시드가 조용히 실패하면 <b>지운 뒤 0건</b>이 나오고 이 검사는 <b>거저 통과한다.</b> 그래서
+ * 탈퇴를 부르기 전에 열세 자리가 전부 1건 이상인지 확인한다. <b>통과하는 검사와 무언가를 막는
+ * 검사는 다르다.</b>
+ *
+ * <h2>남의 것에 달아서 가른다</h2>
+ *
+ * {@code story_reaction}·{@code trip_invite}·{@code trip_share_link} 는 <b>남의 글·남의 여행</b>에
+ * 단다. 자기 것에 달면 글·여행이 지워지면서 딸려 없어질 수 있고, 그러면 <b>목록이 고장나도 검사가
+ * 통과한다</b> — 재려는 것은 「사람을 가리키는 칸으로 지워지는가」다.
+ *
+ * <h2>DB 가 없으면 건너뛴다</h2>
+ *
+ * {@code AuthPostgresIntegrationTest} 를 상속하므로 {@code PostgresAvailableCondition} 이 붙는다.
+ * 🔴 도커가 꺼진 PC 에서는 건너뛴 채 초록이므로 <b>진짜 판정은 CI 다.</b>
+ */
+class AccountDeletionOwnedRowsRemovedTest extends AuthPostgresIntegrationTest {
+
+	private static final String PASSWORD = "DeleteMe!2026";
+
+	private static final String CONFIRM = AccountDeletionService.CONFIRMATION_PHRASE;
+
+	/**
+	 * 탈퇴 뒤 이 사람을 가리키는 행이 하나도 없어야 하는 자리.
+	 *
+	 * <p>🔴 {@code user_follow}·{@code user_block} 은 사람을 가리키는 칸이 <b>둘</b>이라 두 줄씩이다.
+	 * 한쪽만 지우면 <b>「내가 없는데 나를 팔로우한 기록」</b>이 남는다 — S15P21E201-1157 의 당부다.
+	 */
+	private record Owned(String table, String userColumn) {
+	}
+
+	private static final List<Owned> OWNED = List.of(
+			new Owned("saved_place", "user_id"),
+			new Owned("collection", "user_id"),
+			new Owned("place_review", "user_id"),
+			new Owned("place_visit_verification", "user_id"),
+			new Owned("menu_scan_usage", "user_id"),
+			new Owned("user_follow", "follower_user_id"),
+			new Owned("user_follow", "followee_user_id"),
+			new Owned("user_block", "blocker_user_id"),
+			new Owned("user_block", "blocked_user_id"),
+			new Owned("story_reaction", "user_id"),
+			new Owned("trip_invite", "created_by"),
+			new Owned("trip_share_link", "created_by"),
+			new Owned("oauth_signup_ticket", "existing_user_id"));
+
+	@Autowired
+	private AccountDeletionService accountDeletionService;
+
+	@Autowired
+	private LocalCredentialRepository credentialRepository;
+
+	@Autowired
+	private AppUserRepository userRepository;
+
+	@Autowired
+	private PasswordEncoder passwordEncoder;
+
+	@Autowired
+	private JdbcTemplate jdbc;
+
+	@Autowired
+	private TransactionTemplate transactionTemplate;
+
+	private UUID userId;
+
+	private UUID otherUserId;
+
+	private UUID placeId;
+
+	private UUID otherTripId;
+
+	private UUID otherStoryId;
+
+	@BeforeEach
+	void setUp() {
+		this.userId = createUser("erase-" + shortId() + "@example.com");
+		this.otherUserId = createUser("keep-" + shortId() + "@example.com");
+		this.placeId = createPlace();
+		this.otherTripId = createTrip(this.otherUserId);
+		this.otherStoryId = createStory(this.otherUserId);
+
+		seedFor(this.userId);
+	}
+
+	@AfterEach
+	void tearDown() {
+		// 🔴 표를 비우지 않는다. 내가 만든 것만 지운다 — 같은 DB 를 여러 검사가 함께 쓴다.
+		for (UUID user : new UUID[] { this.userId, this.otherUserId }) {
+			for (Owned owned : OWNED) {
+				this.jdbc.update("DELETE FROM " + owned.table() + " WHERE " + owned.userColumn() + " = ?", user);
+			}
+		}
+		this.jdbc.update("DELETE FROM story WHERE story_id = ?", this.otherStoryId);
+		this.jdbc.update("DELETE FROM trip WHERE trip_id = ?", this.otherTripId);
+		this.jdbc.update("DELETE FROM place WHERE place_id = ?", this.placeId);
+		for (UUID user : new UUID[] { this.userId, this.otherUserId }) {
+			this.jdbc.update("DELETE FROM auth_session WHERE user_id = ?", user);
+			this.jdbc.update("DELETE FROM local_credential WHERE user_id = ?", user);
+			this.jdbc.update("DELETE FROM app_user WHERE user_id = ?", user);
+		}
+	}
+
+	@Test
+	@DisplayName("🔴 지운다고 적어 둔 열세 자리가 탈퇴 뒤 전부 0건이다 — 애플 심사 5.1.1(v)")
+	void everyOwnedRowIsActuallyGone() {
+		// 🔴 먼저 「넣었는가」. 시드가 조용히 실패하면 아래 검사가 거저 통과한다.
+		List<String> notSeeded = new ArrayList<>();
+		for (Owned owned : OWNED) {
+			if (countFor(owned, this.userId) == 0) {
+				notSeeded.add(owned.table() + "." + owned.userColumn());
+			}
+		}
+		assertThat(notSeeded).as("""
+
+				시드가 안 들어간 자리입니다: %s
+
+				   이 검사는 "넣고 → 지우고 → 0인가" 를 봅니다. 안 넣은 자리는 지운 뒤에도 0이라
+				   검사가 거저 통과합니다. 표 구조가 바뀌었다면 seedFor 를 고치십시오.
+				""".formatted(notSeeded)).isEmpty();
+
+		this.accountDeletionService.delete(this.userId, CONFIRM, PASSWORD);
+
+		List<String> leftover = new ArrayList<>();
+		for (Owned owned : OWNED) {
+			long remaining = countFor(owned, this.userId);
+			if (remaining > 0) {
+				leftover.add(owned.table() + "." + owned.userColumn() + " = " + remaining + "건");
+			}
+		}
+		assertThat(leftover).as("""
+
+				🔴 탈퇴했는데 이 사람을 가리키는 행이 남았습니다: %s
+
+				   애플 심사 5.1.1(v) 는 계정 삭제 시 이용자 자료가 실제로 지워질 것을 요구합니다.
+				   AccountDeletionService.USER_OWNED_ROWS 에 그 표와 칸이 있는지,
+				   칸 경로(묻힌 키는 key.x / id.x)가 맞는지 보십시오.
+				   🔴 행이 안 지워져도 탈퇴는 성공으로 끝납니다 — 계정 행을 익명화만 하므로
+				      ON DELETE CASCADE 가 한 번도 안 터지고 오류도 안 납니다.
+				""".formatted(leftover)).isEmpty();
+	}
+
+	@Test
+	@DisplayName("남의 팔로우·차단 기록은 그대로다 — 탈퇴가 남의 자료까지 쓸어 가지 않는다")
+	void otherPeoplesRowsSurvive() {
+		UUID thirdUserId = createUser("third-" + shortId() + "@example.com");
+		this.jdbc.update("INSERT INTO user_follow (follower_user_id, followee_user_id, created_at) "
+				+ "VALUES (?, ?, now())", this.otherUserId, thirdUserId);
+		this.jdbc.update("INSERT INTO user_block (blocker_user_id, blocked_user_id, created_at) "
+				+ "VALUES (?, ?, now())", this.otherUserId, thirdUserId);
+
+		this.accountDeletionService.delete(this.userId, CONFIRM, PASSWORD);
+
+		assertThat(countBetween("user_follow", "follower_user_id", "followee_user_id", this.otherUserId, thirdUserId))
+				.as("남의 팔로우 기록까지 지워졌다").isEqualTo(1L);
+		assertThat(countBetween("user_block", "blocker_user_id", "blocked_user_id", this.otherUserId, thirdUserId))
+				.as("남의 차단 기록까지 지워졌다").isEqualTo(1L);
+
+		this.jdbc.update("DELETE FROM user_follow WHERE follower_user_id = ? OR followee_user_id = ?",
+				thirdUserId, thirdUserId);
+		this.jdbc.update("DELETE FROM user_block WHERE blocker_user_id = ? OR blocked_user_id = ?",
+				thirdUserId, thirdUserId);
+		this.jdbc.update("DELETE FROM local_credential WHERE user_id = ?", thirdUserId);
+		this.jdbc.update("DELETE FROM app_user WHERE user_id = ?", thirdUserId);
+	}
+
+	private long countBetween(String table, String left, String right, UUID leftUser, UUID rightUser) {
+		Long n = this.jdbc.queryForObject(
+				"SELECT count(*) FROM " + table + " WHERE " + left + " = ? AND " + right + " = ?",
+				Long.class, leftUser, rightUser);
+		return n == null ? 0 : n;
+	}
+
+	private long countFor(Owned owned, UUID user) {
+		Long n = this.jdbc.queryForObject(
+				"SELECT count(*) FROM " + owned.table() + " WHERE " + owned.userColumn() + " = ?",
+				Long.class, user);
+		return n == null ? 0 : n;
+	}
+
+	private void seedFor(UUID user) {
+		this.jdbc.update("INSERT INTO saved_place (saved_place_id, user_id, place_id, created_at) "
+				+ "VALUES (?, ?, ?, now())", UUID.randomUUID(), user, this.placeId);
+		this.jdbc.update("INSERT INTO collection (collection_id, user_id, name, created_at, updated_at) "
+				+ "VALUES (?, ?, '가보고 싶은 곳', now(), now())", UUID.randomUUID(), user);
+		this.jdbc.update("INSERT INTO place_review (place_review_id, place_id, user_id, verified, food_score) "
+				+ "VALUES (?, ?, ?, false, 4)", UUID.randomUUID(), this.placeId, user);
+		this.jdbc.update("INSERT INTO place_visit_verification "
+				+ "(place_visit_verification_id, place_id, user_id, distance_m) VALUES (?, ?, ?, 12)",
+				UUID.randomUUID(), this.placeId, user);
+		this.jdbc.update("INSERT INTO menu_scan_usage (menu_scan_usage_id, user_id, scanned_at) "
+				+ "VALUES (?, ?, now())", UUID.randomUUID(), user);
+		this.jdbc.update("INSERT INTO story_reaction (story_id, user_id, reaction, created_at, updated_at) "
+				+ "VALUES (?, ?, 'LIKE', now(), now())", this.otherStoryId, user);
+		this.jdbc.update("INSERT INTO trip_invite "
+				+ "(trip_invite_id, trip_id, token, role, created_by, created_at, expires_at) "
+				+ "VALUES (?, ?, ?, 'EDITOR', ?, now(), now() + interval '7 day')",
+				UUID.randomUUID(), this.otherTripId, "inv-" + shortId(), user);
+		this.jdbc.update("INSERT INTO trip_share_link "
+				+ "(trip_share_link_id, trip_id, token, created_by, created_at, expires_at) "
+				+ "VALUES (?, ?, ?, ?, now(), now() + interval '30 day')",
+				UUID.randomUUID(), this.otherTripId, "shr-" + shortId(), user);
+		this.jdbc.update("INSERT INTO oauth_signup_ticket "
+				+ "(oauth_ticket_id, kind, ticket_hash, provider, provider_subject, existing_user_id, "
+				+ "created_at, expires_at) "
+				+ "VALUES (?, 'LINK', ?, 'GOOGLE', ?, ?, now(), now() + interval '1 hour')",
+				UUID.randomUUID(), "hash-" + shortId(), "subject-" + shortId(), user);
+		// 사람을 가리키는 칸이 둘인 표. 양쪽 칸이 다 걸리도록 두 줄씩 넣는다.
+		this.jdbc.update("INSERT INTO user_follow (follower_user_id, followee_user_id, created_at) "
+				+ "VALUES (?, ?, now())", user, this.otherUserId);
+		this.jdbc.update("INSERT INTO user_follow (follower_user_id, followee_user_id, created_at) "
+				+ "VALUES (?, ?, now())", this.otherUserId, user);
+		this.jdbc.update("INSERT INTO user_block (blocker_user_id, blocked_user_id, created_at) "
+				+ "VALUES (?, ?, now())", user, this.otherUserId);
+		this.jdbc.update("INSERT INTO user_block (blocker_user_id, blocked_user_id, created_at) "
+				+ "VALUES (?, ?, now())", this.otherUserId, user);
+	}
+
+	private UUID createUser(String address) {
+		return this.transactionTemplate.execute(status -> {
+			AppUser user = this.userRepository.save(AppUser.register("여행자", "KO", Instant.now(), "2026-01",
+					PersonalizationMode.EXPLICIT_ONLY, UserStatus.ACTIVE));
+			LocalCredential credential = LocalCredential.create(user, address,
+					this.passwordEncoder.encode(PASSWORD));
+			credential.markEmailVerified(Instant.now());
+			this.credentialRepository.save(credential);
+			return user.getUserId();
+		});
+	}
+
+	private UUID createPlace() {
+		UUID newPlaceId = UUID.randomUUID();
+		this.jdbc.update("INSERT INTO place (place_id, name_ko, address, lat, lng, created_at) "
+				+ "VALUES (?, '동래할매파전', '부산광역시 동래구 명륜동', 35.16, 129.16, now())", newPlaceId);
+		return newPlaceId;
+	}
+
+	private UUID createTrip(UUID owner) {
+		UUID trip = UUID.randomUUID();
+		this.jdbc.update("""
+				INSERT INTO trip (trip_id, owner_user_id, owner_type, start_date, end_date, created_at, updated_at)
+				VALUES (?, ?, 'USER', ?, ?, now(), now())
+				""", trip, owner, LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 12));
+		return trip;
+	}
+
+	private UUID createStory(UUID author) {
+		UUID storyId = UUID.randomUUID();
+		this.jdbc.update("""
+				INSERT INTO story (story_id, author_user_id, body, visibility, publish_at, created_at, updated_at)
+				VALUES (?, ?, ?, 'PUBLIC', now(), now(), now())
+				""", storyId, author, "테스트 기록");
+		return storyId;
+	}
+
+	private static String shortId() {
+		return UUID.randomUUID().toString().substring(0, 8);
+	}
+}
