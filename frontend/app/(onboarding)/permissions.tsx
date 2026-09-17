@@ -126,7 +126,9 @@ export default function Permissions() {
       </Pressable>
 
       <Button label={requesting ? tx('권한 확인 중…', 'Checking permissions…') : tx('선택하고 로그인·회원가입으로', 'Continue to sign in / sign up')} disabled={requesting} variant="accent" pill containerStyle={styles.cta} onPress={() => void continueTo('/home')} />
-      <Button label={tx('비회원으로 먼저 둘러보기', 'Browse as guest first')} variant="ghost" disabled={requesting} onPress={() => void browseAsGuest()} />
+      {/* 🔴 사용자 리포트 — 위 버튼은 pill(완전히 둥근 모양)인데 이 버튼만 각진 radius.md라
+          두 버튼이 붙어 있을 때 모양이 갑자기 바뀌는 것처럼 보였다. pill을 맞추고 간격을 준다. */}
+      <Button label={tx('비회원으로 먼저 둘러보기', 'Browse as guest first')} variant="ghost" pill disabled={requesting} containerStyle={styles.secondaryCta} onPress={() => void browseAsGuest()} />
       </View>
       </View>
     </Screen>
@@ -221,5 +223,8 @@ const styles = StyleSheet.create({
     // 버튼이 아니라 **바깥 껍데기**에 붙어서 남색 버튼 뒤로 주황색이 삐져나왔다.
     // 색과 모양은 이제 버튼이 직접 갖는다 — `variant="accent" pill`.
     marginTop: spacing[3],
+  },
+  secondaryCta: {
+    marginTop: spacing[2],
   },
 });
