@@ -8,6 +8,7 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import com.gabolle.backend.place.api.NearbyPlaceItem;
 import com.gabolle.backend.place.api.PlaceSummaryResponse;
@@ -16,10 +17,18 @@ import com.gabolle.backend.place.domain.Place;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * S15P21E201-1120 — 목록 응답이 사진 주소를 <b>실제로 싣는가</b>.
+ * 목록 응답이 칸을 <b>실제로 싣는가</b> — 같은 병이 두 번 났다.
  *
- * <p>칸을 더해 놓고 값을 안 옮기면 화면은 여전히 사진을 못 그린다. 그 종류의 실수는 컴파일도
+ * <ul>
+ *   <li>S15P21E201-1120 — 사진 주소·출처가 상세에만 있었다</li>
+ *   <li>S15P21E201-1194 — 영문 주소가 상세에만 있었다. 목록은 이름만 두 언어였다</li>
+ * </ul>
+ *
+ * <p>칸을 더해 놓고 값을 안 옮기면 화면은 여전히 그것을 못 그린다. 그 종류의 실수는 컴파일도
  * 통과하고 기존 검사도 통과한다 — 그래서 여기서 값이 끝까지 가는지를 본다.
+ *
+ * <p>🔴 파일 이름은 사진에서 왔지만 주제는 그보다 넓다. 목록에 칸을 더할 때 <b>「목록에도
+ * 실었나」</b>를 사람이 기억하지 않아도 되게 하는 자리다.
  *
  * <p>DB 를 안 띄운다. 만드는 쪽({@code of}·{@code from})이 값을 옮기는지가 이 검사의 질문이고,
  * 그건 객체 하나로 답할 수 있다.
@@ -29,6 +38,8 @@ class ListResponsePhotoFieldsTest {
 	private static final String PHOTO = "https://tong.visitkorea.or.kr/cms/haeundae.jpg";
 
 	private static final String SOURCE = "한국관광공사 (공공누리 제1유형)";
+
+	private static final String ADDRESS_EN = "Udong, Haeundae-gu, Busan";
 
 	private static Place placeWithPhoto(String photoUrl, String photoSource) {
 		return Place.imported(UUID.randomUUID(), "해운대해수욕장", "SEA_BEACH", "부산 해운대구 우동",
@@ -80,24 +91,65 @@ class ListResponsePhotoFieldsTest {
 	@Test
 	@DisplayName("🔴 새 칸은 맨 뒤에 있다 — 앞자리를 밀면 이미 배포된 앱이 깨진다")
 	void newFieldsAreAppendedAtTheEnd() {
-		assertThat(lastTwoComponentNames(PlaceSummaryResponse.class))
-				.containsExactly("photoUrl", "photoSource");
-		assertThat(lastTwoComponentNames(NearbyPlaceItem.class))
-				.containsExactly("photoUrl", "photoSource");
+		// 차례를 통째로 고정한다. 맨 뒤만 보면 가운데를 끼워 넣어도 안 걸리고, 앞만 보면
+		// 뒤에서 자리가 바뀌어도 안 걸린다.
+		assertThat(componentNames(PlaceSummaryResponse.class)).containsExactly(
+				"placeId", "nameKo", "nameEn", "category", "address", "lat", "lng", "matchedField",
+				"photoUrl", "photoSource", "addressEn");
+		assertThat(componentNames(NearbyPlaceItem.class)).containsExactly(
+				"placeId", "nameKo", "nameEn", "category", "address", "lat", "lng", "distanceM", "hasPhoto",
+				"photoUrl", "photoSource", "addressEn");
+	}
 
-		// 앞자리가 그대로인지도 같이 본다 — 맨 뒤 둘만 보면 가운데를 끼워 넣어도 안 걸린다.
-		assertThat(componentNames(PlaceSummaryResponse.class).subList(0, 8)).containsExactly(
-				"placeId", "nameKo", "nameEn", "category", "address", "lat", "lng", "matchedField");
-		assertThat(componentNames(NearbyPlaceItem.class).subList(0, 9)).containsExactly(
-				"placeId", "nameKo", "nameEn", "category", "address", "lat", "lng", "distanceM", "hasPhoto");
+	@Test
+	@DisplayName("목록 셋이 영문 주소를 싣는다 — 이름만 두 언어이고 주소는 한글이던 자리")
+	void listsCarryAddressEn() {
+		Place place = placeWithAddressEn(ADDRESS_EN);
+
+		assertThat(PlaceSummaryResponse.of(place, PlaceSummaryResponse.MatchedField.NAME_KO).addressEn())
+				.isEqualTo(ADDRESS_EN);
+		assertThat(PlaceSummaryResponse.ofFacetMatch(place).addressEn()).isEqualTo(ADDRESS_EN);
+		assertThat(NearbyPlaceItem.from(place, 120L).addressEn()).isEqualTo(ADDRESS_EN);
+	}
+
+	@Test
+	@DisplayName("🔴 한글 주소가 영문 칸으로 새지 않는다 — getAddress() 를 두 번 넘겨도 컴파일은 통과한다")
+	void addressEnIsNotTheKoreanAddress() {
+		Place place = placeWithAddressEn(ADDRESS_EN);
+
+		PlaceSummaryResponse summary = PlaceSummaryResponse.of(place, null);
+		assertThat(summary.address()).isEqualTo(place.getAddress());
+		assertThat(summary.addressEn()).isEqualTo(place.getAddressEn()).isNotEqualTo(summary.address());
+
+		NearbyPlaceItem nearby = NearbyPlaceItem.from(place, 10L);
+		assertThat(nearby.address()).isEqualTo(place.getAddress());
+		assertThat(nearby.addressEn()).isEqualTo(place.getAddressEn()).isNotEqualTo(nearby.address());
+	}
+
+	@Test
+	@DisplayName("영문 주소가 없으면 그 키는 아예 안 나간다 — 한글로 대신 채우지 않는다")
+	void placesWithoutAnEnglishAddressCarryNull() {
+		Place place = placeWithPhoto(PHOTO, SOURCE);
+
+		assertThat(PlaceSummaryResponse.of(place, null).addressEn()).isNull();
+		assertThat(PlaceSummaryResponse.ofFacetMatch(place).addressEn()).isNull();
+		assertThat(NearbyPlaceItem.from(place, 10L).addressEn()).isNull();
+	}
+
+	/**
+	 * 영문 주소가 붙은 장소.
+	 *
+	 * <p>🔴 {@code Place} 에는 영문 칸을 채우는 <b>자바 통로가 없다</b> — 수집 파이프라인이 SQL 로만
+	 * 넣고 앱은 읽기만 한다(그래서 {@code imported(...)} 에도 setter 에도 없다). 그 칸 하나를
+	 * 재려고 DB 를 띄우는 것은 이 검사가 답하려는 질문에 비해 과하므로 여기서만 직접 심는다.
+	 */
+	private static Place placeWithAddressEn(String addressEn) {
+		Place place = placeWithPhoto(PHOTO, SOURCE);
+		ReflectionTestUtils.setField(place, "addressEn", addressEn);
+		return place;
 	}
 
 	private static List<String> componentNames(Class<?> record) {
 		return Arrays.stream(record.getRecordComponents()).map(RecordComponent::getName).toList();
-	}
-
-	private static List<String> lastTwoComponentNames(Class<?> record) {
-		List<String> names = componentNames(record);
-		return names.subList(names.size() - 2, names.size());
 	}
 }
