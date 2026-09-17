@@ -53,6 +53,7 @@ class PreferenceValueShapeAndScaleTest {
 	private final List<UserPlaceCodeMap> preferenceCodeMap = List.of(
 			codeMap("CATEGORY", "INTEREST_TAG", MatchKind.TAG_OVERLAP),
 			codeMap("LOCALITY", "LOCALITY_SCORE", MatchKind.SCORE_COMPARE),
+			codeMap("SLOPE_PREFERENCE", "SLOPE_PERCENT", MatchKind.SCORE_COMPARE),
 			codeMap("SHADE_PREFERENCE", "SHADE_SCORE", MatchKind.SCORE_COMPARE));
 
 	// ── 모양 ──────────────────────────────────────────────────────────────────
@@ -127,6 +128,49 @@ class PreferenceValueShapeAndScaleTest {
 
 		assertThat(component(wrapped, "preferenceAlignment")).isEqualTo(1.0);
 		assertThat(component(bareDecimal, "preferenceAlignment")).isEqualTo(1.0);
+	}
+
+	// ── 낱말로 오는 답 — 경사 (S15P21E201-1188) ───────────────────────────────
+
+	@Test
+	@DisplayName("🔴 「피하고 싶어요」는 평지를 가장 높게 친다 — 전에는 축이 통째로 빠졌다")
+	void 경사를_피하고_싶어요는_평지가_가장_높다() {
+		// 🔴 눈금 검산. 장소 경사만 0~100 이고 채점기가 100 으로 나눈다. 취향 쪽이 0~1 로
+		//    나와야 평지(0%)에서 정렬도가 정확히 1.0 이 된다 — 100 을 내놓았다면 clamp01 이
+		//    1.0 으로 뭉개서 여기가 0.0 으로 뒤집힌다. 그래서 이 값은 부등호가 아니라 등호다.
+		EngineCandidate flat = score(
+				candidate(List.of(value("SLOPE_PERCENT", "ESTIMATED", "0"))),
+				snapshot("SLOPE_PREFERENCE", "\"AVOID\""));
+		EngineCandidate steep = score(
+				candidate(List.of(value("SLOPE_PERCENT", "ESTIMATED", "30"))),
+				snapshot("SLOPE_PREFERENCE", "\"AVOID\""));
+
+		assertThat(component(flat, "preferenceAlignment")).isEqualTo(1.0);
+		assertThat(component(steep, "preferenceAlignment")).isEqualTo(0.7);
+		assertThat(component(flat, "preferenceAlignment"))
+				.isGreaterThan(component(steep, "preferenceAlignment"));
+		assertThat(flat.reasonCodes()).contains("PREF_ALIGNED_SLOPE_PREFERENCE");
+	}
+
+	@Test
+	@DisplayName("🔴 「상관없어요」는 항이 빠진다 — 0 이면 「평지 선호」와 같은 뜻이 된다")
+	void 경사가_상관없어요면_항이_빠진다() {
+		EngineCandidate result = score(
+				candidate(List.of(value("SLOPE_PERCENT", "ESTIMATED", "30"))),
+				snapshot("SLOPE_PREFERENCE", "\"ALLOW\""));
+
+		assertThat(component(result, "preferenceAlignment")).isNull();
+		assertThat(result.reasonCodes()).doesNotContain("PREF_ALIGNED_SLOPE_PREFERENCE");
+	}
+
+	@Test
+	@DisplayName("모르는 낱말도 항이 빠진다 — 지어내지 않는다")
+	void 모르는_낱말은_항이_빠진다() {
+		EngineCandidate result = score(
+				candidate(List.of(value("SLOPE_PERCENT", "ESTIMATED", "30"))),
+				snapshot("SLOPE_PREFERENCE", "\"MAYBE\""));
+
+		assertThat(component(result, "preferenceAlignment")).isNull();
 	}
 
 	// ── 여기서 고치지 않는 것 ─────────────────────────────────────────────────
