@@ -16,6 +16,7 @@ const read = (f) => JSON.parse(fs.readFileSync(path.join(HERE, f), "utf8"));
 
 const plan = read("findings/00-plan.json");
 const rankings = read("data/rankings.json");
+const users = read("data/users.json");
 
 // 🔴 진짜 채점기가 찍은 순위표인지 먼저 본다.
 //    findings/ 는 커밋되는 자리다(eval/food-ranking 과 같다). 스모크용 가짜 순위표로
@@ -28,7 +29,14 @@ if (!rankings.scorerVersion || /^SMOKE/i.test(rankings.scorerVersion)) {
 }
 
 const byUser = new Map(rankings.rankings.map((r) => [r.userId, r.candidates]));
-const [a, b] = ["sim-000-high", "sim-001-low"];
+// 🔴 id 를 박아 두지 않는다. 축이 바뀌어 사용자 이름이 바뀐 적이 있고, 그때 이 검사는
+//    "순위표가 없다" 로 죽었다. 역할(role)로 찾으면 이름이 바뀌어도 따라간다.
+const opposites = users.users.filter((u) => u.role === "opposite-a" || u.role === "opposite-b");
+if (opposites.length !== 2) {
+	console.error(`정반대 쌍을 찾지 못했다 (role=opposite-a/opposite-b 가 ${opposites.length}명). 01단계를 확인한다.`);
+	process.exit(1);
+}
+const [a, b] = opposites.map((u) => u.userId);
 const ca = byUser.get(a);
 const cb = byUser.get(b);
 if (!ca || !cb) {
@@ -80,6 +88,14 @@ const result = {
 		rank_shift_median: { value: median, threshold: m2.threshold, pass: pass2 },
 	},
 	verdict,
+	// 🔴 숫자만 남기면 다음 사람이 이것을 실제보다 세게 읽는다. 한계를 결과 옆에 붙여
+	//    둔다 — 파일은 대화보다 오래 남고, 대화에서 한 말은 같이 안 간다.
+	limitations: [
+		"장소가 합성이다. 거리와 음식 태그를 우리가 퍼뜨린 방식에 결과가 크게 좌우된다",
+		"실제 표본의 음식 갈래는 한쪽으로 쏠려 있다(queue-sample.ndjson 200곳 중 백반/한정식만 66곳). 여기서는 세 갈래를 고르게 뿌렸으므로 실제보다 가르기 쉬운 세계다",
+		"두 사람을 같은 장소 집합에서 견주므로 거리 항은 양쪽에 똑같이 들어가 상쇄된다. 즉 이 지표는 '순서가 달라지는가' 를 재지 '사용자가 체감할 만큼 다른가' 를 재지 않는다",
+		"배포에서 0곳인 여섯 축(조용함·그늘·경사·로컬·관광객·분위기)은 애초에 안 심었다. 그 축들이 채워지면 이 수는 다시 재야 한다",
+	],
 	// 🔴 결과를 어떻게 읽어야 하는지를 결과 옆에 적어 둔다. 숫자만 남기면
 	//    다음 사람이 "낮으니 좋은 것" 처럼 거꾸로 읽는다.
 	howToRead: verdict === "PERSONALIZATION_BARELY_MOVES_RANKING"
@@ -94,3 +110,6 @@ console.log(`  상위10 겹침(자카드) ${jaccard === null ? "-" : jaccard.toF
 console.log(`  순위 이동 중앙값    ${median === null ? "-" : median}  (합격 ≥ ${m2.threshold.min})  ${pass2 ? "통과" : "미달"}`);
 console.log(`\n판정: ${verdict}`);
 console.log(result.howToRead);
+console.log("");
+console.log("🔴 한계 — 이 수를 인용하기 전에 읽는다:");
+for (const line of result.limitations) console.log("  · " + line);

@@ -1,0 +1,36 @@
+{
+  "planVersion": 1,
+  "datasetVersion": "synthetic-v1",
+  "evaluatedAt": "2026-09-17T00:32:06.078Z",
+  "comparedUsers": [
+    "sim-000-a",
+    "sim-001-b"
+  ],
+  "comparedPlaces": 200,
+  "metrics": {
+    "top10_jaccard_opposite": {
+      "value": 0.05263157894736842,
+      "threshold": {
+        "max": 0.7,
+        "meaning": "0.7 을 넘으면 개인화가 사실상 안 먹는 것으로 본다"
+      },
+      "pass": true
+    },
+    "rank_shift_median": {
+      "value": 33,
+      "threshold": {
+        "min": 5,
+        "meaning": "상위 200 후보에서 중앙값 5위 미만이면 움직임이 없다고 본다"
+      },
+      "pass": true
+    }
+  },
+  "verdict": "PERSONALIZATION_MOVES_RANKING",
+  "limitations": [
+    "장소가 합성이다. 거리와 음식 태그를 우리가 퍼뜨린 방식에 결과가 크게 좌우된다",
+    "실제 표본의 음식 갈래는 한쪽으로 쏠려 있다(queue-sample.ndjson 200곳 중 백반/한정식만 66곳). 여기서는 세 갈래를 고르게 뿌렸으므로 실제보다 가르기 쉬운 세계다",
+    "두 사람을 같은 장소 집합에서 견주므로 거리 항은 양쪽에 똑같이 들어가 상쇄된다. 즉 이 지표는 '순서가 달라지는가' 를 재지 '사용자가 체감할 만큼 다른가' 를 재지 않는다",
+    "배포에서 0곳인 여섯 축(조용함·그늘·경사·로컬·관광객·분위기)은 애초에 안 심었다. 그 축들이 채워지면 이 수는 다시 재야 한다"
+  ],
+  "howToRead": "개인화가 순위를 움직인다. 이제 질문 2(랭커가 심은 취향을 되찾는가)로 갈 수 있다"
+}
