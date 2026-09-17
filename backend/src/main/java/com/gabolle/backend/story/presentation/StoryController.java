@@ -99,7 +99,11 @@ public class StoryController {
 	@GetMapping("/{storyId}")
 	public ApiResponse<StoryResponse> get(@PathVariable UUID storyId, Authentication authentication) {
 		UUID viewer = AuthenticatedUsers.optionalId(authentication).orElse(null);
-		return ApiResponse.success(this.storyService.get(storyId, viewer), requestId());
+		// 🔴 S15P21E201-1204 — 조회수는 비회원도 센다. optionalId 는 익명 요청에 빈 값을 주므로
+		//    (principal 이 "anon:" 형식이라 UUID 로 안 읽힌다) 익명 세션 id 를 따로 꺼내 함께 넘긴다.
+		//    둘 다 없으면 셀 수 없다 — 그 판단은 StoryService.recordView 가 한다.
+		UUID anonymousSessionId = AuthenticatedUsers.optionalAnonymousSessionId(authentication).orElse(null);
+		return ApiResponse.success(this.storyService.get(storyId, viewer, anonymousSessionId), requestId());
 	}
 
 	/**
