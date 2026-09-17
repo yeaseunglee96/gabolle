@@ -39,6 +39,9 @@ export type Place = {
   features: PlaceFeature[];
   photoUrl?: string;
   photoSource?: string;
+  // 🔴 S15P21E201-1206 — 서버는 이 칸을 주는데 여기 없어서 상세 화면이 「행사장 사진」을
+  //    말할 방법이 없었다. 값이 없으면 칸 자체가 안 온다.
+  photoSubject?: PhotoSubject | null;
   openingHours?: FeatureSlot;
   priceLevel?: FeatureSlot;
 };
@@ -322,10 +325,10 @@ export function getPlace(placeId: string, signal?: AbortSignal) {
 // 없거나 둘 다 있으면 400). 여기서는 이름 검색만 쓰므로 query 만 보낸다.
 // photoUrl·photoSource 는 S15P21E201-1125 에서 열렸다(백엔드 MR !992). 값이 없으면 칸이
 // 안 오므로 optional 이다. 🔴 사진을 그리면 출처도 같이 그린다 — 공공누리 이용 조건이다.
-export type PlaceSearchItem = { placeId: string; nameKo: string; nameEn: string | null; category: string; address: string; addressEn?: string; lat: number; lng: number; photoUrl?: string | null; photoSource?: string | null };
+export type PlaceSearchItem = { placeId: string; nameKo: string; nameEn: string | null; category: string; address: string; addressEn?: string; lat: number; lng: number; photoUrl?: string | null; photoSource?: string | null; photoSubject?: PhotoSubject | null };
 
 type PlacePageDto = { items: PlaceSearchItemDto[]; limit: number; nextCursor: string | null; hasNext: boolean; rankTruncated: boolean };
-export type PlaceSearchItemDto = { placeId: string; nameKo: string; nameEn: string | null; category: string; address: string; addressEn?: string; lat: number; lng: number; matchedField: 'NAME_KO' | 'NAME_EN' | null; photoUrl?: string | null; photoSource?: string | null };
+export type PlaceSearchItemDto = { placeId: string; nameKo: string; nameEn: string | null; category: string; address: string; addressEn?: string; lat: number; lng: number; matchedField: 'NAME_KO' | 'NAME_EN' | null; photoUrl?: string | null; photoSource?: string | null; photoSubject?: PhotoSubject | null };
 
 /**
  * 목록 응답 한 건을 화면이 쓰는 모양으로 옮긴다.
@@ -339,8 +342,8 @@ export type PlaceSearchItemDto = { placeId: string; nameKo: string; nameEn: stri
  *    더해도 같은 자리에서 걸린다.
  */
 export function toPlaceSearchItem(dto: PlaceSearchItemDto): PlaceSearchItem {
-  const { placeId, nameKo, nameEn, category, address, addressEn, lat, lng, photoUrl, photoSource } = dto;
-  return { placeId, nameKo, nameEn, category, address, addressEn, lat, lng, photoUrl, photoSource };
+  const { placeId, nameKo, nameEn, category, address, addressEn, lat, lng, photoUrl, photoSource, photoSubject } = dto;
+  return { placeId, nameKo, nameEn, category, address, addressEn, lat, lng, photoUrl, photoSource, photoSubject };
 }
 
 /** 위 함수가 **일부러** 안 들고 오는 칸. 시험이 이 목록만 예외로 친다. */

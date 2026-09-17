@@ -24,8 +24,19 @@ import {
   type PlaceSearchItemDto,
 } from '../places';
 
-/** 서버가 주는 칸을 **하나도 빠짐없이** 채운 본보기. 칸이 늘면 여기도 늘려야 타입이 통과한다. */
-const FULL: PlaceSearchItemDto = {
+/**
+ * 서버가 주는 칸을 **하나도 빠짐없이** 채운 본보기.
+ *
+ * 🔴 타입이 `Required<...>` 인 것이 이 파일의 두 번째 장치다 (S15P21E201-1206).
+ *
+ *    그냥 `PlaceSearchItemDto` 로 두면 **선택 칸을 안 적어도 컴파일이 통과한다.** 그러면
+ *    아래 시험이 「본보기에 적힌 칸」만 보게 되어, 새로 더한 칸은 **본보기에 적는 사람이
+ *    기억해야** 검사에 들어온다. 사람이 기억해야 하는 것은 반드시 또 빠진다.
+ *
+ *    `Required<...>` 면 **칸을 하나 더하는 순간 이 본보기가 컴파일이 안 된다.** 채우지
+ *    않고는 지나갈 수 없다. 실제로 「무엇을 찍은 사진인가」 칸을 더할 때 그렇게 걸렸다.
+ */
+const FULL: Required<PlaceSearchItemDto> = {
   placeId: 'p-1',
   nameKo: '광안리해수욕장',
   nameEn: 'Gwangalli Beach',
@@ -37,6 +48,7 @@ const FULL: PlaceSearchItemDto = {
   matchedField: 'NAME_KO',
   photoUrl: 'https://example.test/a.jpg',
   photoSource: '한국관광공사',
+  photoSubject: 'VENUE',
 };
 
 describe('toPlaceSearchItem', () => {

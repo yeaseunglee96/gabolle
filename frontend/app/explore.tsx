@@ -16,9 +16,10 @@ import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
 import { Text } from '@/components/Text';
 import { Eyebrow } from '@/components/Eyebrow';
+import { PhotoSubjectBadge } from '@/components/PhotoSubjectBadge';
 import { color, radius, spacing } from '@/design/tokens';
 import { flattenLocalFacets, getFacets, getNearbyPlaces, localFacetLabel, localPlaceName, type FacetsLoadResult, type LocalFacetEntry, type NearbyPlacesLoadResult } from '@/discovery/localExplore';
-import { getPlacesByFacet, type PlaceSearchItem } from '@/discovery/places';
+import { getPlacesByFacet, type PhotoSubject, type PlaceSearchItem } from '@/discovery/places';
 import { useI18n } from '@/i18n';
 
 // 여덟 갈래의 실제 값(jaehyeon 님 확인) — 서버가 이 여덟을 항상 함께 돌려주므로, 응답에서
@@ -327,9 +328,16 @@ function LocalBranchList({ facet, scope, coords, canAskAgain, onRetryLocation, c
  * 🔴 사진을 그리면 출처도 **반드시 같이** 그린다 — 관광공사 공공누리라 출처 표기가
  * 이용 조건이다. 값이 없으면 칸 자체가 안 오므로 있을 때만 그린다.
  */
-function PlacePhoto({ item, style }: { item: { photoUrl?: string | null }; style: object }) {
+function PlacePhoto({ item, style }: { item: { photoUrl?: string | null; photoSubject?: PhotoSubject | null }; style: object }) {
   if (item.photoUrl) {
-    return <Image source={{ uri: item.photoUrl }} resizeMode="cover" style={style} />;
+    // 🔴 사진 위에 「무엇을 찍은 것인가」를 얹으려고 감싼다 — S15P21E201-1206.
+    //    그 장소를 직접 찍은 사진에는 아무것도 안 나온다(판정은 photoLabels 한 곳에 있다).
+    return (
+      <View style={[style, styles.photoWrap]}>
+        <Image source={{ uri: item.photoUrl }} resizeMode="cover" style={StyleSheet.absoluteFill} />
+        <PhotoSubjectBadge photoSubject={item.photoSubject} style={styles.photoBadge} />
+      </View>
+    );
   }
   return <View style={[style, styles.photoEmpty]}><Text variant="title" color={color.text.muted}>📍</Text></View>;
 }
@@ -426,6 +434,8 @@ const styles = StyleSheet.create({
   facetRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], minHeight: 44, paddingHorizontal: spacing[4], borderRadius: radius.md, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.border },
 
   // 사진 — 없을 때가 더 흔하다(7~18%만 온다). 자리표시가 기본 모습이라고 보면 된다.
+  photoWrap: { position: 'relative', overflow: 'hidden' },
+  photoBadge: { position: 'absolute', left: spacing[2], top: spacing[2] },
   photoEmpty: { alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.soft },
   rowPhoto: { width: 72, height: 72, borderRadius: radius.md, backgroundColor: color.surface.soft },
 

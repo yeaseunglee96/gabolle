@@ -2,7 +2,8 @@ import { Image, StyleSheet, View, type ImageSourcePropType, type StyleProp, type
 
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
-import { photoLabels } from '@/discovery/places';
+import { PhotoSubjectBadge } from '@/components/PhotoSubjectBadge';
+import { photoLabels, type PhotoSubject } from '@/discovery/places';
 import { useI18n } from '@/i18n';
 
 const PLACE_IMAGES = {
@@ -33,9 +34,13 @@ type Props = {
   // 🔴 photoUrl 과 짝이다. 관광공사 공공누리 제1유형이라 **출처 표기가 이용 조건**이다.
   // 사진만 그리고 이 문구를 빼면 라이선스 위반이다. 문구는 서버가 주므로 지어내지 않는다.
   photoSource?: string | null;
+  // 🔴 S15P21E201-1206 — 이 사진이 **무엇을 찍은 것인가**. 이 칸이 여기 없어서 여태
+  // 「행사장 사진」을 축제 화면에서만 말하고 장소 화면에서는 아무 말도 안 했다.
+  // 값이 없으면 아무것도 안 그린다 — 서버가 안 줘도 지금과 같다.
+  photoSubject?: PhotoSubject | null;
 };
 
-export function PlaceVisual({ name, address, style, photoUrl, photoSource }: Props) {
+export function PlaceVisual({ name, address, style, photoUrl, photoSource, photoSubject }: Props) {
   const { tx } = useI18n();
   const visualKey = resolvePlaceVisual(name, address);
   const credit = photoUrl ? photoLabels({ photoSource }, tx).credit : null;
@@ -51,6 +56,7 @@ export function PlaceVisual({ name, address, style, photoUrl, photoSource }: Pro
     return (
       <View style={[styles.frame, style]}>
         <Image source={{ uri: photoUrl }} resizeMode="cover" accessibilityLabel={`${name} 장소 사진`} style={styles.image} />
+        <PhotoSubjectBadge photoSubject={photoSubject} style={styles.subjectBadge} />
         {credit ? (
           <View style={styles.creditBar}>
             <Text variant="caption" numberOfLines={1} color={color.text.onAction}>{credit}</Text>
@@ -88,6 +94,8 @@ const styles = StyleSheet.create({
   // 출처 문구는 사진 위에 얹는다 — 카드가 작아 아래에 줄을 더하면 이름이 밀린다.
   // 어두운 띠를 깔아 밝은 사진 위에서도 읽히게 한다 (공공누리 표기 의무).
   creditBar: { position: 'absolute', left: 0, right: 0, bottom: 0, paddingHorizontal: spacing[2], paddingVertical: spacing[1], backgroundColor: 'rgba(0, 0, 0, 0.45)' },
+  // 사진 위 왼쪽 위. 출처 띠는 아래에 있으므로 서로 안 겹친다.
+  subjectBadge: { position: 'absolute', left: spacing[2], top: spacing[2] },
   frame: { position: 'relative', width: '100%', aspectRatio: 4 / 3, overflow: 'hidden', borderRadius: radius.md, backgroundColor: color.surface.soft },
   image: { width: '100%', height: '100%' },
   fallback: { flex: 1, overflow: 'hidden', backgroundColor: '#dceff2' },
