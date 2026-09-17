@@ -1,15 +1,23 @@
 import { useCallback, useMemo } from 'react';
 import { useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
 import { resolveTextLanguage, toBcp47, type LanguageCode } from '@/i18n/languages';
+import { getTranslation } from '@/i18n/translations';
 
 export type LocalizedText = { ko: string; en: string };
 
 /**
- * 🔴 화면 문구는 아직 한국어·영어 두 벌뿐이다 (S15P21E201-1109). 일본어·중국어를 고른
- * 사람에게는 **영어**를 보여준다 — 한국어를 보여주면 읽을 수 없는 글자를 미는 것이 된다.
- * 왜 이 단계로 가는지는 src/i18n/languages.ts 머리말에 있다.
+ * 사용자 요청(2026-09-17): 일본어·중국어(간체·번체)도 그 언어로 보여준다.
+ *
+ * translations.ts 표에서 그 언어의 번역을 먼저 찾는다. 없으면 예전 규칙(S15P21E201-1109)
+ * 그대로 **영어**로 떨어진다 — 한국어를 보여주면 읽을 수 없는 글자를 미는 것이 된다.
+ * 표를 계속 채우는 동안에도 화면이 항상 읽을 수 있는 글자를 보여주는 이유다.
  */
 export function pickLanguage(language: LanguageCode, text: LocalizedText) {
+  if (language === 'ja' || language === 'zh-Hans' || language === 'zh-Hant') {
+    const field = language === 'ja' ? 'ja' : language === 'zh-Hans' ? 'zhHans' : 'zhHant';
+    const translated = getTranslation(text.ko, field);
+    if (translated) return translated;
+  }
   return text[resolveTextLanguage(language)] ?? text.ko;
 }
 
