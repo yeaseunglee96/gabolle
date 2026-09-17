@@ -1,6 +1,5 @@
-import { Platform } from 'react-native';
-
 import { apiRequest, ApiClientError, ApiUnavailableError, API_BASE_URL } from '@/api/client';
+import { singleFileFormData } from '@/api/multipart';
 
 export type StoryVisibility = 'PUBLIC' | 'FOLLOWERS' | 'PRIVATE';
 export type FeedScope = 'ALL' | 'FOLLOWING';
@@ -208,16 +207,11 @@ export type ImageUploadResult = { state: 'success'; imageUrl: string } | FeedFai
 
 export async function uploadStoryImage(asset: ImagePickResult, accessToken: string | null): Promise<ImageUploadResult> {
   try {
-    const formData = new FormData();
     const name = asset.fileName ?? `story-${Date.now()}.jpg`;
     const type = asset.mimeType ?? 'image/jpeg';
-    if (Platform.OS === 'web') {
-      const blob = await (await fetch(asset.uri)).blob();
-      formData.append('file', blob, name);
-    } else {
-      // React Native의 FormData는 { uri, name, type } 형태를 파일로 받는다 (web의 File/Blob과 다르다).
-      formData.append('file', { uri: asset.uri, name, type } as unknown as Blob);
-    }
+    // 🔴 S15P21E201-1187 — 보내기 전에 파일을 Blob 으로 바꿔야 한다.
+    //    왜 그래야 하는지는 src/api/multipart.ts 에 적혀 있다.
+    const formData = await singleFileFormData('file', { uri: asset.uri, name, type });
     const dto = await apiRequest<{ imageId: string; imageUrl: string; contentType: string; byteSize: number }>('/api/v1/uploads/story-image', {
       method: 'POST',
       accessToken,

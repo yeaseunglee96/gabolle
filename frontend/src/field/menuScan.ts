@@ -21,6 +21,7 @@
 //    경로를 재활용하려다 그만뒀다 — 그쪽은 주소를 아는 사람이면 누구나 여는 자리인데
 //    (피드가 <img> 로 부른다), 메뉴판 사진에는 얼굴·영수증이 같이 찍힌다.
 import { apiRequest, ApiClientError, ApiUnavailableError } from '@/api/client';
+import { singleFileFormData } from '@/api/multipart';
 import { resizeForUpload } from '@/social/imageResize';
 
 export type MenuLine = { text: string; allergenWords: string[] };
@@ -80,13 +81,10 @@ export async function scanMenu(uri: string, accessToken: string | null, tx: Tran
       resizeFailure = describeCause(error);
     }
 
-    const formData = new FormData();
-    if (typeof window !== 'undefined' && typeof Blob !== 'undefined' && uploadUri.startsWith('blob:')) {
-      formData.append('image', await (await fetch(uploadUri)).blob(), 'menu.jpg');
-    } else {
-      // React Native 의 FormData 는 { uri, name, type } 을 파일로 받는다 (web 의 File 과 다르다).
-      formData.append('image', { uri: uploadUri, name: 'menu.jpg', type: 'image/jpeg' } as unknown as Blob);
-    }
+    // 🔴 S15P21E201-1187 — 기록 사진과 **같은 자리에서 같은 이유로** 막혀 있었다.
+    //    Expo SDK 57 의 새 fetch 는 RN 의 { uri, name, type } 파트를 모른다 — src/api/multipart.ts.
+    //    그래서 1121 에서 고친 「줄이기 실패를 삼키기」로는 증상이 그대로였다.
+    const formData = await singleFileFormData('image', { uri: uploadUri, name: 'menu.jpg', type: 'image/jpeg' });
     const dto = await apiRequest<MenuScan>('/api/v1/menu-scans', { method: 'POST', accessToken, body: formData });
     return { state: 'success', scan: normalizeScan(dto) };
   } catch (error) {
