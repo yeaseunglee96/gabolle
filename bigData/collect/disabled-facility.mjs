@@ -37,6 +37,27 @@
  * 그래서 **행이 하나도 없는 응답은 파일로 쓰지 않고 그 자리에서 멈춘다.** 빈 파일을
  * 저장하면 다음 실행이 "이 페이지는 받았다" 고 믿고 건너뛴다 — 구멍이 조용히 생긴다.
  *
+ * ── 🔴 2026-09-18 — 읽을 때도 같은 것을 막는다 (S15P21E201-1212) ────────────
+ *
+ * 위 규칙은 **쓸 때만** 막고 있었다. 이어받기는 **파일 이름만** 보고 "받았다" 고
+ * 판단했다. 그런데 받은 98쪽을 **LFS**(대용량 파일을 git 이력에 넣지 않고 따로
+ * 보관하는 것)로 저장소에 올린 뒤, 그 자리가 조용한 오염 경로가 됐다.
+ *
+ * LFS 내용이 안 내려오면 파일 자리에 **포인터 글자만** 남는데 **이름도 개수도
+ * 똑같다.** 그러면 1~98쪽을 건너뛰고 99쪽부터 받아, 최종 자료가 **"가짜 98 + 진짜
+ * 84"** 가 된다. **아무 오류도 안 난다.**
+ *
+ * 그래서 받은 쪽을 셀 때 **그 파일에 실제 응답 행이 있는지**까지 본다.
+ * 저장할 때 막던 것을 읽을 때도 막는 것뿐이고, 새 규칙이 아니다.
+ *
+ * 🔴 **"몇 행이면 정상인가" 는 정하지 않는다.** "읽을 수 있는 응답인가" 까지만
+ *    본다 — 숫자를 정하면 그것이 또 낡는다.
+ *
+ * 🔴 **그리고 조용히 다시 받지 않는다.** 내용 없는 파일을 "안 받은 것" 으로 치고
+ *    그냥 다시 받으면 **하루 한도 100회를 통째로 태운다.** 파일이 있는데 읽을 수
+ *    없는 것은 **받다 만 것이 아니라 로컬 상태가 깨진 것**이다. 멈추고 무엇을
+ *    하라고 말한다 — 대개 `git lfs pull` 한 번이면 끝난다.
+ *
  * 실행
  *   node collect/disabled-facility.mjs                # 남은 페이지를 오늘 몫(98)만큼
  *   node collect/disabled-facility.mjs --budget 30    # 30회만
@@ -77,19 +98,38 @@ const STATUS_ONLY = process.argv.includes('--status')
 
 const pageName = (n) => `page-${String(n).padStart(4, '0')}.xml`
 
-/** 이미 받은 페이지 번호. 이것이 이어받기의 전부다. */
+const countRows = (xml) => (xml.match(/<servList>/g) ?? []).length
+
+/** LFS 내용이 안 내려온 파일. 이름은 멀쩡하고 안에는 포인터 글자만 있다. */
+const isLfsPointer = (text) => text.startsWith('version https://git-lfs.github.com/spec/v1')
+
+/**
+ * 이미 받은 페이지 번호. 이것이 이어받기의 전부다.
+ *
+ * 🔴 **이름이 아니라 내용으로 센다** (S15P21E201-1212). 이름만 보면 LFS 포인터나
+ * 쓰다 만 파일을 "받았다" 로 읽고 그 쪽을 영영 건너뛴다 — 머리말 참고.
+ *
+ * @returns {{done: Set<number>, broken: {file: string, lfs: boolean}[]}}
+ *   {@code broken} 은 **파일은 있는데 응답 행이 없는 것**이다. 안 받은 것과 다르게 다룬다
+ */
 async function donePages() {
-  if (!existsSync(OUT_DIR)) return new Set()
+  if (!existsSync(OUT_DIR)) return { done: new Set(), broken: [] }
   const files = await readdir(OUT_DIR)
   const done = new Set()
+  const broken = []
   for (const f of files) {
     const m = f.match(/^page-(\d{4})\.xml$/)
-    if (m) done.add(Number(m[1]))
+    if (!m) continue
+    const text = await readFile(join(OUT_DIR, f), 'utf8')
+    if (countRows(text) > 0) {
+      done.add(Number(m[1]))
+      continue
+    }
+    broken.push({ file: f, lfs: isLfsPointer(text) })
   }
-  return done
+  return { done, broken }
 }
 
-const countRows = (xml) => (xml.match(/<servList>/g) ?? []).length
 const totalOf = (xml) => Number((xml.match(/<totalCount>(\d+)</) ?? [])[1])
 
 async function main() {
@@ -106,7 +146,27 @@ async function main() {
   }
 
   await mkdir(OUT_DIR, { recursive: true })
-  const done = await donePages()
+  const { done, broken } = await donePages()
+
+  // 🔴 파일은 있는데 응답 행이 없다. 안 받은 것으로 치고 다시 받으면 하루 한도를
+  //    통째로 태우므로, 멈추고 무엇을 하라고 말한다.
+  if (broken.length) {
+    const lfs = broken.filter((b) => b.lfs)
+    log(`🔴 받은 쪽 파일 ${broken.length}개에 응답 행이 없습니다. 이름만 있고 내용이 없습니다.`)
+    for (const b of broken.slice(0, 5)) log(`   ${b.file}${b.lfs ? '  (LFS 내용이 안 내려왔습니다)' : ''}`)
+    if (broken.length > 5) log(`   … 그 밖 ${broken.length - 5}개`)
+    log('')
+    if (lfs.length) {
+      log('   👉 git lfs pull 을 한 번 돌리고 다시 실행하십시오.')
+      log('      (LFS — 큰 파일을 git 이력에 넣지 않고 따로 보관하는 것. 내용이 따로 내려옵니다)')
+    }
+    else {
+      log('   👉 그 파일들을 지우고 다시 실행하십시오. 지운 쪽만 다시 받습니다.')
+    }
+    log('   이대로 두면 그 쪽들을 "받았다" 고 믿고 건너뛰어 자료에 구멍이 생깁니다.')
+    process.exitCode = EXIT.BAD
+    return
+  }
 
   // 전체 페이지 수는 이미 받은 응답에서 읽는다 — 상태만 보려고 호출을 쓰지 않는다.
   let total = null
