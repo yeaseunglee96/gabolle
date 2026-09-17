@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Image, Pressable, StyleSheet, TextInput, View } from 'react-native';
-import { useLocalSearchParams, useRouter, type Href } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams, useRouter, type Href } from 'expo-router';
 import { ApiClientError } from '@/api/client';
 import { useAuth } from '@/auth/AuthProvider';
 import { loginWithOAuth } from '@/auth/oauth';
@@ -61,14 +61,33 @@ export default function SignIn() {
   // 목적지로 보낸다. 둘이 같이 움직이면 한 번 갈 길을 두 번 간다.
   const signedInHere = useRef(false);
   const leaving = useRef(false);
-  useEffect(() => {
-    if (!ready || !user || signedInHere.current || leaving.current) return;
-    leaving.current = true;
-    // 쌓인 칸이 있으면 그만 돌려보내고(=이 화면이 없어진다), 혼자면 홈으로 바꾼다.
-    // 바꾸는 쪽이 중요하다 — 그래야 다음 뒤로 가기가 앱을 빠져나가는 원래 일을 한다.
-    if (router.canGoBack()) router.back();
-    else router.replace('/home');
-  }, [ready, user, router]);
+  // 이 화면이 한 번이라도 가려졌다가 다시 보이는 것인가.
+  const cameBack = useRef(false);
+  //
+  // 🔴 2026-09-18 정정 — 이것을 `useEffect` 로 썼다가 **실기기에서 그대로 다시 떴다.**
+  //
+  // 뒤로 가기로 돌아와도 이 화면은 **다시 만들어지지 않는다** — 쌓인 칸으로 살아
+  // 있다가 다시 보일 뿐이다. 그래서 `useEffect` 는 다시 돌지 않고, 「여기서 방금
+  // 로그인했다」는 표시(signedInHere)도 그대로 남아 가드를 막았다. 내가 예외로 둔
+  // 바로 그 자리가 고침을 덮어버렸다.
+  //
+  // 보아야 하는 것은 그려지는 순간이 아니라 **포커스가 돌아오는 순간**이다.
+  useFocusEffect(
+    useCallback(() => {
+      // 이 화면에서 로그인 절차를 시작했고 아직 떠난 적이 없으면 그대로 둔다 —
+      // 그쪽은 submit·social 이 직접 목적지로 보낸다. 둘이 같이 움직이면 한 번 갈 길을 두 번 간다.
+      const mine = signedInHere.current && !cameBack.current;
+      if (ready && user && !mine && !leaving.current) {
+        leaving.current = true;
+        // 쌓인 칸이 있으면 그만 돌려보내고(=이 화면이 없어진다), 혼자면 홈으로 바꾼다.
+        // 바꾸는 쪽이 중요하다 — 그래야 다음 뒤로 가기가 앱을 빠져나가는 원래 일을 한다.
+        if (router.canGoBack()) router.back();
+        else router.replace('/home');
+      }
+      // 포커스를 잃으면 「다음엔 돌아온 것」으로 친다.
+      return () => { cameBack.current = true; leaving.current = false; };
+    }, [ready, user, router]),
+  );
   async function submit() { if (!eligible || busy || provider) return; setBusy(true); setFeedback(null); signedInHere.current = true; try { await signIn(email, password); router.replace((await resolveDestination(returnTo)) as Href); } catch (e) { setFeedback({ danger: true, text: errorMessage(e, tx, 'password') }); } finally { setBusy(false); } }
   async function social(next: OAuthProvider) {
     if (busy || provider) return;
