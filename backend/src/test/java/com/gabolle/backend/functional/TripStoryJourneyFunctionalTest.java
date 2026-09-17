@@ -69,7 +69,8 @@ class TripStoryJourneyFunctionalTest extends FunctionalJourneyTest {
 
 		// 3) 좌표가 있는 장소 하나. 가입 경로로 만들 수 없는 자료라 시드에서 직접 넣는다
 		//    (StoryFixture 가 lat 35.16 · lng 129.16 을 박아 둔다).
-		UUID placeId = StoryFixture.insertPlace(this.jdbcTemplate, "동래할매파전", "부산광역시 동래구 명륜동");
+		UUID placeId = StoryFixture.insertPlace(this.jdbcTemplate, "동래할매파전", "부산광역시 동래구 명륜동",
+				"Dongnae Halmae Pajeon", "1, Myeongnyun-ro, Dongnae-gu, Busan");
 
 		// 4) 기록 넷.
 		//    🔴 publishAt 을 과거로 명시한다 — 안 주면 기본값이 "여행 종료 다음 날 0시" 라
@@ -95,11 +96,19 @@ class TripStoryJourneyFunctionalTest extends FunctionalJourneyTest {
 				.as("다른 여행의 기록이 섞였다")
 				.doesNotContain(otherTripStory);
 
-		// 6) 좌표 — 이것이 없으면 화면이 장소마다 GET /api/v1/places/{id} 를 한 번씩 더 부른다.
+		// 6) 좌표와 주소 — 이것이 없으면 화면이 장소마다 GET /api/v1/places/{id} 를 한 번씩 더 부른다.
 		StoryResponse withPlace = items.stream().filter((s) -> s.id().equals(ownerStory)).findFirst().orElseThrow();
 		assertThat(withPlace.place()).as("장소 칸이 비어 있다").isNotNull();
 		assertThat(withPlace.place().lat()).as("사진 마커를 찍을 위도가 안 온다").isEqualTo(35.16);
 		assertThat(withPlace.place().lng()).as("사진 마커를 찍을 경도가 안 온다").isEqualTo(129.16);
+		// S15P21E201-1189 — 3) 에서 넣은 주소와 영문이 그대로 돌아와야 한다. 진짜 소켓으로 나가므로
+		//    이 단언은 "칸을 더했다" 가 아니라 "JSON 으로 직렬화돼 화면까지 간다" 를 잰다.
+		assertPlaceFields(withPlace, "목록");
+
+		// 🔴 상세에도 실려야 한다. 목록과 상세가 StoryResponse 하나를 같이 쓰므로 자동일 것이지만,
+		//    자동이라고 믿는 대신 잰다 — 상세에만 실으면 목록이 못 그리고, 목록에만 실으면 상세를
+		//    갔다 오며 값이 어긋난다. 그 질문을 사람이 매번 기억하지 않게 여기에 둔다.
+		assertPlaceFields(storyDetail(owner, ownerStory), "상세");
 
 		// 7) 쓴 순서대로 — 화면이 그대로 그릴 수 있어야 한다.
 		List<String> ids = items.stream().map(StoryResponse::id).toList();
@@ -118,6 +127,29 @@ class TripStoryJourneyFunctionalTest extends FunctionalJourneyTest {
 		ResponseEntity<String> denied = outsider.get("/api/v1/trips/" + tripId + "/stories", String.class);
 		assertThat(denied.getStatusCode()).as("응답 본문: %s", denied.getBody()).isEqualTo(HttpStatus.NOT_FOUND);
 		assertThat(denied.getBody()).contains("TRIP_NOT_FOUND");
+	}
+
+	/** 기록 한 건을 상세로 읽는다. 목록과 같은 모양이 오는지 재려고 쓴다. */
+	private StoryResponse storyDetail(AuthedClient client, String storyId) {
+		ResponseEntity<ApiResponse<StoryResponse>> response = client.get("/api/v1/stories/" + storyId,
+				new ParameterizedTypeReference<ApiResponse<StoryResponse>>() {
+				});
+		assertThat(response.getStatusCode()).as("응답 본문: %s", response.getBody()).isEqualTo(HttpStatus.OK);
+		return response.getBody().data();
+	}
+
+	/** 장소 칸 넷을 한자리에서 잰다 — 목록과 상세에 같은 잣대를 댄다. */
+	private void assertPlaceFields(StoryResponse story, String where) {
+		assertThat(story.place()).as("%s: 장소 칸이 비어 있다", where).isNotNull();
+		assertThat(story.place().address())
+				.as("%s: 장소 주소가 안 온다 — 카드가 주소 한 줄 때문에 장소마다 한 번씩 더 조회하게 된다", where)
+				.isEqualTo("부산광역시 동래구 명륜동");
+		assertThat(story.place().nameEn())
+				.as("%s: 영문 이름이 안 온다 — 영어 화면이 한글 이름을 그린다", where)
+				.isEqualTo("Dongnae Halmae Pajeon");
+		assertThat(story.place().addressEn())
+				.as("%s: 영문 주소가 안 온다 — 이름만 영어이고 주소는 한글인 화면이 된다", where)
+				.isEqualTo("1, Myeongnyun-ro, Dongnae-gu, Busan");
 	}
 
 	private List<StoryResponse> tripStories(AuthedClient client, String tripId) {

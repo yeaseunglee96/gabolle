@@ -117,9 +117,11 @@ public class StoryResponseAssembler {
 					//    응답으로 나가는 여기서만 인코딩한다(클래스 상단 HtmlOutputEncoder 참고).
 					HtmlOutputEncoder.forHtml(story.getBody()),
 					story.getRegion(),
+					// S15P21E201-1189 — 주소도 영문도 이미 읽어 둔 place 행에 있다. 장소를 다시 조회하지 않는다.
 					place == null ? null
 							: new StoryResponse.PlaceRef(place.getPlaceId().toString(), place.getNameKo(),
-									place.getLat(), place.getLng()),
+									place.getLat(), place.getLng(), place.getAddress(), place.getNameEn(),
+									place.getAddressEn()),
 					story.getTripId() == null ? null : story.getTripId().toString(),
 					images,
 					story.getVisibility().name(),
