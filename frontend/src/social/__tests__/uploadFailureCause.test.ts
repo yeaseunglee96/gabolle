@@ -35,6 +35,18 @@ const api = jest.requireMock('@/api/client') as {
 
 const asset = { uri: 'file:///story.jpg', fileName: 'story.jpg', mimeType: 'image/jpeg' };
 
+/**
+ * 실패한 결과에서 사람에게 보여 줄 말을 꺼낸다.
+ *
+ * 🔴 ImageUploadResult 는 성공과 실패의 합집합이라, 좁히지 않으면 `message` 가 없다.
+ *    성공이 오면 그 자리에서 터뜨린다 — 이 시험들은 전부 「실패했을 때」를 재는 것이라,
+ *    성공을 조용히 통과시키면 시험이 아무것도 안 지키게 된다.
+ */
+function failureMessage(result: Awaited<ReturnType<typeof uploadStoryImage>>): string {
+  if (result.state === 'success') throw new Error('실패를 재는 시험인데 업로드가 성공했다');
+  return result.message;
+}
+
 beforeEach(() => jest.clearAllMocks());
 
 describe('uploadStoryImage — 못 올린 이유를 버리지 않는다', () => {
@@ -45,8 +57,8 @@ describe('uploadStoryImage — 못 올린 이유를 버리지 않는다', () => 
 
     expect(result.state).toBe('offline');
     // 사람에게 할 말은 그대로 두고, 원인을 덧붙인다.
-    expect(result.message).toContain('서버에 연결할 수 없어요');
-    expect(result.message).toContain('Could not retrieve file for uri content://media/1');
+    expect(failureMessage(result)).toContain('서버에 연결할 수 없어요');
+    expect(failureMessage(result)).toContain('Could not retrieve file for uri content://media/1');
   });
 
   it('원인을 못 알아냈으면 군더더기를 붙이지 않는다', async () => {
@@ -55,9 +67,9 @@ describe('uploadStoryImage — 못 올린 이유를 버리지 않는다', () => 
     const result = await uploadStoryImage(asset, 'token');
 
     expect(result.state).toBe('offline');
-    expect(result.message).toBe('서버에 연결할 수 없어요. 잠시 후 다시 시도해 주세요.');
+    expect(failureMessage(result)).toBe('서버에 연결할 수 없어요. 잠시 후 다시 시도해 주세요.');
     // 🔴 빈 괄호를 남기지 않는다. 「(null)」이나 「()」은 사용자에게 고장으로 읽힌다.
-    expect(result.message).not.toContain('(');
+    expect(failureMessage(result)).not.toContain('(');
   });
 
   it('올라가면 아무 말도 덧붙이지 않는다', async () => {
