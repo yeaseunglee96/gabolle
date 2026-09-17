@@ -48,8 +48,63 @@ export type DeviceCollections = {
   places: Record<string, CollectionPlace>;
 };
 
+/**
+ * 서버가 받아 주는 글자 수. 넘기면 400 이라 올릴 방법이 없다.
+ *
+ * 값의 주인은 서버다 — `Collection.NAME_MAX_LENGTH`·`DESCRIPTION_MAX_LENGTH` 와
+ * `CollectionItem` 의 이름·지역·메모 상한을 그대로 옮겨 적었다. 자바 상수를 타입스크립트에서
+ * 읽을 방법이 없어 두 곳에 적히는 것은 감수한다. 저쪽이 바뀌면 여기도 바꾼다.
+ *
+ * 화면은 입력칸의 `maxLength` 로 이 값을 쓰고, 여기서는 이미 기기에 남아 있는 긴 값을
+ * 걸러내는 데 쓴다. 막는 자리가 둘인 이유는 상한이 생기기 전에 만들어진 리스트가 기기에
+ * 남아 있기 때문이다 — 입력칸만 막으면 그것들은 계속 400 을 받는다.
+ */
+export const COLLECTION_LIMITS = {
+  name: 100,
+  description: 500,
+  itemName: 200,
+  locality: 100,
+  note: 500,
+  /**
+   * 카테고리만 서버 상한이 아니라 우리가 정한 값이다. 항목을 올릴 때 카테고리는 안 보내서
+   * 400 이 날 일이 없지만, 상한이 없는 입력칸을 하나만 남겨 두면 다음 사람이 그것을 규칙으로
+   * 읽는다. 지역과 같은 자리의 값이라 같은 수를 쓴다.
+   */
+  category: 100,
+} as const;
+
+/** 올릴 수 없는 리스트인가. 올릴 수 있으면 `null`. */
+export type UploadBlockReason = 'name-too-long' | 'description-too-long';
+
+/**
+ * 보내 보기 전에 서버가 거절할 것을 알 수 있는 경우를 가른다.
+ *
+ * 다시 시도해서 될 실패와 안 될 실패는 다르게 다뤄야 한다. 서버가 끊겼거나 500 이면 다음에
+ * 다시 올리면 되지만, 글자 수가 넘친 이름은 같은 값을 몇 번을 보내도 같은 400 이다. 그런
+ * 리스트를 재시도 목록에 두면 화면을 열 때마다 실패하는 요청이 한 번씩 나가고, 사용자는
+ * 자기 리스트가 계정에 없다는 것을 끝내 모른다.
+ */
+export function uploadBlockReason(list: CollectionList): UploadBlockReason | null {
+  if (codePoints(list.name.trim()) > COLLECTION_LIMITS.name) return 'name-too-long';
+  if (codePoints(list.description?.trim() ?? '') > COLLECTION_LIMITS.description) return 'description-too-long';
+  return null;
+}
+
+/**
+ * 서버와 같은 방식으로 센다.
+ *
+ * 자바스크립트의 `.length` 는 글자가 아니라 UTF-16 칸 수라, 이모지 하나가 둘로 세어진다.
+ * 서버는 `codePointCount` 로 세므로 그대로 쓰면 서버가 받아 줄 이름을 우리가 막는다.
+ * 입력칸의 `maxLength` 는 UTF-16 칸으로만 셀 수 있는데, 그쪽은 더 빡빡하게 막는 것이라
+ * 서버가 거절할 값이 새어 나가지는 않는다.
+ */
+function codePoints(value: string): number {
+  return [...value].length;
+}
+
 export type CollectionsLoadResult =
-  | { state: 'success'; data: DeviceCollections; uploaded: number }
+  /** `blocked` 는 서버가 받아 줄 수 없어 올리기를 건너뛴 리스트 수다. */
+  | { state: 'success'; data: DeviceCollections; uploaded: number; blocked: number }
   | { state: 'device-only'; data: DeviceCollections; reason: 'anonymous' | 'unreachable' };
 
 /**
@@ -105,6 +160,8 @@ export function mergeCollections(device: DeviceCollections, server: DeviceCollec
   const byName = new Map(server.lists.map((list) => [list.name.trim(), list]));
   const merged: CollectionList[] = [...server.lists];
   const onlyOnDevice: CollectionList[] = [];
+  /** 이미 서버에 있는 리스트에, 기기에만 있는 장소 — S15P21E201-1133. */
+  const pendingUploads: Array<{ collectionId: string; placeIds: string[] }> = [];
 
   for (const deviceList of device.lists) {
     const match = byName.get(deviceList.name.trim());
@@ -114,12 +171,68 @@ export function mergeCollections(device: DeviceCollections, server: DeviceCollec
     if (extra.length > 0) {
       const index = merged.findIndex((list) => list.id === match.id);
       merged[index] = { ...match, placeIds: [...match.placeIds, ...extra] };
+      // 🔴 S15P21E201-1133 — 화면에 더하는 것만으로는 부족하다. 올려야 한다.
+      //    여기까지 와 놓고 올리지 않아서, 이미 서버에 있는 리스트에 담은 장소는
+      //    영영 기기에만 남았다. 리스트는 한 번 만들고 장소를 계속 담는 것이
+      //    부슐랭의 일상적인 쓰임이라, 사실상 대부분이 안 올라가고 있었다.
+      pendingUploads.push({ collectionId: match.id, placeIds: extra });
     }
   }
 
   // 장소는 서버 것을 우선하되, 기기에만 있던 것은 그대로 남긴다.
   const places: Record<string, CollectionPlace> = { ...device.places, ...server.places };
-  return { merged: { lists: merged, places }, onlyOnDevice };
+  return { merged: { lists: merged, places }, onlyOnDevice, pendingUploads };
+}
+
+/**
+ * 서버가 아는 장소인가 — S15P21E201-1117.
+ *
+ * <p>서버 장소 id 는 UUID 다. 그런데 부슐랭에서 손으로 추가한 장소는 기기가 만든다 —
+ * {@code `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`}, 예를 들면
+ * {@code mfjk2x-a7b3c1}. 이것은 어떤 경우에도 UUID 가 아니다.
+ *
+ * <p>🔴 그런데 올릴 때 이것을 {@code kind: PLACE} 의 {@code placeId} 로 보내고 있었다.
+ * 서버는 {@code UUID placeId} 로 받으므로 값을 읽는 단계에서 400 이 나고, 바깥의 catch 가
+ * 그것을 삼켜서 그 장소는 조용히 사라진다. 사용자는 올라간 줄 안다.
+ * (2026-09-16 iOS 실기기 스윕에서 발견)
+ */
+const SERVER_PLACE_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+export function isServerPlaceId(value: string): boolean {
+  return SERVER_PLACE_ID.test(value);
+}
+
+/**
+ * 담을 것 하나를 서버 말로 옮긴다 — S15P21E201-1117.
+ *
+ * <p>서버는 처음부터 두 종류를 받게 돼 있었다. {@code PLACE} 는 서버에 있는 장소를
+ * 가리키는 것이고, {@code CUSTOM} 은 사용자가 손으로 적은 것이다 — 이름·지역·좌표·메모를
+ * 그대로 싣고 {@code placeId} 를 안 쓴다(CollectionController.addItem).
+ *
+ * <p>손으로 추가한 장소는 처음부터 {@code CUSTOM} 이었다. 클라이언트가 늘 {@code PLACE}
+ * 로 보낸 것이 잘못이다. 계약을 바꿀 일이 아니라 맞는 칸에 넣으면 되는 일이었다.
+ */
+export function buildItemRequest(placeId: string, place: CollectionPlace) {
+  if (isServerPlaceId(placeId)) {
+    return { kind: 'PLACE' as const, placeId, note: place.note ?? null };
+  }
+  return {
+    kind: 'CUSTOM' as const,
+    name: place.name,
+    locality: place.locality ?? null,
+    lat: place.lat ?? null,
+    lng: place.lng ?? null,
+    note: place.note ?? null,
+  };
+}
+
+/** 담을 것 하나를 서버에 올린다. 실패는 부르는 쪽이 센다. */
+async function addItemOnServer(collectionId: string, placeId: string, place: CollectionPlace, accessToken: string) {
+  await apiRequest<unknown>(`/api/v1/me/collections/${encodeURIComponent(collectionId)}/items`, {
+    method: 'POST',
+    accessToken,
+    body: buildItemRequest(placeId, place),
+  });
 }
 
 async function createOnServer(list: CollectionList, places: Record<string, CollectionPlace>, accessToken: string) {
@@ -135,15 +248,7 @@ async function createOnServer(list: CollectionList, places: Record<string, Colle
       await apiRequest<unknown>(`/api/v1/me/collections/${encodeURIComponent(created.collectionId)}/items`, {
         method: 'POST',
         accessToken,
-        body: {
-          kind: 'PLACE',
-          placeId,
-          name: place.name,
-          locality: place.locality ?? null,
-          lat: place.lat ?? null,
-          lng: place.lng ?? null,
-          note: place.note ?? null,
-        },
+        body: buildItemRequest(placeId, place),
       });
     } catch {
       // 🔴 장소 하나가 안 올라가도 리스트 전체를 버리지 않는다. 그 장소는 기기에 남아
@@ -176,15 +281,101 @@ export async function loadCollections(device: DeviceCollections, accessToken: st
     return { state: 'device-only', data: device, reason: 'unreachable' };
   }
 
-  const { merged, onlyOnDevice } = mergeCollections(device, server);
+  const { merged, onlyOnDevice, pendingUploads } = mergeCollections(device, server);
   let uploaded = 0;
+  let blocked = 0;
+  let changedServer = false;
+  /** 못 올린 장소. 다시 받아올 때 이것만은 기기에 남겨 둔다. */
+  const unuploaded = new Set<string>();
+
   for (const list of onlyOnDevice) {
+    if (uploadBlockReason(list)) {
+      // 보내 봐야 400 이다. 요청을 아끼려는 것이 아니라, 될 리 없는 것을 계속 시도하면
+      // 화면이 「곧 올라간다」는 뜻으로 보이기 때문이다. 화면은 같은 판정을 써서 이
+      // 리스트에 기기 전용이라고 적는다.
+      blocked += 1;
+      continue;
+    }
     try {
       await createOnServer(list, merged.places, accessToken);
       uploaded += 1;
-    } catch {
-      // 못 올렸으면 기기에 그대로 둔다. 다음에 다시 올린다.
+      changedServer = true;
+    } catch (error) {
+      // 4xx 는 이 값으로는 안 된다는 뜻이라 다시 보내도 같다. 5xx 와 끊김은 다음에 다시
+      // 올린다 — 기기에 그대로 두는 것은 둘 다 같지만 세는 자리를 가른다.
+      if (error instanceof ApiClientError && error.status >= 400 && error.status < 500) blocked += 1;
+      for (const placeId of list.placeIds) unuploaded.add(placeId);
     }
   }
-  return { state: 'success', data: merged, uploaded };
+
+  // 🔴 S15P21E201-1133 — 이미 서버에 있는 리스트에 담은 장소도 올린다.
+  for (const { collectionId, placeIds } of pendingUploads) {
+    for (const placeId of placeIds) {
+      const place = merged.places[placeId];
+      if (!place) continue;
+      try {
+        await addItemOnServer(collectionId, placeId, place, accessToken);
+        uploaded += 1;
+        changedServer = true;
+      } catch (error) {
+        if (error instanceof ApiClientError && error.status >= 400 && error.status < 500) blocked += 1;
+        unuploaded.add(placeId);
+      }
+    }
+  }
+
+  if (!changedServer) return { state: 'success', data: merged, uploaded, blocked };
+
+  // 🔴 올렸으면 다시 받아온다 — 서버가 부르는 이름으로 기기의 이름표를 바꾸기 위해서다.
+  //
+  //    기기가 만든 장소 id 는 uid() 라 서버 것과 다르다. 서버는 올린 뒤 자기 itemId 를
+  //    붙여 돌려준다. 그래서 다시 받아오지 않으면, 같은 장소를 기기는 mfjk2x-a7b3c1 로
+  //    서버는 7b8cd3bc-… 로 불러 다음번에도 「기기에만 있다」로 판정된다.
+  //    그대로 두면 앱을 켤 때마다 같은 장소가 하나씩 불어난다.
+  //
+  //    기기에 「올린 것 ↔ 서버 이름」 표를 따로 저장하는 방법도 있다. 안 쓴다 —
+  //    상태를 하나 더 들고 있으면 그것이 또 어긋나고, 어긋난 것을 고칠 자리가 는다.
+  try {
+    const refreshed = await apiRequest<{ items: ServerCollection[]; count: number }>('/api/v1/me/collections', { accessToken });
+    if (!Array.isArray(refreshed?.items)) return { state: 'success', data: merged, uploaded, blocked };
+    return { state: 'success', data: restoreUnuploaded(serverToDevice(refreshed.items), merged, unuploaded), uploaded, blocked };
+  } catch {
+    // 다시 받아오는 데 실패해도 올린 것은 올라갔다. 앞서 합친 것을 그대로 쓴다 —
+    // 이름표는 다음 실행에서 맞춰진다.
+    return { state: 'success', data: merged, uploaded, blocked };
+  }
+}
+
+/**
+ * 못 올린 장소를 서버 것 위에 얹는다 — S15P21E201-1133.
+ *
+ * <p>🔴 이 파일의 규칙이 「기기에 쌓인 것을 버리지 않는다」이다. 다시 받아온 것으로
+ * 그냥 갈아끼우면, 올리다 실패한 장소가 <b>기기에서도 사라진다.</b> 사용자는 자기가
+ * 담은 것이 지워졌다고 느끼고, 실제로 다시 올릴 기회도 없어진다.
+ */
+export function restoreUnuploaded(fresh: DeviceCollections, previous: DeviceCollections, unuploaded: Set<string>): DeviceCollections {
+  if (unuploaded.size === 0) return fresh;
+
+  const places = { ...fresh.places };
+  const byName = new Map(fresh.lists.map((list) => [list.name.trim(), list]));
+  const lists = [...fresh.lists];
+
+  for (const oldList of previous.lists) {
+    const keep = oldList.placeIds.filter((id) => unuploaded.has(id));
+    if (keep.length === 0) continue;
+    for (const id of keep) {
+      const place = previous.places[id];
+      if (place) places[id] = place;
+    }
+    const match = byName.get(oldList.name.trim());
+    if (match) {
+      const index = lists.findIndex((list) => list.id === match.id);
+      lists[index] = { ...match, placeIds: [...match.placeIds, ...keep.filter((id) => !match.placeIds.includes(id))] };
+    } else {
+      // 리스트째 못 올라갔다. 기기 것을 그대로 남긴다.
+      lists.push({ ...oldList, placeIds: keep });
+    }
+  }
+
+  return { lists, places };
 }

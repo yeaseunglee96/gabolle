@@ -5,7 +5,7 @@
 // "목록을 화면 코드에 박지 마세요" — 서버가 갈래를 추가하거나 이름을 바꿔도 앱을 다시 배포하지
 // 않아도 되게 하려는 것). 그래서 여기엔 8개 이름의 하드코딩 배열이 없다.
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Linking, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as Location from 'expo-location';
 
@@ -26,6 +26,16 @@ const KNOWN_FACET_KEYS = new Set(['FESTIVAL', 'NIGHT_MARKET', 'TRADITIONAL_MARKE
 // S15P21E201-898: 장소가 0곳인 갈래는 목록에서 아예 뺀다(지우는 게 아니라 거르는 것 —
 // 적재가 돌아 placeCount 가 늘면 다음 조회에서 코드 변경 없이 다시 나타난다).
 type LocationState = 'detecting' | 'granted' | 'denied';
+
+// 🔴 S15P21E201-1127 — 거부 뒤에 「다시 물을 수 있는가」를 따로 들고 있어야 한다.
+//
+//    iOS 는 한 번 거부하거나 설정에서 끄면, 앱이 다시 요청해도 팝업을 띄우지 않고
+//    그 자리에서 거부를 돌려준다. 그래서 「내 위치로 다시 찾기」를 눌러도 상태가
+//    denied → denied 로 제자리걸음이었고, 사용자 눈에는 버튼이 죽은 것으로 보였다
+//    (2026-09-16 iOS 실기기에서 확인).
+//
+//    expo-location 은 같은 응답에 canAskAgain 을 함께 준다. 그것이 거짓이면 앱에서
+//    할 수 있는 일은 설정을 열어 주는 것뿐이다.
 type ExploreScope = 'nearby' | 'all';
 
 export default function LocalExplore() {
@@ -38,6 +48,7 @@ export default function LocalExplore() {
   const [selectedKey, setSelectedKey] = useState<string | null>(requestedFacet);
   const [scope, setScope] = useState<ExploreScope>('all');
   const [locationState, setLocationState] = useState<LocationState>('detecting');
+  const [canAskAgain, setCanAskAgain] = useState(true);
   const [coords, setCoords] = useState<{ latitude: number; longitude: number } | null>(null);
 
   const load = useCallback(async () => {
@@ -50,7 +61,7 @@ export default function LocalExplore() {
     setLocationState('detecting');
     try {
       const permission = await Location.requestForegroundPermissionsAsync();
-      if (!permission.granted) { setLocationState('denied'); return; }
+      if (!permission.granted) { setCanAskAgain(permission.canAskAgain); setLocationState('denied'); return; }
       const position = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
       setCoords({ latitude: position.coords.latitude, longitude: position.coords.longitude });
       setLocationState('granted');
@@ -65,7 +76,7 @@ export default function LocalExplore() {
       // 화면을 둘러보기만 해도 권한 팝업부터 띄우지 않는다. 이미 허용한 사람에게만 위치를
       // 읽고, 처음이거나 거부한 사람은 부산 중심 결과를 먼저 보여 준 뒤 버튼으로 선택하게 한다.
       const permission = await Location.getForegroundPermissionsAsync();
-      if (!permission.granted) { setLocationState('denied'); return; }
+      if (!permission.granted) { setCanAskAgain(permission.canAskAgain); setLocationState('denied'); return; }
       const position = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
       setCoords({ latitude: position.coords.latitude, longitude: position.coords.longitude });
       setLocationState('granted');
@@ -140,7 +151,7 @@ export default function LocalExplore() {
             })}
           </View>
           <Text variant="caption">{scope === 'all' ? tx('부산 전체는 거리 제한 없이 찾아요.', 'All Busan searches without a distance limit.') : tx('내 근처는 반경 안에서 찾아요. 결과의 검색 범위를 확인하거나 부산 전체로 바꿔 보세요.', 'Nearby searches within a radius. Check the range shown with results, or switch to All Busan.')}</Text>
-          {selectedFacet ? <LocalBranchList facet={selectedFacet} scope={scope} coords={coords} onRetryLocation={() => void detectLocation()} /> : null}
+          {selectedFacet ? <LocalBranchList facet={selectedFacet} scope={scope} coords={coords} canAskAgain={canAskAgain} onRetryLocation={() => void detectLocation()} /> : null}
         </View>
       ) : null}
     </Screen>
@@ -158,10 +169,11 @@ export default function LocalExplore() {
  */
 const BUSAN_CENTER = { lat: 35.1796, lng: 129.0756 };
 
-function LocalBranchList({ facet, scope, coords, onRetryLocation }: {
+function LocalBranchList({ facet, scope, coords, canAskAgain, onRetryLocation }: {
   facet: LocalFacetEntry;
   scope: ExploreScope;
   coords: { latitude: number; longitude: number } | null;
+  canAskAgain: boolean;
   onRetryLocation: () => void;
 }) {
   const { tx } = useI18n();
@@ -233,7 +245,9 @@ function LocalBranchList({ facet, scope, coords, onRetryLocation }: {
       {usingFallback && (
         <View style={styles.expandedNotice}>
           <Text variant="caption" weight="bold" color={color.brand.orange}>{tx('내 위치를 몰라 부산 중심에서 찾았어요. 거리도 그 기준이에요.', 'We searched from the center of Busan because your location is unavailable. Distances use that point.')}</Text>
-          <Button label={tx('내 위치로 다시 찾기', 'Search from my location')} variant="ghost" onPress={onRetryLocation} containerStyle={styles.branchRetry} />
+          {canAskAgain
+            ? <Button label={tx('내 위치로 다시 찾기', 'Search from my location')} variant="ghost" onPress={onRetryLocation} containerStyle={styles.branchRetry} />
+            : <Button label={tx('설정에서 위치 허용하기', 'Allow location in Settings')} variant="ghost" onPress={() => void Linking.openSettings()} containerStyle={styles.branchRetry} />}
         </View>
       )}
       {result.radiusExpanded && (

@@ -201,10 +201,21 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
     );
   }
 
+  // 🔴 2026-09-17 (S15P21E201-1140) — **여기는 이제 폰에서 안 온다.**
+  //    폰용 지도가 옆의 `RouteMap.native.tsx` 에 생겼고, 번들러가 폰에서는 그 파일을 쓴다.
+  //    이 아래는 웹 번들에만 남아 있고 웹에서는 위의 `Platform.OS === 'web'` 에서 이미
+  //    돌아가므로 실제로는 안 그려진다.
+  //
+  //    **지우지 않고 남기는 이유**: `Platform.OS` 가 'web' 도 'ios' 도 'android' 도 아닌
+  //    경우(예: 앞으로 생길 다른 플랫폼)에 아무것도 안 돌려주면 화면이 통째로 비어 버린다.
+  //    그때 빈 화면 대신 목록이라도 보이게 하는 자리다.
+  //
+  //    🔴 문구에서 「앱 지도 연동을 준비하고 있어요」를 뺐다. 그 말은 이제 **거짓**이다 —
+  //    폰에는 지도가 있다. 낡은 문구는 없는 문구보다 나쁘다.
   return (
     <View style={styles.fallback}>
-      <Text variant="title" weight="bold">{tx('앱 지도 연동을 준비하고 있어요', 'Preparing app map integration')}</Text>
-      <Text variant="body" style={styles.description}>{tx('방문 순서와 장소 목록은 그대로 확인할 수 있습니다. 앱용 지도 SDK가 확정되면 이 영역에 동선을 표시해요.', 'You can still see the visit order and place list. Once the app map SDK is finalized, the route will show here.')}</Text>
+      <Text variant="title" weight="bold">{tx('이 환경에서는 지도를 못 그려요', 'The map cannot be drawn here')}</Text>
+      <Text variant="body" style={styles.description}>{tx('방문 순서와 장소 목록은 그대로 확인할 수 있습니다.', 'You can still see the visit order and place list.')}</Text>
       {onBackToList ? <Button label={tx('목록으로 돌아가기', 'Back to list')} variant="ghost" onPress={onBackToList} /> : null}
       <View style={styles.routePreview}>
         {stops.map((stop, index) => (

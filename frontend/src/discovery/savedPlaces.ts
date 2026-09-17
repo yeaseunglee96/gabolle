@@ -71,20 +71,39 @@ export async function loadSavedPlaceIds(accessToken: string | null): Promise<str
   return merged;
 }
 
+/**
+ * 하트 하나를 켜고 끈 결과.
+ *
+ * 🔴 S15P21E201-1081 — 예전에는 아이디 목록만 돌려줬다. 그래서 서버가 502 를 줘도 화면은
+ * 그것을 알 길이 없었고 "내 여행 후보에 저장했어요" 토스트를 띄웠다. **서버에 안 갔는데
+ * 갔다고 말한 것**이다. 기기 선택을 지키는 것과 사실대로 말하는 것은 다른 문제라, 어디까지
+ * 갔는지를 함께 돌려준다.
+ */
+export type SavedPlaceSync =
+  /** 서버에 적혔다. */
+  | 'server'
+  /** 서버에 보낼 상황이 아니었다(비로그인·데모 장소). 기기에만 남는 것이 정상이다. */
+  | 'device-only'
+  /** 서버에 보냈는데 실패했다. 화면은 성공이라고 말하면 안 된다. */
+  | 'failed';
+
+export type SetSavedPlaceResult = { ids: string[]; sync: SavedPlaceSync };
+
 /** 하트를 켜고 끈다. 로그인 안 했으면 지금까지처럼 기기에만 남는다. */
-export async function setSavedPlace(placeId: string, saved: boolean, accessToken: string | null): Promise<string[]> {
+export async function setSavedPlace(placeId: string, saved: boolean, accessToken: string | null): Promise<SetSavedPlaceResult> {
   const device = await readDeviceIds();
   const next = saved ? [...new Set([...device, placeId])] : device.filter((entry) => entry !== placeId);
   await writeDeviceIds(next);
-  if (accessToken && !isDemoPlaceId(placeId)) {
-    try {
-      if (saved) await putSavedPlace(placeId, accessToken);
-      else await apiRequest<void>(`/api/v1/me/saved-places/${encodeURIComponent(placeId)}`, { method: 'DELETE', accessToken });
-    } catch {
-      // 서버에 못 남겨도 기기의 선택은 지킨다. 다음에 목록을 불러올 때 다시 맞춰진다.
-    }
+  if (!accessToken || isDemoPlaceId(placeId)) return { ids: next, sync: 'device-only' };
+  try {
+    if (saved) await putSavedPlace(placeId, accessToken);
+    else await apiRequest<void>(`/api/v1/me/saved-places/${encodeURIComponent(placeId)}`, { method: 'DELETE', accessToken });
+    return { ids: next, sync: 'server' };
+  } catch {
+    // 서버에 못 남겨도 기기의 선택은 지킨다. 다음에 목록을 불러올 때 다시 맞춰진다.
+    // 다만 **말은 사실대로 한다** — 부른 쪽이 sync 를 보고 문구를 정한다.
+    return { ids: next, sync: 'failed' };
   }
-  return next;
 }
 
 // 홈 화면의 3개 데모 카드 — place 표가 비어 있어(-547 적재 전) 실제 API로는 아직 안 나온다.

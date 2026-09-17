@@ -4,7 +4,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import * as Speech from 'expo-speech';
+import { speakAloud, stopSpeaking } from '@/field/speakAloud';
 
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
@@ -42,10 +42,10 @@ export function PlacePhraseBrowser({ category, onOpenTaxiCard }: PlacePhraseBrow
     const token = ++playTokenRef.current;
     const finish = () => { if (playTokenRef.current === token) { setSpeakingId(null); setSpeakingRate(null); } };
     try {
-      Speech.stop();
+      stopSpeaking();
       setSpeakingId(phrase.id);
       setSpeakingRate(rate);
-      Speech.speak(phrase.ko, { language: 'ko-KR', rate, onDone: finish, onStopped: finish, onError: finish });
+      speakAloud(phrase.ko, { language: 'ko-KR', rate, onDone: finish, onStopped: finish, onError: finish });
     } catch {
       // 소리 기능이 없는 브라우저에서도 글자는 그대로 보인다.
       finish();

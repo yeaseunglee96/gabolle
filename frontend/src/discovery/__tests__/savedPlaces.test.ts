@@ -11,7 +11,9 @@ const REAL_B = '22222222-2222-2222-2222-222222222222';
 type Call = { url: string; method: string };
 let calls: Call[] = [];
 
-function mockServer(serverIds: string[], options: { putStatus?: number } = {}) {
+// writeStatus 는 PUT·DELETE 양쪽에 그 상태를 주고 본문을 HTML 로 보낸다 — nginx 가 배포 중에
+// 주는 502 의 모양이다(S15P21E201-1081). putStatus 는 서버가 JSON 으로 거절하는 경우다.
+function mockServer(serverIds: string[], options: { putStatus?: number; writeStatus?: number } = {}) {
   calls = [];
   globalThis.fetch = jest.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
     const url = String(input);
@@ -23,6 +25,9 @@ function mockServer(serverIds: string[], options: { putStatus?: number } = {}) {
     if (method === 'GET') {
       const items = serverIds.map((placeId) => ({ placeId, savedAt: '2026-09-16T00:00:00Z' }));
       return new Response(JSON.stringify({ data: { items, count: items.length }, error: null, meta: { requestId: 'r1' } }), { status: 200, headers: { 'content-type': 'application/json' } });
+    }
+    if ((method === 'PUT' || method === 'DELETE') && options.writeStatus) {
+      return new Response('<html><body><h1>502 Bad Gateway</h1></body></html>', { status: options.writeStatus, headers: { 'content-type': 'text/html' } });
     }
     if (method === 'PUT' && options.putStatus) {
       return new Response(JSON.stringify({ data: null, error: { code: 'PLACE_NOT_FOUND', message: '없는 장소' }, meta: { requestId: 'r1' } }), { status: options.putStatus, headers: { 'content-type': 'application/json' } });
@@ -87,6 +92,26 @@ describe('하트를 켜고 끄기', () => {
 
   it('서버가 없는 장소라고 해도 기기의 선택은 지킨다', async () => {
     mockServer([], { putStatus: 404 });
-    await expect(setSavedPlace(REAL_A, true, 'token')).resolves.toContain(REAL_A);
+    await expect(setSavedPlace(REAL_A, true, 'token')).resolves.toMatchObject({ ids: [REAL_A] });
+  });
+});
+
+// S15P21E201-1081 — 배포 중 nginx 가 502 를 주는 동안, 화면은 서버에 안 간 저장을
+// "저장했어요" 라고 알렸다. 기기 선택을 지키는 것과 사실대로 말하는 것은 다른 문제다.
+describe('서버까지 갔는지를 부르는 쪽에 알려준다', () => {
+  it('🔴 서버가 502 면 sync 가 failed 다 — 화면이 성공이라고 말하면 안 된다', async () => {
+    mockServer([], { writeStatus: 502 });
+    await expect(setSavedPlace(REAL_A, true, 'token')).resolves.toEqual({ ids: [REAL_A], sync: 'failed' });
+  });
+
+  it('서버가 받으면 sync 가 server 다', async () => {
+    mockServer([]);
+    await expect(setSavedPlace(REAL_A, true, 'token')).resolves.toEqual({ ids: [REAL_A], sync: 'server' });
+  });
+
+  it('로그인 안 했으면 sync 가 device-only 다 — 실패가 아니라 원래 그런 것이다', async () => {
+    mockServer([]);
+    await expect(setSavedPlace(REAL_A, true, null)).resolves.toEqual({ ids: [REAL_A], sync: 'device-only' });
+    expect(calls).toHaveLength(0);
   });
 });

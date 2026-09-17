@@ -26,9 +26,22 @@ describe('이동 시간 문구', () => {
     expect(formatTravelLabel(item({ travelDurationMin: 12, travelDataStatus: 'ESTIMATED' }), tx)).toBe('이동 12분 (어림)');
   });
 
-  it('구간이 없으면(그날 첫 방문지) 아무 말도 만들지 않는다', () => {
+  // 🔴 S15P21E201-1119 — 이 시험의 이름이 「그날 첫 방문지」라고 적혀 있었다. 그 전제가
+  // 틀렸다. 서버는 첫 방문지에도 구간을 준다 — 출발지에서 오는 구간이고, 하루 중 제일
+  // 길다(운영 실측 38분·40분). 값이 없는 경우를 재는 시험이 맞으므로 이름만 고친다.
+  it('구간을 못 쟀으면 아무 말도 만들지 않는다', () => {
     expect(formatTravelLabel(item({ travelDurationMin: null }), tx)).toBeNull();
     expect(formatTravelLabel(item(), tx)).toBeNull();
+  });
+
+  it('🔴 그날 첫 구간은 「출발지에서」라고 말한다 — 어디서 오는 이동인지 모르면 38분이 어디서 왔는지 알 수 없다', () => {
+    expect(formatTravelLabel(item({ travelDurationMin: 38, travelDataStatus: 'ESTIMATED' }), tx, true)).toBe('출발지에서 38분 (어림)');
+    expect(formatTravelLabel(item({ travelDurationMin: 38 }), tx, true)).toBe('출발지에서 38분');
+  });
+
+  it('첫 구간이 아니면 예전 그대로다 — 기본값이 바뀌지 않았다', () => {
+    expect(formatTravelLabel(item({ travelDurationMin: 3, travelDataStatus: 'ESTIMATED' }), tx)).toBe('이동 3분 (어림)');
+    expect(formatTravelLabel(item({ travelDurationMin: 3, travelDataStatus: 'ESTIMATED' }), tx, false)).toBe('이동 3분 (어림)');
   });
 });
 

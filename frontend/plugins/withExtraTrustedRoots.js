@@ -94,6 +94,44 @@ const NETWORK_SECURITY_CONFIG_XML = `<?xml version="1.0" encoding="utf-8"?>
 </network-security-config>
 `;
 
+// 🔴 2026-09-16 추가 (S15P21E201-1084) — 개발 빌드가 개발 서버에 못 닿던 것을 고친다.
+//
+// 위 NETWORK_SECURITY_CONFIG_XML 의 base-config 에는 cleartextTrafficPermitted 가 없고,
+// 안드로이드 28+ 에서 그 기본값은 **거부**다. 그리고 networkSecurityConfig 는 매니페스트의
+// usesCleartextTraffic="true" 를 **덮어쓴다** — 그래서 디버그 매니페스트가 켜 두어도 앱은
+// http 를 못 쓴다.
+//
+// 개발 서버(Metro)는 http 로 뜬다. 실측(2026-09-16): 같은 에뮬레이터에서 크롬으로는
+// http://10.0.2.2:8081/status 가 열리는데 앱만 "Unable to load script" 로 죽었다.
+// 이 설정은 앱마다 따로라서 그렇다. 원인을 찾기까지 여섯 번을 다른 방법으로 헤맸다 —
+// 전부 "주소를 바꾸는" 시도였는데 주소가 아니라 그 주소로 나가는 길이 막혀 있었다.
+//
+// 🔴 디버그 변종(app/src/debug)에만 쓴다. 운영 빌드는 위 설정을 그대로 쓰므로 영향이 없다.
+// 그리고 전체를 열지 않고 **개발 서버가 뜨는 주소로만** 연다.
+//   10.0.2.2   에뮬레이터가 이 PC 를 가리키는 전용 주소
+//   localhost·127.0.0.1   adb reverse 로 이어 줄 때
+// 실기기를 같은 Wi-Fi 로 붙일 때 쓰는 LAN 주소는 사람마다 달라서 여기 못 박지 않는다 —
+// 그때는 adb reverse 를 쓰거나 개발 메뉴에서 주소를 바꾼다.
+const DEBUG_NETWORK_SECURITY_CONFIG_XML = `<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="@raw/isrg_root_x1" />
+            <certificates src="@raw/isrg_root_x2" />
+            <certificates src="system" />
+            <!-- 디버그에서는 기기에 깔린 인증서도 믿는다(프록시로 들여다볼 때 쓴다). -->
+            <certificates src="user" />
+        </trust-anchors>
+    </base-config>
+
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">10.0.2.2</domain>
+        <domain includeSubdomains="false">localhost</domain>
+        <domain includeSubdomains="false">127.0.0.1</domain>
+    </domain-config>
+</network-security-config>
+`;
+
 function withExtraTrustedRoots(config) {
 	config = withDangerousMod(config, [
 		'android',
@@ -110,6 +148,14 @@ function withExtraTrustedRoots(config) {
 			fs.writeFileSync(
 				path.join(xmlDir, 'network_security_config.xml'),
 				NETWORK_SECURITY_CONFIG_XML,
+			);
+
+			// 디버그 변종은 같은 이름의 파일을 덮어쓴다(안드로이드 빌드가 변종을 우선한다).
+			const debugXmlDir = path.join(platformRoot, 'app/src/debug/res/xml');
+			fs.mkdirSync(debugXmlDir, { recursive: true });
+			fs.writeFileSync(
+				path.join(debugXmlDir, 'network_security_config.xml'),
+				DEBUG_NETWORK_SECURITY_CONFIG_XML,
 			);
 
 			return config;

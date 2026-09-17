@@ -13,6 +13,10 @@ import { ActivityIndicator, Image, Pressable, StyleSheet, TextInput, View } from
 import { useRouter } from 'expo-router';
 
 import { useAuth } from '@/auth/AuthProvider';
+import { RegionPicker } from '@/components/RegionPicker';
+import { composeEntryFor } from '@/social/composeEntry';
+import { PhotoGrid } from '@/components/PhotoGrid';
+import { markdownToPlain } from '@/social/markdown';
 import { Button } from '@/components/Button';
 import { Eyebrow } from '@/components/Eyebrow';
 import { ReportModal } from '@/components/ReportModal';
@@ -24,38 +28,30 @@ import { useI18n } from '@/i18n';
 import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
 import { RouteMap } from '@/map/RouteMap';
-import { createStory, loadFeed, relativeStoryTime, reportStory, setFollowing, VISIBILITY_LABEL, type FeedLoadResult, type FeedScope, type StoryDto, type StoryReportReason, type StoryVisibility } from '@/social/stories';
+import { createStory, feedQueryKey, loadFeed, relativeStoryTime, reportStory, setFollowing, VISIBILITY_LABEL, type FeedLoadResult, type FeedScope, type StoryDto, type StoryReportReason, type StoryVisibility } from '@/social/stories';
 import { shouldPromptSignIn } from '@/social/signInPrompt';
 import { SignInPromptModal } from '@/social/SignInPromptModal';
 import { useStoryImages } from '@/social/useStoryImages';
 
-/**
- * 보관소에서 이 피드를 찾는 열쇠 — S15P21E201-957.
- *
- * <p>범위(전체·팔로잉)마다 따로 담는다. 토큰이 아니라 "로그인했는가" 만 넣는다 —
- * 토큰은 갱신될 때마다 값이 바뀌어서, 넣으면 로그인 상태가 그대로인데도 보관한
- * 것을 버리고 다시 부르게 된다.
- */
-const FEED_KEY = (scope: FeedScope, signedIn: boolean) => ['feed', scope, signedIn] as const;
+// 열쇠는 src/social/stories.ts 로 옮겼다 — 글쓰기 화면도 같은 것을 써야 해서다
+// (S15P21E201-1124). 이름은 그대로 둬서 아래 쓰는 곳들을 건드리지 않는다.
+const FEED_KEY = feedQueryKey;
 
 /** 본문 상한 — 글쓰기 화면(compose.tsx)과 같은 값이어야 한다. */
 const BODY_MAX = 500;
 
 /** 사진 장수에 따라 칸을 다르게 쓴다 — 한 장은 넓게, 여러 장은 정사각으로 나눈다. */
+// S15P21E201-1135 — 사진을 가로로 줄 세우던 것을 장수·방향에 따른 배치로 바꾼다.
+// 배치 규칙은 @/social/photoGrid 한 곳에 있고, 작성 미리보기·글 상세도 같은 것을 쓴다.
 function StoryImages({ images, compact }: { images: StoryDto['images']; compact: boolean }) {
   const { tx } = useI18n();
-  const shown = images.slice(0, 3);
-  if (!shown.length) return null;
-  const single = shown.length === 1;
-  return <View style={[styles.images, compact && styles.imagesCompact]}>
-    {shown.map((image) => <Image
-      key={image.url}
-      source={{ uri: image.url }}
-      resizeMode="cover"
-      accessibilityLabel={tx('여행 기록 사진', 'Trip record photo')}
-      style={[styles.image, single && styles.imageWide]}
-    />)}
-  </View>;
+  if (!images.length) return null;
+  return <PhotoGrid
+    photos={images.map((image) => ({ uri: image.url }))}
+    compact={compact}
+    accessibilityLabel={tx('여행 기록 사진', 'Trip record photo')}
+    style={styles.images}
+  />;
 }
 
 /** 이름 첫 글자를 둥근 칸에 넣는다. 프로필 사진은 StoryDto 계약에 아직 없다. */
@@ -108,7 +104,9 @@ function StoryCard({ story, compact, showUnfollow, unfollowBusy, onUnfollow, onO
         : null}
     </View>
 
-    <Text color={color.text.body} style={styles.body}>{story.body}</Text>
+    {/* 🔴 S15P21E201-1136 — 목록에서는 효과를 벗긴다. 제목을 크게 그리면 카드 높이가
+        글마다 들쭉날쭉해져서 목록이 읽기 어려워진다. 온전한 모양은 상세에서만 보여준다. */}
+    <Text color={color.text.body} style={styles.body} numberOfLines={compact ? 3 : 6}>{markdownToPlain(story.body)}</Text>
     <StoryImages images={story.images} compact={compact} />
 
     <View style={styles.cardFooter}>
@@ -145,10 +143,17 @@ function placesInFeed(items: StoryDto[]) {
 }
 
 /**
- * 피드 맨 위에서 바로 쓰는 글쓰기 카드 — 넓은 화면 전용.
+ * 피드 맨 위에서 바로 쓰는 글쓰기 카드 — 데스크톱 폭(1024+) 전용.
  *
  * <p>폰은 기존대로 「기록」 버튼으로 /feed/compose 에 간다. 좁은 화면에서 본문·사진·
  * 공개범위를 한 카드에 넣으면 정작 보러 온 목록이 한참 밀려 내려간다.
+ *
+ * <p>🔴 S15P21E201-1142 — 전에는 {@code wide}(1440+)에서만 켰다. 그런데 헤더의 「기록」
+ * 버튼은 {@code compact}(1024 미만)에서만 나오므로 **1024~1439 구간에는 글 쓸 입구가
+ * 하나도 없었다.** 흔한 데스크톱 창 폭이 통째로 비어 있었던 것이다.
+ *
+ * <p>목록이 비었을 때만 빈 화면 안내에 버튼이 있어서, **글이 하나라도 쌓이면 입구가
+ * 사라졌다** — 처음 써 본 사람은 되는데 쓰고 나면 다시 못 쓴다. 그래서 더 안 보였다.
  *
  * <p>🔴 사진 처리는 {@link useStoryImages} 한 곳에서 온다 — 글쓰기 화면과 같은 코드다.
  * 줄이기(1600px)·EXIF 제거·3MB 판정 규칙이 두 벌이 되지 않게 하려고 뺐다.
@@ -164,6 +169,8 @@ function InlineCompose({ onPosted }: { onPosted: () => void }) {
   const [body, setBody] = useState('');
   const [region, setRegion] = useState('');
   const [regionOpen, setRegionOpen] = useState(false);
+  // 우리 DB 장소를 고르면 채워진다. 손으로 고쳐 쓰면 다시 비워진다 (RegionPicker).
+  const [placeId, setPlaceId] = useState<string | undefined>(undefined);
   const [visibility, setVisibility] = useState<StoryVisibility>('PUBLIC');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -180,12 +187,15 @@ function InlineCompose({ onPosted }: { onPosted: () => void }) {
       body: body.trim(),
       imageUrls: uploadedUrls,
       region: region.trim() || undefined,
+      // 🔴 우리 DB 장소를 골랐을 때만 실려 간다. 카카오 검색 결과에는 placeId 가 아예
+      // 없으므로(regionSearch.ts) 저장하면 안 되는 것이 여기로 흘러들 수 없다.
+      placeId,
       visibility,
       accessToken,
     });
     setSubmitting(false);
     if (outcome.state !== 'success') { setError(outcome.message); return; }
-    setBody(''); setRegion(''); setRegionOpen(false); clearImages();
+    setBody(''); setRegion(''); setPlaceId(undefined); setRegionOpen(false); clearImages();
     onPosted();
   };
 
@@ -208,33 +218,46 @@ function InlineCompose({ onPosted }: { onPosted: () => void }) {
       multiline
     />
 
-    {images.length ? <View style={styles.composeImages}>
-      {images.map((image, index) => <View key={`${image.localUri}-${index}`} style={styles.composeImageSlot}>
-        <Image source={{ uri: image.localUri }} resizeMode="cover" accessibilityLabel={tx('고른 사진', 'Selected photo')} style={styles.composeImage} />
-        {image.uploading ? <View style={styles.composeImageOverlay}><ActivityIndicator color={color.text.onAction} /></View> : null}
-        {image.error ? <Pressable accessibilityRole="button" accessibilityLabel={tx('업로드 다시 시도', 'Retry upload')} onPress={() => retryImage(index)} style={styles.composeImageOverlay}>
-          <Text variant="caption" weight="bold" color={color.text.onAction}>{tx('다시 시도', 'Retry')}</Text>
-        </Pressable> : null}
-        <Pressable accessibilityRole="button" accessibilityLabel={tx('사진 삭제', 'Remove photo')} onPress={() => removeImage(index)} style={styles.composeImageRemove}>
-          <Text weight="bold" color={color.text.onAction}>×</Text>
-        </Pressable>
-      </View>)}
-    </View> : null}
+    {/* S15P21E201-1135 — 글쓰기가 두 곳(여기와 app/feed/compose.tsx)에 있는데
+        둘이 다른 모양이면 같은 앱에서 사진이 두 가지로 보인다. 같은 부품을 쓴다. */}
+    {images.length ? <PhotoGrid
+      photos={images.map((image) => ({ uri: image.localUri }))}
+      compact
+      accessibilityLabel={tx('고른 사진', 'Selected photo')}
+      style={styles.composeImages}
+      renderOverlay={(index) => {
+        const image = images[index];
+        if (!image) return null;
+        return <>
+          {image.uploading ? <View style={styles.composeImageOverlay}><ActivityIndicator color={color.text.onAction} /></View> : null}
+          {image.error ? <Pressable accessibilityRole="button" accessibilityLabel={tx('업로드 다시 시도', 'Retry upload')} onPress={() => retryImage(index)} style={styles.composeImageOverlay}>
+            <Text variant="caption" weight="bold" color={color.text.onAction}>{tx('다시 시도', 'Retry')}</Text>
+          </Pressable> : null}
+          <Pressable accessibilityRole="button" accessibilityLabel={tx('사진 삭제', 'Remove photo')} onPress={() => removeImage(index)} style={styles.composeImageRemove}>
+            <Text weight="bold" color={color.text.onAction}>×</Text>
+          </Pressable>
+        </>;
+      }}
+    /> : null}
 
     {/* 사진이 상한을 넘었을 때만 그 이유가 뜬다 — 미리 겁주지 않는다 (S15P21E201-955). */}
     {images.map((image, index) => image.error
       ? <Text key={`image-error-${index}`} variant="caption" color={color.state.danger}>{image.error}</Text>
       : null)}
 
-    {regionOpen ? <TextInput
-      accessibilityLabel={tx('지역', 'Region')}
-      style={styles.composeRegion}
-      placeholder={tx('예: 해운대구', 'e.g. Haeundae-gu')}
-      placeholderTextColor={color.text.muted}
-      value={region}
-      onChangeText={setRegion}
-      maxLength={60}
+    {/* S15P21E201-1145 — 자유 입력 한 칸이던 것을 검색으로 바꾼다. 우리 DB 장소를
+        고르면 placeId 가 따라와 글이 그 장소에 달린다. 손으로 고쳐 쓰는 길은 그대로다. */}
+    {regionOpen ? <RegionPicker
+      region={region}
+      onChangeRegion={setRegion}
+      placeId={placeId}
+      onChangePlaceId={setPlaceId}
+      accessToken={accessToken}
     /> : null}
+
+    {/* S15P21E201-1146 — 전체 화면 글쓰기에는 있던 안내가 여기엔 없었다.
+        같은 앱에서 같은 일을 하는데 한쪽만 말해 주면 안 된다. */}
+    <Text variant="caption" color={color.text.muted}>{tx('사진의 위치 정보는 지워져요. 장소를 연결하면 그 장소 소개에도 사진이 함께 보일 수 있어요.', 'Location data is removed from photos. If you link a place, your photo may also appear on that place.')}</Text>
 
     <View style={styles.composeTools}>
       <Pressable accessibilityRole="button" accessibilityLabel={tx('사진 추가', 'Add photo')} disabled={!canAddMore} onPress={() => void addImage()} style={[styles.toolButton, !canAddMore && styles.busy]}>
@@ -349,6 +372,9 @@ export default function Feed() {
   const [lastPromptedAt, setLastPromptedAt] = useState(0);
 
   const signedIn = Boolean(accessToken);
+  // 🔴 S15P21E201-1142 — 글쓰기 입구는 여기서 고르지 않고 composeEntry 한 곳에서 받는다.
+  // 조건을 화면 두 곳에 나눠 적었더니 그 사이 폭(600~1023)에 입구가 하나도 없었다.
+  const composeEntry = composeEntryFor(width, signedIn);
   const key = FEED_KEY(scope, signedIn);
 
   // 화면 밖 보관소에서 읽는다 — 탭을 오가도 다시 안 부른다 (S15P21E201-957).
@@ -426,7 +452,7 @@ export default function Feed() {
         {scopeButton('ALL', tx('전체', 'All'))}
         {scopeButton('FOLLOWING', tx('팔로잉', 'Following'))}
       </View>
-      {compact && signedIn
+      {composeEntry === 'headerButton'
         ? <Button label={tx('기록', 'Write')} onPress={() => router.push('/feed/compose')} containerStyle={styles.writeButton} />
         : null}
     </View>
@@ -442,9 +468,15 @@ export default function Feed() {
         </View>
       : null}
 
-    {/* 넓은 화면에서만 맨 위에 둔다. 올리고 나면 이 범위를 낡은 것으로 표시해
-        다시 불러온다 — 방금 쓴 글이 목록에 바로 보이게. */}
-    {wide && signedIn
+    {/* 🔴 S15P21E201-1142 — 데스크톱 폭(1024+)이면 맨 위에 둔다. 전에는 1440+ 였고,
+        헤더 버튼은 1024 미만에서만 나와서 그 사이 폭에 입구가 없었다.
+
+        경계값을 새로 만들지 않고 이미 있는 compact 를 쓴다 — 폭 숫자를 화면 코드에
+        적지 않는다는 이 파일의 규칙 그대로다(layout/breakpoints.ts 만 쓴다).
+
+        올리고 나면 이 범위를 낡은 것으로 표시해 다시 불러온다 — 방금 쓴 글이 목록에
+        바로 보이게. */}
+    {composeEntry === 'inline'
       ? <InlineCompose onPosted={() => void queryClient.invalidateQueries({ queryKey: key })} />
       : null}
 
@@ -582,10 +614,8 @@ const styles = StyleSheet.create({
 
   body: { lineHeight: 22 },
 
-  images: { flexDirection: 'row', gap: spacing[2] },
-  imagesCompact: { gap: spacing[1] },
-  image: { flex: 1, aspectRatio: 1, borderRadius: radius.md, backgroundColor: color.surface.soft },
-  imageWide: { aspectRatio: 16 / 9 },
+  // 배치는 PhotoGrid 가 정한다 (S15P21E201-1135) — 여기서는 위아래 간격만 준다.
+  images: { marginTop: spacing[2] },
 
   cardFooter: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[2], flexWrap: 'wrap' },
   detailLink: { minHeight: 44, justifyContent: 'center' },
@@ -598,15 +628,15 @@ const styles = StyleSheet.create({
   // 인라인 글쓰기 — 넓은 화면에서 피드 맨 위에 놓인다.
   compose: { gap: spacing[3], marginTop: spacing[4], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.border },
   composeInput: { minHeight: 64, fontSize: 18, lineHeight: 24, color: color.text.heading },
-  composeRegion: { minHeight: 40, paddingHorizontal: spacing[3], borderRadius: radius.sm, backgroundColor: color.surface.soft, color: color.text.heading },
   composeImages: { flexDirection: 'row', gap: spacing[2] },
-  composeImageSlot: { flex: 1, aspectRatio: 1, borderRadius: radius.md, backgroundColor: color.surface.soft, overflow: 'hidden' },
-  composeImage: { width: '100%', height: '100%' },
   composeImageOverlay: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(11,29,58,0.45)' },
   composeImageRemove: { position: 'absolute', top: spacing[1], right: spacing[1], width: 24, height: 24, borderRadius: radius.full, backgroundColor: 'rgba(11,29,58,0.6)', alignItems: 'center', justifyContent: 'center' },
   composeTools: { flexDirection: 'row', alignItems: 'center', gap: spacing[1], paddingTop: spacing[3], borderTopWidth: 1, borderTopColor: color.surface.border, flexWrap: 'wrap' },
   toolButton: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], minHeight: 36, paddingHorizontal: spacing[3], borderRadius: radius.sm },
   toolButtonOn: { backgroundColor: color.surface.soft },
   toolIcon: { width: 16, height: 16, tintColor: color.brand.navy },
-  composePost: { width: 'auto', minWidth: 96, paddingHorizontal: spacing[4], backgroundColor: color.brand.navy },
+  // 🔴 S15P21E201-1144 — 배경색을 여기 칠하지 않는다. Button 의 variant='primary' 가
+  // 이미 같은 남색을 «안쪽» 에 칠하고, 안쪽에만 모서리가 있다. 바깥 껍데기에 같은 색을
+  // 덧칠하면 둥근 버튼 뒤에 네모난 판이 깔려 각져 보인다 — 두 색이 같아 네모만 보였다.
+  composePost: { width: 'auto', minWidth: 96, paddingHorizontal: spacing[4] },
 });

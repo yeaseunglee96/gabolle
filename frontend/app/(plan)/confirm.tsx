@@ -13,6 +13,7 @@ import { color, radius, spacing } from '@/design/tokens';
 import { useLayout } from '@/layout/useLayout';
 import { PlanStepHeader } from '@/plan/PlanStepHeader';
 import { PlanDesktopShell } from '@/plan/PlanDesktopShell';
+import { useFocusedRedirect } from '@/nav/useFocusedRedirect';
 import { usePlan } from '@/plan/PlanProvider';
 import { createRecommendationJobAdapter, type RecommendationJobSnapshot } from '@/plan/recommendationJob';
 import { useI18n } from '@/i18n';
@@ -75,7 +76,13 @@ export default function Confirm() {
       setGrantingConsent(false);
     }
   }
-  useEffect(() => { if (!basicComplete && preview !== 'api-error') router.replace('/plan/basic'); }, [basicComplete, preview, router]);
+  // 🔴 S15P21E201-1128 — 이 화면을 보고 있을 때만 보낸다.
+  //
+  //    전에는 그냥 useEffect 였다. 그런데 이 화면은 생성 화면으로 push 한 뒤에도
+  //    밑에 남아 계속 돈다. 일정이 완성되면 생성 화면이 clear() 로 입력을 비우는데,
+  //    그 순간 basicComplete 가 거짓이 되어 이 줄이 사용자를 1단계 빈 화면으로
+  //    끌어내렸다 — 서버는 여행도 일정도 다 만들어 놓은 뒤였다.
+  useFocusedRedirect(!basicComplete && preview !== 'api-error', '/plan/basic');
   const allergy = draft.allergyStatus === 'UNKNOWN' ? tx('미확인', 'Unconfirmed') : draft.allergyStatus === 'NONE' ? tx('해당 없음', 'None') : names(tx, draft.allergies);
   const diet = draft.dietStatus === 'UNKNOWN' ? tx('미확인', 'Unconfirmed') : draft.dietStatus === 'NONE' ? tx('해당 없음', 'None') : names(tx, draft.dietTypes);
   const hardUnknown = draft.allergyStatus === 'UNKNOWN' || draft.dietStatus === 'UNKNOWN' || (draft.allergyStatus === 'VALUES' && !draft.allergies.length) || (draft.dietStatus === 'VALUES' && !draft.dietTypes.length);

@@ -17,6 +17,7 @@ import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { useCollection } from '@/collection/CollectionProvider';
+import { COLLECTION_LIMITS, uploadBlockReason } from '@/collection/collectionsApi';
 import { useLayout } from '@/layout/useLayout';
 
 export default function CollectionHome() {
@@ -45,7 +46,7 @@ export default function CollectionHome() {
       <Text variant="title" weight="bold" color={color.text.onAction} style={styles.heroTitle}>{tx('내가 직접 가보고, 좋아한 장소들을 모아보세요.', 'Gather the places you visited and loved.')}</Text>
       <View style={styles.heroStats}>
         <Text variant="body" weight="bold" color={color.text.onAction}>{tx(`📍 ${totalPlaceCount}곳`, `📍 ${totalPlaceCount} places`)}</Text>
-        <Text variant="body" weight="bold" color={color.text.onAction}>{tx(`📋 ${lists.length}개 리스트`, `📋 ${lists.length} lists`)}</Text>
+        <Text variant="body" weight="bold" color={color.text.onAction}>{tx(`리스트 ${lists.length}`, `${lists.length} lists`)}</Text>
       </View>
       {syncState === 'loading' ? (
         <Text variant="caption" color={color.text.onDarkMuted} style={styles.deviceOnlyNotice}>{tx('계정에 저장된 것을 불러오고 있어요.', 'Loading what is saved to your account…')}</Text>
@@ -66,7 +67,7 @@ export default function CollectionHome() {
 
     {creating ? <Card style={styles.createCard}>
       <Text variant="caption" weight="bold" color={color.text.muted}>{tx('리스트 이름', 'List name')}</Text>
-      <TextInput accessibilityLabel={tx('리스트 이름', 'List name')} value={newName} onChangeText={setNewName} placeholder={tx('예: 다시 가고 싶은 카페', 'e.g. Cafés to revisit')} placeholderTextColor={color.text.muted} autoFocus style={styles.input} />
+      <TextInput accessibilityLabel={tx('리스트 이름', 'List name')} maxLength={COLLECTION_LIMITS.name} value={newName} onChangeText={setNewName} placeholder={tx('예: 다시 가고 싶은 카페', 'e.g. Cafés to revisit')} placeholderTextColor={color.text.muted} autoFocus style={styles.input} />
       <View style={styles.createActions}>
         <Button label={tx('취소', 'Cancel')} variant="ghost" onPress={() => { setCreating(false); setNewName(''); }} containerStyle={styles.createActionButton} />
         <Button label={tx('만들기', 'Create')} disabled={!newName.trim()} onPress={submitCreate} containerStyle={styles.createActionButton} />
@@ -96,6 +97,10 @@ export default function CollectionHome() {
           </View>
           <Text variant="body" weight="bold">{list.name}</Text>
           <Text variant="caption" color={color.text.muted}>{tx(`${listPlaces.length}곳`, `${listPlaces.length} places`)}</Text>
+          {/* 이 리스트는 서버가 받아 줄 수 없는 값이라 계정에 못 올라간다. 위 머리말이
+              「내 계정에 저장돼요」라고 말하고 있으므로, 예외인 리스트는 그 자리에서
+              말해 준다 — 안 그러면 다른 기기에서 없는 이유를 알 길이 없다. */}
+          {uploadBlockReason(list) ? <Text variant="caption" weight="bold" color={color.brand.navy}>{tx('이 기기에만 있어요 — 이름을 줄이면 계정에 올라가요', 'On this device only — shorten the name to sync it')}</Text> : null}
         </Pressable>;
       })}
     </View>

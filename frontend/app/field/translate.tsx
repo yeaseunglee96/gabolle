@@ -49,6 +49,24 @@ export default function Translate() {
       onPress: () => router.push('/field/speak'),
     },
     {
+      // 🔴 백엔드(GET /api/v1/exchange-rates, S15P21E201-1079)가 있는데 프론트가 없던 자리다.
+      // 외국인이 부산에서 가장 자주 하는 계산이라 현장 도구의 첫 줄 가까이에 둔다.
+      key: 'exchange',
+      icon: '₩',
+      title: tx('환율 계산', 'Currency'),
+      desc: tx('가격표를 보고 바로 내 돈으로 바꿔 보세요', 'Turn a price tag into your own money'),
+      onPress: () => router.push('/field/exchange'),
+    },
+    {
+      // 🔴 백엔드(GET /api/v1/transit/nearby-bus-arrivals, S15P21E201-988)가 있는데 프론트가
+      // 없던 자리다. 정류소 앞에서 하는 판단은 "기다릴까, 택시 탈까" 하나라 현장 도구에 둔다.
+      key: 'bus',
+      icon: '버',
+      title: tx('주변 버스', 'Buses nearby'),
+      desc: tx('몇 분 뒤에 오는지 보고 기다릴지 정하세요', 'See how long the wait is before you decide'),
+      onPress: () => router.push('/field/bus'),
+    },
+    {
       key: 'weather',
       icon: sunIcon,
       title: tx('내 여행 날씨·준비물', 'Weather & packing for my trip'),

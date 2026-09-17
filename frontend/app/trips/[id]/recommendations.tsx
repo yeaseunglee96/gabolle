@@ -4,7 +4,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { shouldAskTripName, wasTripNameAsked } from '@/trip/tripNaming';
 import { loadTrips } from '@/trip/trips';
 import { sendAppEvent } from '@/analytics/appEvents';
-import { loadRecommendationActions, saveRecommendationAction } from '@/plan/recommendationActions';
+import { loadRecommendationActions, saveRecommendationAction, type RecommendationActionScope } from '@/plan/recommendationActions';
 import { useAuth } from '@/auth/AuthProvider';
 import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
@@ -62,6 +62,16 @@ export default function Recommendations() {
     router.push(target);
   };
   const [view, setView] = useState<RecommendationViewModel>(() => jobId || id ? { ...unavailableRecommendations(), state: 'loading', message: tx('추천 결과를 확인하고 있어요.', 'Checking your recommendation result.') } : unavailableRecommendations());
+  // 담아두기·빼기가 어디에 속하는가 — S15P21E201-1082.
+  //
+  // 🔴 서버 주소에는 여행 번호가 필요하고, 기기 저장에는 아무 열쇠나 있으면 된다. 둘이 다른
+  //    값일 수 있어 따로 넘긴다. 여행 번호를 알면 기기 열쇠도 그것으로 해서, 같은 여행을 다시
+  //    추천받아도(작업 번호가 새로 생겨도) 앞서 내린 판단이 그대로 보이게 한다.
+  const actionScope = useCallback((tripId: string | null): RecommendationActionScope => ({
+    tripId,
+    deviceKey: tripId ?? id ?? '',
+    accessToken,
+  }), [accessToken, id]);
   const reload = useCallback(async () => {
     // S15P21E201-1002 — 「다시 열면 빈 화면」의 진짜 원인 (2026-09-16 배포본에서 실측).
     //
@@ -82,10 +92,14 @@ export default function Recommendations() {
       const lookup = await findLatestRecommendationJob(id, accessToken);
       if (lookup.state === 'found' || lookup.state === 'in-progress') next = await loadRecommendationResult(lookup.jobId, accessToken);
     }
-    // 기기에 적어 둔 저장·제외를 되살린다 — S15P21E201-975. 서버 응답에는 이 판단이 없다.
-    const stored = await loadRecommendationActions(id ?? '');
+    // 담아두기·빼기를 되살린다 — S15P21E201-975 · 1082.
+    //
+    // 🔴 서버에 물을 주소에는 **여행 번호**가 필요한데, 이 화면의 `id` 는 작업 번호다(위 참고).
+    //    여행 번호는 추천 결과 응답의 tripId(S15P21E201-1084)로만 온다. 그 칸을 아직 안 주는
+    //    서버를 상대할 때는 null 이고, 그때는 종전처럼 기기에만 적는다.
+    const stored = await loadRecommendationActions(actionScope(next.tripId));
     setView({ ...next, courses: next.courses.map((course) => stored[course.id] ? { ...course, actionState: stored[course.id] } : course) });
-  }, [accessToken, id, jobId, tx]);
+  }, [accessToken, actionScope, id, jobId, tx]);
   useEffect(() => { void reload(); }, [reload]);
   // 저장·제외는 지금까지 화면 상태만 바꿨다. 이제 서버로도 간다 — 노출된 것 중에서 고른 것이라
   // 가장 깨끗한 취향 신호다. 되돌리기(idle)는 아무 뜻이 아니라 보내지 않는다.
@@ -94,9 +108,10 @@ export default function Recommendations() {
   //    이벤트도 두 건 적힌다. 그리고 버튼은 서버 응답을 기다리지 않는다.
   const updateAction = (courseId: string, actionState: RecommendationCourse['actionState']) => {
     setView((current) => ({ ...current, courses: current.courses.map((course) => course.id === courseId ? { ...course, actionState } : course) }));
-    // 🔴 기기에 적는다 — S15P21E201-975. 아래 행동 이벤트는 분석용이라 되읽지 않는다.
+    // 🔴 적는다 — S15P21E201-975 · 1082. 아래 행동 이벤트는 분석용이라 되읽지 않는다.
     //    이것이 없던 동안 버튼은 눌려도 화면을 다시 열면 원래대로 돌아갔다.
-    void saveRecommendationAction(id ?? '', courseId, actionState === 'saved' || actionState === 'excluded' ? actionState : null);
+    //    여행 번호를 알면 서버에도 간다 — 그래야 동행자가 서로의 판단을 본다.
+    void saveRecommendationAction(actionScope(view.tripId), courseId, actionState === 'saved' || actionState === 'excluded' ? actionState : null);
     if (actionState === 'saved' || actionState === 'excluded') {
       sendAppEvent({ type: actionState === 'saved' ? 'place_like' : 'place_dislike', accessToken, tripId: id, payload: { place_id: courseId, surface: 'recommendations' } });
     }

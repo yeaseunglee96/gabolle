@@ -177,7 +177,7 @@ export function PlacePicks({ places }: { places: HomePlaceItem[] }) {
       <View style={styles.placeGrid}>
         {places.map((place) => (
           <Pressable key={place.placeId} accessibilityRole="button" onPress={() => router.push(`/place/${place.placeId}`)} style={({ pressed }) => [styles.placeCard, pressed && styles.pressed]}>
-            <PlaceVisual name={place.nameKo} address={place.address} />
+            <PlaceVisual name={place.nameKo} address={place.address} photoUrl={place.photoUrl} photoSource={place.photoSource} />
             <Text weight="bold" numberOfLines={1}>{place.nameKo}</Text>
             {/* 🔴 `category` 를 그대로 그리면 화면에 「FOOD」 같은 **코드**가 뜬다. 그 코드를 한글로
                 바꿀 표가 없다 — assistant/intent.ts 에 여섯 개짜리가 있지만 챗봇 입력을 코드로
@@ -270,7 +270,14 @@ const styles = StyleSheet.create({
   // 시안 1a 의 오른쪽 칸 패딩(위 40 · 오른 80 · 아래 40 · 왼 24). 이게 없어서 카드와
   // 「피드 전체 →」가 화면 오른쪽 끝에 붙었고, 칩 아래가 네이비 판 바닥에 닿아 다음 구역과
   // 딱 붙어 보였다.
-  heroRight: { flex: 1, gap: spacing[3], minWidth: 0, paddingTop: 40, paddingRight: 80, paddingBottom: 40, paddingLeft: spacing[6] },
+  // 🔴 가운데로 세운다 (S15P21E201-1111). 히어로는 두 칸을 `alignItems: 'stretch'` 로 놓아
+  // **높은 쪽이 전체 높이를 정한다.** -1099 에서 왼쪽 칸만 가운데로 세웠는데, 그건
+  // **로그인했을 때**(오른쪽에 기록 카드가 들어와 오른쪽이 높이를 정함) 얘기였다.
+  // 로그아웃이면 반대로 왼쪽이 높이를 정하고 **오른쪽에 273px 이 남는다**(배포본 실측
+  // 2026-09-16, 창 1646). 양쪽 다 세워 두면 어느 쪽이 길어지든 한쪽에만 구멍이 안 난다.
+  //
+  // 남는 공간이 없을 때는 아무 일도 안 한다 — 그래서 로그인 화면은 지금과 똑같다.
+  heroRight: { flex: 1, gap: spacing[3], minWidth: 0, paddingTop: 40, paddingRight: 80, paddingBottom: 40, paddingLeft: spacing[6], justifyContent: 'center' },
   heroRightHead: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', gap: spacing[3] },
   feedAll: { minHeight: 44, justifyContent: 'center' },
   // 🔴 flex:1 만 주면 카드가 남은 칸을 전부 나눠 먹는다. 기록이 둘뿐이면 한 장이 500px 을

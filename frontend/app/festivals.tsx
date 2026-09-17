@@ -7,6 +7,7 @@ import { BrandLogoLink } from '@/components/BrandLogoLink';
 import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
+import { maskDateInput } from '@/plan/inputMasks';
 import { Eyebrow } from '@/components/Eyebrow';
 import { color, radius, spacing } from '@/design/tokens';
 import { festivalDisplayTitle, getFestivals, type Festival } from '@/discovery/festivals';
@@ -67,10 +68,10 @@ export default function Festivals() {
     <View style={styles.heading}><Eyebrow>{tx('부산 축제', 'Busan festival')}</Eyebrow><Text variant="display" weight="bold">{tx('여행 날짜에 열리는 축제', 'Festivals during your trip dates')}</Text><Text color={color.text.body}>{tx('선택한 기간에 실제로 열리는 축제만 보여드려요.', 'We only show festivals actually running in the period you pick.')}</Text></View>
 
     <View style={[styles.filterCard, isAtLeast(width, 'md') && styles.filterCardWide]}>
-      <View style={styles.dateField}><Text variant="caption" weight="bold">{tx('시작일', 'Start date')}</Text><TextInput accessibilityLabel={tx('축제 조회 시작일', 'Festival search start date')} value={from} onChangeText={setFrom} placeholder="YYYY-MM-DD" maxLength={10} style={[styles.input, !dateValid && styles.inputError]} /></View>
-      <View style={styles.dateField}><Text variant="caption" weight="bold">{tx('종료일', 'End date')}</Text><TextInput accessibilityLabel={tx('축제 조회 종료일', 'Festival search end date')} value={to} onChangeText={setTo} placeholder="YYYY-MM-DD" maxLength={10} style={[styles.input, !dateValid && styles.inputError]} /></View>
+      <View style={styles.dateField}><Text variant="caption" weight="bold">{tx('시작일', 'Start date')}</Text><TextInput accessibilityLabel={tx('축제 조회 시작일', 'Festival search start date')} value={from} onChangeText={(value) => setFrom(maskDateInput(value))} keyboardType="number-pad" placeholder="YYYY-MM-DD" maxLength={10} style={[styles.input, !dateValid && styles.inputError]} /></View>
+      <View style={styles.dateField}><Text variant="caption" weight="bold">{tx('종료일', 'End date')}</Text><TextInput accessibilityLabel={tx('축제 조회 종료일', 'Festival search end date')} value={to} onChangeText={(value) => setTo(maskDateInput(value))} keyboardType="number-pad" placeholder="YYYY-MM-DD" maxLength={10} style={[styles.input, !dateValid && styles.inputError]} /></View>
       <Button label={tx('이 기간으로 조회', 'Search this period')} disabled={!dateValid || state === 'loading'} onPress={() => void load()} containerStyle={[styles.searchButton, styles.primaryAction]} />
-      {!dateValid && <Text accessibilityRole="alert" variant="caption" color={color.state.danger}>{tx('YYYY-MM-DD 형식으로 시작일이 종료일보다 빠르게 입력해 주세요.', 'Please use YYYY-MM-DD format, with the start date before the end date.')}</Text>}
+      {!dateValid && <Text accessibilityRole="alert" variant="caption" color={color.state.danger}>{tx('숫자만 입력하면 되고, 시작일이 종료일보다 빨라야 해요.', 'Type digits only — the start date must come before the end date.')}</Text>}
     </View>
 
     <View style={styles.sortRow} accessibilityRole="radiogroup">

@@ -55,7 +55,23 @@ export default function RouteDetail() {
   const originName = parseText(params.originName) ?? tx('출발지', 'Origin');
   const destName = parseText(params.destName) ?? tx('도착지', 'Destination');
   const destPlaceId = parseText(params.destPlaceId);
-  const requestedMode: TravelMode = (parseText(params.mode) as TravelMode | undefined) ?? 'TRANSIT';
+  // 🔴 S15P21E201-1115 — 기본값이 대중교통이면 **언제나 직선 어림값**이 나온다.
+  //
+  // 노선망(버스·지하철 정류장과 노선을 담은 데이터)이 아직 없어서, 대중교통을 물으면
+  // 서버가 탐색을 못 하고 두 점을 자로 이어 시간을 추측한다. 이 화면에는 방식을 고르는
+  // 자리가 없으므로 **기본값이 곧 모두가 보는 값**이다.
+  //
+  // 2026-09-16 운영 실측 (제로베이스 → 카페오뜨, 일정에 실제로 들어 있는 두 곳):
+  //
+  //   자동차   estimated=false · 실제 도로 995m · 5분 · 안내 5단계
+  //   대중교통 estimated=true  · 직선  777m · 3분 · 안내 0단계
+  //   도보     estimated=true  · 직선  777m · 12분 · 안내 0단계
+  //
+  // 자동차만 진짜 값을 준다. 카카오모빌리티 열쇠는 이미 운영에 있다. 주소로 mode 를
+  // 넘기면 예전처럼 대중교통도 볼 수 있고, 어림값일 때 「예상」 배지가 붙는 것도 그대로다.
+  //
+  // 노선망이 들어오면 이 기본값을 다시 대중교통으로 되돌린다 — 그때는 거짓말이 아니다.
+  const requestedMode: TravelMode = (parseText(params.mode) as TravelMode | undefined) ?? 'CAR';
 
   const [result, setResult] = useState<RouteDirectionsResult | null>(null);
   const [loading, setLoading] = useState(true);

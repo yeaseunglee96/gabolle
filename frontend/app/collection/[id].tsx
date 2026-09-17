@@ -1,5 +1,5 @@
 // 부슐랭 리스트 상세 — 장소를 담고, 한줄메모를 남기고, 뺀다.
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Image, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -9,12 +9,14 @@ import { Card } from '@/components/Card';
 import { Screen } from '@/components/Screen';
 import { TabBar } from '@/components/TabBar';
 import { WheelPicker } from '@/collection/WheelPicker';
-import { categoryLabel, localityLabel, PLACE_CATEGORY_LABELS, PLACE_LOCALITY_LABELS, sortCategoryCodes, WRITE_MY_OWN } from '@/discovery/placeCategoryLabels';
+import { categoryLabel, categoryWheelCodes, localityLabel, PLACE_LOCALITY_LABELS, WRITE_MY_OWN } from '@/discovery/placeCategoryLabels';
+import { getPlaceCategories } from '@/discovery/placeCategories';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useAuth } from '@/auth/AuthProvider';
 import { useI18n } from '@/i18n';
 import { useCollection } from '@/collection/CollectionProvider';
+import { COLLECTION_LIMITS } from '@/collection/collectionsApi';
 import { searchOrigins, type OriginCandidate } from '@/plan/origins';
 
 // S15P21E201-919: "카카오맵 자동완성으로 위치 자동 입력" 리포트 — 새 지도 SDK를 또 불러오는
@@ -35,6 +37,9 @@ export default function CollectionListDetail() {
   // 🔴 휠에서 고른 **코드**와 직접 쓴 **문자열**을 따로 들고 있는다. 한 칸에 섞으면
   // 나중에 어느 쪽인지 못 가른다 — 코드는 아는 값들의 집합이라 가를 수 있지만, 그건
   // 표가 안 바뀔 때만 참이다.
+  // 서버가 주는 분류 목록. 🔴 못 받으면 null 로 두고, 휠은 우리가 아는 코드로 채운다 —
+  // 휠이 비면 그날은 분류를 아예 못 고르게 된다.
+  const [serverCategories, setServerCategories] = useState<string[] | null>(null);
   const [categoryCode, setCategoryCode] = useState(WRITE_MY_OWN);
   const [localityCode, setLocalityCode] = useState(WRITE_MY_OWN);
   // 휠에 놓을 목록. 🔴 아는 코드를 표 순서대로 먼저 놓고, 맨 뒤에 「직접 쓰기」를 둔다.
@@ -42,8 +47,19 @@ export default function CollectionListDetail() {
   // 🔴 서버가 주는 분류 목록(GET /places/categories)을 여기서 안 부른다 — 이 폼은 로그인
   // 없이도 열리고, 목록을 못 받았을 때 휠이 비면 아무것도 못 고르게 된다. 아는 것만
   // 먼저 놓고, 서버 목록을 붙이는 것은 따로 간다. **확인 못 함으로 남긴다.**
+  // 분류 목록을 한 번 불러온다. 🔴 실패해도 아무것도 안 한다 — 휠은 아는 코드로 이미
+  // 채워져 있고, 「목록을 못 받았어요」를 띄우는 것은 사용자가 할 수 있는 일이 없는 안내다.
+  useEffect(() => {
+    const controller = new AbortController();
+    void (async () => {
+      const result = await getPlaceCategories(controller.signal);
+      if (result.state === 'success') setServerCategories(result.categories.map((item) => item.code));
+    })();
+    return () => controller.abort();
+  }, []);
+
   const categoryOptions = [
-    ...sortCategoryCodes(Object.keys(PLACE_CATEGORY_LABELS)).map((code) => ({ value: code, label: categoryLabel(code, language) })),
+    ...categoryWheelCodes(serverCategories).map((code) => ({ value: code, label: categoryLabel(code, language) })),
     { value: WRITE_MY_OWN, label: tx('직접 쓰기', 'Write my own') },
   ];
   const localityOptions = [
@@ -124,8 +140,8 @@ export default function CollectionListDetail() {
         {/* 🔴 어디에 저장되는지를 이 화면에서도 말한다. 홈에서만 말하면 여기 들어온
             사람은 못 본다 — 저장되는 곳은 화면마다 달라지지 않지만 사람의 기억은 달라진다. */}
         <Text variant="caption" color={color.text.muted}>{tx(
-          `${list.placeIds.length}곳 · ${syncedToServer ? '내 계정에 저장돼요' : '이 기기에만 저장돼요'}`,
-          `${list.placeIds.length} place(s) · ${syncedToServer ? 'saved to your account' : 'saved on this device only'}`)}</Text>{list.description ? <Text variant="caption" color={color.text.muted}>{list.description}</Text> : null}<Text variant="caption" color={color.text.muted}>{tx(`${listPlaces.length}곳`, `${listPlaces.length} places`)}</Text></View>
+          `저장한 곳 ${list.placeIds.length} · ${syncedToServer ? '내 계정에 저장돼요' : '이 기기에만 저장돼요'}`,
+          `${list.placeIds.length} place(s) · ${syncedToServer ? 'saved to your account' : 'saved on this device only'}`)}</Text>{list.description ? <Text variant="caption" color={color.text.muted}>{list.description}</Text> : null}</View>
       {confirmDelete ? <View style={styles.deleteConfirm}><Pressable accessibilityRole="button" onPress={() => setConfirmDelete(false)}><Text variant="caption" weight="bold" color={color.text.muted}>{tx('취소', 'Cancel')}</Text></Pressable><Pressable accessibilityRole="button" onPress={confirmDeleteList}><Text variant="caption" weight="bold" color={color.state.danger}>{tx('삭제 확정', 'Confirm delete')}</Text></Pressable></View> : <Pressable accessibilityRole="button" accessibilityLabel={tx('리스트 삭제', 'Delete list')} onPress={() => setConfirmDelete(true)}><Text variant="caption" weight="bold" color={color.state.danger}>{tx('삭제', 'Delete')}</Text></Pressable>}
     </View>
 
@@ -135,7 +151,7 @@ export default function CollectionListDetail() {
       <Pressable accessibilityRole="button" accessibilityLabel={tx('사진 선택', 'Choose photo')} onPress={() => void pickPhoto()} style={styles.photoPicker}>
         {photoUri ? <Image source={{ uri: photoUri }} resizeMode="cover" style={styles.photoPreview} /> : <Text variant="caption" color={color.text.muted}>{tx('사진 추가 (선택)', 'Add photo (optional)')}</Text>}
       </Pressable>
-      <TextInput accessibilityLabel={tx('장소 이름', 'Place name')} value={name} onChangeText={handleNameChange} placeholder={tx('장소 이름 (검색해서 골라도 돼요)', 'Place name (search and pick, or type your own)')} placeholderTextColor={color.text.muted} style={styles.input} />
+      <TextInput accessibilityLabel={tx('장소 이름', 'Place name')} maxLength={COLLECTION_LIMITS.itemName} value={name} onChangeText={handleNameChange} placeholder={tx('장소 이름 (검색해서 골라도 돼요)', 'Place name (search and pick, or type your own)')} placeholderTextColor={color.text.muted} style={styles.input} />
       {searchResults.length > 0 && <View accessibilityRole="list" style={styles.suggestionList}>
         {searchResults.map((item) => <Pressable key={item.externalId} accessibilityRole="button" accessibilityLabel={tx(`${item.name} 선택`, `Choose ${item.name}`)} onPress={() => selectSuggestion(item)} style={({ pressed }) => [styles.suggestionItem, pressed && styles.suggestionItemPressed]}>
           <Text variant="body" weight="bold">{item.name}</Text>
@@ -162,13 +178,13 @@ export default function CollectionListDetail() {
         />
       </View>
       {categoryCode === WRITE_MY_OWN ? (
-        <TextInput accessibilityLabel={tx('카테고리 직접 쓰기', 'Write your own category')} value={category} onChangeText={setCategory} placeholder={tx('카테고리 직접 쓰기', 'Write your own category')} placeholderTextColor={color.text.muted} style={styles.input} />
+        <TextInput accessibilityLabel={tx('카테고리 직접 쓰기', 'Write your own category')} maxLength={COLLECTION_LIMITS.category} value={category} onChangeText={setCategory} placeholder={tx('카테고리 직접 쓰기', 'Write your own category')} placeholderTextColor={color.text.muted} style={styles.input} />
       ) : null}
       {localityCode === WRITE_MY_OWN ? (
-        <TextInput accessibilityLabel={tx('지역 직접 쓰기', 'Write your own area')} value={locality} onChangeText={setLocality} placeholder={tx('지역 직접 쓰기 (예: 영도구)', 'Write your own area (e.g. Yeongdo-gu)')} placeholderTextColor={color.text.muted} style={styles.input} />
+        <TextInput accessibilityLabel={tx('지역 직접 쓰기', 'Write your own area')} maxLength={COLLECTION_LIMITS.locality} value={locality} onChangeText={setLocality} placeholder={tx('지역 직접 쓰기 (예: 영도구)', 'Write your own area (e.g. Yeongdo-gu)')} placeholderTextColor={color.text.muted} style={styles.input} />
       ) : null}
       <Text variant="caption" color={color.text.muted}>{tx('돌려서 고르세요. 지역은 검색에서 고르면 자동으로 채워져요.', 'Spin to choose. Picking a search result fills the area for you.')}</Text>
-      <TextInput accessibilityLabel={tx('한줄 메모', 'One-line note')} value={note} onChangeText={setNote} placeholder={tx('한줄 메모 (선택)', 'One-line note (optional)')} placeholderTextColor={color.text.muted} style={styles.input} />
+      <TextInput accessibilityLabel={tx('한줄 메모', 'One-line note')} maxLength={COLLECTION_LIMITS.note} value={note} onChangeText={setNote} placeholder={tx('한줄 메모 (선택)', 'One-line note (optional)')} placeholderTextColor={color.text.muted} style={styles.input} />
       <Button label={tx('담기', 'Save')} disabled={!name.trim()} onPress={submitPlace} />
     </Card> : null}
 

@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Platform } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 import { useRouter } from 'expo-router';
@@ -17,7 +17,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
   const preferences = useOnboardingPreferences();
   const [accessToken, setAccessToken] = useState<string | null>(null);
-  const [refreshToken, setRefreshToken] = useState<string | null>(null);
+  const [refreshToken, setRefreshTokenState] = useState<string | null>(null);
+  // 🔴 S15P21E201-1118 — 갱신표를 ref 로도 들고 있는다.
+  //
+  //    아래 setRefreshHandler 에 넘기는 함수는 만들어진 그 순간의 refreshToken 을
+  //    가둔다(closure). 상태는 화면을 다시 그린 뒤에야 바뀌고, 그 함수를 다시 등록하는
+  //    것도 그 다음이다. 그래서 로그인·가입 직후 아주 짧은 동안, 이미 새 표를 받았는데도
+  //    등록되어 있는 함수는 "표가 없다"(null) 고 답한다. 그 답은 곧 401 로 취급돼
+  //    setUnauthorizedHandler 가 세션을 지우고 로그인 화면으로 보낸다 — 서버는 아무
+  //    말도 하지 않았는데 스스로 끊긴다(2026-09-16 iOS 실기기에서 가입 직후 1회 관측).
+  //
+  //    ref 는 다시 그리기를 기다리지 않는다. 상태는 화면이 쓰고, ref 는 이 함수가 쓴다.
+  const refreshTokenRef = useRef<string | null>(null);
+  const setRefreshToken = (value: string | null) => { refreshTokenRef.current = value; setRefreshTokenState(value); };
   const [user, setUser] = useState<AuthUser | null>(null);
   const [ready, setReady] = useState(false);
   const clearSession = () => {
@@ -41,8 +53,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           applyUser(tokens.user);
           return tokens.accessToken;
         }
-        if (!refreshToken) return null;
-        const tokens = await refreshMobileSession(refreshToken);
+        // 가둔 값이 아니라 지금 값을 본다. 앱을 다시 켠 직후처럼 ref 가 아직 비어 있을
+        // 수 있으니, 그때는 저장소를 한 번 읽어 본다 — 있는 표를 없다고 답하지 않기 위해서다.
+        // (여기는 web 이 위에서 이미 돌아간 뒤라 기기 저장소만 본다)
+        const current = refreshTokenRef.current ?? await SecureStore.getItemAsync(REFRESH_TOKEN_KEY);
+        if (!current) return null;
+        const tokens = await refreshMobileSession(current);
         setAccessToken(tokens.accessToken);
         setRefreshToken(tokens.refreshToken);
         applyUser(tokens.user);
@@ -53,7 +69,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     });
     return () => { setUnauthorizedHandler(null); setRefreshHandler(null); };
-  }, [router, refreshToken]);
+    // refreshToken 을 의존성에 두지 않는다 — 값이 바뀔 때마다 등록을 풀었다 다시 거는
+    // 사이에 틈이 생기고, 1118 이 그 틈에서 났다. 지금 값은 ref 가 알려 준다.
+  }, [router]);
   useEffect(() => {
     let active = true;
     const restore = async () => {

@@ -1,15 +1,20 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Image, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 
 import { useAuth } from '@/auth/AuthProvider';
+import { RegionPicker } from '@/components/RegionPicker';
+import { MarkdownBody } from '@/components/MarkdownBody';
+import { PhotoGrid } from '@/components/PhotoGrid';
+import { looksLikeMarkdown } from '@/social/markdown';
 import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
-import { createStory, VISIBILITY_LABEL, type StoryVisibility } from '@/social/stories';
+import { createStory, FEED_QUERY_PREFIX, VISIBILITY_LABEL, type StoryVisibility } from '@/social/stories';
 import { MAX_STORY_IMAGES, useStoryImages } from '@/social/useStoryImages';
 
 const BODY_MAX = 500;
@@ -22,9 +27,14 @@ type PublishTiming = 'AFTER_TRIP' | 'NOW';
 export default function ComposeStory() {
   const router = useRouter();
   const { accessToken } = useAuth();
+  const queryClient = useQueryClient();
   const { tx } = useI18n();
   const [body, setBody] = useState('');
+  // S15P21E201-1136 — 쓴 것이 어떻게 보일지 미리 본다.
+  const [preview, setPreview] = useState(false);
   const [region, setRegion] = useState('');
+  // 우리 DB 장소를 고르면 채워진다. 손으로 고쳐 쓰면 다시 비워진다 (RegionPicker).
+  const [placeId, setPlaceId] = useState<string | undefined>(undefined);
   const [visibility, setVisibility] = useState<StoryVisibility>('PUBLIC');
   const [publishTiming, setPublishTiming] = useState<PublishTiming>('AFTER_TRIP');
   const [submitting, setSubmitting] = useState(false);
@@ -67,6 +77,9 @@ export default function ComposeStory() {
       body: body.trim(),
       imageUrls: uploadedUrls,
       region: region.trim() || undefined,
+      // 🔴 우리 DB 장소를 골랐을 때만 실려 간다. 카카오 검색 결과에는 placeId 가 아예
+      // 없으므로(regionSearch.ts) 저장하면 안 되는 것이 여기로 흘러들 수 없다.
+      placeId,
       visibility,
       publishAt: publishTiming === 'NOW' ? new Date().toISOString() : undefined,
       accessToken,
@@ -74,6 +87,16 @@ export default function ComposeStory() {
     setSubmitting(false);
     if (outcome.state === 'success') {
       await AsyncStorage.removeItem(DRAFT_KEY);
+      // 🔴 S15P21E201-1124 — 돌아가기 전에 피드 보관본을 버린다.
+      //
+      //    이게 없으면 목록은 올리기 전에 받아 둔 것을 그대로 다시 보여준다.
+      //    사용자는 안 올라간 줄 알고 같은 글을 한 번 더 올리고, 앱을 껐다 켜야
+      //    두 개가 보인다(2026-09-16 iOS 실기기에서 실제로 201 이 두 번 찍혔다).
+      //
+      //    앞자리만 준다 — 전체·팔로잉과 로그인 여부까지 네 갈래라, 지금 어느
+      //    칸에 있는지 글쓰기 화면은 알 수 없다. react-query 는 앞자리가 같은
+      //    것을 전부 버린다.
+      await queryClient.invalidateQueries({ queryKey: FEED_QUERY_PREFIX });
       router.back();
     } else {
       setError(outcome.message);
@@ -96,24 +119,68 @@ export default function ComposeStory() {
     />
     <Text variant="caption" color={color.text.muted} style={styles.counter}>{body.trim().length}/{BODY_MAX}</Text>
 
-    <Text variant="caption" weight="bold" style={styles.label}>{tx('사진 (최대 3장 · 한 장 3MB까지)', 'Photos (up to 3 · 3MB each)')}</Text>
-    <View style={styles.imageRow}>
-      {images.map((image, index) => <View key={`${image.localUri}-${index}`} style={styles.imageSlot}>
-        <Image source={{ uri: image.localUri }} resizeMode="cover" accessibilityLabel={tx('선택한 사진', 'Selected photo')} style={styles.imagePreview} />
-        {image.uploading ? <View style={styles.imageOverlay}><ActivityIndicator color={color.text.onAction} /></View> : null}
-        {image.error ? (
-          <Pressable accessibilityRole="button" accessibilityLabel={tx('업로드 다시 시도', 'Retry upload')} onPress={() => retryImage(index)} style={styles.imageOverlay}>
-            <Text variant="caption" weight="bold" color={color.text.onAction}>{tx('실패 · 다시 시도', 'Failed · Retry')}</Text>
-          </Pressable>
-        ) : null}
-        <Pressable accessibilityRole="button" accessibilityLabel={tx('사진 삭제', 'Remove photo')} hitSlop={10} onPress={() => removeImage(index)} style={styles.imageRemove}><Text weight="bold" color={color.text.onAction}>×</Text></Pressable>
-      </View>)}
-      {canAddMore ? <Pressable accessibilityRole="button" accessibilityLabel={tx('사진 추가', 'Add photo')} onPress={() => void addImage()} style={styles.imageAdd}><Text variant="title" color={color.text.muted}>+</Text></Pressable> : null}
-    </View>
-    <Text variant="caption" color={color.text.muted} style={styles.hint}>{tx('사진의 위치 정보는 자동으로 제거되고, 위치는 지역 단위로만 저장돼요.', 'Location data is automatically removed from photos, and only a general region is stored.')}</Text>
+    {/* S15P21E201-1136 — 쓴 것이 어떻게 보일지 미리 본다.
+        🔴 마크다운을 몰라도 된다. 그냥 쓰면 평범한 글이 되므로 아무것도 막지 않고,
+        글을 쓰기 시작했을 때만 이 줄이 생겨 빈 화면을 어지럽히지 않는다. */}
+    {body.trim() ? <View style={styles.previewRow}>
+      <Pressable accessibilityRole="button" accessibilityState={{ expanded: preview }} onPress={() => setPreview((on) => !on)} style={styles.previewToggle}>
+        <Text variant="caption" weight="bold" color={color.action.primary}>{preview ? tx('← 다시 쓰기', '← Back to editing') : tx('미리보기', 'Preview')}</Text>
+      </Pressable>
+      {looksLikeMarkdown(body) ? <Text variant="caption" color={color.text.muted}>{tx('굵게 · 목록 · 제목이 적용돼요', 'Bold, lists and headings will apply')}</Text> : null}
+    </View> : null}
+    {preview && body.trim() ? <View style={styles.previewBox}><MarkdownBody source={body} /></View> : null}
+
+    <Text variant="caption" weight="bold" style={styles.label}>{tx(`사진 (최대 ${MAX_STORY_IMAGES}장)`, `Photos (up to ${MAX_STORY_IMAGES})`)}</Text>
+
+    {/* 🔴 S15P21E201-1135 — 사진을 가로로 줄 세우던 것을 장수·방향에 따른 배치로 바꾼다.
+        목록 카드·글 상세와 **같은 부품**을 쓴다 — 올릴 때 본 모양과 올라간 뒤 모양이
+        다르면 사용자는 무엇이 맞는지 알 수 없다.
+
+        사진마다 얹히는 것(올리는 중·실패·빼기)은 renderOverlay 로 넘긴다. 「사진 추가」는
+        빈 칸을 끼울 자리가 없어 배치 아래로 내렸다. */}
+    {images.length ? <PhotoGrid
+      photos={images.map((image) => ({ uri: image.localUri }))}
+      accessibilityLabel={tx('선택한 사진', 'Selected photo')}
+      style={styles.imageGrid}
+      renderOverlay={(index) => {
+        const image = images[index];
+        if (!image) return null;
+        return <>
+          {image.uploading ? <View style={styles.imageOverlay}><ActivityIndicator color={color.text.onAction} /></View> : null}
+        {/* 🔴 S15P21E201-1122 — 실패 사유를 함께 보여 준다.
+
+            전에는 image.error 를 조건으로만 쓰고 내용을 그리지 않았다. useStoryImages 는
+            「줄여도 4.2MB 라 올릴 수 없어요」처럼 이유를 정확히 만들어 넣는데, 화면에는
+            「실패 · 다시 시도」만 떴다. 그러면 사용자는 왜 실패했는지 모른 채 같은 사진으로
+            계속 재시도한다 — 크기가 문제일 때 재시도는 언제나 같은 결과다.
+
+            S15P21E201-955 가 고치려던 것이 정확히 이것이다(「지금은 실패한 뒤에야 안다」).
+            문구는 그때 만들어졌는데 화면에 닿지 못하고 있었다. */}
+          {image.error ? (
+            <Pressable accessibilityRole="button" accessibilityLabel={tx('업로드 다시 시도', 'Retry upload')} onPress={() => retryImage(index)} style={styles.imageOverlay}>
+              <Text variant="caption" weight="bold" color={color.text.onAction}>{tx('실패 · 다시 시도', 'Failed · Retry')}</Text>
+              <Text variant="caption" color={color.text.onDarkMuted} style={styles.imageErrorReason}>{image.error}</Text>
+            </Pressable>
+          ) : null}
+          <Pressable accessibilityRole="button" accessibilityLabel={tx('사진 삭제', 'Remove photo')} hitSlop={10} onPress={() => removeImage(index)} style={styles.imageRemove}><Text weight="bold" color={color.text.onAction}>×</Text></Pressable>
+        </>;
+      }}
+    /> : null}
+    {canAddMore ? <Pressable accessibilityRole="button" accessibilityLabel={tx('사진 추가', 'Add photo')} onPress={() => void addImage()} style={styles.imageAddRow}><Text variant="caption" weight="bold" color={color.action.primary}>{tx('+ 사진 추가', '+ Add photo')}</Text></Pressable> : null}
+    {/* S15P21E201-1146 — 약관 제6조의2 를 화면 말로 옮긴다. 약관에 적혀 있다고
+        화면에서 숨기면, 사용자는 자기 사진이 어디에 쓰이는지 모른 채 올리게 된다. */}
+    <Text variant="caption" color={color.text.muted} style={styles.hint}>{tx('사진의 위치 정보는 자동으로 제거되고, 위치는 지역 단위로만 저장돼요. 장소를 연결하면 그 장소 소개에도 사진이 함께 보일 수 있고, 글을 지우면 거기서도 빠져요.', 'Location data is removed from photos, and only a general region is stored. If you link a place, your photo may also appear on that place — and it comes down when you delete the record.')}</Text>
 
     <Text variant="caption" weight="bold" style={styles.label}>{tx('지역 (선택)', 'Region (optional)')}</Text>
-    <TextInput accessibilityLabel={tx('지역', 'Region')} style={styles.input} placeholder={tx('예: 해운대구', 'e.g. Haeundae-gu')} placeholderTextColor={color.text.muted} value={region} onChangeText={setRegion} maxLength={60} />
+    {/* S15P21E201-1145 — 피드 탭 안 글쓰기와 **같은 부품**을 쓴다. 두 화면이 다르게
+        동작하면 같은 앱에서 지역을 고르는 방법이 두 가지가 된다. */}
+    <RegionPicker
+      region={region}
+      onChangeRegion={setRegion}
+      placeId={placeId}
+      onChangePlaceId={setPlaceId}
+      accessToken={accessToken}
+    />
 
     <Text variant="caption" weight="bold" style={styles.label}>{tx('공개 시점', 'Publish timing')}</Text>
     <View accessibilityRole="radiogroup" style={styles.visibilityRow}>
@@ -147,14 +214,17 @@ const styles = StyleSheet.create({
   title: { marginTop: spacing[4], marginBottom: spacing[4] },
   bodyInput: { minHeight: 120, padding: spacing[3], borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.md, backgroundColor: color.surface.card, color: color.text.heading, textAlignVertical: 'top' },
   counter: { textAlign: 'right', marginTop: spacing[1] },
+  previewRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], marginTop: spacing[1] },
+  previewToggle: { minHeight: 44, justifyContent: 'center' },
+  previewBox: { marginTop: spacing[1], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.soft },
   label: { marginTop: spacing[6], marginBottom: spacing[2] },
-  imageRow: { flexDirection: 'row', gap: spacing[2] },
-  imageSlot: { width: 88, height: 88, borderRadius: radius.md, overflow: 'hidden', backgroundColor: color.surface.soft },
-  imagePreview: { width: '100%', height: '100%' },
+  imageGrid: { marginTop: spacing[2] },
+  // 배치에 빈 칸을 끼울 자리가 없어 「사진 추가」를 아래로 내렸다 (S15P21E201-1135).
+  imageAddRow: { minHeight: 44, marginTop: spacing[2], alignItems: 'center', justifyContent: 'center', borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.border, borderStyle: 'dashed' },
   imageOverlay: { ...StyleSheet.absoluteFill, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(11,29,58,0.55)' },
+  // 사유는 사진 위에 얹히므로 좁다. 줄바꿈을 허용하고 가운데로 모은다.
+  imageErrorReason: { marginTop: spacing[1], paddingHorizontal: spacing[2], textAlign: 'center' },
   imageRemove: { position: 'absolute', top: 4, right: 4, width: 24, height: 24, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(11,29,58,0.72)' },
-  imageAdd: { width: 88, height: 88, borderRadius: radius.md, borderWidth: 1, borderStyle: 'dashed', borderColor: color.surface.field, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.card },
-  input: { minHeight: 48, paddingHorizontal: spacing[3], borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.md, color: color.text.heading, backgroundColor: color.surface.card },
   visibilityRow: { flexDirection: 'row', gap: spacing[2] },
   visibilityOption: { flex: 1, minHeight: 44, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.md, backgroundColor: color.surface.card },
   visibilityOptionSelected: { backgroundColor: color.brand.navy, borderColor: color.brand.navy },

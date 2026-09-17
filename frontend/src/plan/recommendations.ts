@@ -11,10 +11,12 @@ export type RecommendationCourseDto = {
   mobilityWarnings?: string[] | null; dataStatus: DataStatus; fallbackMode: FallbackMode;
   itineraryId?: string | null;
 };
-export type RecommendationJobResultDto = { status: 'COMPLETED' | 'PARTIAL' | 'FAILED'; items?: RecommendationCourseDto[]; itineraryId?: string | null; fallbackMode?: FallbackMode; conflicts?: string[]; errorMessage?: string | null; placeCount?: number | null; estimatedTravelMinutes?: number | null };
+// 🔴 tripId 는 S15P21E201-1084 에서 늘어난 칸이다. 그 판이 아직 안 올라간 서버도 있으므로
+// 없을 수 있다 — 없으면 담아두기·빼기가 기기에만 남는다(recommendationActions.ts 머리말).
+export type RecommendationJobResultDto = { status: 'COMPLETED' | 'PARTIAL' | 'FAILED'; items?: RecommendationCourseDto[]; itineraryId?: string | null; fallbackMode?: FallbackMode; conflicts?: string[]; errorMessage?: string | null; placeCount?: number | null; estimatedTravelMinutes?: number | null; tripId?: string | null };
 
 export type RecommendationCourse = RecommendationCourseDto & { reasons: string[]; actionState: CourseActionState };
-export type RecommendationViewModel = { state: RecommendationViewState; courses: RecommendationCourse[]; conflicts: string[]; message: string; itineraryId: string | null; placeCount: number | null; estimatedTravelMinutes: number | null };
+export type RecommendationViewModel = { state: RecommendationViewState; courses: RecommendationCourse[]; conflicts: string[]; message: string; itineraryId: string | null; placeCount: number | null; estimatedTravelMinutes: number | null; tripId: string | null };
 
 const t = (ko: string, en: string) => (getApiLanguage() === 'en' ? en : ko);
 
@@ -59,14 +61,14 @@ export const reasonLabel = (code: string): string => {
 export function adaptRecommendationResult(dto: RecommendationJobResultDto): RecommendationViewModel {
   const placeCount = dto.placeCount ?? null;
   const estimatedTravelMinutes = dto.estimatedTravelMinutes ?? null;
-  if (dto.status === 'FAILED') return { state: 'error', courses: [], conflicts: dto.conflicts ?? [], message: dto.errorMessage ?? t('추천 결과를 불러오지 못했어요.', 'Could not load the recommendation result.'), itineraryId: null, placeCount, estimatedTravelMinutes };
+  if (dto.status === 'FAILED') return { state: 'error', courses: [], conflicts: dto.conflicts ?? [], message: dto.errorMessage ?? t('추천 결과를 불러오지 못했어요.', 'Could not load the recommendation result.'), itineraryId: null, placeCount, estimatedTravelMinutes, tripId: dto.tripId ?? null };
   const courses = (dto.items ?? []).map((item) => ({ ...item, reasons: item.reasonCodes.map(reasonLabel), actionState: 'idle' as const }));
-  if (!courses.length) return { state: 'empty-conflict', courses: [], conflicts: dto.conflicts ?? [], message: t('조건을 만족하는 추천을 찾지 못했어요.', 'No recommendations matched your conditions.'), itineraryId: null, placeCount, estimatedTravelMinutes };
+  if (!courses.length) return { state: 'empty-conflict', courses: [], conflicts: dto.conflicts ?? [], message: t('조건을 만족하는 추천을 찾지 못했어요.', 'No recommendations matched your conditions.'), itineraryId: null, placeCount, estimatedTravelMinutes, tripId: dto.tripId ?? null };
   const state: RecommendationViewState = dto.status === 'PARTIAL' ? 'partial' : (dto.fallbackMode && dto.fallbackMode !== 'MODEL' ? 'fallback' : 'success');
-  return { state, courses, conflicts: dto.conflicts ?? [], message: state === 'partial' ? t('일부 정보가 확인되지 않은 결과예요.', 'Some details in this result are unconfirmed.') : state === 'fallback' ? t('기본 추천 방식으로 구성했어요.', 'We used the baseline recommendation method.') : t('조건에 맞는 코스를 찾았어요.', 'We found courses that match your conditions.'), itineraryId: dto.itineraryId ?? courses.find((item) => item.itineraryId)?.itineraryId ?? null, placeCount, estimatedTravelMinutes };
+  return { state, courses, conflicts: dto.conflicts ?? [], message: state === 'partial' ? t('일부 정보가 확인되지 않은 결과예요.', 'Some details in this result are unconfirmed.') : state === 'fallback' ? t('기본 추천 방식으로 구성했어요.', 'We used the baseline recommendation method.') : t('조건에 맞는 코스를 찾았어요.', 'We found courses that match your conditions.'), itineraryId: dto.itineraryId ?? courses.find((item) => item.itineraryId)?.itineraryId ?? null, placeCount, estimatedTravelMinutes, tripId: dto.tripId ?? null };
 }
 
-export const unavailableRecommendations = (): RecommendationViewModel => ({ state: 'unavailable', courses: [], conflicts: [], message: t('아직 생성된 추천이 없어요. 여행 조건을 확인하고 생성을 시작해 주세요.', "No recommendations have been created yet. Check your trip conditions and start generating."), itineraryId: null, placeCount: null, estimatedTravelMinutes: null });
+export const unavailableRecommendations = (): RecommendationViewModel => ({ state: 'unavailable', courses: [], conflicts: [], message: t('아직 생성된 추천이 없어요. 여행 조건을 확인하고 생성을 시작해 주세요.', "No recommendations have been created yet. Check your trip conditions and start generating."), itineraryId: null, placeCount: null, estimatedTravelMinutes: null, tripId: null });
 
 // S15P21E201-1002 — 여행 ID 로 그 여행의 추천 작업 목록을 받아, 다시 볼 수 있는 결과를 고른다
 // (서버 경로는 S15P21E201-1001). 하나가 아니라 목록으로 오는 이유는 맨 앞이 답이 아니기
@@ -120,9 +122,9 @@ export async function loadRecommendationResult(jobId: string, accessToken: strin
     return adaptRecommendationResult(await apiRequest<RecommendationJobResultDto>(`/api/v1/recommendation-jobs/${encodeURIComponent(jobId)}`, { accessToken }));
   } catch (error) {
     if (error instanceof ApiClientError && (error.status === 0 || error.code === 'NETWORK_ERROR')) {
-      return { state: 'offline', courses: [], conflicts: [], message: error.message, itineraryId: null, placeCount: null, estimatedTravelMinutes: null };
+      return { state: 'offline', courses: [], conflicts: [], message: error.message, itineraryId: null, placeCount: null, estimatedTravelMinutes: null, tripId: null };
     }
     if (error instanceof ApiClientError && (error.status === 404 || error.status === 501)) return unavailableRecommendations();
-    return { state: 'error', courses: [], conflicts: [], message: error instanceof Error ? error.message : t('추천 결과를 불러오지 못했어요.', 'Could not load the recommendation result.'), itineraryId: null, placeCount: null, estimatedTravelMinutes: null };
+    return { state: 'error', courses: [], conflicts: [], message: error instanceof Error ? error.message : t('추천 결과를 불러오지 못했어요.', 'Could not load the recommendation result.'), itineraryId: null, placeCount: null, estimatedTravelMinutes: null, tripId: null };
   }
 }

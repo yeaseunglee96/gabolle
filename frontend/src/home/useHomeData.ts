@@ -8,6 +8,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/auth/AuthProvider';
 import { getFacets, getNearbyPlaces, type FacetGroup, type FacetKeyEntry, type NearbyPlaceItem } from '@/discovery/localExplore';
 import { getPlacesByFacet } from '@/discovery/places';
+import { getPlaceCategories } from '@/discovery/placeCategories';
 import { loadFeed, type StoryDto } from '@/social/stories';
 import { loadTrips, type TripSummaryDto } from '@/trip/trips';
 import { loadWeatherForecast, type DailyForecastDto } from '@/trip/weather';
@@ -22,6 +23,17 @@ const PLACE_PICK_COUNT = 4;
 // 갈래(식당 등)로 쏠려 있으면 그냥 가까운 순으로만 넷을 자를 때 넷 다 같은 갈래로
 // 몰릴 수 있다(사용자 실사용 리포트, 2026-09-16).
 const PLACE_CANDIDATE_POOL = 16;
+
+// S15P21E201-1113 — 「부산 둘러보기」에 무엇을 먼저 보여줄 것인가.
+//
+// 부산에 처음 온 사람이 기대하는 순서다. 음식이 맨 뒤인 것은 음식을 낮게 봐서가 아니라
+// **음식이 전체의 87%(2,329/2,683)라 순서를 안 정하면 네 자리를 다 가져가기 때문**이다.
+// 여기 없는 갈래가 새로 생기면 맨 뒤로 간다 — 목록을 고치지 않아도 화면이 안 깨진다.
+const CATEGORY_ORDER = ['SEA_BEACH', 'CULTURE_TEMPLE', 'NATURE_WALK', 'CITY', 'CAFE_HEALING', 'FOOD'];
+const categoryRank = (code: string) => {
+  const index = CATEGORY_ORDER.indexOf(code);
+  return index < 0 ? CATEGORY_ORDER.length : index;
+};
 const FACET_CHIP_COUNT = 6;
 
 function today() {
@@ -135,6 +147,27 @@ export function useHomeData(enabled = true): HomeData {
     queryKey: ['home', 'places'],
     enabled,
     queryFn: async (): Promise<HomePlaceItem[]> => {
+      // 🔴 S15P21E201-1113 — 갈래를 **먼저 정하고** 그 안에서 뽑는다.
+      //
+      // 여태는 부산 중심에서 가까운 16곳을 받아 갈래가 안 겹치게 넷을 골랐다
+      // (S15P21E201-1054 의 다양화). 코드는 멀쩡한데 화면에는 국수락·정초밥·몽듀·
+      // 참치카세가 떴다. 2026-09-16 에 운영에서 재 보니 이유가 나왔다 —
+      // **부산시청 반경 안에 있는 장소 31곳이 전부 FOOD 다.** 섞을 것이 없었다.
+      //
+      // 갈래별 재고가 음식 2,329 대 바다 4 로 쏠려 있어서, **거리로 뽑는 한 무엇을
+      // 더 넣어도 음식이 이긴다.** 장소를 더 넣는 것으로는 안 고쳐진다.
+      const categories = await getPlaceCategories();
+      if (categories.state === 'success') {
+        const ordered = categories.categories
+          .filter((item) => item.placeCount > 0)
+          .sort((first, second) => categoryRank(first.code) - categoryRank(second.code));
+        // 갈래마다 한 곳씩, 동시에 묻는다. 한 갈래가 비어 있어도 그 자리만 건너뛴다.
+        const found = await Promise.all(ordered.map((item) => getPlacesByFacet('CATEGORY_TAG', item.code, 1).catch(() => [])));
+        const picks = found.flatMap((list) => list.slice(0, 1)).slice(0, PLACE_PICK_COUNT);
+        if (picks.length) return picks;
+      }
+
+      // 갈래를 못 받았을 때만 예전 방식으로 — 섹션을 비우지 않는다.
       const nearby = await getNearbyPlaces({ ...BUSAN, limit: PLACE_CANDIDATE_POOL });
       if (nearby.state === 'success' && nearby.items.length) return diversifyByCategory(nearby.items, PLACE_PICK_COUNT);
 

@@ -43,6 +43,39 @@ export class ApiUnavailableError extends ApiClientError {
   }
 }
 
+// 🔴 S15P21E201-1081 — 「서버가 잠깐 못 받는다」와 「이 기능이 아직 없다」를 가르는 자리.
+//
+// 배포할 때마다 백엔드가 잠깐 끊기고 그동안 nginx 가 502·503·504 를 준다. 그 응답의 본문은
+// JSON 이 아니라 HTML 이라, 예전에는 전부 INVALID_RESPONSE 로 떨어졌다. 그것을 보고 화면들이
+// "이 API 는 아직 준비되지 않았어요" 라고 말했고, 사용자는 **아직 만들지 않은 기능**으로 읽고
+// 나갔다. 실제로는 몇십 초 뒤면 되는 것이었다.
+//
+// 그래서 상태 코드로 가른다 — 404·501 만 "아직 없다" 이고, 5xx 는 "잠시 후 다시" 다.
+// 같은 저장소의 routeDirections.ts·itinerary.ts 가 이미 쓰던 방식이다.
+export const SERVER_ERROR_CODE = 'SERVER_ERROR';
+
+/**
+ * 5xx 인가 — 서버가 이번 요청을 처리하지 못한 것이지, 그 기능이 없는 것이 아니다.
+ *
+ * 🔴 **501 은 뺀다.** 숫자로는 5xx 지만 이 저장소에서 501(Not Implemented)은 404 와 한 짝으로
+ * "아직 안 만들었다" 를 뜻한다(routeDirections.ts·itinerary.ts 가 `404 || 501` 로 함께 본다).
+ * 여기 넣으면 "잠시 후 다시" 라고 말하게 되는데, 기다려도 생기지 않는 것이라 거짓말이 된다.
+ */
+export function isServerErrorStatus(status: number): boolean {
+  return status >= 500 && status <= 599 && status !== 501;
+}
+
+/** 이 오류가 5xx 때문인가. 화면이 "잠시 후 다시" 로 말해야 하는 경우다. */
+export function isServerError(error: unknown): boolean {
+  return error instanceof ApiClientError && isServerErrorStatus(error.status);
+}
+
+function serverErrorMessage(status: number): string {
+  return apiLanguage === 'en'
+    ? `The server could not handle this just now. Please try again shortly. (HTTP ${status})`
+    : `서버가 잠시 응답하지 못했어요. 잠시 후 다시 시도해 주세요. (HTTP ${status})`;
+}
+
 type ApiAvailabilityListener = (unavailable: boolean) => void;
 const availabilityListeners = new Set<ApiAvailabilityListener>();
 let apiUnavailable = false;
@@ -197,8 +230,13 @@ async function performRequest<T>(path: string, options: RequestOptions, isRetry:
     requestOptions.signal?.removeEventListener('abort', abortFromCaller);
   }
 
-  // HTTP 오류여도 서버 자체에는 다시 연결된 상태다.
-  setApiUnavailable(false);
+  // HTTP 오류여도 서버 자체에는 다시 연결된 상태다 — 🔴 5xx 는 빼고(S15P21E201-1081).
+  //
+  // 예전에는 응답이 오기만 하면 무조건 setApiUnavailable(false) 였다. 그런데 배포 중에
+  // nginx 가 502 를 주는 동안에도 "응답은 온" 것이라, 앱은 서버가 멀쩡하다고 판단했고
+  // "서버에 연결할 수 없어요" 배너가 끝내 안 떴다. 사용자는 화면마다 다른 말을 들었다.
+  const serverSideFailure = isServerErrorStatus(response.status);
+  setApiUnavailable(serverSideFailure);
 
   if (response.status === 401 && !skipUnauthorizedHandling) {
     if (!isRetry) {
@@ -216,6 +254,11 @@ async function performRequest<T>(path: string, options: RequestOptions, isRetry:
   const isJson = (response.headers.get('content-type') ?? '').includes('application/json');
   if (response.ok && !isJson) return undefined as T;
   if (!isJson) {
+    // 🔴 5xx 의 HTML 본문(nginx 의 502 안내 쪽)을 "예상하지 못한 응답" 으로 부르지 않는다.
+    //    그 이름이 화면에서 "아직 만들지 않은 기능" 으로 번역되는 것이 이 버그였다.
+    if (serverSideFailure) {
+      throw new ApiClientError(serverErrorMessage(response.status), SERVER_ERROR_CODE, response.status);
+    }
     throw new ApiClientError(`예상하지 못한 서버 응답이에요. (HTTP ${response.status})`, 'INVALID_RESPONSE', response.status);
   }
 
