@@ -12,11 +12,25 @@ import { AccessibilityInfo, Animated, Pressable, StyleSheet, type GestureRespond
 import { color, radius, spacing } from '@/design/tokens';
 import { Text } from './Text';
 
-type ButtonVariant = 'primary' | 'secondary' | 'field' | 'ghost';
+// 🔴 accent(주황)·danger(빨강)는 2026-09-17 에 올라왔다. 없어서 생긴 결함을 고친 것이다.
+//
+// 화면들이 이 색을 낼 방법이 없어서 `containerStyle` 에 backgroundColor 를 줬는데, 그건
+// **바깥 껍데기(Animated.View)** 에 붙는다. 안쪽 Pressable 은 자기 색(남색)을 그대로 그리므로
+// **버튼 뒤에 더 크고 더 둥근 도형이 하나 더** 남았다 — 실기기에서 「남색 버튼 아래로 주황색이
+// 삐져나온다」로 보였다. containerStyle 로 넘어간 26곳 중 색이 다른 6곳이 그랬다
+// (남색 13곳은 안쪽과 같은 색이라 안 보였을 뿐 같은 결함이다).
+type ButtonVariant = 'primary' | 'secondary' | 'field' | 'ghost' | 'accent' | 'danger';
 
 export type ButtonProps = Omit<PressableProps, 'style'> & {
   label: string;
   variant?: ButtonVariant;
+  /**
+   * 온보딩·연령확인의 큰 알약 모양 CTA (높이 54 · 완전 둥근 모서리).
+   *
+   * 🔴 화면에서 `containerStyle` 로 흉내내지 않는다. 그러면 껍데기만 커지고 안쪽 버튼은
+   * 그대로라 뒤로 삐져나온다 — 이 prop 이 생긴 이유가 그것이다.
+   */
+  pill?: boolean;
   /** 버튼 자체의 모양은 안 바꾸고, 화면에서 위아래 여백만 줄 때 쓴다(예: marginTop). */
   containerStyle?: StyleProp<ViewStyle>;
 };
@@ -26,6 +40,8 @@ const LABEL_COLOR: Record<ButtonVariant, string> = {
   secondary: color.text.onAction,
   field: color.text.onAction,
   ghost: color.brand.navy,
+  accent: color.text.onAction,
+  danger: color.text.onAction,
 };
 
 // 사용자 요청(2026-09-16, 토스 참고): 예전엔 눌림 스타일이 Pressable의 pressed 값으로 순간
@@ -47,7 +63,7 @@ void Promise.resolve(AccessibilityInfo.isReduceMotionEnabled?.())
   .catch(() => { /* 조회할 수 없는 환경이면 애니메이션을 그대로 둔다 */ });
 AccessibilityInfo.addEventListener?.('reduceMotionChanged', (value) => { reducedMotion = Boolean(value); });
 
-export function Button({ label, variant = 'primary', disabled, containerStyle, accessibilityRole, accessibilityState, onPressIn, onPressOut, ...rest }: ButtonProps) {
+export function Button({ label, variant = 'primary', pill = false, disabled, containerStyle, accessibilityRole, accessibilityState, onPressIn, onPressOut, ...rest }: ButtonProps) {
   const pressProgress = useRef(new Animated.Value(0)).current;
   // 🔴 보간 객체를 렌더마다 새로 만들지 않는다 — 이것이 느림의 **진짜 주범**이었다.
   //
@@ -86,6 +102,10 @@ export function Button({ label, variant = 'primary', disabled, containerStyle, a
           variant === 'secondary' && styles.secondary,
           variant === 'field' && styles.field,
           variant === 'ghost' && styles.ghost,
+          variant === 'accent' && styles.accent,
+          variant === 'danger' && styles.danger,
+          // pill 은 색 뒤에 둔다 — 모양(높이·모서리)만 덮어쓰고 색은 건드리지 않는다.
+          pill && styles.pill,
           disabled && styles.disabled,
         ]}
       >
@@ -120,6 +140,16 @@ const styles = StyleSheet.create({
     backgroundColor: color.surface.card,
     borderWidth: 1,
     borderColor: color.surface.field,
+  },
+  accent: {
+    backgroundColor: color.brand.orange,
+  },
+  danger: {
+    backgroundColor: color.state.danger,
+  },
+  pill: {
+    minHeight: 54,
+    borderRadius: radius.full,
   },
   disabled: {
     opacity: 0.4,

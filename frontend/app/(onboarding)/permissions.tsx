@@ -125,7 +125,7 @@ export default function Permissions() {
         </Text>
       </Pressable>
 
-      <Button label={requesting ? tx('권한 확인 중…', 'Checking permissions…') : tx('선택하고 로그인·회원가입으로', 'Continue to sign in / sign up')} disabled={requesting} containerStyle={styles.cta} onPress={() => void continueTo('/home')} />
+      <Button label={requesting ? tx('권한 확인 중…', 'Checking permissions…') : tx('선택하고 로그인·회원가입으로', 'Continue to sign in / sign up')} disabled={requesting} variant="accent" pill containerStyle={styles.cta} onPress={() => void continueTo('/home')} />
       <Button label={tx('비회원으로 먼저 둘러보기', 'Browse as guest first')} variant="ghost" disabled={requesting} onPress={() => void browseAsGuest()} />
       </View>
       </View>
@@ -217,9 +217,9 @@ const styles = StyleSheet.create({
     marginTop: spacing[3],
   },
   cta: {
+    // 🔴 여백만 남긴다 (2026-09-17). 여기 있던 minHeight·borderRadius·backgroundColor 는
+    // 버튼이 아니라 **바깥 껍데기**에 붙어서 남색 버튼 뒤로 주황색이 삐져나왔다.
+    // 색과 모양은 이제 버튼이 직접 갖는다 — `variant="accent" pill`.
     marginTop: spacing[3],
-    minHeight: 54,
-    borderRadius: radius.full,
-    backgroundColor: color.brand.orange,
   },
 });
