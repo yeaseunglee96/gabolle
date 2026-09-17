@@ -63,7 +63,7 @@ export default function AgeGate() {
       </View>
 
       <View style={styles.footer}>
-        <Pressable accessibilityRole="checkbox" accessibilityState={{ checked }} style={({ pressed }) => [styles.checkboxRow, pressed && styles.pressed]} onPress={() => setChecked((prev) => !prev)}>
+        <Pressable testID="age-gate-check" accessibilityRole="checkbox" accessibilityState={{ checked }} style={({ pressed }) => [styles.checkboxRow, pressed && styles.pressed]} onPress={() => setChecked((prev) => !prev)}>
           <View style={[styles.checkbox, checked && styles.checkboxChecked]}>
             {checked && (
               <Text variant="caption" weight="bold" color={color.text.onAction}>
@@ -74,7 +74,7 @@ export default function AgeGate() {
           <Text variant="body">{tx('만 14세 이상이며, 위 내용을 확인했어요.', 'I am 14 or older and understand the information above.')}</Text>
         </Pressable>
 
-        <Button label={tx('계속', 'Continue')} variant="accent" pill disabled={!checked} onPress={continueOnboarding} />
+        <Button testID="age-gate-continue" label={tx('계속', 'Continue')} variant="accent" pill disabled={!checked} onPress={continueOnboarding} />
       </View>
       </View>
       </View>
