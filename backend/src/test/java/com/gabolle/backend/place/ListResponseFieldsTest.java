@@ -17,7 +17,7 @@ import com.gabolle.backend.place.domain.Place;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * 목록 응답이 칸을 <b>실제로 싣는가</b> — 같은 병이 두 번 났다.
+ * 목록 응답이 칸을 <b>실제로 싣는가</b> — 같은 병이 <b>세 번</b> 났다.
  *
  * <ul>
  *   <li>S15P21E201-1120 — 사진 주소·출처가 상세에만 있었다</li>
@@ -29,13 +29,19 @@ import static org.assertj.core.api.Assertions.assertThat;
  * <p>칸을 더해 놓고 값을 안 옮기면 화면은 여전히 그것을 못 그린다. 그 종류의 실수는 컴파일도
  * 통과하고 기존 검사도 통과한다 — 그래서 여기서 값이 끝까지 가는지를 본다.
  *
- * <p>🔴 파일 이름은 사진에서 왔지만 주제는 그보다 넓다. 목록에 칸을 더할 때 <b>「목록에도
+ * <p>🔴 이름이 한동안 {@code ListResponsePhotoFieldsTest} 였다. 사진에서 시작한 파일인데 주소도,
+ * 「무엇을 찍은 사진인가」도 보게 되면서 <b>이름이 내용보다 좁아졌다.</b> 세 번째 주제가 들어올 때
+ * 고쳤다 — 「나중에」로 미루면 다음 사람이 네 번째를 또 「사진」 파일에 넣는다.
+ *
+ * <p>🔴 이 파일이 재는 것은 <b>「칸이 있을 때 값이 실제로 옮겨지는가」</b>다.
+ * <b>「상세에 있는 칸이 목록에 없는가」</b>는 다른 질문이고 {@code PlaceListDetailFieldGapTest} 가 잰다.
+ * 목록에 칸을 더할 때 <b>「목록에도
  * 실었나」</b>를 사람이 기억하지 않아도 되게 하는 자리다.
  *
  * <p>DB 를 안 띄운다. 만드는 쪽({@code of}·{@code from})이 값을 옮기는지가 이 검사의 질문이고,
  * 그건 객체 하나로 답할 수 있다.
  */
-class ListResponsePhotoFieldsTest {
+class ListResponseFieldsTest {
 
 	private static final String PHOTO = "https://tong.visitkorea.or.kr/cms/haeundae.jpg";
 
