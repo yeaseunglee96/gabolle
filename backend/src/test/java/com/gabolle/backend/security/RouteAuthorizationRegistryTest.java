@@ -667,6 +667,21 @@ class RouteAuthorizationRegistryTest {
 		put(m, "DELETE /api/v1/stories/{}/coauthors/{}", Policy.AUTHENTICATED_ONLY,
 				"만든 사람이 남을 빼거나 공동 작성자가 자기 자신을 뺀다. 그 외는 403");
 
+		// ── 글에 단 반응 (-1173) ────────────────────────────────────────────────
+		//
+		// 🔴 OWNED 가 아니라 OTHER_USER_OK 다 — 남의 글에 누르는 것이 기능 자체다.
+		//    신고(POST /stories/{}/reports)와 같은 갈래이고, 위험도 같은 종류다:
+		//    거부되지 않는 것이 아니라 「못 볼 글이 섞이는 것」이다. 그래서 이쪽의
+		//    근거는 「남의 것을 거부하는가」가 아니라 「못 보는 글이 404 로 감춰지는가」다.
+		//
+		// 🔴 오히려 자기 것을 거부한다. 인기순이 붙으면 자기 글을 올리는 길이 되기
+		//    때문이고, 그래서 여기만 방향이 반대다 — 다른 OTHER_USER_OK 경로에는 없는
+		//    조건이라 표에 적어 둔다.
+		put(m, "PUT /api/v1/stories/{}/reaction", Policy.OTHER_USER_OK,
+				"남의 글에 좋아요·싫어요를 다는 것이 기능이다. 못 보는 글은 존재를 감춘 404(StoryVisibilityPolicy.canView), 내가 함께 쓰는 글은 409. 주체는 인증에서만 읽는다. StoryReactionIntegrationTest");
+		put(m, "DELETE /api/v1/stories/{}/reaction", Policy.OTHER_USER_OK,
+				"취소도 같다. 지우는 키가 (글, 나) 쌍이라 남의 반응은 못 지운다 — 일부러 볼 수 있는지는 안 따진다(막으면 한 번 누른 사람이 영영 못 무른다). StoryReactionIntegrationTest");
+
 		put(m, "GET /api/v1/feed/home", Policy.AUTHENTICATED_ONLY,
 				"내 피드다. 대상이 인증 주체로만 정해진다. FeedControllerTest");
 		put(m, "GET /api/v1/feed/community", Policy.AUTHENTICATED_ONLY,
