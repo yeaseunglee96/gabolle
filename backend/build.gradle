@@ -137,3 +137,26 @@ tasks.named('test') {
 		showStackTraces = true
 	}
 }
+
+// 🔴 클릭 시뮬레이터용 순위표를 찍는 도구 — S15P21E201-553. 검사가 아니다.
+//
+//    처음에는 @Test + @EnabledIfEnvironmentVariable 로 만들었는데, CI 의 "건너뛴 검사 0"
+//    관문에 걸렸다. 그 관문은 DB 가 안 뜬 날 전부 건너뛰고도 초록이 되는 것을 막는 자리라
+//    예외를 만들면 안 된다. 그래서 검사가 아니라 과제로 돌린다.
+//
+//    이 파일에 손대는 것을 앞서 한 번 피했었다(시험 JVM 에 -D 를 넘기는 설정). 그때는
+//    test {} 를 고치는 것이라 모두의 검사 실행이 바뀌는 변경이었다. 이것은 과제를 하나
+//    "더하는" 것이라 기존 동작을 안 건드린다 — 그 차이로 판단이 갈렸다.
+//
+//    쓰기:
+//      CLICKSIM_USERS=../eval/click-sim/data/users.json \
+//      CLICKSIM_OUT=../eval/click-sim/data/rankings.json \
+//      ./gradlew clickSim
+tasks.register('clickSim', JavaExec) {
+	group = 'application'
+	description = '클릭 시뮬레이터가 읽을 순위표를 진짜 채점기로 찍는다 (S15P21E201-553)'
+	classpath = sourceSets.test.runtimeClasspath
+	mainClass = 'com.gabolle.backend.recommendation.simulation.ClickSimRankingHarness'
+	// 🔴 환경변수를 그대로 물려준다. 경로를 안 주면 하네스의 기본값이 쓰인다.
+	environment System.getenv()
+}
