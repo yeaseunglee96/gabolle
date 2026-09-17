@@ -3,7 +3,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { color, fontFamily, spacing, type } from '@/design/tokens';
+import { color, fontFamilyStack, spacing, type } from '@/design/tokens';
 
 type ScreenStubProps = {
   /** Figma APP 페이지 화면 번호. 신규 화면은 '신규'. */
@@ -40,21 +40,21 @@ const styles = StyleSheet.create({
   },
   number: {
     color: color.text.muted,
-    fontFamily: fontFamily.regular,
+    fontFamily: fontFamilyStack.regular,
     fontSize: type.caption.size,
     lineHeight: type.caption.lineHeight,
     letterSpacing: type.caption.letterSpacing,
   },
   title: {
     color: color.text.heading,
-    fontFamily: fontFamily.bold,
+    fontFamily: fontFamilyStack.bold,
     fontSize: type.title.size,
     lineHeight: type.title.lineHeight,
     letterSpacing: type.title.letterSpacing,
   },
   specId: {
     color: color.text.muted,
-    fontFamily: fontFamily.regular,
+    fontFamily: fontFamilyStack.regular,
     fontSize: type.caption.size,
     lineHeight: type.caption.lineHeight,
     letterSpacing: type.caption.letterSpacing,

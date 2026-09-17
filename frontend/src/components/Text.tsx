@@ -2,7 +2,7 @@
 // variant 를 고르면 색까지 기본값이 따라온다 — 색이 필요하면 그때만 color prop 으로 덮어쓴다.
 import { Text as RNText, type TextProps as RNTextProps } from 'react-native';
 
-import { color, fontFamily, type as typeTokens } from '@/design/tokens';
+import { color, fontFamilyStack, type as typeTokens } from '@/design/tokens';
 
 type Variant = 'hero' | 'display' | 'title' | 'body' | 'util' | 'caption' | 'eyebrow';
 
@@ -42,9 +42,9 @@ const FONT_WEIGHT: Record<Weight, '400' | '500' | '700'> = {
 };
 
 const FONT_FAMILY: Record<Weight, string> = {
-  regular: fontFamily.regular,
-  medium: fontFamily.medium,
-  bold: fontFamily.bold,
+  regular: fontFamilyStack.regular,
+  medium: fontFamilyStack.medium,
+  bold: fontFamilyStack.bold,
 };
 
 export function Text({ variant = 'body', color: colorOverride, weight = 'regular', style, ...rest }: TextProps) {

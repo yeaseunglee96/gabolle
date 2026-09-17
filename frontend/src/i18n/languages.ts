@@ -93,6 +93,18 @@ export function toBcp47(language: LanguageCode): string {
 }
 
 /**
+ * 웹의 `<html lang>` 에 넣을 표기. `toBcp47()` 과 값이 다르다 — 음성(TTS)은 한국어도
+ * 지역을 붙여야 자연스럽지만, `lang` 속성은 중국어만 붙인다. 간체·번체는 같은 언어
+ * 코드(zh)에 문자만 다르므로 지역(CN·TW)이 없으면 브라우저가 폰트·문자 방향을 하나로
+ * 뭉뚱그려 고른다 — 나머지 언어는 문자 체계가 언어마다 하나뿐이라 그럴 일이 없다.
+ */
+export function toHtmlLang(language: LanguageCode): string {
+  if (language === 'zh-Hans') return 'zh-CN';
+  if (language === 'zh-Hant') return 'zh-TW';
+  return language;
+}
+
+/**
  * 저장돼 있던 값·주소 칸의 값을 코드로 되돌린다. 모르는 값이면 한국어다.
  *
  * 🔴 옛 값을 버리지 않는다. 예전에는 두 개뿐이었고 그때 저장된 값이 그대로 들어온다.
