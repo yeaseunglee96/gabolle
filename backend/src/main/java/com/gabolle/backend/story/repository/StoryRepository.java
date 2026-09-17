@@ -43,9 +43,23 @@ public interface StoryRepository extends JpaRepository<Story, UUID> {
 	 * 상수를 쓰지 않는다.
 	 *
 	 * <p>새 피드 질의를 만들 때 이 상수를 쓰지 않으면 신고된 기록이 그 피드에 보인다.
+	 *
+	 * <h2>🔴 2026-09-17 — {@code parent_story_id IS NULL} 을 여기 더했다 (S15P21E201-1183)</h2>
+	 *
+	 * 댓글이 원글과 <b>같은 표</b>에 산다. 그래서 이 조건이 없으면 <b>댓글이 피드에 원글처럼
+	 * 올라온다.</b>
+	 *
+	 * <p>이 상수가 다섯 질의를 덮는다는 것이 댓글을 같은 표에 두기로 한 근거였다 — 다른 표로
+	 * 갔다면 신고·숨김·소프트삭제·사진·탈퇴처리를 전부 다시 만들어야 했다. 그 대신 <b>새 피드
+	 * 질의를 만들 때 이 상수를 안 쓰면 댓글이 샌다</b>는 위험이 하나 늘었다. 위 문단이 신고된
+	 * 기록에 대해 말하는 것과 같은 위험이고, 막는 방법도 같다 — 이 상수를 쓰면 된다.
+	 *
+	 * <p>🔴 <b>단건 조회({@code findActiveById}·{@code findVisibleById})에는 걸지 않는다.</b>
+	 * 댓글도 id 로 열 수 있어야 한다 — 그 댓글에 달린 댓글을 보려면 먼저 그 댓글을 찾아야 한다.
 	 */
 	String NOT_DELETED_AND_PUBLISHED =
-			" s.deleted_at IS NULL AND s.publish_at <= :now AND s.moderation_state = 'VISIBLE' ";
+			" s.deleted_at IS NULL AND s.publish_at <= :now AND s.moderation_state = 'VISIBLE' "
+					+ " AND s.parent_story_id IS NULL ";
 
 	/**
 	 * 🔴 S15P21E201-990 — 나를 차단한 사람의 기록은 목록에서 빠진다.
@@ -136,6 +150,30 @@ public interface StoryRepository extends JpaRepository<Story, UUID> {
 			  AND s.moderationState = com.gabolle.backend.moderation.domain.StoryModerationState.VISIBLE
 			""")
 	Optional<Story> findVisibleById(@Param("storyId") UUID storyId);
+
+	/**
+	 * 이 글에 <b>직접</b> 달린 댓글 — S15P21E201-1183. 손자는 안 딸려 온다.
+	 *
+	 * <h2>🔴 {@link #NOT_DELETED_AND_PUBLISHED} 를 쓰지 않는 이유</h2>
+	 *
+	 * 그 상수는 이제 {@code parent_story_id IS NULL} 을 함께 건다 — 댓글을 찾는 이 질의에 쓰면
+	 * <b>언제나 빈 목록</b>이 나온다. 대신 그 상수가 덮던 나머지 조건은 여기에 그대로 옮겨
+	 * 적는다. 지운 댓글과 신고로 가려진 댓글은 안 나가야 하기 때문이다.
+	 *
+	 * <p>{@code publishAt} 은 안 건다. 댓글은 {@code createdAt} 과 같은 값으로 만들어져
+	 * ({@link Story#reply}) 언제나 이미 지난 시각이다 — 안 거는 것이 아니라 걸 것이 없다.
+	 *
+	 * <h2>오래된 순인 이유</h2>
+	 *
+	 * 대화는 위에서 아래로 읽는다. 피드는 새 것이 위지만 댓글은 반대다.
+	 */
+	@Query("""
+			SELECT s FROM Story s
+			WHERE s.parentStoryId = :parentId AND s.deletedAt IS NULL
+			  AND s.moderationState = com.gabolle.backend.moderation.domain.StoryModerationState.VISIBLE
+			ORDER BY s.createdAt ASC, s.storyId ASC
+			""")
+	List<Story> findReplies(@Param("parentId") UUID parentId, Pageable limit);
 
 	/**
 	 * 한 여행에 달린 기록 — 추억 지도가 쓴다 (S15P21E201-829).

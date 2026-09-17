@@ -127,7 +127,10 @@ public class StoryResponseAssembler {
 					story.getCreatedAt().toString(),
 					story.getUpdatedAt().toString(),
 					story.isAuthor(viewer),
-					story.isPublishedAt(now)));
+					story.isPublishedAt(now),
+					// S15P21E201-1183 — 이미 손에 있는 값이다. 부모를 다시 조회하지 않는다.
+					story.getParentStoryId() == null ? null : story.getParentStoryId().toString(),
+					story.getReplyCount()));
 		}
 		return out;
 	}

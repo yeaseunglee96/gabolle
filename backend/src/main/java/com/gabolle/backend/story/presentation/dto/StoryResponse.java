@@ -21,7 +21,30 @@ public record StoryResponse(
 		String createdAt,
 		String updatedAt,
 		boolean mine,
-		boolean published) {
+		boolean published,
+
+		/**
+		 * 🔴 S15P21E201-1183 — 댓글이면 부모 글의 id, 원글이면 {@code null}. 맨 뒤에 더한 칸이다.
+		 *
+		 * <p><b>댓글도 이 응답 모양을 그대로 쓴다.</b> 별도 타입을 만들지 않는 것이 시안의 요구다 —
+		 * *「댓글 = 같은 StoryDto 형태 + parentId. 별도 Comment 타입 만들지 말 것」*. 화면이 원글과
+		 * 댓글을 같은 부품으로 그리므로 응답도 같은 모양이어야 한다.
+		 *
+		 * <p>🔴 <b>댓글의 댓글도 이 칸 하나로 이어진다.</b> 깊이 제한은 없다 — 몇 단까지 보여줄지는
+		 * 화면이 정한다.
+		 */
+		String parentId,
+
+		/**
+		 * 🔴 S15P21E201-1183 — <b>직접</b> 달린 댓글 수. 손자 이하는 안 센다.
+		 *
+		 * <p>없으면 <b>0</b> 이고 {@code null} 이 아니다.
+		 *
+		 * <p>손자까지 세면 댓글 하나를 지울 때 조상을 전부 거슬러 올라가며 내려야 한다. 직접 달린
+		 * 것만 세면 고치는 자리가 깊이와 무관하게 언제나 한 칸이다. 화면은 트위터처럼 「답글 3개」를
+		 * 그 댓글 밑에 붙이면 되므로 손해가 없다.
+		 */
+		int replyCount) {
 
 	public record Author(String id, String displayName) {
 	}

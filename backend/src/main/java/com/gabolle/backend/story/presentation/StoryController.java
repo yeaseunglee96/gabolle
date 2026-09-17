@@ -1,5 +1,6 @@
 package com.gabolle.backend.story.presentation;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.context.annotation.Profile;
@@ -26,6 +27,8 @@ import com.gabolle.backend.story.presentation.dto.StoryResponse;
 import com.gabolle.backend.story.presentation.dto.StoryUpdateRequest;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 
 /**
  * 여행 기록 — 작성·조회·수정·삭제·피드. S15P21E201-207 · -221 · -226 · -233 · -123.
@@ -97,6 +100,27 @@ public class StoryController {
 	public ApiResponse<StoryResponse> get(@PathVariable UUID storyId, Authentication authentication) {
 		UUID viewer = AuthenticatedUsers.optionalId(authentication).orElse(null);
 		return ApiResponse.success(this.storyService.get(storyId, viewer), requestId());
+	}
+
+	/**
+	 * 이 글에 <b>직접</b> 달린 댓글 — S15P21E201-1183.
+	 *
+	 * <p>응답은 {@link StoryResponse} 목록이다. <b>원글과 같은 모양</b>이라 화면이 같은 부품으로
+	 * 그린다 — 시안이 요구한 그대로다.
+	 *
+	 * <p>🔴 손자는 안 딸려 온다. 어떤 댓글의 답글을 보려면 <b>그 댓글의 id 로 이 경로를 다시</b>
+	 * 부른다. 한 번에 전부 내려주면 깊은 가지 하나 때문에 응답이 통째로 커지고, 화면은 대개
+	 * 두 단만 펼친다.
+	 *
+	 * <p>비회원도 부를 수 있다 — 공개 글의 댓글은 로그인 없이 보인다. 볼 수 없는 글이면
+	 * 그 글 조회와 같은 이유로 404 다.
+	 */
+	@GetMapping("/{storyId}/replies")
+	public ApiResponse<List<StoryResponse>> replies(@PathVariable UUID storyId,
+			@RequestParam(defaultValue = "50") @Min(1) @Max(100) int limit,
+			Authentication authentication) {
+		UUID viewer = AuthenticatedUsers.optionalId(authentication).orElse(null);
+		return ApiResponse.success(this.storyService.replies(storyId, viewer, limit), requestId());
 	}
 
 	@PatchMapping("/{storyId}")
