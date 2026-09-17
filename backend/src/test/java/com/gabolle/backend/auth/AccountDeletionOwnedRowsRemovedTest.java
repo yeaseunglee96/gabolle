@@ -87,6 +87,8 @@ class AccountDeletionOwnedRowsRemovedTest extends AuthPostgresIntegrationTest {
 			new Owned("user_block", "blocker_user_id"),
 			new Owned("user_block", "blocked_user_id"),
 			new Owned("story_reaction", "user_id"),
+			new Owned("story_view", "user_id"),
+			new Owned("story_link_copy", "user_id"),
 			new Owned("trip_invite", "created_by"),
 			new Owned("trip_share_link", "created_by"),
 			new Owned("oauth_signup_ticket", "existing_user_id"));
@@ -239,6 +241,12 @@ class AccountDeletionOwnedRowsRemovedTest extends AuthPostgresIntegrationTest {
 				+ "VALUES (?, ?, now())", UUID.randomUUID(), user);
 		this.jdbc.update("INSERT INTO story_reaction (story_id, user_id, reaction, created_at, updated_at) "
 				+ "VALUES (?, ?, 'LIKE', now(), now())", this.otherStoryId, user);
+		this.jdbc.update("INSERT INTO story_view "
+				+ "(story_view_id, story_id, user_id, viewed_on, created_at) "
+				+ "VALUES (?, ?, ?, current_date, now())", UUID.randomUUID(), this.otherStoryId, user);
+		this.jdbc.update("INSERT INTO story_link_copy "
+				+ "(story_link_copy_id, story_id, user_id, copied_on, created_at) "
+				+ "VALUES (?, ?, ?, current_date, now())", UUID.randomUUID(), this.otherStoryId, user);
 		this.jdbc.update("INSERT INTO trip_invite "
 				+ "(trip_invite_id, trip_id, token, role, created_by, created_at, expires_at) "
 				+ "VALUES (?, ?, ?, 'EDITOR', ?, now(), now() + interval '7 day')",

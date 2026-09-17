@@ -256,6 +256,12 @@ public class AccountDeletionService {
 			//    한 번도 안 터진다 — 새 표라서 처음부터 여기 넣는다(효준님 !1056 의 당부).
 			//    묻힌 키의 필드 이름이 팔로우·차단과 다르다(key 가 아니라 id).
 			new OwnedRows("StoryReaction", "id.userId"),
+			// 🔴 S15P21E201-1201 — 조회·링크복사 낱개. story_reaction 과 같은 이유로 여기 있다:
+			//    ON DELETE CASCADE 가 걸려 있지만 계정 행을 익명화만 하므로 한 번도 안 터진다.
+			//    🔴 익명 세션이 남긴 낱개는 여기서 안 지운다 — 그 행은 사람을 안 가리킨다.
+			//    90일 보관 규칙이 그쪽을 치우고, 누적 칸(story.view_count)은 어느 쪽이든 안 내린다.
+			new OwnedRows("StoryView", "userId"),
+			new OwnedRows("StoryLinkCopy", "userId"),
 			// 🔴 이 둘은 남이 참조한다 — trip_member.trip_invite_id 와
 			//    trip_seed_place.source_share_link_id. 둘 다 ON DELETE SET NULL 이라
 			//    (V20260907130000) 남의 참여·씨앗은 남고 이 사람의 초대 기록만 끊긴다.

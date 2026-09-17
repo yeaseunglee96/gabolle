@@ -62,7 +62,8 @@ class AccountDeletionTableInventoryTest extends AuthPostgresIntegrationTest {
 			"auth_identity", "auth_session", "collection", "feed_build", "itinerary_excluded_place",
 			"itinerary_versions", "local_credential", "menu_scan_usage", "oauth_signup_ticket", "place_review",
 			"place_visit_verification", "recommendation_place_action", "saved_place", "story", "story_coauthor",
-			"story_invite", "story_reaction", "trip_invite", "trip_member", "trip_share_link", "uploaded_image",
+			"story_invite", "story_link_copy", "story_reaction", "story_view", "trip_invite", "trip_member",
+			"trip_share_link", "uploaded_image",
 			"user_block", "user_consent", "user_follow", "user_pace_factor", "user_taste_vector");
 
 	@Autowired
