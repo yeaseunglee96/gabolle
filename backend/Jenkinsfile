@@ -186,7 +186,9 @@ pipeline {
                         MIGRATION_DIR=backend/src/main/resources/db/migration
 
                         # 저장소가 들고 있는 버전들
-                        REPO_VERSIONS=$(ls "$MIGRATION_DIR"/V*.sql 2>/dev/null                           | sed "s#.*/V##; s#__.*##" | sort -n || true)
+                        # 🔴 V20260902_1 은 Flyway 가 20260902.1 로 적는다 — 밑줄을 점으로 맞춰야 대조된다.
+                        #    안 맞추면 「적용됐는데 안 됐다」로 읽혀 멀쩡한 배포가 영영 막힌다.
+                        REPO_VERSIONS=$(ls "$MIGRATION_DIR"/V*.sql 2>/dev/null                           | sed "s#.*/V##; s#__.*##; s#_#.#g" | sort -n || true)
                         if [ -z "$REPO_VERSIONS" ]; then
                           echo "마이그레이션 파일이 없습니다 — 볼 것이 없어 통과합니다."
                           exit 0
@@ -201,7 +203,7 @@ pipeline {
 
                         # 🔴 표가 없으면 「아직 한 번도 안 돌린 DB」다 — 막을 이유가 없다.
                         #    없는 것과 못 읽은 것을 가르려고 to_regclass 로 먼저 묻는다.
-                        HAS_TABLE=$(psql_q "SELECT to_regclass('"'"'gabolle.flyway_schema_history'"'"') IS NOT NULL")
+                        HAS_TABLE=$(psql_q "SELECT to_regclass('gabolle.flyway_schema_history') IS NOT NULL")
                         if [ "$HAS_TABLE" != "t" ]; then
                           echo "flyway_schema_history 가 아직 없습니다 — 첫 적용이라 통과합니다."
                           exit 0
