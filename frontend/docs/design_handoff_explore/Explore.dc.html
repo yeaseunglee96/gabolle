@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+body{margin:0;background:#ece7df;font-family:Pretendard,-apple-system,"Malgun Gothic",sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#0b1d3a}a:hover{color:#f26532}
+</style>
+</helmet>
+<section style="display:flex;flex-direction:column;gap:48px;padding:40px;box-sizing:border-box">
+
+<div style="display:flex;flex-direction:column;gap:12px">
+  <div style="font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#f26532">1920 · xl(1440~) · 사이드바 320 + 본문 + 지도 패널 320 · 좌우 분할 최대 1440 가운데</div>
+  <x-import component-from-global-scope="ChromeWindow" from="./browser-window.jsx" width="{{ w1920 }}" height="{{ h1920 }}" url="gabolle.app/explore" hint-size="1920px,1000px">
+    <dc-import name="ExploreScreen" width="1920" state="{{ state }}" scope="{{ scope }}" facet-count="{{ facetCount }}" lang="{{ lang }}" hint-size="100%,100%" style="width:100%;height:100%"></dc-import>
+  </x-import>
+</div>
+
+<div style="display:flex;flex-wrap:wrap;align-items:flex-start;gap:48px">
+  <div style="display:flex;flex-direction:column;gap:12px">
+    <div style="font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#f26532">1440 · xl 하한 · 세 칸이 딱 맞는 폭</div>
+    <x-import component-from-global-scope="ChromeWindow" from="./browser-window.jsx" width="{{ w1440 }}" height="{{ h1440 }}" url="gabolle.app/explore" hint-size="1440px,900px">
+      <dc-import name="ExploreScreen" width="1440" state="{{ state }}" scope="{{ scope }}" facet-count="{{ facetCount }}" lang="{{ lang }}" hint-size="100%,100%" style="width:100%;height:100%"></dc-import>
+    </x-import>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:12px">
+    <div style="font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#f26532">1024 · lg(1024~1439) · 사이드바 + 본문(격자 2열), 지도 없음</div>
+    <x-import component-from-global-scope="ChromeWindow" from="./browser-window.jsx" width="{{ w1024 }}" height="{{ h1024 }}" url="gabolle.app/explore" hint-size="1024px,900px">
+      <dc-import name="ExploreScreen" width="1024" state="{{ state }}" scope="{{ scope }}" facet-count="{{ facetCount }}" lang="{{ lang }}" hint-size="100%,100%" style="width:100%;height:100%"></dc-import>
+    </x-import>
+  </div>
+</div>
+
+<div style="display:flex;flex-wrap:wrap;align-items:flex-start;gap:48px">
+  <div style="display:flex;flex-direction:column;gap:12px">
+    <div style="font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#f26532">768 · md(600~1023) · 상단 바 + 1열 720, 칩은 줄바꿈</div>
+    <x-import component-from-global-scope="ChromeWindow" from="./browser-window.jsx" width="{{ w768 }}" height="{{ h768 }}" url="gabolle.app/explore" hint-size="768px,1024px">
+      <dc-import name="ExploreScreen" width="768" state="{{ state }}" scope="{{ scope }}" facet-count="{{ facetCount }}" lang="{{ lang }}" hint-size="100%,100%" style="width:100%;height:100%"></dc-import>
+    </x-import>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:12px">
+    <div style="font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#f26532">414 · sm · 가로 스크롤 칩 + 사진 72 목록</div>
+    <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" width="{{ w414 }}" height="{{ h414 }}" hint-size="414px,896px">
+      <dc-import name="ExploreScreen" width="414" state="{{ state }}" scope="{{ scope }}" facet-count="{{ facetCount }}" lang="{{ lang }}" hint-size="100%,100%" style="width:100%;height:100%"></dc-import>
+    </x-import>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:12px">
+    <div style="font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#f26532">375 · sm</div>
+    <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" width="{{ w375 }}" height="{{ h375 }}" hint-size="375px,812px">
+      <dc-import name="ExploreScreen" width="375" state="{{ state }}" scope="{{ scope }}" facet-count="{{ facetCount }}" lang="{{ lang }}" hint-size="100%,100%" style="width:100%;height:100%"></dc-import>
+    </x-import>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:12px">
+    <div style="font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#f26532">360 · sm 하한</div>
+    <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" width="{{ w360 }}" height="{{ h360 }}" hint-size="360px,800px">
+      <dc-import name="ExploreScreen" width="360" state="{{ state }}" scope="{{ scope }}" facet-count="{{ facetCount }}" lang="{{ lang }}" hint-size="100%,100%" style="width:100%;height:100%"></dc-import>
+    </x-import>
+  </div>
+</div>
+
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;state&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;ok&quot;,&quot;options&quot;:[&quot;ok&quot;,&quot;denied&quot;,&quot;loading&quot;,&quot;error-offline&quot;,&quot;error-unavailable&quot;,&quot;error-other&quot;,&quot;empty&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;상태&quot;},&quot;scope&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;all&quot;,&quot;options&quot;:[&quot;all&quot;,&quot;nearby&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;상태&quot;},&quot;facetCount&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:8,&quot;options&quot;:[3,8,12],&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;자료&quot;},&quot;lang&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;ko&quot;,&quot;options&quot;:[&quot;ko&quot;,&quot;en&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;자료&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      state: this.props.state ?? 'ok',
+      scope: this.props.scope ?? 'all',
+      facetCount: this.props.facetCount ?? 8,
+      lang: this.props.lang ?? 'ko',
+      w1920:1920,h1920:1000,w1440:1440,h1440:900,w1024:1024,h1024:900,w768:768,h768:1024,w414:414,h414:896,w375:375,h375:812,w360:360,h360:800,
+    };
+  }
+}
+</script>
+</body>
+</html>
