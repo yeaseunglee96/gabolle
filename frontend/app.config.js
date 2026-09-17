@@ -13,24 +13,5 @@ module.exports = ({ config }) => {
     }
   }
 
-  // 안드로이드 지도 키 (S15P21E201-1140).
-  //
-  // 🔴 **없다고 빌드를 세우지 않는다.** 위의 둘과 성격이 다르다 — API 주소나 로그인 키가
-  //    빠지면 앱이 통째로 못 쓰게 되지만, 지도 키가 빠지면 **지도 한 화면만** 안 된다.
-  //    그걸로 배포를 막으면 멀쩡한 나머지 전부가 같이 멈춘다.
-  //
-  // 🔴 대신 **화면이 말한다.** 키가 없으면 안드로이드에서 회색 네모가 뜨는데, 회색 네모는
-  //    "고장났다" 로 읽힌다. `RouteMap.native.tsx` 가 그 상태를 알아보고 이유를 적는다.
-  //
-  // 🔴 iOS 는 이 키가 필요 없다 — 애플 지도를 쓴다. 그래서 키가 없어도 아이폰에서는
-  //    지도가 정상으로 뜬다.
-  const googleMapsApiKey = process.env.GOOGLE_MAPS_ANDROID_API_KEY?.trim();
-
-  return {
-    ...config,
-    android: {
-      ...config.android,
-      ...(googleMapsApiKey ? { config: { googleMaps: { apiKey: googleMapsApiKey } } } : {}),
-    },
-  };
+  return config;
 };
