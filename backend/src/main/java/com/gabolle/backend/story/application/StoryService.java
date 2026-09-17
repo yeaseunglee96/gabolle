@@ -1,6 +1,8 @@
 package com.gabolle.backend.story.application;
 
 import java.time.Clock;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -29,6 +31,7 @@ import com.gabolle.backend.story.presentation.dto.StoryResponse;
 import com.gabolle.backend.story.presentation.dto.StoryUpdateRequest;
 import com.gabolle.backend.story.repository.StoryImageRepository;
 import com.gabolle.backend.story.repository.StoryRepository;
+import com.gabolle.backend.story.repository.StoryViewRepository;
 import com.gabolle.backend.story.repository.UploadedImageRepository;
 import com.gabolle.backend.story.repository.UserFollowRepository;
 import com.gabolle.backend.trip.domain.Trip;
@@ -60,6 +63,18 @@ import com.gabolle.backend.trip.domain.TripRepository;
 @Profile({ "db", "dev" })
 public class StoryService {
 
+	/**
+	 * 「하루 한 번」의 그 하루를 재는 시간대 — S15P21E201-1204.
+	 *
+	 * <p>🔴 서버 시간대나 DB 의 {@code current_date} 를 쓰지 않는다. 이 서비스는 부산 여행이라
+	 * 사용자의 하루는 한국 시각이다. UTC 로 세면 <b>한국 시각 오전 9시에 날짜가 바뀌어</b>
+	 * 「어제 본 글을 오늘 또 봐도 안 세는」 구간이 생긴다.
+	 *
+	 * <p>이 저장소는 시간대를 쓰는 클래스마다 이렇게 따로 선언한다
+	 * ({@code ItineraryOpeningHoursChecker} · {@code ExchangeRateService} 등).
+	 */
+	private static final ZoneId COUNTING_ZONE = ZoneId.of("Asia/Seoul");
+
 	/** 여행에 시간대가 없을 때. 부산 서비스라 이것이 기본이다. */
 	static final ZoneId DEFAULT_ZONE = ZoneId.of("Asia/Seoul");
 
@@ -81,13 +96,15 @@ public class StoryService {
 
 	private final StoryVisibilityPolicy visibilityPolicy;
 
+	private final StoryViewRepository storyViewRepository;
+
 	private final Clock clock;
 
 	public StoryService(StoryRepository storyRepository, StoryImageRepository storyImageRepository,
 			UploadedImageRepository uploadedImageRepository, UserFollowRepository userFollowRepository,
 			TripRepository tripRepository, PlaceRepository placeRepository,
 			StorageCleanupService storageCleanupService, StoryResponseAssembler assembler,
-			StoryVisibilityPolicy visibilityPolicy, Clock clock) {
+			StoryVisibilityPolicy visibilityPolicy, StoryViewRepository storyViewRepository, Clock clock) {
 		this.storyRepository = storyRepository;
 		this.storyImageRepository = storyImageRepository;
 		this.uploadedImageRepository = uploadedImageRepository;
@@ -97,6 +114,7 @@ public class StoryService {
 		this.storageCleanupService = storageCleanupService;
 		this.assembler = assembler;
 		this.visibilityPolicy = visibilityPolicy;
+		this.storyViewRepository = storyViewRepository;
 		this.clock = clock;
 	}
 
@@ -206,15 +224,58 @@ public class StoryService {
 	 * 걸어야 한다 — {@link #requireAuthor}(수정·삭제 경로)까지 같이 걸면 작성자가 신고당한 자기
 	 * 기록을 고치거나 지울 수 없게 된다({@code StoryRepository.findActiveById} 주석 참고).
 	 */
-	@Transactional(readOnly = true)
-	public StoryResponse get(UUID storyId, UUID viewer) {
+	/**
+	 * 🔴 S15P21E201-1204 — <b>읽기 전용이 아니다.</b> 조회수를 여기서 올린다.
+	 *
+	 * <p>{@code ShareLinkService.open} 이 먼저 같은 판단을 했다 — <i>「조회와 열람 수 기록을
+	 * 같은 트랜잭션에서 한다. 따로 세면 『조회는 됐는데 수가 안 오른』 상태가 생긴다」</i>.
+	 * 이 메서드를 부르는 곳은 상세 조회 컨트롤러 하나뿐이라 영향이 그 경로에 닫혀 있다.
+	 *
+	 * <p>🔴 <b>볼 수 있는지 판정한 뒤에 센다.</b> 순서가 반대면 못 보는 글을 찔러도 수가 오르고,
+	 * 그 수가 곧 「그 글이 있다」는 사실의 유출이 된다.
+	 */
+	@Transactional
+	public StoryResponse get(UUID storyId, UUID viewer, UUID anonymousSessionId) {
 		Instant now = this.clock.instant();
 		Story story = this.storyRepository.findVisibleById(storyId)
 				.orElseThrow(() -> new StoryNotFoundException(storyId));
 		if (!this.visibilityPolicy.canView(story, viewer, now)) {
 			throw new StoryNotFoundException(storyId);
 		}
+		recordView(story, viewer, anonymousSessionId, now);
 		return this.assembler.one(story, viewer, now);
+	}
+
+	/**
+	 * 조회를 한 번 센다 — S15P21E201-1204. 규칙은 사장님이 정한 것이고 여기가 그것을 지키는 자리다.
+	 *
+	 * <ul>
+	 *   <li><b>작성자 본인은 안 센다</b> — 자기 글을 열어 보는 것으로 수가 오르면 그 수가
+	 *       「남이 읽었다」를 뜻하지 않게 된다</li>
+	 *   <li><b>식별할 수 없으면 안 센다</b> — 규칙이 <i>「비회원은 익명 세션으로 식별해서 센다」</i>
+	 *       이다. 세션도 없으면 「하루 한 번」을 지킬 방법이 없고, 세면 새로고침마다 오른다.
+	 *       🔴 <b>이것은 「비회원을 안 센다」가 아니다</b> — 세션이 있으면 센다</li>
+	 *   <li><b>하루 한 번</b> — 날짜를 {@link #COUNTING_ZONE} 으로 계산한다. DB 의
+	 *       {@code current_date} 를 쓰면 서버 시간대를 따라 한국 시각 오전 9시에 날짜가 바뀐다</li>
+	 * </ul>
+	 *
+	 * <p>🔴 중복은 <b>넣어 보고 돌아온 행 수</b>로 판정한다. 「오늘 것이 있나」를 먼저 읽으면
+	 * 같은 사람이 두 기기에서 동시에 열 때 둘 다 통과한다 —
+	 * {@code StoryViewRepository.insertIfAbsent} 주석에 자세히 있다.
+	 */
+	private void recordView(Story story, UUID viewer, UUID anonymousSessionId, Instant now) {
+		if (viewer != null && story.isAuthor(viewer)) {
+			return;
+		}
+		if (viewer == null && anonymousSessionId == null) {
+			return;
+		}
+		LocalDate viewedOn = LocalDate.ofInstant(now, COUNTING_ZONE);
+		int inserted = this.storyViewRepository.insertIfAbsent(UUID.randomUUID(), story.getStoryId(),
+				viewer, viewer == null ? anonymousSessionId : null, viewedOn, now);
+		if (inserted == 1) {
+			story.recordView();
+		}
 	}
 
 	/**

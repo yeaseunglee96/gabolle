@@ -132,7 +132,10 @@ public class StoryResponseAssembler {
 					story.isPublishedAt(now),
 					// S15P21E201-1183 — 이미 손에 있는 값이다. 부모를 다시 조회하지 않는다.
 					story.getParentStoryId() == null ? null : story.getParentStoryId().toString(),
-					story.getReplyCount()));
+					story.getReplyCount(),
+					// S15P21E201-1204 — 누적 칸이라 이미 손에 있다. 낱개를 세지 않는다.
+					story.getViewCount(),
+					story.getLinkCopyCount()));
 		}
 		return out;
 	}
