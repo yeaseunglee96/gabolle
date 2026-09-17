@@ -159,7 +159,7 @@ class StoryViewCountIntegrationTest {
 		assertThat(this.storyService.get(this.storyId, this.reader, null).viewCount())
 				.as("처음 연 사람에게 1이 안 보인다").isEqualTo(1);
 		assertThat(this.storyService.get(this.storyId, this.reader, null).linkCopyCount())
-				.as("링크 복사 수는 아직 세는 코드가 없어 0이어야 한다").isZero();
+				.as("글을 열었을 뿐인데 인용수가 올랐다 — 조회와 복사는 서로 안 섞인다 (S15P21E201-1215)").isZero();
 	}
 
 	private int viewCount() {
