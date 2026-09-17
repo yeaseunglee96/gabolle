@@ -82,6 +82,7 @@
       "expo-notifications",
       "expo-video",
       "./plugins/withExtraTrustedRoots",
+      "./plugins/withDatePickerTheme",
       "expo-web-browser"
     ],
     "extra": {
