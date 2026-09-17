@@ -141,6 +141,60 @@ class PlaceQuietnessReaderTest {
 	}
 
 	@Test
+	@DisplayName("🔴 그늘도 같은 읽기로 처리된다 — 되짚기 값(treeDensity 등)이 함께 남는다")
+	void readsShadeWithItsProvenanceFields() throws Exception {
+		// 실제 산출물 — 감지해변. noiseP90 같은 검산용 짝이 없는 쪽이다.
+		String shade = """
+				{"contentid":"2785289","title":"감지해변","featureType":"SHADE_SCORE",\
+				"evidenceStatus":"ESTIMATED","shadeScore":21,"treeDensity":0.0398,"sections":1,\
+				"plantedM":1400,"radiusM":500}""";
+
+		List<PlaceFeatureNdjsonReader.Fact> facts = readAll("shadeScore", "SHADE_SCORE", shade);
+
+		assertThat(facts.get(0).featureType()).isEqualTo("SHADE_SCORE");
+		assertThat(facts.get(0).keySource()).isEqualTo(TourApiPlaceLoader.SOURCE_TYPE);
+		// 21 → 0.21. treeDensity 는 검산용이 아니라 되짚기용이다 — shadeScore 와 일정한
+		// 비율이 아니라서(실측 527·687·784배) 검산에 쓸 수 없다.
+		assertThat(facts.get(0).value())
+				.contains("\"score\":0.21")
+				.contains("\"treeDensity\":0.0398")
+				.contains("\"plantedM\":1400.0");
+	}
+
+	@Test
+	@DisplayName("🔴 검산할 짝이 없는 축도 눈금을 지킨다 — 파일 전체가 1 이하면 한 줄도 안 넣고 멈춘다")
+	void refusesAnAlreadyScaledFileEvenWithoutACrossCheckPartner() throws Exception {
+		// 🔴 그늘·로컬에는 noiseP90 같은 짝이 없다. 한 줄만 보면 0.5 가 0~100 눈금의 작은
+		//    값인지 0~1 눈금의 큰 값인지 가를 수 없다 — 그래서 범위 검사로는 못 막는다.
+		//
+		//    파일 전체를 보면 갈린다. 수백 줄짜리 0~100 산출물에서 모든 값이 1 이하일 수는
+		//    사실상 없다(실측: 그늘 99.8·99.9, 로컬 100·99.9).
+		String[] alreadyScaled = new String[60];
+		for (int i = 0; i < alreadyScaled.length; i++) {
+			alreadyScaled[i] = """
+					{"contentid":"%d","featureType":"SHADE_SCORE","shadeScore":0.%02d,"radiusM":500}"""
+					.formatted(1000 + i, i);
+		}
+
+		assertThatThrownBy(() -> readAll("shadeScore", "SHADE_SCORE", alreadyScaled))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessageContaining("이미 0~1 눈금으로 보인다")
+				.hasMessageContaining("100배 작아져");
+	}
+
+	@Test
+	@DisplayName("줄이 몇 개뿐이면 눈금을 판정하지 않는다 — 우연히 전부 작을 수 있다")
+	void doesNotJudgeScaleOnATinyFile() throws Exception {
+		// 0~100 눈금인데 값이 우연히 작은 두 줄. 여기서 멈추면 정상 산출물을 막게 된다.
+		String a = """
+				{"contentid":"1","featureType":"SHADE_SCORE","shadeScore":0.4,"radiusM":500}""";
+		String b = """
+				{"contentid":"2","featureType":"SHADE_SCORE","shadeScore":0.9,"radiusM":500}""";
+
+		assertThat(readAll("shadeScore", "SHADE_SCORE", a, b)).hasSize(2);
+	}
+
+	@Test
 	@DisplayName("값이 없는 줄은 버린다 — 멈추지 않는다")
 	void skipsLinesWithoutAValue() throws Exception {
 		String noValue = """

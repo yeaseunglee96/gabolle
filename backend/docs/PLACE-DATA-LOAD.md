@@ -45,9 +45,11 @@ done
 | `bigData/data/staged/place-quietness-sbiz.ndjson` | 2,355 | 조용함 (상가) |
 | `bigData/data/staged/place-locality.ndjson` | 498 | 로컬성 (관광공사) |
 | `bigData/data/staged/place-locality-sbiz.ndjson` | 2,230 | 로컬성 (상가) |
+| `bigData/data/staged/place-shade.ndjson` | 363 | 그늘 (관광공사) |
+| `bigData/data/staged/place-shade-sbiz.ndjson` | 1,749 | 그늘 (상가) |
 
 ```bash
-for f in place-slope place-quietness place-quietness-sbiz place-locality place-locality-sbiz; do
+for f in place-slope place-quietness place-quietness-sbiz place-locality place-locality-sbiz          place-shade place-shade-sbiz; do
   git show origin/bigData/dev:bigData/data/staged/$f.ndjson > /tmp/load/$f.ndjson
 done
 ```
@@ -195,8 +197,13 @@ curl -s https://j15e201.p.ssafy.io/api/v1/places/facets \
 | 축 | 장소 쪽 값 | 적재 뒤 기대 |
 |---|---|---|
 | `SLOPE_PREFERENCE` | `SLOPE_PERCENT` | **2,682** (2026-09-17 실측) |
-| `QUIETNESS` | `QUIETNESS_SCORE` | 확인 못 함 — 아직 안 돌렸다 |
-| `LOCALITY` | `LOCALITY_SCORE` | 확인 못 함 — 아직 안 돌렸다 |
+| `QUIETNESS` | `QUIETNESS_SCORE` | **3,009** (줄 수. 실측 아님) |
+| `LOCALITY` | `LOCALITY_SCORE` | **2,728** (줄 수. 실측 아님) |
+| `SHADE_PREFERENCE` | `SHADE_SCORE` | **2,112** (줄 수. 실측 아님) |
+
+> 🔴 **뒤의 셋은 「줄 수」이지 실측값이 아니다.** 붙을 장소가 운영 DB 에 있느냐에 따라 더 작게
+> 나오는 것이 정상이다 — 경사가 2,213줄 중 **327곳**만 붙은 선례가 그것이다. **0 이면 실패다.**
+> 실제로 돌린 사람이 이 자리를 실측값으로 바꿔 주면 다음 사람이 그것으로 판정할 수 있다.
 
 > 🔴 **이 확인 방법은 2026-09-17 이전에는 쓸 수 없었다.** 갈래 목록이 **점수형 축을 전부
 > 0 으로 냈기 때문이다**(`S15P21E201-1149`). `feature_key` 가 없는 행을 합계에서 빼는
@@ -238,6 +245,7 @@ DELETE FROM place         WHERE source_type = 'TOURAPI' AND dataset_version = 't
 ```sql
 DELETE FROM place_feature WHERE source_type = 'DERIVED_QUIETNESS';
 DELETE FROM place_feature WHERE source_type = 'DERIVED_LOCALITY';
+DELETE FROM place_feature WHERE source_type = 'DERIVED_SHADE';
 ```
 
 🔴 **경사는 이렇게 못 지운다.** 경사 적재기는 `source_type` 을 `TOURAPI` 로 넣어서, 관광공사

@@ -65,7 +65,8 @@ import org.springframework.stereotype.Component;
 		+ "or '${gabolle.place.loader.visitor-facts:}' != '' "
 		+ "or '${gabolle.place.loader.place-slope:}' != '' "
 		+ "or '${gabolle.place.loader.place-quietness:}' != '' "
-		+ "or '${gabolle.place.loader.place-locality:}' != ''")
+		+ "or '${gabolle.place.loader.place-locality:}' != '' "
+		+ "or '${gabolle.place.loader.place-shade:}' != ''")
 public class PlaceFeatureLoaderRunner implements ApplicationRunner {
 
 	/** {@code place_feature.source_type} — 가격대가 어디서 왔나. */
@@ -107,6 +108,9 @@ public class PlaceFeatureLoaderRunner implements ApplicationRunner {
 	/** {@code place_feature.source_type} — 로컬성이 어디서 왔나. {@link #DERIVED_QUIETNESS_SOURCE_TYPE} 과 같은 이유. */
 	public static final String DERIVED_LOCALITY_SOURCE_TYPE = "DERIVED_LOCALITY";
 
+	/** {@code place_feature.source_type} — 그늘이 어디서 왔나. {@link #DERIVED_QUIETNESS_SOURCE_TYPE} 과 같은 이유. */
+	public static final String DERIVED_SHADE_SOURCE_TYPE = "DERIVED_SHADE";
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(PlaceFeatureLoaderRunner.class);
 
 	/** 한 트랜잭션에 넣는 사실 수. 파일이 1,000줄 아래라 한 번에 넣어도 되지만 규칙을 같게 둔다. */
@@ -124,6 +128,8 @@ public class PlaceFeatureLoaderRunner implements ApplicationRunner {
 
 	private final String placeLocalityPath;
 
+	private final String placeShadePath;
+
 	private final String datasetVersion;
 
 	public PlaceFeatureLoaderRunner(PlaceFeatureLoader loader,
@@ -132,6 +138,7 @@ public class PlaceFeatureLoaderRunner implements ApplicationRunner {
 			@Value("${gabolle.place.loader.place-slope:}") String placeSlopePath,
 			@Value("${gabolle.place.loader.place-quietness:}") String placeQuietnessPath,
 			@Value("${gabolle.place.loader.place-locality:}") String placeLocalityPath,
+			@Value("${gabolle.place.loader.place-shade:}") String placeShadePath,
 			@Value("${gabolle.place.loader.dataset-version:}") String datasetVersion) {
 		this.loader = loader;
 		this.priceBandPath = priceBandPath;
@@ -139,6 +146,7 @@ public class PlaceFeatureLoaderRunner implements ApplicationRunner {
 		this.placeSlopePath = placeSlopePath;
 		this.placeQuietnessPath = placeQuietnessPath;
 		this.placeLocalityPath = placeLocalityPath;
+		this.placeShadePath = placeShadePath;
 		this.datasetVersion = datasetVersion;
 	}
 
@@ -167,6 +175,13 @@ public class PlaceFeatureLoaderRunner implements ApplicationRunner {
 		load("장소 로컬성", this.placeLocalityPath, DERIVED_LOCALITY_SOURCE_TYPE,
 				(file, chunkSize, chunkConsumer) -> PlaceFeatureNdjsonReader.readPlaceScores(
 						file, "localityScore", "LOCALITY_SCORE", chunkSize, chunkConsumer));
+		// 🔴 그늘은 덮은 비율이 관광공사 55% · 상가 74% 다. 기록이 없는 곳은 산출물에 줄이
+		//    아예 없고, 적재기는 그런 줄을 만들지 않는다 — 「그늘 0」과 「모름」은 다른 것이라
+		//    없는 값을 0 으로 채우면, 그늘 많은 길을 찾는 사람에게 조사 안 된 곳을
+		//    「그늘 없음」으로 보여주게 된다(S15P21E201-1158 이 접근성에서 정한 선과 같다).
+		load("장소 그늘", this.placeShadePath, DERIVED_SHADE_SOURCE_TYPE,
+				(file, chunkSize, chunkConsumer) -> PlaceFeatureNdjsonReader.readPlaceScores(
+						file, "shadeScore", "SHADE_SCORE", chunkSize, chunkConsumer));
 	}
 
 	private void load(String label, String path, String sourceType,

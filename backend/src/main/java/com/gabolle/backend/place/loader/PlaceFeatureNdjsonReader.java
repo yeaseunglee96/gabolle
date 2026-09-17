@@ -288,6 +288,7 @@ public final class PlaceFeatureNdjsonReader {
 	 */
 	public static Counts readPlaceScores(Path file, String valueField, String featureType, int chunkSize,
 			Consumer<List<Fact>> chunkConsumer) {
+		requirePercentScale(file, valueField, featureType);
 		return read(file, chunkSize, chunkConsumer, (node, out) -> {
 			String contentId = text(node, "contentid");
 			String keySource;
@@ -342,6 +343,11 @@ public final class PlaceFeatureNdjsonReader {
 			copyNumber(node, payload, "roads");
 			copyNumber(node, payload, "roadLengthM");
 			copyNumber(node, payload, "shops");
+			// 그늘 — S15P21E201-1184. 🔴 treeDensity 는 검산용이 아니다(shadeScore 와 일정한
+			// 비율이 아니다). 어떻게 나온 값인지를 남기려고 옮길 뿐이다.
+			copyNumber(node, payload, "treeDensity");
+			copyNumber(node, payload, "sections");
+			copyNumber(node, payload, "plantedM");
 			out.add(new Fact(storeId, featureType, write(payload), keySource));
 			return true;
 		});
@@ -352,6 +358,71 @@ public final class PlaceFeatureNdjsonReader {
 	 * 0.01 보다 작은 차이는 반올림에서 온다.
 	 */
 	private static final double SCORE_CROSS_CHECK_TOLERANCE = 0.01;
+
+	/**
+	 * 이 줄 수를 넘는 파일에서만 눈금을 판정한다 — 아래 {@link #requirePercentScale} 참고.
+	 *
+	 * <p>줄이 몇 개뿐이면 0~100 눈금이어도 값이 우연히 전부 1 이하일 수 있다. 실제 산출물은
+	 * 363줄이 가장 작다.
+	 */
+	private static final int SCALE_CHECK_MIN_ROWS = 50;
+
+	/**
+	 * 🔴 <b>이미 0~1 로 바뀐 산출물을 또 나누려는 것</b>을 한 줄도 넣기 전에 잡는다 —
+	 * S15P21E201-1184.
+	 *
+	 * <h2>왜 한 줄로는 못 가리나</h2>
+	 *
+	 * {@code 0.5} 한 줄만 보면 0~100 눈금의 작은 값인지 0~1 눈금의 큰 값인지 <b>가를 수 없다.</b>
+	 * 그래서 범위 검사({@code 0 이상 100 이하})는 이 사고를 못 막는다 — 두 번 나눈 값
+	 * {@code 0.009} 는 그 검사를 통과하고, 채점기에서 축을 통째로 0 으로 만든다.
+	 *
+	 * <h2>파일 전체를 보면 갈린다</h2>
+	 *
+	 * 수백 줄짜리 0~100 산출물에서 <b>모든 값이 1 이하일 수는 사실상 없다.</b> 실측으로도 네
+	 * 산출물 전부 최댓값이 99 를 넘는다(그늘 99.8·99.9, 로컬 100·99.9).
+	 *
+	 * <h2>🔴 왜 읽기 <b>전</b>인가</h2>
+	 *
+	 * 다 읽고 나서 던지면 앞쪽 덩어리는 <b>이미 DB 에 들어간 뒤</b>다 — 저장이 덩어리마다
+	 * 일어나기 때문이다. 그러면 잘못된 눈금의 행이 남고, 그 상태는 「일부만 이상한 값」이라
+	 * 알아채기가 더 어렵다. 한 번 더 훑는 값이 그것보다 싸다(가장 큰 파일이 2,400줄이다).
+	 *
+	 * <h2>조용함은 이 검사가 없어도 된다 — 그래도 함께 건다</h2>
+	 *
+	 * 조용함에는 {@code noiseP90} 이라는 짝이 있어 줄마다 검산할 수 있다. 그늘과 로컬에는
+	 * <b>그런 짝이 없다</b>({@code treeDensity} 는 {@code shadeScore} 와 일정한 비율이 아니다 —
+	 * 실측 527·687·784배). 축마다 다르게 두지 않는 이유는, 나중에 짝이 있는 축이 하나 더
+	 * 생겼을 때 <b>어느 축에 무슨 검사가 걸려 있는지</b>를 다시 세지 않으려는 것이다.
+	 */
+	private static void requirePercentScale(Path file, String valueField, String featureType) {
+		double max = Double.NEGATIVE_INFINITY;
+		int seen = 0;
+		try (BufferedReader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
+			String line;
+			while ((line = reader.readLine()) != null) {
+				if (line.isBlank()) {
+					continue;
+				}
+				JsonNode value = MAPPER.readTree(line).path(valueField);
+				if (value.isNumber()) {
+					max = Math.max(max, value.asDouble());
+					seen++;
+				}
+			}
+		}
+		catch (IOException ex) {
+			throw new IllegalStateException("산출물을 읽을 수 없다: " + file.toAbsolutePath(), ex);
+		}
+
+		if (seen >= SCALE_CHECK_MIN_ROWS && max <= 1.0) {
+			throw new IllegalArgumentException(
+					("%s 산출물이 이미 0~1 눈금으로 보인다 — %d줄의 최댓값이 %s 다 (파일 %s). "
+							+ "이 적재기는 0~100 을 받아 100 으로 나눠 넣으므로, 이대로 넣으면 값이 "
+							+ "100배 작아져 채점기에서 이 축이 통째로 0 이 된다. 산출물 눈금을 확인하라")
+									.formatted(featureType, seen, max, file.getFileName()));
+		}
+	}
 
 	/** 있으면 그대로 옮긴다. 없으면 만들어 넣지 않는다. */
 	private static void copyNumber(JsonNode from, ObjectNode to, String field) {
