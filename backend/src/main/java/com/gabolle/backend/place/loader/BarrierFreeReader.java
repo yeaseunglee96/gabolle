@@ -120,7 +120,8 @@ public final class BarrierFreeReader {
 					continue;
 				}
 				List<String> codes = BarrierFreeAccessibility.of(
-						item.path("exit").asString(), item.path("stroller").asString());
+						item.path("exit").asString(), item.path("route").asString(),
+						item.path("stroller").asString());
 				if (codes.isEmpty()) {
 					noCode++;
 					continue;
