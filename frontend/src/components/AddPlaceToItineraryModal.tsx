@@ -5,7 +5,7 @@
 // 🔴 더하기 자체는 시각을 안 채운다(addItineraryItem 주석). 그래서 성공하면 이어서
 // recalculateItineraryDay 를 부른다 — 실패해도 더한 장소는 남고 시각만 비어 있을 뿐이라
 // 그 실패로 전체를 실패 취급하지 않는다.
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
@@ -45,8 +45,13 @@ export function AddPlaceToItineraryModal({ visible, placeId, onClose }: AddPlace
   const [itineraries, setItineraries] = useState<TripItineraryRefDto[]>([]);
   const [selectedItinerary, setSelectedItinerary] = useState<TripItineraryRefDto | null>(null);
   const [errorMessage, setErrorMessage] = useState('');
+  // 닫은 뒤(또는 다시 연 뒤) 도착하는 응답이 그새 초기화된 상태를 덮어쓰지 않도록 막는다 —
+  // 여닫는 동안 요청이 몇 번 겹칠 수 있는데, 그때마다 "지금 이 요청이 아직 유효한가" 를
+  // 이 번호 하나로 판단한다.
+  const requestIdRef = useRef(0);
 
   const reset = () => {
+    requestIdRef.current += 1;
     setStep('loadingTrips');
     setTrips([]);
     setSelectedTrip(null);
@@ -75,7 +80,9 @@ export function AddPlaceToItineraryModal({ visible, placeId, onClose }: AddPlace
   const pickTrip = async (trip: TripSummaryDto) => {
     setSelectedTrip(trip);
     setStep('loadingItineraries');
+    const requestId = requestIdRef.current;
     const result = await loadTripItineraries(trip.tripId, accessToken);
+    if (requestId !== requestIdRef.current) return;
     if (result.state !== 'success') { setErrorMessage(result.message); setStep('error'); return; }
     if (result.itineraries.length === 0) {
       setErrorMessage(tx('이 여행에는 일정이 없어요.', 'This trip has no itinerary.'));
@@ -92,10 +99,13 @@ export function AddPlaceToItineraryModal({ visible, placeId, onClose }: AddPlace
   const pickDay = async (dayIndex: number) => {
     if (!selectedItinerary) return;
     setStep('submitting');
+    const requestId = requestIdRef.current;
     const result = await addItineraryItem({ itineraryId: selectedItinerary.itineraryId, placeId, dayIndex, baseVersion: selectedItinerary.latestVersion, accessToken });
+    if (requestId !== requestIdRef.current) return;
     if (result.state === 'conflict') {
       // 그 사이 다른 편집이 있었다 — 최신 판 번호로 한 번만 다시 시도한다.
       const retry = await addItineraryItem({ itineraryId: selectedItinerary.itineraryId, placeId, dayIndex, baseVersion: result.latestVersion, accessToken });
+      if (requestId !== requestIdRef.current) return;
       if (retry.state !== 'success') { setErrorMessage(retry.state === 'conflict' ? tx('다른 사람이 방금 이 일정을 바꿨어요. 다시 열어서 시도해 주세요.', 'Someone else just changed this itinerary. Please reopen and try again.') : retry.message); setStep('error'); return; }
       void recalculateItineraryDay({ itineraryId: selectedItinerary.itineraryId, baseVersion: retry.itinerary.version, dayIndex, accessToken });
       setStep('done');
