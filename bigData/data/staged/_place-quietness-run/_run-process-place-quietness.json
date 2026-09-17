@@ -1,7 +1,7 @@
 {
  "step": "process/place-quietness",
- "at": "2026-09-17T02:15:01.440Z",
- "git": "2c29f9eed30f8fcebeec4a6597f1de9a01fbc8fd",
+ "at": "2026-09-17T02:21:55.274Z",
+ "git": "6aade21424eb32837271cf39642e12fe19c89e67",
  "node": "v24.18.0",
  "inputs": [
   {
@@ -28,6 +28,7 @@
  "params": {
   "radiusM": 200,
   "minLengthM": 150,
+  "pieceM": 100,
   "stat": "length-weighted p90 of road-class noise weight, inverted",
   "unknownWeight": 0.35
  },
@@ -35,7 +36,8 @@
   "places": 656,
   "made": 654,
   "tooFew": 2,
-  "roads": 192648,
+  "ways": 67793,
+  "pieces": 192648,
   "skippedRoads": 248,
   "unknownClassRoads": 15,
   "control": {
