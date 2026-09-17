@@ -46,21 +46,36 @@ function CourseCard({ course, onAction }: { course: RecommendationCourse; onActi
 
 export default function Recommendations() {
   const router = useRouter(); const { accessToken } = useAuth(); const { tx } = useI18n(); const { id, jobId } = useLocalSearchParams<{ id: string; jobId?: string }>();
+  const [view, setView] = useState<RecommendationViewModel>(() => jobId || id ? { ...unavailableRecommendations(), state: 'loading', message: tx('추천 결과를 확인하고 있어요.', 'Checking your recommendation result.') } : unavailableRecommendations());
+
   // 완성된 일정으로 가기 전에 한 번만 이름을 물어본다 (S15P21E201-1036).
   //
-  // 🔴 이 화면이 사슬에서 **여행 id 와 일정 id 를 둘 다 아는 유일한 자리**다. 주소의 id 는
-  // 여행 id 이고(76행이 tripId 로 쓴다), 일정 id 는 view.itineraryId 다. 일정 화면으로 가면
-  // 여행 id 를 잃는다 — 서버가 주는 일정 정보에 그 칸이 없다.
+  // 🔴 2026-09-17 (S15P21E201-1178) — 여기 있던 주석이 **틀려 있었다.** 지우지 않고 적어 둔다:
+  //    *「주소의 id 는 여행 id 이고(76행이 tripId 로 쓴다)」*. 아니다. 아래 reload() 의 주석이
+  //    맞다 — 이 화면의 주소는 `/trips/{작업번호}/recommendations` 이고, 그 칸은 **작업 번호**다.
+  //    같은 파일 안에서 두 주석이 서로 반대를 말하고 있었다.
+  //
+  //    그래서 이름 짓기로 갈 때 **작업 번호를 여행 번호 자리에 넣어 보냈고**, 이름 화면은
+  //    그 값으로 여행을 찾다 실패해 「이 여행을 찾을 수 없어요」를 띄웠다. 사용자가 여행을
+  //    완성하고 이름을 짓는 마지막 자리에서 막혔다.
+  //
+  // 🔴 그래서 **주소를 믿지 않고 서버가 준 값을 쓴다** — `view.tripId`(S15P21E201-1084 로
+  //    응답에 생긴 칸). 주소만 고치면 전제는 여전히 아무도 안 검사한다.
+  //
+  // 🔴 그 칸을 아직 안 주는 서버가 있다. 없으면 **묻지 않고 일정으로 바로 간다** —
+  //    틀린 번호를 넘기는 것보다 낫고, 아래 catch 의 방침과 같다.
   //
   // 🔴 이미 이름이 있거나 한 번 물어봤으면 **묻지 않고 그냥 지나간다.** 같은 질문을 두 번
   // 하면 건너뛰기가 「나중에 또 물어볼게요」가 된다.
   const openItinerary = async (itineraryId: string) => {
     const target = `/trips/${itineraryId}/itinerary`;
+    const tripId = view.tripId;
+    if (!tripId) { router.push(target); return; }
     try {
-      const [trips, alreadyAsked] = await Promise.all([loadTrips(accessToken), wasTripNameAsked(id)]);
-      const title = trips.state === 'success' ? trips.trips.find((trip) => trip.tripId === id)?.title : null;
+      const [trips, alreadyAsked] = await Promise.all([loadTrips(accessToken), wasTripNameAsked(tripId)]);
+      const title = trips.state === 'success' ? trips.trips.find((trip) => trip.tripId === tripId)?.title : null;
       if (shouldAskTripName({ title, alreadyAsked })) {
-        router.push(`/${id}/name?next=${encodeURIComponent(target)}` as never);
+        router.push(`/${tripId}/name?next=${encodeURIComponent(target)}` as never);
         return;
       }
     } catch {
@@ -69,7 +84,6 @@ export default function Recommendations() {
     }
     router.push(target);
   };
-  const [view, setView] = useState<RecommendationViewModel>(() => jobId || id ? { ...unavailableRecommendations(), state: 'loading', message: tx('추천 결과를 확인하고 있어요.', 'Checking your recommendation result.') } : unavailableRecommendations());
   // 담아두기·빼기가 어디에 속하는가 — S15P21E201-1082.
   //
   // 🔴 서버 주소에는 여행 번호가 필요하고, 기기 저장에는 아무 열쇠나 있으면 된다. 둘이 다른
