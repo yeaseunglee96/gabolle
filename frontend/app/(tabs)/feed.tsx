@@ -106,7 +106,12 @@ function StoryCard({ story, compact, showUnfollow, unfollowBusy, onUnfollow, onO
 
     {/* 🔴 S15P21E201-1136 — 목록에서는 효과를 벗긴다. 제목을 크게 그리면 카드 높이가
         글마다 들쭉날쭉해져서 목록이 읽기 어려워진다. 온전한 모양은 상세에서만 보여준다. */}
-    <Text color={color.text.body} style={styles.body} numberOfLines={compact ? 3 : 6}>{markdownToPlain(story.body)}</Text>
+    {/* 🔴 본문 자체가 글로 가는 문이다 (S15P21E201-1169). 전에는 아래 「기록 자세히 보기」
+        한 곳만 눌렸는데, 목록에서 글을 읽다 더 보고 싶으면 본문을 누르는 것이 먼저 나오는
+        행동이다. 「자세히 보기」는 그대로 둔다 — 화면 낭독기에는 그쪽이 분명한 이름이다. */}
+    <Pressable accessibilityRole="link" accessibilityLabel={tx('기록 자세히 보기', 'View record details')} onPress={onOpen}>
+      <Text color={color.text.body} style={styles.body} numberOfLines={compact ? 3 : 6}>{markdownToPlain(story.body)}</Text>
+    </Pressable>
     <StoryImages images={story.images} compact={compact} />
 
     <View style={styles.cardFooter}>
@@ -562,7 +567,15 @@ const styles = StyleSheet.create({
 
   // 넓은 화면: 본문 + 보조 칸. 보조 칸은 폭 고정, 본문이 남는 만큼 가져간다.
   wideGrid: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[6], marginTop: spacing[6] },
-  feedColumn: { flex: 1, minWidth: 0 },
+  // 🔴 피드 기둥에 최대 폭을 준다 (S15P21E201-1169).
+  //
+  // 전에는 flex:1 만 있어서 넓은 화면에서 카드가 1,200px 넘게 벌어졌다. 그러면 두 가지가
+  // 같이 나빠진다 — 글이 한 줄에 너무 길어 읽기 어렵고, 사진의 **비율 제한이 무력해진다**
+  // (0.6 비율이 폭 1,200 에서 높이 2,000 이 된다). 사용자가 올린 화면이 그 상태였다.
+  //
+  // 600 은 이런 세로 피드의 통상 폭이다(X 가 598). 폰에서는 화면이 그보다 좁으므로
+  // 아무것도 안 바뀐다.
+  feedColumn: { flex: 1, minWidth: 0, maxWidth: 600, width: '100%', alignSelf: 'center' },
   aside: { width: 320, gap: spacing[2] },
   asideCard: { borderWidth: 1, borderColor: color.surface.border, borderRadius: radius.md, backgroundColor: color.surface.card },
   mapCard: { borderWidth: 1, borderColor: color.surface.border, borderRadius: radius.lg, backgroundColor: color.surface.card, overflow: 'hidden' },
