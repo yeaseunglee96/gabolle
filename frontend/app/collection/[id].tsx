@@ -30,7 +30,7 @@ export default function CollectionListDetail() {
   const { tx, language } = useI18n();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { accessToken } = useAuth();
-  const { lists, places, syncedToServer, addNewPlaceToList, removePlaceFromList, deleteList } = useCollection();
+  const { lists, places, syncedToServer, addNewPlaceToList, removePlaceFromList, deleteList, renameList } = useCollection();
   const list = lists.find((entry) => entry.id === id);
   const [adding, setAdding] = useState(false);
   const [name, setName] = useState('');
@@ -127,6 +127,32 @@ export default function CollectionListDetail() {
     setName(''); setCategory(''); setLocality(''); setNote(''); setPhotoUri(null); setCoords(null); setSearchResults([]); setSearched(false); setAdding(false);
   };
 
+  // 🔴 S15P21E201-1153 — 이름을 고치는 자리가 화면에 아예 없었다.
+  //
+  //    티켓은 「고쳐도 서버에 안 간다」로 적혀 있었는데, 실기기에서 보니 **고칠 수가
+  //    없었다.** 서버로 보내는 배선(renameList → 보류 목록 → PATCH)은 이미 들어와 있고
+  //    시험도 붙어 있었는데, 그것을 부르는 화면이 한 곳도 없었다(2026-09-17 실측:
+  //    renameList 호출부 0곳). 배선만 있고 문이 없던 셈이라 문을 단다.
+  const [editing, setEditing] = useState(false);
+  const [draftName, setDraftName] = useState('');
+  const [draftDescription, setDraftDescription] = useState('');
+
+  const openEdit = () => {
+    // 지금 값으로 채워서 연다 — 빈 칸으로 열면 고치려던 사람이 처음부터 다시 쓴다.
+    setDraftName(list?.name ?? '');
+    setDraftDescription(list?.description ?? '');
+    setEditing(true);
+  };
+
+  const saveEdit = () => {
+    if (!list) return;
+    const trimmed = draftName.trim();
+    // 🔴 빈 이름은 저장하지 않는다. 이름이 없으면 목록에서 그 리스트를 가리킬 말이 없다.
+    if (!trimmed) return;
+    renameList(list.id, trimmed, draftDescription);
+    setEditing(false);
+  };
+
   const confirmDeleteList = () => {
     deleteList(list.id);
     router.replace('/collection');
@@ -136,12 +162,21 @@ export default function CollectionListDetail() {
     <Pressable accessibilityRole="button" accessibilityLabel={tx('뒤로 가기', 'Go back')} onPress={() => router.canGoBack() ? router.back() : router.replace('/collection')} style={styles.back}><Text variant="title">‹ {tx('뒤로', 'Back')}</Text></Pressable>
 
     <View style={styles.headerRow}>
-      <View style={styles.grow}><Text variant="display" weight="bold">{list.name}</Text>
+      <View style={styles.grow}>{editing
+        ? <TextInput accessibilityLabel={tx('리스트 이름', 'List name')} maxLength={COLLECTION_LIMITS.name} value={draftName} onChangeText={setDraftName} placeholder={tx('리스트 이름', 'List name')} placeholderTextColor={color.text.muted} style={styles.input} />
+        : <Text variant="display" weight="bold">{list.name}</Text>}
         {/* 🔴 어디에 저장되는지를 이 화면에서도 말한다. 홈에서만 말하면 여기 들어온
             사람은 못 본다 — 저장되는 곳은 화면마다 달라지지 않지만 사람의 기억은 달라진다. */}
         <Text variant="caption" color={color.text.muted}>{tx(
           `저장한 곳 ${list.placeIds.length} · ${syncedToServer ? '내 계정에 저장돼요' : '이 기기에만 저장돼요'}`,
-          `${list.placeIds.length} place(s) · ${syncedToServer ? 'saved to your account' : 'saved on this device only'}`)}</Text>{list.description ? <Text variant="caption" color={color.text.muted}>{list.description}</Text> : null}</View>
+          `${list.placeIds.length} place(s) · ${syncedToServer ? 'saved to your account' : 'saved on this device only'}`)}</Text>{editing
+          ? <><TextInput accessibilityLabel={tx('리스트 설명', 'List description')} maxLength={COLLECTION_LIMITS.description} value={draftDescription} onChangeText={setDraftDescription} placeholder={tx('설명 (선택)', 'Description (optional)')} placeholderTextColor={color.text.muted} style={styles.input} />
+            <View style={styles.deleteConfirm}>
+              <Pressable accessibilityRole="button" onPress={() => setEditing(false)}><Text variant="caption" weight="bold" color={color.text.muted}>{tx('취소', 'Cancel')}</Text></Pressable>
+              <Pressable accessibilityRole="button" accessibilityLabel={tx('이름 저장', 'Save name')} onPress={saveEdit}><Text variant="caption" weight="bold" color={color.action.secondary}>{tx('저장', 'Save')}</Text></Pressable>
+            </View></>
+          : <>{list.description ? <Text variant="caption" color={color.text.muted}>{list.description}</Text> : null}
+            <Pressable accessibilityRole="button" accessibilityLabel={tx('리스트 이름 고치기', 'Edit list name')} onPress={openEdit}><Text variant="caption" weight="bold" color={color.action.secondary}>{tx('이름 고치기', 'Edit name')}</Text></Pressable></>}</View>
       {confirmDelete ? <View style={styles.deleteConfirm}><Pressable accessibilityRole="button" onPress={() => setConfirmDelete(false)}><Text variant="caption" weight="bold" color={color.text.muted}>{tx('취소', 'Cancel')}</Text></Pressable><Pressable accessibilityRole="button" onPress={confirmDeleteList}><Text variant="caption" weight="bold" color={color.state.danger}>{tx('삭제 확정', 'Confirm delete')}</Text></Pressable></View> : <Pressable accessibilityRole="button" accessibilityLabel={tx('리스트 삭제', 'Delete list')} onPress={() => setConfirmDelete(true)}><Text variant="caption" weight="bold" color={color.state.danger}>{tx('삭제', 'Delete')}</Text></Pressable>}
     </View>
 
