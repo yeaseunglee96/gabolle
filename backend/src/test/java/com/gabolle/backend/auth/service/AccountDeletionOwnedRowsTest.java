@@ -11,10 +11,12 @@ import jakarta.persistence.Entity;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 
 import com.gabolle.backend.auth.service.AccountDeletionService.OwnedRows;
+import com.gabolle.testslice.AuthSliceApplication;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -91,6 +93,36 @@ class AccountDeletionOwnedRowsTest {
 				.containsExactlyInAnyOrder("key.followerUserId", "key.followeeUserId");
 		assertThat(fieldsByEntity.get("UserBlock"))
 				.containsExactlyInAnyOrder("key.blockerUserId", "key.blockedUserId");
+	}
+
+	@Test
+	@DisplayName("🔴 인증 슬라이스가 목록의 엔티티를 전부 올린다 — 빠지면 CI 에서만 빨개진다")
+	void authSliceMapsEveryEntityInTheList() {
+		// 🔴 이 시험이 왜 있나. 2026-09-17 에 이 목록을 처음 넣었을 때 AuthSliceApplication 의
+		//    @EntityScan 에 네 패키지가 빠져 있었고, 탈퇴 통합 테스트 11개가 통째로
+		//    UnknownEntityException("Could not resolve root entity 'Collection'") 으로 죽었다.
+		//
+		//    로컬에서는 그 시험들이 도커가 없어 **실패가 아니라 건너뜀**이라 안 보였다.
+		//    클래스패스에 @Entity 클래스가 있다는 것과 그것이 이 슬라이스의 영속성 단위에
+		//    올라와 있다는 것은 **다른 사실**이다 — 앞의 시험들은 앞엣것만 봤다.
+		EntityScan entityScan = AuthSliceApplication.class.getAnnotation(EntityScan.class);
+		assertThat(entityScan).as("슬라이스에 @EntityScan 이 없다").isNotNull();
+		List<String> scanned = List.of(entityScan.basePackages());
+
+		List<String> unmapped = AccountDeletionService.USER_OWNED_ROWS.stream()
+				.map(OwnedRows::entityName)
+				.distinct()
+				.map(ENTITIES::get)
+				.filter(type -> type != null)
+				.map(type -> type.getPackageName())
+				.distinct()
+				.filter(pkg -> scanned.stream()
+						.noneMatch(base -> pkg.equals(base) || pkg.startsWith(base + ".")))
+				.toList();
+
+		assertThat(unmapped)
+				.as("AuthSliceApplication 의 @EntityScan 에 이 패키지를 더해야 한다")
+				.isEmpty();
 	}
 
 	/** {@code a.b.c} 를 한 칸씩 따라가며 그 필드가 실재하는지 본다. */
