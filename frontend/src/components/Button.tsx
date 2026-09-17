@@ -31,6 +31,13 @@ export type ButtonProps = Omit<PressableProps, 'style'> & {
    * 그대로라 뒤로 삐져나온다 — 이 prop 이 생긴 이유가 그것이다.
    */
   pill?: boolean;
+  /**
+   * 줄(row) 안에 다른 것과 나란히 설 때. 전폭 대신 **글자 폭**이 된다.
+   *
+   * 🔴 화면에서 `containerStyle` 로 흉내내지 않는다. 그건 껍데기의 폭일 뿐이라 안쪽 버튼은
+   * 여전히 전폭을 원하고, 그 어긋남이 S15P21E201-1151 을 만든 것과 같은 길이다.
+   */
+  compact?: boolean;
   /** 버튼 자체의 모양은 안 바꾸고, 화면에서 위아래 여백만 줄 때 쓴다(예: marginTop). */
   containerStyle?: StyleProp<ViewStyle>;
 };
@@ -63,7 +70,7 @@ void Promise.resolve(AccessibilityInfo.isReduceMotionEnabled?.())
   .catch(() => { /* 조회할 수 없는 환경이면 애니메이션을 그대로 둔다 */ });
 AccessibilityInfo.addEventListener?.('reduceMotionChanged', (value) => { reducedMotion = Boolean(value); });
 
-export function Button({ label, variant = 'primary', pill = false, disabled, containerStyle, accessibilityRole, accessibilityState, onPressIn, onPressOut, ...rest }: ButtonProps) {
+export function Button({ label, variant = 'primary', pill = false, compact = false, disabled, containerStyle, accessibilityRole, accessibilityState, onPressIn, onPressOut, ...rest }: ButtonProps) {
   const pressProgress = useRef(new Animated.Value(0)).current;
   // 🔴 보간 객체를 렌더마다 새로 만들지 않는다 — 이것이 느림의 **진짜 주범**이었다.
   //
@@ -106,6 +113,8 @@ export function Button({ label, variant = 'primary', pill = false, disabled, con
           variant === 'danger' && styles.danger,
           // pill 은 색 뒤에 둔다 — 모양(높이·모서리)만 덮어쓰고 색은 건드리지 않는다.
           pill && styles.pill,
+          // compact 는 맨 뒤다 — 폭과 가로 여백만 덮어쓰고 색·높이·모서리는 그대로 둔다.
+          compact && styles.compact,
           disabled && styles.disabled,
         ]}
       >
@@ -150,6 +159,18 @@ const styles = StyleSheet.create({
   pill: {
     minHeight: 54,
     borderRadius: radius.full,
+  },
+  // 🔴 줄(row) 안에 다른 것과 나란히 설 때 쓴다 (S15P21E201-1161).
+  //
+  // base 의 width:'100%' 는 **화면 아래에 혼자 눕는 버튼**을 전제로 한 값이다. 줄 안에
+  // 들어가는 버튼에까지 그 전제를 들이밀면 화면이 자기 폭을 껍데기에 적어 넣게 되고,
+  // 그게 `containerStyle` 에 모양을 칠하는 습관으로 이어졌다 — S15P21E201-1151 과 같은 길이다.
+  //
+  // 가로 여백을 여기서 주는 것이 중요하다. base 에는 가로 여백이 없어서(세로만 있다)
+  // 폭이 글자에 딱 붙으면 글자가 모서리에 닿는다.
+  compact: {
+    width: 'auto',
+    paddingHorizontal: spacing[4],
   },
   disabled: {
     opacity: 0.4,

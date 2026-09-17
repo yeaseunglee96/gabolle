@@ -453,7 +453,7 @@ export default function Feed() {
         {scopeButton('FOLLOWING', tx('팔로잉', 'Following'))}
       </View>
       {composeEntry === 'headerButton'
-        ? <Button label={tx('기록', 'Write')} onPress={() => router.push('/feed/compose')} containerStyle={styles.writeButton} />
+        ? <Button label={tx('기록', 'Write')} onPress={() => router.push('/feed/compose')} compact />
         : null}
     </View>
   </View>;
@@ -572,8 +572,22 @@ const styles = StyleSheet.create({
 
   headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', gap: spacing[3], flexWrap: 'wrap' },
   headerTitle: { marginTop: spacing[1] },
-  headerActions: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
-  writeButton: { width: 'auto', paddingHorizontal: spacing[4] },
+  headerActions: {
+    flexDirection: 'row', alignItems: 'center', gap: spacing[2],
+    // 🔴 넘치면 **내려간다** (S15P21E201-1161). 이 줄이 없어서 오른쪽으로 삐져나갔다.
+    //
+    // 이 안에는 「전체」·「팔로잉」 칩과 「기록」 버튼이 선다. 그런데 「기록」은
+    // composeEntryFor() 상 **폰 폭에서만** 뜬다 — 자리가 제일 좁을 때만 등장하는 버튼이다.
+    // flex 자식은 기본이 「안 줄어듦」이라, 셋을 합친 폭이 줄을 넘으면 줄바꿈도 축소도 없이
+    // 그냥 화면 밖으로 나간다. 바깥 headerRow 의 flexWrap 은 여기 안쪽까지 안 미친다.
+    //
+    // 안 넘칠 때는 아무것도 안 바뀐다.
+    flexWrap: 'wrap', justifyContent: 'flex-end',
+  },
+  // 🔴 writeButton 을 지웠다 (S15P21E201-1161). { width:'auto', paddingHorizontal } 을
+  // containerStyle 로 넘겼는데 그건 **껍데기**의 폭일 뿐이라, 안쪽 버튼은 여전히
+  // width:'100%' 를 원했다. 지금은 버튼이 직접 자기 폭을 정한다 — `compact`.
+
 
   // 넓은 화면은 붙은 세그먼트, 폰은 떨어진 칩.
   scopeSegments: { flexDirection: 'row', gap: spacing[1], padding: spacing[1], borderRadius: radius.full, backgroundColor: color.surface.soft },
