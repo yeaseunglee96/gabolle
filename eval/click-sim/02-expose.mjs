@@ -18,7 +18,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { rng } from "./lib/rng.mjs";
-import { SCORE_AXES } from "./lib/axes.mjs";
+import { TAG_AXES } from "./lib/axes.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const read = (f) => JSON.parse(fs.readFileSync(path.join(HERE, f), "utf8"));
@@ -44,19 +44,33 @@ if (rankings.datasetVersion !== plan.datasetVersion) {
 const tasteOf = new Map(users.users.map((u) => [u.userId, u.taste]));
 const next = rng(plan.seed + 1);
 
-/** 심은 취향과 장소 피처의 일치도 — 1 에 가까울수록 이 사람 취향이다. */
-function affinity(taste, featureValues) {
+/**
+ * 심은 취향과 장소 태그의 일치도 — 0~1. 1 에 가까울수록 이 사람 취향이다.
+ *
+ * 🔴 장소의 <b>태그 원본</b>을 본다. 채점기가 남기는 featureValues 에는 겹침 비율만
+ *    있어서 어떤 낱말이 겹쳤는지를 알 수 없다 — 그래서 순위표 계약이 tags 를 함께
+ *    싣는다 (data/rankings.schema.md).
+ *
+ * 🔴 태그가 하나도 없는 장소는 null 이다. 0 이 아니다 — 안 좋아한다와 좋아할 근거가
+ *    없다는 다른 사실이고, 0 으로 뭉개면 데이터가 비어 있다는 사실 자체가 클릭률에
+ *    녹아 사라진다.
+ */
+function affinity(taste, tags) {
 	let sum = 0;
 	let counted = 0;
-	for (const axis of SCORE_AXES) {
-		const want = taste.score[axis.key];
-		let have = featureValues?.[axis.key];
-		if (have === undefined || have === null) continue;   // 🔴 없는 피처는 0 이 아니라 '안 셈'
-		if (axis.scale) have = have / axis.scale;
-		sum += 1 - Math.abs(want - have);
-		counted++;
+	for (const axis of TAG_AXES) {
+		const want = taste.tag?.[axis.key];
+		const have = tags?.[axis.key];
+		if (!want || !Array.isArray(have) || have.length === 0) continue;
+		for (const value of have) {
+			if (want[value] === undefined) continue;
+			sum += want[value];
+			counted++;
+		}
 	}
-	return counted === 0 ? null : sum / counted;
+	if (counted === 0) return null;
+	// -1~+1 평균을 0~1 확률로 옮긴다.
+	return Math.min(1, Math.max(0, (sum / counted + 1) / 2));
 }
 
 const events = [];
@@ -76,7 +90,7 @@ for (const row of rankings.rankings) {
 			placeId: c.placeId, finalRank: c.finalRank, originalRank: c.originalRank,
 			datasetVersion: plan.datasetVersion,
 		});
-		const a = affinity(taste, c.featureValues);
+		const a = affinity(taste, c.tags);
 		if (a === null) { unscored++; continue; }   // 피처가 없으면 좋아할 근거도 없다
 		if (next() < a) {
 			clicks++;

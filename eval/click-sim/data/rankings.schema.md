@@ -30,7 +30,11 @@
           "originalRank": 1,          // 채점 직후 순위
           "finalRank": 1,             // 다양성 재정렬 뒤 순위 ← 노출은 이쪽에 건다
           "preRankScore": 0.734,
-          "featureValues": { "quietnessScore": 0.8, "…": 0 }
+          "featureValues": { "…": 0 },      // 채점기가 남긴 그대로
+          "tags": {                         // 🔴 태그 원본 — 아래 참고
+            "CUISINE_TAG": ["MILMYEON"],
+            "CATEGORY_TAG": ["FOOD"]
+          }
         }
       ]
     }
@@ -51,3 +55,15 @@
 
 점수형 다섯은 `{"score": 0.85}`, 태그형은 맨 배열 `["SEA_BEACH","FOOD"]` 이다
 (`PreferenceJson` 참고 — 앱이 실제로 보내는 모양).
+
+## 🔴 `tags` 를 왜 따로 싣나
+
+채점기가 남기는 `featureValues` 에는 겹침 **비율**만 있다(`interestTagOverlap` 0.5 처럼).
+그 값으로는 **어떤 낱말이 겹쳤는지**를 알 수 없어서, 02단계가 심어 둔 취향과 맞춰 볼 수가 없다.
+그래서 장소의 태그 원본을 함께 싣는다.
+
+## 🔴 점수형 피처는 기대하지 않는다
+
+`quietnessScore` · `localityScore` 같은 점수형은 **배포 서버에서 0곳**이다
+(2026-09-17 실측, `lib/axes.mjs`). 순위표에 그 칸이 비어 오는 것이 지금은 정상이고,
+시뮬레이터도 그 축에는 취향을 안 심는다.
