@@ -189,7 +189,7 @@ export default function Trips() {
       <Text color={color.text.body}>{confirmTarget?.role === 'OWNER' ? tx('일정·기록·초대 링크가 모두 사라지고 되돌릴 수 없어요.', "The itinerary, records, and invite links will all be gone — this can't be undone.") : tx('이 여행 목록에서 빠지고, 다시 초대받아야 볼 수 있어요.', "You'll be removed from this trip and need a new invite to see it again.")}</Text>
       <View style={styles.confirmActions}>
         <Button label={tx('취소', 'Cancel')} variant="ghost" onPress={() => setConfirmTarget(null)} containerStyle={styles.confirmButton} />
-        <Button label={confirmTarget?.role === 'OWNER' ? tx('삭제', 'Delete') : tx('나가기', 'Leave')} onPress={() => void confirmRemove()} containerStyle={[styles.confirmButton, styles.dangerButton]} />
+        <Button label={confirmTarget?.role === 'OWNER' ? tx('삭제', 'Delete') : tx('나가기', 'Leave')} onPress={() => void confirmRemove()} variant="danger" containerStyle={[styles.confirmButton]} />
       </View>
     </View></View>
   </Modal>
@@ -208,5 +208,5 @@ const styles = StyleSheet.create({
   modalBackdrop: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing[4], backgroundColor: 'rgba(11,29,58,0.62)' },
   modalCard: { width: '100%', maxWidth: 480, gap: spacing[3], padding: spacing[6], borderRadius: radius.lg, backgroundColor: color.brand.ivory },
   pickerList: { gap: spacing[2] }, pickerItem: { minHeight: 52, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing[4], borderRadius: radius.md, backgroundColor: color.surface.soft },
-  confirmActions: { flexDirection: 'row', gap: spacing[2], marginTop: spacing[2] }, confirmButton: { flex: 1 }, dangerButton: { backgroundColor: color.state.danger },
+  confirmActions: { flexDirection: 'row', gap: spacing[2], marginTop: spacing[2] }, confirmButton: { flex: 1 },
 });
