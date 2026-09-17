@@ -333,6 +333,19 @@ claims:checkpoint:
 backend:build:
   stage: verify
   resource_group: backend-build
+  # 🔴 S15P21E201-1162 — 이 줄이 뿌리 main 에만 없었다.
+  #
+  #    heavy 는 러너 2065(백업 서버)에 달아 둔 이름표다. 붙이면 이 잡이 운영 서버
+  #    러너(2037)를 피해 백업 기계에서 돈다 — 운영 CPU 를 CI 가 먹는 것을 막는
+  #    S15P21E201-983 의 조치다. 파트 브랜치에는 2026-09-15 에 들어갔는데,
+  #    그 뒤로 back/main·front/main 이 main 으로 올라간 적이 없어 여기만 남았다.
+  #
+  #    🔴 순서가 중요하다. 러너 2065 에 heavy 태그를 **먼저** 달아 두었다
+  #    (2026-09-15, GitLab API). 태그를 가진 러너가 없는 상태에서 이 줄이 먼저
+  #    들어가면 모든 빌드가 영영 대기한다. 되돌릴 때도 순서가 반대다.
+  #
+  #    2065 는 run_untagged=true 라 태그 없는 잡도 계속 받는다.
+  tags: [heavy]
   image: eclipse-temurin:17-jdk
   services:
     - name: postgres:16-alpine
@@ -534,6 +547,10 @@ backend:dependency-scan:
 #    테스트 결과가 달라질 수 없다.
 frontend:unit:
   stage: verify
+  # S15P21E201-1162 — 위 backend:build 와 같은 이유다(heavy 설명은 거기 있다).
+  #    jest 는 워커를 여러 개 띄워 짧아도 굵다. 파트 브랜치 실측에서 프론트 잡
+  #    10건 중 9건이 운영 러너로 갔고, 운영 load 가 17.84 까지 올랐다.
+  tags: [heavy]
   variables:
     npm_config_cache: $CI_PROJECT_DIR/.npm-cache
   cache:
