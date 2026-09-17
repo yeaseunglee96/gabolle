@@ -100,10 +100,63 @@ export function photoLabels(
 // 물러선다 — 속을 못 읽어도 사람이 읽을 문장이어야 한다(JSON 텍스트는 문장이 아니다).
 function extractDisplayText(value: unknown, tx: (ko: string, en: string) => string): string {
   if (typeof value === 'string' || typeof value === 'number') return String(value);
-  if (value && typeof value === 'object' && typeof (value as { raw?: unknown }).raw === 'string') {
-    return (value as { raw: string }).raw;
+  if (value && typeof value === 'object') {
+    const hours = formatOpeningHoursValue(value, tx);
+    if (hours) return hours;
+    if (typeof (value as { raw?: unknown }).raw === 'string') return (value as { raw: string }).raw;
   }
   return tx('확인했지만 형식을 읽지 못했어요', "We checked, but couldn't read the format");
+}
+
+// 요일 순서는 월→일. 서버가 주는 byDay 는 사전이라 순서가 없다 — 여기서 정한다.
+const WEEK: { key: string; ko: string; en: string }[] = [
+  { key: 'mon', ko: '월', en: 'Mon' },
+  { key: 'tue', ko: '화', en: 'Tue' },
+  { key: 'wed', ko: '수', en: 'Wed' },
+  { key: 'thu', ko: '목', en: 'Thu' },
+  { key: 'fri', ko: '금', en: 'Fri' },
+  { key: 'sat', ko: '토', en: 'Sat' },
+  { key: 'sun', ko: '일', en: 'Sun' },
+];
+
+function rangesText(ranges: unknown): string | null {
+  if (!Array.isArray(ranges) || ranges.length === 0) return null;
+  const parts = ranges
+    .map((r) => (Array.isArray(r) && typeof r[0] === 'string' && typeof r[1] === 'string' ? `${r[0]}~${r[1]}` : null))
+    .filter((r): r is string => r !== null);
+  return parts.length ? parts.join(', ') : null;
+}
+
+/**
+ * 영업시간 값을 사람이 읽는 문장으로 바꾼다 — S15P21E201-1202.
+ *
+ * 🔴 서버는 「읽었다」고 말하는데 화면은 「못 읽었다」고 말하고 있었다.
+ *    값이 `{ raw: {...}, byDay: {...}, status: "PARSED" }` 로 오는데,
+ *    예전 코드는 `raw` 가 **문자열**일 때만 꺼냈다. 여기서는 객체라 그 분기를 못 타고
+ *    물러섬 문장으로 떨어졌다. 읽을 수 있는 정보가 두 겹으로 있는데 사용자는 못 봤다.
+ *
+ * 읽을 것이 없으면 null 을 돌려 부르는 쪽이 지금처럼 물러서게 한다 — 여기서
+ * 지어내지 않는다.
+ */
+export function formatOpeningHoursValue(value: unknown, tx: (ko: string, en: string) => string): string | null {
+  if (!value || typeof value !== 'object') return null;
+  const byDay = (value as { byDay?: unknown }).byDay;
+  if (byDay && typeof byDay === 'object') {
+    const rows = WEEK.map((day) => ({ day, text: rangesText((byDay as Record<string, unknown>)[day.key]) }));
+    const known = rows.filter((row) => row.text !== null);
+    if (known.length) {
+      // 일곱 요일이 전부 같으면 「매일」 한 줄로 묶는다 — 같은 줄을 일곱 번 쓰지 않는다.
+      const sameEveryDay = known.length === WEEK.length && known.every((row) => row.text === known[0].text);
+      if (sameEveryDay) return tx(`매일 ${known[0].text}`, `Daily ${known[0].text}`);
+      return known.map((row) => tx(`${row.day.ko} ${row.text}`, `${row.day.en} ${row.text}`)).join(' · ');
+    }
+  }
+  const raw = (value as { raw?: unknown }).raw;
+  if (typeof raw === 'string') return raw;
+  if (raw && typeof raw === 'object' && typeof (raw as { hoursValue?: unknown }).hoursValue === 'string') {
+    return (raw as { hoursValue: string }).hoursValue;
+  }
+  return null;
 }
 
 export function formatFeatureSlot(slot: FeatureSlot | undefined, tx: (ko: string, en: string) => string): string | null {
@@ -209,11 +262,29 @@ export function formatStairsPresent(place: Place, tx: (ko: string, en: string) =
 
 // 경사도(SLOPE_PERCENT, S15P21E201-540) — 점수형 피처, 값은 숫자(%)다. formatFeatureSlot을
 // 그대로 쓰면 "3.5"처럼 단위 없는 숫자만 나가 사용자가 뜻을 모른다 — % 를 붙인다.
+/** 경사도 값에서 사람에게 보여줄 숫자를 꺼낸다. 몰라서 못 꺼내면 null (S15P21E201-1202). */
+function slopeText(value: unknown): string | null {
+  if (typeof value === 'number') return `${value}%`;
+  if (value && typeof value === 'object') {
+    const score = (value as { score?: unknown }).score;
+    if (typeof score === 'number') return `${score}%`;
+  }
+  return null;
+}
+
 export function formatSlopePercent(place: Place, tx: (ko: string, en: string) => string): string | null {
   const slot = toFeatureSlot(findFeature(place, 'SLOPE_PERCENT'));
   if (!slot) return null;
   if (slot.evidenceStatus === 'UNKNOWN' || slot.value == null) return missingValueLabel(slot, tx);
-  const text = typeof slot.value === 'number' ? `${slot.value}%` : JSON.stringify(slot.value);
+  // 🔴 S15P21E201-1202 — 여기에 `JSON.stringify` 가 있었고, 그것이 화면에
+  //    `{"score":2.7,"radiusM":200,…}` 를 글자 그대로 찍었다. **478 에서 이미 한 번
+  //    고쳤던 실수다** — 이 파일의 extractDisplayText 주석이 그 교훈을 적어 둔자리고,
+  //    이 함수만 그 규칙을 안 거쳐서 서버 값이 숫자에서 객체로 바뀜 날 바로 드러났다.
+  //
+  //    서버는 {"score": 2.7, "radiusM": 200, "segments": 25, "walkLengthM": 8227} 로 준다.
+  //    보여줄 것은 score 하나고, 나머지는 그 점수를 어떻게 재었는지다.
+  const text = slopeText(slot.value);
+  if (text === null) return tx('확인했지만 형식을 읽지 못했어요', "We checked, but couldn't read the format");
   return slot.evidenceStatus === 'ESTIMATED' ? tx(`${text} (추정)`, `${text} (est.)`) : text;
 }
 
