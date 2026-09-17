@@ -352,7 +352,7 @@ function PlaceRows({ items, showDistance = false, cards = false }: { items: Arra
         <View style={styles.cardBody}>
           <View style={styles.grow}>
             <Text weight="bold">{localPlaceName(item, language)}</Text>
-            {item.address ? <Text variant="caption" color={color.text.muted}>{item.address}</Text> : null}
+            {item.address ? <Text variant="caption" color={color.text.muted}>{tx(item.address, item.addressEn ?? item.address)}</Text> : null}
             {showDistance && 'distanceM' in item ? <Text variant="caption" weight="bold" color={color.text.accent} style={styles.cardDistance}>{item.distanceM.toLocaleString()}m</Text> : null}
           </View>
           <Text variant="title" color={color.brand.orange}>›</Text>
@@ -373,7 +373,7 @@ function PlaceRows({ items, showDistance = false, cards = false }: { items: Arra
           <PlacePhoto item={item} style={styles.rowPhoto} />
           <View style={styles.grow}>
             <Text weight="bold">{localPlaceName(item, language)}</Text>
-            {item.address ? <Text variant="caption" color={color.text.muted}>{item.address}</Text> : null}
+            {item.address ? <Text variant="caption" color={color.text.muted}>{tx(item.address, item.addressEn ?? item.address)}</Text> : null}
             {item.photoSource ? <Text variant="caption" color={color.text.muted} numberOfLines={1}>{tx(`사진: ${item.photoSource}`, `Photo: ${item.photoSource}`)}</Text> : null}
           </View>
           {showDistance && 'distanceM' in item ? <Text variant="caption" weight="bold" color={color.text.accent}>{item.distanceM.toLocaleString()}m</Text> : null}

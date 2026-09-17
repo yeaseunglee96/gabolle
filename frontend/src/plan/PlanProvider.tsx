@@ -9,7 +9,7 @@ const tx = (ko: string, en: string) => (getApiLanguage() === 'en' ? en : ko);
 
 export type Transport = 'TRANSIT' | 'WALK' | 'CAR';
 export type MustVisitPlace = { placeId: string; nameKo: string; nameEn: string | null; lat: number; lng: number };
-export type AccommodationPlace = MustVisitPlace & { address: string };
+export type AccommodationPlace = MustVisitPlace & { address: string; addressEn?: string };
 export type ConstraintSelectionStatus = 'UNKNOWN' | 'NONE' | 'VALUES';
 export type PreferenceAnswerStatus = 'UNKNOWN' | 'SELECTED' | 'SKIPPED';
 export type PreferenceDimension = 'category' | 'atmosphere' | 'locality' | 'quietness' | 'touristPreference' | 'foodPreference';

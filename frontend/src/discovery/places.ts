@@ -251,14 +251,33 @@ export function getPlace(placeId: string, signal?: AbortSignal) {
 // 없거나 둘 다 있으면 400). 여기서는 이름 검색만 쓰므로 query 만 보낸다.
 // photoUrl·photoSource 는 S15P21E201-1125 에서 열렸다(백엔드 MR !992). 값이 없으면 칸이
 // 안 오므로 optional 이다. 🔴 사진을 그리면 출처도 같이 그린다 — 공공누리 이용 조건이다.
-export type PlaceSearchItem = { placeId: string; nameKo: string; nameEn: string | null; category: string; address: string; lat: number; lng: number; photoUrl?: string | null; photoSource?: string | null };
+export type PlaceSearchItem = { placeId: string; nameKo: string; nameEn: string | null; category: string; address: string; addressEn?: string; lat: number; lng: number; photoUrl?: string | null; photoSource?: string | null };
 
 type PlacePageDto = { items: PlaceSearchItemDto[]; limit: number; nextCursor: string | null; hasNext: boolean; rankTruncated: boolean };
-type PlaceSearchItemDto = { placeId: string; nameKo: string; nameEn: string | null; category: string; address: string; lat: number; lng: number; matchedField: 'NAME_KO' | 'NAME_EN' | null; photoUrl?: string | null; photoSource?: string | null };
+export type PlaceSearchItemDto = { placeId: string; nameKo: string; nameEn: string | null; category: string; address: string; addressEn?: string; lat: number; lng: number; matchedField: 'NAME_KO' | 'NAME_EN' | null; photoUrl?: string | null; photoSource?: string | null };
+
+/**
+ * 목록 응답 한 건을 화면이 쓰는 모양으로 옮긴다.
+ *
+ * 🔴 칸을 하나씩 열거한다. 서버가 주는 것 중 화면이 안 쓰는 것(matchedField)을 안 들고
+ *    오려는 것인데, 그래서 **칸을 더할 때 여기도 같이 고쳐야 한다.** 타입에만 더하면
+ *    타입 검사는 통과하고 값만 조용히 사라진다.
+ *
+ *    실제로 그럴 뻔했다 — S15P21E201-1195(영문 주소). 그래서 옮기는 일을 여기 한 곳으로
+ *    모으고, 옆 시험이 「일부러 뺀 것 말고는 하나도 안 버린다」를 잰다. 다음에 어떤 칸을
+ *    더해도 같은 자리에서 걸린다.
+ */
+export function toPlaceSearchItem(dto: PlaceSearchItemDto): PlaceSearchItem {
+  const { placeId, nameKo, nameEn, category, address, addressEn, lat, lng, photoUrl, photoSource } = dto;
+  return { placeId, nameKo, nameEn, category, address, addressEn, lat, lng, photoUrl, photoSource };
+}
+
+/** 위 함수가 **일부러** 안 들고 오는 칸. 시험이 이 목록만 예외로 친다. */
+export const PLACE_SEARCH_FIELDS_DROPPED_ON_PURPOSE = ['matchedField'] as const;
 
 export async function searchPlacesByName(query: string, signal?: AbortSignal): Promise<PlaceSearchItem[]> {
   const dto = await apiRequest<PlacePageDto>(`/api/v1/places?query=${encodeURIComponent(query)}&limit=8`, { signal });
-  return dto.items.map(({ placeId, nameKo, nameEn, category, address, lat, lng, photoUrl, photoSource }) => ({ placeId, nameKo, nameEn, category, address, lat, lng, photoUrl, photoSource }));
+  return dto.items.map(toPlaceSearchItem);
 }
 
 /** 부산 전체에서 특정 로컬 갈래에 해당하는 장소를 찾는다. 거리 제한은 적용하지 않는다. */
@@ -270,5 +289,5 @@ export async function getPlacesByFacet(
 ): Promise<PlaceSearchItem[]> {
   const query = new URLSearchParams({ facetType, facetKey, limit: String(limit) });
   const dto = await apiRequest<PlacePageDto>(`/api/v1/places?${query.toString()}`, { signal });
-  return dto.items.map(({ placeId, nameKo, nameEn, category, address, lat, lng, photoUrl, photoSource }) => ({ placeId, nameKo, nameEn, category, address, lat, lng, photoUrl, photoSource }));
+  return dto.items.map(toPlaceSearchItem);
 }
