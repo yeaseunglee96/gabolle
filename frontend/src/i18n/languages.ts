@@ -46,21 +46,17 @@ export type LanguageOption = {
   englishName: string;
   /** 화면 문구가 이 언어로 번역돼 있나. 거짓이면 영어로 나온다. */
   uiTranslated: boolean;
-  /**
-   * 사용자 요청(2026-09-17)으로 첫 화면의 국기 동그라미에 다시 쓴다. 🔴 위 우려(윈도우에서
-   * 글자로 깨짐·중국 간체/번체 구분 안 됨)는 그대로 유효하다 — 그래서 국기 하나만 두지 않고
-   * 동그라미 아래에 endonym 을 작게 같이 적는다. 국기가 글자로 깨져도, 두 국기가 헷갈려도
-   * 그 밑줄이 실제 정체를 말해준다.
-   */
-  flag: string;
 };
 
+// 🔴 국기 이미지 자산(assets/flags/*.png)은 여기 두지 않고 app/index.tsx 의 FLAG_IMAGES 에서
+// code 로 바로 매핑한다 — require() 는 번들러가 정적으로 읽어야 해서 이 배열처럼 값이 동적으로
+// 도는 곳에 넣으면 번들에 안 잡힌다.
 export const LANGUAGE_OPTIONS: readonly LanguageOption[] = [
-  { code: 'ko', endonym: '한국어', englishName: 'Korean', uiTranslated: true, flag: '🇰🇷' },
-  { code: 'en', endonym: 'English', englishName: 'English', uiTranslated: true, flag: '🇺🇸' },
-  { code: 'ja', endonym: '日本語', englishName: 'Japanese', uiTranslated: false, flag: '🇯🇵' },
-  { code: 'zh-Hans', endonym: '简体中文', englishName: 'Chinese (Simplified)', uiTranslated: false, flag: '🇨🇳' },
-  { code: 'zh-Hant', endonym: '繁體中文', englishName: 'Chinese (Traditional)', uiTranslated: false, flag: '🇹🇼' },
+  { code: 'ko', endonym: '한국어', englishName: 'Korean', uiTranslated: true },
+  { code: 'en', endonym: 'English', englishName: 'English', uiTranslated: true },
+  { code: 'ja', endonym: '日本語', englishName: 'Japanese', uiTranslated: false },
+  { code: 'zh-Hans', endonym: '简体中文', englishName: 'Chinese (Simplified)', uiTranslated: false },
+  { code: 'zh-Hant', endonym: '繁體中文', englishName: 'Chinese (Traditional)', uiTranslated: false },
 ];
 
 /**
