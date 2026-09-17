@@ -261,7 +261,7 @@ export default function Home() {
                 return (
                   <View key={place.placeId} style={styles.placeCard}>
                     <Pressable accessibilityRole="button" onPress={() => router.push(`/place/${place.placeId}`)} style={({ pressed }) => [styles.placeThumbWrap, pressed && styles.pressed]}>
-                      <PlaceVisual name={place.nameKo} address={place.address} photoUrl={place.photoUrl} photoSource={place.photoSource} />
+                      <PlaceVisual name={place.nameKo} address={place.address} photoUrl={place.photoUrl} photoSource={place.photoSource} photoSubject={place.photoSubject} />
                       <Pressable
                         accessibilityRole="button"
                         accessibilityState={{ selected: liked }}

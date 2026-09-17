@@ -8,6 +8,7 @@ import { sendAppEvent } from '@/analytics/appEvents';
 import { useAuth } from '@/auth/AuthProvider';
 import { BrandLogoLink } from '@/components/BrandLogoLink';
 import { Button } from '@/components/Button';
+import { PhotoSubjectBadge } from '@/components/PhotoSubjectBadge';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
@@ -150,6 +151,9 @@ export default function Place() {
                   {hasLocalityScore(resolved.apiPlace) ? (
                     <View style={styles.scoreBadge}><Text variant="caption" weight="bold" color={color.text.onAction}>{tx('로컬 점수 있음', 'Has locality score')}</Text></View>
                   ) : null}
+                  {/* 🔴 사진이 이 장소를 찍은 것이 아니면 그렇게 말한다 — S15P21E201-1206.
+                      여태 축제 화면만 말하고 여기는 아무 말도 안 했다. */}
+                  <PhotoSubjectBadge photoSubject={resolved.apiPlace.photoSubject} style={styles.subjectBadge} />
                   {resolved.apiPlace.photoSource ? (
                     <Text testID="place-photo-credit" variant="caption" color={color.text.onAction} style={[styles.photoCredit, styles.heroText]}>{tx(`사진 제공: ${resolved.apiPlace.photoSource}`, `Photo: ${resolved.apiPlace.photoSource}`)}</Text>
                   ) : null}
@@ -286,6 +290,7 @@ const styles = StyleSheet.create({
   // 사진이 어떤 색이든 글자 윤곽이 서게 한다. 능짐 안 가리면서 가장 확실하다.
   heroText: { textShadowColor: 'rgba(8, 27, 53, 0.9)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 6 },
   heroCopy: { gap: spacing[1], padding: spacing[4] },
+  subjectBadge: { marginTop: spacing[2] },
   scoreBadge: { alignSelf: 'flex-start', marginTop: spacing[2], borderRadius: radius.full, paddingHorizontal: spacing[3], paddingVertical: spacing[1], backgroundColor: 'rgba(255,255,255,0.18)' },
   // 🔴 opacity 0.8 을 뽑았다 (S15P21E201-1203). 이 줄은 공공누리 이용 조건이라
   //    읽힐 수 있어야 한다 — 지켜야 하는 표기를 일부러 흐리게 할 이유가 없다.
