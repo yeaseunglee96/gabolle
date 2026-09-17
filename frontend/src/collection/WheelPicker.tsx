@@ -68,6 +68,12 @@ export function WheelPicker({ label, options, value, onChange, accessibilityLabe
           ref={ref}
           accessibilityLabel={accessibilityLabel ?? label}
           showsVerticalScrollIndicator={false}
+          // 🔴 안드로이드 실기기에서 휠이 **손가락에 아무 반응을 안 했다** (사용자 리포트
+          // 2026-09-17). 이 휠은 `<Screen scroll>` 안에 들어가는데, 그것도 세로 스크롤이다.
+          // 안드로이드는 세로 스크롤 안의 세로 스크롤에 이 값을 켜 주지 않으면 **바깥쪽이
+          // 손짓을 전부 가져가고 안쪽은 못 움직인다.** iOS 와 웹은 기본으로 되므로
+          // 두 곳에서만 확인하면 멀쩡해 보인다 — 이 파일 주석이 웹 이야기뿐인 이유다.
+          nestedScrollEnabled
           snapToInterval={ROW_HEIGHT}
           decelerationRate="fast"
           contentContainerStyle={styles.content}
