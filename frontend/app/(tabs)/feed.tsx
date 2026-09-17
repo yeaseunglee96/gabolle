@@ -21,12 +21,14 @@ import { Button } from '@/components/Button';
 import { Eyebrow } from '@/components/Eyebrow';
 import { ReportModal } from '@/components/ReportModal';
 import { Screen } from '@/components/Screen';
-import { TabBar } from '@/components/TabBar';
+import { TabBar, TAB_BAR_HEIGHT, tabBarBottomMargin } from '@/components/TabBar';
 import { Text } from '@/components/Text';
-import { color, radius, spacing } from '@/design/tokens';
+import { color, gutter, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 import { RouteMap } from '@/map/RouteMap';
 import { createStory, feedQueryKey, loadFeed, relativeStoryTime, reportStory, setFollowing, VISIBILITY_LABEL, type FeedLoadResult, type FeedScope, type StoryDto, type StoryReportReason, type StoryVisibility } from '@/social/stories';
 import { shouldPromptSignIn } from '@/social/signInPrompt';
@@ -434,6 +436,9 @@ export default function Feed() {
   const [scope, setScope] = useState<FeedScope>('ALL');
   const [loadingMore, setLoadingMore] = useState(false);
   const [unfollowingId, setUnfollowingId] = useState<string | null>(null);
+  // 폰에서 지도를 폈나 (S15P21E201-1177). 넓은 화면은 늘 떠 있어 이 값을 안 본다.
+  const insets = useSafeAreaInsets();
+  const [mapOpen, setMapOpen] = useState(false);
   const [reportingStoryId, setReportingStoryId] = useState<string | null>(null);
   // S15P21E201-1012 — 로그인 유도. 🔴 주소를 나누지 않고 이 화면의 상태로만 다룬다.
   // 주소를 가르면 뒤로 가기·공유 링크·검색이 전부 갈라진다.
@@ -520,9 +525,9 @@ export default function Feed() {
         {scopeButton('ALL', tx('전체', 'All'))}
         {scopeButton('FOLLOWING', tx('팔로잉', 'Following'))}
       </View>
-      {composeEntry === 'headerButton'
-        ? <Button label={tx('기록', 'Write')} onPress={() => router.push('/feed/compose')} compact />
-        : null}
+      {/* 🔴 폰의 글쓰기 진입은 아래 떠 있는 단추(FAB)로 옮겼다 (S15P21E201-1177, 시안 5번).
+          여기 남겨 두면 같은 행동이 한 화면에 두 자리에 있게 된다. composeEntryFor() 의
+          'headerButton' 은 이제 「폰이다」를 뜻하고, 그 자리를 FAB 가 맡는다. */}
     </View>
   </View>;
 
@@ -610,7 +615,18 @@ export default function Feed() {
     <Screen scroll withTabBar wide={wide}>
       {wide
         ? <View style={styles.wideGrid}>{feedColumn}{aside}</View>
-        : feedColumn}
+        : <>
+            {feedColumn}
+            {/* 🔴 폰에서 지도를 접었다 편다 (S15P21E201-1177, 시안 5번).
+                넓은 화면은 오른쪽에 지도 패널이 늘 떠 있지만 폰에는 그 자리가 없다.
+                그렇다고 목록 위에 지도를 항상 깔면 정작 보러 온 기록이 밀린다.
+                그래서 **부를 때만** 편다.
+
+                🔴 다른 화면으로 보내지 않는다. 피드 전체를 담는 지도 화면이 저장소에
+                없다 — 없는 곳으로 가는 단추를 만들지 않는다. 「표시하기」라는 말 그대로
+                이 자리에서 보여준다. */}
+            {mapOpen ? <View style={styles.phoneMap}><MemoryMap items={items} onOpenStory={(id) => router.push(`/feed/${id}`)} /></View> : null}
+          </>}
       <ReportModal visible={reportingStoryId !== null} onClose={() => setReportingStoryId(null)} onSubmit={submitReport} />
       <SignInPromptModal
         visible={promptingSignIn}
@@ -618,6 +634,41 @@ export default function Feed() {
         onSignIn={() => { setPromptingSignIn(false); router.push({ pathname: '/sign-in', params: { returnTo: '/feed' } }); }}
       />
     </Screen>
+
+    {/* 🔴 떠 있는 단추는 Screen **밖**에 둔다 (S15P21E201-1177). 안에 두면 스크롤과 함께
+        올라가 버린다 — 탭바가 같은 이유로 받침에 담겨 떠 있다(S15P21E201-1155).
+        `pointerEvents="box-none"` 이라 단추가 없는 자리는 손짓이 그대로 통과한다. */}
+    {!wide
+      ? <View pointerEvents="box-none" style={[styles.fabDock, { paddingBottom: TAB_BAR_HEIGHT + tabBarBottomMargin(insets.bottom) + spacing[4] }]}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityState={{ expanded: mapOpen }}
+            accessibilityLabel={mapOpen ? tx('지도 접기', 'Hide the map') : tx('지도 표시하기', 'Show the map')}
+            onPress={() => setMapOpen((open) => !open)}
+            style={({ pressed }) => [styles.mapToggle, pressed && styles.pressed]}
+          >
+            <Text variant="body" weight="bold" color={color.text.onAction}>{mapOpen ? tx('지도 접기', 'Hide map') : tx('지도 표시하기', 'Show map')}</Text>
+          </Pressable>
+
+          {/* 글쓰기는 로그인한 사람에게만 뜬다. 비회원에게 띄우면 눌렀을 때 쫓겨난다. */}
+          {signedIn
+            ? <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={tx('기록 남기기', 'Write a record')}
+                onPress={() => router.push('/feed/compose')}
+                style={({ pressed }) => [styles.writeFab, pressed && styles.pressed]}
+              >
+                {/* 🔴 「+」가 아니라 연필이다 (S15P21E201-1177).
+                    탭바 가운데에 이미 **주황 + 원**이 있다 — 「여행 만들기」다(TabBar 의
+                    createIconWrap). 그 바로 위에 주황 + 를 또 두면 **뜻이 다른 주황 + 가
+                    둘** 겹쳐서, 어느 것이 무엇인지 눌러 봐야 안다.
+                    시안은 「orange 기록 FAB」이라고만 했지 글자를 정하지 않았다. */}
+                <Text variant="title" weight="bold" color={color.text.onAction}>✎</Text>
+              </Pressable>
+            : null}
+        </View>
+      : null}
+
     <TabBar active="feed" />
   </View>;
 }
@@ -636,6 +687,15 @@ const styles = StyleSheet.create({
   // 600 은 이런 세로 피드의 통상 폭이다(X 가 598). 폰에서는 화면이 그보다 좁으므로
   // 아무것도 안 바뀐다.
   feedColumn: { flex: 1, minWidth: 0, maxWidth: 600, width: '100%', alignSelf: 'center' },
+  // ── 폰의 떠 있는 단추 (S15P21E201-1177) ────────────────────────────────────
+  //
+  // 탭바 위에 뜬다. 탭바 높이와 안전영역을 TabBar 가 내보낸 값으로 계산한다 —
+  // 같은 숫자를 여기 또 적으면 저쪽에서 64 를 바꾸는 날 조용히 겹친다.
+  pressed: { opacity: 0.72, transform: [{ scale: 0.97 }] },
+  fabDock: { position: 'absolute', left: 0, right: 0, bottom: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing[3], paddingHorizontal: gutter },
+  mapToggle: { minHeight: 48, justifyContent: 'center', paddingHorizontal: spacing[6], borderRadius: radius.full, backgroundColor: color.brand.navy },
+  writeFab: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center', borderRadius: 24, backgroundColor: color.brand.orange },
+  phoneMap: { marginTop: spacing[4] },
   // 🔴 520 은 시안 값이다 (S15P21E201-1177). 전에는 320 이라 지도가 우표만 했다 —
   //    지도를 보라고 둔 칸인데 무엇이 어디인지 안 보였다.
   aside: { width: 520, gap: spacing[3] },
