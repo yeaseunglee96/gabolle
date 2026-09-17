@@ -3,10 +3,12 @@ import { Image, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { ApiClientError } from '@/api/client';
+import { AddPlaceToItineraryModal } from '@/components/AddPlaceToItineraryModal';
 import { BrandLogoLink } from '@/components/BrandLogoLink';
 import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
+import { useAuth } from '@/auth/AuthProvider';
 import { maskDateInput } from '@/plan/inputMasks';
 import { Eyebrow } from '@/components/Eyebrow';
 import { color, radius, spacing } from '@/design/tokens';
@@ -29,12 +31,16 @@ export default function Festivals() {
   const router = useRouter();
   const { tx } = useI18n();
   const { width } = useLayout();
+  const { accessToken } = useAuth();
   const [from, setFrom] = useState(() => dateInputValue());
   const [to, setTo] = useState(() => dateInputValue(30));
   const [sort, setSort] = useState<SortMode>('soon');
   const [festivals, setFestivals] = useState<Festival[]>([]);
   const [state, setState] = useState<'loading' | 'ready' | 'error'>('loading');
   const [errorMessage, setErrorMessage] = useState('');
+  // S15P21E201-467 — 이 축제를 내 일정에 더한다. 로그인 안 했으면 모달을 열지 않고
+  // 바로 로그인으로 보낸다 — 모달 안에서 물어도 결국 로그인해야 하는 것은 같다.
+  const [addPlaceId, setAddPlaceId] = useState<string | null>(null);
   const dateValid = ISO_DATE.test(from) && ISO_DATE.test(to) && from <= to;
 
   const load = useCallback(async () => {
@@ -100,9 +106,13 @@ export default function Festivals() {
           </View>
           <Text variant="title" weight="bold">{tx(festivalDisplayTitle(festival), festival.nameEn ?? festivalDisplayTitle(festival))}</Text><Text color={color.text.body}>{festival.address}</Text><Text variant="caption" color={color.text.muted}>{formatFeatureSlot(festival.priceLevel, tx) ?? tx('입장료 정보 확인 필요', 'Admission fee info not available yet')}</Text>
           {festival.photoUrl && photo.credit && <Text variant="caption" color={color.text.muted}>{photo.credit}</Text>}
+          <Pressable accessibilityRole="button" onPress={() => accessToken ? setAddPlaceId(festival.placeId) : router.push({ pathname: '/sign-in', params: { returnTo: '/festivals' } })} style={({ pressed }) => [styles.addButton, pressed && styles.pressed]}>
+            <Text variant="caption" weight="bold" color={color.brand.orange}>{tx('+ 내 일정에 추가', '+ Add to my itinerary')}</Text>
+          </Pressable>
         </View>
       </View>;
     })}</View>}
+    <AddPlaceToItineraryModal visible={addPlaceId != null} placeId={addPlaceId ?? ''} onClose={() => setAddPlaceId(null)} />
   </Screen>;
 }
 
@@ -121,4 +131,5 @@ const styles = StyleSheet.create({
   cardTopRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   sampleBadge: { paddingHorizontal: spacing[2], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: color.surface.tint },
   photoBadge: { position: 'absolute', top: spacing[2], left: spacing[2], paddingHorizontal: spacing[2], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: 'rgba(11,29,58,0.78)' },
+  addButton: { alignSelf: 'flex-start', minHeight: 36, justifyContent: 'center', paddingHorizontal: spacing[3], marginTop: spacing[1], borderRadius: radius.full, borderWidth: 1, borderColor: color.brand.orange },
 });
