@@ -122,17 +122,26 @@ class StoryReplyIntegrationTest {
 	@DisplayName("🔴 댓글은 피드에 안 나온다 — 같은 표에 두었기 때문에 생긴 가장 큰 위험이다")
 	void repliesDoNotLeakIntoTheFeed() throws Exception {
 		String storyId = newPost(this.author, "원글");
-		reply(this.commenter, storyId, "댓글");
+		String replyId = reply(this.commenter, storyId, "댓글").get("id").asString();
 
 		MvcResult result = this.mockMvc
 				.perform(get("/api/v1/stories").param("scope", "ALL").principal(StoryFixture.as(this.commenter)))
 				.andExpect(status().isOk()).andReturn();
 		JsonNode items = this.json.readTree(result.getResponse().getContentAsString()).get("data").get("items");
 
-		// 원글 하나만. 댓글이 섞여 나오면 NOT_DELETED_AND_PUBLISHED 에 조건이 빠진 것이다.
-		assertThat(items).hasSize(1);
-		assertThat(items.get(0).get("id").asString()).isEqualTo(storyId);
-		assertThat(items.get(0).get("parentId").isNull()).isTrue();
+		// 🔴 개수로 재지 않는다. 이 표는 시험마다 비우지 않아서(StoryCrudIntegrationTest 의
+		//    tearDown 주석) 다른 시험이 남긴 글이 같은 피드에 함께 나온다. 처음에 hasSize(1)
+		//    로 썼다가 CI 에서 "1 을 기대했는데 20" 으로 깨졌다 — 도커가 없는 로컬에서는 이
+		//    시험이 건너뜀이라 안 보였다.
+		//
+		//    재야 하는 것은 개수가 아니라 불변식이다: 내 원글은 있고, 내 댓글은 없고,
+		//    피드의 어떤 항목도 부모를 갖지 않는다.
+		assertThat(items).extracting(item -> item.get("id").asString())
+				.contains(storyId)
+				.doesNotContain(replyId);
+		assertThat(items).allSatisfy(item -> assertThat(item.get("parentId").isNull())
+				.as("피드에 부모가 있는 항목이 있다 — NOT_DELETED_AND_PUBLISHED 에 조건이 빠진 것이다")
+				.isTrue());
 	}
 
 	@Test
