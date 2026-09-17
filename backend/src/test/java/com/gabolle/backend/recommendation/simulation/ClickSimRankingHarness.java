@@ -10,8 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 
 import com.gabolle.backend.place.api.PlaceCandidateResponse;
 import com.gabolle.backend.place.api.PlaceFeatureView;
@@ -36,10 +34,9 @@ import static org.mockito.Mockito.when;
  * 클릭 시뮬레이터가 읽을 순위표를 <b>실제 배포되는 채점기로</b> 찍는다 — S15P21E201-553.
  *
  * <pre>
- *   CLICKSIM=true \
  *   CLICKSIM_USERS=../eval/click-sim/data/users.json \
  *   CLICKSIM_OUT=../eval/click-sim/data/rankings.json \
- *   ./gradlew test --tests "*ClickSimRankingHarness*"
+ *   ./gradlew clickSim
  * </pre>
  *
  * <h2>🔴 왜 채점기를 옮겨 적지 않고 여기서 부르나</h2>
@@ -69,7 +66,6 @@ import static org.mockito.Mockito.when;
  *
  * <p>모든 산출에 {@code dataset_version = "synthetic-v1"} 이 붙는다.
  */
-@EnabledIfEnvironmentVariable(named = "CLICKSIM", matches = "true")
 class ClickSimRankingHarness {
 
 	private static final String DATASET_VERSION = "synthetic-v1";
@@ -90,7 +86,10 @@ class ClickSimRankingHarness {
 
 	private final DiversityReranker reranker = new DiversityReranker(new DiversityProperties(null, null, null));
 
-	@Test
+	public static void main(String[] args) throws Exception {
+		new ClickSimRankingHarness().writeRankings();
+	}
+
 	void writeRankings() throws Exception {
 		// 🔴 시스템 속성이 아니라 환경변수다. Gradle 은 -D 를 포크한 시험 JVM 에 안 넘긴다 —
 		//    그래서 처음에 이 하네스가 조용히 건너뛰어졌고 빌드는 BUILD SUCCESSFUL 이었다.
