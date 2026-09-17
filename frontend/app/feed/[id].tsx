@@ -1,6 +1,6 @@
 // 기록 상세 — 피드 카드를 누르면 오는 화면 (S15P21E201-228).
 import { useCallback, useState } from 'react';
-import { ActivityIndicator, Image, Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Image, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 
 import { useAuth } from '@/auth/AuthProvider';
@@ -13,7 +13,7 @@ import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { BlockUserDialog } from '@/social/BlockUserDialog';
-import { deleteStory, getCachedStory, getStory, relativeStoryTime, reportStory, setBlocked, VISIBILITY_LABEL, type StoryDto, type StoryReportReason } from '@/social/stories';
+import { createStory, deleteStory, getCachedStory, getStory, getStoryReplies, relativeStoryTime, reportStory, setBlocked, VISIBILITY_LABEL, type StoryDto, type StoryReportReason } from '@/social/stories';
 
 type State = { status: 'loading'; cached: StoryDto | null } | { status: 'loaded'; story: StoryDto } | { status: 'not-found' } | { status: 'error'; message: string };
 
@@ -78,6 +78,44 @@ function PlaceHeading({ story, onOpen }: { story: StoryDto; onOpen: () => void }
   );
 }
 
+/**
+ * 본문 글자 상한.
+ *
+ * 🔴 주석이 말하는 값을 믿지 않고 원본을 열어 맞췄다 — 서버의 {@code Story.MAX_BODY_LENGTH}
+ * 가 500 이고 글쓰기 화면(compose.tsx)도 500 이다. ⚠️ 이 값이 이제 **세 곳에 따로** 적혀
+ * 있다(여기·compose.tsx·feed.tsx). 한 곳으로 모으는 것은 이 MR 범위 밖이라 안 했다.
+ */
+const BODY_MAX = 500;
+
+/**
+ * 댓글 한 장 — 원글과 **같은 StoryDto** 를 받는다 (S15P21E201-1197).
+ *
+ * 🔴 별도 Comment 타입을 만들지 않는다. 시안이 못박았고 서버도 같은 표에 부모 칸으로 갔다.
+ * 본문과 사진은 원글이 쓰는 부품을 그대로 쓴다 — 마크다운이 원글에서만 풀리고 댓글에서
+ * 안 풀리면 같은 글이 자리마다 다르게 보인다.
+ *
+ * 원글과 다른 점은 **장소 제목을 안 그리는 것** 하나다. 댓글의 장소는 원글과 같거나 없고,
+ * 댓글마다 같은 장소 이름을 반복하면 목록이 안 읽힌다.
+ */
+function ReplyCard({ reply }: { reply: StoryDto }) {
+  const { tx } = useI18n();
+  return (
+    <View style={styles.reply}>
+      <View style={styles.replyHead}>
+        <View style={styles.replyAvatar}>
+          <Text variant="caption" weight="bold" color={color.text.onAction}>{reply.author.displayName.slice(0, 1)}</Text>
+        </View>
+        <Text variant="caption" weight="bold" color={color.text.heading} numberOfLines={1} style={styles.grow}>{reply.author.displayName}</Text>
+        <Text variant="caption" color={color.text.muted}>{relativeStoryTime(reply.createdAt, tx)}</Text>
+      </View>
+      <MarkdownBody source={reply.body} />
+      {reply.images.length
+        ? <PhotoGrid photos={reply.images.map((image) => ({ uri: image.url }))} compact accessibilityLabel={tx('댓글 사진', 'Comment photo')} style={styles.replyPhotos} />
+        : null}
+    </View>
+  );
+}
+
 export default function StoryDetail() {
   const router = useRouter();
   const { accessToken } = useAuth();
@@ -90,6 +128,13 @@ export default function StoryDetail() {
   const [deleting, setDeleting] = useState(false);
   const [confirmingBlock, setConfirmingBlock] = useState(false);
   const [blockNotice, setBlockNotice] = useState('');
+  // 🔴 null 은 「아직 안 불러왔다」이고 빈 배열은 「댓글이 없다」다. 둘을 같게 두면
+  //    불러오는 중과 없음이 화면에서 구분이 안 된다.
+  const [replies, setReplies] = useState<StoryDto[] | null>(null);
+  const [repliesError, setRepliesError] = useState('');
+  const [draft, setDraft] = useState('');
+  const [sending, setSending] = useState(false);
+  const [sendError, setSendError] = useState('');
 
   const load = useCallback(async () => {
     if (!id) return;
@@ -100,10 +145,25 @@ export default function StoryDetail() {
     else setState({ status: 'error', message: result.message });
   }, [id, accessToken]);
 
-  useFocusEffect(useCallback(() => { void load(); }, [load]));
+  // 🔴 실패를 빈 목록으로 바꾸지 않는다. 「댓글이 없다」와 「못 불러왔다」는 다른 말이고,
+  //    둘을 같게 그리면 사용자가 없는 것으로 믿는다.
+  const loadReplies = useCallback(async () => {
+    if (!id) return;
+    const outcome = await getStoryReplies(id, accessToken);
+    if (outcome.state === 'success') { setReplies(outcome.replies); setRepliesError(''); }
+    else { setReplies(null); setRepliesError(outcome.message); }
+  }, [id, accessToken]);
+
+  useFocusEffect(useCallback(() => { void load(); void loadReplies(); }, [load, loadReplies]));
 
   // 새로 가져오는 동안에도 목록에서 이미 받은 내용을 자리표시로 먼저 보여준다.
   const story = state.status === 'loaded' ? state.story : state.status === 'loading' ? state.cached : null;
+
+  const shownReplies = replies ?? [];
+  // 🔴 서버는 기본 50개까지만 준다. 잘린 것을 조용히 숨기면 사용자는 그게 전부인 줄 안다 —
+  //    상한과 「더 있다」는 언제나 짝이다. replyCount 는 서버가 세는 값이라 이쪽이 진짜다.
+  const totalReplies = typeof story?.replyCount === 'number' ? story.replyCount : null;
+  const hasMoreReplies = totalReplies !== null && totalReplies > shownReplies.length;
 
   const submitReport = async (reason: StoryReportReason, detail: string | undefined) => {
     if (!id) return false;
@@ -124,6 +184,20 @@ export default function StoryDetail() {
     if (outcome.state !== 'success') return false;
     setBlockNotice(tx('이제 이 사용자에게 내 글이 보이지 않아요.', "This user can no longer see your posts."));
     return true;
+  };
+
+  const submitReply = async () => {
+    const body = draft.trim();
+    if (!id || !body || sending) return;
+    setSending(true);
+    // 댓글도 글이다 — 같은 만들기 경로에 부모 id 만 실어 보낸다 (S15P21E201-1183).
+    const outcome = await createStory({ body, imageUrls: [], parentStoryId: id, accessToken });
+    setSending(false);
+    if (outcome.state !== 'success') { setSendError(outcome.message); return; }
+    setDraft('');
+    setSendError('');
+    // 서버를 다시 부르지 않고 방금 받은 것을 뒤에 붙인다 — 목록 순서가 오래된 것부터다.
+    setReplies((current) => [...(current ?? []), outcome.story]);
   };
 
   const confirmDelete = async () => {
@@ -215,6 +289,65 @@ export default function StoryDetail() {
         </View>
       ) : null}
 
+      {story && !reported ? (
+        <View style={styles.comments}>
+          <Text variant="title" weight="bold" color={color.text.heading}>
+            {replies === null ? tx('댓글', 'Comments') : tx(`댓글 ${shownReplies.length}`, `Comments ${shownReplies.length}`)}
+          </Text>
+
+          {repliesError ? (
+            <View accessibilityRole="alert" style={styles.replyNotice}>
+              <Text variant="caption" color={color.text.body}>{tx('댓글을 불러오지 못했어요.', "We couldn't load the comments.")}</Text>
+              <Button label={tx('다시 시도', 'Try again')} variant="ghost" onPress={() => void loadReplies()} containerStyle={styles.recoveryButton} />
+            </View>
+          ) : replies === null ? (
+            <ActivityIndicator color={color.brand.orange} />
+          ) : shownReplies.length === 0 ? (
+            <Text variant="caption" color={color.text.muted}>{tx('아직 댓글이 없어요.', 'No comments yet.')}</Text>
+          ) : (
+            <>
+              {shownReplies.map((reply) => <ReplyCard key={reply.id} reply={reply} />)}
+              {hasMoreReplies ? (
+                <Text variant="caption" color={color.text.muted}>
+                  {tx(`댓글 ${totalReplies}개 중 ${shownReplies.length}개를 보여드렸어요.`, `Showing ${shownReplies.length} of ${totalReplies} comments.`)}
+                </Text>
+              ) : null}
+            </>
+          )}
+
+          {/* 🔴 로그인 안 한 사람에게 눌러도 아무 일 없는 입력창을 두지 않는다.
+              보낼 수 없는 창은 「썼는데 사라졌다」로 끝난다. 갈 곳을 알려 준다. */}
+          {accessToken ? (
+            <View style={styles.composer}>
+              <TextInput
+                accessibilityLabel={tx('댓글 입력', 'Write a comment')}
+                value={draft}
+                onChangeText={(value) => setDraft(value.slice(0, BODY_MAX))}
+                maxLength={BODY_MAX}
+                multiline
+                placeholder={tx('댓글을 남겨 보세요', 'Leave a comment')}
+                placeholderTextColor={color.text.muted}
+                style={styles.composerInput}
+              />
+              <Button
+                label={sending ? tx('보내는 중…', 'Sending…') : tx('남기기', 'Post')}
+                disabled={sending || !draft.trim()}
+                onPress={() => void submitReply()}
+                containerStyle={styles.composerButton}
+              />
+            </View>
+          ) : (
+            <Pressable accessibilityRole="button" onPress={() => router.push('/sign-in')} style={styles.textAction}>
+              <Text variant="caption" weight="bold" color={color.text.accent}>{tx('로그인하면 댓글을 남길 수 있어요', 'Sign in to leave a comment')}</Text>
+            </Pressable>
+          )}
+
+          {sendError ? (
+            <Text accessibilityRole="alert" variant="caption" color={color.state.danger}>{sendError}</Text>
+          ) : null}
+        </View>
+      ) : null}
+
       {state.status === 'not-found' ? (
         <View style={styles.notice} accessibilityRole="alert">
           <Text variant="title" weight="bold">{tx('기록을 찾을 수 없어요', 'Could not find this record')}</Text>
@@ -274,4 +407,16 @@ const styles = StyleSheet.create({
   confirmButtons: { flexDirection: 'row', justifyContent: 'flex-end', gap: spacing[2] },
   confirmButton: { width: 'auto', paddingHorizontal: spacing[4] },
   recoveryButton: { marginTop: spacing[2] },
+
+  // ── 댓글 (S15P21E201-1197) ────────────────────────────────────────────────
+  comments: { gap: spacing[3], marginTop: spacing[4] },
+  reply: { gap: spacing[2], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.card },
+  replyHead: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
+  replyAvatar: { width: 24, height: 24, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.brand.navy },
+  replyPhotos: { marginTop: spacing[1] },
+  replyNotice: { gap: spacing[2], alignItems: 'flex-start' },
+  composer: { gap: spacing[2] },
+  // textAlignVertical 은 안드로이드에서 여러 줄 입력이 가운데로 쏠리는 것을 막는다.
+  composerInput: { minHeight: 88, padding: spacing[3], borderWidth: 1, borderColor: color.surface.border, borderRadius: radius.md, backgroundColor: color.surface.card, color: color.text.heading, textAlignVertical: 'top' },
+  composerButton: { alignSelf: 'flex-end', width: 'auto', paddingHorizontal: spacing[6] },
 });
