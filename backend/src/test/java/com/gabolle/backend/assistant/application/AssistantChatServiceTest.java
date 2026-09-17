@@ -150,6 +150,17 @@ class AssistantChatServiceTest {
 	}
 
 	@Test
+	@DisplayName("🔴 q값이 섞인 헤더는 첫 태그만 본다 — MR !1066 AI 리뷰로 발견")
+	void multiTagAcceptLanguageHeaderUsesOnlyThePrimaryTag() {
+		this.service.chat(USER_ID, "你好", "zh-TW,zh;q=0.9,en-US;q=0.8", List.of(), null, null);
+		assertThat(this.vendor.lastRequest.language()).isEqualTo("zh-Hant");
+
+		// 뒤쪽 태그가 앞쪽 태그의 판정을 덮어쓰면 안 된다.
+		this.service.chat(USER_ID, "你好", "zh-Hans,zh-Hant;q=0.5", List.of(), null, null);
+		assertThat(this.vendor.lastRequest.language()).isEqualTo("zh-Hans");
+	}
+
+	@Test
 	@DisplayName("히스토리는 설정된 개수만큼만 벤더에 전달된다")
 	void historyIsTrimmedToConfiguredTurnLimit() {
 		this.properties.setMaxHistoryTurns(2);

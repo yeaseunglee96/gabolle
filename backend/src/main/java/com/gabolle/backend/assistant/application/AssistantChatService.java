@@ -99,24 +99,27 @@ public class AssistantChatService {
 	/**
 	 * 프론트가 5개 언어(ko/en/ja/zh-Hans/zh-Hant)를 지원한다 — {@code frontend/src/i18n/languages.ts}
 	 * 의 {@code toBcp47()} 가 만드는 표기({@code ko-KR}·{@code en-US}·{@code ja-JP}·{@code zh-CN}·
-	 * {@code zh-TW})를 Accept-Language 헤더로 그대로 보낸다. 접두어만 보고 판정하되, 중국어는
-	 * 번체/간체 구분을 위해 지역 코드(TW·HK·MO 는 번체)까지 본다. 모르는 값은 기존과 같이 ko 로
-	 * 떨어뜨린다.
+	 * {@code zh-TW})를 Accept-Language 헤더로 그대로 보낸다.
+	 *
+	 * <p>🔴 <b>첫 언어 태그만</b> 본다 — {@code RequestLanguage.prefersEnglish} 와 같은 단순화다.
+	 * 처음에는 헤더 전체 문자열에 {@code contains}를 써서, 우선순위가 낮은 뒤쪽 태그(예:
+	 * {@code "zh-Hans,zh-Hant;q=0.5"} 의 {@code zh-Hant})가 앞쪽 태그의 판정을 덮어쓰는 결함이
+	 * 있었다(MR !1066 AI 리뷰로 발견) — 그래서 콤마로 먼저 자른다.
 	 */
 	private String normalizeLanguage(String language) {
 		if (language == null || language.isBlank()) {
 			return "ko";
 		}
-		String lower = language.toLowerCase(Locale.ROOT);
-		if (lower.startsWith("en")) {
+		String primary = language.split(",")[0].split(";")[0].trim().toLowerCase(Locale.ROOT);
+		if (primary.startsWith("en")) {
 			return "en";
 		}
-		if (lower.startsWith("ja")) {
+		if (primary.startsWith("ja")) {
 			return "ja";
 		}
-		if (lower.startsWith("zh")) {
-			return (lower.contains("hant") || lower.contains("-tw") || lower.contains("-hk")
-					|| lower.contains("-mo")) ? "zh-Hant" : "zh-Hans";
+		if (primary.startsWith("zh")) {
+			return (primary.contains("hant") || primary.contains("-tw") || primary.contains("-hk")
+					|| primary.contains("-mo")) ? "zh-Hant" : "zh-Hans";
 		}
 		return "ko";
 	}
