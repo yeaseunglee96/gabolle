@@ -57,12 +57,6 @@ export default function Welcome() {
     chooseLanguage(next);
     router.push({ pathname: isDesktop ? '/age-gate' : '/app-intro', params: { language: next, mobility } });
   };
-  const browseAsGuest = () => {
-    // 첫 실행에서 로그인 수단이 막혀도 앱 전체를 확인할 수 있어야 한다. 언어 선택값은
-    // 그대로 보존하고, 저장·작성처럼 계정이 필요한 순간에만 로그인 이점을 설명한다.
-    chooseLanguage(language === 'en' ? 'en' : 'ko');
-    router.replace('/home');
-  };
   const startPlanning = () => router.push('/plan/basic');
 
   if (!isDesktop) {
@@ -77,21 +71,17 @@ export default function Welcome() {
       <SafeAreaView edges={['top', 'bottom', 'left', 'right']} style={styles.mobileSafeArea}>
         <ScrollView style={styles.mobileSafeArea} contentContainerStyle={styles.mobileContent}>
         <View style={styles.mobileBrand}><Pressable accessibilityRole="button" accessibilityLabel={tx('GABOLLE 시작하기', 'Start GABOLLE')} accessibilityHint={tx('서비스 소개 화면으로 이동합니다', 'Goes to the service introduction screen')} onPress={() => startOnboarding()} style={({ pressed }) => [styles.logoLink, pressed && styles.pressed]}><Image source={lightLogo ? nightLogo : logo} resizeMode="contain" style={styles.mobileLogo} /></Pressable><Text variant="display" weight="bold" color={color.brand.orange}>{tx('부산 가볼래?', 'Shall we go to Busan?')}</Text></View>
+        {/* 사용자 요청(2026-09-17): 예전 흰 시트 목록이 화면을 너무 많이 차지했고, 이 화면은
+            로그인 화면이 아닌데 "비회원으로 둘러보기" 가 있는 것도 어색했다 — 그 선택지는
+            로그인 화면(sign-in.tsx)에 이미 있다. 국기 동그라미 다섯 줄로 압축하고, 배경 사진이
+            보이도록 남는 자리를 그대로 둔다. 누르면 바로 시작하는 것은 그대로다. */}
         <View style={styles.mobileActions}>
-          {/* 🔴 사진 위에 반투명 칸을 띄우지 않는다. 배경이 노을이라 밝기가 자리마다 달라서
-              어떤 칸은 읽히고 어떤 칸은 안 읽힌다. 불투명한 흰 시트 위에 올리면 언제나 읽힌다. */}
-          <View style={styles.languageSheet}>
-            <Text variant="caption" weight="bold" color={color.text.muted} style={styles.languageSheetTitle}>{tx('언어 선택', 'Choose your language')}</Text>
-            <View accessibilityRole="radiogroup" accessibilityLabel={tx('시작할 언어 선택', 'Select a language to start')} style={styles.languageList}>
-              {LANGUAGE_OPTIONS.map((item) => <LanguageRow key={item.code} item={item} selected={language === item.code} onPress={() => startOnboarding(item.code)} />)}
-            </View>
-            {/* 🔴 번역이 아직 없다는 사실을 숨기지 않는다. 다 된 척하면 고른 사람이 영어를 보고
-                "왜 안 바뀌지" 로 읽는다. 미리 말하면 그건 선택이 된다. */}
-            {needsTranslationNotice(language) ? <Text variant="caption" color={color.text.muted} style={styles.languageNotice}>Menus are in English for now. Place names and guides come in your language.</Text> : null}
+          <View accessibilityRole="radiogroup" accessibilityLabel={tx('시작할 언어 선택', 'Select a language to start')} style={styles.languageFlagRow}>
+            {LANGUAGE_OPTIONS.map((item) => <LanguageFlag key={item.code} item={item} selected={language === item.code} onPress={() => startOnboarding(item.code)} />)}
           </View>
-          <Pressable accessibilityRole="button" accessibilityHint={tx('로그인 없이 홈과 주요 기능을 둘러봅니다.', 'Browse the home screen and core features without signing in.')} onPress={browseAsGuest} style={({ pressed }) => [styles.guestButton, pressed && styles.pressed]}>
-            <Text variant="body" weight="bold" color={color.text.onAction}>{tx('비회원으로 바로 둘러보기', 'Browse as guest')}</Text>
-          </Pressable>
+          {/* 🔴 번역이 아직 없다는 사실을 숨기지 않는다. 다 된 척하면 고른 사람이 영어를 보고
+              "왜 안 바뀌지" 로 읽는다. 미리 말하면 그건 선택이 된다. */}
+          {needsTranslationNotice(language) ? <Text variant="caption" color="rgba(255,255,255,0.86)" style={styles.languageNotice}>Menus are in English for now. Place names and guides come in your language.</Text> : null}
         </View>
         </ScrollView>
       </SafeAreaView>
@@ -165,30 +155,23 @@ export default function Welcome() {
 }
 
 /**
- * 국기 동그라미 하나 = 언어 하나 (S15P21E201-1109).
+ * 국기 동그라미 하나 = 언어 하나 (S15P21E201-1109, 2026-09-17 재도입).
  *
- * 🔴 이름을 **그 언어로** 적는다 — 日本語·简体中文. 한국어로 "일본어" 라고 적으면 정작 그것을
- * 골라야 하는 사람이 못 읽는다. 국기만 두지 않는 것도 같은 이유다 — 국기는 나라이지 말이 아니고,
- * 🇨🇳 과 🇹🇼 을 크기 작은 화면에서 가르기 어렵다.
- */
-/**
- * 언어 한 줄 (S15P21E201-1109).
- *
- * 🔴 **그 언어로 쓴 이름이 주인공이다.** 앞선 판은 국기 동그라미였는데, 윈도우 브라우저에서
- * 국기가 나라 글자(KR·US·JP)로 떠서 무슨 버튼인지 안 읽혔다. 국기는 나라이지 말도 아니다.
- *
- * 🔴 영어 이름을 작게 같이 적는다. 자기 말을 못 찾는 사람이 **읽을 수 있는 유일한 줄**이
- * 그것이다 — 일본어를 모르는 사람에게 「日本語」 는 그림이다.
+ * 🔴 국기만 두지 않는다 — 윈도우 브라우저에서 국기 그림문자가 나라 글자(KR·US·JP)로 깨지고,
+ * 🇨🇳·🇹🇼 은 작은 동그라미에서 서로 구별도 안 된다(실측). 그래서 동그라미 아래에 그 언어로
+ * 쓴 이름(endonym)을 작게 같이 적는다 — 국기가 깨지거나 헷갈려도 그 한 줄이 정체를 말해준다.
  *
  * 누르면 바로 시작한다. 고르는 것과 시작하는 것을 나누면 탭이 한 번 더 늘어난다.
  */
-function LanguageRow({ item, selected, onPress }: { item: LanguageOption; selected: boolean; onPress: () => void }) {
-  return <Pressable accessibilityRole="radio" accessibilityState={{ selected }} accessibilityLabel={item.englishName === item.endonym ? item.endonym : `${item.endonym} · ${item.englishName}`} onPress={onPress} style={({ pressed }) => [styles.languageRow, selected && styles.languageRowSelected, pressed && styles.pressed]}>
-    <View style={styles.languageNames}>
-      <Text variant="title" weight="bold" color={selected ? color.text.onAction : color.text.heading}>{item.endonym}</Text>
-      {item.englishName !== item.endonym ? <Text variant="caption" color={selected ? 'rgba(255,255,255,0.78)' : color.text.muted}>{item.englishName}</Text> : null}
-    </View>
-    <Text variant="body" weight="bold" color={selected ? color.text.onAction : color.text.muted}>{selected ? '✓' : '›'}</Text>
+function LanguageFlag({ item, selected, onPress }: { item: LanguageOption; selected: boolean; onPress: () => void }) {
+  return <Pressable accessibilityRole="radio" accessibilityState={{ selected }} accessibilityLabel={item.englishName === item.endonym ? item.endonym : `${item.endonym} · ${item.englishName}`} onPress={onPress} style={styles.languageFlagItem}>
+    {({ pressed }) => <>
+      <View style={[styles.languageFlagCircle, selected && styles.languageFlagCircleSelected, pressed && styles.pressed]}>
+        <Text style={styles.languageFlagEmoji}>{item.flag}</Text>
+        {selected ? <View style={styles.languageFlagCheck}><Text style={styles.languageFlagCheckMark}>✓</Text></View> : null}
+      </View>
+      <Text variant="caption" weight="bold" numberOfLines={1} color="#ffffff" style={styles.languageFlagLabel}>{item.endonym}</Text>
+    </>}
   </Pressable>;
 }
 function NavItem({ label, onPress }: { label: string; onPress: () => void }) { return <Pressable accessibilityRole="link" onPress={onPress} style={styles.navItem}><Text variant="caption" weight="medium">{label}</Text></Pressable>; }
@@ -202,19 +185,18 @@ const styles = StyleSheet.create({
   mobileBrand: { alignItems: 'center', gap: spacing[3], paddingVertical: spacing[8] },
   mobileLogo: { width: 280, height: 70 },
   mobileActions: { width: '100%', maxWidth: 480, alignSelf: 'center', gap: spacing[2] },
-  // 불투명한 시트. 배경 사진의 밝기와 상관없이 글이 읽힌다.
-  languageSheet: { gap: spacing[2], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card },
-  languageSheetTitle: { letterSpacing: 0.4 },
-  languageList: { gap: spacing[2] },
-  languageRow: { minHeight: 56, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing[4], borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.card },
-  languageRowSelected: { borderColor: color.brand.navy, backgroundColor: color.brand.navy },
-  languageNames: { gap: 1 },
-  languageNotice: { marginTop: spacing[1], lineHeight: 18 },
-  languageButton: { height: 58, borderRadius: 18, borderWidth: 1, borderColor: 'rgba(255,255,255,0.48)', backgroundColor: 'rgba(11,29,58,0.30)', paddingHorizontal: 20, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  languageButtonSelected: { borderWidth: 2, borderColor: color.brand.orange, backgroundColor: 'rgba(255,253,248,0.96)', shadowColor: color.brand.navy, shadowOpacity: 0.16, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 4 },
-  languageAction: { width: 30, height: 30, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.12)' },
-  languageActionSelected: { backgroundColor: color.brand.orange },
-  guestButton: { minHeight: 48, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full, backgroundColor: 'rgba(11,29,58,0.72)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.56)' },
+  // 국기 동그라미 다섯 줄 (2026-09-17 재도입). 흰 시트 목록보다 세로 자리를 훨씬 덜 쓴다 —
+  // 배경 사진(부산 바다)이 보이는 자리를 넉넉히 남기는 것이 이번 요청의 핵심이다.
+  languageFlagRow: { flexDirection: 'row', justifyContent: 'space-between', gap: spacing[2] },
+  languageFlagItem: { flex: 1, alignItems: 'center', gap: spacing[1] },
+  // 동그라미는 항상 불투명한 흰 배경이다 — 사진 밝기가 자리마다 달라도 국기가 늘 또렷하다.
+  languageFlagCircle: { position: 'relative', width: 56, height: 56, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.card, borderWidth: 2, borderColor: 'transparent' },
+  languageFlagCircleSelected: { borderColor: color.brand.orange },
+  languageFlagEmoji: { fontSize: 26, lineHeight: 30 },
+  languageFlagCheck: { position: 'absolute', right: -2, bottom: -2, width: 20, height: 20, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.brand.orange, borderWidth: 2, borderColor: color.brand.navy },
+  languageFlagCheckMark: { fontSize: 11, fontWeight: '700', color: color.text.onAction },
+  languageFlagLabel: { textAlign: 'center' },
+  languageNotice: { marginTop: spacing[1], textAlign: 'center', lineHeight: 18 },
   webScreen: { flex: 1, backgroundColor: color.brand.ivory }, webContent: { minHeight: '100%' }, webHeader: { minHeight: 72, paddingHorizontal: 72, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: color.brand.ivory, borderBottomWidth: 1, borderBottomColor: '#e8e3da' }, webLogo: { width: 113, height: 28 }, webNav: { flexDirection: 'row', alignItems: 'center', gap: 44 }, navItem: { paddingVertical: spacing[3] }, accountActions: { flexDirection: 'row', alignItems: 'center', gap: spacing[3] },
   localeButton: { minWidth: 38, height: 38, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: '#f6efe6' }, loginButton: { minWidth: 76, minHeight: 38, borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing[4] }, signupButton: { minWidth: 82, minHeight: 38, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing[4], backgroundColor: color.brand.navy },
   // 히어로는 더 이상 영상 배경이 아니라 **좌우 두 칸**이다 (S15P21E201-970) — 왼쪽은 소개와
