@@ -150,10 +150,14 @@ export default function Home() {
               버튼만 남아 있었다. 누르면 메뉴판 번역이 없는 현장 도구 화면으로 간다. 없는
               기능을 이름으로 약속하는 것이 링크가 죽은 것보다 나쁘다 — 사용자는 자기가 길을
               잘못 찾았다고 생각한다. 가는 곳(`/field/translate`)의 실제 제목으로 맞춘다.
-              업체가 정해져 그 기능이 생기면 그때 이름을 되돌린다. */}
+              업체가 정해져 그 기능이 생기면 그때 이름을 되돌린다.
+
+              🔴 「통역」카드는 지웠다 — 사용자 리포트. `/field/speak`(장소별 한국어 문장)가
+              이미 「현장 도구」(`/field/translate`) 목록의 항목 중 하나라서, 둘을 나란히 두면
+              같은 기능이 입구가 둘로 보였다. 하나만 남기면 `fieldTool` 이 flex:1 이라 저절로
+              한 줄을 다 채운다 — 스타일은 그대로 둔다. */}
           <View style={styles.fieldTools}>
             {[
-              { path: '/field/speak', ko: '통역', en: 'Phrases', subKo: '택시·식당에서 바로', subEn: 'Taxis and restaurants' },
               { path: '/field/translate', ko: '현장 도구', en: 'On-the-go tools', subKo: '한국어 문장·날씨', subEn: 'Phrases and weather' },
             ].map((tool) => (
               <Pressable key={tool.path} accessibilityRole="button" onPress={() => router.push(tool.path)} style={({ pressed }) => [styles.fieldTool, pressed && styles.pressed]}>

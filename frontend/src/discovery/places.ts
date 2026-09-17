@@ -49,9 +49,12 @@ export type Place = {
 // 서로 다르다. 앞은 수집 대상에 안 들어간 것이라 파이프라인을 손대야 하고, 뒤는 가서 봐야
 // 한다. 사용자에게도 다르다 — 「안 알아봤다」를 「없다」처럼 읽히게 두면, 알레르기에서 사람이
 // 다칠 수 있었던 것과 같은 종류의 거짓말이 된다(S15P21E201-996).
+// 🔴 S15P21E201-1015-copy — 앞머리의 "?" 를 뗐다. "계단" 같은 항목 이름 바로 뒤에 이 문장이
+// 붙으면 "계단 ? 아직 안 알아봤어요" 처럼 물음표가 문장 중간에 끼어 든 것처럼 보인다는
+// 사용자 리포트가 있었다 — 실제로 물어보는 문장이 아닌데 물음표로 시작해서 생긴 일이다.
 export function missingValueLabel(slot: FeatureSlot, tx: (ko: string, en: string) => string): string {
   return slot.evidenceStatus === 'NOT_COLLECTED'
-    ? tx('? 아직 안 알아봤어요', '? Not looked into yet')
+    ? tx('아직 확인하지 않았어요', 'Not checked yet')
     : tx('알아봤지만 확인 못 했어요', 'Looked, but could not confirm');
 }
 
@@ -90,10 +93,23 @@ export function photoLabels(
 // 값이 있어도 VERIFIED·ESTIMATED·UNKNOWN 셋 다 화면에는 보여준다(정보 없음과 다르다) —
 // UNKNOWN 은 "확인은 했는데 결과가 없다"는 뜻이라 그 자체가 정보다. 다만 추정값은
 // "추정"이라고 붙여 확정값과 헷갈리지 않게 한다.
+// 🔴 S15P21E201-478-opening-hours-raw-json — 문자열·숫자가 아닌 값을 JSON.stringify로
+// 물러섰더니, 영업시간(openingHours)이 { raw: "매일 10:00-22:00" } 모양으로 오는 자리에서
+// 화면에 {"raw":"매일 10:00-22:00"} 이 글자 그대로 찍혔다 — 사용자 리포트. raw 문자열 칸이
+// 있으면 그것을 꺼내 쓰고, 정말 모르는 모양이면 JSON 대신 "확인했지만 형식을 읽지 못했어요"로
+// 물러선다 — 속을 못 읽어도 사람이 읽을 문장이어야 한다(JSON 텍스트는 문장이 아니다).
+function extractDisplayText(value: unknown, tx: (ko: string, en: string) => string): string {
+  if (typeof value === 'string' || typeof value === 'number') return String(value);
+  if (value && typeof value === 'object' && typeof (value as { raw?: unknown }).raw === 'string') {
+    return (value as { raw: string }).raw;
+  }
+  return tx('확인했지만 형식을 읽지 못했어요', "We checked, but couldn't read the format");
+}
+
 export function formatFeatureSlot(slot: FeatureSlot | undefined, tx: (ko: string, en: string) => string): string | null {
   if (!slot) return null;
   if (slot.evidenceStatus === 'UNKNOWN' || slot.value == null) return missingValueLabel(slot, tx);
-  const text = typeof slot.value === 'string' || typeof slot.value === 'number' ? String(slot.value) : JSON.stringify(slot.value);
+  const text = extractDisplayText(slot.value, tx);
   return slot.evidenceStatus === 'ESTIMATED' ? tx(`${text} (추정)`, `${text} (est.)`) : text;
 }
 
