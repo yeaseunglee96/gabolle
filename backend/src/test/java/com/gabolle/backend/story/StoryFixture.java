@@ -35,9 +35,16 @@ public final class StoryFixture {
 	}
 
 	public static UUID insertPlace(JdbcTemplate jdbc, String nameKo, String address) {
+		return insertPlace(jdbc, nameKo, address, null, null);
+	}
+
+	/** 영문 이름·주소까지 넣는다. 응답이 그 둘을 싣는지 재는 시험이 쓴다. */
+	public static UUID insertPlace(JdbcTemplate jdbc, String nameKo, String address, String nameEn,
+			String addressEn) {
 		UUID placeId = UUID.randomUUID();
-		jdbc.update("INSERT INTO place (place_id, name_ko, address, lat, lng, created_at) VALUES (?, ?, ?, 35.16, 129.16, now())",
-				placeId, nameKo, address);
+		jdbc.update("INSERT INTO place (place_id, name_ko, address, name_en, address_en, lat, lng, created_at) "
+				+ "VALUES (?, ?, ?, ?, ?, 35.16, 129.16, now())",
+				placeId, nameKo, address, nameEn, addressEn);
 		return placeId;
 	}
 
