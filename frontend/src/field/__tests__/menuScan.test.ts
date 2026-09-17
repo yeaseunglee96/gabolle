@@ -85,6 +85,10 @@ describe('글자를 못 찾았을 때', () => {
 
 // ── 서버가 준 것을 그대로 믿지 않는다 ────────────────────────────────────────
 
+// 🔴 S15P21E201-1187 — 사진은 보내기 전에 진짜 파일을 읽어 Blob 으로 바뀜다.
+//    여기서 재는 것은 서버가 준 것을 어떻게 다루는가라, 파일 읽기는 흔든다.
+//    그 자리 자체의 시험은 src/api/__tests__/multipart.test.ts 에 따로 있다.
+jest.mock('@/api/multipart', () => ({ singleFileFormData: jest.fn(async () => new FormData()) }));
 jest.mock('@/social/imageResize', () => ({
   MAX_UPLOAD_BYTES: 3 * 1024 * 1024,
   measureBytes: jest.fn(async () => 1000),
