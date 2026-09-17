@@ -210,6 +210,14 @@ class ClickSimRankingHarness {
 		answers.add(answer("FOOD_PREFERENCE", selectedCodes(tag.path("CUISINE_TAG"))));
 		answers.add(answer("CATEGORY", selectedCodes(tag.path("CATEGORY_TAG"))));
 
+		// 🔴 점수형은 앱이 {"score": 0.9} 모양으로 보낸다 (PreferenceJson).
+		JsonNode score = user.path("taste").path("score");
+		if (score.has("slopePercent")) {
+			answers.add(new PreferenceSnapshot.PreferenceAnswer("SLOPE_PREFERENCE",
+					"{\"score\": " + score.path("slopePercent").asDouble() + "}",
+					PreferenceSnapshot.AnswerStatus.SELECTED));
+		}
+
 		return new PreferenceSnapshot(UUID.randomUUID().toString(), UUID.randomUUID().toString(), 1,
 				answers, PersonalizationScope.TRIP, List.of(), java.time.Instant.now());
 	}
@@ -269,8 +277,17 @@ class ClickSimRankingHarness {
 				features.add(tagFeature("CATEGORY_TAG", "CAFE_HEALING"));
 			}
 			features.add(tagFeature("CUISINE_TAG", CUISINES.get(i % CUISINES.size())));
-			// 🔴 점수형 피처는 일부러 안 넣는다. 배포 서버에서 그 축들은 0곳이다
-			//    (2026-09-17 실측). 넣으면 없는 신호를 있는 것처럼 재게 된다.
+
+			// 🔴 경사는 넣는다 — 배포에 2682곳 붙어 있다(2026-09-17, place_feature 직접 집계).
+			//    처음에는 "점수형은 전부 0곳" 이라고 보고 안 넣었는데, 그건 facets 엔드포인트가
+			//    점수형을 못 세서 나온 0 이었다. feature_key 가 NULL 이라 featureKey 로 묶는
+			//    그 응답에는 안 잡힌다.
+			//
+			//    값 모양도 배포와 같게 맞춘다 — {"score": 26.6, ...} 이고 단위는 퍼센트다.
+			features.add(scoreFeature("SLOPE_PERCENT", slopePercentFor(i)));
+
+			// 🔴 나머지 점수형 넷(로컬성·조용함·그늘·관광객비율)은 여전히 안 넣는다.
+			//    place_feature 에 행이 정말로 0 이다. 넣으면 없는 신호를 있는 것처럼 재게 된다.
 
 			long distanceM = 200L + (i * 23L) % (RADIUS_M - 200L);
 			places.add(new PlaceCandidateResponse.Candidate(
@@ -291,6 +308,22 @@ class ClickSimRankingHarness {
 		return tags;
 	}
 
+	/** 배포의 경사 분포를 대충 흉내 낸다 — 부산은 평지와 급경사가 같이 있다. */
+	private static double slopePercentFor(int i) {
+		return Math.round((3.0 + (i * 37) % 40) * 10.0) / 10.0;
+	}
+
+	/**
+	 * 점수형 피처 — {@code feature_key} 가 <b>없다</b>. 값은 JSON 의 {@code score} 에 있다.
+	 *
+	 * <p>🔴 이 모양이 facets 엔드포인트가 점수형 축을 0 으로 내는 이유다. 여기서도 같은
+	 * 모양으로 만들어야 채점기가 배포에서와 같게 읽는다.
+	 */
+	private PlaceFeatureView scoreFeature(String featureType, double score) {
+		return new PlaceFeatureView(featureType, null, "ESTIMATED",
+				this.mapper.readTree("{\"score\": " + score + "}"), null, "CLICK_SIM");
+	}
+
 	private PlaceFeatureView tagFeature(String featureType, String featureKey) {
 		return new PlaceFeatureView(featureType, featureKey, "VERIFIED", this.mapper.readTree("true"), null,
 				"CLICK_SIM");
@@ -306,7 +339,8 @@ class ClickSimRankingHarness {
 	private List<UserPlaceCodeMap> productionPreferenceCodeMap() {
 		return List.of(
 				codeMap("CATEGORY", "CATEGORY_TAG", MatchKind.TAG_OVERLAP),
-				codeMap("FOOD_PREFERENCE", "CUISINE_TAG", MatchKind.TAG_OVERLAP));
+				codeMap("FOOD_PREFERENCE", "CUISINE_TAG", MatchKind.TAG_OVERLAP),
+				codeMap("SLOPE_PREFERENCE", "SLOPE_PERCENT", MatchKind.SCORE_COMPARE));
 	}
 
 	private static UserPlaceCodeMap codeMap(String userInputCode, String placeFeatureType, MatchKind matchKind) {
