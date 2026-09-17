@@ -4,6 +4,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import com.gabolle.backend.story.presentation.dto.RelationItemResponse;
@@ -52,12 +53,19 @@ public record RelationCursor(Instant relatedAt, UUID userId) {
 	/**
 	 * 질의가 {@code size + 1} 개를 읽어 온 결과를 응답 모양으로 접는다 — {@code StoryFeedService.page}
 	 * 와 같은 "한 개 더 읽기" 방식이다. 팔로워·팔로잉·차단 셋이 이 메서드 하나를 같이 쓴다.
+	 *
+	 * @param viewerFollows 지금 보는 사람(로그인한 사람)이 팔로우하는 사람들의 식별자 — 목록의
+	 *                      각 줄에 "나는 이 사람을 팔로우하는가"(following)를 채우는 데 쓴다.
+	 *                      S15P21E201-1179 계약: 목록 화면이 팔로우 버튼을 그리려면 필요하다.
+	 *                      대상의 팔로우 여부가 아니라 <b>보는 사람</b> 기준이다 — 그래야 남의
+	 *                      팔로워 목록을 볼 때도 내 버튼 상태가 맞게 나온다.
 	 */
-	public static RelationListResponse page(List<RelationRow> rows, int size) {
+	public static RelationListResponse page(List<RelationRow> rows, int size, Set<UUID> viewerFollows) {
 		boolean hasMore = rows.size() > size;
 		List<RelationRow> shown = hasMore ? rows.subList(0, size) : rows;
 		List<RelationItemResponse> items = shown.stream()
-				.map(row -> new RelationItemResponse(row.getUserId().toString(), row.getDisplayName(), row.getAvatarUrl()))
+				.map(row -> new RelationItemResponse(row.getUserId().toString(), row.getDisplayName(), row.getAvatarUrl(),
+						viewerFollows.contains(row.getUserId())))
 				.toList();
 		String next = null;
 		if (hasMore) {

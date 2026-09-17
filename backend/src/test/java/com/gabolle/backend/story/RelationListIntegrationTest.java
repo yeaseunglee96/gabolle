@@ -31,7 +31,7 @@ import com.gabolle.backend.story.presentation.UserSocialController;
 import com.gabolle.testslice.StorySliceApplication;
 
 /**
- * 팔로워·팔로잉·차단 목록 — S15P21E201-1172.
+ * 팔로워·팔로잉·차단 목록 — S15P21E201-1179.
  *
  * <p>커서·문턱 값 자체는 {@code FollowIntegrationTest}·{@code StoryRepository} 가 이미 확인했다.
  * 여기서는 이 세 목록에만 있는 것만 본다 — (1) 최근 맺은 순으로 오는가, (2) 「한 개 더 읽기」로
@@ -126,6 +126,36 @@ class RelationListIntegrationTest {
 				.andExpect(jsonPath("$.data.items.length()").value(2))
 				.andExpect(jsonPath("$.data.items[0].displayName").value("B"))
 				.andExpect(jsonPath("$.data.items[1].displayName").value("A"));
+	}
+
+	/** S15P21E201-1179 계약 — 목록의 following은 목록 주인이 아니라 <b>보는 사람</b> 기준이다. */
+	@Test
+	@DisplayName("🔴 계약 — 팔로워 목록의 following은 목록 주인이 아니라 보는 사람 기준이다")
+	void followingFlagReflectsViewerNotListOwner() throws Exception {
+		StoryFixture.insertFollow(this.jdbc, this.a, this.me);
+		StoryFixture.insertFollow(this.jdbc, this.b, this.me);
+		StoryFixture.insertFollow(this.jdbc, this.c, this.me);
+		// 나는 팔로워 중 b만 맞팔한다.
+		StoryFixture.insertFollow(this.jdbc, this.me, this.b);
+
+		this.mockMvc.perform(get("/api/v1/users/{id}/followers", this.me).principal(StoryFixture.as(this.me)))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.data.items[?(@.displayName=='B')].following").value(true))
+				.andExpect(jsonPath("$.data.items[?(@.displayName=='A')].following").value(false))
+				.andExpect(jsonPath("$.data.items[?(@.displayName=='C')].following").value(false));
+	}
+
+	/** 차단은 팔로우를 양쪽 다 끊으므로(BlockService.block), 차단 목록의 following은 언제나 false다. */
+	@Test
+	@DisplayName("차단 목록의 following은 언제나 false다 — 차단하면 팔로우가 함께 끊긴다")
+	void blockListFollowingIsAlwaysFalse() throws Exception {
+		StoryFixture.insertFollow(this.jdbc, this.me, this.a);
+		StoryFixture.insertBlock(this.jdbc, this.me, this.a);
+		this.jdbc.update("DELETE FROM user_follow WHERE follower_user_id = ? AND followee_user_id = ?", this.me, this.a);
+
+		this.mockMvc.perform(get("/api/v1/users/{id}/blocks", this.me).principal(StoryFixture.as(this.me)))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.data.items[0].following").value(false));
 	}
 
 	@Test

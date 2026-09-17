@@ -179,7 +179,7 @@ public class StoryExceptionHandler {
 						requestId()));
 	}
 
-	/** 남의 차단 목록을 물었다 — S15P21E201-1172. */
+	/** 남의 차단 목록을 물었다 — S15P21E201-1179. */
 	@ExceptionHandler(BlockService.BlockListForbiddenException.class)
 	public ResponseEntity<ApiResponse<Void>> handleBlockListForbidden(BlockService.BlockListForbiddenException e) {
 		return ResponseEntity.status(HttpStatus.FORBIDDEN)
