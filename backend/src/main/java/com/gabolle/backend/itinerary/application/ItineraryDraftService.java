@@ -126,32 +126,49 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         Distribution distribution = distributeByDay(command.places(), days, mealsPerDay(trip));
         List<List<ItineraryDraftCommand.PlannedPlace>> byDay = distribution.byDay();
 
-        List<ItineraryDraft.DraftItem> items = new ArrayList<>();
         // 구간을 만들 때 필요한, 날짜별 "그 날 다녀올 장소" 원본 순서.
         List<List<UUID>> placeIdsByDay = new ArrayList<>();
+        List<List<Placed>> placedByDay = new ArrayList<>();
 
         for (int dayIndex = 0; dayIndex < byDay.size(); dayIndex++) {
             List<ItineraryDraftCommand.PlannedPlace> dayPlaces = byDay.get(dayIndex);
             LocalDate visitDate = trip.startDate().plusDays(dayIndex);
-            List<UUID> placeIdsToday = new ArrayList<>(dayPlaces.size());
 
             List<Placed> placedToday = placeIntoSlots(trip, dayPlaces, visitDate);
+            placedByDay.add(placedToday);
 
-            for (int i = 0; i < placedToday.size(); i++) {
-                Placed placed = placedToday.get(i);
-                ItineraryDraftCommand.PlannedPlace place = placed.place();
-                placeIdsToday.add(place.placeId());
-
-                Slot slot = placed.slot();
-                items.add(new ItineraryDraft.DraftItem(
-                        dayIndex, visitDate, i + 1, place.placeId(),
-                        UUID.randomUUID(), slot.start(), slot.end(), slot.stayMinutes(),
-                        slot.dataStatus(), place.reasonCodes(), placed.warningCodes()));
+            List<UUID> placeIdsToday = new ArrayList<>(placedToday.size());
+            for (Placed placed : placedToday) {
+                placeIdsToday.add(placed.place().placeId());
             }
             placeIdsByDay.add(placeIdsToday);
         }
 
         List<ItineraryDraft.DraftLeg> legs = this.legPlanner.buildLegs(trip, placeIdsByDay);
+
+        // 🔴 S15P21E201-1130 — 시각은 **구간을 만든 뒤에** 깐다.
+        //
+        //    순서가 정해져야 이동 시간을 알 수 있고, 이동 시간을 알아야 시각을 깔 수 있다.
+        //    전에는 순서를 정하면서 시각까지 같이 정했고(placeIntoSlots -> slotFor), 그
+        //    시점에는 구간이 아직 없어서 **이동 시간이 0인 것처럼 시각이 깔렸다.**
+        //    그래서 「예상 도착」이 장소를 옮길 때마다 밀렸다 — 하루 끝에 78분(실측).
+        //
+        //    placeIntoSlots 이 정한 **순서는 그대로 쓴다.** 여기서는 시각만 다시 깐다.
+        List<ItineraryDraft.DraftItem> items = new ArrayList<>();
+        for (int dayIndex = 0; dayIndex < placedByDay.size(); dayIndex++) {
+            List<Placed> placedToday = placedByDay.get(dayIndex);
+            LocalDate visitDate = trip.startDate().plusDays(dayIndex);
+            List<Slot> timed = layoutDay(trip, placedToday.size(), travelMinutesFor(legs, dayIndex, placedToday.size()));
+
+            for (int i = 0; i < placedToday.size(); i++) {
+                Placed placed = placedToday.get(i);
+                Slot slot = timed.get(i);
+                items.add(new ItineraryDraft.DraftItem(
+                        dayIndex, visitDate, i + 1, placed.place().placeId(),
+                        UUID.randomUUID(), slot.start(), slot.end(), slot.stayMinutes(),
+                        slot.dataStatus(), placed.place().reasonCodes(), placed.warningCodes()));
+            }
+        }
 
         List<String> draftWarnings = distribution.sightSlotUnfilled()
                 ? List.of(ItineraryWarningCodes.SIGHT_SLOT_UNFILLED)
@@ -464,6 +481,93 @@ public class ItineraryDraftService implements ItineraryDraftPort {
      * <p>칸이 1분도 안 나올 만큼 항목이 많으면 시각을 배정하지 않는다. 시작과 끝이 같은
      * 칸은 {@code ck_itinerary_item_time_order}(끝이 시작보다 뒤여야 한다)에 걸린다.
      */
+    /**
+     * 그 날 i번째 장소에 <b>도착하기까지</b>의 이동 시간(분)을 순서대로 뽑는다 —
+     * S15P21E201-1130.
+     *
+     * <p>{@code ItineraryLegPlanner.buildLegs} 는 항목 하나에 구간 하나를 만든다.
+     * {@code sequence = i + 1} 인 구간은 "i번째 장소로 가는 길" 이고, 첫 구간의 출발점은
+     * 여행의 출발 좌표다. 그래서 첫 이동도 빼놓지 않는다 — 숙소에서 첫 장소까지 가는
+     * 시간을 0으로 두면 아침부터 이미 밀린다.
+     *
+     * <p>소요가 {@code null} 인 구간(이동 시간을 못 받은 구간)은 0으로 친다. 모르는 것을
+     * 지어내지 않는다는 뜻이고, 그 경우 결과는 <b>지금과 같아진다</b> — 나빠지지 않는다.
+     */
+    private static List<Integer> travelMinutesFor(List<ItineraryDraft.DraftLeg> legs, int dayIndex, int countToday) {
+        List<Integer> minutes = new ArrayList<>(countToday);
+        for (int i = 0; i < countToday; i++) {
+            minutes.add(0);
+        }
+        for (ItineraryDraft.DraftLeg leg : legs) {
+            if (leg.dayIndex() != dayIndex || leg.durationMin() == null) {
+                continue;
+            }
+            int index = leg.sequence() - 1;
+            if (index >= 0 && index < countToday) {
+                minutes.set(index, Math.max(0, leg.durationMin()));
+            }
+        }
+        return minutes;
+    }
+
+    /**
+     * 하루의 시각표를 깐다 — <b>이동 시간을 빼고 남은 만큼만 머문다</b>. S15P21E201-1130.
+     *
+     * <pre>
+     *   머무는 시간 = (활동 시간대 - 그 날 이동 시간 합) / 그 날 항목 수
+     *   i번째 시작   = 앞 항목의 끝 + i번째로 가는 이동 시간
+     * </pre>
+     *
+     * <p>마지막 항목의 끝이 활동 시간대의 끝을 넘지 않는다 — 넘던 것이 이 티켓이다.
+     *
+     * <p>🔴 이동만으로 하루가 다 차면 시각을 아예 안 준다({@link Slot#unknown()}).
+     * 예전처럼 이동을 무시하고 나누면 <b>되지도 않는 일정을 그럴듯하게 그리는 것</b>이고,
+     * 그건 시각이 없는 것보다 나쁘다. 화면은 시각 없는 항목을 이미 다룰 줄 안다.
+     *
+     * <p>{@link #slotFor} 와 달리 하루치를 한 번에 낸다 — 앞 항목의 끝을 알아야 다음
+     * 시작을 정할 수 있어서, 항목 하나만 따로 계산할 수가 없다.
+     */
+    private static List<Slot> layoutDay(Trip trip, int countToday, List<Integer> travelMinutes) {
+        List<Slot> slots = new ArrayList<>(countToday);
+        LocalTime windowStart = trip.timeWindowStart();
+        LocalTime windowEnd = trip.timeWindowEnd();
+        if (windowStart == null || windowEnd == null || !windowEnd.isAfter(windowStart) || countToday <= 0) {
+            for (int i = 0; i < countToday; i++) {
+                slots.add(Slot.unknown());
+            }
+            return slots;
+        }
+
+        long windowMinutes = Duration.between(windowStart, windowEnd).toMinutes();
+        long travelTotal = 0;
+        for (Integer minutes : travelMinutes) {
+            travelTotal += (minutes == null) ? 0 : minutes;
+        }
+
+        long stayMinutes = (windowMinutes - travelTotal) / countToday;
+        if (stayMinutes < 1) {
+            for (int i = 0; i < countToday; i++) {
+                slots.add(Slot.unknown());
+            }
+            return slots;
+        }
+
+        LocalTime cursor = windowStart;
+        for (int i = 0; i < countToday; i++) {
+            Integer move = (i < travelMinutes.size()) ? travelMinutes.get(i) : null;
+            cursor = cursor.plusMinutes(move == null ? 0 : move);
+            LocalTime start = cursor;
+            LocalTime end = start.plusMinutes(stayMinutes);
+            slots.add(new Slot(start, end, (int) stayMinutes, "ESTIMATED"));
+            cursor = end;
+        }
+        return slots;
+    }
+
+    // 🔴 S15P21E201-1130 이후 이 함수의 뜻이 좁아졌다. 여기서 나온 시각은
+    //    **화면에 나가지 않는다** — 순서를 정할 때 "이 자리쯤에서 문이 열려 있나" 를
+    //    물어보기 위한 임시 눈금일 뿐이다. 실제로 항목에 박히는 시각은 구간을 만든 뒤
+    //    layoutDay 가 이동 시간까지 넣어 다시 깐다. 둘을 헷갈리면 78분이 다시 생긴다.
     private static Slot slotFor(Trip trip, int index, int countToday) {
         LocalTime windowStart = trip.timeWindowStart();
         LocalTime windowEnd = trip.timeWindowEnd();
@@ -730,11 +834,32 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         //    시각은 그 날 항목 수로 다시 나눈다(slotFor) — 고정 항목의 시각도 함께 움직인다.
         int countToday = kept.size() + fills.size();
         LocalDate visitDate = trip.startDate().plusDays(dayIndex);
+
+        // 🔴 S15P21E201-1130 — 여기도 시각을 구간보다 먼저 깔면 안 된다.
+        //
+        //    순서(남긴 것 → 채운 것)는 시각과 상관없이 이미 정해져 있다. 그래서 그 순서로
+        //    그 날 구간을 먼저 만들고, 이동 시간을 아는 상태에서 시각을 깐다. 아래 8단계가
+        //    구간을 어차피 전부 다시 만드는데, 그 결과를 시각보다 늦게 쓰면 재계산한 날은
+        //    이동 시간이 0인 시각표로 되돌아간다.
+        List<UUID> orderedToday = new ArrayList<>(countToday);
+        for (ItineraryItem item : kept) {
+            orderedToday.add(UUID.fromString(item.placeId()));
+        }
+        for (ItineraryDraftCommand.PlannedPlace fill : fills) {
+            orderedToday.add(fill.placeId());
+        }
+        List<List<UUID>> todayOnly = new ArrayList<>(trip.days());
+        for (int d = 0; d < trip.days(); d++) {
+            todayOnly.add(d == dayIndex ? orderedToday : List.of());
+        }
+        List<Slot> timedToday = layoutDay(trip, countToday,
+                travelMinutesFor(this.legPlanner.buildLegs(trip, todayOnly), dayIndex, countToday));
+
         List<ItineraryItem> dayResult = new ArrayList<>(countToday);
         boolean lockedTimeMoved = false;
         int sequence = 1;
         for (ItineraryItem item : kept) {
-            Slot slot = slotFor(trip, sequence - 1, countToday);
+            Slot slot = timedToday.get(sequence - 1);
             if (item.locked() && item.startTime() != null && !item.startTime().equals(slot.start())) {
                 lockedTimeMoved = true;
             }
@@ -745,7 +870,7 @@ public class ItineraryDraftService implements ItineraryDraftPort {
             sequence++;
         }
         for (ItineraryDraftCommand.PlannedPlace fill : fills) {
-            Slot slot = slotFor(trip, sequence - 1, countToday);
+            Slot slot = timedToday.get(sequence - 1);
             dayResult.add(new ItineraryItem(UUID.randomUUID().toString(), newVersionId, UUID.randomUUID().toString(),
                     dayIndex, visitDate, sequence, fill.placeId().toString(), slot.start(), slot.end(),
                     slot.stayMinutes(), false, null, ItineraryItem.DataStatus.valueOf(slot.dataStatus()),
