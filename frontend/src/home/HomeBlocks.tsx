@@ -16,6 +16,7 @@ import { PlaceVisual } from '@/components/PlaceVisual';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
+import { markdownToPlain } from '@/social/markdown';
 import { useAuth } from '@/auth/AuthProvider';
 import { resolveHomeTripDestination } from './tripNavigation';
 import { localFacetLabel, type FacetKeyEntry } from '@/discovery/localExplore';
@@ -72,10 +73,14 @@ function StoryCard({ story }: { story: StoryDto }) {
     <Pressable accessibilityRole="button" onPress={() => router.push(`/feed/${story.id}`)} style={({ pressed }) => [styles.storyCard, pressed && styles.pressed]}>
       {story.images.length
         ? <Image source={{ uri: story.images[0].url }} resizeMode="cover" accessibilityLabel={tx('여행 기록 사진', 'Trip record photo')} style={styles.storyImage} />
-        : <View style={styles.storyImage} />}
+        : <View style={[styles.storyImage, styles.storyCoverEmpty]}>
+            <Text variant="title" weight="bold" color={color.text.heading} numberOfLines={5} style={styles.storyCoverEmptyText}>{markdownToPlain(story.body)}</Text>
+          </View>}
       <View style={styles.storyBody}>
         <Text variant="caption" numberOfLines={1}>{where ? `${relativeStoryTime(story.createdAt, tx)} · ${where}` : relativeStoryTime(story.createdAt, tx)}</Text>
-        <Text numberOfLines={2} color={color.text.heading}>{story.body}</Text>
+        {/* 🔴 사진이 없는 글은 본문을 커버에 이미 크게 그렸다. 여기서 또 그리면 같은 글이 두 번
+            나온다 — 피드 카드(app/(tabs)/feed.tsx)가 같은 이유로 생략하는 자리다. */}
+        {story.images.length ? <Text numberOfLines={2} color={color.text.heading}>{markdownToPlain(story.body)}</Text> : null}
         <View style={styles.storyAuthor}>
           <View style={styles.storyAvatar}><Text variant="caption" weight="bold" color={color.text.onAction}>{initial}</Text></View>
           <Text variant="caption" weight="bold" color={color.text.body} numberOfLines={1}>{story.author.displayName}</Text>
@@ -288,6 +293,10 @@ const styles = StyleSheet.create({
   storyCard: { flex: 1, minWidth: 0, maxWidth: 260, borderRadius: radius.lg, overflow: 'hidden', backgroundColor: color.surface.card },
   storySkeleton: { height: 260, maxWidth: 260, backgroundColor: 'rgba(255,255,255,0.12)' },
   storyImage: { width: '100%', aspectRatio: 1, backgroundColor: color.surface.soft },
+  // 🔴 사진이 없을 때 — 회색 빈 칸 대신 tint 에 본문을 크게. 시안 「자주 틀리는 것」 4번.
+  //    빈 회색은 「사진을 못 불러왔다」로 읽힌다. feed.tsx 의 coverEmpty 와 같은 규칙이다.
+  storyCoverEmpty: { alignItems: 'center', justifyContent: 'center', padding: spacing[4], backgroundColor: color.surface.tint },
+  storyCoverEmptyText: { textAlign: 'center' },
   storyBody: { gap: spacing[1], paddingHorizontal: spacing[4], paddingTop: 14, paddingBottom: spacing[4] },
   storyAuthor: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], marginTop: spacing[1] },
   storyAvatar: { width: 20, height: 20, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.brand.navy },
