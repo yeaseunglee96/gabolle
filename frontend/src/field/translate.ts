@@ -16,6 +16,10 @@
 //    운영에는 번역 업체 열쇠가 아직 안 들어가 있다(jaehyeon 님 실측, 2026-09-16 — 메뉴판
 //    읽기가 같은 열쇠를 쓴다). 그래서 **안 될 때 무엇을 할지가 기능의 절반**이다.
 //    안 되면 조용히 실패하지 않고, 왜 안 되는지 말하고 원문이라도 읽을 수 있게 한다.
+// 🔴 언어 다섯을 다 받는다 (S15P21E201-1109). 이 함수가 'ko' | 'en' 만 받으면 부르는 쪽
+// 열다섯 곳이 각자 떨어뜨려야 하고, 한 곳만 빠뜨리면 일본어 사용자가 한국어 이름을 본다.
+// 떨어뜨리는 일은 **여기 한 자리**에서 한다.
+import { resolveTextLanguage, type LanguageCode } from '@/i18n/languages';
 import { apiRequest, ApiClientError } from '@/api/client';
 
 export type TranslationDirection = 'EN_TO_KO' | 'KO_TO_EN';
@@ -60,8 +64,10 @@ export const TRANSLATE_MAX_LENGTH = 120;
  * 방향이다. 한국어 화면이면 번역할 것이 없다 — 한국어로 써서 한국어로 말하면 되므로
  * {@code null} 을 돌려주고, 화면은 번역을 아예 부르지 않는다.
  */
-export function directionForLanguage(language: 'ko' | 'en'): TranslationDirection | null {
-  return language === 'en' ? 'EN_TO_KO' : null;
+export function directionForLanguage(language: LanguageCode): TranslationDirection | null {
+  // 일본어·중국어를 고른 사람도 번역이 필요하다. 서버가 받는 방향은 아직 EN_TO_KO 뿐이라
+  // 그분들은 영어로 쓴다 — 화면 문구도 영어로 나오므로 어긋나지 않는다.
+  return resolveTextLanguage(language) === 'en' ? 'EN_TO_KO' : null;
 }
 
 /** 번역된 문장을 읽을 때 쓸 음성. 🔴 영어 문장을 한국어 음성으로 읽으면 알아들을 수 없다. */
