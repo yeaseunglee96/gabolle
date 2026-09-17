@@ -42,6 +42,16 @@ export const WARNING_LABEL: Record<string, [string, string]> = {
     '관광지 자리를 다 채우지 못했어요. 대신 식당으로 메우지는 않았어요.',
     "We couldn't fill every sightseeing slot — and we didn't pad them with restaurants.",
   ],
+  // 2026-09-17 추가(S15P21E201-1160). 지금은 추천 완료 창이 이 코드를 읽어 안내 창을
+  // 띄우고, 일정 화면 경고 칸에는 아직 안 나온다. 그래도 미리 넣어 둔다 — 서버가 이 값을
+  // 일정 상세에도 싣기 시작하는 날(S15P21E201-1158) 짝이 없으면 조용히 안 그려진다.
+  //
+  // 🔴 "못 간다" 가 아니라 "안 재 봤다" 로 옮긴다. 영어도 Not verified 이지
+  //    Not accessible 이 아니다 — 갈 수 있는 곳을 못 가게 만드는 말이 된다.
+  ACCESSIBILITY_UNVERIFIED: [
+    '휠체어로 들어갈 수 있는지 아직 확인되지 않은 곳이에요.',
+    'Wheelchair access here has not been checked yet.',
+  ],
 };
 
 /**
