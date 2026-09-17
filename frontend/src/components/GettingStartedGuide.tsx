@@ -25,16 +25,18 @@ export function GettingStartedGuide() {
     <Modal visible={open} transparent animationType="fade" onRequestClose={() => setOpen(false)}>
       <SafeAreaView style={styles.overlay}>
         <View style={styles.sheet} accessibilityViewIsModal>
-          <View style={styles.header}><Text variant="caption" weight="bold" color={color.brand.orange}>{tx('가볼래 사용 안내', 'Your GABOLLE guide')} · {step + 1}/{STEPS.length}</Text><View style={styles.close}><Button variant="ghost" label={tx('닫기', 'Close')} onPress={() => setOpen(false)} /></View></View>
+          <View style={styles.header}><Text variant="caption" weight="bold" color={color.brand.orange}>{tx('가볼래 사용 안내', 'Your GABOLLE guide')} · {step + 1}/{STEPS.length}</Text><View style={styles.close}><Button variant="ghost" pill label={tx('닫기', 'Close')} onPress={() => setOpen(false)} /></View></View>
           <ScrollView contentContainerStyle={styles.body}>
             <Text variant="display" weight="bold" accessibilityRole="header">{tx(current.title[0], current.title[1])}</Text>
             <Text variant="body" style={styles.description}>{tx(current.body[0], current.body[1])}</Text>
             <View style={styles.note}><Text variant="caption">{tx('안내를 닫아도 홈의 사용법 보기에서 다시 열 수 있어요.', 'You can reopen this guide from Home at any time.')}</Text></View>
-            <Button label={tx(current.action[0], current.action[1])} onPress={() => { setOpen(false); router.push(current.route); }} />
+            {/* 🔴 사용자 리포트 — 이 버튼만 각진 모양이라 위 닫기·아래 이전/다음과 달라 보였다.
+                한 시트 안의 버튼은 모두 같은 모양(pill)으로 맞춘다. */}
+            <Button label={tx(current.action[0], current.action[1])} pill onPress={() => { setOpen(false); router.push(current.route); }} />
           </ScrollView>
           <View style={styles.footer}>
-            <View style={styles.nav}><Button variant="ghost" label={tx('이전 설명', 'Previous')} disabled={step === 0} onPress={() => setStep(step - 1)} /></View>
-            <View style={styles.nav}><Button variant="ghost" label={step === STEPS.length - 1 ? tx('안내 마치기', 'Finish guide') : tx('다음 설명', 'Next')} onPress={() => step === STEPS.length - 1 ? setOpen(false) : setStep(step + 1)} /></View>
+            <View style={styles.nav}><Button variant="ghost" pill label={tx('이전 설명', 'Previous')} disabled={step === 0} onPress={() => setStep(step - 1)} /></View>
+            <View style={styles.nav}><Button variant="ghost" pill label={step === STEPS.length - 1 ? tx('안내 마치기', 'Finish guide') : tx('다음 설명', 'Next')} onPress={() => step === STEPS.length - 1 ? setOpen(false) : setStep(step + 1)} /></View>
           </View>
         </View>
       </SafeAreaView>
