@@ -21,6 +21,7 @@
 // 떨어뜨리는 일은 **여기 한 자리**에서 한다.
 import { resolveTextLanguage, type LanguageCode } from '@/i18n/languages';
 import { apiRequest, ApiClientError } from '@/api/client';
+import { isVendorNotReady } from '@/api/vendorReady';
 
 export type TranslationDirection = 'EN_TO_KO' | 'KO_TO_EN';
 
@@ -30,6 +31,8 @@ export type TranslationBlockedReason =
   | 'signed-out'
   /** 서버에 그 경로가 아직 없다(404·501). 기다리면 생긴다. */
   | 'not-built'
+  /** 바깥 업체 열쇠가 서버에 안 꽂혔다. **다시 시도해도 매한가지다** (S15P21E201-1200). */
+  | 'not-ready'
   /** 번역 업체 쪽이 실패했다(5xx). 잠시 뒤 될 수 있다. */
   | 'vendor'
   /** 그 밖 — 끊김 등. */
@@ -76,6 +79,8 @@ export function speechLanguageFor(direction: TranslationDirection): string {
 }
 
 function blockedReason(error: unknown): TranslationBlockedReason {
+  // 🔴 열쇠가 안 꽂힌 것도 5xx 로 온다 — 숫자만 보면 몸 가른다 (S15P21E201-1200).
+  if (isVendorNotReady(error)) return 'not-ready';
   if (!(error instanceof ApiClientError)) return 'error';
   if (error.status === 401 || error.status === 403) return 'signed-out';
   if (error.status === 404 || error.status === 501) return 'not-built';

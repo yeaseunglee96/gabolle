@@ -289,6 +289,13 @@ async function performRequest<T>(path: string, options: RequestOptions, isRetry:
 
   const envelope = (await response.json()) as ApiEnvelope<T>;
   if (!response.ok || envelope.error || envelope.data === null) {
+    // 🔴 S15P21E201-1200 — 「이 기능은 열쇠가 없다」는 5xx 는 **서버가 죽은 것이 아니다.**
+    //
+    // 위에서 5xx 를 보고 이미 「서버에 연결할 수 없어요」 배너를 켜 놓았다. 그 판단은
+    // 본문을 읽기 전이라 상태 숫자밖에 모른다. 본문을 읽고 나서야 이 둘이 갈린다 —
+    // 바깥 업체 열쇠가 안 꽂힌 것과, 서버가 진짜로 안 돌아가는 것.
+    // 앞에 걸린 배너를 여기서 내린다. 같은 순간 다른 API 는 전부 200 이다.
+    if ((envelope.error?.code ?? '').endsWith('_VENDOR_NOT_CONFIGURED')) setApiUnavailable(false);
     throw new ApiClientError(
       envelope.error?.message ?? '요청을 처리하지 못했어요.',
       envelope.error?.code ?? 'REQUEST_FAILED',

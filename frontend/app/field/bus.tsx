@@ -23,6 +23,7 @@ import {
   type BusBlockedReason,
   type BusStop,
 } from '@/field/busArrivals';
+import { vendorNotReadyMessage } from '@/api/vendorReady';
 import { useI18n } from '@/i18n';
 import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
@@ -144,6 +145,11 @@ export default function Bus() {
       title: tx('버스 정보가 아직 서버에 없어요', 'Bus data is not on the server yet'),
       body: tx('곧 열려요. 조금 뒤에 다시 들러 주세요.', 'It is coming. Please check back a little later.'),
     };
+    // 🔴 S15P21E201-1200 — 열쇠가 안 꽂힌 것은 「잠시 뒤」가 아니다. 그렇게 말하면 거짓말이다.
+    if (r === 'not-ready') return {
+      title: tx('버스 도착 정보는 아직 준비 중이에요', 'Bus arrivals are not set up yet'),
+      body: vendorNotReadyMessage(tx),
+    };
     if (r === 'vendor') return {
       title: tx('지금은 도착 정보를 못 받았어요', 'Could not get arrivals right now'),
       body: tx('버스 정보 제공처가 잠시 응답하지 않아요. 잠시 후 다시 시도해 주세요.', 'The transit provider is not responding. Please try again shortly.'),
@@ -203,9 +209,13 @@ export default function Bus() {
         <View accessibilityLiveRegion="polite" style={styles.card}>
           <Text variant="title" weight="bold">{blockedText(reason).title}</Text>
           <Text color={color.text.body} style={styles.blockedBody}>{blockedText(reason).body}</Text>
+          {/* 🔴 S15P21E201-1200 — 준비되지 않은 기능에는 「다시 시도」를 안 보여준다.
+              눌러도 달라지지 않는 단추는 없는 것보다 나쁘다 — 사람을 거기 묶어 둔다. */}
           {reason === 'signed-out'
             ? <Button label={tx('로그인하기', 'Sign in')} containerStyle={styles.cta} onPress={() => router.push('/sign-in')} />
-            : <Button label={tx('다시 시도', 'Try again')} variant="ghost" containerStyle={styles.cta} onPress={() => void load(coords)} />}
+            : reason === 'not-ready'
+              ? null
+              : <Button label={tx('다시 시도', 'Try again')} variant="ghost" containerStyle={styles.cta} onPress={() => void load(coords)} />}
         </View>
       ) : null}
 
