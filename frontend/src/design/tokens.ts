@@ -1,3 +1,5 @@
+import { Platform } from 'react-native';
+
 // Figma 에서 실측한 디자인 토큰이다. 화면에서 색·숫자를 직접 하드코딩하지 않고
 // 반드시 이 파일을 거쳐서 쓴다 — 나중에 값이 바뀌어도 여기 한 곳만 고치면 되게 하기 위해서다.
 //
@@ -96,11 +98,34 @@ export const color = {
 // Bold)을 넣고 app/_layout.tsx 에서 expo-font 로 로드한다.
 // RN 은 굵기별로 다른 파일을 다른 이름으로 등록해야 한다 — 커스텀 폰트에 fontWeight 숫자만
 // 주면 대부분 플랫폼에서 그냥 Regular 로 보인다. 그래서 굵기마다 별도 family 이름을 둔다.
+//
+// 🔴 이 이름 그대로 app/_layout.tsx 의 useFonts() 에 등록 키로 쓰인다 — 여기 값을
+// CSS 처럼 쉼표로 이어 붙이면 그 등록 자체가 깨진다. 화면에 실제로 칠할 값은
+// 아래 fontFamilyStack 이다.
 export const fontFamily = {
   regular: 'Pretendard-Regular',
   medium: 'Pretendard-Medium',
   bold: 'Pretendard-Bold',
 } as const;
+
+// 🔴 5개 국어 지원(S15P21E201-1109) 이후 — Pretendard 는 한글·영문 글자만 그려 넣은
+// 정적 폰트라 중국어(간체·번체) 글자는 애초에 들어있지 않다. 네이티브(iOS/Android)는
+// OS가 알아서 시스템 CJK 폰트로 넘어가 문제가 없지만, 웹(react-native-web)은 `fontFamily`
+// 가 브라우저 CSS 로 그대로 나가므로 **쉼표로 이어진 대체 목록을 직접 적어야** 한다 —
+// 안 적으면 브라우저 기본 세리프체로 떨어지거나 자모가 깨져 보인다(실사용 리포트).
+// 네이티브에는 이 목록을 주지 않는다 — RN 네이티브는 등록된 폰트 하나만 이름으로
+// 받고, 쉼표로 이어 붙이면 그 글자 그대로를 폰트 이름으로 찾다가 못 찾아 깨진다.
+// 화면 스타일(Text.tsx 등)은 fontFamily 가 아니라 이 fontFamilyStack 을 쓴다.
+const CJK_FALLBACK_WEB = ', "Apple SD Gothic Neo", "Noto Sans KR", "Noto Sans SC", "Noto Sans TC", "PingFang SC", "Microsoft YaHei", "Malgun Gothic", sans-serif';
+
+export const fontFamilyStack = Platform.select({
+  web: {
+    regular: `${fontFamily.regular}${CJK_FALLBACK_WEB}`,
+    medium: `${fontFamily.medium}${CJK_FALLBACK_WEB}`,
+    bold: `${fontFamily.bold}${CJK_FALLBACK_WEB}`,
+  },
+  default: fontFamily,
+}) as { regular: string; medium: string; bold: string };
 
 // 🔴 body 는 Figma 실측(10~13px)이 아니라 15px 이다. 실수로 되돌리지 않는다.
 //    이 앱의 차별점이 접근성(휠체어·알레르기)인데 본문이 11px 이면 그 자체로 모순이고,

@@ -20,6 +20,16 @@ const logo = require('../assets/brand/gabolle-logo-hd.png');
 const nightLogo = require('../assets/brand/gabolle-logo-night.png');
 const welcomeImage = require('../assets/images/welcome-busan.png');
 const webHeroImage = require('../assets/home/web-hero.png');
+// 🔴 국기는 유니코드 그림문자(🇰🇷)가 아니라 실제 이미지를 쓴다 — 윈도우 브라우저는
+// 국가 그림문자를 정책적으로 지원하지 않아 KR·US 같은 두 글자로 떨어진다(S15P21E201-1109).
+// 폰트로는 못 고치는 문제라 flagcdn.com 국기 그림을 내려받아 assets/flags 에 넣었다.
+const FLAG_IMAGES: Record<LanguageCode, ReturnType<typeof require>> = {
+  ko: require('../assets/flags/kr.png'),
+  en: require('../assets/flags/us.png'),
+  ja: require('../assets/flags/jp.png'),
+  'zh-Hans': require('../assets/flags/cn.png'),
+  'zh-Hant': require('../assets/flags/tw.png'),
+};
 // 🔴 언어 목록은 src/i18n/languages.ts 한 곳에 있다 (S15P21E201-1109). 여기 다시 적으면
 //    언어를 늘릴 때 한쪽만 늘어난다.
 // 「특별한 기능」 카드 셋(AI 일정 만들기 · 실시간 경로 안내 · 함께 여행 설계)은 뺐다
@@ -157,9 +167,9 @@ export default function Welcome() {
 /**
  * 국기 동그라미 하나 = 언어 하나 (S15P21E201-1109, 2026-09-17 재도입).
  *
- * 🔴 국기만 두지 않는다 — 윈도우 브라우저에서 국기 그림문자가 나라 글자(KR·US·JP)로 깨지고,
- * 🇨🇳·🇹🇼 은 작은 동그라미에서 서로 구별도 안 된다(실측). 그래서 동그라미 아래에 그 언어로
- * 쓴 이름(endonym)을 작게 같이 적는다 — 국기가 깨지거나 헷갈려도 그 한 줄이 정체를 말해준다.
+ * 🔴 국기 그림 하나만 두지 않는다 — 실제 국기 이미지를 써도 56px 짜리 작은 동그라미에서는
+ * 국기끼리 순간적으로 헷갈릴 수 있다(특히 처음 보는 사용자에게). 그래서 동그라미 아래에
+ * 그 언어로 쓴 이름(endonym)을 작게 같이 적는다 — 그 한 줄이 정체를 한 번 더 말해준다.
  *
  * 누르면 바로 시작한다. 고르는 것과 시작하는 것을 나누면 탭이 한 번 더 늘어난다.
  */
@@ -167,7 +177,7 @@ function LanguageFlag({ item, selected, onPress }: { item: LanguageOption; selec
   return <Pressable accessibilityRole="radio" accessibilityState={{ selected }} accessibilityLabel={item.englishName === item.endonym ? item.endonym : `${item.endonym} · ${item.englishName}`} onPress={onPress} style={styles.languageFlagItem}>
     {({ pressed }) => <>
       <View style={[styles.languageFlagCircle, selected && styles.languageFlagCircleSelected, pressed && styles.pressed]}>
-        <Text style={styles.languageFlagEmoji}>{item.flag}</Text>
+        <Image source={FLAG_IMAGES[item.code]} resizeMode="contain" style={styles.languageFlagImage} />
         {selected ? <View style={styles.languageFlagCheck}><Text style={styles.languageFlagCheckMark}>✓</Text></View> : null}
       </View>
       <Text variant="caption" weight="bold" numberOfLines={1} color="#ffffff" style={styles.languageFlagLabel}>{item.endonym}</Text>
@@ -189,10 +199,15 @@ const styles = StyleSheet.create({
   // 배경 사진(부산 바다)이 보이는 자리를 넉넉히 남기는 것이 이번 요청의 핵심이다.
   languageFlagRow: { flexDirection: 'row', justifyContent: 'space-between', gap: spacing[2] },
   languageFlagItem: { flex: 1, alignItems: 'center', gap: spacing[1] },
-  // 동그라미는 항상 불투명한 흰 배경이다 — 사진 밝기가 자리마다 달라도 국기가 늘 또렷하다.
-  languageFlagCircle: { position: 'relative', width: 56, height: 56, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.card, borderWidth: 2, borderColor: 'transparent' },
+  // 뱃지는 항상 불투명한 흰 배경이다 — 사진 밝기가 자리마다 달라도 국기가 늘 또렷하다.
+  // 🔴 처음엔 동그라미 + resizeMode「cover」로 만들었더니 국기(3:2 비율, 미국만 1.9:1)의
+  // 좌우가 잘려 나갔다(실측 — 특히 미국 성조기 별밭이 잘림). 국기는 어느 나라든 전체 모양이
+  // 곧 그 나라를 가리키는 표식이라 일부가 잘리면 다른 나라 국기로 오인될 수 있다. 그래서
+  // 동그라미를 접고 국기 비율에 맞춘 둥근 네모 + resizeMode「contain」으로 바꿔
+  // **어떤 국기도 잘리지 않게** 한다.
+  languageFlagCircle: { position: 'relative', width: 56, height: 40, borderRadius: radius.sm, overflow: 'hidden', alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.card, borderWidth: 2, borderColor: 'transparent' },
   languageFlagCircleSelected: { borderColor: color.brand.orange },
-  languageFlagEmoji: { fontSize: 26, lineHeight: 30 },
+  languageFlagImage: { width: '86%', height: '86%' },
   languageFlagCheck: { position: 'absolute', right: -2, bottom: -2, width: 20, height: 20, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.brand.orange, borderWidth: 2, borderColor: color.brand.navy },
   languageFlagCheckMark: { fontSize: 11, fontWeight: '700', color: color.text.onAction },
   languageFlagLabel: { textAlign: 'center' },

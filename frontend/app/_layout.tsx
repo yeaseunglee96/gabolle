@@ -4,19 +4,33 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { View } from 'react-native';
+import { useEffect } from 'react';
+import { Platform, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { color, fontFamily } from '@/design/tokens';
+import { toHtmlLang } from '@/i18n/languages';
 import { AuthProvider } from '@/auth/AuthProvider';
 import { AppErrorBoundary } from '@/components/AppErrorBoundary';
 import { ApiAvailabilityBanner } from '@/components/ApiAvailabilityBanner';
 import { BuildInfoBadge } from '@/components/BuildInfoBadge';
 import { CollectionProvider } from '@/collection/CollectionProvider';
-import { OnboardingPreferencesProvider } from '@/onboarding/OnboardingPreferences';
+import { OnboardingPreferencesProvider, useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
 import { PlanProvider } from '@/plan/PlanProvider';
 import { TopNav } from '@/nav/TopNav';
 import { queryClient } from '@/api/queryClient';
+
+// 🔴 웹에서만 의미가 있다 — 스크린 리더가 어느 언어 발음 규칙을 쓸지, 브라우저가 어느
+// 언어의 맞춤법 검사·번역 제안을 띄울지가 이 값을 본다(S15P21E201-1109). 네이티브
+// (iOS/Android)에는 `<html>` 자체가 없어 손댈 대상이 없다.
+function HtmlLangSync() {
+  const { language } = useOnboardingPreferences();
+  useEffect(() => {
+    if (Platform.OS !== 'web') return;
+    document.documentElement.lang = toHtmlLang(language);
+  }, [language]);
+  return null;
+}
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
@@ -48,6 +62,7 @@ export default function RootLayout() {
             이 보관소를 쓸 수 있어야 하고, 화면이 바뀌어도 이 층은 안 사라진다. */}
         <QueryClientProvider client={queryClient}>
         <OnboardingPreferencesProvider>
+          <HtmlLangSync />
           <ApiAvailabilityBanner />
           <BuildInfoBadge />
           <AuthProvider>
