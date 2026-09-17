@@ -250,6 +250,109 @@ public final class PlaceFeatureNdjsonReader {
 		});
 	}
 
+	/**
+	 * 0~100 눈금의 점수형 산출물을 읽는다 — S15P21E201-1167.
+	 *
+	 * <p>조용함({@code place-quietness.ndjson} · {@code -sbiz})과 로컬성({@code place-locality.ndjson} ·
+	 * {@code -sbiz})이 같은 모양이라 한 함수가 둘을 다 읽는다. 값 칸 이름만 다르다.
+	 *
+	 * <pre>
+	 * {"contentid":"129156","featureType":"QUIETNESS_SCORE","quietnessScore":90,"noiseP90":0.1,"radiusM":200}
+	 * {"sourceType":"SBIZ","sourceId":"MA01…","featureType":"LOCALITY_SCORE","localityScore":66.2,"shops":160}
+	 * </pre>
+	 *
+	 * <h2>🔴 열쇠 모양 둘을 다 읽는다</h2>
+	 *
+	 * {@code contentid} 가 있으면 관광공사, {@code sourceType}+{@code sourceId} 가 있으면 그 출처다.
+	 * <b>경사({@link #readPlaceSlopes})는 관광공사만 읽어서 상가 절반(2,355곳)을 마이그레이션으로
+	 * 따로 넣어야 했다.</b> 같은 일을 반복하지 않는다.
+	 *
+	 * <h2>🔴 100 으로 나눠 저장한다 — 채점기 눈금이 0~1 이다</h2>
+	 *
+	 * 산출물은 사람이 읽기 좋게 0~100 인데, 채점기는 이 축들을 <b>0~1 로 안다</b>
+	 * ({@code BaselineCandidateScorer} 가 {@code SLOPE_PERCENT} 하나만 100 으로 나눈다).
+	 * 그대로 넣으면 {@code 1 - |장소값 - 선호값|} 이 음수가 되고 {@code clamp01} 이
+	 * <b>전부 0 으로 뭉갠다</b> — {@code PreferenceJson} 클래스 주석이 그 사고를 기록해 두었다.
+	 * 산출물을 고치지 않고 <b>여기서</b> 맞추는 이유는, 0~100 이 이미 머지돼 문서에 적혀 있고
+	 * 사람이 읽는 값이기 때문이다.
+	 *
+	 * <h2>🔴 나눈 값을 검산한다 — 두 번 나누는 사고를 막는다</h2>
+	 *
+	 * 조용함 산출물은 {@code quietnessScore = (1 - noiseP90) × 100} 이 성립한다. 그 관계를 여기서
+	 * 확인한다. 나중에 산출물이 0~1 로 바뀌면 이 함수가 <b>또 100 으로 나눠</b> 0.009 같은 값이
+	 * 되는데, 그 값은 범위 검사를 통과하고 축을 다시 전부 0 으로 만든다 — 조용히 지나가는 대신
+	 * 여기서 멈춘다. {@code noiseP90} 이 없는 산출물(로컬성)은 이 검산을 건너뛴다.
+	 *
+	 * @param valueField 값이 든 칸 이름 — {@code quietnessScore} · {@code localityScore}
+	 * @param featureType 저장할 표식 종류 — {@code QUIETNESS_SCORE} · {@code LOCALITY_SCORE}
+	 */
+	public static Counts readPlaceScores(Path file, String valueField, String featureType, int chunkSize,
+			Consumer<List<Fact>> chunkConsumer) {
+		return read(file, chunkSize, chunkConsumer, (node, out) -> {
+			String contentId = text(node, "contentid");
+			String keySource;
+			String storeId;
+			if (contentId != null) {
+				storeId = contentId;
+				keySource = TourApiPlaceLoader.SOURCE_TYPE;
+			}
+			else {
+				storeId = text(node, "sourceId");
+				keySource = text(node, "sourceType");
+				if (storeId == null || keySource == null) {
+					return false;
+				}
+				// 🔴 오타를 조용히 두면 엉뚱한 장소 아이디를 계산해 "장소가 없어 못 넣음" 으로만
+				//    세어진다. readVisitorFacts 가 같은 이유로 같은 검사를 한다.
+				if (!NAMESPACES.contains(keySource)) {
+					throw new IllegalArgumentException(
+							"모르는 sourceType 이다: " + keySource + " (아는 것: " + NAMESPACES + ")");
+				}
+			}
+
+			JsonNode raw = node.path(valueField);
+			if (!raw.isNumber()) {
+				return false;
+			}
+			double percent = raw.asDouble();
+			if (percent < 0 || percent > 100) {
+				throw new IllegalArgumentException("%s 산출물에 범위를 벗어난 값이 있다: %s (열쇠 %s)"
+						.formatted(featureType, percent, storeId));
+			}
+			double score = percent / 100.0;
+
+			JsonNode noise = node.path("noiseP90");
+			if (noise.isNumber()) {
+				double expected = 1.0 - noise.asDouble();
+				if (Math.abs(score - expected) > SCORE_CROSS_CHECK_TOLERANCE) {
+					throw new IllegalArgumentException(
+							("%s 산출물의 눈금이 안 맞는다: %s/100 = %s 인데 1 - noiseP90 = %s 다 (열쇠 %s). "
+									+ "산출물이 이미 0~1 로 바뀐 것은 아닌지 확인하라 — 그렇다면 여기서 "
+									+ "또 나누면 안 된다")
+									.formatted(featureType, percent, score, expected, storeId));
+				}
+			}
+
+			ObjectNode payload = MAPPER.createObjectNode();
+			payload.put("score", score);
+			// 이 값이 어떻게 나왔는지를 행 안에 남긴다 — 나중에 반경을 바꿨을 때 어느 행이 옛
+			// 기준으로 만들어졌는지 알 수 있어야 한다. 채점기는 score 만 읽는다.
+			copyNumber(node, payload, "radiusM");
+			copyNumber(node, payload, "noiseP90");
+			copyNumber(node, payload, "roads");
+			copyNumber(node, payload, "roadLengthM");
+			copyNumber(node, payload, "shops");
+			out.add(new Fact(storeId, featureType, write(payload), keySource));
+			return true;
+		});
+	}
+
+	/**
+	 * 검산 허용 오차. 산출물이 정수로 반올림돼 있어({@code quietnessScore:35} · {@code noiseP90:0.65})
+	 * 0.01 보다 작은 차이는 반올림에서 온다.
+	 */
+	private static final double SCORE_CROSS_CHECK_TOLERANCE = 0.01;
+
 	/** 있으면 그대로 옮긴다. 없으면 만들어 넣지 않는다. */
 	private static void copyNumber(JsonNode from, ObjectNode to, String field) {
 		JsonNode value = from.path(field);
