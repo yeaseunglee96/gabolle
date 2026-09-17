@@ -28,6 +28,16 @@ export type StoryDto = {
   updatedAt: string;
   mine: boolean;
   published: boolean;
+  /**
+   * 댓글이면 부모 글의 id, 원글이면 null — S15P21E201-1183.
+   *
+   * 🔴 댓글은 별도 타입이 아니라 **같은 StoryDto** 다. 시안이 「별도 Comment 타입을 만들지
+   * 말 것」을 못박았고 서버도 같은 표에 부모 칸으로 갔다. 그래서 화면이 원글과 댓글을
+   * **같은 부품**으로 그린다.
+   */
+  parentId?: string | null;
+  /** 이 글에 **직접** 달린 댓글 수. 손자는 안 센다 — 서버 주석과 같은 규칙이다. */
+  replyCount?: number;
 };
 
 // GET /api/v1/stories/:id 계약이 생기기 전(S15P21E201-228 이전)에는 목록에서 받은
@@ -53,6 +63,8 @@ export function getCachedStory(id: string): StoryDto | null {
   return storyCache.get(id) ?? null;
 }
 
+export type StoryRepliesResult = { state: 'success'; replies: StoryDto[] } | FeedFailure;
+
 export type StoryLoadResult = { state: 'success'; story: StoryDto } | { state: 'not-found' } | FeedFailure;
 
 export async function getStory(id: string, accessToken: string | null): Promise<StoryLoadResult> {
@@ -67,6 +79,27 @@ export async function getStory(id: string, accessToken: string | null): Promise<
 }
 
 export type DeleteStoryResult = { state: 'success' } | FeedFailure;
+
+/**
+ * 이 글에 **직접** 달린 댓글 — S15P21E201-1197 (서버는 S15P21E201-1183).
+ *
+ * 🔴 손자는 안 딸려 온다. 어떤 댓글의 답글을 보려면 **그 댓글의 id 로 이 함수를 다시**
+ * 부른다. 서버가 그렇게 정했고 이유도 적어 뒀다 — 한 번에 전부 내려주면 깊은 가지 하나
+ * 때문에 응답이 통째로 커진다.
+ *
+ * 응답이 원글과 **같은 모양(StoryDto)** 이라 화면이 같은 부품으로 그린다.
+ *
+ * 🔴 실패를 조용히 빈 목록으로 바꾸지 않는다. 「댓글이 없다」와 「못 불러왔다」는 다른
+ * 말이고, 둘을 같게 그리면 사용자가 없는 것으로 믿는다.
+ */
+export async function getStoryReplies(storyId: string, accessToken: string | null): Promise<StoryRepliesResult> {
+  try {
+    const replies = await apiRequest<StoryDto[]>(`/api/v1/stories/${encodeURIComponent(storyId)}/replies`, { accessToken });
+    return { state: 'success', replies: replies.map(withDisplayImageUrls) };
+  } catch (error) {
+    return failure(error);
+  }
+}
 
 export async function deleteStory(id: string, accessToken: string | null): Promise<DeleteStoryResult> {
   try {
@@ -142,6 +175,11 @@ export async function createStory(input: {
   // 없으면 서버가 "여행 종료 다음 날 0시, 여행도 없으면 지금"으로 정한다.
   // "지금 바로 공개"를 고른 경우에만 현재 시각을 실어 보낸다.
   publishAt?: string;
+  /**
+   * 있으면 이 글의 **댓글**로 들어간다 — S15P21E201-1197.
+   * 없으면 지금까지처럼 원글이다. 서버의 StoryCreateRequest 가 같은 이름의 칸을 받는다.
+   */
+  parentStoryId?: string;
   accessToken: string | null;
 }): Promise<StoryMutationResult> {
   try {
@@ -156,6 +194,7 @@ export async function createStory(input: {
         placeId: input.placeId,
         tripId: input.tripId,
         publishAt: input.publishAt,
+        parentStoryId: input.parentStoryId,
       },
     }));
     return { state: 'success', story };
