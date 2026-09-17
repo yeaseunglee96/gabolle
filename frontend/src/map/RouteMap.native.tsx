@@ -168,7 +168,22 @@ export function RouteMap({
         ref={webViewRef}
         style={styles.map}
         originWhitelist={['*']}
-        source={{ html }}
+        // 🔴 S15P21E201-1176 — baseUrl 을 꼭 준다. 없으면 지도가 조용히 안 뜬다.
+        //
+        //    html 만 주면 이 페이지의 출처가 about:blank 가 된다. 카카오 지도 SDK 는
+        //    요청을 보낸 페이지의 도메인을 콘솔에 등록된 목록과 맞춰 보는데, 출처가 없으면
+        //    맞춰 볼 것이 없어 초기화가 중간에 멈춘다.
+        //
+        //    🔴 이 실패는 아무 말도 안 한다 — 스크립트 자체는 받아지므로 onerror 가 안 돌고
+        //    (2026-09-17 실기기 vc15 확인: 「지도 파일을 못 받았어요」 대체 화면이 안 떴다),
+        //    kakao.maps.load 의 콜백만 안 불려 그냥 빈 칸이 남는다. 키를 넣었는데도 빈 칸이면
+        //    여기를 먼저 본다.
+        //
+        //    실측으로 확인한 것(curl 로 SDK 를 직접 받아 봤다):
+        //      Referer: https://j15e201.p.ssafy.io  → 200  (등록돼 있다)
+        //      Referer: 등록 안 된 도메인            → 401  "domain mismatched!"
+        //    즉 막는 것은 키가 아니라 출처다. 그래서 출처를 등록된 값으로 말해 준다.
+        source={{ html, baseUrl: MAP_BASE_URL }}
         onMessage={onMessage}
         onError={() => setScriptFailed(true)}
         javaScriptEnabled
@@ -182,6 +197,15 @@ export function RouteMap({
     </View>
   );
 }
+
+/**
+ * WebView 가 자기 출처로 말할 주소 — S15P21E201-1176.
+ *
+ * 🔴 여기에 도메인을 새로 적지 않는다. 카카오 콘솔에 등록하는 값과 서버 주소는 같아야 하고,
+ *    두 군데 적으면 한쪽만 바뀌는 날이 온다. 그래서 이미 있는 API 주소에서 끌어온다.
+ */
+const RAW_MAP_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL ?? 'https://j15e201.p.ssafy.io';
+const MAP_BASE_URL = RAW_MAP_BASE_URL.endsWith('/') ? RAW_MAP_BASE_URL.slice(0, -1) : RAW_MAP_BASE_URL;
 
 const styles = StyleSheet.create({
   shell: { width: '100%', borderRadius: radius.lg, overflow: 'hidden', backgroundColor: color.surface.soft },
