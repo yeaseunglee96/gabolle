@@ -414,11 +414,24 @@ export async function loadCollections(device: DeviceCollections, accessToken: st
   const remainingDeletes = await sendPendingDeletes(pendingDeletes, accessToken);
   // 지운 리스트의 이름을 고칠 일은 없으므로 지우기 뒤에 보낸다.
   const remainingRenames = await sendPendingRenames(pendingRenames, accessToken);
+  // 🔴 S15P21E201-1153 — 이름을 실제로 보냈으면 서버가 바뀐 것이다.
+  //
+  //    위의 server 는 **보내기 전에** 받아 둔 것이라 옛 이름을 들고 있다. 이것을 그대로
+  //    합치면 방금 고친 이름이 옛 이름으로 덮인다 — 그리고 그 값이 기기에 저장되면서
+  //    사용자가 쓴 새 이름까지 사라진다.
+  //
+  //    실기기에서 그대로 재현됐다(2026-09-17, vc15): 이름을 고치고 앱을 껐다 켜면 옛
+  //    이름이 나오고, **한 번 더 껐다 켜야** 새 이름이 나왔다. 서버에는 처음부터
+  //    들어가 있었고 화면만 한 판 뒤처진 것이다.
+  //
+  //    아래의 changedServer 는 「새 리스트·새 장소를 올렸는가」만 보고 있었다. 고친 것도
+  //    서버를 바꾼 것이므로 같이 센다 — 그러면 끝의 다시 받아오기가 돌아 새 이름이 온다.
+  const renamedOnServer = pendingRenames.length > remainingRenames.length;
 
   const { merged, onlyOnDevice, pendingUploads } = mergeCollections(device, server, remainingDeletes, remainingRenames);
   let uploaded = 0;
   let blocked = 0;
-  let changedServer = false;
+  let changedServer = renamedOnServer;
   /** 못 올린 장소. 다시 받아올 때 이것만은 기기에 남겨 둔다. */
   const unuploaded = new Set<string>();
 

@@ -523,6 +523,43 @@ describe('이름 고치기를 서버로 보낸다 (S15P21E201-1153)', () => {
     expect(result.pendingRenames).toEqual(renamed);
   });
 
+  it('🔴 보낸 뒤 다시 받아온다 — 안 그러면 화면이 한 판 뒤처진다', async () => {
+    // 2026-09-17 실기기(vc15)에서 그대로 재현된 자리다. 이름을 고치고 앱을 껐다 켜면
+    // 옛 이름이 나오고, 한 번 더 껐다 켜야 새 이름이 나왔다. 서버에는 처음부터
+    // 들어가 있었고 화면만 뒤처진 것이다.
+    //
+    // 원인은 순서였다 — 목록을 먼저 받고(옛 이름), 그 뒤에 PATCH 를 보내고, 합칠 때는
+    // 먼저 받아 둔 옛 이름을 쓴다. 보낸 것이 있으면 다시 받아와야 한다.
+    let gets = 0;
+    mockServer((method) => {
+      if (method === 'PATCH') return ok({});
+      gets += 1;
+      // 첫 번째 GET 은 옛 이름, PATCH 뒤의 GET 은 새 이름을 돌려준다 — 진짜 서버와 같다.
+      return ok(serverPage([gets === 1
+        ? srv
+        : serverList('7b8cd3bc-7cef-48ef-bda0-335bec095fc2', '여름에 갈 곳', [{ placeId: 'p9', name: '광안리', position: 0 }])]));
+    });
+
+    const result = await loadCollections(empty, 'token', [], renamed);
+
+    if (result.state !== 'success') throw new Error('성공이어야 한다');
+    expect([gets, result.data.lists[0].name]).toEqual([2, '여름에 갈 곳']);
+  });
+
+  it('보낼 이름이 없으면 공연히 다시 받아오지 않는다', async () => {
+    let gets = 0;
+    mockServer((method) => {
+      if (method === 'PATCH') throw new Error('PATCH 가 나가면 안 된다');
+      gets += 1;
+      return ok(serverPage([srv]));
+    });
+
+    const result = await loadCollections(empty, 'token', [], []);
+
+    if (result.state !== 'success') throw new Error('성공이어야 한다');
+    expect(gets).toBe(1);
+  });
+
   it('4xx 면 다시 보내지 않는다 — 같은 값으로는 계속 실패한다', async () => {
     mockServer((method) => {
       if (method === 'PATCH') return new Response(JSON.stringify({ data: null, error: { code: 'TOO_LONG', message: '이름이 너무 김' }, meta: { requestId: 'r' } }), { status: 400, headers: { 'content-type': 'application/json' } });
