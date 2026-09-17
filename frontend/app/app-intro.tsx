@@ -49,14 +49,23 @@ export default function AppIntro() {
 
   return <SafeAreaView style={styles.screen}>
     <View style={styles.frame} onLayout={(event) => { const nextWidth = event.nativeEvent.layout.width; setPageWidth(nextWidth); pager.current?.scrollTo({ x: page * nextWidth, animated: false }); }}>
-    <View style={styles.top}><Pressable accessibilityRole="link" accessibilityLabel={tx('GABOLLE 시작 화면으로 이동', 'Go to the GABOLLE start screen')} onPress={() => router.replace('/')} style={({ pressed }) => [styles.logoButton, pressed && styles.pressed]}><Image source={logo} resizeMode="contain" style={styles.logo} /></Pressable><Pressable accessibilityRole="button" onPress={() => void finish()} style={({ pressed }) => [styles.skip, pressed && styles.pressed]}><Text variant="caption" weight="bold" color={color.text.body}>{tx('건너뛰기', 'Skip')}</Text></Pressable></View>
+    <View style={styles.top}><Pressable accessibilityRole="link" accessibilityLabel={tx('GABOLLE 시작 화면으로 이동', 'Go to the GABOLLE start screen')} onPress={() => router.replace('/')} style={({ pressed }) => [styles.logoButton, pressed && styles.pressed]}><Image source={logo} resizeMode="contain" style={styles.logo} /></Pressable><Pressable testID="app-intro-skip" accessibilityRole="button" onPress={() => void finish()} style={({ pressed }) => [styles.skip, pressed && styles.pressed]}><Text variant="caption" weight="bold" color={color.text.body}>{tx('건너뛰기', 'Skip')}</Text></Pressable></View>
     {/* S15P21E201-928: snapToInterval + 수동 scrollTo(settle) 조합이 iOS 네이티브 스크롤
         모멘텀과 겹쳐 스와이프가 멈추는 결함으로 실기기에서 보고됐다. 네이티브
         pagingEnabled 하나로 바꾸면 페이지 스냅을 OS가 직접 처리해 이 충돌이 없다. */}
     <ScrollView ref={pager} horizontal pagingEnabled bounces={false} showsHorizontalScrollIndicator={false} decelerationRate="fast" scrollEventThrottle={16} onScroll={(event) => setPage(Math.max(0, Math.min(PAGES.length - 1, Math.round(event.nativeEvent.contentOffset.x / pageWidth))))} onMomentumScrollEnd={(event) => setPage(Math.max(0, Math.min(PAGES.length - 1, Math.round(event.nativeEvent.contentOffset.x / pageWidth))))}>
-      {PAGES.map((item) => <ScrollView key={item.id} style={{ width: pageWidth }} contentContainerStyle={styles.page} showsVerticalScrollIndicator={false}><FeaturePreview id={item.id} /><View style={styles.copy}><Eyebrow>{tx(item.eyebrowKo, item.eyebrowEn)}</Eyebrow><Text variant="display" weight="bold" style={styles.title}>{tx(item.titleKo, item.titleEn)}</Text><Text variant="body" color={color.text.body} style={styles.description}>{tx(item.descriptionKo, item.descriptionEn)}</Text></View></ScrollView>)}
+      {/* 🔴 지금 보이는 페이지만 접근성 트리에 남긴다 (S15P21E201-1191).
+          가로 캐러셀은 세 페이지를 **동시에** 그려 둔다. 가리지 않으면 보조기술에게는
+          세 페이지가 한 줄로 늘어선 것으로 보인다 — 화면 낭독기는 지금 화면에 없는
+          제목·설명까지 죽 읽고, 어디까지가 이 화면인지 알 수 없게 된다.
+          2026-09-17 iOS 실기기 자동화에서 3페이지에 있는데 2페이지의 「부산 둘러보기」가
+          눌려 캐러셀이 뒤로 밀린 것이 같은 원인이다.
+          Skeleton·TabBar·ScenicVideo 가 쓰는 것과 같은 관용구다. */}
+      {PAGES.map((item, index) => <ScrollView key={item.id} style={{ width: pageWidth }} contentContainerStyle={styles.page} showsVerticalScrollIndicator={false} accessibilityElementsHidden={index !== page} importantForAccessibility={index === page ? 'auto' : 'no-hide-descendants'}><FeaturePreview id={item.id} /><View style={styles.copy}><Eyebrow>{tx(item.eyebrowKo, item.eyebrowEn)}</Eyebrow><Text variant="display" weight="bold" style={styles.title}>{tx(item.titleKo, item.titleEn)}</Text><Text variant="body" color={color.text.body} style={styles.description}>{tx(item.descriptionKo, item.descriptionEn)}</Text></View></ScrollView>)}
     </ScrollView>
-    <View style={styles.footer}><View accessibilityLabel={tx(`${PAGES.length}개 중 ${page + 1}번째`, `${page + 1} of ${PAGES.length}`)} style={styles.dots}>{PAGES.map((item, index) => <View key={item.id} style={[styles.dot, index === page && styles.dotActive]} />)}</View><Button label={page === PAGES.length - 1 ? tx('시작하기', 'Get started') : tx('다음', 'Next')} onPress={() => page === PAGES.length - 1 ? void finish() : go(page + 1)} variant="accent" pill /></View>
+    <View style={styles.footer}><View accessibilityLabel={tx(`${PAGES.length}개 중 ${page + 1}번째`, `${page + 1} of ${PAGES.length}`)} style={styles.dots}>{PAGES.map((item, index) => <View key={item.id} style={[styles.dot, index === page && styles.dotActive]} />)}</View>{/* 🔴 testID 는 언어와 무관하게 고정한다 (S15P21E201-1191). 글자로 찾으면
+            English·日本語 로 바꾸는 순간 시험이 깨진다 — 5개국어를 지원하는 앱이다. */}
+      <Button testID="app-intro-primary" label={page === PAGES.length - 1 ? tx('시작하기', 'Get started') : tx('다음', 'Next')} onPress={() => page === PAGES.length - 1 ? void finish() : go(page + 1)} variant="accent" pill /></View>
     </View>
   </SafeAreaView>;
 }
