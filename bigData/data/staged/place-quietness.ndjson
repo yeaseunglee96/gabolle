@@ -1,0 +1,654 @@
+{"contentid":"129156","title":"가덕도 등대","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":90,"noiseP90":0.1,"roads":12,"roadLengthM":1098,"radiusM":200}
+{"contentid":"2726843","title":"가덕도 연대봉","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":10,"noiseP90":0.9,"roads":42,"roadLengthM":3681,"radiusM":200}
+{"contentid":"1935608","title":"가톨릭 특성화 거리","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":33,"roadLengthM":2522,"radiusM":200}
+{"contentid":"2785289","title":"감지해변","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":65,"noiseP90":0.35,"roads":25,"roadLengthM":1804,"radiusM":200}
+{"contentid":"294452","title":"감천사(부산)","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":70,"noiseP90":0.3,"roads":49,"roadLengthM":3666,"radiusM":200}
+{"contentid":"129631","title":"경상좌수영성지","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":10,"noiseP90":0.9,"roads":71,"roadLengthM":5911,"radiusM":200}
+{"contentid":"2782765","title":"곰내연밭","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":10,"noiseP90":0.9,"roads":34,"roadLengthM":2951,"radiusM":200}
+{"contentid":"128610","title":"공수어촌체험마을","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":41,"roadLengthM":3223,"radiusM":200}
+{"contentid":"1942348","title":"관수옥과 초량왜관 터","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":85,"roadLengthM":6073,"radiusM":200}
+{"contentid":"2785265","title":"관음사(부산)","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":70,"noiseP90":0.3,"roads":21,"roadLengthM":1842,"radiusM":200}
+{"contentid":"126857","title":"광복로패션거리","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":81,"roadLengthM":6088,"radiusM":200}
+{"contentid":"127925","title":"광안리해변 테마거리","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":70,"roadLengthM":4920,"radiusM":200}
+{"contentid":"2744597","title":"구덕문화공원","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":46,"roadLengthM":4144,"radiusM":200}
+{"contentid":"2755676","title":"구포 어린이교통공원","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":43,"roadLengthM":3201,"radiusM":200}
+{"contentid":"1018702","title":"국제시장 먹자골목","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":121,"roadLengthM":8221,"radiusM":200}
+{"contentid":"298099","title":"국청사(부산)","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":19,"roadLengthM":1499,"radiusM":200}
+{"contentid":"3421909","title":"그런고로","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":84,"roadLengthM":6642,"radiusM":200}
+{"contentid":"1607440","title":"금강사(부산)","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":20,"roadLengthM":1584,"radiusM":200}
+{"contentid":"128830","title":"금강식물원","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":32,"roadLengthM":2045,"radiusM":200}
+{"contentid":"3414171","title":"금곡동 율리 바위그늘유적","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":95,"noiseP90":0.05,"roads":12,"roadLengthM":1200,"radiusM":200}
+{"contentid":"129140","title":"금련산","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":21,"roadLengthM":1673,"radiusM":200}
+{"contentid":"298111","title":"금수사(부산)","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":38,"roadLengthM":3401,"radiusM":200}
+{"contentid":"298112","title":"금용암(부산)","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":18,"roadLengthM":1790,"radiusM":200}
+{"contentid":"126028","title":"금정산","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":90,"noiseP90":0.1,"roads":21,"roadLengthM":2015,"radiusM":200}
+{"contentid":"3027098","title":"금정산성 동문","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":26,"roadLengthM":2257,"radiusM":200}
+{"contentid":"2643873","title":"금정산성마을 먹거리촌","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":31,"roadLengthM":2301,"radiusM":200}
+{"contentid":"1953936","title":"기장향교","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":70,"noiseP90":0.3,"roads":39,"roadLengthM":2553,"radiusM":200}
+{"contentid":"2554070","title":"깡깡이 예술마을","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":36,"roadLengthM":2873,"radiusM":200}
+{"contentid":"2554141","title":"낙동강문화관","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":87,"roadLengthM":6249,"radiusM":200}
+{"contentid":"2614714","title":"낙동강하구 (부산 국가지질공원)","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":75,"noiseP90":0.25,"roads":35,"roadLengthM":2943,"radiusM":200}
+{"contentid":"1846830","title":"남도해양열차 에스트레인(S-train)","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":86,"roadLengthM":6773,"radiusM":200}
+{"contentid":"2944336","title":"남부산교회","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":40,"roadLengthM":3396,"radiusM":200}
+{"contentid":"1942299","title":"남선창고터","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":80,"roadLengthM":6662,"radiusM":200}
+{"contentid":"2867934","title":"녹산고향동산","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":25,"roadLengthM":2273,"radiusM":200}
+{"contentid":"769761","title":"다대포 꿈의 낙조분수","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":70,"noiseP90":0.3,"roads":89,"roadLengthM":5762,"radiusM":200}
+{"contentid":"2875837","title":"달맞이동산","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":51,"roadLengthM":4078,"radiusM":200}
+{"contentid":"1942233","title":"대각사(부산)","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":93,"roadLengthM":7204,"radiusM":200}
+{"contentid":"2783380","title":"대연수목전시원","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":10,"noiseP90":0.9,"roads":78,"roadLengthM":6488,"radiusM":200}
+{"contentid":"2875849","title":"대천공원","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":10,"noiseP90":0.9,"roads":62,"roadLengthM":4822,"radiusM":200}
+{"contentid":"127891","title":"대천천","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":46,"roadLengthM":3293,"radiusM":200}
+{"contentid":"128564","title":"대항 어촌체험 휴양마을","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":70,"noiseP90":0.3,"roads":37,"roadLengthM":2885,"radiusM":200}
+{"contentid":"2822334","title":"동래온천길(온천천 카페거리)","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":10,"noiseP90":0.9,"roads":74,"roadLengthM":6663,"radiusM":200}
+{"contentid":"1607360","title":"동래향교","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":87,"roadLengthM":4358,"radiusM":200}
+{"contentid":"128810","title":"동백공원","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":75,"noiseP90":0.25,"roads":51,"roadLengthM":3591,"radiusM":200}
+{"contentid":"2675011","title":"땅뫼산","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":75,"noiseP90":0.25,"roads":21,"roadLengthM":1890,"radiusM":200}
+{"contentid":"2456224","title":"렛츠런파크 부산경남","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":26,"roadLengthM":2305,"radiusM":200}
+{"contentid":"2617724","title":"마린시티","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":33,"roadLengthM":2704,"radiusM":200}
+{"contentid":"304695","title":"마하사(부산)","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":75,"noiseP90":0.25,"roads":16,"roadLengthM":1387,"radiusM":200}
+{"contentid":"250424","title":"망산도·유주암","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":49,"roadLengthM":3840,"radiusM":200}
+{"contentid":"304811","title":"묘심사(부산)","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":76,"roadLengthM":5787,"radiusM":200}
+{"contentid":"309293","title":"미륵사(부산)","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":95,"noiseP90":0.05,"roads":22,"roadLengthM":1989,"radiusM":200}
+{"contentid":"985921","title":"미술의거리","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":124,"roadLengthM":8516,"radiusM":200}
+{"contentid":"2784330","title":"미포항","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":70,"noiseP90":0.3,"roads":57,"roadLengthM":3886,"radiusM":200}
+{"contentid":"127149","title":"민주공원","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":70,"noiseP90":0.3,"roads":60,"roadLengthM":4581,"radiusM":200}
+{"contentid":"2677748","title":"백양산 웰빙숲","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":75,"noiseP90":0.25,"roads":15,"roadLengthM":1320,"radiusM":200}
+{"contentid":"2708108","title":"범일 이중섭거리","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":46,"roadLengthM":4012,"radiusM":200}
+{"contentid":"309338","title":"법륜사(부산)","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":49,"roadLengthM":3773,"radiusM":200}
+{"contentid":"1607242","title":"보광사(부산)","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":32,"roadLengthM":2982,"radiusM":200}
+{"contentid":"231945","title":"부산 복천동 고분군","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":52,"roadLengthM":3776,"radiusM":200}
+{"contentid":"126122","title":"부산 송도해수욕장","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":31,"roadLengthM":2433,"radiusM":200}
+{"contentid":"2946508","title":"부산 영화의 거리","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":30,"roadLengthM":2307,"radiusM":200}
+{"contentid":"2456837","title":"부산 영화의 전당","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":10,"noiseP90":0.9,"roads":89,"roadLengthM":7037,"radiusM":200}
+{"contentid":"1960620","title":"부산 자갈치 양곱창 골목","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":72,"roadLengthM":5200,"radiusM":200}
+{"contentid":"126856","title":"부산 중앙공원","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":76,"roadLengthM":6012,"radiusM":200}
+{"contentid":"128164","title":"부산광안대교","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":10,"noiseP90":0.9,"roads":9,"roadLengthM":900,"radiusM":200}
+{"contentid":"3442423","title":"부산기후변화체험교육관","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":10,"noiseP90":0.9,"roads":76,"roadLengthM":6256,"radiusM":200}
+{"contentid":"252562","title":"부산대교","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":49,"roadLengthM":4203,"radiusM":200}
+{"contentid":"126147","title":"부산동명불원","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":29,"roadLengthM":2514,"radiusM":200}
+{"contentid":"2554068","title":"부산영화체험박물관","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":94,"roadLengthM":6800,"radiusM":200}
+{"contentid":"2381553","title":"부산영화촬영스튜디오","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":80,"roadLengthM":5554,"radiusM":200}
+{"contentid":"3093625","title":"부산진 별빛산책길","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":70,"roadLengthM":5282,"radiusM":200}
+{"contentid":"2643387","title":"북맛골","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":70,"noiseP90":0.3,"roads":71,"roadLengthM":5264,"radiusM":200}
+{"contentid":"2785762","title":"사상근린공원","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":10,"noiseP90":0.9,"roads":57,"roadLengthM":4865,"radiusM":200}
+{"contentid":"2782626","title":"삼익비치수변공원","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":18,"roadLengthM":1418,"radiusM":200}
+{"contentid":"2470024","title":"삼진어묵 체험·역사과학관","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":83,"roadLengthM":6985,"radiusM":200}
+{"contentid":"3064931","title":"색채마을","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":130,"roadLengthM":7110,"radiusM":200}
+{"contentid":"128053","title":"선암사(부산)","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":75,"noiseP90":0.25,"roads":27,"roadLengthM":2274,"radiusM":200}
+{"contentid":"319563","title":"성암사(부산)","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":70,"noiseP90":0.3,"roads":27,"roadLengthM":2061,"radiusM":200}
+{"contentid":"2758469","title":"소두방공원","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":10,"noiseP90":0.9,"roads":31,"roadLengthM":2499,"radiusM":200}
+{"contentid":"1607335","title":"소림사(부산)","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":56,"roadLengthM":4801,"radiusM":200}
+{"contentid":"129093","title":"송도마을","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":44,"roadLengthM":3538,"radiusM":200}
+{"contentid":"2614725","title":"송도반도 (부산 국가지질공원)","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":25,"roadLengthM":2125,"radiusM":200}
+{"contentid":"1942253","title":"수리조선소길","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":44,"roadLengthM":3260,"radiusM":200}
+{"contentid":"128108","title":"스포원파크","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":26,"roadLengthM":2198,"radiusM":200}
+{"contentid":"2674974","title":"승학산","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":95,"noiseP90":0.05,"roads":13,"roadLengthM":1237,"radiusM":200}
+{"contentid":"229912","title":"씨라이프부산아쿠아리움","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":72,"roadLengthM":4295,"radiusM":200}
+{"contentid":"2385686","title":"아홉산숲","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":85,"noiseP90":0.15,"roads":48,"roadLengthM":3618,"radiusM":200}
+{"contentid":"2661452","title":"안데르센 동화마을","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":70,"noiseP90":0.3,"roads":14,"roadLengthM":931,"radiusM":200}
+{"contentid":"337415","title":"안적사(부산)","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":65,"noiseP90":0.35,"roads":17,"roadLengthM":1523,"radiusM":200}
+{"contentid":"337435","title":"약수암(부산)","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":95,"noiseP90":0.05,"roads":11,"roadLengthM":1072,"radiusM":200}
+{"contentid":"2606221","title":"영도 흰여울해안터널","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":36,"roadLengthM":3000,"radiusM":200}
+{"contentid":"337532","title":"영주암(부산)","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":38,"roadLengthM":2979,"radiusM":200}
+{"contentid":"3454074","title":"영화의전당 라이브러리 자료실","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":10,"noiseP90":0.9,"roads":88,"roadLengthM":6660,"radiusM":200}
+{"contentid":"128134","title":"옥련선원","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":30,"roadLengthM":2281,"radiusM":200}
+{"contentid":"2776276","title":"옥정사","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":75,"noiseP90":0.25,"roads":15,"roadLengthM":1282,"radiusM":200}
+{"contentid":"2605602","title":"외양포 포진지","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":70,"noiseP90":0.3,"roads":46,"roadLengthM":3361,"radiusM":200}
+{"contentid":"1957694","title":"용두산 자갈치 관광특구","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":40,"roadLengthM":3248,"radiusM":200}
+{"contentid":"2822240","title":"용호별빛공원","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":70,"noiseP90":0.3,"roads":18,"roadLengthM":1498,"radiusM":200}
+{"contentid":"346661","title":"운수사(부산)","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":75,"noiseP90":0.25,"roads":20,"roadLengthM":1768,"radiusM":200}
+{"contentid":"347229","title":"월명사(부산)","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":0,"noiseP90":1,"roads":22,"roadLengthM":1753,"radiusM":200}
+{"contentid":"2758498","title":"은진사","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":10,"noiseP90":0.9,"roads":33,"roadLengthM":2455,"radiusM":200}
+{"contentid":"3064821","title":"자갈치 크루즈","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":43,"roadLengthM":3489,"radiusM":200}
+{"contentid":"2614727","title":"장산 (부산 국가지질공원)","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":10,"noiseP90":0.9,"roads":63,"roadLengthM":4878,"radiusM":200}
+{"contentid":"2758489","title":"장안사계곡","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":75,"noiseP90":0.25,"roads":58,"roadLengthM":3366,"radiusM":200}
+{"contentid":"2944033","title":"전포 삼거리","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":32,"roadLengthM":2707,"radiusM":200}
+{"contentid":"252561","title":"절영해안산책로","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":42,"roadLengthM":2852,"radiusM":200}
+{"contentid":"3510987","title":"주식회사감천아울","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":70,"noiseP90":0.3,"roads":101,"roadLengthM":6200,"radiusM":200}
+{"contentid":"3511057","title":"주식회사뷰티홀릭","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":85,"roadLengthM":5800,"radiusM":200}
+{"contentid":"3511018","title":"주식회사어반힐링","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":77,"roadLengthM":5515,"radiusM":200}
+{"contentid":"3511071","title":"주식회사피알아이피","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":83,"roadLengthM":5183,"radiusM":200}
+{"contentid":"129597","title":"죽도공원","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":31,"roadLengthM":1542,"radiusM":200}
+{"contentid":"3017435","title":"중리노을전망대","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":36,"roadLengthM":2620,"radiusM":200}
+{"contentid":"2721158","title":"천마산하늘전망대","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":31,"roadLengthM":2838,"radiusM":200}
+{"contentid":"482123","title":"청량사(부산)","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":27,"roadLengthM":2363,"radiusM":200}
+{"contentid":"3027700","title":"청사포 기찻길","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":70,"noiseP90":0.3,"roads":70,"roadLengthM":4806,"radiusM":200}
+{"contentid":"2736392","title":"청학수변공원","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":38,"roadLengthM":3262,"radiusM":200}
+{"contentid":"1942239","title":"초량교회","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":55,"roadLengthM":4507,"radiusM":200}
+{"contentid":"2656194","title":"친환경 스카이웨이 전망대(이바구길)","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":33,"roadLengthM":3054,"radiusM":200}
+{"contentid":"3452166","title":"커넥트현대","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":90,"roadLengthM":6144,"radiusM":200}
+{"contentid":"127752","title":"태종대온천찜질방","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":41,"roadLengthM":2899,"radiusM":200}
+{"contentid":"1608751","title":"태종사","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":75,"noiseP90":0.25,"roads":20,"roadLengthM":1793,"radiusM":200}
+{"contentid":"128055","title":"평화공원","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":10,"noiseP90":0.9,"roads":87,"roadLengthM":6809,"radiusM":200}
+{"contentid":"2775565","title":"학리항(학리방파제)","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":70,"noiseP90":0.3,"roads":7,"roadLengthM":640,"radiusM":200}
+{"contentid":"2775559","title":"해광사","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":14,"roadLengthM":1232,"radiusM":200}
+{"contentid":"3017347","title":"해돋이전망대","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":24,"roadLengthM":2201,"radiusM":200}
+{"contentid":"2775495","title":"해동성취사","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":10,"noiseP90":0.9,"roads":51,"roadLengthM":4138,"radiusM":200}
+{"contentid":"127004","title":"해운대 관광특구","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":40,"roadLengthM":2830,"radiusM":200}
+{"contentid":"2822343","title":"해운대 그린레일웨이 (미포~송정 구간)","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":70,"noiseP90":0.3,"roads":57,"roadLengthM":4492,"radiusM":200}
+{"contentid":"2705325","title":"해운대리버크루즈","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":10,"noiseP90":0.9,"roads":98,"roadLengthM":7331,"radiusM":200}
+{"contentid":"126108","title":"해운대온천센터","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":88,"roadLengthM":5197,"radiusM":200}
+{"contentid":"128886","title":"홍법사(부산)","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":43,"roadLengthM":3310,"radiusM":200}
+{"contentid":"2756696","title":"화명수목원","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":52,"roadLengthM":3204,"radiusM":200}
+{"contentid":"128290","title":"황령산","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":40,"roadLengthM":2882,"radiusM":200}
+{"contentid":"2733472","title":"황령산 전망대","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":40,"roadLengthM":2882,"radiusM":200}
+{"contentid":"126814","title":"25의용단","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":70,"noiseP90":0.3,"roads":83,"roadLengthM":5561,"radiusM":200}
+{"contentid":"2945389","title":"UN조각공원","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":70,"noiseP90":0.3,"roads":85,"roadLengthM":6351,"radiusM":200}
+{"contentid":"2834026","title":"갤러리이알디 부산","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":86,"roadLengthM":5480,"radiusM":200}
+{"contentid":"130200","title":"구덕민속예술관","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":95,"noiseP90":0.05,"roads":15,"roadLengthM":1473,"radiusM":200}
+{"contentid":"130383","title":"금정문화원","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":10,"noiseP90":0.9,"roads":95,"roadLengthM":6600,"radiusM":200}
+{"contentid":"130380","title":"기장문화원","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":26,"roadLengthM":2205,"radiusM":200}
+{"contentid":"130381","title":"동래문화원","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":36,"roadLengthM":3113,"radiusM":200}
+{"contentid":"3017112","title":"동래읍성 임진왜란 역사관","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":65,"roadLengthM":5041,"radiusM":200}
+{"contentid":"130774","title":"동삼동패총전시관","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":29,"roadLengthM":2340,"radiusM":200}
+{"contentid":"3023734","title":"동서대학교 소향씨어터 신한카드홀","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":72,"roadLengthM":5338,"radiusM":200}
+{"contentid":"2823059","title":"박태준기념관","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":30,"noiseP90":0.7,"roads":48,"roadLengthM":3306,"radiusM":200}
+{"contentid":"130796","title":"반여도서관","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":70,"noiseP90":0.3,"roads":47,"roadLengthM":3703,"radiusM":200}
+{"contentid":"2554111","title":"범어사 성보박물관","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":75,"noiseP90":0.25,"roads":32,"roadLengthM":1654,"radiusM":200}
+{"contentid":"130216","title":"부산 강서문화원","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":48,"roadLengthM":4093,"radiusM":200}
+{"contentid":"130798","title":"부산 동구도서관","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":39,"roadLengthM":3202,"radiusM":200}
+{"contentid":"130799","title":"부산광역시 기장도서관","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":77,"roadLengthM":5458,"radiusM":200}
+{"contentid":"130793","title":"부산광역시 영도도서관","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":40,"roadLengthM":3242,"radiusM":200}
+{"contentid":"130749","title":"부산광역시립 명장도서관","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":62,"roadLengthM":4888,"radiusM":200}
+{"contentid":"130752","title":"부산광역시립 시민도서관","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":55,"roadLengthM":4603,"radiusM":200}
+{"contentid":"130797","title":"부산광역시립 연산도서관","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":55,"roadLengthM":4548,"radiusM":200}
+{"contentid":"130795","title":"부산광역시립 중앙도서관","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":61,"roadLengthM":4464,"radiusM":200}
+{"contentid":"3083767","title":"부산근현대역사관 본관","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":88,"roadLengthM":5896,"radiusM":200}
+{"contentid":"1607138","title":"부산대학교 박물관","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":75,"noiseP90":0.25,"roads":167,"roadLengthM":8715,"radiusM":200}
+{"contentid":"129725","title":"부산문화회관","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":96,"roadLengthM":6307,"radiusM":200}
+{"contentid":"130166","title":"부산시립미술관","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":10,"noiseP90":0.9,"roads":108,"roadLengthM":8165,"radiusM":200}
+{"contentid":"130834","title":"부산점자도서관","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":39,"roadLengthM":3242,"radiusM":200}
+{"contentid":"1747913","title":"북구문화예술회관 공연장","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":10,"noiseP90":0.9,"roads":70,"roadLengthM":5522,"radiusM":200}
+{"contentid":"130382","title":"사상문화원","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":34,"roadLengthM":3247,"radiusM":200}
+{"contentid":"1748028","title":"을숙도문화회관","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":30,"noiseP90":0.7,"roads":107,"roadLengthM":6562,"radiusM":200}
+{"contentid":"1942314","title":"이바구공작소","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":48,"roadLengthM":3902,"radiusM":200}
+{"contentid":"1945293","title":"장기려기념 더 나눔센터","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":54,"roadLengthM":4773,"radiusM":200}
+{"contentid":"2556598","title":"정관박물관","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":70,"noiseP90":0.3,"roads":18,"roadLengthM":1172,"radiusM":200}
+{"contentid":"2782714","title":"책방봄봄","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":72,"roadLengthM":5430,"radiusM":200}
+{"contentid":"2782757","title":"책방오월","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":97,"roadLengthM":6825,"radiusM":200}
+{"contentid":"2550799","title":"한국기독교선교박물관","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":30,"noiseP90":0.7,"roads":68,"roadLengthM":4790,"radiusM":200}
+{"contentid":"3451794","title":"해성아트베이","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":50,"roadLengthM":3498,"radiusM":200}
+{"contentid":"1748157","title":"해운대문화회관","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":82,"roadLengthM":5801,"radiusM":200}
+{"contentid":"3422647","title":"게임 체험 팝업 전시 ‘Game-Playground’","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":57,"roadLengthM":4212,"radiusM":200}
+{"contentid":"3576410","title":"광복로 겨울빛 트리축제","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":81,"roadLengthM":6088,"radiusM":200}
+{"contentid":"2860868","title":"기장붕장어축제in칠암","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":34,"roadLengthM":2783,"radiusM":200}
+{"contentid":"1399532","title":"부산고등어축제","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":29,"roadLengthM":2311,"radiusM":200}
+{"contentid":"3345610","title":"부산국제아동도서전","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":73,"roadLengthM":5495,"radiusM":200}
+{"contentid":"3559571","title":"부산중구반려동물축제","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":82,"roadLengthM":6044,"radiusM":200}
+{"contentid":"1080734","title":"영도다리축제","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":70,"noiseP90":0.3,"roads":48,"roadLengthM":3720,"radiusM":200}
+{"contentid":"3555363","title":"옥토버페스타 인 광안리","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":79,"roadLengthM":5900,"radiusM":200}
+{"contentid":"3434800","title":"온천천 빛 축제","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":143,"roadLengthM":9510,"radiusM":200}
+{"contentid":"3018117","title":"전포커피축제","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":76,"roadLengthM":5638,"radiusM":200}
+{"contentid":"2702333","title":"카운트다운 부산","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":56,"roadLengthM":3592,"radiusM":200}
+{"contentid":"3437916","title":"크리스마스 빌리지 부산 2025","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":10,"noiseP90":0.9,"roads":88,"roadLengthM":6660,"radiusM":200}
+{"contentid":"2048902","title":"해운대 빛축제","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":75,"roadLengthM":4248,"radiusM":200}
+{"contentid":"2868776","title":"2025 영호남 전통시장 박람회","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":101,"roadLengthM":6389,"radiusM":200}
+{"contentid":"2708019","title":"광안리 SUP Zone","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":39,"roadLengthM":2864,"radiusM":200}
+{"contentid":"2755696","title":"구포무장애숲길","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":22,"roadLengthM":1828,"radiusM":200}
+{"contentid":"3027022","title":"늘푸른숲","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":0,"noiseP90":1,"roads":19,"roadLengthM":1900,"radiusM":200}
+{"contentid":"2729157","title":"대저캠핑장","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":30,"noiseP90":0.7,"roads":33,"roadLengthM":2691,"radiusM":200}
+{"contentid":"2747589","title":"더무빙 카라반","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":17,"roadLengthM":1298,"radiusM":200}
+{"contentid":"3335951","title":"레이저태그스포츠 광안점","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":75,"roadLengthM":5769,"radiusM":200}
+{"contentid":"2381567","title":"문탠로드","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":61,"roadLengthM":4548,"radiusM":200}
+{"contentid":"2789488","title":"미포정거장","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":70,"noiseP90":0.3,"roads":70,"roadLengthM":4806,"radiusM":200}
+{"contentid":"131146","title":"부산광역시교육청학생인성교육원","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":6,"roadLengthM":569,"radiusM":200}
+{"contentid":"2726803","title":"부산항힐링야영장","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":17,"roadLengthM":1371,"radiusM":200}
+{"contentid":"3080310","title":"삼락강변체육공원인라인스케이트장","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":75,"noiseP90":0.25,"roads":29,"roadLengthM":2773,"radiusM":200}
+{"contentid":"2756707","title":"삼락수상레포츠타운","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":75,"noiseP90":0.25,"roads":14,"roadLengthM":1342,"radiusM":200}
+{"contentid":"2783308","title":"서프마린","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":34,"roadLengthM":2519,"radiusM":200}
+{"contentid":"1019616","title":"센텀시티 아이스링크","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":10,"noiseP90":0.9,"roads":69,"roadLengthM":5493,"radiusM":200}
+{"contentid":"2557807","title":"송도 구름산책로","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":22,"roadLengthM":1392,"radiusM":200}
+{"contentid":"2784112","title":"송정서핑학교","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":26,"roadLengthM":2091,"radiusM":200}
+{"contentid":"576732","title":"아시아드 컨트리클럽","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":20,"roadLengthM":1402,"radiusM":200}
+{"contentid":"131943","title":"영도관광실탄사격장","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":67,"roadLengthM":4445,"radiusM":200}
+{"contentid":"131087","title":"용호동일대 바다낚시","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":30,"roadLengthM":2421,"radiusM":200}
+{"contentid":"2741535","title":"임랑카라반파크","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":11,"roadLengthM":1025,"radiusM":200}
+{"contentid":"2734243","title":"장안캠프","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":16,"roadLengthM":1494,"radiusM":200}
+{"contentid":"2741526","title":"제이스글램핑","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":36,"roadLengthM":2723,"radiusM":200}
+{"contentid":"2749611","title":"지오클럽","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":70,"noiseP90":0.3,"roads":24,"roadLengthM":2228,"radiusM":200}
+{"contentid":"2734175","title":"초원숲속캠핑장","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":11,"roadLengthM":962,"radiusM":200}
+{"contentid":"131452","title":"함지골청소년수련관","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":90,"noiseP90":0.1,"roads":68,"roadLengthM":4200,"radiusM":200}
+{"contentid":"2708164","title":"해안누리길 몰운대길","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":30,"roadLengthM":2596,"radiusM":200}
+{"contentid":"2734674","title":"화명오토캠핑장","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":0,"noiseP90":1,"roads":48,"roadLengthM":4095,"radiusM":200}
+{"contentid":"1878262","title":"[부산 갈맷길] 2코스 2구간","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":10,"noiseP90":0.9,"roads":63,"roadLengthM":5369,"radiusM":200}
+{"contentid":"2704645","title":"[해파랑길] 2코스","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":70,"noiseP90":0.3,"roads":55,"roadLengthM":3626,"radiusM":200}
+{"contentid":"2818890","title":"그랜드 조선 부산","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":55,"noiseP90":0.45,"roads":82,"roadLengthM":4954,"radiusM":200}
+{"contentid":"2816102","title":"그레이193호텔","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":47,"roadLengthM":3774,"radiusM":200}
+{"contentid":"2610815","title":"그림하우스","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":65,"noiseP90":0.35,"roads":18,"roadLengthM":1607,"radiusM":200}
+{"contentid":"2892757","title":"노떼 라 미아 호텔","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":78,"roadLengthM":5779,"radiusM":200}
+{"contentid":"3532715","title":"누스테이 부산","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":71,"roadLengthM":5119,"radiusM":200}
+{"contentid":"3532630","title":"단아","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":124,"roadLengthM":8368,"radiusM":200}
+{"contentid":"2699332","title":"더웨이브","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":67,"roadLengthM":5353,"radiusM":200}
+{"contentid":"2531399","title":"더파크 게스트하우스(The Park Guesthouse)","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":76,"roadLengthM":4654,"radiusM":200}
+{"contentid":"2754601","title":"더펫텔프리미엄스위트","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":84,"roadLengthM":5502,"radiusM":200}
+{"contentid":"142861","title":"라메르호텔","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":70,"roadLengthM":5188,"radiusM":200}
+{"contentid":"2708705","title":"라비드아틀란호텔2","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":70,"noiseP90":0.3,"roads":114,"roadLengthM":7020,"radiusM":200}
+{"contentid":"142998","title":"롯데호텔 부산","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":96,"roadLengthM":6437,"radiusM":200}
+{"contentid":"142978","title":"리베로호텔","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":70,"noiseP90":0.3,"roads":99,"roadLengthM":6932,"radiusM":200}
+{"contentid":"3075356","title":"마티에 오시리아","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":27,"roadLengthM":2359,"radiusM":200}
+{"contentid":"2572851","title":"모닝듀 게스트 하우스(모닝듀)","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":101,"roadLengthM":6603,"radiusM":200}
+{"contentid":"3532667","title":"민락스테이","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":63,"roadLengthM":4434,"radiusM":200}
+{"contentid":"2571959","title":"방가방가게스트하우스(풍경집)","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":129,"roadLengthM":7739,"radiusM":200}
+{"contentid":"3533137","title":"베를리너 하우스","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":70,"roadLengthM":5841,"radiusM":200}
+{"contentid":"2811461","title":"베이몬드호텔","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":65,"roadLengthM":4961,"radiusM":200}
+{"contentid":"3028593","title":"베이하운드호텔","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":73,"roadLengthM":5293,"radiusM":200}
+{"contentid":"1215432","title":"부산 센트럴호텔","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":30,"noiseP90":0.7,"roads":73,"roadLengthM":5105,"radiusM":200}
+{"contentid":"3044610","title":"브라운도트 호텔 서면역점 비즈니스","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":87,"roadLengthM":5721,"radiusM":200}
+{"contentid":"3083398","title":"브라운도트호텔 서면범천점","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":106,"roadLengthM":7953,"radiusM":200}
+{"contentid":"3083414","title":"브라운도트호텔 송정점","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":56,"roadLengthM":4992,"radiusM":200}
+{"contentid":"3028497","title":"브라운도트호텔 정관점","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":47,"roadLengthM":3723,"radiusM":200}
+{"contentid":"2696456","title":"브로시스 호텔","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":82,"roadLengthM":6466,"radiusM":200}
+{"contentid":"3016434","title":"블루스토리 호텔","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":66,"roadLengthM":5267,"radiusM":200}
+{"contentid":"2595879","title":"비치모텔","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":41,"roadLengthM":3254,"radiusM":200}
+{"contentid":"3533138","title":"샌드스테이","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":70,"noiseP90":0.3,"roads":66,"roadLengthM":5306,"radiusM":200}
+{"contentid":"3532572","title":"송정담다펜션","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":52,"roadLengthM":4481,"radiusM":200}
+{"contentid":"2714406","title":"신라스테이 서부산","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":16,"roadLengthM":1382,"radiusM":200}
+{"contentid":"2622969","title":"싱글싱글","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":30,"noiseP90":0.7,"roads":105,"roadLengthM":6894,"radiusM":200}
+{"contentid":"3465024","title":"아난티 앳 부산 빌라쥬","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":20,"roadLengthM":1395,"radiusM":200}
+{"contentid":"2503780","title":"아난티 앳 부산 코브","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":75,"noiseP90":0.25,"roads":42,"roadLengthM":3032,"radiusM":200}
+{"contentid":"3464876","title":"아스티호텔 부산","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":92,"roadLengthM":7050,"radiusM":200}
+{"contentid":"2925797","title":"엘시티 레지던스","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":89,"roadLengthM":5067,"radiusM":200}
+{"contentid":"2699563","title":"옐로우라이트하우스","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":10,"noiseP90":0.9,"roads":42,"roadLengthM":3295,"radiusM":200}
+{"contentid":"2574073","title":"윙민박","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":0,"noiseP90":1,"roads":55,"roadLengthM":3992,"radiusM":200}
+{"contentid":"2607423","title":"이바구캠프","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":26,"roadLengthM":2278,"radiusM":200}
+{"contentid":"1428723","title":"이비스 앰배서더 부산 시티센터","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":88,"roadLengthM":6024,"radiusM":200}
+{"contentid":"3533169","title":"이스턴룸","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":56,"roadLengthM":4355,"radiusM":200}
+{"contentid":"3533143","title":"읽다부산","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":80,"roadLengthM":5583,"radiusM":200}
+{"contentid":"3083428","title":"제이비디자인호텔","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":89,"roadLengthM":6505,"radiusM":200}
+{"contentid":"2509838","title":"지엔비호텔(GNB호텔)","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":132,"roadLengthM":8290,"radiusM":200}
+{"contentid":"3533147","title":"청킹멘션부산","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":80,"roadLengthM":6467,"radiusM":200}
+{"contentid":"2622984","title":"캔버스","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":77,"roadLengthM":5178,"radiusM":200}
+{"contentid":"2663616","title":"캔버스 블랙","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":85,"roadLengthM":5277,"radiusM":200}
+{"contentid":"142852","title":"코모도 호텔 부산","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":138,"roadLengthM":8045,"radiusM":200}
+{"contentid":"2039866","title":"코오롱 씨클라우드 호텔","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":101,"roadLengthM":6056,"radiusM":200}
+{"contentid":"3044634","title":"크라운 하버 호텔 부산","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":77,"roadLengthM":5987,"radiusM":200}
+{"contentid":"1162526","title":"토요코인호텔 부산서면","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":85,"roadLengthM":6816,"radiusM":200}
+{"contentid":"3532722","title":"트래블라이트","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":87,"roadLengthM":6309,"radiusM":200}
+{"contentid":"142853","title":"파라다이스 호텔 부산","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":70,"noiseP90":0.3,"roads":72,"roadLengthM":4142,"radiusM":200}
+{"contentid":"2731553","title":"펠릭스바이STX","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":92,"roadLengthM":6388,"radiusM":200}
+{"contentid":"2804372","title":"하운드호텔 부산역점","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":83,"roadLengthM":6007,"radiusM":200}
+{"contentid":"2705418","title":"해운대 영무파라드호텔","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":78,"roadLengthM":4356,"radiusM":200}
+{"contentid":"3533150","title":"행운인생","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":58,"roadLengthM":4274,"radiusM":200}
+{"contentid":"3532608","title":"호두스테이","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":95,"roadLengthM":6452,"radiusM":200}
+{"contentid":"2701011","title":"호텔 프렌치코드","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":95,"roadLengthM":6109,"radiusM":200}
+{"contentid":"2378912","title":"호텔포레 더 스파","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":60,"roadLengthM":4465,"radiusM":200}
+{"contentid":"2708667","title":"호텔포레 프리미어 남포","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":78,"roadLengthM":6230,"radiusM":200}
+{"contentid":"2570213","title":"AJ하우스(AJ House)","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":24,"roadLengthM":1811,"radiusM":200}
+{"contentid":"2696504","title":"JSTAY","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":55,"roadLengthM":3873,"radiusM":200}
+{"contentid":"2569922","title":"La Casa del Sol (라까사델솔 게스트하우스)","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":60,"roadLengthM":4758,"radiusM":200}
+{"contentid":"2624014","title":"The Park Guest House","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":79,"roadLengthM":4812,"radiusM":200}
+{"contentid":"3336600","title":"고래서이뻐","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":93,"roadLengthM":6459,"radiusM":200}
+{"contentid":"132574","title":"광복 지하도상가","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":111,"roadLengthM":7451,"radiusM":200}
+{"contentid":"1303759","title":"구서오시게시장","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":58,"roadLengthM":4047,"radiusM":200}
+{"contentid":"1250885","title":"구포시장","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":86,"roadLengthM":6478,"radiusM":200}
+{"contentid":"132191","title":"국제시장","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":120,"roadLengthM":8170,"radiusM":200}
+{"contentid":"2788830","title":"남산시장","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":49,"roadLengthM":4090,"radiusM":200}
+{"contentid":"1303784","title":"남천 해변시장","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":101,"roadLengthM":6636,"radiusM":200}
+{"contentid":"132187","title":"남포동 지하도상가","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":70,"roadLengthM":5525,"radiusM":200}
+{"contentid":"986063","title":"남포동건어물도매시장","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":77,"roadLengthM":4995,"radiusM":200}
+{"contentid":"2784351","title":"다대씨파크","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":30,"roadLengthM":2454,"radiusM":200}
+{"contentid":"2796940","title":"대변시장","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":70,"noiseP90":0.3,"roads":50,"roadLengthM":3442,"radiusM":200}
+{"contentid":"2785611","title":"덕포시장","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":34,"roadLengthM":3075,"radiusM":200}
+{"contentid":"2782699","title":"데팡스가든센터","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":0,"noiseP90":1,"roads":71,"roadLengthM":5056,"radiusM":200}
+{"contentid":"1013694","title":"만물의거리","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":110,"roadLengthM":7915,"radiusM":200}
+{"contentid":"2742601","title":"명지시장","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":79,"roadLengthM":6408,"radiusM":200}
+{"contentid":"2875862","title":"반송3동골목시장","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":70,"noiseP90":0.3,"roads":122,"roadLengthM":9537,"radiusM":200}
+{"contentid":"2763881","title":"부곡상가시장","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":51,"roadLengthM":4521,"radiusM":200}
+{"contentid":"1303697","title":"부산 르네시떼","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":10,"noiseP90":0.9,"roads":50,"roadLengthM":4348,"radiusM":200}
+{"contentid":"132524","title":"부산 엄궁농산물도매시장","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":67,"roadLengthM":5443,"radiusM":200}
+{"contentid":"132190","title":"부산 자갈치시장","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":40,"roadLengthM":3248,"radiusM":200}
+{"contentid":"132499","title":"부산 자유도매시장","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":91,"roadLengthM":6733,"radiusM":200}
+{"contentid":"132572","title":"부산 중앙시장","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":60,"roadLengthM":5128,"radiusM":200}
+{"contentid":"2787128","title":"부산새벽시장","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":25,"roadLengthM":2400,"radiusM":200}
+{"contentid":"132189","title":"부산진시장","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":75,"roadLengthM":5500,"radiusM":200}
+{"contentid":"132188","title":"부전마켓타운","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":99,"roadLengthM":6398,"radiusM":200}
+{"contentid":"132550","title":"부평동한복거리","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":135,"roadLengthM":8413,"radiusM":200}
+{"contentid":"2782747","title":"분홍이네","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":77,"roadLengthM":4638,"radiusM":200}
+{"contentid":"2763981","title":"서동미로시장","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":133,"roadLengthM":9037,"radiusM":200}
+{"contentid":"1117817","title":"송정전통재래시장","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":45,"roadLengthM":3561,"radiusM":200}
+{"contentid":"2869279","title":"수영팔도시장","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":65,"roadLengthM":5027,"radiusM":200}
+{"contentid":"132576","title":"신동아 수산물시장","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":44,"roadLengthM":3368,"radiusM":200}
+{"contentid":"767084","title":"신세계백화점 센텀시티점","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":10,"noiseP90":0.9,"roads":66,"roadLengthM":5229,"radiusM":200}
+{"contentid":"2532877","title":"신세계사이먼 부산 프리미엄 아울렛","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":0,"noiseP90":1,"roads":54,"roadLengthM":3941,"radiusM":200}
+{"contentid":"2867542","title":"신평종합시장","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":68,"roadLengthM":5392,"radiusM":200}
+{"contentid":"1013709","title":"아리랑거리","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":111,"roadLengthM":8108,"radiusM":200}
+{"contentid":"1013461","title":"아이하시 (수제젓가락공예)","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":122,"roadLengthM":8127,"radiusM":200}
+{"contentid":"1942316","title":"영도봉래시장","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":10,"noiseP90":0.9,"roads":86,"roadLengthM":7075,"radiusM":200}
+{"contentid":"2788451","title":"장림골목시장","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":86,"roadLengthM":7133,"radiusM":200}
+{"contentid":"2776286","title":"정관신도시시장","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":32,"roadLengthM":2607,"radiusM":200}
+{"contentid":"1013721","title":"조명의거리","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":120,"roadLengthM":8148,"radiusM":200}
+{"contentid":"2875886","title":"좌동재래시장","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":100,"roadLengthM":6684,"radiusM":200}
+{"contentid":"1304515","title":"좌천동 가구거리","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":72,"roadLengthM":5378,"radiusM":200}
+{"contentid":"3511011","title":"주식회사아래모래","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":70,"noiseP90":0.3,"roads":113,"roadLengthM":7006,"radiusM":200}
+{"contentid":"2790483","title":"청학시장","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":51,"roadLengthM":4291,"radiusM":200}
+{"contentid":"2869135","title":"초량시장","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":79,"roadLengthM":6118,"radiusM":200}
+{"contentid":"2744582","title":"충무동 새벽시장","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":37,"roadLengthM":2970,"radiusM":200}
+{"contentid":"1304431","title":"해운대 로데오거리","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":65,"roadLengthM":4482,"radiusM":200}
+{"contentid":"2845011","title":"가마솥생복집","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":63,"roadLengthM":4752,"radiusM":200}
+{"contentid":"2778443","title":"가야포차선지국","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":69,"roadLengthM":5142,"radiusM":200}
+{"contentid":"849929","title":"가야할매 밀면","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":79,"roadLengthM":6284,"radiusM":200}
+{"contentid":"2869158","title":"감포참가자미","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":68,"roadLengthM":5342,"radiusM":200}
+{"contentid":"2872626","title":"강호중마라도물회","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":40,"roadLengthM":3317,"radiusM":200}
+{"contentid":"2784321","title":"개금밀면","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":51,"roadLengthM":4095,"radiusM":200}
+{"contentid":"2760771","title":"거대갈비","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":91,"roadLengthM":5239,"radiusM":200}
+{"contentid":"2867215","title":"거창맷돌순두부","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":85,"roadLengthM":5385,"radiusM":200}
+{"contentid":"2838907","title":"고관함박","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":63,"roadLengthM":4254,"radiusM":200}
+{"contentid":"2785272","title":"고향연화","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":29,"roadLengthM":2187,"radiusM":200}
+{"contentid":"134326","title":"곰보식당","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":10,"noiseP90":0.9,"roads":61,"roadLengthM":4987,"radiusM":200}
+{"contentid":"2841481","title":"공극샌드커피","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":16,"roadLengthM":1244,"radiusM":200}
+{"contentid":"2869241","title":"공원집","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":70,"noiseP90":0.3,"roads":29,"roadLengthM":2539,"radiusM":200}
+{"contentid":"2870277","title":"공원칼국수","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":70,"noiseP90":0.3,"roads":70,"roadLengthM":5359,"radiusM":200}
+{"contentid":"2805377","title":"광명집","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":10,"noiseP90":0.9,"roads":95,"roadLengthM":7029,"radiusM":200}
+{"contentid":"135287","title":"구덕민속촌","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":29,"roadLengthM":2547,"radiusM":200}
+{"contentid":"2859073","title":"구덕포끝집고기","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":65,"noiseP90":0.35,"roads":19,"roadLengthM":1655,"radiusM":200}
+{"contentid":"2832700","title":"구디너프","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":70,"noiseP90":0.3,"roads":18,"roadLengthM":1501,"radiusM":200}
+{"contentid":"2873498","title":"구로마쯔","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":45,"roadLengthM":3741,"radiusM":200}
+{"contentid":"2809068","title":"국이네 낙지볶음","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":93,"roadLengthM":6553,"radiusM":200}
+{"contentid":"2869454","title":"그라치에","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":38,"roadLengthM":3432,"radiusM":200}
+{"contentid":"2626043","title":"그랜드애플","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":10,"noiseP90":0.9,"roads":63,"roadLengthM":5262,"radiusM":200}
+{"contentid":"2782628","title":"그린노마드","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":63,"roadLengthM":4853,"radiusM":200}
+{"contentid":"2833257","title":"그릿비 일광","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":5,"roadLengthM":500,"radiusM":200}
+{"contentid":"2852685","title":"금강만두","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":76,"roadLengthM":5740,"radiusM":200}
+{"contentid":"134949","title":"금문","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":44,"roadLengthM":3748,"radiusM":200}
+{"contentid":"2616370","title":"금정산성 창녕집","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":10,"noiseP90":0.9,"roads":41,"roadLengthM":2933,"radiusM":200}
+{"contentid":"850093","title":"급행장","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":85,"roadLengthM":6063,"radiusM":200}
+{"contentid":"2872474","title":"기장끝집 죽성본점","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":70,"noiseP90":0.3,"roads":6,"roadLengthM":600,"radiusM":200}
+{"contentid":"849887","title":"김유순대구뽈찜","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":84,"roadLengthM":6092,"radiusM":200}
+{"contentid":"2789451","title":"깃발집 국수전골","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":54,"roadLengthM":4437,"radiusM":200}
+{"contentid":"850121","title":"꺼먹동네횟집","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":34,"roadLengthM":2799,"radiusM":200}
+{"contentid":"2783360","title":"꽃피는 4월 밀익는 5월","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":10,"noiseP90":0.9,"roads":81,"roadLengthM":6287,"radiusM":200}
+{"contentid":"2859101","title":"나가하마만게츠","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":107,"roadLengthM":5693,"radiusM":200}
+{"contentid":"3444416","title":"나막집","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":10,"noiseP90":0.9,"roads":85,"roadLengthM":6011,"radiusM":200}
+{"contentid":"574250","title":"남성관","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":58,"roadLengthM":4631,"radiusM":200}
+{"contentid":"2818714","title":"남천녹차팥빙수","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":121,"roadLengthM":7190,"radiusM":200}
+{"contentid":"2868507","title":"남천다옴","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":55,"roadLengthM":4675,"radiusM":200}
+{"contentid":"2853012","title":"낭만송백","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":70,"noiseP90":0.3,"roads":9,"roadLengthM":804,"radiusM":200}
+{"contentid":"2836431","title":"노티스","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":123,"roadLengthM":8150,"radiusM":200}
+{"contentid":"2840883","title":"녹산용가든","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":35,"roadLengthM":2511,"radiusM":200}
+{"contentid":"2785275","title":"다솥맛집","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":50,"roadLengthM":4477,"radiusM":200}
+{"contentid":"2786008","title":"다온나루","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":29,"roadLengthM":2515,"radiusM":200}
+{"contentid":"850217","title":"다원","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":90,"roadLengthM":6013,"radiusM":200}
+{"contentid":"133997","title":"대궐안집","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":46,"roadLengthM":3905,"radiusM":200}
+{"contentid":"2867692","title":"대동냉면밀면","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":106,"roadLengthM":7292,"radiusM":200}
+{"contentid":"2822838","title":"대보름","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":45,"roadLengthM":3699,"radiusM":200}
+{"contentid":"2807607","title":"대복성","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":10,"noiseP90":0.9,"roads":62,"roadLengthM":5403,"radiusM":200}
+{"contentid":"2752168","title":"대저할매국수","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":18,"roadLengthM":1660,"radiusM":200}
+{"contentid":"2845041","title":"더바베큐051","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":41,"roadLengthM":3271,"radiusM":200}
+{"contentid":"2838872","title":"더스타뷔페","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":10,"noiseP90":0.9,"roads":66,"roadLengthM":5291,"radiusM":200}
+{"contentid":"2841064","title":"더팜471","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":20,"roadLengthM":1914,"radiusM":200}
+{"contentid":"2781799","title":"덕미","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":70,"noiseP90":0.3,"roads":31,"roadLengthM":2298,"radiusM":200}
+{"contentid":"2852312","title":"덕산명가 참소국밥","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":70,"noiseP90":0.3,"roads":76,"roadLengthM":6037,"radiusM":200}
+{"contentid":"2778476","title":"동래밀면","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":65,"roadLengthM":5373,"radiusM":200}
+{"contentid":"135827","title":"동백섬횟집","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":76,"roadLengthM":5362,"radiusM":200}
+{"contentid":"2870868","title":"동원장수촌","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":48,"roadLengthM":3974,"radiusM":200}
+{"contentid":"2891745","title":"듀스포레","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":57,"roadLengthM":4536,"radiusM":200}
+{"contentid":"2869159","title":"디원카페","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":5,"roadLengthM":500,"radiusM":200}
+{"contentid":"2759629","title":"디저트시네마","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":50,"roadLengthM":4140,"radiusM":200}
+{"contentid":"2891789","title":"라꽁띠","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":55,"roadLengthM":4570,"radiusM":200}
+{"contentid":"2783646","title":"러브얼스","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":89,"roadLengthM":5508,"radiusM":200}
+{"contentid":"2840901","title":"로다로지","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":70,"noiseP90":0.3,"roads":83,"roadLengthM":6410,"radiusM":200}
+{"contentid":"2869129","title":"로아누","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":10,"noiseP90":0.9,"roads":58,"roadLengthM":4623,"radiusM":200}
+{"contentid":"2832712","title":"록산","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":31,"roadLengthM":2775,"radiusM":200}
+{"contentid":"133839","title":"롯데호텔부산 무궁화","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":96,"roadLengthM":6584,"radiusM":200}
+{"contentid":"2891814","title":"류센소 본점","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":71,"roadLengthM":5438,"radiusM":200}
+{"contentid":"2782695","title":"르쎄","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":10,"noiseP90":0.9,"roads":68,"roadLengthM":6054,"radiusM":200}
+{"contentid":"2841417","title":"리디앤폴(LIDI&PAUL)","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":37,"roadLengthM":3191,"radiusM":200}
+{"contentid":"2854887","title":"리버사이드","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":17,"roadLengthM":1508,"radiusM":200}
+{"contentid":"2868609","title":"리오네","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":57,"roadLengthM":4457,"radiusM":200}
+{"contentid":"2845069","title":"마레레스토랑","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":5,"roadLengthM":500,"radiusM":200}
+{"contentid":"2845094","title":"마리솔","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":5,"roadLengthM":500,"radiusM":200}
+{"contentid":"2869196","title":"마파람해물찜해물탕 구서본점","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":55,"roadLengthM":4341,"radiusM":200}
+{"contentid":"2872442","title":"마포면옥","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":47,"roadLengthM":3480,"radiusM":200}
+{"contentid":"3415203","title":"만달리","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":51,"roadLengthM":3283,"radiusM":200}
+{"contentid":"2810909","title":"만서리 이가네 막국수","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":40,"roadLengthM":3360,"radiusM":200}
+{"contentid":"2867715","title":"만석미역 본점","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":62,"roadLengthM":5097,"radiusM":200}
+{"contentid":"2853079","title":"만선해물탕","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":78,"roadLengthM":5698,"radiusM":200}
+{"contentid":"2872611","title":"만호갈미샤브샤브","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":49,"roadLengthM":4135,"radiusM":200}
+{"contentid":"2891826","title":"맘보식당","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":35,"roadLengthM":2959,"radiusM":200}
+{"contentid":"2891849","title":"맛소문오리불고기","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":69,"roadLengthM":5403,"radiusM":200}
+{"contentid":"2841499","title":"메르데쿠르","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":70,"noiseP90":0.3,"roads":6,"roadLengthM":600,"radiusM":200}
+{"contentid":"2847910","title":"메밀447","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":10,"noiseP90":0.9,"roads":57,"roadLengthM":4627,"radiusM":200}
+{"contentid":"2847893","title":"메이크씨","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":10,"roadLengthM":958,"radiusM":200}
+{"contentid":"850466","title":"명수정","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":55,"roadLengthM":4411,"radiusM":200}
+{"contentid":"2752976","title":"명지첫집","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":80,"roadLengthM":6426,"radiusM":200}
+{"contentid":"2832729","title":"모모스커피 본점","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":74,"roadLengthM":5418,"radiusM":200}
+{"contentid":"820382","title":"목장원","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":58,"roadLengthM":4619,"radiusM":200}
+{"contentid":"2852419","title":"몽실종가돼지국밥","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":67,"roadLengthM":5135,"radiusM":200}
+{"contentid":"2862337","title":"몽작","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":70,"noiseP90":0.3,"roads":21,"roadLengthM":1815,"radiusM":200}
+{"contentid":"2776396","title":"무진장횟집","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":35,"roadLengthM":2698,"radiusM":200}
+{"contentid":"2891868","title":"문토스트","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":44,"roadLengthM":2669,"radiusM":200}
+{"contentid":"851907","title":"문화쌈밥","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":91,"roadLengthM":6080,"radiusM":200}
+{"contentid":"132805","title":"물꽁식당","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":148,"roadLengthM":8511,"radiusM":200}
+{"contentid":"2872395","title":"미동암소정","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":85,"noiseP90":0.15,"roads":50,"roadLengthM":3608,"radiusM":200}
+{"contentid":"2869595","title":"미미루","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":61,"roadLengthM":4937,"radiusM":200}
+{"contentid":"2776391","title":"미청식당","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":70,"noiseP90":0.3,"roads":45,"roadLengthM":3228,"radiusM":200}
+{"contentid":"2868655","title":"바로해장","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":64,"roadLengthM":4469,"radiusM":200}
+{"contentid":"2872574","title":"박가네순두부","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":35,"roadLengthM":2907,"radiusM":200}
+{"contentid":"2756690","title":"박해윤통영해물밥상","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":10,"noiseP90":0.9,"roads":103,"roadLengthM":7085,"radiusM":200}
+{"contentid":"2787408","title":"반송187","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":54,"roadLengthM":4610,"radiusM":200}
+{"contentid":"2865941","title":"밤나무집","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":19,"roadLengthM":1472,"radiusM":200}
+{"contentid":"2840921","title":"방코","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":48,"roadLengthM":4074,"radiusM":200}
+{"contentid":"2869113","title":"배종관동래삼계탕","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":76,"roadLengthM":5350,"radiusM":200}
+{"contentid":"2840956","title":"벨렘351","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":79,"roadLengthM":6277,"radiusM":200}
+{"contentid":"2785270","title":"복성반점","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":124,"roadLengthM":8427,"radiusM":200}
+{"contentid":"2845123","title":"본가딸부자전복죽집","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":39,"roadLengthM":2899,"radiusM":200}
+{"contentid":"3452014","title":"부산 카페 라운지","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":91,"roadLengthM":7050,"radiusM":200}
+{"contentid":"133313","title":"부산명물횟집","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":48,"roadLengthM":3780,"radiusM":200}
+{"contentid":"2853131","title":"부산조개창고","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":86,"roadLengthM":6455,"radiusM":200}
+{"contentid":"2861958","title":"부센동","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":88,"roadLengthM":6172,"radiusM":200}
+{"contentid":"2861189","title":"부우사안","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":70,"roadLengthM":4704,"radiusM":200}
+{"contentid":"1855868","title":"부전돼지국밥","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":44,"roadLengthM":4136,"radiusM":200}
+{"contentid":"2752996","title":"브라운피크닉","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":22,"roadLengthM":1750,"radiusM":200}
+{"contentid":"2853145","title":"브레이크인커피","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":11,"roadLengthM":832,"radiusM":200}
+{"contentid":"2847969","title":"브리타니","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":12,"roadLengthM":1127,"radiusM":200}
+{"contentid":"2868824","title":"비스포레","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":10,"noiseP90":0.9,"roads":30,"roadLengthM":2922,"radiusM":200}
+{"contentid":"2861291","title":"사마정","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":31,"roadLengthM":2396,"radiusM":200}
+{"contentid":"841730","title":"사미헌","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":90,"roadLengthM":6193,"radiusM":200}
+{"contentid":"2787109","title":"사비아","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":56,"roadLengthM":4355,"radiusM":200}
+{"contentid":"2785277","title":"사천게장집","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":10,"noiseP90":0.9,"roads":80,"roadLengthM":6566,"radiusM":200}
+{"contentid":"135004","title":"산성청송가든","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":10,"noiseP90":0.9,"roads":43,"roadLengthM":2823,"radiusM":200}
+{"contentid":"851286","title":"상국이네","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":70,"noiseP90":0.3,"roads":96,"roadLengthM":6492,"radiusM":200}
+{"contentid":"2860819","title":"샤브막심 송정본점","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":65,"noiseP90":0.35,"roads":17,"roadLengthM":1590,"radiusM":200}
+{"contentid":"2860823","title":"샤브야 본점","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":56,"roadLengthM":4658,"radiusM":200}
+{"contentid":"2867598","title":"서대시장족발","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":79,"roadLengthM":5905,"radiusM":200}
+{"contentid":"2778503","title":"서울깍두기","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":59,"roadLengthM":4592,"radiusM":200}
+{"contentid":"2872553","title":"선창갈미조개","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":49,"roadLengthM":4135,"radiusM":200}
+{"contentid":"403961","title":"선창횟집","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":45,"roadLengthM":3158,"radiusM":200}
+{"contentid":"403957","title":"성일집","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":76,"roadLengthM":5642,"radiusM":200}
+{"contentid":"3373600","title":"세븐아일랜드","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":6,"roadLengthM":600,"radiusM":200}
+{"contentid":"2952019","title":"소공간","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":95,"roadLengthM":5650,"radiusM":200}
+{"contentid":"2784320","title":"소문난원조조방낙지본점","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":76,"roadLengthM":5192,"radiusM":200}
+{"contentid":"1805861","title":"속시원한 대구탕","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":58,"roadLengthM":4511,"radiusM":200}
+{"contentid":"2793181","title":"속씨원한대구탕미포본점","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":70,"noiseP90":0.3,"roads":68,"roadLengthM":4505,"radiusM":200}
+{"contentid":"2860829","title":"솔내음한정식","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":70,"noiseP90":0.3,"roads":70,"roadLengthM":5162,"radiusM":200}
+{"contentid":"2868850","title":"송원일식","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":61,"roadLengthM":4520,"radiusM":200}
+{"contentid":"2860833","title":"송정물총칼국수","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":40,"roadLengthM":3399,"radiusM":200}
+{"contentid":"2785965","title":"송정집","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":39,"roadLengthM":3301,"radiusM":200}
+{"contentid":"2808104","title":"송정해녀집","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":18,"roadLengthM":1599,"radiusM":200}
+{"contentid":"3442923","title":"솥이랑 서면점","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":67,"roadLengthM":5194,"radiusM":200}
+{"contentid":"1805853","title":"수민이네","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":52,"roadLengthM":4075,"radiusM":200}
+{"contentid":"2668102","title":"수변최고돼지국밥 민락본점","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":10,"noiseP90":0.9,"roads":42,"roadLengthM":3295,"radiusM":200}
+{"contentid":"2838489","title":"수복돼지국밥","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":56,"roadLengthM":4685,"radiusM":200}
+{"contentid":"2852696","title":"수안커피컴퍼니 커피하우스","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":40,"roadLengthM":3547,"radiusM":200}
+{"contentid":"2869572","title":"수영 돼지국밥","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":97,"roadLengthM":6529,"radiusM":200}
+{"contentid":"2785269","title":"수월경화","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":39,"roadLengthM":3301,"radiusM":200}
+{"contentid":"2860839","title":"스노잉클라우드","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":54,"roadLengthM":4349,"radiusM":200}
+{"contentid":"2870354","title":"스완양분식","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":85,"roadLengthM":6017,"radiusM":200}
+{"contentid":"2865975","title":"스페이스앤무드","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":93,"roadLengthM":6179,"radiusM":200}
+{"contentid":"2872534","title":"시즌 조개구이","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":56,"roadLengthM":5058,"radiusM":200}
+{"contentid":"2869183","title":"신가네 호떡 김밥 떡볶이","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":46,"roadLengthM":3702,"radiusM":200}
+{"contentid":"2869439","title":"신라농원","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":73,"roadLengthM":5400,"radiusM":200}
+{"contentid":"2832671","title":"신발원","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":77,"roadLengthM":6306,"radiusM":200}
+{"contentid":"851832","title":"신센","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":43,"roadLengthM":3399,"radiusM":200}
+{"contentid":"2838382","title":"신창국밥 본점","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":92,"roadLengthM":6601,"radiusM":200}
+{"contentid":"2860851","title":"싱싱뽈락회 해운대본점","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":62,"roadLengthM":4928,"radiusM":200}
+{"contentid":"2759609","title":"쌍둥이돼지국밥 본점","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":77,"roadLengthM":5570,"radiusM":200}
+{"contentid":"2845149","title":"아데초이","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":31,"roadLengthM":2527,"radiusM":200}
+{"contentid":"1826034","title":"아델라7","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":78,"roadLengthM":5777,"radiusM":200}
+{"contentid":"688610","title":"아미산","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":72,"roadLengthM":4872,"radiusM":200}
+{"contentid":"2865384","title":"아시오","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":52,"roadLengthM":4511,"radiusM":200}
+{"contentid":"3412613","title":"암남길 벗과벗","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":35,"roadLengthM":2719,"radiusM":200}
+{"contentid":"2781598","title":"앙로고택","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":10,"roadLengthM":939,"radiusM":200}
+{"contentid":"2773623","title":"야스마루","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":84,"roadLengthM":6120,"radiusM":200}
+{"contentid":"2867167","title":"양산국밥","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":56,"roadLengthM":4234,"radiusM":200}
+{"contentid":"2786742","title":"양산왕돼지국밥","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":51,"roadLengthM":3942,"radiusM":200}
+{"contentid":"2867517","title":"양정기사식당","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":50,"roadLengthM":4524,"radiusM":200}
+{"contentid":"2753006","title":"어느멋진날","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":70,"noiseP90":0.3,"roads":39,"roadLengthM":3362,"radiusM":200}
+{"contentid":"2832717","title":"어라우즈로스터리","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":79,"roadLengthM":4977,"radiusM":200}
+{"contentid":"2777936","title":"어밤부","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":30,"roadLengthM":2645,"radiusM":200}
+{"contentid":"2844638","title":"어보","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":16,"roadLengthM":1310,"radiusM":200}
+{"contentid":"2875727","title":"엄마손대구탕","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":0,"noiseP90":1,"roads":50,"roadLengthM":3762,"radiusM":200}
+{"contentid":"2838432","title":"엄용백 돼지국밥","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":92,"roadLengthM":6079,"radiusM":200}
+{"contentid":"2836412","title":"에테르","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":33,"roadLengthM":2723,"radiusM":200}
+{"contentid":"2868912","title":"엘올리브","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":53,"roadLengthM":4147,"radiusM":200}
+{"contentid":"2872353","title":"엠아이알오","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":17,"roadLengthM":1294,"radiusM":200}
+{"contentid":"2869896","title":"엣지993","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":45,"roadLengthM":3195,"radiusM":200}
+{"contentid":"2867674","title":"연산낙지해물탕","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":51,"roadLengthM":4419,"radiusM":200}
+{"contentid":"2838755","title":"연어바치","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":70,"noiseP90":0.3,"roads":132,"roadLengthM":6618,"radiusM":200}
+{"contentid":"2867626","title":"영남냉면밀면","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":77,"roadLengthM":6118,"radiusM":200}
+{"contentid":"2875744","title":"영남돼지","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":75,"roadLengthM":5459,"radiusM":200}
+{"contentid":"2860755","title":"영남식육식당","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":91,"roadLengthM":6380,"radiusM":200}
+{"contentid":"2869405","title":"영동밀면&돼지국밥","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":82,"roadLengthM":6620,"radiusM":200}
+{"contentid":"2785266","title":"영진돼지국밥","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":86,"roadLengthM":7910,"radiusM":200}
+{"contentid":"1310148","title":"예이제 한정식","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":80,"roadLengthM":4435,"radiusM":200}
+{"contentid":"2836424","title":"오구카페","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":70,"noiseP90":0.3,"roads":17,"roadLengthM":1486,"radiusM":200}
+{"contentid":"2840998","title":"오리한상 명지본점","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":91,"roadLengthM":7308,"radiusM":200}
+{"contentid":"2512488","title":"오막집","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":76,"roadLengthM":5423,"radiusM":200}
+{"contentid":"2860782","title":"오반장","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":95,"roadLengthM":6887,"radiusM":200}
+{"contentid":"850847","title":"오사카","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":44,"roadLengthM":3933,"radiusM":200}
+{"contentid":"2838973","title":"오소리순대","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":53,"roadLengthM":4429,"radiusM":200}
+{"contentid":"2844259","title":"오프오","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":70,"noiseP90":0.3,"roads":5,"roadLengthM":500,"radiusM":200}
+{"contentid":"2659244","title":"옥탑방","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":29,"roadLengthM":2048,"radiusM":200}
+{"contentid":"850880","title":"외식1번가","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":101,"roadLengthM":7172,"radiusM":200}
+{"contentid":"2868940","title":"요이쿠마 본점","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":60,"roadLengthM":4855,"radiusM":200}
+{"contentid":"850891","title":"용궁해물야채쟁반짜장","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":62,"roadLengthM":3798,"radiusM":200}
+{"contentid":"2784325","title":"용암할매횟집","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":70,"noiseP90":0.3,"roads":47,"roadLengthM":3199,"radiusM":200}
+{"contentid":"2872583","title":"우남정","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":0,"noiseP90":1,"roads":46,"roadLengthM":3792,"radiusM":200}
+{"contentid":"2870841","title":"우디브룩","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":20,"roadLengthM":1802,"radiusM":200}
+{"contentid":"2869936","title":"우봉","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":48,"roadLengthM":3388,"radiusM":200}
+{"contentid":"2869323","title":"우성삼계탕","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":85,"roadLengthM":6174,"radiusM":200}
+{"contentid":"3443614","title":"원시학","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":98,"roadLengthM":5982,"radiusM":200}
+{"contentid":"850932","title":"원조 범일동 매떡","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":53,"roadLengthM":4503,"radiusM":200}
+{"contentid":"2867662","title":"원조18번완당","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":127,"roadLengthM":7857,"radiusM":200}
+{"contentid":"2875761","title":"원조석대추어탕","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":20,"roadLengthM":1802,"radiusM":200}
+{"contentid":"134718","title":"원조소문난산곰장어","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":42,"roadLengthM":3732,"radiusM":200}
+{"contentid":"2841018","title":"월남면반","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":118,"roadLengthM":8347,"radiusM":200}
+{"contentid":"2872610","title":"월화횟집","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":35,"roadLengthM":2899,"radiusM":200}
+{"contentid":"2852185","title":"웨스턴챔버","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":21,"roadLengthM":1720,"radiusM":200}
+{"contentid":"2870394","title":"은하갈비","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":69,"roadLengthM":5411,"radiusM":200}
+{"contentid":"2726193","title":"이가네떡볶이","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":136,"roadLengthM":8560,"radiusM":200}
+{"contentid":"2875783","title":"이레옥","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":24,"roadLengthM":1814,"radiusM":200}
+{"contentid":"2838418","title":"이엘 16.52 (EL16.52)","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":42,"roadLengthM":3229,"radiusM":200}
+{"contentid":"2836450","title":"이재모피자 본점","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":92,"roadLengthM":6553,"radiusM":200}
+{"contentid":"2841029","title":"이지요 더파크","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":22,"roadLengthM":1941,"radiusM":200}
+{"contentid":"2852402","title":"이티135","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":41,"roadLengthM":3424,"radiusM":200}
+{"contentid":"2832723","title":"이프리오","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":8,"roadLengthM":779,"radiusM":200}
+{"contentid":"2845027","title":"이화장횟집","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":31,"roadLengthM":2338,"radiusM":200}
+{"contentid":"2847877","title":"일광 카페 숲","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":70,"noiseP90":0.3,"roads":13,"roadLengthM":1121,"radiusM":200}
+{"contentid":"2844677","title":"일광당","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":87,"roadLengthM":6220,"radiusM":200}
+{"contentid":"2872634","title":"일광수산횟집","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":70,"noiseP90":0.3,"roads":26,"roadLengthM":2120,"radiusM":200}
+{"contentid":"2848952","title":"일광정","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":27,"roadLengthM":2348,"radiusM":200}
+{"contentid":"1805656","title":"일번지자갈치산곰장어","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":70,"noiseP90":0.3,"roads":108,"roadLengthM":6602,"radiusM":200}
+{"contentid":"2608181","title":"일송면옥","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":55,"roadLengthM":4780,"radiusM":200}
+{"contentid":"851955","title":"일품한우","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":92,"roadLengthM":6705,"radiusM":200}
+{"contentid":"2872517","title":"자갈치왕짬뽕","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":31,"roadLengthM":2860,"radiusM":200}
+{"contentid":"2788406","title":"자매국밥","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":62,"roadLengthM":4801,"radiusM":200}
+{"contentid":"2844687","title":"장군멸치회촌","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":70,"noiseP90":0.3,"roads":50,"roadLengthM":3280,"radiusM":200}
+{"contentid":"2872496","title":"장룡수산 본점","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":30,"roadLengthM":2306,"radiusM":200}
+{"contentid":"851073","title":"장성향","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":104,"roadLengthM":6977,"radiusM":200}
+{"contentid":"2785970","title":"장씨해녀집","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":70,"noiseP90":0.3,"roads":36,"roadLengthM":2492,"radiusM":200}
+{"contentid":"2668119","title":"재기돼지국밥","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":61,"roadLengthM":4964,"radiusM":200}
+{"contentid":"2759593","title":"전산가든","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":70,"noiseP90":0.3,"roads":29,"roadLengthM":2434,"radiusM":200}
+{"contentid":"851104","title":"정림전통한정식","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":30,"noiseP90":0.7,"roads":73,"roadLengthM":5074,"radiusM":200}
+{"contentid":"2873468","title":"제주복국","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":47,"roadLengthM":3721,"radiusM":200}
+{"contentid":"2844698","title":"제주항통갈치","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":38,"roadLengthM":3227,"radiusM":200}
+{"contentid":"850558","title":"조방본가낙지","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":90,"roadLengthM":6514,"radiusM":200}
+{"contentid":"2853231","title":"조방제일한우","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":80,"roadLengthM":5866,"radiusM":200}
+{"contentid":"2838820","title":"주문진 막국수","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":71,"roadLengthM":5413,"radiusM":200}
+{"contentid":"2608459","title":"죽도횟집","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":46,"roadLengthM":3375,"radiusM":200}
+{"contentid":"2844643","title":"진품물회","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":15,"roadLengthM":1488,"radiusM":200}
+{"contentid":"2872258","title":"채플린","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":70,"noiseP90":0.3,"roads":5,"roadLengthM":500,"radiusM":200}
+{"contentid":"2852238","title":"철마대가한우직판장","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":21,"roadLengthM":1722,"radiusM":200}
+{"contentid":"2875311","title":"철마원조추어탕","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":10,"noiseP90":0.9,"roads":37,"roadLengthM":2944,"radiusM":200}
+{"contentid":"2852250","title":"철마한우수목원","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":10,"noiseP90":0.9,"roads":32,"roadLengthM":2756,"radiusM":200}
+{"contentid":"2838849","title":"초량1941","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":41,"roadLengthM":3747,"radiusM":200}
+{"contentid":"2870751","title":"초량845","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":34,"roadLengthM":3078,"radiusM":200}
+{"contentid":"2785956","title":"초량밀면","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":87,"roadLengthM":6994,"radiusM":200}
+{"contentid":"2870703","title":"초량온당","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":30,"noiseP90":0.7,"roads":50,"roadLengthM":4273,"radiusM":200}
+{"contentid":"2852263","title":"초오록","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":10,"noiseP90":0.9,"roads":53,"roadLengthM":4433,"radiusM":200}
+{"contentid":"1280921","title":"초원농원","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":10,"noiseP90":0.9,"roads":85,"roadLengthM":7181,"radiusM":200}
+{"contentid":"2865403","title":"초함","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":47,"roadLengthM":3635,"radiusM":200}
+{"contentid":"2794743","title":"칠성식당 본점","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":10,"noiseP90":0.9,"roads":126,"roadLengthM":9236,"radiusM":200}
+{"contentid":"2848949","title":"칠암만장","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":28,"roadLengthM":2512,"radiusM":200}
+{"contentid":"2822840","title":"칠암사계","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":30,"roadLengthM":2712,"radiusM":200}
+{"contentid":"2775556","title":"칠암일번지횟집","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":25,"roadLengthM":2187,"radiusM":200}
+{"contentid":"250562","title":"카파도키아","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":35,"roadLengthM":2996,"radiusM":200}
+{"contentid":"2642681","title":"카페 385","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":23,"roadLengthM":1958,"radiusM":200}
+{"contentid":"2853060","title":"카페 도토리 로스터스","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":30,"roadLengthM":1799,"radiusM":200}
+{"contentid":"2852408","title":"카페 만디","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":23,"roadLengthM":2052,"radiusM":200}
+{"contentid":"2875345","title":"카페공지","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":31,"roadLengthM":2071,"radiusM":200}
+{"contentid":"2807808","title":"카페썬번","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":72,"roadLengthM":5649,"radiusM":200}
+{"contentid":"2952936","title":"카페제노아","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":136,"roadLengthM":8813,"radiusM":200}
+{"contentid":"2832636","title":"코랄라니","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":20,"roadLengthM":1571,"radiusM":200}
+{"contentid":"2852620","title":"코모도테이블","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":10,"noiseP90":0.9,"roads":72,"roadLengthM":6416,"radiusM":200}
+{"contentid":"843489","title":"클라우드32","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":28,"roadLengthM":2107,"radiusM":200}
+{"contentid":"2785267","title":"클래식캠퍼","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":30,"roadLengthM":2537,"radiusM":200}
+{"contentid":"2870780","title":"클레이디뷔페 돌잔치","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":68,"roadLengthM":5410,"radiusM":200}
+{"contentid":"2859188","title":"키친동백","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":57,"roadLengthM":4777,"radiusM":200}
+{"contentid":"2858974","title":"타이가텐푸라","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":99,"roadLengthM":6296,"radiusM":200}
+{"contentid":"2869532","title":"타이빈","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":62,"roadLengthM":4877,"radiusM":200}
+{"contentid":"2868448","title":"타타에스프레소바","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":70,"noiseP90":0.3,"roads":113,"roadLengthM":6802,"radiusM":200}
+{"contentid":"2775543","title":"탐복","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":30,"roadLengthM":2244,"radiusM":200}
+{"contentid":"2852602","title":"태백관","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":45,"roadLengthM":3562,"radiusM":200}
+{"contentid":"2869186","title":"토로","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":32,"roadLengthM":2393,"radiusM":200}
+{"contentid":"403929","title":"토비코","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":52,"roadLengthM":4396,"radiusM":200}
+{"contentid":"2841442","title":"톤쇼우","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":78,"roadLengthM":5022,"radiusM":200}
+{"contentid":"2838889","title":"툇마루","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":10,"noiseP90":0.9,"roads":87,"roadLengthM":6778,"radiusM":200}
+{"contentid":"2853081","title":"파나카F","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":37,"roadLengthM":3160,"radiusM":200}
+{"contentid":"133314","title":"팔미초밥","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":82,"roadLengthM":6236,"radiusM":200}
+{"contentid":"2844738","title":"팜카페","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":70,"noiseP90":0.3,"roads":26,"roadLengthM":2353,"radiusM":200}
+{"contentid":"2756678","title":"포레스트3002","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":75,"noiseP90":0.25,"roads":11,"roadLengthM":949,"radiusM":200}
+{"contentid":"2844748","title":"포에버얌 부산기장점","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":27,"roadLengthM":2021,"radiusM":200}
+{"contentid":"2869249","title":"푸디1354","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":10,"noiseP90":0.9,"roads":21,"roadLengthM":1627,"radiusM":200}
+{"contentid":"2616371","title":"풍년오리박사","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":52,"roadLengthM":4039,"radiusM":200}
+{"contentid":"2832642","title":"풍원장시골밥상집","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":33,"roadLengthM":2634,"radiusM":200}
+{"contentid":"2891887","title":"프루터리포레스트","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":0,"noiseP90":1,"roads":52,"roadLengthM":4000,"radiusM":200}
+{"contentid":"2832649","title":"피크스퀘어","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":70,"noiseP90":0.3,"roads":6,"roadLengthM":600,"radiusM":200}
+{"contentid":"2875819","title":"하가원 해운대점","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":98,"roadLengthM":6761,"radiusM":200}
+{"contentid":"2785276","title":"하기연진주냉면","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":82,"roadLengthM":6212,"radiusM":200}
+{"contentid":"2787137","title":"하녹","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":65,"noiseP90":0.35,"roads":20,"roadLengthM":1424,"radiusM":200}
+{"contentid":"2852277","title":"하늘아래 첫 집","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":7,"roadLengthM":529,"radiusM":200}
+{"contentid":"2848930","title":"하바나","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":7,"roadLengthM":625,"radiusM":200}
+{"contentid":"2858955","title":"하진이네","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":70,"noiseP90":0.3,"roads":32,"roadLengthM":2349,"radiusM":200}
+{"contentid":"2841052","title":"한그루양과점","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":70,"noiseP90":0.3,"roads":19,"roadLengthM":1543,"radiusM":200}
+{"contentid":"2867734","title":"한우뭉치","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":121,"roadLengthM":7765,"radiusM":200}
+{"contentid":"686419","title":"할매가야밀면","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":81,"roadLengthM":6408,"radiusM":200}
+{"contentid":"851989","title":"할매복국","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":121,"roadLengthM":7300,"radiusM":200}
+{"contentid":"2905141","title":"할매집","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":81,"roadLengthM":4785,"radiusM":200}
+{"contentid":"1805095","title":"할매팥빙수단팥죽","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":73,"roadLengthM":5466,"radiusM":200}
+{"contentid":"2869618","title":"합천국밥집","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":50,"roadLengthM":4167,"radiusM":200}
+{"contentid":"2872271","title":"해녀천지할매집","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":44,"roadLengthM":3175,"radiusM":200}
+{"contentid":"2875364","title":"해녀할매집","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":48,"roadLengthM":3329,"radiusM":200}
+{"contentid":"1805792","title":"해동횟집","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":70,"noiseP90":0.3,"roads":50,"roadLengthM":3298,"radiusM":200}
+{"contentid":"2786766","title":"해목","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":70,"noiseP90":0.3,"roads":103,"roadLengthM":6756,"radiusM":200}
+{"contentid":"2853156","title":"해물왕창칼국수","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":30,"roadLengthM":2647,"radiusM":200}
+{"contentid":"2865435","title":"해신킹크랩","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":80,"roadLengthM":6065,"radiusM":200}
+{"contentid":"2760773","title":"해운대기와집대구탕","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":116,"roadLengthM":6471,"radiusM":200}
+{"contentid":"2858936","title":"해운대하얀오징어집","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":116,"roadLengthM":6471,"radiusM":200}
+{"contentid":"2852289","title":"해운대해물칼국수","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":25,"roadLengthM":1674,"radiusM":200}
+{"contentid":"2759611","title":"해풍가마솥","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":15,"roadLengthM":1488,"radiusM":200}
+{"contentid":"2841524","title":"향유정 속초이모네찜","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":22,"roadLengthM":1467,"radiusM":200}
+{"contentid":"2832655","title":"헤이든","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":27,"roadLengthM":1981,"radiusM":200}
+{"contentid":"2852301","title":"형제가든","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":18,"roadLengthM":1467,"radiusM":200}
+{"contentid":"2869343","title":"홍순덕 전포양곱창","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":10,"noiseP90":0.9,"roads":80,"roadLengthM":6360,"radiusM":200}
+{"contentid":"2869875","title":"화복반점","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":30,"roadLengthM":2517,"radiusM":200}
+{"contentid":"2848924","title":"황금새우기장본점","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":4,"roadLengthM":400,"radiusM":200}
+{"contentid":"2853031","title":"황토마루","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":75,"noiseP90":0.25,"roads":10,"roadLengthM":820,"radiusM":200}
+{"contentid":"2859132","title":"흑송 우동소바 송정본점","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":34,"roadLengthM":2859,"radiusM":200}
+{"contentid":"2865236","title":"희와제과","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":85,"roadLengthM":7041,"radiusM":200}
+{"contentid":"133525","title":"18번완당집","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":102,"roadLengthM":7256,"radiusM":200}
+{"contentid":"2870666","title":"1950 태성당","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":20,"noiseP90":0.8,"roads":68,"roadLengthM":4910,"radiusM":200}
+{"contentid":"2853243","title":"303일상","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":54,"roadLengthM":4396,"radiusM":200}
+{"contentid":"2870800","title":"303화덕 동래온천장점","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":50,"noiseP90":0.5,"roads":55,"roadLengthM":4599,"radiusM":200}
+{"contentid":"2608470","title":"77돌곱창","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":35,"noiseP90":0.65,"roads":35,"roadLengthM":3124,"radiusM":200}
+{"contentid":"2563357","title":"[백년가게]옥미아구찜","featureType":"QUIETNESS_SCORE","evidenceStatus":"ESTIMATED","quietnessScore":10,"noiseP90":0.9,"roads":92,"roadLengthM":7110,"radiusM":200}
