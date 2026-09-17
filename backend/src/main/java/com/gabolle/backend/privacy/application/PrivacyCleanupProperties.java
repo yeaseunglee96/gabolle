@@ -48,6 +48,23 @@ public class PrivacyCleanupProperties {
 	private int eventRetentionDays = 90;
 
 	/**
+	 * 조회 낱개({@code story_view})와 링크 복사 낱개({@code story_link_copy})를 며칠 보관하는가 —
+	 * S15P21E201-1216.
+	 *
+	 * <h2>🔴 이 90 은 잠정값이 아니라 정해진 것이다</h2>
+	 *
+	 * 위의 {@link #eventRetentionDays} 와 달리 이 숫자는 <b>표를 만들 때 이미 정해졌다</b> —
+	 * {@code story_view} 표 주석·{@code StoryView} 도메인 주석·{@code V20260918010000}
+	 * 마이그레이션 주석 셋이 모두 「90일만 보관한다」고 적고 있다. 값을 바꾸려면 그 셋도 함께
+	 * 고쳐야 한다. 한 곳만 고치면 문서가 코드와 다른 말을 하게 된다.
+	 *
+	 * <p>낱개가 있는 이유는 「사람 × 글 × 하루 한 번」을 지키기 위해서다. 그것만 보면 <b>어제
+	 * 것만 있어도 된다.</b> 90일은 그보다 훨씬 넉넉하고, 그 이상은 사람이 무엇을 언제 읽었는지가
+	 * 필요 이상으로 오래 남는 것이다.
+	 */
+	private int storyActivityRetentionDays = 90;
+
+	/**
 	 * 한 번 실행에서 지우는 상한(안전판). JPQL 벌크 삭제는 이 값을 직접 강제하지 않지만, 이
 	 * 값을 이례적으로 낮게 잡아 두면 예상보다 큰 삭제가 조용히 일어나지 않았다는 뜻이 된다 —
 	 * {@link PrivacyCleanupService} 가 카테고리별 삭제 건수를 이 값과 비교해 로그 경고를 남긴다.
@@ -93,6 +110,14 @@ public class PrivacyCleanupProperties {
 
 	public void setEventRetentionDays(int eventRetentionDays) {
 		this.eventRetentionDays = eventRetentionDays;
+	}
+
+	public int getStoryActivityRetentionDays() {
+		return storyActivityRetentionDays;
+	}
+
+	public void setStoryActivityRetentionDays(int storyActivityRetentionDays) {
+		this.storyActivityRetentionDays = storyActivityRetentionDays;
 	}
 
 	public int getLargeDeletionWarningThreshold() {
