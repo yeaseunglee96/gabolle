@@ -172,24 +172,14 @@ function StoryCard({ story, compact, showUnfollow, unfollowBusy, onUnfollow, onO
   </View>;
 }
 
-/**
- * 이 피드에 나온 장소 — 🔴 집계 API 가 없다.
+/*
+ * 🔴 placesInFeed() 를 지웠다 (S15P21E201-1177).
  *
- * <p>지금 불러온 items 의 place 를 화면에서 묶어 센다. 그래서 이 숫자는 "전체에서
- * 몇 번" 이 아니라 "지금 보이는 목록에서 몇 번" 이다. 집계 API 가 생기면 이 함수를
- * 지우고 그것으로 바꾼다 — 지어낸 숫자를 보여주지 않으려고 세는 범위를 좁게 잡았다.
+ * 「이 피드에 나온 장소」 목록이 지도 패널의 라벨 핀과 겹쳐서 목록을 뺐고, 그 목록만
+ * 쓰던 함수라 같이 지운다. 세던 숫자는 「전체에서 몇 번」이 아니라 「지금 보이는 목록에서
+ * 몇 번」이었다 — 집계 API 가 없어 범위를 좁게 잡은 값이다. 집계 API 가 생기면 그때
+ * 제대로 만든다. 안 쓰는 계산을 화면마다 돌려 두지 않는다.
  */
-function placesInFeed(items: StoryDto[]) {
-  const counted = new Map<string, { name: string; count: number }>();
-  for (const story of items) {
-    const name = story.place?.name ?? story.region;
-    if (!name) continue;
-    const found = counted.get(name);
-    if (found) found.count += 1;
-    else counted.set(name, { name, count: 1 });
-  }
-  return [...counted.values()].sort((a, b) => b.count - a.count).slice(0, 8);
-}
 
 /**
  * 피드 맨 위에서 바로 쓰는 글쓰기 카드 — 데스크톱 폭(1024+) 전용.
@@ -355,16 +345,46 @@ function MemoryMap({ items, onOpenStory }: { items: StoryDto[]; onOpenStory: (id
       longitude: story.place?.lng as number,
     }));
 
+  // 🔴 고른 것을 기억한다 (S15P21E201-1177). 시안이 「선택 = navy 배경/흰 글자, 나머지
+  // 흰 배경」이라고 한 그 상태다. 전에는 언제나 첫 번째가 골라진 채였다 — 지도가 있는데
+  // 목록에서 어디를 보는지 고를 수가 없었다.
+  const [selected, setSelected] = useState<string | null>(null);
+  const current = selected && stops.some((stop) => stop.id === selected) ? selected : stops[0]?.id ?? null;
+
   if (!stops.length) return null;
 
-  return <View>
+  return <View style={styles.mapPanel}>
     <Eyebrow>{tx('추억 지도', 'Memory map')}</Eyebrow>
     <View style={styles.mapCard}>
-      <RouteMap stops={stops} selectedId={stops[0].id} onSelect={onOpenStory} height={200} />
-      <View style={styles.mapFooter}>
-        <Text variant="body">{tx(`좌표 있는 기록 ${stops.length}개`, `${stops.length} records with coordinates`)}</Text>
-      </View>
+      <RouteMap stops={stops} selectedId={current ?? stops[0].id} onSelect={onOpenStory} height={360} />
     </View>
+
+    {/* 장소 라벨 — 누르면 지도에서 그 핀이 골라지고, 한 번 더 누르면 그 기록으로 간다.
+        🔴 「누르면 곧바로 이동」이 아니다. 지도를 보며 고르는 자리라, 첫 누름은 **지도에서
+        찾아 주는 것**이어야 한다. 이동은 이미 골라진 것을 다시 누를 때다. */}
+    <View style={styles.pinLabels}>
+      {stops.map((stop) => {
+        const active = stop.id === current;
+        return (
+          <Pressable
+            key={stop.id}
+            accessibilityRole="button"
+            accessibilityState={{ selected: active }}
+            accessibilityLabel={active
+              ? tx(`${stop.name} 기록 보기`, `Open the record at ${stop.name}`)
+              : tx(`${stop.name} 지도에서 보기`, `Show ${stop.name} on the map`)}
+            onPress={() => (active ? onOpenStory(stop.id) : setSelected(stop.id))}
+            style={[styles.pinLabel, active && styles.pinLabelActive]}
+          >
+            <Text variant="caption" weight="bold" color={active ? color.text.onAction : color.text.heading} numberOfLines={1}>
+              {stop.name}
+            </Text>
+          </Pressable>
+        );
+      })}
+    </View>
+
+    <Text variant="caption" color={color.text.muted}>{tx(`좌표 있는 기록 ${stops.length}개`, `${stops.length} records with coordinates`)}</Text>
   </View>;
 }
 
@@ -434,7 +454,6 @@ export default function Feed() {
   const result: FeedLoadResult = feedQuery.data ?? { state: 'success', items: [], nextCursor: null };
   const loading = feedQuery.isPending;
   const items = result.state === 'success' ? result.items : [];
-  const places = placesInFeed(items);
 
   /** 목록만 바꿔 치운다 — 서버에 다시 묻지 않고 화면을 맞춘다. */
   const replaceItems = (next: (current: StoryDto[]) => StoryDto[]) => {
@@ -572,19 +591,16 @@ export default function Feed() {
       : null}
   </View>;
 
+  // 🔴 「이 피드에 나온 장소」 목록을 뺐다 (S15P21E201-1177).
+  //
+  //    지도 패널 안의 라벨 핀이 같은 장소를 이미 보여준다. 둘을 같이 두면 같은 정보가
+  //    한 화면에 두 번 나온다 — 9/16 에 「N곳」이 두 번 나온 것과 같은 종류다.
+  //
+  //    잃는 것이 하나 있다: 장소마다 몇 번 나왔는지(count). 그건 「지금 보이는 목록에서
+  //    몇 번」이라 집계 API 가 없어 만든 값이었고(아래 countPlaces 주석), 라벨을 눌러
+  //    지도에서 찾는 것이 그 숫자보다 쓸모 있다고 봤다.
   const aside = <View style={styles.aside}>
     <MemoryMap items={items} onOpenStory={(id) => router.push(`/feed/${id}`)} />
-
-    <Eyebrow>{tx('이 피드에 나온 장소', 'Places in this feed')}</Eyebrow>
-    <View style={styles.asideCard}>
-      {places.length
-        ? places.map((place, index) => <View key={place.name} style={[styles.asideRow, index > 0 && styles.asideRowDivided]}>
-            <Image source={require('../../assets/icons/common/pin.png')} resizeMode="contain" accessibilityLabel="" style={styles.pin} />
-            <Text variant="body" style={styles.grow}>{place.name}</Text>
-            <Text variant="caption" color={color.text.muted}>{place.count}</Text>
-          </View>)
-        : <View style={styles.asideRow}><Text variant="caption" color={color.text.muted}>{tx('아직 장소가 붙은 기록이 없어요.', 'No records with a place yet.')}</Text></View>}
-    </View>
   </View>;
 
   return <View style={styles.shell}>
@@ -620,12 +636,15 @@ const styles = StyleSheet.create({
   // 600 은 이런 세로 피드의 통상 폭이다(X 가 598). 폰에서는 화면이 그보다 좁으므로
   // 아무것도 안 바뀐다.
   feedColumn: { flex: 1, minWidth: 0, maxWidth: 600, width: '100%', alignSelf: 'center' },
-  aside: { width: 320, gap: spacing[2] },
-  asideCard: { borderWidth: 1, borderColor: color.surface.border, borderRadius: radius.md, backgroundColor: color.surface.card },
+  // 🔴 520 은 시안 값이다 (S15P21E201-1177). 전에는 320 이라 지도가 우표만 했다 —
+  //    지도를 보라고 둔 칸인데 무엇이 어디인지 안 보였다.
+  aside: { width: 520, gap: spacing[3] },
+  mapPanel: { gap: spacing[3], paddingVertical: spacing[6], paddingHorizontal: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.border },
+  // 라벨 핀 — 줄바꿈된다. 장소가 몇 개든 잘리지 않는다.
+  pinLabels: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] },
+  pinLabel: { minHeight: 32, justifyContent: 'center', maxWidth: '100%', paddingHorizontal: spacing[3], borderRadius: radius.full, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.border },
+  pinLabelActive: { backgroundColor: color.brand.navy, borderColor: color.brand.navy },
   mapCard: { borderWidth: 1, borderColor: color.surface.border, borderRadius: radius.lg, backgroundColor: color.surface.card, overflow: 'hidden' },
-  mapFooter: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[2], paddingVertical: spacing[3], paddingHorizontal: spacing[4] },
-  asideRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[3], paddingVertical: spacing[3], paddingHorizontal: spacing[4] },
-  asideRowDivided: { borderTopWidth: 1, borderTopColor: color.surface.border },
 
   headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', gap: spacing[3], flexWrap: 'wrap' },
   headerTitle: { marginTop: spacing[1] },
