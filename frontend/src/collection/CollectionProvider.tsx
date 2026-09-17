@@ -7,8 +7,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { useAuth } from '@/auth/AuthProvider';
 
-import { loadCollections } from './collectionsApi';
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { isServerId, loadCollections, samePendingDelete, type PendingDelete } from './collectionsApi';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 
 const STORAGE_KEY = '@gabolle/collection';
 const VERSION = 1;
@@ -26,6 +26,15 @@ export type CollectionPlace = {
   // 없을 뿐 그대로 유효하고(선택 필드), 읽는 쪽은 항상 null 가능성을 이미 대비해야 한다.
   lat: number | null;
   lng: number | null;
+  // 🔴 S15P21E201-1148 — 서버가 이 장소를 뭐라고 부르는가.
+  //
+  //    지우려면 서버의 itemId 가 있어야 하는데(DELETE …/items/{itemId}), 장소를
+  //    담는 열쇠는 그것이 아니다 — 서버 장소는 placeId(UUID)로, 손으로 적은 것은
+  //    itemId 로 담긴다(serverToDevice). 열쇠를 itemId 로 바꾸면 「이 장소가
+  //    담겨 있나」 판정이 깨지므로, 열쇠는 그대로 두고 이 칸을 따로 든다.
+  //
+  //    없으면(기기에만 있는 장소) 서버에 지울 것도 없다.
+  serverItemId?: string | null;
 };
 
 export type CollectionList = {
@@ -98,7 +107,25 @@ export function CollectionProvider({ children }: { children: ReactNode }) {
   const [syncState, setSyncState] = useState<'loading' | 'synced' | 'anonymous' | 'unreachable'>('loading');
   // 「다시 시도」를 누르면 이 숫자가 올라가고, 아래 useEffect 가 다시 돈다.
   const [syncAttempt, setSyncAttempt] = useState(0);
+  // 🔴 S15P21E201-1148 — 아직 서버에 못 보낸 지우기.
+  //
+  //    기기에서 지운 것을 서버에도 지워야 하는데 그때 서버에 못 닿을 수 있다.
+  //    그 사실을 잃어버리면 다음 동기화에서 지운 것이 되살아난다.
+  //    ref 로도 드는 이유는, 지우기 직후 곧바로 도는 동기화가 화면을 다시 그리기를
+  //    기다리지 않고 지금 값을 봐야 하기 때문이다(S15P21E201-1118 과 같은 함정).
+  const [pendingDeletes, setPendingDeletesState] = useState<PendingDelete[]>([]);
+  const pendingDeletesRef = useRef<PendingDelete[]>([]);
+  // 지금 담긴 것을 보는 사본. setData 의 갱신 함수 안에서 다른 상태를 건드리면 안 되고,
+  // useCallback 의 가둔 값은 낡을 수 있어서 둔다.
+  const dataRef = useRef<CollectionData>(EMPTY);
+  const setPendingDeletes = (next: PendingDelete[]) => { pendingDeletesRef.current = next; setPendingDeletesState(next); };
+  const queueDelete = (entry: PendingDelete) => {
+    const current = pendingDeletesRef.current;
+    if (current.some((existing) => samePendingDelete(existing, entry))) return;
+    setPendingDeletes([...current, entry]);
+  };
   const { accessToken } = useAuth();
+  dataRef.current = data;
 
   // 기기에서 읽고, 로그인했으면 서버와 합친다 (S15P21E201-1071).
   //
@@ -111,8 +138,10 @@ export function CollectionProvider({ children }: { children: ReactNode }) {
       try {
         const raw = await AsyncStorage.getItem(STORAGE_KEY);
         if (raw) {
-          const stored = JSON.parse(raw) as { version?: number; data?: CollectionData };
+          const stored = JSON.parse(raw) as { version?: number; data?: CollectionData; pendingDeletes?: PendingDelete[] };
           if (stored.version === VERSION && stored.data) device = stored.data;
+          // 저장해 둔 것이 없으면 빈 목록이다 — 예전 판으로 저장된 것도 그대로 읽힌다.
+          if (Array.isArray(stored.pendingDeletes)) setPendingDeletes(stored.pendingDeletes);
         }
       } catch {
         void AsyncStorage.removeItem(STORAGE_KEY);
@@ -120,9 +149,10 @@ export function CollectionProvider({ children }: { children: ReactNode }) {
       if (!alive) return;
       setData(device);
       setSyncState('loading');
-      const result = await loadCollections(device, accessToken);
+      const result = await loadCollections(device, accessToken, pendingDeletesRef.current);
       if (!alive) return;
       setData(result.data);
+      setPendingDeletes(result.pendingDeletes);
       setSyncedToServer(result.state === 'success');
       setSyncState(result.state === 'success' ? 'synced' : result.reason);
       setReady(true);
@@ -131,8 +161,8 @@ export function CollectionProvider({ children }: { children: ReactNode }) {
   }, [accessToken, syncAttempt]);
 
   useEffect(() => {
-    if (ready) void AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({ version: VERSION, data }));
-  }, [data, ready]);
+    if (ready) void AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({ version: VERSION, data, pendingDeletes }));
+  }, [data, pendingDeletes, ready]);
 
   const createList = useCallback((name: string, description?: string) => {
     const list: CollectionList = { id: uid(), name, description: description?.trim() || null, placeIds: [], createdAt: new Date().toISOString() };
@@ -145,6 +175,9 @@ export function CollectionProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const deleteList = useCallback((listId: string) => {
+    // 🔴 S15P21E201-1148 — 서버가 아는 리스트면 서버에서도 지우라고 적어 둔다.
+    //    기기에만 있던 리스트는 서버에 없으니 보낼 것도 없다.
+    if (isServerId(listId)) queueDelete({ kind: 'list', collectionId: listId });
     // 장소 자체는 다른 리스트에서도 쓸 수 있으므로 지우지 않는다 — 이 리스트의 참조만 없애고,
     // 그 결과 어느 리스트에도 안 남은 장소만 pruneOrphanedPlaces가 함께 정리한다.
     setData((current) => {
@@ -166,6 +199,10 @@ export function CollectionProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const removePlaceFromList = useCallback((listId: string, placeId: string) => {
+    // 🔴 S15P21E201-1148 — 서버가 아는 리스트의, 서버가 아는 장소일 때만 보낸다.
+    //    serverItemId 는 서버에서 받아온 장소에만 있다(collectionsApi 의 serverToDevice).
+    const serverItemId = dataRef.current.places[placeId]?.serverItemId;
+    if (isServerId(listId) && serverItemId) queueDelete({ kind: 'item', collectionId: listId, itemId: serverItemId });
     setData((current) => {
       const lists = current.lists.map((list) => list.id === listId ? { ...list, placeIds: list.placeIds.filter((id) => id !== placeId) } : list);
       return { lists, places: pruneOrphanedPlaces(current.places, lists) };

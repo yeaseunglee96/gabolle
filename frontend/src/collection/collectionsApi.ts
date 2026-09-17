@@ -102,10 +102,29 @@ function codePoints(value: string): number {
   return [...value].length;
 }
 
+/**
+ * 아직 서버에 못 보낸 지우기 — S15P21E201-1148.
+ *
+ * <p>기기에서 지운 것을 서버에도 지워야 하는데, 그때 서버에 못 닿을 수 있다.
+ * 그 사실을 잃어버리면 다음 동기화에서 지운 것이 되살아난다. 그래서 적어 두고
+ * 기기에 함께 저장한다 — 앱을 껐다 켜도 살아남는다.
+ */
+export type PendingDelete =
+  | { kind: 'list'; collectionId: string }
+  | { kind: 'item'; collectionId: string; itemId: string };
+
+/** 두 보류 삭제가 같은 것을 가리키는가. 같은 것을 두 번 적지 않으려고 쓴다. */
+export function samePendingDelete(a: PendingDelete, b: PendingDelete): boolean {
+  if (a.kind !== b.kind) return false;
+  if (a.kind === 'list' && b.kind === 'list') return a.collectionId === b.collectionId;
+  if (a.kind === 'item' && b.kind === 'item') return a.collectionId === b.collectionId && a.itemId === b.itemId;
+  return false;
+}
+
 export type CollectionsLoadResult =
   /** `blocked` 는 서버가 받아 줄 수 없어 올리기를 건너뛴 리스트 수다. */
-  | { state: 'success'; data: DeviceCollections; uploaded: number; blocked: number }
-  | { state: 'device-only'; data: DeviceCollections; reason: 'anonymous' | 'unreachable' };
+  | { state: 'success'; data: DeviceCollections; uploaded: number; blocked: number; pendingDeletes: PendingDelete[] }
+  | { state: 'device-only'; data: DeviceCollections; reason: 'anonymous' | 'unreachable'; pendingDeletes: PendingDelete[] };
 
 /**
  * 서버 리스트를 기기 모양으로 옮긴다.
@@ -133,6 +152,8 @@ export function serverToDevice(collections: ServerCollection[]): DeviceCollectio
         addedAt: collection.updatedAt,
         lat: item.lat ?? null,
         lng: item.lng ?? null,
+        // 지울 때 쓸 서버 이름표 — S15P21E201-1148.
+        serverItemId: item.itemId,
       };
     }
     return {
@@ -156,7 +177,27 @@ export function serverToDevice(collections: ServerCollection[]): DeviceCollectio
  * 🔴 **어느 쪽도 버리지 않는다.** 애매하면 남기는 쪽으로 간다 — 잘못 남기면 사용자가 지울
  * 수 있지만, 잘못 지우면 되돌릴 방법이 없다.
  */
-export function mergeCollections(device: DeviceCollections, server: DeviceCollections) {
+export function mergeCollections(device: DeviceCollections, server: DeviceCollections, pendingDeletes: PendingDelete[] = []) {
+  // 🔴 S15P21E201-1148 — 아직 못 지운 것을 서버 응답에서 미리 걷어낸다.
+  //
+  //    지우기를 서버에 못 보낸 동안에도 서버는 그것을 계속 돌려준다. 그대로 합치면
+  //    사용자가 지운 것이 화면에 다시 나타났다가, 다음에 지우기가 성공하면 또
+  //    사라진다 — 깜빡이는 화면이 된다. 보류 중인 것은 처음부터 없는 셈 친다.
+  if (pendingDeletes.length > 0) {
+    const deletedLists = new Set(pendingDeletes.filter((entry) => entry.kind === 'list').map((entry) => entry.collectionId));
+    const deletedItems = new Set(
+      pendingDeletes.filter((entry) => entry.kind === 'item').map((entry) => `${entry.collectionId} ${entry.itemId}`),
+    );
+    server = {
+      ...server,
+      lists: server.lists
+        .filter((list) => !deletedLists.has(list.id))
+        .map((list) => ({
+          ...list,
+          placeIds: list.placeIds.filter((placeId) => !deletedItems.has(`${list.id} ${server.places[placeId]?.serverItemId ?? placeId}`)),
+        })),
+    };
+  }
   const byName = new Map(server.lists.map((list) => [list.name.trim(), list]));
   const merged: CollectionList[] = [...server.lists];
   const onlyOnDevice: CollectionList[] = [];
@@ -185,7 +226,10 @@ export function mergeCollections(device: DeviceCollections, server: DeviceCollec
 }
 
 /**
- * 서버가 아는 장소인가 — S15P21E201-1117.
+ * 서버가 아는 것인가 — S15P21E201-1117.
+ *
+ * <p>장소와 리스트 둘 다에 쓴다. 서버가 만든 id 는 UUID 이고, 기기가 만든 것은 아니다 —
+ * 그 한 가지만 본다. (S15P21E201-1148 에서 리스트에도 쓰게 되면서 이름을 넓혔다.)
  *
  * <p>서버 장소 id 는 UUID 다. 그런데 부슐랭에서 손으로 추가한 장소는 기기가 만든다 —
  * {@code `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`}, 예를 들면
@@ -198,7 +242,7 @@ export function mergeCollections(device: DeviceCollections, server: DeviceCollec
  */
 const SERVER_PLACE_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-export function isServerPlaceId(value: string): boolean {
+export function isServerId(value: string): boolean {
   return SERVER_PLACE_ID.test(value);
 }
 
@@ -213,7 +257,7 @@ export function isServerPlaceId(value: string): boolean {
  * 로 보낸 것이 잘못이다. 계약을 바꿀 일이 아니라 맞는 칸에 넣으면 되는 일이었다.
  */
 export function buildItemRequest(placeId: string, place: CollectionPlace) {
-  if (isServerPlaceId(placeId)) {
+  if (isServerId(placeId)) {
     return { kind: 'PLACE' as const, placeId, note: place.note ?? null };
   }
   return {
@@ -227,6 +271,31 @@ export function buildItemRequest(placeId: string, place: CollectionPlace) {
 }
 
 /** 담을 것 하나를 서버에 올린다. 실패는 부르는 쪽이 센다. */
+/**
+ * 보류해 둔 지우기를 서버로 보낸다 — S15P21E201-1148.
+ *
+ * @returns 아직 못 보낸 것들. 다음에 다시 시도한다.
+ */
+async function sendPendingDeletes(pending: PendingDelete[], accessToken: string): Promise<PendingDelete[]> {
+  const remaining: PendingDelete[] = [];
+  for (const entry of pending) {
+    const path = entry.kind === 'list'
+      ? `/api/v1/me/collections/${encodeURIComponent(entry.collectionId)}`
+      : `/api/v1/me/collections/${encodeURIComponent(entry.collectionId)}/items/${encodeURIComponent(entry.itemId)}`;
+    try {
+      await apiRequest<unknown>(path, { method: 'DELETE', accessToken });
+    } catch (error) {
+      // 🔴 404 는 이미 없다는 뜻이다 — 우리가 바라던 상태이므로 지운 것으로 친다.
+      //    다른 4xx 도 다시 보낸다고 달라지지 않으므로 목록에서 뺀다. 계속 들고
+      //    있으면 영영 안 지워질 것을 매번 시도하게 된다.
+      //    5xx 와 끊김만 남긴다 — 그건 다음에 되는 종류다.
+      const status = error instanceof ApiClientError ? error.status : 0;
+      if (status < 400 || status >= 500) remaining.push(entry);
+    }
+  }
+  return remaining;
+}
+
 async function addItemOnServer(collectionId: string, placeId: string, place: CollectionPlace, accessToken: string) {
   await apiRequest<unknown>(`/api/v1/me/collections/${encodeURIComponent(collectionId)}/items`, {
     method: 'POST',
@@ -264,24 +333,31 @@ async function createOnServer(list: CollectionList, places: Record<string, Colle
  * 🔴 서버를 못 물어봤을 때 **빈 목록을 주지 않는다.** 기기 것을 그대로 준다. 리스트가
  * 통째로 사라진 화면을 보여주는 것보다 낫고, 그건 사실도 아니다.
  */
-export async function loadCollections(device: DeviceCollections, accessToken: string | null): Promise<CollectionsLoadResult> {
-  if (!accessToken) return { state: 'device-only', data: device, reason: 'anonymous' };
+export async function loadCollections(device: DeviceCollections, accessToken: string | null, pendingDeletes: PendingDelete[] = []): Promise<CollectionsLoadResult> {
+  // 로그인 전에는 보낼 수 없다. 지운 사실은 그대로 들고 있다가 로그인하면 보낸다.
+  if (!accessToken) return { state: 'device-only', data: device, reason: 'anonymous', pendingDeletes };
 
   let server: DeviceCollections;
   try {
     const page = await apiRequest<{ items: ServerCollection[]; count: number }>('/api/v1/me/collections', { accessToken });
-    if (!Array.isArray(page?.items)) return { state: 'device-only', data: device, reason: 'unreachable' };
+    if (!Array.isArray(page?.items)) return { state: 'device-only', data: device, reason: 'unreachable', pendingDeletes };
     server = serverToDevice(page.items);
   } catch (error) {
     // 인증이 끊긴 것과 서버가 안 되는 것을 가르지 않는다 — 둘 다 "지금은 기기 것으로
     // 보여준다" 가 맞는 답이다.
     if (error instanceof ApiClientError || error instanceof Error) {
-      return { state: 'device-only', data: device, reason: 'unreachable' };
+      return { state: 'device-only', data: device, reason: 'unreachable', pendingDeletes };
     }
-    return { state: 'device-only', data: device, reason: 'unreachable' };
+    return { state: 'device-only', data: device, reason: 'unreachable', pendingDeletes };
   }
 
-  const { merged, onlyOnDevice, pendingUploads } = mergeCollections(device, server);
+  // 🔴 S15P21E201-1148 — 올리기보다 지우기가 먼저다.
+  //
+  //    순서를 바꾸면 방금 지운 것을 다시 올리는 일이 생긴다. 지우기를 먼저 보내고,
+  //    아직 못 보낸 것은 아래 합치기에서 서버 응답에서 걷어낸다.
+  const remainingDeletes = await sendPendingDeletes(pendingDeletes, accessToken);
+
+  const { merged, onlyOnDevice, pendingUploads } = mergeCollections(device, server, remainingDeletes);
   let uploaded = 0;
   let blocked = 0;
   let changedServer = false;
@@ -324,7 +400,7 @@ export async function loadCollections(device: DeviceCollections, accessToken: st
     }
   }
 
-  if (!changedServer) return { state: 'success', data: merged, uploaded, blocked };
+  if (!changedServer) return { state: 'success', data: merged, uploaded, blocked, pendingDeletes: remainingDeletes };
 
   // 🔴 올렸으면 다시 받아온다 — 서버가 부르는 이름으로 기기의 이름표를 바꾸기 위해서다.
   //
@@ -337,12 +413,12 @@ export async function loadCollections(device: DeviceCollections, accessToken: st
   //    상태를 하나 더 들고 있으면 그것이 또 어긋나고, 어긋난 것을 고칠 자리가 는다.
   try {
     const refreshed = await apiRequest<{ items: ServerCollection[]; count: number }>('/api/v1/me/collections', { accessToken });
-    if (!Array.isArray(refreshed?.items)) return { state: 'success', data: merged, uploaded, blocked };
-    return { state: 'success', data: restoreUnuploaded(serverToDevice(refreshed.items), merged, unuploaded), uploaded, blocked };
+    if (!Array.isArray(refreshed?.items)) return { state: 'success', data: merged, uploaded, blocked, pendingDeletes: remainingDeletes };
+    return { state: 'success', data: restoreUnuploaded(mergeCollections({ lists: [], places: {} }, serverToDevice(refreshed.items), remainingDeletes).merged, merged, unuploaded), uploaded, blocked, pendingDeletes: remainingDeletes };
   } catch {
     // 다시 받아오는 데 실패해도 올린 것은 올라갔다. 앞서 합친 것을 그대로 쓴다 —
     // 이름표는 다음 실행에서 맞춰진다.
-    return { state: 'success', data: merged, uploaded, blocked };
+    return { state: 'success', data: merged, uploaded, blocked, pendingDeletes: remainingDeletes };
   }
 }
 
