@@ -55,7 +55,7 @@ export default function Translate() {
       icon: '₩',
       title: tx('환율 계산', 'Currency'),
       desc: tx('가격표를 보고 바로 내 돈으로 바꿔 보세요', 'Turn a price tag into your own money'),
-      onPress: () => router.push('/field/exchange'),
+      onPress: () => router.push('/field/exchange-rate'),
     },
     {
       // 🔴 백엔드(GET /api/v1/transit/nearby-bus-arrivals, S15P21E201-988)가 있는데 프론트가
@@ -64,7 +64,7 @@ export default function Translate() {
       icon: '버',
       title: tx('주변 버스', 'Buses nearby'),
       desc: tx('몇 분 뒤에 오는지 보고 기다릴지 정하세요', 'See how long the wait is before you decide'),
-      onPress: () => router.push('/field/bus'),
+      onPress: () => router.push('/field/transit'),
     },
     {
       key: 'weather',
