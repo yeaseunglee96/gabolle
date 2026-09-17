@@ -8,7 +8,7 @@
 //
 //    고침은 「아래 칸을 지운다」가 아니라 「이 화면이 스스로 비킨다」이다. 그러니 시험도
 //    스택 모양이 아니라 **비켰는가**를 본다 — 스택을 재는 시험은 라우터가 판을 올릴 때마다 낡는다.
-import { render, waitFor } from '@testing-library/react-native';
+import { fireEvent, render, waitFor } from '@testing-library/react-native';
 
 import { OnboardingPreferencesProvider } from '@/onboarding/OnboardingPreferences';
 
@@ -18,10 +18,25 @@ const mockReplace = jest.fn();
 const mockPush = jest.fn();
 const mockCanGoBack = jest.fn(() => true);
 const mockAuth = { signIn: jest.fn(), acceptTokens: jest.fn(), user: null as unknown, ready: true };
+/** 화면이 가려졌다가 다시 보이는 일을 손으로 만든다. */
+const mockFocus: { run: null | (() => void | (() => void)) } = { run: null };
+function refocus() {
+  const cleanup = mockFocus.run?.();
+  if (typeof cleanup === 'function') cleanup();  // 포커스를 잃고
+  mockFocus.run?.();                              // 다시 얻는다
+}
 
 jest.mock('expo-router', () => ({
   useRouter: () => ({ back: mockBack, replace: mockReplace, push: mockPush, canGoBack: mockCanGoBack }),
   useLocalSearchParams: () => ({}),
+  // 화면이 보이는 동안은 useEffect 와 같이 돌고, 언마운트할 때 cleanup 이 돌게 한다.
+  // 「돌아왔다」는 재마운트로 흉내 낼 수 없어(실제로도 재마운트되지 않는다),
+  // 아래에서 refocus() 으로 포커스를 손으로 돌려 준다.
+  useFocusEffect: (cb: () => void | (() => void)) => {
+    mockFocus.run = cb;
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    require('react').useEffect(() => cb(), [cb]);
+  },
 }));
 
 jest.mock('@/auth/AuthProvider', () => ({ useAuth: () => mockAuth }));
@@ -72,6 +87,24 @@ describe('로그인 화면 — 이미 로그인한 사람은 붙잡지 않는다
     await waitFor(() => expect(view.getByText('비회원으로 둘러보기')).toBeTruthy());
     expect(mockBack).not.toHaveBeenCalled();
     expect(mockReplace).not.toHaveBeenCalled();
+  });
+
+
+  // 🔴 2026-09-18 — 첫 고침이 실기기에서 안 먹었고, 그 이유가 정확히 이 자리다.
+  //
+  //    뒤로 가기로 돌아와도 이 화면은 **다시 만들어지지 않는다.** 쌓인 칸으로 살아 있다가
+  //    다시 보일 뿐이라, 「여기서 방금 로그인했다」는 표시가 그대로 남아 가드를 막았다.
+  //    그리는 순간이 아니라 **포커스가 돌아오는 순간**을 봐야 한다.
+  it('🔴 이 화면에서 로그인한 뒤 뒤로 돌아오면 — 그때는 비킨다', async () => {
+    const view = render(<OnboardingPreferencesProvider><SignIn /></OnboardingPreferencesProvider>);
+    // 이 화면에서 로그인 절차를 시작한다.
+    fireEvent.press(view.getByLabelText('Google로 계속하기'));
+    // 로그인이 끝나 사용자가 생겼다. 아직 이 화면에 있는 동안은 비키지 않는다.
+    mockAuth.user = { userId: 'u1', displayName: '이예승' };
+    expect(mockBack).not.toHaveBeenCalled();
+    // 목적지로 갔다가 뒤로 돌아온다.
+    refocus();
+    await waitFor(() => expect(mockBack).toHaveBeenCalledTimes(1));
   });
 
   it('세션을 아직 못 읽었으면(ready=false) 아무 데도 보내지 않는다', async () => {
