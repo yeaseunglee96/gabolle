@@ -123,7 +123,9 @@ public class TourApiPlaceLoader {
 					// 🔴 원천에 "이 사실이 언제 관측됐나" 칸이 없다. 지어내지 않고 비운다 —
 					//    수집분 자체는 datasetVersion 이 말해 준다.
 					null, datasetVersion,
-					freeToUsePhoto ? row.firstImage() : null,
+					// 🔴 S15P21E201-1185 — 원천이 같은 호스트를 http 로도 https 로도 준다.
+					//    평문은 앱·iOS·웹 어디에서도 안 보이므로 아는 호스트만 https 로 바꾼다.
+					freeToUsePhoto ? PhotoUrlScheme.secure(row.firstImage()) : null,
 					freeToUsePhoto ? PHOTO_SOURCE_LABEL : null));
 
 			// 🔴 갈래는 CATEGORY_TAG 다 (S15P21E201-904). TourApiCategory 가 내는 여섯

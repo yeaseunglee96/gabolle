@@ -63,7 +63,9 @@ final class PlacePhotoReader {
 						"사진 수집본 %d 번째 줄에 contentid 또는 photoUrl 이 없다: %s".formatted(lineNumber, line));
 			}
 
-			rows.add(new PlacePhotoRow(contentId, photoUrl,
+			// 🔴 S15P21E201-1185 — 평문 http 는 앱·iOS·웹 어디에서도 안 보인다.
+			//    판정은 PhotoUrlScheme 한 곳에만 둔다 — TourApiPlaceLoader 도 같은 것을 부른다.
+			rows.add(new PlacePhotoRow(contentId, PhotoUrlScheme.secure(photoUrl),
 					attributionOf(node), subjectOf(node)));
 		}
 		return rows;
