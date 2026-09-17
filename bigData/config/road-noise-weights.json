@@ -1,0 +1,85 @@
+{
+  "//": "도로 등급별 소음 가중치. 0 = 조용, 1 = 시끄러움. process/place-quietness.mjs 가 읽는다.",
+
+  "//🔴 이 숫자는 실측이 아니다": [
+    "부산에 장소 단위 소음 측정치를 주는 공개 출처가 없다 — config/sources.json 의 28개 출처를",
+    "전부 훑었고 소음을 주는 것은 하나도 없다 (2026-09-17 확인).",
+    "그래서 이 표는 '고속도로가 골목보다 시끄럽다' 는 상식을 숫자로 옮긴 것이다.",
+    "데시벨이 아니고, 어떤 기계도 이 값을 재지 않았다.",
+    "",
+    "🔴 다음 사람에게: 이것을 측정값으로 읽지 마라. 순서(고속도로 > 대로 > 골목 > 보행로)는",
+    "믿을 만하지만 간격(0.8 과 0.65 의 차이가 실제로 얼마인가)은 아무 근거가 없다.",
+    "실제 소음 자료가 생기면 이 파일만 갈아 끼우면 된다 — 그러라고 코드가 아니라 파일에 뒀다.",
+    "같은 이유로 process/shade.mjs 도 수종 가중치를 config/tree-shade-weights.json 에 뒀다."
+  ],
+
+  "//값이 null 인 등급": [
+    "'이 길은 세지 않는다' 는 뜻이다. 0(조용하다)과 다르다.",
+    "공사중·계획중인 길은 지금 거기 없거나 성격이 일시적이라, 조용하다고 말하면 거짓말이 된다.",
+    "🔴 모르는 것을 안전한 값으로 바꾸지 않는다 — 빼는 것이 맞다."
+  ],
+
+  "//표에 없는 등급": [
+    "unknownWeight 로 센다. 0 으로 두면 '처음 보는 길 = 조용한 길' 이 되어,",
+    "OSM 에 새 등급이 생길 때마다 그 동네가 조용해진다. 그래서 중간값을 준다.",
+    "몇 줄이 여기로 빠졌는지는 실행 로그가 찍는다 — 많으면 표를 고쳐야 한다는 신호다."
+  ],
+
+  "unknownWeight": 0.35,
+
+  "weights": {
+    "motorway":       1.00,
+    "motorway_link":  0.90,
+    "raceway":        0.90,
+    "trunk":          0.90,
+    "trunk_link":     0.80,
+    "primary":        0.80,
+    "primary_link":   0.70,
+    "busway":         0.70,
+    "secondary":      0.65,
+    "secondary_link": 0.60,
+    "services":       0.60,
+    "rest_area":      0.60,
+    "tertiary":       0.50,
+    "tertiary_link":  0.45,
+    "bus_stop":       0.40,
+    "road":           0.35,
+    "unclassified":   0.35,
+    "residential":    0.30,
+    "platform":       0.30,
+    "service":        0.25,
+    "living_street":  0.15,
+    "pedestrian":     0.10,
+    "footway":        0.10,
+    "track":          0.10,
+    "cycleway":       0.10,
+    "steps":          0.10,
+    "path":           0.05,
+    "bridleway":      0.05,
+    "corridor":       0.05,
+    "elevator":       0.05,
+
+    "construction":   null,
+    "proposed":       null
+  },
+
+  "//등급이 무엇을 뜻하나": {
+    "motorway": "고속도로 — 도시고속도로 포함",
+    "trunk": "자동차 전용에 준하는 간선",
+    "primary": "대로 (왕복 6차선 급)",
+    "secondary": "간선 (왕복 4차선 급)",
+    "tertiary": "이면 간선",
+    "unclassified": "등급이 안 매겨진 차도",
+    "residential": "주택가 도로",
+    "living_street": "생활도로 — 보행자 우선이라 차가 느리다",
+    "service": "주차장·건물 진입로",
+    "track": "임도·농로",
+    "path": "산길·오솔길",
+    "footway": "보도",
+    "pedestrian": "차 없는 보행자 전용 거리",
+    "corridor": "건물 안 통로",
+    "construction": "공사중",
+    "proposed": "계획만 있고 아직 없는 길",
+    "*_link": "나들목·연결로. 본선보다 한 칸 낮게 줬다 — 짧고 속도가 낮다"
+  }
+}
