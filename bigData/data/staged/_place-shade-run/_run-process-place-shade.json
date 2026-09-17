@@ -1,0 +1,60 @@
+{
+ "step": "process/place-shade",
+ "at": "2026-09-17T07:57:18.787Z",
+ "git": "172fe47d0b2135785dccfc58b20abf166d74f7c0",
+ "node": "v24.18.0",
+ "inputs": [
+  {
+   "path": "data/raw/trees/street-trees.ndjson",
+   "bytes": 996391,
+   "sha256_16": "689bdd5aec732c52"
+  },
+  {
+   "path": "config/tree-shade-weights.json",
+   "bytes": 11382,
+   "sha256_16": "c02a2a4783e12fb2"
+  },
+  {
+   "path": "data/raw/tourapi/tourapi-busan.ndjson",
+   "bytes": 1025299,
+   "sha256_16": "b47146f3b5753201"
+  },
+  {
+   "path": "data/staged/place-slope-sbiz.ndjson",
+   "bytes": 484594,
+   "sha256_16": "089e424e35104f2c"
+  },
+  {
+   "path": "data/sbiz/부산_202606.csv",
+   "bytes": 86867744,
+   "sha256_16": "9a2de9bed72f7069"
+  }
+ ],
+ "params": {
+  "radiusM": 500,
+  "maxTreesPerM": 1,
+  "stat": "percentile rank of planted-length-weighted mean weighted-tree density"
+ },
+ "result": {
+  "sections": 615,
+  "sectionStats": {
+   "rows": 835,
+   "noCoord": 0,
+   "noDist": 216,
+   "asM": 357,
+   "asKm": 258,
+   "dropped": 4,
+   "zero": 5
+  },
+  "tourapi": 363,
+  "sbiz": 1749,
+  "noData": 899,
+  "control": {
+   "denseSide": 43,
+   "denseAvg": 79.95116279069762,
+   "zeroSide": 29,
+   "zeroAvg": 25.713793103448275,
+   "gap": 54.23736968724935
+  }
+ }
+}
