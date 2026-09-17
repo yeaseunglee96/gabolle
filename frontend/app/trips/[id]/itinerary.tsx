@@ -35,6 +35,7 @@ import {
   type ItineraryRhythmDto,
   type ItineraryVersionEntryDto,
 } from '@/plan/itinerary';
+import { nextSyncPollDelay, SYNC_POLL_BASE_MS } from '@/plan/syncPoll';
 import { formatTravelLabel, itineraryStats, totalTravelMinutes } from '@/plan/itinerarySummary';
 import { loadPlaceReviews, submitPlaceReview } from '@/review/placeReviews';
 import { useI18n } from '@/i18n';
@@ -282,9 +283,14 @@ export default function ItineraryScreen() {
     if (next.state === 'success') setVersions(next.versions);
   }, [accessToken]);
 
+  // S15P21E201-1131 — 동기화 폴링 간격. reload() 도 이 값을 되돌리므로 그보다 위에 둔다.
+  const pollDelayRef = useRef(SYNC_POLL_BASE_MS);
+
   const reload = useCallback(async () => {
     if (!itineraryId) return;
     setLoading(true); setConflict(null); setActionMessage(null);
+    // 내가 무엇이든 했으면 동기화를 다시 촘촘하게 본다 (S15P21E201-1131).
+    pollDelayRef.current = SYNC_POLL_BASE_MS;
     const next = await loadItinerary(itineraryId, accessToken);
     setResult(next); setLoading(false);
     if (next.state === 'success') {
@@ -307,27 +313,59 @@ export default function ItineraryScreen() {
     pollBlockedRef.current = Boolean(busyItemId) || excludingItemId !== null || excludeConfirming !== null || dayActionBusy || revertBusy || orderDraft !== null || reorderBusy || replanBusy || actualBusyItemId !== null;
   });
   const failureStreakRef = useRef(0);
+  // 🔴 S15P21E201-1131 — 간격이 고정 5초가 아니라 「안 바뀌면 늘어나는」 값이 된다.
+  //
+  //    혼자 보는 일정을 3분 열어 두면 요청이 36번 나갔고, 그 36번이 전부 같은 답을
+  //    받았다. 규칙과 근거는 src/plan/syncPoll.ts 가 소유한다 — 여기서는 그것을 쓰기만
+  //    한다. 동기화 자체는 끄지 않는다(동행자 실시간 동기화, S15P21E201-323).
+  // 🔴 setResult 의 갱신 함수 안에서 「바뀌었나」를 계산하면 안 된다 — 갱신 함수는
+  //    React 가 두 번 부를 수 있고, 그 안에서 바깥 값을 건드리면 간격이 조용히 틀어진다.
+  //    그래서 직전 결과를 ref 로 따로 들고 비교는 바깥에서 한다.
+  const resultRef = useRef(result);
+  useEffect(() => { resultRef.current = result; });
   useEffect(() => {
     if (!itineraryId) return;
-    const timer = setInterval(() => {
-      if (pollBlockedRef.current) return;
+    let stopped = false;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+
+    const schedule = () => {
+      if (stopped) return;
+      timer = setTimeout(tick, pollDelayRef.current);
+    };
+
+    const tick = () => {
+      if (stopped) return;
+      // 내 편집이 도는 동안은 이번 차례를 건너뛴다. 간격은 그대로 두고 다시 잰다 —
+      // 편집 중이라고 해서 동기화가 느려질 이유는 없다.
+      if (pollBlockedRef.current) { schedule(); return; }
       void loadItinerary(itineraryId, accessToken).then((next) => {
+        if (stopped) return;
         if (next.state === 'success') {
           failureStreakRef.current = 0;
           setSyncDisconnected(false);
-          setResult((prev) => (prev.state === 'success' && prev.itinerary.version === next.itinerary.version) ? prev : next);
+          const prev = resultRef.current;
+          const changed = !(prev.state === 'success' && prev.itinerary.version === next.itinerary.version);
+          if (changed) setResult(next);
+          pollDelayRef.current = nextSyncPollDelay(pollDelayRef.current, changed);
         } else {
           failureStreakRef.current += 1;
           if (failureStreakRef.current >= 3) setSyncDisconnected(true);
+          // 실패도 「안 바뀐 것」으로 친다. 서버가 안 되는 동안 5초마다 두드리는 것은
+          // 우리한테도 서버한테도 손해다.
+          pollDelayRef.current = nextSyncPollDelay(pollDelayRef.current, false);
         }
+        schedule();
       });
-    }, 5000);
-    return () => clearInterval(timer);
+    };
+
+    schedule();
+    return () => { stopped = true; if (timer) clearTimeout(timer); };
   }, [accessToken, itineraryId]);
 
   const manualSyncRefresh = async () => {
     await reload();
     failureStreakRef.current = 0;
+    pollDelayRef.current = SYNC_POLL_BASE_MS;
     setSyncDisconnected(false);
   };
 
