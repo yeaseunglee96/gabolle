@@ -49,7 +49,8 @@ done
 | `bigData/data/staged/place-shade-sbiz.ndjson` | 1,749 | 그늘 (상가) |
 
 ```bash
-for f in place-slope place-quietness place-quietness-sbiz place-locality place-locality-sbiz          place-shade place-shade-sbiz; do
+for f in place-slope place-quietness place-quietness-sbiz place-locality place-locality-sbiz \
+         place-shade place-shade-sbiz; do
   git show origin/bigData/dev:bigData/data/staged/$f.ndjson > /tmp/load/$f.ndjson
 done
 ```
@@ -145,17 +146,35 @@ $RUN --gabolle.place.loader.place-locality=/load/place-locality.ndjson \
      --gabolle.place.loader.dataset-version=2026-09-17-locality-r300
 $RUN --gabolle.place.loader.place-locality=/load/place-locality-sbiz.ndjson \
      --gabolle.place.loader.dataset-version=2026-09-17-locality-r300
+
+# ⑨ 그늘 (S15P21E201-1184) — 같은 방식
+$RUN --gabolle.place.loader.place-shade=/load/place-shade.ndjson \
+     --gabolle.place.loader.dataset-version=2026-09-17-shade-r500
+$RUN --gabolle.place.loader.place-shade=/load/place-shade-sbiz.ndjson \
+     --gabolle.place.loader.dataset-version=2026-09-17-shade-r500
 ```
 
-> 🔴 **⑥⑦⑧ 은 `--gabolle.place.loader.dataset-version` 을 빼면 컨테이너가 죽는다.**
+> 🔴 **⑨ 는 2026-09-17 까지 이 문서에 없었다.** 그늘은 파일 목록에도, 4절 기대값
+> (`SHADE_SCORE` 2,112)에도, 되돌리는 `DELETE` 에도 있었는데 **넣는 명령만 빠져 있었다.**
+> 축이 셋일 때 쓴 3절에 그늘 적재기가 나중에 들어왔기 때문이다.
+> 그대로 따르면 `SHADE_SCORE` 가 **0** 으로 나오고, 아래 4절이 *「0 이면 실패다」* 라고
+> 적어 둔 탓에 **없는 버그를 찾으러 가게 된다.** 축을 더할 때는 세 자리를 함께 고친다 —
+> **1절 파일 목록 · 3절 명령 · 4절 기대값.**
+>
+> 반경 `r500` 은 지어낸 값이 아니다. 산출물 옆의 실행 기록
+> (`bigData/data/staged/_place-shade-run/_run-process-place-shade.json`)에 `"radiusM": 500`
+> 으로 적혀 있다. 조용함 `r200`·로컬성 `r300` 도 같은 자리에서 온 것이다.
+
+> 🔴 **⑥⑦⑧⑨ 는 `--gabolle.place.loader.dataset-version` 을 빼면 컨테이너가 죽는다.**
 > 조용히 건너뛰는 것이 아니라 `IllegalStateException` 으로 기동에서 멈춘다. 어느 산출물로
 > 만든 값인지 안 적으면 그 값으로 만든 추천을 나중에 되짚을 수 없어서, **일부러** 그렇게
 > 돼 있다. ⑤ 축제만 이 인자를 안 받는다.
 
-> 🔴 **⑦⑧ 은 값의 눈금을 적재기가 바꾼다.** 산출물은 사람이 읽기 좋게 0~100 인데
+> 🔴 **⑦⑧⑨ 는 값의 눈금을 적재기가 바꾼다.** 산출물은 사람이 읽기 좋게 0~100 인데
 > (`quietnessScore: 90`) 채점기는 이 축들을 **0~1** 로 안다. 적재기가 100 으로 나눠 넣고,
-> 조용함은 `1 - noiseP90` 과 같은지 **검산까지 한다.** 나중에 산출물이 0~1 로 바뀌면 그
-> 검산이 **빨갛게 터진다** — 두 번 나눈 값(0.009)은 범위 검사를 통과해 버리기 때문이다.
+> 조용함은 `1 - noiseP90` 과 같은지 **검산까지 한다.** 🔴 **그늘에는 그 짝이 없다** —
+> 대조할 다른 산출값이 없어 범위 검사(0~100)만이 눈금을 지키는 유일한 장치다.
+> 나중에 산출물이 0~1 로 바뀌면 그 검산이 **빨갛게 터진다** — 두 번 나눈 값(0.009)은 범위 검사를 통과해 버리기 때문이다.
 
 적재를 마치면 애플리케이션이 계속 떠 있으므로 로그에 마침 줄이 보이면 `Ctrl+C` 로
 끊는다. `--rm` 이라 컨테이너는 남지 않는다.
