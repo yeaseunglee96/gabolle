@@ -13,7 +13,7 @@ import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { BlockUserDialog } from '@/social/BlockUserDialog';
-import { createStory, deleteStory, getCachedStory, getStory, getStoryReplies, relativeStoryTime, reportStory, setBlocked, VISIBILITY_LABEL, type StoryDto, type StoryReportReason } from '@/social/stories';
+import { createStory, deleteStory, getCachedStory, getStory, getStoryReplies, relativeStoryTime, reportStory, setBlocked, storyMetricLabels, VISIBILITY_LABEL, type StoryDto, type StoryReportReason } from '@/social/stories';
 
 type State = { status: 'loading'; cached: StoryDto | null } | { status: 'loaded'; story: StoryDto } | { status: 'not-found' } | { status: 'error'; message: string };
 
@@ -165,6 +165,10 @@ export default function StoryDetail() {
   const totalReplies = typeof story?.replyCount === 'number' ? story.replyCount : null;
   const hasMoreReplies = totalReplies !== null && totalReplies > shownReplies.length;
 
+  // 🔴 서버가 준 지표만 말한다. 아무것도 안 오면 줄 자체를 안 그린다 — 0 을 지어내 그리면
+  //    「아무도 안 봤다」는 주장이 되는데, 실제로는 서버가 아직 안 세는 것일 수 있다.
+  const metricLabels = story ? storyMetricLabels(story, tx) : [];
+
   const submitReport = async (reason: StoryReportReason, detail: string | undefined) => {
     if (!id) return false;
     const outcome = await reportStory(id, reason, detail, accessToken);
@@ -289,6 +293,14 @@ export default function StoryDetail() {
         </View>
       ) : null}
 
+      {/* 🔴 지표 줄 — S15P21E201-1213. 시안이 정한 자리가 댓글 바로 위다.
+          좋아요는 아직 없다 — 서버 칸 이름을 못 받았다. 0 을 하드코딩해 그리지 않는다. */}
+      {story && !reported && metricLabels.length ? (
+        <View style={styles.metrics}>
+          <Text variant="caption" color={color.text.muted}>{metricLabels.join(' · ')}</Text>
+        </View>
+      ) : null}
+
       {story && !reported ? (
         <View style={styles.comments}>
           <Text variant="title" weight="bold" color={color.text.heading}>
@@ -407,6 +419,9 @@ const styles = StyleSheet.create({
   confirmButtons: { flexDirection: 'row', justifyContent: 'flex-end', gap: spacing[2] },
   confirmButton: { width: 'auto', paddingHorizontal: spacing[4] },
   recoveryButton: { marginTop: spacing[2] },
+
+  // 지표 줄 — 댓글 머리 바로 위. 붙는 자리라 위 여백만 준다.
+  metrics: { marginTop: spacing[4] },
 
   // ── 댓글 (S15P21E201-1197) ────────────────────────────────────────────────
   comments: { gap: spacing[3], marginTop: spacing[4] },

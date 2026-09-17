@@ -37,6 +37,20 @@ export type StoryDto = {
   parentId?: string | null;
   /** 이 글에 **직접** 달린 댓글 수. 손자는 안 센다 — 서버 주석과 같은 규칙이다. */
   replyCount?: number;
+  /**
+   * 이 글을 연 횟수 — S15P21E201-1213.
+   *
+   * 서버가 세는 규칙: **사람 × 글 × 하루 한 번** · **작성자 본인은 안 셈** · 비회원은 셈.
+   * 값이 없으면 칸 자체가 안 온다(서버가 아직 안 주는 판일 때).
+   */
+  viewCount?: number;
+  /**
+   * 이 글의 링크를 복사한 횟수.
+   *
+   * 🔴 화면에 보이는 말은 「인용」이어도 되지만 **코드에서 `quoteCount` 로 부르지 않는다.**
+   * 우리가 아는 것은 「복사 버튼을 눌렀다」뿐이고, 서버 표 이름도 그렇게 정했다.
+   */
+  linkCopyCount?: number;
 };
 
 // GET /api/v1/stories/:id 계약이 생기기 전(S15P21E201-228 이전)에는 목록에서 받은
@@ -52,6 +66,33 @@ export function resolveStoryImageUrl(url: string) {
 
 function withDisplayImageUrls(story: StoryDto): StoryDto {
   return { ...story, images: story.images.map((image) => ({ ...image, url: resolveStoryImageUrl(image.url) })) };
+}
+
+/**
+ * 글에 붙일 지표 문구들 — S15P21E201-1213.
+ *
+ * 🔴 **서버가 준 것만 말한다.** 칸이 안 오면 그 지표는 아예 안 그린다. 0 을 지어내 그리면
+ * 「아무도 안 봤다」는 **주장**이 되는데, 실제로는 **서버가 아직 안 세는 것**일 수 있다.
+ * 모르는 것과 0 은 다르다 — 이 저장소가 여러 번 데인 자리다.
+ *
+ * 🔴 그래서 `if (story.viewCount)` 가 아니라 **`typeof === 'number'`** 로 본다.
+ * 앞의 방식은 **진짜 0 을 없는 것으로 삼킨다.**
+ *
+ * 좋아요는 여기 없다 — 서버 칸 이름을 아직 못 받았다. 칸이 오는 날 한 줄 더하면 되고,
+ * 그때까지 **없는 것을 있는 척하지 않는다.**
+ */
+export function storyMetricLabels(
+  story: Pick<StoryDto, 'viewCount' | 'linkCopyCount'>,
+  tx: (ko: string, en: string) => string,
+): string[] {
+  const labels: string[] = [];
+  if (typeof story.viewCount === 'number') {
+    labels.push(tx(`조회 ${story.viewCount}`, `${story.viewCount} views`));
+  }
+  if (typeof story.linkCopyCount === 'number') {
+    labels.push(tx(`인용 ${story.linkCopyCount}`, `${story.linkCopyCount} quotes`));
+  }
+  return labels;
 }
 
 export function cacheStories(items: StoryDto[]) {
