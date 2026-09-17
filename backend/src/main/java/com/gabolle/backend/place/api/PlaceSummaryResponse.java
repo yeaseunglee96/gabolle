@@ -55,20 +55,37 @@ public record PlaceSummaryResponse(
 		 * <p>값이 없으면 키 자체가 빠진다({@code photoUrl}·{@code photoSource} 와 같은 규칙).
 		 * 새 조회는 없다 — 아래 팩토리가 이미 {@code Place} 를 통째로 받는다.
 		 */
-		@JsonInclude(JsonInclude.Include.NON_NULL) String addressEn) {
+		@JsonInclude(JsonInclude.Include.NON_NULL) String addressEn,
+
+		/**
+		 * 🔴 S15P21E201-1205 — 맨 뒤에 더한 칸이다. <b>그 사진이 무엇을 찍은 것인가.</b>
+		 *
+		 * <p>{@code SELF} = 이 장소를 직접 찍은 사진, {@code VENUE} = 이 장소가 <b>들어 있는 곳</b>을
+		 * 찍은 사진. 이 목록은 사진을 싣는데({@code photoUrl}) <b>그것이 무엇을 찍은 것인지 말할
+		 * 방법이 없었다</b> — 상세 응답에만 있던 칸이다.
+		 *
+		 * <p>🔴 왜 그것이 문제인지는 실측이 있다(S15P21E201-1039 · -1021):
+		 * <b>부산 축제 사진 35건 중 축제를 실제로 찍은 것은 1건.</b> 나머지는 그 축제가 열리는
+		 * 건물이나 주변 시설이다. 이 칸이 없으면 화면은 둘을 구분할 방법이 없어
+		 * <b>주변 시설 사진을 이 장소 사진처럼</b> 그린다.
+		 *
+		 * <p>값이 없으면 키 자체가 빠진다 — {@code photoUrl}·{@code photoSource} 와 같은 규칙이다.
+		 * 화면은 {@code VENUE} 일 때만 뱃지를 띄우고 {@code SELF} 에는 안 띄운다.
+		 */
+		@JsonInclude(JsonInclude.Include.NON_NULL) Place.PhotoSubject photoSubject) {
 
 	/** 이름 검색 결과 한 줄. 어느 이름 칸이 걸렸는지 서비스 계층의 순위 계산이 정해 준다. */
 	public static PlaceSummaryResponse of(Place place, MatchedField matchedField) {
 		return new PlaceSummaryResponse(place.getPlaceId(), place.getNameKo(), place.getNameEn(),
 				place.getCategory(), place.getAddress(), place.getLat(), place.getLng(), matchedField,
-				place.getPhotoUrl(), place.getPhotoSource(), place.getAddressEn());
+				place.getPhotoUrl(), place.getPhotoSource(), place.getAddressEn(), place.getPhotoSubject());
 	}
 
 	/** 갈래 필터 목록 결과 한 줄. 이름 매칭이 아니라 표식으로 골랐으므로 matchedField 가 없다. */
 	public static PlaceSummaryResponse ofFacetMatch(Place place) {
 		return new PlaceSummaryResponse(place.getPlaceId(), place.getNameKo(), place.getNameEn(),
 				place.getCategory(), place.getAddress(), place.getLat(), place.getLng(), null,
-				place.getPhotoUrl(), place.getPhotoSource(), place.getAddressEn());
+				place.getPhotoUrl(), place.getPhotoSource(), place.getAddressEn(), place.getPhotoSubject());
 	}
 
 	/**
