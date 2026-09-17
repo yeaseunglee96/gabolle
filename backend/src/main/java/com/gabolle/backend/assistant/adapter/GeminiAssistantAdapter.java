@@ -195,6 +195,33 @@ public class GeminiAssistantAdapter implements AssistantVendorPort {
 			'/plan/basic' 등)를 그대로 쓴다 — 번역하지 않는다.
 			""";
 
+	private static final String JAPANESE_DIRECTIVE = """
+
+
+			🔴 답변 언어 — 이번 요청은 일본어 사용자다. reply · label · korean(원문은 한국어 그대로
+			두되 설명은 일본어로) · pronunciation 등 사용자에게 보여줄 모든 텍스트를 일본어로 써라.
+			kind 값과 href 값 자체는 위에서 정한 그대로(navigate/phrase/help,
+			'/plan/basic' 등)를 그대로 쓴다 — 번역하지 않는다.
+			""";
+
+	private static final String CHINESE_SIMPLIFIED_DIRECTIVE = """
+
+
+			🔴 답변 언어 — 이번 요청은 중국어(간체) 사용자다. reply · label · korean(원문은 한국어
+			그대로 두되 설명은 간체자로) · pronunciation 등 사용자에게 보여줄 모든 텍스트를 간체자로
+			써라. kind 값과 href 값 자체는 위에서 정한 그대로(navigate/phrase/help,
+			'/plan/basic' 등)를 그대로 쓴다 — 번역하지 않는다.
+			""";
+
+	private static final String CHINESE_TRADITIONAL_DIRECTIVE = """
+
+
+			🔴 답변 언어 — 이번 요청은 중국어(번체) 사용자다. reply · label · korean(원문은 한국어
+			그대로 두되 설명은 번체자로) · pronunciation 등 사용자에게 보여줄 모든 텍스트를 번체자로
+			써라. kind 값과 href 값 자체는 위에서 정한 그대로(navigate/phrase/help,
+			'/plan/basic' 등)를 그대로 쓴다 — 번역하지 않는다.
+			""";
+
 	private final AssistantProperties properties;
 
 	private final ObjectMapper objectMapper;
@@ -219,7 +246,7 @@ public class GeminiAssistantAdapter implements AssistantVendorPort {
 
 		Client client = Client.builder().apiKey(apiKey).build();
 
-		String systemPrompt = "en".equals(request.language()) ? SYSTEM_PROMPT + ENGLISH_DIRECTIVE : SYSTEM_PROMPT;
+		String systemPrompt = SYSTEM_PROMPT + languageDirective(request.language());
 		if (request.tripContext() != null && !request.tripContext().isBlank()) {
 			systemPrompt = systemPrompt + "\n\n[실제 일정]\n" + request.tripContext();
 		}
@@ -269,6 +296,20 @@ public class GeminiAssistantAdapter implements AssistantVendorPort {
 		}
 
 		return toDomain(parsed);
+	}
+
+	/** {@code AssistantChatService.normalizeLanguage} 가 만든 다섯 값 중 하나를 받는다. */
+	private String languageDirective(String language) {
+		if (language == null) {
+			return "";
+		}
+		return switch (language) {
+			case "en" -> ENGLISH_DIRECTIVE;
+			case "ja" -> JAPANESE_DIRECTIVE;
+			case "zh-Hans" -> CHINESE_SIMPLIFIED_DIRECTIVE;
+			case "zh-Hant" -> CHINESE_TRADITIONAL_DIRECTIVE;
+			default -> "";
+		};
 	}
 
 	/**

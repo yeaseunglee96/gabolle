@@ -82,10 +82,7 @@ public class AssistantChatService {
 		// 🔴 벤더를 부르기 전에 막는다 — 한도를 넘긴 요청이 무료 티어 호출을 쓰면 안 된다.
 		this.rateLimiter.checkAndRecord(userId);
 
-		// 🔴 우리 클라이언트는 'ko'/'en' 만 보내지만, Accept-Language 는 표준적으로
-		// "en-US,en;q=0.9" 같은 모양도 올 수 있다 — 접두어만 본다.
-		String normalizedLanguage = language != null && language.toLowerCase(Locale.ROOT).startsWith("en")
-				? "en" : "ko";
+		String normalizedLanguage = normalizeLanguage(language);
 		List<AssistantTurn> trimmedHistory = trimHistory(history);
 
 		String tripContext = null;
@@ -97,6 +94,31 @@ public class AssistantChatService {
 		// 🔴 실패하면 여기서 던진 AssistantVendorException 이 그대로 위로 올라간다.
 		return this.vendor.reply(
 				new AssistantChatRequest(message, normalizedLanguage, trimmedHistory, tripContext));
+	}
+
+	/**
+	 * 프론트가 5개 언어(ko/en/ja/zh-Hans/zh-Hant)를 지원한다 — {@code frontend/src/i18n/languages.ts}
+	 * 의 {@code toBcp47()} 가 만드는 표기({@code ko-KR}·{@code en-US}·{@code ja-JP}·{@code zh-CN}·
+	 * {@code zh-TW})를 Accept-Language 헤더로 그대로 보낸다. 접두어만 보고 판정하되, 중국어는
+	 * 번체/간체 구분을 위해 지역 코드(TW·HK·MO 는 번체)까지 본다. 모르는 값은 기존과 같이 ko 로
+	 * 떨어뜨린다.
+	 */
+	private String normalizeLanguage(String language) {
+		if (language == null || language.isBlank()) {
+			return "ko";
+		}
+		String lower = language.toLowerCase(Locale.ROOT);
+		if (lower.startsWith("en")) {
+			return "en";
+		}
+		if (lower.startsWith("ja")) {
+			return "ja";
+		}
+		if (lower.startsWith("zh")) {
+			return (lower.contains("hant") || lower.contains("-tw") || lower.contains("-hk")
+					|| lower.contains("-mo")) ? "zh-Hant" : "zh-Hans";
+		}
+		return "ko";
 	}
 
 	private List<AssistantTurn> trimHistory(List<AssistantTurn> history) {

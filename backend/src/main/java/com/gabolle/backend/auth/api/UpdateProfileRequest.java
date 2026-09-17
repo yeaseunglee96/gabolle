@@ -19,9 +19,9 @@ import jakarta.validation.constraints.Size;
  *
  * <p>{@code language} 는 값 형식을 이 DTO 에서 강제하지 않는다 — 이미 있는
  * {@link com.gabolle.backend.auth.service.LanguageNormalizer} 가 대소문자·별칭까지
- * 정규화해서 {@code KO}/{@code EN} 으로 받아들이므로, 여기서 {@code @Pattern} 으로
- * 한 번 더 좁히면 정규화기가 허용하는 입력(예: 소문자 {@code en})을 서비스 계층
- * 전에 막아버리는 모순이 생긴다.
+ * 정규화해서 {@code KO}/{@code EN}/{@code JA}/{@code ZH-HANS}/{@code ZH-HANT} 중 하나로
+ * 받아들이므로, 여기서 {@code @Pattern} 으로 한 번 더 좁히면 정규화기가 허용하는 입력(예:
+ * 소문자 {@code en})을 서비스 계층 전에 막아버리는 모순이 생긴다.
  *
  * <p>이메일 필드는 여기 없다. 이메일 변경은 이 티켓 범위 밖이고, 요청 DTO 에 필드를
  * 아예 두지 않으면 클라이언트가 이메일을 보내도 Jackson 이 알 수 없는 필드로 버린다.
