@@ -19,6 +19,7 @@ import com.gabolle.backend.story.application.FollowService;
 import com.gabolle.backend.story.application.StoryFeedService;
 import com.gabolle.backend.story.presentation.dto.BlockResponse;
 import com.gabolle.backend.story.presentation.dto.FollowResponse;
+import com.gabolle.backend.story.presentation.dto.RelationListResponse;
 import com.gabolle.backend.story.presentation.dto.StoryFeedResponse;
 import com.gabolle.backend.story.presentation.dto.UserProfileResponse;
 
@@ -26,12 +27,15 @@ import com.gabolle.backend.story.presentation.dto.UserProfileResponse;
  * 사람 단위 — 팔로우·차단·프로필·그 사람의 기록. S15P21E201-242 · -126 · -990.
  *
  * <pre>
- * PUT    /api/v1/users/{userId}/follow                 팔로우 (멱등, 200)
- * DELETE /api/v1/users/{userId}/follow                 해제 (멱등, 200)
- * PUT    /api/v1/users/{userId}/block                  차단 (멱등, 200) — 팔로우가 양쪽 다 끊긴다
- * DELETE /api/v1/users/{userId}/block                  차단 해제 (멱등, 200) — 팔로우는 복구 안 한다
- * GET    /api/v1/users/{userId}/profile                프로필 머리
- * GET    /api/v1/users/{userId}/stories?cursor=&limit= 그 사람의 기록(보이는 범위만)
+ * PUT    /api/v1/users/{userId}/follow                   팔로우 (멱등, 200)
+ * DELETE /api/v1/users/{userId}/follow                   해제 (멱등, 200)
+ * PUT    /api/v1/users/{userId}/block                    차단 (멱등, 200) — 팔로우가 양쪽 다 끊긴다
+ * DELETE /api/v1/users/{userId}/block                    차단 해제 (멱등, 200) — 팔로우는 복구 안 한다
+ * GET    /api/v1/users/{userId}/profile                  프로필 머리
+ * GET    /api/v1/users/{userId}/stories?cursor=&limit=   그 사람의 기록(보이는 범위만)
+ * GET    /api/v1/users/{userId}/followers?cursor=&limit= 그 사람을 팔로우하는 사람들
+ * GET    /api/v1/users/{userId}/following?cursor=&limit= 그 사람이 팔로우하는 사람들
+ * GET    /api/v1/users/{userId}/blocks?cursor=&limit=    내가 차단한 사람들 — userId 는 본인이어야 한다
  * </pre>
  *
  * <p>🔴 <b>차단의 방향.</b> A 가 B 를 차단하면 <b>B 가 A 를 못 본다.</b> A 는 B 를 계속 본다
@@ -100,6 +104,36 @@ public class UserSocialController {
 			Authentication authentication) {
 		UUID viewer = AuthenticatedUsers.requireId(authentication);
 		return ApiResponse.success(this.feedService.authorFeed(viewer, userId, cursor, limit), requestId());
+	}
+
+	/** 팔로워 목록 — {@link FollowService#followers} 참고 (그 사람이 나를 차단했으면 403). */
+	@GetMapping("/followers")
+	public ApiResponse<RelationListResponse> followers(@PathVariable UUID userId,
+			@RequestParam(value = "cursor", required = false) String cursor,
+			@RequestParam(value = "limit", required = false) Integer limit,
+			Authentication authentication) {
+		UUID viewer = AuthenticatedUsers.requireId(authentication);
+		return ApiResponse.success(this.followService.followers(viewer, userId, cursor, limit), requestId());
+	}
+
+	/** 팔로잉 목록 — {@link FollowService#following} 참고. */
+	@GetMapping("/following")
+	public ApiResponse<RelationListResponse> following(@PathVariable UUID userId,
+			@RequestParam(value = "cursor", required = false) String cursor,
+			@RequestParam(value = "limit", required = false) Integer limit,
+			Authentication authentication) {
+		UUID viewer = AuthenticatedUsers.requireId(authentication);
+		return ApiResponse.success(this.followService.following(viewer, userId, cursor, limit), requestId());
+	}
+
+	/** 내가 차단한 사람 목록 — {@code userId} 는 반드시 본인이어야 한다({@link BlockService#myBlocks}). */
+	@GetMapping("/blocks")
+	public ApiResponse<RelationListResponse> blocks(@PathVariable UUID userId,
+			@RequestParam(value = "cursor", required = false) String cursor,
+			@RequestParam(value = "limit", required = false) Integer limit,
+			Authentication authentication) {
+		UUID viewer = AuthenticatedUsers.requireId(authentication);
+		return ApiResponse.success(this.blockService.myBlocks(viewer, userId, cursor, limit), requestId());
 	}
 
 	private static String requestId() {
