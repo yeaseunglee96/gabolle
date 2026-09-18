@@ -1,0 +1,73 @@
+{
+ "step": "process/place-locality",
+ "at": "2026-09-17T03:44:16.380Z",
+ "git": "33c484756253dafa9d4f3439f424f0784246dc89",
+ "node": "v24.18.0",
+ "inputs": [
+  {
+   "path": "data/sbiz/부산_202606.csv",
+   "bytes": 86867744,
+   "sha256_16": "9a2de9bed72f7069"
+  },
+  {
+   "path": "config/locality-weights.json",
+   "bytes": 4364,
+   "sha256_16": "de6d9808e60319c7"
+  },
+  {
+   "path": "data/raw/tourapi/tourapi-busan.ndjson",
+   "bytes": 1025299,
+   "sha256_16": "b47146f3b5753201"
+  },
+  {
+   "path": "data/staged/place-slope-sbiz.ndjson",
+   "bytes": 484594,
+   "sha256_16": "089e424e35104f2c"
+  }
+ ],
+ "params": {
+  "radiusM": 300,
+  "minShops": 30,
+  "stat": "percentile rank of mean category weight (inverted)"
+ },
+ "result": {
+  "shops": 159689,
+  "tourapi": 498,
+  "sbiz": 2230,
+  "tooFew": 283,
+  "unknownCat": 0,
+  "control": {
+   "tourist": [
+    [
+     "부산 송도해수욕장",
+     33.6
+    ],
+    [
+     "광안리해변 테마거리",
+     1.1
+    ],
+    [
+     "국제시장",
+     33
+    ]
+   ],
+   "local": [
+    [
+     "만덕3동",
+     89.3
+    ],
+    [
+     "괴정2동",
+     97.7
+    ],
+    [
+     "덕천3동",
+     78.7
+    ]
+   ],
+   "tourAvg": 22.566666666666666,
+   "localAvg": 88.56666666666666,
+   "gap": 66
+  }
+ }
+}
