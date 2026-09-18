@@ -316,6 +316,14 @@ pipeline {
                     string(credentialsId: 'gabolle-menu-scan-api-key', variable: 'GABOLLE_MENU_SCAN_API_KEY'),
                     // S15P21E201-285 — 기상청 단기예보 조회서비스 인증키(data.go.kr 개발계정).
                     string(credentialsId: 'gabolle-kma-service-key', variable: 'GABOLLE_KMA_SERVICE_KEY'),
+                    // S15P21E201-1186 — 한국수출입은행 환율(AP01) 인증키. 안 넘기면 서버는 기동하고
+                    // 호출만 EXCHANGE_RATE_VENDOR_NOT_CONFIGURED(502)로 죽는다 — 화면에는 「제공처가
+                    // 잠시 응답하지 않아요」로 보여서, 고쳐지는 중인 것처럼 읽힌다.
+                    string(credentialsId: 'gabolle-exchange-rate-auth-key', variable: 'GABOLLE_EXCHANGE_RATE_AUTH_KEY'),
+                    // S15P21E201-1186 — 자연어 도우미(챗봇)가 쓰는 Google Gemini 키.
+                    // 모델 이름은 AssistantProperties 의 gemini-3.6-flash 다. 위와 같은 이유로
+                    // 안 넘기면 ASSISTANT_VENDOR_NOT_CONFIGURED(502)로만 끝난다.
+                    string(credentialsId: 'gabolle-assistant-api-key', variable: 'GABOLLE_ASSISTANT_API_KEY'),
                     // 🔴 S15P21E201-942 — /internal/** 을 여는 기계 전용 토큰
                     // (InternalApiProperties 문서 참고). taste_vector_daily DAG
                     // (infra/personalization, common/dev)이 X-Internal-Token 으로
@@ -415,6 +423,8 @@ pipeline {
                             -e GABOLLE_APPLE_ALLOWED_CLIENT_IDS="com.gabolle.app" \
                             -e GABOLLE_KMA_SERVICE_KEY="$GABOLLE_KMA_SERVICE_KEY" \
                             -e GABOLLE_MENU_SCAN_API_KEY="$GABOLLE_MENU_SCAN_API_KEY" \
+                            -e GABOLLE_EXCHANGE_RATE_AUTH_KEY="$GABOLLE_EXCHANGE_RATE_AUTH_KEY" \
+                            -e GABOLLE_ASSISTANT_API_KEY="$GABOLLE_ASSISTANT_API_KEY" \
                             -e GABOLLE_INTERNAL_API_TOKEN="$GABOLLE_INTERNAL_API_TOKEN" \
                             -e GABOLLE_ADMIN_EMAILS="$GABOLLE_ADMIN_EMAILS" \
                             local-route-backend:candidate
@@ -521,6 +531,14 @@ pipeline {
                             string(credentialsId: 'gabolle-s3-secret-key', variable: 'GABOLLE_S3_SECRET_KEY'),
                             string(credentialsId: 'gabolle-menu-scan-api-key', variable: 'GABOLLE_MENU_SCAN_API_KEY'),
                             string(credentialsId: 'gabolle-kma-service-key', variable: 'GABOLLE_KMA_SERVICE_KEY'),
+                            // S15P21E201-1186 — 한국수출입은행 환율(AP01) 인증키. 안 넘기면 서버는 기동하고
+                            // 호출만 EXCHANGE_RATE_VENDOR_NOT_CONFIGURED(502)로 죽는다 — 화면에는 「제공처가
+                            // 잠시 응답하지 않아요」로 보여서, 고쳐지는 중인 것처럼 읽힌다.
+                            string(credentialsId: 'gabolle-exchange-rate-auth-key', variable: 'GABOLLE_EXCHANGE_RATE_AUTH_KEY'),
+                            // S15P21E201-1186 — 자연어 도우미(챗봇)가 쓰는 Google Gemini 키.
+                            // 모델 이름은 AssistantProperties 의 gemini-3.6-flash 다. 위와 같은 이유로
+                            // 안 넘기면 ASSISTANT_VENDOR_NOT_CONFIGURED(502)로만 끝난다.
+                            string(credentialsId: 'gabolle-assistant-api-key', variable: 'GABOLLE_ASSISTANT_API_KEY'),
                             string(credentialsId: 'gabolle-internal-api-token', variable: 'GABOLLE_INTERNAL_API_TOKEN')
                         ]) {
                             sh 'docker stop backend || true'
@@ -569,6 +587,8 @@ pipeline {
                                     -e GABOLLE_APPLE_ALLOWED_CLIENT_IDS="com.gabolle.app" \
                                     -e GABOLLE_KMA_SERVICE_KEY="$GABOLLE_KMA_SERVICE_KEY" \
                                     -e GABOLLE_MENU_SCAN_API_KEY="$GABOLLE_MENU_SCAN_API_KEY" \
+                                    -e GABOLLE_EXCHANGE_RATE_AUTH_KEY="$GABOLLE_EXCHANGE_RATE_AUTH_KEY" \
+                                    -e GABOLLE_ASSISTANT_API_KEY="$GABOLLE_ASSISTANT_API_KEY" \
                                     -e GABOLLE_INTERNAL_API_TOKEN="$GABOLLE_INTERNAL_API_TOKEN" \
                                     -e GABOLLE_ADMIN_EMAILS="$GABOLLE_ADMIN_EMAILS" \
                                     local-route-backend:latest
