@@ -28,7 +28,7 @@ public class TripNameSuggestionExceptionHandler {
 	@ExceptionHandler(TripQueryService.TripNotFoundException.class)
 	public ResponseEntity<ApiResponse<Void>> handleNotFound(TripQueryService.TripNotFoundException e) {
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.failure(
-				new ApiError("TRIP_NOT_FOUND", "error.trip.notFound"), requestId()));
+				new ApiError("TRIP_NOT_FOUND", "그 여행을 찾지 못했어요."), requestId()));
 	}
 
 	private String requestId() {
