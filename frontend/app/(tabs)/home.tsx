@@ -4,33 +4,37 @@ import { Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Redirect, useRouter } from 'expo-router';
 
-import { sendAppEvent } from '@/analytics/appEvents';
 import { PlanStartBar } from '@/home/PlanStartBar';
 import { ConditionsPromptModal, type ConditionsOutcome } from '@/plan/ConditionsPromptModal';
 import { loadConditionsPrompt, shouldPromptBeforePlan, shouldPromptOnHome, type ConditionsPromptState } from '@/plan/conditionsPromptState';
 import { usePlan } from '@/plan/PlanProvider';
 import type { StartBarValue } from '@/home/startBarValue';
 import { useAuth } from '@/auth/AuthProvider';
-import { loadSavedPlaceIds, setSavedPlace } from '@/discovery/savedPlaces';
 import { BrandLogoLink } from '@/components/BrandLogoLink';
 import { GabolleMascot } from '@/components/DongbaekMascot';
-import { PlaceVisual } from '@/components/PlaceVisual';
 import { Screen } from '@/components/Screen';
 import { TabBar } from '@/components/TabBar';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
+import { PlaceRow, StoryRow } from '@/home/HomeBlocks';
 import { useHomeData } from '@/home/useHomeData';
+import { useSavedPlaces } from '@/home/useSavedPlaces';
 import { resolveHomeTripDestination } from '@/home/tripNavigation';
 import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
 import { useI18n } from '@/i18n';
 import { markdownToPlain } from '@/social/markdown';
-import { localFacetLabel } from '@/discovery/localExplore';
 import { useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
 import { relativeStoryTime } from '@/social/stories';
 
 const bellIcon = require('../../assets/icons/home/bell.png');
 const heartIcon = require('../../assets/icons/home/heart.png');
+
+/**
+ * 폰의 카드 한 변. 한 화면에 두 장이 들어오고 세 번째가 살짝 보이는 크기다 —
+ * 다음 장이 안 보이면 옆으로 더 있다는 것을 모른다.
+ */
+const MOBILE_CARD = 160;
 
 export default function Home() {
   const router = useRouter();
@@ -45,8 +49,8 @@ export default function Home() {
   const desktop = isAtLeast(width, 'lg');
   const { hydrated, hasEnteredApp, markEnteredApp } = useOnboardingPreferences();
   const home = useHomeData(!desktop);
-  const [likedIds, setLikedIds] = useState<Set<string>>(new Set());
-  const [saveFeedback, setSaveFeedback] = useState<string | null>(null);
+  // 하트는 데스크톱 홈과 같은 자리에서 온다 — 베껴 두면 한쪽만 고쳐진다.
+  const saved = useSavedPlaces(accessToken, 'home-mobile');
   const [openingTrip, setOpeningTrip] = useState(false);
 
   useEffect(() => {
@@ -59,26 +63,6 @@ export default function Home() {
     const destination = await resolveHomeTripDestination(tripId, accessToken);
     setOpeningTrip(false);
     router.push(destination as never);
-  };
-
-  // — 계정 것과 기기 것을 합쳐서 본다(로그인 안 했으면 기기 것만).
-  useEffect(() => {
-    void loadSavedPlaceIds(accessToken).then((ids) => setLikedIds(new Set(ids)));
-  }, [accessToken]);
-
-  // 하트는 계정에 남는다(로그인 안 했으면 기기에만). 저장할 때 분석용 신호도 함께 보낸다.
-  const toggleLike = (placeId: string) => {
-    const saved = !likedIds.has(placeId);
-    const next = new Set(likedIds);
-    saved ? next.add(placeId) : next.delete(placeId);
-    setLikedIds(next);
-    setSaveFeedback(saved ? tx('장소를 저장했어요.', 'Saved this place.') : tx('저장을 해제했어요.', 'Unsaved this place on this device.'));
-    // — 서버가 못 받았으면 뒤늦게라도 사실대로 고쳐 말한다.
-    // 하트는 즉시 반응해야 하므로 먼저 낙관적으로 그리고, 결과가 오면 문구만 바꾼다.
-    void setSavedPlace(placeId, saved, accessToken).then(({ sync }) => {
-      if (sync === 'failed') setSaveFeedback(tx('이 기기에만 저장했어요. 서버에 아직 반영하지 못했어요.', 'Saved on this device only — not synced to the server yet.'));
-    });
-    if (saved) sendAppEvent({ type: 'place_like', accessToken, payload: { place_id: placeId, surface: 'home' } });
   };
 
   // 홈에서 받은 출발지·날짜·인원을 초안에 넣고 조건 화면으로 보낸다.
@@ -180,111 +164,24 @@ export default function Home() {
               챗봇의 진입점은 그대로 있다 — 이 카드만 안 그린다. */}
         </View>
 
- {/* 순서: 피드가 먼저, 로컬 탐색이 그다음이다 (2026-09-18 지시).
-            넓은 화면도 같은 순서다(HomeBlocks 의 HeroStories 가 기록 다음에 칩을 그린다). */}
-        {/* ── 지금 부산에서 남긴 기록 ── */}
-        <View style={styles.section}>
-          <View style={styles.sectionHead}>
-            <Text variant="eyebrow" weight="bold">{tx('지금 부산에서 남긴 기록', 'Just shared in Busan')}</Text>
-            <Pressable accessibilityRole="link" onPress={() => router.push('/feed')}><Text weight="bold" color={color.brand.navy}>{tx('피드 전체 →', 'See all →')}</Text></Pressable>
-          </View>
+        {/* 순서: 피드가 먼저, 로컬 탐색이 그다음이다 (2026-09-18 지시).
+            시안 design_handoff_home_airbnb_rows — 제목을 display bold 로 키우고 「전체 →」
+            글자 링크를 화살표 원으로 바꿨다. 칩 줄과 「부산 둘러보기」는 없앴다.
+            데스크톱과 같은 줄 부품을 쓴다 — 두 화면이 어긋나면 나란히 놓고 봐야만 보인다. */}
+        <StoryRow stories={home.stories} width={width} cardWidth={MOBILE_CARD} gutter={spacing[6]} arrows={false} />
 
- {/* 로그인 여부로 가리지 않는다, 진미리). 스토리 조회가 익명
-              출입증에 열렸다 — 2026-09-18 운영에서 실측(X-Session-Token 으로 200). */}
-          {home.stories === null ? (
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.rail}>
-              {[0, 1, 2].map((slot) => <View key={slot} style={[styles.storyCard, styles.storySkeleton]} />)}
-            </ScrollView>
-          ) : home.stories.length === 0 ? (
-            <Text variant="caption" style={styles.sectionNote}>{tx('아직 남겨진 기록이 없어요. 첫 기록을 남겨 보세요.', 'No records yet — be the first to share one.')}</Text>
-          ) : (
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} snapToAlignment="start" decelerationRate="fast" contentContainerStyle={styles.rail}>
-              {home.stories.map((story) => {
-                const where = story.place?.name ?? story.region ?? '';
-                return (
-                  <Pressable key={story.id} accessibilityRole="button" onPress={() => router.push(`/feed/${story.id}`)} style={({ pressed }) => [styles.storyCard, pressed && styles.pressed]}>
-                    {story.images.length
-                      ? <Image source={{ uri: story.images[0].url }} resizeMode="cover" accessibilityLabel={tx('여행 기록 사진', 'Trip record photo')} style={styles.storyImage} />
-                      : <View style={[styles.storyImage, styles.storyCoverEmpty]}>
-                          <Text variant="title" weight="bold" color={color.text.heading} numberOfLines={4} style={styles.storyCoverEmptyText}>{markdownToPlain(story.body)}</Text>
-                        </View>}
-                    <View style={styles.storyBody}>
-                      <Text variant="caption" numberOfLines={1}>{where ? `${relativeStoryTime(story.createdAt, tx)} · ${where}` : relativeStoryTime(story.createdAt, tx)}</Text>
-                      {/* 사진이 없는 글은 본문을 커버에 이미 크게 그렸다. 또 그리면 같은 글이 두 번
-                          나온다 — 피드 카드가 같은 이유로 생략하는 자리다.
-                      */}
-                      {story.images.length ? <Text numberOfLines={2} color={color.text.heading}>{markdownToPlain(story.body)}</Text> : null}
-                      {/* 작성자 프로필 사진은 계정에 없다 — 이름만 적는다. */}
-                      <Text variant="caption" weight="bold" color={color.text.body} numberOfLines={1}>{story.author.displayName}</Text>
-                    </View>
-                  </Pressable>
-                );
-              })}
-            </ScrollView>
-          )}
-        </View>
-
-        {/* ── 로컬 탐색 (옛 로컬 탐색 바 자리) ──
- 2026-09-15 에 기록 피드 아래에서 여기로 올렸다. 로컬 탐색으로 가는 길이 이
-            칩과 챗봇 둘뿐인데(하단 탭에도 데스크톱 상단 바에도 없다) 스크롤해야 보이는 자리에
-            있어서 사실상 숨어 있었다. 제목도 「갈래로 찾기」라 눌렀을 때 어디로 가는지 알 수
-            없었다 — 목적지 이름을 그대로 적는다. 탭·상단 바로 꺼내는 것은 내비게이션 구조를
- 건드리는 일이라 디자인 재작업 뒤로 미뤘다. */}
-        {home.chips.length ? (
-          <View style={styles.section}>
-            <View style={styles.sectionHead}>
-              <Text variant="title" weight="bold">{tx('로컬 탐색', 'Explore locally')}</Text>
-              <Pressable accessibilityRole="link" onPress={() => router.push('/explore')}><Text weight="bold" color={color.brand.navy}>{tx('전체 →', 'See all →')}</Text></Pressable>
-            </View>
-            {/* 칩 글자만으로는 무엇을 하는 곳인지 모른다 — 한 줄로 적어 둔다. */}
-            <Text variant="caption" style={styles.sectionSub}>{tx('축제·전통시장·야경처럼 갈래로 부산을 둘러봐요.', 'Browse Busan by festivals, markets, night views and more.')}</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.rail}>
-              {home.chips.map((chip) => (
-                <Pressable key={chip.featureKey} accessibilityRole="link" onPress={() => router.push({ pathname: '/explore', params: { facet: chip.featureKey } })} style={({ pressed }) => [styles.chip, pressed && styles.pressed]}>
-                  <Text weight="medium" color={color.text.heading}>{localFacetLabel(chip, language)}</Text>
-                </Pressable>
-              ))}
-            </ScrollView>
-          </View>
-        ) : null}
-
-        {/* ── 부산 둘러보기 (하트가 여기로 옮겨 왔다) ── */}
-        {home.places.length ? (
-          <View style={styles.sectionPadded}>
- {/* 「부산 대표 장소」였다가 2026-09-15 에 낮췄다. 고르는 방법이 부산 중심에서
-                가까운 순 넷이라 대표를 판정하는 자리가 없었다 — 제목만 대표를 약속하고 있었다. */}
-            <Text variant="title" weight="bold">{tx('부산 둘러보기', 'Browse Busan')}</Text>
-            <View style={styles.placeGrid}>
-              {home.places.map((place) => {
-                const liked = likedIds.has(place.placeId);
-                return (
-                  <View key={place.placeId} style={styles.placeCard}>
-                    <Pressable accessibilityRole="button" onPress={() => router.push(`/place/${place.placeId}`)} style={({ pressed }) => [styles.placeThumbWrap, pressed && styles.pressed]}>
-                      <PlaceVisual name={place.nameKo} address={place.address} photoUrl={place.photoUrl} photoSource={place.photoSource} photoSubject={place.photoSubject} />
-                      <Pressable
-                        accessibilityRole="button"
-                        accessibilityState={{ selected: liked }}
-                        accessibilityLabel={liked ? tx(`${place.nameKo} 저장 취소`, `Unsave ${place.nameKo}`) : tx(`${place.nameKo} 저장`, `Save ${place.nameKo}`)}
-                        onPress={() => (signedIn ? toggleLike(place.placeId) : router.push({ pathname: '/sign-in', params: { returnTo: '/home' } }))}
-                        style={styles.heartButton}
-                      >
-                        {/* 색만으로 저장 여부를 나타내지 않는다(팀 UX 가이드라인 11번)
-                            저장했을 때만 배경 원이 함께 나타난다.
-                        */}
-                        <View style={[styles.heartBackdrop, liked && styles.heartBackdropOn]}>
-                          <Image source={heartIcon} resizeMode="contain" style={[styles.heartIcon, liked ? styles.heartOn : styles.heartOff]} />
-                        </View>
-                      </Pressable>
-                    </Pressable>
-                    <Text weight="bold" numberOfLines={1}>{place.nameKo}</Text>
-                    {/* 갈래(`category`)는 「FOOD」 같은 코드로 와서 그대로 못 쓴다 — 주소를 쓴다. */}
-                    <Text variant="caption" numberOfLines={1}>{place.address ?? ''}</Text>
-                  </View>
-                );
-              })}
-            </View>
-          </View>
-        ) : null}
+        {home.facetRows.map((row) => (
+          <PlaceRow
+            key={row.facetKey}
+            row={row}
+            width={width}
+            cardWidth={MOBILE_CARD}
+            gutter={spacing[6]}
+            arrows={false}
+            likedIds={saved.likedIds}
+            onToggleLike={saved.toggle}
+          />
+        ))}
 
         {/* ── 내 여행 (로그인만) ── */}
         {signedIn ? (
@@ -318,11 +215,11 @@ export default function Home() {
           </View>
         ) : null}
 
-        {saveFeedback ? (
-          <Pressable accessibilityRole="button" accessibilityLabel={tx('저장 안내 닫기', 'Dismiss save notice')} accessibilityLiveRegion="polite" onPress={() => setSaveFeedback(null)} style={styles.saveFeedback}>
-            <Text variant="caption" weight="bold" color={color.text.onAction}>{saveFeedback}</Text>
-            <Text variant="caption" color={color.text.onAction}>{tx('닫기', 'Dismiss')}</Text>
-          </Pressable>
+        {/* 하트를 누른 결과를 한 줄로 알린다 — 서버에 못 보냈으면 그것도 사실대로. */}
+        {saved.feedback ? (
+          <View accessibilityLiveRegion="polite" style={styles.saveFeedback}>
+            <Text variant="caption" weight="bold" color={color.text.onAction}>{saved.feedback}</Text>
+          </View>
         ) : null}
         <ConditionsPromptModal visible={conditions.open} reprompt={conditions.reprompt} onClose={closeConditions} />
   </Screen>
