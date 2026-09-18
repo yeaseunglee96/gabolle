@@ -23,8 +23,10 @@ import com.gabolle.backend.place.repository.PlaceRepository;
 import com.gabolle.backend.story.domain.StorageCleanupEntry;
 import com.gabolle.backend.story.domain.Story;
 import com.gabolle.backend.story.domain.StoryImage;
+import com.gabolle.backend.story.domain.StoryVideo;
 import com.gabolle.backend.story.domain.StoryVisibility;
 import com.gabolle.backend.story.domain.UploadedImage;
+import com.gabolle.backend.story.domain.UploadedVideo;
 import com.gabolle.backend.story.domain.UserFollow;
 import com.gabolle.backend.story.presentation.dto.StoryCreateRequest;
 import com.gabolle.backend.story.presentation.dto.StoryResponse;
@@ -153,6 +155,9 @@ public class StoryService {
 		}
 
 		List<UploadedImage> images = resolveImages(authorUserId, request.imageUrlsOrEmpty());
+		// 🔴 S15P21E201-1282 — 글을 저장하기 전에 먼저 본다. 저장한 뒤에 거절하면 본문만 남은
+		//    기록이 생긴다. 사진이 같은 이유로 같은 자리에 있다.
+		ResolvedVideo video = resolveVideo(authorUserId, request.videoUrl(), request.thumbnailUrl());
 
 		String region = request.region() != null && !request.region().isBlank()
 				? request.region()
@@ -169,6 +174,7 @@ public class StoryService {
 					i + 1, now));
 		}
 		this.storyImageRepository.saveAll(attached);
+		attachVideo(story.getStoryId(), video, now);
 
 		return this.assembler.one(story, authorUserId, now);
 	}
@@ -200,6 +206,10 @@ public class StoryService {
 		Story parent = requireVisible(request.parentStoryId(), authorUserId, now);
 
 		List<UploadedImage> images = resolveImages(authorUserId, request.imageUrlsOrEmpty());
+		// 🔴 S15P21E201-1282 — 댓글도 동영상을 붙일 수 있다. 댓글은 원글과 「같은 것」이라는 것이
+		//    -1183 의 설계이고, 사진도 이미 그렇다. 여기만 빼면 같은 요청 모양을 쓰는데 한쪽만
+		//    조용히 무시되는 자리가 생긴다 — 화면은 붙였다고 믿고 응답에는 없다.
+		ResolvedVideo video = resolveVideo(authorUserId, request.videoUrl(), request.thumbnailUrl());
 
 		Story reply = Story.reply(UUID.randomUUID(), authorUserId, parent.getStoryId(), request.body(), now);
 		this.storyRepository.save(reply);
@@ -210,6 +220,7 @@ public class StoryService {
 					images.get(i).getUploadedImageId(), i + 1, now));
 		}
 		this.storyImageRepository.saveAll(attached);
+		attachVideo(reply.getStoryId(), video, now);
 
 		// 🔴 같은 트랜잭션에서 올린다. 따로 세면 「댓글은 달렸는데 수가 안 오른」 상태가 생긴다 —
 		//    trip_share_link.view_count 가 같은 이유로 같은 방식을 쓴다.
@@ -580,6 +591,80 @@ public class StoryService {
 			ordered.add(upload);
 		}
 		return ordered;
+	}
+
+	/**
+	 * 요청이 준 동영상 주소를 업로드 행으로 바꾼다 — S15P21E201-1282.
+	 * {@link #resolveImages} 와 <b>같은 검사를 같은 순서로</b> 한다.
+	 *
+	 * <h2>🔴 남이 올린 것은 못 붙인다</h2>
+	 *
+	 * 주소만 알면 남의 동영상을 내 기록에 붙일 수 있는 자리다 — 올린 사람과 붙이는 사람이 갈릴 수
+	 * 있는 구조이기 때문이다. {@code uploaderUserId} 를 대조해서 막는다. <b>주소를 훔쳐도 안 된다.</b>
+	 *
+	 * <h2>썸네일은 없어도 된다</h2>
+	 *
+	 * 앱이 못 만들었으면 안 보내면 된다(S15P21E201-1279). 다만 <b>동영상 없이 썸네일만</b> 보내는
+	 * 것은 거절한다 — 붙일 동영상이 없는 썸네일은 뜻이 없고, 그런 요청은 앱의 버그다.
+	 *
+	 * @return 붙일 것이 없으면 {@code null}
+	 */
+	private ResolvedVideo resolveVideo(UUID authorUserId, String videoUrl, String thumbnailUrl) {
+		if (videoUrl == null || videoUrl.isBlank()) {
+			if (thumbnailUrl != null && !thumbnailUrl.isBlank()) {
+				throw new InvalidReferenceException("thumbnailUrl", "동영상 없이 썸네일만 붙일 수 없습니다.");
+			}
+			return null;
+		}
+
+		UploadedVideo video = this.uploadedVideoRepository.findByVideoUrl(videoUrl)
+				.orElseThrow(() -> new InvalidReferenceException("videoUrl",
+						"올라가 있지 않은 동영상 주소입니다: " + videoUrl));
+		if (video.isDeleted()) {
+			throw new InvalidReferenceException("videoUrl", "올라가 있지 않은 동영상 주소입니다: " + videoUrl);
+		}
+		if (!video.isOwnedBy(authorUserId)) {
+			// 남의 업로드를 내 기록에 붙이는 것 — 주소를 훔쳐도 안 된다.
+			throw new InvalidReferenceException("videoUrl", "내가 올린 동영상만 붙일 수 있습니다: " + videoUrl);
+		}
+		if (this.storyVideoRepository.existsByUploadedVideoId(video.getUploadedVideoId())) {
+			throw new InvalidReferenceException("videoUrl", "이미 다른 기록에 붙은 동영상입니다: " + videoUrl);
+		}
+
+		if (thumbnailUrl == null || thumbnailUrl.isBlank()) {
+			return new ResolvedVideo(video, null);
+		}
+		UploadedImage thumbnail = this.uploadedImageRepository.findByImageUrlIn(List.of(thumbnailUrl)).stream()
+				.findFirst()
+				.orElseThrow(() -> new InvalidReferenceException("thumbnailUrl",
+						"올라가 있지 않은 사진 주소입니다: " + thumbnailUrl));
+		if (thumbnail.isDeleted()) {
+			throw new InvalidReferenceException("thumbnailUrl", "올라가 있지 않은 사진 주소입니다: " + thumbnailUrl);
+		}
+		if (!thumbnail.isOwnedBy(authorUserId)) {
+			throw new InvalidReferenceException("thumbnailUrl", "내가 올린 사진만 붙일 수 있습니다: " + thumbnailUrl);
+		}
+		// 🔴 사진으로도 쓰이고 썸네일로도 쓰이면, 한쪽을 지울 때 파일이 사라져 다른 쪽이 깨진다.
+		//    uq_story_image_upload·uq_story_video_thumbnail 이 각자 막지만 오류 모양을 위해 먼저 본다.
+		if (this.storyImageRepository.existsByUploadedImageId(thumbnail.getUploadedImageId())
+				|| this.storyVideoRepository.existsByThumbnailUploadId(thumbnail.getUploadedImageId())) {
+			throw new InvalidReferenceException("thumbnailUrl", "이미 다른 기록에 붙은 사진입니다: " + thumbnailUrl);
+		}
+		return new ResolvedVideo(video, thumbnail);
+	}
+
+	/** 붙일 준비가 끝난 동영상과 그 썸네일. 썸네일은 {@code null} 일 수 있다. */
+	private record ResolvedVideo(UploadedVideo video, UploadedImage thumbnail) {
+	}
+
+	/** 기록에 동영상을 붙인다. 붙일 것이 없으면 아무것도 안 한다. */
+	private void attachVideo(UUID storyId, ResolvedVideo resolved, Instant now) {
+		if (resolved == null) {
+			return;
+		}
+		this.storyVideoRepository.save(new StoryVideo(UUID.randomUUID(), storyId,
+				resolved.video().getUploadedVideoId(),
+				resolved.thumbnail() == null ? null : resolved.thumbnail().getUploadedImageId(), now));
 	}
 
 	/** 장소 주소의 앞 두 마디 — "부산광역시 해운대구 우동 …" 에서 "부산광역시 해운대구". 좌표는 쓰지 않는다. */

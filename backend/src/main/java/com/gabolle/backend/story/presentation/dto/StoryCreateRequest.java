@@ -46,7 +46,33 @@ public record StoryCreateRequest(
 		 *
 		 * <p>부모가 댓글이어도 된다 — <b>댓글의 댓글</b>이고 깊이 제한은 없다.
 		 */
-		UUID parentStoryId) {
+		UUID parentStoryId,
+
+		/**
+		 * 🔴 S15P21E201-1282 — 붙일 동영상의 주소. 먼저
+		 * {@code POST /api/v1/uploads/story-video} 로 올려 받은 그 값이다.
+		 *
+		 * <p><b>한 기록에 하나</b>다(표의 {@code uq_story_video_story} 가 강제한다). 안 보내면
+		 * 동영상 없는 기록이고, 그게 대부분이다.
+		 *
+		 * <p>🔴 <b>내가 올린 것만 붙일 수 있다.</b> 주소를 알아도 남의 것은 400 이다 —
+		 * 사진이 같은 규칙을 먼저 썼다({@code resolveImages}).
+		 */
+		String videoUrl,
+
+		/**
+		 * 🔴 S15P21E201-1282 — 그 동영상의 썸네일 주소. 사진 창구
+		 * ({@code POST /api/v1/uploads/story-image})로 올려 받은 값이다.
+		 *
+		 * <p>🔴 <b>없어도 된다.</b> 앱이 썸네일을 못 만들면 안 보내면 되고, 그러면 「동영상은
+		 * 있고 썸네일만 없다」가 된다 — 정상 상태다(S15P21E201-1279).
+		 *
+		 * <p>🔴 <b>사진 3장과 자리를 다투지 않는다.</b> 썸네일은 {@code story_image} 에 안 들어가고
+		 * 동영상에 딸려 간다. 그래서 동영상을 넣어도 {@code imageUrls} 는 3장 그대로 쓸 수 있다.
+		 *
+		 * <p>{@code videoUrl} 없이 이것만 보내면 400 이다 — 붙일 동영상이 없는 썸네일은 뜻이 없다.
+		 */
+		String thumbnailUrl) {
 
 	/**
 	 * 🔴 {@code parentStoryId} 를 안 적은 기존 호출자를 위한 것이다 — <b>원글</b>로 본다
@@ -60,7 +86,20 @@ public record StoryCreateRequest(
 	 */
 	public StoryCreateRequest(String body, List<String> imageUrls, UUID placeId, UUID tripId, String region,
 			StoryVisibility visibility, Instant publishAt) {
-		this(body, imageUrls, placeId, tripId, region, visibility, publishAt, null);
+		this(body, imageUrls, placeId, tripId, region, visibility, publishAt, null, null, null);
+	}
+
+	/**
+	 * 🔴 S15P21E201-1282 — 동영상 칸 둘을 더하면서 {@code parentStoryId} 까지 받던 자리를 위해 둔다.
+	 * -1183 이 같은 이유로 같은 모양을 먼저 썼다 — 칸을 하나 붙이면서 부르는 자리를 전부 고치면
+	 * 그 diff 안에서 <b>정말 바뀐 곳</b>이 안 보인다.
+	 *
+	 * <p>JSON 역직렬화는 이 생성자를 안 쓴다. Jackson 은 칸 이름으로 맞추므로 동영상 칸이 없는
+	 * 본문이 오면 그 자리가 그냥 {@code null} 이다 — 지금까지의 앱이 그대로 돈다.
+	 */
+	public StoryCreateRequest(String body, List<String> imageUrls, UUID placeId, UUID tripId, String region,
+			StoryVisibility visibility, Instant publishAt, UUID parentStoryId) {
+		this(body, imageUrls, placeId, tripId, region, visibility, publishAt, parentStoryId, null, null);
 	}
 
 	public List<String> imageUrlsOrEmpty() {

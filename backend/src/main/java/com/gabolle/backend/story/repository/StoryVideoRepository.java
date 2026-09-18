@@ -24,4 +24,17 @@ public interface StoryVideoRepository extends JpaRepository<StoryVideo, UUID> {
 	 * {@code StoryResponseAssembler} 가 사진을 읽는 방식과 같다.
 	 */
 	List<StoryVideo> findByStoryIdIn(Collection<UUID> storyIds);
+
+	/**
+	 * 이미 다른 기록에 붙은 동영상인가 — S15P21E201-1282.
+	 *
+	 * <p>🔴 {@code uq_story_video_upload}(UNIQUE)가 <b>이미 DB 에서 막는다.</b> 그래도 여기서 미리
+	 * 보는 이유는 <b>오류의 모양</b>이다 — 제약에 부딪히면 500 에 제약 이름만 남고, 여기서 보면
+	 * 400 에 「이미 다른 기록에 붙은 동영상입니다」와 그 주소가 나간다.
+	 * 사진이 {@code existsByUploadedImageId} 로 같은 일을 먼저 했다.
+	 */
+	boolean existsByUploadedVideoId(UUID uploadedVideoId);
+
+	/** 이미 다른 동영상의 썸네일로 쓰인 사진인가. {@code uq_story_video_thumbnail} 과 같은 짝이다. */
+	boolean existsByThumbnailUploadId(UUID thumbnailUploadId);
 }
