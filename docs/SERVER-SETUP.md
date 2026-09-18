@@ -166,6 +166,43 @@ TLS 핸드셰이크 시간 때문에 초당 10건을 안 넘어서 재현 안 �
 (빈 JSON) → `500`(경로 문제는 해결됐고, 이제 백엔드의 프로필/DB 설정
 문제만 남음 — Jenkins 환경변수 주입 작업으로 이어짐).
 
+### 업로드 크기 상한 — 사진이 한 장도 안 올라가던 원인 (2026-09-13)
+
+nginx 는 요청 본문 크기에 기본 상한 **1MB** 를 건다(`client_max_body_size` —
+**이보다 큰 요청은 받지 않고 끊는다는 설정**). 앱이 사진을 1600px 로 줄여
+보내도 보통 그보다 커서, **업로드가 전부 `413`(Payload Too Large)으로 막혔다.**
+
+🔴 **이 실패는 백엔드 로그에 아무것도 안 남긴다.** `413` 을 내는 것이 nginx 라
+요청이 Spring 에 닿지도 않는다. 그래서 *"로그를 봐도 원인이 없다"* 가 됐고,
+사진 저장소가 비어 있던 것도 「고장」이 아니라 **「닿은 적이 없음」**이었다.
+운영 접근 로그 실측에서 파일이 실린 요청 6건이 전부 413 이었다
+(2026-09-16, yeaseung-lee).
+
+설정은 `server {}` 밖 http 컨텍스트에 둔다 — 바로 위 요청 비율 제한과 같은 자리다.
+
+```bash
+sudo tee /etc/nginx/conf.d/upload-size.conf >/dev/null <<'EOF'
+client_max_body_size 5m;
+EOF
+sudo nginx -t && sudo systemctl reload nginx
+```
+
+🔴 **지금 서버에 걸려 있는 값과 같다. 상한을 바꾸는 것이 아니라 잃지 않으려는
+것이다.** 이 한 줄은 2026-09-13 11:49 에 서버에서 손으로 만들어졌고 **저장소에는
+없었다** — 서버를 다시 만들면 1MB 로 돌아가고 같은 사고가 그대로 재현된다.
+
+**상한은 세 층에 따로 걸려 있고, 서로 모순되지 않아야 한다.**
+
+| 층 | 값 | 어디에 적혀 있나 |
+|---|---|---|
+| 앱 | 고를 때 30MB · **줄인 뒤 3MB** | `frontend/src/social/imageResize.ts` 의 `MAX_PICK_BYTES`·`MAX_UPLOAD_BYTES` (`front/dev` 에 있다 — `back/dev` 의 `frontend/` 는 자리표시자다) |
+| **nginx** | **5MB** | 이 절 |
+| Spring | 파일 3MB · 요청 4MB | `backend/src/main/resources/application.properties` |
+
+실효 상한은 **사진 1장 3MB** 이고 nginx 에는 여유를 둔 것이다.
+🔴 **nginx 값을 3MB 아래로 내리면** Spring 이 내는 설명 있는 오류 대신 nginx 의
+`413` 이 나가고, **원인이 다시 화면에서 사라진다.**
+
 ---
 
 ## 4. Docker
