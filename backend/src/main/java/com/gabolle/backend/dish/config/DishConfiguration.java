@@ -32,9 +32,10 @@ public class DishConfiguration {
 	 *
 	 * <h2>줄이 꽉 차면 거절한다 — 조용히 버리지 않는다</h2>
 	 *
-	 * 기본 동작({@code AbortPolicy})이 예외를 던지고, 그것을 부르는 쪽이 받아 행을
-	 * <b>실패로 적는다.</b> 조용히 버리면 행이 {@code PENDING} 인 채로 남아 <b>화면이
-	 * 영원히 다시 물어본다.</b>
+	 * 기본 동작({@code AbortPolicy})이 예외를 던지고, 그것을 {@code DishService.handOff}
+	 * 가 받아 행을 <b>실패로 적는다.</b> 조용히 버리거나 그냥 올려보내면 행이
+	 * {@code PENDING} 인 채로 남는데, 표의 {@code UNIQUE(name_key)} 때문에 <b>그 음식은
+	 * 영원히 굳는다</b> — 다음 사람이 눌러도 「만드는 중」만 보고 새로 만들 수도 없다.
 	 */
 	@Bean(name = "dishImageExecutor")
 	public Executor dishImageExecutor() {

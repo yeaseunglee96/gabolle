@@ -301,6 +301,73 @@ class DishControllerTest {
 				.andExpect(status().isNotFound());
 	}
 
+	// ── 🔴 행이 「만드는 중」으로 굳지 않는다 ────────────────────────────────
+
+	/**
+	 * 🔴 <b>이 검사가 막는 것은 「그림 한 장을 못 만드는 것」이 아니라 「그 음식이 영원히
+	 * 굳는 것」이다.</b>
+	 *
+	 * <p>실행기의 줄이 꽉 차면 맡기는 순간 던져진다. 그것을 그냥 올려보내면 행이
+	 * {@code PENDING} 인 채로 남고, 표의 {@code UNIQUE(name_key)} 때문에 <b>다음 사람이
+	 * 눌러도 새로 만들 수 없다.</b> 「만드는 중」만 영원히 본다.
+	 */
+	@Test
+	@DisplayName("🔴 실행기에 못 맡기면 그 자리에서 실패로 적는다 — PENDING 으로 안 남긴다")
+	void aRejectedHandOffIsRecordedAsFailure() throws Exception {
+		when(this.describer.describe(any(), any())).thenReturn(new GmsDishDescriber.Described(
+				"Cold wheat noodles.", "a bowl of cold noodles"));
+		org.mockito.Mockito.doThrow(new org.springframework.core.task.TaskRejectedException("줄이 꽉 찼다"))
+				.when(this.worker).paint(any(), any());
+
+		ask("밀면", "en")
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.data.imageStatus").value("FAILED"));
+
+		// 🔴 표에도 실패로 남아야 한다. 응답만 FAILED 고 행이 PENDING 이면 다음 사람이 굳는다.
+		assertThat(this.images.findByNameKey("밀면")).isPresent()
+				.get().extracting(DishImage::getStatus).isEqualTo(DishImage.FAILED);
+	}
+
+	/**
+	 * 🔴 배포·재시작이 만들던 스레드를 가져간다. 그때 행은 {@code PENDING} 인 채로 남는데,
+	 * 그것을 그대로 두면 <b>그 음식은 영원히 굳는다.</b> 오래 멈춰 있으면 다시 맡긴다.
+	 */
+	@Test
+	@DisplayName("🔴 오래 멈춰 있던 「만드는 중」은 버려진 것으로 보고 다시 만든다")
+	void anAbandonedPendingRowIsResumed() throws Exception {
+		when(this.describer.describe(any(), any())).thenReturn(new GmsDishDescriber.Described(
+				"Kimchi stew.", "a pot of kimchi stew"));
+
+		// 시계는 2026-09-18T12:00:00Z 에 멈춰 있다. 한 시간 전에 시작해 놓고 사라진 행.
+		DishImage stranded = DishImage.pending(UUID.randomUUID(), "김치찌개",
+				OffsetDateTime.parse("2026-09-18T11:00:00Z"));
+		this.images.save(stranded);
+
+		ask("김치찌개", "en")
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.data.imageStatus").value("PENDING"));
+
+		verify(this.worker, times(1)).paint(any(), any());
+	}
+
+	/** 방금 시작한 것을 「버려졌다」고 보면 같은 그림을 두 번 만든다. */
+	@Test
+	@DisplayName("방금 시작한 「만드는 중」은 다시 만들지 않는다")
+	void aFreshPendingRowIsLeftAlone() throws Exception {
+		when(this.describer.describe(any(), any())).thenReturn(new GmsDishDescriber.Described(
+				"Kimchi stew.", "a pot of kimchi stew"));
+
+		DishImage fresh = DishImage.pending(UUID.randomUUID(), "김치찌개",
+				OffsetDateTime.parse("2026-09-18T11:59:30Z"));
+		this.images.save(fresh);
+
+		ask("김치찌개", "en")
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.data.imageStatus").value("PENDING"));
+
+		verify(this.worker, never()).paint(any(), any());
+	}
+
 	// ── 한도 ─────────────────────────────────────────────────────────────────
 
 	/**

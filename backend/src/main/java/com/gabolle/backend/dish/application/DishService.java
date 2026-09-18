@@ -59,6 +59,19 @@ public class DishService {
 	 */
 	private static final Duration RETRY_FAILED_AFTER = Duration.ofDays(1);
 
+	/**
+	 * 이만큼 지나도 {@code PENDING} 인 행은 <b>버려진 것</b>으로 본다.
+	 *
+	 * <p>🔴 그림 만들기는 서버 안 다른 스레드에서 돈다. 그 스레드가 사라지는 길이 둘 있다 —
+	 * <b>배포·재시작</b>과 <b>줄이 꽉 차 거절당하는 것</b>이다. 둘 다 행을 {@code PENDING} 인
+	 * 채로 남긴다.
+	 *
+	 * <p>그걸 그대로 두면 표의 {@code UNIQUE(name_key)} 때문에 <b>그 음식은 영원히 굳는다</b> —
+	 * 다음 사람이 눌러도 「만드는 중」만 보고, 새로 만들 수도 없다. 그림 한 장이 10~15초이므로
+	 * 5분이면 «아직 만드는 중»과 «버려진 것»을 가르기에 넉넉하다.
+	 */
+	private static final Duration PENDING_IS_STALE_AFTER = Duration.ofMinutes(5);
+
 	private final GmsDishDescriber describer;
 
 	private final DishImageWorker worker;
@@ -150,7 +163,7 @@ public class DishService {
 				return new ImageState(DishResponse.IMAGE_READY, row.getId());
 			}
 			if (DishImage.PENDING.equals(row.getStatus())) {
-				return new ImageState(DishResponse.IMAGE_PENDING, row.getId());
+				return resumeIfAbandoned(userId, row, described);
 			}
 			return retryOrKeepFailed(userId, row, described);
 		}
@@ -173,8 +186,55 @@ public class DishService {
 		}
 
 		// 🔴 저장이 커밋된 뒤에 깨운다. 이 클래스에 트랜잭션이 없는 이유가 이 한 줄이다.
-		this.worker.paint(row.getId(), described.imagePrompt());
-		return new ImageState(DishResponse.IMAGE_PENDING, row.getId());
+		return handOff(row, described);
+	}
+
+	/**
+	 * 그림 만들기를 다른 스레드에 맡긴다.
+	 *
+	 * <h2>🔴 못 맡겼으면 그 자리에서 실패로 적는다</h2>
+	 *
+	 * 실행기의 줄이 꽉 차면({@code dishImageExecutor} — 줄 20) 던져진다. 그때 <b>그냥
+	 * 올려보내면 행이 {@code PENDING} 인 채로 남는데</b>, 표의 {@code UNIQUE(name_key)}
+	 * 때문에 <b>그 음식은 영원히 굳는다</b> — 다음 사람이 눌러도 「만드는 중」만 보고,
+	 * 새로 만들 수도 없다.
+	 *
+	 * <p>사용자에게는 「그림을 못 만들었다」로 보인다. 그건 <b>맞는 말</b>이고, 하루 뒤면
+	 * {@link #RETRY_FAILED_AFTER} 가 다시 만들어 본다.
+	 */
+	private ImageState handOff(DishImage row, GmsDishDescriber.Described described) {
+		try {
+			this.worker.paint(row.getId(), described.imagePrompt());
+			return new ImageState(DishResponse.IMAGE_PENDING, row.getId());
+		}
+		catch (RuntimeException exception) {
+			// 잡는 것을 TaskRejectedException 하나로 좁히지 않는다. 맡기지 못한 이유가
+			// 무엇이든 «행을 PENDING 으로 남기지 않는다» 가 지켜져야 하고, 좁게 잡으면
+			// 다음에 다른 예외가 생겼을 때 조용히 굳는 쪽으로 되돌아간다.
+			row.markFailed("그림 만들기를 맡기지 못했다: " + exception.getClass().getSimpleName(),
+					OffsetDateTime.now(this.clock));
+			this.images.save(row);
+			return new ImageState(DishResponse.IMAGE_FAILED, row.getId());
+		}
+	}
+
+	/**
+	 * 「만드는 중」인 행이 정말 만드는 중인지 본다.
+	 *
+	 * <p>오래 멈춰 있으면 만들던 스레드가 사라진 것이다(배포·재시작). 그대로 두면 그 음식은
+	 * 영원히 굳으므로 다시 맡긴다 — {@link #PENDING_IS_STALE_AFTER}.
+	 */
+	private ImageState resumeIfAbandoned(UUID userId, DishImage row,
+			GmsDishDescriber.Described described) {
+		OffsetDateTime now = OffsetDateTime.now(this.clock);
+		if (row.getUpdatedAt().isAfter(now.minus(PENDING_IS_STALE_AFTER))) {
+			return new ImageState(DishResponse.IMAGE_PENDING, row.getId());
+		}
+
+		this.rateLimiter.takeOrThrow(userId);
+		row.markPendingAgain(now);
+		this.images.save(row);
+		return handOff(row, described);
 	}
 
 	private ImageState retryOrKeepFailed(UUID userId, DishImage row,
@@ -187,8 +247,7 @@ public class DishService {
 		this.rateLimiter.takeOrThrow(userId);
 		row.markPendingAgain(now);
 		this.images.save(row);
-		this.worker.paint(row.getId(), described.imagePrompt());
-		return new ImageState(DishResponse.IMAGE_PENDING, row.getId());
+		return handOff(row, described);
 	}
 
 	private static String statusOf(DishImage row) {
