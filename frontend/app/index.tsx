@@ -1,6 +1,9 @@
 import { Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { Redirect, useRouter } from 'expo-router';
+import { PlanStartBar } from '@/home/PlanStartBar';
+import { usePlan } from '@/plan/PlanProvider';
+import type { StartBarValue } from '@/home/startBarValue';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Text } from '@/components/Text';
@@ -52,7 +55,8 @@ export default function Welcome() {
   const { width } = useLayout();
   const { language, mobility, setPreferences, hydrated, hasEnteredApp } = useOnboardingPreferences();
   const { tx } = useI18n();
-  const { user, ready } = useAuth();
+  const { user, ready, accessToken } = useAuth();
+  const { update: updatePlan } = usePlan();
   const isDesktop = isAtLeast(width, 'lg');
   // 홈이 쓰는 값(기록·갈래·날씨·장소·내 여행)을 한곳에서 읽는다. 폰 분기에서도 훅 순서가
   // 바뀌면 안 되므로 조건 없이 위에서 부른다 — 폰에서는 그린 것이 없어 값만 놀고 끝난다.
@@ -67,7 +71,24 @@ export default function Welcome() {
     chooseLanguage(next);
     router.push({ pathname: isDesktop ? '/age-gate' : '/app-intro', params: { language: next, mobility } });
   };
-  const startPlanning = () => router.push('/plan/basic');
+  const startPlanning = () => router.push('/plan');
+
+  // 🔴 넓은 화면의 홈은 **이 파일**이다 (S15P21E201-1233). `/home` 은 넓은 화면에서
+  //    여기로 넘어오므로, 시작 바를 `(tabs)/home.tsx` 에만 넣으면 **데스크톱에서는
+  //    영영 안 보인다.** 2026-09-18 에 실제로 그렇게 배포됐다가 사용자가 찾았다.
+  const startPlanFromBar = (value: StartBarValue) => {
+    updatePlan({
+      origin: value.origin,
+      originLat: value.originLat,
+      originLng: value.originLng,
+      startDate: value.startDate,
+      endDate: value.endDate,
+      adults: value.adults,
+      children: value.children,
+      travelers: value.adults + value.children,
+    });
+    router.push('/plan');
+  };
 
   if (!isDesktop) {
     if (!hydrated || !ready) return <View style={styles.mobileScreen} />;
@@ -126,6 +147,12 @@ export default function Welcome() {
         <Text variant="body" color="rgba(255,255,255,0.78)" style={styles.heroDescription}>{tx('취향과 이동 조건을 반영해 당신만의 부산 여행을 만들어요.', 'Build a Busan trip around your taste and mobility needs.')}</Text>
         {/* S15P21E201-900: "부산 축제 보기" CTA는 최초 배포에서 뺐다 — 축제 기간 자료가
             전부 만료돼 눌러도 빈 화면이 나온다. /festivals 라우트는 그대로 있다. */}
+        {/* 🔴 시안 p0 의 시작 바 (S15P21E201-1233). 출발지·날짜·인원을 여기서 받아
+            조건 화면으로 넘긴다. 아래 「여행 계획 시작하기」는 **아직 남긴다** —
+            바를 채우지 않고 바로 들어가려는 사람의 길이다. */}
+        <View style={styles.startBar}>
+          <PlanStartBar wide accessToken={accessToken} onSubmit={startPlanFromBar} />
+        </View>
         <View style={styles.heroActions}>
           <Pressable accessibilityRole="button" accessibilityHint={tx('로그인 없이 여행 조건 입력을 시작합니다.', 'Start entering trip details without signing in.')} onPress={startPlanning} style={styles.primaryCta}><Text variant="body" weight="bold" color={color.text.onAction}>{tx('여행 계획 시작하기', 'Start planning')}</Text></Pressable>
           {/* 🔴 피드는 아직 로그인해야 볼 수 있다 — 서버가 익명 출입증을 받아 주지 않는다
@@ -236,7 +263,7 @@ const styles = StyleSheet.create({
   // 아래 여백 64 → 111). 가운데로 세우면 그 남는 만큼이 위아래로 나뉜다(95 / 87).
   //
   // 남는 공간이 없을 때는 아무 일도 안 한다 — 그래서 로그아웃 화면은 지금과 똑같다.
-  heroCopy: { width: 560, paddingLeft: 80, paddingRight: 40, paddingTop: 72, paddingBottom: 64, justifyContent: 'center' }, heroInner: { width: '100%' }, heroBadge: { alignSelf: 'flex-start', borderWidth: 1, borderColor: 'rgba(255,255,255,0.20)', borderRadius: radius.full, backgroundColor: 'rgba(255,255,255,0.10)', paddingHorizontal: spacing[4], paddingVertical: 6 }, heroTitle: { marginTop: 28, fontSize: 68, lineHeight: 71, letterSpacing: -2.4 }, heroDescription: { marginTop: 28, fontSize: 18, lineHeight: 29 }, heroActions: { flexDirection: 'row', gap: spacing[4], marginTop: 28 }, primaryCta: { minHeight: 52, borderRadius: radius.full, backgroundColor: color.brand.orange, paddingHorizontal: 40, alignItems: 'center', justifyContent: 'center' }, ghostCta: { minHeight: 52, borderRadius: radius.full, borderWidth: 1, borderColor: 'rgba(255,255,255,0.3)', paddingHorizontal: spacing[6], alignItems: 'center', justifyContent: 'center' }, heroChips: { flexDirection: 'row', gap: spacing[3], marginTop: 20 }, heroChip: { flexDirection: 'row', alignItems: 'center', gap: 6, borderRadius: radius.full, backgroundColor: 'rgba(255,255,255,0.07)', paddingHorizontal: 14, paddingVertical: 6 }, chipDot: { width: 6, height: 6, borderRadius: radius.full },
+  heroCopy: { width: 560, paddingLeft: 80, paddingRight: 40, paddingTop: 72, paddingBottom: 64, justifyContent: 'center' }, heroInner: { width: '100%' }, heroBadge: { alignSelf: 'flex-start', borderWidth: 1, borderColor: 'rgba(255,255,255,0.20)', borderRadius: radius.full, backgroundColor: 'rgba(255,255,255,0.10)', paddingHorizontal: spacing[4], paddingVertical: 6 }, heroTitle: { marginTop: 28, fontSize: 68, lineHeight: 71, letterSpacing: -2.4 }, heroDescription: { marginTop: 28, fontSize: 18, lineHeight: 29 }, startBar: { width: '100%', maxWidth: 860, marginTop: 28 }, heroActions: { flexDirection: 'row', gap: spacing[4], marginTop: 28 }, primaryCta: { minHeight: 52, borderRadius: radius.full, backgroundColor: color.brand.orange, paddingHorizontal: 40, alignItems: 'center', justifyContent: 'center' }, ghostCta: { minHeight: 52, borderRadius: radius.full, borderWidth: 1, borderColor: 'rgba(255,255,255,0.3)', paddingHorizontal: spacing[6], alignItems: 'center', justifyContent: 'center' }, heroChips: { flexDirection: 'row', gap: spacing[3], marginTop: 20 }, heroChip: { flexDirection: 'row', alignItems: 'center', gap: 6, borderRadius: radius.full, backgroundColor: 'rgba(255,255,255,0.07)', paddingHorizontal: 14, paddingVertical: 6 }, chipDot: { width: 6, height: 6, borderRadius: radius.full },
   // 「특별한 기능」 카드 셋이 있던 자리다. 로그인해도 내용이 안 바뀌는 소개였고, 그 자리에
   // 장소와 내 여행이 들어왔다 (S15P21E201-970).
   lowerSection: { flexDirection: 'row', alignItems: 'flex-start', gap: 40, paddingHorizontal: 80, paddingTop: 48, paddingBottom: 64, maxWidth: 1440, width: '100%', alignSelf: 'center' },
