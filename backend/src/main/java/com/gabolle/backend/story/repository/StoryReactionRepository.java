@@ -121,9 +121,6 @@ public interface StoryReactionRepository extends JpaRepository<StoryReaction, St
 	int clearReaction(@Param("storyId") UUID storyId, @Param("userId") UUID userId,
 			@Param("now") OffsetDateTime now);
 
-	/** 탈퇴가 이 사람의 행을 지울 때 쓴다 — {@code AccountDeletionService.USER_OWNED_ROWS}. */
-	void deleteByIdStoryIdAndIdUserId(UUID storyId, UUID userId);
-
 	/**
 	 * 최근 구간에 좋아요를 많이 받은 글 — 「실시간 인기순」이 읽을 자리.
 	 *
@@ -154,9 +151,13 @@ public interface StoryReactionRepository extends JpaRepository<StoryReaction, St
 	 *
 	 * <h2>🔴 글마다 세지 않는 이유</h2>
 	 *
-	 * 피드 한 쪽이 최대 50건이다. 글마다 {@link #countByStoryAndReaction} 을 부르면 50번의
-	 * 왕복이 되고(N+1), 그건 커뮤니티가 자라는 만큼 그대로 느려진다. {@code StoryResponseAssembler}
-	 * 가 사진·작성자·장소를 한 번씩만 읽는 것과 같은 방식이다.
+	 * 피드 한 쪽이 최대 50건이다. 글마다 {@code COUNT} 를 한 번씩 부르면 50번의 왕복이 되고
+	 * (N+1), 그건 커뮤니티가 자라는 만큼 그대로 느려진다. {@code StoryResponseAssembler} 가
+	 * 사진·작성자·장소를 한 번씩만 읽는 것과 같은 방식이다.
+	 *
+	 * <p>🔴 <b>한 글만 세는 메서드를 두지 않는다</b>(S15P21E201-1249). 있으면 상세 전용 기능을
+	 * 붙이는 사람이 그것을 집어 들고, 그때 N+1 이 조용히 돌아온다 — {@code queryCountDoesNotGrowWithPageSize}
+	 * 는 목록 경로만 재므로 상세 한 건은 안 물린다. 상세도 이 메서드를 지난다.
 	 *
 	 * <p>🔴 <b>취소한 행({@code reaction IS NULL})은 뺀다.</b> 취소해도 행이 남으므로
 	 * (S15P21E201-1173 후속) 행을 그냥 세면 <b>취소한 사람까지 들어간다.</b>
@@ -187,14 +188,6 @@ public interface StoryReactionRepository extends JpaRepository<StoryReaction, St
 			""")
 	List<StoryViewerReaction> findMineByStories(@Param("storyIds") Collection<UUID> storyIds,
 			@Param("userId") UUID userId);
-
-	/** 한 글의 좋아요·싫어요 수 — 상세 화면이 읽는다. 취소한 행({@code NULL})은 저절로 빠진다. */
-	@Query("""
-			SELECT COUNT(r) FROM StoryReaction r
-			 WHERE r.id.storyId = :storyId
-			   AND r.reaction = :reaction
-			""")
-	long countByStoryAndReaction(@Param("storyId") UUID storyId, @Param("reaction") ReactionType reaction);
 
 	/** 한 글의 한 종류에 대한 집계 한 줄. */
 	interface StoryReactionCount {

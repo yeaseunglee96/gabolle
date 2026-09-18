@@ -22,6 +22,12 @@ import jakarta.persistence.Table;
  * 사람이 빠르게 두 번 누르면 기본 키에 부딪혀 깨지기 때문이다. 여기에 수정자를 두면
  * <b>그 규칙을 우회하는 두 번째 길</b>이 생기고, 둘 중 하나만 고쳐진 채로 남는다.
  * 이 엔티티는 집계 질의({@code countRecentLikes})가 읽는 표 모양이다.
+ *
+ * <p>🔴 <b>접근자(getter)가 하나도 없다 — 빠뜨린 것이 아니다</b>(S15P21E201-1249). JPQL 은
+ * {@code r.reaction}·{@code r.reactedAt} 처럼 <b>필드</b>를 읽으므로 접근자가 필요 없고,
+ * 처음에 만들어 둔 일곱 개는 호출자가 하나도 없었다. 필요해지는 날 그때 만든다 —
+ * 안 쓰는 접근자를 미리 두면 다음 사람이 그것을 읽고 <b>이 엔티티를 직접 다루는 길이
+ * 있다고 믿는다.</b> 이 표를 고치는 유일한 길은 {@code StoryReactionRepository} 의 문장들이다.
  */
 @Entity
 @Table(name = "story_reaction")
@@ -67,31 +73,4 @@ public class StoryReaction {
 		// JPA 전용
 	}
 
-	public StoryReactionId getId() {
-		return this.id;
-	}
-
-	public ReactionType getReaction() {
-		return this.reaction;
-	}
-
-	public OffsetDateTime getCreatedAt() {
-		return this.createdAt;
-	}
-
-	public OffsetDateTime getReactedAt() {
-		return this.reactedAt;
-	}
-
-	public boolean isLikeRecorded() {
-		return this.likeRecorded;
-	}
-
-	public boolean isDislikeRecorded() {
-		return this.dislikeRecorded;
-	}
-
-	public OffsetDateTime getUpdatedAt() {
-		return this.updatedAt;
-	}
 }
