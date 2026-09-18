@@ -105,6 +105,10 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 		// 이번에는 AccountDeletionOwnedRowsTest 가 DB 없이 먼저 잡는다.
 		"com.gabolle.backend.collection.domain",
 		"com.gabolle.backend.menuscan.domain",
+		// 🔴 S15P21E201-1272 — 음식 그림 만든 횟수(DishImageUsage)를 탈퇴가 직접 지운다.
+		//    같은 꾸러미의 DishImage·DishDescription 은 사람을 안 가리키지만, 꾸러미 단위로
+		//    올리므로 함께 들어온다.
+		"com.gabolle.backend.dish.domain",
 		"com.gabolle.backend.review.domain",
 		"com.gabolle.backend.share.domain"
 })

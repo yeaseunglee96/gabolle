@@ -59,7 +59,12 @@ class AccountDeletionTableInventoryTest extends AuthPostgresIntegrationTest {
 
 	/** 2026-09-18 에 DB 에서 그대로 읽은 것. 주장이 아니다 — 위 머리말 참고. */
 	private static final List<String> TABLES_POINTING_AT_APP_USER = List.of(
-			"auth_identity", "auth_session", "collection", "feed_build", "itinerary_excluded_place",
+			"auth_identity", "auth_session", "collection",
+			// 🔴 S15P21E201-1272 — 음식 그림 만든 횟수. (가) AccountDeletionService.USER_OWNED_ROWS
+			//    에서 지운다. 같은 티켓의 dish_image·dish_description 은 여기 없다 — 그 둘은
+			//    사람을 안 가리킨다(「돼지국밥」 그림은 모두가 함께 쓴다).
+			"dish_image_usage",
+			"feed_build", "itinerary_excluded_place",
 			"itinerary_versions", "local_credential", "menu_scan_usage", "oauth_signup_ticket", "place_review",
 			"place_visit_verification", "recommendation_place_action", "saved_place", "story", "story_coauthor",
 			"story_invite", "story_link_copy", "story_reaction",
