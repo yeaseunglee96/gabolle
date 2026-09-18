@@ -1,5 +1,8 @@
-// 마이페이지 프로필 카드 — 커버 사진 위에 아바타가 걸쳐 앉는다.
-// 시안: docs/design_handoff_mypage/MyPage.dc.html
+// 마이페이지 프로필 카드 — **폰 전용** (시안 02).
+//
+// 🔴 넓은 화면은 이 카드를 안 쓴다. 커버 사진이 화면 전폭으로 깔리고 그 위에 프로필이
+//    얹힌다(MyPageCover). 그래서 이 파일에 있던 넓은 화면 가지는 전부 죽은 코드였고
+//    걷어냈다 — 남겨 두면 다음 사람이 고치고서 「왜 안 바뀌지」를 한참 찾는다.
 import { Image, Pressable, StyleSheet, View } from 'react-native';
 
 import { Text } from '@/components/Text';
@@ -13,71 +16,54 @@ export type ProfileCardProps = {
   email: string | null;
   avatarUri: string | null;
   coverUri: string | null;
-  /** 한 줄 소개. 서버에 칸이 없으면 null 이고 줄을 안 그린다. */
-  bio: string | null;
-  /** 거주지. 위와 같다. */
-  homeCity: string | null;
   counts: ProfileCardCount[];
   onEdit: () => void;
-  wide: boolean;
   tx: (ko: string, en: string) => string;
 };
 
-export function ProfileCard({ name, email, avatarUri, coverUri, bio, homeCity, counts, onEdit, wide, tx }: ProfileCardProps) {
+export function ProfileCard({ name, email, avatarUri, coverUri, counts, onEdit, tx }: ProfileCardProps) {
   const initial = name.trim().slice(0, 1) || '·';
   return (
-    <View style={[styles.card, wide && styles.cardWide]}>
-      <View style={[styles.cover, wide && styles.coverWide, !coverUri && styles.coverEmpty]}>
+    <View style={styles.card}>
+      <View style={styles.cover}>
         {coverUri ? (
           <Image source={{ uri: coverUri }} resizeMode="cover" style={styles.coverPhoto} accessibilityLabel={tx('배경 사진', 'Cover photo')} />
         ) : null}
- {/* 커버 아래를 흰색으로 녹이는 것은 사진이 있을 때만 한다.
-            사진은 사용자가 고르는 것이라 어떤 색이 올지 알 수 없어서, 안 녹이면 그 위에
-            얹힌 이름이 묻힌다. 반대로 사진이 없으면 녹일 것이 없다 — 그때도 녹이면
-            평평한 색 위에 **빈 흰 띠**가 생겨서 화면이 덜 만들어진 것처럼 보인다.
-            (2026-09-18 실제로 띄워서 찾았다.) */}
-        {coverUri ? <View style={styles.fade} /> : null}
-        <View style={styles.eyebrowBadge}>
-          <Text variant="caption" weight="bold">{tx('내 계정', 'Account')}</Text>
-        </View>
       </View>
 
-      <View style={[styles.body, wide && styles.bodyWide]}>
+      <View style={styles.body}>
         <View style={styles.topRow}>
-          <View style={[styles.avatar, wide && styles.avatarWide]}>
+          <View style={styles.avatar}>
             {avatarUri
               ? <Image source={{ uri: avatarUri }} resizeMode="cover" style={styles.avatarPhoto} accessibilityLabel={tx('프로필 사진', 'Profile photo')} />
               : <Text variant="display" weight="bold" color={color.text.onAction}>{initial}</Text>}
           </View>
           <Pressable accessibilityRole="button" onPress={onEdit} style={styles.editButton}>
-            <Text weight="bold" color={color.text.onAction}>{tx('프로필 편집', 'Edit profile')}</Text>
+            <Text weight="bold" color={color.text.onAction} numberOfLines={1}>{tx('프로필 편집', 'Edit profile')}</Text>
           </Pressable>
         </View>
 
- {/* `hero` 는 기본 글자색이 흰색이다(tokens 의 defaults). 히어로 사진 위에
-            얹으라고 만든 변형이라 그렇다. 여기는 흰 바탕이라 색을 안 주면 **이름이 통째로
-            안 보인다** — 시험도 타입도 안 잡는다. 2026-09-18 에 띄워 보고 찾았다. */}
-        <Text variant={wide ? 'hero' : 'display'} weight="bold" color={color.text.heading} numberOfLines={1}>{name}</Text>
-        {bio ? <Text>{bio}</Text> : null}
-
+        <Text variant="display" weight="bold" color={color.text.heading} numberOfLines={1}>{name}</Text>
         <Text variant="caption" color={color.text.muted} numberOfLines={1}>
-          {[email, homeCity].filter(Boolean).join(' · ') || tx('로그인 없이 앱을 둘러보는 중이에요', 'Browsing without an account')}
+          {email || tx('로그인 없이 앱을 둘러보는 중이에요', 'Browsing without an account')}
         </Text>
 
+        {/* 🔴 숫자가 버튼이 된다(시안 02). 전에는 글자라 눌러도 되는지 안 보였다 —
+            눌리는 것은 눌리게 생겨야 한다. */}
         <View style={styles.counts}>
           {counts.map((count) => (
             <Pressable
               key={count.label}
               accessibilityRole={count.onPress ? 'button' : undefined}
+              accessibilityLabel={count.onPress ? tx(`${count.label} 보기`, `View ${count.label}`) : undefined}
               disabled={!count.onPress}
               onPress={count.onPress}
-              style={styles.count}
+              style={({ pressed }) => [styles.count, pressed && styles.pressed]}
             >
               {/* 아직 못 받은 수를 0 으로 그리지 않는다. 0 은 「없다」는 뜻이고
-                  못 받은 것은 「모른다」인데, 0 이 찍히면 사람은 앞의 뜻으로 읽는다.
-              */}
-              <Text weight="bold">{count.value === null ? '–' : count.value}</Text>
-              <Text variant="caption" color={color.text.muted}>{count.label}</Text>
+                  못 받은 것은 「모른다」인데, 0 이 찍히면 사람은 앞의 뜻으로 읽는다. */}
+              <Text variant="title" weight="bold" numberOfLines={1}>{count.value === null ? '–' : count.value}</Text>
+              <Text variant="caption" color={color.text.muted} numberOfLines={1}>{count.label}</Text>
             </Pressable>
           ))}
         </View>
@@ -86,33 +72,28 @@ export function ProfileCard({ name, email, avatarUri, coverUri, bio, homeCity, c
   );
 }
 
-const COVER_HEIGHT = 240;
-const COVER_HEIGHT_WIDE = 300;
-/** 사진이 없을 때는 낮게. 빈 색 띠를 300px 씩 둘 이유가 없다. */
-const COVER_HEIGHT_EMPTY = 168;
+/** 시안 02 의 값. 아바타가 걸쳐 앉을 만큼만 있으면 된다. */
+const COVER_HEIGHT = 120;
 const AVATAR = 88;
-const AVATAR_WIDE = 112;
 
 const styles = StyleSheet.create({
-  card: { backgroundColor: color.surface.card, borderBottomWidth: 1, borderColor: color.surface.border, overflow: 'hidden' },
-  cardWide: { borderRadius: radius.lg, borderWidth: 1 },
+  // 폰에도 테두리와 둥근 모서리를 준다(시안 02). 전에는 띠처럼 화면 폭을 꽉 채웠다.
+  card: { borderRadius: radius.lg, borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.surface.card, overflow: 'hidden' },
   cover: { height: COVER_HEIGHT, backgroundColor: color.surface.soft },
-  coverWide: { height: COVER_HEIGHT_WIDE },
-  coverEmpty: { height: COVER_HEIGHT_EMPTY },
   coverPhoto: { width: '100%', height: '100%' },
-  // 시안의 흰색 그라데이션을 RN 에서 흉내 낸다 — 아래 절반을 반투명 흰색으로 덮는다.
-  fade: { position: 'absolute', left: 0, right: 0, bottom: 0, height: '45%', backgroundColor: 'rgba(255,255,255,0.72)' },
-  eyebrowBadge: { position: 'absolute', top: spacing[4], left: spacing[4], paddingHorizontal: spacing[3], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: 'rgba(255,253,248,0.9)' },
-  body: { gap: spacing[2], paddingHorizontal: spacing[6], paddingBottom: spacing[6], marginTop: -56 },
-  bodyWide: { paddingHorizontal: spacing[8], marginTop: -72 },
-  topRow: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between' },
+  body: { gap: spacing[2], paddingHorizontal: spacing[4], paddingBottom: spacing[4], marginTop: -44 },
+  topRow: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', gap: spacing[3] },
   avatar: {
     width: AVATAR, height: AVATAR, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center',
     backgroundColor: color.brand.navy, borderWidth: 4, borderColor: color.surface.card, overflow: 'hidden',
   },
-  avatarWide: { width: AVATAR_WIDE, height: AVATAR_WIDE, borderWidth: 5 },
   avatarPhoto: { width: '100%', height: '100%' },
   editButton: { minHeight: 44, paddingHorizontal: spacing[4], justifyContent: 'center', borderRadius: radius.full, backgroundColor: color.brand.navy },
-  counts: { flexDirection: 'row', gap: spacing[6], marginTop: spacing[2] },
-  count: { alignItems: 'center', minHeight: 44, justifyContent: 'center' },
+
+  counts: { flexDirection: 'row', gap: spacing[2], marginTop: spacing[2] },
+  count: {
+    flex: 1, minHeight: 56, alignItems: 'center', justifyContent: 'center', gap: 2,
+    borderRadius: radius.md, backgroundColor: color.surface.soft,
+  },
+  pressed: { opacity: 0.72 },
 });

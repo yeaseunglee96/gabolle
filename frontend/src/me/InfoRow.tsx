@@ -21,7 +21,8 @@ export function InfoRow({ label, value, description, onPress, disabled = false, 
   const body = (
     <>
       <View style={styles.copy}>
-        <Text weight="bold">{label}</Text>
+        {/* 라벨은 진한 색이다(시안). 값·설명보다 앞서 읽혀야 한다. */}
+        <Text weight="bold" color={color.text.heading}>{label}</Text>
         {description ? <Text variant="caption">{description}</Text> : null}
       </View>
       {value ? <Text variant="caption" color={disabled ? color.text.muted : color.text.body}>{value}</Text> : null}
