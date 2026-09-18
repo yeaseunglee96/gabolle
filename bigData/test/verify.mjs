@@ -316,6 +316,27 @@ await t('쪽이 남았으면 마침 줄이 그렇게 말한다 (S15P21E201-1289)
     if (!/남은 페이지 2개/.test(out)) throw new Error('남은 쪽을 안 알렸다:\n' + out)
     if (/전량 받았습니다/.test(out)) throw new Error('쪽이 2개 남았는데 전량 받았다고 말한다:\n' + out)
     ok('몫 소진 · 1/3 받음 — 남은 2개를 알리고, 전량이라 말하지 않는다')
+    // 🔴 반대쪽 극단. if (left) 는 0 이 아니기만 하면 참이라 음수도 통과한다 —
+    //    파일이 예상보다 많으면 "남은 페이지 -2개" 가 찍힌다.
+    //    전체 건수를 1,000(=1쪽)으로 낮추고 3장을 두면 left 가 -2 가 된다.
+    const page = (n, total) =>
+      writeFile(
+        join(dir, 'data/raw/facility/pages/page-000' + n + '.xml'),
+        '<?xml version="1.0"?><facInfoList><totalCount>' + total + '</totalCount>' +
+          '<servList><faclNm>시험용</faclNm></servList></facInfoList>',
+      )
+    await page(1, 1000)
+    await page(2, 1000)
+    await page(3, 1000)
+
+    const more = execFileSync(
+      process.execPath,
+      [join(dir, 'collect/disabled-facility.mjs'), '--budget', '0'],
+      { encoding: 'utf8' },
+    )
+    if (/남은 페이지 -/.test(more)) throw new Error('받은 것이 전체보다 많은데 남은 쪽을 음수로 말한다:\n' + more)
+    if (/undefined/.test(more)) throw new Error('마침 줄에 undefined 가 찍혔다:\n' + more)
+    ok('전체보다 많이 받았을 때 — 음수를 남은 쪽이라 말하지 않는다')
   } finally {
     await rm(dir, { recursive: true, force: true })
   }
