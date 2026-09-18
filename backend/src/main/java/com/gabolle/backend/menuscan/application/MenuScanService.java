@@ -47,7 +47,7 @@ public class MenuScanService {
 		this.properties = properties;
 	}
 
-	public MenuScanResponse scan(UUID userId, byte[] image) {
+	public MenuScanResponse scan(UUID userId, byte[] image, String language) {
 		if (image == null || image.length == 0) {
 			throw new IllegalArgumentException("사진이 없습니다");
 		}
@@ -74,7 +74,7 @@ public class MenuScanService {
 			throw new IllegalArgumentException("사진을 읽을 수 없습니다");
 		}
 
-		GmsMenuReader.Result result = this.reader.read(clean);
+		GmsMenuReader.Result result = this.reader.read(clean, language);
 		return MenuScanResponse.of(result.lines(), result.unreadLineCount());
 	}
 

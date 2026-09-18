@@ -21,6 +21,8 @@ import com.gabolle.backend.menuscan.presentation.dto.MenuScanResponse;
  *
  * <pre>
  * POST /api/v1/menu-scans      multipart/form-data, part 이름은 "image"
+ *                              선택 part "language" — 앱 언어(ko/en/ja/zh-Hans/zh-Hant).
+ *                              없으면 한국어로 취급해 옛 앱 빌드와 동작이 같다
  * </pre>
  *
  * <h2>🔴 왜 서버가 중계하나 — 앱에 키를 넣으면 추출된다</h2>
@@ -57,10 +59,11 @@ public class MenuScanController {
 
 	@PostMapping(value = "/api/v1/menu-scans", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ApiResponse<MenuScanResponse> scan(@RequestPart("image") MultipartFile image,
+			@RequestPart(value = "language", required = false) String language,
 			Authentication authentication) throws IOException {
 
 		UUID userId = AuthenticatedUsers.requireId(authentication);
-		return ApiResponse.success(this.service.scan(userId, image.getBytes()),
+		return ApiResponse.success(this.service.scan(userId, image.getBytes(), language),
 				"req_" + UUID.randomUUID());
 	}
 }

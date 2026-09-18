@@ -146,8 +146,8 @@ class MenuScanControllerTest {
 	@Test
 	@DisplayName("🔴 사진에서 읽은 값은 언제나 ESTIMATED 다 — VERIFIED 를 붙이지 않는다")
 	void alwaysEstimated() throws Exception {
-		when(this.reader.read(any())).thenReturn(new GmsMenuReader.Result(
-				List.of(new MenuScanResponse.Line("새우튀김", List.of("새우"))), 0));
+		when(this.reader.read(any(), any())).thenReturn(new GmsMenuReader.Result(
+				List.of(new MenuScanResponse.Line("새우튀김", "새우튀김", List.of("새우"))), 0));
 
 		this.mockMvc.perform(multipart("/api/v1/menu-scans").file(part(jpeg()))
 						.principal(principal(this.userId)))
@@ -163,8 +163,8 @@ class MenuScanControllerTest {
 	@Test
 	@DisplayName("🔴 알레르기 낱말을 못 찾아도 「없음」이라고 답하지 않는다")
 	void nothingFoundIsNotAClaimOfSafety() throws Exception {
-		when(this.reader.read(any())).thenReturn(new GmsMenuReader.Result(
-				List.of(new MenuScanResponse.Line("김밥", List.of())), 0));
+		when(this.reader.read(any(), any())).thenReturn(new GmsMenuReader.Result(
+				List.of(new MenuScanResponse.Line("김밥", "김밥", List.of())), 0));
 
 		this.mockMvc.perform(multipart("/api/v1/menu-scans").file(part(jpeg()))
 						.principal(principal(this.userId)))
@@ -187,14 +187,14 @@ class MenuScanControllerTest {
 				.andExpect(status().isServiceUnavailable())
 				.andExpect(jsonPath("$.error.code").value("MENU_SCAN_UNAVAILABLE"));
 
-		verify(this.reader, never()).read(any());
+		verify(this.reader, never()).read(any(), any());
 	}
 
 	@Test
 	@DisplayName("🔴 한도를 넘기면 조용히 빈 결과가 아니라 429 다")
 	void rateLimitedIsFailureNotEmpty() throws Exception {
 		this.properties.setPerMinuteLimit(1);
-		when(this.reader.read(any())).thenReturn(new GmsMenuReader.Result(List.of(), 0));
+		when(this.reader.read(any(), any())).thenReturn(new GmsMenuReader.Result(List.of(), 0));
 
 		byte[] image = jpeg();
 		this.mockMvc.perform(multipart("/api/v1/menu-scans").file(part(image))
@@ -214,7 +214,7 @@ class MenuScanControllerTest {
 						.principal(principal(this.userId)))
 				.andExpect(status().isBadRequest());
 
-		verify(this.reader, never()).read(any());
+		verify(this.reader, never()).read(any(), any());
 	}
 
 	// ── 🔴 위치 정보를 지우고 보낸다 ─────────────────────────────────────────
@@ -256,13 +256,13 @@ class MenuScanControllerTest {
 		// 표식이 실제로 심겼는지부터 본다 — 안 심겼으면 아래 검사는 공짜로 통과한다.
 		assertThat(contains(original, GPS_MARKER)).isTrue();
 
-		when(this.reader.read(any())).thenReturn(new GmsMenuReader.Result(List.of(), 0));
+		when(this.reader.read(any(), any())).thenReturn(new GmsMenuReader.Result(List.of(), 0));
 
 		this.mockMvc.perform(multipart("/api/v1/menu-scans").file(part(original))
 				.principal(principal(this.userId))).andExpect(status().isOk());
 
 		ArgumentCaptor<byte[]> sent = ArgumentCaptor.forClass(byte[].class);
-		verify(this.reader).read(sent.capture());
+		verify(this.reader).read(sent.capture(), any());
 
 		assertThat(sent.getValue()).isNotEmpty();
 		assertThat(contains(sent.getValue(), GPS_MARKER))
