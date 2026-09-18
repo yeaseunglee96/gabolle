@@ -69,6 +69,7 @@ import { readFile, writeFile, mkdir, readdir } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { log } from '../lib/log.mjs'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const ENV = join(ROOT, '.env')
@@ -87,7 +88,6 @@ const DEFAULT_BUDGET = 98
 const GAP_MS = 400
 
 const EXIT = { OK: 0, BAD: 1, INPUT: 2 }
-const log = (...a) => console.log(new Date().toISOString().slice(11, 19), ...a)
 
 const arg = (name, dflt) => {
   const i = process.argv.indexOf(name)

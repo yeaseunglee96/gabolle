@@ -90,6 +90,7 @@ import readline from 'node:readline'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { stamp } from '../mlops/manifest.mjs'
+import { log } from '../lib/log.mjs'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const IN_TREES = join(ROOT, 'data/raw/trees/street-trees.ndjson')
@@ -99,7 +100,6 @@ const GEOM = ['road', 'walk'].map((f) => join(ROOT, `data/raw/pbf/${f}.ndjson`))
 const OUT_SEG = join(ROOT, 'data/staged/segment-shade.ndjson')
 const OUT_SUM = join(ROOT, 'data/staged/_shade-summary.json')
 
-const log = (...a) => console.log(new Date().toISOString().slice(0, 19), ...a)
 
 /** 가로수 레코드의 비수종 칼럼. 나머지 38개가 수종이다. */
 const NON_SPECIES = new Set(['loc_nm', 'sec_timepoint', 'sec_endpoint', 'plant_distance', 'reference_date', 'lat', 'lng', 'total', 'gugun'])

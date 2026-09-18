@@ -40,6 +40,7 @@ import { readFile, writeFile, mkdir, readdir } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { log } from '../lib/log.mjs'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const STATION_CSV = join(ROOT, 'data/raw/subway/station.csv')
@@ -53,7 +54,6 @@ const MAX_HOP_MIN = 15
 /** 이보다 긴 간격은 「다음 열차」가 아니라 운행 중단 구간이다 (막차~첫차). */
 const MAX_HEADWAY_MIN = 60
 
-const log = (...a) => console.log(new Date().toISOString().slice(11, 19), ...a)
 const die = (code, msg) => { log(msg); process.exit(code) }
 
 const sec = (t) => { const [h, m, s] = String(t).split(':').map(Number); return h * 3600 + m * 60 + (s || 0) }

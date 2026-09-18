@@ -32,6 +32,7 @@ import { readFile, readdir, writeFile, mkdir, open } from 'node:fs/promises'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createDemReader } from './dem-clean.mjs'
+import { log } from '../lib/log.mjs'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const DEM  = join(ROOT, 'data/raw/dem')
@@ -42,7 +43,6 @@ const ZOOM = 15, TILE = 256
 const BASELINE_M = 100
 const STEP_M = 10
 
-const log = (...a) => console.log(new Date().toISOString().slice(11, 19), ...a)
 const R = 6371000, rad = d => d * Math.PI / 180
 const dist = (a, b) => {
   const dLat = rad(b.lat - a.lat), dLon = rad(b.lon - a.lon)

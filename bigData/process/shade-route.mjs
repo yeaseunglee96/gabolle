@@ -49,6 +49,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import readline from 'node:readline'
+import { log } from '../lib/log.mjs'
 
 const argv = process.argv.slice(2)
 const arg = (name, dflt) => {
@@ -74,7 +75,6 @@ const SUFFIX = WITH_TREES ? '-trees' : ''
 /** λ 격자. 0 이 최단거리다. 위로 갈수록 볕을 피해 더 돈다. */
 const LAMBDAS = [0, 0.25, 0.5, 1, 2, 4, 8]
 
-const log = (...a) => console.log(...a)
 const die = (code, ...a) => { console.error(...a); process.exit(code) }
 
 const R = 6371008.8

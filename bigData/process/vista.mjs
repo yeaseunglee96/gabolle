@@ -25,6 +25,7 @@ import { fileURLToPath } from 'node:url'
 // 🔴 고도 타일 PNG 디코더는 다시 만들지 않는다. 검증된 것을 그대로 쓴다.
 import { decodePNG, terrariumToElevation } from './png.mjs'
 import { stamp } from '../mlops/manifest.mjs'
+import { log } from '../lib/log.mjs'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const DEM  = join(ROOT, 'data/raw/dem')
@@ -46,7 +47,6 @@ const STEP_M = 25
 /** 상대고도의 "주변" — 정사각 이웃의 반변(m). 🔴 이 값은 추정 대상이라 **둘 다 낸다.** */
 const REL_RADII_M = [500, 1000]
 
-const log = (...a) => console.log(new Date().toISOString().slice(11, 19), ...a)
 const R = 6371000, rad = d => d * Math.PI / 180
 const haversine = (a, b) => {
   const dLat = rad(b.lat - a.lat), dLon = rad(b.lon - a.lon)
