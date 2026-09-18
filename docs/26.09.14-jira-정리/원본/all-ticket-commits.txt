@@ -1,0 +1,1071 @@
+9f57022bfa9c7a263bebe2e3b03dc5619a068573|fix/common/S15P21E201-932-done-headline-count|[S15P21E201-932] fix: [Data] 완료 화면 제목도 실제로 낸 곳 수로 말한다
+ce011708fe2ca29f157214bf1b5af0ad766e05f6|fix/common/S15P21E201-931-welcome-headline-cap|[S15P21E201-931] fix: [Data] 웰컴 첫 화면 제목에서 「세 군데만」을 뗀다
+e3eb3a1ff34d8abe45ee732e91aba1c2cd6eda12|feat/common/S15P21E201-930-recommend-one-at-a-time-cues|[S15P21E201-930] feat: [Data] 추천 장소 입력에 진행 배지와 「한 곳만」 안내문구를 더한다
+9ff15357a9326a33cbde23211c5cc0613106c69f||[S15P21E201-928] fix: [App] 아이폰에서 앱 소개(온보딩) 화면 넘기기가 막히던 것을 고친다
+7919d1cf432dfe90ab93a5ea9da496db77fe90d0||[S15P21E201-926] fix: [Front] 하단 탭바가 safe-area 하단 인셋을 반영 안 해 기기 시스템 UI에 가려지던 것을 고친다
+26b395e21019938fbf5b9795b5788f03e29cd543|fix/common/S15P21E201-927-pairwise-same-note|[S15P21E201-927] fix: [Data] 짝 비교 안내 문구를 같은 값이 실제로 있을 때만 붙인다
+42556fe7ac807468113bbdc4a76b563322ef3472||[S15P21E201-925] fix: [Front] 웰컴 화면 배경 영상 화질이 나빠 정적 사진으로 되돌린다
+17891f3b20f46e6861d018b31226d96169c9baba||[S15P21E201-833] feat: [FE] 애플 로그인 이메일 요청 전환
+4f3f0705a757627cc6e0730ffbe6395dca07eff5||[S15P21E201-924] fix: [Front] 홈 카드 사진이 원본 픽셀 크기로 렌더링돼 왼쪽 위만 잘려 보이던 것을 고친다
+7b0b54fb21375c1a93e015c06206cf3c021d4831||[S15P21E201-247] docs: [Common] 스토어 심사 준비도 재실측 (2026-09-14)
+618214f01fb14f47a79736a0753ceed7660b5381||[S15P21E201-285] chore: [Front] 공공데이터 출처표시 화면을 추가한다
+b8289885d13bf4e2c6b3cb9af69aa698d49d1f8e|origin/fix/back/S15P21E201-549-pace-factor-opt-out|[S15P21E201-549] fix: [BE] 개인화를 꺼도 살아 있던 문 하나 — 속도 계수
+77ab17dfcbc372b524f65c95f2a998900605fabf||[S15P21E201-787] fix: [BE] 취향 접기가 앱이 보내는 답 모양을 못 읽고 있었다
+c17687526939098489607cccbe491bb51a196505||[S15P21E201-923] feat: [BE] 같은 이메일 소셜 계정 자동 연결
+ba2f837c4ed6da0961a2c93b646f6e13efb208b3||[S15P21E201-285] chore: [BE] 기상청 서비스 키를 배포 파이프라인에 연결한다
+009e501731a05d22fc37599d3d4add8cb6fcaf8a||[S15P21E201-922] fix: [Front] 일정 생성 실패 시에도 화면이 "생성 중"이라고 말하던 것을 고친다
+44e344a1e9f01fbf5daa38ca51c297053f059a63||[S15P21E201-921] feat: [Front] 부슐랭 장소 담기에 카카오 위치 검색 자동완성을 연동한다
+2345007807de6a3eb924924f7661bab4b2becbdd||[S15P21E201-919] fix: [Front] 사용자 실사용 리포트 6건 — 로컬탐색 안내문구·홈카드 야경사진·지도마커·원시에러코드·실패여행안내·챗봇레이아웃
+9c24fb0f29906dfa6c10868e6f35eab1a176e5e8||[S15P21E201-917] fix: [Common] 갓 배포한 날 곡선이 통째로 사라지던 것 — 잰 칸이 모자라면 7일로 그린다
+15e71195339d375767ccac2bd0ec83abd88a43d1||[S15P21E201-917] feat: [Common] 상태 페이지에 추세 곡선 — 막대로는 안 보이던 "점점 느려지는 중"을 보여준다
+7dee76f94b1daa1ef571fa4aa6e8e39004f6d0bb||[S15P21E201-915] fix: [BE] 취향 답의 CATEGORY 낱말을 사전으로 막는다 — 장소만 막아서는 「맞는 장소 없음」이 안 없어진다
+7ba4bd7f1325feffdd0e11e959eb9a6bd327e1ae||[S15P21E201-912] fix: [Front] 여행 준비·기념품샵 화면이 tripId를 itineraryId 자리에 넘겨 날씨·기준 위치가 항상 실패하던 것을 고친다
+74da04c5772ddbe16ef0884b5a08f760d19af2c4||[S15P21E201-914] fix: [Front] 홈 배너·챗봇 인텐트 응답에도 남아 있던 로컬 탐색 8종 하드코딩 제거
+161c027ecbe27722eb8882a0b0c3c91faafe4786||[S15P21E201-913] fix: [BE] 계정 삭제 미리보기가 지운 여행까지 센다
+6ec005b53494c9494af0e9b67b47b6e54850caa5||[S15P21E201-914] fix: [Front] 챗봇 로컬 탐색 안내 문구가 8종이라 하지만 실제는 6종이라 숫자를 뺀다
+648f9d3c47aa977c95c402debdcbccc25f1a98d7||[S15P21E201-911] fix: [Front] 도착·출발 찍기 후 예상 도착 표시가 안 바뀌던 것을 고친다
+7fd73769d87af13e4f7751efa402429ebb6f4662||[S15P21E201-910] fix: [Front] 추천 이유 태그가 전부 "추천 조건 반영"만 중복 표시되던 것을 고친다
+cfa60bf2b42d0a2bdbafbc69978aa8bae631c05d||[S15P21E201-909] fix: [Front] AI 챗봇이 뺀 기능(지금 갈 곳·축제·메뉴판 번역)을 계속 안내하던 것을 고친다
+e7260fdcf47cf52ccbf22bc2302a115ea7292bb3||[S15P21E201-904] fix: [Back] 사전 강제를 온보딩 갈래 하나로 좁힌다 — 남의 검사를 고치지 않는다
+3c97ecf0fdf27093fce5a99bfec9162771af0cf2||[S15P21E201-907] chore: [Front] 양방향 음성 통역·메뉴판 카메라 번역 카드를 뺀다
+531cfb0a080d5f51533de4c70b6a5108ea13f7d4||[S15P21E201-904] fix: [Back] 사전 강제를 두 갈래로 좁히고 시험을 진짜 낱말로 고친다
+7583e7e63380df33020428c6232d2b0178533f97||[S15P21E201-904] fix: [Back] 장소 표식 한 갈래에 든 두 사전을 가른다 — 온보딩 여섯을 CATEGORY_TAG 로
+625c0e8ed49315d86a8d1f45fc44c431469962c4||[S15P21E201-906] chore: [Front] 출시 전 피드 탭을 뺀다 — 하단 탭 4개로 되돌린다
+103e4df6084f6cce8e85ee29ff37f4f24ee305b7||[S15P21E201-905] fix: [FE] 음식 취향 건너뛰기 뒤 취향 입력 완료 버튼 잠김
+4bd7b726beb57bb3565baa62c91ba15e113f12af||[S15P21E201-903] feat: [BE] 명소 중심 하루 구성
+0ecee56a63c6bae4880ca35f811a284ee0ccb2e9||[S15P21E201-902] fix: [BE] 하루 장소 수 상한이 마지막 날에 안 걸린다
+b0ca34f77e3dc5f0c0d8a3170d45869ff5a19d39||[S15P21E201-900] fix: [Front] 데스크톱 랜딩 히어로칩에서 지금 갈 곳 문구도 뺀다
+fb2e59920cf527080e4e6b11023dec3658d88d11||[S15P21E201-901] chore: [Front] 부슐랭 리스트 화면에 기기 저장 안내 문구를 추가한다
+e15d0e8c4f46eb9f5354e9972b8edf425581c1bc||[S15P21E201-900] chore: [Front] 최초 배포에서 지금 갈 곳·축제·기념품샵 진입점을 감춘다
+fa8d7efd940e1511a515b6785ade3c6f798e5cd9||[S15P21E201-854] docs: [BE] 적재 절차 문서를 실측에 맞춘다
+ec498d426d1d929fa573aa9130784afe2f565883||[S15P21E201-898] fix: [Front] 로컬 탐색 화면에서 0건 갈래를 목록에서 뺀다
+08cf300608e45d5218801d62568e63c5fa1c6ffe||[S15P21E201-899] fix: [BE] 갈래 빈 장소가 추천 후보에 섞인다
+255548e4c7ba0a498714fcc131892efc80dc469e||[S15P21E201-897] fix: [Front] 취향 화면에서 장소 없는 갈래를 감춘다
+59892394df3a2c03761a5e04b423fbbf2a568f9e||[S15P21E201-896] feat: [BE] 장소가 있는 취향 갈래 조회
+5838265a2d03993a5fd4236d3ab2fea3bed4310c||[S15P21E201-893] fix: [Back] 이메일 없는 계정의 내 정보 조회 500
+84170f2202e8577e619f27c01e9c35f51471347e||[S15P21E201-890] fix: [Data] 짝 비교 마지막 줄을 「유명한 곳 : 현지인에게 ↔ SNS 에서」 로 — 한쪽에만 「유명」이 붙어 취향이 아니라 좋고 나쁨을 묻고 있었다
+87de57fdab497b76548258531fafc5141cd1396b||[S15P21E201-888] fix: [Data] 문의처에 이메일을 더하고 「학교」를 「SSAFY」로
+6ffd88fdc19122567f03d5e9eba506408f8663c0||[S15P21E201-887] fix: [Data] 짝 비교 표에서 속성 이름 뒤의 「=」를 뺀다
+16605f9875fded64e6a8186e68335128ad722e63||[S15P21E201-886] fix: [Docs] 설문 모집 글을 지금 설문에 맞춘다 — "4분 · 12번 · 경품 없음" 은 지운 옛 설문 것이었다
+4a235fdeeeddf0e4a1798e7997ffc8d39675757c||[S15P21E201-885] fix: [Data] 설문 마감을 9/18(금)로 늘린다 — 응답 0건인 채 9/14 에 닫히면 쓸 게 없다
+ab8a5c02dbaf417f36aeb43683c7a8e8faab6111||[S15P21E201-884] feat: [Data] 짝 비교를 두 벌로 — 대비 7개로 계수 11개를 못 푸는 설계였다
+df583e1a10fffa9826bac1d2d42ab2751e36c82b||[S15P21E201-883] fix: [Data] 웰컴 캡션 둘이 사진과 안 맞는다 — 낮 사진에 「밤」, 한낮 사진에 「해질 때」
+55729b30d01d96a16e65b64877556d3ee189ad24||[S15P21E201-208] feat: [Front] 경로 상세 화면을 좁은 폭부터 만든다 (CAR·WALK)
+73abcdb5653d86b3662d5fe82b54c80e547a1dd4||[S15P21E201-882] fix: [Data] 웰컴 사진이 2.35배로 늘어나 흐릿하다 — 넓은 화면용 큰 판을 붙인다
+69add6416db6e9018aae0b854ab2b49042af4839||[S15P21E201-881] fix: [Data] 사진을 바꿨는데 서버 허용 목록을 안 고쳤다 — 배포하면 502 였다
+578d7fefd626d50110a6cbe94a7d6cead21dc85d||[S15P21E201-880] fix: [Data] 첫 카드에서는 「이 장소 추천하기」로 적는다
+b77154fab74f5e826ebc0d47ecf902a89c914c5f||[S15P21E201-879] fix: [Data] 웰컴 사진이 건너 페이드로 바뀐다 · 공사장만 보이던 사진 교체 · 담기 문구
+533d259d9a483bd63a0af13a643e4ead7b2cca55||[S15P21E201-470] refactor: [Front] 날짜별 페이스 조회를 병렬로 부른다
+c66ab08e3bbbb539b739f548168d1c1b7f116d61||[S15P21E201-237] fix: [App] iOS에서 지도 앱 설치 여부 확인이 항상 실패하던 것을 고친다
+39a0a415a350a5371b7f5dd10ee3335924a47c9e||[S15P21E201-470] feat: [Front] 기념품샵 지도+거리순 목록 화면을 만든다
+e6dd477616e6e2970a7de5fe0319bbf2635c6218||[S15P21E201-878] feat: [Data] 설문 2차 4-나단계 — 추천하는 곳을 「한 번에 한 곳」 카드로
+eb8df381e142820d2b2c728e544e162caa588c95||[S15P21E201-251] feat: [Front] 여행 요약 카드 — 방문지 수·대표 사진·공유
+3926cd645a4fa7cbc3657f1a6ad201969d680b13||[S15P21E201-813] fix: [Front] prepare.tsx의 죽은 링크·edit.tsx 고아 화면을 정리한다
+012241163e573d2ce2e092d568b4c4717aed9402||[S15P21E201-872] fix: [FE] iOS Associated Domains에 webcredentials 서비스도 추가한다
+a51b3e00bf4861dbb6aec453352fccb823da56a5||[S15P21E201-877] fix: [Data] 설문 2차 다듬기 다섯 — 아이콘이 잘려 있었다 · 바탕색 띠 · 화면 전환
+51c8750fc427f391b59576eb9b040f8e1ded254c||[S15P21E201-872] fix: [FE] iOS 소셜 로그인 콜백이 Universal Links를 안 쓰던 것을 고친다
+c0c12b32e07272c601a80b24b813af1a6eeb38b5||[S15P21E201-472] feat: [Front] 로컬 탐색 여덟 갈래에 근처 장소 조회를 연결한다
+9d9a2df0be274eeb30a221719049213e9824367c||[S15P21E201-876] feat: [Data] 설문 2차 4-가단계 — 여행 스타일 카드형 · 「나에 대해」 한 장 분리
+3a918612fd8e2bd2354f4f13ea2aae229f8b3a12||[S15P21E201-875] docs: [Data] 0008 을 빈 DB 에서 실제로 돌려 보고 결과를 머리말에 적는다
+1488c98720ab46f2a93305aa802dd3c18ac5b93c||[S15P21E201-875] feat: [Data] 설문 2차 3단계 — 짝 비교를 좌우 표로 · top_was → left_was
+de039ed0cfa5ae929e036cd6f829194b45a1338f||[S15P21E201-874] feat: [Data] 설문 2차 2단계 — 웰컴 3 · 고지 · 전제 · 완료
+a13ae3245a80092d39ef641019071e0e15956cb9||[S15P21E201-873] feat: [Data] 설문 2차 1단계 — 색 토큰 · 아이콘 SVG 인라인 · 공통 부품
+94879196d3090b6fb314f1b12fbe05c1a499b55d||[S15P21E201-335] feat: [Front] 공유된 일정 보기 화면과 내 조건으로 새 여행 만들기를 연결한다
+0be1db7809944464b8c08be612fcc4807db016df||[S15P21E201-813] fix: [Front] 고아 상태 데모 화면(trip result)을 지운다
+a4b7c25c8b807762631154570388b6a95fec4cfa||[S15P21E201-872] chore: [Front] eas.json 설정을 커밋한다 — 지금까지 로컬에만 있었다
+cd5b99f0c1e94be1a49246e057778b0ea54bda94||[S15P21E201-872] fix: [Front] Universal Links(iOS)·App Links(Android)를 추가해 네이티브 소셜 로그인 완료 신호를 받게 한다
+43a0dd17e5a354a033de1bd3211c385ebcde7c34||[S15P21E201-871] fix: [Data] 고지 화면에서 처음 보이는 글자를 줄인다 — 약속은 하나도 안 뺐다
+53b139ca1c62ca5e406bb341a86299660f5af5a8||[S15P21E201-870] fix: [Data] 추천하는 곳의 하한을 다섯에서 셋으로 내린다
+86468b36f07aba2e51d1b4d797ea9f49b6bf70fe||[S15P21E201-641] fix: [Front] 자간 토큰을 추가하고 Text 컴포넌트에 적용한다
+27b3bce9b29fb290958ef080df3803fa5c3103c2||[S15P21E201-866] fix: [BigData] MinIO 도커허브 제거 대응을 bigData/dev 로 옮긴다
+cf6aaecacee7cde3bc54345cfd86aae2e30da9ca||[S15P21E201-866] fix: [Front] MinIO 도커허브 제거 대응을 front/dev 로 옮긴다
+cef8b0558294d791e979e67e7d2c3a252d6b4665||[S15P21E201-869] fix: [Data] 설문 주관식 화면 일곱 가지 — 사람이 끝까지 해 보고 찾은 것들
+b48e43cf47b1d83476a1c4c2004ab376531916dc||[S15P21E201-866] fix: [Back] MinIO 도커허브 제거 대응을 back/dev 로 옮긴다
+6c7414b6592e2c010a9e7a5e97dcfcc71fdf6b38||[S15P21E201-865] fix: [Common] 흐름도 조각이 지워진 survey-place 를 되살려 놨다
+7dc56722e635f26adc962ce7afcb51c9ea05382a||[S15P21E201-868] fix: [Data] 짝 비교 장면이 전제와 어긋났다 — 해외라고 해 놓고 부산이라 적었고, 밤에 볕을 물었다
+0d7e5efe9b0b41fa3ed6b272eafd534eb0889839||[S15P21E201-867] fix: [Data] 설문 참여 범위를 20대~70대로 좁힌다 — 끝까지 하고 막히던 사람이 있었다
+15dcccaf3e572595e1feb9e557a475189a3e21d9||[S15P21E201-866] fix: [Common] 잡의 정의가 바뀌면 그 잡을 돌려 본다 — 안 돌고 난 초록은 아무것도 뜻하지 않는다
+5233ea98c3ba2b018844460eaf02fc95907a750b||[S15P21E201-866] fix: [Common] MinIO 가 도커 허브에서 사라졌다 — 같은 태그를 quay.io 에서 받는다
+e39f27891da44fa241efb504c80db575a6c6e9ea||[S15P21E201-864] fix: [Data] 한 번도 안 나온 수준을 없앤다 — 한 끼 가격 1만원이 빠져 있었다
+5116085c821ae6c8011cd12a942afdce4c9c9adc||[S15P21E201-865] feat: [Common] 상태 페이지에 데이터 흐름도 — 어디가 끊겼는지 그림이 스스로 확인한다
+3f272d008aeec5e9c6aea386ef9cb1dc93921dc7||[S15P21E201-864] feat: [Data] 짝 비교를 여행 서사 순서로 바꾸고 뻔한 쌍을 거른다
+bf097693c09388d52be29c5d4ebbdedbecc48e46||[S15P21E201-854] docs: [BE] 장소 자료 운영 적재 절차
+3c742cb94e69c1f5c992861cb721c819b7516f4d||[S15P21E201-599] docs: [Common] 스토어 심사 체크리스트에서 UGC 신고 경로 항목을 닫힌 것으로 옮긴다
+567fd600f089194b44274ec235b5bfe502469b4d||[S15P21E201-331] feat: [BE] 무장애 자료에서 접근성 표식을 붙인다
+6906bd56806423a4a22d7c54890fdb2d6b72d2fe||[S15P21E201-857] feat: [BE] 일정 생성 시 영업시간 반영
+4a85fccedbe6b1e8b9c4eaffc8334d8371159fc7||[S15P21E201-861] feat: [BE] 조사된 가격대를 place_feature 로 옮긴다 — 값은 있었고 잇는 코드가 없었다
+cc6801fafa086de9ae3fbf40cbba1be178a4e83d||[S15P21E201-474] test: [BE] 탐색 갈래가 설문 낱말과 안 겹치는 것을 고정한다
+7efd2068dfcbe02dda63bc85d736f279852f69cc||[S15P21E201-474] feat: [BE] 로컬 탐색 여덟 갈래 표식 적재
+5bc97fde92a52b9cee1674c5df3b09a11743b554||[S15P21E201-859] chore: [BigData] 휠체어 경사 임계의 근거를 채운다 — 설계기준에는 쉼터 전제가 붙어 있다
+1eafa455a61a02083f800de1663deeeff796ab19||[S15P21E201-827] fix: [Front] 앞 커밋에서 빠진 플러그인·gitignore 변경분 추가
+93e200e2cea2f077e23dbb807fd8bb5440a54aba||[S15P21E201-827] fix: [Front] 인증서를 별도 파일 대신 플러그인 안에 문자열로 박는다
+a124f97f04515bc23ebc9bccca35fed4d2e416dd||[S15P21E201-827] fix: [Front] EAS Build 업로드에서 android-certs/*.pem이 빠지는 것을 막는다
+d8240dea755ecca5f543f69ad12ca24b76fa500d||[S15P21E201-827] fix: [Front] 안드로이드 앱이 ISRG Root X1/X2를 직접 신뢰하도록 번들링한다
+0d98dcd3699ddf7dd54f0586385634072eb6aa7d||[S15P21E201-858] fix: [Front] 영업시간 경고를 고정·재계획·되돌리기 응답에서도 반영한다
+0090297275e811a8ebfe36c0f6dac3be4803e3df||[S15P21E201-806] fix: [Front] 카드·탭바 테두리 색을 디자인 토큰으로 통일한다
+dcecab99dd6785fbd38067f13192a4927487da7d||[S15P21E201-858] fix: [BE] 일정 편집 전체에 영업시간 판정 적용
+7a94e59af20a4a0fe1c5c98f7a2f613cb7f3067c||[S15P21E201-268] fix: [Front] 순서 바꾸기 응답의 영업시간 경고를 화면에 표시한다
+1208cd8aa38778e93937e02b34474f3d7a1d1a31||[S15P21E201-41] docs: [Common] 스토어 심사 체크리스트를 2026-09-11 기준으로 재실측한다
+5358d1a25d0b832dda1ad5c66f5dc2aefcf33f15||[S15P21E201-852] fix: [BE] 마이그레이션이 앞서 더한 피처 갈래 셋을 지우고 있었다
+94d47728ad90f3c8f325ff4f9766a023c1726390||[S15P21E201-852] docs: [BE] 적재기 주석의 입력 파일 이름을 실제 경로로 맞춘다
+3ccf74473a7bd40768fdf6963bd4cfb445c46f8d||[S15P21E201-852] chore: [bigData] 정규화한 영업시간을 staged 에 넣는다 — 백엔드 적재기의 입력이다
+f72b62e50a72f950861569a810b1124e5b6298a9||[S15P21E201-852] feat: [BE] 영업시간 268곳을 적재하고 읽는다 — 문 닫은 곳이 실제로 걸러진다
+49fff2e49ec3bb43af6678e7d2e6e1461925181f||[S15P21E201-854] feat: [BE] 관광공사 비음식 328곳을 적재한다
+4e8ec88f164069c39b4ed253e567150fe89e4c40|origin/feat/front/S15P21E201-445-busan-food-catalog|[S15P21E201-445] feat: [FE] 부산 음식 8종의 영문명·발음·원재료·맵기·가격대를 설정으로 정리한다
+aa611c80c91e80a0837b5de4862333c9859a7887||[S15P21E201-853] feat: [Front] HEALTH_CONSTRAINTS 동의 없을 때 뜨는 403을 처리한다
+f4bab973d24445ef3439b6666bc0dd2b476ad5ec|HEAD -> feat/common/S15P21E201-851-pairwise-v3-live|[S15P21E201-851] feat: [Data] 짝 비교를 덩어리 셋으로 바꾼다 — 식당만 묻던 것을 먹는 곳·보는 곳·하는 곳으로
+6de5711df6985f2689582b64428fd1bf7dadd1ca|tmp-555|[S15P21E201-331] docs: [BigData] bigData/dev 를 받아오고 숫자를 커밋된 원본으로 다시 센다
+4d587517979fe1ebd3ec46fee4b49bbcecebc66b||[S15P21E201-327] feat: [Front] 동행자 공동 편집 화면에 최근 변경 이력을 붙인다
+d510499b1d61b8c8cb8d7ff4bf891265cfae4010||[S15P21E201-549] fix: [BE] 남은 CI 실패 둘 — 슬라이스 하나와 이벤트 주체 계정
+a7951e648fdda22b767d56c397aa21d13523073f||[S15P21E201-549] fix: [BE] 경계값 검사의 둘째 사용자에게도 정밀 위치 동의를 준다
+d8fc8fd9804e5d1e25ea815d2fbfc562aad62974||[S15P21E201-549] fix: [BE] 슬라이스 스캔·피드 CHECK·픽스처 대소문자를 고친다
+bf2b75ca008d984fc292b47d2686f934ee6bdbcb||[S15P21E201-850] feat: [BigData] 영문 TourAPI(EngService2) 수집기 추가
+3b4ce7339883daff8d14e689da9bf0433f13fb6a||[S15P21E201-549] fix: [BE] 동의 가드 도입으로 깨진 슬라이스와 여정 픽스처를 고친다
+582a7a0f542a5110e2bea38922c3d882ea25516a||[S15P21E201-794] feat: [BE] 운영자가 기록을 지우면 작성자에게 알린다
+9f080f2fbc25670e3783c26fcc4c2c124d5d23a7||[S15P21E201-802] feat: [FE] 챗봇에 로딩 표시와 대화 히스토리 전송을 추가한다
+05e9b4076b198ec901eb759abe6270b3017bbe4f||[S15P21E201-802] feat: [BE] 챗봇에 대화 맥락·다국어 응답·요청 빈도 제한을 추가한다
+2546ac091c1378654431ca71b48ce17909dbeddb||[S15P21E201-848] fix: [Infra] personalization 배포 Health Check 재시도 예산을 400초에서 900초로 늘린다
+5e6a6904e0fd8959e541c3610d7c6692d6764ef6||[S15P21E201-549] feat: [BE] 건강·식이 동의도 실제로 검사한다 — 가드를 하나로 모은다
+8c5bc3d5fa75a87207077e0830bcf8e6d2e35281||[S15P21E201-549] feat: [BE] 정밀 위치 동의를 실제로 검사한다 — 방문 인증
+9f69e23df3b81887042590dc631c7ef7cdeb1dee||[S15P21E201-549] feat: [BE] 행동 개인화를 끄면 실제로 꺼진다
+80aa3196d439ed4db8621344397ac60ca1b67ca9||[S15P21E201-331] chore: [BigData] 오늘 받은 TourAPI 수집본 둘을 넣는다
+8c34ba7a8d74e4d00544315ef8acb44cf127a025||[S15P21E201-802] feat: [FE] 챗봇이 로컬 규칙 대신 실제 AI 도우미 API를 부른다
+62ad82b3d567e16b170239766e1fd27c51be8a90||[S15P21E201-847] feat: [Front] 설정 화면에 "내 기록" 진입점을 추가한다
+0cee816ead827a74f1dcaeab10e09c9d2e18272c||[S15P21E201-845] feat: [Front] 기록 공동 작성 — 초대·참여자 목록·여행 동행자 추가·나가기
+4c5ee9f22dbb3e974e8e73eca546a6cb7a4a8c72||[S15P21E201-846] fix: [Front] 동행자 초대 링크가 undefined를 공유하던 것을 고친다
+94189076a5526655dfb960ef14eb066680ba51f5||[S15P21E201-802] feat: [BE] AI 도우미 벤더를 Claude에서 Google Gemini(무료 티어)로 교체
+5d4a027be25953918d80632589a18d823fb3e05f||[S15P21E201-836] fix: [BE] 인가 감사가 path= 로 쓴 매핑도 보게 한다
+ddbd698b37dcd2b01f52c47188b4f200ccc7659a|feat/common/S15P21E201-842-pairwise-v3|[S15P21E201-842] feat: [Data] 짝 비교 v3 설계 — 여덟 축을 덩어리 셋으로 재고 공통 칸으로 자를 맞춘다
+89805962cf7ea973debd0f7a1e84eccb7cd63bb5||[S15P21E201-837] fix: [Front] 계정 삭제를 비밀번호 대신 확인 문구(DELETE)로 본인 확인한다
+2f7ec980518957e0dcd47f470be4b41e002b9ce7||[S15P21E201-837] fix: [BE] 계정 상태를 비밀번호보다 먼저 본다
+c8873a60ae6af41c67d017fc5a5177b4ecb52c34||[S15P21E201-832] feat: [Front] 설정(마이페이지)에서 소셜 계정을 연결한다
+66c05fadb9b9a3ad881414fed0289bf35b6eb163|fix/bigData/S15P21E201-331-barrier-free-resume|[S15P21E201-331] fix: [BigData] 무장애 수집기에도 같은 고침 — 잃지 않고, 잇는다
+854a7f2882808ffae953b35cfbe11ab02ca83813||[S15P21E201-837] fix: [BE] 소셜로만 가입한 계정도 탈퇴할 수 있게 한다
+2583c14c17455dbd0396c2adff9102baffece94a||[S15P21E201-833] fix: [BE] CI 실측 반영 — 형식 제한을 풀고, 검사가 리다이렉트를 안 따라가게
+47a55b1cdc09d6acd097c1c44446d8bf62a4d76f|chore/common/S15P21E201-839-remove-survey-place|[S15P21E201-839] docs: [Common] 지워진 survey-place 를 가리키던 링크 넷을 걷어낸다
+8b43bd1bac42e0ef158e0b1037c5e1db2655ae01||[S15P21E201-839] chore: [Common] survey-place 시제품을 지운다 — 배포된 적 없고 서버도 없다
+3eeea84243fdc0ea7dbbd17352d8a04db37cfd69||[S15P21E201-811] fix: [Infra] infra-personalization-deploy가 다른 배포 파이프라인과 겹치면 대기하도록 상호 배제 락을 건다
+bed61e3733d98113952ad68789467d225ed0032f||[S15P21E201-811] fix: [Infra] frontend-deploy가 다른 배포 파이프라인과 겹치면 대기하도록 상호 배제 락을 건다
+46f6147d859e22c67233f687d9647c4926d45a30||[S15P21E201-811] fix: [Infra] backend-deploy가 다른 배포 파이프라인과 겹치면 대기하도록 상호 배제 락을 건다
+fdfde15ef48ce21c3732c1dcc1bf600ab8ceb4be||[S15P21E201-830] fix: [Front] 웹 소셜 로그인을 팝업 대신 전체 페이지 이동으로 바꾼다
+59df90bd71e89411de04198e3d5098819a482ac9||[S15P21E201-800] docs(common): 인증된 ZAP 재스캔 결과를 취약점 보고서에 이어 붙인다
+8e0bd311548ea043a9bbeccda47b6d64e878b41d|fix/common/S15P21E201-834-survey-migration-docs|[S15P21E201-834] docs: [Data] 배포 DB 를 실제로 물어봤다 — 0005·0006 은 이미 들어가 있다
+51d19e0d9bcfbb7128775f2682194a7141d2a576||[S15P21E201-248] feat: [Front] 종료된 여행에 추억 지도(방문 경로+사진 마커)를 띄운다
+b01a5668a5378698e32787edbc060aa793cde32c||[S15P21E201-833] feat: [BE] 애플이 POST 로 보내는 결과를 받는 자리
+78316047261d0c9b17915d942d34500f3b6b273c|fix/bigData/S15P21E201-331-tourapi-resume|[S15P21E201-331] fix: [BigData] 한도에 걸려도 받은 것이 남고, 다음 날 이어받는다
+2d25d248cf06fa46c3bbb2ba1a885aa2deefaf5f||[S15P21E201-834] fix: [Data] 설문 배포 절차에서 빠진 마이그레이션 0005·0006 을 채운다
+eb45bee0dc24f287cf95dc66464f7590b3fad658|chore/common/S15P21E201-831-claude-md-slim|[S15P21E201-831] chore: [Common] CLAUDE.md 에서 @CONTRIBUTING.md 를 뗀다
+2ed0f84ae9a692df479171263186a06e20c80b65||[S15P21E201-829] test: [BE] 새 경로의 인가 정책을 표에 적는다
+bcd4b66c41c7aee4fd624a110996ffc694c8d5cf||[S15P21E201-829] feat: [BE] 여행에 달린 기록 조회 경로와 응답 좌표
+a807930f49194090dbf312ab72c372477793dc85||[S15P21E201-777] fix: [FE] signup.yaml을 실기기(Galaxy S10)로 처음 검증 — 좁은 화면 스크롤 보정 + -827 원인 정정
+ace3c01d16cc80409874b39d50a82eca7a1572a2||[S15P21E201-802] feat: [BE] 챗봇이 서비스 소개를 답하고 범위 밖 질문을 거절한다
+118f777ee9df8ed4422a237b3dd4388f46769eb8||[S15P21E201-133] fix: [Front] 저장 목록 카드에 로컬 점수·알레르기 확인 배지를 붙인다
+350057199b6a3c54c978bbc978ca4701a5436fb9||[S15P21E201-807] feat: [Front] 온보딩용 세 질문(오는 교통·숙소·식사) 화면을 만든다
+ab805a60e1ae8937fe42b821aaaa43348e9d5a0c||[S15P21E201-775] fix: [FE] e2e 백엔드 주소를 127.0.0.1에서 localhost로 되돌린다 — SameSite=Lax 리프레시 쿠키가 cross-site 요청에서 빠지던 자기 회귀
+b4de887b4dba0b4c92cd1c2372c1ded30aab1c16||[S15P21E201-775] fix: [FE] e2e 테스트 전체 타임아웃을 30초→60초로 늘린다
+ea84ee623849272b8252b020271238a887862fd0||[S15P21E201-775] fix: [FE] e2e 잡이 front/dev의 낡은 backend/ 스냅샷 대신 back/dev HEAD로 백엔드를 띄우게 한다
+2b9c3963068fdb14272969fb83ed243a6f3123c3||[S15P21E201-327] feat: [Front] 동행자 공동 편집 화면 — 참여자 목록과 역할 관리
+6d10e689fcb765f9cc874ca650f50c019bf081c4||[S15P21E201-828] fix: [BE] 후보가 0곳인 것을 버전 오류로 말하던 것
+707c2522289a755f22216af985d69b1b1f456cc0||[S15P21E201-775] fix: [FE] e2e 잡의 백엔드 호출을 localhost 대신 127.0.0.1로 고정한다
+2bf88f194aba495340c319be15222f3aa1d9e6c0||[S15P21E201-599] docs: [Common] 이용약관의 "신고 기능 미구현" 안내를 실제 구현 내용으로 갱신한다
+9599a167463e84e91cd3301bdc7167a5e74ce0f8||[S15P21E201-775] fix: [FE] 워밍업 curl 줄을 블록 스칼라로 고쳐 GitLab CI YAML 파서 거부를 없앤다
+c7079f9bbac1e49259ba44ae92fac55c549eee5a||[S15P21E201-775] fix: [FE] frontend:e2e 첫 스케줄 실행 실패 대응 — 백엔드 로그를 아티팩트로 남기고, 워밍업 요청과 타임아웃 여유를 더한다
+e4a18fcbd17ac574bc16e9e75c78ac5736ed92a1||[S15P21E201-642] fix: [Front] 토큰과 정확히 같은 값으로 박힌 직접 색상을 토큰 참조로 바꾼다
+a46f8f3bbadb69d8827514dfcbdd0c8bb59d808a||[S15P21E201-778] docs(common): QA 테스트 전략 문서를 저장소에 반영한다
+ba8419544e75941bdef5626fef3532f472fe8f74||[S15P21E201-781] fix: [BE] CI 실측(502) 반영 — 로그인 엔드포인트 도달성 검증을 특정 상태코드가 아니라 "401이 아님"으로 완화
+655fc1f863b0a6d3b158aceb0f8bdfb735b87a35||[S15P21E201-781] test: [BE] 소셜 로그인 여정 기능 테스트 — 챌린지/로그인 엔드포인트가 실제 필터체인에서 인증 없이 열려 있는지 확인한다
+dd29075884009a7638d5fd304f924205fa5f547e||[S15P21E201-775] fix: [BE] CORS preflight가 X-Session-Token/Idempotency-Key를 막아 웹 클라이언트가 서버에 못 붙던 것을 고친다
+9838da978041c18c1f3002b600914c9044aad33c||[S15P21E201-775] test: [FE] Playwright로 로그인~추천 요청 핵심 여정 E2E 테스트 추가
+63c19668682698e0a7888dcda93edaf21ee7e8a2||[S15P21E201-776] test: [BE] 추천 Job 폴링·일정 조회 응답의 백엔드 쪽 계약 검사
+d00c42290b6050497785ff1d4254eec3c0f1d3a8||[S15P21E201-776] test: [Front] 추천 Job 폴링·일정 조회 응답의 프론트 쪽 계약 검사
+4d9dade28377d569a83a507f4fa4bc08f744d177||[S15P21E201-777] chore: [Front] 네이티브 E2E(Maestro) 도입 — 회원가입 핵심 플로우
+c7c8e7d546b68ea13937cdb2c6f4165482071482||[S15P21E201-478] feat: [Front] 알레르기·식단 정보가 없는 식당·카페에 확인 필요 안내를 띄운다
+21c025f896432154491e79ec089d8531700c2f68||[S15P21E201-323] feat: [Front] 5초마다 동행자의 변경을 받아오고, 끊기면 배너를 띄운다
+a32ded1e10ef45bce2b68e746f8007acaa53938b||[S15P21E201-258] fix: [Front] 기록 상세에서 신고를 보내면 그 기록이 화면에서 사라지고 접수 안내가 뜬다
+bd433bbffdaeca811cac4cbd1085abae0449c7fc||[S15P21E201-782] test: [BE] 사진·스토리·피드·신고·모더레이션 여정을 실제 HTTP로 잇는다
+e7e8c5cdec1285955165ea7023cad39a619f1126||[S15P21E201-791] docs: [Front] 지도가 살아났다 — 원인은 2번(서버 CSP)이었다
+69dccb1793ea2626ec92d2663038ca5bcccbf765||[S15P21E201-331] docs: [BigData] TourAPI 숫자를 오늘 실측으로 고치고 공정위 가맹정보 둘을 등록한다
+7974a3bc981486884d4ad3c69b960770f51897de||[S15P21E201-214] feat: [Front] 경로 화면에 현재 위치를 표시하고 위치 권한을 거부하면 그 부분만 숨긴다
+80a2a773dd8eecec2a17564aa6a9045eae3aa28b||[S15P21E201-257] feat: [Front] 제외 전에 무엇이 유지되고 무엇이 바뀌는지 알려주는 확인 창을 만든다
+c83c5f2bfbbcff5d47e095d0f0eaa00387a15afe||[S15P21E201-783] test: [BE] 공유 링크 여정(생성→비로그인 공개 조회→복제)을 실제 HTTP로 잇는다
+da9f8b0cc9baee0b774665cb27c6f051cc9b69d7||[S15P21E201-302] feat: [Front] 초대 링크를 열었을 때 보이는 화면을 만든다
+b6888fde51271a550c3368d99bb13ae8dfa6913f||[S15P21E201-826] fix: [BE] 인기도 신호를 잘못 골랐던 것
+785057807f1d2f068baf4cfc8911a1b9b56e91cc||[S15P21E201-311] feat: [Front] 익명 출입증을 발급·보관하고 모든 요청에 자동으로 붙인다
+455c0e254e287e991518ebd828ac5d562617cdd8||[S15P21E201-774] chore: [Front] Jest+React Native Testing Library 단위·컴포넌트 테스트 뼈대 도입
+2ec745d81fe873875da26291bfeab06c921158af||[S15P21E201-780] fix: [BE] place 정리가 실패해 남긴 행이 다른 기능 테스트를 오염시키던 것을 막는다
+c24e4b07c11dc7b5c57af1bbc339f83831037fa8||[S15P21E201-780] test: [BE] 핵심 여정(회원가입→로그인→여행 생성→추천→일정 편집)을 실제 HTTP로 끝까지 잇는다
+ae0754dcc6705cf0e716644ed96cdad25729404e||[S15P21E201-826] feat: [BE] 목록 근거를 인기도 점수로 넣는다
+c205231dc714ca6a04abc9da9559a958d1edb9d5||[S15P21E201-754] fix: [Common] 설문 두 곳 — 해외여행 가정 문구와 입력칸 자동 확장
+e389fb4d195052f5141030384d013cd0b1178355||[S15P21E201-717] fix: [Front] 목업 화면에서 나가는 행동 기록을 막는다
+b1aed9efc4ae38a3f1a5030ac8e4c26acd6e117b||[S15P21E201-825] fix: [Front] 애플에는 scope 를 안 보낸다
+b94b2d9e8a036e5029055a25d268ede19f324270||[S15P21E201-825] fix: [Front] 애플 로그인 Service ID 를 번들에 넣는다
+83f377a242bbf0124e615de7d8d71c5349812fde||[S15P21E201-261] feat: [Front] 언어 스위처를 모든 화면 우측 상단에 상시 노출한다
+add344c6d7c27372b4a7b50b349f9398e7291eb4|origin/fix/front/S15P21E201-241-camera-mic-leak|[S15P21E201-241] fix: [Front] expo-camera가 기본값으로 몰래 선언하던 마이크 권한 제거
+24c74ef06f948d7eb7120eb7f9f68f4e08f19ede|origin/feat/front/S15P21E201-241-permission-text|[S15P21E201-241] feat: [Front] 사진 권한 목적 문구 추가, 안 쓰는 마이크 권한 선언 제거
+2567207f998863c59b531236752eecd7f745af06||[S15P21E201-825] chore: [BE] 애플 로그인 자격증명을 배포에 넣는다
+66eb3b8561c3ff783420dadcb4bddb10b8de31f9|origin/chore/front/S15P21E201-812-eas-project-link|[S15P21E201-812] chore: [Front] EAS 프로젝트 연결 정보와 자동 반영값을 커밋
+d1866d0dcca766065ec7f8d0fc92c6f624be35ab||[S15P21E201-232] fix: [Front] 장소 상세의 지도 앱 링크에 위경도를 실어 보낸다
+b14ed179d62f09b013284a2cce66d842be0e38a8||[S15P21E201-643] fix: [Front] 눈썹(eyebrow) 라벨 13곳을 한국어로 바꾸고 공용 부품으로 통일한다
+b1fa7598aa42ad5d829598e68dc4b0c866d8dd03||[S15P21E201-813] fix: [Front] 화면에 남은 준비 중 placeholder 5곳 중 둘을 정리한다
+cabef7d3600f9d4a344b0774a128461ca4c1c851||[S15P21E201-814] docs: [Common] 스토어 심사 체크리스트 0절을 2026-09-10 기준으로 재실측한다
+b4c8e926c1f4a18fe6cf2beeeb60a182836fcf77||[S15P21E201-717] docs: [Front] 낡은 경고문을 정정한다 — 서버가 이제 받는다
+3d5f24be1d47d8d13a923022ab1b0b158ffc5e51||[S15P21E201-717] feat: [Front] 폰 안에만 쌓이던 행동을 서버로 보낸다
+3c1670358f97f6b9709a672c71ad42b34950b86c||[S15P21E201-718] feat: [Front] 동의를 안 받고 정해져 있던 개인화를 사용자가 정하게 한다
+0706763de0b791d79de8498e16d5b0e85c11a528||[S15P21E201-241] fix: [Front] 위치 권한 거부 시에도 설정 열기 안내를 붙인다
+e0ed81062b776d0acbd73a7c19e2aae1a3184d37||[S15P21E201-271] fix: [Front] 24시간 넘은 신고를 빨간색으로 맨 위에 고정한다
+10d01da8fef2a404ea49f3a863862b9c69b77d0a|origin/fix/front/S15P21E201-241-photos-permission|[S15P21E201-241] fix: [Front] 위치 권한 거부 시에도 설정 열기 안내를 붙인다
+676febe1b97514a7a0214275f3a84c87975e968f|origin/fix/front/S15P21E201-177-build-badge-crash|[S15P21E201-177] fix: [Front] BuildInfoBadge가 네이티브 실행 즉시 크래시시키던 것
+d2a533eb9aebba57a4b6baa7cb9fa99880c69ef6||[S15P21E201-241] fix: [Front] 사진 접근 목적 문구를 expo-image-picker에 붙인다
+7d4de58c6874a67579198b5c12be88d4e616c679|origin/docs/common/S15P21E201-814-checklist-refresh|[S15P21E201-814] docs: [Common] 스토어 심사 체크리스트 0절을 2026-09-10 기준으로 재실측한다
+af63b6fcf03e04b152ef1ca87f97bd3e3b30bdb6||[S15P21E201-241] feat: [Front] 사진첩 목적 문구를 넣고, 딸려오는 마이크 권한을 끈다
+ba43c1dce40fe40793b45947fde1bb3cd39a8ce2||[S15P21E201-599] feat: [Front] 신고 검토(운영자) 화면을 새로 만든다
+fc5f0788a8e7f1fd9c4fddf28b880e09e4836742||[S15P21E201-825] feat: [BE] 애플 소셜 로그인 — client secret 을 서버가 서명해 만든다
+b1817261ce20bff67c9edb356c3313472f3dae9f||[S15P21E201-810] fix: [Front] 초안이 새로고침마다 비워지던 것
+354331ca50f2393e992e121e5c580fbb222e086d|origin/chore/front/S15P21E201-177-min-build-fixes|[S15P21E201-177] chore: [Front] EAS 빌드를 막던 것 둘 해소 — 아이콘 정사각형화, 패키지 버전 불일치
+82746a240cf63fbd2a4c39e4c00949dd2e11c5ed|origin/chore/front/S15P21E201-812-bundle-id|[S15P21E201-812] chore: [Front] Bundle ID / Android package name 확정 — com.gabolle.app
+9f370863d48d030881e48198665a0cba82fd0de4||[S15P21E201-816] fix: [BE] 가입·로그아웃 본문의 원시 boolean
+c7a2772f1cf526ea8f90d235d596ce5e3168c8bd|origin/feat/common/S15P21E201-754-category-sections, feat/common/S15P21E201-754-category-sections|[S15P21E201-754] feat: [Data] 장소 추천을 갈래 여덟 × 갈래마다 여러 곳으로
+ad52a681e40299aa7549fd88f64a609bdc0433f6||[S15P21E201-791] fix: [Front] 배포 빌드에 카카오 지도 JS 키 build-arg 를 넘긴다
+202873cf7c0f511eeae406bd92840c931a48f4d5||[S15P21E201-809] fix: [Front] 현장 도구 진입점을 하나로 정리하고 말하기 문장을 통합한다
+564c6ad4e2997ae8f7cf9d590c426f0c8ffdc5b5||[S15P21E201-810] fix: [Front] 여행 만들기 초안을 계정별로 나눈다
+b45637df002fbb82a0470bbf5192202b8063c1da|origin/fix/common/S15P21E201-798-airflow-api-cpu-v2|[S15P21E201-798] fix: [Infra] airflow-api-server cpus 1.0 -> 2.0 재발, 헬스체크 예산도 400초로
+9dc6ee209c80a9f683d3c1a2d1d6c82d73e6c428|origin/feat/common/S15P21E201-754-more-slots, feat/common/S15P21E201-754-more-slots-merged|[S15P21E201-754] chore: [Data] common/dev 를 받아온다 — Dockerfile 의 COPY 줄이 양쪽에서 고쳐졌다
+f78478762acbd29418d6a2ba7093fec4fac2b8e1|feat/common/S15P21E201-754-more-slots|[S15P21E201-754] feat: [Data] 장소 칸을 열까지 늘리는 「한 곳 더 적기」와 남은 고지문 일곱 칸
+8dd60ffebb56bda53d1308a8c847d2529716746f||[S15P21E201-808] fix: [BE] 추천 엔진 배선 — 조건 애노테이션 제거
+36d24b1adf1ffdff6f00c1034c4ddb7aaedc93b7|origin/fix/bigData/S15P21E201-760-strip-offspec-fields, fix/bigData/S15P21E201-760-strip-offspec-fields|[S15P21E201-760] fix: [BigData] 조사 결과 descriptors 규정 밖 칸을 정리한다
+c2fcdcc5ed1c855335bfc90b29f8621216f2cf20||[S15P21E201-478] feat: [Front] 장소 상세에 영업시간·가격대를 표시한다
+f32302690fc5a01dfd489997dee9e0eea3f4e866|origin/fix/map/S15P21E201-805-clean-dem-tiles, origin/fix/bigData/S15P21E201-805-clean-dem-tiles, fix/map/S15P21E201-805-clean-dem-tiles|[S15P21E201-805] fix: [City3D] 화면이 읽는 지형 타일에서 가짜 능선을 걷어낸다
+77e4b0ccf2063abefde9a13b052265d192957644||[S15P21E201-406] feat: [Front] 다녀오셨나요 버튼과 평가 모달을 연결한다
+42e059c864acdbb487b86b4481fe53cfad0725c3||[S15P21E201-809] fix: [Front] 홈 화면 AI 챗봇 버튼을 탭바 바로 위로, 현장 도구 2개 추가
+b936dee25df014bf220b7c2e23ef77f70761b9a2||[S15P21E201-809] feat: [Front] 가볼래 AI 챗봇을 기능 바로가기 중심으로 개편
+66ae2b8cb9e0519dc60fad88b6e8417f0f42788c|origin/feat/common/S15P21E201-754-crowd-question, feat/common/S15P21E201-754-crowd-question|[S15P21E201-754] feat: [Data] 북적임 문항 · 응답시간 흠 · 짝 비교 v2 · 고지문 세 칸
+aa2687cdcd19984357a5c7923c8e3eefb9f429a8||[S15P21E201-802] refactor: [BE] AI 도우미를 은행 앱 챗봇처럼 안내 전용(MVP)으로 좁힌다
+68a231228e6c8531bdaaef29647e8c7a349a2cda||[S15P21E201-378] feat: [Front] 여행 준비 화면 날씨 위젯을 실제 예보로 교체
+e4a01f0a0d83b374f09a390bdd65c41aa16c3f3b||[S15P21E201-804] fix: [BE] 대기열 판독 검사가 조건부로 건너뛰지 않게 한다
+cb07900ba535a4059a964cd2d54b33b09987eeee||[S15P21E201-802] fix: [BE] plan 응답의 reply·summary를 서버가 조립해 장소 이름 창작을 막는다
+5d7e2e0c92a02b5c988b93336cb1c72e97de7ae3||[S15P21E201-804] feat: [BE] 조사한 2,355곳을 장소 표에 넣는다 — 후보 0건을 깬다
+37e7a7fa8e10db8dbbefbfe9f9fec4e99353ce9f||[S15P21E201-787] fix: [BE] 새 내부 경로 둘을 인가 정책 표에 등록한다 — INTERNAL_ONLY
+3ae8059cc2cb4dc76cb0658d86e97bfe9716e60e||[S15P21E201-787] feat: [BE] 설문과 행동을 취향 벡터로 접는다 — 표시 기반 증분
+a7eafa3804411d1921fd74fc1f20b7c0f5342fa5|origin/fix/common/S15P21E201-754-dockerfile-places, fix/common/S15P21E201-754-dockerfile-places|[S15P21E201-754] fix: [Data] Dockerfile 이 places.json·design.mjs 를 안 넣어 앱이 502 로 죽던 것
+5c52295a4b47ffbed7608493265bc57b9c2549fd||[S15P21E201-144] fix: [Front] TabBar 위치를 화면 폭에 맞게 고친다
+d9cad5f521d91f859332979de5bc5c441195bb27||[S15P21E201-802] feat: [BE] 자연어 여행 도우미 assistant API 추가
+62a6bb9a8d3f967d9513ba644e3baaffa68c80ac||[S15P21E201-283] feat: [Front] 반응형 자동 체크 스크립트에 크래시 대응 추가
+2c6ce8b620fcc0d657a6a17b6fe2fe3f798b7a32||[S15P21E201-366] feat: [BE] 기상청 단기예보 조회 API
+ed8c2cb5b9db2f961f89230e71a1c26d76e703a2|origin/fix/common/S15P21E201-798-airflow-api-cpu-undersized|[S15P21E201-798] fix: [Infra] airflow-api-server cpus 0.5 -> 1.0 — 콜드스타트 크래시루프 실측
+836735a6d4c1f6dcb9df54e7a2394c1caf57f53d||[S15P21E201-803] feat: [Front] 웹 랜딩 상단 네비에 피드 링크 추가
+f5ecac7007e5086f32993a1db54dd08bd757120f|origin/fix/bigData/S15P21E201-760-strip-ratings, fix/bigData/S15P21E201-760-strip-ratings|[S15P21E201-760] fix: [BigData] 조사 결과에서 다른 앱 별점·평가 수·점수 숫자를 걷어낸다
+578e2ed757c9d09882f286707b55517f29e93900||[S15P21E201-761] fix: [Front] 마이페이지 스크롤 안 되는 버그 수정
+78ab4604608cbe051513965d540f4c45f361c7c7|origin/fix/front/S15P21E201-798-jenkins-cpu-limit|[S15P21E201-798] fix: [Infra] 프론트엔드 배포 컨테이너에 CPU/메모리 상한 추가
+29d5a642cbbc7125f15bd58d22aed3aa3e87826e|origin/fix/back/S15P21E201-798-799-jenkins-resource-limits|[S15P21E201-798][S15P21E201-799] fix: [Infra] 백엔드 배포 컨테이너에 CPU/메모리 상한과 JVM -Xmx 추가
+fa06ba0d3299b4d7b5b9e999edb4d58380989f05|origin/fix/common/S15P21E201-798-cpu-limits|[S15P21E201-798] fix: [Infra] personalization 컨테이너 9개에 CPU 상한(cpus) 추가
+a9800e374d9ca5d689833d1bfdb9471e86c96756||[S15P21E201-314] feat: [Front] 지연 경고와 예상 도착 시각을 일정 화면에 표시
+29d1493b53a1b825e0d512691f500d29b3d0b9cb|origin/feat/bigData/S15P21E201-795-copernicus-crosscheck, feat/bigData/S15P21E201-795-copernicus-crosscheck|[S15P21E201-795] feat: [BigData] Copernicus GLO-30 으로 terrarium 의 가짜 혹을 실측으로 잡아낸다
+2677dcf000ec3911d0454966c5de8c3d489b6f76|origin/fix/bigData/S15P21E201-795-slope-levels-debumped, fix/bigData/S15P21E201-795-slope-levels-debumped|[S15P21E201-795] fix: [BigData] 고도 자료의 가짜 혹을 걷어내고 경사 수준을 다시 뽑는다
+1bc9ab4ae7268d1a087d5abec1638269541b50ae||[S15P21E201-440] fix: [BE] 인증·개인정보 슬라이스에 event 를 더한다 — back/dev 복구
+3ca76bfc28ddff7de35826bdd7a12e403abf6586||[S15P21E201-440] feat: [BE] 출발지 좌표를 필수로 켠다
+d191cb4b8c19b9ff53dce56384a486bbfe21c9e8|origin/feat/common/S15P21E201-754-coldstart-on-editorial, feat/common/S15P21E201-754-coldstart-on-editorial|[S15P21E201-754] feat: [Common] 설문 앞에 짝 비교 3장을 붙인다 — 세 문항은 방향만 알려주고 배수를 못 준다
+044c571cc10efc536fe9d4f4aec4ca1c25b4dc1f|origin/fix/back/S15P21E201-709-slice-event-scan|[S15P21E201-709] fix: [BE] SpendProfileService의 EventIngestService 의존으로 Auth·PrivacySlice가 다시 깨진 것 수정
+c63b4fd50374b37fd2e4dfba67e22ae22815cd2d||[S15P21E201-137] fix: [BE] 개인정보 정리 슬라이스에도 place 를 더한다
+9c75fc53ec181d09fc6357c85a920068e53df96c||[S15P21E201-137] fix: [BE] 감춤 검사를 한 단계 위로 옮기고, 인증 슬라이스에 place 를 더한다
+c164c86868eebbdb06775bb6e8823cd9b5f03e97||[S15P21E201-137] fix: [BE] 감춰진 기록에 딸린 것도 함께 감추고, 검토 중에는 내용을 못 바꾸게 한다
+256f6da9941e9da125c3a22460eac03bd5e63e66||[S15P21E201-709] fix: [BE] 마이그레이션 버전 재부여 (back/dev 최신 뒤로)
+465803921fa924c7a2d61be617f400972df1ef18|origin/feat/common/S15P21E201-754-coldstart-three-pages, feat/common/S15P21E201-754-coldstart-three-pages, feat/common/S15P21E201-754-coldstart-pairwise|[S15P21E201-754] feat: [Data] 설문 앞에 개인화 세 문항을 붙인다 — 소득을 묻지 않고 지불 의사를 받는다
+a9176edec33a59133427e3a38fd475968e0d3822|origin/fix/bigData/S15P21E201-23-slope-levels-from-data, fix/bigData/S15P21E201-23-slope-levels-from-data|[S15P21E201-23] fix: [BigData] 짝 비교 경사 수준을 실측 분포의 분위수로 바꾼다
+f3154434605def2247b271800caec0074e507335|origin/chore/bigData/S15P21E201-760-priceband-normalize, chore/bigData/S15P21E201-760-priceband-normalize|[S15P21E201-760] chore: [BigData] 가격대 낱말 열하나를 3단으로 — 원본은 안 고치고 파생 산출물로
+0c6092313de60e994b960f27eb9d12c5c37fe5d0||[S15P21E201-317] fix: [BE] 테스트가 필수 약관 동의 없이 가입을 호출해 실패하던 것 수정
+5e74da70db75e53d376871c899c1b504224b746b||[S15P21E201-317] fix: [BE] 테스트가 필수 약관 동의 없이 가입을 호출해 실패하던 것 수정, 마이그레이션 버전 재부여
+7165913382d280ed162a8387f91e31c3fe49b413||[S15P21E201-343] fix: [BE] 마이그레이션 버전 재부여 (back/dev 최신 뒤로)
+1153c24bc5c90bf7b980af8128238c04c9469412||[S15P21E201-709] fix: [BE] 마이그레이션 버전 재부여 (back/dev 최신 뒤로)
+6b78d0cc61efabac6ebb7599f527d37dc4ada441||[S15P21E201-317] fix: [BE] PrivacySlice가 못 찾던 빈, owner_type 기본값 제거로 깨진 raw SQL 테스트 픽스처 수정
+790aebab7148917179133ca7af807462a0f9192b||[S15P21E201-317] chore: [BE] 테스트 실패 원인 메시지가 CI 콘솔에 남게 로깅 상세화
+c1875281cc75c1cc55f2cc147d444a1031346f26||[S15P21E201-96] feat: [BE] 지연 경고와 여행 리듬 요약 조회
+b984960bee1f051d9af50a4df44a15bc8e649e12||[S15P21E201-308] feat: [BE] 남은 하루를 다시 짠다 — 지나간 방문지는 두고 이후 시각만 바꾼다
+858d198f9a85a09ad50f48e2634a625293812958||[S15P21E201-709] fix: [BE] StorySlice·TripSlice가 SpendProfileService의 EventIngestService 의존을 못 찾아 컨텍스트가 죽던 것 수정
+8f3ed0081be4ea97b9c6c8e698e8d5cea64621c4||[S15P21E201-304] feat: [BE] 방문 기록으로 개인 속도 계수를 구하고 남은 일정의 도착 시각을 다시 매긴다
+72a8dfce19ee1880719d9cda3c12447a77fda071||[S15P21E201-709] chore: [BE] 테스트 실패 원인 메시지가 CI 콘솔에 남게 로깅 상세화
+9f99b024cb0f35650c9bdd72c4f19dfaf1376cbd|tag: v12.6.3|[S15P21E201-786] chore: [Front] frontend CI 잡을 ci/parts/frontend.yml로 옮긴다
+1ee4b3bc6190d1d00a5e1c9aa5a13d821d7b18a9||[S15P21E201-343] feat: [BE] 번역 중계 API
+02dfdbab88d6d9b84fb9b5e3919d25a2a2428f6c|origin/research/S15P21E201-760-resume|[S15P21E201-760] chore: [BigData] bigData/dev 를 받아온다 — 657커밋 뒤처진 것을 따라잡는다
+62046d09f6f84709411e8d1aae39c71536ab5dba||[S15P21E201-791] fix: [Front] 여행 생성 요청에 출발지 좌표를 실어 보낸다
+4f9964a7cea9cbf561d73aa1e3e04dc3590886c0||[S15P21E201-760] chore: [BigData] 조사 완료 — 2,355곳 100%, 인계 문서를 실측으로 고친다
+06f4b76c5bdf695dcd4700877a5273c3576fc5ee||[S15P21E201-760] chore: [BigData] 조사 결과 2,336곳까지 — 오늘치 399곳
+4d1191b876d813aff656b72f4db0cbb1854d508d||[S15P21E201-475] feat: [BE] 갈래 열람을 기록하고 갈래별 이용을 센다
+b823904e015cf08eb0825c9f92e70a21393249e2||[S15P21E201-790] fix: [BE] 인증 필터가 오류 디스패치에서도 신원을 유지한다
+3ca3d51bec34737f3a8a402a92abbd16d15301eb||[S15P21E201-450] feat: [BE] 코스 테마 목록 조회와 설정 외부화
+c4a304b5be6cd7a537fa35aa83fd5fb3a6c2e611||[S15P21E201-362] test: [BE] 개인정보 정리 배치의 기준선 경계를 잰다
+9c7110be7ea837720827e9b9248c88bbb14aa596||[S15P21E201-440] feat: [BE] 여행 조건을 서버가 다시 보고, 어긴 항목을 전부 돌려준다
+c4b2101bf2d88dd9bfd3d1b3bd9d63cbda8ec2ca||[S15P21E201-788] test: [BE] 정책 표를 데이터로 읽어 전 경로 인가를 실제 HTTP 로 점검한다
+da71ad22c4f5c061bd72fae237b2800e81efc18d||[S15P21E201-193] feat: [BE] 일정 생성 진행률을 단계마다 올려 연결로 밀어 보낸다
+6752fbaf1cafb245bbbc2682ce81512e2c147b08||[S15P21E201-779] feat(back): 기능 테스트 공통 하네스 — 실제 HTTP + 실제 DB
+752b7d85768570f5e466d042deb5b3dc31e60f87||[S15P21E201-234] feat: [Front] 일정 화면에 전체/날짜별 보기와 day URL 파라미터 추가
+98f0de26b1971ac38b47cf9b370048474108ebab|research/S15P21E201-760-resume|[S15P21E201-760] fix: [BigData] .gitignore 가 조사 결과를 먹던 것 — 주석이던 예외를 규칙으로
+ccbd5b28e7ad617d02367a67d40b1e4b8d29a602||[S15P21E201-268] feat: [BE] 순서 바꾸기 응답에 영업시간 경고를 싣는다
+b2bb920f3beeca95a1a8341a653266f7e977de74||[S15P21E201-760] chore: [BigData] 조사 결과 1,942곳까지 — 오늘치 198곳과 되돌아온 18곳
+1ab422ce0101774444b100b199f0c3e433c26a35|feat/back/S15P21E201-317-anonymous-trip-claim|[S15P21E201-317] fix: [BE] 뒤로 밀린 Flyway 마이그레이션 버전을 back/dev 최신 뒤로 재부여
+518ac37c0be4704c47a2f39071505337c4d11156|feat/back/S15P21E201-709-spend-profile|[S15P21E201-709] fix: [BE] 뒤로 밀린 Flyway 마이그레이션 버전을 back/dev 최신 뒤로 재부여
+a289483cfbb8166fbe58c32dda1716b365286bb2|tag: v12.2.1, tag: v12.2.0, origin/ai/main, origin/ai/dev, ai/main, ai/dev|[S15P21E201-770] chore: [ai] main 을 ai/main 에 받아온다 — 사다리 한 바퀴 뒤 내려받기
+ccf0bd825378ff9a88251f5be3d8d6f4aeb7adf4|chore/common/S15P21E201-786-ci-split|[S15P21E201-786] fix: [Common] 숨은 잡에도 script 가 필요하다 — 빈 몸통은 거부된다
+625b288f0237a34da74df5d8a3970af26db1e5aa||[S15P21E201-786] fix: [Common] 빈 파트 파일이 CI 전체를 죽이던 것 — 숨은 잡 한 줄씩
+a513a2cdb9a60bdf82b4c4761cfd6ce35a82a0c2||[S15P21E201-786] chore: [Common] CI 설정을 파트별로 쪼갤 뼈대를 놓는다 — 오늘 충돌 절반이 이 파일 하나였다
+eb5f259628d909105d8d53076421a82536ec33fe|tag: v8.1.0|[S15P21E201-33] chore: [CI] 선점 감사의 코드 대조를 CI 변수 뒤로 옮긴다 — 위반 75건은 문서로 남긴다
+d46bcc9be3fa398466d3cfd435ff9aca3d450657|origin/feat/bigData/S15P21E201-331-tourapi-hours|[S15P21E201-760] chore: [BigData] 조사 결과 — 1744곳까지 (haiku-55)
+2f5d4f3cfc6a6217e55bbfa00783047dbc8a4b82||[S15P21E201-760] chore: [BigData] 조사 결과 — 1737곳까지 (haiku-54)
+3bee1787e8d381a6f5e16ea215f16ccab40d5cb4|origin/feat/common/S15P21E201-754-survey-editorial, feat/common/S15P21E201-754-survey-editorial|[S15P21E201-754] feat: [Common] 가게 이름을 우리 데이터 53,716곳으로 자동완성한다 — 이름 매칭 45%가 병목이었다
+5ca380c1933130b53706347d18addb6b141c3a34||[S15P21E201-760] chore: [BigData] 조사 결과 — 1701곳까지 (haiku-53, 81곳 최다)
+0539afc5b28abfae35d5cf0deb3aa7e35ad87313|origin/feat/back/S15P21E201-787-taste-vector-fold, feat/back/S15P21E201-787-taste-vector-fold|[S15P21E201-787] feat: [BE] 설문과 행동을 취향 벡터로 접는다 — 표시 기반 증분
+3491dde9c6fbd2a05f02416e00c7ae746c9d7306|feat/front/S15P21E201-228-story-detail|[S15P21E201-228] feat: [Front] 기록 상세 화면 완성 — 실제 조회 API·장소 카드·신고·삭제
+d50b92c77aedf2af47c86959c84f91abd19de47a||[S15P21E201-246] fix: [Front] 본인 프로필에는 팔로우 대신 프로필 수정을 보여준다
+77c1ed57b7e1a2d6b66cb0f0e27ed8e0ca407fb4|origin/hotfix/S15P21E201-33-self-vote-scope, hotfix/S15P21E201-33-self-vote-scope|[S15P21E201-33] hotfix: [Common] 자기 표 배제 범위를 맨 위 커밋 저자로 좁힌다 — 오래 쌓인 브랜치가 영구히 잠긴다
+042711b0fae765e492953ea9c9433d6804846911||[S15P21E201-755] test: [BE] 완료 기준 네 줄과 안 부서지는 것 둘을 검사로 못 박는다
+02a7c0416104b5a752e0e880e10ca6e7ebeff8c1||[S15P21E201-755] fix: [BE] 판을 복사할 때 잰 값인지 어림값인지가 지워지던 것
+5770a0d4fc10664c5dedc4cab2e39ec12f5a23eb||[S15P21E201-755] feat: [BE] 순서를 바꾼 뒤 그날 이동시간을 다시 채운다
+393d5b04ad90407cfab7d732eff3fa5ed0ea3301||[S15P21E201-435] feat: [Front] 출발지를 검색해 고르고 지도에서 확인하게 한다
+115b094b3b7c6eb691b78b9a1517023bb2dcb622|fix/front/S15P21E201-786-version-retry|[S15P21E201-786] fix(common): version 잡의 태그 push 경합에 재시도를 더한다
+408ce3e84dd78a78d2ea0421050111b8dab5c50f||[S15P21E201-760] chore: [BigData] 조사 결과 — 1607곳까지 (haiku-49, 51곳 최다)
+39dc0ba114bf5f06d00830652c02c5171f7b54ad||[S15P21E201-317] feat: [BE] 가입 시 익명 여행 승계
+09dae52e0b12bf8e7d91f86e7c1df1d2cbb4e467|fix/common/S15P21E201-785-dag-reparse-interval|[S15P21E201-785] fix(common): 샘플 DAG 재파싱 주기를 30초→5분으로 늘린다
+3bd4c2648de62c05ad33fd4894df8b8f067befdc||[S15P21E201-760] chore: [BigData] 조사 결과 — 1554곳까지 (haiku-48)
+dcd580b2ecff7a084a9329b5d151b3f2b14995b9||[S15P21E201-760] chore: [BigData] 조사 결과 — 1551곳까지 (haiku-50)
+044be00f02da9e4f01665a553ca3d4ec7a6fec5f||[S15P21E201-215] feat: [Front] 여행 기록에 신고 진입점과 사유 선택을 붙인다
+e6f9f5991c6dd8087c8c91d308e1b43c15df48d3|fix/common/S15P21E201-785-dag-import-cost|[S15P21E201-785] fix: [Common] 샘플 DAG 의 무거운 임포트를 태스크 안으로 옮긴다
+14f12ed27cb43eb51cb3c664ae10ea0415c154e0||[S15P21E201-784] fix(common): 상태 수집기 자기측정 버그 수정 + 메모리 수집 추가
+89bf8f814c35cbd56104b063aff86919be721f32||[S15P21E201-204] feat: [Front] 사진 업로드 전 크기 축소·위치정보 제거
+09a653a848627915c0f0ae5a85e5eb81c27be7dc||[S15P21E201-754] fix: [Common] SSAFY 밖 사람에게 어색한 문구를 걷고, 배경 사진이 3.1배 확대되던 것을 고친다
+cfb86a6072dcf5675da09e1c2814140cd13fac0c||[S15P21E201-198] fix: [Front] 기록 작성 화면 완료 기준 미달 항목 보완
+efc7c2ccc7c672b26d4d05d6f73985979b41e22b||[S15P21E201-760] chore: [BigData] 조사 결과 — 1434곳까지 (haiku-46)
+e794e975b465dcf310a54ae827bbaafeaeb959b5||[S15P21E201-760] chore: [BigData] 조사 결과 — 1365곳까지 (haiku-43)
+904f8f34153bd3f108686072c894d472c3515061||[S15P21E201-760] chore: [BigData] 조사 결과 — 1353곳까지 (haiku-43 · haiku-44)
+f09e06fa0a55e274707ee08f77abd12d8f857a71|origin/fix/common/S15P21E201-771-survey-db-backup, fix/common/S15P21E201-771-survey-db-backup|[S15P21E201-771] fix: [Common] 설문 응답 DB가 아무 백업에도 안 들어 있었다
+b913122fb8b065a8ec5781598138874b2451f833||[S15P21E201-760] chore: [BigData] 조사 결과 — 1287곳까지 (haiku-42)
+51b09f4ae1d5ef7c35c8852376f5067b10f77f81|tag: v4.10.0|[S15P21E201-770] chore: [ai] 공용 파일을 common/dev 판에 맞춘다
+ab7110f1894178eff50bb4c4851060d1a3b2e86d||[S15P21E201-760] chore: [BigData] 조사 결과 — 1269곳까지 (haiku-41)
+c0dccaf90a88ce45ad9bce438fc786fff5c74923||[S15P21E201-760] chore: [BigData] 조사 결과 — 1239곳까지 (haiku-39 · haiku-40)
+90d3a0aa42215f87151d27b91be04bca37be371b||[S15P21E201-389] fix: [Front] 장소별 한국어 모달의 TTS 재생 경쟁 상태를 없앤다
+2f592a6f5ae9544c06eba61f9c3d4ac428e11cbf||[S15P21E201-772] feat: [BE] 기계가 부르는 내부 배치 문을 낸다 — /internal/** 을 공유 토큰으로 연다
+6cac1d98bea3a4cbc75e517053f99708cba0c0c7||[S15P21E201-770] test: [BE] 완료 기준 여섯 줄을 그대로 검사로 못 박는다
+2cbb8e940186007da7dddbf44d0d7995ee79acc2||[S15P21E201-770] feat: [BE] 하나의 여행 기록을 여럿이 함께 쓴다
+d2403d737c59cabf96e1c7d4fec8aaa895e38306||[S15P21E201-760] chore: [BigData] 조사 결과 — 1212곳까지
+a2c31790698aaaaf2b125253827a352b34949aa6|origin/feat/bigData/S15P21E201-760-warehouse, feat/bigData/S15P21E201-760-warehouse|[S15P21E201-760] feat: [BigData] 조사 결과를 DB·모델용 표로 바꾼다 — 정성 19유형과 정량을 한 표에서
+98728b7156411309918c727991790e78cdaab7dc||[S15P21E201-222] feat: [Front] 택시 목적지 카드를 전체 화면 대형 글자로 만든다
+c99d549613335a8f1c0037b059b19aa7c6184997||[S15P21E201-754] feat: [Common] 경품용 전화번호를 선택 입력으로 받고, 거짓이 된 약속 문구를 고친다
+b29fd086190db813c87227103f7eb3415e19c73a|origin/docs/common/S15P21E201-769-wording-log, docs/common/S15P21E201-769-wording-log|[S15P21E201-769] docs: [Common] 못 알아먹은 말 셋째 — 「정답지 무게 숫자」
+21521d4c9867a205c53676f06b9579263170117f||[S15P21E201-760] chore: [BigData] 조사 결과 — 1176곳까지 (haiku-38)
+e55e131b556d453dd49ec2ee39a38590b3beef75||[S15P21E201-771] fix: [Front] 현장 도구 화면 3종 UX 버그 정리
+158daf1c92391ac0a845613b2615f9130c639c3e||[S15P21E201-760] chore: [BigData] 조사 결과 — 1143곳까지 (haiku-36 · haiku-37)
+7d3f798102b931c409c312adb41f42ad5415dcd1||[S15P21E201-760] chore: [BigData] 조사 결과 — 1116곳까지 (haiku-34 · haiku-35)
+2875257603f25273309ceacb42f516e9249002fa||[S15P21E201-754] fix: [Common] 사진을 따로 내주게 해서 화면 파일을 3.2MB 에서 되돌린다
+0f38eb1d80c0dc66df19e5624da3d9f40a2e6ff3||[S15P21E201-769] fix: [BE] JWT 전용 API가 안 쓰는 세션을 계속 만들던 것을 막는다
+7e06087f4c6302627f8f1e4daaf3fa75a4128b18||[S15P21E201-760] chore: [BigData] 조사 결과 — 1038곳까지 (haiku-33)
+70a8c021f004e2849e1f276a476d564346d81bbe||[S15P21E201-760] fix: [BigData] 지시문이 조사원에게 검색을 아끼라고 가르치고 있었다
+79faa4010ccead475751d7b9ab2a367079138942||[S15P21E201-760] chore: [BigData] 조사 결과 — 1029곳까지 (haiku-31, 36곳)
+6471de65df586709569835c19c0b994409058dba||[S15P21E201-760] chore: [BigData] 조사 결과 — 954곳까지 (haiku-29, 45곳)
+5651a872f489594be3429478672fa7ac1b6f3c45||[S15P21E201-456] feat: [BE] 숙소 후보 조회와 여행 이용 조건을 저장한다
+f0115c913f85b30dca8abf3780af6ce1dec121ec||[S15P21E201-303] feat: [BE] 익명 출입증을 발급하고 X-Session-Token 요청을 검증한다
+66fd1153e9da530a291adf68338a95bf51e8da34||[S15P21E201-265] chore: [BE] 적재 전 신규 칼럼(혼밥안심·브레이크타임·라스트오더·지하철출구·자주쓰는출발지)을 스키마에 반영한다
+ed900d836300532b45374b7621c077a45f3ba1e3||[S15P21E201-463] feat: [Front] 가고 싶은 장소를 검색해 넣고 빼고, 서로 멀면 경고한다
+850c319923c9bfd402fc4717ce027728b2d4a22f||[S15P21E201-768] fix: [CI] vote:recheck 잡의 불필요한 준비 과정을 없앤다
+f7bd0c3bba6e75665d5b15f47c84751a1a6ba1c1||[S15P21E201-760] chore: [BigData] 조사 결과 — 927곳까지 (haiku-30)
+a6ba400fdeb4ec94219de10500cb9035d12c5e01||[S15P21E201-760] chore: [BigData] 조사 결과 — 927곳까지 (haiku-28)
+4b2135ac73eac9da8a69591a22c6467534cc57c3||[S15P21E201-754] feat: [Common] 추천 설문에 웰컴 3장을 붙이고 편집 디자인을 입힌다
+9dfd06ebf49d71f69821ef969f9018d0a62ca2c9||[S15P21E201-760] chore: [BigData] 조사 결과 — 846곳까지 (haiku-26)
+dbb7aa3cbda305060ba477f8cb0550614f001ce2||[S15P21E201-760] chore: [BigData] 조사 결과 — 846곳까지 (haiku-25)
+041b9bb5f18318f5db8eef1c73ff28a4dd95ce4f||[S15P21E201-760] chore: [BigData] 조사 결과 — 843곳까지 (haiku-27, 6곳씩 잡기 실험)
+4586c9e3f8270b6a817916b9294fc5af24047d11||[S15P21E201-769] docs: [Common] MM 공지 초안 둘 — 설문 참여 독려, axMap 홍보
+0dc49892600a444d5197d1c448fd9d070da6249c||[S15P21E201-760] chore: [BigData] 조사 결과 — 752곳까지 (haiku-24)
+1b11213f4b593a7e8fa8a2a47cb62c83e2fff575||[S15P21E201-575] fix(back): gabolle 대신 devprofile schema를 써서 $user 충돌 자체를 없앤다
+21fb200ae4333d041e821ede6e6ac0979d47d07f||[S15P21E201-760] chore: [BigData] 조사 결과 — 749곳까지 (haiku-22)
+6b7f73862715b7c53ed84cf33a61cdf4b3843e18||[S15P21E201-760] chore: [BigData] 조사 결과 — 740곳까지 (haiku-22 · haiku-23)
+64f163a6138db8b36faa67116f0d446a6e14c729||[S15P21E201-769] docs: [Common] 못 알아먹은 말을 그때그때 받아 적는다 — 2026-09-09
+577d112bc254827fa903e5d6622728980f9209e3||[S15P21E201-749] fix: [BE] 상세 응답이 못 읽은 값을 VERIFIED 로 내보내던 자리를 막는다
+bc556175cccbf33831d4c990e446da426e602623||[S15P21E201-760] chore: [BigData] 조사 결과 — 692곳까지
+a8934bcebed9634c7eea4a4627da2383bf9283be|origin/feat/bigData/S15P21E201-23-recommend-survey, feat/bigData/S15P21E201-23-recommend-survey|[S15P21E201-23] feat: [BigData] 부산 추천 설문 — 웰컴 3장과 설문 화면
+b3e88d44c64fe8a37c8f2d09d5825c9b556dcc9b||[S15P21E201-760] chore: [BigData] 조사 결과 — 650곳까지
+8cc53f55e10c397b731826fc0a3c4b8e1a7a3995||[S15P21E201-762] fix: [Front] 여행 상태 이름을 서버가 쓰는 값으로 맞춘다
+97b32eff55e0266ac53188802c06413a1967a1ee||[S15P21E201-644] fix: [Front] 아이콘 자리에 쓰인 이모지를 자체 아이콘으로 교체한다
+2e60a300a25e25f127abdc3f6f5d4cd48b55cbd3|origin/feat/bigData/S15P21E201-23-survey-photos, feat/bigData/S15P21E201-23-survey-photos|[S15P21E201-23] feat: [BigData] 부산 추천 설문 사진 5장 — 자유 라이선스만
+a9ac0e58a54e714c3e0f43b138c496177b5f21a7||[S15P21E201-575] fix(back): DevProfileApplicationContextTest가 만든 gabolle schema를 안 지워 다른 테스트를 깼다
+ca3a8f66f4324e6f842a6ba5068521300862ec5e||[S15P21E201-760] chore: [BigData] 조사 결과 — 599곳까지
+74ab386786c43c0c84785435c76b9e25eac124c6||[S15P21E201-760] chore: [BigData] 조사 결과 — 581곳까지
+b835fe2a53ca0e12ee13bbd6de13c8121bd81d59||[S15P21E201-764] test: [BE] 내 여행 목록이 배열로 나가는 것을 HTTP 본문에서 고정한다
+2deff7270d1ac9d8e40a6bc1d70391fc54199bd4||[S15P21E201-546] fix: [BE] 품질 게이트 테스트가 public 폴백에 기대던 전제를 없앤다
+6deb321abfe538d2cd21599afc733b5277882557||[S15P21E201-763] fix: [Front] 여행 만들기 상단 메뉴가 로그인 상태를 반영한다
+0f975d96ce4bbaf92e37fc01d1c7ea971d4acd8a||[S15P21E201-762] fix: [Front] 내 여행 목록을 배열로 읽는다 — 빈 목록에서 화면이 죽던 것
+61b813d47d97a2a4f7f73cd660c7a03f9150193e||[S15P21E201-761] fix: [Front] 마이페이지 기본 보기에서도 스크롤되게 한다
+874d16da292501d58f0afd01c05c823b9e2f8ac9||[S15P21E201-640] fix: [Front] Pretendard 폰트를 붙여 기기 기본 글꼴 대체를 없앤다
+da764adb6bb71feb78c9c227388fc6ea27f558de||[S15P21E201-481] feat: [Front] 장소 상세 히어로 사진이 흐릿한 자리표시에서 서서히 드러나게 한다
+7622a929ffa421488afefb879d9d42980d95ae37|fix/front/S15P21E201-529-promote-rule|[S15P21E201-529] fix: [Front] 승격 잡이 아무 스케줄에나 깨어나 매일 09:00 에 빨개졌다
+28624bad8695e1a04b3a77635b120735cd4aeed6||[S15P21E201-277] feat: [Front] 일정 항목 순서 변경(위/아래 이동) 화면 추가
+609e6b932279f31d5c1ed0eb32adaf1ad23211ff||[S15P21E201-575] fix(back): DevProfileApplicationContextTest가 CI의 새 Postgres에서 gabolle 스키마를 못 찾던 문제 수정
+677e4932de2a8c14f352d8715e627f8c62ca3a13||[S15P21E201-575] fix(infra): Health Check 실패 시 mlflow/airflow 로그 캡처
+de0075ab6ff03726310022c83952e07ee1de15c6||[S15P21E201-575] fix(front): 배포 실패 시 진단 로그 캡처 + 되돌리기 안전망 추가
+92c3b59b9d615817d78043525f12809030457edf||[S15P21E201-575] fix(back): 배포 실패 전면 검토 후속 — 컨텍스트 배선 검증 추가 + 배포 실패 진단 로그 캡처
+1d62a8f74cd111827bdda4499997fed7e9b76b4c||[S15P21E201-760] docs: [BigData] 다른 컴퓨터가 조사를 이어받을 수 있게 한다
+c8c9f1c1d56b52b67d34107c23ab37f55f9a447e||[S15P21E201-760] chore: [BigData] 조사 결과 — 정답지 294곳까지
+b293e9c71259242ce35f6a4966f199aa4e95503e||[S15P21E201-760] docs: [BigData] 출처를 블로그·카페까지 넓힌다 — 88%가 빈손이던 이유일 수 있다
+9f0370c6fca792af921eb8e3bd83f4499af384a7||[S15P21E201-161] fix(back): 테스트 파일도 같은 Jackson2/3 import 실수가 있었다
+8701aba471a74593d5e53673cb0d50a098a35467||[S15P21E201-161] fix(back): RouteOptimizerAvailabilityCheck의 잘못된 Jackson import로 배포 기동이 죽던 문제 수정
+757b4bc51bf827335493dfbddb5cb727c6ac1ab6||[S15P21E201-760] docs: [BigData] 조사원 지시문을 파일로 고정한다 — 유형 19가지를 안에 박아서
+8fb7d3f862119f8b4a6d20f612e3b6c6a25b6af8||[S15P21E201-760] chore: [BigData] 조사 결과 — 세션 검색 예산 200회를 다 쓴 지점까지
+552e4a026913d83217ded4f018003e2b258673ee||[S15P21E201-760] chore: [BigData] 밤사이 조사한 가게 결과 (중간 저장 1)
+ad91f42da2e4c1ca392edf88740b50fc161f5b7b||[S15P21E201-760] chore: [BigData] 조사 결과는 다시 만들 수 없으므로 커밋한다
+e2b7c28ac524a9421797d1bfdab4d304fd98835a||[S15P21E201-760] fix: [BigData] 조사원이 검색을 건너뛰고 "끝냄" 을 적는 것을 막는다
+b2f3f6027ead0ed6bca01097ea460834d3a29976||[S15P21E201-760] feat: [BigData] 부산 음식점 2,000곳을 고르고 여럿이 나눠 조사할 대기열을 만든다
+a4a744d5f8cea7fd3929bc75bff65f9b928b1c5d||[S15P21E201-759] feat: [City3D] 피사계 심도를 기본으로 켠다 — 끄는 길은 ?dof=off 로 남긴다
+cf59ce5182cdc82d10e3c806c9a934aa411f9270||[S15P21E201-757] docs: [Common] GitLab 토큰을 어디에 넣는지 적는다 — 없으면 MR 설명을 못 채운다
+1858b94b437844f7bd572bc506c42a11d175e628||[S15P21E201-161] feat(back): CI·배포 환경에 경로 최적화(OR-Tools) 파이썬 실행 환경을 갖춘다
+9446102b07060907835e4e5d773fb573292f7e0e||[S15P21E201-179] feat: [BE] 일정 구간에 실제 이동시간을 채우고 어림값인지 표시한다
+7af19068a3382097ccc7f07f57facac03e783996||[S15P21E201-701] fix: [Common] 가동 막대를 하루 한 칸에서 4시간 한 칸으로
+065bd55ac04f76cd1ab24636f03ac603c730a218||[S15P21E201-280] refactor: [Front] 화면 폭 경계값을 599/1023/1439 3종으로 통일한다
+2fa0b2ce5a2540bc57f9ab4df45256c8f48a1746||[S15P21E201-754] feat: [Data] 설문을 5칸 자유 배치로 바꾼다 — 맛집을 다섯 곳 아는 사람의 답이 잘리고 있었다
+22831e66eca02486603c730ac30f3489664bb677||[S15P21E201-701] fix: [Common] 가동 막대를 7일로 줄이고, 글꼴을 서버에 같이 놓는다
+3914e5391effebb981c1ba32c8359174d475505f||[S15P21E201-367] fix(back): MinIO SDK가 새로 끌고 온 HIGH 취약점 2건 제거
+6645409c40db30f8ca5c25616aa3c9b23acc0cd5||[S15P21E201-367] fix(back): S3FileStorageTest 건너뜀 시도 자체가 틀렸다 — MinIO CI 서비스로 진짜 돌린다
+71b7d173272752b4ca2fdfe01a22ae52fae88a99||[S15P21E201-754] feat: [Data] 부산 추천 장소 설문 — 자유 입력을 여는 대신 보호 장치를 넣는다
+0459b9b5fad7f591f32d28c0c963e3397a823c2f||[S15P21E201-367] fix(back): S3FileStorageTest가 CI에서 여전히 죽던 진짜 원인 수정
+9f5e69a6f8dc79fbd1c3f8f683bb9e1e0929e9f1||[S15P21E201-168] docs(common): 스토어 개발자 계정 담당자·개설 정보를 실행계획 10.1절에 기록
+d4dc461ec0acafe5c11a38c6d6e41e3d4d383a96||[S15P21E201-367] fix(back): S3FileStorageTest가 CI 러너에서 도커 없이 죽던 것 수정
+ce87aeeec77d0dc40ce334e062b8a0171c32afc7||[S15P21E201-367] docs(common): 사진 오브젝트 스토리지 결정을 실행계획 문서에 남긴다
+f21c9fb0a6fcf080bb4ded5809d097bd091c2da9||[S15P21E201-367] feat(back): 사진 오브젝트 스토리지 S3(MinIO) 구현체 추가
+636646c7ccf652ecc9531437107ba2d8b42e2391||[S15P21E201-91] feat: [BE] 하루 안에서 방문 순서를 바꾼다
+3268a00d4e61b4700bb3554cb22c46187b7dc23d||[S15P21E201-331] feat: [BigData] 세 데이터를 같은 가게로 잇는다 — 한 곳에 위치·버틴 햇수·영업시간이 함께 붙는다
+f748876d5496c804b5349050b5e04e1ed95ace98||[S15P21E201-331] feat: [BigData] 인허가 좌표를 지도에 찍을 수 있게 바꾼다 — 그리고 공식 변수가 20m 틀렸다는 것을 찾았다
+84815d2f3315b2e1072f077e2359927b4f94ecc4||[S15P21E201-367] chore(common): 사진 오브젝트 스토리지로 기존 MinIO 재사용 — S3 API 포트 게시
+f58ae62a1d9854cec3a4c4d6c9eb12688f30dc99||[S15P21E201-575] fix(back): 배포 파이프라인 검토 후 발견한 롤백 안전성 문제 수정
+0603038060bd3c7800c436e112c0248a7a9071a7||[S15P21E201-184] test: [BE] 스프링이 경로 빈을 실제로 만들 수 있는지 검사한다
+61d07733027ee4cd117b73b457899137a2754304||[S15P21E201-331] feat: [BigData] 영업시간 자유문장을 요일→구간으로 바꾼다 — 94% 를 기계가 읽는다
+ca43c7a928c0a61932fab5d99771c46855626eda||[S15P21E201-331] feat: [BigData] 승인만 받고 안 부르던 관광공사 API 둘을 받는다 — 영업시간 99%
+dd9446162e91ec67ddb2db082a7fb00ce03fa17d||[S15P21E201-184] fix(back): KakaoMobilityRouteAdapter 생성자 모호성으로 배포가 죽던 것 수정
+3ecf888869c2db4161924de3025507bb08ca1518||[S15P21E201-357] fix(back): 개인정보 정리 배치의 cron 플레이스홀더 미해결로 배포 실패하던 것 수정
+d3401e84fa3f24b375b4ce72f9d6669820510e41||[S15P21E201-357] feat(back): 개인정보 자동 정리 배치 신규 구현
+c5300ccbc9602c5465851d917214a050fa04e6eb||[S15P21E201-748] feat: [Front] 여행 삭제(소유자)·나가기(동행자) 버튼 복구
+bcfd6e099d54fa543de4e4e4320f727f7207f4bf|feat/bigData/S15P21E201-705-localdata-permits|[S15P21E201-705] feat: [BigData] 행안부 인허가 5종을 받는다 — 부산 183,144행
+a391a22e2d1e248152344773d834bb2a8145f4d3|origin/fix/common/S15P21E201-701-status-labels, fix/common/S15P21E201-701-status-labels|[S15P21E201-701] fix: [Common] 상태 페이지에서 서비스 다섯이 "모르는 이름" 으로 가려지던 것
+51182637a41b178f2be932623907919e59756b2c|origin/docs/ai/S15P21E201-526-stale-checks, docs/ai/S15P21E201-526-stale-checks|[S15P21E201-526] docs: [ai] 4절의 죽은 검사 명령 둘을 고친다 — ai 만 남아 있었다
+21099eb9a516706593f4f98494cb816be62e3bb7|chore/common/S15P21E201-701-status-uptime|[S15P21E201-701] feat: [Common] 가동 상태 페이지를 /status 에 세운다
+928e2919d8e69744e6a11e88b48987df65afba00||[S15P21E201-290] fix: [Front] 최근 변경 취소 버튼을 항상 보이게 하고 완료 안내를 띄운다
+b5d2dfd216d47fc4ba61aa6cb59f82d3d45c3310|origin/docs/bigData/S15P21E201-705-taxseulrang, docs/bigData/S15P21E201-705-taxseulrang|[S15P21E201-705] docs: [BigData] 정답지 다섯을 어느 무게로 쓸지 적는다 — 합치지 말고 가른다
+294dc989bc0f4300f1aac6f8045f88dcc235f7e0||[S15P21E201-709] test: [BE] GET/PUT /api/v1/me/preferences/spend 를 인가 정책 표에 등록한다
+c46748981d64b5e05a11d062e78cd483d4022436||[S15P21E201-709] feat: [BE] 취향 차원 SPEND_PROFILE 을 더하고 USER/TRIP 스냅샷 API 를 만든다
+0d50d7b81843df4bd93bfae4d12182e5d6d91248||[S15P21E201-751] fix(common): Check Stack State가 wc -l 때문에 정지 상태를 실행 중으로 오판했다
+396ea1c1dda25869d11c69971dd4e547a00133da||[S15P21E201-184] feat: [BE] 두 좌표 사이의 경로를 답하는 창구를 연다
+072ddf4e1aff740b9575e98eafc45f1a38452550||[S15P21E201-196] feat: [BE] 같은 경로를 다시 묻지 않게 답을 들고 있는다
+67cf9dc5c1893281c0bfa4575d803896fa8fe6e8||[S15P21E201-189] feat: [BE] 경로를 못 구하면 직선거리로 답하되 추정이라고 밝힌다
+65e50c24b26f655f031049b7a33d9fb731f8f676||[S15P21E201-752] fix(common): 개인화 스택 정지 상태에서 배포 잡이 자동 재기동하지 않게 한다
+cafdae8f5eaba0ad323f183d6013b893b10c590c|chore/back/S15P21E201-751-test-timing|[S15P21E201-751] chore: [CI] backend :test 97초 안을 클래스별 시간으로 들여다본다
+130906b4e3fed04bfe50e43dec0be9488d01e127||[S15P21E201-750] chore(common): airflow-api-server 메모리 한도 1g→2g
+4061fc0bb106f59a94118a3313a204d1b7a7bc5f||[S15P21E201-749] fix: [BE] place_feature 값 파싱 실패를 안전한 방향으로 처리한다
+2051d154d7d33625336bb4a00f1d51307b12a4c7||[S15P21E201-290] fix: [Front] 최근 변경 취소 버튼을 항상 보이게 하고 완료 안내를 띄운다
+38c4080e3674e35e24a25c31b3cc1da107d2c8b6|origin/feat/front/S15P21E201-748-trip-delete-leave|[S15P21E201-748] feat: [Front] 여행 삭제(소유자)·나가기(동행자) 버튼 복구
+17e0ea65d21653e060c3ee71d17144c8953eb79b||[S15P21E201-745] test: [BE] mine 검사를 목록 순서와 무관하게 고치고 실패할 때 응답을 찍는다
+98159398b2e7b3aa463172ecfc5cf4fca1ff8820||[S15P21E201-746] test: [BE] 새 삭제 경로를 인가 정책 표에 적는다
+913c478fa3ed0af1c7428d4970d6621b83a6a910||[S15P21E201-746] feat: [BE] 내 여행을 지우는 경로를 만든다
+cda404ec9c8ae9b626e7fac02e9188f650efd85a||[S15P21E201-745] feat: [BE] 리뷰 목록에서 내가 쓴 평가를 구분한다
+f66f6ffc1b388b56db8e18f05612c9890af2c348||[S15P21E201-744] feat: [BE] 일정 항목 응답에 장소 식별자를 싣는다
+090dcd73250de59bb760fe486b1c737675c2c07a||[S15P21E201-264] feat: [Front] 장소 이름 한글·영문 병기 표시
+177c864de0039e1d8ef167adff388fb5e02ff0ad||[S15P21E201-705] docs: [BigData] 택슐랭 60곳을 정답지에 들인다 — 택시기사가 고른 목록
+9e7d03ee226658ba462ceb2b14cac9ad080e0043||[S15P21E201-571] chore: [BE] 계층 규칙 둘을 ArchUnit 으로 재고, README 에 확정 구조를 적는다
+6d0109506ec753a395d8bbd67614344550806012|chore/front/S15P21E201-700-ci-cache-and-cancel|[S15P21E201-700] docs: [Front] 캐시가 줄이는 시간을 실측값으로 바로잡는다
+26ac9e4a7bf506880746f048240e15765342b603||[S15P21E201-472] feat: [Front] 로컬 탐색 8종 아코디언 화면 신설(갈래 목록 단계)
+99433bfae2bb907bca601e9f5a43cd72d4e26409||[S15P21E201-747] fix(bigData): version 잡의 태그 push가 잔여 git-lfs 훅에 막히는 문제 수정
+96ffabfe23bfcf72a6d996984bfc2050b5919e3b||[S15P21E201-742] fix: [BE] 소셜로 가입한 이메일로 비밀번호 회원가입을 하면 계정이 또 생긴다
+71ab25ebc5542a0466730fb5f4a25d34a7f4b1d6||[S15P21E201-741] feat: [BE] 소셜이 준 이메일의 인증·유효 여부를 읽어 저장한다
+38333a8bd81f6a957b489a83bbea3e9e5fe16704||[S15P21E201-245] feat: [Front] 고정 장소 수 표시, 재계산 중 편집 잠금, 보기전용 고정버튼 숨김
+016ff6053864c01896251d144e2fcf572034a578||[S15P21E201-700] chore: [Front] CI 세 가지를 줄인다 — npm 캐시·검사 조건·옛 파이프라인 취소
+9db763cc6094c10be8ee228e313b664bcb4a1efa|origin/feat/front/S15P21E201-238-user-profile|[S15P21E201-238] fix: [Front] 본인 프로필 판정을 문자열로 맞춰 비교
+1fe57e8cdbb264ff455034f57b111be4cbbf9b99||[S15P21E201-238] feat: [Front] 다른 사용자 프로필 화면 신설 + 피드에서 작성자 이동
+5684900c183a89b050f2af50950ac9ba8f7ff93b||[S15P21E201-160] feat: [BE] GET /api/v1/analytics/kpis 를 연다
+dea18a6316d3e11f082a21516984c5ec83fa290d||[S15P21E201-481] feat: [Front] 장소 상세에 photoUrl/photoSource 선택 필드 반영
+562e09f28701157ba53e319de998accb9ec37f5c||[S15P21E201-389] feat(front): [Front] 장소별 한국어 말하기 모달을 4개 탭으로 만든다
+f268a747d49ba6226d66710456ef372d363b1c22||[S15P21E201-738] feat(front): [Front] 내 여행 목록을 기기 저장 대신 서버 API로 보여준다
+6cb4e4cf376431e006eb7a33f80926e66e623bb4||[S15P21E201-705] fix: [BigData] 정답지 주석을 먼저 들어간 판에 맞춘다 — 충돌 해소
+efbecbfd6c067d26ccee95c413701748526a523e||[S15P21E201-327] fix(front): [Front] 동행자 초대 API 경로를 서버 실제 경로로 맞춘다
+947339b195b920c54e4ea3f5631b9d303628622a||[S15P21E201-740] fix(front): [Front] 로그아웃해도 기기에 남는 이전 사용자 데이터를 지운다
+e3dd95ee478edd43ad024b9867f2284382d34b6f||[S15P21E201-739] chore: [BE] 로그인 유지 시간을 2주에서 미사용 2시간으로 줄인다
+f6c13227212de790df8d547a5e95b5e383ccbe11||[S15P21E201-738] feat: [BE] 내 여행 목록과 그 여행의 일정을 서버가 돌려준다
+22621a8ec9d4edc8b5f79201b58f04b3d0ca891e||[S15P21E201-238] fix(front): [Front] 기록 카드를 누르면 상세 화면으로 이동한다
+87a7d87b39981c6658935783e33b9eead55ade8d||[S15P21E201-584] fix(front): [Front] 웰컴 영상 시간대·실패 폴백 강화
+092630da42ed21d94e0c48cf3de15f687fd5240c||[S15P21E201-136] fix(front): [Front] i18n 미번역 검사기의 간접 tx() 참조 오탐 수정
+c0c8605321967ae5790dd45178c05aec6e419eab|chore/common/S15P21E201-701-ci-status-page|[S15P21E201-701] chore: [Common] CI 상태 페이지를 /status 에 배포할 준비를 한다
+90afbfed9e79a7f3f4da17951b6972f4cd2f0683||[S15P21E201-398] fix(front): [Front] 사투리 플래시카드가 완료 기준을 충족하도록 수정
+f684698129fb5d1538324228323b2b18aeee1214||[S15P21E201-649] feat: [Front] 지도 화면에서 3D 부산으로 가는 문을 낸다
+9b58bf1362b87e6301ae0ca09e62c27beb908cd6||[S15P21E201-163] fix: [Front] 지도가 안 뜰 때 무엇이 없어서인지 화면이 말한다
+c286cef9f404d6278fad0cbadc3e408d8b73d9d5||[S15P21E201-550] feat: [BE] 현재 위치는 요청 안에서만 쓰고 파생값만 저장한다
+b320cbf7f15b384822ecb142680f901836cd478e||[S15P21E201-225] chore: [CI] 운영자 이메일 설정을 배포에 전달한다
+1ac50324a11e509f91710a082ed8d073a3dec98f|chore/ai/S15P21E201-33-voters|[S15P21E201-33] chore: [ai] 모진성·고지혁을 투표권자 명단에 올린다
+00c7752613ec17f14310bf809a0e1a5623a7031a||[S15P21E201-672] test: [BE] 인증이 필요한 경로가 실수로 열렸는지도 본다
+29d848d72b8161a4012015ca9761e3c1c733f970||[S15P21E201-267] test: [BE] 검토 큐 검사가 DB 에 남은 신고에 밀려 실패하던 것을 고친다
+e5cc274c4f6e26872c1f766d722cb1fd28b5d1fb||[S15P21E201-730] chore: [BE] 스키마 한 줄의 주석을 !339 판과 같게 맞춘다
+d96d34881bc853552b05e9e08e1cf4d388dc66bb||[S15P21E201-737] fix(back): migration-order 잡이 db/migration 없는 대상에서 조용히 죽는 버그 수정
+a86877348afe1c4353fea43b7dba1dd879bffe69||[S15P21E201-736] chore(back): backend:build에 Gradle 의존성 캐시를 켠다
+113ece724acac96501117a14db5bf191ca378642||[S15P21E201-369] docs: [Common] 루트 CLAUDE.md 2절 브랜치 모양을 3칸으로 고친다
+eb7fb47162fc172ebdb52f073cb61875ae0e17e3||[S15P21E201-680] fix(back): Spring Boot 4.0.0→4.0.8 및 Tomcat 11.0.25 강제 지정 — HIGH 취약점 39건 제거
+e8e834f20365c9cf92e8faff98584d0f05af1f45||[S15P21E201-734] feat: [City3D] 3D 화면이 좌표를 주소로 받는다
+f2289e2df74a39368f13ccde80ba3072508ff435||[S15P21E201-735] feat: [BE] 가입 뒤에 켠 동의가 서버에 닿는다 — 읽는 길과 바꾸는 길을 낸다
+c336338f69c695a6d67703a95b90fad43c758d6c||[S15P21E201-735] feat: [BE] 앱이 보낸 저장·제외·체크인 후기를 받는다 — 누가 만들었는지는 칸에 남긴다
+8454a88d6a94378abbfd48fe59f67f42b34ab3b8||[S15P21E201-735] feat: [BE] 여행 밖에서 누른 저장도 적힌다 — 장소 이벤트를 사람 단위로 묶는다
+fa63c0eaee0967dce913cf85fadd7b71ff24b6cb||[S15P21E201-735] feat: [BE] 추천 요청 번호를 앱에 알려주고, 그것이 꼭 필요한 이벤트에서만 요구한다
+3e27f0a53f02db1c2cb3e505a67fb0e4de620a59||[S15P21E201-703] fix: [CI] 마이그레이션 검사가 자기가 방금 받아온 것을 못 찾는다
+1438f8223fe13240dd4b73ea2af4b681650b5fbd||[S15P21E201-730] fix: [BE] 손으로 쓴 SQL 이 빈 스키마를 보고 있었다 — 기록 피드와 초대 수락이 운영에서 죽어 있다
+f8311c4d1114fd2b9451631d98a71d60acfb320c||[S15P21E201-733] feat: [BigData] 부산 맛집 정답지를 448곳으로 넓히고 "왜 맛집인가" 를 19가지로 분류한다
+f729cfe30ae2a893cc319dd813f4223e3fdfb10a||[S15P21E201-476] feat: [BE] 장소 상세의 일정 포함 여부를 실제로 채운다
+cad982d521ebe4db37be1ba71c717c90c73ed4eb||[S15P21E201-467] feat: [BE] 축제가 그 날 실제로 열리는지 보고, 같은 축제를 두 번 담지 않는다
+8c3e10fa5bd41c0eaad767a1735c0a54c2d4f20f||[S15P21E201-732] feat: [Front] 예산을 숫자마다 만 원씩 쌓아 더하고 되돌릴 수 있게 한다
+4ecc9df757d03cb5e490547f5b17b49500c5feb5||[S15P21E201-526] docs: [Common] 폴더 그림에서 빠진 ci/ 의 나머지 둘을 되살린다
+134e44c6f1b93d96bf75e675ccf488c95f65cbd1||[S15P21E201-682] feat: [BE] 관측이 없던 세 자리를 메운다 — 잠긴 뒤의 시도, 소셜 연결 비밀번호 실패, 거부된 redirect URI
+5c91f06ca53239e566fc41a33853b968caa19097||[S15P21E201-476] feat(front): [Front] 장소 상세 화면에 실제 조회 API 연동
+ec8f10264777ec6386cf6bf48c49c33af86e5fe1||[S15P21E201-225] chore: [BE] 관리자 권한을 배포 설정으로만 열고, 적었는데 계정이 없으면 안 뜨게 한다
+0fd58652cb687b0318bc70c5974640ec8693d6b5||[S15P21E201-254] refactor: [BE] 기록 열람 권한 판정을 한 곳으로 모은다
+02aec7c638d8ccd303e9a2292e4fa2d804327c74||[S15P21E201-293] feat: [BE] 방문지 실제 도착·출발 시각 기록
+94bf672587a93c95132210cd8c0e24ccf38e0551||[S15P21E201-136] fix(front): [Front] 여행 기록·준비 화면 잔여 한글 tx() 적용
+3aaf1fc0e5ae76b0bbfecc7cf0041ace42ce8982||[S15P21E201-136] fix(front): [Front] 랜딩·로고링크·OAuth콜백·장소상세 잔여 한글 tx() 적용
+4046232d805a519dad0feed66aba7aa53304fe6e||[S15P21E201-586] fix(front): [Front] 로그인 뒤 기본 이동 경로를 /me 에서 /home 으로 변경
+ed2fe9b8df65f78a1de1b3458919dfca67c34ec0||[S15P21E201-731] feat: [BigData] 인기 신호는 가져올 길이 없다 — 대신 맛집을 가르는 것이 자리라는 것을 잰다
+f3e7fbc697ce4ae03588f48993c85d27f4746668||[S15P21E201-729] chore: [City3D] 도보 스케일 작업이 무엇을 치렀는지 숫자로 남긴다
+4e21242053490243d1e7084866f167a604b9df09||[S15P21E201-658] fix(front): [Front] Skeleton 애니메이션 정리(cleanup) 추가
+28c2b8d32e889a24082a4dcabfd60e4be56e77ea||[S15P21E201-658] fix(front): [Front] Skeleton useEffect 의존성에서 안정적인 shared value 제거
+1e63714e8ad74f06d34cdecbe3228d24c94971eb||[S15P21E201-658] feat(front): [Front] 로딩 상태를 스켈레톤 UI로 개선
+4de3f5591e162786637fd0934fb6f541831cdf7f||[S15P21E201-728] feat: [City3D] 동네 상가의 1층을 위층과 다르게 만든다 — 통유리 상가띠
+1b43737f3bc4219a6083789ba87b270fcd47ef0a||[S15P21E201-727] feat: [City3D] 길이 걸어다니는 곳으로 보이게 횡단보도를 땅에 그린다
+5833391d31d787d96a1ea36f439bef74c4fd969e||[S15P21E201-726] feat: [City3D] 낮에도 건물에 층이 보이게 한다 — 밝은 벽에 어두운 창
+0473acd5ff452712ec86fd7eba271ad53bf3e516||[S15P21E201-635] fix: [BE] 서버가 "한식" 이라 적고 앱은 "돼지국밥" 이라 물어서 한 건도 안 맞던 것을 고친다
+bc165c71f4d7ce5e3e19b85be033d94a1703f5dc||[S15P21E201-254] feat: [BE] 신고 접수와 즉시 비노출, 운영자 검토 큐
+d9b149b6cc82f8ed0d0643d5a8c9b9d54dac5f93||[S15P21E201-725] feat: [City3D] 도보 확대에서 벽면이 없는 항공사진을 걷어낸다
+5004bfd25a38fc466b207a33d6d5b3954f16eff9||[S15P21E201-724] docs: [BE] MR 설명을 붙인다 — 성적이 왜 안 움직였는지가 결과다
+8aac10b877e878baa9c61146374a82490dedbfdf||[S15P21E201-636] feat: [BE] 장소를 아무도 안 넣던 것을 고친다 — 상가정보 음식 업종을 place·place_feature 로 적재한다
+52f280acfea52d66a74d0702332f059095697bc0||[S15P21E201-635] fix: [BE] 앱이 고른 취향이 조용히 0점이 되던 것을 고친다 — 서버가 앱의 모양과 눈금을 받아들인다
+f91b26cf9afc09c526683fce2861244b8ba3cc1d||[S15P21E201-724] fix: [BE] 가까운 200곳만 채점 대상이던 것을 고친다 — 반경 안 전부를 채점하고 그 뒤에 자른다
+e5d9b70afe7da62dc96e0189c207b209f1e37582||[S15P21E201-254] feat: [BE] 신고·방문 인증·리뷰·실제 도착 시각의 표와 계약을 먼저 둔다
+9211790661f9adbd6ad6c20b984cbefbeed1216e||[S15P21E201-713] feat: [BigData] 배포되는 채점기를 처음으로 잰다 — 실패다
+fdfcde74b086ae9f405939494dbf0228ad51f876||[S15P21E201-712] feat: [BigData] 상가정보와 OSM 을 합쳐 후보를 55,392곳으로 넓힌다
+74f4bdd8779c0b55d7a12395af775ce8d1394ac4||[S15P21E201-714] feat: [Common] 링크 하나로 도는 짝 비교 설문 화면 — 앱 밖에 따로 선다
+30d4e279fe3709607ab617abb518b67d97b4eba7||[S15P21E201-715] docs: [Common] 설문 고지문·동의문·수집 절차 — 올리기 전에 채워야 할 칸을 표시한다
+5f40626229b23fa75204bd1cba0305d2da17a292||[S15P21E201-707] docs: [Common] 세 질문 문항·선택지·저장 코드값을 사람이 고를 수 있게 차려 놓는다
+2eff51beb27990f533543fe1f0f74cf03989c3bd||[S15P21E201-722] fix: [BE] 없는 이메일로 로그인 실패해도 기록한다
+1c54ab043f8b3ca7b942d5fb1895de66968c74d5|origin/feat/front/S15P21E201-718-consent-and-events, feat/front/S15P21E201-718-local, feat/front/S15P21E201-718-consent-and-events|[S15P21E201-717] feat: [Front] 폰 안에만 쌓이던 행동을 서버로 보낸다
+4cd9289a0eac58b0b1f8a5e5f9c0693dbd661fbd||[S15P21E201-718] feat: [Front] 동의를 안 받고 정해져 있던 개인화를 사용자가 정하게 한다
+be35b69d01e96f6fbd66e8c7da7602a970982038||[S15P21E201-703] fix: [CI] 마이그레이션 순서 검사가 git 을 지워놓고 git 을 불렀다
+2233035b015b5d839438fc628be13d64c87f2e7c||[S15P21E201-723] fix: [BE] 갱신 표를 거의 동시에 두 번 내도 로그아웃되지 않는다
+7bb0f29c1c7810109a24dbf3aeacd034ff43e741||[S15P21E201-680] fix(back): Spring Boot 4.0.0→4.0.8 및 Tomcat 11.0.25 강제 지정 — HIGH 취약점 39건 제거
+ab6007670e28db4c5910c39f53f228e6005657eb|docs/bigdata/S15P21E201-705-food-ranking-docs|[S15P21E201-705] docs: [BigData] 라운드3 문서의 구분선이 본문을 제목으로 바꾸던 것을 고친다
+c3941e6223dc13fbe3a09fe571ac8d3bdfa8caf5||[S15P21E201-705] docs: [BigData] 라운드3 — 정답표를 관광 안내에서 맛으로 바꾸고 다시 판정한다
+51cdba738df944c719cccb98021a8b8209085c9c|feat/map/S15P21E201-706-realistic-bridges-actors|[S15P21E201-706] feat: [Map] 주요 교량·고가를 실제 제원으로 그리고 이동수단을 움직인다
+d4a16ec0763c330231dd4db3911b4a1ab4c910ad||[S15P21E201-704] hotfix: [BE] 소셜 로그인 챌린지 경로를 다시 공개로 되돌린다
+79ae26e160f32c2bccb023c4c5a04274d2233f43|docs/map/S15P21E201-688-walking-scale|[S15P21E201-688] docs: [Map] 도보 스케일 조사 — 성능이 아니라 사진이 병목이다
+8ba9617eca4ed55306b0977c614381a7fdf946f7|docs/bigdata/S15P21E201-705-truth-lists|[S15P21E201-705] docs: [BigData] 맛을 재는 정답지 4종을 들인다 — 관광 목록만으로는 못 잰다
+99a09bfe6712a7fae4e4f3570402c8f0d75d6941|origin/fix/back/S15P21E201-704-allowlist|[S15P21E201-704] fix(back): 로그인 전에 부르는 경로 셋을 공개 목록에 되돌린다
+fc0bfb00621dcdf15a31afb1c314eeda3fffb1ad||[S15P21E201-136] fix(front): [Front] 현장 도구·체크인 화면 잔여 한글 tx() 적용
+1b86473154ef3e72348ce38d7d0be2f641b01425||[S15P21E201-682] feat: [BE] 보안 이벤트를 구조화된 로그로 남기고 급증하면 알린다
+08477d95b32ef8dd0f37f6128aece842fa517f18||[S15P21E201-705] docs: [BigData] food 선정 모델 온톨로지·아키텍처·평가 문서 3종
+7b03faff971028d2c15c8f726bd1e7789c45166e||[S15P21E201-705] fix: [BE] 이벤트의 주체를 인증에서만 읽는다
+8321de9021cc98d0b28d2e2c46df07a961b3230e|feat/common/S15P21E201-704-g1-quorum-fallback|[S15P21E201-704] feat: [Common] 유효 투표권자가 정족수에 못 미치면 자기 표를 센다
+9fb965e99b02b6a58b985321475fe1b15eb8d3fd||[S15P21E201-704] fix(front): [Front] 소셜 로그인 실패와 비밀번호 오류를 구분해서 보여준다
+819987cb83bd91252be56485bff844e6c0758dff||[S15P21E201-672] chore: [BE] 모든 경로가 인가 정책을 명시하게 만든다
+d1e06bc4f688ef77f39738bb15571ad138d4d73c||[S15P21E201-188] feat: [BE] 계정 삭제 시 story(기록)도 함께 지운다
+b4ed8004f90e046b753e86ab0683785e8596952b||[S15P21E201-704] fix(back): 소셜 로그인 챌린지·웹 세션 갱신·웹 로그아웃 경로를 되살린다
+8501c04605606bcd3db8bfa2958fbd359e3b2664||[S15P21E201-465] fix(front): [Front] 축제 API 계약 확정분 반영 + 화면 다국어 처리
+9d48cba87ae2c060422a4511cd6d5b91f6c20736||[S15P21E201-548] feat: [BE] 다양성 재정렬과 기여 축 기반 추천 이유를 넣는다
+f5cfd8d7b4bce12acd0be339cf36890ca7841341||[S15P21E201-136] fix(front): [Front] 404·알림·비밀번호 재설정 화면 잔여 한글 tx() 적용
+6abb51ba45a2300cb34eca81c28b4527caf5a2bd||[S15P21E201-188] fix: [BE] AuthSliceApplication의 EntityScan에 story.domain을 추가한다
+ad93334de8000809855e331c710ddbc727430ab5|origin/fix/front/S15P21E201-136-i18n-sweep-12|[S15P21E201-136] fix(front): [Front] 비밀번호 찾기·권한 안내·내 여행·저장 장소 화면 잔여 한글 tx() 적용
+5f941fefed9fc5254603fd857c82b8aa2b2de9a2||[S15P21E201-465] feat: [BE] 여행 기간과 겹치는 축제만 돌려준다
+4c0218de4bf15c3e9bf6a99088c34baf8b0989e9||[S15P21E201-217] feat: [BE] 택시 목적지 카드와 장소 상세의 빠진 칸
+7825c0605e1eb567d4c00f20f235be521664e5e4||[S15P21E201-547] feat: [BE] 계정 기본 취향을 읽어 여행이 안 답한 차원을 채운다
+eea23837822c19f068596e0237b612bac19e8000||[S15P21E201-465] fix: [BE] 마이그레이션 번호를 160000 으로 옮긴다 — 150000 이 겹쳤다
+52d2332bccb8b7e510fa6079f60a1fca5059aa83||[S15P21E201-467] feat: [BE] 축제를 일정에 더하고, 근처 조회를 갈래·반경으로 좁힌다
+0cbdd34f7baebceeabb0700b723fae6e12bbf345||[S15P21E201-465] feat: [BE] 로컬 탐색 묶음의 표·칸·갈래 코드를 먼저 둔다
+18544c26cb57682a2b30334dc3f6fe6fa47e4085|chore/front/S15P21E201-700-drop-frontend-build|[S15P21E201-700] chore: [Front] 타입 검사를 smoke 안에 넣는다 — CI 에 원래 없던 검사다
+34ad00dd1e2b500668281730de9c08e082de35ad||[S15P21E201-703] chore(back): CI에 Flyway 마이그레이션 버전 역행 검사 추가
+64197e564c23b5cf1929478c5853936e7b009114||[S15P21E201-586] fix(front): [Front] 로그인 후 원래 화면으로 못 돌아가는 버그 수정
+d047306480a4a412d8e32bb12584f49713d8d46c||[S15P21E201-575] fix(back): 배포 실패 시 :previous 이미지로 롤백
+54c37ad0573aef4b5cfa4656d1f168eeedc3fc1f||[S15P21E201-689] fix(back): 2단계 흐름의 최소 본문이 안 읽히던 것 - record 의 선택 boolean 을 Boolean 으로
+38934ed307618ba1a9e62fcf720fc69b74ac31e3||[S15P21E201-698] hotfix(back): AuthException 이 캐치올에 잡혀 500 이 나가던 것 - 전역 advice 에 순서를 명시한다
+6f0ed3eaff3cee8e0111eda9c80f2b901d38a50e||[S15P21E201-575] fix(infra): airflow scheduler/dag-processor 헬스체크 타임아웃 10s→60s
+2881e4880f9d177d09aec3e11749406cb4118e60||[S15P21E201-555] feat: [BE] 추천이 실패하면 Editor's Pick 기준선을 내보낸다
+5da4529d8b13cc04ebe154bd893ddb6fbc3ca5ca||[S15P21E201-700] chore: [Front] frontend:build 를 지운다 — smoke 가 같은 일을 두 번 한다
+6b263965852469e555c11a9f628382085f830906||[S15P21E201-586] feat(front): [Front] 소셜 로그인 2단계(가입 완료·계정 연결) 화면 연결
+cdde6a92fbc2189b5e98cfdd93cbb3f7acfc9a02||[S15P21E201-555] feat: [BE] Pick 을 순위 그대로 결과로 만드는 조립 경로를 낸다
+71dbfccdb667838b1e44646259644a687ca9b569||[S15P21E201-689] hotfix(back): Flyway 버전 충돌로 운영 기동 실패 — 060000 을 140000 으로
+311c0bcbd2341a512657f78cfe6108915e5251a4||[S15P21E201-555] feat: [BE] Editor's Pick 발행본 표와 개인화/Pick 구분 칸을 만든다
+a4b0fb54f8a8d09ad0a85efafd81f81b0db752a4||[S15P21E201-294] fix: [BE] AuthExceptionHandler가 전역 캐치올이라 다른 도메인 예외를 가로채던 것 수정
+a5c5eb82989f06180efe96dcdce57df6fa512448||[S15P21E201-136] fix(front): [Front] 여행 결과·동행자 초대 화면(데모) 잔여 한글 tx() 적용
+008aab5ad0d6523d983ff22e2b33f6c0c4442f08||[S15P21E201-218] feat: [BE] 일정 상세 조회 응답에 warningCodes를 싣는다
+a9d39fe848ab919660fb6e3d61621b9d6556e509||[S15P21E201-680] fix(back): dependency-scan을 allow_failure로 — 게이트가 자기 MR을 막음
+2abf8136442886cd64cd9835b87ed69bc9598f12||[S15P21E201-547] feat: [BE] 취향 다섯 차원을 가중평균으로 채점한다
+4a25a78bb6f17e408e58b15b3a46d6acd8f56d43||[S15P21E201-136] fix(front): [Front] 동행자 초대 화면 잔여 한글 tx() 적용
+291d5f3c4755dbe32c0db2ded19d45539d3388fc|fix/bigData/S15P21E201-33-policy-merge|[S15P21E201-33] fix: [bigData] 승격이 막힌 투표권자 명단 충돌을 푼다
+166653716a0d055877d90caa946be60ecddbf533||[S15P21E201-690] test(back): 소셜 가입·연결 흐름을 실제 PostgreSQL 에서 고정한다
+753bd1395a8426ff25d948836dd0ea85a49a8ded||[S15P21E201-689] feat(back): 소셜 인증이 로그인·가입 필요·연결 필요 셋으로 답한다
+6993881e9d5944a0fd0dbf3fe0de0ab668a80a31||[S15P21E201-689] feat(back): 소셜 인증과 회원가입을 잇는 10분짜리 1회용 티켓
+a1b77e1bc5f187cd8565ac4e3c79a7ba9ccae1ec||[S15P21E201-547] feat: [BE] 취향 다섯 차원의 가중치를 설정으로 분리한다
+a1522d6e0e89c63b03d598a620f0eacb9b4a4c8a||[S15P21E201-136] fix(front): [Front] 현장 말하기·택시 카드 화면 잔여 한글 tx() 적용
+ccc599c1b8d93402a93d2d367f2896dba5c260f0||[S15P21E201-136] fix(front): [Front] 홈 화면 잔여 한글 tx() 적용
+d4aab81bda781b890204dec878bd3c69d2db5d66||[S15P21E201-136] fix(front): [Front] AI 채팅 화면 잔여 한글 tx() 적용 + 초기 인사말 언어 미반영 버그 수정
+d75378abc0f50ef85f2241cb76aa585a50a7fad9||[S15P21E201-294] test: [BE] 진미리 님 제보 500 재현 - 현재 코드는 정상, 배포 지연 의심
+dbffa2062ae8f27a137bcf4d7fb367b73c0031d9||[S15P21E201-136] fix(front): [Front] 취향 화면 잔여 한글 tx() 적용 + 음식/알레르기 라벨 영어 누락 수정
+0b6ca12513fd1502e7a616730b42e96db5c5a4e6||[S15P21E201-680] chore(front): CI에 의존성 취약점 스캔 추가 (OWASP A06)
+15408d8462c368412ae750ac0028c0c56357b1fe||[S15P21E201-136] fix(front): [Front] 일정 편집(데모) 화면 잔여 한글 tx() 적용
+ae3a53a00abcffefbf46eb68222937994c983b2d||[S15P21E201-680] chore(back): CI에 의존성 취약점 스캔 추가 (OWASP A06)
+a944dbb441c4bac56accc26369c2e045d8d03bc3||[S15P21E201-231] hotfix(back): Health Check 재시도 시간을 60초에서 300초로 늘린다
+45fca2f788028169d8317c2d378daad862a90978|chore/map/S15P21E201-526-drop-vendoring|[S15P21E201-526] chore: [Map] 사본을 걷어내고 axMap 을 npm 으로 받는다
+5f5a19562a11a708aed7421b83ba6aff0e924ed5|chore/bigData/S15P21E201-526-drop-vendoring|[S15P21E201-526] chore: [BigData] 사본을 걷어내고 axMap 을 npm 으로 받는다
+da8cfa23f644baf21605793f428611ecc12471d1|chore/back/S15P21E201-526-drop-vendoring|[S15P21E201-526] chore: [BE] 사본을 걷어내고 axMap 을 npm 으로 받는다
+9338e71168f31849fdf58a2b23ff56c877230be4|chore/front/S15P21E201-526-drop-vendoring|[S15P21E201-526] chore: [Front] 사본을 걷어내고 axMap 을 npm 으로 받는다
+065cab6d4f8cc40e5da80775ad2deaf2a2621b00|origin/hotfix/S15P21E201-526-drop-vendoring, hotfix/S15P21E201-526-drop-vendoring|[S15P21E201-526] chore: [Common] 사본을 걷어내고 axMap 을 npm 으로 받는다
+feb2f1ecd0e5f1d2473d5a13c78a5be4f8abd612|docs/common/S15P21E201-526-migration-guide|[S15P21E201-526] docs: [Common] 사본이 사라진 뒤 각자 PC 에서 고칠 것을 적는다
+d12a9ab8b9ec4f54bed4985fa5cadc9ada19c59f||[S15P21E201-136] fix(front): [Front] 일정표 화면 잔여 한글 tx() 적용
+a25b59526fb4d90b11a3c85e5e028728fed9527e|origin/feat/bigData/S15P21E201-694-tourapi-scoring, worktree-agent-a29a279246a054c5f, feat/bigData/S15P21E201-694-tourapi-scoring|[S15P21E201-694] feat: [Rec] 추천 순위를 TourAPI 정답표로 채점했다 — 판정은 실패
+47d01ccd45cd4772f5c950c12cf0cd82a86e9f9a||[S15P21E201-136] fix(front): [Front] 여행 지도 화면 잔여 한글 tx() 적용
+6ac03c4ca96622c7541e956d5684a9f4cbcd2b5d||[S15P21E201-199] feat(front): [Front] 추천 결과에 장소 수·예상 이동시간 표시
+50463d3336a960cfbd589eebb000392435f20d45||[S15P21E201-136] fix(front): [Front] 회원가입 화면 잔여 한글 tx() 적용
+d573bb9037394f42e8a69bf75363c69d82f69de6||[S15P21E201-136] fix(front): [Front] 조건 확인 화면 잔여 한글 tx() 적용
+3c9c46fa1c4753f5dc649413f74110890327ac1b||[S15P21E201-294] hotfix(back): Flyway 마이그레이션 버전 충돌 긴급 수정
+ac6c14dcf7a7741e3626cdef5ec63269ab4b91d7|feat/map/S15P21E201-688-aerial|[S15P21E201-688] feat: [City3D] 사진 위의 도로선·바다·확대 상한을 화면과 픽셀로 정한다
+508f5cd6abb64382887154a24b7826e52fdc24ab|origin/docs/bigData/S15P21E201-49-coldstart-restaurant-ranking, worktree-agent-a5fad466b1ab24c70, docs/bigData/S15P21E201-49-coldstart-restaurant-ranking|[S15P21E201-49] docs: [BigData] 행동 데이터 0인 상태에서 식당 순위를 만드는 설계
+ff3b76e0518ec132d6da43f0b7fd65c660d2eb79||[S15P21E201-691] fix(front): [Front] 웹 랜딩 로그인 상태 반영 + 401 refresh 재시도
+ddd24759032d9537f143bb3f2162cafa4c30a3d6||[S15P21E201-604] feat: [BE] REC-04 결과 응답에 placeCount·estimatedTravelMinutes를 싣는다
+04d2a04cb1af1dcd9686c47466a12f317f602bb0|hotfix/S15P21E201-33-vote-commands|[S15P21E201-33] hotfix: 표를 던지는 슬래시 명령을 최상위 main 에도 둔다
+3c520b9b6124283aa39662f852a9650b338d15ce|chore/map/S15P21E201-33-vote-commands|[S15P21E201-33] chore: 표를 던지는 슬래시 명령을 이 브랜치에도 둔다
+5f391a02a0f9e96881fca5a6d8fcc1b808b839c4|chore/bigData/S15P21E201-33-vote-commands|[S15P21E201-33] chore: 표를 던지는 슬래시 명령을 이 브랜치에도 둔다
+6d37e5d2b323c94836f3573fe655732ad1d37d1b|chore/back/S15P21E201-33-vote-commands|[S15P21E201-33] chore: 표를 던지는 슬래시 명령을 이 브랜치에도 둔다
+db28548be01be0067586ecdb8e72cc3026303dc8|chore/front/S15P21E201-33-vote-commands|[S15P21E201-33] chore: 표를 던지는 슬래시 명령을 이 브랜치에도 둔다
+f25db4f3c829bf3c5323b2bb4a2ec0669464d4b0||[S15P21E201-658] fix(front): [Front] useI18n().tx 무한 리렌더 버그 수정
+c9e1061c890cb550bc6fe8cacddc3e4610db8137||[S15P21E201-688] feat: [City3D] 항공사진(브이월드 정사영상)을 지형에 덮는 raster 를 붙인다
+eb193c5d88644f292962b36b1bfa014e2120e45f||[S15P21E201-188] feat: [BE] 계정 삭제 전 실제 영향 수를 보여주는 미리보기 API를 만든다
+f6dbe3cd647ea67d85435a55c0e4e8672ccbdc01||[S15P21E201-136] fix(front): [Front] 공용 컴포넌트/프로바이더 잔여 한글 tx() 적용
+ddd94ce2079c411a754118f8c35647321a398de8|chore/bigData/S15P21E201-33-voters|[S15P21E201-33] chore: [bigData] 모진성·고지혁을 투표권자 명단에 올린다
+af25987b850299ec37c2fcc37e4f5467ea7f4489|chore/back/S15P21E201-33-voters|[S15P21E201-33] chore: [back] 모진성·고지혁을 투표권자 명단에 올린다
+d4cc7cc6aa449d3c7d2fa3ad84a3b4b912a85beb|chore/front/S15P21E201-33-voters|[S15P21E201-33] chore: [front] 모진성·고지혁을 투표권자 명단에 올린다
+588d2af348ea6cb857cc82e53fbe8a3a12bad18a||[S15P21E201-294] test(back): information_schema 질의에 현재 스키마 조건을 붙인다
+6fedd1ae75bc125d86f448fd91301c980135006c||[S15P21E201-687] feat(back): 여행의 최근 변경 조회와 판 목록의 사람 이름
+3ff06da95492d09b87f5569fd1216375d77f52bd||[S15P21E201-338] feat(back): 공유 일정 복제 — 장소만 씨앗으로 승계하고 내 조건으로 새 여행
+86fa4546e681ae5b13bf88f9c2832ac743df0014||[S15P21E201-332] test(back): 공유 응답의 필드 이름을 허용 목록과 대조한다
+b7113a9afab3a6c6114980719b54a52a89be5d33||[S15P21E201-330] feat(back): 읽기 전용 공유 주소 발급과 비로그인 조회
+90393f91590a80ee8296e7a58fdf0582072289f3||[S15P21E201-294] feat(back): 동행자 초대 발급·수락과 참여자 목록·역할 변경·제거
+5d62ae12acc6951bfbcd062ed5b58d0d89a8a34c||[S15P21E201-686] feat(back): 관리자(ADMIN) Role 도입
+ea2fae9ccfe072277c65a6939af1dbb88256b945|feat/map/S15P21E201-685-landmarks|[S15P21E201-685] feat: [City3D] BIFC·마린시티 상위 6동을 층단 있는 다층 상자로
+fe1afeeff00c7548eec289c6e12221b30f8c2443||[S15P21E201-685] feat: [City3D] 랜드마크 아홉 동의 색·재질을 이웃과 가른다
+587110835769c8f2bfc09487115d97c4c2fa98d6||[S15P21E201-685] feat: [City3D] 고가·교량 도로 1,451개를 입체로 세운다
+17c7c75303d71527b876fa34e447ebbe21ab4344||[S15P21E201-685] feat: [City3D] 부산항대교·남항대교에 주탑과 사장교 케이블을 세운다
+46b9f24c91fa81e3651eb75bdc02be2fa7e1ea19||[S15P21E201-256] chore(front): [Front] 영어 모드 잔여 한글 자동 검사 스크립트 (tools/i18n-check.mjs)
+88c514a3078b5581f39024c57171107d8a622832||[S15P21E201-104] feat(front): [Front] 부산 사투리 플래시카드 위젯
+64bfa2f44aeff28c520529e31ea1540bc166caed|origin/docs/bigData/S15P21E201-49-restaurant-ontology-redesign, worktree-agent-a0c8ee88684cb6105, docs/bigData/S15P21E201-49-restaurant-ontology-redesign|[S15P21E201-49] docs: [BigData] 식당·카페 온톨로지 재설계안 — 평판을 어디에 담을지 정면으로 답한다
+ef517a2d0b755621511505ac38b44f70d6d96a4b||[S15P21E201-294] feat(back): 동행자 초대·공유 주소·복제 씨앗의 표와 저장소 계약
+4a2cacebdefd8ebee07bff2fdf1ee14ca6f701f4||[S15P21E201-71] feat(front): [Front] 외부 지도 앱(카카오맵·구글맵·애플맵)으로 바로 넘어가기
+3fd06cb5be5acbd5cf24815d4284461b669b6acf||[S15P21E201-212] fix(front): [Front] 추천 결과 화면(지금 갈 곳/추천 코스) 영어 모드 잔여 한글 제거
+7bed70dc63261b1d2f8a3169268da077ce609b03||[S15P21E201-158] chore(common): axmap-bot 토큰을 CI/CD 변수로 연결, version 잡의 조용한 성공 제거
+501b076b193eb3454d2fc1ed3951be2e96a5883b||[S15P21E201-673] docs(common): ZAP 자동 스캔 취약점 보고서 (1차)
+a62b9813ad0e2a9db036bf0b0df9fe565fe1d5cd||[S15P21E201-526] docs: [Common] 사본을 지운 뒤에도 안내가 옛 경로를 가리키고 있었다
+ade01b230618d16d5e5360bf85eba762b0d64b27||[S15P21E201-231] fix(back): 여행 기록 사진 저장 볼륨 영속화
+3a0f482d7d620e25b939ae5f9c29972a04361348||[S15P21E201-666] fix: [BE] 안전 피처를 ESTIMATED 로 저장할 수 없게 막는다
+22879ebfe095356052f75e775aec92b5f78bc67c||[S15P21E201-461] docs: [BE] evidenceStatus·operator 주석을 유실이 아니라 설계로 고친다
+feb34c24e5178c65ca7c2135d8d13e98189c6c60||[S15P21E201-123] feat(front): [Front] 여행 기록 피드 연결 (조회/작성/사진업로드/팔로우)
+a9445587ccdf3546c292b37c0d1c48e2bff16a0a||[S15P21E201-592] feat(front): [Front] 일정 화면에 장소 제외·다시 계산·되돌리기 연결
+2cb03ac0ba825bbbe3f73a6c8a6dbff82732f3b0||[S15P21E201-661] fix(front): [Front] 모바일 온보딩 인트로 화면 잔여 한글 제거
+0e49404070e66811bb9ae6916393185ec35eda76||[S15P21E201-648] feat: [City3D] 새로 clone 한 사람이 807 MB 를 굽지 않게 — 주소 하나로 AWS 를 본다
+547594f5e02e1032788ae5f327b7ceeac24a6bb2||[S15P21E201-659] chore: [City3D] three.js 부하 실험 — 진짜 그림자가 값어치를 하나
+5d79c55ce66fcbdbf151265330a2c47208d8b84f||[S15P21E201-648] feat: [City3D] 서버에 그대로 올릴 한 폴더로 모은다
+15141c97181410c2c3d21cd583b75d30a9585401||[S15P21E201-657] feat: [City3D] 실사감을 올린다 — 진짜 태양 위치·건물 그림자·야경
+5d7b2bb17065179b1db4cfdd8e54ce2cac9a355c||[S15P21E201-656] feat: [City3D] 부산의 다리를 3D 로 세운다 — 건물 데이터에는 교량이 한 동도 없다
+727689429c937dd59e511f04948560f2dab210e8||[S15P21E201-647] feat: [City3D] 부산 전역 3D 재료를 굽는다 — 건물 47만 동과 땅 높이
+709df538b21bc04fdcfdf6f4ae9eda32af096ea7||[S15P21E201-9] docs: [BigData] 공개DEM 은 5m 가 아니라 90m 였다 — 받아서 재고 정정한다
+0c75f5ce2bc9e064cc46d57fe7cad31d963c318c||[S15P21E201-207] feat: [BE] 여행 기록 작성·조회·수정·삭제와 커서 피드, 팔로우
+42aafbf3d7c59b960e1f80a2d47a3d45628cc73b||[S15P21E201-216] feat: [BE] 기록 사진 업로드와 촬영 위치 정보 제거
+a9e6062bd536282f88a6976d51e5d6339dcbeea0||[S15P21E201-207] feat: [BE] 여행 기록·사진·팔로우 표와 엔티티
+7f930a2958340f0aa9e4e61848fd654dec52d442||[S15P21E201-284] feat: [BE] 일정 되돌리기 POST /revert
+a59ab0450e3c5f2b3bf7ab5d345341bd4e4b9510||[S15P21E201-284] feat: [BE] 판 목록 조회와 REVERT 판 기록 칸
+546913439a6a94adf2af63c86fc797e039ffe77a||[S15P21E201-249] feat: [BE] 하루 재계산과 제외 게시 경로
+c16383e549bebf09f2edd99b1b7ce7b507964c57||[S15P21E201-249] feat: [BE] 제외 목록 표와 편집 Job 배선
+2744b197ebce89f702303d1a4f695c4e64adef1f||[S15P21E201-224] feat: [BE] 일정 편집을 OWNER·EDITOR 만 할 수 있게 하고 응답에 내 역할을 싣는다
+4aa31ddd951025f8543e0c42c428d1dbd6ae7144||[S15P21E201-665] fix: [BE] 앱이 보내는 취향 차원 이름을 DB 어휘로 바꿔 실제 여행 생성이 되게 한다
+265c50d64a58a74cbac01a522d3c41a497b12aa7||[S15P21E201-664] feat: [BE] 여행 생성의 활동 시간대·이동수단을 실제로 저장한다
+7da3fcbffb2f5ce1fdc5c7cceca7571a4696b119||[S15P21E201-663] fix: [BE] 적용된 마이그레이션의 주석을 되돌려 배포 502 를 살린다
+f9ce6e1ed19e627e9d9994e6ed1ca5b2fa0496b0||[S15P21E201-662] fix: [BE] 일정을 고정하면 일정이 비던 것을 고친다
+404acef570248dfb0b6ef126fa430b2e425424d4||[S15P21E201-661] fix(front): [Front] useI18n 적용 화면 전수 점검 — 잔여 한글 제거
+353da9006b5242a3ced75ecc9ef68e0daa7579ae||[S15P21E201-660] fix(front): [Front] 취향 화면 데스크톱 레이아웃 붕괴 및 잔여 한글 수정
+ffed858e5f8684e51de6d881dee1f1b7aa539425||[S15P21E201-455] feat(front): [Front] 3단계 알레르기·식단을 2단계 음식 선택에 소급 적용
+6d1005a95cc9d414cc15086a6783fd5f50f48abc||[S15P21E201-9] feat: [BigData] 상가정보를 받고 승인된 API 셋을 온톨로지에 반영한다 — 장소의 두 번째 출처
+8befe590f86e252705ba6164cd79b9b2d61232ff||[S15P21E201-655] feat(front): [Front] S-12 지금 갈 곳 화면 구현
+d4d39fdfc73a66752e22b111fb4c7532bce0a37f||[S15P21E201-447] feat(front): 음식 칩에 알레르기·식단 충돌 차단 추가
+f29635023f8c8e91f223ec615559454d0bf0cc1c||[S15P21E201-442] feat(front): 여행 기분(밀도) 3카드 선택 추가
+5fdf3d806c7a11fdc7bb7f58e377c4c6c4945080||[S15P21E201-427] fix(front): 영어 모드 잔여 한글·날짜 표기 수정
+55e4e15c7a6e190b5ed649c73058d1728f63b341||[S15P21E201-454] feat(front): 3단계 이용 조건 5항목 추가
+0ab0ed9f8a1d15ad55f6027aa2853ca100566baa||[S15P21E201-460] fix(front): 최종 확인 화면 요약 누락 보완
+d54be9016bd30c5aee99c2ab83f02ac04f2c1d26||[S15P21E201-459] feat(front): 일정 생성 성공 후 여행 조건 draft 초기화
+95a72d2f2aa34ac173d63affef50b30a83cda303||[S15P21E201-654] feat(front): 여행 기본정보 설문에 단계별 진행형 UI 적용
+113baba6104ed4157660464f5a40b827295d13f4||[S15P21E201-600] fix: [CI] 방금 올린 도장 잡이 파이프라인을 잡 0개로 죽였다 — 정규식의 역슬래시 한 글자
+73eca341b23d0f9acc4f2fa99c2bd1f4437671d6||[S15P21E201-600] fix: [CI] 선점 감사가 장부를 매번 처음부터 재생해 쓸수록 느려진다 — 사본을 1.1.0 으로 올리고 도장을 켠다
+be40f1653f38b2def9beca2459e98700f621ff92||[S15P21E201-632] fix: [BE] 피드 작업의 티켓 참조를 바로잡는다 — 580 은 무관한 완료 티켓이었다
+631d69586e0316ba2102534694533115f00b1a41||[S15P21E201-633] feat: [BigData] 아침 점검을 MatterMost 로 보내고, 노트북 방식 종료를 문서에 박는다
+9ded00749db9c592bf0b7f24c83e3c34fc0547b5||[S15P21E201-633] feat: [BigData] 버스 수집을 팀 서버로 옮긴다 — 노트북이 꺼지는 문제를 사람에게 안 맡긴다
+01163406def3c2d8b3a2eb38907dda7ab64ddaf2||[S15P21E201-580] feat: [BE] 피드를 미리 만들어 두고 읽을 때는 그대로 낸다
+d07e5571d200fa4e8f5a9c7001bbbd646ad0649a||[S15P21E201-610] fix: [BE] X-User-Id 헤더 인가 우회 수정
+cab9f5cfde01ff6d9690b6b60d40190240f23814||[S15P21E201-631] feat(front): 실제 여행 생성 API 연결
+80caa8dec1676d6f7c5a6a12254e32ea4cb8b00c||[S15P21E201-630] feat(front): 프로필 편집 기능 추가
+34be5285b95daf32f3e57b8f158b1b1a0dce033b||[S15P21E201-629] fix(front): Figma 팔레트와 소셜 로그인 통일
+eb28b779c0c70880590aa6b0bd054b49a5fb8fd2||[S15P21E201-200] feat(front): 실제 일정 여행표 출력 연결
+d66e39d2893ca313eafa06cdcb8e431de0d0fd74||[S15P21E201-539] fix: [BE] 미확인 제약의 제외 여부를 설정이 다시 정하게 한다
+c8fd9fcad54cb93295e51c117f218ad29c3eb19e||[S15P21E201-604] fix: [BE] 버전 값이 없어도 기동은 되게 되돌린다
+de403d3de9500277a521fac675b643f9b0ba3b9e||[S15P21E201-604] feat: [BE] 일정 생성이 실제로 결과를 만든다
+11f12db8944d123b126ece281d6f39d90d6437f1||[S15P21E201-170] docs: API 36 검증 결과 현행화
+7f98fc1b0905dddc1249697fd5d990c16fba8067||[S15P21E201-446] docs: 디자인 시스템 결정을 현행화
+10d639afd40693c54b6b99324c7a7d9d1053882e||[S15P21E201-200] fix: 여행 생성 진행 흐름 안정화
+a73926bb2c606d4ecbdafef2eac07a12a1c66f8a||[S15P21E201-206][S15P21E201-211] feat: 한영 법적 고지와 오픈소스 고지 추가
+633ee25e8f66a944fe7f1404ef47974603f8f53d||[S15P21E201-307] 서버 연결 상태 상단 배너
+8d86eb44be315fab5cdcf1b9e0a0d3bdddf937ad||[S15P21E201-74] feat: [app] 권한 사전 안내와 진입 흐름 개선
+59567264d4de9c50573bf93db625c9245c9baf55||[S15P21E201-397] docs(common): 웹·앱 공통 토큰 출처 결정
+4e39896a265a2ae5ad79daadaf66b6995bc781f6||[S15P21E201-170] chore: [app] Android API 36 호환성 검증
+2e8602937e6ecd27e5a9d2d37cee644be806a33b||[S15P21E201-175] feat: [front] 지도 날짜 및 겹쳐보기 레이어 구현
+18a9fc83441c9cba2de8ed925859af459e0cbd09||[S15P21E201-188] feat: [front] 계정 삭제 2단계 확인 연결
+1d0766da5232cda6189d13269faed695f9431e56||[S15P21E201-628] feat: [front] AI 여행 도우미 채팅 구현
+95f07d6db6539677b81bf3df8add7b35ccf6c3a9||[S15P21E201-58] fix(front): 지도 마커 선택 장소 포커스
+d87c51ee27e4aaa59356409bea7698fa16804c22||[S15P21E201-181] chore: [front] 한 명령 실행과 검증 스크립트 추가
+4e7cccae97dcebe7eb7cd1f641ebe19a04b4b712||[S15P21E201-627] feat: [front] 계획 질문 흐름과 브랜드 토큰 통일
+df6633694416da422d4cf4437cdf14c86749b1c8||[S15P21E201-609] fix(front): 배포 빌드 식별값 노출
+31c65a18e3f4293e6331c6ad2ee789e21b381938|origin/fix/front/S15P21E201-594-deploy-cache|[S15P21E201-594] fix(front): 배포 HTML 캐시 무효화
+c988d0de984ca12f31b6e806237aa84940809688||[S15P21E201-124] feat(front): 랜딩 페이지 UX와 언어·색상 정합성 개선
+7e2262ae95d9f64be3399d53fec18f758fa847ac||[S15P21E201-614] fix: [Front] 챗봇 가짜 응답 제거
+2090a606a5b2458314ecdda382cf4a8c048b16ae||[S15P21E201-597] fix: [Front] 미연동 피드 동작 오인 방지
+a69df12a20ee6bdd259633a6eb1cac4ad30ae78f||[S15P21E201-307] feat: [Front] 서버 연결 상태 배너 추가
+63685a497bb18725fdefd61ab007fae0212a237b||[S15P21E201-301] feat: [Front] 최상위 렌더 오류 복구 화면 추가
+7cec49335b42fed61813157a3e21d8356f9e0c33||[S15P21E201-238] fix: [Front] 피드 빈 상태 아이콘 자산 포함
+dda0b91e96d02ffc443335f63d5f310c9bae6041||[S15P21E201-592] fix: [Front] 내 여행 빈 상태 아이콘 자산 포함
+0cc0b432814ae196e7e4b6cd382993960b2b9624||[S15P21E201-597] fix: [Front] 하단바 아이콘 자산 포함
+640f7e5f87fa309310946b3c779337b83e2ccd75||[S15P21E201-592] fix: [Front] 내 여행 활성 탭 정정
+4102e3c7d5535b9d8e42b2fe0acdf5cb2abaa58e||[S15P21E201-597] fix: [Front] 하단바 현재 위치 강조
+83680684505b8841bd39e2f062fae1b41e36d167||[S15P21E201-238] fix: [Front] 피드 빈 상태 아이콘 정리
+053434bbc8fc8cfcbed0693bf51e17614fb16c51||[S15P21E201-592] fix: [Front] 내 여행 빈 상태 아이콘 정리
+10a88e2f301befbfb26eff38baf2b0e13bb8cdac||[S15P21E201-597] fix: [Front] 공용 CTA 브랜드 색상 정렬
+365e220747cfebc5f3ee7063994756e0c81832a5||[S15P21E201-592] fix: [Front] 내 여행 모바일 헤더 잘림 수정
+d126bd045d6f0b89038196a29ea8331ac2ffd4e1||[S15P21E201-477] fix: [Front] 장소 상세 모바일 높이 최적화
+8c761db771cf967136046eef6686688442a3cd37||[S15P21E201-238] fix: [Front] 피드 CTA 피그마 색상 정렬
+e4ca0263ba7c4ecf2c0bef02b352639142b605ed||[S15P21E201-592] fix: [Front] 내 여행 CTA 피그마 색상 정렬
+fb640d6d1c9a0857035015a283cf11c916ef1c42||[S15P21E201-466][S15P21E201-477] fix: [Front] 핵심 화면 피그마 색상 정렬
+91d73a30f3ea4f73800a85148f9af07864b1527d||[S15P21E201-597] fix: [Front] 앱 최상위 탐색 기록 정리
+7c249102af1cc5e68c341b207dcad2f0c71fb437||[S15P21E201-597] fix: [Front] 앱 최상위 탐색 기록 정리
+a4ae0607458f96d918fe3fd9c4cc86e529be9415||[S15P21E201-466] feat: [Front] 기간별 부산 축제 화면 추가
+02a24445773e26a921b1c2a7f5509702ceb5faab||[S15P21E201-477] feat: [Front] 장소 상세 저장과 지도 복구 동선 추가
+c1720bc7c9aa26ca862109711d282f7810bbd192||[S15P21E201-238] fix: [Front] 피드 가짜 사용자 데이터 제거
+28533c8787bb0f7ab652297c754803c2bfc515b5||[S15P21E201-592] feat: [Front] 실제 일정 내 여행 보관 동선 추가
+76de8b2e44b891c2c7e877df898358d0871dd46c||[S15P21E201-327] feat: [Front] 실제 동행자 초대 링크 동선 연결
+a7f5a8b48111358943dbfdca9b908d44f05851d9||[S15P21E201-319] fix: [Front] 피드 가짜 사용자 데이터 제거
+7cacc918a439149d9e6181f43da61469b6e71843||[S15P21E201-592] feat: [Front] 실제 일정 내 여행 보관 동선 추가
+88732504acd1a319536baa064d23b94dd1180e5b||[S15P21E201-597] fix: [Front] 야간 로고 합성 경계 제거
+eba272b6b809a2e16f61201e18f42476b17fdf67||[S15P21E201-597] fix: [Front] 야간 로고 주황 심볼 유지
+80f64cbe0b52e53baa50ae019faade21e43ce07c||[S15P21E201-597] fix: [Front] 야간 웰컴 로고 대비 개선
+4fd4ea892b25fbc84e1ed564fe5879edc369d992||[S15P21E201-327] feat: [Front] 실제 동행자 초대 링크 동선 연결
+18c0909377397afda6b3ccee708c45fc4bda4b52||[S15P21E201-466] feat: [Front] 기간별 부산 축제 화면 추가
+b0dbe72fee51db184c0c778bedfd89fe36933c27||[S15P21E201-477] feat: [Front] 장소 상세 저장과 지도 복구 동선 추가
+bfcf7b8166a6243e8aec1149b10c977082982532|origin/feat/bigData/S15P21E201-23-recommend-architecture, feat/bigData/S15P21E201-23-recommend-architecture|[S15P21E201-23] docs: [BigData] 하루 경로 되감기 — 9일 안에 되는지 판정한다
+4efcd1cd8163a6047d7eabb794421613f69d9c34||[S15P21E201-23] docs: [BigData] 온톨로지와 추천은 싸우지 않는다 — 체와 저울을 가른다
+1a775c8638b316da515d1f8ef8a42d4fae70f49e||[S15P21E201-616] feat: [Front] 알림 권한 확인과 설정 복구 연결
+09dce82b7cf95ded15e2ddbdc21456041421c1f3||[S15P21E201-615] feat: [Front] 홈에 가볼래 도우미 진입점 추가
+a19b281c04b20f56da456a82d93f27399e5b3c0e||[S15P21E201-615] feat: [Front] 가볼래 캐릭터 부유 모션 추가
+fe2865776d5aeeb6083b593c84dc45645642fd16||[S15P21E201-615] fix: [Front] AI 캐릭터 명칭을 가볼래로 통일
+e89a30dd4439ec36dfa0cd8a7ce3d1167bb8f6b3||[S15P21E201-615] feat: [Front] 동백이 상태 캐릭터와 앱 아이콘 적용
+359c0924953ddfb7a423f13c459550db3dc487a6||[S15P21E201-614] fix: [Front] 챗봇 가짜 응답 제거
+2aedb3851581e79cdbc72415771b16b02e5444a8||[S15P21E201-613] feat: [Front] 앱·웹 404 복구 화면 추가
+6988ec225abf9a89f5ef793566fe645eb1c9e4c0||[S15P21E201-597] feat: [Front] 현장 말하기와 지도 도구 연결
+5be4268eb9df1d422c75a39613abd7b9eb313269||[S15P21E201-612] fix(front): 소셜 로그인 콜백 착지 화면을 추가한다
+9edb8cd5c85865a8187830dc69da155de3ed0cf4||[S15P21E201-597] fix: [Front] 미연동 피드 동작 오인 방지
+4b5a310930f57d2dc3d5fd28b0bb7def786bedc8||[S15P21E201-597] feat: [Front] 시간대별 웰컴 영상 전환
+1473f6ed6cd9a59e6d865908dc40b2e3de6602e5||[S15P21E201-597] feat: [Front] 앱·웹 진입 경험 분리
+1e0c8f297eadd5dac3cc8fe42de4b1566032a131||[S15P21E201-425] feat: [BE] 계정과 그 사람의 데이터를 지운다
+88c39b8f794db44589a90359e4fec89fd17a1c0e||[S15P21E201-597] feat: [Front] 앱 약관 공개 경로 연결
+70bb847859d0ea2082c65d45db71345c186b3789||[S15P21E201-597] fix: [Front] API 무한 대기 방지
+1b5b1cd2da1311616cc89e66569ca4ef6ae834e8||[S15P21E201-421] feat: [BE] 로그인 연속 실패를 세어 잠근다
+1e010ddec022f545fbf13282b6178c49b68cbd24||[S15P21E201-597] fix: [Front] 추천 작업 조회 계약 최신화
+751d47059954bb2352a7b053c995675911ef494f||[S15P21E201-602] docs: [Common] Apple 로그인 제외 결정 반영, 연령 14세 확정 반영
+170088b1578452bf70ece90670cf7784190db2c9||[S15P21E201-597] chore: [Front] Expo SDK 호환 버전 정렬
+9f8b17543077335bbe9ae37905296ba349b8df7c||[S15P21E201-609] fix: [Front] 소셜 로그인 콜백 라우트 추가
+f2aaa538ef6d77a366d50d012ea33cf3831bc774||[S15P21E201-597] feat: [Front] 앱 선택 권한 OS 요청 연결
+ae5326db630b0e8d6992b78f1c8e151a945f3ba1||[S15P21E201-597] feat: [Front] 프로필 이름과 언어 수정 연결
+0ad678c92aa40c035b9e629d724291b36efbfe5e||[S15P21E201-609] fix(front): 배포 빌드에 EXPO_PUBLIC 값을 넘긴다
+98dbbb34c5cb56dc4cfc3a1ae026e6bca9fbf141||[S15P21E201-597] fix: [Front] 앱 최상위 탐색 기록 정리
+33e3338a45a585a1e6638c83ba55727ff187c3b6||[S15P21E201-597] fix: [Front] 앱 온보딩 인증 순서 수정
+add760196c4ca339c7efa452d6059e8b766cfc32||[S15P21E201-606] fix: [BE] 자바 소스 인코딩을 UTF-8 로 못 박는다
+ce7255e7f8e4df0033256dcf2174e6a406b423be||[S15P21E201-597] fix: [Front] 홈 저장 상호작용과 이동 보완
+303098aee1d5d154a20b96c9362222dba1c141c9||[S15P21E201-597] fix: [Front] 모바일 로그인 세션 안전 저장
+417dc15d454c4da7829bd684d4c43abb415b7cf0||[S15P21E201-462] fix: [BE] 장소 조회의 안전 판정과 정렬·예외 처리를 바로잡는다
+4d8b29b7630001f0d4cc3131f2f8e835ee0420cd||[S15P21E201-608] docs: [Common] docs/gabolle README에 문서 상태(초안/확정) 표시 추가
+16c7cc9d70060dcb053ec8b2aeb52b2c9fd41751||[S15P21E201-597] fix: [Front] 홈 장소 상세의 고정 목업 제거
+1ad933ae1e1ad4765f68f989a67bae6d589ae477||[S15P21E201-597] fix: [Front] 조건 선택 답변 상태 유지
+5e3961e2a414bd6c097b0fbd6cdbef0c323332f8||[S15P21E201-192] fix: [BE] 추천 전용 테스트 슬라이스에서 컨텍스트가 안 뜨던 문제 수정
+d3a4140a0ff87033593449b0d0d33b81f572a233||[S15P21E201-192] feat: [BE] 일정 생성 요청에 작업 번호를 즉시 돌려주고 계산은 뒤에서 돌린다
+55461ef88c4ab620bbc714b94e87e692f907d0a3||[S15P21E201-461] fix: [BE] CI 재실측 - dimension·value 가 실제 DB CHECK 를 어겼다
+0ba3a13dad5db97615cf0a45a38f570959c7871a||[S15P21E201-597] fix: [Front] 미지원 알레르기 자유 입력 제거
+905b681b1d7caee7a0a18d26eb42a1d44c0fcce1||[S15P21E201-603] fix(front): 소셜 로그인 redirect URI 를 배포 도메인 경로로 맞춤
+904315148275c940f437ecdedb77f9d36370e781||[S15P21E201-433] feat: [BE] 비밀번호 재설정 링크를 30분 1회용으로 맞추고 이름·언어 수정 API 를 만든다
+b5c0603a043ed61f7944d1c8aa50cad52aa8e69e||[S15P21E201-608] docs: [Common] EPIC 초안·개발계획서·상세설계서·개인화 인프라 가이드를 docs/gabolle에 반영
+bf2c94717e3c59b255282a5a121cfa6a99811ba6||[S15P21E201-597] chore: [Front] 보호 화면 개발 미리보기 지원
+f49706b597ec432d3dec8e6302baf657869d0edf||[S15P21E201-462] feat: [BE] 장소 조회 API 다섯 갈래
+7fecf11875e83de9662654dff1bff92d6d2f2ec3||[S15P21E201-462] feat: [BE] 장소 도메인 엔티티와 리포지토리
+f92a8756be36dca0f36936cebfd5acf9476199ea||[S15P21E201-598] chore: [BE] 배포에 소셜 로그인 자격증명 주입
+af9e28441811b8349085738b6433c794fff7938b||[S15P21E201-597] fix: [Front] 회원가입 개인정보 안내 연결
+15e3937408586e79bb0d75546ba51c9f014fb2ea||[S15P21E201-597] fix: [Front] 앱 필수 진입·홈 흐름 정리
+a446eaebb47962a1469e484ea59979d62428ae0f||[S15P21E201-203][S15P21E201-197] docs: [Common] 개인정보 처리방침·이용약관 초안
+959f5c062056b9d935290924712da8b4c6568e93||[S15P21E201-247] docs: [Common] 스토어 심사 반려 방지 체크리스트 신설
+43fcf4b4ef1b3c6d348ef0b28df7d20f0b07c889||[S15P21E201-461] feat: [BE] 여행 조건 전체(선호·제약·멤버·멱등키)를 DB에 영속화한다
+85e325fd8c3522586b785f3ebaf3ad576bc37a76||[S15P21E201-388] docs: [Common] Java 버전을 실행계획 2.3절에 실측 반영 — 17
+262d87381e450b7e2b3347ca1dadaf8911c3ecb8||[S15P21E201-374] docs: [Common] git-convention.md 5절에 승인 인원 전환 규칙·코멘트 형식 추가
+64cd1044bbe69b60e64e5c94a6a4a234a17c7ebb||[S15P21E201-312] fix: [BE] 메일 발신자 이름이 깨져 나가던 것 수정
+d9622ad54f61e9968cd6b3fd7b054d8f2bda48a8||[S15P21E201-596] fix: [BE] backend-deploy 동시 실행 방지
+afd5854b8b48f18b6e269adea14740e56c0f470d||[S15P21E201-312] fix: [BE] 인증 링크에 token 이 없으면 500 대신 실패 화면으로 보낸다
+f17fc2ba60a5f858abbb10a9c9ea484455cbaa75||[S15P21E201-313] fix: [BE] SAVEPOINT 대신 ON CONFLICT DO NOTHING (CI 재실측)
+d680017add3ca0d70e7d8beeac58b5cada356028||[S15P21E201-313] fix: [BE] NestedTransactionNotSupportedException (CI 실측)
+363086f5b93a64b6d18e76d2ed0802e8f1b5802a||[S15P21E201-312] feat: [BE] 메일 발신자를 Gmail 주소가 아니라 "가볼래"로 보이게 한다
+b0cc82bc8fbb1c48c75a4de5434982446efc8c4c||[S15P21E201-461] fix: [BE] constraintKey 추가 - 알레르기를 아예 못 적던 문제 수정
+e7f84d7f7c254334efd45a7408e9fcb33c53871c||[S15P21E201-596] fix: [Front] frontend-deploy 동시 실행 방지
+825b89c32e9278d37cef0a3192554c4f89cabbed||[S15P21E201-596] fix: [Infra] infra-personalization-deploy 동시 실행 방지
+57e6eef045dc1b560094d5cb4c7612cf6da0f994||[S15P21E201-545] feat: [Data] 장소 피처 코드를 확정하고 사용자 입력과의 대조표를 못 박는다
+fd7cfb8e3a357fe58b536617d9b7c531b2eb1d07||[S15P21E201-313] feat: [BE] Itinerary·ItineraryVersion 표를 PostgreSQL 로 옮긴다
+c9d16da40fa4efd844bf1ee9d3fa466099491f8b||[S15P21E201-595] fix(front): 홈 화면을 Figma 기준으로 정렬
+658b9871da283209b02656504876d0e43ec6b681||[S15P21E201-312] feat: [BE] 메일 링크로 이메일 인증을 끝낼 수 있게 한다
+69431024751999ac3264d19c457c73c31c67bc49||[S15P21E201-461] fix: [BE] HEALTH_DIET 민감 판정 구멍 수정 (고지혁 님 실측)
+51214b65ecc35a2393d3dcfb9f7b6b60ca65964d||[S15P21E201-554] fix: [BE] 제약 값 강요를 걷어내고 버려지던 시간대 프리셋을 받아 둔다
+85eaae1600c64a2090d7fcad840e6027126e87c6||[S15P21E201-594] docs: [Common] frontend 자동 배포 gap과 Jenkins Job 진행상황 기록
+f8fb680c3184c78a358e9419d2009b1089898af7|origin/feature/front/S15P21E201-58-map|[S15P21E201-58] feat(front): 웹 여행 지도와 안전 폴백 구현
+e99a46e2f7cdc03d17efb3d7c3e6f6415a85e4d9||[S15P21E201-594] feat: [Front] frontend Jenkins Job 자동 배포 파이프라인 추가
+d87e189bda9978b2066f91e81ef58a17792ac4a5||[S15P21E201-262] feat: [Data] place·place_feature 최소 스키마 추가
+974048d9229da01b3220d66d1d840bbdc14d52c6|origin/feature/front/S15P21E201-593-navigation|[S15P21E201-593] feat(front): 핵심 화면 내비게이션 연결
+9763ecec19aed700fe8d1002bb41893f9a1a12f7|origin/feature/front/S15P21E201-124-i18n|[S15P21E201-124] feat(front): KO/EN 선택 유지와 즉시 전환
+8f27f9abb683e12185d3a3b4f5d1697e1ba6cd2b||[S15P21E201-592] feat(front): 일정 조회와 버전 충돌 처리
+dd09b2dfa4b4dbc959b3216eaa23332fc4efce4e||[S15P21E201-588] feat(front): 추천 결과 API 상태 연결
+f7fd68466785e73516d8d1b551f7a61f96ecd402||[S15P21E201-200] feat(front): 추천 생성 여행표 흐름 구현
+ddc15a6f887fa29f8207c58da34e723b17a6237e||[S15P21E201-589] feat(front): 여행 조건 4단계 UI와 입력 계약 통합
+8f11d8be2629d4626c5e93f57d4fa043ed98ef26||[S15P21E201-252] feat: [Front] 화면이 실제로 뜨는지 보는 스모크 검사 추가
+3b3c2d7b11a0f39dd993ada403b262d53a816ef0||[S15P21E201-201] docs: [Common] 2064(로컬) 러너 정리 — 최종 2대(2037·2065)
+c2a6157340bfb897314086841bfc9ccbf31540c1||[S15P21E201-201] docs: [Common] EC2(j15e201a) 백업 서버에 세 번째 러너 등록
+a7e785cdab121795be6ed0cc14ccc271d6e0df19||[S15P21E201-441] docs: [Common] 러너 이중화 완료 및 failover 검증 기록
+97567f7de2dacc009032e4b8b5353a7cf34221f7||[S15P21E201-591] fix(front): 웹 로고를 시작 화면에 연결
+d670ab2a8128264cb24f6ecf2715acd2eee0c91f||[S15P21E201-201] docs: [Common] Jenkins UI 443 서브패스 이전 기록
+9d60f2abd8128b870e5124fe8c3e24c53d5a76a4||[S15P21E201-461] feat: [BE] Trip 표를 InMemory 에서 PostgreSQL 로 옮긴다
+3b63610eb047707b252ad71d82dfc6d480135613||[S15P21E201-80] fix: [Common] feature→feat로 통일, 파트/보호브랜치 목록 정정
+7564ac07c1733b206e599b0e51b673ec6201930d||[S15P21E201-587] feat: [Common] /ax-watch 슬래시 명령 추가
+f21ac4653e3d1a89f1c4b199608c53e4042b0c3c||[S15P21E201-574] fix: [Common] 헬스체크 curl 연결실패가 재시도를 건너뛰고 즉시 죽이던 것 수정
+4d4246b5dc03567228689e9514af0dd939190cc0||[S15P21E201-574] fix: [Common] HEALTH_URL을 backend 컨테이너 이름으로 (localhost는 Jenkins 자기 자신)
+183f4628eab160b59eb1dc9d2f705d24b45a9789||[S15P21E201-420] fix: [BE] Kakao·Naver 클라이언트의 생성자를 스프링이 고를 수 있게 한다
+d6763499e7841043eb0f6316f43600d8b7921588||[S15P21E201-574] fix: [BE] Jenkins 헬스체크가 존재할 수 없는 주소를 보고 있었다
+2573c55e9ac90f8702d9c64f0a9f265a102527dd||[S15P21E201-352] test: [BE] request_id 검사를 payload 에서 envelope 컬럼으로 옮긴다
+edf1485bffe836fa9a7f6ca1f4f44cb7f3dfde45||[S15P21E201-313] fix: [BE] 이미 적용된 마이그레이션의 주석을 되돌려 체크섬을 맞춘다
+60d778427f4757a49fabb21c499c16d1a6cf35d1||[S15P21E201-312] test: [BE] 가입 API 가 /api/v1 경로에 남아 있는지 회귀로 못 박는다
+d5fd98abb9a8de255e208e419fd7cc8a69fe92a3||[S15P21E201-420] feat: [BE] 카카오·네이버 계정으로 로그인할 수 있게 provider 를 붙인다
+0baf75c0211f1cb03b8da831b2751babae152609||[S15P21E201-313] fix: [BE] itineraries 마이그레이션 번호를 150000 으로 올려 502 를 되살린다
+cb36785dc2981a21adbf461032ee34fbf35ff36a||[S15P21E201-313] fix: 배포 실패 — itineraries 마이그레이션 버전을 150000 으로 올린다
+7fdd856f4d82e0acc14068ffa052f13cbfcea8e6||[S15P21E201-438] feat(front): 비밀번호 재설정 화면과 API 연결
+0937df22cf8bcc3f45252a9d4dc0e41679944209||[S15P21E201-458] feat(front): 여행 조건 4단계 입력 흐름 연결
+63a6f188b9ffdc85df10ea8f7fe6985734f0c5d1||[S15P21E201-352] fix: persist outbox envelope columns and relay by seq
+a612ff36934afa9a1f8dca5af796a8e65f8be988||[S15P21E201-586] fix(front): 로그인 OAuth와 게스트 진입 복구
+15c038bd65d0691b42ecc452ae80b45907c8464f||[S15P21E201-554] docs: [BE] DB 기준을 한 곳에 모으고 262 MySQL 전제의 종료 근거를 남긴다
+e38bd9161ffa16eb9bfcfc25e2c35e83b0540c70||[S15P21E201-6] docs: [Common] README 브랜치 다이어그램을 git-convention.md 양식에 맞춤
+5c699bdd037b679ffbc0d34a25f308e4b459cd30||[S15P21E201-461] fix: [BE] Trip.Status.DELETED 가 DB CHECK 와 어긋나 있었다
+d3bdf27bdc88517c8d3f4f6e6c88f40a87901658||[S15P21E201-266] fix: [Common] backend:build에 postgres service와 건너뜀 검사 추가
+a42c848ae99b745fc489ef578234d8a3cdd955f1||[S15P21E201-422] feat(front): 로그인과 세션 보호 흐름 연결
+d25cd32882a4e9fa7cae6bbfb75ade6cae4e2f39||[S15P21E201-6] docs: [Common] common/dev의 backend/frontend가 빈 자리표시자임을 명시
+f9e7163865834eb1d18b1fb47f43caa09643b37e||[S15P21E201-546] fix: [BE] 품질 게이트가 gabolle schema 에서 표를 못 찾던 것을 고친다
+bfe98683dc8c143db9381ec970e13440f776aa9d||[S15P21E201-585] fix(front): 연령 확인 직접 진입 복구
+528dffab5e71b92a41921c750425dec32f051e4f||[S15P21E201-352] fix: [BE] Outbox 회귀 둘 고친다 — API-07 검사 복원 · seq 정렬 연결
+26c4809764f5e7bb5409578769a5d23921d7242b||[S15P21E201-269] feat: [Common] frontend MR에 expo export 검사 추가
+76a28fb51dbe19fde3a34c6d0a8b94b6ebded506||[S15P21E201-266] feat: [Common] backend MR에 gradle build 검사 추가
+894d9223fed50a698a751ffc9fa6efc6f79dc013||[S15P21E201-419] feat(front): 회원가입 입력 검증과 API 연결
+27b44809069a1e8626194d8569de8007ebff3c26||[S15P21E201-537] feat(front): 웹 반응형 웰컴 화면 구현
+4957ae524536e9bfae970a546195d36290b46adf||[S15P21E201-546] test: [Data] 후보→노출 조인을 뷰 하나로 묶고 품질 게이트를 만든다
+2f97bb19df424c08193b2284a6fa88b262042d36||[S15P21E201-461] fix: [BE] SELECTED/SKIPPED/UNKNOWN 을 구분하지 못하던 도메인 모양을 고친다
+2241cca73658106696dc685d0c40cc01d90bd805||[S15P21E201-583] docs: [Common] hello-test 연습용 리소스 최종 정리 반영
+082b3086993b7107572a2b923f0594ef4385cd64||[S15P21E201-313] feat: [BE] itineraries · itinerary_versions 표를 PostgreSQL 에 만든다
+b12f371998ffee2f02ba4c3bcd498802d1d00221||[S15P21E201-313] refactor: [BE] 성공 응답을 팀 공용 ApiResponse 로 교체한다
+7020ec16a7f4ca712424970f3527b0cdbf710ab0||[S15P21E201-582] fix: [Common] Sync Repository가 Compose Config Check보다 먼저 실행되도록 순서 수정
+f29d08f1c9373d9b5d9fecc3808fcb237e687912||[S15P21E201-461] feat: [BE] 여행 조회 GET /api/v1/trips/{tripId} 를 만든다
+e46321e0b5348265f7dd7f49bea199cebebd0750||[S15P21E201-352] feat: [BE] event_outbox 에 조인 축과 순서 키를 더한다
+c860ad848f7c5bd56ccb61b4234d28cba4e86040||[S15P21E201-583] docs: [Common] 프론트엔드(Expo 웹 미리보기) 배포 기록
+9a92a22f39627c401e165c35f798107e97a87eab||[S15P21E201-554] feat: [BE] 개인화 입력 스냅샷 표를 만들고 543 이 남긴 외래키를 붙인다
+26de5894a669f1173530627393b89121209eaa85||[S15P21E201-458] fix(front): 최신 온보딩 흐름과 통합
+3683ffac6632c0d20de69d858b72dfe3243ce609||[S15P21E201-352] feat: [BE] 이벤트 사전 조회 GET /api/v1/events/catalog 를 만든다
+b46a9815e9da5a4ac7e00aaa1159c23eb95c7455||[S15P21E201-458] feat(front): 여행 조건 4단계 입력 흐름 연결
+0fce2bef73d7eaa18b9e7cd2114eee1026cbbe7b||[S15P21E201-583] feat: [Front] Expo 웹 export를 Nginx로 배포하는 Dockerfile 작성
+901ae7858d07cc629ff271714aba95d8834abe8e||[S15P21E201-438] feat: [Front] 비밀번호 재설정 흐름 연결
+fdff63a300e57a9843f2766da2dcde7b91eb7eac||[S15P21E201-581] fix: [Back] 배포 시 DB/JWT/프로필 환경변수 주입 (BE jaehyeon 요청)
+9a5f8c2c856672865f8ff6dceade96d92fd45f77||[S15P21E201-352] fix: [BE] 수집 API 가 메모리에 적고 있었다 — Outbox 두 갈래를 하나로 합친다
+59482bcf5a24950c10c3d63d3d404b52c5ce2ed9||[S15P21E201-582] fix: [Common] Health Check 재시도 예산을 60초에서 240초로 확대
+7e151bfa61bd1d369a3ffd91bf316656f3e89ea4||[S15P21E201-581] fix: [Common] Nginx가 /api 접두사를 보존하도록 수정 (BE 요청)
+2eba170f521e4f36b24b71a2be4255b99e75b618|origin/feat/S15P21E201-422-session-flow|[S15P21E201-422] fix: [Front] 로그인 복귀 경로와 웹 번들 수정
+202236618fd107657e2ae7a3955bbe26f87c835d||[S15P21E201-461] feat: [BE] 여행 조건 저장(TRIP-01)과 중복 생성 방지
+84edc83411d4320bc6564d1863705697c1cd18b5||[S15P21E201-422] feat: [Front] 세션 만료와 로그아웃 흐름 연결
+7c0159583144c4576af50587511f8083b6c9c00c|origin/feat/S15P21E201-419-auth-screens|[S15P21E201-419] feat: [Front] 회원가입과 인증 API 연결
+89e425027fee2aba68ea19cb40a69e5015d39893||[S15P21E201-582] docs: [Common] healthcheck 인수 조건 항목 충족으로 갱신
+752cae5b89aa4308a54bb586e7c9331ec7febd1b||[S15P21E201-582] feat: [Common] mlflow/airflow 4개 서비스에 healthcheck 추가
+7daf18b676cb15a5ddb70be41906129b10c2f05a||[S15P21E201-581] docs: [Common] Nginx 요청 비율 제한(rate limiting) 적용 기록
+9731cfb4209c9f81a21de165b18a645d0bd7f3d6||[S15P21E201-580] docs: [Common] 7절 "앞으로 남은 것"을 13절 완료 상태로 갱신
+9914f8c4507216cf554fd144a9dbe60458bc7496||[S15P21E201-580] docs: [Common] 문서 13절 - 단계별 점검 및 완료 체크리스트 기록
+ef3332783f28d7be142fe1885c18881e518c1ec9||[S15P21E201-580] fix: [Common] Python 패키지 버전 고정, Airflow 서비스 로그 로테이션 추가
+953f1a8bd63b08ed5d7570aa03e26c539abfd09c||[S15P21E201-573] docs: [Common] Jenkins Job 연결 완료 반영
+fc09a903a3cc0f20ceb8ef6c3e959ac8a4859366||[S15P21E201-573] fix: [Common] infra-personalization Jenkins Job 연결 및 실행 중 발견한 버그 수정
+bc1464babc04d645a9fec799a85e26d5f197f598||[S15P21E201-579] docs: [Common] 실제 배포/롤백 리허설 결과 기록
+6a950edcce7532e2e3148bf41c0b0cc65f9cb940||[S15P21E201-579] fix: [Common] 배포 디렉터리를 git clone 자체로 통일
+e8d631e84a2bc47b2964632f2d242d1c555edf27||[S15P21E201-579] feat: [Common] 이미지 SHA 태깅 기반 배포/롤백 절차 구현 (문서 12절)
+37f5b4f7e46a175606889a967e7744b962ee6ccd||[S15P21E201-578] docs: [Common] 백업 복구 리허설 결과 및 서버 배포 확인 기록
+36d7cae543f5a82a7dfa2b4079158e0ef28fe93b||[S15P21E201-578] fix: [Common] backup-postgres.sh 로테이션이 set -e 로 조기 종료되던 버그
+98d1df9d9a28a37c4c34be096ef0967ee82e1f7e||[S15P21E201-578] chore: [Common] 백업 스크립트에 실행 권한 부여
+54a867560e5dab950d52e3db7cbb4493709076b8||[S15P21E201-578] chore: [Common] 백업 자동화 스크립트 및 최소 모니터링·개인정보 삭제 절차 문서화
+16b1f1bb70201204f42c723d2cefedfae7670986||[S15P21E201-420] feat: [BE] 현재 로그인 사용자 조회를 구현한다
+700110805b6c0ef7cb636d9dabfd6384cad001e1||[S15P21E201-576] docs: [Common] Postgres 스키마 권한·libgomp1·Airflow JWT 문제 해결 기록
+e6a3537bc64fc772951f3c963eb508fc418479d3||[S15P21E201-576] fix: [Common] Airflow worker-apiserver 간 JWT 서명 키 불일치 수정
+82ba6ecd7b6015ac61bae455969d82c4a6c344a1||[S15P21E201-577] fix: [BE] 인증 컨텍스트 기동 오류를 수정한다
+df6f5d045da19bfb1f22eb9798135cf2159451cf||[S15P21E201-576] fix: [Common] Airflow worker가 API Server 주소를 몰라 실행 실패하던 문제 수정
+352314b5a8b7b44ee2ed88c3c9cda1c795c0426e||[S15P21E201-543] feat: [BE] 추천 요청·전체 후보·제약 판정·순위를 requestId 로 저장한다
+505070bd2c452162303bef522620cbd18839f4fc||[S15P21E201-576] fix: [Common] Airflow 이미지에 libgomp1 추가 (LightGBM 로드 실패)
+3c65a3db66321badef04064d8c32aba5ff61ea5e||[S15P21E201-576] chore: [Common] 개인화 샘플 파이프라인 DAG 추가
+84393a498ca3ec19e8c06e53a4dd4fbb91982db6||[S15P21E201-354] test: [BE] Outbox 테스트 15개 — 그리고 테스트가 정렬 결함을 잡았다
+5dfb9d3dd0c066e9314a0ccf524dfc2288f2b5ce||[S15P21E201-313] feat: [BE] ITN-03 항목 고정 API 와 409 를 HTTP 로 검증한다
+39a290e8b2cf35da40c7f27dc6a16491b4a32aea||[S15P21E201-313] test: [BE] 409 충돌을 재현하는 테스트 8개와 판 번호 계산 정정
+e9b437789e0b9784c0f3f31c5fc36182367b22c1||[S15P21E201-575] chore: [Common] infra Jenkinsfile에 MatterMost 배포 알림 추가
+81290c324af3b01bc5ddfe6a482babf0f7a93c93|origin/chore/back/S15P21E201-575-mattermost-notify|[S15P21E201-575] chore: [Back] Jenkinsfile SCM 전환 및 MatterMost 배포 알림 추가
+66c183c0026ebd103d97d9384232ae8589b8081e||[S15P21E201-312] fix: back/dev 최신 Dockerfile 충돌 해결
+207c8dcc6903f98df20567ff91782bc0946675fb||[S15P21E201-352] feat: [BE] recommendation_failed 를 이벤트 사전에 넣고 버전 요구를 종류별로 가른다
+59e92e1a713c1b26caba9c19f547e0c85fe106bf||[S15P21E201-312] feat: [BE] 회원가입·소셜 로그인 및 웹 인증 구현
+aea48e759c6d459ed3507c60521c32d9019c9dee||[S15P21E201-352] feat: [BE] 이벤트를 DB 에 먼저 적는 Outbox 와 전달 워커를 만든다
+df58c93d9eafee04a48c3d8afcafcc7cd23f14fc||[S15P21E201-531] fix: [BE] Dockerfile을 멀티스테이지 빌드로 전환
+eac7ab9969eecbb193bc96016027c0e312a2da32||[S15P21E201-313] feat: [BE] 일정 판 번호를 두고 낡은 판의 수정을 409 로 거절한다
+08b5be5259c038116723281c30b98b0a3df1c357||[S15P21E201-531] fix: [BE] Docker 배포용 Dockerfile 추가
+970e257924212361d06ad954b17fa4d8654fa3d3||[S15P21E201-573] chore: [Common] infra/personalization Git 저장소 반영
+8b27bcd71d56ddb613aec6913439eeb4ee8afca3|origin/feature/front/S15P21E201-537-welcome-video, feature/front/S15P21E201-537-welcome-video|[S15P21E201-537] feat(front): 웰컴 화면에 광안대교 영상과 핵심 기능 줄을 넣는다
+fb5ecf853aa9d70af2a637471588c8efb0ef3608||[S15P21E201-542] docs: [BigData] 추천·개인화 P0 데이터 수집 명세 확정
+f8cea40927275f4722d55c0ca63546f9378b0d40|origin/feat/front/S15P21E201-124-i18n-persistence|[S15P21E201-124] feat(front): 언어 선택을 전역 상태로 저장
+56b24dad949c05c2679eaba235c6a70533bf3234||[S15P21E201-537] feat(front): 웰컴 선택값을 온보딩 흐름에 연결
+b73fc095989a0ce8a69f74cdd945cbacca5d3969||[S15P21E201-243] chore(back): Spring Boot 백엔드 뼈대 추가
+2d6299612b67ad14e98275d12e92795d344b0472|origin/feature/common/S15P21E201-535-gabolle-v11-core-api|[S15P21E201-535] feat(back): GABOLLE v1.1 인증 동의 및 위치 실행 API 구현
+67c065ca58e87556f243e7abaeca03e1bbd17f14|origin/feature/common/S15P21E201-534-gabolle-v11-demo-ui|[S15P21E201-534] feat(front): GABOLLE v1.1 데모 사용자 흐름 반영
+52ebf047d0dbbf2a1febe5a1fcd594e0d99c55d3|origin/feat/S15P21E201-319-app-screens-wave3|[S15P21E201-319] fix: [Front] 2단 화면이 480 안에 갇혀 detail 이 112dp 였다 — 눈으로 봐야 찾히는 종류다
+a27e3ab664f9bffd43169c248417f0760ffebf67||[S15P21E201-319] feat: [Front] 폴드8 펼침 2단 레이아웃 — Split 을 실제로 동작하게 하고 결과·지도·편집에 적용한다
+b73531c3e6f4fbca0acb1f964ae82b7650366c45||[S15P21E201-319] feat: [Front] 23 공유·공동 편집 — 초대 링크는 실제 발급 없이 OS 공유 시트로 목업만 보여준다
+8e1c72107ba807b5ec631e208f6c293029beefe4||[S15P21E201-319] feat: [Front] 22 현장 도구·번역 — 이미 만든 17·16 화면으로 실제 기능을 잇고 번역·음성만 업체 미정으로 남긴다
+2da6065e6d9b8c74d18df83f25971ca785b5f345||[S15P21E201-319] feat: [Front] 20 여행 피드·팔로잉 — 명세는 팔로우를 후속 범위로 뺐고 Jira 는 포함해 판단하지 않고 Figma 대로 만든다
+70d326f242045c5f270649276763ea8f3901fd4f||[S15P21E201-319] feat: [Front] 19 여행 기록·회고 — 공유 버튼은 네트워크 호출 없이 OS 공유 시트로 대체한다
+eac0c5a981a1ff65e5b2264c7877f288a07f02f1||[S15P21E201-319] feat: [Front] 18 방문 인증·만족도 — 명세(FR-COM-03)와 Jira 가 정면충돌해 판단하지 않고 Figma 대로 만들어 사람이 정할 자리를 남긴다
+735f02f78a82bb6d22a5de595e4a4a8662822235||[S15P21E201-319] feat: [Front] 16 여행 준비·날씨 — 비 예보 대응 카드까지 Figma 실측 그대로 채운다
+fc966f49bf667907d82f338afbc374852d86d4f1||[S15P21E201-319] feat: [Front] 17 현장 말하기·택시 카드 — 번역·음성 업체가 아직 없어(S15P21E201-77) 재생 버튼은 상태만 바뀌는 목업으로 둔다
+0d0a919553f3dcc4393befa4ad53034465c572e1||[S15P21E201-319] feat: [Front] 21 일정 편집·부분 재계산 — 화면마다 CTA 파랑이 달라 Button 에 secondary·field variant 를 추가한다
+db632cd4e762f7fc4b040f52341466c135431805||[S15P21E201-319] feat: [Front] 14 동백이 AI 챗봇 — Jira·명세에 없는 신규 화면이라 실제 API 대신 대화 목업 + 입력창만 채운다
+c66c7569f46444fb2a3066b677150b685aef55f0||[S15P21E201-319] fix: [Front] 화면을 흐름으로 잇는다 — 07·09 가 앱 안에서 도달 불가능했다
+c4ecf99f9095d53249cfc05ae68bd57e5a055eed||[S15P21E201-477] feat: [Front] 13 장소 상세 — danger 배지 배경 토큰을 짝 맞춰 추가한다
+59b2655137131cb517d1c1f02c3a835c015b696e||[S15P21E201-460] feat: [Front] 09 최종 확인 — Figma 실측 그대로, 수정 링크는 아직 연결하지 않는다
+db851043be4887aa65e6519e07491623d4223c46||[S15P21E201-235] feat: [Front] 03 온보딩·권한 안내 — 권한을 요청하기 전에 왜 필요한지 먼저 보여준다
+62aaae9086b596766a71332b32129b8757db36f1||[S15P21E201-319] feat: [Front] 15 내 정보 — Google 단일 로그인 확정에 맞춰 계정 삭제 등을 새 구역으로 더한다
+e70a86f4c5c015cab2ffe9e449fa1a467db95d19||[S15P21E201-442] feat: [Front] 07 취향 선택 — 최대 3개 제한을 화면 상태로 강제한다
+9818c508bc769ed528b96fd9d385ca17c45f3a3f||[S15P21E201-319] feat: [Front] 02 메인 홈 — 로그인 뒤 첫 화면이라 시연 경로가 반드시 지나간다
+14531fec461fc25b22b2006b6fa4479b3018eb4d||[S15P21E201-157] feat: [Front] 12 지도·동선 — 실측 경로 비교로 대체한다
+ef0f56c27f5088c3476c483806887ccd85558d04||[S15P21E201-319] feat: [Front] 11 여행 결과 — Figma 실측 그대로
+70b39bf730789b36693da7861f677b348c5628c2||[S15P21E201-200] feat: [Front] 10 AI 일정 생성 — Figma 실측 그대로
+76f0e2094e5d15437cc3063f6314a7e37f248510||[S15P21E201-454] feat: [Front] 08 제약·접근성 — 이 앱의 차별점
+e59ac44b8ffa9b2d74c735be6a7fbf3fcd3a1971||[S15P21E201-437] feat: [Front] 06 기본 조건 설정 — Figma 실측 그대로
+29ebfc846c190055bfa17fa189bcf2d703b11551||[S15P21E201-319] feat: [Front] 만 14세 확인 화면 — Figma 에 없는 신규 화면
+aa7c74ea36bde59c7b25e7c11545074f8b3644c8||[S15P21E201-427] feat: [Front] 01 Welcome·언어 선택 — 밝은 테마로 다시 만든다
+bae6317e1ca48c7787c9f16435bdaaeb89d4b586||[S15P21E201-422] feat: [Front] 04 로그인 — 인증 수단을 Google 하나로 줄인다
+56f76309e66193b11a1cb17139a7729ed8e2a403||[S15P21E201-319] feat: [Front] 시연 화면 8개가 함께 쓸 공용 컴포넌트를 만든다
+c839993eb5bfab6665f9f05a343fb13432b54c30||[S15P21E201-319] fix: [Front] 옛 토큰 이름을 쓰던 곳을 고친다 — 이대로면 빌드가 깨진다
+14aa2d98bfc651b5d1fa0f3da6995f5442c7fd5b||[S15P21E201-319] feat: [Front] 토큰을 밝은 테마로 되돌리고 시연 화면에 필요한 값을 더한다
+4ae6e5b6531cf695ec72b71fe912f5c83a437593||[S15P21E201-319] fix: [Front] 색 이름을 역할 이름으로 바꾼다 — 값이 갈린 자리는 서로 다른 용도였다
+938ab27da3ee24f8ca0efb4a446f98c26c7cdc9c||[S15P21E201-319] feat: [Front] Expo 셸을 세운다 — 폴드8 이 켜진 채로 화면비를 바꿔 폰/태블릿 분기를 실시간 훅으로 잡아야 했다
+7fdca925d607c20440cc951da6a9e7f4ce3c88a0|origin/docs/common/S15P21E201-533-busan-vibe-specs|[S15P21E201-533] fix: [Common] claims 한글 경로 감사 오류 수정
+06422e079f6e64bfd797ae4d4495d9ab27057d24||[S15P21E201-533] docs: [Common] GABOLLE v1.1 서비스 명세 반영
+1d2d540bf94abf2750d7f2f11b56b99c80dc6f69||[S15P21E201-533] docs: [Common] 부산바이브 서비스 명세 6종을 저장소에 들인다
+2f169e651f9cfa4cfb47e54f24b01bffbfa35582|docs/bigData/S15P21E201-23-viewshed|[S15P21E201-23] docs: [BigData] 경치 계산 — 재료를 어디까지 모았고 무엇이 막혔나
+87a37dee678b5c41336162d0a589b222b70548c0|feat/bigData/S15P21E201-23-shade-route|[S15P21E201-532] feat: [BigData] 해운대→광안리 — 그늘을 고려하면 얼마를 더 걷고 얼마를 얻나
+d41b140c01ba3f62d65e9d76a8036d81ae80eda7|origin/chore/common/S15P21E201-531-server-cicd-setup|[S15P21E201-531] chore: [Common] EC2 서버 인프라 및 Jenkins CI/CD 파이프라인 구축
+471e569a4c899ef31816651bb0808c9f635cf54e|docs/common/S15P21E201-530-token-setup|[S15P21E201-530] docs: [Common] */main 도 보호 브랜치로 등록했다 — 표를 실측에 맞춘다
+b70c84930ee4aaf4e109c87c64a5bdd779eb387e||[S15P21E201-530] docs: [Common] 토큰 절차를 지금 상태에 맞춘다 — 변수가 넷이 됐고 보호 브랜치가 반만 찼다
+0d706d7c10a4130c18999e04455393a055a237a2|origin/docs/common/S15P21E201-31-personalization-plan|[S15P21E201-31] docs(common): 개인화 추천 시스템 계획 반영안 추가
+907c7c806d6a6386beff2c9b3cdac086ffa1d705|fix/common/S15P21E201-529-promote-rule|[S15P21E201-529] fix: [Common] promote 잡이 아무 스케줄에나 깨어나 10분마다 빨개졌다
+2aa295db381c9e0f819c433e2920124ebf7de859|feat/common/S15P21E201-528-vote-recheck|[S15P21E201-528] feat: [Common] 정족수가 차면 MR 파이프라인이 저절로 다시 돈다
+979a7d372f70261cf8de50a20194f85993fb9362||[S15P21E201-527] feat: [Common] 머지되면 Jira 카드가 스스로 움직인다
+eb3b56de805aee0237d2a037862abad2bd6d92ae|chore/common/S15P21E201-526-drop-vendoring|[S15P21E201-526] fix: [Common] 버전을 찍는 줄이 버전이 아니라 도움말을 찍고 있었다
+32bcfe0b6ed33ae44851a411eabbf8bdeac5a57e|feat/bigData/S15P21E201-23-permit-allergen-fare|[S15P21E201-23] feat: [BigData] 렌터카 면허·알레르기 규칙과 환승 시간창을 온톨로지에 넣는다
+b3c9d40eb632ecaa2c0528f87d1329d5055956e9||[S15P21E201-526] chore: [Common] 사본을 걷어내고 axMap 을 npm 으로 받는다
+e37ba004ca64c7f6b6aff9b34e4d75c54d7bf620|chore/common/S15P21E201-509-slash-cli-fallback|[S15P21E201-509] chore: [Common] MCP 가 없을 때 쓸 CLI 를 슬래시 명령에 박는다
+96968f6ce0601224e6adf4c818a94f2e4db74f0f|chore/common/S15P21E201-525-claims-on-dev-push|[S15P21E201-525] chore: [Common] dev 로 직접 push 한 것도 선점 감사를 지나게 한다
+3ddcd26d3bc02f492e60701b0e5b89bec2b01dcc|origin/docs/common/S15P21E201-509-axmap-npm, docs/common/S15P21E201-509-axmap-npm|[S15P21E201-509] docs: [Common] npm 의 axmap-cli 0.3.0 사용법과 예전 설치본 걷어내기
+d58835f9f46b9a2c04d3f1433717a556718513e4|feat/bigData/S15P21E201-23-travel-ontology-base|[S15P21E201-23] docs: [BigData] 핵심 여행지 점수와 버스 온톨로지의 빈 칸을 설계로 채운다
+68c3d3f26ca4a4fd9bb441f461eee6428aead270|hotfix/S15P21E201-33-mojinseong-kojihyeok-voter|[S15P21E201-33] chore: [Common] 모진성·고지혁을 main 의 투표권자 명단에 올린다
+3104f488b39c305193c4fc27d8f78703825a00f8|chore/common/S15P21E201-509-drop-mcp-json|[S15P21E201-509] chore: [Common] 저장소의 .mcp.json 을 뺀다 — MCP 등록은 npm 설치본이 홈에 한다
+69588b35ef91234a4224a3b2345b340936185edd||[S15P21E201-510] docs: [Common] 127 버그의 카드 번호를 인계 문서에 박는다
+17549dafa250e05c848b7e7740801d8624251d41||[S15P21E201-377] docs: [Common] 2026-08-31 인계 — 표가 왜 안 채워지는지와 열쇠 둘을 앞머리에 적는다
+ccd614621f4873fb0590fc72f50999456c09c951||[S15P21E201-508] chore: [Common] 팀 규칙 문서를 CONTRIBUTING.md 로 옮기고 이정표만 남긴다
+46d10f066f10c16a5e35fe71002d70578bae0c08|origin/hotfix/S15P21E201-33-self-vote-tip, hotfix/S15P21E201-33-self-vote-tip|[S15P21E201-33] hotfix: [Common] 표에 이유를 요구하고, 같은 이름의 두 세션을 갈라낸다
+03a42900d91129e55e58c674fc677f0d8b5546e7||[S15P21E201-23] feat: [BigData] 휠체어 경로 판정 데모 — 색이 아니라 이유를 말한다
+7718cabc125906785c287159f54c21d578a0f645||[S15P21E201-33] hotfix: [Common] 자기 표 배제 범위를 정책이 정하게 한다 — 파트 dev 가 영구히 잠겨 있었다
+a9daae4595c0eb2b0a591a701dbf3e037f2a5b3b|docs/bigData/S15P21E201-23-access-route|[S15P21E201-23] docs: [BigData] 접근 경로 분석 — 이름이 겹쳐 커밋되지 못하던 문서를 살린다
+6aed1e9dd7f9960c8cb6badaa19de3f571175930||[S15P21E201-23] chore: [BigData] 컴퓨터를 끄기 직전의 BIMS 수집본 — 이것만 다시 못 만든다
+f9119a9486413dd38131909581a98be0df0049c2||[S15P21E201-23] feat: [BigData] 온톨로지에 여행 상위 개념을 얹는다 — 바닥층만 있었다
+9f629019169fbc92c3f18f952ff96b64ab34af86||[S15P21E201-23] fix: [BigData] 실행 지문이 서로를 덮었다 — 파일 이름에 단계를 넣는다
+8f3ffa0abaf6b6d712de3218841f5f5dbf3fe9aa|origin/feat/ai/S15P21E201-23-ondevice-model|[S15P21E201-23] feat: [AI] 온디바이스 멀티모달 — 모델보다 평가 장치가 먼저다
+4277072b0ef88d9a579c1e23e79fd93cd5eb4157||[S15P21E201-23] feat: [BigData] GIS건물 변환기와 층당 높이 실측 보정 — 앞선 커밋이 가리키던 파일이다
+b1f75b0d24d4f64529ccf7d536889c6cda90815e||[S15P21E201-484] fix: [Common] setup.sh 가 80행에서 죽어 자가 점검이 한 번도 안 돌았다
+91e4343877eb3e9aed530e19145516645b1ab641||[S15P21E201-23] feat: [BigData] 부산 행정경계 — OSM 행정경계는 바다를 포함한다
+e8e0177ff67e8454efb26e11a27d9b2484620dc3||[S15P21E201-23] feat: [BigData] 가로수 그늘 — 나무마다 그늘이 다르다는 것이 이 데이터를 쓰는 이유다
+659b6aec0284b9b7b70106af3d2699ad5ca2a597||[S15P21E201-23] docs: [BigData] 낡은 실측 정정 — 가설은 기각됐고 nsdi 는 우회로 풀렸다
+d94a5de4344b2b5b1923bc294b504f5a6af243fb||[S15P21E201-23] feat: [BigData] 그림자를 GIS건물로 다시 계산 — 높이를 아는 건물이 136배가 됐다
+f22af74560f628e628035234f8e4b8a0679a8c38||[S15P21E201-23] feat: [BigData] 부산 도시철도 — 역과 출구를 다른 것으로 다룬다
+33a4d3d7345e9b31e5fd770afe8df577625f800f||[S15P21E201-23] chore: [BigData] 출처 상태 갱신 — 가로수 신청 완료 · 실폭도로는 서버가 없어 막혔다
+56dbd9be8aac53383c90486fcd3d8a1c8b696be0||[S15P21E201-23] chore: [BigData] 출처 정정 — GIS건물통합정보는 nsdi 가 아니라 V-World 로 받는다
+0d12fb6963107e2a8db798be3361bcde22520c46||[S15P21E201-23] feat: [BigData] BIMS 를 팀원 6명에게 나눠 켠다 — 한도는 사람마다 따로다
+8cbbdc0a3a76ac54db5311758dfe86465aabf35e||[S15P21E201-23] feat: [BigData] 걷기 비용 세 층 — 건물 추출·그림자·경치 근사
+4e02fceb8a1178dc0b877c6910e832e4948dbc8a||[S15P21E201-23] feat: [BigData] 온톨로지 골격 — 가능/불가는 규칙이 정하고 좋다/싫다는 실험이 정한다
+789f25ee145033fb577e10407632ba69fdb230ce||[S15P21E201-35] docs: [Common] 디자인 시스템이 '정해짐' 으로 잘못 적혀 있던 것 — 다시 열렸다
+46b803c21f31e1f136c49391e2de218e28b340b6|chore/common/S15P21E201-33-ax-vote-commands|[S15P21E201-33] fix: [Common] --source 에 origin/ 을 붙이면 표가 0장이 되는 함정을 경고로 박는다
+63be0c527269bb4c91a7465b35204ad0a7afa28b|origin/feat/bigData/S15P21E201-23-survey-app, feat/bigData/S15P21E201-23-survey-app|[S15P21E201-23] feat: [BigData] 현장 짝 비교 설문 화면과 해독기
+71ddcdf583c32ff50afd774c0e5e6b9ef84beb93||[S15P21E201-23] chore: [BigData] 전원 끄기 전 오늘치 BIMS 를 담는다
+2d73dbcf53b3d5284bfbdc52953f98fe47012ac0||[S15P21E201-33] chore: [Common] 표를 던지는 슬래시 명령 둘을 더한다
+e75ef8dc38076060a62f33d37ab31d7a7f2e1329|chore/common/S15P21E201-25-bus-seen-marker|[S15P21E201-25] fix: [Common] ax_check 가 판정을 못 하면 막는다 — 통과시키고 있었다
+53ef1bf3b1847d8bcae2ad8d7fc2fa4b49a9bdc8||[S15P21E201-33] chore: [Common] 진미리를 main 의 투표권자 명단에 올린다
+3bc396c4e654104202130517b42a45952d523a4f||[S15P21E201-25] fix: [Common] MCP 배너가 그린 것만 읽음으로 찍는다
+b0581e42bdf7603671f2d5c089d9fbdeb3fddb97||[S15P21E201-36] docs(common): 최종 ERD에 취향 및 체력 모델 통합
+cbdeefa66d8c1524e55da1f629edc2d5672c1490||[S15P21E201-25] chore: [Common] axMap 재벤더링 — 쪽지 읽음 표시를 실제로 찍는다
+daaa31370472efe2e1747c4102d07154679699e3|origin/docs/common/S15P21E201-35-epic-draft, docs/common/S15P21E201-35-epic-draft|[S15P21E201-35] docs: [Common] 이예승 결정 5건 반영 + Epic 초안 16개
+54797804423129785d1b1a8184fae609df3d3aec|chore/common/S15P21E201-35-common-off-version-axis|[S15P21E201-35] chore: [Common] axMap 재벤더링 — common 을 버전 축과 파트 사다리에서 뺀다
+00b26a2476297fc6ae65782e71665b534fe1a385|docs/common/S15P21E201-35-v7-corrections|[S15P21E201-35] docs: [Common] v7 검토에서 나온 정정 6건 — 개수가 틀리면 Epic 이 틀린다
+2c258732566c836a15d780615a3b3c0bcaa0e909||[S15P21E201-21] fix: [Common] /ax-inbox 가 '쪽지는 커밋해야 간다' 는 낡은 설명을 다시 들여오던 것
+f57eae2fb868ae7acc38a74db8ba7d23f8bd8b38||[S15P21E201-32] docs(common): v7 결정에 맞춰 전제를 고친다 — 채택은 아직 [미정]
+a38b4546fd8c29811df1b4379bd86e3c02f908d3|docs/common/S15P21E201-35-local-route-v7|[S15P21E201-35] docs(common): LOCAL_ROUTE 문서를 v7 3분할로 개정
+772dff680396a4f2f8bf4e167855d02961fff794||[S15P21E201-34] fix(common): axMap 재벤더링 — 훅이 세 배치를 다 찾게 한다
+fb1823a156746e35189f6a42955de688afb07159||[S15P21E201-33] chore: [Common] 진미리를 투표권자 명단에 추가한다 — 이메일은 실측한 것으로
+f804b9c51a0fb82b6dd9e66a552fca59f6c76cba||[S15P21E201-21] fix(common): 쪽지를 읽는 /ax-inbox 명령을 만든다
+c3ad733dbf1a9cba7c883409c5149afded687e1c||[S15P21E201-32] docs(common): 디자인 시스템 선정 — Astryx 도입 검토 기록
+d7479b9bbc4ff55337ab74d7fbd92a675ebc3313||[S15P21E201-29] fix: [axMap] 이름 검사 테스트가 전역 git 설정을 안 보게 막는다
+c895cb0e7545bb80f5df9c3dff0336bd76554fd4||[S15P21E201-25] fix: [axMap] 쪽지함을 upstream 구현으로 맞춘다
+e496b0b179073ef49919ba8277cb5e26a645e775||[S15P21E201-23] chore: [BigData] 전원을 끄기 직전의 마지막 BIMS 스냅샷
+af07766393f80e5b88cfeace740d34f387fe8ddf|origin/docs/common/S15P21E201-31-local-route-docs|[S15P21E201-31] docs(common): LOCAL_ROUTE 기능/화면 상세설계서 docx 추가
+00bdde6ababa6b3fb66354f322d6f6032d2f7165||[S15P21E201-31] docs(common): LOCAL_ROUTE 기획/설계 문서 docs 편입
+1f16873bb8933026cb2cb74b76397c57a92034e4|origin/docs/S15P21E201-24-work-discipline, docs/S15P21E201-24-work-discipline|[S15P21E201-24] docs: [공통] 한 번에 하나를 끝까지 미는 규칙을 넣는다
+24754613832c7de9ad388f7d38aaf50d2de913c4||[S15P21E201-23] chore: [BigData] 종료 직전까지의 BIMS 를 다시 담는다
+e4a8fa2498cb56f61aa13cf9ce8b30a5cedc767c||[S15P21E201-23] chore: [BigData] BIMS 수집본을 LFS 로 보존한다 — 이것만 다시 못 만든다
+992308c54bea023862deecd5de55c878ecb193d6||[S15P21E201-23] docs: [BigData] 걷는 비용을 무엇으로 잴지 — 받을 것과 계산할 것을 가른다
+2f6c6fa63a91743bb62bf6e8e3f486a126122028||[S15P21E201-22] fix: [CI] 같은 YAML 한 줄 수정을 이 브랜치에도 가져온다
+ab242ec652db48ce0b9d82e07f02712fb87ffe98||[S15P21E201-22] chore: [Common] MR 이 한 달 내내 도는 조건을 원칙으로 적는다
+39a71ede016977ba6e0dec16935049018706c176||[S15P21E201-23] feat: [BigData] 현장 실험 설계 + 짝 비교 추정기 + MLOps 뼈대
+84a9e6f329d08acbfee85e9bf42cc814334994fd||[S15P21E201-21] feat: [CI] 긴급 경로를 사다리에 낸다 — main 이 고장 나면 고칠 길이 없었다
+4aa0dce0e0c8be338f15bbec84b102f89bef6ff8||[S15P21E201-21] fix: [CI] claims 잡이 한 번도 성공한 적이 없었다 — audit 이 장부 worktree 를 요구했다
+b2a992d92b6d316f00124c2611c0f0a9f1b33a60||[S15P21E201-22] fix: [CI] 설정이 무효라 잡이 0개였다 — YAML 콜론 함정 한 줄
+f9fa5c2e9d8b4a6d6dc8db487d60c7aaf97cc9f8||[S15P21E201-21] fix: [CI] 쪽지 안내 경로가 읽을 수 없게 나오던 것
+9540fd367fb356fb07abf3c038487bd64beb5277||[S15P21E201-21] feat: [CI] 쪽지를 고아 브랜치로 옮긴다 — MR 한 사이클 걸리던 말이 즉시 간다
+fd6bc128e123c5adcf6463fec93c9b113727fc03||[S15P21E201-21] docs: [Common] 문서가 비관 쪽으로 틀린 것을 정정한다
+6303bf4626b843f6b6b0071e797928667415793b||[S15P21E201-21] fix: [CI] 쪽지가 있는데 "쪽지 없음" 이라고 답하던 문 셋을 연다
+afeceb9482b32c310e0fbcd53c374a0c209ce53c||[S15P21E201-11] chore: [Common] ref/local-route — LOCAL ROUTE 앱(Full Course/app) 자료 반영
+09a8a8722a7170cef719759e5b5a403d62da6699||[S15P21E201-15] refactor: [Common] axMap 을 저장소 밖으로 내보내고 도는 사본만 남긴다
+2b1b4ea64c77a1f3cf62d3d06c2465b68a8c42a9|origin/backup/axmap-bootstrap-axmap-repo|[S15P21E201-15] fix: [CI] spawn 되는 파일은 import 그래프에 안 잡힌다 — bus.mjs 를 사본에 넣는다
+3a4213bfc7bcda63462d225f195d3d3ec78f666b||[S15P21E201-16] docs: [Common] ref/ — 규칙 검사를 지나지 않는 참고 자료 자리를 연다
+6c5266cc78246efb6187167eacab07bf56011095||[S15P21E201-14] feat: [CI] 선점을 팀 저장소 안으로 들인다 — 설치 여부에 매달지 않게
+5bca1fd428bb8154832b9d18d3c5931302becd02|origin/backup/axmap-bootstrap-local|[S15P21E201-6] chore(common): 경로 우주를 하나로 — main 을 axmap/ 배치로 접어 넣는다
+2d15710302c4e912862210bb816a2073805d647a||[S15P21E201-4] feat: [axMap] 장부를 화면에 올린다 — 레일·지도 점유·바닥 상태줄
+f1a81317498b7143e6dbfb572bc976a5790709a7||[S15P21E201-13] feat: [CI] CI 가 쓰는 axMap 도구를 ci/axmap 으로 벤더링한다
+a6e3f0669878b5d79077ea4bb15e51d64fed773c||[S15P21E201-12] refactor: [CI] 정책 파일을 팀 저장소의 것으로 되돌린다 — 도구가 나가도 남게
+44ae54749a5b30a20caad00617bd45b5a7155257||[S15P21E201-4] fix: CI 화면 검사에서 테스트 agent를 사용한다
+606d5e248a23475f024a27153fc12da858eff344||[S15P21E201-9] feat: [BigData] 작업 범위를 부산 전역으로 넓힌다
+16b3664cc5debccaaeed569db3e1018a0f18ca3f||[S15P21E201-9] ci: [BigData] verify 잡을 추가한다 — 규칙을 문서가 아니라 종료 코드로
+3a387ab909644a1241a5731e81070036d458b689||[S15P21E201-9] chore: [BigData] 파트 신설 — 공개 데이터 수집과 경사 계산
+426509517802d82edccb80d899aabe27eea1df75||[S15P21E201-11] docs: [Common] CI 를 넘겨받는 사람에게 배경을 주고, GitLab 실측을 남긴다
+95aeebe324764f52a1c45029b25a90b6b3b76df3||[S15P21E201-10] feat: [Tooling] MCP 를 이 저장소 밖에서도 붙일 수 있게 한다
+1d517b84c9b2ae7a6ef8f396d9d03bb0df699700||[S15P21E201-9] feat: [CI] 승격을 봇에게 맡기되, 표가 붙은 커밋만 머지하게 한다
+88a54f14822f140ee9f6a544f99cdb8668a08819||[S15P21E201-8] feat: [CI] MR 이 지켜야 할 것을 권한이 아니라 파이프라인에 넣는다
+531b20a4a444501f2262cf4547bec9738fb23fd5||[S15P21E201-4] docs: [axMap] 대상 따라가기의 근거와 아직 안 정한 것을 남긴다
+f8219f040427533ac5ac28e174691437fca50cff||[S15P21E201-4] feat: [axMap] MCP 가 겨누는 저장소를 요청마다 다시 정한다
+aac38d7833c704d72bbdbb3e2014955f4402fa46||[S15P21E201-6] chore(common): 파트별 CI/CD 구조로 정리
+1f374ba2f7c0a02ba83a8e6cd1027fb92515ce90||[S15P21E201-6] chore(common): 프로젝트 초기 구조 및 협업 규칙 구성

@@ -1,0 +1,56 @@
+{
+  "part": "infra",
+  "label": "개인화 인프라",
+  "note": "취향을 배우는 파이프라인이 돌 자리. 배치 일정·모델 이력·산출물 보관을 맡는다",
+
+  "nodes": [
+    {
+      "id": "if.airflow",
+      "stage": "process",
+      "kind": "batch",
+      "label": "배치 일정 관리",
+      "state": "partial",
+      "why": "기계는 섰는데 올라간 파이프라인이 견본 하나뿐이다 — 실제 배치는 아직 서버 cron 이 돌린다",
+      "note": "컨테이너 아홉에 CPU 상한을 실측으로 정해 두었다. 상한 없이 띄웠더니 콜드스타트에서 죽고 다시 뜨기를 반복했다",
+      "evidence": { "file": "infra/personalization/airflow/dags/sample_personalization_pipeline.py" }
+    },
+    {
+      "id": "if.mlflow",
+      "stage": "store",
+      "kind": "service",
+      "label": "모델 이력",
+      "state": "partial",
+      "why": "올라간 자리는 있는데 지금 이력을 남기는 것은 산출물 옆의 실행 지문 파일이다",
+      "note": "표본 400개짜리 모델에 서빙 인프라를 붙이는 것은 과잉이라고 이미 한 번 판단했다. 규모가 커지면 이쪽으로 옮긴다",
+      "evidence": { "file": "infra/personalization/mlflow/Dockerfile" }
+    },
+    {
+      "id": "if.store",
+      "stage": "store",
+      "kind": "file",
+      "label": "산출물 보관",
+      "state": "partial",
+      "why": "보관소는 떴지만 지금 산출물은 로컬 디스크에 있다",
+      "note": "백업 스크립트는 만들어 두었다",
+      "evidence": { "all": [
+        "infra/personalization/compose.yaml",
+        "infra/personalization/scripts/backup-minio.sh"
+      ] }
+    }
+  ],
+
+  "edges": [
+    {
+      "from": "bd.st.staged", "to": "if.airflow", "label": "배치 옮기기",
+      "state": "planned",
+      "why": "지금 배치는 서버 cron 이 돌린다. 옮길지는 아직 안 정했다"
+    },
+    { "from": "if.airflow", "to": "if.mlflow", "label": "학습 이력", "state": "partial", "why": "견본 파이프라인만 남긴다" },
+    { "from": "if.airflow", "to": "if.store",  "label": "산출물",   "state": "partial", "why": "견본 파이프라인만 남긴다" },
+    {
+      "from": "if.mlflow", "to": "be.sv.reco", "label": "학습된 가중치",
+      "state": "planned",
+      "why": "배울 행동 데이터가 아직 없다. 사용자가 생기기 전에는 배울 것이 없다"
+    }
+  ]
+}

@@ -2,7 +2,6 @@ package com.gabolle.backend.recommendation.adapter;
 
 import java.util.List;
 
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
@@ -40,7 +39,10 @@ import tools.jackson.databind.ObjectMapper;
  */
 @Component
 @Profile({ "db", "dev" })
-@ConditionalOnBean(UserPlaceCodeMapRepository.class)
+// S15P21E201-808 — @ConditionalOnBean 을 걷어냈다. 이 조건은 자동 설정에서 쓰라고 만든
+// 것이라 사용자가 직접 스캔하는 @Component 에서는 평가 시점이 스캔 순서에 달려 있고,
+// 실측해 보니 dev 프로필 전체 앱에서도 이 빈들이 안 만들어지고 있었다. 배선은 조건이
+// 아니라 슬라이스의 스캔 목록으로 정한다.
 public class BaselineCandidateTranslator {
 
 	private final BaselineEngineProperties properties;

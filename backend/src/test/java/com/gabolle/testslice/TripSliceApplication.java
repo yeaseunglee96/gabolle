@@ -15,9 +15,23 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 		"com.gabolle.backend.common",
 		"com.gabolle.backend.trip",
 		// 2026-09-07 — 참여자 목록(TripMemberService)이 표시 이름을 app_user 에서 읽는다.
-		"com.gabolle.backend.user"
+		"com.gabolle.backend.user",
+		// S15P21E201-709 — SpendProfileService가 EventIngestService를 물어서 필요해졌다.
+		"com.gabolle.backend.event",
+		// 2026-09-10 (S15P21E201-475) — 갈래 열람 기록 경로(TripFacetViewController)가
+		// place 쪽 기록 서비스를 부른다. 조건부 배선(@ConditionalOnBean)으로 슬라이스에서만
+		// 빠지게 하는 방법도 있었지만 그러면 운영에서도 조용히 빠질 수 있는 자리가 하나
+		// 늘어난다 — 운영 배선은 무조건 붙거나 기동이 실패하는 편이 낫다.
+		// ItinerarySliceApplication 이 같은 판단을 먼저 적어 뒀다.
+		"com.gabolle.backend.place"
 })
-@EntityScan(basePackages = { "com.gabolle.backend.trip.infra", "com.gabolle.backend.user.domain" })
-@EnableJpaRepositories(basePackages = { "com.gabolle.backend.trip.infra", "com.gabolle.backend.user.repository" })
+@EntityScan(basePackages = {
+		"com.gabolle.backend.trip.infra", "com.gabolle.backend.user.domain", "com.gabolle.backend.event.domain",
+		"com.gabolle.backend.place.domain"
+})
+@EnableJpaRepositories(basePackages = {
+		"com.gabolle.backend.trip.infra", "com.gabolle.backend.user.repository",
+		"com.gabolle.backend.event.repository", "com.gabolle.backend.place.repository"
+})
 public class TripSliceApplication {
 }

@@ -18,4 +18,7 @@ interface TripJpaRepository extends JpaRepository<TripJpaEntity, UUID> {
 	 */
 	List<TripJpaEntity> findByTripIdInAndDeletedAtIsNullOrderByUpdatedAtDesc(
 			Collection<UUID> tripIds, Pageable pageable);
+
+	/** S15P21E201-317 — 가입할 때 "이 익명 세션이 만든 여행" 을 찾는 자리. */
+	List<TripJpaEntity> findByOwnerTypeAndOwnerUserId(String ownerType, UUID ownerUserId);
 }

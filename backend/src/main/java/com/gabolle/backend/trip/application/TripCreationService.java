@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.gabolle.backend.trip.domain.PersonalizationScope;
 import com.gabolle.backend.trip.domain.PreferenceSnapshot;
 import com.gabolle.backend.trip.domain.TimeWindows;
+import com.gabolle.backend.trip.domain.TripConditionRules;
 import com.gabolle.backend.trip.domain.Trip;
 import com.gabolle.backend.trip.domain.TravelModes;
 import com.gabolle.backend.trip.domain.TripConstraint;
@@ -66,6 +67,17 @@ public class TripCreationService {
     @Transactional
     public Result create(Command command, String idempotencyKey) {
 
+        // 🔴 S15P21E201-440 — 조건을 먼저 본다. 여기서 막지 않으면 말이 안 되는 여행이
+        //    저장되고, 그 위에서 일정 계산기가 터진다. 계산기 안에서 난 오류는 원인을
+        //    짚기 어렵다. 규칙은 TripConditionRules 한 자리에 있고, 어긴 항목을 전부
+        //    모아 돌려준다 — 하나씩 알려 주면 사용자가 고칠 때마다 다시 거절당한다.
+        //
+        //    이 자리인 이유는 위(81행) 주석과 같다. 컨트롤러는 DTO 번역만 하고, Trip
+        //    생성자는 DB 값을 되살릴 때도 지나가는 자리다. 조건 검사는 생성이 일어나는
+        //    이 자리의 일이다.
+        TripConditionRules.require(command.startDate(), command.finishDate(), command.partySize(),
+                command.budgetKrw(), command.originLat(), command.originLng(), command.timeWindow());
+
         String fingerprint = fingerprintOf(command);
 
         Instant now = clock.instant();
@@ -93,7 +105,7 @@ public class TripCreationService {
         // ① 여행. 생성자가 조건을 검증한다 — 종료일이 시작일보다 앞이면 여기서 거부된다.
         //    timeWindow 원문은 그대로 넘긴다 — fingerprintOf 가 이 원문 기준이라(아래),
         //    파생값이 아니라 원문을 저장해야 재시도 판정이 안 흔들린다.
-        Trip trip = new Trip(tripId, command.userId(),
+        Trip trip = new Trip(tripId, command.userId(), command.ownerType(),
                 command.startDate(), command.finishDate(),
                 command.originLat(), command.originLng(),
                 command.budgetKrw(), command.partySize(),
@@ -249,6 +261,7 @@ public class TripCreationService {
             String timezone,
             List<PreferenceSnapshot.PreferenceAnswer> preferences,
             List<ConstraintInput> constraints,
+            Trip.OwnerType ownerType,
             /** 매일 여기서 시작하고 여기로 돌아온다. {@code null} 이면 아직 안 정한 것이다. */
             String accommodationPlaceId,
             boolean englishMenuRequired,
@@ -258,8 +271,20 @@ public class TripCreationService {
             Integer maxTransitTransfers) {
 
         /**
-         * 🔴 S15P21E201-456 이전의 호출부(테스트 등)를 그대로 남긴다 — 새 다섯 칸은
-         * 기본값(false·null)으로 채운다.
+         * 🔴 S15P21E201-317·456 이전의 시그니처를 그대로 남긴다 — 회원 전용·다섯 칸 없이
+         * 여행을 만들던 기존 호출부(공유 일정 복제·테스트 다수)를 하나도 고치지 않기
+         * 위해서다. {@code ownerType} 은 항상 {@code USER}, 다섯 칸은 기본값(false·null)이다.
+         */
+        public Command(String userId, LocalDate startDate, LocalDate finishDate, Double originLat, Double originLng,
+                Integer budgetKrw, int partySize, String timeWindow, String timezone,
+                List<PreferenceSnapshot.PreferenceAnswer> preferences, List<ConstraintInput> constraints) {
+            this(userId, startDate, finishDate, originLat, originLng, budgetKrw, partySize, timeWindow, timezone,
+                    preferences, constraints, Trip.OwnerType.USER, null, false, false, false, null);
+        }
+
+        /**
+         * 🔴 S15P21E201-456 시그니처(다섯 칸 포함, ownerType 없음)를 그대로 남긴다 —
+         * 회원 전용 호출부는 {@code ownerType} 을 몰라도 되게 한다.
          */
         public Command(
                 String userId,
@@ -272,9 +297,36 @@ public class TripCreationService {
                 String timeWindow,
                 String timezone,
                 List<PreferenceSnapshot.PreferenceAnswer> preferences,
-                List<ConstraintInput> constraints) {
+                List<ConstraintInput> constraints,
+                String accommodationPlaceId,
+                boolean englishMenuRequired,
+                boolean foreignCardRequired,
+                boolean soloFriendlyPriority,
+                Integer maxTransitTransfers) {
             this(userId, startDate, finishDate, originLat, originLng, budgetKrw, partySize, timeWindow,
-                    timezone, preferences, constraints, null, false, false, false, null);
+                    timezone, preferences, constraints, Trip.OwnerType.USER, accommodationPlaceId,
+                    englishMenuRequired, foreignCardRequired, soloFriendlyPriority, maxTransitTransfers);
+        }
+
+        /**
+         * 🔴 S15P21E201-317 시그니처(ownerType 포함, 다섯 칸 없음)를 그대로 남긴다 —
+         * 익명 승계 테스트처럼 소유자 종류만 필요한 호출부는 다섯 칸을 몰라도 되게 한다.
+         */
+        public Command(
+                String userId,
+                LocalDate startDate,
+                LocalDate finishDate,
+                Double originLat,
+                Double originLng,
+                Integer budgetKrw,
+                int partySize,
+                String timeWindow,
+                String timezone,
+                List<PreferenceSnapshot.PreferenceAnswer> preferences,
+                List<ConstraintInput> constraints,
+                Trip.OwnerType ownerType) {
+            this(userId, startDate, finishDate, originLat, originLng, budgetKrw, partySize, timeWindow,
+                    timezone, preferences, constraints, ownerType, null, false, false, false, null);
         }
 
         public record ConstraintInput(

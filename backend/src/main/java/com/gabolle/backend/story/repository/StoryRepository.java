@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -96,6 +97,34 @@ public interface StoryRepository extends JpaRepository<Story, UUID> {
 			  AND s.moderationState = com.gabolle.backend.moderation.domain.StoryModerationState.VISIBLE
 			""")
 	Optional<Story> findVisibleById(@Param("storyId") UUID storyId);
+
+	/**
+	 * 한 여행에 달린 기록 — 추억 지도가 쓴다 (S15P21E201-829).
+	 *
+	 * <h2>왜 {@link #NOT_DELETED_AND_PUBLISHED} 를 쓰지 않는가</h2>
+	 * 그 상수는 {@code publish_at <= :now} 를 함께 건다. 이 경로에서는 그 조건을 SQL 이 아니라
+	 * {@code StoryVisibilityPolicy.canView} 가 판정해야 한다 — 작성자·공동 작성자는 공개 시각
+	 * 전에도 자기 기록을 본다는 규칙이 그 클래스 한 곳에 있고, 여기서 SQL 로 미리 잘라 내면
+	 * 같은 규칙이 두 곳에 갈라진다. <b>대신 검토 상태는 여기서 건다</b> — 그 상수가 덮던 두 조건
+	 * 중 감춤에 해당하는 쪽을 잃지 않기 위해서다(신고로 가려진 기록은 참여자에게도 안 보인다는
+	 * 것이 이 티켓에서 진미리 님과 합의한 계약이다).
+	 *
+	 * <h2>왜 {@code created_at} 순인가</h2>
+	 * 한 여행의 기록은 {@code publish_at} 기본값이 <b>여행 종료 다음 날 0시로 전부 같다</b>
+	 * ({@code StoryService.defaultPublishAt}). 그 열로 정렬하면 순서가 사실상 무작위가 된다.
+	 * {@code created_at} 은 기록을 쓴 순서라 화면에 그릴 순서로 쓸 수 있다. 실제 방문 순서와
+	 * 합치는 것은 화면이 한다 — {@code GET /api/v1/itineraries/&#123;id&#125;} 를 따로 불러서.
+	 *
+	 * <p>이어 보기(cursor)를 붙이지 않는다. 한 여행에 사람이 올리는 기록 수에는 현실적인 상한이
+	 * 있어서 {@code limit} 한 번으로 끝난다 — 그 상한은 호출자가 준다.
+	 */
+	@Query("""
+			SELECT s FROM Story s
+			WHERE s.tripId = :tripId AND s.deletedAt IS NULL
+			  AND s.moderationState = com.gabolle.backend.moderation.domain.StoryModerationState.VISIBLE
+			ORDER BY s.createdAt ASC, s.storyId ASC
+			""")
+	List<Story> findTripStories(@Param("tripId") UUID tripId, Pageable limit);
 
 	/** 프로필의 공개 기록 수. 본인·팔로워 여부에 따라 세는 범위가 다르다. */
 	@Query(value = "SELECT count(*) FROM story s WHERE" + NOT_DELETED_AND_PUBLISHED

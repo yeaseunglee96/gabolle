@@ -1,0 +1,274 @@
+// frontend-deploy 파이프라인 (S15P21E201-594)
+//
+// Jenkins Job 설정:
+//  - Definition: Pipeline script from SCM
+//  - SCM: Git, branch front/dev, credentialsId gitlab-pat
+//  - Script Path: frontend/Jenkinsfile
+//  - Triggers: Generic Webhook Trigger, token = frontend-deploy
+//    (GitLab Webhook의 Wildcard pattern을 front/dev 로 제한해서 등록)
+//
+// 필요한 Jenkins Credentials:
+//  - gitlab-pat            (Username with password) — GitLab 저장소 체크아웃
+//  - mattermost-webhook    (Secret text) — 빌드 결과 알림용 MatterMost Incoming Webhook URL
+//    (backend-deploy와 동일한 Credential을 그대로 재사용한다 — 새로 만들 것 없음)
+//  - gabolle-google-client-id (Secret text) — 소셜 로그인 버튼이 쓰는 공개 client ID
+//  - gabolle-naver-client-id  (Secret text)
+//  - gabolle-kakao-client-id  (Secret text)
+//    이 셋도 backend-deploy가 이미 쓰는 항목을 그대로 재사용한다 — 새로 만들 것 없음
+//  - gabolle-kakao-map-js-key (Secret text) — Kakao Maps JS SDK 키. gabolle-kakao-client-id
+//    (로그인용 REST API 키)와는 다른 값이다 — Kakao Developers 콘솔에서 "JavaScript 키"로
+//    따로 발급받아 새로 등록해야 한다.
+//
+// backend/Jenkinsfile(S15P21E201-575)과 같은 구조다. frontend는 Expo 웹 export를
+// nginx:alpine 으로 서빙하는 정적 이미지라 런타임 시크릿은 없다. 다만 빌드 시점에
+// 받아야 하는 값은 있다 — Expo는 EXPO_PUBLIC_ 로 시작하는 값을 export하는 순간
+// 번들에 문자열로 박아 넣으므로, 컨테이너를 띄울 때 주는 것이 아니라 docker build에
+// 넘겨야 한다. 이걸 안 넘기던 동안 배포된 웹은 API를 localhost:8080으로 부르고
+// 소셜 로그인이 서버까지 가지도 못했다 (S15P21E201-609).
+//
+// 여기서 넘기는 client ID는 브라우저에 드러나는 공개 식별자다. 토큰 교환에 쓰는
+// client secret은 백엔드에만 있고 이 경로로 나가지 않는다.
+
+pipeline {
+    agent any
+
+    options {
+        // 🔴 S15P21E201-596 — 짧은 간격으로 두 push가 겹치면 두 빌드가 동시에 돌면서
+        //    둘 다 docker run --name frontend를 시도해 컨테이너 이름 충돌로 죽는다
+        //    (backend-deploy build #58/#59에서 실제로 겪음). 뒤에 온 빌드를 앞
+        //    빌드가 끝날 때까지 큐에서 기다리게 해서 막는다.
+        disableConcurrentBuilds()
+    }
+
+    environment {
+        // 🔴 backend/Jenkinsfile 이 이미 겪은 함정과 같다 — agent any 라 이 스텝도
+        //    Jenkins 컨테이너 안에서 돈다. 그 안의 localhost 는 frontend 컨테이너가
+        //    아니라 Jenkins 자기 자신이다(별개의 네트워크 네임스페이스). 컨테이너
+        //    이름으로 가리키고, DNS 로 풀리려면 Jenkins 가 frontend 와 같은 도커
+        //    네트워크(local-route-personalization_data_net)에 있어야 한다 — backend
+        //    배포 때 이미 한 번 붙여 뒀다(docker network connect ... jenkins).
+        //    frontend 컨테이너 내부 포트는 nginx:alpine 기본값인 80 이다
+        //    (frontend/Dockerfile — EXPOSE 80).
+        HEALTH_URL = 'http://frontend:80/'
+
+        // 비밀값이 아니라서 Credential 로 두지 않고 여기 적는다. 둘 다 배포 도메인이고,
+        // 콜백 주소는 백엔드의 GABOLLE_OAUTH_ALLOWED_REDIRECT_URIS 및 provider 콘솔
+        // 등록값과 문자열이 완전히 같아야 한다 (DEC-AUTH-006). 셋 중 하나만 달라도
+        // challenge 발급이 400 으로 거부된다.
+        EXPO_PUBLIC_API_BASE_URL = 'https://j15e201.p.ssafy.io'
+        EXPO_PUBLIC_OAUTH_CALLBACK_BASE_URL = 'https://j15e201.p.ssafy.io'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'front/dev',
+                    credentialsId: 'gitlab-pat',
+                    url: 'https://lab.ssafy.com/s15-bigdata-dist-sub1/S15P21E201.git'
+            }
+        }
+
+        // 🔴 S15P21E201-811 — disableConcurrentBuilds()(위 options)는 이 잡 혼자
+        //    중복 실행되는 것만 막는다. backend-deploy·frontend-deploy·
+        //    infra-personalization-deploy 세 잡은 서로 다른 잡이라 그걸로 안 막힌다.
+        //    실측(2026-09-10) — infra-personalization-deploy와 backend-deploy(JVM
+        //    콜드 부팅)가 동시에 돌면서 4코어 호스트 load average가 8.18까지 치솟았고,
+        //    그 여파로 airflow-api-server가 몇 분간 크래시루프했다.
+        //
+        //    Jenkins의 Lockable Resources 플러그인을 쓰지 않는다 — 이 서버에 설치돼
+        //    있는지 확인할 방법이 없었다(docs/SERVER-SETUP.md 5절에 명시적으로 설치를
+        //    적어 둔 플러그인은 Generic Webhook Trigger뿐이다). 대신 세 Jenkinsfile이
+        //    같은 잠금 디렉터리 이름을 쓰는 mkdir 기반 상호 배제를 쓴다 — mkdir은
+        //    POSIX에서 원자적이라(이미 있으면 실패) 플러그인 없이도 안전하다. 세
+        //    Jenkinsfile 다 agent any라 같은 Jenkins 컨테이너 안에서 도므로 파일
+        //    시스템을 공유한다.
+        stage('Wait for exclusive deploy slot') {
+            steps {
+                script {
+                    env.DEPLOY_LOCK_ACQUIRED = 'false'
+                    int waitedSec = 0
+                    int maxWaitSec = 1200 // 20분 — 못 얻으면 무한정 큐에 쌓이지 않고 실패시킨다
+                    while (sh(script: 'mkdir /tmp/gabolle-deploy.lock', returnStatus: true) != 0) {
+                        if (waitedSec >= maxWaitSec) {
+                            error('다른 배포 파이프라인이 20분 넘게 락을 안 놓았습니다 — /tmp/gabolle-deploy.lock 을 Jenkins 컨테이너 안에서 직접 확인하세요.')
+                        }
+                        sleep(10)
+                        waitedSec += 10
+                    }
+                    env.DEPLOY_LOCK_ACQUIRED = 'true'
+                }
+            }
+        }
+
+        stage('Build Image') {
+            steps {
+                dir('frontend') {
+                    withCredentials([
+                        string(credentialsId: 'gabolle-google-client-id', variable: 'GOOGLE_CLIENT_ID'),
+                        string(credentialsId: 'gabolle-naver-client-id', variable: 'NAVER_CLIENT_ID'),
+                        string(credentialsId: 'gabolle-kakao-client-id', variable: 'KAKAO_CLIENT_ID'),
+                        string(credentialsId: 'gabolle-kakao-map-js-key', variable: 'KAKAO_MAP_JS_KEY'),
+                        // 애플 로그인 Service ID. 백엔드가 쓰는 것과 같은 자격증명이다 — 비밀이 아니지만
+                        // 한 군데서만 관리하려고 같은 이름을 쓴다 (S15P21E201-825).
+                        string(credentialsId: 'gabolle-apple-client-id', variable: 'APPLE_CLIENT_ID')
+                    ]) {
+                        // 🔴 S15P21E201-575 후속(2026-09-09) — 예전에는 :latest 하나뿐이라
+                        //    Health Check 가 실패해도 되돌릴 이전 이미지가 없었다(backend/Jenkinsfile
+                        //    은 이미 이 문제를 :candidate 로 풀어 뒀다 — S15P21E201-575). 여기도
+                        //    같은 모양으로 맞춘다: 새 빌드는 :candidate 로만 받고, Health Check 를
+                        //    통과했을 때만(아래) :latest 로 승격한다.
+                        sh '''
+                            docker build -t local-route-frontend:candidate \
+                                --build-arg EXPO_PUBLIC_API_BASE_URL="$EXPO_PUBLIC_API_BASE_URL" \
+                                --build-arg EXPO_PUBLIC_OAUTH_CALLBACK_BASE_URL="$EXPO_PUBLIC_OAUTH_CALLBACK_BASE_URL" \
+                                --build-arg EXPO_PUBLIC_BUILD_SHA="$(git rev-parse HEAD)" \
+                                --build-arg EXPO_PUBLIC_BUILD_REF="front/dev" \
+                                --build-arg EXPO_PUBLIC_SHOW_BUILD_INFO="0" \
+                                --build-arg EXPO_PUBLIC_GOOGLE_CLIENT_ID="$GOOGLE_CLIENT_ID" \
+                                --build-arg EXPO_PUBLIC_NAVER_CLIENT_ID="$NAVER_CLIENT_ID" \
+                                --build-arg EXPO_PUBLIC_KAKAO_CLIENT_ID="$KAKAO_CLIENT_ID" \
+                                --build-arg EXPO_PUBLIC_APPLE_CLIENT_ID="$APPLE_CLIENT_ID" \
+                                --build-arg EXPO_PUBLIC_KAKAO_MAP_JS_KEY="$KAKAO_MAP_JS_KEY" \
+                                .
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                sh 'docker stop frontend || true'
+                sh 'docker rm frontend || true'
+                // 🔴 S15P21E201-798 (2026-09-10) — 21개 컨테이너 전부 cpus 상한이 없던
+                //    것 중 하나(고지혁 실측, S15P21E201-784/785). nginx:alpine 정적
+                //    서빙이라 backend 보다 훨씬 가볍게 잡는다.
+                sh '''
+                    docker run -d --name frontend \
+                        --restart unless-stopped \
+                        --network local-route-personalization_data_net \
+                        -p 3000:80 \
+                        --cpus="0.5" \
+                        --memory="128m" \
+                        local-route-frontend:candidate
+                '''
+            }
+        }
+
+        stage('Health Check') {
+            steps {
+                script {
+                    // backend/Jenkinsfile 과 같은 이유로 curl 실패(exit 7)를
+                    // `|| echo 000` 으로 흡수해 재시도 루프가 끝까지 돌게 한다.
+                    def healthy = false
+                    for (int i = 0; i < 12; i++) {
+                        def code = sh(script: "curl -s -o /dev/null -w '%{http_code}' ${HEALTH_URL} || echo 000", returnStdout: true).trim()
+                        if (code == '200') {
+                            healthy = true
+                            break
+                        }
+                        sleep 5
+                    }
+                    if (healthy) {
+                        // candidate 가 검증됐을 때만 latest 로 승격한다 — backend/Jenkinsfile 의
+                        // 같은 판단과 이유가 같다: latest 가 항상 "마지막으로 실제 뜬 것"만
+                        // 가리켜야 다음 실패에서 되돌릴 자리가 있다.
+                        sh 'docker tag local-route-frontend:candidate local-route-frontend:latest'
+                    }
+                    if (!healthy) {
+                        // 🔴 S15P21E201-575 후속 — 과거 배포 실패 45건을 검토하다 발견한
+                        //    간극이다. 이 파이프라인은 실패해도 컨테이너 로그를 한 번도 안
+                        //    남겼고, 되돌릴 방법도 없었다(:latest 하나만 계속 덮어썼다) — 실패한
+                        //    프론트가 그대로 3000번 포트에 남거나 아예 안 뜬 채로 방치됐다.
+                        echo '🔴 실패한 컨테이너의 최근 로그 (원인 진단용):'
+                        sh 'docker logs frontend --tail 200 2>&1 || true'
+                        env.HEALTH_FAILURE_DETAIL = sh(
+                            script: "docker logs frontend --tail 200 2>&1 | tail -10 || true",
+                            returnStdout: true
+                        ).trim()
+
+                        echo '🔴 Health check 실패 — local-route-frontend:latest(마지막 검증된 빌드)로 되돌린다'
+                        sh 'docker stop frontend || true'
+                        sh 'docker rm frontend || true'
+                        // 🔴 :latest 가 아예 없는 첫 배포라면(이미지 자체가 없다) 이 docker run 도
+                        //    실패한다 — 그때는 되돌릴 "이전 정상 상태" 자체가 없으므로 실패
+                        //    그대로 두는 것이 맞다(되돌리기를 억지로 성공시키면 거짓 초록이 된다).
+                        sh '''
+                            docker run -d --name frontend \
+                                --restart unless-stopped \
+                                --network local-route-personalization_data_net \
+                                -p 3000:80 \
+                                --cpus="0.5" \
+                                --memory="128m" \
+                                local-route-frontend:latest
+                        '''
+                        error 'Health check failed after retries — rolled back to local-route-frontend:latest (last verified build)'
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        // 🔴 S15P21E201-811 — 위 "Wait for exclusive deploy slot"에서 실제로 잡은
+        //    락만 놓는다. 락을 기다리다 타임아웃으로 실패한 경우(env.DEPLOY_LOCK_ACQUIRED
+        //    가 'true'가 아님)까지 rmdir을 부르면, 그건 이 빌드가 잡은 락이 아니라
+        //    **다른 빌드가 지금 쓰고 있는 락**을 지우는 것이 된다 — 상호 배제가 깨진다.
+        always {
+            script {
+                if (env.DEPLOY_LOCK_ACQUIRED == 'true') {
+                    sh 'rmdir /tmp/gabolle-deploy.lock || true'
+                }
+            }
+        }
+        success {
+            script {
+                sendMMNotify(true, [
+                    commit: sh(script: "git log -1 --pretty='%an: %s'", returnStdout: true).trim(),
+                    buildUrl: env.BUILD_URL
+                ])
+            }
+        }
+        failure {
+            script {
+                // S15P21E201-575 후속 — backend/Jenkinsfile 과 같은 이유다. Health Check
+                // 단계에서 실패했다면 env.HEALTH_FAILURE_DETAIL 에 실제 컨테이너 로그
+                // 마지막 줄들이 담겨 있다 — 그걸 그대로 보여준다.
+                def detail = env.HEALTH_FAILURE_DETAIL?.trim()
+                sendMMNotify(false, [
+                    commit: sh(script: "git log -1 --pretty='%an: %s'", returnStdout: true).trim(),
+                    buildUrl: env.BUILD_URL,
+                    details: detail ? "```\n${detail}\n```" : 'Console Output 을 확인하세요'
+                ])
+            }
+        }
+    }
+}
+
+// MatterMost 알림 전송
+def sendMMNotify(boolean success, Map info) {
+    def titleLine = success
+        ? '#### :white_check_mark: 프론트엔드(front/dev) 배포 성공'
+        : '#### :x: 프론트엔드(front/dev) 배포 실패'
+
+    def lines = []
+    if (info.commit)   lines << "**커밋**: ${info.commit}"
+    if (info.buildUrl) lines << "**빌드 상세**: [Details](${info.buildUrl})"
+    if (!success && info.details) lines << "**참고**: ${info.details}"
+
+    def text = lines ? "${titleLine}\n" + lines.join("\n") : titleLine
+
+    writeFile file: 'mm_payload.json', text: groovy.json.JsonOutput.toJson([
+        text: text,
+        username: 'Jenkins',
+        icon_emoji: ':jenkins7:'
+    ])
+
+    withCredentials([string(credentialsId: 'mattermost-webhook', variable: 'MM_WEBHOOK')]) {
+        sh '''
+            curl -sS -f -X POST -H 'Content-Type: application/json' \
+                --data-binary @mm_payload.json \
+                "$MM_WEBHOOK" || true
+        '''
+    }
+}

@@ -58,6 +58,12 @@ dependencies {
 	// minio 8.6.0 이 전이로 받아오는 bcprov-jdk18on 1.81 은 GHSA-574f-3g2m-x479 를 아직
 	// 안 고쳤다 — 명시로 최신 고정판을 올려 그걸 덮어쓴다(위 minio 주석 참고).
 	implementation 'org.bouncycastle:bcprov-jdk18on:1.85.2'
+	// S15P21E201-802 — 자연어 여행 도우미가 Google Gemini(무료 티어, gemini-2.5-flash)를 부른다.
+	// 공식 Google Gen AI Java SDK. Claude(anthropic-java)에서 이쪽으로 바꿨다 — 크레딧
+	// 결제 없이 쓸 수 있어야 한다는 요구가 나중에 생겨서다. 포트/어댑터로 나눠 둔 덕분에
+	// 갈아끼운 것은 이 의존성과 adapter 패키지뿐이고, 나머지(도메인·서비스·컨트롤러)는
+	// 그대로다.
+	implementation 'com.google.genai:google-genai:1.65.0'
 	testImplementation 'org.springframework.boot:spring-boot-starter-actuator-test'
 	testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
 	testImplementation 'org.springframework.boot:spring-boot-starter-flyway-test'
@@ -66,6 +72,12 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-security-test'
 	testImplementation 'org.springframework.boot:spring-boot-starter-validation-test'
 	testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
+	// S15P21E201-779 — TestRestTemplate 은 spring-boot-starter-restclient-test 가 아니라
+	// spring-boot-resttestclient 모듈에 있다(실측 — 잡 파일을 직접 훑어 확인했다.
+	// org.springframework.boot.resttestclient.TestRestTemplate). restclient-test 는
+	// @RestClientTest(아웃바운드 호출을 목킹하는 슬라이스 테스트)용이라 별개다. 이 모듈을
+	// 감싸는 starter 가 따로 없어서 직접 적는다.
+	testImplementation 'org.springframework.boot:spring-boot-resttestclient'
 	// JUnit 5 · AssertJ · Mockito 한 묶음. 위의 세분화된 *-test 스타터들이 이미 끌어올 수도
 	// 있지만, AssertJ 가 있다는 것을 이 파일에서 눈으로 확인할 수 있게 명시한다.
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -110,4 +122,12 @@ tasks.withType(Javadoc).configureEach {
 
 tasks.named('test') {
 	useJUnitPlatform()
+	testLogging {
+		// 🔴 원인 메시지("No qualifying bean of type ...")가 콘솔에 안 찍혀서 CI 실패의
+		//    진짜 이유를 못 읽던 문제 — 예외 클래스+줄번호만 남고 원인 체인 메시지는 잘렸다.
+		exceptionFormat = 'full'
+		showCauses = true
+		showExceptions = true
+		showStackTraces = true
+	}
 }

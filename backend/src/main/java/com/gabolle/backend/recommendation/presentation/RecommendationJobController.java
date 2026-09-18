@@ -12,9 +12,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.gabolle.backend.common.api.ApiResponse;
 import com.gabolle.backend.common.security.AuthenticatedUsers;
+import com.gabolle.backend.recommendation.application.JobProgressBroker;
 import com.gabolle.backend.recommendation.application.RecommendationJobRunner;
 import com.gabolle.backend.recommendation.domain.RecommendationJob;
 import com.gabolle.backend.recommendation.presentation.dto.CreateRecommendationJobRequest;
@@ -45,8 +47,12 @@ public class RecommendationJobController {
 
 	private final RecommendationJobRunner runner;
 
-	public RecommendationJobController(RecommendationJobRunner runner) {
+	/** 열려 있는 진행률 통로를 들고 있는 쪽 — S15P21E201-193. */
+	private final JobProgressBroker progressBroker;
+
+	public RecommendationJobController(RecommendationJobRunner runner, JobProgressBroker progressBroker) {
 		this.runner = runner;
+		this.progressBroker = progressBroker;
 	}
 
 	/**
@@ -95,6 +101,67 @@ public class RecommendationJobController {
 		}
 		return ApiResponse.success(RecommendationJobResponse.of(job), "req_" + UUID.randomUUID());
 	}
+
+	/**
+	 * 진행률을 연결을 열어 둔 채 밀어 보낸다 — S15P21E201-193 · F-REC-05.
+	 *
+	 * <p>화면이 {@code GET /api/v1/jobs/{jobId}} 를 반복해서 묻는 대신 이 통로에 한 번
+	 * 접속해 두면, 단계가 넘어갈 때마다 서버가 알려 준다. 폴링(주기적으로 다시 묻기)을
+	 * <b>없애지는 않는다</b> — 이 통로는 서버 한 대를 전제하고(JobProgressBroker javadoc),
+	 * 프록시나 이동통신망이 오래 열린 연결을 끊는 환경도 있다. 화면은 두 길을 다 가질 수
+	 * 있어야 한다.
+	 *
+	 * <h2>접속하자마자 지금 값을 한 번 보낸다</h2>
+	 * 완료 기준의 <i>"연결을 끊었다 붙이면 끊긴 지점부터 이어진다"</i> 가 이것이다. 다시 붙은
+	 * 화면은 0%가 아니라 표에 저장된 지금 진행률을 먼저 받는다. 이미 끝난 작업이면 그 한
+	 * 건을 보내고 <b>바로 닫는다</b> — 끝난 작업의 연결을 붙들고 있을 이유가 없다.
+	 *
+	 * <h2>남의 작업은 없는 작업과 같게 답한다</h2>
+	 * 🔴 소유권 검사는 {@link #get} 과 같은 규칙이다. 여기에만 없으면 진행률이 옆문으로
+	 * 새어 나간다 — 남의 {@code jobId} 를 알기만 하면 그 사람의 계산이 어디까지 갔는지
+	 * 보이게 된다. 다만 이 자리는 응답이 스트림이라 404 를 예외로 던진다(그 예외는
+	 * {@link RecommendationJobExceptionHandler} 가 이미 404 로 바꾼다).
+	 */
+	// 🔴 경로를 value 로 준다. path 는 같은 뜻이지만 인가 정책 표를 대조하는 검사
+	//    (RouteAuthorizationRegistryTest)가 value 를 읽어서, path 로 쓰면 경로가 빈 값으로
+	//    잡혀 "정책 없는 경로" 로 걸린다.
+	@GetMapping(value = "/api/v1/jobs/{jobId}/progress", produces = "text/event-stream")
+	public SseEmitter progress(@PathVariable String jobId, Authentication authentication) {
+		RecommendationJob job = this.runner.findJob(jobId).orElseThrow(() -> new JobNotFoundException(jobId));
+		if (!isOwner(job, authentication)) {
+			throw new JobNotFoundException(jobId);
+		}
+
+		SseEmitter emitter = new SseEmitter(STREAM_TIMEOUT_MS);
+		JobProgressBroker.JobProgressSnapshot now = new JobProgressBroker.JobProgressSnapshot(
+				job.getJobId(), job.getJobStatus(),
+				job.getJobStage() == null ? null : job.getJobStage().name(),
+				job.getProgressPercent(), job.getErrorCode());
+
+		// 이미 끝난 작업이면 등록하지 않는다. 그 작업은 다시 진행률을 내보내지 않으므로
+		// 기다릴 것이 없고, 한 건 보내고 닫는 것으로 끝이다.
+		if (job.getJobStatus().isTerminal()) {
+			this.progressBroker.send(now, emitter);
+			return emitter;
+		}
+
+		// 🔴 순서가 중요하다. 먼저 등록하고 그다음에 지금 값을 보낸다. 반대로 하면 두 호출
+		//    사이에 단계가 넘어간 경우 그 한 건을 못 받고, 화면은 다음 단계까지 멈춘 것으로
+		//    보인다. 등록을 먼저 하면 같은 값을 두 번 받을 수는 있는데, 그쪽이 안전하다 —
+		//    진행률은 같은 값이 두 번 와도 화면이 달라지지 않는다.
+		this.progressBroker.register(job.getJobId(), emitter);
+		this.progressBroker.send(now, emitter);
+		return emitter;
+	}
+
+	/**
+	 * 연결 하나를 열어 두는 시간의 상한.
+	 *
+	 * <p>일정 생성이 이보다 오래 걸리면 연결이 한 번 끊기고, 화면은 다시 붙어 그 시점의
+	 * 진행률부터 이어 받는다. 무한히 열어 두지 않는 이유는 죽은 연결이 스레드를 잡기
+	 * 때문이다 — 브라우저가 조용히 사라지면 서버는 그것을 바로 알 수 없다.
+	 */
+	static final long STREAM_TIMEOUT_MS = 5 * 60 * 1000L;
 
 	/**
 	 * 요청자가 이 Job 의 주인인가.
