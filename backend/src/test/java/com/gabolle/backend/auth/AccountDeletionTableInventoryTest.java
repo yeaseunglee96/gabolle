@@ -64,7 +64,9 @@ class AccountDeletionTableInventoryTest extends AuthPostgresIntegrationTest {
 			"place_visit_verification", "recommendation_place_action", "saved_place", "story", "story_coauthor",
 			"story_invite", "story_link_copy", "story_reaction", "story_view", "trip_invite", "trip_member",
 			"trip_share_link", "uploaded_image",
-			"user_block", "user_consent", "user_follow", "user_pace_factor", "user_taste_vector");
+			"user_block", "user_consent", "user_follow", "user_pace_factor", "user_taste_vector",
+			// 🔴 S15P21E201-1231 — 여행 조건 모달의 답. 새 표라 처음부터 여기 넣는다.
+			"user_travel_constraint");
 
 	@Autowired
 	private JdbcTemplate jdbc;

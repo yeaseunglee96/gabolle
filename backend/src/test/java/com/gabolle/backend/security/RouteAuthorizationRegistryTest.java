@@ -505,6 +505,17 @@ class RouteAuthorizationRegistryTest {
 				"계정 기본 씀씀이 성향 조회(-709). 대상이 경로에 없고 인증 주체로만 정해진다 — 남의 것을 지정할 방법이 없다. SpendProfileControllerTest");
 		put(m, "PUT /api/v1/me/preferences/spend", Policy.OWNED,
 				"위와 같다. SpendProfileControllerTest");
+		// ── 여행 조건 모달 (-1231) ────────────────────────────────────────────────
+		//
+		// 🔴 씀씀이와 같은 근거로 OWNED 다 — 대상이 경로에 없고 요청자 본인 것만 다룬다.
+		//    남의 것을 지정할 방법 자체가 없다.
+		put(m, "GET /api/v1/me/preferences/constraints", Policy.OWNED,
+				"내 여행 조건이다. 대상이 인증 주체로만 정해진다. 한 번도 저장 안 했으면 404 가 "
+						+ "아니라 status:null 로 200 이다 — 「안 물어봤다」는 오류가 아니다. "
+						+ "TravelConstraintIntegrationTest");
+		put(m, "PUT /api/v1/me/preferences/constraints", Policy.OWNED,
+				"저장도 같다. 경로·본문 어디에도 사람을 안 받는다 — userId 는 인증에서만 읽는다. "
+						+ "TravelConstraintIntegrationTest");
 		put(m, "GET /api/v1/me/preferences/taste", Policy.OWNED,
 				"계정 기본 취향 조회(-639). 온보딩 첫 실행과 마이페이지가 읽는다. 위 /spend 와 같은 근거로 OWNED — "
 				+ "대상이 경로에 없고 인증 주체로만 정해진다. TastePreferencesControllerTest");
