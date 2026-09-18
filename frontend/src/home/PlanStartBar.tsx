@@ -6,6 +6,7 @@ import { AccessibilityInfo, ActivityIndicator, Animated, Easing, Pressable, Scro
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
+import { resolveTextLanguage } from '@/i18n/languages';
 import { MAJOR_BUSAN_ORIGINS, searchOrigins, type OriginCandidate } from '@/plan/origins';
 import {
   EMPTY_START_BAR,
@@ -103,7 +104,10 @@ const PHONE_PRESET_COUNT = 3;
 
 export function PlanStartBar({ wide, accessToken, onSubmit, today = new Date() }: PlanStartBarProps) {
   const { tx, language } = useI18n();
-  const ko = language !== 'en';
+  // 🔴 「영어가 아니면 한국어」로 가르면 일본어·중국어 사용자가 한국어를 본다.
+  // 그 언어들은 uiTranslated: false 라 번역이 없으면 영어로 떨어지기로 정해져 있다
+  // (resolveTextLanguage). 그 규칙을 그대로 쓴다 — S15P21E201-1296.
+  const ko = resolveTextLanguage(language) === 'ko';
   const [value, setValue] = useState<StartBarValue>(EMPTY_START_BAR);
   const [section, setSection] = useState<Section>(null);
   const [query, setQuery] = useState('');
