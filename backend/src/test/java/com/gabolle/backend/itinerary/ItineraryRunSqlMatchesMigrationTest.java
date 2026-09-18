@@ -37,7 +37,7 @@ import com.gabolle.backend.itinerary.domain.ItineraryStopEvent;
 class ItineraryRunSqlMatchesMigrationTest {
 
 	private static final Path MIGRATION = Path.of(
-			"src/main/resources/db/migration/V20260919010000__itinerary_run.sql");
+			"src/main/resources/db/migration/V20260919100000__itinerary_run.sql");
 
 	private static final Path REPOSITORY = Path.of(
 			"src/main/java/com/gabolle/backend/itinerary/infra/JpaItineraryRunRepository.java");
