@@ -18,6 +18,7 @@ import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { PlaceRow, StoryRow } from '@/home/HomeBlocks';
 import { useHomeData } from '@/home/useHomeData';
+import { AssistantBackdrop, AssistantMenu } from '@/home/AssistantMenu';
 import { useSavedPlaces } from '@/home/useSavedPlaces';
 import { resolveHomeTripDestination } from '@/home/tripNavigation';
 import { isAtLeast } from '@/layout/breakpoints';
@@ -51,6 +52,7 @@ export default function Home() {
   const home = useHomeData(!desktop);
   // 하트는 데스크톱 홈과 같은 자리에서 온다 — 베껴 두면 한쪽만 고쳐진다.
   const saved = useSavedPlaces(accessToken, 'home-mobile');
+  const [assistantOpen, setAssistantOpen] = useState(false);
   const [openingTrip, setOpeningTrip] = useState(false);
 
   useEffect(() => {
@@ -224,14 +226,21 @@ export default function Home() {
         <ConditionsPromptModal visible={conditions.open} reprompt={conditions.reprompt} onClose={closeConditions} />
   </Screen>
 
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={tx('가볼래 여행 도우미 열기', 'Open GABOLLE travel assistant')}
-        onPress={() => router.push('/chat')}
-        style={({ pressed }) => [styles.assistantButton, pressed && styles.pressed]}
-      >
-        <GabolleMascot state="idle" style={styles.assistantMascot} />
-      </Pressable>
+      {/* 판이 먼저다 — 메뉴와 단추보다 아래에 깔려야 그 둘은 그대로 눌린다. */}
+      <AssistantBackdrop open={assistantOpen} onClose={() => setAssistantOpen(false)} />
+      <View style={styles.assistantAnchor}>
+        {/* 폰은 부제 없이 232 폭. 마스코트 위로 뜬다. */}
+        <AssistantMenu compact open={assistantOpen} onClose={() => setAssistantOpen(false)} />
+        <Pressable
+          accessibilityRole="button"
+          accessibilityState={{ expanded: assistantOpen }}
+          accessibilityLabel={tx('가볼래 여행 도우미 열기', 'Open GABOLLE travel assistant')}
+          onPress={() => setAssistantOpen((open) => !open)}
+          style={({ pressed }) => [styles.assistantButton, pressed && styles.pressed]}
+        >
+          <GabolleMascot state="idle" style={styles.assistantMascot} />
+        </Pressable>
+      </View>
 
       <TabBar active="home" />
     </View>
@@ -295,6 +304,8 @@ const styles = StyleSheet.create({
 
   saveFeedback: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[3], marginTop: spacing[6], marginHorizontal: spacing[6], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.brand.navy },
 
-  assistantButton: { position: 'absolute', right: spacing[6], bottom: 100, width: 68, height: 68, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full },
+  // 메뉴가 이 상자 위에 뜬다. 절대 위치를 단추가 아니라 감싸는 상자가 가진다.
+  assistantAnchor: { position: 'absolute', right: spacing[6], bottom: 100, zIndex: 20 },
+  assistantButton: { width: 68, height: 68, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full },
   assistantMascot: { width: 60, height: 60 },
 });

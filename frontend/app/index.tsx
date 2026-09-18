@@ -13,6 +13,7 @@ import { Text } from '@/components/Text';
 import { GabolleMascot } from '@/components/DongbaekMascot';
 import { MyTripCard, PlaceRow, StoryRow, WeatherLine } from '@/home/HomeBlocks';
 import { useHomeData } from '@/home/useHomeData';
+import { AssistantBackdrop, AssistantMenu, assistantSubtitle } from '@/home/AssistantMenu';
 import { useSavedPlaces } from '@/home/useSavedPlaces';
 import { color, desktopGutter, radius, spacing } from '@/design/tokens';
 import { LANGUAGE_OPTIONS, needsTranslationNotice, type LanguageOption } from '@/i18n/languages';
@@ -68,6 +69,7 @@ export default function Welcome() {
   // 하트는 화면이 한 번 쥐고 줄 둘에 내려 준다 — 줄마다 따로 쥐면 같은 장소가
   // 두 줄에 있을 때 한쪽만 켜진다.
   const saved = useSavedPlaces(accessToken, 'home-desktop');
+  const [assistantOpen, setAssistantOpen] = useState(false);
   const onToggleLike = (placeId: string) => {
     // 로그인 안 한 사람도 기기에 저장된다 — 로그인으로 밀어내지 않는다.
     saved.toggle(placeId);
@@ -209,15 +211,23 @@ export default function Welcome() {
       </View>
     ) : null}
   </ScrollView>
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={tx('가볼래 AI 여행 도우미 열기', 'Open Gabolle AI travel assistant')}
-      onPress={() => router.push('/chat')}
-      style={({ pressed }) => [styles.webAssistantButton, pressed && styles.pressed]}
-    >
-      <View style={styles.webAssistantLabel}><Text variant="body" weight="bold">{tx('AI에게 물어보기', 'Ask AI')}</Text><Text variant="caption" color={color.text.muted}>{tx('일정 · 통역 · 여행 도움', 'Plans · phrases · travel help')}</Text></View>
-      <GabolleMascot state="idle" style={styles.webAssistantMascot} />
-    </Pressable>
+    {/* 판이 먼저다 — 메뉴와 단추보다 아래에 깔려야 그 둘은 그대로 눌린다. */}
+    <AssistantBackdrop open={assistantOpen} onClose={() => setAssistantOpen(false)} />
+    <View style={styles.webAssistantAnchor}>
+      <AssistantMenu open={assistantOpen} onClose={() => setAssistantOpen(false)} />
+      <Pressable
+        accessibilityRole="button"
+        accessibilityState={{ expanded: assistantOpen }}
+        accessibilityLabel={tx('가볼래 AI 여행 도우미 열기', 'Open Gabolle AI travel assistant')}
+        onPress={() => setAssistantOpen((open) => !open)}
+        style={({ pressed }) => [styles.webAssistantButton, pressed && styles.pressed]}
+      >
+        {/* 부제는 메뉴에 실제로 있는 것을 적는다. 전에는 「일정 · 통역 · 여행 도움」이라고
+            적어 두고 챗봇 한 곳으로만 갔다 — 셋을 약속하고 하나만 줬다. */}
+        <View style={styles.webAssistantLabel}><Text variant="body" weight="bold">{tx('AI에게 물어보기', 'Ask AI')}</Text><Text variant="caption" color={color.text.muted}>{assistantSubtitle(tx)}</Text></View>
+        <GabolleMascot state="idle" style={styles.webAssistantMascot} />
+      </Pressable>
+    </View>
     <ConditionsPromptModal visible={conditions.open} reprompt={conditions.reprompt} onClose={closeConditions} />
   </View>;
 }
@@ -283,7 +293,10 @@ const styles = StyleSheet.create({
   startBar: { width: '100%', maxWidth: 900, alignItems: 'center' },
   headerSubtitle: { marginTop: spacing[2], marginBottom: spacing[6], textAlign: 'center' },
   headerMeta: { marginTop: spacing[6], gap: spacing[3], alignItems: 'center' },
-  webAssistantButton: { position: 'absolute', right: spacing[8], bottom: spacing[8], minWidth: 64, minHeight: 64, flexDirection: 'row', alignItems: 'center', zIndex: 20 },
+  // 메뉴가 이 상자를 기준으로 위에 뜬다(bottom: '100%'). 그래서 절대 위치를 단추가 아니라
+  // 감싸는 상자가 가진다 — 단추가 가지면 메뉴가 붙을 기준이 없다.
+  webAssistantAnchor: { position: 'absolute', right: spacing[8], bottom: spacing[8], zIndex: 20 },
+  webAssistantButton: { minWidth: 64, minHeight: 64, flexDirection: 'row', alignItems: 'center' },
   webAssistantLabel: { minWidth: 210, gap: spacing[1], marginRight: -spacing[3], paddingLeft: spacing[6], paddingRight: spacing[8], paddingVertical: spacing[3], borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.full, backgroundColor: color.surface.card, shadowColor: color.brand.navy, shadowOpacity: 0.16, shadowRadius: 12, shadowOffset: { width: 0, height: 5 }, elevation: 5 },
   webAssistantMascot: { width: 84, height: 84 },
 });
