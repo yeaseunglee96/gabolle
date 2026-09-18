@@ -40,7 +40,6 @@ const NOT_YET_FIXED = new Set([
   // 🔴 S15P21E201-1245(피드 카드 시안 반영)가 이 파일을 잡고 있다. 그쪽에서 함께 뺀다.
   'app/(tabs)/feed.tsx:emptyPrimary',
   'app/(tabs)/trips.tsx:emptyCta',
-  'app/trips/[id]/recommendations.tsx:cta',
 ]);
 
 function listSourceFiles(dir) {
