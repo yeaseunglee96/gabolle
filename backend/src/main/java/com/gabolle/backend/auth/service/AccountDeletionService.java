@@ -246,6 +246,10 @@ public class AccountDeletionService {
 			new OwnedRows("PlaceReview", "userId"),
 			new OwnedRows("PlaceVisitVerification", "userId"),
 			new OwnedRows("MenuScanUsage", "userId"),
+			// 🔴 S15P21E201-1272 — 음식 그림을 만든 횟수. 그림 자체(dish_image)와 설명
+			//    (dish_description)은 사람을 안 가리킨다 — 「돼지국밥」 그림은 누구의 것도
+			//    아니고 모두가 함께 쓴다. 지워야 하는 것은 «누가 몇 번 만들었나» 뿐이다.
+			new OwnedRows("DishImageUsage", "userId"),
 			// 🔴 팔로우·차단은 사람을 가리키는 칸이 둘이다. 한쪽만 지우면 "내가 없는데 나를
 			//    팔로우한 기록" 이 남는다.
 			new OwnedRows("UserFollow", "key.followerUserId"),

@@ -82,6 +82,7 @@ class AccountDeletionOwnedRowsRemovedTest extends AuthPostgresIntegrationTest {
 			new Owned("place_review", "user_id"),
 			new Owned("place_visit_verification", "user_id"),
 			new Owned("menu_scan_usage", "user_id"),
+			new Owned("dish_image_usage", "user_id"),
 			new Owned("user_follow", "follower_user_id"),
 			new Owned("user_follow", "followee_user_id"),
 			new Owned("user_block", "blocker_user_id"),
@@ -240,6 +241,8 @@ class AccountDeletionOwnedRowsRemovedTest extends AuthPostgresIntegrationTest {
 				+ "(place_visit_verification_id, place_id, user_id, distance_m) VALUES (?, ?, ?, 12)",
 				UUID.randomUUID(), this.placeId, user);
 		this.jdbc.update("INSERT INTO menu_scan_usage (menu_scan_usage_id, user_id, scanned_at) "
+				+ "VALUES (?, ?, now())", UUID.randomUUID(), user);
+		this.jdbc.update("INSERT INTO dish_image_usage (dish_image_usage_id, user_id, requested_at) "
 				+ "VALUES (?, ?, now())", UUID.randomUUID(), user);
 		this.jdbc.update("INSERT INTO story_reaction (story_id, user_id, reaction, created_at, updated_at) "
 				+ "VALUES (?, ?, 'LIKE', now(), now())", this.otherStoryId, user);
