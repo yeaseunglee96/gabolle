@@ -16,7 +16,7 @@ import com.gabolle.backend.route.domain.RouteLeg;
 import com.gabolle.backend.route.domain.TravelMode;
 
 /**
- * 구간 요금이 어디까지 오고 어디서 비는가 — S15P21E201-1109.
+ * 구간 요금이 어디까지 오고 어디서 비는가 — S15P21E201-1109 · S15P21E201-1313.
  *
  * <h2>🔴 이 시험이 막는 것</h2>
  *
@@ -26,6 +26,21 @@ import com.gabolle.backend.route.domain.TravelMode;
  * 아예 없고, 그 자리를 0 으로 메우면 정확히 그 일이 일어난다.
  *
  * <p>그리고 그 고장은 <b>아무 오류도 안 낸다</b> — 숫자가 들어 있고 화면도 잘 그려진다.
+ *
+ * <h2>🟢 2026-09-19 — 대중교통 요금이 생겼다 (S15P21E201-1313)</h2>
+ *
+ * 아래 「대중교통도 비운다」 시험에는 <i>"대중교통 요금은 우리에게 아예 없다"</i> 고 적혀
+ * 있었다. <b>이제 있다</b> — 노선망(S15P21E201-1123·-1310)과 계산기(S15P21E201-1291)가
+ * 들어왔다. 그래서 그 시험을 <b>지우지 않고 갈랐다</b>.
+ *
+ * <ul>
+ * <li>계산기가 <b>값을 냈으면</b> 그대로 실린다</li>
+ * <li>계산기가 <b>모른다고 했으면</b> 그대로 비운다 — 여기가 예전 시험이 지키던 자리다</li>
+ * </ul>
+ *
+ * <p>🔴 <b>둘째가 더 중요하다.</b> 급행버스처럼 고시에 요금이 없는 종류가 끼면 계산기는
+ * 합계를 안 낸다 — 아는 것만 더하면 실제보다 싸기 때문이다. 그 판단을 여기서 0 으로
+ * 덮으면 <b>계산기가 일부러 안 한 일을 대신 해 주는 꼴</b>이 된다.
  */
 class RouteTravelTimeFareTest {
 
@@ -44,6 +59,12 @@ class RouteTravelTimeFareTest {
 	private RouteLeg leg(TravelMode mode, Integer taxiFareKrw, Integer tollFareKrw) {
 		return new RouteLeg(mode, 8_400, 21, taxiFareKrw, tollFareKrw, null, false, null, "TEST", List.of(),
 				List.of());
+	}
+
+	/** 대중교통 구간 — 요금은 {@code TransitFareCalculator} 가 낸 값이 실려 온다. */
+	private RouteLeg transitLeg(Integer transitFareKrw) {
+		return new RouteLeg(TravelMode.TRANSIT, 8_400, 21, null, null, 1, true, "HEADWAY_ESTIMATE", "TEST",
+				List.of(), List.of(), transitFareKrw);
 	}
 
 	private TravelTime measure(String travelMode, RouteLeg leg) {
@@ -78,12 +99,34 @@ class RouteTravelTimeFareTest {
 	}
 
 	@Test
-	@DisplayName("🔴 대중교통도 비운다 — 업체가 안 주는 것을 지어내지 않는다")
-	void leavesTransitFareEmpty() {
-		// 카카오모빌리티는 자동차 경로만 준다. 대중교통 요금은 우리에게 아예 없다.
-		TravelTime measured = measure("SUBWAY", leg(TravelMode.TRANSIT, null, null));
+	@DisplayName("🟢 대중교통 요금이 실린다 — 계산기는 있었는데 이 자리에서 버려지고 있었다")
+	void carriesTransitFare() {
+		// 일반버스 1,550 → 도시철도 환승 추가 50 = 1,600. 환승 할인은 이미 이 숫자 안에 있다.
+		TravelTime measured = measure("BUS", transitLeg(1_600));
 
-		assertThat(measured.fareKrw()).isNull();
+		assertThat(measured.fareKrw()).isEqualTo(1_600);
+		assertThat(measured.hasFare()).isTrue();
+	}
+
+	@Test
+	@DisplayName("🔴 계산기가 모른다고 하면 그대로 비운다 — 0 으로 덮으면 화면이 「무료」로 그린다")
+	void leavesTransitFareEmptyWhenTheCalculatorDoesNotKnow() {
+		// 급행버스처럼 고시에 요금이 없는 종류가 끼면 계산기가 합계를 안 낸다 —
+		// 아는 것만 더하면 실제보다 싸기 때문이다. 그 판단을 여기서 덮지 않는다.
+		TravelTime measured = measure("BUS", transitLeg(null));
+
+		assertThat(measured.fareKrw()).as("0 으로 메우면 계산기가 일부러 안 한 일을 대신 해 주는 꼴이다").isNull();
+		assertThat(measured.hasFare()).isFalse();
+	}
+
+	@Test
+	@DisplayName("🔴 걷기만 한 대중교통 여정은 0 이 맞다 — 여기서는 「공짜」가 사실이다")
+	void aWalkOnlyTransitJourneyIsFree() {
+		// 모든 구간이 걷기면 계산기가 0 을 낸다. 그건 「모른다」가 아니라 「안 낸다」다 —
+		// 이 둘을 가르는 것이 이 파일 전체의 요지이고, 방향이 반대인 쪽도 잰다.
+		TravelTime measured = measure("BUS", transitLeg(0));
+
+		assertThat(measured.fareKrw()).isZero();
 	}
 
 	@Test
