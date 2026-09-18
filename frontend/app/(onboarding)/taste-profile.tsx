@@ -10,6 +10,7 @@ import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
+import { enterApp } from '@/auth/enterApp';
 import { useI18n } from '@/i18n';
 import { isAtLeast } from '@/layout/breakpoints';
 import { FOODS } from '@/plan/foodConflicts';
@@ -112,11 +113,11 @@ export default function TasteProfileScreen() {
   // 첫 실행에서 빨간 화면을 보는 것보다 낫다.
   useEffect(() => {
     if (!ready) return;
-    if (!accessToken) { router.replace('/home'); return; }
+    if (!accessToken) { enterApp(router, '/home'); return; }
     let active = true;
     void getTasteProfile(accessToken).then((saved) => {
       if (!active) return;
-      if (countTasteAnswers(saved) > 0) { router.replace('/home'); return; }
+      if (countTasteAnswers(saved) > 0) { enterApp(router, '/home'); return; }
       setChecking(false);
     }).catch(() => { if (active) setChecking(false); });
     return () => { active = false; };
@@ -181,7 +182,7 @@ export default function TasteProfileScreen() {
           {tx('여행을 만들 때 미리 채워 드려요. 마이페이지 › 여행 취향에서 언제든 바꿀 수 있어요.',
             'We will fill these in when you plan a trip. You can change them any time in My page › Travel preferences.')}
         </Text>
-        <Button label={tx('홈으로', 'Go home')} containerStyle={styles.doneCta} onPress={() => router.replace('/home')} />
+        <Button label={tx('홈으로', 'Go home')} containerStyle={styles.doneCta} onPress={() => enterApp(router, '/home')} />
       </View>
     </Screen>;
   }
