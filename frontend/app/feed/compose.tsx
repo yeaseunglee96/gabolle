@@ -19,8 +19,16 @@ import { MAX_STORY_IMAGES, useStoryImages } from '@/social/useStoryImages';
 
 const BODY_MAX = 500;
 // 업로드 실패 뒤 화면을 새로 고쳐도 쓰던 글이 남아 있어야 한다완료 기준).
-// 사진은 로컬 uri가 새로고침 뒤 의미가 없어질 수 있어(웹의 blob: URL 등) 글·지역·공개
-// 설정만 남긴다 — 사진은 다시 골라야 하지만 가장 아까운 글은 잃지 않는다.
+//
+// 🔴 사진은 **올라간 것만** 남긴다 (S15P21E201-1312). 둘을 갈라야 하는 이유가 있다.
+//
+//   아직 안 올라간 것  로컬 uri 뿐이고, 새로고침 뒤에는 의미가 없어질 수 있다
+//                     (웹의 blob: URL 등). 남겨도 못 그리고 못 보낸다
+//   이미 올라간 것     **서버가 준 주소**다. 새로고침해도 다른 기기에서도 그대로
+//                     쓸 수 있고, 글을 보낼 때 실려 가는 것이 바로 이 값이다
+//
+// 전에는 둘을 같이 버렸다. 그래서 세 장을 다 올려 놓고 기다린 뒤에 나갔다 와도 처음부터
+// 다시 올려야 했다 — 시간만 드는 게 아니라 데이터 요금이 든다(한 장 3MB).
 const DRAFT_KEY = 'gabolle.story-compose-draft';
 type PublishTiming = 'AFTER_TRIP' | 'NOW';
 
@@ -41,16 +49,26 @@ export default function ComposeStory() {
   const [error, setError] = useState<string | null>(null);
   const draftLoaded = useRef(false);
 
+  // 사진은 공용 훅이 맡는다 — 피드의 인라인 글쓰기와 같은 코드를 쓴다
+  // 줄이기·3MB 판정·재시도 규칙이 두 벌이 되지 않게 하려고.
+  const { images, addImage, retryImage, removeImage, restoreUploaded, anyUploading, uploadedUrls, canAddMore } = useStoryImages(accessToken, tx);
+
   useEffect(() => {
     void AsyncStorage.getItem(DRAFT_KEY).then((raw) => {
       draftLoaded.current = true;
       if (!raw) return;
       try {
-        const draft = JSON.parse(raw) as { body?: string; region?: string; visibility?: StoryVisibility; publishTiming?: PublishTiming };
+        const draft = JSON.parse(raw) as { body?: string; region?: string; visibility?: StoryVisibility; publishTiming?: PublishTiming; imageUrls?: unknown };
         if (draft.body) setBody(draft.body.slice(0, BODY_MAX));
         if (draft.region) setRegion(draft.region);
         if (draft.visibility) setVisibility(draft.visibility);
         if (draft.publishTiming) setPublishTiming(draft.publishTiming);
+        // 🔴 저장해 둔 것이 정말 주소 목록인지 여기서 본다. 이 값은 이 기기에 남아 있던
+        //    것이라 앱 판이 바뀌면 모양이 다를 수 있고, 그대로 믿으면 사진 자리가 깨진다.
+        if (Array.isArray(draft.imageUrls)) {
+          const urls = draft.imageUrls.filter((url): url is string => typeof url === 'string' && url !== '');
+          if (urls.length > 0) restoreUploaded(urls);
+        }
       } catch {
         void AsyncStorage.removeItem(DRAFT_KEY);
       }
@@ -59,12 +77,8 @@ export default function ComposeStory() {
 
   useEffect(() => {
     if (!draftLoaded.current) return;
-    void AsyncStorage.setItem(DRAFT_KEY, JSON.stringify({ body, region, visibility, publishTiming }));
-  }, [body, region, visibility, publishTiming]);
-
-  // 사진은 공용 훅이 맡는다 — 피드의 인라인 글쓰기와 같은 코드를 쓴다
-  // 줄이기·3MB 판정·재시도 규칙이 두 벌이 되지 않게 하려고.
-  const { images, addImage, retryImage, removeImage, anyUploading, uploadedUrls, canAddMore } = useStoryImages(accessToken, tx);
+    void AsyncStorage.setItem(DRAFT_KEY, JSON.stringify({ body, region, visibility, publishTiming, imageUrls: uploadedUrls }));
+  }, [body, region, visibility, publishTiming, uploadedUrls]);
 
   const bodyValid = body.trim().length >= 1 && body.trim().length <= BODY_MAX;
   const canSubmit = bodyValid && !anyUploading && !submitting;
