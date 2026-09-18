@@ -44,6 +44,7 @@ import { existsSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { stamp } from '../mlops/manifest.mjs'
+import { log } from '../lib/log.mjs'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const IN_DIR = join(ROOT, 'data/raw/permits')
@@ -196,7 +197,6 @@ function to5174Wgs84(x, y) {
 
 // ── 거들이 ──────────────────────────────────────────────────────────────────
 
-const log = (...a) => console.log(new Date().toISOString().slice(0, 19), ...a)
 
 /** 따옴표를 다루는 최소 CSV 한 줄 쪼개기. */
 function splitCsv(line) {

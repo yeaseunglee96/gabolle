@@ -21,6 +21,7 @@ import { readFile, writeFile, mkdir } from 'node:fs/promises'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createDemReader } from './dem-clean.mjs'
+import { log } from '../lib/log.mjs'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const DEM  = join(ROOT, 'data/raw/dem')
@@ -33,7 +34,6 @@ const BASELINES = [30, 60, 100, 150, 200]
 const FLAT_MAX_M  = 12     // 이 아래는 해안 매립지 = 평지여야 한다
 const HILLY_MIN_M = 60     // 이 위는 산복도로 = 실제로 가파르다
 
-const log = (...a) => console.log(new Date().toISOString().slice(11, 19), ...a)
 const R = 6371000, rad = d => d * Math.PI / 180
 const dist = (a, b) => {
   const dLat = rad(b.lat - a.lat), dLon = rad(b.lon - a.lon)

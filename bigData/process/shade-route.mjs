@@ -36,6 +36,7 @@
  *
  * 출력
  *   data/staged/shade-route-<시각>.json      곡선과 요약 (🔴 수치는 여기에만)
+ *   data/staged/shade-route-<시각>-trees.json  --trees 로 돌렸을 때. 이름을 갈라 예전 결과를 안 덮는다
  *   data/staged/shade-route-<시각>.geojson   지도용 — 최단거리와 그늘 우선 두 경로
  *
  *   node process/shade-route.mjs
@@ -48,6 +49,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import readline from 'node:readline'
+import { log } from '../lib/log.mjs'
 
 const argv = process.argv.slice(2)
 const arg = (name, dflt) => {
@@ -64,10 +66,15 @@ const PBF = path.join(DATA, 'raw', 'pbf')
 const STAGED = path.join(DATA, 'staged')
 const HOUR = Number(arg('hour', '15'))
 
+/** 🔴 가로수를 얹을지. 기본은 안 얹는다 — 건물 그림자만 쓴 예전 결과와 비교할 수 있게. */
+const WITH_TREES = argv.includes('--trees')
+
+/** 🔴 결과 파일 이름을 가른다. 안 가르면 --trees 가 예전 결과를 덮어써 비교할 것이 없어진다. */
+const SUFFIX = WITH_TREES ? '-trees' : ''
+
 /** λ 격자. 0 이 최단거리다. 위로 갈수록 볕을 피해 더 돈다. */
 const LAMBDAS = [0, 0.25, 0.5, 1, 2, 4, 8]
 
-const log = (...a) => console.log(...a)
 const die = (code, ...a) => { console.error(...a); process.exit(code) }
 
 const R = 6371008.8
@@ -129,9 +136,38 @@ async function loadShade(hour) {
     if (slot) byWay.set(r.id, slot.shadowRatio)
   }
   if (!byWay.size) die(2, `그늘 표에 ${hour}시 칸이 없습니다. 있는 시각: ${hours?.join(', ') ?? '(모름)'}`)
+
+  // ── 🔴 --trees: 가로수를 얹는다 (S15P21E201-1221) ────────────────────────
+  //
+  // 길의 그늘은 나뭇잎 + 건물 그림자다. 둘 다 "노면이 덮이는 비율 0~1" 이라
+  // 같은 자로 잰 값이고, 그래서 더할 수 있는 모양이 됐다.
+  //
+  // 🔴 **더하지 않고 max() 를 쓴다.** 나무 그늘과 건물 그림자는 같은 노면에
+  //    겹쳐 지는 일이 흔한데, 더하면 그 겹친 몫을 두 번 세서 없는 그늘이 생긴다.
+  //    독립으로 보고 1-(1-a)(1-b) 로 합치는 방법도 있지만 그건 겹침이 없다고
+  //    가정하는 것이라 max() 보다 언제나 크다. 과대평가는 사람을 뙤약볕으로
+  //    보내고 과소평가는 그 반대라 손해가 작다 — 그래서 낮은 쪽으로 기운다.
+  //    (process/shadow.mjs 가 층높이에서 같은 이유로 낮은 쪽을 골랐다.)
+  let trees = null
+  if (WITH_TREES) {
+    const tf = path.join(STAGED, 'segment-shade.ndjson')
+    if (!fs.existsSync(tf)) die(2, `가로수 표가 없습니다: ${tf}\n  먼저 node process/shade.mjs 를 돌리세요.`)
+    let n = 0, raised = 0, onlyTree = 0
+    for await (const r of readNdjson(tf)) {
+      const t = r.treeShadeRatio
+      if (typeof t !== 'number') continue
+      n++
+      const b = byWay.get(r.id)
+      if (b == null) { byWay.set(r.id, t); onlyTree++ }
+      else if (t > b) { byWay.set(r.id, t); raised++ }
+    }
+    if (!n) die(2, `가로수 표에 treeShadeRatio 가 없습니다: ${tf}\n  process/shade.mjs 를 다시 돌리세요 (S15P21E201-1221 이후 판이어야 합니다).`)
+    trees = { 가로수가있는구간: n, 가로수가더큰구간: raised, 건물그림자가없던구간: onlyTree, 합치는법: 'max(건물그림자, 가로수)' }
+  }
+
   const vals = [...byWay.values()]
   const mean = vals.reduce((a, b) => a + b, 0) / vals.length
-  return { byWay, mean, hours, count: byWay.size }
+  return { byWay, mean, hours, count: byWay.size, trees }
 }
 
 async function buildGraph(bbox, shade) {
@@ -320,7 +356,11 @@ async function main() {
     from: from.evidence, to: to.evidence,
     snap: { startM: +s.distM.toFixed(1), goalM: +g.distM.toFixed(1) },
     graph: { nodes: graph.nodes.size, ways: graph.ways.size, bbox },
-    shadeTable: { segments: shade.count, hoursAvailable: shade.hours, knownMean: +shade.mean.toFixed(4) },
+    shadeTable: {
+      segments: shade.count, hoursAvailable: shade.hours, knownMean: +shade.mean.toFixed(4),
+      재료: WITH_TREES ? '건물 그림자 + 가로수' : '건물 그림자만',
+      ...(shade.trees ? { 가로수: shade.trees } : {}),
+    },
     unknownPolicy: '그늘을 모르는 구간은 아는 구간들의 평균을 쓴다 — 끌지도 밀지도 않게. 경로마다 모름 비율을 함께 낸다.',
     curve: rows,
     headline: {
@@ -332,7 +372,7 @@ async function main() {
     },
   }
   fs.mkdirSync(STAGED, { recursive: true })
-  fs.writeFileSync(path.join(STAGED, `shade-route-${HOUR}.json`), JSON.stringify(out, null, 2))
+  fs.writeFileSync(path.join(STAGED, `shade-route-${HOUR}${SUFFIX}.json`), JSON.stringify(out, null, 2))
 
   const geo = {
     type: 'FeatureCollection',
@@ -347,15 +387,15 @@ async function main() {
         geometry: { type: 'LineString', coordinates: r.coords },
       })),
   }
-  fs.writeFileSync(path.join(STAGED, `shade-route-${HOUR}.geojson`), JSON.stringify(geo))
+  fs.writeFileSync(path.join(STAGED, `shade-route-${HOUR}${SUFFIX}.geojson`), JSON.stringify(geo))
 
   log('')
   log(`최단거리 ${out.headline.baselineKm}km · 그늘 ${out.headline.baselineShadePct}%`)
   log(`그늘 우선 ${(best.lengthM / 1000).toFixed(3)}km · 그늘 ${out.headline.maxShadePct}%`)
   log(`→ ${best.extraM}m(${best.extraPct}%) 더 걸어 그늘을 ${best.shadeGainPoint}%p 더 얻는다`)
   log('')
-  log(`썼습니다  ${path.join(STAGED, `shade-route-${HOUR}.json`)}`)
-  log(`          ${path.join(STAGED, `shade-route-${HOUR}.geojson`)}`)
+  log(`썼습니다  ${path.join(STAGED, `shade-route-${HOUR}${SUFFIX}.json`)}`)
+  log(`          ${path.join(STAGED, `shade-route-${HOUR}${SUFFIX}.geojson`)}`)
 }
 
 main().catch((e) => { console.error('치명:', e); process.exit(1) })

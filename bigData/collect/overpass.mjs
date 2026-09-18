@@ -23,6 +23,7 @@
 import { writeFile, readFile, mkdir, stat } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { log } from '../lib/log.mjs'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const OUT  = join(ROOT, 'data/raw/overpass')
@@ -118,7 +119,6 @@ const TOPICS = {
 }
 
 const sleep = ms => new Promise(r => setTimeout(r, ms))
-const log = (...a) => console.log(new Date().toISOString().slice(11, 19), ...a)
 
 async function exists(p) { try { const s = await stat(p); return s.size > 0 } catch { return false } }
 

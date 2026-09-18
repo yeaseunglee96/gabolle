@@ -20,7 +20,7 @@ import { createInterface } from 'node:readline'
 
 export const EXIT = { OK: 0, INVARIANT: 1, INPUT: 2 }
 
-export const log = (...a) => console.log(new Date().toISOString().slice(11, 19), ...a)
+export { log } from '../lib/log.mjs'
 
 /** 반경(m). 경사와 같은 값이다 — 두 축이 다른 동네를 보면 비교가 안 된다. */
 export const RADIUS_DEFAULT = 200

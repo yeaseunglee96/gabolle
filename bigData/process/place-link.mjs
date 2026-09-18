@@ -48,6 +48,7 @@ import { existsSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { stamp } from '../mlops/manifest.mjs'
+import { log } from '../lib/log.mjs'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const PERMITS = join(ROOT, 'data/staged/permits-wgs84.ndjson')
@@ -66,7 +67,6 @@ const NEAR_METERS = 100
  */
 const MIN_SBIZ_FOOD_LINK_RATE = 0.20
 
-const log = (...a) => console.log(new Date().toISOString().slice(0, 19), ...a)
 
 function splitCsv(line) {
   const out = []

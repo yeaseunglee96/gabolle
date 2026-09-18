@@ -66,6 +66,7 @@ import { createInterface } from 'node:readline'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { stamp } from '../mlops/manifest.mjs'
+import { log } from '../lib/log.mjs'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const SEG = join(ROOT, 'data/staged/segment-slope.ndjson')
@@ -82,7 +83,6 @@ const RADIUS_M = argIdx > 0 ? Number(process.argv[argIdx + 1]) : 200
 /** 반경 안 보행로 총 길이가 이만큼도 안 되면 값을 만들지 않는다. */
 const MIN_LENGTH_M = 150
 
-const log = (...a) => console.log(new Date().toISOString().slice(11, 19), ...a)
 
 /**
  * 🔴 대조군 — 이것이 어긋나면 반경이나 가중이 틀린 것이다.

@@ -64,12 +64,14 @@ import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { decodePNG, terrariumToElevation } from './png.mjs'
 import { openGeoTIFF, ELEV_MIN, ELEV_MAX } from './geotiff.mjs'
+import { log, setQuiet } from '../lib/log.mjs'
 
 const ROOT  = join(dirname(fileURLToPath(import.meta.url)), '..')
 const DEM   = join(ROOT, 'data/raw/dem')            // terrarium z15 png
 const GLO   = join(ROOT, 'data/raw/dem-glo30')      // Copernicus GLO-30 COG
 const OUT   = join(ROOT, 'data/staged')
 const QUIET = process.argv.includes('--quiet')
+setQuiet(QUIET)
 
 const ZOOM = 15, TILE = 256, ARC = 3600             // ARC = 1도당 격자 수 (1초)
 
@@ -100,7 +102,6 @@ const KEEP_REAL = 0.60
 //    "혹 후보" 와 견주려면 `narrow` 까지 보면 된다.
 const WIDTH_BUMP = 600
 
-const log = (...a) => { if (!QUIET) console.log(new Date().toISOString().slice(11, 19), ...a) }
 const rad = d => d * Math.PI / 180
 
 // ── terrarium: 웹메르카토르 z15 전역 픽셀 좌표 ────────────────────────────

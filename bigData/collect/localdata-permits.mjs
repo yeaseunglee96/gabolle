@@ -147,6 +147,7 @@ import { existsSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { stamp } from '../mlops/manifest.mjs'
+import { log } from '../lib/log.mjs'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const OUT = join(ROOT, 'data/raw/permits')
@@ -214,7 +215,6 @@ const DRY = ARGV.includes('--dry-run')
 const FORCE = ARGV.includes('--force')
 const ONLY = (ARGV.find((a) => a.startsWith('--only=')) || '').slice(7).split(',').filter(Boolean)
 
-const log = (...a) => console.log(new Date().toISOString().slice(0, 19), ...a)
 
 /** 39개 칸의 헤더. 받은 파일이 이것과 다르면 규격이 바뀐 것이므로 멈춘다. */
 const EXPECTED_HEADER_FIRST = '개방자치단체코드'

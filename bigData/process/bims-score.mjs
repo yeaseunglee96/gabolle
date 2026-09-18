@@ -25,6 +25,7 @@ import { existsSync, createReadStream } from 'node:fs'
 import { createInterface } from 'node:readline'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { log } from '../lib/log.mjs'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const OUT  = join(ROOT, 'data/staged/_bims-route-score.json')
@@ -115,7 +116,6 @@ const W = { touristStop: 35, poi: 25, focus: 15, headway: 15, hours: 10 }
 
 /* ═══════════════════════════════════════════════════════════════════════════ */
 
-const log = (...a) => console.log(new Date().toISOString().slice(11, 19), ...a)
 const need = async p => { if (!existsSync(p)) return false; return (await stat(p)).size > 0 }
 
 /** 위경도 → 미터. 이 규모(수백 m)에서는 등장방형 근사로 충분하다. */

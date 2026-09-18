@@ -53,6 +53,7 @@ import { existsSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { stamp } from '../mlops/manifest.mjs'
+import { log } from '../lib/log.mjs'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const OUT = join(ROOT, 'data/raw/tourapi')
@@ -153,7 +154,6 @@ const CONTENT_TYPES = [
   [39, '음식점'],
 ]
 
-const log = (...a) => console.log(new Date().toISOString().slice(0, 19), ...a)
 
 /** 🔴 키를 절대 로그·산출물에 찍지 않는다. */
 const redact = (s) => String(s).replace(/serviceKey=[^&\s]*/gi, 'serviceKey=<가림>')
