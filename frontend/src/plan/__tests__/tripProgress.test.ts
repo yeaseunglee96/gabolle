@@ -138,14 +138,22 @@ describe('「지금」은 오늘만의 것', () => {
    * 🔴 `toISOString()` 은 **UTC** 날짜다. 한국은 UTC+9 라 **오전 9시 전에는 하루 전**이고,
    * 그러면 아침에 「지금」 카드가 사라진다 — 하필 사람들이 일정을 시작하는 시간이다.
    * 실제로 이 화면에서 그렇게 났다.
+   *
+   * 🔴 **이 시험을 처음엔 시간대에 기대게 썼다가 CI 에서 빨개졌다.** 우리 러너는 UTC 라
+   * 「UTC 와 지역이 다르다」가 거기서는 거짓이다. 그래서 둘로 나눈다 —
+   * 앞의 둘은 어느 시간대에서도 참이고, 마지막 하나는 **UTC 가 아닌 기계에서만** 잰다.
    */
   it('🔴 새벽에도 오늘은 오늘이다 — UTC 가 아니라 그 지역 날짜로 센다', () => {
-    // 한국 시각 2026-10-03 새벽 3시. 같은 순간의 UTC 는 아직 10-02 다.
-    const koreanEarlyMorning = new Date(2026, 9, 3, 3, 13, 0);
-    expect(koreanEarlyMorning.toISOString().slice(0, 10)).not.toBe('2026-10-03');
+    // 지역 시각 2026-10-03 새벽 3시 13분. 어느 시간대에서 만들어도 그 지역 날짜는 10-03 이다.
+    const earlyMorning = new Date(2026, 9, 3, 3, 13, 0);
 
-    expect(localDateKey(koreanEarlyMorning)).toBe('2026-10-03');
-    expect(isToday('2026-10-03', localDateKey(koreanEarlyMorning))).toBe(true);
+    expect(localDateKey(earlyMorning)).toBe('2026-10-03');
+    expect(isToday('2026-10-03', localDateKey(earlyMorning))).toBe(true);
+
+    // UTC 기계(우리 CI)에서는 둘이 같아서 잴 것이 없다. 개발자 기계(한국)에서 잰다.
+    if (earlyMorning.getTimezoneOffset() !== 0) {
+      expect(localDateKey(earlyMorning)).not.toBe(earlyMorning.toISOString().slice(0, 10));
+    }
   });
 
   it('한 자리 달·일에 0 을 채운다 — 「2026-9-3」 은 안 맞는다', () => {
