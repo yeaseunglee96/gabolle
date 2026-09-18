@@ -100,6 +100,36 @@ public record BaselineEngineProperties(
 		public Weights {
 			distance = defaultIfNull(distance, 0.30);
 			interest = defaultIfNull(interest, 0.20);
+			// 🔴 S15P21E201-1254 — 이 0.15 는 **지금 언제나 0 을 기여한다.** 일부러 그대로 둔다.
+			//
+			//    2026-09-18 운영 실측:
+			//      사람이 고른 분위기  35명 (RELAXED 17 · SENTIMENTAL 11 · ROMANTIC 4 · LIVELY 1 +겹침 2)
+			//      장소 쪽 ATMOSPHERE_TAG                        0행
+			//      추천 후보 7,688건 중 atmosphere 가 0보다 큰 것  0건
+			//
+			//    35명이 답했는데 짝지을 장소가 한 곳도 없다. 그래서 사장님이 여행지 추천
+			//    흐름에서 분위기 문항을 빼기로 정했다 —「리뷰가 많이 쌓였을 때 다시 하자」.
+			//
+			//    ── 🔴 그러니 이 숫자를 고치려 들지 마라. 길이 둘인데 둘 다 나쁘다 ──────
+			//
+			//    (1) 0.15 를 다른 조각에 나눠 주기 — **순위를 실제로 바꾸는 변경**이다.
+			//        지금 추천이 어떻게 달라지는지 아무도 안 본 상태이고, 분위기를 다시
+			//        켤 때 비중을 되돌리는 일이 또 생긴다.
+			//
+			//    (2) 🔴 조용함 점수로 채우기 — QUIETNESS_SCORE 가 2,681곳에 있어서
+			//        「조용하면 RELAXED」로 붙일 수 있다. **그런데 조용함은 이미 자기 축
+			//        (preferenceAlignment 안의 QUIETNESS)으로 점수에 들어간다.** 분위기까지
+			//        같은 재료로 채우면 조용함이 사실상 0.25 가 된다 — 같은 값을 두 번 세는
+			//        것이고, 그 사실은 어느 화면에도 안 나타난다.
+			//
+			//    ── 그대로 두는 것이 안전한 이유 ────────────────────────────────────
+			//
+			//    빠진 항은 **모든 후보에서 똑같이** 빠진다. 총점은 작아져도 순위는 안 바뀐다.
+			//    자리를 비워 두면 리뷰가 쌓여 분위기를 다시 켤 때 되돌릴 것이 없다.
+			//
+			//    🔴 서버에서 ATMOSPHERE 차원 자체는 안 지웠다. 이미 배포된 앱이 아직 보내고
+			//    (preference_answer 의 CHECK 에서 빼면 그 요청들이 거부된다), 쌓인 답 35건을
+			//    지울 이유도 없다 — 다시 켤 때 그대로 쓴다.
 			atmosphere = defaultIfNull(atmosphere, 0.15);
 			cuisine = defaultIfNull(cuisine, 0.15);
 			preferenceAlignment = defaultIfNull(preferenceAlignment, 0.10);
