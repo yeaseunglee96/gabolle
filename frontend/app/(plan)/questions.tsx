@@ -7,13 +7,24 @@
 // 🔴 **출발지·날짜·인원은 다시 묻지 않는다.** 홈의 시작 바에서 받았다. 위의 칩 줄로만
 //    보여 주고, 고치려면 그 화면으로 돌아간다.
 //
-// 🔴 마지막 「이 조건으로 일정 만들기」는 **확인 화면으로 보낸다.** 그 화면이 건강 관련
-//    조건 동의를 받는 자리라, 여기서 건너뛰면 동의 없이 일정이 만들어진다.
+// 🔴 2026-09-18 (S15P21E201-1245) — 마지막 단추가 **확인 화면(/plan/confirm)으로 보내던 것을
+//    여기서 바로 만드는 것으로 바꿨다.** 시안에 확인 화면이 없다. 시안의 흐름은
+//    홈 → /plan → /plan/generating → 추천 요약 → 일정 이고, 사이에 확인 단계가 없다.
+//
+//    확인 화면이 하던 일 둘을 여기로 가져온다:
+//      · 일정 생성 요청 보내기
+//      · 알레르기·식단을 쓰려면 필요한 동의(HEALTH_CONSTRAINTS)를 받고 다시 보내기
+//    미확인 조건이 남아 있으면 조건 모달을 띄운다 — 옛 확인 화면의 빨간 줄이 하던 몫이다.
 import { useMemo, useRef, useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
+import { ApiClientError } from '@/api/client';
+import { useAuth } from '@/auth/AuthProvider';
+import { updateMyConsents } from '@/auth/authApi';
 import { Button } from '@/components/Button';
+import { ConditionsPromptModal } from '@/plan/ConditionsPromptModal';
+import { createRecommendationJobAdapter, type RecommendationJobSnapshot } from '@/plan/recommendationJob';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
@@ -138,6 +149,9 @@ export default function PlanConditions() {
   const { tx, language } = useI18n();
   const { kind } = useLayout();
   const { draft, ready, update, completeStep } = usePlan();
+  const { user, accessToken } = useAuth();
+  const [job, setJob] = useState<RecommendationJobSnapshot | null>(null);
+  const [conditionsOpen, setConditionsOpen] = useState(false);
   const ko = language !== 'en';
   const [state, setState] = useState<QuestionState>(INITIAL_QUESTION_STATE);
   // 🔴 자동 스크롤은 아직 안 넣었다. 화면 껍데기(Screen)가 스크롤 손잡이를 밖으로
@@ -149,6 +163,41 @@ export default function PlanConditions() {
   const done = settledCount(draft, state);
   const left = remainingCount(draft, state);
   const finished = allSettled(draft, state);
+
+  // 🔴 미확인 필수 조건(알레르기·식단)이 남아 있나. 옛 확인 화면이 재던 것과 같은 식이다 —
+  //    「모르면 안전하다고 치지 않는다」가 이 앱의 방침이라, 비운 채로 만들지 않는다.
+  const hardUnknown = draft.allergyStatus === 'UNKNOWN' || draft.dietStatus === 'UNKNOWN'
+    || (draft.allergyStatus === 'VALUES' && !draft.allergies.length)
+    || (draft.dietStatus === 'VALUES' && !draft.dietTypes.length);
+
+  const goGenerating = (jobId: string) => router.push({ pathname: '/plan/generating', params: { jobId } });
+
+  const submitPlan = async () => {
+    // 미확인이 남았으면 **막지 않고 그 자리에서 묻는다.** 막기만 하면 물어볼 데가 없어
+    // 영영 못 만드는 상태가 된다 — 오늘 오전에 실제로 그랬다.
+    if (hardUnknown) { setConditionsOpen(true); return; }
+    if (!user) { router.push({ pathname: '/sign-in', params: { returnTo: '/plan' } }); return; }
+    setJob({ state: 'submitting', jobId: null, progress: null, stage: null, canCancel: false, errorMessage: null, resultRef: null });
+    const next = await createRecommendationJobAdapter(accessToken).submit(draft);
+    setJob(next);
+    if (next.jobId) goGenerating(next.jobId);
+  };
+
+  // S15P21E201-549(백엔드) — 알레르기·필수 식단이 든 요청은 HEALTH_CONSTRAINTS 동의 없이 403 이다.
+  // 동의를 켜고 **같은 조건으로 곧바로 다시** 보낸다. 방금 다 답한 사람에게 단추를 한 번 더
+  // 누르게 하지 않는다. 옛 확인 화면에 있던 코드를 그대로 옮긴 것이다.
+  const grantHealthConsentAndRetry = async () => {
+    if (!accessToken) return;
+    try {
+      await updateMyConsents(accessToken, { HEALTH_CONSTRAINTS: true });
+      setJob({ state: 'submitting', jobId: null, progress: null, stage: null, canCancel: false, errorMessage: null, resultRef: null });
+      const next = await createRecommendationJobAdapter(accessToken).submit(draft);
+      setJob(next);
+      if (next.jobId) goGenerating(next.jobId);
+    } catch (cause) {
+      setJob({ state: 'failed', jobId: null, progress: null, stage: null, canCancel: false, errorMessage: cause instanceof ApiClientError ? cause.message : tx('동의 처리에 실패했어요. 잠시 후 다시 시도해 주세요.', 'Could not save your consent. Please try again shortly.'), resultRef: null });
+    }
+  };
   const headerSummary = useMemo(() => summarizeStartBar({
     origin: draft.origin, originLat: draft.originLat, originLng: draft.originLng,
     startDate: draft.startDate, endDate: draft.endDate,
@@ -379,15 +428,34 @@ export default function PlanConditions() {
         {finished ? (
           <View style={styles.finish}>
             <Text variant="title" weight="bold">{tx('다 됐어요. 이 조건으로 일정을 만들까요?', 'All set — shall we build your itinerary?')}</Text>
-            <Button label={tx('이 조건으로 일정 만들기', 'Build my itinerary')} onPress={() => router.push('/plan/confirm')} />
+            {hardUnknown ? (
+              <Text variant="caption" color={color.state.danger}>{tx('알레르기·식단을 아직 안 알려주셨어요. 눌러서 알려주세요.', 'We still need your allergy and diet answers — tap to add them.')}</Text>
+            ) : null}
+            {job?.state === 'consent-required' && job.requiredConsent === 'HEALTH_CONSTRAINTS' ? (
+              <View style={styles.consent}>
+                <Text accessibilityRole="alert" variant="caption" weight="bold">{tx('알레르기·식단 정보 사용에 동의가 필요해요', 'We need your consent to use allergy/diet info')}</Text>
+                <Text variant="caption" color={color.text.body}>{tx('입력하신 조건으로 안전한 곳만 고르려면 이 정보를 써야 해요.', 'We need this information to pick places that are safe for you.')}</Text>
+                <Button label={tx('동의하고 계속', 'Agree and continue')} variant="ghost" onPress={() => void grantHealthConsentAndRetry()} />
+              </View>
+            ) : null}
+            {job?.errorMessage && job.state !== 'consent-required' ? (
+              <Text accessibilityRole="alert" variant="caption" color={color.state.danger}>{job.errorMessage}</Text>
+            ) : null}
+            <Button
+              accessibilityState={{ busy: job?.state === 'submitting' }}
+              label={job?.state === 'submitting' ? tx('만드는 중…', 'Building…') : tx('이 조건으로 일정 만들기', 'Build my itinerary')}
+              onPress={() => void submitPlan()}
+            />
           </View>
         ) : null}
+        <ConditionsPromptModal visible={conditionsOpen} reprompt onClose={() => setConditionsOpen(false)} />
       </Screen>
     
   );
 }
 
 const styles = StyleSheet.create({
+  consent: { gap: spacing[2], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.state.warningBg },
   // 🔴 시안의 본문 폭은 1200 이다 (PlanFlow.dc.html). Screen 의 wide 는 1440 이라 240px 넓다 (S15P21E201-1245).
   canvas: { maxWidth: 1200 },
   header: { gap: spacing[2], marginTop: spacing[6] },

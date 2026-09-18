@@ -10,7 +10,6 @@ import type { StartBarValue } from '@/home/startBarValue';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Text } from '@/components/Text';
-import { GettingStartedGuide } from '@/components/GettingStartedGuide';
 import { GabolleMascot } from '@/components/DongbaekMascot';
 import { HeroStories, MyTripCard, PlacePicks, WeatherLine } from '@/home/HomeBlocks';
 import { useHomeData } from '@/home/useHomeData';
@@ -25,7 +24,6 @@ import { useAuth } from '@/auth/AuthProvider';
 const logo = require('../assets/brand/gabolle-logo-hd.png');
 const nightLogo = require('../assets/brand/gabolle-logo-night.png');
 const welcomeImage = require('../assets/images/welcome-busan.png');
-const webHeroImage = require('../assets/home/web-hero.png');
 // 🔴 국기는 유니코드 그림문자(🇰🇷)가 아니라 실제 이미지를 쓴다 — 윈도우 브라우저는
 // 국가 그림문자를 정책적으로 지원하지 않아 KR·US 같은 두 글자로 떨어진다(S15P21E201-1109).
 // 폰트로는 못 고치는 문제라 flagcdn.com 국기 그림을 내려받아 assets/flags 에 넣었다.
@@ -168,42 +166,39 @@ export default function Welcome() {
     {/* 배경 사진을 되살린다 (S15P21E201-970). 시안 1a 를 옮기면서 오른쪽 영상을 기록 카드로
         바꿨는데, 그때 배경까지 통째로 걷어내서 네이비 단색 판이 됐다. 사진은 남기되 글자가
         읽히도록 네이비를 덮는다 — 덮개가 없으면 흰 글자가 하늘·물빛 위에서 안 읽힌다. */}
-    <View style={styles.heroSection}>
-      {/* 🔴 ImageBackground 를 쓰지 않는다. RN 웹에서는 안쪽 사진이 **제 원본 크기(1536×672)**
-          그대로 왼쪽 위에 앉아서, 칸이 그보다 넓으면 오른쪽이 빈 네이비로 남았다(배포본에서
-          95px, 2026-09-15 실측). 절대배치로 네 변을 칸에 묶고 cover 로 채운다 — 이러면 폭이
-          얼마든 사진이 칸을 덮고 넘치는 쪽만 잘린다. */}
-      <Image source={webHeroImage} resizeMode="cover" style={styles.heroPhoto} />
-      <View style={styles.heroBackdrop} />
-      <View style={styles.heroCopy}><View style={styles.heroInner}>
-        <View style={styles.heroBadge}><Text variant="caption" weight="bold" color={color.text.onAction}>AI TRAVEL PLANNER · BUSAN</Text></View>
-        <Text variant="hero" weight="bold" color={color.text.onAction} style={styles.heroTitle}>{tx(`부산의 모든 여행,\n가볼래?`, `Every side of Busan,\nyours to explore.`)}</Text>
-        <Text variant="body" color="rgba(255,255,255,0.78)" style={styles.heroDescription}>{tx('취향과 이동 조건을 반영해 당신만의 부산 여행을 만들어요.', 'Build a Busan trip around your taste and mobility needs.')}</Text>
-        {/* S15P21E201-900: "부산 축제 보기" CTA는 최초 배포에서 뺐다 — 축제 기간 자료가
-            전부 만료돼 눌러도 빈 화면이 나온다. /festivals 라우트는 그대로 있다. */}
-        {/* 🔴 시안 p0 의 시작 바 (S15P21E201-1233). 출발지·날짜·인원을 여기서 받아
-            조건 화면으로 넘긴다. 아래 「여행 계획 시작하기」는 **아직 남긴다** —
-            바를 채우지 않고 바로 들어가려는 사람의 길이다. */}
+    {/* 🔴 시안 p0 (PlanFlow.dc.html) — **사진 히어로가 없다.** 아이보리 바탕에 제목과
+        시작 바를 **가운데** 세우고, 그 아래로 내용 줄을 전폭으로 쌓는다.
+
+        걷어낸 것: 광안대교 사진 · 네이비 덮개 · 왼쪽 560px 칸 · 오른쪽 기록 칸 ·
+        「AI TRAVEL PLANNER · BUSAN」 배지 · 「여행 계획 시작하기」·「피드 둘러보기」 단추 ·
+        「맞춤 일정」·「설명 가능한 추천」 칩. **시안에 하나도 없다** (S15P21E201-1245).
+
+        사진을 걷어내면 글자가 흰색일 이유도 없어진다 — 색을 기본(짙은 남색)으로 되돌린다. */}
+    <View style={styles.headerSection}>
+      <View style={styles.headerInner}>
+        {/* 🔴 색을 반드시 적는다. `hero` 변형의 기본색은 **흰색**이라(사진 위에 얹던 시절의
+            기본값) 아이보리 바탕에서는 글자가 통째로 안 보인다 — 2026-09-18 화면을 띄워
+            보고 찾았다. 타입도 시험도 안 잡는다. 프로필 카드에서도 같은 일이 났었다. */}
+        <Text variant="hero" weight="bold" color={color.text.heading} style={styles.headerTitle}>{tx('부산의 모든 여행, 가볼래?', 'Every side of Busan, yours to explore.')}</Text>
+        <Text variant="body" color={color.text.muted} style={styles.headerSubtitle}>{tx('언제, 누구와, 어떻게 다닐지만 알려주세요. 일정은 가볼래가 짜요.', 'Just tell us when, with whom and how you travel — we build the itinerary.')}</Text>
         <View style={styles.startBar}>
           <PlanStartBar wide accessToken={accessToken} onSubmit={startPlanFromBar} />
         </View>
-        <View style={styles.heroActions}>
-          <Pressable accessibilityRole="button" accessibilityHint={tx('로그인 없이 여행 조건 입력을 시작합니다.', 'Start entering trip details without signing in.')} onPress={startPlanning} style={styles.primaryCta}><Text variant="body" weight="bold" color={color.text.onAction}>{tx('여행 계획 시작하기', 'Start planning')}</Text></Pressable>
-          {/* 🔴 피드는 아직 로그인해야 볼 수 있다 — 서버가 익명 출입증을 받아 주지 않는다
-              (운영에서 /api/v1/stories 가 401). 로그인 안 했으면 로그인으로 보낸다. */}
-          <Pressable accessibilityRole="link" onPress={() => router.push('/feed')} style={styles.ghostCta}><Text variant="body" weight="bold" color={color.text.onAction}>{tx('피드 둘러보기 →', 'Browse the feed →')}</Text></Pressable>
+        {/* 🔴 「처음 오셨나요? 사용법 보기」는 뺐다 (2026-09-18 사용자 지시).
+            시안 p0 에는 날씨 줄 오른쪽에 그 링크가 있지만, 첫 화면에서 안내부터 권하지 않기로 했다.
+            안내 화면(/help)은 그대로 있고 마이페이지에서 들어간다. */}
+        <View style={styles.headerMeta}>
+          <WeatherLine forecast={home.weather} />
         </View>
-        {/* S15P21E201-900: "지금 갈 곳" 칩도 CTA와 같은 이유로 뺐다 — 지금 갈 곳 진입점을
-            숨겨 놓고 이 문구만 남기면 약속하는 것과 실제가 어긋난다(MR !708 리뷰 코멘트). */}
-        <View style={styles.heroChips}><HeroChip dot={color.state.success} label={tx('맞춤 일정', 'Tailored itinerary')} /><HeroChip dot={color.state.rating} label={tx('설명 가능한 추천', 'Explainable picks')} /></View>
-        <WeatherLine forecast={home.weather} />
-        <GettingStartedGuide />
-      </View></View>
-      {/* 히어로 오른쪽은 영상이었다. 로그인해도 본문이 그대로라 「내 것이 하나도 없다」는
-          문제가 여기서 시작됐다 — 그 자리에 지금 올라온 기록을 넣는다 (S15P21E201-970).
-          🔴 비로그인에게도 보여준다. 익명 출입증으로 공개 글은 그대로 온다. */}
-      <HeroStories stories={home.stories} chips={home.chips} signedIn={home.signedIn} />
+      </View>
     </View>
+
+    {/* 시안의 내용 줄 — 전폭으로 쌓는다. 히어로 오른쪽에 끼워 넣지 않는다.
+        🔴 로그인 안 해도 남의 기록이 보인다 (S15P21E201-76, 진미리). */}
+    <View style={styles.rows}>
+      <HeroStories stories={home.stories} chips={home.chips} />
+    </View>
+
     {/* 두 블록이 다 비면(장소를 못 받았고 로그인도 안 했으면) 구역을 통째로 접는다 —
         안 그러면 아무것도 없는 여백 띠만 남아 화면이 고장난 것처럼 보인다. */}
     {home.places.length > 0 || user ? (
@@ -249,7 +244,6 @@ function LanguageFlag({ item, selected, onPress }: { item: LanguageOption; selec
   </Pressable>;
 }
 function NavItem({ label, onPress }: { label: string; onPress: () => void }) { return <Pressable accessibilityRole="link" onPress={onPress} style={styles.navItem}><Text variant="caption" weight="medium">{label}</Text></Pressable>; }
-function HeroChip({ dot, label }: { dot: string; label: string }) { return <View style={styles.heroChip}><View style={[styles.chipDot, { backgroundColor: dot }]} /><Text variant="caption" color="rgba(255,255,255,0.78)">{label}</Text></View>; }
 
 const styles = StyleSheet.create({
   webShell: { flex: 1, backgroundColor: color.brand.ivory },
@@ -286,11 +280,8 @@ const styles = StyleSheet.create({
   //    섹션 밖으로 흘러 **아래 구역을 덮는다** — 배포본에서 실제로 「부산 둘러보기」와
   //    「내 여행」 글자가 사진에 가렸다(섹션 546 · 사진 672 · 126 초과, 2026-09-15 실측).
   //    덮개는 섹션 크기라 그 초과분에는 닿지도 않아 사진이 날것으로 보였다.
-  heroSection: { flexDirection: 'row', alignItems: 'stretch', overflow: 'hidden', backgroundColor: color.brand.navy },
   // 사진 위 덮개. 0.78 이면 흰 글자가 읽히면서 광안대교 윤곽이 남는다 — 1.0 이면 사진이
   // 있으나 마나이고, 0.5 근처면 제목이 하늘빛에 묻힌다.
-  heroPhoto: { ...StyleSheet.absoluteFill, width: '100%', height: '100%' },
-  heroBackdrop: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(11,29,58,0.78)' },
   // 🔴 가운데로 세운다 (S15P21E201-1099). 히어로는 두 칸을 나란히 놓고 `alignItems: 'stretch'`
   // 라서 **높은 쪽이 전체 높이를 정한다.** 로그아웃일 때는 이 왼쪽 칸이 높이를 정해 딱 맞는데,
   // 로그인하면 오른쪽에 기록 카드(실측 359px)가 들어와 오른쪽이 높이를 정한다. 그러면 왼쪽에
@@ -298,10 +289,17 @@ const styles = StyleSheet.create({
   // 아래 여백 64 → 111). 가운데로 세우면 그 남는 만큼이 위아래로 나뉜다(95 / 87).
   //
   // 남는 공간이 없을 때는 아무 일도 안 한다 — 그래서 로그아웃 화면은 지금과 똑같다.
-  heroCopy: { width: 560, paddingLeft: 80, paddingRight: 40, paddingTop: 72, paddingBottom: 64, justifyContent: 'center' }, heroInner: { width: '100%' }, heroBadge: { alignSelf: 'flex-start', borderWidth: 1, borderColor: 'rgba(255,255,255,0.20)', borderRadius: radius.full, backgroundColor: 'rgba(255,255,255,0.10)', paddingHorizontal: spacing[4], paddingVertical: 6 }, heroTitle: { marginTop: 28, fontSize: 68, lineHeight: 71, letterSpacing: -2.4 }, heroDescription: { marginTop: 28, fontSize: 18, lineHeight: 29 }, startBar: { width: '100%', maxWidth: 860, marginTop: 28 }, heroActions: { flexDirection: 'row', gap: spacing[4], marginTop: 28 }, primaryCta: { minHeight: 52, borderRadius: radius.full, backgroundColor: color.brand.orange, paddingHorizontal: 40, alignItems: 'center', justifyContent: 'center' }, ghostCta: { minHeight: 52, borderRadius: radius.full, borderWidth: 1, borderColor: 'rgba(255,255,255,0.3)', paddingHorizontal: spacing[6], alignItems: 'center', justifyContent: 'center' }, heroChips: { flexDirection: 'row', gap: spacing[3], marginTop: 20 }, heroChip: { flexDirection: 'row', alignItems: 'center', gap: 6, borderRadius: radius.full, backgroundColor: 'rgba(255,255,255,0.07)', paddingHorizontal: 14, paddingVertical: 6 }, chipDot: { width: 6, height: 6, borderRadius: radius.full },
   // 「특별한 기능」 카드 셋이 있던 자리다. 로그인해도 내용이 안 바뀌는 소개였고, 그 자리에
   // 장소와 내 여행이 들어왔다 (S15P21E201-970).
-  lowerSection: { flexDirection: 'row', alignItems: 'flex-start', gap: 40, paddingHorizontal: 80, paddingTop: 48, paddingBottom: 64, maxWidth: 1440, width: '100%', alignSelf: 'center' },
+  lowerSection: { gap: 40, paddingHorizontal: 80, paddingTop: 8, paddingBottom: 64, maxWidth: 1200, width: '100%', alignSelf: 'center' },
+  // 🔴 시안 p0 의 머리 — 아이보리 바탕에 가운데 정렬. 본문 폭은 1200 이다.
+  headerSection: { width: '100%', backgroundColor: color.brand.ivory, paddingTop: 56, paddingBottom: 32, paddingHorizontal: 40, alignItems: 'center' },
+  headerInner: { width: '100%', maxWidth: 1200, alignItems: 'center' },
+  headerTitle: { textAlign: 'center' },
+  startBar: { width: '100%', maxWidth: 900, alignItems: 'center' },
+  headerSubtitle: { marginTop: spacing[2], marginBottom: spacing[6], textAlign: 'center' },
+  headerMeta: { marginTop: spacing[6], gap: spacing[3], alignItems: 'center' },
+  rows: { width: '100%', maxWidth: 1200, alignSelf: 'center', paddingHorizontal: 80, paddingTop: 24 },
   webAssistantButton: { position: 'absolute', right: spacing[8], bottom: spacing[8], minWidth: 64, minHeight: 64, flexDirection: 'row', alignItems: 'center', zIndex: 20 },
   webAssistantLabel: { minWidth: 210, gap: spacing[1], marginRight: -spacing[3], paddingLeft: spacing[6], paddingRight: spacing[8], paddingVertical: spacing[3], borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.full, backgroundColor: color.surface.card, shadowColor: color.brand.navy, shadowOpacity: 0.16, shadowRadius: 12, shadowOffset: { width: 0, height: 5 }, elevation: 5 },
   webAssistantMascot: { width: 84, height: 84 },

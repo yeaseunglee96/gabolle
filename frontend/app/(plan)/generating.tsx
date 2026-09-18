@@ -205,7 +205,7 @@ export default function Generating() {
   });
   const printedHeight = ticketReveal.interpolate({ inputRange: [0, 1], outputRange: [0, 620] });
   return <Screen scroll wide style={styles.canvas}>
-    {kind === 'phone' && <View style={styles.mobileTop}><Pressable accessibilityRole="button" accessibilityLabel={tx('조건 확인으로 돌아가기', 'Back to trip review')} onPress={() => router.replace('/plan/confirm')} style={styles.back}><Text variant="title">‹</Text></Pressable><BrandLogoLink imageStyle={styles.logo} /><View style={styles.stepPill}><Text variant="caption" weight="bold" color={color.brand.ivory}>{tx('생성', 'Generate')}</Text></View></View>}
+    {kind === 'phone' && <View style={styles.mobileTop}><Pressable accessibilityRole="button" accessibilityLabel={tx('조건 확인으로 돌아가기', 'Back to trip review')} onPress={() => router.replace('/plan')} style={styles.back}><Text variant="title">‹</Text></Pressable><BrandLogoLink imageStyle={styles.logo} /><View style={styles.stepPill}><Text variant="caption" weight="bold" color={color.brand.ivory}>{tx('생성', 'Generate')}</Text></View></View>}
     <View style={[styles.layout, kind !== 'phone' && styles.layoutWide]}>
       {!(kind === 'phone' && job.state === 'completed') && <View style={[styles.statusPanel, kind !== 'phone' && styles.statusWide]}>
         <View style={styles.aiBadge}><View style={[styles.pulse, isWorking && styles.pulseActive]} /><Text variant="caption" weight="bold" color={color.brand.orange}>{job.state === 'completed' ? tx('AI 일정 완성', 'AI itinerary ready') : failed ? tx('일정 생성 실패', 'Itinerary generation failed') : tx('AI 일정 생성 중', 'Creating your itinerary')}</Text></View>
@@ -216,7 +216,7 @@ export default function Generating() {
             단계 이름은 완료된 뒤에는 정보가 아니라 거짓이다 — 위의 단계 목록이 이미 전부
             "완료" 라고 말하고 있고, 그 옆에서 다른 말을 하면 사용자는 덜 끝난 쪽을 믿는다. */}
         {job.progress !== null && !failed && job.state !== 'completed' && <View style={styles.progressBlock}><View style={styles.progressTrack}><View style={[styles.progressFill, { width: `${job.progress}%` }]} /></View><Text variant="caption" color={color.brand.orange}>{stageLabel(job.stage, tx) ?? tx('요청 접수', 'Request received')} · {job.progress}%</Text></View>}
-        {failed && <Button label={tx('조건 다시 확인하기', 'Review trip details')} onPress={() => router.replace('/plan/confirm')} variant="accent" />}
+        {failed && <Button label={tx('조건 다시 확인하기', 'Review trip details')} onPress={() => router.replace('/plan')} variant="accent" />}
       </View>}
       <View style={styles.ticketArea}>
         {/* 🔴 시안 TripPassCard 로 바꿨다 (S15P21E201-1233). 전에는 이 자리에 영수증을

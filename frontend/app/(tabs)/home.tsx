@@ -31,7 +31,6 @@ import { BrandLogoLink } from '@/components/BrandLogoLink';
 import { GabolleMascot } from '@/components/DongbaekMascot';
 import { PlaceVisual } from '@/components/PlaceVisual';
 import { Screen } from '@/components/Screen';
-import { GettingStartedGuide } from '@/components/GettingStartedGuide';
 import { TabBar } from '@/components/TabBar';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
@@ -47,7 +46,6 @@ import { relativeStoryTime } from '@/social/stories';
 
 const bellIcon = require('../../assets/icons/home/bell.png');
 const heartIcon = require('../../assets/icons/home/heart.png');
-const speakerIcon = require('../../assets/icons/common/speaker.png');
 
 export default function Home() {
   const router = useRouter();
@@ -190,90 +188,28 @@ export default function Home() {
         </View>
 
         {/* ── 히어로 ── */}
-        <GettingStartedGuide />
         <View style={styles.hero}>
-          <View style={styles.heroBadge}><Text variant="caption" weight="bold" color={color.brand.orange}>AI TRAVEL PLANNER · BUSAN</Text></View>
           <Text weight="bold" color={color.brand.navy} style={styles.heroTitle}>{tx('부산의 모든 여행,\n가볼래?', 'Every side of Busan,\nyours to explore.')}</Text>
-          <Text>{tx('취향과 이동 조건을 반영해 당신만의 부산 여행을 만들어요.', 'Build a Busan trip around your taste and mobility needs.')}</Text>
           {/* 🔴 시안 p0 의 시작 바 (S15P21E201-1233). 출발지·날짜·인원을 여기서 받아
               조건 화면으로 넘긴다. 여행지는 안 묻는다 — 부산 고정이다. */}
           <PlanStartBar wide={false} accessToken={accessToken} onSubmit={startPlanFromBar} />
 
-          {/* 현장 도구 — 로그인 없이도 쓸 수 있다(확인함). 챗봇 버튼과 화면 반대편이라
-              「겹쳐 보인다」는 리포트가 다시 나지 않는다.
-
-              두 번째 카드가 「메뉴판 번역」이었다 — S15P21E201-981. 메뉴판 카메라 번역은
-              번역 API 업체가 안 정해져 이번 배포에서 통째로 뺐는데(-907, 2026-09-13) 홈의
-              버튼만 남아 있었다. 누르면 메뉴판 번역이 없는 현장 도구 화면으로 간다. 없는
-              기능을 이름으로 약속하는 것이 링크가 죽은 것보다 나쁘다 — 사용자는 자기가 길을
-              잘못 찾았다고 생각한다. 가는 곳(`/field/translate`)의 실제 제목으로 맞춘다.
-              업체가 정해져 그 기능이 생기면 그때 이름을 되돌린다.
-
-              🔴 「통역」카드는 지웠다 — 사용자 리포트. `/field/speak`(장소별 한국어 문장)가
-              이미 「현장 도구」(`/field/translate`) 목록의 항목 중 하나라서, 둘을 나란히 두면
-              같은 기능이 입구가 둘로 보였다. 하나만 남기면 `fieldTool` 이 flex:1 이라 저절로
-              한 줄을 다 채운다 — 스타일은 그대로 둔다. */}
-          <View style={styles.fieldTools}>
-            {[
-              { path: '/field/translate', ko: '현장 도구', en: 'On-the-go tools', subKo: '한국어 문장·날씨', subEn: 'Phrases and weather' },
-            ].map((tool) => (
-              <Pressable key={tool.path} accessibilityRole="button" onPress={() => router.push(tool.path)} style={({ pressed }) => [styles.fieldTool, pressed && styles.pressed]}>
-                <View style={styles.fieldToolIcon}><Image source={speakerIcon} resizeMode="contain" style={styles.fieldToolIconImage} /></View>
-                <View style={styles.fieldToolCopy}>
-                  <Text weight="bold" numberOfLines={1}>{tx(tool.ko, tool.en)}</Text>
-                  <Text variant="caption" numberOfLines={1}>{tx(tool.subKo, tool.subEn)}</Text>
-                </View>
-              </Pressable>
-            ))}
-          </View>
+          {/* 🔴 「현장 도구」 카드를 뺐다 (2026-09-18 지시). 화면(/field/translate)과
+              챗봇의 진입점은 그대로 있다 — 이 카드만 안 그린다. */}
         </View>
 
-        {/* ── 로컬 탐색 (옛 로컬 탐색 바 자리) ──
-            🔴 2026-09-15 에 기록 피드 **아래**에서 여기로 올렸다. 로컬 탐색으로 가는 길이 이
-            칩과 챗봇 둘뿐인데(하단 탭에도 데스크톱 상단 바에도 없다) 스크롤해야 보이는 자리에
-            있어서 사실상 숨어 있었다. 제목도 「갈래로 찾기」라 눌렀을 때 어디로 가는지 알 수
-            없었다 — 목적지 이름을 그대로 적는다. 탭·상단 바로 꺼내는 것은 내비게이션 구조를
-            건드리는 일이라 디자인 재작업 뒤로 미뤘다(S15P21E201-989). */}
-        {home.chips.length ? (
-          <View style={styles.section}>
-            <View style={styles.sectionHead}>
-              <Text variant="title" weight="bold">{tx('로컬 탐색', 'Explore locally')}</Text>
-              <Pressable accessibilityRole="link" onPress={() => router.push('/explore')}><Text weight="bold" color={color.brand.navy}>{tx('전체 →', 'See all →')}</Text></Pressable>
-            </View>
-            {/* 칩 글자만으로는 무엇을 하는 곳인지 모른다 — 한 줄로 적어 둔다. */}
-            <Text variant="caption" style={styles.sectionSub}>{tx('축제·전통시장·야경처럼 갈래로 부산을 둘러봐요.', 'Browse Busan by festivals, markets, night views and more.')}</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.rail}>
-              {home.chips.map((chip) => (
-                <Pressable key={chip.featureKey} accessibilityRole="link" onPress={() => router.push({ pathname: '/explore', params: { facet: chip.featureKey } })} style={({ pressed }) => [styles.chip, pressed && styles.pressed]}>
-                  <Text weight="medium" color={color.text.heading}>{localFacetLabel(chip, language)}</Text>
-                </Pressable>
-              ))}
-            </ScrollView>
-          </View>
-        ) : null}
-
+        {/* 🔴 순서: **피드가 먼저, 로컬 탐색이 그다음**이다 (2026-09-18 지시).
+            넓은 화면도 같은 순서다(HomeBlocks 의 HeroStories 가 기록 다음에 칩을 그린다). */}
         {/* ── 지금 부산에서 남긴 기록 ── */}
         <View style={styles.section}>
           <View style={styles.sectionHead}>
             <Text variant="eyebrow" weight="bold">{tx('지금 부산에서 남긴 기록', 'Just shared in Busan')}</Text>
-            {signedIn ? (
-              <Pressable accessibilityRole="link" onPress={() => router.push('/feed')}><Text weight="bold" color={color.brand.navy}>{tx('피드 전체 →', 'See all →')}</Text></Pressable>
-            ) : null}
+            <Pressable accessibilityRole="link" onPress={() => router.push('/feed')}><Text weight="bold" color={color.brand.navy}>{tx('피드 전체 →', 'See all →')}</Text></Pressable>
           </View>
 
-          {/* 🔴 로그인 안 한 사람에게 「아직 기록이 없어요」라고 하면 거짓말이다 — 기록은 있는데
-              서버가 익명에게는 안 준다(스토리 조회가 401). 못 보는 이유를 그대로 적는다. */}
-          {!signedIn ? (
-            <View style={styles.signInCard}>
-              <GabolleMascot state="thinking" style={styles.signInMascot} />
-              <View style={styles.signInCopy}>
-                <Text>{tx('다른 여행자들이 남긴 기록은 로그인하면 볼 수 있어요.', 'Sign in to see what other travelers shared.')}</Text>
-                <Pressable accessibilityRole="button" onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: '/home' } })} style={({ pressed }) => [styles.signInButton, pressed && styles.pressed]}>
-                  <Text weight="bold" color={color.text.onAction}>{tx('로그인하고 보기', 'Sign in to view')}</Text>
-                </Pressable>
-              </View>
-            </View>
-          ) : home.stories === null ? (
+          {/* 🔴 로그인 여부로 가리지 않는다 (S15P21E201-76, 진미리). 스토리 조회가 익명
+              출입증에 열렸다 — 2026-09-18 운영에서 실측(X-Session-Token 으로 200). */}
+          {home.stories === null ? (
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.rail}>
               {[0, 1, 2].map((slot) => <View key={slot} style={[styles.storyCard, styles.storySkeleton]} />)}
             </ScrollView>
@@ -304,6 +240,31 @@ export default function Home() {
             </ScrollView>
           )}
         </View>
+
+        {/* ── 로컬 탐색 (옛 로컬 탐색 바 자리) ──
+            🔴 2026-09-15 에 기록 피드 **아래**에서 여기로 올렸다. 로컬 탐색으로 가는 길이 이
+            칩과 챗봇 둘뿐인데(하단 탭에도 데스크톱 상단 바에도 없다) 스크롤해야 보이는 자리에
+            있어서 사실상 숨어 있었다. 제목도 「갈래로 찾기」라 눌렀을 때 어디로 가는지 알 수
+            없었다 — 목적지 이름을 그대로 적는다. 탭·상단 바로 꺼내는 것은 내비게이션 구조를
+            건드리는 일이라 디자인 재작업 뒤로 미뤘다(S15P21E201-989). */}
+        {home.chips.length ? (
+          <View style={styles.section}>
+            <View style={styles.sectionHead}>
+              <Text variant="title" weight="bold">{tx('로컬 탐색', 'Explore locally')}</Text>
+              <Pressable accessibilityRole="link" onPress={() => router.push('/explore')}><Text weight="bold" color={color.brand.navy}>{tx('전체 →', 'See all →')}</Text></Pressable>
+            </View>
+            {/* 칩 글자만으로는 무엇을 하는 곳인지 모른다 — 한 줄로 적어 둔다. */}
+            <Text variant="caption" style={styles.sectionSub}>{tx('축제·전통시장·야경처럼 갈래로 부산을 둘러봐요.', 'Browse Busan by festivals, markets, night views and more.')}</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.rail}>
+              {home.chips.map((chip) => (
+                <Pressable key={chip.featureKey} accessibilityRole="link" onPress={() => router.push({ pathname: '/explore', params: { facet: chip.featureKey } })} style={({ pressed }) => [styles.chip, pressed && styles.pressed]}>
+                  <Text weight="medium" color={color.text.heading}>{localFacetLabel(chip, language)}</Text>
+                </Pressable>
+              ))}
+            </ScrollView>
+          </View>
+        ) : null}
+
 
         {/* ── 부산 둘러보기 (하트가 여기로 옮겨 왔다) ── */}
         {home.places.length ? (
@@ -417,11 +378,6 @@ const styles = StyleSheet.create({
   heroTitle: { fontSize: 36, lineHeight: 42, letterSpacing: -0.3 },
   primaryCta: { minHeight: 52, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full, backgroundColor: color.brand.orange, marginTop: spacing[1] },
 
-  fieldTools: { flexDirection: 'row', gap: spacing[2] },
-  fieldTool: { flex: 1, minHeight: 48, flexDirection: 'row', alignItems: 'center', gap: spacing[2], paddingHorizontal: 14, borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.surface.card },
-  fieldToolIcon: { width: 28, height: 28, borderRadius: radius.sm, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.tint },
-  fieldToolIconImage: { width: 16, height: 16 },
-  fieldToolCopy: { flex: 1, minWidth: 0 },
 
   section: { gap: spacing[3], paddingTop: spacing[8] },
   sectionPadded: { gap: spacing[3], paddingTop: spacing[8], paddingHorizontal: spacing[6] },
@@ -439,10 +395,6 @@ const styles = StyleSheet.create({
   storyCoverEmptyText: { textAlign: 'center' },
   storyBody: { gap: spacing[1], paddingHorizontal: spacing[4], paddingTop: spacing[3], paddingBottom: spacing[4] },
 
-  signInCard: { flexDirection: 'row', alignItems: 'center', gap: spacing[3], marginHorizontal: spacing[6], padding: spacing[4], borderRadius: radius.lg, borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.surface.card },
-  signInMascot: { width: 64, height: 64 },
-  signInCopy: { flex: 1, gap: spacing[2] },
-  signInButton: { alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.brand.navy },
 
   chip: { minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.surface.soft },
 
