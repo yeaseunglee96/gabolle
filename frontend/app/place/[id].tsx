@@ -8,6 +8,7 @@ import { sendAppEvent } from '@/analytics/appEvents';
 import { useAuth } from '@/auth/AuthProvider';
 import { BrandLogoLink } from '@/components/BrandLogoLink';
 import { Button } from '@/components/Button';
+import { PhotoSubjectBadge } from '@/components/PhotoSubjectBadge';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
@@ -141,14 +142,20 @@ export default function Place() {
             <Animated.View style={[StyleSheet.absoluteFill, { opacity: heroReveal, transform: [{ scale: heroReveal.interpolate({ inputRange: [0, 1], outputRange: [1.04, 1] }) }] }]}>
               <ImageBackground source={{ uri: resolved.apiPlace.photoUrl }} resizeMode="cover" style={styles.heroFill} imageStyle={styles.heroImage} onLoad={() => setHeroLoaded(true)} onError={() => setHeroLoaded(true)}>
                 <View style={styles.shade} />
+                <View style={styles.shadeLow} />
+                <View style={styles.shadeLower} />
+                <View style={styles.shadeLowest} />
                 <View style={styles.heroCopy}>
-                  <Text variant="display" weight="bold" color={color.text.onAction}>{resolved.title}</Text>
-                  <Text color={color.text.onAction}>{resolved.subtitle}</Text>
+                  <Text variant="display" weight="bold" color={color.text.onAction} style={styles.heroText}>{resolved.title}</Text>
+                  <Text color={color.text.onAction} style={styles.heroText}>{resolved.subtitle}</Text>
                   {hasLocalityScore(resolved.apiPlace) ? (
                     <View style={styles.scoreBadge}><Text variant="caption" weight="bold" color={color.text.onAction}>{tx('로컬 점수 있음', 'Has locality score')}</Text></View>
                   ) : null}
+                  {/* 🔴 사진이 이 장소를 찍은 것이 아니면 그렇게 말한다 — S15P21E201-1206.
+                      여태 축제 화면만 말하고 여기는 아무 말도 안 했다. */}
+                  <PhotoSubjectBadge photoSubject={resolved.apiPlace.photoSubject} style={styles.subjectBadge} />
                   {resolved.apiPlace.photoSource ? (
-                    <Text variant="caption" color={color.text.onAction} style={styles.photoCredit}>{tx(`사진 제공: ${resolved.apiPlace.photoSource}`, `Photo: ${resolved.apiPlace.photoSource}`)}</Text>
+                    <Text testID="place-photo-credit" variant="caption" color={color.text.onAction} style={[styles.photoCredit, styles.heroText]}>{tx(`사진 제공: ${resolved.apiPlace.photoSource}`, `Photo: ${resolved.apiPlace.photoSource}`)}</Text>
                   ) : null}
                 </View>
               </ImageBackground>
@@ -224,11 +231,16 @@ export default function Place() {
         ) : null}
         </View>
         <View style={wide ? styles.asideColumn : undefined}>
+        {/* 🔴 사용자 리포트 — 버튼 네 개가 전폭으로 세로로 쌓여 가독성이 떨어졌다. 2열 그리드로
+            바꿔 화면을 덜 차지하면서 한눈에 들어오게 한다. Button 컴포넌트 자체(26곳에서 쓴다)는
+            그대로 두고, 이 화면의 containerStyle 폭만 절반으로 좁힌다 — Button.tsx 상단 주석이
+            경고하는 "containerStyle 로 배경색을 흉내내는" 것과는 다르다(폭은 바깥 껍데기의
+            레이아웃일 뿐, 안쪽 Pressable 의 색과 부딪히지 않는다). */}
         <View style={styles.actions}>
-          <Button label={isSaved ? tx('내 여행 후보에서 빼기', 'Remove from candidates') : tx('내 여행 후보에 저장', 'Save to candidates')} variant="ghost" onPress={() => void toggleSaved()} />
-          <Button label={tx('한국어로 말하기', 'Speak Korean')} onPress={() => setPhraseModalOpen(true)} containerStyle={styles.speakAction} />
-          {taxiPlaceId ? <Button label={tx('리뷰 보기', 'See reviews')} variant="ghost" onPress={() => router.push(`/place-reviews/${taxiPlaceId}`)} /> : null}
-          {taxiPlaceId ? <Button label={tx('택시 기사에게 보여주기', 'Show to a taxi driver')} onPress={() => router.push(`/taxi-card/${taxiPlaceId}`)} containerStyle={styles.speakAction} /> : null}
+          <Button label={isSaved ? tx('내 여행 후보에서 빼기', 'Remove from candidates') : tx('내 여행 후보에 저장', 'Save to candidates')} variant="ghost" onPress={() => void toggleSaved()} containerStyle={styles.actionHalf} />
+          <Button label={tx('한국어로 말하기', 'Speak Korean')} onPress={() => setPhraseModalOpen(true)} containerStyle={styles.actionHalf} />
+          {taxiPlaceId ? <Button label={tx('리뷰 보기', 'See reviews')} variant="ghost" onPress={() => router.push(`/place-reviews/${taxiPlaceId}`)} containerStyle={styles.actionHalf} /> : null}
+          {taxiPlaceId ? <Button label={tx('택시 기사에게 보여주기', 'Show to a taxi driver')} onPress={() => router.push(`/taxi-card/${taxiPlaceId}`)} containerStyle={styles.actionHalf} /> : null}
           {feedback ? <Text accessibilityLiveRegion="polite" color={color.text.body} style={styles.feedback}>{feedback}</Text> : null}
         </View>
         </View>
@@ -265,18 +277,35 @@ const styles = StyleSheet.create({
   heroImage: { borderRadius: radius.lg },
   heroPlaceholder: { backgroundColor: color.surface.soft },
   heroPlain: { backgroundColor: color.brand.navy, padding: spacing[4] },
-  shade: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(8, 27, 53, 0.25)' },
+  // 🔴 S15P21E201-1203 — 예전엔 사진 전체에 25% 를 균일하게 깔았다. 그런데 글자는 전부
+  //    아래쪽에 모여 있다 — 위는 필요 없이 어두워지고, 아래는 글자를 띄울 만큼 어두워지지
+  //    않았다. 사진 속에 글자가 들어 있으면(축제 현수막 같은 것) 그 위에서 뭉개졌다.
+  //
+  //    expo-linear-gradient 를 들이면 네이티브 모듈이 늘어 빌드 구성이 달라진다.
+  //    그만한 일이 아니라 반투명 층을 겹쳐 근사한다 — 아래로 갈수록 누적되어 짬어진다.
+  shade: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(8, 27, 53, 0.18)' },
+  shadeLow: { position: 'absolute', left: 0, right: 0, bottom: 0, height: '70%', backgroundColor: 'rgba(8, 27, 53, 0.16)' },
+  shadeLower: { position: 'absolute', left: 0, right: 0, bottom: 0, height: '45%', backgroundColor: 'rgba(8, 27, 53, 0.18)' },
+  shadeLowest: { position: 'absolute', left: 0, right: 0, bottom: 0, height: '24%', backgroundColor: 'rgba(8, 27, 53, 0.22)' },
+  // 사진이 어떤 색이든 글자 윤곽이 서게 한다. 능짐 안 가리면서 가장 확실하다.
+  heroText: { textShadowColor: 'rgba(8, 27, 53, 0.9)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 6 },
   heroCopy: { gap: spacing[1], padding: spacing[4] },
+  subjectBadge: { marginTop: spacing[2] },
   scoreBadge: { alignSelf: 'flex-start', marginTop: spacing[2], borderRadius: radius.full, paddingHorizontal: spacing[3], paddingVertical: spacing[1], backgroundColor: 'rgba(255,255,255,0.18)' },
-  photoCredit: { marginTop: spacing[1], opacity: 0.8 },
+  // 🔴 opacity 0.8 을 뽑았다 (S15P21E201-1203). 이 줄은 공공누리 이용 조건이라
+  //    읽힐 수 있어야 한다 — 지켜야 하는 표기를 일부러 흐리게 할 이유가 없다.
+  photoCredit: { marginTop: spacing[1] },
   infoRows: { marginTop: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card, overflow: 'hidden' },
   infoRow: { minHeight: 52, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[3], paddingHorizontal: spacing[4], borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: color.surface.border },
   safetyNotice: { gap: spacing[1], marginTop: spacing[4], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.state.dangerBg },
   safetyConfirmed: { gap: spacing[1], marginTop: spacing[4], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.state.successBg },
   notice: { gap: spacing[3], marginTop: spacing[4], padding: spacing[4], borderWidth: 1, borderColor: color.surface.border, borderRadius: radius.lg, backgroundColor: color.surface.card },
   noticeCopy: { lineHeight: 22 },
-  actions: { gap: spacing[3], marginTop: spacing[4] }, wideGrid: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[6] }, mainColumn: { flex: 1, minWidth: 0 }, asideColumn: { width: 320 },
-  feedback: { textAlign: 'center' },
-  speakAction: { backgroundColor: color.brand.navy },
+  actions: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[3], marginTop: spacing[4] }, wideGrid: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[6] }, mainColumn: { flex: 1, minWidth: 0 }, asideColumn: { width: 320 },
+  // 🔴 두 버튼씩 한 줄에 앉힌다(사용자 리포트 — 네 개가 세로로 쌓여 읽기 어려웠다).
+  //    flexBasis 로 최소 폭을 잡고 flexGrow 로 남는 자리를 채운다 — 홀수 개(리뷰·택시 버튼이
+  //    없는 장소)일 때도 마지막 버튼이 어색하게 반쪽만 남지 않고 자연스럽게 늘어난다.
+  actionHalf: { flexBasis: '46%', flexGrow: 1 },
+  feedback: { textAlign: 'center', width: '100%' },
   recoveryButton: { marginTop: spacing[2] },
 });

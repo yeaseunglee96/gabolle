@@ -1,6 +1,10 @@
 // 저장한 장소 — home.tsx 캐러셀의 하트·장소 상세의 "내 여행 후보에 저장"이 쓰는 것과
 // 같은 AsyncStorage 키(gabolle.saved-home-places, place/[id].tsx 에서 내보냄)를 읽어
 // 실제 목록을 보여준다. 전에는 이 키를 아예 안 읽고 항상 빈 상태만 보여주고 있었다.
+// 🔴 언어 다섯을 다 받는다 (S15P21E201-1109). 이 함수가 'ko' | 'en' 만 받으면 부르는 쪽
+// 열다섯 곳이 각자 떨어뜨려야 하고, 한 곳만 빠뜨리면 일본어 사용자가 한국어 이름을 본다.
+// 떨어뜨리는 일은 **여기 한 자리**에서 한다.
+import { resolveTextLanguage, type LanguageCode } from '@/i18n/languages';
 import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Image, Pressable, StyleSheet, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -24,7 +28,7 @@ type SavedCard = { placeId: string; title: string; subtitle: string; image: numb
 // place/[id].tsx와 같은 place/features 데이터를 쓰므로, 상세 화면에 이미 있던 두 배지
 // (로컬 점수 유무·알레르기 확인 필요)를 목록 카드에도 그대로 옮긴다 — 데모 장소는
 // features 자체가 없어 둘 다 자연히 꺼진 채로 남는다(지어내지 않는다).
-async function resolveSavedPlace(placeId: string, tx: (ko: string, en: string) => string, language: 'ko' | 'en'): Promise<SavedCard | null> {
+async function resolveSavedPlace(placeId: string, tx: (ko: string, en: string) => string, language: LanguageCode): Promise<SavedCard | null> {
   if (placeId in DEMO_PLACES) {
     const demo = DEMO_PLACES[placeId as keyof typeof DEMO_PLACES];
     return { placeId, title: tx(demo.titleKo, demo.titleEn), subtitle: tx(demo.subtitleKo, demo.subtitleEn), image: demo.image, hasLocalityScore: false, needsFoodSafetyCheck: false };

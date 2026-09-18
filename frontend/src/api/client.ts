@@ -32,15 +32,39 @@ export class ApiClientError extends Error {
   }
 }
 
+/**
+ * 요청이 **서버에 닿지도 못했을 때** 던진다.
+ *
+ * 🔴 {@link cause} 를 반드시 채운다 (S15P21E201-1187).
+ *
+ * 예전에는 `fetch` 가 던진 것을 `catch {}` 로 통째로 버리고 이 사람 말만 남겼다.
+ * 그래서 2026-09-17 안드로이드 실기기에서 사진 업로드가 100% 실패했을 때,
+ * 화면에는 「서버에 연결할 수 없어요」만 뜨고 **왜인지는 아무 데도 안 남았다.**
+ * 서버 기록에도 요청이 없어서(네트워크까지 가지 못했으므로) 양쪽 어디를 봐도
+ * 단서가 없었다 — 릴리스 빌드라 앱 로그도 못 본다.
+ *
+ * 사람에게 보여 줄 말은 그대로 두고, **원인 문자열을 따로 들고 다닌다.**
+ * 부르는 쪽이 그것을 뒤에 붙여 보여 줄지는 각자 정한다. 사진 업로드처럼
+ * 「왜 안 되는지」가 곧 제보 내용이 되는 자리는 붙여 준다.
+ */
 export class ApiUnavailableError extends ApiClientError {
   constructor(
     message = apiLanguage === 'en'
       ? 'The server is unavailable. Please try again shortly.'
       : '서버에 연결할 수 없어요. 잠시 후 다시 시도해 주세요.',
+    /** `fetch` 가 던진 것을 짧게 줄인 말. 원인을 못 알아냈으면 null. */
+    public readonly cause: string | null = null,
   ) {
     super(message, 'NETWORK_ERROR', 0);
     this.name = 'ApiUnavailableError';
   }
+}
+
+/** 던져진 것에서 사람이 읽을 수 있는 한 줄을 뽑는다. 길면 자른다. */
+export function describeThrown(error: unknown): string | null {
+  if (error instanceof Error && error.message) return error.message.slice(0, 160);
+  if (typeof error === 'string' && error) return error.slice(0, 160);
+  return null;
 }
 
 // 🔴 S15P21E201-1081 — 「서버가 잠깐 못 받는다」와 「이 기능이 아직 없다」를 가르는 자리.
@@ -221,10 +245,11 @@ async function performRequest<T>(path: string, options: RequestOptions, isRetry:
       },
       body: body === undefined ? undefined : body instanceof FormData ? body : JSON.stringify(body),
     });
-  } catch {
+  } catch (error) {
     if (timedOut) throw new ApiClientError('서버 응답이 늦어 요청을 마쳤어요. 잠시 후 다시 시도해 주세요.', 'REQUEST_TIMEOUT', 0);
     setApiUnavailable(true);
-    throw new ApiUnavailableError();
+    // 🔴 원인을 버리지 않는다 (S15P21E201-1187). 자세한 이유는 ApiUnavailableError 참고.
+    throw new ApiUnavailableError(undefined, describeThrown(error));
   } finally {
     clearTimeout(timeout);
     requestOptions.signal?.removeEventListener('abort', abortFromCaller);
@@ -264,6 +289,13 @@ async function performRequest<T>(path: string, options: RequestOptions, isRetry:
 
   const envelope = (await response.json()) as ApiEnvelope<T>;
   if (!response.ok || envelope.error || envelope.data === null) {
+    // 🔴 S15P21E201-1200 — 「이 기능은 열쇠가 없다」는 5xx 는 **서버가 죽은 것이 아니다.**
+    //
+    // 위에서 5xx 를 보고 이미 「서버에 연결할 수 없어요」 배너를 켜 놓았다. 그 판단은
+    // 본문을 읽기 전이라 상태 숫자밖에 모른다. 본문을 읽고 나서야 이 둘이 갈린다 —
+    // 바깥 업체 열쇠가 안 꽂힌 것과, 서버가 진짜로 안 돌아가는 것.
+    // 앞에 걸린 배너를 여기서 내린다. 같은 순간 다른 API 는 전부 200 이다.
+    if ((envelope.error?.code ?? '').endsWith('_VENDOR_NOT_CONFIGURED')) setApiUnavailable(false);
     throw new ApiClientError(
       envelope.error?.message ?? '요청을 처리하지 못했어요.',
       envelope.error?.code ?? 'REQUEST_FAILED',

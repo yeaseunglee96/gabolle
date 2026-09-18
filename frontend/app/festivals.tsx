@@ -3,10 +3,12 @@ import { Image, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { ApiClientError } from '@/api/client';
+import { AddPlaceToItineraryModal } from '@/components/AddPlaceToItineraryModal';
 import { BrandLogoLink } from '@/components/BrandLogoLink';
 import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
+import { useAuth } from '@/auth/AuthProvider';
 import { maskDateInput } from '@/plan/inputMasks';
 import { Eyebrow } from '@/components/Eyebrow';
 import { color, radius, spacing } from '@/design/tokens';
@@ -29,12 +31,16 @@ export default function Festivals() {
   const router = useRouter();
   const { tx } = useI18n();
   const { width } = useLayout();
+  const { accessToken } = useAuth();
   const [from, setFrom] = useState(() => dateInputValue());
   const [to, setTo] = useState(() => dateInputValue(30));
   const [sort, setSort] = useState<SortMode>('soon');
   const [festivals, setFestivals] = useState<Festival[]>([]);
   const [state, setState] = useState<'loading' | 'ready' | 'error'>('loading');
   const [errorMessage, setErrorMessage] = useState('');
+  // S15P21E201-467 — 이 축제를 내 일정에 더한다. 로그인 안 했으면 모달을 열지 않고
+  // 바로 로그인으로 보낸다 — 모달 안에서 물어도 결국 로그인해야 하는 것은 같다.
+  const [addPlaceId, setAddPlaceId] = useState<string | null>(null);
   const dateValid = ISO_DATE.test(from) && ISO_DATE.test(to) && from <= to;
 
   const load = useCallback(async () => {
@@ -70,7 +76,7 @@ export default function Festivals() {
     <View style={[styles.filterCard, isAtLeast(width, 'md') && styles.filterCardWide]}>
       <View style={styles.dateField}><Text variant="caption" weight="bold">{tx('시작일', 'Start date')}</Text><TextInput accessibilityLabel={tx('축제 조회 시작일', 'Festival search start date')} value={from} onChangeText={(value) => setFrom(maskDateInput(value))} keyboardType="number-pad" placeholder="YYYY-MM-DD" maxLength={10} style={[styles.input, !dateValid && styles.inputError]} /></View>
       <View style={styles.dateField}><Text variant="caption" weight="bold">{tx('종료일', 'End date')}</Text><TextInput accessibilityLabel={tx('축제 조회 종료일', 'Festival search end date')} value={to} onChangeText={(value) => setTo(maskDateInput(value))} keyboardType="number-pad" placeholder="YYYY-MM-DD" maxLength={10} style={[styles.input, !dateValid && styles.inputError]} /></View>
-      <Button label={tx('이 기간으로 조회', 'Search this period')} disabled={!dateValid || state === 'loading'} onPress={() => void load()} containerStyle={[styles.searchButton, styles.primaryAction]} />
+      <Button label={tx('이 기간으로 조회', 'Search this period')} disabled={!dateValid || state === 'loading'} onPress={() => void load()} containerStyle={styles.searchButton} />
       {!dateValid && <Text accessibilityRole="alert" variant="caption" color={color.state.danger}>{tx('숫자만 입력하면 되고, 시작일이 종료일보다 빨라야 해요.', 'Type digits only — the start date must come before the end date.')}</Text>}
     </View>
 
@@ -100,9 +106,13 @@ export default function Festivals() {
           </View>
           <Text variant="title" weight="bold">{tx(festivalDisplayTitle(festival), festival.nameEn ?? festivalDisplayTitle(festival))}</Text><Text color={color.text.body}>{festival.address}</Text><Text variant="caption" color={color.text.muted}>{formatFeatureSlot(festival.priceLevel, tx) ?? tx('입장료 정보 확인 필요', 'Admission fee info not available yet')}</Text>
           {festival.photoUrl && photo.credit && <Text variant="caption" color={color.text.muted}>{photo.credit}</Text>}
+          <Pressable accessibilityRole="button" onPress={() => accessToken ? setAddPlaceId(festival.placeId) : router.push({ pathname: '/sign-in', params: { returnTo: '/festivals' } })} style={({ pressed }) => [styles.addButton, pressed && styles.pressed]}>
+            <Text variant="caption" weight="bold" color={color.brand.orange}>{tx('+ 내 일정에 추가', '+ Add to my itinerary')}</Text>
+          </Pressable>
         </View>
       </View>;
     })}</View>}
+    <AddPlaceToItineraryModal visible={addPlaceId != null} placeId={addPlaceId ?? ''} onClose={() => setAddPlaceId(null)} />
   </Screen>;
 }
 
@@ -113,7 +123,6 @@ const styles = StyleSheet.create({
   heading: { gap: spacing[2], marginTop: spacing[4], marginBottom: spacing[6] },
   filterCard: { gap: spacing[3], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card }, filterCardWide: { flexDirection: 'row', alignItems: 'flex-end', flexWrap: 'wrap' },
   dateField: { flex: 1, minWidth: 180, gap: spacing[1] }, input: { minHeight: 48, paddingHorizontal: spacing[3], borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.md, color: color.text.heading, backgroundColor: color.brand.ivory }, inputError: { borderColor: color.state.danger }, searchButton: { minWidth: 180, width: undefined },
-  primaryAction: { backgroundColor: color.brand.navy },
   sortRow: { flexDirection: 'row', gap: spacing[2], marginVertical: spacing[4] }, sortButton: { minHeight: 40, justifyContent: 'center', paddingHorizontal: spacing[4], borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.full, backgroundColor: color.surface.card }, sortSelected: { borderColor: color.brand.orange, backgroundColor: color.brand.orange },
   stateCard: { gap: spacing[3], padding: spacing[6], borderRadius: radius.lg, backgroundColor: color.surface.card },
   sampleNotice: { marginBottom: spacing[3], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.state.warningBg },
@@ -121,4 +130,5 @@ const styles = StyleSheet.create({
   cardTopRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   sampleBadge: { paddingHorizontal: spacing[2], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: color.surface.tint },
   photoBadge: { position: 'absolute', top: spacing[2], left: spacing[2], paddingHorizontal: spacing[2], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: 'rgba(11,29,58,0.78)' },
+  addButton: { alignSelf: 'flex-start', minHeight: 36, justifyContent: 'center', paddingHorizontal: spacing[3], marginTop: spacing[1], borderRadius: radius.full, borderWidth: 1, borderColor: color.brand.orange },
 });

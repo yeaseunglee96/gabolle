@@ -46,7 +46,7 @@ function today() {
  *
  * 서버에 "사진 있는 것만" 거르는 조회가 없어서 넉넉히 받아 여기서 고른다.
  */
-function pickHeroStories(items: StoryDto[]): StoryDto[] {
+export function pickHeroStories(items: StoryDto[]): StoryDto[] {
   const withImage = items.filter((item) => item.images.length > 0);
   const rest = items.filter((item) => item.images.length === 0);
   return [...withImage, ...rest].slice(0, HERO_STORY_COUNT);
@@ -124,13 +124,12 @@ export type HomePlaceItem = Omit<NearbyPlaceItem, 'distanceM'> & { distanceM?: n
 export function useHomeData(enabled = true): HomeData {
   const { accessToken } = useAuth();
 
-  // 🔴 로그인했을 때만 부른다. 운영에서 실제로 불러 보니 **익명 출입증으로는
-  //    `GET /api/v1/stories` 가 401** 이다(날씨도 같다). 익명 인증이 통과하는 것과 그 경로가
-  //    익명을 허용하는 것은 다르다. 안 부르면 될 것을 불러서 401 을 쌓지 않는다.
+  // S15P21E201-974·995로 목록과 상세 모두 익명 출입증에 열렸다.
+  // 회원 전환 전후에 공개 범위가 다르므로 캐시는 분리한다.
   const signedIn = Boolean(accessToken);
   const storiesQuery = useQuery({
-    queryKey: ['home', 'stories'],
-    enabled: enabled && signedIn,
+    queryKey: ['home', 'stories', signedIn ? 'member' : 'guest'],
+    enabled,
     queryFn: () => loadFeed({ scope: 'ALL', limit: 12, accessToken }),
   });
 
@@ -193,9 +192,7 @@ export function useHomeData(enabled = true): HomeData {
     //    스켈레톤을 영원히 그린다 — 서버가 죽었을 때 실제로 그랬다. 실패는 빈 배열로 내려
     //    「아직 기록이 없어요」 자리로 보낸다.
     signedIn,
-    stories: !signedIn
-      ? []
-      : storiesQuery.isPending
+    stories: storiesQuery.isPending
         ? null
         : storiesQuery.data?.state === 'success' ? pickHeroStories(storiesQuery.data.items) : [],
     chips: facetsQuery.data?.state === 'success' ? pickChips(facetsQuery.data.facets) : [],

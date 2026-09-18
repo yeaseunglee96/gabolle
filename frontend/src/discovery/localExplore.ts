@@ -1,3 +1,8 @@
+// 🔴 언어 다섯을 다 받는다 (S15P21E201-1109). 이 함수가 'ko' | 'en' 만 받으면 부르는 쪽
+// 열다섯 곳이 각자 떨어뜨려야 하고, 한 곳만 빠뜨리면 일본어 사용자가 한국어 이름을 본다.
+// 떨어뜨리는 일은 **여기 한 자리**에서 한다.
+import { resolveTextLanguage, type LanguageCode } from '@/i18n/languages';
+import type { PhotoSubject } from '@/discovery/places';
 import { apiRequest, ApiClientError, isServerError } from '@/api/client';
 
 // jaehyeon 님 계약(2026-09-08 axmap): GET /api/v1/places/facets.
@@ -10,12 +15,12 @@ const ENGLISH_FACET_LABELS: Record<string, string> = {
   FESTIVAL: 'Festivals', NIGHT_MARKET: 'Night markets', TRADITIONAL_MARKET: 'Traditional markets',
   ACTIVITY: 'Activities', WALK: 'Walks', NATURE: 'Nature', NIGHT_VIEW: 'Night views', SOUVENIR_SHOP: 'Souvenir shops',
 };
-export function localFacetLabel(entry: FacetKeyEntry, language: 'ko' | 'en'): string {
-  if (language === 'ko') return entry.labelKo;
+export function localFacetLabel(entry: FacetKeyEntry, language: LanguageCode): string {
+  if (resolveTextLanguage(language) === 'ko') return entry.labelKo;
   return entry.labelEn?.trim() || ENGLISH_FACET_LABELS[entry.featureKey] || entry.labelKo;
 }
-export function localPlaceName(place: { nameKo: string; nameEn: string | null }, language: 'ko' | 'en'): string {
-  return language === 'en' ? place.nameEn?.trim() || place.nameKo : place.nameKo;
+export function localPlaceName(place: { nameKo: string; nameEn: string | null }, language: LanguageCode): string {
+  return resolveTextLanguage(language) === 'en' ? place.nameEn?.trim() || place.nameKo : place.nameKo;
 }
 export type LocalFacetEntry = FacetKeyEntry & { placeFeatureType: string };
 export type FacetGroup = { userInputCode: string; placeFeatureType: string; matchKind: string; placeCount: number; keys: FacetKeyEntry[] };
@@ -64,6 +69,7 @@ export type NearbyPlaceItem = {
   nameEn: string | null;
   category: string | null;
   address: string | null;
+  addressEn?: string;
   lat: number;
   lng: number;
   distanceM: number;
@@ -72,6 +78,9 @@ export type NearbyPlaceItem = {
   // 관광공사 공공누리라 출처 표기가 이용 조건이다.
   photoUrl?: string | null;
   photoSource?: string | null;
+  // S15P21E201-1206 — 이 사진이 **그 장소를 찍은 것인지, 그 장소가 든 건물을 찍은 것인지**.
+  // 값이 없으면 칸 자체가 안 온다. 없으면 화면은 아무 말도 안 한다(모르는 것을 아는 척 안 한다).
+  photoSubject?: PhotoSubject | null;
 };
 export type NearbyPlacesDto = {
   items: NearbyPlaceItem[];

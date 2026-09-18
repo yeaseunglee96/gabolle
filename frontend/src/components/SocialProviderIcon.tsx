@@ -1,17 +1,37 @@
-import { Image, StyleSheet } from 'react-native';
+// 로그인 화면의 소셜 제공자 마크 넷.
+//
+// 🔴 **`<Image>` 로 그리지 않는다. 실기기에서 아무것도 안 보인다** (사용자 리포트 2026-09-17).
+//
+// 예전에는 이 마크들을 base64 로 접은 SVG 문자열로 만들어 `<Image source={{ uri:
+// 'data:image/svg+xml;base64,…' }} />` 에 넣었다. **웹에서는 보인다** — 브라우저의 `<img>` 가
+// SVG 를 읽기 때문이다. 그런데 React Native 의 `Image` 는 png·jpg·gif·webp 같은 **점 그림만**
+// 읽는다. SVG 는 못 읽고, **오류도 안 낸다 — 그냥 빈 자리가 된다.**
+//
+// 그래서 실기기에서는 `Google로 계속하기` 처럼 **글자만** 남았다. 웹으로만 확인하면
+// 멀쩡해 보이는 종류의 결함이다.
+//
+// 🔴 애플·카카오·네이버는 브랜드 가이드가 로그인 버튼에 자기 마크를 요구한다.
+// 마크가 빠진 채로는 **스토어 심사에서 걸릴 수 있다** — 그래서 「나중에」가 아니라 지금 고친다.
+//
+// 이제 `react-native-svg` 로 그린다(2026-09-17 에 넣은 의존성). 같은 그림이 웹·iOS·안드로이드
+// 세 곳에서 같이 나온다.
+import { SvgXml } from 'react-native-svg';
 
 import type { OAuthProvider } from '@/auth/authApi';
 
-const ICONS: Record<OAuthProvider, string> = {
-  google: 'PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0iIzQyODVGNCIgZD0iTTIxLjYgMTIuMjNjMC0uNzEtLjA2LTEuMzktLjE4LTIuMDVIMTJ2My44N2g1LjM4YTQuNiA0LjYgMCAwIDEtMiAzLjAydjIuNTFoMy4yNGMxLjktMS43NSAyLjk4LTQuMzMgMi45OC03LjM1WiIvPjxwYXRoIGZpbGw9IiMzNEE4NTMiIGQ9Ik0xMiAyMmMyLjcgMCA0Ljk3LS45IDYuNjItMi40MmwtMy4yNC0yLjUxYy0uOS42LTIuMDUuOTYtMy4zOC45Ni0yLjYxIDAtNC44Mi0xLjc2LTUuNjEtNC4xM0gzLjA0djIuNTlBMTAgMTAgMCAwIDAgMTIgMjJaIi8+PHBhdGggZmlsbD0iI0ZCQkMwNSIgZD0iTTYuMzkgMTMuOUE2IDYgMCAwIDEgNi4wNyAxMmMwLS42Ni4xMS0xLjMuMzItMS45VjcuNTFIMy4wNEExMCAxMCAwIDAgMCAyIDEyYzAgMS42MS4zOSAzLjE0IDEuMDQgNC40OWwzLjM1LTIuNTlaIi8+PHBhdGggZmlsbD0iI0VBNDMzNSIgZD0iTTEyIDUuOTdjMS40NyAwIDIuNzkuNTEgMy44MyAxLjVsMi44Ny0yLjg4QTkuNjMgOS42MyAwIDAgMCAxMiAyYTEwIDEwIDAgMCAwLTguOTYgNS41MWwzLjM1IDIuNTlDNy4xOCA3LjczIDkuMzkgNS45NyAxMiA1Ljk3WiIvPjwvc3ZnPg==',
-  naver: 'PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0iI2ZmZiIgZD0iTTQgM2g1LjU1bDQuOSA3LjAyVjNIMjB2MThoLTUuNTVsLTQuOS03LjAyVjIxSDRWM1oiLz48L3N2Zz4=',
-  kakao: 'PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0iIzE5MTkxOSIgZD0iTTEyIDRDNi45IDQgMi44IDcuMiAyLjggMTEuMTVjMCAyLjUzIDEuNjggNC43NSA0LjIxIDYuMDJsLS44NiAzLjE2Yy0uMDguMjguMjQuNS40OS4zNGwzLjc3LTIuNDljLjUyLjA4IDEuMDUuMTIgMS41OS4xMiA1LjEgMCA5LjItMy4yIDkuMi03LjE1UzE3LjEgNCAxMiA0WiIvPjwvc3ZnPg==',
-  apple: 'PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0iI2ZmZmZmZiIgZD0iTTE2LjM2NSAxLjQzYzAgMS4xNC0uNDY4IDIuMDUtMS4wNSAyLjctLjYxOC43LTEuNjUgMS4yNC0yLjU1IDEuMTctLjEyLTEuMDguNDItMi4xOSAxLjAyLTIuODYuNjYtLjc1IDEuODMtMS4zMSAyLjU4LTEuMDFaTTIwLjQgMTcuMzRjLS4zNi44NC0uNzggMS42Mi0xLjMyIDIuMzQtLjcyLjk2LTEuNjIgMi4xNi0yLjgyIDIuMTYtMS4wNS4wMy0xLjM4LS42Ni0yLjg1LS42Ni0xLjQ3IDAtMS44Ni42My0yLjg1LjY5LTEuMTQuMDYtMi4wMS0xLjAyLTIuNzYtMS45OC0xLjg2LTIuNC0zLjI3LTYuNjYtMS4zNS05LjYzLjkzLTEuNDQgMi41OC0yLjM0IDQuMzUtMi4zNyAxLjA4LS4wMyAyLjEuNzIgMi43Ni43Mi42NiAwIDEuOTItLjkgMy4yNC0uNzUuNTQuMDMgMi4wNy4yMSAzLjA2IDEuNjItLjA5LjA2LTEuODMgMS4wNS0xLjggMy4xNS4wMyAyLjU4IDIuMjggMy40MiAyLjMxIDMuNDRaIi8+PC9zdmc+',
+// 🔴 base64 로 접지 않고 그대로 둔다. 접어 두면 **무엇이 들어 있는지 아무도 못 본다** —
+// 색 하나 고치려 해도 풀었다 다시 접어야 하고, 위의 결함도 접혀 있어서 늦게 찾았다.
+const MARKS: Record<OAuthProvider, string> = {
+  google: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="#4285F4" d="M21.6 12.23c0-.71-.06-1.39-.18-2.05H12v3.87h5.38a4.6 4.6 0 0 1-2 3.02v2.51h3.24c1.9-1.75 2.98-4.33 2.98-7.35Z"/><path fill="#34A853" d="M12 22c2.7 0 4.97-.9 6.62-2.42l-3.24-2.51c-.9.6-2.05.96-3.38.96-2.61 0-4.82-1.76-5.61-4.13H3.04v2.59A10 10 0 0 0 12 22Z"/><path fill="#FBBC05" d="M6.39 13.9A6 6 0 0 1 6.07 12c0-.66.11-1.3.32-1.9V7.51H3.04A10 10 0 0 0 2 12c0 1.61.39 3.14 1.04 4.49l3.35-2.59Z"/><path fill="#EA4335" d="M12 5.97c1.47 0 2.79.51 3.83 1.5l2.87-2.88A9.63 9.63 0 0 0 12 2a10 10 0 0 0-8.96 5.51l3.35 2.59C7.18 7.73 9.39 5.97 12 5.97Z"/></svg>`,
+  // 네이버·애플 마크는 흰색이다 — 버튼 배경이 초록(#03c75a)·검정(#000000)이라 그 위에 얹힌다.
+  naver: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="#fff" d="M4 3h5.55l4.9 7.02V3H20v18h-5.55l-4.9-7.02V21H4V3Z"/></svg>`,
+  // 카카오 마크는 검정이다 — 버튼 배경이 노랑(#fee500)이다.
+  kakao: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="#191919" d="M12 4C6.9 4 2.8 7.2 2.8 11.15c0 2.53 1.68 4.75 4.21 6.02l-.86 3.16c-.08.28.24.5.49.34l3.77-2.49c.52.08 1.05.12 1.59.12 5.1 0 9.2-3.2 9.2-7.15S17.1 4 12 4Z"/></svg>`,
+  apple: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="#ffffff" d="M16.365 1.43c0 1.14-.468 2.05-1.05 2.7-.618.7-1.65 1.24-2.55 1.17-.12-1.08.42-2.19 1.02-2.86.66-.75 1.83-1.31 2.58-1.01ZM20.4 17.34c-.36.84-.78 1.62-1.32 2.34-.72.96-1.62 2.16-2.82 2.16-1.05.03-1.38-.66-2.85-.66-1.47 0-1.86.63-2.85.69-1.14.06-2.01-1.02-2.76-1.98-1.86-2.4-3.27-6.66-1.35-9.63.93-1.44 2.58-2.34 4.35-2.37 1.08-.03 2.1.72 2.76.72.66 0 1.92-.9 3.24-.75.54.03 2.07.21 3.06 1.62-.09.06-1.83 1.05-1.8 3.15.03 2.58 2.28 3.42 2.31 3.44Z"/></svg>`,
 };
 
-export function SocialProviderIcon({ provider }: { provider: OAuthProvider }) {
-  const uri = `data:image/svg+xml;base64,${ICONS[provider]}`;
-  return <Image source={{ uri }} resizeMode="contain" accessibilityIgnoresInvertColors style={styles.icon} />;
-}
+const SIZE = 24;
 
-const styles = StyleSheet.create({ icon: { width: 24, height: 24 } });
+export function SocialProviderIcon({ provider }: { provider: OAuthProvider }) {
+  return <SvgXml xml={MARKS[provider]} width={SIZE} height={SIZE} />;
+}

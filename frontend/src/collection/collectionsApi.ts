@@ -102,10 +102,37 @@ function codePoints(value: string): number {
   return [...value].length;
 }
 
+/**
+ * 아직 서버에 못 보낸 지우기 — S15P21E201-1148.
+ *
+ * <p>기기에서 지운 것을 서버에도 지워야 하는데, 그때 서버에 못 닿을 수 있다.
+ * 그 사실을 잃어버리면 다음 동기화에서 지운 것이 되살아난다. 그래서 적어 두고
+ * 기기에 함께 저장한다 — 앱을 껐다 켜도 살아남는다.
+ */
+/**
+ * 아직 서버에 못 보낸 이름·설명 고치기 — S15P21E201-1153.
+ *
+ * <p>지우기(PendingDelete)와 같은 이유로 둔다. 고친 사실을 잃어버리면 다음 동기화에서
+ * 서버의 옛 이름이 내려와 기기의 새 이름을 덮는다.
+ */
+export type PendingRename = { collectionId: string; name: string; description: string | null };
+
+export type PendingDelete =
+  | { kind: 'list'; collectionId: string }
+  | { kind: 'item'; collectionId: string; itemId: string };
+
+/** 두 보류 삭제가 같은 것을 가리키는가. 같은 것을 두 번 적지 않으려고 쓴다. */
+export function samePendingDelete(a: PendingDelete, b: PendingDelete): boolean {
+  if (a.kind !== b.kind) return false;
+  if (a.kind === 'list' && b.kind === 'list') return a.collectionId === b.collectionId;
+  if (a.kind === 'item' && b.kind === 'item') return a.collectionId === b.collectionId && a.itemId === b.itemId;
+  return false;
+}
+
 export type CollectionsLoadResult =
   /** `blocked` 는 서버가 받아 줄 수 없어 올리기를 건너뛴 리스트 수다. */
-  | { state: 'success'; data: DeviceCollections; uploaded: number; blocked: number }
-  | { state: 'device-only'; data: DeviceCollections; reason: 'anonymous' | 'unreachable' };
+  | { state: 'success'; data: DeviceCollections; uploaded: number; blocked: number; pendingDeletes: PendingDelete[]; pendingRenames: PendingRename[] }
+  | { state: 'device-only'; data: DeviceCollections; reason: 'anonymous' | 'unreachable'; pendingDeletes: PendingDelete[]; pendingRenames: PendingRename[] };
 
 /**
  * 서버 리스트를 기기 모양으로 옮긴다.
@@ -133,6 +160,8 @@ export function serverToDevice(collections: ServerCollection[]): DeviceCollectio
         addedAt: collection.updatedAt,
         lat: item.lat ?? null,
         lng: item.lng ?? null,
+        // 지울 때 쓸 서버 이름표 — S15P21E201-1148.
+        serverItemId: item.itemId,
       };
     }
     return {
@@ -156,7 +185,51 @@ export function serverToDevice(collections: ServerCollection[]): DeviceCollectio
  * 🔴 **어느 쪽도 버리지 않는다.** 애매하면 남기는 쪽으로 간다 — 잘못 남기면 사용자가 지울
  * 수 있지만, 잘못 지우면 되돌릴 방법이 없다.
  */
-export function mergeCollections(device: DeviceCollections, server: DeviceCollections) {
+export function mergeCollections(device: DeviceCollections, server: DeviceCollections, pendingDeletes: PendingDelete[] = [], pendingRenames: PendingRename[] = []) {
+  // 🔴 S15P21E201-1148 — 아직 못 지운 것을 서버 응답에서 미리 걷어낸다.
+  //
+  //    지우기를 서버에 못 보낸 동안에도 서버는 그것을 계속 돌려준다. 그대로 합치면
+  //    사용자가 지운 것이 화면에 다시 나타났다가, 다음에 지우기가 성공하면 또
+  //    사라진다 — 깜빡이는 화면이 된다. 보류 중인 것은 처음부터 없는 셈 친다.
+  if (pendingDeletes.length > 0) {
+    const deletedLists = new Set(pendingDeletes.filter((entry) => entry.kind === 'list').map((entry) => entry.collectionId));
+    const deletedItems = new Set(
+      pendingDeletes.filter((entry) => entry.kind === 'item').map((entry) => `${entry.collectionId} ${entry.itemId}`),
+    );
+    server = {
+      ...server,
+      lists: server.lists
+        .filter((list) => !deletedLists.has(list.id))
+        .map((list) => ({
+          ...list,
+          placeIds: list.placeIds.filter((placeId) => !deletedItems.has(`${list.id} ${server.places[placeId]?.serverItemId ?? placeId}`)),
+        })),
+    };
+  }
+  // 🔴 S15P21E201-1153 — id 로 먼저 맞추고, 못 찾으면 이름으로 맞춘다.
+  //
+  //    전에는 이름으로만 맞췄다. 그러면 사용자가 리스트 이름을 바꾸는 순간 서버의 같은
+  //    리스트와 짝이 안 맞아 「기기에만 있는 리스트」로 보이고, 같은 내용이 서버에
+  //    하나 더 만들어진다.
+  //
+  //    그렇다고 id 로만 맞추면 반대쪽이 깨진다 — 서버에 이미 있는 이름으로 기기에서
+  //    새로 만든 리스트(오프라인에서 만든 경우)는 id 가 uid() 라 안 맞고, 역시 하나 더
+  //    만들어진다. 둘 다 막으려면 둘 다 본다.
+  // 🔴 S15P21E201-1153 — 아직 못 보낸 이름 고치기를 서버 응답 위에 얹는다.
+  //
+  //    못 보낸 동안 서버는 옛 이름을 계속 돌려준다. 그대로 쓰면 사용자가 고친 이름이
+  //    잠깐 옛것으로 돌아갔다가 다음에 성공하면 또 바뀐다 — 깜빡이는 화면이 된다.
+  if (pendingRenames.length > 0) {
+    const renameById = new Map(pendingRenames.map((entry) => [entry.collectionId, entry]));
+    server = {
+      ...server,
+      lists: server.lists.map((list) => {
+        const rename = renameById.get(list.id);
+        return rename ? { ...list, name: rename.name, description: rename.description } : list;
+      }),
+    };
+  }
+  const byId = new Map(server.lists.map((list) => [list.id, list]));
   const byName = new Map(server.lists.map((list) => [list.name.trim(), list]));
   const merged: CollectionList[] = [...server.lists];
   const onlyOnDevice: CollectionList[] = [];
@@ -164,7 +237,7 @@ export function mergeCollections(device: DeviceCollections, server: DeviceCollec
   const pendingUploads: Array<{ collectionId: string; placeIds: string[] }> = [];
 
   for (const deviceList of device.lists) {
-    const match = byName.get(deviceList.name.trim());
+    const match = byId.get(deviceList.id) ?? byName.get(deviceList.name.trim());
     if (!match) { merged.push(deviceList); onlyOnDevice.push(deviceList); continue; }
     // 같은 이름이 양쪽에 있다 — 서버 리스트에 기기에만 있던 장소를 더한다.
     const extra = deviceList.placeIds.filter((id) => !match.placeIds.includes(id));
@@ -185,7 +258,10 @@ export function mergeCollections(device: DeviceCollections, server: DeviceCollec
 }
 
 /**
- * 서버가 아는 장소인가 — S15P21E201-1117.
+ * 서버가 아는 것인가 — S15P21E201-1117.
+ *
+ * <p>장소와 리스트 둘 다에 쓴다. 서버가 만든 id 는 UUID 이고, 기기가 만든 것은 아니다 —
+ * 그 한 가지만 본다. (S15P21E201-1148 에서 리스트에도 쓰게 되면서 이름을 넓혔다.)
  *
  * <p>서버 장소 id 는 UUID 다. 그런데 부슐랭에서 손으로 추가한 장소는 기기가 만든다 —
  * {@code `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`}, 예를 들면
@@ -198,7 +274,7 @@ export function mergeCollections(device: DeviceCollections, server: DeviceCollec
  */
 const SERVER_PLACE_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-export function isServerPlaceId(value: string): boolean {
+export function isServerId(value: string): boolean {
   return SERVER_PLACE_ID.test(value);
 }
 
@@ -213,7 +289,7 @@ export function isServerPlaceId(value: string): boolean {
  * 로 보낸 것이 잘못이다. 계약을 바꿀 일이 아니라 맞는 칸에 넣으면 되는 일이었다.
  */
 export function buildItemRequest(placeId: string, place: CollectionPlace) {
-  if (isServerPlaceId(placeId)) {
+  if (isServerId(placeId)) {
     return { kind: 'PLACE' as const, placeId, note: place.note ?? null };
   }
   return {
@@ -227,6 +303,55 @@ export function buildItemRequest(placeId: string, place: CollectionPlace) {
 }
 
 /** 담을 것 하나를 서버에 올린다. 실패는 부르는 쪽이 센다. */
+/**
+ * 보류해 둔 지우기를 서버로 보낸다 — S15P21E201-1148.
+ *
+ * @returns 아직 못 보낸 것들. 다음에 다시 시도한다.
+ */
+/**
+ * 보류해 둔 이름·설명 고치기를 서버로 보낸다 — S15P21E201-1153.
+ *
+ * @returns 아직 못 보낸 것들. 다음에 다시 시도한다.
+ */
+async function sendPendingRenames(pending: PendingRename[], accessToken: string): Promise<PendingRename[]> {
+  const remaining: PendingRename[] = [];
+  for (const entry of pending) {
+    try {
+      await apiRequest<unknown>(`/api/v1/me/collections/${encodeURIComponent(entry.collectionId)}`, {
+        method: 'PATCH',
+        accessToken,
+        body: { name: entry.name, description: entry.description },
+      });
+    } catch (error) {
+      // 지우기와 같은 규칙이다 — 4xx 는 이 값으로는 안 된다는 뜻이라 다시 보내도 같고,
+      // 계속 들고 있으면 영영 안 될 것을 매번 시도한다. 5xx 와 끊김만 남긴다.
+      const status = error instanceof ApiClientError ? error.status : 0;
+      if (status < 400 || status >= 500) remaining.push(entry);
+    }
+  }
+  return remaining;
+}
+
+async function sendPendingDeletes(pending: PendingDelete[], accessToken: string): Promise<PendingDelete[]> {
+  const remaining: PendingDelete[] = [];
+  for (const entry of pending) {
+    const path = entry.kind === 'list'
+      ? `/api/v1/me/collections/${encodeURIComponent(entry.collectionId)}`
+      : `/api/v1/me/collections/${encodeURIComponent(entry.collectionId)}/items/${encodeURIComponent(entry.itemId)}`;
+    try {
+      await apiRequest<unknown>(path, { method: 'DELETE', accessToken });
+    } catch (error) {
+      // 🔴 404 는 이미 없다는 뜻이다 — 우리가 바라던 상태이므로 지운 것으로 친다.
+      //    다른 4xx 도 다시 보낸다고 달라지지 않으므로 목록에서 뺀다. 계속 들고
+      //    있으면 영영 안 지워질 것을 매번 시도하게 된다.
+      //    5xx 와 끊김만 남긴다 — 그건 다음에 되는 종류다.
+      const status = error instanceof ApiClientError ? error.status : 0;
+      if (status < 400 || status >= 500) remaining.push(entry);
+    }
+  }
+  return remaining;
+}
+
 async function addItemOnServer(collectionId: string, placeId: string, place: CollectionPlace, accessToken: string) {
   await apiRequest<unknown>(`/api/v1/me/collections/${encodeURIComponent(collectionId)}/items`, {
     method: 'POST',
@@ -264,27 +389,49 @@ async function createOnServer(list: CollectionList, places: Record<string, Colle
  * 🔴 서버를 못 물어봤을 때 **빈 목록을 주지 않는다.** 기기 것을 그대로 준다. 리스트가
  * 통째로 사라진 화면을 보여주는 것보다 낫고, 그건 사실도 아니다.
  */
-export async function loadCollections(device: DeviceCollections, accessToken: string | null): Promise<CollectionsLoadResult> {
-  if (!accessToken) return { state: 'device-only', data: device, reason: 'anonymous' };
+export async function loadCollections(device: DeviceCollections, accessToken: string | null, pendingDeletes: PendingDelete[] = [], pendingRenames: PendingRename[] = []): Promise<CollectionsLoadResult> {
+  // 로그인 전에는 보낼 수 없다. 지운 사실은 그대로 들고 있다가 로그인하면 보낸다.
+  if (!accessToken) return { state: 'device-only', data: device, reason: 'anonymous', pendingDeletes, pendingRenames };
 
   let server: DeviceCollections;
   try {
     const page = await apiRequest<{ items: ServerCollection[]; count: number }>('/api/v1/me/collections', { accessToken });
-    if (!Array.isArray(page?.items)) return { state: 'device-only', data: device, reason: 'unreachable' };
+    if (!Array.isArray(page?.items)) return { state: 'device-only', data: device, reason: 'unreachable', pendingDeletes, pendingRenames };
     server = serverToDevice(page.items);
   } catch (error) {
     // 인증이 끊긴 것과 서버가 안 되는 것을 가르지 않는다 — 둘 다 "지금은 기기 것으로
     // 보여준다" 가 맞는 답이다.
     if (error instanceof ApiClientError || error instanceof Error) {
-      return { state: 'device-only', data: device, reason: 'unreachable' };
+      return { state: 'device-only', data: device, reason: 'unreachable', pendingDeletes, pendingRenames };
     }
-    return { state: 'device-only', data: device, reason: 'unreachable' };
+    return { state: 'device-only', data: device, reason: 'unreachable', pendingDeletes, pendingRenames };
   }
 
-  const { merged, onlyOnDevice, pendingUploads } = mergeCollections(device, server);
+  // 🔴 S15P21E201-1148 — 올리기보다 지우기가 먼저다.
+  //
+  //    순서를 바꾸면 방금 지운 것을 다시 올리는 일이 생긴다. 지우기를 먼저 보내고,
+  //    아직 못 보낸 것은 아래 합치기에서 서버 응답에서 걷어낸다.
+  const remainingDeletes = await sendPendingDeletes(pendingDeletes, accessToken);
+  // 지운 리스트의 이름을 고칠 일은 없으므로 지우기 뒤에 보낸다.
+  const remainingRenames = await sendPendingRenames(pendingRenames, accessToken);
+  // 🔴 S15P21E201-1153 — 이름을 실제로 보냈으면 서버가 바뀐 것이다.
+  //
+  //    위의 server 는 **보내기 전에** 받아 둔 것이라 옛 이름을 들고 있다. 이것을 그대로
+  //    합치면 방금 고친 이름이 옛 이름으로 덮인다 — 그리고 그 값이 기기에 저장되면서
+  //    사용자가 쓴 새 이름까지 사라진다.
+  //
+  //    실기기에서 그대로 재현됐다(2026-09-17, vc15): 이름을 고치고 앱을 껐다 켜면 옛
+  //    이름이 나오고, **한 번 더 껐다 켜야** 새 이름이 나왔다. 서버에는 처음부터
+  //    들어가 있었고 화면만 한 판 뒤처진 것이다.
+  //
+  //    아래의 changedServer 는 「새 리스트·새 장소를 올렸는가」만 보고 있었다. 고친 것도
+  //    서버를 바꾼 것이므로 같이 센다 — 그러면 끝의 다시 받아오기가 돌아 새 이름이 온다.
+  const renamedOnServer = pendingRenames.length > remainingRenames.length;
+
+  const { merged, onlyOnDevice, pendingUploads } = mergeCollections(device, server, remainingDeletes, remainingRenames);
   let uploaded = 0;
   let blocked = 0;
-  let changedServer = false;
+  let changedServer = renamedOnServer;
   /** 못 올린 장소. 다시 받아올 때 이것만은 기기에 남겨 둔다. */
   const unuploaded = new Set<string>();
 
@@ -324,7 +471,7 @@ export async function loadCollections(device: DeviceCollections, accessToken: st
     }
   }
 
-  if (!changedServer) return { state: 'success', data: merged, uploaded, blocked };
+  if (!changedServer) return { state: 'success', data: merged, uploaded, blocked, pendingDeletes: remainingDeletes, pendingRenames: remainingRenames };
 
   // 🔴 올렸으면 다시 받아온다 — 서버가 부르는 이름으로 기기의 이름표를 바꾸기 위해서다.
   //
@@ -337,12 +484,12 @@ export async function loadCollections(device: DeviceCollections, accessToken: st
   //    상태를 하나 더 들고 있으면 그것이 또 어긋나고, 어긋난 것을 고칠 자리가 는다.
   try {
     const refreshed = await apiRequest<{ items: ServerCollection[]; count: number }>('/api/v1/me/collections', { accessToken });
-    if (!Array.isArray(refreshed?.items)) return { state: 'success', data: merged, uploaded, blocked };
-    return { state: 'success', data: restoreUnuploaded(serverToDevice(refreshed.items), merged, unuploaded), uploaded, blocked };
+    if (!Array.isArray(refreshed?.items)) return { state: 'success', data: merged, uploaded, blocked, pendingDeletes: remainingDeletes, pendingRenames: remainingRenames };
+    return { state: 'success', data: restoreUnuploaded(mergeCollections({ lists: [], places: {} }, serverToDevice(refreshed.items), remainingDeletes, remainingRenames).merged, merged, unuploaded), uploaded, blocked, pendingDeletes: remainingDeletes, pendingRenames: remainingRenames };
   } catch {
     // 다시 받아오는 데 실패해도 올린 것은 올라갔다. 앞서 합친 것을 그대로 쓴다 —
     // 이름표는 다음 실행에서 맞춰진다.
-    return { state: 'success', data: merged, uploaded, blocked };
+    return { state: 'success', data: merged, uploaded, blocked, pendingDeletes: remainingDeletes, pendingRenames: remainingRenames };
   }
 }
 

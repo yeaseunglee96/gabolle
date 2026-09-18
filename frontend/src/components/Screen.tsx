@@ -15,6 +15,7 @@ import type { ReactNode } from 'react';
 
 import { color, gutter, spacing } from '@/design/tokens';
 import { useLayout } from '@/layout/useLayout';
+import { TAB_BAR_HEIGHT, tabBarBottomMargin } from './TabBar';
 
 // 웹의 일반 화면도 휴대폰 폭(480px)으로 고정하면 넓은 모니터에서 앱 미리보기처럼 보인다.
 // 폼의 가독성은 유지하면서 카드·목록이 웹답게 숨 쉴 수 있는 폭으로 제한한다.
@@ -96,9 +97,21 @@ export function Screen({ children, scroll = false, wide = false, withTabBar = fa
 }
 
 export function screenBottomPadding(bottomInset: number, withTabBar: boolean) {
-  // 탭바는 absolute가 아니라 Screen 아래의 형제라 자기 높이와 안전영역을 이미 차지한다.
-  // 이 화면에서도 다시 더하면 갤럭시의 큰 내비게이션 영역이 두 번 들어간다.
-  return spacing[8] + (withTabBar ? 0 : bottomInset);
+  // 🔴 2026-09-17 (S15P21E201-1155) — 탭바가 **떠 있게** 바뀌면서 이 계산이 뒤집혔다.
+  //
+  // 예전 주석은 이랬다: *「탭바는 absolute가 아니라 Screen 아래의 형제라 자기 높이와
+  // 안전영역을 이미 차지한다. 이 화면에서도 다시 더하면 갤럭시의 큰 내비게이션 영역이
+  // 두 번 들어간다」* — 그때는 맞는 말이었다. 지우지 않고 남긴다.
+  //
+  // 지금은 탭바가 떠 있어서 **레이아웃 자리를 안 먹는다.** 그래서 이 화면이 그만큼을
+  // 대신 비워 주지 않으면 **스크롤 맨 끝 내용이 알약 밑에 영원히 깔린다** — 더 스크롤할
+  // 것이 없으니 드러낼 방법도 없다.
+  //
+  // 비워야 하는 것은 알약 높이 + 알약과 시스템 바 사이 간격이다. 두 값 다 TabBar 가
+  // 내보낸 것을 그대로 쓴다 — 같은 숫자를 여기 또 적으면 저쪽에서 64 를 바꾸는 날
+  // 조용히 어긋난다.
+  if (withTabBar) return spacing[8] + TAB_BAR_HEIGHT + tabBarBottomMargin(bottomInset);
+  return spacing[8] + bottomInset;
 }
 
 const styles = StyleSheet.create({

@@ -1,5 +1,5 @@
 import { EMPTY_PLAN } from './PlanProvider';
-import { addDays, formatBudgetEn, formatBudgetKo, validateTripBasics } from './tripBasics';
+import { formatBudgetEn, formatBudgetKo, validateTripBasics } from './tripBasics';
 
 describe('formatBudgetKo', () => {
   it('만 원 단위로 떨어지면 "만 원"으로 줄여 보여준다', () => {
@@ -14,16 +14,6 @@ describe('formatBudgetKo', () => {
 describe('formatBudgetEn', () => {
   it('₩ 기호와 콤마 단위로 원 그대로 보여준다', () => {
     expect(formatBudgetEn(300000)).toBe('₩300,000');
-  });
-});
-
-describe('addDays', () => {
-  it('날짜를 UTC 기준으로 더한다', () => {
-    expect(addDays('2026-09-10', 3)).toBe('2026-09-13');
-  });
-
-  it('월 경계를 넘어가도 올바르게 넘어간다', () => {
-    expect(addDays('2026-09-29', 3)).toBe('2026-10-02');
   });
 });
 

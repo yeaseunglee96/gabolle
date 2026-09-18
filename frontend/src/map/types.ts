@@ -8,3 +8,6 @@ export type MapStop = {
   // 없는 호출부는 지금처럼 숫자 마커 그대로다.
   imageUrl?: string;
 };
+
+/** 지도에 그리는 선의 한 점. 실제 길을 따라가려면 이 점들이 촘촘히 필요하다. */
+export type MapPathPoint = { latitude: number; longitude: number };

@@ -202,21 +202,21 @@ describe('서버가 받아 줄 수 없는 리스트', () => {
 // 🔴 기기가 만드는 장소 id 는 `${Date.now().toString(36)}-${random}` 이라 절대 UUID 가
 //    아니다. 그것을 kind: PLACE 의 placeId 로 보내면 서버가 값을 읽는 단계에서 400 을
 //    내고, 바깥의 catch 가 그것을 삼켜서 장소가 조용히 사라진다.
-import { buildItemRequest, isServerPlaceId } from '../collectionsApi';
+import { buildItemRequest, isServerId } from '../collectionsApi';
 
-describe('isServerPlaceId — 서버가 아는 장소인가', () => {
+describe('isServerId — 서버가 아는 장소인가', () => {
   it('서버 장소 id(UUID)를 알아본다', () => {
-    expect(isServerPlaceId('7b8cd3bc-7cef-48ef-bda0-335bec095fc2')).toBe(true);
-    expect(isServerPlaceId('7B8CD3BC-7CEF-48EF-BDA0-335BEC095FC2')).toBe(true);
+    expect(isServerId('7b8cd3bc-7cef-48ef-bda0-335bec095fc2')).toBe(true);
+    expect(isServerId('7B8CD3BC-7CEF-48EF-BDA0-335BEC095FC2')).toBe(true);
   });
 
   it('기기가 만든 id 를 서버 것으로 오해하지 않는다', () => {
     // CollectionProvider 의 uid() 가 실제로 만드는 모양이다.
-    expect(isServerPlaceId('mfjk2x-a7b3c1')).toBe(false);
-    expect(isServerPlaceId('p1')).toBe(false);
-    expect(isServerPlaceId('')).toBe(false);
+    expect(isServerId('mfjk2x-a7b3c1')).toBe(false);
+    expect(isServerId('p1')).toBe(false);
+    expect(isServerId('')).toBe(false);
     // 자릿수가 하나 모자란 것도 통과시키지 않는다.
-    expect(isServerPlaceId('7b8cd3bc-7cef-48ef-bda0-335bec095fc')).toBe(false);
+    expect(isServerId('7b8cd3bc-7cef-48ef-bda0-335bec095fc')).toBe(false);
   });
 });
 
@@ -376,5 +376,242 @@ describe('restoreUnuploaded — 못 올린 것을 서버 것 위에 얹는다', 
   it('이미 서버에 있는 것을 두 번 넣지 않는다', () => {
     const out = restoreUnuploaded(fresh, previous, new Set(['a', 'zzz']));
     expect(out.lists[0].placeIds).toEqual(['a', 'zzz']);
+  });
+});
+
+// S15P21E201-1148 — 지운 것이 되살아나던 것.
+//
+// 🔴 이 시험이 지키는 것은 셋이다.
+//    (1) 보류해 둔 지우기를 서버로 보낸다
+//    (2) 못 보낸 것은 버리지 않는다 — 다음에 다시 보낸다
+//    (3) 못 보낸 동안에도 화면에는 다시 안 나타난다
+import { samePendingDelete, type PendingDelete } from '../collectionsApi';
+
+describe('지우기를 서버로 보낸다 (S15P21E201-1148)', () => {
+  const srvList = serverList('srv-1', '바다 보러', [{ placeId: 'p1', name: '광안리', position: 0 }]);
+  const empty: DeviceCollections = { lists: [], places: {} };
+
+  it('보류해 둔 리스트 지우기를 DELETE 로 보낸다', async () => {
+    const deleted: string[] = [];
+    mockServer((method, url) => {
+      if (method === 'DELETE') { deleted.push(url); return ok({}); }
+      return ok(serverPage([srvList]));
+    });
+
+    const result = await loadCollections(empty, 'token', [{ kind: 'list', collectionId: 'srv-1' }]);
+
+    expect(deleted).toHaveLength(1);
+    expect(deleted[0]).toContain('/me/collections/srv-1');
+    if (result.state !== 'success') throw new Error('성공이어야 한다');
+    expect(result.pendingDeletes).toEqual([]);
+  });
+
+  it('항목 지우기는 itemId 로 보낸다', async () => {
+    const deleted: string[] = [];
+    mockServer((method, url) => {
+      if (method === 'DELETE') { deleted.push(url); return ok({}); }
+      return ok(serverPage([srvList]));
+    });
+
+    await loadCollections(empty, 'token', [{ kind: 'item', collectionId: 'srv-1', itemId: 'srv-1-item-0' }]);
+
+    expect(deleted[0]).toContain('/me/collections/srv-1/items/srv-1-item-0');
+  });
+
+  it('🔴 5xx 면 버리지 않는다 — 다음에 다시 보낸다', async () => {
+    mockServer((method) => {
+      if (method === 'DELETE') return new Response(JSON.stringify({ data: null, error: { code: 'BOOM', message: '실패' }, meta: { requestId: 'r' } }), { status: 500, headers: { 'content-type': 'application/json' } });
+      return ok(serverPage([srvList]));
+    });
+
+    const queued: PendingDelete[] = [{ kind: 'list', collectionId: 'srv-1' }];
+    const result = await loadCollections(empty, 'token', queued);
+
+    if (result.state !== 'success') throw new Error('성공이어야 한다');
+    expect(result.pendingDeletes).toEqual(queued);
+  });
+
+  it('404 는 이미 없다는 뜻이라 지운 것으로 친다', async () => {
+    mockServer((method) => {
+      if (method === 'DELETE') return new Response(JSON.stringify({ data: null, error: { code: 'NOT_FOUND', message: '없음' }, meta: { requestId: 'r' } }), { status: 404, headers: { 'content-type': 'application/json' } });
+      return ok(serverPage([srvList]));
+    });
+
+    const result = await loadCollections(empty, 'token', [{ kind: 'list', collectionId: 'srv-1' }]);
+
+    if (result.state !== 'success') throw new Error('성공이어야 한다');
+    expect(result.pendingDeletes).toEqual([]);
+  });
+
+  it('🔴 못 보낸 동안에도 화면에 다시 안 나타난다', async () => {
+    mockServer((method) => {
+      if (method === 'DELETE') return new Response(JSON.stringify({ data: null, error: { code: 'BOOM', message: '실패' }, meta: { requestId: 'r' } }), { status: 503, headers: { 'content-type': 'application/json' } });
+      return ok(serverPage([srvList]));
+    });
+
+    const result = await loadCollections(empty, 'token', [{ kind: 'list', collectionId: 'srv-1' }]);
+
+    if (result.state !== 'success') throw new Error('성공이어야 한다');
+    // 서버는 계속 돌려주지만 지운 것이므로 없는 셈 친다.
+    expect(result.data.lists.map((l) => l.id)).not.toContain('srv-1');
+  });
+
+  it('로그인 전에는 보내지 않고 그대로 들고 있는다', async () => {
+    const queued: PendingDelete[] = [{ kind: 'list', collectionId: 'srv-1' }];
+    const result = await loadCollections(empty, null, queued);
+
+    expect(result.state).toBe('device-only');
+    expect(result.pendingDeletes).toEqual(queued);
+  });
+});
+
+describe('samePendingDelete — 같은 것을 두 번 적지 않으려고', () => {
+  it('같은 리스트 지우기는 같다고 본다', () => {
+    expect(samePendingDelete({ kind: 'list', collectionId: 'a' }, { kind: 'list', collectionId: 'a' })).toBe(true);
+    expect(samePendingDelete({ kind: 'list', collectionId: 'a' }, { kind: 'list', collectionId: 'b' })).toBe(false);
+  });
+
+  it('항목은 리스트와 항목이 둘 다 같아야 같다', () => {
+    expect(samePendingDelete({ kind: 'item', collectionId: 'a', itemId: 'x' }, { kind: 'item', collectionId: 'a', itemId: 'x' })).toBe(true);
+    expect(samePendingDelete({ kind: 'item', collectionId: 'a', itemId: 'x' }, { kind: 'item', collectionId: 'a', itemId: 'y' })).toBe(false);
+  });
+
+  it('종류가 다르면 다르다', () => {
+    expect(samePendingDelete({ kind: 'list', collectionId: 'a' }, { kind: 'item', collectionId: 'a', itemId: 'a' })).toBe(false);
+  });
+});
+
+// S15P21E201-1153 — 이름·설명을 고쳐도 서버에 안 가던 것.
+//
+// 🔴 이 시험이 지키는 것은 셋이다.
+//    (1) 고친 이름을 PATCH 로 보낸다
+//    (2) 못 보낸 동안에도 화면에는 새 이름이 보인다
+//    (3) 🔴 이름을 바꿔도 같은 리스트로 알아본다 — 못 알아보면 서버에 하나 더 만들어진다
+import { type PendingRename } from '../collectionsApi';
+
+describe('이름 고치기를 서버로 보낸다 (S15P21E201-1153)', () => {
+  const srv = serverList('7b8cd3bc-7cef-48ef-bda0-335bec095fc2', '바다 보러', [{ placeId: 'p9', name: '광안리', position: 0 }]);
+  const renamed: PendingRename[] = [{ collectionId: '7b8cd3bc-7cef-48ef-bda0-335bec095fc2', name: '여름에 갈 곳', description: null }];
+  const empty: DeviceCollections = { lists: [], places: {} };
+
+  it('보류해 둔 이름 고치기를 PATCH 로 보낸다', async () => {
+    const patched: string[] = [];
+    mockServer((method, url) => {
+      if (method === 'PATCH') { patched.push(url); return ok({}); }
+      return ok(serverPage([srv]));
+    });
+
+    const result = await loadCollections(empty, 'token', [], renamed);
+
+    expect(patched).toHaveLength(1);
+    expect(patched[0]).toContain('/me/collections/7b8cd3bc-7cef-48ef-bda0-335bec095fc2');
+    if (result.state !== 'success') throw new Error('성공이어야 한다');
+    expect(result.pendingRenames).toEqual([]);
+  });
+
+  it('🔴 못 보낸 동안에도 화면에는 새 이름이 보인다', async () => {
+    mockServer((method) => {
+      if (method === 'PATCH') return new Response(JSON.stringify({ data: null, error: { code: 'BOOM', message: '실패' }, meta: { requestId: 'r' } }), { status: 503, headers: { 'content-type': 'application/json' } });
+      return ok(serverPage([srv]));
+    });
+
+    const result = await loadCollections(empty, 'token', [], renamed);
+
+    if (result.state !== 'success') throw new Error('성공이어야 한다');
+    // 서버는 옛 이름을 돌려주지만 화면은 새 이름이어야 한다.
+    expect(result.data.lists[0].name).toBe('여름에 갈 곳');
+    expect(result.pendingRenames).toEqual(renamed);
+  });
+
+  it('🔴 보낸 뒤 다시 받아온다 — 안 그러면 화면이 한 판 뒤처진다', async () => {
+    // 2026-09-17 실기기(vc15)에서 그대로 재현된 자리다. 이름을 고치고 앱을 껐다 켜면
+    // 옛 이름이 나오고, 한 번 더 껐다 켜야 새 이름이 나왔다. 서버에는 처음부터
+    // 들어가 있었고 화면만 뒤처진 것이다.
+    //
+    // 원인은 순서였다 — 목록을 먼저 받고(옛 이름), 그 뒤에 PATCH 를 보내고, 합칠 때는
+    // 먼저 받아 둔 옛 이름을 쓴다. 보낸 것이 있으면 다시 받아와야 한다.
+    let gets = 0;
+    mockServer((method) => {
+      if (method === 'PATCH') return ok({});
+      gets += 1;
+      // 첫 번째 GET 은 옛 이름, PATCH 뒤의 GET 은 새 이름을 돌려준다 — 진짜 서버와 같다.
+      return ok(serverPage([gets === 1
+        ? srv
+        : serverList('7b8cd3bc-7cef-48ef-bda0-335bec095fc2', '여름에 갈 곳', [{ placeId: 'p9', name: '광안리', position: 0 }])]));
+    });
+
+    const result = await loadCollections(empty, 'token', [], renamed);
+
+    if (result.state !== 'success') throw new Error('성공이어야 한다');
+    expect([gets, result.data.lists[0].name]).toEqual([2, '여름에 갈 곳']);
+  });
+
+  it('보낼 이름이 없으면 공연히 다시 받아오지 않는다', async () => {
+    let gets = 0;
+    mockServer((method) => {
+      if (method === 'PATCH') throw new Error('PATCH 가 나가면 안 된다');
+      gets += 1;
+      return ok(serverPage([srv]));
+    });
+
+    const result = await loadCollections(empty, 'token', [], []);
+
+    if (result.state !== 'success') throw new Error('성공이어야 한다');
+    expect(gets).toBe(1);
+  });
+
+  it('4xx 면 다시 보내지 않는다 — 같은 값으로는 계속 실패한다', async () => {
+    mockServer((method) => {
+      if (method === 'PATCH') return new Response(JSON.stringify({ data: null, error: { code: 'TOO_LONG', message: '이름이 너무 김' }, meta: { requestId: 'r' } }), { status: 400, headers: { 'content-type': 'application/json' } });
+      return ok(serverPage([srv]));
+    });
+
+    const result = await loadCollections(empty, 'token', [], renamed);
+
+    if (result.state !== 'success') throw new Error('성공이어야 한다');
+    expect(result.pendingRenames).toEqual([]);
+  });
+});
+
+describe('짝짓기 — id 먼저, 이름은 그다음 (S15P21E201-1153)', () => {
+  const uuid = '7b8cd3bc-7cef-48ef-bda0-335bec095fc2';
+  const server: DeviceCollections = {
+    lists: [list(uuid, '바다 보러', ['p1'])],
+    places: { p1: place('p1', '광안리') },
+  };
+
+  it('🔴 이름을 바꿔도 id 가 같으면 같은 리스트다 — 서버에 하나 더 안 만든다', () => {
+    const device: DeviceCollections = {
+      lists: [list(uuid, '여름에 갈 곳', ['p1'])],   // 같은 id, 바뀐 이름
+      places: { p1: place('p1', '광안리') },
+    };
+
+    const { merged, onlyOnDevice } = mergeCollections(device, server);
+
+    expect(onlyOnDevice).toHaveLength(0);   // 새 리스트로 안 본다
+    expect(merged.lists).toHaveLength(1);
+  });
+
+  it('id 가 달라도 이름이 같으면 같은 리스트다 — 오프라인에서 만든 경우', () => {
+    const device: DeviceCollections = {
+      lists: [list('mfjk2x-a7b3c1', '바다 보러', ['p1'])],   // 기기가 만든 id, 같은 이름
+      places: { p1: place('p1', '광안리') },
+    };
+
+    const { onlyOnDevice } = mergeCollections(device, server);
+
+    expect(onlyOnDevice).toHaveLength(0);
+  });
+
+  it('id 도 이름도 다르면 새 리스트다', () => {
+    const device: DeviceCollections = {
+      lists: [list('mfjk2x-a7b3c1', '전혀 다른 리스트', [])],
+      places: {},
+    };
+
+    const { onlyOnDevice } = mergeCollections(device, server);
+
+    expect(onlyOnDevice).toHaveLength(1);
+    expect(onlyOnDevice[0].name).toBe('전혀 다른 리스트');
   });
 });

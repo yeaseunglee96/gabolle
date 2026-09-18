@@ -21,7 +21,7 @@ describe('guestDestination — 「비회원으로 둘러보기」가 갈 곳', (
   });
 
   it('로그인이 필요 없는 자리에서 왔으면 그 자리로 돌려보낸다', () => {
-    expect(guestDestination('/plan/confirm', undefined)).toBe('/plan/confirm');
+    expect(guestDestination('/plan', undefined)).toBe('/plan');
     expect(guestDestination('/explore', null)).toBe('/explore');
   });
 

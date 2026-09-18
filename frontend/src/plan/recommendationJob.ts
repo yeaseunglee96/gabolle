@@ -1,4 +1,5 @@
 import { apiRequest, ApiClientError, getApiLanguage } from '@/api/client';
+import { readableApiError } from '@/api/errorText';
 import { cloneSharedTripAndJob, createTripAndRecommendationJob } from '@/api/tripApi';
 import type { PlanDraft } from '@/plan/PlanProvider';
 import type { RecommendationJobStreamSnapshot } from '@/plan/recommendationJobStream';
@@ -66,7 +67,11 @@ function toFailure(error: unknown, jobId: string | null = null): RecommendationJ
   if (error instanceof ApiClientError && (error.status === 404 || error.status === 501 || error.code === 'NETWORK_ERROR')) return { ...unavailableJob(error.message), jobId };
   if (error instanceof ApiClientError && error.status === 409) return { state: 'conflict', jobId, progress: null, stage: null, canCancel: false, errorMessage: error.message, resultRef: null };
   if (error instanceof ApiClientError && error.status === 403 && error.code === 'HEALTH_CONSENT_REQUIRED') return { state: 'consent-required', jobId, progress: null, stage: null, canCancel: false, errorMessage: error.message, resultRef: null, requiredConsent: 'HEALTH_CONSTRAINTS' };
-  return { state: 'failed', jobId, progress: null, stage: null, canCancel: false, errorMessage: error instanceof Error ? error.message : '일정을 만들지 못했어요. 잠시 후 다시 시도해 주세요.', resultRef: null };
+  return { state: 'failed', jobId, progress: null, stage: null, canCancel: false, errorMessage: readableApiError(error, getApiLanguage() !== 'en'),
+    // 🔴 서버가 message 자리에 **키**를 넣는다(TripExceptionHandler). 그대로 찍으면
+    //    사용자에게 `error.trip.validation` 이 보인다 — 2026-09-18 실기기에서 실제로 그랬다.
+    //    readableApiError 가 fields(어느 칸이 왜 막혔나)를 먼저 쓰고, 없으면 문장으로 바꾼다.
+    resultRef: null };
 }
 export function createRecommendationJobAdapter(accessToken: string | null): RecommendationJobAdapter { return {
   async submit(draft) { try { return acceptJob(draft.cloneShareToken ? await cloneSharedTripAndJob(draft.cloneShareToken, draft, accessToken) : await createTripAndRecommendationJob(draft, accessToken)); } catch (error) { return toFailure(error); } },

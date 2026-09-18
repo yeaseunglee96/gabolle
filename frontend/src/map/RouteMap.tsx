@@ -5,7 +5,7 @@ import { Text } from '@/components/Text';
 import { Button } from '@/components/Button';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
-import type { MapStop } from './types';
+import type { MapPathPoint, MapStop } from './types';
 
 declare global { interface Window { kakao?: any } }
 
@@ -27,7 +27,26 @@ const MAP_HOSTS = /kakao\.com|daumcdn\.net/;
 //    고칠 사람이 화면을 볼 때 개발자 도구를 열고 있으리라는 보장이 없다.
 type MapFailure = { title: string; reason: string; tech: string };
 
-export type MapRouteLayer = { id: string; color: string; stops: MapStop[] };
+/**
+ * 지도에 그리는 선 하나.
+ *
+ * 🔴 **`path` 가 없으면 이 선은 「실제 길」이 아니다.** 장소를 직선으로 이은 것뿐이다.
+ * 카카오는 자동차 경로만 공개하고 도보·대중교통은 좌표를 안 준다 — 그래서 이 앱이
+ * 그리는 선은 대부분 직선이다.
+ *
+ * 🔴 **그런 선은 점선으로 그린다.** 실선으로 그리면 사람은 **그 선을 따라 걸으면 되는 줄
+ * 안다.** 바다를 가로지르는 직선이 실선으로 그려지는 순간 지도 전체를 못 믿게 된다.
+ * 그래서 `estimated` 의 기본값은 **참**이다 — 실제 길이라고 말하려면 그렇게 적어야 한다.
+ */
+export type MapRouteLayer = {
+  id: string;
+  color: string;
+  stops: MapStop[];
+  /** 실제 길을 따라가는 좌표들. 서버의 경로 응답이 준다. 없으면 stops 를 직선으로 잇는다. */
+  path?: MapPathPoint[];
+  /** 실제 길이 아니라 직선 추정인가. 안 적으면 추정으로 본다. */
+  estimated?: boolean;
+};
 export type MapPointLayer = { id: string; label: string; color: string; stops: MapStop[] };
 
 // 🔴 `points` 매개변수 기본값을 여기서 한 번만 만든다. 함수 시그니처에 `points = []` 로
@@ -129,8 +148,18 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
           overlay.setMap(map); overlaysRef.current.push(overlay);
         }
         (routes ?? [{ id: 'selected', color: color.brand.orange, stops }]).forEach((route) => {
-          const path = route.stops.map((stop) => new maps.LatLng(stop.latitude, stop.longitude));
-          const line = new maps.Polyline({ path, strokeWeight: 5, strokeColor: route.color, strokeOpacity: 0.9, strokeStyle: 'solid' });
+          // 🔴 실제 길 좌표가 있으면 그것을, 없으면 장소를 직선으로 잇는다.
+          const points = route.path?.length ? route.path : route.stops;
+          const path = points.map((point) => new maps.LatLng(point.latitude, point.longitude));
+          // 🔴 실제 길이라고 **적혀 있을 때만** 실선이다. 나머지는 전부 점선이다.
+          const real = route.path?.length ? route.estimated === false : false;
+          const line = new maps.Polyline({
+            path,
+            strokeWeight: 5,
+            strokeColor: route.color,
+            strokeOpacity: real ? 0.9 : 0.75,
+            strokeStyle: real ? 'solid' : 'shortdash',
+          });
           line.setMap(map); overlaysRef.current.push(line);
         });
         // S15P21E201-919: stop이 하나면 bounds 넓이가 0이라 setBounds가 지도를 최대 줌으로
@@ -185,10 +214,21 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
     };
   }, [appKey, currentLocation, onSelect, points, routes, selectedId, stops]);
 
+  // 🔴 지도에 점선이 하나라도 있으면 그 뜻을 글로 적는다 (S15P21E201-1234).
+  //    점선이 무슨 뜻인지 모르는 사람에게는 실선과 다를 바가 없고, 그러면 점선을 두는
+  //    이유가 사라진다. 실제 길만 그려진 지도에는 이 줄이 안 나온다.
+  const hasEstimatedLine = (routes ?? [{ id: 'selected', color: '', stops }])
+    .some((route) => !(route.path?.length && route.estimated === false));
+
   if (Platform.OS === 'web') {
     return (
       <View style={styles.webShell}>
         {createElement('div', { ref: hostRef, style: { width: '100%', height }, 'aria-label': tx('여행 동선 지도', 'Trip route map') })}
+        {hasEstimatedLine && !failure ? (
+          <Text variant="caption" color={color.text.muted} style={styles.estimateNote}>
+            {tx('점선은 실제 길이 아니라 장소를 곧게 이은 선이에요.', 'Dashed lines connect places in a straight line, not along real roads.')}
+          </Text>
+        ) : null}
         {failure ? (
           <View accessibilityRole="alert" style={styles.webFallback}>
             <Text variant="title" weight="bold">{failure.title}</Text>
@@ -235,6 +275,7 @@ const styles = StyleSheet.create({
   fallback: { minHeight: 260, borderRadius: radius.lg, backgroundColor: color.surface.soft, borderWidth: 1, borderColor: color.surface.field, alignItems: 'center', justifyContent: 'center', padding: spacing[6], gap: spacing[2] },
   description: { color: color.text.body, textAlign: 'center', maxWidth: 420 },
   // 고칠 사람이 읽는 한 줄. 여행자에게는 작고 흐리게 보인다.
+  estimateNote: { marginTop: spacing[2] },
   tech: { color: color.text.muted, textAlign: 'center', maxWidth: 460 },
   backButton: { minHeight: 44, marginTop: spacing[2], paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.brand.navy, alignItems: 'center', justifyContent: 'center' },
   routePreview: { flexDirection: 'row', alignItems: 'center', marginTop: spacing[3] },

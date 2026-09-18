@@ -35,15 +35,14 @@ import {
   type ItineraryRhythmDto,
   type ItineraryVersionEntryDto,
 } from '@/plan/itinerary';
+import { nextSyncPollDelay, SYNC_POLL_BASE_MS } from '@/plan/syncPoll';
 import { formatTravelLabel, itineraryStats, totalTravelMinutes } from '@/plan/itinerarySummary';
 import { loadPlaceReviews, submitPlaceReview } from '@/review/placeReviews';
 import { useI18n } from '@/i18n';
+import { describeWarningCodes } from '@/plan/warningLabels';
 import { ExcludeConfirmModal } from '@/components/ExcludeConfirmModal';
 
-const WARNING_LABEL: Record<string, [string, string]> = {
-  RECALC_NO_CANDIDATE: ['뺀 자리를 채울 다른 장소를 찾지 못해 비워 뒀어요.', "We couldn't find another place to fill the removed spot, so it's left empty."],
-  RECALC_TIMES_RESHUFFLED: ['다시 계산하면서 고정된 장소의 시각도 함께 조정됐어요.', 'Recalculating also adjusted the times of locked places.'],
-};
+// 경고 문구는 src/plan/warningLabels.ts 로 옮겼다 — 시험이 붙들게 하려고 (S15P21E201-1150).
 
 // 영업시간 경고(S15P21E201-268/-858) — 편집 다섯 갈래 중 넷(더하기 제외, 재계산은 비동기라
 // 이 응답에 못 싣는다)이 warnings·notChecked를 함께 돌려준다. 되돌리기는 여러 날에 걸친
@@ -284,9 +283,14 @@ export default function ItineraryScreen() {
     if (next.state === 'success') setVersions(next.versions);
   }, [accessToken]);
 
+  // S15P21E201-1131 — 동기화 폴링 간격. reload() 도 이 값을 되돌리므로 그보다 위에 둔다.
+  const pollDelayRef = useRef(SYNC_POLL_BASE_MS);
+
   const reload = useCallback(async () => {
     if (!itineraryId) return;
     setLoading(true); setConflict(null); setActionMessage(null);
+    // 내가 무엇이든 했으면 동기화를 다시 촘촘하게 본다 (S15P21E201-1131).
+    pollDelayRef.current = SYNC_POLL_BASE_MS;
     const next = await loadItinerary(itineraryId, accessToken);
     setResult(next); setLoading(false);
     if (next.state === 'success') {
@@ -309,27 +313,59 @@ export default function ItineraryScreen() {
     pollBlockedRef.current = Boolean(busyItemId) || excludingItemId !== null || excludeConfirming !== null || dayActionBusy || revertBusy || orderDraft !== null || reorderBusy || replanBusy || actualBusyItemId !== null;
   });
   const failureStreakRef = useRef(0);
+  // 🔴 S15P21E201-1131 — 간격이 고정 5초가 아니라 「안 바뀌면 늘어나는」 값이 된다.
+  //
+  //    혼자 보는 일정을 3분 열어 두면 요청이 36번 나갔고, 그 36번이 전부 같은 답을
+  //    받았다. 규칙과 근거는 src/plan/syncPoll.ts 가 소유한다 — 여기서는 그것을 쓰기만
+  //    한다. 동기화 자체는 끄지 않는다(동행자 실시간 동기화, S15P21E201-323).
+  // 🔴 setResult 의 갱신 함수 안에서 「바뀌었나」를 계산하면 안 된다 — 갱신 함수는
+  //    React 가 두 번 부를 수 있고, 그 안에서 바깥 값을 건드리면 간격이 조용히 틀어진다.
+  //    그래서 직전 결과를 ref 로 따로 들고 비교는 바깥에서 한다.
+  const resultRef = useRef(result);
+  useEffect(() => { resultRef.current = result; });
   useEffect(() => {
     if (!itineraryId) return;
-    const timer = setInterval(() => {
-      if (pollBlockedRef.current) return;
+    let stopped = false;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+
+    const schedule = () => {
+      if (stopped) return;
+      timer = setTimeout(tick, pollDelayRef.current);
+    };
+
+    const tick = () => {
+      if (stopped) return;
+      // 내 편집이 도는 동안은 이번 차례를 건너뛴다. 간격은 그대로 두고 다시 잰다 —
+      // 편집 중이라고 해서 동기화가 느려질 이유는 없다.
+      if (pollBlockedRef.current) { schedule(); return; }
       void loadItinerary(itineraryId, accessToken).then((next) => {
+        if (stopped) return;
         if (next.state === 'success') {
           failureStreakRef.current = 0;
           setSyncDisconnected(false);
-          setResult((prev) => (prev.state === 'success' && prev.itinerary.version === next.itinerary.version) ? prev : next);
+          const prev = resultRef.current;
+          const changed = !(prev.state === 'success' && prev.itinerary.version === next.itinerary.version);
+          if (changed) setResult(next);
+          pollDelayRef.current = nextSyncPollDelay(pollDelayRef.current, changed);
         } else {
           failureStreakRef.current += 1;
           if (failureStreakRef.current >= 3) setSyncDisconnected(true);
+          // 실패도 「안 바뀐 것」으로 친다. 서버가 안 되는 동안 5초마다 두드리는 것은
+          // 우리한테도 서버한테도 손해다.
+          pollDelayRef.current = nextSyncPollDelay(pollDelayRef.current, false);
         }
+        schedule();
       });
-    }, 5000);
-    return () => clearInterval(timer);
+    };
+
+    schedule();
+    return () => { stopped = true; if (timer) clearTimeout(timer); };
   }, [accessToken, itineraryId]);
 
   const manualSyncRefresh = async () => {
     await reload();
     failureStreakRef.current = 0;
+    pollDelayRef.current = SYNC_POLL_BASE_MS;
     setSyncDisconnected(false);
   };
 
@@ -342,7 +378,13 @@ export default function ItineraryScreen() {
   // S15P21E201-1014 — 통계는 값이 있는 것만 만든다. 판정은 itinerarySummary.ts 에 있다.
   const stats = useMemo(() => (itinerary ? itineraryStats(itinerary, tx) : []), [itinerary, tx]);
   const canEdit = itinerary?.canEdit !== false;
-  const latestWarnings = useMemo(() => versions[0]?.warningCodes?.map((code) => (WARNING_LABEL[code] ? tx(...WARNING_LABEL[code]) : code)) ?? [], [versions, tx]);
+  // 🔴 S15P21E201-1150 — 모르는 코드는 안 그린다.
+  //
+  //    전에는 짝이 없으면 코드를 그대로 그렸다(`: code`). 그래서 백엔드가 경고를
+  //    하나 늘리자 화면에 SIGHT_SLOT_UNFILLED 가 영문 대문자 그대로 떴다
+  //    (2026-09-17 실기기 확인). 읽을 수 없는 경고는 못 본 것과 같고,
+  //    암호가 뜨면 경고 칸 자체를 못 믿게 된다.
+  const latestWarnings = useMemo(() => describeWarningCodes(versions[0]?.warningCodes, tx), [versions, tx]);
   const reorderMode = orderDraft !== null;
   const slotTimes = useMemo(() => day?.items.map((item) => item.startsAt) ?? [], [day]);
   const displayedItems = useMemo(() => {
@@ -354,11 +396,27 @@ export default function ItineraryScreen() {
   const dayTravelMinutes = useMemo(() => totalTravelMinutes(displayedItems), [displayedItems]);
   // 🔴 값이 없는 칸을 0 으로 세지 않는다. 자료가 있는 칸만 더하므로 이 합계는 「적어도 이만큼」이다.
   const dayWalkingMeters = useMemo(() => displayedItems.reduce((sum, item) => sum + (item.walkingMeters ?? 0), 0), [displayedItems]);
-  const dayCostKrw = useMemo(() => displayedItems.reduce((sum, item) => sum + (item.estimatedCostKrw ?? 0), 0), [displayedItems]);
+  // 🔴 비용 합계는 **아는 칸이 몇 개인지 같이 말한다** (S15P21E201-1237).
+  //
+  //    전에는 값 없는 칸을 0 으로 더했다. 지금은 운영의 입장료가 전부 비어 있어서
+  //    합계가 0 이고, 아래의 `> 0` 이 막아 안 그려진다 — **조용하다.** 그런데 입장료가
+  //    **한 건이라도** 들어오는 순간 그 한 건이 「하루 예상 비용」으로 그려진다.
+  //    다섯 곳 중 한 곳만 아는 값이 「오늘 쓰는 돈」으로 읽히는 것이다.
+  //
+  //    아는 칸이 전부가 아니면 **몇 개를 아는지 붙인다.** 「적어도 이만큼」이라는 사실을
+  //    숫자 옆에 두는 것이, 합계를 안 그려서 **아무것도 모르게 하는 것보다 낫다.**
+  const dayCost = useMemo(() => {
+    const known = displayedItems.filter((item) => typeof item.estimatedCostKrw === 'number');
+    return { krw: known.reduce((sum, item) => sum + (item.estimatedCostKrw as number), 0), known: known.length, total: displayedItems.length };
+  }, [displayedItems]);
   const dayFacts = useMemo(() => [
     dayWalkingMeters > 0 ? tx(`도보 ${formatWalk(dayWalkingMeters)}`, `${formatWalk(dayWalkingMeters)} on foot`) : null,
-    dayCostKrw > 0 ? tx(`${dayCostKrw.toLocaleString()}원`, `${dayCostKrw.toLocaleString()} KRW`) : null,
-  ].filter(Boolean).join(' · '), [dayWalkingMeters, dayCostKrw, tx]);
+    dayCost.krw > 0
+      ? dayCost.known === dayCost.total
+        ? tx(`${dayCost.krw.toLocaleString()}원`, `${dayCost.krw.toLocaleString()} KRW`)
+        : tx(`${dayCost.krw.toLocaleString()}원 (${dayCost.total}곳 중 ${dayCost.known}곳)`, `${dayCost.krw.toLocaleString()} KRW (${dayCost.known} of ${dayCost.total} places)`)
+      : null,
+  ].filter(Boolean).join(' · '), [dayWalkingMeters, dayCost, tx]);
   const canReorder = canEdit && (day?.items.filter((item) => !item.locked).length ?? 0) > 1;
 
   // 지연 경고(S15P21E201-96·314). 날짜를 바꾸면 그 날짜 것을 새로 받는다 — 표본이
@@ -664,12 +722,31 @@ export default function ItineraryScreen() {
             <View style={wide ? styles.timelineColumn : undefined}>
               <View style={styles.route}>{displayedItems.map((item, index) => <StopRow key={item.id} item={item} index={index} isLast={index === displayedItems.length - 1} displayTime={slotTimes[index] ?? item.startsAt} wide={wide} expanded={expandedItemId === item.id} onToggleExpand={() => setExpandedItemId((current) => current === item.id ? null : item.id)} canEdit={canEdit} lockBusy={busyItemId === item.id} excludeBusy={excludingItemId === item.id} dayBusy={dayActionBusy || excludingItemId !== null} onLock={() => void toggleLock(item)} onExclude={() => setExcludeConfirming(item)} reorderMode={reorderMode} canMoveUp={index > 0 && !item.locked && !displayedItems[index - 1].locked} canMoveDown={index < displayedItems.length - 1 && !item.locked && !displayedItems[index + 1].locked} moveBusy={reorderBusy} onMoveUp={() => moveDraftItem(index, -1)} onMoveDown={() => moveDraftItem(index, 1)} pace={paceByItemId.get(item.id)} estimated={paceEstimated} actualBusy={actualBusyItemId === item.id} onRecordArrival={() => void recordArrival(item)} onRecordDeparture={() => void recordDeparture(item)} accessToken={accessToken} />)}</View>
             </View>
-            {/* 이동 요약 — 시안 2.5(넓은 화면 오른쪽 고정) · 3.4(폰은 목록 아래). 폰에도 둔다:
+            {/* 이동 요약 — 시안 p6 의 3칸(장소 · 이동 합계 · 수단). 폰에도 둔다:
                 「이 하루가 얼마나 걷는 하루인가」는 정차를 하나씩 봐서는 안 나오는 값이다. */}
             <View style={wide ? styles.aside : undefined}>
+              {/* 🔴 시안의 3칸. 세 번째 칸(수단)은 **서버가 안 준다** — 일정 응답에
+                  구간 이동수단 칸이 없다(itinerary.ts 의 ItineraryItemDto). 「도보2·버스1」을
+                  지어내지 않고 없다고 적는다. 칸을 지우지 않는 이유는, 자리가 비어 있어야
+                  서버가 그 값을 싣는 날 여기에 들어온다는 것이 보이기 때문이다. */}
+              <View style={styles.summaryRow}>
+                <View style={styles.summaryCell}>
+                  <Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx('장소', 'Stops')}</Text>
+                  <Text variant="title" weight="bold">{tx(`${displayedItems.length}곳`, String(displayedItems.length))}</Text>
+                </View>
+                <View style={styles.summaryCell}>
+                  <Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx('이동 합계', 'Travel')}</Text>
+                  {dayTravelMinutes > 0
+                    ? <Text variant="title" weight="bold">{tx(`${dayTravelMinutes}분`, `${dayTravelMinutes}m`)}</Text>
+                    : <Text variant="caption" color={color.text.muted}>{tx('아직 없어요', 'Not yet')}</Text>}
+                </View>
+                <View style={styles.summaryCell}>
+                  <Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx('수단', 'Modes')}</Text>
+                  <Text variant="caption" color={color.text.muted}>{tx('아직 없어요', 'Not yet')}</Text>
+                </View>
+              </View>
               <View style={styles.asideCard}>
                 <Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx(`${selectedDay + 1}일차 이동 요약`, `Day ${selectedDay + 1} travel summary`)}</Text>
-                <Text variant="title" weight="bold">{tx(`${displayedItems.length}곳`, `${displayedItems.length} stops`)}</Text>
                 {dayWalkingMeters > 0 ? <View accessibilityLabel={tx(`정차별 도보 비중`, 'Walking share per stop')} style={styles.shareBar}>
                   {displayedItems.map((item) => item.walkingMeters ? <View key={item.id} style={[styles.shareSlice, { flex: item.walkingMeters }]} /> : null)}
                 </View> : null}
@@ -770,6 +847,8 @@ const styles = StyleSheet.create({ shell: { flex: 1, backgroundColor: color.bran
   wideGrid: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[6] },
   timelineColumn: { flex: 1, minWidth: 0 },
   aside: { width: 360 },
+  summaryRow: { flexDirection: 'row', gap: spacing[2], marginBottom: spacing[3] },
+  summaryCell: { flex: 1, gap: 2, padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.border },
   asideCard: { gap: spacing[2], marginTop: spacing[3], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.border },
   // 노선도 — 정차 노드와 구간. 정차가 많으면 가로로 스크롤한다.
   strip: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[2], paddingVertical: spacing[3] },

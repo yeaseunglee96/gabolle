@@ -26,8 +26,8 @@ function assertNeverSaysNone(text: string) {
 describe('알레르기 안내는 「없다」를 말하지 않는다', () => {
   it('낱말을 찾았으면 그대로 나열하고, 직접 확인하라는 말이 반드시 붙는다', () => {
     const notice = allergenNotice(scan({ lines: [
-      { text: '새우튀김 12,000', allergenWords: ['새우'] },
-      { text: '우유푸딩 6,000', allergenWords: ['우유'] },
+      { text: '새우튀김 12,000', translatedText: '새우튀김 12,000', allergenWords: ['새우'] },
+      { text: '우유푸딩 6,000', translatedText: '우유푸딩 6,000', allergenWords: ['우유'] },
     ] }), tx);
     expect(notice.words).toEqual(['새우', '우유']);
     expect(notice.caution).toContain('직원에게 확인');
@@ -35,7 +35,7 @@ describe('알레르기 안내는 「없다」를 말하지 않는다', () => {
   });
 
   it('🔴 못 찾았을 때 「없다는 뜻이 아니에요」가 반드시 붙는다', () => {
-    const notice = allergenNotice(scan({ lines: [{ text: '김치찌개 9,000', allergenWords: [] }] }), tx);
+    const notice = allergenNotice(scan({ lines: [{ text: '김치찌개 9,000', translatedText: '김치찌개 9,000', allergenWords: [] }] }), tx);
     expect(notice.words).toEqual([]);
     expect(notice.caution).toContain('없다는 뜻이 아니');
     expect(notice.caution).toContain('직원에게 확인');
@@ -43,7 +43,7 @@ describe('알레르기 안내는 「없다」를 말하지 않는다', () => {
   });
 
   it('🔴 영어에서도 「없다」를 말하지 않고 확인을 요구한다', () => {
-    const notice = allergenNotice(scan({ lines: [{ text: 'Kimchi stew', allergenWords: [] }] }), txEn);
+    const notice = allergenNotice(scan({ lines: [{ text: 'Kimchi stew', translatedText: 'Kimchi stew', allergenWords: [] }] }), txEn);
     expect(notice.caution.toLowerCase()).toContain('does not mean');
     expect(notice.caution.toLowerCase()).toContain('check with the staff');
     assertNeverSaysNone(notice.headline + notice.caution);
@@ -51,8 +51,8 @@ describe('알레르기 안내는 「없다」를 말하지 않는다', () => {
 
   it('같은 낱말이 여러 줄에 있어도 한 번만 나온다', () => {
     const notice = allergenNotice(scan({ lines: [
-      { text: '새우튀김', allergenWords: ['새우'] },
-      { text: '새우볶음밥', allergenWords: ['새우'] },
+      { text: '새우튀김', translatedText: '새우튀김', allergenWords: ['새우'] },
+      { text: '새우볶음밥', translatedText: '새우볶음밥', allergenWords: ['새우'] },
     ] }), tx);
     expect(notice.words).toEqual(['새우']);
   });
@@ -68,7 +68,7 @@ describe('못 읽은 줄은 숨기지 않는다', () => {
   });
 
   it('🔴 못 읽은 줄이 0이어도 알레르기 주의는 그대로 붙는다', () => {
-    const notice = allergenNotice(scan({ unreadLineCount: 0, lines: [{ text: '된장찌개', allergenWords: [] }] }), tx);
+    const notice = allergenNotice(scan({ unreadLineCount: 0, lines: [{ text: '된장찌개', translatedText: '된장찌개', allergenWords: [] }] }), tx);
     expect(notice.caution).toContain('직원에게 확인');
   });
 });
@@ -79,12 +79,16 @@ describe('글자를 못 찾았을 때', () => {
   });
 
   it('글자가 있으면 이 안내는 안 나온다', () => {
-    expect(emptyNotice(scan({ lines: [{ text: '비빔밥', allergenWords: [] }] }), tx)).toBeNull();
+    expect(emptyNotice(scan({ lines: [{ text: '비빔밥', translatedText: '비빔밥', allergenWords: [] }] }), tx)).toBeNull();
   });
 });
 
 // ── 서버가 준 것을 그대로 믿지 않는다 ────────────────────────────────────────
 
+// 🔴 S15P21E201-1187 — 사진은 보내기 전에 진짜 파일을 읽어 Blob 으로 바뀜다.
+//    여기서 재는 것은 서버가 준 것을 어떻게 다루는가라, 파일 읽기는 흔든다.
+//    그 자리 자체의 시험은 src/api/__tests__/multipart.test.ts 에 따로 있다.
+jest.mock('@/api/multipart', () => ({ singleFileFormData: jest.fn(async () => new FormData()) }));
 jest.mock('@/social/imageResize', () => ({
   MAX_UPLOAD_BYTES: 3 * 1024 * 1024,
   measureBytes: jest.fn(async () => 1000),
@@ -103,7 +107,7 @@ function respondWith(payload: unknown, status = 200) {
 describe('메뉴판 사진 보내기', () => {
   it('서버가 준 줄과 못 읽은 줄 수를 그대로 싣는다', async () => {
     respondWith({ data: { lines: [{ text: '새우튀김', allergenWords: ['새우'] }], unreadLineCount: 2, evidenceStatus: 'ESTIMATED' }, error: null, meta: { requestId: 'r1' } });
-    const result = await scanMenu('file:///menu.jpg', 'token', tx);
+    const result = await scanMenu('file:///menu.jpg', 'token', tx, 'ko');
     expect(result.state).toBe('success');
     if (result.state !== 'success') return;
     expect(result.scan.lines).toHaveLength(1);
@@ -117,10 +121,11 @@ describe('메뉴판 사진 보내기', () => {
       evidenceStatus: 'VERIFIED',
       hasAllergen: false,
     }, error: null, meta: { requestId: 'r1' } });
-    const result = await scanMenu('file:///menu.jpg', 'token', tx);
+    const result = await scanMenu('file:///menu.jpg', 'token', tx, 'ko');
     expect(result.state).toBe('success');
     if (result.state !== 'success') return;
-    expect(result.scan.lines[0]).toEqual({ text: '김밥', allergenWords: ['달걀'] });
+    // 🔴 서버가 translatedText 를 안 줬다 — 원문으로 물러선다(normalizeScan 의 물러섬).
+    expect(result.scan.lines[0]).toEqual({ text: '김밥', translatedText: '김밥', allergenWords: ['달걀'] });
     expect(Object.keys(result.scan)).toEqual(['lines', 'unreadLineCount', 'evidenceStatus']);
     // 🔴 서버가 VERIFIED 라고 해도 사진에서 읽은 값은 추정이다.
     expect(result.scan.evidenceStatus).toBe('ESTIMATED');
@@ -128,16 +133,28 @@ describe('메뉴판 사진 보내기', () => {
 
   it('🔴 한도를 넘으면 조용한 빈 결과가 아니라 거절이 온다', async () => {
     respondWith({ data: null, error: { code: 'RATE_LIMITED', message: '한도' }, meta: { requestId: 'r1' } }, 429);
-    const result = await scanMenu('file:///menu.jpg', 'token', tx);
+    const result = await scanMenu('file:///menu.jpg', 'token', tx, 'ko');
     expect(result.state).toBe('error');
     if (result.state !== 'error') return;
     expect(result.message).toContain('다 썼어요');
   });
 
+  it('🔴 S15P21E201-1236 — 서버가 번역한 문구를 그대로 싣는다', async () => {
+    respondWith({ data: {
+      lines: [{ text: '돼지국밥', translatedText: 'Pork bone soup', allergenWords: [] }],
+      unreadLineCount: 0,
+      evidenceStatus: 'ESTIMATED',
+    }, error: null, meta: { requestId: 'r1' } });
+    const result = await scanMenu('file:///menu.jpg', 'token', tx, 'en');
+    expect(result.state).toBe('success');
+    if (result.state !== 'success') return;
+    expect(result.scan.lines[0]).toEqual({ text: '돼지국밥', translatedText: 'Pork bone soup', allergenWords: [] });
+  });
+
   it('로그인 안 했으면 서버를 아예 안 부른다', async () => {
     const spy = jest.fn();
     globalThis.fetch = spy as unknown as typeof fetch;
-    const result = await scanMenu('file:///menu.jpg', null, tx);
+    const result = await scanMenu('file:///menu.jpg', null, tx, 'ko');
     expect(result.state).toBe('error');
     expect(spy).not.toHaveBeenCalled();
   });

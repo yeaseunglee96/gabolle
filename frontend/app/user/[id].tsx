@@ -96,10 +96,11 @@ export default function UserProfile() {
       {state.status === 'loaded' ? (
         <View style={styles.header}>
           <Text variant="display" weight="bold">{state.profile.displayName}</Text>
+          {/* 🔴 S15P21E201-1180 — 숫자만 있고 누를 곳이 없었다. 목록 화면이 생겼으니 잇는다. */}
           <View style={styles.statRow}>
             <View style={styles.stat}><Text variant="title" weight="bold">{state.profile.storyCount}</Text><Text variant="caption" color={color.text.muted}>{tx('기록', 'Records')}</Text></View>
-            <View style={styles.stat}><Text variant="title" weight="bold">{state.profile.followerCount}</Text><Text variant="caption" color={color.text.muted}>{tx('팔로워', 'Followers')}</Text></View>
-            <View style={styles.stat}><Text variant="title" weight="bold">{state.profile.followingCount}</Text><Text variant="caption" color={color.text.muted}>{tx('팔로잉', 'Following')}</Text></View>
+            <Pressable accessibilityRole="button" onPress={() => router.push(`/user/${id}/followers`)} style={styles.stat}><Text variant="title" weight="bold">{state.profile.followerCount}</Text><Text variant="caption" color={color.text.muted}>{tx('팔로워', 'Followers')}</Text></Pressable>
+            <Pressable accessibilityRole="button" onPress={() => router.push(`/user/${id}/following`)} style={styles.stat}><Text variant="title" weight="bold">{state.profile.followingCount}</Text><Text variant="caption" color={color.text.muted}>{tx('팔로잉', 'Following')}</Text></Pressable>
           </View>
           {/* 문자열로 맞춰 비교한다 — 두 응답의 userId가 타입 선언과 다르게 오면(숫자 vs 문자열) !==가 늘 참이 되어 본인 프로필에도 팔로우 버튼이 뜬다. */}
           {accessToken && String(user?.userId ?? '') === String(state.profile.userId) ? (

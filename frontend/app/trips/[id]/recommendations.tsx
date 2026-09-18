@@ -12,6 +12,7 @@ import { Skeleton } from '@/components/Skeleton';
 import { TabBar } from '@/components/TabBar';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
+import { describeWarningCodes } from '@/plan/warningLabels';
 import { useI18n } from '@/i18n';
 import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
@@ -33,26 +34,48 @@ function CourseCard({ course, onAction }: { course: RecommendationCourse; onActi
     course.estimatedCostKrw == null ? null : tx(`예상 비용 ${course.estimatedCostKrw.toLocaleString()}원`, `Est. cost ${course.estimatedCostKrw.toLocaleString()} KRW`),
     course.crowdLevel ? tx(`혼잡도 ${CROWD[course.crowdLevel]}`, `Crowd ${CROWD[course.crowdLevel]}`) : null,
   ].filter((fact): fact is string => fact !== null);
-  return <View style={styles.card}>{course.imageUrl ? <Image source={{ uri: course.imageUrl }} accessibilityLabel={tx(`${course.title} 대표 이미지`, `${course.title} cover image`)} resizeMode="cover" style={styles.image} /> : null}<View style={styles.cardBody}><View style={styles.titleRow}><Text variant="title" weight="bold" style={styles.grow}>{course.title}</Text><View style={styles.status}><Text variant="caption" weight="bold">{STATUS[course.dataStatus]}</Text></View></View><View style={styles.tags}>{course.reasons.map((reason, index) => <View key={`${reason}-${index}`} style={styles.tag}><Text variant="caption" weight="bold" color={color.brand.orange}>#{reason}</Text></View>)}</View>{facts.length ? <Text variant="caption" color={color.text.body}>{facts.join(' · ')}</Text> : null}{course.mobilityWarnings?.length ? <Text variant="caption" color={color.state.danger}>{tx('이동 제약', 'Mobility constraints')} · {course.mobilityWarnings.join(' · ')}</Text> : null}<Text variant="caption" color={color.text.muted}>{FALLBACK[course.fallbackMode]}</Text><View style={styles.actions}><Pressable accessibilityRole="button" accessibilityState={{ selected: course.actionState === 'saved', busy: course.actionState === 'saving' }} onPress={() => onAction(course.actionState === 'saved' ? 'idle' : 'saved')} style={styles.action}><Text variant="caption" weight="bold">{course.actionState === 'saved' ? tx('저장됨', 'Saved') : tx('저장', 'Save')}</Text></Pressable><Pressable accessibilityRole="button" accessibilityState={{ selected: course.actionState === 'excluded', busy: course.actionState === 'excluding' }} onPress={() => onAction(course.actionState === 'excluded' ? 'idle' : 'excluded')} style={styles.action}><Text variant="caption" weight="bold">{course.actionState === 'excluded' ? tx('제외됨', 'Excluded') : tx('제외', 'Exclude')}</Text></Pressable></View></View></View>;
+  return <View style={styles.card}>{course.imageUrl ? <Image source={{ uri: course.imageUrl }} accessibilityLabel={tx(`${course.title} 대표 이미지`, `${course.title} cover image`)} resizeMode="cover" style={styles.image} /> : null}<View style={styles.cardBody}><View style={styles.titleRow}><Text variant="title" weight="bold" style={styles.grow}>{course.title}</Text><View style={styles.status}><Text variant="caption" weight="bold">{STATUS[course.dataStatus]}</Text></View></View><View style={styles.tags}>{course.reasons.map((reason, index) => <View key={`${reason}-${index}`} style={styles.tag}><Text variant="caption" weight="bold" color={color.brand.orange}>#{reason}</Text></View>)}</View>{facts.length ? <Text variant="caption" color={color.text.body}>{facts.join(' · ')}</Text> : null}{(() => {
+      // 🔴 코드를 그대로 찍지 않는다 (S15P21E201-1171). 전에는 join(' · ') 으로 이어 붙여
+      // 「이동 제약 · ACCESSIBILITY_UNVERIFIED」 처럼 영문 대문자가 그대로 나갔다 —
+      // 아침에 일정 화면에서 고친 것(S15P21E201-1150)과 같은 결함이 여기 남아 있었다.
+      // 사전에 짝이 없는 코드는 describeWarningCodes 가 뺀다.
+      const warnings = describeWarningCodes(course.mobilityWarnings, tx);
+      return warnings.length ? <Text variant="caption" color={color.state.danger}>{tx('이동 제약', 'Mobility constraints')} · {warnings.join(' · ')}</Text> : null;
+    })()}<Text variant="caption" color={color.text.muted}>{FALLBACK[course.fallbackMode]}</Text><View style={styles.actions}><Pressable accessibilityRole="button" accessibilityState={{ selected: course.actionState === 'saved', busy: course.actionState === 'saving' }} onPress={() => onAction(course.actionState === 'saved' ? 'idle' : 'saved')} style={styles.action}><Text variant="caption" weight="bold">{course.actionState === 'saved' ? tx('저장됨', 'Saved') : tx('저장', 'Save')}</Text></Pressable><Pressable accessibilityRole="button" accessibilityState={{ selected: course.actionState === 'excluded', busy: course.actionState === 'excluding' }} onPress={() => onAction(course.actionState === 'excluded' ? 'idle' : 'excluded')} style={styles.action}><Text variant="caption" weight="bold">{course.actionState === 'excluded' ? tx('제외됨', 'Excluded') : tx('제외', 'Exclude')}</Text></Pressable></View></View></View>;
 }
 
 export default function Recommendations() {
   const router = useRouter(); const { accessToken } = useAuth(); const { tx } = useI18n(); const { id, jobId } = useLocalSearchParams<{ id: string; jobId?: string }>();
+  const [view, setView] = useState<RecommendationViewModel>(() => jobId || id ? { ...unavailableRecommendations(), state: 'loading', message: tx('추천 결과를 확인하고 있어요.', 'Checking your recommendation result.') } : unavailableRecommendations());
+
   // 완성된 일정으로 가기 전에 한 번만 이름을 물어본다 (S15P21E201-1036).
   //
-  // 🔴 이 화면이 사슬에서 **여행 id 와 일정 id 를 둘 다 아는 유일한 자리**다. 주소의 id 는
-  // 여행 id 이고(76행이 tripId 로 쓴다), 일정 id 는 view.itineraryId 다. 일정 화면으로 가면
-  // 여행 id 를 잃는다 — 서버가 주는 일정 정보에 그 칸이 없다.
+  // 🔴 2026-09-17 (S15P21E201-1178) — 여기 있던 주석이 **틀려 있었다.** 지우지 않고 적어 둔다:
+  //    *「주소의 id 는 여행 id 이고(76행이 tripId 로 쓴다)」*. 아니다. 아래 reload() 의 주석이
+  //    맞다 — 이 화면의 주소는 `/trips/{작업번호}/recommendations` 이고, 그 칸은 **작업 번호**다.
+  //    같은 파일 안에서 두 주석이 서로 반대를 말하고 있었다.
+  //
+  //    그래서 이름 짓기로 갈 때 **작업 번호를 여행 번호 자리에 넣어 보냈고**, 이름 화면은
+  //    그 값으로 여행을 찾다 실패해 「이 여행을 찾을 수 없어요」를 띄웠다. 사용자가 여행을
+  //    완성하고 이름을 짓는 마지막 자리에서 막혔다.
+  //
+  // 🔴 그래서 **주소를 믿지 않고 서버가 준 값을 쓴다** — `view.tripId`(S15P21E201-1084 로
+  //    응답에 생긴 칸). 주소만 고치면 전제는 여전히 아무도 안 검사한다.
+  //
+  // 🔴 그 칸을 아직 안 주는 서버가 있다. 없으면 **묻지 않고 일정으로 바로 간다** —
+  //    틀린 번호를 넘기는 것보다 낫고, 아래 catch 의 방침과 같다.
   //
   // 🔴 이미 이름이 있거나 한 번 물어봤으면 **묻지 않고 그냥 지나간다.** 같은 질문을 두 번
   // 하면 건너뛰기가 「나중에 또 물어볼게요」가 된다.
   const openItinerary = async (itineraryId: string) => {
     const target = `/trips/${itineraryId}/itinerary`;
+    const tripId = view.tripId;
+    if (!tripId) { router.push(target); return; }
     try {
-      const [trips, alreadyAsked] = await Promise.all([loadTrips(accessToken), wasTripNameAsked(id)]);
-      const title = trips.state === 'success' ? trips.trips.find((trip) => trip.tripId === id)?.title : null;
+      const [trips, alreadyAsked] = await Promise.all([loadTrips(accessToken), wasTripNameAsked(tripId)]);
+      const title = trips.state === 'success' ? trips.trips.find((trip) => trip.tripId === tripId)?.title : null;
       if (shouldAskTripName({ title, alreadyAsked })) {
-        router.push(`/${id}/name?next=${encodeURIComponent(target)}` as never);
+        router.push(`/${tripId}/name?next=${encodeURIComponent(target)}` as never);
         return;
       }
     } catch {
@@ -61,7 +84,6 @@ export default function Recommendations() {
     }
     router.push(target);
   };
-  const [view, setView] = useState<RecommendationViewModel>(() => jobId || id ? { ...unavailableRecommendations(), state: 'loading', message: tx('추천 결과를 확인하고 있어요.', 'Checking your recommendation result.') } : unavailableRecommendations());
   // 담아두기·빼기가 어디에 속하는가 — S15P21E201-1082.
   //
   // 🔴 서버 주소에는 여행 번호가 필요하고, 기기 저장에는 아무 열쇠나 있으면 된다. 둘이 다른
@@ -137,7 +159,7 @@ export default function Recommendations() {
       ))}</View>}
       {(view.state === 'partial' || view.state === 'fallback') && <View style={styles.notice}><Text accessibilityRole="alert" variant="caption" weight="bold">{view.message}</Text></View>}
       {(view.state === 'error' || view.state === 'offline') && <View style={styles.stateCard}><Text variant="title" weight="bold">{view.state === 'offline' ? tx('인터넷 연결을 확인해 주세요', 'Please check your internet connection') : tx('추천을 불러오지 못했어요', 'Could not load recommendations')}</Text><Text color={color.text.body}>{view.message}</Text><Button accessibilityRole="button" label={tx('다시 시도', 'Try again')} variant="ghost" onPress={() => void reload()} /></View>}
-      {unavailable && <View style={styles.stateCard}><View style={styles.emptyMark}><Text variant="display">⌁</Text></View><Text variant="title" weight="bold">{view.state === 'empty-conflict' ? tx('조건을 만족하는 코스가 없어요', 'No course matched your conditions') : tx('아직 생성된 추천이 없어요', 'No recommendations yet')}</Text><Text color={color.text.body}>{view.message}</Text>{view.conflicts.map((item) => <Text key={item} accessibilityRole="alert" variant="caption" color={color.state.danger}>• {item}</Text>)}<Button accessibilityRole="button" label={tx('조건 수정하기', 'Edit conditions')} variant="ghost" onPress={() => router.push('/plan/confirm')} />{jobId && <Button accessibilityRole="button" label={tx('다시 확인', 'Check again')} variant="ghost" onPress={() => void reload()} />}</View>}
+      {unavailable && <View style={styles.stateCard}><View style={styles.emptyMark}><Text variant="display">⌁</Text></View><Text variant="title" weight="bold">{view.state === 'empty-conflict' ? tx('조건을 만족하는 코스가 없어요', 'No course matched your conditions') : tx('아직 생성된 추천이 없어요', 'No recommendations yet')}</Text><Text color={color.text.body}>{view.message}</Text>{describeWarningCodes(view.conflicts, tx).map((item) => <Text key={item} accessibilityRole="alert" variant="caption" color={color.state.danger}>• {item}</Text>)}<Button accessibilityRole="button" label={tx('조건 수정하기', 'Edit conditions')} variant="ghost" onPress={() => router.push('/plan/confirm')} />{jobId && <Button accessibilityRole="button" label={tx('다시 확인', 'Check again')} variant="ghost" onPress={() => void reload()} />}</View>}
       {/* S15P21E201-1003 — 넓은 화면은 왼쪽 목록 + 오른쪽 고른 코스로 나눈다. 카드 하나가
           1180px 를 차지하던 자리다. 폰은 지금처럼 한 줄로 둔다(티켓 지시) — 목록과 상세를
           함께 쌓으면 정작 보러 온 목록이 한참 밀려 내려간다.

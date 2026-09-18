@@ -8,12 +8,12 @@
 // 🔴 시안의 「{제공자} 로그인 · 변경 불가」에서 제공자 이름은 **뺐다.** 지금 서버가 주는 계정
 // 정보(AuthUser)에 가입 제공자 칸이 없어서 지어낼 수밖에 없기 때문이다.
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Image, Modal, Pressable, StyleSheet, TextInput, View, useWindowDimensions } from 'react-native';
+import { ActivityIndicator, Image, Modal, Pressable, Share, StyleSheet, TextInput, View, useWindowDimensions } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 
-import { ApiClientError } from '@/api/client';
+import { ApiClientError, APP_WEB_BASE_URL } from '@/api/client';
 import { useAuth } from '@/auth/AuthProvider';
 import { getAccountDeletionPreview, type AccountDeletionPreview } from '@/auth/authApi';
 import { uploadStoryImage } from '@/social/stories';
@@ -22,7 +22,7 @@ import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { isAtLeast } from '@/layout/breakpoints';
-import { MyPageShell } from '@/me/MyPageShell';
+import { MyPageShell, useMyPageCounts } from '@/me/MyPageShell';
 import { usePlan } from '@/plan/PlanProvider';
 
 // 박재현 님 계약(S15P21E201-837) — 서버가 대소문자·앞뒤 공백까지 정확히 이 값과 비교한다.
@@ -32,17 +32,32 @@ const NAME_MAX = 30;
 export default function MyPageProfile() {
   const { preview } = useLocalSearchParams<{ preview?: string }>();
   const { user, accessToken, updateProfile, deleteAccount } = useAuth();
-  const { language, tx } = useI18n();
+  const { tx } = useI18n();
   const plan = usePlan();
+  const router = useRouter();
   const { width } = useWindowDimensions();
   const desktop = isAtLeast(width, 'lg');
+
+  // 🔴 S15P21E201-1180 — 인스타그램식 기록·팔로워·팔로잉 숫자. MyPageShell이 이미 같은
+  // 프로필 질의를 하고 있어서(사이드 메뉴 숫자), 새로 부르지 않고 그 결과를 같이 쓴다 —
+  // react-query 캐시 열쇠가 같아 요청이 하나로 합쳐진다.
+  const { storyCount, followerCount, followingCount } = useMyPageCounts();
+
+  async function shareProfile() {
+    if (!user?.userId) return;
+    const url = `${APP_WEB_BASE_URL}/user/${user.userId}`;
+    try {
+      await Share.share({ title: tx('가볼래 프로필 공유', 'Share GABOLLE profile'), message: tx(`제 가볼래 프로필을 확인해 보세요.\n${url}`, `Check out my GABOLLE profile.\n${url}`), url });
+    } catch {
+      // 사용자가 공유 시트를 닫은 것도 실패로 취급하지 않는다 — 별도 안내가 필요 없다.
+    }
+  }
 
   const visualPreview = __DEV__ && preview === 'ui';
   const profileOwner = user?.userId ?? (visualPreview ? 'preview' : null);
   const [displayName, setDisplayName] = useState(user?.displayName ?? (visualPreview ? '진미리' : ''));
   const [avatarUri, setAvatarUri] = useState<string | null>(null);
   const [pickingAvatar, setPickingAvatar] = useState(false);
-  const [profileLanguage, setProfileLanguage] = useState<'KO' | 'EN'>(language === 'ko' ? 'KO' : 'EN');
   const [saving, setSaving] = useState(false);
   const [feedback, setFeedback] = useState<{ danger: boolean; text: string } | null>(null);
   const [deleteStep, setDeleteStep] = useState<0 | 1 | 2>(0);
@@ -53,7 +68,6 @@ export default function MyPageProfile() {
 
   useEffect(() => {
     setDisplayName(user?.displayName ?? (visualPreview ? '진미리' : ''));
-    setProfileLanguage(user?.language?.toUpperCase() === 'EN' ? 'EN' : 'KO');
   }, [user, visualPreview]);
   // S15P21E201-844 — 계정에 붙은 사진이 있으면 그것이 먼저다. 없을 때만 이 기기에 남아 있던
   // 옛 사진을 보여준다 — 기기에만 있던 시절에 고른 사진이 갑자기 사라지면 사용자는 지워진
@@ -66,7 +80,7 @@ export default function MyPageProfile() {
 
   const trimmed = displayName.trim();
   const nameValid = trimmed.length >= 1 && trimmed.length <= NAME_MAX;
-  const unchanged = trimmed === (user?.displayName ?? '') && profileLanguage === (user?.language?.toUpperCase() === 'EN' ? 'EN' : 'KO');
+  const unchanged = trimmed === (user?.displayName ?? '');
 
   async function chooseAvatar() {
     if (!profileOwner || pickingAvatar) return;
@@ -122,7 +136,7 @@ export default function MyPageProfile() {
     setSaving(true);
     setFeedback(null);
     try {
-      if (user) await updateProfile({ displayName: trimmed, language: profileLanguage });
+      if (user) await updateProfile({ displayName: trimmed });
       setFeedback({ danger: false, text: visualPreview && !user ? tx('미리보기에서 변경 모습을 확인했어요.', 'Preview changes are displayed.') : tx('프로필을 저장했어요.', 'Your profile was saved.') });
     } catch (cause) {
       setFeedback({ danger: true, text: cause instanceof ApiClientError ? cause.message : tx('프로필을 저장하지 못했어요.', 'Could not save your profile.') });
@@ -166,6 +180,20 @@ export default function MyPageProfile() {
 
   return (
     <MyPageShell tab="profile" title={tx('프로필', 'Profile')} description={tx('피드와 기록에 보이는 이름과 사진이에요.', 'This is the name and photo people see on your posts.')}>
+      {user ? (
+        <View style={styles.statCard}>
+          <View style={styles.statRow}>
+            <View style={styles.stat}><Text variant="title" weight="bold">{storyCount ?? '—'}</Text><Text variant="caption" color={color.text.muted}>{tx('기록', 'Records')}</Text></View>
+            <Pressable accessibilityRole="button" onPress={() => router.push(`/user/${user.userId}/followers`)} style={styles.stat}><Text variant="title" weight="bold">{followerCount ?? '—'}</Text><Text variant="caption" color={color.text.muted}>{tx('팔로워', 'Followers')}</Text></Pressable>
+            <Pressable accessibilityRole="button" onPress={() => router.push(`/user/${user.userId}/following`)} style={styles.stat}><Text variant="title" weight="bold">{followingCount ?? '—'}</Text><Text variant="caption" color={color.text.muted}>{tx('팔로잉', 'Following')}</Text></Pressable>
+          </View>
+          <View style={styles.statActions}>
+            <Button label={tx('내 피드 보기', 'View my posts')} variant="ghost" compact onPress={() => router.push('/me/posts')} />
+            <Button label={tx('프로필 공유', 'Share profile')} variant="ghost" compact onPress={() => void shareProfile()} />
+          </View>
+        </View>
+      ) : null}
+
       <View style={[styles.card, desktop && styles.cardDesktop]}>
         <View style={styles.avatarColumn}>
           <View style={[styles.avatar, { width: avatarSize, height: avatarSize }]}>
@@ -202,21 +230,11 @@ export default function MyPageProfile() {
             </View>
           </View>
 
-          {/* 시안은 칩이 셋(한국어·English·日本語)인데 앱이 실제로 아는 언어는 둘이다
-              (SignupLanguage = 'KO' | 'EN'). 없는 언어를 칩으로 그리면 고를 수 있는 것처럼 보인다. */}
-          <View style={styles.field}>
-            <Text variant="caption" weight="bold" color={color.text.body}>{tx('언어', 'Language')}</Text>
-            <View accessibilityRole="radiogroup" style={styles.langRow}>
-              {(['KO', 'EN'] as const).map((value) => {
-                const selected = profileLanguage === value;
-                return (
-                  <Pressable key={value} accessibilityRole="radio" accessibilityState={{ selected }} onPress={() => { setProfileLanguage(value); setFeedback(null); }} style={[styles.langChip, selected && styles.langChipSelected]}>
-                    <Text weight="bold" color={selected ? color.text.onAction : color.text.heading}>{value === 'KO' ? '한국어' : 'English'}</Text>
-                  </Pressable>
-                );
-              })}
-            </View>
-          </View>
+          {/* 🔴 계정 언어(SignupLanguage = 'KO' | 'EN') 칩은 여기 없다 — 화면 언어는 다섯인데
+              (LANGUAGE_OPTIONS, 마이페이지의 AppLanguageSetting) 여기서는 늘 둘만 보여줄 수
+              있어서 같은 개념의 설정이 화면 두 곳에서 서로 다른 범위로 보였다. 마이페이지
+              쪽이 이미 계정 값도 같이 갱신하므로(AppLanguageSetting.toAccountLanguage)
+              여기서 따로 안 만진다. */}
 
           <View style={styles.saveRow}>
             {feedback ? <Text accessibilityRole="alert" variant="caption" weight="bold" color={feedback.danger ? color.state.danger : color.state.success} style={styles.feedback}>{feedback.text}</Text> : <View style={styles.feedback} />}
@@ -263,6 +281,10 @@ export default function MyPageProfile() {
 }
 
 const styles = StyleSheet.create({
+  statCard: { gap: spacing[3], marginBottom: spacing[4], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card },
+  statRow: { flexDirection: 'row', justifyContent: 'space-around' },
+  stat: { alignItems: 'center' },
+  statActions: { flexDirection: 'row', gap: spacing[2], paddingTop: spacing[3], borderTopWidth: 1, borderTopColor: color.surface.border },
   card: { gap: spacing[6], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card },
   cardDesktop: { flexDirection: 'row', alignItems: 'flex-start', padding: spacing[6], borderWidth: 1, borderColor: color.surface.border },
   avatarColumn: { alignItems: 'center', gap: spacing[2] },
@@ -278,9 +300,6 @@ const styles = StyleSheet.create({
   inputError: { borderColor: color.state.danger },
   readonly: { minHeight: 48, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[2], paddingHorizontal: spacing[4], borderWidth: 1, borderColor: color.surface.border, borderRadius: radius.md, backgroundColor: color.surface.soft },
   readonlyValue: { flex: 1, minWidth: 0 },
-  langRow: { flexDirection: 'row', gap: spacing[2] },
-  langChip: { flex: 1, minHeight: 44, alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing[4], borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.full },
-  langChipSelected: { backgroundColor: color.brand.navy, borderColor: color.brand.navy },
   saveRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], paddingTop: spacing[4], borderTopWidth: 1, borderTopColor: color.surface.border },
   feedback: { flex: 1 },
   // Button 의 기본 스타일이 width:'100%' 라 minWidth 만으로는 안 줄어든다 — 명시적으로 푼다.

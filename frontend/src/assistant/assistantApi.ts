@@ -11,7 +11,7 @@ type AssistantMessageResponseDto = {
 };
 
 // 백엔드(GeminiAssistantAdapter)가 실제로 허용하는 값과 같아야 한다 — S15P21E201-802.
-const ALLOWED_NAVIGATE_HREFS = ['/plan/basic', '/trips', '/field/translate'] as const;
+const ALLOWED_NAVIGATE_HREFS = ['/plan', '/trips', '/field/translate'] as const;
 type NavigateHref = (typeof ALLOWED_NAVIGATE_HREFS)[number];
 
 function isNavigateHref(value: string | null): value is NavigateHref {

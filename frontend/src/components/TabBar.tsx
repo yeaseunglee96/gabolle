@@ -2,7 +2,7 @@
 // 탭 내비게이션이 아니라 Stack 하나뿐이라(app/_layout.tsx), 각 화면이 이 바를 직접 그려 붙인다.
 // 1차 배포에서는 모든 탭이 유효한 화면으로 이동한다. 서버 데이터가 없어도 각 화면에서
 // 빈 상태와 다음 행동을 안내해 사용자가 막히지 않게 한다.
-import { Image, Pressable, StyleSheet, View } from 'react-native';
+import { Image, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 
@@ -42,7 +42,7 @@ type Tab = {
 const TABS: Tab[] = [
   { key: 'home', icon: require('../../assets/icons/home/home.png'), labelKo: '홈', labelEn: 'Home', route: '/home' },
   { key: 'feed', icon: require('../../assets/icons/home/heart.png'), labelKo: '피드', labelEn: 'Feed', route: '/feed' },
-  { key: 'schedule', icon: require('../../assets/icons/home/plus.png'), labelKo: '여행 만들기', labelEn: 'Create', route: '/plan/basic' },
+  { key: 'schedule', icon: require('../../assets/icons/home/plus.png'), labelKo: '여행 만들기', labelEn: 'Create', route: '/plan' },
   { key: 'map', icon: require('../../assets/icons/home/map.png'), labelKo: '내 여행', labelEn: 'My trips', route: '/trips' },
   { key: 'me', icon: require('../../assets/icons/home/user.png'), labelKo: '마이페이지', labelEn: 'Profile', route: '/me' },
 ];
@@ -62,13 +62,29 @@ export function TabBar({ active }: { active: TabKey }) {
   // 리다이렉트와 같은 판단). 화면 가운데 붕 뜬 모바일 탭바보다는 없는 쪽이 낫다.
   if (isAtLeast(width, 'md')) return null;
 
+  // 🔴 받침(dock)에 담아 **띄운다** (S15P21E201-1155).
+  //
+  // 전에는 이 막대가 Screen 옆에 나란히 선 보통 형제라 **레이아웃 높이를 실제로 먹었다.**
+  // 그래서 알약 좌·우 여백과 아래쪽은 화면 배경일 뿐이고, 내용이 거기까지 올라오지 못했다.
+  // 사용자가 「하단 영역 전체가 불투명」이라고 적은 것이 그 상태다 — 불투명해서가 아니라
+  // **그 자리에 내용이 없어서**였고, 폭을 328 로 줄인 의미가 사라져 있었다.
+  //
+  // 🔴 `pointerEvents="box-none"` 이 핵심이다. 받침은 화면 폭 전체를 덮지만 **자기는 손짓을
+  // 안 받고 자식(알약)에게만 넘긴다.** 이게 없으면 알약 바깥의 빈 자리가 아래 내용의
+  // 터치를 통째로 가로챈다 — 보이기는 하는데 안 눌리는 상태가 된다.
   return (
-    <View style={[styles.bar, { marginBottom: tabBarBottomMargin(insets.bottom) }]}>
+    <View pointerEvents="box-none" style={[styles.dock, { paddingBottom: tabBarBottomMargin(insets.bottom) }]}>
+    <View style={styles.bar}>
       {TABS.map((tab) => {
         const selected = tab.key === active;
         return (
           <Pressable
             key={tab.key}
+            // 🔴 testID 는 언어와 무관하다 (S15P21E201-1193). accessibilityLabel 은
+            //    5개국어로 바뀌므로 자동화가 그것으로 탭을 찾으면 언어를 바꾸는 순간
+            //    깨진다. 2026-09-17 iOS 회차가 정확히 그래서 온보딩 본문의 「AI 여행」을
+            //    탭바로 착각했다. 이름은 새로 만들지 않고 이미 있는 key 를 쓴다.
+            testID={`tab-${tab.key}`}
             accessibilityRole="tab"
             accessibilityLabel={tx(tab.labelKo, tab.labelEn)}
             accessibilityState={{ selected, disabled: !tab.route }}
@@ -87,6 +103,7 @@ export function TabBar({ active }: { active: TabKey }) {
         );
       })}
     </View>
+    </View>
   );
 }
 
@@ -96,6 +113,24 @@ export function tabBarBottomMargin(bottomInset: number) {
 }
 
 const styles = StyleSheet.create({
+  // 받침 — 화면 아래에 깔리되 자기는 아무것도 안 그린다. 알약을 가운데 세우는 일만 한다.
+  dock: {
+    // 🔴 웹에서는 **뷰포트에 고정**한다 (S15P21E201-1245, 2026-09-18 실기기).
+    //
+    //    `absolute` 는 「가장 가까운 배치된 조상」 기준이다. 이 앱의 화면은 대부분
+    //    `<View flex:1>` 안에 스크롤 영역과 탭바가 형제로 들어 있는데, 모바일 브라우저는
+    //    **문서 자체가 스크롤**되고 주소창이 접히며 뷰포트 높이까지 바뀐다. 그래서 빠르게
+    //    스크롤하면 탭바가 바닥에 안 붙고 **내용과 같이 올라와 카드 위를 덮었다.**
+    //
+    //    `fixed` 는 조상과 무관하게 뷰포트에 붙으므로 그 문제 자체가 안 생긴다.
+    //    네이티브에는 fixed 가 없고 거기서는 문서 스크롤도 없으므로 absolute 그대로 둔다.
+    //    (같은 이유로 PlanDesktopShell 이 100vh 를 썼던 자리와 판단이 같다.)
+    position: Platform.OS === 'web' ? ('fixed' as 'absolute') : 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    alignItems: 'center',
+  },
   bar: {
     flexDirection: 'row',
     alignItems: 'center',

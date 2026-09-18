@@ -6,6 +6,7 @@
 //
 // 🔴 서버(GET /api/v1/transit/nearby-bus-arrivals, S15P21E201-988)가 이미 있는데 프론트가
 //    한 번도 안 불렀다.
+import { isVendorNotReady } from '@/api/vendorReady';
 import { apiRequest, ApiClientError } from '@/api/client';
 
 export type BusArrival = {
@@ -27,7 +28,8 @@ export type BusStop = {
 
 export type NearbyBusDto = { stops: BusStop[] };
 
-export type BusBlockedReason = 'signed-out' | 'not-built' | 'vendor' | 'error';
+// 'not-ready' — 바깥 업체 열쇠가 안 꽂혔다. 다시 시도해도 매한가지다 (S15P21E201-1200).
+export type BusBlockedReason = 'signed-out' | 'not-built' | 'not-ready' | 'vendor' | 'error';
 
 export type NearbyBusOutcome =
   | { state: 'ready'; stops: BusStop[] }
@@ -82,6 +84,9 @@ export function sortStops(stops: BusStop[]): BusStop[] {
 }
 
 function blockedReason(error: unknown): BusBlockedReason {
+  // 🔴 상태 숫자보다 먼저 본다. 열쇠가 안 꽂힌 것도 5xx 로 오므로,
+  //    숫자만 보면 「잠시 뒤면 될 수도 있다」과 구분되지 않는다.
+  if (isVendorNotReady(error)) return 'not-ready';
   if (!(error instanceof ApiClientError)) return 'error';
   if (error.status === 401 || error.status === 403) return 'signed-out';
   if (error.status === 404 || error.status === 501) return 'not-built';

@@ -20,13 +20,17 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Redirect, useRouter } from 'expo-router';
 
 import { sendAppEvent } from '@/analytics/appEvents';
+import { PlanStartBar } from '@/home/PlanStartBar';
+import { ConditionsPromptModal, type ConditionsOutcome } from '@/plan/ConditionsPromptModal';
+import { loadConditionsPrompt, shouldPromptBeforePlan, shouldPromptOnHome, type ConditionsPromptState } from '@/plan/conditionsPromptState';
+import { usePlan } from '@/plan/PlanProvider';
+import type { StartBarValue } from '@/home/startBarValue';
 import { useAuth } from '@/auth/AuthProvider';
 import { loadSavedPlaceIds, setSavedPlace } from '@/discovery/savedPlaces';
 import { BrandLogoLink } from '@/components/BrandLogoLink';
 import { GabolleMascot } from '@/components/DongbaekMascot';
 import { PlaceVisual } from '@/components/PlaceVisual';
 import { Screen } from '@/components/Screen';
-import { GettingStartedGuide } from '@/components/GettingStartedGuide';
 import { TabBar } from '@/components/TabBar';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
@@ -35,18 +39,23 @@ import { resolveHomeTripDestination } from '@/home/tripNavigation';
 import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
 import { useI18n } from '@/i18n';
+import { markdownToPlain } from '@/social/markdown';
 import { localFacetLabel } from '@/discovery/localExplore';
 import { useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
 import { relativeStoryTime } from '@/social/stories';
 
 const bellIcon = require('../../assets/icons/home/bell.png');
 const heartIcon = require('../../assets/icons/home/heart.png');
-const speakerIcon = require('../../assets/icons/common/speaker.png');
 
 export default function Home() {
   const router = useRouter();
   const { tx, language } = useI18n();
-  const { accessToken } = useAuth();
+  const { accessToken, user } = useAuth();
+  const { update: updatePlan } = usePlan();
+  // 🔴 여행 조건 모달 (S15P21E201-1233). 로그인 후 홈 첫 진입에 한 번, 그리고
+  //    「나중에」를 고른 사람에게는 「일정 물어보기」를 누를 때마다 다시 묻는다.
+  const [promptState, setPromptState] = useState<ConditionsPromptState>('NEVER');
+  const [conditions, setConditions] = useState<{ open: boolean; reprompt: boolean; pending: StartBarValue | null }>({ open: false, reprompt: false, pending: null });
   const { width } = useLayout();
   const desktop = isAtLeast(width, 'lg');
   const { hydrated, hasEnteredApp, markEnteredApp } = useOnboardingPreferences();
@@ -92,6 +101,52 @@ export default function Home() {
     if (saved) sendAppEvent({ type: 'place_like', accessToken, payload: { place_id: placeId, surface: 'home' } });
   };
 
+  // 🔴 홈에서 받은 출발지·날짜·인원을 초안에 넣고 조건 화면으로 보낸다 (S15P21E201-1233).
+  //    조건 화면은 이 셋을 **다시 묻지 않는다** — 칩 줄로만 보여 준다.
+  useEffect(() => {
+    let alive = true;
+    void loadConditionsPrompt(user?.userId ?? null, accessToken).then(({ state }) => {
+      if (!alive) return;
+      setPromptState(state);
+      if (shouldPromptOnHome(state)) setConditions({ open: true, reprompt: false, pending: null });
+    });
+    return () => { alive = false; };
+  }, [accessToken, user?.userId]);
+
+  const applyBarAndGo = (value: StartBarValue) => {
+    updatePlan({
+      origin: value.origin,
+      originLat: value.originLat,
+      originLng: value.originLng,
+      startDate: value.startDate,
+      endDate: value.endDate,
+      adults: value.adults,
+      children: value.children,
+      travelers: value.adults + value.children,
+    });
+    router.push('/plan');
+  };
+
+  // 🔴 「나중에」를 고른 사람에게는 여기서 한 번 더 묻는다. 건너뛰어도 일정은 만들 수 있다 —
+  //    막으면 조건을 안 적은 사람이 앱을 아예 못 쓴다.
+  const startPlanFromBar = (value: StartBarValue) => {
+    if (shouldPromptBeforePlan(promptState)) { setConditions({ open: true, reprompt: true, pending: value }); return; }
+    applyBarAndGo(value);
+  };
+
+  const closeConditions = (outcome: ConditionsOutcome) => {
+    const pending = conditions.pending;
+    setConditions({ open: false, reprompt: false, pending: null });
+    if (outcome !== 'DISMISSED') {
+      const next = outcome === 'SAVED' ? 'SAVED' : outcome === 'NEVER' ? 'NEVER' : 'LATER';
+      // 🔴 값을 실제로 적는 것은 **모달**이다 (S15P21E201-1245). 여기서 상태만 따로
+      //    적던 것이 사고였다 — 「물어봤다」는 기록만 남고 답은 아무 데도 안 남았다.
+      setPromptState(next);
+    }
+    // 🔴 건너뛰든 저장하든 **가려던 곳으로 간다.** 조건을 안 적었다고 길을 막지 않는다.
+    if (pending) applyBarAndGo(pending);
+  };
+
   if (desktop) return <Redirect href="/" />;
 
   const signedIn = home.signedIn;
@@ -125,7 +180,7 @@ export default function Home() {
                 </Pressable>
               </>
             ) : (
-              <Pressable accessibilityRole="button" onPress={() => router.push('/sign-in')} style={({ pressed }) => [styles.loginPill, pressed && styles.pressed]}>
+              <Pressable accessibilityRole="button" onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: '/home' } })} style={({ pressed }) => [styles.loginPill, pressed && styles.pressed]}>
                 <Text weight="bold" color={color.brand.navy}>{tx('로그인', 'Sign in')}</Text>
               </Pressable>
             )}
@@ -133,38 +188,57 @@ export default function Home() {
         </View>
 
         {/* ── 히어로 ── */}
-        <GettingStartedGuide />
         <View style={styles.hero}>
-          <View style={styles.heroBadge}><Text variant="caption" weight="bold" color={color.brand.orange}>AI TRAVEL PLANNER · BUSAN</Text></View>
           <Text weight="bold" color={color.brand.navy} style={styles.heroTitle}>{tx('부산의 모든 여행,\n가볼래?', 'Every side of Busan,\nyours to explore.')}</Text>
-          <Text>{tx('취향과 이동 조건을 반영해 당신만의 부산 여행을 만들어요.', 'Build a Busan trip around your taste and mobility needs.')}</Text>
-          <Pressable accessibilityRole="button" onPress={() => router.push('/plan/basic')} style={({ pressed }) => [styles.primaryCta, pressed && styles.pressed]}>
-            <Text variant="title" weight="bold" color={color.text.onAction}>{tx('여행 계획 시작하기', 'Start planning')}</Text>
-          </Pressable>
+          {/* 🔴 시안 p0 의 시작 바 (S15P21E201-1233). 출발지·날짜·인원을 여기서 받아
+              조건 화면으로 넘긴다. 여행지는 안 묻는다 — 부산 고정이다. */}
+          <PlanStartBar wide={false} accessToken={accessToken} onSubmit={startPlanFromBar} />
 
-          {/* 현장 도구 — 로그인 없이도 쓸 수 있다(확인함). 챗봇 버튼과 화면 반대편이라
-              「겹쳐 보인다」는 리포트가 다시 나지 않는다.
+          {/* 🔴 「현장 도구」 카드를 뺐다 (2026-09-18 지시). 화면(/field/translate)과
+              챗봇의 진입점은 그대로 있다 — 이 카드만 안 그린다. */}
+        </View>
 
-              두 번째 카드가 「메뉴판 번역」이었다 — S15P21E201-981. 메뉴판 카메라 번역은
-              번역 API 업체가 안 정해져 이번 배포에서 통째로 뺐는데(-907, 2026-09-13) 홈의
-              버튼만 남아 있었다. 누르면 메뉴판 번역이 없는 현장 도구 화면으로 간다. 없는
-              기능을 이름으로 약속하는 것이 링크가 죽은 것보다 나쁘다 — 사용자는 자기가 길을
-              잘못 찾았다고 생각한다. 가는 곳(`/field/translate`)의 실제 제목으로 맞춘다.
-              업체가 정해져 그 기능이 생기면 그때 이름을 되돌린다. */}
-          <View style={styles.fieldTools}>
-            {[
-              { path: '/field/speak', ko: '통역', en: 'Phrases', subKo: '택시·식당에서 바로', subEn: 'Taxis and restaurants' },
-              { path: '/field/translate', ko: '현장 도구', en: 'On-the-go tools', subKo: '한국어 문장·날씨', subEn: 'Phrases and weather' },
-            ].map((tool) => (
-              <Pressable key={tool.path} accessibilityRole="button" onPress={() => router.push(tool.path)} style={({ pressed }) => [styles.fieldTool, pressed && styles.pressed]}>
-                <View style={styles.fieldToolIcon}><Image source={speakerIcon} resizeMode="contain" style={styles.fieldToolIconImage} /></View>
-                <View style={styles.fieldToolCopy}>
-                  <Text weight="bold" numberOfLines={1}>{tx(tool.ko, tool.en)}</Text>
-                  <Text variant="caption" numberOfLines={1}>{tx(tool.subKo, tool.subEn)}</Text>
-                </View>
-              </Pressable>
-            ))}
+        {/* 🔴 순서: **피드가 먼저, 로컬 탐색이 그다음**이다 (2026-09-18 지시).
+            넓은 화면도 같은 순서다(HomeBlocks 의 HeroStories 가 기록 다음에 칩을 그린다). */}
+        {/* ── 지금 부산에서 남긴 기록 ── */}
+        <View style={styles.section}>
+          <View style={styles.sectionHead}>
+            <Text variant="eyebrow" weight="bold">{tx('지금 부산에서 남긴 기록', 'Just shared in Busan')}</Text>
+            <Pressable accessibilityRole="link" onPress={() => router.push('/feed')}><Text weight="bold" color={color.brand.navy}>{tx('피드 전체 →', 'See all →')}</Text></Pressable>
           </View>
+
+          {/* 🔴 로그인 여부로 가리지 않는다 (S15P21E201-76, 진미리). 스토리 조회가 익명
+              출입증에 열렸다 — 2026-09-18 운영에서 실측(X-Session-Token 으로 200). */}
+          {home.stories === null ? (
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.rail}>
+              {[0, 1, 2].map((slot) => <View key={slot} style={[styles.storyCard, styles.storySkeleton]} />)}
+            </ScrollView>
+          ) : home.stories.length === 0 ? (
+            <Text variant="caption" style={styles.sectionNote}>{tx('아직 남겨진 기록이 없어요. 첫 기록을 남겨 보세요.', 'No records yet — be the first to share one.')}</Text>
+          ) : (
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} snapToAlignment="start" decelerationRate="fast" contentContainerStyle={styles.rail}>
+              {home.stories.map((story) => {
+                const where = story.place?.name ?? story.region ?? '';
+                return (
+                  <Pressable key={story.id} accessibilityRole="button" onPress={() => router.push(`/feed/${story.id}`)} style={({ pressed }) => [styles.storyCard, pressed && styles.pressed]}>
+                    {story.images.length
+                      ? <Image source={{ uri: story.images[0].url }} resizeMode="cover" accessibilityLabel={tx('여행 기록 사진', 'Trip record photo')} style={styles.storyImage} />
+                      : <View style={[styles.storyImage, styles.storyCoverEmpty]}>
+                          <Text variant="title" weight="bold" color={color.text.heading} numberOfLines={4} style={styles.storyCoverEmptyText}>{markdownToPlain(story.body)}</Text>
+                        </View>}
+                    <View style={styles.storyBody}>
+                      <Text variant="caption" numberOfLines={1}>{where ? `${relativeStoryTime(story.createdAt, tx)} · ${where}` : relativeStoryTime(story.createdAt, tx)}</Text>
+                      {/* 🔴 사진이 없는 글은 본문을 커버에 이미 크게 그렸다. 또 그리면 같은 글이 두 번
+                          나온다 — 피드 카드가 같은 이유로 생략하는 자리다. */}
+                      {story.images.length ? <Text numberOfLines={2} color={color.text.heading}>{markdownToPlain(story.body)}</Text> : null}
+                      {/* 작성자 프로필 사진은 계정에 없다 — 이름만 적는다. */}
+                      <Text variant="caption" weight="bold" color={color.text.body} numberOfLines={1}>{story.author.displayName}</Text>
+                    </View>
+                  </Pressable>
+                );
+              })}
+            </ScrollView>
+          )}
         </View>
 
         {/* ── 로컬 탐색 (옛 로컬 탐색 바 자리) ──
@@ -191,54 +265,6 @@ export default function Home() {
           </View>
         ) : null}
 
-        {/* ── 지금 부산에서 남긴 기록 ── */}
-        <View style={styles.section}>
-          <View style={styles.sectionHead}>
-            <Text variant="eyebrow" weight="bold">{tx('지금 부산에서 남긴 기록', 'Just shared in Busan')}</Text>
-            {signedIn ? (
-              <Pressable accessibilityRole="link" onPress={() => router.push('/feed')}><Text weight="bold" color={color.brand.navy}>{tx('피드 전체 →', 'See all →')}</Text></Pressable>
-            ) : null}
-          </View>
-
-          {/* 🔴 로그인 안 한 사람에게 「아직 기록이 없어요」라고 하면 거짓말이다 — 기록은 있는데
-              서버가 익명에게는 안 준다(스토리 조회가 401). 못 보는 이유를 그대로 적는다. */}
-          {!signedIn ? (
-            <View style={styles.signInCard}>
-              <GabolleMascot state="thinking" style={styles.signInMascot} />
-              <View style={styles.signInCopy}>
-                <Text>{tx('다른 여행자들이 남긴 기록은 로그인하면 볼 수 있어요.', 'Sign in to see what other travelers shared.')}</Text>
-                <Pressable accessibilityRole="button" onPress={() => router.push('/sign-in')} style={({ pressed }) => [styles.signInButton, pressed && styles.pressed]}>
-                  <Text weight="bold" color={color.text.onAction}>{tx('로그인하고 보기', 'Sign in to view')}</Text>
-                </Pressable>
-              </View>
-            </View>
-          ) : home.stories === null ? (
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.rail}>
-              {[0, 1, 2].map((slot) => <View key={slot} style={[styles.storyCard, styles.storySkeleton]} />)}
-            </ScrollView>
-          ) : home.stories.length === 0 ? (
-            <Text variant="caption" style={styles.sectionNote}>{tx('아직 남겨진 기록이 없어요. 첫 기록을 남겨 보세요.', 'No records yet — be the first to share one.')}</Text>
-          ) : (
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} snapToAlignment="start" decelerationRate="fast" contentContainerStyle={styles.rail}>
-              {home.stories.map((story) => {
-                const where = story.place?.name ?? story.region ?? '';
-                return (
-                  <Pressable key={story.id} accessibilityRole="button" onPress={() => router.push(`/feed/${story.id}`)} style={({ pressed }) => [styles.storyCard, pressed && styles.pressed]}>
-                    {story.images.length
-                      ? <Image source={{ uri: story.images[0].url }} resizeMode="cover" accessibilityLabel={tx('여행 기록 사진', 'Trip record photo')} style={styles.storyImage} />
-                      : <View style={styles.storyImage} />}
-                    <View style={styles.storyBody}>
-                      <Text variant="caption" numberOfLines={1}>{where ? `${relativeStoryTime(story.createdAt, tx)} · ${where}` : relativeStoryTime(story.createdAt, tx)}</Text>
-                      <Text numberOfLines={2} color={color.text.heading}>{story.body}</Text>
-                      {/* 작성자 프로필 사진은 계정에 없다 — 이름만 적는다. */}
-                      <Text variant="caption" weight="bold" color={color.text.body} numberOfLines={1}>{story.author.displayName}</Text>
-                    </View>
-                  </Pressable>
-                );
-              })}
-            </ScrollView>
-          )}
-        </View>
 
         {/* ── 부산 둘러보기 (하트가 여기로 옮겨 왔다) ── */}
         {home.places.length ? (
@@ -252,12 +278,12 @@ export default function Home() {
                 return (
                   <View key={place.placeId} style={styles.placeCard}>
                     <Pressable accessibilityRole="button" onPress={() => router.push(`/place/${place.placeId}`)} style={({ pressed }) => [styles.placeThumbWrap, pressed && styles.pressed]}>
-                      <PlaceVisual name={place.nameKo} address={place.address} photoUrl={place.photoUrl} photoSource={place.photoSource} />
+                      <PlaceVisual name={place.nameKo} address={place.address} photoUrl={place.photoUrl} photoSource={place.photoSource} photoSubject={place.photoSubject} />
                       <Pressable
                         accessibilityRole="button"
                         accessibilityState={{ selected: liked }}
                         accessibilityLabel={liked ? tx(`${place.nameKo} 저장 취소`, `Unsave ${place.nameKo}`) : tx(`${place.nameKo} 저장`, `Save ${place.nameKo}`)}
-                        onPress={() => (signedIn ? toggleLike(place.placeId) : router.push('/sign-in'))}
+                        onPress={() => (signedIn ? toggleLike(place.placeId) : router.push({ pathname: '/sign-in', params: { returnTo: '/home' } }))}
                         style={styles.heartButton}
                       >
                         {/* 색만으로 저장 여부를 나타내지 않는다(팀 UX 가이드라인 11번) —
@@ -315,7 +341,8 @@ export default function Home() {
             <Text variant="caption" color={color.text.onAction}>{tx('닫기', 'Dismiss')}</Text>
           </Pressable>
         ) : null}
-      </Screen>
+        <ConditionsPromptModal visible={conditions.open} reprompt={conditions.reprompt} onClose={closeConditions} />
+  </Screen>
 
       <Pressable
         accessibilityRole="button"
@@ -351,11 +378,6 @@ const styles = StyleSheet.create({
   heroTitle: { fontSize: 36, lineHeight: 42, letterSpacing: -0.3 },
   primaryCta: { minHeight: 52, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full, backgroundColor: color.brand.orange, marginTop: spacing[1] },
 
-  fieldTools: { flexDirection: 'row', gap: spacing[2] },
-  fieldTool: { flex: 1, minHeight: 48, flexDirection: 'row', alignItems: 'center', gap: spacing[2], paddingHorizontal: 14, borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.surface.card },
-  fieldToolIcon: { width: 28, height: 28, borderRadius: radius.sm, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.tint },
-  fieldToolIconImage: { width: 16, height: 16 },
-  fieldToolCopy: { flex: 1, minWidth: 0 },
 
   section: { gap: spacing[3], paddingTop: spacing[8] },
   sectionPadded: { gap: spacing[3], paddingTop: spacing[8], paddingHorizontal: spacing[6] },
@@ -367,12 +389,12 @@ const styles = StyleSheet.create({
   storyCard: { width: CARD_WIDTH, borderRadius: radius.lg, overflow: 'hidden', borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.surface.card },
   storySkeleton: { height: 260, backgroundColor: color.surface.soft },
   storyImage: { width: '100%', aspectRatio: 4 / 3, backgroundColor: color.surface.soft },
+  // 🔴 사진이 없을 때 — 회색 빈 칸 대신 tint 에 본문을 크게. 시안 「자주 틀리는 것」 4번.
+  //    빈 회색은 「사진을 못 불러왔다」로 읽힌다. feed.tsx 의 coverEmpty 와 같은 규칙이다.
+  storyCoverEmpty: { alignItems: 'center', justifyContent: 'center', padding: spacing[4], backgroundColor: color.surface.tint },
+  storyCoverEmptyText: { textAlign: 'center' },
   storyBody: { gap: spacing[1], paddingHorizontal: spacing[4], paddingTop: spacing[3], paddingBottom: spacing[4] },
 
-  signInCard: { flexDirection: 'row', alignItems: 'center', gap: spacing[3], marginHorizontal: spacing[6], padding: spacing[4], borderRadius: radius.lg, borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.surface.card },
-  signInMascot: { width: 64, height: 64 },
-  signInCopy: { flex: 1, gap: spacing[2] },
-  signInButton: { alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.brand.navy },
 
   chip: { minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.surface.soft },
 

@@ -4,6 +4,11 @@
 // /api/v1/menu-scans 요청이 한 줄도 없었다. 이 시험이 지키는 것은 하나다 —
 // **줄이기가 실패해도 사진은 서버로 간다.**
 jest.mock('@/social/imageResize', () => ({ resizeForUpload: jest.fn() }));
+// 🔴 S15P21E201-1187 — 사진은 이제 **Blob 으로 바뀐 뒤에** FormData 에 들어간다.
+//    그래서 「어느 사진을 보냈나」는 FormData 안이 아니라 **무엇을 읽으러 갔나**로 본다.
+//    진짜 파일을 읽는 자리라 시험에서는 흔들어야 한다 — 그 자리 자체의 시험은
+//    src/api/__tests__/multipart.test.ts 에 따로 있다.
+jest.mock('@/api/multipart', () => ({ singleFileFormData: jest.fn(async () => new FormData()) }));
 jest.mock('@/api/client', () => {
   class ApiClientError extends Error {
     status: number;
@@ -18,20 +23,18 @@ const resize = jest.requireMock('@/social/imageResize') as { resizeForUpload: je
 const api = jest.requireMock('@/api/client') as { apiRequest: jest.Mock; ApiClientError: new (status: number) => Error };
 
 const tx = (ko: string) => ko;
-const okScan = { lines: [{ text: '김치찌개', allergenWords: [] }], unreadLineCount: 0, evidenceStatus: 'ESTIMATED' };
+const okScan = { lines: [{ text: '김치찌개', translatedText: '김치찌개', allergenWords: [] }], unreadLineCount: 0, evidenceStatus: 'ESTIMATED' };
 
-// FormData 안을 들여다보는 표준 방법이 환경마다 달라서, 넣는 순간을 붙잡는다.
-let appended: Array<[string, unknown, unknown?]> = [];
-const realAppend = FormData.prototype.append;
-beforeAll(() => {
-  FormData.prototype.append = function (...args: [string, unknown, unknown?]) { appended.push(args); return realAppend.apply(this, args as never); };
-});
-afterAll(() => { FormData.prototype.append = realAppend; });
-const sentUri = () => { const part = appended.find(([name]) => name === 'image'); return JSON.stringify(part?.[1] ?? null); };
+const multipart = jest.requireMock('@/api/multipart') as { singleFileFormData: jest.Mock };
+
+/** 마지막으로 읽으러 간 사진의 주소. 보낸 것이 줄인 것인지 원본인지를 이것으로 가른다. */
+const sentUri = () => {
+  const call = multipart.singleFileFormData.mock.calls.at(-1);
+  return String((call?.[1] as { uri?: string } | undefined)?.uri ?? '');
+};
 
 beforeEach(() => {
   jest.clearAllMocks();
-  appended = [];
   api.apiRequest.mockResolvedValue(okScan);
 });
 
@@ -39,7 +42,7 @@ describe('scanMenu — 줄이기가 실패해도 보낸다', () => {
   it('줄이기가 되면 줄인 것을 보낸다', async () => {
     resize.resizeForUpload.mockResolvedValue({ uri: 'file:///small.jpg', width: 1600, height: 900 });
 
-    const result = await scanMenu('file:///orig.jpg', 'token', tx);
+    const result = await scanMenu('file:///orig.jpg', 'token', tx, 'ko');
 
     expect(result.state).toBe('success');
     expect(api.apiRequest).toHaveBeenCalledTimes(1);
@@ -49,7 +52,7 @@ describe('scanMenu — 줄이기가 실패해도 보낸다', () => {
   it('🔴 줄이기가 실패해도 원본으로 보낸다 — 요청조차 안 나가던 것이 이 버그였다', async () => {
     resize.resizeForUpload.mockRejectedValue(new Error('manipulate is not a function'));
 
-    const result = await scanMenu('file:///orig.jpg', 'token', tx);
+    const result = await scanMenu('file:///orig.jpg', 'token', tx, 'ko');
 
     expect(api.apiRequest).toHaveBeenCalledTimes(1);
     expect(sentUri()).toContain('orig.jpg');
@@ -59,7 +62,7 @@ describe('scanMenu — 줄이기가 실패해도 보낸다', () => {
   it('로그인 안 했으면 보내지 않는다', async () => {
     resize.resizeForUpload.mockResolvedValue({ uri: 'file:///small.jpg', width: 800, height: 600 });
 
-    const result = await scanMenu('file:///orig.jpg', null, tx);
+    const result = await scanMenu('file:///orig.jpg', null, tx, 'ko');
 
     expect(api.apiRequest).not.toHaveBeenCalled();
     expect(result).toEqual({ state: 'error', message: '로그인한 뒤에 쓸 수 있어요.' });
@@ -69,7 +72,7 @@ describe('scanMenu — 줄이기가 실패해도 보낸다', () => {
     resize.resizeForUpload.mockRejectedValue(new Error('out of memory'));
     api.apiRequest.mockRejectedValue(new api.ApiClientError(413));
 
-    const result = await scanMenu('file:///huge.jpg', 'token', tx);
+    const result = await scanMenu('file:///huge.jpg', 'token', tx, 'ko');
 
     expect(result).toEqual({ state: 'error', message: '사진이 너무 커요. 더 작게 찍어 주세요.' });
   });
