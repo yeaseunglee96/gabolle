@@ -1,8 +1,11 @@
 package com.gabolle.backend.story.application;
 
 import java.time.Clock;
+import java.time.Instant;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -132,7 +135,8 @@ public class FollowService {
 		RelationCursor from = RelationCursor.decode(cursor);
 		int size = StoryFeedService.clamp(limit);
 		List<RelationRow> rows = this.userFollowRepository.findFollowers(target, from.relatedAt(), from.userId(), size + 1);
-		return RelationCursor.page(rows, size, viewerFollowsAmong(viewer, rows));
+		Set<UUID> follows = viewerFollowsAmong(viewer, rows);
+		return RelationCursor.pageWithStoryCounts(rows, size, follows, storyCountsFor(viewer, rows, follows));
 	}
 
 	/** 팔로잉 목록 — 이 사람이 팔로우하는 사람들. {@link #followers} 와 같은 차단 규칙을 쓴다. */
@@ -143,7 +147,8 @@ public class FollowService {
 		RelationCursor from = RelationCursor.decode(cursor);
 		int size = StoryFeedService.clamp(limit);
 		List<RelationRow> rows = this.userFollowRepository.findFollowing(target, from.relatedAt(), from.userId(), size + 1);
-		return RelationCursor.page(rows, size, viewerFollowsAmong(viewer, rows));
+		Set<UUID> follows = viewerFollowsAmong(viewer, rows);
+		return RelationCursor.pageWithStoryCounts(rows, size, follows, storyCountsFor(viewer, rows, follows));
 	}
 
 	/**
@@ -158,6 +163,42 @@ public class FollowService {
 		}
 		List<UUID> candidates = rows.stream().map(RelationRow::getUserId).toList();
 		return new HashSet<>(this.userFollowRepository.findFollowedAmong(viewer, candidates));
+	}
+
+	/**
+	 * 이 쪽에 나온 사람들이 각각 기록을 몇 개 썼나 — S15P21E201-1317.
+	 *
+	 * <p>🔴 <b>한 명씩 세지 않는다.</b> 목록 스무 줄이면 질의가 스무 개 나가는데, 그 값은 줄 옆의
+	 * 작은 글씨 하나다. 보이는 범위가 사람마다 다른 것이 한 명씩 세게 만드는 이유인데,
+	 * <b>범위는 셋뿐</b>이라 같은 범위끼리 묶으면 쪽 크기와 무관하게 최대 세 번이면 끝난다
+	 * ({@link StoryCountBuckets}).
+	 *
+	 * <p>🔴 <b>안 나온 사람은 0 이다.</b> 기록이 하나도 없는 사람은 {@code GROUP BY} 결과에 아예
+	 * 안 들어온다 — 그것을 「모른다」로 두면 화면에 빈 자리가 생긴다. 여기서 0 으로 채운다.
+	 */
+	private Map<UUID, Long> storyCountsFor(UUID viewer, List<RelationRow> rows, Set<UUID> viewerFollows) {
+		if (rows.isEmpty()) {
+			return Map.of();
+		}
+		List<UUID> userIds = rows.stream().map(RelationRow::getUserId).toList();
+		StoryCountBuckets buckets = StoryCountBuckets.of(viewer, userIds, viewerFollows);
+		Instant now = this.clock.instant();
+		Map<UUID, Long> counts = new HashMap<>();
+		userIds.forEach(userId -> counts.put(userId, 0L));
+		tally(counts, buckets.self(), StoryService.SELF_SCOPES, now);
+		tally(counts, buckets.followed(), StoryService.FOLLOWER_SCOPES, now);
+		tally(counts, buckets.strangers(), StoryService.STRANGER_SCOPES, now);
+		return counts;
+	}
+
+	/** 빈 칸이면 질의를 아예 안 보낸다 — 네이티브 {@code IN ()} 은 값이 없으면 구문 오류다. */
+	private void tally(Map<UUID, Long> counts, List<UUID> authors, List<String> visibilities, Instant now) {
+		if (authors.isEmpty()) {
+			return;
+		}
+		for (Object[] row : this.storyRepository.countAuthorStoriesGrouped(authors, visibilities, now)) {
+			counts.put((UUID) row[0], ((Number) row[1]).longValue());
+		}
 	}
 
 	private FollowResponse status(UUID me, UUID target, boolean following) {

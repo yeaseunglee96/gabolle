@@ -199,4 +199,82 @@ class RelationListIntegrationTest {
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.data.items.length()").value(0));
 	}
+
+	// ── 줄마다 기록 수 (S15P21E201-1317) ──────────────────────────────────────
+
+	/**
+	 * 🔴 <b>세는 범위가 사람마다 다르다.</b> 팔로우하는 사람의 「팔로워 공개」 글은 보이고, 모르는
+	 * 사람의 것은 안 보인다. 한 숫자로 뭉뚱그리면 <b>목록의 숫자와 그 사람 프로필의 숫자가 서로
+	 * 다르게</b> 나오는데, 둘 다 그럴듯해서 아무도 오류로 못 알아챈다.
+	 */
+	@Test
+	@DisplayName("🔴 티켓 완료 기준 — 줄마다 기록 수가 오고, 세는 범위는 보는 사람과의 관계를 따른다")
+	void storyCountFollowsWhatTheViewerCanSee() throws Exception {
+		Instant published = Instant.now().minus(1, ChronoUnit.HOURS);
+		StoryFixture.insertFollow(this.jdbc, this.a, this.me);
+		StoryFixture.insertFollow(this.jdbc, this.b, this.me);
+		StoryFixture.insertFollow(this.jdbc, this.c, this.me);
+		// 나는 팔로워 중 B 만 맞팔한다 — 그래서 B 의 「팔로워 공개」 글만 나에게 보인다.
+		StoryFixture.insertFollow(this.jdbc, this.me, this.b);
+
+		StoryFixture.insertStory(this.jdbc, this.a, "A 공개", "PUBLIC", published);
+		StoryFixture.insertStory(this.jdbc, this.a, "A 팔로워공개", "FOLLOWERS", published);
+		StoryFixture.insertStory(this.jdbc, this.b, "B 공개", "PUBLIC", published);
+		StoryFixture.insertStory(this.jdbc, this.b, "B 팔로워공개", "FOLLOWERS", published);
+		StoryFixture.insertStory(this.jdbc, this.b, "B 비공개", "PRIVATE", published);
+
+		this.mockMvc.perform(get("/api/v1/users/{id}/followers", this.me).principal(StoryFixture.as(this.me)))
+				.andExpect(status().isOk())
+				// 안 맞팔한 A — 전체 공개만 보인다.
+				.andExpect(jsonPath("$.data.items[?(@.displayName=='A')].storyCount").value(1))
+				// 맞팔한 B — 팔로워 공개까지 보인다. 비공개는 누구에게도 안 보인다.
+				.andExpect(jsonPath("$.data.items[?(@.displayName=='B')].storyCount").value(2))
+				// 🔴 한 글도 안 쓴 C 는 세는 질의 결과에 아예 안 나온다. 「모른다」가 아니라 0 이다.
+				.andExpect(jsonPath("$.data.items[?(@.displayName=='C')].storyCount").value(0));
+	}
+
+	/**
+	 * 🔴 남의 팔로워 목록에는 <b>내가 들어 있을 수 있다.</b> 그 줄만은 내 비공개 기록까지 세야
+	 * 한다 — 내 프로필이 나에게 보여주는 숫자와 같아야 하기 때문이다.
+	 */
+	@Test
+	@DisplayName("🔴 목록에 나 자신이 있으면 그 줄은 내 비공개 기록까지 센다")
+	void ownRowCountsPrivateStories() throws Exception {
+		Instant published = Instant.now().minus(1, ChronoUnit.HOURS);
+		StoryFixture.insertFollow(this.jdbc, this.me, this.a);
+		StoryFixture.insertStory(this.jdbc, this.me, "내 공개", "PUBLIC", published);
+		StoryFixture.insertStory(this.jdbc, this.me, "내 비공개", "PRIVATE", published);
+
+		this.mockMvc.perform(get("/api/v1/users/{id}/followers", this.a).principal(StoryFixture.as(this.me)))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.data.items[?(@.displayName=='나')].storyCount").value(2));
+	}
+
+	/**
+	 * 🔴 <b>{@code null} 은 0 이 아니다.</b> 차단 목록은 이 숫자를 안 그리므로 세지 않는다. 안 센
+	 * 것을 0 으로 채우면 화면이 「기록 0개」라고 <b>단언</b>하게 되는데, 그건 사실이 아니다.
+	 */
+	@Test
+	@DisplayName("🔴 차단 목록은 기록 수를 안 센다 — 0 이 아니라 null 이다")
+	void blockListDoesNotCountStories() throws Exception {
+		StoryFixture.insertStory(this.jdbc, this.a, "A 공개", "PUBLIC", Instant.now().minus(1, ChronoUnit.HOURS));
+		StoryFixture.insertBlock(this.jdbc, this.me, this.a);
+
+		this.mockMvc.perform(get("/api/v1/users/{id}/blocks", this.me).principal(StoryFixture.as(this.me)))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.data.items[0].storyCount").doesNotExist());
+	}
+
+	/** 아직 공개 시각이 안 된 예약 글은 아무에게도 안 보인다 — 세는 쪽도 같은 규칙을 쓴다. */
+	@Test
+	@DisplayName("🔴 예약된 글은 아직 안 센다 — 프로필의 숫자와 같은 규칙이다")
+	void scheduledStoriesAreNotCountedYet() throws Exception {
+		StoryFixture.insertFollow(this.jdbc, this.a, this.me);
+		StoryFixture.insertStory(this.jdbc, this.a, "A 공개", "PUBLIC", Instant.now().minus(1, ChronoUnit.HOURS));
+		StoryFixture.insertStory(this.jdbc, this.a, "A 예약", "PUBLIC", Instant.now().plus(3, ChronoUnit.HOURS));
+
+		this.mockMvc.perform(get("/api/v1/users/{id}/followers", this.me).principal(StoryFixture.as(this.me)))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.data.items[?(@.displayName=='A')].storyCount").value(1));
+	}
 }

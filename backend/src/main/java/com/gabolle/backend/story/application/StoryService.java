@@ -543,16 +543,34 @@ public class StoryService {
 		return story;
 	}
 
-	/** 요청자가 작성자에 대해 볼 수 있는 공개 범위 목록 — 프로필 피드가 쓴다. */
+	/** 본인이 본인 것을 볼 때 — 비공개까지 전부. */
+	static final List<String> SELF_SCOPES = List.of(StoryVisibility.PUBLIC.name(), StoryVisibility.FOLLOWERS.name(),
+			StoryVisibility.PRIVATE.name());
+
+	/** 팔로우하는 사람이 볼 때 — 공개 + 팔로워 공개. */
+	static final List<String> FOLLOWER_SCOPES = List.of(StoryVisibility.PUBLIC.name(),
+			StoryVisibility.FOLLOWERS.name());
+
+	/** 그 밖의 사람이 볼 때 — 공개만. */
+	static final List<String> STRANGER_SCOPES = List.of(StoryVisibility.PUBLIC.name());
+
+	/**
+	 * 요청자가 작성자에 대해 볼 수 있는 공개 범위 목록 — 프로필 피드가 쓴다.
+	 *
+	 * <p>🔴 이 셋을 상수로 뽑아 둔 이유는 <b>세는 쪽</b>이 같은 표를 써야 하기 때문이다
+	 * (S15P21E201-1317). 팔로워 목록은 사람마다 관계가 달라서 한 명씩 이 메서드를 부르는 대신
+	 * <b>같은 범위끼리 묶어서</b> 몇 번 나눠 세는데, 그때 범위 목록을 저쪽에 다시 적으면 규칙이
+	 * 두 벌이 된다. 한쪽만 고치면 <b>프로필의 숫자와 목록의 숫자가 서로 다르게</b> 나오고,
+	 * 그건 화면 어디에도 오류로 안 보인다.
+	 */
 	List<String> visibleScopesOf(UUID author, UUID viewer) {
 		if (author.equals(viewer)) {
-			return List.of(StoryVisibility.PUBLIC.name(), StoryVisibility.FOLLOWERS.name(),
-					StoryVisibility.PRIVATE.name());
+			return SELF_SCOPES;
 		}
 		if (this.userFollowRepository.existsByKey(new UserFollow.Key(viewer, author))) {
-			return List.of(StoryVisibility.PUBLIC.name(), StoryVisibility.FOLLOWERS.name());
+			return FOLLOWER_SCOPES;
 		}
-		return List.of(StoryVisibility.PUBLIC.name());
+		return STRANGER_SCOPES;
 	}
 
 	// ---- 도우미 ----
