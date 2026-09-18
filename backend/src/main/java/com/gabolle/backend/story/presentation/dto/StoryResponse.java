@@ -68,7 +68,41 @@ public record StoryResponse(
 		 * 칸을 미리 내보내는 이유는 응답 모양을 <b>두 번 바꾸지 않으려는 것</b>이다 — 화면이
 		 * 한 번만 받으면 된다.
 		 */
-		int linkCopyCount) {
+		int linkCopyCount,
+
+		/**
+		 * 🔴 S15P21E201-1174 — 이 글이 받은 좋아요 수. 없으면 <b>0</b> 이고 {@code null} 이 아니다.
+		 *
+		 * <p>{@code viewCount}·{@code replyCount} 와 달리 <b>누적 칸이 아니다.</b> 반응 표를
+		 * 한 쪽당 한 번 세서 붙인다({@code StoryReactionRepository.countByStories}). 누적 칸을
+		 * 두면 취소할 때 함께 내려야 하는데, 그 짝을 놓치면 <b>수는 5인데 행은 4인</b> 상태가
+		 * 남고 그건 화면에 그대로 보이는 틀림이다. 피드가 실제로 느려지면 그때 옮긴다.
+		 *
+		 * <p>🔴 <b>취소한 사람은 안 센다.</b> 취소해도 반응 행은 남으므로(-1173 후속) 행을
+		 * 그냥 세면 취소한 사람까지 들어간다.
+		 */
+		int likeCount,
+
+		/**
+		 * 🔴 S15P21E201-1174 — 싫어요 수. 없으면 <b>0</b>.
+		 *
+		 * <p>좋아요에서 빼지 않고 <b>따로</b> 낸다. 뺄셈은 「인기」가 아니라 「호감도」이고,
+		 * 그 판단은 화면이 할 일이지 응답이 몰래 정할 일이 아니다.
+		 */
+		int dislikeCount,
+
+		/**
+		 * 🔴 S15P21E201-1174 — <b>내가 지금 눌러 둔 것.</b> {@code "LIKE"} · {@code "DISLIKE"} ·
+		 * {@code null}(안 눌렀거나 취소했거나 비회원).
+		 *
+		 * <p>🔴 <b>불리언({@code likedByMe})이 아닌 이유.</b> 불리언은 <b>좋아요·싫어요·안 누름
+		 * 셋을 구분하지 못한다</b> — 싫어요를 누른 사람과 아무것도 안 누른 사람이 똑같이
+		 * {@code false} 로 보여서, 토글 버튼이 자기 상태를 그릴 수 없다. 화면을 만드는 쪽과
+		 * 정한 모양이다(2026-09-18, 진미리).
+		 *
+		 * <p>키를 빼지 않고 {@code null} 을 그대로 낸다 — 세 값짜리 칸이라 「없음」도 뜻이 있다.
+		 */
+		String myReaction) {
 
 	public record Author(String id, String displayName) {
 	}

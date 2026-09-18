@@ -16,10 +16,12 @@ import com.gabolle.backend.common.security.HtmlOutputEncoder;
 import com.gabolle.backend.place.domain.Place;
 import com.gabolle.backend.place.repository.PlaceRepository;
 import com.gabolle.backend.story.domain.Story;
+import com.gabolle.backend.story.domain.ReactionType;
 import com.gabolle.backend.story.domain.StoryImage;
 import com.gabolle.backend.story.domain.UploadedImage;
 import com.gabolle.backend.story.presentation.dto.StoryResponse;
 import com.gabolle.backend.story.repository.StoryImageRepository;
+import com.gabolle.backend.story.repository.StoryReactionRepository;
 import com.gabolle.backend.story.repository.UploadedImageRepository;
 import com.gabolle.backend.user.domain.AppUser;
 import com.gabolle.backend.user.repository.AppUserRepository;
@@ -34,6 +36,9 @@ import com.gabolle.backend.user.repository.AppUserRepository;
 @Profile({ "db", "dev" })
 public class StoryResponseAssembler {
 
+	/** 반응이 하나도 없는 글이 읽는 자리 — {@code [좋아요, 싫어요]}. 만들 때마다 새로 안 만든다. */
+	private static final int[] NO_REACTIONS = { 0, 0 };
+
 	private final StoryImageRepository storyImageRepository;
 
 	private final UploadedImageRepository uploadedImageRepository;
@@ -42,13 +47,16 @@ public class StoryResponseAssembler {
 
 	private final PlaceRepository placeRepository;
 
+	private final StoryReactionRepository storyReactionRepository;
+
 	public StoryResponseAssembler(StoryImageRepository storyImageRepository,
 			UploadedImageRepository uploadedImageRepository, AppUserRepository appUserRepository,
-			PlaceRepository placeRepository) {
+			PlaceRepository placeRepository, StoryReactionRepository storyReactionRepository) {
 		this.storyImageRepository = storyImageRepository;
 		this.uploadedImageRepository = uploadedImageRepository;
 		this.appUserRepository = appUserRepository;
 		this.placeRepository = placeRepository;
+		this.storyReactionRepository = storyReactionRepository;
 	}
 
 	public StoryResponse one(Story story, UUID viewer, Instant now) {
@@ -90,6 +98,24 @@ public class StoryResponseAssembler {
 		if (!placeIds.isEmpty()) {
 			for (Place place : this.placeRepository.findAllById(placeIds)) {
 				places.put(place.getPlaceId(), place);
+			}
+		}
+
+		// 🔴 S15P21E201-1174 — 반응 수와 「내가 눌러 둔 것」. 한 쪽당 질의 둘이고, 글마다가 아니다.
+		//    글마다 세면 50건 피드가 50번의 왕복이 된다 — 위의 사진·작성자·장소와 같은 이유다.
+		Map<UUID, int[]> reactionCounts = new HashMap<>();
+		for (StoryReactionRepository.StoryReactionCount row : this.storyReactionRepository
+				.countByStories(storyIds)) {
+			int[] slot = reactionCounts.computeIfAbsent(row.getStoryId(), (k) -> new int[2]);
+			slot[row.getReaction() == ReactionType.LIKE ? 0 : 1] = (int) row.getCount();
+		}
+		// 🔴 비회원(viewer == null)이면 질의 자체를 안 한다. 「내 반응」이 없는 것이 확실하고,
+		//    복합 키의 한 칸이 null 인 조회는 동작이 보장되지 않는다(StoryVisibilityPolicy 참고).
+		Map<UUID, ReactionType> myReactions = new HashMap<>();
+		if (viewer != null) {
+			for (StoryReactionRepository.StoryViewerReaction row : this.storyReactionRepository
+					.findMineByStories(storyIds, viewer)) {
+				myReactions.put(row.getStoryId(), row.getReaction());
 			}
 		}
 
@@ -135,7 +161,13 @@ public class StoryResponseAssembler {
 					story.getReplyCount(),
 					// S15P21E201-1204 — 누적 칸이라 이미 손에 있다. 낱개를 세지 않는다.
 					story.getViewCount(),
-					story.getLinkCopyCount()));
+					story.getLinkCopyCount(),
+					// S15P21E201-1174 — 위에서 한 번에 세 둔 값이다. 글마다 다시 세지 않는다.
+					reactionCounts.getOrDefault(story.getStoryId(), NO_REACTIONS)[0],
+					reactionCounts.getOrDefault(story.getStoryId(), NO_REACTIONS)[1],
+					myReactions.containsKey(story.getStoryId())
+							? myReactions.get(story.getStoryId()).name()
+							: null));
 		}
 		return out;
 	}

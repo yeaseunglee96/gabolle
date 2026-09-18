@@ -14,6 +14,7 @@ import com.gabolle.backend.story.domain.Story;
 import com.gabolle.backend.story.domain.StoryVisibility;
 import com.gabolle.backend.story.presentation.dto.StoryResponse;
 import com.gabolle.backend.story.repository.StoryImageRepository;
+import com.gabolle.backend.story.repository.StoryReactionRepository;
 import com.gabolle.backend.story.repository.UploadedImageRepository;
 import com.gabolle.backend.user.domain.AppUser;
 import com.gabolle.backend.user.domain.PersonalizationMode;
@@ -45,11 +46,17 @@ class StoryResponseAssemblerTest {
 		StoryImageRepository storyImageRepository = mock(StoryImageRepository.class);
 		UploadedImageRepository uploadedImageRepository = mock(UploadedImageRepository.class);
 		PlaceRepository placeRepository = mock(PlaceRepository.class);
+		// 🔴 S15P21E201-1174 — 반응 수는 이 검사의 주제가 아니다(여기는 인코딩을 잰다).
+		//    빈 목록을 돌려주게 두면 조립기가 0·0·null 로 채우고, 그게 「반응이 없는 글」의
+		//    실제 모습이다. 진짜 집계는 StoryReactionResponseIntegrationTest 가 잰다.
+		StoryReactionRepository storyReactionRepository = mock(StoryReactionRepository.class);
 
 		when(storyImageRepository.findByStoryIdInOrderByStoryIdAscPositionAsc(any())).thenReturn(List.of());
+		when(storyReactionRepository.countByStories(any())).thenReturn(List.of());
+		when(storyReactionRepository.findMineByStories(any(), any())).thenReturn(List.of());
 
 		this.assembler = new StoryResponseAssembler(storyImageRepository, uploadedImageRepository,
-				this.appUserRepository, placeRepository);
+				this.appUserRepository, placeRepository, storyReactionRepository);
 	}
 
 	/**
