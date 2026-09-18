@@ -51,6 +51,18 @@ export type StoryDto = {
    * 우리가 아는 것은 「복사 버튼을 눌렀다」뿐이고, 서버 표 이름도 그렇게 정했다.
    */
   linkCopyCount?: number;
+  /**
+   * 좋아요·싫어요 — S15P21E201-1174(kojh0124 님, MR !1145).
+   *
+   * 없으면 0(칸이 안 오는 게 아니라 값이 0) — 취소한 사람은 수에서 빠진다.
+   */
+  likeCount?: number;
+  dislikeCount?: number;
+  /**
+   * 🔴 세 값이다 — `null`(안 누름) · `"LIKE"` · `"DISLIKE"`. `!myReaction`로 한 번에
+   * 묶으면 싫어요 상태가 "안 누름"으로 보인다 — kojh0124 님 경고 그대로다.
+   */
+  myReaction?: 'LIKE' | 'DISLIKE' | null;
 };
 
 // GET /api/v1/stories/:id 계약이 생기기 전(S15P21E201-228 이전)에는 목록에서 받은
@@ -433,4 +445,80 @@ export function loadFollowing(userId: string, accessToken: string | null, cursor
 /** 내가 차단한 사람들 — userId는 반드시 본인이어야 한다(서버가 아니면 403). */
 export function loadMyBlocks(userId: string, accessToken: string | null, cursor?: string | null): Promise<RelationListResult> {
   return loadRelationList(`/api/v1/users/${encodeURIComponent(userId)}/blocks`, accessToken, cursor);
+}
+
+// 기록(글) 저장(북마크) — 사용자 리포트: "마이페이지에 저장 누르면 저장했던 피드들 뜨게".
+//
+// 🔴 story_reaction(좋아요/싫어요)과는 별도 서버 표다 — 한 글에 반응과 저장을 동시에 가질
+// 수 있다. StoryDto에는 "내가 저장했는가" 칸이 없다(반응 카운트와 달리 얹지 않기로
+// 했다 — StoryResponseAssembler를 다른 작업과 동시에 건드리지 않으려는 것). 그래서 화면은
+// loadSavedStoryIds()로 받은 저장 id 집합을 따로 들고 다니며 카드마다 대조한다.
+export type SavedStoryIdsResult = { state: 'success'; ids: Set<string> } | FeedFailure;
+
+export async function loadSavedStoryIds(accessToken: string | null): Promise<SavedStoryIdsResult> {
+  try {
+    const dto = await apiRequest<{ items: Array<{ storyId: string }> }>('/api/v1/me/saved-stories', { accessToken });
+    return { state: 'success', ids: new Set(dto.items.map((item) => item.storyId)) };
+  } catch (error) {
+    return failure(error);
+  }
+}
+
+/** 저장한 기록 전부 — 마이페이지 "저장한 기록" 화면이 목록을 그릴 때 쓴다. */
+export async function loadSavedStories(accessToken: string | null): Promise<FeedLoadResult> {
+  try {
+    const dto = await apiRequest<{ items: Array<{ storyId: string }> }>('/api/v1/me/saved-stories', { accessToken });
+    // 🔴 저장 목록 응답에는 글 내용이 없다(StorySaveResponse — 장소 저장 목록과 같은 이유,
+    // 두 곳에 같은 값을 들면 한쪽이 낡는다). 아이디마다 상세를 불러 카드로 그릴 내용을 채운다.
+    const stories = await Promise.all(dto.items.map((item) => getStory(item.storyId, accessToken)));
+    const items = stories
+      .filter((result): result is { state: 'success'; story: StoryDto } => result.state === 'success')
+      .map((result) => result.story);
+    return { state: 'success', items, nextCursor: null };
+  } catch (error) {
+    return failure(error);
+  }
+}
+
+export type StorySaveResult = { state: 'success'; saved: boolean } | FeedFailure;
+
+export async function setStorySaved(storyId: string, saved: boolean, accessToken: string | null): Promise<StorySaveResult> {
+  try {
+    await apiRequest<void>(`/api/v1/stories/${encodeURIComponent(storyId)}/save`, {
+      method: saved ? 'PUT' : 'DELETE',
+      accessToken,
+    });
+    return { state: 'success', saved };
+  } catch (error) {
+    return failure(error);
+  }
+}
+
+// 좋아요·싫어요 — S15P21E201-1174(서버, kojh0124 님)·화면은 여기.
+//
+// PUT .../reaction {"reaction":"LIKE"|"DISLIKE"} 로 걸고, 끄는 것은 DELETE다 — 같은
+// 값을 다시 PUT 해도 안 꺼진다(그건 "좋아요를 안다시 좋아요"가 아니라 그대로 좋아요다).
+// 토글(같은 걸 다시 누르면 꺼짐)은 화면이 지금 상태(myReaction)를 보고 PUT/DELETE 중
+// 무엇을 부를지 정한다.
+export type StoryReactionResult = { state: 'success' } | FeedFailure;
+
+export async function setStoryReaction(
+  storyId: string,
+  reaction: 'LIKE' | 'DISLIKE' | null,
+  accessToken: string | null,
+): Promise<StoryReactionResult> {
+  try {
+    if (reaction === null) {
+      await apiRequest<void>(`/api/v1/stories/${encodeURIComponent(storyId)}/reaction`, { method: 'DELETE', accessToken });
+    } else {
+      await apiRequest<void>(`/api/v1/stories/${encodeURIComponent(storyId)}/reaction`, {
+        method: 'PUT',
+        accessToken,
+        body: { reaction },
+      });
+    }
+    return { state: 'success' };
+  } catch (error) {
+    return failure(error);
+  }
 }

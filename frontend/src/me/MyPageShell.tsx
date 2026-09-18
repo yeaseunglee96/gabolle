@@ -21,12 +21,14 @@ import { isAtLeast } from '@/layout/breakpoints';
 import { countAnswered, loadAccountPreferences, PREFERENCE_TOTAL, PREFERENCES_KEY } from '@/preferences/accountPreferences';
 import { getUserProfile } from '@/social/stories';
 
-export type MyPageTab = 'profile' | 'preferences' | 'posts' | 'identities' | 'blocked' | 'terms';
+export type MyPageTab = 'profile' | 'preferences' | 'posts' | 'saved' | 'identities' | 'blocked' | 'terms';
 
 const TABS: Array<{ key: MyPageTab; path: string; ko: string; en: string }> = [
   { key: 'profile', path: '/me/profile', ko: '프로필', en: 'Profile' },
   { key: 'preferences', path: '/me/preferences', ko: '여행 취향', en: 'Travel preferences' },
   { key: 'posts', path: '/me/posts', ko: '내 기록', en: 'My records' },
+  // 사용자 리포트: "마이페이지에 저장 누르면 저장했던 피드들 뜨게" — S15P21E201-1221.
+  { key: 'saved', path: '/me/saved', ko: '저장한 기록', en: 'Saved records' },
   { key: 'identities', path: '/me/identities', ko: '연결된 소셜 계정', en: 'Connected accounts' },
   // S15P21E201-1181 — 알림·차단된 계정처럼 스토어 심사가 보는 기본 기능이 마이페이지에
   // 없었다(사용자 리포트). 알림은 화면이 이미 있다(app/notifications.tsx, 홈 종 아이콘) —
