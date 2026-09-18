@@ -396,11 +396,27 @@ export default function ItineraryScreen() {
   const dayTravelMinutes = useMemo(() => totalTravelMinutes(displayedItems), [displayedItems]);
   // 🔴 값이 없는 칸을 0 으로 세지 않는다. 자료가 있는 칸만 더하므로 이 합계는 「적어도 이만큼」이다.
   const dayWalkingMeters = useMemo(() => displayedItems.reduce((sum, item) => sum + (item.walkingMeters ?? 0), 0), [displayedItems]);
-  const dayCostKrw = useMemo(() => displayedItems.reduce((sum, item) => sum + (item.estimatedCostKrw ?? 0), 0), [displayedItems]);
+  // 🔴 비용 합계는 **아는 칸이 몇 개인지 같이 말한다** (S15P21E201-1237).
+  //
+  //    전에는 값 없는 칸을 0 으로 더했다. 지금은 운영의 입장료가 전부 비어 있어서
+  //    합계가 0 이고, 아래의 `> 0` 이 막아 안 그려진다 — **조용하다.** 그런데 입장료가
+  //    **한 건이라도** 들어오는 순간 그 한 건이 「하루 예상 비용」으로 그려진다.
+  //    다섯 곳 중 한 곳만 아는 값이 「오늘 쓰는 돈」으로 읽히는 것이다.
+  //
+  //    아는 칸이 전부가 아니면 **몇 개를 아는지 붙인다.** 「적어도 이만큼」이라는 사실을
+  //    숫자 옆에 두는 것이, 합계를 안 그려서 **아무것도 모르게 하는 것보다 낫다.**
+  const dayCost = useMemo(() => {
+    const known = displayedItems.filter((item) => typeof item.estimatedCostKrw === 'number');
+    return { krw: known.reduce((sum, item) => sum + (item.estimatedCostKrw as number), 0), known: known.length, total: displayedItems.length };
+  }, [displayedItems]);
   const dayFacts = useMemo(() => [
     dayWalkingMeters > 0 ? tx(`도보 ${formatWalk(dayWalkingMeters)}`, `${formatWalk(dayWalkingMeters)} on foot`) : null,
-    dayCostKrw > 0 ? tx(`${dayCostKrw.toLocaleString()}원`, `${dayCostKrw.toLocaleString()} KRW`) : null,
-  ].filter(Boolean).join(' · '), [dayWalkingMeters, dayCostKrw, tx]);
+    dayCost.krw > 0
+      ? dayCost.known === dayCost.total
+        ? tx(`${dayCost.krw.toLocaleString()}원`, `${dayCost.krw.toLocaleString()} KRW`)
+        : tx(`${dayCost.krw.toLocaleString()}원 (${dayCost.total}곳 중 ${dayCost.known}곳)`, `${dayCost.krw.toLocaleString()} KRW (${dayCost.known} of ${dayCost.total} places)`)
+      : null,
+  ].filter(Boolean).join(' · '), [dayWalkingMeters, dayCost, tx]);
   const canReorder = canEdit && (day?.items.filter((item) => !item.locked).length ?? 0) > 1;
 
   // 지연 경고(S15P21E201-96·314). 날짜를 바꾸면 그 날짜 것을 새로 받는다 — 표본이
