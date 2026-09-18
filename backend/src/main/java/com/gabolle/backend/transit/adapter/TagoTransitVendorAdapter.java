@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -123,10 +124,49 @@ public class TagoTransitVendorAdapter implements TransitVendorPort {
 		try {
 			return this.restClient.get().uri(uri).retrieve().body(String.class);
 		}
+		catch (HttpStatusCodeException exception) {
+			if (isServiceKeyRejected(exception)) {
+				log.warn("{} 거절 — 이 서비스에 등록된 키가 아니다 status={}", what, exception.getStatusCode().value());
+				throw new TransitVendorException("TRANSIT_VENDOR_NOT_CONFIGURED", "대중교통 정보 서비스가 설정되지 않았습니다.",
+						HttpStatus.BAD_GATEWAY, exception);
+			}
+			log.warn("{} 호출 실패 status={}", what, exception.getStatusCode().value());
+			throw new TransitVendorException("TRANSIT_VENDOR_UNAVAILABLE", what + " 호출에 실패했습니다.",
+					HttpStatus.BAD_GATEWAY, exception);
+		}
 		catch (RestClientException exception) {
 			log.warn("{} 호출 실패", what);
 			throw new TransitVendorException("TRANSIT_VENDOR_UNAVAILABLE", what + " 호출에 실패했습니다.",
 					HttpStatus.BAD_GATEWAY, exception);
 		}
+	}
+
+	/**
+	 * 업체가 <b>우리 키를 거절</b>한 것인가 — S15P21E201-1186.
+	 *
+	 * <p>🔴 이것은 "잠시"가 아니다. 키가 그 서비스에 등록돼 있지 않으면 <b>몇 번을 다시 눌러도
+	 * 같은 답</b>이 온다. 그런데 그동안 이 경우가 {@code TRANSIT_VENDOR_UNAVAILABLE} 로 나갔고,
+	 * 화면은 「제공처가 잠시 응답하지 않아요 · 다시 시도」라고 말했다 — S15P21E201-1200 에서
+	 * 걷어낸 바로 그 거짓말이다. 열쇠가 없는 것과 열쇠가 안 맞는 것은 <b>사용자에게 같은 일</b>이다.
+	 *
+	 * <p>공공데이터포털이 내는 모양 (실측 2026-09-18):
+	 * <pre>
+	 * HTTP 403  {"OpenAPI_ServiceResponse":{"cmmMsgHeader":{
+	 *   "errMsg":"SERVICE_KEY_IS_NOT_REGISTERED_ERROR","returnReasonCode":"30"}}}
+	 * HTTP 401  ... "errMsg":"SERVICE_KEY_IS_NULL" ...
+	 * </pre>
+	 *
+	 * <p>상태코드만으로는 모자란다 — 포털이 키 문제에 401 과 403 을 섞어 쓰고, 그 둘이 다른
+	 * 이유로도 올 수 있다. 그래서 본문의 글자도 같이 본다.
+	 */
+	private static boolean isServiceKeyRejected(HttpStatusCodeException exception) {
+		int status = exception.getStatusCode().value();
+		if (status != 401 && status != 403) {
+			return false;
+		}
+		String body = exception.getResponseBodyAsString();
+		return body.contains("SERVICE_KEY_IS_NOT_REGISTERED")
+				|| body.contains("SERVICE_KEY_IS_NULL")
+				|| body.isBlank();
 	}
 }
