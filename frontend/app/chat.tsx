@@ -61,14 +61,20 @@ export default function Chat() {
   // 로그인 전에는 서버(AUTHENTICATED_ONLY)를 아예 부르지 않고 로컬 규칙으로 바로 넘어간다
   // 401 처리(토큰 갱신 시도 등)를 겪을 이유가 없다. 로그인 후에도 서버 호출이 실패하면
   // (네트워크 문제 등) 같은 로컬 규칙으로 자연스럽게 넘어간다 — 사용자는 항상 답을 받는다.
-  async function send(value = input) {
+  /**
+   * @param shown 🔴 말풍선에 남길 글. 제안을 누른 경우 **화면에 보여 준 문구**가 들어온다.
+   *   보내는 값(`value`)은 한국어 원문 그대로 두어야 한다 — 비회원은 서버 대신 앱 안의
+   *   키워드 매처로 답하는데 그 매처가 한국어만 알아듣기 때문이다(src/assistant/intent.ts).
+   *   안 주면 보낸 글을 그대로 쓴다(직접 입력한 경우는 둘이 같다). S15P21E201-1327.
+   */
+  async function send(value = input, shown?: string) {
     const content = value.trim();
     if (!content || pending) return;
     setInput('');
     const history = recentHistory();
     const userId = nextIdRef.current++;
     const assistantId = nextIdRef.current++;
-    setMessages((current) => [...current, { id: userId, role: 'user', text: content }]);
+    setMessages((current) => [...current, { id: userId, role: 'user', text: (shown ?? content).trim() }]);
     setPending(true);
     try {
       const action = accessToken
@@ -99,7 +105,7 @@ export default function Chat() {
               기능 버튼(tools)과 검색 예시(suggestions)를 인사말 바로 아래, 자유 입력창보다 먼저
               보여준다 — 자유 대화가 주된 사용법이라는 인상을 주지 않기 위해서다. */}
           {!desktop ? tools : null}
-          {messages.length === 0 ? <View style={styles.suggestionSection}><Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx('이렇게 검색해 보세요', 'Try searching for these')}</Text><View style={styles.suggestions}>{SUGGESTIONS.map((suggestion) => <Pressable key={suggestion.ko} accessibilityRole="button" accessibilityState={{ disabled: pending }} disabled={pending} onPress={() => send(suggestion.ko)} style={styles.suggestion}><Text variant="body" weight="medium">{tx(suggestion.ko, suggestion.en)}</Text></Pressable>)}</View></View> : null}
+          {messages.length === 0 ? <View style={styles.suggestionSection}><Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx('이렇게 검색해 보세요', 'Try searching for these')}</Text><View style={styles.suggestions}>{SUGGESTIONS.map((suggestion) => <Pressable key={suggestion.ko} accessibilityRole="button" accessibilityState={{ disabled: pending }} disabled={pending} onPress={() => send(suggestion.ko, tx(suggestion.ko, suggestion.en))} style={styles.suggestion}><Text variant="body" weight="medium">{tx(suggestion.ko, suggestion.en)}</Text></Pressable>)}</View></View> : null}
           {messages.map((message) => <View key={message.id} style={[styles.bubble, desktop && styles.bubbleDesktop, message.role === 'user' ? styles.userBubble : styles.assistantBubble]}><Text color={message.role === 'user' ? color.text.onAction : color.text.heading}>{message.text}</Text>
             {message.action?.kind === 'plan' && message.action.summary.length ? <View style={styles.actionCard}><Text variant="caption" weight="bold">{tx('찾은 여행 조건', 'Conditions found')}</Text><Text variant="caption" color={color.text.body}>{message.action.summary.join(' · ')}</Text><Button label={message.applied ? tx('일정 초안에 적용됨 ✓', 'Applied to draft itinerary ✓') : tx('일정에 적용하고 확인하기', 'Apply to itinerary and review')} disabled={message.applied} onPress={() => { applyPlan(message.id, message.action as Extract<AssistantAction, { kind: 'plan' }>); router.push('/plan'); }} /></View> : null}
             {message.action?.kind === 'phrase' ? <View style={styles.actionCard}><Text variant="title" weight="bold">{message.action.korean}</Text><Text variant="caption" color={color.text.muted}>{message.action.pronunciation}</Text><Button label={tx('크게 보고 듣기', 'View large & listen')} variant="field" onPress={() => router.push('/field/speak')} /></View> : null}
