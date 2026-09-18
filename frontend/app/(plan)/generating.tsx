@@ -242,7 +242,13 @@ export default function Generating() {
         {/* 🔴 시안 TripPassCard 로 바꿨다 (S15P21E201-1233). 전에는 이 자리에 영수증을
             직접 그렸는데, 찍히는 값이 「BUSAN」·「READY TO BOARD」 같은 **고정 글자**라
             실제 일정과 무관했다. 이제 날짜·방문지·걷는 거리·예상 비용이 전부 실값이다. */}
-        <TripPass data={tripPass} wide={kind !== 'phone'} tx={tx} onReprint={() => setReprint((n) => n + 1)} key={reprint} />
+        {kind !== 'phone' ? (
+          <View style={styles.ticketColumn}>
+            <TripPass data={tripPass} wide tx={tx} onReprint={() => setReprint((n) => n + 1)} key={reprint} />
+          </View>
+        ) : (
+          <TripPass data={tripPass} wide={false} tx={tx} onReprint={() => setReprint((n) => n + 1)} key={reprint} />
+        )}
         {/* 🔴 시안 p4 — 티켓 **옆**에 여행표 상세가 선다. 출발지 · 첫 일정 · 마지막 일정 ·
             이동 합계 · 예상 비용, 그리고 「일정 보기」·「지도에서 보기」.
             🔴 **모르는 줄은 아예 안 만든다**(buildTripPassDetails). 시안에는 다섯 줄이 다
@@ -289,11 +295,14 @@ const styles = StyleSheet.create({ canvas: { backgroundColor: color.brand.ivory,
   ticketArea: { alignItems: 'center', justifyContent: 'flex-start', padding: spacing[6], borderRadius: radius.lg, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.border },
   passHead: { width: '100%', minHeight: 40, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing[4] },
   passTitle: { letterSpacing: 1.5 },
-  passBody: { width: '100%', flexDirection: 'row', alignItems: 'flex-start', gap: spacing[8], justifyContent: 'center' },
+  passBody: { width: '100%', flexDirection: 'row', alignItems: 'flex-start', gap: spacing[8] },
+  // 🔴 티켓 칸에 폭을 못 박는다. TripPass 의 뿌리가 width:100% 라, 안 잡으면 티켓이
+  //    카드 폭을 통째로 먹고 상세 칸이 **카드 밖으로 밀려난다** (실측 1103px, 2026-09-18).
+  ticketColumn: { width: 420, flexShrink: 0 },
   ticketAreaWide: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[8], justifyContent: 'center' },
   // 🔴 폭을 고정한다. flex:1 로 두면 티켓이 남는 폭을 다 가져가 이 칸이 40px 로 눌리고
   //    글자가 **세로로 선다** — 2026-09-18 화면을 띄워 보고 찾았다.
-  ticketDetails: { width: 420, flexShrink: 0, gap: spacing[1], paddingTop: spacing[2] },
+  ticketDetails: { flex: 1, minWidth: 320, gap: spacing[1], paddingTop: spacing[2] },
   // 🔴 시안은 **이름 왼쪽 · 값 오른쪽 한 줄**이다. 쌓으면 줄 수가 두 배가 되고 값이 눈에 안 띈다.
   detailRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[4], minHeight: 40, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: color.surface.border },
   detailValue: { flexShrink: 1 },
