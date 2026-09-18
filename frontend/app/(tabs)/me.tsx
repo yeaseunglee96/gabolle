@@ -98,14 +98,14 @@ export default function Me() {
         first
         label={tx('내 기록', 'My records')}
         value={storyCount === null ? '›' : storyCount > 0 ? tx(`${storyCount}개 ›`, `${storyCount} ›`) : none}
-        onPress={() => router.push('/me/posts')}
+        onPress={() => openPanel('posts', '/me/posts')}
         disabled={!user}
       />
       {/* 사용자 리포트: "마이페이지에 저장 누르면 저장했던 피드들 뜨게" —. */}
       <InfoRow
         label={tx('저장한 기록', 'Saved records')}
         value="›"
-        onPress={() => router.push('/me/saved')}
+        onPress={() => openPanel('saved', '/me/saved')}
         disabled={!user}
       />
       {/* — 인스타그램처럼 팔로워·팔로잉을 눌러 목록으로 들어갈 수 있어야
@@ -130,7 +130,7 @@ export default function Me() {
           : answeredPreferences > 0
             ? tx(`${answeredPreferences} / ${PREFERENCE_TOTAL} 답함 ›`, `${answeredPreferences} / ${PREFERENCE_TOTAL} answered ›`)
             : none}
-        onPress={() => router.push('/me/preferences')}
+        onPress={() => openPanel('preferences', '/me/preferences')}
         disabled={!user}
       />
       <InfoRow label={tx('연결된 소셜 계정', 'Connected accounts')} value="›" onPress={() => openPanel('identities', '/me/identities')} disabled={!user} />
@@ -188,11 +188,11 @@ export default function Me() {
           // 서버에 커버 칸이 아직 없다(S15P21E201-1297). 생기기 전까지는 부산 기본 사진이다.
           coverUri={null}
           counts={[
-            { label: tx('기록', 'Records'), value: storyCount, onPress: () => user && router.push('/me/posts') },
+            { label: tx('기록', 'Records'), value: storyCount, onPress: () => user && openPanel('posts', '/me/posts') },
             { label: tx('팔로워', 'Followers'), value: followerCount, onPress: () => user && openPanel('followers', `/user/${user.userId}/followers`) },
             { label: tx('팔로잉', 'Following'), value: followingCount, onPress: () => user && openPanel('following', `/user/${user.userId}/following`) },
           ]}
-          onEdit={() => (user ? router.push('/me/profile') : router.push({ pathname: '/sign-in', params: { returnTo: '/me/profile' } }))}
+          onEdit={() => (user ? openPanel('profile', '/me/profile') : router.push({ pathname: '/sign-in', params: { returnTo: '/me/profile' } }))}
           tx={tx}
         />
 
