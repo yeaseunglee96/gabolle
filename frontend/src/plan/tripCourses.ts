@@ -15,6 +15,15 @@ export type CourseStop = {
   time: string | null;
   note: string | null;
   photoUrl: string | null;
+  /**
+   * 지도에 선을 그리는 재료 —-1333.
+   *
+   * 🔴 **모르면 `null` 이지 `0` 이 아니다.** 0 으로 그리면 지도에 아프리카 서쪽 바다가
+   *    찍힌다. 하나도 없으면 화면이 지도 대신 **동선을 글로** 세운다 — 좌표 없이 선을
+   *    그으면 실제로 안 가는 길을 그리게 되고, 그건 빈 지도보다 나쁘다.
+   */
+  lat: number | null;
+  lng: number | null;
 };
 
 export type CourseDay = { day: number; stops: CourseStop[] };
@@ -47,7 +56,7 @@ export type TripCoursesResult =
 
 type CourseDto = {
   id?: string; courseId?: string; title?: string; tagline?: string | null;
-  days?: Array<{ day?: number; stops?: Array<{ placeId?: string | null; name?: string; time?: string | null; note?: string | null; photoUrl?: string | null }> }>;
+  days?: Array<{ day?: number; stops?: Array<{ placeId?: string | null; name?: string; time?: string | null; note?: string | null; photoUrl?: string | null; lat?: number | null; lng?: number | null }> }>;
   summary?: { places?: number | null; moveMin?: number | null; walkKm?: number | null; costKrw?: number | null } | null;
   status?: string | null;
   rationale?: string | null;
@@ -62,7 +71,14 @@ function toStop(dto: NonNullable<NonNullable<CourseDto['days']>[number]['stops']
     time: typeof dto?.time === 'string' && dto.time !== '' ? dto.time : null,
     note: typeof dto?.note === 'string' && dto.note !== '' ? dto.note : null,
     photoUrl: typeof dto?.photoUrl === 'string' && dto.photoUrl !== '' ? dto.photoUrl : null,
+    lat: coordinate(dto?.lat),
+    lng: coordinate(dto?.lng),
   };
+}
+
+/** 숫자가 아니거나 알 수 없는 값은 「모른다」(null)로 — 0 으로 떨어뜨리지 않는다. */
+function coordinate(value: unknown): number | null {
+  return typeof value === 'number' && Number.isFinite(value) ? value : null;
 }
 
 /**
@@ -113,6 +129,8 @@ export function courseFromItinerary(itinerary: ItineraryDto): TripCourse {
       note: item.description ?? null,
       // 🔴 일정 항목에는 사진 칸이 없다. 없는 것을 지어내지 않는다 — 화면이 사진 자리를 접는다.
       photoUrl: null,
+      lat: coordinate(item.lat),
+      lng: coordinate(item.lng),
     })).filter((stop) => stop.name !== ''),
   }));
   const allItems = itinerary.days.flatMap((day) => day.items);

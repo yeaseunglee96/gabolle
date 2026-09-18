@@ -6,7 +6,7 @@
 //
 // 🔴 필터(예산·이동 적게·휠체어)는 **없다**(인계 §7③). 조건은 ① 에서 이미 받았다. 여기서
 //    또 물으면 앞에서 답한 것이 반영되지 않았다는 뜻이 된다.
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
@@ -19,7 +19,9 @@ import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { resolveTextLanguage } from '@/i18n/languages';
 import { useLayout } from '@/layout/useLayout';
+import { RouteMap } from '@/map/RouteMap';
 import { CourseCard, courseCost, courseFacts, courseLetter } from '@/plan/CourseCard';
+import { courseMapLayers } from '@/plan/courseMap';
 import { findLatestRecommendationJob, loadRecommendationResult } from '@/plan/recommendations';
 import { loadTripCourses, type TripCourse, type TripCoursesResult } from '@/plan/tripCourses';
 import { shouldAskTripName, wasTripNameAsked } from '@/trip/tripNaming';
@@ -72,6 +74,10 @@ export default function Recommendations() {
   }, [courses, picked]);
 
   const current = courses.find((course) => course.id === picked) ?? null;
+  // 🔴 고른 코스가 바뀔 때만 다시 만든다. 매번 새 배열을 만들면 지도가 그때마다 다시
+  //    그려지고, 실제로 그 자리에서 무한 재렌더가 났던 적이 있다(RouteMap 주석 참고).
+  const mapLayers = useMemo(() => courseMapLayers(current), [current]);
+  const [selectedStopId, setSelectedStopId] = useState('');
 
   const build = async (course: TripCourse) => {
     // 🔴 「코스를 골랐다」는 이벤트를 안 보낸다. 서버가 받는 종류가 넷으로 정해져 있고,
@@ -163,10 +169,18 @@ export default function Recommendations() {
               </Pressable>
             ))}
           </View>
-          {/* 🔴 지도를 그리려면 정차지의 **좌표**가 필요한데 코스 계약에 그 칸이 없다
-              (S15P21E201-1323). 좌표 없이 선을 그으면 실제로 안 가는 길을 그리게 된다 —
-              그건 빈 지도보다 나쁘다. 그래서 그때까지는 **동선을 글로** 세운다.
-              장소 이름과 시각은 전부 실값이라, 고른 코스가 무엇인지는 그대로 읽힌다. */}
+          {/* 🔴 좌표가 하나라도 오면 **선으로** 그린다 (-1333). 하나도 없으면 아래처럼
+              **동선을 글로** 세운다 — 좌표 없이 선을 그으면 실제로 안 가는 길을 그리게 되고,
+              그건 빈 지도보다 나쁘다. 옛 서버에 붙은 앱이 그 상태다. */}
+          {mapLayers.routes.length ? (
+            <RouteMap
+              stops={mapLayers.stops}
+              selectedId={selectedStopId}
+              onSelect={setSelectedStopId}
+              routes={mapLayers.routes}
+              height={640}
+            />
+          ) : null}
           <ScrollView style={styles.mapBody} contentContainerStyle={styles.mapBodyInner}>
             {current ? (
               <>
@@ -195,10 +209,12 @@ export default function Recommendations() {
                     <Text variant="caption" color={color.text.body}>{current.rationale}</Text>
                   </View>
                 ) : null}
-                <Text variant="caption" color={color.text.muted}>
-                  {tx('동선 지도는 준비 중이에요. 장소의 좌표가 들어오면 여기에 선으로 그려 드려요.',
-                    'The route map is on the way — we will draw it once the stops carry coordinates.')}
-                </Text>
+                {mapLayers.routes.length ? null : (
+                  <Text variant="caption" color={color.text.muted}>
+                    {tx('동선 지도는 준비 중이에요. 장소의 좌표가 들어오면 여기에 선으로 그려 드려요.',
+                      'The route map is on the way — we will draw it once the stops carry coordinates.')}
+                  </Text>
+                )}
               </>
             ) : (
               <Text variant="caption" color={color.text.muted}>{tx('코스를 고르면 내용이 여기에 보여요.', 'Pick a course to see what is in it.')}</Text>
