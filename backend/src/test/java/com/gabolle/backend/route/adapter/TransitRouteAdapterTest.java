@@ -15,6 +15,10 @@ import com.gabolle.backend.route.domain.RouteQuery;
 import com.gabolle.backend.route.domain.TravelMode;
 import com.gabolle.backend.route.transit.TransitNetwork;
 import com.gabolle.backend.route.transit.TransitNetwork.Kind;
+import tools.jackson.databind.ObjectMapper;
+
+import com.gabolle.backend.route.transit.TransitFareCalculator;
+import com.gabolle.backend.route.transit.TransitFareTable;
 import com.gabolle.backend.route.transit.TransitNetworkPort;
 import com.gabolle.backend.route.transit.TransitProperties;
 
@@ -61,7 +65,10 @@ class TransitRouteAdapterTest {
 
 	private TransitRouteAdapter adapter(TransitNetwork network) {
 		TransitNetworkPort port = () -> network;
-		return new TransitRouteAdapter(port, properties());
+		// 🔴 S15P21E201-1291 — 요금 계산기가 생성자에 늘었다. 이 파일이 재는 것은 경로이지
+		//    요금이 아니다 — 요금은 TransitFareCalculatorTest 가 따로 잰다.
+		return new TransitRouteAdapter(port, properties(),
+				new TransitFareCalculator(new TransitFareTable(new ObjectMapper())));
 	}
 
 	@Test

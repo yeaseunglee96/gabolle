@@ -20,6 +20,7 @@ import com.gabolle.backend.route.domain.TravelMode;
 import com.gabolle.backend.route.transit.HeadwayJourneyPlanner;
 import com.gabolle.backend.route.transit.RaptorPlanner;
 import com.gabolle.backend.route.transit.TransitNetwork;
+import com.gabolle.backend.route.transit.TransitFareCalculator;
 import com.gabolle.backend.route.transit.TransitNetworkPort;
 import com.gabolle.backend.route.transit.TransitProperties;
 
@@ -86,9 +87,13 @@ public class TransitRouteAdapter implements RouteProviderPort {
 
 	private final TransitProperties properties;
 
-	public TransitRouteAdapter(TransitNetworkPort networkPort, TransitProperties properties) {
+	private final TransitFareCalculator fareCalculator;
+
+	public TransitRouteAdapter(TransitNetworkPort networkPort, TransitProperties properties,
+			TransitFareCalculator fareCalculator) {
 		this.networkPort = networkPort;
 		this.properties = properties;
+		this.fareCalculator = fareCalculator;
 	}
 
 	@Override
@@ -218,9 +223,12 @@ public class TransitRouteAdapter implements RouteProviderPort {
 			steps.add(new RouteLeg.Step(name, guidance, segmentM, ride.durationMin()));
 		}
 
+		// 🔴 S15P21E201-1291 — 요금은 구간별 합이 아니라 여정 전체다. 환승 할인·차액이
+		//    그 안에서 끝나기 때문이다. 요금을 모르는 노선이 끼면 null 이 오고, 그대로 싣는다.
+		Integer fareKrw = this.fareCalculator.fareKrw(journey, network);
 		return new RouteLeg(TravelMode.TRANSIT, distanceM, journey.durationMin(), null, null,
 				journey.transferCount(), estimateReason != null, estimateReason,
-				PROVIDER_TRANSIT_NETWORK, List.of(), List.copyOf(steps));
+				PROVIDER_TRANSIT_NETWORK, List.of(), List.copyOf(steps), fareKrw);
 	}
 
 	/**

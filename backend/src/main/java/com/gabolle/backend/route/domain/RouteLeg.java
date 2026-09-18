@@ -25,6 +25,10 @@ import java.util.List;
  * @param path 경로 좌표. <b>{@code [경도, 위도]} 순서</b>다(GeoJSON 과 같은 순서 — 지도
  *        라이브러리가 그 순서를 기대한다). 추정이면 출발·도착 두 점뿐이다
  * @param steps 단계별 안내. 추정이면 빈 목록이지 {@code null} 이 아니다
+ * @param transitFareKrw 대중교통 요금(원) — S15P21E201-1291. 환승 할인·차액이 반영된 <b>이 여정
+ *        전체의 금액</b>이고 구간별 합이 아니다. 🔴 <b>요금을 모르는 노선이 하나라도 끼면
+ *        {@code null}</b> 이다 — 아는 것만 더하면 실제보다 싸고, 그것은 틀린 값을 자신 있게
+ *        보여주는 것이다. 🔴 <b>{@code 0} 과 다르다.</b> 0 은 「걷기만 해서 공짜다」라는 다른 사실이다
  */
 public record RouteLeg(
 		TravelMode mode,
@@ -37,7 +41,21 @@ public record RouteLeg(
 		String estimateReason,
 		String provider,
 		List<double[]> path,
-		List<Step> steps) {
+		List<Step> steps,
+		Integer transitFareKrw) {
+
+	/**
+	 * 🔴 S15P21E201-1291 — {@code transitFareKrw} 없이 만들던 기존 자리를 위해 둔다.
+	 *
+	 * <p>대중교통 요금을 모르는 것으로 본다({@code null}). 자동차·직선거리 경로가 이 자리를 쓴다 —
+	 * 그쪽에는 대중교통 요금이라는 것이 없다.
+	 */
+	public RouteLeg(TravelMode mode, int distanceM, int durationMin, Integer taxiFareKrw, Integer tollFareKrw,
+			Integer transferCount, boolean estimated, String estimateReason, String provider,
+			List<double[]> path, List<Step> steps) {
+		this(mode, distanceM, durationMin, taxiFareKrw, tollFareKrw, transferCount, estimated, estimateReason,
+				provider, path, steps, null);
+	}
 
 	/** 단계별 안내 한 줄. */
 	public record Step(String name, String guidance, int distanceM, int durationMin) {

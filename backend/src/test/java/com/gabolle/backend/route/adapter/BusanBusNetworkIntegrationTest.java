@@ -11,6 +11,8 @@ import tools.jackson.databind.ObjectMapper;
 
 import com.gabolle.backend.route.domain.RouteLeg;
 import com.gabolle.backend.route.transit.BusanBusNetworkPort;
+import com.gabolle.backend.route.transit.TransitFareCalculator;
+import com.gabolle.backend.route.transit.TransitFareTable;
 import com.gabolle.backend.route.transit.HeadwayJourneyPlanner;
 import com.gabolle.backend.route.transit.RaptorPlanner;
 import com.gabolle.backend.route.transit.TransitNetwork;
@@ -44,7 +46,10 @@ class BusanBusNetworkIntegrationTest {
 	}
 
 	private static TransitRouteAdapter adapter() {
-		return new TransitRouteAdapter(new BusanBusNetworkPort(new ObjectMapper()), new TransitProperties());
+		// 🔴 S15P21E201-1291 — 요금 계산기가 생성자에 늘었다. 이 파일이 재는 것(노선망으로
+		//    경로가 나오는가)은 그대로다 — 진짜 요금표를 넣어 두면 요금도 함께 나온다.
+		return new TransitRouteAdapter(new BusanBusNetworkPort(new ObjectMapper()), new TransitProperties(),
+				new TransitFareCalculator(new TransitFareTable(new ObjectMapper())));
 	}
 
 	@Test

@@ -163,9 +163,14 @@ public class BusanBusNetworkPort implements TransitNetworkPort {
 			//    로 두면 그 노선이 조용히 사라진다 — BIMS 수집본에서는 290개 중 288개에 값이 있다.
 			int first = minuteOfDay(route.get("first"), 0);
 			int last = minuteOfDay(route.get("last"), TransitNetwork.MINUTES_PER_DAY - 1);
+			// 🔴 S15P21E201-1291 — 원천의 type 을 그대로 실어 나른다("일반버스"·"마을버스"…).
+			//    요금표의 종류 이름과 글자가 같아서 그대로 열쇠가 된다. 없으면 null 이고,
+			//    그 노선이 낀 여정은 요금을 못 낸다 — 아무 줄이나 고르지 않는다.
+			JsonNode type = route.get("type");
+			String fareType = (type == null || type.isNull()) ? null : type.asString();
 			routes.add(new TransitNetwork.Route(route.get("id").asString(),
 					route.get("num").asString() + "번", TransitNetwork.Kind.BUS, stopIds,
-					route.get("headway").asInt(), first, last));
+					route.get("headway").asInt(), first, last, fareType));
 		}
 		return routes;
 	}
