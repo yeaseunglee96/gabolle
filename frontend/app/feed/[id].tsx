@@ -13,7 +13,7 @@ import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { BlockUserDialog } from '@/social/BlockUserDialog';
-import { createStory, deleteStory, getCachedStory, getStory, getStoryReplies, relativeStoryTime, reportStory, setBlocked, storyMetricLabels, VISIBILITY_LABEL, type StoryDto, type StoryReportReason } from '@/social/stories';
+import { createStory, deleteStory, getCachedStory, getStory, getStoryReplies, relativeStoryTime, reportStory, setBlocked, storyMetricLabels, updateStory, VISIBILITY_LABEL, type StoryDto, type StoryReportReason } from '@/social/stories';
 
 type State = { status: 'loading'; cached: StoryDto | null } | { status: 'loaded'; story: StoryDto } | { status: 'not-found' } | { status: 'error'; message: string };
 
@@ -96,9 +96,57 @@ const BODY_MAX = 500;
  *
  * 원글과 다른 점은 **장소 제목을 안 그리는 것** 하나다. 댓글의 장소는 원글과 같거나 없고,
  * 댓글마다 같은 장소 이름을 반복하면 목록이 안 읽힌다.
+ *
+ * 🔴 수정·삭제·신고 상태(수정 중인지, 삭제를 확인하는 중인지) — S15P21E201-1239.
+ * 이 카드 안에 둔다. 목록이 늘어날 때마다 부모가 "몇 번째 댓글이 지금 무슨 모드인가"를
+ * 들고 다니게 하지 않으려는 것이다 — 댓글마다 독립된 카드라 상태도 카드 안에 있는 것이
+ * 자연스럽다. 실제로 서버를 부르는 뮤테이션(수정·삭제)만 성공했을 때 부모에게 알려
+ * 목록을 맞춘다.
  */
-function ReplyCard({ reply }: { reply: StoryDto }) {
+function ReplyCard({
+  reply,
+  accessToken,
+  onUpdated,
+  onDeleted,
+  onReport,
+}: {
+  reply: StoryDto;
+  accessToken: string | null;
+  onUpdated: (updated: StoryDto) => void;
+  onDeleted: (id: string) => void;
+  onReport: (id: string) => void;
+}) {
   const { tx } = useI18n();
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(reply.body);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState('');
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  const startEdit = () => { setDraft(reply.body); setSaveError(''); setEditing(true); };
+
+  const saveEdit = async () => {
+    const body = draft.trim();
+    if (!body || saving) return;
+    setSaving(true);
+    const outcome = await updateStory(reply.id, body, accessToken);
+    setSaving(false);
+    if (outcome.state !== 'success') { setSaveError(outcome.message); return; }
+    setEditing(false);
+    setSaveError('');
+    onUpdated(outcome.story);
+  };
+
+  const confirmDelete = async () => {
+    if (deleting) return;
+    setDeleting(true);
+    const outcome = await deleteStory(reply.id, accessToken);
+    setDeleting(false);
+    // 🔴 실패를 조용히 삼키지 않는다 — 다시 확인 상태로 돌아가서 한 번 더 시도할 수 있게 둔다.
+    if (outcome.state === 'success') onDeleted(reply.id);
+  };
+
   return (
     <View style={styles.reply}>
       <View style={styles.replyHead}>
@@ -108,10 +156,59 @@ function ReplyCard({ reply }: { reply: StoryDto }) {
         <Text variant="caption" weight="bold" color={color.text.heading} numberOfLines={1} style={styles.grow}>{reply.author.displayName}</Text>
         <Text variant="caption" color={color.text.muted}>{relativeStoryTime(reply.createdAt, tx)}</Text>
       </View>
-      <MarkdownBody source={reply.body} />
-      {reply.images.length
+
+      {editing ? (
+        <View style={styles.replyEdit}>
+          <TextInput
+            accessibilityLabel={tx('댓글 수정', 'Edit comment')}
+            value={draft}
+            onChangeText={(value) => setDraft(value.slice(0, BODY_MAX))}
+            maxLength={BODY_MAX}
+            multiline
+            style={styles.composerInput}
+          />
+          {saveError ? <Text accessibilityRole="alert" variant="caption" color={color.state.danger}>{saveError}</Text> : null}
+          <View style={styles.confirmButtons}>
+            <Button label={tx('취소', 'Cancel')} variant="ghost" disabled={saving} onPress={() => setEditing(false)} containerStyle={styles.confirmButton} />
+            <Button label={saving ? tx('저장 중…', 'Saving…') : tx('저장', 'Save')} disabled={saving || !draft.trim()} onPress={() => void saveEdit()} containerStyle={styles.confirmButton} />
+          </View>
+        </View>
+      ) : (
+        <MarkdownBody source={reply.body} />
+      )}
+
+      {!editing && reply.images.length
         ? <PhotoGrid photos={reply.images.map((image) => ({ uri: image.url }))} compact accessibilityLabel={tx('댓글 사진', 'Comment photo')} style={styles.replyPhotos} />
         : null}
+
+      {!editing ? (
+        <View style={styles.replyActions}>
+          {reply.mine ? (
+            confirmingDelete ? (
+              <View style={styles.confirmRow}>
+                <Text variant="caption" color={color.text.body} style={styles.confirmText}>{tx('댓글을 삭제할까요?', 'Delete this comment?')}</Text>
+                <View style={styles.confirmButtons}>
+                  <Button label={tx('취소', 'Cancel')} variant="ghost" disabled={deleting} onPress={() => setConfirmingDelete(false)} containerStyle={styles.confirmButton} />
+                  <Button label={deleting ? tx('삭제 중…', 'Deleting…') : tx('삭제 확정', 'Confirm delete')} disabled={deleting} onPress={() => void confirmDelete()} containerStyle={styles.confirmButton} />
+                </View>
+              </View>
+            ) : (
+              <>
+                <Pressable accessibilityRole="button" accessibilityLabel={tx('댓글 수정', 'Edit comment')} onPress={startEdit} style={styles.replyTextAction}>
+                  <Text variant="caption" weight="bold" color={color.text.accent}>{tx('수정', 'Edit')}</Text>
+                </Pressable>
+                <Pressable accessibilityRole="button" accessibilityLabel={tx('댓글 삭제', 'Delete comment')} onPress={() => setConfirmingDelete(true)} style={styles.replyTextAction}>
+                  <Text variant="caption" weight="bold" color={color.state.danger}>{tx('삭제', 'Delete')}</Text>
+                </Pressable>
+              </>
+            )
+          ) : (
+            <Pressable accessibilityRole="button" accessibilityLabel={tx('댓글 신고', 'Report comment')} onPress={() => onReport(reply.id)} style={styles.replyTextAction}>
+              <Text variant="caption" weight="bold" color={color.text.muted}>{tx('신고', 'Report')}</Text>
+            </Pressable>
+          )}
+        </View>
+      ) : null}
     </View>
   );
 }
@@ -122,7 +219,9 @@ export default function StoryDetail() {
   const { tx } = useI18n();
   const { id } = useLocalSearchParams<{ id: string }>();
   const [state, setState] = useState<State>({ status: 'loading', cached: null });
-  const [reporting, setReporting] = useState(false);
+  // 🔴 어느 글을 신고하는 중인지 — 원글(id)일 수도, 댓글(reply.id)일 수도 있다. 신고 모달은
+  //    하나만 두고 대상만 바꿔 재사용한다 — ReportModal 은 원글이 이미 쓰는 부품이다.
+  const [reportingTargetId, setReportingTargetId] = useState<string | null>(null);
   const [reported, setReported] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -170,13 +269,20 @@ export default function StoryDetail() {
   const metricLabels = story ? storyMetricLabels(story, tx) : [];
 
   const submitReport = async (reason: StoryReportReason, detail: string | undefined) => {
-    if (!id) return false;
-    const outcome = await reportStory(id, reason, detail, accessToken);
-    // 신고 즉시 서버가 검토 대기로 옮겨 비노출한다 — 화면도 그 기록을 계속 보여주지 않고,
-    // 접수됐다는 안내로 바꾼다(완료 기준: "신고를 보내고 나면 그 기록이 화면에서 사라지고
-    // 접수됐다는 안내를 보여준다"). feed.tsx의 목록 제거와 같은 원칙이다.
-    if (outcome.state === 'success') setReported(true);
-    return outcome.state === 'success';
+    const targetId = reportingTargetId;
+    if (!targetId) return false;
+    const outcome = await reportStory(targetId, reason, detail, accessToken);
+    if (outcome.state !== 'success') return false;
+    if (targetId === id) {
+      // 원글 신고 — 서버가 즉시 검토 대기로 옮겨 비노출한다. 화면도 그 기록을 계속
+      // 보여주지 않고 접수됐다는 안내로 바꾼다(완료 기준: "신고를 보내고 나면 그 기록이
+      // 화면에서 사라지고 접수됐다는 안내를 보여준다"). feed.tsx의 목록 제거와 같은 원칙이다.
+      setReported(true);
+    } else {
+      // 댓글 신고 — 화면 전체를 안내로 바꾸지 않는다. 그 댓글 한 장만 목록에서 뺀다.
+      removeReply(targetId);
+    }
+    return true;
   };
 
   // 차단은 「이 글」이 아니라 「이 사람」에 대한 것이다. 차단해도 이 글은 내 화면에서 그대로
@@ -210,6 +316,25 @@ export default function StoryDetail() {
     const outcome = await deleteStory(id, accessToken);
     setDeleting(false);
     if (outcome.state === 'success') router.replace('/feed');
+  };
+
+  /**
+   * 댓글 한 장을 목록에서 뺀다 — 삭제됐거나 신고로 사라졌을 때.
+   *
+   * 🔴 `replies` 배열만 줄이고 `story.replyCount`(서버가 센 값)를 그대로 두면, 그 차이를
+   * 보고 `hasMoreReplies` 가 "더 있다"를 잘못 켠다 — 방금 뺀 것을 아직 안 보여준 것으로
+   * 착각하는 것이다. 그래서 여기서 같이 하나 내린다.
+   */
+  const removeReply = (replyId: string) => {
+    setReplies((current) => current?.filter((reply) => reply.id !== replyId) ?? current);
+    setState((current) => {
+      if (current.status !== 'loaded' || typeof current.story.replyCount !== 'number') return current;
+      return { ...current, story: { ...current.story, replyCount: Math.max(0, current.story.replyCount - 1) } };
+    });
+  };
+
+  const updateReply = (updated: StoryDto) => {
+    setReplies((current) => current?.map((reply) => (reply.id === updated.id ? updated : reply)) ?? current);
   };
 
   return (
@@ -281,7 +406,7 @@ export default function StoryDetail() {
               )
             ) : (
               <>
-                <Pressable accessibilityRole="button" accessibilityLabel={tx('신고하기', 'Report')} onPress={() => setReporting(true)} style={styles.textAction}>
+                <Pressable accessibilityRole="button" accessibilityLabel={tx('신고하기', 'Report')} onPress={() => setReportingTargetId(story.id)} style={styles.textAction}>
                   <Text variant="caption" weight="bold" color={color.text.muted}>{tx('이 글 신고', 'Report this post')}</Text>
                 </Pressable>
                 {/* 🔴 신고와 차단을 같은 것처럼 보이게 하지 않는다 — 신고는 「이 글」에 대한
@@ -321,7 +446,16 @@ export default function StoryDetail() {
             <Text variant="caption" color={color.text.muted}>{tx('아직 댓글이 없어요.', 'No comments yet.')}</Text>
           ) : (
             <>
-              {shownReplies.map((reply) => <ReplyCard key={reply.id} reply={reply} />)}
+              {shownReplies.map((reply) => (
+                <ReplyCard
+                  key={reply.id}
+                  reply={reply}
+                  accessToken={accessToken}
+                  onUpdated={updateReply}
+                  onDeleted={removeReply}
+                  onReport={setReportingTargetId}
+                />
+              ))}
               {hasMoreReplies ? (
                 <Text variant="caption" color={color.text.muted}>
                   {tx(`댓글 ${totalReplies}개 중 ${shownReplies.length}개를 보여드렸어요.`, `Showing ${shownReplies.length} of ${totalReplies} comments.`)}
@@ -385,7 +519,7 @@ export default function StoryDetail() {
         </View>
       ) : null}
 
-      <ReportModal visible={reporting} onClose={() => setReporting(false)} onSubmit={submitReport} />
+      <ReportModal visible={reportingTargetId !== null} onClose={() => setReportingTargetId(null)} onSubmit={submitReport} />
       <BlockUserDialog visible={confirmingBlock} displayName={story?.author.displayName ?? ''} onClose={() => setConfirmingBlock(false)} onConfirm={confirmBlock} />
     </Screen>
   );
@@ -433,6 +567,9 @@ const styles = StyleSheet.create({
   replyAvatar: { width: 24, height: 24, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.brand.navy },
   replyPhotos: { marginTop: spacing[1] },
   replyNotice: { gap: spacing[2], alignItems: 'flex-start' },
+  replyEdit: { gap: spacing[2] },
+  replyActions: { flexDirection: 'row', gap: spacing[1] },
+  replyTextAction: { minHeight: 36, paddingHorizontal: spacing[2], alignItems: 'center', justifyContent: 'center' },
   composer: { gap: spacing[2] },
   // textAlignVertical 은 안드로이드에서 여러 줄 입력이 가운데로 쏠리는 것을 막는다.
   composerInput: { minHeight: 88, padding: spacing[3], borderWidth: 1, borderColor: color.surface.border, borderRadius: radius.md, backgroundColor: color.surface.card, color: color.text.heading, textAlignVertical: 'top' },

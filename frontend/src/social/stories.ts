@@ -153,6 +153,27 @@ export async function getStoryReplies(storyId: string, accessToken: string | nul
   }
 }
 
+/**
+ * 글(또는 댓글 — 같은 표라 같은 경로다) 본문을 고친다 — PATCH /api/v1/stories/{id}.
+ *
+ * 🔴 `body` 만 보낸다. `visibility`·`publishAt` 은 만든 사람만 바꿀 수 있고(서버가
+ * `StoryForbiddenException` 으로 막는다), 댓글에는 그 칸을 보여줄 화면 자체가 없다 —
+ * 여기서 아예 안 보내는 것이 실수로 지어내 보내는 것보다 안전하다.
+ */
+export async function updateStory(id: string, body: string, accessToken: string | null): Promise<StoryMutationResult> {
+  try {
+    const story = withDisplayImageUrls(await apiRequest<StoryDto>(`/api/v1/stories/${encodeURIComponent(id)}`, {
+      method: 'PATCH',
+      accessToken,
+      body: { body },
+    }));
+    storyCache.set(story.id, story);
+    return { state: 'success', story };
+  } catch (error) {
+    return failure(error);
+  }
+}
+
 export async function deleteStory(id: string, accessToken: string | null): Promise<DeleteStoryResult> {
   try {
     await apiRequest<void>(`/api/v1/stories/${encodeURIComponent(id)}`, { method: 'DELETE', accessToken });
