@@ -375,7 +375,7 @@ class DishControllerTest {
 	 * 메뉴판을 다 썼어요」로 그리는데, 그건 거짓이다 — 읽기는 아직 남아 있다.
 	 */
 	@Test
-	@DisplayName("🔴 그림 한도를 넘으면 메뉴판 읽기와 다른 코드로 429 가 나간다")
+	@DisplayName("🔴 그림 한도를 넘어도 요청은 200 이다 — 설명을 살리려고 429 를 안 낸다")
 	void theImageQuotaIsItsOwn() throws Exception {
 		when(this.describer.describe(any(), any())).thenAnswer((call) -> new GmsDishDescriber.Described(
 				"A dish.", "a dish on a plate " + UUID.randomUUID()));
