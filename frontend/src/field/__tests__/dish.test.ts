@@ -7,15 +7,15 @@ import { describeDish, loadDishImage, dishImageHeaders } from '../dish';
 
 const tx = (ko: string) => ko;
 
-const originalFetch = global.fetch;
+const originalFetch = globalThis.fetch;
 
 afterEach(() => {
-  global.fetch = originalFetch;
+  globalThis.fetch = originalFetch;
   jest.restoreAllMocks();
 });
 
 function respondWith(body: unknown, status = 200) {
-  global.fetch = jest.fn().mockResolvedValue({
+  globalThis.fetch = jest.fn().mockResolvedValue({
     ok: status >= 200 && status < 300,
     status,
     headers: { get: () => 'application/json' },
@@ -26,12 +26,12 @@ function respondWith(body: unknown, status = 200) {
 
 describe('설명을 받아 온다', () => {
   it('로그인하지 않았으면 부르지 않는다', async () => {
-    global.fetch = jest.fn() as unknown as typeof fetch;
+    globalThis.fetch = jest.fn() as unknown as typeof fetch;
 
     const result = await describeDish('돼지국밥', null, tx, 'ko');
 
     expect(result.state).toBe('error');
-    expect(global.fetch).not.toHaveBeenCalled();
+    expect(globalThis.fetch).not.toHaveBeenCalled();
   });
 
   it('서버가 준 설명을 그대로 낸다', async () => {
@@ -87,10 +87,10 @@ describe('그림을 받아 온다', () => {
    * 안 받는다.
    */
   it('🔴 202 는 「아직」이고 404 는 「그만」이다 — 같게 다루지 않는다', async () => {
-    global.fetch = jest.fn().mockResolvedValue({ ok: false, status: 202 }) as unknown as typeof fetch;
+    globalThis.fetch = jest.fn().mockResolvedValue({ ok: false, status: 202 }) as unknown as typeof fetch;
     expect((await loadDishImage('id', 'token')).state).toBe('pending');
 
-    global.fetch = jest.fn().mockResolvedValue({ ok: false, status: 404 }) as unknown as typeof fetch;
+    globalThis.fetch = jest.fn().mockResolvedValue({ ok: false, status: 404 }) as unknown as typeof fetch;
     expect((await loadDishImage('id', 'token')).state).toBe('gone');
   });
 
@@ -99,13 +99,13 @@ describe('그림을 받아 온다', () => {
    * 지하철에서 한 번 끊긴 사람이 **다시는** 그림을 못 본다.
    */
   it('통신이 끊기면 「아직」으로 둔다 — 「없다」로 단정하지 않는다', async () => {
-    global.fetch = jest.fn().mockRejectedValue(new Error('네트워크 끊김')) as unknown as typeof fetch;
+    globalThis.fetch = jest.fn().mockRejectedValue(new Error('네트워크 끊김')) as unknown as typeof fetch;
 
     expect((await loadDishImage('id', 'token')).state).toBe('pending');
   });
 
   it('다 됐으면 그릴 수 있는 주소를 낸다', async () => {
-    global.fetch = jest.fn().mockResolvedValue({ ok: true, status: 200 }) as unknown as typeof fetch;
+    globalThis.fetch = jest.fn().mockResolvedValue({ ok: true, status: 200 }) as unknown as typeof fetch;
 
     const result = await loadDishImage('id', 'token');
 

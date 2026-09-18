@@ -172,10 +172,9 @@ function MenuLineRow({ line, bundled }: { line: MenuLine; bundled: DishMatch | n
         {/* 같은 글자를 두 번 그리지 않는다 — 한국어를 골랐거나 옛 앱 빌드면 둘이 같다. */}
         {heading !== original && <Text variant="caption" color={color.text.muted}>{original}</Text>}
         {line.allergenWords.length > 0 && <Text variant="caption" color={color.brand.orange}>{line.allergenWords.join(' · ')}</Text>}
-        {bundled && <Text variant="caption" color={color.text.muted}>{tx(`예시 · ${bundled.image.source}`, `Example · ${bundled.image.source}`)}</Text>}
       </View>
       {/* 가격은 사진에서 읽은 그대로다 — 숫자로 바꾸거나 통화를 붙이지 않는다. */}
-      {line.price !== '' && <Text weight="bold">{line.price}</Text>}
+      {line.price !== '' && <View style={styles.price}><Text weight="bold">{line.price}</Text></View>}
       {/* 우리가 이미 보여주고 있는 글자를 그대로 소리내 준다 — 지어내는 것이 없다.
           음식 줄에서는 이름만 읽는다. 가격까지 읽으면 가리키는 데 방해가 된다. */}
       <Pressable accessibilityRole="button" accessibilityLabel={tx(`${original} 한국어로 듣기`, `Hear ${original} in Korean`)} onPress={() => speakAloud(original, { language: 'ko-KR' })} style={({ pressed }) => [styles.speak, pressed && styles.pressed]}>
@@ -183,11 +182,18 @@ function MenuLineRow({ line, bundled }: { line: MenuLine; bundled: DishMatch | n
       </Pressable>
     </View>
 
-    {isFood && <Pressable accessibilityRole="button" accessibilityState={{ expanded: open }} onPress={() => setOpen((was) => !was)} style={({ pressed }) => [styles.askRow, pressed && styles.pressed]}>
-      <Text variant="caption" weight="bold" color={color.brand.navy}>
-        {open ? tx('접기', 'Hide') : tx('이건 어떤 음식인가요?', 'What is this dish?')}
-      </Text>
-    </Pressable>}
+    {/* 🔴 출처는 줄 안이 아니라 아래 전체 폭에 둔다. 가격 칸이 생기면서 글자 칸이
+        좁아져 「관광사진갤러 / 리」로 잘렸다 — 띄워 보고 알았다. 출처를 줄이거나 빼는
+        것은 답이 아니다(dishImages.ts: 「출처를 한 줄로 못 적는 사진은 안 쓴다」). */}
+    {bundled && <Text variant="caption" color={color.text.muted} style={styles.credit}>{tx(`예시 · ${bundled.image.source}`, `Example · ${bundled.image.source}`)}</Text>}
+
+    {isFood && <View style={styles.askRow}>
+      <Pressable accessibilityRole="button" accessibilityState={{ expanded: open }} onPress={() => setOpen((was) => !was)} style={({ pressed }) => [styles.askChip, pressed && styles.pressed]}>
+        <Text variant="caption" weight="bold" color={color.brand.navy}>
+          {open ? tx('접기', 'Hide') : tx('이건 어떤 음식인가요?', 'What is this dish?')}
+        </Text>
+      </Pressable>
+    </View>}
 
     {isFood && open && <DishPanel name={line.name} bundled={bundled} />}
   </View>;
@@ -327,8 +333,12 @@ const styles = StyleSheet.create({
   unreadCard: { padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.tint },
   lines: { gap: spacing[2], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card },
   lineBlock: { paddingVertical: spacing[1] },
-  line: { flexDirection: 'row', alignItems: 'center', gap: spacing[3], paddingVertical: spacing[2] },
-  askRow: { minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[2] },
+  line: { flexDirection: 'row', alignItems: 'center', gap: spacing[3], paddingTop: spacing[2] },
+  price: { flexShrink: 0 },
+  credit: { marginTop: spacing[1] },
+  // 44 는 손가락이 닿는 최소 크기다 — 칩 자체를 작게 만들지 않고 감싸는 칸으로 맞춘다.
+  askRow: { minHeight: 44, justifyContent: 'center', alignItems: 'flex-start' },
+  askChip: { minHeight: 32, justifyContent: 'center', paddingHorizontal: spacing[3], paddingVertical: spacing[1], borderRadius: radius.full, borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.surface.card },
   dishPanel: { gap: spacing[2], marginLeft: spacing[3], marginBottom: spacing[2], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.tint },
   dishImageBlock: { gap: spacing[1] },
   dishImage: { width: '100%', height: 160, borderRadius: radius.md, backgroundColor: color.surface.card },
