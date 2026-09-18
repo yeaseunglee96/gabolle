@@ -46,3 +46,18 @@ export function shouldPromptOnHome(state: ConditionsPromptState): boolean {
 export function shouldPromptBeforePlan(state: ConditionsPromptState): boolean {
   return state === null || state === 'LATER';
 }
+
+/**
+ * 「다시 묻기」 — 마이페이지에서 켠다.
+ *
+ * 🔴 「다시 묻지 않기」를 누른 사람이 마음을 바꿀 길이 여기 말고는 없다. 되돌릴 수 없는
+ * 선택으로 두면, 조건을 안 적은 채로 굳는다.
+ */
+export async function resetConditionsPrompt(userId: string | null): Promise<void> {
+  if (!userId) return;
+  try {
+    await AsyncStorage.removeItem(`${KEY}:${userId}`);
+  } catch {
+    // 못 지워도 화면은 그대로 둔다 — 「켰다」고 거짓말하지 않는다.
+  }
+}

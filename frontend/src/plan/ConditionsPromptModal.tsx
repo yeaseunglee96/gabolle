@@ -91,9 +91,11 @@ export function ConditionsPromptModal({ visible, reprompt = false, onClose }: Co
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={() => onClose('DISMISSED')}>
-      <Pressable accessibilityRole="button" accessibilityLabel={tx('닫기', 'Close')} onPress={() => onClose('DISMISSED')} style={[styles.backdrop, phone && styles.backdropPhone]}>
+      {/* 🔴 바깥을 눌러 닫되 **단추 역할을 주지 않는다.** 단추 안에 단추가 들어가면
+          웹에서 잘못된 마크업이 된다. 읽어 주는 이름은 안쪽 ✕ 가 갖는다. */}
+      <Pressable onPress={() => onClose('DISMISSED')} style={[styles.backdrop, phone && styles.backdropPhone]}>
         {/* 안쪽 누름이 바깥으로 안 새게 한다 — 고르다가 모달이 닫히면 답이 통째로 날아간다. */}
-        <Pressable style={[styles.sheet, phone ? styles.sheetPhone : styles.sheetWide]} onPress={() => {}}>
+        <View onStartShouldSetResponder={() => true} style={[styles.sheet, phone ? styles.sheetPhone : styles.sheetWide]}>
           <View style={styles.header}>
             <Text variant="title" weight="bold">{tx('여행 조건 미리 알려주기', 'Tell us your travel conditions')}</Text>
             <Pressable accessibilityRole="button" accessibilityLabel={tx('닫기', 'Close')} onPress={() => onClose('DISMISSED')} style={styles.close}>
@@ -180,7 +182,7 @@ export function ConditionsPromptModal({ visible, reprompt = false, onClose }: Co
               containerStyle={styles.save}
             />
           </View>
-        </Pressable>
+        </View>
       </Pressable>
     </Modal>
   );
