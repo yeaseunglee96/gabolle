@@ -114,13 +114,13 @@ export default function Me() {
       <InfoRow
         label={tx('팔로워', 'Followers')}
         value={followerCount === null ? '›' : tx(`${followerCount}명 ›`, `${followerCount} ›`)}
-        onPress={() => user && router.push(`/user/${user.userId}/followers`)}
+        onPress={() => user && openPanel('followers', `/user/${user.userId}/followers`)}
         disabled={!user}
       />
       <InfoRow
         label={tx('팔로잉', 'Following')}
         value={followingCount === null ? '›' : tx(`${followingCount}명 ›`, `${followingCount} ›`)}
-        onPress={() => user && router.push(`/user/${user.userId}/following`)}
+        onPress={() => user && openPanel('following', `/user/${user.userId}/following`)}
         disabled={!user}
       />
       <InfoRow
@@ -133,7 +133,7 @@ export default function Me() {
         onPress={() => router.push('/me/preferences')}
         disabled={!user}
       />
-      <InfoRow label={tx('연결된 소셜 계정', 'Connected accounts')} value="›" onPress={() => router.push('/me/identities')} disabled={!user} />
+      <InfoRow label={tx('연결된 소셜 계정', 'Connected accounts')} value="›" onPress={() => openPanel('identities', '/me/identities')} disabled={!user} />
     </View>
   </>;
 
@@ -144,9 +144,9 @@ export default function Me() {
           안에서 안 보였다는 사용자 리포트. 알림 화면은 이미 있다(app/notifications.tsx
           홈 종 아이콘) — 여기서는 같은 화면으로 가는 입구만 하나 더 둔다.
       */}
-      <InfoRow label={tx('알림', 'Notifications')} value="›" onPress={() => router.push('/notifications')} />
+      <InfoRow label={tx('알림', 'Notifications')} value="›" onPress={() => openPanel('notifications', '/notifications')} />
       <InfoRow label={tx('차단된 계정', 'Blocked accounts')} value="›" onPress={() => openPanel('blocked', '/me/blocked')} disabled={!user} />
-      <InfoRow label={tx('도움말·문의', 'Help & support')} description={tx('앱 소개, 자주 묻는 질문, 문제 해결', 'App tour, FAQs, and troubleshooting')} value="›" onPress={() => router.push('/help')} />
+      <InfoRow label={tx('도움말·문의', 'Help & support')} description={tx('앱 소개, 자주 묻는 질문, 문제 해결', 'App tour, FAQs, and troubleshooting')} value="›" onPress={() => openPanel('help', '/help')} />
       <InfoRow label={tx('약관·고지', 'Terms & notices')} value="›" onPress={() => openPanel('terms', '/me/terms')} />
       {/* 처음 켜는 자리는 첫 체크인 화면이고, 여기는 언제든 끄는 자리다. 끄는 길이 설정
           안쪽 어딘가에만 있으면 사용자는 못 찾고, 못 찾으면 켠 적 없는 사람처럼 취급된다.
@@ -189,8 +189,8 @@ export default function Me() {
           coverUri={null}
           counts={[
             { label: tx('기록', 'Records'), value: storyCount, onPress: () => user && router.push('/me/posts') },
-            { label: tx('팔로워', 'Followers'), value: followerCount, onPress: () => user && router.push(`/user/${user.userId}/followers`) },
-            { label: tx('팔로잉', 'Following'), value: followingCount, onPress: () => user && router.push(`/user/${user.userId}/following`) },
+            { label: tx('팔로워', 'Followers'), value: followerCount, onPress: () => user && openPanel('followers', `/user/${user.userId}/followers`) },
+            { label: tx('팔로잉', 'Following'), value: followingCount, onPress: () => user && openPanel('following', `/user/${user.userId}/following`) },
           ]}
           onEdit={() => (user ? router.push('/me/profile') : router.push({ pathname: '/sign-in', params: { returnTo: '/me/profile' } }))}
           tx={tx}

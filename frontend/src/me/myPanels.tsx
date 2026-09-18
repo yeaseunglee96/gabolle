@@ -8,6 +8,10 @@
 import type { ReactNode } from 'react';
 
 import { BlockedAccountsBody } from '@/me/panels/BlockedAccountsBody';
+import { HelpBody } from '@/me/panels/HelpBody';
+import { IdentitiesBody } from '@/me/panels/IdentitiesBody';
+import { NotificationsBody } from '@/me/panels/NotificationsBody';
+import { RelationBody } from '@/me/panels/RelationBody';
 import { TermsBody } from '@/me/panels/TermsBody';
 
 export type MyPanelKey =
@@ -48,6 +52,11 @@ export function myPanelBody(key: MyPanelKey): ReactNode | null {
   switch (key) {
     case 'blocked': return <BlockedAccountsBody />;
     case 'terms': return <TermsBody />;
+    case 'followers': return <RelationBody kind="followers" />;
+    case 'following': return <RelationBody kind="following" />;
+    case 'help': return <HelpBody />;
+    case 'identities': return <IdentitiesBody />;
+    case 'notifications': return <NotificationsBody />;
     default: return null;
   }
 }
