@@ -5,10 +5,32 @@ import { getApiLanguage } from '@/api/client';
 // 영어로 입력해도 이 매처 자체는 아직 반응하지 않는다. 별도 범위(영어 입력 인식)로 남겨 둔다.
 const t = (ko: string, en: string) => (getApiLanguage() === 'en' ? en : ko);
 
+/**
+ * 비서가 안내할 수 있는 화면 주소.
+ *
+ * 서버가 내주는 다섯(`assistantApi.ts` 의 `ALLOWED_NAVIGATE_HREFS`)과, 서버 없이 도는
+ * 아래 키워드 매처만 쓰는 '/explore' 를 합친 것이다.
+ */
+export type AssistantNavigatePath =
+  | '/plan'
+  | '/plan/basic'
+  | '/trips'
+  | '/explore'
+  | '/field/translate'
+  | '/field/transit'
+  | '/field/exchange-rate';
+
+/**
+ * 🔴 서버는 경로 뒤에 쿼리를 붙여 보낸다 — '/plan/basic?days=2' 처럼.
+ * 경로만 받는 타입으로 두면 쿼리가 붙은 주소를 타입이 거부하고, 그걸 피하려고 캐스팅을
+ * 끼워 넣게 된다. 쿼리가 따라올 수 있다는 것을 타입에 적어 둔다 (S15P21E201-1273).
+ */
+export type AssistantNavigateHref = AssistantNavigatePath | `${AssistantNavigatePath}?${string}`;
+
 export type AssistantAction =
   | { kind: 'plan'; reply: string; summary: string[]; patch: Partial<PlanDraft> }
   | { kind: 'phrase'; reply: string; korean: string; pronunciation: string }
-  | { kind: 'navigate'; reply: string; label: string; href: '/field/translate' | '/trips' | '/explore' | '/plan' }
+  | { kind: 'navigate'; reply: string; label: string; href: AssistantNavigateHref }
   | { kind: 'help'; reply: string };
 
 const AREAS: Array<[string, string]> = [['해운대', 'HAEUNDAE'], ['광안리', 'GWANGALLI'], ['송정', 'SONGJEONG'], ['남포동', 'NAMPO'], ['영도', 'YEONGDO'], ['서면', 'SEOMYEON']];
