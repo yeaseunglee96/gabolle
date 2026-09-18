@@ -4,7 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import { Redirect, useRouter } from 'expo-router';
 import { PlanStartBar } from '@/home/PlanStartBar';
 import { ConditionsPromptModal, type ConditionsOutcome } from '@/plan/ConditionsPromptModal';
-import { loadConditionsPromptState, saveConditionsPromptState, shouldPromptBeforePlan, shouldPromptOnHome, type ConditionsPromptState } from '@/plan/conditionsPromptState';
+import { loadConditionsPrompt, shouldPromptBeforePlan, shouldPromptOnHome, type ConditionsPromptState } from '@/plan/conditionsPromptState';
 import { usePlan } from '@/plan/PlanProvider';
 import type { StartBarValue } from '@/home/startBarValue';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -85,13 +85,13 @@ export default function Welcome() {
   //    영영 안 보인다.** 2026-09-18 에 실제로 그렇게 배포됐다가 사용자가 찾았다.
   useEffect(() => {
     let alive = true;
-    void loadConditionsPromptState(user?.userId ?? null).then((next) => {
+    void loadConditionsPrompt(user?.userId ?? null, accessToken).then(({ state }) => {
       if (!alive) return;
-      setPromptState(next);
-      if (shouldPromptOnHome(next)) setConditions({ open: true, reprompt: false, pending: null });
+      setPromptState(state);
+      if (shouldPromptOnHome(state)) setConditions({ open: true, reprompt: false, pending: null });
     });
     return () => { alive = false; };
-  }, [user?.userId]);
+  }, [accessToken, user?.userId]);
 
   const applyBarAndGo = (value: StartBarValue) => {
     updatePlan({
@@ -117,8 +117,9 @@ export default function Welcome() {
     setConditions({ open: false, reprompt: false, pending: null });
     if (outcome !== 'DISMISSED') {
       const next = outcome === 'SAVED' ? 'SAVED' : outcome === 'NEVER' ? 'NEVER' : 'LATER';
+      // 🔴 값을 실제로 적는 것은 **모달**이다 (S15P21E201-1245). 여기서 상태만 따로
+      //    적던 것이 사고였다 — 「물어봤다」는 기록만 남고 답은 아무 데도 안 남았다.
       setPromptState(next);
-      void saveConditionsPromptState(user?.userId ?? null, next);
     }
     if (pending) applyBarAndGo(pending);
   };
