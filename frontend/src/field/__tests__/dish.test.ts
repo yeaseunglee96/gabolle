@@ -82,6 +82,29 @@ describe('설명을 받아 온다', () => {
 
 describe('그림을 받아 온다', () => {
   /**
+   * 🔴 `RATE_LIMITED` 는 **실패가 아니다.** 설명은 왔고, 조금 뒤에 다시 하면 그림도 된다.
+   *
+   * 이 값을 `normalizeDish` 가 모르면 `NONE` 으로 떨어뜨리고, 그러면 화면은 **왜 그림이
+   * 없는지 말하지 못한다** — 사용자는 「이 음식은 원래 그림이 없구나」로 읽는다.
+   * 화면 문구는 S15P21E201-1295 에서 들어갔지만, **그 문구가 뜨려면 이 값이 여기를
+   * 통과해야 한다.** 목록에 한 줄만 빠뜨려도 조용히 되돌아가는 자리라 검사로 박아 둔다.
+   */
+  it('🔴 RATE_LIMITED 를 그대로 들고 온다 — NONE 으로 뭉개지 않는다', async () => {
+    respondWith({ data: {
+      name: '돼지국밥', description: '설명은 왔다', descriptionSource: 'MODEL_KNOWLEDGE',
+      imageStatus: 'RATE_LIMITED', imageId: null,
+    } });
+
+    const result = await describeDish('돼지국밥', 'token', tx, 'ko');
+
+    expect(result.state).toBe('success');
+    if (result.state !== 'success') return;
+    expect(result.dish.imageStatus).toBe('RATE_LIMITED');
+    // 🔴 설명은 살아 있어야 한다. S15P21E201-1294 가 고친 것이 바로 그것이다.
+    expect(result.dish.description).toBe('설명은 왔다');
+  });
+
+  /**
    * 🔴 이 시험이 이 모듈의 핵심이다. 202 는 「아직」이고 404 는 「그만 물어봐」다.
    * 둘을 같게 다루면 화면이 영원히 다시 묻거나, 10초만 더 기다리면 올 그림을 영영
    * 안 받는다.
