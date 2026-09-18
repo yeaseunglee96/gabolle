@@ -429,16 +429,38 @@ export async function setBlocked(userId: string, blocked: boolean, accessToken: 
 }
 
 // 팔로워·팔로잉·차단 목록 —(서버)·-1180/-1181(화면).
-export type RelationItem = { userId: string; displayName: string; avatarUrl?: string; following: boolean };
+export type RelationItem = {
+  userId: string;
+  displayName: string;
+  avatarUrl?: string;
+  following: boolean;
+  /**
+   * 이 사람이 쓴 기록 중 **나에게 보이는** 것의 수 —-1317.
+   *
+   * 🔴 `null` 은 **0 개가 아니라 「안 셌다」**다. 차단 목록은 이 숫자를 안 그리므로 서버가
+   *    세지 않고 보낸다. 그것을 0 으로 그리면 화면이 **「기록 0개」라고 단언**하게 되는데
+   *    사실이 아니다.
+   */
+  storyCount: number | null;
+};
 export type RelationListResult = { state: 'success'; items: RelationItem[]; nextCursor: string | null } | FeedFailure;
+
+type RelationItemDto = Omit<RelationItem, 'storyCount'> & { storyCount?: number | null };
+
+/** 「안 셌다」(null)와 「0 개」를 가른다. 모르는 값도 「안 셌다」로 떨어뜨린다 — 지어내지 않는다. */
+export function adaptRelationItem(dto: RelationItemDto): RelationItem {
+  const count = dto?.storyCount;
+  const counted = typeof count === 'number' && Number.isFinite(count) && count >= 0;
+  return { ...dto, storyCount: counted ? Math.floor(count) : null };
+}
 
 async function loadRelationList(path: string, accessToken: string | null, cursor?: string | null): Promise<RelationListResult> {
   try {
     const params = new URLSearchParams();
     if (cursor) params.set('cursor', cursor);
     const query = params.toString();
-    const dto = await apiRequest<{ items: RelationItem[]; nextCursor: string | null }>(`${path}${query ? `?${query}` : ''}`, { accessToken });
-    return { state: 'success', items: dto.items, nextCursor: dto.nextCursor };
+    const dto = await apiRequest<{ items: RelationItemDto[]; nextCursor: string | null }>(`${path}${query ? `?${query}` : ''}`, { accessToken });
+    return { state: 'success', items: (dto.items ?? []).map(adaptRelationItem), nextCursor: dto.nextCursor };
   } catch (error) {
     return failure(error);
   }

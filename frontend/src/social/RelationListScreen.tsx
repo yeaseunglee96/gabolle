@@ -97,7 +97,16 @@ export function RelationList({ emptyMessage, loader, renderAction }: RelationLis
           {state.items.map((item) => (
             <Pressable key={item.userId} accessibilityRole="button" onPress={() => router.push(`/user/${item.userId}`)} style={({ pressed }) => [styles.row, pressed && styles.pressed]}>
               <Avatar uri={item.avatarUrl} />
-              <Text weight="bold" style={styles.name} numberOfLines={1}>{item.displayName}</Text>
+              <View style={styles.name}>
+                <Text weight="bold" numberOfLines={1}>{item.displayName}</Text>
+                {/* 🔴 안 센 것(null)은 아예 안 그린다. 0 으로 그리면 화면이 「기록 0개」라고
+                    단언하게 되는데, 차단 목록처럼 세지 않은 자리에서는 사실이 아니다. */}
+                {item.storyCount === null ? null : (
+                  <Text variant="caption" color={color.text.muted}>
+                    {tx(`기록 ${item.storyCount}개`, `${item.storyCount} ${item.storyCount === 1 ? 'record' : 'records'}`)}
+                  </Text>
+                )}
+              </View>
               {renderAction ? renderAction(item, () => void load()) : <FollowActionButton item={item} refresh={() => void load()} />}
             </Pressable>
           ))}
@@ -142,6 +151,6 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: spacing[3], paddingVertical: spacing[3] },
   avatarImage: { width: 44, height: 44, borderRadius: radius.full, backgroundColor: color.surface.soft },
   avatarFallback: { width: 44, height: 44, borderRadius: radius.full, backgroundColor: color.surface.soft },
-  name: { flex: 1, minWidth: 0 },
+  name: { flex: 1, minWidth: 0, gap: 2 },
   footerSpinner: { marginVertical: spacing[4] },
 });
