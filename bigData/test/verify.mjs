@@ -280,5 +280,46 @@ await t('받은 쪽 세기는 키 없이 돈다 (S15P21E201-1264)', async () => 
   }
 })
 
+await t('쪽이 남았으면 마침 줄이 그렇게 말한다 (S15P21E201-1289)', async () => {
+  // 🔴 -1212 가 donePages() 의 반환을 집합에서 {done, broken} 으로 바꾸면서 마침 줄 쪽을
+  //    안 고쳤다. now.size 가 undefined 가 되고 남은 쪽이 NaN 이 되는데, NaN 은 거짓이라
+  //    if (left) 가 언제나 거짓이 된다 — 쪽이 남아도 "🟢 전량 받았습니다" 로 갔다.
+  //
+  // 🔴 화면의 undefined 보다 그 판정이 나쁘다. 하루 한도가 있는 수집에서 "다 받았다" 는
+  //    거짓말은 사람을 다음 단계로 보낸다.
+  //
+  // 오늘 몫을 0 으로 주면 호출을 한 번도 안 하고 곧장 마침 줄로 간다 — 하루 한도를
+  // 쓰지 않고 "쪽이 남았는데 몫이 떨어진" 상황을 그대로 만들 수 있다.
+  const dir = await mkdtemp(join(tmpdir(), 'bigdata-finish-'))
+  try {
+    await mkdir(join(dir, 'collect'), { recursive: true })
+    await mkdir(join(dir, 'lib'), { recursive: true })
+    await mkdir(join(dir, 'data/raw/facility/pages'), { recursive: true })
+    await copyFile(join(ROOT, 'collect/disabled-facility.mjs'), join(dir, 'collect/disabled-facility.mjs'))
+    await copyFile(join(ROOT, 'lib/log.mjs'), join(dir, 'lib/log.mjs'))
+    // 몫이 0 이라 호출을 안 하므로 이 값은 쓰이지 않는다. 키 검사만 지나가면 된다
+    await writeFile(join(dir, '.env'), 'DATA_GO_KR_KEY=not-used-budget-is-zero\n')
+    // 전체 3쪽 중 1쪽만 받은 상태
+    await writeFile(
+      join(dir, 'data/raw/facility/pages/page-0001.xml'),
+      '<?xml version="1.0"?><facInfoList><totalCount>3000</totalCount>' +
+        '<servList><faclNm>시험용</faclNm></servList></facInfoList>',
+    )
+
+    const out = execFileSync(
+      process.execPath,
+      [join(dir, 'collect/disabled-facility.mjs'), '--budget', '0'],
+      { encoding: 'utf8' },
+    )
+    if (/undefined/.test(out)) throw new Error('마침 줄에 undefined 가 찍혔다:\n' + out)
+    if (!/받은 페이지 1\/3/.test(out)) throw new Error('받은 쪽수를 제대로 안 찍었다:\n' + out)
+    if (!/남은 페이지 2개/.test(out)) throw new Error('남은 쪽을 안 알렸다:\n' + out)
+    if (/전량 받았습니다/.test(out)) throw new Error('쪽이 2개 남았는데 전량 받았다고 말한다:\n' + out)
+    ok('몫 소진 · 1/3 받음 — 남은 2개를 알리고, 전량이라 말하지 않는다')
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
 console.log(failed ? `\n🔴 ${failed}건 실패` : '\n전부 통과')
 process.exit(failed ? 1 : 0)

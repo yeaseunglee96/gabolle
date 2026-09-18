@@ -71,6 +71,25 @@
  *    **수집은 여전히 키 없이 안 돈다** — 검사 순서를 바꾼 것이지 느슨하게 한 것이
  *    아니다. 그 두 가지를 `test/verify.mjs` 가 같이 지킨다.
  *
+ * ── 🔴 2026-09-19 — 마침 줄이 언제나 "전량 받았다" 고 말했다 (S15P21E201-1289) ──
+ *
+ * 위 -1212 가 `donePages()` 의 반환을 **집합에서 `{done, broken}` 두 칸으로** 바꿨는데,
+ * 부르는 곳 둘 중 **마침 줄 쪽을 안 고쳤다.** 그래서 `now.size` 가 `undefined` 였다.
+ *
+ * 화면에 `받은 페이지 undefined/182` 가 찍히는 것은 눈에 띄지만, **진짜 문제는
+ * 그 아래 판정이다.**
+ *
+ *     left = 182 - undefined  →  NaN
+ *     if (left) …             →  NaN 은 거짓이다
+ *
+ * 🔴 그래서 **쪽이 남아 있어도 언제나 "🟢 전량 받았습니다" 로 갔다.**
+ *    "🔴 남은 페이지 N개. 내일 다시 돌리면 그 다음부터 갑니다" 는 **한 번도 안 나왔다.**
+ *    하루 한도가 있는 수집에서 "다 받았다" 는 거짓말은 비싸다 — 사람이 그 말을 믿고
+ *    다음 단계로 넘어간다.
+ *
+ * 2026-09-19 새벽에는 **진짜로 전량이었기 때문에** 맞는 말이 나왔다. 그게 이 결함을
+ * 더 오래 숨겼을 것이다.
+ *
  * 실행
  *   node collect/disabled-facility.mjs                # 남은 페이지를 오늘 몫(98)만큼
  *   node collect/disabled-facility.mjs --budget 30    # 30회만
@@ -251,7 +270,9 @@ async function main() {
   }
   if (used >= BUDGET) stoppedBy = '오늘 몫 소진'
 
-  const now = await donePages()
+  // 🔴 donePages() 는 {done, broken} 을 준다. 집합으로 받으면 size 가 undefined 가 되고,
+  //    남은 쪽 계산이 NaN 이 되어 언제나 "전량 받았다" 로 간다 (S15P21E201-1289).
+  const { done: now } = await donePages()
   const lp = total ? Math.ceil(total / ROWS) : null
   const left = lp ? lp - now.size : null
   log('')
