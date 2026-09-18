@@ -45,6 +45,7 @@ import { existsSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { stamp } from '../mlops/manifest.mjs'
+import { log } from '../lib/log.mjs'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const IN_FILE = join(ROOT, 'data/raw/tourapi/tourapi-busan.ndjson')
@@ -94,7 +95,6 @@ const LODGING_TYPE = 32
 /** 휴무일이 담기는 필드. 이름이 restdate 로 시작한다. */
 const REST_FIELDS = ['restdatefood', 'restdate', 'restdateculture', 'restdateleports', 'restdateshopping']
 
-const log = (...a) => console.log(new Date().toISOString().slice(0, 19), ...a)
 
 /** <br> 과 공백을 정리한다. 원문은 따로 보관하므로 여기서는 마음껏 다듬는다. */
 const clean = (s) => String(s).replace(/<br\s*\/?>/gi, '\n').replace(/&nbsp;/g, ' ').replace(/\r/g, '').trim()

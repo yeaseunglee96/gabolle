@@ -23,6 +23,7 @@ import { appendFile, mkdir, readFile, writeFile } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { log } from '../lib/log.mjs'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const OUT  = join(ROOT, 'data/raw/transit')
@@ -46,7 +47,6 @@ const DRY = process.argv.includes('--dry-run')
 let INTERVAL_MS = 30000
 let ENDPOINT = null
 
-const log = (...a) => console.log(new Date().toISOString().slice(0, 19), ...a)
 
 /* ═══════════════════════════════════════════════════════════════════════════
    서버(AWS)에서 여러 키를 동시에 돌리려고 더한 것들 — S15P21E201-633

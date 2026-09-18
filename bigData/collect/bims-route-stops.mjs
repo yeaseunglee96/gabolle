@@ -37,6 +37,7 @@ import { readFile, writeFile, mkdir } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { log } from '../lib/log.mjs'
 
 const ROOT   = join(dirname(fileURLToPath(import.meta.url)), '..')
 const OUT    = join(ROOT, 'data/raw/transit')
@@ -62,7 +63,6 @@ const STOPS_ONLY= args.includes('--stops-only')
 const MAX_ARG   = args.includes('--max') ? Number(args[args.indexOf('--max') + 1]) : MAX_CALLS
 
 const sleep = ms => new Promise(r => setTimeout(r, ms))
-const log   = (...a) => console.log(new Date().toISOString().slice(11, 19), ...a)
 
 let calls = 0
 const budget = Math.min(MAX_ARG, MAX_CALLS)

@@ -54,6 +54,7 @@ import { writeFile, mkdir } from 'node:fs/promises'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { stamp } from '../mlops/manifest.mjs'
+import { log } from '../lib/log.mjs'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 
@@ -116,7 +117,6 @@ const BANDS = [
 // 실측 출처: data/raw/pbf/_building-summary.json (52,556채 중 height 1,098 / levels 16,128)
 const OSM_BASELINE = { height: 0.021, levels: 0.308, buildings: 52556 }
 
-const log = (...a) => console.log(new Date().toISOString().slice(11, 19), ...a)
 
 // ── 통계 ────────────────────────────────────────────────────────────────────
 

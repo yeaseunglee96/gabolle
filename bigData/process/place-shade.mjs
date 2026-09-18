@@ -84,6 +84,7 @@ import { createInterface } from 'node:readline'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { stamp } from '../mlops/manifest.mjs'
+import { log } from '../lib/log.mjs'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const IN_TREES = join(ROOT, 'data/raw/trees/street-trees.ndjson')
@@ -94,7 +95,6 @@ const IN_SBIZ = join(ROOT, 'data/sbiz/부산_202606.csv')
 const OUT = join(ROOT, 'data/staged')
 
 const EXIT = { OK: 0, INVARIANT: 1, INPUT: 2 }
-const log = (...a) => console.log(new Date().toISOString().slice(11, 19), ...a)
 
 const argIdx = process.argv.indexOf('--radius')
 const RADIUS_M = argIdx > 0 ? Number(process.argv[argIdx + 1]) : 500

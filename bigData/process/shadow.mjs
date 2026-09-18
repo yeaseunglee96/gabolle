@@ -40,6 +40,7 @@ import { open, mkdir, writeFile } from 'node:fs/promises'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { stamp } from '../mlops/manifest.mjs'
+import { log } from '../lib/log.mjs'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const dataArg = process.argv.find(a => a.startsWith('--data='))
@@ -84,7 +85,6 @@ const CELL_DEG    = 0.0025 // 건물 격자 색인 한 칸 (위도 약 278m)
 const MIN_ALT_DEG = 0.5    // 이보다 낮으면 해가 진 것으로 본다
 const REF_LAT = 35.14, REF_LON = 129.03   // 요약표에 쓸 부산 대표 지점 (bbox 중심 부근)
 
-const log = (...a) => console.log(new Date().toISOString().slice(11, 19), ...a)
 const rad = d => d * Math.PI / 180
 const deg = r => r * 180 / Math.PI
 const norm360 = a => ((a % 360) + 360) % 360

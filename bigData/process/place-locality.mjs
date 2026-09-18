@@ -86,6 +86,7 @@ import { createInterface } from 'node:readline'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { stamp } from '../mlops/manifest.mjs'
+import { log } from '../lib/log.mjs'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const IN_SBIZ = join(ROOT, 'data/sbiz/부산_202606.csv')
@@ -95,7 +96,6 @@ const IN_ROSTER = join(ROOT, 'data/staged/place-slope-sbiz.ndjson')
 const OUT = join(ROOT, 'data/staged')
 
 const EXIT = { OK: 0, INVARIANT: 1, INPUT: 2 }
-const log = (...a) => console.log(new Date().toISOString().slice(11, 19), ...a)
 
 const M_PER_DEG_LAT = 110574
 const mPerDegLon = (lat) => 111320 * Math.cos((lat * Math.PI) / 180)
