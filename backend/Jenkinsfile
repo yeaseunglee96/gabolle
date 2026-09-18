@@ -388,8 +388,23 @@ pipeline {
                     //    --cpus="2.0" 은 21개 컨테이너 전부 CPU 상한이 없던 것 중 하나를
                     //    고친다(S15P21E201-798) — 응답 지연이 사용자에게 바로 보이는
                     //    컨테이너라 airflow 워커(1.5)보다 넉넉히 잡는다.
+                    // 🔴 --restart unless-stopped 가 없으면 서버가 재부팅되거나 도커 데몬이
+                    //    재시작될 때 backend 만 안 올라온다 (S15P21E201-1306). 2026-09-19 에
+                    //    컨테이너 20개를 훑어보니 정책이 no 인 것은 이것 하나였고,
+                    //    frontend/Jenkinsfile 은 진작부터 붙이고 있었다.
+                    //
+                    //    증상이 고약하다 — 프런트는 멀쩡히 떠 있어서 화면은 나오고 「서버 연결을
+                    //    확인하고 있어요」만 뜬다. docker ps 를 봐야 백엔드가 없다는 것을 안다.
+                    //
+                    //    always 가 아니라 unless-stopped 인 이유: always 는 사람이 일부러 멈춰
+                    //    둔 것도 다시 켠다. 장애를 보려고 세워 둔 컨테이너가 되살아나면 그 조사가
+                    //    무너진다. 프런트와 같은 값으로 맞춘다.
+                    //
+                    //    🔴 아래 되돌리기 경로에도 같은 줄이 있다. 한쪽만 고치면 되돌린
+                    //    컨테이너가 다시 정책 없는 상태로 뜬다.
                     sh '''
                         docker run -d --name backend \
+                            --restart unless-stopped \
                             --network local-route-personalization_data_net \
                             -p 8080:8080 \
                             --cpus="2.0" \
@@ -561,6 +576,7 @@ pipeline {
                             sh 'docker rm backend || true'
                             sh '''
                                 docker run -d --name backend \
+                                    --restart unless-stopped \
                                     --network local-route-personalization_data_net \
                                     -p 8080:8080 \
                                     --cpus="2.0" \
