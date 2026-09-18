@@ -45,6 +45,8 @@ public class StorageProperties {
 
 	private S3 s3 = new S3();
 
+	private Video video = new Video();
+
 	public String getProvider() {
 		return this.provider;
 	}
@@ -75,6 +77,14 @@ public class StorageProperties {
 
 	public void setS3(S3 s3) {
 		this.s3 = s3;
+	}
+
+	public Video getVideo() {
+		return this.video;
+	}
+
+	public void setVideo(Video video) {
+		this.video = video;
 	}
 
 	/** {@code provider=s3} 일 때만 쓰이는 값. {@code provider=local} 이면 전부 빈 문자열로 둬도 된다. */
@@ -170,6 +180,45 @@ public class StorageProperties {
 
 		public void setPublicBaseUrl(String publicBaseUrl) {
 			this.publicBaseUrl = publicBaseUrl;
+		}
+	}
+
+	/**
+	 * 동영상 업로드 제한 — S15P21E201-1275.
+	 *
+	 * <h2>🔴 왜 상수가 아니라 설정인가</h2>
+	 *
+	 * 사진은 {@code UploadedImage.MAX_BYTES} 로 <b>코드에 박혀</b> 있다(3MB). 동영상은 그러지
+	 * 않는다 — <b>값이 아직 실측 전</b>이고, 정해진 뒤에도 코드를 고치지 않고 바꿀 수 있어야
+	 * 한다. 앱이 줄여서 보내므로(2026-09-18 결정) 「1분이 몇 MB 인가」를 실기기에서 재 봐야
+	 * 나온다.
+	 *
+	 * <p>🔴 <b>여기 값만 올린다고 큰 파일이 올라가지는 않는다.</b> 앞에 두 층이 더 있다 —
+	 * nginx 의 {@code client_max_body_size} 와 Spring 의
+	 * {@code spring.servlet.multipart.max-file-size}. 셋이 어긋나면 <b>어디서 막혔는지 화면에
+	 * 안 보인다</b>(nginx 가 끊으면 백엔드 로그에 아무것도 안 남는다 —
+	 * {@code docs/SERVER-SETUP.md} 의 「업로드 크기 상한」 절 참고). <b>올릴 때는 세 층을 함께
+	 * 올린다.</b>
+	 */
+	public static class Video {
+
+		/**
+		 * 동영상 한 개의 최대 바이트. 기본 3MB 는 <b>실측값이 아니다</b> — 실기기로 재기 전까지
+		 * 자리를 잡아 두는 값이다.
+		 *
+		 * <p>🔴 <b>이 값이 상한 사슬에서 가장 작아야 한다.</b> 바깥에 multipart(4MB)와
+		 * nginx(운영 5MB)가 있고, <b>같기만 해도</b> 바깥이 먼저 자른다. 그러면 여기가 준비한
+		 * 설명 있는 오류({@code maxBytes} 가 실린 413)가 <b>한 번도 안 쓰인다</b> — 사용자는
+		 * 얼마까지 되는지 영영 모른다.
+		 */
+		private long maxBytes = 3L * 1024 * 1024;
+
+		public long getMaxBytes() {
+			return this.maxBytes;
+		}
+
+		public void setMaxBytes(long maxBytes) {
+			this.maxBytes = maxBytes;
 		}
 	}
 }

@@ -93,6 +93,30 @@ public class S3FileStorage implements StoragePort {
 		return this.s3Properties.getPublicBaseUrl() + "/" + key;
 	}
 
+	/**
+	 * 🟢 <b>MinIO SDK 는 원래 스트림을 받는다.</b> 위 {@code put(byte[])} 은 우리가 만든
+	 * {@code byte[]} 를 {@link ByteArrayInputStream} 으로 <b>도로 감싸고</b> 있다 — {@code byte[]} 는
+	 * MinIO 가 요구한 것이 아니라 이 인터페이스가 강요한 것이다. 여기서는 감싸는 줄이 없어진다.
+	 */
+	@Override
+	public String put(String key, String contentType, InputStream in, long size) {
+		validateKey(key);
+		try {
+			this.client.putObject(PutObjectArgs.builder()
+					.bucket(this.s3Properties.getBucket())
+					.object(key)
+					.stream(in, size, -1)
+					.contentType(contentType)
+					.build());
+		}
+		catch (ErrorResponseException | InsufficientDataException | InternalException | InvalidKeyException
+				| InvalidResponseException | IOException | NoSuchAlgorithmException | ServerException
+				| XmlParserException e) {
+			throw new StorageException("동영상 파일을 S3 에 저장하지 못했다: " + key, e);
+		}
+		return this.s3Properties.getPublicBaseUrl() + "/" + key;
+	}
+
 	@Override
 	public void delete(String key) {
 		validateKey(key);

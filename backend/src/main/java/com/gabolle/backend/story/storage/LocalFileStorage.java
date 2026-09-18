@@ -1,6 +1,7 @@
 package com.gabolle.backend.story.storage;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -61,6 +62,32 @@ public class LocalFileStorage implements StoragePort {
 		}
 		catch (IOException e) {
 			throw new StorageException("사진 파일을 저장하지 못했다: " + key, e);
+		}
+		return properties.getPublicBasePath() + "/" + key;
+	}
+
+	/**
+	 * 스트림으로 저장한다 — {@code Files.write(byte[])} 대신 {@code Files.copy} 한 줄이다.
+	 * 임시 파일에 쓰고 원자적으로 옮기는 것은 위와 같다: 반쯤 쓰인 파일이 보이면 안 된다.
+	 */
+	@Override
+	public String put(String key, String contentType, InputStream in, long size) {
+		validateKey(key);
+		Path target = resolve(key);
+		try {
+			Files.createDirectories(target.getParent());
+			Path temp = Files.createTempFile(target.getParent(), "upload-", ".tmp");
+			try {
+				Files.copy(in, temp, StandardCopyOption.REPLACE_EXISTING);
+				Files.move(temp, target, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+			}
+			catch (IOException | RuntimeException e) {
+				Files.deleteIfExists(temp);
+				throw e;
+			}
+		}
+		catch (IOException e) {
+			throw new StorageException("동영상 파일을 저장하지 못했다: " + key, e);
 		}
 		return properties.getPublicBasePath() + "/" + key;
 	}

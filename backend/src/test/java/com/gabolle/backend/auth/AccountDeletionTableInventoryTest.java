@@ -66,6 +66,10 @@ class AccountDeletionTableInventoryTest extends AuthPostgresIntegrationTest {
 			// 🔴 S15P21E201-1227 — 글 저장·북마크. (가) AccountDeletionService.USER_OWNED_ROWS 에서 지운다.
 			"story_save", "story_view", "trip_invite", "trip_member",
 			"trip_share_link", "uploaded_image",
+			// 🔴 S15P21E201-1275 — 올라간 동영상. (가) AccountDeletionService.deleteUploadedFiles 에서
+			//    지운다. uploaded_image 와 같은 자리에서 같은 순서로 지워진다 — story_video 를 먼저
+			//    지우지 않으면 외래키 위반으로 탈퇴 전체가 실패한다(AccountDeletionVideoFilesTest 가 잰다).
+			"uploaded_video",
 			"user_block", "user_consent", "user_follow", "user_pace_factor", "user_taste_vector",
 			// 🔴 S15P21E201-1231 — 여행 조건 모달의 답. 새 표라 처음부터 여기 넣는다.
 			"user_travel_constraint");

@@ -33,6 +33,8 @@ import com.gabolle.backend.story.repository.StoryImageRepository;
 import com.gabolle.backend.story.repository.StoryRepository;
 import com.gabolle.backend.story.repository.StoryLinkCopyRepository;
 import com.gabolle.backend.story.repository.StoryViewRepository;
+import com.gabolle.backend.story.repository.StoryVideoRepository;
+import com.gabolle.backend.story.repository.UploadedVideoRepository;
 import com.gabolle.backend.story.repository.UploadedImageRepository;
 import com.gabolle.backend.story.repository.UserFollowRepository;
 import com.gabolle.backend.trip.domain.Trip;
@@ -102,6 +104,10 @@ public class StoryService {
 	/** 링크 복사 낱개 — S15P21E201-1215. 조회 낱개와 같은 모양이고 같은 규칙으로 쓴다. */
 	private final StoryLinkCopyRepository storyLinkCopyRepository;
 
+	private final StoryVideoRepository storyVideoRepository;
+
+	private final UploadedVideoRepository uploadedVideoRepository;
+
 	private final Clock clock;
 
 	public StoryService(StoryRepository storyRepository, StoryImageRepository storyImageRepository,
@@ -109,7 +115,8 @@ public class StoryService {
 			TripRepository tripRepository, PlaceRepository placeRepository,
 			StorageCleanupService storageCleanupService, StoryResponseAssembler assembler,
 			StoryVisibilityPolicy visibilityPolicy, StoryViewRepository storyViewRepository,
-			StoryLinkCopyRepository storyLinkCopyRepository, Clock clock) {
+			StoryLinkCopyRepository storyLinkCopyRepository, StoryVideoRepository storyVideoRepository,
+			UploadedVideoRepository uploadedVideoRepository, Clock clock) {
 		this.storyRepository = storyRepository;
 		this.storyImageRepository = storyImageRepository;
 		this.uploadedImageRepository = uploadedImageRepository;
@@ -121,6 +128,8 @@ public class StoryService {
 		this.visibilityPolicy = visibilityPolicy;
 		this.storyViewRepository = storyViewRepository;
 		this.storyLinkCopyRepository = storyLinkCopyRepository;
+		this.storyVideoRepository = storyVideoRepository;
+		this.uploadedVideoRepository = uploadedVideoRepository;
 		this.clock = clock;
 	}
 
@@ -414,6 +423,37 @@ public class StoryService {
 						StorageCleanupEntry.REASON_STORY_DELETED);
 			}
 		}
+		deleteVideoFiles(storyId, now);
+	}
+
+	/**
+	 * 딸린 동영상의 <b>파일 둘</b>을 지운다 — 재생 파일과 썸네일. S15P21E201-1275.
+	 *
+	 * <h2>🔴 썸네일을 여기서 같이 지워야 하는 이유</h2>
+	 *
+	 * 썸네일은 사진 창구로 올라와 {@code uploaded_image} 행이 되지만 <b>{@code story_image} 에는
+	 * 안 들어간다</b>(들어가면 「사진 3장」 한 칸을 먹는다). 그래서 <b>위의 사진 정리가 썸네일을
+	 * 안 본다.</b> 여기서 안 지우면 저장소에 영원히 남는다 — 기록에 안 붙은 업로드를 쓸어 가는
+	 * 배치가 이 저장소에 없기 때문이다(2026-09-18 확인 — 0곳).
+	 *
+	 * <p>🔴 <b>{@code story_video} 행 자체는 안 지운다.</b> 기록이 소프트 삭제(deletedAt)라
+	 * {@code story_image} 행도 남는 것과 같다 — 무엇이 붙어 있었는지는 이력으로 남긴다.
+	 * 지우는 것은 <b>파일</b>이다.
+	 */
+	private void deleteVideoFiles(UUID storyId, Instant now) {
+		this.storyVideoRepository.findByStoryId(storyId).ifPresent(storyVideo -> {
+			this.uploadedVideoRepository.findById(storyVideo.getUploadedVideoId()).ifPresent(video -> {
+				video.markDeleted(now);
+				this.storageCleanupService.deleteOrEnqueue(video.getStorageKey(),
+						StorageCleanupEntry.REASON_STORY_DELETED);
+			});
+			for (UploadedImage thumbnail : this.uploadedImageRepository
+					.findByUploadedImageIdIn(List.of(storyVideo.getThumbnailUploadId()))) {
+				thumbnail.markDeleted(now);
+				this.storageCleanupService.deleteOrEnqueue(thumbnail.getStorageKey(),
+						StorageCleanupEntry.REASON_STORY_DELETED);
+			}
+		});
 	}
 
 	// ---- 판정 ----
