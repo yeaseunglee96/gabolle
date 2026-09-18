@@ -217,7 +217,7 @@ export default function Generating() {
             2열로 둔다. 전에는 왼쪽 44% 세로 칸이라 여행표가 옆으로 밀려 있었다. */}
         <View style={kind !== 'phone' ? styles.statusCopy : undefined}>
         <View style={styles.aiBadge}><View style={[styles.pulse, isWorking && styles.pulseActive]} /><Text variant="caption" weight="bold" color={color.brand.orange}>{job.state === 'completed' ? tx('AI 일정 완성', 'AI itinerary ready') : failed ? tx('일정 생성 실패', 'Itinerary generation failed') : tx('AI 일정 생성 중', 'Creating your itinerary')}</Text></View>
-        <Text variant="display" weight="bold" color={color.brand.ivory} style={styles.headline}>{job.state === 'completed' ? tx('당신만의 부산 여행이\n완성됐어요', 'Your Busan trip\nis ready') : failed ? tx('일정을 만들지\n못했어요', "We couldn't build\nyour itinerary") : tx('AI가 당신만을 위한\n부산 여행을 만들고 있어요', 'AI is building\nyour Busan trip')}</Text>
+        <Text variant="display" weight="bold" color={color.brand.ivory} style={styles.headline}>{job.state === 'completed' ? tx(kind === 'phone' ? '당신만의 부산 여행이\n완성됐어요' : '당신만의 부산 여행이 완성됐어요', kind === 'phone' ? 'Your Busan trip\nis ready' : 'Your Busan trip is ready') : failed ? tx('일정을 만들지\n못했어요', "We couldn't build\nyour itinerary") : tx('AI가 당신만을 위한\n부산 여행을 만들고 있어요', 'AI is building\nyour Busan trip')}</Text>
         <Text color="#a2a7b8">{failed ? job.errorMessage : delayed && isWorking ? tx('부산 동선을 조금 더 다듬고 있어요. 화면을 닫아도 작업은 계속됩니다.', 'We are refining your route through Busan. The job continues if you leave this screen.') : tx('현지 정보와 안전 조건, 이동 부담을 함께 확인하고 있어요.', 'We are checking local information, safety, and travel effort together.')}</Text>
         {/* 🔴 끝났으면 진행률을 치운다 (S15P21E201-1016). 100% 로 멈춘 막대와 "처리 중" 이라는
             단계 이름은 완료된 뒤에는 정보가 아니라 거짓이다 — 위의 단계 목록이 이미 전부
@@ -227,7 +227,18 @@ export default function Generating() {
         </View>
         {!failed && <View accessibilityLiveRegion="polite" style={[styles.stageList, kind !== 'phone' && styles.stageListWide]}>{STAGES.map((item, index) => { const done = index < currentStage || job.state === 'completed'; const active = index === currentStage && isWorking; return <View key={item.label} style={[styles.stage, kind !== 'phone' && styles.stageItemWide, active && styles.stageActive]}><View style={[styles.stageIcon, done && styles.stageDone]}><Text variant="caption" weight="bold" color={done ? color.text.onAction : active ? color.brand.orange : '#6e7280'}>{done ? '✓' : '○'}</Text></View><Text weight={done || active ? 'bold' : 'regular'} color={done || active ? color.brand.ivory : '#6e7280'} style={styles.stageText}>{language === 'en' ? item.en : item.label}</Text><Text variant="caption" color={done ? color.state.success : active ? color.brand.orange : '#6e7280'}>{done ? tx('완료', 'Done') : active ? tx('진행 중', 'In progress') : tx('대기', 'Waiting')}</Text></View>; })}</View>}
       </View>}
-      <View style={[styles.ticketArea, kind !== 'phone' && styles.ticketAreaWide]}>
+      <View style={styles.ticketArea}>
+        {/* 시안 TripPassCard 의 머리줄 — 왼쪽 뒤로가기 · 가운데 TRIP PASS · 오른쪽 승차권 번호. */}
+        {kind !== 'phone' ? (
+          <View style={styles.passHead}>
+            <Pressable accessibilityRole="button" accessibilityLabel={tx('뒤로 가기', 'Go back')} onPress={() => (router.canGoBack() ? router.back() : router.replace('/plan'))}>
+              <Text variant="title">‹</Text>
+            </Pressable>
+            <Text variant="caption" weight="bold" color={color.text.muted} style={styles.passTitle}>TRIP PASS</Text>
+            <Text variant="caption" weight="bold" color={color.text.muted}>{tripPass.code}</Text>
+          </View>
+        ) : null}
+        <View style={kind !== 'phone' ? styles.passBody : undefined}>
         {/* 🔴 시안 TripPassCard 로 바꿨다 (S15P21E201-1233). 전에는 이 자리에 영수증을
             직접 그렸는데, 찍히는 값이 「BUSAN」·「READY TO BOARD」 같은 **고정 글자**라
             실제 일정과 무관했다. 이제 날짜·방문지·걷는 거리·예상 비용이 전부 실값이다. */}
@@ -243,18 +254,22 @@ export default function Generating() {
             {tripPassDetails.map((row) => (
               <View key={row.key} style={styles.detailRow}>
                 <Text variant="caption" color={color.text.muted}>{row.key}</Text>
-                <Text weight="bold" style={styles.detailValue}>{row.value}</Text>
+                <Text weight="bold" style={styles.detailValue} numberOfLines={1}>{row.value}</Text>
               </View>
             ))}
-            <View style={styles.statusRow}>
-              <View style={styles.statusDot} />
-              <Text variant="caption" weight="bold">{tx('일정 상태 · 생성 완료', 'Status · Ready')}</Text>
+            <View style={styles.detailRow}>
+              <Text variant="caption" color={color.text.muted}>{tx('일정 상태', 'Status')}</Text>
+              <View style={styles.statusRow}>
+                <View style={styles.statusDot} />
+                <Text weight="bold">{tx('생성 완료', 'Ready')}</Text>
+              </View>
             </View>
             <Button label={tx('일정 보기', 'View itinerary')} disabled={!job.jobId} onPress={() => job.jobId && router.replace(`/trips/${job.jobId}/recommendations?jobId=${encodeURIComponent(job.jobId)}`)} />
             <Button label={tx('지도에서 보기', 'See on the map')} variant="ghost" disabled={!job.jobId} onPress={() => job.jobId && router.push(`/trips/${job.jobId}/recommendations?jobId=${encodeURIComponent(job.jobId)}`)} />
           </View>
         ) : null}
         {job.state === 'completed' && kind === 'phone' && <View style={styles.actions}><Button label={tx('일정 자세히 보기', 'View itinerary details')} onPress={() => job.jobId && router.replace(`/trips/${job.jobId}/recommendations?jobId=${encodeURIComponent(job.jobId)}`)} disabled={!job.jobId} /><Text variant="caption" color={color.text.muted}>{tx('추천 후보를 확인한 뒤 완성된 일정으로 이동할 수 있어요.', 'Review the recommendations, then open your completed itinerary.')}</Text></View>}
+        </View>
       </View>
     </View>
     <AccessibilityUnverifiedModal
@@ -268,12 +283,19 @@ export default function Generating() {
 const styles = StyleSheet.create({ canvas: { backgroundColor: color.brand.ivory, maxWidth: 1200 }, mobileTop: { minHeight: 52, marginTop: spacing[6], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing[4] }, back: { width: 44, height: 44, borderRadius: radius.full, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center' }, logo: { width: 88, height: 28 }, stepPill: { paddingHorizontal: spacing[3], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: color.brand.navy }, layout: { gap: spacing[4] }, layoutWide: { minHeight: 720 }, statusPanel: { gap: spacing[3], padding: spacing[6], borderRadius: radius.lg, backgroundColor: color.brand.navy }, statusWide: { flexDirection: 'row', alignItems: 'center', gap: spacing[8], paddingHorizontal: spacing[8], paddingVertical: spacing[6] }, aiBadge: { alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: spacing[2], paddingHorizontal: spacing[3], paddingVertical: spacing[2], borderRadius: radius.full, backgroundColor: 'rgba(255,255,255,0.08)' }, pulse: { width: 8, height: 8, borderRadius: radius.full, backgroundColor: '#4a5568' }, pulseActive: { backgroundColor: color.brand.orange }, headline: { lineHeight: 32 }, stageList: { gap: spacing[2] },
   stageItemWide: { width: '48%' },
   stageListWide: { width: 440, flexShrink: 0, flexDirection: 'row', flexWrap: 'wrap' },
-  statusCopy: { flex: 1, minWidth: 0, gap: spacing[2] }, stage: { minHeight: 54, flexDirection: 'row', alignItems: 'center', gap: spacing[3], padding: spacing[3], borderRadius: radius.md, backgroundColor: 'rgba(255,255,255,0.03)' }, stageActive: { borderWidth: 1, borderColor: 'rgba(242,101,50,0.45)', backgroundColor: 'rgba(242,101,50,0.08)' }, stageIcon: { width: 28, height: 28, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, stageDone: { backgroundColor: color.state.success }, stageText: { flex: 1 }, progressBlock: { gap: spacing[2] }, progressTrack: { height: 6, overflow: 'hidden', borderRadius: radius.full, backgroundColor: 'rgba(255,255,255,0.08)' }, progressFill: { height: 6, borderRadius: radius.full, backgroundColor: color.brand.orange }, ticketArea: { alignItems: 'center', justifyContent: 'flex-start', padding: spacing[6], borderRadius: radius.lg, backgroundColor: '#f0eee8' },
+  statusCopy: { flex: 1, minWidth: 0, gap: spacing[2] }, stage: { minHeight: 54, flexDirection: 'row', alignItems: 'center', gap: spacing[3], padding: spacing[3], borderRadius: radius.md, backgroundColor: 'rgba(255,255,255,0.03)' }, stageActive: { borderWidth: 1, borderColor: 'rgba(242,101,50,0.45)', backgroundColor: 'rgba(242,101,50,0.08)' }, stageIcon: { width: 28, height: 28, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, stageDone: { backgroundColor: color.state.success }, stageText: { flex: 1 }, progressBlock: { gap: spacing[2] }, progressTrack: { height: 6, overflow: 'hidden', borderRadius: radius.full, backgroundColor: 'rgba(255,255,255,0.08)' }, progressFill: { height: 6, borderRadius: radius.full, backgroundColor: color.brand.orange }, // 🔴 시안 TripPassCard 는 **흰 카드 하나**다. 머리줄(‹ · TRIP PASS · 코드) 아래에
+  //    티켓과 상세가 나란히 서고, 「다시 출력」이 카드 바닥 가운데에 온다.
+  //    전에는 베이지 판 위에 티켓만 있고 상세가 **따로 뜬 흰 카드**였다.
+  ticketArea: { alignItems: 'center', justifyContent: 'flex-start', padding: spacing[6], borderRadius: radius.lg, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.border },
+  passHead: { width: '100%', minHeight: 40, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing[4] },
+  passTitle: { letterSpacing: 1.5 },
+  passBody: { width: '100%', flexDirection: 'row', alignItems: 'flex-start', gap: spacing[8], justifyContent: 'center' },
   ticketAreaWide: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[8], justifyContent: 'center' },
   // 🔴 폭을 고정한다. flex:1 로 두면 티켓이 남는 폭을 다 가져가 이 칸이 40px 로 눌리고
   //    글자가 **세로로 선다** — 2026-09-18 화면을 띄워 보고 찾았다.
-  ticketDetails: { width: 380, flexShrink: 0, gap: spacing[3], padding: spacing[6], borderRadius: radius.lg, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.border },
-  detailRow: { gap: 2, paddingBottom: spacing[2], borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: color.surface.border },
+  ticketDetails: { width: 420, flexShrink: 0, gap: spacing[1], paddingTop: spacing[2] },
+  // 🔴 시안은 **이름 왼쪽 · 값 오른쪽 한 줄**이다. 쌓으면 줄 수가 두 배가 되고 값이 눈에 안 띈다.
+  detailRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[4], minHeight: 40, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: color.surface.border },
   detailValue: { flexShrink: 1 },
   statusRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
   statusDot: { width: 8, height: 8, borderRadius: radius.full, backgroundColor: color.state.success }, printer: { zIndex: 4, width: '100%', maxWidth: 400, height: 116, alignItems: 'center', justifyContent: 'center', gap: spacing[2], borderRadius: radius.lg, backgroundColor: color.brand.navy, shadowColor: color.brand.navy, shadowOpacity: 0.2, shadowRadius: 12, shadowOffset: { width: 0, height: 6 }, elevation: 8 }, printerLabel: { paddingHorizontal: spacing[3], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: 'rgba(255,255,255,0.08)' }, lights: { flexDirection: 'row', gap: spacing[1] }, light: { width: 6, height: 6, borderRadius: radius.full, backgroundColor: '#4a5568' }, green: { backgroundColor: color.state.success }, orange: { backgroundColor: color.brand.orange }, slot: { width: '70%', height: 10, borderRadius: radius.full, backgroundColor: '#061328' }, ticketViewport: { width: '100%', height: 620, marginTop: -8, overflow: 'hidden', alignItems: 'center' }, printedPaper: { width: '82%', maxWidth: 300, overflow: 'hidden', backgroundColor: color.surface.card, shadowColor: color.brand.navy, shadowOpacity: 0.16, shadowRadius: 10, shadowOffset: { width: 0, height: 6 }, elevation: 4 }, ticket: { position: 'absolute', bottom: 0, width: '100%', height: 620, borderLeftWidth: 1, borderRightWidth: 1, borderColor: '#ddd5ca', backgroundColor: color.surface.card }, ticketHeader: { minHeight: 92, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: spacing[4], backgroundColor: color.brand.navy }, ticketBrand: { gap: spacing[1] }, ticketLogo: { width: 140, height: 34, marginLeft: -10 }, passLabel: { letterSpacing: 2.4 }, flightMark: { width: 56, height: 56, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.brand.ivory }, flightIcon: { fontSize: 30, lineHeight: 34 }, ticketBody: { gap: spacing[3], padding: spacing[4], paddingBottom: 64 }, destination: { fontSize: 32, lineHeight: 38, letterSpacing: 2 }, routeLine: { height: 38, flexDirection: 'row', alignItems: 'center', gap: spacing[2] }, routeTrack: { flex: 1, borderTopWidth: 1, borderStyle: 'dashed', borderColor: '#c8cace' }, routePlane: { fontSize: 20, lineHeight: 24, transform: [{ rotate: '8deg' }] }, ticketMeta: { flexDirection: 'row', justifyContent: 'space-between', gap: spacing[2] }, metaCell: { flex: 1, gap: 2 }, previewRoute: { gap: spacing[2] }, receiptRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] }, receiptStop: { flex: 1 }, memoRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[3] }, memo: { flex: 1, gap: 2 }, stampImage: { width: 78, height: 78, transform: [{ rotate: '-7deg' }] }, dash: { borderTopWidth: 1, borderStyle: 'dashed', borderColor: '#c8cace' }, perforation: { position: 'absolute', left: 0, right: 0, bottom: 46, height: 10, justifyContent: 'center', backgroundColor: color.surface.card }, perforationCut: { borderTopWidth: 1, borderStyle: 'dashed', borderColor: '#c8cace' }, ticketTail: { position: 'absolute', left: 0, right: 0, bottom: 0, minHeight: 46, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: spacing[3], backgroundColor: color.surface.subtle }, actions: { width: '88%', maxWidth: 320, gap: spacing[2], marginTop: spacing[4] } });
