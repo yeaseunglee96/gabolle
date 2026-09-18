@@ -25,7 +25,24 @@ public class MenuScanProperties {
 	/** 🔴 키. 비어 있으면 호출이 즉시 «설정이 없다» 로 끝난다 — 조용히 빈 결과를 주지 않는다. */
 	private String apiKey = "";
 
-	private String model = "gpt-4o-mini";
+	/**
+	 * 사진 속 글자를 읽는 모델 — S15P21E201-1268.
+	 *
+	 * <p>🔴 <b>{@code gpt-4o-mini} 로 돌아가지 마라. 한글을 틀리게 옮겨 적는다.</b>
+	 * 같은 사진으로 나란히 재 봤다(2026-09-18): 「얼음 빼주세요」를 {@code gpt-4o-mini} 는
+	 * 「염음 빼주세요」·「얼음 뺏 주세요」로, {@code gpt-4.1-mini} 는 제대로 읽었다.
+	 *
+	 * <p>이것이 조용한 결함인 이유는 이 기능이 <b>알레르기 낱말을 찾는 데</b> 쓰이기
+	 * 때문이다. 낱말을 한 글자 흘리면 화면에는 「해당 없음」으로 나오고, 사용자는 그것을
+	 * 「안 들어 있구나」로 읽는다. 못 읽은 것과 없는 것이 같아 보인다.
+	 *
+	 * <p>느려서 못 쓰는 것도 아니다 — 왕복 1.87·3.07초로 {@code gpt-4o-mini}(2.66·3.57초)
+	 * 보다 오히려 빨랐다. 그래서 아래 시간 예산은 그대로 둔다.
+	 *
+	 * <p>{@code gpt-4o} 는 정확하지만 「나는 이미지를 보여줄 수 없지만」 같은 군말을 붙여
+	 * 그대로 쓸 수 없었다.
+	 */
+	private String model = "gpt-4.1-mini";
 
 	private Duration connectTimeout = Duration.ofSeconds(3);
 
