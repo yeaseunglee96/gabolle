@@ -23,7 +23,7 @@ const resize = jest.requireMock('@/social/imageResize') as { resizeForUpload: je
 const api = jest.requireMock('@/api/client') as { apiRequest: jest.Mock; ApiClientError: new (status: number) => Error };
 
 const tx = (ko: string) => ko;
-const okScan = { lines: [{ text: '김치찌개', allergenWords: [] }], unreadLineCount: 0, evidenceStatus: 'ESTIMATED' };
+const okScan = { lines: [{ text: '김치찌개', translatedText: '김치찌개', allergenWords: [] }], unreadLineCount: 0, evidenceStatus: 'ESTIMATED' };
 
 const multipart = jest.requireMock('@/api/multipart') as { singleFileFormData: jest.Mock };
 
@@ -42,7 +42,7 @@ describe('scanMenu — 줄이기가 실패해도 보낸다', () => {
   it('줄이기가 되면 줄인 것을 보낸다', async () => {
     resize.resizeForUpload.mockResolvedValue({ uri: 'file:///small.jpg', width: 1600, height: 900 });
 
-    const result = await scanMenu('file:///orig.jpg', 'token', tx);
+    const result = await scanMenu('file:///orig.jpg', 'token', tx, 'ko');
 
     expect(result.state).toBe('success');
     expect(api.apiRequest).toHaveBeenCalledTimes(1);
@@ -52,7 +52,7 @@ describe('scanMenu — 줄이기가 실패해도 보낸다', () => {
   it('🔴 줄이기가 실패해도 원본으로 보낸다 — 요청조차 안 나가던 것이 이 버그였다', async () => {
     resize.resizeForUpload.mockRejectedValue(new Error('manipulate is not a function'));
 
-    const result = await scanMenu('file:///orig.jpg', 'token', tx);
+    const result = await scanMenu('file:///orig.jpg', 'token', tx, 'ko');
 
     expect(api.apiRequest).toHaveBeenCalledTimes(1);
     expect(sentUri()).toContain('orig.jpg');
@@ -62,7 +62,7 @@ describe('scanMenu — 줄이기가 실패해도 보낸다', () => {
   it('로그인 안 했으면 보내지 않는다', async () => {
     resize.resizeForUpload.mockResolvedValue({ uri: 'file:///small.jpg', width: 800, height: 600 });
 
-    const result = await scanMenu('file:///orig.jpg', null, tx);
+    const result = await scanMenu('file:///orig.jpg', null, tx, 'ko');
 
     expect(api.apiRequest).not.toHaveBeenCalled();
     expect(result).toEqual({ state: 'error', message: '로그인한 뒤에 쓸 수 있어요.' });
@@ -72,7 +72,7 @@ describe('scanMenu — 줄이기가 실패해도 보낸다', () => {
     resize.resizeForUpload.mockRejectedValue(new Error('out of memory'));
     api.apiRequest.mockRejectedValue(new api.ApiClientError(413));
 
-    const result = await scanMenu('file:///huge.jpg', 'token', tx);
+    const result = await scanMenu('file:///huge.jpg', 'token', tx, 'ko');
 
     expect(result).toEqual({ state: 'error', message: '사진이 너무 커요. 더 작게 찍어 주세요.' });
   });
