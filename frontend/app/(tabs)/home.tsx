@@ -110,7 +110,7 @@ export default function Home() {
       children: value.children,
       travelers: value.adults + value.children,
     });
-    router.push('/plan/basic');
+    router.push('/plan');
   };
 
   if (desktop) return <Redirect href="/" />;

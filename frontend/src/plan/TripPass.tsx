@@ -177,11 +177,20 @@ export function TripPass({ data, wide = false, onReprint, tx }: TripPassProps) {
             </View>
 
             <View style={styles.legRow}>
-              <View style={styles.legEnd}>
-                <Text variant="caption" color={color.text.body}>{tx('출발', 'From')}</Text>
-                <Text variant="display" weight="bold" numberOfLines={1}>{data.fromLabel || tx('부산', 'Busan')}</Text>
-                {!!data.startTime && <Text variant="caption" color={color.text.body}>{data.startTime}</Text>}
-              </View>
+              {/* 🔴 출발지를 모를 때 「부산」으로 채우지 않는다. 그러면 티켓이
+                  「부산 → 부산」이 되어 사람이 고장으로 읽는다. 모르면 칸을 접는다. */}
+              {data.fromLabel ? (
+                <View style={styles.legEnd}>
+                  <Text variant="caption" color={color.text.body}>{tx('출발', 'From')}</Text>
+                  <Text variant="display" weight="bold" numberOfLines={1}>{data.fromLabel}</Text>
+                  {!!data.startTime && <Text variant="caption" color={color.text.body}>{data.startTime}</Text>}
+                </View>
+              ) : (
+                <View style={styles.legEnd}>
+                  <Text variant="caption" color={color.text.body}>{tx('출발 시각', 'Departs')}</Text>
+                  <Text variant="display" weight="bold" numberOfLines={1}>{data.startTime || '—'}</Text>
+                </View>
+              )}
               <View style={styles.legMiddle}>
                 <View style={styles.dashed} />
                 <PlaneIcon />
