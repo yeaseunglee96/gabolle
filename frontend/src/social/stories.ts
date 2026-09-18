@@ -190,6 +190,16 @@ export async function createStory(input: {
    * 없으면 지금까지처럼 원글이다. 서버의 StoryCreateRequest 가 같은 이름의 칸을 받는다.
    */
   parentStoryId?: string;
+  /**
+   * 붙일 동영상의 주소 — 먼저 동영상 창구로 올려 받은 그 값이다.
+   *
+   * 🔴 **한 기록에 하나**다. 안 보내면 동영상 없는 기록이고 그게 대부분이다.
+   * 🔴 **사진 3장과 자리를 다투지 않는다** — 서버가 따로 보관한다.
+   *
+   * 썸네일은 안 보낸다. 서버가 **없어도 된다**고 정해 두었고, 앱이 아직 썸네일을
+   * 만들지 않는다 — 「동영상은 있고 썸네일만 없다」가 정상 상태다.
+   */
+  videoUrl?: string;
   accessToken: string | null;
 }): Promise<StoryMutationResult> {
   try {
@@ -205,6 +215,7 @@ export async function createStory(input: {
         tripId: input.tripId,
         publishAt: input.publishAt,
         parentStoryId: input.parentStoryId,
+        videoUrl: input.videoUrl,
       },
     }));
     return { state: 'success', story };
