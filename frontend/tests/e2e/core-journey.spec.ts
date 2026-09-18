@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-// 핵심 흐름 — 로그인 → 여행 기본정보 입력 → 추천 요청. S15P21E201-775.
+// 핵심 흐름 — 로그인 → 여행 조건 → 추천 요청. S15P21E201-775.
 //
 // 지금까지의 스모크(tools/smoke-check.mjs)는 "화면에 글자가 그려졌는가·콘솔에
 // 에러가 없는가"만 봤다(S15P21E201-252 재발 방지용) — 로그인 → 여행 만들기 →
@@ -11,12 +11,16 @@ import { expect, test } from '@playwright/test';
 // FunctionalJourneyTest(S15P21E201-779)와 같은 지름길(가입 API + DB에서 직접
 // email_verified_at 채우기)을 쓴다.
 //
-// 데스크톱 뷰포트(플레이라이트 기본값)에서는 이 앱의 여행 만들기 마법사가
-// 4화면(기본정보 → 취향 → 제약조건 → 최종확인)을 스크롤 한 페이지에 전부 펼쳐
-// 보여준다("kind === 'tablet'" 레이아웃) — 모바일 폭에서만 쓰는 단계별 페이지
-// 넘김(panelIndex)을 다룰 필요가 없다. 화면비별 레이아웃 분기는 src/layout/useLayout.ts
-// 참고.
-test('로그인 → 여행 기본정보 → 추천 요청까지 이어진다', async ({ page }) => {
+// 🔴 S15P21E201-1257 — S15P21E201-1233(여행 조건을 한 페이지로 합치기)이
+//    /plan/basic·/plan/taste·/plan/conditions·/plan/confirm 을 전부 /plan 으로
+//    보내는 얇은 리다이렉트로 바꿨다. 이 시험은 옛 다단계 URL 전환을 그대로
+//    기대하고 있었고, 그래서 front/dev 기반 모든 MR의 frontend:e2e 가 막혔다.
+//    아래는 새 흐름(홈 시작 바 → 여행 조건 모달 → /plan 질문 카드 한 페이지)이다.
+//
+// 데스크톱 뷰포트(플레이라이트 기본값 1280×720)는 isAtLeast(width, 'lg')가
+// true라 app/index.tsx의 데스크톱 분기("/")를 그대로 쓴다 — 폰 폭에서만 쓰는
+// PlanStartBar(wide=false)의 알약·탭 UI를 다룰 필요가 없다.
+test('로그인 → 여행 조건 → 추천 요청까지 이어진다', async ({ page }) => {
   const email = process.env.E2E_TEST_EMAIL;
   const password = process.env.E2E_TEST_PASSWORD;
   if (!email || !password) {
@@ -32,58 +36,65 @@ test('로그인 → 여행 기본정보 → 추천 요청까지 이어진다', a
   await page.getByRole('textbox', { name: '비밀번호' }).fill(password);
   await page.getByRole('button', { name: '로그인', exact: true }).click();
   // 로그인은 홈("/")으로 돌아간다 — "/home"이 아니다(app/index.tsx가 데스크톱
-  // 레이아웃에서 로그인 여부와 무관하게 이 경로 하나를 쓴다).
-  await expect(page.getByRole('button', { name: '여행 계획 시작하기' })).toBeVisible({ timeout: 10_000 });
+  // 레이아웃에서 로그인 여부와 무관하게 이 경로 하나를 쓴다). "여행 계획
+  // 시작하기" 단추는 S15P21E201-1245 에서 걷어냈다 — 시작 바가 그 자리를 대신한다.
+  await expect(page.getByRole('button', { name: '일정 물어보기' })).toBeVisible({ timeout: 10_000 });
 
-  // 2) 여행 기본정보 — 날짜·출발지·예산만 채우면 나머지(인원 1명, 이동수단
-  //    TRANSIT)는 기본값이 이미 유효하다(EMPTY_PLAN, src/plan/PlanProvider.tsx).
-  await page.goto('/plan/basic');
-  // 🔴 실측(2026-09-10) — PlanProvider가 저장된 초안을 AsyncStorage(웹에서는
-  // localStorage)에서 비동기로 불러온 뒤(hydration) 그 값으로 draft를 통째로 덮어쓴다.
-  // 이 흐름이 끝나기 전에 날짜를 채우면, 채운 값이 잠깐 보였다가(Playwright의
-  // inputValue()는 이때 값을 본다) hydration이 끝나며 사라진다(실제 DOM value는
-  // 빈 문자열로 되돌아간다) — "시작일을 YYYY-MM-DD 형식으로 입력해 주세요" 오류로
-  // 이어졌다. 짧게 기다려 hydration이 끝난 뒤에 채운다.
-  await page.waitForTimeout(1000);
-  const start = new Date();
-  start.setDate(start.getDate() + 14);
-  const end = new Date(start);
-  end.setDate(end.getDate() + 1);
-  const toIso = (date: Date) => date.toISOString().slice(0, 10);
+  // 1.5) 처음 로그인한 사람에게는 홈에 들어오자마자 여행 조건(알레르기·식단) 모달이
+  //      뜬다(conditionsPromptState.ts의 shouldPromptOnHome — 한 번도 안 물어본
+  //      사람은 상태가 null이다). 여기서 답해 두면 "일정 물어보기"를 눌러도 다시
+  //      안 묻는다 — shouldPromptBeforePlan이 'SAVED'는 다시 안 묻기 때문이다.
+  await expect(page.getByText('여행 조건 미리 알려주기')).toBeVisible({ timeout: 10_000 });
+  const noneChips = page.getByRole('checkbox', { name: '해당 없음' });
+  await noneChips.nth(0).click(); // 알레르기
+  await noneChips.nth(1).click(); // 식단
+  await page.getByRole('button', { name: '저장하고 시작' }).click();
 
-  await page.getByLabel('여행 시작일').fill(toIso(start));
-  await page.getByLabel('여행 종료일').fill(toIso(end));
+  // 2) 홈의 시작 바 — 출발지 · 날짜. 인원은 기본값 성인 2명이 이미 유효하다
+  //    (EMPTY_START_BAR, src/home/startBarValue.ts).
+  await page.getByRole('button', { name: '출발지', exact: false }).click();
+  // 추천 출발지는 검색어 없이도 MAJOR_BUSAN_ORIGINS 기본 목록이 뜬다 — 굳이 타이핑해서
+  // 서버 검색(searchOrigins)의 250ms 디바운스를 기다릴 필요가 없다.
+  await page.getByRole('button', { name: '부산역', exact: false }).click();
+  // 출발지를 고르면 pickOrigin이 곧바로 날짜 패널을 연다(section을 'dates'로 바꾼다) —
+  // "날짜" 세그먼트를 또 누르면 오히려 toggle()이 닫아 버리므로 누르지 않는다.
+  await page.getByRole('button', { name: '1박 2일', exact: true }).click();
 
-  await page.getByLabel('출발지').fill('부산역');
-  await expect(page.getByLabel(/출발지로 부산역 선택/)).toBeVisible({ timeout: 10_000 });
-  await page.getByLabel(/출발지로 부산역 선택/).first().click();
+  await page.getByRole('button', { name: '일정 물어보기', exact: true }).click();
 
-  // 예산 키패드에서 "+10만" 을 세 번 눌러 30만 원을 만든다 — 최소 1만 원 이상만
-  // 지키면 되므로 값 자체는 임의다(validateTripBasics, src/plan/tripBasics.ts).
-  await page.getByLabel('10만원 더하기').click();
-  await page.getByLabel('10만원 더하기').click();
-  await page.getByLabel('10만원 더하기').click();
+  // 3) 여행 조건 한 페이지 — 질문 카드 하나에 답하면 다음이 열린다
+  //    (app/(plan)/questions.tsx, src/plan/planQuestions.ts). 순서: 여행 범위 ·
+  //    총예산 · 하루 여행 시간/이동수단(이 셋은 필수) → 카테고리 · 기분 · 분위기 ·
+  //    로컬성/조용함/관광지 · 음식 · 이동 보조 · 꼭 가고 싶은 곳(이 일곱은 건너뛸 수 있다).
+  await expect(page).toHaveURL(/\/plan(\?|$)/);
 
+  // 여행 범위(필수) — 하나 이상 고른다.
+  await page.getByRole('checkbox', { name: '해운대', exact: true }).click();
   await page.getByRole('button', { name: '다음', exact: true }).click();
 
-  // 3) 취향 — 데스크톱 레이아웃의 "다음 단계" 버튼은 선택 여부와 무관하게 항상
-  //    눌린다(taste.tsx 247행, kind === 'tablet'). 아무것도 안 골라도 진행된다.
-  await expect(page).toHaveURL(/\/plan\/taste/);
-  await page.getByRole('button', { name: '다음 단계' }).click();
+  // 총예산(필수) — "+10만"을 한 번만 눌러도 0보다 커져 답한 것으로 본다.
+  await page.getByRole('button', { name: '+10만', exact: true }).click();
+  await page.getByRole('button', { name: '다음', exact: true }).click();
 
-  // 4) 제약조건 — 알레르기·식단 두 가지만 "해당 없음"으로 답하면 safetyReady다
-  //    (constraints.tsx). 그 외(이동 보조·이용 조건)는 선택 사항이다.
-  await expect(page).toHaveURL(/\/plan\/conditions/);
-  const noneButtons = page.getByRole('radio', { name: '해당 없음' });
-  await noneButtons.nth(0).click();
-  await noneButtons.nth(1).click();
-  await page.getByRole('button', { name: '최종 확인으로' }).click();
+  // 하루 여행 시간 · 이동수단(필수) — 이동수단만 고르면 답한 것으로 본다
+  // (시작/종료 시각은 answered() 조건에 없다).
+  await page.getByRole('checkbox', { name: '대중교통', exact: true }).click();
+  await page.getByRole('button', { name: '다음', exact: true }).click();
 
-  // 5) 최종 확인 → 추천 요청 제출. 서버 응답(추천 Job 접수)을 실제로 기다린다 —
-  //    이 클릭이 CoreJourneyFunctionalTest(S15P21E201-780)가 검증한
-  //    POST /api/v1/trips + POST .../recommendation-jobs를 실제로 부른다.
-  await expect(page).toHaveURL(/\/plan\/confirm/);
-  await page.getByRole('button', { name: '이 조건으로 일정 만들기' }).click();
+  // 나머지 여섯(카테고리 · 기분 · 분위기 · 로컬성 등 · 음식 · 이동 보조)은 전부
+  // 건너뛸 수 있다 — "건너뛰기"로 통과한다.
+  for (let i = 0; i < 6; i += 1) {
+    await page.getByRole('button', { name: '건너뛰기', exact: true }).click();
+  }
+  // 마지막 질문(꼭 가고 싶은 곳)은 "없음도 답"이라 언제나 답한 것으로 본다
+  // (planQuestions.ts의 must.answered === () => true) — "입력 완료"로 바로 넘어간다.
+  await page.getByRole('button', { name: '입력 완료', exact: true }).click();
+
+  // 4) 추천 요청 제출 — 알레르기·식단은 1.5단계에서 이미 답했으므로(hardUnknown이
+  //    false다) 여행 조건 모달이 다시 뜨지 않고 바로 제출된다. 이 클릭이
+  //    CoreJourneyFunctionalTest(S15P21E201-780)가 검증한 POST /api/v1/trips +
+  //    POST .../recommendation-jobs를 실제로 부른다.
+  await page.getByRole('button', { name: '이 조건으로 일정 만들기', exact: true }).click();
 
   // 🔴 완료 기준 — 추천 요청까지. 결과가 나올 때까지 기다리는 것은 이 흐름의
   //    책임이 아니다(그건 CoreJourneyFunctionalTest가 백엔드 쪽에서 이미 검증했다).
