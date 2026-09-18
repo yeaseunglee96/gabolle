@@ -122,8 +122,11 @@ function StoryCard({ story, compact, showUnfollow, unfollowBusy, saved, savingSt
   const title = story.place?.name ?? tx(`${story.author.displayName}의 기록`, `${story.author.displayName}'s record`);
 
   return <View style={[styles.card, compact ? styles.cardCompact : styles.cardInGrid]}>
-    <View style={styles.coverWrap}>
-      <StoryCover story={story} compact={compact} onOpen={onOpen} />
+    {/* 🔴 이름과 ⋯ 를 **사진 위에 얹지 않는다** (2026-09-18 실기기).
+        사진이 밝거나 사진 자체가 다른 화면의 캡처면 어디까지가 이름이고 어디부터
+        ⋯ 인지 구분이 안 됐다. 반투명 배경을 깔아도 사진에 흰 면이 많으면 그대로 묻힌다.
+        그래서 **사진 위쪽에 자기 줄**을 준다 — 배경 위에 서므로 항상 읽힌다. */}
+    <View style={styles.cardHead}>
 
       {/* 좌상단 작성자 알약 — 사진 위에 얹히므로 배경을 깔아 글자가 읽히게 한다. */}
       <Pressable
@@ -157,6 +160,9 @@ function StoryCard({ story, compact, showUnfollow, unfollowBusy, saved, savingSt
             </Pressable>
           : null}
       </View>
+    </View>
+    <View style={styles.coverWrap}>
+      <StoryCover story={story} compact={compact} onOpen={onOpen} />
     </View>
 
     <Pressable accessibilityRole="link" accessibilityLabel={tx('기록 자세히 보기', 'View record details')} onPress={onOpen} style={styles.cardBody}>
@@ -874,17 +880,15 @@ const styles = StyleSheet.create({
   dots: { position: 'absolute', left: 0, right: 0, bottom: spacing[3], flexDirection: 'row', justifyContent: 'center', gap: spacing[1] },
   dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: color.surface.card, opacity: 0.5 },
   dotFirst: { opacity: 1 },
+  // 🔴 사진 위가 아니라 **카드 맨 위 한 줄**이다. 반투명 배경이 필요 없어졌다.
+  cardHead: { minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[2], paddingHorizontal: spacing[3], paddingTop: spacing[3], paddingBottom: spacing[2] },
   authorPill: {
-    position: 'absolute', top: spacing[3], left: spacing[3],
+    flexShrink: 1,
     flexDirection: 'row', alignItems: 'center', gap: spacing[2],
-    maxWidth: '70%', minHeight: 32, paddingVertical: spacing[1], paddingHorizontal: spacing[2],
-    borderRadius: radius.full,
-    // 사진 위에 얹히므로 반투명 배경을 깐다. 안 깔면 밝은 사진에서 이름이 사라진다 —
-    // 오늘 상태바에서 겪은 것과 같은 종류다.
-    backgroundColor: 'rgba(255,253,248,0.92)',
+    minHeight: 32, paddingVertical: spacing[1], borderRadius: radius.full,
   },
   authorPillAvatar: { width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: color.brand.navy },
-  coverActions: { position: 'absolute', top: spacing[3], right: spacing[3], flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
+  coverActions: { flexShrink: 0, flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
   cardBody: { gap: spacing[1], padding: spacing[4] },
   reactionRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[4], paddingHorizontal: spacing[4], paddingBottom: spacing[3], marginTop: -spacing[2] },
   reactionButton: { minHeight: 44, justifyContent: 'center' },
