@@ -44,7 +44,15 @@ public class MenuScanProperties {
 	 */
 	private String model = "gpt-4.1-mini";
 
-	private Duration connectTimeout = Duration.ofSeconds(3);
+	/**
+	 * 중계에 연결이 붙기까지 기다리는 시간.
+	 *
+	 * <p>🔴 <b>3초에서 2초로 줄였다 — S15P21E201-1271.</b> 전체 예산(연결 + 읽기)은 11초
+	 * 그대로이고, <b>몫을 옮긴 것</b>이다. 이름·가격·이름번역을 함께 받게 되면서 읽는 쪽이
+	 * 길어졌는데(4.56초 → 최대 6.89초, 음식 8줄 메뉴판 실측), 연결은 이름이 이미 풀린
+	 * 같은 중계라 2초면 넉넉하다. 느린 것은 연결이 아니라 <b>모델이 생각하는 시간</b>이다.
+	 */
+	private Duration connectTimeout = Duration.ofSeconds(2);
 
 	/**
 	 * 바깥 모델을 기다리는 시간 — S15P21E201-1083.
@@ -62,7 +70,7 @@ public class MenuScanProperties {
 	 * <p>8초가 실제 메뉴판 사진에 충분한지는 <b>아직 안 재 봤다.</b> 운영에 열쇠가 들어간 뒤
 	 * 실제 응답 시간을 재서 조정한다.
 	 */
-	private Duration readTimeout = Duration.ofSeconds(8);
+	private Duration readTimeout = Duration.ofSeconds(9);
 
 	/**
 	 * 받을 수 있는 사진 크기.

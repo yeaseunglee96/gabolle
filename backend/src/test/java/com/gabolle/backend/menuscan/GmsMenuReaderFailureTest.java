@@ -221,6 +221,7 @@ class GmsMenuReaderFailureTest {
 	void nameAndPriceRideThrough() throws Exception {
 		GmsMenuReader.Result result = readWithModelAnswering("""
 				{"lines":[{"text":"돼지국밥 9,000원","name":"돼지국밥","price":"9,000원",
+				"translatedName":"Pork and rice soup",
 				"translatedText":"Pork and rice soup 9,000 won","allergenWords":["돼지고기"]}],
 				"unreadLineCount":0}
 				""");
@@ -228,6 +229,7 @@ class GmsMenuReaderFailureTest {
 		assertThat(result.lines()).singleElement().satisfies((line) -> {
 			assertThat(line.name()).isEqualTo("돼지국밥");
 			assertThat(line.price()).isEqualTo("9,000원");
+			assertThat(line.translatedName()).isEqualTo("Pork and rice soup");
 			assertThat(line.text()).isEqualTo("돼지국밥 9,000원");
 		});
 	}
@@ -250,6 +252,7 @@ class GmsMenuReaderFailureTest {
 		assertThat(result.lines()).singleElement().satisfies((line) -> {
 			assertThat(line.name()).isEmpty();
 			assertThat(line.price()).isEmpty();
+			assertThat(line.translatedName()).isEmpty();
 			// 번역은 반대로 원문으로 물러선다 — 그쪽은 빈 칸보다 원문이 낫다
 			assertThat(line.translatedText()).isEqualTo("※ All menus include a bowl of rice");
 		});
