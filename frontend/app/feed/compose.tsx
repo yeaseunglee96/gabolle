@@ -63,7 +63,7 @@ export default function ComposeStory() {
   }, [body, region, visibility, publishTiming]);
 
   // 사진은 공용 훅이 맡는다 — 피드의 인라인 글쓰기와 같은 코드를 쓴다
-  //  줄이기·3MB 판정·재시도 규칙이 두 벌이 되지 않게 하려고.
+  // 줄이기·3MB 판정·재시도 규칙이 두 벌이 되지 않게 하려고.
   const { images, addImage, retryImage, removeImage, anyUploading, uploadedUrls, canAddMore } = useStoryImages(accessToken, tx);
 
   const bodyValid = body.trim().length >= 1 && body.trim().length <= BODY_MAX;
@@ -205,7 +205,7 @@ const styles = StyleSheet.create({
   previewBox: { marginTop: spacing[1], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.soft },
   label: { marginTop: spacing[6], marginBottom: spacing[2] },
   imageGrid: { marginTop: spacing[2] },
-  // 배치에 빈 칸을 끼울 자리가 없어 「사진 추가」를 아래로 내렸다
+  // 배치에 빈 칸을 끼울 자리가 없어 「사진 추가」를 아래로 내렸다.
   imageAddRow: { minHeight: 44, marginTop: spacing[2], alignItems: 'center', justifyContent: 'center', borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.border, borderStyle: 'dashed' },
   imageOverlay: { ...StyleSheet.absoluteFill, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(11,29,58,0.55)' },
   // 사유는 사진 위에 얹히므로 좁다. 줄바꿈을 허용하고 가운데로 모은다.

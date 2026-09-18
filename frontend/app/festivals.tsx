@@ -92,7 +92,7 @@ export default function Festivals() {
     )}
     {state === 'ready' && sorted.length > 0 && <View style={styles.grid}>{sorted.map((festival) => {
       // 사진이 그 축제를 찍은 것이 아닐 수 있다 — 대부분은 열리는 장소 사진이다.
-      // 그대로 두면 「이 축제가 이렇게 생겼구나」로 읽힌다
+      // 그대로 두면 「이 축제가 이렇게 생겼구나」로 읽힌다.
       const photo = photoLabels(festival, tx);
       return <View key={festival.placeId} style={[styles.card, isAtLeast(width, 'md') && styles.cardWide]}>
         {festival.photoUrl ? <View>

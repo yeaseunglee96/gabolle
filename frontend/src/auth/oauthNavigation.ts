@@ -17,7 +17,7 @@ export async function navigateAfterOAuthComplete(input: {
   const { result, provider, returnTo, router, acceptTokens } = input;
   if (result.status === 'LOGGED_IN') {
     await acceptTokens(result);
-    // 쌓인 로그인 화면을 치우고 간다 소셜 로그인은 착지하면서
+    // 쌓인 로그인 화면을 치우고 간다. 소셜 로그인은 착지하면서
     // 화면이 한 칸 더 쌓이는 판이 있어 여기가 특히 중요하다.
     enterApp(router, (await resolveDestination(returnTo)) as Href);
   } else if (result.status === 'SIGNUP_REQUIRED') {

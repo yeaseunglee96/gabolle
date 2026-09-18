@@ -284,7 +284,7 @@ const styles = StyleSheet.create({
   heroCopy: { gap: spacing[1], padding: spacing[4] },
   subjectBadge: { marginTop: spacing[2] },
   scoreBadge: { alignSelf: 'flex-start', marginTop: spacing[2], borderRadius: radius.full, paddingHorizontal: spacing[3], paddingVertical: spacing[1], backgroundColor: 'rgba(255,255,255,0.18)' },
-  // opacity 0.8 을 뽑았다 이 줄은 공공누리 이용 조건이라
+  // opacity 0.8 을 뽑았다. 이 줄은 공공누리 이용 조건이라
   // 읽힐 수 있어야 한다 — 지켜야 하는 표기를 일부러 흐리게 할 이유가 없다.
   photoCredit: { marginTop: spacing[1] },
   infoRows: { marginTop: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card, overflow: 'hidden' },

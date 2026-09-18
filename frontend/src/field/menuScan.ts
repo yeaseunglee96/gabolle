@@ -1,4 +1,4 @@
-// 메뉴판 촬영 — 사진을 서버로 보내 글자를 읽는다 스토리 -86).
+// 메뉴판 촬영 — 사진을 서버로 보내 글자를 읽는다 (스토리 -86).
 import { apiRequest, ApiClientError, ApiUnavailableError } from '@/api/client';
 import { singleFileFormData } from '@/api/multipart';
 import type { LanguageCode } from '@/i18n/languages';

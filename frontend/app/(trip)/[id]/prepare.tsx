@@ -169,7 +169,7 @@ function TripSummaryCard({ tripId, title, visitCount, photoUrl }: { tripId: stri
   );
 }
 
-// 여행 식별자가 없으면 서버를 아예 안 부른다
+// 여행 식별자가 없으면 서버를 아예 안 부른다.
 export default function Prepare() {
   const { id } = useLocalSearchParams<{ id: string }>();
   return id ? <PrepareForTrip tripId={id} /> : <SelectTripFirst />;

@@ -129,7 +129,7 @@ export default function UserProfile() {
       ) : null}
 
       {/* 차단당한 쪽이 보는 화면. 빈 화면도 404 도 아니다 — 없는 사람으로 만들면 실수로
-          눌렀을 때 상대가 계정이 사라졌다고 오해하고 되돌릴 길이 막힌다
+          눌렀을 때 상대가 계정이 사라졌다고 오해하고 되돌릴 길이 막힌다
       */}
       {state.status === 'loaded' && state.profile.blockedByUser ? (
         <View accessibilityRole="alert" style={styles.stateCard}>

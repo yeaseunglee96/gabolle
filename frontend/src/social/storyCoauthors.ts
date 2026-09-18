@@ -31,7 +31,7 @@ export async function createStoryInvite(storyId: string, accessToken: string | n
 }
 
 // 서버 응답(AcceptStoryInviteResponse): alreadyJoined가 true면 이번 호출로 새로 합류한 게
-// 아니다(이미 참여 중 만든 사람이 자기 링크를 눌렀다 동시에 두 번 눌러 진 쪽) — 셋 다
+// 아니다(이미 참여 중 · 만든 사람이 자기 링크를 눌렀다 · 동시에 두 번 눌러 진 쪽) — 셋 다
 // 실패가 아니라 성공으로 다룬다(서버가 이미 그렇게 답한다).
 export type AcceptStoryInviteOutcome = { state: 'success'; storyId: string; alreadyJoined: boolean } | { state: 'expired' } | { state: 'not-found' } | { state: 'error'; message: string };
 

@@ -1,4 +1,4 @@
-// 온보딩 세 질문 — 오는 교통·숙소·식사 docs/COLDSTART-THREE-QUESTIONS.md).
+// 온보딩 세 질문 — 오는 교통·숙소·식사 (docs/COLDSTART-THREE-QUESTIONS.md).
 // 계정(USER) 첫 실행에서만 쓴다 — 여행(TRIP) 조건 입력 쪽 재사용은 별도 티켓 범위다.
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';

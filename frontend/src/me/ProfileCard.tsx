@@ -1,4 +1,4 @@
-// 마이페이지 프로필 카드 — 커버 사진 위에 아바타가 걸쳐 앉는다
+// 마이페이지 프로필 카드 — 커버 사진 위에 아바타가 걸쳐 앉는다.
 // 시안: docs/design_handoff_mypage/MyPage.dc.html
 import { Image, Pressable, StyleSheet, View } from 'react-native';
 

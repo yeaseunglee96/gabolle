@@ -9,7 +9,7 @@ import { useI18n } from '@/i18n';
 import { Text } from '@/components/Text';
 import { TAB_BAR_HEIGHT } from '@/components/TabBar';
 
-/** 배너를 띄우기 전에 기다리는 시간 */
+/** 배너를 띄우기 전에 기다리는 시간 */
 export const SHOW_AFTER_MS = 4000;
 
 /** 끊긴 상태가 {@link SHOW_AFTER_MS} 만큼 이어질 때만 참을 알린다. 다시 붙으면 즉시 거짓을 알린다. */
@@ -66,7 +66,7 @@ export function ApiAvailabilityBanner() {
   );
 }
 
-/** 배너를 화면 아래 어디에 띄우나 */
+/** 배너를 화면 아래 어디에 띄우나 */
 /** 홈의 AI 도우미 버튼이 차지하는 높이 (bottom 100 + 높이 68). 이 위로 띄운다. */
 const ASSISTANT_BUTTON_TOP = 168;
 

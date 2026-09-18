@@ -6,7 +6,7 @@ import {
   updateTripTitle,
 } from '../tripNaming';
 
-// 여행 이름 짓기 연결 층
+// 여행 이름 짓기 연결 층.
 
 type Call = { url: string; method: string; body: unknown };
 let calls: Call[] = [];

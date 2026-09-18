@@ -1,6 +1,6 @@
 import { MAX_SHOWN_SUGGESTIONS, planNameStep } from '../tripNaming';
 
-// 이름 짓기 화면이 어느 자리에 서는가 시안 `design_handoff_trip_name`.
+// 이름 짓기 화면이 어느 자리에 서는가. 시안 `design_handoff_trip_name`.
 
 const success = (suggestions: string[], source = 'MODEL', discardedCount = 0) =>
   ({ state: 'success' as const, suggestions, source, discardedCount });

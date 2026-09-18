@@ -42,7 +42,7 @@ import { useI18n } from '@/i18n';
 import { describeWarningCodes } from '@/plan/warningLabels';
 import { ExcludeConfirmModal } from '@/components/ExcludeConfirmModal';
 
-// 경고 문구는 src/plan/warningLabels.ts 로 옮겼다 — 시험이 붙들게 하려고
+// 경고 문구는 src/plan/warningLabels.ts 로 옮겼다 — 시험이 붙들게 하려고.
 
 // 영업시간 경고/-858) — 편집 다섯 갈래 중 넷(더하기 제외, 재계산은 비동기라
 // 이 응답에 못 싣는다)이 warnings·notChecked를 함께 돌려준다. 되돌리기는 여러 날에 걸친
@@ -114,7 +114,7 @@ function RouteStrip({ items, times, tx }: { items: ItineraryItemDto[]; times: st
   </ScrollView>;
 }
 
-// 정차 한 칸 — 시안 design_handoff_itinerary 2.5(넓은 화면) 3.3(폰).
+// 정차 한 칸 — 시안 design_handoff_itinerary 2.5(넓은 화면) · 3.3(폰).
 function StopRow({ item, index, isLast, displayTime, wide, expanded, onToggleExpand, canEdit, lockBusy, excludeBusy, dayBusy, onLock, onExclude, reorderMode, canMoveUp, canMoveDown, moveBusy, onMoveUp, onMoveDown, pace, estimated, actualBusy, onRecordArrival, onRecordDeparture, accessToken }: { item: ItineraryItemDto; index: number; isLast: boolean; displayTime: string; wide: boolean; expanded: boolean; onToggleExpand: () => void; canEdit: boolean; lockBusy: boolean; excludeBusy: boolean; dayBusy: boolean; onLock: () => void; onExclude: () => void; reorderMode: boolean; canMoveUp: boolean; canMoveDown: boolean; moveBusy: boolean; onMoveUp: () => void; onMoveDown: () => void; pace?: ItineraryPaceItemDto; estimated?: boolean; actualBusy?: boolean; onRecordArrival?: () => void; onRecordDeparture?: () => void; accessToken: string | null }) {
   const { tx } = useI18n();
   const disabled = !canEdit || lockBusy || excludeBusy || dayBusy;
@@ -273,7 +273,7 @@ export default function ItineraryScreen() {
   const reload = useCallback(async () => {
     if (!itineraryId) return;
     setLoading(true); setConflict(null); setActionMessage(null);
-    // 내가 무엇이든 했으면 동기화를 다시 촘촘하게 본다
+    // 내가 무엇이든 했으면 동기화를 다시 촘촘하게 본다.
     pollDelayRef.current = SYNC_POLL_BASE_MS;
     const next = await loadItinerary(itineraryId, accessToken);
     setResult(next); setLoading(false);
@@ -368,7 +368,7 @@ export default function ItineraryScreen() {
   const dayTravelMinutes = useMemo(() => totalTravelMinutes(displayedItems), [displayedItems]);
   // 값이 없는 칸을 0 으로 세지 않는다. 자료가 있는 칸만 더하므로 이 합계는 「적어도 이만큼」이다.
   const dayWalkingMeters = useMemo(() => displayedItems.reduce((sum, item) => sum + (item.walkingMeters ?? 0), 0), [displayedItems]);
-  // 비용 합계는 아는 칸이 몇 개인지 같이 말한다
+  // 비용 합계는 아는 칸이 몇 개인지 같이 말한다.
   const dayCost = useMemo(() => {
     const known = displayedItems.filter((item) => typeof item.estimatedCostKrw === 'number');
     return { krw: known.reduce((sum, item) => sum + (item.estimatedCostKrw as number), 0), known: known.length, total: displayedItems.length };
@@ -579,7 +579,7 @@ export default function ItineraryScreen() {
     <View style={styles.hero}>
       <View style={styles.heroTop}>
         <Pressable accessibilityRole="button" accessibilityLabel={tx('뒤로 가기', 'Go back')} onPress={() => router.canGoBack() ? router.back() : router.replace('/home')} style={styles.heroBack}><Text variant="title" color={color.text.onAction}>‹</Text></Pressable>
-        {/* 「초안 v1 기본 추천」 배지를 뺐다 우리가 아는 것을 그대로
+        {/* 「초안 v1 · 기본 추천」 배지를 뺐다. 우리가 아는 것을 그대로
             내보인 말이지 사용자가 알아야 할 것이 아니었다 — 「초안」은 이미 저장된 여행에
             대고 아직 안 끝났다고 말하고, 「v1」은 편집할 때마다 올라가 불안만 주고
             「기본 추천」(fallbackMode=BASELINE)은 좋은 건지 나쁜 건지 알 수 없다.
@@ -606,7 +606,7 @@ export default function ItineraryScreen() {
           <Text variant="caption" weight="bold" color={color.text.onAction}>{tx('추천 다시 보기', 'See recommendations')}</Text>
         </Pressable> : null}
       </View> : null}
-      {/* 일차 탭은 헤더에 붙어 있다 (시안 2.3 3.1) — 탭이 헤더에서 떨어져 있으면
+      {/* 일차 탭은 헤더에 붙어 있다 (시안 2.3 · 3.1) — 탭이 헤더에서 떨어져 있으면
           어느 날을 보고 있는지가 제목과 따로 놀아서, 스크롤을 내리면 둘 다 안 보인다.
           하루짜리 여행에는 고를 것이 없으므로 안 그린다.
       */}
@@ -688,7 +688,7 @@ export default function ItineraryScreen() {
             <View style={wide ? styles.timelineColumn : undefined}>
               <View style={styles.route}>{displayedItems.map((item, index) => <StopRow key={item.id} item={item} index={index} isLast={index === displayedItems.length - 1} displayTime={slotTimes[index] ?? item.startsAt} wide={wide} expanded={expandedItemId === item.id} onToggleExpand={() => setExpandedItemId((current) => current === item.id ? null : item.id)} canEdit={canEdit} lockBusy={busyItemId === item.id} excludeBusy={excludingItemId === item.id} dayBusy={dayActionBusy || excludingItemId !== null} onLock={() => void toggleLock(item)} onExclude={() => setExcludeConfirming(item)} reorderMode={reorderMode} canMoveUp={index > 0 && !item.locked && !displayedItems[index - 1].locked} canMoveDown={index < displayedItems.length - 1 && !item.locked && !displayedItems[index + 1].locked} moveBusy={reorderBusy} onMoveUp={() => moveDraftItem(index, -1)} onMoveDown={() => moveDraftItem(index, 1)} pace={paceByItemId.get(item.id)} estimated={paceEstimated} actualBusy={actualBusyItemId === item.id} onRecordArrival={() => void recordArrival(item)} onRecordDeparture={() => void recordDeparture(item)} accessToken={accessToken} />)}</View>
             </View>
-            {/* 이동 요약 — 시안 p6 의 3칸(장소 이동 합계 수단). 폰에도 둔다
+            {/* 이동 요약 — 시안 p6 의 3칸(장소 · 이동 합계 · 수단). 폰에도 둔다
                 「이 하루가 얼마나 걷는 하루인가」는 정차를 하나씩 봐서는 안 나오는 값이다.
             */}
             <View style={wide ? styles.aside : undefined}>
@@ -766,7 +766,7 @@ const styles = StyleSheet.create({ shell: { flex: 1, backgroundColor: color.bran
   heroGhost: { minHeight: 36, paddingHorizontal: spacing[3], borderRadius: radius.full, borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.4)', alignItems: 'center', justifyContent: 'center' },
   heroTitle: { marginTop: spacing[2] },
   // 탭은 헤더 바닥에 붙는다 — 위쪽만 둥글고 아래는 각져서 헤더와 한 덩이로 보인다.
-  // 지도·추천으로 가는 문 일차 탭과 같은 반투명 흰색이라 헤더와 한 덩이로
+  // 지도·추천으로 가는 문. 일차 탭과 같은 반투명 흰색이라 헤더와 한 덩이로
   // 보이고, 탭보다 위에 놓아 「어느 날을 보나」와 「어디로 가나」가 안 섞인다.
   heroActions: { flexDirection: 'row', gap: spacing[2], marginTop: spacing[3], flexWrap: 'wrap' },
   heroAction: { minHeight: 44, paddingHorizontal: spacing[3], justifyContent: 'center', borderRadius: radius.md, backgroundColor: 'rgba(255, 255, 255, 0.16)' },
@@ -802,7 +802,7 @@ const styles = StyleSheet.create({ shell: { flex: 1, backgroundColor: color.bran
   reorderBar: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: spacing[2], marginTop: spacing[3], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.soft },
   // 하단 고정 줄 — 탭바 위에 형제로 놓는다. absolute 로 띄우면 목록 끝이 그만큼 가린다.
   bottomBar: { paddingHorizontal: gutter, paddingBottom: spacing[2] },
-  // 정차별 도보 비중 (시안 2.5 3.4)
+  // 정차별 도보 비중 (시안 2.5 · 3.4)
   shareBar: { flexDirection: 'row', gap: 2, height: 6, borderRadius: radius.full, overflow: 'hidden' },
   shareSlice: { backgroundColor: color.brand.orange, borderRadius: radius.full },
 

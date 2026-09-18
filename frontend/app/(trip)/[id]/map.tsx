@@ -289,7 +289,7 @@ export default function Map() {
       {widthTier(width) === 'sm' ? <LayerControls /> : null}
 
       {/* 3D 도시로 가는 문. 웹 지도가 살아 있든 죽어 있든, 앱이든 웹이든 여기서 열린다.
-          3D 화면은 웹 페이지 한 장이라 앱에 새 부품을 하나도 안 깐다
+          3D 화면은 웹 페이지 한 장이라 앱에 새 부품을 하나도 안 깐다
       */}
       <Card tinted style={styles.city3dCard}>
         <Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx('가보기 전에', 'Before you go')}</Text>

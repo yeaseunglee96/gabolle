@@ -1,5 +1,5 @@
 // 이 시험이 지키는 것은 「화면 안에서 로그인을 누르면, 로그인에 성공한 뒤 그 화면으로
-// 돌아온다」다
+// 돌아온다」다.
 declare const require: (id: string) => any;
 declare const __dirname: string;
 

@@ -34,10 +34,10 @@ const FLAG_IMAGES: Record<LanguageCode, ReturnType<typeof require>> = {
   'zh-Hans': require('../assets/flags/cn.png'),
   'zh-Hant': require('../assets/flags/tw.png'),
 };
-// 언어 목록은 src/i18n/languages.ts 한 곳에 있다 여기 다시 적으면
+// 언어 목록은 src/i18n/languages.ts 한 곳에 있다. 여기 다시 적으면
 // 언어를 늘릴 때 한쪽만 늘어난다.
-// 「특별한 기능」 카드 셋(AI 일정 만들기 실시간 경로 안내 함께 여행 설계)은 뺐다
-//  로그인해도 안 바뀌는 소개였고, 그 자리에 실제 데이터인 장소와 내 여행이
+// 「특별한 기능」 카드 셋(AI 일정 만들기 · 실시간 경로 안내 · 함께 여행 설계)은 뺐다
+// 로그인해도 안 바뀌는 소개였고, 그 자리에 실제 데이터인 장소와 내 여행이
 // 들어왔다. 되살릴 일이 있으면 git 이력에 그대로 있다.
 
 // 부산 시간대별로 로고 밝기를 고르느라 기기의 로컬 타임존이 아니라 Asia/Seoul 시각을 쓴다
@@ -108,7 +108,7 @@ export default function Welcome() {
     setConditions({ open: false, reprompt: false, pending: null });
     if (outcome !== 'DISMISSED') {
       const next = outcome === 'SAVED' ? 'SAVED' : outcome === 'NEVER' ? 'NEVER' : 'LATER';
-      // 값을 실제로 적는 것은 모달이다 여기서 상태만 따로
+      // 값을 실제로 적는 것은 모달이다. 여기서 상태만 따로
       // 적던 것이 사고였다 — 「물어봤다」는 기록만 남고 답은 아무 데도 안 남았다.
       setPromptState(next);
     }
@@ -146,12 +146,12 @@ export default function Welcome() {
   return <View style={styles.webShell}><ScrollView style={styles.webScreen} contentContainerStyle={styles.webContent}>
     <StatusBar style="dark" />
     {/* 상단 바는 이 파일에 없다. 앱 뼈대(app/_layout.tsx)가 모든 화면에 한 번만 붙인다
-         전에는 이 파일 안에 내비가 하나 더 박혀 있어서 내비가 두 벌이었고
-        그래서 랜딩만 옛 모양(72px 가운데 정렬 작은 글자 활성 표식 없음)으로 남아
+         전에는 이 파일 안에 내비가 하나 더 박혀 있어서 내비가 두 벌이었고
+        그래서 랜딩만 옛 모양(72px · 가운데 정렬 · 작은 글자 · 활성 표식 없음)으로 남아
         확정안 2c 가 안 먹었다(-970). 그 뒤 한 벌로 합쳤지만 붙이는 자리는 여전히 화면마다
         손으로 정했고, 그래서 이번엔 바가 아예 없는 화면이 50개 넘게 생겼다(-994).
     */}
-    {/* 배경 사진을 되살린다 시안 1a 를 옮기면서 오른쪽 영상을 기록 카드로
+    {/* 배경 사진을 되살린다. 시안 1a 를 옮기면서 오른쪽 영상을 기록 카드로
         바꿨는데, 그때 배경까지 통째로 걷어내서 네이비 단색 판이 됐다. 사진은 남기되 글자가
         읽히도록 네이비를 덮는다 — 덮개가 없으면 흰 글자가 하늘·물빛 위에서 안 읽힌다.
     */}
@@ -178,7 +178,7 @@ export default function Welcome() {
     </View>
 
     {/* 시안의 내용 줄 — 전폭으로 쌓는다. 히어로 오른쪽에 끼워 넣지 않는다.
-        로그인 안 해도 남의 기록이 보인다 진미리).
+        로그인 안 해도 남의 기록이 보인다 (진미리).
     */}
     <View style={styles.rows}>
       <HeroStories stories={home.stories} chips={home.chips} />
@@ -213,7 +213,7 @@ export default function Welcome() {
  * 그 언어로 쓴 이름(endonym)을 작게 같이 적는다 — 그 한 줄이 정체를 한 번 더 말해준다.
  */
 function LanguageFlag({ item, selected, onPress }: { item: LanguageOption; selected: boolean; onPress: () => void }) {
-  // 언어 버튼은 code 로 찾는다 라벨(한국어·日本語…)로 찾으면
+  // 언어 버튼은 code 로 찾는다. 라벨(한국어·日本語…)로 찾으면
   // 고르려는 언어가 곧 찾을 이름이라 자동화가 닭과 달걀에 빠진다.
   return <Pressable testID={`lang-${item.code}`} accessibilityRole="radio" accessibilityState={{ selected }} accessibilityLabel={item.englishName === item.endonym ? item.endonym : `${item.endonym} · ${item.englishName}`} onPress={onPress} style={styles.languageFlagItem}>
     {({ pressed }) => <>
@@ -254,7 +254,7 @@ const styles = StyleSheet.create({
   localeButton: { minWidth: 38, height: 38, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: '#f6efe6' }, loginButton: { minWidth: 76, minHeight: 38, borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing[4] }, signupButton: { minWidth: 82, minHeight: 38, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing[4], backgroundColor: color.brand.navy },
   // 남는 공간이 없을 때는 아무 일도 안 한다 — 그래서 로그아웃 화면은 지금과 똑같다.
   // 「특별한 기능」 카드 셋이 있던 자리다. 로그인해도 내용이 안 바뀌는 소개였고, 그 자리에
-  // 장소와 내 여행이 들어왔다
+  // 장소와 내 여행이 들어왔다.
   lowerSection: { gap: 40, paddingHorizontal: 80, paddingTop: 8, paddingBottom: 64, maxWidth: 1200, width: '100%', alignSelf: 'center' },
   // 시안 p0 의 머리 — 아이보리 바탕에 가운데 정렬. 본문 폭은 1200 이다.
   headerSection: { width: '100%', backgroundColor: color.brand.ivory, paddingTop: 56, paddingBottom: 32, paddingHorizontal: 40, alignItems: 'center' },

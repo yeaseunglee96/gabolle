@@ -23,7 +23,7 @@ export type TripSummaryDto = {
   updatedAt: string;
 };
 
-/** 여행 카드에 그릴 제목 */
+/** 여행 카드에 그릴 제목 */
 export function tripDisplayTitle(trip: Pick<TripSummaryDto, 'title'>, fallback: string) {
   return trip.title?.trim() || fallback;
 }
@@ -44,7 +44,7 @@ export type TripsLoadResult = { state: 'success'; trips: TripSummaryDto[] } | Tr
 // 서버는 봉투의 `data` 에 목록을 배열 그대로 싣는다 — `{ trips: [...] }` 가 아니다
 // (`ApiResponse<List<TripSummaryResponse>>`). 이 자리가 한때 `dto.trips` 를 읽어 undefined 를
 // 목록으로 넘겼고, 화면이 그 개수를 세다 죽어 안전망 화면("화면을 불러오지 못했어요")이 떴다
-//  여행이 없는 계정에서 먼저 눈에 띄었지만 있으나 없으나 같았다.
+// 여행이 없는 계정에서 먼저 눈에 띄었지만 있으나 없으나 같았다.
 // 같은 저장소의 일정 버전 목록(`plan/itinerary.ts`)은 처음부터 배열로 받고 있었다.
 export async function loadTrips(accessToken: string | null): Promise<TripsLoadResult> {
   try {

@@ -1,4 +1,4 @@
-// 마이페이지 진입 화면
+// 마이페이지 진입 화면.
 import { useState } from 'react';
 import { Image, Modal, Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useEffect } from 'react';
@@ -47,7 +47,7 @@ export default function Me() {
   return <View style={styles.shell}><Screen scroll withTabBar>
     <View style={styles.heading}><Eyebrow>{tx('내 계정', 'Account')}</Eyebrow><Text variant="display" weight="bold">{tx('마이페이지', 'My page')}</Text></View>
 
-    {/* 시안의 프로필 카드 전에는 한 줄짜리 띠였고, 넓은 화면에서는
+    {/* 시안의 프로필 카드. 전에는 한 줄짜리 띠였고, 넓은 화면에서는
         이 화면이 아예 안 보였다. 없는 값(한 줄 소개·거주지)은 줄 자체를 안 그린다
         서버에 그 칸이 아직 없다.
     */}
@@ -164,7 +164,7 @@ const styles = StyleSheet.create({
   consentRow: { minHeight: 62, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[3], paddingHorizontal: spacing[4], paddingVertical: spacing[3], borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: color.surface.border },
   consentCopy: { flex: 1, gap: spacing[1] },
 
-  // borderColor 를 여기서 뺐다 이 스타일은 Button 의 containerStyle 로
+  // borderColor 를 여기서 뺐다. 이 스타일은 Button 의 containerStyle 로
   // 가는데, 껍데기에는 borderWidth 가 없어서 색만 있는 테두리는 아무것도 안 그린다.
   // 즉 주황 테두리는 처음부터 화면에 없었다 — 보이는 것은 ghost 의 회색 테두리다.
   // 주황으로 하려면 Button 에 그 variant 가 있어야 한다. 여기서 흉내내면 버튼 뒤에

@@ -1,4 +1,4 @@
-// 여행 핵심 화면의 CTA_다음 CTA_로그인 수정 등 전폭 버튼을 하나로 통일한다.
+// 여행 핵심 화면의 CTA_다음 · CTA_로그인 · 수정 등 전폭 버튼을 하나로 통일한다.
 // 기본 primary 는 피그마 APP/12~13의 길찾기·안내 CTA와 같은 브랜드 네이비를 쓴다.
 import { useMemo, useRef } from 'react';
 import { AccessibilityInfo, Animated, Pressable, StyleSheet, type GestureResponderEvent, type PressableProps, type StyleProp, type ViewStyle } from 'react-native';
@@ -16,7 +16,7 @@ type ButtonVariant = 'primary' | 'secondary' | 'field' | 'ghost' | 'accent' | 'd
 export type ButtonProps = Omit<PressableProps, 'style'> & {
   label: string;
   variant?: ButtonVariant;
-  /** 온보딩·연령확인의 큰 알약 모양 CTA (높이 54 완전 둥근 모서리). */
+  /** 온보딩·연령확인의 큰 알약 모양 CTA (높이 54 · 완전 둥근 모서리). */
   pill?: boolean;
   /** 줄(row) 안에 다른 것과 나란히 설 때. 전폭 대신 글자 폭이 된다. */
   compact?: boolean;
@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
     minHeight: 54,
     borderRadius: radius.full,
   },
-  // 줄(row) 안에 다른 것과 나란히 설 때 쓴다
+  // 줄(row) 안에 다른 것과 나란히 설 때 쓴다.
   compact: {
     width: 'auto',
     paddingHorizontal: spacing[4],

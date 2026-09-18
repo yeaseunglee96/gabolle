@@ -1,5 +1,5 @@
-// 마이페이지 › 프로필 원래 `(tabs)/me.tsx` 한 화면에 쌓여 있던 것 중
-// 「나」에 해당하는 것만 떼어 왔다 — 사진 닉네임 이메일 언어 회원 탈퇴.
+// 마이페이지 › 프로필. 원래 `(tabs)/me.tsx` 한 화면에 쌓여 있던 것 중
+// 「나」에 해당하는 것만 떼어 왔다 — 사진 · 닉네임 · 이메일 · 언어 · 회원 탈퇴.
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Image, Modal, Pressable, Share, StyleSheet, TextInput, View, useWindowDimensions } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';

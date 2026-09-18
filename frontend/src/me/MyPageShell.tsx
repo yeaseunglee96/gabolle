@@ -1,4 +1,4 @@
-// 마이페이지 하위 화면 다섯이 함께 쓰는 껍데기
+// 마이페이지 하위 화면 다섯이 함께 쓰는 껍데기.
 import type { ReactNode } from 'react';
 import { Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
@@ -33,7 +33,7 @@ const TABS: Array<{ key: MyPageTab; path: string; ko: string; en: string }> = [
 export function useMyPageCounts() {
   const { accessToken, user } = useAuth();
   const preferencesQuery = useQuery({
-    // me.tsx preferences.tsx 와 같은 열쇠를 쓴다. 따로 읽으면 한쪽만 새로 읽혀
+    // me.tsx · preferences.tsx 와 같은 열쇠를 쓴다. 따로 읽으면 한쪽만 새로 읽혀
     // 메뉴의 숫자와 화면의 목록이 어긋난다.
     queryKey: PREFERENCES_KEY,
     enabled: Boolean(accessToken),

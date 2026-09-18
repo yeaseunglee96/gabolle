@@ -1,4 +1,4 @@
-// 여행 조건 한 페이지 — 질문 카드 하나에 답하면 다음이 열린다
+// 여행 조건 한 페이지 — 질문 카드 하나에 답하면 다음이 열린다.
 // 시안: docs/design_handoff_plan_flow/PlanFlow.dc.html 의 p1.
 import { useMemo, useRef, useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
@@ -183,7 +183,7 @@ export default function PlanConditions() {
       setJob({ state: 'failed', jobId: null, progress: null, stage: null, canCancel: false, errorMessage: cause instanceof ApiClientError ? cause.message : tx('동의 처리에 실패했어요. 잠시 후 다시 시도해 주세요.', 'Could not save your consent. Please try again shortly.'), resultRef: null });
     }
   };
-  // 시안 p1 — 「홈에서 받은 정보」는 칩 세 개(출발지 날짜 인원)다. 한 줄 문자열로
+  // 시안 p1 — 「홈에서 받은 정보」는 칩 세 개(출발지 · 날짜 · 인원)다. 한 줄 문자열로
   // 이어 붙이면 폰 390 에서 잘린다.
   const headerChips = useMemo(() => startBarChips({
     origin: draft.origin, originLat: draft.originLat, originLng: draft.originLng,
@@ -466,7 +466,7 @@ export default function PlanConditions() {
 
 const styles = StyleSheet.create({
   consent: { gap: spacing[2], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.state.warningBg },
-  // 시안의 본문 폭은 1200 이다 (PlanFlow.dc.html). Screen 의 wide 는 1440 이라 240px 넓다
+  // 시안의 본문 폭은 1200 이다 (PlanFlow.dc.html). Screen 의 wide 는 1440 이라 240px 넓다.
   canvas: { maxWidth: 1200 },
   header: { gap: spacing[2], marginTop: spacing[6] },
   phoneTop: { minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },

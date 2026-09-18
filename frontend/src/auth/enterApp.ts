@@ -1,4 +1,4 @@
-// 로그인을 마치고 앱 안으로 들어갈 때 쌓인 화면을 치우고 간다
+// 로그인을 마치고 앱 안으로 들어갈 때 쌓인 화면을 치우고 간다.
 import type { Href } from 'expo-router';
 
 export type StackRouter = {

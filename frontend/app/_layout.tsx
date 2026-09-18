@@ -46,7 +46,7 @@ export default function RootLayout() {
   return (
     <AppErrorBoundary>
       <SafeAreaProvider>
-        {/* 상태바 글자색의 기본값을 여기서 한 번만 정한다
+        {/* 상태바 글자색의 기본값을 여기서 한 번만 정한다.
             `style` 은 배경이 아니라 글자·아이콘 색이다 — `dark` 가 검은 글자다.
         */}
         <StatusBar style="dark" />
@@ -62,7 +62,7 @@ export default function RootLayout() {
             <PlanProvider>
               <CollectionProvider>
                 {/* 넓은 화면 상단 바는 여기, 앱 뼈대에서 한 번만 붙인다
-                     화면이나 하위 레이아웃에서 또 붙이지 않는다 — 전에는
+                     화면이나 하위 레이아웃에서 또 붙이지 않는다 — 전에는
                     네 군데에서 따로 붙였고, 그래서 50개 넘는 화면에 바가 없었다.
                     좁은 화면(폰)에서는 TopNav 자신이 아무것도 안 그린다.
                 */}

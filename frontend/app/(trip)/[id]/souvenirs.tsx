@@ -22,7 +22,7 @@ import { loadTripItineraries } from '@/trip/trips';
 
 const SOUVENIR_FACET_KEY = 'SOUVENIR_SHOP';
 
-// 여행 식별자가 없으면 서버를 아예 안 부른다
+// 여행 식별자가 없으면 서버를 아예 안 부른다.
 export default function Souvenirs() {
   const { id } = useLocalSearchParams<{ id: string }>();
   return id ? <SouvenirsForTrip tripId={id} /> : <SelectTripFirst />;

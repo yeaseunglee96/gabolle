@@ -29,7 +29,7 @@ import { SignInPromptModal } from '@/social/SignInPromptModal';
 import { useStoryImages } from '@/social/useStoryImages';
 
 // 열쇠는 src/social/stories.ts 로 옮겼다 — 글쓰기 화면도 같은 것을 써야 해서다
-//  이름은 그대로 둬서 아래 쓰는 곳들을 건드리지 않는다.
+// 이름은 그대로 둬서 아래 쓰는 곳들을 건드리지 않는다.
 const FEED_KEY = feedQueryKey;
 
 /** 본문 상한 — 글쓰기 화면(compose.tsx)과 같은 값이어야 한다. */
@@ -56,7 +56,7 @@ function Avatar({ name, compact }: { name: string; compact: boolean }) {
   </View>;
 }
 
-/** 커버 — 카드 맨 위의 사진 자리 */
+/** 커버 — 카드 맨 위의 사진 자리 */
 function StoryCover({ story, compact, onOpen }: { story: StoryDto; compact: boolean; onOpen: () => void }) {
   const { tx } = useI18n();
   const photos = story.images ?? [];
@@ -172,7 +172,7 @@ function StoryCard({ story, compact, showUnfollow, unfollowBusy, saved, savingSt
     </Pressable>
 
     {/* 좋아요·싫어요·저장 —(반응 카운트, kojh0124 님)·-1221(저장).
-        반응 두 칸은 상세 화면과 같은 부품을 쓴다
+        반응 두 칸은 상세 화면과 같은 부품을 쓴다
     */}
     <StoryReactionRow story={story} reacting={reacting} onReact={onReact}>
       <Pressable
@@ -191,7 +191,7 @@ function StoryCard({ story, compact, showUnfollow, unfollowBusy, saved, savingSt
   </View>;
 }
 
-/** placesInFeed 를 지웠다 */
+/** placesInFeed 를 지웠다 */
 
 /** 피드 맨 위에서 바로 쓰는 글쓰기 카드 — 데스크톱 폭(1024+) 전용. */
 function InlineCompose({ onPosted }: { onPosted: () => void }) {
@@ -272,7 +272,7 @@ function InlineCompose({ onPosted }: { onPosted: () => void }) {
       }}
     /> : null}
 
-    {/* 사진이 상한을 넘었을 때만 그 이유가 뜬다 — 미리 겁주지 않는다 */}
+    {/* 사진이 상한을 넘었을 때만 그 이유가 뜬다 — 미리 겁주지 않는다. */}
     {images.map((image, index) => image.error
       ? <Text key={`image-error-${index}`} variant="caption" color={color.state.danger}>{image.error}</Text>
       : null)}
@@ -326,7 +326,7 @@ function MemoryMap({ items, onOpenStory }: { items: StoryDto[]; onOpenStory: (id
       longitude: story.place?.lng as number,
     }));
 
-  // 고른 것을 기억한다 시안이 「선택 = navy 배경/흰 글자, 나머지
+  // 고른 것을 기억한다. 시안이 「선택 = navy 배경/흰 글자, 나머지
   // 흰 배경」이라고 한 그 상태다. 전에는 언제나 첫 번째가 골라진 채였다 — 지도가 있는데
   // 목록에서 어디를 보는지 고를 수가 없었다.
   const [selected, setSelected] = useState<string | null>(null);
@@ -416,7 +416,7 @@ export default function Feed() {
   const [scope, setScope] = useState<FeedScope>('ALL');
   const [loadingMore, setLoadingMore] = useState(false);
   const [unfollowingId, setUnfollowingId] = useState<string | null>(null);
-  // 폰에서 지도를 폈나 넓은 화면은 늘 떠 있어 이 값을 안 본다.
+  // 폰에서 지도를 폈나. 넓은 화면은 늘 떠 있어 이 값을 안 본다.
   const insets = useSafeAreaInsets();
   const [mapOpen, setMapOpen] = useState(false);
   const [reportingStoryId, setReportingStoryId] = useState<string | null>(null);
@@ -433,7 +433,7 @@ export default function Feed() {
   const composeEntry = composeEntryFor(width, signedIn);
   const key = FEED_KEY(scope, signedIn);
 
-  // 화면 밖 보관소에서 읽는다 — 탭을 오가도 다시 안 부른다
+  // 화면 밖 보관소에서 읽는다 — 탭을 오가도 다시 안 부른다.
   const feedQuery = useQuery({
     queryKey: key,
     queryFn: () => loadFeed({ scope, accessToken }),
@@ -545,7 +545,7 @@ export default function Feed() {
         {scopeButton('ALL', tx('전체', 'All'))}
         {scopeButton('FOLLOWING', tx('팔로잉', 'Following'))}
       </View>
-      {/* 폰의 글쓰기 진입은 아래 떠 있는 단추(FAB)로 옮겼다 시안 5번).
+      {/* 폰의 글쓰기 진입은 아래 떠 있는 단추(FAB)로 옮겼다 (시안 5번).
           여기 남겨 두면 같은 행동이 한 화면에 두 자리에 있게 된다. composeEntryFor 의
           'headerButton' 은 이제 「폰이다」를 뜻하고, 그 자리를 FAB 가 맡는다.
       */}
@@ -592,7 +592,7 @@ export default function Feed() {
       : null}
 
     {/* 계정이 필요한 행동(신고)을 누르면 곧바로 로그인 화면으로 보내지 않고 같은 창을 띄운다
-        왜 필요한지 모른 채 쫓겨난 것처럼 느끼게 하지 않는다
+        왜 필요한지 모른 채 쫓겨난 것처럼 느끼게 하지 않는다
     */}
     {!loading && result.state === 'success' && items.length
       ? <View style={compact ? styles.list : styles.listWide}>{items.map((story) => <StoryCard
@@ -618,7 +618,7 @@ export default function Feed() {
       : null}
   </View>;
 
-  // 「이 피드에 나온 장소」 목록을 뺐다
+  // 「이 피드에 나온 장소」 목록을 뺐다.
   const aside = <View style={styles.aside}>
     <MemoryMap items={items} onOpenStory={(id) => router.push(`/feed/${id}`)} />
   </View>;
@@ -633,7 +633,7 @@ export default function Feed() {
         ? <View style={styles.wideGrid}>{feedColumn}{aside}</View>
         : <>
             {feedColumn}
-            {/* 폰에서 지도를 접었다 편다 시안 5번).
+            {/* 폰에서 지도를 접었다 편다 (시안 5번).
                 넓은 화면은 오른쪽에 지도 패널이 늘 떠 있지만 폰에는 그 자리가 없다.
                 그렇다고 목록 위에 지도를 항상 깔면 정작 보러 온 기록이 밀린다.
                 그래서 부를 때만 편다.
@@ -648,7 +648,7 @@ export default function Feed() {
       />
     </Screen>
 
-    {/* 떠 있는 단추는 Screen 밖에 둔다 안에 두면 스크롤과 함께
+    {/* 떠 있는 단추는 Screen 밖에 둔다. 안에 두면 스크롤과 함께
         올라가 버린다 — 탭바가 같은 이유로 받침에 담겨 떠 있다.
         `pointerEvents="box-none"` 이라 단추가 없는 자리는 손짓이 그대로 통과한다.
     */}
@@ -672,7 +672,7 @@ export default function Feed() {
                 onPress={() => router.push('/feed/compose')}
                 style={({ pressed }) => [styles.writeFab, pressed && styles.pressed]}
               >
-                {/* 「+」가 아니라 연필이다
+                {/* 「+」가 아니라 연필이다.
                     탭바 가운데에 이미 주황 + 원이 있다 — 「여행 만들기」다(TabBar 의
                     createIconWrap). 그 바로 위에 주황 + 를 또 두면 뜻이 다른 주황 + 가
                     둘 겹쳐서, 어느 것이 무엇인지 눌러 봐야 안다.
@@ -693,7 +693,7 @@ const styles = StyleSheet.create({
 
   // 넓은 화면: 본문 + 보조 칸. 보조 칸은 폭 고정, 본문이 남는 만큼 가져간다.
   wideGrid: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[6], marginTop: spacing[6] },
-  // 피드 기둥에 최대 폭을 준다
+  // 피드 기둥에 최대 폭을 준다.
   feedColumn: { flex: 1, minWidth: 0, maxWidth: 600, width: '100%', alignSelf: 'center' },
   // ── 폰의 떠 있는 단추 ────────────────────────────────────
   pressed: { opacity: 0.72, transform: [{ scale: 0.97 }] },
@@ -701,7 +701,7 @@ const styles = StyleSheet.create({
   mapToggle: { minHeight: 48, justifyContent: 'center', paddingHorizontal: spacing[6], borderRadius: radius.full, backgroundColor: color.brand.navy },
   writeFab: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center', borderRadius: 24, backgroundColor: color.brand.orange },
   phoneMap: { marginTop: spacing[4] },
-  // 520 은 시안 값이다 전에는 320 이라 지도가 우표만 했다
+  // 520 은 시안 값이다. 전에는 320 이라 지도가 우표만 했다
   // 지도를 보라고 둔 칸인데 무엇이 어디인지 안 보였다.
   aside: { width: 520, gap: spacing[3] },
   mapPanel: { gap: spacing[3], paddingVertical: spacing[6], paddingHorizontal: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.border },
@@ -715,10 +715,10 @@ const styles = StyleSheet.create({
   headerTitle: { marginTop: spacing[1] },
   headerActions: {
     flexDirection: 'row', alignItems: 'center', gap: spacing[2],
-    // 넘치면 내려간다 이 줄이 없어서 오른쪽으로 삐져나갔다.
+    // 넘치면 내려간다. 이 줄이 없어서 오른쪽으로 삐져나갔다.
     flexWrap: 'wrap', justifyContent: 'flex-end',
   },
-  // writeButton 을 지웠다 { width:'auto', paddingHorizontal } 을
+  // writeButton 을 지웠다. { width:'auto', paddingHorizontal } 을
   // containerStyle 로 넘겼는데 그건 껍데기의 폭일 뿐이라, 안쪽 버튼은 여전히
   // width:'100%' 를 원했다. 지금은 버튼이 직접 자기 폭을 정한다 — `compact`.
 
@@ -745,7 +745,7 @@ const styles = StyleSheet.create({
   emptyPrimary: { width: 'auto', minWidth: 180, paddingHorizontal: spacing[4], backgroundColor: color.brand.navy },
 
   list: { gap: spacing[3], marginTop: spacing[4] },
-  // 넓은 화면은 2열 flexWrap 이라 폭이 모자라면 자연히 한 열이 된다
+  // 넓은 화면은 2열. flexWrap 이라 폭이 모자라면 자연히 한 열이 된다
   // 열 수를 폭으로 계산해 박아 두지 않는다. minWidth 280 이 한 장의 최소 폭이다.
   listWide: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[4], marginTop: spacing[4] },
   cardInGrid: { flexGrow: 1, flexBasis: 280, minWidth: 280 },

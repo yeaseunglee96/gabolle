@@ -73,7 +73,7 @@ export function TopNav() {
   // 바가 모든 화면에 뜨므로 그 처리도 같이 따라다녀야 한다 — 안 그러면 노치 있는 기기를
   // 가로로 눕혔을 때 바가 노치 밑에 깔린다. 배경색을 안전 영역까지 칠해야 틈이 안 뜬다.
   return <SafeAreaView edges={['top']} style={styles.safeArea}>
-    {/* ── 1층 유틸 바 (높이 36) — 언어와 계정. 이동이 아니다. ───────────────── */}
+    {/* ── 1층 · 유틸 바 (높이 36) — 언어와 계정. 이동이 아니다. ───────────────── */}
     <View style={styles.utilBar}>
       {LANGUAGE_CODES.map((code, index) => {
         const current = language === code;
@@ -112,7 +112,7 @@ export function TopNav() {
       ) : null}
     </View>
 
-    {/* ── 2층 주 내비 (높이 60) — 로고 캡슐 CTA ──────────────────────────── */}
+    {/* ── 2층 · 주 내비 (높이 60) — 로고 · 캡슐 · CTA ──────────────────────────── */}
     <View style={styles.nav}>
       <BrandLogoLink href="/" imageStyle={styles.logo} />
 

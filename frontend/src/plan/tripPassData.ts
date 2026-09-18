@@ -1,4 +1,4 @@
-// 여행 티켓(TRIP PASS)에 찍히는 값 — 화면이 아니라 여기서 만든다
+// 여행 티켓(TRIP PASS)에 찍히는 값 — 화면이 아니라 여기서 만든다.
 
 import type { ItineraryDto } from '@/plan/itinerary';
 
@@ -167,7 +167,7 @@ export function buildTripPass(input: TripPassInput): TripPassData {
 /** 여행표 오른쪽 칸의 한 줄. 시안 TripPassCard 의 `details`. */
 export type TripPassDetail = { key: string; value: string };
 
-/** 시안 p4 의 여행표 오른쪽 칸 — 출발지 첫 일정 마지막 일정 이동 합계 예산. */
+/** 시안 p4 의 여행표 오른쪽 칸 — 출발지 · 첫 일정 · 마지막 일정 · 이동 합계 · 예산. */
 export function buildTripPassDetails(input: TripPassInput): TripPassDetail[] {
   const ko = input.language === 'ko';
   const allItems = (input.itinerary?.days ?? []).flatMap((day) => day.items);

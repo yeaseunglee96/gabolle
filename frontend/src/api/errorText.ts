@@ -6,7 +6,7 @@ import { ApiClientError } from '@/api/client';
 export function looksLikeMessageKey(message: string): boolean {
   const text = message.trim();
   if (!text || /\s/.test(text)) return false;
-  // 점으로 이어진 영문 토큰 둘 이상 — error.trip.validation trip.notFound
+  // 점으로 이어진 영문 토큰 둘 이상 — error.trip.validation · trip.notFound
   return /^[a-z][a-z0-9]*(\.[a-zA-Z][a-zA-Z0-9]*)+$/.test(text);
 }
 

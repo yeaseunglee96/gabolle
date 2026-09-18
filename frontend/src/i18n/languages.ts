@@ -69,7 +69,7 @@ export function parseLanguageCode(value: unknown): LanguageCode {
   if (lower.startsWith('ja')) return 'ja';
   if (lower.startsWith('en')) return 'en';
   if (lower.startsWith('zh')) {
-    // zh-TW zh-HK zh-Hant-* 는 번체, 그 밖의 zh 는 간체로 본다.
+    // zh-TW · zh-HK · zh-Hant-* 는 번체, 그 밖의 zh 는 간체로 본다.
     return /hant|tw|hk|mo/.test(lower) ? 'zh-Hant' : 'zh-Hans';
   }
   return 'ko';

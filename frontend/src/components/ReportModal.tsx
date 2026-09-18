@@ -1,4 +1,4 @@
-// 여행 기록 신고 — 카드의 ⋯ 메뉴에서 연다
+// 여행 기록 신고 — 카드의 ⋯ 메뉴에서 연다.
 import { useState } from 'react';
 import { ActivityIndicator, Modal, Pressable, StyleSheet, TextInput, View } from 'react-native';
 

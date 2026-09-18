@@ -1,4 +1,4 @@
-// 메뉴 예시 사진 — 이름만으로는 뭐가 나올지 모르는 사람을 위한 것
+// 메뉴 예시 사진 — 이름만으로는 뭐가 나올지 모르는 사람을 위한 것.
 import type { ImageSourcePropType } from 'react-native';
 
 export type DishImage = {

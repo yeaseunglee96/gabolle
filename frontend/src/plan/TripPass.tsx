@@ -1,4 +1,4 @@
-// 여행 티켓(TRIP PASS) — 프린터에서 영수증이 출력되는 컴포넌트
+// 여행 티켓(TRIP PASS) — 프린터에서 영수증이 출력되는 컴포넌트.
 // 시안: docs/design_handoff_plan_flow/TripPassCard.dc.html
 import { useEffect, useMemo, useRef } from 'react';
 import { Animated, Easing, Platform, Pressable, StyleSheet, View } from 'react-native';

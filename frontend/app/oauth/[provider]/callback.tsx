@@ -1,7 +1,7 @@
 // 소셜 로그인이 끝나고 provider 가 사용자를 되돌려 보내는 착지 화면이다.
-// 경로는 /oauth/google/callback /oauth/naver/callback /oauth/kakao/callback
+// 경로는 /oauth/google/callback · /oauth/naver/callback · /oauth/kakao/callback ·
 // /oauth/apple/callback 넷이고 [provider] 동적 구간으로 한 파일이 다 받는다
-//  DEC-AUTH-006). Apple도 scope를 email만 요청해(oauth.ts 주석)
+// (DEC-AUTH-006). Apple도 scope를 email만 요청해(oauth.ts 주석)
 // 다른 셋과 똑같이 GET 리다이렉트로 바로 여기 온다 — 별도 경유지가 없다.
 import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';

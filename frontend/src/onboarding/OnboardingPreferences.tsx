@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { getApiLanguage, setApiLanguage } from '@/api/client';
-// 언어 정의는 src/i18n/languages.ts 한 곳에 있다 여기 두면 화면 문구
+// 언어 정의는 src/i18n/languages.ts 한 곳에 있다. 여기 두면 화면 문구
 // 번역 규칙과 떨어져서, 언어를 늘릴 때 한쪽만 늘어난다. 쓰던 이름은 그대로 내보낸다.
 import { LANGUAGE_CODES, parseLanguageCode, resolveTextLanguage, type LanguageCode } from '@/i18n/languages';
 

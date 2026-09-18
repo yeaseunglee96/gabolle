@@ -36,7 +36,7 @@ export type StoryDto = {
   likeCount?: number;
   dislikeCount?: number;
   /**
-   * 세 값이다 — `null`(안 누름) `"LIKE"` `"DISLIKE"`. `!myReaction`로 한 번에
+   * 세 값이다 — `null`(안 누름) · `"LIKE"` · `"DISLIKE"`. `!myReaction`로 한 번에
    * 묶으면 싫어요 상태가 "안 누름"으로 보인다 — kojh0124 님 경고 그대로다.
    */
   myReaction?: 'LIKE' | 'DISLIKE' | null;

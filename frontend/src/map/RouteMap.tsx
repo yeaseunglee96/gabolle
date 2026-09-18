@@ -195,7 +195,7 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
     };
   }, [appKey, currentLocation, onSelect, points, routes, selectedId, stops]);
 
-  // 지도에 점선이 하나라도 있으면 그 뜻을 글로 적는다
+  // 지도에 점선이 하나라도 있으면 그 뜻을 글로 적는다.
   // 점선이 무슨 뜻인지 모르는 사람에게는 실선과 다를 바가 없고, 그러면 점선을 두는
   // 이유가 사라진다. 실제 길만 그려진 지도에는 이 줄이 안 나온다.
   const hasEstimatedLine = (routes ?? [{ id: 'selected', color: '', stops }])

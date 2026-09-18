@@ -1,4 +1,4 @@
-// 데스크톱 홈이 쓰는 값들을 한곳에서 읽는다
+// 데스크톱 홈이 쓰는 값들을 한곳에서 읽는다.
 import { useQuery } from '@tanstack/react-query';
 
 import { useAuth } from '@/auth/AuthProvider';

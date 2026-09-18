@@ -50,7 +50,7 @@ describe('describeWarningCodes', () => {
 
 // — 서버가 보내는데 사전에 짝이 없어 조용히 사라지던 여덟 개.
 describe('서버가 실제로 보내는 코드는 하나도 안 사라진다', () => {
-  // 백엔드에서 직접 확인한 목록이다(RecommendationCodes ItineraryWarningCodes 채점기).
+  // 백엔드에서 직접 확인한 목록이다(RecommendationCodes · ItineraryWarningCodes · 채점기).
   // 여기 추가할 때는 이름을 짐작하지 말고 백엔드 코드를 열어 확인한다.
   const 서버가_보내는_코드 = [
     'STAIRS_PRESENT',

@@ -1,8 +1,8 @@
-// 언어 다섯을 다 받는다 이 함수가 'ko' | 'en' 만 받으면 부르는 쪽
+// 언어 다섯을 다 받는다. 이 함수가 'ko' | 'en' 만 받으면 부르는 쪽
 // 열다섯 곳이 각자 떨어뜨려야 하고, 한 곳만 빠뜨리면 일본어 사용자가 한국어 이름을 본다.
 // 떨어뜨리는 일은 여기 한 자리에서 한다.
 import { resolveTextLanguage, type LanguageCode } from '@/i18n/languages';
-// 장소 분류 코드를 사람이 읽는 말로 시안 `design_handoff_collection`.
+// 장소 분류 코드를 사람이 읽는 말로. 시안 `design_handoff_collection`.
 
 export type LocalizedLabel = readonly [ko: string, en: string];
 
@@ -54,7 +54,7 @@ export function sortCategoryCodes(codes: readonly string[], table = PLACE_CATEGO
   return [...known, ...unknown];
 }
 
-/** 휠에 놓을 분류 목록을 정한다 */
+/** 휠에 놓을 분류 목록을 정한다 */
 export function categoryWheelCodes(serverCodes: readonly string[] | null | undefined) {
   const known = Object.keys(PLACE_CATEGORY_LABELS);
   if (!serverCodes || serverCodes.length === 0) return known;

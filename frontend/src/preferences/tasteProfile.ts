@@ -1,4 +1,4 @@
-// 계정에 기억되는 취향 다섯 — 온보딩 ③ 과 마이페이지 「여행 취향」이 함께 쓴다
+// 계정에 기억되는 취향 다섯 — 온보딩 ③ 과 마이페이지 「여행 취향」이 함께 쓴다.
 import { apiRequest } from '@/api/client';
 import { FOODS } from '@/plan/foodConflicts';
 

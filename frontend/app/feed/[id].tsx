@@ -1,4 +1,4 @@
-// 기록 상세 — 피드 카드를 누르면 오는 화면
+// 기록 상세 — 피드 카드를 누르면 오는 화면.
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, Image, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
@@ -19,7 +19,7 @@ import { applyReaction, nextReaction, StoryReactionRow, type Reaction } from '@/
 
 type State = { status: 'loading'; cached: StoryDto | null } | { status: 'loaded'; story: StoryDto } | { status: 'not-found' } | { status: 'error'; message: string };
 
-/** 상세 전용 사진 격자 — 3열 2행, 넘치면 마지막 칸에 「+N」 시안 2a). */
+/** 상세 전용 사진 격자 — 3열 2행, 넘치면 마지막 칸에 「+N」 (시안 2a). */
 function DetailPhotoGrid({ images }: { images: StoryDto['images'] }) {
   const { tx } = useI18n();
   if (!images.length) return null;
@@ -41,7 +41,7 @@ function DetailPhotoGrid({ images }: { images: StoryDto['images'] }) {
   );
 }
 
-/** 장소 제목 블록 — 시안 2a 의 맨 위 */
+/** 장소 제목 블록 — 시안 2a 의 맨 위 */
 function PlaceHeading({ story, onOpen }: { story: StoryDto; onOpen: () => void }) {
   const { tx } = useI18n();
   if (!story.place) return null;
@@ -66,7 +66,7 @@ function PlaceHeading({ story, onOpen }: { story: StoryDto; onOpen: () => void }
 /** 본문 글자 상한. */
 const BODY_MAX = 500;
 
-/** 댓글 한 장 — 원글과 같은 StoryDto 를 받는다 */
+/** 댓글 한 장 — 원글과 같은 StoryDto 를 받는다 */
 function ReplyCard({
   reply,
   accessToken,
@@ -298,7 +298,7 @@ export default function StoryDetail() {
   };
 
   // 차단은 「이 글」이 아니라 「이 사람」에 대한 것이다. 차단해도 이 글은 내 화면에서 그대로
-  // 보인다 — 거르는 일은 서버가 상대 쪽 화면에서 한다
+  // 보인다 — 거르는 일은 서버가 상대 쪽 화면에서 한다.
   const confirmBlock = async () => {
     const authorId = story?.author.id;
     if (!authorId) return false;
@@ -312,7 +312,7 @@ export default function StoryDetail() {
     const body = draft.trim();
     if (!id || !body || sending) return;
     setSending(true);
-    // 댓글도 글이다 — 같은 만들기 경로에 부모 id 만 실어 보낸다
+    // 댓글도 글이다 — 같은 만들기 경로에 부모 id 만 실어 보낸다.
     const outcome = await createStory({ body, imageUrls: [], parentStoryId: id, accessToken });
     setSending(false);
     if (outcome.state !== 'success') { setSendError(outcome.message); return; }
@@ -397,7 +397,7 @@ export default function StoryDetail() {
             </Pressable>
           </View>
 
-          {/* 시안 2a 의 순서 사진 → 장소 제목 → 본문.
+          {/* 시안 2a 의 순서 사진 → 장소 제목 → 본문.
               전에는 본문이 맨 위였다. 기록을 다시 열었을 때 먼저 보고 싶은 것은
               글이 아니라 그때의 사진이라는 것이 이 순서의 뜻이다.
           */}

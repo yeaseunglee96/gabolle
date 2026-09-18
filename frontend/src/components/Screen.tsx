@@ -33,7 +33,7 @@ type ScreenProps = {
   scroll?: boolean;
   /** 2단 레이아웃(Split)을 쓰는 화면만 켠다. 태블릿 최대폭이 480 → 1024 로 넓어진다. */
   wide?: boolean;
-  /** 이 화면이 TabBar 를 형제로 그리는가 */
+  /** 이 화면이 TabBar 를 형제로 그리는가 */
   withTabBar?: boolean;
   style?: StyleProp<ViewStyle>;
 };
@@ -42,7 +42,7 @@ export function Screen({ children, scroll = false, wide = false, withTabBar = fa
   const { kind } = useLayout();
   const insets = useSafeAreaInsets();
 
-  // 하단만 SafeAreaView 에 안 맡기고 내용 여백으로 처리한다
+  // 하단만 SafeAreaView 에 안 맡기고 내용 여백으로 처리한다.
   const contentStyle = [
     styles.content,
     kind === 'tablet' && (wide ? styles.tabletWide : styles.tablet),

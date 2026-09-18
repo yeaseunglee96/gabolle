@@ -1,4 +1,4 @@
-// 마이페이지 카드 안의 한 줄 `(tabs)/me.tsx` 안에만 있던 것을 탭 화면들이
+// 마이페이지 카드 안의 한 줄. `(tabs)/me.tsx` 안에만 있던 것을 탭 화면들이
 // 함께 쓰도록 뺐다.
 import { Pressable, StyleSheet, View } from 'react-native';
 
