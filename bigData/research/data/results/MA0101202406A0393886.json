@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202406A0393886",
+  "worker": "haiku-31",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["북앵커아테네학당 중구 부산", "북앵커아테네학당 보수동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "경양식 음식점으로 표시되었으나 검색 결과에서는 보수동의 아테네학당이 카페로 언급됨. 정확한 위치와 영업정보 미확인",
+  "notes": ""
+}

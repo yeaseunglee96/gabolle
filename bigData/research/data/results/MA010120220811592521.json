@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220811592521",
+  "worker": "haiku-6",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["해녀천지할매 기장군 부산", "해녀천지할매 기장읍 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 기장군 기장읍 연화1길 210"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "맛 묘사", "note": "신선한 해산물, 진한 전복죽으로 알려짐", "sources": [0]},
+    {"type": "현지인 지지", "note": "현지인과 관광객 모두 줄 서서 찾는 기장 대표 맛집", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": true,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["전복죽", "개불", "군소", "해산물 모둠"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "영업시간 9:00~20:30 (목요일 휴무), 야외자리 있음, 포장 가능"
+}

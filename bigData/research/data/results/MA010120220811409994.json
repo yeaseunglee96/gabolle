@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220811409994",
+  "worker": "haiku-71",
+  "researchedAt": "2026-09-10T12:17:00Z",
+  "queries": ["장퀘 해운대 부산 중국집", "장퀘 중1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=lzLXRJsVRVrd", "https://korean.visitkorea.or.kr/detail/ms_detail.do?cotid=41c2ab44-65d2-4710-8113-9d7d1170649d", "https://triple.guide/restaurants/1e07e0c8-5330-4586-8dcc-7b23e1d74ee7"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "원조·최초",
+      "note": "DJ DOC 초창기 멤버가 오픈한 해운대 노포",
+      "sources": [1]
+    },
+    {
+      "type": "조리·재료",
+      "note": "수타 수제면을 직접 뽑음",
+      "sources": [0, 1]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "삼선짜장면과 과일탕수육이 대표메뉴",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "local",
+    "signatureDishes": ["삼선짜장면", "과일탕수육"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

@@ -1,0 +1,34 @@
+{
+  "id": "MA010120220808188748",
+  "worker": "haiku-13",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["빌리버거 해운대구 부산", "빌리버거 중2동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["triple.guide"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "수제버거 전문",
+      "sources": [0]
+    },
+    {
+      "type": "조리·재료",
+      "note": "주문 시 신선하게 구워내는 커스텀 버거",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["커스텀 버거", "치즈버거"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "소스를 선택해 커스터마이즈 가능"
+}

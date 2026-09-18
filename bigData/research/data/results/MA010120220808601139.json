@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220808601139",
+  "worker": "haiku-64",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["미식육 수영구 부산", "미식육 민락동 맛집", "미식육 광안해변 블로그", "미식육 광안 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.busan.com/view/section/view.php?code=2022092818533311529"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "미디어 노출", "note": "부산일보 광안리 핫플 3곳으로 소개", "sources": [0]},
+    {"type": "현지인 지지", "note": "반려동물 친화적이라 애완동물 동반 고객이 찾음", "sources": [0]},
+    {"type": "조리·재료", "note": "신선한 육회와 도축 3일 이내의 신선한 고기 사용", "sources": [0]},
+    {"type": "간판 메뉴 지목", "note": "육회와 동파육이 대표 메뉴", "sources": [0]},
+    {"type": "곁들임·차림", "note": "1층 테라스, 2층 홀과 프라이빗룸에서 개 동반 가능", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "pet_owners",
+    "signatureDishes": ["육회", "동파육", "땡전라면"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": ""
+}

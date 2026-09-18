@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220813425797",
+  "worker": "haiku-66",
+  "researchedAt": "2026-09-10T12:35:00Z",
+  "queries": ["팔딱팔딱식당 민락동 부산", "팔딱팔딱식당 수영구"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색 결과에서 민락동의 돼지고기 구이/찜점 '팔딱팔딱식당'에 대한 정보를 찾을 수 없음",
+  "notes": ""
+}

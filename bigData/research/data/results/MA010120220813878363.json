@@ -1,0 +1,23 @@
+{
+  "id": "MA010120220813878363",
+  "worker": "haiku-57",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["포트 송정동 부산", "포트 송정 고깃집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=E9EGlQWXbMJt"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "송정해수욕장 해돋이 뷰, 개 동반 가능",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "audience": "mixed"
+  },
+  "notFound": null,
+  "notes": "다이닝코드 리스팅, 송정동 고깃집"
+}

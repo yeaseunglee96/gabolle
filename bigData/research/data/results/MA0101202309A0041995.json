@@ -1,0 +1,29 @@
+{
+  "id": "MA0101202309A0041995",
+  "worker": "haiku-44",
+  "researchedAt": "2026-09-09T10:49:00Z",
+  "queries": ["태희돈까스 사상구 부산", "태희돈까스 덕포2동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://www.instagram.com/p/C3l7OEOvWsf/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "맛 묘사",
+      "note": "돈까스 전문점으로 돈까스를 제공",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "office",
+    "signatureDishes": ["돈까스"],
+    "priceBand": "affordable"
+  },
+  "notFound": null,
+  "notes": ""
+}

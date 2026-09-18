@@ -1,0 +1,32 @@
+{
+  "id": "MA010120220811870823",
+  "worker": "haiku-22",
+  "researchedAt": "2026-09-09T01:14:59.490Z",
+  "queries": ["한월횟집 중구 부산", "한월횟집 남포동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.siksinhot.com/theme/magazine/7285",
+    "https://triple.guide/restaurants/a7397018-3a56-4837-a2a1-829a931d7dbf",
+    "https://xn--2s2b33eb3kgvpta.com/store/S200807_1597995345848"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "연차·역사", "note": "40년 전통 한식당", "sources": [0, 1]},
+    {"type": "조리·재료", "note": "구이·조림 전문, 이제는 횟·킹크랩도 제공", "sources": [0, 1]},
+    {"type": "미디어 노출", "note": "허영만 백반기행 에피소드 4에 출연", "sources": [1, 2]},
+    {"type": "서비스·사람", "note": "유명인 많이 방문, 단체 예약 가능", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 40,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["구이", "조림", "횟", "킹크랩"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "자갈치역 도보 3분 거리, 자갈치 시장 인근"
+}

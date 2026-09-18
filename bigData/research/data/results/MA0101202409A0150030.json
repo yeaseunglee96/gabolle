@@ -1,0 +1,34 @@
+{
+  "id": "MA0101202409A0150030",
+  "worker": "haiku-67",
+  "researchedAt": "2026-09-09T22:32:00.000Z",
+  "queries": ["베이크백광안 수영구 부산", "베이크백광안 광안2동 맛집", "베이크백 광안 수영로510", "베이크백 광안 빵 카페"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=a0oHJvQPhBhX", "https://triple.guide/restaurants/d6f8e876-4994-4ac3-8d3c-9823eae08b99", "https://www.instagram.com/bakeback_gwangan/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "모찌빵이 주 메뉴",
+      "sources": [0, 1, 2]
+    },
+    {
+      "type": "메뉴 희소성",
+      "note": "국내 최초 모찌빵 전문점",
+      "sources": [0, 1]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "광안리 핫스팟 광리단길에 위치",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["모찌빵"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "빵/도넛. 크림치즈가 듬뿍 들어간 쫀득한 모찌빵 전문. 영업시간 11:00~18:00, 화수 휴무."
+}

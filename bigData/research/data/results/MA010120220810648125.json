@@ -1,0 +1,32 @@
+{
+  "id": "MA010120220810648125",
+  "worker": "haiku-3",
+  "researchedAt": "2026-09-08T16:46:07.975Z",
+  "queries": ["원초량갈비 부산진구 부산", "원초량갈비 초읍동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": [
+    "https://www.linktoplace.com/?action=view&no=119995",
+    "https://www.mangoplate.com/restaurants/l-x-B7MEal"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "돼지갈비 전문점으로 양념갈비와 생갈비 제공",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": null,
+    "signatureDishes": ["양념갈비", "생갈비"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": ""
+}

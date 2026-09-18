@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220800643545",
+  "worker": "haiku-27",
+  "researchedAt": "2026-09-09T01:36:30Z",
+  "queries": ["폼포코 부산진구 부산", "폼포코 가야2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 부산진구 냉정로 236-4"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "맛 묘사", "note": "품질 좋은 일식 돈까스(톤카츠) 전문점", "sources": [0]},
+    {"type": "현지인 지지", "note": "동네 주민들에게 사랑받는 숨은 맛집", "sources": [0]},
+    {"type": "조리·재료", "note": "주문 후 조리하여 신선한 음식 제공 (20-25분 소요)", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["일식 돈까스"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "동네 찾기 어려운 조용한 골목에 위치. 운영시간: 11:30-21:00 (점심휴무 15:00-17:00). 1,3,5주 화요일 휴무"
+}

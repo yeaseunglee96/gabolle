@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202507A0012665",
+  "worker": "haiku-32",
+  "researchedAt": "2026-09-09T10:49:00Z",
+  "queries": ["일렁 영도구 부산 경양식", "일렁 봉래1동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "검색 결과에서 이 가게에 대한 정보를 찾을 수 없음. 봉래동의 일반적인 맛집 정보만 나옴.",
+  "notes": ""
+}

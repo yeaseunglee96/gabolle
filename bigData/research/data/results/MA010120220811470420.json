@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220811470420",
+  "worker": "haiku-49",
+  "researchedAt": "2026-09-09T13:00:00Z",
+  "queries": ["진우동 해운대구 부산", "진우동 재송2동 맛집"],
+  "found": false,
+  "confidence": "low",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "해운대구 재송2동의 진우동이라는 가게를 찾을 수 없음. 검색 결과는 우동(부산) 지역 설명과 다른 우동 가게(우동 토오루)만 반환됨",
+  "notes": ""
+}

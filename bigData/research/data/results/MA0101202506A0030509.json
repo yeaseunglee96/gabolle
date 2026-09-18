@@ -1,0 +1,24 @@
+{
+  "id": "MA0101202506A0030509",
+  "worker": "haiku-72",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["송헌집 민락동 부산", "송헌집 민락로 한정식"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.daangn.com/kr/local-profile/%EC%86%A1%ED%97%8C%EC%A7%91-d2tadrv4yih5/", "https://www.diningcode.com/profile.php?rid=UVWP5ROqunCs", "https://9useful1info7.com/%EC%83%9D%ED%99%9C%EC%9D%98%EB%8B%AC%EC%9D%B8-%EB%B6%80%EC%82%B0-%EB%96%A1%EA%B0%88%EB%B9%84-restaurant/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "기관 선정", "note": "2026 미쉐린 가이드 빕구르망에 선정", "sources": [2]},
+    {"type": "간판 메뉴 지목", "note": "두툼한 갈비살 떡갈비, 살치살 떡갈비 전문", "sources": [1, 2]},
+    {"type": "조리·재료", "note": "숯불에 구워 육즙이 풍부하고 맛있다", "sources": [2]},
+    {"type": "분위기·전망", "note": "1990년대 한옥을 개조한 아늑한 공간", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["갈비살 떡갈비", "살치살 떡갈비"],
+    "priceBand": "expensive",
+    "audience": "mixed"
+  },
+  "notFound": null,
+  "notes": ""
+}

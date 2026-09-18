@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202508A0009104",
+  "worker": "haiku-49",
+  "researchedAt": "2026-09-09T15:30:00Z",
+  "queries": ["코로링 해운대구 우1동 부산", "코로링 우동1로 부산"],
+  "found": false,
+  "confidence": "low",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "우동1로38번가길 28에 위치한다는 코로링을 찾을 수 없음",
+  "notes": ""
+}

@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220811451481",
+  "worker": "haiku-62",
+  "researchedAt": "2026-09-10T12:02:00Z",
+  "queries": ["대하 해운대구 부산", "대하 송정중앙로 부산 횟집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=13E8TYoyWoXK", "https://www.siksinhot.com/theme/magazine/8597"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "모둠회와 매운탕 전문", "sources": [0]},
+    {"type": "현지인 지지", "note": "송정해수욕장 근처 현지인 횟집", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["모둠회", "매운탕"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": ""
+}

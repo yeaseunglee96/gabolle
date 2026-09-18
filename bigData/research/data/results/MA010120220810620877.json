@@ -1,0 +1,25 @@
+{
+  "id": "MA010120220810620877",
+  "worker": "haiku-35",
+  "researchedAt": "2026-09-09T02:10:44.184Z",
+  "queries": ["덕혜원 동구 부산"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["다이닝코드"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "짜장면, 중국집 요리", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "수정초등학교 주차장",
+    "audience": "local",
+    "signatureDishes": ["짜장면", "쨔장"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "쨔중뚝, 김치찌개도 있고 짬뽕이 유명함 (7000원)"
+}

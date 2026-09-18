@@ -1,0 +1,34 @@
+{
+  "id": "MA0101202406A0548853",
+  "worker": "haiku-68",
+  "researchedAt": "2026-09-10T09:46:00Z",
+  "queries": ["부엌간 해운대 중2동 부산", "부엌간 경양식 해운대 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=4MB5kiFvLNaf"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "달맞이길 야경이 보이는 유럽식 레스토랑",
+      "sources": [0]
+    },
+    {
+      "type": "메뉴 희소성",
+      "note": "파스타와 양식 요리 제공",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "couple",
+    "signatureDishes": ["파스타"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "다층 건물: 1층 부엌간 차이니즈, 카페 드 부엌 카페. 2층 유럽식 레스토랑 부엌간. 영업시간 11:00-21:00 (15:00-16:30 브레이크). 달맞이길의 야경이 보이는 입지"
+}

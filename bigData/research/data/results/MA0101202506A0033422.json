@@ -1,0 +1,39 @@
+{
+  "id": "MA0101202506A0033422",
+  "worker": "haiku-51",
+  "researchedAt": "2026-09-09T14:53:00Z",
+  "queries": ["카사데타코밀락더마켓점 수영 부산", "카사데타코밀락더마켓점 민락동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=hK03fvebe0wT", "https://www.daangn.com/kr/local-profile/%EC%B9%B4%EC%82%AC%EB%8D%B0%ED%83%80%EC%BD%94-%EB%B0%80%EB%9D%BD%EB%8D%94%EB%A7%88%EC%BC%93-7sgkxrn6nqro/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "광안대교 뷰를 감상하면서 식사 가능",
+      "sources": [0, 1]
+    },
+    {
+      "type": "메뉴 희소성",
+      "note": "멕시코 음식으로 부산에서 보기 드문 요리",
+      "sources": [0]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "합리적인 가격대에 다양한 재료의 건강한 음식",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["타코", "퀘사디아", "브리또", "핫치킨 샐러드"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "영업시간: 11:00 - 23:00 (라스트오더 22:30). 주차: 15,000원 이상 구매 시 1시간. 키오스크 주문. 배달 가능"
+}

@@ -1,0 +1,34 @@
+{
+  "id": "MA010120220810616638",
+  "worker": "haiku-25",
+  "researchedAt": "2026-09-09T10:34:00Z",
+  "queries": ["가빈 부산진구 부산", "가빈 초읍동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/269179"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "조리·재료",
+      "note": "농장 직영 생고기 전문점",
+      "sources": [0]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "유황오리백숙, 돼지목살숯불구이, 된장찌개, 돼지삼겹살숯불구이",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["유황오리백숙", "돼지목살숯불구이", "된장찌개", "돼지삼겹살숯불구이"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": ""
+}

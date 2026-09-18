@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220810732645",
+  "worker": "haiku-45",
+  "researchedAt": "2026-09-09T13:37:00Z",
+  "queries": ["돈돈촌 사상구 부산", "돈돈촌 모라1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["http://dondonchon.binfo.co.kr"],
+  "stillOpen": true,
+  "whyPeopleGo": [{"type": "간판 메뉴 지목", "note": "돼지멍석갈비, 삼겹살 전문점", "sources": [0]}],
+  "newTypes": [],
+  "descriptors": {"yearsClaimed": null, "generations": null, "queueing": null, "parking": null, "audience": "mixed", "signatureDishes": ["돼지멍석갈비", "삼겹살"], "priceBand": "medium"},
+  "notFound": null,
+  "notes": ""
+}

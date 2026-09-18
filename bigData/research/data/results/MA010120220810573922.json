@@ -1,0 +1,38 @@
+{
+  "id": "MA010120220810573922",
+  "worker": "haiku-1",
+  "researchedAt": "2026-09-09T00:50:00Z",
+  "queries": ["평산옥 동구 부산", "평산옥 초량중로 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=MMPnX1gpu8SD", "https://triple.guide/restaurants/6e299369-683e-4c90-bcf8-a18c538c5a08"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "heritage",
+      "note": "4대째 이어오는 역사 있는 수육 전문점 - Michelin Guide 2026 선정",
+      "sources": [0]
+    },
+    {
+      "type": "signature_dish",
+      "note": "부드럽고 비린내 없는 고기 - 맑고 깨끗한 국물 맛",
+      "sources": [0]
+    },
+    {
+      "type": "location",
+      "note": "부산역에서 도보 5분 - 접근성 우수",
+      "sources": [0]
+    },
+    {
+      "type": "menu",
+      "note": "계절 메뉴 열무국수(3월~11월) - 시원하고 매운 맛",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["수육", "국수", "열무국수"]
+  },
+  "notFound": null,
+  "notes": "1인 1수육 주문 정책, 부산역 초량 위치로 여행객 방문 많음, 미니멀한 반찬"
+}

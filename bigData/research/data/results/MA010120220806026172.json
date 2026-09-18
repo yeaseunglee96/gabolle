@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220806026172",
+  "worker": "haiku-9",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["브리타니 강서구 부산", "브리타니 가덕도동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["siksinhot.com", "keyzard.cc"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "여유를 즐길 수 있는 오션뷰, 감성 있는 데이트 스팟",
+      "sources": [0, 1]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "프렌치 갈레트(루꼴라, 햄, 치즈), 프렌치토스트",
+      "sources": [0, 1]
+    },
+    {
+      "type": "서비스·사람",
+      "note": "애견동반 가능, 강아지용 메뉴(퍼푸치노) 제공",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["갈레트", "프렌치토스트"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "가덕도의 핫플레이스 카페. 브런치 메뉴도 판매"
+}

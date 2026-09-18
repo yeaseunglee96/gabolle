@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220810466958",
+  "worker": "haiku-20",
+  "researchedAt": "2026-09-09T10:42:00Z",
+  "queries": ["사마르칸트 동구 부산", "사마르칸트 초량1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 동구 중앙대로214번길 27-8"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "메뉴 희소성", "note": "우즈베키스탄 음식 전문점, 도시에서 드물게 찾을 수 있는 음식", "sources": [0] },
+    { "type": "현지인 지지", "note": "부산역 초량 지역의 이색적 분위기 식당으로 현지인 손님 많음", "sources": [0] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["만티", "샤슬릭", "라그만"],
+    "priceBand": "regular"
+  },
+  "notFound": null,
+  "notes": ""
+}

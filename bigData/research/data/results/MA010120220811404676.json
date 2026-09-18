@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220811404676",
+  "worker": "haiku-47",
+  "researchedAt": "2026-09-09T10:40:00Z",
+  "queries": ["소문난대구탕 해운대구 부산", "소문난대구탕 중1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/388217", "https://triple.guide/restaurants/53d8defa-ac72-4502-b5a7-3527ceb32e5a", "https://www.diningcode.com/profile.php?rid=Bo4T8IOqzp1W"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "대구탕(13,000원), 뽈찜(35,000원/45,000원)이 대표 메뉴", "sources": [0, 1, 2]},
+    {"type": "맛 묘사", "note": "깔끔하고 시원한 국물, 식감 쫄깃한 뽈찜", "sources": [2]},
+    {"type": "현지인 지지", "note": "해운대 중1동 지역 주민이 찾는 대구탕 전문점", "sources": [0, 2]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["대구탕", "뽈찜"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "영업시간 08:00-22:00. 사장님이 위생을 신경써서 깨끗함"
+}

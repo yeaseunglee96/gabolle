@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220811442384",
+  "worker": "haiku-62",
+  "researchedAt": "2026-09-10T12:04:00Z",
+  "queries": ["일번지자갈치산곰장어 해운대구", "일번지자갈치 산곰장어 중1동"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/388084", "https://www.diningcode.com/profile.php?rid=LrFhEfedhXjs"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "원조·최초", "note": "해운대 시장의 원조 곰장어 집", "sources": [0]},
+    {"type": "간판 메뉴 지목", "note": "양념구이, 소금구이, 통구이 곰장어 전문", "sources": [0, 1]},
+    {"type": "동네·시장 지목", "note": "해운데 시장 내 숨은 맛집", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["곰장어 양념구이", "곰장어 소금구이"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": ""
+}

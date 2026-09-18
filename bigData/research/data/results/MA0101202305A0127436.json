@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202305A0127436",
+  "worker": "haiku-53",
+  "researchedAt": "2026-09-09T15:46:00Z",
+  "queries": ["발레Vale 우동 해운대", "발레Vale 부산"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://www.tripadvisor.co.kr/Restaurant_Review-g297884-d27986303-Reviews-Vale-Busan.html"],
+  "stillOpen": true,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": null,
+  "notes": "카테고리는 경양식으로 기록됨. 우동1로38번가길 20 위치로 기록. 해리단길에 발레 레스토랑이 있음"
+}

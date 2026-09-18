@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220810448032",
+  "worker": "haiku-13",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["남일꼼장어 영도구 부산", "남일꼼장어 영선1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["식신", "다이닝코드", "triple.guide"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "꼼장어(아나고) 전문",
+      "sources": [0, 1]
+    },
+    {
+      "type": "연차·역사",
+      "note": "2대째 62년 전통, 백년가게",
+      "sources": [0, 1]
+    },
+    {
+      "type": "원조·최초",
+      "note": "영도를 대표하는 꼼장어 전문점",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["산꼼장어 소금구이", "양념구이", "꼼삼"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "이인순 남일꼼장어, 쫄깃한 식감과 담백한 풍미"
+}

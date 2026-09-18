@@ -1,0 +1,28 @@
+{
+  "id": "MA0101202210A0053073",
+  "worker": "haiku-12",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["꼬쇼네 영도구 부산", "꼬쇼네 청학동 카페"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://kr.trip.com/moments/detail/busan-432-119817789/", "https://ban-life.com/content/view?id=9918"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "분위기·전망", "note": "유럽풍 감성의 분위기와 감성 있는 공간", "sources": [0, 1]},
+    {"type": "운영·접근 편의", "note": "애견동반 카페로 개와 함께 방문 가능 (소형견, 가방/캐리어 필요)", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "베이커리와 브런치 제공", "sources": [0]},
+    {"type": "플랫폼 순위·평점", "note": "트립닷컴, 반려동물 커뮤니티 등에 소개됨", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["브런치", "베이커리", "커피"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

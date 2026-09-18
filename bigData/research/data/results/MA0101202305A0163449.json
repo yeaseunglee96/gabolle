@@ -1,0 +1,34 @@
+{
+  "id": "MA0101202305A0163449",
+  "worker": "haiku-57",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["본앤브레드 해운대", "본앤브레드 스테이크하우스"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=4hP0qpppMRYY"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "조리·재료",
+      "note": "1++BMS9등급 최상급 암소 한우 사용, 매일 경매로 수급",
+      "sources": [0]
+    },
+    {
+      "type": "기관 선정",
+      "note": "2026 미쉐린 가이드 등재",
+      "sources": [0]
+    },
+    {
+      "type": "연차·역사",
+      "note": "1978년 개업, 40년 이상 한우장인의 경험과 역사",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["한우스테이크", "맡김차림(15-19부위)"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": "파라다이스호텔 부산 지하1층, 참숯 구이, 한우 고향에서 출발, 미쉐린 가이드 수록"
+}

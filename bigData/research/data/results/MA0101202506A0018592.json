@@ -1,0 +1,20 @@
+{
+  "id": "MA0101202506A0018592",
+  "worker": "haiku-54",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["호네 수영구 부산", "호네 민락동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.instagram.com/p/DLzLS56Jdrx/", "https://kr.trip.com/moments/detail/gwanganri-beach-2040459-134276025/", "https://www.keyzard.cc/softball1024/nb/223930357309"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "조리·재료", "note": "숯불 직화로 구운 생선의 담백하고 고소한 풍미", "sources": [1, 2]},
+    {"type": "간판 메뉴 지목", "note": "생선 숯불구이 전문점", "sources": [0, 1]},
+    {"type": "분위기·전망", "note": "광안리 해수욕장 끝자락 바다 옆 위치, 모던하고 깔끔한 실내 인테리어", "sources": [1, 2]},
+    {"type": "운영·접근 편의", "note": "대중교통 접근성 우수, 주차 공간 마련, 도보 5분 거리", "sources": [2]}
+  ],
+  "newTypes": [],
+  "descriptors": {"yearsClaimed": null, "generations": null, "queueing": null, "parking": true, "audience": "mixed", "signatureDishes": ["생선구이", "굴솥밥"], "priceBand": "moderate"},
+  "notFound": null,
+  "notes": ""
+}

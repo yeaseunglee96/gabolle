@@ -1,0 +1,33 @@
+{
+  "id": "MA010120220810578257",
+  "worker": "haiku-1",
+  "researchedAt": "2026-09-09T02:16:00Z",
+  "queries": ["소문난돼지국밥 중구 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/316093", "https://autoreserve.com/ko/restaurants/rA7QFLNdPoro7Ef2KR5W"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "location",
+      "note": "부산 돼지국밥 로드의 유명 맛집 - 전통 돼지국밥 거리",
+      "sources": [0]
+    },
+    {
+      "type": "market_proximity",
+      "note": "자갈치 시장과 깡통 시장 인근 - 관광지 위치",
+      "sources": [0]
+    },
+    {
+      "type": "menu",
+      "note": "돼지국밥, 순대국밥 등 전통 국밥 전문",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["돼지국밥", "순대국밥"]
+  },
+  "notFound": null,
+  "notes": "자갈치역 매우 가까움, 7:30~21:30 영업, 휴무일 없음"
+}

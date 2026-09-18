@@ -1,0 +1,27 @@
+{
+  "id": "MA0101202411A0019085",
+  "worker": "haiku-58",
+  "researchedAt": "2026-09-09T17:10:00Z",
+  "queries": ["라미아에스타떼 수영구 부산", "라미아에스타떼 민락동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1450880"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "갈라또 전문점", "sources": [0]},
+    {"type": "분위기·전망", "note": "귀여운 갈라또 창문 디자인", "sources": [0]},
+    {"type": "운영·접근 편의", "note": "14:00~22:30 운영, 화요일 휴무", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["갈라또"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "주소 광안로61번길 12, 광안역 3번출구에서 도보 680m"
+}

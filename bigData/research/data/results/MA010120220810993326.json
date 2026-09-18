@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220810993326",
+  "worker": "haiku-1",
+  "researchedAt": "2026-09-09T02:50:00Z",
+  "queries": ["서면밀면 부산진구"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/448863", "https://korean.visitkorea.or.kr/detail/rem_detail.do?cotid=58680c46-8aad-4dea-b535-fa37dc79207f"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "quality",
+      "note": "72시간 우려낸 사골 육수 - 부산 밀면의 정석",
+      "sources": [0]
+    },
+    {
+      "type": "sourcing",
+      "note": "부전시장에서 매일 신선 재료 공수",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["물밀면", "만두"]
+  },
+  "notFound": null,
+  "notes": "서전로 25, 10:30~21:30, 30분 무료주차"
+}

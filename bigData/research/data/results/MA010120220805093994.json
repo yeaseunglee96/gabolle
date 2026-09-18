@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220805093994",
+  "worker": "haiku-64",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["소묘 경양식 전포동", "소묘 부산 맛집", "소묘 전포 와인바"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://polle.com/place/4O3rnf/%EC%86%8C%EB%AC%98", "https://www.diningcode.com/profile.php?rid=6Xhf4Qc2ExAc"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "분위기·전망", "note": "생일파티 좋은 공간, 루프탑/프라이빗룸 구성", "sources": [0]},
+    {"type": "서비스·사람", "note": "친절한 사장님, 우수한 고객 서비스", "sources": [0]},
+    {"type": "곁들임·차림", "note": "맛있는 안주, 합리적인 칼칵테일 가격과 넉넉한 양", "sources": [0]},
+    {"type": "간판 메뉴 지목", "note": "와인과 안주 전문", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "adults",
+    "signatureDishes": ["와인", "안주", "칼칵테일"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "전포동 요리주점/와인바. Polle(포르토) 등록."
+}

@@ -1,0 +1,44 @@
+{
+  "id": "MA010120220811407633",
+  "worker": "haiku-70",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["남일횟집 해운대구 부산", "남일횟집 송정동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.tabling.co.kr/place/677cc8ed66de5f069877eaac", "https://triple.guide/restaurants/2f10b801-1edd-414d-8cde-d8499953b2e8", "https://www.diningcode.com/profile.php?rid=xyEmzXb6cArm"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "메뉴 희소성",
+      "note": "자연산 활어회를 전문으로 하는 송정지역의 대표 회전문",
+      "sources": [2]
+    },
+    {
+      "type": "현지인 지지",
+      "note": "송정시장 인근의 동네 주민들이 찾는 숨은 맛집",
+      "sources": [0]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "신선한 자연산 회를 합리적인 가격대에 제공",
+      "sources": [1]
+    },
+    {
+      "type": "서비스·사람",
+      "note": "친절한 고객 서비스로 평판이 좋음",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["자연산 활어회", "계절 모듬회", "놀래미회", "회덮밥"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

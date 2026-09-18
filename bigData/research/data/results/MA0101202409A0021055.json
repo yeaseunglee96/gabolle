@@ -1,0 +1,39 @@
+{
+  "id": "MA0101202409A0021055",
+  "worker": "haiku-51",
+  "researchedAt": "2026-09-09T14:58:00Z",
+  "queries": ["앙시앙 광안리 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=A5ckMwvwBWj9", "https://kr.trip.com/moments/detail/suyeong-gu-2016645-125374769/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "유럽식 오래된 카페 분위기로 베이커리 아로마 가득",
+      "sources": [0, 1]
+    },
+    {
+      "type": "혼잡·수요",
+      "note": "오픈 전부터 고객이 줄을 서 있을 정도로 인기",
+      "sources": [0]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "크레페와 베이커리 아이템(바게트, 샌드위치)으로 유명",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": true,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["크레페", "바게트", "과일 샌드위치", "초콜릿 바게트"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "영업시간: 11:30 - 20:00. 경양식이 아니라 베이커리/카페. 예약 필수. 금괴뭔 역 1번 출구에서 292m"
+}

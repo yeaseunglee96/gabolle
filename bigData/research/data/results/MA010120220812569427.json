@@ -1,0 +1,34 @@
+{
+  "id": "MA010120220812569427",
+  "worker": "haiku-68",
+  "researchedAt": "2026-09-10T09:39:00Z",
+  "queries": ["청우 해운대해변로 우1동 부산", "청우 백반 한정식 해운대 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://triple.guide/restaurants/c284ab71-6ba5-4c77-9ef0-9c216cef3e1f", "https://www.diningcode.com/profile.php?rid=ZDiB37fUpZhJ", "https://polle.com/place/2MEXJ7/%EC%B2%AD%EC%9A%B0"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "메뉴 희소성",
+      "note": "신선한 사시미와 고급 일식 요리 제공",
+      "sources": [0, 1]
+    },
+    {
+      "type": "조리·재료",
+      "note": "고급 사시미와 손질한 생선을 사용한 이자카야",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": false,
+    "audience": "adult",
+    "signatureDishes": ["모듬사시미", "삼치구이"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": "이자카야 (데이터상 백반/한정식으로 기록되어 있으나 실제로는 사시미와 일식 전문점). 영업시간 17:30-01:00(월-토), 일요일 휴무. 주소: 해운대해변로209번길 8-12 2층. 예약 권장"
+}

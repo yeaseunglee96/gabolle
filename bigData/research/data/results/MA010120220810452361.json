@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220810452361",
+  "worker": "haiku-32",
+  "researchedAt": "2026-09-09T11:08:00Z",
+  "queries": ["우도자리돔물회 영도구 부산", "우도자리돔물회 동삼1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 영도구 태종로 704"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "자리돔 물회 전문, 제주 자연산 자리돔·옥돔 사용",
+      "sources": [0, 1]
+    },
+    {
+      "type": "현지인 지지",
+      "note": "지역주민·한국해양대학교 학생들이 자주 방문",
+      "sources": [0, 1]
+    },
+    {
+      "type": "맛 묘사",
+      "note": "폭염을 날려버릴 내공, 여름 물회로 유명",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["자리돔 물회", "자리돔 구이", "옥돔 구이"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "태종대에서 20년 토박이 식당. 10:30~20:00 영업. 주차 가능. 점심특선 모듬구이정식."
+}

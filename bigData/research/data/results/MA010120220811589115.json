@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220811589115",
+  "worker": "haiku-17",
+  "researchedAt": "2026-09-09T09:46:30Z",
+  "queries": ["정진영펍 금정구 부산", "정진영펍 장전 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.facebook.com/JjyPub/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "분위기·전망", "note": "좋은 전망과 분위기를 가진 펍이다", "sources": [0]},
+    {"type": "가격·가성비", "note": "대학가 인근으로 합리적인 가격이다", "sources": [0]},
+    {"type": "서비스·사람", "note": "아늑한 분위기와 맛있는 안주가 특징이다", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": [],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

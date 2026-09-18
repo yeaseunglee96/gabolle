@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202308A0083806",
+  "worker": "haiku-53",
+  "researchedAt": "2026-09-09T16:00:00Z",
+  "queries": ["식스시즌스 수영로 광안", "식스시즌스 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=ssX9Yb0WT6qK", "https://triple.guide/restaurants/358a72e6-23ee-4642-b832-5cb98754c3cd"],
+  "stillOpen": true,
+  "whyPeopleGo": [{"type": "간판 메뉴 지목", "note": "파스타, 브런치, 스테이크", "sources": [0, 1]}, {"type": "분위기·전망", "note": "우드&그린 톤 인테리어, 아늑한 분위기", "sources": [0]}],
+  "newTypes": [],
+  "descriptors": {"signatureDishes": ["해산물 굴크림 파스타", "비프 숏립 플레이트", "필라프"]},
+  "notFound": null,
+  "notes": "카테고리는 경양식으로 기록됨. 수영로540번길 55 위치 (제공된 주소는 57). 운영시간 11:00-21:00 (휴게시간 16:00-17:00). 가성비 좋은 양식 맛집"
+}

@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220810814662",
+  "worker": "haiku-1",
+  "researchedAt": "2026-09-09T00:52:00Z",
+  "queries": ["오소리순대 연제구 부산", "오소리순대 월드컵대로 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=43GRL9jceBNI", "https://www.siksinhot.com/P/264186"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "heritage",
+      "note": "46년 동안 이어온 동네 노포 명점 - 현지인 단골들의 대표 맛집",
+      "sources": [0]
+    },
+    {
+      "type": "specialty",
+      "note": "사장님이 직접 손수 만든 순대 - 속이 꽉 찬 밀도감 있는 식감",
+      "sources": [0]
+    },
+    {
+      "type": "unique_ingredient",
+      "note": "순대 안에 밤이 들어감 - 고소하고 색다른 풍미 제공",
+      "sources": [0]
+    },
+    {
+      "type": "signature_dish",
+      "note": "스페셜 모둠(29,000원) - 순대, 내장, 돼지 삼겹살의 완벽한 조화",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 46,
+    "signatureDishes": ["순대국", "특수 모둠"]
+  },
+  "notFound": null,
+  "notes": "유명 메뉴 '술국(술 안주용)', 저렴한 가격대, 점심 시간 웨이팅 주의, 온사이트 주차 가능, 1/3 일요일 휴무"
+}

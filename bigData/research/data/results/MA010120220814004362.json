@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220814004362",
+  "worker": "haiku-23",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["몽상가들 중구 부산", "몽상가들 부평동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 중구 광복로18번길 6-1"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "분위기·전망", "note": "영화 '몽상가들'을 모티브로 한 앤틱하고 빈티지한 분위기의 공간", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "몽상가 플레이트와 와인 페어링 중심의 애피타이저", "sources": [1]},
+    {"type": "서비스·사람", "note": "낭만적인 저녁시간을 위한 특별한 와인바 경험", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "adult",
+    "signatureDishes": ["몽상가 플레이트", "생크림 조개찜", "한 그릇의 쉬림프"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "전화 051-243-1011"
+}

@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220811425120",
+  "worker": "haiku-63",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["베트남식전문 해운대 부산"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "검색에서 베트남 음식점 일반 정보만 나왔으며, 요청된 가게명과 정확히 일치하는 정보는 없음",
+  "notes": ""
+}

@@ -1,0 +1,42 @@
+{
+  "id": "MA010120220810462167",
+  "worker": "haiku-2",
+  "researchedAt": "2026-09-08T16:43:11.248Z",
+  "queries": ["밀양집 중구 부산 국밥", "밀양집 부평동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.diningcode.com/profile.php?rid=xLe9skCTbyj9",
+    "https://www.siksinhot.com/P/397779"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "맛 묘사",
+      "note": "깔끔하고 진한 육수에 푸짐한 머릿고기가 특징",
+      "sources": [0]
+    },
+    {
+      "type": "연차·역사",
+      "note": "1981년부터 40년 이상 영업 중인 부평시장의 전통 있는 집",
+      "sources": [0]
+    },
+    {
+      "type": "곁들임·차림",
+      "note": "양념장과 부추, 테이블에서 신선하게 자르는 파 절임이 특징",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 40,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["내장국밥", "내장따로국밥", "돼지국밥"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "자갈치역 근처 부평동시장. 재방문율 높은 유명 맛집"
+}

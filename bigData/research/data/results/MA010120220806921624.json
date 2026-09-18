@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220806921624",
+  "worker": "haiku-52",
+  "researchedAt": "2026-09-09T14:47:30Z",
+  "queries": ["월드 서구 부산", "월드 충무동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "음식점이 아닌 유흥시설 (무도 유흥 주점)",
+  "notes": ""
+}

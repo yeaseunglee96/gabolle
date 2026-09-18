@@ -1,0 +1,37 @@
+{
+  "id": "MA010120220811886033",
+  "worker": "haiku-2",
+  "researchedAt": "2026-09-08T16:43:11.248Z",
+  "queries": ["서울깍두기 롯데광복점 부산", "서울깍두기 중앙로 국밥"],
+  "found": true,
+  "confidence": "medium",
+  "sources": [
+    "https://www.visitbusan.net/kr/index.do?menuCd=DOM_000000201002002001&uc_seq=1615&lang_cd=ko",
+    "https://www.tripadvisor.com/Restaurant_Review-g297884-d3444583-Reviews-Seoul_Kkakdugi-Busan.html"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "연차·역사",
+      "note": "80년 이상의 전통으로 설렁탕과 곰탕 전문",
+      "sources": [0]
+    },
+    {
+      "type": "맛 묘사",
+      "note": "한우뼈로 우려낸 깊고 진한 국밥 국물",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 80,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["설렁탕", "곰탕"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "롯데광복점 위치, 유명한 국밥 맛집"
+}

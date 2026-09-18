@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220810639760",
+  "worker": "haiku-6",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["마가만두집 동구 부산", "마가만두집 초량1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 동구 대영로243번길 56"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "맛 묘사", "note": "중식 스타일의 즙 많은 만두, 게볶음밥", "sources": [0]},
+    {"type": "운영·접근 편의", "note": "부산역 건너편 차이나타운에 위치", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["찐만두", "군만두", "게볶음밥", "고추볶음"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "영업시간 11:00~21:00 (15:00~16:00 휴식), 1·3월 월요일 휴무"
+}

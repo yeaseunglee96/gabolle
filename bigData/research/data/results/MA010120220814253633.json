@@ -1,0 +1,47 @@
+{
+  "id": "MA010120220814253633",
+  "worker": "haiku-65",
+  "researchedAt": "2026-09-09T22:31:18.844Z",
+  "queries": [
+    "회춘 해운대점 달맞이길 부산",
+    "회춘 중1동 해운대 맛집",
+    "회춘 경양식 해운대"
+  ],
+  "found": true,
+  "confidence": "medium",
+  "sources": [
+    "https://www.siksinhot.com/P/1271405"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "다층 구조로 층별 다른 컨셉의 식사 공간 제공",
+      "sources": [
+        0
+      ]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "회춘 아메리카노, 회춘 라떼",
+      "sources": [
+        0
+      ]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": [
+      "아메리카노",
+      "라떼"
+    ],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "달맞이길 인근, 카페/식당 복합 시설"
+}

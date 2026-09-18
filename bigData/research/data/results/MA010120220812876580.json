@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220812876580",
+  "worker": "haiku-9",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["토리고야 중구 부산", "토리고야 부평동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["siksinhot.com", "diningcode.com"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "메뉴 희소성",
+      "note": "일본 이자카야의 독특한 메뉴 구성",
+      "sources": [0, 1]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "간사이우동, 감자고로케, 쯔쿠네",
+      "sources": [0, 1]
+    },
+    {
+      "type": "연차·역사",
+      "note": "남포동 족발골목에서 10년 이상 운영",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 10,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["간사이우동", "감자고로케", "쯔쿠네"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "건물 1~3층 운영. 단체석과 테라스 좌석 완비"
+}

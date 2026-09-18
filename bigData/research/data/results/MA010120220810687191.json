@@ -1,0 +1,37 @@
+{
+  "id": "MA010120220810687191",
+  "worker": "haiku-40",
+  "researchedAt": "2026-09-09T13:12:00Z",
+  "queries": ["다다삼계탕 북구 부산", "다다삼계탕 화명2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://triple.guide/restaurants/7df04928-5a65-4520-aabd-6d7c207d8daf",
+    "https://www.diningcode.com/list.dc?query=%EB%B6%80%EC%82%B0%ED%99%94%EB%AA%85%EB%8F%99+%EC%82%BC%EA%B3%84%ED%83%95"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "삼계탕 전문점",
+      "sources": [0, 1]
+    },
+    {
+      "type": "플랫폼 순위·평점",
+      "note": "별점을 근거로 든다",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["삼계탕"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "051-365-0500"
+}

@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220806308728",
+  "worker": "haiku-12",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["거창맷돌 동래구 부산", "거창맷돌 온천동 한정식"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/263498", "https://www.diningcode.com/profile.php?rid=3SFHXmJ3P03n"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "연차·역사", "note": "1983년 이래 40년 이상 오래된 노포 식당", "sources": [0, 1]},
+    {"type": "조리·재료", "note": "직접 만드는 맷돌 순두부와 수제 두부", "sources": [0, 1]},
+    {"type": "현지인 지지", "note": "온천장 지역의 유명한 트럭 기사 맛집, 일반 손님까지 찾음", "sources": [0, 1]},
+    {"type": "플랫폼 순위·평점", "note": "식신, 다이닝코드 등 주요 플랫폼에 소개됨", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 40,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["맷돌순두부", "해물순두부"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

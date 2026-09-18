@@ -44,18 +44,29 @@ import tools.jackson.databind.ObjectMapper;
  * <p>취향을 전부 건너뛴 계정과 추천 엔진이 죽은 요청에 빈 화면 대신 내보낼 기준선이다.
  * FR-REC-03 · FR-REC-11 · FR-REC-15.
  *
- * <p>🔴 <b>{@link RecommendationEnginePort} 를 구현하지 않는다.</b> 그 포트의 빈이 둘이
+ * <p><b>{@link RecommendationEnginePort} 를 구현하지 않는다.</b> 그 포트의 빈이 둘이
  * 되면 {@code RecommendationService} 의 {@code ObjectProvider.getIfAvailable()} 이 어느
  * 것을 줄지 정할 수 없어 터진다. 이것은 엔진의 대안이 아니라 <b>엔진이 실패한 뒤에</b>
  * 부르는 별개의 통로다.
  *
- * <p>🔴 {@code @ConditionalOnBean} 을 {@link BaselineRecommendationEngine} 과 같은 이유로
- * 같은 빈에 건다 — 추천 도메인만 스캔하는 슬라이스 테스트 컨텍스트에는 {@code place}
- * 패키지가 없다.
+ * <p>{@code @ConditionalOnBean} 을 남긴 이유는 애노테이션 위 주석에 있다 — S15P21E201-808
+ * 에서 엔진 쪽은 조건을 걷어냈고 이 클래스만 남겼다.
  */
 @Component
 @Profile({ "db", "dev" })
-@ConditionalOnBean(UserPlaceCodeMapRepository.class)
+// S15P21E201-808 — 조건을 EditorialPickRepository 로 바꿨다.
+//
+// 엔진 쪽 셋(BaselineRecommendationEngine · BaselineCandidateTranslator ·
+// BaselineEngineStartupValidator)에서는 이 조건을 걷어내고 슬라이스의 스캔 목록으로
+// 배선을 정했다. 이 클래스만 조건을 남기는 이유는 기대는 대상이 다르기 때문이다 —
+// 앞의 셋은 place 를 필요로 하고 이 클래스는 editorial 을 필요로 하는데, editorial 은
+// 추천 경로의 필수 조각이 아니라 후보가 없을 때의 대체 목록이다. 그 패키지를 안 올리는
+// 컨텍스트가 66개 검사에 걸쳐 있고, 그쪽까지 스캔을 넓히면 "인증만 올린다" 같은
+// 슬라이스의 뜻이 사라진다.
+//
+// 대신 조건 대상을 자기가 실제로 기대는 것(EditorialPickRepository)으로 바꿔서, 조건이
+// 참인데 빈이 없는 상태가 안 생기게 한다.
+@ConditionalOnBean(EditorialPickRepository.class)
 public class EditorialPickBaselineProvider {
 
 	/** {@code EngineCandidate.candidateSource} — 어디서 왔는지 알 수 있는 값. */

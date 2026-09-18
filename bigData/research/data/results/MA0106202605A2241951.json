@@ -1,0 +1,15 @@
+{
+  "id": "MA0106202605A2241951",
+  "worker": "haiku-59",
+  "researchedAt": "2026-09-09T08:32:00Z",
+  "queries": ["코너스톤 해운대 경양식", "코너스톤 해운대해변로 식당"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "해운대 경양식 검색에도 불구하고 '코너스톤'이라는 경양식 식당은 찾을 수 없음",
+  "notes": "경양식 카테고리로 등록"
+}

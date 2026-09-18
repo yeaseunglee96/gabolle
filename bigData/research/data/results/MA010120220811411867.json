@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220811411867",
+  "worker": "haiku-58",
+  "researchedAt": "2026-09-09T16:55:00Z",
+  "queries": ["칠암산곰장어 해운대구 부산", "칠암산곰장어 중1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://triple.guide/restaurants/5c7f381c-31b7-4b0e-b20b-9139c98f44b2", "https://www.diningcode.com/profile.php?rid=RD3jRMvLdunG", "https://mobile.busan.com/view/busan/view.php?code=2025121215183238519"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "조리·재료", "note": "소금구이 꼼장어로 비린내 없고 쫄깃한 식감", "sources": [0, 1]},
+    {"type": "서비스·사람", "note": "대표가 5년 이상 100만원씩 꾸준히 기부하는 착한 가게", "sources": [2]},
+    {"type": "맛 묘사", "note": "정성 있게 준비된 해산물 요리", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["꼼장어 소금구이"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "운영시간 12:00~24:00 연중무휴. 해운대 시장 인근. 대표 Jung Young-geun"
+}

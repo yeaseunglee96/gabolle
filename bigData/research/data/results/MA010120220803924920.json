@@ -1,0 +1,25 @@
+{
+  "id": "MA010120220803924920",
+  "worker": "haiku-11",
+  "researchedAt": "2026-09-09T01:00:00Z",
+  "queries": ["영남돼지 해운대 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 해운대구 해운대해변로209번가길 13"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "맛 묘사", "note": "영남식육식당 직영으로 신선한 삼겹살과 다양한 돼지고기 요리", "sources": [0] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["삼겹살", "뒷고기", "검은돼지 오겹살"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "직원이 고기를 구워줌"
+}

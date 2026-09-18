@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220812331808",
+  "worker": "haiku-62",
+  "researchedAt": "2026-09-10T12:07:00Z",
+  "queries": ["쇼미드고기 해운대구 우동", "쇼미더고기 뒷고기"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=NAvB3QBXbOmF", "https://www.daangn.com/kr/local-profile/%EC%87%BC%EB%AF%B8%EB%8D%94%EA%B3%A0%EA%B8%B0-83eie91ienpr/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "뒷고기 전문", "sources": [0]},
+    {"type": "조리·재료", "note": "신선한 고기 사용", "sources": [0]},
+    {"type": "플랫폼 순위·평점", "note": "네이버 별점을 근거로 든다", "sources": [0]},
+    {"type": "혼잡·수요", "note": "특히 주말에 웨이팅 있을 정도 인기", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": true,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["생뒷고기", "꼬들목심", "가브리살", "항정살", "통삼겹살"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "간접조명의 화이트톤 분위기"
+}

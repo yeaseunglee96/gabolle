@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220812642867",
+  "worker": "haiku-49",
+  "researchedAt": "2026-09-09T14:30:00Z",
+  "queries": ["럭키칠공 해운대구 부산", "럭키칠공 중1동 구남로"],
+  "found": false,
+  "confidence": "low",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "구남로 23에 위치한다는 럭키칠공을 찾을 수 없음. 해운대구 중1동의 다른 고기집은 검색되지만 이 가게는 찾을 수 없음",
+  "notes": ""
+}

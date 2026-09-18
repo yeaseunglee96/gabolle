@@ -132,6 +132,14 @@ public class SecurityConfig {
 						"/api/v1/auth/oauth/*",
 						// 🔴 소셜 로그인의 첫 요청이다. 이때는 아직 로그인 전이므로 열려 있어야
 						//    한다 — 막으면 브라우저가 열리기도 전에 401 이 난다 (-704)
+						// 🔴 애플이 form_post 로 되돌려 보내는 자리 — S15P21E201-833. 로그인 전에
+						//    애플 서버가 직접 부르므로 열려 있어야 한다. "/api/v1/auth/oauth/*" 는
+						//    한 칸만 받아 여기에 안 닿는다(위의 */challenge 가 따로 적혀 있는 이유와 같다).
+						//    와일드카드로 두지 않고 apple 을 박았다 — form_post 를 요구하는 제공자가 애플
+						//    하나뿐이라, 한 마디를 비워 두면 아직 없는 경로까지 미리 열어 두는 셈이 된다.
+						//    이 경로는 값을 옮기기만 하고 판정을 하지 않는다 — 실제 판정은 화면이
+						//    이어서 부르는 코드 교환이 챌린지에 묶인 state·nonce 로 한다.
+						"/api/v1/auth/oauth/apple/form-post",
 						"/api/v1/auth/oauth/*/challenge",
 						// S15P21E201-303 — 가입 안 한 사람이 첫 출입증을 받는 자리. 이때는 아직
 						// X-Session-Token 이 없으므로 열려 있어야 한다.
@@ -164,8 +172,17 @@ public class SecurityConfig {
 		CorsConfiguration configuration = new CorsConfiguration();
 		configuration.setAllowedOrigins(properties.getCorsAllowedOrigins());
 		configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+		// 🔴 실측(2026-09-10) — X-Session-Token(익명 출입증, S15P21E201-303)·Idempotency-Key
+		//    (POST /api/v1/trips 등이 보내는 재시도 안전 키)가 여기 없어서 웹에서 로그인·
+		//    여행 생성이 둘 다 막혀 있었다. 브라우저가 실제 요청 전에 보내는 사전 확인
+		//    (preflight, OPTIONS)이 "이 헤더를 보내도 되는가"를 여기 목록과 대조하는데,
+		//    프론트가 실제로 보내는 헤더(src/api/client.ts·tripApi.ts) 중 이 둘이 빠져 있어
+		//    /auth/login·/auth/web/refresh·POST /api/v1/trips가 CORS로 거부됐다 — 상태
+		//    코드조차 못 받고 fetch 자체가 실패해서 화면에는 "서버에 연결할 수 없어요"로만
+		//    보였다. Playwright E2E(S15P21E201-775)가 실제 로그인→여행 생성을 자동화하다가
+		//    둘 다 발견했다 — 하나를 고치고 다음 단계에서 또 걸렸다.
 		configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Request-Id", "X-Client-Platform",
-				"X-Device-Id"));
+				"X-Device-Id", "X-Session-Token", "Idempotency-Key"));
 		configuration.setExposedHeaders(List.of("X-Request-Id"));
 		configuration.setAllowCredentials(true);
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

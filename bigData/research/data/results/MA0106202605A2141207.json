@@ -1,0 +1,43 @@
+{
+  "id": "MA0106202605A2141207",
+  "worker": "haiku-1",
+  "researchedAt": "2026-09-09T01:30:00.000Z",
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://ilovefood.tistory.com/467",
+    "https://www.instagram.com/tipsypub.gwangalli/",
+    "https://www.diningcode.com/profile.php?rid=jKn5AhB2h6ru",
+    "https://www.siksinhot.com/P/1922400"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "광안리 해변 지하 벙커 느낌의 독특한 분위기가 매력. 한 번 가보면 계속 가게 되는 마성의 장소라고 표현",
+      "sources": [0, 1]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "치킨 윙과 수제버거가 시그니처 메뉴",
+      "sources": [0, 2, 3]
+    },
+    {
+      "type": "운영·접근 편의",
+      "note": "매일 오후 5-7시 해피아워로 주류 할인, 야외 좌석과 바 게임 제공",
+      "sources": [0, 3]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "hard",
+    "audience": "mixed",
+    "signatureDishes": ["치킨 윙", "버거"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "광안리 썰파 바로 옆 GS편의점 안쪽 계단으로 내려가는 지하 위치. Instagram 인스타그램에서 3개월 전(약 6월경) 오픈이라는 포스트 있음"
+}

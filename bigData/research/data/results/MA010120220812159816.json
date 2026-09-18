@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220812159816",
+  "worker": "haiku-39",
+  "researchedAt": "2026-09-09T10:16:00Z",
+  "queries": ["여백을채우다 사하구 부산", "여백을채우다 장림2동 회"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=Y2Sy9Ct33Bkk", "https://www.daangn.com/kr/local-profile/%EC%97%AC%EB%B0%B1%EC%9D%84-%EC%B1%84%EC%9A%B0%EB%8B%A4-x-%EC%99%80%EB%8B%A4%EB%9D%BC%EB%A9%98-%EC%9E%A5%EB%A6%BC%EC%A0%90-2kyhh7rwczoq/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "메뉴 희소성", "note": "초밥과 라멘을 함께 제공하는 독특한 콤보", "sources": [0, 1]},
+    {"type": "운영·접근 편의", "note": "명확한 영업시간과 체계적인 운영", "sources": [0]},
+    {"type": "간판 메뉴 지목", "note": "신선한 초밥과 돈코츠 라멘으로 알려짐", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": null,
+    "signatureDishes": ["초밥", "돈코츠라멘", "미소라멘"],
+    "priceBand": "moderate"
+  },
+  "notes": "정식명칭: 여백을채우다 x 와다라멘 장림점, 주소: 부산광역시 사하구 장림동 (장평로 127), 영업시간: 11:00~23:00 (15:00~17:00 휴무), 매주 화요일 휴무"
+}

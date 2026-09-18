@@ -1,0 +1,38 @@
+{
+  "id": "MA0101202511A0024557",
+  "worker": "haiku-1",
+  "researchedAt": "2026-09-09T00:15:00Z",
+  "queries": ["편의방 중구 부산", "편의방 해관로 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=aikDwIwiQafJ", "https://triple.guide/restaurants/c4069911-5108-45f5-bba2-ee4c4a4ae91b"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "specialty",
+      "note": "정통 수제 만두 - 대만인 셰프가 만드는 정통 대만-중국 요리",
+      "sources": [0, 1]
+    },
+    {
+      "type": "signature_dish",
+      "note": "삼선만두(새우와 채소가 푸짐한 고급스러운 맛) - TV 생활의 달인 출연",
+      "sources": [0]
+    },
+    {
+      "type": "quality",
+      "note": "진한 육수와 신선한 소금기 있는 충전재가 특징 - 5년 연속 선정",
+      "sources": [0]
+    },
+    {
+      "type": "heritage",
+      "note": "60년 경력의 대만 셰프가 2세대에 걸쳐 운영하는 명점",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["삼선만두", "깐풍만두"]
+  },
+  "notFound": null,
+  "notes": "SBS TV 출연, 주변 유료주차장 이용 권장"
+}

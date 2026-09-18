@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220811473353",
+  "worker": "haiku-53",
+  "researchedAt": "2026-09-09T16:07:00Z",
+  "queries": ["평안도족발 달맞이길 해운대", "평안도족발 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=wDlgfyGvmGHS", "https://www.siksinhot.com/P/257301"],
+  "stillOpen": true,
+  "whyPeopleGo": [{"type": "간판 메뉴 지목", "note": "족발, 냉채족발, 감자탕", "sources": [0, 1]}, {"type": "대물림", "note": "1982년부터 운영, 미쉐린 블루리본 수상", "sources": [0, 1]}],
+  "newTypes": [],
+  "descriptors": {"signatureDishes": ["냉채족발", "감자탕", "족발"]},
+  "notFound": null,
+  "notes": "카테고리는 족발/보쌈으로 기록됨. 달맞이길 14 위치. 운영시간 12:00-24:00. 전화: 051-741-6568. 1982년부터 운영 중인 오래된 식당. 미쉐린 블루리본 수상"
+}

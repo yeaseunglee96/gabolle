@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220805985347",
+  "worker": "haiku-30",
+  "researchedAt": "2026-09-09T10:59:00Z",
+  "queries": ["룸606 강서구 부산", "룸606 명지1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 강서구 명지국제6로 316"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "분위기·전망", "note": "프라이빗한 단체룸이 있어 조용한 분위기", "sources": [0, 1] },
+    { "type": "메뉴 희소성", "note": "파스타, 피자, 스테이크 등 종일 다이닝 메뉴", "sources": [0, 1] },
+    { "type": "운영·접근 편의", "note": "충분한 주차가 가능함", "sources": [1] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": false,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["파스타", "피자"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

@@ -1,0 +1,39 @@
+{
+  "id": "MA0101202406A0054191",
+  "worker": "haiku-13",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["누오토 수영구 부산", "누오토 광안1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["식신", "다이닝코드"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "와인바와 이탈리아 요리",
+      "sources": [0, 1]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "광안리의 우아한 와인바 분위기",
+      "sources": [0, 1]
+    },
+    {
+      "type": "조리·재료",
+      "note": "신선한 파스타, 리조또, 구운 야채",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": false,
+    "audience": "mixed",
+    "signatureDishes": ["구운 라디키오", "구운 엔디브", "파스타"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "이탈리아어로 '수영하다' 뜻, 대형 쉐어테이블 1개와 바 자리"
+}

@@ -1,0 +1,34 @@
+{
+  "id": "MA010120220811441766",
+  "worker": "haiku-71",
+  "researchedAt": "2026-09-10T12:05:00Z",
+  "queries": ["전망대오륙도횟집 수영구 부산", "전망대오륙도횟집 민락동"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://triple.guide/restaurants/c5c198eb-4475-401e-819f-00334f53691e"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "전망대라는 이름에서 볼 수 있듯이 경치가 좋은 입지",
+      "sources": [0]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "오륙도를 보는 횟집이라는 특성",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["회"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": ""
+}

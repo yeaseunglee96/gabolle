@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220811621593",
+  "worker": "haiku-15",
+  "researchedAt": "2026-09-08T22:44:32Z",
+  "queries": ["창녕집 금정구 부산", "창녕집 남산동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 금정구 범어천로46번길 5-1"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "연차·역사", "note": "1960년대부터 운영, 오랜 연륜", "sources": [0] },
+    { "type": "간판 메뉴 지목", "note": "토종닭, 산양, 오리", "sources": [0] },
+    { "type": "조리·재료", "note": "백년가게 연륜과 오랜 숙성", "sources": [0] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": "1960년대",
+    "generations": null,
+    "queueing": false,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["토종닭", "산양", "오리"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "매일 10:00~22:00, 전화 051-517-5288"
+}

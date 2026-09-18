@@ -17,6 +17,7 @@ import com.gabolle.backend.auth.repository.AuthIdentityRepository;
 import com.gabolle.backend.auth.repository.AuthOneTimeTokenRepository;
 import com.gabolle.backend.auth.repository.LocalCredentialRepository;
 import com.gabolle.backend.common.security.SecurityEventLogger;
+import com.gabolle.backend.trip.application.AnonymousTripClaimService;
 import com.gabolle.backend.user.domain.AppUser;
 import com.gabolle.backend.user.domain.PersonalizationMode;
 import com.gabolle.backend.user.domain.UserStatus;
@@ -71,6 +72,11 @@ class LocalAuthServiceTest {
 	// 여기서는 생성자 호출을 컴파일되게 유지하는 목적의 mock 이다.
 	@Mock private SecurityEventLogger securityEventLogger;
 
+	// S15P21E201-317 — 가입 시 익명 여행 승계 의존성. 세션 토큰을 안 보내는 기존 테스트들은
+	// 이 둘을 그냥 안 부르므로(resolve 호출 자체가 없다) 별도 스텁이 필요 없다.
+	@Mock private AnonymousSessionService anonymousSessionService;
+	@Mock private AnonymousTripClaimService anonymousTripClaimService;
+
 	private LocalAuthService service;
 
 	@BeforeEach
@@ -80,6 +86,7 @@ class LocalAuthServiceTest {
 				oneTimeTokenRepository, passwordEncoder,
 				new SessionTokenGenerator(), authTokenService, emailSender, properties,
 				new ConsentPolicy(), loginAttemptGuard, securityEventLogger,
+				anonymousSessionService, anonymousTripClaimService,
 				Clock.fixed(Instant.parse("2026-01-01T00:00:00Z"), ZoneOffset.UTC));
 	}
 

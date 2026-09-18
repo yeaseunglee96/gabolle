@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220811390987",
+  "worker": "haiku-14",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["청송양곱창 수영구 부산", "청송양곱창 남천2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["테이블링", "다이닝코드", "인스타그램"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "양곱창 전문점으로 알려짐", "sources": [1]},
+    {"type": "조리·재료", "note": "숯불 구이로 양곱창의 맛을 냄", "sources": [0, 1]},
+    {"type": "플랫폼 순위·평점", "note": "다이닝코드 별점을 근거로 든다", "sources": [1]},
+    {"type": "곁들임·차림", "note": "볶음밥, 된장찌개, 열무국수 등 다양한 반찬 제공", "sources": [0]},
+    {"type": "분위기·전망", "note": "광안리에서 약 10분 거리의 위치", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["양곱창", "특양"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

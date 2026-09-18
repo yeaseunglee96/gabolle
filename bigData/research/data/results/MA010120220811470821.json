@@ -1,0 +1,43 @@
+{
+  "id": "MA010120220811470821",
+  "worker": "haiku-50",
+  "researchedAt": "2026-09-09T05:33:50Z",
+  "queries": ["일품한우 해운대 부산", "일품한우 우1동 한우"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.siksinhot.com/P/480994",
+    "https://www.diningcode.com/profile.php?rid=j3TGecJVIUn7",
+    "https://www.visitbusan.net/kr/index.do?menuCd=DOM_000000202003001000&uc_seq=2195&lang_cd=ko"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "미디어 노출",
+      "note": "BTS 뷔가 방문한 유명 식당",
+      "sources": [2]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "프리미엄 한우 전문점",
+      "sources": [0, 1, 2]
+    },
+    {
+      "type": "플랫폼 순위·평점",
+      "note": "식신, 다이닝코드, 비짓부산 등에 등재",
+      "sources": [0, 1, 2]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["한우 갈비", "소고기 구이", "한우 등심"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": ""
+}

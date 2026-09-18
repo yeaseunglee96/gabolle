@@ -1,0 +1,42 @@
+{
+  "id": "MA010120220800300844",
+  "worker": "haiku-3",
+  "researchedAt": "2026-09-08T16:55:36.224Z",
+  "queries": ["수복센타 남포동 요리주점", "수복센타 1945 스지어묵탕"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.diningcode.com/profile.php?rid=xQpuUizjv4Mz",
+    "https://blog.daum.net/happymeals/2004"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "스지어묵탕(스지 오뎅탕) 전문점",
+      "sources": [0, 1]
+    },
+    {
+      "type": "연차·역사",
+      "note": "1946년 개업으로 약 60년 이상 전통의 노포",
+      "sources": [1]
+    },
+    {
+      "type": "현지인 지지",
+      "note": "TV 프로그램 식객에 소개된 남포동의 대표 술집",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 60,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["스지어묵탕", "다다끼"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

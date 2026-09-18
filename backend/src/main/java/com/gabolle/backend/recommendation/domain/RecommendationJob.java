@@ -246,6 +246,31 @@ public class RecommendationJob {
 		}
 		this.jobStatus = JobStatus.RUNNING;
 		this.jobStage = stage;
+		this.progressPercent = stage.percent();
+	}
+
+	/**
+	 * 도는 중에 단계가 넘어갔다 — S15P21E201-193.
+	 *
+	 * <p>{@link #markRunning} 이 첫 단계를 정하고, 그 뒤의 단계 전환이 여기로 온다. 진행률은
+	 * 단계가 들고 있는 값을 그대로 쓴다({@link JobStage#percent()}) — 부르는 쪽이 숫자를 정하게
+	 * 하면 같은 단계가 자리마다 다른 퍼센트로 나간다.
+	 *
+	 * <p>🔴 <b>진행률은 뒤로 가지 않는다.</b> 화면에서 진행률이 내려가면 사용자는 무언가
+	 * 잘못됐다고 읽는다. 파이프라인이 단계를 건너뛰거나 순서를 바꿔도 표시가 역행하지 않도록
+	 * 여기서 막는다 — 단계 이름은 그대로 바꿔 두되 퍼센트는 지금까지의 최대값을 지킨다.
+	 * 예외를 던지지 않는 이유는, 진행률 표시 하나 때문에 추천 계산 전체를 실패시키는 것이
+	 * 사용자에게 더 나쁘기 때문이다.
+	 *
+	 * <p>끝난 작업(성공·실패)에는 아무것도 하지 않는다. 완료 뒤에 늦게 도착한 단계 보고가
+	 * 100%를 되돌리면 화면이 끝난 일을 다시 도는 것으로 그린다.
+	 */
+	public void markStage(JobStage stage) {
+		if (this.jobStatus != JobStatus.RUNNING) {
+			return;
+		}
+		this.jobStage = stage;
+		this.progressPercent = Math.max(this.progressPercent, stage.percent());
 	}
 
 	public void applyRequestContext(UUID tripId, Integer tripVersion, UUID preferenceSnapshotId,

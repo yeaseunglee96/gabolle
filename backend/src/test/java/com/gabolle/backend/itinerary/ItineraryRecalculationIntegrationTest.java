@@ -30,6 +30,8 @@ import com.gabolle.backend.itinerary.domain.ItineraryRepository;
 import com.gabolle.backend.itinerary.domain.ItineraryWarningCodes;
 import com.gabolle.backend.recommendation.application.RecommendationCodes;
 import com.gabolle.backend.recommendation.application.RecommendationCommand;
+import com.gabolle.backend.recommendation.application.JobProgressBroker;
+import com.gabolle.backend.recommendation.application.JobProgressReporter;
 import com.gabolle.backend.recommendation.application.RecommendationJobWorker;
 import com.gabolle.backend.recommendation.application.RecommendationRecorder;
 import com.gabolle.backend.recommendation.application.RecommendationService;
@@ -201,7 +203,10 @@ class ItineraryRecalculationIntegrationTest {
 	private RecommendationJob runSynchronously(RecommendationCommand command) {
 		RecommendationJob job = this.recommendationService.prepare(command);
 		this.jobRepository.save(job);
-		new RecommendationJobWorker(this.jobRepository, this.recommendationService, this.recorder, this.clock)
+		new RecommendationJobWorker(this.jobRepository, this.recommendationService, this.recorder, this.clock,
+				// 진행률 보고(S15P21E201-193). 이 검사는 진행률을 보지 않지만 워커가 요구하므로
+				// 진짜 객체를 준다 — 보는 연결이 하나도 없으면 알림은 그냥 버려진다.
+				new JobProgressReporter(this.jobRepository, new JobProgressBroker()))
 				.execute(job, command);
 		return this.jobRepository.findById(job.getJobId()).orElseThrow();
 	}
@@ -318,7 +323,10 @@ class ItineraryRecalculationIntegrationTest {
 				UUID.randomUUID(), this.itineraryId, this.userId);
 		this.jdbc.update("UPDATE itineraries SET latest_version = 2 WHERE itinerary_id = ?", this.itineraryId);
 
-		new RecommendationJobWorker(this.jobRepository, this.recommendationService, this.recorder, this.clock)
+		new RecommendationJobWorker(this.jobRepository, this.recommendationService, this.recorder, this.clock,
+				// 진행률 보고(S15P21E201-193). 이 검사는 진행률을 보지 않지만 워커가 요구하므로
+				// 진짜 객체를 준다 — 보는 연결이 하나도 없으면 알림은 그냥 버려진다.
+				new JobProgressReporter(this.jobRepository, new JobProgressBroker()))
 				.execute(job, command);
 
 		RecommendationJob saved = this.jobRepository.findById(job.getJobId()).orElseThrow();

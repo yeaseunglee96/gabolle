@@ -1,0 +1,19 @@
+{
+  "id": "MA0101202305A0105531",
+  "worker": "haiku-54",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["후미후미 수영구 부산", "후미후미 광안2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1599026", "https://triple.guide/restaurants/8274f569-17c3-48a9-a471-d62fc35c3357", "https://www.diningcode.com/profile.php?rid=jpjEQy8qlXC1", "https://www.catnews.net/bbs/board.php?bo_table=G102&wr_id=2419"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "분위기·전망", "note": "고양이와 함께하는 나른한 카페 시간, 광안리 골목길 위치", "sources": [3, 1]},
+    {"type": "메뉴 희소성", "note": "고양이와 함께하는 카페 공간이 따로 있음", "sources": [3]},
+    {"type": "간판 메뉴 지목", "note": "냐옹 프렌토스트, 냐옹샌드 (두바이초콜릿)", "sources": [2, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {"yearsClaimed": null, "generations": null, "queueing": null, "parking": null, "audience": "adult", "signatureDishes": ["냐옹 프렌토스트", "냐옹샌드 (두바이초콜릿)"], "priceBand": "moderate"},
+  "notFound": null,
+  "notes": "2층 카페는 고양이카페지만 1층은 돈까스집이므로 실제 업종과 다름. 13세 이상만 입장 가능 (노키즈)"
+}

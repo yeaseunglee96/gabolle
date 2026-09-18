@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220805209662",
+  "worker": "haiku-11",
+  "researchedAt": "2026-09-09T00:07:00Z",
+  "queries": ["원조꼬리곰집 동래구 부산", "원조꼬리곰집 온천장 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 동래구 온천장로 52"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "연차·역사", "note": "1980년부터 44년을 이어온 온천장의 전통 꼬리곰탕 전문점", "sources": [0, 1] },
+    { "type": "간판 메뉴 지목", "note": "꼬리곰탕으로 알려진 곳으로 자연스러운 소고기 맛을 살린 특별한 조리법 사용", "sources": [0, 1] },
+    { "type": "기관 선정", "note": "중소기업청 백년가게, 2년 연속 부산맛집 선정, 3년 연속 블루리본 선정", "sources": [1] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 44,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "local",
+    "signatureDishes": ["꼬리곰탕", "특곰탕", "도가니탕"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

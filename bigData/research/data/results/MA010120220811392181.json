@@ -1,0 +1,34 @@
+{
+  "id": "MA010120220811392181",
+  "worker": "haiku-59",
+  "researchedAt": "2026-09-09T08:12:05Z",
+  "queries": ["진미언양불고기 수영구 부산", "진미언양불고기 광안 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/361507", "https://www.diningcode.com/profile.php?rid=KDCsluSx1HtH", "https://visitbusan.net/index.do?lang_cd=ko&menuCd=DOM_000000202003001000&uc_seq=2196"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "언양불고기 전문점, 배즙에 절인 한우",
+      "sources": [0, 1]
+    },
+    {
+      "type": "서비스·사람",
+      "note": "가수 성시경의 단골집",
+      "sources": [2]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["언양불고기", "한우갈비 불고기", "묵은 김치찌개"],
+    "priceBand": "mid-high"
+  },
+  "notFound": null,
+  "notes": "11:30 ~ 01:00 (24시간 운영). 광안리 해변 뒷길 언양불고기골목 위치. 안전식당 인증"
+}

@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220807129706",
+  "worker": "haiku-25",
+  "researchedAt": "2026-09-09T10:44:30Z",
+  "queries": ["이츠모리 연제구 부산", "이츠모리 연산2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1044377", "https://www.diningcode.com/profile.php?rid=b9d5DgBlnO5l"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "광어 고노와다, 랍스타사시미, 숙성회",
+      "sources": [0]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "시청 근처 조용한 골목의 분위기 좋은 이자카야",
+      "sources": [0]
+    },
+    {
+      "type": "운영·접근 편의",
+      "note": "부산 시청역 8번출구 근처",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": "평일 저녁 웨이팅 있음",
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["광어 고노와다", "랍스타사시미", "숙성회"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": ""
+}

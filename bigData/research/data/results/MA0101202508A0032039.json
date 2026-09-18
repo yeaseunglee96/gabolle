@@ -1,0 +1,25 @@
+{
+  "id": "MA0101202508A0032039",
+  "worker": "haiku-59",
+  "researchedAt": "2026-09-09T09:00:00Z",
+  "queries": ["섬과섬사이 광안리 부산", "섬과섬사이 광안로 회 초밥"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=4jLUMgxXDJ9b"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "조개구이, 신선한 재료 매일 구입",
+      "sources": ["https://www.diningcode.com/profile.php?rid=4jLUMgxXDJ9b"]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "광안대교 중심 위치, 오션뷰, MZ세대 인기 식당",
+      "sources": ["https://www.diningcode.com/profile.php?rid=4jLUMgxXDJ9b"]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {},
+  "notes": "원래는 조개구이지만 카테고리는 회/초밥으로 등록됨"
+}

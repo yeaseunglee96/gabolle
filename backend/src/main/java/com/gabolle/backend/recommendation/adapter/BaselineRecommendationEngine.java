@@ -8,7 +8,6 @@ import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
@@ -20,6 +19,7 @@ import com.gabolle.backend.place.repository.UserPlaceCodeMapRepository;
 import com.gabolle.backend.place.service.PlaceCandidateQueryService;
 import com.gabolle.backend.recommendation.config.BaselineEngineProperties;
 import com.gabolle.backend.recommendation.config.PreferenceAlignmentWeights;
+import com.gabolle.backend.recommendation.application.RecommendationCodes;
 import com.gabolle.backend.recommendation.domain.FallbackMode;
 import com.gabolle.backend.recommendation.domain.RequestLocation;
 import com.gabolle.backend.trip.domain.PreferenceSnapshot;
@@ -35,22 +35,28 @@ import com.gabolle.backend.trip.domain.TripSeedPlaceRepository;
  * {@code ENGINE_NOT_CONFIGURED} 로 실패하던 것을 해소한다. 학습 모델·온톨로지 서버가
  * 아직 없는 동안 이 규칙 기반 엔진이 그 자리를 채운다 — {@link FallbackMode#BASELINE}.
  *
- * <p>🔴 <b>{@code @ConditionalOnBean(UserPlaceCodeMapRepository.class)} 를 쓰는 이유.</b>
- * {@code RecommendationSliceApplication}(추천 도메인만 스캔하는 테스트 전용 컨텍스트)이
- * {@code place} 패키지를 안 스캔해서 이 클래스가 요구하는 빈들이 없다. {@code
- * RecommendationJobRunner} 가 정확히 같은 이유로 같은 조건을 쓴 선례가 있다(그 javadoc
- * 32~41행) — 없으면 그 슬라이스 컨텍스트를 쓰는 테스트가 전부 컨텍스트 로딩에서 깨진다.
- * {@link BaselineEngineStartupValidator} 가 이 조건 배선 자체가 빠졌을 때(= {@code db}·
- * {@code dev} 프로필인데 place 패키지는 스캔하면서 이 빈은 안 붙었을 때)를 잡는다.
+ * <h2>배선 — 조건이 아니라 스캔 목록</h2>
+ * 이 엔진은 {@code place} 패키지의 빈들을 필요로 한다. 그것을 {@code @ConditionalOnBean} 으로
+ * 다루던 것을 S15P21E201-808 에서 걷어냈다. 아래 애노테이션 위 주석에 이유가 있다.
+ *
+ * <p>배선이 빠지면 {@link DevProfileApplicationContextTest} 가 잡는다. 기동 검사기가 아니라
+ * 그쪽에 둔 이유도 같다 — 검사기가 엔진과 같은 조건을 쓰면 엔진이 빠질 때 검사기도 함께
+ * 빠져서, 감시하려던 실패에 감시자가 걸린다.
  */
+// S15P21E201-808 — @ConditionalOnBean 을 걷어냈다.
+//
+// 리포지토리에 조건을 걸면 스캔 순서 문제를 피한다고 적어 뒀었는데, 실측해 보니 그렇지
+// 않았다. dev 프로필 전체 앱에서도 이 빈이 안 만들어졌고, 그래서 이 엔진은 어떤 컨텍스트
+// 에서도 붙은 적이 없다. 장소 표가 비어 있어 추천이 어차피 후보 0건이었기 때문에 그 사실이
+// 드러나지 않았을 뿐이다.
+//
+// @ConditionalOnBean 은 자동 설정에서 쓰라고 만든 것이고, 사용자가 직접 스캔하는
+// @Component 에서는 평가 시점이 스캔 순서에 달려 있다. 조건을 어디에 거느냐로는 그 문제를
+// 못 피한다. 그래서 조건 자체를 없애고, 이 엔진이 필요로 하는 place 패키지를 안 올리던
+// 슬라이스(RecommendationSliceApplication)에 그것을 더했다. 배선을 조건이 아니라 스캔
+// 목록으로 정하면 "무엇이 올라오는가" 가 파일에 적혀 있어 읽는 사람이 확인할 수 있다.
 @Component
 @Profile({ "db", "dev" })
-// 🔴 조건을 후보 조회 서비스가 아니라 리포지토리에 건다. 앞의 것은 이 클래스와 같은
-//    @Component 라 스캔 순서에 따라 "아직 없음" 으로 읽힐 수 있고, 그러면 엔진이 조용히
-//    빠진 채로 배포가 나간다. 리포지토리는 @EnableJpaRepositories 가 컴포넌트 스캔보다
-//    먼저 등록되므로 그 순서 문제에 걸리지 않는다. 장소 데이터 계층이 있는데 후보 조회
-//    서비스가 없으면 여기서 생성이 실패해 기동이 멈춘다 — 조용한 오작동보다 낫다.
-@ConditionalOnBean(UserPlaceCodeMapRepository.class)
 public class BaselineRecommendationEngine implements RecommendationEnginePort {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(BaselineRecommendationEngine.class);
@@ -125,6 +131,23 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 				this.codeMapRepository.findByIdUserInputKindOrderByIdUserInputCodeAsc(UserInputKind.PREFERENCE);
 		List<UserPlaceCodeMap> constraintCodeMap =
 				this.codeMapRepository.findByIdUserInputKindOrderByIdUserInputCodeAsc(UserInputKind.CONSTRAINT);
+
+		// 🔴 S15P21E201-827 — 후보가 0곳이면 여기서 멈춘다.
+		//
+		//    이 검사가 없으면 아래 resolveDatasetVersion 이 빈 목록을 받아 null 을 내고,
+		//    요청은 VERSION_UNRESOLVED 로 끝난다. 그것은 원인이 아니라 결과다 — 후보가
+		//    없어서 수집분 이름을 못 정한 것인데, 그 코드만 보면 배포 설정이 잘못된 것처럼
+		//    읽힌다. 2026-09-10 배포에서 실제로 그랬다(바다만 고른 요청).
+		//
+		//    무엇을 찾다가 비었는지 함께 남긴다. 갈래를 좁혀서 빈 것과 반경 안에 아무것도
+		//    없어서 빈 것은 사람이 할 일이 다르다.
+		if (response.candidates().isEmpty()) {
+			String asked = queryRequest.categoriesOrEmpty().isEmpty() ? "갈래를 안 좁혔다"
+					: "고른 갈래=" + String.join(",", queryRequest.categoriesOrEmpty());
+			throw new RecommendationEngineException(RecommendationCodes.ERROR_NO_CANDIDATES,
+					"반경 %dm 안에 조건에 해당하는 장소가 하나도 없다 — %s"
+							.formatted(this.properties.radiusM(), asked));
+		}
 
 		if (response.scanTruncated()) {
 			// 🔴 조용히 넘기지 않는다. 잘렸다는 것은 "반경 안인데 채점조차 안 된 장소가 있다" 는

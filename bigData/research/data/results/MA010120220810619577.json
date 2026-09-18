@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220810619577",
+  "worker": "haiku-14",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["서가원국수 연제구 부산", "서가원국수 연산1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["식신", "다이닝코드", "브런치", "트립닷컴"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "부산 3대 콩국수 중 하나로 콩국수 전문", "sources": [0, 1]},
+    {"type": "조리·재료", "note": "100% 국내산 콩(경주 팔달)과 신안 천일염으로 진하고 크리미한 콩국", "sources": [0, 2]},
+    {"type": "메뉴 희소성", "note": "하루 4시간만 운영하는 한정적 운영", "sources": [1, 3]},
+    {"type": "혼잡·수요", "note": "항상 웨이팅이 있을 정도로 인기 많음", "sources": [1, 3]},
+    {"type": "맛 묘사", "note": "진하고 크리미한 콩국과 진한 멸치 육수", "sources": [1, 3]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": true,
+    "parking": false,
+    "audience": "mixed",
+    "signatureDishes": ["콩국수", "잔치국수"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "하루 4시간만 운영 (10:00-15:00), 목요일 정기휴무"
+}

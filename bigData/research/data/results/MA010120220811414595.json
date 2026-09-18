@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220811414595",
+  "worker": "haiku-30",
+  "researchedAt": "2026-09-09T11:30:00Z",
+  "queries": ["와우 남구 부산 중국집", "와우 우암동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "우암동 위치 와우!의 구체적 정보 없음.",
+  "notes": ""
+}

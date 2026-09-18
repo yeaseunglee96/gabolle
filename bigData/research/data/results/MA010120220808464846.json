@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220808464846",
+  "worker": "haiku-35",
+  "researchedAt": "2026-09-09T02:10:44.184Z",
+  "queries": ["삼소통나무집 북구 부산", "삼소통나무집 만덕2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["다이닝코드", "식신"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "유황생오리 숯불구이 전문, 오리백숙(약탕) 특이요리", "sources": [0]},
+    {"type": "플랫폼 순위·평점", "note": "만덕 오리 맛집으로 평점을 근거로 든다", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["유황생오리", "오리백숙(약탕)"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": "연락처: 051-333-4277, 만덕동과 화명동 2곳 지점 있음"
+}

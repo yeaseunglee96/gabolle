@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220813729495",
+  "worker": "haiku-23",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["숨터 북구 부산", "숨터 만덕1동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["부산광역시 북구 만덕1동"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "분위기·전망", "note": "숲뷰로 창가에서 경치를 즐길 수 있는 카페", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "베이글 전문점", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["베이글"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "카페/베이글 가게로 등록되어 있음"
+}

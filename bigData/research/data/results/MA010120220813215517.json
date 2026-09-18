@@ -1,0 +1,34 @@
+{
+  "id": "MA010120220813215517",
+  "worker": "haiku-59",
+  "researchedAt": "2026-09-09T08:02:30Z",
+  "queries": ["난파센 수영구 부산", "난파센 남천 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=bxMFrMaDyv03", "https://www.siksinhot.com/P/1206944"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "광안리 최고의 텐동, 튀김 전문점",
+      "sources": [0, 1]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "합리적인 가격대의 일본 요리",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "근처 주차장 이용",
+    "audience": "mixed",
+    "signatureDishes": ["난파센텐동", "기본텐동", "새우텐동"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "11:00 ~ 21:00 (수요일 정기휴무, 15:00~17:00 휴식). 협소한 내부 공간, 테이블 2~3개와 바 테이블"
+}

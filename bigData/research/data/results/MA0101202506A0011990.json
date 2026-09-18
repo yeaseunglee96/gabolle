@@ -1,0 +1,19 @@
+{
+  "id": "MA0101202506A0011990",
+  "worker": "haiku-54",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["리쿠리식당 수영구 부산", "리쿠리식당 민락동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.instagram.com/rikuri_sikdang/", "https://www.siksinhot.com/P/1813248", "https://www.diningcode.com/profile.php?rid=UiB6TQK19rB1", "https://fd.jhsunjane.com/223"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "하쿠 장어덮밥 정식, 리쿠리 초밥정식 대표메뉴", "sources": [0, 2, 3]},
+    {"type": "분위기·전망", "note": "주택개조한 아늑한 일본 가정식 느낌, 화이트와 우드 인테리어", "sources": [2, 3]},
+    {"type": "조리·재료", "note": "형형색색 초밥 10피스, 불향과 달달한 소스의 장어", "sources": [3]}
+  ],
+  "newTypes": [],
+  "descriptors": {"yearsClaimed": null, "generations": null, "queueing": null, "parking": null, "audience": "mixed", "signatureDishes": ["하쿠 장어덮밥 정식", "리쿠리 초밥정식"], "priceBand": "moderate"},
+  "notFound": null,
+  "notes": "광남로172번길 12 1층, 전화 0507-1432-3063, 광안리 해변 근처"
+}

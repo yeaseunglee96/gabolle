@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202511A0020574",
+  "worker": "haiku-64",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["알로하오노 수영구 부산", "알로하오노 남천2동 맛집", "알로하오노 블로그", "알로하오노 후기"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색으로 찾을 수 없음. 가게명이 유사한 다른 지역 가게(남해군 알로하와이 등)만 검색됨.",
+  "notes": ""
+}

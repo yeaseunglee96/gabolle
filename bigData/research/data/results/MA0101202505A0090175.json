@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202505A0090175",
+  "worker": "haiku-58",
+  "researchedAt": "2026-09-09T16:59:00Z",
+  "queries": ["구상 수영구 부산", "구상 광안1동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색에서 '구상'이라는 가게를 찾을 수 없음. 광안1동 지역 일반 맛집들만 검색됨",
+  "notes": ""
+}

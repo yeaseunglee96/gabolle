@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220812972276",
+  "worker": "haiku-51",
+  "researchedAt": "2026-09-09T14:47:00Z",
+  "queries": ["화목한식뷔페 수영 부산", "화목한식뷔페 광안3동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/645671", "https://makemedal.com/entry/%ED%87%B4%EA%B7%BC-%ED%9B%84-%EB%85%B8%ED%8F%AC-%ED%95%9C-%EC%9E%AC-%EB%B6%80%EC%82%B0-%EC%88%98%EC%98%81%ED%8E%B8-%ED%99%94%EB%AA%A9%EB%B7%94%ED%8E%98-%EB%B6%80%EC%82%B0-%EC%88%98%EC%98%81%EA%B5%AC-%EA%B4%91%EC%95%88%EB%8F%99"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "광안리 해수욕장과 가까운 위치로 좋은 환경",
+      "sources": [0, 1]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "뛰어난 가성비로 평가받음",
+      "sources": [1]
+    },
+    {
+      "type": "운영·접근 편의",
+      "note": "광안역에서 도보 10분으로 접근성 우수",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": [],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "전화: 051-758-8366. 광안리 해수욕장과 가깝고 대중교통 접근성 좋음"
+}

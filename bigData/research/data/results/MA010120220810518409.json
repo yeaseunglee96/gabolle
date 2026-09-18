@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220810518409",
+  "worker": "haiku-19",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["개림횟집 서구 부산", "개림횟집 충무동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=fOPxUWaM9pqq", "https://www.tabling.co.kr/place/677cc8d966de5f069877be65"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "이시가리(줄가자미), 물회 전문",
+      "sources": [0]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "가성비 좋은 회",
+      "sources": [0]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "자갈치시장 내 위치",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["이시가리회", "물회"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": ""
+}

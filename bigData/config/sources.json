@@ -51,7 +51,23 @@
       "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png",
       "script": "collect/terrain.mjs",
       "status": "받음 (부산 전역 3,127타일)",
-      "note": "임시. 국가 5m DEM 이 오면 교체한다. 30m 로는 골목 경사가 뭉개진다."
+      "note": "임시. 국가 5m DEM 이 오면 교체한다. 30m 로는 골목 경사가 뭉개진다. 🔴 여기에 실제로 없는 혹이 박혀 있다 — copernicus-glo30 으로 교차검증한 결과가 data/staged/dem-bumps.ndjson 이다."
+    },
+    {
+      "id": "copernicus-glo30",
+      "name": "Copernicus DEM GLO-30 (AWS 공개 버킷)",
+      "gives": [
+        "고도 30m (1초 격자)",
+        "terrarium 가짜 혹 판정 기준"
+      ],
+      "license": "Copernicus DEM 라이선스 — 무상, 재배포 가능, 출처 표기 필수",
+      "licenseNote": "ESA/Airbus. '© DLR e.V. 2010-2014 / © Airbus Defence and Space GmbH 2014-2018 (Copernicus DEM 제공)' 을 표기한다.",
+      "auth": "none",
+      "url": "https://copernicus-dem-30m.s3.amazonaws.com/{NAME}/{NAME}.tif",
+      "script": "collect/copernicus-dem.mjs",
+      "status": "받음 (부산 bbox 4장, 77MB)",
+      "note": "terrarium 을 심판하려고 받았다. 출처가 아예 달라서(TanDEM-X 2010-2015 대 SRTM 2000-02) 같은 흠을 공유하지 않는다. NAME 은 Copernicus_DSM_COG_10_N{남서위도}_00_E{남서경도}_00_DEM 이고 한 장이 1도x1도 3600x3600 Float32 COG 다. ⚠️ DSM 이라 건물·나무 높이가 들어 있다 — 지면 고도로 그대로 쓰면 안 되고, 혹이 있나 없나를 가리는 데만 쓴다.",
+      "derived": "data/raw/dem-glo30/*.tif → data/staged/dem-bumps.ndjson"
     },
     {
       "id": "bims-realtime",

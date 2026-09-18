@@ -1,0 +1,34 @@
+{
+  "id": "MA0101202305A0204478",
+  "worker": "haiku-38",
+  "researchedAt": "2026-09-09T15:30:00Z",
+  "queries": ["미미돈가스 부산", "미미돈가스 괴정동"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["http://duli.co.kr/web/splus/kmap/view.php?sigun=6260000&gugun=3340000&keyno=109&keyname=%EB%AF%B8%EB%AF%B8%EB%8F%88%EA%B0%80%EC%8A%A4&keylink=3340000-101-2023-00099"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "수제돈까스 전문점",
+      "sources": [0]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "괴정골목시장 내 가성비 있는 식당",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["수제돈까스", "알밥"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

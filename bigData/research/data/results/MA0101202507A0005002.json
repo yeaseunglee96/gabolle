@@ -1,0 +1,29 @@
+{
+  "id": "MA0101202507A0005002",
+  "worker": "haiku-57",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["하마그리고이발관 부산", "광안해변로307번길 음식"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://www.diningcode.com/list.dc?query=%EB%B6%80%EC%82%B0%EA%B4%91%EC%97%AD%EC%8B%9C+%EC%88%98%EC%98%81%EA%B5%AC+%EA%B4%91%EC%95%88%ED%95%B4%EB%B3%80%EB%A1%9C307%EB%B2%88%EA%B8%B8"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "카키아게동(튀김 덮밥)이 특산 메뉴, 선착순 10그릇 한정 판매",
+      "sources": [0]
+    },
+    {
+      "type": "메뉴 희소성",
+      "note": "일본식 튀김 덮밥 전문점",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["카키아게동"],
+    "audience": "mixed"
+  },
+  "notFound": null,
+  "notes": "동명(동명 하마그리고이발관)이 요이쿠마 본점으로 추정됨, 광안해변로307번길 20 1층에 위치"
+}

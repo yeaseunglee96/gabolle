@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220810521788",
+  "worker": "haiku-40",
+  "researchedAt": "2026-09-09T13:22:00Z",
+  "queries": ["대길수산 사하구 부산", "대길수산 다대2동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "검색 결과에서 포항 양덕동의 대길수산만 나옴. 부산 사하구 다대2동 지점의 명확한 정보 없음",
+  "notes": ""
+}

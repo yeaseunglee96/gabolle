@@ -1,0 +1,27 @@
+{
+  "id": "MA0101202305A0062262",
+  "worker": "haiku-48",
+  "researchedAt": "2026-09-09T14:30:15+09:00",
+  "queries": ["포항조개구이 해운대구 부산", "포항조개구이 송정동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=kk3ijslzpf0O", "http://duli.co.kr/web/splus/kmap/view.php?sigun=6260000&gugun=3330000&keyno=107&keyname=%ED%8F%AC%ED%95%AD+%EC%A1%B0%EA%B0%9C%EA%B5%AC%EC%9D%B4&keylink=3330000-101-2023-00114"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "분위기·전망", "note": "바다가 보이는 포차 분위기의 감성 맛집", "sources": [0]},
+    {"type": "간판 메뉴 지목", "note": "조개구이 전문점", "sources": [0, 1]},
+    {"type": "가격·가성비", "note": "조개가 푸짐하게 구성되어 있음", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["조개구이"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": ""
+}

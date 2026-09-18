@@ -1,0 +1,27 @@
+{
+  "id": "MA0101202406A0261865",
+  "worker": "haiku-62",
+  "researchedAt": "2026-09-10T12:06:00Z",
+  "queries": ["돌닭 수영구 부산", "돌닭 광안2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://triple.guide/restaurants/d8438c26-c8d5-45d6-bb3d-c5abb55e9088", "https://www.diningcode.com/profile.php?rid=MvqRtfQHgVgc"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "조리·재료", "note": "돌판에 끓여낸 닭볶음탕의 독특한 조리 방식", "sources": [0, 1]},
+    {"type": "분위기·전망", "note": "양계장 콘셉트의 이색적인 공간", "sources": [0]},
+    {"type": "혼잡·수요", "note": "점심시간과 주말에 웨이팅이 생길 정도 인기", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": true,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["닭볶음탕"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "금련산역 1번 출구 도보 5분"
+}

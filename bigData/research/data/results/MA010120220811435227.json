@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220811435227",
+  "worker": "haiku-8",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["우리포차 수영구 부산", "우리포차 광안동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산 수영구 장대골로52번길 24"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "대방어 맛집으로 알려진 대방어회 전문점", "sources": [0, 1]},
+    {"type": "조리·재료", "note": "칼질에 따라 세로·가로 썰기 모두 제공하여 다른 식감 제공", "sources": [0, 1]},
+    {"type": "혼잡·수요", "note": "본점과 2호점을 병행 운영할 정도의 인기, 오픈 전부터 기다리는 손님들 많음", "sources": [0, 1]},
+    {"type": "동네·시장 지목", "note": "광안리 광안동 대표 포차", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": true,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["대방어회"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": ""
+}

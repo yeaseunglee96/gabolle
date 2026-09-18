@@ -1,0 +1,34 @@
+{
+  "id": "MA010120220809975334",
+  "worker": "haiku-44",
+  "researchedAt": "2026-09-09T11:29:00Z",
+  "queries": ["백곰경양식 사상구 부산", "백곰경양식 주례1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.daangn.com/kr/local-profile/180773/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "조리·재료",
+      "note": "숙성된 고기를 부드럽게 손질하여 담백한 소스로 제공",
+      "sources": [0]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "돈까스, 치즈돈까스, 소고기함박스테이크 등 경양식 전문",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "family",
+    "signatureDishes": ["돈까스", "치즈돈까스"],
+    "priceBand": "affordable"
+  },
+  "notFound": null,
+  "notes": ""
+}

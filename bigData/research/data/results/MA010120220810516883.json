@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220810516883",
+  "worker": "haiku-10",
+  "researchedAt": "2026-09-09T15:05:00Z",
+  "queries": ["해양각 서구 부산", "해양각 충무동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "같은 이름의 식당을 찾지 못함",
+  "notes": ""
+}

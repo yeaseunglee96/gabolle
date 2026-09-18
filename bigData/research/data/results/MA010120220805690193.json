@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220805690193",
+  "worker": "haiku-33",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["돈갈비 부산진구 부산", "돈갈비 개금3동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색에서 돈갈비 관련 구체적 정보를 찾을 수 없음",
+  "notes": ""
+}

@@ -1,0 +1,25 @@
+{
+  "id": "MA010120220810607552",
+  "worker": "haiku-35",
+  "researchedAt": "2026-09-09T02:10:44.184Z",
+  "queries": ["영빈관 동구 부산"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["다이닝코드"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "한정식 전문", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["한정식"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "30년 전통의 한정식 명가로 알려짐"
+}

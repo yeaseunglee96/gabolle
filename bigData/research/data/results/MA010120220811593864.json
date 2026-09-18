@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220811593864",
+  "worker": "haiku-38",
+  "researchedAt": "2026-09-09T17:00:00Z",
+  "queries": ["대밭집 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/528425", "https://www.diningcode.com/profile.php?rid=LY1Fr41W5GJB"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "오리고기 전문점",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["오리고기", "닭볶음탕"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": ""
+}

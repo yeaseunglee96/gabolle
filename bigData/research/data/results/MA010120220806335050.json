@@ -1,0 +1,44 @@
+{
+  "id": "MA010120220806335050",
+  "worker": "haiku-34",
+  "researchedAt": "2026-09-09T06:18:00Z",
+  "queries": ["청동숯불갈비 영도구 부산", "청동숯불갈비 청학2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/396849", "https://www.diningcode.com/profile.php?rid=bBtuilqEVdCA"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "연차·역사",
+      "note": "25년 전통의 숯불갈비 맛집",
+      "sources": [0, 1]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "돼지갈비와 생갈비 전문점",
+      "sources": [0, 1]
+    },
+    {
+      "type": "맛 묘사",
+      "note": "숯 향과 달짝지근한 감칠맛이 어우러진 양념 돼지갈비",
+      "sources": [1]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "넓고 깔끔한 내부, 좌식·일반 테이블·룸·단체석 등 다양한 좌석 배치",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 25,
+    "generations": null,
+    "queueing": null,
+    "parking": "부산항신협 주차장 2시간 할인",
+    "audience": "mixed",
+    "signatureDishes": ["돼지갈비", "생갈비"],
+    "priceBand": "medium"
+  },
+  "notFound": null,
+  "notes": ""
+}

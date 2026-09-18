@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220811440477",
+  "worker": "haiku-24",
+  "researchedAt": "2026-09-09T10:26:15.2132113+09:00",
+  "queries": ["향돈 수영구 부산", "향돈 망미1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.daangn.com/kr/local-profile/%ED%96%A5%EB%8F%88-k32c9ogurff9/", "https://www.diningcode.com/list.dc?query=%EB%A7%9D%EB%AF%B8%EB%8F%99+%EC%9D%BC%EB%B3%B8%EC%8B%9D%EB%8F%88%EA%B9%8C%EC%8A%A4"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "돈까스 전문점", "sources": [0]},
+    {"type": "가격·가성비", "note": "가격대 7,500원부터", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["히레까스", "돈까스덮밥", "향돈까스"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "동네 돈까스 맛집으로 평가받음"
+}

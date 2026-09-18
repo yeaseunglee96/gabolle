@@ -1,0 +1,26 @@
+{
+  "id": "MA0101202508A0035661",
+  "worker": "haiku-29",
+  "researchedAt": "2026-09-09T10:04:00Z",
+  "queries": ["아라회전초밥 서구 부산", "아라회전초밥 서대신3동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=w9KFm0BySn23"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "회전초밥 전문점", "sources": [0]},
+    {"type": "가격·가성비", "note": "신선한 회를 저렴한 가격에 제공", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "1시간 주차 지원",
+    "audience": "mixed",
+    "signatureDishes": ["활새우초밥", "우니초밥", "회초밥"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

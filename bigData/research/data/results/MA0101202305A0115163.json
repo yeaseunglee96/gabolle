@@ -1,0 +1,39 @@
+{
+  "id": "MA0101202305A0115163",
+  "worker": "haiku-70",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["강남돼지 해운대 우1동", "강남돼지 해변로 고기"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1582369", "https://www.diningcode.com/profile.php?rid=99VYltUZZgKi", "https://kr.trip.com/moments/detail/gijang-gun-2016643-119151035/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "눈꽃살(eye-of-rib)이 시그니처로 쇠고기처럼 부드러운 식감",
+      "sources": [1]
+    },
+    {
+      "type": "메뉴 희소성",
+      "note": "숙성 돼지고기로 신선함과 고급스러운 맛 제공",
+      "sources": [0]
+    },
+    {
+      "type": "운영·접근 편의",
+      "note": "해운대역 Exit 7에서 도보 10분, 1시간 무료 주차",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "카카오T 해운대 주차장 1시간 무료",
+    "audience": "mixed",
+    "signatureDishes": ["눈꽃살", "삼겹살"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": "해운대해변로209번길 22-1, 16:00-23:00 영업"
+}

@@ -352,7 +352,7 @@ class ItineraryReorderLegRebuildIntegrationTest {
 		insertItem(v1, keyQ, 0, 2, this.placeB, "11:00", "13:00");
 
 		ItineraryVersion saved = this.editService.reorderDay(hiddenItineraryId.toString(), 0,
-				List.of(keyQ.toString(), keyP.toString()), 1, this.ownerId.toString());
+				List.of(keyQ.toString(), keyP.toString()), 1, this.ownerId.toString()).version();
 
 		assertThat(saved.version()).isEqualTo(2);
 

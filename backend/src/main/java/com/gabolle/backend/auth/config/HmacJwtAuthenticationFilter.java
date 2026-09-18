@@ -44,6 +44,31 @@ public class HmacJwtAuthenticationFilter extends OncePerRequestFilter {
 		this.userRepository = userRepository;
 	}
 
+	/**
+	 * 오류 디스패치에서도 돈다 — S15P21E201-790. 기본값은 <b>안 도는 것</b>이라 뒤집는다.
+	 *
+	 * <p>{@code OncePerRequestFilter} 는 이름 그대로 요청 하나에 한 번만 돈다. 그런데 서버가
+	 * 4xx 를 정한 뒤 {@code /error} 로 다시 디스패치하는 것은 <b>같은 요청</b>이고, 기본
+	 * 구현({@code shouldNotFilterErrorDispatch()} 이 {@code true})은 그 두 번째 차례를
+	 * 건너뛴다. 건너뛰면 그 디스패치에는 신원이 없고, Security 는 빈 컨텍스트를 보고
+	 * {@code anyRequest().authenticated()} 로 거부한다 — <b>4xx 가 401 로 바뀌어 나간다.</b>
+	 *
+	 * <p>그 응답이 나쁜 이유는 거짓말을 하기 때문이다. 로그인은 멀쩡한데 "로그인이 필요합니다"
+	 * 가 오고, 앱은 401 을 세션 만료로 읽어 <b>사용자를 로그아웃시킨다.</b> 요청 하나가
+	 * 잘못됐을 때 화면에서 튕겨 나가는 모양이 된다.
+	 *
+	 * <p>{@code InternalTokenAuthenticationFilter} 가 같은 함정을 먼저 만나 같은 방법으로
+	 * 뒤집어 뒀다. 그때 사람의 JWT 쪽은 함께 안 고쳐졌다 — 배치 토큰만 살아남고 사람의
+	 * 신원은 여전히 오류 디스패치에서 사라지고 있었다.
+	 *
+	 * <p>인증되지 않은 요청의 거동은 그대로다. 헤더가 없으면 이 필터는 아무 권한도 심지 않고,
+	 * 그 요청은 전과 같이 401 을 받는다.
+	 */
+	@Override
+	protected boolean shouldNotFilterErrorDispatch() {
+		return false;
+	}
+
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {

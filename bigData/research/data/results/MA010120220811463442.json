@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220811463442",
+  "worker": "haiku-61",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["새벽집주 수영구 부산", "새벽집주 민락동 맛집"],
+  "found": false,
+  "confidence": "low",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹에서 정확히 검색되지 않음. 유사 이름 '새벽집'(콩나물국밥)만 발견",
+  "notes": ""
+}

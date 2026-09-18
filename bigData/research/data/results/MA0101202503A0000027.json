@@ -1,0 +1,21 @@
+{
+  "id": "MA0101202503A0000027",
+  "worker": "haiku-72",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["나수브 광안해변 부산", "나수브 민락동 한정식"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["http://duli.co.kr/web/splus/kmap/view.php?sigun=6260000&gugun=3380000&keyno=126&keyname=(NASUB)%EB%82%98%EC%88%98%EB%B8%8C&keylink=3380000-101-2023-00072", "https://www.threads.com/@bibidays_/post/DPnFSrdD00r/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "분위기·전망", "note": "광안해변을 바라보는 바다뷰가 뛰어남, 감성 좋은 인테리어", "sources": [0, 1]},
+    {"type": "운영·접근 편의", "note": "광안해변로 바로 앞, 스타벅스 빌딩 5층, 접근 편의", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "priceBand": "moderate",
+    "audience": "mixed"
+  },
+  "notFound": null,
+  "notes": "카테고리는 '백반/한정식'이나 실제로는 '카페&바' 또는 '클럽'입니다. 이태원에서 클럽을 운영하던 사람이 2023년 4월에 개점했습니다. 낮에는 카페로, 밤에는 칵테일바로 운영됩니다."
+}

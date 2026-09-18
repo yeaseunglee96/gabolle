@@ -1,0 +1,26 @@
+{
+  "id": "MA0101202302A0051006",
+  "worker": "haiku-61",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["파리바게뜨센텀포레점 수영구 부산", "파리바게뜨센텀포레점 민락동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://www.siksinhot.com/map?areaNo=2927&filterList=04008", "https://www.paris.co.kr/store/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "맛 묘사", "note": "건강한 호밀빵 샌드위치로 알려짐", "sources": [0]},
+    {"type": "투표·독자 선정", "note": "식신 민락동 아침식사 맛집 베스트10 추천", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["호밀빵 샌드위치"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "아침식사 맛집으로 유명"
+}

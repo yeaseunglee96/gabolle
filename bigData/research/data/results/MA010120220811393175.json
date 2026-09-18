@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220811393175",
+  "worker": "haiku-1",
+  "researchedAt": "2026-09-09T02:05:00Z",
+  "queries": ["개미식당 남구 부산", "개미식당 용호로 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=7CGwwCzCkFqB", "https://triple.guide/restaurants/05d80502-1206-4fa9-bbec-d89e4a9ee49a"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "heritage",
+      "note": "40년 이상 전통의 오래된 돼지국밥 전문점 - 로컬 명점",
+      "sources": [0]
+    },
+    {
+      "type": "value",
+      "note": "착한가격업소 지정 - 7,000~8,000원대의 매우 저렴한 가격",
+      "sources": [0]
+    },
+    {
+      "type": "quality",
+      "note": "뽀얀 국물의 깔끔한 맛 - 푸짐한 고기 양",
+      "sources": [0]
+    },
+    {
+      "type": "atmosphere",
+      "note": "동네 로컬 분위기 - 10개 테이블, 4명씩 소규모 가정식당",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 40,
+    "signatureDishes": ["돼지국밥", "내장국밥", "섞어국밥"]
+  },
+  "notFound": null,
+  "notes": "월-토 10:00~21:30, 일요일 정기휴무, 일요일 휴무, 골목 안 위치로 찾기 어려울 수 있음"
+}

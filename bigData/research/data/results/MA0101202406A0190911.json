@@ -1,0 +1,37 @@
+{
+  "id": "MA0101202406A0190911",
+  "worker": "haiku-56",
+  "researchedAt": "2026-09-09T06:37:13Z",
+  "queries": ["그린파치 수영구 부산", "그린파치 민락동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://triple.guide/restaurants/84a1bb32-981b-40d9-b068-2247d87b13c7",
+    "https://www.daangn.com/kr/local-profile/%EA%B7%B8%EB%A6%B0%ED%8C%8C%EC%B9%98-d12sbxepy5zy/"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "조리·재료",
+      "note": "제철 생선을 저온·저습 숙성 공정으로 천천히 숙성한 정성스러운 해산물",
+      "sources": [0]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "신선한 숙성회와 정성 어린 요리가 특징",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["숙성회", "초밥", "토마토나베"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": ""
+}

@@ -1,0 +1,15 @@
+{
+  "id": "MA0106202605A1067644",
+  "worker": "haiku-21",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["바다애 해운대구 부산", "바다애 좌동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "검색결과에서 해당 가게 정보를 찾을 수 없음. 좌동 맛집 리스트에도 없음",
+  "notes": ""
+}

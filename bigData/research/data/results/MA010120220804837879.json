@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220804837879",
+  "worker": "haiku-71",
+  "researchedAt": "2026-09-10T12:22:00Z",
+  "queries": ["스시선수 해운대 부산", "스시선수 중1동 초밥 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=4uHYYKYFfSB7", "https://triple.guide/restaurants/b8da0fc7-a796-4fb0-8187-6be6a7e93ddc"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "조리·재료",
+      "note": "사장이 매일 아침 시장에서 직접 재료 선별, 수제 만들이 원칙 (냉동 재료 미사용)",
+      "sources": [0]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "점심특선 1만원대, 저렴한 오마카세",
+      "sources": [0]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "오마카세 초밥",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["오마카세", "초밥"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "사장: 김철수"
+}

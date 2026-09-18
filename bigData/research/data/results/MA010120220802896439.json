@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220802896439",
+  "worker": "haiku-59",
+  "researchedAt": "2026-09-09T08:48:00Z",
+  "queries": ["에이치에비뉴버블 민락 경양식", "에이치에비뉴버블 민락수변로 식당"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "민락수변로 경양식 검색에도 불구하고 '에이치에비뉴버블'이라는 가게는 찾을 수 없음",
+  "notes": "경양식 카테고리로 등록"
+}

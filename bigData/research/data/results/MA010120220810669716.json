@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220810669716",
+  "worker": "haiku-69",
+  "researchedAt": "2026-09-10T00:05:00Z",
+  "queries": ["라치베타 부산진구", "라치베타 부전동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/359525"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "이탈리안 레스토랑 - 파스타, 스테이크", "sources": [0]},
+    {"type": "연차·역사", "note": "2000년부터 운영한 오래된 가게", "sources": [0]},
+    {"type": "분위기·전망", "note": "분위기 좋은 이탈리안 레스토랑", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 2000,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["파스타", "스테이크"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "오스테리아, 영업시간 11:30~22:00, 연중무휴"
+}

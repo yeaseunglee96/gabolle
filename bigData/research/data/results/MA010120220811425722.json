@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220811425722",
+  "worker": "haiku-14",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["이가해물짬뽕 남구 부산", "이가해물짬뽕 대연4동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["식신", "다이닝코드", "당근", "Polle"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "이가짬뽕으로 한국 최고 맛집 중 하나로 유명", "sources": [0, 1]},
+    {"type": "혼잡·수요", "note": "웨이팅 심함, 오픈타임 방문 권장", "sources": [0, 1]},
+    {"type": "조리·재료", "note": "물총조개와 동죽조개를 듬뿍 사용해 시원한 국물 제공", "sources": [0, 1]},
+    {"type": "메뉴 희소성", "note": "한국 최고의 짬뽕 맛집 중 하나", "sources": [1]},
+    {"type": "맛 묘사", "note": "시원하고 깔깔한 맛", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": true,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["이가짬뽕", "이가우동", "이가탕수육"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

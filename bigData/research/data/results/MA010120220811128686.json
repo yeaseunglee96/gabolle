@@ -1,0 +1,62 @@
+{
+  "id": "MA010120220811128686",
+  "worker": "haiku-16",
+  "researchedAt": "2026-09-08T22:58:40.481Z",
+  "queries": [
+    "완도횟집 송정강변로 부산",
+    "완도횟집 송정 맛집"
+  ],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.siksinhot.com/P/678062",
+    "https://www.diningcode.com/profile.php?rid=TDAe5BA0caIm"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "메뉴 희소성",
+      "note": "신선한 자연산 회 전문",
+      "sources": [
+        0
+      ]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "모둠회, 도다리 세꼬시, 회덮밥",
+      "sources": [
+        0
+      ]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "송정 해수욕장 근처",
+      "sources": [
+        0
+      ]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "회덮밥 15,000원부터",
+      "sources": [
+        0
+      ]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": [
+      "모둠회",
+      "도다리 세꼬시",
+      "회덮밥"
+    ],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "위치: 송정강변로 35, 연락처 051-703-8989, 월수목금토일 11:00~21:30, 화 휴무, 송정 해수욕장 도보 5~10분"
+}

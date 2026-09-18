@@ -1,0 +1,28 @@
+{
+  "id": "MA0101202307A0087035",
+  "worker": "haiku-64",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["끝돈광안리점 부산", "끝돈 광안 남천 맛집", "끝돈 광안리 블로그", "끝돈광안리점 식신"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://app.catchtable.co.kr/ct/shop/lastpig_gwanganri", "https://www.jsdream.kr/%EA%B4%91%EC%95%88%EB%A6%AC%20%EB%81%9D%EB%8F%88", "https://www.idaegu.co.kr/news/articleView.html?idxno=263391"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "Pluma라는 특별한 돼지고기 부위가 대표", "sources": [0, 1]},
+    {"type": "조리·재료", "note": "아이스크림 먹는 듯한 환상의 고기 맛", "sources": [2]},
+    {"type": "분위기·전망", "note": "프리미엄 레스토랑 같은 고급 인테리어", "sources": [1]},
+    {"type": "서비스·사람", "note": "충분한 직원 배치로 그릴링 서비스 제공", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["Pluma"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "대구 본사의 프랜차이즈. 캐치테이블에서 예약 가능."
+}

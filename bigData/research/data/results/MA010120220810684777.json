@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220810684777",
+  "worker": "haiku-13",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["태경생태탕 연제구 부산", "태경생태탕 거제1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["식신", "다이닝코드", "망고플레이트"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "생태탕 전문",
+      "sources": [0, 1]
+    },
+    {
+      "type": "조리·재료",
+      "note": "생태 머리부터 꼬리까지 사용, 깔끔한 국물",
+      "sources": [1]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "저렴한 가격 대비 푸짐함",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["생태탕", "곰탕"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "매일 바뀌는 반찬, 해운대에서도 찾아오는 맛집"
+}

@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220807052519",
+  "worker": "haiku-51",
+  "researchedAt": "2026-09-09T14:44:00Z",
+  "queries": ["이솔산오리 남구 부산", "이솔산오리 대연3동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=kcUZNcHMOAUR"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "조리·재료",
+      "note": "유황오리(sulphur duck)를 사용한 고급 오리요리로 질 좋은 재료",
+      "sources": [0]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "착한 가격대에 푸짐한 양 제공",
+      "sources": [0]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "유황오리불고기, 유황오리백숙 등 오리 요리로만 불림",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["유황오리 양념불고기", "유황오리 소금구이", "훈제구이", "유황오리 약백숙"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "영업시간 11:30 ~ 21:00 (라스트 오더 20:20). 가게 앞 마당에 넓은 주차장"
+}

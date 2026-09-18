@@ -117,4 +117,26 @@ class DevProfileApplicationContextTest {
 	@Test
 	void contextLoads() {
 	}
+
+	/**
+	 * 추천 엔진 배선 확인 — S15P21E201-808.
+	 *
+	 * <p>컨텍스트가 뜨는 것만으로는 부족하다. {@code BaselineRecommendationEngine} 이 빠져도
+	 * 앱은 정상으로 뜨고 로그도 안 남는데, 모든 추천 요청이 {@code ENGINE_NOT_CONFIGURED} 로
+	 * 실패한다. 장소 표가 비어 있던 동안에는 어차피 후보가 0건이라 이 결함이 가려져 있었다.
+	 *
+	 * <p>기동 검사기({@code BaselineEngineStartupValidator})에 기대지 않는다. 그쪽은 엔진과
+	 * 같은 조건을 써서, 엔진이 빠지는 상황에서 검사기도 함께 빠진다.
+	 */
+	@Test
+	void 추천엔진이배선된다(@org.springframework.beans.factory.annotation.Autowired
+			org.springframework.context.ApplicationContext context) {
+		String[] engines = context.getBeanNamesForType(
+				com.gabolle.backend.recommendation.adapter.RecommendationEnginePort.class);
+
+		org.assertj.core.api.Assertions.assertThat(engines)
+				.as("dev 프로필 전체 앱에 추천 엔진이 없다 — 이대로 배포하면 앱은 뜨고 "
+						+ "모든 추천만 조용히 실패한다")
+				.isNotEmpty();
+	}
 }

@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220811437656",
+  "worker": "haiku-8",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["뚱보네돼지갈비 남구 부산", "뚱보네돼지갈비 대연3동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산 남구 용소로13번길 43"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "연차·역사", "note": "30년 동안 같은 품질과 맛을 유지하는 전통 돼지갈비집", "sources": [0, 1]},
+    {"type": "기관 선정", "note": "소상공인벤처기업 '100년가게' 지정을 6개월 만에 받음(보통 2년 소요)", "sources": [0, 1]},
+    {"type": "현지인 지지", "note": "경성대 인근으로 학생들과 지역 주민들이 자주 찾는 맛집", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "돼지갈비와 된장찌개가 주요 메뉴", "sources": [0, 1]},
+    {"type": "플랫폼 순위·평점", "note": "맛·가격·친절 평점이 높다", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["돼지갈비"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

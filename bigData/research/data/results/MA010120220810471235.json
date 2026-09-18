@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220810471235",
+  "worker": "haiku-12",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["통영멸치쌈밥집 중구 부산", "통영멸치쌈밥집 중앙동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/264872", "https://www.diningcode.com/profile.php?rid=MRzXLa6aiW1Q"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "맛 묘사", "note": "멸치를 넣고 끓인 찌개의 칼칼함과 구수한 맛이 특징", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "멸치쌈밥과 고등어쌈밥이 주력 메뉴", "sources": [0, 1]},
+    {"type": "플랫폼 순위·평점", "note": "식신·다이닝코드·테이블링 등 주요 맛집 플랫폼에 소개됨", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["멸치쌈밥", "고등어쌈밥"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

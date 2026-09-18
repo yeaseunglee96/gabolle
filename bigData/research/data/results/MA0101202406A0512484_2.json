@@ -1,0 +1,27 @@
+{
+  "id": "MA0101202406A0512484",
+  "worker": "haiku-58",
+  "researchedAt": "2026-09-09T17:07:00Z",
+  "queries": ["뺀데호 수영구 부산", "뺀데호 민락동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://polle.com/place/4g8i0c/%ED%83%80%EC%BC%80%EB%A6%AC%EC%95%84%20%EB%BA%80%EB%8D%B0%ED%98%B8", "http://duli.co.kr/web/splus/kmap/view.php?sigun=6260000&gugun=3380000&keyno=109&keyname=%ED%83%80%EC%BC%80%EB%A6%AC%EC%95%84+%EB%BA%80%EB%8D%B0%ED%98%B8&keylink=3380000-101-2024-00102"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "메뉴 희소성", "note": "멕시칸 음식 전문점", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "비리아 퀘사디아, 타코 대표 메뉴", "sources": [0, 1]},
+    {"type": "곁들임·차림", "note": "신선한 고수 얹은 멕시칸 요리", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["비리아 퀘사디아", "타코"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "2024년 5월 16일 개업. 주소 수영구 민락동 33-12 1층. 메뉴 가격 비리아 26,000원~, 타코 8,000원"
+}

@@ -1,0 +1,23 @@
+{
+  "id": "MA010120220810781099",
+  "worker": "haiku-32",
+  "researchedAt": "2026-09-09T11:12:00Z",
+  "queries": ["아우미돈까스 연제구 부산", "아우미돈까스 연산6동 맛집"],
+  "found": true,
+  "confidence": "low",
+  "sources": ["부산광역시 연제구 배산로 1"],
+  "stillOpen": true,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": null,
+    "signatureDishes": [],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "구체적 정보 부족. 연제구 돈까스 맛집 중 하나."
+}

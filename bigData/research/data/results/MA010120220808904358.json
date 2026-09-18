@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220808904358",
+  "worker": "haiku-34",
+  "researchedAt": "2026-09-09T07:12:00Z",
+  "queries": ["카페나타 부산 경양식", "카페나타 초량 대영로 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1585864", "https://www.diningcode.com/profile.php?rid=f2ZKx3BT90F5"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "메뉴 희소성",
+      "note": "러시아 가정식 음식, crab salad, Greek salad 등 국내에서 보기 드문 메뉴",
+      "sources": [0, 1]
+    },
+    {
+      "type": "서비스·사람",
+      "note": "카페 나타의 주인인 Natasha가 운영하는 친절한 러시아 음식점",
+      "sources": [0]
+    },
+    {
+      "type": "동네·시장 지목",
+      "note": "부산역 초량 차이나타운 근처의 특색 있는 식당",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["crab salad", "Greek salad"],
+    "priceBand": "medium"
+  },
+  "notFound": null,
+  "notes": "Imperia 러시아 마트와 같은 건물 2층에 위치"
+}

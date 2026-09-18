@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220813146978",
+  "worker": "haiku-47",
+  "researchedAt": "2026-09-09T12:55:00Z",
+  "queries": ["부산막창 해운대구 부산", "부산막창 중1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://triple.guide/restaurants/7a303810-54ae-455e-bf70-b19e4bfbea01", "https://www.diningcode.com/profile.php?rid=rWzcwMfL7iag"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "소막창, 대창, 곱창전골", "sources": [0, 1]},
+    {"type": "맛 묘사", "note": "냄새 없는 오래 숙성된 소막창, 가성비 좋은 가격", "sources": [1]},
+    {"type": "분위기·전망", "note": "직원이 구워주는 서빙, 저녁 웨이팅 있는 유명 가게", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": true,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["소막창", "대창", "곱창전골"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "영업시간 평일 16:00-24:00, 금토 16:00-01:00 (일요일 휴무). 해성막창 본점. 직원 구워주기 서비스"
+}

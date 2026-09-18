@@ -1,0 +1,37 @@
+{
+  "id": "MA010120220811463312",
+  "worker": "haiku-2",
+  "researchedAt": "2026-09-08T16:43:11.248Z",
+  "queries": ["할매집 해운대 백반", "할매집 중동 맛집 한정식"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.diningcode.com/profile.php?rid=LRfx2LTCZteg",
+    "https://triple.guide/restaurants/df3d7bdb-515e-4b6a-89a5-6625914165ee"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "맛 묘사",
+      "note": "깔끔하고 잡내 없는 돼지국밥, 깊은 육수 맛",
+      "sources": [0]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "고급스러운 인테리어, 대리석과 고급목재 테이블, 단체 방문 가능",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["순대국밥", "수육백반"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "셀프 반찬바 있음. 09:00-21:00 영업"
+}

@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220812526867",
+  "worker": "haiku-15",
+  "researchedAt": "2026-09-08T22:36:37Z",
+  "queries": ["보느파티쓰리 연제구 부산", "보느파티쓰리 거제1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 연제구 교대로 7"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "메뉴 희소성", "note": "프랑스 패스트리와 디저트 전문", "sources": [0] },
+    { "type": "서비스·사람", "note": "셰프가 프랑스에서 14년간의 경력을 가짐", "sources": [0] },
+    { "type": "간판 메뉴 지목", "note": "마카롱, 카넬레, 파이낸시에, 케이크", "sources": [0] },
+    { "type": "기관 선정", "note": "블루리본 수상", "sources": [0] },
+    { "type": "분위기·전망", "note": "아늑한 카페 분위기", "sources": [0] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": false,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["마카롱", "카넬레", "파이낸시에"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "월요일 휴무, 영업시간 11:30~19:00, Mom's Touch 위 2층, 전화 051-502-2451"
+}

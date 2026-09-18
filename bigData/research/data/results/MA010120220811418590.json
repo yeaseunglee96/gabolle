@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220811418590",
+  "worker": "haiku-17",
+  "researchedAt": "2026-09-09T09:16:00Z",
+  "queries": ["오막집 해운대구 부산", "오막집 우1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/325107", "https://www.diningcode.com/profile.php?rid=opchJVOVvo5q"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "양과 대창 전문점으로 알려져 있다", "sources": [0, 1]},
+    {"type": "운영·접근 편의", "note": "자체 주차장이 있어 편리하다", "sources": [0, 1]},
+    {"type": "서비스·사람", "note": "직원이 친절하고 고기와 반찬이 신선하다", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["특양", "대창", "밥창", "한우양념갈비", "양밥"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": ""
+}

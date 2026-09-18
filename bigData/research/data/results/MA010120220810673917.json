@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220810673917",
+  "worker": "haiku-32",
+  "researchedAt": "2026-09-09T10:35:00Z",
+  "queries": ["모닝브레드 연제구 부산", "모닝브레드 연산3동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "검색 결과에서 이 가게에 대한 정보를 찾을 수 없음.",
+  "notes": ""
+}

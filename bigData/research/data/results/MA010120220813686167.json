@@ -1,0 +1,44 @@
+{
+  "id": "MA010120220813686167",
+  "worker": "haiku-34",
+  "researchedAt": "2026-09-09T07:28:00Z",
+  "queries": ["킥친 경양식 부산", "킥친 사직동 부산 돈까스"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=F0ylO16itHW5", "https://polle.com/place/4q7I8J/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "바삭바삭한 튀김옷과 촉촉한 속살의 돈까스 전문",
+      "sources": [0]
+    },
+    {
+      "type": "맛 묘사",
+      "note": "꿀꿀돼지(안심까스, 카레, 마늘밥) 등 정성 들인 요리",
+      "sources": [0]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "유러피언 다이닝 스타일의 쾌적한 분위기",
+      "sources": [0]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "만원 후반대의 합리적인 가격에 푸짐한 양",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["돈까스", "꿀꿀돼지", "파스타"],
+    "priceBand": "medium"
+  },
+  "notFound": null,
+  "notes": "사직야구장 근처 위치"
+}

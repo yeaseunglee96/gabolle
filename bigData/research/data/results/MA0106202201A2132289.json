@@ -1,0 +1,27 @@
+{
+  "id": "MA0106202201A2132289",
+  "worker": "haiku-58",
+  "researchedAt": "2026-09-09T16:53:00Z",
+  "queries": ["엘까르니따스광안리점 수영구 부산", "엘까르니따스광안리점 광안2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.tabling.co.kr/restaurant/6708", "https://www.diningcode.com/profile.php?rid=NhmGhoCNgNxG", "https://polle.com/place/1ZLQOS/%EC%97%98%20%EA%B9%8C%EB%A5%B4%EB%8B%88%EB%94%B0%EC%8A%A4"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "메뉴 희소성", "note": "국내 유일한 까르니따스 전문점", "sources": [1]},
+    {"type": "곁들임·차림", "note": "리얼 멕시칸 푸드, 타코 요리", "sources": [1]},
+    {"type": "분위기·전망", "note": "광안리 해변가 위치, 멕시칸 감성", "sources": [2]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["까르니따스", "타코"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "테이블링과 다이닝코드에 등재됨"
+}

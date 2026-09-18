@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220814334352",
+  "worker": "haiku-48",
+  "researchedAt": "2026-09-09T14:41:00+09:00",
+  "queries": ["타이가 해운대구 부산", "타이가 우1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1209017", "https://www.diningcode.com/profile.php?rid=XYnJaOfVPEYN", "https://triple.guide/restaurants/0cd0b649-81bd-48ab-ad22-9c0ce9b8dcd6"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "조리·재료", "note": "정통 일본 레시피의 바삭한 튀김", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "타이가텐동, 에비텐동 등 텐동 전문", "sources": [0, 1]},
+    {"type": "혼잡·수요", "note": "피크 시간에 웨이팅이 있는 인기 가게", "sources": [1]},
+    {"type": "분위기·전망", "note": "바 형태 좌석의 소규모 일식튀김집", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": true,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["타이가텐동", "에비텐동"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "대기열 카테고리는 기타 동남아식 전문이지만 실제로는 일본식 튀김(텐동) 전문점"
+}

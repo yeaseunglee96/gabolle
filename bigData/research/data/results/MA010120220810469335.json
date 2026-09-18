@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220810469335",
+  "worker": "haiku-10",
+  "researchedAt": "2026-09-09T15:10:00Z",
+  "queries": ["장원쌈밥 영도구 부산", "장원쌈밥 동삼1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산 영도구 중리로 46-9"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "현지인 지지", "note": "영도 현지인이 인정하는 로컬 맛집", "sources": [0]},
+    {"type": "맛 묘사", "note": "국산 은갈치조림, 가자미조림, 신선한 쌈밥", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["은갈치조림", "쌈밥"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "도착 시간 미리 전화하면 밑반찬이 준비되어 있음"
+}

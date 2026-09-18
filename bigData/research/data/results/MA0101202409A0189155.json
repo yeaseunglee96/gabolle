@@ -1,0 +1,26 @@
+{
+  "id": "MA0101202409A0189155",
+  "worker": "haiku-39",
+  "researchedAt": "2026-09-09T10:20:00Z",
+  "queries": ["제주흑돈까스 장림점 부산", "제주흑돈까스장림점 경양식"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1787870", "https://www.diningcode.com/profile.php?rid=wp9FXkv4lWkd"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "제주 흑돈까스로 알려짐", "sources": [0, 1]},
+    {"type": "메뉴 희소성", "note": "제주 흑돼지 100% 사용", "sources": [1]},
+    {"type": "조리·재료", "note": "특수 조리법의 제주 흑돈까스", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": null,
+    "signatureDishes": ["일반까스", "매운까스", "치즈까스", "양파까스"],
+    "priceBand": "cheap"
+  },
+  "notes": "주소: 부산광역시 사하구 다대로 274 (신장림역 3번 출구 270m), 전화: 051-263-2633, 영업시간: 월-토 11:00~20:00, 일요일 휴무"
+}

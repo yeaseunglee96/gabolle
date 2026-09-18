@@ -1,0 +1,28 @@
+{
+  "id": "MA0101202406A0349248",
+  "worker": "haiku-12",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["동경밥상 수영구 부산 덮밥"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1097385", "https://kr.trip.com/moments/detail/busan-432-134533373/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "장어덮밥(우나쥬, 히츠마부시) 전문점", "sources": [0, 1]},
+    {"type": "기관 선정", "note": "미슐랭 가이드 선정", "sources": [1]},
+    {"type": "미디어 노출", "note": "생활의 달인에 출연한 장어덮밥 전문가의 식당", "sources": [1]},
+    {"type": "혼잡·수요", "note": "평일 주말 관계없이 항상 웨이팅이 많음", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["우나쥬", "히츠마부시", "호르몬덮밥"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": ""
+}

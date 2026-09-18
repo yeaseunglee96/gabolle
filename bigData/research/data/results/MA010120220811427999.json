@@ -1,0 +1,45 @@
+{
+  "id": "MA010120220811427999",
+  "worker": "haiku-16",
+  "researchedAt": "2026-09-08T22:59:29.078Z",
+  "queries": [
+    "대감집 광안4동 부산",
+    "대감집 수영로521번길"
+  ],
+  "found": true,
+  "confidence": "medium",
+  "sources": [
+    "https://dorojuso.kr/amp/2650010400112650002012115/%EB%B6%80%EC%82%B0%EA%B4%91%EC%97%AD%EC%8B%9C-%EC%88%98%EC%98%81%EA%B5%AC-%EC%88%98%EC%98%81%EB%A1%9C521%EB%B2%88%EA%B8%B8-30-%EA%B4%91%EC%95%88%EB%8F%99"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "메뉴 희소성",
+      "note": "오리고기 구이/찜 전문",
+      "sources": [
+        0
+      ]
+    },
+    {
+      "type": "운영·접근 편의",
+      "note": "단체/점심/포장 가능",
+      "sources": [
+        0
+      ]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": [
+      "오리고기"
+    ],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "위치: 수영로521번길 5-1, 광안동"
+}

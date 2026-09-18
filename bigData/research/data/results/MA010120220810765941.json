@@ -1,0 +1,44 @@
+{
+  "id": "MA010120220810765941",
+  "worker": "haiku-13",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["서울왕돈까스 연제구 부산", "서울왕돈까스 거제1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["식신", "다이닝코드", "당근"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "옛날돈까스 전문",
+      "sources": [0, 1]
+    },
+    {
+      "type": "조리·재료",
+      "note": "국내산 암등심, 한우사골과 야채로 우린 소스",
+      "sources": [1]
+    },
+    {
+      "type": "플랫폼 순위·평점",
+      "note": "다이닝코드 평점을 근거로 든다",
+      "sources": [1]
+    },
+    {
+      "type": "혼잡·수요",
+      "note": "점심시간 웨이팅 있음",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": true,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["돈까스", "소스 듬뿍 돈까스", "생선까스", "치즈돈까스"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "연산역/교대역/거제역 도보 10분"
+}

@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220810523984",
+  "worker": "haiku-30",
+  "researchedAt": "2026-09-09T10:20:00Z",
+  "queries": ["정성도마 동래구 부산", "정성도마 사직3동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 동래구 미남로 54-5"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "조리·재료", "note": "활어를 숙성시키고 국내산 신선한 재료만 사용", "sources": [0, 1] },
+    { "type": "맛 묘사", "note": "회와 매운탕에 정성을 담음", "sources": [0, 1] },
+    { "type": "메뉴 희소성", "note": "생와사비와 전용 간장 사용", "sources": [1] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": false,
+    "parking": false,
+    "audience": "local",
+    "signatureDishes": ["활어숙성회", "매운탕"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

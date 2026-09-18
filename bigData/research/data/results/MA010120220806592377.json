@@ -1,0 +1,22 @@
+{
+  "id": "MA010120220806592377",
+  "worker": "haiku-52",
+  "researchedAt": "2026-09-09T14:50:00Z",
+  "queries": ["이팔곱창 해운대구 부산", "이팔곱창 중1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.tabling.co.kr/place/677ccba366de5f06987d9c4d", "https://triple.guide/restaurants/e274d3fc-cea0-4740-a6e7-9cfe8b10f63c", "https://kr.trip.com/moments/detail/enshi-prefecture-487-13895522/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "곱창과 대창 전문", "sources": [0, 1]},
+    {"type": "맛 묘사", "note": "곱창 속에 통마늘이 박혀있는 시그니처 요리", "sources": [2]},
+    {"type": "서비스·사람", "note": "직원의 친절한 서비스", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["곱창구이", "곱창전골", "대창"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

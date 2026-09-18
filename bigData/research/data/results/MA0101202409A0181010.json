@@ -1,0 +1,32 @@
+{
+  "id": "MA0101202409A0181010",
+  "worker": "haiku-59",
+  "researchedAt": "2026-09-09T08:30:00Z",
+  "queries": ["저스트칠링 부산 해운대 송정", "저스트칠링 경양식 송정중앙로"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=4BDuQAiOINgh"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "브런치, 스테이크, 파스타, 리조또, 데저트",
+      "sources": ["https://www.diningcode.com/profile.php?rid=4BDuQAiOINgh"]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "송정해변 5분 거리, 반려견 친화 카페",
+      "sources": ["https://www.diningcode.com/profile.php?rid=4BDuQAiOINgh"]
+    },
+    {
+      "type": "맛 묘사",
+      "note": "화이트 와인 곁들인 감바(마늘 새우)",
+      "sources": ["https://www.diningcode.com/profile.php?rid=4BDuQAiOINgh"]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "parking": "음식점 앞 길가 주차"
+  },
+  "notes": "송정 브런치·와인 맛집으로 알려짐"
+}

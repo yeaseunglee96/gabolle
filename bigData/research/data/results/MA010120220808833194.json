@@ -1,0 +1,25 @@
+{
+  "id": "MA010120220808833194",
+  "worker": "haiku-36",
+  "researchedAt": "2026-09-09T02:15:02Z",
+  "queries": ["참치통 동래구 부산", "참치통 사직2동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://www.diningcode.com/list.dc?query=%EB%B6%80%EC%82%B0+%EB%8F%99%EB%9E%98%EA%B5%AC+%EC%B0%B8%EC%B9%98"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "맛 묘사", "note": "신선한 참치가 맛있음", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["참치회", "참치초밥"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "다이닝코드 참치 전문점 리스트에 등재"
+}

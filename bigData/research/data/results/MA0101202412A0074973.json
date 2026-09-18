@@ -1,0 +1,30 @@
+{
+  "id": "MA0101202412A0074973",
+  "worker": "haiku-8",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["원향재 동구 부산 중국집", "원향재 초량동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산 동구 대영로243번길 60"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "원조·최초", "note": "부산 차이나타운의 원조 맛집", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "간짜장과 짜장면 전문", "sources": [0, 1]},
+    {"type": "플랫폼 순위·평점", "note": "짜장면 평점을 근거로 든다", "sources": [1]},
+    {"type": "혼잡·수요", "note": "많은 손님들이 대기하는 인기 맛집", "sources": [1]},
+    {"type": "맛 묘사", "note": "달지 않은 간짜장과 계란후라이, 부드러운 울면맛 삼선짬뽕", "sources": [0, 1]},
+    {"type": "동네·시장 지목", "note": "초량동 차이나타운, 부산역 인근 5분 거리", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": true,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["간짜장"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

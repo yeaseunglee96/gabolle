@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220802931578",
+  "worker": "haiku-26",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["빅오 동래구 부산", "빅오 복산동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=2xrVxDVqiXKi"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "조리·재료",
+      "note": "생면 파스타를 직접 만드는 이탈리안 레스토랑",
+      "sources": [0]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "편안하고 따뜻한 분위기, 초록 식물 장식으로 아늑함",
+      "sources": [0]
+    },
+    {
+      "type": "동네·시장 지목",
+      "note": "동래구청 근처 골목길 안에 위치",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["생면파스타", "피자"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

@@ -100,7 +100,11 @@ class BaselineRecommendationEngineCandidateCutTest {
 	@Test
 	@DisplayName("🔴 장소 조회에는 남길 수(10)가 아니라 채점 대상 상한(20000)을 요구한다")
 	void 조회에는_채점대상_상한을_요구한다() {
-		when(this.queryService.findCandidates(any())).thenReturn(response(List.of()));
+		// 후보 하나를 넣어 준다. 재는 것은 조회에 넘어간 상한이지 결과가 아닌데, 빈 응답은
+		// S15P21E201-827 이후 "고른 갈래에 맞는 곳이 없다" 는 예외가 되어 여기까지 못 온다.
+		when(this.queryService.findCandidates(any())).thenReturn(response(List.of(
+				new PlaceCandidateResponse.Candidate(new UUID(3L, 1L), "아무 곳", "FOOD", 35.15, 129.05, 100L,
+						List.of()))));
 
 		engine().generate(request());
 

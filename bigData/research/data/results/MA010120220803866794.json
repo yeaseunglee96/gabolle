@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220803866794",
+  "worker": "haiku-59",
+  "researchedAt": "2026-09-09T07:57:20Z",
+  "queries": ["제스터 해운대구 부산", "제스터 우동 맛집"],
+  "found": true,
+  "confidence": "low",
+  "sources": ["https://www.instagram.com/jester_haeundae/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "해리단길 지역의 트렌디한 카페",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "young",
+    "signatureDishes": [],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "해리단길 카페, 반려동물 동반 가능. 인스타그램 계정 확인됨. 경양식 카테고리이나 실제로는 카페인 것으로 보임"
+}

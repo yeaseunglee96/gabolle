@@ -1,0 +1,32 @@
+{
+  "id": "MA010120220811610251",
+  "worker": "haiku-22",
+  "researchedAt": "2026-09-09T01:16:00.000Z",
+  "queries": ["장수물회 기장군 부산", "장수물회 장안읍 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.diningcode.com/profile.php?rid=jSmSQ82Y99IZ",
+    "https://www.siksinhot.com/taste?areaNo=1359",
+    "http://localmap.co.kr/web/splus/kmap/view.php?sigun=6260000&gugun=3400000&keyno=122&keyname=%EC%9E%A5%EC%88%98%EB%AC%BC%ED%9A%8C&keylink=3400000-101-2011-00059"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "물회·성게알밥 전문", "sources": [0]},
+    {"type": "분위기·전망", "note": "임랑해수욕장 근처, 해안 위치", "sources": [0, 1]},
+    {"type": "운영·접근 편의", "note": "단체석·주차·포장 가능", "sources": [0]},
+    {"type": "현지인 지지", "note": "지역 주민 맛집", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "local",
+    "signatureDishes": ["물회", "성게알밥"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "영업시간 11:00-20:00, 전화 051-727-4922, 단체 예약 가능"
+}

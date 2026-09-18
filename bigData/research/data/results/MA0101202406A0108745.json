@@ -1,0 +1,39 @@
+{
+  "id": "MA0101202406A0108745",
+  "worker": "haiku-51",
+  "researchedAt": "2026-09-09T14:53:00Z",
+  "queries": ["스타케밥푸드 수영 부산", "스타케밥푸드 수영동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.daangn.com/kr/local-profile/%EC%8A%A4%ED%83%80%EC%BC%90%EB%B0%A5%ED%91%B8%EB%93%9C-znbrz5zw8nxr/", "https://wrl.purpleo.kr/article/530"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "케밥 전문점으로 닭고기 도네르케밥과 줌보케밥이 대표",
+      "sources": [0, 1]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "7,000~10,000원대의 저가 가성비 좋은 요리",
+      "sources": [0, 1]
+    },
+    {
+      "type": "운영·접근 편의",
+      "note": "팔도시장 근처로 접근 용이, 배달 가능",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["닭고기 도네르케밥", "닭고기 줌보케밥", "닭고기 볶음밥"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "수영 지역 케밥 맛집 Top 2. 팔도시장 근처에 위치"
+}

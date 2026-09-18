@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202509A0023321",
+  "worker": "haiku-53",
+  "researchedAt": "2026-09-09T07:20:00Z",
+  "queries": ["비스트로치 민락로", "비스트로치 경양식"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://kr.trip.com/moments/detail/gwanganri-beach-2040459-136124095/"],
+  "stillOpen": true,
+  "whyPeopleGo": [{"type": "간판 메뉴 지목", "note": "파스타 전문점", "sources": [0]}, {"type": "분위기·전망", "note": "분위기 좋은 광안리 근처 위치", "sources": [0]}],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": null,
+  "notes": "카테고리는 경양식으로 기록되었으나 실제로는 파스타 전문점. 영업시간 평일 12:00-21:30, 금토 12:00-23:00 (휴게시간 15:00-17:00), 화요일 휴무"
+}

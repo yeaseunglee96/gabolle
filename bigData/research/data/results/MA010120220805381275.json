@@ -1,0 +1,42 @@
+{
+  "id": "MA010120220805381275",
+  "worker": "haiku-50",
+  "researchedAt": "2026-09-09T05:29:15Z",
+  "queries": ["고가우동 해운대구 부산", "고가우동 송정동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.siksinhot.com/P/1376470",
+    "https://www.diningcode.com/profile.php?rid=k5F5s7XRBb9A"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "냄비우동 전문점",
+      "sources": [0, 1]
+    },
+    {
+      "type": "맛 묘사",
+      "note": "매운 우동의 독특한 맛",
+      "sources": [1]
+    },
+    {
+      "type": "플랫폼 순위·평점",
+      "note": "다이닝코드, 식신 등에 등재",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["고가우동", "매운우동", "고가김밥"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

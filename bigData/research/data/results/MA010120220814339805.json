@@ -1,0 +1,37 @@
+{
+  "id": "MA010120220814339805",
+  "worker": "haiku-2",
+  "researchedAt": "2026-09-08T16:43:11.248Z",
+  "queries": ["백화양곱창6호 중구 남포동", "백화양곱창6호 자갈치 곱창"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.diningcode.com/profile.php?rid=JARGOZzosBTo",
+    "https://www.siksinhot.com/theme/magazine/8980"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "연차·역사",
+      "note": "자갈치시장의 60년 역사를 가진 양곱창 전문점",
+      "sources": [0, 1]
+    },
+    {
+      "type": "맛 묘사",
+      "note": "매콤한 곱창구이, 감칠맛 풍부한 소금구이",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 60,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["양곱창", "모듬", "양볶음밥"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "자갈치로 위치, 12:00-23:00(일 1,3,5주 휴무)"
+}

@@ -1,0 +1,42 @@
+{
+  "id": "MA010120220810616422",
+  "worker": "haiku-50",
+  "researchedAt": "2026-09-09T05:33:50Z",
+  "queries": ["부산복집 서면 부산", "부산복집 부전동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.siksinhot.com/P/419647",
+    "https://www.diningcode.com/profile.php?rid=Pp266NZngHzD"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "연차·역사",
+      "note": "25년의 전통을 자랑하는 복 요리 전문점",
+      "sources": [0, 1]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "복 요리 전문으로 알려진 식당",
+      "sources": [0, 1]
+    },
+    {
+      "type": "플랫폼 순위·평점",
+      "note": "식신, 다이닝코드 등의 맛집 사이트에 등재",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 25,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["까치복수육", "복살비빔밥"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": ""
+}

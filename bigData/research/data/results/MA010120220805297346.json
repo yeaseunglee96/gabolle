@@ -1,0 +1,36 @@
+{
+  "id": "MA010120220805297346",
+  "worker": "haiku-40",
+  "researchedAt": "2026-09-09T13:34:00Z",
+  "queries": ["있돈 사상구 부산", "있돈 주례2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.diningcode.com/profile.php?rid=ZMn2IPGfFnrt"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "가격·가성비",
+      "note": "돈까스 6,000원의 저렴한 가격대",
+      "sources": [0]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "돈까스 전문",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": false,
+    "audience": "local",
+    "signatureDishes": ["돈까스", "쫄면"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "11:00~20:30, 배달 및 포장 가능, 주차 불가"
+}

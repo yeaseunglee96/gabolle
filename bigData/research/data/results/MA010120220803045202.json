@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220803045202",
+  "worker": "haiku-68",
+  "researchedAt": "2026-09-10T09:52:00Z",
+  "queries": ["선육후면부산 해운대 재송1동 부산", "선육후면 돼지고기 구이 찜 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://m.sedaily.com/amparticle/12043461"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "돼지갈비가 대표 메뉴",
+      "sources": [0]
+    },
+    {
+      "type": "조리·재료",
+      "note": "신선하고 건강한 재료만 사용",
+      "sources": [0]
+    },
+    {
+      "type": "현지인 지지",
+      "note": "센텀시티 직장인과 지역 주민들에게 오래전부터 사랑받는 곳",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["돼지갈비"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "돼지갈비 전문점. 센텀시티 근처 재송1동 재반로 70-1에 위치"
+}

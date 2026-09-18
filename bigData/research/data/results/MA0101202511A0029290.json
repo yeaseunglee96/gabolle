@@ -1,0 +1,39 @@
+{
+  "id": "MA0101202511A0029290",
+  "worker": "haiku-9",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["쿠노이치 중구 부산", "쿠노이치 대청동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["siksinhot.com", "busan.com"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "메뉴 희소성",
+      "note": "후쿠오카 출신 일본인이 운영하는 정통 이자카야",
+      "sources": [0, 1]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "일본식 대구전골, 고등어 초회, 장코나베",
+      "sources": [0, 1]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "다양한 안주에 합리적인 가격",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["대구전골", "고등어초회", "장코나베"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "대청동2가 2층 위치. 여유로운 실내 공간"
+}

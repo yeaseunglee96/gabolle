@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202406A0143190",
+  "worker": "haiku-52",
+  "researchedAt": "2026-09-09T14:46:00Z",
+  "queries": ["타코사이코 수영구 부산", "타코사이코 남천1동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "검색 결과에서 해당 가게 정보를 찾을 수 없음",
+  "notes": ""
+}

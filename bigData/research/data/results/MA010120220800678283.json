@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220800678283",
+  "worker": "haiku-58",
+  "researchedAt": "2026-09-09T16:57:00Z",
+  "queries": ["아케스시 수영구 부산", "아케스시 남천동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1207051", "http://localmap.co.kr/web/splus/kmap/view.php?sigun=6260000&gugun=3380000&keyno=122&keyname=%EC%95%84%EC%BC%80%EC%8A%A4%EC%8B%9C&keylink=3380000-101-2015-00062"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "정성 가득한 초밥과 2인 세트 메뉴가 대표", "sources": [0, 1]},
+    {"type": "가격·가성비", "note": "착한 가격대에 양질의 초밥을 제공", "sources": [0, 1]},
+    {"type": "서비스·사람", "note": "사장님이 친절하고 음식이 맛있다는 평가", "sources": [1]},
+    {"type": "플랫폼 순위·평점", "note": "남천동 생새우 맛집으로 평점을 근거로 든다", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["2인 세트 #1", "2인 세트 #2"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "운영시간 11:30~21:00 (15:00~17:00 휴게). 금련산역 근처. 모토 '정성 가득 초밥'"
+}

@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220811410685",
+  "worker": "haiku-9",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["수영돼지국밥 수영구", "수영돼지국밥 광안1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["siksinhot.com", "diningcode.com"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "미디어 노출",
+      "note": "수요미식회에 소개된 돼지국밥",
+      "sources": [0, 1]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "뽀얀 국물의 돼지국밥이 대표",
+      "sources": [0, 1]
+    },
+    {
+      "type": "조리·재료",
+      "note": "돼지다리뼈만 고아서 만든 흰 국물",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["돼지국밥", "수육백반"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "광안리 해수욕장 근처 위치. 거의 24시간 운영(08:00~23:40)"
+}

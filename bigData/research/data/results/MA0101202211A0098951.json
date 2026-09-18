@@ -1,0 +1,27 @@
+{
+  "id": "MA0101202211A0098951",
+  "worker": "haiku-30",
+  "researchedAt": "2026-09-09T10:28:00Z",
+  "queries": ["스시오오키 부산진구 부산", "스시오오키 부암1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 부산진구 동평로 173"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "메뉴 희소성", "note": "후토마키 등 수공예 스시를 저렴하게 제공", "sources": [0, 1] },
+    { "type": "가격·가성비", "note": "저렴한 가격에 퀄리티 있는 음식", "sources": [0, 1] },
+    { "type": "혼잡·수요", "note": "평일도 웨이팅이 있을 정도로 인기", "sources": [0, 1] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": true,
+    "parking": false,
+    "audience": "local",
+    "signatureDishes": ["후토마키"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

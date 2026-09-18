@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220807212624",
+  "worker": "haiku-17",
+  "researchedAt": "2026-09-09T09:47:00Z",
+  "queries": ["교토밥상 금정구 부산", "교토밥상 장전 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=NZm9pD9R5rGq"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "규카츠와 사케동을 전문으로 한다", "sources": [0]},
+    {"type": "메뉴 희소성", "note": "부산대 주변에서 정통 규카츠를 즐길 수 있다", "sources": [0]},
+    {"type": "운영·접근 편의", "note": "부산대 근처 편리한 위치에 있다", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": false,
+    "audience": "mixed",
+    "signatureDishes": ["규카츠", "사케동"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

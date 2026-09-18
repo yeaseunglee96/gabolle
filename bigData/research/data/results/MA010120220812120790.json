@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220812120790",
+  "worker": "haiku-49",
+  "researchedAt": "2026-09-09T12:30:00Z",
+  "queries": ["팔팔양대창 해운대구 부산", "팔팔양대창 우동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.diningcode.com/profile.php?rid=r9ZRO76AsKla",
+    "https://triple.guide/restaurants/e274d3fc-cea0-4740-a6e7-9cfe8b10f63c",
+    "https://kr.trip.com/moments/detail/haeundae-gu-2016633-13978930",
+    "https://polle.com/place/1JBrqh/%ED%8C%94%ED%8C%94%EC%96%91%EB%8C%80%EC%B0%BD"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "대창과 양대창 전문점으로 알려져 있음",
+      "sources": [0, 1, 2]
+    },
+    {
+      "type": "서비스·사람",
+      "note": "스태프가 직접 고기를 구워주는 방식",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["대창", "양대창", "모듬"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

@@ -1,0 +1,28 @@
+{
+  "id": "MA0101202406A0588820",
+  "worker": "haiku-1",
+  "researchedAt": "2026-09-09T02:41:00Z",
+  "queries": ["톤쇼우 수영구 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1268623"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "signature",
+      "note": "목탄 스모킹으로 분홍색을 낸 특별한 돈까스 - 한국 No.1 돈까스",
+      "sources": [0]
+    },
+    {
+      "type": "drink",
+      "note": "생맥주 - 돈까스와의 조합",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["돈까스"]
+  },
+  "notFound": null,
+  "notes": "11:30~21:00 영업, 광안점 외 부산대본점 등 다수 지점"
+}

@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220805312023",
+  "worker": "haiku-62",
+  "researchedAt": "2026-09-09T08:50:00Z",
+  "queries": ["도트도트 수영구 부산", "도트도트 광안1동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색에서 도트도트에 대한 정보를 찾을 수 없음",
+  "notes": ""
+}

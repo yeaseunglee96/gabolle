@@ -1,0 +1,18 @@
+{
+  "id": "MA0101202501A0008232",
+  "worker": "haiku-54",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["스시마츠 수영구 부산", "스시마츠 남천2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1761626"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "런치스시 대표메뉴", "sources": [0]},
+    {"type": "맛 묘사", "note": "남천동 참치 맛집, 스시 전문점", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {"yearsClaimed": null, "generations": null, "queueing": null, "parking": null, "audience": "mixed", "signatureDishes": ["런치스시"], "priceBand": null},
+  "notFound": null,
+  "notes": "연락처 (051)7537726"
+}

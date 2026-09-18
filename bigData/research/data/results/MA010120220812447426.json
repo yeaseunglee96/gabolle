@@ -1,0 +1,37 @@
+{
+  "id": "MA010120220812447426",
+  "worker": "haiku-65",
+  "researchedAt": "2026-09-09T22:38:45.759Z",
+  "queries": [
+    "동경횟집 재송동 부산"
+  ],
+  "found": true,
+  "confidence": "medium",
+  "sources": [
+    "https://www.diningcode.com/list.dc?query=%EC%9E%AC%EC%86%A1%EB%8F%99+%ED%9A%9F%EC%A7%91"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "플랫폼 순위·평점",
+      "note": "다이닝코드 별점을 근거로 든다",
+      "sources": [
+        0
+      ]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": [
+      "회"
+    ],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "재송동 상권, 대중교통 편의성 좋음"
+}

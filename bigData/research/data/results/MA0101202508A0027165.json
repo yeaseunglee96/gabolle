@@ -1,0 +1,26 @@
+{
+  "id": "MA0101202508A0027165",
+  "worker": "haiku-14",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["사카나라멘 수영구 부산", "사카나라멘 광안1동 맛집", "사카나라멘 광안리 라멘 부산"],
+  "found": true,
+  "confidence": "low",
+  "sources": ["다이닝코드", "스레즈"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "메뉴 희소성", "note": "광안리 라멘 맛집 중 하나", "sources": [0]},
+    {"type": "현지인 지지", "note": "라멘 초보자들도 방문하는 인기 있는 가게", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": [],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "광안리 일본 라멘 맛집 중 하나로 확인됨. 상세 정보 부족"
+}

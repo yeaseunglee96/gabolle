@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220813639093",
+  "worker": "haiku-31",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["벚꽃스시 사하구 부산", "벚꽃스시 하단1동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "하단1동 지점에 대한 정보 미확인. 벚꽃스시는 서울, 부산, 경기, 인천 등 다른 지역에 체인점이 있으나 부산 사하구 하단1동의 구체적인 영업정보 없음",
+  "notes": ""
+}

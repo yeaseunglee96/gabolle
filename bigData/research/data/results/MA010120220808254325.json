@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220808254325",
+  "worker": "haiku-31",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["스시준 중구 부산", "스시준 보수동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "부산 중구 보수동의 스시준 위치 정보 미확인. 다른 지점(산곡동/부평, 강릉)만 검색됨",
+  "notes": ""
+}

@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220803373882",
+  "worker": "haiku-67",
+  "researchedAt": "2026-09-09T22:30:00.000Z",
+  "queries": ["명물횟집 수영구 부산", "명물횟집 남천1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.tripadvisor.com/Restaurant_Review-g297884-d4035112-Reviews-Busan_Myeongmul_Hoetjib-Busan.html", "https://www.diningcode.com/profile.php?rid=WKYAgBdPUrz2", "https://www.visitbusan.net/index.do?menuCd=DOM_000000201002001000&uc_seq=112&lang_cd=ko"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "갈치 회 코스가 주 메뉴",
+      "sources": [1, 2]
+    },
+    {
+      "type": "플랫폼 순위·평점",
+      "note": "트립어드바이저에서 부산의 식당 중 상위권으로 평가됨",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["갈치 회"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "횟집. 부산 공식 관광 홈페이지에 등재된 유명 회 전문점."
+}

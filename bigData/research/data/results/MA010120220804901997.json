@@ -1,0 +1,25 @@
+{
+  "id": "MA010120220804901997",
+  "worker": "haiku-59",
+  "researchedAt": "2026-09-09T08:48:00Z",
+  "queries": ["디아모 부산 해운대 송정 경양식", "디아모 송정해변로 식당"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=a8f0Krrdz5sd"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "스테이크",
+      "sources": ["https://www.diningcode.com/profile.php?rid=a8f0Krrdz5sd"]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "전면 통유리로 바다 전경, 송정해수욕장 뷔페 맛집",
+      "sources": ["https://www.diningcode.com/profile.php?rid=a8f0Krrdz5sd"]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {},
+  "notes": "송정해수욕장 근처, 송정호텔 10층"
+}

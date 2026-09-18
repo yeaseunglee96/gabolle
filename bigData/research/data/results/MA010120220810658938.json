@@ -1,0 +1,44 @@
+{
+  "id": "MA010120220810658938",
+  "worker": "haiku-19",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["고스락 기장군 부산", "고스락 장안읍 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=yow5pLfLZEAg", "https://www.instagram.com/p/DW7sATcEuyu/", "https://place.tripmate.co.kr/ko/detail.php?contentId=850018&contentTypeId=39"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "임랑해변 바다 풍경, 번갈로 스타일 독실에서 사계절 바다 조망",
+      "sources": [0]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "돼지국밥, 국밥 전문",
+      "sources": [0]
+    },
+    {
+      "type": "조리·재료",
+      "note": "국내산 뼈로 38시간 끓인 국물",
+      "sources": [0]
+    },
+    {
+      "type": "운영·접근 편의",
+      "note": "무료 주차, 반려동물 가능",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["돼지국밥", "국밥"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

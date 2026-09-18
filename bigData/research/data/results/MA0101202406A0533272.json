@@ -1,0 +1,28 @@
+{
+  "id": "MA0101202406A0533272",
+  "worker": "haiku-12",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["조개뷰광안 수영구 부산", "조개뷰광안 민락동 해산물"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://www.siksinhot.com/theme/magazine/17266", "https://www.daangn.com/kr/local-profile/%EA%B0%AF%EB%B2%8C%EC%9D%98%EC%A1%B0%EA%B0%9C-%EA%B4%91%EC%95%88%EB%A6%AC%EC%A0%90-afn88mu3ek38/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "무한 리필 조개구이가 특징", "sources": [0, 1]},
+    {"type": "분위기·전망", "note": "광안대교를 바라보는 오션뷰 테라스에서 즐김", "sources": [0, 1]},
+    {"type": "맛 묘사", "note": "신선한 제철 해산물 - 가리비, 전복, 새우 등 다양", "sources": [0, 1]},
+    {"type": "조리·재료", "note": "신선하고 푸짐한 무한 리필 해산물", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["무한 리필 조개구이"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

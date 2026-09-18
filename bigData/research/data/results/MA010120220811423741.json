@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220811423741",
+  "worker": "haiku-32",
+  "researchedAt": "2026-09-09T11:11:00Z",
+  "queries": ["동부산횟집 해운대구 부산", "동부산횟집 반송2동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "검색 결과에서 이 가게에 대한 정보를 찾을 수 없음. 반송2동의 다른 횟집들(기장횟집 등)만 나옴.",
+  "notes": ""
+}

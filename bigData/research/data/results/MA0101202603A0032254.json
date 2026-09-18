@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202603A0032254",
+  "worker": "haiku-26",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["슈가 해운대구 부산", "슈가 반여동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색 결과에서 반여동 지역의 슈가 음식점을 찾을 수 없음",
+  "notes": ""
+}

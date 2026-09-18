@@ -1,0 +1,25 @@
+{
+  "id": "MA010120220813819029",
+  "worker": "haiku-59",
+  "researchedAt": "2026-09-09T08:28:00Z",
+  "queries": ["도새기 부산 민락동 돼지고기", "도새기 광안로 구이 찜"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=fvmUzPyoRbJn"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "뒷고기, 오겹살",
+      "sources": ["https://www.diningcode.com/profile.php?rid=fvmUzPyoRbJn"]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "광안리 해변가 지역의 로컬 고기집",
+      "sources": ["https://www.diningcode.com/profile.php?rid=fvmUzPyoRbJn"]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {},
+  "notes": "광안로 지역의 고기 전문점"
+}

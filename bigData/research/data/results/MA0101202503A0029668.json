@@ -1,0 +1,18 @@
+{
+  "id": "MA0101202503A0029668",
+  "worker": "haiku-67",
+  "researchedAt": "2026-09-09T22:38:00.000Z",
+  "queries": ["스시쿄우 민락동 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=gzxbnwRWkMwF", "https://catchtable.co.kr/sushikou"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "기관 선정", "note": "파란 리본상 3년 연속 수상", "sources": [0]},
+    {"type": "분위기·전망", "note": "조용한 주택 골목 위치", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {"signatureDishes": ["스시 오마카세"], "priceBand": "mid"},
+  "notFound": null,
+  "notes": "일식 회/초밥. 스시 오마카세 전문. 12:00~22:00 영업."
+}

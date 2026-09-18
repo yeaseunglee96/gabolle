@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202406A0154430",
+  "worker": "haiku-46",
+  "researchedAt": "2026-09-09T13:00:00Z",
+  "queries": ["촌칼국수 사상구 부산", "촌칼국수 모라동 칼국수"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/755425", "https://triple.guide/restaurants/142bc938-aa27-4630-a653-0c75f5b2975d"],
+  "stillOpen": true,
+  "whyPeopleGo": [{"type": "연차·역사", "note": "26년 이상 운영 (1997년 오픈)", "sources": [0]}, {"type": "간판 메뉴 지목", "note": "칼국수, 수제비 전문", "sources": [1]}],
+  "newTypes": [],
+  "descriptors": {"yearsClaimed": 26, "generations": null, "queueing": null, "parking": null, "audience": "locals", "signatureDishes": ["칼국수", "수제비"], "priceBand": "cheap"},
+  "notFound": null,
+  "notes": ""
+}

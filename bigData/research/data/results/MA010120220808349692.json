@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220808349692",
+  "worker": "haiku-53",
+  "researchedAt": "2026-09-09T05:46:43.8167057Z",
+  "queries": ["한끼맛있다수영망미점 수영구 부산", "한끼맛있다수영망미점 망미2동 맛집", "한끼맛있다 수영 후기", "한끼맛있다 망미동 블로그"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://www.siksinhot.com/theme/magazine/7337", "https://www.diningcode.com/list.dc?query=%EB%A7%9D%EB%AF%B8%EB%8F%99", "https://www.diningcode.com/profile.php?rid=ieaQ4xMOJnT3"],
+  "stillOpen": true,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {"audience": "mixed"},
+  "notFound": null,
+  "notes": ""
+}

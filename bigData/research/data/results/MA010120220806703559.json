@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220806703559",
+  "worker": "haiku-22",
+  "researchedAt": "2026-09-09T01:18:30.000Z",
+  "queries": ["톤키 중구 부산", "톤키 중앙동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.diningcode.com/profile.php?rid=ruSFH8FJvTkM"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "돈까스·카레 전문", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["로스카츠", "히레카츠"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "영업시간 11:00~21:00 (일요일 휴무), 중앙역 15번/13번 출구 근처"
+}

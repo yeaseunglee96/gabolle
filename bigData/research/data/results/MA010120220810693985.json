@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220810693985",
+  "worker": "haiku-28",
+  "researchedAt": "2026-09-09T10:05:00Z",
+  "queries": ["대항식당 강서구 부산", "대항식당 가덕도동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=ZuMNifYPJSzj", "https://www.siksinhot.com/P/636612"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "물회 전문점, 신선한 해산물", "sources": [0]},
+    {"type": "분위기·전망", "note": "바다가 보이는 위치에 있는 식당", "sources": [1]},
+    {"type": "맛 묘사", "note": "신선하고 깨끗한 해산물", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "주차 가능",
+    "audience": "local",
+    "signatureDishes": ["물회", "회"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "실제 가게명은 대항회식당"
+}

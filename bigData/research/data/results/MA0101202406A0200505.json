@@ -1,0 +1,34 @@
+{
+  "id": "MA0101202406A0200505",
+  "worker": "haiku-57",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["오뎅무라 부산", "오뎅무라 광안 포차"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=2UlcNAYXRo2A"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "오뎅탕과 꼬치 전문",
+      "sources": [0]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "포차/이자카야 분위기, 회전탁 원형 테이블",
+      "sources": [0]
+    },
+    {
+      "type": "운영·접근 편의",
+      "note": "늦은 시간까지 영업하는 야식거리",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["오뎅탕", "꼬치"],
+    "audience": "mixed"
+  },
+  "notFound": null,
+  "notes": "포차/이자카야 겸업, 광안리 야식거리, 월-토 19:00-02:30, 일 19:00-01:00"
+}

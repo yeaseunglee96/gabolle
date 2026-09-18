@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220801875831",
+  "worker": "haiku-7",
+  "researchedAt": "2026-09-08T22:09:18Z",
+  "queries": ["까치횟집 수영구 부산", "까치횟집 민락동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://visitbusan.net/index.do?lang_cd=ko&menuCd=DOM_000000201002001000&uc_seq=1439", "https://autoreserve.com/ko/restaurants/XtJPpVxypkVqcDnSHJyj"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "분위기·전망", "note": "광안대교의 아름다운 전망과 해변 오션뷰", "sources": [0]},
+    {"type": "맛 묘사", "note": "신선한 해산물로 만든 고급 회", "sources": [0]},
+    {"type": "간판 메뉴 지목", "note": "물회, 활어회(도다리·가자미회), 전복죽 코스", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "couples",
+    "signatureDishes": ["물회", "활어회", "전복죽"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": "광안해변 풍경타워 위치. 10:30~22:30 영업. 공휴일 정기휴무. 다양한 코스요리 구성."
+}

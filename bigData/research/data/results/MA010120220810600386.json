@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220810600386",
+  "worker": "haiku-17",
+  "researchedAt": "2026-09-09T09:42:45Z",
+  "queries": ["급행장 부산진구 부산", "급행장 부전1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=lq7XOfX1wX2v", "https://www.siksinhot.com/P/266896"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "연차·역사", "note": "1950년부터 오래 이어온 한우 전문점이다", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "한우 bulgogi와 갈빗대를 전문으로 한다", "sources": [0]},
+    {"type": "조리·재료", "note": "숯불에 구워 고급스러운 맛을 낸다", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["한우 bulgogi", "한우 갈빗대", "냉면", "밀면"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": ""
+}

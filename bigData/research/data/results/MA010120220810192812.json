@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220810192812",
+  "worker": "haiku-13",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["이씨할매초장집 부산", "이씨할매초장집 중1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["triple.guide", "다이닝코드"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "신선한 횟감과 초장이 특징",
+      "sources": [0, 1]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "2층에서 즐기는 바다 경치",
+      "sources": [0]
+    },
+    {
+      "type": "조리·재료",
+      "note": "신선한 자연산 회",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["회 및 초장"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "달맞이길 위치, 인당 가격"
+}

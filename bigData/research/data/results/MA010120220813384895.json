@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220813384895",
+  "worker": "haiku-30",
+  "researchedAt": "2026-09-09T10:07:00Z",
+  "queries": ["어장횟집 강서구 부산", "어장횟집 가덕도동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "가덕도동 위치의 어장횟집 정보 없음.",
+  "notes": ""
+}

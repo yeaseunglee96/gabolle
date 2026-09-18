@@ -1,0 +1,19 @@
+{
+  "id": "MA0101202603A0048255",
+  "worker": "haiku-54",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["에릿 수영구 부산", "에릿 광안2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.daangn.com/kr/local-profile/%EC%97%90%EB%A6%BF-67u7o8ryawkn/", "https://www.threads.com/@hajinhyi800/post/DZhSVPlieSF/video-%EC%97%90%EB%A6%BF-erit%EB%B6%80%EC%82%B0-%EA%B4%91%EC%95%88%EB%A6%AC%EC%97%90-%EC%9D%B4%EB%9F%B0-%ED%8C%8C%EC%9D%B8%EB%8B%A4%EC%9D%B4%EB%8B%9D%EC%9D%B4-%EC%9E%88%EC%97%88%EB%84%A4%EC%9A%94%EA%B8%B0%EB%85%90%EC%9D%BC%EC%9D%84-%EB%A7%9B%EC%95%84-%EB%B0%A9%EB%AC%B8%ED%95%9C-%EC%97%90%EB%A6%BF-erit%EB%B0%9C%ED%9A%A8-%EC%8B%9D%EC%9E%AC%EB%A3%8C%EC%99%80-%EA%B3%84%EC%A0%88-%EC%9E%AC%EB%A3%8C%EB%A5%BC-%ED%99%9C%EC%9A%A9%ED%95%B4%ED%95%9C%EC%8B%9D%EA%B3%BC-%EC%96%91%EC%8B%9D%EC%9D%98-%EA%B2%BD%EA%B3%84%EB%A5%BC-%EB%84%98%EB%82%98"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "분위기·전망", "note": "파인다이닝, 오픈 키친에서 요리가 완성되는 과정", "sources": [1]},
+    {"type": "조리·재료", "note": "발효 식재료와 계절 재료를 활용한 특별한 코스, 감태 타르트, 고사리 파스타, 병어 요리, 항정살과 초콜릿의 조합", "sources": [1]},
+    {"type": "메뉴 희소성", "note": "한식과 양식의 경계를 넘나드는 특별한 코스 경험", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {"yearsClaimed": null, "generations": null, "queueing": null, "parking": null, "audience": "adult", "signatureDishes": [], "priceBand": "expensive"},
+  "notFound": null,
+  "notes": "비스트로, 수영로588번길 60 2층, 6시/7시 예약제, 디너 테이스팅 코스 99,000원, 한우 채끝 1++ 옵션 가능"
+}

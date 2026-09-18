@@ -1,0 +1,34 @@
+{
+  "id": "MA0101202411A0049339",
+  "worker": "haiku-59",
+  "researchedAt": "2026-09-09T08:02:30Z",
+  "queries": ["울트라바이트 수영구 부산", "울트라바이트 민락동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1749555", "https://www.daangn.com/kr/local-profile/%EC%9A%B8%ED%8A%B8%EB%9D%BC%EB%B0%94%EC%9D%B4%ED%8A%B8-g6idodeh7j9f/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "맛 묘사",
+      "note": "제철 재료와 돼지고기 부위별 오마카세",
+      "sources": [0]
+    },
+    {
+      "type": "서비스·사람",
+      "note": "세 명의 셰프가 만드는 고급스러운 맛",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["돼지고기 오마카세", "제철 코스"],
+    "priceBand": "high"
+  },
+  "notFound": null,
+  "notes": "18:00 ~ 01:00 영업. 프리미엄 다이닝 옵션. 깔끔하고 고급스러운 분위기"
+}

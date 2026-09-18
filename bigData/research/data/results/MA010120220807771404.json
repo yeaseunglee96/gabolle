@@ -1,0 +1,38 @@
+{
+  "id": "MA010120220807771404",
+  "worker": "haiku-1",
+  "researchedAt": "2026-09-09T01:07:00Z",
+  "queries": ["홍소족발 부산진구", "홍소족발 중앙대로 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=nZidGSz783zQ", "https://www.siksinhot.com/P/361693"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "specialty",
+      "note": "한약재로 우려낸 쫄깃하면서 부드러운 족발 - 독특한 식감",
+      "sources": [0]
+    },
+    {
+      "type": "signature_dish",
+      "note": "냉채족발 - 새콤한 소스로 중간에 입가심 가능",
+      "sources": [0]
+    },
+    {
+      "type": "quality",
+      "note": "깨끗한 맛 - 맛/위생 평가 최고점",
+      "sources": [0]
+    },
+    {
+      "type": "value",
+      "note": "점심특선 족발과 막국수 10,000원 - 가성비 좋음",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["냉채족발", "불족발", "막국수"]
+  },
+  "notFound": null,
+  "notes": "전용 주차장 없음, 테이크아웃 가능, 전포 카페거리와 인접, 넓은 룸과 단체석 있음, 일요일 22:30 조기마감"
+}

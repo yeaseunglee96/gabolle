@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220813560254",
+  "worker": "haiku-32",
+  "researchedAt": "2026-09-09T10:51:00Z",
+  "queries": ["이태리광수 서구 부산", "이태리광수 부민동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 서구 부민동"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "깔조네(calzone) 유명",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": null,
+    "signatureDishes": ["깔조네"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "이탈리안 식당. 4명이 방문할 때 2인분 주문 추천."
+}

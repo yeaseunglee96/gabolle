@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220810780365",
+  "worker": "haiku-14",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["희망통닭 동래구 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["식신", "다이닝코드", "트립가이드"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "연차·역사", "note": "1983년 개업, 1993년 현 위치 이전", "sources": [0, 1]},
+    {"type": "기관 선정", "note": "부산 3대 치킨 맛집 중 하나", "sources": [1]},
+    {"type": "간판 메뉴 지목", "note": "반반 통닭과 양념통닭이 대표", "sources": [0, 1]},
+    {"type": "조리·재료", "note": "마늘, 양파, 생강 특수 가루로 바삭하게 제조, 닭똥집도 유명", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 40,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["반반 통닭", "양념통닭", "닭똥집"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

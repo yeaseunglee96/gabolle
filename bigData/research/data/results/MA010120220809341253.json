@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220809341253",
+  "worker": "haiku-10",
+  "researchedAt": "2026-09-09T14:55:00Z",
+  "queries": ["대성식육식당 영도구 부산", "대성식육식당 봉래1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산 영도구 절영로7번길 36"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "조리·재료", "note": "정육점에서 직접 손질하고 뼈를 발라낸 신선한 고급 소고기", "sources": [0]},
+    {"type": "맛 묘사", "note": "부드러운 한우등심, 신선한 생삼살", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["한우등심", "생삼살"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": ""
+}

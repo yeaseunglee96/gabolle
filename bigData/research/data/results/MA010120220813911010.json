@@ -1,0 +1,38 @@
+{
+  "id": "MA010120220813911010",
+  "worker": "haiku-1",
+  "researchedAt": "2026-09-09T01:52:00Z",
+  "queries": ["밀양순대돼지국밥 해운대", "밀양순대돼지국밥 구남로 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=a5fme3XwE9cS", "https://www.siksinhot.com/P/324307"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "specialty",
+      "note": "국내산 사골을 48시간 이상 고아내는 전통 방식 - 진하면서도 깔끔한 국물",
+      "sources": [0]
+    },
+    {
+      "type": "service",
+      "note": "24시간 연중무휴 영업 - 언제든 즐길 수 있는 돼지국밥",
+      "sources": [0]
+    },
+    {
+      "type": "capacity",
+      "note": "3층 대규모 식당으로 60명까지 그룹 수용 가능",
+      "sources": [0]
+    },
+    {
+      "type": "fame",
+      "note": "트로트 가수 임영웅이 무려 5번 방문한 곳 - 국밥 원조로 명성",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["돼지국밥", "순대국밥", "뼈다귀해장국"]
+  },
+  "notFound": null,
+  "notes": "해운대 시장 중앙 위치, 외국인 관광객 많음, 무료주차/셀프바/유아의자 제공, 소면 포함된 국밥"
+}

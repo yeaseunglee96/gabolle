@@ -1,0 +1,27 @@
+{
+  "id": "MA0101202409A0013772",
+  "worker": "haiku-61",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["우나쥬 해운대구 부산", "우나쥬 중2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://guide.michelin.com/us/en/busan-region/busan_1025838/restaurant/unaju", "https://www.diningcode.com/profile.php?rid=2rdGwBUK1EGW"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "연차·역사", "note": "30년 경력 일본인 셰프", "sources": [0]},
+    {"type": "기관 선정", "note": "미슐랭 가이드 등재 레스토랑", "sources": [0]},
+    {"type": "맛 묘사", "note": "정통 나고야식 히츠마부시 전문", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["히츠마부시", "텐동"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": "청사포로 위치, 요리 완성 시간 15분, 3가지 방식으로 즐길 수 있음"
+}

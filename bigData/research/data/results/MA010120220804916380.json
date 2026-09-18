@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220804916380",
+  "worker": "haiku-17",
+  "researchedAt": "2026-09-09T09:15:30Z",
+  "queries": ["이레옥 해운대구 부산", "이레옥 우3동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/257415", "https://www.diningcode.com/profile.php?rid=zvTJji68Xnoa"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "분위기·전망", "note": "야외 테이블에서 광안대교와 바다가 펼쳐져 보인다", "sources": [0, 1]},
+    {"type": "조리·재료", "note": "최고급 한우 양지머리와 사골을 엄선해 전통 방식으로 정성스럽게 끓인다", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "곰탕 전문점으로 알려져 있다", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["곰탕", "양곰탕", "특섞어곰탕", "수육"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": ""
+}

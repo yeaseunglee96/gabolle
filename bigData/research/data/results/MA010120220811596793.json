@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220811596793",
+  "worker": "haiku-41",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["진성식당 금정구 부산", "진성식당 서1동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "검색에서 부산 금정구 서1동의 진성식당을 찾을 수 없음",
+  "notes": ""
+}

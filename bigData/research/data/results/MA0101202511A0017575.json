@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202511A0017575",
+  "worker": "haiku-59",
+  "researchedAt": "2026-09-09T08:24:00Z",
+  "queries": ["청청 부산 광안 횟집", "청청 무학로 광안 회"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "광안 지역 횟집 검색에도 불구하고 '청청'이라는 횟집은 찾을 수 없음",
+  "notes": "횟집 카테고리로 등록"
+}

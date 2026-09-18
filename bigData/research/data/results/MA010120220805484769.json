@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220805484769",
+  "worker": "haiku-5",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["풍원장안동보리밥 기장군 부산", "풍원장안동보리밥 기장읍 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["부산광역시 기장군 기장읍 동암1길 5"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "가격",
+      "note": "가성비 좋은 한정식 식당",
+      "sources": [0]
+    },
+    {
+      "type": "양",
+      "note": "푸짐한 밑반찬과 양",
+      "sources": [0]
+    },
+    {
+      "type": "분위기",
+      "note": "전통 시골밥상 분위기",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "넓은 주차장",
+    "audience": "family",
+    "signatureDishes": ["보리밥 세트", "돼지구이 세트", "삶은 돼지고기 세트"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "영업시간: 11:00-21:00 (15:00-16:00 브레이크). 보리밥이 진짜 보리밥이고 소화에 좋다는 평가. 야채 위주의 밑반찬."
+}

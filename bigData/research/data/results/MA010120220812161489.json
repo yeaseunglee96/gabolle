@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220812161489",
+  "worker": "haiku-49",
+  "researchedAt": "2026-09-09T13:30:00Z",
+  "queries": ["무오 수영구 광안2동 카페", "무오 광안2동 수영로 맛집"],
+  "found": false,
+  "confidence": "low",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "수영로 532에 위치한다는 무오 카페를 검색할 수 없음. 수영구 광안2동에 카페프리모, 올선데이 등 다른 카페는 검색되지만 무오는 찾을 수 없음",
+  "notes": ""
+}

@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220806643173",
+  "worker": "haiku-69",
+  "researchedAt": "2026-09-10T00:02:00Z",
+  "queries": ["으나수키친두번째이야기 해운대구", "으나수키친 우1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.instagram.com/eunasu_kitchen_2nd/", "https://www.diningcode.com/profile.php?rid=WDoJAUvkbN6T"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "숙성회 이자카야", "sources": [0, 1]},
+    {"type": "메뉴 희소성", "note": "숙성회, 푸토마키 등 신선한 해산물", "sources": [1]},
+    {"type": "혼잡·수요", "note": "예약 필수, 인기 있음", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": true,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["숙성회", "푸토마키", "시메사바"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": "해리단길 위치, 예약 권장, 배달 서비스 있음"
+}

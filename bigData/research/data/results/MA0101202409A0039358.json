@@ -1,0 +1,26 @@
+{
+  "id": "MA0101202409A0039358",
+  "worker": "haiku-56",
+  "researchedAt": "2026-09-09T06:37:13Z",
+  "queries": ["시쿠 수영구 부산", "시쿠 민락동 맛집"],
+  "found": true,
+  "confidence": "low",
+  "sources": [
+    "https://infosori.com/sori/m.php?board=foodbs&command=body&no=25441",
+    "https://www.diningcode.com/list.dc?query=%EB%B6%80%EC%82%B0%EB%AF%BC%EB%9D%BD%EB%8F%99"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": [],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "정보가 매우 제한적. 한식 일반음식점으로 표기되지만 업종은 일식 회/초밥"
+}

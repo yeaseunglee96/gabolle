@@ -97,6 +97,23 @@ public final class RecommendationCodes {
 	 */
 	public static final String ERROR_NO_FEASIBLE_RESULT = "RECOMMENDATION_NO_FEASIBLE_RESULT";
 
+	/**
+	 * 고른 갈래에 해당하는 장소가 반경 안에 하나도 없다 — S15P21E201-827.
+	 *
+	 * <p>{@link #ERROR_NO_FEASIBLE_RESULT} 와 다르다. 그쪽은 <b>후보를 만들었는데 제약에
+	 * 전부 걸린</b> 경우이고, 이것은 <b>고를 후보가 애초에 없는</b> 경우다. 사용자에게 할
+	 * 말이 다르다 — 앞의 것은 "조건을 좀 풀어 보시겠어요", 이것은 "그 갈래는 아직 준비가
+	 * 안 됐어요" 다.
+	 *
+	 * <p>2026-09-10 배포에서 실제로 났다. 바다만 골랐는데 적재된 장소가 전부 음식점이라
+	 * 후보가 0곳이었고, 그때 나간 코드는 {@code VERSION_UNRESOLVED} 였다 — 후보가 없어
+	 * 수집분 이름을 못 정한 것이 원인이 아니라 <b>결과</b>인데, 그 결과가 코드가 됐다.
+	 * 사용자도 우리도 그 코드에서는 이유를 못 읽는다.
+	 *
+	 * <p>다시 요청해도 달라지지 않는다. 자료가 들어와야 바뀐다.
+	 */
+	public static final String ERROR_NO_CANDIDATES = "ENGINE_NO_CANDIDATES";
+
 	/** 엔진 호출 자체가 실패했다. */
 	public static final String ERROR_ENGINE_UNAVAILABLE = "ENGINE_UNAVAILABLE";
 

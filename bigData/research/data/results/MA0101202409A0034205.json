@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202409A0034205",
+  "worker": "haiku-63",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["키친웨일 해운대구 부산", "키친웨일 중1동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "검색 결과에 요청된 가게명 '키친웨일'과 정확히 일치하는 정보를 찾지 못했음. 첫 번째 검색에서는 '키친187'이라는 다른 가게가 나왔고, 두 번째 검색에서도 구체적인 정보 없음",
+  "notes": ""
+}

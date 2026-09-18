@@ -1,0 +1,47 @@
+{
+  "id": "MA010120220810603664",
+  "worker": "haiku-2",
+  "researchedAt": "2026-09-08T16:43:11.248Z",
+  "queries": ["포항돼지국밥 부산진구 부산", "포항돼지국밥 서면로 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.diningcode.com/profile.php?rid=YvcSboRuPs06",
+    "https://www.siksinhot.com/P/361671"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "맛 묘사",
+      "note": "깔끔한 국물에 잡내가 없고, 고기가 부드럽고 야들야들하게 녹아내림",
+      "sources": [0]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "24시간 영업으로 언제든 이용 가능하며 가격 대비 양이 푸짐",
+      "sources": [0]
+    },
+    {
+      "type": "기관 선정",
+      "note": "블루리본 서베이 13년 연속 수록된 지역 대표 맛집",
+      "sources": [0]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "셀프바와 넓은 매장, 많은 유명인 사인이 있음",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": "some",
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["돼지국밥", "내장국밥", "모듬국밥"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "24시간 연중무휴 영업. 부산 서면국밥거리의 대표 맛집"
+}

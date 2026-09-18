@@ -1,0 +1,44 @@
+{
+  "id": "MA010120220808185726",
+  "worker": "haiku-13",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["소공간 해운대구 부산", "소공간 중1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["식신", "autoreserve", "triple.guide", "다이닝코드", "미슐랭가이드"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "기관 선정",
+      "note": "미슐랭 가이드 등재 한식 파인다이닝",
+      "sources": [4]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "한우 1++ 코스 요리",
+      "sources": [0, 1]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "바다 경치를 보며 즐기는 한식 다이닝",
+      "sources": [0]
+    },
+    {
+      "type": "조리·재료",
+      "note": "계절 신선 로컬 재료를 사용한 한우 요리",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "upscale",
+    "signatureDishes": ["런치 8코스", "디너 11코스"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": "중동역 인근, 미슐랭 한식 파인다이닝"
+}

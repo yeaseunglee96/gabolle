@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220806486719",
+  "worker": "haiku-62",
+  "researchedAt": "2026-09-10T12:03:00Z",
+  "queries": ["오쪽이락 수영구 부산", "오쪽이락 민락동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.instagram.com/p/COr8sbQFo_R/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "현지인 지지", "note": "광안리에서 아는 사람만 아는 숨은 명소", "sources": [0]},
+    {"type": "간판 메뉴 지목", "note": "돼지고기 구이/찜 전문", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["돼지고기 구이", "돼지고기 찜"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": ""
+}

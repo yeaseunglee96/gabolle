@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220810476053",
+  "worker": "haiku-9",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["동해남부선 중구 부산", "동해남부선 중앙동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["esquirekorea.co.kr", "diningcode.com"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "메뉴 희소성",
+      "note": "이자카야로서 특별한 음식 문화를 제공",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": [],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "중앙동 이자카야. 기차역 이름과 같음"
+}

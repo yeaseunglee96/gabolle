@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220810810228",
+  "worker": "haiku-8",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["주문진막국수 동래구 부산", "주문진막국수 사직2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산 동래구 사직로58번길 8"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "연차·역사", "note": "1991년부터 전통을 지켜온 막국수 전문점", "sources": [0, 1]},
+    {"type": "조리·재료", "note": "사골의 진한 육수에 졸깃한 면발과 김가루", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "막국수와 수육이 대표 메뉴", "sources": [0, 1]},
+    {"type": "메뉴 희소성", "note": "막국수 전문점", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["막국수", "수육"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

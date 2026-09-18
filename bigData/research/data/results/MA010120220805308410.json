@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220805308410",
+  "worker": "haiku-39",
+  "researchedAt": "2026-09-09T10:10:00Z",
+  "queries": ["홍참치생연어 북구 부산", "홍참치생연어 구포1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/851050", "https://www.diningcode.com/profile.php?rid=6N8U5RxyV7qw"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "참치와 연어로 알려진 가게", "sources": [0, 1]},
+    {"type": "가격·가성비", "note": "신선한 참치, 연어를 합리적인 가격에 제공", "sources": [0, 1]},
+    {"type": "분위기·전망", "note": "덕천역 근처 먹자골목의 소규모 가게", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": null,
+    "signatureDishes": ["참치", "생연어"],
+    "priceBand": "moderate"
+  },
+  "notes": "주소: 부산광역시 북구 만덕대로16번길 32-10, 전화: 0507-1438-0518, 영업시간: 17:00~03:00"
+}

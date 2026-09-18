@@ -1,0 +1,41 @@
+{
+  "id": "MA0106202206A0010478",
+  "worker": "haiku-40",
+  "researchedAt": "2026-09-09T12:25:00Z",
+  "queries": ["버거킹부산영도DT점 영도구 부산", "버거킹부산영도DT점 봉래2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.114.co.kr/search/detail?comp_id=11843690&comp_tp_cd=GOV&godata_tp_cd=LOCALDATA",
+    "https://www.siksinhot.com/P/1446761",
+    "https://www.diningcode.com/profile.php?rid=upnvuEjXA41L",
+    "https://event.burgerking.co.kr/shop/0401/",
+    "http://duli.co.kr/web/splus/kmap/view.php?sigun=6260000&gugun=3280000&keyno=76&keyname=%EB%B2%84%EA%B1%B0%ED%82%B9+%EB%B6%80%EC%82%B0%EC%98%81%EB%8F%84DT%EC%A0%90&keylink=3280000-104-2022-00021",
+    "https://infosori.com/sori/m.php?board=foodbs&command=body&no=61334"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "내부 깔끔하고 세련된 인테리어",
+      "sources": [0, 1, 2]
+    },
+    {
+      "type": "운영·접근 편의",
+      "note": "드라이브스루와 넓은 주차장",
+      "sources": [0, 1, 2]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["와퍼", "치즈와퍼"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "07072090610 또는 070-74628568, 개업 2022년 5월 4일"
+}
