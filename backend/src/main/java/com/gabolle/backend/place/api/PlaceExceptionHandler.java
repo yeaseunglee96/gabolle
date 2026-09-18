@@ -35,15 +35,17 @@ import com.gabolle.backend.place.service.PlaceRequestException;
  * <p>{@code assignableTypes} 로 컨트롤러를 나열하지 않고 패키지로 거는 이유는 유지보수다.
  * 컨트롤러가 늘 때마다 이 파일을 고쳐야 하면, 나중에 추가한 컨트롤러 하나가 조용히 빠진다.
  *
- * <h2>🔴 {@code message} 에 무엇을 넣는가 — 여기서 trip 과 다르게 했다</h2>
+ * <h2>🔴 {@code message} 에는 <b>사람이 읽는 한국어 문장</b>을 넣는다</h2>
  *
- * {@code TripExceptionHandler} 는 {@code message} 자리에 {@code "error.trip.validation"} 같은
- * 메시지 키를 넣고, {@code auth} 쪽은 한국어 문장을 넣는다. 둘이 갈려 있다.
+ * 프런트({@code src/api/errorText.ts})가 {@code error.message} 를 화면에 띄우기 때문이다.
+ * 다국어가 필요해지면 {@code ApiError} 에 {@code messageKey} 를 더하는 것이 맞고, 그때까지는
+ * 모든 예외 처리기가 이 한 가지 방식을 쓴다.
  *
- * <p>프런트({@code src/api/client.ts})는 {@code error.message} 를 <b>그대로 화면에 띄운다.</b>
- * 그래서 키를 넣으면 사용자에게 {@code error.trip.validation} 이 보인다. 배포에서 실제로 도는
- * auth 쪽을 따라 <b>사람이 읽는 한국어 문장</b>을 넣는다. 다국어가 필요해지면 {@code ApiError} 에
- * {@code messageKey} 를 더하는 것이 맞고, 그건 이 티켓의 범위가 아니다.
+ * <p>🔴 <b>2026-09-18 정정.</b> 여기 원래 <i>「{@code TripExceptionHandler} 는 메시지 키를
+ * 넣고 {@code auth} 는 문장을 넣는다 — 둘이 갈려 있다」</i> 고 적혀 있었다. <b>그 갈림은
+ * S15P21E201-1258 에서 없앴다</b> — 여행 계열 16곳이 키를 넣고 있었고 전부 문장으로 바꿨다.
+ * 낡은 설명을 지우지 않고 정정한 날짜와 함께 남긴다: 이 파일이 <b>그 갈림을 설명하던 자리</b>라,
+ * 다음 사람이 「아직 갈려 있나」를 다시 재 보지 않게 하기 위해서다.
  */
 @RestControllerAdvice(basePackages = "com.gabolle.backend.place.api")
 @Order(Ordered.HIGHEST_PRECEDENCE)

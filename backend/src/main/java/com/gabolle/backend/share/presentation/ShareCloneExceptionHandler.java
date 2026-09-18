@@ -55,14 +55,14 @@ public class ShareCloneExceptionHandler {
 				.map(f -> f.getField() + ": " + f.getDefaultMessage())
 				.toList();
 		return ResponseEntity.badRequest().body(ApiResponse.failure(
-				new ApiError("TRIP_VALIDATION_FAILED", "error.trip.validation", fields), requestId()));
+				new ApiError("TRIP_VALIDATION_FAILED", "입력한 조건 중 서버가 받지 못한 것이 있어요.", fields), requestId()));
 	}
 
 	/** 도메인 생성자·번역 계층이 거부한 것 — 종료일이 시작일보다 앞, 알 수 없는 severity 등. */
 	@ExceptionHandler(IllegalArgumentException.class)
 	public ResponseEntity<ApiResponse<Void>> handleIllegalArgument(IllegalArgumentException e) {
 		return ResponseEntity.badRequest().body(ApiResponse.failure(
-				new ApiError("TRIP_VALIDATION_FAILED", "error.trip.validation", List.of(e.getMessage())),
+				new ApiError("TRIP_VALIDATION_FAILED", "입력한 조건 중 서버가 받지 못한 것이 있어요.", List.of(e.getMessage())),
 				requestId()));
 	}
 
@@ -70,14 +70,14 @@ public class ShareCloneExceptionHandler {
 	public ResponseEntity<ApiResponse<Void>> handleSensitive(
 			TripConstraint.SensitiveConstraintNotSupportedException e) {
 		return ResponseEntity.badRequest().body(ApiResponse.failure(
-				new ApiError("SENSITIVE_CONSTRAINT_NOT_SUPPORTED", "error.trip.sensitiveConstraint",
+				new ApiError("SENSITIVE_CONSTRAINT_NOT_SUPPORTED", "건강·신념처럼 민감한 조건은 아직 받지 않아요.",
 						List.of(e.type())), requestId()));
 	}
 
 	@ExceptionHandler(TripRepository.IdempotencyKeyConflictException.class)
 	public ResponseEntity<ApiResponse<Void>> handleIdempotencyConflict(
 			TripRepository.IdempotencyKeyConflictException e) {
-		return failure(HttpStatus.CONFLICT, "IDEMPOTENCY_KEY_CONFLICT", "error.idempotency.conflict");
+		return failure(HttpStatus.CONFLICT, "IDEMPOTENCY_KEY_CONFLICT", "같은 요청이 다른 내용으로 다시 왔어요. 잠시 후 다시 시도해 주세요.");
 	}
 
 	private static ResponseEntity<ApiResponse<Void>> failure(HttpStatus status, String code, String message) {

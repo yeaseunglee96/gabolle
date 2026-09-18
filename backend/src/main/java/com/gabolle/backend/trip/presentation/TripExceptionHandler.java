@@ -41,7 +41,7 @@ public class TripExceptionHandler {
                 .toList();
 
         return ResponseEntity.badRequest().body(ApiResponse.failure(
-                new ApiError("TRIP_VALIDATION_FAILED", "error.trip.validation", fields),
+                new ApiError("TRIP_VALIDATION_FAILED", "입력한 조건 중 서버가 받지 못한 것이 있어요.", fields),
                 requestId()));
     }
 
@@ -57,7 +57,7 @@ public class TripExceptionHandler {
             TripConditionRules.TripConditionRejectedException e) {
 
         return ResponseEntity.badRequest().body(ApiResponse.failure(
-                new ApiError("TRIP_VALIDATION_FAILED", "error.trip.validation", e.fieldLines()),
+                new ApiError("TRIP_VALIDATION_FAILED", "입력한 조건 중 서버가 받지 못한 것이 있어요.", e.fieldLines()),
                 requestId()));
     }
 
@@ -65,7 +65,7 @@ public class TripExceptionHandler {
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ApiResponse<Void>> handleIllegalArgument(IllegalArgumentException e) {
         return ResponseEntity.badRequest().body(ApiResponse.failure(
-                new ApiError("TRIP_VALIDATION_FAILED", "error.trip.validation",
+                new ApiError("TRIP_VALIDATION_FAILED", "입력한 조건 중 서버가 받지 못한 것이 있어요.",
                         List.of(e.getMessage())),
                 requestId()));
     }
@@ -111,7 +111,7 @@ public class TripExceptionHandler {
             TripConstraint.SensitiveConstraintNotSupportedException e) {
         return ResponseEntity.badRequest().body(ApiResponse.failure(
                 new ApiError("SENSITIVE_CONSTRAINT_NOT_SUPPORTED",
-                        "error.trip.sensitiveConstraint", List.of(e.type())),
+                        "건강·신념처럼 민감한 조건은 아직 받지 않아요.", List.of(e.type())),
                 requestId()));
     }
 
@@ -120,7 +120,7 @@ public class TripExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> handleIdempotencyConflict(
             TripRepository.IdempotencyKeyConflictException e) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ApiResponse.failure(
-                new ApiError("IDEMPOTENCY_KEY_CONFLICT", "error.idempotency.conflict"),
+                new ApiError("IDEMPOTENCY_KEY_CONFLICT", "같은 요청이 다른 내용으로 다시 왔어요. 잠시 후 다시 시도해 주세요."),
                 requestId()));
     }
 
@@ -128,7 +128,7 @@ public class TripExceptionHandler {
     @ExceptionHandler(TripQueryService.TripNotFoundException.class)
     public ResponseEntity<ApiResponse<Void>> handleNotFound(TripQueryService.TripNotFoundException e) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.failure(
-                new ApiError("TRIP_NOT_FOUND", "error.trip.notFound"),
+                new ApiError("TRIP_NOT_FOUND", "그 여행을 찾지 못했어요."),
                 requestId()));
     }
 
