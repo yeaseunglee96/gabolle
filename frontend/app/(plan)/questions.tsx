@@ -19,7 +19,6 @@ import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { useLayout } from '@/layout/useLayout';
-import { PlanDesktopShell } from '@/plan/PlanDesktopShell';
 import { usePlan, type PlanDraft } from '@/plan/PlanProvider';
 import { CONFLICT_LABEL_PAIR, conflictingFoodCode, FOODS } from '@/plan/foodConflicts';
 import {
@@ -296,11 +295,11 @@ export default function PlanConditions() {
     }
   };
 
-  if (!ready) return <PlanDesktopShell><Screen scroll><Text>{tx('불러오는 중이에요…', 'Loading…')}</Text></Screen></PlanDesktopShell>;
+  if (!ready) return <Screen scroll><Text>{tx('불러오는 중이에요…', 'Loading…')}</Text></Screen>;
 
   return (
-    <PlanDesktopShell>
-      <Screen scroll wide={kind !== 'phone'}>
+    
+      <Screen scroll wide={kind !== 'phone'} style={styles.canvas}>
         <View style={styles.header}>
           <Text variant="display" weight="bold">{tx('여행 조건 알려주기', 'Tell us about your trip')}</Text>
           <Text color={color.text.muted}>{tx('하나씩만 답해 주세요. 답한 만큼 다음 질문이 열려요.', 'One at a time — the next question opens as you answer.')}</Text>
@@ -384,11 +383,13 @@ export default function PlanConditions() {
           </View>
         ) : null}
       </Screen>
-    </PlanDesktopShell>
+    
   );
 }
 
 const styles = StyleSheet.create({
+  // 🔴 시안의 본문 폭은 1200 이다 (PlanFlow.dc.html). Screen 의 wide 는 1440 이라 240px 넓다 (S15P21E201-1245).
+  canvas: { maxWidth: 1200 },
   header: { gap: spacing[2], marginTop: spacing[6] },
   given: { gap: spacing[1], marginTop: spacing[4], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.soft },
   givenRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[3] },
