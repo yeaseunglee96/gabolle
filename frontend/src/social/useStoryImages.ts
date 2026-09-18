@@ -1,5 +1,5 @@
 // 기록에 붙이는 사진 — 고르고, 줄이고, 올리기까지 한 곳에 모은다.
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import * as ImagePicker from 'expo-image-picker';
 
 import { MAX_PICK_BYTES, MAX_PICK_LABEL, MAX_UPLOAD_BYTES, MAX_UPLOAD_LABEL, measureBytes, resizeForUpload } from '@/social/imageResize';
@@ -120,7 +120,8 @@ export function useStoryImages(accessToken: string | null, tx: Translate) {
 
   const retryImage = (index: number) => {
     const image = images[index];
-    if (!image || image.uploading) return;
+    // 되살린 사진은 원본이 이 기기에 없다 — 다시 올릴 것이 없으므로 아무것도 안 한다.
+    if (!image || image.uploading || !image.originalUri) return;
     patch(index, { uploading: true, error: null });
     void processAndUpload(index, image);
   };
@@ -129,16 +130,52 @@ export function useStoryImages(accessToken: string | null, tx: Translate) {
 
   const clearImages = () => setImages([]);
 
+  /**
+   * 이미 올라간 사진을 주소만으로 되살린다 (S15P21E201-1312).
+   *
+   * 🔴 되살리는 것은 **서버 주소를 받은 사진뿐**이다. 그 주소는 새로고침해도 다른 기기에서도
+   * 그대로 쓸 수 있다 — 글을 보낼 때 실려 가는 것이 바로 이 값이다. 올라가는 중이거나
+   * 실패한 사진은 주소가 없어서 되살릴 것이 없다.
+   *
+   * 원본 주소 칸은 비워 둔다. 되살린 사진은 **다시 올릴 일이 없어서** 재시도가 필요 없고,
+   * 가짜 값을 넣어 두면 나중에 누가 그것으로 재시도를 걸었을 때 없는 파일을 읽는다.
+   */
+  const restoreUploaded = (urls: string[]) =>
+    setImages((prev) => {
+      if (prev.length > 0) return prev;
+      return urls.slice(0, MAX_STORY_IMAGES).map((url) => ({
+        localUri: url,
+        originalUri: '',
+        originalFileName: null,
+        originalMimeType: null,
+        imageUrl: url,
+        uploading: false,
+        error: null,
+      }));
+    });
+
+  const uploadedUrls = useMemo(
+    () => images.filter((image) => image.imageUrl).map((image) => image.imageUrl as string),
+    [images],
+  );
+
   return {
     images,
     addImage,
     retryImage,
     removeImage,
     clearImages,
+    restoreUploaded,
     /** 하나라도 올라가는 중이면 글을 보내지 않는다 — 주소가 아직 없어서 빠진다. */
     anyUploading: images.some((image) => image.uploading),
-    /** 실제로 올라간 것만. 실패한 사진은 글에 안 붙는다. */
-    uploadedUrls: images.filter((image) => image.imageUrl).map((image) => image.imageUrl as string),
+    /**
+     * 실제로 올라간 것만. 실패한 사진은 글에 안 붙는다.
+     *
+     * 🔴 목록을 그때그때 새로 만들지 않는다. 부르는 쪽이 이 값을 **useEffect 의 조건**으로
+     * 쓰는데(임시 저장), 매번 새 배열이면 조건이 늘 바뀐 것으로 보여 **화면이 그려질 때마다
+     * 저장한다.** 사진이 바뀔 때만 새로 만든다.
+     */
+    uploadedUrls,
     canAddMore: images.length < MAX_STORY_IMAGES,
   };
 }
