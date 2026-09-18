@@ -16,6 +16,7 @@ import com.google.genai.Client;
 import com.google.genai.types.Content;
 import com.google.genai.types.GenerateContentConfig;
 import com.google.genai.types.GenerateContentResponse;
+import com.google.genai.types.HttpOptions;
 import com.google.genai.types.Part;
 import com.google.genai.types.Schema;
 import com.google.genai.types.Type;
@@ -231,6 +232,34 @@ public class GeminiAssistantAdapter implements AssistantVendorPort {
 		this.objectMapper = objectMapper;
 	}
 
+	/**
+	 * 🔴 <b>주소와 시간 제한을 여기서 정한다 — S15P21E201-1253.</b>
+	 *
+	 * <p>예전에는 {@code Client.builder().apiKey(...)} 뿐이었다. 그러면 두 가지가 기본값에
+	 * 맡겨진다.
+	 *
+	 * <ul>
+	 *   <li><b>주소</b> — 구글을 직접 부른다. 개인 키의 무료 한도가 좁아 같은 질문을 여섯 번
+	 *       연속으로 보내면 <b>첫 한 번만 성공하고 나머지가 429</b> 였다(2026-09-18 실측).
+	 *       사용자에게는 「제공처가 잠시 응답하지 않아요」로 보인다</li>
+	 *   <li><b>시간 제한</b> — 사실상 없다. 실제로 <b>35.96초</b>를 붙잡고 죽는 것을 봤다.
+	 *       앱은 12초에 이미 끊으므로 그 24초는 <b>아무도 안 기다리는 시간</b>인데, 요청
+	 *       스레드는 묶여 있고 사용자의 하루 한도는 이미 깎인 뒤다</li>
+	 * </ul>
+	 *
+	 * <p>{@code baseUrl} 이 비어 있으면 <b>안 건다</b> — 그때는 예전처럼 구글을 직접 부른다.
+	 * 시간 제한은 주소와 무관하게 언제나 건다.
+	 */
+	HttpOptions httpOptions() {
+		HttpOptions.Builder builder = HttpOptions.builder()
+				.timeout((int) this.properties.getTimeout().toMillis());
+		String baseUrl = this.properties.getBaseUrl();
+		if (baseUrl != null && !baseUrl.isBlank()) {
+			builder.baseUrl(baseUrl);
+		}
+		return builder.build();
+	}
+
 	@Override
 	public String providerName() {
 		return PROVIDER_NAME;
@@ -244,7 +273,7 @@ public class GeminiAssistantAdapter implements AssistantVendorPort {
 					"AI 여행 도우미가 설정되지 않았습니다.", HttpStatus.BAD_GATEWAY);
 		}
 
-		Client client = Client.builder().apiKey(apiKey).build();
+		Client client = Client.builder().apiKey(apiKey).httpOptions(httpOptions()).build();
 
 		String systemPrompt = SYSTEM_PROMPT + languageDirective(request.language());
 		if (request.tripContext() != null && !request.tripContext().isBlank()) {

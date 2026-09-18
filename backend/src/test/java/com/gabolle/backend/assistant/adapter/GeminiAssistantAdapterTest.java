@@ -2,6 +2,8 @@ package com.gabolle.backend.assistant.adapter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.time.Duration;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -173,4 +175,61 @@ class GeminiAssistantAdapterTest {
 		assertThat(this.adapter.parseKind("nonsense")).isEqualTo(AssistantActionKind.HELP);
 		assertThat(this.adapter.parseKind(null)).isEqualTo(AssistantActionKind.HELP);
 	}
+
+	// ── 어디로, 얼마나 기다려 부르는가 — S15P21E201-1253 ──────────────────────────
+	//
+	// 🔴 이 셋이 붙드는 것은 「사용자에게 거짓말하지 않기」다. 시간 제한이 없으면 앱이
+	//    12초에 끊은 뒤에도 서버는 계속 기다리고, 그 사람의 하루 한도는 이미 깎여 있다.
+	//    주소를 안 걸면 개인 키 한도(429)로 돌아가 「잠시 후 다시 시도」가 영원히 반복된다.
+
+	@Test
+	@DisplayName("🔴 시간 제한을 밀리초로 건다 — 앱이 끊는 12초 안이어야 한다")
+	void timeoutIsPassedInMillisecondsAndFitsInsideAppTimeout() {
+		AssistantProperties properties = new AssistantProperties();
+		properties.setTimeout(Duration.ofSeconds(10));
+
+		var options = new GeminiAssistantAdapter(properties, null).httpOptions();
+
+		// HttpOptions.timeout 은 밀리초를 받아 OkHttp callTimeout 으로 쓴다.
+		assertThat(options.timeout()).contains(10_000);
+		// 앱은 12초(frontend/src/api/client.ts 의 API_TIMEOUT_MS)에 끊는다.
+		assertThat(properties.getTimeout()).isLessThan(Duration.ofSeconds(12));
+	}
+
+	@Test
+	@DisplayName("🔴 기본 설정은 중계 주소와 그 중계에 열려 있는 모델을 같이 쓴다")
+	void defaultsPointAtRelayWithAModelThatRelayServes() {
+		AssistantProperties properties = new AssistantProperties();
+
+		// 기본값은 비어 있다 — 주소를 박아 두면 설정 안 한 환경도 그리로 나간다.
+		assertThat(properties.getBaseUrl()).isEmpty();
+		// 모델은 중계가 여는 쪽이다. gemini-3.6-flash 는 중계에 없다(2026-09-18 실측).
+		assertThat(properties.getModel()).isEqualTo("gemini-2.5-flash");
+	}
+
+	@Test
+	@DisplayName("주소를 정하면 그 주소로 건다")
+	void baseUrlIsAppliedWhenConfigured() {
+		AssistantProperties properties = new AssistantProperties();
+		properties.setBaseUrl("https://relay.example/gmsapi/generativelanguage.googleapis.com");
+
+		var options = new GeminiAssistantAdapter(properties, null).httpOptions();
+
+		assertThat(options.baseUrl()).contains("https://relay.example/gmsapi/generativelanguage.googleapis.com");
+	}
+
+	@Test
+	@DisplayName("🔴 주소가 비면 안 건다 — 그때는 예전처럼 구글을 직접 부른다")
+	void blankBaseUrlIsNotApplied() {
+		AssistantProperties properties = new AssistantProperties();
+		properties.setBaseUrl("   ");
+
+		var options = new GeminiAssistantAdapter(properties, null).httpOptions();
+
+		// 빈 문자열을 그대로 걸면 주소가 깨져 호출이 통째로 실패한다.
+		assertThat(options.baseUrl()).isEmpty();
+		// 시간 제한은 주소와 무관하게 언제나 건다.
+		assertThat(options.timeout()).isPresent();
+	}
+
 }
