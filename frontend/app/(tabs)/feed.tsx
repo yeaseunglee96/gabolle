@@ -32,6 +32,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { RouteMap } from '@/map/RouteMap';
 import { createStory, feedQueryKey, loadFeed, loadSavedStoryIds, relativeStoryTime, reportStory, setFollowing, setStoryReaction, setStorySaved, VISIBILITY_LABEL, type FeedLoadResult, type FeedScope, type StoryDto, type StoryReportReason, type StoryVisibility } from '@/social/stories';
 import { shouldPromptSignIn } from '@/social/signInPrompt';
+import { applyReaction, nextReaction, StoryReactionRow, storyReactionStyles } from '@/social/StoryReactionRow';
 import { SignInPromptModal } from '@/social/SignInPromptModal';
 import { useStoryImages } from '@/social/useStoryImages';
 
@@ -180,45 +181,21 @@ function StoryCard({ story, compact, showUnfollow, unfollowBusy, saved, savingSt
     </Pressable>
 
     {/* 좋아요·싫어요·저장 — S15P21E201-1174(반응 카운트, kojh0124 님)·-1221(저장).
-        🔴 myReaction은 세 값이다(null·LIKE·DISLIKE) — !myReaction으로 묶지 않는다. */}
-    <View style={styles.reactionRow}>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={story.myReaction === 'LIKE' ? tx('좋아요 취소', 'Remove like') : tx('좋아요', 'Like')}
-        accessibilityState={{ selected: story.myReaction === 'LIKE', busy: reacting }}
-        disabled={reacting}
-        onPress={() => onReact('LIKE')}
-        style={[styles.reactionButton, reacting && styles.busy]}
-      >
-        <Text variant="caption" weight="bold" color={story.myReaction === 'LIKE' ? color.brand.orange : color.text.muted}>
-          {tx('👍', '👍')}{typeof story.likeCount === 'number' ? ` ${story.likeCount}` : ''}
-        </Text>
-      </Pressable>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={story.myReaction === 'DISLIKE' ? tx('싫어요 취소', 'Remove dislike') : tx('싫어요', 'Dislike')}
-        accessibilityState={{ selected: story.myReaction === 'DISLIKE', busy: reacting }}
-        disabled={reacting}
-        onPress={() => onReact('DISLIKE')}
-        style={[styles.reactionButton, reacting && styles.busy]}
-      >
-        <Text variant="caption" weight="bold" color={story.myReaction === 'DISLIKE' ? color.brand.navy : color.text.muted}>
-          {tx('👎', '👎')}{typeof story.dislikeCount === 'number' ? ` ${story.dislikeCount}` : ''}
-        </Text>
-      </Pressable>
+        반응 두 칸은 상세 화면과 같은 부품을 쓴다 (S15P21E201-1247). */}
+    <StoryReactionRow story={story} reacting={reacting} onReact={onReact}>
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={saved ? tx('저장 취소', 'Remove from saved') : tx('저장', 'Save')}
         accessibilityState={{ selected: saved, busy: savingStar }}
         disabled={savingStar}
         onPress={onToggleSave}
-        style={[styles.reactionButton, savingStar && styles.busy]}
+        style={[storyReactionStyles.button, savingStar && styles.busy]}
       >
         <Text variant="caption" weight="bold" color={saved ? color.brand.orange : color.text.muted}>
           {saved ? tx('★ 저장됨', 'Saved') : tx('☆ 저장', 'Save')}
         </Text>
       </Pressable>
-    </View>
+    </StoryReactionRow>
   </View>;
 }
 
@@ -540,22 +517,12 @@ export default function Feed() {
   const react = async (story: StoryDto, reaction: 'LIKE' | 'DISLIKE') => {
     if (!signedIn) { setPromptingSignIn(true); return; }
     if (reactingStoryId) return;
-    const was = story.myReaction ?? null;
-    const next = was === reaction ? null : reaction;
+    const next = nextReaction(story.myReaction, reaction);
     setReactingStoryId(story.id);
     const outcome = await setStoryReaction(story.id, next, accessToken);
     setReactingStoryId(null);
     if (outcome.state !== 'success') return;
-    replaceItems((current) => current.map((item) => {
-      if (item.id !== story.id) return item;
-      let likeCount = item.likeCount ?? 0;
-      let dislikeCount = item.dislikeCount ?? 0;
-      if (was === 'LIKE') likeCount -= 1;
-      if (was === 'DISLIKE') dislikeCount -= 1;
-      if (next === 'LIKE') likeCount += 1;
-      if (next === 'DISLIKE') dislikeCount += 1;
-      return { ...item, myReaction: next, likeCount, dislikeCount };
-    }));
+    replaceItems((current) => current.map((item) => (item.id === story.id ? applyReaction(item, next) : item)));
   };
 
   /** 목록만 바꿔 치운다 — 서버에 다시 묻지 않고 화면을 맞춘다. */
@@ -886,8 +853,6 @@ const styles = StyleSheet.create({
   authorPillAvatar: { width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: color.brand.navy },
   coverActions: { position: 'absolute', top: spacing[3], right: spacing[3], flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
   cardBody: { gap: spacing[1], padding: spacing[4] },
-  reactionRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[4], paddingHorizontal: spacing[4], paddingBottom: spacing[3], marginTop: -spacing[2] },
-  reactionButton: { minHeight: 44, justifyContent: 'center' },
   cardCompact: { padding: spacing[4] },
   avatar: { width: 40, height: 40, borderRadius: radius.full, backgroundColor: color.brand.navy, alignItems: 'center', justifyContent: 'center' },
   avatarCompact: { width: 36, height: 36 },

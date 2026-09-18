@@ -14,7 +14,8 @@ import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { BlockUserDialog } from '@/social/BlockUserDialog';
-import { createStory, deleteStory, getCachedStory, getStory, getStoryReplies, getUserProfile, relativeStoryTime, reportStory, setBlocked, setFollowing, storyMetricLabels, updateStory, VISIBILITY_LABEL, type StoryDto, type StoryReportReason } from '@/social/stories';
+import { createStory, deleteStory, getCachedStory, getStory, getStoryReplies, getUserProfile, relativeStoryTime, reportStory, setBlocked, setFollowing, setStoryReaction, storyMetricLabels, updateStory, VISIBILITY_LABEL, type StoryDto, type StoryReportReason } from '@/social/stories';
+import { applyReaction, nextReaction, StoryReactionRow, type Reaction } from '@/social/StoryReactionRow';
 
 type State = { status: 'loading'; cached: StoryDto | null } | { status: 'loaded'; story: StoryDto } | { status: 'not-found' } | { status: 'error'; message: string };
 
@@ -237,6 +238,8 @@ export default function StoryDetail() {
   // 🔴 null 은 「아직 안 불러왔다」이고 빈 배열은 「댓글이 없다」다. 둘을 같게 두면
   //    불러오는 중과 없음이 화면에서 구분이 안 된다.
   const [replies, setReplies] = useState<StoryDto[] | null>(null);
+  // S15P21E201-1247 — 반응 요청이 도는 중인가. 연타로 낙관적 수가 어긋나는 것을 막는다.
+  const [reacting, setReacting] = useState(false);
   const [repliesError, setRepliesError] = useState('');
   const [draft, setDraft] = useState('');
   const [sending, setSending] = useState(false);
@@ -383,6 +386,26 @@ export default function StoryDetail() {
     });
   };
 
+  /**
+   * 좋아요·싫어요 — S15P21E201-1247. 목록과 같은 규칙이다(같은 것을 다시 누르면 꺼진다).
+   *
+   * 비회원은 로그인으로 보낸다. 목록은 프롬프트 모달을 쓰지만 이 화면에는 그 장치가 없고,
+   * 댓글 로그인 유도가 이미 같은 방식(returnTo 를 달아 sign-in 으로)으로 가므로 그것을
+   * 따른다 — 한 화면에서 로그인 안내가 두 갈래로 갈리지 않게.
+   */
+  const react = async (reaction: Reaction) => {
+    if (!story || reacting) return;
+    if (!accessToken) { router.push({ pathname: '/sign-in', params: { returnTo: `/feed/${id}` } }); return; }
+    const next = nextReaction(story.myReaction, reaction);
+    setReacting(true);
+    const outcome = await setStoryReaction(story.id, next, accessToken);
+    setReacting(false);
+    if (outcome.state !== 'success') return;
+    setState((current) => (current.status === 'loaded'
+      ? { ...current, story: applyReaction(current.story, next) }
+      : current));
+  };
+
   const updateReply = (updated: StoryDto) => {
     setReplies((current) => current?.map((reply) => (reply.id === updated.id ? updated : reply)) ?? current);
   };
@@ -459,8 +482,13 @@ export default function StoryDetail() {
         </View>
       ) : null}
 
-      {/* 🔴 지표 줄 — S15P21E201-1213. 시안이 정한 자리가 댓글 바로 위다.
-          좋아요는 아직 없다 — 서버 칸 이름을 못 받았다. 0 을 하드코딩해 그리지 않는다. */}
+      {/* 좋아요·싫어요 — S15P21E201-1247. 목록과 같은 부품을 쓴다. 칸 이름을 못 받아
+          비워 뒀던 자리인데 S15P21E201-1174 가 상세 응답에도 실어 주면서 채웠다. */}
+      {story && !reported ? (
+        <StoryReactionRow story={story} reacting={reacting} onReact={(reaction) => void react(reaction)} />
+      ) : null}
+
+      {/* 지표 줄 — S15P21E201-1213. 시안이 정한 자리가 댓글 바로 위다. */}
       {story && !reported && metricLabels.length ? (
         <View style={styles.metrics}>
           <Text variant="caption" color={color.text.muted}>{metricLabels.join(' · ')}</Text>
