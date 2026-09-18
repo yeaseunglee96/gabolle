@@ -13,6 +13,7 @@ import { useLayout } from '@/layout/useLayout';
 import { Text } from '@/components/Text';
 import { Eyebrow } from '@/components/Eyebrow';
 import { ScopeSwitch } from '@/discovery/ScopeSwitch';
+import { EXPLORE_GRID_GAP, exploreCardWidth } from '@/discovery/exploreGrid';
 import { PhotoSubjectBadge } from '@/components/PhotoSubjectBadge';
 import { color, radius, spacing } from '@/design/tokens';
 import { flattenLocalFacets, getFacets, getNearbyPlaces, localFacetLabel, localPlaceName, type FacetsLoadResult, type LocalFacetEntry, type NearbyPlacesLoadResult } from '@/discovery/localExplore';
@@ -99,6 +100,8 @@ export default function LocalExplore() {
   const wide = isAtLeast(width, 'md');
   const split = isAtLeast(width, 'lg');
   const selectedFacet = visibleFacets?.find((entry) => entry.featureKey === selectedKey) ?? visibleFacets?.[0] ?? null;
+  // 폰 2열 · 600~1023 3열 · 1024~ 4열. 계산은 exploreGrid 가 하고 여기서는 값만 받는다.
+  const cardWidth = exploreCardWidth(width);
 
   return (
     <Screen scroll wide={split} style={styles.screen}>
@@ -179,7 +182,7 @@ export default function LocalExplore() {
             </View>
           ) : null}
 
-          {selectedFacet ? <LocalBranchList facet={selectedFacet} scope={scope} coords={coords} canAskAgain={canAskAgain} onRetryLocation={() => void detectLocation()} cards={wide} /> : null}
+          {selectedFacet ? <LocalBranchList facet={selectedFacet} scope={scope} coords={coords} canAskAgain={canAskAgain} onRetryLocation={() => void detectLocation()} cardWidth={cardWidth} /> : null}
         </View>
       ) : null}
     </Screen>
@@ -222,14 +225,14 @@ function FacetPicker({ facets, selectedKey, onSelect, mode, language }: {
   return <View style={styles.facetWrap}>{chips}</View>;
 }
 
-function LocalBranchList({ facet, scope, coords, canAskAgain, onRetryLocation, cards = false }: {
+function LocalBranchList({ facet, scope, coords, canAskAgain, onRetryLocation, cardWidth }: {
   facet: LocalFacetEntry;
   scope: ExploreScope;
   coords: { latitude: number; longitude: number } | null;
   canAskAgain: boolean;
   onRetryLocation: () => void;
-  /** 넓은 화면이면 목록 대신 카드 격자로 그린다. */
-  cards?: boolean;
+  /** 한 장의 폭. 열 수는 이 값이 정한다. */
+  cardWidth: number;
 }) {
   const { tx } = useI18n();
   const [result, setResult] = useState<NearbyPlacesLoadResult | null>(null);
@@ -267,7 +270,7 @@ function LocalBranchList({ facet, scope, coords, canAskAgain, onRetryLocation, c
   if (scope === 'all') {
     if (allError) return <View style={styles.branchBody}><Text color={color.text.body}>{allError}</Text></View>;
     if (!allItems?.length) return <View style={styles.branchBody}><Text color={color.text.body}>{tx('부산 전체에서도 이 갈래의 장소를 찾지 못했어요.', 'No places in this category were found across Busan.')}</Text></View>;
-    return <PlaceRows items={allItems} cards={cards} />;
+    return <PlaceRows items={allItems} cardWidth={cardWidth} />;
   }
   if (!result) return null;
   if (result.state !== 'success') {
@@ -301,7 +304,7 @@ function LocalBranchList({ facet, scope, coords, canAskAgain, onRetryLocation, c
       {result.radiusExpanded && (
         <View style={styles.expandedNotice}><Text variant="caption" weight="bold" color={color.brand.orange}>{tx(`반경을 ${result.effectiveRadiusM.toLocaleString()}m로 넓혔습니다`, `Widened the search radius to ${result.effectiveRadiusM.toLocaleString()}m`)}</Text></View>
       )}
-      <PlaceRows items={result.items} showDistance cards={cards} />
+      <PlaceRows items={result.items} showDistance cardWidth={cardWidth} />
     </View>
   );
 }
@@ -321,52 +324,43 @@ function PlacePhoto({ item, style }: { item: { photoUrl?: string | null; photoSu
   return <View style={[style, styles.photoEmpty]}><Text variant="title" color={color.text.muted}>📍</Text></View>;
 }
 
-function PlaceRows({ items, showDistance = false, cards = false }: { items: Array<PlaceSearchItem | import('@/discovery/localExplore').NearbyPlaceItem>; showDistance?: boolean; cards?: boolean }) {
+function PlaceRows({ items, showDistance = false, cardWidth }: {
+  items: Array<PlaceSearchItem | import('@/discovery/localExplore').NearbyPlaceItem>;
+  showDistance?: boolean;
+  /** 한 장의 폭. 열 수는 이 값이 정한다 — exploreGrid 가 계산한다. */
+  cardWidth: number;
+}) {
   const router = useRouter();
   const { tx, language } = useI18n();
   const open = (placeId: string) => router.push(`/place/${placeId}`);
   const label = (item: PlaceSearchItem | import('@/discovery/localExplore').NearbyPlaceItem) =>
     tx(`${item.nameKo} 상세 보기`, `View details for ${item.nameEn ?? item.nameKo}`);
 
-  // 넓은 화면 — 카드 격자. flexWrap 으로 두 열이 되고, 한 열이 되는 폭에서는 자연히 한 열이다.
-  if (cards) {
-    return <View style={styles.cardGrid}>{items.map((item) => (
-      <Pressable key={item.placeId} accessibilityRole="link" accessibilityLabel={label(item)} onPress={() => open(item.placeId)} style={({ pressed }) => [styles.card, pressed && styles.pressed]}>
-        <View style={styles.cardPhotoWrap}>
-          <PlacePhoto item={item} style={styles.cardPhoto} />
-          {item.photoSource ? <View style={styles.sourcePill}><Text variant="caption" color={color.text.muted} numberOfLines={1}>{tx(`사진: ${item.photoSource}`, `Photo: ${item.photoSource}`)}</Text></View> : null}
-        </View>
-        <View style={styles.cardBody}>
-          <View style={styles.grow}>
-            <Text weight="bold">{localPlaceName(item, language)}</Text>
-            {item.address ? <Text variant="caption" color={color.text.muted}>{tx(item.address, item.addressEn ?? item.address)}</Text> : null}
-            {showDistance && 'distanceM' in item ? <Text variant="caption" weight="bold" color={color.text.accent} style={styles.cardDistance}>{item.distanceM.toLocaleString()}m</Text> : null}
-          </View>
-          <Text variant="title" color={color.brand.orange}>›</Text>
-        </View>
-      </Pressable>
-    ))}</View>;
-  }
-
-  // 폰 — 목록 행. 시안이 여기에 72x72 썸네일을 더했다.
-  return <View style={styles.placeList}>{items.map((item) => (
-        <Pressable
-          key={item.placeId}
-          accessibilityRole="link"
-          accessibilityLabel={label(item)}
-          onPress={() => open(item.placeId)}
-          style={({ pressed }) => [styles.placeRow, pressed && styles.pressed]}
-        >
-          <PlacePhoto item={item} style={styles.rowPhoto} />
-          <View style={styles.grow}>
-            <Text weight="bold">{localPlaceName(item, language)}</Text>
-            {item.address ? <Text variant="caption" color={color.text.muted}>{tx(item.address, item.addressEn ?? item.address)}</Text> : null}
-            {item.photoSource ? <Text variant="caption" color={color.text.muted} numberOfLines={1}>{tx(`사진: ${item.photoSource}`, `Photo: ${item.photoSource}`)}</Text> : null}
-          </View>
-          {showDistance && 'distanceM' in item ? <Text variant="caption" weight="bold" color={color.text.accent}>{item.distanceM.toLocaleString()}m</Text> : null}
-          <Text variant="title" color={color.brand.orange}>›</Text>
-        </Pressable>
-      ))}</View>;
+  // 폰이든 데스크톱이든 같은 격자다. 열 수만 폭이 정한다 (시안 05·06).
+  // 두 벌로 만들면 한쪽만 고쳐지고, 그 차이는 두 폭을 나란히 열어 봐야만 보인다.
+  return <View style={styles.cardGrid}>{items.map((item) => (
+    <Pressable
+      key={item.placeId}
+      accessibilityRole="link"
+      accessibilityLabel={label(item)}
+      onPress={() => open(item.placeId)}
+      style={({ pressed }) => [styles.card, { width: cardWidth }, pressed && styles.pressed]}
+    >
+      <View style={styles.cardPhotoWrap}>
+        <PlacePhoto item={item} style={styles.cardPhoto} />
+        {/* 🔴 사진 출처는 꾸밈이 아니라 이용 조건이다. 사진을 그리면 반드시 함께 그리고,
+            문구는 서버가 준 값을 쓴다 — 지어내지 않는다. */}
+        {item.photoSource ? <View style={styles.sourcePill}><Text variant="caption" color={color.text.muted} numberOfLines={1}>{tx(`사진: ${item.photoSource}`, `Photo: ${item.photoSource}`)}</Text></View> : null}
+      </View>
+      <View style={styles.cardBody}>
+        <Text weight="bold" numberOfLines={1}>{localPlaceName(item, language)}</Text>
+        {item.address ? <Text variant="caption" color={color.text.muted} numberOfLines={1}>{tx(item.address, item.addressEn ?? item.address)}</Text> : null}
+        {/* 🔴 거리는 「내 근처」일 때만. 부산 전체로 찾을 때는 거리 기준이 없어서,
+            그리면 없는 기준을 있는 것처럼 보여준다. */}
+        {showDistance && 'distanceM' in item ? <Text variant="caption" weight="bold" color={color.text.accent}>{item.distanceM.toLocaleString()}m</Text> : null}
+      </View>
+    </Pressable>
+  ))}</View>;
 }
 
 const styles = StyleSheet.create({
@@ -382,12 +376,9 @@ const styles = StyleSheet.create({
   categoryRail: { gap: spacing[2], paddingRight: spacing[4] },
   categoryChip: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], minHeight: 44, paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.border },
   categoryChipSelected: { backgroundColor: color.brand.navy, borderColor: color.brand.navy },
-  placeList: { gap: spacing[2] },
   branchBody: { padding: spacing[4], paddingTop: 0, gap: spacing[2] },
   branchRetry: { alignSelf: 'flex-start' },
   expandedNotice: { padding: spacing[2], borderRadius: radius.md, backgroundColor: color.surface.tint },
-  placeRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[3], paddingVertical: spacing[2], borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: color.surface.border },
-  grow: { flex: 1 },
 
   // ── 고르는 줄 ──────────────────────────────────────────────
   //
@@ -419,14 +410,15 @@ const styles = StyleSheet.create({
   photoWrap: { position: 'relative', overflow: 'hidden' },
   photoBadge: { position: 'absolute', left: spacing[2], top: spacing[2] },
   photoEmpty: { alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.soft },
-  rowPhoto: { width: 72, height: 72, borderRadius: radius.md, backgroundColor: color.surface.soft },
 
-  // 카드 격자 — minWidth 280 이 시안 값이다. flexWrap 이라 폭이 남으면 두 열, 좁으면 한 열.
-  cardGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[4] },
-  card: { flexGrow: 1, flexBasis: 280, minWidth: 280, borderRadius: radius.lg, borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.surface.card, overflow: 'hidden' },
+  // 카드 격자 — 열 수는 exploreGrid 가 폭에서 정한다(폰 2 · 600~ 3 · 1024~ 4).
+  //
+  // 🔴 테두리도 바탕도 없다. 사진과 글만 둔다(시안 05·06). 정사각 사진이 줄을 맞추면
+  //    테두리가 하는 일이 없고, 네 열에서는 테두리 여덟 줄이 사진보다 먼저 눈에 든다.
+  cardGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: EXPLORE_GRID_GAP },
+  card: { gap: spacing[1] },
   cardPhotoWrap: { position: 'relative' },
-  cardPhoto: { width: '100%', aspectRatio: 16 / 9, backgroundColor: color.surface.soft },
+  cardPhoto: { width: '100%', aspectRatio: 1, borderRadius: radius.md, backgroundColor: color.surface.soft },
   sourcePill: { position: 'absolute', left: spacing[2], bottom: spacing[2], maxWidth: '85%', paddingHorizontal: spacing[2], paddingVertical: 2, borderRadius: radius.full, backgroundColor: 'rgba(255,255,255,0.85)' },
-  cardBody: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], padding: spacing[4], paddingTop: spacing[3] },
-  cardDistance: { marginTop: spacing[2] },
+  cardBody: { gap: 2, paddingTop: spacing[1] },
 });
