@@ -390,7 +390,10 @@ const styles = StyleSheet.create({
   headCell: { width: `${100 / 7}%`, textAlign: 'center' },
   cellBetween: { backgroundColor: color.surface.warm },
   cellPicked: { backgroundColor: color.brand.navy, borderRadius: radius.full },
-  chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] },
+  // 🔴 「바로 시작」 칩은 **위 검색 바를 기준으로 가운데** 선다 (2026-09-18 사용자 지시).
+  //    전에는 왼쪽 정렬이라, 넓은 화면에서 가운데 선 검색 바 아래 칩만 왼쪽으로 쏠려 보였다.
+  //    줄바꿈될 때도 남은 칩이 가운데로 모인다.
+  chipRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: spacing[2] },
   chip: { minHeight: 32, paddingHorizontal: spacing[3], justifyContent: 'center', borderRadius: radius.full, backgroundColor: color.surface.soft },
   counterRow: { minHeight: 56, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   counter: { flexDirection: 'row', alignItems: 'center', gap: spacing[3] },

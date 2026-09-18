@@ -28,7 +28,6 @@ import type { StartBarValue } from '@/home/startBarValue';
 import { useAuth } from '@/auth/AuthProvider';
 import { loadSavedPlaceIds, setSavedPlace } from '@/discovery/savedPlaces';
 import { BrandLogoLink } from '@/components/BrandLogoLink';
-import { GettingStartedGuide } from '@/components/GettingStartedGuide';
 import { GabolleMascot } from '@/components/DongbaekMascot';
 import { PlaceVisual } from '@/components/PlaceVisual';
 import { Screen } from '@/components/Screen';
@@ -212,7 +211,6 @@ export default function Home() {
               이미 「현장 도구」(`/field/translate`) 목록의 항목 중 하나라서, 둘을 나란히 두면
               같은 기능이 입구가 둘로 보였다. 하나만 남기면 `fieldTool` 이 flex:1 이라 저절로
               한 줄을 다 채운다 — 스타일은 그대로 둔다. */}
-          <GettingStartedGuide />
         <View style={styles.fieldTools}>
             {[
               { path: '/field/translate', ko: '현장 도구', en: 'On-the-go tools', subKo: '한국어 문장·날씨', subEn: 'Phrases and weather' },

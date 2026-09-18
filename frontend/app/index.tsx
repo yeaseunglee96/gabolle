@@ -10,7 +10,6 @@ import type { StartBarValue } from '@/home/startBarValue';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Text } from '@/components/Text';
-import { GettingStartedGuide } from '@/components/GettingStartedGuide';
 import { GabolleMascot } from '@/components/DongbaekMascot';
 import { HeroStories, MyTripCard, PlacePicks, WeatherLine } from '@/home/HomeBlocks';
 import { useHomeData } from '@/home/useHomeData';
@@ -190,7 +189,6 @@ export default function Welcome() {
             안내 화면(/help)은 그대로 있고 마이페이지에서 들어간다. */}
         <View style={styles.headerMeta}>
           <WeatherLine forecast={home.weather} />
-          <GettingStartedGuide />
         </View>
       </View>
     </View>
