@@ -34,14 +34,26 @@ import static org.assertj.core.api.Assertions.assertThat;
 class MenuScanLatencyBudgetTest {
 
 	/**
-	 * 앱이 요청을 끊는 시간.
+	 * 앱이 <b>메뉴판 요청을</b> 끊는 시간.
 	 *
-	 * <p>출처는 {@code frontend/src/api/client.ts} 의 {@code API_TIMEOUT_MS} 이고 메뉴판
-	 * 경로는 그 값을 따로 안 늘린다({@code frontend/src/field/menuScan.ts} 가 기본
-	 * {@code apiRequest} 를 쓴다). 저쪽이 바뀌면 이 상수도 함께 바꾼다 — 자바에서 프런트
-	 * 설정을 읽을 방법이 없어 두 곳에 적히는 것은 감수한다.
+	 * <h2>🔴 2026-09-19 — 12초에서 30초로 (S15P21E201-1315)</h2>
+	 *
+	 * 그전에는 앱 기본값 12초를 그대로 썼고, 이 주석도 「메뉴판 경로는 그 값을 따로 안
+	 * 늘린다」고 적혀 있었다. <b>실제 메뉴판으로 재 보니 그 예산으로는 못 읽는다.</b>
+	 * 3단 배치에 음식 30개인 메뉴판이 <b>11.95~13.35초</b>가 걸린다(출력 토큰 1,577).
+	 * 프롬프트를 줄여도 9.61초까지가 한계였다 — 시간을 먹는 것이 사진이 아니라 <b>써 내는
+	 * 양</b>이라 음식 수가 줄지 않는 한 안 줄어든다.
+	 *
+	 * <p>그래서 <b>이 경로에만</b> 30초를 준다. DEC-LATENCY-001 이 지키라는 것은 「둘 다
+	 * 짧아야 한다」가 아니라 <b>「서버가 앱보다 먼저 포기한다」</b>이고, 아래 검사 셋이
+	 * 지키는 것도 그 순서다. 둘을 같이 늘리면 순서는 그대로다.
+	 *
+	 * <p>출처는 {@code frontend/src/field/menuScan.ts} 의 요청 시간 제한이다(다른 경로는
+	 * {@code frontend/src/api/client.ts} 의 {@code API_TIMEOUT_MS} 12초 그대로). 저쪽이
+	 * 바뀌면 이 상수도 함께 바꾼다 — 자바에서 프런트 설정을 읽을 방법이 없어 두 곳에
+	 * 적히는 것은 감수한다.
 	 */
-	private static final Duration APP_REQUEST_TIMEOUT = Duration.ofSeconds(12);
+	private static final Duration APP_REQUEST_TIMEOUT = Duration.ofSeconds(30);
 
 	@Test
 	@DisplayName("완료 기준 — 연결과 읽기를 합쳐도 앱이 기다리는 시간보다 짧다")
