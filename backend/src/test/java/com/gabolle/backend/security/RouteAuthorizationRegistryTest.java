@@ -501,6 +501,10 @@ class RouteAuthorizationRegistryTest {
 		put(m, "DELETE /api/v1/me/saved-places/{}", Policy.OWNED,
 				"내 목록에서만 뺀다. 같은 이유. SavedPlaceControllerTest (-1013)");
 
+		put(m, "GET /api/v1/me/saved-stories", Policy.OWNED,
+				"내가 저장한(북마크) 기록. saved-places와 같은 이유 — 경로에 남의 식별자를 넣을 자리가 없고(/me) "
+						+ "사용자 번호는 인증 주체에서만 읽는다. StorySaveIntegrationTest");
+
 		put(m, "GET /api/v1/me/preferences/spend", Policy.OWNED,
 				"계정 기본 씀씀이 성향 조회(-709). 대상이 경로에 없고 인증 주체로만 정해진다 — 남의 것을 지정할 방법이 없다. SpendProfileControllerTest");
 		put(m, "PUT /api/v1/me/preferences/spend", Policy.OWNED,
@@ -717,6 +721,13 @@ class RouteAuthorizationRegistryTest {
 						+ "「수도 안 오른다」를 함께 잰다. 주체는 인증에서만 읽고, 비회원이면 "
 						+ "익명 세션 id 로만 읽는다(경로·본문에서 사람을 받지 않는다). "
 						+ "작성자 본인은 막지 않고 수만 안 올린다 — 반응과 갈리는 자리다");
+
+		// ── 글 저장·북마크 (-1227) ───────────────────────────────────────────────
+		put(m, "PUT /api/v1/stories/{}/save", Policy.OTHER_USER_OK,
+				"글을 저장(북마크)하는 것이 기능이다 — reaction과 같은 모양. 못 보는 글은 존재를 감춘 404, "
+						+ "차단당했으면 403. 자기 글도 저장할 수 있어 반응과 달리 자기 것 금지는 없다. StorySaveIntegrationTest");
+		put(m, "DELETE /api/v1/stories/{}/save", Policy.OTHER_USER_OK,
+				"취소도 같다. 지우는 키가 (글, 나) 쌍이라 남의 저장은 못 지운다 — 안 저장했던 것을 지워도 성공. StorySaveIntegrationTest");
 
 		put(m, "GET /api/v1/feed/home", Policy.AUTHENTICATED_ONLY,
 				"내 피드다. 대상이 인증 주체로만 정해진다. FeedControllerTest");
