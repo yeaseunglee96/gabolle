@@ -48,11 +48,25 @@ class KoreaeximExchangeRateJsonParserTest {
 	}
 
 	@Test
-	@DisplayName("🔴 응답이 빈 배열이면(영업일 아님) 실패다 — 지어낸 값으로 대신 답하지 않는다")
-	void emptyArrayIsAFailure() {
+	@DisplayName("🔴 응답이 빈 배열이면 「그날 값이 없다」로 알린다 — 다른 실패와 코드를 가른다")
+	void emptyArrayIsANoDataFailure() {
+		// 이 코드일 때만 ExchangeRateService 가 하루씩 뒤로 되감는다. 인증키 오류·한도 초과와
+		// 같은 코드를 쓰면 그것까지 되감아 벤더를 헛되이 여러 번 부른다 (S15P21E201-1300).
 		assertThatThrownBy(() -> KoreaeximExchangeRateJsonParser.parse("[]", this.objectMapper))
 				.isInstanceOf(ExchangeRateVendorException.class)
 				.satisfies(exception -> assertThat(((ExchangeRateVendorException) exception).getCode())
-						.isEqualTo("EXCHANGE_RATE_VENDOR_ERROR"));
+						.isEqualTo(KoreaeximExchangeRateJsonParser.NO_DATA_FOR_DATE));
+	}
+
+	@Test
+	@DisplayName("🔴 그 밖의 실패는 되감을 수 없는 코드로 남는다 — 되감기 대상과 섞이지 않는다")
+	void otherFailuresKeepADifferentCode() {
+		String json = """
+				[{"result":3,"cur_unit":null,"deal_bas_r":null}]""";
+
+		assertThatThrownBy(() -> KoreaeximExchangeRateJsonParser.parse(json, this.objectMapper))
+				.isInstanceOf(ExchangeRateVendorException.class)
+				.satisfies(exception -> assertThat(((ExchangeRateVendorException) exception).getCode())
+						.isNotEqualTo(KoreaeximExchangeRateJsonParser.NO_DATA_FOR_DATE));
 	}
 }

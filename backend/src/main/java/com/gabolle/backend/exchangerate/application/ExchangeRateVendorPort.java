@@ -12,8 +12,11 @@ import java.time.LocalDate;
 public interface ExchangeRateVendorPort {
 
 	/**
-	 * @param searchDate 이 날짜(영업일 기준)의 환율. 은행이 그날 아직 안 냈으면(주말·휴일 등)
-	 *     가장 최근 영업일 값을 대신 준다 — 벤더의 동작이라 여기서 바꾸지 않는다.
+	 * @param searchDate 이 날짜의 환율.
+	 *     <p>🔴 <b>은행이 그날 값을 안 냈으면(주말·휴일·고시 전) 빈 배열이 온다.</b> 예전에는
+	 *     여기 주석이 「가장 최근 영업일 값을 대신 준다」고 적혀 있었는데 <b>사실이 아니다</b> —
+	 *     2026-09-19 토요일 운영에서 빈 응답을 실측했고, 그 믿음 때문에 주말마다 환율 기능이
+	 *     통째로 죽었다. 되감는 것은 {@link ExchangeRateService} 가 한다 (S15P21E201-1300).
 	 * @return 한국수출입은행 {@code exchangeJSON} 응답 원문(JSON)
 	 * @throws ExchangeRateVendorException 키가 없거나, 호출이 실패했거나, 업체가 결과를 못 줬다
 	 */

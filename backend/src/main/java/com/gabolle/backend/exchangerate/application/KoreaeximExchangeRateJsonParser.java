@@ -24,10 +24,13 @@ import tools.jackson.databind.ObjectMapper;
  *
  * <p>🔴 <b>영업일이 아닌 날을 물으면 결과가 비어 올 수 있다.</b> 은행이 그날 환율을 안 냈다는
  * 뜻이지 우리 쪽 오류가 아니다 — 그래도 사용자에게 줄 값이 없으므로 명확한 실패로 알린다.
- * 가장 최근 영업일로 자동 대체하는 것은 이 티켓 범위 밖이다(화면이 날짜를 다시 골라 보내는
- * 것으로 충분하다고 봤다).
+ * 가장 최근 영업일로 되감는 것은 {@link ExchangeRateService}가 한다 — 화면에는 날짜를 고르는
+ * 자리가 없어서, 여기서 실패로 끝내면 주말 내내 환율 기능이 죽는다 (S15P21E201-1300).
  */
 final class KoreaeximExchangeRateJsonParser {
+
+	/** 그날 값이 없다(주말·휴일·고시 전). 되감아 다시 물어볼 수 있는 유일한 실패다. */
+	static final String NO_DATA_FOR_DATE = "EXCHANGE_RATE_NO_DATA_FOR_DATE";
 
 	private KoreaeximExchangeRateJsonParser() {
 	}
@@ -44,7 +47,11 @@ final class KoreaeximExchangeRateJsonParser {
 		}
 
 		if (!root.isArray() || root.isEmpty()) {
-			throw new ExchangeRateVendorException("EXCHANGE_RATE_VENDOR_ERROR",
+			// 🔴 이 하나만 「그날 값이 없다」이고, 나머지 실패와 뜻이 다르다.
+			// 부르는 쪽(ExchangeRateService)이 이 코드일 때만 하루씩 뒤로 되감는다 —
+			// 인증키 오류·한도 초과까지 되감으면 실패 한 번이 벤더를 여러 번 더 부른다
+			// (하루 1,000회 제한). S15P21E201-1300.
+			throw new ExchangeRateVendorException(NO_DATA_FOR_DATE,
 					"그 날짜의 환율 정보가 없습니다 — 영업일이 아닐 수 있습니다.", HttpStatus.BAD_GATEWAY);
 		}
 
