@@ -4,7 +4,31 @@ import { singleFileFormData } from '@/api/multipart';
 import type { LanguageCode } from '@/i18n/languages';
 import { resizeForUpload } from '@/social/imageResize';
 
-export type MenuLine = { text: string; translatedText: string; allergenWords: string[] };
+export type MenuLine = {
+  text: string;
+  /**
+   * 그 줄의 음식 이름만 — 사진에 적힌 말 그대로다 (S15P21E201-1271).
+   *
+   * 🔴 음식 줄이 아니면(가게 이름, 안내문) 빈 문자열이다. 그 줄을 음식으로 그리면
+   * 안 된다 — 「※ 모든 메뉴에 공깃밥이 포함됩니다」의 설명과 그림을 만들게 된다.
+   *
+   * 번역하지 않은 원문인 이유는 둘이다. 직원에게 보여주며 가리킬 값이고,
+   * 음식 그림을 언어와 무관하게 하나로 모으는 열쇠다.
+   */
+  name: string;
+  /** 그 줄에 보이는 가격을 적힌 그대로 (「9,000원」). 없으면 빈 문자열. */
+  price: string;
+  /**
+   * 음식 이름만 옮긴 값 — 가격이 안 들어간다 (S15P21E201-1271).
+   *
+   * 🔴 `translatedText` 가 있는데 이 칸을 따로 쓰는 이유는 **가격이 세 번 그려지기**
+   * 때문이다. `text`(「돼지국밥 9,000원」)에도, `translatedText`(「Pork and rice soup
+   * 9,000 won」)에도 가격이 들어 있어서, 가격 칸을 옆에 두면 같은 값이 세 번 보인다.
+   */
+  translatedName: string;
+  translatedText: string;
+  allergenWords: string[];
+};
 
 export type MenuScan = {
   lines: MenuLine[];
@@ -68,6 +92,12 @@ function normalizeScan(dto: MenuScan): MenuScan {
       .filter((line): line is MenuLine => typeof line?.text === 'string')
       .map((line) => ({
         text: line.text,
+        // 🔴 이름과 가격은 원문으로 물러서지 않는다 — 서버가 빈 칸으로 주는 것이
+        //    「이 줄은 음식이 아니다」라는 뜻이다. 여기서 text 를 채워 넣으면 화면이
+        //    안내문을 음식으로 그린다. 옛 서버(칸이 없던 때)도 같은 결과가 된다.
+        name: typeof line.name === 'string' ? line.name : '',
+        price: typeof line.price === 'string' ? line.price : '',
+        translatedName: typeof line.translatedName === 'string' ? line.translatedName : '',
         // 서버가 이 칸을 안 주거나 비우면 원문으로 물러선다 — 화면이 빈 칸을 그리는
         // 것보다 원문이라도 보여주는 것이 낫다. GmsMenuReader.parse 와 같은 물러섬이다.
         translatedText: typeof line.translatedText === 'string' && line.translatedText !== ''
