@@ -214,8 +214,11 @@ export default function StoryDetail() {
 
   return (
     <Screen scroll>
-      <Pressable accessibilityRole="button" accessibilityLabel={tx('피드로 돌아가기', 'Back to feed')} onPress={() => (router.canGoBack() ? router.back() : router.replace('/feed'))} style={({ pressed }) => [styles.back, pressed && styles.pressed]}>
-        <Text variant="title" weight="bold">‹ {tx('피드', 'Feed')}</Text>
+      {/* S15P21E201-1240 — 목적지를 약속하지 않는다. 이 화면에 들어오는 입구가 일곱인데
+          피드는 그중 하나라, 「피드로」라고 적으면 대부분의 경로에서 라벨과 결과가 어긋난다.
+          place/[id]·collection/[id]·user/[id]·feed/[id]/coauthors 가 쓰는 규칙과 같다. */}
+      <Pressable accessibilityRole="button" accessibilityLabel={tx('뒤로 가기', 'Go back')} onPress={() => (router.canGoBack() ? router.back() : router.replace('/feed'))} style={({ pressed }) => [styles.back, pressed && styles.pressed]}>
+        <Text variant="title" weight="bold">‹ {tx('뒤로', 'Back')}</Text>
       </Pressable>
 
       {state.status === 'loading' && !story ? (
@@ -349,7 +352,7 @@ export default function StoryDetail() {
               />
             </View>
           ) : (
-            <Pressable accessibilityRole="button" onPress={() => router.push('/sign-in')} style={styles.textAction}>
+            <Pressable accessibilityRole="button" onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: `/feed/${id}` } })} style={styles.textAction}>
               <Text variant="caption" weight="bold" color={color.text.accent}>{tx('로그인하면 댓글을 남길 수 있어요', 'Sign in to leave a comment')}</Text>
             </Pressable>
           )}

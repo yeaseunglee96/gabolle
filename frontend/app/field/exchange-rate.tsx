@@ -142,7 +142,7 @@ export default function Exchange() {
           {/* 🔴 S15P21E201-1200 — 준비되지 않은 기능에는 「다시 시도」를 안 보여준다.
               눌러도 달라지지 않는 단추는 없는 것보다 나쁘다 — 사람을 거기 묶어 둔다. */}
           {reason === 'signed-out'
-            ? <Button label={tx('로그인하기', 'Sign in')} containerStyle={styles.cta} onPress={() => router.push('/sign-in')} />
+            ? <Button label={tx('로그인하기', 'Sign in')} containerStyle={styles.cta} onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: '/field/exchange-rate' } })} />
             : reason === 'not-ready'
               ? null
               : <Button label={tx('다시 시도', 'Try again')} variant="ghost" containerStyle={styles.cta} onPress={() => void load()} />}

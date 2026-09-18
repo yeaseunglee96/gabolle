@@ -146,7 +146,7 @@ export default function Home() {
                 </Pressable>
               </>
             ) : (
-              <Pressable accessibilityRole="button" onPress={() => router.push('/sign-in')} style={({ pressed }) => [styles.loginPill, pressed && styles.pressed]}>
+              <Pressable accessibilityRole="button" onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: '/home' } })} style={({ pressed }) => [styles.loginPill, pressed && styles.pressed]}>
                 <Text weight="bold" color={color.brand.navy}>{tx('로그인', 'Sign in')}</Text>
               </Pressable>
             )}
@@ -232,7 +232,7 @@ export default function Home() {
               <GabolleMascot state="thinking" style={styles.signInMascot} />
               <View style={styles.signInCopy}>
                 <Text>{tx('다른 여행자들이 남긴 기록은 로그인하면 볼 수 있어요.', 'Sign in to see what other travelers shared.')}</Text>
-                <Pressable accessibilityRole="button" onPress={() => router.push('/sign-in')} style={({ pressed }) => [styles.signInButton, pressed && styles.pressed]}>
+                <Pressable accessibilityRole="button" onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: '/home' } })} style={({ pressed }) => [styles.signInButton, pressed && styles.pressed]}>
                   <Text weight="bold" color={color.text.onAction}>{tx('로그인하고 보기', 'Sign in to view')}</Text>
                 </Pressable>
               </View>
@@ -286,7 +286,7 @@ export default function Home() {
                         accessibilityRole="button"
                         accessibilityState={{ selected: liked }}
                         accessibilityLabel={liked ? tx(`${place.nameKo} 저장 취소`, `Unsave ${place.nameKo}`) : tx(`${place.nameKo} 저장`, `Save ${place.nameKo}`)}
-                        onPress={() => (signedIn ? toggleLike(place.placeId) : router.push('/sign-in'))}
+                        onPress={() => (signedIn ? toggleLike(place.placeId) : router.push({ pathname: '/sign-in', params: { returnTo: '/home' } }))}
                         style={styles.heartButton}
                       >
                         {/* 색만으로 저장 여부를 나타내지 않는다(팀 UX 가이드라인 11번) —
