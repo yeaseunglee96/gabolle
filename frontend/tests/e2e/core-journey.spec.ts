@@ -55,7 +55,12 @@ test('로그인 → 여행 조건 → 추천 요청까지 이어진다', async (
   await page.getByRole('button', { name: '출발지', exact: false }).click();
   // 추천 출발지는 검색어 없이도 MAJOR_BUSAN_ORIGINS 기본 목록이 뜬다 — 굳이 타이핑해서
   // 서버 검색(searchOrigins)의 250ms 디바운스를 기다릴 필요가 없다.
-  await page.getByRole('button', { name: '부산역', exact: false }).click();
+  // 🔴 실측(2026-09-18, 파이프라인 206720) — "부산역"만으로는 두 요소에 걸린다.
+  //    출발지 행(이름+주소가 한 접근성 이름으로 합쳐진다: "부산역 부산 동구
+  //    중앙대로 206")과, 홈 화면의 다른 위젯(HeroStories/PlacePicks 등)에 있는
+  //    "부산역 출발"이라는 전혀 다른 요소가 동시에 걸렸다. 주소(origins.ts의
+  //    MAJOR_BUSAN_ORIGINS)까지 넣어 그 행만 특정한다.
+  await page.getByRole('button', { name: /부산역.*중앙대로/ }).click();
   // 출발지를 고르면 pickOrigin이 곧바로 날짜 패널을 연다(section을 'dates'로 바꾼다) —
   // "날짜" 세그먼트를 또 누르면 오히려 toggle()이 닫아 버리므로 누르지 않는다.
   await page.getByRole('button', { name: '1박 2일', exact: true }).click();
