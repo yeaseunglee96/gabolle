@@ -150,8 +150,41 @@ export async function linkOAuthAccount(
   }
 }
 export function getMe(accessToken: string) { return apiRequest<AuthUser>('/api/v1/auth/me', { accessToken }); }
-export function updateMe(accessToken: string, input: { displayName?: string; language?: SignupLanguage; avatarUrl?: string | null }) {
-  return apiRequest<AuthUser>('/api/v1/auth/me', { method: 'PATCH', accessToken, body: input });
+/**
+ * 사진 칸을 **떼라**고 말할 때 서버가 기다리는 값 (S15P21E201-1308).
+ *
+ * 🔴 서버에는 「없음」이 한 종류뿐이다. 키를 안 보낸 것과 null 을 보낸 것이 **똑같이**
+ * 도착해서, 그 하나로는 「안 바꾼다」와 「뗀다」를 가를 수 없다. 그래서 서버가 **빈
+ * 문자열을 「뗀다」로 정했다**(AppUser 는 여전히 null 만 저장한다 — 표에 빈 문자열이
+ * 남지 않는다).
+ *
+ * 우리 쪽에는 「없음」이 둘이라 그대로 짝지을 수 있다.
+ *
+ *     키를 안 보냄 (undefined)  →  안 바꾼다
+ *     null                     →  뗀다        ← 여기서 빈 문자열로 바꿔 보낸다
+ *
+ * 🔴 **바꿔 주는 자리는 여기 하나다.** 부르는 쪽마다 빈 문자열을 쓰게 하면, 다음에 새로
+ * 부르는 사람은 이 규칙을 모른 채 null 을 보내고 **아무 일도 안 일어난다.** 그때 요청은
+ * 200 으로 성공하고 서버는 사진이 그대로인 계정을 돌려준다 — 실패가 아니라서 아무도 모른다.
+ * 2026-09-19 까지 프로필 사진 떼기가 실제로 그렇게 안 먹고 있었다.
+ */
+const REMOVE_PHOTO = '';
+
+export type UpdateMeInput = {
+  displayName?: string;
+  language?: SignupLanguage;
+  /** null 이면 뗀다. 키를 안 보내면 그대로 둔다. */
+  avatarUrl?: string | null;
+  /** null 이면 뗀다. 키를 안 보내면 그대로 둔다. */
+  coverUrl?: string | null;
+};
+
+export function updateMe(accessToken: string, input: UpdateMeInput) {
+  const body: Record<string, unknown> = { ...input };
+  // 🔴 `in` 으로 본다. 값이 null 인지가 아니라 **키를 보냈는지**가 기준이다.
+  if ('avatarUrl' in input && input.avatarUrl === null) body.avatarUrl = REMOVE_PHOTO;
+  if ('coverUrl' in input && input.coverUrl === null) body.coverUrl = REMOVE_PHOTO;
+  return apiRequest<AuthUser>('/api/v1/auth/me', { method: 'PATCH', accessToken, body });
 }
 export function deleteMe(accessToken: string, confirmation: string) {
   return apiRequest<void>('/api/v1/auth/me', { method: 'DELETE', accessToken, body: { confirmation }, skipUnauthorizedHandling: true });
