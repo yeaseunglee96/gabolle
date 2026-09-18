@@ -20,6 +20,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Redirect, useRouter } from 'expo-router';
 
 import { sendAppEvent } from '@/analytics/appEvents';
+import { PlanStartBar } from '@/home/PlanStartBar';
+import { usePlan } from '@/plan/PlanProvider';
+import type { StartBarValue } from '@/home/startBarValue';
 import { useAuth } from '@/auth/AuthProvider';
 import { loadSavedPlaceIds, setSavedPlace } from '@/discovery/savedPlaces';
 import { BrandLogoLink } from '@/components/BrandLogoLink';
@@ -48,6 +51,7 @@ export default function Home() {
   const router = useRouter();
   const { tx, language } = useI18n();
   const { accessToken } = useAuth();
+  const { update: updatePlan } = usePlan();
   const { width } = useLayout();
   const desktop = isAtLeast(width, 'lg');
   const { hydrated, hasEnteredApp, markEnteredApp } = useOnboardingPreferences();
@@ -91,6 +95,22 @@ export default function Home() {
       if (sync === 'failed') setSaveFeedback(tx('이 기기에만 저장했어요. 서버에 아직 반영하지 못했어요.', 'Saved on this device only — not synced to the server yet.'));
     });
     if (saved) sendAppEvent({ type: 'place_like', accessToken, payload: { place_id: placeId, surface: 'home' } });
+  };
+
+  // 🔴 홈에서 받은 출발지·날짜·인원을 초안에 넣고 조건 화면으로 보낸다 (S15P21E201-1233).
+  //    조건 화면은 이 셋을 **다시 묻지 않는다** — 칩 줄로만 보여 준다.
+  const startPlanFromBar = (value: StartBarValue) => {
+    updatePlan({
+      origin: value.origin,
+      originLat: value.originLat,
+      originLng: value.originLng,
+      startDate: value.startDate,
+      endDate: value.endDate,
+      adults: value.adults,
+      children: value.children,
+      travelers: value.adults + value.children,
+    });
+    router.push('/plan');
   };
 
   if (desktop) return <Redirect href="/" />;
@@ -139,9 +159,9 @@ export default function Home() {
           <View style={styles.heroBadge}><Text variant="caption" weight="bold" color={color.brand.orange}>AI TRAVEL PLANNER · BUSAN</Text></View>
           <Text weight="bold" color={color.brand.navy} style={styles.heroTitle}>{tx('부산의 모든 여행,\n가볼래?', 'Every side of Busan,\nyours to explore.')}</Text>
           <Text>{tx('취향과 이동 조건을 반영해 당신만의 부산 여행을 만들어요.', 'Build a Busan trip around your taste and mobility needs.')}</Text>
-          <Pressable accessibilityRole="button" onPress={() => router.push('/plan/basic')} style={({ pressed }) => [styles.primaryCta, pressed && styles.pressed]}>
-            <Text variant="title" weight="bold" color={color.text.onAction}>{tx('여행 계획 시작하기', 'Start planning')}</Text>
-          </Pressable>
+          {/* 🔴 시안 p0 의 시작 바 (S15P21E201-1233). 출발지·날짜·인원을 여기서 받아
+              조건 화면으로 넘긴다. 여행지는 안 묻는다 — 부산 고정이다. */}
+          <PlanStartBar wide={false} accessToken={accessToken} onSubmit={startPlanFromBar} />
 
           {/* 현장 도구 — 로그인 없이도 쓸 수 있다(확인함). 챗봇 버튼과 화면 반대편이라
               「겹쳐 보인다」는 리포트가 다시 나지 않는다.

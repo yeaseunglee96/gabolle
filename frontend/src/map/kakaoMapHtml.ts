@@ -112,10 +112,14 @@ export function buildKakaoMapHtml(appKey: string): string {
 
     for (var r = 0; r < routes.length; r++) {
       var route = routes[r];
-      if (route.stops.length < 2) continue;
+      var points = (route.path && route.path.length) ? route.path : route.stops;
+      if (points.length < 2) continue;
       var path = [];
-      for (var pi = 0; pi < route.stops.length; pi++) path.push(new maps.LatLng(route.stops[pi].latitude, route.stops[pi].longitude));
-      var line = new maps.Polyline({ path: path, strokeWeight: 5, strokeColor: route.color, strokeOpacity: 0.9, strokeStyle: 'solid' });
+      for (var pi = 0; pi < points.length; pi++) path.push(new maps.LatLng(points[pi].latitude, points[pi].longitude));
+      // 🔴 실제 길 좌표가 있고 "추정 아님" 이라고 적혀 있을 때만 실선이다 (S15P21E201-1234).
+      //    나머지는 직선을 이은 것이므로 점선으로 그린다 — 실선은 "이 길로 가면 된다" 는 뜻이다.
+      var real = !!(route.path && route.path.length) && route.estimated === false;
+      var line = new maps.Polyline({ path: path, strokeWeight: 5, strokeColor: route.color, strokeOpacity: real ? 0.9 : 0.75, strokeStyle: real ? 'solid' : 'shortdash' });
       line.setMap(map); overlays.push(line);
     }
 
