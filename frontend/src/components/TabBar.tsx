@@ -2,7 +2,7 @@
 // 탭 내비게이션이 아니라 Stack 하나뿐이라(app/_layout.tsx), 각 화면이 이 바를 직접 그려 붙인다.
 // 1차 배포에서는 모든 탭이 유효한 화면으로 이동한다. 서버 데이터가 없어도 각 화면에서
 // 빈 상태와 다음 행동을 안내해 사용자가 막히지 않게 한다.
-import { Image, Pressable, StyleSheet, View } from 'react-native';
+import { Image, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 
@@ -115,7 +115,17 @@ export function tabBarBottomMargin(bottomInset: number) {
 const styles = StyleSheet.create({
   // 받침 — 화면 아래에 깔리되 자기는 아무것도 안 그린다. 알약을 가운데 세우는 일만 한다.
   dock: {
-    position: 'absolute',
+    // 🔴 웹에서는 **뷰포트에 고정**한다 (S15P21E201-1245, 2026-09-18 실기기).
+    //
+    //    `absolute` 는 「가장 가까운 배치된 조상」 기준이다. 이 앱의 화면은 대부분
+    //    `<View flex:1>` 안에 스크롤 영역과 탭바가 형제로 들어 있는데, 모바일 브라우저는
+    //    **문서 자체가 스크롤**되고 주소창이 접히며 뷰포트 높이까지 바뀐다. 그래서 빠르게
+    //    스크롤하면 탭바가 바닥에 안 붙고 **내용과 같이 올라와 카드 위를 덮었다.**
+    //
+    //    `fixed` 는 조상과 무관하게 뷰포트에 붙으므로 그 문제 자체가 안 생긴다.
+    //    네이티브에는 fixed 가 없고 거기서는 문서 스크롤도 없으므로 absolute 그대로 둔다.
+    //    (같은 이유로 PlanDesktopShell 이 100vh 를 썼던 자리와 판단이 같다.)
+    position: Platform.OS === 'web' ? ('fixed' as 'absolute') : 'absolute',
     left: 0,
     right: 0,
     bottom: 0,

@@ -6,7 +6,7 @@
 // 🔴 폰은 **새 화면으로 가지 않는다.** 알약이 그 자리에서 카드로 커진다 — 시안이 그렇게
 //    정했고, 라우트를 하나 더 만들면 뒤로 가기가 한 칸 더 생겨 홈으로 돌아오기가 번거롭다.
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { AccessibilityInfo, ActivityIndicator, Animated, Easing, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
@@ -174,6 +174,57 @@ export function PlanStartBar({ wide, accessToken, onSubmit, today = new Date() }
     return total > 0 ? (ko ? `성인 ${value.adults}${value.children ? ` · 어린이 ${value.children}` : ''}` : `${total} travelers`) : tx('인원 추가', 'Add travelers');
   };
 
+  // 🔴 에어비앤비처럼 **부드럽게** 연다 (2026-09-18 지시).
+  //
+  //    두 가지가 움직인다.
+  //      · 고른 칸을 따라다니는 **강조 알약** — 칸 사이를 미끄러진다
+  //      · 아래로 **내려오는 패널** — 살짝 떠올랐다 제자리로
+  //
+  //    🔴 「움직임 줄이기」를 켠 사람에게는 **안 움직인다.** 값은 그대로 바뀌고 시간만 0 이다 —
+  //       끄는 것이 아니라 즉시 끝내는 것이라 화면 상태가 갈리지 않는다.
+  const [reduceMotion, setReduceMotion] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    void AccessibilityInfo.isReduceMotionEnabled().then((on) => { if (alive) setReduceMotion(on); });
+    const sub = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduceMotion);
+    return () => { alive = false; sub.remove(); };
+  }, []);
+
+  /** 칸마다 잰 자리. 강조 알약이 이 값으로 움직인다. */
+  const segmentBox = useRef<Record<string, { x: number; width: number }>>({});
+  const highlightX = useRef(new Animated.Value(0)).current;
+  const highlightW = useRef(new Animated.Value(0)).current;
+  const highlightO = useRef(new Animated.Value(0)).current;
+  const panelIn = useRef(new Animated.Value(0)).current;
+
+  const moveHighlight = (which: Section) => {
+    const box = which ? segmentBox.current[which] : null;
+    const ms = reduceMotion ? 0 : 220;
+    if (!box) {
+      Animated.timing(highlightO, { toValue: 0, duration: ms, useNativeDriver: false }).start();
+      return;
+    }
+    // 처음 켜질 때는 미끄러지지 않고 그 자리에서 뜬다 — 왼쪽 끝에서 날아오면 산만하다.
+    const first = (highlightO as unknown as { _value: number })._value === 0;
+    if (first) { highlightX.setValue(box.x); highlightW.setValue(box.width); }
+    Animated.parallel([
+      Animated.timing(highlightX, { toValue: box.x, duration: first ? 0 : ms, easing: Easing.out(Easing.cubic), useNativeDriver: false }),
+      Animated.timing(highlightW, { toValue: box.width, duration: first ? 0 : ms, easing: Easing.out(Easing.cubic), useNativeDriver: false }),
+      Animated.timing(highlightO, { toValue: 1, duration: ms, useNativeDriver: false }),
+    ]).start();
+  };
+
+  useEffect(() => {
+    moveHighlight(section);
+    Animated.timing(panelIn, {
+      toValue: section ? 1 : 0,
+      duration: reduceMotion ? 0 : section ? 240 : 160,
+      easing: section ? Easing.out(Easing.cubic) : Easing.in(Easing.cubic),
+      useNativeDriver: false,
+    }).start();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [section, reduceMotion]);
+
   const toggle = (which: Exclude<Section, null>) => setSection((prev) => (prev === which ? null : which));
 
   const submit = () => { if (ready) onSubmit(value); };
@@ -280,13 +331,23 @@ export function PlanStartBar({ wide, accessToken, onSubmit, today = new Date() }
     <View style={styles.root}>
       {wide ? (
         <View style={styles.bar}>
+          {/* 고른 칸을 따라다니는 강조 알약. 칸 뒤에 깔리므로 글자를 안 가린다. */}
+          <Animated.View
+            pointerEvents="none"
+            style={[styles.highlight, { left: highlightX, width: highlightW, opacity: highlightO }]}
+          />
           {(['origin', 'dates', 'people'] as const).map((which, index) => (
             <Pressable
               key={which}
               onPress={() => toggle(which)}
+              onLayout={(event) => {
+                const { x, width } = event.nativeEvent.layout;
+                segmentBox.current[which] = { x, width };
+                if (section === which) moveHighlight(which);
+              }}
               accessibilityRole="button"
               accessibilityState={{ expanded: section === which }}
-              style={[styles.segment, index > 0 && styles.segmentDivider, section === which && styles.segmentActive]}
+              style={[styles.segment, index > 0 && styles.segmentDivider]}
             >
               <Text variant="caption" color={color.text.muted}>
                 {which === 'origin' ? tx('출발지', 'From') : which === 'dates' ? tx('날짜', 'Dates') : tx('인원', 'Travelers')}
@@ -317,7 +378,16 @@ export function PlanStartBar({ wide, accessToken, onSubmit, today = new Date() }
       )}
 
       {panel ? (
-        <View style={[styles.panelShell, wide && styles.panelShellWide]}>
+        <Animated.View
+          style={[
+            styles.panelShell,
+            wide && styles.panelShellWide,
+            {
+              opacity: panelIn,
+              transform: [{ translateY: panelIn.interpolate({ inputRange: [0, 1], outputRange: [-8, 0] }) }],
+            },
+          ]}
+        >
           {!wide ? (
             <View style={styles.phoneTabs}>
               {(['origin', 'dates', 'people'] as const).map((which) => (
@@ -338,7 +408,7 @@ export function PlanStartBar({ wide, accessToken, onSubmit, today = new Date() }
               <Text weight="bold" color={color.text.onAction}>{tx('일정 물어보기', 'Ask for a plan')}</Text>
             </Pressable>
           ) : null}
-        </View>
+        </Animated.View>
       ) : null}
 
       {/* 🔴 폰에서는 **한 줄에 맞춘다** (2026-09-18 지시). 390 폭에 네 개는 두 줄이 되고,
@@ -368,7 +438,10 @@ const styles = StyleSheet.create({
   },
   segment: { flex: 1, paddingHorizontal: spacing[4], paddingVertical: spacing[2], borderRadius: radius.full, gap: 2 },
   segmentDivider: { borderLeftWidth: 1, borderLeftColor: color.surface.border },
-  segmentActive: { backgroundColor: color.surface.soft },
+  // 🔴 고른 칸을 따라다니는 강조 알약. 칸마다 배경을 켜고 끄면 **뚝뚝 끊겨** 보인다 —
+  //    하나를 깔고 자리만 옮기면 미끄러진다(에어비앤비가 그렇게 한다).
+  //    글자를 가리지 않도록 칸 **뒤에** 깔고 pointerEvents 를 끈다.
+  highlight: { position: 'absolute', top: spacing[2], bottom: spacing[2], borderRadius: radius.full, backgroundColor: color.surface.soft },
   cta: { minHeight: 56, paddingHorizontal: spacing[6], borderRadius: radius.full, backgroundColor: color.brand.orange, alignItems: 'center', justifyContent: 'center' },
   ctaWide: { alignSelf: 'stretch', marginTop: spacing[3] },
   ctaOff: { backgroundColor: '#c9c3ba' },
