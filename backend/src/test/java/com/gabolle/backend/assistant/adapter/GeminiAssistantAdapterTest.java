@@ -61,39 +61,39 @@ class GeminiAssistantAdapterTest {
 		assertThat(reply.href()).isNull();
 	}
 
-	// ── /plan/basic 사전 채우기 (S15P21E201-985) ────────────────────────
+	// ── /plan 사전 채우기 (S15P21E201-985) ────────────────────────
 
 	@Test
-	@DisplayName("/plan/basic 이고 days·people 이 있으면 쿼리 파라미터로 실어 보낸다")
+	@DisplayName("/plan 이고 days·people 이 있으면 쿼리 파라미터로 실어 보낸다")
 	void planBasicWithDaysAndPeopleGetsQueryParams() {
 		GeminiStructuredReply parsed = new GeminiStructuredReply("navigate", "여행 만들기로 안내할게요.", null, null,
-				"여행 만들기", "/plan/basic", 2, 3);
+				"여행 만들기", "/plan", 2, 3);
 
 		AssistantReply reply = this.adapter.toDomain(parsed);
 
-		assertThat(reply.href()).isEqualTo("/plan/basic?days=2&people=3");
+		assertThat(reply.href()).isEqualTo("/plan?days=2&people=3");
 	}
 
 	@Test
 	@DisplayName("days·people 이 없으면 물음표 없이 href 그대로다")
 	void planBasicWithoutDaysOrPeopleHasNoQueryString() {
 		GeminiStructuredReply parsed = new GeminiStructuredReply("navigate", "여행 만들기로 안내할게요.", null, null,
-				"여행 만들기", "/plan/basic", null, null);
+				"여행 만들기", "/plan", null, null);
 
 		AssistantReply reply = this.adapter.toDomain(parsed);
 
-		assertThat(reply.href()).isEqualTo("/plan/basic");
+		assertThat(reply.href()).isEqualTo("/plan");
 	}
 
 	@Test
 	@DisplayName("🔴 범위 밖 숫자를 지어내면 그 파라미터만 조용히 뺀다")
 	void outOfRangeValuesAreDroppedIndividually() {
 		GeminiStructuredReply parsed = new GeminiStructuredReply("navigate", "여행 만들기로 안내할게요.", null, null,
-				"여행 만들기", "/plan/basic", 999, 3);
+				"여행 만들기", "/plan", 999, 3);
 
 		AssistantReply reply = this.adapter.toDomain(parsed);
 
-		assertThat(reply.href()).isEqualTo("/plan/basic?people=3");
+		assertThat(reply.href()).isEqualTo("/plan?people=3");
 	}
 
 	@Test
@@ -111,7 +111,7 @@ class GeminiAssistantAdapterTest {
 	@DisplayName("🔴 모델이 label 을 비우면 href 별 기본 문구로 채운다")
 	void blankLabelFallsBackToDefaultPerHref() {
 		GeminiStructuredReply parsed = new GeminiStructuredReply("navigate", "안내해 드릴게요.", null, null, null,
-				"/plan/basic", 3, 4);
+				"/plan", 3, 4);
 
 		AssistantReply reply = this.adapter.toDomain(parsed);
 

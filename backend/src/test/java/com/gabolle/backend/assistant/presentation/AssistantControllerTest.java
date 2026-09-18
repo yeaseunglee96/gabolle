@@ -72,7 +72,7 @@ class AssistantControllerTest {
 	}
 
 	@Test
-	@DisplayName("여행 만들기 요청은 200 과 kind=navigate, href=/plan/basic 을 담아 온다")
+	@DisplayName("여행 만들기 요청은 200 과 kind=navigate, href=/plan 을 담아 온다")
 	void tripCreationRequestNavigatesToPlanBasic() throws Exception {
 		this.mockMvc.perform(post("/api/v1/assistant/messages")
 						.contentType(MediaType.APPLICATION_JSON)
@@ -80,7 +80,7 @@ class AssistantControllerTest {
 						.principal(asUser()))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.data.kind").value("navigate"))
-				.andExpect(jsonPath("$.data.href").value("/plan/basic"))
+				.andExpect(jsonPath("$.data.href").value("/plan"))
 				.andExpect(jsonPath("$.data.label").value("여행 만들기"));
 	}
 
@@ -177,7 +177,7 @@ class AssistantControllerTest {
 						HttpStatus.BAD_GATEWAY);
 			}
 			return new AssistantReply(AssistantActionKind.NAVIGATE, "새 여행 만들기로 안내할게요.", null, null, "여행 만들기",
-					"/plan/basic");
+					"/plan");
 		}
 
 		@Override

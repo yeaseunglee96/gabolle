@@ -57,10 +57,20 @@ public class GeminiAssistantAdapter implements AssistantVendorPort {
 
 	static final String PROVIDER_NAME = "GEMINI";
 
-	static final Set<String> ALLOWED_HREFS = Set.of("/plan/basic", "/trips", "/field/translate", "/field/transit",
+	/**
+	 * 비서가 안내해도 되는 화면 주소. 앱의 허용 목록
+	 * (frontend/src/assistant/assistantApi.ts 의 {@code ALLOWED_NAVIGATE_HREFS})과 같아야 한다 —
+	 * 앱은 모르는 주소가 오면 이동 버튼을 지우고 안내문만 남긴다.
+	 *
+	 * 🔴 2026-09-18 에 {@code /plan/basic} 을 {@code /plan} 으로 옮겼다 (S15P21E201-1273).
+	 * S15P21E201-1233 이 여행 만들기를 한 페이지로 합치면서 {@code /plan/basic} 은 {@code /plan}
+	 * 으로 보내는 리다이렉트 화면만 남았는데, 리다이렉트는 쿼리를 안 실어 나른다 — 아래
+	 * {@code withPrefill} 이 붙여 보내는 {@code ?days=2} 가 그 자리에서 버려졌다.
+	 */
+	static final Set<String> ALLOWED_HREFS = Set.of("/plan", "/trips", "/field/translate", "/field/transit",
 			"/field/exchange-rate");
 
-	/** '/plan/basic' 으로 갈 때만 채운다 — days 는 1~30, people 은 1~20 을 벗어나면 버린다. */
+	/** '/plan' 으로 갈 때만 채운다 — days 는 1~30, people 은 1~20 을 벗어나면 버린다. */
 	private static final int MIN_DAYS = 1;
 	private static final int MAX_DAYS = 30;
 	private static final int MIN_PEOPLE = 1;
@@ -81,7 +91,7 @@ public class GeminiAssistantAdapter implements AssistantVendorPort {
 					"korean", string(),
 					"pronunciation", string(),
 					"label", string(),
-					"href", stringEnum("/plan/basic", "/trips", "/field/translate", "/field/transit",
+					"href", stringEnum("/plan", "/trips", "/field/translate", "/field/transit",
 							"/field/exchange-rate"),
 					"days", integer(),
 					"people", integer()))
@@ -110,7 +120,7 @@ public class GeminiAssistantAdapter implements AssistantVendorPort {
 			- navigate: 이 앱의 다른 화면으로 보내 달라는 요청(여행/일정을 만들고 싶다, 내
 			  여행을 보고 싶다, 현장에서 쓸 번역이 필요하다, 버스가 언제 오는지 보고 싶다,
 			  환율이 궁금하다 등). href 는 아래 다섯 중 하나만 쓴다.
-			    '/plan/basic'        — 새 여행 만들기(일정·조건 입력 시작)
+			    '/plan'        — 새 여행 만들기(일정·조건 입력 시작)
 			    '/trips'             — 내 여행 목록
 			    '/field/translate'   — 현장 번역
 			    '/field/transit'     — 근처 버스 정류소·실시간 도착정보
@@ -127,7 +137,7 @@ public class GeminiAssistantAdapter implements AssistantVendorPort {
 			  "1달러에 1,350원이에요" 처럼 구체적인 환율 숫자를 네가 직접 답하지 않는다.
 			  네가 아는 환율은 오래된 값일 수 있고, 실제 환율은 매 영업일 바뀐다.
 
-			  🔴 href 가 '/plan/basic' 일 때 반드시 확인한다 — 사용자 메시지에 여행 일수나
+			  🔴 href 가 '/plan' 일 때 반드시 확인한다 — 사용자 메시지에 여행 일수나
 			  인원 숫자가 나와 있으면 반드시 days·people 을 채워야 한다(빠뜨리지 않는다). 아래
 			  입력→출력 예시와 정확히 같은 방식으로 채운다.
 
@@ -164,7 +174,7 @@ public class GeminiAssistantAdapter implements AssistantVendorPort {
 			🔴 어떤 kind 에서도 구체적인 가게·식당·관광지 이름을 <b>지어내지</b> 않는다(예: "OO집",
 			"OO해수욕장 근처 XX식당"). 이 앱이 보여주는 장소는 전부 실제 설문·현지인 추천으로
 			검증된 데이터에서만 나온다 — 네가 학습한 일반 지식으로 새 장소를 지어내거나 추천하면
-			그 보증이 깨진다. 장소·일정 관련 요청은 원칙적으로 navigate('/plan/basic' 또는
+			그 보증이 깨진다. 장소·일정 관련 요청은 원칙적으로 navigate('/plan' 또는
 			'/trips')로 안내하고, 알레르기·접근성 같은 안전 조건도 이 앱 화면에서 직접 입력받으니
 			네가 대신 판단하지 않는다.
 
@@ -193,7 +203,7 @@ public class GeminiAssistantAdapter implements AssistantVendorPort {
 			🔴 답변 언어 — 이번 요청은 영어 사용자다. reply · label · korean(원문은 한국어 그대로
 			두되 설명은 영어로) · pronunciation 등 사용자에게 보여줄 모든 텍스트를 영어로 써라.
 			kind 값과 href 값 자체는 위에서 정한 그대로(navigate/phrase/help,
-			'/plan/basic' 등)를 그대로 쓴다 — 번역하지 않는다.
+			'/plan' 등)를 그대로 쓴다 — 번역하지 않는다.
 			""";
 
 	private static final String JAPANESE_DIRECTIVE = """
@@ -202,7 +212,7 @@ public class GeminiAssistantAdapter implements AssistantVendorPort {
 			🔴 답변 언어 — 이번 요청은 일본어 사용자다. reply · label · korean(원문은 한국어 그대로
 			두되 설명은 일본어로) · pronunciation 등 사용자에게 보여줄 모든 텍스트를 일본어로 써라.
 			kind 값과 href 값 자체는 위에서 정한 그대로(navigate/phrase/help,
-			'/plan/basic' 등)를 그대로 쓴다 — 번역하지 않는다.
+			'/plan' 등)를 그대로 쓴다 — 번역하지 않는다.
 			""";
 
 	private static final String CHINESE_SIMPLIFIED_DIRECTIVE = """
@@ -211,7 +221,7 @@ public class GeminiAssistantAdapter implements AssistantVendorPort {
 			🔴 답변 언어 — 이번 요청은 중국어(간체) 사용자다. reply · label · korean(원문은 한국어
 			그대로 두되 설명은 간체자로) · pronunciation 등 사용자에게 보여줄 모든 텍스트를 간체자로
 			써라. kind 값과 href 값 자체는 위에서 정한 그대로(navigate/phrase/help,
-			'/plan/basic' 등)를 그대로 쓴다 — 번역하지 않는다.
+			'/plan' 등)를 그대로 쓴다 — 번역하지 않는다.
 			""";
 
 	private static final String CHINESE_TRADITIONAL_DIRECTIVE = """
@@ -220,7 +230,7 @@ public class GeminiAssistantAdapter implements AssistantVendorPort {
 			🔴 답변 언어 — 이번 요청은 중국어(번체) 사용자다. reply · label · korean(원문은 한국어
 			그대로 두되 설명은 번체자로) · pronunciation 등 사용자에게 보여줄 모든 텍스트를 번체자로
 			써라. kind 값과 href 값 자체는 위에서 정한 그대로(navigate/phrase/help,
-			'/plan/basic' 등)를 그대로 쓴다 — 번역하지 않는다.
+			'/plan' 등)를 그대로 쓴다 — 번역하지 않는다.
 			""";
 
 	private final AssistantProperties properties;
@@ -376,7 +386,7 @@ public class GeminiAssistantAdapter implements AssistantVendorPort {
 	}
 
 	private static final Map<String, String> DEFAULT_LABELS = Map.of(
-			"/plan/basic", "여행 만들기",
+			"/plan", "여행 만들기",
 			"/trips", "내 여행 보기",
 			"/field/translate", "번역 열기",
 			"/field/transit", "버스 도착정보 보기",
@@ -395,12 +405,12 @@ public class GeminiAssistantAdapter implements AssistantVendorPort {
 	}
 
 	/**
-	 * '/plan/basic' 으로 갈 때, 대화에서 뽑아낸 days·people 을 쿼리 파라미터로 실어 보낸다 —
+	 * '/plan' 으로 갈 때, 대화에서 뽑아낸 days·people 을 쿼리 파라미터로 실어 보낸다 —
 	 * 화면이 그 값으로 폼을 미리 채울 수 있게. 모델이 범위 밖 숫자를 지어내면(음수, 너무 큰 값
 	 * 등) 그 파라미터만 조용히 뺀다 — 전체 응답을 실패시킬 이유는 아니다.
 	 */
 	private String withPrefill(String href, GeminiStructuredReply parsed) {
-		if (!"/plan/basic".equals(href)) {
+		if (!"/plan".equals(href)) {
 			return href;
 		}
 		StringBuilder query = new StringBuilder();

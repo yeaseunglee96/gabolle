@@ -226,7 +226,7 @@ class AssistantChatServiceTest {
 				throw new AssistantVendorException("ASSISTANT_VENDOR_UNAVAILABLE", "실패", HttpStatus.BAD_GATEWAY);
 			}
 			return new AssistantReply(AssistantActionKind.NAVIGATE, "새 여행 만들기로 안내할게요.", null, null, "여행 만들기",
-					"/plan/basic");
+					"/plan");
 		}
 
 		@Override
