@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
  * 수단별 기본요금표 — S15P21E201-1291.
  *
  * <p>{@code transit/transit-fare.json} 을 읽어 「종류 이름 → 어른 교통카드 요금」 하나로 만든다.
- * {@code BusanBusNetworkPort} 가 노선망을 읽는 방식과 같다.
+ * {@code BusanTransitNetworkPort} 가 노선망을 읽는 방식과 같다.
  *
  * <h2>🔴 값이 없는 종류가 있고, 그것이 정상이다</h2>
  *

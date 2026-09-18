@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import tools.jackson.databind.ObjectMapper;
 
 import com.gabolle.backend.route.domain.RouteLeg;
-import com.gabolle.backend.route.transit.BusanBusNetworkPort;
+import com.gabolle.backend.route.transit.BusanTransitNetworkPort;
 import com.gabolle.backend.route.transit.TransitFareCalculator;
 import com.gabolle.backend.route.transit.TransitFareTable;
 import com.gabolle.backend.route.transit.HeadwayJourneyPlanner;
@@ -23,18 +23,27 @@ import com.gabolle.backend.route.domain.TravelMode;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * 실제 부산 노선망을 올려서 <b>나오는 값이 말이 되는지</b> 본다 — S15P21E201-1123.
+ * 실제 부산 노선망을 올려서 <b>나오는 값이 말이 되는지</b> 본다 — S15P21E201-1123 · S15P21E201-1310.
  *
  * <p>이 검사가 지키는 것은 "코드가 돈다" 가 아니라 <b>"사람이 보고 이상하다고 하지 않는
  * 값이 나온다"</b> 이다. 운영에서 <b>219m 를 버스로 1분</b>에 가는 값이 나갔던 것이 이
  * 티켓의 출발점이고, 그건 코드가 안 돌아서가 아니라 <b>도는데 틀린 값</b>이었다.
+ *
+ * <p>🔴 2026-09-19 에 <b>지하철이 들어왔다</b>(S15P21E201-1310). 아래쪽 절이 그것을 잰다 —
+ * 특히 <b>버스와 지하철이 한 지도 위에 있는가</b>다. 따로 올라가 있으면 각각은 멀쩡히 돌면서
+ * <b>갈아타는 경로만 조용히 안 나온다.</b>
  */
-class BusanBusNetworkIntegrationTest {
+class BusanTransitNetworkIntegrationTest {
 
 	/** 부산역 앞. */
 	private static final double BUSAN_STATION_LAT = 35.115;
 
 	private static final double BUSAN_STATION_LNG = 129.042;
+
+	/** 서면역. 부산역과 같은 1호선이라 갈아타지 않고 간다. */
+	private static final double SEOMYEON_LAT = 35.1578;
+
+	private static final double SEOMYEON_LNG = 129.0594;
 
 	/** 해운대해수욕장. */
 	private static final double HAEUNDAE_LAT = 35.1585;
@@ -42,13 +51,13 @@ class BusanBusNetworkIntegrationTest {
 	private static final double HAEUNDAE_LNG = 129.1598;
 
 	private static TransitNetwork network() {
-		return new BusanBusNetworkPort(new ObjectMapper()).network();
+		return new BusanTransitNetworkPort(new ObjectMapper()).network();
 	}
 
 	private static TransitRouteAdapter adapter() {
 		// 🔴 S15P21E201-1291 — 요금 계산기가 생성자에 늘었다. 이 파일이 재는 것(노선망으로
 		//    경로가 나오는가)은 그대로다 — 진짜 요금표를 넣어 두면 요금도 함께 나온다.
-		return new TransitRouteAdapter(new BusanBusNetworkPort(new ObjectMapper()), new TransitProperties(),
+		return new TransitRouteAdapter(new BusanTransitNetworkPort(new ObjectMapper()), new TransitProperties(),
 				new TransitFareCalculator(new TransitFareTable(new ObjectMapper())));
 	}
 
@@ -170,6 +179,165 @@ class BusanBusNetworkIntegrationTest {
 				.filter(route -> route.firstMinOfDay() != 0
 						|| route.lastMinOfDay() != TransitNetwork.MINUTES_PER_DAY - 1)
 				.count();
+	}
+
+	// ── 지하철 — S15P21E201-1310 ────────────────────────────────────────────
+
+	@Test
+	@DisplayName("🔴 버스와 지하철이 한 지도 위에 있다 — 따로 올라가면 갈아타는 경로만 조용히 안 나온다")
+	void busAndSubwayShareOneNetwork() {
+		TransitNetwork loaded = network();
+
+		long busStops = loaded.stops().stream().filter(stop -> stop.kind() == TransitNetwork.Kind.BUS).count();
+		long subwayStops = loaded.stops().stream().filter(stop -> stop.kind() == TransitNetwork.Kind.SUBWAY).count();
+
+		assertThat(busStops).as("버스 정류장이 안 올라왔다").isGreaterThan(5_000);
+		assertThat(subwayStops).as("지하철 역이 안 올라왔다 — 부산 도시철도는 114역이다").isEqualTo(114);
+	}
+
+	@Test
+	@DisplayName("🔴 지하철은 평일 것만 올린다 — 셋을 다 올리면 화요일 일정에 일요일 배차가 섞인다")
+	void onlyWeekdaySubwayRoutesAreLoaded() {
+		TransitNetwork loaded = network();
+
+		List<TransitNetwork.Route> subwayRoutes = subwayRoutesOf(loaded);
+
+		// 4호선 × 상행·하행 = 8. 요일(평일·토·일)을 안 거르면 24가 된다.
+		assertThat(subwayRoutes)
+				.as("지하철 노선이 %d갈래다 — 8이 아니면 요일 거르기가 안 먹은 것이다", subwayRoutes.size())
+				.hasSize(8);
+	}
+
+	@Test
+	@DisplayName("🔴 식별자가 안 겹친다 — 겹치면 한쪽이 조용히 덮어써지고 「갈 수는 있는데 못 찾는」 경로가 생긴다")
+	void theTwoSourcesDoNotShareIds() {
+		TransitNetwork loaded = network();
+
+		assertThat(loaded.stops()).as("정류장·역 식별자가 겹쳤다")
+				.extracting(TransitNetwork.Stop::id).doesNotHaveDuplicates();
+	}
+
+	@Test
+	@DisplayName("지하철 이름에 「번」을 안 붙인다 — 붙이면 「1호선번」이 된다")
+	void subwayRoutesAreNotCalledNumbers() {
+		TransitNetwork loaded = network();
+
+		assertThat(subwayRoutesOf(loaded))
+				.extracting(TransitNetwork.Route::name)
+				.allSatisfy(name -> assertThat(name).doesNotContain("번"))
+				.contains("1호선", "2호선", "3호선", "4호선");
+	}
+
+	@Test
+	@DisplayName("🔴 소수 배차간격을 잘라 버리지 않는다 — 1호선 6.5분이 6이 되면 기다리는 시간을 낮잡는다")
+	void fractionalHeadwayIsRoundedNotTruncated() {
+		TransitNetwork loaded = network();
+
+		TransitNetwork.Route line1 = subwayRoutesOf(loaded).stream()
+				.filter(route -> route.name().equals("1호선"))
+				.findFirst().orElseThrow();
+
+		// 원천이 6.5 다. 자르면 6, 반올림하면 7.
+		assertThat(line1.headwayMin()).as("6 이면 잘라 버린 것이다 — 언제나 짧은 쪽으로만 틀린다").isEqualTo(7);
+	}
+
+	@Test
+	@DisplayName("지하철도 첫차·막차를 싣는다 — 자정을 넘겨 다니는 것이 뒤집히지 않는다")
+	void subwayCarriesItsServiceWindow() {
+		TransitNetwork loaded = network();
+
+		TransitNetwork.Route line1 = subwayRoutesOf(loaded).stream()
+				.filter(route -> route.name().equals("1호선"))
+				.findFirst().orElseThrow();
+
+		// 1호선은 05시대에 시작해 자정을 넘겨 끝난다 — first > last 가 정상이다.
+		assertThat(line1.firstMinOfDay()).as("첫차가 안 실렸다").isGreaterThan(4 * 60);
+		assertThat(line1.runsAt(12 * 60)).as("낮에 안 다니는 것으로 읽혔다").isTrue();
+		assertThat(line1.runsAt(3 * 60)).as("새벽 3시에 다니는 것으로 읽혔다").isFalse();
+	}
+
+	@Test
+	@DisplayName("🔴 서면에서 지하철을 탈 수 있다 — 역과 노선이 실제로 이어져 있다")
+	void seomyeonIsServedBySubwayRoutes() {
+		TransitNetwork loaded = network();
+
+		List<String> stationIds = loaded.stops().stream()
+				.filter(stop -> stop.kind() == TransitNetwork.Kind.SUBWAY)
+				.filter(stop -> stop.name().contains("서면"))
+				.map(TransitNetwork.Stop::id)
+				.toList();
+		assertThat(stationIds).as("서면역이 없다").isNotEmpty();
+
+		long linesThere = stationIds.stream()
+				.flatMap(id -> loaded.routesAt(id).stream())
+				.distinct().count();
+		// 서면은 1호선·2호선 환승역이라 방향까지 세면 넷이다.
+		assertThat(linesThere).as("서면에 지하철 노선이 %d갈래다 — 환승역인데 너무 적다", linesThere)
+				.isGreaterThanOrEqualTo(4);
+	}
+
+	@Test
+	@DisplayName("🔴 지하철 구간에 요금이 붙는다 — 요금 계산기는 있었는데 잴 대상이 없었다")
+	void aSubwayJourneyHasAFare() {
+		TransitNetwork loaded = network();
+		TransitFareCalculator calculator = new TransitFareCalculator(new TransitFareTable(new ObjectMapper()));
+
+		TransitNetwork.Route line1 = subwayRoutesOf(loaded).stream()
+				.filter(route -> route.name().equals("1호선"))
+				.findFirst().orElseThrow();
+		String from = line1.stopIds().get(0);
+		String to = line1.stopIds().get(line1.stopIds().size() - 1);
+
+		RaptorPlanner.Ride ride = new RaptorPlanner.Ride(line1.id(), from, to, 9 * 60, 10 * 60);
+		Integer fare = calculator.fareKrw(
+				new RaptorPlanner.Journey(List.of(ride), 9 * 60, 10 * 60, 0), loaded);
+
+		// 1호선 끝에서 끝은 10km 를 훨씬 넘는다 — 2구간이다.
+		assertThat(fare).as("지하철 구간에 요금이 안 붙었다").isEqualTo(1800);
+	}
+
+	@Test
+	@DisplayName("🔴 한 노선으로 가는 길은 지하철이 후보가 된다 — 부산역 → 서면은 1호선 한 번이다")
+	void aSingleLineTripCanNowGoBySubway() {
+		Optional<RouteLeg> leg = adapter().find(new RouteQuery(
+				BUSAN_STATION_LAT, BUSAN_STATION_LNG, SEOMYEON_LAT, SEOMYEON_LNG, TravelMode.TRANSIT));
+
+		assertThat(leg).as("부산역에서 서면까지 대중교통 경로를 못 찾았다").isPresent();
+		System.out.println("### 부산역 → 서면 " + leg.get().durationMin() + "분 · " + leg.get().steps());
+
+		assertThat(leg.get().steps())
+				.as("1호선 한 번이면 가는 길인데 지하철이 안 나왔다: %s", leg.get().steps())
+				.anyMatch(step -> step.name().contains("호선"));
+	}
+
+	/**
+	 * 🔴 <b>갈아타는 길은 아직 안 나온다.</b> 부산역 → 해운대는 1호선에서 2호선으로 갈아타야
+	 * 하는데, 탐색기가 <b>한 번 타는 길만</b> 본다({@code HeadwayJourneyPlanner} 주석). 그래서
+	 * 그 구간은 지하철이 있어도 버스로 답한다.
+	 *
+	 * <p>이 시험은 <b>그 한계를 적어 두는 것</b>이다. 못 하는 것을 시험으로 남기지 않으면,
+	 * 나중에 환승이 들어왔을 때 <b>무엇이 달라졌는지</b>를 아무도 못 가리킨다. 환승이 되면
+	 * 이 시험이 먼저 빨개진다 — 그때 지우면 된다.
+	 */
+	@Test
+	@DisplayName("⚠️ 갈아타야 하는 길은 아직 지하철이 안 나온다 — 환승이 들어오면 이 시험이 먼저 빨개진다")
+	void aTripNeedingATransferStillFallsBackToBus() {
+		Optional<RouteLeg> leg = adapter().find(new RouteQuery(
+				BUSAN_STATION_LAT, BUSAN_STATION_LNG, HAEUNDAE_LAT, HAEUNDAE_LNG, TravelMode.TRANSIT));
+
+		assertThat(leg).isPresent();
+		assertThat(leg.get().steps())
+				.as("갈아타는 길이 나왔다 — 환승이 들어온 것이라면 이 시험을 지워라: %s", leg.get().steps())
+				.hasSize(1);
+	}
+
+	private static List<TransitNetwork.Route> subwayRoutesOf(TransitNetwork loaded) {
+		return loaded.stops().stream()
+				.flatMap(stop -> loaded.routesAt(stop.id()).stream())
+				.distinct()
+				.map(loaded::route)
+				.filter(route -> route != null && route.kind() == TransitNetwork.Kind.SUBWAY)
+				.toList();
 	}
 
 	@Test
