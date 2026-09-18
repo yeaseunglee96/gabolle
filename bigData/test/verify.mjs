@@ -3,7 +3,7 @@
  * bigData 파트 검증. 판정은 종료 코드다 (0 성공 / 그 외 실패).
  * 개수를 여기에 적지 않는다 — 늘릴 때마다 낡는다.
  */
-import { readFile, readdir, access, mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { readFile, readdir, access, mkdtemp, rm, writeFile, mkdir, copyFile } from 'node:fs/promises'
 import { execFileSync } from 'node:child_process'
 import { join, dirname } from 'node:path'
 import { tmpdir } from 'node:os'
@@ -187,6 +187,55 @@ await t('경사 기준선 보정 불변식', async () => {
   if (s.representativeStat?.startsWith('max'))
     throw new Error('대표값이 최댓값이다 — 잡음 표본 하나에 끌려간다')
   ok(`대표값 ${s.representativeStat.split(' ')[0]}`)
+})
+
+await t('기대값은 검증이 통과했을 때만 파일에 남는다 (S15P21E201-1266)', async () => {
+  // 🔴 검증 표본이 틀리면 화면에 "위 기대값을 쓰지 마십시오" 가 뜬다. 그런데 그 말은
+  //    사라지고 파일은 남는다. 실제로 판정 실패·실측 자리에 자리표시자 9999 가 박힌 채
+  //    저장소에 커밋돼 있었다. 스크립트를 안 돌리고 파일만 연 사람은 그것을 믿는다.
+  const dir = await mkdtemp(join(tmpdir(), 'bigdata-expected-'))
+  try {
+    // ① 일부러 검증이 틀어지는 가짜 자료를 깔고 진짜 스크립트를 돌린다
+    await mkdir(join(dir, 'process'), { recursive: true })
+    await mkdir(join(dir, 'data/raw/tourapi'), { recursive: true })
+    await mkdir(join(dir, 'data/staged'), { recursive: true })
+    await copyFile(join(ROOT, 'process/expected-feature-rows.mjs'), join(dir, 'process/expected-feature-rows.mjs'))
+
+    // 관광공사 수집본은 응답 봉투 안에 JSON 이 한 번 더 들어 있는 모양이다
+    const envelope = { response: { body: { items: { item: [{ contentid: 'T1', contenttypeid: '12' }] } } } }
+    await writeFile(
+      join(dir, 'data/raw/tourapi/tourapi-busan.ndjson'),
+      JSON.stringify({ raw: JSON.stringify(envelope) }) + '\n',
+    )
+    // 축 넷 × (관광공사·상가) 한 줄씩. 경사 합계가 2 라 검증 표본과 어긋난다 — 일부러다
+    for (const [name, field] of [
+      ['place-slope', 'slopePercent'], ['place-quietness', 'quietnessScore'],
+      ['place-locality', 'localityScore'], ['place-shade', 'shadeScore'],
+    ]) {
+      await writeFile(join(dir, 'data/staged/' + name + '.ndjson'), JSON.stringify({ contentid: 'T1', [field]: 1 }) + '\n')
+      await writeFile(join(dir, 'data/staged/' + name + '-sbiz.ndjson'), JSON.stringify({ sourceId: 'S1', [field]: 1 }) + '\n')
+    }
+
+    let code = 0
+    try { execFileSync(process.execPath, [join(dir, 'process/expected-feature-rows.mjs')], { stdio: 'pipe' }) }
+    catch (e) { code = e.status }
+    if (code !== 1) throw new Error('검증 표본이 틀렸는데 종료 코드가 ' + code + ' 다 — 1 이어야 한다')
+
+    const made = JSON.parse(await readFile(join(dir, 'data/staged/_expected-feature-rows.json'), 'utf8'))
+    if (made.calibration.ok !== false) throw new Error('판정이 파일에 실패로 안 적혔다')
+    if (made.axes) throw new Error('검증이 틀렸는데 기대값 숫자가 파일에 남았다 — 다음 사람이 그것을 믿는다')
+    if (!made.notUsable) throw new Error('왜 숫자가 없는지가 파일에 안 적혔다')
+    ok('검증 실패 — 종료 코드 1 · 파일에 숫자 없음 · 이유는 적힘')
+
+    // ② 저장소에 커밋된 파일도 판정과 숫자의 짝이 맞아야 한다
+    if (!await has('data/staged/_expected-feature-rows.json')) return ok('기대값 미계산 — 건너뜀')
+    const repo = JSON.parse(await readFile(join(ROOT, 'data/staged/_expected-feature-rows.json'), 'utf8'))
+    if (repo.calibration.ok && !repo.axes) throw new Error('검증은 통과했는데 기대값이 없다')
+    if (!repo.calibration.ok && repo.axes) throw new Error('저장소의 기대값 파일이 실패한 실행의 숫자를 갖고 있다')
+    ok('저장소 파일 — 판정 ' + (repo.calibration.ok ? '통과' : '실패') + ' · 숫자 ' + (repo.axes ? '있음' : '없음') + ' (짝이 맞는다)')
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
 })
 
 console.log(failed ? `\n🔴 ${failed}건 실패` : '\n전부 통과')
