@@ -80,6 +80,21 @@ public class AppUser {
 	@Column(name = "avatar_url", length = 500)
 	private String avatarUrl;
 
+	/**
+	 * 커버 사진 주소 (S15P21E201-1297). 마이페이지 맨 위에 전폭으로 깔리는 사진이다.
+	 *
+	 * <p>프로필 사진과 <b>같은 업로드 자리</b>에서 나온 주소가 들어온다 — 창구를 새로 만들지
+	 * 않았다. 다른 점은 <b>주소를 받아들이는 기준</b>이다. 프로필 사진은 주소의 앞부분만 보는데
+	 * (「우리 서버에서 나온 주소인가」), 커버는 <b>올린 사람이 본인인지</b>까지 본다 —
+	 * 그 판정은 {@code ProfileUpdateService} 가 소유한다.
+	 *
+	 * <p>{@code null} 은 "안 골랐다" 다. 기본 사진 주소를 여기 넣지 않는다 — 넣으면 "고른 사람"
+	 * 과 "안 고른 사람" 을 표에서 구분할 수 없어진다. 기본 사진은 화면이 고른다
+	 * ({@code ck_app_user_cover_url_not_blank} 가 빈 문자열도 막는다).
+	 */
+	@Column(name = "cover_url", length = 500)
+	private String coverUrl;
+
 	protected AppUser() {
 	}
 
@@ -132,6 +147,20 @@ public class AppUser {
 		this.avatarUrl = avatarUrl;
 	}
 
+	/**
+	 * 커버 사진을 바꾸거나 뗀다 (S15P21E201-1297).
+	 *
+	 * <p>{@code null} 이 "뗀다" 다 — {@link #changeAvatarUrl} 과 같은 규칙이다. 주소가 <b>본인이
+	 * 올린 사진</b>인지는 부르는 쪽이 확인한 뒤 넘긴다. 그 판정에는 업로드 표를 봐야 하는데,
+	 * 엔티티가 남의 표를 들여다보게 만들면 이 클래스를 시험하려고 DB 를 띄워야 한다.
+	 */
+	public void changeCoverUrl(String coverUrl) {
+		if (coverUrl != null && coverUrl.isBlank()) {
+			throw new IllegalArgumentException("커버 사진 주소는 빈 문자열일 수 없다 — 떼려면 null 을 넘긴다");
+		}
+		this.coverUrl = coverUrl;
+	}
+
 	/** 표시 언어를 바꾼다. 값 정규화는 부르는 쪽이 끝낸 뒤 넘긴다. */
 	public void changeLanguage(String language) {
 		if (language == null || language.isBlank()) {
@@ -174,6 +203,12 @@ public class AppUser {
 
 	public void anonymizeForDeletion(Instant deletedAt) {
 		this.displayName = "탈퇴한 사용자";
+		// 🔴 사진 주소도 비운다 (S15P21E201-1297). 탈퇴는 올린 사진 파일을 실제로 지우므로
+		//    (AccountDeletionService.deleteUploadedFiles) 이 주소는 **없는 파일을 가리킨 채** 남는다.
+		//    그리고 탈퇴한 사람도 동행자 목록·팔로우 목록에는 "탈퇴한 사용자" 로 남는데, 이름만
+		//    지우고 얼굴을 남겨 두면 지운 것이 아니다.
+		this.avatarUrl = null;
+		this.coverUrl = null;
 		this.ageVerifiedAt = null;
 		this.personalizationMode = PersonalizationMode.EXPLICIT_ONLY;
 		this.status = UserStatus.DELETED;
@@ -307,5 +342,9 @@ public class AppUser {
 
 	public String getAvatarUrl() {
 		return avatarUrl;
+	}
+
+	public String getCoverUrl() {
+		return coverUrl;
 	}
 }

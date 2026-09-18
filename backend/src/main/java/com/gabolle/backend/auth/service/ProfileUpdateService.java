@@ -12,6 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.gabolle.backend.auth.api.AuthUserResponse;
 import com.gabolle.backend.auth.api.UpdateProfileRequest;
+import com.gabolle.backend.story.domain.UploadedImage;
+import com.gabolle.backend.story.repository.UploadedImageRepository;
 import com.gabolle.backend.user.domain.AppUser;
 import com.gabolle.backend.user.domain.UserStatus;
 import com.gabolle.backend.user.repository.AppUserRepository;
@@ -54,11 +56,26 @@ public class ProfileUpdateService {
 	 */
 	private final List<String> allowedAvatarUrlPrefixes;
 
+	/**
+	 * 커버 사진 주소가 <b>본인이 올린 것</b>인지 보려면 업로드 표를 봐야 한다 (S15P21E201-1297).
+	 *
+	 * <p>🔴 프로필 사진이 쓰는 <b>앞부분 검사만으로는 부족하다.</b> 그 검사가 답하는 질문은
+	 * 「우리 서버에서 나온 주소인가」인데, <b>남이 올린 사진도 우리 서버 주소다.</b> 주소를
+	 * 알아내면 그대로 통과한다.
+	 *
+	 * <p>기록에 사진 붙이는 길은 처음부터 <b>올린 사람</b>을 본다
+	 * ({@code StoryService.resolveImages} → {@code UploadedImage.isOwnedBy}). 커버는 그쪽 규칙을
+	 * 쓴다 — 표에 없는 외부 주소는 조회 자체가 안 되므로 앞부분 검사까지 겸한다.
+	 */
+	private final UploadedImageRepository uploadedImageRepository;
+
 	public ProfileUpdateService(AppUserRepository userRepository, CurrentUserService currentUserService,
+			UploadedImageRepository uploadedImageRepository,
 			@Value("${gabolle.storage.public-base-path:}") String storagePublicBasePath,
 			@Value("${gabolle.storage.s3.public-base-url:}") String s3PublicBaseUrl) {
 		this.userRepository = userRepository;
 		this.currentUserService = currentUserService;
+		this.uploadedImageRepository = uploadedImageRepository;
 		this.allowedAvatarUrlPrefixes = Stream.of(storagePublicBasePath, s3PublicBaseUrl)
 				.filter(prefix -> prefix != null && !prefix.isBlank())
 				.map(String::trim)
@@ -93,6 +110,13 @@ public class ProfileUpdateService {
 		else if (request.avatarUrl() != null) {
 			user.changeAvatarUrl(requireAllowedAvatarUrl(request.avatarUrl()));
 		}
+		// 커버 사진도 「빈 문자열 = 뗀다」로 같다. 다만 받아들이는 기준이 더 좁다 — 아래 참고.
+		if (request.removesCover()) {
+			user.changeCoverUrl(null);
+		}
+		else if (request.coverUrl() != null) {
+			user.changeCoverUrl(requireOwnUploadUrl(userId, request.coverUrl()));
+		}
 
 		CurrentUserService.CurrentUser currentUser = this.currentUserService.get(userId);
 		return AuthUserResponse.from(currentUser.user(), currentUser.email());
@@ -104,6 +128,32 @@ public class ProfileUpdateService {
 		boolean allowed = this.allowedAvatarUrlPrefixes.stream().anyMatch(trimmed::startsWith);
 		if (!allowed) {
 			throw new AuthException("AVATAR_URL_NOT_ALLOWED", "프로필 사진은 올린 사진의 주소만 쓸 수 있습니다.",
+					HttpStatus.BAD_REQUEST);
+		}
+		return trimmed;
+	}
+
+	/**
+	 * 본인이 올린 사진의 주소만 통과시킨다 (S15P21E201-1297).
+	 *
+	 * <p>🔴 <b>두 거절을 다른 말로 한다.</b> 「올라가 있지 않다」와 「남의 것이다」는 고치는 방법이
+	 * 다르다 — 앞은 다시 올리면 되고 뒤는 그 사진을 못 쓴다. 한 메시지로 합치면 사용자가 무엇을
+	 * 해야 할지 모른다. 주소에 무작위 식별자가 들어 있어 이 구분으로 남의 사진 목록을 훑을 수는 없다.
+	 *
+	 * <p>🔴 <b>둘 다 400 이다.</b> 「남의 것」은 403 이 어울려 보이지만, 화면은 보통 403 을
+	 * 「로그인이 풀렸다」로 읽고 사람을 로그아웃시킨다. 커버 사진 하나 때문에 세션이 끊기는 것은
+	 * 실제 문제보다 훨씬 큰 일이다.
+	 */
+	private String requireOwnUploadUrl(UUID userId, String coverUrl) {
+		String trimmed = coverUrl.trim();
+		UploadedImage upload = this.uploadedImageRepository.findByImageUrlIn(List.of(trimmed)).stream()
+				.filter(candidate -> !candidate.isDeleted())
+				.findFirst()
+				.orElseThrow(() -> new AuthException("COVER_URL_NOT_UPLOADED",
+						"올라가 있지 않은 사진 주소입니다.", HttpStatus.BAD_REQUEST));
+		if (!upload.isOwnedBy(userId)) {
+			// 주소를 알아내도 남이 올린 것은 못 쓴다 — 기록에 사진 붙이는 길과 같은 규칙이다.
+			throw new AuthException("COVER_URL_NOT_OWNED", "내가 올린 사진만 커버로 쓸 수 있습니다.",
 					HttpStatus.BAD_REQUEST);
 		}
 		return trimmed;
