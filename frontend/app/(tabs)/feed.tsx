@@ -1,7 +1,7 @@
 // 여행 기록 피드 —재설계 1단계(구조).
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
-import { ActivityIndicator, Image, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, Animated, Easing, Image, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { useAuth } from '@/auth/AuthProvider';
@@ -315,8 +315,18 @@ function InlineCompose({ onPosted }: { onPosted: () => void }) {
 }
 
 /** 추억 지도 — 좌표가 붙은 기록만 지도에 찍는다. */
-function MemoryMap({ items, onOpenStory }: { items: StoryDto[]; onOpenStory: (id: string) => void }) {
+function MemoryMap({ items, onOpenStory, sheet = false, onCollapse }: {
+  items: StoryDto[];
+  onOpenStory: (id: string) => void;
+  /** 폰에서 탭바가 늘어난 시트 안인가. 판 대신 시트 모양으로 그린다. */
+  sheet?: boolean;
+  onCollapse?: () => void;
+}) {
   const { tx } = useI18n();
+  // 시트 안에서는 지도가 남는 높이를 다 쓴다. 그런데 지도는 높이를 숫자로 받으므로
+  // 자리를 재서 넘긴다 — 시트 높이에서 빼는 산수를 적어 두면 안쪽 여백을 고칠 때마다
+  // 그 식이 조용히 틀어진다.
+  const [mapHeight, setMapHeight] = useState(0);
   const stops = items
     .filter((story) => typeof story.place?.lat === 'number' && typeof story.place?.lng === 'number')
     .map((story, index) => ({
@@ -335,6 +345,67 @@ function MemoryMap({ items, onOpenStory }: { items: StoryDto[]; onOpenStory: (id
 
   if (!stops.length) return null;
 
+  const labels = stops.map((stop) => {
+    const active = stop.id === current;
+    return (
+      <Pressable
+        key={stop.id}
+        accessibilityRole="button"
+        accessibilityState={{ selected: active }}
+        accessibilityLabel={active
+          ? tx(`${stop.name} 기록 보기`, `Open the record at ${stop.name}`)
+          : tx(`${stop.name} 지도에서 보기`, `Show ${stop.name} on the map`)}
+        onPress={() => (active ? onOpenStory(stop.id) : setSelected(stop.id))}
+        style={[styles.pinLabel, active && styles.pinLabelActive]}
+      >
+        <Text variant="caption" weight="bold" color={active ? color.text.onAction : color.text.heading} numberOfLines={1}>
+          {stop.name}
+        </Text>
+      </Pressable>
+    );
+  });
+
+  if (sheet) {
+    return <>
+      {/* 위 손잡이 — 시트를 내린다. 시안 04b 의 36×4 막대이고, 누르는 자리는 그보다 넓다. */}
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={tx('지도 내리기', 'Hide the map')}
+        onPress={onCollapse}
+        style={styles.sheetHandleHit}
+      >
+        <View style={styles.sheetHandle} />
+      </Pressable>
+
+      <View style={styles.sheetHeader}>
+        <Eyebrow>{tx('추억 지도', 'Memory map')}</Eyebrow>
+        <Pressable accessibilityRole="button" onPress={onCollapse} style={styles.sheetClose}>
+          <Text variant="caption" weight="bold" color={color.text.heading}>{tx('지도 내리기', 'Hide map')}</Text>
+        </Pressable>
+      </View>
+
+      <View style={styles.sheetMap} onLayout={(event) => setMapHeight(Math.round(event.nativeEvent.layout.height))}>
+        {mapHeight > 0
+          ? <RouteMap stops={stops} selectedId={current ?? stops[0].id} onSelect={onOpenStory} height={mapHeight} />
+          : null}
+      </View>
+
+      {/* 가로로 흐르는 줄. 폰에서는 줄바꿈하면 지도가 그만큼 눌린다. */}
+      {/* 🔴 가로 줄은 기본이 「아이들을 세로로 늘리기」다. 그대로 두면 장소 칩이
+          지도만큼 키가 커져서 지도를 위로 밀어낸다 — 폰에서만 보이는 종류다. */}
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.sheetRailBox}
+        contentContainerStyle={styles.sheetRail}
+      >
+        {labels}
+      </ScrollView>
+
+      <Text variant="caption" color={color.text.muted}>{tx(`좌표 있는 기록 ${stops.length}개`, `${stops.length} records with coordinates`)}</Text>
+    </>;
+  }
+
   return <View style={styles.mapPanel}>
     <Eyebrow>{tx('추억 지도', 'Memory map')}</Eyebrow>
     <View style={styles.mapCard}>
@@ -345,27 +416,7 @@ function MemoryMap({ items, onOpenStory }: { items: StoryDto[]; onOpenStory: (id
         「누르면 곧바로 이동」이 아니다. 지도를 보며 고르는 자리라, 첫 누름은 지도에서
         찾아 주는 것이어야 한다. 이동은 이미 골라진 것을 다시 누를 때다.
     */}
-    <View style={styles.pinLabels}>
-      {stops.map((stop) => {
-        const active = stop.id === current;
-        return (
-          <Pressable
-            key={stop.id}
-            accessibilityRole="button"
-            accessibilityState={{ selected: active }}
-            accessibilityLabel={active
-              ? tx(`${stop.name} 기록 보기`, `Open the record at ${stop.name}`)
-              : tx(`${stop.name} 지도에서 보기`, `Show ${stop.name} on the map`)}
-            onPress={() => (active ? onOpenStory(stop.id) : setSelected(stop.id))}
-            style={[styles.pinLabel, active && styles.pinLabelActive]}
-          >
-            <Text variant="caption" weight="bold" color={active ? color.text.onAction : color.text.heading} numberOfLines={1}>
-              {stop.name}
-            </Text>
-          </Pressable>
-        );
-      })}
-    </View>
+    <View style={styles.pinLabels}>{labels}</View>
 
     <Text variant="caption" color={color.text.muted}>{tx(`좌표 있는 기록 ${stops.length}개`, `${stops.length} records with coordinates`)}</Text>
   </View>;
@@ -420,6 +471,16 @@ export default function Feed() {
   // 폰에서 지도를 폈나. 넓은 화면은 늘 떠 있어 이 값을 안 본다.
   const insets = useSafeAreaInsets();
   const [mapOpen, setMapOpen] = useState(false);
+  // 시트가 열리면 떠 있는 단추가 비켜 준다 — 막대가 자라는 것보다 빨리 사라진다.
+  const fade = useRef(new Animated.Value(1)).current;
+  useEffect(() => {
+    Animated.timing(fade, {
+      toValue: mapOpen ? 0 : 1,
+      duration: 200,
+      easing: Easing.out(Easing.quad),
+      useNativeDriver: false,
+    }).start();
+  }, [mapOpen, fade]);
   const [reportingStoryId, setReportingStoryId] = useState<string | null>(null);
   const [savingStoryId, setSavingStoryId] = useState<string | null>(null);
   const [reactingStoryId, setReactingStoryId] = useState<string | null>(null);
@@ -651,12 +712,8 @@ export default function Feed() {
         ? <View style={styles.wideGrid}>{feedColumn}{aside}</View>
         : <>
             {feedColumn}
-            {/* 폰에서 지도를 접었다 편다 (시안 5번).
-                넓은 화면은 오른쪽에 지도 패널이 늘 떠 있지만 폰에는 그 자리가 없다.
-                그렇다고 목록 위에 지도를 항상 깔면 정작 보러 온 기록이 밀린다.
-                그래서 부를 때만 편다.
-            */}
-            {mapOpen ? <View style={styles.phoneMap}><MemoryMap items={items} onOpenStory={(id) => router.push(`/feed/${id}`)} /></View> : null}
+            {/* 폰의 지도는 목록 아래가 아니라 탭바가 늘어난 시트 안에 있다 (시안 04b).
+                목록 아래에 하나 더 그리면 보러 온 기록이 그만큼 밀린다. */}
           </>}
       <ReportModal visible={reportingStoryId !== null} onClose={() => setReportingStoryId(null)} onSubmit={submitReport} />
       <SignInPromptModal
@@ -671,7 +728,16 @@ export default function Feed() {
         `pointerEvents="box-none"` 이라 단추가 없는 자리는 손짓이 그대로 통과한다.
     */}
     {!wide
-      ? <View pointerEvents="box-none" style={[styles.fabDock, { paddingBottom: TAB_BAR_HEIGHT + tabBarBottomMargin(insets.bottom) + spacing[4] }]}>
+      ? <Animated.View
+          // 🔴 시트가 열리면 눌리지도 않아야 한다. 투명하기만 하면 지도를 누르려던
+          //    손가락이 「지도 표시하기」를 다시 누른다 — 바로 그 자리에 있다.
+          pointerEvents={mapOpen ? 'none' : 'box-none'}
+          style={[
+            styles.fabDock,
+            { paddingBottom: TAB_BAR_HEIGHT + tabBarBottomMargin(insets.bottom) + spacing[4] },
+            { opacity: fade, transform: [{ translateY: fade.interpolate({ inputRange: [0, 1], outputRange: [24, 0] }) }] },
+          ]}
+        >
           <Pressable
             accessibilityRole="button"
             accessibilityState={{ expanded: mapOpen }}
@@ -699,10 +765,19 @@ export default function Feed() {
                 <Text variant="title" weight="bold" color={color.text.onAction}>✎</Text>
               </Pressable>
             : null}
-        </View>
+        </Animated.View>
       : null}
 
-    <TabBar active="feed" />
+    {/* 폰에서는 이 막대가 지도 시트로 늘어난다 (시안 04b). 넓은 화면은 오른쪽에 지도가
+        늘 떠 있으므로 늘리지 않는다. */}
+    <TabBar
+      active="feed"
+      expanded={!wide && mapOpen}
+      onCollapse={() => setMapOpen(false)}
+      children={!wide
+        ? <MemoryMap items={items} onOpenStory={(id) => router.push(`/feed/${id}`)} sheet onCollapse={() => setMapOpen(false)} />
+        : undefined}
+    />
   </View>;
 }
 
@@ -722,7 +797,14 @@ const styles = StyleSheet.create({
   fabDock: { position: 'absolute', left: 0, right: 0, bottom: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing[3], paddingHorizontal: gutter },
   mapToggle: { minHeight: 48, justifyContent: 'center', paddingHorizontal: spacing[6], borderRadius: radius.full, backgroundColor: color.brand.navy },
   writeFab: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center', borderRadius: 24, backgroundColor: color.brand.orange },
-  phoneMap: { marginTop: spacing[4] },
+  // 시트 안 — 위 손잡이, 머리 줄, 지도, 장소 칩 가로 줄.
+  sheetHandleHit: { alignSelf: 'center', width: 44, height: 20, alignItems: 'center', justifyContent: 'center' },
+  sheetHandle: { width: 36, height: 4, borderRadius: 2, backgroundColor: color.surface.field },
+  sheetHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  sheetClose: { minHeight: 32, justifyContent: 'center', paddingHorizontal: spacing[3], borderRadius: radius.full, backgroundColor: color.surface.soft },
+  sheetMap: { flex: 1, borderWidth: 1, borderColor: color.surface.border, borderRadius: radius.md, overflow: 'hidden', backgroundColor: color.surface.soft },
+  sheetRailBox: { flexGrow: 0, flexShrink: 0 },
+  sheetRail: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
   // 480 은 시안 값이다. 전에는 320 이라 지도가 우표만 했고, 그 뒤 520 이었다.
   // 지도를 보라고 둔 칸인데 무엇이 어디인지 안 보였다.
   //
