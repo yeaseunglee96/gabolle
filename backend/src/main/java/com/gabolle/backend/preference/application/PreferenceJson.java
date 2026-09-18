@@ -55,10 +55,26 @@ import tools.jackson.databind.ObjectMapper;
  * 있고 설문 실측 비중도 0.21 인데, 답을 못 읽어 축이 매번 통째로 빠졌다. 그래서 경사의
  * 어휘를 사람이 정했다({@link #wordScore}).
  *
- * <p><b>그늘은 그대로 둔다.</b> 앱에 그늘을 묻는 화면이 아직 없어 여기만 고쳐도 살지 않고,
- * {@code SHADE_SCORE} 가 큰 쪽이 "그늘이 많다" 인지 "볕이 잘 든다" 인지 어디에도 안 적혀 있다.
- * 반대로 짝지으면 <b>정반대로 학습되면서 아무 오류도 안 난다.</b> 비중 0.39 는 값이 구해진
- * 축들로 다시 정규화되며 자동으로 재분배되므로, 미뤄 두어도 남은 축이 손해를 보지 않는다.
+ * <h2>🔴 2026-09-18 — 그늘도 풀었다 (S15P21E201-1222)</h2>
+ *
+ * 위 문단에 <i>"그늘은 그대로 둔다 — 앱에 그늘을 묻는 화면이 아직 없고, {@code SHADE_SCORE} 가
+ * 큰 쪽이 '그늘이 많다' 인지 '볕이 잘 든다' 인지 어디에도 안 적혀 있다"</i> 고 적혀 있었다.
+ * <b>두 근거가 다 틀렸거나 풀렸다.</b>
+ *
+ * <p><b>① 화면은 이미 있다.</b> {@code frontend/app/(plan)/constraints.tsx} 의 「길 환경」 칸에
+ * 「그늘길 우선」 스위치가 「가파른 경사 피하기」·「계단 피하기」와 나란히 있고, 켜면
+ * {@code tripApi.ts} 가 {@code "PREFER"} 를 보낸다. 즉 <b>사용자는 이미 답하고 있었고 서버가
+ * 버리고 있었다</b> — 경사와 똑같은 모양의 결함이 하나 더 있었던 것이다.
+ *
+ * <p><b>② 방향이 적혔다. 큰 값이 「그늘 많음」이다.</b> 두 갈래로 확인했다(2026-09-18).
+ * 산출 스크립트({@code bigData/process/place-shade.mjs})의 머리말이 {@code 100 = 그늘 많음 ·
+ * 0 = 그늘 적음} 이라고 적어 뒀고, 산출물로 직접 재니 <b>그늘 점수와 나무 밀도의 상관이
+ * +0.82</b> 였다(점수 0 인 곳은 나무 밀도 0, 99.9 인 곳은 0.75). 적재기가 100 으로 나누므로
+ * DB 의 {@code SHADE_SCORE} 는 <b>0~1 이고 클수록 그늘이 많다.</b>
+ *
+ * <p>🔴 <b>운영에 {@code SHADE_SCORE} 는 아직 하나도 안 들어가 있다.</b> 적재는 사람이 누르는
+ * 별도 작업이다. 이 판은 <b>자료가 들어왔을 때 축이 실제로 쓰이게</b> 한다 — 먼저 고쳐 두지
+ * 않으면 적재한 뒤에 "올렸는데 왜 그대로지" 를 또 찾게 된다. 경사가 정확히 그랬다.
  *
  * <p>🔴 <b>{@link #parseScore(String, ObjectMapper)}(차원 없는 판)은 일부러 그대로 뒀다.</b>
  * 취향 벡터를 접는 배치({@code TasteVectorFoldService})가 그것을 쓰는데, 거기까지 넓히면
@@ -159,7 +175,9 @@ public final class PreferenceJson {
 	 * <tr><td>{@code 0.7} (소수)</td><td>이미 0~1</td><td>{@code 0.7}</td></tr>
 	 * <tr><td>{@code {"score":0.7}}</td><td>이미 0~1</td><td>{@code 0.7}</td></tr>
 	 * <tr><td>{@code "AVOID"} (경사)</td><td>어휘 — 차원을 알 때만 푼다</td><td>{@code 0.0} = 평지 선호</td></tr>
-	 * <tr><td>{@code "PREFER"} 같은 그 밖의 낱말</td><td>어휘가 아직 안 정해졌다</td><td>{@code null}</td></tr>
+	 * <tr><td>{@code "PREFER"} (그늘)</td><td>어휘 — 차원을 알 때만 푼다</td><td>{@code 1.0} = 그늘 선호</td></tr>
+	 * <tr><td>{@code "ALLOW"}·{@code "NO_PREFERENCE"}</td><td>「상관없어요」</td><td>{@code null} = 이 축을 안 본다</td></tr>
+	 * <tr><td>그 밖의 낱말</td><td>어휘가 아직 안 정해졌다</td><td>{@code null}</td></tr>
 	 * </table>
 	 *
 	 * <p>🔴 <b>정수인가 소수인가로 눈금을 가른다.</b> 앱은 이 세 축에 언제나 <b>정수 1~5</b> 를
@@ -208,6 +226,15 @@ public final class PreferenceJson {
 	private static final String SLOPE_ALLOW = "ALLOW";
 
 	/**
+	 * 그늘 문항의 답 — 앱의 「그늘길 우선」을 켠 것 (S15P21E201-1222).
+	 * {@code frontend/app/(plan)/constraints.tsx} 와 글자 그대로 같아야 한다.
+	 */
+	private static final String SHADE_PREFER = "PREFER";
+
+	/** 그늘 문항의 답 — 「상관없어요」(스위치를 끈 것). */
+	private static final String SHADE_NO_PREFERENCE = "NO_PREFERENCE";
+
+	/**
 	 * 낱말로 온 답을 0~1 로 옮긴다 (S15P21E201-1188).
 	 *
 	 * <h2>🔴 눈금은 0~1 이다. 0~100 이 아니다</h2>
@@ -228,13 +255,23 @@ public final class PreferenceJson {
 	 * @return 0~1 점수, 또는 안 보기로 한 축이면 {@code null}
 	 */
 	private static Double wordScore(String dimension, String word) {
-		// 🔴 경사 말고는 어휘가 아직 안 정해졌다. 모르는 어휘를 지어내느니 축을 뺀다 —
-		//    그늘이 그 자리다(클래스 머리말 참고). 여기서 경고를 내지 않는 것은,
-		//    "아직 안 정했다" 는 결함이 아니라 결정이기 때문이다.
-		if (!TasteDimension.SLOPE_PREFERENCE.name().equals(dimension) || word == null) {
+		if (word == null) {
 			return null;
 		}
 		String normalized = word.trim().toUpperCase(Locale.ROOT);
+		if (TasteDimension.SLOPE_PREFERENCE.name().equals(dimension)) {
+			return slopeWord(normalized);
+		}
+		if (TasteDimension.SHADE_PREFERENCE.name().equals(dimension)) {
+			return shadeWord(normalized);
+		}
+		// 🔴 이 둘 말고는 어휘가 아직 안 정해졌다. 모르는 어휘를 지어내느니 축을 뺀다.
+		//    여기서 경고를 내지 않는 것은, "아직 안 정했다" 는 결함이 아니라 결정이기 때문이다.
+		return null;
+	}
+
+	/** 경사 — 「피하고 싶어요」는 평지 선호(0.0), 「상관없어요」는 이 축을 안 본다. */
+	private static Double slopeWord(String normalized) {
 		return switch (normalized) {
 			case SLOPE_AVOID -> 0.0;
 			case SLOPE_ALLOW -> null;
@@ -243,6 +280,30 @@ public final class PreferenceJson {
 				//    보내기 시작하면 축이 조용히 사라지는데, 그게 이 티켓의 결함 그 자체였다.
 				//    같은 일이 또 나면 이 줄이 알려 준다.
 				log.warn("경사 취향 답의 낱말을 모른다 — 축을 뺀다. word={}", normalized);
+				yield null;
+			}
+		};
+	}
+
+	/**
+	 * 그늘 — 「그늘길 우선」은 그늘이 가장 많은 곳(1.0), 「상관없어요」는 이 축을 안 본다
+	 * (S15P21E201-1222).
+	 *
+	 * <p>🔴 <b>{@code 1.0} 이 「그늘 많음」인 것은 장소 쪽 눈금이 그렇기 때문이다.</b>
+	 * {@code SHADE_SCORE} 는 0~1 이고 클수록 그늘이 많다 — 클래스 머리말에 실측 근거를 적었다.
+	 * 경사({@code SLOPE_PERCENT}) 와 달리 <b>100 으로 나누는 자리가 없다.</b> 그쪽만 장소 값이
+	 * 퍼센트라 채점기가 맞춰 주는 것이고({@code placeValueIsPercent}), 그늘은 양쪽 다 0~1 이다.
+	 *
+	 * <p>🔴 <b>「상관없어요」를 {@code 0.0} 으로 두지 않는다.</b> 0 은 "가장 낮게 답했다" =
+	 * <b>볕이 드는 곳을 가장 원한다</b> 는 뜻이 되어, 안 따진다고 답한 사람을 <b>골라서
+	 * 뙤약볕으로</b> 보낸다. 그러면서 아무 오류도 안 난다. 경사에서 같은 이유로 {@code null} 로 정했다.
+	 */
+	private static Double shadeWord(String normalized) {
+		return switch (normalized) {
+			case SHADE_PREFER -> 1.0;
+			case SHADE_NO_PREFERENCE -> null;
+			default -> {
+				log.warn("그늘 취향 답의 낱말을 모른다 — 축을 뺀다. word={}", normalized);
 				yield null;
 			}
 		};
