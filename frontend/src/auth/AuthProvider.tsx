@@ -3,7 +3,7 @@ import { Platform } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 import { useRouter } from 'expo-router';
 import { getApiLanguage, setRefreshHandler, setUnauthorizedHandler } from '@/api/client';
-import { deleteMe, getMe, login, logoutMobileSession, logoutWebSession, refreshMobileSession, refreshWebSession, updateMe, type AuthTokens, type AuthUser, type SignupLanguage } from './authApi';
+import { deleteMe, getMe, login, logoutMobileSession, logoutWebSession, refreshMobileSession, refreshWebSession, updateMe, type AuthTokens, type AuthUser, type SignupLanguage, type UpdateMeInput } from './authApi';
 import { useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
 import { clearSavedTrips } from '@/trip/tripLibrary';
 import { restoreMobileAuth } from './restoreMobileAuth';
@@ -11,7 +11,7 @@ import { restoreMobileAuth } from './restoreMobileAuth';
 const tx = (ko: string, en: string) => (getApiLanguage() === 'en' ? en : ko);
 
 const REFRESH_TOKEN_KEY = 'gabolle.refresh-token';
-type AuthContextValue = { accessToken: string | null; user: AuthUser | null; ready: boolean; signIn: (email: string, password: string) => Promise<void>; acceptTokens: (tokens: AuthTokens) => Promise<void>; updateProfile: (input: { displayName?: string; language?: SignupLanguage; avatarUrl?: string | null }) => Promise<void>; deleteAccount: (confirmation: string) => Promise<void>; clearSession: () => void; signOut: () => Promise<void> };
+type AuthContextValue = { accessToken: string | null; user: AuthUser | null; ready: boolean; signIn: (email: string, password: string) => Promise<void>; acceptTokens: (tokens: AuthTokens) => Promise<void>; updateProfile: (input: UpdateMeInput) => Promise<void>; deleteAccount: (confirmation: string) => Promise<void>; clearSession: () => void; signOut: () => Promise<void> };
 const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();

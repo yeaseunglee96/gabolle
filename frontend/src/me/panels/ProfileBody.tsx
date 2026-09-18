@@ -22,6 +22,9 @@ import { usePlan } from '@/plan/PlanProvider';
 
 // 박재현 님 계약 — 서버가 대소문자·앞뒤 공백까지 정확히 이 값과 비교한다.
 const DELETE_CONFIRMATION_PHRASE = 'DELETE';
+// 🔴 마이페이지 맨 위가 쓰는 것과 **같은 그림**이다. 여기서 다른 것을 쓰면 「기본으로」를
+//    누른 사람이 보는 미리보기와 실제 화면이 달라진다.
+const DEFAULT_COVER = require('../../../assets/home/web-hero.png');
 const NAME_MAX = 30;
 
 export function ProfileBody() {
@@ -53,6 +56,7 @@ export function ProfileBody() {
   const [displayName, setDisplayName] = useState(user?.displayName ?? (visualPreview ? '진미리' : ''));
   const [avatarUri, setAvatarUri] = useState<string | null>(null);
   const [pickingAvatar, setPickingAvatar] = useState(false);
+  const [pickingCover, setPickingCover] = useState(false);
   const [saving, setSaving] = useState(false);
   const [feedback, setFeedback] = useState<{ danger: boolean; text: string } | null>(null);
   const [deleteStep, setDeleteStep] = useState<0 | 1 | 2>(0);
@@ -126,6 +130,58 @@ export function ProfileBody() {
     }
     setFeedback({ danger: false, text: tx('기본 프로필로 돌아왔어요.', 'Your default profile was restored.') });
   }
+  // ── 커버 사진 (S15P21E201-1309) ──────────────────────────────────────────
+  //
+  // 🔴 프로필 사진과 달리 **이 기기에만 두는 길이 없다.** 커버는 계정에서 읽어 와 그리는
+  //    것뿐이라, 기기에만 저장하면 아무 데도 안 나온다. 「저장했어요」라고 말하고 아무
+  //    일도 안 일어나는 것이 제일 나쁘다 — 그래서 로그인 전에는 이 줄 자체를 안 그린다.
+  async function chooseCover() {
+    if (!accessToken || pickingCover) return;
+    setPickingCover(true);
+    setFeedback(null);
+    try {
+      // 3:1 로 자른다 — 맨 위에 띠로 깔리는 사진이라 정사각형으로 고르면 위아래가 잘린다.
+      const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], allowsEditing: true, aspect: [3, 1], quality: 0.7 });
+      if (result.canceled) return;
+      const asset = result.assets[0];
+      const uploaded = await uploadStoryImage({ uri: asset.uri, fileName: asset.fileName, mimeType: asset.mimeType }, accessToken);
+      if (uploaded.state !== 'success') {
+        setFeedback({ danger: true, text: uploaded.message });
+        return;
+      }
+      await updateProfile({ coverUrl: uploaded.imageUrl });
+      setFeedback({ danger: false, text: tx('커버 사진을 바꿨어요.', 'Your cover photo was updated.') });
+    } catch (cause) {
+      setFeedback({ danger: true, text: coverErrorText(cause) });
+    } finally {
+      setPickingCover(false);
+    }
+  }
+  async function removeCover() {
+    if (!accessToken || !user?.coverUrl) return;
+    setFeedback(null);
+    try {
+      await updateProfile({ coverUrl: null });
+      setFeedback({ danger: false, text: tx('기본 커버로 돌아왔어요.', 'The default cover was restored.') });
+    } catch (cause) {
+      setFeedback({ danger: true, text: coverErrorText(cause) });
+    }
+  }
+  /**
+   * 🔴 거절 둘을 **다른 말로** 한다. 서버가 일부러 갈라서 보내 준다.
+   *
+   * 「올라가 있지 않다」는 다시 올리면 되고, 「남의 것이다」는 그 사진을 못 쓴다 — 할 일이
+   * 정반대다. 한 문구로 뭉개면 사용자는 무엇을 해야 할지 모르고, 서버가 가른 수고도 사라진다.
+   */
+  function coverErrorText(cause: unknown): string {
+    if (cause instanceof ApiClientError) {
+      if (cause.code === 'COVER_URL_NOT_UPLOADED') return tx('사진이 올라가지 않았어요. 다시 골라 주세요.', 'The photo was not uploaded. Please choose it again.');
+      if (cause.code === 'COVER_URL_NOT_OWNED') return tx('내가 올린 사진만 커버로 쓸 수 있어요.', 'You can only use a photo you uploaded.');
+      return cause.message;
+    }
+    return tx('커버 사진을 바꾸지 못했어요.', 'Could not change the cover photo.');
+  }
+
   async function saveProfile() {
     if ((!user && !visualPreview) || !nameValid || saving) return;
     setSaving(true);
@@ -185,6 +241,39 @@ export function ProfileBody() {
           <View style={styles.statActions}>
             <Button label={tx('내 피드 보기', 'View my posts')} variant="ghost" compact onPress={() => router.push('/me/posts')} />
             <Button label={tx('프로필 공유', 'Share profile')} variant="ghost" compact onPress={() => void shareProfile()} />
+          </View>
+        </View>
+      ) : null}
+
+      {/* 🔴 로그인 전에는 아예 안 그린다. 커버는 계정에서만 읽히므로 기기에만 저장하면
+          아무 데도 안 나온다 — 「저장했어요」라고 말하고 아무 일도 안 일어나는 것이 제일 나쁘다. */}
+      {user ? (
+        <View style={styles.coverCard}>
+          <View style={styles.coverPreview}>
+            <Image
+              source={user.coverUrl ? { uri: user.coverUrl } : DEFAULT_COVER}
+              resizeMode="cover"
+              accessibilityLabel={user.coverUrl ? tx('현재 커버 사진', 'Current cover photo') : tx('기본 커버 사진', 'Default cover photo')}
+              style={styles.coverPhoto}
+            />
+          </View>
+          <View style={styles.coverActions}>
+            <View style={styles.coverCopy}>
+              <Text variant="caption" weight="bold" color={color.text.heading}>{tx('커버 사진', 'Cover photo')}</Text>
+              <Text variant="caption" color={color.text.muted}>
+                {user.coverUrl
+                  ? tx('마이페이지 맨 위에 깔려요', 'Shown across the top of your page')
+                  : tx('아직 기본 사진이에요', 'Using the default photo')}
+              </Text>
+            </View>
+            <Pressable accessibilityRole="button" disabled={pickingCover} onPress={() => void chooseCover()} style={({ pressed }) => [styles.photoButton, pressed && styles.pressed]}>
+              <Text variant="caption" weight="bold" color={color.brand.navy}>{pickingCover ? tx('올리는 중…', 'Uploading…') : tx('바꾸기', 'Change')}</Text>
+            </Pressable>
+            {user.coverUrl ? (
+              <Pressable accessibilityRole="button" onPress={() => void removeCover()} style={({ pressed }) => [styles.photoReset, pressed && styles.pressed]}>
+                <Text variant="caption" weight="medium">{tx('기본으로', 'Use default')}</Text>
+              </Pressable>
+            ) : null}
           </View>
         </View>
       ) : null}
@@ -281,6 +370,12 @@ const styles = StyleSheet.create({
   statRow: { flexDirection: 'row', justifyContent: 'space-around' },
   stat: { alignItems: 'center' },
   statActions: { flexDirection: 'row', gap: spacing[2], paddingTop: spacing[3], borderTopWidth: 1, borderTopColor: color.surface.border },
+  coverCard: { marginBottom: spacing[4], borderRadius: radius.lg, overflow: 'hidden', backgroundColor: color.surface.card },
+  coverPreview: { height: 96, backgroundColor: color.surface.soft },
+  coverPhoto: { width: '100%', height: '100%' },
+  coverActions: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], padding: spacing[3] },
+  coverCopy: { flex: 1, minWidth: 0 },
+
   card: { gap: spacing[6], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card },
   cardDesktop: { flexDirection: 'row', alignItems: 'flex-start', padding: spacing[6], borderWidth: 1, borderColor: color.surface.border },
   avatarColumn: { alignItems: 'center', gap: spacing[2] },
