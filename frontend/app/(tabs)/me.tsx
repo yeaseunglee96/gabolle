@@ -78,6 +78,13 @@ export default function Me() {
         onPress={() => router.push('/me/posts')}
         disabled={!user}
       />
+      {/* 사용자 리포트: "마이페이지에 저장 누르면 저장했던 피드들 뜨게" — S15P21E201-1221. */}
+      <InfoRow
+        label={tx('저장한 기록', 'Saved records')}
+        value="›"
+        onPress={() => router.push('/me/saved')}
+        disabled={!user}
+      />
       {/* 🔴 S15P21E201-1180 — 인스타그램처럼 팔로워·팔로잉을 눌러 목록으로 들어갈 수 있어야
           한다는 사용자 리포트. 숫자만 있던 자리를 실제 목록 화면으로 잇는다. */}
       <InfoRow

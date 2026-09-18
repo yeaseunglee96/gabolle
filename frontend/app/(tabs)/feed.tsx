@@ -30,7 +30,7 @@ import { useLayout } from '@/layout/useLayout';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { RouteMap } from '@/map/RouteMap';
-import { createStory, feedQueryKey, loadFeed, relativeStoryTime, reportStory, setFollowing, VISIBILITY_LABEL, type FeedLoadResult, type FeedScope, type StoryDto, type StoryReportReason, type StoryVisibility } from '@/social/stories';
+import { createStory, feedQueryKey, loadFeed, loadSavedStoryIds, relativeStoryTime, reportStory, setFollowing, setStoryReaction, setStorySaved, VISIBILITY_LABEL, type FeedLoadResult, type FeedScope, type StoryDto, type StoryReportReason, type StoryVisibility } from '@/social/stories';
 import { shouldPromptSignIn } from '@/social/signInPrompt';
 import { SignInPromptModal } from '@/social/SignInPromptModal';
 import { useStoryImages } from '@/social/useStoryImages';
@@ -104,9 +104,16 @@ function StoryCover({ story, compact, onOpen }: { story: StoryDto; compact: bool
   );
 }
 
-function StoryCard({ story, compact, showUnfollow, unfollowBusy, onUnfollow, onOpen, onOpenAuthor, onReport }: {
+function StoryCard({ story, compact, showUnfollow, unfollowBusy, saved, savingStar, reacting, onUnfollow, onOpen, onOpenAuthor, onReport, onToggleSave, onReact }: {
   story: StoryDto; compact: boolean; showUnfollow: boolean; unfollowBusy: boolean;
+  /** 내가 저장한 기록인가 — S15P21E201-1221. StoryDto엔 없는 칸이라 화면이 따로 들고 다닌다. */
+  saved: boolean;
+  savingStar: boolean;
+  /** 좋아요·싫어요 버튼이 서버 응답을 기다리는 중인가 — 연타 방지. */
+  reacting: boolean;
   onUnfollow: () => void; onOpen: () => void; onOpenAuthor: () => void; onReport: () => void;
+  onToggleSave: () => void;
+  onReact: (reaction: 'LIKE' | 'DISLIKE') => void;
 }) {
   const { tx } = useI18n();
   const hasPhoto = (story.images?.length ?? 0) > 0;
@@ -171,6 +178,47 @@ function StoryCard({ story, compact, showUnfollow, unfollowBusy, onUnfollow, onO
         {relativeStoryTime(story.createdAt, tx)}{story.region ? ` · ${story.region}` : ''}
       </Text>
     </Pressable>
+
+    {/* 좋아요·싫어요·저장 — S15P21E201-1174(반응 카운트, kojh0124 님)·-1221(저장).
+        🔴 myReaction은 세 값이다(null·LIKE·DISLIKE) — !myReaction으로 묶지 않는다. */}
+    <View style={styles.reactionRow}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={story.myReaction === 'LIKE' ? tx('좋아요 취소', 'Remove like') : tx('좋아요', 'Like')}
+        accessibilityState={{ selected: story.myReaction === 'LIKE', busy: reacting }}
+        disabled={reacting}
+        onPress={() => onReact('LIKE')}
+        style={[styles.reactionButton, reacting && styles.busy]}
+      >
+        <Text variant="caption" weight="bold" color={story.myReaction === 'LIKE' ? color.brand.orange : color.text.muted}>
+          {tx('👍', '👍')}{typeof story.likeCount === 'number' ? ` ${story.likeCount}` : ''}
+        </Text>
+      </Pressable>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={story.myReaction === 'DISLIKE' ? tx('싫어요 취소', 'Remove dislike') : tx('싫어요', 'Dislike')}
+        accessibilityState={{ selected: story.myReaction === 'DISLIKE', busy: reacting }}
+        disabled={reacting}
+        onPress={() => onReact('DISLIKE')}
+        style={[styles.reactionButton, reacting && styles.busy]}
+      >
+        <Text variant="caption" weight="bold" color={story.myReaction === 'DISLIKE' ? color.brand.navy : color.text.muted}>
+          {tx('👎', '👎')}{typeof story.dislikeCount === 'number' ? ` ${story.dislikeCount}` : ''}
+        </Text>
+      </Pressable>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={saved ? tx('저장 취소', 'Remove from saved') : tx('저장', 'Save')}
+        accessibilityState={{ selected: saved, busy: savingStar }}
+        disabled={savingStar}
+        onPress={onToggleSave}
+        style={[styles.reactionButton, savingStar && styles.busy]}
+      >
+        <Text variant="caption" weight="bold" color={saved ? color.brand.orange : color.text.muted}>
+          {saved ? tx('★ 저장됨', 'Saved') : tx('☆ 저장', 'Save')}
+        </Text>
+      </Pressable>
+    </View>
   </View>;
 }
 
@@ -440,6 +488,8 @@ export default function Feed() {
   const insets = useSafeAreaInsets();
   const [mapOpen, setMapOpen] = useState(false);
   const [reportingStoryId, setReportingStoryId] = useState<string | null>(null);
+  const [savingStoryId, setSavingStoryId] = useState<string | null>(null);
+  const [reactingStoryId, setReactingStoryId] = useState<string | null>(null);
   // S15P21E201-1012 — 로그인 유도. 🔴 주소를 나누지 않고 이 화면의 상태로만 다룬다.
   // 주소를 가르면 뒤로 가기·공유 링크·검색이 전부 갈라진다.
   const [promptingSignIn, setPromptingSignIn] = useState(false);
@@ -459,6 +509,54 @@ export default function Feed() {
   const result: FeedLoadResult = feedQuery.data ?? { state: 'success', items: [], nextCursor: null };
   const loading = feedQuery.isPending;
   const items = result.state === 'success' ? result.items : [];
+
+  // 저장 여부 — S15P21E201-1221. StoryDto엔 없는 칸이라 저장 id 집합을 따로 받아 대조한다.
+  const savedIdsQuery = useQuery({
+    queryKey: ['saved-story-ids', signedIn],
+    queryFn: () => loadSavedStoryIds(accessToken),
+    enabled: signedIn,
+  });
+  const savedIds = savedIdsQuery.data?.state === 'success' ? savedIdsQuery.data.ids : new Set<string>();
+
+  const toggleSave = async (story: StoryDto) => {
+    if (!signedIn) { setPromptingSignIn(true); return; }
+    const nextSaved = !savedIds.has(story.id);
+    setSavingStoryId(story.id);
+    const outcome = await setStorySaved(story.id, nextSaved, accessToken);
+    setSavingStoryId(null);
+    if (outcome.state !== 'success') return;
+    queryClient.setQueryData<{ state: 'success'; ids: Set<string> }>(['saved-story-ids', signedIn], (current) => {
+      const ids = new Set(current?.ids ?? []);
+      if (nextSaved) ids.add(story.id); else ids.delete(story.id);
+      return { state: 'success', ids };
+    });
+  };
+
+  /**
+   * 좋아요·싫어요 토글 — S15P21E201-1174. 같은 것을 다시 누르면 끄고(DELETE), 다른 것을
+   * 누르면 바꾼다(PUT). 서버가 세는 수를 낙관적으로 미리 맞춰 그린다 — 매번 목록을 다시
+   * 불러오면 스크롤 위치가 튄다.
+   */
+  const react = async (story: StoryDto, reaction: 'LIKE' | 'DISLIKE') => {
+    if (!signedIn) { setPromptingSignIn(true); return; }
+    if (reactingStoryId) return;
+    const was = story.myReaction ?? null;
+    const next = was === reaction ? null : reaction;
+    setReactingStoryId(story.id);
+    const outcome = await setStoryReaction(story.id, next, accessToken);
+    setReactingStoryId(null);
+    if (outcome.state !== 'success') return;
+    replaceItems((current) => current.map((item) => {
+      if (item.id !== story.id) return item;
+      let likeCount = item.likeCount ?? 0;
+      let dislikeCount = item.dislikeCount ?? 0;
+      if (was === 'LIKE') likeCount -= 1;
+      if (was === 'DISLIKE') dislikeCount -= 1;
+      if (next === 'LIKE') likeCount += 1;
+      if (next === 'DISLIKE') dislikeCount += 1;
+      return { ...item, myReaction: next, likeCount, dislikeCount };
+    }));
+  };
 
   /** 목록만 바꿔 치운다 — 서버에 다시 묻지 않고 화면을 맞춘다. */
   const replaceItems = (next: (current: StoryDto[]) => StoryDto[]) => {
@@ -588,6 +686,11 @@ export default function Feed() {
           onOpen={() => router.push(`/feed/${story.id}`)}
           onOpenAuthor={() => router.push(`/user/${story.author.id}`)}
           onReport={() => signedIn ? setReportingStoryId(story.id) : setPromptingSignIn(true)}
+          saved={savedIds.has(story.id)}
+          savingStar={savingStoryId === story.id}
+          onToggleSave={() => void toggleSave(story)}
+          reacting={reactingStoryId === story.id}
+          onReact={(reaction) => void react(story, reaction)}
         />)}</View>
       : null}
 
@@ -783,6 +886,8 @@ const styles = StyleSheet.create({
   authorPillAvatar: { width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: color.brand.navy },
   coverActions: { position: 'absolute', top: spacing[3], right: spacing[3], flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
   cardBody: { gap: spacing[1], padding: spacing[4] },
+  reactionRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[4], paddingHorizontal: spacing[4], paddingBottom: spacing[3], marginTop: -spacing[2] },
+  reactionButton: { minHeight: 44, justifyContent: 'center' },
   cardCompact: { padding: spacing[4] },
   avatar: { width: 40, height: 40, borderRadius: radius.full, backgroundColor: color.brand.navy, alignItems: 'center', justifyContent: 'center' },
   avatarCompact: { width: 36, height: 36 },
