@@ -28,7 +28,15 @@ export type Registration = {
   status: string;
 };
 // avatarUrl 은 레코드 맨 끝에 붙은 칸이다 — 안 고른 사람은 null 이고 화면이 기본 그림을 그린다.
-export type AuthUser = { userId: string; email: string; displayName: string; language: string; status: string; avatarUrl?: string | null };
+//
+// 🔴 coverUrl 은 그 뒤에 붙었는데 **모양이 다르다** (S15P21E201-1297). 안 고른 사람에게는
+//    서버가 **키를 아예 안 보낸다** — null 도 빈 문자열도 기본 사진 주소도 아니다.
+//    그래야 화면이 「사용자가 고른 사진」과 「기본 사진」을 가를 수 있고, 「기본으로
+//    되돌리기」를 언제 보여줄지 정할 수 있다. **기본 사진을 고르는 것은 화면의 몫이다.**
+//
+//    avatarUrl 에 같은 규칙을 안 붙인 것은 실수가 아니다 — 이미 배포된 앱이 그 칸에
+//    null 이 오는 것을 보고 있어서, 지금 키를 빼면 상관없는 화면이 바뀐다.
+export type AuthUser = { userId: string; email: string; displayName: string; language: string; status: string; avatarUrl?: string | null; coverUrl?: string };
 export type AuthTokens = { accessToken: string; refreshToken: string | null; expiresIn: number; sessionId: string; user: AuthUser };
 export type OAuthProvider = 'google' | 'naver' | 'kakao' | 'apple';
 export type OAuthChallenge = { state: string; nonce: string; expiresAt: string };

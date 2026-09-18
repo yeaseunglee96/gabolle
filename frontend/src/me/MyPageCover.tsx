@@ -29,7 +29,13 @@ export function MyPageCover({
   name: string;
   email: string | null;
   avatarUri: string | null;
-  /** 사용자가 고른 커버. 없으면 부산 기본 사진 — 서버에 이 칸이 생기기 전까지는 늘 null 이다. */
+  /**
+   * 사용자가 고른 커버. **없으면 부산 기본 사진**을 깐다.
+   *
+   * 🔴 서버는 안 고른 사람에게 이 칸을 **아예 안 보낸다** — 기본 사진 주소를 대신 보내지
+   * 않는다. 그래야 화면이 「고른 사진」과 「기본 사진」을 가를 수 있고, 프로필에서 「기본으로
+   * 되돌리기」를 언제 보여줄지 정할 수 있다. **어느 그림을 기본으로 쓸지는 화면이 정한다.**
+   */
   coverUri: string | null;
   counts: CoverCount[];
   onEdit: () => void;

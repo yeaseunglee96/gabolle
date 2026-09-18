@@ -185,8 +185,7 @@ export default function Me() {
           name={name}
           email={user?.email ?? null}
           avatarUri={avatarUri}
-          // 서버에 커버 칸이 아직 없다(S15P21E201-1297). 생기기 전까지는 부산 기본 사진이다.
-          coverUri={null}
+          coverUri={user?.coverUrl ?? null}
           counts={[
             { label: tx('기록', 'Records'), value: storyCount, onPress: () => user && openPanel('posts', '/me/posts') },
             { label: tx('팔로워', 'Followers'), value: followerCount, onPress: () => user && openPanel('followers', `/user/${user.userId}/followers`) },
@@ -238,9 +237,9 @@ export default function Me() {
       name={name}
       email={user?.email ?? null}
       avatarUri={avatarUri}
-      // 🔴 서버에는 커버 칸이 생겼다(S15P21E201-1297 — back/dev 에 들어감). 그런데 화면은
-      //    아직 그 값을 안 읽는다. 받아 오는 것과 바꾸는 것은 따로 낸다. 그때까지 null.
-      coverUri={null}
+      // 🔴 안 고른 사람에게는 서버가 이 칸을 **아예 안 보낸다**(S15P21E201-1297). 그래서
+      //    여기서 null 이 되고, 부품이 기본 사진을 깐다 — 기본 사진을 고르는 것은 화면의 몫이다.
+      coverUri={user?.coverUrl ?? null}
       counts={[
         { label: tx('기록', 'Records'), value: storyCount, onPress: () => user && router.push('/me/posts') },
         { label: tx('팔로워', 'Followers'), value: followerCount, onPress: () => user && router.push(`/user/${user.userId}/followers`) },
