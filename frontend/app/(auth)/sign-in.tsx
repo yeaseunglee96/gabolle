@@ -7,6 +7,7 @@ import { loginWithOAuth } from '@/auth/oauth';
 import { navigateAfterOAuthComplete } from '@/auth/oauthNavigation';
 import type { OAuthProvider } from '@/auth/authApi';
 import { guestDestination, resolveDestination, savePendingReturnTo } from '@/auth/pendingReturnTo';
+import { enterApp } from '@/auth/enterApp';
 import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
 import { Eyebrow } from '@/components/Eyebrow';
@@ -81,14 +82,16 @@ export default function SignIn() {
         leaving.current = true;
         // 쌓인 칸이 있으면 그만 돌려보내고(=이 화면이 없어진다), 혼자면 홈으로 바꾼다.
         // 바꾸는 쪽이 중요하다 — 그래야 다음 뒤로 가기가 앱을 빠져나가는 원래 일을 한다.
-        if (router.canGoBack()) router.back();
-        else router.replace('/home');
+        // 🔴 여기서 `router.back()` 을 부르면 **더 뒤로** 간다 — 사람이 홈에서 뒤로
+        //    가기를 눌렀는데 홈이 아니라 그 앞 화면으로 떨어진다. 앞의 고침이 그랬다.
+        //    이 화면은 **앞으로**(홈으로) 비켜야 한다.
+        enterApp(router, '/home');
       }
       // 포커스를 잃으면 「다음엔 돌아온 것」으로 친다.
       return () => { cameBack.current = true; leaving.current = false; };
     }, [ready, user, router]),
   );
-  async function submit() { if (!eligible || busy || provider) return; setBusy(true); setFeedback(null); signedInHere.current = true; try { await signIn(email, password); router.replace((await resolveDestination(returnTo)) as Href); } catch (e) { setFeedback({ danger: true, text: errorMessage(e, tx, 'password') }); } finally { setBusy(false); } }
+  async function submit() { if (!eligible || busy || provider) return; setBusy(true); setFeedback(null); signedInHere.current = true; try { await signIn(email, password); enterApp(router, (await resolveDestination(returnTo)) as Href); } catch (e) { setFeedback({ danger: true, text: errorMessage(e, tx, 'password') }); } finally { setBusy(false); } }
   async function social(next: OAuthProvider) {
     if (busy || provider) return;
     setProvider(next);
