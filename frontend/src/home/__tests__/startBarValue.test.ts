@@ -58,6 +58,18 @@ describe('한 줄 요약', () => {
     expect(summarizeStartBar(value({ adults: 0 }), true)).toBe('');
   });
 
+  it('🔴 인원만으로는 요약을 만들지 않는다 — 인원에는 기본값(성인 2)이 들어 있다', () => {
+    // 아무것도 안 고른 초기 상태. 전에는 여기서 「성인 2」가 나와,
+    // 알약에 안내 문구 대신 고른 적 없는 값이 찍혔다.
+    expect(summarizeStartBar(value(), true)).toBe('');
+    expect(summarizeStartBar(value({ adults: 4, children: 2 }), true)).toBe('');
+  });
+
+  it('출발지나 날짜가 하나라도 있으면 그때 인원도 같이 적는다', () => {
+    expect(summarizeStartBar(value({ origin: '부산역' }), true)).toContain('성인 2');
+    expect(summarizeStartBar(value({ startDate: '2026-09-20' }), true)).toContain('성인 2');
+  });
+
   it('날짜와 박수와 인원을 한 줄로 붙인다', () => {
     expect(summarizeStartBar(value({ origin: '부산역', startDate: '2026-09-20', endDate: '2026-09-21', adults: 2 }), true))
       .toBe('부산역 · 9.20(일) – 9.21(월) · 1박 · 성인 2');
@@ -69,8 +81,9 @@ describe('한 줄 요약', () => {
   });
 
   it('어린이가 0명이면 그 칸을 안 적는다', () => {
-    expect(summarizeStartBar(value({ adults: 2, children: 0 }), true)).not.toContain('어린이');
-    expect(summarizeStartBar(value({ adults: 2, children: 1 }), true)).toContain('어린이 1');
+    // 🔴 출발지를 같이 준다 — 인원만으로는 요약이 아예 안 만들어진다(위 시험 참고).
+    expect(summarizeStartBar(value({ origin: '부산역', adults: 2, children: 0 }), true)).not.toContain('어린이');
+    expect(summarizeStartBar(value({ origin: '부산역', adults: 2, children: 1 }), true)).toContain('어린이 1');
   });
 });
 
