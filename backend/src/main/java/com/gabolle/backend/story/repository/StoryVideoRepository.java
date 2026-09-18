@@ -1,5 +1,7 @@
 package com.gabolle.backend.story.repository;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -16,4 +18,10 @@ import com.gabolle.backend.story.domain.StoryVideo;
 public interface StoryVideoRepository extends JpaRepository<StoryVideo, UUID> {
 
 	Optional<StoryVideo> findByStoryId(UUID storyId);
+
+	/**
+	 * 피드가 글 여러 개를 한 번에 그린다 — 글마다 따로 물으면 N+1 이 된다.
+	 * {@code StoryResponseAssembler} 가 사진을 읽는 방식과 같다.
+	 */
+	List<StoryVideo> findByStoryIdIn(Collection<UUID> storyIds);
 }

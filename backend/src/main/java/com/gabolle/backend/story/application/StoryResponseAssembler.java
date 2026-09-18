@@ -18,11 +18,15 @@ import com.gabolle.backend.place.repository.PlaceRepository;
 import com.gabolle.backend.story.domain.Story;
 import com.gabolle.backend.story.domain.ReactionType;
 import com.gabolle.backend.story.domain.StoryImage;
+import com.gabolle.backend.story.domain.StoryVideo;
 import com.gabolle.backend.story.domain.UploadedImage;
+import com.gabolle.backend.story.domain.UploadedVideo;
 import com.gabolle.backend.story.presentation.dto.StoryResponse;
 import com.gabolle.backend.story.repository.StoryImageRepository;
+import com.gabolle.backend.story.repository.StoryVideoRepository;
 import com.gabolle.backend.story.repository.StoryReactionRepository;
 import com.gabolle.backend.story.repository.UploadedImageRepository;
+import com.gabolle.backend.story.repository.UploadedVideoRepository;
 import com.gabolle.backend.user.domain.AppUser;
 import com.gabolle.backend.user.repository.AppUserRepository;
 
@@ -40,6 +44,10 @@ public class StoryResponseAssembler {
 
 	private final UploadedImageRepository uploadedImageRepository;
 
+	private final StoryVideoRepository storyVideoRepository;
+
+	private final UploadedVideoRepository uploadedVideoRepository;
+
 	private final AppUserRepository appUserRepository;
 
 	private final PlaceRepository placeRepository;
@@ -48,12 +56,15 @@ public class StoryResponseAssembler {
 
 	public StoryResponseAssembler(StoryImageRepository storyImageRepository,
 			UploadedImageRepository uploadedImageRepository, AppUserRepository appUserRepository,
-			PlaceRepository placeRepository, StoryReactionRepository storyReactionRepository) {
+			PlaceRepository placeRepository, StoryReactionRepository storyReactionRepository,
+			StoryVideoRepository storyVideoRepository, UploadedVideoRepository uploadedVideoRepository) {
 		this.storyImageRepository = storyImageRepository;
 		this.uploadedImageRepository = uploadedImageRepository;
 		this.appUserRepository = appUserRepository;
 		this.placeRepository = placeRepository;
 		this.storyReactionRepository = storyReactionRepository;
+		this.storyVideoRepository = storyVideoRepository;
+		this.uploadedVideoRepository = uploadedVideoRepository;
 	}
 
 	public StoryResponse one(Story story, UUID viewer, Instant now) {
@@ -72,6 +83,24 @@ public class StoryResponseAssembler {
 			imagesByStory.computeIfAbsent(image.getStoryId(), (k) -> new ArrayList<>()).add(image);
 			uploadIds.add(image.getUploadedImageId());
 		}
+		// 🔴 S15P21E201-1279 — 동영상을 사진 업로드 조회보다 **먼저** 읽는다. 썸네일은
+		//    uploaded_image 행이라 아래 조회에 같이 태워야 한다 — 따로 물으면 질의가 하나 는다.
+		Map<UUID, StoryVideo> videoByStory = new HashMap<>();
+		Set<UUID> videoUploadIds = new HashSet<>();
+		for (StoryVideo storyVideo : this.storyVideoRepository.findByStoryIdIn(storyIds)) {
+			videoByStory.put(storyVideo.getStoryId(), storyVideo);
+			videoUploadIds.add(storyVideo.getUploadedVideoId());
+			if (storyVideo.getThumbnailUploadId() != null) {
+				uploadIds.add(storyVideo.getThumbnailUploadId());
+			}
+		}
+		Map<UUID, UploadedVideo> videoUploads = new HashMap<>();
+		if (!videoUploadIds.isEmpty()) {
+			for (UploadedVideo upload : this.uploadedVideoRepository.findByUploadedVideoIdIn(videoUploadIds)) {
+				videoUploads.put(upload.getUploadedVideoId(), upload);
+			}
+		}
+
 		Map<UUID, UploadedImage> uploads = new HashMap<>();
 		if (!uploadIds.isEmpty()) {
 			for (UploadedImage upload : this.uploadedImageRepository.findByUploadedImageIdIn(uploadIds)) {
@@ -139,6 +168,20 @@ public class StoryResponseAssembler {
 					images.add(new StoryResponse.Image(upload.getImageUrl(), image.getPosition()));
 				}
 			}
+			// 🔴 S15P21E201-1279 — 동영상은 기록당 0개 또는 1개다(uq_story_video_story).
+			//    썸네일이 없으면 null 을 넣는다 — 빈 문자열이나 자리표시 주소를 넣지 않는다.
+			//    그런 값은 화면에 「있다」로 읽혀 깨진 그림이 뜬다.
+			List<StoryResponse.Media> media = new ArrayList<>();
+			StoryVideo storyVideo = videoByStory.get(story.getStoryId());
+			if (storyVideo != null) {
+				UploadedVideo video = videoUploads.get(storyVideo.getUploadedVideoId());
+				if (video != null) {
+					UploadedImage thumbnail = (storyVideo.getThumbnailUploadId() == null) ? null
+							: uploads.get(storyVideo.getThumbnailUploadId());
+					media.add(new StoryResponse.Media("VIDEO", video.getVideoUrl(),
+							thumbnail == null ? null : thumbnail.getImageUrl(), video.getDurationSec()));
+				}
+			}
 			out.add(new StoryResponse(
 					story.getStoryId().toString(),
 					new StoryResponse.Author(story.getAuthorUserId().toString(), displayName),
@@ -170,7 +213,8 @@ public class StoryResponseAssembler {
 					dislikeCount,
 					myReactions.containsKey(story.getStoryId())
 							? myReactions.get(story.getStoryId()).name()
-							: null));
+							: null,
+					media));
 		}
 		return out;
 	}

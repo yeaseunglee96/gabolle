@@ -48,7 +48,16 @@ public class StoryVideo {
 	@Column(name = "uploaded_video_id", nullable = false, updatable = false)
 	private UUID uploadedVideoId;
 
-	/** 썸네일 파일의 업로드 id. {@code uploaded_image} 를 가리킨다 — 썸네일은 사진 창구로 올라온다. */
+	/**
+	 * 썸네일 파일의 업로드 id. {@code uploaded_image} 를 가리킨다 — 썸네일은 사진 창구로 올라온다.
+	 *
+	 * <p>🔴 <b>없을 수 있다</b>(S15P21E201-1279). 앱이 썸네일을 못 만들면 {@code null} 이고, 그것이
+	 * <b>정상 상태</b>다 — 「동영상은 올라갔는데 썸네일만 없다」. 필수로 두면 그 동영상을 아예
+	 * 저장할 수 없다.
+	 *
+	 * <p>🔴 <b>이 칸이 {@code null} 이면 지우는 쪽이 건너뛰어야 한다.</b>
+	 * {@code StoryService.deleteVideoFiles} 가 그렇게 한다 — 안 그러면 기록 삭제가 통째로 죽는다.
+	 */
 	@Column(name = "thumbnail_upload_id", nullable = false, updatable = false)
 	private UUID thumbnailUploadId;
 
@@ -60,10 +69,10 @@ public class StoryVideo {
 
 	public StoryVideo(UUID storyVideoId, UUID storyId, UUID uploadedVideoId, UUID thumbnailUploadId,
 			Instant createdAt) {
-		if (storyVideoId == null || storyId == null || uploadedVideoId == null || thumbnailUploadId == null
-				|| createdAt == null) {
-			throw new IllegalArgumentException(
-					"storyVideoId·storyId·uploadedVideoId·thumbnailUploadId·createdAt 는 필수다");
+		// 🔴 thumbnailUploadId 는 여기 없다 — 없을 수 있는 칸이다(S15P21E201-1279).
+		//    앱이 썸네일을 못 만들면 「동영상은 있고 썸네일만 없다」가 정상 상태다.
+		if (storyVideoId == null || storyId == null || uploadedVideoId == null || createdAt == null) {
+			throw new IllegalArgumentException("storyVideoId·storyId·uploadedVideoId·createdAt 는 필수다");
 		}
 		this.storyVideoId = storyVideoId;
 		this.storyId = storyId;

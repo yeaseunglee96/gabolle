@@ -447,8 +447,15 @@ public class StoryService {
 				this.storageCleanupService.deleteOrEnqueue(video.getStorageKey(),
 						StorageCleanupEntry.REASON_STORY_DELETED);
 			});
+			// 🔴 썸네일은 없을 수 있다(S15P21E201-1279). 앱이 못 만들었으면 null 이다.
+			//    List.of 는 null 을 받으면 NPE 를 던지고, 그러면 동영상 파일도 못 지운 채
+			//    기록 삭제가 통째로 죽는다 — 사용자는 몇 번을 눌러도 안 지워진다.
+			UUID thumbnailUploadId = storyVideo.getThumbnailUploadId();
+			if (thumbnailUploadId == null) {
+				return;
+			}
 			for (UploadedImage thumbnail : this.uploadedImageRepository
-					.findByUploadedImageIdIn(List.of(storyVideo.getThumbnailUploadId()))) {
+					.findByUploadedImageIdIn(List.of(thumbnailUploadId))) {
 				thumbnail.markDeleted(now);
 				this.storageCleanupService.deleteOrEnqueue(thumbnail.getStorageKey(),
 						StorageCleanupEntry.REASON_STORY_DELETED);

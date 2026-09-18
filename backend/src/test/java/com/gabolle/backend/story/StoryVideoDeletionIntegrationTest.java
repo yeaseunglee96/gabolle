@@ -181,6 +181,30 @@ class StoryVideoDeletionIntegrationTest {
 		}
 	}
 
+	@Test
+	@DisplayName("🔴 썸네일 없는 동영상이 붙은 기록도 지워진다 — 앱이 썸네일을 못 만들 수 있다")
+	void deletingStoryWithVideoButNoThumbnail() {
+		UUID storyWithoutThumb = StoryFixture.insertStory(this.jdbc, this.author, "썸네일 없는 동영상 글", "PUBLIC",
+				Instant.now().minusSeconds(3600));
+		String videoOnlyKey = "story-video/2026/09/" + UUID.randomUUID() + ".mp4";
+		UUID videoOnlyUpload = insertUploadedVideo(videoOnlyKey);
+		insertStoryVideoWithoutThumbnail(storyWithoutThumb, videoOnlyUpload);
+		writeRealFile(videoOnlyKey);
+		try {
+			// 🔴 먼저 「넣었는가」.
+			assertThat(fileOf(videoOnlyKey)).exists();
+
+			this.storyService.delete(storyWithoutThumb, this.author);
+
+			assertThat(fileOf(videoOnlyKey)).doesNotExist();
+		}
+		finally {
+			this.jdbc.update("DELETE FROM story_video WHERE story_id = ?", storyWithoutThumb);
+			this.jdbc.update("DELETE FROM uploaded_video WHERE uploaded_video_id = ?", videoOnlyUpload);
+			this.jdbc.update("DELETE FROM story WHERE story_id = ?", storyWithoutThumb);
+		}
+	}
+
 	// ── 시드 ────────────────────────────────────────────────────────────────
 
 	private UUID insertUploadedVideo(String key) {
@@ -202,6 +226,15 @@ class StoryVideoDeletionIntegrationTest {
 				VALUES (?, ?, ?, ?, 'image/jpeg', 1234, now())
 				""", id, this.author, key, StoryFixture.IMAGE_BASE + "/" + key);
 		return id;
+	}
+
+	/** 썸네일 없이 동영상만 붙인다 — 앱이 썸네일을 못 만든 경우다. */
+	private void insertStoryVideoWithoutThumbnail(UUID storyId, UUID uploadedVideoId) {
+		this.jdbc.update("""
+				INSERT INTO story_video
+				    (story_video_id, story_id, uploaded_video_id, thumbnail_upload_id, created_at)
+				VALUES (?, ?, ?, NULL, now())
+				""", UUID.randomUUID(), storyId, uploadedVideoId);
 	}
 
 	private void insertStoryVideo() {

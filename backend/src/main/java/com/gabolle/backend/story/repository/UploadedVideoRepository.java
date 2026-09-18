@@ -1,5 +1,7 @@
 package com.gabolle.backend.story.repository;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -18,4 +20,7 @@ public interface UploadedVideoRepository extends JpaRepository<UploadedVideo, UU
 	Optional<UploadedVideo> findByVideoUrl(String videoUrl);
 
 	Optional<UploadedVideo> findByStorageKey(String storageKey);
+
+	/** 조립기가 한 번에 읽는다 — {@code UploadedImageRepository.findByUploadedImageIdIn} 과 같은 이유다. */
+	List<UploadedVideo> findByUploadedVideoIdIn(Collection<UUID> ids);
 }
