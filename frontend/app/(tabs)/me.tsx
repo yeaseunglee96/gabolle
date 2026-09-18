@@ -76,6 +76,9 @@ export default function Me() {
     queryFn: () => loadTrips(accessToken),
   });
   const trip = tripsQuery.data?.state === 'success' ? pickActiveTrip(tripsQuery.data.trips) : null;
+  // 🔴 아직 못 받았으면 null 이다 — 0 과 다르다. 0 은 「하나도 안 만들었다」이고
+  //    null 은 「모른다」인데, 둘을 같이 다루면 받아 오는 동안 「0번째」가 깜빡인다.
+  const tripCount = tripsQuery.data?.state === 'success' ? tripsQuery.data.trips.length : null;
 
   useEffect(() => {
     if (!user?.userId) { setAvatarUri(null); return; }
@@ -184,6 +187,7 @@ export default function Me() {
         <MyPageCover
           name={name}
           email={user?.email ?? null}
+          tripCount={tripCount}
           avatarUri={avatarUri}
           coverUri={user?.coverUrl ?? null}
           counts={[
@@ -205,7 +209,9 @@ export default function Me() {
             {appGroup}
           </View>
           <View style={styles.wideColumn}>
-            <Eyebrow>{tx('내 여행', 'My trip')}</Eyebrow>
+            {/* 🔴 여기에 「내 여행」 눈썹을 붙이지 않는다. MyTripCard 가 같은 것을 스스로
+                그린다 — 붙이면 같은 말이 두 줄로 겹친다. 옆의 두 칸과 다르게 생긴 것이
+                아니라, 제목을 그리는 쪽이 다를 뿐이다. */}
             <MyTripCard trip={trip} signedIn={Boolean(user)} loaded={!tripsQuery.isLoading} />
             {logoutButton}
           </View>
