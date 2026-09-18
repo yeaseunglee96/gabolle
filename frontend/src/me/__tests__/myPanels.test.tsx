@@ -9,8 +9,8 @@ const ALL: MyPanelKey[] = [
   'identities', 'profile', 'notifications', 'blocked', 'help', 'terms',
 ];
 
-/** 지금까지 옮긴 것. 하나 옮길 때마다 여기에 더한다. */
-const MIGRATED: MyPanelKey[] = ['blocked', 'followers', 'following', 'help', 'identities', 'notifications', 'terms'];
+/** 지금까지 옮긴 것 — 열한 개 전부. */
+const MIGRATED: MyPanelKey[] = [...ALL];
 
 const tx = (ko: string) => ko;
 
@@ -39,12 +39,14 @@ describe('마이페이지 패널', () => {
     expect(new Set(titles).size).toBe(titles.length);
   });
 
-  it('찾는 방법 자체가 살아 있다 — 안 옮긴 것은 null 이다', () => {
+  it('🔴 열한 개가 전부 옮겨졌다 — 빠진 것이 없다', () => {
+    // 이제 화면을 바꾸는 메뉴는 없다. 하나라도 null 이면 그 메뉴만 옛 방식으로 열린다.
+    const missing = ALL.filter((key) => !hasPanel(key));
+    expect(missing).toEqual([]);
+  });
+
+  it('찾는 방법 자체가 살아 있다 — 없는 키는 본문이 없다', () => {
     // 이 줄이 없으면 hasPanel 이 늘 true 를 돌려줘도 위 시험이 통과할 수 있다.
-    expect(myPanelBody('posts')).toBeNull();
-    expect(hasPanel('posts')).toBe(false);
-    expect(hasPanel('saved')).toBe(false);
-    expect(hasPanel('preferences')).toBe(false);
-    expect(hasPanel('profile')).toBe(false);
+    expect(myPanelBody('이런건없다' as MyPanelKey)).toBeUndefined();
   });
 });
