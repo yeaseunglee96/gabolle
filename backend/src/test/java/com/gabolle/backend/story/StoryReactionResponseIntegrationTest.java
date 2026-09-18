@@ -10,6 +10,7 @@ import java.util.UUID;
 import jakarta.persistence.EntityManagerFactory;
 
 import org.hibernate.SessionFactory;
+import org.hibernate.stat.Statistics;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -46,9 +47,7 @@ import com.gabolle.testslice.StorySliceApplication;
 @SpringBootTest(classes = StorySliceApplication.class, properties = {
 		"spring.profiles.active=db",
 		"spring.jpa.hibernate.ddl-auto=none",
-		"spring.flyway.enabled=true",
-		// 🔴 아래 N+1 검사가 읽는 값이다 — 이게 없으면 통계가 0 으로만 나온다.
-		"spring.jpa.properties.hibernate.generate_statistics=true"
+		"spring.flyway.enabled=true"
 })
 @ExtendWith(PostgresAvailableCondition.class)
 class StoryReactionResponseIntegrationTest {
@@ -222,12 +221,35 @@ class StoryReactionResponseIntegrationTest {
 		assertThat(responses.get(2).likeCount()).isZero();
 	}
 
-	/** 이 일을 하는 동안 나간 JDBC 문장 수. */
+	/**
+	 * 이 일을 하는 동안 나간 JDBC 문장 수.
+	 *
+	 * <h2>🔴 {@code hibernate.generate_statistics} 를 속성으로 켜지 않는 이유</h2>
+	 *
+	 * 처음에 {@code @SpringBootTest(properties = ...)} 로 켰다가 <b>CI 가 heap 부족으로
+	 * 죽었다.</b> 스프링은 속성이 한 글자라도 다르면 <b>별도 컨텍스트</b>를 띄우고 그것을 JVM
+	 * 이 끝날 때까지 캐시한다. 이 검사 하나 때문에 애플리케이션 컨텍스트가 통째로 하나 더
+	 * 살아 있게 되고, 그 무게가 한계를 넘겼다. 로컬에서 일부만 돌릴 때는 안 드러난다.
+	 *
+	 * <p>그래서 켜는 자리를 <b>런타임</b>으로 옮겼다. 이 클래스의 {@code properties} 는 이제
+	 * 다른 기록 검사들과 <b>글자까지 같고</b>, 같은 컨텍스트를 함께 쓴다. 통계는 그 컨텍스트의
+	 * {@code SessionFactory} 에서 켜고 끄기만 한다.
+	 *
+	 * <p>({@code TestDatabase} 가 S15P21E201-662 에서 컨텍스트마다 연결 풀이 하나씩 생기는
+	 * 것을 두고 같은 종류의 경고를 적어 뒀다 — 컨텍스트를 늘리는 것은 공짜가 아니다.)
+	 */
 	private long statementsDuring(Runnable work) {
-		SessionFactory sessionFactory = this.entityManagerFactory.unwrap(SessionFactory.class);
-		long before = sessionFactory.getStatistics().getPrepareStatementCount();
-		work.run();
-		return sessionFactory.getStatistics().getPrepareStatementCount() - before;
+		Statistics statistics = this.entityManagerFactory.unwrap(SessionFactory.class).getStatistics();
+		boolean wasEnabled = statistics.isStatisticsEnabled();
+		statistics.setStatisticsEnabled(true);
+		try {
+			long before = statistics.getPrepareStatementCount();
+			work.run();
+			return statistics.getPrepareStatementCount() - before;
+		}
+		finally {
+			statistics.setStatisticsEnabled(wasEnabled);
+		}
 	}
 
 	// ── 거들기 ────────────────────────────────────────────────────────
