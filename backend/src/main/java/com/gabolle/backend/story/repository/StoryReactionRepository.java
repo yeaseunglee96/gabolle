@@ -1,6 +1,7 @@
 package com.gabolle.backend.story.repository;
 
 import java.time.OffsetDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -148,6 +149,45 @@ public interface StoryReactionRepository extends JpaRepository<StoryReaction, St
 			""")
 	List<StoryLikeCount> countRecentLikes(@Param("since") OffsetDateTime since);
 
+	/**
+	 * 한 쪽에 실린 글들의 좋아요·싫어요 수를 <b>한 번에</b> 센다 — S15P21E201-1174.
+	 *
+	 * <h2>🔴 글마다 세지 않는 이유</h2>
+	 *
+	 * 피드 한 쪽이 최대 50건이다. 글마다 {@link #countByStoryAndReaction} 을 부르면 50번의
+	 * 왕복이 되고(N+1), 그건 커뮤니티가 자라는 만큼 그대로 느려진다. {@code StoryResponseAssembler}
+	 * 가 사진·작성자·장소를 한 번씩만 읽는 것과 같은 방식이다.
+	 *
+	 * <p>🔴 <b>취소한 행({@code reaction IS NULL})은 뺀다.</b> 취소해도 행이 남으므로
+	 * (S15P21E201-1173 후속) 행을 그냥 세면 <b>취소한 사람까지 들어간다.</b>
+	 *
+	 * <p>한 글에 종류마다 한 줄씩 나온다 — 좋아요와 싫어요가 둘 다 있으면 두 줄이다.
+	 */
+	@Query("""
+			SELECT r.id.storyId AS storyId, r.reaction AS reaction, COUNT(r) AS count
+			  FROM StoryReaction r
+			 WHERE r.id.storyId IN :storyIds
+			   AND r.reaction IS NOT NULL
+			 GROUP BY r.id.storyId, r.reaction
+			""")
+	List<StoryReactionCount> countByStories(@Param("storyIds") Collection<UUID> storyIds);
+
+	/**
+	 * 이 사람이 이 글들에 지금 무엇을 눌러 뒀나 — 화면의 토글이 자기 상태를 그리는 데 쓴다.
+	 *
+	 * <p>🔴 위와 같은 이유로 한 번에 읽는다. 그리고 같은 이유로 {@code NULL} 을 뺀다 —
+	 * 취소한 것은 <b>안 누른 것</b>이지 「취소를 누른 것」이 아니다.
+	 */
+	@Query("""
+			SELECT r.id.storyId AS storyId, r.reaction AS reaction
+			  FROM StoryReaction r
+			 WHERE r.id.storyId IN :storyIds
+			   AND r.id.userId = :userId
+			   AND r.reaction IS NOT NULL
+			""")
+	List<StoryViewerReaction> findMineByStories(@Param("storyIds") Collection<UUID> storyIds,
+			@Param("userId") UUID userId);
+
 	/** 한 글의 좋아요·싫어요 수 — 상세 화면이 읽는다. 취소한 행({@code NULL})은 저절로 빠진다. */
 	@Query("""
 			SELECT COUNT(r) FROM StoryReaction r
@@ -155,6 +195,24 @@ public interface StoryReactionRepository extends JpaRepository<StoryReaction, St
 			   AND r.reaction = :reaction
 			""")
 	long countByStoryAndReaction(@Param("storyId") UUID storyId, @Param("reaction") ReactionType reaction);
+
+	/** 한 글의 한 종류에 대한 집계 한 줄. */
+	interface StoryReactionCount {
+
+		UUID getStoryId();
+
+		ReactionType getReaction();
+
+		long getCount();
+	}
+
+	/** 이 사람이 그 글에 지금 눌러 둔 것. */
+	interface StoryViewerReaction {
+
+		UUID getStoryId();
+
+		ReactionType getReaction();
+	}
 
 	/** 집계 한 줄. */
 	interface StoryLikeCount {
