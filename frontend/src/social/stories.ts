@@ -1,4 +1,4 @@
-import { apiRequest, ApiClientError, ApiUnavailableError, API_BASE_URL } from '@/api/client';
+import { apiRequest, ApiClientError, ApiUnavailableError, API_BASE_URL, APP_WEB_BASE_URL } from '@/api/client';
 import { singleFileFormData } from '@/api/multipart';
 
 export type StoryVisibility = 'PUBLIC' | 'FOLLOWERS' | 'PRIVATE';
@@ -312,6 +312,41 @@ export async function reportStory(storyId: string, reason: StoryReportReason, de
       body: { reason, detail: reason === 'OTHER' ? detail : undefined },
     });
     return { state: 'success' };
+  } catch (error) {
+    return failure(error);
+  }
+}
+
+/**
+ * 기록의 공개 주소. 복사와 공유가 같은 값을 쓰도록 한 자리에 둔다 — 두 곳에서 따로
+ * 조립하면 한쪽만 고쳐졌을 때 복사한 링크와 실제로 열리는 링크가 달라진다.
+ */
+export function storyShareUrl(storyId: string) {
+  return `${APP_WEB_BASE_URL}/feed/${encodeURIComponent(storyId)}`;
+}
+
+export type LinkCopyResult = { state: 'success'; story: StoryDto } | FeedFailure;
+
+/**
+ * 링크를 복사했다고 서버에 알린다. 세는 쪽은 S15P21E201-1215 에 이미 들어가 있다.
+ *
+ * 🔴 이 요청은 204 가 아니라 200 에 글 전체를 돌려준다. 그래서 누른 뒤 상세를 다시
+ * 부르면 안 된다 — 그 호출이 조회수를 올려서 「복사한 것」이 「본 것」으로 세어진다.
+ * 돌아온 글을 그대로 그린다.
+ *
+ * 🔴 수가 안 올라가도 200 이다 — 오늘 이미 센 사람이 또 눌렀거나 작성자 본인일 때다.
+ * 실패가 아니므로 오류로 그리지 않는다.
+ */
+export async function recordStoryLinkCopy(storyId: string, accessToken: string | null): Promise<LinkCopyResult> {
+  try {
+    const story = withDisplayImageUrls(
+      await apiRequest<StoryDto>(`/api/v1/stories/${encodeURIComponent(storyId)}/link-copies`, {
+        method: 'POST',
+        accessToken,
+      }),
+    );
+    storyCache.set(story.id, story);
+    return { state: 'success', story };
   } catch (error) {
     return failure(error);
   }

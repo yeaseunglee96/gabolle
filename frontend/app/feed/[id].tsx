@@ -1,6 +1,7 @@
 // 기록 상세 — 피드 카드를 누르면 오는 화면.
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, Image, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import * as Clipboard from 'expo-clipboard';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 
 import { useAuth } from '@/auth/AuthProvider';
@@ -14,7 +15,7 @@ import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { BlockUserDialog } from '@/social/BlockUserDialog';
-import { createStory, deleteStory, getCachedStory, getStory, getStoryReplies, getUserProfile, relativeStoryTime, reportStory, setBlocked, setFollowing, setStoryReaction, storyMetricLabels, updateStory, VISIBILITY_LABEL, type StoryDto, type StoryReportReason } from '@/social/stories';
+import { createStory, deleteStory, getCachedStory, getStory, getStoryReplies, getUserProfile, recordStoryLinkCopy, relativeStoryTime, reportStory, setBlocked, setFollowing, setStoryReaction, storyMetricLabels, storyShareUrl, updateStory, VISIBILITY_LABEL, type StoryDto, type StoryReportReason } from '@/social/stories';
 import { applyReaction, nextReaction, StoryReactionRow, type Reaction } from '@/social/StoryReactionRow';
 
 type State = { status: 'loading'; cached: StoryDto | null } | { status: 'loaded'; story: StoryDto } | { status: 'not-found' } | { status: 'error'; message: string };
@@ -191,6 +192,7 @@ export default function StoryDetail() {
   const [deleting, setDeleting] = useState(false);
   const [confirmingBlock, setConfirmingBlock] = useState(false);
   const [blockNotice, setBlockNotice] = useState('');
+  const [copyNotice, setCopyNotice] = useState('');
   const [menuOpen, setMenuOpen] = useState(false);
   // null = 아직 모른다. StoryDto 에는 "내가 이 작성자를 팔로우하는가" 칸이 없어서
   // (반응 카운트와 달리 얹지 않기로 했다) getUserProfile 로 따로 물어봐야 한다
@@ -248,12 +250,36 @@ export default function StoryDetail() {
   const metricLabels = story ? storyMetricLabels(story, tx) : [];
 
   /**
+   * 링크 복사. 지표 줄이 「인용 N」을 그리는데 누를 자리가 없어 그 수가 영원히 0이었다.
+   *
+   * 🔴 복사가 먼저고 세는 것은 나중이다. 세는 쪽이 실패해도 「복사했다」고 말한다 —
+   * 클립보드에는 이미 들어갔고, 수를 못 센 것 때문에 복사가 안 된 것처럼 보이면
+   * 사용자가 다시 누른다.
+   *
+   * 🔴 그리고 load() 를 다시 부르지 않는다. 그 호출이 조회수를 올려서 「복사한 것」이
+   * 「본 것」으로 세어진다. 서버가 돌려준 글을 그대로 넣는다.
+   *
+   * 🔴 수가 안 올라가도 성공이다 — 오늘 이미 센 사람, 작성자 본인. 서버가 그렇게 답한다.
+   */
+  const copyLink = async () => {
+    if (!story) return;
+    await Clipboard.setStringAsync(storyShareUrl(story.id));
+    setCopyNotice(tx('링크를 복사했어요.', 'Link copied.'));
+    const outcome = await recordStoryLinkCopy(story.id, accessToken);
+    if (outcome.state === 'success') setState({ status: 'loaded', story: outcome.story });
+  };
+
+  /**
    * 우상단 ⋯ 메뉴 —. 사용자 요청으로 삭제·팔로우·신고·차단을 여기
    * 하나로 몰아넣는다. 시안(FeedDetail.dc.html)의 "내 글=연필/남의 글=⋯" 구분은
    * 이번 결정으로 폐기하고 항상 ⋯ 하나로 통일한다.
+   *
+   * 링크 복사는 내 글·남의 글 양쪽에 둔다 — 내 글을 남에게 보내는 것이 더 잦다.
    */
   const menuItems: DropdownMenuItem[] = story
-    ? (story.mine
+    ? [
+        { key: 'copy-link', label: tx('링크 복사', 'Copy link'), onPress: () => void copyLink() },
+        ...(story.mine
         ? [{ key: 'delete', label: tx('삭제', 'Delete'), destructive: true, onPress: () => setConfirmingDelete(true) }]
         : [
             ...(authorFollowing !== null
@@ -265,7 +291,8 @@ export default function StoryDetail() {
               : []),
             { key: 'report', label: tx('이 글 신고', 'Report this post'), onPress: () => setReportingTargetId(story.id) },
             { key: 'block', label: tx('사용자 차단', 'Block user'), destructive: true, onPress: () => setConfirmingBlock(true) },
-          ])
+          ]),
+      ]
     : [];
 
   const submitReport = async (reason: StoryReportReason, detail: string | undefined) => {
@@ -534,6 +561,12 @@ export default function StoryDetail() {
       {blockNotice ? (
         <View accessibilityLiveRegion="polite" style={styles.notice}>
           <Text color={color.text.body}>{blockNotice}</Text>
+        </View>
+      ) : null}
+
+      {copyNotice ? (
+        <View accessibilityLiveRegion="polite" style={styles.notice}>
+          <Text color={color.text.body}>{copyNotice}</Text>
         </View>
       ) : null}
 
