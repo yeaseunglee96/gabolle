@@ -25,7 +25,8 @@
  *   🔴 이 스크립트는 로그인·회원가입·본인인증을 하지 않는다. 필요한 출처가 있으면
  *      멈추고 `_manifest.json` 의 `unavailable` 에 이유를 적는다. 사람이 처리한다.
  *      (2026-08-28 확인: 아래 파일데이터 4종은 전부 로그인 없이 받힌다.
- *       열차시각표는 오픈API 뿐이고 활용신청=로그인이 필요해서 못 받았다.)
+ *       열차시각표는 오픈API 뿐이고 활용신청=로그인이 필요해서 못 받았다.
+ *       🟢 2026-09-18 — 그 활용신청이 됐다. 시각표는 collect/subway-timetable.mjs 가 받는다.)
  *
  * 실행:
  *   node collect/subway.mjs
@@ -95,23 +96,34 @@ const DATASETS = [
 ]
 
 /**
- * 못 받은 것 — 지어내지 않고 이유를 적는다.
+ * 못 받던 것 중 **풀린 것** — 지우지 않고 날짜와 함께 남긴다.
  *
- * 🔴 이 문서를 읽는 사람이 "왜 첫차·막차가 비어 있나" 를 다시 조사하지 않게 하려고
- *    남긴다. 낡은 실측을 지우지 말고 날짜와 함께 남기는 것과 같은 이유다.
+ * 🔴 낡은 실측을 지우면 다음 사람이 「왜 이건 안 받나」를 처음부터 다시 조사한다.
+ *    이 저장소가 여러 번 겪은 실패라 정정은 덮어쓰기가 아니라 덧붙이기로 한다.
  */
-const UNAVAILABLE = [
+const RESOLVED = [
   {
     key: 'timetable',
     id: 15158990,
     name: '부산교통공사_부산도시철도 열차시각표 조회 서비스_GW',
-    kind: '오픈API (파일데이터 없음)',
-    reason:
-      '활용신청이 필요하고 활용신청은 로그인을 요구한다. 심의는 자동승인이라 사람이 한 번 로그인하면 바로 키가 나온다. ' +
-      '이용허락범위는 "제한 없음". 엔드포인트 주소는 로그인 전에는 페이지에 노출되지 않아 지어내지 않았다.',
-    blocks: '첫차·막차(stationFirstTrain/stationLastTrain)가 null 로 남는다',
-    humanStep: 'https://www.data.go.kr/data/15158990/openapi.do 에서 활용신청 → .env 의 DATA_GO_KR_KEY 로 호출',
+    wasBlockedBy:
+      '활용신청이 필요하고 활용신청은 로그인을 요구한다. 엔드포인트 주소는 로그인 전에는 페이지에 노출되지 않아 지어내지 않았다. (2026-08-28 조사)',
+    resolvedAt: '2026-09-18',
+    resolvedHow:
+      '사람이 활용신청을 했고(심의 자동승인·이용허락범위 "제한 없음"), 규격이 서비스 페이지 안에 Swagger 로 들어 있어 지어내지 않고 그대로 옮겼다. ' +
+      'https://apis.data.go.kr/B551542/trainTime/getTrainTime — serviceKey·act=json·scode 가 필수. scode 는 station.csv 의 「역번호」와 같은 값이다.',
+    nowCollectedBy: 'collect/subway-timetable.mjs',
+    unblocks: '역간 소요시간과 배차간격 — 대중교통 경로가 시간을 낼 수 있게 된다',
   },
+]
+
+/**
+ * 아직 못 받는 것 — 지어내지 않고 이유를 적는다.
+ *
+ * 🔴 이 목록을 읽는 사람이 "왜 이 칸이 비어 있나" 를 다시 조사하지 않게 하려고 남긴다.
+ *    풀린 것은 위 RESOLVED 로 옮기되 **지우지는 않는다.**
+ */
+const UNAVAILABLE = [
   {
     key: 'transfer-walk',
     id: null,
@@ -311,6 +323,7 @@ async function main() {
     })),
     failed: failed.map((f) => ({ key: f.key, datasetId: f.id, name: f.name, required: f.required, error: f.error })),
     unavailable: UNAVAILABLE,
+    resolved: RESOLVED,
   }
   if (!DRY) await writeFile(join(OUT, '_manifest.json'), JSON.stringify(manifest, null, 1))
 
@@ -330,7 +343,7 @@ async function main() {
     stamp(OUT, {
       step: 'collect/subway',
       inputs: [],
-      params: { datasets: DATASETS.map((d) => d.id), unavailable: UNAVAILABLE.map((u) => u.key) },
+      params: { datasets: DATASETS.map((d) => d.id), unavailable: UNAVAILABLE.map((u) => u.key), resolved: RESOLVED.map((r) => r.key) },
       result: { obtained: got.length, bytes: got.reduce((s, g) => s + (g.bytes || 0), 0) },
     })
   }
