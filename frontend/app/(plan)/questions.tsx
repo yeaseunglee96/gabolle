@@ -14,6 +14,7 @@ import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
+import { resolveTextLanguage } from '@/i18n/languages';
 import { useLayout } from '@/layout/useLayout';
 import { usePlan, type PlanDraft } from '@/plan/PlanProvider';
 import { CONFLICT_LABEL_PAIR, conflictingFoodCode, FOODS } from '@/plan/foodConflicts';
@@ -138,7 +139,10 @@ export default function PlanConditions() {
   const { user, accessToken } = useAuth();
   const [job, setJob] = useState<RecommendationJobSnapshot | null>(null);
   const [conditionsOpen, setConditionsOpen] = useState(false);
-  const ko = language !== 'en';
+  // 🔴 「영어가 아니면 한국어」로 가르면 일본어·중국어 사용자가 한국어를 본다.
+  // 그 언어들은 uiTranslated: false 라 번역이 없으면 영어로 떨어지기로 정해져 있다
+  // (resolveTextLanguage). 그 규칙을 그대로 쓴다 — S15P21E201-1296.
+  const ko = resolveTextLanguage(language) === 'ko';
   const [state, setState] = useState<QuestionState>(INITIAL_QUESTION_STATE);
   // 자동 스크롤은 아직 안 넣었다. 화면 껍데기(Screen)가 스크롤 손잡이를 밖으로
   // 안 내주는데, 그걸 고치는 것은 모든 화면에 걸리는 변경이라 이 티켓의 범위 밖이다.
