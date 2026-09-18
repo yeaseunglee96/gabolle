@@ -1,153 +1,309 @@
+// 코스 고르기 — **전체 일정 3안을 견준다** (시안 ③, 인계 §4).
+//
+// 🔴 전에는 장소 후보 목록이었다. 장소를 고르는 것과 일정을 고르는 것은 사람이 하는 판단
+//    자체가 다르다 — 앞은 「여기 갈까」이고 뒤는 「이렇게 다닐까」다. 그래서 옛 「추천 일정
+//    요약」 화면은 없어지고, 이 자리는 코스 비교가 된다.
+//
+// 🔴 필터(예산·이동 적게·휠체어)는 **없다**(인계 §7③). 조건은 ① 에서 이미 받았다. 여기서
+//    또 물으면 앞에서 답한 것이 반영되지 않았다는 뜻이 된다.
 import { useCallback, useEffect, useState } from 'react';
-import { Image, Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { shouldAskTripName, wasTripNameAsked } from '@/trip/tripNaming';
-import { loadTrips } from '@/trip/trips';
-import { sendAppEvent } from '@/analytics/appEvents';
-import { loadRecommendationActions, saveRecommendationAction, type RecommendationActionScope } from '@/plan/recommendationActions';
+
 import { useAuth } from '@/auth/AuthProvider';
-import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
 import { Skeleton } from '@/components/Skeleton';
 import { TabBar } from '@/components/TabBar';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
-import { describeWarningCodes } from '@/plan/warningLabels';
 import { useI18n } from '@/i18n';
-import { isAtLeast } from '@/layout/breakpoints';
+import { resolveTextLanguage } from '@/i18n/languages';
 import { useLayout } from '@/layout/useLayout';
-import { findLatestRecommendationJob, loadRecommendationResult, type RecommendationCourse, type RecommendationViewModel, unavailableRecommendations } from '@/plan/recommendations';
+import { CourseCard, courseCost, courseFacts, courseLetter } from '@/plan/CourseCard';
+import { findLatestRecommendationJob, loadRecommendationResult } from '@/plan/recommendations';
+import { loadTripCourses, type TripCourse, type TripCoursesResult } from '@/plan/tripCourses';
+import { shouldAskTripName, wasTripNameAsked } from '@/trip/tripNaming';
+import { loadTrips } from '@/trip/trips';
 
-function CourseCard({ course, onAction }: { course: RecommendationCourse; onAction: (state: RecommendationCourse['actionState']) => void }) {
-  const { tx } = useI18n();
-  const STATUS = { VERIFIED: tx('확인됨', 'Verified'), ESTIMATED: tx('추정', 'Estimated'), UNKNOWN: tx('미확인', 'Unconfirmed') } as const;
-  const CROWD = { LOW: tx('여유', 'Light'), MEDIUM: tx('보통', 'Moderate'), HIGH: tx('혼잡', 'Crowded') } as const;
-  const FALLBACK = { MODEL: tx('개인화 추천', 'Personalized recommendation'), RULE: tx('조건 기반 추천', 'Condition-based recommendation'), BASELINE: tx('기본 추천', 'Baseline recommendation') } as const;
-  // — 사진 없는 카드가 기본이고 사진이 예외다. 장소 사진이 채워진 비율은
-  // 2.7% 이고 앞으로 채울 수 있는 상한이 2.9% 다. 음식점 2,355곳은 영원히 없다(적재기가
-  // 구조적으로 null 을 넣는다). 그래서 사진 자리를 크게 잡아 두면 회색 띠만 남는다
-  // 아예 두지 않고, 사진이 있을 때만 얹는다.
-  const facts = [
-    course.estimatedCostKrw == null ? null : tx(`예상 비용 ${course.estimatedCostKrw.toLocaleString()}원`, `Est. cost ${course.estimatedCostKrw.toLocaleString()} KRW`),
-    course.crowdLevel ? tx(`혼잡도 ${CROWD[course.crowdLevel]}`, `Crowd ${CROWD[course.crowdLevel]}`) : null,
-  ].filter((fact): fact is string => fact !== null);
-  return <View style={styles.card}>{course.imageUrl ? <Image source={{ uri: course.imageUrl }} accessibilityLabel={tx(`${course.title} 대표 이미지`, `${course.title} cover image`)} resizeMode="cover" style={styles.image} /> : null}<View style={styles.cardBody}><View style={styles.titleRow}><Text variant="title" weight="bold" style={styles.grow}>{course.title}</Text><View style={styles.status}><Text variant="caption" weight="bold">{STATUS[course.dataStatus]}</Text></View></View><View style={styles.tags}>{course.reasons.map((reason, index) => <View key={`${reason}-${index}`} style={styles.tag}><Text variant="caption" weight="bold" color={color.brand.orange}>#{reason}</Text></View>)}</View>{facts.length ? <Text variant="caption" color={color.text.body}>{facts.join(' · ')}</Text> : null}{(() => {
-      // 코드를 그대로 찍지 않는다. 전에는 join(' · ') 으로 이어 붙여
-      // 「이동 제약 · ACCESSIBILITY_UNVERIFIED」 처럼 영문 대문자가 그대로 나갔다
-      // 아침에 일정 화면에서 고친 것과 같은 결함이 여기 남아 있었다.
-      // 사전에 짝이 없는 코드는 describeWarningCodes 가 뺀다.
-      const warnings = describeWarningCodes(course.mobilityWarnings, tx);
-      return warnings.length ? <Text variant="caption" color={color.state.danger}>{tx('이동 제약', 'Mobility constraints')} · {warnings.join(' · ')}</Text> : null;
-    })()}<Text variant="caption" color={color.text.muted}>{FALLBACK[course.fallbackMode]}</Text><View style={styles.actions}><Pressable accessibilityRole="button" accessibilityState={{ selected: course.actionState === 'saved', busy: course.actionState === 'saving' }} onPress={() => onAction(course.actionState === 'saved' ? 'idle' : 'saved')} style={styles.action}><Text variant="caption" weight="bold">{course.actionState === 'saved' ? tx('저장됨', 'Saved') : tx('저장', 'Save')}</Text></Pressable><Pressable accessibilityRole="button" accessibilityState={{ selected: course.actionState === 'excluded', busy: course.actionState === 'excluding' }} onPress={() => onAction(course.actionState === 'excluded' ? 'idle' : 'excluded')} style={styles.action}><Text variant="caption" weight="bold">{course.actionState === 'excluded' ? tx('제외됨', 'Excluded') : tx('제외', 'Exclude')}</Text></Pressable></View></View></View>;
-}
+type Loaded = { state: 'loading' } | { state: 'ready'; result: TripCoursesResult };
 
 export default function Recommendations() {
-  const router = useRouter(); const { accessToken } = useAuth(); const { tx } = useI18n(); const { id, jobId } = useLocalSearchParams<{ id: string; jobId?: string }>();
-  const [view, setView] = useState<RecommendationViewModel>(() => jobId || id ? { ...unavailableRecommendations(), state: 'loading', message: tx('추천 결과를 확인하고 있어요.', 'Checking your recommendation result.') } : unavailableRecommendations());
+  const router = useRouter();
+  const { accessToken } = useAuth();
+  const { tx, language } = useI18n();
+  const { kind } = useLayout();
+  const wide = kind !== 'phone';
+  const ko = resolveTextLanguage(language) === 'ko';
+  const { id, jobId } = useLocalSearchParams<{ id: string; jobId?: string }>();
+  const tripId = id ?? '';
 
-  // 완성된 일정으로 가면서 한 번만 이름을 물어본다.
-  //
-  // 🔴 전에는 `/{tripId}/name` 이라는 **페이지**로 새 나갔다(시안 ④ 가 없앤 것). 이름을
-  //    묻자고 화면을 갈아 끼우면 방금 만든 일정이 사라지고, 사용자는 「내 일정 어디 갔지」를
-  //    먼저 겪는다. 이제는 일정 화면으로 바로 가고 **그 위에 겹쳐 뜬다**.
-  const openItinerary = async (itineraryId: string) => {
+  const [loaded, setLoaded] = useState<Loaded>({ state: 'loading' });
+  const [picked, setPicked] = useState<string | null>(null);
+  const [saved, setSaved] = useState<Record<string, boolean>>({});
+
+  const load = useCallback(async () => {
+    setLoaded({ state: 'loading' });
+    // 코스 계약이 아직 없을 때 대신 보여 줄 일정을 찾아 둔다. 생성 작업에서 온 경우
+    // jobId 가 있고, 내 여행에서 들어온 경우 가장 최근 작업을 찾는다.
+    let itineraryId: string | null = null;
+    let job: string | null = jobId ?? null;
+    if (!job && tripId) {
+      const lookup = await findLatestRecommendationJob(tripId, accessToken);
+      // 🔴 「없음」·「못 찾음」에는 번호 칸이 아예 없다. 있다고 치고 읽으면 undefined 가
+      //    주소에 박혀 엉뚱한 자리를 부른다.
+      job = 'jobId' in lookup ? lookup.jobId : null;
+    }
+    if (job) {
+      const result = await loadRecommendationResult(job, accessToken);
+      itineraryId = result.itineraryId;
+    }
+    setLoaded({ state: 'ready', result: await loadTripCourses(tripId, itineraryId, accessToken) });
+  }, [accessToken, jobId, tripId]);
+
+  useEffect(() => { void load(); }, [load]);
+
+  const courses: TripCourse[] = loaded.state === 'ready' && loaded.result.state === 'success' ? loaded.result.courses : [];
+  const full = loaded.state === 'ready' && loaded.result.state === 'success' ? loaded.result.full : true;
+
+  // 🔴 처음 한 안을 미리 고르지 않는다. 고른 것처럼 보이면 사람은 견주지 않고 그냥 누른다.
+  //    다만 안이 하나뿐이면 고를 것이 없으므로 그것을 고른 것으로 둔다.
+  useEffect(() => {
+    if (picked === null && courses.length === 1) setPicked(courses[0].id);
+  }, [courses, picked]);
+
+  const current = courses.find((course) => course.id === picked) ?? null;
+
+  const build = async (course: TripCourse) => {
+    // 🔴 「코스를 골랐다」는 이벤트를 안 보낸다. 서버가 받는 종류가 넷으로 정해져 있고,
+    //    없는 종류를 만들어 보내면 그 줄은 조용히 버려진다 — 재는 줄 알고 안 재게 된다.
+    const itineraryId = course.itineraryId;
+    if (!itineraryId) return;
     const target = `/trips/${itineraryId}/itinerary`;
-    const tripId = view.tripId;
-    if (!tripId) { router.push(target); return; }
     try {
       const [trips, alreadyAsked] = await Promise.all([loadTrips(accessToken), wasTripNameAsked(tripId)]);
       const title = trips.state === 'success' ? trips.trips.find((trip) => trip.tripId === tripId)?.title : null;
-      if (shouldAskTripName({ title, alreadyAsked })) {
-        router.push(`${target}?name=1`);
-        return;
-      }
+      // 코스를 고른 직후에만 이름 묻기가 열린 채로 들어간다 — 시안 ④.
+      if (shouldAskTripName({ title, alreadyAsked })) { router.push(`${target}?name=1`); return; }
     } catch {
-      // 물어볼지 정하다 실패하면 묻지 않고 지나간다. 일정을 보러 가는 길을
-      // 이름 짓기 때문에 막지 않는다.
+      // 물어볼지 정하다 실패하면 묻지 않고 지나간다. 일정을 보러 가는 길을 막지 않는다.
     }
     router.push(target);
   };
-  // 담아두기·빼기가 어디에 속하는가 —.
-  const actionScope = useCallback((tripId: string | null): RecommendationActionScope => ({
-    tripId,
-    deviceKey: tripId ?? id ?? '',
-    accessToken,
-  }), [accessToken, id]);
-  const reload = useCallback(async () => {
-    // 이 화면의 주소는 `/trips/{작업번호}/recommendations?jobId={같은 값}` 이다
-    // 생성 화면이 그렇게 보낸다. 경로에 작업 번호가 이미 들어 있는데 코드는 물음표 뒤만
-    // 읽었다. 그래서 같은 주소를 다시 열면, 값이 멀쩡히 있는데도 서버를 안 불렀다.
-    if (!jobId && !id) { setView(unavailableRecommendations()); return; }
-    setView((current) => ({ ...current, state: 'loading', message: tx('추천 결과를 확인하고 있어요.', 'Checking your recommendation result.') }));
-    let next = await loadRecommendationResult(jobId ?? id, accessToken);
-    // 작업 번호로 못 찾았을 때만 여행 번호로 한 번 더 찾아본다. 여행에서 바로 들어오는 길이
-    // 생기면 그때는 이 칸이 여행 번호이므로, 그 경로를 위해 남겨 둔다.
-    if (next.state === 'unavailable' && id) {
-      const lookup = await findLatestRecommendationJob(id, accessToken);
-      if (lookup.state === 'found' || lookup.state === 'in-progress') next = await loadRecommendationResult(lookup.jobId, accessToken);
-    }
-    // 담아두기·빼기를 되살린다 —· 1082.
-    const stored = await loadRecommendationActions(actionScope(next.tripId));
-    setView({ ...next, courses: next.courses.map((course) => stored[course.id] ? { ...course, actionState: stored[course.id] } : course) });
-  }, [accessToken, actionScope, id, jobId, tx]);
-  useEffect(() => { void reload(); }, [reload]);
-  // 전송은 setView 의 갱신 함수 밖에서 한다. 그 안에서 하면 React 가 갱신 함수를 두 번 부를 때
-  // 이벤트도 두 건 적힌다. 그리고 버튼은 서버 응답을 기다리지 않는다.
-  const updateAction = (courseId: string, actionState: RecommendationCourse['actionState']) => {
-    setView((current) => ({ ...current, courses: current.courses.map((course) => course.id === courseId ? { ...course, actionState } : course) }));
-    // 적는다 —· 1082. 아래 행동 이벤트는 분석용이라 되읽지 않는다.
-    // 이것이 없던 동안 버튼은 눌려도 화면을 다시 열면 원래대로 돌아갔다.
-    // 여행 번호를 알면 서버에도 간다 — 그래야 동행자가 서로의 판단을 본다.
-    void saveRecommendationAction(actionScope(view.tripId), courseId, actionState === 'saved' || actionState === 'excluded' ? actionState : null);
-    if (actionState === 'saved' || actionState === 'excluded') {
-      sendAppEvent({ type: actionState === 'saved' ? 'place_like' : 'place_dislike', accessToken, tripId: id, payload: { place_id: courseId, surface: 'recommendations' } });
-    }
-  };
-  const { width } = useLayout();
-  const wide = isAtLeast(width, 'lg');
-  const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
-  // 고른 것이 없거나 목록이 바뀌어 사라졌으면 첫 코스를 본다 — 오른쪽 칸이 비는 순간을 안 만든다.
-  const selectedCourse = view.courses.find((course) => course.id === selectedCourseId) ?? view.courses[0] ?? null;
-  const unavailable = view.state === 'unavailable' || view.state === 'empty-conflict';
-  return <View style={styles.shell}><Screen scroll wide withTabBar style={styles.canvas}><View style={styles.nav}><Pressable accessibilityRole="button" accessibilityLabel={tx('뒤로 가기', 'Go back')} onPress={() => router.canGoBack() ? router.back() : router.replace('/plan/confirm')} style={styles.back}><Text variant="title">‹</Text></Pressable><View style={styles.dots}><View style={styles.dot} /><View style={styles.dot} /><View style={styles.activeDot} /></View></View><Text variant="caption" weight="bold" color={color.brand.orange}>{tx('추천 일정 요약', 'Recommendation summary')}</Text><Text variant="display" weight="bold" style={styles.heading}>{view.state === 'success' || view.state === 'partial' || view.state === 'fallback' ? tx(`${view.courses.length}가지 코스를 골라봤어요.`, `We picked ${view.courses.length} courses for you.`) : tx('추천 결과', 'Recommendation result')}</Text>
-      {(view.state === 'success' || view.state === 'partial' || view.state === 'fallback') && (view.placeCount !== null || view.estimatedTravelMinutes !== null) && <Text variant="body" color={color.text.muted} style={styles.summary}>{[view.placeCount !== null ? tx(`장소 ${view.placeCount}곳`, `${view.placeCount} places`) : null, view.estimatedTravelMinutes !== null ? tx(`이동 약 ${view.estimatedTravelMinutes}분`, `~${view.estimatedTravelMinutes} min travel`) : null].filter(Boolean).join(' · ')}</Text>}
-      {view.state === 'loading' && <View accessibilityLabel={tx('추천을 불러오고 있어요', 'Loading recommendations')} style={styles.list}>{[0, 1].map((key) => (
-        <View key={key} style={styles.card}>
-          <Skeleton width="100%" height={140} radius={0} />
-          <View style={styles.cardBody}>
-            <Skeleton width="70%" height={18} />
-            <View style={styles.tags}><Skeleton width={64} height={22} radius={radius.sm} /><Skeleton width={64} height={22} radius={radius.sm} /></View>
-            <Skeleton width="50%" height={14} />
-            <Skeleton width="40%" height={14} />
-          </View>
+
+  const header = (
+    <View style={styles.head}>
+      <Text variant="caption" weight="bold" color={color.brand.orange}>{tx('추천 코스 고르기', 'Pick a course')}</Text>
+      <Text variant="hero" weight="bold" color={color.text.heading}>
+        {courses.length > 1
+          ? tx(`${courses.length}가지 코스`, `${courses.length} courses`)
+          : tx('추천 코스', 'Your course')}
+      </Text>
+      {/* 🔴 한 안뿐인 이유를 말한다. 조용히 하나만 그리면 사용자는 비교를 놓친 줄도 모른다. */}
+      {full ? null : (
+        <Text variant="caption" color={color.text.muted}>
+          {tx('지금은 만들어진 일정 하나만 보여 드려요. 세 가지 코스 비교는 준비 중이에요.',
+            'Only the itinerary we built is shown for now — comparing three courses is on the way.')}
+        </Text>
+      )}
+    </View>
+  );
+
+  const list = (
+    <View style={styles.list}>
+      {header}
+      {loaded.state === 'loading' ? (
+        <>
+          <Skeleton height={200} />
+          <Skeleton height={200} />
+        </>
+      ) : loaded.result.state !== 'success' ? (
+        <View style={styles.stateCard}>
+          <Text color={color.text.body}>{loaded.result.message}</Text>
+          <Pressable accessibilityRole="button" onPress={() => void load()} style={styles.retry}>
+            <Text weight="bold" color={color.brand.navy}>{tx('다시 시도', 'Try again')}</Text>
+          </Pressable>
         </View>
-      ))}</View>}
-      {(view.state === 'partial' || view.state === 'fallback') && <View style={styles.notice}><Text accessibilityRole="alert" variant="caption" weight="bold">{view.message}</Text></View>}
-      {(view.state === 'error' || view.state === 'offline') && <View style={styles.stateCard}><Text variant="title" weight="bold">{view.state === 'offline' ? tx('인터넷 연결을 확인해 주세요', 'Please check your internet connection') : tx('추천을 불러오지 못했어요', 'Could not load recommendations')}</Text><Text color={color.text.body}>{view.message}</Text><Button accessibilityRole="button" label={tx('다시 시도', 'Try again')} variant="ghost" onPress={() => void reload()} /></View>}
-      {unavailable && <View style={styles.stateCard}><View style={styles.emptyMark}><Text variant="display">⌁</Text></View><Text variant="title" weight="bold">{view.state === 'empty-conflict' ? tx('조건을 만족하는 코스가 없어요', 'No course matched your conditions') : tx('아직 생성된 추천이 없어요', 'No recommendations yet')}</Text><Text color={color.text.body}>{view.message}</Text>{describeWarningCodes(view.conflicts, tx).map((item) => <Text key={item} accessibilityRole="alert" variant="caption" color={color.state.danger}>• {item}</Text>)}<Button accessibilityRole="button" label={tx('조건 수정하기', 'Edit conditions')} variant="ghost" onPress={() => router.push('/plan/confirm')} />{jobId && <Button accessibilityRole="button" label={tx('다시 확인', 'Check again')} variant="ghost" onPress={() => void reload()} />}</View>}
-      {/* — 넓은 화면은 왼쪽 목록 + 오른쪽 고른 코스로 나눈다. 카드 하나가
-          1180px 를 차지하던 자리다. 폰은 지금처럼 한 줄로 둔다(티켓 지시) — 목록과 상세를
-          함께 쌓으면 정작 보러 온 목록이 한참 밀려 내려간다.
-      */}
-      {wide && view.courses.length
-        ? <View style={styles.wideGrid}>
-            <View style={styles.listColumn} accessibilityRole="tablist">
-              {view.courses.map((course) => {
-                const selected = course.id === selectedCourse?.id;
-                return <Pressable key={course.id} accessibilityRole="tab" accessibilityState={{ selected }} onPress={() => setSelectedCourseId(course.id)} style={[styles.listRow, selected && styles.listRowSelected]}>
-                  <Text variant="body" weight="bold" numberOfLines={1}>{course.title}</Text>
-                  {course.reasons.length ? <Text variant="caption" color={color.text.muted} numberOfLines={1}>#{course.reasons.slice(0, 2).join(' #')}</Text> : null}
-                </Pressable>;
-              })}
-            </View>
-            <View style={styles.detailColumn}>
-              {selectedCourse ? <CourseCard course={selectedCourse} onAction={(state) => updateAction(selectedCourse.id, state)} /> : null}
-            </View>
+      ) : (
+        courses.map((course, index) => (
+          <CourseCard
+            key={course.id}
+            course={course}
+            index={index}
+            selected={course.id === picked}
+            saved={Boolean(saved[course.id])}
+            onSelect={() => setPicked(course.id)}
+            onToggleSave={() => setSaved((prev) => ({ ...prev, [course.id]: !prev[course.id] }))}
+            onBuild={() => void build(course)}
+            tx={tx}
+            ko={ko}
+          />
+        ))
+      )}
+    </View>
+  );
+
+  if (wide) {
+    return (
+      <View style={[styles.shell, styles.shellWide]}>
+        <ScrollView style={styles.listPane} contentContainerStyle={styles.listPaneInner}>{list}</ScrollView>
+        {/* 오른쪽 전면 지도. 코스가 하나도 없을 때는 빈 판을 두지 않고 안내를 적는다. */}
+        <View style={styles.mapPane}>
+          <View style={styles.mapLegend}>
+            {courses.map((course, index) => (
+              <Pressable
+                key={course.id}
+                accessibilityRole="button"
+                accessibilityState={{ selected: course.id === picked }}
+                onPress={() => setPicked(course.id)}
+                style={[styles.legendChip, course.id === picked && styles.legendChipOn]}
+              >
+                <Text variant="caption" weight="bold" color={course.id === picked ? color.text.onAction : color.text.heading} numberOfLines={1}>
+                  {course.title || tx(`코스 ${courseLetter(index)}`, `Course ${courseLetter(index)}`)}
+                </Text>
+              </Pressable>
+            ))}
           </View>
-        : <View style={styles.list}>{view.courses.map((course) => <CourseCard key={course.id} course={course} onAction={(state) => updateAction(course.id, state)} />)}</View>}
-      <Button accessibilityRole="button" accessibilityState={{ disabled: !view.itineraryId }} label={tx('이 일정으로 보기', 'View this itinerary')} disabled={!view.itineraryId} containerStyle={styles.cta} onPress={() => { if (view.itineraryId) void openItinerary(view.itineraryId); }} />
-      {view.itineraryId ? <Text variant="caption" color={color.text.muted} style={styles.reason}>{tx('다음에 여행 이름을 붙일 수 있어요. 건너뛰어도 괜찮아요.', 'You can name your trip next. Skipping is fine.')}</Text> : null}
-      {!view.itineraryId && <Text variant="caption" color={color.text.muted} style={styles.reason}>{tx('완성된 일정이 생기면 상세 일정으로 이동할 수 있어요.', 'You can move to the full itinerary once it’s ready.')}</Text>}
-    </Screen><TabBar active="schedule" /></View>;
+          {/* 🔴 지도를 그리려면 정차지의 **좌표**가 필요한데 코스 계약에 그 칸이 없다
+              (S15P21E201-1323). 좌표 없이 선을 그으면 실제로 안 가는 길을 그리게 된다 —
+              그건 빈 지도보다 나쁘다. 그래서 그때까지는 **동선을 글로** 세운다.
+              장소 이름과 시각은 전부 실값이라, 고른 코스가 무엇인지는 그대로 읽힌다. */}
+          <ScrollView style={styles.mapBody} contentContainerStyle={styles.mapBodyInner}>
+            {current ? (
+              <>
+                <Text variant="caption" weight="bold" color={color.brand.orange}>{tx('코스 내용', 'What is in this course')}</Text>
+                <Text variant="title" weight="bold">{current.title}</Text>
+                <Text variant="caption" color={color.text.muted}>{courseFacts(current, ko)}</Text>
+                {current.days.map((day) => (
+                  <View key={day.day} style={styles.mapDay}>
+                    <View style={styles.legendChip}>
+                      <Text variant="caption" weight="bold">{tx(`${day.day}일차`, `Day ${day.day}`)}</Text>
+                    </View>
+                    {day.stops.map((stop, index) => (
+                      <View key={`${day.day}-${index}-${stop.name}`} style={styles.mapStop}>
+                        <Text variant="caption" weight="bold" color={color.text.muted} style={styles.mapTime}>{stop.time ?? ''}</Text>
+                        <View style={styles.mapStopCopy}>
+                          <Text weight="bold" numberOfLines={1}>{stop.name}</Text>
+                          {stop.note ? <Text variant="caption" color={color.text.muted} numberOfLines={2}>{stop.note}</Text> : null}
+                        </View>
+                      </View>
+                    ))}
+                  </View>
+                ))}
+                {current.rationale ? (
+                  <View style={styles.rationale}>
+                    <Text variant="caption" weight="bold" color={color.brand.orange}>{tx('이렇게 골랐어요', 'Why this course')}</Text>
+                    <Text variant="caption" color={color.text.body}>{current.rationale}</Text>
+                  </View>
+                ) : null}
+                <Text variant="caption" color={color.text.muted}>
+                  {tx('동선 지도는 준비 중이에요. 장소의 좌표가 들어오면 여기에 선으로 그려 드려요.',
+                    'The route map is on the way — we will draw it once the stops carry coordinates.')}
+                </Text>
+              </>
+            ) : (
+              <Text variant="caption" color={color.text.muted}>{tx('코스를 고르면 내용이 여기에 보여요.', 'Pick a course to see what is in it.')}</Text>
+            )}
+          </ScrollView>
+        </View>
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.shell}>
+      <Screen scroll withTabBar>
+        {/* 폰은 위 줄과 코스 칩이 **최상단에 고정**된다(인계 §4). 스크롤해도 어느 안을 보고
+            있는지 안 잃어버린다. */}
+        <View style={styles.phoneTop}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={tx('뒤로 가기', 'Go back')}
+            onPress={() => (router.canGoBack() ? router.back() : router.replace('/trips'))}
+            style={styles.phoneBack}
+          >
+            <Text variant="title">‹</Text>
+          </Pressable>
+          <Text variant="caption" weight="bold">{tx('추천 코스', 'Courses')}</Text>
+          <View style={styles.phoneBack} />
+        </View>
+        {courses.length > 1 ? (
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.phoneChips}>
+            {courses.map((course, index) => (
+              <Pressable
+                key={course.id}
+                accessibilityRole="button"
+                accessibilityState={{ selected: course.id === picked }}
+                onPress={() => setPicked(course.id)}
+                style={[styles.legendChip, course.id === picked && styles.legendChipOn]}
+              >
+                <Text variant="caption" weight="bold" color={course.id === picked ? color.text.onAction : color.text.heading} numberOfLines={1}>
+                  {course.title || tx(`코스 ${courseLetter(index)}`, `Course ${courseLetter(index)}`)}
+                </Text>
+              </Pressable>
+            ))}
+          </ScrollView>
+        ) : null}
+        {list}
+      </Screen>
+
+      {/* 하단 고정 바 — 비용과 「이 코스로 일정 만들기」. 고른 안이 없으면 안 그린다. */}
+      {current ? (
+        <View style={styles.bottomBar}>
+          <View style={styles.bottomCopy}>
+            <Text weight="bold" numberOfLines={1}>
+              {courseCost(current, ko) ?? tx('비용 미정', 'Cost unknown')}
+              {courseCost(current, ko) ? tx(' 예상', ' est.') : ''}
+            </Text>
+            <Text variant="caption" color={color.text.muted} numberOfLines={1}>{courseFacts(current, ko)}</Text>
+          </View>
+          <Pressable accessibilityRole="button" onPress={() => void build(current)} style={({ pressed }) => [styles.bottomCta, pressed && styles.pressed]}>
+            <Text weight="bold" color={color.text.onAction} numberOfLines={1}>{tx('이 코스로 일정 만들기', 'Build this itinerary')}</Text>
+          </Pressable>
+        </View>
+      ) : null}
+      <TabBar active="map" />
+    </View>
+  );
 }
-const styles = StyleSheet.create({ shell: { flex: 1, backgroundColor: color.brand.ivory }, canvas: { backgroundColor: color.brand.ivory }, nav: { minHeight: 44, marginTop: spacing[6], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }, back: { width: 44, height: 44, borderRadius: radius.full, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center' }, dots: { flexDirection: 'row', gap: spacing[1] }, dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: color.surface.field }, activeDot: { width: 18, height: 6, borderRadius: 3, backgroundColor: color.brand.orange }, heading: { marginTop: spacing[1] }, summary: { marginBottom: spacing[4] }, stateCard: { gap: spacing[3], padding: spacing[6], borderRadius: radius.lg, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.border, alignItems: 'center' }, emptyMark: { width: 64, height: 64, borderRadius: radius.full, backgroundColor: '#ede9e0', alignItems: 'center', justifyContent: 'center' }, notice: { marginBottom: spacing[3], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.state.warningBg }, list: { gap: spacing[3] }, wideGrid: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[6] }, listColumn: { width: 320, gap: spacing[2] }, detailColumn: { flex: 1, minWidth: 0 }, listRow: { gap: spacing[1], padding: spacing[3], borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.surface.card }, listRowSelected: { borderColor: color.brand.orange, backgroundColor: color.surface.warm }, card: { overflow: 'hidden', borderRadius: radius.lg, backgroundColor: color.surface.card, shadowColor: color.brand.navy, shadowOpacity: .08, shadowRadius: 12, elevation: 2 }, image: { width: '100%', height: 140 }, cardBody: { gap: spacing[2], padding: spacing[4] }, titleRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] }, grow: { flex: 1 }, status: { paddingHorizontal: spacing[2], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: color.surface.soft }, tags: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[1] }, tag: { paddingHorizontal: spacing[2], paddingVertical: spacing[1], borderRadius: radius.sm, backgroundColor: color.surface.tint }, actions: { flexDirection: 'row', gap: spacing[2] }, action: { minWidth: 72, minHeight: 44, borderRadius: radius.sm, backgroundColor: color.surface.subtle, alignItems: 'center', justifyContent: 'center' }, cta: { minHeight: 50, marginTop: spacing[4], backgroundColor: color.brand.navy }, reason: { textAlign: 'center', marginTop: spacing[2] }, tripRef: { textAlign: 'center', marginTop: spacing[4] } });
+
+const styles = StyleSheet.create({
+  shell: { flex: 1, backgroundColor: color.brand.ivory },
+  // 🔴 넓은 화면만 가로 2단이다. 폰에서 가로로 두면 목록이 600 을 차지해 화면 밖으로 나간다.
+  shellWide: { flexDirection: 'row' },
+
+  // 데스크톱: 왼쪽 목록 600 · 오른쪽 전면 지도 (시안 ③).
+  // 🔴 폭을 셋 다 적는다. 가로 배치에서 width 하나만 주면 남는 자리를 채우려고 늘어난다.
+  listPane: { width: 600, maxWidth: 600, flexGrow: 0, flexShrink: 0, flexBasis: 600, backgroundColor: color.brand.ivory },
+  listPaneInner: { padding: spacing[6], gap: spacing[4] },
+  mapPane: { flex: 1, minWidth: 0, backgroundColor: color.surface.soft },
+  mapLegend: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2], padding: spacing[4] },
+  mapBody: { flex: 1 },
+  mapBodyInner: { gap: spacing[2], padding: spacing[6] },
+  mapDay: { gap: spacing[2], marginTop: spacing[3] },
+  mapStop: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[3] },
+  mapTime: { width: 44 },
+  mapStopCopy: { flex: 1, minWidth: 0 },
+  rationale: { gap: spacing[1], marginTop: spacing[4], padding: spacing[4], borderRadius: radius.md, backgroundColor: color.surface.card },
+
+  list: { gap: spacing[4] },
+  head: { gap: spacing[1] },
+  stateCard: { gap: spacing[3], padding: spacing[6], borderRadius: radius.lg, backgroundColor: color.surface.card },
+  retry: { alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[4], borderRadius: radius.full, borderWidth: 1, borderColor: color.surface.border },
+
+  legendChip: { minHeight: 36, justifyContent: 'center', paddingHorizontal: spacing[4], borderRadius: radius.full, borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.surface.card },
+  legendChipOn: { backgroundColor: color.brand.navy, borderColor: color.brand.navy },
+
+  phoneTop: { minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  phoneBack: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
+  phoneChips: { gap: spacing[2], paddingVertical: spacing[2] },
+
+  bottomBar: {
+    position: 'absolute', left: spacing[4], right: spacing[4], bottom: 96,
+    flexDirection: 'row', alignItems: 'center', gap: spacing[3],
+    padding: spacing[3], borderRadius: radius.lg, backgroundColor: color.surface.card,
+    shadowColor: color.brand.navy, shadowOpacity: 0.18, shadowRadius: 16, shadowOffset: { width: 0, height: 6 }, elevation: 8,
+  },
+  bottomCopy: { flex: 1, minWidth: 0 },
+  bottomCta: { minHeight: 48, justifyContent: 'center', paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.brand.navy },
+  pressed: { opacity: 0.82 },
+});
