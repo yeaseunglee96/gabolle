@@ -50,6 +50,32 @@
  *      시각에 따라 뒤집힌다. 그래서 여기서 합치지 않고 **쓰는 쪽에서** 시각을 골라
  *      합친다 (`process/shade-route.mjs --trees`). 이 파일은 시각 없는 한 값만 낸다.
  *
+ * ── 🔴 부산진구 67건은 못 살린다 — 파서를 고쳐도 안 된다 (S15P21E201-1229) ──
+ *
+ * 요약의 `칼럼밀림레코드` 를 보고 **"칼럼만 맞춰 주면 살아나겠네"** 로 읽기 쉽다.
+ * 아니다. 2026-09-18 에 부산진구 67건을 전부 열어 **수종칸 38 × 67 = 2,546칸**을 셌다.
+ *
+ *     숫자가 든 칸        0      ← 그루 수가 한 칸도 없다
+ *     total 이 숫자인 건  0
+ *     글자가 든 칸        67     ← 전부 `metasequoia` 칸. 값은 랜드마크 이름("시영아파트")
+ *     loc_nm · 좌표       67건 다 있다
+ *     조사일자            전부 2025-12-11 (다른 구와 다르다)
+ *
+ * **제공처가 그루 수를 안 보냈다.** 칼럼 순서가 다른 것은 그 구가 **다른 모양의 엑셀**을
+ * 냈다는 증거일 뿐, 우리가 고칠 자리가 아니다. 그래서 요약이 둘을 갈라 센다 —
+ * `칼럼밀림레코드`(모양이 틀림)와 `그루수가아예없는레코드`(살릴 것이 없음).
+ *
+ * 🔴 **그래도 0 으로 채우지 않는다.** 채우면 부산진구가 통째로 "그늘 최악" 이 되어
+ *    추천에서 밀린다. **「그늘 0」과 「모름」은 다른 것이다** — 그 구의 장소는 이 축이
+ *    빠질 뿐이고, 그것이 맞는 동작이다.
+ *
+ * 🔴 **기장군 2건은 이것과 다르다.** 수종칸은 비었지만 `total` 이 있어(125·40)
+ *    `etc_tree` 로 이미 살아난다. 처음에 이 둘도 못 살린다고 봤다가 재 보고 정정했다.
+ *
+ * 연제구 `reference_date` 가 `46000` 으로 온다 — 엑셀 일련번호가 글자로 넘어온 것이고
+ * 읽으면 2025-12-09 라 이웃 구(12-10·12-11)와 앞뒤가 맞는다. 점수 계산에 안 쓰는 칸이라
+ * **고치지 않고 여기 적어만 둔다.**
+ *
  * 🔴 이것은 선호 가중치가 아니다. "그늘이 얼마나 많은가" 만 낸다.
  *    "그늘 있는 길을 얼마나 더 좋아하는가" 는 짝 비교 실험이 정한다 (docs/FIELD-STUDY.md).
  *
@@ -221,6 +247,7 @@ async function main() {
   // ── 2. 레코드 정리 ─────────────────────────────────────────────────────
   const q = {
     columnShift: 0, shiftExamples: [],       // 제공처 스프레드시트 칼럼 밀림
+    noCounts: 0, noCountsByGugun: {},        // 그중 살릴 그루 수가 아예 없는 것 (S15P21E201-1229)
     totalIsFormula: 0, totalEmpty: 0, totalMismatch: 0, totalMismatchExamples: [],
     noDistance: 0, distKm: 0, distM: 0, dotButM: 0, intBelowBoundary: 0,
     badCoord: 0, badCoordExamples: [],
@@ -239,6 +266,17 @@ async function main() {
     if (shifted.length) {
       q.columnShift++
       if (q.shiftExamples.length < 5) q.shiftExamples.push({ loc_nm: r.loc_nm, 칼럼: shifted[0], 값: String(r[shifted[0]]) })
+
+      // 🔴 **「칼럼이 밀렸다」와 「그루 수가 없다」는 다른 것이다** (S15P21E201-1229).
+      //    앞은 우리가 고치면 살아난다는 뜻으로 읽히고, 뒤는 **원본에 없다**는 뜻이다.
+      //    이 자리에서 실제로 살릴 것이 있는지를 함께 세지 않으면, 다음 사람이 파서를
+      //    고치러 들어갔다가 아무것도 못 살리고 나온다 — 실제로 그 일이 있었다.
+      const anyCount = speciesCols.some((k) => Number(r[k]) > 0) || Number(String(r.total ?? '').replace(/,/g, '')) > 0
+      if (!anyCount) {
+        q.noCounts++
+        const g = String(r.gugun ?? '(모름)').replace(/^부산광역시\s*/, '').trim()
+        q.noCountsByGugun[g] = (q.noCountsByGugun[g] ?? 0) + 1
+      }
       continue
     }
 
@@ -521,6 +559,10 @@ async function main() {
       '//': '🔴 제공처 원본이 16개 구·군 엑셀을 합친 것이라 정합성이 낮다. 숨기지 않고 센다.',
       칼럼밀림레코드: q.columnShift,
       칼럼밀림예시: q.shiftExamples,
+      '//살릴것이있나': '🔴 칼럼밀림은 「우리가 고치면 살아난다」로 읽히는데, 그 안에 살릴 그루 수가 아예 없는 것이 섞여 있다. 그건 파서 문제가 아니라 제공처가 안 보낸 것이다. 둘을 갈라 센다 (S15P21E201-1229).',
+      '그루수가아예없는레코드': q.noCounts,
+      '그루수없음_구별': q.noCountsByGugun,
+      '//못살린다': '위 구는 가로수 그늘 자료가 0 이다. 🔴 0 으로 채우지 않는다 — 그 구가 통째로 「그늘 최악」이 되어 추천에서 밀린다. 「그늘 0」과 「모름」은 다른 것이다 (config/tree-shade-weights.json 의 결측과-0의-구별).',
       'total이엑셀수식문자열': q.totalIsFormula,
       'total이빈값': q.totalEmpty,
       'total이수종합과다름': q.totalMismatch,
