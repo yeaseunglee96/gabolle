@@ -1,6 +1,6 @@
 // 🔴 이 시험이 지키는 것은 「티켓에 찍힌 숫자가 실제 일정의 것인가」다.
 //    티켓은 그럴듯하게 생겨서, 틀린 값이 찍혀도 사람이 눈으로는 못 잡는다.
-import { buildTripPass, shortenOrigin, tripPassCode, tripPassUrl, type TripPassInput } from '@/plan/tripPassData';
+import { buildTripPass, buildTripPassDetails, shortenOrigin, tripPassCode, tripPassUrl, type TripPassInput } from '@/plan/tripPassData';
 import type { ItineraryDto } from '@/plan/itinerary';
 
 const itinerary = (over: Partial<ItineraryDto> = {}): ItineraryDto => ({
@@ -156,5 +156,46 @@ describe('QR 이 담는 주소', () => {
   it('티켓 값에 주소가 실린다 — 일정이 없으면 null', () => {
     expect(buildTripPass(input()).url).toBe(`${base}/trips/a1b2c3d4-5e6f-7788-99aa-bbccddeeff00/itinerary`);
     expect(buildTripPass(input({ itinerary: null })).url).toBeNull();
+  });
+});
+
+describe('여행표 오른쪽 칸 (시안 p4 의 details)', () => {
+  const rows = (over: Partial<TripPassInput> = {}) =>
+    Object.fromEntries(buildTripPassDetails(input(over)).map((row) => [row.key, row.value]));
+
+  it('출발지 · 첫 일정 · 마지막 일정을 실제 일정에서 가져온다', () => {
+    const r = rows();
+    expect(r['출발지']).toBe('부산역');
+    expect(r['첫 일정']).toBe('10:30 · 감천문화마을');
+    expect(r['마지막 일정']).toBe('11:00 · 해운대해수욕장');
+  });
+
+  it('🔴 방문지가 하나면 「마지막 일정」을 안 만든다 — 같은 줄을 두 번 적지 않는다', () => {
+    const one = itinerary({ days: [{ date: '2026-09-20', items: [
+      { id: 'i1', startsAt: '2026-09-20T10:30:00', title: '감천문화마을', locked: false, placeId: 'p1' } as never,
+    ] }] });
+    expect(rows({ itinerary: one })['마지막 일정']).toBeUndefined();
+  });
+
+  it('🔴 모르는 줄은 아예 안 만든다 — 「미확인」으로 채우지 않는다', () => {
+    const r = rows({ itinerary: null, origin: null });
+    expect(r).toEqual({});
+  });
+
+  it('🔴 이동 합계는 값이 있는 구간만 더하고 몇 구간인지 같이 적는다', () => {
+    const withLegs = itinerary({ days: [{ date: '2026-09-20', items: [
+      { id: 'i1', startsAt: '2026-09-20T10:00:00', title: 'A', locked: false, placeId: 'p1' } as never,
+      { id: 'i2', startsAt: '2026-09-20T12:00:00', title: 'B', locked: false, placeId: 'p2', travelDurationMin: 30 } as never,
+      { id: 'i3', startsAt: '2026-09-20T15:00:00', title: 'C', locked: false, placeId: 'p3', travelDurationMin: 25 } as never,
+    ] }] });
+    expect(rows({ itinerary: withLegs })['이동 합계']).toBe('55분 (2구간)');
+  });
+
+  it('구간 시간이 하나도 없으면 「이동 합계」 줄이 없다', () => {
+    expect(rows()['이동 합계']).toBeUndefined();
+  });
+
+  it('예상 비용은 서버가 준 합계를 쓴다', () => {
+    expect(rows()['예상 비용']).toBe('7.8만원');
   });
 });

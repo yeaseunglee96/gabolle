@@ -185,3 +185,52 @@ export function buildTripPass(input: TripPassInput): TripPassData {
         : 'GABOLLE trip pass',
   };
 }
+
+/** 여행표 오른쪽 칸의 한 줄. 시안 TripPassCard 의 `details`. */
+export type TripPassDetail = { key: string; value: string };
+
+/**
+ * 시안 p4 의 **여행표 오른쪽 칸** — 출발지 · 첫 일정 · 마지막 일정 · 이동 합계 · 예산.
+ *
+ * 🔴 **모르는 줄은 만들지 않는다.** 시안에는 다섯 줄이 다 있지만, 값이 없는 자리에
+ *    「미확인」을 적으면 그건 정보가 아니라 잡음이다 — 이 저장소가 여러 번 겪은 자리다.
+ *
+ * 🔴 **이동 합계는 「적어도 이만큼」이다.** 구간마다 있는 소요시간을 더하는데 값이 없는
+ *    구간은 건너뛴다. 그래서 몇 구간을 셌는지 같이 적는다 — 「155분」만 적으면 그것이
+ *    전체 합계로 읽힌다. 백엔드도 같은 이유로 estimatedTravelMinutes 에 같은 주석을 달았다.
+ */
+export function buildTripPassDetails(input: TripPassInput): TripPassDetail[] {
+  const ko = input.language === 'ko';
+  const allItems = (input.itinerary?.days ?? []).flatMap((day) => day.items);
+  const rows: TripPassDetail[] = [];
+
+  const origin = input.origin?.trim();
+  if (origin) rows.push({ key: ko ? '출발지' : 'From', value: origin });
+
+  const stopLabel = (item: (typeof allItems)[number] | undefined) => {
+    if (!item) return null;
+    const time = formatTime(item.startsAt);
+    const title = item.title?.trim();
+    if (!title) return time;
+    return time ? `${time} · ${title}` : title;
+  };
+  const first = stopLabel(allItems[0]);
+  if (first) rows.push({ key: ko ? '첫 일정' : 'First stop', value: first });
+  const last = allItems.length > 1 ? stopLabel(allItems[allItems.length - 1]) : null;
+  if (last) rows.push({ key: ko ? '마지막 일정' : 'Last stop', value: last });
+
+  // 🔴 값이 있는 구간만 더하고, 몇 구간을 셌는지 같이 적는다.
+  const legs = allItems.filter((item) => typeof item.travelDurationMin === 'number' && item.travelDurationMin !== null);
+  if (legs.length) {
+    const minutes = legs.reduce((sum, item) => sum + (item.travelDurationMin ?? 0), 0);
+    rows.push({
+      key: ko ? '이동 합계' : 'Travel total',
+      value: ko ? `${minutes}분 (${legs.length}구간)` : `${minutes} min (${legs.length} legs)`,
+    });
+  }
+
+  const cost = formatCost(input.itinerary?.totalEstimatedCostKrw, ko);
+  if (cost) rows.push({ key: ko ? '예상 비용' : 'Est. cost', value: cost });
+
+  return rows;
+}
