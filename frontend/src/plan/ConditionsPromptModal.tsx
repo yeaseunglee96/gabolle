@@ -15,12 +15,14 @@
 import { useState } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
+import { useAuth } from '@/auth/AuthProvider';
 import { Button } from '@/components/Button';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { useLayout } from '@/layout/useLayout';
 import { usePlan, type ConstraintSelectionStatus, type PlanDraft } from '@/plan/PlanProvider';
+import { conditionsFromDraft, saveTravelConditions } from '@/plan/travelConditions';
 
 const ALLERGIES = [
   ['PEANUT', '땅콩', 'Peanuts'], ['TREE_NUT', '견과류', 'Tree nuts'], ['SHELLFISH_CRUSTACEAN', '갑각류', 'Shellfish'],
@@ -57,8 +59,33 @@ export function ConditionsPromptModal({ visible, reprompt = false, onClose }: Co
   const { tx } = useI18n();
   const { kind } = useLayout();
   const { draft, update } = usePlan();
+  const { user, accessToken } = useAuth();
   const phone = kind === 'phone';
   const [never, setNever] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saveFailed, setSaveFailed] = useState(false);
+
+  // 🔴 **저장은 이 모달이 한다** (S15P21E201-1245). 전에는 아무도 안 했다 — 화면 상태만
+  //    바꾸고 닫았고, 그 상태는 새로고침 한 번에 사라졌다. 부르는 화면이 넷이라, 그중
+  //    하나만 빠뜨려도 같은 사고가 다시 난다. 그래서 여기 한 곳에 둔다.
+  //
+  // 🔴 **서버에 못 닿았으면 닫지 않는다.** 「저장했다」고 말해 놓고 잃는 것이 이 버그의
+  //    본체였다. 기기에는 이미 적혔으므로 다시 눌러 보게 하고, 그래도 안 되면 그때
+  //    「이 기기에만 저장됐다」고 말한다.
+  const finish = async (outcome: ConditionsOutcome) => {
+    if (outcome === 'DISMISSED') { onClose(outcome); return; }
+    setSaving(true);
+    const { synced } = await saveTravelConditions({
+      userId: user?.userId ?? null,
+      accessToken,
+      status: outcome,
+      conditions: outcome === 'SAVED' ? conditionsFromDraft(draft) : null,
+    });
+    setSaving(false);
+    // 로그인 안 한 사람은 서버에 갈 자리가 없다 — 실패가 아니라 기기 저장이 정상이다.
+    if (accessToken && !synced && outcome === 'SAVED' && !saveFailed) { setSaveFailed(true); return; }
+    onClose(outcome);
+  };
 
   const setStatus = (field: 'allergyStatus' | 'dietStatus', answered: 'allergyAnswered' | 'dietAnswered', values: 'allergies' | 'dietTypes', next: ConstraintSelectionStatus) => {
     // 🔴 「해당 없음」을 고르면 고른 항목을 비운다. 안 비우면 「해당 없음인데 땅콩 선택됨」이
@@ -133,12 +160,16 @@ export function ConditionsPromptModal({ visible, reprompt = false, onClose }: Co
             <View style={styles.block}>
               <Text weight="bold">{tx('이동 환경', 'Getting around')}</Text>
               <Text variant="caption" color={color.text.muted}>{tx('한 번에 걷는 최대 거리', 'Longest walk at once')}</Text>
+              {/* 🔴 「제한 없음」은 **0** 이다. null 이 아니다 (S15P21E201-1245).
+                  null 은 「아직 안 정했다」라서, 확인 화면이 그것을 「보행거리 미확인」으로
+                  그린다 — 사용자가 제한 없음을 고르고도 미확인을 보고 있었다.
+                  요청을 만들 때도 0 은 제약을 안 붙인다(`tripApi.ts`), 그래서 뜻이 맞는다. */}
               <View style={styles.chips}>{WALK_LIMITS.map((meters) => (
                 <Chip
                   key={meters}
                   label={meters === 0 ? tx('제한 없음', 'No limit') : meters >= 1000 ? `${meters / 1000}km` : `${meters}m`}
-                  selected={draft.maxWalkingDistanceM === (meters === 0 ? null : meters) && (meters !== 0 || draft.maxWalkingDistanceM === null)}
-                  onPress={() => update({ maxWalkingDistanceM: meters === 0 ? null : meters })}
+                  selected={draft.maxWalkingDistanceM === meters}
+                  onPress={() => update({ maxWalkingDistanceM: meters })}
                 />
               ))}</View>
 
@@ -162,9 +193,13 @@ export function ConditionsPromptModal({ visible, reprompt = false, onClose }: Co
             </Text>
           </ScrollView>
 
+          {saveFailed ? <Text accessibilityRole="alert" variant="caption" weight="bold" color={color.state.danger} style={styles.saveFailed}>
+            {tx('서버에 저장하지 못했어요. 이 기기에는 적어 뒀어요 — 한 번 더 눌러 보시고, 그래도 안 되면 그대로 진행해도 괜찮아요.', 'We could not save to the server. It is stored on this device — try once more, or go ahead anyway.')}
+          </Text> : null}
+
           <View style={styles.footer}>
             <View style={styles.footerLeft}>
-              <Pressable accessibilityRole="button" onPress={() => onClose('LATER')} style={styles.later}>
+              <Pressable accessibilityRole="button" onPress={() => void finish(never ? 'NEVER' : 'LATER')} style={styles.later}>
                 <Text variant="caption" weight="bold" color={color.text.body} style={styles.underline}>
                   {reprompt ? tx('이번엔 건너뛰기', 'Skip this time') : tx('나중에', 'Later')}
                 </Text>
@@ -176,9 +211,13 @@ export function ConditionsPromptModal({ visible, reprompt = false, onClose }: Co
               </Pressable>
             </View>
             <Button
-              label={tx('저장하고 시작', 'Save and start')}
-              disabled={!savable}
-              onPress={() => onClose(never ? 'NEVER' : 'SAVED')}
+              label={saving ? tx('저장 중…', 'Saving…') : saveFailed ? tx('다시 저장', 'Save again') : tx('저장하고 시작', 'Save and start')}
+              disabled={!savable || saving}
+              /* 🔴 여기서는 「다시 묻지 않기」를 보지 않는다 (S15P21E201-1245). NEVER 로 보내면
+                 서버가 **적은 값을 버린다** — 조건을 다 적고 체크까지 한 사람이 그 답을
+                 통째로 잃는다. SAVED 도 다시 묻지 않으므로 체크의 뜻은 이미 지켜진다.
+                 체크는 아래 「나중에」에만 붙는다. */
+              onPress={() => void finish('SAVED')}
               containerStyle={styles.save}
             />
           </View>
@@ -204,6 +243,7 @@ const styles = StyleSheet.create({
   chipOn: { backgroundColor: color.brand.navy, borderColor: color.brand.navy },
   binaryRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[3], marginTop: spacing[2] },
   binaryLabel: { flex: 1 },
+  saveFailed: { paddingHorizontal: spacing[6], paddingTop: spacing[3] },
   footer: { gap: spacing[3], padding: spacing[6], paddingBottom: spacing[8], borderTopWidth: 1, borderColor: color.surface.border },
   footerLeft: { gap: spacing[1] },
   later: { minHeight: 32, justifyContent: 'center' },
