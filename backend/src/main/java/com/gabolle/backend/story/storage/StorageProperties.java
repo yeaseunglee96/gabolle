@@ -47,6 +47,8 @@ public class StorageProperties {
 
 	private Video video = new Video();
 
+	private OrphanCleanup orphanCleanup = new OrphanCleanup();
+
 	public String getProvider() {
 		return this.provider;
 	}
@@ -85,6 +87,14 @@ public class StorageProperties {
 
 	public void setVideo(Video video) {
 		this.video = video;
+	}
+
+	public OrphanCleanup getOrphanCleanup() {
+		return this.orphanCleanup;
+	}
+
+	public void setOrphanCleanup(OrphanCleanup orphanCleanup) {
+		this.orphanCleanup = orphanCleanup;
 	}
 
 	/** {@code provider=s3} 일 때만 쓰이는 값. {@code provider=local} 이면 전부 빈 문자열로 둬도 된다. */
@@ -219,6 +229,73 @@ public class StorageProperties {
 
 		public void setMaxBytes(long maxBytes) {
 			this.maxBytes = maxBytes;
+		}
+	}
+
+	/**
+	 * 어디에도 안 붙은 업로드를 치우는 청소 — S15P21E201-1284.
+	 *
+	 * <h2>🔴 기본이 「끄기」가 아니라 「세기만 하기」다</h2>
+	 *
+	 * {@code enabled=false} 여도 청소기는 <b>돈다.</b> 다만 <b>지우지 않고 「지웠을 것 N개」만
+	 * 로그에 남긴다.</b> 며칠 그 숫자를 보고 나서 켜는 순서다 — 파일 삭제는 되돌릴 수 없고,
+	 * 되돌릴 수 없는 일은 먼저 세어 보고 한다.
+	 *
+	 * <p>아예 안 돌게 두면 <b>켤 때 처음으로 숫자를 보게 된다</b> — 그때는 이미 지운 뒤다.
+	 */
+	public static class OrphanCleanup {
+
+		/** 🔴 기본은 세기만 한다. {@code true} 로 바꿔야 실제로 지운다. */
+		private boolean enabled = false;
+
+		/**
+		 * 올라온 지 몇 시간이 지난 것부터 고아로 보는가.
+		 *
+		 * <h2>기본 24시간의 근거</h2>
+		 *
+		 * 올리고 기록에 붙이기까지는 <b>한 앱 세션 안의 일</b>이다 — 몇 분이고, 압축이 오래 걸려도
+		 * 한 시간을 안 넘는다.
+		 *
+		 * <p>🔴 <b>초안이 사진을 안 들고 있는 것을 재 보고 정했다</b>(2026-09-18, 프론트 실측).
+		 * 글쓰기 화면이 기기에 저장하는 것은 본문·지역·공개범위·공개시각뿐이고 <b>사진은 없다.</b>
+		 * 즉 사용자가 화면을 벗어나면 그 사진 주소에 <b>다시 닿을 방법이 없고</b>, 고아는
+		 * 24시간 뒤가 아니라 <b>사실상 즉시</b> 고아다. 24시간은 백 배쯤 여유다.
+		 *
+		 * <p>🔴 <b>초안이 사진도 들고 있게 바뀌면 이 값을 다시 봐야 한다.</b> 그때는 초안이
+		 * 살아 있는 기간보다 넉넉해야 한다 — 안 그러면 돌아온 사용자의 사진이 사라져 있다.
+		 */
+		private int retentionHours = 24;
+
+		/**
+		 * 한 판에 치우는 상한.
+		 *
+		 * <p>🔴 무한정 지우지 않는다. 질의가 잘못됐거나 앞으로 붙는 자리가 하나 더 생겼는데
+		 * 여기 안 넣었을 때, <b>피해가 한 판 크기로 묶인다.</b> 남은 것은 다음 판이 가져간다.
+		 */
+		private int batchLimit = 500;
+
+		public boolean isEnabled() {
+			return this.enabled;
+		}
+
+		public void setEnabled(boolean enabled) {
+			this.enabled = enabled;
+		}
+
+		public int getRetentionHours() {
+			return this.retentionHours;
+		}
+
+		public void setRetentionHours(int retentionHours) {
+			this.retentionHours = retentionHours;
+		}
+
+		public int getBatchLimit() {
+			return this.batchLimit;
+		}
+
+		public void setBatchLimit(int batchLimit) {
+			this.batchLimit = batchLimit;
 		}
 	}
 }
