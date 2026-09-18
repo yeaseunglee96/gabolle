@@ -8,7 +8,7 @@ const t = (ko: string, en: string) => (getApiLanguage() === 'en' ? en : ko);
 export type AssistantAction =
   | { kind: 'plan'; reply: string; summary: string[]; patch: Partial<PlanDraft> }
   | { kind: 'phrase'; reply: string; korean: string; pronunciation: string }
-  | { kind: 'navigate'; reply: string; label: string; href: '/field/translate' | '/trips' | '/explore' | '/plan/basic' }
+  | { kind: 'navigate'; reply: string; label: string; href: '/field/translate' | '/trips' | '/explore' | '/plan' }
   | { kind: 'help'; reply: string };
 
 const AREAS: Array<[string, string]> = [['해운대', 'HAEUNDAE'], ['광안리', 'GWANGALLI'], ['송정', 'SONGJEONG'], ['남포동', 'NAMPO'], ['영도', 'YEONGDO'], ['서면', 'SEOMYEON']];

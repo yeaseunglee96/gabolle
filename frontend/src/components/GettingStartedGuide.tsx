@@ -9,7 +9,7 @@ import { Text } from './Text';
 
 const STEPS = [
   { title: ['부산에서 가고 싶은 곳부터', 'Start with a place in Busan'], body: ['홈의 로컬 탐색에서 장소 이름이나 관심 있는 갈래로 찾아보세요. 위치 권한 없이도 둘러볼 수 있어요.', 'Use Explore locally on Home to search by name or category. You can browse without location access.'], action: ['장소 찾아보기', 'Explore places'], route: '/explore' },
-  { title: ['내 취향에 맞는 여행 만들기', 'Build a trip around you'], body: ['홈의 여행 계획 시작하기에서 날짜와 여행 조건을 정해요. 추천 결과를 살펴보고 원하는 일정을 선택하세요.', 'Start planning on Home lets you choose dates and travel conditions. Review the recommendations and pick your itinerary.'], action: ['여행 계획 시작하기', 'Start planning'], route: '/plan/basic' },
+  { title: ['내 취향에 맞는 여행 만들기', 'Build a trip around you'], body: ['홈의 여행 계획 시작하기에서 날짜와 여행 조건을 정해요. 추천 결과를 살펴보고 원하는 일정을 선택하세요.', 'Start planning on Home lets you choose dates and travel conditions. Review the recommendations and pick your itinerary.'], action: ['여행 계획 시작하기', 'Start planning'], route: '/plan' },
   { title: ['여행 중에도 다시 찾아오기', 'Keep your trip close'], body: ['내 여행에서 일정을 다시 열 수 있어요. 식당이나 택시에서 말이 막히면 홈의 통역에서 필요한 한국어 문장을 찾아보세요.', 'Open your itinerary again in My trips. For restaurants and taxis, use Phrases on Home to find useful Korean expressions.'], action: ['현장 말하기 열기', 'Open useful phrases'], route: '/field/speak' },
 ] as const;
 

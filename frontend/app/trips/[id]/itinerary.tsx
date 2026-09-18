@@ -722,12 +722,31 @@ export default function ItineraryScreen() {
             <View style={wide ? styles.timelineColumn : undefined}>
               <View style={styles.route}>{displayedItems.map((item, index) => <StopRow key={item.id} item={item} index={index} isLast={index === displayedItems.length - 1} displayTime={slotTimes[index] ?? item.startsAt} wide={wide} expanded={expandedItemId === item.id} onToggleExpand={() => setExpandedItemId((current) => current === item.id ? null : item.id)} canEdit={canEdit} lockBusy={busyItemId === item.id} excludeBusy={excludingItemId === item.id} dayBusy={dayActionBusy || excludingItemId !== null} onLock={() => void toggleLock(item)} onExclude={() => setExcludeConfirming(item)} reorderMode={reorderMode} canMoveUp={index > 0 && !item.locked && !displayedItems[index - 1].locked} canMoveDown={index < displayedItems.length - 1 && !item.locked && !displayedItems[index + 1].locked} moveBusy={reorderBusy} onMoveUp={() => moveDraftItem(index, -1)} onMoveDown={() => moveDraftItem(index, 1)} pace={paceByItemId.get(item.id)} estimated={paceEstimated} actualBusy={actualBusyItemId === item.id} onRecordArrival={() => void recordArrival(item)} onRecordDeparture={() => void recordDeparture(item)} accessToken={accessToken} />)}</View>
             </View>
-            {/* 이동 요약 — 시안 2.5(넓은 화면 오른쪽 고정) · 3.4(폰은 목록 아래). 폰에도 둔다:
+            {/* 이동 요약 — 시안 p6 의 3칸(장소 · 이동 합계 · 수단). 폰에도 둔다:
                 「이 하루가 얼마나 걷는 하루인가」는 정차를 하나씩 봐서는 안 나오는 값이다. */}
             <View style={wide ? styles.aside : undefined}>
+              {/* 🔴 시안의 3칸. 세 번째 칸(수단)은 **서버가 안 준다** — 일정 응답에
+                  구간 이동수단 칸이 없다(itinerary.ts 의 ItineraryItemDto). 「도보2·버스1」을
+                  지어내지 않고 없다고 적는다. 칸을 지우지 않는 이유는, 자리가 비어 있어야
+                  서버가 그 값을 싣는 날 여기에 들어온다는 것이 보이기 때문이다. */}
+              <View style={styles.summaryRow}>
+                <View style={styles.summaryCell}>
+                  <Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx('장소', 'Stops')}</Text>
+                  <Text variant="title" weight="bold">{tx(`${displayedItems.length}곳`, String(displayedItems.length))}</Text>
+                </View>
+                <View style={styles.summaryCell}>
+                  <Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx('이동 합계', 'Travel')}</Text>
+                  {dayTravelMinutes > 0
+                    ? <Text variant="title" weight="bold">{tx(`${dayTravelMinutes}분`, `${dayTravelMinutes}m`)}</Text>
+                    : <Text variant="caption" color={color.text.muted}>{tx('아직 없어요', 'Not yet')}</Text>}
+                </View>
+                <View style={styles.summaryCell}>
+                  <Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx('수단', 'Modes')}</Text>
+                  <Text variant="caption" color={color.text.muted}>{tx('아직 없어요', 'Not yet')}</Text>
+                </View>
+              </View>
               <View style={styles.asideCard}>
                 <Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx(`${selectedDay + 1}일차 이동 요약`, `Day ${selectedDay + 1} travel summary`)}</Text>
-                <Text variant="title" weight="bold">{tx(`${displayedItems.length}곳`, `${displayedItems.length} stops`)}</Text>
                 {dayWalkingMeters > 0 ? <View accessibilityLabel={tx(`정차별 도보 비중`, 'Walking share per stop')} style={styles.shareBar}>
                   {displayedItems.map((item) => item.walkingMeters ? <View key={item.id} style={[styles.shareSlice, { flex: item.walkingMeters }]} /> : null)}
                 </View> : null}
@@ -828,6 +847,8 @@ const styles = StyleSheet.create({ shell: { flex: 1, backgroundColor: color.bran
   wideGrid: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[6] },
   timelineColumn: { flex: 1, minWidth: 0 },
   aside: { width: 360 },
+  summaryRow: { flexDirection: 'row', gap: spacing[2], marginBottom: spacing[3] },
+  summaryCell: { flex: 1, gap: 2, padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.border },
   asideCard: { gap: spacing[2], marginTop: spacing[3], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.border },
   // 노선도 — 정차 노드와 구간. 정차가 많으면 가로로 스크롤한다.
   strip: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[2], paddingVertical: spacing[3] },

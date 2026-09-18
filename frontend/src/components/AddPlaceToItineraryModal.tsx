@@ -141,7 +141,7 @@ export function AddPlaceToItineraryModal({ visible, placeId, onClose }: AddPlace
           {step === 'pickTrip' && trips.length === 0 ? (
             <View style={styles.centerState}>
               <Text color={color.text.body}>{tx('아직 일정이 만들어진 여행이 없어요. 먼저 여행을 만들어 주세요.', "You don't have a trip with an itinerary yet. Plan one first.")}</Text>
-              <Pressable accessibilityRole="button" onPress={() => { close(); router.push('/plan/basic'); }} style={styles.submitButton}>
+              <Pressable accessibilityRole="button" onPress={() => { close(); router.push('/plan'); }} style={styles.submitButton}>
                 <Text variant="body" weight="bold" color={color.text.onAction}>{tx('여행 계획 시작하기', 'Start planning')}</Text>
               </Pressable>
             </View>

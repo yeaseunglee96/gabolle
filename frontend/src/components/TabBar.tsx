@@ -42,7 +42,7 @@ type Tab = {
 const TABS: Tab[] = [
   { key: 'home', icon: require('../../assets/icons/home/home.png'), labelKo: '홈', labelEn: 'Home', route: '/home' },
   { key: 'feed', icon: require('../../assets/icons/home/heart.png'), labelKo: '피드', labelEn: 'Feed', route: '/feed' },
-  { key: 'schedule', icon: require('../../assets/icons/home/plus.png'), labelKo: '여행 만들기', labelEn: 'Create', route: '/plan/basic' },
+  { key: 'schedule', icon: require('../../assets/icons/home/plus.png'), labelKo: '여행 만들기', labelEn: 'Create', route: '/plan' },
   { key: 'map', icon: require('../../assets/icons/home/map.png'), labelKo: '내 여행', labelEn: 'My trips', route: '/trips' },
   { key: 'me', icon: require('../../assets/icons/home/user.png'), labelKo: '마이페이지', labelEn: 'Profile', route: '/me' },
 ];

@@ -146,7 +146,7 @@ export function TopNav() {
         })}
       </View>
 
-      <Pressable accessibilityRole="link" accessibilityState={{ selected: planActive }} onPress={() => router.push('/plan/basic')} style={({ pressed }) => [styles.cta, pressed && styles.ctaPressed]}>
+      <Pressable accessibilityRole="link" accessibilityState={{ selected: planActive }} onPress={() => router.push('/plan')} style={({ pressed }) => [styles.cta, pressed && styles.ctaPressed]}>
         <Text weight="bold" color={color.text.onAction} style={styles.noUnderline}>{tx('여행 만들기', 'Plan a trip')}</Text>
         {planActive ? <ActiveMarker /> : null}
       </Pressable>

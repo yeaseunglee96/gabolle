@@ -32,7 +32,7 @@ const SUGGESTIONS = [
 // S15P21E201-909: "지금 갈 곳"·"부산 축제"는 -900으로 진입점을 뺀 화면이라 여기서도 뺐다 —
 // 홈에서는 숨겨 놓고 챗봇으로는 계속 안내하면 이 목록의 원칙이 깨진다.
 const QUICK_TOOLS = [
-  { labelKo: '일정 만들기', labelEn: 'Plan a trip', hintKo: '대화 조건 적용', hintEn: 'Applies chat conditions', href: '/plan/basic' },
+  { labelKo: '일정 만들기', labelEn: 'Plan a trip', hintKo: '대화 조건 적용', hintEn: 'Applies chat conditions', href: '/plan' },
   { labelKo: '현장 도구', labelEn: 'On-the-go tools', hintKo: '현장 말하기·날씨 준비물', hintEn: 'On-the-go phrases · weather prep', href: '/field/translate' },
   { labelKo: '내 여행 보기', labelEn: 'View my trips', hintKo: '저장한 일정 열기', hintEn: 'Open your saved itineraries', href: '/trips' },
   // S15P21E201-914: 갈래 개수는 GET /api/v1/places/facets 가 정한다(explore.tsx) — 여기서
@@ -106,7 +106,7 @@ export default function Chat() {
           {!desktop ? tools : null}
           {messages.length === 0 ? <View style={styles.suggestionSection}><Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx('이렇게 검색해 보세요', 'Try searching for these')}</Text><View style={styles.suggestions}>{SUGGESTIONS.map((suggestion) => <Pressable key={suggestion.ko} accessibilityRole="button" accessibilityState={{ disabled: pending }} disabled={pending} onPress={() => send(suggestion.ko)} style={styles.suggestion}><Text variant="body" weight="medium">{tx(suggestion.ko, suggestion.en)}</Text></Pressable>)}</View></View> : null}
           {messages.map((message) => <View key={message.id} style={[styles.bubble, desktop && styles.bubbleDesktop, message.role === 'user' ? styles.userBubble : styles.assistantBubble]}><Text color={message.role === 'user' ? color.text.onAction : color.text.heading}>{message.text}</Text>
-            {message.action?.kind === 'plan' && message.action.summary.length ? <View style={styles.actionCard}><Text variant="caption" weight="bold">{tx('찾은 여행 조건', 'Conditions found')}</Text><Text variant="caption" color={color.text.body}>{message.action.summary.join(' · ')}</Text><Button label={message.applied ? tx('일정 초안에 적용됨 ✓', 'Applied to draft itinerary ✓') : tx('일정에 적용하고 확인하기', 'Apply to itinerary and review')} disabled={message.applied} onPress={() => { applyPlan(message.id, message.action as Extract<AssistantAction, { kind: 'plan' }>); router.push('/plan/basic'); }} /></View> : null}
+            {message.action?.kind === 'plan' && message.action.summary.length ? <View style={styles.actionCard}><Text variant="caption" weight="bold">{tx('찾은 여행 조건', 'Conditions found')}</Text><Text variant="caption" color={color.text.body}>{message.action.summary.join(' · ')}</Text><Button label={message.applied ? tx('일정 초안에 적용됨 ✓', 'Applied to draft itinerary ✓') : tx('일정에 적용하고 확인하기', 'Apply to itinerary and review')} disabled={message.applied} onPress={() => { applyPlan(message.id, message.action as Extract<AssistantAction, { kind: 'plan' }>); router.push('/plan'); }} /></View> : null}
             {message.action?.kind === 'phrase' ? <View style={styles.actionCard}><Text variant="title" weight="bold">{message.action.korean}</Text><Text variant="caption" color={color.text.muted}>{message.action.pronunciation}</Text><Button label={tx('크게 보고 듣기', 'View large & listen')} variant="field" onPress={() => router.push('/field/speak')} /></View> : null}
             {message.action?.kind === 'navigate' ? <Button label={message.action.label} variant="ghost" onPress={() => router.push((message.action as Extract<AssistantAction, { kind: 'navigate' }>).href as never)} /> : null}
           </View>)}
