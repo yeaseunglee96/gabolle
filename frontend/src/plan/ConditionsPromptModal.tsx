@@ -130,7 +130,7 @@ export function ConditionsPromptModal({ visible, reprompt = false, onClose }: Co
             </Pressable>
           </View>
 
-          <ScrollView style={styles.body} keyboardShouldPersistTaps="handled">
+          <ScrollView style={styles.bodyScroll} contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
             <Text color={color.text.body} style={styles.intro}>
               {reprompt
                 ? tx('일정을 만들기 전에 여행 조건을 알려주실래요? 건너뛰면 다음 「일정 물어보기」 때 다시 물어요.', 'Shall we take your travel conditions before building the itinerary? If you skip, we will ask again next time.')
@@ -235,7 +235,11 @@ const styles = StyleSheet.create({
   sheetPhone: { width: '100%', maxHeight: '92%', borderTopLeftRadius: radius.lg, borderTopRightRadius: radius.lg },
   header: { minHeight: 64, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing[4], borderBottomWidth: 1, borderColor: color.surface.border },
   close: { position: 'absolute', right: spacing[2], width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
-  body: { paddingHorizontal: spacing[6], paddingTop: spacing[4] },
+  // 🔴 여백은 **contentContainerStyle** 에 준다 (S15P21E201-1245). ScrollView 바깥
+  //    style 에 padding 을 주면 웹에서 안쪽 내용의 자리가 어긋나, 「식단」이 위 칩 줄
+  //    위에 겹쳐 그려졌다 — 2026-09-18 화면을 띄워 보고 찾았다. 검사로는 안 잡힌다.
+  bodyScroll: { flexShrink: 1 },
+  body: { paddingHorizontal: spacing[6], paddingTop: spacing[4], paddingBottom: spacing[4] },
   intro: { marginBottom: spacing[4] },
   block: { gap: spacing[2], marginBottom: spacing[6] },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] },
