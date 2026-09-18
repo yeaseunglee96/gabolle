@@ -1,3 +1,7 @@
+// 🔴 2026-09-18 (S15P21E201-1245) — 이 블록들은 **네이비 사진 히어로 위**에 얹으려고
+//    만들어져서 글자가 흰색, 바탕이 반투명 흰색이었다. 시안 p0 에 사진 히어로가 없어서
+//    홈이 아이보리 바탕이 되었고, 그대로 두면 **흰 글자가 흰 바탕에 묻힌다.**
+//    색은 전부 토큰의 기본 글자색·표면색으로 되돌린다.
 // 데스크톱 홈의 블록들 (S15P21E201-970). 시안 `design_handoff_home` 1a.
 //
 // 🔴 시안에 있지만 **그리지 않은 것 둘** — 서버에 그 값이 없다.
@@ -55,9 +59,9 @@ export function WeatherLine({ forecast }: { forecast: DailyForecastDto | null })
   const hint = weatherHint(forecast, tx);
   return (
     <View style={styles.weatherRow}>
-      <Text variant="display" weight="bold" color={color.text.onAction}>{`${Math.round(temp)}°`}</Text>
-      <Text color={color.text.onDarkMuted}>{`${skyLabel(forecast.skyCondition, tx)} · ${tx('부산 지금', 'Busan now')}`}</Text>
-      {hint ? <Text variant="caption" color={color.text.onDarkMuted} style={styles.weatherHint}>{hint}</Text> : null}
+      <Text variant="display" weight="bold">{`${Math.round(temp)}°`}</Text>
+      <Text color={color.text.body}>{`${skyLabel(forecast.skyCondition, tx)} · ${tx('부산 지금', 'Busan now')}`}</Text>
+      {hint ? <Text variant="caption" color={color.text.body} style={styles.weatherHint}>{hint}</Text> : null}
     </View>
   );
 }
@@ -99,7 +103,7 @@ export function HeroStories({ stories, chips, signedIn }: { stories: StoryDto[] 
         <Text variant="eyebrow" weight="bold">{tx('지금 부산에서 남긴 기록', 'Just shared in Busan')}</Text>
         {signedIn ? (
           <Pressable accessibilityRole="link" onPress={() => router.push('/feed')} style={styles.feedAll}>
-            <Text weight="bold" color={color.text.onAction}>{tx('피드 전체 →', 'See all →')}</Text>
+            <Text weight="bold" color={color.text.eyebrow}>{tx('피드 전체 →', 'See all →')}</Text>
           </Pressable>
         ) : null}
       </View>
@@ -108,7 +112,7 @@ export function HeroStories({ stories, chips, signedIn }: { stories: StoryDto[] 
           서버가 익명에게는 안 준다(스토리 조회가 401). 못 보는 이유를 그대로 적는다. */}
       {!signedIn ? (
         <View style={styles.signInPrompt}>
-          <Text color={color.text.onDarkMuted}>{tx('다른 여행자들이 남긴 기록은 로그인하면 볼 수 있어요.', 'Sign in to see what other travelers shared.')}</Text>
+          <Text color={color.text.body}>{tx('다른 여행자들이 남긴 기록은 로그인하면 볼 수 있어요.', 'Sign in to see what other travelers shared.')}</Text>
           <Pressable accessibilityRole="button" onPress={() => router.push('/sign-in')} style={styles.signInButton}>
             <Text weight="bold" color={color.brand.navy}>{tx('로그인하고 보기', 'Sign in to view')}</Text>
           </Pressable>
@@ -122,7 +126,7 @@ export function HeroStories({ stories, chips, signedIn }: { stories: StoryDto[] 
               : stories.map((story) => <StoryCard key={story.id} story={story} />)}
           </View>
           {stories !== null && stories.length === 0 ? (
-            <Text variant="caption" color={color.text.onDarkMuted}>{tx('아직 남겨진 기록이 없어요. 첫 기록을 남겨 보세요.', 'No records yet — be the first to share one.')}</Text>
+            <Text variant="caption" color={color.text.body}>{tx('아직 남겨진 기록이 없어요. 첫 기록을 남겨 보세요.', 'No records yet — be the first to share one.')}</Text>
           ) : null}
         </>
       )}
@@ -143,13 +147,13 @@ export function HeroStories({ stories, chips, signedIn }: { stories: StoryDto[] 
           <View style={styles.heroRightHead}>
             <Text variant="eyebrow" weight="bold">{tx('로컬 탐색', 'Explore locally')}</Text>
             <Pressable accessibilityRole="link" onPress={() => router.push('/explore')} style={styles.feedAll}>
-              <Text weight="bold" color={color.text.onAction}>{tx('전체 →', 'See all →')}</Text>
+              <Text weight="bold" color={color.text.eyebrow}>{tx('전체 →', 'See all →')}</Text>
             </Pressable>
           </View>
           <View style={styles.chipRow}>
             {chips.map((chip) => (
               <Pressable key={chip.featureKey} accessibilityRole="link" onPress={() => router.push({ pathname: '/explore', params: { facet: chip.featureKey } })} style={({ pressed }) => [styles.chip, pressed && styles.chipPressed]}>
-                <Text weight="medium" color={color.text.onAction}>{localFacetLabel(chip, language)}</Text>
+                <Text weight="medium">{localFacetLabel(chip, language)}</Text>
               </Pressable>
             ))}
           </View>
@@ -269,7 +273,7 @@ export function MyTripCard({ trip, signedIn, loaded }: { trip: TripSummaryDto | 
 const styles = StyleSheet.create({
   pressed: { opacity: 0.85 },
 
-  weatherRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[3], marginTop: spacing[6], paddingTop: spacing[6], borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.14)' },
+  weatherRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[3], marginTop: spacing[6], paddingTop: spacing[6], borderTopWidth: 1, borderTopColor: color.surface.border },
   weatherHint: { marginLeft: 'auto' },
 
   // 시안 1a 의 오른쪽 칸 패딩(위 40 · 오른 80 · 아래 40 · 왼 24). 이게 없어서 카드와
@@ -288,10 +292,10 @@ const styles = StyleSheet.create({
   // 🔴 flex:1 만 주면 카드가 남은 칸을 전부 나눠 먹는다. 기록이 둘뿐이면 한 장이 500px 을
   //    넘어가 사진이 화면 절반을 차지했다. 시안 폭(1440 에서 약 250)으로 상한을 둔다.
   storyGrid: { flexDirection: 'row', gap: spacing[3], alignItems: 'flex-start' },
-  signInPrompt: { gap: spacing[3], alignItems: 'flex-start', padding: spacing[4], borderRadius: radius.lg, backgroundColor: 'rgba(255,255,255,0.08)' },
+  signInPrompt: { gap: spacing[3], alignItems: 'flex-start', padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.soft },
   signInButton: { minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.surface.card },
   storyCard: { flex: 1, minWidth: 0, maxWidth: 260, borderRadius: radius.lg, overflow: 'hidden', backgroundColor: color.surface.card },
-  storySkeleton: { height: 260, maxWidth: 260, backgroundColor: 'rgba(255,255,255,0.12)' },
+  storySkeleton: { height: 260, maxWidth: 260, backgroundColor: color.surface.soft },
   storyImage: { width: '100%', aspectRatio: 1, backgroundColor: color.surface.soft },
   // 🔴 사진이 없을 때 — 회색 빈 칸 대신 tint 에 본문을 크게. 시안 「자주 틀리는 것」 4번.
   //    빈 회색은 「사진을 못 불러왔다」로 읽힌다. feed.tsx 의 coverEmpty 와 같은 규칙이다.
@@ -302,7 +306,7 @@ const styles = StyleSheet.create({
   storyAvatar: { width: 20, height: 20, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.brand.navy },
 
   chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2], marginTop: spacing[1] },
-  chip: { minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: 'rgba(255,255,255,0.1)' },
+  chip: { minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.surface.soft },
   chipPressed: { backgroundColor: color.brand.orange },
 
   placesBlock: { flex: 1, gap: spacing[4], minWidth: 0 },
