@@ -45,7 +45,7 @@ import {
   type QuestionKey,
   type QuestionState,
 } from '@/plan/planQuestions';
-import { summarizeStartBar } from '@/home/startBarValue';
+import { startBarChips } from '@/home/startBarValue';
 
 const AREAS = [
   ['HAEUNDAE', '해운대', 'Haeundae'], ['GWANGALLI', '광안리', 'Gwangalli'], ['NAMPO', '남포동', 'Nampo-dong'],
@@ -198,7 +198,9 @@ export default function PlanConditions() {
       setJob({ state: 'failed', jobId: null, progress: null, stage: null, canCancel: false, errorMessage: cause instanceof ApiClientError ? cause.message : tx('동의 처리에 실패했어요. 잠시 후 다시 시도해 주세요.', 'Could not save your consent. Please try again shortly.'), resultRef: null });
     }
   };
-  const headerSummary = useMemo(() => summarizeStartBar({
+  // 시안 p1 — 「홈에서 받은 정보」는 **칩 세 개**(출발지 · 날짜 · 인원)다. 한 줄 문자열로
+  // 이어 붙이면 폰 390 에서 잘린다.
+  const headerChips = useMemo(() => startBarChips({
     origin: draft.origin, originLat: draft.originLat, originLng: draft.originLng,
     startDate: draft.startDate, endDate: draft.endDate,
     adults: draft.adults, children: draft.children,
@@ -349,17 +351,37 @@ export default function PlanConditions() {
   return (
     
       <Screen scroll wide={kind !== 'phone'} style={styles.canvas}>
+        {/* 🔴 폰에는 뒤로 가기와 현재 걸음을 위에 둔다 — 시안 p1 모바일. 넓은 화면에는
+            위 내비가 있어서 이 줄이 없다(시안도 그렇다). */}
+        {kind === 'phone' ? (
+          <View style={styles.phoneTop}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={tx('뒤로 가기', 'Go back')}
+              onPress={() => (router.canGoBack() ? router.back() : router.replace('/home'))}
+              style={styles.phoneBack}
+            >
+              <Text variant="title">‹</Text>
+            </Pressable>
+            <Text variant="caption" color={color.text.muted}>{tx(`${Math.min(state.open + 1, PLAN_QUESTIONS.length)} / ${PLAN_QUESTIONS.length}`, `${Math.min(state.open + 1, PLAN_QUESTIONS.length)} / ${PLAN_QUESTIONS.length}`)}</Text>
+          </View>
+        ) : null}
+
         <View style={styles.header}>
           <Text variant="display" weight="bold">{tx('여행 조건 알려주기', 'Tell us about your trip')}</Text>
-          <Text color={color.text.muted}>{tx('하나씩만 답해 주세요. 답한 만큼 다음 질문이 열려요.', 'One at a time — the next question opens as you answer.')}</Text>
+          <Text color={color.text.muted}>{kind === 'phone' ? tx('하나씩만 답해 주세요.', 'One question at a time.') : tx('하나씩만 답해 주세요. 답한 만큼 다음 질문이 열려요.', 'One at a time — the next question opens as you answer.')}</Text>
         </View>
 
-        {headerSummary ? (
+        {headerChips.length ? (
           <View style={styles.given}>
-            <Text variant="caption" color={color.text.muted}>{tx('홈에서 받은 정보', 'From the home screen')}</Text>
             <View style={styles.givenRow}>
-              <Text weight="bold" style={styles.givenText}>{headerSummary}</Text>
-              <Pressable accessibilityRole="button" onPress={() => router.push('/plan')}>
+              <Text variant="caption" weight="bold" color={color.brand.orange}>{tx('홈에서 받은 정보', 'From the home screen')}</Text>
+              {headerChips.map((chip) => (
+                <View key={chip} style={styles.givenChip}><Text variant="caption" weight="bold">{chip}</Text></View>
+              ))}
+              {/* 🔴 「수정」은 **홈으로** 간다. 전에는 `/plan` 이라 지금 보고 있는 이 화면을
+                  다시 열었고, 눌러도 아무 일이 안 났다 — 이 값들을 고치는 자리는 홈의 시작 바다. */}
+              <Pressable accessibilityRole="button" onPress={() => router.push(kind === 'phone' ? '/home' : '/')} style={styles.givenEdit}>
                 <Text variant="caption" weight="bold" color={color.brand.orange}>{tx('수정', 'Edit')}</Text>
               </Pressable>
             </View>
@@ -459,9 +481,13 @@ const styles = StyleSheet.create({
   // 🔴 시안의 본문 폭은 1200 이다 (PlanFlow.dc.html). Screen 의 wide 는 1440 이라 240px 넓다 (S15P21E201-1245).
   canvas: { maxWidth: 1200 },
   header: { gap: spacing[2], marginTop: spacing[6] },
+  phoneTop: { minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  phoneBack: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center', marginLeft: -spacing[3] },
   given: { gap: spacing[1], marginTop: spacing[4], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.soft },
-  givenRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[3] },
-  givenText: { flex: 1 },
+  // 시안 p1 — 칩이 한 줄로 서고, 좁으면 줄이 바뀐다. 「수정」은 항상 끝에 붙는다.
+  givenRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing[2] },
+  givenChip: { paddingHorizontal: spacing[3], paddingVertical: 6, borderRadius: radius.full, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.border },
+  givenEdit: { marginLeft: 'auto', minHeight: 32, justifyContent: 'center' },
   progressRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: spacing[4] },
   track: { height: 4, marginTop: spacing[1], borderRadius: radius.full, backgroundColor: color.surface.field, overflow: 'hidden' },
   fill: { height: 4, borderRadius: radius.full, backgroundColor: color.brand.orange },

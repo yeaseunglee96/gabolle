@@ -7,6 +7,7 @@ import {
   canAskForPlan,
   dayCount,
   nightCount,
+  startBarChips,
   summarizeStartBar,
   toDateKey,
   type StartBarValue,
@@ -125,5 +126,29 @@ describe('바로 시작 프리셋', () => {
     expect(applied?.origin).toBe('부산역');
     expect(typeof applied?.originLat).toBe('number');
     expect(typeof applied?.originLng).toBe('number');
+  });
+});
+
+describe('홈에서 받은 정보 칩', () => {
+  it('출발지 · 날짜 · 인원을 따로 준다 — 한 줄로 이어 붙이지 않는다', () => {
+    expect(startBarChips(value({ origin: '부산역', startDate: '2026-09-20', endDate: '2026-09-21', adults: 2 }), true))
+      .toEqual(['부산역 출발', '9.20(일) – 9.21(월) · 1박', '성인 2']);
+  });
+
+  it('🔴 없는 칸은 칩을 안 만든다 — 빈 날짜 칩을 보여 주지 않는다', () => {
+    expect(startBarChips(value({ origin: '부산역', adults: 2 }), true)).toEqual(['부산역 출발', '성인 2']);
+  });
+
+  it('🔴 아무것도 안 골랐으면 칩이 없다 — 인원 기본값만으로 만들지 않는다', () => {
+    expect(startBarChips(value(), true)).toEqual([]);
+  });
+
+  it('당일치기는 「0박」이 아니다', () => {
+    expect(startBarChips(value({ origin: '부산역', startDate: '2026-09-20', endDate: '2026-09-20' }), true)[1])
+      .toContain('당일치기');
+  });
+
+  it('어린이가 있으면 인원 칩 하나에 같이 적는다', () => {
+    expect(startBarChips(value({ origin: '부산역', adults: 2, children: 1 }), true).at(-1)).toBe('성인 2 · 어린이 1');
   });
 });

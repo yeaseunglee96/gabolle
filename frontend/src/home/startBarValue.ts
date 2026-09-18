@@ -105,6 +105,33 @@ export function summarizeStartBar(value: StartBarValue, ko: boolean): string {
   return parts.join(' · ');
 }
 
+/**
+ * 「홈에서 받은 정보」를 **칩 세 개**로 쪼갠다 — 시안 p1 (S15P21E201-1245).
+ *
+ * 🔴 한 줄 문자열로 이어 붙이면 폰 390 에서 한 줄에 다 안 들어가 잘린다. 시안은 출발지 ·
+ *    날짜 · 인원을 **따로 선 칩**으로 두어서, 좁으면 줄이 바뀌고 넓으면 한 줄로 선다.
+ * 🔴 **없는 칸은 만들지 않는다.** 날짜를 안 고른 사람에게 빈 날짜 칩을 보여 주지 않는다.
+ *    요약 문자열과 같은 규칙이다(summarizeStartBar 머리말).
+ */
+export function startBarChips(value: StartBarValue, ko: boolean): string[] {
+  if (!value.origin.trim() && !value.startDate) return [];
+  const chips: string[] = [];
+  if (value.origin.trim()) chips.push(ko ? `${value.origin.trim()} 출발` : `From ${value.origin.trim()}`);
+  if (value.startDate) {
+    const range = value.endDate && value.endDate !== value.startDate
+      ? `${formatDateShort(value.startDate, ko)} – ${formatDateShort(value.endDate, ko)}`
+      : formatDateShort(value.startDate, ko);
+    const nights = nightCount(value.startDate, value.endDate || value.startDate);
+    const stay = nights > 0 ? (ko ? `${nights}박` : `${nights} nights`) : ko ? '당일치기' : 'Day trip';
+    chips.push(`${range} · ${stay}`);
+  }
+  const people: string[] = [];
+  if (value.adults > 0) people.push(ko ? `성인 ${value.adults}` : `${value.adults} adults`);
+  if (value.children > 0) people.push(ko ? `어린이 ${value.children}` : `${value.children} children`);
+  if (people.length) chips.push(people.join(' · '));
+  return chips;
+}
+
 /** 「일정 물어보기」를 누를 수 있나 — 출발지와 날짜가 있어야 한다. */
 export function canAskForPlan(value: StartBarValue): boolean {
   return Boolean(value.origin.trim()) && Boolean(value.startDate) && value.adults + value.children > 0;
