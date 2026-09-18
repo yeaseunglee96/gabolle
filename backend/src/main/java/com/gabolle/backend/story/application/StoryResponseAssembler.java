@@ -36,9 +36,6 @@ import com.gabolle.backend.user.repository.AppUserRepository;
 @Profile({ "db", "dev" })
 public class StoryResponseAssembler {
 
-	/** 반응이 하나도 없는 글이 읽는 자리 — {@code [좋아요, 싫어요]}. 만들 때마다 새로 안 만든다. */
-	private static final int[] NO_REACTIONS = { 0, 0 };
-
 	private final StoryImageRepository storyImageRepository;
 
 	private final UploadedImageRepository uploadedImageRepository;
@@ -129,6 +126,12 @@ public class StoryResponseAssembler {
 					(author == null || author.getDeletedAt() != null || author.getDisplayName() == null
 							|| author.getDisplayName().isBlank()) ? "탈퇴한 사용자" : author.getDisplayName());
 			Place place = story.getPlaceId() == null ? null : places.get(story.getPlaceId());
+			// 🔴 S15P21E201-1249 — 한 번만 꺼낸다. 예전에는 공유 static int[] 를
+			//    getOrDefault 의 기본값으로 건네줬는데, 그 결과에 쓰는 변경이 하나만
+			//    들어오면 JVM 안 모든 글의 수가 조용히 오염된다(예외 없이 숫자만 틀린다).
+			int[] counts = reactionCounts.get(story.getStoryId());
+			int likeCount = (counts == null) ? 0 : counts[0];
+			int dislikeCount = (counts == null) ? 0 : counts[1];
 			List<StoryResponse.Image> images = new ArrayList<>();
 			for (StoryImage image : imagesByStory.getOrDefault(story.getStoryId(), List.of())) {
 				UploadedImage upload = uploads.get(image.getUploadedImageId());
@@ -163,8 +166,8 @@ public class StoryResponseAssembler {
 					story.getViewCount(),
 					story.getLinkCopyCount(),
 					// S15P21E201-1174 — 위에서 한 번에 세 둔 값이다. 글마다 다시 세지 않는다.
-					reactionCounts.getOrDefault(story.getStoryId(), NO_REACTIONS)[0],
-					reactionCounts.getOrDefault(story.getStoryId(), NO_REACTIONS)[1],
+					likeCount,
+					dislikeCount,
 					myReactions.containsKey(story.getStoryId())
 							? myReactions.get(story.getStoryId()).name()
 							: null));
