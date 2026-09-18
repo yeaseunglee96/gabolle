@@ -10,7 +10,7 @@ const ALL: MyPanelKey[] = [
 ];
 
 /** 지금까지 옮긴 것. 하나 옮길 때마다 여기에 더한다. */
-const MIGRATED: MyPanelKey[] = ['blocked', 'terms'];
+const MIGRATED: MyPanelKey[] = ['blocked', 'followers', 'following', 'help', 'identities', 'notifications', 'terms'];
 
 const tx = (ko: string) => ko;
 
@@ -43,5 +43,8 @@ describe('마이페이지 패널', () => {
     // 이 줄이 없으면 hasPanel 이 늘 true 를 돌려줘도 위 시험이 통과할 수 있다.
     expect(myPanelBody('posts')).toBeNull();
     expect(hasPanel('posts')).toBe(false);
+    expect(hasPanel('saved')).toBe(false);
+    expect(hasPanel('preferences')).toBe(false);
+    expect(hasPanel('profile')).toBe(false);
   });
 });
