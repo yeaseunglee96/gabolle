@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { TripNameSheet } from '@/trip/TripNameSheet';
 
 import { useAuth } from '@/auth/AuthProvider';
 import { Button } from '@/components/Button';
@@ -229,7 +230,10 @@ type ViewMode = 'day' | 'all';
 export default function ItineraryScreen() {
   const router = useRouter();
   const { accessToken } = useAuth();
-  const { id, day: dayParam, view: viewParam } = useLocalSearchParams<{ id: string; day?: string; view?: string }>();
+  // 🔴 `name=1` 은 ③ 코스 고르기에서 넘어왔다는 뜻이다. 그때만 이름 묻기가 **열린 채로**
+  //    들어온다(시안 ④). 내 여행에서 다시 들어오면 안 연다 — 열 때마다 물으면 건너뛸 수
+  //    있다고 말해 놓고 안 놓아주는 것이다.
+  const { id, day: dayParam, view: viewParam, name: nameParam } = useLocalSearchParams<{ id: string; day?: string; view?: string; name?: string }>();
   const { tx } = useI18n();
   const itineraryId = id ?? '';
   const [result, setResult] = useState<ItineraryLoadResult>({ state: 'error', message: tx('일정 식별자가 없어요.', 'Missing itinerary identifier.') });
@@ -260,6 +264,8 @@ export default function ItineraryScreen() {
   const [openingHoursNotice, setOpeningHoursNotice] = useState<string[]>([]);
   // ⋯ 패널과 펼친 정차. 둘 다 화면에만 있는 상태라 서버에 안 보낸다.
   const [menuOpen, setMenuOpen] = useState(false);
+  // ③ 에서 넘어온 직후에는 열린 채로 들어온다. 그 뒤로는 「이름 바꾸기」로만 연다.
+  const [naming, setNaming] = useState(nameParam === '1');
   const [expandedItemId, setExpandedItemId] = useState<string | null>(null);
 
   const refreshVersions = useCallback(async (targetId: string) => {
@@ -591,7 +597,15 @@ export default function ItineraryScreen() {
         */}
         {itinerary ? <Pressable accessibilityRole="button" accessibilityLabel={tx('더 보기', 'More')} accessibilityState={{ expanded: menuOpen }} onPress={() => setMenuOpen((open) => !open)} style={styles.heroBack}><Text variant="title" color={color.text.onAction}>⋯</Text></Pressable> : <View style={styles.heroBackSpacer} />}
       </View>
-      <Text variant="display" weight="bold" color={color.text.onAction} style={styles.heroTitle}>{itinerary?.title ?? tx('여행 일정', 'Itinerary')}</Text>
+      <View style={styles.heroTitleRow}>
+        <Text variant="display" weight="bold" color={color.text.onAction} style={styles.heroTitle}>{itinerary?.title ?? tx('여행 일정', 'Itinerary')}</Text>
+        {/* 「이름 바꾸기」 — 시안 ④. 페이지로 가지 않고 그 자리에서 겹쳐 연다. */}
+        {itinerary?.tripId ? (
+          <Pressable accessibilityRole="button" onPress={() => setNaming(true)} style={styles.renameButton}>
+            <Text variant="caption" weight="bold" color={color.brand.navy}>{tx('이름 바꾸기', 'Rename')}</Text>
+          </Pressable>
+        ) : null}
+      </View>
       {heroSummary ? <Text color={color.text.onDarkMuted}>{heroSummary}</Text> : null}
       {/* — 지도로 가는 문. 이 화면에는 지도로 가는 길이 아예 없었다.
           그래서 카카오 지도·경로선·3D 부산·그늘/휠체어 실측이 다 들어 있는 화면에 아무도
@@ -733,6 +747,27 @@ export default function ItineraryScreen() {
       )}
     </> : null}
   </Screen>
+
+  {/* 🔴 여행 이름은 **페이지가 아니다**(시안 ④). 이름을 묻자고 화면을 통째로 갈아 끼우면
+      방금 만든 일정이 사라지고, 사용자는 「내 일정 어디 갔지」를 먼저 겪는다. 겹쳐 뜨면
+      뒤에 일정이 그대로 있어서 무엇에 이름을 붙이는지 보인다. */}
+  {naming && itinerary?.tripId ? (
+    <TripNameSheet
+      tripId={itinerary.tripId}
+      currentTitle={itinerary.title ?? null}
+      dateLabel={heroSummary || null}
+      accessToken={accessToken}
+      onClose={() => setNaming(false)}
+      onSaved={(title) => {
+        setNaming(false);
+        // 서버를 다시 부르지 않고 이 화면의 제목만 바꾼다. 다시 부르면 제목이 잠깐 옛
+        // 이름으로 있다가 바뀌는데, 방금 바꾼 사람에게는 그게 「안 바뀌었다」로 보인다.
+        setResult((prev) => (prev.state === 'success' && title
+          ? { ...prev, itinerary: { ...prev.itinerary, title } }
+          : prev));
+      }}
+    />
+  ) : null}
   {/* 하단 고정 줄 — 시안 3.5.
       시안의 「저장」(초안을 내 여행으로 확정)은 안 만들었다. 부를 API 가 없다
       src/plan/itinerary.ts 에 확정 함수가 없고, 이 화면은 이미 「내 여행」에서 열리는
@@ -764,7 +799,9 @@ const styles = StyleSheet.create({ shell: { flex: 1, backgroundColor: color.bran
   heroBack: { width: 44, height: 44, marginLeft: -spacing[3], alignItems: 'center', justifyContent: 'center' },
   heroBackSpacer: { width: 44, height: 44 },
   heroGhost: { minHeight: 36, paddingHorizontal: spacing[3], borderRadius: radius.full, borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.4)', alignItems: 'center', justifyContent: 'center' },
-  heroTitle: { marginTop: spacing[2] },
+  heroTitle: { flex: 1, minWidth: 0, marginTop: spacing[2] },
+  heroTitleRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[3] },
+  renameButton: { minHeight: 32, justifyContent: 'center', paddingHorizontal: spacing[3], borderRadius: radius.full, backgroundColor: color.surface.card },
   // 탭은 헤더 바닥에 붙는다 — 위쪽만 둥글고 아래는 각져서 헤더와 한 덩이로 보인다.
   // 지도·추천으로 가는 문. 일차 탭과 같은 반투명 흰색이라 헤더와 한 덩이로
   // 보이고, 탭보다 위에 놓아 「어느 날을 보나」와 「어디로 가나」가 안 섞인다.
