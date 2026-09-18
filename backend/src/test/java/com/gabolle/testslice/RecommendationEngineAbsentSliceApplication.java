@@ -52,11 +52,19 @@ import com.gabolle.backend.recommendation.adapter.BaselineRecommendationEngine;
 })
 @EntityScan(basePackages = {
 		"com.gabolle.backend.event.domain",
-		"com.gabolle.backend.recommendation.domain"
+		"com.gabolle.backend.recommendation.domain",
+		// 🔴 2026-09-11 (S15P21E201-549) — user 를 더했다. EventIngestService 가 행동 이벤트를
+		//    적기 전에 그 사람이 행동 개인화를 켜 뒀는지 보게 되면서 AppUserRepository 를
+		//    필수로 요구한다. 없으면 이 슬라이스의 컨텍스트가 아예 안 뜬다 — CI 가 잡았다.
+		//
+		//    🔴 이 파일은 scanBasePackages 가 아니라 @ComponentScan 을 쓴다. 슬라이스를 훑어
+		//    같은 문제를 찾을 때 그 차이 때문에 이 파일만 빠졌다 — 둘 다 보고 찾아야 한다.
+		"com.gabolle.backend.user.domain"
 })
 @EnableJpaRepositories(basePackages = {
 		"com.gabolle.backend.event.repository",
-		"com.gabolle.backend.recommendation.repository"
+		"com.gabolle.backend.recommendation.repository",
+		"com.gabolle.backend.user.repository"
 })
 public class RecommendationEngineAbsentSliceApplication {
 }

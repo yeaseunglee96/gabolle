@@ -16,6 +16,9 @@ import org.springframework.stereotype.Component;
 @ConditionalOnProperty(prefix = "gabolle.mail", name = "enabled", havingValue = "true")
 public class SmtpEmailSender implements EmailSender {
 
+	/** 본문 줄바꿈. 문자열 안에 직접 쓰면 이 파일을 고치는 도구에 따라 실제 줄바꿈으로 바뀐다. */
+	private static final String NEW_LINE = "\n";
+
 	private final JavaMailSender mailSender;
 	private final String from;
 	private final String fromName;
@@ -47,6 +50,15 @@ public class SmtpEmailSender implements EmailSender {
 		send(email, "가볼래 비밀번호 재설정", "아래 링크에서 비밀번호를 재설정해 주세요.\n" + resetUrl);
 	}
 
+	@Override
+	public void sendStoryRemovedByModerator(String email, String excerpt) {
+		String shown = (excerpt == null || excerpt.isBlank()) ? "(내용 없음)" : excerpt;
+		send(email, "가볼래 기록이 삭제되었습니다",
+				"신고 검토 결과 아래 기록이 삭제되었습니다." + NEW_LINE + NEW_LINE
+						+ shown + NEW_LINE + NEW_LINE
+						+ "딸린 사진도 함께 지워졌습니다. 문의가 있으면 이 메일에 답장해 주세요.");
+	}
+
 	/**
 	 * {@code SimpleMailMessage} 가 아니라 {@code MimeMessage} 를 쓴다.
 	 *
@@ -59,6 +71,21 @@ public class SmtpEmailSender implements EmailSender {
 	 * {@code SmtpEmailSenderFromHeaderTest} 가 못 박는다. 이름을 주소 문자열에 직접
 	 * 이어 붙여도 JavaMail 이 파싱해서 같은 인코딩을 하기는 하지만, 이름에 쉼표나
 	 * 꺾쇠가 들어오면 파싱 결과가 달라진다. 나눠 주는 쪽이 그 해석에 기대지 않는다.
+	 *
+	 * <h2>Reply-To 를 함께 넣는 이유 — S15P21E201-1017</h2>
+	 * 2026-09-16 에 발신을 개인 Gmail SMTP 에서 중계 업체(Brevo)로 옮겼다. 그런데
+	 * 받는 사람에게 보이는 주소는 우리가 넣은 값이 아니라
+	 * {@code ...@12162776.brevosend.com} 이다 — 발신 도메인이 {@code gmail.com} 이라
+	 * 업체가 DKIM 서명을 붙일 수 없어서 자기 도메인으로 바꿔 보낸다(발신자 인증을
+	 * 마쳐도 그렇다. 업체 화면이 "Freemail domain is not recommended" 라고 적어 둔다).
+	 *
+	 * <p>그 상태로는 <b>사용자가 답장을 눌러도 아무도 안 보는 곳으로 간다.</b> 하필
+	 * 기록 삭제 안내 메일 본문이 "문의가 있으면 이 메일에 답장해 주세요" 라고 적고
+	 * 있어서, 답장 경로가 없는 것은 문구와 어긋나기까지 한다.
+	 *
+	 * <p>{@code Reply-To} 는 업체가 바꾸지 않으므로 여기에 실제 주소를 넣는다. From 이
+	 * 무엇으로 바뀌든 답장은 {@code gabolle.mail.from} 으로 온다. 회사 도메인을 인증해
+	 * From 자체를 되찾는 것이 원래 답이지만, 그것은 DNS 를 만질 수 있어야 한다.
 	 */
 	private void send(String email, String subject, String text) {
 		MimeMessage message = mailSender.createMimeMessage();
@@ -66,9 +93,11 @@ public class SmtpEmailSender implements EmailSender {
 			MimeMessageHelper helper = new MimeMessageHelper(message, false, StandardCharsets.UTF_8.name());
 			if (fromName == null) {
 				helper.setFrom(from);
+				helper.setReplyTo(from);
 			}
 			else {
 				helper.setFrom(from, fromName);
+				helper.setReplyTo(from, fromName);
 			}
 			helper.setTo(email);
 			helper.setSubject(subject);

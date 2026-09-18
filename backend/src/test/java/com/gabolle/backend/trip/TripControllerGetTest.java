@@ -1,5 +1,8 @@
 package com.gabolle.backend.trip;
 
+import java.util.Optional;
+import com.gabolle.backend.user.support.ConsentGuards;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -138,6 +141,6 @@ class TripControllerGetTest {
 
     /** S15P21E201-547 — 생성자에 PreferenceDefaultsService 가 붙어 한 자리에 모았다. */
     private static TripCreationService newCreationService(InMemoryTripRepository repository, Clock clock) {
-        return new TripCreationService(repository, clock, new PreferenceDefaultsService(repository, clock));
+        return new TripCreationService(repository, clock, new PreferenceDefaultsService(repository, clock), ConsentGuards.granting(), Optional.empty(), Optional.empty());
     }
 }

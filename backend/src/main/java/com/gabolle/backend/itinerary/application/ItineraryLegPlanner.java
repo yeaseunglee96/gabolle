@@ -98,7 +98,7 @@ public class ItineraryLegPlanner {
 
                 legs.add(new ItineraryDraft.DraftLeg(dayIndex, i + 1,
                         fromPlaceId, toPlaceId, travelMode, distanceM, measured.durationMin(),
-                        walkingMeters, measured.dataStatus()));
+                        walkingMeters, measured.dataStatus(), measured.fareKrw()));
             }
         }
         return legs;
@@ -147,7 +147,7 @@ public class ItineraryLegPlanner {
                 leg.fromPlaceId() != null ? leg.fromPlaceId().toString() : null,
                 leg.toPlaceId().toString(), leg.travelMode(), leg.distanceM(),
                 leg.durationMin(), leg.walkingMeters(), null, null,
-                leg.dataStatus(), now);
+                leg.dataStatus(), leg.fareKrw(), now);
     }
 
     /**

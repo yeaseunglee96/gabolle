@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.security.core.Authentication;
 
@@ -16,6 +17,7 @@ import com.gabolle.backend.common.security.AuthenticatedUsers;
 import com.gabolle.backend.itinerary.application.ItineraryQueryService;
 import com.gabolle.backend.itinerary.presentation.dto.ItineraryDetailResponse;
 import com.gabolle.backend.itinerary.presentation.dto.ItineraryVersionSummaryResponse;
+import com.gabolle.backend.itinerary.presentation.dto.ItineraryVersionsResponse;
 import com.gabolle.backend.trip.application.TripQueryService;
 
 /**
@@ -65,12 +67,21 @@ public class ItineraryQueryController {
 	 * 돌아갈지" 고르는 목록을 그린다. 권한 판정은 {@link #get} 과 같다 — 회원이면 누구나
 	 * 볼 수 있고, 회원이 아니면 존재 자체를 404 로 감춘다.
 	 */
+	/**
+	 * 🔴 S15P21E201-1011 — <b>응답이 배열에서 봉투로 바뀌었다.</b> 판은 일정을 고칠 때마다
+	 * 쌓여 끝이 없는데 상한도 쪽 나눔도 없었다. 상한을 두려면 "더 있다" 를 말할 자리가 필요하고,
+	 * 배열에는 그 자리가 없다 — 이유는 {@link ItineraryVersionsResponse} 에 적었다.
+	 * 배열을 읽던 화면은 이제 {@code data.items} 를 읽어야 한다.
+	 */
 	@GetMapping("/{itineraryId}/versions")
-	public ApiResponse<List<ItineraryVersionSummaryResponse>> versions(@PathVariable String itineraryId,
+	public ApiResponse<ItineraryVersionsResponse> versions(@PathVariable String itineraryId,
+			@RequestParam(required = false) Integer page,
+			@RequestParam(required = false) Integer size,
 			Authentication authentication) {
 
 		String requester = AuthenticatedUsers.requireId(authentication).toString();
-		List<ItineraryVersionSummaryResponse> response = this.queryService.listVersions(itineraryId, requester);
+		// 기본 쪽 크기를 아는 곳은 서비스 하나뿐이다 — 안 준 값은 null 그대로 넘긴다.
+		ItineraryVersionsResponse response = this.queryService.listVersions(itineraryId, requester, page, size);
 		return ApiResponse.success(response, "req_" + UUID.randomUUID());
 	}
 

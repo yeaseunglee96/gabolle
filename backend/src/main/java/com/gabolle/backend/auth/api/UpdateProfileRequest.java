@@ -19,9 +19,9 @@ import jakarta.validation.constraints.Size;
  *
  * <p>{@code language} 는 값 형식을 이 DTO 에서 강제하지 않는다 — 이미 있는
  * {@link com.gabolle.backend.auth.service.LanguageNormalizer} 가 대소문자·별칭까지
- * 정규화해서 {@code KO}/{@code EN} 으로 받아들이므로, 여기서 {@code @Pattern} 으로
- * 한 번 더 좁히면 정규화기가 허용하는 입력(예: 소문자 {@code en})을 서비스 계층
- * 전에 막아버리는 모순이 생긴다.
+ * 정규화해서 {@code KO}/{@code EN}/{@code JA}/{@code ZH-HANS}/{@code ZH-HANT} 중 하나로
+ * 받아들이므로, 여기서 {@code @Pattern} 으로 한 번 더 좁히면 정규화기가 허용하는 입력(예:
+ * 소문자 {@code en})을 서비스 계층 전에 막아버리는 모순이 생긴다.
  *
  * <p>이메일 필드는 여기 없다. 이메일 변경은 이 티켓 범위 밖이고, 요청 DTO 에 필드를
  * 아예 두지 않으면 클라이언트가 이메일을 보내도 Jackson 이 알 수 없는 필드로 버린다.
@@ -29,5 +29,21 @@ import jakarta.validation.constraints.Size;
  */
 public record UpdateProfileRequest(
 		@Size(min = 1, max = 30) String displayName,
-		String language) {
+		String language,
+		@Size(max = 500) String avatarUrl) {
+
+	/**
+	 * 사진을 떼라는 요청인가 (S15P21E201-844).
+	 *
+	 * <p>🔴 이름과 사진은 "빈 값" 의 뜻이 반대다. 이름은 없는 계정을 만들 수 없어서 빈 문자열을
+	 * 거부하지만, 사진은 <b>원래 없어도 되는 값</b>이라 떼는 길이 필요하다. 그런데 Jackson 은
+	 * "키를 안 보냈다" 와 "null 을 보냈다" 를 똑같이 {@code null} 로 준다 — 그래서 {@code null}
+	 * 하나로는 "안 바꾼다" 와 "뗀다" 를 가를 수 없다.
+	 *
+	 * <p>그래서 <b>빈 문자열이 떼기</b>다. 키를 안 보내면 그 값은 그대로 둔다. 저장되는 값 쪽은
+	 * 여전히 {@code null} 하나뿐이라({@code AppUser.changeAvatarUrl}) 표에 빈 문자열이 남지 않는다.
+	 */
+	public boolean removesAvatar() {
+		return avatarUrl != null && avatarUrl.isBlank();
+	}
 }

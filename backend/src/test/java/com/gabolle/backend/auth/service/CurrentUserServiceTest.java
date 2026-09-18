@@ -60,6 +60,38 @@ class CurrentUserServiceTest {
 		assertThat(service.get(userId).email()).isEqualTo("social@example.com");
 	}
 
+	/**
+	 * 애플만 쓰는 계정 — 로컬 비밀번호 계정도 없고 provider 가 준 이메일도 없다. 예전에는 여기서
+	 * 500 이 나가서 로그인 직후의 {@code GET /api/v1/auth/me} 가 매번 실패했다(S15P21E201-893).
+	 */
+	@Test
+	void returnsNullEmailWhenProviderGaveNone() {
+		UUID userId = UUID.randomUUID();
+		AppUser user = activeUser();
+		AuthIdentity identity = mock(AuthIdentity.class);
+		when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+		when(localCredentialRepository.findByUserUserId(userId)).thenReturn(Optional.empty());
+		when(authIdentityRepository.findAllByUserUserId(userId)).thenReturn(List.of(identity));
+		when(identity.isActive()).thenReturn(true);
+		when(identity.getProviderEmail()).thenReturn(null);
+
+		CurrentUserService.CurrentUser result = service.get(userId);
+
+		assertThat(result.user()).isSameAs(user);
+		assertThat(result.email()).isNull();
+	}
+
+	@Test
+	void returnsNullEmailWhenNoIdentityRemains() {
+		UUID userId = UUID.randomUUID();
+		AppUser user = activeUser();
+		when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+		when(localCredentialRepository.findByUserUserId(userId)).thenReturn(Optional.empty());
+		when(authIdentityRepository.findAllByUserUserId(userId)).thenReturn(List.of());
+
+		assertThat(service.get(userId).email()).isNull();
+	}
+
 	@Test
 	void rejectsUnavailableAccount() {
 		UUID userId = UUID.randomUUID();

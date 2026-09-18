@@ -109,13 +109,31 @@ public abstract class FunctionalJourneyTest {
 	 * 테스트에서만 쓰는 지름길이라는 점을 여기 남긴다.)
 	 */
 	protected AuthedClient loginAsNewUser(String emailPrefix) {
+		return loginAsNewUser(emailPrefix, Map.of());
+	}
+
+	/**
+	 * 선택 동의를 함께 켜고 가입한다 — S15P21E201-549.
+	 *
+	 * <p>🔴 <b>기본값을 바꾸지 않고 인자로 받는 이유.</b> 여기에 동의를 전부 켜 두면 모든 여정이
+	 * "무엇에든 동의한 사람" 으로 돌게 되고, 동의를 안 받았을 때 막히는지는 아무도 안 재게 된다.
+	 * 필요한 여정만 명시적으로 켠다 — 지금은 민감 제약(알레르기)을 보내는
+	 * {@code RecommendationWithRealPlacesFunctionalTest} 하나다.
+	 *
+	 * @param extraConsents 필수 둘 위에 더 켤 동의. 예: {@code Map.of("HEALTH_CONSTRAINTS", true)}
+	 */
+	protected AuthedClient loginAsNewUser(String emailPrefix, Map<String, Boolean> extraConsents) {
 		String email = emailPrefix + "+" + UUID.randomUUID() + "@example.com";
 		createdEmails.add(email);
 
 		// TERMS_OF_SERVICE·PRIVACY_POLICY 는 ConsentPolicy 가 무조건 요구한다(REQUIRED_CONSENT_MISSING).
+		Map<String, Boolean> consents = new java.util.LinkedHashMap<>(
+				Map.of("TERMS_OF_SERVICE", true, "PRIVACY_POLICY", true));
+		consents.putAll(extraConsents);
+
 		ResponseEntity<Void> signup = rest.postForEntity("/api/v1/auth/signup",
 				new LocalSignupRequest(email, "correct-horse-battery-staple", "기능테스트", "KO", true, "functional-test",
-						Map.of("TERMS_OF_SERVICE", true, "PRIVACY_POLICY", true), false),
+						consents, false),
 				Void.class);
 		assertThat(signup.getStatusCode()).isEqualTo(HttpStatus.CREATED);
 

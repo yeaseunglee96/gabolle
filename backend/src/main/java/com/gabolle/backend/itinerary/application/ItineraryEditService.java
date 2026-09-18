@@ -316,6 +316,47 @@ public class ItineraryEditService {
     }
 
     /**
+     * 저장된 판의 그 날짜를 영업시간과 대조한다 — S15P21E201-858.
+     *
+     * <p>순서 바꾸기는 판정을 {@link ReorderOutcome} 에 실어 올린다. 나머지 편집은 새 판만
+     * 돌려주도록 이미 만들어져 있어서, 그 네 곳의 시그니처를 바꾸는 대신 <b>저장한 뒤에
+     * 물어보는 자리</b>를 둔다. 판정 규칙이 이 서비스 안에 남는 것이 요점이다 — 부르는 쪽에서
+     * 다시 판정하게 만들면 같은 규칙이 두 곳에 살게 된다.
+     *
+     * <p>판을 한 번 더 읽는다. 부르는 쪽이 바로 뒤에 일정 전체를 다시 읽어 응답을 만들고 있어
+     * 이 한 번이 늘어나는 비용의 전부다.
+     */
+    public ItineraryOpeningHoursChecker.Result openingHoursForDay(String itineraryId, int version, int dayIndex) {
+        return this.openingHours.checkDay(itemsOf(itineraryId, version), dayIndex);
+    }
+
+    /**
+     * 그 항목이 속한 날짜를 대조한다. 고정·해제가 쓴다 — 요청에 날짜가 없고 항목 열쇠만 온다.
+     *
+     * <p>항목을 못 찾으면 판 전체를 본다. 못 찾는 것은 이 편집이 그 항목을 지웠을 때뿐이고,
+     * 그때 아무것도 안 보는 것보다 넓게 보는 편이 낫다.
+     */
+    public ItineraryOpeningHoursChecker.Result openingHoursForItem(String itineraryId, int version, String itemKey) {
+        List<ItineraryItem> items = itemsOf(itineraryId, version);
+        return items.stream()
+                .filter((item) -> itemKey != null && itemKey.equals(item.itemKey()))
+                .findFirst()
+                .map((item) -> this.openingHours.checkDay(items, item.dayIndex()))
+                .orElseGet(() -> this.openingHours.checkAll(items));
+    }
+
+    /** 판 전체를 대조한다. 되돌리기가 쓴다 — 한 날이 아니라 판 전체가 바뀐다. */
+    public ItineraryOpeningHoursChecker.Result openingHoursForAll(String itineraryId, int version) {
+        return this.openingHours.checkAll(itemsOf(itineraryId, version));
+    }
+
+    private List<ItineraryItem> itemsOf(String itineraryId, int version) {
+        return repository.findContent(itineraryId, version)
+                .map(ItineraryContent::items)
+                .orElse(List.of());
+    }
+
+    /**
      * 남은 하루를 다시 계획한다 — S15P21E201-308.
      *
      * <p>순서는 다른 편집과 같다 — 판 번호를 검증하고, 바탕 판을 읽어 새 내용을 만들고,

@@ -46,6 +46,17 @@ public class PrivacyCleanupRun {
 	@Column(name = "expired_events_deleted", nullable = false)
 	private int expiredEventsDeleted;
 
+	/**
+	 * 🔴 S15P21E201-1216 — 지운 <b>조회 낱개</b> 행 수다. 글의 누적 조회수는 안 내려간다.
+	 * 자세한 이유는 {@link PrivacyCleanupResult} 주석에 있다.
+	 */
+	@Column(name = "story_views_deleted", nullable = false)
+	private int storyViewsDeleted;
+
+	/** 🔴 S15P21E201-1216 — 지운 <b>링크 복사 낱개</b> 행 수. 누적 인용수는 안 내려간다. */
+	@Column(name = "story_link_copies_deleted", nullable = false)
+	private int storyLinkCopiesDeleted;
+
 	@Column(name = "error_message", columnDefinition = "text")
 	private String errorMessage;
 
@@ -61,13 +72,20 @@ public class PrivacyCleanupRun {
 		return new PrivacyCleanupRun(startedAt);
 	}
 
-	public void succeed(Instant finishedAt, int expiredSessionsDeleted, int expiredRefreshTokensDeleted,
-			int expiredEventsDeleted) {
+	/**
+	 * 🔴 S15P21E201-1216 — 건수를 <b>낱낱의 int 로 받지 않고 {@link PrivacyCleanupResult} 하나로</b>
+	 * 받는다. 카테고리가 셋에서 다섯이 되면서 같은 자리에 같은 타입의 인자가 다섯 개 늘어서는데,
+	 * 그 상태에서 <b>순서를 한 번만 바꿔 넣어도 컴파일이 통과하고 검사도 대개 통과한다</b> —
+	 * 기록 표의 숫자가 조용히 서로 바뀐다. 이름 있는 칸으로 받으면 그 실수가 아예 불가능하다.
+	 */
+	public void succeed(Instant finishedAt, PrivacyCleanupResult result) {
 		this.finishedAt = finishedAt;
 		this.status = PrivacyCleanupStatus.SUCCEEDED;
-		this.expiredSessionsDeleted = expiredSessionsDeleted;
-		this.expiredRefreshTokensDeleted = expiredRefreshTokensDeleted;
-		this.expiredEventsDeleted = expiredEventsDeleted;
+		this.expiredSessionsDeleted = result.sessionsDeleted();
+		this.expiredRefreshTokensDeleted = result.refreshTokensDeleted();
+		this.expiredEventsDeleted = result.eventsDeleted();
+		this.storyViewsDeleted = result.storyViewsDeleted();
+		this.storyLinkCopiesDeleted = result.storyLinkCopiesDeleted();
 	}
 
 	public void fail(Instant finishedAt, String errorMessage) {
@@ -102,6 +120,14 @@ public class PrivacyCleanupRun {
 
 	public int getExpiredEventsDeleted() {
 		return expiredEventsDeleted;
+	}
+
+	public int getStoryViewsDeleted() {
+		return storyViewsDeleted;
+	}
+
+	public int getStoryLinkCopiesDeleted() {
+		return storyLinkCopiesDeleted;
 	}
 
 	public String getErrorMessage() {

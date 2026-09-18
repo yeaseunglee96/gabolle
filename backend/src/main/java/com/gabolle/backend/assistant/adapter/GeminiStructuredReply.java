@@ -20,5 +20,7 @@ record GeminiStructuredReply(
 		String korean,
 		String pronunciation,
 		String label,
-		String href) {
+		String href,
+		Integer days,
+		Integer people) {
 }

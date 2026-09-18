@@ -163,9 +163,10 @@ class TripActivityIntegrationTest {
 	void versionListingCarriesNames() throws Exception {
 		this.mockMvc.perform(get("/api/v1/itineraries/{id}/versions", this.itineraryId).principal(as(this.viewer)))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.data[0].version").value(3))
-				.andExpect(jsonPath("$.data[0].createdByName").value("소유자"))
-				.andExpect(jsonPath("$.data[1].createdByName").value("편집자"));
+				// 🔴 S15P21E201-1011 — 응답이 배열에서 봉투로 바뀌었다. 목록은 data.items 다.
+				.andExpect(jsonPath("$.data.items[0].version").value(3))
+				.andExpect(jsonPath("$.data.items[0].createdByName").value("소유자"))
+				.andExpect(jsonPath("$.data.items[1].createdByName").value("편집자"));
 	}
 
 	// ---- 시드 도우미 ----

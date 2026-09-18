@@ -57,7 +57,7 @@ class BaselineRecommendationEngineCandidateCutTest {
 	private static final int KEEP = 10;
 
 	private static final BaselineEngineProperties PROPERTIES = new BaselineEngineProperties(
-			"rule-v1", "feature-v1", "ontology-v1", "policy-v1", RADIUS_M, SCAN_LIMIT, KEEP, null);
+			"rule-v1", "feature-v1", "ontology-v1", "policy-v1", RADIUS_M, SCAN_LIMIT, KEEP, null, null);
 
 	private final TripRepository tripRepository = mock(TripRepository.class);
 
@@ -94,7 +94,18 @@ class BaselineRecommendationEngineCandidateCutTest {
 				new BaselineCandidateTranslator(PROPERTIES, this.codeMapRepository, this.objectMapper),
 				new BaselineCandidateScorer(this.objectMapper), PROPERTIES,
 				new PreferenceAlignmentWeights(null, null, null, null, null),
-				this.codeMapRepository, this.seedPlaceRepository);
+				this.codeMapRepository, this.seedPlaceRepository, Optional.empty(),
+				// 🔴 벡터 빈이 없는 자리 — 채점이 벡터 없던 때와 완전히 같아야 한다 (S15P21E201-943)
+				emptyProvider(), emptyProvider());
+	}
+
+	/** 빈이 없는 슬라이스를 흉내 낸다 — 아홉 슬라이스 중 preference 를 스캔하는 것이 사실상 없다. */
+	private static <T> org.springframework.beans.factory.ObjectProvider<T> emptyProvider() {
+		@SuppressWarnings("unchecked")
+		org.springframework.beans.factory.ObjectProvider<T> provider =
+				org.mockito.Mockito.mock(org.springframework.beans.factory.ObjectProvider.class);
+		org.mockito.Mockito.when(provider.getIfAvailable()).thenReturn(null);
+		return provider;
 	}
 
 	@Test

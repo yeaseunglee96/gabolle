@@ -18,6 +18,7 @@ import com.gabolle.backend.place.api.PlaceFacetResponse;
 import com.gabolle.backend.place.api.PlaceFacetResponse.FacetItem;
 import com.gabolle.backend.place.api.PlaceFacetResponse.FacetKeyCount;
 import com.gabolle.backend.place.domain.InterestTagCode;
+import com.gabolle.backend.place.domain.MatchKind;
 import com.gabolle.backend.place.domain.PlaceFeature;
 import com.gabolle.backend.place.domain.UserInputKind;
 import com.gabolle.backend.place.domain.UserPlaceCodeMap;
@@ -50,6 +51,9 @@ import com.gabolle.backend.place.repository.UserPlaceCodeMapRepository;
 @Profile({"db", "dev"})
 public class PlaceFacetService {
 
+	/** 탐색 아코디언 항목의 userInputCode. 취향 차원이 아니라는 뜻이다 (S15P21E201-904). */
+	private static final String EXPLORE_INPUT_CODE = "EXPLORE";
+
 	private final UserPlaceCodeMapRepository codeMapRepository;
 
 	private final PlaceFeatureRepository placeFeatureRepository;
@@ -64,10 +68,17 @@ public class PlaceFacetService {
 		List<UserPlaceCodeMap> codeMaps =
 				this.codeMapRepository.findByIdUserInputKindOrderByIdUserInputCodeAsc(UserInputKind.PREFERENCE);
 
-		List<String> featureTypes = codeMaps.stream()
+		List<String> featureTypes = new ArrayList<>(codeMaps.stream()
 				.map(UserPlaceCodeMap::getPlaceFeatureType)
 				.distinct()
-				.toList();
+				.toList());
+		// 🔴 탐색 아코디언은 대조표에서 파생하지 않는다 (S15P21E201-904). 전에는 취향
+		//    CATEGORY 줄이 INTEREST_TAG 를 가리켜서 그 줄에 얹혀 나왔는데, 그 바람에 온보딩
+		//    여섯 낱말과 탐색 여덟 낱말이 한 서랍에 섞였다. 이제 CATEGORY 는 CATEGORY_TAG 를
+		//    가리키므로, 탐색 갈래는 자기 사전(InterestTagCode)에서 직접 만든다.
+		if (!featureTypes.contains(InterestTagCode.FEATURE_TYPE)) {
+			featureTypes.add(InterestTagCode.FEATURE_TYPE);
+		}
 
 		// 🔴 여기서 evidenceStatus <> UNKNOWN 까지만 걸러진 행을 받는다. "확인된 부재"
 		// (VERIFIED + 값 false) 를 걸러내는 것은 toFacetItem 의 indicatesPresence() 몫이다 —
@@ -75,12 +86,19 @@ public class PlaceFacetService {
 		Map<String, List<PlaceFeature>> featuresByType = groupByFeatureType(
 				this.placeFeatureRepository.findByFeatureTypeIn(featureTypes));
 
-		List<FacetItem> items = codeMaps.stream()
+		List<FacetItem> items = new ArrayList<>(codeMaps.stream()
 				.map(codeMap -> toFacetItem(codeMap,
 						featuresByType.getOrDefault(codeMap.getPlaceFeatureType(), List.of())))
-				.toList();
+				.toList());
+		// 대조표에 INTEREST_TAG 를 가리키는 줄이 하나도 없을 때만 더한다 — 있으면 두 번 나간다.
+		boolean mapHasExplore = codeMaps.stream()
+				.anyMatch(codeMap -> InterestTagCode.FEATURE_TYPE.equals(codeMap.getPlaceFeatureType()));
+		if (!mapHasExplore) {
+			items.add(exploreFacetItem(
+					featuresByType.getOrDefault(InterestTagCode.FEATURE_TYPE, List.of())));
+		}
 
-		return new PlaceFacetResponse(items, OffsetDateTime.now(ZoneOffset.UTC));
+		return new PlaceFacetResponse(List.copyOf(items), OffsetDateTime.now(ZoneOffset.UTC));
 	}
 
 	private Map<String, List<PlaceFeature>> groupByFeatureType(List<PlaceFeature> rows) {
@@ -103,10 +121,32 @@ public class PlaceFacetService {
 	 *
 	 * <p>keys 를 만드는 규칙은 갈래마다 갈린다({@link #interestTagKeys}, {@link #plainKeys}) —
 	 * INTEREST_TAG(로컬 8갈래, -473)만 여덟 개를 항상 채워야 하고 다른 표식 종류는 지금처럼 데이터가
-	 * 있는 키만 준다. total 은 그 keys 의 건수 합으로 다시 구한다 — INTEREST_TAG 는 0건짜리 키도
-	 * 들어 있어 더해도 값이 그대로고, 다른 갈래는 원래 있던 키만 더해지므로 이전 합산과 같다.
+	 * 있는 키만 준다. total 은 그 keys 의 건수 합에 {@link #keylessCount} 를 더해 구한다.
+	 *
+	 * <p>🔴 <b>정정 (2026-09-17, S15P21E201-1149)</b> — 여기 <i>"다른 갈래는 원래 있던 키만
+	 * 더해지므로 이전 합산과 같다"</i> 고 적혀 있었고, 그 문장이 틀렸다. {@code featureKey} 가
+	 * 언제나 {@code null} 인 갈래(점수형 다섯 — LOCALITY_SCORE · QUIETNESS_SCORE · SHADE_SCORE ·
+	 * SLOPE_PERCENT · TOURIST_RATIO)는 <b>"원래 있던 키" 가 하나도 없다.</b> {@link #plainKeys} 가
+	 * null 키 묶음을 버리므로 keys 가 비고, 그래서 <b>자료가 몇 행이든 합계가 0 이었다.</b>
+	 * 위 문단이 처음부터 적어 둔 계산 규칙("featureKey 가 없는 행의 건수 + 키별 건수의 합")이
+	 * 맞았고 구현이 그 앞 절반을 빠뜨린 것이라, 명세가 아니라 코드를 고쳤다.
 	 */
 	private FacetItem toFacetItem(UserPlaceCodeMap codeMap, List<PlaceFeature> features) {
+		Map<String, Set<UUID>> placeIdsByKey = placeIdsByKey(features);
+
+		List<FacetKeyCount> keys = InterestTagCode.FEATURE_TYPE.equals(codeMap.getPlaceFeatureType())
+				? interestTagKeys(placeIdsByKey)
+				: plainKeys(placeIdsByKey);
+		long total = keys.stream().mapToLong(FacetKeyCount::placeCount).sum() + keylessCount(placeIdsByKey);
+
+		return new FacetItem(codeMap.getUserInputCode(), codeMap.getPlaceFeatureType(), codeMap.getMatchKind(),
+				total, keys);
+	}
+
+	/**
+	 * 장소 표식을 키별로 모은다. 확인된 부재(indicatesPresence 가 거짓)는 여기서 빠진다.
+	 */
+	private Map<String, Set<UUID>> placeIdsByKey(List<PlaceFeature> features) {
 		Map<String, Set<UUID>> placeIdsByKey = new LinkedHashMap<>();
 		for (PlaceFeature feature : features) {
 			if (!feature.indicatesPresence()) {
@@ -115,13 +155,22 @@ public class PlaceFacetService {
 			placeIdsByKey.computeIfAbsent(feature.getFeatureKey(), key -> new LinkedHashSet<>())
 					.add(feature.getPlaceId());
 		}
+		return placeIdsByKey;
+	}
 
-		List<FacetKeyCount> keys = InterestTagCode.FEATURE_TYPE.equals(codeMap.getPlaceFeatureType())
-				? interestTagKeys(placeIdsByKey)
-				: plainKeys(placeIdsByKey);
-		long total = keys.stream().mapToLong(FacetKeyCount::placeCount).sum();
-
-		return new FacetItem(codeMap.getUserInputCode(), codeMap.getPlaceFeatureType(), codeMap.getMatchKind(),
+	/**
+	 * 탐색 아코디언 갈래 (S15P21E201-904).
+	 *
+	 * <p>🔴 이 항목은 <b>취향 차원이 아니다.</b> 그래서 대조표에 짝이 없고, userInputCode 로
+	 * {@code EXPLORE} 를 쓴다 — 취향 여덟 차원 중 하나를 빌려 쓰면 그 차원과 이 화면이 다시
+	 * 엮이고, 그게 이 티켓이 푼 문제였다. 앱은 이 값을 안 보고 {@code keys} 의 여덟 낱말만
+	 * 골라 쓴다.
+	 */
+	private FacetItem exploreFacetItem(List<PlaceFeature> features) {
+		Map<String, Set<UUID>> placeIdsByKey = placeIdsByKey(features);
+		List<FacetKeyCount> keys = interestTagKeys(placeIdsByKey);
+		long total = keys.stream().mapToLong(FacetKeyCount::placeCount).sum() + keylessCount(placeIdsByKey);
+		return new FacetItem(EXPLORE_INPUT_CODE, InterestTagCode.FEATURE_TYPE, MatchKind.TAG_OVERLAP,
 				total, keys);
 	}
 
@@ -150,6 +199,22 @@ public class PlaceFacetService {
 		extras.sort(Comparator.comparing(FacetKeyCount::featureKey));
 		keys.addAll(extras);
 		return keys;
+	}
+
+	/**
+	 * {@code featureKey} 가 없는 묶음의 크기 — S15P21E201-1149.
+	 *
+	 * <p>점수형({@code SCORE_COMPARE})과 참거짓형 표식은 이 열쇠가 <b>언제나</b> {@code null} 이다.
+	 * 값 자체가 답이라 같은 종류 안에서 더 나눌 것이 없기 때문이다(태그형만 「바다」·「시장」처럼
+	 * 나뉜다). 그래서 그 갈래의 묶음은 null 키 하나뿐이고, {@link #plainKeys} 가 그것을 버린다.
+	 *
+	 * <p>🔴 <b>이 값을 {@code keys} 에 넣지 않는 것이 의도다.</b> 합계에만 더한다. keys 는 화면이
+	 * 하위 갈래로 그리는 목록이라, {@code featureKey} 가 null 인 항목이 섞이면 화면이 이름 없는
+	 * 칸을 그리려 든다. 「몇 곳인가」는 합계가 답하고, 「무엇으로 나뉘나」는 keys 가 답한다 —
+	 * 점수형은 뒤의 질문에 답이 없는 것이 정상이다.
+	 */
+	private static long keylessCount(Map<String, Set<UUID>> placeIdsByKey) {
+		return placeIdsByKey.getOrDefault(null, Set.of()).size();
 	}
 
 	/** 그 밖의 갈래는 지금처럼 데이터가 있는 키만, 이름 순으로 돌려준다. */

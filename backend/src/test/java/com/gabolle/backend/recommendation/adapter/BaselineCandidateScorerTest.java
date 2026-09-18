@@ -1,5 +1,9 @@
 package com.gabolle.backend.recommendation.adapter;
 
+import static org.assertj.core.api.Assertions.within;
+import com.gabolle.backend.preference.domain.UserTasteWeight;
+import com.gabolle.backend.preference.domain.TasteDimension;
+import java.time.OffsetDateTime;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -33,6 +37,14 @@ import static org.mockito.Mockito.when;
 class BaselineCandidateScorerTest {
 
 	private static final int RADIUS_M = 5000;
+
+	/** S15P21E201-943 배수. 기본값과 같은 값을 쓴다 — 검사가 설정과 따로 놀지 않게. */
+	private static final double TASTE_MULTIPLIER = 0.05;
+
+	private static final UUID TASTE_VECTOR_ID = UUID.randomUUID();
+
+	/** 고정 시각. 성분의 updatedAt 은 이 검사들의 판정에 안 쓰이지만 지어내지는 않는다. */
+	private static final OffsetDateTime NOW = OffsetDateTime.parse("2026-09-16T12:00:00Z");
 
 	private static final BaselineEngineProperties.Weights WEIGHTS =
 			new BaselineEngineProperties.Weights(0.30, 0.20, 0.15, 0.15, 0.10, 0.10);
@@ -185,17 +197,51 @@ class BaselineCandidateScorerTest {
 	}
 
 	@Test
-	@DisplayName("🔴 MOBILITY 미확인의 severity 는 제약 자신의 severity 를 옮긴다 — SOFT 면 PREFERRED")
-	void 이동제약_미확인_severity는_제약값을_따른다() {
+	@DisplayName("🔴 MOBILITY 미확인은 FAIL 이 아니라 경고다 — S15P21E201-540")
+	void 이동제약_미확인은_FAIL이_아니라_경고다() {
 		TripConstraint stroller = mobility("STROLLER", TripConstraint.Severity.SOFT);
 		PlaceCandidateResponse.Candidate candidate = candidate(List.of());
 
 		EngineCandidate result = score(candidate, null, List.of(stroller));
 
-		assertThat(result.unknownFacts()).anySatisfy(fact -> {
-			assertThat(fact.get("fact")).isEqualTo("ACCESSIBILITY_UNVERIFIED");
-			assertThat(fact.get("severity")).isEqualTo("PREFERRED");
-		});
+		assertThat(result.constraintVerdict()).isNotEqualTo(ConstraintVerdict.FAIL);
+		assertThat(result.warningCodes()).contains("ACCESSIBILITY_UNVERIFIED");
+	}
+
+	@Test
+	@DisplayName("🔴 휠체어를 하드 제약으로 켜도 표식 없는 곳은 안 빠진다 — 이게 안 되면 추천이 0건이 된다")
+	void 휠체어_하드제약이어도_표식없는_곳은_안빠진다() {
+		// 🔴 이 검사가 이 티켓의 이유다. 운영 실측(2026-09-16)에서 접근성 표식이 붙은
+		//    장소는 2,683곳 중 102곳(4%)뿐이다. 미확인을 탈락으로 세면 96%가 사라지고
+		//    반경 조건까지 겹치면 결과가 0건이 된다 — 추천 실패 18건 중 8건이 그랬다.
+		TripConstraint wheelchair = mobility("WHEELCHAIR", TripConstraint.Severity.HARD);
+		PlaceCandidateResponse.Candidate candidate = candidate(List.of());
+
+		EngineCandidate result = score(candidate, null, List.of(wheelchair));
+
+		assertThat(result.constraintVerdict()).isNotEqualTo(ConstraintVerdict.FAIL);
+		assertThat(result.violations()).isEmpty();
+		// 🔴 severity 를 REQUIRED 로 단 미확인 사실이 남으면 임계값 설정(기본 REQUIRED)이
+		//    그 후보를 뺀다. 그래서 그 자리가 비어 있어야 한다.
+		assertThat(result.unknownFacts())
+				.noneSatisfy(fact -> assertThat(fact.get("fact")).isEqualTo("ACCESSIBILITY_UNVERIFIED"));
+		assertThat(result.preRankScore()).as("점수가 null 이면 후보에서 빠진다").isNotNull();
+		assertThat(result.warningCodes()).contains("ACCESSIBILITY_UNVERIFIED");
+	}
+
+	@Test
+	@DisplayName("🔴 안 재 본 곳은 재 보고 갈 수 있는 곳보다 뒤로 밀린다 — 빼지 않는 대신 감점한다")
+	void 미확인은_확인된_곳보다_점수가_낮다() {
+		TripConstraint wheelchair = mobility("WHEELCHAIR", TripConstraint.Severity.HARD);
+
+		EngineCandidate verified = score(
+				candidate(List.of(tag("ACCESSIBILITY_TAG", "WHEELCHAIR", "VERIFIED", "true"))),
+				null, List.of(wheelchair));
+		EngineCandidate unverified = score(candidate(List.of()), null, List.of(wheelchair));
+
+		assertThat(unverified.preRankScore())
+				.as("미확인이 확인된 곳과 같은 점수면 뒤로 밀리지 않는다")
+				.isLessThan(verified.preRankScore());
 	}
 
 	@Test
@@ -263,7 +309,7 @@ class BaselineCandidateScorerTest {
 
 		EngineCandidate result = this.scorer.score(candidate, null, List.of(peanutAllergy), RADIUS_M, WEIGHTS,
 				ALIGNMENT_WEIGHTS,
-				this.preferenceCodeMap, List.of());
+				this.preferenceCodeMap, List.of(), List.of(), TASTE_MULTIPLIER);
 
 		assertThat(result.constraintVerdict()).isEqualTo(ConstraintVerdict.UNKNOWN);
 		assertThat(result.unknownFacts()).anySatisfy(fact -> {
@@ -272,11 +318,89 @@ class BaselineCandidateScorerTest {
 		});
 	}
 
+	/**
+	 * 🔴 이 검사가 S15P21E201-943 의 이유다 — 벡터가 실제로 점수에 닿는가.
+	 *
+	 * <p>완료 기준에 「겹치는 것이 있으면 기여가 0 이 아니다」를 넣은 이유가 이것이다. 「벡터 없는
+	 * 계정은 점수가 같다」만 검사하면 <b>배관이 끊겨 기여가 영원히 0 이어도 통과한다.</b>
+	 */
+	@Test
+	@DisplayName("🔴 벡터가 겹치면 덧점수가 실제로 붙는다 — 기여가 0 이 아니다")
+	void tasteVectorAddsWhenItOverlaps() {
+		PlaceCandidateResponse.Candidate cafe = candidate(List.of(tag("INTEREST_TAG", "CAFE_HEALING", "VERIFIED", "true")));
+		List<UserTasteWeight> vector = List.of(
+				UserTasteWeight.fromSurvey(TASTE_VECTOR_ID, TasteDimension.CATEGORY, "CAFE_HEALING", 1.0, NOW));
+
+		EngineCandidate without = score(cafe, null, List.of());
+		EngineCandidate with = score(cafe, null, List.of(), vector);
+
+		assertThat(with.preRankScore()).as("겹쳤는데 점수가 안 움직이면 배관이 끊긴 것이다")
+				.isGreaterThan(without.preRankScore());
+		assertThat(with.preRankScore() - without.preRankScore()).isCloseTo(TASTE_MULTIPLIER * 1.0, within(1e-9));
+		assertThat(with.scoreComponents()).containsKey("tasteVectorContribution");
+	}
+
+	/**
+	 * 🔴 벡터가 없는 사람이 지금 대부분이다. 이 변경 전후로 그 사람들의 점수가 <b>완전히</b>
+	 * 같아야 한다 — 덧점수로 시작한 이유가 이것이다.
+	 */
+	@Test
+	@DisplayName("🔴 벡터가 없으면 점수가 한 톨도 안 바뀐다")
+	void noVectorMeansNoChange() {
+		PlaceCandidateResponse.Candidate cafe = candidate(List.of(tag("INTEREST_TAG", "CAFE_HEALING", "VERIFIED", "true")));
+
+		EngineCandidate empty = score(cafe, null, List.of(), List.of());
+		EngineCandidate legacy = score(cafe, null, List.of());
+
+		assertThat(empty.preRankScore()).isEqualTo(legacy.preRankScore());
+		// 🔴 「겹친 게 없다(0.0)」와 「잴 것이 없다(null)」를 구분한다.
+		assertThat(empty.featureValues()).containsEntry("tasteVectorOverlap", null);
+	}
+
+	/**
+	 * 🔴 개수만 세면 못 하는 일 — 싫어하는 갈래는 점수를 <b>내려야</b> 한다.
+	 *
+	 * <p>벡터를 쓰는 이유의 절반이 이것이다. 기존 태그 겹침은 맞은 개수라 언제나 0 이상이다.
+	 */
+	@Test
+	@DisplayName("🔴 음수 성분이면 점수가 내려간다 — 겹침 개수로는 못 하는 일")
+	void negativeWeightLowersScore() {
+		PlaceCandidateResponse.Candidate cafe = candidate(List.of(tag("INTEREST_TAG", "CAFE_HEALING", "VERIFIED", "true")));
+		List<UserTasteWeight> dislike = List.of(
+				UserTasteWeight.fromSurvey(TASTE_VECTOR_ID, TasteDimension.CATEGORY, "CAFE_HEALING", -1.0, NOW));
+
+		EngineCandidate without = score(cafe, null, List.of());
+		EngineCandidate with = score(cafe, null, List.of(), dislike);
+
+		assertThat(with.preRankScore()).isLessThan(without.preRankScore());
+	}
+
+	/** 벡터는 있는데 이 후보와 안 겹치면 기여는 0 이다 — null 이 아니다. 잴 것은 있었다. */
+	@Test
+	@DisplayName("벡터가 있어도 안 겹치면 기여는 0 이다")
+	void vectorWithoutOverlapContributesZero() {
+		PlaceCandidateResponse.Candidate notCafe = candidate(List.of(tag("INTEREST_TAG", "FOOD", "VERIFIED", "true")));
+		List<UserTasteWeight> vector = List.of(
+				UserTasteWeight.fromSurvey(TASTE_VECTOR_ID, TasteDimension.CATEGORY, "CAFE_HEALING", 1.0, NOW));
+
+		EngineCandidate without = score(notCafe, null, List.of());
+		EngineCandidate with = score(notCafe, null, List.of(), vector);
+
+		assertThat(with.preRankScore()).isEqualTo(without.preRankScore());
+		assertThat(with.featureValues()).containsEntry("tasteVectorOverlap", 0.0);
+	}
+
 	private EngineCandidate score(PlaceCandidateResponse.Candidate candidate, PreferenceSnapshot snapshot,
 			List<TripConstraint> constraints) {
+		return score(candidate, snapshot, constraints, List.of());
+	}
+
+	/** 취향 벡터를 함께 넘기는 갈래 — S15P21E201-943. */
+	private EngineCandidate score(PlaceCandidateResponse.Candidate candidate, PreferenceSnapshot snapshot,
+			List<TripConstraint> constraints, List<UserTasteWeight> tasteWeights) {
 		return this.scorer.score(candidate, snapshot, constraints, RADIUS_M, WEIGHTS, ALIGNMENT_WEIGHTS,
 				this.preferenceCodeMap,
-				this.constraintCodeMap);
+				this.constraintCodeMap, tasteWeights, TASTE_MULTIPLIER);
 	}
 
 	private static PlaceCandidateResponse.Candidate candidate(List<PlaceFeatureView> features) {

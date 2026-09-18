@@ -102,6 +102,28 @@ public class StorageProperties {
 		 */
 		private String publicBaseUrl = "";
 
+		/**
+		 * 버킷이 있는 지역. 🔴 <b>이 값을 주는 것이 핵심이다 — 비워 두면 사진이 아예 안 올라간다.</b>
+		 *
+		 * <p>MinIO 자바 SDK 는 지역을 모르면 객체를 넣기 <b>전에</b>
+		 * {@code GET /버킷?location=} 으로 서버에 물어본다. 그 호출에는
+		 * {@code s3:GetBucketLocation} 권한이 필요한데, 운영의 정책에는 그것이 없었다 —
+		 * {@code s3:PutObject}·{@code GetObject}·{@code DeleteObject}·{@code ListBucket} 만
+		 * 있었다. 그래서 <b>넣어 볼 기회도 없이 403 으로 끝났다.</b>
+		 *
+		 * <p>2026-09-17 새벽에 운영에서 그랬다. 사진이 한 장도 안 올라갔고
+		 * ({@code gabolle-photos} 버킷이 만들어진 뒤로 객체 0개였다) 화면에는
+		 * <i>"사진 저장소에 연결할 수 없습니다"</i> 가 떴다 — <b>연결은 멀쩡했고 권한이 문제였다.</b>
+		 * MinIO 추적으로 확인했다: 받은 요청은 {@code s3.GetBucketLocation} 하나, 응답은 403.
+		 *
+		 * <p>지역을 알려주면 SDK 는 그 질문을 <b>아예 하지 않는다.</b> 권한을 늘리는 것보다
+		 * 이쪽이 낫다 — 쓰지도 않는 호출을 없애는 것이고, 왕복도 한 번 준다.
+		 *
+		 * <p>기본값 {@code us-east-1} 은 MinIO 의 기본 지역이다(2026-09-17 운영 실측 —
+		 * 서버에 지역 설정이 비어 있고 버킷 위치가 {@code us-east-1} 로 나온다).
+		 */
+		private String region = "us-east-1";
+
 		public String getEndpoint() {
 			return this.endpoint;
 		}
@@ -136,6 +158,14 @@ public class StorageProperties {
 
 		public String getPublicBaseUrl() {
 			return this.publicBaseUrl;
+		}
+
+		public String getRegion() {
+			return this.region;
+		}
+
+		public void setRegion(String region) {
+			this.region = region;
 		}
 
 		public void setPublicBaseUrl(String publicBaseUrl) {

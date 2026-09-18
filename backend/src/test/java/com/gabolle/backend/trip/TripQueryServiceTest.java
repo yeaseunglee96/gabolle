@@ -1,5 +1,8 @@
 package com.gabolle.backend.trip;
 
+import java.util.Optional;
+import com.gabolle.backend.user.support.ConsentGuards;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -37,7 +40,7 @@ class TripQueryServiceTest {
         repository = new InMemoryTripRepository();
         Clock clock = Clock.fixed(NOW, ZoneOffset.UTC);
         creationService = new TripCreationService(repository, clock,
-                new PreferenceDefaultsService(repository, clock));
+                new PreferenceDefaultsService(repository, clock), ConsentGuards.granting(), Optional.empty(), Optional.empty());
         queryService = new TripQueryService(repository);
     }
 

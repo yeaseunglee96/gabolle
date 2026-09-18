@@ -1,6 +1,9 @@
 package com.gabolle.backend.story.application;
 
 import java.time.Clock;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.context.annotation.Profile;
@@ -10,8 +13,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.gabolle.backend.story.domain.UserFollow;
 import com.gabolle.backend.story.presentation.dto.FollowResponse;
+import com.gabolle.backend.story.presentation.dto.RelationListResponse;
 import com.gabolle.backend.story.presentation.dto.UserProfileResponse;
+import com.gabolle.backend.story.repository.RelationRow;
 import com.gabolle.backend.story.repository.StoryRepository;
+import com.gabolle.backend.story.repository.UserBlockRepository;
 import com.gabolle.backend.story.repository.UserFollowRepository;
 import com.gabolle.backend.user.domain.AppUser;
 import com.gabolle.backend.user.repository.AppUserRepository;
@@ -30,20 +36,27 @@ public class FollowService {
 
 	private final UserFollowRepository userFollowRepository;
 
+	private final UserBlockRepository userBlockRepository;
+
 	private final AppUserRepository appUserRepository;
 
 	private final StoryRepository storyRepository;
 
 	private final StoryService storyService;
 
+	private final BlockService blockService;
+
 	private final Clock clock;
 
-	public FollowService(UserFollowRepository userFollowRepository, AppUserRepository appUserRepository,
-			StoryRepository storyRepository, StoryService storyService, Clock clock) {
+	public FollowService(UserFollowRepository userFollowRepository, UserBlockRepository userBlockRepository,
+			AppUserRepository appUserRepository, StoryRepository storyRepository, StoryService storyService,
+			BlockService blockService, Clock clock) {
 		this.userFollowRepository = userFollowRepository;
+		this.userBlockRepository = userBlockRepository;
 		this.appUserRepository = appUserRepository;
 		this.storyRepository = storyRepository;
 		this.storyService = storyService;
+		this.blockService = blockService;
 		this.clock = clock;
 	}
 
@@ -78,16 +91,73 @@ public class FollowService {
 		return status(me, target, false);
 	}
 
+	/**
+	 * 프로필 머리.
+	 *
+	 * <p>🔴 <b>차단당한 경우에도 404 를 내지 않는다</b> (S15P21E201-990). 팀이 「없는 사람인 척하지
+	 * 않기로」 정했고, 화면이 「차단되어 볼 수 없습니다」를 띄우려면 그 사람이 있다는 것까지는
+	 * 와야 한다. 대신 <b>속을 비워서</b> 보낸다 — 팔로워·팔로잉·기록 수는 전부 0 이다. 숫자를
+	 * 그대로 실어 보내면 화면이 가려도 응답에는 남아 있고, 그건 가린 것이 아니다.
+	 */
 	@Transactional(readOnly = true)
 	public UserProfileResponse profile(UUID viewer, UUID target) {
 		AppUser user = requireActiveUser(target);
 		boolean me = viewer.equals(target);
+		boolean blockedByUser = !me && this.userBlockRepository.isBlockedBy(target, viewer);
+		if (blockedByUser) {
+			return new UserProfileResponse(target.toString(), user.getDisplayName(), 0L, 0L, 0L, false, false,
+					user.getAvatarUrl(), this.userBlockRepository.hasBlocked(viewer, target), true);
+		}
 		boolean following = !me && this.userFollowRepository.existsByKey(new UserFollow.Key(viewer, target));
+		boolean blocked = !me && this.userBlockRepository.hasBlocked(viewer, target);
 		long stories = this.storyRepository.countAuthorStories(target, this.storyService.visibleScopesOf(target, viewer),
 				this.clock.instant());
 		return new UserProfileResponse(target.toString(), user.getDisplayName(),
 				this.userFollowRepository.countByKeyFolloweeUserId(target),
-				this.userFollowRepository.countByKeyFollowerUserId(target), stories, following, me);
+				this.userFollowRepository.countByKeyFollowerUserId(target), stories, following, me,
+				user.getAvatarUrl(), blocked, false);
+	}
+
+	/**
+	 * 팔로워 목록 — 이 사람을 팔로우하는 사람들. S15P21E201-1179.
+	 *
+	 * <p>🔴 {@code stories()} 와 같은 이유로, 그 사람이 나를 차단했으면 빈 목록이 아니라 403 이다
+	 * ({@code requireNotBlockedBy} 참고) — 한 사람을 지목해 여는 목록이라 프로필 머리(zeroed 로
+	 * 답하는 쪽)와 다르게 취급한다.
+	 */
+	@Transactional(readOnly = true)
+	public RelationListResponse followers(UUID viewer, UUID target, String cursor, Integer limit) {
+		this.blockService.requireNotBlockedBy(target, viewer);
+		requireActiveUser(target);
+		RelationCursor from = RelationCursor.decode(cursor);
+		int size = StoryFeedService.clamp(limit);
+		List<RelationRow> rows = this.userFollowRepository.findFollowers(target, from.relatedAt(), from.userId(), size + 1);
+		return RelationCursor.page(rows, size, viewerFollowsAmong(viewer, rows));
+	}
+
+	/** 팔로잉 목록 — 이 사람이 팔로우하는 사람들. {@link #followers} 와 같은 차단 규칙을 쓴다. */
+	@Transactional(readOnly = true)
+	public RelationListResponse following(UUID viewer, UUID target, String cursor, Integer limit) {
+		this.blockService.requireNotBlockedBy(target, viewer);
+		requireActiveUser(target);
+		RelationCursor from = RelationCursor.decode(cursor);
+		int size = StoryFeedService.clamp(limit);
+		List<RelationRow> rows = this.userFollowRepository.findFollowing(target, from.relatedAt(), from.userId(), size + 1);
+		return RelationCursor.page(rows, size, viewerFollowsAmong(viewer, rows));
+	}
+
+	/**
+	 * 이 페이지에 나온 사람들 중, 보는 사람이 팔로우하는 사람의 식별자 — S15P21E201-1179.
+	 *
+	 * <p>빈 목록이면 질의를 아예 안 보낸다 — 네이티브 {@code IN ()} 은 파라미터가 없으면
+	 * PostgreSQL 구문 오류를 낸다.
+	 */
+	private Set<UUID> viewerFollowsAmong(UUID viewer, List<RelationRow> rows) {
+		if (rows.isEmpty()) {
+			return Set.of();
+		}
+		List<UUID> candidates = rows.stream().map(RelationRow::getUserId).toList();
+		return new HashSet<>(this.userFollowRepository.findFollowedAmong(viewer, candidates));
 	}
 
 	private FollowResponse status(UUID me, UUID target, boolean following) {

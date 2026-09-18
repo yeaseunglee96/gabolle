@@ -8,8 +8,10 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HexFormat;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -24,6 +26,11 @@ import com.gabolle.backend.trip.domain.TravelModes;
 import com.gabolle.backend.trip.domain.TripConstraint;
 import com.gabolle.backend.trip.domain.TripMember;
 import com.gabolle.backend.trip.domain.TripRepository;
+import com.gabolle.backend.trip.domain.TravelArea;
+import com.gabolle.backend.trip.domain.TripSeedPlace;
+import com.gabolle.backend.trip.domain.TripSeedPlaceRepository;
+import com.gabolle.backend.trip.domain.TripTravelAreaRepository;
+import com.gabolle.backend.user.application.ConsentGuard;
 
 /**
  * 여행 생성 — S15P21E201-461 · TRIP-01.
@@ -44,11 +51,37 @@ public class TripCreationService {
      */
     private final PreferenceDefaultsService preferenceDefaults;
 
+    /**
+     * 🔴 민감정보(알레르기·필수 식단) 동의를 검사한다 — S15P21E201-549.
+     *
+     * <p>여행 생성이 이 서비스의 일인데 왜 동의까지 보는가 — 이 경로가 <b>민감 제약을 표에
+     * 넣는 유일한 자리</b>이기 때문이다. 컨트롤러에 두면 다른 호출자가 생길 때 그대로
+     * 새어 나가고, 이 클래스 머리말이 정한 "업무 규칙은 생성이 일어나는 자리에" 와도 어긋난다.
+     */
+    private final ConsentGuard consentGuard;
+
+    /**
+     * 꼭 가고 싶은 장소를 적는 자리 — S15P21E201-973.
+     *
+     * <p>🔴 {@link Optional} 로 받는다. 이 저장소는 DB 프로필에만 있고 이 서비스는 프로필을
+     * 안 가린다 — 직접 주입하면 인메모리 프로필에서 컨텍스트가 안 뜬다. 비어 있으면 씨앗을
+     * 안 적고 여행 생성은 그대로 된다(씨앗은 추천을 거들 뿐 필수가 아니다).
+     */
+    private final Optional<TripSeedPlaceRepository> seedPlaces;
+
+    /** 여행 범위를 적는 자리 — S15P21E201-980. {@link #seedPlaces} 와 같은 이유로 Optional 이다. */
+    private final Optional<TripTravelAreaRepository> travelAreas;
+
     public TripCreationService(TripRepository repository, Clock clock,
-                               PreferenceDefaultsService preferenceDefaults) {
+                               PreferenceDefaultsService preferenceDefaults, ConsentGuard consentGuard,
+                               Optional<TripSeedPlaceRepository> seedPlaces,
+                               Optional<TripTravelAreaRepository> travelAreas) {
         this.repository = repository;
         this.clock = clock;
         this.preferenceDefaults = preferenceDefaults;
+        this.consentGuard = consentGuard;
+        this.seedPlaces = seedPlaces;
+        this.travelAreas = travelAreas;
     }
 
     /**
@@ -132,6 +165,27 @@ public class TripCreationService {
             constraintIds.add(id);
         }
 
+        // 🔴 S15P21E201-549 — 민감 제약이 하나라도 있으면 동의를 본다.
+        //
+        //    위 ② 문단이 막는 것은 "평문 자유 입력을 저장하는 것" 이고, 여기서 막는 것은
+        //    "동의 없이 수집하는 것" 이다. 다른 문제다 — 코드로 된 민감 값(ALLERGY+PEANUT
+        //    같은)은 생성자를 그대로 통과해 저장되는데, 그것도 개인정보보호법이 말하는
+        //    건강에 관한 민감정보다. HEALTH_CONSTRAINTS 동의는 받아서 표에 기록까지 하면서
+        //    아무도 안 보고 있었다.
+        //
+        //    🔴 왜 루프 <b>뒤</b>인가. 도메인 검증이 먼저 이겨야 하기 때문이다. 자유 입력
+        //    거부(SensitiveConstraintNotSupportedException)는 동의가 있든 없든 나는 400 인데,
+        //    동의를 먼저 보면 미동의 사용자에게는 그 오류가 403 에 가려 영영 안 보인다.
+        //    저장은 이 아래에서 한 번에 일어나므로, 여기서 막으면 <b>표에는 아무것도 안 들어간다</b>.
+        //
+        //    🔴 민감 여부는 여기서 판정하지 않고 TripConstraint.isSensitive 에 묻는다.
+        //    목록이 두 벌이 되면 한쪽만 늘어나고, 그 어긋남은 "이 종류만 동의 없이
+        //    저장되는" 모양으로 나타나 어느 화면에도 안 보인다.
+        if (command.constraints().stream()
+                .anyMatch(c -> TripConstraint.isSensitive(c.type(), c.dietRequirement()))) {
+            this.consentGuard.requireHealthConstraints(asUuidOrNull(command.userId()));
+        }
+
         // ③ 🔴 만든 사람을 OWNER 로 넣는다. 안 넣으면 자기 여행을 못 본다.
         TripMember owner = TripMember.owner(UUID.randomUUID().toString(), tripId, command.userId(), now);
 
@@ -168,6 +222,19 @@ public class TripCreationService {
         //
         //    계정 기본값이 아직 하나도 없으면(지금은 저장하는 경로가 없다) storedPreferences
         //    가 그대로 나온다 — 즉 이 줄은 동작을 바꾸지 않는다.
+        //
+        //    ┈┈ 🔴 정정 (2026-09-15 · S15P21E201-639) ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈
+        //    위 두 문단은 **이제 절반만 맞다.** 지우지 않고 남기는 것은 그때의 판단이
+        //    틀린 것이 아니라 범위가 늘었기 때문이다.
+        //
+        //      · "반대 방향은 없다" → **이어받는 방향이 생겼다** (아래 ⑥). 2.2 가 막은 것은
+        //        "모르게 바뀌는 일" 인데, 이 줄이 값을 화면에 채워 보여 주게 되면서 그
+        //        전제가 달라졌다. 보고 고친 것이 반영되는 것은 모르게 바뀌는 일이 아니다.
+        //      · "지금은 저장하는 경로가 없다" → 이제 있다. 다만 HTTP 경로가 아니라
+        //        여행을 만들 때 안에서 옮긴다.
+        //      · "이 줄은 동작을 바꾸지 않는다" → 두 번째 여행부터 **실제로 채운다.**
+        //        첫 여행은 채울 것이 없으므로 그때는 여전히 그대로다.
+        //    ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈
         List<PreferenceSnapshot.PreferenceAnswer> mergedPreferences =
                 preferenceDefaults.overlayDefaults(command.userId(), storedPreferences);
 
@@ -182,7 +249,92 @@ public class TripCreationService {
                 command.userId(), idempotencyKey, fingerprint,
                 trip, constraints, owner, snapshot);
 
+        // ⑥ 🔴 S15P21E201-639 — 이 여행에서 **고른** 답을 계정 기본값으로 이어받는다.
+        //
+        //    🔴 왜 여는가 — 겹치기만 두고 채우는 길을 안 만들었더니, 계정 기본값을 가진
+        //    사람이 소비 성향 한 차원뿐이었다(2026-09-15 실측: USER 스냅샷 9건 전부
+        //    SPEND_PROFILE). 채울 것이 없으니 겹치기가 아무 일도 안 했고, 같은 사람이 두 번째
+        //    여행에서도 처음부터 다시 답했다. 어느 차원을 이어받는지는 CARRY_OVER 에 있다.
+        //
+        //    🔴 "빈칸만 채운다" 로 먼저 만들었다가 되돌렸다. 계정 기본값을 고치는 화면이
+        //    없어서(소비 성향 하나만 있다) 사용자가 첫 답에 영구히 갇히기 때문이다 —
+        //    화면의 값을 고쳐도 그 여행에만 적용되고 계정은 그대로라, 다음 여행에 또 옛
+        //    값이 채워진다. **매번 다시 묻는 것보다 나쁘다.** 까닭 전부는
+        //    PreferenceDefaultsService javadoc 의 「빈칸만 채운다 로 먼저 만들었다가
+        //    되돌렸다」 절에 있다.
+        //
+        //    🔴 명세 2.2 와 어긋나 보이지만 전제가 달라졌다. 2.2 가 막은 것은 "사용자가
+        //    **모르게** 프로필이 바뀌는 일" 이고, 그때는 계정 기본값이 화면에 안 보였다.
+        //    이제 위 ④ 의 겹치기가 그것을 화면에 채워 보여 준다 — 보고 고친 것이 반영되는
+        //    것은 모르게 바뀌는 일이 아니다. 오히려 반영이 안 되는 쪽이 놀랍다.
+        //
+        //    SKIPPED("이번 여행만 이 조건 빼고")와 UNKNOWN(안 물어봤다)은 그대로 안 건드린다.
+        //
+        //    🔴 storedPreferences 를 넘긴다 — mergedPreferences 가 아니다. 겹친 뒤의 목록에는
+        //    계정 기본값이 이미 섞여 있어서, 사용자가 답하지 않은 차원까지 "고른 것" 이 된다.
+        //
+        //    🔴 실제로 만들어졌을 때만 한다. 같은 키로 다시 온 요청(created=false)은 여행을
+        //    안 만들었으므로 취향도 새로 정한 것이 아니다.
+        if (outcome.created()) {
+            preferenceDefaults.carryOver(command.userId(), storedPreferences);
+            saveMustVisitPlaces(outcome.trip().tripId(), command.mustVisitPlaceIds(), now);
+            saveTravelAreas(outcome.trip().tripId(), command.travelAreas());
+        }
+
         return new Result(outcome.trip(), outcome.snapshot(), outcome.created());
+    }
+
+    /**
+     * 꼭 가고 싶은 장소를 씨앗으로 적는다 — S15P21E201-973.
+     *
+     * <p>공유 일정 복제가 쓰던 {@code trip_seed_place} 를 그대로 쓴다. 추천 엔진이 이미 그
+     * 표를 읽어 후보를 앞세우므로({@code SeedBoost}) 새 경로를 만들 이유가 없다.
+     *
+     * <p>🔴 새로 만든 여행일 때만 부른다. 같은 멱등 키로 다시 온 요청은 기존 여행을 돌려주는
+     * 것이고, 그 여행에는 씨앗이 이미 있다 — 다시 적으면 기본키(trip_id, place_id)에 걸린다.
+     *
+     * <p>🔴 저장소가 없으면(인메모리 프로필) 조용히 건너뛴다. 씨앗은 추천을 거들 뿐이라
+     * 없다고 여행 생성이 실패해야 할 이유가 없다.
+     *
+     * <p>순서는 사용자가 고른 순서 그대로다. 같은 장소를 두 번 고른 경우는 앞의 것만 남긴다 —
+     * 표의 기본키가 (여행, 장소)라 중복이 들어가면 트랜잭션 전체가 롤백된다.
+     */
+    private void saveMustVisitPlaces(String tripId, List<String> placeIds, Instant now) {
+        if (this.seedPlaces.isEmpty() || placeIds.isEmpty()) {
+            return;
+        }
+        List<TripSeedPlace> seeds = new ArrayList<>();
+        Set<String> seen = new LinkedHashSet<>();
+        for (String placeId : placeIds) {
+            if (placeId == null || placeId.isBlank() || !seen.add(placeId)) {
+                continue;
+            }
+            seeds.add(new TripSeedPlace(tripId, placeId, seen.size(), null, null, now));
+        }
+        if (!seeds.isEmpty()) {
+            this.seedPlaces.get().saveAll(seeds);
+        }
+    }
+
+    /**
+     * 고른 여행 범위를 적는다 — S15P21E201-980.
+     *
+     * <p>🔴 모르는 코드는 버린다. 앱이 새 지역을 먼저 내보내는 날 여행 생성이 통째로 막히면
+     * 안 된다 — 모르는 지역은 "범위를 안 골랐다" 와 같게 다루는 편이 낫다.
+     *
+     * <p>새로 만든 여행일 때만 부른다({@link #saveMustVisitPlaces} 와 같은 이유).
+     */
+    private void saveTravelAreas(String tripId, List<String> codes) {
+        if (this.travelAreas.isEmpty() || codes.isEmpty()) {
+            return;
+        }
+        List<TravelArea> areas = new ArrayList<>();
+        for (String code : codes) {
+            TravelArea.of(code).filter((area) -> !areas.contains(area)).ifPresent(areas::add);
+        }
+        if (!areas.isEmpty()) {
+            this.travelAreas.get().saveAll(tripId, areas);
+        }
     }
 
     /**
@@ -191,6 +343,23 @@ public class TripCreationService {
      * <p>🔴 같은 키를 <b>다른 내용</b>으로 재사용하면 409 로 거부해야 한다(API-09).
      * 그러려면 "같은 내용인가" 를 비교할 것이 필요하다.
      */
+    /**
+     * 사용자 ID 를 {@code UUID} 로 바꾼다. 형식이 아니면 {@code null} — S15P21E201-549.
+     *
+     * <p>🔴 예외를 던지지 않고 {@code null} 을 주는 이유는, 여기서 400 을 내면 <b>동의가
+     * 없는 것</b>과 <b>ID 가 이상한 것</b>이 서로 다른 오류로 갈라져 앱이 두 갈래를 다뤄야
+     * 하기 때문이다. 둘 다 "이 사람의 동의를 확인할 수 없다" 이고, 그때 할 일은 하나다 —
+     * 저장하지 않는다. 가드가 {@code null} 을 미동의로 다룬다.
+     */
+    private static UUID asUuidOrNull(String userId) {
+        try {
+            return (userId == null) ? null : UUID.fromString(userId);
+        }
+        catch (IllegalArgumentException notAUuid) {
+            return null;
+        }
+    }
+
     private String fingerprintOf(Command c) {
         String raw = String.join("|",
                 c.userId(), String.valueOf(c.startDate()), String.valueOf(c.finishDate()),
@@ -268,7 +437,51 @@ public class TripCreationService {
             boolean foreignCardRequired,
             boolean soloFriendlyPriority,
             /** {@code null} 이면 제한 없음. {@code PRIVATE_CAR} 이동이면 저장 전에 무시된다. */
-            Integer maxTransitTransfers) {
+            Integer maxTransitTransfers,
+
+            /**
+             * 꼭 가고 싶은 장소의 {@code place_id} — S15P21E201-973. 비어 있으면 아무 일도 안 한다.
+             *
+             * <p>고른 순서를 그대로 쓴다. 새 여행일 때만 {@code trip_seed_place} 에 적힌다.
+             */
+            List<String> mustVisitPlaceIds,
+
+            /**
+             * 여행 범위 코드 — S15P21E201-980. 비어 있으면 아무 일도 안 한다.
+             *
+             * <p>모르는 코드는 저장 단계에서 버린다({@link TravelArea#of}). 앱이 새 지역을
+             * 먼저 내보내는 날 여행 생성이 400 으로 막히면 안 된다.
+             */
+            List<String> travelAreas) {
+
+        /** 안 준 목록을 빈 목록으로 고정한다 — 뒤쪽이 null 을 다시 보지 않게 한다. */
+        public Command {
+            mustVisitPlaceIds = mustVisitPlaceIds == null ? List.of() : List.copyOf(mustVisitPlaceIds);
+            travelAreas = travelAreas == null ? List.of() : List.copyOf(travelAreas);
+        }
+
+        /** 꼭 가고 싶은 장소가 없던 시절의 시그니처. 기존 호출부를 그대로 둔다. */
+        public Command(String userId, LocalDate startDate, LocalDate finishDate, Double originLat, Double originLng,
+                Integer budgetKrw, int partySize, String timeWindow, String timezone,
+                List<PreferenceSnapshot.PreferenceAnswer> preferences, List<ConstraintInput> constraints,
+                Trip.OwnerType ownerType, String accommodationPlaceId, boolean englishMenuRequired,
+                boolean foreignCardRequired, boolean soloFriendlyPriority, Integer maxTransitTransfers) {
+            this(userId, startDate, finishDate, originLat, originLng, budgetKrw, partySize, timeWindow, timezone,
+                    preferences, constraints, ownerType, accommodationPlaceId, englishMenuRequired,
+                    foreignCardRequired, soloFriendlyPriority, maxTransitTransfers, List.of(), List.of());
+        }
+
+        /** 여행 범위(980)가 생기기 전의 시그니처. 꼭 가고 싶은 장소까지만 받던 자리를 남긴다. */
+        public Command(String userId, LocalDate startDate, LocalDate finishDate, Double originLat, Double originLng,
+                Integer budgetKrw, int partySize, String timeWindow, String timezone,
+                List<PreferenceSnapshot.PreferenceAnswer> preferences, List<ConstraintInput> constraints,
+                Trip.OwnerType ownerType, String accommodationPlaceId, boolean englishMenuRequired,
+                boolean foreignCardRequired, boolean soloFriendlyPriority, Integer maxTransitTransfers,
+                List<String> mustVisitPlaceIds) {
+            this(userId, startDate, finishDate, originLat, originLng, budgetKrw, partySize, timeWindow, timezone,
+                    preferences, constraints, ownerType, accommodationPlaceId, englishMenuRequired,
+                    foreignCardRequired, soloFriendlyPriority, maxTransitTransfers, mustVisitPlaceIds, List.of());
+        }
 
         /**
          * 🔴 S15P21E201-317·456 이전의 시그니처를 그대로 남긴다 — 회원 전용·다섯 칸 없이

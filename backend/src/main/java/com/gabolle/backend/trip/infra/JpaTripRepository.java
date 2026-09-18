@@ -134,6 +134,38 @@ public class JpaTripRepository implements TripRepository {
 		tripJpaRepository.save(entity);
 	}
 
+	/**
+	 * 상태 칸만 옮긴다 — S15P21E201-964. 위 {@link #softDelete} 와 같은 이유로 읽어서
+	 * 고치지, {@code toEntity(trip)} 로 만든 객체를 통째로 덮어쓰지 않는다.
+	 *
+	 * <p>🔴 {@code @Transactional} 을 새로 열지 않는다. 이 자리를 부르는 것은 일정이
+	 * 처음 저장되는 트랜잭션 안이고({@code ItineraryDraftService.persist}), 여기서 새
+	 * 트랜잭션을 열면 일정 저장이 뒤에서 굴러떨어져도 상태만 READY 로 남는다.
+	 * 저장 자체는 바깥 트랜잭션이 끝날 때 함께 반영된다.
+	 */
+	@Override
+	public void updateStatus(Trip trip) {
+		TripJpaEntity entity = tripJpaRepository.findById(UUID.fromString(trip.tripId()))
+				.orElseThrow(() -> new IllegalStateException("상태를 바꾸려는 여행이 표에 없다: tripId=" + trip.tripId()));
+		entity.changeStatus(trip.status(), toOffset(trip.updatedAt()));
+		tripJpaRepository.save(entity);
+	}
+
+	/**
+	 * 이름 칸만 저장한다 — S15P21E201-1023.
+	 *
+	 * <p>{@link #updateStatus} 와 같은 모양이다. 읽어 온 행의 <b>그 칸만</b> 고치고,
+	 * {@code toEntity(trip)} 로 만든 객체를 통째로 덮어쓰지 않는다 — 덮어쓰면 이름을 바꾸는
+	 * 요청이 그 사이 다른 경로가 바꾼 칸(상태·삭제 시각)까지 옛 값으로 되돌린다.
+	 */
+	@Override
+	public void updateTitle(Trip trip) {
+		TripJpaEntity entity = tripJpaRepository.findById(UUID.fromString(trip.tripId()))
+				.orElseThrow(() -> new IllegalStateException("이름을 바꾸려는 여행이 표에 없다: tripId=" + trip.tripId()));
+		entity.changeTitle(trip.title(), toOffset(trip.updatedAt()));
+		tripJpaRepository.save(entity);
+	}
+
 	@Override
 	public List<TripConstraint> findConstraints(String tripId) {
 		UUID id = UUID.fromString(tripId);
@@ -371,7 +403,7 @@ public class JpaTripRepository implements TripRepository {
 				t.travelModes(), t.timeWindowStart(), t.timeWindowEnd(),
 				t.accommodationPlaceId() == null ? null : UUID.fromString(t.accommodationPlaceId()),
 				t.englishMenuRequired(), t.foreignCardRequired(), t.soloFriendlyPriority(),
-				t.maxTransitTransfers(), t.status(),
+				t.maxTransitTransfers(), t.title(), t.status(),
 				toOffset(t.createdAt()), toOffset(t.updatedAt()), toOffset(t.deletedAt()));
 	}
 
@@ -396,6 +428,7 @@ public class JpaTripRepository implements TripRepository {
 				.soloFriendlyPriority(e.soloFriendlyPriority())
 				.maxTransitTransfers(e.maxTransitTransfers())
 				.timezone(e.timezone())
+				.title(e.title())
 				.status(e.status())
 				.createdAt(toInstant(e.createdAt()))
 				.updatedAt(toInstant(e.updatedAt()))
@@ -435,13 +468,34 @@ public class JpaTripRepository implements TripRepository {
 	}
 
 	private static TripConstraint toDomain(ConstraintAnswerJpaEntity e, String tripId) {
+		// 🔴 S15P21E201 사용자 리포트 — value 를 항상 null 로 읽어 왔다. WHEELCHAIR·STROLLER·
+		// HEAVY_LUGGAGE·STAIRS_AVOIDANCE 는 threshold(미터)가 아니라 value("true")로 답을
+		// 싣는데, 여기서 value 를 버리고 threshold 만 복원하다 보니 answerStatus=SELECTED인데
+		// value·threshold 가 둘 다 null인 TripConstraint 가 만들어져 생성자가 거부했다
+		// (recommendation-jobs 요청이 400 RECOMMENDATION_JOB_VALIDATION_FAILED로 실패 —
+		// trip 생성 자체는 원본 값을 그대로 써서 통과하므로 이 read 경로에서만 재현된다).
 		return new TripConstraint(
 				e.constraintAnswerId().toString(), tripId, e.constraintType(), e.constraintKey(),
 				e.hard() ? TripConstraint.Severity.HARD : TripConstraint.Severity.SOFT,
 				defaultOperatorFor(e.constraintType()),
-				null, extractMeters(e.valueJson()),
+				extractValue(e.valueJson()), extractMeters(e.valueJson()),
 				TripConstraint.EvidenceStatus.NEEDS_REVIEW,
 				e.answerStatus(), PersonalizationScope.TRIP, e.dietRequirement());
+	}
+
+	/**
+	 * {@link #valueJsonOf} 가 문자열 값에 씌운 JSON 문자열 인코딩({@code "\"escaped\""})을
+	 * 되돌린다. meters 객체({@code {"meters":N}})는 여기서 다루지 않는다 — 그건 threshold
+	 * 쪽({@link #extractMeters})의 몫이라 둘 다 값을 낼 일이 없다(하나가 채워지면 나머지는
+	 * null).
+	 */
+	private static String extractValue(String valueJson) {
+		if (valueJson == null || valueJson.length() < 2
+				|| valueJson.charAt(0) != '"' || valueJson.charAt(valueJson.length() - 1) != '"') {
+			return null;
+		}
+		String inner = valueJson.substring(1, valueJson.length() - 1);
+		return inner.replace("\\\"", "\"").replace("\\\\", "\\");
 	}
 
 	private static String defaultOperatorFor(String type) {

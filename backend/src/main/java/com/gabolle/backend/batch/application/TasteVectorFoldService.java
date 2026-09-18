@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,13 +16,14 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.gabolle.backend.event.domain.EventType;
+import com.gabolle.backend.preference.application.PreferenceJson;
 import com.gabolle.backend.preference.domain.TasteDimension;
 import com.gabolle.backend.preference.domain.UserTasteVector;
 import com.gabolle.backend.preference.domain.UserTasteWeight;
 import com.gabolle.backend.preference.repository.UserTasteVectorRepository;
 import com.gabolle.backend.preference.repository.UserTasteWeightRepository;
 
-import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 /**
@@ -92,9 +94,22 @@ public class TasteVectorFoldService {
 	 * 이다 — 세는 것은 지금 맞게 돌고(표시가 정확히 움직인다), 장소를 차원·코드로 바꾸는
 	 * 대조({@code user_place_code_map})는 계측된 이벤트가 생긴 뒤에 붙인다.
 	 * 지어낸 대조를 지금 넣으면 그 값이 계약처럼 굳는다.
+	 *
+	 * <h2>🔴 2026-09-11 — 대문자 문자열이라 <b>한 건도 안 세어지고 있었다</b> (S15P21E201-549)</h2>
+	 *
+	 * 이 목록은 {@code "PLACE_LIKE"} 처럼 손으로 적은 대문자였는데, {@code event_outbox.event_type}
+	 * 에 실제로 들어가는 값은 {@link EventType#wireName()} 이 만드는 <b>소문자</b>
+	 * ({@code "place_like"})다. 그래서 {@code countTasteSignals} 의 비교는 <b>항상 0 건</b>이었다.
+	 *
+	 * <p>계측이 아직 없어서 결과가 0 인 것과 구분이 안 됐다 — 위 문단이 "지금은 0 이 정상" 이라고
+	 * 말하고 있었으므로, 계측이 붙는 날 0 이 계속 나와도 <b>그게 정상인 줄 알았을 것</b>이다.
+	 * 배치는 그동안 초록이다.
+	 *
+	 * <p>그래서 목록도 대소문자도 여기서 정하지 않고 {@link EventType} 에 맡긴다. 수집을 막는
+	 * 목록({@code isBehaviorSignal})과 세는 목록이 <b>같은 파일에</b> 있어야 둘의 포함 관계를
+	 * 검사가 지킬 수 있다 — {@code EventTypeSignalSetsTest}.
 	 */
-	private static final String[] TASTE_SIGNAL_EVENTS = { "PLACE_LIKE", "PLACE_DISLIKE", "PLACE_VISIT", "PLACE_VIEW",
-			"ITINERARY_REMOVE", "ITINERARY_REPLACE", "ROUTE_SKIP" };
+	private static final Set<String> TASTE_SIGNAL_EVENTS = EventType.tasteSignalWireNames();
 
 	private final JdbcTemplate jdbc;
 
@@ -143,7 +158,11 @@ public class TasteVectorFoldService {
 		}
 
 		SurveySource survey = latestUserScopeSnapshot(userId, asOf);
-		int newEvents = countTasteSignals(userId, watermark, asOf);
+
+		// 🔴 행동을 볼지 말지를 여기서 가른다 (S15P21E201-549). 설문은 그대로 접는다 —
+		//    끈 것은 "행동으로 추측하지 마라" 이지 "내가 고른 것도 잊으라" 가 아니다.
+		//    그래서 이 사람의 벡터는 사라지지 않고 evidence=SURVEY 만으로 남는다.
+		int newEvents = allowsBehaviorPersonalization(userId) ? countTasteSignals(userId, watermark, asOf) : 0;
 
 		// 🔴 성분이 하나도 없는 벡터를 만들지 않는다. "취향이 없는 사람" 과
 		//    "아직 안 물어본 사람" 은 다르고, 한 번 섞으면 되돌릴 수 없다.
@@ -201,9 +220,33 @@ public class TasteVectorFoldService {
 	 * 그때부터 추천은 물어본 적도 없이 "이 사람은 카페에 관심 없다" 를 근거로 카페를 뺀다.
 	 *
 	 * <p>모양은 두 가지고 <b>차원 이름으로 가르지 않고 값의 모양으로 가른다.</b> 어떤 차원이
-	 * 태그형이고 어떤 것이 점수형인지는 화면 계약이 아직 확정하지 않았다
-	 * ({@code PreferenceJson} 의 같은 문제). 목록을 여기 박으면 그 목록이 틀린 날 조용히
-	 * 성분이 사라진다.
+	 * 태그형이고 어떤 것이 점수형인지는 화면 계약이 아직 확정하지 않았다. 목록을 여기 박으면
+	 * 그 목록이 틀린 날 조용히 성분이 사라진다.
+	 *
+	 * <h2>🔴 2026-09-14 — 여기서 다시 파싱하고 있었고, 그 사본이 낡아 있었다</h2>
+	 *
+	 * 이 메서드는 {@link PreferenceJson} 과 <b>같은 일을 자기 안에 다시 써 놓고</b> 있었다.
+	 * 그런데 그 사본은 {@code {"codes":[...]}} 와 {@code {"score":0~1}} 만 아는
+	 * <b>S15P21E201-635 이전 판</b>이었다. 앱이 실제로 보내는 것은 다르다 — 태그형은 맨 배열
+	 * {@code ["SEA_BEACH","FOOD"]} 이고, 점수형은 맨 정수 <b>1~5</b>(화면의 5단계 슬라이더)다.
+	 *
+	 * <p>그래서 실제로 이렇게 접히고 있었다.
+	 *
+	 * <ul>
+	 * <li>태그형 세 차원({@code CATEGORY}·{@code ATMOSPHERE}·{@code FOOD_PREFERENCE}) —
+	 *     {@code path("codes")} 가 배열 노드에서 비어 나와 <b>성분이 한 줄도 안 만들어졌다</b></li>
+	 * <li>점수형 세 차원 — {@code toWeight(3) = 3*2-1 = 5.0} 이 {@code +1.0} 으로 잘렸다.
+	 *     1·2·3·4·5 가 <b>전부 {@code +1.0}</b> 이 된다. "전혀 아니다" 와 "매우 그렇다" 를
+	 *     고른 두 사람의 벡터가 <b>완전히 같아진다</b></li>
+	 * </ul>
+	 *
+	 * <p>둘 다 오류가 안 난다. {@code ck_user_taste_weight_range} 는 {@code 1.0} 을 정상으로
+	 * 받고, 배치는 초록이고, 로그에는 성분 수만 찍힌다.
+	 *
+	 * <p>🔴 <b>그래서 눈금을 여기서 다시 정하지 않고 {@link PreferenceJson} 에 맡긴다.</b>
+	 * 그쪽이 이미 두 모양과 두 눈금을 다 알고, 무엇보다 <b>규칙이 한 벌이어야</b> 채점기
+	 * ({@code BaselineCandidateScorer})가 보는 취향과 벡터가 접는 취향이 안 갈린다. 이번이
+	 * 갈렸을 때 무슨 일이 나는지의 증거다.
 	 */
 	private List<UserTasteWeight> foldSurvey(UUID tasteVectorId, SurveySource survey, OffsetDateTime asOf) {
 		List<UserTasteWeight> result = new ArrayList<>();
@@ -219,24 +262,19 @@ public class TasteVectorFoldService {
 				log.warn("모르는 취향 차원이라 성분으로 접지 못했다 dimension={} snapshot={}", answer.dimension(), survey.snapshotId());
 				continue;
 			}
-			JsonNode value = readTree(answer.valueJson());
-			if (value == null) {
-				continue;
-			}
 
-			JsonNode codes = value.path("codes");
-			if (codes.isArray() && !codes.isEmpty()) {
-				for (JsonNode code : codes) {
-					String text = code.asText(null);
-					if (text != null && !text.isBlank()) {
-						// 고른 태그는 +1 이다. 사람이 직접 고른 것이라 뒷받침 수가 필요 없다.
-						result.add(UserTasteWeight.fromSurvey(tasteVectorId, dimension, text.trim(), 1.0, asOf));
-					}
+			List<String> codes = PreferenceJson.parseCodes(answer.valueJson(), this.objectMapper);
+			if (!codes.isEmpty()) {
+				for (String code : codes) {
+					// 고른 태그는 +1 이다. 사람이 직접 고른 것이라 뒷받침 수가 필요 없다.
+					result.add(UserTasteWeight.fromSurvey(tasteVectorId, dimension, code, 1.0, asOf));
 				}
 				continue;
 			}
 
-			Double score = readScore(value);
+			// 🔴 여기 오는 값은 PreferenceJson 이 이미 0~1 로 맞춰 준 것이다 (1~5 슬라이더는
+			//    (raw-1)/4 로 옮겨진다). toWeight 의 "0~1 을 받는다" 전제가 이제 실제로 참이다.
+			Double score = PreferenceJson.parseScore(answer.valueJson(), this.objectMapper);
 			if (score != null) {
 				result.add(UserTasteWeight.fromSurvey(tasteVectorId, dimension, SCORE_CODE, toWeight(score), asOf));
 			}
@@ -299,10 +337,37 @@ public class TasteVectorFoldService {
 	}
 
 	/**
+	 * 이 사람의 행동을 개인화 입력으로 써도 되는가 — S15P21E201-549.
+	 *
+	 * <h2>🔴 수집을 막는 것만으로는 부족하다</h2>
+	 *
+	 * 입구({@code EventIngestService})가 이미 행동 이벤트를 안 받는데 여기서 또 보는 이유는
+	 * <b>표에 남아 있는 과거</b> 때문이다. 이 배치는 {@code catchup=True} 로 <b>지난 구간을
+	 * 거슬러 채운다</b>. 입구를 막기 전에 쌓인 행동이 그대로 있고, 끄기 전 구간을 backfill 하면
+	 * 그 행동이 다시 벡터로 접힌다. 개인화를 끈 사람의 프로필이 <b>배치가 도는 새벽에</b>
+	 * 되살아나고, 아무도 안 본다.
+	 *
+	 * <p>끄는 순간 그 행동 이벤트를 지우기는 한다({@code PersonalizationService}). 그래도 여기를
+	 * 막는다 — 지우는 쪽이 한 종류를 빠뜨리면 이쪽이 잡고, 이쪽만 있으면 지우는 쪽이 빠뜨린
+	 * 것이 조용히 쌓인다. 둘 다 있어야 어느 한쪽의 실수가 사고가 되지 않는다.
+	 *
+	 * <p>🔴 계정을 못 찾으면 <b>안 보는 쪽</b>이다. 입구와 같은 규칙이다.
+	 */
+	private boolean allowsBehaviorPersonalization(UUID userId) {
+		String sql = "SELECT count(*) FROM app_user WHERE user_id = ? AND personalization_mode = 'BEHAVIOR_ENABLED'";
+		Integer enabled = this.jdbc.queryForObject(sql, Integer.class, userId);
+		return enabled != null && enabled > 0;
+	}
+
+	/**
 	 * 표시 이후 <b>도착한</b> 취향 신호의 수.
 	 *
 	 * <p>구간은 {@code (watermark, asOf]} — 왼쪽은 열고 오른쪽은 닫는다. 그래야 구간을 이어
 	 * 붙일 때 경계의 한 건이 두 구간에 다 들리거나 어느 구간에도 안 들리는 일이 없다.
+	 *
+	 * <p>🔴 부르기 전에 {@link #allowsBehaviorPersonalization(UUID)} 를 통과해야 한다.
+	 * 이 메서드 자체는 동의를 보지 않는다 — 세는 일과 봐도 되는지 판정하는 일을 한 곳에
+	 * 섞으면, 나중에 다른 곳에서 이것을 부를 때 판정이 딸려오는지 아닌지를 알 수 없다.
 	 */
 	private int countTasteSignals(UUID userId, OffsetDateTime watermark, OffsetDateTime asOf) {
 		// 🔴 `= ANY (?)` 에 자바 String[] 을 그대로 넘기지 않는다. 그러려면 java.sql.Array 로
@@ -326,27 +391,6 @@ public class TasteVectorFoldService {
 		catch (IllegalArgumentException ex) {
 			return null;
 		}
-	}
-
-	private JsonNode readTree(String json) {
-		if (json == null || json.isBlank()) {
-			return null;
-		}
-		try {
-			return this.objectMapper.readTree(json);
-		}
-		catch (RuntimeException ex) {
-			log.warn("취향 답의 값을 읽지 못했다 — 성분으로 접지 않는다. value={}", json, ex);
-			return null;
-		}
-	}
-
-	private static Double readScore(JsonNode value) {
-		if (value.isNumber()) {
-			return value.doubleValue();
-		}
-		JsonNode score = value.path("score");
-		return score.isNumber() ? score.doubleValue() : null;
 	}
 
 	/** 한 판의 고른 답 묶음. */

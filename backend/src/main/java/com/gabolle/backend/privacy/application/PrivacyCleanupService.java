@@ -3,6 +3,8 @@ package com.gabolle.backend.privacy.application;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 
 import org.slf4j.Logger;
@@ -29,12 +31,20 @@ import jakarta.persistence.PersistenceContext;
  * 이미 못 쓰게 된 옛 토큰처럼, 세션 자체는 아직 살아 있어도 토큰만 만료된 경우다.</li>
  * <li>발행이 끝난({@code publishedAt IS NOT NULL}) 지 {@code eventRetentionDays} 가 지난
  * {@code event_outbox} 행.</li>
+ * <li>🔴 <b>S15P21E201-1216</b> — {@code storyActivityRetentionDays} 가 지난 조회 낱개
+ * ({@code story_view})와 링크 복사 낱개({@code story_link_copy}).</li>
  * </ol>
  *
  * <p>🔴 <b>{@code publishedAt IS NULL} 인 이벤트는 절대 지우지 않는다.</b>
  * {@code EventOutboxRepository.findByPublishedAtIsNullOrderBySeqAsc} 의 자체 주석이 말하듯
  * {@code publishStatus} 가 FAILED 여도 {@code publishedAt} 이 비어 있으면 릴레이가 다시
  * 보내야 하는 이벤트다 — 이 배치가 먼저 지우면 그 이벤트는 영영 나가지 않는다.
+ *
+ * <p>🔴 <b>조회·복사 낱개를 지우면서 누적 칸을 같이 내리지 않는다.</b> {@code story.view_count}
+ * 와 {@code story.link_copy_count} 는 손대지 않는다 — 낱개는 「사람 × 글 × 하루 한 번」을 지키려고
+ * 두는 것이고 누적은 누적이다. 같이 내리면 <b>어제까지의 조회가 사라진다.</b>
+ * {@code V20260918010000} 이 건 {@code CHECK (view_count >= 0)} 이 정확히 이 실수를 막으려고
+ * 있다 — 같이 내리면 조용히 음수가 되기 때문이다.
  *
  * <p>위치 정보는 이 배치가 다루지 않는다 — {@code PlaceVisitVerification}(S15P21E201-279)이
  * 애초에 좌표 칸 자체를 두지 않게 설계되어 있어 지울 좌표가 없다.
@@ -50,6 +60,20 @@ import jakarta.persistence.PersistenceContext;
 public class PrivacyCleanupService {
 
 	private static final Logger log = LoggerFactory.getLogger(PrivacyCleanupService.class);
+
+	/**
+	 * 조회·복사 낱개의 날짜 칸이 재고 있는 시간대 — S15P21E201-1216.
+	 *
+	 * <p>🔴 {@code story_view.viewed_on} 과 {@code story_link_copy.copied_on} 은 <b>DATE</b> 이고,
+	 * 그 값을 채우는 {@code StoryService} 가 <b>한국 시각으로 계산해서</b> 넣는다. 지우는 쪽이
+	 * 서버 시간대(UTC)로 기준선을 잡으면 <b>쓰는 쪽과 읽는 쪽이 서로 다른 하루를 쓰게 된다</b> —
+	 * 한국 시각 오전 9시 전에는 기준선이 하루 어긋난다.
+	 *
+	 * <p>🔴 이 값은 {@code StoryService.COUNTING_ZONE} 과 <b>반드시 같아야 한다.</b> 이 저장소는
+	 * 시간대를 쓰는 클래스마다 따로 선언하는 관례를 쓰므로(상수를 공유하지 않는다) 한쪽을 바꾸면
+	 * 다른 쪽도 바꾼다.
+	 */
+	private static final ZoneId STORY_ACTIVITY_ZONE = ZoneId.of("Asia/Seoul");
 
 	@PersistenceContext
 	private EntityManager entityManager;
@@ -96,11 +120,32 @@ public class PrivacyCleanupService {
 				.setParameter("cutoff", eventCutoff.atOffset(ZoneOffset.UTC))
 				.executeUpdate();
 
+		// 🔴 S15P21E201-1216 — 낱개의 날짜 칸은 DATE 이고 한국 시각으로 채워진다. Instant 에서
+		// 며칠을 빼는 것이 아니라 한국 시각의 「오늘」에서 날짜로 뺀다. 이 기준선보다 **앞선**
+		// 날짜만 지운다 — 딱 90일 된 것은 남는다.
+		LocalDate storyActivityCutoff = LocalDate.ofInstant(now, STORY_ACTIVITY_ZONE)
+				.minusDays(this.properties.getStoryActivityRetentionDays());
+
+		// 🔴 누적 칸(story.view_count · story.link_copy_count)은 여기서 손대지 않는다.
+		// 지우는 것은 낱개뿐이다 — 이 클래스 머리말에 그 이유가 있다.
+		int storyViewsDeleted = this.entityManager
+				.createQuery("DELETE FROM StoryView v WHERE v.viewedOn < :cutoff")
+				.setParameter("cutoff", storyActivityCutoff)
+				.executeUpdate();
+
+		int storyLinkCopiesDeleted = this.entityManager
+				.createQuery("DELETE FROM StoryLinkCopy c WHERE c.copiedOn < :cutoff")
+				.setParameter("cutoff", storyActivityCutoff)
+				.executeUpdate();
+
 		warnIfUnexpectedlyLarge("auth_session", sessionsDeleted);
 		warnIfUnexpectedlyLarge("auth_refresh_token", refreshTokensDeleted);
 		warnIfUnexpectedlyLarge("event_outbox", eventsDeleted);
+		warnIfUnexpectedlyLarge("story_view", storyViewsDeleted);
+		warnIfUnexpectedlyLarge("story_link_copy", storyLinkCopiesDeleted);
 
-		return new PrivacyCleanupResult(sessionsDeleted, refreshTokensDeleted, eventsDeleted);
+		return new PrivacyCleanupResult(sessionsDeleted, refreshTokensDeleted, eventsDeleted, storyViewsDeleted,
+				storyLinkCopiesDeleted);
 	}
 
 	/**

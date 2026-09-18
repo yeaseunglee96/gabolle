@@ -29,8 +29,10 @@ import com.gabolle.backend.itinerary.domain.ItineraryVersion;
 import com.gabolle.backend.itinerary.presentation.ItineraryQueryController;
 import com.gabolle.backend.itinerary.presentation.dto.ItineraryDetailResponse;
 import com.gabolle.backend.itinerary.presentation.dto.ItineraryVersionSummaryResponse;
+import com.gabolle.backend.itinerary.presentation.dto.ItineraryVersionsResponse;
 import com.gabolle.backend.place.domain.Place;
 import com.gabolle.backend.place.repository.PlaceRepository;
+import com.gabolle.backend.recommendation.application.RecommendationCodes;
 import com.gabolle.backend.recommendation.domain.FallbackMode;
 import com.gabolle.backend.recommendation.domain.RecommendationJob;
 import com.gabolle.backend.recommendation.repository.RecommendationJobRepository;
@@ -133,7 +135,27 @@ public class ItineraryQueryService {
 				fallbackMode,
 				access.role().name(),
 				access.role().canEdit(),
-				content.version().warningCodes());
+				content.version().warningCodes(),
+				// S15P21E201-1113 — 이미 손에 있는 값이다. 여행을 다시 조회하지 않는다.
+				trip.tripId(),
+				// S15P21E201-1158 — 이미 읽어 둔 항목에서 센다. DB 를 다시 묻지 않는다.
+				accessibilityUnverifiedCount(content.items()));
+	}
+
+	/**
+	 * 휠체어 접근을 <b>안 재 본</b> 항목이 몇 곳인가 — S15P21E201-1158.
+	 *
+	 * <p>🔴 항목 수를 센다. 경고 <b>건수</b>가 아니다. 한 항목에 같은 경고가 두 번 붙는 일은
+	 * 지금 없지만, 화면이 사용자에게 말하는 것은 언제나 <b>"몇 곳"</b> 이라 세는 단위를 곳으로
+	 * 못박는다.
+	 *
+	 * <p>문자열을 여기서 다시 적지 않고 {@link RecommendationCodes} 를 본다 — 값을 만드는 곳이
+	 * 다른 갈래에 있어서, 두 벌이 되면 한쪽만 고쳐지는 날 <b>이 셈이 조용히 0 이 된다.</b>
+	 */
+	private int accessibilityUnverifiedCount(List<ItineraryItem> items) {
+		return (int) items.stream()
+				.filter(item -> item.warningCodes().contains(RecommendationCodes.WARNING_ACCESSIBILITY_UNVERIFIED))
+				.count();
 	}
 
 	/**
@@ -146,15 +168,38 @@ public class ItineraryQueryService {
 	 *     요청자가 그 일정이 속한 여행의 회원이 아니다
 	 */
 	@Transactional(readOnly = true)
-	public List<ItineraryVersionSummaryResponse> listVersions(String itineraryId, String requesterUserId) {
+	public ItineraryVersionsResponse listVersions(String itineraryId, String requesterUserId, Integer page,
+			Integer size) {
 		this.itineraryAccess.requireMember(itineraryId, requesterUserId);
-		List<ItineraryVersion> versions = this.itineraryRepository.findVersions(itineraryId);
+
+		// 🔴 기본값을 여기서만 정한다 — 컨트롤러도 알고 있으면 둘이 어긋나는 날이 오고,
+		//    그러면 안 주고 부른 첫 쪽과 page=0 으로 부른 쪽의 크기가 달라져 판이 겹치거나
+		//    건너뛰어진다.
+		int pageNumber = (page == null) ? 0 : Math.max(page, 0);
+		int pageSize = (size == null) ? DEFAULT_VERSION_PAGE_SIZE
+				: Math.min(Math.max(size, 1), MAX_VERSION_PAGE_SIZE);
+
+		ItineraryRepository.VersionPage found = this.itineraryRepository.findVersions(itineraryId, pageNumber,
+				pageSize);
+		List<ItineraryVersion> versions = found.versions();
+
 		// 2026-09-07 — 판마다 만든 사람의 표시 이름을 싣는다. 이름 조회는 한 번(IN 질의)이다.
 		Map<String, String> names = this.actorNames.resolve(versions.stream().map(ItineraryVersion::createdBy).toList());
-		return versions.stream()
+		List<ItineraryVersionSummaryResponse> items = versions.stream()
 				.map(v -> ItineraryVersionSummaryResponse.of(v, names.get(v.createdBy())))
 				.toList();
+
+		return new ItineraryVersionsResponse(items, items.size(), found.hasMore());
 	}
+
+	/**
+	 * 판 목록의 기본 쪽 크기 (S15P21E201-1011). 되돌리기 화면이 한 번에 보여 주는 것보다
+	 * 넉넉하다 — 지금까지처럼 한 번만 부르는 화면은 보이는 동작이 사실상 달라지지 않는다.
+	 */
+	private static final int DEFAULT_VERSION_PAGE_SIZE = 50;
+
+	/** 부르는 쪽이 아무리 크게 달라고 해도 여기까지. 상한이 없으면 파라미터 하나로 상한이 풀린다. */
+	private static final int MAX_VERSION_PAGE_SIZE = 200;
 
 	/**
 	 * 여행 기간의 날짜를 전부 만든다. 🔴 항목이 0개인 날도 포함한다 — {@code itemsByDay} 에
@@ -205,6 +250,9 @@ public class ItineraryQueryService {
 		String travelDataStatus = (incoming && incomingLeg.dataStatus() != null)
 				? incomingLeg.dataStatus().name()
 				: null;
+		// 🔴 S15P21E201-1109 — 요금도 같은 incoming 하나에 묶인다. 구간이 이 항목으로 들어오는
+		//    것이 아니면 남의 요금이므로 비운다. 모르는 것을 0 으로 채우지 않는다.
+		Integer travelFareKrw = incoming ? incomingLeg.fareKrw() : null;
 
 		return new ItineraryDetailResponse.Item(
 				item.itemKey(),
@@ -221,7 +269,11 @@ public class ItineraryQueryService {
 				// 값이지만, 항목이 가리키는 값을 그대로 돌려주는 쪽이 의도가 분명하다.
 				item.placeId(),
 				travelDurationMin,
-				travelDataStatus);
+				travelDataStatus,
+				travelFareKrw,
+				// S15P21E201-1158 — 저장돼 있던 값을 그대로 공개한다. ItineraryItem 이 생성자에서
+				// 이미 빈 목록으로 정규화하므로(null 이 안 나온다) 여기서 다시 감싸지 않는다.
+				item.warningCodes());
 	}
 
 	/** {@code visit_date} + {@code start_time} 을 ISO-8601 로 합친다. 시간대는 항상 Asia/Seoul 이다(API-03). */

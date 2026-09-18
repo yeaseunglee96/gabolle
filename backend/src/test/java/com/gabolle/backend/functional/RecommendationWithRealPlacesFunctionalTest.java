@@ -56,6 +56,17 @@ import com.jayway.jsonpath.JsonPath;
 class RecommendationWithRealPlacesFunctionalTest extends FunctionalJourneyTest {
 
 	/**
+	 * 🔴 이 여정은 여행 조건에 알레르기(민감 제약)를 실어 보낸다 — S15P21E201-549 로
+	 * 건강·식이 동의가 없으면 여행 생성이 403 이다. 동의를 켜고 가입하는 것이 이 여정에서
+	 * 재려는 것(추천에 실제 장소가 담기는가)에 닿기 위한 전제다.
+	 *
+	 * <p>🔴 공용 헬퍼의 기본값을 바꾸지 않고 여기서만 켠다. 전부 켜 두면 동의를 안 받았을 때
+	 * 막히는지를 아무 여정도 안 재게 된다.
+	 */
+	private static final java.util.Map<String, Boolean> HEALTH_CONSENT =
+			java.util.Map.of("HEALTH_CONSTRAINTS", true);
+
+	/**
 	 * 부산 남구 우암동 언저리. 표본 200곳 중 반경 5km(엔진 기본값) 안에 97곳이 들어와
 	 * 후보가 넉넉하다. 전체 2,355곳을 적재해 두었으면 그보다 훨씬 많다.
 	 */
@@ -74,18 +85,39 @@ class RecommendationWithRealPlacesFunctionalTest extends FunctionalJourneyTest {
 	@Autowired
 	private SbizPlaceLoader loader;
 
-	/** 장소가 없으면 표본을 넣는다. 이미 있으면 그대로 쓴다 — 적재기는 같은 가게를 건너뛴다. */
+	/**
+	 * 표본이 아직 없으면 넣는다. 이미 있으면 그대로 쓴다 — 적재기는 같은 가게를 건너뛴다.
+	 *
+	 * <h2>🔴 "표가 비었나" 로 묻지 않는다</h2>
+	 *
+	 * 예전에는 {@code SELECT COUNT(*) FROM place} 가 0 일 때만 표본을 넣었다. 그런데
+	 * <b>장소를 심는 마이그레이션이 하나라도 생기면 그 수가 0 이 아니게 된다.</b> 그러면 이
+	 * 검사는 표본 200곳을 건너뛰고, 반경 5km 안에 후보가 없어 추천이
+	 * {@code ENGINE_NO_CANDIDATES} 로 실패한다 — 엔진이 고장난 것이 아니라 <b>먹일 것을 안
+	 * 넣은 것</b>인데, 실패 메시지는 엔진을 가리켜서 원인을 엉뚱한 데서 찾게 된다.
+	 *
+	 * <p>2026-09-16 에 실제로 그랬다. {@code V20260916210000__curated_core_busan_landmarks.sql}
+	 * 이 부산 대표 명소 <b>4곳</b>을 넣자 이 검사 두 건이 무너졌다(MR !982). 바다·자연 장소를
+	 * 넣는 뒤 마이그레이션도 같은 자리를 밟는다.
+	 *
+	 * <p>그래서 <b>이 검사가 넣은 표본이 있는지</b>를 묻는다. 그것이 원래 묻고 싶었던 것이고,
+	 * 남이 장소를 몇 곳 넣든 흔들리지 않는다.
+	 */
 	private void ensurePlaces() {
-		Integer places = this.jdbc.queryForObject("SELECT COUNT(*) FROM place", Integer.class);
-		if (places != null && places > 0) {
+		if (samplePlaceCount() > 0) {
 			return;
 		}
 		OffsetDateTime collectedAt = OffsetDateTime.now();
 		ResearchQueueReader.read(sampleFile(), 500,
 				chunk -> this.loader.saveChunk(chunk, SAMPLE_DATASET, collectedAt));
 
-		Integer loaded = this.jdbc.queryForObject("SELECT COUNT(*) FROM place", Integer.class);
-		assertThat(loaded).as("표본을 넣었는데 장소가 하나도 안 들어갔다").isNotNull().isPositive();
+		assertThat(samplePlaceCount()).as("표본을 넣었는데 장소가 하나도 안 들어갔다").isPositive();
+	}
+
+	private int samplePlaceCount() {
+		Integer count = this.jdbc.queryForObject("SELECT COUNT(*) FROM place WHERE dataset_version = ?",
+				Integer.class, SAMPLE_DATASET);
+		return count == null ? 0 : count;
 	}
 
 	/** 판독기가 경로를 받으므로 상주 표본을 임시 파일로 풀어 준다. */
@@ -119,7 +151,7 @@ class RecommendationWithRealPlacesFunctionalTest extends FunctionalJourneyTest {
 	@DisplayName("장소가 있는데 추천 엔진이 없으면 모든 추천이 조용히 실패한다")
 	void theEngineMustBeWiredWhenPlacesExist() {
 		ensurePlaces();
-		AuthedClient authed = loginAsNewUser("rec-wiring");
+		AuthedClient authed = loginAsNewUser("rec-wiring", HEALTH_CONSENT);
 
 		String tripId = createTrip(authed);
 		String jobId = requestRecommendation(authed, tripId);
@@ -138,7 +170,7 @@ class RecommendationWithRealPlacesFunctionalTest extends FunctionalJourneyTest {
 	@DisplayName("장소를 넣으면 추천 후보가 0건이 아니다 — 이것이 이 티켓의 완료 기준이다")
 	void recommendationFindsCandidatesOncePlacesExist() {
 		ensurePlaces();
-		AuthedClient authed = loginAsNewUser("rec-real");
+		AuthedClient authed = loginAsNewUser("rec-real", HEALTH_CONSENT);
 
 		String tripId = createTrip(authed);
 		String jobId = requestRecommendation(authed, tripId);
@@ -160,7 +192,7 @@ class RecommendationWithRealPlacesFunctionalTest extends FunctionalJourneyTest {
 	@DisplayName("추천 결과에 실제 가게 이름이 담긴다 — 빈 목록이 아니라 사람이 갈 수 있는 곳이다")
 	void theResultCarriesRealPlaceNames() {
 		ensurePlaces();
-		AuthedClient authed = loginAsNewUser("rec-names");
+		AuthedClient authed = loginAsNewUser("rec-names", HEALTH_CONSENT);
 
 		String tripId = createTrip(authed);
 		String jobId = requestRecommendation(authed, tripId);
@@ -185,10 +217,19 @@ class RecommendationWithRealPlacesFunctionalTest extends FunctionalJourneyTest {
 	@DisplayName("고른 갈래에 맞는 곳이 없으면 그렇다고 말한다 — 버전 오류로 뭉개지지 않는다")
 	void anEmptyCategorySaysSoInsteadOfBlamingVersions() {
 		ensurePlaces();
-		AuthedClient authed = loginAsNewUser("rec-empty-category");
+		AuthedClient authed = loginAsNewUser("rec-empty-category", HEALTH_CONSENT);
 
-		// 적재된 장소는 전부 음식점이다. 바다만 고르면 후보가 0곳이 된다.
-		String tripId = createTrip(authed, "SEA_BEACH");
+		// 🔴 "후보가 0곳" 을 <b>갈래</b>로 만들지 않는다. 예전에는 "적재된 장소는 전부
+		//    음식점이니 바다를 고르면 0곳" 이었는데, 그 전제는 바다 장소를 넣는
+		//    마이그레이션 하나로 무너진다 — 2026-09-16 에 실제로 그랬다(MR !984 가
+		//    바다·자연 18곳을 넣자 이 작업이 SUCCEEDED 로 끝나 이 검사가 빨개졌다).
+		//
+		//    그래서 <b>거리</b>로 만든다. 엔진의 후보 질의 반경은 5km 고정이고 넓히지
+		//    않으므로(BaselineEngineProperties.radiusM = 5000), 부산에서 멀리 떨어진
+		//    바다 한가운데를 출발지로 두면 <b>무엇을 적재하든</b> 후보가 0곳이다.
+		//    이 검사가 보려는 것은 "갈래가 비었나" 가 아니라 "후보가 없을 때 무슨 코드로
+		//    말하는가" 이므로, 0곳이 되는 이유는 아무래도 좋다.
+		String tripId = createTripFarFromAnyPlace(authed);
 		String jobId = requestRecommendation(authed, tripId);
 		String body = pollUntil(() -> authed.get("/api/v1/jobs/" + jobId, String.class), response -> {
 			String status = JsonPath.read(response, "$.data.status");
@@ -206,10 +247,24 @@ class RecommendationWithRealPlacesFunctionalTest extends FunctionalJourneyTest {
 	}
 
 	private String createTrip(AuthedClient authed) {
-		return createTrip(authed, "FOOD");
+		return createTrip(authed, "FOOD", ORIGIN_LAT, ORIGIN_LNG);
 	}
 
 	private String createTrip(AuthedClient authed, String categoryCode) {
+		return createTrip(authed, categoryCode, ORIGIN_LAT, ORIGIN_LNG);
+	}
+
+	/**
+	 * 반경 5km 안에 장소가 하나도 없을 수밖에 없는 출발지로 여행을 만든다 — 남해 먼바다다.
+	 *
+	 * <p>이 좌표에 장소가 적재될 일은 없다. 바다 위라서다. 그래서 이 검사는 <b>앞으로
+	 * 무엇을 적재하든</b> 안 흔들린다.
+	 */
+	private String createTripFarFromAnyPlace(AuthedClient authed) {
+		return createTrip(authed, "SEA_BEACH", 34.60, 128.40);
+	}
+
+	private String createTrip(AuthedClient authed, String categoryCode, double originLat, double originLng) {
 		// 알레르기를 "없다"(NONE)로 답한다. 실제 사용자가 "알레르기 없음" 을 고르는 것과
 		//    같고, 서버가 제약을 최소 하나 요구하기 때문이기도 하다(RecommendationJobRunner).
 		//
@@ -219,8 +274,8 @@ class RecommendationWithRealPlacesFunctionalTest extends FunctionalJourneyTest {
 		Map<String, Object> request = Map.ofEntries(
 				Map.entry("startDate", "2026-10-01"),
 				Map.entry("finishDate", "2026-10-02"),
-				Map.entry("originLat", ORIGIN_LAT),
-				Map.entry("originLng", ORIGIN_LNG),
+				Map.entry("originLat", originLat),
+				Map.entry("originLng", originLng),
 				Map.entry("partySize", 2),
 				Map.entry("timeWindow", "09:00-18:00"),
 				Map.entry("timezone", "Asia/Seoul"),

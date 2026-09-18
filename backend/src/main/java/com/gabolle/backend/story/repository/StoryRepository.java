@@ -43,24 +43,77 @@ public interface StoryRepository extends JpaRepository<Story, UUID> {
 	 * 상수를 쓰지 않는다.
 	 *
 	 * <p>새 피드 질의를 만들 때 이 상수를 쓰지 않으면 신고된 기록이 그 피드에 보인다.
+	 *
+	 * <h2>🔴 2026-09-17 — {@code parent_story_id IS NULL} 을 여기 더했다 (S15P21E201-1183)</h2>
+	 *
+	 * 댓글이 원글과 <b>같은 표</b>에 산다. 그래서 이 조건이 없으면 <b>댓글이 피드에 원글처럼
+	 * 올라온다.</b>
+	 *
+	 * <p>이 상수가 다섯 질의를 덮는다는 것이 댓글을 같은 표에 두기로 한 근거였다 — 다른 표로
+	 * 갔다면 신고·숨김·소프트삭제·사진·탈퇴처리를 전부 다시 만들어야 했다. 그 대신 <b>새 피드
+	 * 질의를 만들 때 이 상수를 안 쓰면 댓글이 샌다</b>는 위험이 하나 늘었다. 위 문단이 신고된
+	 * 기록에 대해 말하는 것과 같은 위험이고, 막는 방법도 같다 — 이 상수를 쓰면 된다.
+	 *
+	 * <p>🔴 <b>단건 조회({@code findActiveById}·{@code findVisibleById})에는 걸지 않는다.</b>
+	 * 댓글도 id 로 열 수 있어야 한다 — 그 댓글에 달린 댓글을 보려면 먼저 그 댓글을 찾아야 한다.
 	 */
 	String NOT_DELETED_AND_PUBLISHED =
-			" s.deleted_at IS NULL AND s.publish_at <= :now AND s.moderation_state = 'VISIBLE' ";
+			" s.deleted_at IS NULL AND s.publish_at <= :now AND s.moderation_state = 'VISIBLE' "
+					+ " AND s.parent_story_id IS NULL ";
+
+	/**
+	 * 🔴 S15P21E201-990 — 나를 차단한 사람의 기록은 목록에서 빠진다.
+	 *
+	 * <p><b>방향에 주의한다.</b> 이 저장소에서 차단은 "내가 이 사람을 안 본다" 가 아니라
+	 * <b>"이 사람에게 내 것을 안 보여준다"</b> 이다. 그래서 거를 대상은 <b>내가 차단한 사람</b>이
+	 * 아니라 <b>나를 차단한 사람</b>이다 — {@code blocker = 글쓴이}, {@code blocked = 나}.
+	 * 반대로 쓰면 아무 오류 없이 정반대로 동작한다.
+	 *
+	 * <p><b>왜 목록에서는 조용히 빼는가.</b> 프로필·상세는 「차단되어 볼 수 없습니다」를 띄우지만
+	 * (그쪽은 {@code BlockService.requireNotBlockedBy} 가 막는다), 목록에서 그러면 그 사람 글
+	 * 하나 때문에 피드 전체가 실패한다. 목록은 빼고, 지목해서 여는 경로만 알린다.
+	 *
+	 * <p>🔴 <b>{@code :me} 가 있는 질의에만 쓸 수 있다.</b> 익명 피드
+	 * ({@link #findPublicFeedForAnonymous})에는 안 쓴다 — 익명인 사람은 차단할 대상이 아니다.
+	 */
+	String NOT_BLOCKED_BY_AUTHOR = " AND NOT EXISTS (SELECT 1 FROM user_block b"
+			+ " WHERE b.blocker_user_id = s.author_user_id AND b.blocked_user_id = :me) ";
 
 	String BEFORE_CURSOR = " AND (s.publish_at, s.story_id) < (CAST(:cursorAt AS timestamptz), CAST(:cursorId AS uuid)) ";
 
 	/** 전체 피드 — 공개(PUBLIC) 기록, 그리고 내 기록은 범위와 무관하게. */
 	@Query(value = "SELECT s.* FROM story s WHERE" + NOT_DELETED_AND_PUBLISHED
-			+ " AND (s.visibility = 'PUBLIC' OR s.author_user_id = :me)" + BEFORE_CURSOR + FEED_ORDER,
-			nativeQuery = true)
+			+ " AND (s.visibility = 'PUBLIC' OR s.author_user_id = :me)" + NOT_BLOCKED_BY_AUTHOR + BEFORE_CURSOR
+			+ FEED_ORDER, nativeQuery = true)
 	List<Story> findPublicFeed(@Param("me") UUID me, @Param("now") Instant now, @Param("cursorAt") Instant cursorAt,
+			@Param("cursorId") UUID cursorId, @Param("limit") int limit);
+
+	/**
+	 * 로그인하지 않은 사람의 전체 피드 — 공개(PUBLIC) 기록만 — S15P21E201-974.
+	 *
+	 * <p>🔴 <b>왜 {@link #findPublicFeed} 에 {@code null} 을 넣지 않고 질의를 따로 두나.</b>
+	 * 거기에 {@code :me = null} 을 넘겨도 지금은 결과가 같다 — SQL 에서
+	 * {@code author_user_id = NULL} 은 참이 되지 않으므로 공개 글만 남는다. 그런데 그것은
+	 * <b>세 값 논리에 기댄 안전</b>이고, 누군가 그 줄을 {@code COALESCE(:me, …)} 같은 것으로
+	 * 고치는 순간 <b>말없이</b> 남의 비공개 기록이 익명에게 나간다. 새는 쪽이 조용한 종류의
+	 * 사고라, 조건 자체를 아예 두지 않는 질의를 따로 둔다.
+	 *
+	 * <p>{@link #NOT_DELETED_AND_PUBLISHED} 를 쓴다 — 이 상수를 안 쓰면 신고된 기록이 이
+	 * 피드에만 보인다(위 상수 설명).
+	 */
+	@Query(value = "SELECT s.* FROM story s WHERE" + NOT_DELETED_AND_PUBLISHED + " AND s.visibility = 'PUBLIC'"
+			+ BEFORE_CURSOR + FEED_ORDER, nativeQuery = true)
+	List<Story> findPublicFeedForAnonymous(@Param("now") Instant now, @Param("cursorAt") Instant cursorAt,
 			@Param("cursorId") UUID cursorId, @Param("limit") int limit);
 
 	/** 팔로잉 피드 — 내가 팔로우한 사람의 PUBLIC·FOLLOWERS 기록. */
 	@Query(value = "SELECT s.* FROM story s WHERE" + NOT_DELETED_AND_PUBLISHED
 			+ " AND s.visibility IN ('PUBLIC', 'FOLLOWERS')"
 			+ " AND s.author_user_id IN (SELECT f.followee_user_id FROM user_follow f WHERE f.follower_user_id = :me)"
-			+ BEFORE_CURSOR + FEED_ORDER, nativeQuery = true)
+			// 🔴 차단하면 팔로우가 양쪽 다 끊기므로(BlockService.block) 이 조건 없이도 안 나오는 것이
+			//    "지금은" 맞다. 그래도 건다 — 그 두 동작이 한 트랜잭션에 묶여 있다는 사실에 기대면,
+			//    나중에 누가 팔로우 해제를 떼어 내는 순간 차단이 말없이 새기 시작한다.
+			+ NOT_BLOCKED_BY_AUTHOR + BEFORE_CURSOR + FEED_ORDER, nativeQuery = true)
 	List<Story> findFollowingFeed(@Param("me") UUID me, @Param("now") Instant now,
 			@Param("cursorAt") Instant cursorAt, @Param("cursorId") UUID cursorId, @Param("limit") int limit);
 
@@ -97,6 +150,30 @@ public interface StoryRepository extends JpaRepository<Story, UUID> {
 			  AND s.moderationState = com.gabolle.backend.moderation.domain.StoryModerationState.VISIBLE
 			""")
 	Optional<Story> findVisibleById(@Param("storyId") UUID storyId);
+
+	/**
+	 * 이 글에 <b>직접</b> 달린 댓글 — S15P21E201-1183. 손자는 안 딸려 온다.
+	 *
+	 * <h2>🔴 {@link #NOT_DELETED_AND_PUBLISHED} 를 쓰지 않는 이유</h2>
+	 *
+	 * 그 상수는 이제 {@code parent_story_id IS NULL} 을 함께 건다 — 댓글을 찾는 이 질의에 쓰면
+	 * <b>언제나 빈 목록</b>이 나온다. 대신 그 상수가 덮던 나머지 조건은 여기에 그대로 옮겨
+	 * 적는다. 지운 댓글과 신고로 가려진 댓글은 안 나가야 하기 때문이다.
+	 *
+	 * <p>{@code publishAt} 은 안 건다. 댓글은 {@code createdAt} 과 같은 값으로 만들어져
+	 * ({@link Story#reply}) 언제나 이미 지난 시각이다 — 안 거는 것이 아니라 걸 것이 없다.
+	 *
+	 * <h2>오래된 순인 이유</h2>
+	 *
+	 * 대화는 위에서 아래로 읽는다. 피드는 새 것이 위지만 댓글은 반대다.
+	 */
+	@Query("""
+			SELECT s FROM Story s
+			WHERE s.parentStoryId = :parentId AND s.deletedAt IS NULL
+			  AND s.moderationState = com.gabolle.backend.moderation.domain.StoryModerationState.VISIBLE
+			ORDER BY s.createdAt ASC, s.storyId ASC
+			""")
+	List<Story> findReplies(@Param("parentId") UUID parentId, Pageable limit);
 
 	/**
 	 * 한 여행에 달린 기록 — 추억 지도가 쓴다 (S15P21E201-829).

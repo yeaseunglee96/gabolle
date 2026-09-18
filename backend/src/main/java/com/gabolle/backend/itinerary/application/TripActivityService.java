@@ -2,6 +2,7 @@ package com.gabolle.backend.itinerary.application;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.annotation.Profile;
@@ -68,7 +69,10 @@ public class TripActivityService {
 						v.operation().name(),
 						v.createdBy(),
 						names.get(v.createdBy()),
-						v.createdBy().equals(requesterUserId),
+						// 🔴 작성자가 비어 있을 수 있다(탈퇴) — S15P21E201-1095. v.createdBy().equals(…)
+						//    로 두면 그 판 하나 때문에 활동 기록 전체가 터지고, 피해는 탈퇴한 본인이
+						//    아니라 같은 여행을 쓰던 동행자에게 간다. 비어 있으면 "내가 한 것" 이 아니다.
+						Objects.equals(v.createdBy(), requesterUserId),
 						v.createdAt().toString(),
 						v.baseVersion(),
 						v.revertedFromVersion(),

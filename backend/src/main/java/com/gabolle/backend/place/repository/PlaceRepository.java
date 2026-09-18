@@ -31,22 +31,35 @@ public interface PlaceRepository extends JpaRepository<Place, UUID> {
 	 * 사용자가 {@code %} 를 넣으면 전체 스캔이 되고, {@code _} 를 넣으면 엉뚱한 것이 걸린다.
 	 * 이스케이프 문자는 {@code \} 로 고정했다.
 	 *
-	 * <p>정렬은 서비스 계층에서 한다 — 정확일치·접두일치·포함을 나누는 규칙이 SQL 로 표현하기에는
-	 * 길고, 이 규모(수백~수천 행)에서는 자바 정렬 비용이 무의미하다.
+	 * <p><b>보여주는 순서</b>는 서비스 계층에서 정한다 — 정확일치·접두일치·포함을 나누는 규칙이
+	 * SQL 로 표현하기에는 길고, 이 규모(수백~수천 행)에서는 자바 정렬 비용이 무의미하다.
+	 *
+	 * <p>🔴 <b>아래 {@code ORDER BY} 는 그것과 다른 일을 한다</b> (S15P21E201-1011). 서비스의
+	 * 정렬은 <b>이미 받아 온 행들을 어떤 차례로 보여줄까</b> 이고, 이 {@code ORDER BY} 는
+	 * <b>상한에 걸렸을 때 어느 행이 애초에 넘어올까</b> 다. 정렬이 없으면 SQL 은 그것을
+	 * 아무것도 약속하지 않아서, <b>같은 검색어에 매번 다른 결과가 나올 수 있다</b> — 서비스가
+	 * 뒤에서 아무리 잘 정렬해도 손에 든 것 자체가 매번 다르면 소용이 없다.
+	 * 바로 아래 경계상자 조회가 같은 이유로 이미 {@code ORDER BY} 를 달고 있다(-724).
 	 */
 	@Query("""
 			SELECT p FROM Place p
 			WHERE LOWER(p.nameKo) LIKE :pattern ESCAPE '\\'
 			   OR (p.nameEn IS NOT NULL AND LOWER(p.nameEn) LIKE :pattern ESCAPE '\\')
+			ORDER BY p.placeId
 			""")
 	List<Place> searchByName(@Param("pattern") String pattern, Limit limit);
 
-	/** 이름으로 찾되 종류로 한 번 더 거른다. {@code category} 는 자유 문자열이라 소문자로 맞춰 비교한다. */
+	/**
+	 * 이름으로 찾되 종류로 한 번 더 거른다. {@code category} 는 자유 문자열이라 소문자로 맞춰 비교한다.
+	 *
+	 * <p>🔴 {@code ORDER BY} 는 위 조회와 같은 이유다 (-1011).
+	 */
 	@Query("""
 			SELECT p FROM Place p
 			WHERE (LOWER(p.nameKo) LIKE :pattern ESCAPE '\\'
 			       OR (p.nameEn IS NOT NULL AND LOWER(p.nameEn) LIKE :pattern ESCAPE '\\'))
 			  AND LOWER(p.category) = LOWER(:category)
+			ORDER BY p.placeId
 			""")
 	List<Place> searchByNameAndCategory(@Param("pattern") String pattern,
 			@Param("category") String category, Limit limit);
@@ -143,4 +156,38 @@ public interface PlaceRepository extends JpaRepository<Place, UUID> {
 			ORDER BY p.nameKo, p.placeId
 			""")
 	List<Place> findByCategoryIn(@Param("categories") List<String> categories, Limit limit);
+
+	/**
+	 * 지금 장소가 하나라도 있는 {@code category} 값과 그 수 — S15P21E201-896.
+	 *
+	 * <p>취향 화면이 고를 수 있는 갈래를 정하는 데 쓴다. 추천 엔진은 앱이 보낸 갈래 코드를
+	 * {@code place.category} 와 글자 그대로 비교하므로({@code BaselineCandidateTranslator}),
+	 * 값이 하나도 없는 갈래를 고른 사용자는 후보 0 으로 일정 생성이 실패한다. 그 실패를
+	 * 막으려면 화면이 "지금 장소가 있는 갈래" 를 알아야 한다.
+	 *
+	 * <p><b>갈래 목록을 자바에 적지 않는다.</b> 있는 값을 세어서 그대로 낸다 — 그래야 적재가
+	 * 새 갈래를 넣으면 코드 변경 없이 나타나고, 서버가 앱의 어휘를 대신 확정하지 않는다.
+	 * {@code place.category} 는 값 목록이 확정되지 않은 자유 문자열이다({@code V20260904000000}
+	 * 마이그레이션 주석).
+	 *
+	 * <p>비교는 글자 그대로다 — 여기서 {@code LOWER} 를 쓰지 않는다. 같은 갈래가 대소문자만
+	 * 다르게 적재돼 있으면 두 줄로 나오는데, 그것이 사실이고 화면이 둘 다 못 맞춘다는 신호다.
+	 * 여기서 합쳐 버리면 그 어긋남이 조용히 숨는다.
+	 */
+	@Query("""
+			SELECT p.category AS code, COUNT(p) AS placeCount
+			FROM Place p
+			WHERE p.category IS NOT NULL AND p.category <> ''
+			GROUP BY p.category
+			ORDER BY COUNT(p) DESC, p.category ASC
+			""")
+	List<CategoryCount> countByCategory();
+
+	/** {@link #countByCategory()} 한 줄. */
+	interface CategoryCount {
+
+		String getCode();
+
+		long getPlaceCount();
+	}
 }

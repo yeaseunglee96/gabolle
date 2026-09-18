@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import com.gabolle.backend.place.api.PlaceCandidateRequest;
 import com.gabolle.backend.place.domain.UserInputKind;
 import com.gabolle.backend.place.repository.UserPlaceCodeMapRepository;
+import com.gabolle.backend.preference.application.PreferenceJson;
 import com.gabolle.backend.recommendation.config.BaselineEngineProperties;
 import com.gabolle.backend.recommendation.domain.RequestLocation;
 import com.gabolle.backend.trip.domain.PreferenceSnapshot;
@@ -83,7 +84,11 @@ public class BaselineCandidateTranslator {
 				categories,
 				List.of(), // requiredFeatures — 🔴 절대 채우지 않는다
 				List.of(), // excludedFeatures — 🔴 절대 채우지 않는다
-				null, // openNowAt — 영업시간 필터는 아직 없다
+				// openNowAt 은 비운 채로 둔다 — S15P21E201-857.
+				// 이 조회는 여행 전체에 한 번 부르고 시각 칸은 한 순간이다. 여기에 첫날
+				// 아침을 넣으면 화요일 오후에 방문할 곳까지 월요일 아침 기준으로 걸러진다.
+				// 영업시간은 항목을 자리에 앉히는 단계(ItineraryDraftService)에서 본다.
+				null,
 				null, // minimumCount — 모자라면 모자란 채로 돌려받는다
 				// 🔴 candidateLimit(200) 이었다 (S15P21E201-724). 장소 조회는 점수를 모르므로
 				//    limit 을 "가까운 순" 으로 자른다. 여기에 200 을 주면 채점기는 가까운
@@ -111,9 +116,25 @@ public class BaselineCandidateTranslator {
 	 *
 	 * <p>그러니 <b>{@code place} 를 채우는 쪽이 {@code category} 에 앱과 같은 코드를 넣어야 한다.</b>
 	 * 안 그러면 후보가 0건이 되고, 그 0건은 "조건에 맞는 곳이 없다" 로 보이지 "어휘가 안 맞는다"
-	 * 로는 안 보인다. 지금 적재되는 것은 상가정보 음식 업종뿐이라 {@code category} 는 {@code FOOD}
-	 * 하나이고, <b>나머지 다섯 갈래를 고른 사용자는 후보가 없다</b> — 그 갈래의 장소를 아직 안
-	 * 넣었기 때문이고, 그것은 사실이다 (S15P21E201-636).
+	 * 로는 안 보인다. 적재되는 것은 상가정보 음식 업종뿐이라 {@code category} 는 {@code FOOD} ·
+	 * {@code CAFE_HEALING}(카페만, S15P21E201-106) 둘뿐이고, <b>나머지 넷을 고른 사용자는
+	 * 후보가 없다</b> — 그 갈래의 장소를 아직 안 넣었기 때문이고, 그것은 사실이다
+	 * (S15P21E201-636).
+	 *
+	 * <h2>🔴 정정 (2026-09-17, S15P21E201-1149) — 위 문단의 "둘뿐" 은 이제 사실이 아니다</h2>
+	 *
+	 * 배포 서버 실측({@code GET /api/v1/places/categories}, 2026-09-17)에서 {@code SEA_BEACH} 가
+	 * <b>16곳</b> 나온다. 관광공사 수집분이 들어오면서 갈래가 늘었다. 위 문단은 2026-09-07 시점의
+	 * 실측이라 지우지 않고 남긴다 — 그때는 맞았다.
+	 *
+	 * <p><b>다만 「고른 갈래가 사실상 안 나온다」는 결론 자체는 아직 유효하다.</b> 이유가 바뀌었을
+	 * 뿐이다. 그때는 <i>장소가 아예 없어서</i>였고, 지금은 <i>음식이 2,197곳(86.6%)이라 16곳이
+	 * 묻혀서</i>다. 앞의 것은 적재로 풀리고 뒤의 것은 적재로 안 풀린다 — 갈래별 최소 정원이
+	 * 필요하고, 그 자리는 이 클래스가 아니라 일정 조립 쪽이다({@code ItineraryDraftService},
+	 * S15P21E201-1129 가 끼니 상한과 되메움 고리를 이미 손봤다).
+	 *
+	 * <p>이 주석이 "바다는 원래 0 이다" 로 읽히면 다음 사람이 <b>진짜 결함을 정상으로 착각한다.</b>
+	 * 실제로 그렇게 읽혀서 2026-09-17 에 원인을 반나절 딴 데서 찾았다.
 	 */
 	private List<String> extractCategoryCodes(PreferenceSnapshot preferenceSnapshot) {
 		if (preferenceSnapshot == null) {

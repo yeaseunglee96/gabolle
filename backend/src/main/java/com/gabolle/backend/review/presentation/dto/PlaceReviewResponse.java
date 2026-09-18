@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
 
+import com.gabolle.backend.common.security.HtmlOutputEncoder;
 import com.gabolle.backend.review.domain.PlaceReview;
 
 /**
@@ -24,7 +25,10 @@ public record PlaceReviewResponse(UUID placeReviewId, Short foodScore, Short pri
 	 */
 	public static PlaceReviewResponse from(PlaceReview review, UUID viewerId) {
 		return new PlaceReviewResponse(review.getPlaceReviewId(), review.getFoodScore(), review.getPriceScore(),
-				review.getAccessibilityScore(), review.getOnsiteScore(), review.getBody(), review.isVerified(),
+				review.getAccessibilityScore(), review.getOnsiteScore(),
+				// 🔴 S15P21E201-835 — story.body 와 같은 종류의 자유 입력이다. 응답으로 나가는
+				//    여기서만 인코딩한다(HtmlOutputEncoder 클래스 주석 참고).
+				HtmlOutputEncoder.forHtml(review.getBody()), review.isVerified(),
 				review.getRegion(), review.getCreatedAt(), review.getUpdatedAt(),
 				Objects.equals(review.getUserId(), viewerId));
 	}

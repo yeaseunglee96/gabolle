@@ -64,6 +64,12 @@ dependencies {
 	// 갈아끼운 것은 이 의존성과 adapter 패키지뿐이고, 나머지(도메인·서비스·컨트롤러)는
 	// 그대로다.
 	implementation 'com.google.genai:google-genai:1.65.0'
+	// S15P21E201-835 — 사용자 자유 입력(기록 본문·리뷰 본문 등)을 JSON 응답에 실을 때
+	// HTML/JS 로 해석될 수 있는 문자를 인코딩한다(ZAP: Persistent XSS in JSON Response,
+	// CWE-79). 손으로 치환 테이블을 짜지 않는 이유 — 컨텍스트별 이스케이프 규칙은
+	// 누락되기 쉽고, OWASP 가 관리하는 검증된 구현을 쓰는 것이 이 저장소의 다른 보안
+	// 관련 결정(SensitivePayloadGuard 등)과 같은 태도다.
+	implementation 'org.owasp.encoder:encoder:1.3.1'
 	testImplementation 'org.springframework.boot:spring-boot-starter-actuator-test'
 	testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
 	testImplementation 'org.springframework.boot:spring-boot-starter-flyway-test'
@@ -122,6 +128,58 @@ tasks.withType(Javadoc).configureEach {
 
 tasks.named('test') {
 	useJUnitPlatform()
+
+	// 🔴 S15P21E201-1217 — 이 줄이 없으면 검사가 **Gradle 기본 힙(512MB)** 으로 돈다.
+	//
+	//    「힙(heap)」은 자바가 객체를 담는 메모리이고, 그 상한을 안 정하면 Gradle 이
+	//    자기 기본값을 준다. 2026-09-18 에 Gradle 에 직접 물어본 값이 이것이었다:
+	//
+	//      TEST_HEAP :test maxHeapSize=null forkEvery=0 maxParallelForks=1
+	//
+	//    저장소 어디에도 이 값을 정하는 곳이 없었다 — gradle.properties 는 파일 자체가
+	//    없고, -Xmx 는 Jenkinsfile 두 곳뿐인데 그건 운영 컨테이너 런타임용이다.
+	//
+	//    🔴 forkEvery=0 이 같이 나쁘다. 검사를 도는 자바를 중간에 새로 안 띄운다는
+	//    뜻이라, 시험 2,100개를 도는 내내 **한 자바가** 그동안 띄운 스프링 컨텍스트를
+	//    전부 들고 있는다. 512MB 로는 빠듯해서 마지막에 OutOfMemoryError 로 죽는다.
+	//
+	//    ── 🔴 왜 2g 가 아니라 1g 인가 — 2g 로 했다가 더 나쁘게 죽었다 ──────────────
+	//
+	//    처음에 2g 로 넣었는데 CI 가 **exit 137(SIGKILL)** 로 죽었다. 자바가 자기
+	//    한도에 닿은 것이 아니라 **바깥에서 죽임당한 것**이다. 재 보니 이유가 있었다
+	//    (2026-09-18, 러너 j15e201a-backup 에서 직접 실측):
+	//
+	//      기계 전체     15,785MB 중 13,922MB 남음   ← 램은 남아돈다
+	//      빌드 컨테이너 HostConfig.Memory = 2GiB      ← 🔴 여기가 진짜 천장이다
+	//      스왑          기계에 0                      ← 넘치면 바로 죽는다
+	//
+	//    🔴 **그 2GiB 한도는 이 저장소에 없다.** .gitlab-ci.yml 에는 메모리 상한 줄이
+	//    없고, 러너의 config.toml 이 정한다. 그래서 파일만 읽으면 「상한이 없다」로
+	//    보인다 — 실제로 한 번 그렇게 잘못 읽었다. **기계에 램이 남는 것과 이 잡이
+	//    쓸 수 있는 것은 다른 숫자다.**
+	//
+	//    그 2GiB 안에 자바가 **둘** 들어간다 — Gradle 빌드 자바(`--no-daemon` 이라
+	//    한 번 쓰고 버리는 것)와 시험 워커 자바. 시험 워커에 2g 를 주면 그 하나가
+	//    컨테이너 천장을 통째로 먹어서 둘이 못 들어간다.
+	//
+	//    1g 은 그 둘이 들어가면서 512MB 의 두 배를 주는 값이다. **상한이지 예약이
+	//    아니므로** 512MB 로 충분한 실행은 그만큼만 쓴다.
+	//
+	//    ── 더 나은 고침은 이 저장소 밖에 있다 ─────────────────────────────────────
+	//
+	//    기계에 13.9GB 가 남는데 잡이 2GiB 만 쓴다. 러너의 config.toml 에서 그 상한을
+	//    올리는 것이 진짜 여유를 주는 길인데, 그건 **저장소가 아니라 러너 설정**이라
+	//    여기서 못 한다. 그쪽이 올라가면 이 값도 같이 올릴 수 있다.
+	//
+	//    ── forkEvery 는 일부러 안 건드린다 ─────────────────────────────────────
+	//
+	//    자바를 중간중간 새로 띄우면 메모리는 아껴지지만 **스프링을 매번 다시 올려서**
+	//    빌드가 몇 배 느려진다. 메모리를 아끼고 시간을 버리는 맞바꿈이라 안 한다.
+	//
+	//    🔴 이 자리는 **모두의 검사 실행이 바뀌는 자리**라 티켓을 따로 팠다
+	//    (아래 clickSim 주석이 같은 이유로 이 파일 수정을 한 번 피했던 기록이다).
+	maxHeapSize = '1g'
+
 	testLogging {
 		// 🔴 원인 메시지("No qualifying bean of type ...")가 콘솔에 안 찍혀서 CI 실패의
 		//    진짜 이유를 못 읽던 문제 — 예외 클래스+줄번호만 남고 원인 체인 메시지는 잘렸다.
@@ -130,4 +188,27 @@ tasks.named('test') {
 		showExceptions = true
 		showStackTraces = true
 	}
+}
+
+// 🔴 클릭 시뮬레이터용 순위표를 찍는 도구 — S15P21E201-553. 검사가 아니다.
+//
+//    처음에는 @Test + @EnabledIfEnvironmentVariable 로 만들었는데, CI 의 "건너뛴 검사 0"
+//    관문에 걸렸다. 그 관문은 DB 가 안 뜬 날 전부 건너뛰고도 초록이 되는 것을 막는 자리라
+//    예외를 만들면 안 된다. 그래서 검사가 아니라 과제로 돌린다.
+//
+//    이 파일에 손대는 것을 앞서 한 번 피했었다(시험 JVM 에 -D 를 넘기는 설정). 그때는
+//    test {} 를 고치는 것이라 모두의 검사 실행이 바뀌는 변경이었다. 이것은 과제를 하나
+//    "더하는" 것이라 기존 동작을 안 건드린다 — 그 차이로 판단이 갈렸다.
+//
+//    쓰기:
+//      CLICKSIM_USERS=../eval/click-sim/data/users.json \
+//      CLICKSIM_OUT=../eval/click-sim/data/rankings.json \
+//      ./gradlew clickSim
+tasks.register('clickSim', JavaExec) {
+	group = 'application'
+	description = '클릭 시뮬레이터가 읽을 순위표를 진짜 채점기로 찍는다 (S15P21E201-553)'
+	classpath = sourceSets.test.runtimeClasspath
+	mainClass = 'com.gabolle.backend.recommendation.simulation.ClickSimRankingHarness'
+	// 🔴 환경변수를 그대로 물려준다. 경로를 안 주면 하네스의 기본값이 쓰인다.
+	environment System.getenv()
 }

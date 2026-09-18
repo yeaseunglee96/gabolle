@@ -51,7 +51,7 @@ health 확인:
 http://localhost:8080/actuator/health
 ```
 
-웹 로컬 개발에서는 `.env`의 `GABOLLE_CORS_ALLOWED_ORIGINS`에 Vite origin(예: `http://localhost:5173`)을 추가하고, HTTP이므로 `GABOLLE_WEB_REFRESH_COOKIE_SECURE=false`로 둡니다. 웹 로그인/OAuth 요청에는 `X-Client-Platform: WEB`을 보내고 fetch/axios에 `credentials: "include"`를 지정합니다. refresh token은 브라우저 저장소에 저장하지 않고 다음 API를 사용합니다.
+웹 로컬 개발에서는 `.env`의 `GABOLLE_CORS_ALLOWED_ORIGINS`에 화면이 떠 있는 origin이 들어 있어야 하고, HTTP이므로 `GABOLLE_WEB_REFRESH_COOKIE_SECURE=false`로 둡니다. `frontend`의 `npm run web`(`expo start --web`)은 **8081**로 뜨고, 8081이 이미 쓰이고 있으면 **8082**로 밀립니다 — `.env.example`에는 둘 다 들어 있습니다. 웹 로그인/OAuth 요청에는 `X-Client-Platform: WEB`을 보내고 fetch/axios에 `credentials: "include"`를 지정합니다. refresh token은 브라우저 저장소에 저장하지 않고 다음 API를 사용합니다.
 
 로그인 요청에 `deviceId`를 넣어 기기 바인딩을 활성화한 경우 `/web/refresh`에도 같은 값을 `X-Device-Id` 헤더로 전송합니다.
 
@@ -131,6 +131,40 @@ GABOLLE_TEST_DB_USERNAME=gabolle \
 GABOLLE_TEST_DB_PASSWORD=... \
 ./gradlew build
 ```
+
+## 🔴 「안 쓰는 클래스」를 이름으로 세면 안 됩니다 (2026-09-18 실측)
+
+정합성 작업으로 죽은 코드를 찾으면서 **본코드 클래스 833개**를 시험·자원까지
+**1,305개 파일**에 대조했습니다. 결과가 이렇습니다.
+
+```
+자기 파일 말고 어디에도 이름이 안 나오는 클래스   26개
+그중 스프링이 스캔으로 무는 것                    26개   ← 전부
+진짜 죽은 것                                       0개
+```
+
+🔴 **그 26개를 지우면 컨트롤러 6 · 설정 7 · 어댑터와 적재 러너가 사라집니다.**
+스프링이 컴포넌트 스캔으로 물기 때문에 **코드 어디에도 이름이 나오지 않습니다.**
+
+「참조 0건」으로 보이지만 살아 있는 자리는 이런 것들입니다.
+
+| 애너테이션 | 무엇이 걸렸나 |
+|---|---|
+| `@Configuration` | 7 — Auth·Batch·Recommendation·Transit·TripNaming·Assistant·ExchangeRate |
+| `@RestController` | 6 — FacetView·AdminFacetView·Origin·PlaceCandidate·CourseTheme·AppleFormPost |
+| `@Component` | 6 — 적재 러너 다섯 + `PlaceEventScheduleAdapter` |
+| `@Repository` | 3 — `JpaTripInvite`·`JpaTripSeedPlace`·`JpaTripTravelArea` |
+| `@RestControllerAdvice` · `@ConfigurationProperties` | 4 |
+
+같은 이유로 **JPQL 문자열 안의 엔티티 이름**(`DELETE FROM StoryView v ...`)과
+**설정 파일에 적힌 클래스 이름**도 자바 코드에서는 안 보입니다.
+
+**그래서 지우기 전에 애너테이션을 먼저 봅니다.** 이름으로만 훑은 목록은 그대로
+믿으면 안 됩니다. 프론트에서도 같은 종류의 함정이 있었습니다 — 플랫폼 변형
+(`RouteMap.native.tsx`)과 디렉터리 import 가 「참조 0건」으로 나왔습니다.
+
+판정은 언제나 `./gradlew build` 의 **종료 코드**입니다. 위 개수는 **그날 잰 값**이지
+기준이 아닙니다 — 클래스가 늘면 낡습니다.
 
 ## 참고 기준
 

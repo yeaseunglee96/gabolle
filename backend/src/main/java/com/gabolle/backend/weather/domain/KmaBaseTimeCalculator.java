@@ -52,4 +52,38 @@ public final class KmaBaseTimeCalculator {
 		// 오늘 몫이 전부 아직이면(자정~02:09) 전날 23:00 회차를 쓴다.
 		return new KmaBaseTime(today.minusDays(1), ANNOUNCE_TIMES.get(ANNOUNCE_TIMES.size() - 1));
 	}
+
+	/**
+	 * 한 회차 앞 — S15P21E201-1207.
+	 *
+	 * <p>🔴 <b>23시 발표는 오늘을 안 담는다.</b> 다음 날부터다. 그래서 밤 23시 10분이 지나면
+	 * {@link #calculate} 가 고르는 회차에 <b>오늘이 없다.</b> 그런데 <b>20시 발표에는 있고,
+	 * 그것은 이미 받아 둔 상태다</b>(미리 받아 두는 작업이 채우고 캐시가 하루 산다).
+	 *
+	 * <p>이 함수는 그 자료를 <b>찾아가는 길</b>이다. 거슬러 갈 뿐 새로 받지 않는다 —
+	 * 「더 길게 받는다」와 「받아 둔 것을 쓴다」는 다른 일이고 이것은 뒤쪽이다.
+	 *
+	 * <p>하루 첫 회차(02시)면 <b>전날 마지막 회차</b>(23시)로 넘어간다.
+	 *
+	 * @param baseTime 지금 보고 있는 회차
+	 * @return 그 바로 앞 회차
+	 */
+	public static KmaBaseTime previous(KmaBaseTime baseTime) {
+		int index = ANNOUNCE_TIMES.indexOf(baseTime.baseTime());
+		// 🔴 목록에 없는 시각이 들어오면 지어내지 않고 멈춘다. 회차 시각은 기상청이 정한
+		//    여덟 개뿐이고, 그 밖의 값이 왔다는 것은 부르는 쪽이 이미 틀렸다는 뜻이다.
+		if (index < 0) {
+			throw new IllegalArgumentException("기상청 발표 회차가 아닌 시각이다: " + baseTime.baseTime());
+		}
+		if (index > 0) {
+			return new KmaBaseTime(baseTime.baseDate(), ANNOUNCE_TIMES.get(index - 1));
+		}
+		return new KmaBaseTime(baseTime.baseDate().minusDays(1),
+				ANNOUNCE_TIMES.get(ANNOUNCE_TIMES.size() - 1));
+	}
+
+	/** 하루 발표 횟수 — 거슬러 볼 수 있는 한계를 정할 때 쓴다. 캐시가 하루라 그보다 오래된 것은 없다. */
+	public static int announcementsPerDay() {
+		return ANNOUNCE_TIMES.size();
+	}
 }

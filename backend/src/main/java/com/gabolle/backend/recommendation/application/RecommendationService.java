@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -14,7 +15,9 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import com.gabolle.backend.common.privacy.SensitiveDataInPayloadException;
+import com.gabolle.backend.event.application.EventIngestService;
 import com.gabolle.backend.event.application.OutboxAppendCommand;
+import com.gabolle.backend.event.domain.EventType;
 import com.gabolle.backend.event.domain.Producer;
 import com.gabolle.backend.recommendation.adapter.EditorialPickBaseline;
 import com.gabolle.backend.recommendation.adapter.EditorialPickBaselineProvider;
@@ -70,9 +73,17 @@ import com.gabolle.backend.recommendation.domain.RecommendationJob;
  * <p>🔴 컨트롤러는 {@code recommendation.presentation.RecommendationJobController} 에 있다
  * (S15P21E201-192). 이 첫 판이 지킨 것 — {@code data/error/meta.requestId} envelope(API-01),
  * {@code tripId} 소유·참여 관계 검증(FR-SEC-01, {@code TripQueryService} 를 그대로 재사용).
- * 🔴 <b>아직 안 지킨 것</b> — {@code Idempotency-Key}(API-09). 재시도로 같은 요청이 두 번
- * 오면 Job 이 두 개 생긴다. {@code TripRepository.saveWithIdempotency} 와 같은 패턴을
- * 다음 판에 넣는다.
+ *
+ * <p>🔴 <b>정정 (2026-09-15, S15P21E201-967)</b> — 여기 <i>"아직 안 지킨 것 —
+ * {@code Idempotency-Key}(API-09). 재시도로 같은 요청이 두 번 오면 Job 이 두 개 생긴다"</i>
+ * 라고 적혀 있었다. <b>지금은 지킨다.</b> S15P21E201-944 가 넣었다 —
+ * {@code RecommendationJobRunner.enqueue} 가 같은 키·같은 본문이면 있던 Job 을 그대로
+ * 돌려주고, 같은 키를 <b>다른 본문</b>으로 재사용하면 409 를 낸다
+ * ({@code RecommendationJobIdempotencyRepository} 가 표를 맡는다).
+ *
+ * <p>고친 자리가 <b>옆 클래스</b>라 이 줄이 안 지워졌고, 그 뒤 이 주석을 먼저 읽은 사람이
+ * <b>끝난 일을 다시 하려 했다.</b> 낡은 주석은 없는 주석보다 나쁘다 — 읽는 사람이 그것을
+ * 지금의 사실로 믿는다.
  */
 @Service
 @Profile({ "db", "dev" })
@@ -121,12 +132,22 @@ public class RecommendationService {
 	 */
 	private final JobProgressReporter progress;
 
+	/**
+	 * 행동 개인화 동의를 묻는 통로 — S15P21E201-1080.
+	 *
+	 * <p>🔴 {@code ObjectProvider} 인 이유는 이 클래스의 다른 선택적 의존과 같다.
+	 * {@code RecommendationSliceApplication}(추천만 스캔하는 시험 컨텍스트)은 {@code user}
+	 * 패키지를 안 스캔해서 이 빈이 없을 수 있다. 없을 때 어떻게 하는지는
+	 * {@link #collectsBehavior(java.util.UUID)} 에 적었다.
+	 */
+	private final ObjectProvider<EventIngestService> eventIngest;
+
 	public RecommendationService(ObjectProvider<RecommendationEnginePort> enginePort,
 			CandidateAssembler candidateAssembler, RecommendationRecorder recorder,
 			RecommendationProperties properties, Clock clock,
 			ObjectProvider<ItineraryDraftPort> itineraryDraftPort,
 			ObjectProvider<EditorialPickBaselineProvider> editorialPickProvider,
-			JobProgressReporter progress) {
+			JobProgressReporter progress, ObjectProvider<EventIngestService> eventIngest) {
 		this.enginePort = enginePort;
 		this.candidateAssembler = candidateAssembler;
 		this.recorder = recorder;
@@ -135,6 +156,7 @@ public class RecommendationService {
 		this.itineraryDraftPort = itineraryDraftPort;
 		this.editorialPickProvider = editorialPickProvider;
 		this.progress = progress;
+		this.eventIngest = eventIngest;
 	}
 
 	/**
@@ -373,14 +395,20 @@ public class RecommendationService {
 			}
 		}
 
+		// 🔴 S15P21E201-1080 — 여기서 이벤트 목록을 만든다. 이 셋은 recorder 의 같은
+		//    트랜잭션으로 들어가므로, 여기 담긴 것은 Job·후보와 같이 남거나 같이 사라진다.
+		List<OutboxAppendCommand> events = new ArrayList<>();
+		events.add(event);
+		itineraryRemoveEvent(job, command, createdAt).ifPresent(events::add);
+
 		if (draft != null) {
-			this.recorder.recordWithItinerary(job, assembly.candidates(), List.of(event), draft);
+			this.recorder.recordWithItinerary(job, assembly.candidates(), events, draft);
 		}
 		else if (revision != null) {
-			this.recorder.recordWithItineraryRevision(job, assembly.candidates(), List.of(event), revision);
+			this.recorder.recordWithItineraryRevision(job, assembly.candidates(), events, revision);
 		}
 		else {
-			this.recorder.record(job, assembly.candidates(), List.of(event));
+			this.recorder.record(job, assembly.candidates(), events);
 		}
 
 		return new RecommendationResult(job.getRequestId(), job.getJobId(), job.getJobType(), job.getJobStatus(),
@@ -501,7 +529,7 @@ public class RecommendationService {
 	private ItineraryDraftCommand buildDraftCommand(RecommendationJob job, CandidateAssembly assembly) {
 		List<ItineraryDraftCommand.PlannedPlace> places = assembly.returnedItems().stream()
 				.map((p) -> new ItineraryDraftCommand.PlannedPlace(p.placeId(), p.finalRank(),
-						p.reasonCodes(), p.warningCodes()))
+						p.reasonCodes(), p.warningCodes(), p.category()))
 				.toList();
 
 		return new ItineraryDraftCommand(job.getRequestId(), job.getTripId().toString(), job.getUserId().toString(),
@@ -520,7 +548,7 @@ public class RecommendationService {
 			CandidateAssembly assembly) {
 		List<ItineraryDraftCommand.PlannedPlace> pool = assembly.returnedItems().stream()
 				.map((p) -> new ItineraryDraftCommand.PlannedPlace(p.placeId(), p.finalRank(),
-						p.reasonCodes(), p.warningCodes()))
+						p.reasonCodes(), p.warningCodes(), p.category()))
 				.toList();
 		RecommendationCommand.ItineraryEdit edit = command.edit();
 		int dayIndex = edit.dayIndex() == null ? -1 : edit.dayIndex();
@@ -580,6 +608,80 @@ public class RecommendationService {
 	 * 익명 UUID 만 싣는다. 값이 없는 필드는 키를 지우지 않고 {@code null} 로 남긴다 —
 	 * "안 보냈다" 와 "없었다" 는 다른 사실이다.
 	 */
+	/**
+	 * 사용자가 일정에서 뺀 장소를 행동 신호로 남긴다 — S15P21E201-1080.
+	 *
+	 * <h2>🔴 왜 {@code removeItem} 이 아니라 여기인가</h2>
+	 *
+	 * {@code ItineraryRecalculationService.removeItem} 쪽에는 <b>트랜잭션이 없다.</b> 실수가
+	 * 아니라 의도다 — {@code RecommendationJobRunner} 는 {@code jobRepository.save(job)} 가
+	 * <b>완전히 커밋된 뒤에</b> 비동기 워커를 넘겨야 해서 {@code @Transactional} 을 일부러 안
+	 * 단다. 거기서 이벤트를 적으면 {@code recordFromServer} 가 <b>자기 트랜잭션을 새로 열고</b>,
+	 * Job 저장과 이벤트가 각각 따로 커밋된다. {@code OutboxService.append} 의 {@code MANDATORY}
+	 * 는 그 새 트랜잭션으로 <b>충족되므로 예외도 안 난다</b> — 깨진 것이 아무 데도 안 나타난다.
+	 *
+	 * <p>그래서 이미 트랜잭션이 있는 이 자리에서 만든다. {@code RecommendationRecorder} 가
+	 * Job·후보·이벤트를 <b>한 트랜잭션</b>으로 넣는다.
+	 *
+	 * <h2>🔴 그래서 「뺐다」가 아니라 「빠졌다」를 적는다</h2>
+	 *
+	 * 이 이벤트는 요청 시점이 아니라 <b>제외가 실제로 반영되는 트랜잭션</b>에서 난다. Job 이
+	 * 실패하면 이벤트도 없다. 그게 맞다 — 일정이 그대로인데 「이 장소를 거부했다」가 남으면
+	 * 랭커는 일어나지 않은 일을 배운다.
+	 *
+	 * <h2>🔴 개인화를 끈 사람은 여기서 거른다</h2>
+	 *
+	 * 이 경로는 {@code OutboxService} 를 직접 부르므로 {@code EventIngestService} 안의 동의
+	 * 검사를 <b>안 지난다.</b> 그래서 명령을 만들기 전에 직접 묻는다. 판정 규칙을 여기에 다시
+	 * 쓰지 않고 {@code collectsBehaviorOf} 를 부르는 것이 핵심이다 — 두 벌이 되면 한쪽만 바뀐다.
+	 *
+	 * <p>🔴 <b>우회로 자체는 안 막았다.</b> 입구에서 막는 것은 S15P21E201-1096 이다. 그때까지는
+	 * 이 경로로 <b>행동 신호를 하나 더 흘리면 그것도 동의를 안 본다.</b>
+	 *
+	 * <p>🔴 <b>빈이 없으면 안 적는다</b>({@code getIfAvailable() == null}). 동의를 확인할 수
+	 * 없는데 적는 것보다 안 적는 쪽이 맞다 — {@code collectsBehaviorOf} 가 「계정을 못 찾으면
+	 * 안 적는다」로 정한 것과 같은 판단이다. 실패는 조용한 수집이 아니라 빈 자리로 나타나야 한다.
+	 */
+	private Optional<OutboxAppendCommand> itineraryRemoveEvent(RecommendationJob job,
+			RecommendationCommand command, OffsetDateTime occurredAt) {
+
+		if (job.getJobType() != JobType.ITEM_REMOVE) {
+			return Optional.empty();
+		}
+		RecommendationCommand.ItineraryEdit edit = command.edit();
+		if (edit == null || edit.newlyExcludedPlaceIds().isEmpty()) {
+			return Optional.empty();
+		}
+		EventIngestService ingest = this.eventIngest.getIfAvailable();
+		if (ingest == null || !ingest.collectsBehaviorOf(job.getUserId())) {
+			return Optional.empty();
+		}
+
+		Map<String, Object> payload = new LinkedHashMap<>();
+		payload.put("job_id", job.getJobId());
+		payload.put("itinerary_id", job.getItineraryId());
+		payload.put("item_key", edit.itemKey());
+		payload.put("day_index", edit.dayIndex());
+		payload.put("place_ids", edit.newlyExcludedPlaceIds().stream().map(UUID::toString).toList());
+		// 🔴 사용자가 적은 이유를 그대로 싣는다. 없으면 키를 지우지 않고 null 로 둔다 —
+		//    "안 적었다" 와 "물어보지 않았다" 를 나중에 가를 수 있어야 한다.
+		payload.put("operational_reason", edit.operationalReason());
+
+		return Optional.of(new OutboxAppendCommand(
+				UUID.randomUUID(),
+				EventType.ITINERARY_REMOVE.wireName(),
+				this.properties.eventVersion(),
+				EventType.ITINERARY_REMOVE.aggregateType(),
+				job.getTripId(),
+				job.getUserId().toString(),
+				payload,
+				occurredAt,
+				job.getRequestId(),
+				job.getUserId(),
+				job.getTripId(),
+				Producer.SERVER));
+	}
+
 	private OutboxAppendCommand buildRequestedEvent(RecommendationJob job, OffsetDateTime occurredAt) {
 		return buildRequestedEvent(job, occurredAt, null);
 	}

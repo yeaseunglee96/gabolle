@@ -71,6 +71,43 @@ public class WeatherService {
 	}
 
 	public WeatherForecastResult getForecast(WeatherQuery query) {
+		return forecast(query, true);
+	}
+
+	/**
+	 * 캐시에 이미 있는 것만 답한다 — <b>기상청을 부르지 않는다</b> (S15P21E201-993).
+	 *
+	 * <p>🔴 로그인하지 않은 사람이 오는 길이다. 문턱을 없앤 대신 이 경계를 둔다 — 익명
+	 * 출입증은 누구나 발급받을 수 있어서, 이 길에서 벤더를 부르면 좌표를 바꿔가며 우리 키의
+	 * 호출 한도를 태울 수 있다. 미리 받아 두는 작업({@code WeatherPrefetchScheduler})이
+	 * 부산 격자를 채워 두므로, 부산 안이라면 이 길로도 값이 나온다.
+	 *
+	 * @throws ForecastNotPreparedException 아직 안 받아 둔 격자·회차다
+	 */
+	public WeatherForecastResult getForecastFromCache(WeatherQuery query) {
+		return forecast(query, false);
+	}
+
+	/**
+	 * 한 격자의 이번 발표 회차를 받아 캐시에 채운다. 이미 있으면 아무것도 안 한다.
+	 *
+	 * @return 실제로 기상청을 불러 새로 채웠으면 {@code true}
+	 */
+	public boolean prefetch(KmaGridCoordinate grid) {
+		ZonedDateTime nowInSeoul = ZonedDateTime.now(this.clock).withZoneSameInstant(KST);
+		KmaBaseTime baseTime = KmaBaseTimeCalculator.calculate(nowInSeoul.toLocalDateTime());
+		String cacheKey = cacheKey(grid, baseTime);
+		Instant now = Instant.now(this.clock);
+
+		if (this.cacheRepository.findFreshForecastJson(cacheKey, now).isPresent()) {
+			return false;
+		}
+		String rawJson = this.vendor.fetchForecastJson(grid.nx(), grid.ny(), baseTime);
+		this.cacheRepository.save(cacheKey, rawJson, now, now.plus(this.properties.getCacheTtl()));
+		return true;
+	}
+
+	private WeatherForecastResult forecast(WeatherQuery query, boolean mayCallVendor) {
 		KmaGridCoordinate grid = KmaGridConverter.toGrid(query.lat(), query.lon());
 		ZonedDateTime nowInSeoul = ZonedDateTime.now(this.clock).withZoneSameInstant(KST);
 		KmaBaseTime baseTime = KmaBaseTimeCalculator.calculate(nowInSeoul.toLocalDateTime());
@@ -85,6 +122,9 @@ public class WeatherService {
 		if (cacheHit) {
 			rawJson = cached.get();
 		}
+		else if (!mayCallVendor) {
+			throw new ForecastNotPreparedException(grid);
+		}
 		else {
 			// 🔴 실패하면 여기서 던진 WeatherVendorException 이 그대로 위로 올라간다.
 			rawJson = this.vendor.fetchForecastJson(grid.nx(), grid.ny(), baseTime);
@@ -93,11 +133,75 @@ public class WeatherService {
 		}
 
 		List<KmaForecastItem> items = KmaForecastJsonParser.parse(rawJson, this.objectMapper);
-		DailyForecast forecast = KmaForecastAggregator.aggregate(items, query.date())
+		Optional<DailyForecast> forecast = KmaForecastAggregator.aggregate(items, query.date());
+		if (forecast.isPresent()) {
+			return new WeatherForecastResult(grid, forecast.get(), cacheHit);
+		}
+
+		// 🔴 S15P21E201-1207 — 이번 회차에 그 날짜가 없다. 밤 23시 10분 이후의 「오늘」이 그렇다.
+		//    이미 받아 둔 이전 회차에 담겨 있으므로 거기까지 찾아본다.
+		return fromEarlierRound(grid, baseTime, query, now)
 				.orElseThrow(() -> new IllegalArgumentException(
 						"date 가 이 발표 회차의 단기예보 범위를 벗어났습니다: " + query.date()));
+	}
 
-		return new WeatherForecastResult(grid, forecast, cacheHit);
+	/**
+	 * 이전 발표 회차의 <b>캐시</b>에서 그 날짜를 찾는다 — S15P21E201-1207.
+	 *
+	 * <h2>왜 필요한가</h2>
+	 *
+	 * 기상청 <b>23시 발표는 오늘을 안 담는다</b> — 다음 날부터다. 그래서 밤 23시 10분이 지나면
+	 * 「오늘 날씨」를 물었을 때 이번 회차에 없다. 그런데 <b>20시 발표에는 있고, 이미 받아 둔
+	 * 상태다</b>(미리 받아 두는 작업이 부산 격자를 채우고 캐시가 하루 산다).
+	 * <b>자료는 손에 있는데 안 보고 있었다.</b>
+	 *
+	 * <h2>🔴 새로 받지 않는다</h2>
+	 *
+	 * 캐시에 있는 것만 본다. <b>지어내는 것도 아니고 새로 받는 것도 아니다</b> — 같은 날 아까
+	 * 받아 둔 <b>진짜 예보</b>다. 여기서 업체를 부르면 로그인 없이 오는 길이 우리 키의 호출
+	 * 한도를 태울 수 있고, 그 경계는 {@link #getForecastFromCache} 가 이미 정해 뒀다.
+	 *
+	 * <h2>얼마나 거슬러 가나</h2>
+	 *
+	 * <b>하루치 회차</b>까지다. 캐시가 하루라 그보다 오래된 것은 어차피 없고, 있다 해도
+	 * 하루 전 예보로 오늘을 말하는 것은 그 자체로 틀린 일이다.
+	 *
+	 * <p>실제로는 <b>대개 한 걸음</b>이면 끝난다 — 23시 회차에서 못 찾으면 20시 회차에 있다.
+	 * 낮에는 이 메서드에 아예 안 들어온다.
+	 *
+	 * @return 찾았으면 그 예보, 어느 회차에도 없으면 빈 값
+	 */
+	private Optional<WeatherForecastResult> fromEarlierRound(KmaGridCoordinate grid, KmaBaseTime baseTime,
+			WeatherQuery query, Instant now) {
+		KmaBaseTime round = baseTime;
+		for (int step = 0; step < KmaBaseTimeCalculator.announcementsPerDay(); step++) {
+			round = KmaBaseTimeCalculator.previous(round);
+			Optional<String> json = this.cacheRepository.findFreshForecastJson(cacheKey(grid, round), now);
+			if (json.isEmpty()) {
+				continue;
+			}
+			Optional<DailyForecast> found = KmaForecastAggregator
+					.aggregate(KmaForecastJsonParser.parse(json.get(), this.objectMapper), query.date());
+			if (found.isPresent()) {
+				// 캐시로만 답했으므로 cached 는 참이다 — 업체를 부르지 않았다는 뜻 그대로다.
+				return Optional.of(new WeatherForecastResult(grid, found.get(), true));
+			}
+		}
+		return Optional.empty();
+	}
+
+	/**
+	 * 미리 받아 둔 것이 없다 — S15P21E201-993.
+	 *
+	 * <p>부산 밖 좌표이거나, 미리 받아 두는 작업이 아직 그 회차를 못 채웠을 때다. 로그인한
+	 * 사람에게는 이 예외가 나지 않는다(그 길은 기상청을 부른다).
+	 */
+	public static class ForecastNotPreparedException extends RuntimeException {
+
+		public ForecastNotPreparedException(KmaGridCoordinate grid) {
+			super("아직 준비되지 않은 지역이에요. 로그인하면 바로 받아올 수 있어요. (격자 " + grid.nx() + "," + grid.ny() + ")");
+		}
+
 	}
 
 	private String cacheKey(KmaGridCoordinate grid, KmaBaseTime baseTime) {

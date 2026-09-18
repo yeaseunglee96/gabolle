@@ -1,7 +1,10 @@
 package com.gabolle.backend.auth.service;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Stream;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -34,9 +37,32 @@ public class ProfileUpdateService {
 
 	private final CurrentUserService currentUserService;
 
-	public ProfileUpdateService(AppUserRepository userRepository, CurrentUserService currentUserService) {
+	/**
+	 * 프로필 사진 주소로 받아들일 접두사들 (S15P21E201-844).
+	 *
+	 * <p>🔴 <b>아무 주소나 받으면 안 된다.</b> 임의의 외부 주소를 넣을 수 있으면 프로필 사진이 우리가
+	 * 통제하지 못하는 서버를 가리키게 되고, 그 사진이 뜨는 화면을 연 사람들의 접속 기록이 그쪽에
+	 * 남는다. 사진 자체도 언제든 다른 것으로 바뀔 수 있다.
+	 *
+	 * <p>값은 저장소 설정에서 그대로 읽는다. 여기에 주소를 새로 적어 두면 저장소를 옮길 때 두 곳을
+	 * 맞춰야 하고, 한쪽만 고쳐지는 순간 <b>멀쩡히 올린 사진이 거부된다.</b> 로컬 저장소는 경로
+	 * ({@code /api/v1/uploads/images})를, S3 는 절대 주소를 낸다 — 둘 중 지금 켜져 있는 쪽만 값이
+	 * 차므로 빈 값은 목록에서 뺀다.
+	 *
+	 * <p>🔴 목록이 비면 <b>전부 거부</b>한다. 설정이 빠진 채로 통과시키면 그때부터 아무 주소나
+	 * 들어오고, 그 구멍은 아무 검사도 못 잡는다.
+	 */
+	private final List<String> allowedAvatarUrlPrefixes;
+
+	public ProfileUpdateService(AppUserRepository userRepository, CurrentUserService currentUserService,
+			@Value("${gabolle.storage.public-base-path:}") String storagePublicBasePath,
+			@Value("${gabolle.storage.s3.public-base-url:}") String s3PublicBaseUrl) {
 		this.userRepository = userRepository;
 		this.currentUserService = currentUserService;
+		this.allowedAvatarUrlPrefixes = Stream.of(storagePublicBasePath, s3PublicBaseUrl)
+				.filter(prefix -> prefix != null && !prefix.isBlank())
+				.map(String::trim)
+				.toList();
 	}
 
 	@Transactional
@@ -60,8 +86,26 @@ public class ProfileUpdateService {
 		if (request.language() != null) {
 			user.changeLanguage(LanguageNormalizer.normalize(request.language()));
 		}
+		// 빈 문자열은 "뗀다" 다 — 그 판정은 요청 쪽이 소유한다(UpdateProfileRequest.removesAvatar).
+		if (request.removesAvatar()) {
+			user.changeAvatarUrl(null);
+		}
+		else if (request.avatarUrl() != null) {
+			user.changeAvatarUrl(requireAllowedAvatarUrl(request.avatarUrl()));
+		}
 
 		CurrentUserService.CurrentUser currentUser = this.currentUserService.get(userId);
 		return AuthUserResponse.from(currentUser.user(), currentUser.email());
+	}
+
+	/** 우리 업로드 자리에서 나온 주소만 통과시킨다 — 근거는 {@link #allowedAvatarUrlPrefixes} 가 소유한다. */
+	private String requireAllowedAvatarUrl(String avatarUrl) {
+		String trimmed = avatarUrl.trim();
+		boolean allowed = this.allowedAvatarUrlPrefixes.stream().anyMatch(trimmed::startsWith);
+		if (!allowed) {
+			throw new AuthException("AVATAR_URL_NOT_ALLOWED", "프로필 사진은 올린 사진의 주소만 쓸 수 있습니다.",
+					HttpStatus.BAD_REQUEST);
+		}
+		return trimmed;
 	}
 }

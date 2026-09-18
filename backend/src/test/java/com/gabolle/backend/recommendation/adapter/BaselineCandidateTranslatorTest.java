@@ -36,7 +36,7 @@ class BaselineCandidateTranslatorTest {
 	// 🔴 상한이 둘이다 (S15P21E201-724). 앞의 9000 이 채점 대상(장소 조회에 넘어가는 limit),
 	//    뒤의 150 은 채점을 마친 뒤 남길 수다. 이 변환기는 앞의 것만 쓴다.
 	private static final BaselineEngineProperties PROPERTIES = new BaselineEngineProperties(
-			"rule-v1", "feature-v1", "ontology-v1", "policy-v1", 4000, 9000, 150, null);
+			"rule-v1", "feature-v1", "ontology-v1", "policy-v1", 4000, 9000, 150, null, null);
 
 	private final UserPlaceCodeMapRepository codeMapRepository = mock(UserPlaceCodeMapRepository.class);
 

@@ -62,6 +62,29 @@ public interface TripRepository {
      */
     void softDelete(Trip trip);
 
+    /**
+     * 상태 칸만 저장한다 — S15P21E201-964.
+     *
+     * <p>{@link #softDelete(Trip)} 와 같은 모양이다. 부르는 쪽이 도메인 규칙
+     * ({@link Trip#markReady(java.time.Instant)})을 먼저 태우고, 그 결과가 든 여행을
+     * 그대로 넘긴다. 어떤 상태로 갈 수 있는지는 도메인이 정하고 여기서 다시 정하지 않는다.
+     *
+     * <p>{@link #save} 를 쓰지 않는 이유는 그것이 제약·소유자·취향 판까지 함께 받는
+     * 생성용 자리이기 때문이다. 상태 한 칸을 옮기려고 그것들을 다시 만들어 넘기면,
+     * 넘긴 쪽이 의도하지 않은 값으로 딸린 것들을 덮어쓸 수 있다.
+     */
+    void updateStatus(Trip trip);
+
+    /**
+     * 이름 칸만 저장한다 — S15P21E201-1023.
+     *
+     * <p>{@link #updateStatus(Trip)} 와 같은 모양이고 같은 이유다. 부르는 쪽이 도메인 규칙
+     * ({@link Trip#rename(String, java.time.Instant)})을 먼저 태우고, 그 결과가 든 여행을
+     * 그대로 넘긴다. 길이·제어문자 규칙을 여기서 다시 보면 같은 규칙이 두 곳에 생기고,
+     * 언젠가 한쪽만 바뀐다.
+     */
+    void updateTitle(Trip trip);
+
     /** 특정 판. 없으면 비어 있다. */
     Optional<PreferenceSnapshot> findSnapshot(String tripId, int version);
 

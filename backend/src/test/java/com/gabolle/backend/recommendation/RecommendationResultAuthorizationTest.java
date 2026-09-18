@@ -22,6 +22,7 @@ import com.gabolle.backend.recommendation.presentation.RecommendationJobControll
 import com.gabolle.backend.recommendation.presentation.RecommendationJobExceptionHandler;
 import com.gabolle.backend.recommendation.presentation.RecommendationResultController;
 import com.gabolle.backend.recommendation.presentation.dto.RecommendationResultResponse;
+import com.gabolle.backend.trip.application.TripQueryService;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -123,12 +124,73 @@ class RecommendationResultAuthorizationTest {
 		RecommendationJob job = jobOwnedBy(this.ownerId);
 		when(this.runner.findJob(this.jobId.toString())).thenReturn(Optional.of(job));
 		when(this.resultQueryService.buildResult(job)).thenReturn(new RecommendationResultResponse(
-				"COMPLETED", List.of(), null, null, List.of(), null, 0, null, UUID.randomUUID().toString()));
+				"COMPLETED", List.of(), null, null, List.of(), null, 0, null, UUID.randomUUID().toString(),
+				UUID.randomUUID().toString()));
 
 		mockMvc.perform(get("/api/v1/recommendation-jobs/{jobId}", this.jobId)
 						.principal(principal(this.ownerId)))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.data.status").value("COMPLETED"));
+	}
+
+	// ── 여행 번호로 되찾기 (S15P21E201-1001) ──────────────────────────────────
+
+	@Test
+	@DisplayName("🔴 여행별 목록 — 남의 여행은 404. 요청(POST)과 같은 관문을 지난다")
+	void tripJobListHidesOthersTrip() throws Exception {
+		String tripId = UUID.randomUUID().toString();
+		UUID stranger = UUID.randomUUID();
+		when(this.runner.findJobsByTrip(tripId, stranger.toString()))
+				.thenThrow(new TripQueryService.TripNotFoundException(tripId));
+
+		mockMvc.perform(get("/api/v1/trips/{tripId}/recommendation-jobs", tripId)
+						.principal(principal(stranger)))
+				.andExpect(status().isNotFound())
+				.andExpect(jsonPath("$.error.code").value("TRIP_NOT_FOUND"));
+	}
+
+	/**
+	 * 🔴 이 검사가 이 티켓의 핵심이다. 「아직 추천을 안 만들었다」를 404 로 답하면 화면이
+	 * 그것을 「없는 여행」과 구분할 수 없고, 사용자는 추천을 만들 수 있는 여행에서도
+	 * 오류 화면을 본다.
+	 */
+	@Test
+	@DisplayName("🔴 추천을 만든 적 없는 내 여행은 빈 목록이다 — 404 가 아니다")
+	void tripWithoutJobsIsEmptyListNotNotFound() throws Exception {
+		String tripId = UUID.randomUUID().toString();
+		when(this.runner.findJobsByTrip(tripId, this.ownerId.toString())).thenReturn(List.of());
+
+		mockMvc.perform(get("/api/v1/trips/{tripId}/recommendation-jobs", tripId)
+						.principal(principal(this.ownerId)))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.data").isArray())
+				.andExpect(jsonPath("$.data").isEmpty());
+	}
+
+	/**
+	 * 순서를 정하는 것은 조회(DB)이고 컨트롤러는 그것을 <b>그대로</b> 내보낸다. 여기서
+	 * 재는 것은 컨트롤러가 순서를 뒤집거나 다시 정렬하지 않는다는 것이다 — 화면은 맨 앞을
+	 * 「가장 최근」으로 읽는다.
+	 */
+	@Test
+	@DisplayName("여행별 목록 — 주인이 조회하면 받은 순서(최신순) 그대로 나간다")
+	void tripJobListKeepsNewestFirstOrder() throws Exception {
+		String tripId = UUID.randomUUID().toString();
+		UUID newest = UUID.randomUUID();
+		UUID older = UUID.randomUUID();
+		when(this.runner.findJobsByTrip(tripId, this.ownerId.toString()))
+				.thenReturn(List.of(jobWithId(newest, this.ownerId), jobWithId(older, this.ownerId)));
+
+		mockMvc.perform(get("/api/v1/trips/{tripId}/recommendation-jobs", tripId)
+						.principal(principal(this.ownerId)))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.data[0].jobId").value(newest.toString()))
+				.andExpect(jsonPath("$.data[1].jobId").value(older.toString()));
+	}
+
+	private RecommendationJob jobWithId(UUID id, UUID userId) {
+		return RecommendationJob.start(id, UUID.randomUUID(), userId, JobType.ITINERARY_GENERATION,
+				OffsetDateTime.now());
 	}
 
 	@Test

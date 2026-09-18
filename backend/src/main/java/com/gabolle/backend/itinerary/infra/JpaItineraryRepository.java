@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.context.annotation.Profile;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -277,10 +278,12 @@ public class JpaItineraryRepository implements ItineraryRepository {
 	 * (itinerary_id, version DESC)}(V20260903150000)가 이 정렬을 위해 있는 색인이다.
 	 */
 	@Override
-	public List<ItineraryVersion> findVersions(String itineraryId) {
-		return versionJpaRepository.findByItineraryIdOrderByVersionDesc(UUID.fromString(itineraryId)).stream()
+	public VersionPage findVersions(String itineraryId, int page, int size) {
+		Page<ItineraryVersionJpaEntity> found = versionJpaRepository
+				.findByItineraryIdOrderByVersionDesc(UUID.fromString(itineraryId), PageRequest.of(page, size));
+		return new VersionPage(found.getContent().stream()
 				.map(JpaItineraryRepository::toDomain)
-				.toList();
+				.toList(), found.hasNext());
 	}
 
 	@Override
@@ -444,6 +447,7 @@ public class JpaItineraryRepository implements ItineraryRepository {
 				e.ascentM(),
 				e.stairSteps(),
 				e.dataStatus(),
+				e.fareKrw(),
 				toInstant(e.createdAt()));
 	}
 
@@ -462,6 +466,7 @@ public class JpaItineraryRepository implements ItineraryRepository {
 				leg.ascentM(),
 				leg.stairSteps(),
 				leg.dataStatus(),
+				leg.fareKrw(),
 				toOffset(leg.createdAt()));
 	}
 

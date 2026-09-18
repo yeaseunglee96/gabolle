@@ -2,13 +2,17 @@ package com.gabolle.backend.recommendation.adapter;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.List;
+import java.util.Optional;
 import java.util.TreeSet;
 import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Component;
 
 import com.gabolle.backend.place.api.PlaceCandidateRequest;
@@ -16,6 +20,9 @@ import com.gabolle.backend.place.api.PlaceCandidateResponse;
 import com.gabolle.backend.place.domain.UserInputKind;
 import com.gabolle.backend.place.domain.UserPlaceCodeMap;
 import com.gabolle.backend.place.repository.UserPlaceCodeMapRepository;
+import com.gabolle.backend.preference.domain.UserTasteWeight;
+import com.gabolle.backend.preference.repository.UserTasteVectorRepository;
+import com.gabolle.backend.preference.repository.UserTasteWeightRepository;
 import com.gabolle.backend.place.service.PlaceCandidateQueryService;
 import com.gabolle.backend.recommendation.config.BaselineEngineProperties;
 import com.gabolle.backend.recommendation.config.PreferenceAlignmentWeights;
@@ -24,6 +31,8 @@ import com.gabolle.backend.recommendation.domain.FallbackMode;
 import com.gabolle.backend.recommendation.domain.RequestLocation;
 import com.gabolle.backend.trip.domain.PreferenceSnapshot;
 import com.gabolle.backend.trip.domain.Trip;
+import com.gabolle.backend.trip.domain.TravelArea;
+import com.gabolle.backend.trip.domain.TripTravelAreaRepository;
 import com.gabolle.backend.trip.domain.TripConstraint;
 import com.gabolle.backend.trip.domain.TripRepository;
 import com.gabolle.backend.trip.domain.TripSeedPlaceRepository;
@@ -76,14 +85,45 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 
 	private final UserPlaceCodeMapRepository codeMapRepository;
 
+	/**
+	 * 범위 안 후보가 이보다 적으면 출발지 기준으로 채운다 — S15P21E201-980.
+	 *
+	 * <p>하루에 네 곳씩 최대 이레를 배정하므로 스물여덟이 상한이고, 그 두 배쯤은 있어야
+	 * 갈래를 섞어 고를 수 있다. 정확한 근거가 있는 값은 아니고 운영을 보고 조정할 값이다.
+	 */
+	private static final int MIN_AREA_CANDIDATES = 60;
+
 	/** S15P21E201-338 — 복제 씨앗. 보통 여행은 비어 있어 아무 일도 하지 않는다({@link SeedBoost}). */
 	private final TripSeedPlaceRepository seedPlaceRepository;
+
+	/** S15P21E201-980 — 여행 범위. 안 고른 여행은 비어 있어 예전과 똑같이 돈다. */
+	private final Optional<TripTravelAreaRepository> travelAreas;
+
+	/**
+	 * 접힌 취향 벡터를 읽는 통로 — S15P21E201-943.
+	 *
+	 * <h2>🔴 {@code ObjectProvider} 인 이유 — 2026-09-16 실측</h2>
+	 *
+	 * 이 클래스를 띄우는 시험 슬라이스가 <b>아홉</b>인데 그중 {@code preference} 패키지를
+	 * 스캔하는 것은 사실상 없다. 그냥 받으면 그 여덟이 전부 컨텍스트 로딩에서 죽는다 —
+	 * 같은 실수를 오늘 {@code SavedPlaceService} 에서 한 번 했고(장소 검사 145건이 한꺼번에
+	 * 빨개졌다), 그때 배운 것을 여기서는 먼저 확인했다.
+	 *
+	 * <p>없으면 <b>빈 목록</b>으로 본다 — 벡터가 없는 사람과 같은 취급이라 채점이 지금과
+	 * 완전히 같아진다. 이 항은 덧점수라서 빠져도 기존 점수가 안 흔들린다.
+	 */
+	private final ObjectProvider<UserTasteVectorRepository> tasteVectors;
+
+	private final ObjectProvider<UserTasteWeightRepository> tasteWeightRepository;
 
 	public BaselineRecommendationEngine(TripRepository tripRepository,
 			PlaceCandidateQueryService placeCandidateQueryService, BaselineCandidateTranslator translator,
 			BaselineCandidateScorer scorer, BaselineEngineProperties properties,
 			PreferenceAlignmentWeights alignmentWeights, UserPlaceCodeMapRepository codeMapRepository,
-			TripSeedPlaceRepository seedPlaceRepository) {
+			TripSeedPlaceRepository seedPlaceRepository,
+			Optional<TripTravelAreaRepository> travelAreas,
+			ObjectProvider<UserTasteVectorRepository> tasteVectors,
+			ObjectProvider<UserTasteWeightRepository> tasteWeightRepository) {
 		this.tripRepository = tripRepository;
 		this.placeCandidateQueryService = placeCandidateQueryService;
 		this.translator = translator;
@@ -92,6 +132,30 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 		this.alignmentWeights = alignmentWeights;
 		this.codeMapRepository = codeMapRepository;
 		this.seedPlaceRepository = seedPlaceRepository;
+		this.travelAreas = travelAreas;
+		this.tasteVectors = tasteVectors;
+		this.tasteWeightRepository = tasteWeightRepository;
+	}
+
+	/**
+	 * 이 사용자의 <b>현재 판</b> 성분들. 없으면 빈 목록이다 — S15P21E201-943.
+	 *
+	 * <p>질의는 둘이다: 현재 판 하나를 찾고({@code superseded_at IS NULL}), 그 판의 성분을 읽는다.
+	 * <b>후보 수와 무관하게 요청당 두 번</b>이다.
+	 *
+	 * <p>🔴 빈 목록을 돌려주는 경우가 셋이고 <b>셋 다 정상</b>이다 — 빈으로 못 올라온 슬라이스,
+	 * 아직 접힌 적 없는 사용자(지금 대부분), 사용자를 모르는 요청. 셋 다 이 항이 0 이 되고
+	 * 채점은 벡터가 없던 때와 완전히 같다.
+	 */
+	private List<UserTasteWeight> currentTasteWeights(UUID userId) {
+		UserTasteVectorRepository vectors = this.tasteVectors.getIfAvailable();
+		UserTasteWeightRepository weights = this.tasteWeightRepository.getIfAvailable();
+		if (userId == null || vectors == null || weights == null) {
+			return List.of();
+		}
+		return vectors.findByUserIdAndSupersededAtIsNull(userId)
+				.map((vector) -> weights.findByIdTasteVectorId(vector.getTasteVectorId()))
+				.orElseGet(List::of);
 	}
 
 	@Override
@@ -123,7 +187,7 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 		long candidateGenerationStart = System.nanoTime();
 		PlaceCandidateRequest queryRequest =
 				this.translator.translate(location, trip, preferenceSnapshot, constraints);
-		PlaceCandidateResponse response = this.placeCandidateQueryService.findCandidates(queryRequest);
+		PlaceCandidateResponse response = findCandidatesWithinTravelAreas(trip.tripId(), queryRequest);
 		long candidateGenerationMs = elapsedMs(candidateGenerationStart);
 
 		// 대조표는 배치당 한 번만 읽는다 — 후보마다 다시 읽으면 질의 수가 후보 수에 비례한다.
@@ -131,6 +195,11 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 				this.codeMapRepository.findByIdUserInputKindOrderByIdUserInputCodeAsc(UserInputKind.PREFERENCE);
 		List<UserPlaceCodeMap> constraintCodeMap =
 				this.codeMapRepository.findByIdUserInputKindOrderByIdUserInputCodeAsc(UserInputKind.CONSTRAINT);
+
+		// 🔴 S15P21E201-943 — 취향 벡터는 요청당 한 번만 읽는다. 후보마다 읽으면 질의 개수가
+		//    후보 수에 비례하는데, 이 클래스가 대조표를 배치당 한 번만 읽는 이유와 같다.
+		//    벡터가 없는 사람은 빈 목록이고, 그러면 채점이 지금과 완전히 같다.
+		List<UserTasteWeight> tasteWeights = currentTasteWeights(request.userId());
 
 		// 🔴 S15P21E201-827 — 후보가 0곳이면 여기서 멈춘다.
 		//
@@ -162,7 +231,8 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 		List<EngineCandidate> candidates = new ArrayList<>(response.candidates().size());
 		for (PlaceCandidateResponse.Candidate candidate : response.candidates()) {
 			candidates.add(this.scorer.score(candidate, preferenceSnapshot, constraints, this.properties.radiusM(),
-					this.properties.weights(), this.alignmentWeights, preferenceCodeMap, constraintCodeMap));
+					this.properties.weights(), this.alignmentWeights, preferenceCodeMap, constraintCodeMap,
+					tasteWeights, this.properties.tasteVectorMultiplier()));
 		}
 		// 🔴 S15P21E201-338 — 복제 씨앗을 앞세운다. 점수만 올리고 제약 판정은 그대로다(SeedBoost 참고).
 		candidates = SeedBoost.apply(candidates, this.seedPlaceRepository.findByTripId(trip.tripId()));
@@ -241,22 +311,130 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 	 * 이름까지 남긴다 — {@code "unknown"} 을 넣으면 재현할 수 없는 결과가 재현 가능한
 	 * 척하게 된다.
 	 */
-	private String resolveDatasetVersion(List<String> datasetVersions) {
+	// 🔴 package-private 이다 — 같은 꾸러미의 시험이 직접 부른다(S15P21E201-1165).
+	//    이 한 메서드가 "일정을 만들 수 있나" 를 통째로 좌우한 적이 있어서, 바깥 배선을
+	//    다 세우지 않고도 규칙만 따로 겨눌 수 있어야 한다.
+	String resolveDatasetVersion(List<String> datasetVersions) {
 		if (datasetVersions == null || datasetVersions.isEmpty()) {
 			return null;
 		}
 		// TreeSet 이 정렬과 중복 제거를 한 번에 한다.
 		String joined = String.join(",", new TreeSet<>(datasetVersions));
-		if (joined.length() > 100) {
-			// 🔴 VARCHAR(100) 을 넘는다고 조용히 자르지 않는다 — 잘린 값은 그 뒤로 다른
-			// 데이터셋 조합과 겹쳐 보일 수 있다.
-			throw new RecommendationEngineException("ENGINE_DATASET_VERSION_AMBIGUOUS",
-					"datasetVersion 을 이어 붙인 문자열이 100자를 넘는다(" + joined.length() + "자): " + joined);
+		if (joined.length() <= DATASET_VERSION_MAX) {
+			return joined;
 		}
-		return joined;
+		return digestOf(joined);
+	}
+
+	/** {@code dataset_version} 컬럼 폭. 마이그레이션 다섯 곳이 모두 VARCHAR(100) 이다. */
+	private static final int DATASET_VERSION_MAX = 100;
+
+	/** 지문임을 값만 보고도 알 수 있게 붙이는 머리말. */
+	private static final String DATASET_VERSION_DIGEST_PREFIX = "sha256:";
+
+	/**
+	 * 이어 붙인 값이 칸보다 길면 <b>지문</b>으로 줄여서 적는다 — S15P21E201-1165.
+	 *
+	 * <h2>왜 예외를 던지다가 지문으로 바꿨나</h2>
+	 * 예전에는 100자를 넘으면 {@code ENGINE_DATASET_VERSION_AMBIGUOUS} 로 요청을 실패시켰다.
+	 * 조용히 자르지 않겠다는 뜻이었고 <b>그 판단은 옳았다</b> — 잘린 값은 다른 수집분 조합과
+	 * 겹쳐 보인다.
+	 *
+	 * <p>그런데 2026-09-16 에 {@code tourapi-curated-*} 셋이 들어가면서 수집분이 여섯이 되어
+	 * 159자가 됐고, <b>그때부터 일정 생성이 100% 실패했다</b>(2026-09-17 실기기·운영 로그로
+	 * 확인). 자료를 더 넣을수록 확실해지는 실패라 되돌아갈 방향이 아니다.
+	 *
+	 * <p>지문은 자르는 것이 아니다. 길이가 영원히 묶이면서도 <b>조합이 다르면 값도 다르다</b> —
+	 * 원래 주석이 막으려던 "겹쳐 보이는 것" 을 그대로 막는다.
+	 *
+	 * <h2>🔴 잃는 것과, 그것이 괜찮은 이유</h2>
+	 * 값만 보고 어느 수집분들이었는지 읽을 수 없게 된다. 그래도 정보가 사라지지는 않는다 —
+	 * 그 일정에 들어간 장소들의 {@code place.dataset_version} 으로 언제든 되짚을 수 있다.
+	 * 이 칸이 실제로 해야 하는 일은 <b>"이 조합을 다른 조합과 구분하는 안정된 이름"</b> 하나다.
+	 *
+	 * <p>그리고 짧을 때는 예전 그대로 사람이 읽는 값이 들어간다. 지문은 <b>넘칠 때만</b> 쓴다 —
+	 * 이미 쌓인 값들의 뜻이 바뀌지 않는다.
+	 *
+	 * <p>넘쳤다는 사실과 원문은 로그에 남긴다. 조용히 바뀌면 나중에 "이 값은 왜 지문이지" 를
+	 * 아무도 못 되짚는다.
+	 */
+	private String digestOf(String joined) {
+		String hex;
+		try {
+			byte[] bytes = java.security.MessageDigest.getInstance("SHA-256")
+					.digest(joined.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+			StringBuilder sb = new StringBuilder(32);
+			// 16바이트(32자)면 충돌은 현실에서 일어나지 않는다. 머리말까지 39자라 칸에 넉넉히 든다.
+			for (int i = 0; i < 16; i++) {
+				sb.append(String.format("%02x", bytes[i]));
+			}
+			hex = sb.toString();
+		}
+		catch (java.security.NoSuchAlgorithmException e) {
+			// SHA-256 은 모든 JVM 이 갖고 있어야 하는 알고리즘이다. 없으면 환경이 깨진 것이고,
+			// 그것을 추천 실패로 덮지 않는다.
+			throw new IllegalStateException("SHA-256 을 쓸 수 없다 — JVM 설치가 온전하지 않다", e);
+		}
+		String digest = DATASET_VERSION_DIGEST_PREFIX + hex;
+		LOGGER.info("datasetVersion 이 {}자를 넘어 지문으로 적는다({}자). digest={} 원문={}",
+				DATASET_VERSION_MAX, joined.length(), digest, joined);
+		return digest;
 	}
 
 	private static long elapsedMs(long startNanos) {
 		return (System.nanoTime() - startNanos) / 1_000_000L;
 	}
+
+	/**
+	 * 고른 여행 범위 안에서 후보를 고른다 — S15P21E201-980.
+	 *
+	 * <p>범위를 안 골랐으면 지금까지와 똑같다 — 출발지 하나를 중심으로 한 번 훑는다.
+	 *
+	 * <p>골랐으면 <b>지역마다 한 번씩</b> 훑어 합친다. 중심 하나에 반경을 키우는 방법은 쓸 수
+	 * 없다 — 해운대와 남포동을 같이 고르면 그 둘을 다 덮는 원이 부산 전체가 되어, 범위를
+	 * 골랐다는 말이 아무 뜻이 없어진다.
+	 *
+	 * <p>🔴 모자라면 출발지 기준 조회를 더해 채운다. 조건이 후보를 0곳으로 만들어 일정 생성이
+	 * 통째로 실패하는 일이 이미 있었다(큰 짐 조건). 범위 때문에 같은 일이 나면 안 된다 —
+	 * 범위는 "여기 위주로" 이지 "여기가 아니면 여행을 만들지 마라" 가 아니다.
+	 *
+	 * <p>점수 계산은 안 건드린다. 거리는 여전히 출발지 기준이고, 이 자리는 <b>무엇을 채점할
+	 * 것인가</b>만 정한다 — 가중치는 S15P21E201-106·452 의 범위다.
+	 */
+	private PlaceCandidateResponse findCandidatesWithinTravelAreas(String tripId, PlaceCandidateRequest base) {
+		List<TravelArea> areas = this.travelAreas.map((repository) -> repository.findByTripId(tripId))
+				.orElse(List.of());
+		if (areas.isEmpty()) {
+			return this.placeCandidateQueryService.findCandidates(base);
+		}
+
+		Map<String, PlaceCandidateResponse.Candidate> merged = new LinkedHashMap<>();
+		List<String> appliedFilters = new ArrayList<>(List.of("TRAVEL_AREA"));
+		for (TravelArea area : areas) {
+			PlaceCandidateRequest perArea = new PlaceCandidateRequest(
+					new PlaceCandidateRequest.Center(area.lat(), area.lng()), area.radiusM(),
+					base.categories(), base.requiredFeatures(), base.excludedFeatures(),
+					base.openNowAt(), base.minimumCount(), base.limit());
+			for (PlaceCandidateResponse.Candidate candidate
+					: this.placeCandidateQueryService.findCandidates(perArea).candidates()) {
+				merged.putIfAbsent(candidate.placeId().toString(), candidate);
+			}
+		}
+
+		PlaceCandidateResponse fromAreas = this.placeCandidateQueryService.findCandidates(base);
+		if (merged.size() < MIN_AREA_CANDIDATES) {
+			// 🔴 범위 안이 비었다. 출발지 기준 후보로 채우고 그 사실을 남긴다 — 조용히 채우면
+			//    "해운대를 골랐는데 왜 서면이 나오냐" 를 아무도 설명할 수 없다.
+			for (PlaceCandidateResponse.Candidate candidate : fromAreas.candidates()) {
+				merged.putIfAbsent(candidate.placeId().toString(), candidate);
+			}
+			appliedFilters.add("TRAVEL_AREA_WIDENED");
+		}
+
+		List<PlaceCandidateResponse.Candidate> candidates = List.copyOf(merged.values());
+		return new PlaceCandidateResponse(candidates, candidates.size(), fromAreas.minimumRequired(),
+				candidates.size() < fromAreas.minimumRequired(), appliedFilters, fromAreas.notApplied(),
+				fromAreas.scanTruncated(), fromAreas.datasetVersions());
+	}
+
 }
