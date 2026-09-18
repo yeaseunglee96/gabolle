@@ -1,5 +1,7 @@
 # 가볼래 iOS 자동화 시험 — 맥북에서 이것만 따라 하면 된다
 
+> 🔴 **맥이 없고 윈도우 노트북뿐이라면 이 문서는 못 쓴다.** Xcode 도 Appium 의 iOS 드라이버도 macOS 전용이다. 윈도우에서는 [docs/IOS-TEST-ON-WINDOWS.md](../IOS-TEST-ON-WINDOWS.md) 로 간다 — TestFlight 로 아이폰에 깔아 손으로 보는 길이고, 맥이 아예 필요 없다.
+
 읽는 데 5분, 준비 20분, 돌리는 데 5분.
 
 > 이 폴더를 통째로 받은 사람을 위한 안내다. 저장소를 clone 할 필요 없다 —
