@@ -14,9 +14,22 @@ describe('주소에서 지역 뽑기', () => {
     expect(regionFromAddress('')).toBe('');
   });
 
-  it('구·군이 없으면 장소 이름을 대신 쓴다', () => {
-    expect(regionLabelOf({ name: '광안리해수욕장', address: '부산광역시 수영구 광안해변로' })).toBe('수영구');
+  it('🔴 고른 장소 이름을 남긴다 — 구만 남기면 고른 것이 사라진 것처럼 보인다', () => {
+    // 2026-09-18 실기기: 「해운대해수욕장」을 눌렀는데 칸에 「해운대구」만 남았다.
+    expect(regionLabelOf({ name: '광안리해수욕장', address: '부산광역시 수영구 광안해변로' })).toBe('광안리해수욕장 · 수영구');
+  });
+
+  it('구·군을 못 뽑으면 이름만 쓴다', () => {
     expect(regionLabelOf({ name: '어떤 곳', address: '부산광역시' })).toBe('어떤 곳');
+  });
+
+  it('🔴 이름이 이미 구·군이면 두 번 적지 않는다 — 카카오의 지역 결과가 그렇다', () => {
+    expect(regionLabelOf({ name: '해운대구', address: '부산광역시 해운대구' })).toBe('해운대구');
+    expect(regionLabelOf({ name: '부산 해운대구', address: '부산광역시 해운대구' })).toBe('부산 해운대구');
+  });
+
+  it('이름이 비어 있으면 구·군으로 간다', () => {
+    expect(regionLabelOf({ name: '  ', address: '부산광역시 수영구 광안해변로' })).toBe('수영구');
   });
 });
 

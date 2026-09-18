@@ -38,9 +38,25 @@ export function regionFromAddress(address: string): string {
   return found ? found[1] : '';
 }
 
-/** 고른 것을 지역 글자로 바꾼다 — 구·군이 있으면 그것, 없으면 이름. */
+/**
+ * 고른 것을 지역 칸에 적을 글자로 바꾼다.
+ *
+ * 🔴 2026-09-18 — 전에는 **구·군만** 남겼다(`해운대구`). 그래서 사람이 「해운대해수욕장」을
+ *    눌렀는데 칸에는 `해운대구` 만 남았고, **고른 장소가 사라진 것처럼 보였다.**
+ *    (장소 번호 `placeId` 는 그때도 같이 저장되고 있었지만 화면에 그 흔적이 없었다.)
+ *
+ * 🔴 그래서 **고른 이름을 앞에 두고 구·군을 뒤에 붙인다** — `해운대해수욕장 · 해운대구`.
+ *    원래 구만 남기던 이유는 *「전체 주소가 들어가면 카드가 주소로 뒤덮인다」* 였는데,
+ *    그건 **주소**의 문제였지 이름의 문제가 아니었다. 이름은 짧고 사람이 고른 그것이다.
+ *
+ * 🔴 이름이 이미 구·군이면(카카오의 지역 결과가 그렇다) 두 번 적지 않는다.
+ */
 export function regionLabelOf(candidate: RegionCandidate): string {
-  return regionFromAddress(candidate.address) || candidate.name;
+  const district = regionFromAddress(candidate.address);
+  const name = (candidate.name ?? '').trim();
+  if (!name) return district;
+  if (!district || name === district || name.includes(district)) return name;
+  return `${name} · ${district}`;
 }
 
 /**
