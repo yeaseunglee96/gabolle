@@ -16,6 +16,17 @@ export type ItineraryItemDto = {
   // — 이 항목이 가리키는 장소. "다녀오셨나요" 평가를
   // 어느 장소로 보낼지 여기서 얻는다. ItineraryDetailResponse.Item 기준.
   placeId: string;
+  /**
+   * 이 방문지의 좌표 —-1330. 지도에 선을 그리는 재료다.
+   *
+   * 🔴 **모르면 `null` 이지 `0` 이 아니다.** 위도 0·경도 0 은 아프리카 서쪽 바다
+   *    한가운데(기니만)라서, 0 으로 그리면 **지도에 실제로 점이 찍힌다.**
+   *
+   * 🔴 **옛 서버에는 이 칸이 아예 없다.** 그때는 `undefined` 다 — 화면이 장소를 따로
+   *    물어서 채운다(`itineraryStops.ts`).
+   */
+  lat?: number | null;
+  lng?: number | null;
 };
 
 export type ItineraryDto = {
