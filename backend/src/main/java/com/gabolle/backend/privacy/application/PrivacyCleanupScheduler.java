@@ -38,6 +38,10 @@ import com.gabolle.backend.privacy.repository.PrivacyCleanupRunRepository;
  * <h2>실행 기록과 실패 알림</h2>
  *
  * 실행마다 {@link PrivacyCleanupRun} 행을 하나 남긴다 — 성공/실패와 카테고리별 삭제 건수.
+ *
+ * <p>🔴 S15P21E201-1216 이 <b>조회·복사 낱개 치우기를 이 배치에 붙였다.</b> 새 스케줄러를 만들지
+ * 않은 이유는 여기에 실행 기록 행과 실패 알림이 이미 있기 때문이다 — 배치를 하나 더 만들면 그
+ * 둘을 또 만들어야 하고, 둘 중 하나만 실패했을 때 어느 기록을 봐야 하는지가 애매해진다.
  * 실패하면 그 사실을 조용히 넘기지 않는다: ERROR 로그와, {@code alertWebhookUrl} 이 설정돼
  * 있으면 MatterMost 알림까지 함께 보낸다.
  *
@@ -123,11 +127,13 @@ public class PrivacyCleanupScheduler {
 
 		try {
 			PrivacyCleanupResult result = this.cleanupService.cleanup();
-			cleanupRun.succeed(this.clock.instant(), result.sessionsDeleted(), result.refreshTokensDeleted(),
-					result.eventsDeleted());
-			log.info(
-					"event=PRIVACY_CLEANUP_SUCCEEDED sessionsDeleted={} refreshTokensDeleted={} eventsDeleted={}",
-					result.sessionsDeleted(), result.refreshTokensDeleted(), result.eventsDeleted());
+			cleanupRun.succeed(this.clock.instant(), result);
+			// 🔴 S15P21E201-1216 — 로그에 카테고리를 하나 더할 때 이 줄만 고치고 succeed() 를
+			// 잊는(또는 그 반대의) 일이 없게, 건수를 낱낱이 넘기지 않고 결과 객체째 넘긴다.
+			log.info("event=PRIVACY_CLEANUP_SUCCEEDED sessionsDeleted={} refreshTokensDeleted={} "
+					+ "eventsDeleted={} storyViewsDeleted={} storyLinkCopiesDeleted={}",
+					result.sessionsDeleted(), result.refreshTokensDeleted(), result.eventsDeleted(),
+					result.storyViewsDeleted(), result.storyLinkCopiesDeleted());
 		}
 		catch (RuntimeException exception) {
 			cleanupRun.fail(this.clock.instant(), summarize(exception));

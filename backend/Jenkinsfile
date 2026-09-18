@@ -395,6 +395,7 @@ pipeline {
                             -e GABOLLE_DB_PASSWORD="$GABOLLE_DB_PASSWORD" \
                             -e GABOLLE_JWT_SECRET="$GABOLLE_JWT_SECRET" \
                             -e GABOLLE_MAIL_ENABLED=true \
+                            -e GABOLLE_PRIVACY_CLEANUP_ENABLED=true \
                             -e GABOLLE_MAIL_HOST="$GABOLLE_MAIL_HOST" \
                             -e GABOLLE_MAIL_PORT=587 \
                             -e GABOLLE_MAIL_FROM="$GABOLLE_MAIL_FROM" \
@@ -548,6 +549,7 @@ pipeline {
                                     -e GABOLLE_DB_PASSWORD="$GABOLLE_DB_PASSWORD" \
                                     -e GABOLLE_JWT_SECRET="$GABOLLE_JWT_SECRET" \
                                     -e GABOLLE_MAIL_ENABLED=true \
+                                    -e GABOLLE_PRIVACY_CLEANUP_ENABLED=true \
                                     -e GABOLLE_MAIL_HOST="$GABOLLE_MAIL_HOST" \
                                     -e GABOLLE_MAIL_PORT=587 \
                                     -e GABOLLE_MAIL_FROM="$GABOLLE_MAIL_FROM" \
