@@ -615,6 +615,18 @@ class RouteAuthorizationRegistryTest {
 				"재계산 접수는 편집 권한자만. ItineraryRecalculationIntegrationTest");
 		put(m, "POST /api/v1/itineraries/{}/revert", Policy.OWNED,
 				"되돌리기는 편집 권한자만. ItineraryRevertIntegrationTest");
+		// ── 일정 진행 (S15P21E201-1325) ────────────────────────────────────────
+		put(m, "GET /api/v1/itineraries/{}/progress", Policy.OWNED,
+				"참여자면 볼 수 있다 — 동행자가 「지금 어디까지 갔나」를 같이 봐야 한다. ItineraryRunService.get");
+		put(m, "POST /api/v1/itineraries/{}/progress/start", Policy.OWNED,
+				"출발은 편집 권한자만. 보기 전용으로 초대된 사람이 남의 여행을 달리게 만들 수 있으면 안 된다");
+		put(m, "POST /api/v1/itineraries/{}/progress/pause", Policy.OWNED,
+				"중지도 같다. 남이 달리는 일정을 멈추는 것은 편집이다");
+		put(m, "POST /api/v1/itineraries/{}/progress/stops/{}/arrive", Policy.OWNED,
+				"도착 기록은 편집 권한자만 — 그 기록은 여행이 끝난 뒤에도 남는다. ItineraryRunService.arrive");
+		put(m, "POST /api/v1/itineraries/{}/progress/stops/{}/skip", Policy.OWNED,
+				"건너뛰기도 같다. 남의 일정에서 정차지를 빼는 것은 편집이다");
+
 		put(m, "PUT /api/v1/itineraries/{}/items/{}/actual", Policy.OWNED,
 				"그 여행의 편집자만 자기 일정의 방문 시각을 적는다 — 남의 여행은 존재를 감춘 404, VIEWER 는 403. ItineraryActualTimeIntegrationTest (-293)");
 		put(m, "GET /api/v1/itineraries/{}/days/{}/pace", Policy.OWNED,
