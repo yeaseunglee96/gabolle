@@ -58,6 +58,19 @@
  *    없는 것은 **받다 만 것이 아니라 로컬 상태가 깨진 것**이다. 멈추고 무엇을
  *    하라고 말한다 — 대개 `git lfs pull` 한 번이면 끝난다.
  *
+ * ── 🔴 2026-09-18 — 받은 쪽을 보는 데는 키가 필요 없다 (S15P21E201-1264) ───
+ *
+ * 위 검사를 **키 없는 PC 에서는 돌릴 수가 없었다.** `--status` 는 API 를 한 번도 안
+ * 부르는데 키 검사가 그보다 앞에 있어서, 첫 줄에서 종료 코드 2 로 멈췄다.
+ *
+ * 레인마다 작업 폴더를 따로 펼치면서 실제로 걸렸다. `.env` 는 일부러 저장소에 안
+ * 올리는 파일이라 **clone 으로는 안 따라온다.** 그래서 "받아 둔 98쪽이 진짜인가" 를
+ * 보려던 사람이 **정작 그것을 보는 자리에서** 막혔다.
+ *
+ * 🔴 **받은 자료를 보는 일과 새로 받는 일은 다른 일이다.** 키는 뒤엣것에만 필요하다.
+ *    **수집은 여전히 키 없이 안 돈다** — 검사 순서를 바꾼 것이지 느슨하게 한 것이
+ *    아니다. 그 두 가지를 `test/verify.mjs` 가 같이 지킨다.
+ *
  * 실행
  *   node collect/disabled-facility.mjs                # 남은 페이지를 오늘 몫(98)만큼
  *   node collect/disabled-facility.mjs --budget 30    # 30회만
@@ -133,16 +146,22 @@ async function donePages() {
 const totalOf = (xml) => Number((xml.match(/<totalCount>(\d+)</) ?? [])[1])
 
 async function main() {
-  if (!existsSync(ENV)) {
-    log(`🔴 .env 가 없습니다: ${ENV}`)
-    process.exitCode = EXIT.INPUT
-    return
-  }
-  const KEY = (await readFile(ENV, 'utf8')).match(/^DATA_GO_KR_KEY=(.*)$/m)?.[1]?.trim()
-  if (!KEY) {
-    log('🔴 .env 에 DATA_GO_KR_KEY 가 없습니다.')
-    process.exitCode = EXIT.INPUT
-    return
+  // 🔴 키는 **실제로 호출할 때만** 본다 (S15P21E201-1264). 머리말 참고.
+  //    검사를 뒤로 미루지 않고 여기서 건너뛰는 이유는, 진짜 수집이 키 없이 돌 때
+  //    **파일 100장을 다 읽고 나서** 멈추게 되기 때문이다. 실패는 첫 줄에서 말한다.
+  let KEY = null
+  if (!STATUS_ONLY) {
+    if (!existsSync(ENV)) {
+      log(`🔴 .env 가 없습니다: ${ENV}`)
+      process.exitCode = EXIT.INPUT
+      return
+    }
+    KEY = (await readFile(ENV, 'utf8')).match(/^DATA_GO_KR_KEY=(.*)$/m)?.[1]?.trim()
+    if (!KEY) {
+      log('🔴 .env 에 DATA_GO_KR_KEY 가 없습니다.')
+      process.exitCode = EXIT.INPUT
+      return
+    }
   }
 
   await mkdir(OUT_DIR, { recursive: true })

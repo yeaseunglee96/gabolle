@@ -3,7 +3,7 @@
  * bigData 파트 검증. 판정은 종료 코드다 (0 성공 / 그 외 실패).
  * 개수를 여기에 적지 않는다 — 늘릴 때마다 낡는다.
  */
-import { readFile, readdir, access, mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { readFile, readdir, access, mkdtemp, rm, writeFile, mkdir, copyFile } from 'node:fs/promises'
 import { execFileSync } from 'node:child_process'
 import { join, dirname } from 'node:path'
 import { tmpdir } from 'node:os'
@@ -187,6 +187,48 @@ await t('경사 기준선 보정 불변식', async () => {
   if (s.representativeStat?.startsWith('max'))
     throw new Error('대표값이 최댓값이다 — 잡음 표본 하나에 끌려간다')
   ok(`대표값 ${s.representativeStat.split(' ')[0]}`)
+})
+
+await t('받은 쪽 세기는 키 없이 돈다 (S15P21E201-1264)', async () => {
+  // 🔴 --status 는 API 를 한 번도 안 부르는데 키 검사가 앞에 있어서, 키 없는 PC 에서는
+  //    "받아 둔 쪽이 멀쩡한가" 를 볼 수조차 없었다. 레인마다 폴더를 따로 펼치면서
+  //    실제로 걸렸다 — .env 는 저장소에 안 올리므로 clone 으로 안 따라온다.
+  //
+  // 🔴 여기서 지키는 것은 **둘**이다. 상태 보기가 키 없이 돌 것, 그리고 **그래도
+  //    실제 수집은 여전히 멈출 것.** 뒤엣것이 없으면 이 고침은 자물쇠를 푼 것이 된다.
+  const dir = await mkdtemp(join(tmpdir(), 'bigdata-facility-'))
+  try {
+    // .env 가 없는 저장소를 흉내낸다. 진짜 수집기를 그대로 복사해 오므로
+    // 이 검사는 사본이 아니라 **지금 이 순간의 수집기**를 돌린다.
+    await mkdir(join(dir, 'collect'), { recursive: true })
+    await mkdir(join(dir, 'lib'), { recursive: true })
+    await mkdir(join(dir, 'data/raw/facility/pages'), { recursive: true })
+    await copyFile(join(ROOT, 'collect/disabled-facility.mjs'), join(dir, 'collect/disabled-facility.mjs'))
+    await copyFile(join(ROOT, 'lib/log.mjs'), join(dir, 'lib/log.mjs'))
+
+    // 받은 척할 한 쪽. 행이 있어야 "받았다" 로 센다 (S15P21E201-1212)
+    await writeFile(
+      join(dir, 'data/raw/facility/pages/page-0001.xml'),
+      '<?xml version="1.0"?><facInfoList><totalCount>3000</totalCount>' +
+        '<servList><faclNm>시험용</faclNm></servList></facInfoList>',
+    )
+    const script = join(dir, 'collect/disabled-facility.mjs')
+
+    // ① 키가 없어도 받은 쪽 수를 낸다
+    const out = execFileSync(process.execPath, [script, '--status'], { encoding: 'utf8' })
+    if (!/받은 페이지 1개 \/ 전체 3개/.test(out)) throw new Error('--status 출력이 기대와 다르다:\n' + out)
+    if (!/남은 페이지 2개/.test(out)) throw new Error('남은 쪽을 안 세었다:\n' + out)
+    ok('키 없이 --status — 받은 1쪽 / 전체 3쪽, 남은 2쪽')
+
+    // ② 그래도 실제 수집은 멈춘다. 여기가 뚫리면 키 없이 호출을 시도하게 된다
+    let code = 0
+    try { execFileSync(process.execPath, [script], { stdio: 'pipe' }) }
+    catch (e) { code = e.status }
+    if (code !== 2) throw new Error('키 없이 수집이 종료 코드 ' + code + ' 로 끝났다 — 2 여야 한다')
+    ok('키 없이 수집 — 종료 코드 2 로 멈춘다')
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
 })
 
 console.log(failed ? `\n🔴 ${failed}건 실패` : '\n전부 통과')
