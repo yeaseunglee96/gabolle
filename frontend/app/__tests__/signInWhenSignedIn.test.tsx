@@ -27,7 +27,7 @@ function refocus() {
 }
 
 jest.mock('expo-router', () => ({
-  useRouter: () => ({ back: mockBack, replace: mockReplace, push: mockPush, canGoBack: mockCanGoBack }),
+  useRouter: () => ({ back: mockBack, replace: mockReplace, push: mockPush, canGoBack: mockCanGoBack, canDismiss: () => false, dismissAll: () => {} }),
   useLocalSearchParams: () => ({}),
   // 화면이 보이는 동안은 useEffect 와 같이 돌고, 언마운트할 때 cleanup 이 돌게 한다.
   // 「돌아왔다」는 재마운트로 흉내 낼 수 없어(실제로도 재마운트되지 않는다),
@@ -66,14 +66,18 @@ beforeEach(() => {
 });
 
 describe('로그인 화면 — 이미 로그인한 사람은 붙잡지 않는다', () => {
-  it('🔴 로그인한 채로 이 화면에 오면 쌓인 칸을 돌려보낸다', async () => {
+  // 🔴 2026-09-18 정정 — 이 시험은 앞의 고침(router.back())을 못 박고 있었다.
+  //    그 방향이 틀렸다. back() 은 **더 뒤로** 간다 — 사람이 홈에서 뒤로 가기를 눌렀는데
+  //    홈이 아니라 그 앞 화면으로 떨어진다. 이 화면은 **앞으로**(홈으로) 비켜야 한다.
+  //    낡은 기대를 지우지 않고 왜 바뀌었는지와 함께 남긴다.
+  it('🔴 로그인한 채로 이 화면에 오면 홈으로 비킨다 — 뒤로 가 아니라 앞으로다', async () => {
     mockAuth.user = { userId: 'u1', displayName: '이예승' };
     render(<OnboardingPreferencesProvider><SignIn /></OnboardingPreferencesProvider>);
-    await waitFor(() => expect(mockBack).toHaveBeenCalledTimes(1));
-    expect(mockReplace).not.toHaveBeenCalled();
+    await waitFor(() => expect(mockReplace).toHaveBeenCalledWith('/home'));
+    expect(mockBack).not.toHaveBeenCalled();
   });
 
-  it('돌아갈 칸이 없으면 홈으로 바꾼다 — 그래야 다음 뒤로 가기가 앱을 빠져나간다', async () => {
+  it('돌아갈 칸이 없어도 홈으로 바꾼다 — 그래야 다음 뒤로 가기가 앱을 빠져나간다', async () => {
     mockAuth.user = { userId: 'u1', displayName: '이예승' };
     mockCanGoBack.mockReturnValue(false);
     render(<OnboardingPreferencesProvider><SignIn /></OnboardingPreferencesProvider>);
@@ -104,14 +108,14 @@ describe('로그인 화면 — 이미 로그인한 사람은 붙잡지 않는다
     expect(mockBack).not.toHaveBeenCalled();
     // 목적지로 갔다가 뒤로 돌아온다.
     refocus();
-    await waitFor(() => expect(mockBack).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(mockReplace).toHaveBeenCalledWith('/home'));
+    expect(mockBack).not.toHaveBeenCalled();
   });
 
   it('세션을 아직 못 읽었으면(ready=false) 아무 데도 보내지 않는다', async () => {
     mockAuth.user = { userId: 'u1', displayName: '이예승' };
     mockAuth.ready = false;
     render(<OnboardingPreferencesProvider><SignIn /></OnboardingPreferencesProvider>);
-    await waitFor(() => expect(mockCanGoBack).not.toHaveBeenCalled());
     expect(mockBack).not.toHaveBeenCalled();
     expect(mockReplace).not.toHaveBeenCalled();
   });

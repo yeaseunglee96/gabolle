@@ -10,7 +10,7 @@ import { useState } from 'react';
 import { Image, Modal, Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 
 import { useAuth } from '@/auth/AuthProvider';
 import { Button } from '@/components/Button';
@@ -22,6 +22,7 @@ import { Toggle } from '@/components/Toggle';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { isAtLeast } from '@/layout/breakpoints';
+import { ProfileCard } from '@/me/ProfileCard';
 import { InfoRow } from '@/me/InfoRow';
 import { AppLanguageSetting } from '@/me/AppLanguageSetting';
 import { useMyPageCounts } from '@/me/MyPageShell';
@@ -31,7 +32,6 @@ import { PREFERENCE_TOTAL } from '@/preferences/accountPreferences';
 
 export default function Me() {
   const router = useRouter();
-  const { preview } = useLocalSearchParams<{ preview?: string }>();
   const { user, signOut, accessToken } = useAuth();
   const { tx } = useI18n();
   const plan = usePlan();
@@ -46,9 +46,11 @@ export default function Me() {
     void AsyncStorage.getItem(`gabolle:profile-avatar:${user.userId}`).then(setAvatarUri);
   }, [user?.userId]);
 
-  // 🔴 `?preview=ui` 를 그대로 들고 넘어간다. 안 넘기면 로그인 없이 화면만 보는 통로
-  // (me/_layout.tsx 의 ProtectedRoute)가 넓은 화면에서만 끊겨 로그인 화면으로 튕긴다.
-  if (user && isAtLeast(width, 'lg')) return <Redirect href={preview ? `/me/profile?preview=${preview}` : '/me/profile'} />;
+  // 🔴 2026-09-18 (S15P21E201-1237) — **넓은 화면을 다른 화면으로 보내던 것을 없앴다.**
+  //    마이페이지가 폰(메뉴 목록)과 데스크톱(/me/profile 편집 폼)으로 갈라져 있어서,
+  //    같은 일을 두 곳에서 고쳐야 했고 실제로 한쪽만 고쳐진 날이 있었다.
+  //    이제 한 화면이 넓어질 뿐이다. `/me/profile` 은 딥링크로 남는다.
+  const wide = isAtLeast(width, 'lg');
 
   const name = user?.displayName || tx('여행자', 'Traveler');
   const none = tx('아직 없음 ›', 'None yet ›');
@@ -56,18 +58,25 @@ export default function Me() {
   return <View style={styles.shell}><Screen scroll withTabBar>
     <View style={styles.heading}><Eyebrow>{tx('내 계정', 'Account')}</Eyebrow><Text variant="display" weight="bold">{tx('마이페이지', 'My page')}</Text></View>
 
-    <Pressable accessibilityRole="button" onPress={() => user ? router.push('/me/profile') : router.push({ pathname: '/sign-in', params: { returnTo: '/me/profile' } })} style={({ pressed }) => [styles.profile, pressed && styles.pressed]}>
-      <View style={styles.avatar}>
-        {avatarUri
-          ? <Image source={{ uri: avatarUri }} resizeMode="cover" accessibilityLabel={tx('현재 프로필 사진', 'Current profile photo')} style={styles.avatarPhoto} />
-          : <Text variant="title" weight="bold" color={color.text.onAction}>{name.slice(0, 1)}</Text>}
-      </View>
-      <View style={styles.profileCopy}>
-        <Text variant="title" weight="bold">{name}</Text>
-        <Text variant="caption" numberOfLines={1}>{user?.email || tx('로그인 없이 앱을 둘러보는 중이에요', 'Browsing the app without an account')}</Text>
-      </View>
-      <Text variant="caption" weight="bold" color={color.brand.orange}>{tx('프로필 ›', 'Profile ›')}</Text>
-    </Pressable>
+    {/* 🔴 시안의 프로필 카드 (S15P21E201-1237). 전에는 한 줄짜리 띠였고, 넓은 화면에서는
+        이 화면이 아예 안 보였다. 없는 값(한 줄 소개·거주지)은 줄 자체를 안 그린다 —
+        서버에 그 칸이 아직 없다. */}
+    <ProfileCard
+      name={name}
+      email={user?.email ?? null}
+      avatarUri={avatarUri}
+      coverUri={null}
+      bio={null}
+      homeCity={null}
+      wide={wide}
+      counts={[
+        { label: tx('기록', 'Records'), value: storyCount, onPress: () => user && router.push('/me/posts') },
+        { label: tx('팔로워', 'Followers'), value: followerCount, onPress: () => user && router.push(`/user/${user.userId}/followers`) },
+        { label: tx('팔로잉', 'Following'), value: followingCount, onPress: () => user && router.push(`/user/${user.userId}/following`) },
+      ]}
+      onEdit={() => (user ? router.push('/me/profile') : router.push({ pathname: '/sign-in', params: { returnTo: '/me/profile' } }))}
+      tx={tx}
+    />
 
     <Text variant="eyebrow" weight="bold" style={styles.groupLabel}>{tx('내 계정', 'Account')}</Text>
     <View style={styles.group}>
@@ -126,8 +135,8 @@ export default function Me() {
           안쪽 어딘가에만 있으면 사용자는 못 찾고, 못 찾으면 켠 적 없는 사람처럼 취급된다. */}
       <View style={styles.consentRow}>
         <View style={styles.consentCopy}>
-          <Text weight="bold">{tx('행동으로 추천 다듬기', 'Tune recommendations from my activity')}</Text>
-          <Text variant="caption">{tx('저장·제외·일정 수정·체크인 후기를 보고 추천 순서를 바꿔요. 이 선택은 이 기기에 저장돼요.', 'We reorder recommendations using your saves, exclusions, itinerary edits, and check-in reviews. This choice is stored on this device.')}</Text>
+          <Text weight="bold">{tx('맞춤 추천', 'Personalized picks')}</Text>
+          <Text variant="caption">{tx('저장·제외·일정 수정·체크인 후기 같은 활동을 바탕으로 추천을 맞춰요. 이 설정은 이 기기에 저장돼요.', 'We tune your picks using activity like saves, exclusions, itinerary edits, and check-in reviews. This setting is stored on this device.')}</Text>
         </View>
         <Toggle value={behaviorPersonalization} onValueChange={setBehaviorPersonalization} />
       </View>
