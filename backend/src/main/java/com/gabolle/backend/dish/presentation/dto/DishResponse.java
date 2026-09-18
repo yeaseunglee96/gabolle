@@ -52,8 +52,23 @@ public record DishResponse(String name, String description, String descriptionSo
 	/** 그릴 근거가 없다 — 모델이 모르는 음식이라 묘사 자체가 없다. */
 	public static final String IMAGE_NONE = "NONE";
 
+	/**
+	 * 🔴 그림을 <b>지금은</b> 못 만든다 — 그 사람의 그림 한도가 찼다 (S15P21E201-1294).
+	 *
+	 * <p>{@link #IMAGE_FAILED} 와 가른 이유는 <b>다음에 할 일이 다르기 때문</b>이다.
+	 * 실패는 그 음식이 원래 안 되는 것일 수 있지만, 이것은 <b>잠시 뒤 다시 누르면 된다.</b>
+	 * 화면이 그 둘을 같은 문구로 그리면 사용자는 기다리면 될 것을 포기한다.
+	 *
+	 * <p>🔴 <b>이 값이 와도 설명은 함께 온다.</b> 그림 한도가 설명까지 막던 것을 고친 것이
+	 * 이 티켓이다.
+	 */
+	public static final String IMAGE_RATE_LIMITED = "RATE_LIMITED";
+
 	public static DishResponse of(String name, String description, String imageStatus, UUID imageId) {
+		// 그림이 없거나 아직 못 만든 상태에서는 «만들어진 그림» 이라는 딱지도 붙이지 않는다 —
+		// 붙일 그림이 없는데 출처만 있는 것은 아무 뜻이 없다.
+		boolean noImageYet = IMAGE_NONE.equals(imageStatus) || IMAGE_RATE_LIMITED.equals(imageStatus);
 		return new DishResponse(name, description, MODEL_KNOWLEDGE, imageStatus, imageId,
-				IMAGE_NONE.equals(imageStatus) ? null : GENERATED);
+				noImageYet ? null : GENERATED);
 	}
 }

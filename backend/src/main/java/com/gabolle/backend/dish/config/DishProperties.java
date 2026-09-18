@@ -103,10 +103,19 @@ public class DishProperties {
 	private int maxDescriptionLength = 300;
 
 	/** 한 사람이 하루에 그림을 새로 만들 수 있는 횟수. 이미 만든 것을 꺼내 쓰는 것은 안 센다. */
-	private int imageDailyLimit = 15;
+	private int imageDailyLimit = 25;
 
-	/** 한 사람이 1분에 그림을 새로 만들 수 있는 횟수. */
-	private int imagePerMinuteLimit = 2;
+	/**
+	 * 한 사람이 1분에 그림을 새로 만들 수 있는 횟수.
+	 *
+	 * <p>🔴 <b>2에서 4로 올렸다 — S15P21E201-1294.</b> 메뉴 한 장에서 궁금한 음식을 연달아
+	 * 세 개 누르면 세 번째가 막혔다(사용자 시험에서 실제로 그랬다). 처음 보는 음식을 연달아
+	 * 누르는 것은 <b>이상한 사용이 아니라 이 기능의 본래 쓰임</b>이다.
+	 *
+	 * <p>값이 나가는 것은 맞지만 같은 음식은 이름으로 모아 <b>한 번만</b> 만든다. 늘어나는
+	 * 것은 «처음 보는 음식을 빨리 여러 개 누르는» 경우뿐이다.
+	 */
+	private int imagePerMinuteLimit = 4;
 
 	public String getApiKey() {
 		return this.apiKey;

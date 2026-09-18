@@ -380,13 +380,16 @@ class DishControllerTest {
 		when(this.describer.describe(any(), any())).thenAnswer((call) -> new GmsDishDescriber.Described(
 				"A dish.", "a dish on a plate " + UUID.randomUUID()));
 
-		// 분 한도가 2 다. 서로 다른 음식이라 셋째에서 걸린다.
-		ask("돼지국밥", "en").andExpect(status().isOk());
-		ask("밀면", "en").andExpect(status().isOk());
+		// 분 한도가 4 다. 서로 다른 음식 넷까지는 통과한다.
+		for (String dish : List.of("돼지국밥", "밀면", "씨앗호떡", "해물파전")) {
+			ask(dish, "en").andExpect(status().isOk());
+		}
 
-		ask("씨앗호떡", "en")
-				.andExpect(status().isTooManyRequests())
-				.andExpect(jsonPath("$.error.code").value("DISH_IMAGE_RATE_LIMITED"));
+		// 🔴 다섯째는 429 가 아니라 200 + RATE_LIMITED 다 — 설명은 살아 있어야 하므로
+		//    요청 자체를 실패로 만들지 않는다 (S15P21E201-1294).
+		ask("잡채밥", "en")
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.data.imageStatus").value("RATE_LIMITED"));
 	}
 
 	/** 🔴 저장해 둔 그림을 꺼내 쓰는 것은 바깥을 안 부르므로 한도를 안 깎는다. */
@@ -401,6 +404,79 @@ class DishControllerTest {
 			ask("밀면", "en").andExpect(status().isOk());
 		}
 		verify(this.worker, times(1)).paint(any(), any());
+	}
+
+	// ── 🔴 그림 한도가 설명까지 막지 않는다 (S15P21E201-1294) ────────────────
+
+	/**
+	 * 🔴 사용자 시험에서 음식 셋이 설명 자리에 <b>한도 안내만</b> 띄운 채 있었다
+	 * (2026-09-19, 번체 중국어). 설명은 이미 받아 둔 뒤였는데 그림 차례의 예외가
+	 * 요청 전체를 끝내면서 함께 버려졌다.
+	 *
+	 * <p>메뉴판 읽기 한도와 그림 한도를 <b>표까지 갈라 놓은 이유</b>가 「그림이 다른 것을
+	 * 막으면 안 된다」였는데, 같은 잘못을 이 API 안에서 저지르고 있었다.
+	 */
+	@Test
+	@DisplayName("🔴 그림 한도에 걸려도 설명은 그대로 나간다")
+	void theImageQuotaDoesNotSwallowTheDescription() throws Exception {
+		when(this.describer.describe(any(), any())).thenAnswer((call) -> new GmsDishDescriber.Described(
+				"A dish.", "a dish on a plate " + UUID.randomUUID()));
+
+		// 분 한도가 4 다. 서로 다른 음식 넷까지는 통과하고 다섯째에서 걸린다.
+		for (String dish : List.of("돼지국밥", "밀면", "씨앗호떡", "해물파전")) {
+			ask(dish, "en").andExpect(status().isOk());
+		}
+
+		ask("잡채밥", "en")
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.data.description").value("A dish."))
+				.andExpect(jsonPath("$.data.imageStatus").value("RATE_LIMITED"))
+				// 붙일 그림이 없는데 「만들어진 그림」이라는 딱지만 남기지 않는다
+				.andExpect(jsonPath("$.data.imageSource").doesNotExist());
+	}
+
+	/**
+	 * 🔴 「지금은 못 만든다」와 「못 만들었다」는 <b>다음에 할 일이 다르다.</b> 앞은 잠시 뒤
+	 * 다시 누르면 되고 뒤는 아니다. 한 값으로 뭉개면 화면이 기다리면 될 것을 포기하게 만든다.
+	 */
+	@Test
+	@DisplayName("🔴 한도로 못 만든 것과 실패한 것을 다른 값으로 가른다")
+	void rateLimitedIsNotTheSameAsFailed() {
+		assertThat(DishResponse.IMAGE_RATE_LIMITED).isNotEqualTo(DishResponse.IMAGE_FAILED);
+		assertThat(DishResponse.IMAGE_RATE_LIMITED).isNotEqualTo(DishResponse.IMAGE_NONE);
+	}
+
+	// ── 🔴 목표 언어로 못 받은 설명은 저장하지 않는다 (S15P21E201-1294) ──────
+
+	/**
+	 * 🔴 겉보기에는 빈 설명과 같지만 뜻이 다르다. 「모델이 모르는 음식」은 저장해 두면
+	 * 다음에 안 물어봐도 되지만, <b>언어가 틀려 버린 답</b>을 저장하면 그 음식·그 언어에
+	 * 잘못된 결과가 <b>영원히 굳는다</b> — 저장해 두고 다시 쓰는 구조라 더 나쁘다.
+	 */
+	@Test
+	@DisplayName("🔴 언어가 틀려 버린 설명은 저장하지 않는다 — 다음에 다시 물어본다")
+	void aLanguageRejectedDescriptionIsNotRemembered() throws Exception {
+		when(this.describer.describe(any(), any())).thenReturn(GmsDishDescriber.Described.rejected());
+
+		ask("닭한마리", "ja").andExpect(status().isOk())
+				.andExpect(jsonPath("$.data.description").value(""));
+		ask("닭한마리", "ja").andExpect(status().isOk());
+
+		// 저장했다면 두 번째는 바깥을 안 불렀을 것이다
+		verify(this.describer, times(2)).describe(any(), any());
+	}
+
+	/** 「모델이 모르는 음식」은 반대로 저장한다 — 다시 물어봐야 같은 답이다. */
+	@Test
+	@DisplayName("모델이 모르는 음식은 저장해 둔다 — 다시 안 물어본다")
+	void anUnknownDishIsRemembered() throws Exception {
+		when(this.describer.describe(any(), any()))
+				.thenReturn(new GmsDishDescriber.Described("", ""));
+
+		ask("어쩌구저쩌구", "en").andExpect(status().isOk());
+		ask("어쩌구저쩌구", "en").andExpect(status().isOk());
+
+		verify(this.describer, times(1)).describe(any(), any());
 	}
 
 	// ── 설정이 없을 때 ───────────────────────────────────────────────────────

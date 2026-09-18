@@ -118,7 +118,7 @@ public class DishService {
 		String languageKey = (language == null) ? "" : language;
 		GmsDishDescriber.Described described = describedFor(nameKey, languageKey, name);
 
-		ImageState image = imageStateFor(userId, nameKey, described);
+		ImageState image = imageStateOrRateLimited(userId, nameKey, described);
 		return DishResponse.of(name, described.description(), image.status(), image.imageId());
 	}
 
@@ -131,6 +131,13 @@ public class DishService {
 		}
 
 		GmsDishDescriber.Described described = this.describer.describe(name, languageKey);
+		if (described.languageRejected()) {
+			// 🔴 저장하지 않는다. 겉보기에는 빈 설명과 같지만 뜻이 다르다 — 「모델이 모르는
+			//    음식」은 저장해 두면 다음에 안 물어봐도 되지만, 이것은 저장하는 순간 그
+			//    음식·그 언어에 <b>잘못된 결과가 영원히 굳는다.</b> 다음 사람이 누르면
+			//    다시 물어보게 둔다.
+			return described;
+		}
 		try {
 			this.descriptions.save(DishDescription.of(UUID.randomUUID(), nameKey, languageKey,
 					described.description(), described.imagePrompt(), OffsetDateTime.now(this.clock)));
@@ -140,6 +147,26 @@ public class DishService {
 			// 그대로 쓴다 — 굳이 다시 읽지 않는다.
 		}
 		return described;
+	}
+
+	/**
+	 * 🔴 그림 한도는 <b>그림만</b> 막는다 — S15P21E201-1294.
+	 *
+	 * <p>예전에는 한도 예외가 여기를 그대로 지나 요청 전체를 끝냈다. 그러면 <b>이미 받아
+	 * 둔 설명까지 버려진다.</b> 사용자 화면에서 음식 셋이 설명 자리에 한도 안내만 띄운 채
+	 * 있었다(2026-09-19 사용자 시험).
+	 *
+	 * <p>메뉴판 읽기 한도와 그림 한도를 <b>표까지 갈라 놓은 이유</b>가 「그림이 다른 것을
+	 * 막으면 안 된다」였는데, 같은 잘못을 이 API 안에서 저지르고 있었다.
+	 */
+	private ImageState imageStateOrRateLimited(UUID userId, String nameKey,
+			GmsDishDescriber.Described described) {
+		try {
+			return imageStateFor(userId, nameKey, described);
+		}
+		catch (DishImageRateLimiter.TooManyDishImagesException exception) {
+			return new ImageState(DishResponse.IMAGE_RATE_LIMITED, null);
+		}
 	}
 
 	/**
