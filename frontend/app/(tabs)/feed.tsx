@@ -2,6 +2,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Animated, Easing, Image, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import Svg, { Path, Rect } from 'react-native-svg';
 import { useRouter } from 'expo-router';
 
 import { useAuth } from '@/auth/AuthProvider';
@@ -27,6 +28,7 @@ import { shouldPromptSignIn } from '@/social/signInPrompt';
 import { applyReaction, nextReaction, StoryReactionRow, storyReactionStyles, storyReactionTouchSlop } from '@/social/StoryReactionRow';
 import { SignInPromptModal } from '@/social/SignInPromptModal';
 import { useStoryImages } from '@/social/useStoryImages';
+import { useStoryVideo } from '@/social/useStoryVideo';
 
 // 열쇠는 src/social/stories.ts 로 옮겼다 — 글쓰기 화면도 같은 것을 써야 해서다
 // 이름은 그대로 둬서 아래 쓰는 곳들을 건드리지 않는다.
@@ -195,6 +197,17 @@ function StoryCard({ story, compact, showUnfollow, unfollowBusy, saved, savingSt
 /** placesInFeed 를 지웠다 */
 
 /** 피드 맨 위에서 바로 쓰는 글쓰기 카드 — 데스크톱 폭(1024+) 전용. */
+/** 동영상 아이콘 — 시안의 인라인 SVG 를 그대로 옮겼다(24 격자, 굵기 2). */
+function VideoIcon({ tint }: { tint: string }) {
+  return (
+    // fill 을 안 주면 react-native-svg 가 검게 채운다 — 선만 있는 그림이라 none 이 필요하다.
+    <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
+      <Rect x={3} y={6} width={13} height={12} rx={2} stroke={tint} strokeWidth={2} />
+      <Path d="M16 10l5-3v10l-5-3" stroke={tint} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+    </Svg>
+  );
+}
+
 function InlineCompose({ onPosted }: { onPosted: () => void }) {
   const { tx } = useI18n();
   const { accessToken } = useAuth();
@@ -207,9 +220,11 @@ function InlineCompose({ onPosted }: { onPosted: () => void }) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { images, addImage, retryImage, removeImage, anyUploading, uploadedUrls, canAddMore, clearImages } = useStoryImages(accessToken, tx);
+  const { video, addVideo, removeVideo, uploading: videoUploading, uploadedUrl: videoUrl, canAdd: canAddVideo, clearVideo } = useStoryVideo(accessToken, tx);
 
   const bodyValid = body.trim().length >= 1 && body.trim().length <= BODY_MAX;
-  const canPost = bodyValid && !anyUploading && !submitting;
+  // 사진이든 동영상이든 올라가는 중이면 안 보낸다 — 주소가 아직 없어서 빠진다.
+  const canPost = bodyValid && !anyUploading && !videoUploading && !submitting;
 
   const post = async () => {
     if (!canPost) return;
@@ -223,11 +238,14 @@ function InlineCompose({ onPosted }: { onPosted: () => void }) {
       // 없으므로(regionSearch.ts) 저장하면 안 되는 것이 여기로 흘러들 수 없다.
       placeId,
       visibility,
+      // 🔴 올라간 것만 붙인다. 실패한 동영상은 주소가 없어서 여기로 안 온다 —
+      //    사진이 같은 규칙이다.
+      videoUrl: videoUrl ?? undefined,
       accessToken,
     });
     setSubmitting(false);
     if (outcome.state !== 'success') { setError(outcome.message); return; }
-    setBody(''); setRegion(''); setPlaceId(undefined); setRegionOpen(false); clearImages();
+    setBody(''); setRegion(''); setPlaceId(undefined); setRegionOpen(false); clearImages(); clearVideo();
     onPosted();
   };
 
@@ -299,6 +317,27 @@ function InlineCompose({ onPosted }: { onPosted: () => void }) {
         <Image source={require('../../assets/icons/common/camera.png')} resizeMode="contain" accessibilityLabel="" style={styles.toolIcon} />
         <Text variant="body" color={color.text.body}>{tx(`사진 ${images.length}/3`, `Photos ${images.length}/3`)}</Text>
       </Pressable>
+      {/* 🔴 동영상은 사진 세 장 자리를 먹지 않는다 — 서버가 따로 보관한다. 그래서
+          「사진 2/3 · 동영상 1/1」처럼 따로 센다 (시안 03).
+
+          🔴 웹에서는 안 그린다. 줄이는 것이 기기 기능이라 웹에서는 원본이 그대로 올라가고,
+             「웹에서도 동영상을 받을 것인가」는 아직 사람이 안 정했다. 안 정한 것을
+             열어 두는 것보다 안 보이는 쪽이 낫다 — 정해지면 이 줄만 지운다. */}
+      {Platform.OS === 'web' ? null : <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={video ? tx('동영상 빼기', 'Remove video') : tx('동영상 추가', 'Add video')}
+        accessibilityState={{ busy: videoUploading }}
+        disabled={videoUploading}
+        onPress={() => (video ? removeVideo() : void addVideo())}
+        style={[styles.toolButton, videoUploading && styles.busy]}
+      >
+        <VideoIcon tint={color.brand.navy} />
+        <Text variant="body" color={color.text.body}>
+          {videoUploading
+            ? tx('동영상 올리는 중…', 'Uploading video…')
+            : tx(`동영상 ${videoUrl ? 1 : 0}/1`, `Video ${videoUrl ? 1 : 0}/1`)}
+        </Text>
+      </Pressable>}
       <Pressable accessibilityRole="button" accessibilityLabel={tx('지역 적기', 'Add a region')} accessibilityState={{ expanded: regionOpen }} onPress={() => setRegionOpen((open) => !open)} style={[styles.toolButton, regionOpen && styles.toolButtonOn]}>
         <Image source={require('../../assets/icons/common/pin.png')} resizeMode="contain" accessibilityLabel="" style={styles.toolIcon} />
         <Text variant="body" color={color.text.body}>{region.trim() || tx('지역', 'Region')}</Text>
@@ -310,6 +349,8 @@ function InlineCompose({ onPosted }: { onPosted: () => void }) {
       <Button label={submitting ? tx('올리는 중…', 'Posting…') : tx('게시', 'Post')} disabled={!canPost} onPress={() => void post()} containerStyle={styles.composePost} />
     </View>
 
+    {/* 동영상이 실패하면 이유를 말한다 — 올라간 것만 글에 붙고, 실패한 것은 안 붙는다. */}
+    {video?.error ? <Text variant="caption" color={color.state.danger}>{video.error}</Text> : null}
     {error ? <Text variant="caption" color={color.state.danger}>{error}</Text> : null}
   </View>;
 }
