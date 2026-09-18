@@ -11,9 +11,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Text } from '@/components/Text';
 import { GabolleMascot } from '@/components/DongbaekMascot';
-import { HeroStories, MyTripCard, PlacePicks, WeatherLine } from '@/home/HomeBlocks';
+import { MyTripCard, PlaceRow, StoryRow, WeatherLine } from '@/home/HomeBlocks';
 import { useHomeData } from '@/home/useHomeData';
-import { color, radius, spacing } from '@/design/tokens';
+import { useSavedPlaces } from '@/home/useSavedPlaces';
+import { color, desktopGutter, radius, spacing } from '@/design/tokens';
 import { LANGUAGE_OPTIONS, needsTranslationNotice, type LanguageOption } from '@/i18n/languages';
 import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
@@ -64,6 +65,13 @@ export default function Welcome() {
   // 홈이 쓰는 값(기록·갈래·날씨·장소·내 여행)을 한곳에서 읽는다. 폰 분기에서도 훅 순서가
   // 바뀌면 안 되므로 조건 없이 위에서 부른다 — 폰에서는 그린 것이 없어 값만 놀고 끝난다.
   const home = useHomeData(isDesktop);
+  // 하트는 화면이 한 번 쥐고 줄 둘에 내려 준다 — 줄마다 따로 쥐면 같은 장소가
+  // 두 줄에 있을 때 한쪽만 켜진다.
+  const saved = useSavedPlaces(accessToken, 'home-desktop');
+  const onToggleLike = (placeId: string) => {
+    // 로그인 안 한 사람도 기기에 저장된다 — 로그인으로 밀어내지 않는다.
+    saved.toggle(placeId);
+  };
 
   const chooseLanguage = (next: LanguageCode) => {
     setPreferences(next, mobility);
@@ -177,20 +185,27 @@ export default function Welcome() {
       </View>
     </View>
 
-    {/* 시안의 내용 줄 — 전폭으로 쌓는다. 히어로 오른쪽에 끼워 넣지 않는다.
+    {/* 시안 design_handoff_home_airbnb_rows — 줄을 전폭으로 쌓는다. 본문 폭 1200 을 버리고
+        좌우는 상단 바와 같은 40 이다. 카드는 화면 가장자리까지 흘러간다.
         로그인 안 해도 남의 기록이 보인다 (진미리).
     */}
-    <View style={styles.rows}>
-      <HeroStories stories={home.stories} chips={home.chips} />
-    </View>
+    <StoryRow stories={home.stories} width={width} />
 
-    {/* 두 블록이 다 비면(장소를 못 받았고 로그인도 안 했으면) 구역을 통째로 접는다
-        안 그러면 아무것도 없는 여백 띠만 남아 화면이 고장난 것처럼 보인다.
-    */}
-    {home.places.length > 0 || user ? (
+    {home.facetRows.map((row) => (
+      <PlaceRow key={row.facetKey} row={row} width={width} likedIds={saved.likedIds} onToggleLike={onToggleLike} />
+    ))}
+
+    {/* 하트를 누른 결과는 말로 한 번 알린다 — 서버에 못 보냈으면 그것도 사실대로. */}
+    {saved.feedback ? (
+      <View accessibilityLiveRegion="polite" style={styles.savedFeedback}>
+        <Text variant="caption" color={color.text.body}>{saved.feedback}</Text>
+      </View>
+    ) : null}
+
+    {/* 로그인 안 했으면 내 여행 자리를 통째로 접는다 — 빈 여백 띠만 남으면 고장으로 보인다. */}
+    {user ? (
       <View style={styles.lowerSection}>
-        <PlacePicks places={home.places} />
-        <MyTripCard trip={home.trip} signedIn={Boolean(user)} loaded={home.tripsLoaded} />
+        <MyTripCard trip={home.trip} signedIn loaded={home.tripsLoaded} />
       </View>
     ) : null}
   </ScrollView>
@@ -255,15 +270,19 @@ const styles = StyleSheet.create({
   // 남는 공간이 없을 때는 아무 일도 안 한다 — 그래서 로그아웃 화면은 지금과 똑같다.
   // 「특별한 기능」 카드 셋이 있던 자리다. 로그인해도 내용이 안 바뀌는 소개였고, 그 자리에
   // 장소와 내 여행이 들어왔다.
-  lowerSection: { gap: 40, paddingHorizontal: 80, paddingTop: 8, paddingBottom: 64, maxWidth: 1200, width: '100%', alignSelf: 'center' },
+  // 줄 배치로 바뀌면서 maxWidth 1200 과 좌우 80 을 버렸다 — 줄은 화면 폭을 다 쓰고
+  // 좌우는 상단 바와 같은 40(desktopGutter)이다.
+  lowerSection: { gap: desktopGutter, paddingHorizontal: desktopGutter, paddingTop: desktopGutter, paddingBottom: 64, width: '100%' },
+  savedFeedback: { paddingHorizontal: desktopGutter, paddingTop: spacing[3] },
   // 시안 p0 의 머리 — 아이보리 바탕에 가운데 정렬. 본문 폭은 1200 이다.
-  headerSection: { width: '100%', backgroundColor: color.brand.ivory, paddingTop: 56, paddingBottom: 32, paddingHorizontal: 40, alignItems: 'center' },
+  // 시안: 히어로는 그대로 두고 아래에 경계선만 더한다 — 줄 배치가 시작되는 자리를
+  // 한 줄로 알린다. 없으면 히어로와 첫 줄이 같은 덩어리로 읽힌다.
+  headerSection: { width: '100%', backgroundColor: color.brand.ivory, paddingTop: 56, paddingBottom: 32, paddingHorizontal: desktopGutter, alignItems: 'center', borderBottomWidth: 1, borderBottomColor: color.surface.border },
   headerInner: { width: '100%', maxWidth: 1200, alignItems: 'center' },
   headerTitle: { textAlign: 'center' },
   startBar: { width: '100%', maxWidth: 900, alignItems: 'center' },
   headerSubtitle: { marginTop: spacing[2], marginBottom: spacing[6], textAlign: 'center' },
   headerMeta: { marginTop: spacing[6], gap: spacing[3], alignItems: 'center' },
-  rows: { width: '100%', maxWidth: 1200, alignSelf: 'center', paddingHorizontal: 80, paddingTop: 24 },
   webAssistantButton: { position: 'absolute', right: spacing[8], bottom: spacing[8], minWidth: 64, minHeight: 64, flexDirection: 'row', alignItems: 'center', zIndex: 20 },
   webAssistantLabel: { minWidth: 210, gap: spacing[1], marginRight: -spacing[3], paddingLeft: spacing[6], paddingRight: spacing[8], paddingVertical: spacing[3], borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.full, backgroundColor: color.surface.card, shadowColor: color.brand.navy, shadowOpacity: 0.16, shadowRadius: 12, shadowOffset: { width: 0, height: 5 }, elevation: 5 },
   webAssistantMascot: { width: 84, height: 84 },

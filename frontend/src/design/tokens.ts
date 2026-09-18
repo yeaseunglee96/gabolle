@@ -130,6 +130,15 @@ export const spacing = {
 /** 화면 좌우 여백 — 4px 그리드에 맞춘 24 */
 export const gutter = 24;
 
+/**
+ * 데스크톱 좌우 여백 — 상단 바(TopNav)와 같은 40.
+ *
+ * spacing 에 40 이 없어서 따로 둔다. 4px 그리드에는 맞지만 spacing 은 「요소 사이 간격」의
+ * 눈금이고 이것은 「화면 가장자리까지의 거리」다. 같은 표에 섞으면 요소 사이에도 40 이
+ * 쓰이기 시작한다. 그래서 gutter 와 나란히 둔다.
+ */
+export const desktopGutter = 40;
+
 export type TypeToken = keyof typeof type;
 export type RadiusToken = keyof typeof radius;
 export type SpacingToken = keyof typeof spacing;

@@ -14,11 +14,14 @@ import { useI18n } from '@/i18n';
 import { markdownToPlain } from '@/social/markdown';
 import { useAuth } from '@/auth/AuthProvider';
 import { resolveHomeTripDestination } from './tripNavigation';
-import { localFacetLabel, type FacetKeyEntry } from '@/discovery/localExplore';
-import type { HomePlaceItem } from './useHomeData';
+import type { PlaceSearchItem } from '@/discovery/places';
+import { HomeRow, homeCardWidth } from './HomeRow';
+import type { HomeFacetRow } from './useHomeData';
 import { relativeStoryTime, type StoryDto } from '@/social/stories';
 import { tripDisplayTitle, type TripSummaryDto } from '@/trip/trips';
 import type { DailyForecastDto } from '@/trip/weather';
+
+const heartIcon = require('../../assets/icons/home/heart.png');
 
 type Tx = (ko: string, en: string) => string;
 
@@ -59,24 +62,34 @@ export function WeatherLine({ forecast }: { forecast: DailyForecastDto | null })
 
 // ── 최근 기록 3장 + 갈래 칩 (히어로 오른쪽) ────────────────────────────────────
 
-function StoryCard({ story }: { story: StoryDto }) {
+function StoryCard({ story, cardWidth }: { story: StoryDto; cardWidth: number }) {
   const router = useRouter();
   const { tx } = useI18n();
   const where = story.place?.name ?? story.region ?? '';
   const initial = story.author.displayName.slice(0, 1);
+  // 제목은 장소 이름이 먼저다. 장소가 없는 글은 「{작성자}의 기록」 — 본문을 제목 자리에
+  // 올리면 사진 없는 카드에서 같은 글이 커버와 제목에 두 번 나온다.
+  const heading = where || tx(`${story.author.displayName}의 기록`, `${story.author.displayName}'s record`);
+  const square = { width: cardWidth, height: cardWidth };
   return (
-    <Pressable accessibilityRole="button" onPress={() => router.push(`/feed/${story.id}`)} style={({ pressed }) => [styles.storyCard, pressed && styles.pressed]}>
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={tx(`${heading} 기록 보기`, `Open record: ${heading}`)}
+      onPress={() => router.push(`/feed/${story.id}`)}
+      style={({ pressed }) => [{ width: cardWidth }, pressed && styles.pressed]}
+    >
       {story.images.length
-        ? <Image source={{ uri: story.images[0].url }} resizeMode="cover" accessibilityLabel={tx('여행 기록 사진', 'Trip record photo')} style={styles.storyImage} />
-        : <View style={[styles.storyImage, styles.storyCoverEmpty]}>
-            <Text variant="title" weight="bold" color={color.text.heading} numberOfLines={5} style={styles.storyCoverEmptyText}>{markdownToPlain(story.body)}</Text>
+        ? <Image source={{ uri: story.images[0].url }} resizeMode="cover" accessibilityLabel={tx('여행 기록 사진', 'Trip record photo')} style={[styles.storyImage, square]} />
+        // 사진이 없을 때 회색 빈 칸을 두지 않는다 — tint 바탕에 본문을 크게. 빈 회색은
+        // 「사진을 못 불러왔다」로 읽힌다. feed.tsx 의 coverEmpty 와 같은 규칙이다.
+        : <View style={[styles.storyImage, styles.storyCoverEmpty, square]}>
+            <Text variant="title" weight="bold" color={color.text.heading} numberOfLines={4} style={styles.storyCoverEmptyText}>{markdownToPlain(story.body)}</Text>
           </View>}
       <View style={styles.storyBody}>
-        <Text variant="caption" numberOfLines={1}>{where ? `${relativeStoryTime(story.createdAt, tx)} · ${where}` : relativeStoryTime(story.createdAt, tx)}</Text>
-        {/* 사진이 없는 글은 본문을 커버에 이미 크게 그렸다. 여기서 또 그리면 같은 글이 두 번
-            나온다 — 피드 카드(app/(tabs)/feed.tsx)가 같은 이유로 생략하는 자리다.
-        */}
-        {story.images.length ? <Text numberOfLines={2} color={color.text.heading}>{markdownToPlain(story.body)}</Text> : null}
+        <Text variant="body" weight="bold" color={color.text.heading} numberOfLines={1}>{heading}</Text>
+        <Text variant="caption" color={color.text.body} numberOfLines={1}>
+          {where ? `${relativeStoryTime(story.createdAt, tx)} · ${where}` : relativeStoryTime(story.createdAt, tx)}
+        </Text>
         <View style={styles.storyAuthor}>
           <View style={styles.storyAvatar}><Text variant="caption" weight="bold" color={color.text.onAction}>{initial}</Text></View>
           <Text variant="caption" weight="bold" color={color.text.body} numberOfLines={1}>{story.author.displayName}</Text>
@@ -86,90 +99,157 @@ function StoryCard({ story }: { story: StoryDto }) {
   );
 }
 
-export function HeroStories({ stories, chips }: { stories: StoryDto[] | null; chips: FacetKeyEntry[] }) {
+export function StoryRow({
+  stories,
+  width,
+  cardWidth: cardWidthOverride,
+  gutter,
+  arrows,
+}: {
+  stories: StoryDto[] | null;
+  width: number;
+  /** 폰은 160 정사각이다. 안 주면 데스크톱 계산(한 줄에 일곱 장)을 쓴다. */
+  cardWidth?: number;
+  gutter?: number;
+  arrows?: boolean;
+}) {
   const router = useRouter();
-  const { tx, language } = useI18n();
+  const { tx } = useI18n();
+  const cardWidth = cardWidthOverride ?? homeCardWidth(width);
   return (
-    <View style={styles.heroRight}>
-      <View style={styles.heroRightHead}>
-        <Text variant="eyebrow" weight="bold">{tx('지금 부산에서 남긴 기록', 'Just shared in Busan')}</Text>
- {/* 로그인 여부로 가리지 않는다, 진미리). 스토리 조회가 익명
-            출입증에 열렸다 — 2026-09-18 운영에서 실측했다(X-Session-Token 으로 200).
-            옛 주석은 「익명에게는 401」이라고 적혀 있었는데 그건 -974·995 전의 이야기다. */}
-        <Pressable accessibilityRole="link" onPress={() => router.push('/feed')} style={styles.feedAll}>
-          <Text weight="bold" color={color.text.eyebrow}>{tx('피드 전체 →', 'See all →')}</Text>
-        </Pressable>
-      </View>
+    <HomeRow
+      title={tx('지금 부산에서 남긴 기록', 'Just shared in Busan')}
+      openLabel={tx('기록 전체 보기', 'See all records')}
+      onOpen={() => router.push('/feed')}
+      width={width}
+      gutter={gutter}
+      arrows={arrows}
+    >
+      {/* 로그인 여부로 가리지 않는다(진미리). 스토리 조회가 익명 출입증에 열렸다 —
+          2026-09-18 운영에서 실측했다(X-Session-Token 으로 200). */}
+      {stories === null
+        // 불러오는 중에는 같은 크기의 빈 칸을 둔다 — 카드가 늦게 들어오며 아래가 밀리지 않게.
+        ? [0, 1, 2, 3, 4, 5, 6].map((slot) => (
+            <View key={slot} style={[styles.storySkeleton, { width: cardWidth, height: cardWidth }]} />
+          ))
+        : stories.map((story) => <StoryCard key={story.id} story={story} cardWidth={cardWidth} />)}
 
-      <View style={styles.storyGrid}>
-        {stories === null
-          // 로딩 중에는 같은 크기의 회색 칸을 둔다 — 카드가 늦게 들어오며 아래가 밀리지 않게.
-          ? [0, 1, 2].map((slot) => <View key={slot} style={[styles.storyCard, styles.storySkeleton]} />)
-          : stories.map((story) => <StoryCard key={story.id} story={story} />)}
-      </View>
       {stories !== null && stories.length === 0 ? (
-        <Text variant="caption" color={color.text.body}>{tx('아직 남겨진 기록이 없어요. 첫 기록을 남겨 보세요.', 'No records yet — be the first to share one.')}</Text>
+        <Text variant="caption" color={color.text.body}>
+          {tx('아직 남겨진 기록이 없어요. 첫 기록을 남겨 보세요.', 'No records yet — be the first to share one.')}
+        </Text>
       ) : null}
+    </HomeRow>
+  );
+}
 
-      {/* 칩은 「장소 태그」가 아니라 places/facets 의 갈래다. 장소에 태그 칸이 없어서
-          시안대로는 못 만든다. 눌렀을 때 가는 곳도 피드 필터가 아니라 이미 있는 로컬 탐색이다
-          — 피드에는 태그로 거르는 조회가 없다(그건.
-      */}
-      {chips.length ? (
-        <>
-          <View style={styles.heroRightHead}>
-            <Text variant="eyebrow" weight="bold">{tx('로컬 탐색', 'Explore locally')}</Text>
-            <Pressable accessibilityRole="link" onPress={() => router.push('/explore')} style={styles.feedAll}>
-              <Text weight="bold" color={color.text.eyebrow}>{tx('전체 →', 'See all →')}</Text>
-            </Pressable>
-          </View>
-          <View style={styles.chipRow}>
-            {chips.map((chip) => (
-              <Pressable key={chip.featureKey} accessibilityRole="link" onPress={() => router.push({ pathname: '/explore', params: { facet: chip.featureKey } })} style={({ pressed }) => [styles.chip, pressed && styles.chipPressed]}>
-                <Text weight="medium">{localFacetLabel(chip, language)}</Text>
-              </Pressable>
-            ))}
-          </View>
-        </>
-      ) : null}
+// ── 로컬 탐색 줄 (축제 · 전통시장) ────────────────────────────────────────────
+
+function PlaceCard({
+  place,
+  cardWidth,
+  liked,
+  onToggleLike,
+}: {
+  place: PlaceSearchItem;
+  cardWidth: number;
+  liked: boolean;
+  onToggleLike: () => void;
+}) {
+  const router = useRouter();
+  const { tx } = useI18n();
+  return (
+    <View style={{ width: cardWidth }}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={tx(`${place.nameKo} 상세 보기`, `View ${place.nameKo}`)}
+        onPress={() => router.push(`/place/${place.placeId}`)}
+        style={({ pressed }) => [styles.placeCard, pressed && styles.pressed]}
+      >
+        {/* PlaceVisual 의 기본 비율은 4:3 이다. style 이 뒤에 붙으므로 여기서 정사각으로 덮는다
+            — 부품을 고치지 않는다. 사진이 없으면 BUSAN 자리표시가 그대로 나온다(회색 판 금지).
+            출처 띠도 PlaceVisual 이 그린다 — 공공누리 표기는 이용 조건이라 빼면 안 된다. */}
+        <PlaceVisual
+          name={place.nameKo}
+          address={place.address}
+          photoUrl={place.photoUrl}
+          photoSource={place.photoSource}
+          photoSubject={place.photoSubject}
+          style={styles.placePhoto}
+        />
+      </Pressable>
+
+      {/* 하트는 색만으로 상태를 말하지 않는다 — 켜지면 흰 배경원과 그림자가 함께 켜진다.
+          사진 밝기가 카드마다 달라서 주황 하트만으로는 꺼짐/켜짐이 안 갈린다. */}
+      <Pressable
+        accessibilityRole="button"
+        accessibilityState={{ selected: liked }}
+        accessibilityLabel={liked
+          ? tx(`${place.nameKo} 저장 해제`, `Unsave ${place.nameKo}`)
+          : tx(`${place.nameKo} 저장`, `Save ${place.nameKo}`)}
+        onPress={onToggleLike}
+        style={styles.heartButton}
+      >
+        <View style={[styles.heartBackdrop, liked && styles.heartBackdropOn]}>
+          <Image source={heartIcon} resizeMode="contain" accessibilityIgnoresInvertColors style={[styles.heartIcon, liked ? styles.heartOn : styles.heartOff]} />
+        </View>
+      </Pressable>
+
+      <Text variant="body" weight="bold" color={color.text.heading} numberOfLines={1} style={styles.placeName}>{place.nameKo}</Text>
+      <Text variant="caption" color={color.text.body} numberOfLines={1}>{place.address ?? ''}</Text>
     </View>
   );
 }
 
-// ── 장소 넷 ───────────────────────────────────────────────────────────────────
-
-export function PlacePicks({ places }: { places: HomePlaceItem[] }) {
+export function PlaceRow({
+  row,
+  width,
+  likedIds,
+  onToggleLike,
+  cardWidth: cardWidthOverride,
+  gutter,
+  arrows,
+}: {
+  row: HomeFacetRow;
+  width: number;
+  likedIds: Set<string>;
+  onToggleLike: (placeId: string) => void;
+  cardWidth?: number;
+  gutter?: number;
+  arrows?: boolean;
+}) {
   const router = useRouter();
-  const { tx } = useI18n();
-  // 한 곳도 못 받았으면 블록을 통째로 접는다 — 제목만 남고 아래가 비면 고장난 화면으로 보인다.
-  if (!places.length) return null;
+  const { tx, language } = useI18n();
+  const cardWidth = cardWidthOverride ?? homeCardWidth(width);
+  const places = row.places;
+
+  // 한 곳도 못 받았으면 줄을 통째로 접는다 — 제목만 남고 아래가 비면 고장난 화면으로 보인다.
+  if (places !== null && places.length === 0) return null;
+
   return (
-    <View style={styles.placesBlock}>
-      <View style={styles.blockHead}>
- {/* 시안은 「{닉네임}님 취향에 가까운 곳」이었다. 취향 축(로컬성·조용함)과 장소 갈래는
-            서로 다른 체계라 이어 줄 값이 없어서, 취향을 반영한 척하지 않고 제목을 낮춘다.
-            2026-09-15 에 한 번 더 낮췄다 — 「부산 대표 장소」라고 적었는데 고르는 방법이
-            **부산 중심에서 가까운 순 넷**이라 대표를 판정하는 자리가 어디에도 없었다. 대표 장소를
- 실제로 채우는 것은 자료 쪽 일이다. */}
-        <Text variant="display" weight="bold">{tx('부산 둘러보기', 'Browse Busan')}</Text>
-        <Pressable accessibilityRole="link" onPress={() => router.push('/explore')}>
-          <Text color={color.text.body}>{tx('로컬 탐색에서 더 보기 →', 'Explore more →')}</Text>
-        </Pressable>
-      </View>
-      <View style={styles.placeGrid}>
-        {places.map((place) => (
-          <Pressable key={place.placeId} accessibilityRole="button" onPress={() => router.push(`/place/${place.placeId}`)} style={({ pressed }) => [styles.placeCard, pressed && styles.pressed]}>
-            <PlaceVisual name={place.nameKo} address={place.address} photoUrl={place.photoUrl} photoSource={place.photoSource} />
-            <Text weight="bold" numberOfLines={1}>{place.nameKo}</Text>
-            {/* `category` 를 그대로 그리면 화면에 「FOOD」 같은 코드가 뜬다. 그 코드를 한글로
-                바꿀 표가 없다 — assistant/intent.ts 에 여섯 개짜리가 있지만 챗봇 입력을 코드로
-                바꾸는 용도라 값이 더 늘면 그대로 새어 나온다. 주소는 늘 오고 사람이 읽을 수 있다.
-            */}
-            <Text variant="caption" numberOfLines={1}>{place.address ?? ''}</Text>
-          </Pressable>
-        ))}
-      </View>
-    </View>
+    <HomeRow
+      eyebrow={tx('로컬 탐색', 'Explore locally')}
+      title={language === 'ko' ? row.titleKo : row.titleEn}
+      openLabel={tx('이 갈래 전체 보기', 'See all in this category')}
+      onOpen={() => router.push({ pathname: '/explore', params: { facet: row.facetKey } })}
+      width={width}
+      gutter={gutter}
+      arrows={arrows}
+    >
+      {places === null
+        ? [0, 1, 2, 3, 4, 5, 6].map((slot) => (
+            <View key={slot} style={[styles.storySkeleton, { width: cardWidth, height: cardWidth }]} />
+          ))
+        : places.map((place) => (
+            <PlaceCard
+              key={place.placeId}
+              place={place}
+              cardWidth={cardWidth}
+              liked={likedIds.has(place.placeId)}
+              onToggleLike={() => onToggleLike(place.placeId)}
+            />
+          ))}
+    </HomeRow>
   );
 }
 
@@ -252,32 +332,30 @@ const styles = StyleSheet.create({
   weatherRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[3], marginTop: spacing[6], paddingTop: spacing[6], borderTopWidth: 1, borderTopColor: color.surface.border },
   weatherHint: { marginLeft: 'auto' },
 
-  // 남는 공간이 없을 때는 아무 일도 안 한다 — 그래서 로그인 화면은 지금과 똑같다.
-  heroRight: { flex: 1, gap: spacing[3], minWidth: 0, paddingTop: 40, paddingRight: 80, paddingBottom: 40, paddingLeft: spacing[6], justifyContent: 'center' },
-  heroRightHead: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', gap: spacing[3] },
-  feedAll: { minHeight: 44, justifyContent: 'center' },
-  // flex:1 만 주면 카드가 남은 칸을 전부 나눠 먹는다. 기록이 둘뿐이면 한 장이 500px 을
-  // 넘어가 사진이 화면 절반을 차지했다. 시안 폭(1440 에서 약 250)으로 상한을 둔다.
-  storyGrid: { flexDirection: 'row', gap: spacing[3], alignItems: 'flex-start' },
-  storyCard: { flex: 1, minWidth: 0, maxWidth: 260, borderRadius: radius.lg, overflow: 'hidden', backgroundColor: color.surface.card },
-  storySkeleton: { height: 260, maxWidth: 260, backgroundColor: color.surface.soft },
-  storyImage: { width: '100%', aspectRatio: 1, backgroundColor: color.surface.soft },
-  // 사진이 없을 때 — 회색 빈 칸 대신 tint 에 본문을 크게. 시안 「자주 틀리는 것」 4번.
+  // 줄 배치에서는 카드 폭을 줄 부품(HomeRow)이 정해서 내려준다 — 여기서 상한을 두면
+  // 한 줄에 몇 장이 보이는지가 두 곳에서 정해지고, 둘이 어긋나면 줄마다 장 수가 달라진다.
+  storySkeleton: { borderRadius: radius.md, backgroundColor: color.surface.soft },
+  storyImage: { borderRadius: radius.md, backgroundColor: color.surface.soft },
+  // 사진이 없을 때 — 회색 빈 칸 대신 tint 에 본문을 크게. 시안 「자주 틀리는 것」 1번.
   // 빈 회색은 「사진을 못 불러왔다」로 읽힌다. feed.tsx 의 coverEmpty 와 같은 규칙이다.
-  storyCoverEmpty: { alignItems: 'center', justifyContent: 'center', padding: spacing[4], backgroundColor: color.surface.tint },
+  storyCoverEmpty: { alignItems: 'center', justifyContent: 'center', padding: spacing[3] },
   storyCoverEmptyText: { textAlign: 'center' },
-  storyBody: { gap: spacing[1], paddingHorizontal: spacing[4], paddingTop: 14, paddingBottom: spacing[4] },
+  // 카드에 테두리와 배경을 두지 않는다 — 사진이 곧 카드다(시안 1·2). 글은 사진 아래에 붙는다.
+  storyBody: { gap: spacing[1], paddingTop: spacing[3] },
   storyAuthor: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], marginTop: spacing[1] },
-  storyAvatar: { width: 20, height: 20, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.brand.navy },
+  storyAvatar: { width: 18, height: 18, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.brand.navy },
 
-  chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2], marginTop: spacing[1] },
-  chip: { minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.surface.soft },
-  chipPressed: { backgroundColor: color.brand.orange },
-
-  placesBlock: { flex: 1, gap: spacing[4], minWidth: 0 },
-  blockHead: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', gap: spacing[3] },
-  placeGrid: { flexDirection: 'row', gap: spacing[3] },
-  placeCard: { flex: 1, minWidth: 0, gap: spacing[2] },
+  placeCard: { position: 'relative' },
+  placePhoto: { aspectRatio: 1 },
+  placeName: { marginTop: spacing[3] },
+  // 누르는 자리는 44 로 두고 보이는 원은 28 이다 — 손가락은 44 를 필요로 하는데
+  // 28 보다 큰 동그라미를 사진 위에 얹으면 사진을 가린다.
+  heartButton: { position: 'absolute', top: 0, right: 0, width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
+  heartBackdrop: { width: 28, height: 28, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full },
+  heartBackdropOn: { backgroundColor: color.surface.card, shadowColor: color.brand.navy, shadowOpacity: 0.15, shadowRadius: 4, shadowOffset: { width: 0, height: 1 }, elevation: 2 },
+  heartIcon: { width: 16, height: 16 },
+  heartOn: { tintColor: color.brand.orange },
+  heartOff: { tintColor: color.surface.card },
 
   tripBlock: { width: 360, gap: spacing[3] },
   // 시안은 패딩 20 인데 간격 토큰에 20 이 없다(4·8·12·16·24·32). 16 으로 내린다

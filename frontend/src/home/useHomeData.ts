@@ -2,28 +2,28 @@
 import { useQuery } from '@tanstack/react-query';
 
 import { useAuth } from '@/auth/AuthProvider';
-import { getFacets, getNearbyPlaces, type FacetGroup, type FacetKeyEntry, type NearbyPlaceItem } from '@/discovery/localExplore';
-import { getPlacesByFacet } from '@/discovery/places';
-import { getPlaceCategories } from '@/discovery/placeCategories';
+import { getFacets } from '@/discovery/localExplore';
+import { getPlacesByFacet, type PlaceSearchItem } from '@/discovery/places';
 import { loadFeed, type StoryDto } from '@/social/stories';
 import { loadTrips, type TripSummaryDto } from '@/trip/trips';
 import { loadWeatherForecast, type DailyForecastDto } from '@/trip/weather';
 
-// weather.ts 가 같은 값을 모듈 안에 두고 내보내지 않아 여기에 다시 적는다. 부산 한 곳만
-// 보는 화면이라 좌표가 화면마다 달라질 일이 없다.
-const BUSAN = { lat: 35.1796, lng: 129.0756 };
 
-const HERO_STORY_COUNT = 3;
-const PLACE_PICK_COUNT = 4;
-const PLACE_CANDIDATE_POOL = 16;
+// 줄 배치로 바뀌면서 한 줄에 일곱 장이 보인다 — 셋이면 줄이 반도 안 찬다.
+const HERO_STORY_COUNT = 8;
 
-// — 「부산 둘러보기」에 무엇을 먼저 보여줄 것인가.
-const CATEGORY_ORDER = ['SEA_BEACH', 'CULTURE_TEMPLE', 'NATURE_WALK', 'CITY', 'CAFE_HEALING', 'FOOD'];
-const categoryRank = (code: string) => {
-  const index = CATEGORY_ORDER.indexOf(code);
-  return index < 0 ? CATEGORY_ORDER.length : index;
-};
-const FACET_CHIP_COUNT = 6;
+/**
+ * 홈의 로컬 탐색 줄 둘. 로컬 탐색 화면의 「부산 전체」와 **같은 조회**를 쓴다 —
+ * 홈에서 본 것과 화면을 열어서 본 것이 다르면 사용자가 둘 중 어느 쪽을 믿을지 모른다.
+ */
+const HOME_FACET_ROWS = [
+  { key: 'FESTIVAL', ko: '지금 열리는 부산 축제', en: 'Festivals happening now' },
+  { key: 'TRADITIONAL_MARKET', ko: '부산 전통시장 둘러보기', en: 'Browse traditional markets' },
+] as const;
+
+/** 한 줄에 실을 장소 수. 일곱 장이 보이고 캐러셀로 더 넘긴다. */
+const FACET_ROW_COUNT = 10;
+
 
 function today() {
   return new Date().toISOString().slice(0, 10);
@@ -39,36 +39,7 @@ export function pickHeroStories(items: StoryDto[]): StoryDto[] {
   return [...withImage, ...rest].slice(0, HERO_STORY_COUNT);
 }
 
-/**
- * `category` 값의 정확한 목록은 모른다(places.ts의 isFoodPlace와 같은 사정) — 그래서
- * 정해진 갈래 이름을 코드에 나열하지 않고, "이미 고른 갈래와 문자열이 같은가"만 본다.
- * 서로 다른 곳이 우연히 같은 category 문자열을 가지면 같은 갈래로 취급되는 정도가
- * 이 방식의 한계다. 가까운 순서 자체는 그대로 지킨다 — 갈래 안에서 순서를 바꾸지 않는다.
- */
-function diversifyByCategory<T extends { category: string | null }>(items: T[], count: number): T[] {
-  const seenCategories = new Set<string>();
-  const picked: T[] = [];
-  const leftover: T[] = [];
-  for (const item of items) {
-    if (picked.length >= count) { leftover.push(item); continue; }
-    if (item.category && seenCategories.has(item.category)) { leftover.push(item); continue; }
-    if (item.category) seenCategories.add(item.category);
-    picked.push(item);
-  }
-  // 갈래 수가 count 보다 적으면(예: 갈래 둘뿐) 자리가 남는다 — 가까운 순서대로 채운다.
-  for (const item of leftover) {
-    if (picked.length >= count) break;
-    picked.push(item);
-  }
-  return picked;
-}
 
-/** 칩으로 쓸 갈래를 고른다. */
-function pickChips(facets: FacetGroup[]): FacetKeyEntry[] {
-  const explore = facets.find((group) => group.userInputCode === 'EXPLORE');
-  if (!explore) return [];
-  return explore.keys.filter((key) => key.placeCount > 0 && key.labelKo).slice(0, FACET_CHIP_COUNT);
-}
 
 /** 예정·진행 중인 여행 하나. 끝난 여행은 홈에 올리지 않는다. */
 function pickActiveTrip(trips: TripSummaryDto[]): TripSummaryDto | null {
@@ -80,17 +51,23 @@ function pickActiveTrip(trips: TripSummaryDto[]): TripSummaryDto | null {
   return [...active].sort((a, b) => (a.startDate ?? '9999').localeCompare(b.startDate ?? '9999'))[0];
 }
 
+/** 홈의 로컬 탐색 줄 하나. `places` 가 `null` 이면 아직 불러오는 중이다. */
+export type HomeFacetRow = {
+  facetKey: string;
+  titleKo: string;
+  titleEn: string;
+  places: PlaceSearchItem[] | null;
+};
+
 export type HomeData = {
   signedIn: boolean;
   stories: StoryDto[] | null;
-  chips: FacetKeyEntry[];
   weather: DailyForecastDto | null;
-  places: HomePlaceItem[];
+  facetRows: HomeFacetRow[];
   trip: TripSummaryDto | null;
   tripsLoaded: boolean;
 };
 
-export type HomePlaceItem = Omit<NearbyPlaceItem, 'distanceM'> & { distanceM?: number };
 
 /**
  * @param enabled 데스크톱 홈에서만 켠다. 훅은 조건 없이 불러야 하는데(React 규칙) 폰 랜딩은
@@ -117,33 +94,26 @@ export function useHomeData(enabled = true): HomeData {
     queryFn: () => loadWeatherForecast(today(), accessToken),
   });
 
-  const placesQuery = useQuery({
-    queryKey: ['home', 'places'],
-    enabled,
-    queryFn: async (): Promise<HomePlaceItem[]> => {
-      // — 갈래를 먼저 정하고 그 안에서 뽑는다.
-      const categories = await getPlaceCategories();
-      if (categories.state === 'success') {
-        const ordered = categories.categories
-          .filter((item) => item.placeCount > 0)
-          .sort((first, second) => categoryRank(first.code) - categoryRank(second.code));
-        // 갈래마다 한 곳씩, 동시에 묻는다. 한 갈래가 비어 있어도 그 자리만 건너뛴다.
-        const found = await Promise.all(ordered.map((item) => getPlacesByFacet('CATEGORY_TAG', item.code, 1).catch(() => [])));
-        const picks = found.flatMap((list) => list.slice(0, 1)).slice(0, PLACE_PICK_COUNT);
-        if (picks.length) return picks;
-      }
+  /**
+   * 갈래 줄이 쓸 조회 종류(`placeFeatureType`)는 서버가 정한다 — 코드에 박지 않는다.
+   * 로컬 탐색 화면도 같은 값을 `getFacets()` 에서 받아 쓴다.
+   */
+  const exploreGroup = facetsQuery.data?.state === 'success'
+    ? facetsQuery.data.facets.find((item) => item.userInputCode === 'EXPLORE')
+    : undefined;
 
-      const nearby = await getNearbyPlaces({ ...BUSAN, limit: PLACE_CANDIDATE_POOL });
-      if (nearby.state === 'success' && nearby.items.length) return diversifyByCategory(nearby.items, PLACE_PICK_COUNT);
-
-      // 부산 중심 5km 안이 비면 섹션을 숨기지 않고, 실제로 데이터가 있는 로컬 갈래 하나를
-      // 부산 전체에서 조회한다. 홈 제목은 거리 순위나 대표성을 약속하지 않는 「부산 둘러보기」다.
-      const facets = await getFacets();
-      if (facets.state !== 'success') return [];
-      const group = facets.facets.find((item) => item.userInputCode === 'EXPLORE');
-      const key = group?.keys.find((item) => item.placeCount > 0 && item.labelKo);
-      if (!group || !key) return [];
-      return (await getPlacesByFacet(group.placeFeatureType, key.featureKey, PLACE_PICK_COUNT)).slice(0, PLACE_PICK_COUNT);
+  const facetRowsQuery = useQuery({
+    queryKey: ['home', 'facetRows', exploreGroup?.placeFeatureType ?? ''],
+    // 조회 종류를 모르면 부르지 않는다. 짐작한 값으로 부르면 빈 줄이 나오는데,
+    // 그건 「그 갈래에 장소가 없다」와 화면에서 구분이 안 된다.
+    enabled: enabled && Boolean(exploreGroup),
+    queryFn: async (): Promise<Record<string, PlaceSearchItem[]>> => {
+      const type = exploreGroup!.placeFeatureType;
+      const lists = await Promise.all(
+        // 한 줄이 비어도 그 줄만 빈다 — 다른 줄까지 같이 죽이지 않는다.
+        HOME_FACET_ROWS.map((row) => getPlacesByFacet(type, row.key, FACET_ROW_COUNT).catch(() => [])),
+      );
+      return Object.fromEntries(HOME_FACET_ROWS.map((row, index) => [row.key, lists[index]]));
     },
   });
 
@@ -161,9 +131,14 @@ export function useHomeData(enabled = true): HomeData {
     stories: storiesQuery.isPending
         ? null
         : storiesQuery.data?.state === 'success' ? pickHeroStories(storiesQuery.data.items) : [],
-    chips: facetsQuery.data?.state === 'success' ? pickChips(facetsQuery.data.facets) : [],
     weather: weatherQuery.data?.state === 'success' ? weatherQuery.data.forecast : null,
-    places: placesQuery.data ?? [],
+    // 여기서도 null 은 「아직 불러오는 중」만 뜻한다. 실패는 빈 배열로 내려 「없어요」 자리로 보낸다.
+    facetRows: HOME_FACET_ROWS.map((row) => ({
+      facetKey: row.key,
+      titleKo: row.ko,
+      titleEn: row.en,
+      places: facetRowsQuery.data ? facetRowsQuery.data[row.key] ?? [] : facetRowsQuery.isPending ? null : [],
+    })),
     trip: tripsQuery.data?.state === 'success' ? pickActiveTrip(tripsQuery.data.trips) : null,
     tripsLoaded: tripsQuery.data?.state === 'success',
   };
