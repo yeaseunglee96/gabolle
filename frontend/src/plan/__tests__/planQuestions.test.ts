@@ -74,14 +74,16 @@ describe('답한 것으로 보는 조건', () => {
 });
 
 describe('진행', () => {
-  it('🔴 초안의 기본값이 이미 셋을 「답한 것」으로 만든다 — 예산·이동수단·꼭 가고 싶은 장소', () => {
-    expect(settledCount(draft(), state())).toBe(3);
-    expect(remainingCount(draft(), state())).toBe(7);
+  it('🔴 사람이 실제로 지나온 것만 센다 — 기본값이 든 질문을 그냥 세면 1번에서 「남은 0개」가 뜬다', () => {
+    expect(settledCount(draft(), state())).toBe(0);
+    expect(remainingCount(draft(), state())).toBe(10);
+    expect(settledCount(draft(), state({ open: 3 }))).toBe(3);
+    expect(remainingCount(draft(), state({ open: 3 }))).toBe(7);
   });
 
-  it('건너뛴 것도 지나간 것으로 센다', () => {
-    const skipped = state({ skipped: { cats: true, moods: true } });
-    expect(settledCount(draft(), skipped)).toBe(5);
+  it('마지막을 지나면 열 개를 다 센 것이다 — 그보다 크게 세지 않는다', () => {
+    expect(settledCount(draft(), state({ open: 10 }))).toBe(10);
+    expect(settledCount(draft(), state({ open: 99 }))).toBe(10);
   });
 
   it('🔴 카드는 순서대로 연다 — 기본값이 든 질문도 건너뛰지 않는다', () => {
@@ -97,20 +99,25 @@ describe('진행', () => {
 });
 
 describe('전부 지나갔나', () => {
-  it('필수 셋을 채우고 나머지를 건너뛰면 끝난 것이다', () => {
+  it('필수 셋을 채우고 나머지를 건너뛰고 **끝까지 가면** 끝난 것이다', () => {
     const only3 = draft({ travelAreas: ['해운대'], budgetKrw: 300000, transport: 'TRANSIT' });
-    const skipped = state({ skipped: { cats: true, pace: true, moods: true, scales: true, foods: true, aids: true } });
+    const skipped = state({ open: 10, skipped: { cats: true, pace: true, moods: true, scales: true, foods: true, aids: true } });
     expect(allSettled(only3, skipped)).toBe(true);
   });
 
+  it('🔴 끝까지 안 갔으면 기본값이 다 차 있어도 끝난 것이 아니다', () => {
+    expect(allSettled(FULL, state({ open: 0 }))).toBe(false);
+    expect(allSettled(FULL, state({ open: 9 }))).toBe(false);
+  });
+
   it('🔴 못 건너뛰는 질문은 건너뛴 것으로 쳐 주지 않는다', () => {
-    const skipAll = state({ skipped: { areas: true, budget: true, move: true, cats: true, pace: true, moods: true, scales: true, foods: true, aids: true } });
+    const skipAll = state({ open: 10, skipped: { areas: true, budget: true, move: true, cats: true, pace: true, moods: true, scales: true, foods: true, aids: true } });
     expect(allSettled(draft(), skipAll)).toBe(false);
     expect(isSettled(find('areas'), draft(), skipAll)).toBe(true); // 화면에서는 접히지만
   });
 
-  it('다 답하면 끝난 것이다', () => {
-    expect(allSettled(FULL, state())).toBe(true);
+  it('다 답하고 끝까지 가면 끝난 것이다', () => {
+    expect(allSettled(FULL, state({ open: 10 }))).toBe(true);
   });
 });
 

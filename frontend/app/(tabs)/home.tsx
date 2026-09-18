@@ -21,6 +21,8 @@ import { Redirect, useRouter } from 'expo-router';
 
 import { sendAppEvent } from '@/analytics/appEvents';
 import { PlanStartBar } from '@/home/PlanStartBar';
+import { ConditionsPromptModal, type ConditionsOutcome } from '@/plan/ConditionsPromptModal';
+import { loadConditionsPromptState, saveConditionsPromptState, shouldPromptBeforePlan, shouldPromptOnHome, type ConditionsPromptState } from '@/plan/conditionsPromptState';
 import { usePlan } from '@/plan/PlanProvider';
 import type { StartBarValue } from '@/home/startBarValue';
 import { useAuth } from '@/auth/AuthProvider';
@@ -50,8 +52,12 @@ const speakerIcon = require('../../assets/icons/common/speaker.png');
 export default function Home() {
   const router = useRouter();
   const { tx, language } = useI18n();
-  const { accessToken } = useAuth();
+  const { accessToken, user } = useAuth();
   const { update: updatePlan } = usePlan();
+  // 🔴 여행 조건 모달 (S15P21E201-1233). 로그인 후 홈 첫 진입에 한 번, 그리고
+  //    「나중에」를 고른 사람에게는 「일정 물어보기」를 누를 때마다 다시 묻는다.
+  const [promptState, setPromptState] = useState<ConditionsPromptState>('NEVER');
+  const [conditions, setConditions] = useState<{ open: boolean; reprompt: boolean; pending: StartBarValue | null }>({ open: false, reprompt: false, pending: null });
   const { width } = useLayout();
   const desktop = isAtLeast(width, 'lg');
   const { hydrated, hasEnteredApp, markEnteredApp } = useOnboardingPreferences();
@@ -99,7 +105,17 @@ export default function Home() {
 
   // 🔴 홈에서 받은 출발지·날짜·인원을 초안에 넣고 조건 화면으로 보낸다 (S15P21E201-1233).
   //    조건 화면은 이 셋을 **다시 묻지 않는다** — 칩 줄로만 보여 준다.
-  const startPlanFromBar = (value: StartBarValue) => {
+  useEffect(() => {
+    let alive = true;
+    void loadConditionsPromptState(user?.userId ?? null).then((next) => {
+      if (!alive) return;
+      setPromptState(next);
+      if (shouldPromptOnHome(next)) setConditions({ open: true, reprompt: false, pending: null });
+    });
+    return () => { alive = false; };
+  }, [user?.userId]);
+
+  const applyBarAndGo = (value: StartBarValue) => {
     updatePlan({
       origin: value.origin,
       originLat: value.originLat,
@@ -111,6 +127,25 @@ export default function Home() {
       travelers: value.adults + value.children,
     });
     router.push('/plan');
+  };
+
+  // 🔴 「나중에」를 고른 사람에게는 여기서 한 번 더 묻는다. 건너뛰어도 일정은 만들 수 있다 —
+  //    막으면 조건을 안 적은 사람이 앱을 아예 못 쓴다.
+  const startPlanFromBar = (value: StartBarValue) => {
+    if (shouldPromptBeforePlan(promptState)) { setConditions({ open: true, reprompt: true, pending: value }); return; }
+    applyBarAndGo(value);
+  };
+
+  const closeConditions = (outcome: ConditionsOutcome) => {
+    const pending = conditions.pending;
+    setConditions({ open: false, reprompt: false, pending: null });
+    if (outcome !== 'DISMISSED') {
+      const next = outcome === 'SAVED' ? 'SAVED' : outcome === 'NEVER' ? 'NEVER' : 'LATER';
+      setPromptState(next);
+      void saveConditionsPromptState(user?.userId ?? null, next);
+    }
+    // 🔴 건너뛰든 저장하든 **가려던 곳으로 간다.** 조건을 안 적었다고 길을 막지 않는다.
+    if (pending) applyBarAndGo(pending);
   };
 
   if (desktop) return <Redirect href="/" />;
@@ -344,7 +379,8 @@ export default function Home() {
             <Text variant="caption" color={color.text.onAction}>{tx('닫기', 'Dismiss')}</Text>
           </Pressable>
         ) : null}
-      </Screen>
+        <ConditionsPromptModal visible={conditions.open} reprompt={conditions.reprompt} onClose={closeConditions} />
+  </Screen>
 
       <Pressable
         accessibilityRole="button"

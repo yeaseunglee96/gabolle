@@ -1,7 +1,10 @@
+import { useEffect, useState } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { Redirect, useRouter } from 'expo-router';
 import { PlanStartBar } from '@/home/PlanStartBar';
+import { ConditionsPromptModal, type ConditionsOutcome } from '@/plan/ConditionsPromptModal';
+import { loadConditionsPromptState, saveConditionsPromptState, shouldPromptBeforePlan, shouldPromptOnHome, type ConditionsPromptState } from '@/plan/conditionsPromptState';
 import { usePlan } from '@/plan/PlanProvider';
 import type { StartBarValue } from '@/home/startBarValue';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -57,6 +60,10 @@ export default function Welcome() {
   const { tx } = useI18n();
   const { user, ready, accessToken } = useAuth();
   const { update: updatePlan } = usePlan();
+  // 🔴 넓은 화면 홈도 같은 모달을 띄운다. 폰에만 붙이면 데스크톱 사용자는 조건을 영영
+  //    못 적고, 확인 화면이 「미확인 필수 조건」으로 막는다 (2026-09-18 에 그랬다).
+  const [promptState, setPromptState] = useState<ConditionsPromptState>('NEVER');
+  const [conditions, setConditions] = useState<{ open: boolean; reprompt: boolean; pending: StartBarValue | null }>({ open: false, reprompt: false, pending: null });
   const isDesktop = isAtLeast(width, 'lg');
   // 홈이 쓰는 값(기록·갈래·날씨·장소·내 여행)을 한곳에서 읽는다. 폰 분기에서도 훅 순서가
   // 바뀌면 안 되므로 조건 없이 위에서 부른다 — 폰에서는 그린 것이 없어 값만 놀고 끝난다.
@@ -76,7 +83,17 @@ export default function Welcome() {
   // 🔴 넓은 화면의 홈은 **이 파일**이다 (S15P21E201-1233). `/home` 은 넓은 화면에서
   //    여기로 넘어오므로, 시작 바를 `(tabs)/home.tsx` 에만 넣으면 **데스크톱에서는
   //    영영 안 보인다.** 2026-09-18 에 실제로 그렇게 배포됐다가 사용자가 찾았다.
-  const startPlanFromBar = (value: StartBarValue) => {
+  useEffect(() => {
+    let alive = true;
+    void loadConditionsPromptState(user?.userId ?? null).then((next) => {
+      if (!alive) return;
+      setPromptState(next);
+      if (shouldPromptOnHome(next)) setConditions({ open: true, reprompt: false, pending: null });
+    });
+    return () => { alive = false; };
+  }, [user?.userId]);
+
+  const applyBarAndGo = (value: StartBarValue) => {
     updatePlan({
       origin: value.origin,
       originLat: value.originLat,
@@ -88,6 +105,22 @@ export default function Welcome() {
       travelers: value.adults + value.children,
     });
     router.push('/plan');
+  };
+
+  const startPlanFromBar = (value: StartBarValue) => {
+    if (shouldPromptBeforePlan(promptState)) { setConditions({ open: true, reprompt: true, pending: value }); return; }
+    applyBarAndGo(value);
+  };
+
+  const closeConditions = (outcome: ConditionsOutcome) => {
+    const pending = conditions.pending;
+    setConditions({ open: false, reprompt: false, pending: null });
+    if (outcome !== 'DISMISSED') {
+      const next = outcome === 'SAVED' ? 'SAVED' : outcome === 'NEVER' ? 'NEVER' : 'LATER';
+      setPromptState(next);
+      void saveConditionsPromptState(user?.userId ?? null, next);
+    }
+    if (pending) applyBarAndGo(pending);
   };
 
   if (!isDesktop) {
@@ -188,6 +221,7 @@ export default function Welcome() {
       <View style={styles.webAssistantLabel}><Text variant="body" weight="bold">{tx('AI에게 물어보기', 'Ask AI')}</Text><Text variant="caption" color={color.text.muted}>{tx('일정 · 통역 · 여행 도움', 'Plans · phrases · travel help')}</Text></View>
       <GabolleMascot state="idle" style={styles.webAssistantMascot} />
     </Pressable>
+    <ConditionsPromptModal visible={conditions.open} reprompt={conditions.reprompt} onClose={closeConditions} />
   </View>;
 }
 

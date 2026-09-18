@@ -127,9 +127,15 @@ export function canAdvance(question: PlanQuestion, draft: PlanDraft): boolean {
   return question.answered(draft);
 }
 
-/** 지나간 질문 수 — 진행 막대가 쓴다. */
-export function settledCount(draft: PlanDraft, state: QuestionState): number {
-  return PLAN_QUESTIONS.filter((question) => isSettled(question, draft, state)).length;
+/**
+ * 지나간 질문 수 — 진행 막대가 쓴다.
+ *
+ * 🔴 **사람이 실제로 지나온 것만 센다.** 초안에 기본값이 든 질문(예산·이동수단)이나
+ * 「없음도 답」인 질문(꼭 가고 싶은 장소)을 그냥 세면, **1번 질문에 있는 사람에게
+ * 「남은 질문 0개」가 뜬다.** 2026-09-18 에 실제로 그랬다.
+ */
+export function settledCount(_draft: PlanDraft, state: QuestionState): number {
+  return Math.min(state.open, PLAN_QUESTIONS.length);
 }
 
 /** 남은 질문 수. */
@@ -144,6 +150,9 @@ export function remainingCount(draft: PlanDraft, state: QuestionState): number {
  * 재료가 없어서, 서버가 「조건이 부족하다」로 거절하거나 아무 말 없이 엉뚱한 것을 준다.
  */
 export function allSettled(draft: PlanDraft, state: QuestionState): boolean {
+  // 🔴 **끝까지 가 본 사람에게만** 마지막 카드를 보인다. 기본값만으로 「다 됐어요」가
+  //    뜨면, 사람은 답하지도 않은 조건으로 일정이 만들어지는 줄 모른다.
+  if (state.open < PLAN_QUESTIONS.length) return false;
   return PLAN_QUESTIONS.every((question) =>
     question.skippable ? isSettled(question, draft, state) : question.answered(draft));
 }
