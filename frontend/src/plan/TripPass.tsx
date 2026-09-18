@@ -1,13 +1,13 @@
 // 여행 티켓(TRIP PASS) — 프린터에서 영수증이 출력되는 컴포넌트.
 // 시안: docs/design_handoff_plan_flow/TripPassCard.dc.html
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, Easing, Platform, Pressable, StyleSheet, View } from 'react-native';
 import Svg, { Path, Rect } from 'react-native-svg';
 import qrcodeGenerator from 'qrcode-generator';
 
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
-import type { TripPassData } from '@/plan/tripPassData';
+import type { TripPassData, TripPassDetail } from '@/plan/tripPassData';
 
 const RECEIPT_WIDTH = 286;
 const PRINTER_WIDTH = 318;
@@ -17,6 +17,15 @@ const PRINT_MS = 1600;
 /** QR 은 종이가 다 나온 뒤에 인쇄된다 — 시안의 1.7s 딜레이. */
 const QR_DELAY_MS = 1700;
 const QR_MS = 700;
+/** 뒤집는 데 걸리는 시간. 시안의 800ms 스프링. */
+const FLIP_MS = 800;
+/**
+ * 출력이 끝난 뒤 이 간격으로 한 번씩 **살짝 젖힌다**(시안 gbTease).
+ *
+ * 🔴 「눌러서 뒤집을 수 있다」를 글자로만 적으면 아무도 안 읽는다. 카드가 스스로 조금
+ *    움직이는 것이 그 자리에서 가장 짧은 설명이다.
+ */
+const TEASE_EVERY_MS = 3600;
 
 /** 지그재그 절취선. 시안은 CSS 그라데이션인데 RN 에 없어서 삼각형을 늘어놓는다. */
 function TearLine() {
@@ -111,11 +120,23 @@ export type TripPassProps = {
   wide?: boolean;
   /** 「다시 출력」. 주면 버튼이 생긴다. */
   onReprint?: () => void;
+  /**
+   * 뒷면에 적을 줄들(`buildTripPassDetails`). **주면 카드가 뒤집힌다.**
+   *
+   * 🔴 안 주면 뒤집기 자체가 없다. 만드는 중에는 뒤집을 내용이 없는데 뒤집히면
+   *    빈 뒷면이 나오고, 사용자는 고장으로 읽는다.
+   */
+  details?: TripPassDetail[];
+  /** 뒷면의 「일정 보기 →」. 없으면 단추를 안 그린다. */
+  onOpenItinerary?: () => void;
+  /** 뒷면의 「지도에서 보기」. */
+  onOpenMap?: () => void;
   tx: (ko: string, en: string) => string;
 };
 
-export function TripPass({ data, wide = false, onReprint, tx }: TripPassProps) {
+export function TripPass({ data, wide = false, onReprint, details, onOpenItinerary, onOpenMap, tx }: TripPassProps) {
   // 종이는 프린터 뒤에서 내려온다. 시안의 gbPrint 와 같은 값이다.
+  const [printed, setPrinted] = useState(false);
   const slide = useRef(new Animated.Value(0)).current;
   const codeMark = useRef(new Animated.Value(0)).current;
   /** 다시 출력할 때마다 애니메이션을 처음부터 돌리려고 센다. */
@@ -137,13 +158,45 @@ export function TripPass({ data, wide = false, onReprint, tx }: TripPassProps) {
       easing: Easing.out(Easing.quad),
       useNativeDriver: true,
     });
+    setPrinted(false);
     const sequence = Animated.sequence([print, mark]);
-    sequence.start();
+    // 🔴 다 나온 뒤에야 뒤집을 수 있다. 나오는 중에 뒤집으면 종이가 프린터 안에서
+    //    돌아가는 꼴이 되고, 창이 잘라 내고 있어서 반쪽만 보인다.
+    sequence.start(({ finished }) => { if (finished) setPrinted(true); });
     return () => sequence.stop();
   }, [printKey, slide, codeMark]);
 
   const translateY = slide.interpolate({ inputRange: [0, 1], outputRange: [-520, 0] });
   const markScale = codeMark.interpolate({ inputRange: [0, 1], outputRange: [0.6, 1] });
+
+  // ── 뒤집기 ────────────────────────────────────────────────────────────────
+  const canFlip = printed && Boolean(details && details.length);
+  const [flipped, setFlipped] = useState(false);
+  const flip = useRef(new Animated.Value(0)).current;
+  const tease = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (!canFlip) return;
+    Animated.spring(flip, { toValue: flipped ? 1 : 0, damping: 14, stiffness: 120, mass: 1, useNativeDriver: true }).start();
+  }, [canFlip, flip, flipped]);
+
+  // 🔴 뒤집힌 뒤에는 젖히지 않는다. 뒷면에는 단추가 있어서, 움직이는 카드 위에서
+  //    누르면 손가락 아래에서 자리가 바뀐다.
+  useEffect(() => {
+    if (!canFlip || flipped) return;
+    const timer = setInterval(() => {
+      Animated.sequence([
+        Animated.timing(tease, { toValue: 1, duration: 260, easing: Easing.out(Easing.quad), useNativeDriver: true }),
+        Animated.timing(tease, { toValue: 0, duration: 420, easing: Easing.bezier(0.34, 1.3, 0.64, 1), useNativeDriver: true }),
+      ]).start();
+    }, TEASE_EVERY_MS);
+    return () => clearInterval(timer);
+  }, [canFlip, flipped, tease]);
+
+  const frontRotate = flip.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '180deg'] });
+  const backRotate = flip.interpolate({ inputRange: [0, 1], outputRange: ['180deg', '360deg'] });
+  const flipScale = flip.interpolate({ inputRange: [0, 1], outputRange: [1, wide ? 1.18 : 1.06] });
+  const teaseRotate = tease.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '-16deg'] });
 
   return (
     <View style={styles.root}>
@@ -151,8 +204,31 @@ export function TripPass({ data, wide = false, onReprint, tx }: TripPassProps) {
         <View style={styles.slot} />
       </View>
 
-      <View style={styles.paperWindow}>
-        <Animated.View style={[styles.paper, { transform: [{ translateY }] }]}>
+      <View style={[styles.paperWindow, printed ? null : styles.clipWhilePrinting]}>
+        <Animated.View
+          style={[
+            styles.paper,
+            {
+              transform: [
+                { translateY },
+                { perspective: 1200 },
+                { rotateY: frontRotate },
+                { rotateZ: teaseRotate },
+                { scale: flipScale },
+              ],
+            },
+            // 🔴 뒤집힌 동안 앞면을 못 누르게 한다. RN 웹은 backfaceVisibility 를 지키지만
+            //    안드로이드는 판마다 다르다 — 눌림까지 막아야 확실하다.
+            canFlip && flipped ? styles.faceHidden : null,
+          ]}
+          pointerEvents={canFlip && flipped ? 'none' : 'auto'}
+        >
+          <Pressable
+            accessibilityRole={canFlip ? 'button' : undefined}
+            accessibilityLabel={canFlip ? tx('여행표 상세 보기', 'See trip pass details') : undefined}
+            disabled={!canFlip}
+            onPress={() => setFlipped(true)}
+          >
           <View style={styles.sheet}>
             <View style={styles.rowBetween}>
               <Text variant="body" weight="bold" style={styles.wordmark}>
@@ -240,7 +316,76 @@ export function TripPass({ data, wide = false, onReprint, tx }: TripPassProps) {
           </View>
 
           <TearLine />
+          {canFlip ? (
+            <View style={styles.flipHint}>
+              <Text variant="caption" weight="bold" color={color.brand.orange}>{tx('눌러서 여행표 상세 보기 ↻', 'Tap to see trip pass details ↻')}</Text>
+            </View>
+          ) : null}
+          </Pressable>
         </Animated.View>
+
+        {/* 🔴 뒷면에 overflow:hidden 을 주지 않는다. 3D 가 평면으로 눌리면서 **앞면 위에
+            거울상으로 비친다** — 실제로 났던 결함이라 인계 문서가 따로 적어 두었다.
+            보이고 안 보이고는 backfaceVisibility 와 pointerEvents 로만 가른다. */}
+        {canFlip ? (
+          <Animated.View
+            style={[
+              styles.back,
+              {
+                transform: [
+                  { translateY },
+                  { perspective: 1200 },
+                  { rotateY: backRotate },
+                  { scale: flipScale },
+                ],
+              },
+              flipped ? null : styles.faceHidden,
+            ]}
+            pointerEvents={flipped ? 'auto' : 'none'}
+          >
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={tx('앞면으로 돌리기', 'Flip back')}
+              onPress={() => setFlipped(false)}
+              style={styles.backHead}
+            >
+              <Text variant="caption" weight="bold" color={color.text.muted} style={styles.backMark}>TRIP PASS</Text>
+              {!!data.code && <Text variant="caption" weight="bold" color={color.text.muted}>{data.code}</Text>}
+            </Pressable>
+
+            <Text variant="title" weight="bold" numberOfLines={1}>
+              {[data.fromLabel, data.toLabel].filter(Boolean).join(' → ')}
+            </Text>
+            {data.dateRange ? <Text variant="caption" color={color.text.muted}>{data.dateRange}</Text> : null}
+
+            {(details ?? []).map((row) => (
+              <View key={row.key} style={styles.backRow}>
+                <Text variant="caption" color={color.text.muted}>{row.key}</Text>
+                <Text variant="caption" weight="bold" numberOfLines={1} style={styles.backValue}>{row.value}</Text>
+              </View>
+            ))}
+            <View style={styles.backRow}>
+              <Text variant="caption" color={color.text.muted}>{tx('진행 상태', 'Status')}</Text>
+              <View style={styles.backStatus}>
+                <View style={styles.backDot} />
+                <Text variant="caption" weight="bold">{tx('생성 완료', 'Ready')}</Text>
+              </View>
+            </View>
+
+            <View style={styles.backActions}>
+              {onOpenItinerary ? (
+                <Pressable accessibilityRole="button" onPress={onOpenItinerary} style={({ pressed }) => [styles.backPrimary, pressed && styles.backPressed]}>
+                  <Text weight="bold" color={color.text.onAction}>{tx('일정 보기 →', 'View itinerary →')}</Text>
+                </Pressable>
+              ) : null}
+              {onOpenMap ? (
+                <Pressable accessibilityRole="button" onPress={onOpenMap} style={({ pressed }) => [styles.backGhost, pressed && styles.backPressed]}>
+                  <Text weight="bold">{tx('지도에서 보기', 'See on the map')}</Text>
+                </Pressable>
+              ) : null}
+            </View>
+          </Animated.View>
+        ) : null}
       </View>
 
       {!!onReprint && (
@@ -272,8 +417,41 @@ const styles = StyleSheet.create({
   slot: { width: RECEIPT_WIDTH, height: 14, borderRadius: radius.full, backgroundColor: '#14171b' },
   // 종이가 프린터 뒤에서 나오는 것처럼 보이게 창을 잘라 둔다. overflow 를 빼면
   // 아직 안 나온 종이가 프린터 위에 떠 보인다.
-  paperWindow: { width: RECEIPT_WIDTH, overflow: 'hidden', marginTop: -PRINTER_HEIGHT / 2, paddingTop: PRINTER_HEIGHT / 2 },
-  paper: { width: RECEIPT_WIDTH },
+  // 🔴 잘라내기(overflow)는 **인쇄 중에만** 켠다. 켜 둔 채로 뒤집으면 커진 카드의
+  //    가장자리가 잘리고, 뒷면이 3D 가 아니라 평면으로 눌려 앞면 위에 비친다.
+  paperWindow: { width: RECEIPT_WIDTH, marginTop: -PRINTER_HEIGHT / 2, paddingTop: PRINTER_HEIGHT / 2 },
+  clipWhilePrinting: { overflow: 'hidden' },
+  // 🔴 젖힘과 뒤집기의 축을 **종이 윗변**에 둔다. 가운데를 축으로 돌리면 종이가 프린터
+  //    슬롯에서 떨어져 나와 허공에서 도는 것처럼 보인다 — 인쇄물이 아니라 카드가 된다.
+  //    (웹만 지킨다. 네이티브는 이 속성이 없어 가운데 축으로 돈다 — 그래도 안 깨진다.)
+  paper: { width: RECEIPT_WIDTH, backfaceVisibility: 'hidden', transformOrigin: 'top center' },
+  faceHidden: { opacity: 0 },
+  flipHint: { alignItems: 'center', paddingVertical: spacing[2] },
+
+  // 뒷면 — 앞면과 **같은 자리**에 겹쳐 둔다. 크기가 다르면 뒤집는 동안 자리가 튄다.
+  back: {
+    position: 'absolute', left: 0, right: 0, top: PRINTER_HEIGHT / 2,
+    width: RECEIPT_WIDTH, gap: spacing[2], padding: spacing[4],
+    // 🔴 위쪽을 더 띄운다. 프린터가 종이 윗부분 26px 을 덮고 있어서, 그대로 두면
+    //    뒷면의 첫 줄(TRIP PASS · 코드)이 프린터 뒤로 들어가 안 읽힌다.
+    paddingTop: spacing[8],
+    borderRadius: radius.sm, backgroundColor: color.surface.card,
+    backfaceVisibility: 'hidden', transformOrigin: 'top center',
+    shadowColor: color.brand.navy, shadowOpacity: 0.16, shadowRadius: 10, shadowOffset: { width: 0, height: 6 }, elevation: 4,
+  },
+  backHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 28 },
+  backMark: { letterSpacing: 1.5 },
+  backRow: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[3], minHeight: 36,
+    borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: color.surface.border,
+  },
+  backValue: { flexShrink: 1 },
+  backStatus: { flexDirection: 'row', alignItems: 'center', gap: spacing[1] },
+  backDot: { width: 8, height: 8, borderRadius: radius.full, backgroundColor: color.state.success },
+  backActions: { gap: spacing[2], marginTop: spacing[2] },
+  backPrimary: { minHeight: 44, alignItems: 'center', justifyContent: 'center', borderRadius: radius.md, backgroundColor: color.brand.navy },
+  backGhost: { minHeight: 44, alignItems: 'center', justifyContent: 'center', borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.surface.card },
+  backPressed: { opacity: 0.8 },
   sheet: { backgroundColor: color.surface.card, paddingHorizontal: 20, paddingTop: 18, paddingBottom: 12, gap: spacing[3] },
   wordmark: { letterSpacing: 0.5 },
   rowBetween: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },

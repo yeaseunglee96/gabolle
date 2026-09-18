@@ -187,6 +187,7 @@ export default function Generating() {
     ownerName: user?.displayName ?? null,
     language: language === 'en' ? 'en' : 'ko',
   });
+  const ticketReady = job.state === 'completed';
   const tripPassDetails = buildTripPassDetails({
     itinerary, origin: draft.origin || null, startDate: draft.startDate || null, endDate: draft.endDate || null,
     transport: draft.transport || null, travelers: draft.travelers || null, ownerName: user?.displayName ?? null,
@@ -228,39 +229,36 @@ export default function Generating() {
  {/* 시안 TripPassCard 로 바꿨다. 전에는 이 자리에 영수증을
             직접 그렸는데, 찍히는 값이 「BUSAN」·「READY TO BOARD」 같은 **고정 글자**라
             실제 일정과 무관했다. 이제 날짜·방문지·걷는 거리·예상 비용이 전부 실값이다. */}
+        {/* 🔴 상세는 티켓 **뒷면**으로 갔다(시안 ②). 전에는 옆에 따로 서 있었는데, 그러면
+            티켓이 장식이 되고 사람이 읽는 것은 옆 칸이었다. 뒤집어 봐야 나오는 것이
+            「이 티켓이 내 여행이다」를 가장 짧게 말한다.
+
+            만드는 중에는 details 를 안 준다 — 뒤집을 내용이 없는데 뒤집히면 빈 뒷면이 나온다. */}
         {kind !== 'phone' ? (
           <View style={styles.ticketColumn}>
-            <TripPass data={tripPass} wide tx={tx} onReprint={() => setReprint((n) => n + 1)} key={reprint} />
+            <TripPass
+              data={tripPass}
+              wide
+              tx={tx}
+              details={ticketReady ? tripPassDetails : undefined}
+              onOpenItinerary={ticketReady && job.jobId ? () => router.replace(`/trips/${job.jobId}/recommendations?jobId=${encodeURIComponent(job.jobId as string)}`) : undefined}
+              onOpenMap={ticketReady && job.jobId ? () => router.push(`/trips/${job.jobId}/recommendations?jobId=${encodeURIComponent(job.jobId as string)}`) : undefined}
+              onReprint={() => setReprint((n) => n + 1)}
+              key={reprint}
+            />
           </View>
         ) : (
-          <TripPass data={tripPass} wide={false} tx={tx} onReprint={() => setReprint((n) => n + 1)} key={reprint} />
+          <TripPass
+            data={tripPass}
+            wide={false}
+            tx={tx}
+            details={ticketReady ? tripPassDetails : undefined}
+            onOpenItinerary={ticketReady && job.jobId ? () => router.replace(`/trips/${job.jobId}/recommendations?jobId=${encodeURIComponent(job.jobId as string)}`) : undefined}
+            onOpenMap={ticketReady && job.jobId ? () => router.push(`/trips/${job.jobId}/recommendations?jobId=${encodeURIComponent(job.jobId as string)}`) : undefined}
+            onReprint={() => setReprint((n) => n + 1)}
+            key={reprint}
+          />
         )}
-        {/* 시안 p4 — 티켓 옆에 여행표 상세가 선다. 출발지 · 첫 일정 · 마지막 일정 ·
-            이동 합계 · 예상 비용, 그리고 「일정 보기」·「지도에서 보기」.
-            모르는 줄은 아예 안 만든다(buildTripPassDetails). 시안에는 다섯 줄이 다
-            있지만 값이 없는 자리에 「미확인」을 적으면 정보가 아니라 잡음이다.
-        */}
-        {job.state === 'completed' && kind !== 'phone' ? (
-          <View style={styles.ticketDetails}>
-            <Text variant="title" weight="bold">{[tripPass.fromLabel, tripPass.toLabel].filter(Boolean).join(' → ')}</Text>
-            {tripPass.dateRange ? <Text variant="caption" color={color.text.muted}>{tripPass.dateRange}</Text> : null}
-            {tripPassDetails.map((row) => (
-              <View key={row.key} style={styles.detailRow}>
-                <Text variant="caption" color={color.text.muted}>{row.key}</Text>
-                <Text weight="bold" style={styles.detailValue} numberOfLines={1}>{row.value}</Text>
-              </View>
-            ))}
-            <View style={styles.detailRow}>
-              <Text variant="caption" color={color.text.muted}>{tx('일정 상태', 'Status')}</Text>
-              <View style={styles.statusRow}>
-                <View style={styles.statusDot} />
-                <Text weight="bold">{tx('생성 완료', 'Ready')}</Text>
-              </View>
-            </View>
-            <Button label={tx('일정 보기', 'View itinerary')} disabled={!job.jobId} onPress={() => job.jobId && router.replace(`/trips/${job.jobId}/recommendations?jobId=${encodeURIComponent(job.jobId)}`)} />
-            <Button label={tx('지도에서 보기', 'See on the map')} variant="ghost" disabled={!job.jobId} onPress={() => job.jobId && router.push(`/trips/${job.jobId}/recommendations?jobId=${encodeURIComponent(job.jobId)}`)} />
-          </View>
-        ) : null}
         {job.state === 'completed' && kind === 'phone' && <View style={styles.actions}><Button label={tx('일정 자세히 보기', 'View itinerary details')} onPress={() => job.jobId && router.replace(`/trips/${job.jobId}/recommendations?jobId=${encodeURIComponent(job.jobId)}`)} disabled={!job.jobId} /><Text variant="caption" color={color.text.muted}>{tx('추천 후보를 확인한 뒤 완성된 일정으로 이동할 수 있어요.', 'Review the recommendations, then open your completed itinerary.')}</Text></View>}
         </View>
       </View>
@@ -284,8 +282,9 @@ const styles = StyleSheet.create({ canvas: { backgroundColor: color.brand.ivory,
   ticketArea: { alignItems: 'center', justifyContent: 'flex-start', padding: spacing[6], borderRadius: radius.lg, backgroundColor: color.brand.ivory, borderWidth: 1, borderColor: color.surface.border },
   passHead: { width: '100%', minHeight: 40, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing[4] },
   passTitle: { letterSpacing: 1.5 },
-  passBody: { width: '100%', flexDirection: 'row', alignItems: 'flex-start', gap: spacing[8] },
-  ticketColumn: { width: 420, flexShrink: 0 },
+  // 상세가 뒷면으로 간 뒤로 이 줄에는 티켓 하나만 선다 — 가운데로 모은다.
+  passBody: { width: '100%', flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'center', gap: spacing[8] },
+  ticketColumn: { width: 420, flexShrink: 0, alignItems: 'center' },
   ticketAreaWide: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[8], justifyContent: 'center' },
   ticketDetails: { flex: 1, minWidth: 320, gap: spacing[1], paddingTop: spacing[2] },
   // 시안은 이름 왼쪽 · 값 오른쪽 한 줄이다. 쌓으면 줄 수가 두 배가 되고 값이 눈에 안 띈다.
