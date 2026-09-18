@@ -1,7 +1,7 @@
 // 로컬 탐색 화면 (상세설계서 v2 P-17). 8개 갈래(축제·야시장·전통시장·액티비티
 // 산책·자연·야경·기념품샵) 중 하나를 고르고, 내 근처와 부산 전체를 전환해 본다.
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Image, Linking, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Image, Linking, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as Location from 'expo-location';
 
@@ -12,6 +12,7 @@ import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
 import { Text } from '@/components/Text';
 import { Eyebrow } from '@/components/Eyebrow';
+import { ScopeSwitch } from '@/discovery/ScopeSwitch';
 import { PhotoSubjectBadge } from '@/components/PhotoSubjectBadge';
 import { color, radius, spacing } from '@/design/tokens';
 import { flattenLocalFacets, getFacets, getNearbyPlaces, localFacetLabel, localPlaceName, type FacetsLoadResult, type LocalFacetEntry, type NearbyPlacesLoadResult } from '@/discovery/localExplore';
@@ -92,7 +93,8 @@ export default function LocalExplore() {
   // 폭 분기. 경계값은 layout/breakpoints.ts 가 정한 셋을 그대로 쓴다
   // 이 화면에서 새 숫자를 만들지 않는다.
   // wide 600~ : 갈래 칩이 줄바꿈되고 결과가 카드 격자가 된다
-  // split 1024~ : 왼쪽 기둥(갈래·범위)과 오른쪽 결과로 나뉜다
+  // split 1024~ : 내용 최대 폭을 넓게 연다. 배치가 둘로 갈리던 자리였는데, 왼쪽 기둥을
+  //               없애고(시안 05) 지금은 폭만 정한다
   const { width } = useLayout();
   const wide = isAtLeast(width, 'md');
   const split = isAtLeast(width, 'lg');
@@ -110,8 +112,13 @@ export default function LocalExplore() {
 
       <View style={styles.heading}>
         <Eyebrow>{tx('로컬 탐색', 'Local explore')}</Eyebrow>
-        <Text variant="display" weight="bold">{tx('부산 로컬 탐색', 'Explore Busan like a local')}</Text>
-        <Text color={color.text.body}>{tx('관심 갈래를 고르고 내 근처 또는 부산 전체에서 찾아보세요.', 'Choose a category, then search nearby or across Busan.')}</Text>
+        {/* 🔴 큰 제목(hero)은 기본 글자색이 흰색이다 — 어두운 바탕 위에 쓰라고 만든 것이라서.
+            색을 안 주면 아이보리 바탕에 흰 글자가 되어 아무것도 안 보인다. 타입도 시험도
+            안 잡는 종류라 여기서 반드시 준다. */}
+        <Text variant={wide ? 'hero' : 'display'} weight="bold" color={color.text.heading}>
+          {tx('부산을 로컬처럼 둘러보기', 'Explore Busan like a local')}
+        </Text>
+        <Text color={color.text.body}>{tx('갈래를 고르고, 내 근처 또는 부산 전체에서 찾아보세요.', 'Choose a category, then search nearby or across Busan.')}</Text>
       </View>
 
       {loading ? (
@@ -131,31 +138,48 @@ export default function LocalExplore() {
       ) : null}
 
       {!loading && visibleFacets && visibleFacets.length > 0 ? (
-        <View style={split ? styles.split : styles.results}>
-          {/* 고르는 자리 — 좁은 화면에서는 내용 위에 가로로 눕고, 1024 부터는 왼쪽 기둥이 된다.
-              들어 있는 것은 어느 폭에서나 같다: 갈래 · 범위 토글 · 안내 한 줄.
+        <View style={styles.results}>
+          {/* 고르는 줄 — 갈래 칩과 범위 토글이 한 행에 있고, 스크롤해도 위에 붙어 따라온다.
+              전에는 1024 부터 왼쪽 기둥(320)이 됐는데, 그 폭만큼 정작 보러 온 결과가 좁아졌다.
+              갈래는 여덟 개뿐이라 한 줄에 들어간다 (시안 05).
           */}
-          <View style={split ? styles.sidebar : styles.pickers}>
+          <View style={[styles.filterBar, wide && styles.filterBarWide]}>
             <FacetPicker
               facets={visibleFacets}
               selectedKey={selectedFacet?.featureKey ?? null}
               onSelect={setSelectedKey}
-              mode={split ? 'list' : wide ? 'wrap' : 'rail'}
+              mode={wide ? 'wrap' : 'rail'}
               language={language}
             />
-            <View accessibilityRole="tablist" style={styles.scopeSwitch}>
-              {(['nearby', 'all'] as const).map((value) => {
-                const selected = scope === value;
-                return <Pressable key={value} accessibilityRole="tab" accessibilityState={{ selected }} onPress={() => setScope(value)} style={[styles.scopeOption, selected && styles.scopeOptionSelected]}>
-                  <Text weight="bold" color={selected ? color.text.onAction : color.text.body}>{selected ? '✓ ' : ''}{value === 'nearby' ? tx('내 근처', 'Nearby') : tx('부산 전체', 'All Busan')}</Text>
-                </Pressable>;
-              })}
+            <ScopeSwitch
+              options={[
+                { value: 'nearby', label: tx('내 근처', 'Nearby') },
+                { value: 'all', label: tx('부산 전체', 'All Busan') },
+              ]}
+              value={scope}
+              onChange={setScope}
+              style={wide ? styles.scopeWide : undefined}
+            />
+          </View>
+
+          {/* 결과 머리 — 안내 한 줄이 여기 붙는다. 고르는 자리에 있으면 「무엇을 고를까」를
+              보는 동안 읽히는데, 정작 필요한 때는 결과를 보며 「왜 이만큼만 나오지」를
+              물을 때다 (시안 05). */}
+          {selectedFacet ? (
+            <View style={styles.resultHead}>
+              <Text variant="display" weight="bold">
+                {localFacetLabel(selectedFacet, language)}{' '}
+                <Text variant="display" weight="bold" color={color.text.muted}>{tx(`${selectedFacet.placeCount}곳`, `${selectedFacet.placeCount} places`)}</Text>
+              </Text>
+              <Text variant="caption" style={styles.resultNote}>
+                {scope === 'all'
+                  ? tx('부산 전체는 거리 제한 없이 찾아요.', 'All Busan searches without a distance limit.')
+                  : tx('내 근처는 반경 안에서 찾아요. 결과의 검색 범위를 확인하거나 부산 전체로 바꿔 보세요.', 'Nearby searches within a radius. Check the range shown with results, or switch to All Busan.')}
+              </Text>
             </View>
-            <Text variant="caption">{scope === 'all' ? tx('부산 전체는 거리 제한 없이 찾아요.', 'All Busan searches without a distance limit.') : tx('내 근처는 반경 안에서 찾아요. 결과의 검색 범위를 확인하거나 부산 전체로 바꿔 보세요.', 'Nearby searches within a radius. Check the range shown with results, or switch to All Busan.')}</Text>
-          </View>
-          <View style={split ? styles.detail : undefined}>
-            {selectedFacet ? <LocalBranchList facet={selectedFacet} scope={scope} coords={coords} canAskAgain={canAskAgain} onRetryLocation={() => void detectLocation()} cards={wide} /> : null}
-          </View>
+          ) : null}
+
+          {selectedFacet ? <LocalBranchList facet={selectedFacet} scope={scope} coords={coords} canAskAgain={canAskAgain} onRetryLocation={() => void detectLocation()} cards={wide} /> : null}
         </View>
       ) : null}
     </Screen>
@@ -173,7 +197,7 @@ function FacetPicker({ facets, selectedKey, onSelect, mode, language }: {
   facets: LocalFacetEntry[];
   selectedKey: string | null;
   onSelect: (key: string) => void;
-  mode: 'rail' | 'wrap' | 'list';
+  mode: 'rail' | 'wrap';
   /**
    * useI18n 의 language 를 그대로 받는다. 문자열로 느슨하게 두면 localFacetLabel 이
    * 받는 다섯 언어 말고 아무 값이나 들어올 수 있어, 그 자리에서 타입으로 묶는다.
@@ -183,24 +207,19 @@ function FacetPicker({ facets, selectedKey, onSelect, mode, language }: {
   const chips = facets.map((entry) => {
     const selected = entry.featureKey === selectedKey;
     const label = localFacetLabel(entry, language);
-    if (mode === 'list') {
-      return (
-        <Pressable key={entry.featureKey} accessibilityRole="button" accessibilityState={{ selected }} onPress={() => onSelect(entry.featureKey)} style={[styles.facetRow, selected && styles.categoryChipSelected]}>
-          <Text weight="bold" color={selected ? color.text.onAction : color.text.heading} style={styles.grow}>{selected ? '✓ ' : ''}{label}</Text>
-          <Text variant="caption" weight="bold" color={selected ? color.text.onAction : color.text.muted}>{entry.placeCount}</Text>
-        </Pressable>
-      );
-    }
     return (
       <Pressable key={entry.featureKey} accessibilityRole="button" accessibilityState={{ selected }} onPress={() => onSelect(entry.featureKey)} style={[styles.categoryChip, selected && styles.categoryChipSelected]}>
-        <Text weight="bold" color={selected ? color.text.onAction : color.text.heading}>{selected ? '✓ ' : ''}{label} · {entry.placeCount}</Text>
+        {/* 개수는 이름과 다른 굵기·흐린 색으로 둔다 — 「축제 12」가 한 덩어리로 읽히면
+            12가 이름의 일부처럼 보인다 (시안 05). */}
+        <Text weight="bold" numberOfLines={1} color={selected ? color.text.onAction : color.text.heading}>{selected ? '✓ ' : ''}{label}</Text>
+        <Text variant="caption" weight="bold" numberOfLines={1} color={selected ? color.text.onAction : color.text.muted} style={styles.chipCount}>{entry.placeCount}</Text>
       </Pressable>
     );
   });
   if (mode === 'rail') {
     return <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoryRail}>{chips}</ScrollView>;
   }
-  return <View style={mode === 'list' ? styles.facetList : styles.facetWrap}>{chips}</View>;
+  return <View style={styles.facetWrap}>{chips}</View>;
 }
 
 function LocalBranchList({ facet, scope, coords, canAskAgain, onRetryLocation, cards = false }: {
@@ -361,11 +380,8 @@ const styles = StyleSheet.create({
   stateCard: { gap: spacing[3], marginTop: spacing[4], padding: spacing[6], borderRadius: radius.lg, backgroundColor: color.surface.card, alignItems: 'center' },
   results: { gap: spacing[4] },
   categoryRail: { gap: spacing[2], paddingRight: spacing[4] },
-  categoryChip: { minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.border },
+  categoryChip: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], minHeight: 44, paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.border },
   categoryChipSelected: { backgroundColor: color.brand.navy, borderColor: color.brand.navy },
-  scopeSwitch: { flexDirection: 'row', padding: spacing[1], borderRadius: radius.full, backgroundColor: color.surface.soft },
-  scopeOption: { flex: 1, minHeight: 44, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full },
-  scopeOptionSelected: { backgroundColor: color.brand.orange },
   placeList: { gap: spacing[2] },
   branchBody: { padding: spacing[4], paddingTop: 0, gap: spacing[2] },
   branchRetry: { alignSelf: 'flex-start' },
@@ -373,18 +389,31 @@ const styles = StyleSheet.create({
   placeRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[3], paddingVertical: spacing[2], borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: color.surface.border },
   grow: { flex: 1 },
 
-  // ── 넓은 화면 ──────────────────────────────────────────────
-  split: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[6] },
-  sidebar: { width: 320, gap: spacing[4] },
-  detail: { flex: 1, minWidth: 0 },
-  pickers: { gap: spacing[4] },
+  // ── 고르는 줄 ──────────────────────────────────────────────
+  //
+  // 🔴 스크롤을 내려도 위에 붙어 따라온다(웹 전용). 결과를 훑다 갈래를 바꾸려고 맨 위까지
+  //    되돌아가는 일이 없게. position: 'sticky' 는 웹에만 있는 값이라 RN 타입에 없다.
+  filterBar: {
+    gap: spacing[3],
+    paddingVertical: spacing[3],
+    ...(Platform.OS === 'web'
+      ? ({ position: 'sticky', top: 0, zIndex: 10 } as object)
+      : null),
+    backgroundColor: color.brand.ivory,
+    borderBottomWidth: 1,
+    borderBottomColor: color.surface.border,
+  },
+  // 넓으면 칩과 토글이 한 행에 선다. 좁으면 칩 레일 아래에 토글이 온다.
+  filterBarWide: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[4] },
+  scopeWide: { width: 232 },
 
-  // 600~1023 — 칩이 줄바꿈된다. 숨는 것이 없어야 한다는 게 이 모양의 전부다.
+  // 결과 머리 — 제목과 안내 한 줄.
+  resultHead: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', gap: spacing[3], flexWrap: 'wrap' },
+  resultNote: { flexShrink: 1 },
+
+  // 칩이 줄바꿈된다. 숨는 것이 없어야 한다는 게 이 모양의 전부다.
   facetWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] },
-
-  // 1024~ — 세로 목록. 개수를 오른쪽 끝으로 민다.
-  facetList: { gap: spacing[2] },
-  facetRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], minHeight: 44, paddingHorizontal: spacing[4], borderRadius: radius.md, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.border },
+  chipCount: { opacity: 0.75 },
 
   // 사진 — 없을 때가 더 흔하다(7~18%만 온다). 자리표시가 기본 모습이라고 보면 된다.
   photoWrap: { position: 'relative', overflow: 'hidden' },
