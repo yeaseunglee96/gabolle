@@ -35,7 +35,16 @@ public record RouteDirectionsResponse(
 		String estimateReason,
 		String provider,
 		List<double[]> path,
-		List<Step> steps) {
+		List<Step> steps,
+
+		/**
+		 * 🔴 S15P21E201-1291 — 대중교통 요금(원). 환승 할인·차액이 반영된 <b>이 여정 전체</b>의 금액이다.
+		 *
+		 * <p>🔴 <b>{@code null} 과 {@code 0} 이 다르다.</b> {@code null} 은 「모른다」(요금표에 없는
+		 * 노선이 끼었다), {@code 0} 은 「걷기만 해서 공짜다」이다. <b>화면이 둘을 같게 그리면 안 된다</b> —
+		 * 모르는 것을 0 으로 더하면 그 여정이 「무료」로 보인다.
+		 */
+		Integer transitFareKrw) {
 
 	/** 안내 한 줄 — 예: {@code name="해운대해수욕장삼거리"}, {@code guidance="송정 방면으로 우회전"}. */
 	public record Step(String name, String guidance, int distanceM, int durationMin) {
@@ -56,6 +65,7 @@ public record RouteDirectionsResponse(
 				leg.estimateReason(),
 				leg.provider(),
 				leg.path(),
-				steps);
+				steps,
+				leg.transitFareKrw());
 	}
 }

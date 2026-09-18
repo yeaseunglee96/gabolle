@@ -86,9 +86,25 @@ public final class TransitNetwork {
 	 * @param firstMinOfDay 첫차 시각(자정부터 분)
 	 * @param lastMinOfDay 막차 시각(자정부터 분). 🔴 {@code firstMinOfDay} 보다 <b>작을 수 있다</b> —
 	 *     자정을 넘겨 다니는 노선이다(예: 23:30~01:10). {@link #runsAt(int)} 가 그것을 본다
+	 * @param fareType 요금표에서 이 노선을 가리키는 이름 — {@code "일반버스"}·{@code "마을버스"} 같은
+	 *     원천의 값 그대로다(S15P21E201-1291). 🔴 <b>모르면 {@code null}</b> 이고, 그러면 이 노선이
+	 *     낀 여정은 요금을 못 낸다. 지하철은 종류가 하나뿐이라 {@code null} 이어도 된다 —
+	 *     {@link Kind#SUBWAY} 가 그 자리를 대신한다
 	 */
 	public record Route(String id, String name, Kind kind, List<String> stopIds, int headwayMin,
-			int firstMinOfDay, int lastMinOfDay) {
+			int firstMinOfDay, int lastMinOfDay, String fareType) {
+
+		/**
+		 * 🔴 S15P21E201-1291 — {@code fareType} 없이 만들던 기존 자리를 위해 둔다.
+		 *
+		 * <p>요금을 모르는 노선이 된다({@code null}). 지어내지 않는 쪽이 맞다 — 종류를 모르면
+		 * 어느 요금표 줄을 볼지도 모르는 것이고, 아무 줄이나 고르면 <b>틀린 요금을 자신 있게</b>
+		 * 보여주게 된다.
+		 */
+		public Route(String id, String name, Kind kind, List<String> stopIds, int headwayMin,
+				int firstMinOfDay, int lastMinOfDay) {
+			this(id, name, kind, stopIds, headwayMin, firstMinOfDay, lastMinOfDay, null);
+		}
 
 		/**
 		 * 운행 시간대를 모르는 노선 — <b>하루 종일 다니는 것으로 본다.</b>
@@ -98,7 +114,7 @@ public final class TransitNetwork {
 		 * 것이라 방향이 반대다.
 		 */
 		public Route(String id, String name, Kind kind, List<String> stopIds, int headwayMin) {
-			this(id, name, kind, stopIds, headwayMin, 0, MINUTES_PER_DAY - 1);
+			this(id, name, kind, stopIds, headwayMin, 0, MINUTES_PER_DAY - 1, null);
 		}
 
 		/**
