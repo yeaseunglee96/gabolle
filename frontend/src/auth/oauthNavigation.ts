@@ -1,6 +1,7 @@
 import type { Href } from 'expo-router';
 
 import type { AuthTokens, OAuthCompleteResult, OAuthProvider } from './authApi';
+import { enterApp, type StackRouter } from './enterApp';
 import { resolveDestination } from './pendingReturnTo';
 
 // 소셜 인증 완료(LOGGED_IN/SIGNUP_REQUIRED/LINK_REQUIRED) 뒤 어디로 갈지는 sign-in.tsx의
@@ -10,13 +11,15 @@ export async function navigateAfterOAuthComplete(input: {
   result: OAuthCompleteResult;
   provider: OAuthProvider;
   returnTo?: string | null;
-  router: { replace: (href: Href) => void; push: (href: Href) => void };
+  router: StackRouter & { push: (href: Href) => void };
   acceptTokens: (tokens: AuthTokens) => Promise<void>;
 }) {
   const { result, provider, returnTo, router, acceptTokens } = input;
   if (result.status === 'LOGGED_IN') {
     await acceptTokens(result);
-    router.replace((await resolveDestination(returnTo)) as Href);
+    // 🔴 쌓인 로그인 화면을 치우고 간다 (S15P21E201-1199). 소셜 로그인은 착지하면서
+    //    화면이 한 칸 더 쌓이는 판이 있어 여기가 특히 중요하다.
+    enterApp(router, (await resolveDestination(returnTo)) as Href);
   } else if (result.status === 'SIGNUP_REQUIRED') {
     router.push({
       pathname: '/oauth-signup',

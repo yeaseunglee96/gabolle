@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<style>
+@font-face{font-family:Pretendard;font-weight:400;font-display:swap;src:url("fonts/Pretendard-Regular.woff2") format("woff2")}
+@font-face{font-family:Pretendard;font-weight:500;font-display:swap;src:url("fonts/Pretendard-Medium.woff2") format("woff2")}
+@font-face{font-family:Pretendard;font-weight:700;font-display:swap;src:url("fonts/Pretendard-Bold.woff2") format("woff2")}
+body{margin:0;background:#ece7df;font-family:Pretendard,-apple-system,"Malgun Gothic",sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#0b1d3a;text-decoration:none}a:hover{color:#f26532}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes popIn{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:none}}
+@keyframes slideUp{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+</style>
+</helmet>
+<section style="display:flex;flex-direction:column;gap:20px;padding:40px;box-sizing:border-box">
+<div style="display:flex;align-items:center;gap:8px"><span style="padding:2px 8px;border-radius:999px;background:#0b1d3a;color:#fff;font-size:11px;line-height:14px;font-weight:700">1a</span><span style="font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#f26532">/me · 마이페이지 기본 화면 — 커버 사진이 아래로 흰색에 녹는 프로필 카드 + 기존 메뉴(app/(tabs)/me.tsx 항목 그대로)</span></div>
+<div style="max-width:1100px;font-size:13px;line-height:18px;color:#667882;text-wrap:pretty">데스크톱은 /me/profile로 리다이렉트하던 것을 이 카드가 있는 /me 본체로 바꿔요. 커버·아바타·한 줄 소개·팔로잉/팔로워는 프로필 편집(/me/profile)에서 바꾸고, 여기선 「프로필 편집」 한 버튼만. 커버는 사용자가 안 올렸으면 부산 기본 사진.</div>
+<div style="display:flex;gap:40px;align-items:flex-start;width:max-content">
+
+<div data-screen-label="me-desktop" style="position:relative;width:1440px;flex-shrink:0;background:#fffdf8;display:flex;flex-direction:column;box-shadow:0 2px 12px rgba(11,29,58,.08);font-family:Pretendard,-apple-system,'Malgun Gothic',sans-serif">
+  <div style="height:36px;padding:0 40px;background:#f8f3eb;display:flex;align-items:center;justify-content:flex-end;gap:16px;font-size:13px;line-height:18px;color:#667882"><span style="font-weight:700;color:#0b1d3a">KO</span><span style="color:#e4ddd3">|</span><span>EN</span><span style="color:#e4ddd3">|</span><span style="font-weight:700;color:#0b1d3a">HJ Jang</span></div>
+  <div style="height:60px;padding:0 40px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e8e4dd"><img src="assets/logo.png" alt="GABOLLE" style="width:120px;height:28px;object-fit:contain"><div style="display:flex;gap:4px;padding:4px;border-radius:999px;background:#f8f3eb"><span style="min-height:40px;padding:0 20px;display:flex;align-items:center;font-size:15px;font-weight:500;color:#667882">홈</span><span style="min-height:40px;padding:0 20px;display:flex;align-items:center;font-size:15px;font-weight:500;color:#667882">피드</span><span style="min-height:40px;padding:0 20px;display:flex;align-items:center;font-size:15px;font-weight:500;color:#667882">내 여행</span></div><div style="height:40px;padding:0 16px;border-radius:14px;background:#0b1d3a;display:flex;align-items:center;font-size:14px;font-weight:700;color:#fff">여행 만들기</div></div>
+  <div style="max-width:1200px;width:100%;margin:0 auto;padding:32px 40px 64px;box-sizing:border-box;display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:24px;align-items:start">
+    <div style="display:flex;flex-direction:column;gap:24px;min-width:0">
+      <div style="position:relative;border-radius:24px;overflow:hidden;background:#fff;border:1px solid #e8e4dd;box-shadow:0 8px 24px rgba(11,29,58,.06)">
+        <div style="position:relative;height:300px;background:{{ cover }}">
+          <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,0) 35%,rgba(255,255,255,.55) 70%,#fff 100%)"></div>
+          
+        </div>
+        <div style="position:relative;padding:0 32px 28px;margin-top:-72px;display:flex;flex-direction:column;gap:16px">
+          <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px">
+            <div style="width:112px;height:112px;border-radius:999px;background:#0b1d3a;border:5px solid #fff;box-shadow:0 8px 20px rgba(11,29,58,.16);display:flex;align-items:center;justify-content:center;font-size:40px;font-weight:700;color:#fff">{{ initial }}</div>
+            <div onClick="{{ openEdit }}" style="height:44px;padding:0 20px;border-radius:999px;background:#0b1d3a;display:flex;align-items:center;font-size:15px;line-height:22px;font-weight:700;color:#fff;margin-bottom:8px;cursor:pointer">프로필 편집</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <div style="font-size:28px;line-height:34px;letter-spacing:-.2px;font-weight:700;color:#152238">{{ name }}</div>
+            <div style="font-size:15px;line-height:22px;color:#152238">{{ bio }}</div>
+            <div style="display:flex;flex-wrap:wrap;align-items:center;gap:16px;margin-top:4px;font-size:13px;line-height:18px;color:#667882">
+              <span style="display:flex;align-items:center;gap:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#667882" stroke-width="2" stroke-linecap="round"><rect x="3" y="7" width="18" height="13" rx="2"></rect><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>{{ role }}</span>
+              <span style="display:flex;align-items:center;gap:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#667882" stroke-width="2" stroke-linecap="round"><path d="M12 22s7-7 7-12a7 7 0 1 0-14 0c0 5 7 12 7 12z"></path><circle cx="12" cy="10" r="2.5"></circle></svg>{{ home }}</span>
+              <span style="display:flex;align-items:center;gap:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#667882" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M3 10h18M8 3v4M16 3v4"></path></svg>{{ joined }}</span>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:20px;padding-top:12px;font-size:13px;line-height:18px;color:#667882">
+            <a href="#" style="display:flex;align-items:baseline;gap:4px;color:#667882"><b style="font-size:15px;color:#152238">{{ following }}</b>팔로잉</a>
+            <a href="#" style="display:flex;align-items:baseline;gap:4px;color:#667882"><b style="font-size:15px;color:#152238">{{ followers }}</b>팔로워</a>
+            <a href="#" style="display:flex;align-items:baseline;gap:4px;color:#667882"><b style="font-size:15px;color:#152238">{{ posts }}</b>기록</a>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;align-items:baseline;justify-content:space-between"><div style="font-size:18px;line-height:24px;font-weight:700;color:#152238">내 기록</div><a href="#" style="font-size:15px;line-height:22px;font-weight:700">전체 →</a></div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+          <sc-for list="{{ records }}" as="r" hint-placeholder-count="4">
+            <div style="display:flex;flex-direction:column;gap:6px"><div style="aspect-ratio:1/1;border-radius:14px;background:{{ r.cover }}"></div><div style="font-size:15px;line-height:22px;font-weight:700;color:#152238;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.title }}</div><div style="font-size:11px;line-height:14px;color:#64748b">{{ r.when }}</div></div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <sc-for list="{{ groups }}" as="g" hint-placeholder-count="2">
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="padding:0 4px;font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#f26532">{{ g.label }}</div>
+          <div style="border-radius:20px;background:#fff;border:1px solid #e8e4dd;overflow:hidden">
+            <sc-for list="{{ g.items }}" as="it" hint-placeholder-count="4">
+              <div onClick="{{ it.open }}" style="display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:56px;padding:0 20px;border-bottom:1px solid #f1ede6;color:#152238;cursor:pointer;transition:background .15s" style-hover="background:#f8f3eb"><div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:15px;line-height:22px;font-weight:500">{{ it.label }}</span><sc-if value="{{ it.hasDesc }}" hint-placeholder-val="{{ false }}"><span style="font-size:11px;line-height:14px;color:#64748b">{{ it.desc }}</span></sc-if></div><span style="font-size:13px;line-height:18px;color:#64748b;white-space:nowrap">{{ it.value }}</span></div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-for>
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:16px 20px;border-radius:20px;background:#fff;border:1px solid #e8e4dd"><div style="display:flex;flex-direction:column;gap:4px"><span style="font-size:15px;line-height:22px;font-weight:700;color:#152238">맞춤 추천</span><span style="font-size:11px;line-height:14px;color:#64748b">저장·제외·일정 수정·체크인 후기 같은 활동을 바탕으로 추천을 맞춰요. 이 설정은 이 기기에 저장돼요.</span></div><div onClick="{{ toggleTune }}" style="width:48px;height:28px;border-radius:999px;background:{{ tuneBg }};position:relative;flex-shrink:0;cursor:pointer;transition:background .2s"><div style="position:absolute;top:3px;left:{{ tuneX }};width:22px;height:22px;border-radius:999px;background:#fff;box-shadow:0 1px 3px rgba(11,29,58,.3);transition:left .2s"></div></div></div>
+      <div style="min-height:48px;border-radius:14px;background:#fff;border:1px solid #e4ddd3;display:flex;align-items:center;justify-content:center;font-size:15px;line-height:22px;font-weight:700;color:#0b1d3a">로그아웃</div>
+    </div>
+  </div>
+  <sc-if value="{{ modalOpen }}" hint-placeholder-val="{{ false }}"><div onClick="{{ closeModal }}" style="position:absolute;inset:0;z-index:50;background:rgba(11,29,58,.45);display:flex;align-items:center;justify-content:center;animation:fadeIn .2s ease-out"><div onClick="{{ stop }}" data-screen-label="me-modal" style="width:{{ modalW }};max-height:88%;display:flex;flex-direction:column;border-radius:24px;background:#fffdf8;box-shadow:0 24px 64px rgba(11,29,58,.3);overflow:hidden;animation:popIn .28s cubic-bezier(.2,.8,.2,1)"><div style="position:relative;display:flex;align-items:center;justify-content:center;min-height:64px;padding:0 24px;border-bottom:1px solid #e8e4dd;flex-shrink:0"><span style="font-size:18px;line-height:24px;font-weight:700;color:#152238">{{ modalTitle }}</span><div onClick="{{ closeModal }}" style="position:absolute;right:16px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;cursor:pointer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#152238" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg></div></div><div style="flex:1;min-height:0;overflow:auto;padding:24px"><sc-if value="{{ isEdit }}" hint-placeholder-val="{{ true }}"><div style="display:flex;flex-direction:column;gap:20px">
+  <div style="position:relative;height:160px;border-radius:20px;overflow:hidden;background:{{ cover }}"><div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,0) 40%,rgba(255,255,255,.7) 100%)"></div><div style="position:absolute;top:12px;right:12px;height:36px;padding:0 14px;border-radius:999px;background:rgba(255,253,248,.92);display:flex;align-items:center;gap:6px;font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#152238;cursor:pointer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#152238" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h3l2-3h6l2 3h3v13H4z"></path><circle cx="12" cy="13" r="3.5"></circle></svg>배경 사진 바꾸기</div>
+    <div style="position:absolute;left:20px;bottom:-1px;display:flex;align-items:flex-end;gap:12px"><div style="position:relative;width:88px;height:88px;border-radius:999px;background:#0b1d3a;border:4px solid #fff;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:700;color:#fff">{{ initial }}<div style="position:absolute;right:-2px;bottom:-2px;width:32px;height:32px;border-radius:999px;background:#fff;border:1px solid #e4ddd3;display:flex;align-items:center;justify-content:center;cursor:pointer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#152238" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h3l2-3h6l2 3h3v13H4z"></path><circle cx="12" cy="13" r="3.5"></circle></svg></div></div><div style="display:flex;gap:8px;padding-bottom:8px"><span style="height:32px;padding:0 12px;border-radius:999px;background:rgba(255,253,248,.92);display:flex;align-items:center;font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#152238;cursor:pointer">사진 바꾸기</span><span style="height:32px;padding:0 12px;border-radius:999px;background:rgba(255,253,248,.92);display:flex;align-items:center;font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#64748b;cursor:pointer">기본으로</span></div></div></div>
+  <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#152238">닉네임</span><div style="min-height:48px;padding:0 16px;border-radius:14px;border:1px solid #e4ddd3;background:#fff;display:flex;align-items:center;font-size:15px;line-height:22px;color:#152238">HJ Jang</div><span style="font-size:11px;line-height:14px;letter-spacing:.1px;color:#64748b">7 / 30 · 피드와 기록에 보여요</span></div>
+  <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#152238">한 줄 소개</span><div style="min-height:48px;padding:0 16px;border-radius:14px;border:1px solid #e4ddd3;background:#fff;display:flex;align-items:center;font-size:15px;line-height:22px;color:#152238">부산 골목과 바다를 천천히 걷는 사람.</div><span style="font-size:11px;line-height:14px;letter-spacing:.1px;color:#64748b">22 / 60 · 프로필 카드에 보여요</span></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#152238">거주지</span><div style="min-height:48px;padding:0 16px;border-radius:14px;border:1px solid #e4ddd3;background:#fff;display:flex;align-items:center;font-size:15px;line-height:22px;color:#152238">서울</div></div><div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#152238">이메일</span><div style="min-height:48px;padding:0 16px;border-radius:14px;border:1px solid #e4ddd3;background:#fff;display:flex;align-items:center;font-size:15px;line-height:22px;color:#152238"><span style="color:#64748b">***@redacted</span></div><span style="font-size:11px;line-height:14px;letter-spacing:.1px;color:#64748b">변경 불가</span></div></div>
+  <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#152238">언어</span><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div style="min-height:48px;border-radius:14px;background:#0b1d3a;display:flex;align-items:center;justify-content:center;font-size:15px;line-height:22px;font-weight:700;color:#fff">한국어</div><div style="min-height:48px;border-radius:14px;border:1px solid #e4ddd3;background:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;line-height:22px;font-weight:700;color:#152238">English</div></div></div>
+</div></sc-if><sc-if value="{{ isGeneric }}" hint-placeholder-val="{{ false }}"><div style="display:flex;flex-direction:column;gap:12px"><div style="font-size:15px;line-height:22px;color:#667882">{{ modalDesc }}</div><sc-for list="{{ modalRows }}" as="row" hint-placeholder-count="3"><div style="display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:56px;padding:0 16px;border-radius:14px;background:#fff;border:1px solid #e8e4dd"><div style="display:flex;flex-direction:column;gap:2px;min-width:0"><span style="font-size:15px;line-height:22px;font-weight:700;color:#152238">{{ row.label }}</span><sc-if value="{{ row.hasSub }}" hint-placeholder-val="{{ false }}"><span style="font-size:11px;line-height:14px;letter-spacing:.1px;color:#64748b">{{ row.sub }}</span></sc-if></div><span style="font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:{{ row.fg }};white-space:nowrap;padding:6px 10px;border-radius:999px;background:{{ row.bg }}">{{ row.action }}</span></div></sc-for></div></sc-if></div><sc-if value="{{ isEdit }}" hint-placeholder-val="{{ true }}"><div style="display:flex;align-items:center;justify-content:flex-end;gap:12px;padding:16px 24px;border-top:1px solid #e8e4dd;background:#fff;flex-shrink:0"><div onClick="{{ closeModal }}" style="min-height:48px;padding:0 20px;display:flex;align-items:center;font-size:15px;line-height:22px;font-weight:700;color:#152238;cursor:pointer">취소</div><div onClick="{{ closeModal }}" style="height:48px;padding:0 24px;border-radius:14px;background:#0b1d3a;display:flex;align-items:center;font-size:15px;line-height:22px;font-weight:700;color:#fff;cursor:pointer">저장</div></div></sc-if></div></div></sc-if>
+</div>
+
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" width="390" height="844" style="width:390px;flex-shrink:0" hint-size="390px,844px">
+<div data-screen-label="me-mobile" style="position:relative;width:100%;height:100%;background:#fffdf8;font-family:Pretendard,-apple-system,'Malgun Gothic',sans-serif;display:flex;flex-direction:column">
+  <div style="flex:1;min-height:0;overflow:auto;padding:0 0 110px;display:flex;flex-direction:column;gap:24px">
+    <div style="position:relative;background:#fff;border-bottom:1px solid #e8e4dd">
+      <div style="position:relative;height:240px;background:{{ cover }}">
+        <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,0) 30%,rgba(255,255,255,.6) 70%,#fff 100%)"></div>
+        <div style="position:absolute;top:54px;left:16px;right:16px;display:flex;align-items:center;justify-content:space-between"><span style="font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#f26532;padding:6px 10px;border-radius:999px;background:rgba(255,253,248,.9)">내 계정</span></div>
+      </div>
+      <div style="position:relative;padding:0 24px 20px;margin-top:-56px;display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:12px">
+          <div style="width:88px;height:88px;border-radius:999px;background:#0b1d3a;border:4px solid #fff;box-shadow:0 8px 20px rgba(11,29,58,.16);display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:700;color:#fff">{{ initial }}</div>
+          <div onClick="{{ openEdit }}" style="height:44px;padding:0 18px;border-radius:999px;background:#0b1d3a;display:flex;align-items:center;font-size:15px;line-height:22px;font-weight:700;color:#fff;margin-bottom:4px;cursor:pointer">프로필 편집</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <div style="font-size:22px;line-height:28px;letter-spacing:-.15px;font-weight:700;color:#152238">{{ name }}</div>
+          <div style="font-size:15px;line-height:22px;color:#152238">{{ bio }}</div>
+          <div style="display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:2px;font-size:11px;line-height:14px;color:#667882"><span>{{ role }}</span><span>·</span><span>{{ home }}</span><span>·</span><span>{{ joined }}</span></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px;font-size:13px;line-height:18px;color:#667882">
+          <a href="#" style="display:flex;align-items:baseline;gap:4px;color:#667882"><b style="font-size:15px;color:#152238">{{ following }}</b>팔로잉</a>
+          <a href="#" style="display:flex;align-items:baseline;gap:4px;color:#667882"><b style="font-size:15px;color:#152238">{{ followers }}</b>팔로워</a>
+          <a href="#" style="display:flex;align-items:baseline;gap:4px;color:#667882"><b style="font-size:15px;color:#152238">{{ posts }}</b>기록</a>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;padding:0 24px">
+      <div style="display:flex;align-items:baseline;justify-content:space-between"><div style="font-size:18px;line-height:24px;font-weight:700;color:#152238">내 기록</div><a href="#" style="font-size:15px;line-height:22px;font-weight:700">전체 →</a></div>
+      <div style="display:flex;gap:12px;overflow-x:auto;scrollbar-width:none;flex-shrink:0">
+        <sc-for list="{{ records }}" as="r" hint-placeholder-count="4"><div style="width:120px;flex-shrink:0;display:flex;flex-direction:column;gap:6px"><div style="aspect-ratio:1/1;border-radius:14px;background:{{ r.cover }}"></div><div style="font-size:13px;line-height:18px;font-weight:700;color:#152238;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.title }}</div></div></sc-for>
+      </div>
+    </div>
+    <sc-for list="{{ groups }}" as="g" hint-placeholder-count="2">
+      <div style="display:flex;flex-direction:column;gap:8px;padding:0 24px">
+        <div style="padding:0 4px;font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#f26532">{{ g.label }}</div>
+        <div style="border-radius:20px;background:#fff;border:1px solid #e8e4dd;overflow:hidden">
+          <sc-for list="{{ g.items }}" as="it" hint-placeholder-count="4"><div onClick="{{ it.open }}" style="display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:56px;padding:0 16px;border-bottom:1px solid #f1ede6;color:#152238;cursor:pointer"><div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:15px;line-height:22px;font-weight:500">{{ it.label }}</span><sc-if value="{{ it.hasDesc }}" hint-placeholder-val="{{ false }}"><span style="font-size:11px;line-height:14px;color:#64748b">{{ it.desc }}</span></sc-if></div><span style="font-size:13px;line-height:18px;color:#64748b;white-space:nowrap">{{ it.value }}</span></div></sc-for>
+        </div>
+      </div>
+    </sc-for>
+    <div style="display:flex;flex-direction:column;gap:12px;padding:0 24px">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:16px;border-radius:20px;background:#fff;border:1px solid #e8e4dd"><div style="display:flex;flex-direction:column;gap:4px"><span style="font-size:15px;line-height:22px;font-weight:700;color:#152238">맞춤 추천</span><span style="font-size:11px;line-height:14px;color:#64748b">내 활동을 바탕으로 추천을 맞춰요.</span></div><div onClick="{{ toggleTune }}" style="width:48px;height:28px;border-radius:999px;background:{{ tuneBg }};position:relative;flex-shrink:0;cursor:pointer;transition:background .2s"><div style="position:absolute;top:3px;left:{{ tuneX }};width:22px;height:22px;border-radius:999px;background:#fff;box-shadow:0 1px 3px rgba(11,29,58,.3);transition:left .2s"></div></div></div>
+      <div style="min-height:48px;border-radius:14px;background:#fff;border:1px solid #e4ddd3;display:flex;align-items:center;justify-content:center;font-size:15px;line-height:22px;font-weight:700;color:#0b1d3a">로그아웃</div>
+    </div>
+  </div>
+  <sc-if value="{{ modalOpen }}" hint-placeholder-val="{{ false }}"><div onClick="{{ closeModal }}" style="position:absolute;inset:0;z-index:50;background:rgba(11,29,58,.45);display:flex;align-items:flex-end;animation:fadeIn .2s ease-out"><div onClick="{{ stop }}" data-screen-label="me-sheet" style="width:100%;max-height:92%;display:flex;flex-direction:column;border-radius:24px 24px 0 0;background:#fffdf8;box-shadow:0 -12px 40px rgba(11,29,58,.25);overflow:hidden;animation:slideUp .3s cubic-bezier(.2,.8,.2,1)"><div style="position:relative;display:flex;align-items:center;justify-content:center;min-height:64px;padding:0 24px;border-bottom:1px solid #e8e4dd;flex-shrink:0"><span style="font-size:18px;line-height:24px;font-weight:700;color:#152238">{{ modalTitle }}</span><div onClick="{{ closeModal }}" style="position:absolute;right:16px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;cursor:pointer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#152238" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg></div></div><div style="flex:1;min-height:0;overflow:auto;padding:20px 24px"><sc-if value="{{ isEdit }}" hint-placeholder-val="{{ true }}"><div style="display:flex;flex-direction:column;gap:20px">
+  <div style="position:relative;height:160px;border-radius:20px;overflow:hidden;background:{{ cover }}"><div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,0) 40%,rgba(255,255,255,.7) 100%)"></div><div style="position:absolute;top:12px;right:12px;height:36px;padding:0 14px;border-radius:999px;background:rgba(255,253,248,.92);display:flex;align-items:center;gap:6px;font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#152238;cursor:pointer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#152238" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h3l2-3h6l2 3h3v13H4z"></path><circle cx="12" cy="13" r="3.5"></circle></svg>배경 사진 바꾸기</div>
+    <div style="position:absolute;left:20px;bottom:-1px;display:flex;align-items:flex-end;gap:12px"><div style="position:relative;width:88px;height:88px;border-radius:999px;background:#0b1d3a;border:4px solid #fff;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:700;color:#fff">{{ initial }}<div style="position:absolute;right:-2px;bottom:-2px;width:32px;height:32px;border-radius:999px;background:#fff;border:1px solid #e4ddd3;display:flex;align-items:center;justify-content:center;cursor:pointer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#152238" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h3l2-3h6l2 3h3v13H4z"></path><circle cx="12" cy="13" r="3.5"></circle></svg></div></div><div style="display:flex;gap:8px;padding-bottom:8px"><span style="height:32px;padding:0 12px;border-radius:999px;background:rgba(255,253,248,.92);display:flex;align-items:center;font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#152238;cursor:pointer">사진 바꾸기</span><span style="height:32px;padding:0 12px;border-radius:999px;background:rgba(255,253,248,.92);display:flex;align-items:center;font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#64748b;cursor:pointer">기본으로</span></div></div></div>
+  <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#152238">닉네임</span><div style="min-height:48px;padding:0 16px;border-radius:14px;border:1px solid #e4ddd3;background:#fff;display:flex;align-items:center;font-size:15px;line-height:22px;color:#152238">HJ Jang</div><span style="font-size:11px;line-height:14px;letter-spacing:.1px;color:#64748b">7 / 30 · 피드와 기록에 보여요</span></div>
+  <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#152238">한 줄 소개</span><div style="min-height:48px;padding:0 16px;border-radius:14px;border:1px solid #e4ddd3;background:#fff;display:flex;align-items:center;font-size:15px;line-height:22px;color:#152238">부산 골목과 바다를 천천히 걷는 사람.</div><span style="font-size:11px;line-height:14px;letter-spacing:.1px;color:#64748b">22 / 60 · 프로필 카드에 보여요</span></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#152238">거주지</span><div style="min-height:48px;padding:0 16px;border-radius:14px;border:1px solid #e4ddd3;background:#fff;display:flex;align-items:center;font-size:15px;line-height:22px;color:#152238">서울</div></div><div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#152238">이메일</span><div style="min-height:48px;padding:0 16px;border-radius:14px;border:1px solid #e4ddd3;background:#fff;display:flex;align-items:center;font-size:15px;line-height:22px;color:#152238"><span style="color:#64748b">***@redacted</span></div><span style="font-size:11px;line-height:14px;letter-spacing:.1px;color:#64748b">변경 불가</span></div></div>
+  <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:#152238">언어</span><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div style="min-height:48px;border-radius:14px;background:#0b1d3a;display:flex;align-items:center;justify-content:center;font-size:15px;line-height:22px;font-weight:700;color:#fff">한국어</div><div style="min-height:48px;border-radius:14px;border:1px solid #e4ddd3;background:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;line-height:22px;font-weight:700;color:#152238">English</div></div></div>
+</div></sc-if><sc-if value="{{ isGeneric }}" hint-placeholder-val="{{ false }}"><div style="display:flex;flex-direction:column;gap:12px"><div style="font-size:15px;line-height:22px;color:#667882">{{ modalDesc }}</div><sc-for list="{{ modalRows }}" as="row" hint-placeholder-count="3"><div style="display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:56px;padding:0 16px;border-radius:14px;background:#fff;border:1px solid #e8e4dd"><div style="display:flex;flex-direction:column;gap:2px;min-width:0"><span style="font-size:15px;line-height:22px;font-weight:700;color:#152238">{{ row.label }}</span><sc-if value="{{ row.hasSub }}" hint-placeholder-val="{{ false }}"><span style="font-size:11px;line-height:14px;letter-spacing:.1px;color:#64748b">{{ row.sub }}</span></sc-if></div><span style="font-size:11px;line-height:14px;letter-spacing:.1px;font-weight:700;color:{{ row.fg }};white-space:nowrap;padding:6px 10px;border-radius:999px;background:{{ row.bg }}">{{ row.action }}</span></div></sc-for></div></sc-if></div><sc-if value="{{ isEdit }}" hint-placeholder-val="{{ true }}"><div style="display:flex;align-items:center;justify-content:flex-end;gap:12px;padding:12px 24px 36px;border-top:1px solid #e8e4dd;background:#fff;flex-shrink:0"><div onClick="{{ closeModal }}" style="min-height:48px;padding:0 20px;display:flex;align-items:center;font-size:15px;line-height:22px;font-weight:700;color:#152238;cursor:pointer">취소</div><div onClick="{{ closeModal }}" style="height:48px;padding:0 24px;border-radius:14px;background:#0b1d3a;display:flex;align-items:center;font-size:15px;line-height:22px;font-weight:700;color:#fff;cursor:pointer">저장</div></div></sc-if></div></div></sc-if>
+  <div style="position:absolute;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;padding-bottom:8px;pointer-events:none"><div style="display:flex;align-items:center;width:calc(100% - 32px);max-width:328px;height:64px;padding:0 8px;box-sizing:border-box;background:#fff;border:1px solid #e8e4dd;border-radius:20px;box-shadow:0 8px 24px rgba(11,29,58,.12)"><div style="flex:1;min-height:53px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px"><img src="assets/tab-home.png" alt="" style="width:26px;height:26px;opacity:.6"><span style="font-size:11px;line-height:14px;color:#64748b">홈</span></div><div style="flex:1;min-height:53px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px"><img src="assets/tab-heart.png" alt="" style="width:26px;height:26px;opacity:.6"><span style="font-size:11px;line-height:14px;color:#64748b">피드</span></div><div style="flex:1;min-height:53px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px"><div style="width:32px;height:32px;border-radius:16px;background:#f26532;display:flex;align-items:center;justify-content:center"><img src="assets/tab-plus.png" alt="" style="width:24px;height:24px"></div></div><div style="flex:1;min-height:53px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px"><img src="assets/tab-map.png" alt="" style="width:26px;height:26px;opacity:.6"><span style="font-size:11px;line-height:14px;color:#64748b">내 여행</span></div><div style="position:relative;flex:1;min-height:53px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px"><div style="position:absolute;top:0;width:18px;height:3px;border-radius:2px;background:#f26532"></div><img src="assets/tab-user.png" alt="" style="width:26px;height:26px"><span style="font-size:11px;line-height:14px;font-weight:700;color:#0b1d3a">마이페이지</span></div></div></div>
+</div>
+</x-import>
+</div>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;hasCover&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  state = { tune: true, modal: null };
+  renderVals() {
+    const g = ['linear-gradient(160deg,#f7c59f,#e07a5f)', 'linear-gradient(160deg,#a8c5da,#3d5a80)', 'linear-gradient(160deg,#cdd9c2,#5b7b5a)', 'linear-gradient(160deg,#e8dcc8,#9a7b5b)'];
+    const hasCover = this.props.hasCover ?? true;
+    const item = (label, value, desc) => ({ label, value, desc: desc || '', hasDesc: !!desc, open: () => this.setState({ modal: label }) });
+    const row = (label, sub, action, tone) => ({ label, sub: sub || '', hasSub: !!sub, action, fg: tone === 'navy' ? '#fff' : tone === 'danger' ? '#e85d5b' : '#152238', bg: tone === 'navy' ? '#0b1d3a' : tone === 'danger' ? '#fff0ee' : '#f8f3eb' });
+    const MODALS = {
+      '내 기록': { desc: '내가 남긴 기록이에요. 누르면 상세로 가요.', rows: [row('온천장 누가지움', '16시간 전 · 사진 1', '보기'), row('첫 기록 남기기', '오늘 어디 다녀왔어요?', '쓰기', 'navy')] },
+      '팔로워': { desc: '나를 팔로우하는 사람', rows: [row('Yeaseung Lee', '기록 12', '팔로우', 'navy')] },
+      '팔로잉': { desc: '내가 팔로우하는 사람', rows: [row('아직 없어요', '피드에서 마음에 드는 기록의 작성자를 팔로우해 보세요', '피드 →')] },
+      '여행 취향': { desc: '홈 온보딩과 여행 만들기에서 답한 취향이에요. 여기서 바꾸면 다음 추천부터 반영돼요.', rows: [row('카테고리', '바다 & 해변 · 맛집 & 먹거리', '수정'), row('여행 기분', '균형 있게', '수정'), row('분위기', '감성적인', '수정'), row('로컬성 · 조용함 · 관광지', '4 · – · 3', '수정'), row('음식', '해산물 · 밀면', '수정')] },
+      '여행 조건': { desc: '홈에서 한 번 물어본 개인화 특성이에요. 추천에서 미리 걸러요.', rows: [row('알레르기', '해당 없음', '수정'), row('식단', '채식', '수정'), row('이동 환경', '최대 1km · 경사 피하기 · 그늘길 우선', '수정'), row('다시 묻기', '홈에서 여행 조건을 다시 물어보게 해요', '켜기')] },
+      '연결된 소셜 계정': { desc: '연결된 계정으로 바로 로그인할 수 있어요.', rows: [row('Google', '***@redacted', '연결됨'), row('Kakao', '', '연결', 'navy'), row('Apple', '', '연결', 'navy')] },
+      '알림': { desc: '받을 알림을 골라요.', rows: [row('댓글·좋아요', '내 기록에 반응이 오면', '켜짐', 'navy'), row('일정 리마인드', '출발 전날 저녁', '켜짐', 'navy'), row('추천 소식', '새 로컬·축제', '꺼짐')] },
+      '차단된 계정': { desc: '차단한 사람의 기록과 댓글은 보이지 않아요.', rows: [row('차단한 계정이 없어요', '', '')] },
+      '도움말·문의': { desc: '앱 소개, 자주 묻는 질문, 문제 해결', rows: [row('앱 소개 다시 보기', '', '보기'), row('자주 묻는 질문', '', '보기'), row('문의하기', 'gabolle@ssafy.io', '메일', 'navy')] },
+      '약관·고지': { desc: '', rows: [row('이용약관', '', '보기'), row('개인정보 처리방침', '', '보기'), row('데이터 출처', '관광공사 · 카카오 · 기상청', '보기'), row('오픈소스 라이선스', '', '보기'), row('회원 탈퇴', '여행과 기록이 모두 지워져요', '탈퇴', 'danger')] },
+    };
+    const modal = this.state.modal; const isEdit = modal === '__edit'; const info = MODALS[modal];
+    return {
+      modalOpen: !!modal, isEdit, isGeneric: !!info, modalTitle: isEdit ? '프로필 편집' : modal || '', modalDesc: info?.desc || '', modalRows: info?.rows || [], modalW: isEdit ? '640px' : '520px',
+      openEdit: () => this.setState({ modal: '__edit' }), closeModal: () => this.setState({ modal: null }), stop: (e) => e.stopPropagation(),
+      cover: hasCover ? 'linear-gradient(180deg,#6f9cc4 0%,#a9c7dd 40%,#d9e6ea 70%,#fff 100%)' : '#f8f3eb',
+      initial: 'H', name: 'HJ Jang', bio: '부산 골목과 바다를 천천히 걷는 사람.', role: '여행자 · 기록 1', home: '서울', joined: '2026.09 가입',
+      following: 0, followers: 1, posts: 1,
+      records: [['온천장 누가지움', '16시간 전', g[3]], ['광안리해수욕장', '3일 전', g[0]], ['흰여울문화마을', '지난주', g[1]], ['전포 카페거리', '지난주', g[2]]].map(([title, when, cover]) => ({ title, when, cover })),
+      groups: [
+        { label: '내 계정', items: [item('내 기록', '1개'), item('팔로워', '1'), item('팔로잉', '0'), item('여행 취향', '8 / 8'), item('여행 조건', '알레르기 없음 · 채식', '알레르기·식단·이동 환경 — 홈에서 한 번 물어본 것'), item('연결된 소셜 계정', '›')] },
+        { label: '앱', items: [item('알림', '›'), item('차단된 계정', '›'), item('도움말·문의', '›', '앱 소개, 자주 묻는 질문, 문제 해결'), item('약관·고지', '›')] },
+      ],
+      tuneBg: this.state.tune ? '#0b1d3a' : '#e4ddd3', tuneX: this.state.tune ? '23px' : '3px', toggleTune: () => this.setState(s => ({ tune: !s.tune })),
+    };
+  }
+}
+</script>
+</body>
+</html>
