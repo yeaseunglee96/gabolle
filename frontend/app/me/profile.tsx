@@ -32,7 +32,7 @@ const NAME_MAX = 30;
 export default function MyPageProfile() {
   const { preview } = useLocalSearchParams<{ preview?: string }>();
   const { user, accessToken, updateProfile, deleteAccount } = useAuth();
-  const { language, tx } = useI18n();
+  const { tx } = useI18n();
   const plan = usePlan();
   const router = useRouter();
   const { width } = useWindowDimensions();
@@ -58,7 +58,6 @@ export default function MyPageProfile() {
   const [displayName, setDisplayName] = useState(user?.displayName ?? (visualPreview ? '진미리' : ''));
   const [avatarUri, setAvatarUri] = useState<string | null>(null);
   const [pickingAvatar, setPickingAvatar] = useState(false);
-  const [profileLanguage, setProfileLanguage] = useState<'KO' | 'EN'>(language === 'ko' ? 'KO' : 'EN');
   const [saving, setSaving] = useState(false);
   const [feedback, setFeedback] = useState<{ danger: boolean; text: string } | null>(null);
   const [deleteStep, setDeleteStep] = useState<0 | 1 | 2>(0);
@@ -69,7 +68,6 @@ export default function MyPageProfile() {
 
   useEffect(() => {
     setDisplayName(user?.displayName ?? (visualPreview ? '진미리' : ''));
-    setProfileLanguage(user?.language?.toUpperCase() === 'EN' ? 'EN' : 'KO');
   }, [user, visualPreview]);
   // S15P21E201-844 — 계정에 붙은 사진이 있으면 그것이 먼저다. 없을 때만 이 기기에 남아 있던
   // 옛 사진을 보여준다 — 기기에만 있던 시절에 고른 사진이 갑자기 사라지면 사용자는 지워진
@@ -82,7 +80,7 @@ export default function MyPageProfile() {
 
   const trimmed = displayName.trim();
   const nameValid = trimmed.length >= 1 && trimmed.length <= NAME_MAX;
-  const unchanged = trimmed === (user?.displayName ?? '') && profileLanguage === (user?.language?.toUpperCase() === 'EN' ? 'EN' : 'KO');
+  const unchanged = trimmed === (user?.displayName ?? '');
 
   async function chooseAvatar() {
     if (!profileOwner || pickingAvatar) return;
@@ -138,7 +136,7 @@ export default function MyPageProfile() {
     setSaving(true);
     setFeedback(null);
     try {
-      if (user) await updateProfile({ displayName: trimmed, language: profileLanguage });
+      if (user) await updateProfile({ displayName: trimmed });
       setFeedback({ danger: false, text: visualPreview && !user ? tx('미리보기에서 변경 모습을 확인했어요.', 'Preview changes are displayed.') : tx('프로필을 저장했어요.', 'Your profile was saved.') });
     } catch (cause) {
       setFeedback({ danger: true, text: cause instanceof ApiClientError ? cause.message : tx('프로필을 저장하지 못했어요.', 'Could not save your profile.') });
@@ -232,21 +230,11 @@ export default function MyPageProfile() {
             </View>
           </View>
 
-          {/* 시안은 칩이 셋(한국어·English·日本語)인데 앱이 실제로 아는 언어는 둘이다
-              (SignupLanguage = 'KO' | 'EN'). 없는 언어를 칩으로 그리면 고를 수 있는 것처럼 보인다. */}
-          <View style={styles.field}>
-            <Text variant="caption" weight="bold" color={color.text.body}>{tx('언어', 'Language')}</Text>
-            <View accessibilityRole="radiogroup" style={styles.langRow}>
-              {(['KO', 'EN'] as const).map((value) => {
-                const selected = profileLanguage === value;
-                return (
-                  <Pressable key={value} accessibilityRole="radio" accessibilityState={{ selected }} onPress={() => { setProfileLanguage(value); setFeedback(null); }} style={[styles.langChip, selected && styles.langChipSelected]}>
-                    <Text weight="bold" color={selected ? color.text.onAction : color.text.heading}>{value === 'KO' ? '한국어' : 'English'}</Text>
-                  </Pressable>
-                );
-              })}
-            </View>
-          </View>
+          {/* 🔴 계정 언어(SignupLanguage = 'KO' | 'EN') 칩은 여기 없다 — 화면 언어는 다섯인데
+              (LANGUAGE_OPTIONS, 마이페이지의 AppLanguageSetting) 여기서는 늘 둘만 보여줄 수
+              있어서 같은 개념의 설정이 화면 두 곳에서 서로 다른 범위로 보였다. 마이페이지
+              쪽이 이미 계정 값도 같이 갱신하므로(AppLanguageSetting.toAccountLanguage)
+              여기서 따로 안 만진다. */}
 
           <View style={styles.saveRow}>
             {feedback ? <Text accessibilityRole="alert" variant="caption" weight="bold" color={feedback.danger ? color.state.danger : color.state.success} style={styles.feedback}>{feedback.text}</Text> : <View style={styles.feedback} />}
@@ -312,9 +300,6 @@ const styles = StyleSheet.create({
   inputError: { borderColor: color.state.danger },
   readonly: { minHeight: 48, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[2], paddingHorizontal: spacing[4], borderWidth: 1, borderColor: color.surface.border, borderRadius: radius.md, backgroundColor: color.surface.soft },
   readonlyValue: { flex: 1, minWidth: 0 },
-  langRow: { flexDirection: 'row', gap: spacing[2] },
-  langChip: { flex: 1, minHeight: 44, alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing[4], borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.full },
-  langChipSelected: { backgroundColor: color.brand.navy, borderColor: color.brand.navy },
   saveRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], paddingTop: spacing[4], borderTopWidth: 1, borderTopColor: color.surface.border },
   feedback: { flex: 1 },
   // Button 의 기본 스타일이 width:'100%' 라 minWidth 만으로는 안 줄어든다 — 명시적으로 푼다.

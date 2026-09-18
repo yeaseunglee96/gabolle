@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Image, Pressable, StyleSheet, View } from 'react-native';
 import { usePathname, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '@/auth/AuthProvider';
@@ -7,7 +7,20 @@ import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useLayout } from '@/layout/useLayout';
 import { useI18n } from '@/i18n';
+import { LANGUAGE_CODES, LANGUAGE_OPTIONS } from '@/i18n/languages';
 import { type LanguageCode, useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
+
+// 🔴 국기는 유니코드 그림문자(🇰🇷)가 아니라 실제 이미지를 쓴다 — 윈도우 브라우저는 국가
+// 그림문자를 정책적으로 지원하지 않아 KR·US 같은 두 글자로 떨어진다(S15P21E201-1109,
+// app/index.tsx 의 같은 매핑 참고). require() 는 번들러가 정적으로 읽어야 해서 값이 동적으로
+// 도는 languages.ts 에는 안 두고 쓰는 자리마다 이렇게 둔다.
+const FLAG_IMAGES: Record<LanguageCode, ReturnType<typeof require>> = {
+  ko: require('../../assets/flags/kr.png'),
+  en: require('../../assets/flags/us.png'),
+  ja: require('../../assets/flags/jp.png'),
+  'zh-Hans': require('../../assets/flags/cn.png'),
+  'zh-Hant': require('../../assets/flags/tw.png'),
+};
 
 // 넓은 화면의 **단 하나의 상단 바**다 (S15P21E201-968 에서 모양을, -970 에서 범위를, -994 에서
 // 붙이는 자리를, -1103 에서 2단 구조를 정했다).
@@ -80,9 +93,9 @@ export function TopNav() {
 
   const planActive = isPlanRoute(pathname);
 
-  // 🔴 언어는 이제 「KO | EN」 두 칸이라 **누른 쪽 언어로 정한다.** 전에는 버튼 하나를
-  // 눌러 뒤집는 방식이라 반대쪽 값을 계산했는데, 두 칸을 놓고 그렇게 하면 이미 켜진
-  // 언어를 눌렀을 때 반대로 바뀐다 — 화면에 보이는 것과 하는 일이 어긋난다.
+  // 🔴 언어는 다섯 칸이라 **누른 쪽 언어로 정한다.** 버튼 하나를 눌러 뒤집는 방식이면
+  // 다섯 중 어느 쪽으로 갈지 계산해야 하는데, 칸이 각 언어 하나씩이면 그럴 필요가 없다 —
+  // 화면에 보이는 것과 하는 일이 그대로 맞는다.
   const pickLanguage = (code: LanguageCode) => setPreferences(code, mobility);
 
   // 🔴 위쪽 안전 영역은 이 컴포넌트가 직접 두른다. 전에는 랜딩 파일이 두르고 있었는데, 이제
@@ -94,19 +107,20 @@ export function TopNav() {
   return <SafeAreaView edges={['top']} style={styles.safeArea}>
     {/* ── 1층 · 유틸 바 (높이 36) — 언어와 계정. 이동이 아니다. ───────────────── */}
     <View style={styles.utilBar}>
-      {(['ko', 'en'] as const).map((code, index) => {
+      {LANGUAGE_CODES.map((code, index) => {
         const current = language === code;
+        const option = LANGUAGE_OPTIONS.find((item) => item.code === code)!;
         return (
           <View key={code} style={styles.utilItem}>
-            {index > 0 ? <Text variant="util" color={color.surface.field} style={styles.utilSeparator}>|</Text> : null}
+            {index > 0 ? <View style={styles.utilFlagDivider} /> : null}
             <Pressable
               accessibilityRole="button"
               accessibilityState={{ selected: current }}
-              accessibilityLabel={tx(`언어를 ${code === 'ko' ? '한국어' : 'English'}로 변경`, `Change language to ${code === 'ko' ? 'Korean' : 'English'}`)}
+              accessibilityLabel={tx(`언어를 ${option.endonym}로 변경`, `Change language to ${option.englishName}`)}
               onPress={() => pickLanguage(code)}
-              style={styles.utilTouch}
+              style={[styles.utilFlagTouch, current && styles.utilFlagTouchSelected]}
             >
-              <Text variant="util" weight={current ? 'bold' : 'medium'} color={current ? color.text.muted : color.text.muted} style={styles.noUnderline}>{code.toUpperCase()}</Text>
+              <Image source={FLAG_IMAGES[code]} resizeMode="contain" style={styles.utilFlagImage} />
             </Pressable>
           </View>
         );
@@ -166,10 +180,15 @@ const styles = StyleSheet.create({
   // 1층 — 오른쪽으로 몰고, 항목 하나하나가 바 높이만큼 눌린다.
   utilBar: { height: UTIL_HEIGHT, paddingHorizontal: 40, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', gap: spacing[3], backgroundColor: color.surface.soft },
   utilItem: { flexDirection: 'row', alignItems: 'center' },
-  utilSeparator: { paddingHorizontal: spacing[1] },
   utilTouch: { height: UTIL_HEIGHT, justifyContent: 'center', paddingHorizontal: spacing[1] },
   utilName: { maxWidth: 160 },
   utilDivider: { width: 1, height: 14, backgroundColor: color.surface.field },
+
+  // 국기 다섯 칸. 안 고른 것은 옅게 둬서 고른 언어가 눈에 띈다.
+  utilFlagDivider: { width: 1, height: 14, backgroundColor: color.surface.field, marginRight: spacing[2] },
+  utilFlagTouch: { height: UTIL_HEIGHT, width: 30, alignItems: 'center', justifyContent: 'center', opacity: 0.55 },
+  utilFlagTouchSelected: { opacity: 1 },
+  utilFlagImage: { width: 20, height: 14, borderRadius: 2 },
 
   // 2층
   nav: { height: NAV_HEIGHT, paddingHorizontal: 40, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: color.brand.ivory, borderBottomWidth: 1, borderBottomColor: color.surface.border },
