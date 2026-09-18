@@ -18,7 +18,12 @@ export type TabKey = 'home' | 'feed' | 'schedule' | 'map' | 'saved' | 'me';
 /** 막대 자체의 높이. */
 export const TAB_BAR_HEIGHT = 64;
 
-/** 지도 시트로 늘어났을 때의 높이. 시안 04b 값이다. */
+/**
+ * 지도 시트로 늘어났을 때의 기본 높이. 피드의 시안 04b 값이다.
+ *
+ * 🔴 화면마다 다르다 — 마이페이지 시트는 화면을 거의 다 채운다(시안 06). 그래서 값을
+ *    받고, 안 주면 이 값을 쓴다. 여기 박아 두면 두 화면 중 하나는 반드시 틀린다.
+ */
 export const TAB_BAR_SHEET_HEIGHT = 560;
 
 const BAR_MAX_WIDTH = 328;
@@ -50,6 +55,7 @@ export function TabBar({
   expanded = false,
   onCollapse,
   children,
+  sheetHeight = TAB_BAR_SHEET_HEIGHT,
 }: {
   active: TabKey;
   /**
@@ -63,6 +69,8 @@ export function TabBar({
   onCollapse?: () => void;
   /** 늘어났을 때 안에 그릴 것. */
   children?: React.ReactNode;
+  /** 늘어났을 때의 높이. 화면마다 다르다 — 지도 시트 560, 마이페이지 시트는 거의 전체. */
+  sheetHeight?: number;
 }) {
   const router = useRouter();
   const { tx } = useI18n();
@@ -96,7 +104,7 @@ export function TabBar({
       style={[
         styles.bar,
         {
-          height: grow.interpolate({ inputRange: [0, 1], outputRange: [TAB_BAR_HEIGHT, TAB_BAR_SHEET_HEIGHT] }),
+          height: grow.interpolate({ inputRange: [0, 1], outputRange: [TAB_BAR_HEIGHT, sheetHeight] }),
           maxWidth: grow.interpolate({ inputRange: [0, 1], outputRange: [BAR_MAX_WIDTH, SHEET_MAX_WIDTH] }),
         },
       ]}
@@ -128,8 +136,13 @@ export function TabBar({
             key={tab.key}
             testID={`tab-${tab.key}`}
             // 늘어나 있는 동안에는 이 다섯이 화면에 없는 것과 같아야 한다.
+            //
+            // 🔴 세 가지를 다 준다. 앞의 둘은 **폰 전용**이라 웹에서는 아무 일도 안 한다 —
+            //    웹에서는 투명도 0으로 안 보이고 손짓도 안 통하지만 **화면 읽기 프로그램에는
+            //    그대로 읽혔다**(실측). aria-hidden 이 그 자리를 메운다.
             accessibilityElementsHidden={expanded}
             importantForAccessibility={expanded ? 'no-hide-descendants' : 'auto'}
+            aria-hidden={expanded || undefined}
             accessibilityRole="tab"
             accessibilityLabel={tx(tab.labelKo, tab.labelEn)}
             accessibilityState={{ selected, disabled: !tab.route }}
@@ -170,6 +183,9 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     alignItems: 'center',
+    // 🔴 화면 내용 위에 있어야 한다. 마이페이지가 시트를 열 때 어둠막(20)을 깔므로
+    //    그보다 높아야 시트가 가려지지 않는다 — 안 주면 나중에 그린 것이 이긴다.
+    zIndex: 30,
   },
   bar: {
     alignSelf: 'center',

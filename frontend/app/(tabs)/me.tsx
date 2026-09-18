@@ -1,6 +1,6 @@
 // 마이페이지 진입 화면.
 import { useState } from 'react';
-import { Image, Modal, Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { BackHandler, Image, Modal, Platform, Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
@@ -16,6 +16,9 @@ import { color, desktopGutter, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { isAtLeast } from '@/layout/breakpoints';
 import { MyPageCover } from '@/me/MyPageCover';
+import { MyPageModal } from '@/me/MyPageModal';
+import { MyPageSheetBody } from '@/me/MyPageSheet';
+import { hasPanel, myPanelBody, panelTitle, type MyPanelKey } from '@/me/myPanels';
 import { MyTripCard } from '@/home/HomeBlocks';
 import { ProfileCard } from '@/me/ProfileCard';
 import { InfoRow } from '@/me/InfoRow';
@@ -33,11 +36,37 @@ export default function Me() {
   const { user, signOut, accessToken } = useAuth();
   const { tx } = useI18n();
   const plan = usePlan();
-  const { width } = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
   const { answeredPreferences, storyCount, followerCount, followingCount } = useMyPageCounts();
   const { enabled: behaviorPersonalization, setEnabled: setBehaviorPersonalization } = useBehaviorConsent(accessToken);
   const [avatarUri, setAvatarUri] = useState<string | null>(null);
   const [logoutAsk, setLogoutAsk] = useState(false);
+  // 열려 있는 패널 하나. 데스크톱은 모달이, 폰은 시트가 같은 값을 받는다.
+  const [panel, setPanel] = useState<MyPanelKey | null>(null);
+
+  /**
+   * 메뉴를 눌렀을 때 — 옮긴 것은 겹쳐 열고, 아직인 것은 지금처럼 화면을 바꾼다.
+   *
+   * 🔴 한 번에 열한 개를 다 옮기면 무엇이 깨졌는지 못 찾는다. 옮긴 것부터 하나씩 켠다.
+   */
+  const openPanel = (key: MyPanelKey, fallbackPath: string) => {
+    if (hasPanel(key)) { setPanel(key); return; }
+    router.push(fallbackPath as never);
+  };
+
+  // 🔴 뒤로가기는 패널을 먼저 닫는다. 안 그러면 마이페이지에서 나가 버린다 —
+  //    사용자는 「목록으로 돌아가려고」 눌렀는데 앱 밖으로 나간다.
+  useEffect(() => {
+    if (!panel) return;
+    if (Platform.OS === 'web') {
+      // 웹에는 하드웨어 뒤로가기가 없다. ESC 가 그 자리를 대신한다.
+      const onKey = (event: KeyboardEvent) => { if (event.key === 'Escape') setPanel(null); };
+      window.addEventListener('keydown', onKey);
+      return () => window.removeEventListener('keydown', onKey);
+    }
+    const sub = BackHandler.addEventListener('hardwareBackPress', () => { setPanel(null); return true; });
+    return () => sub.remove();
+  }, [panel]);
 
   // 「내 여행」 칸 하나를 위해 홈 데이터 훅을 부르지 않는다 — 그 훅은 기록·날씨·갈래까지
   // 같이 불러온다. 여기서 필요한 것은 여행 목록 하나뿐이다.
@@ -54,6 +83,9 @@ export default function Me() {
   }, [user?.userId]);
 
   const wide = isAtLeast(width, 'lg');
+  // 시안 06 은 화면을 거의 다 채운다 — 아래 띄움과 위 틈을 뺀 나머지.
+  // 숫자를 박지 않는다. 화면 높이는 기기마다 다르다.
+  const sheetHeight = Math.max(320, height - spacing[2] - spacing[8]);
 
   const name = user?.displayName || tx('여행자', 'Traveler');
   const none = tx('아직 없음 ›', 'None yet ›');
@@ -113,9 +145,9 @@ export default function Me() {
           홈 종 아이콘) — 여기서는 같은 화면으로 가는 입구만 하나 더 둔다.
       */}
       <InfoRow label={tx('알림', 'Notifications')} value="›" onPress={() => router.push('/notifications')} />
-      <InfoRow label={tx('차단된 계정', 'Blocked accounts')} value="›" onPress={() => router.push('/me/blocked')} disabled={!user} />
+      <InfoRow label={tx('차단된 계정', 'Blocked accounts')} value="›" onPress={() => openPanel('blocked', '/me/blocked')} disabled={!user} />
       <InfoRow label={tx('도움말·문의', 'Help & support')} description={tx('앱 소개, 자주 묻는 질문, 문제 해결', 'App tour, FAQs, and troubleshooting')} value="›" onPress={() => router.push('/help')} />
-      <InfoRow label={tx('약관·고지', 'Terms & notices')} value="›" onPress={() => router.push('/me/terms')} />
+      <InfoRow label={tx('약관·고지', 'Terms & notices')} value="›" onPress={() => openPanel('terms', '/me/terms')} />
       {/* 처음 켜는 자리는 첫 체크인 화면이고, 여기는 언제든 끄는 자리다. 끄는 길이 설정
           안쪽 어딘가에만 있으면 사용자는 못 찾고, 못 찾으면 켠 적 없는 사람처럼 취급된다.
       */}
@@ -181,6 +213,17 @@ export default function Me() {
         </View>
       </ScrollView>
       {logoutModal}
+      {panel ? (
+        <MyPageModal
+          open
+          title={panelTitle(panel, tx).title}
+          description={panelTitle(panel, tx).description}
+          onClose={() => setPanel(null)}
+          tx={tx}
+        >
+          {myPanelBody(panel)}
+        </MyPageModal>
+      ) : null}
     </View>;
   }
 
@@ -209,72 +252,9 @@ export default function Me() {
     />
 
     <Text variant="eyebrow" weight="bold" style={styles.groupLabel}>{tx('내 계정', 'Account')}</Text>
-    <View style={styles.group}>
-      <InfoRow
-        first
-        label={tx('내 기록', 'My records')}
-        value={storyCount === null ? '›' : storyCount > 0 ? tx(`${storyCount}개 ›`, `${storyCount} ›`) : none}
-        onPress={() => router.push('/me/posts')}
-        disabled={!user}
-      />
-      {/* 사용자 리포트: "마이페이지에 저장 누르면 저장했던 피드들 뜨게" —. */}
-      <InfoRow
-        label={tx('저장한 기록', 'Saved records')}
-        value="›"
-        onPress={() => router.push('/me/saved')}
-        disabled={!user}
-      />
-      {/* — 인스타그램처럼 팔로워·팔로잉을 눌러 목록으로 들어갈 수 있어야
-          한다는 사용자 리포트. 숫자만 있던 자리를 실제 목록 화면으로 잇는다.
-      */}
-      <InfoRow
-        label={tx('팔로워', 'Followers')}
-        value={followerCount === null ? '›' : tx(`${followerCount}명 ›`, `${followerCount} ›`)}
-        onPress={() => user && router.push(`/user/${user.userId}/followers`)}
-        disabled={!user}
-      />
-      <InfoRow
-        label={tx('팔로잉', 'Following')}
-        value={followingCount === null ? '›' : tx(`${followingCount}명 ›`, `${followingCount} ›`)}
-        onPress={() => user && router.push(`/user/${user.userId}/following`)}
-        disabled={!user}
-      />
-      <InfoRow
-        label={tx('여행 취향', 'Travel preferences')}
-        value={answeredPreferences === null
-          ? '›'
-          : answeredPreferences > 0
-            ? tx(`${answeredPreferences} / ${PREFERENCE_TOTAL} 답함 ›`, `${answeredPreferences} / ${PREFERENCE_TOTAL} answered ›`)
-            : none}
-        onPress={() => router.push('/me/preferences')}
-        disabled={!user}
-      />
-      <InfoRow label={tx('연결된 소셜 계정', 'Connected accounts')} value="›" onPress={() => router.push('/me/identities')} disabled={!user} />
-    </View>
-
+    {accountGroup}
     <Text variant="eyebrow" weight="bold" style={styles.groupLabel}>{tx('앱', 'App')}</Text>
-    <View style={styles.group}>
-      <AppLanguageSetting />
-      {/* — 알림·차단된 계정처럼 스토어 심사가 보는 기본 기능이 마이페이지
-          안에서 안 보였다는 사용자 리포트. 알림 화면은 이미 있다(app/notifications.tsx
-          홈 종 아이콘) — 여기서는 같은 화면으로 가는 입구만 하나 더 둔다.
-      */}
-      <InfoRow label={tx('알림', 'Notifications')} value="›" onPress={() => router.push('/notifications')} />
-      <InfoRow label={tx('차단된 계정', 'Blocked accounts')} value="›" onPress={() => router.push('/me/blocked')} disabled={!user} />
-      <InfoRow label={tx('도움말·문의', 'Help & support')} description={tx('앱 소개, 자주 묻는 질문, 문제 해결', 'App tour, FAQs, and troubleshooting')} value="›" onPress={() => router.push('/help')} />
-      <InfoRow label={tx('약관·고지', 'Terms & notices')} value="›" onPress={() => router.push('/me/terms')} />
-      {/* 처음 켜는 자리는 첫 체크인 화면이고, 여기는 언제든 끄는 자리다. 끄는 길이 설정
-          안쪽 어딘가에만 있으면 사용자는 못 찾고, 못 찾으면 켠 적 없는 사람처럼 취급된다.
-      */}
-      <View style={styles.consentRow}>
-        <View style={styles.consentCopy}>
-          <Text weight="bold">{tx('맞춤 추천', 'Personalized picks')}</Text>
-          <Text variant="caption">{tx('저장·제외·일정 수정·체크인 후기 같은 활동을 바탕으로 추천을 맞춰요. 이 설정은 이 기기에 저장돼요.', 'We tune your picks using activity like saves, exclusions, itinerary edits, and check-in reviews. This setting is stored on this device.')}</Text>
-        </View>
-        <Toggle value={behaviorPersonalization} onValueChange={setBehaviorPersonalization} />
-      </View>
-    </View>
-
+    {appGroup}
     {user ? <Button label={tx('로그아웃', 'Sign out')} variant="ghost" onPress={() => setLogoutAsk(true)} containerStyle={styles.logout} /> : <View style={styles.guestActions}><Button label={tx('로그인', 'Sign in')} onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: '/me' } })} /><Button label={tx('회원가입', 'Create account')} variant="ghost" onPress={() => router.push({ pathname: '/sign-up', params: { returnTo: '/me' } })} /></View>}
 
     <Modal visible={logoutAsk} transparent animationType="fade" onRequestClose={() => setLogoutAsk(false)}>
@@ -287,7 +267,36 @@ export default function Me() {
         </View>
       </View></View>
     </Modal>
-  </Screen><TabBar active="me" /></View>;
+  </Screen>
+
+    {/* 🔴 시트가 열려 있으면 뒤를 가린다. 안 가리면 시트를 문지르다 뒤 화면이 따라 움직이고,
+        손가락이 뒤 메뉴를 누른다. 누르면 닫힌다. */}
+    {panel ? (
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={tx('내리기', 'Close')}
+        onPress={() => setPanel(null)}
+        style={styles.sheetBackdrop}
+      />
+    ) : null}
+
+    <TabBar
+      active="me"
+      expanded={Boolean(panel)}
+      onCollapse={() => setPanel(null)}
+      sheetHeight={sheetHeight}
+      children={panel ? (
+        <MyPageSheetBody
+          title={panelTitle(panel, tx).title}
+          description={panelTitle(panel, tx).description}
+          onClose={() => setPanel(null)}
+          tx={tx}
+        >
+          {myPanelBody(panel)}
+        </MyPageSheetBody>
+      ) : undefined}
+    />
+  </View>;
 }
 
 const styles = StyleSheet.create({
@@ -297,6 +306,14 @@ const styles = StyleSheet.create({
   //
   // 🔴 Screen 을 안 쓰므로 좌우 여백도 여기서 직접 준다. 커버는 여백 없이 전폭이고,
   //    아래 3열만 좌우 40(desktopGutter)을 받는다.
+  // 시트 뒤를 가리는 어둠막. 탭바(시트)보다 낮고 내용보다 높다.
+  sheetBackdrop: {
+    position: Platform.OS === 'web' ? ('fixed' as 'absolute') : 'absolute',
+    top: 0, left: 0, right: 0, bottom: 0,
+    backgroundColor: 'rgba(11,29,58,0.62)',
+    zIndex: 20,
+  },
+
   wideScroll: { flex: 1, backgroundColor: color.brand.ivory },
   wideContent: { minHeight: '100%' },
   wideGrid: {
