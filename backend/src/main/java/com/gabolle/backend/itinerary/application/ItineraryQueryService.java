@@ -273,7 +273,11 @@ public class ItineraryQueryService {
 				travelFareKrw,
 				// S15P21E201-1158 — 저장돼 있던 값을 그대로 공개한다. ItineraryItem 이 생성자에서
 				// 이미 빈 목록으로 정규화하므로(null 이 안 나온다) 여기서 다시 감싸지 않는다.
-				item.warningCodes());
+				item.warningCodes(),
+				// 🔴 S15P21E201-1330 — 좌표를 그대로 옮긴다. 모르면 null 이고 0 으로 채우지
+				//    않는다. 위도 0·경도 0 은 기니만 한가운데라 지도에 실제로 점이 찍힌다.
+				place.getLat(),
+				place.getLng());
 	}
 
 	/** {@code visit_date} + {@code start_time} 을 ISO-8601 로 합친다. 시간대는 항상 Asia/Seoul 이다(API-03). */
