@@ -216,6 +216,39 @@ export async function createStory(input: {
 export type ImagePickResult = { uri: string; fileName?: string | null; mimeType?: string | null };
 export type ImageUploadResult = { state: 'success'; imageUrl: string } | FeedFailure;
 
+export type VideoUploadResult = { state: 'success'; videoUrl: string; byteSize: number } | FeedFailure;
+
+/**
+ * 동영상을 올린다 — POST /api/v1/uploads/story-video.
+ *
+ * 🔴 여기까지가 「파일이 올라갔고 주소는 이것이다」다. 그 주소를 기록에 붙이는 것은
+ *    다음 단계이고, 그 계약은 아직 안 나갔다(서버 VideoUploadResponse 머리말과 같은 말).
+ *
+ * `durationSec` 은 **앱이 잰 값**이다. 서버는 파일을 열지 않으므로 확인하지 않고 그대로
+ * 돌려준다. 못 쟀으면 안 보낸다 — 0 을 지어내면 「0초짜리 영상」이 된다.
+ */
+export async function uploadStoryVideo(
+  asset: { uri: string; fileName?: string | null; mimeType?: string | null; durationSec?: number | null },
+  accessToken: string | null,
+): Promise<VideoUploadResult> {
+  try {
+    const name = asset.fileName ?? `story-${Date.now()}.mp4`;
+    const type = asset.mimeType ?? 'video/mp4';
+    const formData = await singleFileFormData('file', { uri: asset.uri, name, type });
+    const query = typeof asset.durationSec === 'number' ? `?durationSec=${Math.round(asset.durationSec)}` : '';
+    const dto = await apiRequest<{ videoId: string; videoUrl: string; contentType: string; byteSize: number; durationSec?: number }>(
+      `/api/v1/uploads/story-video${query}`,
+      { method: 'POST', accessToken, body: formData },
+    );
+    return { state: 'success', videoUrl: dto.videoUrl, byteSize: dto.byteSize };
+  } catch (error) {
+    if (error instanceof ApiClientError && error.status === 413) return { state: 'error', message: '동영상이 너무 커요. 더 짧은 영상으로 올려주세요.' };
+    if (error instanceof ApiClientError && error.status === 415) return { state: 'error', message: 'mp4 동영상만 올릴 수 있어요.' };
+    if (error instanceof ApiUnavailableError && error.cause) return { state: 'offline', message: `${error.message} (${error.cause})` };
+    return failure(error);
+  }
+}
+
 export async function uploadStoryImage(asset: ImagePickResult, accessToken: string | null): Promise<ImageUploadResult> {
   try {
     const name = asset.fileName ?? `story-${Date.now()}.jpg`;
