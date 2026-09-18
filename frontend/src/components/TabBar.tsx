@@ -2,7 +2,8 @@
 // 탭 내비게이션이 아니라 Stack 하나뿐이라(app/_layout.tsx), 각 화면이 이 바를 직접 그려 붙인다.
 // 1차 배포에서는 모든 탭이 유효한 화면으로 이동한다. 서버 데이터가 없어도 각 화면에서
 // 빈 상태와 다음 행동을 안내해 사용자가 막히지 않게 한다.
-import { Image, Platform, Pressable, StyleSheet, View } from 'react-native';
+import { useEffect, useRef } from 'react';
+import { Animated, Easing, Image, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 
@@ -16,6 +17,17 @@ export type TabKey = 'home' | 'feed' | 'schedule' | 'map' | 'saved' | 'me';
 
 /** 막대 자체의 높이. */
 export const TAB_BAR_HEIGHT = 64;
+
+/** 지도 시트로 늘어났을 때의 높이. 시안 04b 값이다. */
+export const TAB_BAR_SHEET_HEIGHT = 560;
+
+const BAR_MAX_WIDTH = 328;
+const SHEET_MAX_WIDTH = 361;
+
+/** 늘어나고 줄어드는 데 걸리는 시간. 시안의 .42s cubic-bezier(.34,1.3,.64,1). */
+const GROW_MS = 420;
+/** 탭 항목이 사라지는 시간. 자라는 것보다 빨리 비켜 준다. */
+const FADE_MS = 200;
 
 type Tab = {
   key: TabKey;
@@ -33,10 +45,39 @@ const TABS: Tab[] = [
   { key: 'me', icon: require('../../assets/icons/home/user.png'), labelKo: '마이페이지', labelEn: 'Profile', route: '/me' },
 ];
 
-export function TabBar({ active }: { active: TabKey }) {
+export function TabBar({
+  active,
+  expanded = false,
+  onCollapse,
+  children,
+}: {
+  active: TabKey;
+  /**
+   * 이 막대가 시트로 늘어나 있는가. **피드 화면만 쓴다.**
+   *
+   * 기본값이 false 라서 아무것도 안 넘기는 화면은 지금과 똑같이 동작한다 — 이 부품은
+   * 홈·내 여행·마이페이지가 전부 그리므로, 그쪽 동작이 달라지면 안 된다.
+   */
+  expanded?: boolean;
+  /** 시트를 내릴 때 부른다. 안을 누르는 자리(손잡이·칩)는 화면이 직접 연결한다. */
+  onCollapse?: () => void;
+  /** 늘어났을 때 안에 그릴 것. */
+  children?: React.ReactNode;
+}) {
   const router = useRouter();
   const { tx } = useI18n();
   const { width } = useLayout();
+  const grow = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.timing(grow, {
+      toValue: expanded ? 1 : 0,
+      duration: GROW_MS,
+      easing: Easing.bezier(0.34, 1.3, 0.64, 1),
+      // 🔴 높이는 네이티브 드라이버로 못 움직인다. 켜면 폰에서 아예 안 자란다.
+      useNativeDriver: false,
+    }).start();
+  }, [expanded, grow]);
   // : 이 바는 각 화면에서 Screen(SafeAreaView) 밖의 형제 노드로 그려져
   // 그 보호를 못 받는다 — 고정 margin만 쓰면 안드로이드 엣지투엣지 렌더링에서 기기
   // 시스템 하단 내비게이션 바(제스처바·버튼바)에 가려진다. 하단 인셋을 직접 더한다.
@@ -51,13 +92,44 @@ export function TabBar({ active }: { active: TabKey }) {
   // 받침(dock)에 담아 띄운다.
   return (
     <View pointerEvents="box-none" style={[styles.dock, { paddingBottom: tabBarBottomMargin(insets.bottom) }]}>
-    <View style={styles.bar}>
+    <Animated.View
+      style={[
+        styles.bar,
+        {
+          height: grow.interpolate({ inputRange: [0, 1], outputRange: [TAB_BAR_HEIGHT, TAB_BAR_SHEET_HEIGHT] }),
+          maxWidth: grow.interpolate({ inputRange: [0, 1], outputRange: [BAR_MAX_WIDTH, SHEET_MAX_WIDTH] }),
+        },
+      ]}
+    >
+      {/* 시트 내용 — 막대를 덮는다. 자라는 동안 탭 항목과 같은 자리를 다투지 않게
+          절대 위치로 띄운다(시안도 그렇게 그린다). */}
+      {children ? (
+        <Animated.View
+          // 🔴 안 보이는 동안에는 눌리지도 않아야 한다. 투명도만 0으로 두면 지도를
+          //    누르려던 손가락이 탭을 누르고, 화면 읽기 프로그램은 둘 다 읽는다.
+          pointerEvents={expanded ? 'auto' : 'none'}
+          style={[StyleSheet.absoluteFill, styles.sheet, { opacity: grow }]}
+        >
+          {children}
+        </Animated.View>
+      ) : null}
+
+      <Animated.View
+        pointerEvents={expanded ? 'none' : 'auto'}
+        style={[
+          styles.row,
+          { opacity: grow.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }) },
+        ]}
+      >
       {TABS.map((tab) => {
         const selected = tab.key === active;
         return (
           <Pressable
             key={tab.key}
             testID={`tab-${tab.key}`}
+            // 늘어나 있는 동안에는 이 다섯이 화면에 없는 것과 같아야 한다.
+            accessibilityElementsHidden={expanded}
+            importantForAccessibility={expanded ? 'no-hide-descendants' : 'auto'}
             accessibilityRole="tab"
             accessibilityLabel={tx(tab.labelKo, tab.labelEn)}
             accessibilityState={{ selected, disabled: !tab.route }}
@@ -75,7 +147,8 @@ export function TabBar({ active }: { active: TabKey }) {
           </Pressable>
         );
       })}
-    </View>
+      </Animated.View>
+    </Animated.View>
     </View>
   );
 }
@@ -99,14 +172,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   bar: {
-    flexDirection: 'row',
-    alignItems: 'center',
     alignSelf: 'center',
     width: '100%',
-    maxWidth: 328,
-    height: TAB_BAR_HEIGHT,
     marginHorizontal: spacing[4],
-    paddingHorizontal: spacing[2],
+    overflow: 'hidden',
     backgroundColor: color.surface.card,
     borderWidth: 1,
     borderColor: color.surface.border,
@@ -117,6 +186,10 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: -2 },
     elevation: 8,
   },
+  // 탭 다섯 줄. 막대가 자라도 이 줄의 높이는 그대로다 — 자라는 것은 시트 자리다.
+  row: { flexDirection: 'row', alignItems: 'center', height: TAB_BAR_HEIGHT, paddingHorizontal: spacing[2] },
+  // 시트 내용이 들어갈 자리. 안쪽 여백만 준다 — 무엇을 그릴지는 화면이 정한다.
+  sheet: { paddingTop: spacing[3], paddingHorizontal: spacing[3], paddingBottom: spacing[4], gap: spacing[3] },
   item: {
     position: 'relative',
     flex: 1,
