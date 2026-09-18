@@ -4,6 +4,7 @@ import { ActivityIndicator, Image, Pressable, StyleSheet, TextInput, View } from
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 
 import { useAuth } from '@/auth/AuthProvider';
+import { DropdownMenu, type DropdownMenuItem } from '@/components/DropdownMenu';
 import { MarkdownBody } from '@/components/MarkdownBody';
 import { PhotoGrid } from '@/components/PhotoGrid';
 import { Button } from '@/components/Button';
@@ -13,7 +14,7 @@ import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { BlockUserDialog } from '@/social/BlockUserDialog';
-import { createStory, deleteStory, getCachedStory, getStory, getStoryReplies, relativeStoryTime, reportStory, setBlocked, storyMetricLabels, updateStory, VISIBILITY_LABEL, type StoryDto, type StoryReportReason } from '@/social/stories';
+import { createStory, deleteStory, getCachedStory, getStory, getStoryReplies, getUserProfile, relativeStoryTime, reportStory, setBlocked, setFollowing, storyMetricLabels, updateStory, VISIBILITY_LABEL, type StoryDto, type StoryReportReason } from '@/social/stories';
 
 type State = { status: 'loading'; cached: StoryDto | null } | { status: 'loaded'; story: StoryDto } | { status: 'not-found' } | { status: 'error'; message: string };
 
@@ -227,6 +228,12 @@ export default function StoryDetail() {
   const [deleting, setDeleting] = useState(false);
   const [confirmingBlock, setConfirmingBlock] = useState(false);
   const [blockNotice, setBlockNotice] = useState('');
+  const [menuOpen, setMenuOpen] = useState(false);
+  // 🔴 null = 아직 모른다. StoryDto 에는 "내가 이 작성자를 팔로우하는가" 칸이 없어서
+  //    (반응 카운트와 달리 얹지 않기로 했다) getUserProfile() 로 따로 물어봐야 한다 —
+  //    안 물어본 상태를 false 로 두면 실제로 팔로우 중인데 "팔로우" 로 잘못 그린다.
+  const [authorFollowing, setAuthorFollowing] = useState<boolean | null>(null);
+  const [followBusy, setFollowBusy] = useState(false);
   // 🔴 null 은 「아직 안 불러왔다」이고 빈 배열은 「댓글이 없다」다. 둘을 같게 두면
   //    불러오는 중과 없음이 화면에서 구분이 안 된다.
   const [replies, setReplies] = useState<StoryDto[] | null>(null);
@@ -239,7 +246,14 @@ export default function StoryDetail() {
     if (!id) return;
     setState({ status: 'loading', cached: getCachedStory(id) });
     const result = await getStory(id, accessToken);
-    if (result.state === 'success') setState({ status: 'loaded', story: result.story });
+    if (result.state === 'success') {
+      setState({ status: 'loaded', story: result.story });
+      // 🔴 내 글이면 안 물어본다 — 자기 자신을 팔로우하는 개념이 없다.
+      if (!result.story.mine) {
+        const profile = await getUserProfile(result.story.author.id, accessToken);
+        if (profile.state === 'success') setAuthorFollowing(profile.profile.following);
+      }
+    }
     else if (result.state === 'not-found') setState({ status: 'not-found' });
     else setState({ status: 'error', message: result.message });
   }, [id, accessToken]);
@@ -268,6 +282,30 @@ export default function StoryDetail() {
   //    「아무도 안 봤다」는 주장이 되는데, 실제로는 서버가 아직 안 세는 것일 수 있다.
   const metricLabels = story ? storyMetricLabels(story, tx) : [];
 
+  /**
+   * 우상단 ⋯ 메뉴 — S15P21E201-1244. 사용자 요청으로 삭제·팔로우·신고·차단을 여기
+   * 하나로 몰아넣는다. 시안(FeedDetail.dc.html)의 "내 글=연필/남의 글=⋯" 구분은
+   * 이번 결정으로 폐기하고 항상 ⋯ 하나로 통일한다.
+   *
+   * 🔴 공동 작성자 링크는 여기 안 넣는다 — 그건 "더 보기" 성격이 아니라 이 글에
+   * 참여한 사람을 보러 가는 주된 이동이라, 화면에 그대로 노출해 둔다.
+   */
+  const menuItems: DropdownMenuItem[] = story
+    ? (story.mine
+        ? [{ key: 'delete', label: tx('삭제', 'Delete'), destructive: true, onPress: () => setConfirmingDelete(true) }]
+        : [
+            ...(authorFollowing !== null
+              ? [{
+                  key: 'follow',
+                  label: authorFollowing ? tx('팔로잉 취소', 'Unfollow') : tx('팔로우', 'Follow'),
+                  onPress: () => void toggleFollow(),
+                }]
+              : []),
+            { key: 'report', label: tx('이 글 신고', 'Report this post'), onPress: () => setReportingTargetId(story.id) },
+            { key: 'block', label: tx('사용자 차단', 'Block user'), destructive: true, onPress: () => setConfirmingBlock(true) },
+          ])
+    : [];
+
   const submitReport = async (reason: StoryReportReason, detail: string | undefined) => {
     const targetId = reportingTargetId;
     if (!targetId) return false;
@@ -283,6 +321,18 @@ export default function StoryDetail() {
       removeReply(targetId);
     }
     return true;
+  };
+
+  // 🔴 S15P21E201-1244 — 이 화면에 팔로우가 지금까지 없었다. 낙관적으로 먼저 바꾸지
+  //    않는다 — 실패하면 "팔로우했다고 나왔는데 실제로는 아니었다"가 되고, 다음에 이
+  //    화면을 다시 열었을 때 서버 값과 달라 보인다.
+  const toggleFollow = async () => {
+    const authorId = story?.author.id;
+    if (!authorId || authorFollowing === null || followBusy) return;
+    setFollowBusy(true);
+    const outcome = await setFollowing(authorId, !authorFollowing, accessToken);
+    setFollowBusy(false);
+    if (outcome.state === 'success') setAuthorFollowing(outcome.following);
   };
 
   // 차단은 「이 글」이 아니라 「이 사람」에 대한 것이다. 차단해도 이 글은 내 화면에서 그대로
@@ -371,6 +421,9 @@ export default function StoryDetail() {
             {story.mine && story.visibility !== 'PUBLIC' ? (
               <View style={styles.visibilityBadge}><Text variant="caption" weight="bold" color={color.text.muted}>{tx(...VISIBILITY_LABEL[story.visibility])}</Text></View>
             ) : null}
+            <Pressable accessibilityRole="button" accessibilityLabel={tx('더 보기', 'More options')} onPress={() => setMenuOpen(true)} style={styles.menuButton}>
+              <Text variant="body" weight="bold" color={color.text.muted}>⋯</Text>
+            </Pressable>
           </View>
 
           {/* 🔴 시안 2a 의 순서 (S15P21E201-1177): 사진 → 장소 제목 → 본문.
@@ -384,39 +437,24 @@ export default function StoryDetail() {
               문단 하나가 되므로 지금과 똑같이 보인다. */}
           <MarkdownBody source={story.body} />
 
+          {/* 🔴 S15P21E201-1244 — 삭제·신고·차단은 우상단 ⋯ 메뉴로 옮겼다. 공동 작성자는
+              "더 보기" 성격이 아니라 주된 이동이라 그대로 남긴다. 삭제 확인은 메뉴에서
+              "삭제"를 고르면 여기 그대로 펼쳐진다 — 자리만 옮기고 확인 흐름은 안 바꿨다. */}
           <View style={styles.actionRow}>
             {!confirmingDelete && (
               <Pressable accessibilityRole="button" accessibilityLabel={tx('공동 작성자 보기', 'View co-authors')} onPress={() => router.push(`/feed/${story.id}/coauthors`)} style={styles.textAction}>
                 <Text variant="caption" weight="bold" color={color.text.accent}>{tx('공동 작성자', 'Co-authors')}</Text>
               </Pressable>
             )}
-            {story.mine ? (
-              confirmingDelete ? (
-                <View style={styles.confirmRow}>
-                  <Text variant="caption" color={color.text.body} style={styles.confirmText}>{tx('정말 삭제할까요? 되돌릴 수 없어요.', 'Delete this record? This cannot be undone.')}</Text>
-                  <View style={styles.confirmButtons}>
-                    <Button label={tx('취소', 'Cancel')} variant="ghost" disabled={deleting} onPress={() => setConfirmingDelete(false)} containerStyle={styles.confirmButton} />
-                    <Button label={deleting ? tx('삭제 중…', 'Deleting…') : tx('삭제 확정', 'Confirm delete')} disabled={deleting} onPress={() => void confirmDelete()} containerStyle={styles.confirmButton} />
-                  </View>
+            {confirmingDelete ? (
+              <View style={styles.confirmRow}>
+                <Text variant="caption" color={color.text.body} style={styles.confirmText}>{tx('정말 삭제할까요? 되돌릴 수 없어요.', 'Delete this record? This cannot be undone.')}</Text>
+                <View style={styles.confirmButtons}>
+                  <Button label={tx('취소', 'Cancel')} variant="ghost" disabled={deleting} onPress={() => setConfirmingDelete(false)} containerStyle={styles.confirmButton} />
+                  <Button label={deleting ? tx('삭제 중…', 'Deleting…') : tx('삭제 확정', 'Confirm delete')} disabled={deleting} onPress={() => void confirmDelete()} containerStyle={styles.confirmButton} />
                 </View>
-              ) : (
-                <Pressable accessibilityRole="button" accessibilityLabel={tx('기록 삭제', 'Delete record')} onPress={() => setConfirmingDelete(true)} style={styles.textAction}>
-                  <Text variant="caption" weight="bold" color={color.state.danger}>{tx('삭제', 'Delete')}</Text>
-                </Pressable>
-              )
-            ) : (
-              <>
-                <Pressable accessibilityRole="button" accessibilityLabel={tx('신고하기', 'Report')} onPress={() => setReportingTargetId(story.id)} style={styles.textAction}>
-                  <Text variant="caption" weight="bold" color={color.text.muted}>{tx('이 글 신고', 'Report this post')}</Text>
-                </Pressable>
-                {/* 🔴 신고와 차단을 같은 것처럼 보이게 하지 않는다 — 신고는 「이 글」에 대한
-                    것이고 차단은 「이 사람」에 대한 것이다. 구분선과 문구로 갈라 준다. */}
-                <View style={styles.actionDivider} />
-                <Pressable accessibilityRole="button" accessibilityLabel={tx('사용자 차단하기', 'Block this user')} onPress={() => setConfirmingBlock(true)} style={styles.textAction}>
-                  <Text variant="caption" weight="bold" color={color.state.danger}>{tx('사용자 차단', 'Block user')}</Text>
-                </Pressable>
-              </>
-            )}
+              </View>
+            ) : null}
           </View>
         </View>
       ) : null}
@@ -519,6 +557,7 @@ export default function StoryDetail() {
         </View>
       ) : null}
 
+      <DropdownMenu visible={menuOpen} items={menuItems} onClose={() => setMenuOpen(false)} />
       <ReportModal visible={reportingTargetId !== null} onClose={() => setReportingTargetId(null)} onSubmit={submitReport} />
       <BlockUserDialog visible={confirmingBlock} displayName={story?.author.displayName ?? ''} onClose={() => setConfirmingBlock(false)} onConfirm={confirmBlock} />
     </Screen>
@@ -533,6 +572,7 @@ const styles = StyleSheet.create({
   headerRow: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[2] },
   grow: { flex: 1, gap: spacing[1] },
   visibilityBadge: { minHeight: 28, paddingHorizontal: spacing[2], borderRadius: radius.full, backgroundColor: color.surface.soft, alignItems: 'center', justifyContent: 'center' },
+  menuButton: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
   images: { marginTop: spacing[2] },
   placeCard: { gap: spacing[1], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.tint },
   // ── 상세 2a (S15P21E201-1177) ──────────────────────────────────────────────
@@ -550,7 +590,6 @@ const styles = StyleSheet.create({
   placePin: { width: 16, height: 16 },
   actionRow: { flexDirection: 'row', justifyContent: 'space-between' },
   textAction: { minHeight: 44, paddingHorizontal: spacing[2], alignItems: 'center', justifyContent: 'center' },
-  actionDivider: { width: 1, alignSelf: 'stretch', marginVertical: spacing[2], backgroundColor: color.surface.border },
   confirmRow: { flex: 1, gap: spacing[2] },
   confirmText: { textAlign: 'right' },
   confirmButtons: { flexDirection: 'row', justifyContent: 'flex-end', gap: spacing[2] },
