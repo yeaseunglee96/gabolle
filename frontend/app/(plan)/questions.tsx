@@ -1,8 +1,8 @@
 // 여행 조건 한 페이지 — 질문 카드 하나에 답하면 다음이 열린다.
 // 시안: docs/design_handoff_plan_flow/PlanFlow.dc.html 의 p1.
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { ApiClientError } from '@/api/client';
 import { useAuth } from '@/auth/AuthProvider';
@@ -31,6 +31,7 @@ import {
   type QuestionState,
 } from '@/plan/planQuestions';
 import { startBarChips } from '@/home/startBarValue';
+import { assistantPrefillPatch } from '@/plan/assistantPrefill';
 
 const AREAS = [
   ['HAEUNDAE', '해운대', 'Haeundae'], ['GWANGALLI', '광안리', 'Gwangalli'], ['NAMPO', '남포동', 'Nampo-dong'],
@@ -144,6 +145,23 @@ export default function PlanConditions() {
   // 답한 카드가 64px 짜리 한 줄로 접히므로 새 카드는 대체로 같은 자리에 온다.
   // 카드의 y 는 재 두었다 — 손잡이가 생기면 그대로 쓴다.
   const cardTops = useRef<Record<number, number>>({});
+
+  // 비서가 "부산에서 이틀 일정 짜줘" 를 알아들으면 /plan?days=2&people=4 로 보낸다.
+  // 그 값을 읽어 초안에 한 번 채운다 (S15P21E201-1274).
+  //
+  // 🔴 ready 를 기다린다. 초안은 저장소에서 뒤늦게 불려오므로, 그 전에 보면 아직 빈
+  // 초안이라 "정해진 것이 없다" 고 잘못 판단해 저장해 둔 날짜·인원을 덮어쓴다.
+  const searchParams = useLocalSearchParams<{ days?: string; people?: string }>();
+  const prefilled = useRef(false);
+  useEffect(() => {
+    if (!ready || prefilled.current) return;
+    prefilled.current = true;
+    const patch = assistantPrefillPatch(searchParams, draft);
+    if (Object.keys(patch).length) update(patch);
+    // draft·searchParams 는 일부러 안 넣는다 — 딱 한 번만 채운다. 사람이 고친 뒤
+    // 다시 채우면 고친 것이 되돌아간다.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ready]);
 
   const done = settledCount(draft, state);
   const left = remainingCount(draft, state);
