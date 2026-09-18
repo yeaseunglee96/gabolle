@@ -262,6 +262,10 @@ public class AccountDeletionService {
 			//    90일 보관 규칙이 그쪽을 치우고, 누적 칸(story.view_count)은 어느 쪽이든 안 내린다.
 			new OwnedRows("StoryView", "userId"),
 			new OwnedRows("StoryLinkCopy", "userId"),
+			// 🔴 S15P21E201-1231 — 여행 조건 모달의 답(알레르기·식단이 들어 있다). 새 표라
+			//    처음부터 여기 넣는다. ON DELETE CASCADE 가 걸려 있지만 위에 적은 이유로
+			//    한 번도 안 터진다.
+			new OwnedRows("TravelConstraintJpaEntity", "userId"),
 			// 🔴 이 둘은 남이 참조한다 — trip_member.trip_invite_id 와
 			//    trip_seed_place.source_share_link_id. 둘 다 ON DELETE SET NULL 이라
 			//    (V20260907130000) 남의 참여·씨앗은 남고 이 사람의 초대 기록만 끊긴다.

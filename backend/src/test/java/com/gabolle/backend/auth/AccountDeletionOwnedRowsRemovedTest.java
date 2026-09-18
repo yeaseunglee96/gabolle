@@ -91,7 +91,9 @@ class AccountDeletionOwnedRowsRemovedTest extends AuthPostgresIntegrationTest {
 			new Owned("story_link_copy", "user_id"),
 			new Owned("trip_invite", "created_by"),
 			new Owned("trip_share_link", "created_by"),
-			new Owned("oauth_signup_ticket", "existing_user_id"));
+			new Owned("oauth_signup_ticket", "existing_user_id"),
+			// 🔴 S15P21E201-1231 — 알레르기·식단이 들어 있는 자리라 반드시 지워져야 한다.
+			new Owned("user_travel_constraint", "user_id"));
 
 	@Autowired
 	private AccountDeletionService accountDeletionService;
@@ -247,6 +249,11 @@ class AccountDeletionOwnedRowsRemovedTest extends AuthPostgresIntegrationTest {
 		this.jdbc.update("INSERT INTO story_link_copy "
 				+ "(story_link_copy_id, story_id, user_id, copied_on, created_at) "
 				+ "VALUES (?, ?, ?, current_date, now())", UUID.randomUUID(), this.otherStoryId, user);
+		// 🔴 SAVED 로 심는다 — 그래야 value 가 채워져서 ck_user_travel_constraint_value_matches_status
+		//    를 지난다. 값이 있는 상태로 지워지는지를 보는 것이 이 자리의 뜻이다(알레르기·식단).
+		this.jdbc.update("INSERT INTO user_travel_constraint "
+				+ "(user_id, status, value, created_at, updated_at) "
+				+ "VALUES (?, 'SAVED', ?::jsonb, now(), now())", user, "{\"allergies\":[\"peanut\"]}");
 		this.jdbc.update("INSERT INTO trip_invite "
 				+ "(trip_invite_id, trip_id, token, role, created_by, created_at, expires_at) "
 				+ "VALUES (?, ?, ?, 'EDITOR', ?, now(), now() + interval '7 day')",
