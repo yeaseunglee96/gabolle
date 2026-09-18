@@ -15,7 +15,9 @@ import com.gabolle.backend.story.domain.StoryVisibility;
 import com.gabolle.backend.story.presentation.dto.StoryResponse;
 import com.gabolle.backend.story.repository.StoryImageRepository;
 import com.gabolle.backend.story.repository.StoryReactionRepository;
+import com.gabolle.backend.story.repository.StoryVideoRepository;
 import com.gabolle.backend.story.repository.UploadedImageRepository;
+import com.gabolle.backend.story.repository.UploadedVideoRepository;
 import com.gabolle.backend.user.domain.AppUser;
 import com.gabolle.backend.user.domain.PersonalizationMode;
 import com.gabolle.backend.user.domain.UserStatus;
@@ -50,13 +52,20 @@ class StoryResponseAssemblerTest {
 		//    빈 목록을 돌려주게 두면 조립기가 0·0·null 로 채우고, 그게 「반응이 없는 글」의
 		//    실제 모습이다. 진짜 집계는 StoryReactionResponseIntegrationTest 가 잰다.
 		StoryReactionRepository storyReactionRepository = mock(StoryReactionRepository.class);
+		// 🔴 S15P21E201-1279 — 동영상도 이 검사의 주제가 아니다(여기는 인코딩을 잰다).
+		//    빈 목록이면 조립기가 media 를 빈 배열로 채우고, 그게 「동영상 없는 글」의 실제
+		//    모습이다. media 가 실제로 실리는지는 StoryMediaResponseIntegrationTest 가 잰다.
+		StoryVideoRepository storyVideoRepository = mock(StoryVideoRepository.class);
+		UploadedVideoRepository uploadedVideoRepository = mock(UploadedVideoRepository.class);
+		when(storyVideoRepository.findByStoryIdIn(any())).thenReturn(List.of());
 
 		when(storyImageRepository.findByStoryIdInOrderByStoryIdAscPositionAsc(any())).thenReturn(List.of());
 		when(storyReactionRepository.countByStories(any())).thenReturn(List.of());
 		when(storyReactionRepository.findMineByStories(any(), any())).thenReturn(List.of());
 
 		this.assembler = new StoryResponseAssembler(storyImageRepository, uploadedImageRepository,
-				this.appUserRepository, placeRepository, storyReactionRepository);
+				this.appUserRepository, placeRepository, storyReactionRepository, storyVideoRepository,
+				uploadedVideoRepository);
 	}
 
 	/**

@@ -102,7 +102,24 @@ public record StoryResponse(
 		 *
 		 * <p>키를 빼지 않고 {@code null} 을 그대로 낸다 — 세 값짜리 칸이라 「없음」도 뜻이 있다.
 		 */
-		String myReaction) {
+		String myReaction,
+
+		/**
+		 * 🔴 S15P21E201-1279 — 사진이 아닌 미디어. 지금은 <b>동영상 0개 또는 1개</b>다.
+		 *
+		 * <h2>🔴 왜 {@code images} 에 안 섞나</h2>
+		 *
+		 * <b>이미 배포된 앱이 {@code images} 의 모든 원소를 사진으로 그린다.</b> 거기에 동영상
+		 * 주소를 섞으면 구판 앱이 mp4 를 {@code <Image>} 에 넣는다 — 화면이 깨진다. 칸을
+		 * <b>더하면</b> 구판은 {@code media} 를 안 읽으므로 <b>동영상을 못 볼 뿐 안 깨진다.</b>
+		 * 이 저장소가 언어 선택·장소 칸에서 늘 택해 온 방식이다.
+		 *
+		 * <p>표 쪽 이유도 같다 — {@code story_image} 는 {@code position} 이 1~3 이고 「무엇인가」를
+		 * 적을 칸이 없다. 동영상은 {@code story_video} 라는 자기 자리를 쓴다.
+		 *
+		 * <p>없으면 <b>빈 배열</b>이고 {@code null} 이 아니다.
+		 */
+		List<Media> media) {
 
 	public record Author(String id, String displayName) {
 	}
@@ -139,5 +156,23 @@ public record StoryResponse(
 	}
 
 	public record Image(String url, int position) {
+	}
+
+	/**
+	 * 사진이 아닌 미디어 하나 — S15P21E201-1279.
+	 *
+	 * @param kind 지금은 {@code "VIDEO"} 하나뿐이다. 나중에 종류가 늘어도 화면이 같은 배열을
+	 * 그대로 받게 하려고 처음부터 둔다
+	 * @param url 재생 주소. 🔴 <b>스프링을 안 지나고 저장소에서 바로 나간다</b> — 그 길만
+	 * 구간 요청(Range)을 지원해서 되감기·건너뛰기가 된다
+	 * @param thumbnailUrl 🔴 <b>없을 수 있다.</b> 앱이 썸네일을 못 만들면 <b>칸 자체가 빠진다</b> —
+	 * 빈 문자열도 자리표시 주소도 넣지 않는다. 그런 값은 화면에 「있다」로 읽혀서 깨진 그림이 뜬다.
+	 * 없을 때 무엇을 그릴지는 화면이 정한다
+	 * @param durationSec 앱이 잰 길이(초). 🔴 <b>서버가 확인한 값이 아니다</b> — 서버는 동영상
+	 * 파일을 열지 않는다. 못 받았으면 칸이 빠진다
+	 */
+	public record Media(String kind, String url,
+			@JsonInclude(JsonInclude.Include.NON_NULL) String thumbnailUrl,
+			@JsonInclude(JsonInclude.Include.NON_NULL) Integer durationSec) {
 	}
 }
