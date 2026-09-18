@@ -256,7 +256,7 @@ export function MyTripCard({ trip, signedIn, loaded }: { trip: TripSummaryDto | 
           <GabolleMascot state="idle" style={styles.tripMascot} />
           <View style={styles.tripEmptyCopy}>
             <Text weight="bold">{tx('아직 만든 여행이 없어요', 'No trips yet')}</Text>
-            <Pressable accessibilityRole="button" onPress={() => router.push('/plan/basic')}>
+            <Pressable accessibilityRole="button" onPress={() => router.push('/plan')}>
               <Text weight="bold" color={color.brand.navy}>{tx('첫 여행 만들기 →', 'Plan your first trip →')}</Text>
             </Pressable>
           </View>

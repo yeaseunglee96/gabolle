@@ -75,6 +75,16 @@ export function formatDateShort(key: string, ko: boolean): string {
  * 화면이 그때만 안내 문구를 쓴다.
  */
 export function summarizeStartBar(value: StartBarValue, ko: boolean): string {
+  // 🔴 인원만 있는 요약은 만들지 않는다 (2026-09-18, 폰 화면을 띄워서 찾았다).
+  //
+  //    인원에는 **기본값(성인 2)이 들어 있다.** 그래서 아무것도 안 고른 사람에게도
+  //    요약이 「성인 2」로 나왔고, 알약에 안내 문구 대신 그것이 찍혔다 —
+  //    **고른 적 없는 값이 고른 것처럼 보였다.**
+  //
+  //    사람이 실제로 고른 것은 출발지와 날짜다. 둘 다 없으면 **요약이 없는 것**이고,
+  //    그때는 화면이 「여행 계획 시작해 보세요」를 쓴다.
+  if (!value.origin.trim() && !value.startDate) return '';
+
   const parts: string[] = [];
   if (value.origin.trim()) parts.push(value.origin.trim());
 

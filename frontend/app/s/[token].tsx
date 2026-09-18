@@ -54,7 +54,7 @@ export default function SharedItinerary() {
     if (!token) return;
     await clear();
     update({ cloneShareToken: token });
-    router.push('/plan/basic');
+    router.push('/plan');
   }
 
   async function copyLink() {
@@ -74,7 +74,7 @@ export default function SharedItinerary() {
       <View accessibilityRole="alert" style={styles.card}>
         <Text variant="title" weight="bold">{tx('공유 링크가 만료되었어요', 'This share link has expired')}</Text>
         <Text color={color.text.body}>{tx('공유 링크는 발급 후 30일 동안만 볼 수 있어요.', 'Share links can be viewed for 30 days after they’re created.')}</Text>
-        <Button label={tx('내 조건으로 새 여행 만들기', 'Create a new trip with my own conditions')} onPress={() => router.push('/plan/basic')} />
+        <Button label={tx('내 조건으로 새 여행 만들기', 'Create a new trip with my own conditions')} onPress={() => router.push('/plan')} />
       </View>
     </Screen>;
   }

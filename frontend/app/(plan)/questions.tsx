@@ -311,7 +311,7 @@ export default function PlanConditions() {
             <Text variant="caption" color={color.text.muted}>{tx('홈에서 받은 정보', 'From the home screen')}</Text>
             <View style={styles.givenRow}>
               <Text weight="bold" style={styles.givenText}>{headerSummary}</Text>
-              <Pressable accessibilityRole="button" onPress={() => router.push('/plan/basic')}>
+              <Pressable accessibilityRole="button" onPress={() => router.push('/plan')}>
                 <Text variant="caption" weight="bold" color={color.brand.orange}>{tx('수정', 'Edit')}</Text>
               </Pressable>
             </View>
