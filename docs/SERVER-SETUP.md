@@ -191,17 +191,33 @@ sudo nginx -t && sudo systemctl reload nginx
 것이다.** 이 한 줄은 2026-09-13 11:49 에 서버에서 손으로 만들어졌고 **저장소에는
 없었다** — 서버를 다시 만들면 1MB 로 돌아가고 같은 사고가 그대로 재현된다.
 
-**상한은 세 층에 따로 걸려 있고, 서로 모순되지 않아야 한다.**
+**상한은 네 층에 따로 걸려 있다.** 🔴 **셋인 줄 알기 쉬운데 넷이다** —
+`spring.servlet.multipart` 가 사진용으로 잡혀 있지만 **multipart 요청 전부에** 걸린다
+(S15P21E201-1275 에서 동영상 상한을 넣어 놓고 그 값이 한 번도 안 쓰이는 것을 보고 알았다).
 
-| 층 | 값 | 어디에 적혀 있나 |
-|---|---|---|
-| 앱 | 고를 때 30MB · **줄인 뒤 3MB** | `frontend/src/social/imageResize.ts` 의 `MAX_PICK_BYTES`·`MAX_UPLOAD_BYTES` (`front/dev` 에 있다 — `back/dev` 의 `frontend/` 는 자리표시자다) |
-| **nginx** | **5MB** | 이 절 |
-| Spring | 파일 3MB · 요청 4MB | `backend/src/main/resources/application.properties` |
+| | 층 | 값 | 어디에 적혀 있나 |
+|---|---|---|---|
+| 안쪽 | 앱 | 고를 때 30MB · **줄인 뒤 3MB** | `frontend/src/social/imageResize.ts` 의 `MAX_PICK_BYTES`·`MAX_UPLOAD_BYTES` (`front/dev` 에 있다 — `back/dev` 의 `frontend/` 는 자리표시자다) |
+| ↓ | 도메인 · 사진 | 3MB | `UploadedImage.MAX_BYTES` (코드에 박혀 있다) |
+| ↓ | 도메인 · 동영상 | **3MB** | `gabolle.storage.video.max-bytes` (설정값 — 실측 뒤 바뀐다) |
+| ↓ | **Spring multipart** | 파일 **4MB** · 요청 **4.5MB** | `backend/src/main/resources/application.properties` |
+| 바깥 | **nginx** | **5MB** | 이 절 |
 
-실효 상한은 **사진 1장 3MB** 이고 nginx 에는 여유를 둔 것이다.
-🔴 **nginx 값을 3MB 아래로 내리면** Spring 이 내는 설명 있는 오류 대신 nginx 의
-`413` 이 나가고, **원인이 다시 화면에서 사라진다.**
+## 🔴 규칙 — 안쪽이 바깥보다 작아야 한다. **같아도 안 된다**
+
+```
+3MB  <  4MB  <  4.5MB  <  5MB
+```
+
+**같으면 바깥 층이 먼저 자르고, 안쪽 층이 준비한 설명 있는 오류가 한 번도 안 쓰인다.**
+사용자는 「올리기 실패」만 보고 얼마까지 되는지 영영 모른다.
+
+가장 나쁜 것은 **nginx 가 자르는 경우**다 — 요청이 Spring 에 닿지도 않아
+**백엔드 로그에 아무것도 안 남는다.** 2026-09-13 에 실제로 그랬고 원인을 찾는 데 사흘 걸렸다.
+
+🔴 **그래서 상한을 올릴 때는 네 층을 함께, 여유를 남기고 올린다.** 한 층만 올리면
+그 층은 한 번도 안 불린다 — 값을 고쳤는데 아무것도 안 바뀌는 상태가 되고, 그때
+설정 파일만 보면 **바뀐 줄 안다.**
 
 ---
 

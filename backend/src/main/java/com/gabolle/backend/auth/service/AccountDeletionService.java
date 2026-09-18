@@ -195,7 +195,7 @@ public class AccountDeletionService {
 		deletePersonalizationArtifacts(userId);
 		deleteSnapshots(userId);
 		deleteTripsAndMemberships(userId, tripIds);
-		deleteUploadedImages(userId);
+		deleteUploadedFiles(userId);
 		deleteStories(userId);
 		deleteLoginMeans(userId, credential);
 		deleteUserOwnedRows(userId);
@@ -304,23 +304,60 @@ public class AccountDeletionService {
 	}
 
 	/**
-	 * 탈퇴한 사람이 올린 사진의 연결·DB 행·실제 파일을 함께 지운다 — S15P21E201-978.
+	 * 탈퇴한 사람이 올린 <b>사진과 동영상</b>의 연결·DB 행·실제 파일을 함께 지운다 —
+	 * S15P21E201-978 · -1275.
 	 *
-	 * <p>{@code story_image}가 {@code uploaded_image}를 가리키므로 연결을 먼저 지운다. 파일 저장소
-	 * 삭제는 현재 DB 트랜잭션이 커밋된 뒤 실행되고, 실패하면 뒷정리 대기열에 남는다. 사진 한 장
-	 * 때문에 탈퇴 전체를 되돌리지 않으면서도 파일을 조용히 남기지 않는다.
+	 * <h2>🔴 순서가 규칙이다 — 틀리면 탈퇴 전체가 실패한다</h2>
+	 *
+	 * {@code story_image}·{@code story_video} 가 업로드 표를 가리키는데 그 외래키에
+	 * {@code ON DELETE} 가 없다. 연결을 먼저 지우지 않고 업로드 행을 지우면 <b>외래키 위반으로
+	 * 트랜잭션이 통째로 되돌아간다</b> — 사진 한 장이 아니라 <b>탈퇴가 500 으로 죽는다.</b>
+	 * 애플 심사 5.1.1(v) 항목이기도 하다.
+	 *
+	 * <p>🔴 <b>그래서 동영상을 위한 메서드를 따로 두지 않았다.</b> 따로 두면 같은 순서 규칙이
+	 * 두 곳에 생기고, 한쪽만 고치는 날 그 사실이 <b>아무 데도 안 나타난다.</b> 지우는 순서는
+	 * 이 메서드 하나가 안다.
+	 *
+	 * <h2>썸네일은 여기서 저절로 걸린다</h2>
+	 *
+	 * 동영상 썸네일은 사진 창구로 올라와 {@code uploaded_image} 행이 된다. 이 메서드는
+	 * {@code story_image} 를 걸지 않고 <b>「올린 사람」으로</b> 찾으므로, {@code story_image} 에
+	 * 없는 썸네일도 그냥 걸린다 — 기록 삭제({@code StoryService.deleteVideoFiles})가 썸네일을
+	 * 따로 챙겨야 하는 것과 다른 점이다.
+	 *
+	 * <p>파일 저장소 삭제는 현재 DB 트랜잭션이 커밋된 뒤 실행되고, 실패하면 뒷정리 대기열에
+	 * 남는다. 파일 하나 때문에 탈퇴 전체를 되돌리지 않으면서도 파일을 조용히 남기지 않는다.
 	 */
-	private void deleteUploadedImages(UUID userId) {
-		List<String> storageKeys = this.entityManager.createQuery(
+	private void deleteUploadedFiles(UUID userId) {
+		List<String> imageKeys = this.entityManager.createQuery(
 				"SELECT i.storageKey FROM UploadedImage i WHERE i.uploaderUserId = :userId", String.class)
 				.setParameter("userId", userId)
 				.getResultList();
+		List<String> videoKeys = this.entityManager.createQuery(
+				"SELECT v.storageKey FROM UploadedVideo v WHERE v.uploaderUserId = :userId", String.class)
+				.setParameter("userId", userId)
+				.getResultList();
+
+		// 🔴 가리키는 행을 먼저. story_video 는 동영상과 썸네일 둘 다를 가리키므로
+		//    어느 쪽이 이 사용자 것이든 걸리게 한다 — 보통은 둘 다 같은 사람 것이다.
+		execute("""
+				DELETE FROM StoryVideo sv WHERE sv.uploadedVideoId IN
+				(SELECT v.uploadedVideoId FROM UploadedVideo v WHERE v.uploaderUserId = :userId)
+				OR sv.thumbnailUploadId IN
+				(SELECT i.uploadedImageId FROM UploadedImage i WHERE i.uploaderUserId = :userId)
+				""", "userId", userId);
 		execute("""
 				DELETE FROM StoryImage si WHERE si.uploadedImageId IN
 				(SELECT i.uploadedImageId FROM UploadedImage i WHERE i.uploaderUserId = :userId)
 				""", "userId", userId);
+
+		// 그다음 업로드 행. 이제 아무도 안 가리킨다.
+		execute("DELETE FROM UploadedVideo v WHERE v.uploaderUserId = :userId", "userId", userId);
 		execute("DELETE FROM UploadedImage i WHERE i.uploaderUserId = :userId", "userId", userId);
-		storageKeys.forEach(key -> this.storageCleanupService.deleteOrEnqueue(
+
+		imageKeys.forEach(key -> this.storageCleanupService.deleteOrEnqueue(
+				key, StorageCleanupEntry.REASON_ACCOUNT_DELETED));
+		videoKeys.forEach(key -> this.storageCleanupService.deleteOrEnqueue(
 				key, StorageCleanupEntry.REASON_ACCOUNT_DELETED));
 	}
 
@@ -507,7 +544,7 @@ public class AccountDeletionService {
 	 * 주석 참고). 그래야 {@link #preview}의 {@code recordCount}(살아있는 기록만 센다)와
 	 * 실제 삭제 결과가 어긋나지 않는다.
 	 *
-	 * <p>딸린 사진은 이 메서드 직전의 {@link #deleteUploadedImages}가 연결과 업로드 행을 지우고,
+	 * <p>딸린 사진은 이 메서드 직전의 {@link #deleteUploadedFiles}가 연결과 업로드 행을 지우고,
 	 * 실제 파일도 커밋 뒤 삭제한다. 기록 행은 신고·검토 근거를 위해 익명화된 작성자와 함께
 	 * 소프트 삭제 상태로 남지만 사진 주소와 저장 키는 남지 않는다.
 	 */

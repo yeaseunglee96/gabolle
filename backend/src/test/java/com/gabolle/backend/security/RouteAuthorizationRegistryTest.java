@@ -777,6 +777,11 @@ class RouteAuthorizationRegistryTest {
 		// ── 업로드 ──────────────────────────────────────────────────────────────
 		put(m, "POST /api/v1/uploads/story-image", Policy.AUTHENTICATED_ONLY,
 				"새로 올리는 것이라 주인 개념이 없다. 올린 사람은 인증 주체로 박히고, 남이 올린 주소를 자기 기록에 붙이면 400 이다. ImageUploadIntegrationTest");
+		put(m, "POST /api/v1/uploads/story-video", Policy.AUTHENTICATED_ONLY,
+				"사진 창구와 같다 — 새로 올리는 것이라 주인 개념이 없고 올린 사람이 인증 주체로 박힌다. 창구를 가른 것은 형식·상한이 다르기 때문이지 인가가 다르기 때문이 아니다. StoryVideoDeletionIntegrationTest");
+		// 🔴 동영상에는 GET 짝이 없다. 일부러 안 만들었다 — 운영은 nginx→MinIO 직행이라 재생이
+		//    스프링을 안 지난다. 여기로 서빙하면 파일이 통째로 힙에 올라가고 구간 요청(Range)이
+		//    없어 되감기가 안 된다. VideoUploadController 주석 참고.
 		put(m, "GET /api/v1/uploads/images/{}", Policy.PUBLIC_TOKEN,
 				"피드 화면이 <img> 로 부르고 그 요청에는 Authorization 이 안 붙는다. 키가 UUID 라 추측 불가. ImageUploadIntegrationTest");
 
