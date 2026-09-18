@@ -17,7 +17,7 @@ import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { isAtLeast } from '@/layout/breakpoints';
-import { useMyPageCounts } from '@/me/MyPageShell';
+import { useMyPageCounts } from '@/me/myPageCounts';
 import { usePlan } from '@/plan/PlanProvider';
 
 // 박재현 님 계약 — 서버가 대소문자·앞뒤 공백까지 정확히 이 값과 비교한다.
@@ -36,7 +36,7 @@ export function ProfileBody() {
   const { width } = useWindowDimensions();
   const desktop = isAtLeast(width, 'lg');
 
-  // — 인스타그램식 기록·팔로워·팔로잉 숫자. MyPageShell이 이미 같은
+  // — 인스타그램식 기록·팔로워·팔로잉 숫자. 마이페이지가 이미 같은
   // 프로필 질의를 하고 있어서(사이드 메뉴 숫자), 새로 부르지 않고 그 결과를 같이 쓴다
   // react-query 캐시 열쇠가 같아 요청이 하나로 합쳐진다.
   const { storyCount, followerCount, followingCount } = useMyPageCounts();
@@ -239,7 +239,7 @@ export function ProfileBody() {
             <Pressable accessibilityRole="button" onPress={() => router.push(`/user/${user.userId}/following`)} style={styles.stat}><Text variant="title" weight="bold">{followingCount ?? '—'}</Text><Text variant="caption" color={color.text.muted}>{tx('팔로잉', 'Following')}</Text></Pressable>
           </View>
           <View style={styles.statActions}>
-            <Button label={tx('내 피드 보기', 'View my posts')} variant="ghost" compact onPress={() => router.push('/me/posts')} />
+            <Button label={tx('내 피드 보기', 'View my posts')} variant="ghost" compact onPress={() => router.push('/me?panel=posts')} />
             <Button label={tx('프로필 공유', 'Share profile')} variant="ghost" compact onPress={() => void shareProfile()} />
           </View>
         </View>
