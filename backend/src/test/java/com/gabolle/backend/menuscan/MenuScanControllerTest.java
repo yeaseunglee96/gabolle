@@ -123,6 +123,61 @@ class MenuScanControllerTest {
 		return new MockMultipartFile("image", "menu.jpg", "image/jpeg", bytes);
 	}
 
+	// ── 줄을 이름과 가격으로 나눈다 (S15P21E201-1271) ────────────────────────
+
+	@Test
+	@DisplayName("음식 줄은 이름과 가격이 따로 나간다")
+	void foodLineCarriesNameAndPrice() throws Exception {
+		when(this.reader.read(any(), any())).thenReturn(new GmsMenuReader.Result(
+				List.of(new MenuScanResponse.Line("돼지국밥 9,000원", "돼지국밥", "9,000원",
+						"Pork and rice soup 9,000 won", List.of("돼지고기"))), 0));
+
+		this.mockMvc.perform(multipart("/api/v1/menu-scans").file(part(jpeg()))
+						.principal(principal(this.userId)))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.data.lines[0].name").value("돼지국밥"))
+				.andExpect(jsonPath("$.data.lines[0].price").value("9,000원"))
+				// 원문 줄은 그대로 남는다 — 옛 앱 빌드가 이것만 읽는다
+				.andExpect(jsonPath("$.data.lines[0].text").value("돼지국밥 9,000원"));
+	}
+
+	/**
+	 * 🔴 가격을 <b>숫자로 바꾸지 않는다.</b> 「9,000원」이 {@code 9000} 으로 나가면 화면은
+	 * 통화를 자기가 붙여야 하고, 그 순간 <b>우리가 바꾼 값이 맞다고 주장</b>하는 것이 된다.
+	 * 가게마다 「₩9,000」·「9000」·「9.0」 이 다 나온다. 적힌 그대로 넘기면 틀릴 자리가 없다.
+	 */
+	@Test
+	@DisplayName("🔴 가격은 적힌 그대로 나간다 — 숫자로 바꾸지 않는다")
+	void priceIsNotNormalised() throws Exception {
+		when(this.reader.read(any(), any())).thenReturn(new GmsMenuReader.Result(
+				List.of(new MenuScanResponse.Line("밀면 8,500원", "밀면", "8,500원", "밀면 8,500원",
+						List.of())), 0));
+
+		this.mockMvc.perform(multipart("/api/v1/menu-scans").file(part(jpeg()))
+						.principal(principal(this.userId)))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.data.lines[0].price").value("8,500원"));
+	}
+
+	/**
+	 * 🔴 가게 이름과 안내문은 음식이 아니다. 여기서 {@code name} 을 채우면 화면이 그것을
+	 * <b>메뉴로 그리고</b>, S15P21E201-1272 가 붙으면 「부산집 식당」의 <b>그림까지 만든다.</b>
+	 */
+	@Test
+	@DisplayName("🔴 음식이 아닌 줄은 이름과 가격이 빈 문자열이다 — null 이 아니다")
+	void nonFoodLineHasEmptyNameAndPrice() throws Exception {
+		when(this.reader.read(any(), any())).thenReturn(new GmsMenuReader.Result(
+				List.of(new MenuScanResponse.Line("※ 모든 메뉴에 공깃밥이 포함됩니다", "", "",
+						"※ All menus include a bowl of rice", List.of())), 0));
+
+		this.mockMvc.perform(multipart("/api/v1/menu-scans").file(part(jpeg()))
+						.principal(principal(this.userId)))
+				.andExpect(status().isOk())
+				// 🔴 칸이 사라지면 화면은 «아직 안 왔나» 와 «음식이 아니다» 를 못 가른다
+				.andExpect(jsonPath("$.data.lines[0].name").value(""))
+				.andExpect(jsonPath("$.data.lines[0].price").value(""));
+	}
+
 	// ── 🔴 「없다」를 말할 수 없다 ────────────────────────────────────────────
 
 	/**
@@ -147,7 +202,8 @@ class MenuScanControllerTest {
 	@DisplayName("🔴 사진에서 읽은 값은 언제나 ESTIMATED 다 — VERIFIED 를 붙이지 않는다")
 	void alwaysEstimated() throws Exception {
 		when(this.reader.read(any(), any())).thenReturn(new GmsMenuReader.Result(
-				List.of(new MenuScanResponse.Line("새우튀김", "새우튀김", List.of("새우"))), 0));
+				List.of(new MenuScanResponse.Line("새우튀김 12,000원", "새우튀김", "12,000원", "새우튀김 12,000원",
+						List.of("새우"))), 0));
 
 		this.mockMvc.perform(multipart("/api/v1/menu-scans").file(part(jpeg()))
 						.principal(principal(this.userId)))
@@ -164,7 +220,7 @@ class MenuScanControllerTest {
 	@DisplayName("🔴 알레르기 낱말을 못 찾아도 「없음」이라고 답하지 않는다")
 	void nothingFoundIsNotAClaimOfSafety() throws Exception {
 		when(this.reader.read(any(), any())).thenReturn(new GmsMenuReader.Result(
-				List.of(new MenuScanResponse.Line("김밥", "김밥", List.of())), 0));
+				List.of(new MenuScanResponse.Line("김밥", "김밥", "", "김밥", List.of())), 0));
 
 		this.mockMvc.perform(multipart("/api/v1/menu-scans").file(part(jpeg()))
 						.principal(principal(this.userId)))

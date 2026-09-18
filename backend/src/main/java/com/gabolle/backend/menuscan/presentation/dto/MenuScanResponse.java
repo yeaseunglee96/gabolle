@@ -35,11 +35,22 @@ public record MenuScanResponse(List<Line> lines, int unreadLineCount, String evi
 
 	/**
 	 * @param text 그 줄에서 읽은 글자 그대로
+	 * @param name 🔴 그 줄의 <b>음식 이름만</b>, 사진에 적힌 말 그대로 — S15P21E201-1271.
+	 *     번역하지 않는다. 가게 이름·안내문처럼 <b>음식 줄이 아니면 빈 문자열</b>이다
+	 *     ({@code null} 이 아니다 — 화면이 물음표 없이 쓸 수 있게).
+	 *     <p>번역한 이름이 필요하면 {@code translatedText} 를 쓴다. 이 칸이 원문으로
+	 *     남는 이유는 둘이다 — 사용자가 <b>직원에게 보여 주며 가리킬</b> 값이고,
+	 *     음식마다 만드는 그림을 <b>언어와 무관하게 하나로 모을</b> 열쇠이기 때문이다
+	 *     (S15P21E201-1272). 언어별로 열쇠가 갈리면 같은 음식 그림을 다섯 번 만든다
+	 * @param price 🔴 그 줄에 <b>보이는</b> 가격을 적힌 그대로. 「9,000원」처럼 단위까지
+	 *     들어온다 — 숫자로 바꾸지 않는다. 통화·표기가 가게마다 다르고, 우리가 숫자로
+	 *     바꾸는 순간 <b>바꾼 값이 맞다고 주장</b>하는 것이 된다. 가격이 안 보이면 빈 문자열
 	 * @param translatedText 앱이 요청한 언어로 옮긴 값. 요청 언어가 한국어이거나 언어를
 	 *     안 보낸 요청이면(옛 앱 빌드) {@code text} 와 <b>같은 값</b>이 온다 — 그때는
 	 *     번역이 아니라 원문이라는 뜻이다
 	 * @param allergenWords 그 줄에서 <b>보인</b> 알레르기 관련 낱말. 비어 있으면 «못 찾았다»
 	 */
-	public record Line(String text, String translatedText, List<String> allergenWords) {
+	public record Line(String text, String name, String price, String translatedText,
+			List<String> allergenWords) {
 	}
 }
