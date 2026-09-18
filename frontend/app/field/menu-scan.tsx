@@ -16,6 +16,7 @@ import { findDishImage, type DishMatch } from '@/field/dishImages';
 import { describeDish, dishImageHeaders, loadDishImage, DISH_IMAGE_POLL, type Dish } from '@/field/dish';
 import { allergenNotice, emptyNotice, scanMenu, unreadNotice, type MenuLine, type MenuScan } from '@/field/menuScan';
 import { useI18n } from '@/i18n';
+import { LANGUAGE_OPTIONS, toBcp47, type LanguageCode } from '@/i18n/languages';
 import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
 
@@ -146,6 +147,50 @@ function ScanResult({ scan, onRetry }: { scan: MenuScan; onRetry: () => void }) 
   </View>;
 }
 
+/** 그 언어를 쓰는 사람이 읽을 수 있는 이름 — 「한국어」·「日本語」·「繁體中文」. */
+function endonymOf(language: LanguageCode): string {
+  return LANGUAGE_OPTIONS.find((option) => option.code === language)?.endonym ?? language;
+}
+
+/**
+ * 소리내어 읽어 주는 버튼 — S15P21E201-1295.
+ *
+ * 🔴 **한국어와 자기 언어가 둘 다 필요하다.** 식당에서 직원에게 들려주려면 한국어가
+ * 필요하고, 자기가 무슨 음식인지 알려면 자기 언어가 필요하다. 하나만 두면 둘 중 하나는
+ * 못 한다.
+ *
+ * 🔴 **버튼 이름을 그 언어로 적는다.** 「내 언어로 듣기」라고 적으면 그 언어를 못 읽는
+ * 사람에게는 아무 말도 아니다 — 이 화면을 쓰는 사람이 바로 그 사람이다.
+ *
+ * 🔴 **읽는 음성도 그 언어로 맞춘다.** 영어를 한국어 음성으로 읽으면 상대가 못 알아듣는다
+ * (`speakAloud` 의 javadoc 이 같은 말을 한다).
+ */
+function ListenButtons({ korean, translated }: { korean: string; translated: string }) {
+  const { tx, language } = useI18n();
+  // 번역이 원문과 같으면(한국어 사용자이거나 번역이 없는 줄) 같은 것을 두 번 그리지 않는다.
+  const onlyKorean = language === 'ko' || translated === '' || translated === korean;
+
+  const button = (label: string, text: string, bcp47: string, key: string) => (
+    <Pressable
+      key={key}
+      accessibilityRole="button"
+      accessibilityLabel={tx(`${text} ${label}로 듣기`, `Hear ${text} in ${label}`)}
+      onPress={() => speakAloud(text, { language: bcp47 })}
+      style={({ pressed }) => [styles.speak, pressed && styles.pressed]}
+    >
+      <Text variant="caption" weight="bold" color={color.brand.navy}>{label}</Text>
+    </Pressable>
+  );
+
+  if (onlyKorean) {
+    return button(tx('듣기', 'Listen'), korean, 'ko-KR', 'ko');
+  }
+  return <View style={styles.listenRow}>
+    {button(endonymOf('ko'), korean, 'ko-KR', 'ko')}
+    {button(endonymOf(language), translated, toBcp47(language), 'mine')}
+  </View>;
+}
+
 /**
  * 메뉴 한 줄.
  *
@@ -177,9 +222,7 @@ function MenuLineRow({ line, bundled }: { line: MenuLine; bundled: DishMatch | n
       {line.price !== '' && <View style={styles.price}><Text weight="bold">{line.price}</Text></View>}
       {/* 우리가 이미 보여주고 있는 글자를 그대로 소리내 준다 — 지어내는 것이 없다.
           음식 줄에서는 이름만 읽는다. 가격까지 읽으면 가리키는 데 방해가 된다. */}
-      <Pressable accessibilityRole="button" accessibilityLabel={tx(`${original} 한국어로 듣기`, `Hear ${original} in Korean`)} onPress={() => speakAloud(original, { language: 'ko-KR' })} style={({ pressed }) => [styles.speak, pressed && styles.pressed]}>
-        <Text variant="caption" weight="bold" color={color.brand.navy}>{tx('듣기', 'Listen')}</Text>
-      </Pressable>
+      <ListenButtons korean={original} translated={heading} />
     </View>
 
     {/* 🔴 출처는 줄 안이 아니라 아래 전체 폭에 둔다. 가격 칸이 생기면서 글자 칸이
@@ -280,6 +323,9 @@ function DishPanel({ name, bundled }: { name: string; bundled: DishMatch | null 
   // 🔴 사전에 진짜 사진이 있으면 그것을 쓴다. 만든 그림보다 낫고 값도 안 든다.
   const showGenerated = bundled === null && imageUri !== null;
   const stillPainting = bundled === null && dish.imageId !== null && imageUri === null && !gaveUp;
+  // 🔴 한도는 그림 자리에만 그린다. 설명은 함께 와 있고 멀쩡하다 — S15P21E201-1294.
+  //    이때 imageId 가 null 이라 위 stillPainting 은 저절로 거짓이다.
+  const quotaSpent = bundled === null && dish.imageStatus === 'RATE_LIMITED';
 
   return <View style={styles.dishPanel}>
     {dish.description !== ''
@@ -289,6 +335,11 @@ function DishPanel({ name, bundled }: { name: string; bundled: DishMatch | null 
           <Text variant="caption" color={color.text.muted}>{tx('사진에서 읽은 것이 아니라 AI 가 덧붙인 설명이에요', 'Added by AI — not read from the photo')}</Text>
         </>
       : <Text variant="caption" color={color.text.muted}>{tx('이 음식은 아직 설명해 드릴 수 없어요.', 'We cannot describe this dish yet.')}</Text>}
+
+    {quotaSpent && <Text variant="caption" color={color.text.muted}>
+      {tx('그림은 조금 뒤에 다시 만들 수 있어요. 설명은 그대로 보실 수 있어요.',
+        'Pictures can be made again in a moment. The description above still works.')}
+    </Text>}
 
     {stillPainting && <View style={styles.dishImageWaiting} accessibilityLiveRegion="polite">
       <ActivityIndicator color={color.brand.orange} />
@@ -338,6 +389,7 @@ const styles = StyleSheet.create({
   credit: { marginTop: spacing[1] },
   // 44 는 손가락이 닿는 최소 크기다 — 칩 자체를 작게 만들지 않고 감싸는 칸으로 맞춘다.
   askRow: { minHeight: 44, justifyContent: 'center', alignItems: 'flex-start' },
+  listenRow: { gap: spacing[1], alignItems: 'stretch' },
   askChip: { minHeight: 32, justifyContent: 'center', paddingHorizontal: spacing[3], paddingVertical: spacing[1], borderRadius: radius.full, borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.surface.card },
   dishPanel: { gap: spacing[2], marginLeft: spacing[3], marginBottom: spacing[2], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.tint },
   dishImageBlock: { gap: spacing[1] },
