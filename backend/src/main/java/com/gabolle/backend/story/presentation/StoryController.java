@@ -39,6 +39,7 @@ import jakarta.validation.constraints.Min;
  * GET    /api/v1/stories/{storyId}                             상세
  * PATCH  /api/v1/stories/{storyId}                             수정 (작성자만)
  * DELETE /api/v1/stories/{storyId}                             삭제 (작성자만, 204)
+ * POST   /api/v1/stories/{storyId}/link-copies                 링크를 복사했다고 알린다
  * </pre>
  *
  * <p>사진은 먼저 {@code POST /api/v1/uploads/story-image} 로 올리고 받은 주소를 작성 본문에 싣는다.
@@ -104,6 +105,37 @@ public class StoryController {
 		//    둘 다 없으면 셀 수 없다 — 그 판단은 StoryService.recordView 가 한다.
 		UUID anonymousSessionId = AuthenticatedUsers.optionalAnonymousSessionId(authentication).orElse(null);
 		return ApiResponse.success(this.storyService.get(storyId, viewer, anonymousSessionId), requestId());
+	}
+
+	/**
+	 * 이 글의 공유 링크를 복사했다고 알린다 — S15P21E201-1215.
+	 *
+	 * <h2>🔴 왜 조회수처럼 묻어 가지 못하나</h2>
+	 *
+	 * 조회수는 상세 조회에 묻어 간다 — 글을 여는 행동이 이미 서버를 부르기 때문이다. <b>복사는
+	 * 앱 안에서 끝나는 행동</b>이라 서버를 부르는 자리가 없다. 앱이 알려 주지 않으면 서버는
+	 * 그 일이 있었는지 영영 모른다. 그래서 이 경로가 따로 있다.
+	 *
+	 * <h2>🔴 응답은 204 가 아니라 그 글이다</h2>
+	 *
+	 * 화면이 눌린 그 자리에서 인용수를 새 숫자로 바꿔 그려야 하는데, 204 로 답하면 앱이
+	 * <b>상세를 한 번 더 불러야</b> 한다. 그 한 번이 또 조회수를 올린다 — 복사 버튼을 누른 것이
+	 * 조회로 세어지는 셈이다. 지금 모습을 그대로 돌려주면 그 왕복이 아예 없다.
+	 *
+	 * <h2>🔴 수가 안 올라도 200 이다</h2>
+	 *
+	 * 오늘 이미 센 사람이 또 눌러도, 작성자 본인이 자기 글 링크를 복사해도 <b>복사 자체는
+	 * 정상으로 일어난 일</b>이다. 앱이 거절로 읽고 사용자에게 오류를 보여줄 이유가 없다.
+	 * 돌아온 {@code linkCopyCount} 를 그대로 그리면 된다.
+	 *
+	 * <p>피드·상세와 마찬가지로 <b>로그인 없이도 열린다</b> — 비회원의 복사도 센다(익명 세션으로
+	 * 식별되는 경우만). 못 보는 글은 그 글 조회와 같은 이유로 <b>404</b> 다.
+	 */
+	@PostMapping("/{storyId}/link-copies")
+	public ApiResponse<StoryResponse> recordLinkCopy(@PathVariable UUID storyId, Authentication authentication) {
+		UUID actor = AuthenticatedUsers.optionalId(authentication).orElse(null);
+		UUID anonymousSessionId = AuthenticatedUsers.optionalAnonymousSessionId(authentication).orElse(null);
+		return ApiResponse.success(this.storyService.recordLinkCopy(storyId, actor, anonymousSessionId), requestId());
 	}
 
 	/**

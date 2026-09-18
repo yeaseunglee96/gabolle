@@ -688,6 +688,25 @@ class RouteAuthorizationRegistryTest {
 		put(m, "DELETE /api/v1/stories/{}/reaction", Policy.OTHER_USER_OK,
 				"취소도 같다. 지우는 키가 (글, 나) 쌍이라 남의 반응은 못 지운다 — 일부러 볼 수 있는지는 안 따진다(막으면 한 번 누른 사람이 영영 못 무른다). StoryReactionIntegrationTest");
 
+		// ── 링크 복사 세기 (-1215) ───────────────────────────────────────────────
+		//
+		// 🔴 반응(PUT/DELETE /stories/{}/reaction)과 같은 갈래다 — 남의 글 링크를 퍼뜨리는
+		//    것이 기능 자체이고, 위험도 같은 종류다: 거부되지 않는 것이 아니라 「못 볼 글이
+		//    섞이는 것」이다. 그래서 근거도 「남의 것을 거부하는가」가 아니라 「못 보는 글이
+		//    404 로 감춰지는가」다.
+		//
+		// 🔴 자기 글도 거부하지 않는다 — 반응과 여기가 갈리는 자리다. 반응은 자기 글이면
+		//    409 로 막지만, 링크 복사는 200 으로 통과시키고 수만 안 올린다. 복사 자체는
+		//    정상으로 일어난 일이라 앱이 거절로 읽고 사용자에게 오류를 보여줄 이유가 없다.
+		//    막는 것과 안 세는 것은 다른 일이다.
+		put(m, "POST /api/v1/stories/{}/link-copies", Policy.OTHER_USER_OK,
+				"남의 글 링크를 복사했다고 알리는 것이 기능이다. 못 보는 글은 존재를 감춘 404"
+						+ "(StoryVisibilityPolicy.canView 를 recordLinkCopy 가 세기 전에 부른다) — "
+						+ "StoryLinkCopyCountIntegrationTest.hiddenStoryIsNotFound 가 그 404 와 "
+						+ "「수도 안 오른다」를 함께 잰다. 주체는 인증에서만 읽고, 비회원이면 "
+						+ "익명 세션 id 로만 읽는다(경로·본문에서 사람을 받지 않는다). "
+						+ "작성자 본인은 막지 않고 수만 안 올린다 — 반응과 갈리는 자리다");
+
 		put(m, "GET /api/v1/feed/home", Policy.AUTHENTICATED_ONLY,
 				"내 피드다. 대상이 인증 주체로만 정해진다. FeedControllerTest");
 		put(m, "GET /api/v1/feed/community", Policy.AUTHENTICATED_ONLY,

@@ -31,6 +31,7 @@ import com.gabolle.backend.story.presentation.dto.StoryResponse;
 import com.gabolle.backend.story.presentation.dto.StoryUpdateRequest;
 import com.gabolle.backend.story.repository.StoryImageRepository;
 import com.gabolle.backend.story.repository.StoryRepository;
+import com.gabolle.backend.story.repository.StoryLinkCopyRepository;
 import com.gabolle.backend.story.repository.StoryViewRepository;
 import com.gabolle.backend.story.repository.UploadedImageRepository;
 import com.gabolle.backend.story.repository.UserFollowRepository;
@@ -98,13 +99,17 @@ public class StoryService {
 
 	private final StoryViewRepository storyViewRepository;
 
+	/** 링크 복사 낱개 — S15P21E201-1215. 조회 낱개와 같은 모양이고 같은 규칙으로 쓴다. */
+	private final StoryLinkCopyRepository storyLinkCopyRepository;
+
 	private final Clock clock;
 
 	public StoryService(StoryRepository storyRepository, StoryImageRepository storyImageRepository,
 			UploadedImageRepository uploadedImageRepository, UserFollowRepository userFollowRepository,
 			TripRepository tripRepository, PlaceRepository placeRepository,
 			StorageCleanupService storageCleanupService, StoryResponseAssembler assembler,
-			StoryVisibilityPolicy visibilityPolicy, StoryViewRepository storyViewRepository, Clock clock) {
+			StoryVisibilityPolicy visibilityPolicy, StoryViewRepository storyViewRepository,
+			StoryLinkCopyRepository storyLinkCopyRepository, Clock clock) {
 		this.storyRepository = storyRepository;
 		this.storyImageRepository = storyImageRepository;
 		this.uploadedImageRepository = uploadedImageRepository;
@@ -115,6 +120,7 @@ public class StoryService {
 		this.assembler = assembler;
 		this.visibilityPolicy = visibilityPolicy;
 		this.storyViewRepository = storyViewRepository;
+		this.storyLinkCopyRepository = storyLinkCopyRepository;
 		this.clock = clock;
 	}
 
@@ -275,6 +281,65 @@ public class StoryService {
 				viewer, viewer == null ? anonymousSessionId : null, viewedOn, now);
 		if (inserted == 1) {
 			story.recordView();
+		}
+	}
+
+	/**
+	 * 링크 복사를 한 번 센다 — S15P21E201-1215.
+	 *
+	 * <h2>🔴 왜 따로 부르는 자리가 필요한가</h2>
+	 *
+	 * 조회수는 상세 조회({@link #get})에 묻어 갔다 — 글을 여는 행동 자체가 이미 서버를 부르기
+	 * 때문이다. <b>복사에는 그런 자리가 없다.</b> 복사는 앱 안에서 끝나는 행동이라, 앱이
+	 * 알려 주지 않으면 서버는 그 일이 있었는지 영영 모른다. 그래서 이 메서드와
+	 * {@code POST /api/v1/stories/&#123;storyId&#125;/link-copies} 가 있다.
+	 *
+	 * <h2>🔴 볼 수 있는지 먼저 판정한다</h2>
+	 *
+	 * {@link #get} 과 같은 이유다 — 순서가 반대면 <b>못 보는 글을 찔러도 수가 오르고, 그 수가
+	 * 곧 「그 글이 있다」는 사실의 유출</b>이 된다. 못 보는 글은 404 다.
+	 *
+	 * <p>🔴 <b>수가 안 올랐다고 실패로 답하지 않는다.</b> 오늘 이미 센 사람이 또 눌러도, 작성자
+	 * 본인이 눌러도 복사 자체는 정상으로 일어난 일이다. 응답은 언제나 그 글의 지금 모습이고,
+	 * 화면은 돌아온 {@code linkCopyCount} 를 그대로 그리면 된다.
+	 *
+	 * <p>세는 규칙은 조회와 <b>똑같다</b>. 그 「똑같다」는 2026-09-18 에 정해진 것이고 근거는
+	 * {@link com.gabolle.backend.story.domain.StoryLinkCopy} 주석에 있다 — 다시 논의하지 않는다.
+	 */
+	@Transactional
+	public StoryResponse recordLinkCopy(UUID storyId, UUID actor, UUID anonymousSessionId) {
+		Instant now = this.clock.instant();
+		Story story = this.storyRepository.findVisibleById(storyId)
+				.orElseThrow(() -> new StoryNotFoundException(storyId));
+		if (!this.visibilityPolicy.canView(story, actor, now)) {
+			throw new StoryNotFoundException(storyId);
+		}
+		countLinkCopy(story, actor, anonymousSessionId, now);
+		return this.assembler.one(story, actor, now);
+	}
+
+	/**
+	 * 규칙 넷은 {@link #recordView} 와 <b>한 글자도 다르지 않다</b> — 작성자 본인은 안 세고,
+	 * 식별할 수 없으면 안 세고, 하루 한 번이고, 그 하루는 {@link #COUNTING_ZONE} 이다.
+	 *
+	 * <p>🔴 <b>그런데도 두 메서드를 하나로 합치지 않았다.</b> 합치려면 「어느 표에 넣을까」와
+	 * 「어느 누적 칸을 올릴까」를 인자로 받아야 하는데, 그러면 <b>규칙이 갈리는 날</b> 그 인자가
+	 * 조건문으로 자란다. 두 표를 애초에 나눈 이유가 바로 그 「갈릴 수 있음」이다
+	 * ({@link com.gabolle.backend.story.domain.StoryLinkCopy} 참고). 같은 모양을 두 벌 두는
+	 * 값이 더 싸다.
+	 */
+	private void countLinkCopy(Story story, UUID actor, UUID anonymousSessionId, Instant now) {
+		if (actor != null && story.isAuthor(actor)) {
+			return;
+		}
+		if (actor == null && anonymousSessionId == null) {
+			return;
+		}
+		LocalDate copiedOn = LocalDate.ofInstant(now, COUNTING_ZONE);
+		int inserted = this.storyLinkCopyRepository.insertIfAbsent(UUID.randomUUID(), story.getStoryId(),
+				actor, actor == null ? anonymousSessionId : null, copiedOn, now);
+		if (inserted == 1) {
+			story.recordLinkCopy();
 		}
 	}
 
