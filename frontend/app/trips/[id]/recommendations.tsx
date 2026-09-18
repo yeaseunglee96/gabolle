@@ -45,7 +45,11 @@ export default function Recommendations() {
   const router = useRouter(); const { accessToken } = useAuth(); const { tx } = useI18n(); const { id, jobId } = useLocalSearchParams<{ id: string; jobId?: string }>();
   const [view, setView] = useState<RecommendationViewModel>(() => jobId || id ? { ...unavailableRecommendations(), state: 'loading', message: tx('추천 결과를 확인하고 있어요.', 'Checking your recommendation result.') } : unavailableRecommendations());
 
-  // 완성된 일정으로 가기 전에 한 번만 이름을 물어본다.
+  // 완성된 일정으로 가면서 한 번만 이름을 물어본다.
+  //
+  // 🔴 전에는 `/{tripId}/name` 이라는 **페이지**로 새 나갔다(시안 ④ 가 없앤 것). 이름을
+  //    묻자고 화면을 갈아 끼우면 방금 만든 일정이 사라지고, 사용자는 「내 일정 어디 갔지」를
+  //    먼저 겪는다. 이제는 일정 화면으로 바로 가고 **그 위에 겹쳐 뜬다**.
   const openItinerary = async (itineraryId: string) => {
     const target = `/trips/${itineraryId}/itinerary`;
     const tripId = view.tripId;
@@ -54,7 +58,7 @@ export default function Recommendations() {
       const [trips, alreadyAsked] = await Promise.all([loadTrips(accessToken), wasTripNameAsked(tripId)]);
       const title = trips.state === 'success' ? trips.trips.find((trip) => trip.tripId === tripId)?.title : null;
       if (shouldAskTripName({ title, alreadyAsked })) {
-        router.push(`/${tripId}/name?next=${encodeURIComponent(target)}` as never);
+        router.push(`${target}?name=1`);
         return;
       }
     } catch {
