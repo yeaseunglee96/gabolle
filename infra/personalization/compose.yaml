@@ -90,12 +90,6 @@ services:
       resources:
         limits:
           memory: 2g
-          # 🔴 S15P21E201-798 — NanoCpus=0(상한 없음)이라 CI 러너가 뜨면 이
-          # 컨테이너까지 통째로 밀려날 수 있었다(실측: 21개 컨테이너 전부 cpus
-          # 상한 없음, 스냅샷 CPU 합계가 정원 400% 중 약 388%). postgres는
-          # 여러 서비스(mlflow, airflow 전부)가 걸려 있는 공유 자원이라 다른
-          # 컨테이너보다 넉넉히 잡는다.
-          cpus: "1.0"
     logging:
       driver: json-file
       options:
@@ -124,9 +118,6 @@ services:
       resources:
         limits:
           memory: 512m
-          # 🔴 S15P21E201-798 — 21개 컨테이너 전부 cpus 상한이 없던 것 중 하나.
-          # personalization 파이프라인 내부 캐시 용도라 부하가 가볍다.
-          cpus: "0.5"
     logging:
       driver: json-file
       options:
@@ -134,11 +125,6 @@ services:
         max-file: "3"
 
   minio:
-    # 🔴 quay.io 에서 받는다 (S15P21E201-866, 2026-09-12). 도커 허브에서
-    #    `minio/minio` 가 사라졌다 — 우리 태그도 `latest` 도 401 이고 저장소 조회는
-    #    404 다. 지금 떠 있는 컨테이너는 이미 받아 둔 것이라 도는 중이지만,
-    #    **새로 띄우거나 다른 PC 에서 올리면 막힌다.** 태그는 그대로다 — 판을
-    #    올리는 것이 아니라 같은 판을 다른 창고에서 받는 것뿐이다.
     image: quay.io/minio/minio:RELEASE.2024-10-13T13-34-11Z
     restart: unless-stopped
     networks:
@@ -168,10 +154,6 @@ services:
       resources:
         limits:
           memory: 1g
-          # 🔴 S15P21E201-798 — 21개 컨테이너 전부 cpus 상한이 없던 것 중 하나.
-          # 사진 오브젝트 스토리지(S3 API)로도 재사용되므로(위 9000 포트 주석
-          # 참고) redis/mlflow보다 여유를 둔다.
-          cpus: "0.5"
     logging:
       driver: json-file
       options:
@@ -210,8 +192,6 @@ services:
       resources:
         limits:
           memory: 1g
-          # 🔴 S15P21E201-798 — 21개 컨테이너 전부 cpus 상한이 없던 것 중 하나.
-          cpus: "0.5"
     logging:
       driver: json-file
       options:
@@ -237,9 +217,6 @@ services:
       resources:
         limits:
           memory: 256m
-          # 🔴 S15P21E201-798 — 21개 컨테이너 전부 cpus 상한이 없던 것 중 하나.
-          # celery 메시지 큐 용도라 가장 가볍게 잡는다.
-          cpus: "0.25"
     logging:
       driver: json-file
       options:
@@ -292,10 +269,6 @@ services:
       resources:
         limits:
           memory: 1.5g
-          # 🔴 S15P21E201-798 — 21개 컨테이너 전부 cpus 상한이 없던 것 중 하나.
-          # 스케줄링 루프가 DAG 재파싱과 겹치면 CPU를 가장 많이 먹는 컨테이너라
-          # (S15P21E201-784 실측) airflow 그룹 중 가장 넉넉히 잡는다.
-          cpus: "1.5"
 
   airflow-dag-processor:
     <<: *airflow-common
@@ -314,10 +287,6 @@ services:
       resources:
         limits:
           memory: 1g
-          # 🔴 S15P21E201-798 — 21개 컨테이너 전부 cpus 상한이 없던 것 중 하나.
-          # DAG 파일을 주기적으로 재파싱하는 컨테이너. S15P21E201-784에서
-          # 백엔드 헬스체크 지연을 일으킨 스파이크의 원인 중 하나로 지목됨.
-          cpus: "1.0"
 
   airflow-api-server:
     <<: *airflow-common
@@ -339,18 +308,6 @@ services:
           # janghyojoon님이 실측했다(2026-09-08, docker stats). 여유가 60MB뿐이라
           # 조금만 더 쓰면 OOM으로 컨테이너가 죽는다. 2g로 올려 여유를 둔다.
           memory: 2g
-          # 🔴 S15P21E201-798 2차 정정 (2026-09-10, 실측) — 0.5→1.0으로 올린 뒤
-          # 첫 재배포(위 문단)는 무사했지만, 바로 다음 재배포(같은 날, common/dev
-          # 커밋 9a0ee1d9·b29c881f)에서 또 크래시루프에 빠졌다. 이번엔 backend-deploy가
-          # 동시에 돌면서(JVM 콜드 부팅) 호스트 load average가 8.18까지 올랐던 영향이
-          # 있었지만, 그 부하가 가라앉은 뒤(load 1.09)에도 이 컨테이너는 1.0 cpus 캡에
-          # 그대로 눌린 채(CPU% 96~99%) 스스로 못 벗어났다 — `docker update --cpus 1.5`로도
-          # 곧장 안 풀렸고, 실제로는 2.0까지 올리고 나서야 회복했다(운영에서 실측).
-          # Workers: 4(uvicorn 다중 워커)가 한꺼번에 FastAPI+flask_limiter+프로바이더
-          # 임포트를 마치기엔 1.0~1.5코어가 반복해서 부족했다는 뜻이라 backend와 같은
-          # 2.0으로 다시 올린다. 이 값도 절대 보장은 아니다 — 근본적으로는 동시 배포
-          # 자체를 겹치지 않게 막는 것이 맞는 방향이라 별도 후속 검토가 필요하다.
-          cpus: "2.0"
 
   airflow-worker:
     <<: *airflow-common
@@ -367,7 +324,3 @@ services:
       resources:
         limits:
           memory: 2g
-          # 🔴 S15P21E201-798 — 21개 컨테이너 전부 cpus 상한이 없던 것 중 하나.
-          # 실제 추천 파이프라인 태스크(모델 학습/추론 등)를 celery worker가
-          # 돌리므로 scheduler와 함께 가장 넉넉히 잡는다.
-          cpus: "1.5"

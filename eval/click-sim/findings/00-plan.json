@@ -1,0 +1,72 @@
+{
+  "planVersion": 1,
+  "pinnedAt": "2026-09-17T00:07:52.880Z",
+  "datasetVersion": "synthetic-v1",
+  "seed": 20260917,
+  "question1": {
+    "asks": "개인화가 순위를 실제로 움직이는가",
+    "why": "여기서 '거의 안 움직인다' 가 나오면 그건 모델 문제가 아니라 서비스 문제다. 랭커를 붙여도 안 고쳐진다",
+    "metrics": [
+      {
+        "key": "top10_jaccard_opposite",
+        "label": "취향이 정반대인 두 사람의 상위 10위 겹침(자카드)",
+        "reads": "1.0 이면 개인화가 순위에 아무 영향이 없다는 뜻이다",
+        "threshold": {
+          "max": 0.7,
+          "meaning": "0.7 을 넘으면 개인화가 사실상 안 먹는 것으로 본다"
+        }
+      },
+      {
+        "key": "rank_shift_median",
+        "label": "같은 장소가 두 사람 사이에서 움직인 순위 차이의 중앙값",
+        "reads": "0 에 가까우면 목록이 사람과 무관하게 거의 고정되어 있다",
+        "threshold": {
+          "min": 5,
+          "meaning": "상위 200 후보에서 중앙값 5위 미만이면 움직임이 없다고 본다"
+        }
+      }
+    ]
+  },
+  "question2": {
+    "asks": "랭커가 심어 둔 취향을 되찾는가 · 승격 게이트가 망친 모델을 막는가",
+    "status": "BLOCKED",
+    "blockedBy": "랭커가 아직 없다. 질문 1 의 답이 '움직인다' 여야 의미가 생긴다",
+    "metrics": [
+      {
+        "key": "taste_recovery_corr",
+        "label": "심은 취향과 학습된 계수의 상관",
+        "threshold": null
+      },
+      {
+        "key": "gate_rejects_broken",
+        "label": "일부러 망친 모델을 게이트가 막는가",
+        "threshold": {
+          "equals": true
+        }
+      }
+    ]
+  },
+  "axes": {
+    "score": [
+      "localityScore",
+      "quietnessScore",
+      "touristRatio",
+      "shadeScore",
+      "slopePercent"
+    ],
+    "tag": [
+      "ATMOSPHERE_TAG",
+      "CUISINE_TAG"
+    ],
+    "excluded": {
+      "CATEGORY_TAG": "붙는 낱말이 FOOD(전부)·CAFE_HEALING 둘뿐이라 변별력이 없다 — S15P21E201-1108",
+      "POPULARITY_SCORE": "사용자가 고르는 화면이 없다. 취향이 아니라 장소의 속성이다",
+      "distance": "취향이 아니다. 오히려 취향 신호를 덮는 쪽이라 이 실험의 대조군이다"
+    }
+  },
+  "exposure": {
+    "model": "1 / log2(rank + 1)",
+    "appliedTo": "finalRank",
+    "why": "사용자가 실제로 보는 것은 다양성 재정렬 뒤의 순서다. originalRank 에 적용하면 화면에 없던 자리를 봤다고 치는 셈이다"
+  }
+}

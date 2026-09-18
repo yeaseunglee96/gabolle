@@ -1,0 +1,80 @@
+{
+ "step": "process/place-quietness-sbiz",
+ "at": "2026-09-17T02:22:02.533Z",
+ "git": "6aade21424eb32837271cf39642e12fe19c89e67",
+ "node": "v24.18.0",
+ "inputs": [
+  {
+   "path": "data/raw/pbf/road.ndjson",
+   "bytes": 23105796,
+   "sha256_16": "fabef76d814bab1d"
+  },
+  {
+   "path": "data/raw/pbf/walk.ndjson",
+   "bytes": 10589753,
+   "sha256_16": "b199ffb6eff841c2"
+  },
+  {
+   "path": "config/road-noise-weights.json",
+   "bytes": 3603,
+   "sha256_16": "e9f23a1aa2bef38d"
+  },
+  {
+   "path": "data/staged/place-slope-sbiz.ndjson",
+   "bytes": 484594,
+   "sha256_16": "089e424e35104f2c"
+  },
+  {
+   "path": "data/sbiz/부산_202606.csv",
+   "bytes": 86867744,
+   "sha256_16": "9a2de9bed72f7069"
+  }
+ ],
+ "params": {
+  "radiusM": 200,
+  "minLengthM": 150,
+  "pieceM": 100,
+  "stat": "length-weighted p90 of road-class noise weight, inverted",
+  "unknownWeight": 0.35
+ },
+ "result": {
+  "roster": 2355,
+  "placesWithCoord": 2355,
+  "made": 2355,
+  "tooFew": 0,
+  "ways": 67793,
+  "pieces": 192648,
+  "control": {
+   "quiet": [
+    [
+     "범어사 성보박물관",
+     75
+    ],
+    [
+     "금정산",
+     90
+    ],
+    [
+     "금정산성 동문",
+     50
+    ]
+   ],
+   "loud": [
+    [
+     "서면역 일대",
+     35
+    ],
+    [
+     "부산역 앞",
+     20
+    ],
+    [
+     "서면 범천동",
+     20
+    ]
+   ],
+   "quietAvg": 71.66666666666667,
+   "loudAvg": 25
+  }
+ }
+}

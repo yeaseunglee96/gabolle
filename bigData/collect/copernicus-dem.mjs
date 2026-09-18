@@ -41,6 +41,7 @@ import { existsSync, statSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { openGeoTIFF, ELEV_MIN, ELEV_MAX } from '../process/geotiff.mjs'
+import { log } from '../lib/log.mjs'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const OUT  = join(ROOT, 'data/raw/dem-glo30')
@@ -50,7 +51,6 @@ const FORCE = process.argv.includes('--force')
 // 값 범위 검사(ELEV_MIN·ELEV_MAX)는 process/geotiff.mjs 에 있다 — 고도를 읽는
 // 쪽이 전부 같은 상수를 보게 하려고 디코더 옆에 두었다. 왜 이 폭인지도 거기 있다.
 
-const log = (...a) => console.log(new Date().toISOString().slice(11, 19), ...a)
 const tileName = (lat, lon) =>
   `Copernicus_DSM_COG_10_N${String(lat).padStart(2, '0')}_00_E${String(lon).padStart(3, '0')}_00_DEM`
 

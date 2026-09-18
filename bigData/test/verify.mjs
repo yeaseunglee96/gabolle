@@ -3,9 +3,10 @@
  * bigData 파트 검증. 판정은 종료 코드다 (0 성공 / 그 외 실패).
  * 개수를 여기에 적지 않는다 — 늘릴 때마다 낡는다.
  */
-import { readFile, readdir, access } from 'node:fs/promises'
+import { readFile, readdir, access, mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { execFileSync } from 'node:child_process'
 import { join, dirname } from 'node:path'
+import { tmpdir } from 'node:os'
 import { fileURLToPath } from 'node:url'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
@@ -37,7 +38,7 @@ await t('설정 파일', async () => {
 })
 
 await t('스크립트 문법', async () => {
-  for (const d of ['collect', 'process', 'test']) {
+  for (const d of ['collect', 'process', 'test', 'survey']) {
     for (const f of await readdir(join(ROOT, d))) {
       if (!f.endsWith('.mjs')) continue
       execFileSync(process.execPath, ['--check', join(ROOT, d, f)], { stdio: 'pipe' })
@@ -57,6 +58,89 @@ await t('스크립트 문법', async () => {
                        join(ROOT, 'collect', f)], { stdio: 'pipe' })
   }
   ok(`collect/*.py 문법 통과 (${py})`)
+})
+
+await t('완료 코드 — 인코딩·디코딩 왕복 (S15P21E201-409)', async () => {
+  const { encodeSession, decodeCode, randomSessionId } = await import('../survey/codec.mjs')
+  const sessionId = randomSessionId(() => 0.5)
+  const code = encodeSession(sessionId, ['A', 'B', 'A', 'A'])
+  const r = decodeCode(code)
+  if (!r.ok) throw new Error(`정상 코드가 해독에 실패했다: ${r.reason}`)
+  if (r.sessionId !== sessionId || r.answers.join('') !== 'ABAA') throw new Error('왕복 결과가 원본과 다르다')
+  ok(`왕복 통과 (${code})`)
+
+  // 🔴 한 글자를 바꾼 코드는 조용히 통과하면 안 된다 — 검사합이 잡아야 한다.
+  const tampered = code.replace('A', 'B')
+  const rt = decodeCode(tampered)
+  if (tampered !== code && rt.ok) throw new Error(`한 글자 바뀐 코드가 통과했다: ${tampered}`)
+  ok('한 글자 오기 검사합에서 걸림')
+
+  // 모양이 아예 틀린 코드도 던지지 않고 {ok:false} 로 돌아와야 한다 (decode.mjs 가 목록화하려면).
+  const bad = decodeCode('그냥아무거나')
+  if (bad.ok) throw new Error('모양이 틀린 코드가 통과했다')
+  ok('모양이 틀린 코드는 던지지 않고 ok:false 로 돌아온다')
+})
+
+await t('설문 해독→적재 스모크 (S15P21E201-409·499)', async () => {
+  // 🔴 --out·--responses 로 임시 폴더에 쓰게 한다 — 실제 data/raw/survey/ 를
+  //    테스트가 건드리면 안 된다(진짜 현장 응답이 쌓이는 자리다).
+  const { encodeSession, randomSessionId } = await import('../survey/codec.mjs')
+  const dir = await mkdtemp(join(tmpdir(), 'bigdata-survey-'))
+  try {
+    const design = { seed: 1, sets: [{ id: 'cs01' }, { id: 'cs02' }] }
+    await writeFile(join(dir, 'design.json'), JSON.stringify(design))
+
+    const s1 = randomSessionId(() => 0.1)
+    const s2 = randomSessionId(() => 0.9)
+    const codes = [
+      encodeSession(s1, ['A', 'B']),
+      encodeSession(s2, ['B', 'A']),
+      's1', // 모양이 틀린 줄 — rejects 로 가야 한다
+    ]
+    await writeFile(join(dir, 'codes.txt'), codes.join('\n'))
+
+    const decodeScript = join(ROOT, 'survey/decode.mjs')
+    const loadScript = join(ROOT, 'survey/load.mjs')
+    const decodedDir = join(dir, 'decoded')
+    const responsesFile = join(dir, 'responses.ndjson')
+
+    const decodeOut = execFileSync(
+      process.execPath,
+      [decodeScript, '--file', join(dir, 'codes.txt'), '--design', join(dir, 'design.json'), '--out', decodedDir],
+      { encoding: 'utf8' },
+    )
+    if (!/해독 성공 2개, 검사합 실패 1개/.test(decodeOut)) throw new Error(`decode.mjs 출력이 기대와 다르다:\n${decodeOut}`)
+    ok('decode.mjs — 정상 2개는 통과, 모양 틀린 1개는 rejects 로')
+
+    const ndjsonFile = (await readdir(decodedDir)).find((f) => f.endsWith('.ndjson') && !f.includes('rejects'))
+    if (!ndjsonFile) throw new Error('decode.mjs 가 세션 ndjson 을 안 만들었다')
+    const sessionPath = join(decodedDir, ndjsonFile)
+
+    const load1 = execFileSync(
+      process.execPath,
+      [loadScript, '--file', sessionPath, '--out', decodedDir, '--responses', responsesFile],
+      { encoding: 'utf8' },
+    )
+    if (!/들어간 응답 4건, 검사합 재확인 실패 0건, 중복 건너뜀 0건/.test(load1)) {
+      throw new Error(`load.mjs 첫 실행 출력이 기대와 다르다:\n${load1}`)
+    }
+    ok('load.mjs — 세션 2개(문항 2개씩) → 응답 4건 적재')
+
+    // 🔴 같은 파일을 두 번 넣어도 표가 늘면 안 된다.
+    const load2 = execFileSync(
+      process.execPath,
+      [loadScript, '--file', sessionPath, '--out', decodedDir, '--responses', responsesFile],
+      { encoding: 'utf8' },
+    )
+    if (!/들어간 응답 0건, 검사합 재확인 실패 0건, 중복 건너뜀 4건/.test(load2)) {
+      throw new Error(`load.mjs 재실행이 중복을 못 잡았다:\n${load2}`)
+    }
+    const finalLines = (await readFile(responsesFile, 'utf8')).split('\n').filter(Boolean)
+    if (finalLines.length !== 4) throw new Error(`두 번 넣었는데 표가 ${finalLines.length}줄이다 — 4줄이어야 한다`)
+    ok('load.mjs — 같은 파일을 두 번 넣어도 표가 늘지 않는다')
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
 })
 
 await t('PNG 디코더 (terrarium 고도)', async () => {

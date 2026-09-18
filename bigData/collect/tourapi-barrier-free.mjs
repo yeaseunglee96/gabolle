@@ -36,17 +36,23 @@
  * 실행:
  *   node collect/tourapi-barrier-free.mjs
  *   node collect/tourapi-barrier-free.mjs --dry-run
+ *   node collect/tourapi-barrier-free.mjs --resume   # 앞서 받다 만 것을 잇는다
  *
  * 종료 코드:
  *   0  받아서 저장했다 (또는 --dry-run 설정 검사 통과)
- *   2  입력이 없다 — 키 없음 / 엔드포인트 없음 / API 가 키를 거부함
  *   1  받긴 받았는데 불변식이 깨졌다 (0건, totalCount 미달 등)
+ *   2  입력이 없다 — 키 없음 / 엔드포인트 없음 / API 가 키를 거부함
+ *   3  일일 호출 한도를 다 썼다. 받은 데까지는 파일에 있고 --resume 으로 잇는다
+ *
+ * 🔴 collect/tourapi.mjs 와 같은 고침이다 (S15P21E201-331). 두 수집기가 **같은 키로
+ *    같은 한도**를 쓰므로, 한쪽만 고쳐 두면 나머지 한쪽에서 똑같이 잃는다.
  */
-import { mkdir, readFile, writeFile } from 'node:fs/promises'
+import { appendFile, mkdir, readFile, writeFile } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { stamp } from '../mlops/manifest.mjs'
+import { log } from '../lib/log.mjs'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const OUT = join(ROOT, 'data/raw/tourapi')
@@ -54,11 +60,31 @@ const OUT_FILE = join(OUT, 'tourapi-barrier-free-busan.ndjson')
 
 const DRY = process.argv.includes('--dry-run')
 
+/** 🔴 앞서 받다 만 것이 있으면 그것을 쓰고 안 받은 것만 받는다. 기본값이 아니다. */
+const RESUME = process.argv.includes('--resume')
+
+/** 종료 코드. 🔴 3 은 "자정까지 무엇을 해도 안 된다" 는 뜻이라 2 와 가른다. */
+const EXIT = { OK: 0, INVARIANT: 1, INPUT: 2, QUOTA: 3 }
+
+/**
+ * 멈출 이유. 🔴 **요청이 떠 있는 채로 `process.exit()` 를 부르지 않는다.**
+ * Windows 의 Node 가 죽고(`UV_HANDLE_CLOSING`) 종료 코드가 127 이 된다 —
+ * 그러면 애써 갈라 놓은 3·2 가 무의미해진다. 던져서 빠져나온 뒤 exitCode 만 적는다.
+ */
+class Halt extends Error {
+  constructor(code, lines = []) { super('halt'); this.code = code; this.lines = lines }
+}
+class QuotaHalt extends Halt { constructor() { super(EXIT.QUOTA) } }
+
+/** 일일 한도는 HTTP 429 로도, HTTP 200 본문으로만도 온다. 코드 22 는 규격 값이다. */
+const isQuotaExceeded = (text) =>
+  /LIMITED_NUMBER_OF_SERVICE_REQUESTS/i.test(text) ||
+  /"returnReasonCode"\s*:\s*"?22"?/.test(text)
+
 /** 🔴 무한 페이지네이션과 폭주를 막는 안전장치. 실측 소요는 ~184회다. */
 const MAX_CALLS = 600
 const ROWS_PER_PAGE = 100
 
-const log = (...a) => console.log(new Date().toISOString().slice(0, 19), ...a)
 
 /** 🔴 키를 절대 로그·산출물에 찍지 않는다. */
 const redact = (s) => String(s).replace(/serviceKey=[^&\s]*/gi, 'serviceKey=<가림>')
@@ -73,6 +99,24 @@ async function loadEnv() {
 }
 
 /** 엔드포인트를 지어내지 않는다 — 이미 팀이 적어 둔 곳에서 읽는다. */
+/**
+ * 🔴 지역을 areaCode 가 아니라 lDongRegnCd 로 거른다 — S15P21E201-1031
+ *
+ *   관광공사 응답에는 지역 칸이 둘 있고 하나가 거의 비어 있다.
+ *     areacode      관광용 지역코드 (부산 = 6)   ← 대부분 빈 문자열로 온다
+ *     lDongRegnCd   법정동 시도코드 (부산 = 26)  ← 전부 차 있다
+ *
+ *   2026-09-16 실측 (areaBasedList2, contentTypeId 7종 전수):
+ *     areaCode=6 으로 거르면        639곳
+ *     lDongRegnCd=26 으로 거르면  2,218곳   ← 1,579곳을 놓치고 있었다
+ *     관광지 135→351 · 문화시설 32→120 · 쇼핑 47→980 · 음식점 319→515
+ *
+ *   감천문화마을이 검색에 없던 것도 이것 때문이다 — areacode 와 cat1 이 둘 다
+ *   빈 채로 등록돼 있어 지역 필터에서 통째로 빠졌다 (S15P21E201-920).
+ *
+ *   🔴 areaCode 로 되돌리지 마라. 되돌리면 부산 장소의 71% 가 조용히 사라지고
+ *      아무 오류도 안 난다.
+ */
 async function resolveSource() {
   const p = join(ROOT, 'config/sources.json')
   if (!existsSync(p)) return { base: null, from: 'config/sources.json 없음' }
@@ -84,7 +128,7 @@ async function resolveSource() {
     : base
       ? 'config/sources.json tourapi-barrier-free.endpoint'
       : 'config/sources.json 에 tourapi-barrier-free.endpoint 없음'
-  return { base, from, areaCode: src?.areaCode ?? null }
+  return { base, from, regnCd: src?.lDongRegnCd ?? null }
 }
 
 /** 공공데이터포털은 **오류도 HTTP 200 으로** 돌려준다. 그것을 성공으로 세지 않는다. */
@@ -108,27 +152,28 @@ function classify(text) {
 async function main() {
   await loadEnv()
   const key = process.env.DATA_GO_KR_KEY
-  const { base, from, areaCode } = await resolveSource()
+  const { base, from, regnCd } = await resolveSource()
 
   log('한국관광공사 무장애 여행 정보 수집')
   log(`  엔드포인트 ${base ?? '(없음)'}   ← ${from}`)
-  log(`  지역코드   ${areaCode ?? '(없음)'}`)
+  log(`  지역       lDongRegnCd=${regnCd ?? '(없음)'}   🔴 areaCode 가 아니다`)
   log(`  저장       ${OUT_FILE}`)
   log(`  호출 상한  ${MAX_CALLS}회 (목록 쪽당 ${ROWS_PER_PAGE}건)`)
 
   if (!base) {
     log('🔴 요청주소를 못 정했습니다. 지어내지 않습니다.')
     log('   config/sources.json 의 tourapi-barrier-free.endpoint 를 채우거나 .env 에 TOURAPI_BF_ENDPOINT 를 넣으십시오.')
-    process.exit(2)
+    process.exit(EXIT.INPUT)
   }
-  if (areaCode == null) {
-    log('🔴 지역코드가 없습니다. config/sources.json 의 tourapi-barrier-free.areaCode 를 채우십시오.')
-    process.exit(2)
+  if (regnCd == null) {
+    log('🔴 법정동 시도코드가 없습니다. config/sources.json 의 tourapi-barrier-free.lDongRegnCd 를 채우십시오.')
+    log('   🔴 areaCode 로 바꿔 끼우지 마십시오 — 부산 장소의 71% 가 조용히 빠집니다 (2026-09-16 실측).')
+    process.exit(EXIT.INPUT)
   }
   if (!key) {
     log('🔴 DATA_GO_KR_KEY 가 없습니다. 수집하지 않았습니다.')
     log('   bigData/.env 에  DATA_GO_KR_KEY=발급받은_디코딩키')
-    process.exit(2)
+    process.exit(EXIT.INPUT)
   }
   if (DRY) {
     log('--dry-run: 키와 엔드포인트 확인됨. 호출하지 않고 종료.')
@@ -138,10 +183,28 @@ async function main() {
   await mkdir(OUT, { recursive: true })
 
   const startedAt = new Date().toISOString()
-  const lines = []
   let calls = 0
+  let saved = 0
 
+  /** 앞서 받아 둔 응답. 열쇠는 "무엇을 물었나" 다. 있으면 네트워크를 안 탄다. */
+  const cache = new Map()
+  const keyOf = (meta) => (meta.stage === 'list' ? `list:${meta.page}` : `detail:${meta.contentid}`)
+
+  if (RESUME && existsSync(OUT_FILE)) {
+    for (const line of (await readFile(OUT_FILE, 'utf8')).split('\n')) {
+      if (!line.trim()) continue
+      try { const o = JSON.parse(line); cache.set(keyOf(o), o.raw) } catch { /* 깨진 줄은 버린다 */ }
+    }
+    saved = cache.size
+    log(`  이어받기: 앞서 받아 둔 응답 ${saved}건을 씁니다 (그만큼 안 부릅니다)`)
+  } else {
+    await writeFile(OUT_FILE, '')   // 🔴 덧붙이기 전에 비운다. 안 그러면 지난 줄이 섞인다
+  }
+
+  /** 🔴 모아 뒀다 끝에 한 번 저장하지 않는다. 받는 족족 파일에 덧붙인다. */
   async function fetchRaw(op, params, meta) {
+    const ck = keyOf(meta)
+    if (cache.has(ck)) return classify(cache.get(ck)).json
     if (calls >= MAX_CALLS) {
       log(`🔴 호출 상한 ${MAX_CALLS}회에 도달했습니다. 여기서 멈춥니다.`)
       return null
@@ -158,31 +221,56 @@ async function main() {
       const res = await fetch(u, { signal: AbortSignal.timeout(30000) })
       text = await res.text()
       calls++
-      if (!res.ok) { log(`🔴 HTTP ${res.status} — ${redact(text).slice(0, 300)}`); process.exit(2) }
+      if (res.status === 429 || isQuotaExceeded(text)) throw new QuotaHalt()
+      if (!res.ok) throw new Halt(EXIT.INPUT, [`🔴 HTTP ${res.status} — ${redact(text).slice(0, 300)}`])
     } catch (e) {
-      log(`🔴 네트워크 실패 (${op} ${JSON.stringify(meta)}): ${redact(e.message)}`)
-      process.exit(2)
+      if (e instanceof Halt) throw e
+      throw new Halt(EXIT.INPUT, [`🔴 네트워크 실패 (${op} ${JSON.stringify(meta)}): ${redact(e.message)}`])
     }
 
     const c = classify(text)
     if (c.kind === 'denied') {
-      log('🔴 API 가 요청을 거부했습니다. 가짜 데이터를 만들지 않고 여기서 멈춥니다.')
-      log(`   응답: ${redact(c.msg)}`)
-      process.exit(2)
+      throw new Halt(EXIT.INPUT, [
+        '🔴 API 가 요청을 거부했습니다. 가짜 데이터를 만들지 않고 여기서 멈춥니다.',
+        `   응답: ${redact(c.msg)}`,
+      ])
     }
-    if (c.kind === 'error') { log(`🔴 API 오류 응답: ${redact(c.msg)}`); process.exit(2) }
+    if (c.kind === 'error') throw new Halt(EXIT.INPUT, [`🔴 API 오류 응답: ${redact(c.msg)}`])
 
-    // 🔴 원문 그대로 남긴다.
-    lines.push(JSON.stringify({ ts: Date.now(), op, ...meta, raw: text }))
+    // 🔴 원문 그대로, 그 자리에서 파일에 덧붙인다.
+    await appendFile(OUT_FILE, JSON.stringify({ ts: Date.now(), op, ...meta, raw: text }) + '\n')
+    cache.set(ck, text)
+    saved++
     return c.json
   }
 
-  // ── 1단계: 부산의 무장애 정보가 있는 곳 목록 ────────────────────────────
   const targets = []
   let totalCount = null
+  let details = 0
+  let empty = 0
+
+  /** 한도에 걸렸을 때 — 받은 데까지 지문을 남기고, 이어받는 법을 알려 주고 끝낸다. */
+  const haltOnQuota = () => {
+    log('')
+    log('🔴 일일 호출 한도를 다 썼습니다. 오늘은 더 못 받습니다.')
+    log(`   받아 둔 응답 ${saved}건은 파일에 남아 있습니다 — ${OUT_FILE}`)
+    log('   자정이 지난 뒤 아래로 이어받으십시오. 이미 받은 것은 다시 안 부릅니다.')
+    log('     node collect/tourapi-barrier-free.mjs --resume')
+    stamp(join(ROOT, 'data/staged/_tourapi-bf-run'), {
+      step: 'collect/tourapi-barrier-free',
+      inputs: [join(ROOT, 'config/sources.json')],
+      params: { endpointFrom: from, lDongRegnCd: regnCd, rowsPerPage: ROWS_PER_PAGE, maxCalls: MAX_CALLS, startedAt, resume: RESUME },
+      result: { halted: 'quota', calls, saved, places: targets.length, details, empty, totalCount,
+                out: 'data/raw/tourapi/tourapi-barrier-free-busan.ndjson' },
+    })
+    process.exitCode = EXIT.QUOTA   // 🔴 exit() 가 아니다. Halt 주석 참고
+  }
+
+  try {
+  // ── 1단계: 부산의 무장애 정보가 있는 곳 목록 ────────────────────────────
   for (let page = 1; ; page++) {
     const j = await fetchRaw('areaBasedList2',
-      { areaCode, numOfRows: ROWS_PER_PAGE, pageNo: page },
+      { lDongRegnCd: regnCd, numOfRows: ROWS_PER_PAGE, pageNo: page },
       { stage: 'list', page })
     if (!j) break
     const body = j?.response?.body ?? {}
@@ -196,8 +284,6 @@ async function main() {
   }
 
   // ── 2단계: 곳마다 무장애 상세 (휠체어·엘리베이터·점자블록 …) ─────────────
-  let details = 0
-  let empty = 0
   for (const [i, contentid] of targets.entries()) {
     const j = await fetchRaw('detailWithTour2', { contentId: contentid }, { stage: 'detail', contentid })
     if (!j) break
@@ -206,35 +292,40 @@ async function main() {
     if (arr.length) details++; else empty++
     if ((i + 1) % 50 === 0) log(`  상세 ${i + 1}/${targets.length} (내용 있음 ${details} · 빈 것 ${empty})`)
   }
+  } catch (e) {
+    if (e instanceof QuotaHalt) { haltOnQuota(); return }
+    if (e instanceof Halt) { for (const l of e.lines) log(l); process.exitCode = e.code; return }
+    throw e
+  }
 
-  await writeFile(OUT_FILE, lines.join('\n') + '\n')
+  // 🔴 여기에 저장하는 줄이 없는 것이 정상이다. 응답은 받는 족족 이미 파일에 있다.
 
   stamp(join(ROOT, 'data/staged/_tourapi-bf-run'), {
     step: 'collect/tourapi-barrier-free',
     inputs: [join(ROOT, 'config/sources.json')],
-    params: { endpointFrom: from, areaCode, rowsPerPage: ROWS_PER_PAGE, maxCalls: MAX_CALLS, startedAt },
-    result: { calls, places: targets.length, details, empty, totalCount, out: 'data/raw/tourapi/tourapi-barrier-free-busan.ndjson' },
+    params: { endpointFrom: from, lDongRegnCd: regnCd, rowsPerPage: ROWS_PER_PAGE, maxCalls: MAX_CALLS, startedAt, resume: RESUME },
+    result: { calls, saved, places: targets.length, details, empty, totalCount, out: 'data/raw/tourapi/tourapi-barrier-free-busan.ndjson' },
   })
 
-  log(`저장 완료: ${targets.length}곳 / 상세 ${details}건(빈 것 ${empty}) / 호출 ${calls}회`)
+  log(`저장 완료: ${targets.length}곳 / 상세 ${details}건(빈 것 ${empty}) / 새로 부른 호출 ${calls}회 / 파일에 ${saved}줄`)
 
   // ── 불변식 ────────────────────────────────────────────────────────────
   if (targets.length === 0) {
     log('🔴 0곳입니다. 빈 파일을 성공으로 치지 않습니다.')
-    process.exit(1)
+    process.exit(EXIT.INVARIANT)
   }
   if (Number.isFinite(totalCount) && targets.length < totalCount) {
     log(`🔴 totalCount ${totalCount} 중 ${targets.length}곳만 받았습니다. 부분 수집을 성공으로 치지 않습니다.`)
-    process.exit(1)
+    process.exit(EXIT.INVARIANT)
   }
   if (details + empty < targets.length) {
     log(`🔴 ${targets.length}곳 중 ${details + empty}곳만 상세를 받았습니다 (호출 상한에 걸렸을 수 있습니다).`)
-    process.exit(1)
+    process.exit(EXIT.INVARIANT)
   }
   if (details === 0) {
     log('🔴 상세가 전부 비었습니다. 무장애 정보를 한 건도 못 받았다는 뜻입니다.')
-    process.exit(1)
+    process.exit(EXIT.INVARIANT)
   }
 }
 
-main().catch((e) => { console.error('치명:', redact(e?.stack || e)); process.exit(1) })
+main().catch((e) => { console.error('치명:', redact(e?.stack || e)); process.exit(EXIT.INVARIANT) })

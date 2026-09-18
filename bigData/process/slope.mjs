@@ -32,6 +32,7 @@ import { readFile, readdir, writeFile, mkdir, open } from 'node:fs/promises'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createDemReader } from './dem-clean.mjs'
+import { log } from '../lib/log.mjs'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const DEM  = join(ROOT, 'data/raw/dem')
@@ -42,7 +43,6 @@ const ZOOM = 15, TILE = 256
 const BASELINE_M = 100
 const STEP_M = 10
 
-const log = (...a) => console.log(new Date().toISOString().slice(11, 19), ...a)
 const R = 6371000, rad = d => d * Math.PI / 180
 const dist = (a, b) => {
   const dLat = rad(b.lat - a.lat), dLon = rad(b.lon - a.lon)
@@ -200,9 +200,22 @@ async function main() {
       }
     }
 
+    // 🔴 중점 좌표 — 이게 없으면 이 줄이 **어느 장소 옆인지 판정할 수 없다**
+    //    (S15P21E201-1047, docs/PLACE-SLOPE.md). 장소 경사는 "반경 안의 구간"을
+    //    모아서 내는데, 위치가 없으면 안인지 밖인지 가릴 수가 없다.
+    //
+    //    거리 기준 한가운데다 — 점 개수가 아니라 s(누적 거리)로 고른다. 꺾인 데가
+    //    몰려 있는 길에서 인덱스 중간을 쓰면 한쪽으로 쏠린다.
+    //
+    //    🔴 긴 길은 점 하나로 대표가 안 된다. 그래서 length 를 같이 남긴다 —
+    //    읽는 쪽이 "중점이 반경 + length/2 안인가" 로 넉넉하게 보면 된다.
+    const midIdx = pts.findIndex((p) => p.s >= length / 2)
+    const mid = pts[midIdx < 0 ? pts.length - 1 : midIdx]
+
     w.write(JSON.stringify({
       id: el.id, topic, highway: el.tags?.highway ?? null, name: el.tags?.name ?? null,
       length: +length.toFixed(1),
+      lat: +mid.lat.toFixed(6), lon: +mid.lon.toFixed(6),
       p90Slope: +p90Slope.toFixed(4), p50Slope: +p50Slope.toFixed(4), maxSlope: +maxSlope.toFixed(4),
       ascent: +ascent.toFixed(1), descent: +descent.toFixed(1),
       stepCount: el.tags?.step_count ? Number(el.tags.step_count) : null, stepEst,

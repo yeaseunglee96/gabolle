@@ -17,6 +17,7 @@ import { writeFile, mkdir, readFile } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { log } from '../lib/log.mjs'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const OUT  = join(ROOT, 'data/raw/dem')
@@ -25,7 +26,6 @@ const ZOOM = Number(args.includes('--zoom') ? args[args.indexOf('--zoom') + 1] :
 const BASE = 'https://s3.amazonaws.com/elevation-tiles-prod/terrarium'
 const CONCURRENCY = 6
 
-const log = (...a) => console.log(new Date().toISOString().slice(11, 19), ...a)
 
 const lon2x = (lon, z) => Math.floor((lon + 180) / 360 * 2 ** z)
 const lat2y = (lat, z) => {

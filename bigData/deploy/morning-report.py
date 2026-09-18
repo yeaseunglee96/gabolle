@@ -25,11 +25,18 @@
 """
 import json
 import os
+import re
 import subprocess
 import sys
 import urllib.request
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+
+# 🔴 S15P21E201-891 — 9/13에 서버 디스크가 62%까지 찼다가 손으로 치워 32%로
+# 내렸다. 이 보고서는 그 전부터 디스크 숫자를 찍고 있었지만 경고는 없었다 —
+# 숫자만 있고 문턱이 없어서 62%가 될 때까지 아무도 안 봤다. 70을 넘으면
+# 머리말도 🔴로 바뀐다.
+DISK_WARN_PERCENT = 70
 
 KST = timezone(timedelta(hours=9))
 HERE = Path(__file__).resolve().parent
@@ -169,6 +176,9 @@ def main():
 
     disk = sh("df", "-h", "--output=used,size,pcent", str(HERE)).splitlines()
     disk_line = disk[-1].strip() if len(disk) > 1 else "?"
+    disk_pcent_match = re.search(r"(\d+)%", disk_line)
+    if disk_pcent_match and int(disk_pcent_match.group(1)) >= DISK_WARN_PERCENT:
+        alerts.append(f"디스크가 **{disk_pcent_match.group(1)}%** 로 {DISK_WARN_PERCENT}% 를 넘었습니다 — 정리가 필요합니다 (S15P21E201-891)")
 
     # 🔴 머리말과 본문이 어긋나면 안 된다. 본문에 "한 건도 안 모였다" 가 있는데 머리말이
     #    ✅ 이면, 목록에서 제목만 보는 사람은 정상이라고 읽는다 — 알림이 거짓말이 된다.

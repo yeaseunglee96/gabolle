@@ -4,6 +4,8 @@
  *
  * 만드는 것:
  *   data/staged/segment-shade.ndjson   구간 하나당 한 줄 (모든 구간. 모르면 null)
+ *     · shadeDensity·shadeP  가중그루/m 과 부산 안 순위 — 장소 점수를 매길 때
+ *     · treeShadeRatio       걷는 선이 덮이는 비율 0~1 — 건물 그림자와 합칠 때
  *   data/staged/_shade-summary.json    매칭 성공률·데이터 품질·불변식 결과
  *
  * 점수의 정의 (docs/WALKABILITY.md 2.1 이 준 방향 그대로):
@@ -24,9 +26,55 @@
  *      구간들 안에서의 순위다. 절대 기준선을 손으로 적으면 그 줄이 그 순간 낡는다
  *      (CLAUDE.md 6절이 경사 기준선에 대해 말한 것과 같은 이유).
  *
- * 🔴 건물 그림자(data/staged/segment-shadow.ndjson)와 합치지 않는다.
- *    가로수 그늘은 하루 종일 있고 건물 그림자는 시각에 따라 답이 달라진다.
- *    다른 종류의 그늘이고, 합치는 방식은 아직 안 정해졌다.
+ * ── 🔴 2026-09-18 — 건물 그림자와 합칠 수 있게 됐다 (S15P21E201-1221) ────────
+ *
+ * 이 자리에 *"다른 종류의 그늘이고, 합치는 방식은 아직 안 정해졌다"* 고 적혀 있었다.
+ * 못 합친 진짜 이유는 종류가 아니라 **단위**였다 — 이쪽은 가중그루/m 과 백분위인데
+ * 건물 그림자(`process/shadow.mjs`)는 **노면 그늘 비율 0~1** 이다. 자가 다르면 못 더한다.
+ *
+ *     treeShadeRatio = min(1, Σ(그루 수 × 수관폭m) ÷ 식재거리m × 보행로실효계수)
+ *
+ *   🔴 **`shadeDensity` 와 다른 양이다.** 수종 가중치 `w` 는 수관폭의 **제곱**에
+ *      비례하는 넓이 프록시이고, 이쪽은 걷는 **선**이 덮이느냐라 폭을 그대로 더한다.
+ *      둘 다 낸다 — 백분위는 순위에, 비율은 합치기에 쓴다.
+ *
+ *   🔴 **길 폭으로 나누지 않는다.** 걷는 사람에게 필요한 것은 노면 전체가 아니라
+ *      걷는 선이고, 길 폭은 OSM 에 0.2% 밖에 없어 애초에 나눌 분모가 없다
+ *      (`width` 태그 120/51,334 · `lanes` 2,734. 2026-09-18 실측).
+ *
+ *   🔴 **보행로실효계수는 잰 값이 아니라 정한 값이다.** 가로수는 보행자 편의가 아니라
+ *      가로 경관·차도 분리를 위해 심은 것이라, 수관이 덮는 폭이 곧 머리 위 그늘이 아니다.
+ *      숫자와 그 근거는 **`config/tree-shade-weights.json` 한 곳에만** 있다. 코드에 안 박는다.
+ *
+ *   🔴 **시각 차이는 그대로 남는다.** 가로수 그늘은 하루 종일 있고 건물 그림자는
+ *      시각에 따라 뒤집힌다. 그래서 여기서 합치지 않고 **쓰는 쪽에서** 시각을 골라
+ *      합친다 (`process/shade-route.mjs --trees`). 이 파일은 시각 없는 한 값만 낸다.
+ *
+ * ── 🔴 부산진구 67건은 못 살린다 — 파서를 고쳐도 안 된다 (S15P21E201-1229) ──
+ *
+ * 요약의 `칼럼밀림레코드` 를 보고 **"칼럼만 맞춰 주면 살아나겠네"** 로 읽기 쉽다.
+ * 아니다. 2026-09-18 에 부산진구 67건을 전부 열어 **수종칸 38 × 67 = 2,546칸**을 셌다.
+ *
+ *     숫자가 든 칸        0      ← 그루 수가 한 칸도 없다
+ *     total 이 숫자인 건  0
+ *     글자가 든 칸        67     ← 전부 `metasequoia` 칸. 값은 랜드마크 이름("시영아파트")
+ *     loc_nm · 좌표       67건 다 있다
+ *     조사일자            전부 2025-12-11 (다른 구와 다르다)
+ *
+ * **제공처가 그루 수를 안 보냈다.** 칼럼 순서가 다른 것은 그 구가 **다른 모양의 엑셀**을
+ * 냈다는 증거일 뿐, 우리가 고칠 자리가 아니다. 그래서 요약이 둘을 갈라 센다 —
+ * `칼럼밀림레코드`(모양이 틀림)와 `그루수가아예없는레코드`(살릴 것이 없음).
+ *
+ * 🔴 **그래도 0 으로 채우지 않는다.** 채우면 부산진구가 통째로 "그늘 최악" 이 되어
+ *    추천에서 밀린다. **「그늘 0」과 「모름」은 다른 것이다** — 그 구의 장소는 이 축이
+ *    빠질 뿐이고, 그것이 맞는 동작이다.
+ *
+ * 🔴 **기장군 2건은 이것과 다르다.** 수종칸은 비었지만 `total` 이 있어(125·40)
+ *    `etc_tree` 로 이미 살아난다. 처음에 이 둘도 못 살린다고 봤다가 재 보고 정정했다.
+ *
+ * 연제구 `reference_date` 가 `46000` 으로 온다 — 엑셀 일련번호가 글자로 넘어온 것이고
+ * 읽으면 2025-12-09 라 이웃 구(12-10·12-11)와 앞뒤가 맞는다. 점수 계산에 안 쓰는 칸이라
+ * **고치지 않고 여기 적어만 둔다.**
  *
  * 🔴 이것은 선호 가중치가 아니다. "그늘이 얼마나 많은가" 만 낸다.
  *    "그늘 있는 길을 얼마나 더 좋아하는가" 는 짝 비교 실험이 정한다 (docs/FIELD-STUDY.md).
@@ -42,6 +90,7 @@ import readline from 'node:readline'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { stamp } from '../mlops/manifest.mjs'
+import { log } from '../lib/log.mjs'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const IN_TREES = join(ROOT, 'data/raw/trees/street-trees.ndjson')
@@ -51,7 +100,6 @@ const GEOM = ['road', 'walk'].map((f) => join(ROOT, `data/raw/pbf/${f}.ndjson`))
 const OUT_SEG = join(ROOT, 'data/staged/segment-shade.ndjson')
 const OUT_SUM = join(ROOT, 'data/staged/_shade-summary.json')
 
-const log = (...a) => console.log(new Date().toISOString().slice(0, 19), ...a)
 
 /** 가로수 레코드의 비수종 칼럼. 나머지 38개가 수종이다. */
 const NON_SPECIES = new Set(['loc_nm', 'sec_timepoint', 'sec_endpoint', 'plant_distance', 'reference_date', 'lat', 'lng', 'total', 'gugun'])
@@ -164,6 +212,21 @@ async function main() {
   const weightsDoc = JSON.parse(await readFile(IN_WEIGHTS, 'utf8'))
   const W = weightsDoc.weights
 
+  // 🔴 보행로실효계수는 설정에서만 온다. 없으면 지어내지 않고 멈춘다 (S15P21E201-1221).
+  const WALK_SHARE = weightsDoc['보행로실효계수']
+  if (!(typeof WALK_SHARE === 'number' && WALK_SHARE > 0 && WALK_SHARE <= 1))
+    die(2, `🔴 config/tree-shade-weights.json 에 '보행로실효계수'(0~1)가 없습니다.\n   덮는 비율을 이 값 없이 내면 그 숫자는 코드에 박힌 가정이 됩니다.`)
+
+  // 수관폭 — "15~20" 같은 범위 표기의 중앙을 쓴다. 없는 수종은 전체 중앙값으로 대신한다.
+  const canopyMid = (s) => { const m = String(s ?? '').match(/([\d.]+)\s*~\s*([\d.]+)/); return m ? (+m[1] + +m[2]) / 2 : null }
+  const canopyKnown = Object.fromEntries(
+    Object.entries(W).map(([k, v]) => [k, canopyMid(v['수관폭m'])]).filter(([, c]) => c != null))
+  const canopyVals = Object.values(canopyKnown).sort((a, b) => a - b)
+  if (!canopyVals.length) die(1, '🔴 수관폭을 하나도 못 읽었습니다. 덮는 비율을 낼 수 없습니다.')
+  const CANOPY_FALLBACK = canopyVals[canopyVals.length >> 1]
+  const canopyOf = (k) => canopyKnown[k] ?? CANOPY_FALLBACK
+  const canopyGuessed = Object.keys(W).filter((k) => !(k in canopyKnown))
+
   // ── 1. 원문에서 레코드 복원 ─────────────────────────────────────────────
   const records = []
   for await (const page of ndjson(IN_TREES)) {
@@ -184,6 +247,7 @@ async function main() {
   // ── 2. 레코드 정리 ─────────────────────────────────────────────────────
   const q = {
     columnShift: 0, shiftExamples: [],       // 제공처 스프레드시트 칼럼 밀림
+    noCounts: 0, noCountsByGugun: {},        // 그중 살릴 그루 수가 아예 없는 것 (S15P21E201-1229)
     totalIsFormula: 0, totalEmpty: 0, totalMismatch: 0, totalMismatchExamples: [],
     noDistance: 0, distKm: 0, distM: 0, dotButM: 0, intBelowBoundary: 0,
     badCoord: 0, badCoordExamples: [],
@@ -202,17 +266,31 @@ async function main() {
     if (shifted.length) {
       q.columnShift++
       if (q.shiftExamples.length < 5) q.shiftExamples.push({ loc_nm: r.loc_nm, 칼럼: shifted[0], 값: String(r[shifted[0]]) })
+
+      // 🔴 **「칼럼이 밀렸다」와 「그루 수가 없다」는 다른 것이다** (S15P21E201-1229).
+      //    앞은 우리가 고치면 살아난다는 뜻으로 읽히고, 뒤는 **원본에 없다**는 뜻이다.
+      //    이 자리에서 실제로 살릴 것이 있는지를 함께 세지 않으면, 다음 사람이 파서를
+      //    고치러 들어갔다가 아무것도 못 살리고 나온다 — 실제로 그 일이 있었다.
+      const anyCount = speciesCols.some((k) => Number(r[k]) > 0) || Number(String(r.total ?? '').replace(/,/g, '')) > 0
+      if (!anyCount) {
+        q.noCounts++
+        const g = String(r.gugun ?? '(모름)').replace(/^부산광역시\s*/, '').trim()
+        q.noCountsByGugun[g] = (q.noCountsByGugun[g] ?? 0) + 1
+      }
       continue
     }
 
     const counts = {}
-    let trees = 0, weighted = 0
+    let trees = 0, weighted = 0, canopyM = 0
     for (const k of speciesCols) {
       const n = r[k] == null || r[k] === '' ? 0 : Number(r[k])   // 빈 값 = 그 수종 0그루
       if (n < 0 || !Number.isFinite(n)) die(1, `🔴 음수/비수치 그루 수: ${r.loc_nm} ${k}=${r[k]}`)
       if (n > 0) counts[k] = n
       trees += n
       weighted += n * W[k].w
+      // 🔴 `weighted` 와 다른 양이다. `w` 는 수관폭의 **제곱**에 비례하는 넓이 프록시고,
+      //    이쪽은 걷는 **선**이 얼마나 덮이는지라 폭을 그대로 더한다 (S15P21E201-1221).
+      canopyM += n * canopyOf(k)
       perSpecies[k] += n
     }
 
@@ -234,6 +312,7 @@ async function main() {
     if (trees === 0 && Number.isFinite(rawTotalN) && rawTotalN > 0) {
       trees = rawTotalN
       weighted = rawTotalN * W.etc_tree.w
+      canopyM = rawTotalN * canopyOf('etc_tree')
       perSpecies.etc_tree += rawTotalN
       q.totalOnlyNoSpecies++
       if (q.totalOnlyExamples.length < 5) q.totalOnlyExamples.push({ loc_nm: r.loc_nm, total: rawTotalN })
@@ -266,7 +345,7 @@ async function main() {
     clean.push({
       road: canonRoad(r.loc_nm), rawLoc: r.loc_nm, gugun: r.gugun,
       from: r.sec_timepoint, to: r.sec_endpoint,
-      trees, weighted, counts, distM, distUnit: unit, implausible,
+      trees, weighted, canopyM, counts, distM, distUnit: unit, implausible,
       lat: coordOk ? la : null, lng: coordOk ? lo : null,
     })
   }
@@ -379,24 +458,31 @@ async function main() {
     const impl = c.implausible || c.trees / denom > TREES_PER_M_MAX
     for (const i of picked) {
       if (!attach.has(i)) attach.set(i, [])
-      attach.get(i).push({ weighted: c.weighted, denom, src, coordFiltered: useCoord, implausible: impl })
+      attach.get(i).push({ weighted: c.weighted, canopyM: c.canopyM, denom, src, coordFiltered: useCoord, implausible: impl })
     }
   }
 
   // ── 5. 구간별 점수 ─────────────────────────────────────────────────────
   const densities = []
+  const ratios = []
   const out = segs.map((s, i) => {
     const rs = attach.get(i)
-    if (!rs?.length) return { id: s.id, name: s.name, matched: false, shadeDensity: null, shadeP: null }
+    if (!rs?.length) return { id: s.id, name: s.name, matched: false, shadeDensity: null, shadeP: null, treeShadeRatio: null }
     // 여러 레코드가 같은 구간에 붙으면 길이가중 평균 밀도 = Σ가중그루 / Σ거리
     const wsum = rs.reduce((a, r) => a + r.weighted, 0)
     const dsum = rs.reduce((a, r) => a + r.denom, 0)
     const density = dsum > 0 ? wsum / dsum : null
     if (density != null) densities.push(density)
+    // 🔴 걷는 선이 덮이는 비율 0~1 (S15P21E201-1221). 백분위와 달리 **절대량**이라
+    //    건물 그림자(segment-shadow.ndjson)와 같은 자로 잴 수 있다.
+    const csum = rs.reduce((a, r) => a + (r.canopyM ?? 0), 0)
+    const ratio = dsum > 0 ? Math.min(1, (csum / dsum) * WALK_SHARE) : null
+    if (ratio != null) ratios.push(ratio)
     return {
       id: s.id, name: s.name, matched: true,
       shadeDensity: density == null ? null : Number(density.toFixed(5)),
       shadeP: null,
+      treeShadeRatio: ratio == null ? null : Number(ratio.toFixed(4)),
       records: rs.length,
       distanceSource: rs.every((r) => r.src === 'api') ? 'api' : rs.every((r) => r.src === 'osm') ? 'osm' : 'mixed',
       coordFiltered: rs.every((r) => r.coordFiltered),
@@ -435,6 +521,20 @@ async function main() {
       구간: segs.length,
       이름있는구간: named,
     },
+    덮는비율: {
+      '//': '걷는 선이 나뭇잎에 덮이는 비율 0~1 (treeShadeRatio). 백분위(shadeP)와 달리 절대량이라 건물 그림자(process/shadow.mjs 의 shadowRatio)와 같은 자로 잰다 — 그래서 둘을 합칠 수 있다.',
+      '//식': 'Σ(그루 수 x 수관폭m) / 식재거리m x 보행로실효계수. 1 을 넘으면 1 로 자른다.',
+      보행로실효계수: WALK_SHARE,
+      '//계수출처': 'config/tree-shade-weights.json 이 정한다. 코드에 박지 않는다 — 현장 실측으로 바꿀 값이다.',
+      대상구간: ratios.length,
+      최소: ratios.length ? Number(Math.min(...ratios).toFixed(3)) : null,
+      중앙: med(ratios),
+      최대: ratios.length ? Number(Math.max(...ratios).toFixed(3)) : null,
+      '1.0에포화된구간': ratios.filter((v) => v >= 0.999).length,
+      '수관폭을중앙값으로대신한수종': canopyGuessed.length,
+      '수관폭대신값m': CANOPY_FALLBACK,
+      '//포화': '🔴 포화가 늘면 계수가 크다는 뜻이다. 포화된 구간은 서로 구별이 안 되므로 순위에서 같은 값이 된다.',
+    },
     매칭: {
       성공레코드: matchedRecs,
       실패레코드: unmatchedRecs,
@@ -459,6 +559,10 @@ async function main() {
       '//': '🔴 제공처 원본이 16개 구·군 엑셀을 합친 것이라 정합성이 낮다. 숨기지 않고 센다.',
       칼럼밀림레코드: q.columnShift,
       칼럼밀림예시: q.shiftExamples,
+      '//살릴것이있나': '🔴 칼럼밀림은 「우리가 고치면 살아난다」로 읽히는데, 그 안에 살릴 그루 수가 아예 없는 것이 섞여 있다. 그건 파서 문제가 아니라 제공처가 안 보낸 것이다. 둘을 갈라 센다 (S15P21E201-1229).',
+      '그루수가아예없는레코드': q.noCounts,
+      '그루수없음_구별': q.noCountsByGugun,
+      '//못살린다': '위 구는 가로수 그늘 자료가 0 이다. 🔴 0 으로 채우지 않는다 — 그 구가 통째로 「그늘 최악」이 되어 추천에서 밀린다. 「그늘 0」과 「모름」은 다른 것이다 (config/tree-shade-weights.json 의 결측과-0의-구별).',
       'total이엑셀수식문자열': q.totalIsFormula,
       'total이빈값': q.totalEmpty,
       'total이수종합과다름': q.totalMismatch,
