@@ -24,7 +24,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { RouteMap } from '@/map/RouteMap';
 import { createStory, feedQueryKey, loadFeed, loadSavedStoryIds, relativeStoryTime, reportStory, setFollowing, setStoryReaction, setStorySaved, VISIBILITY_LABEL, type FeedLoadResult, type FeedScope, type StoryDto, type StoryReportReason, type StoryVisibility } from '@/social/stories';
 import { shouldPromptSignIn } from '@/social/signInPrompt';
-import { applyReaction, nextReaction, StoryReactionRow, storyReactionStyles } from '@/social/StoryReactionRow';
+import { applyReaction, nextReaction, StoryReactionRow, storyReactionStyles, storyReactionTouchSlop } from '@/social/StoryReactionRow';
 import { SignInPromptModal } from '@/social/SignInPromptModal';
 import { useStoryImages } from '@/social/useStoryImages';
 
@@ -171,8 +171,8 @@ function StoryCard({ story, compact, showUnfollow, unfollowBusy, saved, savingSt
       </Text>
     </Pressable>
 
-    {/* 좋아요·싫어요·저장 —(반응 카운트, kojh0124 님)·-1221(저장).
-        반응 두 칸은 상세 화면과 같은 부품을 쓴다
+    {/* 좋아요·인용·저장 —(반응 카운트, kojh0124 님)·-1221(저장).
+        반응 칸은 상세 화면과 같은 부품을 쓴다
     */}
     <StoryReactionRow story={story} reacting={reacting} onReact={onReact}>
       <Pressable
@@ -180,6 +180,7 @@ function StoryCard({ story, compact, showUnfollow, unfollowBusy, saved, savingSt
         accessibilityLabel={saved ? tx('저장 취소', 'Remove from saved') : tx('저장', 'Save')}
         accessibilityState={{ selected: saved, busy: savingStar }}
         disabled={savingStar}
+        hitSlop={storyReactionTouchSlop}
         onPress={onToggleSave}
         style={[storyReactionStyles.button, savingStar && styles.busy]}
       >
