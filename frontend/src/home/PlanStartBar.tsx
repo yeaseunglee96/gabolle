@@ -103,6 +103,9 @@ export type PlanStartBarProps = {
   today?: Date;
 };
 
+/** 폰에서 한 줄에 들어가는 개수. 390 폭에서 실측한 값이다. */
+const PHONE_PRESET_COUNT = 3;
+
 export function PlanStartBar({ wide, accessToken, onSubmit, today = new Date() }: PlanStartBarProps) {
   const { tx, language } = useI18n();
   const ko = language !== 'en';
@@ -338,8 +341,11 @@ export function PlanStartBar({ wide, accessToken, onSubmit, today = new Date() }
         </View>
       ) : null}
 
+      {/* 🔴 폰에서는 **한 줄에 맞춘다** (2026-09-18 지시). 390 폭에 네 개는 두 줄이 되고,
+          두 번째 줄에 한 개만 남아 어색했다. 폰은 앞의 셋만 보여 준다 — 넷째(「부산역 출발」)는
+          출발지 칸에서 바로 고를 수 있어 없어도 길이 막히지 않는다. 넓은 화면은 넷 다 그대로다. */}
       <View style={styles.chipRow}>
-        {START_BAR_PRESETS.map((preset) => (
+        {(wide ? START_BAR_PRESETS : START_BAR_PRESETS.slice(0, PHONE_PRESET_COUNT)).map((preset) => (
           <Pressable
             key={preset.id}
             accessibilityRole="button"
