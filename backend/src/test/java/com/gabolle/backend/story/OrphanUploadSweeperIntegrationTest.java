@@ -130,6 +130,34 @@ class OrphanUploadSweeperIntegrationTest {
 	}
 
 	@Test
+	@DisplayName("🔴 계정 커버 사진은 살아남는다 — 기록 표 어디에도 없어서 고아로 보인다 (S15P21E201-1297)")
+	void coverPhotoOfAccountSurvives() {
+		String key = insertOldImage();
+		attachToAccount("cover_url", key);
+
+		assertThat(fileOf(key)).exists();
+
+		this.sweeper.sweep();
+
+		assertThat(fileOf(key)).as("커버 사진은 story_image 에도 story_video 에도 없다").exists();
+		assertThat(deletedAtOfImage(key)).isNull();
+	}
+
+	@Test
+	@DisplayName("🔴 계정 프로필 사진도 살아남는다 — 이 구멍은 커버보다 먼저 있었다 (S15P21E201-844)")
+	void avatarPhotoOfAccountSurvives() {
+		String key = insertOldImage();
+		attachToAccount("avatar_url", key);
+
+		assertThat(fileOf(key)).exists();
+
+		this.sweeper.sweep();
+
+		assertThat(fileOf(key)).as("청소기를 켜는 날 프로필 사진이 전부 사라졌을 자리다").exists();
+		assertThat(deletedAtOfImage(key)).isNull();
+	}
+
+	@Test
 	@DisplayName("기록에 붙은 사진은 살아남는다")
 	void attachedPhotoSurvives() {
 		String key = insertOldImage();
@@ -241,6 +269,15 @@ class OrphanUploadSweeperIntegrationTest {
 				INSERT INTO story_image (story_image_id, story_id, uploaded_image_id, position, created_at)
 				SELECT ?, ?, uploaded_image_id, 1, now() FROM uploaded_image WHERE storage_key = ?
 				""", UUID.randomUUID(), this.storyId, storageKey);
+	}
+
+	/** 계정에 사진을 건다. 계정은 업로드 식별자가 아니라 <b>주소</b>를 들고 있다. */
+	private void attachToAccount(String column, String storageKey) {
+		this.jdbc.update("""
+				UPDATE app_user SET %s =
+				    (SELECT image_url FROM uploaded_image WHERE storage_key = ?)
+				 WHERE user_id = ?
+				""".formatted(column), storageKey, this.owner);
 	}
 
 	private void attachVideo(String videoKey, String thumbnailKey) {

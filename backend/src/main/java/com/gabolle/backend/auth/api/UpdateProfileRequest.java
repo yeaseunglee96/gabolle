@@ -30,7 +30,8 @@ import jakarta.validation.constraints.Size;
 public record UpdateProfileRequest(
 		@Size(min = 1, max = 30) String displayName,
 		String language,
-		@Size(max = 500) String avatarUrl) {
+		@Size(max = 500) String avatarUrl,
+		@Size(max = 500) String coverUrl) {
 
 	/**
 	 * 사진을 떼라는 요청인가 (S15P21E201-844).
@@ -45,5 +46,16 @@ public record UpdateProfileRequest(
 	 */
 	public boolean removesAvatar() {
 		return avatarUrl != null && avatarUrl.isBlank();
+	}
+
+	/**
+	 * 커버 사진을 떼라는 요청인가 (S15P21E201-1297). 시안의 「기본 사진으로 되돌리기」가 이것이다.
+	 *
+	 * <p>규칙은 {@link #removesAvatar} 와 <b>같다</b> — 빈 문자열이 떼기, 키를 안 보내면 그대로.
+	 * 두 사진이 같은 화면에 나란히 있어서 규칙이 다르면 프런트가 둘을 다르게 다뤄야 하고, 그
+	 * 차이는 어디에도 안 적힌 채 한쪽만 고쳐지는 날이 온다.
+	 */
+	public boolean removesCover() {
+		return coverUrl != null && coverUrl.isBlank();
 	}
 }

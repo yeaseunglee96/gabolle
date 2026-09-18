@@ -57,7 +57,7 @@ class AuthControllerTest {
 
 		assertThat(response.meta().requestId()).isEqualTo("request-123");
 		assertThat(response.data()).isEqualTo(new AuthUserResponse(userId, "traveler@example.com", "부산여행자",
-				"ko", UserStatus.ACTIVE, null));
+				"ko", UserStatus.ACTIVE, null, null));
 	}
 
 	@Test
