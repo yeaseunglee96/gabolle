@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202211A0066697",
+  "worker": "haiku-59",
+  "researchedAt": "2026-09-09T08:36:00Z",
+  "queries": ["장 부산 민락동 경양식", "장 민락로 식당 경양식"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "민락동 경양식 검색에도 불구하고 '장'이라는 경양식 식당은 찾을 수 없음",
+  "notes": "경양식 카테고리로 등록"
+}

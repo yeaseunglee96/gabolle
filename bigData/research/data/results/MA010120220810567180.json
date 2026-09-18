@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220810567180",
+  "worker": "haiku-27",
+  "researchedAt": "2026-09-09T01:36:09Z",
+  "queries": ["나너돈까스 중구 부산", "나너돈까스 영주1동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "부산 돈까스 일반 맛집 검색 결과만 나왔고 나너돈까스 구체적 정보 없음",
+  "notes": ""
+}

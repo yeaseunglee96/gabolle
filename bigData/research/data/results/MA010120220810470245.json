@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220810470245",
+  "worker": "haiku-40",
+  "researchedAt": "2026-09-09T12:15:00Z",
+  "queries": ["대혁횟집 영도구 부산", "대혁횟집 봉래2동 맛집"],
+  "found": false,
+  "confidence": "low",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "주소 불일치: 데이터상 '하나길 830'이지만 검색결과는 다른 주소 제시. 직접 정보 확보 실패",
+  "notes": ""
+}

@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220802863553",
+  "worker": "haiku-62",
+  "researchedAt": "2026-09-10T12:10:00Z",
+  "queries": ["온더야드 대연 부산", "온더야드 경성대"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/831709", "https://triple.guide/restaurants/bc9a0995-da90-436f-8071-afe7fa113251"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "4-cheese & BBQ 피자, crab & bacon cream pasta 전문", "sources": [0, 1]},
+    {"type": "분위기·전망", "note": "개조된 집 건물에 야드가 있는 유럽식 인테리어, 빈티지 카페 분위기", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["피자", "파스타"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "경성대 근처"
+}

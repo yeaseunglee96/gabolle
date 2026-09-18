@@ -1,0 +1,34 @@
+{
+  "id": "MA010120220808277988",
+  "worker": "haiku-59",
+  "researchedAt": "2026-09-09T07:56:10Z",
+  "queries": ["고동운식당 해운대구 부산", "고동운식당 달맞이 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=BP3eN7UeKelI", "https://www.siksinhot.com/P/1056058", "https://dowha100.com/entry/%EB%B6%80%EC%82%B0-%ED%95%B4%EC%9A%B4%EB%8C%80-%EB%8B%AC%EB%A7%9C%EC%9D%B4-%EB%A7%9B%EC%A7%91-%EC%9D%B4%ED%83%9C%EB%A6%AC%EC%A0%95%EC%8B%9D-%ED%8A%B8%EB%9D%BC%ED%86%A0%EB%A6%AC%EC%95%84-%EA%B3%A0%EB%8F%99%EC%9A%B4-%EA%B3%A0%EB%8F%99%EC%9A%B4%EC%8B%9D%EB%8B%B9"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "맛 묘사",
+      "note": "이탈리안 가정식 파스타, 라자냐, 스튜 등",
+      "sources": [0, 1]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "달맞이길의 경치 좋은 트라토리아 스타일 레스토랑",
+      "sources": [0, 2]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "골목 주차 가능",
+    "audience": "couple",
+    "signatureDishes": ["필레 파스타", "라자냐", "이탈리안 정식"],
+    "priceBand": "mid-high"
+  },
+  "notFound": null,
+  "notes": "목-일 12:30~23:00 운영, 예약 권장. 재료 솔드아웃 잦음. 해운대 데이트 장소로 인기"
+}

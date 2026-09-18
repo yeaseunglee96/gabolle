@@ -1,0 +1,37 @@
+{
+  "id": "MA010120220811407237",
+  "worker": "haiku-56",
+  "researchedAt": "2026-09-09T06:37:13Z",
+  "queries": ["서씨횟집 부산 광안", "서씨횟집 민락 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.diningcode.com/profile.php?rid=zSJ9qGR3uIYm",
+    "https://www.daangn.com/kr/local-profile/g98rt61fzxtw/"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "횟집/생선회 전문점",
+      "sources": [0]
+    },
+    {
+      "type": "서비스·사람",
+      "note": "손님이 많고 맛있으며 사장님이 친절한 것으로 평가됨",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "주차 가능",
+    "audience": "mixed",
+    "signatureDishes": ["모듬회", "매운탕"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": ""
+}

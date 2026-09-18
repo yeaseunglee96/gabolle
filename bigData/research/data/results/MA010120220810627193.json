@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220810627193",
+  "worker": "haiku-8",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["가온밀면 부산진구", "가온밀면 초읍동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산 부산진구 새싹로 249-1"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "연차·역사", "note": "40년 전통의 맛을 지키는 밀면집", "sources": [0, 1]},
+    {"type": "투표·독자 선정", "note": "2020년 부산 밀면 맛집 투표에서 1위 선정", "sources": [0]},
+    {"type": "미디어 노출", "note": "드라마와 방송에 다수 나온 맛집", "sources": [0, 1]},
+    {"type": "조리·재료", "note": "주문과 동시에 면을 뽑고 경북 영천의 고급 한약재로 육수를 냄", "sources": [0, 1]},
+    {"type": "맛 묘사", "note": "쫄깃한 고기와 육즙 가득한 만두와 깔끔한 육수", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["밀면"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

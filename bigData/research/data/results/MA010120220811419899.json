@@ -1,0 +1,38 @@
+{
+  "id": "MA010120220811419899",
+  "worker": "haiku-1",
+  "researchedAt": "2026-09-09T01:54:00Z",
+  "queries": ["기와집대구탕 해운대", "기와집대구탕 달맞이길 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=zhTEYc66Aihv", "https://www.siksinhot.com/P/367678"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "specialty",
+      "note": "메뉴 하나뿐 - 시원하고 개운한 대구탕만 제공",
+      "sources": [0]
+    },
+    {
+      "type": "quality",
+      "note": "맑고 시원하며 개운한 국물 - 해장용으로 최고의 평가",
+      "sources": [0]
+    },
+    {
+      "type": "quantity",
+      "note": "대구살과 무가 푸짐하게 들어있음 - 담백한 맛",
+      "sources": [0]
+    },
+    {
+      "type": "atmosphere",
+      "note": "운치 있게 기와집을 고쳐 만든 식당 - 해운대 해수욕장과 광안대교 전망",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["대구탕"]
+  },
+  "notFound": null,
+  "notes": "아침 08:00 오픈 - 해장용으로 인기, 발렛파킹과 무료주차 가능, 가격 16,000원(공기밥 포함), 웨이팅 발생 가능"
+}

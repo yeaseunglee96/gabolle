@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220810468187",
+  "worker": "haiku-7",
+  "researchedAt": "2026-09-08T22:09:18Z",
+  "queries": ["왔다식당 영도구 부산", "왔다식당 청학1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=rtSw2x97wYSp", "https://brunch.co.kr/@francis-enjoy/120", "https://2.violet097.com/entry/%EC%A0%84%ED%98%84%EB%AC%B4%EA%B3%84%ED%9A%8D-%EB%B6%80%EC%82%B0-%EB%82%A8%EC%B2%9C%EB%8F%99-%EC%84%B8%EB%A1%9C%EC%8D%B0%EA%B8%B0%ED%9A%8C-%EC%84%B8%EB%A1%9C%ED%9A%8C-%EC%97%B0%ED%95%A9%ED%9A%9F%EC%A7%91"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "한우 스지 전문점으로 스지 전골과 수육만 제공", "sources": [0]},
+    {"type": "맛 묘사", "note": "신선하고 쫄깃한 스지의 맛, 버섯과 두부가 풍부", "sources": [2]},
+    {"type": "미디어 노출", "note": "전현무계획에 나온 집으로 유명", "sources": [2]},
+    {"type": "혼잡·수요", "note": "점심 인기로 재료 소진시 조기 마감", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": true,
+    "parking": null,
+    "audience": "office_workers",
+    "signatureDishes": ["스지전골", "스지수육"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "점심만 영업 (08:30~14:30). 일요일 정기휴무. 2층까지 있어 여러 인원 수용 가능."
+}

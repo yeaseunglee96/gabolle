@@ -1,0 +1,28 @@
+{
+  "id": "MA0101202308A0084014",
+  "worker": "haiku-27",
+  "researchedAt": "2026-09-09T01:36:45Z",
+  "queries": ["불란서와이너리 동래구 부산", "불란서와이너리 안락2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 동래구 연안로58번길 13"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "분위기·전망", "note": "프랑스 보르도 와이너리 감성의 공간", "sources": [0]},
+    {"type": "메뉴 희소성", "note": "2,000여종의 와인이 오크통에 진열", "sources": [0]},
+    {"type": "서비스·사람", "note": "디플로마를 받은 소믈리에 상주", "sources": [0]},
+    {"type": "맛 묘사", "note": "갑오징어세비체, 계절과일 치즈 플래터 등 프랑스식 요리", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "adult",
+    "signatureDishes": ["갑오징어세비체", "계절과일 치즈 플래터"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": "와인 필수주문(1병 이상). 노키즈존(13세이하 불가), 애견동반 불가. 운영시간: 월~목/일 17:00-24:00, 금토 17:00-01:00"
+}

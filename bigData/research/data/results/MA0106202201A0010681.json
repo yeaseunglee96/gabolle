@@ -1,0 +1,38 @@
+{
+  "id": "MA0106202201A0010681",
+  "worker": "haiku-49",
+  "researchedAt": "2026-09-09T14:00:00Z",
+  "queries": ["버거킹 부산 센텀 오일뱅크", "버거킹 해운대 재송 179"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.siksinhot.com/P/864489",
+    "https://triple.guide/restaurants/f41f6c59-3dbd-4e71-bac7-7ac2586576ae",
+    "https://www.diningcode.com/profile.php?rid=TCHJI26Fo6Wv"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "플랫폼 순위·평점",
+      "note": "식신, triple.guide 등 주요 맛집 플랫폼에서 검색됨",
+      "sources": [0, 1]
+    },
+    {
+      "type": "운영·접근 편의",
+      "note": "드라이브스루 있고 주차장 있는 편리한 위치",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["와퍼", "콤보"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

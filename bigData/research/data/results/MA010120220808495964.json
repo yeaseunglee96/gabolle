@@ -1,0 +1,34 @@
+{
+  "id": "MA010120220808495964",
+  "worker": "haiku-59",
+  "researchedAt": "2026-09-09T08:03:50Z",
+  "queries": ["비비큐랩 해운대구 부산", "비비큐랩 중동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=LP66i57kq5Ue", "https://www.daangn.com/kr/local-profile/%EB%B9%84%EB%B9%84%ED%81%A0%EB%9E%A9bbqlab-hw84v8apag23/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "텍사스 스타일 정통 바베큐, 브리스킷",
+      "sources": [0]
+    },
+    {
+      "type": "맛 묘사",
+      "note": "훈연으로 고기에 향을 입히는 정통 조리 방식",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "유료 주차 가능",
+    "audience": "mixed",
+    "signatureDishes": ["브리스킷", "바베큐"],
+    "priceBand": "mid-high"
+  },
+  "notFound": null,
+  "notes": "11:30 ~ 22:00 (수요일 정기휴무, 14:00~17:00 휴식). 정 바이올린 옆 골목 안쪽. 중앙역 10번 출구 도보 10분"
+}

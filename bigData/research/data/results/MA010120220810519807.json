@@ -1,0 +1,49 @@
+{
+  "id": "MA010120220810519807",
+  "worker": "haiku-31",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["양순식당 서구 부산", "양순식당 남부민1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.busan.com/view/busan/view.php?code=2024091118165765070", "https://www.diningcode.com/profile.php?rid=5xqhcbQdtcEu", "https://m.linktoplace.com/index.php?action=view&no=133269"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "동네·시장 지목",
+      "note": "어시장 경매인들이 가는 식당",
+      "sources": [0, 1]
+    },
+    {
+      "type": "현지인 지지",
+      "note": "어시장 근처 경매인들이 자주 찾는 식당",
+      "sources": [0, 1]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "생선구이, 갈치조림",
+      "sources": [1]
+    },
+    {
+      "type": "운영·접근 편의",
+      "note": "아침 일찍 영업 (07:00~14:00), 어시장 바로 옆",
+      "sources": [0, 2]
+    },
+    {
+      "type": "조리·재료",
+      "note": "집밥 같은 정식, 신선한 생선 재료",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 30,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "local",
+    "signatureDishes": ["생선구이", "갈치조림"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "1994년 개업, 어시장 주변 장수식당"
+}

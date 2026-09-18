@@ -1,0 +1,28 @@
+{
+  "id": "MA0101202211A0103350",
+  "worker": "haiku-15",
+  "researchedAt": "2026-09-08T22:42:33Z",
+  "queries": ["코르파스타바 부산진구 부산", "코르파스타바 전포1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 부산진구 동성로25번길 13"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "기관 선정", "note": "2025 미슐랭 가이드 남한 빕구르망", "sources": [0] },
+    { "type": "간판 메뉴 지목", "note": "생면 파스타, 토마토, 라비올리, 보타르가", "sources": [0] },
+    { "type": "조리·재료", "note": "생면 파스타와 프리미엄 재료 사용", "sources": [0] },
+    { "type": "서비스·사람", "note": "오픈 키친, 세심한 조리", "sources": [0] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": false,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["토마토 파스타", "라비올리", "보타르가"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": "12:00~21:00 영업, 14:30~17:00 브레이크타임, 월요일 휴무, 예약 권장, 캐치테이블 예약 가능"
+}

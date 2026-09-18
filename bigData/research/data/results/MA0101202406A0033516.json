@@ -1,0 +1,26 @@
+{
+  "id": "MA0101202406A0033516",
+  "worker": "haiku-37",
+  "researchedAt": "2026-09-09T11:23:43.0136153+09:00",
+  "queries": ["오성빵집 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=zgvzfywdUJlK"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "간판 메뉴 지목", "note": "소금빵 전문점", "sources": [0] },
+    { "type": "가격·가성비", "note": "좋은 가격대", "sources": [0] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["소금빵"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "교육청 아래. 1PM 이후 품절 빈번. 0507-1379-5480"
+}

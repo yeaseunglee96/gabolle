@@ -1,0 +1,32 @@
+{
+  "id": "MA010120220811399882",
+  "worker": "haiku-3",
+  "researchedAt": "2026-09-08T16:51:37.024Z",
+  "queries": ["양산국밥 해운대구"],
+  "found": true,
+  "confidence": "medium",
+  "sources": [
+    "https://www.siksinhot.com/P/385336",
+    "https://www.diningcode.com/profile.php?rid=s0NZ123dYJrJ"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "정제된 맑은 돼지국밥 전문점",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "easy",
+    "audience": null,
+    "signatureDishes": ["돼지국밥"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": ""
+}

@@ -1,0 +1,42 @@
+{
+  "id": "MA010120220813279634",
+  "worker": "haiku-3",
+  "researchedAt": "2026-09-08T16:53:33.797Z",
+  "queries": ["개미집 해운대 달맞이길", "개미집 해운대 낙지 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.siksinhot.com/P/256810",
+    "https://www.diningcode.com/profile.php?rid=PLWW7QREw6jh"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "낙곱새와 낙지볶음이 주요 메뉴로 유명",
+      "sources": [0, 1]
+    },
+    {
+      "type": "연차·역사",
+      "note": "1972년 남포동 국제시장에서 시작한 40년 이상 전통",
+      "sources": [0, 1]
+    },
+    {
+      "type": "맛 묘사",
+      "note": "매콤한 양념과 수세미·대창이 들어간 특색있는 맛",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 40,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["낙곱새", "낙지볶음"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": ""
+}

@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202308A0001806",
+  "worker": "haiku-28",
+  "researchedAt": "2026-09-09T10:20:00Z",
+  "queries": ["돈껍데기 사하구 부산", "돈껍데기 감천1동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "검색 결과에서 돈껍데기라는 가게에 대한 구체적 정보 없음",
+  "notes": ""
+}

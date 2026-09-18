@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220810545240",
+  "worker": "haiku-8",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["고흥녹동세발낙지 사하구 부산", "고흥녹동세발낙지 감천동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산 사하구 원양로 376"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "세발낙지 전문점", "sources": [0, 1]},
+    {"type": "동네·시장 지목", "note": "감천문화마을 인근 감천동 지역의 해산물 맛집", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["세발낙지"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "제한된 정보로 판단, 웹 요약만으로도 기본 확인 가능"
+}

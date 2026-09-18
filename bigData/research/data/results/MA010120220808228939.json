@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220808228939",
+  "worker": "haiku-63",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["셔터 부산진구 부산", "셔터 전포1동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "Instagram에서 '새로 찾은 동네 커피 맛집 셔터'라는 게시글이 나왔으나 주소, 영업시간 등 구체적인 정보 없음. 부산진구와 전포1동의 일반적인 맛집 정보만 검색됨",
+  "notes": ""
+}

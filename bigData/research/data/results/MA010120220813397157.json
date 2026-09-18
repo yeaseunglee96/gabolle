@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220813397157",
+  "worker": "haiku-58",
+  "researchedAt": "2026-09-09T16:57:00Z",
+  "queries": ["타이드솔루션스 해운대구 부산", "타이드솔루션스 중1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://triple.guide/restaurants/a10c0b2a-b422-4180-9580-e1efd32f05a5", "https://tideshop.co.kr/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "분위기·전망", "note": "오션뷰 카페로 파도가 일렁이는 창 너머 풍경이 아름다움", "sources": [0, 1]},
+    {"type": "곁들임·차림", "note": "커피 로스터스의 품질 높은 음료와 디저트", "sources": [1]},
+    {"type": "조리·재료", "note": "직접 로스팅하는 스페셜티 커피", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["스페셜티 커피"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "Tide Coffee Roasters 운영. 해운대 달맞이 코스에 위치하며 해변 인근"
+}

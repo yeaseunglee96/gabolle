@@ -1,0 +1,39 @@
+{
+  "id": "MA0101202305A0179626",
+  "worker": "haiku-34",
+  "researchedAt": "2026-09-09T06:58:00Z",
+  "queries": ["토곡팡 빵 도넛 부산", "토곡팡 연산8동 베이커리"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=QccIp8iD8LTa", "https://www.daangn.com/kr/local-profile/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "항아리팡(chestnuts, red beans, walnuts, cream cheese)이 대표 메뉴",
+      "sources": [0]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "합리적인 가격에 맛있는 빵과 푸짐한 양의 커피 제공",
+      "sources": [0]
+    },
+    {
+      "type": "메뉴 희소성",
+      "note": "salt bread, 100% domestic rice bread, egg tarts, mont blanc cakes 등 다양한 빵 종류",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "street parking needed",
+    "audience": "local",
+    "signatureDishes": ["항아리팡", "almond croissants", "butter bread"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "좌석이 3-4석밖에 없어 자리가 매우 제한적"
+}

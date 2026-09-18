@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220814385067",
+  "worker": "haiku-67",
+  "researchedAt": "2026-09-09T22:35:00.000Z",
+  "queries": ["이밸류 남구 부산", "이밸류 대연3동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색에서 남구 대연3동의 '이밸류'에 대한 정보를 찾을 수 없음",
+  "notes": ""
+}

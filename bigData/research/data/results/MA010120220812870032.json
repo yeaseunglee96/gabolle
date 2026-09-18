@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220812870032",
+  "worker": "haiku-61",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["루크스 부산진구 부산", "루크스 전포1동 맛집"],
+  "found": false,
+  "confidence": "low",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹에서 경양식 루크스가 검색되지 않음. Luke's Lobster와 언어 교환 공간만 나옴",
+  "notes": ""
+}

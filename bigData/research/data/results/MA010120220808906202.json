@@ -1,0 +1,25 @@
+{
+  "id": "MA010120220808906202",
+  "worker": "haiku-11",
+  "researchedAt": "2026-09-09T00:22:00Z",
+  "queries": ["델라고 금정 부산", "델라고 장전 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 금정구 금강로 253-1"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "분위기·전망", "note": "빈티지한 분위기의 넓고 편한 공간으로 데이트, 가족, 단체 모임에 모두 어울림", "sources": [0, 1] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["고르곤졸라 크림", "그릭 샐러드"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": ""
+}

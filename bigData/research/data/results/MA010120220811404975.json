@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220811404975",
+  "worker": "haiku-70",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["더행복한횟집 민락 부산", "더행복한횟집 민락동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://triple.guide/restaurants/b880665e-7b9e-4411-a08a-aad9cce46a4e", "https://www.tabling.co.kr/place/677ccd1766de5f06988059f4", "https://blog.daum.net/l5807447/119"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "광안대교를 보며 회를 즐기는 오션뷰 횟집",
+      "sources": [2]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "신선한 회와 코스 요리가 전문 (A코스 40,000원)",
+      "sources": [0]
+    },
+    {
+      "type": "운영·접근 편의",
+      "note": "8층 바다마루 건물 위치로 무료 주차 가능",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "무료 주차 가능",
+    "audience": "mixed",
+    "signatureDishes": ["회 코스", "생선회"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": "민락수변로 29, 바다마루 8층 위치"
+}

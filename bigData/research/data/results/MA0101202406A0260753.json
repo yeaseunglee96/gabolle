@@ -1,0 +1,23 @@
+{
+  "id": "MA0101202406A0260753",
+  "worker": "haiku-72",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["키츠 전포동 부산", "키츠 일식 초밥 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=97OtHwVF4XlK"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "양고기 갈비와 생양고기 등심 전문", "sources": [0]},
+    {"type": "가격·가성비", "note": "양고기 갈비 16,000원부터 시작하는 합리적인 가격", "sources": [0]},
+    {"type": "분위기·전망", "note": "전포역 근처 접근 편의", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["양고기 갈비", "생양고기 등심"],
+    "priceBand": "cheap",
+    "audience": "local"
+  },
+  "notFound": null,
+  "notes": "카테고리는 '일식 회/초밥'이나 실제로는 '양고기 전문점'입니다. 전포역 2호선 7번 출구 근처에 위치합니다."
+}

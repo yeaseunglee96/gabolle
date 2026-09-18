@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220810623474",
+  "worker": "haiku-41",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["영빈원 부산진구 부산", "영빈원 개금2동 맛집", "영빈원 중국집 부산", "영빈원 엄광로 부산"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "검색에서 영빈원이 나타나지 않음. 비슷한 이름의 영빈관만 검색됨",
+  "notes": ""
+}

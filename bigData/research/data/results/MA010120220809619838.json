@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220809619838",
+  "worker": "haiku-23",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["마린초밥 해운대구 부산", "마린초밥 반여1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 해운대구 선수촌로 86-9"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "조리·재료", "note": "신선한 생선회와 사시미를 직접 소싱하는 정성", "sources": [0, 1]},
+    {"type": "조리·재료", "note": "밥 사이의 공기층을 살려 부드럽게 녹는 초밥 조리법", "sources": [1]},
+    {"type": "간판 메뉴 지목", "note": "참치 모듬과 사시미 모듬 전문", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "difficult",
+    "audience": "mixed",
+    "signatureDishes": ["참치모듬", "사시미모듬", "특선초밥"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "전화 051-532-1144. 바테이블, 혼밥석 등 다양한 좌석 구성"
+}

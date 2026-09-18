@@ -1,0 +1,34 @@
+{
+  "id": "MA0101202603A0044822",
+  "worker": "haiku-59",
+  "researchedAt": "2026-09-09T07:56:10Z",
+  "queries": ["뺀데호 수영구 부산", "뺀데호 광안 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://www.diningcode.com/profile.php?rid=QAMTzrfc50v4"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "맛 묘사",
+      "note": "정통 현지식 타코와 퀘사디아",
+      "sources": [0]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "광안리 지역의 캐주얼한 외국음식점",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "young",
+    "signatureDishes": ["타코", "퀘사디아"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "타케리아 뺀데호(Taqueria Pendejo). 광안리 지역의 멕시코 음식 전문점. 외국인 고객도 많이 방문하는 것으로 보임"
+}

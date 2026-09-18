@@ -1,0 +1,27 @@
+{
+  "id": "MA0101202406A0433804",
+  "worker": "haiku-30",
+  "researchedAt": "2026-09-09T10:05:00Z",
+  "queries": ["삼환맛축산 금정구 부산", "삼환맛축산 구서2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 금정구 금강로 590"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "가격·가성비", "note": "저렴한 가격에 높은 퀄리티 고기", "sources": [0, 1] },
+    { "type": "맛 묘사", "note": "맛있는 고기, 된장찌개 추천", "sources": [0, 1] },
+    { "type": "혼잡·수요", "note": "피크시간에 웨이팅 필수", "sources": [1] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": true,
+    "parking": false,
+    "audience": "local",
+    "signatureDishes": ["숙성 생삼겹", "한돈 특수부위"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

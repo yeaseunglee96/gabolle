@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220811262165",
+  "worker": "haiku-45",
+  "researchedAt": "2026-09-09T13:39:30Z",
+  "queries": ["자갈치왕짬뽕 강서구 부산", "자갈치왕짬뽕 대저2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/396387", "https://www.diningcode.com/profile.php?rid=wsZAShqRF8Ag", "https://www.daangn.com/kr/local-profile/%EC%9E%90%EA%B0%88%EC%B9%98%EC%99%95%EC%A7%AC%EB%BD%95-un4babjfencq/"],
+  "stillOpen": true,
+  "whyPeopleGo": [{"type": "간판 메뉴 지목", "note": "낙지짬뽕, 충분한 양과 맛", "sources": [0, 1, 2]}, {"type": "혼잡·수요", "note": "항상 대기 줄이 있음", "sources": [0, 1]}],
+  "newTypes": [],
+  "descriptors": {"yearsClaimed": null, "generations": null, "queueing": null, "parking": null, "audience": "mixed", "signatureDishes": ["낙지짬뽕", "짜장면"], "priceBand": "cheap"},
+  "notFound": null,
+  "notes": ""
+}

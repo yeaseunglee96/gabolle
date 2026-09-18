@@ -1,0 +1,23 @@
+{
+  "id": "MA0101202301A0070949",
+  "worker": "haiku-62",
+  "researchedAt": "2026-09-09T08:50:00Z",
+  "queries": ["스위스제과 수영구 부산", "스위스제과 남천1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/680321", "https://www.diningcode.com/profile.php?rid=SI5WZ3VGDPoK"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "치즈타르트와 초코케잌 전문 베이커리",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["치즈타르트", "초코케잌"]
+  },
+  "notFound": null,
+  "notes": ""
+}

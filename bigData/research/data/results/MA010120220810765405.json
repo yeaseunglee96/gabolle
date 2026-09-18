@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220810765405",
+  "worker": "haiku-7",
+  "researchedAt": "2026-09-08T22:09:18Z",
+  "queries": ["거창맷돌 부곡점 금정구", "거창맷돌 부곡2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=3SFHXmJ3P03n", "http://localmap.co.kr/web/splus/kmap/view.php?sigun=6260000&gugun=3350000&keyno=107&keyname=%EA%B1%B0%EC%B0%BD%EB%A7%B7%EB%8F%8C(%EB%B3%B8%EC%A0%90)&keylink=3350000-101-2002-00301"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "맷돌 순두부와 청국장 전문", "sources": [0]},
+    {"type": "맛 묘사", "note": "쫀득하게 잘 뭉쳐진 고소한 두부 식감", "sources": [0]},
+    {"type": "곁들임·차림", "note": "상추 샐러드, 배추김치, 콩나물 등 무한리필 반찬", "sources": [1]},
+    {"type": "플랫폼 순위·평점", "note": "다이닝코드 순두부 별점을 근거로 든다", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "local",
+    "signatureDishes": ["순두부", "청국장"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "부곡로 158. 월~토 10:00~20:30 (15:30~17:00 휴게). 일요일 휴무. 주차장 완비."
+}

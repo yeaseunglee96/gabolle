@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220811408829",
+  "worker": "haiku-57",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["산호횟집 민락수변로 부산", "산호횟집 민락"],
+  "found": false,
+  "confidence": "low",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색으로 정보를 찾을 수 없음. 산호횟집은 구미와 송정점이 검색됨",
+  "notes": ""
+}

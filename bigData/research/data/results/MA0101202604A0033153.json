@@ -1,0 +1,39 @@
+{
+  "id": "MA0101202604A0033153",
+  "worker": "haiku-68",
+  "researchedAt": "2026-09-10T10:18:00Z",
+  "queries": ["원조구남집 구남로 우1동 해운대", "원조구남집 백반 한정식 맛집 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://m.cafe.daum.net/pusangoodfood/CAUl/17230?listURI=/pusangoodfood/CAUl", "https://www.fishtour.kr/food/%ED%95%B4%EC%9A%B4%EB%8C%80-%EC%82%BC%EA%B2%B9%EC%82%B4-%EB%A7%9B%EC%A7%91-%EC%9B%90%EC%A1%B0%EA%B5%AC%EB%82%A8%EC%A7%91-%EB%8C%80%ED%8C%A8%EC%82%BC%EA%B2%B9%EC%82%B4-%EB%A7%9B%EC%A7%91-%EA%B0%80%EC%84%B1%EB%B9%84-%EC%A2%8B%EC%9D%80/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "대패삼겹살과 구남볶음밥이 대표 메뉴",
+      "sources": [0, 1]
+    },
+    {
+      "type": "조리·재료",
+      "note": "프리미엄 금돼지를 48시간 특제소스로 숙성",
+      "sources": [1]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "가성비 좋은 고기집",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "family",
+    "signatureDishes": ["대패삼겹살", "구남볶음밥", "오겹살"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "구이 전문점 (데이터상 백반/한정식으로 기록되어 있으나 실제는 돼지고기 숯불구이 전문). 프리미엄 금돼지 전문. 매장 앞 주차장 이용 가능. 주소: 구남로24번길 11"
+}

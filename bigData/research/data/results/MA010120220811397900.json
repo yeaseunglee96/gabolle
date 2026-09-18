@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220811397900",
+  "worker": "haiku-47",
+  "researchedAt": "2026-09-09T10:50:00Z",
+  "queries": ["현가네콩나물해장국 수영구 부산", "현가네콩나물해장국 민락동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://triple.guide/restaurants/2b03e001-9438-49f9-93ee-bcdb77172068", "https://www.siksinhot.com/theme/magazine/8277"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "콩나물해장국 전문점", "sources": [0]},
+    {"type": "현지인 지지", "note": "부산 수영구 민락동 지역 주민이 찾는 해장국 전문점", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["콩나물해장국"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "민락동은 부산의 유명한 맛집 거리로 알려짐"
+}

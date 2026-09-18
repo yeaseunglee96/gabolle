@@ -1,0 +1,26 @@
+{
+  "id": "MA0101202411A0007844",
+  "worker": "haiku-20",
+  "researchedAt": "2026-09-09T12:25:45Z",
+  "queries": ["몫몫 동래구 부산", "몫몫 명륜동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 동래구 충렬대로 215"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "간판 메뉴 지목", "note": "샤브샤브 무한리필 전문점", "sources": [0] },
+    { "type": "가격·가성비", "note": "프리미엄 등급 고기를 무제한으로 제공", "sources": [0] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["프리미엄 샤브샤브"],
+    "priceBand": "regular"
+  },
+  "notFound": null,
+  "notes": ""
+}

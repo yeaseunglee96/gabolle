@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220813270782",
+  "worker": "haiku-8",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["한양족발 동래구 부산", "한양족발 수민동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산 동래구 명륜로94번길 18"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "연차·역사", "note": "40년 전통의 오래된 족발 전문점", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "족발과 보쌈 전문", "sources": [0, 1]},
+    {"type": "맛 묘사", "note": "야들야들한 가브리살 보쌈과 전통 방식의 소프트한 족발", "sources": [1]},
+    {"type": "혼잡·수요", "note": "자주 웨이팅을 하는 인기 식당으로 2호점까지 내면서 성황을 얻는 중", "sources": [1]},
+    {"type": "동네·시장 지목", "note": "동래 수안동에 40년 이상 위치한 지역의 대표 족발집", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": true,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["족발", "보쌈"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

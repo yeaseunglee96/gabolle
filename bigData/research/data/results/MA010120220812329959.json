@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220812329959",
+  "worker": "haiku-30",
+  "researchedAt": "2026-09-09T10:12:00Z",
+  "queries": ["청죽 서구 부산", "청죽 서대신3동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 서구 망양로 23"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "분위기·전망", "note": "우아한 정원, 프라이빗 룸 분위기", "sources": [0, 1] },
+    { "type": "서비스·사람", "note": "상견례와 접대용으로 자주 이용되는 고급 서비스", "sources": [0, 1] },
+    { "type": "맛 묘사", "note": "만족도 높은 일본식 코스요리", "sources": [0] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": false,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["Special Course", "VIP Course"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": ""
+}

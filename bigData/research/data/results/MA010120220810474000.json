@@ -1,0 +1,41 @@
+{
+  "id": "MA010120220810474000",
+  "worker": "haiku-2",
+  "researchedAt": "2026-09-08T16:43:11.248Z",
+  "queries": ["민아식당 중구 부산 백반", "민아식당 충장대로 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.diningcode.com/profile.php?rid=sVTWBEISkPAb"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "맛 묘사",
+      "note": "파절임 맛있고 국물맛도 독특하며 방아잎이 들어간 향긋한 국물",
+      "sources": [0]
+    },
+    {
+      "type": "연차·역사",
+      "note": "40년 전통의 오래된 집으로 같은 주인이 운영 중",
+      "sources": [0]
+    },
+    {
+      "type": "서비스·사람",
+      "note": "정겨운 분위기로 직장인 점심 식사와 저녁 소주자리 모두 인기",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 40,
+    "generations": null,
+    "queueing": null,
+    "parking": false,
+    "audience": "local",
+    "signatureDishes": ["따로국밥", "수육백반"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "중앙역 4번 출구 도보 4분. 주말 휴무. 주차 협소(약 2칸)"
+}

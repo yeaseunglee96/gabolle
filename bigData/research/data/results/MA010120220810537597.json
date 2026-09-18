@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220810537597",
+  "worker": "haiku-24",
+  "researchedAt": "2026-09-09T10:26:15.2132113+09:00",
+  "queries": ["구룡포식당 서구 부산", "구룡포식당 남부민2동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://www.diningcode.com/list.dc?query=%EB%B6%80%EC%82%B0%EC%84%9C%EA%B5%AC+%EA%B3%BC%EB%A9%94%EA%B8%B0", "https://www.diningcode.com/profile.php?rid=JQnJGg2tS1Rv"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "과메기 전문점", "sources": [0]},
+    {"type": "플랫폼 순위·평점", "note": "다이닝코드 별점을 근거로 든다", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["과메기", "회덮밥", "알탕"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "검색 결과에서 포항 구룡포 지역 정보와 혼합되어 있음"
+}

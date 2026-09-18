@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220811473475",
+  "worker": "haiku-61",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["빨간산오징어 해운대 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.dtoday.co.kr/news/articleView.html?idxno=275148", "https://www.ksmnews.co.kr/news/view.php?idx=265908", "http://bbsj.kr/sijang/store.php?sto_idx=468"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "산오징어회가 대표 메뉴이며 당일 공수",
+      "sources": [0, 1]
+    },
+    {
+      "type": "현지인 지지",
+      "note": "부산 현지인들과 연예인들의 단골 맛집",
+      "sources": [1]
+    },
+    {
+      "type": "미디어 노출",
+      "note": "부산국제영화제 맛집으로 알려짐",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["산오징어회"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": ""
+}

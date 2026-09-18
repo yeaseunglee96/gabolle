@@ -1,0 +1,38 @@
+{
+  "id": "MA010120220811802094",
+  "worker": "haiku-1",
+  "researchedAt": "2026-09-09T01:24:00Z",
+  "queries": ["김재완원조돼지김치구이 부산진구", "김재완원조돼지김치구이 중앙대로 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://www.siksinhot.com/theme/magazine/5894", "https://byeoltong.com/682"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "signature_dish",
+      "note": "돼지김치구이 - 부산의 인생 고기 맛집으로 명성",
+      "sources": [0]
+    },
+    {
+      "type": "food_pairing",
+      "note": "소주의 최고 안주 - 소주와 함께하면 맛있다는 평가",
+      "sources": [0]
+    },
+    {
+      "type": "tenderness",
+      "note": "촉촉하고 부드러운 고기 - 부산 돼지구이 맛집 중 강자",
+      "sources": [0]
+    },
+    {
+      "type": "multiple_locations",
+      "note": "부산 여러 지점 운영 - 서면점 등 유명 지점들",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["돼지김치구이", "볶음밥"]
+  },
+  "notFound": null,
+  "notes": "정확한 위치/영업정보 확인 필요 - 검색 결과에서 여러 지점 언급되지만 부산진구 중앙대로점의 정확한 상세정보 미확인"
+}

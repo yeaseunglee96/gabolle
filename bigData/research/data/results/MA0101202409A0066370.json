@@ -1,0 +1,27 @@
+{
+  "id": "MA0101202409A0066370",
+  "worker": "haiku-59",
+  "researchedAt": "2026-09-09T08:42:00Z",
+  "queries": ["무까 부산 민락동 경양식", "무까 민락수변로 식당"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=K4mEEQPuZMTb"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "한우 오마카세",
+      "sources": ["https://www.diningcode.com/profile.php?rid=K4mEEQPuZMTb"]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "기념일, 생일, 특별한 날 방문하기 좋은 소규모 고급 식당",
+      "sources": ["https://www.diningcode.com/profile.php?rid=K4mEEQPuZMTb"]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "parking": "같은 건물 지하 3시간 주차 가능"
+  },
+  "notes": "카테고리는 경양식이나 실제로는 한우 오마카세 고급 식당"
+}

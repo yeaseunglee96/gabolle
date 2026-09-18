@@ -1,0 +1,42 @@
+{
+  "id": "MA010120220811396093",
+  "worker": "haiku-56",
+  "researchedAt": "2026-09-09T06:37:13Z",
+  "queries": ["신토불이보쌈 해운대구 부산", "신토불이보쌈 중1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.diningcode.com/profile.php?rid=04IQKGVezFRn",
+    "https://ontrip.kr/travel-guides/details/134204"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "연차·역사",
+      "note": "20년 이상 운영해온 로컬 보쌈 전문점",
+      "sources": [0]
+    },
+    {
+      "type": "조리·재료",
+      "note": "주인이 직접 전주에서 쌀과 고추장을 공급받으며 정성스러운 준비",
+      "sources": [0]
+    },
+    {
+      "type": "서비스·사람",
+      "note": "부부가 함께 운영하며 친절한 서비스로 알려짐",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["보쌈"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

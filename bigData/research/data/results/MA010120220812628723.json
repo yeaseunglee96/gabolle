@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220812628723",
+  "worker": "haiku-29",
+  "researchedAt": "2026-09-09T10:30:00Z",
+  "queries": ["올타미스터스시 사하구 부산", "올타미스터스시 하단1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=0sKyw3cuISvJ"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "스시 전문점", "sources": [0]},
+    {"type": "메뉴 희소성", "note": "갈릭연어, 갈릭새우 등 특색 메뉴", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "인근 명신주차장 (1000원 할인)",
+    "audience": "mixed",
+    "signatureDishes": ["특선초밥", "갈릭연어", "갈릭새우"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

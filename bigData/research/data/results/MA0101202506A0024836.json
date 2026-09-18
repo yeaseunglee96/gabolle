@@ -1,0 +1,29 @@
+{
+  "id": "MA0101202506A0024836",
+  "worker": "haiku-14",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["김유순대구뽈찜 남구 부산", "김유순대구뽈찜 대연5동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["식신", "부산 방문 관광", "다이닝코드", "트립가이드"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "대구뽈찜 전문점으로 유명", "sources": [0, 1]},
+    {"type": "조리·재료", "note": "아삭한 콩나물과 매콤한 양념의 조화, 직접 만든 반찬 제공", "sources": [0, 1]},
+    {"type": "플랫폼 순위·평점", "note": "다이닝코드 별점을 근거로 든다", "sources": [2]},
+    {"type": "현지인 지지", "note": "주민들이 많이 찾는 진짜 맛집", "sources": [0, 1]},
+    {"type": "분위기·전망", "note": "대연동의 오래된 맛집", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "local",
+    "signatureDishes": ["대구뽈찜"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

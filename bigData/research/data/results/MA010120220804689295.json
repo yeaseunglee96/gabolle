@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220804689295",
+  "worker": "haiku-12",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["가덕횟집 동래구 부산", "가덕횟집 온천장로 횟집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/269178", "https://www.diningcode.com/profile.php?rid=XeX12yPGPX6o"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "맛 묘사", "note": "제철 자연산 횟감의 신선함이 뛰어남", "sources": [0, 1]},
+    {"type": "현지인 지지", "note": "온천장의 유명한 예약 맛집으로 지역 주민들이 즐겨 찾음", "sources": [0, 1]},
+    {"type": "플랫폼 순위·평점", "note": "식신, 다이닝코드, 트리플 등 주요 플랫폼에 소개됨", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["생물회"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

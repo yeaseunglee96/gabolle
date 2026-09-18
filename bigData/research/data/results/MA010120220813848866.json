@@ -1,0 +1,37 @@
+{
+  "id": "MA010120220813848866",
+  "worker": "haiku-56",
+  "researchedAt": "2026-09-09T06:37:13Z",
+  "queries": ["부산왕족발 수영구 부산", "부산왕족발 민락동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.keyzard.cc/bancy_lee/nb/223744733360",
+    "https://www.diningcode.com/list.dc?query=%EB%B6%80%EC%82%B0%EB%AF%BC%EB%9D%BD%EB%8F%99"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "족발 전문점",
+      "sources": [0]
+    },
+    {
+      "type": "동네·시장 지목",
+      "note": "민락골목시장에 위치한 로컬 맛집",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "민락골목시장 주차장 이용 가능",
+    "audience": "local",
+    "signatureDishes": ["족발"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

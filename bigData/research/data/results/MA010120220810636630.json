@@ -1,0 +1,31 @@
+{
+  "id": "MA010120220810636630",
+  "worker": "haiku-3",
+  "researchedAt": "2026-09-08T16:51:37.024Z",
+  "queries": ["수영공원돼지국밥 부산진구"],
+  "found": true,
+  "confidence": "medium",
+  "sources": [
+    "https://www.tripinfo.co.kr/info.html?content_type_id=39&content_id=2869572"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "부산 돼지국밥 전문점",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": null,
+    "signatureDishes": ["돼지국밥"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": ""
+}

@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220803182114",
+  "worker": "haiku-64",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["왕표고기 민락동 맛집", "왕표고기 부산 돼지고기", "왕표고기 블로그", "왕표고기 후기"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색으로 찾을 수 없음. Facebook 페이지는 존재하지만 블로그 후기나 리뷰 정보 없음.",
+  "notes": ""
+}

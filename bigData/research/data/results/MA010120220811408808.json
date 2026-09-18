@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220811408808",
+  "worker": "haiku-64",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["민락반점 중국집 부산", "민락반점 광남로 맛집", "민락반점 블로그", "민락반점 후기"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://badaon.or.kr/seantour_map/travel/destination/detail.do?destId=DEST003039"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "짜장면, 짬뽕, 볶음밥 등 중국식 메뉴 전문", "sources": [0]},
+    {"type": "가격·가성비", "note": "짜장면 5천, 짬뽕 6천, 볶음밥 6천원대의 저렴한 가격", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["짜장면", "짬뽕", "볶음밥", "잡채밥"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "민락 지역의 일반적인 중국집"
+}

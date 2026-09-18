@@ -1,0 +1,29 @@
+{
+  "id": "MA0101202303A0060061",
+  "worker": "haiku-28",
+  "researchedAt": "2026-09-09T10:15:00Z",
+  "queries": ["스시투어시민공원점 부산진구 부산", "스시투어시민공원점 부암1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.tabling.co.kr/restaurant/8687", "https://www.diningcode.com/profile.php?rid=oBTPy9QvR3q1"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "회전초밥 전문점", "sources": [0]},
+    {"type": "메뉴 희소성", "note": "노르웨이 슈페리어급 생연어", "sources": [1]},
+    {"type": "조리·재료", "note": "동원산업 본사와 직거래한 고품질 생연어를 직접 손질", "sources": [1]},
+    {"type": "가격·가성비", "note": "가성비 좋은 메뉴 구성", "sources": [0]},
+    {"type": "플랫폼 순위·평점", "note": "평점과 리뷰 수를 근거로 든다", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "2,000원 보조",
+    "audience": "local",
+    "signatureDishes": ["노르웨이 슈페리어급 생연어 초밥"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

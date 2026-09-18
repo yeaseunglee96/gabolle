@@ -1,0 +1,37 @@
+{
+  "id": "MA0106202605A2208583",
+  "worker": "haiku-49",
+  "researchedAt": "2026-09-09T13:00:00Z",
+  "queries": ["제로라멘 수영구 부산", "제로라멘 광안2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.diningcode.com/profile.php?rid=N0XTEuCMb431",
+    "https://toroklife.com/ryusenso_gwangan/"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "라멘 전문점으로 광안2동 일식 면요리 전문",
+      "sources": [0]
+    },
+    {
+      "type": "운영·접근 편의",
+      "note": "광안로21번길 7에 위치, 11:30~20:00 운영",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["라멘"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

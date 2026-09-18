@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220800463856",
+  "worker": "haiku-5",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["어부밥상 기장군 부산", "어부밥상 일광읍 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 기장군 일광읍 기장해안로 1323"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "맛 묘사",
+      "note": "신선한 생선과 해산물을 사용한 해물 요리",
+      "sources": [0]
+    },
+    {
+      "type": "현지인 지지",
+      "note": "동네 주민들이 즐겨 찾는 로컬 맛집",
+      "sources": [0]
+    },
+    {
+      "type": "운영·접근 편의",
+      "note": "일광해수욕장 인접, 넓은 전용 주차장",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "전용 주차장",
+    "audience": "local",
+    "signatureDishes": ["가자미미역국", "조개미역국", "칼치구이", "장어추어탕"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "영업시간: 09:00-20:00 (15:00-17:00 브레이크, 매주 수요일 정기휴무). 모든 재료가 국산."
+}

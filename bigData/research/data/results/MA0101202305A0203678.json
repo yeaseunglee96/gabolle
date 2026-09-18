@@ -1,0 +1,29 @@
+{
+  "id": "MA0101202305A0203678",
+  "worker": "haiku-73",
+  "researchedAt": "2026-09-09T23:29:49.528Z",
+  "queries": ["테하노텍스멕스바베큐 해운대구 부산", "테하노텍스멕스바베큐 우1동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://www.instagram.com/tejano_tex_mex_bbq/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "텍스-멕스 바베큐 전문점",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["텍스-멕스 바베큐"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "인스타그램 계정으로 확인. 정확한 영업정보와 주소는 미확인"
+}

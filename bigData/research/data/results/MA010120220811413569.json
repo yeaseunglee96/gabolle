@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220811413569",
+  "worker": "haiku-17",
+  "researchedAt": "2026-09-09T09:25:30Z",
+  "queries": ["동산호횟집 남구 부산", "동산호횟집 용호 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=iyQzLb0XBOVM", "https://www.siksinhot.com/P/1144088"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "분위기·전망", "note": "광안대교가 바로 보이는 바다뷰를 즐길 수 있다", "sources": [0, 1]},
+    {"type": "조리·재료", "note": "사장님이 매일 새벽 출항해 잡아올린 자연산 생선을 사용한다", "sources": [0, 1]},
+    {"type": "현지인 지지", "note": "용호동 주민들이 찾는 물회 맛집이다", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["물회", "회"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

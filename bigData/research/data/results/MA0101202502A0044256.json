@@ -1,0 +1,23 @@
+{
+  "id": "MA0101202502A0044256",
+  "worker": "haiku-62",
+  "researchedAt": "2026-09-09T09:00:00Z",
+  "queries": ["송정참치 해운대구 부산", "송정참치 송정동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1491449"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "참치 코스 전문점",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["참치 코스"]
+  },
+  "notFound": null,
+  "notes": ""
+}

@@ -1,0 +1,39 @@
+{
+  "id": "MA0101202306A0022733",
+  "worker": "haiku-70",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["아오바 마린시티 일식", "아오바 우3동 회 초밥"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=4ejG2f8vFHtN", "https://www.youtube.com/shorts/AONPjDYFoK0"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "마린시티의 프리미엄 오마카세 일식당으로 고급스러운 분위기",
+      "sources": [0]
+    },
+    {
+      "type": "메뉴 희소성",
+      "note": "신선한 회와 오마카세 코스를 전문으로 하는 일식당",
+      "sources": [0]
+    },
+    {
+      "type": "서비스·사람",
+      "note": "친절하고 설명을 잘하는 셰프가 특징",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "무료 주차 가능",
+    "audience": "mixed",
+    "signatureDishes": ["오마카세", "생선회"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": "마린시티 3로 39 카이저 건물 2층 204호, 예약 필수"
+}

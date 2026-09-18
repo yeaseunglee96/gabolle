@@ -1,0 +1,21 @@
+{
+  "id": "MA0101202603A0044468",
+  "worker": "haiku-52",
+  "researchedAt": "2026-09-09T14:46:30Z",
+  "queries": ["타코로 해운대구 부산", "타코로 재송1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1451505", "https://www.instagram.com/p/DJ6PJ6-TkK1/", "http://localmap.co.kr/web/splus/kmap/view.php?sigun=6260000&gugun=3330000&keyno=126&keyname=%EB%A7%88%EB%A3%A8%EB%BC%88%EA%B5%AC%EC%9D%B4&keylink=3330000-101-2018-00395"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "타코야끼 전문점", "sources": [0, 1]},
+    {"type": "분위기·전망", "note": "데이트나 모임 장소로 적합", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["타코야끼"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

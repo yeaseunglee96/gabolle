@@ -1,0 +1,34 @@
+{
+  "id": "MA0101202212A0064741",
+  "worker": "haiku-44",
+  "researchedAt": "2026-09-09T10:47:00Z",
+  "queries": ["베트남대박 사상구 부산", "베트남대박 덕포2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1854325"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "메뉴 희소성",
+      "note": "베트남 전문 음식점으로 베트남 전통 요리를 제공",
+      "sources": [0]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "대표 메뉴인 xoi xeo(소이새우)와 반미분짜가 유명",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["xoi xeo", "반미분짜"],
+    "priceBand": "affordable"
+  },
+  "notFound": null,
+  "notes": ""
+}

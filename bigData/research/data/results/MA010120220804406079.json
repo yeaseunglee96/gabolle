@@ -1,0 +1,23 @@
+{
+  "id": "MA010120220804406079",
+  "worker": "haiku-17",
+  "researchedAt": "2026-09-09T09:34:45Z",
+  "queries": ["런던앤셰프 남구 부산", "런던앤셰프 대연 맛집", "\"런던앤셰프\" 부산 외국음식 경양식"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://www.daangn.com/kr/local-profile/%EB%9F%B0%EB%8D%98-%EC%95%A4-%EC%85%B0%ED%94%84-4wak6pya3kw5/"],
+  "stillOpen": true,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": [],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "외국음식점이라고 확인되나 구체적인 메뉴와 특징 정보는 제한적"
+}

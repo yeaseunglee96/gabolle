@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220810460553",
+  "worker": "haiku-8",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["부산꼼장어 중구 남포동"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산 중구 구덕로22번길 8"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "조리·재료", "note": "국내산 자연산 꼼장어만 사용", "sources": [0]},
+    {"type": "간판 메뉴 지목", "note": "소금구이 꼼장어 전문", "sources": [0]},
+    {"type": "동네·시장 지목", "note": "남포동 꼼장어 맛집", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": false,
+    "audience": "mixed",
+    "signatureDishes": ["꼼장어소금구이"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

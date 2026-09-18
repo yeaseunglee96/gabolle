@@ -1,0 +1,42 @@
+{
+  "id": "MA010120220811447355",
+  "worker": "haiku-49",
+  "researchedAt": "2026-09-09T16:00:00Z",
+  "queries": ["갈매기3호 해운대 우1동", "갈매기3호 해운대해변로 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.diningcode.com/profile.php?rid=DsQell0jBtc4",
+    "https://www.siksinhot.com/P/1096986"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "랍스터 포장마차로 알려져 있음",
+      "sources": [0, 1]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "해변 바로 옆 위치로 좋은 분위기",
+      "sources": [0]
+    },
+    {
+      "type": "플랫폼 순위·평점",
+      "note": "다이닝코드 등 주요 맛집 사이트에 등록되어 있음",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["랍스터", "해산물"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": ""
+}

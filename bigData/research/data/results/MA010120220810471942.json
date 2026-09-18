@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220810471942",
+  "worker": "haiku-1",
+  "researchedAt": "2026-09-09T02:45:00Z",
+  "queries": ["개미집 수영구 광안 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=EIIXwbf8z7dH", "https://www.siksinhot.com/P/361453"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "specialty",
+      "note": "낙지와 내장을 활용한 낙곱새 - 낙지 전문 요리",
+      "sources": [0]
+    },
+    {
+      "type": "location",
+      "note": "광안리해수욕장 근처 - 바다 경치 좋은 위치",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["낙곱새", "낙곱새세트"]
+  },
+  "notFound": null,
+  "notes": "11:00~15:30, 17:00~22:00 영업, 2인 이상 주문, 1인 1음식 필수"
+}

@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220810765570",
+  "worker": "haiku-36",
+  "researchedAt": "2026-09-09T02:14:07Z",
+  "queries": ["동현횟집 금정구 부산", "동현횟집 부곡1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/679196", "https://www.linktoplace.com/?action=view&no=88593", "http://tel.nett.kr/%EC%97%85%EC%B2%B4%EC%A0%95%EB%B3%B4/1176526/%EB%8F%99%ED%98%84%ED%9A%9F%EC%A7%91/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "맛 묘사", "note": "신선한 회와 매운탕이 맛있음", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "회와 매운탕으로 알려진 횟집", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["회", "매운탕"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "식신에서도 찾음. 온천장역 4번출구 근처"
+}

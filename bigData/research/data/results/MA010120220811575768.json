@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220811575768",
+  "worker": "haiku-15",
+  "researchedAt": "2026-09-08T22:39:41Z",
+  "queries": ["미소오뎅 남구 부산", "미소오뎅 대연1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 남구 유엔평화로 14"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "간판 메뉴 지목", "note": "오뎅, 한우 힘줄 꼬치", "sources": [0] },
+    { "type": "기관 선정", "note": "블루리본 11년 연속 수상 (2014~)", "sources": [0] },
+    { "type": "분위기·전망", "note": "일본식 야간 드라마 느낌의 노스탤지어한 분위기", "sources": [0] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": false,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["오뎅", "한우 힘줄 꼬치"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "전화 051-902-2710, 영업시간 18:00~24:00, 월~토 영업, 일요일 휴무"
+}

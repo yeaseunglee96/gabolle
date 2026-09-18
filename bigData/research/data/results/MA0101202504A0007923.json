@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202504A0007923",
+  "worker": "haiku-67",
+  "researchedAt": "2026-09-09T22:33:00.000Z",
+  "queries": ["헤아림 해운대구 부산", "헤아림 우1동 맛집", "헤아림 빵 우동 해운대", "헤아림 베이커리 우동"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색에서 해운대구 우동의 '헤아림'에 대한 정보를 찾을 수 없음",
+  "notes": ""
+}

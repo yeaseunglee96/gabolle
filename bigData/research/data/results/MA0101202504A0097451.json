@@ -1,0 +1,28 @@
+{
+  "id": "MA0101202504A0097451",
+  "worker": "haiku-64",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["레이어스버터리 광안 빵", "레이어스버터리 도넛 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.threads.com/@layersbuttery", "https://www.threads.com/@deokhwa.official/post/DaULiNgmg1n/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "명란 마요 크로와상이 대표", "sources": [0, 1]},
+    {"type": "플랫폼 순위·평점", "note": "부산 빵지순례 추천 빵집", "sources": [1]},
+    {"type": "분위기·전망", "note": "광안리 오션뷰 베이커리 입지", "sources": [0]},
+    {"type": "곁들임·차림", "note": "크로와상, 소금빵, 스위스 번, 시아바타 등 다양한 빵", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["명란 마요 크로와상", "소금빵", "크로와상", "스위스 번"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "광안리 베이커리 카페. Threads 계정 @layersbuttery"
+}

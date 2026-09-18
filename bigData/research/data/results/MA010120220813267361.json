@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220813267361",
+  "worker": "haiku-20",
+  "researchedAt": "2026-09-09T11:25:00Z",
+  "queries": ["오복갈비 남구 부산", "오복갈비 대연1동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색에서 부산의 오복갈비 정보 없음. 안동 소재의 오복갈비만 나타남",
+  "notes": ""
+}

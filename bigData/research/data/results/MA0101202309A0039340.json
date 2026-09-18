@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202309A0039340",
+  "worker": "haiku-59",
+  "researchedAt": "2026-09-09T08:34:00Z",
+  "queries": ["회운대 부산 해운대 회", "회운대 좌동순환로 초밥"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "해운대 회/초밥 검색에도 불구하고 '회운대'라는 가게는 찾을 수 없음",
+  "notes": "일식 회/초밥 카테고리로 등록"
+}

@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220806931534",
+  "worker": "haiku-35",
+  "researchedAt": "2026-09-09T02:10:44.184Z",
+  "queries": ["아트스시 부산진구 부산", "아트스시 연지동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["식신", "트리플", "다이닝코드", "로컬맵"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "스시, 사시미, 소바, 우동 등 일식 전문", "sources": [0]},
+    {"type": "맛 묘사", "note": "연어 스시, 넙치 스시 등 신선한 해산물 사용", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["스시", "사시미", "소바", "우동"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "주소: 연지동 196-14 (동평로 233-1), 연락처: 051-802-1009, 매일 11:00~22:00 (브레이크 15:00~17:30), 화요일 휴무"
+}

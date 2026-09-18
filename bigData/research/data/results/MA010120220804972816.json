@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220804972816",
+  "worker": "haiku-32",
+  "researchedAt": "2026-09-09T11:07:00Z",
+  "queries": ["태종아리랑 영도구 부산", "태종아리랑 동삼1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 영도구 동삼오션로 58, 1층 162호"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "소갈비 전문",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": null,
+    "signatureDishes": ["소갈비"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "11:30~21:00 (라스트오더 20:30). 콜키지, 단체, 예약, 포장, 유아의자, 휠체어 가능. 매장 앞 주차장 있음."
+}

@@ -1,0 +1,25 @@
+{
+  "id": "MA010120220810519005",
+  "worker": "haiku-36",
+  "researchedAt": "2026-09-09T02:16:49Z",
+  "queries": ["어심식당 사하구 부산", "어심식당 당리동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.tabling.co.kr/place/677cd7fd66de5f069893b61b", "https://www.diningcode.com/profile.php?rid=WNfpH8etUQlM"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "맛 묘사", "note": "신선한 초밥이 맛있음", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["초밥", "코스요리"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "테이블링과 다이닝코드에서 찾음. 하단역 11번 출구 근처. 프라이빗룸 완비"
+}

@@ -1,0 +1,43 @@
+{
+  "id": "MA010120220811401136",
+  "worker": "haiku-49",
+  "researchedAt": "2026-09-09T16:00:00Z",
+  "queries": ["오륙도19호 해운대 부산", "오륙도19호 해운대해변로 우1동"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.tabling.co.kr/place/677cd8a566de5f069894de49",
+    "https://www.diningcode.com/profile.php?rid=lRfTqr6tQ0oy",
+    "https://polle.com/place/2vcmIv/%EC%98%A4%EB%A5%99%EB%8F%8419%ED%98%B8"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "랍스터 포장마차 원조로 알려져 있음",
+      "sources": [0, 1]
+    },
+    {
+      "type": "미디어 노출",
+      "note": "부산국제영화제 후 연예인들이 방문하는 곳으로 유명",
+      "sources": [1]
+    },
+    {
+      "type": "플랫폼 순위·평점",
+      "note": "다이닝코드, 테이블링 등 주요 맛집 사이트에 등록",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["랍스터", "문어", "소라", "버터구이"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": ""
+}

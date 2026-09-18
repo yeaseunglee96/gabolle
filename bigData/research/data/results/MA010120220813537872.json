@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220813537872",
+  "worker": "haiku-29",
+  "researchedAt": "2026-09-09T10:20:00Z",
+  "queries": ["신호활어회초장 강서구 부산", "신호활어회초장 신호동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/763172", "https://www.diningcode.com/profile.php?rid=AQt7kW1bZAd6"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "활어회와 매운탕 전문점", "sources": [0, 1]},
+    {"type": "플랫폼 순위·평점", "note": "다이닝코드에서 별점이 높다", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "주차장 완비",
+    "audience": "mixed",
+    "signatureDishes": ["활어회", "매운탕", "초장"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

@@ -1,0 +1,26 @@
+{
+  "id": "MA0101202501A0001104",
+  "worker": "haiku-39",
+  "researchedAt": "2026-09-09T10:18:00Z",
+  "queries": ["아워숲 기장군 부산", "아워숲 정관읍 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1602831", "https://www.diningcode.com/profile.php?rid=ulpMZlXnriKz"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "분위기·전망", "note": "산골짜기 분위기의 숲 속 브런치 카페, 자연 속의 힐링 공간", "sources": [0, 1]},
+    {"type": "메뉴 희소성", "note": "산속의 독특한 브런치, 파스타, 디저트 제공", "sources": [1]},
+    {"type": "운영·접근 편의", "note": "주차 가능, 반려동물 동반 가능", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["브런치", "파스타", "디저트"],
+    "priceBand": "moderate"
+  },
+  "notes": "주소: 부산광역시 기장군 정관읍 병산2로 54-8, 영업시간: 10:00~20:00 (라스트 오더 19:30), 반려동물 동반 가능, 아기의자 있음"
+}

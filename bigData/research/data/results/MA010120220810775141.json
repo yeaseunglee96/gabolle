@@ -1,0 +1,34 @@
+{
+  "id": "MA010120220810775141",
+  "worker": "haiku-25",
+  "researchedAt": "2026-09-09T10:43:15Z",
+  "queries": ["The준기아빠 금정구 부산", "The준기아빠 서2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=odQQ9IMDOCLq"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "국내산 생삼겹살과 제주 뽈항정살",
+      "sources": [0]
+    },
+    {
+      "type": "조리·재료",
+      "note": "고기가 좋은 집",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["삼겹살", "뽈항정살"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": ""
+}

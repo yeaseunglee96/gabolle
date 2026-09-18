@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220812431473",
+  "worker": "haiku-9",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["태백관 동래구 부산", "태백관 복산동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["siksinhot.com", "diningcode.com"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "기관 선정",
+      "note": "12년 연속 블루리본 상 수상",
+      "sources": [0, 1]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "탕수육과 짜장면이 대표메뉴",
+      "sources": [0, 1]
+    },
+    {
+      "type": "현지인 지지",
+      "note": "오랫동안 동네 주민들에게 사랑받아온 단골 맛집",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": true,
+    "parking": false,
+    "audience": "local",
+    "signatureDishes": ["탕수육", "간짜장"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "동래고등학교 바로 옆. 점심, 주말에 웨이팅 있음"
+}

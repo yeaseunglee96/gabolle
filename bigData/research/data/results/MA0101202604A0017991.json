@@ -1,0 +1,28 @@
+{
+  "id": "MA0101202604A0017991",
+  "worker": "haiku-15",
+  "researchedAt": "2026-09-08T22:38:42Z",
+  "queries": ["깃발집국수전골 해운대구 부산", "깃발집국수전골 중1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 해운대구 대천로 38"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "간판 메뉴 지목", "note": "미역국수전골, 꽃게전골, 만두전골", "sources": [0] },
+    { "type": "기관 선정", "note": "블루리본 9년 연속 수상 (우동 냄비)", "sources": [0] },
+    { "type": "운영·접근 편의", "note": "해장과 안주를 동시에 즐길 수 있음", "sources": [0] },
+    { "type": "현지인 지지", "note": "현지 직장인 추천, 온천장 명점", "sources": [0] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": false,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["미역국수전골", "꽃게전골", "만두전골"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "매일 11:00~21:30 영업, 15:00~17:00 브레이크타임, 직접 제면한 칼국수, 푸짐한 양"
+}

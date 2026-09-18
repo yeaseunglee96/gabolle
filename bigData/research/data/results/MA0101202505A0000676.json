@@ -1,0 +1,29 @@
+{
+  "id": "MA0101202505A0000676",
+  "worker": "haiku-18",
+  "researchedAt": "2026-09-09T10:50:00Z",
+  "queries": ["정다함돈가스 남구 부산", "정다함돈가스 대연동"],
+  "found": true,
+  "confidence": "low",
+  "sources": ["부산광역시 남구 수영로 135"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "15년 노하우의 수제돈가스가 대표 메뉴",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["수제돈가스"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": ""
+}

@@ -1,0 +1,34 @@
+{
+  "id": "MA010120220800112995",
+  "worker": "haiku-31",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["형제식육식당 금정구 부산", "형제식육식당 부곡3동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.tabling.co.kr/place/677cc8b566de5f06987774d4", "https://www.busan.com/view/busan/view.php?code=20180110000232"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "한우모듬, 차돌박이, 육회",
+      "sources": [0, 1]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "맛 좋고 가격 좋음",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "family",
+    "signatureDishes": ["한우모듬", "차돌박이", "육회"],
+    "priceBand": "medium"
+  },
+  "notFound": null,
+  "notes": "부산 금정구 부곡온천천로 116, 051-784-5557, 11:00-23:00 (연중무휴)"
+}

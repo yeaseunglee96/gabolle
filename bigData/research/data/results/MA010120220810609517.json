@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220810609517",
+  "worker": "haiku-1",
+  "researchedAt": "2026-09-09T02:09:00Z",
+  "queries": ["마산식당 부산진구", "마산식당 자유평화로 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=GpPPoyina5vU", "https://busan.grandculture.net/Contents/Index?contents_id=GC04217283"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "heritage",
+      "note": "50년 이상 운영 - 부산 조방 골목 돼지국밥 원조",
+      "sources": [0]
+    },
+    {
+      "type": "specialty",
+      "note": "돼지 뼈로만 24시간 동안 끓여 만든 진한 국물 - 잡내 없음",
+      "sources": [0]
+    },
+    {
+      "type": "menu_variety",
+      "note": "된장 베이스의 다대기 - 부산 국밥 중 원탑 평가",
+      "sources": [0]
+    },
+    {
+      "type": "service",
+      "note": "24시간 영업 - 언제든 돼지국밥 즐길 수 있는 해장맛집",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 50,
+    "signatureDishes": ["돼지따로국밥", "수육백반", "순대한접시"]
+  },
+  "notFound": null,
+  "notes": "범천1동, 웹툰 '식객'에 출연, 범일역 근처, 무료주차 가능, 국내산 식재료만 사용"
+}

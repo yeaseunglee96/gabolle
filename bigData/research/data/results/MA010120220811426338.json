@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220811426338",
+  "worker": "haiku-14",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["신흥관 해운대구 부산", "신흥관 중1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["위키백과", "부산역사문화대전", "국가문화원"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "연차·역사", "note": "1954년 개업, 70년 이상의 역사", "sources": [0, 1]},
+    {"type": "원조·최초", "note": "해운대에서 가장 오래된 중식당", "sources": [1, 2]},
+    {"type": "간판 메뉴 지목", "note": "짜장면이 대표 메뉴", "sources": [2]},
+    {"type": "현지인 지지", "note": "세월에 담긴 신뢰로 지역민들이 꾸준히 찾음", "sources": [1, 2]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 70,
+    "generations": 1,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["짜장면"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

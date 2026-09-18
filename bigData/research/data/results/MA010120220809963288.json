@@ -1,0 +1,58 @@
+{
+  "id": "MA010120220809963288",
+  "worker": "haiku-65",
+  "researchedAt": "2026-09-09T22:30:20.419Z",
+  "queries": [
+    "솔티독 수영구 부산",
+    "솔티독 민락동 맛집",
+    "솔티독 위스키 칵테일 바 광안리"
+  ],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.diningcode.com/profile.php?rid=mzlS8aLd9n3z",
+    "https://brunch.co.kr/@@2NF/69"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "해리포터 느낌의 이국적 인테리어, 다양한 위스키 진열",
+      "sources": [
+        0,
+        1
+      ]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "프로포즈 등 시그니처 칵테일 제공",
+      "sources": [
+        0,
+        1
+      ]
+    },
+    {
+      "type": "운영·접근 편의",
+      "note": "늦은 시간까지 영업 (18:30-02:30)",
+      "sources": [
+        0,
+        1
+      ]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "young-adults",
+    "signatureDishes": [
+      "칵테일",
+      "위스키"
+    ],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": "수변공원 근처, 지하 1층 위치"
+}

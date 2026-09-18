@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220810698639",
+  "worker": "haiku-24",
+  "researchedAt": "2026-09-09T10:26:15.2132113+09:00",
+  "queries": ["우리장 북구 부산", "우리장 만덕1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=aNLBVAEqGeWH", "https://kr.trip.com/moments/detail/buk-gu-2016651-15965150/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "오리고기 구이 전문점", "sources": [0]},
+    {"type": "분위기·전망", "note": "야장맛집, 캠핑 분위기 반야외 공간", "sources": [1]},
+    {"type": "서비스·사람", "note": "애견동반 가능, 정중한 대접", "sources": [0, 1]},
+    {"type": "운영·접근 편의", "note": "전용 주차장 있음, 주말 웨이팅 예상", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": "occasional",
+    "parking": "available",
+    "audience": "mixed",
+    "signatureDishes": ["오리고기", "백숙", "검정돼지고기"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "예약 필수, 특히 백숙은 미리 전화 주문 필요"
+}

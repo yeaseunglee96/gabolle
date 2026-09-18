@@ -1,0 +1,37 @@
+{
+  "id": "MA010120220811419642",
+  "worker": "haiku-1",
+  "researchedAt": "2026-09-09T01:35:00.000Z",
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://blog.naver.com/pcr_0413/223978744251",
+    "https://www.diningcode.com/profile.php?rid=jMrzBxkyAyXp",
+    "https://blog.naver.com/niceview_/223259645412"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "광안대교(골든브릿지) 야경을 감상할 수 있는 탁 트인 오션뷰와 분위기 좋은 9층 라운지 펍",
+      "sources": [0, 1, 2]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "맥주, 칵테일, 와인 전문",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "tourist",
+    "signatureDishes": ["칵테일", "와인"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "시티나인 빌딩 9층 고층 라운지. 광안리 최고 전망의 와인바로 불림."
+}

@@ -1,0 +1,27 @@
+{
+  "id": "MA0101202509A0006162",
+  "worker": "haiku-27",
+  "researchedAt": "2026-09-09T01:36:45Z",
+  "queries": ["카페소요 동래구 부산", "카페소요 안락2동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["부산광역시 동래구 온천천로531번길 72"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "곁들임·차림", "note": "다양한 베이커리 상품 및 빵 종류", "sources": [0]},
+    {"type": "가격·가성비", "note": "소금빵 2,500원, 두바이초코쫀득빵 4,200원 등 저렴한 가격", "sources": [0]},
+    {"type": "운영·접근 편의", "note": "넓은 주차장과 넓은 매장", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "available",
+    "audience": "mixed",
+    "signatureDishes": ["소금빵", "두바이초코쫀득빵"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "카페소요는 베이커리 카페로 다양한 빵과 음료 제공"
+}

@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220802679771",
+  "worker": "haiku-44",
+  "researchedAt": "2026-09-09T11:27:00Z",
+  "queries": ["고집불통 사상구 부산", "고집불통 주례1동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": [],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "맛 묘사",
+      "note": "삼겹살 요리로 유명한 고기집",
+      "sources": []
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["삼겹살"],
+    "priceBand": "affordable"
+  },
+  "notFound": null,
+  "notes": ""
+}

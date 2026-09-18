@@ -1,0 +1,34 @@
+{
+  "id": "MA010120220814340967",
+  "worker": "haiku-59",
+  "researchedAt": "2026-09-09T08:10:30Z",
+  "queries": ["소연옥 수영구 부산", "소연옥 민락동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=Ne0sQreQc1U7", "https://www.siksinhot.com/P/1500337"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "규카츠(규소고기 까스)와 연어덮밥 전문점",
+      "sources": [0, 1]
+    },
+    {
+      "type": "맛 묘사",
+      "note": "살살 녹는 연어와 부드러운 규카츠",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "2대 주차 가능",
+    "audience": "mixed",
+    "signatureDishes": ["규카츠", "살치살 규카츠", "연어덮밥"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "11:30 ~ 20:55 (15:00~17:00 휴식, 최종주문 20:25). 네이버 예약, 캐치테이블 가능. 어린이 의자 준비"
+}

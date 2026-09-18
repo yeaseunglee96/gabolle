@@ -1,0 +1,34 @@
+{
+  "id": "MA0101202406A0521891",
+  "worker": "haiku-21",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["대성초밥 중구 부산", "대성초밥 중앙동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://www.diningcode.com/list.dc?query=%EB%B6%80%EC%82%B0%EC%A4%91%EC%95%99%EC%97%AD+%EC%B4%88%EB%B0%A5"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "가격·가성비",
+      "note": "점심 특선에서 초밥, 우동, 샐러드의 가성비 좋은 조합",
+      "sources": [0]
+    },
+    {
+      "type": "플랫폼 순위·평점",
+      "note": "부산중앙역 초밥 맛집 중 하나",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["점심특선"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "내부가 좁아 2명이 적합"
+}

@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220806437167",
+  "worker": "haiku-62",
+  "researchedAt": "2026-09-10T12:08:00Z",
+  "queries": ["이앤디스튜디오 광안2동", "이앤디스튜디오 베이글"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.instagram.com/__endstudio/", "https://www.diningcode.com/profile.php?rid=6DMmtC3VLH4V"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "두꺼운 베이글(뚱베이글) 전문", "sources": [0, 1]},
+    {"type": "조리·재료", "note": "수제케익", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": false,
+    "audience": "mixed",
+    "signatureDishes": ["뚱베이글", "수제케익"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "배달 가능, 예약 가능"
+}

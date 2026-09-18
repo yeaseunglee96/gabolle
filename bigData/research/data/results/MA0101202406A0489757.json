@@ -1,0 +1,39 @@
+{
+  "id": "MA0101202406A0489757",
+  "worker": "haiku-5",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["장씨해녀집 기장군 부산", "장씨해녀집 기장읍 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 기장군 기장읍 연화1길 169"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "맛 묘사",
+      "note": "72세 해녀가 직접 채취한 신선한 해산물을 전통 방식으로 요리",
+      "sources": [0]
+    },
+    {
+      "type": "연차·역사",
+      "note": "51년 한 자리에서 운영해온 식당",
+      "sources": [0]
+    },
+    {
+      "type": "현지인 지지",
+      "note": "기장 해녀촌의 대표 식당으로 꾸준히 찾아가는 손님들",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 51,
+    "generations": 2,
+    "queueing": null,
+    "parking": "250개 무료",
+    "audience": "mixed",
+    "signatureDishes": ["바다둘(활어회)", "솥단지 전복죽", "해녀밥 세트", "전복버터구이"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "영업시간: 09:00-20:20. 해녀촌 전면 위치. 2층까지 있음."
+}

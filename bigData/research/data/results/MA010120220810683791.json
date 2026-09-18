@@ -1,0 +1,25 @@
+{
+  "id": "MA010120220810683791",
+  "worker": "haiku-47",
+  "researchedAt": "2026-09-09T12:10:00Z",
+  "queries": ["유니돈까스 북구 부산", "유니돈까스 구포3동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://www.diningcode.com/list.dc?query=%EB%B6%80%EC%82%B0%EA%B4%91%EC%97%AD%EC%8B%9C+%EB%B6%81%EA%B5%AC+%EB%A7%8C%EB%8D%95%EB%8F%99+%EB%8F%88%EA%B9%8C%EC%8A%A4", "https://triple.guide/restaurants/5b412f26-2545-46ad-bfb3-a06b7f467cd9"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "돈까스, 콩나물국밥", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["돈까스", "콩나물국밥"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "다이닝코드의 구포동 돈까스 맛집 Top23에 포함됨"
+}

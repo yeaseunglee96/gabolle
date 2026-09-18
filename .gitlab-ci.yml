@@ -41,6 +41,9 @@
 # 필요 없는 것**이 된다. 우리가 알고 싶은 것은 언제나 **가장 최신 코드가 성한가**
 # 이지, 3분 전 코드가 성했는가가 아니다.
 #
+# 그런데 그 죽은 파이프라인이 러너 슬롯을 계속 차지한다. 이 저장소의 러너는
+# 운영 서버 위에서 돌고 동시 4개가 상한이라, 슬롯 하나가 헛일에 묶이면 그만큼
+# **살아 있는 파이프라인이 느려진다** (실측: 동시 4개일 때 잡 하나가 2~3배 느려짐).
 # 🔴 이 설정이 back/dev 에만 없어서 2026-09-16 오전에 팀 전체가 멈췄다.
 #    MR !918 의 낡은 파이프라인(#197959, 이미 갈아치워진 커밋)의 backend:build 가
 #    29분째 pending 인 채로 `resource_group: backend-build`(프로젝트 전체에서
@@ -337,7 +340,7 @@ claims:checkpoint:
 #    quay.io 가 언젠가 흔들릴 때 두 개가 같이 넘어진다.
 #
 #    이 자리는 common/dev(S15P21E201-866)에서 먼저 고쳐졌다 — 파트 브랜치마다
-#    이 파일이 독립돼 있어(0.2절) 같은 고장을 각자 다시 겪는다. back/dev 는
+#    이 파일이 독립돼 있어(0.2절) 같은 고장을 각자 다시 겪는다. 파트 브랜치들이
 #    이 커밋으로 그 수정을 그대로 옮겨 왔다.
 # 🔴 S15P21E201-736 — 이 잡이 하루 CI 시간의 34%(평균 7분)를 쓴다(실측,
 #    2026-09-08). 원인은 캐시가 없어서다 — 매 MR마다 컨테이너를 새로 띄우고
@@ -579,6 +582,58 @@ backend:dependency-scan:
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
       changes: ['backend/**/*']
+
+# ── 프론트 단위·컴포넌트 테스트 (S15P21E201-774) ────────────────────────────
+#
+# jest-expo(Expo SDK에 맞춘 Jest 프리셋) + @testing-library/react-native.
+# frontend/src/plan 같은 순수 로직과, 표시용 컴포넌트 하나의 렌더링을 검사한다.
+#
+# 🔴 .ts(x) 변경에만 건다 — backend:build 와 달리 전체 frontend/**/* 가 아니다.
+#    설정 파일(app.json, eas.json 등)만 바뀌었을 때는 코드가 안 바뀌었으므로
+#    테스트 결과가 달라질 수 없다.
+frontend:unit:
+  stage: verify
+  # 🔴 S15P21E201-983 — 이 잡을 백업 러너(2065)로 보낸다. 운영 호스트에서 뺀다.
+  #
+  #    🔴 처음에는 "프론트는 가벼우니 안 옮겨도 된다" 고 판단했다. 근거가 소요
+  #    시간이었다(204~272초로 일정하다). **그 계측이 틀렸다.** 운영 서버에 붙어
+  #    ps 로 재 보니, 이 잡과 frontend:smoke 가 동시에 도는 동안:
+  #
+  #      node .../frontend/node_modules/.bin/…   103%
+  #      같은 프론트 node 프로세스 셋           28.5% · 28.2% · 26.8%
+  #      ─────────────────────────────────────────────
+  #      프론트 CI 합계                         약 190%  (4코어 중 2개)
+  #      java -jar /app/gabolle-backend.jar      9.8%   ← 실제 운영 앱
+  #
+  #    소요 시간이 일정한 것과 CPU 를 적게 쓰는 것은 다른 얘기였다. jest 는 워커를
+  #    여러 개 띄우므로 짧아도 굵다. 그리고 프론트 잡 10건 중 9건이 2037 로 갔다.
+  #
+  #    backend:build 를 옮긴 뒤에도 운영 load 가 17.84 였던 이유가 이것이다 —
+  #    빈자리를 프론트 CI 가 채우고 있었다.
+  #
+  #    2065 의 동시 실행을 1 → 2 로 올려 두었다(config.toml). 이 잡과 smoke 가
+  #    지금처럼 나란히 돌 수 있다. 잡당 cpus="2" 상한이 이미 걸려 있어 4코어를
+  #    넘지 않는다.
+  tags: [heavy]
+  variables:
+    npm_config_cache: $CI_PROJECT_DIR/.npm-cache
+  cache:
+    key:
+      files:
+        - frontend/package-lock.json
+    paths:
+      - .npm-cache
+  script:
+    - cd frontend
+    - npm ci --no-audit --no-fund
+    - npm test -- --ci
+  # 🔴 이 파일이 바뀔 때도 돈다 (S15P21E201-1019, 2026-09-16). 이 잡의 정의가
+  #    ci/parts/frontend.yml 이 아니라 **여기** 있어서, 이 잡을 고쳐도 안 돌았다.
+  #    backend:build 가 S15P21E201-866 에서 같은 이유로 같은 줄을 받았다 —
+  #    **잡의 정의가 바뀌면 그 잡을 돌려 봐야 한다.**
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes: ['frontend/**/*.ts', 'frontend/**/*.tsx', '.gitlab-ci.yml']
 
 # ── 마이그레이션 버전이 거꾸로 가지 않는가 (S15P21E201-703) ────────────────────
 #
@@ -848,7 +903,24 @@ version:
       #    git-lfs 가 없어 그 훅이 실행되는 순간 무조건 죽는다. 이 잡의 태그
       #    push 는 어떤 pre-push 훅도 필요 없으니 통째로 끈다.
       git config core.hooksPath /dev/null
-      npx -y axmap-cli@$AXMAP_VERSION version bump --branch "$CI_COMMIT_BRANCH" --push
+      # 🔴 S15P21E201-786 — 여러 파트가 짧은 간격으로 머지되면, 버전을 계산하는
+      #    시점과 태그를 push 하는 시점 사이에 다른 실행이 같은 번호를 먼저
+      #    push 해서 "already exists" 로 죽는다(실측 2026-09-09, 파이프라인
+      #    184052·184677 — 최근 50개 중 11개 실패). axmap-cli 자체엔 이 경합에
+      #    대한 재시도가 없어서(rleaderjoon 에게 근본 수정 요청함), 여기서
+      #    감싼다 — 이 잡이 실제로 그 실패를 겪은 유일한 파트다. 다른 파트
+      #    사본에는 증거 없이 미리 안 넣는다.
+      attempt=1
+      until npx -y axmap-cli@$AXMAP_VERSION version bump --branch "$CI_COMMIT_BRANCH" --push; do
+        if [ "$attempt" -ge 5 ]; then
+          echo "5번 재시도해도 버전 태그를 못 올렸습니다 — axmap-cli 자체 문제일 수 있습니다. 사람이 봐야 합니다."
+          exit 1
+        fi
+        echo "버전 태그 push 가 경합으로 실패했습니다 (시도 $attempt/5). 최신 태그를 다시 받고 재시도합니다."
+        attempt=$((attempt + 1))
+        sleep $((RANDOM % 5 + 1))   # 여러 파이프라인이 동시에 재시도하며 또 부딪히지 않게 무작위로 흩는다
+        git fetch --tags --quiet
+      done
   rules:
     # MR 에서는 올리지 않는다. 머지되어 브랜치에 들어온 것만 버전을 갖는다.
     - if: $CI_COMMIT_BRANCH =~ /(^|\/)(main|func|dev)$/
@@ -905,8 +977,12 @@ jira:
 #    돈다. 어느 단계를 올릴지는 스케줄마다 변수 PROMOTE_STEP 으로 준다:
 #
 #      Settings → CI/CD → Schedules 에서 둘을 만든다
-#        매일  0 19 * * 1-5   PROMOTE_STEP = dev-to-part
-#        매주  0 19 * * 5     PROMOTE_STEP = part-to-main
+#        매일  0 9 * * *     PROMOTE_STEP = dev-to-part
+#        매주  0 9 * * 1     PROMOTE_STEP = part-to-main
+#
+#      🔴 2026-09-09 정정 — 위 두 줄은 `0 19 * * 1-5` · `0 19 * * 5` 로
+#         적혀 있었는데 실제 스케줄은 **매일 09:00 KST** 과 **월요일 09:00 KST** 다.
+#         시각을 문서에서 읽은 사람은 "저녁에 돌겠구나" 하고 기다리게 된다.
 #
 # 🔴 봇도 정족수를 통과해야 머지한다. 게이트가 미달(2)이면 머지 호출 자체가
 #    일어나지 않고, 잡은 초록으로 끝난다 — "아직 표가 모자람" 은 고장이 아니다.
@@ -917,7 +993,8 @@ jira:
 promote:
   stage: release
   # 🔴 이 잡도 끊지 않는다. MR 을 만들고 머지까지 하므로, 도중에 죽으면 "MR 은
-  #    열렸는데 머지는 안 된" 상태가 남는다.
+  #    열렸는데 머지는 안 된" 상태가 남는다. 게다가 예약에서만 도는 잡이라
+  #    새 커밋과 겹칠 일 자체가 드물다.
   interruptible: false
   variables:
     GIT_DEPTH: 0
@@ -936,6 +1013,12 @@ promote:
     # 🔴 PROMOTE_STEP 이 있는 스케줄에서만 돈다.
     #
     #    예전에는 "스케줄이면 돈다" 였다. 그런데 스케줄은 승격만 쓰는 것이 아니다 —
+    #    이 브랜치에는 depscan(의존성 취약점 스캔) 스케줄이 걸려 있고,
+    #    그것이 깨울 때마다 이 잡도 같이 일어나 PROMOTE_STEP 이 없으니
+    #    위 script 가 의도대로 exit 1 을 냈다. 그래서 **매일 09:00 에 빨개졌다**
+    #    (실측 2026-09-09, 파이프라인 184177). 같은 고침이 common/dev 에는
+    #    2026-09-01 에 들어갔고(S15P21E201-529), front/dev 에만 안 내려와 있었다.
+    #
     #    2026-09-01 에 vote:recheck 스케줄이 생기자 이 잡이 같이 깨어났고,
     #    PROMOTE_STEP 이 없으니 위 script 가 의도대로 exit 1 을 냈다.
     #    그래서 **10분마다 파이프라인이 빨개졌다** (#176479).

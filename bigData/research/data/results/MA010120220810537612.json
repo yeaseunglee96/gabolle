@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220810537612",
+  "worker": "haiku-31",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["신풍식당 서구 부산", "신풍식당 남부민1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.busan.com/view/busan/view.php?code=2025090815432459297", "https://www.fnnews.com/news/202509081545573767", "https://www.newsis.com/view/NISX20250908_0003320368"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "연차·역사",
+      "note": "30~50년의 장기 전통과 역사",
+      "sources": [0, 1, 2]
+    },
+    {
+      "type": "기관 선정",
+      "note": "부산 서구의 '30년 장인 맛집' 공식 선정",
+      "sources": [0, 1, 2]
+    },
+    {
+      "type": "조리·재료",
+      "note": "대대로 이어져 내려오는 비법과 정성 어린 손맛",
+      "sources": [0, 1, 2]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 50,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": [],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "서구 대표 전통 음식점 선정"
+}

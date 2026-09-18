@@ -1,0 +1,36 @@
+{
+  "id": "MA010120220810771913",
+  "worker": "haiku-49",
+  "researchedAt": "2026-09-09T15:00:00Z",
+  "queries": ["수궁복집 동래구 부산", "수궁복집 충렬대로 복"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.diningcode.com/profile.php?rid=T8d6C6UKnN8z"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "동래복국, 복죽 전문점",
+      "sources": [0]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "깔끔한 시설과 개별룸이 있는 가족식사에 좋은 공간",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "family",
+    "signatureDishes": ["동래복국", "복죽"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

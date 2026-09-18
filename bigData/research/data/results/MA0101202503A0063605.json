@@ -1,0 +1,25 @@
+{
+  "id": "MA0101202503A0063605",
+  "worker": "haiku-20",
+  "researchedAt": "2026-09-09T10:55:00Z",
+  "queries": ["범산야타이 남구 부산", "범산야타이 문현2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 남구 문현금융로 5-1"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "간판 메뉴 지목", "note": "일식주점(이자카야) 전문", "sources": [0] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": [],
+    "priceBand": "regular"
+  },
+  "notFound": null,
+  "notes": ""
+}

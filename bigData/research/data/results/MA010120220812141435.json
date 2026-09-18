@@ -1,0 +1,23 @@
+{
+  "id": "MA010120220812141435",
+  "worker": "haiku-36",
+  "researchedAt": "2026-09-09T02:18:35Z",
+  "queries": ["새만덕식당 북구 부산", "새만덕식당 만덕2동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://triple.guide/restaurants/b0f7a90f-fc54-4859-9ce3-bcc38ef511db"],
+  "stillOpen": true,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": [],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "triple.guide에 등록되어 있음"
+}

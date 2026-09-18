@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220805621397",
+  "worker": "haiku-64",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["디오희 빵 해운대", "디오희 도넛 부산", "디오희 해운대 블로그"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색으로 찾을 수 없음. 해운대구 중1동의 빵/도넛 '디오희' 정보 부재.",
+  "notes": ""
+}

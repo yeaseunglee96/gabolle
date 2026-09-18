@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220809976606",
+  "worker": "haiku-73",
+  "researchedAt": "2026-09-09T23:25:24.530Z",
+  "queries": ["강돈 수영구 부산", "강돈 광안4동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색에서 부산 수영구/광안4동의 강돈을 찾지 못함. 서울 강동구의 강돈만 검색됨",
+  "notes": ""
+}

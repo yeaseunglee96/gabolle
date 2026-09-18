@@ -1,0 +1,25 @@
+{
+  "id": "MA010120220805187339",
+  "worker": "haiku-28",
+  "researchedAt": "2026-09-09T10:30:00Z",
+  "queries": ["스시현 부산진구 부산", "스시현 개금1동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://www.instagram.com/sushi_hyun_kakou_uni/", "https://app.catchtable.co.kr/ct/shop/sushi_hyun"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "오마카세 스시 전문", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["오마카세 스시"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": "Instagram 계정 있음, 영업시간 12:00-15:00, 18:00-22:00, 수요일 휴무"
+}

@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220812250854",
+  "worker": "haiku-71",
+  "researchedAt": "2026-09-10T12:02:00Z",
+  "queries": ["경우돈까스 수영구 부산", "경우돈까스 수영동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["http://duli.co.kr/web/splus/kmap/view.php?sigun=6260000&gugun=3380000&keyno=68&keyname=%EA%B2%BD%EC%9A%B0%EB%8F%88%EA%B9%8C%EC%8A%A4&keylink=3380000-104-2019-00032"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "가격·가성비",
+      "note": "뛰어난 가성비의 돈까스",
+      "sources": [0]
+    },
+    {
+      "type": "현지인 지지",
+      "note": "단골이 많은 곳, 가족 방문객이 많음",
+      "sources": [0]
+    },
+    {
+      "type": "서비스·사람",
+      "note": "어르신부터 아이들까지 편하게 올 수 있는 분위기",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "family",
+    "signatureDishes": ["돈까스"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220810519124",
+  "worker": "haiku-43",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["3초삼겹살 서구 부산", "3초삼겹살 동대신동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/431261", "https://www.diningcode.com/profile.php?rid=Jb9yETJ7Y5Rn"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "맛 묘사", "note": "쫀득한 식감의 최상 선도 삼겹살", "sources": [1]},
+    {"type": "플랫폼 순위·평점", "note": "다이닝코드 돼지고기 분야 평점을 근거로 든다", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "local",
+    "signatureDishes": ["삼겹살", "매운삼겹살"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

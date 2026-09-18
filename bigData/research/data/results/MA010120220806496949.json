@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220806496949",
+  "worker": "haiku-32",
+  "researchedAt": "2026-09-09T11:14:00Z",
+  "queries": ["러브잇 동래구 부산 빵도넛", "러브잇 명장2동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "검색 결과에서 이 가게에 대한 정보를 찾을 수 없음.",
+  "notes": ""
+}

@@ -1,0 +1,36 @@
+{
+  "id": "MA0101202511A0014304",
+  "worker": "haiku-65",
+  "researchedAt": "2026-09-09T22:36:56.982Z",
+  "queries": [
+    "친친 광안해변로 남천 부산",
+    "친친 경양식 부산"
+  ],
+  "found": true,
+  "confidence": "medium",
+  "sources": [
+    "https://www.siksinhot.com/P/1115327"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "광안해변로 인근 해변 경치",
+      "sources": [
+        0
+      ]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": [],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "광안해변로 위치, 남천집으로 불림"
+}

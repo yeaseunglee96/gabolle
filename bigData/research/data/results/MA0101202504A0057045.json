@@ -1,0 +1,42 @@
+{
+  "id": "MA0101202504A0057045",
+  "worker": "haiku-50",
+  "researchedAt": "2026-09-09T05:30:45Z",
+  "queries": ["박가밀면 해운대구 부산", "박가밀면 재송동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.daangn.com/kr/local-profile/%EB%B0%95%EA%B0%80%EB%B0%80%EB%A9%B4-33rf4ngm4cyi/",
+    "https://www.siksinhot.com/theme/magazine/8553"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "밀면 전문점",
+      "sources": [0]
+    },
+    {
+      "type": "조리·재료",
+      "note": "기계로 뽑은 면과 한우뼈로 우려낸 시원한 육수",
+      "sources": [0]
+    },
+    {
+      "type": "메뉴 희소성",
+      "note": "불맛이 살아있는 석쇠불고기 특화",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["밀면", "석쇠불고기"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "밀면은 평범하지만 불고기가 특징"
+}

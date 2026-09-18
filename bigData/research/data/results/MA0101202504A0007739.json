@@ -1,0 +1,44 @@
+{
+  "id": "MA0101202504A0007739",
+  "worker": "haiku-21",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["미스타교자 남구 부산", "미스타교자 대연동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=nPq6MfZWBoIq", "https://www.tabling.co.kr/restaurant/12767", "https://www.daangn.com/kr/local-profile/%EB%AF%B8%EC%8A%A4%ED%83%80%EA%B5%90%EC%9E%90-%EB%B6%80%EC%82%B0%EB%8C%80%EC%97%B0%EC%A0%90-zu4g6yicchqv/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "일본 현지에 있는 듯한 이자카야 분위기",
+      "sources": [0, 1]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "3,000원부터 시작하는 초갓성비 이자카야",
+      "sources": [0, 1]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "필수주문 야끼교자만두로 알려짐",
+      "sources": [0, 1]
+    },
+    {
+      "type": "플랫폼 순위·평점",
+      "note": "다이닝코드, 테이블링 등 예약 플랫폼에 등재",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["야끼교자", "야끼소바", "추카소바"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

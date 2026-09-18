@@ -1,0 +1,44 @@
+{
+  "id": "MA010120220811422054",
+  "worker": "haiku-13",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["옵스 수영구 부산", "옵스 남천1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["Facebook", "Instagram", "다이닝코드", "데일리팝"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "연차·역사",
+      "note": "1989년 창업, 33년 역사의 빵집",
+      "sources": [2]
+    },
+    {
+      "type": "현지인 지지",
+      "note": "부산 3대 빵집 중 하나로 알려짐",
+      "sources": [2, 3]
+    },
+    {
+      "type": "조리·재료",
+      "note": "냉동반죽 미사용, 매일 신선하게 구우며 영양가 보존",
+      "sources": [2]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "학원전, 크림 푸프 빵이 대표 메뉴",
+      "sources": [2]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["학원전", "크림 푸프 빵", "명란 바게트", "참치 빵"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "남천1동은 '빵천동'이라 불리는 빵집 테마거리"
+}

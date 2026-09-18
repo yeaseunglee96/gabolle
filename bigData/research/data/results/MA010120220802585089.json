@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220802585089",
+  "worker": "haiku-34",
+  "researchedAt": "2026-09-09T06:37:00Z",
+  "queries": ["가울 베트남 음식 부산", "가울 장림1동 베트남 쌀국수"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "2번의 검색으로도 음식점 정보를 찾을 수 없음. 부산의 일반 베트남 음식점 정보만 나옴 (123ZO 등)",
+  "notes": ""
+}

@@ -1,0 +1,37 @@
+{
+  "id": "MA0101202305A0111986",
+  "worker": "haiku-63",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["소연옥해리단길점 해운대구 부산", "소연옥해리단길점 우1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.daangn.com/kr/local-profile/%EC%86%8C%EC%97%B0%EC%98%A5-%ED%95%B4%EB%A6%AC%EB%8B%A8%EA%B8%B8%EC%A0%90-2dgix5um7epe/",
+    "https://www.diningcode.com/profile.php?rid=I4y5ZdeZ7tyR"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "규카츠와 연어덮밥이 주요 메뉴",
+      "sources": [0, 1]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "해리단길에 위치한 먹방의 성지로 떠오르는 새로운 맛집 거리",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "young",
+    "signatureDishes": ["규카츠", "연어덮밥"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "주소: 우동1로38번길 14-7, 1층. 영업시간: 11:30~20:55 (라스트오더 20:25). 휴무: 설날, 추석"
+}

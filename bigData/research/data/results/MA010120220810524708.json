@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220810524708",
+  "worker": "haiku-43",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["대연횟집 서구 부산", "대연횟집 동대신동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.tabling.co.kr/place/677ccf9266de5f06988477a8", "https://www.diningcode.com/profile.php?rid=Qf5kSX5OP5my"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "가격·가성비", "note": "모듬회 20,000원의 우수한 가성비", "sources": [1]},
+    {"type": "맛 묘사", "note": "신선한 회의 푸짐한 양", "sources": [1]},
+    {"type": "플랫폼 순위·평점", "note": "다이닝코드 평점을 근거로 든다", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["모듬회"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "동대신동 골목 시장 내 위치, 모듬회 주문 시 무료 매운탕 제공"
+}

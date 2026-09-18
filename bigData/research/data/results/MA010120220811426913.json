@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220811426913",
+  "worker": "haiku-8",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["개미기사식당 수영구 부산 망미", "개미기사식당 망미동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산 수영구 과정로5번길 1"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "현지인 지지", "note": "기사님들의 포근한 쉼터로 현지 택시기사들이 추천하는 맛집", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "김치찌개와 돼지불백 전문", "sources": [0, 1]},
+    {"type": "가격·가성비", "note": "모든 메뉴 8,000원의 저렴한 가격", "sources": [0]},
+    {"type": "맛 묘사", "note": "가격이 저렴하면서도 맛이 좋다", "sources": [1]},
+    {"type": "동네·시장 지목", "note": "망미동 로컬 맛집", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": false,
+    "audience": "locals",
+    "signatureDishes": ["김치찌개", "돼지불백"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

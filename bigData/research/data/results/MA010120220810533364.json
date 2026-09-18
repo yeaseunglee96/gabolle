@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220810533364",
+  "worker": "haiku-15",
+  "researchedAt": "2026-09-08T22:43:34Z",
+  "queries": ["쉐라미 사하구 부산", "쉐라미 괴정1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 사하구 낙동대로 238"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "연차·역사", "note": "1974년 개업, 40년+ 운영, 3대 운영", "sources": [0] },
+    { "type": "기관 선정", "note": "백년가게 인정, 생활의 달인 방영", "sources": [0] },
+    { "type": "간판 메뉴 지목", "note": "64겹 애플파이, 통팥빵, 옛날 크림빵", "sources": [0] },
+    { "type": "조리·재료", "note": "프랑스 기술자에게서 배운 기술, 프렌치 플루르, 유기농 호밀", "sources": [0] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": "1974년",
+    "generations": 3,
+    "queueing": false,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["애플파이", "통팥빵", "옛날 크림빵"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "월~토 08:00~23:00, 일 09:00~21:00, 괴정역 Exit 1 근처"
+}

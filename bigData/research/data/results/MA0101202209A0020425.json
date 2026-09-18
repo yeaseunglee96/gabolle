@@ -1,0 +1,38 @@
+{
+  "id": "MA0101202209A0020425",
+  "worker": "haiku-49",
+  "researchedAt": "2026-09-09T15:00:00Z",
+  "queries": ["광복집 수영구 민락동 복", "광복집 광안해변로 부산 복요리"],
+  "found": true,
+  "confidence": "medium",
+  "sources": [
+    "https://www.siksinhot.com/P/1668842",
+    "https://www.daangn.com/kr/business-posts/%EB%8F%BC%EC%A7%80%EA%B3%A0%EA%B8%B0%EB%A1%9C%EC%8A%A4%EA%B5%AC%EC%9D%B4%EC%A7%91-%EA%B4%91%EB%B3%B5%EC%A7%91%EC%9E%85%EB%8B%88%EB%8B%A4-639f2b8f60faad5043bbbd19/",
+    "https://www.keyzard.cc/yubeen22/nb/223927850152"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "광안리 주민들이 사랑하는 삼겹살 맛집",
+      "sources": [2]
+    },
+    {
+      "type": "서비스·사람",
+      "note": "다양한 밑반찬과 쌈채소가 제공됨",
+      "sources": [2]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["삼겹살"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "데이터베이스 분류는 복 요리인데, 실제는 삼겹살 맛집으로 알려짐"
+}

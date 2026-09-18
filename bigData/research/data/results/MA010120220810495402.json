@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220810495402",
+  "worker": "haiku-41",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["동주각 중구 부산", "동주각 영주2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.tabling.co.kr/place/67a19c5dfb544fef682c0df5", "https://www.diningcode.com/profile.php?rid=bujOrqHeRuR4", "https://www.daangn.com/kr/local-profile/%EB%8F%99%EC%A3%BC%EA%B0%81-ncewfe3259d8/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "연차·역사", "note": "노포(오래된 음식점)", "sources": [1]},
+    {"type": "간판 메뉴 지목", "note": "추억의 탕수육 맛집", "sources": [1]},
+    {"type": "맛 묘사", "note": "전통 중국식 요리", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["짜장면", "짬뽕", "탕수육", "쌌짜방"],
+    "priceBand": "affordable"
+  },
+  "notFound": null,
+  "notes": "영업시간 11:00-20:00, 화요일 휴무, 전화 051-464-8600"
+}

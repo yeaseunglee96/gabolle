@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220807981517",
+  "worker": "haiku-37",
+  "researchedAt": "2026-09-09T11:23:43.0136153+09:00",
+  "queries": ["기장옛날손칼국수 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://busan.grandculture.net/Contents/Index?contents_id=GC04217307", "https://www.siksinhot.com/P/256681"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "간판 메뉴 지목", "note": "손칼국수 전문점 - 목재 롤러로 여러 번 밀어 쫄깃한 식감", "sources": [0, 1] },
+    { "type": "미디어 노출", "note": "백종원의 3대 천왕에 소개됨", "sources": [0] },
+    { "type": "연차·역사", "note": "부산의 오랜 노포 요식점", "sources": [0] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["손칼국수", "냉면", "김밥"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "멸치국물, 자체 소스 사용. 서면 지점 존재. 09:00-21:00 영업"
+}

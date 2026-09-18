@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220811589259",
+  "worker": "haiku-42",
+  "researchedAt": "2026-09-09T04:29:12Z",
+  "queries": ["우송 기장군 철마 돼지고기"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.busan.com/view/busan/view.php?code=20111018000220"],
+  "stillOpen": true,
+  "whyPeopleGo": [{"type": "원조·최초", "note": "기장 철마 고깃집의 대표주자", "sources": [0]}, {"type": "조리·재료", "note": "직거래로 선별된 상위급 축산물 사용", "sources": [0]}, {"type": "간판 메뉴 지목", "note": "곰국과 호박죽이 특징", "sources": [0]}],
+  "newTypes": [],
+  "descriptors": {"signatureDishes": ["곰국", "호박죽"]},
+  "notFound": null,
+  "notes": "기장 철마 한우촌 지역의 유명 고깃집. 직매장 운영 중"
+}

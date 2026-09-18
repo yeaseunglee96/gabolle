@@ -1,0 +1,34 @@
+{
+  "id": "MA010120220813729426",
+  "worker": "haiku-38",
+  "researchedAt": "2026-09-09T16:45:00Z",
+  "queries": ["손씨집 부산", "손씨집 청룡동"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/theme/magazine/3615"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "오리고기 전문점",
+      "sources": [0]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "범어사 근처 자연 속의 전통 연회마루에서 식사",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["양념오리불고기", "오리백숙", "염소불고기"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": ""
+}

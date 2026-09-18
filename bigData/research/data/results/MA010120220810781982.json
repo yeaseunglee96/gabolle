@@ -1,0 +1,44 @@
+{
+  "id": "MA010120220810781982",
+  "worker": "haiku-13",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["새미골해물아구찜 동래구 부산", "새미골해물아구찜 안락1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["식신", "테이블링", "다이닝코드", "polle"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "연차·역사",
+      "note": "22년 전통의 아구찜 전문점",
+      "sources": [0, 1, 2]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "아구찜, 순살아구찜, 해물아구찜 전문",
+      "sources": [0, 2]
+    },
+    {
+      "type": "조리·재료",
+      "note": "크고 신선한 낙지와 해물 사용",
+      "sources": [2]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "넓은 인테리어, 로봇 서빙, 가족/회식에 적합한 테이블석",
+      "sources": [2]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["순살아구찜", "해물아구찜", "꽃게찜"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "온천천 카페거리 근처, 다이닝코드 등재"
+}

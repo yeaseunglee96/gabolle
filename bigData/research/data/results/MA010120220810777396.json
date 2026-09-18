@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220810777396",
+  "worker": "haiku-31",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["진선미오리불고기 동래구 부산", "진선미오리불고기 명장2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=JBlx21xwqszT"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "오리불고기",
+      "sources": [0]
+    },
+    {
+      "type": "조리·재료",
+      "note": "신선한 국내산 오리고기, 달짝한 양념, 밑반찬이 모두 맛있음",
+      "sources": [0]
+    },
+    {
+      "type": "현지인 지지",
+      "note": "명장2동 주민들이 선호하는 가족외식 장소",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "family",
+    "signatureDishes": ["오리불고기"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "부산 동래구 명서로 173, 명장역 3번 출구 278m, 11:00~22:00 (월 휴무), 051-527-5292"
+}

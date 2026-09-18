@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220809783535",
+  "worker": "haiku-21",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["마지 연제구 부산", "마지 연산동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "검색에서 마지라는 가게명이 나오지 않음. 연산동 맛집 일반정보만 검색됨",
+  "notes": ""
+}

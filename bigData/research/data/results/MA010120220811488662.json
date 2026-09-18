@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220811488662",
+  "worker": "haiku-68",
+  "researchedAt": "2026-09-10T10:08:00Z",
+  "queries": ["수림횟집 해운대해변로 우1동 부산", "수림횟집 맛집 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/396049", "https://triple.guide/restaurants/3ccf0088-db4d-49bc-8765-408d7e7ca6d3", "https://www.diningcode.com/profile.php?rid=Vg5jQGGyRJNs"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "메뉴 희소성",
+      "note": "활어회 코스요리 전문점",
+      "sources": [0, 1]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "물회가 베스트 인기 메뉴",
+      "sources": [1]
+    },
+    {
+      "type": "현지인 지지",
+      "note": "해운대 가볼만한 곳 중 하나",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "group",
+    "signatureDishes": ["회 코스", "물회", "회덮밥"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "활어회 코스 전문점. 150명 동시 수용 가능. 단체실 있음. 주차 가능. 영업시간 10:30-22:30. 주소: 해운대해변로221번길 15"
+}

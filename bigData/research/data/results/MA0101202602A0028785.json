@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202602A0028785",
+  "worker": "haiku-48",
+  "researchedAt": "2026-09-09T14:35:30+09:00",
+  "queries": ["버거랩 해운대구 부산", "버거랩 우1동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹에서 정보를 찾을 수 없음",
+  "notes": ""
+}

@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202602A0008208",
+  "worker": "haiku-66",
+  "researchedAt": "2026-09-10T12:15:00Z",
+  "queries": ["연어가게 부산진구 부산", "연어가게 부전2동 맛집"],
+  "found": false,
+  "confidence": "low",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "부산진구 부전2동의 '연어가게'에 대한 구체적 정보를 찾을 수 없음. 검색 결과에는 서울의 연어 전문점들만 나옴",
+  "notes": "부산 전역에 연어 전문점이 많지만 이 지점에 대한 정보 부족"
+}

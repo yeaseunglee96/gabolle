@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220807944235",
+  "worker": "haiku-62",
+  "researchedAt": "2026-09-10T12:06:00Z",
+  "queries": ["상무네횟집 해운대구 부산", "상무네횟집 송정동"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://ganupa.kr/busan-songjeong-restaurant/", "https://www.siksinhot.com/theme/magazine/8597"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "조리·재료", "note": "자연산 생선 전문 — 흰살, 농어, 돔, 가시복 모두 자연산", "sources": [0]},
+    {"type": "간판 메뉴 지목", "note": "곰장어 전문", "sources": [0]},
+    {"type": "현지인 지지", "note": "송정해수욕장 현지인에게 호평받는 음식점", "sources": [1]},
+    {"type": "분위기·전망", "note": "송정해수욕장 인근 산책로와 가까운 위치", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["곰장어", "자연산 모둠회"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

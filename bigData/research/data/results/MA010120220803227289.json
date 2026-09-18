@@ -1,0 +1,65 @@
+{
+  "id": "MA010120220803227289",
+  "worker": "haiku-65",
+  "researchedAt": "2026-09-09T22:29:19.741Z",
+  "queries": [
+    "나가하마만게츠 해운대구 부산",
+    "나가하마만게츠 우1동 맛집"
+  ],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.siksinhot.com/P/990565",
+    "https://www.diningcode.com/profile.php?rid=2fyA5Pq80Yws"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "연차·역사",
+      "note": "1963년부터 일본 규슈에서 운영한 정통 라멘점",
+      "sources": [
+        0,
+        1
+      ]
+    },
+    {
+      "type": "메뉴 희소성",
+      "note": "후쿠오카 정통 돈코츠라멘만 제공",
+      "sources": [
+        0,
+        1
+      ]
+    },
+    {
+      "type": "기관 선정",
+      "note": "2025 미쉐린 가이드 빕 구르망 선정",
+      "sources": [
+        0,
+        1
+      ]
+    },
+    {
+      "type": "혼잡·수요",
+      "note": "오픈 시간부터 웨이팅 많음",
+      "sources": [
+        0,
+        1
+      ]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": "오픈런, 웨이팅",
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": [
+      "돈코츠라멘",
+      "교자"
+    ],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": ""
+}

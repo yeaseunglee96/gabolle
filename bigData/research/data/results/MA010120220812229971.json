@@ -1,0 +1,46 @@
+{
+  "id": "MA010120220812229971",
+  "worker": "haiku-3",
+  "researchedAt": "2026-09-08T16:46:07.975Z",
+  "queries": ["해피통닭 부산진구 부산", "해피통닭 부전동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.diningcode.com/profile.php?rid=TDFybC9fKIaA"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "대물림",
+      "note": "부산 서면의 3대째 이어온 통닭집",
+      "sources": [0]
+    },
+    {
+      "type": "맛 묘사",
+      "note": "담백한 후라이드와 자연스러운 단맛의 양념치킨",
+      "sources": [0]
+    },
+    {
+      "type": "조리·재료",
+      "note": "매일 공수하는 생닭을 사용하고 즉시 조리하여 신선함",
+      "sources": [0]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "술모임과 회식에 적합한 분위기, 야구 중계 관람 가능",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": 3,
+    "queueing": null,
+    "parking": null,
+    "audience": null,
+    "signatureDishes": ["후라이드", "양념", "닭도리탕"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": ""
+}

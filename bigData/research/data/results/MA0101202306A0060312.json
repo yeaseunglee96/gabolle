@@ -1,0 +1,27 @@
+{
+  "id": "MA0101202306A0060312",
+  "worker": "haiku-58",
+  "researchedAt": "2026-09-09T16:52:00Z",
+  "queries": ["거북이금고 해운대구 부산", "거북이금고 중1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.114.co.kr/search/detail?comp_id=3833761&comp_tp_cd=GOV&godata_tp_cd=LOCALDATA", "https://www.instagram.com/turtlesafe_/", "https://www.diningcode.com/profile.php?rid=nPilCoXF6kkw", "https://www.mangoplate.com/restaurants/UvP0udsSXVFy"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "조리·재료", "note": "제주도 흑돼지를 사용한 돈까스", "sources": [0, 1, 2]},
+    {"type": "간판 메뉴 지목", "note": "제주 흑돼지 돈까스로 유명", "sources": [0, 3]},
+    {"type": "플랫폼 순위·평점", "note": "망고플레이트에서 3450명이 방문 원함", "sources": [3]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["제주 흑돼지 돈까스"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "2007년부터 운영 중인 가게. 인스타그램 @turtlesafe_ 활동 중"
+}

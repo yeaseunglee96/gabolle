@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220811408920",
+  "worker": "haiku-66",
+  "researchedAt": "2026-09-10T12:07:00Z",
+  "queries": ["구 경포횟집 수영구 부산", "경포횟집 민락동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/361868"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "5층에서 광안리 해변 뷰를 즐길 수 있음",
+      "sources": [0]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "A코스·B코스 메뉴, 횟집 전문",
+      "sources": [0]
+    },
+    {
+      "type": "곁들임·차림",
+      "note": "전복, 골뱅이, 감자전, 전복죽 등 풍부한 반찬",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["A코스", "B코스", "매운탕"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "민락 회타운 5층 위치, 전통 좌식 좌석"
+}

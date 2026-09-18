@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220800456301",
+  "worker": "haiku-48",
+  "researchedAt": "2026-09-09T14:53:00+09:00",
+  "queries": ["기승이네왕족발 해운대", "기승이네왕족발 중1동"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=5PA48bwq0dwT"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "냉채족발 전문점", "sources": [0]},
+    {"type": "맛 묘사", "note": "부드럽고 촉촉한 고기, 매콤한 양념", "sources": [0]},
+    {"type": "서비스·사람", "note": "친절하고 가족같은 분위기의 사장님", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["냉채족발", "왕족발"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "해운대시장 족발 맛집, 2층으로 이전, 냉채족발과 불족발 반반 조합 가능"
+}

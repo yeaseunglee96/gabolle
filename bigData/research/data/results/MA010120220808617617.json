@@ -1,0 +1,53 @@
+{
+  "id": "MA010120220808617617",
+  "name": "송정해녀집",
+  "worker": "haiku-1",
+  "researchedAt": "2026-09-09T00:15:00Z",
+  "queries": [
+    "송정해녀집 기장 부산",
+    "\"송정해녀집\" 기장 영업 현황"
+  ],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://autoreserve.com/ko/restaurants/rQJbWjA63VKRJ2Avp64V",
+    "https://triple.guide/restaurants/c6ff68ff-4512-44d0-8ddb-e4dce0f35b04",
+    "https://www.diningcode.com/profile.php?rid=lmi6LKIppGbO",
+    "https://www.tabling.co.kr/place/677ccbba66de5f06987dc464"
+  ],
+  "stillOpen": true,
+  "contact": {
+    "phone": "051-724-3055",
+    "address": "부산광역시 기장군 기장읍 공수해안길 57-2"
+  },
+  "hours": {
+    "weekday": "10:00-21:00",
+    "closed": "매주 화요일"
+  },
+  "whyPeopleGo": [
+    {
+      "type": "menu",
+      "note": "해녀가 직접 잡은 신선한 해산물 (성게, 해삼, 해삼, 상어, 문어 등)",
+      "sources": ["https://autoreserve.com/ko/restaurants/rQJbWjA63VKRJ2Avp64V", "https://triple.guide/restaurants/c6ff68ff-4512-44d0-8ddb-e4dce0f35b04"]
+    },
+    {
+      "type": "view",
+      "note": "창가 자리에서 아름다운 바다 전망 감상 가능",
+      "sources": ["https://www.tabling.co.kr/place/677ccbba66de5f06987dc464"]
+    },
+    {
+      "type": "facility",
+      "note": "식당 앞 넓은 전용 주차장 완비",
+      "sources": ["https://autoreserve.com/ko/restaurants/rQJbWjA63VKRJ2Avp64V"]
+    },
+    {
+      "type": "location",
+      "note": "해동용궁사(10분), IKEA 부산(5분), 롯데월드(5분) 등 관광지 근처",
+      "sources": ["https://autoreserve.com/ko/restaurants/rQJbWjA63VKRJ2Avp64V"]
+    }
+  ],
+  "newTypes": ["해산물/횟집"],
+  "descriptors": {},
+  "notFound": null,
+  "notes": "테이블링, 오토리저브 등 여러 예약 사이트에서 활발하게 예약을 받고 있어 현재 영업 중임을 확인. 해녀 직접 공급 해산물이 특징."
+}

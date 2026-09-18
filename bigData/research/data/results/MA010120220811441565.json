@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220811441565",
+  "worker": "haiku-7",
+  "researchedAt": "2026-09-08T22:09:18Z",
+  "queries": ["88완당집 해운대구 부산", "88완당집 반송2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=uydkdWxosxMV", "https://kr.trip.com/moments/detail/busan-432-128859537/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "연차·역사", "note": "40년 전통으로 1980년부터 운영해 온 식당", "sources": [0]},
+    {"type": "간판 메뉴 지목", "note": "완당과 완당면으로 유명한 대표 메뉴", "sources": [0]},
+    {"type": "원조·최초", "note": "메밀 반죽으로 직접 뽑은 수제 완당피와 메밀면", "sources": [1]},
+    {"type": "미디어 노출", "note": "생생정보통 맛집 소개, 정부공식인증 백년가게", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "local",
+    "signatureDishes": ["완당", "완당면", "충무김밥"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "윗반송역 도보 1분. 09:30~20:00 영업. 수요일 정기휴무. 반송큰시장 공영주차장 이용 가능."
+}

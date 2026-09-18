@@ -1,0 +1,59 @@
+{
+  "id": "MA010120220804146271",
+  "name": "해풍가마솥",
+  "worker": "haiku-1",
+  "researchedAt": "2026-09-09T00:17:00Z",
+  "queries": [
+    "해풍가마솥 기장 부산",
+    "\"해풍가마솥\" 기장 전복 영업"
+  ],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.siksinhot.com/P/683801",
+    "https://www.diningcode.com/profile.php?rid=LysEFNlPdpaD",
+    "https://m.tripinfo.co.kr/info.html?content_type_id=39&content_id=2759611",
+    "http://haepung.itrocks.kr/",
+    "http://kbanker.co.kr/news/articleView.html?idxno=84631"
+  ],
+  "stillOpen": true,
+  "contact": {
+    "phone": "051-722-2212",
+    "address": "부산광역시 기장군 기장읍 연화1길 67"
+  },
+  "hours": {
+    "weekday": "09:30-23:00",
+    "note": "일일 영업"
+  },
+  "whyPeopleGo": [
+    {
+      "type": "media",
+      "note": "MBC every1의 \"미식돌스(Gourmet Dolce)\" 방송 출연 - 해산물 영상미와 코스 메뉴 소개",
+      "sources": ["http://kbanker.co.kr/news/articleView.html?idxno=84631"]
+    },
+    {
+      "type": "menu",
+      "note": "전복 코스 A/B/C (30,000~40,000원/인), 전복죽(10,000원) - 전문 메뉴",
+      "sources": ["http://kbanker.co.kr/news/articleView.html?idxno=84631"]
+    },
+    {
+      "type": "seafood_variety",
+      "note": "산낙지, 게, 소라회, 새우, 멍게, 개불, 해삼, 키조개, 관자 등 다양한 해산물",
+      "sources": ["http://kbanker.co.kr/news/articleView.html?idxno=84631"]
+    },
+    {
+      "type": "signature_dish",
+      "note": "전복가마솥밥 - 신메뉴",
+      "sources": ["http://kbanker.co.kr/news/articleView.html?idxno=84631"]
+    },
+    {
+      "type": "atmosphere",
+      "note": "야외 포차 컨셉, 테라스 좌석, 반짝이는 조명으로 운치있는 분위기",
+      "sources": ["https://www.siksinhot.com/P/683801"]
+    }
+  ],
+  "newTypes": ["해산물/횟집", "전복/코스요리"],
+  "descriptors": {},
+  "notFound": null,
+  "notes": "MBC 방송 출연으로 SNS 핫플 인정. 다이닝코드, 식신 등 여러 맛집 사이트에 등재. 야외 테라스 특화 시설. 전복 관련 코스 메뉴 발달. 현재 정상 영업 중."
+}

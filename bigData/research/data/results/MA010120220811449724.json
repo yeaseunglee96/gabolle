@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220811449724",
+  "worker": "haiku-12",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["가원밥상 남구 부산", "가원밥상 문현3동 한정식"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=vMGgevGZsoMn", "https://www.siksinhot.com/P/270481"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "생아귀수육이 시그니처 메뉴", "sources": [0, 1]},
+    {"type": "조리·재료", "note": "신선한 아구 요리 - 아구찜, 아구탕 등", "sources": [0, 1]},
+    {"type": "미디어 노출", "note": "KBS 생생정보에 출연한 유명 식당", "sources": [0]},
+    {"type": "플랫폼 순위·평점", "note": "식신, 다이닝코드, 당근, 뽈레 등 주요 플랫폼에 소개됨", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["생아귀수육", "아구찜", "아구탕"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

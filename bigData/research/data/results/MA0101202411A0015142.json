@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202411A0015142",
+  "worker": "haiku-61",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["소트 광안 부산 도넛", "소트 카페 부산 광안로"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "같은 광안 지역의 도넛 가게 검색 시 랜디스도넛, 던킨, 두넛샵 등이 나왔으나 소트라는 가게명은 웹에서 확인 불가",
+  "notes": ""
+}

@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220810495815",
+  "worker": "haiku-8",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["승리의통닭 동래구 부산", "승리의통닭 사직동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산 동래구 아시아드대로171번길 88"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "맛 묘사", "note": "스파이시한 닭지리탕과 튀긴 닭껍질", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "통닭과 땡초닭지리 전문", "sources": [0, 1]},
+    {"type": "조리·재료", "note": "닭목살, 닭연골튀김, 곱창국 등 특수 부위 제공", "sources": [0, 1]},
+    {"type": "동네·시장 지목", "note": "부산 야구장 근처 롯데 팬과 사직동 주민들의 단골 맛집", "sources": [1]},
+    {"type": "플랫폼 순위·평점", "note": "닭요리 평점을 근거로 든다", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": false,
+    "audience": "mixed",
+    "signatureDishes": ["통닭", "땡초닭지리"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

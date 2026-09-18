@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220811447131",
+  "worker": "haiku-68",
+  "researchedAt": "2026-09-10T10:10:00Z",
+  "queries": ["홍옥당 빵 도넛 남천 수영구 부산", "홍옥당 맛집 남천동 부산"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=xduElKrESAb9", "https://triple.guide/restaurants/edbd3302-f51a-4cc3-a399-6c23b11470a3"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "통팥빵과 팥빙수가 대표 메뉴",
+      "sources": [0]
+    },
+    {
+      "type": "동네·시장 지목",
+      "note": "빵천동(남천동의 빵 거리)의 첫 번째 가게",
+      "sources": [0]
+    },
+    {
+      "type": "조리·재료",
+      "note": "국산 팥을 집에서 직접 삶아 사용",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": false,
+    "audience": "mixed",
+    "signatureDishes": ["통팥빵", "팥빙수", "말차빙수"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "팥빵과 팥빙수 전문점. 빵천동의 대표 가게. 영업시간 10:00-21:00. 주차 불가. 주소: 남천동로108번길 49"
+}

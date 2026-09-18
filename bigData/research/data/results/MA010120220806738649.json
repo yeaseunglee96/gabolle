@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220806738649",
+  "worker": "haiku-33",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["스시하나 서구 부산", "스시하나 동대신3동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.daangn.com/kr/local-profile/%EC%8A%A4%EC%8B%9C%ED%95%98%EB%82%98-i7g8qgzxx1w5/", "https://www.diningcode.com/profile.php?rid=EA8vqyUFMZmk"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "회전초밥 전문", "sources": [0]},
+    {"type": "가격·가성비", "note": "접시당 1,950원의 저렴한 가격", "sources": [0]},
+    {"type": "맛 묘사", "note": "신선한 재료로 만든 스시", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["회전초밥", "생선회"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "영업시간 11:00-22:00 (둘째·넷째 화요일 휴무)"
+}

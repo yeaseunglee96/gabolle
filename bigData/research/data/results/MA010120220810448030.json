@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220810448030",
+  "worker": "haiku-41",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["영선불고기 영도구 부산", "영선불고기 영선1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=CMoDozfeOyxi"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "대패삼겹살이 유명, 불고기전골 전문", "sources": [0]},
+    {"type": "맛 묘사", "note": "달콤하고 짭짤한 불고기 맛", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "가능(1시간 무료)",
+    "audience": "mixed",
+    "signatureDishes": ["불고기전골", "대패삼겹살", "볶음밥"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "영업시간 11:00-22:00, 전화 051-416-7570, 남항마켓 GATE5 앞"
+}

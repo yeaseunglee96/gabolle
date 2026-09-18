@@ -1,0 +1,43 @@
+{
+  "part": "ai",
+  "label": "온디바이스 AI",
+  "note": "사진 한 장으로 \"이게 뭔지\" 를 인터넷 없이 알려준다. 화면도 서버 추론도 이 파트가 아니다",
+
+  "nodes": [
+    {
+      "id": "ai.truth",
+      "stage": "source",
+      "kind": "external",
+      "label": "정답표·사진",
+      "state": "partial",
+      "why": "저장소의 파트 브랜치에 아직 안 올라갔다 — 기능 브랜치에만 있어 다른 사람은 못 본다",
+      "note": "감천문화마을·자갈치·범어사 같은 부산 장면 사진과 정답. 출처와 저작권 표시를 파일로 같이 남긴다",
+      "evidence": { "human": "파트 브랜치에 아직 없다" }
+    },
+    {
+      "id": "ai.bench",
+      "stage": "process",
+      "kind": "batch",
+      "label": "모델 재기",
+      "state": "partial",
+      "why": "저장소의 파트 브랜치에 아직 안 올라갔다 — 재는 기계가 한 사람 PC 에만 있으면 아무도 그 결과를 다시 못 낸다",
+      "note": "후보 모델을 같은 정답표로 재서 고른다. 파인튜닝보다 싼 수단(프롬프트·후보목록·형식강제)을 먼저 재본다",
+      "evidence": { "human": "파트 브랜치에 아직 없다" }
+    },
+    {
+      "id": "ai.model",
+      "stage": "store",
+      "kind": "file",
+      "label": "고른 모델",
+      "state": "partial",
+      "why": "모델 파일은 이 PC 에 받아 뒀지만 아직 어느 것으로 갈지 안 정했고, 폰에 올릴 크기로도 안 줄였다",
+      "note": "커밋하지 않는다 — 한 개가 500MB 가 넘는다. 이력에 들어가면 전원이 다시 clone 해야 한다",
+      "evidence": { "human": "파트 브랜치에 아직 없다" }
+    }
+  ],
+
+  "edges": [
+    { "from": "ai.truth", "to": "ai.bench", "label": "사진·정답", "state": "ok" },
+    { "from": "ai.bench", "to": "ai.model", "label": "점수표",   "state": "ok" }
+  ]
+}

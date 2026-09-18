@@ -1,0 +1,44 @@
+{
+  "id": "MA0101202512A0015111",
+  "worker": "haiku-60",
+  "researchedAt": "2026-09-09T08:34:00Z",
+  "queries": ["고결담 수영구 민락동 횟집", "고결담 광안해변 생선구이 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=pRAbq68wZZEZ", "https://www.winkyblacky.com/w/%EB%B6%80%EC%82%B0-%EA%B4%91%EC%95%88%EB%A6%AC-%EA%B3%A0%EA%B2%B0%EB%8B%B4/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "바다가 보이는 오션뷰, 광안리해수욕장과 광안대교 경치",
+      "sources": [0, 1]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "고등어구이, 삼치구이 정식이 대표 메뉴",
+      "sources": [0, 1]
+    },
+    {
+      "type": "조리·재료",
+      "note": "매일 아침 신선한 재료를 직접 준비. 500도 화덕에서 구워 불맛이 촉촉함",
+      "sources": [1]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "정갈한 한상차림으로 18,000원의 합리적인 가격",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "families",
+    "signatureDishes": ["고등어구이 정식", "삼치구이 정식"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "광안리 신상 맛집. 가족, 커플 데이트 모두에게 인기. 영업시간 11:00~22:00 (브레이크 15:30~16:30)"
+}

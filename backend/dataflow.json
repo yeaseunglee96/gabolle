@@ -1,0 +1,177 @@
+{
+  "part": "backend",
+  "label": "백엔드",
+  "note": "Spring Boot + PostgreSQL. 장소를 저장하고, 요청이 올 때마다 사람에 맞춰 고르고 잇는다",
+
+  "nodes": [
+    {
+      "id": "be.db.place",
+      "stage": "store",
+      "kind": "db",
+      "label": "장소 표",
+      "note": "place — 이름·좌표·업종. 추천의 후보가 여기서 나온다",
+      "evidence": { "file": "backend/src/main/resources/db/migration/V20260904000000__place_and_place_feature.sql" }
+    },
+    {
+      "id": "be.db.feature",
+      "stage": "store",
+      "kind": "db",
+      "label": "장소 신호 표",
+      "state": "partial",
+      "why": "칸 14종 중 절반 이상이 빈 채로 있다 — 인기도·현지도·조용함·관광객비율은 출처 자체가 없고, 그늘·경사는 값이 bigData 에 있는데 장소에 붙이는 코드가 없다",
+      "note": "place_feature — 신호 하나가 한 행. 안전에 관한 값은 추정으로 채울 수 없게 DB 제약이 걸려 있다",
+      "evidence": { "file": "backend/src/main/java/com/gabolle/backend/place/domain/PlaceFeature.java" }
+    },
+    {
+      "id": "be.db.user",
+      "stage": "store",
+      "kind": "db",
+      "label": "사용자·취향",
+      "note": "계정·익명 세션·동의·취향 축. 개인화가 읽는 자리",
+      "evidence": { "all": [
+        "backend/src/main/java/com/gabolle/backend/preference/domain/TasteDimension.java",
+        "backend/src/main/resources/db/migration/V20260909023000__anonymous_session.sql"
+      ] }
+    },
+
+    {
+      "id": "be.load.sbiz",
+      "stage": "process",
+      "kind": "batch",
+      "label": "상가정보 적재기",
+      "state": "partial",
+      "why": "코드는 머지됐지만 운영 DB 에서 아직 안 돌았다 — 적재기는 DB 에 붙어 도는 러너라 배포 호스트에서 따로 돌려야 한다",
+      "note": "🔴 이 코드가 없어서 표가 통째로 비어 있었다. 표도 제약도 다 있는데 행을 넣는 코드가 없어 추천 후보가 0건이었다",
+      "evidence": { "file": "backend/src/main/java/com/gabolle/backend/place/loader/SbizPlaceLoader.java" }
+    },
+    {
+      "id": "be.load.signals",
+      "stage": "process",
+      "kind": "batch",
+      "label": "구간 신호 적재기",
+      "state": "broken",
+      "why": "아직 아무도 안 만들었다. 경사·그늘·경치·지하철출구는 계산까지만 되고 장소에 못 붙는다",
+      "note": "도로 구간에 붙은 값을 장소에 옮기는 일이다. 구간과 장소는 다른 단위라 옮기려면 \"이 가게에서 가장 가까운 구간\" 을 정해야 한다",
+      "evidence": { "any": [
+        "backend/src/main/java/com/gabolle/backend/place/loader/SegmentFeatureLoader.java",
+        "backend/src/main/java/com/gabolle/backend/place/loader/SlopeFeatureLoader.java",
+        "backend/src/main/java/com/gabolle/backend/place/loader/ShadeFeatureLoader.java"
+      ] }
+    },
+
+    {
+      "id": "be.sv.auth",
+      "stage": "serve",
+      "kind": "service",
+      "label": "계정·세션",
+      "note": "익명 세션으로 먼저 쓰게 하고, 나중에 계정에 잇는다. 탈퇴·삭제는 심사 필수 항목이다",
+      "evidence": { "file": "backend/src/main/java/com/gabolle/backend/auth/api/AuthController.java" }
+    },
+    {
+      "id": "be.sv.reco",
+      "stage": "serve",
+      "kind": "service",
+      "label": "추천·개인화",
+      "state": "partial",
+      "why": "고를 재료인 신호 표가 반쯤 비어 있어, 점수가 실제로는 몇 개 축으로만 매겨진다",
+      "note": "딱딱한 필터(알레르기·휠체어·예산) → 사용자 가중치 → 지배 필터 → 상위 N + 축별 기여도. 만들기는 비동기로 돌고 진행률이 실시간으로 나간다",
+      "evidence": { "all": [
+        "backend/src/main/java/com/gabolle/backend/recommendation/adapter/BaselineCandidateScorer.java",
+        "backend/src/main/java/com/gabolle/backend/recommendation/application/RecommendationJobRunner.java"
+      ] }
+    },
+    {
+      "id": "be.sv.optimizer",
+      "stage": "serve",
+      "kind": "service",
+      "label": "동선 최적화",
+      "note": "고른 장소를 어떤 순서로 도는 것이 가장 덜 걷는지 푼다. 실제로 푸는 것은 옆의 파이썬 풀이기이고, 자바는 그것이 살아 있는지 확인하고 넘긴다",
+      "evidence": { "all": [
+        "backend/solver/route_optimizer.py",
+        "backend/src/main/java/com/gabolle/backend/optimizer/RouteOptimizerAvailabilityCheck.java"
+      ] }
+    },
+    {
+      "id": "be.sv.route",
+      "stage": "serve",
+      "kind": "service",
+      "label": "경로·이동시간",
+      "note": "바깥 길찾기를 부르고, 못 부르면 직선거리로 어림한다. 어림한 값은 어림했다고 표시가 남는다",
+      "evidence": { "all": [
+        "backend/src/main/java/com/gabolle/backend/route/application/RouteProviderPort.java",
+        "backend/src/main/java/com/gabolle/backend/route/adapter/StraightLineRouteEstimator.java"
+      ] }
+    },
+    {
+      "id": "be.sv.itinerary",
+      "stage": "serve",
+      "kind": "service",
+      "label": "일정 열람·편집",
+      "note": "고정·제외·교체·순서변경·되돌리기. 편집할 때마다 문 닫는 곳을 피하는지 다시 본다",
+      "evidence": { "file": "backend/src/main/java/com/gabolle/backend/itinerary/presentation/ItineraryEditController.java" }
+    },
+    {
+      "id": "be.sv.event",
+      "stage": "serve",
+      "kind": "service",
+      "label": "행동 기록",
+      "note": "사람이 무엇을 눌렀는지 받는다. 지금은 쌓기만 하고 추천으로 되돌아가지 않는다 — 되돌리려면 사용자가 먼저 있어야 한다",
+      "evidence": { "file": "backend/src/main/java/com/gabolle/backend/event/presentation/EventIngestController.java" }
+    },
+    {
+      "id": "be.sv.share",
+      "stage": "serve",
+      "kind": "service",
+      "label": "공유·이야기",
+      "note": "일정을 링크로 넘기고, 같이 쓰고, 여행기로 남긴다",
+      "evidence": { "all": [
+        "backend/src/main/java/com/gabolle/backend/share/presentation/ShareLinkController.java",
+        "backend/src/main/java/com/gabolle/backend/story/presentation/StoryController.java"
+      ] }
+    },
+    {
+      "id": "be.sv.privacy",
+      "stage": "serve",
+      "kind": "service",
+      "label": "개인정보 정리",
+      "note": "지워야 할 것을 때가 되면 지운다. 탈퇴하면 무엇이 지워지는지 미리 보여준다",
+      "evidence": { "file": "backend/src/main/resources/db/migration/V20260908160000__privacy_cleanup_run.sql" }
+    }
+  ],
+
+  "edges": [
+    { "from": "bd.st.staged", "to": "be.load.sbiz", "label": "이어진 가게", "state": "ok" },
+    {
+      "from": "bd.st.staged", "to": "be.load.signals", "label": "구간별 신호",
+      "state": "broken",
+      "why": "받는 쪽이 없다"
+    },
+    { "from": "be.load.sbiz",    "to": "be.db.place",   "label": "장소 행",   "state": "ok" },
+    {
+      "from": "be.load.sbiz", "to": "be.db.feature", "label": "음식·카페 표식",
+      "state": "partial",
+      "why": "신호 14종 중 셋만 채운다. 나머지는 출처가 없어 비운 채로 둔다"
+    },
+    {
+      "from": "be.load.signals", "to": "be.db.feature", "label": "경사·그늘·경치",
+      "state": "broken",
+      "why": "적재기가 없으니 값도 안 간다"
+    },
+
+    { "from": "be.db.place",   "to": "be.sv.reco",      "label": "후보",        "state": "ok" },
+    { "from": "be.db.feature", "to": "be.sv.reco",      "label": "신호",        "state": "partial", "why": "빈 칸이 많아 점수가 몇 축으로만 매겨진다" },
+    { "from": "be.db.user",    "to": "be.sv.reco",      "label": "취향·동의",   "state": "ok" },
+    { "from": "be.sv.auth",    "to": "be.db.user",      "label": "세션·계정",   "state": "ok" },
+    { "from": "be.sv.reco",    "to": "be.sv.optimizer", "label": "고른 장소",   "state": "ok" },
+    { "from": "be.sv.optimizer","to": "be.sv.itinerary","label": "도는 순서",   "state": "ok" },
+    { "from": "be.sv.route",   "to": "be.sv.optimizer", "label": "이동 시간",   "state": "ok" },
+    { "from": "be.sv.itinerary","to": "be.sv.share",    "label": "완성된 일정", "state": "ok" },
+    { "from": "be.sv.event",   "to": "be.db.user",      "label": "누른 기록",   "state": "ok" },
+    {
+      "from": "be.sv.event", "to": "be.sv.reco", "label": "행동 되먹임",
+      "state": "planned",
+      "why": "쌓기만 하고 아직 추천으로 안 돌아간다. 사용자가 생겨야 의미가 생긴다"
+    },
+    { "from": "be.db.user",    "to": "be.sv.privacy",   "label": "지울 것",     "state": "ok" }
+  ]
+}

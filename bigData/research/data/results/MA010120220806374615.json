@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220806374615",
+  "worker": "haiku-10",
+  "researchedAt": "2026-09-09T14:40:00Z",
+  "queries": ["카페아자르 동래구 부산", "카페아자르 사직1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산 동래구 사직북로 4"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "분위기·전망", "note": "테라스가 있는 매력있는 분위기와 힐링 공간", "sources": [0]},
+    {"type": "맛 묘사", "note": "촉촉한 팡도르와 좋은 커피", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["팡도르", "커피"],
+    "priceBand": "normal"
+  },
+  "notFound": null,
+  "notes": ""
+}

@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220813004286",
+  "worker": "haiku-49",
+  "researchedAt": "2026-09-09T16:00:00Z",
+  "queries": ["매초 해운대 중동 요리주점", "매초 중동2로 부산"],
+  "found": false,
+  "confidence": "low",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "중동2로 28에 위치한다는 매초를 찾을 수 없음. 해운대 중동의 다른 맛집은 여러 개 검색되지만 이 가게는 찾을 수 없음",
+  "notes": ""
+}

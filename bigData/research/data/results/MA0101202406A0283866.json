@@ -1,0 +1,27 @@
+{
+  "id": "MA0101202406A0283866",
+  "worker": "haiku-41",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["서영횟집 사상구 부산", "서영횟집 감전동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1792119", "https://www.daangn.com/kr/local-profile/%EC%84%9C%EC%98%81%ED%9A%9F%EC%A7%91-fxbt5t6b3omc/", "http://duli.co.kr/web/splus/kmap/view.php?sigun=6260000&gugun=3390000&keyno=122&keyname=%EC%84%9C%EC%98%81%ED%9A%9F%EC%A7%91&keylink=3390000-101-1997-02296"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "메뉴 희소성", "note": "자연산 참가자미와 제철 회로만 취급", "sources": [0, 1]},
+    {"type": "가격·가성비", "note": "가성비 좋은 초장값과 다양한 기본찬", "sources": [1]},
+    {"type": "서비스·사람", "note": "사장님의 친절한 서비스", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "공영주차장",
+    "audience": "mixed",
+    "signatureDishes": ["자연산 참가자미", "모듬회", "전어회", "세꼬시"],
+    "priceBand": "affordable"
+  },
+  "notFound": null,
+  "notes": "감전시장 초장거리 내 위치, 영업시간 11:00-21:00, 일요일 휴무(단체예약가능), 당근 4.6점"
+}

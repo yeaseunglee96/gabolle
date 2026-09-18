@@ -1,0 +1,33 @@
+{
+  "id": "MA010120220810642922",
+  "worker": "haiku-1",
+  "researchedAt": "2026-09-09T02:52:00Z",
+  "queries": ["한끼맛있다 부산진구"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=ieaQ4xMOJnT3", "https://www.siksinhot.com/P/361952"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "signature",
+      "note": "마늘 소고기 안심 런치세트 - 가성비 좋음",
+      "sources": [0]
+    },
+    {
+      "type": "menu_variety",
+      "note": "파스타, 리소또, 필라프, 피자 등 퓨전 요리",
+      "sources": [0]
+    },
+    {
+      "type": "atmosphere",
+      "note": "넓고 깔끔한 인테리어",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["스테이크", "파스타"]
+  },
+  "notFound": null,
+  "notes": "11:30~22:30 영업(무휴)"
+}

@@ -1,0 +1,24 @@
+{
+  "id": "MA010120220811422726",
+  "worker": "haiku-57",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["영미횟집 광안해변로 부산", "영미횟집 광어회"],
+  "found": true,
+  "confidence": "medium",
+  "sources": [],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "광어회 전문",
+      "sources": []
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["광어회"],
+    "audience": "local"
+  },
+  "notFound": null,
+  "notes": "광안리 회 맛집 상위 순위, 광안해변로 주변"
+}

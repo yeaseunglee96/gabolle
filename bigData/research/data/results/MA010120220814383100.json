@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220814383100",
+  "worker": "haiku-66",
+  "researchedAt": "2026-09-10T12:27:00Z",
+  "queries": ["제이제이가리비 해운대구 부산", "제이제이가리비 청사포"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/461773", "https://triple.guide/restaurants/55e97bcb-7ce4-4ae9-aea4-cf36dd42a35b"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "조개구이 전문 (가리비, 키조개, 장어구이 등)",
+      "sources": [0]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "청사포의 해변 뷰를 바라보며 조개를 구워 먹는 경험",
+      "sources": [0]
+    },
+    {
+      "type": "곁들임·차림",
+      "note": "가리비, 키조개, 블랙타이거, 장어구이, 목살바베큐, 해물라면 세트 메뉴",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["조개구이", "가리비", "키조개", "장어구이"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "청사포 조개구이 전문점, TripAdvisor 등재"
+}

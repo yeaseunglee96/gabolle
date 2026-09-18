@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202406A0048552",
+  "worker": "haiku-61",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["웅비식당 해운대구 부산", "웅비식당 중1동 맛집"],
+  "found": false,
+  "confidence": "low",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹에서 검색되지 않음. 중1동 지역 정보만 나옴",
+  "notes": ""
+}

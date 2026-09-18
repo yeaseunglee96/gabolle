@@ -1,0 +1,34 @@
+{
+  "id": "MA010120220809577981",
+  "worker": "haiku-9",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["양가손만두 부산진구", "양가손만두 개금1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["siksinhot.com", "diningcode.com"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "조리·재료",
+      "note": "얇은 만두피에 속이 다 보이고 잡내 없이 깨끗한 고기",
+      "sources": [0, 1]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "손만두, 군만두, 칼국수, 찐만두",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["손만두", "군만두"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "개금골목시장 내 위치. 본점은 개금, 큰아들점은 대연동"
+}

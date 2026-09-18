@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220810492942",
+  "worker": "haiku-8",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["포항참가자미횟집 동구 부산", "포항참가자미횟집 초량동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산 동구 중앙대로214번길 7-5"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "도다리 쑥국과 가자미미역국 전문", "sources": [0, 1]},
+    {"type": "맛 묘사", "note": "도다리 쑥국이 맛있고 씹을수록 고소한 가자미회", "sources": [0, 1]},
+    {"type": "조리·재료", "note": "자연산 참가자미로 만든 포항물회", "sources": [0, 1]},
+    {"type": "동네·시장 지목", "note": "초량동 부산역 인근 유명한 물회 횟집", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["도다리쑥국", "참가자미회"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": ""
+}

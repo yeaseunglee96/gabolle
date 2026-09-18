@@ -1,0 +1,25 @@
+{
+  "id": "MA0101202307A0008013",
+  "worker": "haiku-29",
+  "researchedAt": "2026-09-09T10:18:00Z",
+  "queries": ["해도지초장 강서구 부산", "해도지초장 신호동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["http://duli.co.kr/web/splus/kmap/view.php?sigun=6260000&gugun=3360000&keyno=122&keyname=%ED%95%B4%EB%8F%84%EC%A7%80%EC%B4%88%EC%9E%A5&keylink=3360000-101-2023-00166"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "초장 종류별로 많으며 회 판매 (마리 단위)", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["회"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": "수산물 회센터 1층에서 회를 직접 고른 후 2층에서 조리해서 제공하는 형식"
+}

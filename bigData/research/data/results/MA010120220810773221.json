@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220810773221",
+  "worker": "haiku-11",
+  "researchedAt": "2026-09-09T00:10:00Z",
+  "queries": ["부산자갈치왕곰장어 동래 부산", "부산자갈치왕곰장어 온천장 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 동래구 온천장로107번길 44"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "연차·역사", "note": "45년 전통을 이어온 온천장의 곰장어 전문점", "sources": [0, 1] },
+    { "type": "간판 메뉴 지목", "note": "곰장어를 소금구이 또는 양념구이로 즐기는 것이 특징", "sources": [0, 1] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 45,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["곰장어 소금구이", "곰장어 양념구이"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": ""
+}

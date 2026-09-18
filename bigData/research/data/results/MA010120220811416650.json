@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220811416650",
+  "worker": "haiku-62",
+  "researchedAt": "2026-09-10T12:08:00Z",
+  "queries": ["명승제주생고기 광안", "명승제주생고기 광안2동"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.daangn.com/kr/local-profile/%EB%AA%85%EC%8A%B9%EC%A0%9C%EC%A3%BC%EC%83%9D%EA%B3%A0%EA%B8%B0-1737315/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "원조·최초", "note": "부산에선 원조 제주산 돼지고기 전문점", "sources": [0]},
+    {"type": "간판 메뉴 지목", "note": "제주고기국수", "sources": [0]},
+    {"type": "곁들임·차림", "note": "제주야생고사리, 제주유채꽃김치 등 제주식 반찬", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["제주생고기", "제주고기국수"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "광안역 1번출구에서 광안리 해수욕장 방향 100미터"
+}

@@ -1,0 +1,39 @@
+{
+  "id": "MA0101202505A0043940",
+  "worker": "haiku-66",
+  "researchedAt": "2026-09-10T12:31:00Z",
+  "queries": ["석암생소금구이 광안리점 부산", "석암생소금구이 광안2동"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.keyzard.cc/donggle201/nb/223990156145"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "돌판 소금구이 전문",
+      "sources": [0]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "광안리 오션뷰 고기집",
+      "sources": [0]
+    },
+    {
+      "type": "운영·접근 편의",
+      "note": "지하 주차장 테이블당 1시간 무료",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "지하주차 1시간 무료",
+    "audience": "mixed",
+    "signatureDishes": ["돌판 소금구이", "fried rice"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "2층 위치, 영업시간 12:00-01:00"
+}

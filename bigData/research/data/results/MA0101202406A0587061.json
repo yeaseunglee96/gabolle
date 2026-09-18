@@ -1,0 +1,39 @@
+{
+  "id": "MA0101202406A0587061",
+  "worker": "haiku-25",
+  "researchedAt": "2026-09-09T10:35:15Z",
+  "queries": ["씨에스타 부산진구 부산", "씨에스타 양정1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=RFDV1G4uMXBx", "https://www.tabling.co.kr/place/677cd6f466de5f069891e8f0"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "화이트톤 인테리어, 샹들리에 조명으로 고급스러운 분위기. 포토존",
+      "sources": [0]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "파스타, 피자, 스테이크 전문",
+      "sources": [0]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "고급진 분위기이면서 가성비가 괜찮음",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "맞은편 태평주차장 1시간 무료, 이후 60분당 3,000원",
+    "audience": "mixed",
+    "signatureDishes": ["오일파스타", "우삼겹파스타", "라구소스파스타", "명란크림파스타", "스테이크"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": ""
+}

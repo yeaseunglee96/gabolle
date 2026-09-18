@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220805544487",
+  "worker": "haiku-52",
+  "researchedAt": "2026-09-09T14:50:30Z",
+  "queries": ["조셉 수영구 부산", "조셉 민락동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "검색 결과에서 해당 가게 정보를 찾을 수 없음",
+  "notes": ""
+}

@@ -1,0 +1,28 @@
+{
+  "id": "MA0101202210A0069067",
+  "worker": "haiku-61",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["슬링샷 수영구 부산", "슬링샷 광안4동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=6hKME5wgZDCa", "https://www.daangn.com/", "https://www.slingshot.kr/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "분위기·전망", "note": "광안리 해변 근처 조용한 휴양지", "sources": [0]},
+    {"type": "곁들임·차림", "note": "핸드메이드 디저트를 매일 신선하게 제작", "sources": [0]},
+    {"type": "간판 메뉴 지목", "note": "갈레트가 유명", "sources": [0]},
+    {"type": "맛 묘사", "note": "커피와 치즈케이크로 높은 평가", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["갈레트", "치즈케이크", "커피"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "펫프렌들리, 광안 시장 공용주차장 이용 가능 (1시간 할인)"
+}

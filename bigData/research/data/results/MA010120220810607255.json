@@ -1,0 +1,43 @@
+{
+  "id": "MA010120220810607255",
+  "worker": "haiku-49",
+  "researchedAt": "2026-09-09T15:00:00Z",
+  "queries": ["서면대복집 부산진구 복", "서면대복집 서면 복요리"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.siksinhot.com/P/419647",
+    "https://www.diningcode.com/profile.php?rid=j9sgAOAACS7X",
+    "http://localmap.co.kr/web/splus/kmap/view.php?sigun=6260000&gugun=3290000&keyno=107&keyname=%EC%84%9C%EB%A9%B4%EB%8C%80%EB%B3%B5%EC%A7%91&keylink=3290000-101-1972-00331"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "연차·역사",
+      "note": "1972년 개업으로 50년 이상 운영 중인 오래된 복집",
+      "sources": [1, 2]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "복어수육과 아귀수육 전문점",
+      "sources": [1, 2]
+    },
+    {
+      "type": "조리·재료",
+      "note": "신선한 생물 아귀를 사용하며 높은 품질의 요리 제공",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["복수육", "아귀수육", "복국", "복맑은탕"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": ""
+}

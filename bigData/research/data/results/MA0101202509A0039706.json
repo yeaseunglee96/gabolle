@@ -1,0 +1,41 @@
+{
+  "id": "MA0101202509A0039706",
+  "worker": "haiku-63",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["데이오프데이광안 수영구 부산", "데이오프데이광안 광안2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.diningcode.com/profile.php?rid=lXBsnq6ll8LZ"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "두쫀쿠와 빙수 전문점",
+      "sources": [0]
+    },
+    {
+      "type": "메뉴 희소성",
+      "note": "망고빙수가 인기 메뉴",
+      "sources": [0]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "광안리 카페거리에 위치한 핫한 카페",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "young",
+    "signatureDishes": ["두쫀쿠", "망고빙수"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "광안리 바닷가 카페거리에 위치, 10:00-18:00 영업"
+}

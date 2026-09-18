@@ -1,0 +1,37 @@
+{
+  "id": "MA0101202411A0006279",
+  "worker": "haiku-56",
+  "researchedAt": "2026-09-09T06:37:13Z",
+  "queries": ["오프더레코드광안리 수영구 부산", "오프더레코드 광안 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.siksinhot.com/P/832823",
+    "https://reachoii.com/entry/%EB%B6%80%EC%82%B05-%EA%B4%91%EC%95%88%EB%A6%AC%EC%9D%98-%EC%88%A8%EC%9D%80-%EB%AA%85%EC%86%8C-%EC%98%A4%ED%94%BC%EB%8D%94%EB%A0%88%EC%BD%94%EB%93%9C-%EA%B4%91%EC%95%88%EB%A6%AC3%EC%96%B5-%EC%A7%9C%EB%A6%AC-%EC%8A%A4%ED%94%BC%EC%BB%A4%EB%A1%9C-%EC%9D%8C%EC%95%85%EA%B0%90%EC%83%81%EC%9D%84"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "광안리 바다를 보며 음악감상을 할 수 있는 감성 있는 펍",
+      "sources": [1]
+    },
+    {
+      "type": "서비스·사람",
+      "note": "고급스러운 3억 규모의 음향시설을 갖춘 음악 감상 공간",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "adult",
+    "signatureDishes": ["하이볼", "맥주"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": ""
+}

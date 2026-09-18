@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220812415275",
+  "worker": "haiku-59",
+  "researchedAt": "2026-09-09T07:55:02Z",
+  "queries": ["조은상회 수영구 부산", "조은상회 민락동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "해당 이름의 식당이 웹 검색 결과에 나타나지 않음. 다이닝코드, 식신 등 맛집 플랫폼과 개인 리뷰 사이트에서 발견 불가",
+  "notes": "횟집 카테고리로 등록. 민락동 지역의 다른 식당들은 검색되나 '조은상회'는 미확인"
+}

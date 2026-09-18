@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220809624796",
+  "worker": "haiku-61",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["집밥파는집 해운대구 부산", "집밥파는집 중1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1418303"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "미디어 노출", "note": "KBS 전국방송과 일본 아사히방송 등 23개 방송 출연", "sources": [0]},
+    {"type": "간판 메뉴 지목", "note": "전라남도식 미꾸라지 탕 전문", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["미꾸라지 탕", "뷔페"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "평일 05:30-18:30 영업"
+}

@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220806859735",
+  "worker": "haiku-7",
+  "researchedAt": "2026-09-08T22:09:18Z",
+  "queries": ["디에이블 송도점 부산", "디에이블 암남동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.visitbusan.net/index.do?menuCd=DOM_000000201002001000&uc_seq=960&lang_cd=ko", "https://www.diningcode.com/profile.php?rid=aebW6htOgZaK"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "분위기·전망", "note": "송도 해수욕장 오션뷰를 보며 식사하는 특별한 경험", "sources": [0]},
+    {"type": "맛 묘사", "note": "페스츄리 도우로 만든 촉촉한 피자, 특제소스의 파스타", "sources": [1]},
+    {"type": "운영·접근 편의", "note": "무료주차, 배달 가능, 연중무휴 운영", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "families",
+    "signatureDishes": ["피자", "파스타"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "송도 해변에 위치한 해변 양식당. 11:00~23:00 연중무휴 (21:20 라스트오더). 통유리창 오션뷰."
+}

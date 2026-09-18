@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220811418481",
+  "worker": "haiku-12",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["새총횟집 해운대구 부산", "새총횟집 반여동 횟집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/678619", "https://www.diningcode.com/profile.php?rid=O2GukuJbtHUt"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "운영·접근 편의", "note": "100% 예약제로 운영되어 품질 관리가 철저함", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "자연산 회 전문점 - 줄가자미(이시가리)가 시그니처", "sources": [0, 1]},
+    {"type": "기관 선정", "note": "블루리본 상 수상", "sources": [0]},
+    {"type": "플랫폼 순위·평점", "note": "식신, 다이닝코드, 뽈레, 당근 등 주요 플랫폼에 소개됨", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["자연산회", "줄가자미회", "고급 생선"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": ""
+}

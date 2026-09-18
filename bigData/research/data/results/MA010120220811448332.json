@@ -1,0 +1,25 @@
+{
+  "id": "MA010120220811448332",
+  "worker": "haiku-59",
+  "researchedAt": "2026-09-09T08:46:00Z",
+  "queries": ["갯마을수산 부산 민락동 회", "갯마을수산 광남로 횟집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/851038"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "신선한 해산물, 민어튀김",
+      "sources": ["https://www.siksinhot.com/P/851038"]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "넉넉한 반찬, 민락동 해변 분위기",
+      "sources": ["https://www.siksinhot.com/P/851038"]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {},
+  "notes": "민락동 해변가 위치"
+}

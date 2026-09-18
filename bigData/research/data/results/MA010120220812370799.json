@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220812370799",
+  "worker": "haiku-70",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["미송하모샤브샤브 서구 부산", "미송하모샤브샤브 암남동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.tabling.co.kr/place/68351daaa71996ff43b4b197", "https://triple.guide/restaurants/11d595bc-32d0-435a-b1ad-11eb1738b241", "https://www.daangn.com/kr/local-profile/%EB%AF%B8%EC%84%B1-%ED%9A%8C-%EC%83%A4%EB%B8%8C%EC%83%A4%EB%B8%8C-8bjdbsms27ch/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "메뉴 희소성",
+      "note": "갓장어(하모) 샤브샤브는 이곳에서만 경험할 수 있는 특별한 메뉴",
+      "sources": [0]
+    },
+    {
+      "type": "기관 선정",
+      "note": "미슐랭 빕 구르망 3개 획득한 공식 인정 맛집",
+      "sources": [0]
+    },
+    {
+      "type": "맛 묘사",
+      "note": "육수 국물의 깊은 맛이 뛰어나다는 평가",
+      "sources": [2]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "매장 앞 주차장 이용 가능",
+    "audience": "mixed",
+    "signatureDishes": ["갓장어 샤브샤브", "갓장어 회", "장어", "매운 생선국"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

@@ -1,0 +1,34 @@
+{
+  "id": "MA0106202301A0366189",
+  "worker": "haiku-71",
+  "researchedAt": "2026-09-10T12:20:00Z",
+  "queries": ["앨리스도넛 수영구 부산", "앨리스도넛 민락동 카페"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=F2IQh7cpyitR", "https://koreabackpacking.com/1754"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "조리·재료",
+      "note": "프랑스 밀가루와 천연버터로 만든 프리미엄 수제도넛",
+      "sources": [1]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "수제도넛 전문 (당일생산, 당일판매)",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["수제도넛"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "밀락더마켓 2층에 위치"
+}

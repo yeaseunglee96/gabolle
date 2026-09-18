@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220811581991",
+  "worker": "haiku-17",
+  "researchedAt": "2026-09-09T09:26:00Z",
+  "queries": ["은성횟집 기장군 부산", "은성횟집 일광 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/683960", "https://www.tabling.co.kr/place/677cd6a566de5f0698915a8a"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "조리·재료", "note": "신선하고 깨끗하게 준비한 자연산회를 제공한다", "sources": [0, 1]},
+    {"type": "곁들임·차림", "note": "함께 제공되는 사이드 반찬이 맛있고 리필 가능하다", "sources": [0]},
+    {"type": "운영·접근 편의", "note": "주차장이 있어 편리하다", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["모듬회", "우럭"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": ""
+}

@@ -1,0 +1,46 @@
+{
+  "id": "MA0101202406A0313580",
+  "worker": "haiku-3",
+  "researchedAt": "2026-09-08T16:44:01.978Z",
+  "queries": ["우리양곱창 부산진구 부산", "우리양곱창 부전동 맛집"],
+  "found": true,
+  "confidence": "low",
+  "sources": [
+    "https://www.leebommat.com/restaurant/content/194/be3b0700-f467-4b1f-96c8-540f1cd60563"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "맛 묘사",
+      "note": "마늘 양념이 입혀진 곱창과 대창으로 고소하면서도 깊은 맛",
+      "sources": [0]
+    },
+    {
+      "type": "조리·재료",
+      "note": "이모님들이 직접 정성껏 구워주며, 원하는 조리자를 선택할 수 있음",
+      "sources": [0]
+    },
+    {
+      "type": "곁들임·차림",
+      "note": "팽이버섯과 당귀 등 신선한 채소를 함께 제공하여 무거운 느낌을 덜어줌",
+      "sources": [0]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "노포 감성이 물씬 풍기는 곳",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": null,
+    "signatureDishes": ["곱창", "대창"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": ""
+}

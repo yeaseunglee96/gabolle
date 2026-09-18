@@ -1,0 +1,25 @@
+{
+  "id": "MA010120220812548314",
+  "worker": "haiku-35",
+  "researchedAt": "2026-09-09T02:10:44.184Z",
+  "queries": ["구츠구츠 동구 부산", "구츠구츠 수정2동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["순위닷", "부산 맛집 사이트"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "수제돈까스, 수제감자고로케 전문", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["수제돈까스", "수제감자고로케"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "연락처: 051-927-8253, 일-목 11:30~22:00, 금토 12:00~21:00"
+}

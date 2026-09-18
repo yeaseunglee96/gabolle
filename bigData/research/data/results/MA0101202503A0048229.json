@@ -1,0 +1,34 @@
+{
+  "id": "MA0101202503A0048229",
+  "worker": "haiku-71",
+  "researchedAt": "2026-09-10T12:36:00Z",
+  "queries": ["섬진강 해운대 부산 한정식", "섬진강 중1동 백반"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=2Uwcz9Gf1lI4"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "재첩국 전문점 (재첩마을 섬진강)",
+      "sources": [0]
+    },
+    {
+      "type": "곁들임·차림",
+      "note": "정성 있는 반찬 구성",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["재첩국"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "재첩마을 섬진강으로도 불림"
+}

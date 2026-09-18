@@ -1,0 +1,28 @@
+{
+  "id": "MA0101202409A0030089",
+  "worker": "haiku-12",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["부다면옥 해운대구 부산", "부다면옥 중동 냉면"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=0XKxEh63pvAe", "https://visitbusan.net/index.do?lang_cd=ko&menuCd=DOM_000000201002001000&uc_seq=1534"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "조리·재료", "note": "100% 순 메밀로 만든 냉면", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "평양식 냉면 전문점", "sources": [0, 1]},
+    {"type": "기관 선정", "note": "미슐랭 빕 구르망 연속 선정 (2024 이상)", "sources": [0]},
+    {"type": "플랫폼 순위·평점", "note": "다이닝코드, 식신, 트립닷컴 등 주요 플랫폼에 소개됨", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["순 메밀 냉면", "한우 수육"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

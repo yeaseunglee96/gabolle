@@ -1,0 +1,27 @@
+{
+  "id": "MA0101202502A0083485",
+  "worker": "haiku-35",
+  "researchedAt": "2026-09-09T02:10:44.184Z",
+  "queries": ["요코 북구 부산 초밥", "요코 덕천2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["식신", "다이닝코드", "블로그"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "차슈카레, 오코노미야끼(오꼬노미야끼) 전문", "sources": [0]},
+    {"type": "플랫폼 순위·평점", "note": "다이닝코드 카레 카테고리 평점을 근거로 든다", "sources": [1]},
+    {"type": "분위기·전망", "note": "덕천역 근처의 일본 감성 공간, 혼밥부터 회식까지 이용 가능", "sources": [2]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "없음 (주변 유료주차 이용)",
+    "audience": "mixed",
+    "signatureDishes": ["차슈카레", "오코노미야끼", "나폴리탄"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "덕천역에서 도보 3분, 다찌석과 4인 테이블 있음, 밥 리필 가능"
+}

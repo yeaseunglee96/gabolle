@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220809533947",
+  "worker": "haiku-8",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["목화기사식당 동래구 부산", "목화기사식당 온천1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산 동래구 차밭골로 19-1"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "현지인 지지", "note": "온천장과 부산에서 다 아는 유명한 기사식당", "sources": [0, 1]},
+    {"type": "혼잡·수요", "note": "평일 점심에만 운영하는데도 웨이팅이 있을 정도로 인기", "sources": [0, 1]},
+    {"type": "맛 묘사", "note": "맛있는 돼지불백과 달달한 매력이 있는 불맥", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "돼지고기불백과 김치찌개 두 가지 메뉴만 판매", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": true,
+    "parking": false,
+    "audience": "locals",
+    "signatureDishes": ["돼지불백", "김치찌개"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

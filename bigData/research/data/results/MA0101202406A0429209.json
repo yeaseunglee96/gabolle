@@ -1,0 +1,27 @@
+{
+  "id": "MA0101202406A0429209",
+  "worker": "haiku-23",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["올리바 연제구 부산", "올리바 연산5동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 연제구 신촌로 33"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "조리·재료", "note": "미슐랭 출신 쉐프가 운영하는 파인다이닝", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "파스타와 와인 전문점", "sources": [0, 1]},
+    {"type": "분위기·전망", "note": "고급 다이닝 분위기", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["파스타", "와인 코스"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": ""
+}

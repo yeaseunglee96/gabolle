@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220810634365",
+  "worker": "haiku-12",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["블랙업커피 부산진구 부산", "블랙업커피 부전2동 카페"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/355206", "https://blackupcoffee.com/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "조리·재료", "note": "고품질의 핸드드립 커피 전문점", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "해수염 커피가 시그니처 메뉴", "sources": [0]},
+    {"type": "분위기·전망", "note": "바에서 바리스타가 커피 제조과정을 직접 보여줌", "sources": [0]},
+    {"type": "플랫폼 순위·평점", "note": "식신, 로이쿠, 다이닝코드 등 주요 플랫폼에 소개됨", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["해수염 커피", "게이샤 스파클링", "망고 라떼"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

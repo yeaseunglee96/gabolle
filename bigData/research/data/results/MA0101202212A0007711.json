@@ -1,0 +1,38 @@
+{
+  "id": "MA0101202212A0007711",
+  "worker": "haiku-1",
+  "researchedAt": "2026-09-09T01:35:00Z",
+  "queries": ["오복돼지국밥 해운대", "오복돼지국밥 구남로 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=fo2hOsfa4U1Z", "https://triple.guide/restaurants/b191f99f-00ca-4288-9479-5ca490370b83"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "heritage",
+      "note": "3대에 걸쳐 운영하는 전통 돼지국밥점 - 1953년부터 시작",
+      "sources": [0]
+    },
+    {
+      "type": "specialty",
+      "note": "100% 국내산 돼지뼈와 사골을 24시간 이상 고아 만든 국물 - 진한 국물",
+      "sources": [0]
+    },
+    {
+      "type": "quality",
+      "note": "저온 진공 조리(수비드) 방식의 부드러운 수육 - 비린내 없음",
+      "sources": [0]
+    },
+    {
+      "type": "recognition",
+      "note": "2021 대한민국 고객만족도 1위 수상 - 해운대 24시간 국밥 맛집",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "signatureDishes": ["돼지국밥", "순대국밥", "수육세트"]
+  },
+  "notFound": null,
+  "notes": "해운대역 근처 위치, 점심 시간 웨이팅 있음, 외국인 관광객 많음, 셀프바 제공(김치/소면/쌈채소), 30분 무료주차 제공"
+}

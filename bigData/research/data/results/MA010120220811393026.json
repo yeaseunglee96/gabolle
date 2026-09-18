@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220811393026",
+  "worker": "haiku-17",
+  "researchedAt": "2026-09-09T09:25:45Z",
+  "queries": ["안강식당 남구 부산 돼지고기", "안강식당 용호3동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=vSdTEkN7XtC3", "https://www.siksinhot.com/P/639616"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "연차·역사", "note": "1991년에 개점한 30년 이상의 전통을 가진 식당이다", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "솥뚜껑삼겹살을 전문으로 한다", "sources": [0, 1]},
+    {"type": "서비스·사람", "note": "직원이 고기 굽는 방법과 타이밍을 친절하게 알려준다", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["솥뚜껑삼겹살", "갈비탕", "된장찌개", "후식밀면"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

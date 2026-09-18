@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220810495438",
+  "worker": "haiku-27",
+  "researchedAt": "2026-09-09T01:36:09Z",
+  "queries": ["영주횟집 중구 부산", "영주횟집 영주1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 중구 초량중로6번길 5"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "연차·역사", "note": "30년 이상 운영된 오래된 맛집", "sources": [0]},
+    {"type": "현지인 지지", "note": "부산토박이들이 찾는 로컬 맛집", "sources": [0]},
+    {"type": "가격·가성비", "note": "회비빔밥 8천원, 회정식 1만원의 저렴한 가격", "sources": [0]},
+    {"type": "맛 묘사", "note": "신선한 횟감으로 알려짐", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 30,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["회비빔밥", "회정식"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "부산역 근처 새영주시장에 위치. 점심특선 11~14시, 매월 둘째 넷째 일요일 휴무"
+}

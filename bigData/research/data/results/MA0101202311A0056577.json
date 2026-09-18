@@ -1,0 +1,27 @@
+{
+  "id": "MA0101202311A0056577",
+  "worker": "haiku-35",
+  "researchedAt": "2026-09-09T02:10:44.184Z",
+  "queries": ["스시카메 부산진구 부산", "스시카메 당감4동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["다이닝코드", "인스타그램", "당근", "카카오톡채널", "캐치테이블"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "혼잡·수요", "note": "웨이팅이 기본인 인기 초밥 전문점", "sources": [0]},
+    {"type": "플랫폼 순위·평점", "note": "다이닝코드에서 코스 요리 카테고리 평점을 근거로 든다", "sources": [0]},
+    {"type": "맛 묘사", "note": "숙성 사시미와 초밥이 유명하며 점심특선 가성비 좋음", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": "기본",
+    "parking": "3만원 이상 주문 시 통일 주차장 1시간 지원",
+    "audience": "mixed",
+    "signatureDishes": ["정통초밥", "숙성 사시미", "점심특선"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": "2층 개인실 있음"
+}

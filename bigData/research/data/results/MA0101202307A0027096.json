@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202307A0027096",
+  "worker": "haiku-20",
+  "researchedAt": "2026-09-09T11:11:30Z",
+  "queries": ["어번스키친 부산진구", "어번스키친 범천1동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색에서 '어번스키친'이라는 식당 정보 없음. '어스키친'이라는 다른 이름의 음식점만 나타남",
+  "notes": ""
+}

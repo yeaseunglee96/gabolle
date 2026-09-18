@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202305A0140640",
+  "worker": "haiku-40",
+  "researchedAt": "2026-09-09T13:00:00Z",
+  "queries": ["엥카링 북구 부산", "엥카링 화명2동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "명확한 웹 자료 없음. 화명동 맛집 목록에는 포함될 수 있으나 직접 정보 확보 실패",
+  "notes": ""
+}

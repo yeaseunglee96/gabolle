@@ -1,0 +1,27 @@
+{
+  "id": "MA0101202507A0037940",
+  "worker": "haiku-28",
+  "researchedAt": "2026-09-09T10:40:00Z",
+  "queries": ["태영수산 강서구 부산", "태영수산 신호동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=BHHRerlWry5Y"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "갈미조개, 갈삼구이(갈미조개와 삼겹살 조합)", "sources": [0]},
+    {"type": "분위기·전망", "note": "따뜻한 분위기", "sources": [0]},
+    {"type": "맛 묘사", "note": "신선하고 든든한 맛", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["갈미샤브샤브", "갈삼구이", "갈미수육", "백합조개탕"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": "브레이크타임 15:00-17:00, 21:00 라스트오더, 날씨에 따라 조개 어획량 변동하므로 예약 권장"
+}

@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220808414032",
+  "worker": "haiku-61",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["이가국밥 수영구 부산", "이가국밥 민락동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://triple.guide/restaurants/d9b775aa-2509-4a1b-bffd-d55a9588d12e", "https://www.daangn.com/kr/local-profile/%EC%9D%B4%EA%B0%80%EA%B5%AD%EB%B0%A5-doqj6smyoxsf/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "조리·재료", "note": "1등급 한우 사용, 신선한 한우육회", "sources": [0]},
+    {"type": "맛 묘사", "note": "한우국밥과 육회비빔밥으로 알려짐", "sources": [0]},
+    {"type": "서비스·사람", "note": "단골에게 음료수 무료 제공", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["한우국밥", "한우육회비빔밥", "한우육회"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "연중무휴 09:00-21:00, 전화 051-757-9979, 주차 가능, 와이파이, 예약 가능"
+}

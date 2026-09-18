@@ -1,0 +1,47 @@
+{
+  "id": "MA010120220813610606",
+  "worker": "haiku-3",
+  "researchedAt": "2026-09-08T16:53:33.797Z",
+  "queries": ["형제전통돼지국밥 해운대", "형제전통돼지국밥 중동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://busan.grandculture.net/Contents?local=busan&dataType=01&contents_id=GC04217547",
+    "https://www.diningcode.com/profile.php?rid=B3y1ZRFDgf8v"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "연차·역사",
+      "note": "1972년부터 50년 전통의 오래된 가게",
+      "sources": [0, 1]
+    },
+    {
+      "type": "맛 묘사",
+      "note": "깊은 맛의 국물, 정성이 담긴 토렴으로 국물이 진하고 뜨끈함",
+      "sources": [0, 1]
+    },
+    {
+      "type": "운영·접근 편의",
+      "note": "아침 6시부터 영업하고 10분 내 빠른 서빙",
+      "sources": [1]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "순대국밥, 따로국밥, 섞어국밥 등 다양한 종류",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 50,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": null,
+    "signatureDishes": ["돼지국밥", "순대국밥"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

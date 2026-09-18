@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220810293601",
+  "worker": "haiku-32",
+  "researchedAt": "2026-09-09T11:10:00Z",
+  "queries": ["해성횟집 해운대구 부산", "해성횟집 반송2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 해운대구 반송로924번길 28"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "횟집 전문",
+      "sources": [0, 1]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "무료 매운탕, 가성비 좋음, 개인 손님도 물회·밥사발 제공",
+      "sources": [0]
+    },
+    {
+      "type": "서비스·사람",
+      "note": "주인과 직원이 친절하고 정중",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": ["회", "매운탕"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "전화 051-544-8889. 트리플가이드, 당근, 로컬맵 등재."
+}

@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202602A0009830",
+  "worker": "haiku-73",
+  "researchedAt": "2026-09-09T23:28:43.735Z",
+  "queries": ["밥꽃 해운대구 부산", "밥꽃 중1동 맛집"],
+  "found": false,
+  "confidence": "low",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "부산 해운대 중1동의 '밥꽃'에 대한 정보를 찾을 수 없음. 다른 지역의 '밥꽃한상' 등 유사명의 식당만 검색됨",
+  "notes": ""
+}

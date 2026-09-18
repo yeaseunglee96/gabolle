@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220810683239",
+  "worker": "haiku-43",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["구덕민속촌 사상구 부산", "구덕민속촌 학장동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=NzrCyOVMMVKy"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "플랫폼 순위·평점", "note": "다이닝코드 오리고기 분야 평점을 근거로 든다", "sources": [0]},
+    {"type": "서비스·사람", "note": "가족 및 단체 회식에 적합한 공간", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "family",
+    "signatureDishes": ["유황오리백숙", "오리고기"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "10:30-21:00 영업, 전통한옥 분위기"
+}

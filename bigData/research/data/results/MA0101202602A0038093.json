@@ -1,0 +1,15 @@
+{
+  "id": "MA0101202602A0038093",
+  "worker": "haiku-53",
+  "researchedAt": "2026-09-09T06:10:00Z",
+  "queries": ["오프레 수영구 부산", "오프레 광안2동 맛집", "오프레 경양식"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색 결과에서 부산의 경양식당 오프레 정보를 찾지 못함",
+  "notes": ""
+}

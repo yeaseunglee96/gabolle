@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220808772214",
+  "worker": "haiku-1",
+  "researchedAt": "2026-09-09T01:39:00Z",
+  "queries": ["금수복국 해운대", "금수복국 중동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=kIs9wIrsAmbR", "https://guide.michelin.com/us/en/busan-region/busan_1025838/restaurant/kumsu-bokguk"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "heritage",
+      "note": "1970년 개점 50년 이상의 전통 - 우리나라 최초로 뚝배기 복국을 선보인 곳",
+      "sources": [0]
+    },
+    {
+      "type": "quality",
+      "note": "시원한 국물 - 뛰어난 해장국으로 알려짐",
+      "sources": [0]
+    },
+    {
+      "type": "recognition",
+      "note": "2024 Michelin Guide 선정, Blue Ribbon 수상 - 부산 대표 복국 맛집",
+      "sources": [1]
+    },
+    {
+      "type": "specialty",
+      "note": "다양한 복어 종류 선택 가능 - 은복, 밀복, 가시복 등 각각 다른 맛",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 50,
+    "signatureDishes": ["복국", "은복국", "밀복국", "뚝배기복국"]
+  },
+  "notFound": null,
+  "notes": "1층 24시간 운영, 2층 11:00~22:00 (15:00~17:00 브레이크), 특히 아침 점심 시간 웨이팅 기계 필요, 무료주차 및 발렛파킹 제공, 로컬과 관광객 모두 방문"
+}

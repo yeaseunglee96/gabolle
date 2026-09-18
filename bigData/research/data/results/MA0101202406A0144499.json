@@ -1,0 +1,17 @@
+{
+  "id": "MA0101202406A0144499",
+  "worker": "haiku-22",
+  "researchedAt": "2026-09-09T01:18:30.000Z",
+  "queries": ["깜봉 중구 부산", "깜봉 중앙동 맛집"],
+  "found": true,
+  "confidence": "low",
+  "sources": [
+    "https://www.instagram.com/reel/DCrMTA_S4nE/"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": null,
+  "notes": ""
+}

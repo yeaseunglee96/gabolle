@@ -1,0 +1,25 @@
+{
+  "id": "MA0101202508A0005088",
+  "worker": "haiku-69",
+  "researchedAt": "2026-09-10T00:14:00Z",
+  "queries": ["프로젝트:코이 부산진구", "프로젝트코이 전포동"],
+  "found": true,
+  "confidence": "medium",
+  "sources": ["https://www.instagram.com/koi_concafe/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "분위기·전망", "note": "독특한 컨셉 카페, 게임 가능", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": [],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "컨셉 카페, Instagram @koi_concafe"
+}

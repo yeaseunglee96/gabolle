@@ -1,0 +1,47 @@
+{
+  "id": "MA010120220810617765",
+  "worker": "haiku-3",
+  "researchedAt": "2026-09-08T16:46:07.975Z",
+  "queries": ["팔미분식 부산진구 부산", "팔미분식 부전동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.siksinhot.com/P/350048",
+    "https://www.diningcode.com/profile.php?rid=9KnDTyZHEAh5"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "운영·접근 편의",
+      "note": "24시간 연중무휴 운영으로 야식과 해장으로 인기가 높음",
+      "sources": [0, 1]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "저렴한 가격에 푸짐하고 정갈한 음식을 제공",
+      "sources": [0, 1]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "김치말이김밥과 시락국의 조합이 시그니처 메뉴",
+      "sources": [0, 1]
+    },
+    {
+      "type": "맛 묘사",
+      "note": "계란지단이 올려진 김치말이의 매콤새콤한 맛",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 39,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": null,
+    "signatureDishes": ["김치말이김밥", "시락국"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

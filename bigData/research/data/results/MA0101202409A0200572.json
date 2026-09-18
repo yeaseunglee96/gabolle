@@ -1,0 +1,60 @@
+{
+  "id": "MA0101202409A0200572",
+  "worker": "haiku-16",
+  "researchedAt": "2026-09-08T22:59:29.078Z",
+  "queries": [
+    "스시나우 수영구 부산",
+    "스시나우 수영로575번길"
+  ],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.keyzard.cc/ssongs_yummy/nb/223766528274"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "메뉴 희소성",
+      "note": "싱싱한 활어초밥, 다양한 모듬초밥",
+      "sources": [
+        0
+      ]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "나우모듬, 활어초밥, 우동",
+      "sources": [
+        0
+      ]
+    },
+    {
+      "type": "조리·재료",
+      "note": "입구 수족관에서 신선하게 슬라이싱",
+      "sources": [
+        0
+      ]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "테이블/카운터 좌석(다찌석)",
+      "sources": [
+        0
+      ]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": [
+      "활어초밥",
+      "나우모듬"
+    ],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "위치: 수영로575번길 11 이린타워 105호, 연락처 0507-1395-5619, 월~토 11:00~22:00 (브레이크 15:00~17:00), 일 휴무"
+}

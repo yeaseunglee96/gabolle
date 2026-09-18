@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220807336020",
+  "worker": "haiku-53",
+  "researchedAt": "2026-09-09T06:00:00Z",
+  "queries": ["에레날 수영구 부산", "에레날 민락동 맛집", "에레날 블로그"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "웹 검색 결과에서 경양식당 에레날의 정보를 찾지 못함",
+  "notes": ""
+}

@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220811418876",
+  "worker": "haiku-8",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["영남식육식당 동래구 부산", "영남식육식당 명륜동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산 동래구 명륜로112번가길 51"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "조리·재료", "note": "신선한 소고기와 맛있는 반찬이 특징", "sources": [0, 1]},
+    {"type": "분위기·전망", "note": "크고 넓은 공간에 깔끔한 인테리어", "sources": [1]},
+    {"type": "가격·가성비", "note": "부담 없는 가격으로 한우를 즐길 수 있다", "sources": [1]},
+    {"type": "간판 메뉴 지목", "note": "깍둑등심과 석쇠불고기가 시그니처 메뉴", "sources": [0, 1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["깍둑등심", "석쇠불고기"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

@@ -1,0 +1,25 @@
+{
+  "id": "MA0101202409A0018612",
+  "worker": "haiku-11",
+  "researchedAt": "2026-09-09T00:37:00Z",
+  "queries": ["부산국밥 동구 부산", "부산국밥 범일 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 동구 자성로133번길 50"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "맛 묘사", "note": "돼지 냄새 없는 맑은 국물의 돼지국밥", "sources": [1] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["돼지국밥"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

@@ -1,0 +1,51 @@
+{
+  "id": "MA010120220809403783",
+  "worker": "haiku-3",
+  "researchedAt": "2026-09-09T03:15:00.000Z",
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://blog.naver.com/mongsilzzubb/222026394888",
+    "https://blog.naver.com/PostView.nhn?blogId=tjddms7721&logNo=224177555289",
+    "https://danya26.tistory.com/273",
+    "https://www.diningcode.com/profile.php?rid=NcK6uh2ym57o",
+    "https://www.siksinhot.com/P/823794",
+    "https://blog.naver.com/dahmdahm2/224180079744",
+    "https://mongsilzzubb.tistory.com/9"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "연차·역사",
+      "note": "7년째 운영되는 오래된 초밥집이라고 여러 블로그가 적는다",
+      "sources": [5]
+    },
+    {
+      "type": "현지인 지지",
+      "note": "동네 사람들이 단골으로 찾는 곳이라고 글에서 말한다",
+      "sources": [0, 2, 5]
+    },
+    {
+      "type": "가격·가성비",
+      "note": "신선한 초밥에 가성비가 좋다고 여러 글이 언급한다",
+      "sources": [0, 1, 6]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "알밥과 우동이 세트 메뉴의 특징이라고 소개된다",
+      "sources": [0, 1, 2]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 7,
+    "generations": null,
+    "queueing": null,
+    "parking": "hard",
+    "audience": "local",
+    "signatureDishes": ["모둠초밥", "알밥", "우동", "광어회덮밥"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "소규모 가게로 테이블 4개와 작은 룸 1개. 사장님이 친절함. 주차는 근처 공영주차장 이용."
+}

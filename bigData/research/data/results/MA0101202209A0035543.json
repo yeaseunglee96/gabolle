@@ -1,0 +1,44 @@
+{
+  "id": "MA0101202209A0035543",
+  "worker": "haiku-31",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["오르601 금정구 부산", "오르601 남산동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1571356"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "조리·재료",
+      "note": "모든 소스류를 직접 조리, 돈까스가 크고 두툼함",
+      "sources": [0]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "돈까스 (크림 돈까스, 로제 돈까스), 파스타, 리소또, 모든 돈까스에 새우 한 마리 함께 제공",
+      "sources": [0]
+    },
+    {
+      "type": "서비스·사람",
+      "note": "주인이 친절함, 깨끗하고 아늑한 분위기",
+      "sources": [0]
+    },
+    {
+      "type": "운영·접근 편의",
+      "note": "주차 가능 (아파트 주차장, 건물 뒤), 테이크아웃 가능",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "mixed",
+    "signatureDishes": ["돈까스", "크림 돈까스", "로제 돈까스", "파스타"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "부산 금정구 남산로37번길 50, 0507-1389-6013"
+}

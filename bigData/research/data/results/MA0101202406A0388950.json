@@ -1,0 +1,39 @@
+{
+  "id": "MA0101202406A0388950",
+  "worker": "haiku-70",
+  "researchedAt": "2026-09-10T00:00:00Z",
+  "queries": ["볶는집 광안 백반 수영구", "볶는집 광안2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://triple.guide/restaurants/74753278-1c75-4778-9e64-d05ec3ceff98", "https://www.diningcode.com/profile.php?rid=d2dlbRqTktH1", "https://kr.trip.com/moments/detail/gwanganri-beach-2040459-124892567/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "광안리 해수욕장 앞의 철판 앞에서 직접 조리하는 퍼포먼스 식당",
+      "sources": [2]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "꽃게 철판구이가 대표 메뉴로 달걀말이도 유명",
+      "sources": [0]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "광안대교 야경을 보며 즐길 수 있는 해변 식당",
+      "sources": [2]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["꽃게 철판구이", "달걀말이", "라면"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "카테고리는 백반/한정식이지만 실제로는 철판구이 전문점"
+}

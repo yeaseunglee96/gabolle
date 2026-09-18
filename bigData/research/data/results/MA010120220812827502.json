@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220812827502",
+  "worker": "haiku-69",
+  "researchedAt": "2026-09-10T00:02:00Z",
+  "queries": ["고메빵집 해운대구 부산", "고메빵집 우1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1158941", "https://gomebakery.modoo.at/"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "고메빵, 호밀식빵 수제빵 전문점", "sources": [0, 1]},
+    {"type": "분위기·전망", "note": "테라스에서 쾌적하게 즐길 수 있음", "sources": [0]},
+    {"type": "가격·가성비", "note": "합리적인 가격에 좋은 품질", "sources": [0]},
+    {"type": "미디어 노출", "note": "매체에 소개, 알만한 사람들은 다 아는 가게", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["고메빵", "호밀식빵", "앙버터"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "해리단길 위치, 테라스 좌석 있음, 테이크아웃 가능"
+}

@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220810178841",
+  "worker": "haiku-21",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["인생참치 연제구 부산", "인생참치 연산동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1195642", "https://www.keyzard.cc/taehana0426/nb/223855239001"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "메뉴 희소성",
+      "note": "참치와 생새우로 시작해 구이, 새우튀김까지 다단계 참치 코스",
+      "sources": [0, 1]
+    },
+    {
+      "type": "서비스·사람",
+      "note": "밑반찬과 전복죽, 국이 미리 세팅되고 부족하면 추가 제공",
+      "sources": [0, 1]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "모던하고 깨끗한 인테리어, 바 시팅 가능",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "available",
+    "audience": "mixed",
+    "signatureDishes": ["1인 로얄", "1인 스페셜"],
+    "priceBand": "premium"
+  },
+  "notFound": null,
+  "notes": "교대역과 연산역 사이 위치, 예약 가능"
+}

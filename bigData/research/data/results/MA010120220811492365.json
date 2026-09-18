@@ -1,0 +1,38 @@
+{
+  "id": "MA010120220811492365",
+  "worker": "haiku-49",
+  "researchedAt": "2026-09-09T14:00:00Z",
+  "queries": ["초이스에프앤비 수영구 광안2동", "초이스에프앤비 광안해변로 생맥주"],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://moneypin.biz/bizno/detail/6188136856/",
+    "https://dailybeer.co.kr/board/index.php?board=map_01&sca=all&type=view&idx=234",
+    "https://www.theteams.kr/recruit/wanted/1405935"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "무지개맥주 생맥주 전문점",
+      "sources": [0, 1]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "광안해변로에 위치한 광안리 해변 맥주 가게",
+      "sources": [1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["생맥주"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

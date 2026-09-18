@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220813818819",
+  "worker": "haiku-28",
+  "researchedAt": "2026-09-09T10:35:00Z",
+  "queries": ["헤븐 서구 부산", "헤븐 초장동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1273354", "https://www.diningcode.com/profile.php?rid=Q2e0tnQtRfqL"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "나폴리피자, 파스타, 스테이크", "sources": [0]},
+    {"type": "분위기·전망", "note": "높은 곳에 위치해 부산 구도심의 멋진 야경을 볼 수 있다", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "couples",
+    "signatureDishes": ["나폴리피자", "파스타"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": "정기휴무 월요일, 화~일요일 11:30~21:30 영업, 야외 테라스와 루프탑 좌석 있음"
+}

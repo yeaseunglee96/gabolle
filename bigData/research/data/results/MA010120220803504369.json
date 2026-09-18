@@ -1,0 +1,25 @@
+{
+  "id": "MA010120220803504369",
+  "worker": "haiku-29",
+  "researchedAt": "2026-09-09T10:31:00Z",
+  "queries": ["배산고기집 연제구 부산", "배산고기집 연산3동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": [],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "고기집", "sources": []}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": [],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

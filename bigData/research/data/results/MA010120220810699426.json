@@ -1,0 +1,30 @@
+{
+  "id": "MA010120220810699426",
+  "worker": "haiku-14",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["할매재첩국 사상구 부산", "할매재첩국 삼락동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산 방문 관광", "부산역사문화대전", "다이닝코드", "부산일보"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "연차·역사", "note": "1975년 개업, 50년 이상 전통 유지", "sources": [1, 3]},
+    {"type": "원조·최초", "note": "삼락동 재첩 골목의 원조 맛집", "sources": [1, 2]},
+    {"type": "대물림", "note": "3대에 걸쳐 전통을 이어온 가업", "sources": [0, 1]},
+    {"type": "간판 메뉴 지목", "note": "재첩국이 대표 메뉴", "sources": [1, 2]},
+    {"type": "현지인 지지", "note": "부산 토박이들이 인정한 깊은 맛과 전통", "sources": [1]},
+    {"type": "혼잡·수요", "note": "인기 맛집으로 피크타임에 대기 있음", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 50,
+    "generations": 3,
+    "queueing": true,
+    "parking": true,
+    "audience": "local",
+    "signatureDishes": ["재첩국", "재첩무침", "재첩전", "재첩찜"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": ""
+}

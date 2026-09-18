@@ -1,0 +1,27 @@
+{
+  "id": "MA0101202406A0036149",
+  "worker": "haiku-62",
+  "researchedAt": "2026-09-10T12:04:00Z",
+  "queries": ["웅장상회 해운대 경양식", "웅장상회 해운대점 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.instagram.com/p/DHLudQ9y9R5/", "https://www.diningcode.com/profile.php?rid=Bdp4zM8WzGV1"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "수제버거 전문", "sources": [0, 1]},
+    {"type": "조리·재료", "note": "사장이 미국에서 3년 배운 기술로 신선한 소고기 패티 사용", "sources": [0, 1]},
+    {"type": "분위기·전망", "note": "해운대 수족관 맞은편 해변가 위치", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["수제버거", "풀드포크"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

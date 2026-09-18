@@ -1,0 +1,54 @@
+{
+  "id": "MA010120220806561494",
+  "worker": "haiku-16",
+  "researchedAt": "2026-09-08T22:56:03.591Z",
+  "queries": [
+    "어반스시 해운대 부산",
+    "어반스시 우3동 일식"
+  ],
+  "found": true,
+  "confidence": "high",
+  "sources": [
+    "https://www.diningcode.com/profile.php?rid=rdmIp4duLKsu",
+    "https://mapz.dododo.co.kr/view.php?id=46470"
+  ],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "아름다운 경치와 해안 위치",
+      "sources": [
+        1
+      ]
+    },
+    {
+      "type": "메뉴 희소성",
+      "note": "초밥, 롤 등 다양한 일식 요리",
+      "sources": [
+        1
+      ]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "후토마끼 등 스시 전문",
+      "sources": [
+        0
+      ]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": [
+      "스시",
+      "후토마끼"
+    ],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "위치: 대웨 마리나 2빌딩 201호, 영업 화~일 10:00~22:00, 월 휴무, 다양한 좌석 있음"
+}

@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220800846779",
+  "worker": "haiku-29",
+  "researchedAt": "2026-09-09T10:25:00Z",
+  "queries": ["반여초밥 해운대구 부산", "반여초밥 반여1동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/profile.php?rid=QdjQ7uqwJ417"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "회전초밥 전문점", "sources": [0]},
+    {"type": "메뉴 희소성", "note": "연어 스시가 인기 메뉴", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "1시간 주차 지원 (25,000원 이상 구매시)",
+    "audience": "mixed",
+    "signatureDishes": ["연어 스시", "프리미엄초밥세트"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

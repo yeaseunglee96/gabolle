@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220808579945",
+  "worker": "haiku-1",
+  "researchedAt": "2026-09-09T02:51:00Z",
+  "queries": ["개미집 부산진구 부전"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/361546", "https://www.diningcode.com/profile.php?rid=0AOiYZd4SHsh"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "heritage",
+      "note": "1972년부터 40년 이상 운영 - 부산 낙곱새 대표점",
+      "sources": [0]
+    },
+    {
+      "type": "menu",
+      "note": "낙지볶음, 낙지새우볶음, 낙지곱창볶음 등 다양한 메뉴",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 40,
+    "signatureDishes": ["낙지볶음"]
+  },
+  "notFound": null,
+  "notes": "10:00~23:00(라스트오더 22:30), TripAdvisor 부산 21위"
+}

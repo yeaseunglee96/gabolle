@@ -1,0 +1,26 @@
+{
+  "id": "MA010120220810206103",
+  "worker": "haiku-4",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["영동밀면돼지국밥 동구 부산", "영동밀면 초량 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 동구 중앙대로209번길 12"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "맛 묘사", "note": "깔끔한 국물, 부드러운 고기, 탱글탱글한 밀면", "sources": [0]},
+    {"type": "가격", "note": "밀면 8000-9000원, 돼지국밥 10000원", "sources": [1]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": true,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["돼지국밥", "물밀면", "비빔밀면"],
+    "priceBand": "cheap"
+  },
+  "notFound": null,
+  "notes": "부산역 근처, 유명해서 웨이팅 가능성"
+}

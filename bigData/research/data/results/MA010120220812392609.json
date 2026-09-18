@@ -1,0 +1,15 @@
+{
+  "id": "MA010120220812392609",
+  "worker": "haiku-59",
+  "researchedAt": "2026-09-09T07:57:20Z",
+  "queries": ["광안다이닝 수영구 부산", "광안다이닝 민락동 맛집"],
+  "found": false,
+  "confidence": "none",
+  "sources": [],
+  "stillOpen": null,
+  "whyPeopleGo": [],
+  "newTypes": [],
+  "descriptors": {},
+  "notFound": "해당 이름의 식당이 웹 검색 결과에 나타나지 않음. 민락동 맛집 플랫폼에서 발견 불가",
+  "notes": "경양식 카테고리로 등록. 비슷한 이름의 '광안다찌'라는 가게는 검색되나 '광안다이닝'은 미확인"
+}

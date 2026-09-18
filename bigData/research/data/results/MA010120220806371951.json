@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220806371951",
+  "worker": "haiku-18",
+  "researchedAt": "2026-09-09T10:20:00Z",
+  "queries": ["바운티그릴 기장군 부산", "바운티그릴 일광읍 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 기장군 일광읍 문오성길 162-2"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "해변 직접 앞에 위치한 바다뷰 레스토랑",
+      "sources": [0]
+    },
+    {
+      "type": "조리·재료",
+      "note": "고급 스테이크를 무한리필로 제공하는 그릴 레스토랑",
+      "sources": [0]
+    },
+    {
+      "type": "운영·접근 편의",
+      "note": "무료 주차와 명확한 예약 시스템 제공",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": true,
+    "audience": "adults",
+    "signatureDishes": ["스테이크"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": ""
+}

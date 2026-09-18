@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220811388404",
+  "worker": "haiku-9",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["광명집 남구 부산", "광명집 대연3동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["siksinhot.com", "diningcode.com"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "연차·역사",
+      "note": "25년 이상 전통, 1997년부터 같은 위치에서 운영",
+      "sources": [0, 1]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "아귀찜, 뽈찜이 대표메뉴",
+      "sources": [0, 1]
+    },
+    {
+      "type": "기관 선정",
+      "note": "부산 3대 아귀찜 맛집 중 하나로 평가",
+      "sources": [0, 1]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 25,
+    "generations": null,
+    "queueing": true,
+    "parking": true,
+    "audience": "local",
+    "signatureDishes": ["아귀찜", "뽈찜"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": "대연 용호 지역 위치. 저녁 시간에 웨이팅 있음"
+}

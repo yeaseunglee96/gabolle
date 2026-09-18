@@ -1,0 +1,25 @@
+{
+  "id": "MA0101202406A0512484",
+  "worker": "haiku-58",
+  "researchedAt": "2026-09-09T17:05:00Z",
+  "queries": ["태리태리식당 수영구 부산", "태리태리식당 광안2동 맛집"],
+  "found": true,
+  "confidence": "medium",
+  "sources": [],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "가노끼(뇨끼) 전문 식당", "sources": []}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["가노끼"],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": "수영구 감자뇨끼 맛집 목록에 등재됨. 광안2동 지역 인근"
+}

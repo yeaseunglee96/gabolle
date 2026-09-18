@@ -1,0 +1,28 @@
+{
+  "id": "MA010120220800689673",
+  "worker": "haiku-15",
+  "researchedAt": "2026-09-08T22:37:41Z",
+  "queries": ["야키토리온정 부산진구 부산", "야키토리온정 전포2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 부산진구 동천로108번길 9-7"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    { "type": "기관 선정", "note": "미슐랭 빕구르망 수년간 선정", "sources": [0] },
+    { "type": "간판 메뉴 지목", "note": "토종닭 야키토리, 쫄깃하고 육즙 풍부", "sources": [0] },
+    { "type": "조리·재료", "note": "당일 식당에서 발골·해체한 토종닭 사용", "sources": [0] },
+    { "type": "혼잡·수요", "note": "저녁 피크 시간에는 웨이팅 필수", "sources": [0] }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": true,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["토종닭 야키토리"],
+    "priceBand": "expensive"
+  },
+  "notFound": null,
+  "notes": "매일 17:00~24:00 영업, 캐치테이블 필수 예약, 코스 구성 1.9 미니코스/3.3 풀코스"
+}

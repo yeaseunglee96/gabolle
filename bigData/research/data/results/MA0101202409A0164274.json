@@ -1,0 +1,25 @@
+{
+  "id": "MA0101202409A0164274",
+  "worker": "haiku-59",
+  "researchedAt": "2026-09-09T08:58:00Z",
+  "queries": ["금손1983 부산 수영", "금손1983 수영로 회"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.siksinhot.com/P/1305960", "https://www.diningcode.com/profile.php?rid=1SzmFfRuWOYw"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "오마카세, 야키토리(꼬치구이)",
+      "sources": ["https://www.diningcode.com/profile.php?rid=1SzmFfRuWOYw"]
+    },
+    {
+      "type": "분위기·전망",
+      "note": "아늑한 분위기, 신선한 씨푸드, 정갈한 일본 요리",
+      "sources": ["https://www.siksinhot.com/P/1305960"]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {},
+  "notes": "수영 오마카세 전문점"
+}

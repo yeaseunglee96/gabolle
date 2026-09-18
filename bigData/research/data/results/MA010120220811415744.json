@@ -1,0 +1,29 @@
+{
+  "id": "MA010120220811415744",
+  "worker": "haiku-25",
+  "researchedAt": "2026-09-09T10:41:30Z",
+  "queries": ["장산횟집 해운대구 부산", "장산횟집 반여2동 맛집"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://www.diningcode.com/list.dc?query=%EC%9E%A5%EC%82%B0+%ED%9A%9F%EC%A7%91"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "동네·시장 지목",
+      "note": "장산역 횟집 맛집 거리",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": [],
+    "priceBand": null
+  },
+  "notFound": null,
+  "notes": ""
+}

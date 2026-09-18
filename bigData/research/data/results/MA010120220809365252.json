@@ -1,0 +1,27 @@
+{
+  "id": "MA010120220809365252",
+  "worker": "haiku-12",
+  "researchedAt": "2026-09-09T00:00:00Z",
+  "queries": ["르봉비 영도구 부산", "르봉비 봉래동 도넛"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["https://blog.szstella.com/entry/%EB%B6%80%EC%82%B0-%EC%98%81%EB%8F%84-%EB%A5%B4%EB%B4%89%EB%B9%84"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {"type": "간판 메뉴 지목", "note": "에그타르트, 감자치즈베이글, 소금빵 등 다양한 베이커리", "sources": [0]},
+    {"type": "간판 메뉴 지목", "note": "잠봉뵈르(Jambon Beurre)가 르봉비만의 특별한 인기 메뉴", "sources": [0]},
+    {"type": "조리·재료", "note": "신선한 빵과 베이커리 제품", "sources": [0]}
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["에그타르트", "감자치즈베이글", "잠봉뵈르", "소금빵"],
+    "priceBand": "moderate"
+  },
+  "notFound": null,
+  "notes": ""
+}

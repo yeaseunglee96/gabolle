@@ -1,0 +1,39 @@
+{
+  "id": "MA010120220814102940",
+  "worker": "haiku-18",
+  "researchedAt": "2026-09-09T10:40:00Z",
+  "queries": ["골드파파 남구 부산", "골드파파 용호4동 경양식"],
+  "found": true,
+  "confidence": "high",
+  "sources": ["부산광역시 남구 용호로 268-3"],
+  "stillOpen": true,
+  "whyPeopleGo": [
+    {
+      "type": "조리·재료",
+      "note": "미국 현지 스타일의 본연의 맛을 재현한 수제 버거와 샌드위치",
+      "sources": [0]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "수제 버거가 시그니처 메뉴인 버거 전문점",
+      "sources": [0]
+    },
+    {
+      "type": "현지인 지지",
+      "note": "미군 부대에서 먹으러 오는 부산의 유명한 햄버거집",
+      "sources": [0]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": ["수제 버거"],
+    "priceBand": "mid"
+  },
+  "notFound": null,
+  "notes": ""
+}
