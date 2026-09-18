@@ -1,7 +1,7 @@
 // 여행 기록 피드 —재설계 1단계(구조).
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import { ActivityIndicator, Image, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { ActivityIndicator, Image, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { useAuth } from '@/auth/AuthProvider';
@@ -536,9 +536,26 @@ export default function Feed() {
   };
 
   const header = <View style={styles.headerRow}>
-    <View>
+    <View style={styles.headerText}>
       <Eyebrow>{tx('여행 기록 피드', 'Travel story feed')}</Eyebrow>
-      <Text variant="display" weight="bold" style={styles.headerTitle}>{tx('여행 이야기', 'Travel stories')}</Text>
+      {/* 🔴 큰 제목(hero)은 기본 글자색이 흰색이다 — 어두운 바탕 위에 쓰라고 만든 것이라서.
+          색을 안 주면 아이보리 바탕에 흰 글자가 되어 아무것도 안 보인다. 타입도 시험도
+          안 잡는 종류라 여기서 반드시 준다. */}
+      <Text
+        variant={compact ? 'display' : 'hero'}
+        weight="bold"
+        color={color.text.heading}
+        style={styles.headerTitle}
+      >
+        {tx('부산에서 남긴 여행 이야기', 'Travel stories from Busan')}
+      </Text>
+      {/* 폰에는 안 그린다 — 시안 04 가 제목 바로 아래 범위 칩을 둔다. */}
+      {compact ? null : (
+        <Text color={color.text.body}>
+          {tx('사진 3장까지, 장소를 연결하면 그 장소 소개에도 함께 보여요.',
+              'Up to three photos. Link a place and your photos can appear on that place too.')}
+        </Text>
+      )}
     </View>
     <View style={styles.headerActions}>
       <View accessibilityRole="tablist" style={compact ? styles.scopeChips : styles.scopeSegments}>
@@ -693,17 +710,29 @@ const styles = StyleSheet.create({
 
   // 넓은 화면: 본문 + 보조 칸. 보조 칸은 폭 고정, 본문이 남는 만큼 가져간다.
   wideGrid: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[6], marginTop: spacing[6] },
-  // 피드 기둥에 최대 폭을 준다.
-  feedColumn: { flex: 1, minWidth: 0, maxWidth: 600, width: '100%', alignSelf: 'center' },
+  // 🔴 기둥에 최대 폭을 주지 않는다. 지도 칸을 뺀 나머지를 다 쓴다(시안 03).
+  //
+  //    600 으로 묶여 있을 때는 1440 폭에서도 카드가 2열이었고 오른쪽이 텅 비었다.
+  //    열 수는 아래 cardInGrid 의 「한 장의 최소 폭 280」이 정한다 — 열 수를 숫자로
+  //    박지 않는다. 상한만 풀면 넓은 화면에서 저절로 3열이 된다.
+  feedColumn: { flex: 1, minWidth: 0, width: '100%', alignSelf: 'center' },
   // ── 폰의 떠 있는 단추 ────────────────────────────────────
   pressed: { opacity: 0.72, transform: [{ scale: 0.97 }] },
   fabDock: { position: 'absolute', left: 0, right: 0, bottom: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing[3], paddingHorizontal: gutter },
   mapToggle: { minHeight: 48, justifyContent: 'center', paddingHorizontal: spacing[6], borderRadius: radius.full, backgroundColor: color.brand.navy },
   writeFab: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center', borderRadius: 24, backgroundColor: color.brand.orange },
   phoneMap: { marginTop: spacing[4] },
-  // 520 은 시안 값이다. 전에는 320 이라 지도가 우표만 했다
+  // 480 은 시안 값이다. 전에는 320 이라 지도가 우표만 했고, 그 뒤 520 이었다.
   // 지도를 보라고 둔 칸인데 무엇이 어디인지 안 보였다.
-  aside: { width: 520, gap: spacing[3] },
+  //
+  // 🔴 스크롤을 내려도 자리에 머문다(시안 03). 안 그러면 카드 몇 장만 내려도 지도가
+  //    위로 사라져서, 「지도를 보며 기록을 훑는다」는 이 배치의 목적이 없어진다.
+  //    position: 'sticky' 는 웹에만 있는 값이라 RN 의 타입에 없다 — 폰에서는 안 준다.
+  aside: {
+    width: 480,
+    gap: spacing[3],
+    ...(Platform.OS === 'web' ? ({ position: 'sticky', top: spacing[6] } as object) : null),
+  },
   mapPanel: { gap: spacing[3], paddingVertical: spacing[6], paddingHorizontal: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.border },
   // 라벨 핀 — 줄바꿈된다. 장소가 몇 개든 잘리지 않는다.
   pinLabels: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] },
@@ -712,7 +741,8 @@ const styles = StyleSheet.create({
   mapCard: { borderWidth: 1, borderColor: color.surface.border, borderRadius: radius.lg, backgroundColor: color.surface.card, overflow: 'hidden' },
 
   headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', gap: spacing[3], flexWrap: 'wrap' },
-  headerTitle: { marginTop: spacing[1] },
+  headerText: { gap: spacing[2], flexShrink: 1, minWidth: 0 },
+  headerTitle: { marginTop: 0 },
   headerActions: {
     flexDirection: 'row', alignItems: 'center', gap: spacing[2],
     // 넘치면 내려간다. 이 줄이 없어서 오른쪽으로 삐져나갔다.
@@ -775,7 +805,9 @@ const styles = StyleSheet.create({
   authorPillAvatar: { width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: color.brand.navy },
   coverActions: { flexShrink: 0, flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
   cardBody: { gap: spacing[1], padding: spacing[4] },
-  cardCompact: { padding: spacing[4] },
+  // flexShrink 0 — 폰 목록은 세로로 쌓이는데, 높이가 모자라면 카드가 눌려서
+  // 사진이 찌그러진다. 시안 04 가 커버를 300 으로 고정하는 것과 같은 이유다.
+  cardCompact: { padding: spacing[4], flexShrink: 0 },
   avatar: { width: 40, height: 40, borderRadius: radius.full, backgroundColor: color.brand.navy, alignItems: 'center', justifyContent: 'center' },
   avatarCompact: { width: 36, height: 36 },
 
