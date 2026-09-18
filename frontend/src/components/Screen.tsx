@@ -19,13 +19,13 @@ import { TAB_BAR_HEIGHT, tabBarBottomMargin } from './TabBar';
 
 // 웹의 일반 화면도 휴대폰 폭(480px)으로 고정하면 넓은 모니터에서 앱 미리보기처럼 보인다.
 // 폼의 가독성은 유지하면서 카드·목록이 웹답게 숨 쉴 수 있는 폭으로 제한한다.
-const MAX_CONTENT_WIDTH = 720;
+export const MAX_CONTENT_WIDTH = 720;
 
 // 2단(Split) 화면은 480 으로 묶으면 안 된다. 실제로 한 번 깨졌다
 // master 320dp 를 빼고 나면 detail 에 112dp 만 남아 글자가 한 글자씩 줄바꿈됐다
 // ("최 단 경 로"). `tsc` 도 안드로이드 번들도 종료 코드 0 이었다.
 // 폭이 좁은 것은 문법 오류가 아니다. 브라우저로 실제로 띄워 보고서야 찾았다.
-const MAX_SPLIT_WIDTH = 1440;
+export const MAX_SPLIT_WIDTH = 1440;
 
 type ScreenProps = {
   children: ReactNode;
