@@ -466,6 +466,13 @@ class RouteAuthorizationRegistryTest {
 				"탈퇴하면 무엇이 지워지는지 미리 보여준다(-188). 대상이 인증 주체 자신뿐이라 남의 것을 지정할 자리가 없다. AccountDeletionIntegrationTest");
 		put(m, "DELETE /api/v1/auth/me", Policy.OWNED,
 				"탈퇴. 대상이 인증 주체 자신뿐이다. AccountDeletionIntegrationTest");
+		put(m, "GET /api/v1/auth/me/identities", Policy.OWNED,
+				"내 계정에 붙어 있는 소셜 계정 목록(-1317). 대상이 인증 주체 자신뿐이라 남의 것을 지정할 자리가 없다. "
+						+ "LinkedIdentityIntegrationTest");
+		put(m, "DELETE /api/v1/auth/me/identities/{}", Policy.OWNED,
+				"소셜 연결을 뗀다(-1317). 경로의 {provider} 는 <b>내 연결 중 어느 것인가</b>이지 사람이 아니다 — "
+						+ "남의 연결을 가리킬 자리가 없다. 🔴 마지막 로그인 수단은 서버가 막는다(LAST_SIGN_IN_METHOD). "
+						+ "LinkedIdentityIntegrationTest");
 		put(m, "POST /api/v1/menu-scans", Policy.AUTHENTICATED_ONLY,
 				"메뉴판 사진을 서버가 모델에 중계한다. 우리 자원이 아니라 주인이 없다 — 인증을 요구하는 것은 "
 						+ "tools/translate 와 같은 이유(우리 키로 남이 호출을 돌리는 비용)에 더해, "

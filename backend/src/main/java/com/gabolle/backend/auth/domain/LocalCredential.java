@@ -1,6 +1,7 @@
 package com.gabolle.backend.auth.domain;
 
 import com.gabolle.backend.user.domain.AppUser;
+import com.gabolle.backend.user.domain.UserStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -98,6 +99,19 @@ public class LocalCredential {
 		//    새 비밀번호를 알면서도 잠금이 풀릴 때까지 기다려야 하는 것은 말이 안 된다.
 		this.failedLoginAttempts = 0;
 		this.loginLockedUntil = null;
+	}
+
+	/**
+	 * 이 비밀번호로 <b>지금 로그인할 수 있나</b> — 메일 인증을 안 끝냈으면 못 한다
+	 * ({@code LocalAuthService.login} 의 {@code EMAIL_NOT_VERIFIED}).
+	 *
+	 * <p>🔴 이 판정이 <b>소셜 연결을 뗄 수 있는지</b>를 가른다 (S15P21E201-1317). 비밀번호 줄이
+	 * 있다는 것만으로 「다른 로그인 수단이 있다」고 보면, 메일 인증을 안 끝낸 사람이 마지막 소셜
+	 * 연결을 떼고 <b>다시 못 들어온다.</b> 그래서 로그인과 이 판정이 <b>같은 한 곳</b>을 본다 —
+	 * 두 곳에 적으면 한쪽만 고쳐질 때 그 어긋남이 「로그인이 안 된다」로만 드러난다.
+	 */
+	public boolean canSignIn() {
+		return this.emailVerifiedAt != null && this.user.getStatus() != UserStatus.PENDING_EMAIL_VERIFICATION;
 	}
 
 	/** 지금 잠겨 있는가. */

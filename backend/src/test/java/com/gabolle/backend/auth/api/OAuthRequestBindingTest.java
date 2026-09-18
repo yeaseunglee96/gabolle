@@ -24,6 +24,7 @@ import com.gabolle.backend.auth.service.AuthException;
 import com.gabolle.backend.auth.service.AuthTokenService;
 import com.gabolle.backend.auth.service.ConsentUpdateService;
 import com.gabolle.backend.auth.service.CurrentUserService;
+import com.gabolle.backend.auth.service.LinkedIdentityService;
 import com.gabolle.backend.auth.service.LocalAuthService;
 import com.gabolle.backend.auth.service.OAuthAccountService;
 import com.gabolle.backend.auth.service.OAuthChallengeService;
@@ -60,7 +61,7 @@ class OAuthRequestBindingTest {
 				mock(AuthTokenService.class), mock(OAuthLoginService.class), mock(OAuthChallengeService.class),
 				mock(WebAuthCookieService.class), mock(CurrentUserService.class), mock(ProfileUpdateService.class),
 				mock(AccountDeletionService.class), this.accountService,
-				mock(ConsentUpdateService.class));
+				mock(ConsentUpdateService.class), mock(LinkedIdentityService.class));
 		LocalValidatorFactoryBean validator = new LocalValidatorFactoryBean();
 		validator.afterPropertiesSet();
 		// S15P21E201-682 — GlobalAuthExceptionHandler 가 SecurityEventLogger 를 필요로 하게 됐다.

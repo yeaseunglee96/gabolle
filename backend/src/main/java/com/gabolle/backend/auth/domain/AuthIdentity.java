@@ -80,6 +80,32 @@ public class AuthIdentity {
 		this.emailValid = emailValid;
 	}
 
+	/**
+	 * 이 연결을 뗀다 — S15P21E201-1317. 줄을 지우지 않고 「언제 뗐는지」를 적는다.
+	 *
+	 * <p>🔴 <b>지우지 않는 이유가 둘 있다.</b> 하나는 {@code (provider, provider_subject)} 가
+	 * 유일해야 해서 줄이 하나만 있어야 하는 것이고, 다른 하나는 <b>뗀 소셜로 로그인하려는
+	 * 시도를 그 자리에서 알아보기 위해서</b>다. 줄을 지우면 그 시도가 「처음 보는 신원」이
+	 * 되어 가입이나 자동 연결 흐름으로 들어가는데, 그러면 <b>방금 뗀 연결이 조용히 되살아난다.</b>
+	 */
+	public void unlink(Instant unlinkedAt) {
+		this.unlinkedAt = unlinkedAt;
+	}
+
+	/**
+	 * 끊겼던 연결을 다시 잇는다 — S15P21E201-1317.
+	 *
+	 * <p>🔴 <b>주인이 바뀔 수 있다.</b> 끊긴 연결은 누구의 것도 아니다. 그런데 줄은 남아 있어서,
+	 * 주인을 안 바꾸면 그 소셜 계정은 <b>처음 연결했던 계정 말고는 아무도 영영 못 쓴다</b> —
+	 * 유일 제약에 걸려 거절되는데 메시지는 「이미 다른 계정에 연결돼 있어요」라 사실과도 다르다.
+	 * 다시 잇는 쪽은 언제나 그 소셜 계정으로 방금 인증을 마친 사람이므로 안전하다.
+	 */
+	public void relink(AppUser user, Instant linkedAt) {
+		this.user = user;
+		this.linkedAt = linkedAt;
+		this.unlinkedAt = null;
+	}
+
 	@PrePersist
 	void initializeLinkedAt() {
 		linkedAt = Instant.now();

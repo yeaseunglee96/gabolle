@@ -7,6 +7,7 @@ import com.gabolle.backend.auth.service.AuthException;
 import com.gabolle.backend.auth.service.AuthTokenService;
 import com.gabolle.backend.auth.service.AccountDeletionService;
 import com.gabolle.backend.auth.service.CurrentUserService;
+import com.gabolle.backend.auth.service.LinkedIdentityService;
 import com.gabolle.backend.auth.service.LocalAuthService;
 import com.gabolle.backend.auth.service.OAuthAccountService;
 import com.gabolle.backend.auth.service.OAuthChallengeService;
@@ -55,12 +56,14 @@ public class AuthController {
 
 	private final ConsentUpdateService consentUpdateService;
 
+	private final LinkedIdentityService linkedIdentityService;
+
 	public AuthController(LocalAuthService localAuthService, PasswordResetService passwordResetService,
 			AuthTokenService tokenService, OAuthLoginService oAuthLoginService,
 			OAuthChallengeService oAuthChallengeService, WebAuthCookieService webAuthCookieService,
 			CurrentUserService currentUserService, ProfileUpdateService profileUpdateService,
 			AccountDeletionService accountDeletionService, OAuthAccountService oAuthAccountService,
-			ConsentUpdateService consentUpdateService) {
+			ConsentUpdateService consentUpdateService, LinkedIdentityService linkedIdentityService) {
 		this.localAuthService = localAuthService;
 		this.passwordResetService = passwordResetService;
 		this.tokenService = tokenService;
@@ -72,6 +75,7 @@ public class AuthController {
 		this.profileUpdateService = profileUpdateService;
 		this.oAuthAccountService = oAuthAccountService;
 		this.consentUpdateService = consentUpdateService;
+		this.linkedIdentityService = linkedIdentityService;
 	}
 
 	/**
@@ -135,6 +139,38 @@ public class AuthController {
 			@RequestHeader(value = "X-Request-Id", required = false) String requestId) {
 		UUID userId = authenticatedUserId(authentication);
 		return ApiResponse.success(accountDeletionService.preview(userId), resolveRequestId(requestId));
+	}
+
+	/**
+	 * 지금 붙어 있는 소셜 계정 — S15P21E201-1317, 설정 화면의 「연결된 소셜 계정」.
+	 *
+	 * <p>이 자리가 없어서 화면은 <b>무엇이 붙어 있는지 못 보여주고</b> 있었다 — 눌러 봐야
+	 * 「이미 연결되어 있어요」로 알 수 있었다.
+	 *
+	 * <p>줄마다 {@code canUnlink} 가 온다. 마지막 로그인 수단은 뗄 수 없다는 판정을 서버가 해서
+	 * 보내므로, 화면은 그 규칙을 다시 적을 필요가 없다 — 적으면 두 벌이 되고 한쪽만 낡는다.
+	 */
+	@GetMapping("/me/identities")
+	public ApiResponse<LinkedIdentityService.LinkedIdentities> myIdentities(Authentication authentication,
+			@RequestHeader(value = "X-Request-Id", required = false) String requestId) {
+		return ApiResponse.success(linkedIdentityService.list(authenticatedUserId(authentication)),
+				resolveRequestId(requestId));
+	}
+
+	/**
+	 * 소셜 계정 연결을 뗀다 — S15P21E201-1317.
+	 *
+	 * <p>🔴 <b>마지막 하나는 안 떼진다</b> — 409 {@code LAST_SIGN_IN_METHOD}. 소셜로만 가입한
+	 * 사람이 마지막 연결을 떼면 다시 로그인할 수 없다. 화면이 아니라 여기서 막는다.
+	 *
+	 * <p>이미 안 붙어 있으면 204 다. 두 번 눌렀을 때 실패로 답하면 <b>실제로 끝난 일을 실패로</b>
+	 * 보게 된다.
+	 */
+	@DeleteMapping("/me/identities/{provider}")
+	public ResponseEntity<Void> unlinkIdentity(@PathVariable String provider, Authentication authentication) {
+		linkedIdentityService.unlink(authenticatedUserId(authentication),
+				AuthProvider.valueOf(provider.toUpperCase(Locale.ROOT)));
+		return ResponseEntity.noContent().build();
 	}
 
 	/**

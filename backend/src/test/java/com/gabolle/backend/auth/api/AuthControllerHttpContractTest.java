@@ -14,6 +14,7 @@ import com.gabolle.backend.auth.service.AccountDeletionService;
 import com.gabolle.backend.auth.service.ConsentUpdateService;
 import com.gabolle.backend.auth.service.CurrentUserService;
 import com.gabolle.backend.auth.service.ProfileUpdateService;
+import com.gabolle.backend.auth.service.LinkedIdentityService;
 import com.gabolle.backend.auth.service.LocalAuthService;
 import com.gabolle.backend.auth.service.OAuthAccountService;
 import com.gabolle.backend.auth.service.OAuthChallengeService;
@@ -47,7 +48,7 @@ class AuthControllerHttpContractTest {
 				mock(WebAuthCookieService.class), mock(CurrentUserService.class),
 				mock(ProfileUpdateService.class),
 				mock(AccountDeletionService.class), mock(OAuthAccountService.class),
-				mock(ConsentUpdateService.class));
+				mock(ConsentUpdateService.class), mock(LinkedIdentityService.class));
 		mockMvc = MockMvcBuilders.standaloneSetup(controller)
 				.setControllerAdvice(new AuthExceptionHandler())
 				.build();

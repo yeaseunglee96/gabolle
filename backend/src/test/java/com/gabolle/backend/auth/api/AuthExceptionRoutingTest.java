@@ -21,6 +21,7 @@ import com.gabolle.backend.auth.service.AuthCommands;
 import com.gabolle.backend.auth.service.AuthException;
 import com.gabolle.backend.auth.service.AuthTokenService;
 import com.gabolle.backend.auth.service.CurrentUserService;
+import com.gabolle.backend.auth.service.LinkedIdentityService;
 import com.gabolle.backend.auth.service.LocalAuthService;
 import com.gabolle.backend.auth.service.OAuthAccountService;
 import com.gabolle.backend.auth.service.OAuthChallengeService;
@@ -61,7 +62,7 @@ class AuthExceptionRoutingTest {
 				mock(AuthTokenService.class), mock(OAuthLoginService.class), mock(OAuthChallengeService.class),
 				mock(WebAuthCookieService.class), mock(CurrentUserService.class), mock(ProfileUpdateService.class),
 				mock(AccountDeletionService.class), mock(OAuthAccountService.class),
-				mock(ConsentUpdateService.class));
+				mock(ConsentUpdateService.class), mock(LinkedIdentityService.class));
 		// 🔴 캐치올을 가진 advice 를 일부러 먼저 준다. @Order 가 없으면 그것이 이긴다.
 		// S15P21E201-682 — GlobalAuthExceptionHandler 가 보안 이벤트 로깅을 위해
 		// SecurityEventLogger 를 생성자로 받게 됐다. 이 테스트의 관심사는 라우팅 순서라
