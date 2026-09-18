@@ -67,7 +67,10 @@ export function IdentitiesBody() {
     setBusy(provider);
     setFeedback(null);
     try {
-      const result = await linkOAuthProvider(provider, accessToken, '/me/identities');
+      // 🔴 -1331 — 돌아오는 자리가 `/me/identities` 였는데 그 주소를 없앴다. 마이페이지로
+      //    돌아오되 **이 창을 다시 열어 달라고** 함께 말한다. 안 그러면 연결을 마치고
+      //    돌아온 사람이 결과를 못 본다.
+      const result = await linkOAuthProvider(provider, accessToken, '/me?panel=identities');
       if (result.status === 'TAKEN') {
         setFeedback({ danger: true, text: tx('이미 다른 계정에 연결된 소셜 계정이에요.', 'This social account is already connected to a different account.') });
       } else {

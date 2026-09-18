@@ -1,9 +1,9 @@
 // 마이페이지 진입 화면.
 import { useState } from 'react';
 import { BackHandler, Image, Modal, Platform, Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { useAuth } from '@/auth/AuthProvider';
 import { Button } from '@/components/Button';
@@ -18,12 +18,12 @@ import { isAtLeast } from '@/layout/breakpoints';
 import { MyPageCover } from '@/me/MyPageCover';
 import { MyPageModal } from '@/me/MyPageModal';
 import { MyPageSheetBody } from '@/me/MyPageSheet';
-import { hasPanel, myPanelBody, panelTitle, type MyPanelKey } from '@/me/myPanels';
+import { isPanelKey, myPanelBody, panelTitle, type MyPanelKey } from '@/me/myPanels';
 import { MyTripCard } from '@/home/HomeBlocks';
 import { ProfileCard } from '@/me/ProfileCard';
 import { InfoRow } from '@/me/InfoRow';
 import { AppLanguageSetting } from '@/me/AppLanguageSetting';
-import { useMyPageCounts } from '@/me/MyPageShell';
+import { useMyPageCounts } from '@/me/myPageCounts';
 import { pickActiveTrip } from '@/home/useHomeData';
 import { loadTrips } from '@/trip/trips';
 import { useQuery } from '@tanstack/react-query';
@@ -43,16 +43,37 @@ export default function Me() {
   const [logoutAsk, setLogoutAsk] = useState(false);
   // 열려 있는 패널 하나. 데스크톱은 모달이, 폰은 시트가 같은 값을 받는다.
   const [panel, setPanel] = useState<MyPanelKey | null>(null);
+  const params = useLocalSearchParams<{ panel?: string }>();
 
   /**
-   * 메뉴를 눌렀을 때 — 옮긴 것은 겹쳐 열고, 아직인 것은 지금처럼 화면을 바꾼다.
+   * 메뉴를 눌렀을 때 — 언제나 겹쳐 연다.
    *
-   * 🔴 한 번에 열한 개를 다 옮기면 무엇이 깨졌는지 못 찾는다. 옮긴 것부터 하나씩 켠다.
+   * 🔴 -1331 정정 — 예전에는 「아직 안 옮긴 것」이 있어서 그때는 화면을 바꿨다. 열한 개가
+   *    다 옮겨졌고 옛 주소(`app/me/…`)도 없앴다. 이제 **화면을 바꾸는 길은 없다.**
    */
-  const openPanel = (key: MyPanelKey, fallbackPath: string) => {
-    if (hasPanel(key)) { setPanel(key); return; }
-    router.push(fallbackPath as never);
-  };
+  const openPanel = (key: MyPanelKey) => setPanel(key);
+
+  /**
+   * 밖에서 `/me?panel=identities` 처럼 창을 지목해 올 수 있다 — 웹 소셜 연결이 제공자에
+   * 갔다 돌아오는 자리가 여기다.
+   *
+   * 🔴 **한 번 열고 다시는 안 연다.** 안 그러면 시트를 내려도 주소에 값이 그대로라 곧바로
+   *    다시 열린다 — 사용자는 내려지지 않는 시트를 보게 된다.
+   *
+   * 🔴 **주소에서 값을 지우지 않는다. 지울 방법이 없어서다.** 실측(2026-09-19):
+   *    {@code router.setParams} 는 이 자리에서 <b>아무 일도 안 한다</b>(주소가 그대로다).
+   *    {@code router.replace('/me')} 는 주소는 지우는데 <b>화면을 다시 만들어서</b> 방금
+   *    연 창이 닫힌다. 남겨 두는 편이 낫다 — 새로고침하면 그 창이 다시 열리는데, 주소로
+   *    지목해 들어온 사람에게는 그게 맞는 동작이다.
+   */
+  const openedFromUrl = useRef<string | null>(null);
+  useEffect(() => {
+    const want = params.panel;
+    if (typeof want !== 'string' || want === '' || openedFromUrl.current === want) return;
+    openedFromUrl.current = want;
+    // 모르는 값이면 아무것도 안 연다 — 주소에는 누구나 아무거나 적을 수 있다.
+    if (isPanelKey(want)) setPanel(want);
+  }, [params.panel]);
 
   // 🔴 뒤로가기는 패널을 먼저 닫는다. 안 그러면 마이페이지에서 나가 버린다 —
   //    사용자는 「목록으로 돌아가려고」 눌렀는데 앱 밖으로 나간다.
@@ -101,14 +122,14 @@ export default function Me() {
         first
         label={tx('내 기록', 'My records')}
         value={storyCount === null ? '›' : storyCount > 0 ? tx(`${storyCount}개 ›`, `${storyCount} ›`) : none}
-        onPress={() => openPanel('posts', '/me/posts')}
+        onPress={() => openPanel('posts')}
         disabled={!user}
       />
       {/* 사용자 리포트: "마이페이지에 저장 누르면 저장했던 피드들 뜨게" —. */}
       <InfoRow
         label={tx('저장한 기록', 'Saved records')}
         value="›"
-        onPress={() => openPanel('saved', '/me/saved')}
+        onPress={() => openPanel('saved')}
         disabled={!user}
       />
       {/* — 인스타그램처럼 팔로워·팔로잉을 눌러 목록으로 들어갈 수 있어야
@@ -117,13 +138,13 @@ export default function Me() {
       <InfoRow
         label={tx('팔로워', 'Followers')}
         value={followerCount === null ? '›' : tx(`${followerCount}명 ›`, `${followerCount} ›`)}
-        onPress={() => user && openPanel('followers', `/user/${user.userId}/followers`)}
+        onPress={() => user && openPanel('followers')}
         disabled={!user}
       />
       <InfoRow
         label={tx('팔로잉', 'Following')}
         value={followingCount === null ? '›' : tx(`${followingCount}명 ›`, `${followingCount} ›`)}
-        onPress={() => user && openPanel('following', `/user/${user.userId}/following`)}
+        onPress={() => user && openPanel('following')}
         disabled={!user}
       />
       <InfoRow
@@ -133,10 +154,10 @@ export default function Me() {
           : answeredPreferences > 0
             ? tx(`${answeredPreferences} / ${PREFERENCE_TOTAL} 답함 ›`, `${answeredPreferences} / ${PREFERENCE_TOTAL} answered ›`)
             : none}
-        onPress={() => openPanel('preferences', '/me/preferences')}
+        onPress={() => openPanel('preferences')}
         disabled={!user}
       />
-      <InfoRow label={tx('연결된 소셜 계정', 'Connected accounts')} value="›" onPress={() => openPanel('identities', '/me/identities')} disabled={!user} />
+      <InfoRow label={tx('연결된 소셜 계정', 'Connected accounts')} value="›" onPress={() => openPanel('identities')} disabled={!user} />
     </View>
   </>;
 
@@ -147,10 +168,10 @@ export default function Me() {
           안에서 안 보였다는 사용자 리포트. 알림 화면은 이미 있다(app/notifications.tsx
           홈 종 아이콘) — 여기서는 같은 화면으로 가는 입구만 하나 더 둔다.
       */}
-      <InfoRow label={tx('알림', 'Notifications')} value="›" onPress={() => openPanel('notifications', '/notifications')} />
-      <InfoRow label={tx('차단된 계정', 'Blocked accounts')} value="›" onPress={() => openPanel('blocked', '/me/blocked')} disabled={!user} />
-      <InfoRow label={tx('도움말·문의', 'Help & support')} description={tx('앱 소개, 자주 묻는 질문, 문제 해결', 'App tour, FAQs, and troubleshooting')} value="›" onPress={() => openPanel('help', '/help')} />
-      <InfoRow label={tx('약관·고지', 'Terms & notices')} value="›" onPress={() => openPanel('terms', '/me/terms')} />
+      <InfoRow label={tx('알림', 'Notifications')} value="›" onPress={() => openPanel('notifications')} />
+      <InfoRow label={tx('차단된 계정', 'Blocked accounts')} value="›" onPress={() => openPanel('blocked')} disabled={!user} />
+      <InfoRow label={tx('도움말·문의', 'Help & support')} description={tx('앱 소개, 자주 묻는 질문, 문제 해결', 'App tour, FAQs, and troubleshooting')} value="›" onPress={() => openPanel('help')} />
+      <InfoRow label={tx('약관·고지', 'Terms & notices')} value="›" onPress={() => openPanel('terms')} />
       {/* 처음 켜는 자리는 첫 체크인 화면이고, 여기는 언제든 끄는 자리다. 끄는 길이 설정
           안쪽 어딘가에만 있으면 사용자는 못 찾고, 못 찾으면 켠 적 없는 사람처럼 취급된다.
       */}
@@ -191,11 +212,11 @@ export default function Me() {
           avatarUri={avatarUri}
           coverUri={user?.coverUrl ?? null}
           counts={[
-            { label: tx('기록', 'Records'), value: storyCount, onPress: () => user && openPanel('posts', '/me/posts') },
-            { label: tx('팔로워', 'Followers'), value: followerCount, onPress: () => user && openPanel('followers', `/user/${user.userId}/followers`) },
-            { label: tx('팔로잉', 'Following'), value: followingCount, onPress: () => user && openPanel('following', `/user/${user.userId}/following`) },
+            { label: tx('기록', 'Records'), value: storyCount, onPress: () => user && openPanel('posts') },
+            { label: tx('팔로워', 'Followers'), value: followerCount, onPress: () => user && openPanel('followers') },
+            { label: tx('팔로잉', 'Following'), value: followingCount, onPress: () => user && openPanel('following') },
           ]}
-          onEdit={() => (user ? openPanel('profile', '/me/profile') : router.push({ pathname: '/sign-in', params: { returnTo: '/me/profile' } }))}
+          onEdit={() => (user ? openPanel('profile') : router.push({ pathname: '/sign-in', params: { returnTo: '/me?panel=profile' } }))}
           tx={tx}
         />
 
@@ -247,11 +268,14 @@ export default function Me() {
       //    여기서 null 이 되고, 부품이 기본 사진을 깐다 — 기본 사진을 고르는 것은 화면의 몫이다.
       coverUri={user?.coverUrl ?? null}
       counts={[
-        { label: tx('기록', 'Records'), value: storyCount, onPress: () => user && router.push('/me/posts') },
-        { label: tx('팔로워', 'Followers'), value: followerCount, onPress: () => user && router.push(`/user/${user.userId}/followers`) },
-        { label: tx('팔로잉', 'Following'), value: followingCount, onPress: () => user && router.push(`/user/${user.userId}/following`) },
+        // 🔴 -1331 — 여기만 겹쳐 열기로 안 옮겨져 있었다. 폰에서 이 숫자를 누르면
+        //    시트가 아니라 옛 전체 페이지로 넘어갔다. 같은 화면에서 어떤 것은 겹쳐
+        //    열리고 어떤 것은 화면이 바뀌는 상태였다.
+        { label: tx('기록', 'Records'), value: storyCount, onPress: () => user && openPanel('posts') },
+        { label: tx('팔로워', 'Followers'), value: followerCount, onPress: () => user && openPanel('followers') },
+        { label: tx('팔로잉', 'Following'), value: followingCount, onPress: () => user && openPanel('following') },
       ]}
-      onEdit={() => (user ? router.push('/me/profile') : router.push({ pathname: '/sign-in', params: { returnTo: '/me/profile' } }))}
+      onEdit={() => (user ? openPanel('profile') : router.push({ pathname: '/sign-in', params: { returnTo: '/me?panel=profile' } }))}
       tx={tx}
     />
 

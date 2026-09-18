@@ -480,7 +480,7 @@ export default function PlanConditions() {
             originLine={headerChips.slice(1).join(' · ')}
             tastes={tastes}
             onEditGiven={() => router.push('/')}
-            onOpenTastes={() => router.push('/me/preferences')}
+            onOpenTastes={() => router.push('/me?panel=preferences')}
             tx={tx}
           />
           {questionColumn}

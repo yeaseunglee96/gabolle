@@ -1,10 +1,12 @@
-// 마이페이지에서 겹쳐 여는 패널들 — 어떤 것이 옮겨졌고 어떤 것이 아직인지 한 곳에서 정한다.
+// 마이페이지에서 겹쳐 여는 패널 열한 개.
 //
-// 🔴 **하위 화면의 주소는 그대로 살아 있다.** 딥링크로 들어오거나 새로고침하면 여전히 그
-//    화면이 열려야 한다. 여기 있는 것은 「마이페이지에서 눌렀을 때」의 길뿐이다.
+// 🔴 -1331 정정 — 예전 주석은 *"하위 화면의 주소는 그대로 살아 있다"* 고 적고 있었는데
+//    **이제 아니다.** `app/me/` 아래 일곱은 없앴다. 마이페이지 하나에서 겹쳐 여는 것이
+//    유일한 길이고, 밖에서 지목할 때는 `/me?panel=<열쇠>` 로 온다.
 //
-// 🔴 아직 안 옮긴 메뉴는 `null` 이다. 부르는 쪽이 그때는 지금처럼 화면을 바꾼다 — 한 번에
-//    열한 개를 다 옮기면 무엇이 깨졌는지 못 찾는다.
+// 🔴 옮기는 방식은 하나다 — 화면 파일에서 **본문만** 떼어 `panels/` 안으로 옮기고, 원래
+//    화면과 패널이 **같은 것**을 그린다. 두 벌이 되면 한쪽만 고쳐지고, 그 차이는 두 길로
+//    들어가 나란히 봐야만 보인다.
 import type { ReactNode } from 'react';
 
 import { BlockedAccountsBody } from '@/me/panels/BlockedAccountsBody';
@@ -47,13 +49,13 @@ export function panelTitle(key: MyPanelKey, tx: Translate): { title: string; des
 }
 
 /**
- * 그 패널의 본문. **아직 안 옮겼으면 `null`** 이고, 그때 부르는 쪽은 화면을 바꾼다.
+ * 그 패널의 본문.
  *
- * 옮기는 방식은 하나다 — 화면 파일에서 **본문만** 떼어 `panels/` 안으로 옮기고, 원래 화면과
- * 패널이 **같은 것**을 그린다. 두 벌이 되면 한쪽만 고쳐지고, 그 차이는 두 길로 들어가
- * 나란히 봐야만 보인다.
+ * 🔴 **`null` 을 돌려주지 않는다.** 예전에는 「아직 안 옮긴 것」이 `null` 이었고 부르는 쪽이
+ * 그때 화면을 바꿨다. 이제 열한 개가 다 옮겨져서 그 길이 없다 — 반환형에서 `null` 을
+ * 빼 두면, 열쇠를 하나 더 늘리고 본문을 안 적었을 때 **타입이 그 자리를 잡는다.**
  */
-export function myPanelBody(key: MyPanelKey): ReactNode | null {
+export function myPanelBody(key: MyPanelKey): ReactNode {
   // 🔴 default 를 두지 않는다. 키가 하나 늘면 타입이 「여기 빠졌다」고 잡는다 —
   //    default 가 있으면 조용히 null 이 되고, 그 메뉴는 빈 패널이 열린다.
   switch (key) {
@@ -71,7 +73,12 @@ export function myPanelBody(key: MyPanelKey): ReactNode | null {
   }
 }
 
-/** 겹쳐서 열 수 있는가. 아니면 부르는 쪽이 화면을 바꾼다. */
-export function hasPanel(key: MyPanelKey): boolean {
-  return myPanelBody(key) !== null;
+/** 밖에서 온 `/me?panel=…` 값이 우리가 아는 열쇠인가 — 모르는 값이면 아무것도 안 연다. */
+export function isPanelKey(value: unknown): value is MyPanelKey {
+  return typeof value === 'string' && PANEL_KEYS.includes(value as MyPanelKey);
 }
+
+const PANEL_KEYS: readonly MyPanelKey[] = [
+  'posts', 'saved', 'followers', 'following', 'preferences',
+  'identities', 'profile', 'notifications', 'blocked', 'help', 'terms',
+];
