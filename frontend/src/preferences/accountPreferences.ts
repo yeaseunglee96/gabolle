@@ -1,5 +1,5 @@
 // 계정에 기억된 답 여덟 — 세 질문(꾸러미 하나)과 취향 다섯(차원 다섯)을 한 번에 읽는다
-// 
+// //
 import { getSpendProfile, type SpendAnswers } from '@/onboarding/spendProfile';
 import { countTasteAnswers, getTasteProfile, type TasteAnswers } from '@/preferences/tasteProfile';
 

@@ -40,7 +40,7 @@ export default function Speak() {
   const [resultCopied, setResultCopied] = useState(false);
   const customPlayToken = useRef(0);
 
-  // 택시 목적지 고르기
+  // 택시 목적지 고르기.
   const [destinationQuery, setDestinationQuery] = useState('');
   const [destination, setDestination] = useState<TaxiDestinationOutcome>({ state: 'idle' });
   const [destinationSearching, setDestinationSearching] = useState(false);
@@ -117,7 +117,7 @@ export default function Speak() {
 
   return (
     <Screen scroll>
-      {/* 여기에도 흰여울문화마을이 박혀 있었다 — 어디에 있든 그렇게 적혔다 */}
+      {/* 여기에도 흰여울문화마을이 박혀 있었다 — 어디에 있든 그렇게 적혔다. */}
       <Eyebrow>{tx('여행 중', 'On your trip')}</Eyebrow>
       <Text variant="display" weight="bold" style={styles.title}>
         {tx('현장에서 바로 쓰기', 'Use it right now')}
@@ -180,7 +180,7 @@ export default function Speak() {
               </Pressable>
             </View>
 
-            {/* 한국어를 화면에도 보여 준다 현장에서는 소리보다 화면을
+            {/* 한국어를 화면에도 보여 준다. 현장에서는 소리보다 화면을
                 내미는 것이 잘 통한다 — 시끄럽거나, 상대가 못 알아들었을 때 다시 말할 필요가 없다.
             */}
             {spokenText ? (

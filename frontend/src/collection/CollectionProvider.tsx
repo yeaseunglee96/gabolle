@@ -117,7 +117,7 @@ export function CollectionProvider({ children }: { children: ReactNode }) {
   const { accessToken } = useAuth();
   dataRef.current = data;
 
-  // 기기에서 읽고, 로그인했으면 서버와 합친다
+  // 기기에서 읽고, 로그인했으면 서버와 합친다.
   useEffect(() => {
     let alive = true;
     void (async () => {

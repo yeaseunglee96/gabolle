@@ -1,4 +1,4 @@
-// 언어 다섯을 다 받는다 이 함수가 'ko' | 'en' 만 받으면 부르는 쪽
+// 언어 다섯을 다 받는다. 이 함수가 'ko' | 'en' 만 받으면 부르는 쪽
 // 열다섯 곳이 각자 떨어뜨려야 하고, 한 곳만 빠뜨리면 일본어 사용자가 한국어 이름을 본다.
 // 떨어뜨리는 일은 여기 한 자리에서 한다.
 import { resolveTextLanguage, type LanguageCode } from '@/i18n/languages';

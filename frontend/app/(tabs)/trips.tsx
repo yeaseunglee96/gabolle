@@ -23,7 +23,7 @@ function dateLabel(trip: TripSummaryDto, tx: (ko: string, en: string) => string)
   return trip.endDate && trip.endDate !== trip.startDate ? `${trip.startDate} – ${trip.endDate}` : trip.startDate;
 }
 
-/** 카드 제목 — 사용자가 붙인 이름이 있으면 그것, 없으면 지금까지처럼 날짜 */
+/** 카드 제목 — 사용자가 붙인 이름이 있으면 그것, 없으면 지금까지처럼 날짜 */
 function cardTitle(trip: TripSummaryDto, tx: (ko: string, en: string) => string) {
   return tripDisplayTitle(trip, dateLabel(trip, tx));
 }
@@ -42,7 +42,7 @@ export default function Trips() {
   // 이름을 바꾸거나 붙이려고 연 여행. null 이면 안 열려 있다.
   const [naming, setNaming] = useState<TripSummaryDto | null>(null);
 
-  // 화면 밖 보관소에서 읽는다 탭을 오가며 이 화면이 사라졌다
+  // 화면 밖 보관소에서 읽는다. 탭을 오가며 이 화면이 사라졌다
   // 다시 만들어져도, 보관소는 그대로라 서버를 다시 안 부른다. 낡았을 때만(기본 30초)
   // 조용히 다시 불러오면서 이전 값을 계속 보여준다.
   const tripsQuery = useQuery({

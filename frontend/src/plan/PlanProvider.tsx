@@ -149,7 +149,7 @@ export function PlanProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => { void AsyncStorage.removeItem(LEGACY_STORAGE_KEY); }, []);
 
-  // 저장해 둔 여행 조건을 모든 새 여행의 기본값으로 얹는다
+  // 저장해 둔 여행 조건을 모든 새 여행의 기본값으로 얹는다.
   const userId = user?.userId ?? null;
   useEffect(() => {
     // 로그인 안 한 사람에게도 얹는다. 그 사람의 답은 기기에만 있지만, 이번 여행에는

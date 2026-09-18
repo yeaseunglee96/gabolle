@@ -1,4 +1,4 @@
-// 돌려서 고르는 휠 시안 `design_handoff_collection` 의 B안.
+// 돌려서 고르는 휠. 시안 `design_handoff_collection` 의 B안.
 
 import { useEffect, useRef } from 'react';
 import { ScrollView, StyleSheet, View, type NativeScrollEvent, type NativeSyntheticEvent } from 'react-native';

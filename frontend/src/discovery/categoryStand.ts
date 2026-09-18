@@ -1,7 +1,7 @@
 // 갈래별 후보가 충분한가 —.
 
 // / 범위 안 후보가 이보다 적으면 출발지 기준으로 채운다 —.
-// *.. 정확한 근거가 있는 값은 아니고 운영을 보고 조정할 값이다. */
+// * ... 정확한 근거가 있는 값은 아니고 운영을 보고 조정할 값이다. */
 export const MIN_CANDIDATES_PER_CATEGORY = 12;
 
 export type CategoryStand = 'enough' | 'short';

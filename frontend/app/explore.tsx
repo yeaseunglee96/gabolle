@@ -1,4 +1,4 @@
-// 로컬 탐색 화면 상세설계서 v2 P-17). 8개 갈래(축제·야시장·전통시장·액티비티
+// 로컬 탐색 화면 (상세설계서 v2 P-17). 8개 갈래(축제·야시장·전통시장·액티비티
 // 산책·자연·야경·기념품샵) 중 하나를 고르고, 내 근처와 부산 전체를 전환해 본다.
 import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Image, Linking, Pressable, ScrollView, StyleSheet, View } from 'react-native';
@@ -89,10 +89,10 @@ export default function LocalExplore() {
   useEffect(() => {
     if (!selectedKey && visibleFacets?.length) setSelectedKey(visibleFacets[0].featureKey);
   }, [selectedKey, visibleFacets]);
-  // 폭 분기 경계값은 layout/breakpoints.ts 가 정한 셋을 그대로 쓴다
+  // 폭 분기. 경계값은 layout/breakpoints.ts 가 정한 셋을 그대로 쓴다
   // 이 화면에서 새 숫자를 만들지 않는다.
-  // wide 600~ 갈래 칩이 줄바꿈되고 결과가 카드 격자가 된다
-  // split 1024~ 왼쪽 기둥(갈래·범위)과 오른쪽 결과로 나뉜다
+  // wide 600~ : 갈래 칩이 줄바꿈되고 결과가 카드 격자가 된다
+  // split 1024~ : 왼쪽 기둥(갈래·범위)과 오른쪽 결과로 나뉜다
   const { width } = useLayout();
   const wide = isAtLeast(width, 'md');
   const split = isAtLeast(width, 'lg');
@@ -133,7 +133,7 @@ export default function LocalExplore() {
       {!loading && visibleFacets && visibleFacets.length > 0 ? (
         <View style={split ? styles.split : styles.results}>
           {/* 고르는 자리 — 좁은 화면에서는 내용 위에 가로로 눕고, 1024 부터는 왼쪽 기둥이 된다.
-              들어 있는 것은 어느 폭에서나 같다: 갈래 범위 토글 안내 한 줄.
+              들어 있는 것은 어느 폭에서나 같다: 갈래 · 범위 토글 · 안내 한 줄.
           */}
           <View style={split ? styles.sidebar : styles.pickers}>
             <FacetPicker
@@ -168,7 +168,7 @@ export default function LocalExplore() {
 /** 내 위치를 못 쓸 때의 기준점 —. 부산 시청이다. */
 const BUSAN_CENTER = { lat: 35.1796, lng: 129.0756 };
 
-/** 갈래를 고르는 자리 — 폭에 따라 세 모양, 한 자료 */
+/** 갈래를 고르는 자리 — 폭에 따라 세 모양, 한 자료** */
 function FacetPicker({ facets, selectedKey, onSelect, mode, language }: {
   facets: LocalFacetEntry[];
   selectedKey: string | null;
@@ -287,7 +287,7 @@ function LocalBranchList({ facet, scope, coords, canAskAgain, onRetryLocation, c
   );
 }
 
-/** 사진 자리 — 값이 있으면 사진, 없으면 핀 하나 */
+/** 사진 자리 — 값이 있으면 사진, 없으면 핀 하나 */
 function PlacePhoto({ item, style }: { item: { photoUrl?: string | null; photoSubject?: PhotoSubject | null }; style: object }) {
   if (item.photoUrl) {
     // 사진 위에 「무엇을 찍은 것인가」를 얹으려고 감싼다 —.

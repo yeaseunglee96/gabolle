@@ -1,4 +1,4 @@
-// 폰 홈 디자인 인계 `design_handoff_home_phone` 의 절충안(C).
+// 폰 홈. 디자인 인계 `design_handoff_home_phone` 의 절충안(C).
 import { useEffect, useState } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -37,7 +37,7 @@ export default function Home() {
   const { tx, language } = useI18n();
   const { accessToken, user } = useAuth();
   const { update: updatePlan } = usePlan();
-  // 여행 조건 모달 로그인 후 홈 첫 진입에 한 번, 그리고
+  // 여행 조건 모달. 로그인 후 홈 첫 진입에 한 번, 그리고
   // 「나중에」를 고른 사람에게는 「일정 물어보기」를 누를 때마다 다시 묻는다.
   const [promptState, setPromptState] = useState<ConditionsPromptState>('NEVER');
   const [conditions, setConditions] = useState<{ open: boolean; reprompt: boolean; pending: StartBarValue | null }>({ open: false, reprompt: false, pending: null });
@@ -81,7 +81,7 @@ export default function Home() {
     if (saved) sendAppEvent({ type: 'place_like', accessToken, payload: { place_id: placeId, surface: 'home' } });
   };
 
-  // 홈에서 받은 출발지·날짜·인원을 초안에 넣고 조건 화면으로 보낸다
+  // 홈에서 받은 출발지·날짜·인원을 초안에 넣고 조건 화면으로 보낸다.
   // 조건 화면은 이 셋을 다시 묻지 않는다 — 칩 줄로만 보여 준다.
   useEffect(() => {
     let alive = true;
@@ -119,7 +119,7 @@ export default function Home() {
     setConditions({ open: false, reprompt: false, pending: null });
     if (outcome !== 'DISMISSED') {
       const next = outcome === 'SAVED' ? 'SAVED' : outcome === 'NEVER' ? 'NEVER' : 'LATER';
-      // 값을 실제로 적는 것은 모달이다 여기서 상태만 따로
+      // 값을 실제로 적는 것은 모달이다. 여기서 상태만 따로
       // 적던 것이 사고였다 — 「물어봤다」는 기록만 남고 답은 아무 데도 안 남았다.
       setPromptState(next);
     }
@@ -171,7 +171,7 @@ export default function Home() {
         {/* ── 히어로 ── */}
         <View style={styles.hero}>
           <Text weight="bold" color={color.brand.navy} style={styles.heroTitle}>{tx('부산의 모든 여행,\n가볼래?', 'Every side of Busan,\nyours to explore.')}</Text>
-          {/* 시안 p0 의 시작 바 출발지·날짜·인원을 여기서 받아
+          {/* 시안 p0 의 시작 바. 출발지·날짜·인원을 여기서 받아
               조건 화면으로 넘긴다. 여행지는 안 묻는다 — 부산 고정이다.
           */}
           <PlanStartBar wide={false} accessToken={accessToken} onSubmit={startPlanFromBar} />

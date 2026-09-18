@@ -17,7 +17,7 @@ export function ProtectedRoute({ publicPaths = [] }: { publicPaths?: string[] })
   const visualPreview = __DEV__ && preview === 'ui';
   if (publicPaths.includes(pathname) || visualPreview) return <Slot />;
   if (!ready) return <View style={styles.loading}><ActivityIndicator color={color.action.primary} /></View>;
-  // gated=1 — 「이 returnTo 는 로그인을 요구하는 화면이다」는 표시다
+  // gated=1 — 「이 returnTo 는 로그인을 요구하는 화면이다」는 표시다.
   if (!user) return <Redirect href={{ pathname: '/sign-in', params: { returnTo: buildProtectedReturnTo(pathname, open), gated: '1' } }} />;
   return <Slot />;
 }

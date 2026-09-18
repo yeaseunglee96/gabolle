@@ -69,7 +69,7 @@ export function useStoryImages(accessToken: string | null, tx: Translate) {
       }
 
       // 상한을 넘으면 보내지 않는다 — 올라가기를 기다린 끝에 실패를 보는 대신
-      // 여기서 실제 크기와 함께 이유를 말한다
+      // 여기서 실제 크기와 함께 이유를 말한다.
       // 못 재면(null) 막지 않는다. 판정은 서버가 하고 413 처리가 받아 준다.
       const bytes = await measureBytes(uploadUri);
       if (bytes !== null && bytes > MAX_UPLOAD_BYTES) {
@@ -77,7 +77,7 @@ export function useStoryImages(accessToken: string | null, tx: Translate) {
         patch(index, {
           uploading: false,
           error: resizeFailure
-            // 숫자를 문구에 박지 않는다 상한을 바꿨는데 문구에
+            // 숫자를 문구에 박지 않는다. 상한을 바꿨는데 문구에
             // 옛 숫자가 남으면 사용자는 틀린 이유를 읽는다 — 이유를 안 보여 주는 것보다 나쁘다.
             // 여기 걸리는 것은 거의 언제나 줄이기가 실패한 경우다. 그때는 서버가 받을
             // 수 있는 크기인지가 문제라 고르기 상한(30MB)이 아니라 전송 상한으로 말한다.

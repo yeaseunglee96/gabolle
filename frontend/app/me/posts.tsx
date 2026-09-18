@@ -1,4 +1,4 @@
-// 마이페이지 › 내 기록
+// 마이페이지 › 내 기록.
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, Image, Pressable, StyleSheet, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';

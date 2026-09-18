@@ -1,4 +1,4 @@
-// 여행 이름 바꾸기 붙이기 지우기 시안 `design_handoff_trip_name_flow`.
+// 여행 이름 바꾸기 · 붙이기 · 지우기. 시안 `design_handoff_trip_name_flow`.
 
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Modal, Pressable, StyleSheet, TextInput, View } from 'react-native';

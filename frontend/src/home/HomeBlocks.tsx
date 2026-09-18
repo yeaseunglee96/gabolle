@@ -1,6 +1,6 @@
 // 시안에 있지만 그리지 않은 것 둘 — 서버에 그 값이 없다.
-//  여행 카드의 제목 — TripSummaryDto 에 제목 칸이 없다(날짜·일수·인원·상태뿐)
-//  장소 카드의 사진 — photoUrl 은 상세의 선택 필드이고 늘 비어 있다. 목록엔 칸도 없다.
+// · 여행 카드의 제목 — TripSummaryDto 에 제목 칸이 없다(날짜·일수·인원·상태뿐)
+// · 장소 카드의 사진 — photoUrl 은 상세의 선택 필드이고 늘 비어 있다. 목록엔 칸도 없다.
 // 채우는 작업이 머지되고 목록 API 에 실리면 그때 넣는다.
 import { useState } from 'react';
 import { Image, Pressable, StyleSheet, View } from 'react-native';
@@ -214,7 +214,7 @@ export function MyTripCard({ trip, signedIn, loaded }: { trip: TripSummaryDto | 
       {!loaded ? <View style={[styles.tripCard, styles.tripSkeleton]} /> : trip ? (
         <Pressable accessibilityRole="button" accessibilityState={{ busy: opening, disabled: opening }} disabled={opening} onPress={() => void openTrip()} style={({ pressed }) => [styles.tripCard, pressed && styles.tripCardPressed]}>
           <Text variant="caption" weight="bold" color={color.state.success}>{statusLabel(trip, tx)}</Text>
-          {/* 이름이 있으면 이름, 없으면 날짜 없는 이름을 지어내지 않는
+          {/* 이름이 있으면 이름, 없으면 날짜. 없는 이름을 지어내지 않는
               것은 그대로다 — 서버도 이름이 없을 때 날짜를 대신 채워 보내지 않는다.
           */}
           <Text variant="title" weight="bold">

@@ -32,8 +32,8 @@ function CourseCard({ course, onAction }: { course: RecommendationCourse; onActi
     course.crowdLevel ? tx(`혼잡도 ${CROWD[course.crowdLevel]}`, `Crowd ${CROWD[course.crowdLevel]}`) : null,
   ].filter((fact): fact is string => fact !== null);
   return <View style={styles.card}>{course.imageUrl ? <Image source={{ uri: course.imageUrl }} accessibilityLabel={tx(`${course.title} 대표 이미지`, `${course.title} cover image`)} resizeMode="cover" style={styles.image} /> : null}<View style={styles.cardBody}><View style={styles.titleRow}><Text variant="title" weight="bold" style={styles.grow}>{course.title}</Text><View style={styles.status}><Text variant="caption" weight="bold">{STATUS[course.dataStatus]}</Text></View></View><View style={styles.tags}>{course.reasons.map((reason, index) => <View key={`${reason}-${index}`} style={styles.tag}><Text variant="caption" weight="bold" color={color.brand.orange}>#{reason}</Text></View>)}</View>{facts.length ? <Text variant="caption" color={color.text.body}>{facts.join(' · ')}</Text> : null}{(() => {
-      // 코드를 그대로 찍지 않는다 전에는 join(' ') 으로 이어 붙여
-      // 「이동 제약 ACCESSIBILITY_UNVERIFIED」 처럼 영문 대문자가 그대로 나갔다
+      // 코드를 그대로 찍지 않는다. 전에는 join(' · ') 으로 이어 붙여
+      // 「이동 제약 · ACCESSIBILITY_UNVERIFIED」 처럼 영문 대문자가 그대로 나갔다
       // 아침에 일정 화면에서 고친 것과 같은 결함이 여기 남아 있었다.
       // 사전에 짝이 없는 코드는 describeWarningCodes 가 뺀다.
       const warnings = describeWarningCodes(course.mobilityWarnings, tx);
@@ -45,7 +45,7 @@ export default function Recommendations() {
   const router = useRouter(); const { accessToken } = useAuth(); const { tx } = useI18n(); const { id, jobId } = useLocalSearchParams<{ id: string; jobId?: string }>();
   const [view, setView] = useState<RecommendationViewModel>(() => jobId || id ? { ...unavailableRecommendations(), state: 'loading', message: tx('추천 결과를 확인하고 있어요.', 'Checking your recommendation result.') } : unavailableRecommendations());
 
-  // 완성된 일정으로 가기 전에 한 번만 이름을 물어본다
+  // 완성된 일정으로 가기 전에 한 번만 이름을 물어본다.
   const openItinerary = async (itineraryId: string) => {
     const target = `/trips/${itineraryId}/itinerary`;
     const tripId = view.tripId;

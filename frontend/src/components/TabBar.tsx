@@ -1,4 +1,4 @@
-// 02 메인 홈 15 내 정보 아래에 반복되는 하단 탭. 이 셸은 아직 React Navigation 의 진짜
+// 02 메인 홈 · 15 내 정보 아래에 반복되는 하단 탭. 이 셸은 아직 React Navigation 의 진짜
 // 탭 내비게이션이 아니라 Stack 하나뿐이라(app/_layout.tsx), 각 화면이 이 바를 직접 그려 붙인다.
 // 1차 배포에서는 모든 탭이 유효한 화면으로 이동한다. 서버 데이터가 없어도 각 화면에서
 // 빈 상태와 다음 행동을 안내해 사용자가 막히지 않게 한다.
@@ -48,7 +48,7 @@ export function TabBar({ active }: { active: TabKey }) {
   // 리다이렉트와 같은 판단). 화면 가운데 붕 뜬 모바일 탭바보다는 없는 쪽이 낫다.
   if (isAtLeast(width, 'md')) return null;
 
-  // 받침(dock)에 담아 띄운다
+  // 받침(dock)에 담아 띄운다.
   return (
     <View pointerEvents="box-none" style={[styles.dock, { paddingBottom: tabBarBottomMargin(insets.bottom) }]}>
     <View style={styles.bar}>

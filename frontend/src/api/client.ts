@@ -220,7 +220,7 @@ async function performRequest<T>(path: string, options: RequestOptions, isRetry:
   } catch (error) {
     if (timedOut) throw new ApiClientError('서버 응답이 늦어 요청을 마쳤어요. 잠시 후 다시 시도해 주세요.', 'REQUEST_TIMEOUT', 0);
     setApiUnavailable(true);
-    // 원인을 버리지 않는다 자세한 이유는 ApiUnavailableError 참고.
+    // 원인을 버리지 않는다. 자세한 이유는 ApiUnavailableError 참고.
     throw new ApiUnavailableError(undefined, describeThrown(error));
   } finally {
     clearTimeout(timeout);

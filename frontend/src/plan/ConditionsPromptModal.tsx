@@ -1,4 +1,4 @@
-// 여행 조건 모달 — 알레르기 식단 이동 환경
+// 여행 조건 모달 — 알레르기 · 식단 · 이동 환경.
 // 시안: docs/design_handoff_plan_flow/PlanFlow.dc.html 의 conditions-modal / conditions-sheet
 import { useState } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
@@ -53,7 +53,7 @@ export function ConditionsPromptModal({ visible, reprompt = false, onClose }: Co
   const [saving, setSaving] = useState(false);
   const [saveFailed, setSaveFailed] = useState(false);
 
-  // 저장은 이 모달이 한다 전에는 아무도 안 했다 — 화면 상태만
+  // 저장은 이 모달이 한다. 전에는 아무도 안 했다 — 화면 상태만
   // 바꾸고 닫았고, 그 상태는 새로고침 한 번에 사라졌다. 부르는 화면이 넷이라, 그중
   // 하나만 빠뜨려도 같은 사고가 다시 난다. 그래서 여기 한 곳에 둔다.
   const finish = async (outcome: ConditionsOutcome) => {
@@ -145,7 +145,7 @@ export function ConditionsPromptModal({ visible, reprompt = false, onClose }: Co
             <View style={styles.block}>
               <Text weight="bold">{tx('이동 환경', 'Getting around')}</Text>
               <Text variant="caption" color={color.text.muted}>{tx('한 번에 걷는 최대 거리', 'Longest walk at once')}</Text>
-              {/* 「제한 없음」은 0 이다. null 이 아니다
+              {/* 「제한 없음」은 0 이다. null 이 아니다.
                   null 은 「아직 안 정했다」라서, 확인 화면이 그것을 「보행거리 미확인」으로
                   그린다 — 사용자가 제한 없음을 고르고도 미확인을 보고 있었다.
                   요청을 만들 때도 0 은 제약을 안 붙인다(`tripApi.ts`), 그래서 뜻이 맞는다.
@@ -200,7 +200,7 @@ export function ConditionsPromptModal({ visible, reprompt = false, onClose }: Co
               label={saving ? tx('저장 중…', 'Saving…') : saveFailed ? tx('다시 저장', 'Save again') : tx('저장하고 시작', 'Save and start')}
               disabled={!savable || saving}
               /**
-               * 여기서는 「다시 묻지 않기」를 보지 않는다 NEVER 로 보내면
+               * 여기서는 「다시 묻지 않기」를 보지 않는다. NEVER 로 보내면
                * 서버가 적은 값을 버린다 — 조건을 다 적고 체크까지 한 사람이 그 답을
                * 통째로 잃는다. SAVED 도 다시 묻지 않으므로 체크의 뜻은 이미 지켜진다.
                * 체크는 아래 「나중에」에만 붙는다.

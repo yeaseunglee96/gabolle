@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { markTripNameAsked, shouldAskTripName, wasTripNameAsked } from '../tripNaming';
 
-// 이름을 언제 물어보나 시안 `design_handoff_trip_name_flow`.
+// 이름을 언제 물어보나. 시안 `design_handoff_trip_name_flow`.
 
 beforeEach(async () => {
   await AsyncStorage.clear();

@@ -1,4 +1,4 @@
-// 여행 카드 제목 규칙
+// 여행 카드 제목 규칙.
 
 import { tripDisplayTitle } from '../trips';
 

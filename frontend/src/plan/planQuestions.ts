@@ -1,4 +1,4 @@
-// 조건 한 페이지의 질문 순서와 「답한 것으로 보는 조건」
+// 조건 한 페이지의 질문 순서와 「답한 것으로 보는 조건」.
 // 시안: docs/design_handoff_plan_flow/PlanFlow.dc.html 의 p1.
 
 import type { PlanDraft } from '@/plan/PlanProvider';

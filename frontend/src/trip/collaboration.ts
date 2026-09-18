@@ -36,7 +36,7 @@ export function leaveTrip(tripId: string, userId: string, accessToken: string) {
 // 참여자 목록·역할 관리 —·-320. 서버 계약(TripCollaborationController)
 // GET /api/v1/trips/{tripId}/members 참여자 목록 + 내 역할 + 내 편집 가능 여부
 // PATCH /api/v1/trips/{tripId}/members/{userId} 역할 변경(EDITOR·VIEWER만, 소유자 전용)
-// DELETE../members/{userId} 참여자 제거(소유자 전용, 소유자 자신은 못 뺀다)
+// DELETE .../members/{userId} 참여자 제거(소유자 전용, 소유자 자신은 못 뺀다)
 export type TripMemberRole = 'OWNER' | CompanionRole;
 export type TripMember = { userId: string; displayName: string | null; role: TripMemberRole; joinedAt: string; invitedBy: string | null; invitedAt: string | null; isMe: boolean };
 export type TripMembersView = { members: TripMember[]; myRole: TripMemberRole; canEdit: boolean };

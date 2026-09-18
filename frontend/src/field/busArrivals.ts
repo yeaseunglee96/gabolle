@@ -1,4 +1,4 @@
-// 주변 버스 도착 — 현장 도구가 쓴다
+// 주변 버스 도착 — 현장 도구가 쓴다.
 import { isVendorNotReady } from '@/api/vendorReady';
 import { apiRequest, ApiClientError } from '@/api/client';
 
@@ -21,7 +21,7 @@ export type BusStop = {
 
 export type NearbyBusDto = { stops: BusStop[] };
 
-// 'not-ready' — 바깥 업체 열쇠가 안 꽂혔다. 다시 시도해도 매한가지다
+// 'not-ready' — 바깥 업체 열쇠가 안 꽂혔다. 다시 시도해도 매한가지다.
 export type BusBlockedReason = 'signed-out' | 'not-built' | 'not-ready' | 'vendor' | 'error';
 
 export type NearbyBusOutcome =

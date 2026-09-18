@@ -46,7 +46,7 @@ it('keeps answers after a failed save and retries without repeating questions', 
   fireEvent.press(view.getByText('Retry saving'));
   await waitFor(() => expect(mockRouter.replace).toHaveBeenCalledWith('/taste-profile'));
   expect(jest.mocked(putSpendProfile).mock.calls[1]).toEqual(jest.mocked(putSpendProfile).mock.calls[0]);
-// 이 테스트만 제한을 15초로 올린다
+// 이 테스트만 제한을 15초로 올린다.
 }, 15_000);
 it('offers an explicit exit after a failed skip save', async () => {
   jest.mocked(putSpendProfile).mockRejectedValueOnce(new Error('offline'));

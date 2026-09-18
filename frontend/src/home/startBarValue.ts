@@ -1,4 +1,4 @@
-// 홈 시작 바가 다루는 값 — 화면이 아니라 여기서 만든다
+// 홈 시작 바가 다루는 값 — 화면이 아니라 여기서 만든다.
 // 시안: docs/design_handoff_plan_flow/PlanFlow.dc.html 의 p0.
 
 export type StartBarValue = {
@@ -63,7 +63,7 @@ export function formatDateShort(key: string, ko: boolean): string {
   return `${date.getMonth() + 1}.${date.getDate()}(${weekday})`;
 }
 
-/** 시작 바에 한 줄로 보여 줄 요약 — 「부산역 9.20(토) – 9.21(일) 1박 성인 2」. */
+/** 시작 바에 한 줄로 보여 줄 요약 — 「부산역 · 9.20(토) – 9.21(일) · 1박 · 성인 2」. */
 export function summarizeStartBar(value: StartBarValue, ko: boolean): string {
   // 인원에는 기본값(성인 2)이 들어 있다. 그래서 아무것도 안 고른 사람에게도
   // 요약이 「성인 2」로 나왔고, 알약에 안내 문구 대신 그것이 찍혔다
@@ -90,7 +90,7 @@ export function summarizeStartBar(value: StartBarValue, ko: boolean): string {
   return parts.join(' · ');
 }
 
-/** 「홈에서 받은 정보」를 칩 세 개로 쪼갠다 — 시안 p1 */
+/** 「홈에서 받은 정보」를 칩 세 개로 쪼갠다 — 시안 p1 */
 export function startBarChips(value: StartBarValue, ko: boolean): string[] {
   if (!value.origin.trim() && !value.startDate) return [];
   const chips: string[] = [];

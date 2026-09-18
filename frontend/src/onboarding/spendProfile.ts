@@ -38,7 +38,7 @@ export const SPEND_HEADER: Record<'USER' | 'TRIP', { titleKo: string; titleEn: s
   },
 };
 
-// 문서 2.3 Q1 오는 교통 — "항공편"이라고 쓰지 않는다. 국내 사용자는 KTX·SRT·고속버스로 온다.
+// 문서 2.3 Q1 · 오는 교통 — "항공편"이라고 쓰지 않는다. 국내 사용자는 KTX·SRT·고속버스로 온다.
 const TRANSPORT: SpendQuestion = {
   key: 'transport',
   titleKo: (scope) => `부산에 갈 때, ${scope === 'TRIP' ? '이번 여행에는' : '보통'} 어느 쪽을 고르세요?`,
@@ -52,7 +52,7 @@ const TRANSPORT: SpendQuestion = {
   ],
 };
 
-// 문서 2.4 Q2 숙소 — "1인"을 반드시 굵게/명확히 보여준다. 없으면 가족 여행자가
+// 문서 2.4 Q2 · 숙소 — "1인"을 반드시 굵게/명확히 보여준다. 없으면 가족 여행자가
 // 전부 최상위 구간으로 잘못 잡힌다.
 const STAY: SpendQuestion = {
   key: 'stay',
@@ -68,7 +68,7 @@ const STAY: SpendQuestion = {
   ],
 };
 
-// 문서 2.5 Q3 식사 — 가격을 주 축, 유명세를 부 축으로 일부러 한 문항에 섞었다(문서가
+// 문서 2.5 Q3 · 식사 — 가격을 주 축, 유명세를 부 축으로 일부러 한 문항에 섞었다(문서가
 // 명시). "그날그날 달라요"는 "잘 모르겠어요"와 다른 답이라 건너뛰기가 아니라 VARIES 값으로
 // 저장한다(문서 D2 권고안 B — 저장하고 계산에서만 뺀다, 나중에 쓸 수 있고 지금 아무것도
 // 안 망가뜨린다).

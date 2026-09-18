@@ -1,4 +1,4 @@
-// 이 여행에 이름 붙이기 시안 `design_handoff_trip_name`.
+// 이 여행에 이름 붙이기. 시안 `design_handoff_trip_name`.
 
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, TextInput, View } from 'react-native';
@@ -276,7 +276,7 @@ export default function TripName() {
     </Screen>;
   }
 
-  // ── 받는 중 후보 있음 후보 없음 저장 중 ─────────────────────────────
+  // ── 받는 중 · 후보 있음 · 후보 없음 · 저장 중 ─────────────────────────────
 
   const saving = status === 'saving';
 

@@ -1,4 +1,4 @@
-// 마이페이지 › 약관·고지 `(tabs)/me.tsx` 아래쪽에 있던 줄 넷을 그대로 옮겼다.
+// 마이페이지 › 약관·고지. `(tabs)/me.tsx` 아래쪽에 있던 줄 넷을 그대로 옮겼다.
 import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 

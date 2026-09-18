@@ -1,4 +1,4 @@
-// 여행 조건 모달을 띄울지 말지 1244).
+// 여행 조건 모달을 띄울지 말지 (1244).
 import { consumeAskAgain, loadTravelConditions, type TravelConditions } from '@/plan/travelConditions';
 
 export type ConditionsPromptState = null | 'LATER' | 'NEVER' | 'SAVED';

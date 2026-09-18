@@ -1,4 +1,4 @@
-// 홈의 여행 시작 바 — 출발지 날짜 인원을 홈에서 받는다
+// 홈의 여행 시작 바 — 출발지 · 날짜 · 인원을 홈에서 받는다.
 // 시안: docs/design_handoff_plan_flow/PlanFlow.dc.html 의 p0.
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AccessibilityInfo, ActivityIndicator, Animated, Easing, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
@@ -170,8 +170,8 @@ export function PlanStartBar({ wide, accessToken, onSubmit, today = new Date() }
   };
 
   // 두 가지가 움직인다.
-  //  고른 칸을 따라다니는 강조 알약 — 칸 사이를 미끄러진다
-  //  아래로 내려오는 패널 — 살짝 떠올랐다 제자리로
+  // · 고른 칸을 따라다니는 강조 알약 — 칸 사이를 미끄러진다
+  // · 아래로 내려오는 패널 — 살짝 떠올랐다 제자리로
   const [reduceMotion, setReduceMotion] = useState(false);
   useEffect(() => {
     let alive = true;

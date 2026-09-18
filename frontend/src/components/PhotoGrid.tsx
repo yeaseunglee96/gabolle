@@ -29,7 +29,7 @@ const SINGLE_MIN_RATIO = 0.6;
 const SINGLE_MAX_RATIO = 1.91;
 const SINGLE_FALLBACK_RATIO = 4 / 3;
 
-/** 사진 블록의 절대 최대 높이 */
+/** 사진 블록의 절대 최대 높이** */
 const MAX_BLOCK_HEIGHT = 520;
 
 /** 배치별 전체 블록의 가로세로. 세로 사진이 들어가는 배치는 조금 더 높다. */

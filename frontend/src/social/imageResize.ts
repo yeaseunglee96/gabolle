@@ -6,7 +6,7 @@ import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 // 한 번은 다시 저장한다(치수는 그대로 두고 위치 정보만 제거).
 const MAX_DIMENSION = 1600;
 
-/** 상한이 둘이다 전에는 하나가 두 일을 겸했다. */
+/** 상한이 둘이다. 전에는 하나가 두 일을 겸했다. */
 
 /**
  * 고른 원본의 상한. 기기가 죽는 것을 막는 선이지 서버를 대신하는 선이 아니다.
@@ -16,8 +16,8 @@ const MAX_DIMENSION = 1600;
 export const MAX_PICK_BYTES = 30 * 1024 * 1024;
 
 /**
- * 실제로 서버에 보내는 바이트의 상한 — 서버와 같은 값이어야 한다
- * 서버: spring.servlet.multipart.max-file-size=3MB UploadedImage.MAX_BYTES.
+ * 실제로 서버에 보내는 바이트의 상한 — 서버와 같은 값이어야 한다.
+ * 서버: spring.servlet.multipart.max-file-size=3MB · UploadedImage.MAX_BYTES.
  */
 export const MAX_UPLOAD_BYTES = 3 * 1024 * 1024;
 

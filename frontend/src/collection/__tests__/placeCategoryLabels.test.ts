@@ -1,7 +1,7 @@
 import { indexFromOffset, ROW_HEIGHT } from '../WheelPicker';
 import { categoryLabel, categoryWheelCodes, PLACE_CATEGORY_LABELS, sortCategoryCodes } from '@/discovery/placeCategoryLabels';
 
-// 분류 라벨표와 회전 휠 시안 `design_handoff_collection`.
+// 분류 라벨표와 회전 휠. 시안 `design_handoff_collection`.
 
 describe('분류 코드를 사람이 읽는 말로', () => {
   it('아는 코드는 한글로 바꾼다', () => {

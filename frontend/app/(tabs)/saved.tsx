@@ -1,7 +1,7 @@
 // 저장한 장소 — home.tsx 캐러셀의 하트·장소 상세의 "내 여행 후보에 저장"이 쓰는 것과
 // 같은 AsyncStorage 키(gabolle.saved-home-places, place/[id].tsx 에서 내보냄)를 읽어
 // 실제 목록을 보여준다. 전에는 이 키를 아예 안 읽고 항상 빈 상태만 보여주고 있었다.
-// 언어 다섯을 다 받는다 이 함수가 'ko' | 'en' 만 받으면 부르는 쪽
+// 언어 다섯을 다 받는다. 이 함수가 'ko' | 'en' 만 받으면 부르는 쪽
 // 열다섯 곳이 각자 떨어뜨려야 하고, 한 곳만 빠뜨리면 일본어 사용자가 한국어 이름을 본다.
 // 떨어뜨리는 일은 여기 한 자리에서 한다.
 import { resolveTextLanguage, type LanguageCode } from '@/i18n/languages';
@@ -50,7 +50,7 @@ export default function Saved() {
   const { accessToken } = useAuth();
   const [state, setState] = useState<'loading' | 'ready'>('loading');
   const [cards, setCards] = useState<SavedCard[]>([]);
-  // 저장 해제가 서버까지 못 갔을 때만 채워진다
+  // 저장 해제가 서버까지 못 갔을 때만 채워진다.
   const [notice, setNotice] = useState<string | null>(null);
 
   const load = useCallback(async () => {

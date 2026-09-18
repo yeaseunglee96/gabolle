@@ -1,4 +1,4 @@
-// 온보딩 ③ 취향 다섯 — 로컬성·조용함·관광지·음식·경사
+// 온보딩 ③ 취향 다섯 — 로컬성·조용함·관광지·음식·경사.
 // 세 질문(spend-profile.tsx) 바로 다음 단계이고, 틀은 그 화면을 그대로 따른다.
 import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Image, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';

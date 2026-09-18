@@ -1,4 +1,4 @@
-// 마이페이지 › 여행 취향 — 계정에 기억된 여덟 답을 보고·고치고·지운다
+// 마이페이지 › 여행 취향 — 계정에 기억된 여덟 답을 보고·고치고·지운다.
 import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ActivityIndicator, Image, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
@@ -244,7 +244,7 @@ export default function MePreferences() {
 
   const toggle = (row: OpenRow) => setOpen((current) => (sameRow(current, row) ? null : row));
 
-  // isPending 이 아니라 isLoading 이다. 읽기를 아예 안 켜는 자리(로그인 전 화면
+  // isPending 이 아니라 isLoading 이다. 읽기를 아예 안 켜는 자리(로그인 전 · 화면
   // 미리보기)에서 isPending 은 영원히 참이라 돌아가는 동그라미에 갇힌다. isLoading 은
   // "지금 실제로 받아오는 중" 만 참이다.
   if (query.isLoading) {
@@ -252,7 +252,7 @@ export default function MePreferences() {
   }
 
   // 머리(뒤로 버튼·눈썹·제목·설명)는 MyPageShell 이 그린다 — 마이페이지 탭 다섯이 같은
-  // 머리를 쓰고, 넓은 화면에서는 그 자리에 왼쪽 메뉴가 함께 붙는다
+  // 머리를 쓰고, 넓은 화면에서는 그 자리에 왼쪽 메뉴가 함께 붙는다.
   return <MyPageShell
     tab="preferences"
     title={tx('여행 취향', 'Travel preferences')}

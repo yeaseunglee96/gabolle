@@ -1,4 +1,4 @@
-// 여행 이름 짓기 — 후보 조회와 이름 저장
+// 여행 이름 짓기 — 후보 조회와 이름 저장.
 
 import { apiRequest, ApiClientError } from '@/api/client';
 
@@ -47,7 +47,7 @@ function failure(error: unknown): TripNamingFailure {
   }
   // 예상 못 한 실패다. 서버가 준 문장이 사람에게 읽히는 말이라는 보장이 없어 우리 문구를
   // 쓴다 — 같은 저장소에서 「Invalid UUID string: demo-trip」 이 화면에 그대로 나온 적이
-  // 있다
+  // 있다//
   return { state: 'error', message: '여행 이름을 처리하지 못했어요.' };
 }
 
@@ -92,7 +92,7 @@ export type TripNameStep = {
   discardedCount: number;
 };
 
-/** 후보를 받아 온 결과로 화면이 어느 자리에 서는지 정한다 */
+/** 후보를 받아 온 결과로 화면이 어느 자리에 서는지 정한다 */
 export function planNameStep(result: TripNameSuggestionsResult): TripNameStep {
   if (result.state !== 'success') {
     return { step: 'empty', suggestions: [], source: 'TEMPLATE', discardedCount: 0 };
@@ -116,7 +116,7 @@ export function checkTripTitle(raw: string | null | undefined): TripTitleCheck {
   if (trimmed === '') return { ok: true, title: null };
   if ([...trimmed].some((ch) => {
     const code = ch.codePointAt(0);
-    // ISO 제어문자 — C0(0x00~0x1F) DEL(0x7F) C1(0x80~0x9F). 서버의
+    // ISO 제어문자 — C0(0x00~0x1F) · DEL(0x7F) · C1(0x80~0x9F). 서버의
     // Character.isISOControl 과 같은 범위다.
     return code !== undefined && ((code <= 0x1f) || (code >= 0x7f && code <= 0x9f));
   })) {

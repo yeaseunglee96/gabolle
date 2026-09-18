@@ -1,6 +1,6 @@
 import { loadItineraryVersions } from './itinerary';
 
-// 판 목록 응답이 배열 → { items, count, hasMore } 로 바뀐다
+// 판 목록 응답이 배열 → { items, count, hasMore } 로 바뀐다.
 // 서버와 화면은 따로 배포되므로 둘 다 읽어야 한다. 한쪽만 맞추면 그 사이에 목록이
 // 비고, 되돌리기 버튼이 사라진다 — 돌아갈 수 있던 판이 없어진 것으로 보인다.
 const entry = { version: 3, changeType: 'ITEM_REMOVE', changedAt: '2026-09-15T00:00:00Z' };

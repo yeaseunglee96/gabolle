@@ -1,4 +1,4 @@
-// 오늘의 환율 — 현장 도구가 쓴다
+// 오늘의 환율 — 현장 도구가 쓴다.
 import { apiRequest, ApiClientError } from '@/api/client';
 import { isVendorNotReady } from '@/api/vendorReady';
 
@@ -22,7 +22,7 @@ export type ExchangeBlockedReason =
   | 'signed-out'
   /** 서버에 그 경로가 아직 없다(404·501). 기다리면 생긴다. */
   | 'not-built'
-  /** 바깥 업체 열쇠가 서버에 안 꽂혔다. 다시 시도해도 매한가지다 */
+  /** 바깥 업체 열쇠가 서버에 안 꽂혔다. 다시 시도해도 매한가지다. */
   | 'not-ready'
   /** 환율 업체 쪽이 실패했다(5xx). 잠시 뒤 될 수 있다. */
   | 'vendor'
@@ -68,7 +68,7 @@ export function krwToForeign(amount: number, rate: ExchangeRate): number {
 }
 
 function blockedReason(error: unknown): ExchangeBlockedReason {
-  // 열쇠가 안 꽂힌 것도 5xx 로 온다 — 숫자만 보면 몸 가른다
+  // 열쇠가 안 꽂힌 것도 5xx 로 온다 — 숫자만 보면 몸 가른다.
   if (isVendorNotReady(error)) return 'not-ready';
   if (!(error instanceof ApiClientError)) return 'error';
   if (error.status === 401 || error.status === 403) return 'signed-out';

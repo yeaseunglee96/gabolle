@@ -1,6 +1,6 @@
 import { COLLECTION_LIMITS, loadCollections, mergeCollections, serverToDevice, uploadBlockReason, type DeviceCollections, type ServerCollection } from '../collectionsApi';
 
-// 부슐랭을 서버로 옮긴다
+// 부슐랭을 서버로 옮긴다.
 
 const place = (id: string, name: string) => ({ id, name, category: null, locality: null, photoUri: null, note: null, addedAt: '2026-09-16T00:00:00Z', lat: null, lng: null });
 const list = (id: string, name: string, placeIds: string[]) => ({ id, name, description: null, placeIds, createdAt: '2026-09-16T00:00:00Z' });
@@ -135,7 +135,7 @@ describe('불러오기', () => {
     const result = await loadCollections(device, 'token');
     expect(result.state).toBe('success');
     // 리스트 만들기는 실패했고(500), 기존 리스트에 담은 장소 p2 는 올라갔다
-    // 둘은 서로 다른 요청이라 하나가 실패해도 다른 하나는 간다
+    // 둘은 서로 다른 요청이라 하나가 실패해도 다른 하나는 간다.
     expect(result.state === 'success' && result.uploaded).toBe(1);
     // 못 올린 리스트는 화면에서 안 사라진다. 올린 뒤 서버 것을 다시 받아오더라도
     // 이것만은 얹어서 남긴다 — 「기기에 쌓인 것을 버리지 않는다」.

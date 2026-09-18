@@ -1,4 +1,4 @@
-// 마이페이지 › 연결된 소셜 계정 `(tabs)/me.tsx` 의 섹션을 그대로 옮겼다.
+// 마이페이지 › 연결된 소셜 계정. `(tabs)/me.tsx` 의 섹션을 그대로 옮겼다.
 import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
