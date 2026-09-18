@@ -59,7 +59,8 @@ export default function CheckIn() {
         has_note: note.trim().length > 0,
       },
     });
-    router.back();
+    // 갈 곳이 없으면(딥링크로 바로 들어온 경우) 여행 목록으로 — S15P21E201-1292.
+    if (router.canGoBack()) router.back(); else router.replace('/trips');
   }
 
   function toggleFeedback(key: FeedbackKey) {

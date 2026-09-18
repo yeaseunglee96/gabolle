@@ -89,14 +89,15 @@ export default function ComposeStory() {
       await AsyncStorage.removeItem(DRAFT_KEY);
       // — 돌아가기 전에 피드 보관본을 버린다.
       await queryClient.invalidateQueries({ queryKey: FEED_QUERY_PREFIX });
-      router.back();
+      // 갈 곳이 없으면 피드로 — S15P21E201-1292.
+      if (router.canGoBack()) router.back(); else router.replace('/feed');
     } else {
       setError(outcome.message);
     }
   };
 
   return <Screen scroll>
-    <Pressable accessibilityRole="button" accessibilityLabel={tx('뒤로 가기', 'Go back')} onPress={() => router.back()} style={styles.back}><Text variant="title">‹</Text></Pressable>
+    <Pressable accessibilityRole="button" accessibilityLabel={tx('뒤로 가기', 'Go back')} onPress={() => router.canGoBack() ? router.back() : router.replace('/feed')} style={styles.back}><Text variant="title">‹</Text></Pressable>
     <Text variant="display" weight="bold" style={styles.title}>{tx('기록 남기기', 'Write a record')}</Text>
 
     <TextInput

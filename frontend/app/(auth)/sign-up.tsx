@@ -122,7 +122,7 @@ export default function SignUp() {
 
   return (
     <Screen scroll wide>
-      <View style={styles.topBar}><Pressable accessibilityRole="button" accessibilityLabel={tx('뒤로 가기', 'Go back')} onPress={() => router.back()} style={styles.backLink}><Text variant="body" weight="bold">{tx('← 뒤로', '← Back')}</Text></Pressable><BrandLogoLink href={kind === 'tablet' ? '/' : '/home'} imageStyle={styles.logo} /></View>
+      <View style={styles.topBar}><Pressable accessibilityRole="button" accessibilityLabel={tx('뒤로 가기', 'Go back')} onPress={() => router.canGoBack() ? router.back() : router.replace('/sign-in')} style={styles.backLink}><Text variant="body" weight="bold">{tx('← 뒤로', '← Back')}</Text></Pressable><BrandLogoLink href={kind === 'tablet' ? '/' : '/home'} imageStyle={styles.logo} /></View>
       <View style={[styles.columns, kind === 'tablet' && styles.columnsWide]}>
         {kind === 'tablet' && <Card tinted style={styles.introCard}><Eyebrow>{tx('가볼래 계정', 'GABOLLE Account')}</Eyebrow><Text variant="display" weight="bold">{tx('내 여행을 안전하게 저장하세요', 'Keep your trips safely saved')}</Text><Text variant="body">{tx('선택한 언어와 여행 조건을 이어서 사용할 수 있어요.', 'Pick up your language and trip details right where you left off.')}</Text></Card>}
         <View style={styles.formColumn}>
