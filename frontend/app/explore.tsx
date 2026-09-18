@@ -105,6 +105,12 @@ export default function LocalExplore() {
 
   return (
     <Screen scroll wide={split} style={styles.screen}>
+      {/* 🔴 시안의 **탐색 데스크톱**에는 이 줄이 없다. 넓은 화면에는 사이트 머리띠가 이미
+          있어서 로고가 두 번 나온다 — 알고 남긴 것이다 (2026-09-19, S15P21E201-1318).
+
+          같은 줄을 쓰는 화면이 **열둘**이고 시안은 탐색 한 장만 그렸다. 나머지 열한 장을
+          어떻게 할지는 어디에도 안 적혀 있다. **한 장을 맞추려고 열한 장을 어긋나게 하지
+          않는다** — 바꾸려면 열둘을 한 번에 바꾼다. */}
       <View style={styles.topBar}>
         <Pressable accessibilityRole="button" accessibilityLabel={tx('이전 화면으로 이동', 'Go back')} onPress={() => router.canGoBack() ? router.back() : router.replace('/home')} style={({ pressed }) => [styles.back, pressed && styles.pressed]}>
           <Text variant="title" weight="bold">‹</Text>
