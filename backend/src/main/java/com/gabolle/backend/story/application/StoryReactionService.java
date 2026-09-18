@@ -42,12 +42,18 @@ import com.gabolle.backend.story.repository.StoryRepository;
  * 같은 사람이 자기 글을 올리는 것이다. 화면에서 막는 것으로는 부족하다 — 막는 쪽이 화면뿐이면
  * 요청을 직접 만들어 보내는 것으로 지나간다.
  *
- * <h2>🔴 같은 값을 두 번 보내면 이벤트를 안 남긴다</h2>
+ * <h2>🔴 이벤트는 (글, 사람, 종류)당 하나다</h2>
  *
- * 앱의 재시도와 사람이 두 번 마음을 정한 것은 다르다. 그 판정을
- * {@code StoryReactionRepository.upsert} 가 <b>DB 안에서 원자적으로</b> 하고, 여기서는 그
- * 반환값으로만 이벤트를 남긴다 — {@code SavedPlaceService} 가 {@code insertIfAbsent} 의
- * 반환값으로 같은 판단을 하는 것과 같다(S15P21E201-1037).
+ * 「좋아요를 눌렀다」는 되풀이되는 사건이 아니라 <b>사실</b>이다 — 같은 사람이 같은 글을 두 번
+ * 좋아한다는 것은 뜻이 없다. 그래서 상한이 하나다.
+ *
+ * <p>문이 둘이라 잠금도 둘이다. 앞의 것({@code upsert} 의 반환값)은 <b>같은 값 재전송</b>을
+ * 막고, 뒤의 것({@code markLikeRecorded})은 <b>껐다 켰다</b>를 막는다. 앞의 것만 있던 때
+ * 하트를 5번 껐다 켜면 {@code story_like} 가 5건 쌓였다 — 취소가 행을 지워서 다음 좋아요가
+ * 언제나 「처음」이 됐기 때문이다. 그래서 지금은 취소해도 행이 남는다.
+ *
+ * <p>두 판정 모두 <b>DB 안에서 원자적으로</b> 일어난다 — {@code SavedPlaceService} 가
+ * {@code insertIfAbsent} 의 반환값으로 같은 종류의 판단을 하는 것과 같다(S15P21E201-1037).
  */
 @Service
 @Profile({ "db", "dev" })
@@ -90,9 +96,21 @@ public class StoryReactionService {
 		requireReactable(userId, storyId);
 
 		int changed = this.reactions.upsert(storyId, userId, reaction.name(), OffsetDateTime.now(this.clock));
+		// 🔴 안 바뀌었으면(0) 여기서 끝난다. 앱의 재시도는 사건이 아니다.
+		if (changed != 1) {
+			return;
+		}
 
-		// 🔴 안 바뀌었으면(0) 이벤트가 없다. 재시도가 신호를 부풀리면 인기순이 그만큼 틀린다.
-		if (changed == 1) {
+		// 🔴 표가 바뀌었다고 이벤트를 남기는 것이 아니다. 「이 사람이 이 글에 이 종류를
+		//    처음 남기는가」를 한 번 더 묻는다 — 그 답을 DB 가 원자적으로 준다.
+		//
+		//    이 한 줄이 없으면 하트를 껐다 켰다 하는 것만으로 story_like 가 몇 건이든
+		//    쌓인다(실제로 5번에 5건이었다). 그 신호를 개인화가 행동 이력으로 읽으므로,
+		//    손가락질 몇 번으로 자기 이력을 임의로 부풀릴 수 있었다.
+		int firstTime = (reaction == ReactionType.LIKE)
+				? this.reactions.markLikeRecorded(storyId, userId)
+				: this.reactions.markDislikeRecorded(storyId, userId);
+		if (firstTime == 1) {
 			record(userId, storyId, reaction);
 		}
 	}
@@ -111,10 +129,15 @@ public class StoryReactionService {
 	 * <p>🔴 <b>취소는 이벤트를 안 남긴다.</b> 「좋아요를 눌렀다」는 일어난 사건이고, 취소는
 	 * 그 사건을 되돌리는 것이 아니라 현재 상태를 바꾸는 것이다. 취소까지 행동 신호로 남기면
 	 * 눌렀다 취소한 사람이 안 누른 사람보다 신호가 많아진다. 현재 상태는 표가 들고 있다.
+	 *
+	 * <p>🔴 <b>행을 지우지 않고 종류만 비운다.</b> 행이 사라지면 「이 사람이 이 글에 좋아요를
+	 * 남긴 적이 있다」는 사실도 함께 사라지고, 그러면 다시 누르는 것이 처음 누른 것과 구분되지
+	 * 않아 이벤트가 또 나간다 — 껐다 켰다를 반복하면 그만큼 쌓인다
+	 * ({@code StoryReactionRepository.markLikeRecorded}).
 	 */
 	@Transactional
 	public void remove(UUID userId, UUID storyId) {
-		this.reactions.deleteByIdStoryIdAndIdUserId(storyId, userId);
+		this.reactions.clearReaction(storyId, userId, OffsetDateTime.now(this.clock));
 	}
 
 	private void requireReactable(UUID userId, UUID storyId) {

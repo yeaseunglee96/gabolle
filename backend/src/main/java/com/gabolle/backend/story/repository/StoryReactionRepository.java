@@ -25,41 +25,109 @@ public interface StoryReactionRepository extends JpaRepository<StoryReaction, St
 	 * 깨진다.</b> 두 요청이 나란히 "없다" 를 읽고 둘 다 넣으려 들면 뒤의 것이 기본 키에 부딪혀
 	 * 500 이 된다. 느린 통신에서 사람은 <b>반드시</b> 두 번 누른다.
 	 *
-	 * <h2>🔴 돌려주는 숫자가 「이벤트를 남길까」를 정한다</h2>
+	 * <h2>🔴 시각 칸이 둘인 이유</h2>
 	 *
-	 * 마지막 {@code WHERE} 가 핵심이다 — <b>종류가 실제로 달라질 때만</b> 갱신한다. 그래서
-	 * 반환값이 새로 넣었거나 마음이 바뀐 경우에만 1 이고, 같은 값을 다시 보낸 재시도에는 0 이다.
-	 * 앱의 재시도와 사람이 두 번 마음을 정한 것은 다르고, 그 판정을 <b>DB 가 원자적으로</b> 한다
-	 * — {@code SavedPlaceRepository.insertIfAbsent} 가 같은 일을 한다(S15P21E201-1037).
+	 * {@code created_at} 은 <b>이 사람이 이 글에 처음 손댄 때</b>이고 여기서 안 건드린다.
+	 * {@code reacted_at} 은 <b>지금의 반응을 고른 때</b>라 바뀔 때마다 갱신한다. 인기순의
+	 * 24시간 창은 <b>{@code reacted_at} 을</b> 자른다.
+	 *
+	 * <p>한 칸으로 같이 쓰다가 실제로 틀렸다 — 사흘 전에 싫어요를 눌렀던 사람이 오늘
+	 * 좋아요로 바꾸면 행은 {@code LIKE} 인데 시각이 사흘 전이라 <b>오늘 눌린 좋아요가 24시간
+	 * 집계에서 빠졌다.</b>
+	 *
+	 * <h2>🔴 {@code IS DISTINCT FROM} 이다 — {@code <>} 가 아니다</h2>
+	 *
+	 * 취소한 행은 {@code reaction} 이 {@code NULL} 인데, {@code NULL <> 'LIKE'} 는 참이 아니라
+	 * <b>{@code NULL}</b> 이다. {@code <>} 를 쓰면 <b>취소한 뒤 다시 누르는 것이 조용히 아무 일도
+	 * 안 하고 0 을 돌려준다.</b>
 	 *
 	 * <p>{@code flushAutomatically} 로 앞선 변경을 먼저 내보내고 {@code clearAutomatically} 로
 	 * 영속성 컨텍스트를 비운다 — 네이티브 문장은 그 컨텍스트를 거치지 않으므로, 비우지 않으면
 	 * 같은 트랜잭션의 다음 조회가 낡은 객체를 돌려줄 수 있다.
 	 *
-	 * <p>🔴 {@code created_at} 은 {@code DO UPDATE} 에서 안 건드린다. 좋아요를 싫어요로 바꾼
-	 * 것은 <b>처음 누른 시각을 지울 일이 아니고</b>, 인기순이 그 칸으로 24시간 창을 자른다 —
-	 * 여기서 갱신하면 마음을 바꾸는 것만으로 창 안으로 다시 들어온다.
-	 *
-	 * @return 새로 넣었거나 종류가 바뀌었으면 1, 같은 값이라 아무것도 안 바뀌었으면 0
+	 * @return 상태가 실제로 바뀌었으면 1, 같은 값이라 아무것도 안 바뀌었으면 0. 🔴 이 값은
+	 *     <b>「표가 바뀌었나」</b>이지 <b>「이벤트를 남길까」</b>가 아니다 — 뒤의 것은
+	 *     {@link #markLikeRecorded} 가 답한다
 	 */
 	@Transactional
 	@Modifying(clearAutomatically = true, flushAutomatically = true)
 	@Query(value = """
-			INSERT INTO story_reaction (story_id, user_id, reaction, created_at, updated_at)
-			VALUES (:storyId, :userId, :reaction, :now, :now)
+			INSERT INTO story_reaction (story_id, user_id, reaction, created_at, reacted_at, updated_at)
+			VALUES (:storyId, :userId, :reaction, :now, :now, :now)
 			ON CONFLICT (story_id, user_id) DO UPDATE
-			   SET reaction = EXCLUDED.reaction, updated_at = EXCLUDED.updated_at
-			 WHERE story_reaction.reaction <> EXCLUDED.reaction
+			   SET reaction = EXCLUDED.reaction,
+			       reacted_at = EXCLUDED.reacted_at,
+			       updated_at = EXCLUDED.updated_at
+			 WHERE story_reaction.reaction IS DISTINCT FROM EXCLUDED.reaction
 			""", nativeQuery = true)
 	int upsert(@Param("storyId") UUID storyId, @Param("userId") UUID userId, @Param("reaction") String reaction,
 			@Param("now") OffsetDateTime now);
 
+	/**
+	 * 좋아요를 <b>처음</b> 남기는 것이면 표시하고 1 을 돌려준다.
+	 *
+	 * <h2>🔴 이 한 문장이 이벤트를 (글, 사람, 종류)당 하나로 묶는다</h2>
+	 *
+	 * 예전에는 취소가 행을 지웠고, 그래서 다음 좋아요는 언제나 「새로 넣은 것」이 되어
+	 * 이벤트를 남겼다. <b>하트를 껐다 켰다 5번 하면 {@code story_like} 가 5건 쌓이고 표의
+	 * 행은 0개였다.</b> 그 신호를 개인화가 행동 이력으로 읽으므로, 손가락질 몇 번으로
+	 * 자기 이력을 임의로 부풀릴 수 있었다.
+	 *
+	 * <p>{@code WHERE ... = FALSE} 가 판정을 <b>DB 안에서</b> 한다. 같은 순간 두 요청이
+	 * 들어와도 1 을 받는 쪽은 하나뿐이라, 읽고-판단하고-쓰는 모양에서 나는 중복이 없다.
+	 *
+	 * <p>🔴 <b>취소해도 이 칸은 안 내려간다.</b> 내려가면 껐다 켜는 것으로 이벤트를 다시
+	 * 만들 수 있고, 그게 바로 고치려는 결함이다. 「좋아요를 눌렀다」는 되풀이되는 사건이
+	 * 아니라 사실이다 — 같은 사람이 같은 글을 두 번 좋아한다는 것은 뜻이 없다.
+	 *
+	 * @return 이번에 처음 남긴 것이면 1, 이미 남긴 적이 있으면 0
+	 */
 	@Transactional
 	@Modifying(clearAutomatically = true, flushAutomatically = true)
+	@Query(value = """
+			UPDATE story_reaction SET like_recorded = TRUE
+			 WHERE story_id = :storyId AND user_id = :userId AND like_recorded = FALSE
+			""", nativeQuery = true)
+	int markLikeRecorded(@Param("storyId") UUID storyId, @Param("userId") UUID userId);
+
+	/** 싫어요 쪽. 규칙은 {@link #markLikeRecorded} 와 같다. */
+	@Transactional
+	@Modifying(clearAutomatically = true, flushAutomatically = true)
+	@Query(value = """
+			UPDATE story_reaction SET dislike_recorded = TRUE
+			 WHERE story_id = :storyId AND user_id = :userId AND dislike_recorded = FALSE
+			""", nativeQuery = true)
+	int markDislikeRecorded(@Param("storyId") UUID storyId, @Param("userId") UUID userId);
+
+	/**
+	 * 반응을 취소한다 — <b>행은 남기고 종류만 비운다.</b>
+	 *
+	 * <p>🔴 지우지 않는 이유가 이 파일의 핵심이다. 행이 사라지면
+	 * {@code like_recorded}·{@code dislike_recorded} 도 함께 사라지고, 그러면 다시 누르는 것이
+	 * 「처음 누른 것」과 구분되지 않아 이벤트가 또 나간다. 껐다 켰다를 반복하면 그만큼 쌓인다.
+	 *
+	 * <p>비운 행은 집계에 안 잡힌다 — {@code countRecentLikes} 가 {@code reaction = LIKE} 로
+	 * 자르므로 {@code NULL} 은 저절로 빠진다.
+	 *
+	 * @return 실제로 비웠으면 1, 이미 비어 있었거나 누른 적이 없으면 0
+	 */
+	@Transactional
+	@Modifying(clearAutomatically = true, flushAutomatically = true)
+	@Query(value = """
+			UPDATE story_reaction SET reaction = NULL, updated_at = :now
+			 WHERE story_id = :storyId AND user_id = :userId AND reaction IS NOT NULL
+			""", nativeQuery = true)
+	int clearReaction(@Param("storyId") UUID storyId, @Param("userId") UUID userId,
+			@Param("now") OffsetDateTime now);
+
+	/** 탈퇴가 이 사람의 행을 지울 때 쓴다 — {@code AccountDeletionService.USER_OWNED_ROWS}. */
 	void deleteByIdStoryIdAndIdUserId(UUID storyId, UUID userId);
 
 	/**
 	 * 최근 구간에 좋아요를 많이 받은 글 — 「실시간 인기순」이 읽을 자리.
+	 *
+	 * <p>🔴 <b>{@code reactedAt} 을 자른다.</b> {@code createdAt} 이 아니다 — 그 칸은 처음 손댄
+	 * 때라, 마음을 바꾼 사람의 오늘 좋아요가 통째로 빠진다(이 표의 마이그레이션 주석 참고).
 	 *
 	 * <p>🔴 <b>좋아요만 센다.</b> 싫어요를 빼서 합산하지 않는다. 그건 「인기」가 아니라
 	 * 「호감도」이고, 둘은 다른 화면이다. 뺄셈을 넣으면 논쟁적인 글이 조용한 글보다
@@ -74,13 +142,13 @@ public interface StoryReactionRepository extends JpaRepository<StoryReaction, St
 			SELECT r.id.storyId AS storyId, COUNT(r) AS likes
 			  FROM StoryReaction r
 			 WHERE r.reaction = com.gabolle.backend.story.domain.ReactionType.LIKE
-			   AND r.createdAt >= :since
+			   AND r.reactedAt >= :since
 			 GROUP BY r.id.storyId
 			 ORDER BY COUNT(r) DESC, r.id.storyId ASC
 			""")
 	List<StoryLikeCount> countRecentLikes(@Param("since") OffsetDateTime since);
 
-	/** 한 글의 좋아요·싫어요 수 — 상세 화면이 읽는다. */
+	/** 한 글의 좋아요·싫어요 수 — 상세 화면이 읽는다. 취소한 행({@code NULL})은 저절로 빠진다. */
 	@Query("""
 			SELECT COUNT(r) FROM StoryReaction r
 			 WHERE r.id.storyId = :storyId
