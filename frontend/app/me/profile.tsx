@@ -1,12 +1,5 @@
-// 마이페이지 › 프로필 (S15P21E201-965). 원래 `(tabs)/me.tsx` 한 화면에 쌓여 있던 것 중
-// 「나」에 해당하는 것만 떼어 왔다 — 사진 · 닉네임 · 이메일 · 언어 · 회원 탈퇴.
-//
-// 🔴 닉네임 길이는 시안의 12자가 아니라 **기존 30자를 그대로 둔다.** 시안은 제안이고 서버가
-// 받는 길이는 기존 화면이 쓰던 값이 근거다. 12로 조이면 이미 12자를 넘는 이름을 쓰는 사람이
-// 저장을 못 하게 된다 — 줄이려면 서버 한도를 먼저 확인해야 한다.
-//
-// 🔴 시안의 「{제공자} 로그인 · 변경 불가」에서 제공자 이름은 **뺐다.** 지금 서버가 주는 계정
-// 정보(AuthUser)에 가입 제공자 칸이 없어서 지어낼 수밖에 없기 때문이다.
+// 마이페이지 › 프로필 원래 `(tabs)/me.tsx` 한 화면에 쌓여 있던 것 중
+// 「나」에 해당하는 것만 떼어 왔다 — 사진 닉네임 이메일 언어 회원 탈퇴.
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Image, Modal, Pressable, Share, StyleSheet, TextInput, View, useWindowDimensions } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -25,7 +18,7 @@ import { isAtLeast } from '@/layout/breakpoints';
 import { MyPageShell, useMyPageCounts } from '@/me/MyPageShell';
 import { usePlan } from '@/plan/PlanProvider';
 
-// 박재현 님 계약(S15P21E201-837) — 서버가 대소문자·앞뒤 공백까지 정확히 이 값과 비교한다.
+// 박재현 님 계약 — 서버가 대소문자·앞뒤 공백까지 정확히 이 값과 비교한다.
 const DELETE_CONFIRMATION_PHRASE = 'DELETE';
 const NAME_MAX = 30;
 
@@ -38,8 +31,8 @@ export default function MyPageProfile() {
   const { width } = useWindowDimensions();
   const desktop = isAtLeast(width, 'lg');
 
-  // 🔴 S15P21E201-1180 — 인스타그램식 기록·팔로워·팔로잉 숫자. MyPageShell이 이미 같은
-  // 프로필 질의를 하고 있어서(사이드 메뉴 숫자), 새로 부르지 않고 그 결과를 같이 쓴다 —
+  // — 인스타그램식 기록·팔로워·팔로잉 숫자. MyPageShell이 이미 같은
+  // 프로필 질의를 하고 있어서(사이드 메뉴 숫자), 새로 부르지 않고 그 결과를 같이 쓴다
   // react-query 캐시 열쇠가 같아 요청이 하나로 합쳐진다.
   const { storyCount, followerCount, followingCount } = useMyPageCounts();
 
@@ -69,7 +62,7 @@ export default function MyPageProfile() {
   useEffect(() => {
     setDisplayName(user?.displayName ?? (visualPreview ? '진미리' : ''));
   }, [user, visualPreview]);
-  // S15P21E201-844 — 계정에 붙은 사진이 있으면 그것이 먼저다. 없을 때만 이 기기에 남아 있던
+  // — 계정에 붙은 사진이 있으면 그것이 먼저다. 없을 때만 이 기기에 남아 있던
   // 옛 사진을 보여준다 — 기기에만 있던 시절에 고른 사진이 갑자기 사라지면 사용자는 지워진
   // 줄 안다. 다음에 사진을 고르면 그때 계정으로 올라간다.
   useEffect(() => {
@@ -93,7 +86,7 @@ export default function MyPageProfile() {
       const nextUri = asset.base64 ? `data:${asset.mimeType ?? 'image/jpeg'};base64,${asset.base64}` : asset.uri;
       // 고른 것을 먼저 보여준다 — 올리는 동안 빈 자리로 두면 안 고른 것처럼 보인다.
       setAvatarUri(nextUri);
-      // S15P21E201-844 — 계정에 붙인다. 🔴 파일은 기존 업로드 자리로 올리고 그 주소만
+      // — 계정에 붙인다. 파일은 기존 업로드 자리로 올리고 그 주소만
       // 계정에 붙인다(인증 경로가 파일을 직접 받지 않는다). 로그인 안 한 상태(미리보기)면
       // 지금까지처럼 이 기기에만 둔다.
       if (accessToken && !visualPreview) {
@@ -153,7 +146,7 @@ export default function MyPageProfile() {
     setDeleteStep(1);
   }
   function closeDeletion() { if (!deleting) { setDeleteStep(0); setDeleteConfirmation(''); setDeleteError(null); } }
-  // S15P21E201-837 — 소셜로만 가입한 계정은 비밀번호가 없어 비밀번호로 본인 확인을 할 수 없다.
+  // — 소셜로만 가입한 계정은 비밀번호가 없어 비밀번호로 본인 확인을 할 수 없다.
   // 그래서 사용자가 직접 친 확인 값(DELETE)만 받고, 서버와 같은 기준으로 버튼을 잠근다.
   const deleteConfirmed = deleteConfirmation === DELETE_CONFIRMATION_PHRASE;
   async function confirmDeletion() {
@@ -230,11 +223,12 @@ export default function MyPageProfile() {
             </View>
           </View>
 
-          {/* 🔴 계정 언어(SignupLanguage = 'KO' | 'EN') 칩은 여기 없다 — 화면 언어는 다섯인데
+          {/* 계정 언어(SignupLanguage = 'KO' | 'EN') 칩은 여기 없다 — 화면 언어는 다섯인데
               (LANGUAGE_OPTIONS, 마이페이지의 AppLanguageSetting) 여기서는 늘 둘만 보여줄 수
               있어서 같은 개념의 설정이 화면 두 곳에서 서로 다른 범위로 보였다. 마이페이지
               쪽이 이미 계정 값도 같이 갱신하므로(AppLanguageSetting.toAccountLanguage)
-              여기서 따로 안 만진다. */}
+              여기서 따로 안 만진다.
+          */}
 
           <View style={styles.saveRow}>
             {feedback ? <Text accessibilityRole="alert" variant="caption" weight="bold" color={feedback.danger ? color.state.danger : color.state.success} style={styles.feedback}>{feedback.text}</Text> : <View style={styles.feedback} />}

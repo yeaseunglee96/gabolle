@@ -1,6 +1,6 @@
 import { shouldPromptSignIn, SIGN_IN_PROMPT_AFTER_STORIES } from '../signInPrompt';
 
-// 로그인 유도 — S15P21E201-1012. 처음부터 막지 않고 얼마쯤 보고 나서 권한다.
+// 로그인 유도 —. 처음부터 막지 않고 얼마쯤 보고 나서 권한다.
 // 닫으면 계속 볼 수 있어야 하고, 한 번 더 보면 다시 뜬다.
 const N = SIGN_IN_PROMPT_AFTER_STORIES;
 

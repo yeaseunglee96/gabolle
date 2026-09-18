@@ -1,4 +1,4 @@
-// 장소 카드에서 여는 한국어 말하기 모달 — 4개 탭(관광지·식당카페·택시·숙소), S15P21E201-389.
+// 장소 카드에서 여는 한국어 말하기 모달 — 4개 탭(관광지·식당카페·택시·숙소),.
 // 탭+목록 자체는 PlacePhraseBrowser 로 옮겨 app/field/speak.tsx(현장 도구에서 여는
 // 전체 화면)와 공유한다 — 두 화면이 서로 다른 문장을 보여주던 것을 하나로 합쳤다.
 import { Modal, Pressable, StyleSheet, View } from 'react-native';

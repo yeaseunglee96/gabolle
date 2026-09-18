@@ -31,11 +31,11 @@ export type CreateTripPayload = {
   timezone: 'Asia/Seoul';
   preferences: PreferenceAnswerInput[];
   constraints: ConstraintInput[];
-  // S15P21E201-975 — 취향 단계에서 고른 "꼭 가고 싶은 장소". 서버는 이 목록을 여행 씨앗으로
+  // — 취향 단계에서 고른 "꼭 가고 싶은 장소". 서버는 이 목록을 여행 씨앗으로
   // 적고 추천이 그 장소를 후보 앞에 세운다(-973). 이 칸이 생기기 전에는 고른 장소가 기기
   // 안에만 남아서, 화면이 "일정에 반드시 포함돼요" 라고 적어 두고도 아무 영향이 없었다.
   mustVisitPlaceIds: string[];
-  // S15P21E201-980 — 기본 정보 화면에서 고른 여행 범위. 서버가 이 지역들에서 후보를 고른다.
+  // — 기본 정보 화면에서 고른 여행 범위. 서버가 이 지역들에서 후보를 고른다.
   // 이 칸이 생기기 전에는 칩이 화면에서만 받고 서버로 오지 않아서, 해운대를 골라도 추천
   // 스무 곳이 전부 출발지 근처였다.
   travelAreas: string[];
@@ -170,12 +170,8 @@ export async function createTripAndRecommendationJob(
 type CloneTripDto = { tripId: string; jobId: string | null };
 
 /**
- * 공유 일정을 "내 조건"으로 복제한다(S15P21E201-164/-340). 백엔드가 여행 생성과 추천 Job 접수를
+ * 공유 일정을 "내 조건"으로 복제한다/-340). 백엔드가 여행 생성과 추천 Job 접수를
  * 한 번의 호출(POST /api/v1/shares/{token}/clone)로 같이 처리한다 — 일반 생성처럼 두 번 부르지 않는다.
- *
- * jobId 가 null 로 오는 경우(원본이 제약을 하나도 안 답해 constraint_snapshot 이 없는 경우, 백엔드
- * javadoc 의 "알려진 한계")는 이 화면에서는 실제로 생기지 않는다 — plan 흐름이 항상 제약 4종을
- * (UNKNOWN 이라도) 채워 보내기 때문이다. 그래도 서버가 null 을 주면 실패로 다뤄 재시도를 안내한다.
  */
 export async function cloneSharedTripAndJob(
   token: string,

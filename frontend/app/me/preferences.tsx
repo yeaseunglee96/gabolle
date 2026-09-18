@@ -1,17 +1,4 @@
-// 마이페이지 › 여행 취향 — 계정에 기억된 여덟 답을 보고·고치고·지운다 (S15P21E201-960).
-//
-// 🔴 이 화면이 없어서 사용자는 첫 답에 갇혀 있었다. 여행에서 고른 취향은 계정으로 따라
-// 올라오는데(백엔드 carryOver) 그것을 고치는 자리가 없었다 — 다리를 다쳤을 때 "경사
-// 피하기" 로 답하면 다 나은 뒤에도 평생 언덕을 피해 다니는 추천을 받고, 되돌릴 방법이
-// 없었다. 백엔드 PreferenceDefaultsService 주석이 그 상황을 직접 적어 두고 있었다.
-//
-// 🔴 답 여덟이 두 곳에 나뉘어 산다. 저장 경로도 둘이다.
-//
-//   세 질문   한 차원(SPEND_PROFILE) 안에 세 값이 든 꾸러미 → 한 줄을 고쳐도 셋을 다 보낸다
-//   취향 다섯 차원 다섯 → 고친 한 줄만 보낸다
-//
-// 그래서 저장 함수를 하나로 합치지 않았다. 합치면 "왜 이쪽만 전부 보내지" 가 사라지고,
-// 그 순간 세 질문 중 둘이 조용히 지워지는 길이 열린다.
+// 마이페이지 › 여행 취향 — 계정에 기억된 여덟 답을 보고·고치고·지운다
 import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ActivityIndicator, Image, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
@@ -108,9 +95,6 @@ function RowActions({ canClear, onClear, onClose }: { canClear: boolean; onClear
 }
 
 // ── 컨트롤 ──────────────────────────────────────────────────────────────────
-//
-// 온보딩(taste-profile.tsx)과 같은 모양이지만 크기가 다르다 — 거기는 한 화면에 문항이
-// 하나뿐이라 크게 쓰고, 여기는 줄 안에서 펼쳐지므로 작다. 그래서 공용으로 빼지 않았다.
 
 function Scale({ label, value, low, high, onChange }: { label: string; value: number | undefined; low: string; high: string; onChange: (value: number) => void }) {
   const { tx } = useI18n();
@@ -182,12 +166,6 @@ export default function MePreferences() {
   const { accessToken } = useAuth();
   const { width } = useWindowDimensions();
   // 1024 이상 — breakpoints.ts 의 표에서 사이드바가 들어가는 폭이다.
-  //
-  // 🔴 인계 문서의 왼쪽 「마이페이지 하위 메뉴」는 만들지 않았다. 다섯 줄 가운데 셋
-  //    (프로필 · 연결된 소셜 계정 · 약관·고지)은 별도 화면이 아니라 설정 화면 안의
-  //    구역이라 갈 곳이 없다. 링크 다섯 중 셋이 아무 데도 안 가는 내비는 없는 것보다
-  //    나쁘다. 문서 자신도 그 메뉴를 "제안이며 마이페이지 본 화면과 함께 도입한다" 고
-  //    적어 두었고, 그 본 화면의 넓은 배치는 S15P21E201-956 몫이다.
   const wide = isAtLeast(width, 'lg');
   const queryClient = useQueryClient();
   const [open, setOpen] = useState<OpenRow | null>(null);
@@ -212,7 +190,7 @@ export default function MePreferences() {
   const write = async (next: Saved, work: () => Promise<unknown>, message: string) => {
     if (saving) return;
     setSaving(true);
-    // 고른 것이 바로 보이게 먼저 화면을 바꾼다. 실패하면 서버에서 다시 읽어 되돌린다 —
+    // 고른 것이 바로 보이게 먼저 화면을 바꾼다. 실패하면 서버에서 다시 읽어 되돌린다
     // 눌렀는데 아무 일도 안 일어나는 것이 가장 나쁘다.
     queryClient.setQueryData<Saved>(PREFERENCES_KEY, next);
     try {
@@ -236,8 +214,8 @@ export default function MePreferences() {
   const clearSpend = (key: SpendKey, label: string) => {
     const spend = { ...saved.spend };
     delete spend[key];
-    // 🔴 세 질문은 한 꾸러미라 지울 때도 **남은 것 전부**를 다시 보낸다. 지운 것만 보내면
-    //    나머지 둘이 같이 사라진다.
+    // 세 질문은 한 꾸러미라 지울 때도 남은 것 전부를 다시 보낸다. 지운 것만 보내면
+    // 나머지 둘이 같이 사라진다.
     void write({ ...saved, spend }, () => putSpendProfile(spend, accessToken),
       tx(`${label} 답을 지웠어요. 다음 여행에서 다시 물어요.`, `Cleared ${label}. We will ask again on your next trip.`));
   };
@@ -250,8 +228,8 @@ export default function MePreferences() {
   const clearTaste = (key: TasteKey, label: string) => {
     const taste = { ...saved.taste };
     delete taste[key];
-    // 🔴 지우기는 null 로 **명시해서** 보낸다. 키를 빼고 보내면 서버는 "안 보냈다" 로 읽어
-    //    그대로 둔다 — 지운 것처럼 보이지만 안 지워진다.
+    // 지우기는 null 로 명시해서 보낸다. 키를 빼고 보내면 서버는 "안 보냈다" 로 읽어
+    // 그대로 둔다 — 지운 것처럼 보이지만 안 지워진다.
     void write({ ...saved, taste }, () => putTasteProfile({ [key]: null }, accessToken),
       tx(`${label} 답을 지웠어요. 다음 여행에서 다시 물어요.`, `Cleared ${label}. We will ask again on your next trip.`));
   };
@@ -266,15 +244,15 @@ export default function MePreferences() {
 
   const toggle = (row: OpenRow) => setOpen((current) => (sameRow(current, row) ? null : row));
 
-  // 🔴 isPending 이 아니라 isLoading 이다. 읽기를 아예 안 켜는 자리(로그인 전 · 화면
-  //    미리보기)에서 isPending 은 영원히 참이라 돌아가는 동그라미에 갇힌다. isLoading 은
-  //    "지금 실제로 받아오는 중" 만 참이다.
+  // isPending 이 아니라 isLoading 이다. 읽기를 아예 안 켜는 자리(로그인 전 화면
+  // 미리보기)에서 isPending 은 영원히 참이라 돌아가는 동그라미에 갇힌다. isLoading 은
+  // "지금 실제로 받아오는 중" 만 참이다.
   if (query.isLoading) {
     return <MyPageShell tab="preferences" title={tx('여행 취향', 'Travel preferences')}><ActivityIndicator color={color.brand.orange} /></MyPageShell>;
   }
 
   // 머리(뒤로 버튼·눈썹·제목·설명)는 MyPageShell 이 그린다 — 마이페이지 탭 다섯이 같은
-  // 머리를 쓰고, 넓은 화면에서는 그 자리에 왼쪽 메뉴가 함께 붙는다 (S15P21E201-965).
+  // 머리를 쓰고, 넓은 화면에서는 그 자리에 왼쪽 메뉴가 함께 붙는다
   return <MyPageShell
     tab="preferences"
     title={tx('여행 취향', 'Travel preferences')}
@@ -299,8 +277,9 @@ export default function MePreferences() {
       </View>
     </View>}
 
-    {/* 넓은 화면에서는 두 그룹을 나란히. 🔴 alignItems 를 'flex-start' 로 둬야 한 쪽 줄을
-        펼쳤을 때 반대쪽 카드가 같이 늘어나지 않는다 — 늘어나면 빈 흰 바탕이 생긴다. */}
+    {/* 넓은 화면에서는 두 그룹을 나란히. alignItems 를 'flex-start' 로 둬야 한 쪽 줄을
+        펼쳤을 때 반대쪽 카드가 같이 늘어나지 않는다 — 늘어나면 빈 흰 바탕이 생긴다.
+    */}
     <View style={wide ? styles.groupsWide : undefined}>
     <View style={wide ? styles.groupColumn : undefined}>
     <Eyebrow>{tx('여행 스타일 세 질문', 'Three questions about your style')}</Eyebrow>
@@ -325,9 +304,9 @@ export default function MePreferences() {
                 label: tx(option.labelKo, option.labelEn),
                 desc: option.descKo ? tx(option.descKo, option.descEn ?? '') : undefined,
               })),
-              // 🔴 「그날그날 달라요」는 건너뛰기가 아니라 **답**이다. 저장되고, 계산에서만
-              //    빠진다(spendProfile.ts 의 VARIES 주석). 목록에서 빼면 그 사람은 셋 중
-              //    아무것도 고를 수 없게 된다.
+              // 「그날그날 달라요」는 건너뛰기가 아니라 답이다. 저장되고, 계산에서만
+              // 빠진다(spendProfile.ts 의 VARIES 주석). 목록에서 빼면 그 사람은 셋 중
+              // 아무것도 고를 수 없게 된다.
               ...(question.key === 'meal' ? [{ code: MEAL_VARIES_CODE, label: tx(question.skipLabelKo, question.skipLabelEn) }] : []),
             ]}
           />
@@ -442,11 +421,11 @@ const styles = StyleSheet.create({
   emptyCopyWide: { flex: 1, alignItems: 'flex-start', justifyContent: 'center' },
   emptyBody: { textAlign: 'center' },
   emptyCta: { minHeight: 46, alignSelf: 'stretch', marginTop: spacing[2] },
-  // 🔴 width: 'auto' 가 있어야 줄어든다. Button 의 기본 스타일에 width: '100%' 가 박혀
-  //    있어서 alignSelf 만으로는 아무 일도 안 일어난다 — 조용히 안 먹는 자리다.
+  // width: 'auto' 가 있어야 줄어든다. Button 의 기본 스타일에 width: '100%' 가 박혀
+  // 있어서 alignSelf 만으로는 아무 일도 안 일어난다 — 조용히 안 먹는 자리다.
   emptyCtaWide: { alignSelf: 'flex-start', width: 'auto', paddingHorizontal: spacing[6] },
-  // 🔴 alignItems: 'flex-start' — 한 쪽 줄을 펼쳤을 때 반대쪽 카드가 같이 늘어나지 않게.
-  //    늘어나면 그만큼 빈 흰 바탕이 생기고, 그게 "여기 뭔가 빠졌나" 로 읽힌다.
+  // alignItems: 'flex-start' — 한 쪽 줄을 펼쳤을 때 반대쪽 카드가 같이 늘어나지 않게.
+  // 늘어나면 그만큼 빈 흰 바탕이 생기고, 그게 "여기 뭔가 빠졌나" 로 읽힌다.
   groupsWide: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[6] },
   groupColumn: { flex: 1 },
   group: { marginTop: spacing[2], marginBottom: spacing[6], borderRadius: radius.lg, backgroundColor: color.surface.card, overflow: 'hidden' },

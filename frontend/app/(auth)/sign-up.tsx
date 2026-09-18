@@ -20,9 +20,6 @@ import { useI18n } from '@/i18n';
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const SPECIAL_CHARACTER_PATTERN = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>/?`~]/;
 
-// 사용자 요청(2026-09-16, 토스 벤치마킹): 모바일에서 6개 필드가 한 화면에 몰려 있었다 —
-// 여행 만들기(plan/basics.tsx)·취향(plan/taste.tsx)이 이미 쓰는 것과 같은 4단계 진행형
-// UI로 쪼갠다. 태블릿·데스크톱은 화면이 넓어 밀집 문제가 없으므로 그대로 한 화면에 둔다.
 const PANEL_LABELS = [['이메일', 'Email'], ['비밀번호', 'Password'], ['이름·언어', 'Name · Language'], ['약관 동의', 'Agreements']] as const;
 
 export default function SignUp() {
@@ -31,8 +28,6 @@ export default function SignUp() {
   const { kind } = useLayout();
   const { tx } = useI18n();
   const { language: onboardingLanguage, setLanguage: setOnboardingLanguage } = useOnboardingPreferences();
-  // S15P21E201-1087 — 엔터키로 다음 칸으로 넘어간다. 예전에는 엔터가 아무것도 안 해서
-  // 칸을 옮길 때마다 자판을 내리고 다음 칸을 손으로 눌러야 했다. 네 칸이면 세 번이다.
   const passwordRef = useRef<TextInput>(null);
   const passwordConfirmRef = useRef<TextInput>(null);
   const displayNameRef = useRef<TextInput>(null);
@@ -112,7 +107,7 @@ export default function SignUp() {
           <Text variant="body" style={styles.resultCopy}>
             {tx(`${registration.email}로 인증 링크를 보냈어요. 링크를 눌러 인증을 마치면 로그인할 수 있습니다.`, `We sent a verification link to ${registration.email}. Click it to finish verifying and sign in.`)}
           </Text>
-          {/* S15P21E201-941 — 서버 열거값(PENDING_EMAIL_VERIFICATION)을 그대로 찍고 있었다. 읽는 사람에게는 오류 문구로 보인다. 바로 위에서 이미 "인증 링크를 보냈다" 고 말하므로 같은 사실을 상태값으로 한 번 더 적지 않는다. */}
+          {/* — 서버 열거값(PENDING_EMAIL_VERIFICATION)을 그대로 찍고 있었다. 읽는 사람에게는 오류 문구로 보인다. 바로 위에서 이미 "인증 링크를 보냈다" 고 말하므로 같은 사실을 상태값으로 한 번 더 적지 않는다. */}
           <Text variant="caption" color={color.text.muted}>{tx(`메일이 안 보이면 스팸함도 확인해 주세요. 링크는 30분 동안 쓸 수 있어요.`, `If you do not see it, check your spam folder. The link works for 30 minutes.`)}</Text>
           {resent && <Text accessibilityRole="alert" variant="caption" color={color.state.success}>{tx('인증 메일을 다시 보냈어요.', 'Verification email resent.')}</Text>}
           {error && <View accessibilityRole="alert" style={styles.errorBox}><ErrorText>{error}</ErrorText></View>}

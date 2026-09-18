@@ -1,4 +1,4 @@
-// 팔로워 목록 — S15P21E201-1180. 화면 본문은 RelationListScreen 하나를 세 목록이 같이 쓴다.
+// 팔로워 목록 —. 화면 본문은 RelationListScreen 하나를 세 목록이 같이 쓴다.
 import { useLocalSearchParams } from 'expo-router';
 
 import { useI18n } from '@/i18n';

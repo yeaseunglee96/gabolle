@@ -18,10 +18,6 @@ import { TripPass } from '@/plan/TripPass';
 import { buildTripPass, buildTripPassDetails } from '@/plan/tripPassData';
 import { useI18n } from '@/i18n';
 
-// S15P21E201-919: 백엔드 JobStage.java(CREATED·VERSION_RESOLUTION·CANDIDATE_GENERATION·
-// CONSTRAINT_EVALUATION·FEATURE_LOOKUP·RANKING·ROUTE_OPTIMIZATION·PERSISTENCE·COMPLETED)의
-// 실제 값을 키에 넣는다 — 예전 키(COLLECT·FILTER·ROUTE·OPTIM·SCHEDULE)는 이 값들과 하나도
-// 안 겹쳐서 진행 단계 매칭이 사실상 항상 실패하고 있었다.
 const STAGES = [
   { keys: ['접수', '후보', 'COLLECT', 'CANDIDATE', 'CREATED', 'VERSION_RESOLUTION'], label: '후보 장소 수집', en: 'Collect candidate places' },
   { keys: ['제약', '안전', 'FILTER', 'CONSTRAINT', 'FEATURE_LOOKUP'], label: '추천·안전 조건 판정', en: 'Check preferences and safety' },
@@ -46,14 +42,7 @@ function stageLabel(stage: string | null, tx: (ko: string, en: string) => string
   const found = findStage(stage);
   return found ? tx(found.label, found.en) : stage ? tx('처리 중', 'Processing') : null;
 }
-// 🔴 S15P21E201-1160 — 서버가 이미 보내고 있는 값이다. 새로 만들 필요가 없었다.
-//
-//    RecommendationResultQueryService 가 후보의 경고를 두 군데로 내보낸다 — 최상위
-//    conflicts(중복 없는 집합)와 항목별 mobilityWarnings. 이 화면은 그동안 둘 다 받아
-//    놓고 안 읽고 있었다. "확인 안 된 곳이 있다" 를 알려면 서버를 고칠 필요가 없다.
-//
-//    코드 값은 백엔드 BaselineCandidateScorer.ACCESSIBILITY_UNVERIFIED_WARNING 과 같은
-//    글자여야 한다. 저장되는 값과 응답에 나가는 값이 중간에 안 바뀌는 것을 확인했다.
+// — 서버가 이미 보내고 있는 값이다. 새로 만들 필요가 없었다.
 const ACCESSIBILITY_UNVERIFIED = 'ACCESSIBILITY_UNVERIFIED';
 
 function daysBetween(start: string, end: string) { const value = Math.round((new Date(`${end}T00:00:00`).getTime() - new Date(`${start}T00:00:00`).getTime()) / 86400000) + 1; return Number.isFinite(value) && value > 0 ? value : 1; }
@@ -76,7 +65,7 @@ export default function Generating() {
   const [job, setJob] = useState<RecommendationJobSnapshot>(() => previewJob ?? (jobId ? { state: 'accepted', jobId, progress: 0, stage: tx('요청 접수', 'Request received'), canCancel: false, errorMessage: null, resultRef: null } : unavailableJob(tx('생성 요청을 찾을 수 없어요. 조건을 확인한 뒤 다시 시작해 주세요.', 'Could not find the generation request. Please review your conditions and try again.'))));
   const [itinerary, setItinerary] = useState<ItineraryDto | null>(() => previewJob?.state === 'completed' ? PREVIEW_ITINERARY : null);
   const [itineraryMessage, setItineraryMessage] = useState<string | null>(null);
-  // 접근성 안내 창 — 확인 안 된 곳이 하나라도 있으면 한 번만 뜬다 (S15P21E201-1160).
+  // 접근성 안내 창 — 확인 안 된 곳이 하나라도 있으면 한 번만 뜬다
   // warnedJobRef 가 "한 번만" 을 지킨다. 이 화면은 스트림·폴링·재렌더로 같은 완료 상태를
   // 여러 번 지나가므로, 상태 하나로는 닫은 창이 다시 열린다.
   // preview=access 는 개발 중에만 도는 갈래다. 이 창은 서버가 접근성 경고를 실어 보낸
@@ -109,7 +98,7 @@ export default function Generating() {
       timer = setTimeout(poll, 2000);
     };
 
-    // S15P21E201-69 — 열리면 실시간으로 받고, 실패하거나 지원하지 않으면 조용히
+    // — 열리면 실시간으로 받고, 실패하거나 지원하지 않으면 조용히
     // 폴링으로 갈아탄다. 화면 쪽에서는 어느 경로로 왔든 같은 setJob 이 받는다.
     if (supportsJobProgressStream()) {
       closeStream = openJobProgressStream(activeJobId, accessToken, {
@@ -139,8 +128,8 @@ export default function Generating() {
       setItineraryMessage(null);
       const recommendation = await loadRecommendationResult(job.jobId!, accessToken);
       if (cancelled) return;
-      // 🔴 일정을 못 읽어도 이 안내는 띄운다. 접근성은 일정이 열리는지와 별개로
-      //    사용자가 알아야 하는 것이고, 아래 early return 뒤에 두면 그때 조용히 사라진다.
+      // 일정을 못 읽어도 이 안내는 띄운다. 접근성은 일정이 열리는지와 별개로
+      // 사용자가 알아야 하는 것이고, 아래 early return 뒤에 두면 그때 조용히 사라진다.
       if (warnedJobRef.current !== job.jobId && recommendation.conflicts.includes(ACCESSIBILITY_UNVERIFIED)) {
         warnedJobRef.current = job.jobId!;
         const unverified = recommendation.courses.filter((course) => course.mobilityWarnings?.includes(ACCESSIBILITY_UNVERIFIED)).length;
@@ -160,12 +149,7 @@ export default function Generating() {
     void load();
     return () => { cancelled = true; };
   }, [accessToken, job.jobId, job.state, previewJob]);
-  // 🔴 S15P21E201-1016 — 종이가 다 나온 순간을 상태로 든다.
-  //
-  // 이 화면은 완료된 뒤에도 "여행표 출력 중" 과 "처리 중 · 100%" 를 그대로 띄우고 있었다.
-  // 네 단계가 전부 "완료" 이고 결과 카드까지 그려졌는데도 그랬다(jaehyeon 님 운영 실측,
-  // 2026-09-16, jobId ae437972). 사용자는 그것을 **아직 안 끝난 것**으로 읽는다 —
-  // 실제로는 끝나 있는데도 기다리거나, 먹통이라고 생각하고 나간다.
+  // — 종이가 다 나온 순간을 상태로 든다.
   const [printed, setPrinted] = useState(false);
   /** 「다시 출력」을 누른 횟수. key 로 써서 출력 애니메이션을 처음부터 돌린다. */
   const [reprint, setReprint] = useState(0);
@@ -181,8 +165,8 @@ export default function Generating() {
       Animated.timing(ticketReveal, { toValue: 0.46, duration: 480, easing: Easing.linear, useNativeDriver: false }),
       Animated.timing(ticketReveal, { toValue: 0.74, duration: 520, easing: Easing.linear, useNativeDriver: false }),
       Animated.timing(ticketReveal, { toValue: 1, duration: 560, easing: Easing.out(Easing.cubic), useNativeDriver: false }),
-      // 🔴 끝났다는 표시는 애니메이션이 실제로 끝났을 때만 켠다. 시간을 재서 맞추면
-      //    기기가 느릴 때 종이가 아직 나오는 중인데 "출력 완료" 라고 말한다.
+      // 끝났다는 표시는 애니메이션이 실제로 끝났을 때만 켠다. 시간을 재서 맞추면
+      // 기기가 느릴 때 종이가 아직 나오는 중인데 "출력 완료" 라고 말한다.
     ]).start(({ finished }) => { if (finished) setPrinted(true); });
   }, [job.state, reduceMotion, ticketReveal]);
   const duration = itinerary?.days.length || daysBetween(draft.startDate, draft.endDate); const areas = itinerary?.title || (draft.travelAreas.length ? draft.travelAreas.join(' · ') : tx('부산 맞춤 여행', 'Personalized Busan trip')); const failed = ['failed', 'conflict', 'cancelled', 'unavailable'].includes(job.state);
@@ -190,8 +174,8 @@ export default function Generating() {
   const visitCount = itinerary?.days.reduce((sum, day) => sum + day.items.length, 0) ?? 0;
   const actualStartDate = itinerary?.days[0]?.date || draft.startDate;
   const actualEndDate = itinerary?.days.at(-1)?.date || draft.endDate;
-  // 🔴 여행 티켓에 찍히는 값 — 시안(TripPassCard)대로 **실제 일정**에서 만든다
-  //    (S15P21E201-1233). 계산은 tripPassData 가 하고 시험이 붙든다.
+  // 여행 티켓에 찍히는 값 — 시안(TripPassCard)대로 실제 일정에서 만든다
+  //  계산은 tripPassData 가 하고 시험이 붙든다.
   const tripPass = buildTripPass({
     itinerary,
     baseUrl: process.env.EXPO_PUBLIC_API_BASE_URL ?? null,
@@ -213,22 +197,24 @@ export default function Generating() {
     {kind === 'phone' && <View style={styles.mobileTop}><Pressable accessibilityRole="button" accessibilityLabel={tx('조건 확인으로 돌아가기', 'Back to trip review')} onPress={() => router.replace('/plan')} style={styles.back}><Text variant="title">‹</Text></Pressable><BrandLogoLink imageStyle={styles.logo} /><View style={styles.stepPill}><Text variant="caption" weight="bold" color={color.brand.ivory}>{tx('생성', 'Generate')}</Text></View></View>}
     <View style={[styles.layout, kind !== 'phone' && styles.layoutWide]}>
       {!(kind === 'phone' && job.state === 'completed') && <View style={[styles.statusPanel, kind !== 'phone' && styles.statusWide]}>
-        {/* 🔴 시안 p4 — 네이비는 **위에 가로로 눕는 띠**다. 왼쪽에 글, 오른쪽에 단계 넷을
-            2열로 둔다. 전에는 왼쪽 44% 세로 칸이라 여행표가 옆으로 밀려 있었다. */}
+        {/* 시안 p4 — 네이비는 위에 가로로 눕는 띠다. 왼쪽에 글, 오른쪽에 단계 넷을
+            2열로 둔다. 전에는 왼쪽 44% 세로 칸이라 여행표가 옆으로 밀려 있었다.
+        */}
         <View style={kind !== 'phone' ? styles.statusCopy : undefined}>
         <View style={styles.aiBadge}><View style={[styles.pulse, isWorking && styles.pulseActive]} /><Text variant="caption" weight="bold" color={color.brand.orange}>{job.state === 'completed' ? tx('AI 일정 완성', 'AI itinerary ready') : failed ? tx('일정 생성 실패', 'Itinerary generation failed') : tx('AI 일정 생성 중', 'Creating your itinerary')}</Text></View>
         <Text variant="display" weight="bold" color={color.brand.ivory} style={styles.headline}>{job.state === 'completed' ? tx(kind === 'phone' ? '당신만의 부산 여행이\n완성됐어요' : '당신만의 부산 여행이 완성됐어요', kind === 'phone' ? 'Your Busan trip\nis ready' : 'Your Busan trip is ready') : failed ? tx('일정을 만들지\n못했어요', "We couldn't build\nyour itinerary") : tx('AI가 당신만을 위한\n부산 여행을 만들고 있어요', 'AI is building\nyour Busan trip')}</Text>
         <Text color="#a2a7b8">{failed ? job.errorMessage : delayed && isWorking ? tx('부산 동선을 조금 더 다듬고 있어요. 화면을 닫아도 작업은 계속됩니다.', 'We are refining your route through Busan. The job continues if you leave this screen.') : tx('현지 정보와 안전 조건, 이동 부담을 함께 확인하고 있어요.', 'We are checking local information, safety, and travel effort together.')}</Text>
-        {/* 🔴 끝났으면 진행률을 치운다 (S15P21E201-1016). 100% 로 멈춘 막대와 "처리 중" 이라는
+        {/* 끝났으면 진행률을 치운다 100% 로 멈춘 막대와 "처리 중" 이라는
             단계 이름은 완료된 뒤에는 정보가 아니라 거짓이다 — 위의 단계 목록이 이미 전부
-            "완료" 라고 말하고 있고, 그 옆에서 다른 말을 하면 사용자는 덜 끝난 쪽을 믿는다. */}
+            "완료" 라고 말하고 있고, 그 옆에서 다른 말을 하면 사용자는 덜 끝난 쪽을 믿는다.
+        */}
         {job.progress !== null && !failed && job.state !== 'completed' && <View style={styles.progressBlock}><View style={styles.progressTrack}><View style={[styles.progressFill, { width: `${job.progress}%` }]} /></View><Text variant="caption" color={color.brand.orange}>{stageLabel(job.stage, tx) ?? tx('요청 접수', 'Request received')} · {job.progress}%</Text></View>}
         {failed && <Button label={tx('조건 다시 확인하기', 'Review trip details')} onPress={() => router.replace('/plan')} variant="accent" />}
         </View>
         {!failed && <View accessibilityLiveRegion="polite" style={[styles.stageList, kind !== 'phone' && styles.stageListWide]}>{STAGES.map((item, index) => { const done = index < currentStage || job.state === 'completed'; const active = index === currentStage && isWorking; return <View key={item.label} style={[styles.stage, kind !== 'phone' && styles.stageItemWide, active && styles.stageActive]}><View style={[styles.stageIcon, done && styles.stageDone]}><Text variant="caption" weight="bold" color={done ? color.text.onAction : active ? color.brand.orange : '#6e7280'}>{done ? '✓' : '○'}</Text></View><Text weight={done || active ? 'bold' : 'regular'} color={done || active ? color.brand.ivory : '#6e7280'} style={styles.stageText}>{language === 'en' ? item.en : item.label}</Text><Text variant="caption" color={done ? color.state.success : active ? color.brand.orange : '#6e7280'}>{done ? tx('완료', 'Done') : active ? tx('진행 중', 'In progress') : tx('대기', 'Waiting')}</Text></View>; })}</View>}
       </View>}
       <View style={styles.ticketArea}>
-        {/* 시안 TripPassCard 의 머리줄 — 왼쪽 뒤로가기 · 가운데 TRIP PASS · 오른쪽 승차권 번호. */}
+        {/* 시안 TripPassCard 의 머리줄 — 왼쪽 뒤로가기 가운데 TRIP PASS 오른쪽 승차권 번호. */}
         {kind !== 'phone' ? (
           <View style={styles.passHead}>
             <Pressable accessibilityRole="button" accessibilityLabel={tx('뒤로 가기', 'Go back')} onPress={() => (router.canGoBack() ? router.back() : router.replace('/plan'))}>
@@ -239,7 +225,7 @@ export default function Generating() {
           </View>
         ) : null}
         <View style={kind !== 'phone' ? styles.passBody : undefined}>
-        {/* 🔴 시안 TripPassCard 로 바꿨다 (S15P21E201-1233). 전에는 이 자리에 영수증을
+ {/* 시안 TripPassCard 로 바꿨다. 전에는 이 자리에 영수증을
             직접 그렸는데, 찍히는 값이 「BUSAN」·「READY TO BOARD」 같은 **고정 글자**라
             실제 일정과 무관했다. 이제 날짜·방문지·걷는 거리·예상 비용이 전부 실값이다. */}
         {kind !== 'phone' ? (
@@ -249,10 +235,11 @@ export default function Generating() {
         ) : (
           <TripPass data={tripPass} wide={false} tx={tx} onReprint={() => setReprint((n) => n + 1)} key={reprint} />
         )}
-        {/* 🔴 시안 p4 — 티켓 **옆**에 여행표 상세가 선다. 출발지 · 첫 일정 · 마지막 일정 ·
-            이동 합계 · 예상 비용, 그리고 「일정 보기」·「지도에서 보기」.
-            🔴 **모르는 줄은 아예 안 만든다**(buildTripPassDetails). 시안에는 다섯 줄이 다
-            있지만 값이 없는 자리에 「미확인」을 적으면 정보가 아니라 잡음이다. */}
+        {/* 시안 p4 — 티켓 옆에 여행표 상세가 선다. 출발지 첫 일정 마지막 일정
+            이동 합계 예상 비용, 그리고 「일정 보기」·「지도에서 보기」.
+            모르는 줄은 아예 안 만든다(buildTripPassDetails). 시안에는 다섯 줄이 다
+            있지만 값이 없는 자리에 「미확인」을 적으면 정보가 아니라 잡음이다.
+        */}
         {job.state === 'completed' && kind !== 'phone' ? (
           <View style={styles.ticketDetails}>
             <Text variant="title" weight="bold">{[tripPass.fromLabel, tripPass.toLabel].filter(Boolean).join(' → ')}</Text>
@@ -290,22 +277,18 @@ const styles = StyleSheet.create({ canvas: { backgroundColor: color.brand.ivory,
   stageItemWide: { width: '48%' },
   stageListWide: { width: 440, flexShrink: 0, flexDirection: 'row', flexWrap: 'wrap' },
   statusCopy: { flex: 1, minWidth: 0, gap: spacing[2] }, stage: { minHeight: 54, flexDirection: 'row', alignItems: 'center', gap: spacing[3], padding: spacing[3], borderRadius: radius.md, backgroundColor: 'rgba(255,255,255,0.06)' }, stageActive: { borderWidth: 1, borderColor: 'rgba(242,101,50,0.45)', backgroundColor: 'rgba(242,101,50,0.08)' }, stageIcon: { width: 28, height: 28, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }, stageDone: { backgroundColor: color.state.success }, stageText: { flex: 1 }, progressBlock: { gap: spacing[2] }, progressTrack: { height: 6, overflow: 'hidden', borderRadius: radius.full, backgroundColor: 'rgba(255,255,255,0.08)' }, progressFill: { height: 6, borderRadius: radius.full, backgroundColor: color.brand.orange }, // 🔴 시안 TripPassCard 는 **흰 카드 하나**다. 머리줄(‹ · TRIP PASS · 코드) 아래에
-  //    티켓과 상세가 나란히 서고, 「다시 출력」이 카드 바닥 가운데에 온다.
-  //    전에는 베이지 판 위에 티켓만 있고 상세가 **따로 뜬 흰 카드**였다.
-  // 🔴 배경은 **아이보리**다. 시안에서 직접 읽었다 — rgb(255,253,248), 테두리 1px #e8e4dd.
-  //    흰색(surface.card)으로 두면 아이보리 바탕 위에서 카드만 허옇게 떠 보인다.
+  // 티켓과 상세가 나란히 서고, 「다시 출력」이 카드 바닥 가운데에 온다.
+  // 전에는 베이지 판 위에 티켓만 있고 상세가 따로 뜬 흰 카드였다.
+  // 배경은 아이보리다. 시안에서 직접 읽었다 — rgb(255,253,248), 테두리 1px #e8e4dd.
+  // 흰색(surface.card)으로 두면 아이보리 바탕 위에서 카드만 허옇게 떠 보인다.
   ticketArea: { alignItems: 'center', justifyContent: 'flex-start', padding: spacing[6], borderRadius: radius.lg, backgroundColor: color.brand.ivory, borderWidth: 1, borderColor: color.surface.border },
   passHead: { width: '100%', minHeight: 40, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing[4] },
   passTitle: { letterSpacing: 1.5 },
   passBody: { width: '100%', flexDirection: 'row', alignItems: 'flex-start', gap: spacing[8] },
-  // 🔴 티켓 칸에 폭을 못 박는다. TripPass 의 뿌리가 width:100% 라, 안 잡으면 티켓이
-  //    카드 폭을 통째로 먹고 상세 칸이 **카드 밖으로 밀려난다** (실측 1103px, 2026-09-18).
   ticketColumn: { width: 420, flexShrink: 0 },
   ticketAreaWide: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[8], justifyContent: 'center' },
-  // 🔴 폭을 고정한다. flex:1 로 두면 티켓이 남는 폭을 다 가져가 이 칸이 40px 로 눌리고
-  //    글자가 **세로로 선다** — 2026-09-18 화면을 띄워 보고 찾았다.
   ticketDetails: { flex: 1, minWidth: 320, gap: spacing[1], paddingTop: spacing[2] },
-  // 🔴 시안은 **이름 왼쪽 · 값 오른쪽 한 줄**이다. 쌓으면 줄 수가 두 배가 되고 값이 눈에 안 띈다.
+  // 시안은 이름 왼쪽 값 오른쪽 한 줄이다. 쌓으면 줄 수가 두 배가 되고 값이 눈에 안 띈다.
   detailRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[4], minHeight: 40, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: color.surface.border },
   detailValue: { flexShrink: 1 },
   statusRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] },

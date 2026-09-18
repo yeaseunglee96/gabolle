@@ -1,16 +1,7 @@
-// 🔴 2026-09-18 (S15P21E201-1245) — 이 블록들은 **네이비 사진 히어로 위**에 얹으려고
-//    만들어져서 글자가 흰색, 바탕이 반투명 흰색이었다. 시안 p0 에 사진 히어로가 없어서
-//    홈이 아이보리 바탕이 되었고, 그대로 두면 **흰 글자가 흰 바탕에 묻힌다.**
-//    색은 전부 토큰의 기본 글자색·표면색으로 되돌린다.
-// 데스크톱 홈의 블록들 (S15P21E201-970). 시안 `design_handoff_home` 1a.
-//
-// 🔴 시안에 있지만 **그리지 않은 것 둘** — 서버에 그 값이 없다.
-//   · 여행 카드의 **제목** — TripSummaryDto 에 제목 칸이 없다(날짜·일수·인원·상태뿐)
-//   · 장소 카드의 **사진** — photoUrl 은 상세의 선택 필드이고 늘 비어 있다. 목록엔 칸도 없다.
-//     채우는 작업(S15P21E201-146)이 머지되고 목록 API 에 실리면 그때 넣는다.
-//
-// 🔴 정정 (2026-09-16, S15P21E201-1023) — 위 둘 중 **제목은 이제 그린다.** 서버가
-// TripSummaryDto 에 `title` 을 주기 시작했다. 사진은 여전히 위 문단 그대로다.
+// 시안에 있지만 그리지 않은 것 둘 — 서버에 그 값이 없다.
+//  여행 카드의 제목 — TripSummaryDto 에 제목 칸이 없다(날짜·일수·인원·상태뿐)
+//  장소 카드의 사진 — photoUrl 은 상세의 선택 필드이고 늘 비어 있다. 목록엔 칸도 없다.
+// 채우는 작업이 머지되고 목록 API 에 실리면 그때 넣는다.
 import { useState } from 'react';
 import { Image, Pressable, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -52,7 +43,7 @@ function weatherHint(forecast: DailyForecastDto, tx: Tx) {
 export function WeatherLine({ forecast }: { forecast: DailyForecastDto | null }) {
   const { tx } = useI18n();
   if (!forecast) return null;
-  // 최고기온을 쓰고, 없으면 최저라도 보여준다. 둘 다 없으면 줄 자체를 안 그린다 —
+  // 최고기온을 쓰고, 없으면 최저라도 보여준다. 둘 다 없으면 줄 자체를 안 그린다
   // 「—도」 라고 적으면 값이 있는 것처럼 보인다.
   const temp = forecast.maxTemperature ?? forecast.minTemperature;
   if (temp === null) return null;
@@ -82,8 +73,9 @@ function StoryCard({ story }: { story: StoryDto }) {
           </View>}
       <View style={styles.storyBody}>
         <Text variant="caption" numberOfLines={1}>{where ? `${relativeStoryTime(story.createdAt, tx)} · ${where}` : relativeStoryTime(story.createdAt, tx)}</Text>
-        {/* 🔴 사진이 없는 글은 본문을 커버에 이미 크게 그렸다. 여기서 또 그리면 같은 글이 두 번
-            나온다 — 피드 카드(app/(tabs)/feed.tsx)가 같은 이유로 생략하는 자리다. */}
+        {/* 사진이 없는 글은 본문을 커버에 이미 크게 그렸다. 여기서 또 그리면 같은 글이 두 번
+            나온다 — 피드 카드(app/(tabs)/feed.tsx)가 같은 이유로 생략하는 자리다.
+        */}
         {story.images.length ? <Text numberOfLines={2} color={color.text.heading}>{markdownToPlain(story.body)}</Text> : null}
         <View style={styles.storyAuthor}>
           <View style={styles.storyAvatar}><Text variant="caption" weight="bold" color={color.text.onAction}>{initial}</Text></View>
@@ -101,7 +93,7 @@ export function HeroStories({ stories, chips }: { stories: StoryDto[] | null; ch
     <View style={styles.heroRight}>
       <View style={styles.heroRightHead}>
         <Text variant="eyebrow" weight="bold">{tx('지금 부산에서 남긴 기록', 'Just shared in Busan')}</Text>
-        {/* 🔴 로그인 여부로 가리지 않는다 (S15P21E201-76, 진미리). 스토리 조회가 익명
+ {/* 로그인 여부로 가리지 않는다, 진미리). 스토리 조회가 익명
             출입증에 열렸다 — 2026-09-18 운영에서 실측했다(X-Session-Token 으로 200).
             옛 주석은 「익명에게는 401」이라고 적혀 있었는데 그건 -974·995 전의 이야기다. */}
         <Pressable accessibilityRole="link" onPress={() => router.push('/feed')} style={styles.feedAll}>
@@ -119,17 +111,10 @@ export function HeroStories({ stories, chips }: { stories: StoryDto[] | null; ch
         <Text variant="caption" color={color.text.body}>{tx('아직 남겨진 기록이 없어요. 첫 기록을 남겨 보세요.', 'No records yet — be the first to share one.')}</Text>
       ) : null}
 
-      {/* 🔴 칩은 「장소 태그」가 아니라 places/facets 의 갈래다. 장소에 태그 칸이 없어서
+      {/* 칩은 「장소 태그」가 아니라 places/facets 의 갈래다. 장소에 태그 칸이 없어서
           시안대로는 못 만든다. 눌렀을 때 가는 곳도 피드 필터가 아니라 이미 있는 로컬 탐색이다
-          — 피드에는 태그로 거르는 조회가 없다(그건 S15P21E201-971).
-
-          🔴 2026-09-15 에 제목을 붙였다(-989). 그전에는 알약 몇 개만 떠 있어서 그것이 로컬
-          탐색으로 가는 입구라는 것을 알 수 없었다 — 이 앱에서 로컬 탐색은 하단 탭에도 상단
-          바에도 없고 이 칩이 거의 유일한 길이다. 위 기록 구역과 같은 머리 모양을 쓴다.
-
-          🔴 갈래를 하나도 못 받으면 **머리까지 통째로 접는다.** 제목만 남고 아래가 비면
-          고장난 화면으로 보인다 — 아래 장소 블록이 같은 이유로 같은 판단을 한다. 갈래 조회가
-          비는 것은 드문 일이 아니다(서버가 안 붙은 개발 환경에서 실제로 그랬다). */}
+          — 피드에는 태그로 거르는 조회가 없다(그건.
+      */}
       {chips.length ? (
         <>
           <View style={styles.heroRightHead}>
@@ -161,11 +146,11 @@ export function PlacePicks({ places }: { places: HomePlaceItem[] }) {
   return (
     <View style={styles.placesBlock}>
       <View style={styles.blockHead}>
-        {/* 🔴 시안은 「{닉네임}님 취향에 가까운 곳」이었다. 취향 축(로컬성·조용함)과 장소 갈래는
+ {/* 시안은 「{닉네임}님 취향에 가까운 곳」이었다. 취향 축(로컬성·조용함)과 장소 갈래는
             서로 다른 체계라 이어 줄 값이 없어서, 취향을 반영한 척하지 않고 제목을 낮춘다.
             2026-09-15 에 한 번 더 낮췄다 — 「부산 대표 장소」라고 적었는데 고르는 방법이
             **부산 중심에서 가까운 순 넷**이라 대표를 판정하는 자리가 어디에도 없었다. 대표 장소를
-            실제로 채우는 것은 자료 쪽 일이다(S15P21E201-920). */}
+ 실제로 채우는 것은 자료 쪽 일이다. */}
         <Text variant="display" weight="bold">{tx('부산 둘러보기', 'Browse Busan')}</Text>
         <Pressable accessibilityRole="link" onPress={() => router.push('/explore')}>
           <Text color={color.text.body}>{tx('로컬 탐색에서 더 보기 →', 'Explore more →')}</Text>
@@ -176,9 +161,10 @@ export function PlacePicks({ places }: { places: HomePlaceItem[] }) {
           <Pressable key={place.placeId} accessibilityRole="button" onPress={() => router.push(`/place/${place.placeId}`)} style={({ pressed }) => [styles.placeCard, pressed && styles.pressed]}>
             <PlaceVisual name={place.nameKo} address={place.address} photoUrl={place.photoUrl} photoSource={place.photoSource} />
             <Text weight="bold" numberOfLines={1}>{place.nameKo}</Text>
-            {/* 🔴 `category` 를 그대로 그리면 화면에 「FOOD」 같은 **코드**가 뜬다. 그 코드를 한글로
+            {/* `category` 를 그대로 그리면 화면에 「FOOD」 같은 코드가 뜬다. 그 코드를 한글로
                 바꿀 표가 없다 — assistant/intent.ts 에 여섯 개짜리가 있지만 챗봇 입력을 코드로
-                바꾸는 용도라 값이 더 늘면 그대로 새어 나온다. 주소는 늘 오고 사람이 읽을 수 있다. */}
+                바꾸는 용도라 값이 더 늘면 그대로 새어 나온다. 주소는 늘 오고 사람이 읽을 수 있다.
+            */}
             <Text variant="caption" numberOfLines={1}>{place.address ?? ''}</Text>
           </Pressable>
         ))}
@@ -201,7 +187,7 @@ function statusLabel(trip: TripSummaryDto, tx: Tx) {
   return tx('예정', 'Upcoming');
 }
 
-/** 카드에 적을 날짜 범위. 🔴 시작일이 없으면 부르는 쪽이 안 쓰게 되어 있다. */
+/** 카드에 적을 날짜 범위. 시작일이 없으면 부르는 쪽이 안 쓰게 되어 있다. */
 function dateRange(trip: TripSummaryDto, tx: Tx) {
   return trip.startDate && trip.endDate
     ? `${formatDay(trip.startDate, tx)} ~ ${formatDay(trip.endDate, tx)}`
@@ -228,14 +214,16 @@ export function MyTripCard({ trip, signedIn, loaded }: { trip: TripSummaryDto | 
       {!loaded ? <View style={[styles.tripCard, styles.tripSkeleton]} /> : trip ? (
         <Pressable accessibilityRole="button" accessibilityState={{ busy: opening, disabled: opening }} disabled={opening} onPress={() => void openTrip()} style={({ pressed }) => [styles.tripCard, pressed && styles.tripCardPressed]}>
           <Text variant="caption" weight="bold" color={color.state.success}>{statusLabel(trip, tx)}</Text>
-          {/* 🔴 이름이 있으면 이름, 없으면 날짜 (S15P21E201-1023). 없는 이름을 지어내지 않는
-              것은 그대로다 — 서버도 이름이 없을 때 날짜를 대신 채워 보내지 않는다. */}
+          {/* 이름이 있으면 이름, 없으면 날짜 없는 이름을 지어내지 않는
+              것은 그대로다 — 서버도 이름이 없을 때 날짜를 대신 채워 보내지 않는다.
+          */}
           <Text variant="title" weight="bold">
             {tripDisplayTitle(trip, dateRange(trip, tx))}
           </Text>
-          {/* 🔴 이름을 제목에 올리면 날짜가 화면에서 사라진다 — 그러면 같은 이름의 여행
+          {/* 이름을 제목에 올리면 날짜가 화면에서 사라진다 — 그러면 같은 이름의 여행
               둘을 날짜로 가릴 수 없다. 이름이 있을 때만 이 줄에 날짜를 같이 적는다.
-              이름이 없으면 제목이 이미 날짜라 두 번 적지 않는다 (시안 design_handoff_trip_name_flow). */}
+              이름이 없으면 제목이 이미 날짜라 두 번 적지 않는다 (시안 design_handoff_trip_name_flow).
+          */}
           <Text color={color.text.body}>
             {trip.title?.trim() && trip.startDate
               ? tx(`${dateRange(trip, tx)} · ${trip.dayCount}일 · ${trip.partySize}명`, `${dateRange(trip, tx)} · ${trip.dayCount} days · ${trip.partySize} travelers`)
@@ -264,27 +252,18 @@ const styles = StyleSheet.create({
   weatherRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[3], marginTop: spacing[6], paddingTop: spacing[6], borderTopWidth: 1, borderTopColor: color.surface.border },
   weatherHint: { marginLeft: 'auto' },
 
-  // 시안 1a 의 오른쪽 칸 패딩(위 40 · 오른 80 · 아래 40 · 왼 24). 이게 없어서 카드와
-  // 「피드 전체 →」가 화면 오른쪽 끝에 붙었고, 칩 아래가 네이비 판 바닥에 닿아 다음 구역과
-  // 딱 붙어 보였다.
-  // 🔴 가운데로 세운다 (S15P21E201-1111). 히어로는 두 칸을 `alignItems: 'stretch'` 로 놓아
-  // **높은 쪽이 전체 높이를 정한다.** -1099 에서 왼쪽 칸만 가운데로 세웠는데, 그건
-  // **로그인했을 때**(오른쪽에 기록 카드가 들어와 오른쪽이 높이를 정함) 얘기였다.
-  // 로그아웃이면 반대로 왼쪽이 높이를 정하고 **오른쪽에 273px 이 남는다**(배포본 실측
-  // 2026-09-16, 창 1646). 양쪽 다 세워 두면 어느 쪽이 길어지든 한쪽에만 구멍이 안 난다.
-  //
   // 남는 공간이 없을 때는 아무 일도 안 한다 — 그래서 로그인 화면은 지금과 똑같다.
   heroRight: { flex: 1, gap: spacing[3], minWidth: 0, paddingTop: 40, paddingRight: 80, paddingBottom: 40, paddingLeft: spacing[6], justifyContent: 'center' },
   heroRightHead: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', gap: spacing[3] },
   feedAll: { minHeight: 44, justifyContent: 'center' },
-  // 🔴 flex:1 만 주면 카드가 남은 칸을 전부 나눠 먹는다. 기록이 둘뿐이면 한 장이 500px 을
-  //    넘어가 사진이 화면 절반을 차지했다. 시안 폭(1440 에서 약 250)으로 상한을 둔다.
+  // flex:1 만 주면 카드가 남은 칸을 전부 나눠 먹는다. 기록이 둘뿐이면 한 장이 500px 을
+  // 넘어가 사진이 화면 절반을 차지했다. 시안 폭(1440 에서 약 250)으로 상한을 둔다.
   storyGrid: { flexDirection: 'row', gap: spacing[3], alignItems: 'flex-start' },
   storyCard: { flex: 1, minWidth: 0, maxWidth: 260, borderRadius: radius.lg, overflow: 'hidden', backgroundColor: color.surface.card },
   storySkeleton: { height: 260, maxWidth: 260, backgroundColor: color.surface.soft },
   storyImage: { width: '100%', aspectRatio: 1, backgroundColor: color.surface.soft },
-  // 🔴 사진이 없을 때 — 회색 빈 칸 대신 tint 에 본문을 크게. 시안 「자주 틀리는 것」 4번.
-  //    빈 회색은 「사진을 못 불러왔다」로 읽힌다. feed.tsx 의 coverEmpty 와 같은 규칙이다.
+  // 사진이 없을 때 — 회색 빈 칸 대신 tint 에 본문을 크게. 시안 「자주 틀리는 것」 4번.
+  // 빈 회색은 「사진을 못 불러왔다」로 읽힌다. feed.tsx 의 coverEmpty 와 같은 규칙이다.
   storyCoverEmpty: { alignItems: 'center', justifyContent: 'center', padding: spacing[4], backgroundColor: color.surface.tint },
   storyCoverEmptyText: { textAlign: 'center' },
   storyBody: { gap: spacing[1], paddingHorizontal: spacing[4], paddingTop: 14, paddingBottom: spacing[4] },
@@ -301,7 +280,7 @@ const styles = StyleSheet.create({
   placeCard: { flex: 1, minWidth: 0, gap: spacing[2] },
 
   tripBlock: { width: 360, gap: spacing[3] },
-  // 시안은 패딩 20 인데 간격 토큰에 20 이 없다(4·8·12·16·24·32). 16 으로 내린다 —
+  // 시안은 패딩 20 인데 간격 토큰에 20 이 없다(4·8·12·16·24·32). 16 으로 내린다
   // 토큰 밖 숫자를 화면에 직접 쓰지 않는 것이 이 저장소 규칙이다.
   tripCard: { gap: spacing[2], padding: spacing[4], borderWidth: 1, borderColor: color.surface.border, borderRadius: radius.lg, backgroundColor: color.surface.card },
   tripCardPressed: { borderColor: color.brand.orange },

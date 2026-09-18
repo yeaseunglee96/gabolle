@@ -1,5 +1,5 @@
-// 🔴 이 시험이 지키는 것은 「티켓에 찍힌 숫자가 실제 일정의 것인가」다.
-//    티켓은 그럴듯하게 생겨서, 틀린 값이 찍혀도 사람이 눈으로는 못 잡는다.
+// 이 시험이 지키는 것은 「티켓에 찍힌 숫자가 실제 일정의 것인가」다.
+// 티켓은 그럴듯하게 생겨서, 틀린 값이 찍혀도 사람이 눈으로는 못 잡는다.
 import { buildTripPass, buildTripPassDetails, shortenOrigin, tripPassCode, tripPassUrl, type TripPassInput } from '@/plan/tripPassData';
 import type { ItineraryDto } from '@/plan/itinerary';
 

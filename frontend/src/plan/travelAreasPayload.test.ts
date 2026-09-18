@@ -1,7 +1,4 @@
-// 여행 범위가 여행 생성 요청에 실리는가 — S15P21E201-980.
-//
-// 이 칸이 없던 동안 지역 칩은 화면에서만 받고 서버로 가지 않았다. 해운대를 골라도 추천
-// 스무 곳이 전부 출발지 근처였고, 고른 사람은 반영됐다고 믿었다.
+// 여행 범위가 여행 생성 요청에 실리는가 —.
 import { toCreateTripPayload } from '@/api/tripApi';
 import { EMPTY_PLAN } from '@/plan/PlanProvider';
 

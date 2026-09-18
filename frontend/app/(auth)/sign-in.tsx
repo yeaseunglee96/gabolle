@@ -18,12 +18,6 @@ import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { useLayout } from '@/layout/useLayout';
 
-// 🔴 401 을 password/social 로 나눠서 말한다. 소셜 버튼에는 애초에 비밀번호가 없으니
-// "비밀번호가 틀렸다" 는 말은 거짓이고, 이 문구 하나가 실제 사고를 가렸다 — 2026-09-07,
-// 백엔드의 challenge/refresh/logout 엔드포인트가 통째로 사라져 소셜 로그인이 전부 401을
-// 받았는데, 화면은 계속 "이메일 또는 비밀번호가 올바르지 않아요" 라고만 보여줬다
-// (jaehyeon 님, -689 사고 보고). Spring 이 없는 경로를 401 로 접는다는 것도 여기 남긴다 —
-// 다음에 소셜 버튼에서 이 문구가 뜨면 비밀번호가 아니라 엔드포인트 존재부터 의심한다.
 function errorMessage(cause: unknown, tx: (ko: string, en: string) => string, context: 'password' | 'social') {
   if (cause instanceof ApiClientError && cause.status === 429) return tx('요청이 너무 많아요. 잠시 후 다시 시도해 주세요.', 'Too many attempts. Please try again shortly.');
   if (cause instanceof ApiClientError && cause.code === 'EMAIL_NOT_VERIFIED') return tx('이메일 인증을 마친 뒤 로그인해 주세요.', 'Verify your email before signing in.');
@@ -39,52 +33,28 @@ export default function SignIn() {
   const { tx } = useI18n();
   const { kind } = useLayout();
   const [email, setEmail] = useState(''); const [password, setPassword] = useState(''); const [show, setShow] = useState(false);
-  // S15P21E201-1087 — 엔터키로 다음 칸으로 넘어간다. 예전에는 엔터가 아무것도 안 해서,
-  // 칸을 옮길 때마다 자판을 내리고 다음 칸을 손으로 눌러야 했다.
   const emailRef = useRef<TextInput>(null);
   const passwordRef = useRef<TextInput>(null);
   const [busy, setBusy] = useState(false); const [provider, setProvider] = useState<OAuthProvider | null>(null); const [feedback, setFeedback] = useState<{ danger: boolean; text: string } | null>(passwordReset === 'success' ? { danger: false, text: tx('비밀번호가 변경됐어요. 새 비밀번호로 로그인해 주세요.', 'Your password was changed. Sign in with your new password.') } : null);
   const eligible = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()) && password.length > 0;
   useEffect(() => { void savePendingReturnTo(returnTo); }, [returnTo]);
 
-  // 🔴 S15P21E201-1199 — **로그인한 사람에게 로그인 화면을 보여주지 않는다.**
-  //
-  // 구글로 로그인하고 홈에서 뒤로 가기를 한 번 누르면 이 화면이 다시 뜨는 것이 이 결함이었다.
-  // app.json 의 App Link(`https://j15e201.p.ssafy.io/oauth/**`)가 로그인 착지 주소와
-  // 글자 그대로 겹쳐, 착지하는 순간 안드로이드가 앱을 한 번 더 열면서 콜백 화면을
-  // 위에 **쌓기** 때문이다. 그 뒤 `router.replace` 는 **맨 위 한 칸만** 바꾸므로
-  // 아래에 남은 이 화면은 안 지워진다.
-  //
-  // 아래 칸을 지우는 수단은 없다. 대신 **이 화면이 스스로 비킨다** — 어떤 경로로
-  // 왔는지(뒤로 가기·딥링크·상태 복원)와 무관하게 같은 판단이 선다.
-  //
-  // 이 화면에서 방금 로그인한 경우는 제외한다 — 그쪽은 submit·social 이 직접
-  // 목적지로 보낸다. 둘이 같이 움직이면 한 번 갈 길을 두 번 간다.
+  // — 로그인한 사람에게 로그인 화면을 보여주지 않는다.
   const signedInHere = useRef(false);
   const leaving = useRef(false);
   // 이 화면이 한 번이라도 가려졌다가 다시 보이는 것인가.
   const cameBack = useRef(false);
-  //
-  // 🔴 2026-09-18 정정 — 이것을 `useEffect` 로 썼다가 **실기기에서 그대로 다시 떴다.**
-  //
-  // 뒤로 가기로 돌아와도 이 화면은 **다시 만들어지지 않는다** — 쌓인 칸으로 살아
+  // 뒤로 가기로 돌아와도 이 화면은 다시 만들어지지 않는다 — 쌓인 칸으로 살아
   // 있다가 다시 보일 뿐이다. 그래서 `useEffect` 는 다시 돌지 않고, 「여기서 방금
   // 로그인했다」는 표시(signedInHere)도 그대로 남아 가드를 막았다. 내가 예외로 둔
   // 바로 그 자리가 고침을 덮어버렸다.
-  //
-  // 보아야 하는 것은 그려지는 순간이 아니라 **포커스가 돌아오는 순간**이다.
   useFocusEffect(
     useCallback(() => {
-      // 이 화면에서 로그인 절차를 시작했고 아직 떠난 적이 없으면 그대로 둔다 —
+      // 이 화면에서 로그인 절차를 시작했고 아직 떠난 적이 없으면 그대로 둔다
       // 그쪽은 submit·social 이 직접 목적지로 보낸다. 둘이 같이 움직이면 한 번 갈 길을 두 번 간다.
       const mine = signedInHere.current && !cameBack.current;
       if (ready && user && !mine && !leaving.current) {
         leaving.current = true;
-        // 쌓인 칸이 있으면 그만 돌려보내고(=이 화면이 없어진다), 혼자면 홈으로 바꾼다.
-        // 바꾸는 쪽이 중요하다 — 그래야 다음 뒤로 가기가 앱을 빠져나가는 원래 일을 한다.
-        // 🔴 여기서 `router.back()` 을 부르면 **더 뒤로** 간다 — 사람이 홈에서 뒤로
-        //    가기를 눌렀는데 홈이 아니라 그 앞 화면으로 떨어진다. 앞의 고침이 그랬다.
-        //    이 화면은 **앞으로**(홈으로) 비켜야 한다.
         enterApp(router, '/home');
       }
       // 포커스를 잃으면 「다음엔 돌아온 것」으로 친다.
@@ -99,7 +69,7 @@ export default function SignIn() {
     signedInHere.current = true;
     try {
       // 웹에서는 loginWithOAuth가 현재 페이지를 제공자 화면으로 그대로 넘긴다
-      // (S15P21E201-830) — 이 아래는 실행되지 않고, 완료 뒤 분기는
+      // — 이 아래는 실행되지 않고, 완료 뒤 분기는
       // oauth/[provider]/callback.tsx가 같은 navigateAfterOAuthComplete로 이어받는다.
       const result = await loginWithOAuth(next, returnTo);
       await navigateAfterOAuthComplete({ result, provider: next, returnTo, router, acceptTokens });
@@ -123,25 +93,16 @@ export default function SignIn() {
       <Pressable accessibilityRole="link" style={styles.forgot} onPress={() => router.push('/forgot-password')}><Text variant="caption" color={color.action.primary}>{tx('비밀번호를 잊으셨나요?', 'Forgot your password?')}</Text></Pressable>
       {feedback && <Card><Text accessibilityRole="alert" variant="caption" color={feedback.danger ? color.state.danger : color.text.body}>{feedback.text}</Text></Card>}
       <Button accessibilityRole="button" accessibilityState={{ disabled: !eligible || busy || !!provider, busy }} label={busy ? tx('로그인 중…', 'Signing in…') : tx('로그인', 'Sign in')} disabled={!eligible || busy || !!provider} onPress={() => void submit()} />
-      {/* 🔴 S15P21E201-1116 — 보호 화면에서 튕겨 온 것이면 returnTo 로 되돌아가지 않는다.
-
-          예전에는 언제나 returnTo 로 갔다. 그런데 그 자리가 로그인을 요구하는 화면이면
-          ProtectedRoute 가 다시 이리로 보내서 무한 왕복이 된다 — 2026-09-16 실기기에서
-          강제 종료 말고는 빠져나올 길이 없었다.
-
-          그렇다고 늘 홈으로 보내면 안 된다. 여행 만들기 4단계처럼 로그인이 필요 없는
-          자리에서 「로그인하고 일정 만들기」로 넘어온 사람은, 마음이 바뀌어 둘러보기를
-          눌렀을 때 채우던 4단계로 돌아가야 한다. 안드로이드 실기기에서 그 경로가 실제로
-          잘 도는 것을 확인했다.
-
-          가르는 표시는 ProtectedRoute 가 붙여 준다(gated=1). 목록으로 추측하지 않는다. */}
+      {/* — 보호 화면에서 튕겨 온 것이면 returnTo 로 되돌아가지 않는다.
+      */}
       <Pressable accessibilityRole="button" accessibilityHint={tx('로그인 없이 홈과 주요 기능을 둘러봅니다.', 'Browse the home screen and core features without signing in.')} style={styles.guest} onPress={() => router.replace(guestDestination(returnTo, gated) as Href)}><Text variant="body" weight="bold" color={color.action.primary}>{tx('비회원으로 둘러보기', 'Browse as guest')}</Text></Pressable>
     </View>
-    {/* 🔴 S15P21E201-1167 — 제공자마다 글자까지 있는 전체 폭 버튼 넷을 세로로 쌓았더니
+    {/* — 제공자마다 글자까지 있는 전체 폭 버튼 넷을 세로로 쌓았더니
         화면이 버튼으로 빽빽해 보인다는 신고가 있었다. 토스 등 참고 화면처럼 동그란
         아이콘만 가로로 늘어놓는 방식으로 바꾼다 — 글자는 화면에서 지우되
         accessibilityLabel 에는 그대로 남겨 스크린리더는 이전과 똑같이 "Google로
-        계속하기" 처럼 읽는다. */}
+        계속하기" 처럼 읽는다.
+    */}
     <View style={styles.divider}><View style={styles.line} /></View>
     <Text variant="caption" color={color.text.muted} style={styles.socialsLabel}>{tx('SNS 계정으로 로그인', 'Or continue with')}</Text>
     <View style={styles.socials}>{([

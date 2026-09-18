@@ -1,4 +1,4 @@
-// 02 메인 홈 · 15 내 정보 아래에 반복되는 하단 탭. 이 셸은 아직 React Navigation 의 진짜
+// 02 메인 홈 15 내 정보 아래에 반복되는 하단 탭. 이 셸은 아직 React Navigation 의 진짜
 // 탭 내비게이션이 아니라 Stack 하나뿐이라(app/_layout.tsx), 각 화면이 이 바를 직접 그려 붙인다.
 // 1차 배포에서는 모든 탭이 유효한 화면으로 이동한다. 서버 데이터가 없어도 각 화면에서
 // 빈 상태와 다음 행동을 안내해 사용자가 막히지 않게 한다.
@@ -14,13 +14,7 @@ import { Text } from './Text';
 
 export type TabKey = 'home' | 'feed' | 'schedule' | 'map' | 'saved' | 'me';
 
-/**
- * 막대 자체의 높이.
- *
- * 🔴 export 한다 — 탭바 위에 무언가를 띄우는 쪽(전역 배너, S15P21E201-1139)이 이 값을
- * 알아야 탭바를 안 가린다. 같은 숫자를 저쪽에 또 적어 두면 여기서 64 를 바꾸는 날
- * 조용히 어긋난다.
- */
+/** 막대 자체의 높이. */
 export const TAB_BAR_HEIGHT = 64;
 
 type Tab = {
@@ -31,14 +25,6 @@ type Tab = {
   route?: string;
 };
 
-// APP 01에서 내보낸 실제 아이콘을 사용한다.
-// S15P21E201-906: 출시 전 피드를 뺐다(제품 결정, 2026-09-13) — 기능 오류 위험을 줄이려고
-// 하단 탭을 4개(홈·여행 만들기·내 여행·마이페이지)로 되돌린다. feed.tsx 화면과 라우트,
-// TabKey의 'feed'는 그대로 둔다 — 다시 켤 때 이 배열에 한 줄만 되돌리면 된다.
-//
-// 🔴 2026-09-14: 다시 켰다. 위 결정을 뒤집은 것이라 위 문단을 지우지 않고 남긴다.
-// 무엇을 「기능 오류」로 걱정했는지가 커밋에도 쪽지에도 안 적혀 있어서, 그 우려가
-// 해소됐는지는 확인되지 않은 채다. 다시 빼야 하면 이 줄 하나만 지우면 된다.
 const TABS: Tab[] = [
   { key: 'home', icon: require('../../assets/icons/home/home.png'), labelKo: '홈', labelEn: 'Home', route: '/home' },
   { key: 'feed', icon: require('../../assets/icons/home/heart.png'), labelKo: '피드', labelEn: 'Feed', route: '/feed' },
@@ -51,7 +37,7 @@ export function TabBar({ active }: { active: TabKey }) {
   const router = useRouter();
   const { tx } = useI18n();
   const { width } = useLayout();
-  // S15P21E201-926: 이 바는 각 화면에서 Screen(SafeAreaView) 밖의 형제 노드로 그려져
+  // : 이 바는 각 화면에서 Screen(SafeAreaView) 밖의 형제 노드로 그려져
   // 그 보호를 못 받는다 — 고정 margin만 쓰면 안드로이드 엣지투엣지 렌더링에서 기기
   // 시스템 하단 내비게이션 바(제스처바·버튼바)에 가려진다. 하단 인셋을 직접 더한다.
   const insets = useSafeAreaInsets();
@@ -62,16 +48,7 @@ export function TabBar({ active }: { active: TabKey }) {
   // 리다이렉트와 같은 판단). 화면 가운데 붕 뜬 모바일 탭바보다는 없는 쪽이 낫다.
   if (isAtLeast(width, 'md')) return null;
 
-  // 🔴 받침(dock)에 담아 **띄운다** (S15P21E201-1155).
-  //
-  // 전에는 이 막대가 Screen 옆에 나란히 선 보통 형제라 **레이아웃 높이를 실제로 먹었다.**
-  // 그래서 알약 좌·우 여백과 아래쪽은 화면 배경일 뿐이고, 내용이 거기까지 올라오지 못했다.
-  // 사용자가 「하단 영역 전체가 불투명」이라고 적은 것이 그 상태다 — 불투명해서가 아니라
-  // **그 자리에 내용이 없어서**였고, 폭을 328 로 줄인 의미가 사라져 있었다.
-  //
-  // 🔴 `pointerEvents="box-none"` 이 핵심이다. 받침은 화면 폭 전체를 덮지만 **자기는 손짓을
-  // 안 받고 자식(알약)에게만 넘긴다.** 이게 없으면 알약 바깥의 빈 자리가 아래 내용의
-  // 터치를 통째로 가로챈다 — 보이기는 하는데 안 눌리는 상태가 된다.
+  // 받침(dock)에 담아 띄운다
   return (
     <View pointerEvents="box-none" style={[styles.dock, { paddingBottom: tabBarBottomMargin(insets.bottom) }]}>
     <View style={styles.bar}>
@@ -80,10 +57,6 @@ export function TabBar({ active }: { active: TabKey }) {
         return (
           <Pressable
             key={tab.key}
-            // 🔴 testID 는 언어와 무관하다 (S15P21E201-1193). accessibilityLabel 은
-            //    5개국어로 바뀌므로 자동화가 그것으로 탭을 찾으면 언어를 바꾸는 순간
-            //    깨진다. 2026-09-17 iOS 회차가 정확히 그래서 온보딩 본문의 「AI 여행」을
-            //    탭바로 착각했다. 이름은 새로 만들지 않고 이미 있는 key 를 쓴다.
             testID={`tab-${tab.key}`}
             accessibilityRole="tab"
             accessibilityLabel={tx(tab.labelKo, tab.labelEn)}
@@ -115,16 +88,10 @@ export function tabBarBottomMargin(bottomInset: number) {
 const styles = StyleSheet.create({
   // 받침 — 화면 아래에 깔리되 자기는 아무것도 안 그린다. 알약을 가운데 세우는 일만 한다.
   dock: {
-    // 🔴 웹에서는 **뷰포트에 고정**한다 (S15P21E201-1245, 2026-09-18 실기기).
-    //
-    //    `absolute` 는 「가장 가까운 배치된 조상」 기준이다. 이 앱의 화면은 대부분
-    //    `<View flex:1>` 안에 스크롤 영역과 탭바가 형제로 들어 있는데, 모바일 브라우저는
-    //    **문서 자체가 스크롤**되고 주소창이 접히며 뷰포트 높이까지 바뀐다. 그래서 빠르게
-    //    스크롤하면 탭바가 바닥에 안 붙고 **내용과 같이 올라와 카드 위를 덮었다.**
-    //
-    //    `fixed` 는 조상과 무관하게 뷰포트에 붙으므로 그 문제 자체가 안 생긴다.
-    //    네이티브에는 fixed 가 없고 거기서는 문서 스크롤도 없으므로 absolute 그대로 둔다.
-    //    (같은 이유로 PlanDesktopShell 이 100vh 를 썼던 자리와 판단이 같다.)
+    // `absolute` 는 「가장 가까운 배치된 조상」 기준이다. 이 앱의 화면은 대부분
+    // `<View flex:1>` 안에 스크롤 영역과 탭바가 형제로 들어 있는데, 모바일 브라우저는
+    // 문서 자체가 스크롤되고 주소창이 접히며 뷰포트 높이까지 바뀐다. 그래서 빠르게
+    // 스크롤하면 탭바가 바닥에 안 붙고 내용과 같이 올라와 카드 위를 덮었다.
     position: Platform.OS === 'web' ? ('fixed' as 'absolute') : 'absolute',
     left: 0,
     right: 0,

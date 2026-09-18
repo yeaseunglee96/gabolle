@@ -1,17 +1,4 @@
-// 이 여행에 이름 붙이기 (S15P21E201-1036). 시안 `design_handoff_trip_name`.
-//
-// 일정이 막 만들어진 직후에 뜬다. 서버가 일정의 장소를 보고 지어 준 이름 후보를 고르거나,
-// 직접 쓰거나, **건너뛰어 날짜로 둘 수 있다.**
-//
-// 🔴 이 화면이 지키는 것은 하나다 — **모르는 것을 아는 척하지 않는다.**
-//   · 건너뛰기는 실패가 아니라 정상 경로다. 그래서 작은 회색 글씨가 아니라 전폭 버튼이다
-//   · 모델이 지은 이름(MODEL)과 틀로 만든 이름(TEMPLATE)을 같게 그리지 않는다
-//   · 일정에 없는 장소가 섞여 버려진 후보가 있으면 숨기지 않고 몇 개인지 말한다
-//   · 이름을 안 붙이면 카드에 날짜가 보이는데, 그건 임시변통이 아니라 서버와의 계약이다
-//     (서버도 이름이 없을 때 날짜를 대신 채워 보내지 않는다)
-//
-// 🔴 주소의 [id] 는 **여행 id** 다. `app/trips/[id]/…` 쪽의 [id] 는 **일정 id** 라서 서로
-// 다른 것을 가리킨다 — 헷갈리면 남의 여행을 열게 된다.
+// 이 여행에 이름 붙이기 시안 `design_handoff_trip_name`.
 
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, TextInput, View } from 'react-native';
@@ -43,14 +30,13 @@ type Status = 'loading' | 'suggestions' | 'empty' | 'custom' | 'saving' | 'saved
 /** 시안이 정한 상한. 서버는 60자까지 받지만 화면에서는 40자로 끊는다. */
 const DRAFT_MAX_LENGTH = 40;
 
-/** `2026-10-03` → `10.03`. 🔴 날짜가 없으면 만들어내지 않고 null 을 준다. */
 function shortDay(value: string | null | undefined) {
   if (!value) return null;
   const [, month, day] = value.split('-');
   return month && day ? `${month}.${day}` : value;
 }
 
-/** 헤더에 보여줄 날짜 한 줄. 🔴 모르면 null — 「날짜 미정」 같은 말을 지어내지 않는다. */
+/** 헤더에 보여줄 날짜 한 줄. 모르면 null — 「날짜 미정」 같은 말을 지어내지 않는다. */
 function headerRange(trip: TripSummaryDto | null) {
   const start = shortDay(trip?.startDate);
   if (!start) return null;
@@ -98,7 +84,7 @@ export default function TripName() {
     void (async () => {
       const result = await loadTripNameSuggestions(tripId, accessToken);
       if (!alive) return;
-      // 🔴 실패해도 오류 화면으로 가지 않는다. 이름을 못 지은 것은 사람을 다치게 하지
+      // 실패해도 오류 화면으로 가지 않는다. 이름을 못 지은 것은 사람을 다치게 하지
       // 않으므로, 직접 쓰거나 건너뛸 수 있는 자리로 보낸다. 거짓 후보를 만들지 않는다.
       const next = planNameStep(result);
       setSuggestions(next.suggestions);
@@ -109,7 +95,7 @@ export default function TripName() {
     return () => { alive = false; };
   }, [tripId, accessToken]);
 
-  // 🔴 여기서 남긴다 — 저장했든 건너뛰었든 "한 번 물어봤다" 는 같다. 저장할 때만 남기면
+  // 여기서 남긴다 — 저장했든 건너뛰었든 "한 번 물어봤다" 는 같다. 저장할 때만 남기면
   // 건너뛴 사람에게 일정을 열 때마다 다시 묻게 되고, 그건 건너뛸 수 있다고 말해 놓고
   // 안 놓아주는 것이다.
   useEffect(() => { void markTripNameAsked(tripId); }, [tripId]);
@@ -163,7 +149,7 @@ export default function TripName() {
     <View style={styles.header}>
       <Eyebrow>{tx('여행 이름', 'Trip name')}</Eyebrow>
       <Text variant="display" weight="bold">{tx('이 여행에 이름을 붙일까요?', 'Want to name this trip?')}</Text>
-      {/* 🔴 날짜를 모르면 이 줄을 통째로 안 그린다. 「날짜 미정」은 정보가 아니라 잡음이다. */}
+      {/* 날짜를 모르면 이 줄을 통째로 안 그린다. 「날짜 미정」은 정보가 아니라 잡음이다. */}
       {range ? (
         <Text color={color.text.body}>
           {tx('붙이지 않으면 여행 카드에는 날짜 ', 'Without a name, the trip card shows ')}
@@ -229,8 +215,9 @@ export default function TripName() {
         style={[styles.input, blankOnly && styles.inputDanger]}
       />
       <View style={styles.hintRow}>
-        {/* 🔴 공백만 넣은 것을 조용히 넘기지 않는다. 그대로 저장하면 제목 칸이 빈 채로
-            그려져 카드가 「이름을 잃은 것」처럼 보이는데, 그건 「이름이 없다」와 다른 말이다. */}
+        {/* 공백만 넣은 것을 조용히 넘기지 않는다. 그대로 저장하면 제목 칸이 빈 채로
+            그려져 카드가 「이름을 잃은 것」처럼 보이는데, 그건 「이름이 없다」와 다른 말이다.
+        */}
         <Text variant="caption" color={blankOnly ? color.state.danger : color.text.muted} style={styles.hint}>
           {blankOnly
             ? tx('공백만 있으면 이름이 없는 것과 같아요', 'Spaces only counts as no name')
@@ -289,7 +276,7 @@ export default function TripName() {
     </Screen>;
   }
 
-  // ── 받는 중 · 후보 있음 · 후보 없음 · 저장 중 ─────────────────────────────
+  // ── 받는 중 후보 있음 후보 없음 저장 중 ─────────────────────────────
 
   const saving = status === 'saving';
 
@@ -319,8 +306,9 @@ export default function TripName() {
 
       {status === 'suggestions' || saving ? (
         <View>
-          {/* 🔴 여기가 이 화면에서 제일 중요한 갈림이다. 틀로 만든 이름을 「일정을 보고
-              지었다」고 말하면, 아무도 안 읽은 것을 읽었다고 하는 것이 된다. */}
+          {/* 여기가 이 화면에서 제일 중요한 갈림이다. 틀로 만든 이름을 「일정을 보고
+              지었다」고 말하면, 아무도 안 읽은 것을 읽었다고 하는 것이 된다.
+          */}
           {isModelNamed(source) ? (
             <Text variant="eyebrow" weight="bold">{tx('일정의 장소를 보고 지은 이름이에요', 'Named from the places in your itinerary')}</Text>
           ) : (

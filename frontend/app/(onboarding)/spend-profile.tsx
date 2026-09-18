@@ -1,9 +1,5 @@
-// 온보딩 세 질문 — 오는 교통·숙소·식사 (S15P21E201-807, docs/COLDSTART-THREE-QUESTIONS.md).
+// 온보딩 세 질문 — 오는 교통·숙소·식사 docs/COLDSTART-THREE-QUESTIONS.md).
 // 계정(USER) 첫 실행에서만 쓴다 — 여행(TRIP) 조건 입력 쪽 재사용은 별도 티켓 범위다.
-//
-// 🔴 이 화면의 답은 순위 필터가 아니라 가중치 배수로만 쓰인다(문서 1.3) — 그래서 여기서는
-// 후보를 줄이는 어떤 로직도 없다. 답을 서버에 그대로 저장하는 것이 전부다. 배수 크기는
-// 아직 안 정해져 1.0(변화 없음)이고, 그 크기를 정하는 것은 이 화면의 몫이 아니다(문서 5.2).
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -129,9 +125,9 @@ export default function SpendProfileScreen() {
 const styles = StyleSheet.create({
   screen: { backgroundColor: color.brand.ivory },
   centerScreen: { alignItems: 'center', justifyContent: 'center' },
-  // 🔴 marginTop — Screen 의 기본 paddingTop(24) 만으로는 전역 언어 배지(우측 상단
-  //    절대좌표)를 못 피한다(home.tsx·app-intro.tsx 에서 실사용 리포트로 확인된 것과
-  //    같은 자리). "전체 건너뛰기" 가 배지와 겹치던 결함을 여기도 같은 값으로 고친다.
+  // marginTop — Screen 의 기본 paddingTop(24) 만으로는 전역 언어 배지(우측 상단
+  // 절대좌표)를 못 피한다(home.tsx·app-intro.tsx 에서 실사용 리포트로 확인된 것과
+  // 같은 자리). "전체 건너뛰기" 가 배지와 겹치던 결함을 여기도 같은 값으로 고친다.
   topBar: { minHeight: 44, marginTop: spacing[6], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[2] },
   logo: { width: 88, height: 24 },
   stepPill: { paddingHorizontal: spacing[3], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: color.brand.navy },

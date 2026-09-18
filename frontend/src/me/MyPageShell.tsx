@@ -1,12 +1,4 @@
-// 마이페이지 하위 화면 다섯이 함께 쓰는 껍데기 (S15P21E201-965).
-//
-// 데스크톱(≥ lg)에서는 왼쪽 240px 메뉴 + 오른쪽 720px 본문이 한 벌로 붙고, 폰에서는 메뉴 없이
-// 뒤로 버튼과 제목만 남는다 — 폰은 진입 화면(`/me`)이 메뉴 노릇을 하기 때문이다. 같은 화면
-// 파일이 두 배치를 다 감당하므로 하위 화면은 본문만 그리면 된다.
-//
-// 🔴 메뉴 오른쪽 숫자는 **실제로 받아온 것만** 적는다. 연결된 소셜 계정은 서버가 목록을
-// 돌려주는 조회가 없어서(me.tsx 의 S15P21E201-832 주석) 숫자 자리를 비워 둔다 — 시안에는
-// 「n개」가 있지만, 없는 값을 지어내면 화면이 거짓말을 한다.
+// 마이페이지 하위 화면 다섯이 함께 쓰는 껍데기
 import type { ReactNode } from 'react';
 import { Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
@@ -27,11 +19,11 @@ const TABS: Array<{ key: MyPageTab; path: string; ko: string; en: string }> = [
   { key: 'profile', path: '/me/profile', ko: '프로필', en: 'Profile' },
   { key: 'preferences', path: '/me/preferences', ko: '여행 취향', en: 'Travel preferences' },
   { key: 'posts', path: '/me/posts', ko: '내 기록', en: 'My records' },
-  // 사용자 리포트: "마이페이지에 저장 누르면 저장했던 피드들 뜨게" — S15P21E201-1221.
+  // 사용자 리포트: "마이페이지에 저장 누르면 저장했던 피드들 뜨게" —.
   { key: 'saved', path: '/me/saved', ko: '저장한 기록', en: 'Saved records' },
   { key: 'identities', path: '/me/identities', ko: '연결된 소셜 계정', en: 'Connected accounts' },
-  // S15P21E201-1181 — 알림·차단된 계정처럼 스토어 심사가 보는 기본 기능이 마이페이지에
-  // 없었다(사용자 리포트). 알림은 화면이 이미 있다(app/notifications.tsx, 홈 종 아이콘) —
+  // — 알림·차단된 계정처럼 스토어 심사가 보는 기본 기능이 마이페이지에
+  // 없었다(사용자 리포트). 알림은 화면이 이미 있다(app/notifications.tsx, 홈 종 아이콘)
   // 여기서는 새로 만들지 않고 같은 화면으로 가는 입구만 하나 더 둔다.
   { key: 'blocked', path: '/me/blocked', ko: '차단된 계정', en: 'Blocked accounts' },
   { key: 'terms', path: '/me/terms', ko: '약관·고지', en: 'Terms & notices' },
@@ -41,7 +33,7 @@ const TABS: Array<{ key: MyPageTab; path: string; ko: string; en: string }> = [
 export function useMyPageCounts() {
   const { accessToken, user } = useAuth();
   const preferencesQuery = useQuery({
-    // 🔴 me.tsx · preferences.tsx 와 **같은 열쇠**를 쓴다. 따로 읽으면 한쪽만 새로 읽혀
+    // me.tsx preferences.tsx 와 같은 열쇠를 쓴다. 따로 읽으면 한쪽만 새로 읽혀
     // 메뉴의 숫자와 화면의 목록이 어긋난다.
     queryKey: PREFERENCES_KEY,
     enabled: Boolean(accessToken),

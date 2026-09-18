@@ -1,14 +1,4 @@
-// 팔로워·팔로잉·차단 목록의 공통 몸통 — S15P21E201-1180·-1181.
-//
-// 🔴 세 목록(팔로워·팔로잉·차단)이 줄 모양은 같고(아바타·이름) 오른쪽 버튼만 다르다
-// (팔로우/팔로잉 vs 차단 해제). 그래서 목록 자체는 하나로 두고 `renderAction`으로
-// 버튼만 갈아 끼운다 — 세 벌을 따로 만들면 스크롤·커서·빈 상태 처리가 세 번 갈라져서
-// 한쪽만 고치고 잊는 일이 생긴다.
-//
-// 🔴 몸통(RelationList)과 화면(RelationListScreen)을 가른다. `/user/[id]/followers`
-// 처럼 독립된 화면(자기 Screen·뒤로가기 필요)도 있고, `/me/blocked`처럼 MyPageShell
-// 안에 몸통만 얹는 자리도 있다 — Screen을 두 번 겹치면(MyPageShell도 안에서 Screen을
-// 쓴다) 세이프에어리어 여백이 두 번 잡히고 FlatList가 ScrollView 안에 중첩된다.
+// 팔로워·팔로잉·차단 목록의 공통 몸통 —·-1181.
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, Image, Pressable, StyleSheet, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
@@ -73,10 +63,10 @@ export function RelationList({ emptyMessage, loader, renderAction }: RelationLis
 
   useFocusEffect(useCallback(() => { void load(); }, [load]));
 
-  // 🔴 FlatList가 아니라 map()이다. 이 목록이 화면에 따라 이미 스크롤 중인 자리(Screen
+  // FlatList가 아니라 map이다. 이 목록이 화면에 따라 이미 스크롤 중인 자리(Screen
   // scroll, MyPageShell) 안에 얹히므로, FlatList를 또 넣으면 스크롤 가능한 것이 중첩된다
   // (경고 이전에, onEndReached가 부모가 스크롤할 때는 안 불려서 "더 읽기"가 조용히 죽는다).
-  // 한 페이지가 최대 50명이라 가상화 없이 map()으로도 무겁지 않다.
+  // 한 페이지가 최대 50명이라 가상화 없이 map으로도 무겁지 않다.
   const loadMore = async () => {
     if (state.status !== 'loaded' || !state.nextCursor || loadingMore) return;
     setLoadingMore(true);

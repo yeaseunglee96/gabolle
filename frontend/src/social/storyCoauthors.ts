@@ -1,14 +1,14 @@
-// 기록(Story) 공동 작성 — 초대 발급·수락·참여자 관리 — S15P21E201-770(백엔드, 완료)·-845(프론트).
+// 기록(Story) 공동 작성 — 초대 발급·수락·참여자 관리 —(백엔드, 완료)·-845(프론트).
 // 서버 계약(StoryCoauthorController)은 여행 협업(trip/collaboration.ts)과 모양이 같다 — 다섯
 // 경로도, 예외도(StoryExceptionHandler가 StoryController·StoryCoauthorController를 함께 쓴다).
 import { apiRequest, ApiClientError, APP_WEB_BASE_URL } from '@/api/client';
 
 export type StoryInvite = { inviteUrl: string; expiresAt: string };
 
-// 서버 응답(StoryInviteResponse)은 inviteId·storyId·token·expiresAt·acceptPath뿐이다 —
+// 서버 응답(StoryInviteResponse)은 inviteId·storyId·token·expiresAt·acceptPath뿐이다
 // acceptPath는 서버 API 경로이지 앱 화면 주소가 아니다(레코드 주석). 착지 화면은
 // /story-invite/[token].tsx이므로 공유 링크는 token으로 여기서 조립한다 — trip/collaboration.ts의
-// createCompanionInvite와 같은 이유·같은 모양이다(S15P21E201-846에서 그쪽의 같은 실수를 고쳤다).
+// createCompanionInvite와 같은 이유·같은 모양이다에서 그쪽의 같은 실수를 고쳤다).
 type StoryInviteIssued = { inviteId: string; storyId: string; token: string; expiresAt: string; acceptPath: string };
 
 export type StoryInviteResult = { state: 'success' } & StoryInvite | { state: 'forbidden' | 'error'; message: string };
@@ -31,7 +31,7 @@ export async function createStoryInvite(storyId: string, accessToken: string | n
 }
 
 // 서버 응답(AcceptStoryInviteResponse): alreadyJoined가 true면 이번 호출로 새로 합류한 게
-// 아니다(이미 참여 중 · 만든 사람이 자기 링크를 눌렀다 · 동시에 두 번 눌러 진 쪽) — 셋 다
+// 아니다(이미 참여 중 만든 사람이 자기 링크를 눌렀다 동시에 두 번 눌러 진 쪽) — 셋 다
 // 실패가 아니라 성공으로 다룬다(서버가 이미 그렇게 답한다).
 export type AcceptStoryInviteOutcome = { state: 'success'; storyId: string; alreadyJoined: boolean } | { state: 'expired' } | { state: 'not-found' } | { state: 'error'; message: string };
 

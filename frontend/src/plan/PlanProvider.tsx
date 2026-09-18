@@ -60,18 +60,16 @@ export type PlanDraft = {
   accommodationPlace: AccommodationPlace | null;
   maxTransfers: number | null;
   mustVisitPlaces: MustVisitPlace[];
-  /** 공유 일정에서 "내 조건으로 새 여행 만들기"로 들어왔을 때만 채워진다(S15P21E201-340).
-   *  채워져 있으면 제출 시 일반 생성 대신 POST /api/v1/shares/{token}/clone 을 부른다. */
+  /**
+   * 공유 일정에서 "내 조건으로 새 여행 만들기"로 들어왔을 때만 채워진다.
+   * 채워져 있으면 제출 시 일반 생성 대신 POST /api/v1/shares/{token}/clone 을 부른다.
+   */
   cloneShareToken: string | null;
 };
 
 const VERSION = 1;
 
-// S15P21E201-810 — 초안을 계정별로 나눠 저장한다.
-//
-// 전에는 열쇠가 '@gabolle/plan-draft' 하나였다. 그래서 같은 브라우저를 쓰는 모든 계정이
-// 같은 초안을 봤다 — 로그인한 사람이 바뀌어도 앞 사람이 넣은 날짜·예산·출발지가 1단계에
-// 그대로 떠 있었다. 공용 PC 에서는 앞 사람이 어디로 언제 가려 했는지가 보인다.
+// — 초안을 계정별로 나눠 저장한다.
 const STORAGE_PREFIX = '@gabolle/plan-draft';
 const ANONYMOUS_KEY = `${STORAGE_PREFIX}:anonymous`;
 
@@ -151,18 +149,11 @@ export function PlanProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => { void AsyncStorage.removeItem(LEGACY_STORAGE_KEY); }, []);
 
-  // 🔴 저장해 둔 여행 조건을 **모든 새 여행의 기본값으로** 얹는다 (S15P21E201-1245).
-  //
-  //    아래 VOLATILE_CONSTRAINTS 가 이 칸들을 저장에서 빼는 것은 그대로 둔다 — 초안은
-  //    「이번 여행」이고, 조건은 「이 사람」의 것이라 사는 곳이 다르다(계정에 붙는 서버 표,
-  //    S15P21E201-1231). 대신 매번 여기서 다시 얹는다. 그러지 않으면 한 번 적은 사람이
-  //    새로고침할 때마다 「미확인」으로 돌아가고, 모달은 이미 물어봤다며 안 뜬다.
-  //
-  // 🔴 **사용자가 이번에 고른 것을 덮지 않는다.** 아직 UNKNOWN 인 자리에만 얹는다.
+  // 저장해 둔 여행 조건을 모든 새 여행의 기본값으로 얹는다
   const userId = user?.userId ?? null;
   useEffect(() => {
-    // 🔴 로그인 안 한 사람에게도 얹는다. 그 사람의 답은 기기에만 있지만, **이번 여행에는
-    //    똑같이 걸린다** — 여기서 빼면 로그인 전에 적은 알레르기가 새로고침 한 번에 사라진다.
+    // 로그인 안 한 사람에게도 얹는다. 그 사람의 답은 기기에만 있지만, 이번 여행에는
+    // 똑같이 걸린다 — 여기서 빼면 로그인 전에 적은 알레르기가 새로고침 한 번에 사라진다.
     if (!authReady || hydratedKey !== storageKey) return;
     let alive = true;
     void loadTravelConditions(userId, accessToken).then((record) => {

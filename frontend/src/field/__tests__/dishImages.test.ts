@@ -1,13 +1,6 @@
 import { DISH_IMAGES, findDishImage, matchDishKey, normalizeDishName } from '../dishImages';
 
-// S15P21E201-1026 — 메뉴 이름 옆에 붙일 예시 사진을 고른다.
-//
-// 🔴 이 규칙이 지켜야 하는 것은 하나다 — **틀리느니 안 보여준다.**
-// 예시 사진도 하나의 주장이라, 재료가 다른 사진이 나가면 알레르기 문제로 되돌아간다
-// (S15P21E201-996 에서 고친 것의 작은 판).
-//
-// 사진은 아직 한 장도 없다(DB 세션이 모으는 중). 그래도 **규칙은 지금 붙들어 둔다** —
-// 규칙이 먼저 맞아야 사진을 채우는 것이 의미가 있다.
+// — 메뉴 이름 옆에 붙일 예시 사진을 고른다.
 
 // 사진이 들어왔을 때를 가정한 사전. 실제 DISH_IMAGES 와 같은 모양의 열쇠를 쓴다.
 const KEYS = ['순대국밥', '돼지국밥', '소고기국밥', '콩나물국밥', '국밥', '밀면', '물냉면', '냉면', '삼겹살', '김치찌개', '해물파전', '파전', '비빔밥', '국수'];
@@ -79,7 +72,6 @@ describe('실제 사전', () => {
   });
 
   it('사진이 들어왔으니 실제로 붙는다', () => {
-    // 2026-09-16 에 22장이 들어왔다. 「30개 중 22개」이고 여덟은 일부러 비웠다.
     expect(Object.keys(DISH_IMAGES).length).toBeGreaterThan(0);
     const hit = findDishImage('할매순대국밥 9,000');
     expect(hit?.key).toBe('순대국밥');
@@ -97,7 +89,7 @@ describe('실제 사전', () => {
     for (const [key, image] of Object.entries(DISH_IMAGES)) {
       expect(image.source.length).toBeGreaterThan(0);
       expect(image.license.length).toBeGreaterThan(0);
-      // 🔴 확인 안 한 유형 번호를 적지 않는다 — 신청 화면에 적힌 문구 그대로다.
+      // 확인 안 한 유형 번호를 적지 않는다 — 신청 화면에 적힌 문구 그대로다.
       expect(image.license).not.toMatch(/공공누리/);
       // 열쇠에 공백이 있으면 꼬리 일치가 절대 안 맞는다 (정규화가 공백을 지우므로).
       expect(key).not.toMatch(/\s/);

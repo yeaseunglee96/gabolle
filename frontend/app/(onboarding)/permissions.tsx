@@ -1,8 +1,4 @@
 // 03 온보딩·권한 안내 — Figma 03_온보딩·권한 안내 실측 그대로.
-//
-// 🔴 권한을 요청하기 전에 왜 필요한지 먼저 설명하는 화면이다(스토어 심사 항목).
-// 사용자가 고른 권한만 CTA 시점에 OS에 요청한다. 거부된 항목은 false로 저장하되,
-// 권한 거부 때문에 로그인이나 일정 생성 진입을 막지는 않는다.
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useRef, useState } from 'react';
 import { Animated, Image, Platform, Pressable, StyleSheet, View } from 'react-native';
@@ -27,8 +23,6 @@ const SWITCH_HEIGHT = 26;
 const SWITCH_THUMB = 22;
 const SWITCH_PADDING = 2;
 
-// on/off를 텍스트 두 개짜리 알약 버튼으로 표현하던 것을 실제 토글 스위치로 바꿨다 —
-// 사용자가 직접 보고 "이런 방식이 더 낫다"고 제안한 형태(iOS 설정 화면과 같은 트랙+원).
 function ToggleSwitch({ value, onChange, accessibilityLabel }: { value: boolean; onChange: (next: boolean) => void; accessibilityLabel: string }) {
   const progress = useRef(new Animated.Value(value ? 1 : 0)).current;
   useEffect(() => {
@@ -126,8 +120,9 @@ export default function Permissions() {
       </Pressable>
 
       <Button testID="permissions-continue" label={requesting ? tx('권한 확인 중…', 'Checking permissions…') : tx('선택하고 로그인·회원가입으로', 'Continue to sign in / sign up')} disabled={requesting} variant="accent" pill containerStyle={styles.cta} onPress={() => void continueTo('/home')} />
-      {/* 🔴 사용자 리포트 — 위 버튼은 pill(완전히 둥근 모양)인데 이 버튼만 각진 radius.md라
-          두 버튼이 붙어 있을 때 모양이 갑자기 바뀌는 것처럼 보였다. pill을 맞추고 간격을 준다. */}
+      {/* 사용자 리포트 — 위 버튼은 pill(완전히 둥근 모양)인데 이 버튼만 각진 radius.md라
+          두 버튼이 붙어 있을 때 모양이 갑자기 바뀌는 것처럼 보였다. pill을 맞추고 간격을 준다.
+      */}
       <Button testID="permissions-browse-guest" label={tx('비회원으로 먼저 둘러보기', 'Browse as guest first')} variant="ghost" pill disabled={requesting} containerStyle={styles.secondaryCta} onPress={() => void browseAsGuest()} />
       </View>
       </View>
@@ -219,9 +214,6 @@ const styles = StyleSheet.create({
     marginTop: spacing[3],
   },
   cta: {
-    // 🔴 여백만 남긴다 (2026-09-17). 여기 있던 minHeight·borderRadius·backgroundColor 는
-    // 버튼이 아니라 **바깥 껍데기**에 붙어서 남색 버튼 뒤로 주황색이 삐져나왔다.
-    // 색과 모양은 이제 버튼이 직접 갖는다 — `variant="accent" pill`.
     marginTop: spacing[3],
   },
   secondaryCta: {

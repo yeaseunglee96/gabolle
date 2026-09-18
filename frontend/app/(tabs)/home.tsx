@@ -1,19 +1,4 @@
-// 폰 홈 (S15P21E201-970). 디자인 인계 `design_handoff_home_phone` 의 **절충안(C)**.
-//
-// 데스크톱 홈(app/index.tsx)과 짝이다. 데이터는 같은 훅(useHomeData)에서 읽는다.
-//
-// 🔴 1차 시안(2a)은 **지금 있는 기능 다섯을 말없이 지웠다** — 현장 도구·로컬 탐색·알림 종·
-// 하트·챗봇. 그대로 만들면 현장 도구는 들어갈 길이 아예 없어진다(다른 진입점이 없고, 이 바는
-// "챗봇과 겹쳐 헷갈린다"는 사용자 리포트 때문에 일부러 이 자리로 옮긴 것이다). 그래서 2차를
-// 다시 받아 아래처럼 정했다.
-//
-//   현장 도구  남김 → 히어로 CTA 아래 2열 카드(통역 · 메뉴판 번역)
-//   로컬 탐색  옮김 → 「로컬 탐색」 칩 구역 + 「전체 →」 (바는 없앰). 2026-09-15 에 기록 피드
-//                     위로 올렸다 — 스크롤해야 보이는 자리라 사실상 숨어 있었다(-989)
-//   알림 종    남김 → 머리 오른쪽. 🔴 미읽음 조회 API 가 없어 **점은 안 찍는다**
-//   큐레이션   교체 → 실제 기록 카드 3장 (사진·문구가 코드에 박혀 있던 것을 대체)
-//   하트       옮김 → 「부산 둘러보기」 카드. 같은 **장소** 엔티티라 저장·행동 이벤트가 그대로 맞는다
-//   챗봇       남김 → 우하단 플로팅
+// 폰 홈 디자인 인계 `design_handoff_home_phone` 의 절충안(C).
 import { useEffect, useState } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -52,8 +37,8 @@ export default function Home() {
   const { tx, language } = useI18n();
   const { accessToken, user } = useAuth();
   const { update: updatePlan } = usePlan();
-  // 🔴 여행 조건 모달 (S15P21E201-1233). 로그인 후 홈 첫 진입에 한 번, 그리고
-  //    「나중에」를 고른 사람에게는 「일정 물어보기」를 누를 때마다 다시 묻는다.
+  // 여행 조건 모달 로그인 후 홈 첫 진입에 한 번, 그리고
+  // 「나중에」를 고른 사람에게는 「일정 물어보기」를 누를 때마다 다시 묻는다.
   const [promptState, setPromptState] = useState<ConditionsPromptState>('NEVER');
   const [conditions, setConditions] = useState<{ open: boolean; reprompt: boolean; pending: StartBarValue | null }>({ open: false, reprompt: false, pending: null });
   const { width } = useLayout();
@@ -76,33 +61,28 @@ export default function Home() {
     router.push(destination as never);
   };
 
-  // S15P21E201-1013 — 계정 것과 기기 것을 합쳐서 본다(로그인 안 했으면 기기 것만).
+  // — 계정 것과 기기 것을 합쳐서 본다(로그인 안 했으면 기기 것만).
   useEffect(() => {
     void loadSavedPlaceIds(accessToken).then((ids) => setLikedIds(new Set(ids)));
   }, [accessToken]);
 
   // 하트는 계정에 남는다(로그인 안 했으면 기기에만). 저장할 때 분석용 신호도 함께 보낸다.
-  //
-  // 🔴 저장을 해제한 것은 "싫다"가 아니라 "취소"다. 추천 화면의 제외 버튼과 달리 이 하트에는
-  //    싫다는 뜻이 없어서 해제에는 아무 이벤트도 보내지 않는다 — 없는 뜻을 만들지 않는다.
-  // 🔴 전송을 setLikedIds 의 갱신 함수 안에서 하지 않는다. React 가 그 함수를 두 번 부를 수
-  //    있고, 그러면 하트 한 번에 이벤트가 두 건 적힌다.
   const toggleLike = (placeId: string) => {
     const saved = !likedIds.has(placeId);
     const next = new Set(likedIds);
     saved ? next.add(placeId) : next.delete(placeId);
     setLikedIds(next);
     setSaveFeedback(saved ? tx('장소를 저장했어요.', 'Saved this place.') : tx('저장을 해제했어요.', 'Unsaved this place on this device.'));
-    // 🔴 S15P21E201-1081 — 서버가 못 받았으면 뒤늦게라도 사실대로 고쳐 말한다.
-    //    하트는 즉시 반응해야 하므로 먼저 낙관적으로 그리고, 결과가 오면 문구만 바꾼다.
+    // — 서버가 못 받았으면 뒤늦게라도 사실대로 고쳐 말한다.
+    // 하트는 즉시 반응해야 하므로 먼저 낙관적으로 그리고, 결과가 오면 문구만 바꾼다.
     void setSavedPlace(placeId, saved, accessToken).then(({ sync }) => {
       if (sync === 'failed') setSaveFeedback(tx('이 기기에만 저장했어요. 서버에 아직 반영하지 못했어요.', 'Saved on this device only — not synced to the server yet.'));
     });
     if (saved) sendAppEvent({ type: 'place_like', accessToken, payload: { place_id: placeId, surface: 'home' } });
   };
 
-  // 🔴 홈에서 받은 출발지·날짜·인원을 초안에 넣고 조건 화면으로 보낸다 (S15P21E201-1233).
-  //    조건 화면은 이 셋을 **다시 묻지 않는다** — 칩 줄로만 보여 준다.
+  // 홈에서 받은 출발지·날짜·인원을 초안에 넣고 조건 화면으로 보낸다
+  // 조건 화면은 이 셋을 다시 묻지 않는다 — 칩 줄로만 보여 준다.
   useEffect(() => {
     let alive = true;
     void loadConditionsPrompt(user?.userId ?? null, accessToken).then(({ state }) => {
@@ -127,8 +107,8 @@ export default function Home() {
     router.push('/plan');
   };
 
-  // 🔴 「나중에」를 고른 사람에게는 여기서 한 번 더 묻는다. 건너뛰어도 일정은 만들 수 있다 —
-  //    막으면 조건을 안 적은 사람이 앱을 아예 못 쓴다.
+  // 「나중에」를 고른 사람에게는 여기서 한 번 더 묻는다. 건너뛰어도 일정은 만들 수 있다
+  // 막으면 조건을 안 적은 사람이 앱을 아예 못 쓴다.
   const startPlanFromBar = (value: StartBarValue) => {
     if (shouldPromptBeforePlan(promptState)) { setConditions({ open: true, reprompt: true, pending: value }); return; }
     applyBarAndGo(value);
@@ -139,11 +119,11 @@ export default function Home() {
     setConditions({ open: false, reprompt: false, pending: null });
     if (outcome !== 'DISMISSED') {
       const next = outcome === 'SAVED' ? 'SAVED' : outcome === 'NEVER' ? 'NEVER' : 'LATER';
-      // 🔴 값을 실제로 적는 것은 **모달**이다 (S15P21E201-1245). 여기서 상태만 따로
-      //    적던 것이 사고였다 — 「물어봤다」는 기록만 남고 답은 아무 데도 안 남았다.
+      // 값을 실제로 적는 것은 모달이다 여기서 상태만 따로
+      // 적던 것이 사고였다 — 「물어봤다」는 기록만 남고 답은 아무 데도 안 남았다.
       setPromptState(next);
     }
-    // 🔴 건너뛰든 저장하든 **가려던 곳으로 간다.** 조건을 안 적었다고 길을 막지 않는다.
+    // 건너뛰든 저장하든 가려던 곳으로 간다. 조건을 안 적었다고 길을 막지 않는다.
     if (pending) applyBarAndGo(pending);
   };
 
@@ -173,8 +153,9 @@ export default function Home() {
                     </Text>
                   </View>
                 ) : null}
-                {/* 🔴 미읽음이 있는지 알려주는 조회가 없어 주황 점은 안 찍는다 — 늘 찍으면
-                    읽을 것이 없는데도 있는 것처럼 보이고, 안 찍는 쪽이 거짓이 아니다. */}
+                {/* 미읽음이 있는지 알려주는 조회가 없어 주황 점은 안 찍는다 — 늘 찍으면
+                    읽을 것이 없는데도 있는 것처럼 보이고, 안 찍는 쪽이 거짓이 아니다.
+                */}
                 <Pressable accessibilityRole="button" accessibilityLabel={tx('알림 확인', 'Check notifications')} onPress={() => router.push('/notifications')} style={({ pressed }) => [styles.bell, pressed && styles.pressed]}>
                   <Image source={bellIcon} resizeMode="contain" style={styles.bellIcon} />
                 </Pressable>
@@ -190,15 +171,16 @@ export default function Home() {
         {/* ── 히어로 ── */}
         <View style={styles.hero}>
           <Text weight="bold" color={color.brand.navy} style={styles.heroTitle}>{tx('부산의 모든 여행,\n가볼래?', 'Every side of Busan,\nyours to explore.')}</Text>
-          {/* 🔴 시안 p0 의 시작 바 (S15P21E201-1233). 출발지·날짜·인원을 여기서 받아
-              조건 화면으로 넘긴다. 여행지는 안 묻는다 — 부산 고정이다. */}
+          {/* 시안 p0 의 시작 바 출발지·날짜·인원을 여기서 받아
+              조건 화면으로 넘긴다. 여행지는 안 묻는다 — 부산 고정이다.
+          */}
           <PlanStartBar wide={false} accessToken={accessToken} onSubmit={startPlanFromBar} />
 
-          {/* 🔴 「현장 도구」 카드를 뺐다 (2026-09-18 지시). 화면(/field/translate)과
+ {/* 「현장 도구」 카드를 뺐다 (2026-09-18 지시). 화면(/field/translate)과
               챗봇의 진입점은 그대로 있다 — 이 카드만 안 그린다. */}
         </View>
 
-        {/* 🔴 순서: **피드가 먼저, 로컬 탐색이 그다음**이다 (2026-09-18 지시).
+ {/* 순서: 피드가 먼저, 로컬 탐색이 그다음이다 (2026-09-18 지시).
             넓은 화면도 같은 순서다(HomeBlocks 의 HeroStories 가 기록 다음에 칩을 그린다). */}
         {/* ── 지금 부산에서 남긴 기록 ── */}
         <View style={styles.section}>
@@ -207,7 +189,7 @@ export default function Home() {
             <Pressable accessibilityRole="link" onPress={() => router.push('/feed')}><Text weight="bold" color={color.brand.navy}>{tx('피드 전체 →', 'See all →')}</Text></Pressable>
           </View>
 
-          {/* 🔴 로그인 여부로 가리지 않는다 (S15P21E201-76, 진미리). 스토리 조회가 익명
+ {/* 로그인 여부로 가리지 않는다, 진미리). 스토리 조회가 익명
               출입증에 열렸다 — 2026-09-18 운영에서 실측(X-Session-Token 으로 200). */}
           {home.stories === null ? (
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.rail}>
@@ -228,8 +210,9 @@ export default function Home() {
                         </View>}
                     <View style={styles.storyBody}>
                       <Text variant="caption" numberOfLines={1}>{where ? `${relativeStoryTime(story.createdAt, tx)} · ${where}` : relativeStoryTime(story.createdAt, tx)}</Text>
-                      {/* 🔴 사진이 없는 글은 본문을 커버에 이미 크게 그렸다. 또 그리면 같은 글이 두 번
-                          나온다 — 피드 카드가 같은 이유로 생략하는 자리다. */}
+                      {/* 사진이 없는 글은 본문을 커버에 이미 크게 그렸다. 또 그리면 같은 글이 두 번
+                          나온다 — 피드 카드가 같은 이유로 생략하는 자리다.
+                      */}
                       {story.images.length ? <Text numberOfLines={2} color={color.text.heading}>{markdownToPlain(story.body)}</Text> : null}
                       {/* 작성자 프로필 사진은 계정에 없다 — 이름만 적는다. */}
                       <Text variant="caption" weight="bold" color={color.text.body} numberOfLines={1}>{story.author.displayName}</Text>
@@ -242,11 +225,11 @@ export default function Home() {
         </View>
 
         {/* ── 로컬 탐색 (옛 로컬 탐색 바 자리) ──
-            🔴 2026-09-15 에 기록 피드 **아래**에서 여기로 올렸다. 로컬 탐색으로 가는 길이 이
+ 2026-09-15 에 기록 피드 아래에서 여기로 올렸다. 로컬 탐색으로 가는 길이 이
             칩과 챗봇 둘뿐인데(하단 탭에도 데스크톱 상단 바에도 없다) 스크롤해야 보이는 자리에
             있어서 사실상 숨어 있었다. 제목도 「갈래로 찾기」라 눌렀을 때 어디로 가는지 알 수
             없었다 — 목적지 이름을 그대로 적는다. 탭·상단 바로 꺼내는 것은 내비게이션 구조를
-            건드리는 일이라 디자인 재작업 뒤로 미뤘다(S15P21E201-989). */}
+ 건드리는 일이라 디자인 재작업 뒤로 미뤘다. */}
         {home.chips.length ? (
           <View style={styles.section}>
             <View style={styles.sectionHead}>
@@ -265,11 +248,10 @@ export default function Home() {
           </View>
         ) : null}
 
-
         {/* ── 부산 둘러보기 (하트가 여기로 옮겨 왔다) ── */}
         {home.places.length ? (
           <View style={styles.sectionPadded}>
-            {/* 🔴 「부산 대표 장소」였다가 2026-09-15 에 낮췄다. 고르는 방법이 부산 중심에서
+ {/* 「부산 대표 장소」였다가 2026-09-15 에 낮췄다. 고르는 방법이 부산 중심에서
                 가까운 순 넷이라 대표를 판정하는 자리가 없었다 — 제목만 대표를 약속하고 있었다. */}
             <Text variant="title" weight="bold">{tx('부산 둘러보기', 'Browse Busan')}</Text>
             <View style={styles.placeGrid}>
@@ -286,8 +268,9 @@ export default function Home() {
                         onPress={() => (signedIn ? toggleLike(place.placeId) : router.push({ pathname: '/sign-in', params: { returnTo: '/home' } }))}
                         style={styles.heartButton}
                       >
-                        {/* 색만으로 저장 여부를 나타내지 않는다(팀 UX 가이드라인 11번) —
-                            저장했을 때만 배경 원이 함께 나타난다. */}
+                        {/* 색만으로 저장 여부를 나타내지 않는다(팀 UX 가이드라인 11번)
+                            저장했을 때만 배경 원이 함께 나타난다.
+                        */}
                         <View style={[styles.heartBackdrop, liked && styles.heartBackdropOn]}>
                           <Image source={heartIcon} resizeMode="contain" style={[styles.heartIcon, liked ? styles.heartOn : styles.heartOff]} />
                         </View>
@@ -378,7 +361,6 @@ const styles = StyleSheet.create({
   heroTitle: { fontSize: 36, lineHeight: 42, letterSpacing: -0.3 },
   primaryCta: { minHeight: 52, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full, backgroundColor: color.brand.orange, marginTop: spacing[1] },
 
-
   section: { gap: spacing[3], paddingTop: spacing[8] },
   sectionPadded: { gap: spacing[3], paddingTop: spacing[8], paddingHorizontal: spacing[6] },
   sectionHead: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', gap: spacing[3], paddingHorizontal: spacing[6] },
@@ -389,12 +371,11 @@ const styles = StyleSheet.create({
   storyCard: { width: CARD_WIDTH, borderRadius: radius.lg, overflow: 'hidden', borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.surface.card },
   storySkeleton: { height: 260, backgroundColor: color.surface.soft },
   storyImage: { width: '100%', aspectRatio: 4 / 3, backgroundColor: color.surface.soft },
-  // 🔴 사진이 없을 때 — 회색 빈 칸 대신 tint 에 본문을 크게. 시안 「자주 틀리는 것」 4번.
-  //    빈 회색은 「사진을 못 불러왔다」로 읽힌다. feed.tsx 의 coverEmpty 와 같은 규칙이다.
+  // 사진이 없을 때 — 회색 빈 칸 대신 tint 에 본문을 크게. 시안 「자주 틀리는 것」 4번.
+  // 빈 회색은 「사진을 못 불러왔다」로 읽힌다. feed.tsx 의 coverEmpty 와 같은 규칙이다.
   storyCoverEmpty: { alignItems: 'center', justifyContent: 'center', padding: spacing[4], backgroundColor: color.surface.tint },
   storyCoverEmptyText: { textAlign: 'center' },
   storyBody: { gap: spacing[1], paddingHorizontal: spacing[4], paddingTop: spacing[3], paddingBottom: spacing[4] },
-
 
   chip: { minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.surface.soft },
 
@@ -417,9 +398,6 @@ const styles = StyleSheet.create({
 
   saveFeedback: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[3], marginTop: spacing[6], marginHorizontal: spacing[6], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.brand.navy },
 
-  // 마스코트 자체가 이미 원형 배지라 바깥에 흰 원을 또 두르지 않는다(이중 테두리로
-  // 시선만 끔) — 그 결정은 그대로 두되, 사용자 실사용 리포트(2026-09-16)로 "챗봇
-  // 아이콘이 너무 작다"는 지적을 받아 버튼·마스코트 크기 자체를 키운다.
   assistantButton: { position: 'absolute', right: spacing[6], bottom: 100, width: 68, height: 68, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full },
   assistantMascot: { width: 60, height: 60 },
 });

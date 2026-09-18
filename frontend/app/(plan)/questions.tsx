@@ -1,20 +1,5 @@
-// 여행 조건 한 페이지 — 질문 카드 하나에 답하면 다음이 열린다 (S15P21E201-1233).
+// 여행 조건 한 페이지 — 질문 카드 하나에 답하면 다음이 열린다
 // 시안: docs/design_handoff_plan_flow/PlanFlow.dc.html 의 p1.
-//
-// 🔴 전에는 조건 입력이 취향 화면 · 제약조건 화면으로 흩어져 있었고, 한 화면에 카드가
-//    여럿 있어서 **어디까지 했는지가 안 보였다.** 한 번에 하나만 묻는다.
-//
-// 🔴 **출발지·날짜·인원은 다시 묻지 않는다.** 홈의 시작 바에서 받았다. 위의 칩 줄로만
-//    보여 주고, 고치려면 그 화면으로 돌아간다.
-//
-// 🔴 2026-09-18 (S15P21E201-1245) — 마지막 단추가 **확인 화면(/plan/confirm)으로 보내던 것을
-//    여기서 바로 만드는 것으로 바꿨다.** 시안에 확인 화면이 없다. 시안의 흐름은
-//    홈 → /plan → /plan/generating → 추천 요약 → 일정 이고, 사이에 확인 단계가 없다.
-//
-//    확인 화면이 하던 일 둘을 여기로 가져온다:
-//      · 일정 생성 요청 보내기
-//      · 알레르기·식단을 쓰려면 필요한 동의(HEALTH_CONSTRAINTS)를 받고 다시 보내기
-//    미확인 조건이 남아 있으면 조건 모달을 띄운다 — 옛 확인 화면의 빨간 줄이 하던 몫이다.
 import { useMemo, useRef, useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -59,8 +44,8 @@ const CATEGORIES = [
 
 const ATMOSPHERES = [['LIVELY', '활기찬', 'Lively'], ['RELAXED', '여유로운', 'Relaxed'], ['SENTIMENTAL', '감성적인', 'Sentimental'], ['ROMANTIC', '낭만적인', 'Romantic']] as const;
 const PACES = [['RELAXED', '여유롭게', 'Relaxed'], ['BALANCED', '균형 있게', 'Balanced'], ['PACKED', '알차게', 'Packed']] as const;
-// 🔴 택시는 넣지 않는다. 초안의 이동수단 칸이 셋만 받는다 — 화면에만 넣으면
-//    고른 값이 조용히 버려진다.
+// 택시는 넣지 않는다. 초안의 이동수단 칸이 셋만 받는다 — 화면에만 넣으면
+// 고른 값이 조용히 버려진다.
 const TRANSPORTS = [['TRANSIT', '대중교통', 'Transit'], ['CAR', '자동차', 'Car'], ['WALK', '도보 위주', 'Mostly walking']] as const;
 const BUDGET_STEPS = [10000, 30000, 50000, 100000] as const;
 const SCALES = [
@@ -108,7 +93,7 @@ function Scale({ value, onChange, lowLabel, highLabel }: { value: number | null;
   );
 }
 
-/** 답한 내용을 한 줄로. 🔴 안 고른 칸은 적지 않는다 — 「미정」이 답처럼 보인다. */
+/** 답한 내용을 한 줄로. 안 고른 칸은 적지 않는다 — 「미정」이 답처럼 보인다. */
 function summaryOf(key: QuestionKey, draft: PlanDraft, ko: boolean, skipped: boolean): string {
   if (skipped) return ko ? '건너뜀' : 'Skipped';
   const labels = (list: readonly (readonly [string, string, string])[], picked: string[]) =>
@@ -154,18 +139,18 @@ export default function PlanConditions() {
   const [conditionsOpen, setConditionsOpen] = useState(false);
   const ko = language !== 'en';
   const [state, setState] = useState<QuestionState>(INITIAL_QUESTION_STATE);
-  // 🔴 자동 스크롤은 아직 안 넣었다. 화면 껍데기(Screen)가 스크롤 손잡이를 밖으로
-  //    안 내주는데, 그걸 고치는 것은 모든 화면에 걸리는 변경이라 이 티켓의 범위 밖이다.
-  //    답한 카드가 64px 짜리 한 줄로 접히므로 새 카드는 대체로 같은 자리에 온다.
-  //    카드의 y 는 재 두었다 — 손잡이가 생기면 그대로 쓴다.
+  // 자동 스크롤은 아직 안 넣었다. 화면 껍데기(Screen)가 스크롤 손잡이를 밖으로
+  // 안 내주는데, 그걸 고치는 것은 모든 화면에 걸리는 변경이라 이 티켓의 범위 밖이다.
+  // 답한 카드가 64px 짜리 한 줄로 접히므로 새 카드는 대체로 같은 자리에 온다.
+  // 카드의 y 는 재 두었다 — 손잡이가 생기면 그대로 쓴다.
   const cardTops = useRef<Record<number, number>>({});
 
   const done = settledCount(draft, state);
   const left = remainingCount(draft, state);
   const finished = allSettled(draft, state);
 
-  // 🔴 미확인 필수 조건(알레르기·식단)이 남아 있나. 옛 확인 화면이 재던 것과 같은 식이다 —
-  //    「모르면 안전하다고 치지 않는다」가 이 앱의 방침이라, 비운 채로 만들지 않는다.
+  // 미확인 필수 조건(알레르기·식단)이 남아 있나. 옛 확인 화면이 재던 것과 같은 식이다
+  // 「모르면 안전하다고 치지 않는다」가 이 앱의 방침이라, 비운 채로 만들지 않는다.
   const hardUnknown = draft.allergyStatus === 'UNKNOWN' || draft.dietStatus === 'UNKNOWN'
     || (draft.allergyStatus === 'VALUES' && !draft.allergies.length)
     || (draft.dietStatus === 'VALUES' && !draft.dietTypes.length);
@@ -173,7 +158,7 @@ export default function PlanConditions() {
   const goGenerating = (jobId: string) => router.push({ pathname: '/plan/generating', params: { jobId } });
 
   const submitPlan = async () => {
-    // 미확인이 남았으면 **막지 않고 그 자리에서 묻는다.** 막기만 하면 물어볼 데가 없어
+    // 미확인이 남았으면 막지 않고 그 자리에서 묻는다. 막기만 하면 물어볼 데가 없어
     // 영영 못 만드는 상태가 된다 — 오늘 오전에 실제로 그랬다.
     if (hardUnknown) { setConditionsOpen(true); return; }
     if (!user) { router.push({ pathname: '/sign-in', params: { returnTo: '/plan' } }); return; }
@@ -183,8 +168,8 @@ export default function PlanConditions() {
     if (next.jobId) goGenerating(next.jobId);
   };
 
-  // S15P21E201-549(백엔드) — 알레르기·필수 식단이 든 요청은 HEALTH_CONSTRAINTS 동의 없이 403 이다.
-  // 동의를 켜고 **같은 조건으로 곧바로 다시** 보낸다. 방금 다 답한 사람에게 단추를 한 번 더
+  // (백엔드) — 알레르기·필수 식단이 든 요청은 HEALTH_CONSTRAINTS 동의 없이 403 이다.
+  // 동의를 켜고 같은 조건으로 곧바로 다시 보낸다. 방금 다 답한 사람에게 단추를 한 번 더
   // 누르게 하지 않는다. 옛 확인 화면에 있던 코드를 그대로 옮긴 것이다.
   const grantHealthConsentAndRetry = async () => {
     if (!accessToken) return;
@@ -198,7 +183,7 @@ export default function PlanConditions() {
       setJob({ state: 'failed', jobId: null, progress: null, stage: null, canCancel: false, errorMessage: cause instanceof ApiClientError ? cause.message : tx('동의 처리에 실패했어요. 잠시 후 다시 시도해 주세요.', 'Could not save your consent. Please try again shortly.'), resultRef: null });
     }
   };
-  // 시안 p1 — 「홈에서 받은 정보」는 **칩 세 개**(출발지 · 날짜 · 인원)다. 한 줄 문자열로
+  // 시안 p1 — 「홈에서 받은 정보」는 칩 세 개(출발지 날짜 인원)다. 한 줄 문자열로
   // 이어 붙이면 폰 390 에서 잘린다.
   const headerChips = useMemo(() => startBarChips({
     origin: draft.origin, originLat: draft.originLat, originLng: draft.originLng,
@@ -300,8 +285,8 @@ export default function PlanConditions() {
         ))}</View>;
       case 'foods':
         return <View style={styles.chips}>{FOODS.map(([code, k, e]) => {
-          // 🔴 알레르기·식단과 부딪히는 음식은 고를 수 없게 하고 **왜인지 같이 적는다.**
-          //    그냥 흐리게만 두면 사람은 「고장났나」로 읽는다.
+          // 알레르기·식단과 부딪히는 음식은 고를 수 없게 하고 왜인지 같이 적는다.
+          // 그냥 흐리게만 두면 사람은 「고장났나」로 읽는다.
           const conflict = conflictingFoodCode(code, draft.allergies, draft.dietTypes);
           return (
             <View key={code} style={styles.foodWrap}>
@@ -334,8 +319,9 @@ export default function PlanConditions() {
                   onPress={() => update({ mustVisitPlaces: draft.mustVisitPlaces.filter((item) => item.placeId !== place.placeId) })} />
               ))}</View>
             ) : null}
-            {/* 🔴 여기서는 장소를 새로 찾지 않는다. 검색은 기존 화면에 있고, 두 벌을 두면
-                한쪽만 고치는 날이 온다. 지금은 고른 것을 보여 주고 빼는 것까지만 한다. */}
+            {/* 여기서는 장소를 새로 찾지 않는다. 검색은 기존 화면에 있고, 두 벌을 두면
+                한쪽만 고치는 날이 온다. 지금은 고른 것을 보여 주고 빼는 것까지만 한다.
+            */}
             <Text variant="caption" color={color.text.muted}>
               {tx('꼭 가고 싶은 곳이 있으면 여행을 만든 뒤 일정 화면에서 더할 수 있어요.', 'You can add must-visit places from the itinerary screen after your trip is created.')}
             </Text>
@@ -351,8 +337,9 @@ export default function PlanConditions() {
   return (
     
       <Screen scroll wide={kind !== 'phone'} style={styles.canvas}>
-        {/* 🔴 폰에는 뒤로 가기와 현재 걸음을 위에 둔다 — 시안 p1 모바일. 넓은 화면에는
-            위 내비가 있어서 이 줄이 없다(시안도 그렇다). */}
+        {/* 폰에는 뒤로 가기와 현재 걸음을 위에 둔다 — 시안 p1 모바일. 넓은 화면에는
+            위 내비가 있어서 이 줄이 없다(시안도 그렇다).
+        */}
         {kind === 'phone' ? (
           <View style={styles.phoneTop}>
             <Pressable
@@ -379,8 +366,9 @@ export default function PlanConditions() {
               {headerChips.map((chip) => (
                 <View key={chip} style={styles.givenChip}><Text variant="caption" weight="bold">{chip}</Text></View>
               ))}
-              {/* 🔴 「수정」은 **홈으로** 간다. 전에는 `/plan` 이라 지금 보고 있는 이 화면을
-                  다시 열었고, 눌러도 아무 일이 안 났다 — 이 값들을 고치는 자리는 홈의 시작 바다. */}
+              {/* 「수정」은 홈으로 간다. 전에는 `/plan` 이라 지금 보고 있는 이 화면을
+                  다시 열었고, 눌러도 아무 일이 안 났다 — 이 값들을 고치는 자리는 홈의 시작 바다.
+              */}
               <Pressable accessibilityRole="button" onPress={() => router.push(kind === 'phone' ? '/home' : '/')} style={styles.givenEdit}>
                 <Text variant="caption" weight="bold" color={color.brand.orange}>{tx('수정', 'Edit')}</Text>
               </Pressable>
@@ -478,7 +466,7 @@ export default function PlanConditions() {
 
 const styles = StyleSheet.create({
   consent: { gap: spacing[2], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.state.warningBg },
-  // 🔴 시안의 본문 폭은 1200 이다 (PlanFlow.dc.html). Screen 의 wide 는 1440 이라 240px 넓다 (S15P21E201-1245).
+  // 시안의 본문 폭은 1200 이다 (PlanFlow.dc.html). Screen 의 wide 는 1440 이라 240px 넓다
   canvas: { maxWidth: 1200 },
   header: { gap: spacing[2], marginTop: spacing[6] },
   phoneTop: { minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },

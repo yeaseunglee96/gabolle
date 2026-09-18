@@ -1,4 +1,4 @@
-// 기록 상세 — 피드 카드를 누르면 오는 화면 (S15P21E201-228).
+// 기록 상세 — 피드 카드를 누르면 오는 화면
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, Image, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
@@ -19,18 +19,7 @@ import { applyReaction, nextReaction, StoryReactionRow, type Reaction } from '@/
 
 type State = { status: 'loading'; cached: StoryDto | null } | { status: 'loaded'; story: StoryDto } | { status: 'not-found' } | { status: 'error'; message: string };
 
-/**
- * 상세 전용 사진 격자 — 3열 2행, 넘치면 마지막 칸에 「+N」 (S15P21E201-1177, 시안 2a).
- *
- * 🔴 목록·작성 미리보기가 쓰는 `PhotoGrid` 를 안 쓴다. 그 부품은 **장수에 따라 배치를
- * 바꾸는** 것이 일이고(한 장은 넓게, 넷은 사분면), 여기는 **다 보여주는 갤러리**라 하는
- * 일이 다르다. 한 부품에 두 성격을 넣으면 한쪽을 고칠 때마다 다른 쪽이 흔들린다.
- *
- * 🔴 그래서 목록과 상세의 사진 배치가 달라진다. 이건 시안이 그렇게 정한 것이다 —
- * 목록은 커버 한 장, 상세는 전부. 「같은 글이 자리마다 다르게 보이면 안 된다」는 예전
- * 판단(S15P21E201-1135)과 어긋나 보이지만, 그때는 **같은 갤러리를 다르게 그리는** 것이
- * 문제였고 지금은 **커버와 갤러리라는 다른 것**이다.
- */
+/** 상세 전용 사진 격자 — 3열 2행, 넘치면 마지막 칸에 「+N」 시안 2a). */
 function DetailPhotoGrid({ images }: { images: StoryDto['images'] }) {
   const { tx } = useI18n();
   if (!images.length) return null;
@@ -52,13 +41,7 @@ function DetailPhotoGrid({ images }: { images: StoryDto['images'] }) {
   );
 }
 
-/**
- * 장소 제목 블록 — 시안 2a 의 맨 위 (S15P21E201-1177).
- *
- * 🔴 시안은 제목 아래에 **주소**를 넣으라고 하는데 그 칸이 없다. `StoryDto` 의 place 는
- * `{ id, name, lat, lng }` 뿐이다. 없는 것을 지어내지 않고, 있는 `region` 을 대신 쓴다.
- * 주소가 계약에 생기면 그때 바꾼다.
- */
+/** 장소 제목 블록 — 시안 2a 의 맨 위 */
 function PlaceHeading({ story, onOpen }: { story: StoryDto; onOpen: () => void }) {
   const { tx } = useI18n();
   if (!story.place) return null;
@@ -80,31 +63,10 @@ function PlaceHeading({ story, onOpen }: { story: StoryDto; onOpen: () => void }
   );
 }
 
-/**
- * 본문 글자 상한.
- *
- * 🔴 주석이 말하는 값을 믿지 않고 원본을 열어 맞췄다 — 서버의 {@code Story.MAX_BODY_LENGTH}
- * 가 500 이고 글쓰기 화면(compose.tsx)도 500 이다. ⚠️ 이 값이 이제 **세 곳에 따로** 적혀
- * 있다(여기·compose.tsx·feed.tsx). 한 곳으로 모으는 것은 이 MR 범위 밖이라 안 했다.
- */
+/** 본문 글자 상한. */
 const BODY_MAX = 500;
 
-/**
- * 댓글 한 장 — 원글과 **같은 StoryDto** 를 받는다 (S15P21E201-1197).
- *
- * 🔴 별도 Comment 타입을 만들지 않는다. 시안이 못박았고 서버도 같은 표에 부모 칸으로 갔다.
- * 본문과 사진은 원글이 쓰는 부품을 그대로 쓴다 — 마크다운이 원글에서만 풀리고 댓글에서
- * 안 풀리면 같은 글이 자리마다 다르게 보인다.
- *
- * 원글과 다른 점은 **장소 제목을 안 그리는 것** 하나다. 댓글의 장소는 원글과 같거나 없고,
- * 댓글마다 같은 장소 이름을 반복하면 목록이 안 읽힌다.
- *
- * 🔴 수정·삭제·신고 상태(수정 중인지, 삭제를 확인하는 중인지) — S15P21E201-1239.
- * 이 카드 안에 둔다. 목록이 늘어날 때마다 부모가 "몇 번째 댓글이 지금 무슨 모드인가"를
- * 들고 다니게 하지 않으려는 것이다 — 댓글마다 독립된 카드라 상태도 카드 안에 있는 것이
- * 자연스럽다. 실제로 서버를 부르는 뮤테이션(수정·삭제)만 성공했을 때 부모에게 알려
- * 목록을 맞춘다.
- */
+/** 댓글 한 장 — 원글과 같은 StoryDto 를 받는다 */
 function ReplyCard({
   reply,
   accessToken,
@@ -145,7 +107,7 @@ function ReplyCard({
     setDeleting(true);
     const outcome = await deleteStory(reply.id, accessToken);
     setDeleting(false);
-    // 🔴 실패를 조용히 삼키지 않는다 — 다시 확인 상태로 돌아가서 한 번 더 시도할 수 있게 둔다.
+    // 실패를 조용히 삼키지 않는다 — 다시 확인 상태로 돌아가서 한 번 더 시도할 수 있게 둔다.
     if (outcome.state === 'success') onDeleted(reply.id);
   };
 
@@ -221,8 +183,8 @@ export default function StoryDetail() {
   const { tx } = useI18n();
   const { id } = useLocalSearchParams<{ id: string }>();
   const [state, setState] = useState<State>({ status: 'loading', cached: null });
-  // 🔴 어느 글을 신고하는 중인지 — 원글(id)일 수도, 댓글(reply.id)일 수도 있다. 신고 모달은
-  //    하나만 두고 대상만 바꿔 재사용한다 — ReportModal 은 원글이 이미 쓰는 부품이다.
+  // 어느 글을 신고하는 중인지 — 원글(id)일 수도, 댓글(reply.id)일 수도 있다. 신고 모달은
+  // 하나만 두고 대상만 바꿔 재사용한다 — ReportModal 은 원글이 이미 쓰는 부품이다.
   const [reportingTargetId, setReportingTargetId] = useState<string | null>(null);
   const [reported, setReported] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
@@ -230,15 +192,15 @@ export default function StoryDetail() {
   const [confirmingBlock, setConfirmingBlock] = useState(false);
   const [blockNotice, setBlockNotice] = useState('');
   const [menuOpen, setMenuOpen] = useState(false);
-  // 🔴 null = 아직 모른다. StoryDto 에는 "내가 이 작성자를 팔로우하는가" 칸이 없어서
-  //    (반응 카운트와 달리 얹지 않기로 했다) getUserProfile() 로 따로 물어봐야 한다 —
-  //    안 물어본 상태를 false 로 두면 실제로 팔로우 중인데 "팔로우" 로 잘못 그린다.
+  // null = 아직 모른다. StoryDto 에는 "내가 이 작성자를 팔로우하는가" 칸이 없어서
+  // (반응 카운트와 달리 얹지 않기로 했다) getUserProfile 로 따로 물어봐야 한다
+  // 안 물어본 상태를 false 로 두면 실제로 팔로우 중인데 "팔로우" 로 잘못 그린다.
   const [authorFollowing, setAuthorFollowing] = useState<boolean | null>(null);
   const [followBusy, setFollowBusy] = useState(false);
-  // 🔴 null 은 「아직 안 불러왔다」이고 빈 배열은 「댓글이 없다」다. 둘을 같게 두면
-  //    불러오는 중과 없음이 화면에서 구분이 안 된다.
+  // null 은 「아직 안 불러왔다」이고 빈 배열은 「댓글이 없다」다. 둘을 같게 두면
+  // 불러오는 중과 없음이 화면에서 구분이 안 된다.
   const [replies, setReplies] = useState<StoryDto[] | null>(null);
-  // S15P21E201-1247 — 반응 요청이 도는 중인가. 연타로 낙관적 수가 어긋나는 것을 막는다.
+  // — 반응 요청이 도는 중인가. 연타로 낙관적 수가 어긋나는 것을 막는다.
   const [reacting, setReacting] = useState(false);
   const [repliesError, setRepliesError] = useState('');
   const [draft, setDraft] = useState('');
@@ -251,7 +213,7 @@ export default function StoryDetail() {
     const result = await getStory(id, accessToken);
     if (result.state === 'success') {
       setState({ status: 'loaded', story: result.story });
-      // 🔴 내 글이면 안 물어본다 — 자기 자신을 팔로우하는 개념이 없다.
+      // 내 글이면 안 물어본다 — 자기 자신을 팔로우하는 개념이 없다.
       if (!result.story.mine) {
         const profile = await getUserProfile(result.story.author.id, accessToken);
         if (profile.state === 'success') setAuthorFollowing(profile.profile.following);
@@ -261,8 +223,8 @@ export default function StoryDetail() {
     else setState({ status: 'error', message: result.message });
   }, [id, accessToken]);
 
-  // 🔴 실패를 빈 목록으로 바꾸지 않는다. 「댓글이 없다」와 「못 불러왔다」는 다른 말이고,
-  //    둘을 같게 그리면 사용자가 없는 것으로 믿는다.
+  // 실패를 빈 목록으로 바꾸지 않는다. 「댓글이 없다」와 「못 불러왔다」는 다른 말이고
+  // 둘을 같게 그리면 사용자가 없는 것으로 믿는다.
   const loadReplies = useCallback(async () => {
     if (!id) return;
     const outcome = await getStoryReplies(id, accessToken);
@@ -276,22 +238,19 @@ export default function StoryDetail() {
   const story = state.status === 'loaded' ? state.story : state.status === 'loading' ? state.cached : null;
 
   const shownReplies = replies ?? [];
-  // 🔴 서버는 기본 50개까지만 준다. 잘린 것을 조용히 숨기면 사용자는 그게 전부인 줄 안다 —
-  //    상한과 「더 있다」는 언제나 짝이다. replyCount 는 서버가 세는 값이라 이쪽이 진짜다.
+  // 서버는 기본 50개까지만 준다. 잘린 것을 조용히 숨기면 사용자는 그게 전부인 줄 안다
+  // 상한과 「더 있다」는 언제나 짝이다. replyCount 는 서버가 세는 값이라 이쪽이 진짜다.
   const totalReplies = typeof story?.replyCount === 'number' ? story.replyCount : null;
   const hasMoreReplies = totalReplies !== null && totalReplies > shownReplies.length;
 
-  // 🔴 서버가 준 지표만 말한다. 아무것도 안 오면 줄 자체를 안 그린다 — 0 을 지어내 그리면
-  //    「아무도 안 봤다」는 주장이 되는데, 실제로는 서버가 아직 안 세는 것일 수 있다.
+  // 서버가 준 지표만 말한다. 아무것도 안 오면 줄 자체를 안 그린다 — 0 을 지어내 그리면
+  // 「아무도 안 봤다」는 주장이 되는데, 실제로는 서버가 아직 안 세는 것일 수 있다.
   const metricLabels = story ? storyMetricLabels(story, tx) : [];
 
   /**
-   * 우상단 ⋯ 메뉴 — S15P21E201-1244. 사용자 요청으로 삭제·팔로우·신고·차단을 여기
+   * 우상단 ⋯ 메뉴 —. 사용자 요청으로 삭제·팔로우·신고·차단을 여기
    * 하나로 몰아넣는다. 시안(FeedDetail.dc.html)의 "내 글=연필/남의 글=⋯" 구분은
    * 이번 결정으로 폐기하고 항상 ⋯ 하나로 통일한다.
-   *
-   * 🔴 공동 작성자 링크는 여기 안 넣는다 — 그건 "더 보기" 성격이 아니라 이 글에
-   * 참여한 사람을 보러 가는 주된 이동이라, 화면에 그대로 노출해 둔다.
    */
   const menuItems: DropdownMenuItem[] = story
     ? (story.mine
@@ -326,9 +285,9 @@ export default function StoryDetail() {
     return true;
   };
 
-  // 🔴 S15P21E201-1244 — 이 화면에 팔로우가 지금까지 없었다. 낙관적으로 먼저 바꾸지
-  //    않는다 — 실패하면 "팔로우했다고 나왔는데 실제로는 아니었다"가 되고, 다음에 이
-  //    화면을 다시 열었을 때 서버 값과 달라 보인다.
+  // — 이 화면에 팔로우가 지금까지 없었다. 낙관적으로 먼저 바꾸지
+  // 않는다 — 실패하면 "팔로우했다고 나왔는데 실제로는 아니었다"가 되고, 다음에 이
+  // 화면을 다시 열었을 때 서버 값과 달라 보인다.
   const toggleFollow = async () => {
     const authorId = story?.author.id;
     if (!authorId || authorFollowing === null || followBusy) return;
@@ -339,7 +298,7 @@ export default function StoryDetail() {
   };
 
   // 차단은 「이 글」이 아니라 「이 사람」에 대한 것이다. 차단해도 이 글은 내 화면에서 그대로
-  // 보인다 — 거르는 일은 서버가 상대 쪽 화면에서 한다 (S15P21E201-991).
+  // 보인다 — 거르는 일은 서버가 상대 쪽 화면에서 한다
   const confirmBlock = async () => {
     const authorId = story?.author.id;
     if (!authorId) return false;
@@ -353,7 +312,7 @@ export default function StoryDetail() {
     const body = draft.trim();
     if (!id || !body || sending) return;
     setSending(true);
-    // 댓글도 글이다 — 같은 만들기 경로에 부모 id 만 실어 보낸다 (S15P21E201-1183).
+    // 댓글도 글이다 — 같은 만들기 경로에 부모 id 만 실어 보낸다
     const outcome = await createStory({ body, imageUrls: [], parentStoryId: id, accessToken });
     setSending(false);
     if (outcome.state !== 'success') { setSendError(outcome.message); return; }
@@ -371,13 +330,7 @@ export default function StoryDetail() {
     if (outcome.state === 'success') router.replace('/feed');
   };
 
-  /**
-   * 댓글 한 장을 목록에서 뺀다 — 삭제됐거나 신고로 사라졌을 때.
-   *
-   * 🔴 `replies` 배열만 줄이고 `story.replyCount`(서버가 센 값)를 그대로 두면, 그 차이를
-   * 보고 `hasMoreReplies` 가 "더 있다"를 잘못 켠다 — 방금 뺀 것을 아직 안 보여준 것으로
-   * 착각하는 것이다. 그래서 여기서 같이 하나 내린다.
-   */
+  /** 댓글 한 장을 목록에서 뺀다 — 삭제됐거나 신고로 사라졌을 때. */
   const removeReply = (replyId: string) => {
     setReplies((current) => current?.filter((reply) => reply.id !== replyId) ?? current);
     setState((current) => {
@@ -386,13 +339,7 @@ export default function StoryDetail() {
     });
   };
 
-  /**
-   * 좋아요·싫어요 — S15P21E201-1247. 목록과 같은 규칙이다(같은 것을 다시 누르면 꺼진다).
-   *
-   * 비회원은 로그인으로 보낸다. 목록은 프롬프트 모달을 쓰지만 이 화면에는 그 장치가 없고,
-   * 댓글 로그인 유도가 이미 같은 방식(returnTo 를 달아 sign-in 으로)으로 가므로 그것을
-   * 따른다 — 한 화면에서 로그인 안내가 두 갈래로 갈리지 않게.
-   */
+  /** 좋아요·싫어요 —. 목록과 같은 규칙이다(같은 것을 다시 누르면 꺼진다). */
   const react = async (reaction: Reaction) => {
     if (!story || reacting) return;
     if (!accessToken) { router.push({ pathname: '/sign-in', params: { returnTo: `/feed/${id}` } }); return; }
@@ -412,9 +359,10 @@ export default function StoryDetail() {
 
   return (
     <Screen scroll>
-      {/* S15P21E201-1240 — 목적지를 약속하지 않는다. 이 화면에 들어오는 입구가 일곱인데
+      {/* — 목적지를 약속하지 않는다. 이 화면에 들어오는 입구가 일곱인데
           피드는 그중 하나라, 「피드로」라고 적으면 대부분의 경로에서 라벨과 결과가 어긋난다.
-          place/[id]·collection/[id]·user/[id]·feed/[id]/coauthors 가 쓰는 규칙과 같다. */}
+          place/[id]·collection/[id]·user/[id]·feed/[id]/coauthors 가 쓰는 규칙과 같다.
+      */}
       <Pressable accessibilityRole="button" accessibilityLabel={tx('뒤로 가기', 'Go back')} onPress={() => (router.canGoBack() ? router.back() : router.replace('/feed'))} style={({ pressed }) => [styles.back, pressed && styles.pressed]}>
         <Text variant="title" weight="bold">‹ {tx('뒤로', 'Back')}</Text>
       </Pressable>
@@ -449,18 +397,20 @@ export default function StoryDetail() {
             </Pressable>
           </View>
 
-          {/* 🔴 시안 2a 의 순서 (S15P21E201-1177): 사진 → 장소 제목 → 본문.
+          {/* 시안 2a 의 순서 사진 → 장소 제목 → 본문.
               전에는 본문이 맨 위였다. 기록을 다시 열었을 때 먼저 보고 싶은 것은
-              글이 아니라 그때의 사진이라는 것이 이 순서의 뜻이다. */}
+              글이 아니라 그때의 사진이라는 것이 이 순서의 뜻이다.
+          */}
           <DetailPhotoGrid images={story.images} />
 
           <PlaceHeading story={story} onOpen={() => router.push(`/place/${story.place!.id}`)} />
 
-          {/* S15P21E201-1136 — 마크다운을 그린다. 마크다운을 안 쓴 기존 글은
-              문단 하나가 되므로 지금과 똑같이 보인다. */}
+          {/* — 마크다운을 그린다. 마크다운을 안 쓴 기존 글은
+              문단 하나가 되므로 지금과 똑같이 보인다.
+          */}
           <MarkdownBody source={story.body} />
 
-          {/* 🔴 S15P21E201-1244 — 삭제·신고·차단은 우상단 ⋯ 메뉴로 옮겼다. 공동 작성자는
+ {/*— 삭제·신고·차단은 우상단 ⋯ 메뉴로 옮겼다. 공동 작성자는
               "더 보기" 성격이 아니라 주된 이동이라 그대로 남긴다. 삭제 확인은 메뉴에서
               "삭제"를 고르면 여기 그대로 펼쳐진다 — 자리만 옮기고 확인 흐름은 안 바꿨다. */}
           <View style={styles.actionRow}>
@@ -482,13 +432,14 @@ export default function StoryDetail() {
         </View>
       ) : null}
 
-      {/* 좋아요·싫어요 — S15P21E201-1247. 목록과 같은 부품을 쓴다. 칸 이름을 못 받아
-          비워 뒀던 자리인데 S15P21E201-1174 가 상세 응답에도 실어 주면서 채웠다. */}
+      {/* 좋아요·싫어요 —. 목록과 같은 부품을 쓴다. 칸 이름을 못 받아
+          비워 뒀던 자리인데가 상세 응답에도 실어 주면서 채웠다.
+      */}
       {story && !reported ? (
         <StoryReactionRow story={story} reacting={reacting} onReact={(reaction) => void react(reaction)} />
       ) : null}
 
-      {/* 지표 줄 — S15P21E201-1213. 시안이 정한 자리가 댓글 바로 위다. */}
+      {/* 지표 줄 —. 시안이 정한 자리가 댓글 바로 위다. */}
       {story && !reported && metricLabels.length ? (
         <View style={styles.metrics}>
           <Text variant="caption" color={color.text.muted}>{metricLabels.join(' · ')}</Text>
@@ -530,8 +481,9 @@ export default function StoryDetail() {
             </>
           )}
 
-          {/* 🔴 로그인 안 한 사람에게 눌러도 아무 일 없는 입력창을 두지 않는다.
-              보낼 수 없는 창은 「썼는데 사라졌다」로 끝난다. 갈 곳을 알려 준다. */}
+          {/* 로그인 안 한 사람에게 눌러도 아무 일 없는 입력창을 두지 않는다.
+              보낼 수 없는 창은 「썼는데 사라졌다」로 끝난다. 갈 곳을 알려 준다.
+          */}
           {accessToken ? (
             <View style={styles.composer}>
               <TextInput
@@ -603,11 +555,7 @@ const styles = StyleSheet.create({
   menuButton: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
   images: { marginTop: spacing[2] },
   placeCard: { gap: spacing[1], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.tint },
-  // ── 상세 2a (S15P21E201-1177) ──────────────────────────────────────────────
-  //
-  // 사진 격자: 3열. 셀은 정사각(aspectRatio 1)이라 폭이 바뀌어도 줄이 맞는다.
-  // 시안은 "각 행 140" 이라고 적었는데 그건 시안 폭 기준의 결과값이다 — 숫자를 박으면
-  // 좁은 폰에서 넘치고 넓은 화면에서 빈다. 비율로 둔다.
+  // ── 상세 2a ──────────────────────────────────────────────
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
   gridCell: { position: 'relative', flexBasis: '31.5%', flexGrow: 1, aspectRatio: 1, borderRadius: radius.md, overflow: 'hidden', backgroundColor: color.surface.soft },
   gridImage: { width: '100%', height: '100%' },
@@ -627,7 +575,7 @@ const styles = StyleSheet.create({
   // 지표 줄 — 댓글 머리 바로 위. 붙는 자리라 위 여백만 준다.
   metrics: { marginTop: spacing[4] },
 
-  // ── 댓글 (S15P21E201-1197) ────────────────────────────────────────────────
+  // ── 댓글 ────────────────────────────────────────────────
   comments: { gap: spacing[3], marginTop: spacing[4] },
   reply: { gap: spacing[2], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.card },
   replyHead: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] },

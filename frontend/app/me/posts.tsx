@@ -1,12 +1,4 @@
-// 마이페이지 › 내 기록 (S15P21E201-965).
-//
-// 여기 오기 전에는 `(tabs)/me.tsx` 의 「내 기록」 줄이 `/user/{내 id}`(남의 프로필을 보는 화면)로
-// 보냈다. 그래서 내 기록을 보려면 남의 프로필 화면에서 나를 보는 모양이 됐고, 그 화면에는 필터도
-// 지우기도 없었다. 이제 내 것만 보는 자리를 따로 둔다.
-//
-// 🔴 시안의 **공개 범위 pill 을 눌러 바꾸는 동작은 안 넣었다.** 이미 올린 기록의 공개 범위를
-// 바꾸는 API 가 없다(작성할 때 정하는 것만 있다). 누르면 아무 일도 없는 버튼을 두느니 지금은
-// **보여주기만** 한다. 그 API 가 생기면 이 pill 에 onPress 를 단다.
+// 마이페이지 › 내 기록
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, Image, Pressable, StyleSheet, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
@@ -41,7 +33,7 @@ export default function MyPagePosts() {
   const [toast, setToast] = useState<string | null>(null);
 
   const load = useCallback(async () => {
-    // 🔴 사용자가 없으면 그냥 빠져나가면 안 된다 — loading 이 true 로 남아 뱅글이가 영원히 돈다.
+    // 사용자가 없으면 그냥 빠져나가면 안 된다 — loading 이 true 로 남아 뱅글이가 영원히 돈다.
     // 세션을 되살리는 동안 user 가 잠깐 null 인 순간이 실제로 있다.
     if (!user?.userId) { setLoading(false); return; }
     setLoading(true);

@@ -1,4 +1,4 @@
-// 장소 리뷰 — S15P21E201-406. GET·POST /api/v1/places/{placeId}/reviews 를 그대로 옮긴다
+// 장소 리뷰 —. GET·POST /api/v1/places/{placeId}/reviews 를 그대로 옮긴다
 // (PlaceReviewController.java 기준). 점수는 1~5(항목별로 null 가능)이고, mine이 참인
 // 리뷰가 있으면 그 사용자가 이미 이 장소를 평가한 것이다.
 import { apiRequest, ApiClientError } from '@/api/client';
@@ -52,7 +52,7 @@ export function scoreFromStep(step: ThreeStepScore): number | null {
   return null;
 }
 
-// 방문 인증(GPS) — S15P21E201-279·-291. POST /api/v1/places/{placeId}/visit-verifications 를
+// 방문 인증(GPS) —·-291. POST /api/v1/places/{placeId}/visit-verifications 를
 // 그대로 옮긴다(VisitVerificationController.java 기준). status 는 서버가 이미 화면에 그대로
 // 보여줄 수 있는 message 를 같이 주므로, 화면은 문구를 새로 짓지 않고 그대로 쓴다.
 export type VisitVerificationStatus = 'VERIFIED' | 'TOO_FAR' | 'LOW_ACCURACY';

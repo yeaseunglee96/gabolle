@@ -1,11 +1,4 @@
 // 12 지도·동선 — 발표의 핵심 화면.
-//
-// 웹은 카카오 지도 JavaScript SDK를 사용하고, 앱은 SDK 결정 전까지 목록과 동선 요약을
-// 유지한다. 지도 키가 없거나 SDK 로딩에 실패해도 흰 화면 대신 같은 목록을 계속 제공한다.
-//
-// 🔴 비교 카드의 숫자는 실제 측정값이다. 반올림하거나 다듬지 않는다.
-// 🔴 이 앱은 "모르는 것을 아는 척하지 않는다" 는 원칙(PASS/FAIL/UNKNOWN)을 따른다.
-//    그래서 판정이 안 된 구간이 있다는 것도 숨기지 않고 UNKNOWN 으로 그대로 보여준다.
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { AppState, Platform, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
@@ -44,7 +37,7 @@ type RouteComparisonSeed = {
   deltaKo: string; deltaEn: string;
 };
 
-// 🔴 아래 숫자는 실제 측정값이다. 번역하며 반올림하거나 다듬지 않는다.
+// 아래 숫자는 실제 측정값이다. 번역하며 반올림하거나 다듬지 않는다.
 const SHADE_ROUTE: RouteComparisonSeed = {
   titleKo: '그늘 경로', titleEn: 'Shaded route',
   subtitleKo: '해운대 → 광안리, 오후 5시 (실측 2026-09-01)', subtitleEn: 'Haeundae → Gwangalli, 5 PM (measured 2026-09-01)',
@@ -88,7 +81,7 @@ const DAY_STOPS_SEED: Record<'DAY 1' | 'DAY 2', MapStopSeed[]> = {
 };
 
 const DAY_COLORS = { 'DAY 1': color.brand.orange, 'DAY 2': color.state.success } as const;
-// S15P21E201-1113 — 실제 일정은 사흘 이상일 수 있다. 색은 돌려 쓰되 첫 두 날은 쓰던 색 그대로다.
+// — 실제 일정은 사흘 이상일 수 있다. 색은 돌려 쓰되 첫 두 날은 쓰던 색 그대로다.
 const DAY_PALETTE = [DAY_COLORS['DAY 1'], DAY_COLORS['DAY 2'], color.brand.navy, color.text.eyebrow] as const;
 const dayColor = (index: number) => DAY_PALETTE[index % DAY_PALETTE.length];
 const EXTRA_STOPS_SEED = {
@@ -153,8 +146,8 @@ export default function Map() {
   const [showSouvenirs, setShowSouvenirs] = useState(false);
   const [showNight, setShowNight] = useState(false);
 
-  // S15P21E201-1113 — 내 일정을 가져와 지도에 찍는다. 못 가져오면 real 이 null 로 남고
-  // 화면은 예시 일정으로 돌아가며 「샘플」이라고 말한다. **빈 지도를 그리지 않는다.**
+  // — 내 일정을 가져와 지도에 찍는다. 못 가져오면 real 이 null 로 남고
+  // 화면은 예시 일정으로 돌아가며 「샘플」이라고 말한다. 빈 지도를 그리지 않는다.
   const [real, setReal] = useState<{ days: ItineraryDaySeed[]; missingCount: number } | null>(null);
   useEffect(() => {
     if (!id) return;
@@ -181,10 +174,6 @@ export default function Map() {
   const [requestingLocation, setRequestingLocation] = useState(false);
   const [currentLocation, setCurrentLocation] = useState<CurrentLocation | null>(null);
 
-  // 웹은 이 화면에서 위치 권한을 앞서 확인하지 않고(위 locationPermission 이 그대로 'granted'인
-  // 이유) 브라우저 Geolocation API 를 직접 부른다 — 프롬프트는 브라우저가 알아서 띄운다.
-  // 거부해도 실패 콜백만 조용히 무시한다: 현재 위치 점만 빠지고 경로·단계별 안내는
-  // 그대로 보여야 한다(완료 기준 1·3).
   useEffect(() => {
     if (Platform.OS !== 'web' || typeof navigator === 'undefined' || !navigator.geolocation) return;
     navigator.geolocation.getCurrentPosition(
@@ -276,16 +265,17 @@ export default function Map() {
         />
       )}
 
-      {/* S15P21E201-1009 · -1113 — 내 일정을 가져왔으면 그것을 그리고, 못 가져왔을 때만
+      {/* · -1113 — 내 일정을 가져왔으면 그것을 그리고, 못 가져왔을 때만
           예시를 그리되 반드시 그렇다고 말한다. 이 화면이 여행 주소 안에 있어서, 표시가
-          없으면 자기 일정이 그려진 줄 안다. */}
+          없으면 자기 일정이 그려진 줄 안다.
+      */}
       {real === null ? (
         <SampleNotice
           badge={tx('샘플 일정', 'Sample itinerary')}
           description={tx('지도에 찍힌 장소는 화면을 보여주기 위한 예시 일정이에요. 내가 만든 일정이 아니에요.', 'The stops on this map are an example itinerary for this screen — not the trip you created.')}
         />
       ) : real.missingCount > 0 ? (
-        // 🔴 못 찍은 곳을 조용히 빼지 않는다 — 그러면 이 지도가 일정 전부라고 믿게 된다.
+        // 못 찍은 곳을 조용히 빼지 않는다 — 그러면 이 지도가 일정 전부라고 믿게 된다.
         <SampleNotice
           badge={tx('일부만 표시', 'Partial map')}
           description={tx(`${real.missingCount}곳은 위치를 받지 못해 지도에 없어요. 일정에는 그대로 있어요.`, `${real.missingCount} stop(s) have no location yet, so they are missing from this map. They are still in your itinerary.`)}
@@ -299,7 +289,8 @@ export default function Map() {
       {widthTier(width) === 'sm' ? <LayerControls /> : null}
 
       {/* 3D 도시로 가는 문. 웹 지도가 살아 있든 죽어 있든, 앱이든 웹이든 여기서 열린다.
-          3D 화면은 웹 페이지 한 장이라 앱에 새 부품을 하나도 안 깐다 (S15P21E201-649). */}
+          3D 화면은 웹 페이지 한 장이라 앱에 새 부품을 하나도 안 깐다
+      */}
       <Card tinted style={styles.city3dCard}>
         <Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx('가보기 전에', 'Before you go')}</Text>
         <Text variant="title" weight="bold">{tx('이 날짜의 장소를 3D 부산에서 보기', "See today's places in 3D Busan")}</Text>
@@ -321,9 +312,10 @@ export default function Map() {
 
       <Text variant="title" weight="bold" style={styles.sectionTitle}>{tx('실측 경로 비교', 'Measured route comparison')}</Text>
 
-      {/* S15P21E201-1009 — 🔴 이 숫자는 지어낸 것이 아니라 실측이다. 다만 고정된 두 구간을
-          잰 것이라 이 여행의 경로가 아니다. 「샘플」이라고 적으면 실측을 가짜라고 말하게 되고,
-          아무 말도 안 하면 자기 여행을 잰 것으로 읽힌다. 그래서 둘 다 적는다. */}
+      {/* — 이 숫자는 지어낸 것이 아니라 실측이다. 다만 고정된 두 구간을
+          잰 것이라 이 여행의 경로가 아니다. 「샘플」이라고 적으면 실측을 가짜라고 말하게 되고
+          아무 말도 안 하면 자기 여행을 잰 것으로 읽힌다. 그래서 둘 다 적는다.
+      */}
       <SampleNotice
         badge={tx('예시 구간', 'Example route')}
         description={tx('아래는 정해진 두 구간을 실제로 재어 본 값이에요. 이 여행의 경로를 잰 것은 아니에요.', 'These are real measurements of two fixed routes — not of this trip.')}

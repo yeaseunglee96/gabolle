@@ -1,10 +1,5 @@
-// 홈의 여행 시작 바 — 출발지 · 날짜 · 인원을 홈에서 받는다 (S15P21E201-1233).
+// 홈의 여행 시작 바 — 출발지 날짜 인원을 홈에서 받는다
 // 시안: docs/design_handoff_plan_flow/PlanFlow.dc.html 의 p0.
-//
-// 🔴 **여행지는 안 묻는다.** 이 서비스는 부산 고정이다.
-//
-// 🔴 폰은 **새 화면으로 가지 않는다.** 알약이 그 자리에서 카드로 커진다 — 시안이 그렇게
-//    정했고, 라우트를 하나 더 만들면 뒤로 가기가 한 칸 더 생겨 홈으로 돌아오기가 번거롭다.
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AccessibilityInfo, ActivityIndicator, Animated, Easing, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 
@@ -79,8 +74,8 @@ function MonthGrid({
               <Text
                 variant="caption"
                 weight={isStart || isEnd ? 'bold' : 'regular'}
-                // 🔴 지난 날짜를 숨기지 않고 흐리게 둔다. 사라지면 달력의 칸이 밀려서
-                //    사람이 날짜를 잘못 짚는다.
+                // 지난 날짜를 숨기지 않고 흐리게 둔다. 사라지면 달력의 칸이 밀려서
+                // 사람이 날짜를 잘못 짚는다.
                 color={past ? '#c9c3ba' : isStart || isEnd ? color.text.onAction : color.text.heading}
               >
                 {String(parseDateKey(key)?.getDate() ?? '')}
@@ -132,8 +127,8 @@ export function PlanStartBar({ wide, accessToken, onSubmit, today = new Date() }
       const outcome = await searchOrigins(trimmed, accessToken, controller.signal);
       if (controller.signal.aborted) return;
       setSearching(false);
-      // 🔴 실패해도 추천 목록은 그대로 둔다. 검색이 안 된다고 고를 수 없게 되면
-      //    「서버가 죽으면 여행을 못 만든다」가 된다.
+      // 실패해도 추천 목록은 그대로 둔다. 검색이 안 된다고 고를 수 없게 되면
+      // 「서버가 죽으면 여행을 못 만든다」가 된다.
       setResults(outcome.state === 'success' ? outcome.items : []);
     }, 250);
     return () => { clearTimeout(timer); controller.abort(); };
@@ -174,14 +169,9 @@ export function PlanStartBar({ wide, accessToken, onSubmit, today = new Date() }
     return total > 0 ? (ko ? `성인 ${value.adults}${value.children ? ` · 어린이 ${value.children}` : ''}` : `${total} travelers`) : tx('인원 추가', 'Add travelers');
   };
 
-  // 🔴 에어비앤비처럼 **부드럽게** 연다 (2026-09-18 지시).
-  //
-  //    두 가지가 움직인다.
-  //      · 고른 칸을 따라다니는 **강조 알약** — 칸 사이를 미끄러진다
-  //      · 아래로 **내려오는 패널** — 살짝 떠올랐다 제자리로
-  //
-  //    🔴 「움직임 줄이기」를 켠 사람에게는 **안 움직인다.** 값은 그대로 바뀌고 시간만 0 이다 —
-  //       끄는 것이 아니라 즉시 끝내는 것이라 화면 상태가 갈리지 않는다.
+  // 두 가지가 움직인다.
+  //  고른 칸을 따라다니는 강조 알약 — 칸 사이를 미끄러진다
+  //  아래로 내려오는 패널 — 살짝 떠올랐다 제자리로
   const [reduceMotion, setReduceMotion] = useState(false);
   useEffect(() => {
     let alive = true;
@@ -411,7 +401,7 @@ export function PlanStartBar({ wide, accessToken, onSubmit, today = new Date() }
         </Animated.View>
       ) : null}
 
-      {/* 🔴 폰에서는 **한 줄에 맞춘다** (2026-09-18 지시). 390 폭에 네 개는 두 줄이 되고,
+ {/* 폰에서는 한 줄에 맞춘다 (2026-09-18 지시). 390 폭에 네 개는 두 줄이 되고,
           두 번째 줄에 한 개만 남아 어색했다. 폰은 앞의 셋만 보여 준다 — 넷째(「부산역 출발」)는
           출발지 칸에서 바로 고를 수 있어 없어도 길이 막히지 않는다. 넓은 화면은 넷 다 그대로다. */}
       <View style={styles.chipRow}>
@@ -438,9 +428,9 @@ const styles = StyleSheet.create({
   },
   segment: { flex: 1, paddingHorizontal: spacing[4], paddingVertical: spacing[2], borderRadius: radius.full, gap: 2 },
   segmentDivider: { borderLeftWidth: 1, borderLeftColor: color.surface.border },
-  // 🔴 고른 칸을 따라다니는 강조 알약. 칸마다 배경을 켜고 끄면 **뚝뚝 끊겨** 보인다 —
-  //    하나를 깔고 자리만 옮기면 미끄러진다(에어비앤비가 그렇게 한다).
-  //    글자를 가리지 않도록 칸 **뒤에** 깔고 pointerEvents 를 끈다.
+  // 고른 칸을 따라다니는 강조 알약. 칸마다 배경을 켜고 끄면 뚝뚝 끊겨 보인다
+  // 하나를 깔고 자리만 옮기면 미끄러진다(에어비앤비가 그렇게 한다).
+  // 글자를 가리지 않도록 칸 뒤에 깔고 pointerEvents 를 끈다.
   highlight: { position: 'absolute', top: spacing[2], bottom: spacing[2], borderRadius: radius.full, backgroundColor: color.surface.soft },
   cta: { minHeight: 56, paddingHorizontal: spacing[6], borderRadius: radius.full, backgroundColor: color.brand.orange, alignItems: 'center', justifyContent: 'center' },
   ctaWide: { alignSelf: 'stretch', marginTop: spacing[3] },
@@ -469,9 +459,6 @@ const styles = StyleSheet.create({
   headCell: { width: `${100 / 7}%`, textAlign: 'center' },
   cellBetween: { backgroundColor: color.surface.warm },
   cellPicked: { backgroundColor: color.brand.navy, borderRadius: radius.full },
-  // 🔴 「바로 시작」 칩은 **위 검색 바를 기준으로 가운데** 선다 (2026-09-18 사용자 지시).
-  //    전에는 왼쪽 정렬이라, 넓은 화면에서 가운데 선 검색 바 아래 칩만 왼쪽으로 쏠려 보였다.
-  //    줄바꿈될 때도 남은 칩이 가운데로 모인다.
   chipRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: spacing[2] },
   chip: { minHeight: 32, paddingHorizontal: spacing[3], justifyContent: 'center', borderRadius: radius.full, backgroundColor: color.surface.soft },
   counterRow: { minHeight: 56, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },

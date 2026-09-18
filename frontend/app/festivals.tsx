@@ -38,7 +38,7 @@ export default function Festivals() {
   const [festivals, setFestivals] = useState<Festival[]>([]);
   const [state, setState] = useState<'loading' | 'ready' | 'error'>('loading');
   const [errorMessage, setErrorMessage] = useState('');
-  // S15P21E201-467 — 이 축제를 내 일정에 더한다. 로그인 안 했으면 모달을 열지 않고
+  // — 이 축제를 내 일정에 더한다. 로그인 안 했으면 모달을 열지 않고
   // 바로 로그인으로 보낸다 — 모달 안에서 물어도 결국 로그인해야 하는 것은 같다.
   const [addPlaceId, setAddPlaceId] = useState<string | null>(null);
   const dateValid = ISO_DATE.test(from) && ISO_DATE.test(to) && from <= to;
@@ -91,8 +91,8 @@ export default function Festivals() {
       <View style={styles.sampleNotice}><Text variant="caption" weight="bold">{tx('축제 API 연동 전이라 예시 일정을 보여드려요. 실제 날짜와 다를 수 있어요.', "The festival API isn't connected yet, so these are example dates — actual dates may differ.")}</Text></View>
     )}
     {state === 'ready' && sorted.length > 0 && <View style={styles.grid}>{sorted.map((festival) => {
-      // 🔴 사진이 그 축제를 찍은 것이 아닐 수 있다 — 대부분은 열리는 장소 사진이다.
-      // 그대로 두면 「이 축제가 이렇게 생겼구나」로 읽힌다 (S15P21E201-1021).
+      // 사진이 그 축제를 찍은 것이 아닐 수 있다 — 대부분은 열리는 장소 사진이다.
+      // 그대로 두면 「이 축제가 이렇게 생겼구나」로 읽힌다
       const photo = photoLabels(festival, tx);
       return <View key={festival.placeId} style={[styles.card, isAtLeast(width, 'md') && styles.cardWide]}>
         {festival.photoUrl ? <View>

@@ -1,11 +1,5 @@
-// 여행 티켓(TRIP PASS) — 프린터에서 영수증이 출력되는 컴포넌트 (S15P21E201-1233).
+// 여행 티켓(TRIP PASS) — 프린터에서 영수증이 출력되는 컴포넌트
 // 시안: docs/design_handoff_plan_flow/TripPassCard.dc.html
-//
-// 데스크톱과 폰이 **같은 컴포넌트**다. 시안이 그렇게 정했고, 둘로 나누면 한쪽만 고치는
-// 날이 온다 — 이 저장소가 여러 번 겪은 고장이다.
-//
-// 🔴 찍히는 값은 여기서 만들지 않는다. `tripPassData.ts` 가 만들고 시험이 붙든다.
-//    이 파일은 **그리기만** 한다.
 import { useEffect, useMemo, useRef } from 'react';
 import { Animated, Easing, Platform, Pressable, StyleSheet, View } from 'react-native';
 import Svg, { Path, Rect } from 'react-native-svg';
@@ -41,7 +35,7 @@ function TearLine() {
 }
 
 /**
- * 바코드. 굵기가 일정하면 「그림」으로 보이므로 코드 글자에서 굵기를 만든다 —
+ * 바코드. 굵기가 일정하면 「그림」으로 보이므로 코드 글자에서 굵기를 만든다
  * 같은 여행이면 언제나 같은 무늬가 나온다.
  */
 function Barcode({ seed }: { seed: string }) {
@@ -64,20 +58,11 @@ function Barcode({ seed }: { seed: string }) {
   );
 }
 
-/**
- * 진짜로 읽히는 QR — 담는 것은 그 일정을 여는 주소다(`tripPassUrl`).
- *
- * 🔴 **주소가 없으면 아무것도 안 그린다.** 안 읽히거나 안 열리는 QR 은 사람에게
- * 「고장난 앱」으로 읽힌다 — 무늬만 그럴듯하게 그리느니 자리를 비운다.
- *
- * 🔴 **가장자리 여백(quiet zone)을 4칸 둔다.** 이게 없으면 리더가 못 읽는다.
- * 눈으로는 멀쩡해 보여서, 빼먹으면 「가끔 안 찍힌다」로만 나타난다.
- */
+/** 진짜로 읽히는 QR — 담는 것은 그 일정을 여는 주소다(`tripPassUrl`). */
 const QUIET_ZONE = 4;
 
 function QrCode({ value, size }: { value: string; size: number }) {
   const matrix = useMemo(() => {
-    // 형(0)은 자동, 오류 정정 M — 인쇄물처럼 작게 그려도 읽히는 쪽에 둔다.
     const qr = qrcodeGenerator(0, 'M');
     qr.addData(value);
     qr.make();
@@ -99,7 +84,7 @@ function QrCode({ value, size }: { value: string; size: number }) {
           key={`${cell.x}-${cell.y}`}
           x={(cell.x + QUIET_ZONE) * unit}
           y={(cell.y + QUIET_ZONE) * unit}
-          // 🔴 칸 사이에 틈이 생기면 리더가 못 읽는다. 반올림 오차를 덮으려고 조금 겹쳐 그린다.
+          // 칸 사이에 틈이 생기면 리더가 못 읽는다. 반올림 오차를 덮으려고 조금 겹쳐 그린다.
           width={unit + 0.5}
           height={unit + 0.5}
           fill={color.text.heading}
@@ -130,7 +115,7 @@ export type TripPassProps = {
 };
 
 export function TripPass({ data, wide = false, onReprint, tx }: TripPassProps) {
-  // 🔴 종이는 프린터 뒤에서 내려온다. 시안의 gbPrint 와 같은 값이다.
+  // 종이는 프린터 뒤에서 내려온다. 시안의 gbPrint 와 같은 값이다.
   const slide = useRef(new Animated.Value(0)).current;
   const codeMark = useRef(new Animated.Value(0)).current;
   /** 다시 출력할 때마다 애니메이션을 처음부터 돌리려고 센다. */
@@ -177,8 +162,9 @@ export function TripPass({ data, wide = false, onReprint, tx }: TripPassProps) {
             </View>
 
             <View style={styles.legRow}>
-              {/* 🔴 출발지를 모를 때 「부산」으로 채우지 않는다. 그러면 티켓이
-                  「부산 → 부산」이 되어 사람이 고장으로 읽는다. 모르면 칸을 접는다. */}
+              {/* 출발지를 모를 때 「부산」으로 채우지 않는다. 그러면 티켓이
+                  「부산 → 부산」이 되어 사람이 고장으로 읽는다. 모르면 칸을 접는다.
+              */}
               {data.fromLabel ? (
                 <View style={styles.legEnd}>
                   <Text variant="caption" color={color.text.body}>{tx('출발', 'From')}</Text>
@@ -284,8 +270,8 @@ const styles = StyleSheet.create({
     }),
   },
   slot: { width: RECEIPT_WIDTH, height: 14, borderRadius: radius.full, backgroundColor: '#14171b' },
-  // 🔴 종이가 프린터 **뒤에서** 나오는 것처럼 보이게 창을 잘라 둔다. overflow 를 빼면
-  //    아직 안 나온 종이가 프린터 위에 떠 보인다.
+  // 종이가 프린터 뒤에서 나오는 것처럼 보이게 창을 잘라 둔다. overflow 를 빼면
+  // 아직 안 나온 종이가 프린터 위에 떠 보인다.
   paperWindow: { width: RECEIPT_WIDTH, overflow: 'hidden', marginTop: -PRINTER_HEIGHT / 2, paddingTop: PRINTER_HEIGHT / 2 },
   paper: { width: RECEIPT_WIDTH },
   sheet: { backgroundColor: color.surface.card, paddingHorizontal: 20, paddingTop: 18, paddingBottom: 12, gap: spacing[3] },

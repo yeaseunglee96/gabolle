@@ -1,8 +1,8 @@
 import { getFestivals } from '../festivals';
 
 // 서버(FestivalResponse)는 { items, count } 로 준다. 프론트가 festivals 라는 없는 칸을
-// 읽던 동안에는 200 이 와도 조용히 빈 목록이었고, 오류가 아니라 견본 폴백도 안 걸렸다 —
-// S15P21E201-999.
+// 읽던 동안에는 200 이 와도 조용히 빈 목록이었고, 오류가 아니라 견본 폴백도 안 걸렸다
+// .
 const serverItem = {
   placeId: '11111111-1111-1111-1111-111111111111',
   nameKo: '광안리어방축제',

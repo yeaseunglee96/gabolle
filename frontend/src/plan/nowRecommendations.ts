@@ -29,11 +29,6 @@ export const nowReasonLabel = (code: string) => t(...(NOW_REASON[code] ?? ['추�
 
 export const idleNowResult = (): NowViewModel => ({ state: 'idle', candidates: [], weatherApplied: false, message: '' });
 
-// 🔴 API가 붙기 전까지 화면이 항상 비어 보인다는 지적(2026-09-10)에 따라, "연결 전" 상태
-// 대신 예시 후보를 보여준다. placeId는 다른 화면(home.tsx 추천 카드)에서도 쓰는 실재
-// 장소라 "자세히 보기"를 눌러도 깨지지 않는다. 이동 시간·마감까지 남은 시간은 실제 계산이
-// 아니라 요청한 남는 시간 안에서 그럴듯하게 맞춘 값일 뿐이다 — isSample이 true인 항목은
-// 화면에서 반드시 "샘플" 배지를 붙인다.
 export type SampleNowCandidate = NowCandidate & { isSample: true };
 
 export function buildSampleNowResult(remainingMinutes: number): NowViewModel {

@@ -1,13 +1,4 @@
-// 피드 상세 우상단 ⋯ 메뉴 — S15P21E201-1244.
-//
-// 🔴 사용자 요청: 삭제·팔로우·신고·차단을 우상단 케밥(⋯) 메뉴 하나로 몰아넣는다.
-// 시안(FeedDetail.dc.html)의 "내 글=연필/남의 글=⋯" 구분은 이번 결정으로 폐기하고
-// 항상 ⋯ 하나로 통일했다 — 이 시험은 그 통일이 지켜지는지, 그리고 메뉴 항목이
-// 내 글/남의 글에 따라 맞게 갈리는지를 잰다.
-//
-// 🔴 2026-09-18 — 파이프라인 #205816 에서 기본 5초 제한을 넘겨 죽었다(로컬 22초,
-// 이 CI 러너가 그 순간 유난히 느렸다는 뜻 — 같은 파이프라인에서 feedDetailReplyActions
-// 도 평소 9초의 5배인 46초가 걸렸다). 그 파일처럼 시간 상한을 넉넉히 둔다.
+// 피드 상세 우상단 ⋯ 메뉴 —.
 import type { ReactElement } from 'react';
 import { fireEvent, render as rtlRender, waitFor } from '@testing-library/react-native';
 

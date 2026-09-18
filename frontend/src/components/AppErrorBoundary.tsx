@@ -7,7 +7,7 @@ import { color, gutter, radius, spacing } from '@/design/tokens';
 import { Button } from './Button';
 import { Text } from './Text';
 
-// 에러 경계는 React가 클래스 컴포넌트로만 만들 수 있게 해서 useI18n() 훅을 못 쓴다.
+// 에러 경계는 React가 클래스 컴포넌트로만 만들 수 있게 해서 useI18n 훅을 못 쓴다.
 // setApiLanguage로 동기화되는 같은 모듈 변수를 읽어 번역한다(api/client.ts 참고).
 const tx = (ko: string, en: string) => (getApiLanguage() === 'en' ? en : ko);
 

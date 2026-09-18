@@ -1,5 +1,5 @@
-// S15P21E201-1091 — 현장 말하기가 한국어를 못 하는 사람에게 한국어를 입력하라고 했다.
-// 방향을 뒤집는 것이 이 티켓이고, 여기서 재는 것은 **방향과 안 될 때의 태도** 둘이다.
+// — 현장 말하기가 한국어를 못 하는 사람에게 한국어를 입력하라고 했다.
+// 방향을 뒤집는 것이 이 티켓이고, 여기서 재는 것은 방향과 안 될 때의 태도 둘이다.
 import { directionForLanguage, speechLanguageFor, translateText } from '@/field/translate';
 
 type Call = { url: string; method: string; body: unknown };

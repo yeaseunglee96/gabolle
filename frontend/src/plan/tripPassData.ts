@@ -1,12 +1,4 @@
-// 여행 티켓(TRIP PASS)에 찍히는 값 — 화면이 아니라 여기서 만든다 (S15P21E201-1233).
-//
-// 🔴 이 파일에 화면 코드가 없는 이유. 티켓은 "실제 일정"을 보여주는 것이 전부이고,
-//    그 값이 맞는지는 눈으로 못 본다 — 그럴듯한 숫자가 찍히면 사람은 그냥 믿는다.
-//    그래서 계산만 따로 떼어 시험이 붙들게 한다.
-//
-// 🔴 **모르는 것은 칸 자체를 안 만든다.** 0 이나 '-' 로 채우지 않는다.
-//    「이동 0분」과 「이동 시간을 모른다」는 다른 말인데, 화면에 0 이 찍히면 사람은
-//    앞의 뜻으로 읽는다. 이 저장소가 여러 번 겪은 고장이라 처음부터 막는다.
+// 여행 티켓(TRIP PASS)에 찍히는 값 — 화면이 아니라 여기서 만든다
 
 import type { ItineraryDto } from '@/plan/itinerary';
 
@@ -47,7 +39,6 @@ const MODE_LABEL: Record<string, { ko: string; en: string }> = {
   TAXI: { ko: '택시', en: 'Taxi' },
 };
 
-/** `2026-09-20` · `2026-09-20T10:30:00` 둘 다 받는다. 못 읽으면 null 이다. */
 function parseDate(value: string | null | undefined): Date | null {
   if (!value) return null;
   const normalized = value.length === 10 ? `${value}T00:00:00` : value;
@@ -62,32 +53,19 @@ function formatDay(date: Date, ko: boolean): string {
 
 function formatTime(value: string | null | undefined): string | null {
   const date = parseDate(value);
-  // 🔴 날짜만 있는 값(길이 10)에서 시각을 만들지 않는다. 00:00 이 출발 시각인 척한다.
+  // 날짜만 있는 값(길이 10)에서 시각을 만들지 않는다. 00:00 이 출발 시각인 척한다.
   if (!date || !value || value.length === 10) return null;
   return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
 }
 
-/**
- * 일정 id 에서 사람이 읽을 코드를 만든다 — `GB-7F3A9C`.
- *
- * 🔴 무작위로 만들지 않는다. 같은 일정을 다시 열었을 때 코드가 바뀌면, 사람은 그것을
- * 「다른 여행」으로 읽는다. id 가 없으면 코드도 없다(빈 문자열) — 지어내지 않는다.
- */
+/** 일정 id 에서 사람이 읽을 코드를 만든다 — `GB-7F3A9C`. */
 export function tripPassCode(itineraryId: string | null | undefined): string {
   if (!itineraryId) return '';
   const compact = itineraryId.replace(/[^0-9a-zA-Z]/g, '').toUpperCase();
   return compact ? `GB-${compact.slice(0, 6)}` : '';
 }
 
-/**
- * 티켓의 QR 이 담는 주소 — 그 일정을 여는 화면이다.
- *
- * 🔴 `/trips/{id}/itinerary` 의 `{id}` 는 **일정 id 다. 여행 id 가 아니다.**
- * 이 저장소가 그 둘을 헷갈려 「이 여행을 찾을 수 없어요」를 낸 적이 있다(S15P21E201-1178).
- *
- * 🔴 **일정 id 가 없으면 주소도 없다(null).** 찍어도 안 열리는 QR 을 그리느니 안 그린다 —
- * 안 열리는 QR 은 「고장난 앱」으로 읽힌다.
- */
+/** 티켓의 QR 이 담는 주소 — 그 일정을 여는 화면이다. */
 export function tripPassUrl(itineraryId: string | null | undefined, baseUrl: string | null | undefined): string | null {
   const id = (itineraryId ?? '').trim();
   const base = (baseUrl ?? '').trim().replace(/\/+$/, '');
@@ -133,8 +111,8 @@ export function buildTripPass(input: TripPassInput): TripPassData {
   const days = input.itinerary?.days ?? [];
   const allItems = days.flatMap((day) => day.items);
 
-  // 🔴 실제 일정이 있으면 그 날짜가 이긴다. 초안의 날짜는 「요청한 날짜」이고
-  //    일정의 날짜는 「실제로 만들어진 날짜」다 — 둘이 다를 수 있고, 티켓은 후자를 말해야 한다.
+  // 실제 일정이 있으면 그 날짜가 이긴다. 초안의 날짜는 「요청한 날짜」이고
+  // 일정의 날짜는 「실제로 만들어진 날짜」다 — 둘이 다를 수 있고, 티켓은 후자를 말해야 한다.
   const firstDate = parseDate(days[0]?.date ?? input.startDate);
   const lastDate = parseDate(days.at(-1)?.date ?? input.endDate);
 
@@ -189,16 +167,7 @@ export function buildTripPass(input: TripPassInput): TripPassData {
 /** 여행표 오른쪽 칸의 한 줄. 시안 TripPassCard 의 `details`. */
 export type TripPassDetail = { key: string; value: string };
 
-/**
- * 시안 p4 의 **여행표 오른쪽 칸** — 출발지 · 첫 일정 · 마지막 일정 · 이동 합계 · 예산.
- *
- * 🔴 **모르는 줄은 만들지 않는다.** 시안에는 다섯 줄이 다 있지만, 값이 없는 자리에
- *    「미확인」을 적으면 그건 정보가 아니라 잡음이다 — 이 저장소가 여러 번 겪은 자리다.
- *
- * 🔴 **이동 합계는 「적어도 이만큼」이다.** 구간마다 있는 소요시간을 더하는데 값이 없는
- *    구간은 건너뛴다. 그래서 몇 구간을 셌는지 같이 적는다 — 「155분」만 적으면 그것이
- *    전체 합계로 읽힌다. 백엔드도 같은 이유로 estimatedTravelMinutes 에 같은 주석을 달았다.
- */
+/** 시안 p4 의 여행표 오른쪽 칸 — 출발지 첫 일정 마지막 일정 이동 합계 예산. */
 export function buildTripPassDetails(input: TripPassInput): TripPassDetail[] {
   const ko = input.language === 'ko';
   const allItems = (input.itinerary?.days ?? []).flatMap((day) => day.items);
@@ -219,7 +188,7 @@ export function buildTripPassDetails(input: TripPassInput): TripPassDetail[] {
   const last = allItems.length > 1 ? stopLabel(allItems[allItems.length - 1]) : null;
   if (last) rows.push({ key: ko ? '마지막 일정' : 'Last stop', value: last });
 
-  // 🔴 값이 있는 구간만 더하고, 몇 구간을 셌는지 같이 적는다.
+  // 값이 있는 구간만 더하고, 몇 구간을 셌는지 같이 적는다.
   const legs = allItems.filter((item) => typeof item.travelDurationMin === 'number' && item.travelDurationMin !== null);
   if (legs.length) {
     const minutes = legs.reduce((sum, item) => sum + (item.travelDurationMin ?? 0), 0);

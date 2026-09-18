@@ -1,11 +1,4 @@
-// 앱에 들어가는 길의 **선택자 이름**이 그대로인가 — S15P21E201-1193.
-//
-// 🔴 이 시험이 지키는 것은 화면이 아니라 **이름**이다. 이름이 조용히 바뀌면 화면은
-//    멀쩡한데 맥북에서 돌리는 iOS 자동화만 무너진다. 그 무너짐은 다음 회차를 돌릴
-//    때까지 아무도 모른다 — 2026-09-17 에 7회차가 그렇게 날아갔다.
-//
-//    그래서 이름을 여기 적어 둔다. 바꾸려면 이 시험을 같이 고쳐야 하고, 그러면
-//    자동화 스크립트도 같이 고쳐야 한다는 것을 그 자리에서 알게 된다.
+// 앱에 들어가는 길의 선택자 이름이 그대로인가 —.
 import { render } from '@testing-library/react-native';
 
 import { OnboardingPreferencesProvider } from '@/onboarding/OnboardingPreferences';
@@ -14,14 +7,14 @@ import { TabBar } from '../TabBar';
 const mount = (active: 'home' | 'feed' | 'schedule' | 'map' | 'me') =>
   render(<OnboardingPreferencesProvider><TabBar active={active} /></OnboardingPreferencesProvider>);
 
-// 🔴 TabBar 는 폰 폭에서만 그린다 — 넓은 폭이면 null 을 돌려준다(md 부터는 상단 바가
+// TabBar 는 폰 폭에서만 그린다 — 넓은 폭이면 null 을 돌려준다(md 부터는 상단 바가
 // 맡을 자리라 없는 것을 지어내지 않는다). 시험 환경의 기본 폭은 그보다 넓으므로
 // 폰 폭으로 고정한다. 이 시험이 재는 것은 선택자 이름이지 반응형 분기가 아니다.
 jest.mock('@/layout/useLayout', () => ({
   useLayout: () => ({ kind: 'phone', width: 390, height: 844, isLandscape: false }),
 }));
 
-// TabBar 는 하단 안전영역을 직접 읽는다. 제공자를 세우는 대신 그 훅만 흉내낸다 —
+// TabBar 는 하단 안전영역을 직접 읽는다. 제공자를 세우는 대신 그 훅만 흉내낸다
 // 이 시험이 재는 것은 선택자 이름이지 여백 계산이 아니다.
 jest.mock('react-native-safe-area-context', () => ({
   useSafeAreaInsets: () => ({ top: 47, left: 0, right: 0, bottom: 34 }),

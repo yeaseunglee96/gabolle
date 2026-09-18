@@ -1,11 +1,4 @@
-// 반응 토글과 낙관적 수 계산 — S15P21E201-1247.
-//
-// 이 계산이 목록과 상세 두 화면에서 같아야 해서 부품으로 뺐다. 예전에는 목록 화면 안에
-// 인라인으로 있었고, 상세에는 아예 없어서 사용자가 「목록에서는 되는데 상세에서는 안
-// 된다」고 제보했다.
-//
-// myReaction 이 세 값(null · LIKE · DISLIKE)인 것이 여기서 틀리기 쉬운 자리다.
-// !myReaction 으로 묶으면 싫어요를 누른 것과 아무것도 안 누른 것이 같아진다.
+// 반응 토글과 낙관적 수 계산 —.
 import { applyReaction, nextReaction, type ReactableStory } from '@/social/StoryReactionRow';
 
 function story(over: Partial<ReactableStory> = {}): ReactableStory {

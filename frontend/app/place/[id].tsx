@@ -33,7 +33,7 @@ export default function Place() {
   const { tx, language } = useI18n();
   const { accessToken } = useAuth();
   const { width } = useWindowDimensions();
-  // S15P21E201-1015 — 넓은 화면에서만 본문과 행동 버튼을 나눈다(피드·일정과 같은 1024 기준).
+  // — 넓은 화면에서만 본문과 행동 버튼을 나눈다(피드·일정과 같은 1024 기준).
   const wide = isAtLeast(width, 'lg');
   const { id } = useLocalSearchParams<{ id?: string }>();
   const demoPlace = id && id in PLACES ? PLACES[id as keyof typeof PLACES] : null;
@@ -82,7 +82,7 @@ export default function Place() {
     return () => { active = false; controller.abort(); };
   }, [id, demoPlace, retryCount]);
 
-  // S15P21E201-1013 — 계정에 저장된 것과 기기 것을 합쳐서 본다.
+  // — 계정에 저장된 것과 기기 것을 합쳐서 본다.
   useEffect(() => {
     if (!id || !resolved) return;
     void loadSavedPlaceIds(accessToken).then((ids) => setIsSaved(ids.includes(id)));
@@ -93,21 +93,15 @@ export default function Place() {
     const nextSaved = !isSaved;
     const { sync } = await setSavedPlace(id, nextSaved, accessToken);
     setIsSaved(nextSaved);
-    // 🔴 S15P21E201-1081 — 서버가 받지 못했으면 "저장했어요" 라고 말하지 않는다.
-    //    배포 중 502 가 나는 동안 이 화면은 서버에 안 간 저장을 성공이라고 알렸다.
-    //    기기의 선택은 그대로 지키되(다음 목록 조회에서 다시 맞춰진다) 말은 사실대로 한다.
+    // — 서버가 받지 못했으면 "저장했어요" 라고 말하지 않는다.
+    // 배포 중 502 가 나는 동안 이 화면은 서버에 안 간 저장을 성공이라고 알렸다.
+    // 기기의 선택은 그대로 지키되(다음 목록 조회에서 다시 맞춰진다) 말은 사실대로 한다.
     if (sync === 'failed') {
       setFeedback(tx('이 기기에만 저장했어요. 서버에 아직 반영하지 못했어요.', 'Saved on this device only — not synced to the server yet.'));
     } else {
       setFeedback(nextSaved ? tx('내 여행 후보에 저장했어요.', 'Saved to your trip candidates.') : tx('저장을 해제했어요.', 'Removed from saved.'));
     }
     // 저장할 때만 보낸다. 해제는 "싫다" 가 아니라 "취소" 다.
-    //
-    // 🔴 목업 장소면 보내지 않는다 (2026-09-10). 이 화면은 id 가 DEMO_PLACES 에 있으면
-    //    그 고정 데이터를 보여준다(위 demoPlace). 그때의 id 는 서버 장소 번호가 아니라
-    //    화면용 이름표라, 보내면 **없는 장소에 붙은 place_like** 가 서버에 쌓인다.
-    //    서버는 장소 번호의 실재를 검사하지 않으므로 조용히 들어가고, 나중에 못 골라낸다.
-    //    목업이 걷히면 demoPlace 가 언제나 null 이 되어 이 조건은 저절로 사라진다.
     if (nextSaved && !demoPlace) sendAppEvent({ type: 'place_like', accessToken, payload: { place_id: id, surface: 'place_detail' } });
   };
 
@@ -151,8 +145,9 @@ export default function Place() {
                   {hasLocalityScore(resolved.apiPlace) ? (
                     <View style={styles.scoreBadge}><Text variant="caption" weight="bold" color={color.text.onAction}>{tx('로컬 점수 있음', 'Has locality score')}</Text></View>
                   ) : null}
-                  {/* 🔴 사진이 이 장소를 찍은 것이 아니면 그렇게 말한다 — S15P21E201-1206.
-                      여태 축제 화면만 말하고 여기는 아무 말도 안 했다. */}
+                  {/* 사진이 이 장소를 찍은 것이 아니면 그렇게 말한다 —.
+                      여태 축제 화면만 말하고 여기는 아무 말도 안 했다.
+                  */}
                   <PhotoSubjectBadge photoSubject={resolved.apiPlace.photoSubject} style={styles.subjectBadge} />
                   {resolved.apiPlace.photoSource ? (
                     <Text testID="place-photo-credit" variant="caption" color={color.text.onAction} style={[styles.photoCredit, styles.heroText]}>{tx(`사진 제공: ${resolved.apiPlace.photoSource}`, `Photo: ${resolved.apiPlace.photoSource}`)}</Text>
@@ -172,23 +167,26 @@ export default function Place() {
             </View>
           </View>
         )}
-        {/* S15P21E201-1015 — 넓은 화면에서 본문과 행동 버튼을 나눈다. 이 화면은 모든 목록의
-            종착지라 아래로만 쌓이면 저장 버튼이 한참 밑에 있다. 폰은 지금처럼 한 줄이다. */}
+        {/* — 넓은 화면에서 본문과 행동 버튼을 나눈다. 이 화면은 모든 목록의
+            종착지라 아래로만 쌓이면 저장 버튼이 한참 밑에 있다. 폰은 지금처럼 한 줄이다.
+        */}
         <View style={wide ? styles.wideGrid : undefined}>
         <View style={wide ? styles.mainColumn : undefined}>
         {resolved.apiPlace && (formatFeatureSlot(resolved.apiPlace.openingHours, tx) || formatFeatureSlot(resolved.apiPlace.priceLevel, tx) || formatCheckInOut(resolved.apiPlace, tx)) ? (
           <View style={styles.infoRows}>
             {formatFeatureSlot(resolved.apiPlace.openingHours, tx) ? <View style={styles.infoRow}><Text variant="caption" weight="bold" color={color.text.muted}>{tx('영업시간', 'Hours')}</Text><Text variant="body">{formatFeatureSlot(resolved.apiPlace.openingHours, tx)}</Text></View> : null}
-            {/* S15P21E201-852: 숙박은 영업시간 대신 체크인·체크아웃이 온다 — 둘이 같은 장소에
+            {/* : 숙박은 영업시간 대신 체크인·체크아웃이 온다 — 둘이 같은 장소에
                 동시에 뜨는 일은 없다(원본 데이터가 한쪽만 채운다), 그래도 나란히 둬서 어느
-                쪽이든 뜬 줄이 같은 자리에 보이게 한다. */}
+                쪽이든 뜬 줄이 같은 자리에 보이게 한다.
+            */}
             {formatCheckInOut(resolved.apiPlace, tx) ? <View style={styles.infoRow}><Text variant="caption" weight="bold" color={color.text.muted}>{tx('체크인·체크아웃', 'Check-in/out')}</Text><Text variant="body">{formatCheckInOut(resolved.apiPlace, tx)}</Text></View> : null}
             {formatFeatureSlot(resolved.apiPlace.priceLevel, tx) ? <View style={styles.infoRow}><Text variant="caption" weight="bold" color={color.text.muted}>{tx('가격대', 'Price level')}</Text><Text variant="body">{formatFeatureSlot(resolved.apiPlace.priceLevel, tx)}</Text></View> : null}
           </View>
         ) : null}
-        {/* S15P21E201-141: 현장 이용 정보 — 영어 메뉴·해외카드·예약 필요 여부는 이 셋과 달리
+        {/* : 현장 이용 정보 — 영어 메뉴·해외카드·예약 필요 여부는 이 셋과 달리
             place_feature 에 해당 표식 자체가 아직 없어(백엔드 스키마 미정) 이번 증분에 안 넣는다.
-            셋 다 없으면 구역 자체를 숨긴다 — "정보 없음"을 줄줄이 나열하지 않는다. */}
+            셋 다 없으면 구역 자체를 숨긴다 — "정보 없음"을 줄줄이 나열하지 않는다.
+        */}
         {resolved.apiPlace && (formatSoloFriendly(resolved.apiPlace, tx) || formatBreakTime(resolved.apiPlace, tx) || formatLastOrderTime(resolved.apiPlace, tx)) ? (
           <View style={styles.infoRows}>
             {formatSoloFriendly(resolved.apiPlace, tx) ? <View style={styles.infoRow}><Text variant="caption" weight="bold" color={color.text.muted}>{tx('혼밥', 'Solo dining')}</Text><Text variant="body">{formatSoloFriendly(resolved.apiPlace, tx)}</Text></View> : null}
@@ -196,8 +194,9 @@ export default function Place() {
             {formatLastOrderTime(resolved.apiPlace, tx) ? <View style={styles.infoRow}><Text variant="caption" weight="bold" color={color.text.muted}>{tx('라스트오더', 'Last order')}</Text><Text variant="body">{formatLastOrderTime(resolved.apiPlace, tx)}</Text></View> : null}
           </View>
         ) : null}
-        {/* S15P21E201-540: 이동약자 접근성 — 여기 있는 건 이 장소 자체의 경사·계단 정보다.
-            "구간(경로)" 단위 접근성은 아직 백엔드에 없어 이 증분에 없다 — 티켓 코멘트 참고. */}
+        {/* : 이동약자 접근성 — 여기 있는 건 이 장소 자체의 경사·계단 정보다.
+            "구간(경로)" 단위 접근성은 아직 백엔드에 없어 이 증분에 없다 — 티켓 코멘트 참고.
+        */}
         {resolved.apiPlace && (formatStairsPresent(resolved.apiPlace, tx) || formatSlopePercent(resolved.apiPlace, tx)) ? (
           <View style={styles.infoRows}>
             {formatStairsPresent(resolved.apiPlace, tx) ? <View style={styles.infoRow}><Text variant="caption" weight="bold" color={color.text.muted}>{tx('계단', 'Stairs')}</Text><Text variant="body">{formatStairsPresent(resolved.apiPlace, tx)}</Text></View> : null}
@@ -210,8 +209,9 @@ export default function Place() {
             <Text color={color.text.body}>{tx('알레르기·식단 정보가 없어 주문 전 확인이 필요합니다.', 'Allergy and dietary information is not available for this place — please check before ordering.')}</Text>
           </View>
         ) : null}
-        {/* S15P21E201-325: "확인 못 함"(위 배너)과 "확인했고 문제 없음"을 다른 표시로 보여준다 —
-            아무것도 안 보이는 빈 자리를 사용자가 "안전 확인됨"으로 착각하지 않게 한다. */}
+        {/* : "확인 못 함"(위 배너)과 "확인했고 문제 없음"을 다른 표시로 보여준다
+            아무것도 안 보이는 빈 자리를 사용자가 "안전 확인됨"으로 착각하지 않게 한다.
+        */}
         {resolved.apiPlace && hasFoodSafetyConfirmed(resolved.apiPlace) ? (
           <View style={styles.safetyConfirmed} accessibilityRole="text">
             <Text variant="caption" weight="bold" color={color.state.success}>{tx('확인됨', 'Confirmed')}</Text>
@@ -219,11 +219,6 @@ export default function Place() {
           </View>
         ) : null}
         {demoPlace ? (
-          // 데모 3곳은 실제로 있는 해운대·광안리·감천문화마을이다(savedPlaces.ts) — 장소 자체는
-          // 진짜다. 다만 place 표 적재 전(-547)이라 영업시간·가격대·접근성·혼잡도 같은 상세
-          // 정보만 아직 없다. 그래서 "장소가 가짜"가 아니라 "상세 정보가 아직" 이라고만 말한다.
-          // 예전엔 이 칸이 모든 장소(데모든 API든)에 무조건 떴는데, 그러면 이미 상세 정보가
-          // 있는 실제 API 장소에도 "아직 없다"는 틀린 안내가 나갔다.
           <View style={styles.notice} accessibilityLiveRegion="polite">
             <Text variant="title" weight="bold">{tx('상세 정보를 준비하고 있어요', 'Details are on the way')}</Text>
             <Text color={color.text.body} style={styles.noticeCopy}>{tx('영업시간·가격대 같은 상세 정보는 곧 추가돼요. 확인되지 않은 정보는 임의로 보여드리지 않아요.', "Details like hours and price level are coming soon. We never show unverified information.")}</Text>
@@ -231,11 +226,12 @@ export default function Place() {
         ) : null}
         </View>
         <View style={wide ? styles.asideColumn : undefined}>
-        {/* 🔴 사용자 리포트 — 버튼 네 개가 전폭으로 세로로 쌓여 가독성이 떨어졌다. 2열 그리드로
+        {/* 사용자 리포트 — 버튼 네 개가 전폭으로 세로로 쌓여 가독성이 떨어졌다. 2열 그리드로
             바꿔 화면을 덜 차지하면서 한눈에 들어오게 한다. Button 컴포넌트 자체(26곳에서 쓴다)는
             그대로 두고, 이 화면의 containerStyle 폭만 절반으로 좁힌다 — Button.tsx 상단 주석이
             경고하는 "containerStyle 로 배경색을 흉내내는" 것과는 다르다(폭은 바깥 껍데기의
-            레이아웃일 뿐, 안쪽 Pressable 의 색과 부딪히지 않는다). */}
+            레이아웃일 뿐, 안쪽 Pressable 의 색과 부딪히지 않는다).
+        */}
         <View style={styles.actions}>
           <Button label={isSaved ? tx('내 여행 후보에서 빼기', 'Remove from candidates') : tx('내 여행 후보에 저장', 'Save to candidates')} variant="ghost" onPress={() => void toggleSaved()} containerStyle={styles.actionHalf} />
           <Button label={tx('한국어로 말하기', 'Speak Korean')} onPress={() => setPhraseModalOpen(true)} containerStyle={styles.actionHalf} />
@@ -277,12 +273,8 @@ const styles = StyleSheet.create({
   heroImage: { borderRadius: radius.lg },
   heroPlaceholder: { backgroundColor: color.surface.soft },
   heroPlain: { backgroundColor: color.brand.navy, padding: spacing[4] },
-  // 🔴 S15P21E201-1203 — 예전엔 사진 전체에 25% 를 균일하게 깔았다. 그런데 글자는 전부
-  //    아래쪽에 모여 있다 — 위는 필요 없이 어두워지고, 아래는 글자를 띄울 만큼 어두워지지
-  //    않았다. 사진 속에 글자가 들어 있으면(축제 현수막 같은 것) 그 위에서 뭉개졌다.
-  //
-  //    expo-linear-gradient 를 들이면 네이티브 모듈이 늘어 빌드 구성이 달라진다.
-  //    그만한 일이 아니라 반투명 층을 겹쳐 근사한다 — 아래로 갈수록 누적되어 짬어진다.
+  // expo-linear-gradient 를 들이면 네이티브 모듈이 늘어 빌드 구성이 달라진다.
+  // 그만한 일이 아니라 반투명 층을 겹쳐 근사한다 — 아래로 갈수록 누적되어 짬어진다.
   shade: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(8, 27, 53, 0.18)' },
   shadeLow: { position: 'absolute', left: 0, right: 0, bottom: 0, height: '70%', backgroundColor: 'rgba(8, 27, 53, 0.16)' },
   shadeLower: { position: 'absolute', left: 0, right: 0, bottom: 0, height: '45%', backgroundColor: 'rgba(8, 27, 53, 0.18)' },
@@ -292,8 +284,8 @@ const styles = StyleSheet.create({
   heroCopy: { gap: spacing[1], padding: spacing[4] },
   subjectBadge: { marginTop: spacing[2] },
   scoreBadge: { alignSelf: 'flex-start', marginTop: spacing[2], borderRadius: radius.full, paddingHorizontal: spacing[3], paddingVertical: spacing[1], backgroundColor: 'rgba(255,255,255,0.18)' },
-  // 🔴 opacity 0.8 을 뽑았다 (S15P21E201-1203). 이 줄은 공공누리 이용 조건이라
-  //    읽힐 수 있어야 한다 — 지켜야 하는 표기를 일부러 흐리게 할 이유가 없다.
+  // opacity 0.8 을 뽑았다 이 줄은 공공누리 이용 조건이라
+  // 읽힐 수 있어야 한다 — 지켜야 하는 표기를 일부러 흐리게 할 이유가 없다.
   photoCredit: { marginTop: spacing[1] },
   infoRows: { marginTop: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card, overflow: 'hidden' },
   infoRow: { minHeight: 52, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[3], paddingHorizontal: spacing[4], borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: color.surface.border },
@@ -302,9 +294,9 @@ const styles = StyleSheet.create({
   notice: { gap: spacing[3], marginTop: spacing[4], padding: spacing[4], borderWidth: 1, borderColor: color.surface.border, borderRadius: radius.lg, backgroundColor: color.surface.card },
   noticeCopy: { lineHeight: 22 },
   actions: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[3], marginTop: spacing[4] }, wideGrid: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[6] }, mainColumn: { flex: 1, minWidth: 0 }, asideColumn: { width: 320 },
-  // 🔴 두 버튼씩 한 줄에 앉힌다(사용자 리포트 — 네 개가 세로로 쌓여 읽기 어려웠다).
-  //    flexBasis 로 최소 폭을 잡고 flexGrow 로 남는 자리를 채운다 — 홀수 개(리뷰·택시 버튼이
-  //    없는 장소)일 때도 마지막 버튼이 어색하게 반쪽만 남지 않고 자연스럽게 늘어난다.
+  // 두 버튼씩 한 줄에 앉힌다(사용자 리포트 — 네 개가 세로로 쌓여 읽기 어려웠다).
+  // flexBasis 로 최소 폭을 잡고 flexGrow 로 남는 자리를 채운다 — 홀수 개(리뷰·택시 버튼이
+  // 없는 장소)일 때도 마지막 버튼이 어색하게 반쪽만 남지 않고 자연스럽게 늘어난다.
   actionHalf: { flexBasis: '46%', flexGrow: 1 },
   feedback: { textAlign: 'center', width: '100%' },
   recoveryButton: { marginTop: spacing[2] },

@@ -1,20 +1,9 @@
-// 장소 상세가 서버 값을 **사람이 읽는 말**로 옮기는가 — S15P21E201-1202.
-//
-// 🔴 이 시험이 지키는 규칙은 하나다: **화면에 JSON 이 나가지 않는다.**
-//
-//    `S15P21E201-478` 에서 영업시간이 `{"raw":"매일 10:00-22:00"}` 로 찍힌 적이 있고,
-//    그때 「JSON 대신 사람이 읽을 문장으로 물러선다」로 고쳤다. 그런데 경사도 함수 하나가
-//    그 규칙을 안 거쳐서, 2026-09-18 실기기에서 다시 나왔다 —
-//    `{"score":2.7,"radiusM":200,"segments":25,"walkLengthM":8227} (추정)`.
-//
-//    타입 검사는 이걸 못 잡는다. `unknown` 을 문자열로 만드는 방법이 여럿이고 그중 하나가
-//    조용히 틀린 것뿐이다. 그래서 **나가는 글자**를 여기서 본다.
+// 장소 상세가 서버 값을 사람이 읽는 말로 옮기는가 —.
 import { formatFeatureSlot, formatOpeningHoursValue, formatSlopePercent } from '../places';
 import type { Place } from '../places';
 
 const tx = (ko: string) => ko;
 
-/** 서버가 실제로 주는 모양 그대로 (2026-09-18 영도다리축제 실측). */
 const SLOPE_VALUE = { score: 2.7, radiusM: 200.0, segments: 25.0, walkLengthM: 8227.0 };
 const HOURS_VALUE = {
   raw: { restField: null, restValue: null, hoursField: 'playtime', hoursValue: '10:00~20:00' },

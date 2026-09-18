@@ -1,10 +1,6 @@
-// 장소를 내 여행 일정에 더한다 (S15P21E201-467). 축제 화면이 처음 연다 — 서버 쪽 주석대로
+// 장소를 내 여행 일정에 더한다 축제 화면이 처음 연다 — 서버 쪽 주석대로
 // "축제가 그 날 열리는가" 검사는 그 장소가 실제로 기간이 있는 행사일 때만 걸리고, 보통 장소는
 // 그냥 더해진다.
-//
-// 🔴 더하기 자체는 시각을 안 채운다(addItineraryItem 주석). 그래서 성공하면 이어서
-// recalculateItineraryDay 를 부른다 — 실패해도 더한 장소는 남고 시각만 비어 있을 뿐이라
-// 그 실패로 전체를 실패 취급하지 않는다.
 import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -45,7 +41,7 @@ export function AddPlaceToItineraryModal({ visible, placeId, onClose }: AddPlace
   const [itineraries, setItineraries] = useState<TripItineraryRefDto[]>([]);
   const [selectedItinerary, setSelectedItinerary] = useState<TripItineraryRefDto | null>(null);
   const [errorMessage, setErrorMessage] = useState('');
-  // 닫은 뒤(또는 다시 연 뒤) 도착하는 응답이 그새 초기화된 상태를 덮어쓰지 않도록 막는다 —
+  // 닫은 뒤(또는 다시 연 뒤) 도착하는 응답이 그새 초기화된 상태를 덮어쓰지 않도록 막는다
   // 여닫는 동안 요청이 몇 번 겹칠 수 있는데, 그때마다 "지금 이 요청이 아직 유효한가" 를
   // 이 번호 하나로 판단한다.
   const requestIdRef = useRef(0);

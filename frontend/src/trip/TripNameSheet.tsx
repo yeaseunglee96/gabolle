@@ -1,13 +1,4 @@
-// 여행 이름 바꾸기 · 붙이기 · 지우기 (S15P21E201-1036). 시안 `design_handoff_trip_name_flow`.
-//
-// 🔴 이 화면이 생긴 이유가 「앱이 못 지키던 약속」이다. 이름을 저장하면 마지막 화면이
-// 「이름은 여행 카드에서 언제든 바꾸거나 지울 수 있어요」라고 말하는데, 그 자리가 없었다.
-// 서버에는 있었다(빈 값을 보내면 지워진다). 화면만 없었다.
-//
-// 🔴 지우기를 숨기지 않는다. 이름은 붙이는 것만큼 **지우는 것도 정상 동작**이다 —
-// 지우면 카드가 날짜로 돌아가고, 그건 서버와의 계약이다.
-//
-// phone 은 하단 시트, 넓은 화면은 가운데 모달이다. 내용은 같다.
+// 여행 이름 바꾸기 붙이기 지우기 시안 `design_handoff_trip_name_flow`.
 
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Modal, Pressable, StyleSheet, TextInput, View } from 'react-native';
@@ -99,7 +90,7 @@ export function TripNameSheet({ tripId, currentTitle, dateLabel, accessToken, on
       <Text color={color.text.body}>
         {tx(`「${currentTitle ?? ''}」이(가) 지워지고, 카드에는 다시 날짜가 보여요.`, `"${currentTitle ?? ''}" will be removed and the card will show the dates again.`)}
       </Text>
-      {/* 🔴 지운 뒤 카드를 미리 보여준다. 「날짜가 보여요」는 말이고, 이건 그 말의 증거다. */}
+      {/* 지운 뒤 카드를 미리 보여준다. 「날짜가 보여요」는 말이고, 이건 그 말의 증거다. */}
       <View style={styles.previewCard}>
         <Text variant="caption" color={color.text.muted}>{tx('지운 뒤 카드', 'After clearing')}</Text>
         <Text variant="title" weight="bold">{dateLabel ?? tx('날짜 미확인', 'Date unknown')}</Text>
@@ -206,7 +197,7 @@ export function TripNameSheet({ tripId, currentTitle, dateLabel, accessToken, on
         />
       </View>
 
-      {/* 🔴 이름이 있을 때만 나온다. 없는 이름을 지우라고 권하지 않는다. */}
+      {/* 이름이 있을 때만 나온다. 없는 이름을 지우라고 권하지 않는다. */}
       {mode === 'edit' ? (
         <Button
           label={tx('이름 지우기', 'Clear the name')}

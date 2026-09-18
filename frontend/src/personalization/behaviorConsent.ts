@@ -1,21 +1,4 @@
 // 행동 기반 개인화 동의 — 기본 OFF. 이 값 하나가 이벤트 전송의 스위치다.
-//
-// 개인정보 처리방침은 이미 "행동 기반 개인화 … 별도 동의를 받은 경우에만 처리합니다" 라고
-// 선언해 뒀는데(src/legal/legalContent.ts 1절), 그 동의를 받을 화면이 어디에도 없었다.
-// 동의 없이 행동을 보내면 우리가 우리 방침을 어긴다. 그래서 이 모듈이 먼저다.
-//
-// 🔴 2026-09-16 정정 — 여기 있던 "서버에 올릴 API 가 없다" 는 낡았다. `GET`·`PATCH
-//    /api/v1/auth/me/consents` 가 있다(S15P21E201-735). 그동안 이 값은 기기에만 남았고
-//    서버는 가입 때 정한 값을 그대로 들고 있었다 — 사용자가 껐는데도 서버 쪽 표시는
-//    켜진 채였다. 이제 잇는다.
-//
-// 🔴 서버와 기기가 다를 때 켜는 쪽으로 맞추지 않는다. 서버가 꺼져 있으면 기기도 끈다.
-//    서버가 켜져 있어도 기기가 꺼져 있으면 그대로 둔다 — 이 값의 유일한 목적이 "동의 없이
-//    보내지 않는 것" 이라, 어긋남을 없애려고 켜면 그 목적을 정면으로 어긴다. 켜는 것은
-//    사람이 스위치를 누를 때만 한다.
-//
-// 🔴 읽기 전에는 무조건 꺼진 것으로 본다. 저장소를 못 읽는 상황(초기화 전·기기 오류)에서
-//    "아마 켜져 있었겠지" 로 넘어가면 동의 없이 보내게 된다. 모르면 안 보낸다.
 import { useCallback, useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -51,7 +34,7 @@ export async function setBehaviorConsent(enabled: boolean, accessToken?: string 
     // 화면에 없는 그 동의들이 요청마다 조용히 덮인다.
     await updateMyConsents(accessToken, { BEHAVIOR_PERSONALIZATION: enabled });
   } catch {
-    // 서버에 못 남겨도 기기의 선택은 지킨다. 🔴 끄는 쪽이 기기에서 이미 적용됐으므로
+    // 서버에 못 남겨도 기기의 선택은 지킨다. 끄는 쪽이 기기에서 이미 적용됐으므로
     // 이벤트는 더 안 나간다 — 실패가 "동의 없이 보내는" 방향으로는 기울지 않는다.
   }
 }
@@ -82,10 +65,6 @@ export function subscribeBehaviorConsent(listener: (enabled: boolean) => void): 
   };
 }
 
-/**
- * 토글 화면용. `ready` 가 false 인 동안은 아직 저장된 값을 못 읽은 상태다 —
- * 그때 스위치를 보여 주면 켜 둔 사람에게 꺼진 것처럼 보였다가 튄다.
- */
 export function useBehaviorConsent(accessToken?: string | null) {
   const [enabled, setEnabled] = useState(false);
   const [ready, setReady] = useState(false);

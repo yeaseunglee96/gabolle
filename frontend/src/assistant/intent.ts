@@ -1,7 +1,7 @@
 import type { PlanDraft } from '@/plan/PlanProvider';
 import { getApiLanguage } from '@/api/client';
 
-// 🔴 키워드 매칭은 한국어 입력만 인식한다 — reply/summary(응답 문구)는 UI 언어를 따라가지만,
+// 키워드 매칭은 한국어 입력만 인식한다 — reply/summary(응답 문구)는 UI 언어를 따라가지만
 // 영어로 입력해도 이 매처 자체는 아직 반응하지 않는다. 별도 범위(영어 입력 인식)로 남겨 둔다.
 const t = (ko: string, en: string) => (getApiLanguage() === 'en' ? en : ko);
 
@@ -29,11 +29,11 @@ export function understandAssistantMessage(raw: string): AssistantAction {
     const phrase = PHRASES.find((item) => includesAny(text, item.match));
     return phrase ? { kind: 'phrase', reply: t('현장에서 바로 보여주거나 들려줄 수 있게 준비했어요.', "I've got it ready to show or read aloud on the spot."), korean: phrase.korean, pronunciation: phrase.pronunciation } : { kind: 'navigate', reply: t('상황별 문장을 고를 수 있는 현장 도구로 안내할게요.', "I'll take you to the on-the-go tool where you can pick a phrase for your situation."), label: t('현장 도구 열기', 'Open on-the-go tools'), href: '/field/translate' };
   }
-  // S15P21E201-909: 메뉴판 카메라 번역은 -907로 뺐다. "번역"이라고 해도 실제로 되는 것은
+  // : 메뉴판 카메라 번역은 -907로 뺐다. "번역"이라고 해도 실제로 되는 것은
   // 상황별 한국어 문장뿐이라, 없는 기능을 약속하지 않고 그 사실을 그대로 말한다.
   if (includesAny(text.toLowerCase(), ['번역', '메뉴판', 'translate'])) return { kind: 'navigate', reply: t('메뉴판 사진 번역은 아직 준비 중이에요. 대신 상황별 한국어 문장은 바로 보여드릴 수 있어요.', "Menu photo translation isn't ready yet — but I can show you Korean phrases for your situation right away."), label: t('현장 도구 열기', 'Open on-the-go tools'), href: '/field/translate' };
   if (includesAny(text, ['내 일정', '여행 목록', '만든 일정'])) return { kind: 'navigate', reply: t('저장한 여행 목록을 열어드릴게요.', "I'll open your saved trip list."), label: t('내 여행 보기', 'View my trips'), href: '/trips' };
-  // S15P21E201-914: 갈래 개수는 GET /api/v1/places/facets 가 정한다 — 숫자를 박지 않는다.
+  // : 갈래 개수는 GET /api/v1/places/facets 가 정한다 — 숫자를 박지 않는다.
   if (includesAny(text, ['로컬', '야시장', '둘러보'])) return { kind: 'navigate', reply: t('부산 로컬 스팟을 보여드릴게요.', "I'll show you local Busan spots."), label: t('로컬 탐색 열기', 'Open local exploring'), href: '/explore' };
   if (includesAny(text, ['일정', '여행', '코스', '짜줘', '추천'])) {
     const patch: Partial<PlanDraft> = {}; const summary: string[] = [];

@@ -1,8 +1,4 @@
 // 부슐랭 — 다녀온 장소를 내 기준으로 모으는 개인 아카이브.
-//
-// SNS(피드·코스)와는 별개다. 공개·공유, 다른 사람 리스트 저장, 코스로 재구성,
-// 공동 리스트, 만족도·방문 날짜는 지금 확정 범위가 아니다 — 리스트·장소·한줄메모만
-// 다룬다. 서버가 없어도 되는 기능이라 PlanProvider와 같은 방식으로 기기에만 저장한다.
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { useAuth } from '@/auth/AuthProvider';
@@ -21,19 +17,12 @@ export type CollectionPlace = {
   photoUri: string | null;
   note: string | null;
   addedAt: string;
-  // S15P21E201-919: 카카오 지도 자동완성으로 고른 장소만 좌표가 있다 — 직접 타이핑한
+  // : 카카오 지도 자동완성으로 고른 장소만 좌표가 있다 — 직접 타이핑한
   // 장소는 이전처럼 null이다. VERSION을 안 올린 이유: 기존 저장 데이터는 이 두 칸이
   // 없을 뿐 그대로 유효하고(선택 필드), 읽는 쪽은 항상 null 가능성을 이미 대비해야 한다.
   lat: number | null;
   lng: number | null;
-  // 🔴 S15P21E201-1148 — 서버가 이 장소를 뭐라고 부르는가.
-  //
-  //    지우려면 서버의 itemId 가 있어야 하는데(DELETE …/items/{itemId}), 장소를
-  //    담는 열쇠는 그것이 아니다 — 서버 장소는 placeId(UUID)로, 손으로 적은 것은
-  //    itemId 로 담긴다(serverToDevice). 열쇠를 itemId 로 바꾸면 「이 장소가
-  //    담겨 있나」 판정이 깨지므로, 열쇠는 그대로 두고 이 칸을 따로 든다.
-  //
-  //    없으면(기기에만 있는 장소) 서버에 지울 것도 없다.
+  // — 서버가 이 장소를 뭐라고 부르는가.
   serverItemId?: string | null;
 };
 
@@ -56,7 +45,7 @@ function uid() {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
-// 장소는 여러 리스트가 같이 쓸 수 있어 리스트 하나를 지운다고 장소까지 지우면 안 된다 —
+// 장소는 여러 리스트가 같이 쓸 수 있어 리스트 하나를 지운다고 장소까지 지우면 안 된다
 // 하지만 그 장소를 쓰는 리스트가 하나도 안 남으면 얘기가 다르다. 그대로 두면 places에
 // 고아로 계속 쌓여 totalPlaceCount와 "최근 추가한 장소"에 리스트 하나 없는 유령 장소로
 // 영원히 남는다(리스트에서 빼거나 리스트를 지우는 것 말고는 places를 건드릴 방법이
@@ -74,12 +63,7 @@ type CollectionContextValue = {
   ready: boolean;
   /** 서버와 합쳐서 보여주고 있는가. 화면이 안내 문구를 고르는 데 쓴다. */
   syncedToServer: boolean;
-  /**
-   * 계정 것과 맞추는 일이 지금 어디까지 왔나.
-   *
-   * 🔴 'unreachable' 은 실패지만 **화면을 덮지 않는다.** 기기 것을 그대로 그리고 위에
-   * 작은 띠로만 알린다 — 리스트가 통째로 사라진 화면을 보여주는 것보다 낫고, 그건 사실도 아니다.
-   */
+  /** 계정 것과 맞추는 일이 지금 어디까지 왔나. */
   syncState: 'loading' | 'synced' | 'anonymous' | 'unreachable';
   /** 못 맞췄을 때 다시 해 본다. */
   retrySync: () => void;
@@ -101,27 +85,22 @@ const CollectionContext = createContext<CollectionContextValue | null>(null);
 export function CollectionProvider({ children }: { children: ReactNode }) {
   const [data, setData] = useState<CollectionData>(EMPTY);
   const [ready, setReady] = useState(false);
-  // 🔴 로그인했으면 서버와 합친 것이 보인다. 안 했으면 지금까지처럼 기기 것만 보인다.
+  // 로그인했으면 서버와 합친 것이 보인다. 안 했으면 지금까지처럼 기기 것만 보인다.
   // 화면이 이 값을 보고 안내 문구를 고른다 — 안 그러면 "계정에 저장돼요" 가 거짓이 된다.
   const [syncedToServer, setSyncedToServer] = useState(false);
   const [syncState, setSyncState] = useState<'loading' | 'synced' | 'anonymous' | 'unreachable'>('loading');
   // 「다시 시도」를 누르면 이 숫자가 올라가고, 아래 useEffect 가 다시 돈다.
   const [syncAttempt, setSyncAttempt] = useState(0);
-  // 🔴 S15P21E201-1148 — 아직 서버에 못 보낸 지우기.
-  //
-  //    기기에서 지운 것을 서버에도 지워야 하는데 그때 서버에 못 닿을 수 있다.
-  //    그 사실을 잃어버리면 다음 동기화에서 지운 것이 되살아난다.
-  //    ref 로도 드는 이유는, 지우기 직후 곧바로 도는 동기화가 화면을 다시 그리기를
-  //    기다리지 않고 지금 값을 봐야 하기 때문이다(S15P21E201-1118 과 같은 함정).
+  // — 아직 서버에 못 보낸 지우기.
   const [pendingDeletes, setPendingDeletesState] = useState<PendingDelete[]>([]);
   const pendingDeletesRef = useRef<PendingDelete[]>([]);
-  // 지금 담긴 것을 보는 사본. setData 의 갱신 함수 안에서 다른 상태를 건드리면 안 되고,
+  // 지금 담긴 것을 보는 사본. setData 의 갱신 함수 안에서 다른 상태를 건드리면 안 되고
   // useCallback 의 가둔 값은 낡을 수 있어서 둔다.
   const dataRef = useRef<CollectionData>(EMPTY);
   const setPendingDeletes = (next: PendingDelete[]) => { pendingDeletesRef.current = next; setPendingDeletesState(next); };
-  // 🔴 S15P21E201-1153 — 아직 서버에 못 보낸 이름·설명 고치기.
-  //    지우기와 달리 같은 리스트를 여러 번 고칠 수 있다. 그때는 쌓지 않고 마지막 값으로
-  //    덮는다 — 중간 이름을 서버에 보낼 이유가 없다.
+  // — 아직 서버에 못 보낸 이름·설명 고치기.
+  // 지우기와 달리 같은 리스트를 여러 번 고칠 수 있다. 그때는 쌓지 않고 마지막 값으로
+  // 덮는다 — 중간 이름을 서버에 보낼 이유가 없다.
   const [pendingRenames, setPendingRenamesState] = useState<PendingRename[]>([]);
   const pendingRenamesRef = useRef<PendingRename[]>([]);
   const setPendingRenames = (next: PendingRename[]) => { pendingRenamesRef.current = next; setPendingRenamesState(next); };
@@ -138,10 +117,7 @@ export function CollectionProvider({ children }: { children: ReactNode }) {
   const { accessToken } = useAuth();
   dataRef.current = data;
 
-  // 기기에서 읽고, 로그인했으면 서버와 합친다 (S15P21E201-1071).
-  //
-  // 🔴 기기 것을 버리지 않는다. 서버를 못 물어봐도 기기 것을 그대로 보여준다 — 리스트가
-  // 통째로 사라진 화면을 보여주는 것보다 낫고, 그건 사실도 아니다.
+  // 기기에서 읽고, 로그인했으면 서버와 합친다
   useEffect(() => {
     let alive = true;
     void (async () => {
@@ -151,7 +127,6 @@ export function CollectionProvider({ children }: { children: ReactNode }) {
         if (raw) {
           const stored = JSON.parse(raw) as { version?: number; data?: CollectionData; pendingDeletes?: PendingDelete[]; pendingRenames?: PendingRename[] };
           if (stored.version === VERSION && stored.data) device = stored.data;
-          // 저장해 둔 것이 없으면 빈 목록이다 — 예전 판으로 저장된 것도 그대로 읽힌다.
           if (Array.isArray(stored.pendingDeletes)) setPendingDeletes(stored.pendingDeletes);
           if (Array.isArray(stored.pendingRenames)) setPendingRenames(stored.pendingRenames);
         }
@@ -185,17 +160,17 @@ export function CollectionProvider({ children }: { children: ReactNode }) {
 
   const renameList = useCallback((listId: string, name: string, description?: string) => {
     const nextDescription = description?.trim() || null;
-    // 🔴 S15P21E201-1153 — 서버가 아는 리스트면 서버에도 고치라고 적어 둔다.
-    //    기기에만 있는 리스트는 아직 서버에 없으니, 나중에 통째로 올라갈 때 새 이름으로 간다.
+    // — 서버가 아는 리스트면 서버에도 고치라고 적어 둔다.
+    // 기기에만 있는 리스트는 아직 서버에 없으니, 나중에 통째로 올라갈 때 새 이름으로 간다.
     if (isServerId(listId)) queueRename({ collectionId: listId, name, description: nextDescription });
     setData((current) => ({ ...current, lists: current.lists.map((list) => list.id === listId ? { ...list, name, description: nextDescription } : list) }));
   }, []);
 
   const deleteList = useCallback((listId: string) => {
-    // 🔴 S15P21E201-1148 — 서버가 아는 리스트면 서버에서도 지우라고 적어 둔다.
-    //    기기에만 있던 리스트는 서버에 없으니 보낼 것도 없다.
+    // — 서버가 아는 리스트면 서버에서도 지우라고 적어 둔다.
+    // 기기에만 있던 리스트는 서버에 없으니 보낼 것도 없다.
     if (isServerId(listId)) queueDelete({ kind: 'list', collectionId: listId });
-    // 장소 자체는 다른 리스트에서도 쓸 수 있으므로 지우지 않는다 — 이 리스트의 참조만 없애고,
+    // 장소 자체는 다른 리스트에서도 쓸 수 있으므로 지우지 않는다 — 이 리스트의 참조만 없애고
     // 그 결과 어느 리스트에도 안 남은 장소만 pruneOrphanedPlaces가 함께 정리한다.
     setData((current) => {
       const lists = current.lists.filter((list) => list.id !== listId);
@@ -216,8 +191,8 @@ export function CollectionProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const removePlaceFromList = useCallback((listId: string, placeId: string) => {
-    // 🔴 S15P21E201-1148 — 서버가 아는 리스트의, 서버가 아는 장소일 때만 보낸다.
-    //    serverItemId 는 서버에서 받아온 장소에만 있다(collectionsApi 의 serverToDevice).
+    // — 서버가 아는 리스트의, 서버가 아는 장소일 때만 보낸다.
+    // serverItemId 는 서버에서 받아온 장소에만 있다(collectionsApi 의 serverToDevice).
     const serverItemId = dataRef.current.places[placeId]?.serverItemId;
     if (isServerId(listId) && serverItemId) queueDelete({ kind: 'item', collectionId: listId, itemId: serverItemId });
     setData((current) => {

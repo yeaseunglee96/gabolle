@@ -1,12 +1,4 @@
-// 파일을 보내는 자리에 **`{ uri }` 객체가 다시 들어가지 않게** 붙드는 시험 — S15P21E201-1187.
-//
-// 🔴 이 시험이 지키는 것은 눈에 안 보인다. `formData.append('file', { uri, name, type })` 은
-//    2026-09-17 까지 맞는 코드였고, Expo SDK 57 이 전역 `fetch` 를 표준 것으로 갈아끼운
-//    순간부터 **앱을 조용히 망가뜨리는 코드**가 됐다. 타입 검사는 못 잡는다 —
-//    그렇게 쓰려면 `as unknown as Blob` 으로 타입을 속여야 했고, 속인 뒤에는 아무도 안 본다.
-//    화면에는 「서버에 연결할 수 없어요」만 뜨고 요청은 나가지도 않았다.
-//
-//    그래서 **FormData 에 실제로 무엇이 들어갔는지**를 여기서 본다.
+// 파일을 보내는 자리에 `{ uri }` 객체가 다시 들어가지 않게 붙드는 시험 —.
 import { fileUriToBlob, singleFileFormData } from '../multipart';
 
 type FakeXhr = {
@@ -24,7 +16,7 @@ let lastOpened: { method: string; url: string } | null = null;
 
 /**
  * `file://` 을 읽는 XHR 을 흉내 낸다. 진짜 파일을 만들지 않는 이유는, 이 시험이 재는 것이
- * 「파일을 읽을 수 있나」가 아니라 **「읽은 것을 어떤 모양으로 FormData 에 넣나」** 이기 때문이다.
+ * 「파일을 읽을 수 있나」가 아니라 「읽은 것을 어떤 모양으로 FormData 에 넣나」 이기 때문이다.
  */
 function installFakeXhr(makeResponse: () => unknown) {
   (globalThis as unknown as { XMLHttpRequest: unknown }).XMLHttpRequest = function (this: FakeXhr) {

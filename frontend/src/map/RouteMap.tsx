@@ -11,33 +11,18 @@ declare global { interface Window { kakao?: any } }
 
 const SDK_ID = 'kakao-map-sdk';
 const SDK_HOST = 'dapi.kakao.com';
-// 🔴 지도가 부르는 곳은 `dapi.kakao.com` 하나가 아니다. 그 주소는 **시작 파일**이고,
-//    그 안에서 카카오·다음 쪽 주소를 더 부른다. 차단이 두 번째 파일에서 나면
-//    첫 파일만 보고 있는 코드는 아무것도 못 잡는다. 그래서 둘 다 본다.
-//    (어느 주소를 더 부르는지는 **유효한 키 없이는 확인할 수 없었다** — 시작 파일이
-//     키 없이는 401 만 준다. 그래서 이름을 넓게 잡아 둔다.)
+// 지도가 부르는 곳은 `dapi.kakao.com` 하나가 아니다. 그 주소는 시작 파일이고
+// 그 안에서 카카오·다음 쪽 주소를 더 부른다. 차단이 두 번째 파일에서 나면
+// 첫 파일만 보고 있는 코드는 아무것도 못 잡는다. 그래서 둘 다 본다.
+// (어느 주소를 더 부르는지는 유효한 키 없이는 확인할 수 없었다 — 시작 파일이
+// 키 없이는 401 만 준다. 그래서 이름을 넓게 잡아 둔다.)
 const MAP_HOSTS = /kakao\.com|daumcdn\.net/;
 
-// 🔴 지도가 안 뜰 때 "지도를 불러오지 못했어요" 만 띄우면 아무도 원인을 못 찾는다.
-//    2026-09-07 배포본이 정확히 그 상태였다 — 화면은 목록 모드인데, 그게 키가 없어서인지
-//    서버가 스크립트를 막아서인지 도메인이 등록 안 돼서인지 화면 어디에도 없었다.
-//    그래서 **무엇이 없어서인지**를 갈라서 말한다.
-//
-//    reason 은 여행자가 읽는 말이고, tech 는 고칠 사람이 읽는 한 줄이다. 둘 다 화면에 낸다 —
-//    고칠 사람이 화면을 볼 때 개발자 도구를 열고 있으리라는 보장이 없다.
+// reason 은 여행자가 읽는 말이고, tech 는 고칠 사람이 읽는 한 줄이다. 둘 다 화면에 낸다
+// 고칠 사람이 화면을 볼 때 개발자 도구를 열고 있으리라는 보장이 없다.
 type MapFailure = { title: string; reason: string; tech: string };
 
-/**
- * 지도에 그리는 선 하나.
- *
- * 🔴 **`path` 가 없으면 이 선은 「실제 길」이 아니다.** 장소를 직선으로 이은 것뿐이다.
- * 카카오는 자동차 경로만 공개하고 도보·대중교통은 좌표를 안 준다 — 그래서 이 앱이
- * 그리는 선은 대부분 직선이다.
- *
- * 🔴 **그런 선은 점선으로 그린다.** 실선으로 그리면 사람은 **그 선을 따라 걸으면 되는 줄
- * 안다.** 바다를 가로지르는 직선이 실선으로 그려지는 순간 지도 전체를 못 믿게 된다.
- * 그래서 `estimated` 의 기본값은 **참**이다 — 실제 길이라고 말하려면 그렇게 적어야 한다.
- */
+/** 지도에 그리는 선 하나. */
 export type MapRouteLayer = {
   id: string;
   color: string;
@@ -49,10 +34,10 @@ export type MapRouteLayer = {
 };
 export type MapPointLayer = { id: string; label: string; color: string; stops: MapStop[] };
 
-// 🔴 `points` 매개변수 기본값을 여기서 한 번만 만든다. 함수 시그니처에 `points = []` 로
-//    직접 쓰면 이 컴포넌트가 스스로 재렌더될 때마다(예: 아래 setFailure) 새 배열이 다시
-//    만들어져 effect 의존성이 매번 바뀌고, 그게 다시 setFailure 를 불러 무한 루프가 됐다
-//    (points 를 안 넘기는 호출부에서 실측 — S15P21E201-435).
+// `points` 매개변수 기본값을 여기서 한 번만 만든다. 함수 시그니처에 `points = []` 로
+// 직접 쓰면 이 컴포넌트가 스스로 재렌더될 때마다(예: 아래 setFailure) 새 배열이 다시
+// 만들어져 effect 의존성이 매번 바뀌고, 그게 다시 setFailure 를 불러 무한 루프가 됐다
+// (points 를 안 넘기는 호출부에서 실측 —.
 const NO_POINT_LAYERS: MapPointLayer[] = [];
 
 export type CurrentLocation = { latitude: number; longitude: number };
@@ -63,8 +48,10 @@ type RouteMapProps = {
   onSelect: (id: string) => void;
   routes?: MapRouteLayer[];
   points?: MapPointLayer[];
-  /** 위치 권한을 허용했을 때만 준다(S15P21E201-214). 없으면 점을 그리지 않는다 — 거부해도
-   *  경로·안내는 그대로 보여야 하므로, 이 지도는 이 값이 없다고 오류로 취급하지 않는다. */
+  /**
+   * 위치 권한을 허용했을 때만 준다. 없으면 점을 그리지 않는다 — 거부해도
+   * 경로·안내는 그대로 보여야 하므로, 이 지도는 이 값이 없다고 오류로 취급하지 않는다.
+   */
   currentLocation?: CurrentLocation | null;
   onBackToList?: () => void;
   height?: number;
@@ -80,8 +67,8 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
 
   useEffect(() => {
     if (Platform.OS !== 'web') return;
-    // ① 키가 아예 없다. EXPO_PUBLIC_ 값은 **번들을 만드는 순간 문자열로 박히므로**
-    //    컨테이너를 띄울 때 주는 것은 소용이 없다 — docker build 에 넘겨야 한다.
+    // ① 키가 아예 없다. EXPO_PUBLIC_ 값은 번들을 만드는 순간 문자열로 박히므로
+    // 컨테이너를 띄울 때 주는 것은 소용이 없다 — docker build 에 넘겨야 한다.
     if (!appKey) {
       setFailure({
         title: tx('지도 키가 이 빌드에 안 들어갔어요', 'This build was made without a map key'),
@@ -148,10 +135,10 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
           overlay.setMap(map); overlaysRef.current.push(overlay);
         }
         (routes ?? [{ id: 'selected', color: color.brand.orange, stops }]).forEach((route) => {
-          // 🔴 실제 길 좌표가 있으면 그것을, 없으면 장소를 직선으로 잇는다.
+          // 실제 길 좌표가 있으면 그것을, 없으면 장소를 직선으로 잇는다.
           const points = route.path?.length ? route.path : route.stops;
           const path = points.map((point) => new maps.LatLng(point.latitude, point.longitude));
-          // 🔴 실제 길이라고 **적혀 있을 때만** 실선이다. 나머지는 전부 점선이다.
+          // 실제 길이라고 적혀 있을 때만 실선이다. 나머지는 전부 점선이다.
           const real = route.path?.length ? route.estimated === false : false;
           const line = new maps.Polyline({
             path,
@@ -162,7 +149,7 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
           });
           line.setMap(map); overlaysRef.current.push(line);
         });
-        // S15P21E201-919: stop이 하나면 bounds 넓이가 0이라 setBounds가 지도를 최대 줌으로
+        // : stop이 하나면 bounds 넓이가 0이라 setBounds가 지도를 최대 줌으로
         // 밀어붙인다 — 고정 34px 마커가 화면 대부분을 덮어 장소 이름을 가린다. 하나일 때는
         // bounds 대신 그 지점을 도시 단위 줌으로 그냥 센터링한다.
         if (visibleStops.length <= 1) { map.setCenter(center); map.setLevel(5); }
@@ -172,12 +159,6 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
     };
     if (window.kakao?.maps) { draw(); return; }
 
-    // ② 브라우저가 스크립트를 아예 못 받게 막았다.
-    //    🔴 이건 추측이 아니라 브라우저가 직접 알려 주는 사건이다 — 서버가 보낸 보안 설정
-    //    (Content-Security-Policy)이 어떤 주소를 막으면 브라우저가 이 사건을 낸다.
-    //    2026-09-07 배포 서버의 그 설정에는 `script-src 'self' 'unsafe-inline'` 만 있고
-    //    카카오가 없다. 그래서 **키를 꽂아도 지도는 안 뜬다.** 그 설정은 저장소에 없고
-    //    EC2 앞단의 nginx 가 붙이므로 여기서 못 고친다 — 그래서 화면이 대신 말한다.
     const onBlocked = (event: SecurityPolicyViolationEvent) => {
       if (!MAP_HOSTS.test(event.blockedURI ?? '')) return;
       setFailure({
@@ -196,7 +177,7 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
     const src = `https://${SDK_HOST}/v2/maps/sdk.js?appkey=${appKey}&autoload=false`;
     if (!existing) { script.id = SDK_ID; script.src = src; document.head.appendChild(script); }
     // 차단 사건과 error 사건은 둘 다 난다. 순서가 규격으로 정해져 있지 않으므로
-    // **차단 쪽이 항상 이기게** 한다 — 그쪽이 원인을 정확히 말해 주기 때문이다.
+    // 차단 쪽이 항상 이기게 한다 — 그쪽이 원인을 정확히 말해 주기 때문이다.
     const onError = () => setFailure((prev) => prev ?? {
       title: tx('지도 파일을 못 받았어요', 'Could not fetch the map file'),
       reason: tx(
@@ -214,9 +195,9 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
     };
   }, [appKey, currentLocation, onSelect, points, routes, selectedId, stops]);
 
-  // 🔴 지도에 점선이 하나라도 있으면 그 뜻을 글로 적는다 (S15P21E201-1234).
-  //    점선이 무슨 뜻인지 모르는 사람에게는 실선과 다를 바가 없고, 그러면 점선을 두는
-  //    이유가 사라진다. 실제 길만 그려진 지도에는 이 줄이 안 나온다.
+  // 지도에 점선이 하나라도 있으면 그 뜻을 글로 적는다
+  // 점선이 무슨 뜻인지 모르는 사람에게는 실선과 다를 바가 없고, 그러면 점선을 두는
+  // 이유가 사라진다. 실제 길만 그려진 지도에는 이 줄이 안 나온다.
   const hasEstimatedLine = (routes ?? [{ id: 'selected', color: '', stops }])
     .some((route) => !(route.path?.length && route.estimated === false));
 
@@ -241,17 +222,9 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
     );
   }
 
-  // 🔴 2026-09-17 (S15P21E201-1140) — **여기는 이제 폰에서 안 온다.**
-  //    폰용 지도가 옆의 `RouteMap.native.tsx` 에 생겼고, 번들러가 폰에서는 그 파일을 쓴다.
-  //    이 아래는 웹 번들에만 남아 있고 웹에서는 위의 `Platform.OS === 'web'` 에서 이미
-  //    돌아가므로 실제로는 안 그려진다.
-  //
-  //    **지우지 않고 남기는 이유**: `Platform.OS` 가 'web' 도 'ios' 도 'android' 도 아닌
-  //    경우(예: 앞으로 생길 다른 플랫폼)에 아무것도 안 돌려주면 화면이 통째로 비어 버린다.
-  //    그때 빈 화면 대신 목록이라도 보이게 하는 자리다.
-  //
-  //    🔴 문구에서 「앱 지도 연동을 준비하고 있어요」를 뺐다. 그 말은 이제 **거짓**이다 —
-  //    폰에는 지도가 있다. 낡은 문구는 없는 문구보다 나쁘다.
+  // 지우지 않고 남기는 이유: `Platform.OS` 가 'web' 도 'ios' 도 'android' 도 아닌
+  // 경우(예: 앞으로 생길 다른 플랫폼)에 아무것도 안 돌려주면 화면이 통째로 비어 버린다.
+  // 그때 빈 화면 대신 목록이라도 보이게 하는 자리다.
   return (
     <View style={styles.fallback}>
       <Text variant="title" weight="bold">{tx('이 환경에서는 지도를 못 그려요', 'The map cannot be drawn here')}</Text>

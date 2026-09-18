@@ -42,9 +42,9 @@ import { useI18n } from '@/i18n';
 import { describeWarningCodes } from '@/plan/warningLabels';
 import { ExcludeConfirmModal } from '@/components/ExcludeConfirmModal';
 
-// 경고 문구는 src/plan/warningLabels.ts 로 옮겼다 — 시험이 붙들게 하려고 (S15P21E201-1150).
+// 경고 문구는 src/plan/warningLabels.ts 로 옮겼다 — 시험이 붙들게 하려고
 
-// 영업시간 경고(S15P21E201-268/-858) — 편집 다섯 갈래 중 넷(더하기 제외, 재계산은 비동기라
+// 영업시간 경고/-858) — 편집 다섯 갈래 중 넷(더하기 제외, 재계산은 비동기라
 // 이 응답에 못 싣는다)이 warnings·notChecked를 함께 돌려준다. 되돌리기는 여러 날에 걸친
 // 위반이 함께 올 수 있어 하루가 아니라 일정 전체에서 항목을 찾는다.
 function describeOpeningHoursIssues(itinerary: ItineraryDto, warnings: ItineraryOpeningHoursWarning[], notChecked: ItineraryOpeningHoursNotChecked[], tx: (ko: string, en: string) => string): string[] {
@@ -85,10 +85,6 @@ function formatDate(value: string, index: number) {
 }
 
 // 지도 대신 노선도 — 디자인 확정안 B안(09-디자인-인계-일정).
-//
-// 🔴 장소 사진이 없다. `place` 표에 사진 칸 자체가 없어서 사진을 전제한 카드는 못 만든다.
-// 그래서 정차역(방문지)을 선으로 잇고 구간에 이동 시간을 적는 노선도로 하루를 보여준다 —
-// 지도를 넣으려면 좌표·길찾기가 필요한데 그건 이 화면의 응답에 없다.
 function RouteStrip({ items, times, tx }: { items: ItineraryItemDto[]; times: string[]; tx: (ko: string, en: string) => string }) {
   if (!items.length) return null;
   return <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.strip}>
@@ -98,10 +94,11 @@ function RouteStrip({ items, times, tx }: { items: ItineraryItemDto[]; times: st
         formatTravelLabel(item, tx, index === 0),
       ].filter(Boolean).join(' · ');
       return <View key={item.id} style={styles.stripEntry}>
-        {/* 🔴 S15P21E201-1119 — 여태 index > 0 이라 **그날 첫 구간이 통째로 안 그려졌다.**
-            서버는 순서 1번 구간(출발지 → 첫 장소)을 제대로 주는데 화면이 건너뛰었고,
+        {/* — 여태 index > 0 이라 그날 첫 구간이 통째로 안 그려졌다.
+            서버는 순서 1번 구간(출발지 → 첫 장소)을 제대로 주는데 화면이 건너뛰었고
             그게 하루 중 제일 긴 구간이라(실측 38분·40분) 구간을 더한 값이 요약과 안 맞았다
-            — 1일차 화면 3+3+1=7분 대 요약 45분. 값이 있으면 첫 칸에도 그린다. */}
+            — 1일차 화면 3+3+1=7분 대 요약 45분. 값이 있으면 첫 칸에도 그린다.
+        */}
         {index > 0 || travel ? <View style={styles.segment}>
           <View style={styles.segmentLine} />
           {/* 구간 라벨이 없을 수도 있다 — 좌표가 없어 못 잰 구간. 없으면 선만 긋는다. */}
@@ -117,23 +114,12 @@ function RouteStrip({ items, times, tx }: { items: ItineraryItemDto[]; times: st
   </ScrollView>;
 }
 
-// 정차 한 칸 — 시안 design_handoff_itinerary 2.5(넓은 화면) · 3.3(폰).
-//
-// 🔴 폰의 본체는 **세로 노선도**다. 번호 원을 세로선으로 잇고 구간에 「도보 1.2km」를 적는다.
-//    가로 스트립은 넓은 화면에만 둔다 — 폰에서 가로로 스크롤하는 노선은 한 번에 두 칸밖에
-//    안 보여서 하루가 어떻게 생겼는지를 못 보여준다.
-//
-// 🔴 시안의 한 줄 설명은 **실제로는 안 나온다.** 서버가 description 을 늘 null 로 준다
-//    (backend ItineraryQueryService: "description — place 표에 설명 칸이 없다").
-//    칸은 남겨 두되 없는 것을 있는 척 채우지 않는다.
-//
-// 평소엔 접어 두고 누르면 펼쳐서 나머지(비용·도보·페이스·제외·평가)를 보여준다.
-// 시안도 「펼침 실제 동작」이라고 적어 두었다.
+// 정차 한 칸 — 시안 design_handoff_itinerary 2.5(넓은 화면) 3.3(폰).
 function StopRow({ item, index, isLast, displayTime, wide, expanded, onToggleExpand, canEdit, lockBusy, excludeBusy, dayBusy, onLock, onExclude, reorderMode, canMoveUp, canMoveDown, moveBusy, onMoveUp, onMoveDown, pace, estimated, actualBusy, onRecordArrival, onRecordDeparture, accessToken }: { item: ItineraryItemDto; index: number; isLast: boolean; displayTime: string; wide: boolean; expanded: boolean; onToggleExpand: () => void; canEdit: boolean; lockBusy: boolean; excludeBusy: boolean; dayBusy: boolean; onLock: () => void; onExclude: () => void; reorderMode: boolean; canMoveUp: boolean; canMoveDown: boolean; moveBusy: boolean; onMoveUp: () => void; onMoveDown: () => void; pace?: ItineraryPaceItemDto; estimated?: boolean; actualBusy?: boolean; onRecordArrival?: () => void; onRecordDeparture?: () => void; accessToken: string | null }) {
   const { tx } = useI18n();
   const disabled = !canEdit || lockBusy || excludeBusy || dayBusy;
 
-  // 다녀오셨나요 평가(S15P21E201-406) — 방문 예정 시각이 지난 칸에만 띄운다.
+  // 다녀오셨나요 평가 — 방문 예정 시각이 지난 칸에만 띄운다.
   const isPastVisit = useMemo(() => new Date(item.startsAt).getTime() < Date.now(), [item.startsAt]);
   const [reviewStatus, setReviewStatus] = useState<'checking' | 'can-review' | 'reviewed'>('checking');
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
@@ -154,14 +140,11 @@ function StopRow({ item, index, isLast, displayTime, wide, expanded, onToggleExp
 
   // 이 방문지 자료가 어디까지 확인된 것인가 (시안 1절). now.tsx·recommendations.tsx 와 같은
   // 문구를 쓴다 — 같은 값을 화면마다 다르게 부르면 안 된다.
-  //
-  // 🔴 서버가 이 칸을 안 주면 아무것도 안 그린다. 「미확인」과 「칸이 없음」은 다른 말이고,
-  // 없는 것을 「미확인」이라고 적으면 조사해 보고 못 찾은 척이 된다.
   const STATUS_LABEL = { VERIFIED: tx('확인됨', 'Verified'), ESTIMATED: tx('추정', 'Estimated'), UNKNOWN: tx('미확인', 'Unconfirmed') } as const;
   const STATUS_CHIP = { VERIFIED: styles.statusVerified, ESTIMATED: styles.statusEstimated, UNKNOWN: styles.statusUnknown } as const;
   const STATUS_COLOR = { VERIFIED: color.state.success, ESTIMATED: color.state.warning, UNKNOWN: color.text.muted } as const;
 
-  // 🔴 값이 없으면 칸을 만들지 않는다. 비용·도보는 서버에 자료가 없을 때가 있고, 그걸
+  // 값이 없으면 칸을 만들지 않는다. 비용·도보는 서버에 자료가 없을 때가 있고, 그걸
   // 「미확인」이라고 적어 두면 빈 칸이 화면에서 제일 눈에 띈다.
   const walkLabel = item.walkingMeters == null ? null : tx(`도보 ${formatWalk(item.walkingMeters)}`, `${formatWalk(item.walkingMeters)} walk`);
   const facts = [
@@ -170,8 +153,8 @@ function StopRow({ item, index, isLast, displayTime, wide, expanded, onToggleExp
     item.estimatedCostKrw == null ? null : item.estimatedCostKrw === 0 ? tx('무료', 'Free') : tx(`${item.estimatedCostKrw.toLocaleString()}원`, `${item.estimatedCostKrw.toLocaleString()} KRW`),
   ].filter((fact): fact is string => fact !== null);
 
-  // 구간 라벨 — 🔴 이 값들은 **이 방문지로 들어오는** 구간이다(backend ItineraryQueryService
-  // 의 incomingLeg). 다음 칸까지가 아니다. 그래서 노드 **위**에 그린다.
+  // 구간 라벨 — 이 값들은 이 방문지로 들어오는 구간이다(backend ItineraryQueryService
+  // 의 incomingLeg). 다음 칸까지가 아니다. 그래서 노드 위에 그린다.
   const legLabel = [walkLabel, formatTravelLabel(item, tx, index === 0)].filter(Boolean).join(' · ');
 
   const lockControl = reorderMode
@@ -187,7 +170,7 @@ function StopRow({ item, index, isLast, displayTime, wide, expanded, onToggleExp
 
   return <>
     {/* 구간 — 세로선과 「도보 1.2km」. 넓은 화면은 위쪽 가로 노선도가 같은 것을 보여주므로 생략한다. */}
-    {/* S15P21E201-1119 — 첫 방문지에도 들어오는 구간이 있다 (출발지에서 온다). 위 주석 참고. */}
+    {/* — 첫 방문지에도 들어오는 구간이 있다 (출발지에서 온다). 위 주석 참고. */}
     {(index > 0 || legLabel) && !wide ? <View style={styles.segmentRow}>
       <View style={styles.rail}><View style={styles.railLine} /></View>
       {legLabel ? <View style={styles.segmentLabel}><Text variant="caption" weight="bold" color={color.brand.navy}>{legLabel}</Text></View> : null}
@@ -199,14 +182,15 @@ function StopRow({ item, index, isLast, displayTime, wide, expanded, onToggleExp
       </View>
       <View style={[styles.stopBody, pace?.atRisk && styles.stopBodyAtRisk]}>
         <View style={styles.stopHead}>
-          {/* 🔴 펼치는 손잡이는 제목 덩이에만 둔다. 행 전체를 Pressable 로 감싸면 그 안의
-              자물쇠가 「버튼 안의 버튼」이 되고, 웹에서는 그게 허용되지 않는다. */}
+          {/* 펼치는 손잡이는 제목 덩이에만 둔다. 행 전체를 Pressable 로 감싸면 그 안의
+              자물쇠가 「버튼 안의 버튼」이 되고, 웹에서는 그게 허용되지 않는다.
+          */}
           <Pressable accessibilityRole="button" accessibilityState={{ expanded }} accessibilityLabel={tx(`${item.title} ${expanded ? '접기' : '자세히'}`, `${item.title} ${expanded ? 'collapse' : 'details'}`)} onPress={onToggleExpand} style={styles.grow}>
             <View style={styles.titleLine}>
               <Text variant={wide ? 'title' : 'body'} weight="bold" style={styles.titleText}>{item.title}</Text>
               {item.dataStatus ? <View style={[styles.statusChip, STATUS_CHIP[item.dataStatus]]}><Text variant="caption" weight="bold" color={STATUS_COLOR[item.dataStatus]}>{STATUS_LABEL[item.dataStatus]}</Text></View> : null}
             </View>
-            {/* 🔴 서버가 늘 null 로 주는 칸이다. 있으면 그리고 없으면 줄을 만들지 않는다. */}
+            {/* 서버가 늘 null 로 주는 칸이다. 있으면 그리고 없으면 줄을 만들지 않는다. */}
             {item.description ? <Text variant="caption" color={color.text.body} numberOfLines={expanded ? undefined : 1}>{item.description}</Text> : null}
           </Pressable>
           <View style={[styles.stopRight, wide && styles.stopRightWide]}>
@@ -271,7 +255,7 @@ export default function ItineraryScreen() {
   const [replanBusy, setReplanBusy] = useState(false);
   const [replanOverflowIds, setReplanOverflowIds] = useState<string[] | null>(null);
   const [syncDisconnected, setSyncDisconnected] = useState(false);
-  // 순서 바꾸기 응답에만 실려 오는 영업시간 경고(S15P21E201-268/-852) — 활동 이력엔 안 남으므로
+  // 순서 바꾸기 응답에만 실려 오는 영업시간 경고/-852) — 활동 이력엔 안 남으므로
   // 그 자리에서 받은 문장을 이 상태에 직접 담아 둔다. 다음 편집을 시작하면 지운다.
   const [openingHoursNotice, setOpeningHoursNotice] = useState<string[]>([]);
   // ⋯ 패널과 펼친 정차. 둘 다 화면에만 있는 상태라 서버에 안 보낸다.
@@ -283,13 +267,13 @@ export default function ItineraryScreen() {
     if (next.state === 'success') setVersions(next.versions);
   }, [accessToken]);
 
-  // S15P21E201-1131 — 동기화 폴링 간격. reload() 도 이 값을 되돌리므로 그보다 위에 둔다.
+  // — 동기화 폴링 간격. reload 도 이 값을 되돌리므로 그보다 위에 둔다.
   const pollDelayRef = useRef(SYNC_POLL_BASE_MS);
 
   const reload = useCallback(async () => {
     if (!itineraryId) return;
     setLoading(true); setConflict(null); setActionMessage(null);
-    // 내가 무엇이든 했으면 동기화를 다시 촘촘하게 본다 (S15P21E201-1131).
+    // 내가 무엇이든 했으면 동기화를 다시 촘촘하게 본다
     pollDelayRef.current = SYNC_POLL_BASE_MS;
     const next = await loadItinerary(itineraryId, accessToken);
     setResult(next); setLoading(false);
@@ -305,22 +289,15 @@ export default function ItineraryScreen() {
 
   useEffect(() => { void reload(); }, [reload]);
 
-  // 동행자의 변경을 실시간으로 받아온다(S15P21E201-323). 진행 중인 내 편집(잠금·제외·
+  // 동행자의 변경을 실시간으로 받아온다. 진행 중인 내 편집(잠금·제외
   // 순서 변경 등) 위에 서버 응답이 덮어써 충돌하지 않도록, 그런 조작이 도는 동안은
-  // 이번 주기를 건너뛴다 — 편집이 끝나면 각 함수가 자체적으로 reload()를 부른다.
+  // 이번 주기를 건너뛴다 — 편집이 끝나면 각 함수가 자체적으로 reload를 부른다.
   const pollBlockedRef = useRef(false);
   useEffect(() => {
     pollBlockedRef.current = Boolean(busyItemId) || excludingItemId !== null || excludeConfirming !== null || dayActionBusy || revertBusy || orderDraft !== null || reorderBusy || replanBusy || actualBusyItemId !== null;
   });
   const failureStreakRef = useRef(0);
-  // 🔴 S15P21E201-1131 — 간격이 고정 5초가 아니라 「안 바뀌면 늘어나는」 값이 된다.
-  //
-  //    혼자 보는 일정을 3분 열어 두면 요청이 36번 나갔고, 그 36번이 전부 같은 답을
-  //    받았다. 규칙과 근거는 src/plan/syncPoll.ts 가 소유한다 — 여기서는 그것을 쓰기만
-  //    한다. 동기화 자체는 끄지 않는다(동행자 실시간 동기화, S15P21E201-323).
-  // 🔴 setResult 의 갱신 함수 안에서 「바뀌었나」를 계산하면 안 된다 — 갱신 함수는
-  //    React 가 두 번 부를 수 있고, 그 안에서 바깥 값을 건드리면 간격이 조용히 틀어진다.
-  //    그래서 직전 결과를 ref 로 따로 들고 비교는 바깥에서 한다.
+  // — 간격이 고정 5초가 아니라 「안 바뀌면 늘어나는」 값이 된다.
   const resultRef = useRef(result);
   useEffect(() => { resultRef.current = result; });
   useEffect(() => {
@@ -335,7 +312,7 @@ export default function ItineraryScreen() {
 
     const tick = () => {
       if (stopped) return;
-      // 내 편집이 도는 동안은 이번 차례를 건너뛴다. 간격은 그대로 두고 다시 잰다 —
+      // 내 편집이 도는 동안은 이번 차례를 건너뛴다. 간격은 그대로 두고 다시 잰다
       // 편집 중이라고 해서 동기화가 느려질 이유는 없다.
       if (pollBlockedRef.current) { schedule(); return; }
       void loadItinerary(itineraryId, accessToken).then((next) => {
@@ -375,15 +352,10 @@ export default function ItineraryScreen() {
   // 그 경계를 그대로 쓴다 — 여기서 숫자를 새로 정하지 않는다(layout/breakpoints.ts).
   const { width } = useLayout();
   const wide = isAtLeast(width, 'lg');
-  // S15P21E201-1014 — 통계는 값이 있는 것만 만든다. 판정은 itinerarySummary.ts 에 있다.
+  // — 통계는 값이 있는 것만 만든다. 판정은 itinerarySummary.ts 에 있다.
   const stats = useMemo(() => (itinerary ? itineraryStats(itinerary, tx) : []), [itinerary, tx]);
   const canEdit = itinerary?.canEdit !== false;
-  // 🔴 S15P21E201-1150 — 모르는 코드는 안 그린다.
-  //
-  //    전에는 짝이 없으면 코드를 그대로 그렸다(`: code`). 그래서 백엔드가 경고를
-  //    하나 늘리자 화면에 SIGHT_SLOT_UNFILLED 가 영문 대문자 그대로 떴다
-  //    (2026-09-17 실기기 확인). 읽을 수 없는 경고는 못 본 것과 같고,
-  //    암호가 뜨면 경고 칸 자체를 못 믿게 된다.
+  // — 모르는 코드는 안 그린다.
   const latestWarnings = useMemo(() => describeWarningCodes(versions[0]?.warningCodes, tx), [versions, tx]);
   const reorderMode = orderDraft !== null;
   const slotTimes = useMemo(() => day?.items.map((item) => item.startsAt) ?? [], [day]);
@@ -394,17 +366,9 @@ export default function ItineraryScreen() {
     return orderDraft.map((itemId) => itemsById.get(itemId)).filter((entry): entry is ItineraryItemDto => Boolean(entry));
   }, [day, orderDraft]);
   const dayTravelMinutes = useMemo(() => totalTravelMinutes(displayedItems), [displayedItems]);
-  // 🔴 값이 없는 칸을 0 으로 세지 않는다. 자료가 있는 칸만 더하므로 이 합계는 「적어도 이만큼」이다.
+  // 값이 없는 칸을 0 으로 세지 않는다. 자료가 있는 칸만 더하므로 이 합계는 「적어도 이만큼」이다.
   const dayWalkingMeters = useMemo(() => displayedItems.reduce((sum, item) => sum + (item.walkingMeters ?? 0), 0), [displayedItems]);
-  // 🔴 비용 합계는 **아는 칸이 몇 개인지 같이 말한다** (S15P21E201-1237).
-  //
-  //    전에는 값 없는 칸을 0 으로 더했다. 지금은 운영의 입장료가 전부 비어 있어서
-  //    합계가 0 이고, 아래의 `> 0` 이 막아 안 그려진다 — **조용하다.** 그런데 입장료가
-  //    **한 건이라도** 들어오는 순간 그 한 건이 「하루 예상 비용」으로 그려진다.
-  //    다섯 곳 중 한 곳만 아는 값이 「오늘 쓰는 돈」으로 읽히는 것이다.
-  //
-  //    아는 칸이 전부가 아니면 **몇 개를 아는지 붙인다.** 「적어도 이만큼」이라는 사실을
-  //    숫자 옆에 두는 것이, 합계를 안 그려서 **아무것도 모르게 하는 것보다 낫다.**
+  // 비용 합계는 아는 칸이 몇 개인지 같이 말한다
   const dayCost = useMemo(() => {
     const known = displayedItems.filter((item) => typeof item.estimatedCostKrw === 'number');
     return { krw: known.reduce((sum, item) => sum + (item.estimatedCostKrw as number), 0), known: known.length, total: displayedItems.length };
@@ -419,7 +383,7 @@ export default function ItineraryScreen() {
   ].filter(Boolean).join(' · '), [dayWalkingMeters, dayCost, tx]);
   const canReorder = canEdit && (day?.items.filter((item) => !item.locked).length ?? 0) > 1;
 
-  // 지연 경고(S15P21E201-96·314). 날짜를 바꾸면 그 날짜 것을 새로 받는다 — 표본이
+  // 지연 경고·314). 날짜를 바꾸면 그 날짜 것을 새로 받는다 — 표본이
   // 모자라면 paceFactor가 null로 오고, 그건 1.0(계획대로)과 다른 뜻이라 그대로 둔다.
   useEffect(() => {
     if (!itinerary) { setPace(null); return; }
@@ -443,7 +407,7 @@ export default function ItineraryScreen() {
   const paceByItemId = useMemo(() => new Map((pace?.items ?? []).map((entry) => [entry.itemId, entry] as const)), [pace]);
   const paceEstimated = pace?.paceFactor == null;
 
-  // S15P21E201-911 — 도착·출발 기록 PUT은 itinerary.version을 안 올린다(actualArrivedAt만
+  // — 도착·출발 기록 PUT은 itinerary.version을 안 올린다(actualArrivedAt만
   // 바뀐다, 실측 확인). pace를 불러오는 effect는 version 변화로만 재실행되므로, 그 effect에
   // 기대서는 "도착 찍기" 직후 화면이 영영 안 바뀐다 — 여기서 명시적으로 다시 불러온다.
   const refreshPaceAfterActual = async () => {
@@ -600,7 +564,7 @@ export default function ItineraryScreen() {
   // 방문지 수 — 모든 날의 정차를 합친다.
   const stopCount = itinerary ? itinerary.days.reduce((sum, day) => sum + day.items.length, 0) : 0;
 
-  // 헤더 요약 — 🔴 값이 있는 것만 잇는다. 「미확인」이라고 적힌 칸은 정보가 아니라 잡음이다.
+  // 헤더 요약 — 값이 있는 것만 잇는다. 「미확인」이라고 적힌 칸은 정보가 아니라 잡음이다.
   const heroSummary = itinerary ? [
     itinerary.days.length > 0 ? tx(`${itinerary.days.length}일`, `${itinerary.days.length} days`) : null,
     stopCount > 0 ? tx(`${stopCount}곳`, `${stopCount} stops`) : null,
@@ -611,29 +575,29 @@ export default function ItineraryScreen() {
   ].filter(Boolean).join(' · ') : '';
 
   // ── 네이비 헤더 (시안 design_handoff_itinerary 2·3절) ──────────────────────
-  //
-  // 🔴 요약은 값이 있는 것만 적는다. 도보·비용은 서버에 없을 때가 있고, 그때 「미확인」이라고
-  // 적힌 칸은 정보가 아니라 잡음이다.
   return <View style={styles.shell}><Screen scroll wide withTabBar style={styles.canvas}>
     <View style={styles.hero}>
       <View style={styles.heroTop}>
         <Pressable accessibilityRole="button" accessibilityLabel={tx('뒤로 가기', 'Go back')} onPress={() => router.canGoBack() ? router.back() : router.replace('/home')} style={styles.heroBack}><Text variant="title" color={color.text.onAction}>‹</Text></Pressable>
-        {/* 🔴 「초안 v1 · 기본 추천」 배지를 뺐다 (S15P21E201-1106). 우리가 아는 것을 그대로
+        {/* 「초안 v1 기본 추천」 배지를 뺐다 우리가 아는 것을 그대로
             내보인 말이지 사용자가 알아야 할 것이 아니었다 — 「초안」은 이미 저장된 여행에
-            대고 아직 안 끝났다고 말하고, 「v1」은 편집할 때마다 올라가 불안만 주고,
+            대고 아직 안 끝났다고 말하고, 「v1」은 편집할 때마다 올라가 불안만 주고
             「기본 추천」(fallbackMode=BASELINE)은 좋은 건지 나쁜 건지 알 수 없다.
-            🔴 값을 버린 것이 아니다. version 은 되돌리기가 그대로 쓰고 fallbackMode 도
-            응답에 남아 있다. 헤더에 안 그릴 뿐이다. */}
+            값을 버린 것이 아니다. version 은 되돌리기가 그대로 쓰고 fallbackMode 도
+            응답에 남아 있다. 헤더에 안 그릴 뿐이다.
+        */}
         {/* ⋯ — 시안 3.1. 늘 놓을 자리가 없는 것(통계·전체 일정·다시 계산·되돌리기)을 여기 담는다.
-            화면에 다 늘어놓으면 정작 하루의 동선이 아래로 밀려 한 칸도 안 보인다. */}
+            화면에 다 늘어놓으면 정작 하루의 동선이 아래로 밀려 한 칸도 안 보인다.
+        */}
         {itinerary ? <Pressable accessibilityRole="button" accessibilityLabel={tx('더 보기', 'More')} accessibilityState={{ expanded: menuOpen }} onPress={() => setMenuOpen((open) => !open)} style={styles.heroBack}><Text variant="title" color={color.text.onAction}>⋯</Text></Pressable> : <View style={styles.heroBackSpacer} />}
       </View>
       <Text variant="display" weight="bold" color={color.text.onAction} style={styles.heroTitle}>{itinerary?.title ?? tx('여행 일정', 'Itinerary')}</Text>
       {heroSummary ? <Text color={color.text.onDarkMuted}>{heroSummary}</Text> : null}
-      {/* S15P21E201-1113 — 지도로 가는 문. 이 화면에는 지도로 가는 길이 **아예 없었다**.
+      {/* — 지도로 가는 문. 이 화면에는 지도로 가는 길이 아예 없었다.
           그래서 카카오 지도·경로선·3D 부산·그늘/휠체어 실측이 다 들어 있는 화면에 아무도
           못 들어갔다(주소를 직접 쳐야만 보였다). 「추천 다시 보기」는 서버가 여행 번호를
-          실어 주는 판에서만 그린다 — 위 tripId 주석 참고. */}
+          실어 주는 판에서만 그린다 — 위 tripId 주석 참고.
+      */}
       {itinerary ? <View style={styles.heroActions}>
         <Pressable accessibilityRole="button" onPress={() => router.push({ pathname: '/[id]/map', params: { id } })} style={styles.heroAction}>
           <Text variant="caption" weight="bold" color={color.text.onAction}>{tx('지도 보기', 'View map')}</Text>
@@ -642,9 +606,10 @@ export default function ItineraryScreen() {
           <Text variant="caption" weight="bold" color={color.text.onAction}>{tx('추천 다시 보기', 'See recommendations')}</Text>
         </Pressable> : null}
       </View> : null}
-      {/* 일차 탭은 헤더에 붙어 있다 (시안 2.3 · 3.1) — 탭이 헤더에서 떨어져 있으면
+      {/* 일차 탭은 헤더에 붙어 있다 (시안 2.3 3.1) — 탭이 헤더에서 떨어져 있으면
           어느 날을 보고 있는지가 제목과 따로 놀아서, 스크롤을 내리면 둘 다 안 보인다.
-          하루짜리 여행에는 고를 것이 없으므로 안 그린다. */}
+          하루짜리 여행에는 고를 것이 없으므로 안 그린다.
+      */}
       {itinerary && viewMode === 'day' && itinerary.days.length > 1 ? <View accessibilityRole="tablist" style={styles.heroTabs}>
         {itinerary.days.map((entry, index) => <Pressable key={`hero-${entry.date}-${index}`} accessibilityRole="tab" accessibilityLabel={tx(`${index + 1}일차`, `Day ${index + 1}`)} accessibilityState={{ selected: selectedDay === index }} onPress={() => selectDay(index)} style={[styles.heroTab, selectedDay === index && styles.heroTabActive]}>
           <Text variant="caption" weight="bold" numberOfLines={1} color={selectedDay === index ? color.brand.navy : color.text.onDarkMuted}>{tx(`${index + 1}일차`, `Day ${index + 1}`)}</Text>
@@ -716,19 +681,22 @@ export default function ItineraryScreen() {
           </View> : null}
           {/* 가로 노선도는 넓은 화면에만 — 폰에서는 아래 세로 노선이 같은 일을 더 잘한다.
               순서를 바꾸는 중에는 숨긴다: 아직 저장 안 된 순서를 확정된 동선처럼 그리면
-              무엇이 진짜인지 헷갈린다. */}
+              무엇이 진짜인지 헷갈린다.
+          */}
           {!reorderMode && wide ? <RouteStrip items={displayedItems} times={slotTimes} tx={tx} /> : null}
           {displayedItems.length ? <View style={wide ? styles.wideGrid : undefined}>
             <View style={wide ? styles.timelineColumn : undefined}>
               <View style={styles.route}>{displayedItems.map((item, index) => <StopRow key={item.id} item={item} index={index} isLast={index === displayedItems.length - 1} displayTime={slotTimes[index] ?? item.startsAt} wide={wide} expanded={expandedItemId === item.id} onToggleExpand={() => setExpandedItemId((current) => current === item.id ? null : item.id)} canEdit={canEdit} lockBusy={busyItemId === item.id} excludeBusy={excludingItemId === item.id} dayBusy={dayActionBusy || excludingItemId !== null} onLock={() => void toggleLock(item)} onExclude={() => setExcludeConfirming(item)} reorderMode={reorderMode} canMoveUp={index > 0 && !item.locked && !displayedItems[index - 1].locked} canMoveDown={index < displayedItems.length - 1 && !item.locked && !displayedItems[index + 1].locked} moveBusy={reorderBusy} onMoveUp={() => moveDraftItem(index, -1)} onMoveDown={() => moveDraftItem(index, 1)} pace={paceByItemId.get(item.id)} estimated={paceEstimated} actualBusy={actualBusyItemId === item.id} onRecordArrival={() => void recordArrival(item)} onRecordDeparture={() => void recordDeparture(item)} accessToken={accessToken} />)}</View>
             </View>
-            {/* 이동 요약 — 시안 p6 의 3칸(장소 · 이동 합계 · 수단). 폰에도 둔다:
-                「이 하루가 얼마나 걷는 하루인가」는 정차를 하나씩 봐서는 안 나오는 값이다. */}
+            {/* 이동 요약 — 시안 p6 의 3칸(장소 이동 합계 수단). 폰에도 둔다
+                「이 하루가 얼마나 걷는 하루인가」는 정차를 하나씩 봐서는 안 나오는 값이다.
+            */}
             <View style={wide ? styles.aside : undefined}>
-              {/* 🔴 시안의 3칸. 세 번째 칸(수단)은 **서버가 안 준다** — 일정 응답에
+              {/* 시안의 3칸. 세 번째 칸(수단)은 서버가 안 준다 — 일정 응답에
                   구간 이동수단 칸이 없다(itinerary.ts 의 ItineraryItemDto). 「도보2·버스1」을
                   지어내지 않고 없다고 적는다. 칸을 지우지 않는 이유는, 자리가 비어 있어야
-                  서버가 그 값을 싣는 날 여기에 들어온다는 것이 보이기 때문이다. */}
+                  서버가 그 값을 싣는 날 여기에 들어온다는 것이 보이기 때문이다.
+              */}
               <View style={styles.summaryRow}>
                 <View style={styles.summaryCell}>
                   <Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx('장소', 'Stops')}</Text>
@@ -754,8 +722,9 @@ export default function ItineraryScreen() {
                 {dayTravelMinutes > 0
                   ? <Text variant="caption" color={color.text.body}>{tx(`이동 합계 ${dayTravelMinutes}분`, `${dayTravelMinutes}m travel in total`)}</Text>
                   : <Text variant="caption" color={color.text.muted}>{tx('이 날짜는 구간 이동 시간이 아직 없어요.', 'No leg travel times for this day yet.')}</Text>}
-                {/* 🔴 대중교통은 업체가 정해지지 않아 부를 API 가 없다(S15P21E201-753).
-                    빈 값을 그리지 않고, 없다는 것을 그대로 적는다. */}
+                {/* 대중교통은 업체가 정해지지 않아 부를 API 가 없다.
+                    빈 값을 그리지 않고, 없다는 것을 그대로 적는다.
+                */}
                 <Text variant="caption" color={color.text.muted}>{tx('대중교통 안내 — 아직 없어요', 'Transit directions — not available yet')}</Text>
               </View>
             </View>
@@ -765,9 +734,10 @@ export default function ItineraryScreen() {
     </> : null}
   </Screen>
   {/* 하단 고정 줄 — 시안 3.5.
-      🔴 시안의 「저장」(초안을 내 여행으로 확정)은 안 만들었다. 부를 API 가 없다 —
+      시안의 「저장」(초안을 내 여행으로 확정)은 안 만들었다. 부를 API 가 없다
       src/plan/itinerary.ts 에 확정 함수가 없고, 이 화면은 이미 「내 여행」에서 열리는
-      저장된 일정이다. 누르면 아무 일도 안 나는 버튼은 없는 버튼보다 나쁘다. */}
+      저장된 일정이다. 누르면 아무 일도 안 나는 버튼은 없는 버튼보다 나쁘다.
+  */}
   {!wide && itinerary && canReorder && !reorderMode ? <View style={styles.bottomBar}>
     <Button label={tx('순서 수정', 'Reorder')} variant="ghost" onPress={startReorder} />
   </View> : null}
@@ -796,7 +766,7 @@ const styles = StyleSheet.create({ shell: { flex: 1, backgroundColor: color.bran
   heroGhost: { minHeight: 36, paddingHorizontal: spacing[3], borderRadius: radius.full, borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.4)', alignItems: 'center', justifyContent: 'center' },
   heroTitle: { marginTop: spacing[2] },
   // 탭은 헤더 바닥에 붙는다 — 위쪽만 둥글고 아래는 각져서 헤더와 한 덩이로 보인다.
-  // 지도·추천으로 가는 문 (S15P21E201-1113). 일차 탭과 같은 반투명 흰색이라 헤더와 한 덩이로
+  // 지도·추천으로 가는 문 일차 탭과 같은 반투명 흰색이라 헤더와 한 덩이로
   // 보이고, 탭보다 위에 놓아 「어느 날을 보나」와 「어디로 가나」가 안 섞인다.
   heroActions: { flexDirection: 'row', gap: spacing[2], marginTop: spacing[3], flexWrap: 'wrap' },
   heroAction: { minHeight: 44, paddingHorizontal: spacing[3], justifyContent: 'center', borderRadius: radius.md, backgroundColor: 'rgba(255, 255, 255, 0.16)' },
@@ -832,7 +802,7 @@ const styles = StyleSheet.create({ shell: { flex: 1, backgroundColor: color.bran
   reorderBar: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: spacing[2], marginTop: spacing[3], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.soft },
   // 하단 고정 줄 — 탭바 위에 형제로 놓는다. absolute 로 띄우면 목록 끝이 그만큼 가린다.
   bottomBar: { paddingHorizontal: gutter, paddingBottom: spacing[2] },
-  // 정차별 도보 비중 (시안 2.5 · 3.4)
+  // 정차별 도보 비중 (시안 2.5 3.4)
   shareBar: { flexDirection: 'row', gap: 2, height: 6, borderRadius: radius.full, overflow: 'hidden' },
   shareSlice: { backgroundColor: color.brand.orange, borderRadius: radius.full },
 

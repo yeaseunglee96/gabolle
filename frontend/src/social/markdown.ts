@@ -1,16 +1,4 @@
-// 피드 글의 마크다운 — S15P21E201-1136.
-//
-// 🔴 해석만 여기서 하고 그리는 것은 화면(@/components/MarkdownBody)이 한다.
-// 남이 만든 렌더러를 통째로 들이지 않은 이유가 둘이다.
-//
-// 1. **사용자 글이다.** html:false 로 두면 글에 HTML 을 심을 수 없고, 무엇이 그려질지는
-//    우리가 만든 부품만 정한다. 남의 렌더러가 무엇을 통과시키는지 추적하지 않아도 된다
-// 2. 글자 크기·색·간격을 이 앱의 디자인 토큰에 맞출 수 있다
-//
-// 꾸러미를 고르며 셋을 실제로 설치해 이 저장소의 시험 실행기로 돌려 봤다.
-// react-native-markdown-display 는 변환 안 된 JSX 를 배포해서 못 읽고, marked 는 ESM
-// 전용이라 같은 벽에 막힌다. 둘 다 jest.config.js 의 transformIgnorePatterns 를 덮어써야
-// 하는데, 그 파일에 팀이 **일부러 안 건드리기로 한 이유**가 적혀 있다(S15P21E201-774).
+// 피드 글의 마크다운 —.
 import MarkdownIt from 'markdown-it';
 
 /** markdown-it 이 내는 토큰 중 우리가 읽는 칸만. 깊은 경로 import 를 피한다. */
@@ -39,7 +27,7 @@ export type MdBlock =
   | { type: 'code'; text: string }
   | { type: 'rule' };
 
-// 🔴 html:false 가 이 파일의 안전장치다. 글에 <script> 를 써도 글자 그대로 남는다.
+// html:false 가 이 파일의 안전장치다. 글에 <script> 를 써도 글자 그대로 남는다.
 // linkify 도 끈다 — 글 안의 주소를 자동으로 링크로 바꾸면, 사용자가 의도하지 않은
 // 것을 누를 수 있는 것으로 만든다. 링크는 사용자가 [글자](주소) 로 적었을 때만 생긴다.
 const md = new MarkdownIt({ html: false, linkify: false, breaks: true });
@@ -85,13 +73,7 @@ function inlineFrom(children: MdToken[]): MdInline[] {
   return out;
 }
 
-/**
- * 마크다운을 화면이 그릴 수 있는 덩어리로 바꾼다.
- *
- * 🔴 **모르는 것은 버리지 않고 글자로 남긴다**가 원칙이지만, 표처럼 우리가 안 그리는
- * 구조는 조용히 건너뛴다. 대신 {@link markdownToPlain} 이 글자는 살려 두므로 목록
- * 카드에서는 내용이 사라지지 않는다.
- */
+/** 마크다운을 화면이 그릴 수 있는 덩어리로 바꾼다. */
 export function parseMarkdown(source: string): MdBlock[] {
   const tokens = md.parse(source ?? '', {}) as unknown as MdToken[];
   let index = 0;
@@ -160,12 +142,7 @@ export function parseMarkdown(source: string): MdBlock[] {
   return blocksUntil(null);
 }
 
-/**
- * 효과를 벗기고 글자만 남긴다 — **목록 카드용**.
- *
- * 🔴 목록에서 제목을 크게 그리면 카드 높이가 글마다 들쭉날쭉해진다. 목록은 「무슨
- * 글인지」만 알면 되므로 평문 한 덩어리로 자르고, 온전한 모양은 상세에서만 보여준다.
- */
+/** 효과를 벗기고 글자만 남긴다 — 목록 카드용. */
 export function markdownToPlain(source: string): string {
   const tokens = md.parse(source ?? '', {}) as unknown as MdToken[];
   const pieces: string[] = [];

@@ -1,9 +1,4 @@
 // 18 방문 인증·만족도 — Figma 18_방문 인증·만족도 실측 그대로.
-//
-// 🔴 명세와 정면으로 충돌하는 화면이다. 명세 FR-COM-03 은 "방문 완료 버튼은 MVP 제외" 라고
-// 못박는데, Jira 는 GPS 200m 반경 방문 인증을 완료 기준까지 갖춰 진행 중이다(이 화면 자체가
-// 그 결과물이다). 어느 쪽을 따를지는 사람이 정할 일이라 판단하지 않고 Figma 대로 만든다.
-// 실제 GPS 판정 로직은 없다 — "위치 기반 방문 인증 완료" 배지는 고정 목업이다.
 import { useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -52,12 +47,6 @@ export default function CheckIn() {
   const [note, setNote] = useState('');
 
   // 후기를 저장하면 방문 이벤트를 보낸다 — 동의가 꺼져 있으면 sendAppEvent 가 아무것도 안 보낸다.
-  //
-  // 🔴 화면은 서버를 기다리지 않는다. 후기 저장은 사용자에게 이미 끝난 일이고, 이벤트가
-  //    못 갔다고 뒤로가기가 늦어지면 그건 사용자가 손해를 보는 것이다.
-  // 🔴 한마디(자유 입력)는 담지 않는다. 담긴 것은 "썼는가" 뿐이다 — 자유 입력 원문은
-  //    이벤트 표에 남기지 않기로 한 규칙이 있고, 서버 SensitivePayloadGuard 도 그것을 막는다.
-  // 🔴 어느 장소인지는 아직 못 담는다. 이 화면의 장소는 고정 목업이라 place_id 가 없다.
   function saveReview() {
     sendAppEvent({
       type: 'place_visit',
@@ -94,8 +83,9 @@ export default function CheckIn() {
         {tx('여행은 어떠셨나요?', 'How was your trip?')}
       </Text>
 
-      {/* S15P21E201-1009 — 장소·체류 시간·「위치 기반 방문 인증 완료」는 고정 목업이다.
-          GPS 판정 로직이 아직 없다(파일 머리말 참고). 인증됐다고 읽히면 안 된다. */}
+      {/* — 장소·체류 시간·「위치 기반 방문 인증 완료」는 고정 목업이다.
+          GPS 판정 로직이 아직 없다(파일 머리말 참고). 인증됐다고 읽히면 안 된다.
+      */}
       <SampleNotice
         badge={tx('샘플', 'Sample')}
         description={tx('아래 장소와 「방문 인증 완료」 표시는 예시예요. 위치 확인은 아직 실제로 돌지 않아요.', 'The place and the "visit verified" mark below are placeholders — location checking is not live yet.')}
@@ -192,7 +182,8 @@ export default function CheckIn() {
 
       {/* 켜는 자리를 여기 둔 이유 — 방문 직후가 "무엇을 켜는지" 를 사용자가 이해하는 유일한
           순간이다. 온보딩에서 물으면 무엇을 켜는지 모르고 켜고, 그 동의는 동의가 아니다.
-          기본은 꺼짐이고, 마이페이지에서 언제든 다시 끌 수 있다. */}
+          기본은 꺼짐이고, 마이페이지에서 언제든 다시 끌 수 있다.
+      */}
       <View style={styles.consentCard}>
         <View style={styles.consentCopy}>
           <Text variant="body" weight="bold">

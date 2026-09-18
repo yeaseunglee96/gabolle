@@ -1,13 +1,4 @@
-// 기록의 좋아요·싫어요 줄 — S15P21E201-1247.
-//
-// 왜 부품으로 뺐나. 이 UI 는 목록(`app/(tabs)/feed.tsx`)에만 인라인으로 있었고 상세
-// (`app/feed/[id].tsx`)에는 아예 없었다. 백엔드는 S15P21E201-1174 로 likeCount ·
-// dislikeCount · myReaction 을 목록·상세 응답 둘 다에 실어 줬는데 프런트가 한쪽만
-// 연결한 상태였다. 상세에 같은 UI 를 한 벌 더 적으면 색·라벨·접근성 상태가 갈라지고,
-// 나중에 한쪽만 고쳐지는 날이 온다.
-//
-// myReaction 은 세 값이다 — null(안 누름) · 'LIKE' · 'DISLIKE'. !myReaction 으로
-// 묶으면 「싫어요를 누른 것」과 「아무것도 안 누른 것」이 같아진다.
+// 기록의 좋아요·싫어요 줄 —.
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { Text } from '@/components/Text';
@@ -20,11 +11,7 @@ export type Reaction = 'LIKE' | 'DISLIKE';
 /** 반응 판정과 그리기에 필요한 최소 칸 — 목록 항목도 상세 응답도 이 모양을 만족한다. */
 export type ReactableStory = Pick<StoryDto, 'myReaction' | 'likeCount' | 'dislikeCount'>;
 
-/**
- * 누른 결과가 무엇인가 — 같은 것을 다시 누르면 끄고(null), 다른 것을 누르면 바꾼다.
- *
- * 서버 쪽은 이 값이 null 이면 DELETE, 아니면 PUT 이다(`setStoryReaction`).
- */
+/** 누른 결과가 무엇인가 — 같은 것을 다시 누르면 끄고(null), 다른 것을 누르면 바꾼다. */
 export function nextReaction(was: Reaction | null | undefined, pressed: Reaction): Reaction | null {
   return (was ?? null) === pressed ? null : pressed;
 }
@@ -32,8 +19,6 @@ export function nextReaction(was: Reaction | null | undefined, pressed: Reaction
 /**
  * 서버가 세는 수를 낙관적으로 미리 맞춘다 — 누를 때마다 목록이나 상세를 다시 불러오면
  * 스크롤 위치가 튀고 응답을 기다리는 동안 버튼이 죽은 것처럼 보인다.
- *
- * 이전 값에서 빼고 새 값에 더하는 순서라, 껐다 켜는 것을 반복해도 수가 어긋나지 않는다.
  */
 export function applyReaction<T extends ReactableStory>(story: T, next: Reaction | null): T {
   const was = story.myReaction ?? null;

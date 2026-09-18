@@ -2,8 +2,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { isDemoPlaceId, loadSavedPlaceIds, SAVED_PLACES_KEY, setSavedPlace } from '../savedPlaces';
 
-// S15P21E201-1013 — 하트가 기기에만 있어서 기기를 바꾸면 사라졌다. 서버가 생겨 잇는다.
-// 🔴 기기에 쌓인 것을 버리지 않는다. 버리면 사용자는 하트가 지워진 줄 안다 — 아무도 지운
+// — 하트가 기기에만 있어서 기기를 바꾸면 사라졌다. 서버가 생겨 잇는다.
+// 기기에 쌓인 것을 버리지 않는다. 버리면 사용자는 하트가 지워진 줄 안다 — 아무도 지운
 // 적 없는데도. 그래서 합집합이고, 기기에만 있던 것은 한 번 올린다.
 const REAL_A = '11111111-1111-1111-1111-111111111111';
 const REAL_B = '22222222-2222-2222-2222-222222222222';
@@ -12,7 +12,7 @@ type Call = { url: string; method: string };
 let calls: Call[] = [];
 
 // writeStatus 는 PUT·DELETE 양쪽에 그 상태를 주고 본문을 HTML 로 보낸다 — nginx 가 배포 중에
-// 주는 502 의 모양이다(S15P21E201-1081). putStatus 는 서버가 JSON 으로 거절하는 경우다.
+// 주는 502 의 모양이다. putStatus 는 서버가 JSON 으로 거절하는 경우다.
 function mockServer(serverIds: string[], options: { putStatus?: number; writeStatus?: number } = {}) {
   calls = [];
   globalThis.fetch = jest.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -96,7 +96,7 @@ describe('하트를 켜고 끄기', () => {
   });
 });
 
-// S15P21E201-1081 — 배포 중 nginx 가 502 를 주는 동안, 화면은 서버에 안 간 저장을
+// — 배포 중 nginx 가 502 를 주는 동안, 화면은 서버에 안 간 저장을
 // "저장했어요" 라고 알렸다. 기기 선택을 지키는 것과 사실대로 말하는 것은 다른 문제다.
 describe('서버까지 갔는지를 부르는 쪽에 알려준다', () => {
   it('🔴 서버가 502 면 sync 가 failed 다 — 화면이 성공이라고 말하면 안 된다', async () => {

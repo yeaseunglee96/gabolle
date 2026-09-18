@@ -1,8 +1,5 @@
-// 마이페이지 카드 안의 한 줄 (S15P21E201-965). `(tabs)/me.tsx` 안에만 있던 것을 탭 화면들이
+// 마이페이지 카드 안의 한 줄 `(tabs)/me.tsx` 안에만 있던 것을 탭 화면들이
 // 함께 쓰도록 뺐다.
-//
-// 경계선은 **위쪽에 긋고 첫 줄만 뺀다.** 아래쪽에 그으면 카드 마지막 줄 밑에 선이 하나 남아
-// 카드 테두리와 겹쳐 두 겹으로 보인다.
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { Text } from '@/components/Text';

@@ -1,5 +1,5 @@
-// 장소별 한국어 말하기 콘텐츠 (S15P21E201-389). 문장을 늘릴 때 이 배열만 고치면 되고,
-// 모달 화면 코드는 손대지 않는다 — S15P21E201-104의 사투리 콘텐츠 분리와 같은 패턴이다.
+// 장소별 한국어 말하기 콘텐츠 문장을 늘릴 때 이 배열만 고치면 되고
+// 모달 화면 코드는 손대지 않는다 —의 사투리 콘텐츠 분리와 같은 패턴이다.
 export type PlaceTabKey = 'SIGHT' | 'FOOD' | 'TAXI' | 'STAY';
 
 export type PlacePhrase = {
@@ -43,7 +43,7 @@ export const PLACE_PHRASES: Record<PlaceTabKey, PlacePhrase[]> = {
   ],
 };
 
-// 🔴 장소 종류(category) 값의 정확한 목록을 아직 못 받았다(-476 계약에 문자열이라고만
+// 장소 종류(category) 값의 정확한 목록을 아직 못 받았다(-476 계약에 문자열이라고만
 // 돼 있음). 그래서 정확히 아는 척하지 않고, 흔한 키워드가 들어 있으면 그 탭을 기본으로
 // 고르고 모르면 관광지로 떨어지는 느슨한 매칭만 한다.
 export function defaultTabForCategory(category?: string | null): PlaceTabKey {

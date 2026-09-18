@@ -3,11 +3,9 @@ import { render } from '@testing-library/react-native';
 import { OnboardingPreferencesProvider } from '@/onboarding/OnboardingPreferences';
 import { PlaceVisual } from '../PlaceVisual';
 
-// S15P21E201-1125 — 출처 표기는 관광공사 공공누리 제1유형의 **이용 조건**이다.
-// 주석이나 사람 기억이 아니라 여기서 지킨다 — 사진을 그리는 코드는 앞으로도 바뀔 텐데,
+// — 출처 표기는 관광공사 공공누리 제1유형의 이용 조건이다.
+// 주석이나 사람 기억이 아니라 여기서 지킨다 — 사진을 그리는 코드는 앞으로도 바뀔 텐데
 // 그때 표기가 조용히 빠지면 아무도 모른 채 라이선스를 어기게 된다.
-//
-// 화면 말글(tx)이 제공자 안에서만 동작해서 감싼다 — 다른 화면 시험과 같은 방식이다.
 const mount = (element: React.ReactElement) =>
   render(<OnboardingPreferencesProvider>{element}</OnboardingPreferencesProvider>);
 

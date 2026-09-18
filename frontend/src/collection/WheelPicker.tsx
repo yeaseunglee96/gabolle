@@ -1,11 +1,4 @@
-// 돌려서 고르는 휠 (S15P21E201-1071). 시안 `design_handoff_collection` 의 B안.
-//
-// 🔴 **새 의존성을 쓰지 않았다.** 시안은 `@react-native-picker/picker` 를 권했지만, 팀 규칙상
-// 의존성은 사람에게 물어야 하고 시안 자신도 「웹은 스크롤 스냅으로」라고 적어 뒀다.
-// `ScrollView` 의 `snapToInterval` 로 같은 동작이 나온다 — 스와이프하면 한 줄씩 딱 맞게 선다.
-//
-// 🔴 **RN 과 웹에서 같이 돈다.** react-native-web 이 `snapToInterval` 을 CSS 스크롤 스냅으로
-// 옮겨 준다. 웹에서만 다른 부품을 쓰면 두 벌이 되고, 두 벌은 한쪽만 고쳐도 안 빨개진다.
+// 돌려서 고르는 휠 시안 `design_handoff_collection` 의 B안.
 
 import { useEffect, useRef } from 'react';
 import { ScrollView, StyleSheet, View, type NativeScrollEvent, type NativeSyntheticEvent } from 'react-native';
@@ -32,12 +25,7 @@ export type WheelPickerProps = {
   accessibilityLabel?: string;
 };
 
-/**
- * 고른 줄에서 몇 번째인지 계산한다.
- *
- * 🔴 목록 밖으로 나가지 않게 잘라 준다. 스크롤은 관성으로 끝을 넘어갈 수 있는데, 그때
- * `options[index]` 가 `undefined` 가 되면 화면이 죽는다.
- */
+/** 고른 줄에서 몇 번째인지 계산한다. */
 export function indexFromOffset(offsetY: number, count: number) {
   const raw = Math.round(offsetY / ROW_HEIGHT);
   return Math.min(Math.max(raw, 0), Math.max(count - 1, 0));
@@ -68,17 +56,12 @@ export function WheelPicker({ label, options, value, onChange, accessibilityLabe
           ref={ref}
           accessibilityLabel={accessibilityLabel ?? label}
           showsVerticalScrollIndicator={false}
-          // 🔴 안드로이드 실기기에서 휠이 **손가락에 아무 반응을 안 했다** (사용자 리포트
-          // 2026-09-17). 이 휠은 `<Screen scroll>` 안에 들어가는데, 그것도 세로 스크롤이다.
-          // 안드로이드는 세로 스크롤 안의 세로 스크롤에 이 값을 켜 주지 않으면 **바깥쪽이
-          // 손짓을 전부 가져가고 안쪽은 못 움직인다.** iOS 와 웹은 기본으로 되므로
-          // 두 곳에서만 확인하면 멀쩡해 보인다 — 이 파일 주석이 웹 이야기뿐인 이유다.
           nestedScrollEnabled
           snapToInterval={ROW_HEIGHT}
           decelerationRate="fast"
           contentContainerStyle={styles.content}
           onMomentumScrollEnd={onSettled}
-          // 🔴 웹에서는 관성 끝 신호가 안 오는 브라우저가 있어 둘 다 듣는다.
+          // 웹에서는 관성 끝 신호가 안 오는 브라우저가 있어 둘 다 듣는다.
           onScrollEndDrag={onSettled}
         >
           {options.map((option, index) => {

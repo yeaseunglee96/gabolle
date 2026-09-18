@@ -27,14 +27,14 @@ type Props = {
   name: string;
   address?: string | null;
   style?: StyleProp<ViewStyle>;
-  // S15P21E201-1125 — 서버가 실제로 찍은 사진. 목록 응답에 사진 칸이 아예 없어서
-  // 여태 이 부품은 장소 **이름**으로 번들 사진 셋(해운대·감천·광안)만 골랐고,
+  // — 서버가 실제로 찍은 사진. 목록 응답에 사진 칸이 아예 없어서
+  // 여태 이 부품은 장소 이름으로 번들 사진 셋(해운대·감천·광안)만 골랐고
   // 나머지는 전부 회색 판이었다. 이제 서버 사진이 오면 그것을 먼저 쓴다.
   photoUrl?: string | null;
-  // 🔴 photoUrl 과 짝이다. 관광공사 공공누리 제1유형이라 **출처 표기가 이용 조건**이다.
+  // photoUrl 과 짝이다. 관광공사 공공누리 제1유형이라 출처 표기가 이용 조건이다.
   // 사진만 그리고 이 문구를 빼면 라이선스 위반이다. 문구는 서버가 주므로 지어내지 않는다.
   photoSource?: string | null;
-  // 🔴 S15P21E201-1206 — 이 사진이 **무엇을 찍은 것인가**. 이 칸이 여기 없어서 여태
+  // — 이 사진이 무엇을 찍은 것인가. 이 칸이 여기 없어서 여태
   // 「행사장 사진」을 축제 화면에서만 말하고 장소 화면에서는 아무 말도 안 했다.
   // 값이 없으면 아무것도 안 그린다 — 서버가 안 줘도 지금과 같다.
   photoSubject?: PhotoSubject | null;
@@ -45,13 +45,8 @@ export function PlaceVisual({ name, address, style, photoUrl, photoSource, photo
   const visualKey = resolvePlaceVisual(name, address);
   const credit = photoUrl ? photoLabels({ photoSource }, tx).credit : null;
 
-  // 서버 사진이 있으면 그것이 먼저다 — 번들 사진은 이름이 우연히 맞은 것이고,
+  // 서버 사진이 있으면 그것이 먼저다 — 번들 사진은 이름이 우연히 맞은 것이고
   // 서버 사진은 그 장소를 가리켜 붙은 것이다.
-  //
-  // 🔴 credit 이 없으면 서버 사진을 **안 쓴다.** 출처 표기가 공공누리 이용 조건이라,
-  // 「사진은 그리고 문구만 빠지는」 경우가 생길 수 있으면 안 된다. 사람이 기억해서
-  // 지키는 규칙은 언젠가 깨지므로, 표기 없는 사진이 나갈 길 자체를 없앤다.
-  // 출처가 안 왔으면 번들 사진이나 자리표시로 내려간다 — 화면은 비지 않는다.
   if (photoUrl && credit) {
     return (
       <View style={[styles.frame, style]}>

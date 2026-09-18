@@ -23,13 +23,7 @@ function dateLabel(trip: TripSummaryDto, tx: (ko: string, en: string) => string)
   return trip.endDate && trip.endDate !== trip.startDate ? `${trip.startDate} – ${trip.endDate}` : trip.startDate;
 }
 
-/**
- * 카드 제목 — 사용자가 붙인 이름이 있으면 그것, 없으면 지금까지처럼 날짜 (S15P21E201-1023).
- *
- * 🔴 이름이 없을 때 날짜를 그리는 것은 대충 때우는 것이 아니라 계약이다. 서버는 이름이
- * 없을 때 `title` 을 null 로 두고 날짜를 대신 채워 보내지 않는다 — 그래야 "사용자가 붙인
- * 이름" 과 "서버가 만든 이름" 이 한 칸에서 섞이지 않는다. 그 구분을 화면이 마저 지킨다.
- */
+/** 카드 제목 — 사용자가 붙인 이름이 있으면 그것, 없으면 지금까지처럼 날짜 */
 function cardTitle(trip: TripSummaryDto, tx: (ko: string, en: string) => string) {
   return tripDisplayTitle(trip, dateLabel(trip, tx));
 }
@@ -48,11 +42,9 @@ export default function Trips() {
   // 이름을 바꾸거나 붙이려고 연 여행. null 이면 안 열려 있다.
   const [naming, setNaming] = useState<TripSummaryDto | null>(null);
 
-  // 🔴 화면 밖 보관소에서 읽는다 (S15P21E201-957). 탭을 오가며 이 화면이 사라졌다
+  // 화면 밖 보관소에서 읽는다 탭을 오가며 이 화면이 사라졌다
   // 다시 만들어져도, 보관소는 그대로라 서버를 다시 안 부른다. 낡았을 때만(기본 30초)
   // 조용히 다시 불러오면서 이전 값을 계속 보여준다.
-  //
-  // useFocusEffect 로 매번 부르던 것을 뺐다 — 그게 이 티켓이 고치려는 바로 그 동작이다.
   const tripsQuery = useQuery({
     queryKey: TRIPS_KEY(user?.userId),
     queryFn: () => loadTrips(accessToken as string),
@@ -75,12 +67,12 @@ export default function Trips() {
     const outcome = await loadTripItineraries(trip.tripId, accessToken);
     setOpeningTripId(null);
     if (outcome.state !== 'success') { setFeedback(outcome.message); return; }
-    // S15P21E201-919: 일정 생성이 실패하면 여행만 남고 일정은 영원히 안 생긴다(재시도 기능은
+    // : 일정 생성이 실패하면 여행만 남고 일정은 영원히 안 생긴다(재시도 기능은
     // 아직 없다) — "아직 없어요"라고만 하면 곧 생기는 것처럼 들려 계속 눌러보게 만든다.
     // 실제로 할 수 있는 행동(지우고 새로 만들기)을 바로 알려준다.
     if (outcome.itineraries.length === 0) { setFeedback(tx('이 여행은 일정이 만들어지지 않았어요. 아래에서 삭제하고 새로 만들어 주세요.', "This trip's itinerary was never created. Delete it below and start a new one.")); return; }
     if (outcome.itineraries.length === 1) { openItinerary(outcome.itineraries[0].itineraryId); return; }
-    // 🔴 배열 순서가 계약이 아니라 어느 것이 최신인지 서버가 정해 주지 않는다 — 사용자가 고른다.
+    // 배열 순서가 계약이 아니라 어느 것이 최신인지 서버가 정해 주지 않는다 — 사용자가 고른다.
     setPicker({ tripId: trip.tripId, itineraries: outcome.itineraries });
   };
 
@@ -125,14 +117,16 @@ export default function Trips() {
     {accessToken && !loading && result.state === 'success' && trips.length > 0 ? <View style={styles.list}>{trips.map((trip) => <Pressable key={trip.tripId} accessibilityRole="button" accessibilityState={{ busy: openingTripId === trip.tripId }} accessibilityLabel={open === 'prepare' ? tx(`${cardTitle(trip, tx)} 날씨와 준비물 보기`, `View weather and packing for ${cardTitle(trip, tx)}`) : tx(`${cardTitle(trip, tx)} 여행 열기`, `Open trip ${cardTitle(trip, tx)}`)} disabled={openingTripId === trip.tripId || removingTripId === trip.tripId} onPress={() => void openTrip(trip)} style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}>
       <View style={styles.cardTop}><View style={styles.cardCopy}><Text variant="title" weight="bold">{cardTitle(trip, tx)}</Text>{trip.title?.trim() ? <Text variant="caption" color={color.text.muted}>{dateLabel(trip, tx)}</Text> : null}{trip.role !== 'OWNER' ? <Text variant="caption" color={color.text.muted}>{tx('초대받은 여행', 'Invited trip')}</Text> : null}</View>{openingTripId === trip.tripId ? <ActivityIndicator color={color.brand.orange} /> : <Text variant="title" color={color.brand.orange}>›</Text>}</View>
       <View style={styles.meta}>
-        {/* S15P21E201-919: 서버가 이미 주는 status를 화면이 안 읽어서, 일정 생성이 실패해도
-            정상 여행과 카드가 똑같이 보였다 — PLANNING(아직 일정 없음)만 눈에 띄게 표시한다. */}
+        {/* : 서버가 이미 주는 status를 화면이 안 읽어서, 일정 생성이 실패해도
+            정상 여행과 카드가 똑같이 보였다 — PLANNING(아직 일정 없음)만 눈에 띄게 표시한다.
+        */}
         {trip.status === 'PLANNING' ? <View style={styles.statusPillPending}><Text variant="caption" weight="bold" color={color.state.danger}>{tx('일정 준비 중', 'Itinerary pending')}</Text></View> : null}
         <View style={styles.metaPill}><Text variant="caption" weight="bold">{tx(`${trip.dayCount}일`, `${trip.dayCount} days`)}</Text></View><View style={styles.metaPill}><Text variant="caption" weight="bold">{tx(`${trip.partySize}명`, `${trip.partySize} travelers`)}</Text></View>
       </View>
       <View style={styles.cardActions}>
-      {/* 🔴 VIEWER 만 이름을 못 바꾼다. 서버가 그렇게 정했다(TripTitleService) — OWNER 뿐
-          아니라 EDITOR 도 바꿀 수 있다. 여기서 더 좁히면 있는 권한을 화면이 숨기게 된다. */}
+      {/* VIEWER 만 이름을 못 바꾼다. 서버가 그렇게 정했다(TripTitleService) — OWNER 뿐
+          아니라 EDITOR 도 바꿀 수 있다. 여기서 더 좁히면 있는 권한을 화면이 숨기게 된다.
+      */}
       {trip.role !== 'VIEWER' ? <Pressable
         accessibilityRole="button"
         accessibilityLabel={trip.title?.trim() ? tx('여행 이름 바꾸기', 'Rename trip') : tx('여행 이름 붙이기', 'Name trip')}
@@ -164,7 +158,7 @@ export default function Trips() {
     onSaved={(title) => {
       const tripId = naming.tripId;
       setNaming(null);
-      // 🔴 서버를 다시 부르지 않고 보관소의 그 한 줄만 바꾼다. 다시 부르면 카드가 잠깐
+      // 서버를 다시 부르지 않고 보관소의 그 한 줄만 바꾼다. 다시 부르면 카드가 잠깐
       // 옛 이름으로 있다가 바뀌는데, 방금 바꾼 사람에게는 그게 "안 바뀌었다" 로 보인다.
       queryClient.setQueryData<TripsLoadResult>(TRIPS_KEY(user?.userId), (current) =>
         current && current.state === 'success'

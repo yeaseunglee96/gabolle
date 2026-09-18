@@ -17,11 +17,6 @@ import { usePlan } from '@/plan/PlanProvider';
 import { useI18n } from '@/i18n';
 
 type Message = { id: number; role: 'user' | 'assistant'; text: string; action?: AssistantAction; applied?: boolean };
-// 사용자 실사용 리포트(2026-09-16): 영어 모드에서도 이 예시가 한국어로만 떴다 — 예전엔
-// "한국어 매처(src/assistant/intent.ts)가 영어를 못 알아들으니 영어 모드에서도 한국어로
-// 보여준다"는 절충이었는데, 그러면 영어만 읽는 사용자에게는 예시 자체가 안 읽힌다.
-// 화면에 보이는 라벨(ko/en)과 실제로 보내는 문장(ko, 매처가 아는 말)을 나눠서 둘 다
-// 해결한다 — 버튼은 tx(ko,en)로 보이고, 눌렀을 때는 항상 ko를 보낸다.
 const SUGGESTIONS = [
   { ko: '해운대와 광안리 2명 맛집 일정 짜줘', en: 'Plan a food-focused trip for 2 in Haeundae and Gwangalli' },
   { ko: '사진 부탁할 때 한국어 문장 알려줘', en: 'Show me the Korean phrase for asking someone to take a photo' },
@@ -29,13 +24,13 @@ const SUGGESTIONS = [
 ] as const;
 // 은행 앱 챗봇처럼 "대화 없이 바로 실행" 목록을 넓혔다 — 사용자가 직접 요청한 방향
 // (자유 대화보다 우리 기능으로 바로 연결)이라 실제로 동작하는 화면만 올린다.
-// S15P21E201-909: "지금 갈 곳"·"부산 축제"는 -900으로 진입점을 뺀 화면이라 여기서도 뺐다 —
+// : "지금 갈 곳"·"부산 축제"는 -900으로 진입점을 뺀 화면이라 여기서도 뺐다
 // 홈에서는 숨겨 놓고 챗봇으로는 계속 안내하면 이 목록의 원칙이 깨진다.
 const QUICK_TOOLS = [
   { labelKo: '일정 만들기', labelEn: 'Plan a trip', hintKo: '대화 조건 적용', hintEn: 'Applies chat conditions', href: '/plan' },
   { labelKo: '현장 도구', labelEn: 'On-the-go tools', hintKo: '현장 말하기·날씨 준비물', hintEn: 'On-the-go phrases · weather prep', href: '/field/translate' },
   { labelKo: '내 여행 보기', labelEn: 'View my trips', hintKo: '저장한 일정 열기', hintEn: 'Open your saved itineraries', href: '/trips' },
-  // S15P21E201-914: 갈래 개수는 GET /api/v1/places/facets 가 정한다(explore.tsx) — 여기서
+  // : 갈래 개수는 GET /api/v1/places/facets 가 정한다(explore.tsx) — 여기서
   // 숫자를 박으면 백엔드가 갈래를 늘리거나 줄일 때마다 다시 어긋난다. 숫자를 빼고 말한다.
   { labelKo: '로컬 탐색', labelEn: 'Explore locally', hintKo: '축제·전통시장 등 다양한 카테고리', hintEn: 'Various local categories', href: '/explore' },
 ] as const;
@@ -48,13 +43,13 @@ export default function Chat() {
   const desktop = isAtLeast(width, 'md');
   const [input, setInput] = useState('');
   // 인사말은 언어 환경설정이 뒤늦게 준비돼도 반영돼야 해서 state 초깃값(마운트 시 한 번만 평가됨)에
-  // 넣지 않고, 렌더마다 tx() 로 새로 계산해 목록 앞에 붙인다.
+  // 넣지 않고, 렌더마다 tx 로 새로 계산해 목록 앞에 붙인다.
   const [messages, setMessages] = useState<Message[]>([]);
-  // 🔴 서버 응답을 기다리는 동안 true — 입력을 막고 "답변 준비 중" 표시를 보여준다. 이게
+  // 서버 응답을 기다리는 동안 true — 입력을 막고 "답변 준비 중" 표시를 보여준다. 이게
   // 없으면 비동기 호출 중에 사용자가 여러 번 눌러 메시지를 겹쳐 보낼 수 있었다.
   const [pending, setPending] = useState(false);
-  // 🔴 id 발급을 ref 카운터로 둔다 — 서버 호출이 비동기라 연속으로 빠르게 보내면 messages
-  // state 가 아직 안 바뀐 사이에 다음 send() 가 같은 id를 다시 계산할 수 있다(state 파생값은
+  // id 발급을 ref 카운터로 둔다 — 서버 호출이 비동기라 연속으로 빠르게 보내면 messages
+  // state 가 아직 안 바뀐 사이에 다음 send 가 같은 id를 다시 계산할 수 있다(state 파생값은
   // 렌더 지연을 겪는다). 카운터는 그 지연과 무관하게 그 자리에서 바로 늘어난다.
   const nextIdRef = useRef(1);
   // 서버가 저장하지 않는 대화라(무상태) 매 요청마다 화면이 최근 몇 턴을 함께 보낸다 — 서버
@@ -63,7 +58,7 @@ export default function Chat() {
   function recentHistory(): AssistantTurn[] {
     return messages.slice(-MAX_HISTORY_TURNS).map((message) => ({ role: message.role, text: message.text }));
   }
-  // 🔴 로그인 전에는 서버(AUTHENTICATED_ONLY)를 아예 부르지 않고 로컬 규칙으로 바로 넘어간다 —
+  // 로그인 전에는 서버(AUTHENTICATED_ONLY)를 아예 부르지 않고 로컬 규칙으로 바로 넘어간다
   // 401 처리(토큰 갱신 시도 등)를 겪을 이유가 없다. 로그인 후에도 서버 호출이 실패하면
   // (네트워크 문제 등) 같은 로컬 규칙으로 자연스럽게 넘어간다 — 사용자는 항상 답을 받는다.
   async function send(value = input) {

@@ -1,7 +1,4 @@
-// 꼭 가고 싶은 장소가 여행 생성 요청에 실리는가 — S15P21E201-975.
-//
-// 이 칸이 없던 동안 고른 장소는 기기 안에만 남았다. 화면은 "일정에 반드시 포함돼요" 라고
-// 적어 두고 있었는데 서버는 그 목록을 받은 적이 없었다.
+// 꼭 가고 싶은 장소가 여행 생성 요청에 실리는가 —.
 import { toCreateTripPayload } from '@/api/tripApi';
 import { EMPTY_PLAN, type MustVisitPlace } from '@/plan/PlanProvider';
 

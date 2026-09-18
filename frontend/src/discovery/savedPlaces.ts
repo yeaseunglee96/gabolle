@@ -1,17 +1,5 @@
 // 저장한 장소 — 홈 캐러셀의 하트, 장소 상세의 "내 여행 후보에 저장", (tabs)/saved.tsx
 // 셋이 같은 키를 공유한다.
-//
-// 🔴 2026-09-16 정정 (S15P21E201-1013). 여기 있던 "서버 저장이 아니라 기기를 바꾸면 안
-// 보인다 — 서버 개념이 생기면 그때 옮긴다" 는 옛말이 됐다. 서버가 생겼다:
-//   GET    /api/v1/me/saved-places            { items: [{ placeId, savedAt }], count }
-//   PUT    /api/v1/me/saved-places/{placeId}  204 (몇 번을 보내도 같다)
-//   DELETE /api/v1/me/saved-places/{placeId}  204 (안 켜져 있어도 204)
-//
-// 🔴 기기에 쌓인 것을 버리지 않는다. 서버 목록과 합치고(합집합), 기기에만 있던 것은 한 번
-// 서버로 올린다. 기기 것을 버리면 사용자는 하트가 지워진 줄 안다 — 아무도 지운 적 없는데도.
-//
-// 🔴 데모 장소(아래 DEMO_PLACES)는 서버에 없는 이름표라 올리지 않는다. 올리면 404
-// PLACE_NOT_FOUND 가 나고, 적재가 끝나 데모가 걷히면 이 예외도 저절로 사라진다.
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { apiRequest, ApiClientError } from '@/api/client';
@@ -71,14 +59,7 @@ export async function loadSavedPlaceIds(accessToken: string | null): Promise<str
   return merged;
 }
 
-/**
- * 하트 하나를 켜고 끈 결과.
- *
- * 🔴 S15P21E201-1081 — 예전에는 아이디 목록만 돌려줬다. 그래서 서버가 502 를 줘도 화면은
- * 그것을 알 길이 없었고 "내 여행 후보에 저장했어요" 토스트를 띄웠다. **서버에 안 갔는데
- * 갔다고 말한 것**이다. 기기 선택을 지키는 것과 사실대로 말하는 것은 다른 문제라, 어디까지
- * 갔는지를 함께 돌려준다.
- */
+/** 하트 하나를 켜고 끈 결과. */
 export type SavedPlaceSync =
   /** 서버에 적혔다. */
   | 'server'
@@ -101,7 +82,7 @@ export async function setSavedPlace(placeId: string, saved: boolean, accessToken
     return { ids: next, sync: 'server' };
   } catch {
     // 서버에 못 남겨도 기기의 선택은 지킨다. 다음에 목록을 불러올 때 다시 맞춰진다.
-    // 다만 **말은 사실대로 한다** — 부른 쪽이 sync 를 보고 문구를 정한다.
+    // 다만 말은 사실대로 한다 — 부른 쪽이 sync 를 보고 문구를 정한다.
     return { ids: next, sync: 'failed' };
   }
 }

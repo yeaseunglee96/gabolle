@@ -1,4 +1,4 @@
-// 신고 검토(운영자) 화면 — S15P21E201-599. 탭 네비게이션에는 안 올린다 — 일반
+// 신고 검토(운영자) 화면 —. 탭 네비게이션에는 안 올린다 — 일반
 // 사용자가 볼 이유가 없는 화면이고, 접근 자체는 어차피 서버가 ROLE_ADMIN으로 막는다
 // (moderation.ts 주석 참고). 운영자는 이 경로(/admin/story-reports)로 직접 들어온다.
 import { useCallback, useEffect, useState } from 'react';
@@ -29,7 +29,7 @@ function formatElapsed(seconds: number): string {
 
 // 백엔드가 오래된 신고 순으로 주지만(ModerationQueueService), 24시간 넘은 것을 "맨 위에
 // 고정"이라는 요구는 그 정렬만으로는 보장되지 않는다 — 신고가 몰리는 시점이 섞이면
-// 24시간 넘은 항목 사이에 안 넘은 항목이 끼어들 수 있다. 그래서 여기서 한 번 더 가른다:
+// 24시간 넘은 항목 사이에 안 넘은 항목이 끼어들 수 있다. 그래서 여기서 한 번 더 가른다
 // 각 그룹 안에서는 오래된 순을 그대로 유지한 채, 넘은 것을 앞으로 옮긴다(안정 정렬).
 function sortWithOverdueFirst(items: ModerationQueueItem[]): ModerationQueueItem[] {
   const overdue = items.filter((item) => item.elapsedSeconds >= OVERDUE_SECONDS);

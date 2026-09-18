@@ -1,6 +1,6 @@
-// 기록 공동 작성 — 참여자 목록·초대·여행 동행자 추가·제거/나가기 화면. 서버(S15P21E201-770)는
-// 이미 끝나 있었고 화면만 없었다 — S15P21E201-845. 구조는 여행 참여자 관리 화면
-// ((trip)/[id]/collaborate.tsx, S15P21E201-327)을 그대로 따른다 — 참여자 목록 + 초대 + 제거/나가기
+// 기록 공동 작성 — 참여자 목록·초대·여행 동행자 추가·제거/나가기 화면. 서버는
+// 이미 끝나 있었고 화면만 없었다 —. 구조는 여행 참여자 관리 화면
+// ((trip)/[id]/collaborate.tsx,을 그대로 따른다 — 참여자 목록 + 초대 + 제거/나가기
 // 라는 같은 모양의 문제라 화면도 같은 모양으로 푼다.
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, Modal, Pressable, Share as NativeShare, StyleSheet, View } from 'react-native';

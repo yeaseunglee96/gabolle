@@ -9,16 +9,11 @@ export type ItineraryItemDto = {
   walkingMeters?: number | null;
   locked: boolean;
   dataStatus?: 'VERIFIED' | 'ESTIMATED' | 'UNKNOWN';
-  // S15P21E201-1014 — 이 방문지로 오는 데 걸리는 시간(분). 그날 첫 방문지 앞에는 구간이
-  // 없어 null 이다. 서버는 2026-09-08(S15P21E201-179)부터 주는데 이 타입에 칸이 없어 화면이
-  // 못 읽고 있었다. 그래서 화면은 "9시에 여기, 11시에 저기" 만 말할 뿐 그 사이에 얼마나
-  // 걸리는지 말하지 못했고, 대신 페이스 API 의 delayMinutes 를 「지연」이라고 불렀다.
-  //
-  // 🔴 travelDataStatus 를 반드시 함께 본다. ESTIMATED(직선거리 어림값)를 실제 소요시간처럼
+  // travelDataStatus 를 반드시 함께 본다. ESTIMATED(직선거리 어림값)를 실제 소요시간처럼
   // 그리면 사용자가 그 시간에 맞춰 움직이다 늦는다. 이 기능 이전에 만들어진 판은 null 이다.
   travelDurationMin?: number | null;
   travelDataStatus?: 'VERIFIED' | 'ESTIMATED' | 'UNKNOWN' | null;
-  // S15P21E201-744 — 이 항목이 가리키는 장소. "다녀오셨나요" 평가(S15P21E201-406)를
+  // — 이 항목이 가리키는 장소. "다녀오셨나요" 평가를
   // 어느 장소로 보낼지 여기서 얻는다. ItineraryDetailResponse.Item 기준.
   placeId: string;
 };
@@ -33,16 +28,7 @@ export type ItineraryDto = {
   fallbackMode?: 'MODEL' | 'RULE' | 'BASELINE' | null;
   myRole?: 'OWNER' | 'EDITOR' | 'VIEWER';
   canEdit?: boolean;
-  // S15P21E201-1113 — 이 일정이 어느 여행의 것인가.
-  //
-  // 🔴 앱의 주소 `/trips/{id}/itinerary` 의 {id} 자리에는 **여행 번호가 아니라 일정 번호**가
-  // 들어간다. 그래서 이 화면에 서 있는 앱은 자기가 어느 여행 소속인지 알 방법이 없었고,
-  // 추천 화면으로 넘어갈 때 일정 번호를 여행 번호인 척 넘겨 서버가 404(TRIP_NOT_FOUND)를
-  // 줬다. 화면은 그 404 를 「아직 생성된 추천이 없어요」로 그렸다 — 추천이 멀쩡히 있는데도.
-  //
-  // 서버가 맨 뒤에 더해 주기로 한 칸이다(s15p21e201-13, 2026-09-16). 아직 안 온 판에서는
-  // 그냥 없으므로 optional 이고, 없으면 추천으로 가는 버튼을 안 그린다 — 눌러서 빈 화면을
-  // 보여 주느니 안 보여 주는 편이 낫다.
+  // — 이 일정이 어느 여행의 것인가.
   tripId?: string;
 };
 
@@ -61,12 +47,6 @@ export type ItineraryLoadResult =
   | { state: 'success'; itinerary: ItineraryDto }
   | { state: 'unavailable' | 'offline' | 'error'; message: string };
 
-// S15P21E201-268/-858(BE) 응답 계약: 편집 응답 다섯 갈래(순서 바꾸기·더하기·재계획·
-// 고정/해제·되돌리기) 모두 ItineraryDto 위에 이 두 칸을 더 실어 보낸다. 영업시간을 실제로
-// 어겼으면 warnings, 어겼는지조차 못 봤으면(자료 없음 등) notChecked — 두 목록이 함께 올 수
-// 있고(한 곳은 닫혀 있고 다른 곳은 자료가 없는 경우), 하나만 보여 주면 화면이 거짓말을 한다
-// (제보: jaehyeon, 2026-09-11, S15P21E201-852/-858). 이 값은 각 편집 응답에만 실려 오고
-// 이후 활동 이력(loadItineraryVersions)에는 안 남으므로 저장해 두지 않으면 사라진다.
 export type ItineraryOpeningHoursWarning = { code: string; itemId: string; placeId: string; at: string };
 export type ItineraryOpeningHoursNotChecked = { check: string; reason: string };
 
@@ -107,7 +87,7 @@ export async function setItineraryItemLocked(input: { itineraryId: string; itemI
   }
 }
 
-// S15P21E201-467(BE) — 사용자가 고른 장소를 그 날의 마지막에 더한다. 응답은 고정·해제와
+// (BE) — 사용자가 고른 장소를 그 날의 마지막에 더한다. 응답은 고정·해제와
 // 같은 모양(일정 전체 + 경고)이고, 재계산 Job 은 서버가 접수하지 않는다 — 화면이 응답의
 // 새 판 번호로 recalculateItineraryDay 를 이어 불러야 시각이 채워진다(서버 주석 그대로).
 // dayIndex 는 0 이 첫날이다. 여행 기간을 벗어나면 400, 판이 낡았으면 409다.
@@ -212,14 +192,7 @@ export async function revertItinerary(input: { itineraryId: string; baseVersion:
   }
 }
 
-// S15P21E201-1011 — 판 목록 응답이 배열에서 { items, count, hasMore } 로 바뀐다.
-//
-// 🔴 둘 다 읽는다. 서버와 화면은 따로 배포되므로 한쪽만 맞춰 두면 그 사이에 이 목록이
-// 비어 버리고, 그러면 되돌리기 버튼이 사라진다 — 돌아갈 수 있던 판이 없어진 것으로 보인다.
-//
-// hasMore 는 여기서 안 쓴다. 이 저장소에 판 목록을 그리는 화면이 없어서 알릴 자리가
-// 없다 — 쓰는 곳은 되돌리기 버튼(versions.length > 1)과 최신 판의 경고(versions[0])뿐이고,
-// 둘 다 맨 앞만 본다. 목록 화면이 생기면 그때 이 값을 함께 꺼낸다.
+// — 판 목록 응답이 배열에서 { items, count, hasMore } 로 바뀐다.
 type ItineraryVersionsPayload = ItineraryVersionEntryDto[] | { items: ItineraryVersionEntryDto[]; count?: number; hasMore?: boolean };
 
 export async function loadItineraryVersions(itineraryId: string, accessToken: string | null): Promise<{ state: 'success'; versions: ItineraryVersionEntryDto[] } | { state: 'unavailable' | 'offline' | 'error'; message: string }> {
@@ -232,9 +205,6 @@ export async function loadItineraryVersions(itineraryId: string, accessToken: st
   }
 }
 
-// S15P21E201-96·304 — 지연 경고. 서버 응답 필드명은 origin/back/dev의
-// ItineraryPaceResponse.java(2026-09-10)를 그대로 옮겼다. paceFactor는 표본이
-// 모자라면 null — 그때 1.0으로 갈음해 그리면 "계획대로 간다"는 틀린 안심이 된다.
 export type ItineraryPaceItemDto = {
   itemId: string;
   visited: boolean;
@@ -268,7 +238,7 @@ export async function loadItineraryPace(itineraryId: string, dayIndex: number, a
   }
 }
 
-// S15P21E201-308 — 여행 전체 리듬. travelShare·plannedVsActual은 못 재면 null이고
+// — 여행 전체 리듬. travelShare·plannedVsActual은 못 재면 null이고
 // 0과는 다른 뜻이다(0 = 재 보니 그 값, null = 아직 못 쟀다). ItineraryRhythmResponse.java 기준.
 export type ItineraryRhythmDto = {
   itineraryId: string;
@@ -297,7 +267,7 @@ export type ItineraryReplanResult =
   | { state: 'overflow'; itemIds: string[]; message: string }
   | { state: 'unavailable' | 'offline' | 'error'; message: string };
 
-// 지나간 방문지는 그대로 두고 안 간 방문지의 시각만 다시 매긴다(S15P21E201-308).
+// 지나간 방문지는 그대로 두고 안 간 방문지의 시각만 다시 매긴다.
 // baseVersion은 쿼리로 보낸다 — 서버가 If-Match 헤더·baseVersion 쿼리 둘 다 받는다.
 export async function replanItineraryDay(input: { itineraryId: string; dayIndex: number; baseVersion: number; accessToken: string | null }): Promise<ItineraryReplanResult> {
   try {
@@ -315,7 +285,7 @@ export async function replanItineraryDay(input: { itineraryId: string; dayIndex:
   }
 }
 
-// S15P21E201-293 — 방문지 실제 도착·출발 기록. 보낸 것이 그 방문지의 최종 상태다
+// — 방문지 실제 도착·출발 기록. 보낸 것이 그 방문지의 최종 상태다
 // (부분 갱신이 아니다) — 출발만 다시 보내면 도착이 null로 덮인다. 그래서 둘 다
 // 채워 보내야 하는 시점(출발 기록)에는 이미 아는 도착 시각을 호출부에서 함께 실어야 한다.
 export async function recordItineraryItemActual(input: { itineraryId: string; itemId: string; arrivedAt: string | null; departedAt: string | null; accessToken: string | null }): Promise<ItineraryMutationResult> {

@@ -1,8 +1,4 @@
-// S15P21E201-1131 — 「바뀌면 빨라지고 안 바뀌면 느려진다」를 시험이 지킨다.
-//
-// 🔴 이 시험이 막는 것은 둘이다.
-//    1. 간격이 무한정 늘어나 동기화가 사실상 죽는 것
-//    2. 누가 최대치를 올려서 「실시간」이라는 말이 거짓말이 되는 것
+// — 「바뀌면 빨라지고 안 바뀌면 느려진다」를 시험이 지킨다.
 import { nextSyncPollDelay, SYNC_POLL_BASE_MS, SYNC_POLL_MAX_MS } from '../syncPoll';
 
 describe('nextSyncPollDelay', () => {

@@ -1,7 +1,4 @@
 // 마이페이지 › 저장한 기록 — 사용자 리포트: "마이페이지에 저장 누르면 저장했던 피드들 뜨게".
-//
-// posts.tsx(내 기록)와 같은 목록 모양을 쓰되, 지우기 대신 "저장 취소"가 있다 — 이 목록의
-// 글은 내가 쓴 것이 아니라 남의 글일 수도 있어서 지울 권한이 없다.
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, Image, Pressable, StyleSheet, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
@@ -36,7 +33,7 @@ export default function MyPageSaved() {
     setRemovingId(id);
     const outcome = await setStorySaved(id, false, accessToken);
     setRemovingId(null);
-    // 🔴 낙관적으로 지우지 않고 성공했을 때만 지운다 — 실패했는데 화면에서 사라지면
+    // 낙관적으로 지우지 않고 성공했을 때만 지운다 — 실패했는데 화면에서 사라지면
     // 사용자는 "저장이 풀렸나?" 를 다시 눌러 확인해야 한다. posts.tsx의 delete와 같은 판단.
     if (outcome.state === 'success') {
       setResult((prev) => (prev.state === 'success' ? { ...prev, items: prev.items.filter((item) => item.id !== id) } : prev));

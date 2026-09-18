@@ -130,8 +130,4 @@ const styles = StyleSheet.create({
     backgroundColor: color.brand.orange,
     borderColor: color.brand.orange,
   },
-  // 🔴 continueButton 을 지웠다 (2026-09-17). 여기에 { minHeight: 54, borderRadius: full,
-  // backgroundColor: orange } 를 담아 containerStyle 로 넘겼는데, 그건 버튼이 아니라 **바깥
-  // 껍데기**에 붙어서 남색 버튼 뒤로 주황색이 삐져나왔다(실기기 리포트). 지금은 버튼이
-  // 직접 그 색과 모양을 갖는다 — `variant="accent" pill`.
 });

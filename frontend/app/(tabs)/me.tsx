@@ -1,11 +1,4 @@
-// 마이페이지 진입 화면 (S15P21E201-965).
-//
-// 전에는 이 한 화면에 프로필 편집 · 취향 줄 · 내 기록 줄 · 소셜 계정 · 약관 · 로그아웃 · 탈퇴가
-// 전부 쌓여 있었다. 지금은 **길 안내만** 하고 실제 내용은 `/me/<탭>` 다섯이 나눠 맡는다.
-//
-// 🔴 데스크톱(≥ lg)에서는 이 화면을 거치지 않고 바로 프로필 탭으로 보낸다. 넓은 화면의
-// 마이페이지는 왼쪽 메뉴가 있는 셸 한 벌이라(MyPageShell), 그 앞에 목록 화면을 한 번 더 두면
-// 메뉴를 두 번 고르게 된다.
+// 마이페이지 진입 화면
 import { useState } from 'react';
 import { Image, Modal, Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useEffect } from 'react';
@@ -46,10 +39,6 @@ export default function Me() {
     void AsyncStorage.getItem(`gabolle:profile-avatar:${user.userId}`).then(setAvatarUri);
   }, [user?.userId]);
 
-  // 🔴 2026-09-18 (S15P21E201-1237) — **넓은 화면을 다른 화면으로 보내던 것을 없앴다.**
-  //    마이페이지가 폰(메뉴 목록)과 데스크톱(/me/profile 편집 폼)으로 갈라져 있어서,
-  //    같은 일을 두 곳에서 고쳐야 했고 실제로 한쪽만 고쳐진 날이 있었다.
-  //    이제 한 화면이 넓어질 뿐이다. `/me/profile` 은 딥링크로 남는다.
   const wide = isAtLeast(width, 'lg');
 
   const name = user?.displayName || tx('여행자', 'Traveler');
@@ -58,9 +47,10 @@ export default function Me() {
   return <View style={styles.shell}><Screen scroll withTabBar>
     <View style={styles.heading}><Eyebrow>{tx('내 계정', 'Account')}</Eyebrow><Text variant="display" weight="bold">{tx('마이페이지', 'My page')}</Text></View>
 
-    {/* 🔴 시안의 프로필 카드 (S15P21E201-1237). 전에는 한 줄짜리 띠였고, 넓은 화면에서는
-        이 화면이 아예 안 보였다. 없는 값(한 줄 소개·거주지)은 줄 자체를 안 그린다 —
-        서버에 그 칸이 아직 없다. */}
+    {/* 시안의 프로필 카드 전에는 한 줄짜리 띠였고, 넓은 화면에서는
+        이 화면이 아예 안 보였다. 없는 값(한 줄 소개·거주지)은 줄 자체를 안 그린다
+        서버에 그 칸이 아직 없다.
+    */}
     <ProfileCard
       name={name}
       email={user?.email ?? null}
@@ -87,15 +77,16 @@ export default function Me() {
         onPress={() => router.push('/me/posts')}
         disabled={!user}
       />
-      {/* 사용자 리포트: "마이페이지에 저장 누르면 저장했던 피드들 뜨게" — S15P21E201-1221. */}
+      {/* 사용자 리포트: "마이페이지에 저장 누르면 저장했던 피드들 뜨게" —. */}
       <InfoRow
         label={tx('저장한 기록', 'Saved records')}
         value="›"
         onPress={() => router.push('/me/saved')}
         disabled={!user}
       />
-      {/* 🔴 S15P21E201-1180 — 인스타그램처럼 팔로워·팔로잉을 눌러 목록으로 들어갈 수 있어야
-          한다는 사용자 리포트. 숫자만 있던 자리를 실제 목록 화면으로 잇는다. */}
+      {/* — 인스타그램처럼 팔로워·팔로잉을 눌러 목록으로 들어갈 수 있어야
+          한다는 사용자 리포트. 숫자만 있던 자리를 실제 목록 화면으로 잇는다.
+      */}
       <InfoRow
         label={tx('팔로워', 'Followers')}
         value={followerCount === null ? '›' : tx(`${followerCount}명 ›`, `${followerCount} ›`)}
@@ -124,15 +115,17 @@ export default function Me() {
     <Text variant="eyebrow" weight="bold" style={styles.groupLabel}>{tx('앱', 'App')}</Text>
     <View style={styles.group}>
       <AppLanguageSetting />
-      {/* 🔴 S15P21E201-1181 — 알림·차단된 계정처럼 스토어 심사가 보는 기본 기능이 마이페이지
-          안에서 안 보였다는 사용자 리포트. 알림 화면은 이미 있다(app/notifications.tsx,
-          홈 종 아이콘) — 여기서는 같은 화면으로 가는 입구만 하나 더 둔다. */}
+      {/* — 알림·차단된 계정처럼 스토어 심사가 보는 기본 기능이 마이페이지
+          안에서 안 보였다는 사용자 리포트. 알림 화면은 이미 있다(app/notifications.tsx
+          홈 종 아이콘) — 여기서는 같은 화면으로 가는 입구만 하나 더 둔다.
+      */}
       <InfoRow label={tx('알림', 'Notifications')} value="›" onPress={() => router.push('/notifications')} />
       <InfoRow label={tx('차단된 계정', 'Blocked accounts')} value="›" onPress={() => router.push('/me/blocked')} disabled={!user} />
       <InfoRow label={tx('도움말·문의', 'Help & support')} description={tx('앱 소개, 자주 묻는 질문, 문제 해결', 'App tour, FAQs, and troubleshooting')} value="›" onPress={() => router.push('/help')} />
       <InfoRow label={tx('약관·고지', 'Terms & notices')} value="›" onPress={() => router.push('/me/terms')} />
-      {/* 처음 켜는 자리는 첫 체크인 화면이고, 여기는 **언제든 끄는 자리**다. 끄는 길이 설정
-          안쪽 어딘가에만 있으면 사용자는 못 찾고, 못 찾으면 켠 적 없는 사람처럼 취급된다. */}
+      {/* 처음 켜는 자리는 첫 체크인 화면이고, 여기는 언제든 끄는 자리다. 끄는 길이 설정
+          안쪽 어딘가에만 있으면 사용자는 못 찾고, 못 찾으면 켠 적 없는 사람처럼 취급된다.
+      */}
       <View style={styles.consentRow}>
         <View style={styles.consentCopy}>
           <Text weight="bold">{tx('맞춤 추천', 'Personalized picks')}</Text>
@@ -171,8 +164,8 @@ const styles = StyleSheet.create({
   consentRow: { minHeight: 62, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[3], paddingHorizontal: spacing[4], paddingVertical: spacing[3], borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: color.surface.border },
   consentCopy: { flex: 1, gap: spacing[1] },
 
-  // 🔴 borderColor 를 여기서 뺐다 (S15P21E201-1241). 이 스타일은 Button 의 containerStyle 로
-  // 가는데, 껍데기에는 borderWidth 가 없어서 **색만 있는 테두리는 아무것도 안 그린다.**
+  // borderColor 를 여기서 뺐다 이 스타일은 Button 의 containerStyle 로
+  // 가는데, 껍데기에는 borderWidth 가 없어서 색만 있는 테두리는 아무것도 안 그린다.
   // 즉 주황 테두리는 처음부터 화면에 없었다 — 보이는 것은 ghost 의 회색 테두리다.
   // 주황으로 하려면 Button 에 그 variant 가 있어야 한다. 여기서 흉내내면 버튼 뒤에
   // 도형이 하나 더 남을 뿐이다.

@@ -28,9 +28,9 @@ export function PlacePhraseBrowser({ category, onOpenTaxiCard }: PlacePhraseBrow
   // 속도(rate)도 함께 들고 있는다 — id만 보면 "느리게"를 눌러도 "보통" 버튼이 재생 중으로
   // 바뀌는 버그가 난다(둘 다 같은 phrase.id를 쓰기 때문). 어느 버튼을 눌렀는지까지 구분한다.
   const [speakingRate, setSpeakingRate] = useState<number | null>(null);
-  // speak()를 빠르게 다시 누르면(같은 문장의 다른 속도, 또는 다른 문장) Speech.stop()이
+  // speak를 빠르게 다시 누르면(같은 문장의 다른 속도, 또는 다른 문장) Speech.stop이
   // 취소한 "이전" 재생의 onDone/onError가 뒤늦게 도착해 방금 시작한 재생의 상태를
-  // null로 덮어쓴다(S15P21E201-771). 매 호출마다 토큰을 새로 발급해 자기 차례가 아니면 무시한다.
+  // null로 덮어쓴다. 매 호출마다 토큰을 새로 발급해 자기 차례가 아니면 무시한다.
   const playTokenRef = useRef(0);
 
   useEffect(() => {

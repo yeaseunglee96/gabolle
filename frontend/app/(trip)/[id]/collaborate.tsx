@@ -1,4 +1,4 @@
-// 동행자 공동 편집 화면 — 참여자·역할 관리·최근 변경 (상세설계서 Part II P-22) — S15P21E201-327.
+// 동행자 공동 편집 화면 — 참여자·역할 관리·최근 변경 (상세설계서 Part II P-22) —.
 // 초대 링크 만들기는 share.tsx가 이미 하므로 여기서는 그 화면으로 보내는 진입점만 둔다.
 import { useCallback, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
@@ -21,7 +21,7 @@ const ROLE_LABEL: Record<TripMember['role'], [string, string]> = {
   VIEWER: ['열람자', 'Viewer'],
 };
 
-// S15P21E201-687 계약: 이 목록은 일정의 판(itinerary_versions)을 읽은 것이라 장소 이름은
+// 계약: 이 목록은 일정의 판(itinerary_versions)을 읽은 것이라 장소 이름은
 // 안 실려 온다(누가 무엇을 "바꿨는지"까지지 "무엇으로" 바꿨는지는 없다) — 지어내지 않는다.
 const OPERATION_LABEL: Record<TripActivityOperation, [string, string]> = {
   CREATE: ['일정을 만들었어요', 'created the itinerary'],

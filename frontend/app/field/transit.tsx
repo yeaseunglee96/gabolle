@@ -1,11 +1,4 @@
-// 주변 버스 도착 — S15P21E201-1138.
-//
-// 🔴 이 화면이 답하는 질문은 하나다: **"기다릴까, 택시 탈까."**
-//    그래서 화면에서 가장 큰 글자는 정류소 이름도 노선 번호도 아니고 **남은 시간**이다.
-//
-// 🔴 위치는 explore.tsx 가 이미 정해 둔 방식을 그대로 따른다 — 들어오자마자 권한 팝업을
-//    띄우지 않고, 이미 허용한 사람만 조용히 읽고, 나머지에게는 부산 중심 결과를 먼저 보여준 뒤
-//    버튼으로 고르게 한다. 화면을 둘러보기만 해도 팝업이 뜨면 사람은 일단 거부한다.
+// 주변 버스 도착 —.
 import { useCallback, useEffect, useState } from 'react';
 import { Linking, Pressable, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -49,9 +42,9 @@ export default function Bus() {
   const [stops, setStops] = useState<BusStop[]>([]);
   const [checkedAt, setCheckedAt] = useState<Date | null>(null);
 
-  // 🔴 화면 상태를 눈으로 확인하기 위한 자리 — exchange.tsx 의 preview=ui 와 같은 방식이다.
-  //    버스 도착은 로그인해야 받을 수 있어서, 로그인 없이 "시간이 찍힌 화면" 을 볼 길이 달리
-  //    없다. **__DEV__ 에서만 산다** — 배포본에는 이 가지가 아예 안 들어간다.
+  // 화면 상태를 눈으로 확인하기 위한 자리 — exchange.tsx 의 preview=ui 와 같은 방식이다.
+  // 버스 도착은 로그인해야 받을 수 있어서, 로그인 없이 "시간이 찍힌 화면" 을 볼 길이 달리
+  // 없다. __DEV__ 에서만 산다 — 배포본에는 이 가지가 아예 안 들어간다.
   const previewStops: BusStop[] = [
     { nodeId: 'p1', nodeName: '해운대해수욕장', lat: 0, lng: 0, arrivals: [
       { routeNo: '139', arrivalSeconds: 95, remainingStops: 1, vehicleType: null },
@@ -104,7 +97,7 @@ export default function Bus() {
   }, []);
 
   /**
-   * 🔴 거부한 뒤에도 버튼이 살아 있어야 한다 (S15P21E201-1127 이 같은 실수를 고쳤다).
+   * 거부한 뒤에도 버튼이 살아 있어야 한다 이 같은 실수를 고쳤다).
    * 다시 물을 수 없는 상태면 설정으로 보낸다 — 눌러도 아무 일도 안 일어나는 버튼이 제일 나쁘다.
    */
   const askForLocation = useCallback(async () => {
@@ -145,7 +138,7 @@ export default function Bus() {
       title: tx('버스 정보가 아직 서버에 없어요', 'Bus data is not on the server yet'),
       body: tx('곧 열려요. 조금 뒤에 다시 들러 주세요.', 'It is coming. Please check back a little later.'),
     };
-    // 🔴 S15P21E201-1200 — 열쇠가 안 꽂힌 것은 「잠시 뒤」가 아니다. 그렇게 말하면 거짓말이다.
+    // — 열쇠가 안 꽂힌 것은 「잠시 뒤」가 아니다. 그렇게 말하면 거짓말이다.
     if (r === 'not-ready') return {
       title: tx('버스 도착 정보는 아직 준비 중이에요', 'Bus arrivals are not set up yet'),
       body: vendorNotReadyMessage(tx),
@@ -180,8 +173,9 @@ export default function Bus() {
 
       {/* 어느 좌표를 기준으로 찾았는지 숨기지 않는다 — 내 위치가 아니면 그렇게 말한다. */}
       <View style={styles.originRow}>
-        {/* 🔴 여기에 확인 시각까지 붙였더니 390 폭에서 두 줄로 깨졌다. 시각은 목록 아래
-            「다시 불러오기」 옆으로 옮겼다 — 거기가 그 값을 실제로 쓰는 자리다. */}
+        {/* 여기에 확인 시각까지 붙였더니 390 폭에서 두 줄로 깨졌다. 시각은 목록 아래
+            「다시 불러오기」 옆으로 옮겼다 — 거기가 그 값을 실제로 쓰는 자리다.
+        */}
         <Text variant="caption" color={color.text.muted} style={styles.originText}>
           {locationState === 'granted'
             ? tx('내 위치 기준', 'From your location')
@@ -209,8 +203,9 @@ export default function Bus() {
         <View accessibilityLiveRegion="polite" style={styles.card}>
           <Text variant="title" weight="bold">{blockedText(reason).title}</Text>
           <Text color={color.text.body} style={styles.blockedBody}>{blockedText(reason).body}</Text>
-          {/* 🔴 S15P21E201-1200 — 준비되지 않은 기능에는 「다시 시도」를 안 보여준다.
-              눌러도 달라지지 않는 단추는 없는 것보다 나쁘다 — 사람을 거기 묶어 둔다. */}
+          {/* — 준비되지 않은 기능에는 「다시 시도」를 안 보여준다.
+              눌러도 달라지지 않는 단추는 없는 것보다 나쁘다 — 사람을 거기 묶어 둔다.
+          */}
           {reason === 'signed-out'
             ? <Button label={tx('로그인하기', 'Sign in')} containerStyle={styles.cta} onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: '/field/transit' } })} />
             : reason === 'not-ready'
@@ -245,8 +240,9 @@ export default function Bus() {
                       </View>
                       <Text variant="title" weight="bold" style={styles.arrivalTime}>{arrivalText(arrival.arrivalSeconds)}</Text>
                       {/* 몇 정류장 전인지도 없을 수 있다 — 없으면 아예 안 적는다.
-                          🔴 0은 안 적는다. 「0정류장 전」은 사람이 쓰는 말이 아니고,
-                          그 경우는 옆의 「곧 도착」이 이미 같은 것을 말하고 있다. */}
+                          0은 안 적는다. 「0정류장 전」은 사람이 쓰는 말이 아니고
+                          그 경우는 옆의 「곧 도착」이 이미 같은 것을 말하고 있다.
+                      */}
                       {arrival.remainingStops != null && arrival.remainingStops > 0 ? (
                         <Text variant="caption" color={color.text.muted}>{tx(`${arrival.remainingStops}정류장 전`, `${arrival.remainingStops} stops away`)}</Text>
                       ) : null}

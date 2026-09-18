@@ -1,9 +1,4 @@
-// 마이페이지 › 연결된 소셜 계정 (S15P21E201-965). `(tabs)/me.tsx` 의 섹션을 그대로 옮겼다.
-//
-// 🔴 시안에는 줄마다 「연결됨 · {날짜}」 배지와 「연결 해제」 버튼이 있는데 **둘 다 안 그린다.**
-// (S15P21E201-832) 서버가 연결된 제공자 목록을 돌려주는 조회가 없어서 무엇이 연결돼 있는지
-// 알 방법이 없고, 해제 API 도 없다. 배지를 그리면 늘 「연결 안 됨」으로 보이거나 지어낸 값이
-// 되고, 해제 버튼은 눌러도 아무 일이 없다. 지금 할 수 있는 것은 **연결뿐**이라 그것만 둔다.
+// 마이페이지 › 연결된 소셜 계정 `(tabs)/me.tsx` 의 섹션을 그대로 옮겼다.
 import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
@@ -35,7 +30,7 @@ export default function MyPageIdentities() {
   const [linking, setLinking] = useState<OAuthProvider | null>(null);
   const [feedback, setFeedback] = useState<{ danger: boolean; text: string } | null>(null);
 
-  // S15P21E201-832 — 웹에서는 linkOAuthProvider 가 현재 페이지를 제공자 화면으로 그대로 넘긴다.
+  // — 웹에서는 linkOAuthProvider 가 현재 페이지를 제공자 화면으로 그대로 넘긴다.
   // 이 아래는 실행되지 않고, 결과는 착지 화면(oauth/[provider]/callback.tsx)이 보여준 뒤
   // 「설정으로 돌아가기」로 이 화면에 돌아온다. 앱에서는 그 왕복 없이 여기서 바로 받는다.
   async function connect(provider: OAuthProvider) {

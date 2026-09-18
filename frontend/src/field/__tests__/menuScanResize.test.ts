@@ -1,13 +1,9 @@
-// 메뉴판 읽기가 줄이기에서 막혀 요청조차 못 나가던 것 — S15P21E201-1121 의 같은 자리.
-//
-// 2026-09-17 안드로이드 실기기에서 「사진을 읽지 못했어요」가 떴는데, 서버 기록에
-// /api/v1/menu-scans 요청이 한 줄도 없었다. 이 시험이 지키는 것은 하나다 —
-// **줄이기가 실패해도 사진은 서버로 간다.**
+// 메뉴판 읽기가 줄이기에서 막혀 요청조차 못 나가던 것 —의 같은 자리.
 jest.mock('@/social/imageResize', () => ({ resizeForUpload: jest.fn() }));
-// 🔴 S15P21E201-1187 — 사진은 이제 **Blob 으로 바뀐 뒤에** FormData 에 들어간다.
-//    그래서 「어느 사진을 보냈나」는 FormData 안이 아니라 **무엇을 읽으러 갔나**로 본다.
-//    진짜 파일을 읽는 자리라 시험에서는 흔들어야 한다 — 그 자리 자체의 시험은
-//    src/api/__tests__/multipart.test.ts 에 따로 있다.
+// — 사진은 이제 Blob 으로 바뀐 뒤에 FormData 에 들어간다.
+// 그래서 「어느 사진을 보냈나」는 FormData 안이 아니라 무엇을 읽으러 갔나로 본다.
+// 진짜 파일을 읽는 자리라 시험에서는 흔들어야 한다 — 그 자리 자체의 시험은
+// src/api/__tests__/multipart.test.ts 에 따로 있다.
 jest.mock('@/api/multipart', () => ({ singleFileFormData: jest.fn(async () => new FormData()) }));
 jest.mock('@/api/client', () => {
   class ApiClientError extends Error {

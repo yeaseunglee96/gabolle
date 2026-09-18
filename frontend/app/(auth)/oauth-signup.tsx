@@ -1,8 +1,8 @@
 // 소셜 인증은 끝났지만 처음 보는 계정이라(SIGNUP_REQUIRED) 가입을 마무리하는 화면.
-// sign-in.tsx 의 social() 이 signupTicket 과 provider 가 준 정보(prefill)를 params 로 넘겨준다.
+// sign-in.tsx 의 social 이 signupTicket 과 provider 가 준 정보(prefill)를 params 로 넘겨준다.
 // 티켓은 10분짜리라 이 화면에서 값을 채우는 동안 만료될 수 있고, 만료·재사용된 티켓은
 // 종류를 가리지 않고 전부 OAUTH_TICKET_INVALID 로 온다(서버 쪽 의도) — 그때는 소셜 로그인을
-// 처음부터 다시 밟게 한다. S15P21E201-586, jaehyeon 님 !288 계약.
+// 처음부터 다시 밟게 한다., jaehyeon 님 !288 계약.
 import { useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';

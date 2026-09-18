@@ -1,8 +1,5 @@
-// 홈 시작 바가 다루는 값 — 화면이 아니라 여기서 만든다 (S15P21E201-1233).
+// 홈 시작 바가 다루는 값 — 화면이 아니라 여기서 만든다
 // 시안: docs/design_handoff_plan_flow/PlanFlow.dc.html 의 p0.
-//
-// 🔴 날짜 계산은 눈으로 검산이 안 된다. 「1박 2일」이 이틀인지 사흘인지, 월이 바뀔 때
-//    어떻게 되는지는 시험이 붙들어야 한다.
 
 export type StartBarValue = {
   origin: string;
@@ -27,7 +24,6 @@ export const EMPTY_START_BAR: StartBarValue = {
 const WEEKDAY_KO = ['일', '월', '화', '수', '목', '금', '토'];
 const WEEKDAY_EN = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-/** `2026-09-20` 로 만든다. `toISOString()` 은 UTC 라 한국에서 하루 밀린다. */
 export function toDateKey(date: Date): string {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 }
@@ -67,22 +63,11 @@ export function formatDateShort(key: string, ko: boolean): string {
   return `${date.getMonth() + 1}.${date.getDate()}(${weekday})`;
 }
 
-/**
- * 시작 바에 한 줄로 보여 줄 요약 — 「부산역 · 9.20(토) – 9.21(일) · 1박 · 성인 2」.
- *
- * 🔴 **채워진 것만 적는다.** 안 고른 칸을 「미정」 같은 말로 채우면, 사람은 그것을
- * 「내가 골랐는데 반영이 안 됐다」로 읽는다. 아무것도 없으면 빈 문자열이고
- * 화면이 그때만 안내 문구를 쓴다.
- */
+/** 시작 바에 한 줄로 보여 줄 요약 — 「부산역 9.20(토) – 9.21(일) 1박 성인 2」. */
 export function summarizeStartBar(value: StartBarValue, ko: boolean): string {
-  // 🔴 인원만 있는 요약은 만들지 않는다 (2026-09-18, 폰 화면을 띄워서 찾았다).
-  //
-  //    인원에는 **기본값(성인 2)이 들어 있다.** 그래서 아무것도 안 고른 사람에게도
-  //    요약이 「성인 2」로 나왔고, 알약에 안내 문구 대신 그것이 찍혔다 —
-  //    **고른 적 없는 값이 고른 것처럼 보였다.**
-  //
-  //    사람이 실제로 고른 것은 출발지와 날짜다. 둘 다 없으면 **요약이 없는 것**이고,
-  //    그때는 화면이 「여행 계획 시작해 보세요」를 쓴다.
+  // 인원에는 기본값(성인 2)이 들어 있다. 그래서 아무것도 안 고른 사람에게도
+  // 요약이 「성인 2」로 나왔고, 알약에 안내 문구 대신 그것이 찍혔다
+  // 고른 적 없는 값이 고른 것처럼 보였다.
   if (!value.origin.trim() && !value.startDate) return '';
 
   const parts: string[] = [];
@@ -105,14 +90,7 @@ export function summarizeStartBar(value: StartBarValue, ko: boolean): string {
   return parts.join(' · ');
 }
 
-/**
- * 「홈에서 받은 정보」를 **칩 세 개**로 쪼갠다 — 시안 p1 (S15P21E201-1245).
- *
- * 🔴 한 줄 문자열로 이어 붙이면 폰 390 에서 한 줄에 다 안 들어가 잘린다. 시안은 출발지 ·
- *    날짜 · 인원을 **따로 선 칩**으로 두어서, 좁으면 줄이 바뀌고 넓으면 한 줄로 선다.
- * 🔴 **없는 칸은 만들지 않는다.** 날짜를 안 고른 사람에게 빈 날짜 칩을 보여 주지 않는다.
- *    요약 문자열과 같은 규칙이다(summarizeStartBar 머리말).
- */
+/** 「홈에서 받은 정보」를 칩 세 개로 쪼갠다 — 시안 p1 */
 export function startBarChips(value: StartBarValue, ko: boolean): string[] {
   if (!value.origin.trim() && !value.startDate) return [];
   const chips: string[] = [];
@@ -146,12 +124,7 @@ function nextSaturday(today: Date): Date {
   return date;
 }
 
-/**
- * 「바로 시작」 프리셋. 누르면 바가 채워진다.
- *
- * 🔴 오늘 날짜를 인자로 받는다 — 안에서 `new Date()` 를 부르면 시험이 날짜에 따라
- * 붙었다 떨어졌다 한다.
- */
+/** 「바로 시작」 프리셋. 누르면 바가 채워진다. */
 export const START_BAR_PRESETS: StartBarPreset[] = [
   {
     id: 'weekend-1n',

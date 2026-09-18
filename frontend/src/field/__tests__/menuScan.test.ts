@@ -1,11 +1,6 @@
 import { allergenNotice, emptyNotice, scanMenu, unreadNotice, type MenuScan } from '../menuScan';
 
-// S15P21E201-329 — 이 화면은 사람이 먹는 것 앞에 선다.
-//
-// 🔴 2026-09-16 에 고친 결함(S15P21E201-996)이 여기서 다시 날 수 있는 자리다. 그때는
-// 아무도 조사하지 않은 알레르기를 화면이 「확인됨 · 등록된 유발 성분이 없습니다」로
-// 뒤집어 말했다. 이번에는 서버가 「이 낱말들이 보인다」고 말하는데 화면이 「이것뿐이다」로
-// 그리면 같은 사고다. 그 규칙을 사람이 아니라 이 시험이 지킨다.
+// — 이 화면은 사람이 먹는 것 앞에 선다.
 
 const tx = (ko: string) => ko;
 const txEn = (_ko: string, en: string) => en;
@@ -85,9 +80,9 @@ describe('글자를 못 찾았을 때', () => {
 
 // ── 서버가 준 것을 그대로 믿지 않는다 ────────────────────────────────────────
 
-// 🔴 S15P21E201-1187 — 사진은 보내기 전에 진짜 파일을 읽어 Blob 으로 바뀜다.
-//    여기서 재는 것은 서버가 준 것을 어떻게 다루는가라, 파일 읽기는 흔든다.
-//    그 자리 자체의 시험은 src/api/__tests__/multipart.test.ts 에 따로 있다.
+// — 사진은 보내기 전에 진짜 파일을 읽어 Blob 으로 바뀜다.
+// 여기서 재는 것은 서버가 준 것을 어떻게 다루는가라, 파일 읽기는 흔든다.
+// 그 자리 자체의 시험은 src/api/__tests__/multipart.test.ts 에 따로 있다.
 jest.mock('@/api/multipart', () => ({ singleFileFormData: jest.fn(async () => new FormData()) }));
 jest.mock('@/social/imageResize', () => ({
   MAX_UPLOAD_BYTES: 3 * 1024 * 1024,
@@ -124,10 +119,10 @@ describe('메뉴판 사진 보내기', () => {
     const result = await scanMenu('file:///menu.jpg', 'token', tx, 'ko');
     expect(result.state).toBe('success');
     if (result.state !== 'success') return;
-    // 🔴 서버가 translatedText 를 안 줬다 — 원문으로 물러선다(normalizeScan 의 물러섬).
+    // 서버가 translatedText 를 안 줬다 — 원문으로 물러선다(normalizeScan 의 물러섬).
     expect(result.scan.lines[0]).toEqual({ text: '김밥', translatedText: '김밥', allergenWords: ['달걀'] });
     expect(Object.keys(result.scan)).toEqual(['lines', 'unreadLineCount', 'evidenceStatus']);
-    // 🔴 서버가 VERIFIED 라고 해도 사진에서 읽은 값은 추정이다.
+    // 서버가 VERIFIED 라고 해도 사진에서 읽은 값은 추정이다.
     expect(result.scan.evidenceStatus).toBe('ESTIMATED');
   });
 

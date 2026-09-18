@@ -1,7 +1,4 @@
-// 마크다운 글을 그린다 — S15P21E201-1136.
-//
-// 해석은 @/social/markdown 이 하고 여기는 그리기만 한다. 글자 크기·색·간격은 전부
-// 이 앱의 디자인 토큰을 쓴다 — 피드 글만 다른 글꼴로 보이면 화면이 따로 논다.
+// 마크다운 글을 그린다 —.
 import { Fragment } from 'react';
 import { Linking, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 
@@ -29,7 +26,7 @@ function Inline({ nodes, bold, italic }: { nodes: MdInline[]; bold?: boolean; it
         case 'code':
           return <Text key={key} variant="body" style={styles.codeInline}>{node.text}</Text>;
         case 'link':
-          // 🔴 누르면 바깥으로 나간다. 주소는 사용자가 [글자](주소) 로 적은 것뿐이다 —
+          // 누르면 바깥으로 나간다. 주소는 사용자가 [글자](주소) 로 적은 것뿐이다
           // 글 안의 주소를 자동으로 링크로 바꾸지 않는다(markdown.ts 의 linkify:false).
           return <Text
             key={key}

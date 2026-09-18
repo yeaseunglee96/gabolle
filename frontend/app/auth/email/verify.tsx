@@ -1,13 +1,4 @@
-// 메일의 인증 링크가 도착하는 화면 — S15P21E201-941.
-//
-// 이 화면이 생기기 전에는 링크가 백엔드 GET 경로로 갔고, 인증이 끝나면 로그인 화면으로
-// 되돌려 보내기만 했다. 붙던 ?verified=1 을 읽는 화면이 없어서 사용자에게는 아무 일도
-// 안 일어난 것처럼 보였다.
-//
-// 두 가지 경우가 여기로 온다.
-//   · token 이 붙어 오면 — 새 메일이다. 이 화면이 확인 API 를 부른다
-//   · done 이 붙어 오면 — 이미 나간 옛 메일이다. 백엔드가 이미 끝냈으므로 다시 부르지 않는다.
-//     한 번 쓴 토큰을 또 보내면 "유효하지 않은 토큰" 이 되어, 성공한 사람에게 실패를 보여 준다
+// 메일의 인증 링크가 도착하는 화면 —.
 import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';

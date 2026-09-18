@@ -1,5 +1,5 @@
-// 🔴 날짜 계산은 눈으로 검산이 안 된다. 「1박 2일」이 이틀인지 사흘인지, 월이 바뀔 때
-//    어떻게 되는지가 여기서 정해진다.
+// 날짜 계산은 눈으로 검산이 안 된다. 「1박 2일」이 이틀인지 사흘인지, 월이 바뀔 때
+// 어떻게 되는지가 여기서 정해진다.
 import {
   EMPTY_START_BAR,
   START_BAR_PRESETS,
@@ -60,7 +60,7 @@ describe('한 줄 요약', () => {
   });
 
   it('🔴 인원만으로는 요약을 만들지 않는다 — 인원에는 기본값(성인 2)이 들어 있다', () => {
-    // 아무것도 안 고른 초기 상태. 전에는 여기서 「성인 2」가 나와,
+    // 아무것도 안 고른 초기 상태. 전에는 여기서 「성인 2」가 나와
     // 알약에 안내 문구 대신 고른 적 없는 값이 찍혔다.
     expect(summarizeStartBar(value(), true)).toBe('');
     expect(summarizeStartBar(value({ adults: 4, children: 2 }), true)).toBe('');
@@ -82,7 +82,7 @@ describe('한 줄 요약', () => {
   });
 
   it('어린이가 0명이면 그 칸을 안 적는다', () => {
-    // 🔴 출발지를 같이 준다 — 인원만으로는 요약이 아예 안 만들어진다(위 시험 참고).
+    // 출발지를 같이 준다 — 인원만으로는 요약이 아예 안 만들어진다(위 시험 참고).
     expect(summarizeStartBar(value({ origin: '부산역', adults: 2, children: 0 }), true)).not.toContain('어린이');
     expect(summarizeStartBar(value({ origin: '부산역', adults: 2, children: 1 }), true)).toContain('어린이 1');
   });
@@ -102,7 +102,6 @@ describe('일정 물어보기를 누를 수 있나', () => {
 });
 
 describe('바로 시작 프리셋', () => {
-  // 2026-09-16 은 수요일이다. 다음 토요일은 9월 19일.
   const wednesday = new Date(2026, 8, 16);
 
   it('「이번 주말 1박 2일」은 토요일에서 시작한다', () => {

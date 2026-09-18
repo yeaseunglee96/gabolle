@@ -1,4 +1,4 @@
-// 초대 링크를 열었을 때 보이는 화면(상세설계서 Part II P-33, /invite/:token) — S15P21E201-302.
+// 초대 링크를 열었을 때 보이는 화면(상세설계서 Part II P-33, /invite/:token) —.
 // 여기서는 아무것도 물어보지 않는다 — 들어오자마자 참여 처리를 부르고 여행으로 보낸다.
 import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';

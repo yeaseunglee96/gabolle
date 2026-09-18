@@ -36,15 +36,7 @@ export const WEB_PROVIDERS = PROVIDERS.filter((provider) => provider.key !== 'ap
 
 export type AvailableMapProvider = { key: MapProviderKey; labelKo: string; labelEn: string; open: () => Promise<void> };
 
-// 경로로 열기 — S15P21E201-753 / 명세 4절.
-//
-// 🔴 대중교통 단계별 안내(역 이름·출구 번호·버스 번호)는 이 앱이 못 준다. 그 자료를 주는
-// 공개 API 업체가 아직 정해지지 않아서, 서버의 TRANSIT 응답은 steps 가 늘 빈 배열이다.
-// 채울 수 없는 것을 채우려 하지 말고 할 수 있는 앱으로 넘긴다 — 다만 목적지만 찍어 보내면
-// 사용자가 거기서 길찾기를 다시 눌러야 한다. 출발·도착을 함께 넘겨 경로를 연다.
-//
-// 🔴 위 PROVIDERS 와 주소 형식이 다르다(그쪽은 장소 보기, 이쪽은 길찾기). 각 업체가 공개한
-// 형식만 쓴다 — 지어낸 주소는 눌러도 아무 데도 안 가고, 그건 버튼이 없는 것보다 나쁘다.
+// 경로로 열기 —/ 명세 4절.
 export type RouteEnds = { originLat: number; originLng: number; destLat: number; destLng: number; destName: string };
 
 const ROUTE_URLS: Record<MapProviderKey, { app: (r: RouteEnds) => string; web: (r: RouteEnds) => string }> = {

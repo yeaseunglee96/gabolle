@@ -18,7 +18,7 @@ const INTRO_IMAGES = {
   'local-discovery': require('../assets/home/gamcheon.png'),
   'field-talk': require('../assets/home/gwangalli.png'),
 } as const;
-// S15P21E201-907로 메뉴판 카메라 번역 기능 자체를 출시 전 배포에서 뺐다 — 이 온보딩
+// 로 메뉴판 카메라 번역 기능 자체를 출시 전 배포에서 뺐다 — 이 온보딩
 // 소개 화면에 "메뉴판을 찍고 바로 이해해요" 페이지가 남아 있으면, 앱에 없는 기능을
 // 광고하는 셈이라 chat.tsx QUICK_TOOLS와 같은 원칙(실제로 동작하는 화면만 올린다)에
 // 어긋난다. 그 페이지를 빼고 실제로 있는 기능 둘만 남긴다.
@@ -50,11 +50,12 @@ export default function AppIntro() {
   return <SafeAreaView style={styles.screen}>
     <View style={styles.frame} onLayout={(event) => { const nextWidth = event.nativeEvent.layout.width; setPageWidth(nextWidth); pager.current?.scrollTo({ x: page * nextWidth, animated: false }); }}>
     <View style={styles.top}><Pressable accessibilityRole="link" accessibilityLabel={tx('GABOLLE 시작 화면으로 이동', 'Go to the GABOLLE start screen')} onPress={() => router.replace('/')} style={({ pressed }) => [styles.logoButton, pressed && styles.pressed]}><Image source={logo} resizeMode="contain" style={styles.logo} /></Pressable><Pressable testID="app-intro-skip" accessibilityRole="button" onPress={() => void finish()} style={({ pressed }) => [styles.skip, pressed && styles.pressed]}><Text variant="caption" weight="bold" color={color.text.body}>{tx('건너뛰기', 'Skip')}</Text></Pressable></View>
-    {/* S15P21E201-928: snapToInterval + 수동 scrollTo(settle) 조합이 iOS 네이티브 스크롤
+    {/* : snapToInterval + 수동 scrollTo(settle) 조합이 iOS 네이티브 스크롤
         모멘텀과 겹쳐 스와이프가 멈추는 결함으로 실기기에서 보고됐다. 네이티브
-        pagingEnabled 하나로 바꾸면 페이지 스냅을 OS가 직접 처리해 이 충돌이 없다. */}
+        pagingEnabled 하나로 바꾸면 페이지 스냅을 OS가 직접 처리해 이 충돌이 없다.
+    */}
     <ScrollView ref={pager} horizontal pagingEnabled bounces={false} showsHorizontalScrollIndicator={false} decelerationRate="fast" scrollEventThrottle={16} onScroll={(event) => setPage(Math.max(0, Math.min(PAGES.length - 1, Math.round(event.nativeEvent.contentOffset.x / pageWidth))))} onMomentumScrollEnd={(event) => setPage(Math.max(0, Math.min(PAGES.length - 1, Math.round(event.nativeEvent.contentOffset.x / pageWidth))))}>
-      {/* 🔴 지금 보이는 페이지만 접근성 트리에 남긴다 (S15P21E201-1191).
+ {/* 지금 보이는 페이지만 접근성 트리에 남긴다.
           가로 캐러셀은 세 페이지를 **동시에** 그려 둔다. 가리지 않으면 보조기술에게는
           세 페이지가 한 줄로 늘어선 것으로 보인다 — 화면 낭독기는 지금 화면에 없는
           제목·설명까지 죽 읽고, 어디까지가 이 화면인지 알 수 없게 된다.
@@ -83,12 +84,6 @@ function FeaturePreview({ id }: { id: (typeof PAGES)[number]['id'] }) {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color.brand.ivory },
   frame: { flex: 1, minHeight: 0, width: '100%', maxWidth: 720, alignSelf: 'center' },
-  // 🔴 marginTop — 전역 언어 배지(GlobalLanguageBadge)가 모든 화면 우측 상단에
-  //    절대좌표(top: insets.top + 8)로 떠 있다. 이 줄이 원래 화면 맨 위(marginTop
-  //    없음)에 있어서 오른쪽의 "건너뛰기" 버튼과 배지가 같은 자리에 겹쳐, 실사용
-  //    리포트로 "각각 누르기 어렵다"는 결함이 나왔다(2026-09-12). home.tsx 의 종 모양
-  //    버튼도 같은 이유로 이미 한 번 겹쳤었다(S15P21E201 사용자 리포트) — 같은 값으로
-  //    내려 배지 아래로 피한다.
   top: { height: 56, marginTop: spacing[6], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing[6] },
   logoButton: { minWidth: 100, minHeight: 44, alignItems: 'flex-start', justifyContent: 'center', borderRadius: radius.sm }, logo: { width: 100, height: 24 },
   skip: { minWidth: 64, minHeight: 44, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full }, pressed: { opacity: 0.65, transform: [{ scale: 0.97 }] },
@@ -106,6 +101,4 @@ const styles = StyleSheet.create({
   copy: { gap: spacing[3], marginTop: spacing[6] }, title: { fontSize: 30, lineHeight: 38 }, description: { maxWidth: 330, lineHeight: 24 },
   footer: { flexShrink: 0, gap: spacing[4], paddingHorizontal: spacing[6], paddingTop: spacing[2], paddingBottom: spacing[6] },
   dots: { height: 10, flexDirection: 'row', justifyContent: 'center', gap: spacing[2] }, dot: { width: 8, height: 8, borderRadius: radius.full, backgroundColor: '#ded8cf' }, dotActive: { width: 24, backgroundColor: color.brand.orange },
-  // 🔴 next 를 지웠다 (2026-09-17) — age-gate.tsx 와 같은 이유다. 껍데기에 칠한 주황이
-  // 남색 버튼 뒤로 삐져나왔다. 지금은 버튼이 `variant="accent" pill` 로 직접 그린다.
 });

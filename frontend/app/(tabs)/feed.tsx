@@ -1,12 +1,4 @@
-// 여행 기록 피드 — S15P21E201-958 재설계 1단계(구조).
-//
-// 인계 자료: 바탕화면/가볼래-디자인-재작업-2026-09-14/07-디자인-인계-피드/
-//
-// 🔴 프로토타입의 픽셀을 베끼지 않는다. 색·간격·반경은 전부 tokens.ts 를 거친다.
-// 🔴 폭 임계값도 여기 안 적는다 — layout/breakpoints.ts 의 isAtLeast 만 쓴다
-//    (tools/check-breakpoints.mjs 가 이 파일 밖의 숫자를 잡아낸다).
-// 🔴 아이콘은 png 를 쓴다. 이 저장소에 react-native-svg 가 없어서, svg 를 Image 에
-//    넣으면 웹에서만 보이고 휴대폰에서는 빈칸이 된다.
+// 여행 기록 피드 —재설계 1단계(구조).
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { ActivityIndicator, Image, Pressable, StyleSheet, TextInput, View } from 'react-native';
@@ -37,14 +29,14 @@ import { SignInPromptModal } from '@/social/SignInPromptModal';
 import { useStoryImages } from '@/social/useStoryImages';
 
 // 열쇠는 src/social/stories.ts 로 옮겼다 — 글쓰기 화면도 같은 것을 써야 해서다
-// (S15P21E201-1124). 이름은 그대로 둬서 아래 쓰는 곳들을 건드리지 않는다.
+//  이름은 그대로 둬서 아래 쓰는 곳들을 건드리지 않는다.
 const FEED_KEY = feedQueryKey;
 
 /** 본문 상한 — 글쓰기 화면(compose.tsx)과 같은 값이어야 한다. */
 const BODY_MAX = 500;
 
 /** 사진 장수에 따라 칸을 다르게 쓴다 — 한 장은 넓게, 여러 장은 정사각으로 나눈다. */
-// S15P21E201-1135 — 사진을 가로로 줄 세우던 것을 장수·방향에 따른 배치로 바꾼다.
+// — 사진을 가로로 줄 세우던 것을 장수·방향에 따른 배치로 바꾼다.
 // 배치 규칙은 @/social/photoGrid 한 곳에 있고, 작성 미리보기·글 상세도 같은 것을 쓴다.
 function StoryImages({ images, compact }: { images: StoryDto['images']; compact: boolean }) {
   const { tx } = useI18n();
@@ -64,15 +56,7 @@ function Avatar({ name, compact }: { name: string; compact: boolean }) {
   </View>;
 }
 
-/**
- * 커버 — 카드 맨 위의 사진 자리 (S15P21E201-1177).
- *
- * 🔴 사진이 없으면 **회색 빈 칸을 두지 않는다.** tint 카드에 본문을 크게 넣는다. 시안이
- * 「자주 틀리는 것」 4번으로 못박은 자리다 — 빈 회색은 「사진을 못 불러왔다」로 읽힌다.
- *
- * 사진이 여러 장이면 아래 가운데에 점을 찍는다. 넘기는 기능은 아직 없다 — 점은 **몇 장인지
- * 알리는 표시**일 뿐이고, 없는 기능을 있는 것처럼 보이게 하지 않으려고 첫 점만 진하게 둔다.
- */
+/** 커버 — 카드 맨 위의 사진 자리 */
 function StoryCover({ story, compact, onOpen }: { story: StoryDto; compact: boolean; onOpen: () => void }) {
   const { tx } = useI18n();
   const photos = story.images ?? [];
@@ -107,7 +91,7 @@ function StoryCover({ story, compact, onOpen }: { story: StoryDto; compact: bool
 
 function StoryCard({ story, compact, showUnfollow, unfollowBusy, saved, savingStar, reacting, onUnfollow, onOpen, onOpenAuthor, onReport, onToggleSave, onReact }: {
   story: StoryDto; compact: boolean; showUnfollow: boolean; unfollowBusy: boolean;
-  /** 내가 저장한 기록인가 — S15P21E201-1221. StoryDto엔 없는 칸이라 화면이 따로 들고 다닌다. */
+  /** 내가 저장한 기록인가 —. StoryDto엔 없는 칸이라 화면이 따로 들고 다닌다. */
   saved: boolean;
   savingStar: boolean;
   /** 좋아요·싫어요 버튼이 서버 응답을 기다리는 중인가 — 연타 방지. */
@@ -123,7 +107,7 @@ function StoryCard({ story, compact, showUnfollow, unfollowBusy, saved, savingSt
   const title = story.place?.name ?? tx(`${story.author.displayName}의 기록`, `${story.author.displayName}'s record`);
 
   return <View style={[styles.card, compact ? styles.cardCompact : styles.cardInGrid]}>
-    {/* 🔴 이름과 ⋯ 를 **사진 위에 얹지 않는다** (2026-09-18 실기기).
+ {/* 이름과 ⋯ 를 사진 위에 얹지 않는다 (2026-09-18 실기기).
         사진이 밝거나 사진 자체가 다른 화면의 캡처면 어디까지가 이름이고 어디부터
         ⋯ 인지 구분이 안 됐다. 반투명 배경을 깔아도 사진에 흰 면이 많으면 그대로 묻힌다.
         그래서 **사진 위쪽에 자기 줄**을 준다 — 배경 위에 서므로 항상 읽힌다. */}
@@ -169,25 +153,27 @@ function StoryCard({ story, compact, showUnfollow, unfollowBusy, saved, savingSt
     <Pressable accessibilityRole="link" accessibilityLabel={tx('기록 자세히 보기', 'View record details')} onPress={onOpen} style={styles.cardBody}>
       <Text variant="body" weight="bold" color={color.text.heading} numberOfLines={1}>{title}</Text>
 
-      {/* 🔴 사진이 없는 글은 본문을 커버에 이미 크게 그렸다. 여기서 또 그리면 같은 글이 두 번
+      {/* 사진이 없는 글은 본문을 커버에 이미 크게 그렸다. 여기서 또 그리면 같은 글이 두 번
           나온다 — 9/16 에 「N곳」이 두 번 나온 것과 같은 종류다. 시안도 "아래 본문 미리보기는
-          생략" 이라고 적었다. */}
+          생략" 이라고 적었다.
+      */}
       {hasPhoto
         ? <Text variant="body" color={color.text.body} numberOfLines={2} style={styles.body}>{markdownToPlain(story.body)}</Text>
         : null}
 
       {/* 메타 한 줄.
-          🔴 시안은 여기에 「답글 N · 조회 N」을 넣으라고 한다. 그 칸이 **서버에 아직 없다** —
+ 시안은 여기에 「답글 N· 조회 N」을 넣으라고 한다. 그 칸이 서버에 아직 없다 —
           story 표에 parent 칸도, 조회 표도 없다(마이그레이션 전수 확인, 2026-09-17).
           0 을 하드코딩해 그리지 않는다. 모르는 것을 아는 척하는 것이라, 서버가 칸을 주는 날
-          자연히 나타나게 둔다(S15P21E201-1177 의 백엔드 몫). 지금은 시각과 지역만 말한다. */}
+ 자연히 나타나게 둔다의 백엔드 몫). 지금은 시각과 지역만 말한다. */}
       <Text variant="caption" color={color.text.muted}>
         {relativeStoryTime(story.createdAt, tx)}{story.region ? ` · ${story.region}` : ''}
       </Text>
     </Pressable>
 
-    {/* 좋아요·싫어요·저장 — S15P21E201-1174(반응 카운트, kojh0124 님)·-1221(저장).
-        반응 두 칸은 상세 화면과 같은 부품을 쓴다 (S15P21E201-1247). */}
+    {/* 좋아요·싫어요·저장 —(반응 카운트, kojh0124 님)·-1221(저장).
+        반응 두 칸은 상세 화면과 같은 부품을 쓴다
+    */}
     <StoryReactionRow story={story} reacting={reacting} onReact={onReact}>
       <Pressable
         accessibilityRole="button"
@@ -205,36 +191,9 @@ function StoryCard({ story, compact, showUnfollow, unfollowBusy, saved, savingSt
   </View>;
 }
 
-/*
- * 🔴 placesInFeed() 를 지웠다 (S15P21E201-1177).
- *
- * 「이 피드에 나온 장소」 목록이 지도 패널의 라벨 핀과 겹쳐서 목록을 뺐고, 그 목록만
- * 쓰던 함수라 같이 지운다. 세던 숫자는 「전체에서 몇 번」이 아니라 「지금 보이는 목록에서
- * 몇 번」이었다 — 집계 API 가 없어 범위를 좁게 잡은 값이다. 집계 API 가 생기면 그때
- * 제대로 만든다. 안 쓰는 계산을 화면마다 돌려 두지 않는다.
- */
+/** placesInFeed 를 지웠다 */
 
-/**
- * 피드 맨 위에서 바로 쓰는 글쓰기 카드 — 데스크톱 폭(1024+) 전용.
- *
- * <p>폰은 기존대로 「기록」 버튼으로 /feed/compose 에 간다. 좁은 화면에서 본문·사진·
- * 공개범위를 한 카드에 넣으면 정작 보러 온 목록이 한참 밀려 내려간다.
- *
- * <p>🔴 S15P21E201-1142 — 전에는 {@code wide}(1440+)에서만 켰다. 그런데 헤더의 「기록」
- * 버튼은 {@code compact}(1024 미만)에서만 나오므로 **1024~1439 구간에는 글 쓸 입구가
- * 하나도 없었다.** 흔한 데스크톱 창 폭이 통째로 비어 있었던 것이다.
- *
- * <p>목록이 비었을 때만 빈 화면 안내에 버튼이 있어서, **글이 하나라도 쌓이면 입구가
- * 사라졌다** — 처음 써 본 사람은 되는데 쓰고 나면 다시 못 쓴다. 그래서 더 안 보였다.
- *
- * <p>🔴 사진 처리는 {@link useStoryImages} 한 곳에서 온다 — 글쓰기 화면과 같은 코드다.
- * 줄이기(1600px)·EXIF 제거·3MB 판정 규칙이 두 벌이 되지 않게 하려고 뺐다.
- *
- * <p>🔴 인계 문서의 「장소」·「여행 연결」 버튼은 넣지 않았다. createStory 는
- * placeId·tripId 를 받지만 <b>고르는 화면이 저장소 어디에도 없다</b> — 기존 글쓰기
- * 화면도 자유 입력 「지역」만 받는다. 눌러도 아무 일이 없는 버튼을 두는 대신 그
- * 자유 입력을 같은 자리에 둔다. 선택기가 생기면 그때 바꾼다.
- */
+/** 피드 맨 위에서 바로 쓰는 글쓰기 카드 — 데스크톱 폭(1024+) 전용. */
 function InlineCompose({ onPosted }: { onPosted: () => void }) {
   const { tx } = useI18n();
   const { accessToken } = useAuth();
@@ -259,7 +218,7 @@ function InlineCompose({ onPosted }: { onPosted: () => void }) {
       body: body.trim(),
       imageUrls: uploadedUrls,
       region: region.trim() || undefined,
-      // 🔴 우리 DB 장소를 골랐을 때만 실려 간다. 카카오 검색 결과에는 placeId 가 아예
+      // 우리 DB 장소를 골랐을 때만 실려 간다. 카카오 검색 결과에는 placeId 가 아예
       // 없으므로(regionSearch.ts) 저장하면 안 되는 것이 여기로 흘러들 수 없다.
       placeId,
       visibility,
@@ -290,8 +249,9 @@ function InlineCompose({ onPosted }: { onPosted: () => void }) {
       multiline
     />
 
-    {/* S15P21E201-1135 — 글쓰기가 두 곳(여기와 app/feed/compose.tsx)에 있는데
-        둘이 다른 모양이면 같은 앱에서 사진이 두 가지로 보인다. 같은 부품을 쓴다. */}
+    {/* — 글쓰기가 두 곳(여기와 app/feed/compose.tsx)에 있는데
+        둘이 다른 모양이면 같은 앱에서 사진이 두 가지로 보인다. 같은 부품을 쓴다.
+    */}
     {images.length ? <PhotoGrid
       photos={images.map((image) => ({ uri: image.localUri }))}
       compact
@@ -312,13 +272,14 @@ function InlineCompose({ onPosted }: { onPosted: () => void }) {
       }}
     /> : null}
 
-    {/* 사진이 상한을 넘었을 때만 그 이유가 뜬다 — 미리 겁주지 않는다 (S15P21E201-955). */}
+    {/* 사진이 상한을 넘었을 때만 그 이유가 뜬다 — 미리 겁주지 않는다 */}
     {images.map((image, index) => image.error
       ? <Text key={`image-error-${index}`} variant="caption" color={color.state.danger}>{image.error}</Text>
       : null)}
 
-    {/* S15P21E201-1145 — 자유 입력 한 칸이던 것을 검색으로 바꾼다. 우리 DB 장소를
-        고르면 placeId 가 따라와 글이 그 장소에 달린다. 손으로 고쳐 쓰는 길은 그대로다. */}
+    {/* — 자유 입력 한 칸이던 것을 검색으로 바꾼다. 우리 DB 장소를
+        고르면 placeId 가 따라와 글이 그 장소에 달린다. 손으로 고쳐 쓰는 길은 그대로다.
+    */}
     {regionOpen ? <RegionPicker
       region={region}
       onChangeRegion={setRegion}
@@ -327,8 +288,9 @@ function InlineCompose({ onPosted }: { onPosted: () => void }) {
       accessToken={accessToken}
     /> : null}
 
-    {/* S15P21E201-1146 — 전체 화면 글쓰기에는 있던 안내가 여기엔 없었다.
-        같은 앱에서 같은 일을 하는데 한쪽만 말해 주면 안 된다. */}
+    {/* — 전체 화면 글쓰기에는 있던 안내가 여기엔 없었다.
+        같은 앱에서 같은 일을 하는데 한쪽만 말해 주면 안 된다.
+    */}
     <Text variant="caption" color={color.text.muted}>{tx('사진의 위치 정보는 지워져요. 장소를 연결하면 그 장소 소개에도 사진이 함께 보일 수 있어요.', 'Location data is removed from photos. If you link a place, your photo may also appear on that place.')}</Text>
 
     <View style={styles.composeTools}>
@@ -351,21 +313,7 @@ function InlineCompose({ onPosted }: { onPosted: () => void }) {
   </View>;
 }
 
-/**
- * 추억 지도 — 좌표가 붙은 기록만 지도에 찍는다.
- *
- * <p>기존 {@link RouteMap} 을 그대로 쓴다. 마커를 누르면 그 기록으로 간다 —
- * 여행 준비 화면의 추억 지도가 이미 그렇게 동작한다(S15P21E201-906 범위 밖 항목).
- *
- * <p>🔴 좌표가 하나도 없으면 카드를 아예 안 그린다. 빈 지도에 「0개」를 적어 두는
- * 것은 자리만 차지하고 아무것도 알려주지 않는다.
- *
- * <p>🔴 지도는 웹에서만 그려진다. 휴대폰 앱에는 지도가 없고, 이 카드는 넓은 화면의
- * 보조 칸에만 있으므로 폰에서는 애초에 안 보인다.
- *
- * <p>🔴 인계 문서의 「크게 보기」 링크는 넣지 않았다. 갈 곳이 없다 — 추억 지도는
- * 여행별로만 있고(app/(trip)/[id]), 피드 전체를 담는 지도 화면은 저장소에 없다.
- */
+/** 추억 지도 — 좌표가 붙은 기록만 지도에 찍는다. */
 function MemoryMap({ items, onOpenStory }: { items: StoryDto[]; onOpenStory: (id: string) => void }) {
   const { tx } = useI18n();
   const stops = items
@@ -378,7 +326,7 @@ function MemoryMap({ items, onOpenStory }: { items: StoryDto[]; onOpenStory: (id
       longitude: story.place?.lng as number,
     }));
 
-  // 🔴 고른 것을 기억한다 (S15P21E201-1177). 시안이 「선택 = navy 배경/흰 글자, 나머지
+  // 고른 것을 기억한다 시안이 「선택 = navy 배경/흰 글자, 나머지
   // 흰 배경」이라고 한 그 상태다. 전에는 언제나 첫 번째가 골라진 채였다 — 지도가 있는데
   // 목록에서 어디를 보는지 고를 수가 없었다.
   const [selected, setSelected] = useState<string | null>(null);
@@ -393,8 +341,9 @@ function MemoryMap({ items, onOpenStory }: { items: StoryDto[]; onOpenStory: (id
     </View>
 
     {/* 장소 라벨 — 누르면 지도에서 그 핀이 골라지고, 한 번 더 누르면 그 기록으로 간다.
-        🔴 「누르면 곧바로 이동」이 아니다. 지도를 보며 고르는 자리라, 첫 누름은 **지도에서
-        찾아 주는 것**이어야 한다. 이동은 이미 골라진 것을 다시 누를 때다. */}
+        「누르면 곧바로 이동」이 아니다. 지도를 보며 고르는 자리라, 첫 누름은 지도에서
+        찾아 주는 것이어야 한다. 이동은 이미 골라진 것을 다시 누를 때다.
+    */}
     <View style={styles.pinLabels}>
       {stops.map((stop) => {
         const active = stop.id === current;
@@ -458,7 +407,7 @@ export default function Feed() {
   const { width } = useLayout();
   const queryClient = useQueryClient();
 
-  // 🔴 1024 이상에서만 보조 칸을 붙인다. 저장소 반응형 표가 「1024~ 사이드바 + 본문」
+  // 1024 이상에서만 보조 칸을 붙인다. 저장소 반응형 표가 「1024~ 사이드바 + 본문」
   // 이라고 정해 두었다(layout/breakpoints.ts). 인계 문서는 'md' 라고 적었지만 이
   // 저장소의 md 는 600 이라, 거기서 320 보조 칸을 붙이면 본문이 짓눌린다.
   const wide = isAtLeast(width, 'lg');
@@ -467,24 +416,24 @@ export default function Feed() {
   const [scope, setScope] = useState<FeedScope>('ALL');
   const [loadingMore, setLoadingMore] = useState(false);
   const [unfollowingId, setUnfollowingId] = useState<string | null>(null);
-  // 폰에서 지도를 폈나 (S15P21E201-1177). 넓은 화면은 늘 떠 있어 이 값을 안 본다.
+  // 폰에서 지도를 폈나 넓은 화면은 늘 떠 있어 이 값을 안 본다.
   const insets = useSafeAreaInsets();
   const [mapOpen, setMapOpen] = useState(false);
   const [reportingStoryId, setReportingStoryId] = useState<string | null>(null);
   const [savingStoryId, setSavingStoryId] = useState<string | null>(null);
   const [reactingStoryId, setReactingStoryId] = useState<string | null>(null);
-  // S15P21E201-1012 — 로그인 유도. 🔴 주소를 나누지 않고 이 화면의 상태로만 다룬다.
+  // — 로그인 유도. 주소를 나누지 않고 이 화면의 상태로만 다룬다.
   // 주소를 가르면 뒤로 가기·공유 링크·검색이 전부 갈라진다.
   const [promptingSignIn, setPromptingSignIn] = useState(false);
   const [lastPromptedAt, setLastPromptedAt] = useState(0);
 
   const signedIn = Boolean(accessToken);
-  // 🔴 S15P21E201-1142 — 글쓰기 입구는 여기서 고르지 않고 composeEntry 한 곳에서 받는다.
+  // — 글쓰기 입구는 여기서 고르지 않고 composeEntry 한 곳에서 받는다.
   // 조건을 화면 두 곳에 나눠 적었더니 그 사이 폭(600~1023)에 입구가 하나도 없었다.
   const composeEntry = composeEntryFor(width, signedIn);
   const key = FEED_KEY(scope, signedIn);
 
-  // 화면 밖 보관소에서 읽는다 — 탭을 오가도 다시 안 부른다 (S15P21E201-957).
+  // 화면 밖 보관소에서 읽는다 — 탭을 오가도 다시 안 부른다
   const feedQuery = useQuery({
     queryKey: key,
     queryFn: () => loadFeed({ scope, accessToken }),
@@ -493,7 +442,7 @@ export default function Feed() {
   const loading = feedQuery.isPending;
   const items = result.state === 'success' ? result.items : [];
 
-  // 저장 여부 — S15P21E201-1221. StoryDto엔 없는 칸이라 저장 id 집합을 따로 받아 대조한다.
+  // 저장 여부 —. StoryDto엔 없는 칸이라 저장 id 집합을 따로 받아 대조한다.
   const savedIdsQuery = useQuery({
     queryKey: ['saved-story-ids', signedIn],
     queryFn: () => loadSavedStoryIds(accessToken),
@@ -516,7 +465,7 @@ export default function Feed() {
   };
 
   /**
-   * 좋아요·싫어요 토글 — S15P21E201-1174. 같은 것을 다시 누르면 끄고(DELETE), 다른 것을
+   * 좋아요·싫어요 토글 —. 같은 것을 다시 누르면 끄고(DELETE), 다른 것을
    * 누르면 바꾼다(PUT). 서버가 세는 수를 낙관적으로 미리 맞춰 그린다 — 매번 목록을 다시
    * 불러오면 스크롤 위치가 튄다.
    */
@@ -596,9 +545,10 @@ export default function Feed() {
         {scopeButton('ALL', tx('전체', 'All'))}
         {scopeButton('FOLLOWING', tx('팔로잉', 'Following'))}
       </View>
-      {/* 🔴 폰의 글쓰기 진입은 아래 떠 있는 단추(FAB)로 옮겼다 (S15P21E201-1177, 시안 5번).
-          여기 남겨 두면 같은 행동이 한 화면에 두 자리에 있게 된다. composeEntryFor() 의
-          'headerButton' 은 이제 「폰이다」를 뜻하고, 그 자리를 FAB 가 맡는다. */}
+      {/* 폰의 글쓰기 진입은 아래 떠 있는 단추(FAB)로 옮겼다 시안 5번).
+          여기 남겨 두면 같은 행동이 한 화면에 두 자리에 있게 된다. composeEntryFor 의
+          'headerButton' 은 이제 「폰이다」를 뜻하고, 그 자리를 FAB 가 맡는다.
+      */}
     </View>
   </View>;
 
@@ -612,14 +562,9 @@ export default function Feed() {
         </View>
       : null}
 
-    {/* 🔴 S15P21E201-1142 — 데스크톱 폭(1024+)이면 맨 위에 둔다. 전에는 1440+ 였고,
+    {/* — 데스크톱 폭(1024+)이면 맨 위에 둔다. 전에는 1440+ 였고
         헤더 버튼은 1024 미만에서만 나와서 그 사이 폭에 입구가 없었다.
-
-        경계값을 새로 만들지 않고 이미 있는 compact 를 쓴다 — 폭 숫자를 화면 코드에
-        적지 않는다는 이 파일의 규칙 그대로다(layout/breakpoints.ts 만 쓴다).
-
-        올리고 나면 이 범위를 낡은 것으로 표시해 다시 불러온다 — 방금 쓴 글이 목록에
-        바로 보이게. */}
+    */}
     {composeEntry === 'inline'
       ? <InlineCompose onPosted={() => void queryClient.invalidateQueries({ queryKey: key })} />
       : null}
@@ -646,8 +591,9 @@ export default function Feed() {
         />
       : null}
 
-    {/* 계정이 필요한 행동(신고)을 누르면 곧바로 로그인 화면으로 보내지 않고 같은 창을 띄운다 —
-        왜 필요한지 모른 채 쫓겨난 것처럼 느끼게 하지 않는다 (S15P21E201-1012). */}
+    {/* 계정이 필요한 행동(신고)을 누르면 곧바로 로그인 화면으로 보내지 않고 같은 창을 띄운다
+        왜 필요한지 모른 채 쫓겨난 것처럼 느끼게 하지 않는다
+    */}
     {!loading && result.state === 'success' && items.length
       ? <View style={compact ? styles.list : styles.listWide}>{items.map((story) => <StoryCard
           key={story.id}
@@ -672,35 +618,26 @@ export default function Feed() {
       : null}
   </View>;
 
-  // 🔴 「이 피드에 나온 장소」 목록을 뺐다 (S15P21E201-1177).
-  //
-  //    지도 패널 안의 라벨 핀이 같은 장소를 이미 보여준다. 둘을 같이 두면 같은 정보가
-  //    한 화면에 두 번 나온다 — 9/16 에 「N곳」이 두 번 나온 것과 같은 종류다.
-  //
-  //    잃는 것이 하나 있다: 장소마다 몇 번 나왔는지(count). 그건 「지금 보이는 목록에서
-  //    몇 번」이라 집계 API 가 없어 만든 값이었고(아래 countPlaces 주석), 라벨을 눌러
-  //    지도에서 찾는 것이 그 숫자보다 쓸모 있다고 봤다.
+  // 「이 피드에 나온 장소」 목록을 뺐다
   const aside = <View style={styles.aside}>
     <MemoryMap items={items} onOpenStory={(id) => router.push(`/feed/${id}`)} />
   </View>;
 
   return <View style={styles.shell}>
-    {/* 🔴 wide 를 넘겨야 최대 폭이 720 → 1180 으로 열린다. 안 넘기면 2단이
+    {/* wide 를 넘겨야 최대 폭이 720 → 1180 으로 열린다. 안 넘기면 2단이
         좁은 칸 안에서 또 나뉘어 양쪽 다 짓눌린다 — Screen 주석이 경고하는
-        바로 그 고장이고, tsc 는 잡지 못한다(폭이 좁은 것은 문법 오류가 아니다). */}
+        바로 그 고장이고, tsc 는 잡지 못한다(폭이 좁은 것은 문법 오류가 아니다).
+    */}
     <Screen scroll withTabBar wide={wide}>
       {wide
         ? <View style={styles.wideGrid}>{feedColumn}{aside}</View>
         : <>
             {feedColumn}
-            {/* 🔴 폰에서 지도를 접었다 편다 (S15P21E201-1177, 시안 5번).
+            {/* 폰에서 지도를 접었다 편다 시안 5번).
                 넓은 화면은 오른쪽에 지도 패널이 늘 떠 있지만 폰에는 그 자리가 없다.
                 그렇다고 목록 위에 지도를 항상 깔면 정작 보러 온 기록이 밀린다.
-                그래서 **부를 때만** 편다.
-
-                🔴 다른 화면으로 보내지 않는다. 피드 전체를 담는 지도 화면이 저장소에
-                없다 — 없는 곳으로 가는 단추를 만들지 않는다. 「표시하기」라는 말 그대로
-                이 자리에서 보여준다. */}
+                그래서 부를 때만 편다.
+            */}
             {mapOpen ? <View style={styles.phoneMap}><MemoryMap items={items} onOpenStory={(id) => router.push(`/feed/${id}`)} /></View> : null}
           </>}
       <ReportModal visible={reportingStoryId !== null} onClose={() => setReportingStoryId(null)} onSubmit={submitReport} />
@@ -711,9 +648,10 @@ export default function Feed() {
       />
     </Screen>
 
-    {/* 🔴 떠 있는 단추는 Screen **밖**에 둔다 (S15P21E201-1177). 안에 두면 스크롤과 함께
-        올라가 버린다 — 탭바가 같은 이유로 받침에 담겨 떠 있다(S15P21E201-1155).
-        `pointerEvents="box-none"` 이라 단추가 없는 자리는 손짓이 그대로 통과한다. */}
+    {/* 떠 있는 단추는 Screen 밖에 둔다 안에 두면 스크롤과 함께
+        올라가 버린다 — 탭바가 같은 이유로 받침에 담겨 떠 있다.
+        `pointerEvents="box-none"` 이라 단추가 없는 자리는 손짓이 그대로 통과한다.
+    */}
     {!wide
       ? <View pointerEvents="box-none" style={[styles.fabDock, { paddingBottom: TAB_BAR_HEIGHT + tabBarBottomMargin(insets.bottom) + spacing[4] }]}>
           <Pressable
@@ -734,11 +672,12 @@ export default function Feed() {
                 onPress={() => router.push('/feed/compose')}
                 style={({ pressed }) => [styles.writeFab, pressed && styles.pressed]}
               >
-                {/* 🔴 「+」가 아니라 연필이다 (S15P21E201-1177).
-                    탭바 가운데에 이미 **주황 + 원**이 있다 — 「여행 만들기」다(TabBar 의
-                    createIconWrap). 그 바로 위에 주황 + 를 또 두면 **뜻이 다른 주황 + 가
-                    둘** 겹쳐서, 어느 것이 무엇인지 눌러 봐야 안다.
-                    시안은 「orange 기록 FAB」이라고만 했지 글자를 정하지 않았다. */}
+                {/* 「+」가 아니라 연필이다
+                    탭바 가운데에 이미 주황 + 원이 있다 — 「여행 만들기」다(TabBar 의
+                    createIconWrap). 그 바로 위에 주황 + 를 또 두면 뜻이 다른 주황 + 가
+                    둘 겹쳐서, 어느 것이 무엇인지 눌러 봐야 안다.
+                    시안은 「orange 기록 FAB」이라고만 했지 글자를 정하지 않았다.
+                */}
                 <Text variant="title" weight="bold" color={color.text.onAction}>✎</Text>
               </Pressable>
             : null}
@@ -754,26 +693,16 @@ const styles = StyleSheet.create({
 
   // 넓은 화면: 본문 + 보조 칸. 보조 칸은 폭 고정, 본문이 남는 만큼 가져간다.
   wideGrid: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[6], marginTop: spacing[6] },
-  // 🔴 피드 기둥에 최대 폭을 준다 (S15P21E201-1169).
-  //
-  // 전에는 flex:1 만 있어서 넓은 화면에서 카드가 1,200px 넘게 벌어졌다. 그러면 두 가지가
-  // 같이 나빠진다 — 글이 한 줄에 너무 길어 읽기 어렵고, 사진의 **비율 제한이 무력해진다**
-  // (0.6 비율이 폭 1,200 에서 높이 2,000 이 된다). 사용자가 올린 화면이 그 상태였다.
-  //
-  // 600 은 이런 세로 피드의 통상 폭이다(X 가 598). 폰에서는 화면이 그보다 좁으므로
-  // 아무것도 안 바뀐다.
+  // 피드 기둥에 최대 폭을 준다
   feedColumn: { flex: 1, minWidth: 0, maxWidth: 600, width: '100%', alignSelf: 'center' },
-  // ── 폰의 떠 있는 단추 (S15P21E201-1177) ────────────────────────────────────
-  //
-  // 탭바 위에 뜬다. 탭바 높이와 안전영역을 TabBar 가 내보낸 값으로 계산한다 —
-  // 같은 숫자를 여기 또 적으면 저쪽에서 64 를 바꾸는 날 조용히 겹친다.
+  // ── 폰의 떠 있는 단추 ────────────────────────────────────
   pressed: { opacity: 0.72, transform: [{ scale: 0.97 }] },
   fabDock: { position: 'absolute', left: 0, right: 0, bottom: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing[3], paddingHorizontal: gutter },
   mapToggle: { minHeight: 48, justifyContent: 'center', paddingHorizontal: spacing[6], borderRadius: radius.full, backgroundColor: color.brand.navy },
   writeFab: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center', borderRadius: 24, backgroundColor: color.brand.orange },
   phoneMap: { marginTop: spacing[4] },
-  // 🔴 520 은 시안 값이다 (S15P21E201-1177). 전에는 320 이라 지도가 우표만 했다 —
-  //    지도를 보라고 둔 칸인데 무엇이 어디인지 안 보였다.
+  // 520 은 시안 값이다 전에는 320 이라 지도가 우표만 했다
+  // 지도를 보라고 둔 칸인데 무엇이 어디인지 안 보였다.
   aside: { width: 520, gap: spacing[3] },
   mapPanel: { gap: spacing[3], paddingVertical: spacing[6], paddingHorizontal: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.border },
   // 라벨 핀 — 줄바꿈된다. 장소가 몇 개든 잘리지 않는다.
@@ -786,20 +715,12 @@ const styles = StyleSheet.create({
   headerTitle: { marginTop: spacing[1] },
   headerActions: {
     flexDirection: 'row', alignItems: 'center', gap: spacing[2],
-    // 🔴 넘치면 **내려간다** (S15P21E201-1161). 이 줄이 없어서 오른쪽으로 삐져나갔다.
-    //
-    // 이 안에는 「전체」·「팔로잉」 칩과 「기록」 버튼이 선다. 그런데 「기록」은
-    // composeEntryFor() 상 **폰 폭에서만** 뜬다 — 자리가 제일 좁을 때만 등장하는 버튼이다.
-    // flex 자식은 기본이 「안 줄어듦」이라, 셋을 합친 폭이 줄을 넘으면 줄바꿈도 축소도 없이
-    // 그냥 화면 밖으로 나간다. 바깥 headerRow 의 flexWrap 은 여기 안쪽까지 안 미친다.
-    //
-    // 안 넘칠 때는 아무것도 안 바뀐다.
+    // 넘치면 내려간다 이 줄이 없어서 오른쪽으로 삐져나갔다.
     flexWrap: 'wrap', justifyContent: 'flex-end',
   },
-  // 🔴 writeButton 을 지웠다 (S15P21E201-1161). { width:'auto', paddingHorizontal } 을
-  // containerStyle 로 넘겼는데 그건 **껍데기**의 폭일 뿐이라, 안쪽 버튼은 여전히
+  // writeButton 을 지웠다 { width:'auto', paddingHorizontal } 을
+  // containerStyle 로 넘겼는데 그건 껍데기의 폭일 뿐이라, 안쪽 버튼은 여전히
   // width:'100%' 를 원했다. 지금은 버튼이 직접 자기 폭을 정한다 — `compact`.
-
 
   // 넓은 화면은 붙은 세그먼트, 폰은 떨어진 칩.
   scopeSegments: { flexDirection: 'row', gap: spacing[1], padding: spacing[1], borderRadius: radius.full, backgroundColor: color.surface.soft },
@@ -824,15 +745,12 @@ const styles = StyleSheet.create({
   emptyPrimary: { width: 'auto', minWidth: 180, paddingHorizontal: spacing[4], backgroundColor: color.brand.navy },
 
   list: { gap: spacing[3], marginTop: spacing[4] },
-  // 🔴 넓은 화면은 2열 (S15P21E201-1177). flexWrap 이라 폭이 모자라면 자연히 한 열이 된다 —
-  //    열 수를 폭으로 계산해 박아 두지 않는다. minWidth 280 이 한 장의 최소 폭이다.
+  // 넓은 화면은 2열 flexWrap 이라 폭이 모자라면 자연히 한 열이 된다
+  // 열 수를 폭으로 계산해 박아 두지 않는다. minWidth 280 이 한 장의 최소 폭이다.
   listWide: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[4], marginTop: spacing[4] },
   cardInGrid: { flexGrow: 1, flexBasis: 280, minWidth: 280 },
 
-  // ── 카드 (S15P21E201-1177) ──────────────────────────────────────────────────
-  //
-  // 커버 사진이 맨 위에 오고 그 위에 작성자·동작이 얹힌다. 카드 자체의 여백은 없앴다 —
-  // 사진이 카드 끝까지 닿아야 시안의 인상이 난다. 글 부분만 안쪽 여백을 갖는다.
+  // ── 카드 ──────────────────────────────────────────────────
   card: { borderRadius: radius.lg, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.border, overflow: 'hidden' },
   coverWrap: { position: 'relative' },
   cover: { width: '100%', backgroundColor: color.surface.soft },
@@ -841,13 +759,13 @@ const styles = StyleSheet.create({
   /** 넓은 화면은 정사각. 2열로 놓을 때 줄이 맞는다. */
   coverWide: { aspectRatio: 1 },
   coverImage: { width: '100%', height: '100%' },
-  // 🔴 사진이 없을 때 — 회색 빈 칸 대신 tint 에 본문을 크게. 시안 「자주 틀리는 것」 4번.
+  // 사진이 없을 때 — 회색 빈 칸 대신 tint 에 본문을 크게. 시안 「자주 틀리는 것」 4번.
   coverEmpty: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing[6], backgroundColor: color.surface.tint },
   coverEmptyText: { textAlign: 'center' },
   dots: { position: 'absolute', left: 0, right: 0, bottom: spacing[3], flexDirection: 'row', justifyContent: 'center', gap: spacing[1] },
   dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: color.surface.card, opacity: 0.5 },
   dotFirst: { opacity: 1 },
-  // 🔴 사진 위가 아니라 **카드 맨 위 한 줄**이다. 반투명 배경이 필요 없어졌다.
+  // 사진 위가 아니라 카드 맨 위 한 줄이다. 반투명 배경이 필요 없어졌다.
   cardHead: { minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[2], paddingHorizontal: spacing[3], paddingTop: spacing[3], paddingBottom: spacing[2] },
   authorPill: {
     flexShrink: 1,
@@ -868,7 +786,7 @@ const styles = StyleSheet.create({
 
   body: { lineHeight: 22 },
 
-  // 배치는 PhotoGrid 가 정한다 (S15P21E201-1135) — 여기서는 위아래 간격만 준다.
+  // 배치는 PhotoGrid 가 정한다 — 여기서는 위아래 간격만 준다.
   images: { marginTop: spacing[2] },
   pin: { width: 14, height: 14, tintColor: color.text.muted },
   grow: { flex: 1, minWidth: 0 },
@@ -885,7 +803,7 @@ const styles = StyleSheet.create({
   toolButton: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], minHeight: 36, paddingHorizontal: spacing[3], borderRadius: radius.sm },
   toolButtonOn: { backgroundColor: color.surface.soft },
   toolIcon: { width: 16, height: 16, tintColor: color.brand.navy },
-  // 🔴 S15P21E201-1144 — 배경색을 여기 칠하지 않는다. Button 의 variant='primary' 가
+  // — 배경색을 여기 칠하지 않는다. Button 의 variant='primary' 가
   // 이미 같은 남색을 «안쪽» 에 칠하고, 안쪽에만 모서리가 있다. 바깥 껍데기에 같은 색을
   // 덧칠하면 둥근 버튼 뒤에 네모난 판이 깔려 각져 보인다 — 두 색이 같아 네모만 보였다.
   composePost: { width: 'auto', minWidth: 96, paddingHorizontal: spacing[4] },

@@ -1,7 +1,7 @@
 // 소셜 인증에 쓴 이메일로 이미 이메일 가입 계정이 있을 때(LINK_REQUIRED) 비밀번호로 그
-// 계정에 소셜을 붙이는 화면. sign-in.tsx 의 social() 이 409 OAUTH_ACCOUNT_LINK_REQUIRED 를
-// 받으면 여기로 보낸다. 비밀번호가 틀려도 같은 티켓으로 재시도할 수 있다(서버 의도) —
-// S15P21E201-586, jaehyeon 님 !288 계약.
+// 계정에 소셜을 붙이는 화면. sign-in.tsx 의 social 이 409 OAUTH_ACCOUNT_LINK_REQUIRED 를
+// 받으면 여기로 보낸다. 비밀번호가 틀려도 같은 티켓으로 재시도할 수 있다(서버 의도)
+// , jaehyeon 님 !288 계약.
 import { useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';

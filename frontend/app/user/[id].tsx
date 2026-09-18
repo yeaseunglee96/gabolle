@@ -1,6 +1,3 @@
-// 다른 사용자 프로필 화면 (S15P21E201-238). GET /api/v1/users/{userId}/profile ·
-// GET /api/v1/users/{userId}/stories 계약은 jaehyeon 님이 2026-09-08 axmap으로 확인해 준
-// 것을 그대로 쓴다.
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, Image, Pressable, StyleSheet, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
@@ -52,7 +49,7 @@ export default function UserProfile() {
     }
   };
 
-  // 차단하면 팔로우가 서버에서 함께 끊기므로(S15P21E201-990) 화면도 다시 불러온다 —
+  // 차단하면 팔로우가 서버에서 함께 끊기므로 화면도 다시 불러온다
   // 따로 계산해 맞추면 서버와 조용히 갈라진다.
   const confirmBlock = async () => {
     if (state.status !== 'loaded' || !id) return false;
@@ -96,7 +93,7 @@ export default function UserProfile() {
       {state.status === 'loaded' ? (
         <View style={styles.header}>
           <Text variant="display" weight="bold">{state.profile.displayName}</Text>
-          {/* 🔴 S15P21E201-1180 — 숫자만 있고 누를 곳이 없었다. 목록 화면이 생겼으니 잇는다. */}
+          {/* — 숫자만 있고 누를 곳이 없었다. 목록 화면이 생겼으니 잇는다. */}
           <View style={styles.statRow}>
             <View style={styles.stat}><Text variant="title" weight="bold">{state.profile.storyCount}</Text><Text variant="caption" color={color.text.muted}>{tx('기록', 'Records')}</Text></View>
             <Pressable accessibilityRole="button" onPress={() => router.push(`/user/${id}/followers`)} style={styles.stat}><Text variant="title" weight="bold">{state.profile.followerCount}</Text><Text variant="caption" color={color.text.muted}>{tx('팔로워', 'Followers')}</Text></Pressable>
@@ -115,7 +112,8 @@ export default function UserProfile() {
                 containerStyle={styles.followButton}
               />
               {/* 차단·해제는 같은 자리에서 바뀐다. 차단은 확인창을 거치고, 해제는 되돌리는
-                  동작이라 바로 한다 — 실수로 눌러도 잃는 것이 없다. */}
+                  동작이라 바로 한다 — 실수로 눌러도 잃는 것이 없다.
+              */}
               <Button
                 label={blockBusy ? tx('처리 중…', 'Working…') : state.profile.blocked ? tx('차단 해제', 'Unblock') : tx('차단하기', 'Block')}
                 variant="ghost"
@@ -130,8 +128,9 @@ export default function UserProfile() {
         </View>
       ) : null}
 
-      {/* 🔴 차단당한 쪽이 보는 화면. 빈 화면도 404 도 아니다 — 없는 사람으로 만들면 실수로
-          눌렀을 때 상대가 계정이 사라졌다고 오해하고 되돌릴 길이 막힌다 (S15P21E201-991). */}
+      {/* 차단당한 쪽이 보는 화면. 빈 화면도 404 도 아니다 — 없는 사람으로 만들면 실수로
+          눌렀을 때 상대가 계정이 사라졌다고 오해하고 되돌릴 길이 막힌다
+      */}
       {state.status === 'loaded' && state.profile.blockedByUser ? (
         <View accessibilityRole="alert" style={styles.stateCard}>
           <Text variant="title" weight="bold">{tx('차단되어 볼 수 없습니다', 'Blocked — you cannot view this profile')}</Text>

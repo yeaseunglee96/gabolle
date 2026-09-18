@@ -1,15 +1,5 @@
-// 온보딩 ③ 취향 다섯 — 로컬성·조용함·관광지·음식·경사 (S15P21E201-960).
+// 온보딩 ③ 취향 다섯 — 로컬성·조용함·관광지·음식·경사
 // 세 질문(spend-profile.tsx) 바로 다음 단계이고, 틀은 그 화면을 그대로 따른다.
-//
-// 🔴 전부 건너뛰어도 저장하지 않는다 — 그리고 그래도 갇히지 않는다.
-// 이 화면에 들어오는 길은 세 질문이 끝나는 자리 하나뿐이고(home.tsx 는 세 질문이
-// UNKNOWN 일 때만 온보딩으로 보낸다), 세 질문에 답한 뒤에는 그 길이 닫힌다. 그래서
-// "물어봤지만 안 답했다" 를 계정에 적어 둘 필요가 없다.
-//
-// 🔴 인계 문서는 "전부 건너뛰면 SKIPPED 로 보낸다" 고 적었는데 그러지 않았다. 서버의
-// 취향 경로는 SKIPPED 를 받으면 아무것도 하지 않는다(계정을 안 건드리는 것이 그 값의
-// 뜻이다). 보내면 저장한 것처럼 보이지만 실제로는 안 남는다 — 그 어긋남이 나중에
-// "왜 기록이 없지" 를 만든다. 대신 아무것도 안 보낸다.
 import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Image, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -53,7 +43,7 @@ function Dots({ step, settled }: { step: number; settled: Set<number> }) {
   </View>;
 }
 
-// 🔴 넓은 화면에서 고른 것을 주황으로 바꾼다. 폰에서는 남색이다 — 인계 문서가 정한 것이고,
+// 넓은 화면에서 고른 것을 주황으로 바꾼다. 폰에서는 남색이다 — 인계 문서가 정한 것이고
 // 까닭은 바탕이 다르기 때문이다. 폰은 아이보리 바탕 위에 바로 놓이고, 넓은 화면은 흰 카드
 // 안에 들어가서 남색이 너무 무겁다.
 function Scale({ label, value, low, high, desktop, onChange }: { label: string; value: number | undefined; low: string; high: string; desktop: boolean; onChange: (value: number) => void }) {
@@ -118,7 +108,7 @@ export default function TasteProfileScreen() {
   useEffect(() => () => { if (advanceTimer.current) clearTimeout(advanceTimer.current); }, []);
 
   // 이미 답한 계정이면 다시 묻지 않는다 — 서버 상태가 유일한 기준이다(spend-profile 과
-  // 같은 원칙). 🔴 경로가 아직 없는 서버에서도 화면은 뜬다. 물어보고 저장이 안 되는 것이,
+  // 같은 원칙). 경로가 아직 없는 서버에서도 화면은 뜬다. 물어보고 저장이 안 되는 것이
   // 첫 실행에서 빨간 화면을 보는 것보다 낫다.
   useEffect(() => {
     if (!ready) return;
@@ -162,7 +152,7 @@ export default function TasteProfileScreen() {
     advanceTimer.current = setTimeout(() => goNext(next, index), ADVANCE_MS);
   };
 
-  // 건너뛰기는 그 답을 **지운다**. 앞 단계로 돌아가 건너뛰면 아까 고른 값이 남아 있으면
+  // 건너뛰기는 그 답을 지운다. 앞 단계로 돌아가 건너뛰면 아까 고른 값이 남아 있으면
   // 안 된다 — 화면은 건너뛴 것으로 보이는데 저장은 되는 일이 생긴다.
   const skipQuestion = (key: TasteKey, index: number) => {
     const next = { ...answers };
@@ -229,7 +219,8 @@ export default function TasteProfileScreen() {
     <Dots step={step} settled={settled} />
 
     {/* 넓은 화면에서는 문항 한 덩어리를 카드에 담는다. 담지 않으면 1440 폭에서 글자 몇
-        줄이 허공에 떠 있는 것처럼 보인다 — 폭을 좁히는 것만으로는 안 된다. */}
+        줄이 허공에 떠 있는 것처럼 보인다 — 폭을 좁히는 것만으로는 안 된다.
+    */}
     <View style={wide ? styles.card : undefined}>
       {step === 0 && <View style={styles.heading}>
         <Text variant="display" weight="bold">{tx('여행 취향을 5개만 여쭤볼게요', 'Just 5 questions about your travel taste')}</Text>
@@ -275,7 +266,8 @@ export default function TasteProfileScreen() {
       </View>}
 
       {/* 넓은 화면에서는 「이전」과 「건너뛰기」가 카드 안 같은 줄에 있다. 폰에서는
-          건너뛰기가 문항 바로 아래(엄지가 닿는 자리), 이전은 맨 아래다. */}
+          건너뛰기가 문항 바로 아래(엄지가 닿는 자리), 이전은 맨 아래다.
+      */}
       {wide && <View style={styles.cardFooter}>{backLink}{skipLink}</View>}
     </View>
 
@@ -297,8 +289,8 @@ const styles = StyleSheet.create({
   column: { width: '100%', maxWidth: 560, alignSelf: 'center' },
   card: { marginTop: spacing[4], padding: spacing[6], borderRadius: radius.lg, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.border },
   cardFooter: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: spacing[4], paddingTop: spacing[3], borderTopWidth: 1, borderTopColor: color.surface.border },
-  // 🔴 marginTop — Screen 의 기본 paddingTop 만으로는 전역 언어 배지(우측 상단 절대좌표)를
-  //    못 피한다. spend-profile 과 같은 값으로 맞춘다.
+  // marginTop — Screen 의 기본 paddingTop 만으로는 전역 언어 배지(우측 상단 절대좌표)를
+  // 못 피한다. spend-profile 과 같은 값으로 맞춘다.
   topBar: { minHeight: 44, marginTop: spacing[6], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[2] },
   logo: { width: 88, height: 24 },
   stepPill: { paddingHorizontal: spacing[3], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: color.brand.navy },

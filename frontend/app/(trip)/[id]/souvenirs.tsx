@@ -1,4 +1,4 @@
-// 기념품샵 지도 — S15P21E201-121/-470(상세설계서 v2 P-19). 마지막 방문지를 기준 위치로
+// 기념품샵 지도 —/-470(상세설계서 v2 P-19). 마지막 방문지를 기준 위치로
 // 삼아 가까운 순서대로 기념품샵을 지도+목록으로 보여준다. "지금 여기서 가까운가"가
 // 중요하다는 게 이 화면의 이유라, 기기 GPS 가 아니라 여행 안에서 실제로 도착을 찍은
 // 마지막 장소를 기준으로 삼는다(getLastVisitedPlace, -470 코멘트 참고).
@@ -22,7 +22,7 @@ import { loadTripItineraries } from '@/trip/trips';
 
 const SOUVENIR_FACET_KEY = 'SOUVENIR_SHOP';
 
-// 여행 식별자가 없으면 서버를 아예 안 부른다 (S15P21E201-1000).
+// 여행 식별자가 없으면 서버를 아예 안 부른다
 export default function Souvenirs() {
   const { id } = useLocalSearchParams<{ id: string }>();
   return id ? <SouvenirsForTrip tripId={id} /> : <SelectTripFirst />;
@@ -41,7 +41,7 @@ function SouvenirsForTrip({ tripId }: { tripId: string }) {
   useEffect(() => {
     let active = true;
     setLoading(true);
-    // S15P21E201-912: getLastVisitedPlace는 일정 식별자를 받는다 — 여기 tripId(여행
+    // : getLastVisitedPlace는 일정 식별자를 받는다 — 여기 tripId(여행
     // 식별자)를 그대로 넘기면 서버에 없는 자원을 찾아 항상 실패한다. 먼저 일정 목록을
     // 받아 그 첫 항목의 itineraryId로 바꿔 넘긴다(prepare.tsx와 같은 방식).
     void loadTripItineraries(tripId, accessToken).then(async (refsResult) => {

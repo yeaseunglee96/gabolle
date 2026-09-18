@@ -1,9 +1,4 @@
-// 「지역」을 검색해서 고른다 — S15P21E201-1145.
-//
-// 글쓰기가 두 곳(피드 탭 안 · /feed/compose)이라 부품 하나를 둘이 같이 쓴다.
-//
-// 🔴 고른 뒤에도 **손으로 고쳐 쓸 수 있다.** 검색에 안 잡히는 곳을 못 쓰게 막지 않는다 —
-// 사용자가 아는 지명이 우리 DB 에 없는 일은 흔하고, 그때 글을 못 쓰게 하면 안 된다.
+// 「지역」을 검색해서 고른다 —.
 import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, TextInput, View } from 'react-native';
 
@@ -71,7 +66,7 @@ export function RegionPicker({ region, onChangeRegion, onChangePlaceId, placeId,
 
       {busy ? <View style={styles.row}><ActivityIndicator color={color.brand.orange} /></View> : null}
 
-      {/* 🔴 검색이 실패해도 손으로 쓰는 길은 막지 않는다. */}
+      {/* 검색이 실패해도 손으로 쓰는 길은 막지 않는다. */}
       {failed ? <Text variant="caption" color={color.text.muted} style={styles.note}>
         {tx('검색이 안 돼요. 아래에 직접 적어도 돼요.', 'Search is unavailable — you can type it below.')}
       </Text> : null}
@@ -101,7 +96,7 @@ export function RegionPicker({ region, onChangeRegion, onChangePlaceId, placeId,
         value={region}
         onChangeText={(value) => {
           onChangeRegion(value);
-          // 🔴 손으로 고치면 장소 연결을 끊는다. 「해운대해수욕장」을 고른 뒤 「광안리」로
+          // 손으로 고치면 장소 연결을 끊는다. 「해운대해수욕장」을 고른 뒤 「광안리」로
           // 바꿔 쓰면, 글에는 여전히 해운대가 달려 있게 된다 — 화면과 저장된 것이 달라진다.
           if (picked.current !== null && value !== picked.current) { picked.current = null; onChangePlaceId(undefined); }
         }}

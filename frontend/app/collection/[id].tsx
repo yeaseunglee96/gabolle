@@ -19,7 +19,7 @@ import { useCollection } from '@/collection/CollectionProvider';
 import { COLLECTION_LIMITS } from '@/collection/collectionsApi';
 import { searchOrigins, type OriginCandidate } from '@/plan/origins';
 
-// S15P21E201-919: "카카오맵 자동완성으로 위치 자동 입력" 리포트 — 새 지도 SDK를 또 불러오는
+// : "카카오맵 자동완성으로 위치 자동 입력" 리포트 — 새 지도 SDK를 또 불러오는
 // 대신, 이미 카카오 로컬 검색으로 동작 중인 이 엔드포인트를 그대로 쓴다(여행 만들기 출발지
 // 검색과 같은 계약). 이름은 "origins"지만 실제로는 임의 장소 검색이라 여기 그대로 맞는다.
 const SEARCH_DEBOUNCE_MS = 300;
@@ -34,21 +34,15 @@ export default function CollectionListDetail() {
   const list = lists.find((entry) => entry.id === id);
   const [adding, setAdding] = useState(false);
   const [name, setName] = useState('');
-  // 🔴 휠에서 고른 **코드**와 직접 쓴 **문자열**을 따로 들고 있는다. 한 칸에 섞으면
+  // 휠에서 고른 코드와 직접 쓴 문자열을 따로 들고 있는다. 한 칸에 섞으면
   // 나중에 어느 쪽인지 못 가른다 — 코드는 아는 값들의 집합이라 가를 수 있지만, 그건
   // 표가 안 바뀔 때만 참이다.
-  // 서버가 주는 분류 목록. 🔴 못 받으면 null 로 두고, 휠은 우리가 아는 코드로 채운다 —
+  // 서버가 주는 분류 목록. 못 받으면 null 로 두고, 휠은 우리가 아는 코드로 채운다
   // 휠이 비면 그날은 분류를 아예 못 고르게 된다.
   const [serverCategories, setServerCategories] = useState<string[] | null>(null);
   const [categoryCode, setCategoryCode] = useState(WRITE_MY_OWN);
   const [localityCode, setLocalityCode] = useState(WRITE_MY_OWN);
-  // 휠에 놓을 목록. 🔴 아는 코드를 표 순서대로 먼저 놓고, 맨 뒤에 「직접 쓰기」를 둔다.
-  //
-  // 🔴 서버가 주는 분류 목록(GET /places/categories)을 여기서 안 부른다 — 이 폼은 로그인
-  // 없이도 열리고, 목록을 못 받았을 때 휠이 비면 아무것도 못 고르게 된다. 아는 것만
-  // 먼저 놓고, 서버 목록을 붙이는 것은 따로 간다. **확인 못 함으로 남긴다.**
-  // 분류 목록을 한 번 불러온다. 🔴 실패해도 아무것도 안 한다 — 휠은 아는 코드로 이미
-  // 채워져 있고, 「목록을 못 받았어요」를 띄우는 것은 사용자가 할 수 있는 일이 없는 안내다.
+  // 휠에 놓을 목록. 아는 코드를 표 순서대로 먼저 놓고, 맨 뒤에 「직접 쓰기」를 둔다.
   useEffect(() => {
     const controller = new AbortController();
     void (async () => {
@@ -127,12 +121,7 @@ export default function CollectionListDetail() {
     setName(''); setCategory(''); setLocality(''); setNote(''); setPhotoUri(null); setCoords(null); setSearchResults([]); setSearched(false); setAdding(false);
   };
 
-  // 🔴 S15P21E201-1153 — 이름을 고치는 자리가 화면에 아예 없었다.
-  //
-  //    티켓은 「고쳐도 서버에 안 간다」로 적혀 있었는데, 실기기에서 보니 **고칠 수가
-  //    없었다.** 서버로 보내는 배선(renameList → 보류 목록 → PATCH)은 이미 들어와 있고
-  //    시험도 붙어 있었는데, 그것을 부르는 화면이 한 곳도 없었다(2026-09-17 실측:
-  //    renameList 호출부 0곳). 배선만 있고 문이 없던 셈이라 문을 단다.
+  // — 이름을 고치는 자리가 화면에 아예 없었다.
   const [editing, setEditing] = useState(false);
   const [draftName, setDraftName] = useState('');
   const [draftDescription, setDraftDescription] = useState('');
@@ -147,7 +136,7 @@ export default function CollectionListDetail() {
   const saveEdit = () => {
     if (!list) return;
     const trimmed = draftName.trim();
-    // 🔴 빈 이름은 저장하지 않는다. 이름이 없으면 목록에서 그 리스트를 가리킬 말이 없다.
+    // 빈 이름은 저장하지 않는다. 이름이 없으면 목록에서 그 리스트를 가리킬 말이 없다.
     if (!trimmed) return;
     renameList(list.id, trimmed, draftDescription);
     setEditing(false);
@@ -165,8 +154,9 @@ export default function CollectionListDetail() {
       <View style={styles.grow}>{editing
         ? <TextInput accessibilityLabel={tx('리스트 이름', 'List name')} maxLength={COLLECTION_LIMITS.name} value={draftName} onChangeText={setDraftName} placeholder={tx('리스트 이름', 'List name')} placeholderTextColor={color.text.muted} style={styles.input} />
         : <Text variant="display" weight="bold">{list.name}</Text>}
-        {/* 🔴 어디에 저장되는지를 이 화면에서도 말한다. 홈에서만 말하면 여기 들어온
-            사람은 못 본다 — 저장되는 곳은 화면마다 달라지지 않지만 사람의 기억은 달라진다. */}
+        {/* 어디에 저장되는지를 이 화면에서도 말한다. 홈에서만 말하면 여기 들어온
+            사람은 못 본다 — 저장되는 곳은 화면마다 달라지지 않지만 사람의 기억은 달라진다.
+        */}
         <Text variant="caption" color={color.text.muted}>{tx(
           `저장한 곳 ${list.placeIds.length} · ${syncedToServer ? '내 계정에 저장돼요' : '이 기기에만 저장돼요'}`,
           `${list.placeIds.length} place(s) · ${syncedToServer ? 'saved to your account' : 'saved on this device only'}`)}</Text>{editing
@@ -195,9 +185,10 @@ export default function CollectionListDetail() {
       </View>}
       {!searching && searched && searchResults.length === 0 && <Text variant="caption" color={color.text.muted}>{tx('검색 결과가 없어요. 이름을 그대로 적어도 돼요.', 'No results — you can still type the name as-is.')}</Text>}
       {coords && <Text variant="caption" weight="bold" color={color.state.success}>{tx('📍 위치를 찾았어요 — 지역 칸에 주소를 채워 뒀어요.', '📍 Location found — filled in the area field with the address.')}</Text>}
-      {/* 🔴 돌려서 고르는 휠. 고르면 그 아래 입력칸이 사라진다 — 사람이 정한 규칙이다.
+      {/* 돌려서 고르는 휠. 고르면 그 아래 입력칸이 사라진다 — 사람이 정한 규칙이다.
           휠에서 고른 것과 직접 쓴 것이 한 칸에 섞이면 나중에 어느 쪽인지 못 가른다.
-          「직접 쓰기」를 고를 때만 쓸 수 있다. */}
+          「직접 쓰기」를 고를 때만 쓸 수 있다.
+      */}
       <View style={styles.row}>
         <WheelPicker
           label={tx('카테고리', 'Category')}

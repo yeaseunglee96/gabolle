@@ -1,4 +1,4 @@
-// 리뷰와 방문 인증 화면 (S15P21E201-291, 상세설계서 Part II P-24). 방문 인증(GPS)에 성공해야
+// 리뷰와 방문 인증 화면 상세설계서 Part II P-24). 방문 인증(GPS)에 성공해야
 // 리뷰 쓰기 입력창이 열린다 — 인증 없이 아무나 별점을 매기면 "다녀온 사람의 평가"라는 신뢰가
 // 무너진다. 실패 사유(권한 거부·너무 멂·정확도 나쁨)를 구분해 보여주는 것이 이 화면의 절반이다
 // (거부당한 이유에 따라 사용자가 할 일이 다르기 때문 — 티켓 "목적" 참고).
@@ -33,7 +33,7 @@ const BODY_MAX = 300;
 type Scores = Record<'food' | 'price' | 'accessibility' | 'onsite', ThreeStepScore>;
 const EMPTY_SCORES: Scores = { food: null, price: null, accessibility: null, onsite: null };
 
-// 🔴 VERIFIED 가 아닌 상태는 기본적으로 입력창을 닫아 둔다. 딱 하나 예외가 PERMISSION_DENIED
+// VERIFIED 가 아닌 상태는 기본적으로 입력창을 닫아 둔다. 딱 하나 예외가 PERMISSION_DENIED
 // 다 — 위치 권한이 아예 없는 기기에서도 리뷰 자체는 쓸 수 있어야 한다는 게 티켓의 명시적
 // 요구다("리뷰는 쓸 수 있지만 점수에 반영되지 않는다"). TOO_FAR·LOW_ACCURACY 는 다시 시도하면
 // 풀릴 수 있는 상태라 그 안내와 재시도 버튼만 보여주고 입력창은 열지 않는다.

@@ -1,27 +1,8 @@
 // 소셜 로그인이 끝나고 provider 가 사용자를 되돌려 보내는 착지 화면이다.
-// 경로는 /oauth/google/callback · /oauth/naver/callback · /oauth/kakao/callback ·
+// 경로는 /oauth/google/callback /oauth/naver/callback /oauth/kakao/callback
 // /oauth/apple/callback 넷이고 [provider] 동적 구간으로 한 파일이 다 받는다
-// (S15P21E201-612, DEC-AUTH-006). Apple도 scope를 email만 요청해(oauth.ts 주석)
+//  DEC-AUTH-006). Apple도 scope를 email만 요청해(oauth.ts 주석)
 // 다른 셋과 똑같이 GET 리다이렉트로 바로 여기 온다 — 별도 경유지가 없다.
-//
-// 🔴 이 화면이 없으면 소셜 로그인이 마지막에 실패한다. 2026-09-04 에 실제로 그랬다 —
-//    provider 는 code 를 들고 정상으로 되돌려 보내는데 Expo Router 에 이 경로가 없어서
-//    "Unmatched Route / Page could not be found" 가 떴다. 세 provider 전부 같았다.
-//
-// 하는 일이 둘로 갈린다(S15P21E201-830).
-//
-// ① 이 착지가 팝업 안이면(데스크톱 웹의 옛 흐름, 혹은 아직 팝업이 안 막힌 브라우저) —
-//    WebBrowser.maybeCompleteAuthSession() 이 원래 창으로 결과 URL 을 넘기고 팝업을 닫는다.
-//    그 신호가 없으면 원래 창의 await 가 영원히 끝나지 않는다.
-//
-// ② 이 착지가 전체 페이지 이동(모바일 웹, 팝업 차단을 피하려고 oauth.ts 가 새로 쓰는 방식)
-//    이면 — 팝업이 아니라 원래 창 자체가 여기로 온 것이므로 ①은 아무것도 못 넘긴다.
-//    대신 pendingOAuth.ts 에 떠나기 전에 저장해 둔 code_verifier·state·nonce 를 여기서
-//    꺼내(consumePendingOAuth) URL 의 code·state 와 맞춘다. intent 가 'login' 이면
-//    completeOAuth 로 로그인을 잇고(navigateAfterOAuthComplete, sign-in.tsx와 공유),
-//    intent 가 'link' 면(S15P21E201-832, 설정 화면에서 소셜 계정 연결) linkOAuthAccount로
-//    이미 로그인한 계정에 신원을 붙인다 — accessToken 은 AuthProvider가 부팅 때마다
-//    세션 쿠키로 복원하는 것을 그대로 기다렸다(ready) 쓴다.
 import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
