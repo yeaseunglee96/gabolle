@@ -20,6 +20,7 @@ export type CoverCount = { label: string; value: number | null; onPress?: () => 
 export function MyPageCover({
   name,
   email,
+  tripCount,
   avatarUri,
   coverUri,
   counts,
@@ -28,6 +29,13 @@ export function MyPageCover({
 }: {
   name: string;
   email: string | null;
+  /**
+   * 이 사람이 만든 여행 수 (시안 01 의 「부산 여행 3번째」).
+   *
+   * 🔴 0 이면 줄을 안 그린다. 「부산 여행 0번째」는 말이 안 되고, 아직 아무것도 안 만든
+   * 사람에게 굳이 빈손임을 알릴 이유도 없다. 아직 못 받았으면 null 이다 — 0 과 다르다.
+   */
+  tripCount: number | null;
   avatarUri: string | null;
   /**
    * 사용자가 고른 커버. **없으면 부산 기본 사진**을 깐다.
@@ -64,7 +72,13 @@ export function MyPageCover({
           </View>
           <View style={styles.copy}>
             <Text variant="hero" weight="bold" color={color.text.onAction} numberOfLines={1}>{name}</Text>
-            {email ? <Text color={color.text.onDarkMuted} numberOfLines={1}>{email}</Text> : null}
+            {/* 시안은 둘을 가운뎃점으로 한 줄에 잇는다. 한쪽이 없으면 점도 안 찍는다. */}
+            {email || (tripCount !== null && tripCount > 0) ? (
+              <Text color={color.text.onDarkMuted} numberOfLines={1}>
+                {[email, tripCount !== null && tripCount > 0 ? tx(`부산 여행 ${tripCount}번째`, `Busan trip #${tripCount}`) : null]
+                  .filter(Boolean).join(' · ')}
+              </Text>
+            ) : null}
             <View style={styles.pills}>
               {counts.map((count) => (
                 <Pressable
