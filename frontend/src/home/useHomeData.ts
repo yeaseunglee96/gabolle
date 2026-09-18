@@ -41,8 +41,13 @@ export function pickHeroStories(items: StoryDto[]): StoryDto[] {
 
 
 
-/** 예정·진행 중인 여행 하나. 끝난 여행은 홈에 올리지 않는다. */
-function pickActiveTrip(trips: TripSummaryDto[]): TripSummaryDto | null {
+/**
+ * 예정·진행 중인 여행 하나. 끝난 여행은 홈에 올리지 않는다.
+ *
+ * 마이페이지의 「내 여행」 칸도 같은 것을 쓴다 — 두 화면이 다른 여행을 가리키면
+ * 어느 쪽이 맞는지 눌러 봐야만 안다.
+ */
+export function pickActiveTrip(trips: TripSummaryDto[]): TripSummaryDto | null {
   const active = trips.filter((trip) => trip.status !== 'COMPLETED');
   if (!active.length) return null;
   // 진행 중이 있으면 그것이 먼저다. 없으면 가장 먼저 떠나는 것.
