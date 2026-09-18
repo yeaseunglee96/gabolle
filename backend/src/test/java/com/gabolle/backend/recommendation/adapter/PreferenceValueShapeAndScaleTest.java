@@ -21,6 +21,7 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -173,16 +174,69 @@ class PreferenceValueShapeAndScaleTest {
 		assertThat(component(result, "preferenceAlignment")).isNull();
 	}
 
+	// ── 낱말로 오는 답 — 그늘 (S15P21E201-1222) ───────────────────────────────
+	//
+	// 🔴 이 자리에는 「여기서 고치지 않는 것」이라는 이름으로 "PREFER" 가 **빠지는 것**을
+	//    못 박은 시험이 있었다. 앱에 그늘을 묻는 화면이 없고 SHADE_SCORE 의 방향이
+	//    어디에도 안 적혀 있다는 두 이유였는데, 둘 다 틀렸거나 풀렸다 —
+	//    화면은 constraints.tsx 에 이미 있었고, 방향은 산출물로 쟀다(상관 +0.82).
+
+	@Test
+	@DisplayName("🔴 「그늘길 우선」은 그늘이 많은 곳을 높게 친다 — 전에는 축이 통째로 빠졌다")
+	void 그늘길_우선은_그늘_많은_곳이_높다() {
+		// 🔴 눈금 검산. 경사와 달리 그늘은 장소 값도 취향 값도 **둘 다 0~1** 이라
+		//    100 으로 나누는 자리가 없다. 취향 1.0 · 장소 0.9 면 1 - |1.0 - 0.9| = 0.9 가
+		//    정확히 나와야 한다 — 어느 한쪽이 0~100 이었다면 clamp01 이 뭉개서 어긋난다.
+		EngineCandidate shady = score(
+				candidate(List.of(value("SHADE_SCORE", "ESTIMATED", "0.9"))),
+				snapshot("SHADE_PREFERENCE", "\"PREFER\""));
+		EngineCandidate sunny = score(
+				candidate(List.of(value("SHADE_SCORE", "ESTIMATED", "0.1"))),
+				snapshot("SHADE_PREFERENCE", "\"PREFER\""));
+
+		// 🔴 허용오차를 두는 것은 눈금을 느슨하게 보려는 게 아니다. 1 - |1.0 - 0.1| 이
+		//    2진 소수에서 0.09999999999999998 로 떨어질 뿐이라, 자릿수를 재는 것이지
+		//    값을 재는 것이 아니다. 눈금이 100배 어긋나면 이 폭으로는 절대 안 지나간다.
+		assertThat(component(shady, "preferenceAlignment")).isCloseTo(0.9, within(1e-9));
+		assertThat(component(sunny, "preferenceAlignment")).isCloseTo(0.1, within(1e-9));
+		assertThat(component(shady, "preferenceAlignment"))
+				.isGreaterThan(component(sunny, "preferenceAlignment"));
+		assertThat(shady.reasonCodes()).contains("PREF_ALIGNED_SHADE_PREFERENCE");
+	}
+
+	@Test
+	@DisplayName("🔴 그늘이 「상관없어요」면 항이 빠진다 — 0 이면 「볕 선호」와 같은 뜻이 된다")
+	void 그늘이_상관없어요면_항이_빠진다() {
+		EngineCandidate result = score(
+				candidate(List.of(value("SHADE_SCORE", "ESTIMATED", "0.9"))),
+				snapshot("SHADE_PREFERENCE", "\"NO_PREFERENCE\""));
+
+		// 🔴 0 으로 뒀다면 안 따진다고 답한 사람을 골라서 뙤약볕으로 보낸다. 그러면서
+		//    아무 오류도 안 난다 — 그게 이 축이 조용히 틀리는 방식이다.
+		assertThat(component(result, "preferenceAlignment")).isNull();
+		assertThat(result.reasonCodes()).doesNotContain("PREF_ALIGNED_SHADE_PREFERENCE");
+	}
+
+	@Test
+	@DisplayName("그늘도 모르는 낱말이면 항이 빠진다 — 지어내지 않는다")
+	void 그늘의_모르는_낱말은_항이_빠진다() {
+		EngineCandidate result = score(
+				candidate(List.of(value("SHADE_SCORE", "ESTIMATED", "0.9"))),
+				snapshot("SHADE_PREFERENCE", "\"MAYBE\""));
+
+		assertThat(component(result, "preferenceAlignment")).isNull();
+	}
+
 	// ── 여기서 고치지 않는 것 ─────────────────────────────────────────────────
 
 	@Test
-	@DisplayName("🔴 낱말로 오는 답(\"PREFER\")은 항이 빠진다 — 0 이 아니다. 어휘는 사람이 정한다")
-	void 낱말로_오는_답은_항이_빠진다() {
+	@DisplayName("🔴 어휘를 안 정한 차원의 낱말은 그대로 빠진다 — 지어내지 않는다")
+	void 어휘를_안_정한_차원의_낱말은_항이_빠진다() {
 		EngineCandidate result = score(
-				candidate(List.of(value("SHADE_SCORE", "ESTIMATED", "0.9"))),
-				snapshot("SHADE_PREFERENCE", "\"PREFER\""));
+				candidate(List.of(value("LOCALITY_SCORE", "ESTIMATED", "0.9"))),
+				snapshot("LOCALITY", "\"PREFER\""));
 
-		// null 이어야 한다. 0 이면 "가장 낮게 답했다" 는 뜻이 되어 그늘 많은 곳이 오히려 깎인다.
+		// 같은 낱말이라도 차원이 다르면 뜻이 다르다. 경사·그늘만 사람이 어휘를 정했다.
 		assertThat(component(result, "preferenceAlignment")).isNull();
 	}
 
