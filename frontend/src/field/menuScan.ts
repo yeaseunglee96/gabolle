@@ -1,9 +1,15 @@
 // 메뉴판 촬영 — 사진을 서버로 보내 글자를 읽는다 (S15P21E201-329 · 스토리 -86).
 //
-// 계약 (2026-09-16, 백엔드 세션 확정):
+// 계약 (2026-09-18, S15P21E201-1236 로 갱신):
 //   POST /api/v1/menu-scans   로그인 필수 · multipart/form-data · part 이름 image
-//   200 { lines: [{ text, allergenWords }], unreadLineCount, evidenceStatus: 'ESTIMATED' }
+//                             선택 part language(ko/en/ja/zh-Hans/zh-Hant) — 없으면 한국어
+//   200 { lines: [{ text, translatedText, allergenWords }], unreadLineCount, evidenceStatus: 'ESTIMATED' }
 //   429 한도 초과
+//
+// 🔴 S15P21E201-1236 — 예전에는 language 를 안 보내 앱 언어가 무엇이든 항상 한국어
+//    원문만 돌아왔다("돼지국밥"). 이제 앱이 고른 언어를 함께 보내면 서버가 같은 GMS
+//    호출 안에서 번역까지 해서 translatedText 로 돌려준다. 한국어를 골랐거나 서버가
+//    모르는 값이면 translatedText 는 text 와 같다 — 번역이 아니라 원문이라는 뜻이다.
 //
 // 🔴 이 화면은 **사람이 먹는 것** 앞에 선다. 그래서 규칙이 하나뿐이다.
 //
@@ -22,9 +28,10 @@
 //    (피드가 <img> 로 부른다), 메뉴판 사진에는 얼굴·영수증이 같이 찍힌다.
 import { apiRequest, ApiClientError, ApiUnavailableError } from '@/api/client';
 import { singleFileFormData } from '@/api/multipart';
+import type { LanguageCode } from '@/i18n/languages';
 import { resizeForUpload } from '@/social/imageResize';
 
-export type MenuLine = { text: string; allergenWords: string[] };
+export type MenuLine = { text: string; translatedText: string; allergenWords: string[] };
 
 export type MenuScan = {
   lines: MenuLine[];
@@ -54,7 +61,12 @@ function describeCause(error: unknown): string {
  * 줄이면서 **촬영 위치 정보(EXIF)를 떼어 낸다**(S15P21E201-204) — 식당 좌표가 바깥 업체로
  * 나가지 않는다. 같은 일을 두 벌로 두면 한쪽만 고쳐진다.
  */
-export async function scanMenu(uri: string, accessToken: string | null, tx: Translate): Promise<MenuScanResult> {
+export async function scanMenu(
+  uri: string,
+  accessToken: string | null,
+  tx: Translate,
+  language: LanguageCode,
+): Promise<MenuScanResult> {
   if (!accessToken) {
     return { state: 'error', message: tx('로그인한 뒤에 쓸 수 있어요.', 'Please sign in to use this.') };
   }
@@ -85,6 +97,7 @@ export async function scanMenu(uri: string, accessToken: string | null, tx: Tran
     //    Expo SDK 57 의 새 fetch 는 RN 의 { uri, name, type } 파트를 모른다 — src/api/multipart.ts.
     //    그래서 1121 에서 고친 「줄이기 실패를 삼키기」로는 증상이 그대로였다.
     const formData = await singleFileFormData('image', { uri: uploadUri, name: 'menu.jpg', type: 'image/jpeg' });
+    formData.append('language', language);
     const dto = await apiRequest<MenuScan>('/api/v1/menu-scans', { method: 'POST', accessToken, body: formData });
     return { state: 'success', scan: normalizeScan(dto) };
   } catch (error) {
@@ -106,6 +119,11 @@ function normalizeScan(dto: MenuScan): MenuScan {
       .filter((line): line is MenuLine => typeof line?.text === 'string')
       .map((line) => ({
         text: line.text,
+        // 🔴 서버가 이 칸을 안 주거나 비우면 원문으로 물러선다 — 화면이 빈 칸을 그리는
+        //    것보다 원문이라도 보여주는 것이 낫다. GmsMenuReader.parse() 와 같은 물러섬이다.
+        translatedText: typeof line.translatedText === 'string' && line.translatedText !== ''
+          ? line.translatedText
+          : line.text,
         allergenWords: Array.isArray(line.allergenWords)
           ? line.allergenWords.filter((word): word is string => typeof word === 'string')
           : [],

@@ -4,6 +4,11 @@
 // 안 정해져서"(S15P21E201-77) 통째로 빠져 있던 것이다. GMS(교육용 API 중계)가 살아 있는
 // 것을 2026-09-16 에 확인해 그 막힘이 없어졌다.
 //
+// 🔴 정정 (2026-09-18, S15P21E201-1236) — 위 문단은 "읽기만 하고 번역은 안 한다"
+// 시절 이야기다. 그때는 실제로 번역을 안 했다 — 앱 언어가 무엇이든 한국어 원문만
+// 돌아왔다. 이제 메뉴판이 이미 하는 GMS 호출 안에 번역을 얹어서, 고른 언어로 옮긴
+// translatedText 를 함께 받는다. 새 API 호출을 추가한 것이 아니다.
+//
 // 🔴 이 화면이 지키는 규칙은 하나다 — **읽은 것만 말하고, 「없다」는 말하지 않는다.**
 //    문구를 정하는 판단은 전부 src/field/menuScan.ts 의 함수에 있고 시험이 붙들고 있다.
 //    여기서 조건문으로 문구를 만들지 않는다.
@@ -39,7 +44,7 @@ type Phase =
 
 export default function MenuScanScreen() {
   const router = useRouter();
-  const { tx } = useI18n();
+  const { tx, language } = useI18n();
   const { width } = useLayout();
   const { accessToken } = useAuth();
   const [phase, setPhase] = useState<Phase>({ state: 'idle' });
@@ -47,7 +52,7 @@ export default function MenuScanScreen() {
 
   const read = async (photoUri: string) => {
     setPhase({ state: 'reading', photoUri });
-    const result = await scanMenu(photoUri, accessToken, tx);
+    const result = await scanMenu(photoUri, accessToken, tx, language);
     setPhase(result.state === 'success'
       ? { state: 'done', photoUri, scan: result.scan }
       : { state: 'failed', photoUri, message: result.message });
@@ -80,7 +85,7 @@ export default function MenuScanScreen() {
     <View style={styles.heading}>
       <Eyebrow>{tx('현장 도구', 'Field tool')}</Eyebrow>
       <Text variant="display" weight="bold">{tx('메뉴판을 찍어 보세요', 'Take a photo of the menu')}</Text>
-      <Text color={color.text.body}>{tx('사진에 적힌 글자를 읽어 드려요. 번역이 아니라 읽기예요.', 'We read the text printed on the photo — reading, not translating.')}</Text>
+      <Text color={color.text.body}>{tx('사진에 적힌 글자를 읽고, 지금 쓰는 언어로 옮겨 드려요.', 'We read the text on the photo and translate it into your current language.')}</Text>
     </View>
 
     {/* 🔴 보내기 전에 무엇이 어디로 가는지 적는다. 방침에 없는 처리를 하면 우리가 우리
@@ -149,7 +154,11 @@ function ScanResult({ scan, onRetry }: { scan: MenuScan; onRetry: () => void }) 
           {scan.lines.map((line, index) => <View key={`${index}-${line.text}`} style={styles.line}>
             {dishes[index] && <Image source={dishes[index]!.image.asset} resizeMode="cover" accessibilityLabel={tx(`${dishes[index]!.key} 예시 사진`, `Example photo of ${dishes[index]!.key}`)} style={styles.dishThumb} />}
             <View style={styles.lineCopy}>
-              <Text>{line.text}</Text>
+              {/* 🔴 translatedText 가 원문(text)과 같으면(한국어를 골랐거나 옛 앱 빌드)
+                  번역문을 한 번 더 그리지 않는다 — 같은 글자를 두 번 그리는 것도 이 팀이
+                  화면 결함으로 잡는 것 중 하나다(frontend/CLAUDE.md). */}
+              <Text>{line.translatedText}</Text>
+              {line.translatedText !== line.text && <Text variant="caption" color={color.text.muted}>{line.text}</Text>}
               {line.allergenWords.length > 0 && <Text variant="caption" color={color.brand.orange}>{line.allergenWords.join(' · ')}</Text>}
               {dishes[index] && <Text variant="caption" color={color.text.muted}>{tx(`예시 · ${dishes[index]!.image.source}`, `Example · ${dishes[index]!.image.source}`)}</Text>}
             </View>
