@@ -238,10 +238,8 @@ export default function Me() {
       name={name}
       email={user?.email ?? null}
       avatarUri={avatarUri}
+      // 서버에 커버 칸이 아직 없다(S15P21E201-1297). 생기면 여기에 들어온다.
       coverUri={null}
-      bio={null}
-      homeCity={null}
-      wide={wide}
       counts={[
         { label: tx('기록', 'Records'), value: storyCount, onPress: () => user && router.push('/me/posts') },
         { label: tx('팔로워', 'Followers'), value: followerCount, onPress: () => user && router.push(`/user/${user.userId}/followers`) },
