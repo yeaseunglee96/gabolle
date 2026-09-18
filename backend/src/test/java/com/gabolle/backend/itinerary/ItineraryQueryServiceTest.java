@@ -58,6 +58,8 @@ class ItineraryQueryServiceTest {
 	private PlaceRepository placeRepository;
 	private RecommendationJobRepository recommendationJobRepository;
 	private ItineraryQueryService service;
+	/** 항목이 가리키는 장소. 좌표 시험(S15P21E201-1330)이 이 흉내를 바꿔 쓴다. */
+	private Place place;
 
 	private final String tripId = "trip_1";
 	private final String requesterId = "usr_a";
@@ -77,10 +79,12 @@ class ItineraryQueryServiceTest {
 				this.placeRepository, this.recommendationJobRepository, mock(ActorNames.class),
 				new FakeItineraryItemActualRepository());
 
-		Place place = mock(Place.class);
-		when(place.getPlaceId()).thenReturn(this.placeId);
-		when(place.getNameKo()).thenReturn("해운대 해수욕장");
-		when(this.placeRepository.findByPlaceIdIn(any())).thenReturn(List.of(place));
+		this.place = mock(Place.class);
+		when(this.place.getPlaceId()).thenReturn(this.placeId);
+		when(this.place.getNameKo()).thenReturn("해운대 해수욕장");
+		when(this.place.getLat()).thenReturn(35.1587);
+		when(this.place.getLng()).thenReturn(129.1604);
+		when(this.placeRepository.findByPlaceIdIn(any())).thenReturn(List.of(this.place));
 	}
 
 	private Trip threeDayTrip() {
@@ -255,6 +259,49 @@ class ItineraryQueryServiceTest {
 
 		assertThatThrownBy(() -> this.service.getDetail(itineraryId, this.requesterId))
 				.isInstanceOf(ItineraryQueryController.ItineraryNotFoundException.class);
+	}
+
+	// ── 방문지 좌표 (S15P21E201-1330) ─────────────────────────────────────────
+
+	/**
+	 * 🔴 이 값이 없어서 코스 화면이 동선을 <b>글로</b> 세우고 있었다. 좌표 없이 선을 그으면
+	 * 실제로 안 가는 길을 그리게 되고, 그건 빈 지도보다 나쁘다.
+	 */
+	@Test
+	@DisplayName("🔴 티켓 완료 기준 — 방문지에 좌표가 실린다")
+	void itemCarriesCoordinates() {
+		Trip trip = threeDayTrip();
+		stubTripMembership(trip);
+		String itineraryId = seedItinerary(1, List.of(
+				itemOf("item_1", 0, LocalDate.of(2026, 9, 10), 1, LocalTime.of(9, 30), LocalTime.of(11, 0))));
+
+		ItineraryDetailResponse.Item item = this.service.getDetail(itineraryId, this.requesterId).days().stream()
+				.flatMap(day -> day.items().stream()).findFirst().orElseThrow();
+
+		assertThat(item.lat()).isEqualTo(35.1587);
+		assertThat(item.lng()).isEqualTo(129.1604);
+	}
+
+	/**
+	 * 🔴 <b>모르면 {@code null} 이지 {@code 0} 이 아니다.</b> 위도 0·경도 0 은 아프리카 서쪽
+	 * 바다 한가운데(기니만)라서, 0 으로 채우면 지도에 <b>실제로 점이 찍힌다</b> — 「없다」가
+	 * 「저기 있다」로 바뀐다.
+	 */
+	@Test
+	@DisplayName("🔴 좌표를 모르는 장소는 null 이다 — 0 으로 채우면 지도에 기니만이 찍힌다")
+	void unknownCoordinatesStayNull() {
+		when(this.place.getLat()).thenReturn(null);
+		when(this.place.getLng()).thenReturn(null);
+		Trip trip = threeDayTrip();
+		stubTripMembership(trip);
+		String itineraryId = seedItinerary(1, List.of(
+				itemOf("item_1", 0, LocalDate.of(2026, 9, 10), 1, LocalTime.of(9, 30), LocalTime.of(11, 0))));
+
+		ItineraryDetailResponse.Item item = this.service.getDetail(itineraryId, this.requesterId).days().stream()
+				.flatMap(day -> day.items().stream()).findFirst().orElseThrow();
+
+		assertThat(item.lat()).isNull();
+		assertThat(item.lng()).isNull();
 	}
 
 	private String seedItinerary(int version, List<ItineraryItem> items) {
