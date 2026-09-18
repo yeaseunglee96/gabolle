@@ -42,6 +42,22 @@ export type MenuScanResult =
   | { state: 'success'; scan: MenuScan }
   | { state: 'error'; message: string };
 
+/**
+ * 메뉴판 읽기에만 쓰는 요청 제한 — S15P21E201-1315.
+ *
+ * 🔴 앱 기본값은 12초다(`src/api/client.ts`). **진짜 메뉴판은 그 안에 못 들어온다.**
+ * 3단 배치에 음식 30개인 메뉴판이 **11.95~13.35초** 걸린다(2026-09-19 실측).
+ * 프롬프트를 줄여도 9.61초까지가 한계였다 — 시간을 먹는 것이 사진이 아니라
+ * **써 내는 양**이라, 음식 수가 줄지 않는 한 안 줄어든다.
+ *
+ * 🔴 **서버와 짝이다.** 서버는 연결 3 + 읽기 25 = 28초로 두었다
+ * (`MenuScanProperties`). **서버가 앱보다 먼저 포기해야 한다** — 앱이 먼저 끊으면
+ * 읽기가 성공해도 사용자는 못 받고, 바깥 호출값은 나가고 그 사람의 하루 한도도
+ * 깎인다(한도는 부르기 전에 센다). 한쪽만 바꾸지 않는다.
+ * `MenuScanLatencyBudgetTest` 가 그 짝을 지킨다.
+ */
+export const MENU_SCAN_TIMEOUT_MS = 30000;
+
 type Translate = (ko: string, en: string) => string;
 
 /** 무엇이 왜 막혔는지 화면까지 가져간다 —과 같은 이유다. */
@@ -77,7 +93,7 @@ export async function scanMenu(
     // 그래서 1121 에서 고친 「줄이기 실패를 삼키기」로는 증상이 그대로였다.
     const formData = await singleFileFormData('image', { uri: uploadUri, name: 'menu.jpg', type: 'image/jpeg' });
     formData.append('language', language);
-    const dto = await apiRequest<MenuScan>('/api/v1/menu-scans', { method: 'POST', accessToken, body: formData });
+    const dto = await apiRequest<MenuScan>('/api/v1/menu-scans', { method: 'POST', accessToken, body: formData, timeoutMs: MENU_SCAN_TIMEOUT_MS });
     return { state: 'success', scan: normalizeScan(dto) };
   } catch (error) {
     return { state: 'error', message: errorMessage(error, tx) };

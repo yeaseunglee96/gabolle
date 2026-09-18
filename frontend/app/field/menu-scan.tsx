@@ -92,7 +92,7 @@ export default function MenuScanScreen() {
     {phase.state === 'reading' && <View accessibilityLiveRegion="polite" style={styles.stateCard}>
       <ActivityIndicator color={color.brand.orange} />
       <Text variant="title" weight="bold">{tx('글자를 읽고 있어요', 'Reading the text')}</Text>
-      <Text color={color.text.body}>{tx('사진이 클수록 조금 더 걸려요.', 'Larger photos take a little longer.')}</Text>
+      <Text color={color.text.body}>{tx('메뉴가 많으면 20초쯤 걸려요. 화면을 켜 둔 채 기다려 주세요.', 'A menu with many dishes takes about 20 seconds. Please keep this screen open.')}</Text>
     </View>}
 
     {phase.state === 'failed' && <View accessibilityRole="alert" style={styles.stateCard}>

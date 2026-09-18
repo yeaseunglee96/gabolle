@@ -248,7 +248,18 @@ async function ensureAnonymousSessionToken(): Promise<string | null> {
   return anonymousSessionPromise;
 }
 
-type RequestOptions = Omit<RequestInit, 'body'> & { body?: unknown; accessToken?: string | null; skipUnauthorizedHandling?: boolean };
+/**
+ * `timeoutMs` — 이 요청에만 쓰는 제한. 안 주면 앱 기본값(12초).
+ *
+ * 🔴 아무 데나 쓰라고 만든 것이 아니다. 늘리면 그만큼 사용자가 빈 화면을 본다.
+ * 지금 쓰는 곳은 메뉴판 읽기 하나뿐이고, 그 근거는 `src/field/menuScan.ts` 에 있다 —
+ * 실제 메뉴판이 11~13초가 걸려서 12초로는 못 읽는다(S15P21E201-1315).
+ *
+ * 🔴 늘릴 때는 **서버 쪽과 함께** 늘린다. 서버가 앱보다 먼저 포기해야 한다 —
+ * 앱이 먼저 끊으면 읽기가 성공해도 사용자는 못 받고, 값은 나가고 하루 한도도 깎인다.
+ * 규칙은 context/decisions.md 의 DEC-LATENCY-001.
+ */
+type RequestOptions = Omit<RequestInit, 'body'> & { body?: unknown; accessToken?: string | null; skipUnauthorizedHandling?: boolean; timeoutMs?: number };
 let unauthorizedHandler: (() => void) | null = null;
 export function setUnauthorizedHandler(handler: (() => void) | null) { unauthorizedHandler = handler; }
 
@@ -271,13 +282,15 @@ export function apiRequest<T>(path: string, options: RequestOptions = {}): Promi
 }
 
 async function performRequest<T>(path: string, options: RequestOptions, isRetry: boolean): Promise<T> {
-  const { body, accessToken, headers, skipUnauthorizedHandling, ...requestOptions } = options;
+  const { body, accessToken, headers, skipUnauthorizedHandling, timeoutMs, ...requestOptions } = options;
   const controller = new AbortController();
   let timedOut = false;
   const abortFromCaller = () => controller.abort();
   if (requestOptions.signal?.aborted) controller.abort();
   else requestOptions.signal?.addEventListener('abort', abortFromCaller, { once: true });
-  const timeout = setTimeout(() => { timedOut = true; controller.abort(); }, API_TIMEOUT_MS);
+  // 🔴 timeoutMs 를 requestOptions 에서 빼낸 이유 — 안 빼면 fetch 의 옵션으로 흘러든다.
+  const timeout = setTimeout(() => { timedOut = true; controller.abort(); },
+    timeoutMs && timeoutMs > 0 ? timeoutMs : API_TIMEOUT_MS);
   const sessionToken = await ensureAnonymousSessionToken();
   let response: Response;
   try {
