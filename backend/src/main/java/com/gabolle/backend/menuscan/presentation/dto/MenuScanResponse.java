@@ -45,12 +45,19 @@ public record MenuScanResponse(List<Line> lines, int unreadLineCount, String evi
 	 * @param price 🔴 그 줄에 <b>보이는</b> 가격을 적힌 그대로. 「9,000원」처럼 단위까지
 	 *     들어온다 — 숫자로 바꾸지 않는다. 통화·표기가 가게마다 다르고, 우리가 숫자로
 	 *     바꾸는 순간 <b>바꾼 값이 맞다고 주장</b>하는 것이 된다. 가격이 안 보이면 빈 문자열
+	 * @param translatedName 🔴 <b>음식 이름만</b> 옮긴 값 — 가격이 안 들어간다.
+	 *     {@code translatedText} 가 있는데 이 칸이 따로 있는 이유는 <b>화면이 가격을 세 번
+	 *     그리게 되기 때문</b>이다. {@code text}(「돼지국밥 9,000원」)에도 한 번,
+	 *     {@code translatedText}(「Pork and rice soup 9,000 won」)에도 한 번 들어 있어서,
+	 *     가격 칸을 옆에 따로 그리면 같은 값이 세 번 보인다 — 같은 것을 두 번 그리는 것은
+	 *     이 팀이 화면 결함으로 잡는 것이다({@code frontend/CLAUDE.md}).
+	 *     <p>음식 줄이 아니면 빈 문자열이다
 	 * @param translatedText 앱이 요청한 언어로 옮긴 값. 요청 언어가 한국어이거나 언어를
 	 *     안 보낸 요청이면(옛 앱 빌드) {@code text} 와 <b>같은 값</b>이 온다 — 그때는
 	 *     번역이 아니라 원문이라는 뜻이다
 	 * @param allergenWords 그 줄에서 <b>보인</b> 알레르기 관련 낱말. 비어 있으면 «못 찾았다»
 	 */
-	public record Line(String text, String name, String price, String translatedText,
-			List<String> allergenWords) {
+	public record Line(String text, String name, String price, String translatedName,
+			String translatedText, List<String> allergenWords) {
 	}
 }
