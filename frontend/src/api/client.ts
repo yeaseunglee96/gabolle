@@ -72,14 +72,94 @@ function serverErrorMessage(status: number): string {
     : `서버가 잠시 응답하지 못했어요. 잠시 후 다시 시도해 주세요. (HTTP ${status})`;
 }
 
+/**
+ * 호출자가 스스로 끊은 요청. 화면을 떠났거나 다음 검색어가 앞 요청을 대신한 것이라,
+ * 사람에게 보여 줄 오류가 아니다 — 대개 그냥 무시하면 된다.
+ */
+export const REQUEST_CANCELLED_CODE = 'REQUEST_CANCELLED';
+
 type ApiAvailabilityListener = (unavailable: boolean) => void;
 const availabilityListeners = new Set<ApiAvailabilityListener>();
 let apiUnavailable = false;
+
+/**
+ * 🔴 끊겼다고 판단한 뒤 스스로 되묻는 간격. 붙을 때까지 늘려 가며 물어본다 —
+ * 서버가 배포로 잠깐 죽은 것이면 첫 번째나 두 번째에 붙고, 오래 죽어 있으면
+ * 30초마다 한 번씩만 두드린다.
+ */
+export const RECOVERY_PROBE_DELAYS_MS = [3000, 5000, 10000, 20000, 30000];
+
+/**
+ * 살아 있는지 되물을 때 부르는 경로. **응답 내용은 안 본다** — 서버가 5xx 가 아닌
+ * 무엇이든 돌려주면(401 이어도) API 까지 길이 뚫린 것이다.
+ */
+const RECOVERY_PROBE_PATH = '/api/v1/places/facets';
+
+/** 되묻기가 너무 오래 매달려 있지 않게 하는 시간. 어차피 다음 차례가 또 온다. */
+const RECOVERY_PROBE_TIMEOUT_MS = 5000;
+
+let recoveryTimer: ReturnType<typeof setTimeout> | null = null;
+let recoveryAttempt = 0;
+
+function stopRecoveryProbe() {
+  if (recoveryTimer) { clearTimeout(recoveryTimer); recoveryTimer = null; }
+  recoveryAttempt = 0;
+}
+
+/**
+ * 🔴 배너는 "연결되면 자동으로 사라집니다" 라고 약속한다. 그 약속을 지키는 것이 이 함수다.
+ *
+ * 예전에는 되묻는 코드가 아예 없어서, 다시 붙었다는 사실을 **다른 요청이 우연히 성공할 때만**
+ * 알 수 있었다. 그런데 요청을 하나도 안 하는 화면이 여럿이다(현장 도구·장소별 한국어 등).
+ * 그런 화면에 머무는 동안에는 서버가 멀쩡해져도 배너가 영영 남았다 (S15P21E201-1281).
+ */
+function scheduleRecoveryProbe() {
+  if (recoveryTimer) return;
+  const delay = RECOVERY_PROBE_DELAYS_MS[Math.min(recoveryAttempt, RECOVERY_PROBE_DELAYS_MS.length - 1)];
+  recoveryAttempt += 1;
+  recoveryTimer = setTimeout(() => {
+    recoveryTimer = null;
+    void probeApiReachable().then((reachable) => {
+      if (!apiUnavailable) return;           // 그새 다른 요청이 성공해 이미 꺼졌다
+      if (reachable) setApiUnavailable(false);
+      else scheduleRecoveryProbe();
+    });
+  }, delay);
+  // 되묻기가 기다리는 중이라고 해서 프로세스가 안 끝나면 안 된다 — 시험이 안 끝난다.
+  // 폰에는 unref 가 없으므로 있을 때만 부른다.
+  (recoveryTimer as { unref?: () => void }).unref?.();
+}
+
+async function probeApiReachable(): Promise<boolean> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), RECOVERY_PROBE_TIMEOUT_MS);
+  try {
+    const response = await fetch(`${API_BASE_URL}${RECOVERY_PROBE_PATH}`, {
+      method: 'GET',
+      headers: { Accept: 'application/json' },
+      signal: controller.signal,
+    });
+    // 401·404 도 "서버가 대답했다" 는 뜻이다. 5xx 만 아직 죽은 것으로 본다.
+    return !isServerErrorStatus(response.status);
+  } catch {
+    return false;
+  } finally {
+    clearTimeout(timer);
+  }
+}
 
 function setApiUnavailable(next: boolean) {
   if (apiUnavailable === next) return;
   apiUnavailable = next;
   availabilityListeners.forEach((listener) => listener(next));
+  if (next) scheduleRecoveryProbe();
+  else stopRecoveryProbe();
+}
+
+/** 시험에서 타이머를 남기지 않기 위한 손잡이. 화면 코드는 부를 일이 없다. */
+export function __resetApiAvailabilityForTests() {
+  stopRecoveryProbe();
+  apiUnavailable = false;
 }
 
 export function subscribeApiAvailability(listener: ApiAvailabilityListener) {
@@ -219,6 +299,13 @@ async function performRequest<T>(path: string, options: RequestOptions, isRetry:
     });
   } catch (error) {
     if (timedOut) throw new ApiClientError('서버 응답이 늦어 요청을 마쳤어요. 잠시 후 다시 시도해 주세요.', 'REQUEST_TIMEOUT', 0);
+    // 🔴 호출자가 끊은 것은 서버가 죽은 것이 아니다 (S15P21E201-1281).
+    // 화면을 떠날 때 cleanup 이 요청을 끊고(app/place/[id].tsx 등 아홉 곳), 출발지
+    // 검색창은 글자를 칠 때마다 앞 요청을 끊는다. 그것까지 끊김으로 세면 평범하게
+    // 쓰는 것만으로 "서버 연결을 확인하고 있어요" 가 떴다.
+    if (requestOptions.signal?.aborted) {
+      throw new ApiClientError('요청을 취소했어요.', REQUEST_CANCELLED_CODE, 0);
+    }
     setApiUnavailable(true);
     // 원인을 버리지 않는다. 자세한 이유는 ApiUnavailableError 참고.
     throw new ApiUnavailableError(undefined, describeThrown(error));
