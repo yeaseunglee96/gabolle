@@ -171,7 +171,12 @@ const styles = StyleSheet.create({
   consentRow: { minHeight: 62, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[3], paddingHorizontal: spacing[4], paddingVertical: spacing[3], borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: color.surface.border },
   consentCopy: { flex: 1, gap: spacing[1] },
 
-  logout: { marginTop: spacing[6], marginBottom: spacing[4], borderColor: color.brand.orange },
+  // 🔴 borderColor 를 여기서 뺐다 (S15P21E201-1241). 이 스타일은 Button 의 containerStyle 로
+  // 가는데, 껍데기에는 borderWidth 가 없어서 **색만 있는 테두리는 아무것도 안 그린다.**
+  // 즉 주황 테두리는 처음부터 화면에 없었다 — 보이는 것은 ghost 의 회색 테두리다.
+  // 주황으로 하려면 Button 에 그 variant 가 있어야 한다. 여기서 흉내내면 버튼 뒤에
+  // 도형이 하나 더 남을 뿐이다.
+  logout: { marginTop: spacing[6], marginBottom: spacing[4] },
   guestActions: { gap: spacing[2], marginTop: spacing[6], marginBottom: spacing[4] },
 
   modalBackdrop: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing[4], backgroundColor: 'rgba(11,29,58,0.62)' },
