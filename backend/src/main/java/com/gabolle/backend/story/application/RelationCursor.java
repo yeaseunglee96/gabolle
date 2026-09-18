@@ -4,6 +4,8 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -59,13 +61,35 @@ public record RelationCursor(Instant relatedAt, UUID userId) {
 	 *                      S15P21E201-1179 계약: 목록 화면이 팔로우 버튼을 그리려면 필요하다.
 	 *                      대상의 팔로우 여부가 아니라 <b>보는 사람</b> 기준이다 — 그래야 남의
 	 *                      팔로워 목록을 볼 때도 내 버튼 상태가 맞게 나온다.
+	 *
+	 * <p>이 쪽으로 부르면 줄의 {@code storyCount} 는 {@code null} 이다 — <b>「0 개」가 아니라
+	 * 「안 셌다」</b>. 숫자를 그리는 목록은 {@link #pageWithStoryCounts} 로 부른다.
 	 */
 	public static RelationListResponse page(List<RelationRow> rows, int size, Set<UUID> viewerFollows) {
+		return page(rows, size, viewerFollows, null);
+	}
+
+	/**
+	 * {@link #page} 와 같은데 줄마다 <b>기록 수</b>를 함께 싣는다 — S15P21E201-1317.
+	 *
+	 * @param storyCounts 사람 → 그 사람이 쓴 기록 중 보는 사람에게 보이는 것의 수.
+	 *                    <b>이 표에 없는 사람은 0 이다</b> — 기록이 하나도 없는 사람은 세는
+	 *                    질의의 결과에 아예 안 들어오기 때문이다. {@code null} 을 주면 세지
+	 *                    않았다는 뜻이고, 그때는 응답의 {@code storyCount} 도 {@code null} 이다
+	 */
+	public static RelationListResponse pageWithStoryCounts(List<RelationRow> rows, int size, Set<UUID> viewerFollows,
+			Map<UUID, Long> storyCounts) {
+		return page(rows, size, viewerFollows, Objects.requireNonNull(storyCounts, "storyCounts"));
+	}
+
+	private static RelationListResponse page(List<RelationRow> rows, int size, Set<UUID> viewerFollows,
+			Map<UUID, Long> storyCounts) {
 		boolean hasMore = rows.size() > size;
 		List<RelationRow> shown = hasMore ? rows.subList(0, size) : rows;
 		List<RelationItemResponse> items = shown.stream()
 				.map(row -> new RelationItemResponse(row.getUserId().toString(), row.getDisplayName(), row.getAvatarUrl(),
-						viewerFollows.contains(row.getUserId())))
+						viewerFollows.contains(row.getUserId()),
+						storyCounts == null ? null : storyCounts.getOrDefault(row.getUserId(), 0L)))
 				.toList();
 		String next = null;
 		if (hasMore) {

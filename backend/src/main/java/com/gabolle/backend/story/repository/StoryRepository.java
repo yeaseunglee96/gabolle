@@ -1,6 +1,7 @@
 package com.gabolle.backend.story.repository;
 
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -208,4 +209,24 @@ public interface StoryRepository extends JpaRepository<Story, UUID> {
 			+ " AND s.author_user_id = :author AND s.visibility IN (:visibilities)", nativeQuery = true)
 	long countAuthorStories(@Param("author") UUID author, @Param("visibilities") List<String> visibilities,
 			@Param("now") Instant now);
+
+	/**
+	 * 여러 사람의 기록 수를 <b>한 번에</b> — S15P21E201-1317.
+	 *
+	 * <h2>🔴 왜 한 번에 세나</h2>
+	 * 팔로워 목록 한 쪽에 사람이 스무 명이면 {@link #countAuthorStories} 를 스무 번 부르게
+	 * 된다. 목록 한 줄을 그리려고 질의를 스무 개 날리는 것이고, 그 값은 <b>줄 옆의 작은
+	 * 글씨 하나</b>다. 화면은 멀쩡해 보이고 조금 느릴 뿐이라 눈으로는 절대 안 잡힌다.
+	 *
+	 * <p>보이는 범위({@code visibilities})는 보는 사람과 그 사람의 관계에 따라 다르므로,
+	 * 부르는 쪽이 <b>같은 범위끼리 묶어서</b> 몇 번 나눠 부른다. 쪽 크기와 무관하게 몇 번이다.
+	 *
+	 * @return {@code [작성자 id, 개수]} 줄들. 기록이 하나도 없는 사람은 <b>안 들어온다</b> —
+	 *     부르는 쪽이 0 으로 채운다
+	 */
+	@Query(value = "SELECT s.author_user_id, count(*) FROM story s WHERE" + NOT_DELETED_AND_PUBLISHED
+			+ " AND s.author_user_id IN (:authors) AND s.visibility IN (:visibilities)"
+			+ " GROUP BY s.author_user_id", nativeQuery = true)
+	List<Object[]> countAuthorStoriesGrouped(@Param("authors") Collection<UUID> authors,
+			@Param("visibilities") List<String> visibilities, @Param("now") Instant now);
 }

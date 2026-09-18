@@ -276,10 +276,20 @@ public class OAuthAccountService {
 				.orElseThrow(() -> new AuthException("ACCOUNT_UNAVAILABLE", "사용할 수 없는 계정입니다.", HttpStatus.FORBIDDEN));
 		Optional<AuthIdentity> existing = identityRepository.findByProviderAndProviderSubject(provider, profile.subject());
 		if (existing.isPresent()) {
-			if (existing.get().getUser().getUserId().equals(userId) && existing.get().isActive()) {
-				return new LinkedIdentity(existing.get(), true);
+			AuthIdentity identity = existing.get();
+			if (identity.isActive()) {
+				if (identity.getUser().getUserId().equals(userId)) {
+					return new LinkedIdentity(identity, true);
+				}
+				throw identityTaken();
 			}
-			throw identityTaken();
+			// 🔴 끊긴 연결은 누구의 것도 아니다 — 다시 붙인다 (S15P21E201-1317). 여기서 거절하면
+			//    한 번 뗀 소셜 계정은 영영 다시 못 붙는다. 그 거절은 「이미 다른 계정에 연결돼
+			//    있어요」라고 말하는데 사실과도 다르다.
+			identity.relink(user, clock.instant());
+			applyProviderEmail(identity, profile, normalizeEmailOrNull(profile.email()));
+			identityRepository.save(identity);
+			return new LinkedIdentity(identity, false);
 		}
 		String linkedEmail = normalizeEmailOrNull(profile.email());
 		AuthIdentity linked = AuthIdentity.link(user, provider, profile.subject(), linkedEmail);

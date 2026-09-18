@@ -210,7 +210,7 @@ public class LocalAuthService {
 			}
 			throw invalidCredentials();
 		}
-		if (credential.getEmailVerifiedAt() == null || credential.getUser().getStatus() == UserStatus.PENDING_EMAIL_VERIFICATION) {
+		if (!credential.canSignIn()) {
 			throw new AuthException("EMAIL_NOT_VERIFIED", "이메일 인증 후 로그인할 수 있습니다.",
 					org.springframework.http.HttpStatus.FORBIDDEN);
 		}
