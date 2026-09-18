@@ -8,6 +8,9 @@ import {
   isToday, localDateKey, pause as pauseRun, saveProgress, skip as skipStop, start as startRun, stepStates,
   type TripProgress,
 } from '@/plan/tripProgress';
+import {
+  arriveProgress, fetchProgress, pauseProgress, skipProgress, startProgress, type ProgressResult,
+} from '@/plan/tripProgressApi';
 
 import { useAuth } from '@/auth/AuthProvider';
 import { Button } from '@/components/Button';
@@ -291,21 +294,52 @@ export default function ItineraryScreen() {
 
   // ── 일정 진행 (시안 ⑤) ──────────────────────────────────────────────────
   //
-  // 🔴 서버에 이 자리가 아직 없다(S15P21E201-1325). 그래서 **이 기기에만** 남는다.
-  //    다른 기기에서는 안 보이고 앱을 지우면 사라진다 — 카드가 그 한계를 말한다.
+  // 🔴 **서버가 정본이다**(S15P21E201-1325). 화면은 사건을 보내고 서버가 돌려준 상태를 그린다.
+  //    상태를 통째로 보내면 두 기기가 서로의 상태를 덮어쓴다.
+  //
+  // 🔴 서버에 그 자리가 없는 판(404·501)에서는 **기기에만** 남는다. 그 판정은 화면을 열 때
+  //    한 번만 하고 그대로 간다 — 돌다가 갈아타면 눌러 놓은 것이 어디에 남았는지 알 수 없다.
   const [progress, setProgress] = useState<TripProgress>(EMPTY_PROGRESS);
+  const [deviceOnly, setDeviceOnly] = useState<boolean | null>(null);
+  const [progressError, setProgressError] = useState<string | null>(null);
   // 🔴 위치 권한·정확도를 아직 안 잰다. 그래서 「GPS 를 쓸 수 있다」로 두고, 손으로 찍는
   //    단추를 기본으로 감춘다 — 늘 보이면 사람이 그걸 정상 절차로 안다.
   const gpsUsable = true;
   useEffect(() => {
     if (!itineraryId) return;
     let alive = true;
-    void loadProgress(itineraryId).then((saved) => { if (alive) setProgress(saved); });
+    void (async () => {
+      const outcome = await fetchProgress(itineraryId, accessToken);
+      if (!alive) return;
+      if (outcome.state === 'success') { setDeviceOnly(false); setProgress(outcome.progress); return; }
+      // 실패도 기기에 남은 것으로 이어 간다 — 통신이 잠깐 안 되는 것과 서버에 자리가
+      // 없는 것은 사용자에게 같은 뜻이다. 다만 실패는 말해 준다.
+      setDeviceOnly(true);
+      if (outcome.state === 'error') setProgressError(outcome.message);
+      setProgress(await loadProgress(itineraryId));
+    })();
     return () => { alive = false; };
-  }, [itineraryId]);
-  const applyProgress = (next: TripProgress) => {
-    setProgress(next);
-    void saveProgress(itineraryId, next);
+  }, [accessToken, itineraryId]);
+
+  /**
+   * 사건 하나를 보낸다.
+   *
+   * 🔴 화면을 **먼저** 바꾸고 보낸다. 안 그러면 눌렀는데 한 박자 뒤에 반응해서 사람이
+   *    두 번 누르고, 그러면 같은 사건이 두 번 간다. 서버가 돌려준 것으로 다시 맞춘다.
+   */
+  const sendProgress = (optimistic: TripProgress, send: () => Promise<ProgressResult>) => {
+    setProgress(optimistic);
+    setProgressError(null);
+    if (deviceOnly !== false) { void saveProgress(itineraryId, optimistic); return; }
+    void send().then((outcome) => {
+      if (outcome.state === 'success') { setProgress(outcome.progress); return; }
+      if (outcome.state === 'error') setProgressError(outcome.message);
+      // 🔴 서버가 안 받았으면 화면을 되돌린다. 안 되돌리면 사용자는 기록된 줄 아는데
+      //    다른 기기에는 없다 — 그게 조용히 어긋나는 시작점이다.
+      void fetchProgress(itineraryId, accessToken).then((again) => {
+        if (again.state === 'success') setProgress(again.progress);
+      });
+    });
   };
   const [expandedItemId, setExpandedItemId] = useState<string | null>(null);
 
@@ -687,17 +721,27 @@ export default function ItineraryScreen() {
             driftText={nowDrift}
             progress={null}
             showManualArrival={needsManualArrival(progress.status, gpsUsable)}
-            onStart={() => applyProgress(startRun(progress))}
-            onPause={() => applyProgress(pauseRun(progress))}
-            onArrive={() => currentStopId && applyProgress(arriveAt(progress, dayStopIds, currentStopId, new Date().toISOString(), 'manual'))}
-            onSkip={() => currentStopId && applyProgress(skipStop(progress, dayStopIds, currentStopId, new Date().toISOString()))}
+            onStart={() => sendProgress(startRun(progress), () => startProgress(itineraryId, accessToken))}
+            onPause={() => sendProgress(pauseRun(progress), () => pauseProgress(itineraryId, accessToken))}
+            onArrive={() => currentStopId && sendProgress(
+              arriveAt(progress, dayStopIds, currentStopId, new Date().toISOString(), 'manual'),
+              () => arriveProgress(itineraryId, currentStopId, 'manual', accessToken))}
+            onSkip={() => currentStopId && sendProgress(
+              skipStop(progress, dayStopIds, currentStopId, new Date().toISOString()),
+              () => skipProgress(itineraryId, currentStopId, accessToken))}
             tx={tx}
           />
-          {/* 🔴 기기에만 남는다는 것을 적는다. 안 적으면 사용자는 어디서나 이어지는 줄 안다. */}
-          <Text variant="caption" color={color.text.onDarkMuted}>
-            {tx('진행 상태는 이 기기에만 저장돼요. 다른 기기에서는 아직 안 보여요.',
-              'Progress is saved on this device only — it does not show on your other devices yet.')}
-          </Text>
+          {/* 🔴 기기에만 남는 판에서는 그 사실을 적는다. 안 적으면 사용자는 어디서나
+              이어지는 줄 안다. 서버에 남는 판에서는 적을 것이 없으므로 안 그린다. */}
+          {deviceOnly ? (
+            <Text variant="caption" color={color.text.onDarkMuted}>
+              {tx('진행 상태는 이 기기에만 저장돼요. 다른 기기에서는 아직 안 보여요.',
+                'Progress is saved on this device only — it does not show on your other devices yet.')}
+            </Text>
+          ) : null}
+          {progressError ? (
+            <Text accessibilityRole="alert" variant="caption" color={color.brand.orange}>{progressError}</Text>
+          ) : null}
         </View>
       ) : null}
       {/* — 지도로 가는 문. 이 화면에는 지도로 가는 길이 아예 없었다.
