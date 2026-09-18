@@ -283,7 +283,7 @@ export default function Map() {
       ) : null}
 
       <View style={styles.mapStage}>
-        <RouteMap stops={stops} selectedId={selectedId} onSelect={selectStopFromMap} routes={routes} points={points} currentLocation={currentLocation} onBackToList={() => router.back()} height={widthTier(width) === 'sm' ? 420 : 600} />
+        <RouteMap stops={stops} selectedId={selectedId} onSelect={selectStopFromMap} routes={routes} points={points} currentLocation={currentLocation} onBackToList={() => router.canGoBack() ? router.back() : router.replace('/trips')} height={widthTier(width) === 'sm' ? 420 : 600} />
         {isAtLeast(width, 'md') ? <View style={styles.floatingLayers}><LayerControls /></View> : null}
       </View>
       {widthTier(width) === 'sm' ? <LayerControls /> : null}
