@@ -238,7 +238,8 @@ export default function Me() {
       name={name}
       email={user?.email ?? null}
       avatarUri={avatarUri}
-      // 서버에 커버 칸이 아직 없다(S15P21E201-1297). 생기면 여기에 들어온다.
+      // 🔴 서버에는 커버 칸이 생겼다(S15P21E201-1297 — back/dev 에 들어감). 그런데 화면은
+      //    아직 그 값을 안 읽는다. 받아 오는 것과 바꾸는 것은 따로 낸다. 그때까지 null.
       coverUri={null}
       counts={[
         { label: tx('기록', 'Records'), value: storyCount, onPress: () => user && router.push('/me/posts') },
