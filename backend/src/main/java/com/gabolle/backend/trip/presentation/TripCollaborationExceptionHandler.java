@@ -38,14 +38,14 @@ public class TripCollaborationExceptionHandler {
 				.map(f -> f.getField() + ": " + f.getDefaultMessage())
 				.toList();
 		return ResponseEntity.badRequest().body(ApiResponse.failure(
-				new ApiError("TRIP_VALIDATION_FAILED", "error.trip.validation", fields), requestId()));
+				new ApiError("TRIP_VALIDATION_FAILED", "입력한 조건 중 서버가 받지 못한 것이 있어요.", fields), requestId()));
 	}
 
 	/** 없는 여행이거나, 요청자가 그 여행의 회원이 아니다. 둘을 구분해 응답하지 않는다. */
 	@ExceptionHandler(TripQueryService.TripNotFoundException.class)
 	public ResponseEntity<ApiResponse<Void>> handleTripNotFound(TripQueryService.TripNotFoundException e) {
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.failure(
-				new ApiError("TRIP_NOT_FOUND", "error.trip.notFound"), requestId()));
+				new ApiError("TRIP_NOT_FOUND", "그 여행을 찾지 못했어요."), requestId()));
 	}
 
 	/** 회원이지만 그 여행의 소유자가 아니라서 초대를 발급할 수 없다. */

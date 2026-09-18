@@ -3,6 +3,7 @@ package com.gabolle.backend.itinerary;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.Duration;
 import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
@@ -618,6 +619,94 @@ class ItineraryDraftServiceTest {
 					List.of(), categories[i]));
 		}
 		return places;
+	}
+
+	/**
+	 * S15P21E201-1130 — 일정 시각이 이동 시간을 무시해서 「예상 도착」이 하루 내내 밀렸다.
+	 *
+	 * <p>활동 시간대를 항목 수로 그냥 나누면 칸과 칸이 딱 붙는다. 그런데 사람은 그 사이를
+	 * 걸어서 간다. 그래서 두 번째 장소부터 계획보다 늦게 도착하고, 그 지각이 쌓여 하루
+	 * 끝에는 78분 차이가 났다(운영 DB 실측 — 머무는 시간 180/180/180 에 이동 12/2/13,
+	 * 사이 간격 0).
+	 *
+	 * <p>아래 셋이 이 버그를 다시 못 생기게 막는다.
+	 */
+	@Test
+	@DisplayName("🔴 S15P21E201-1130 — 시각이 이동 시간을 비켜 간다: 머무는 시간이 줄고 사이가 벌어진다")
+	void stayTimeMakesRoomForTravelBetweenPlaces() {
+		Trip trip = tripWithWindow(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 10));
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
+
+		// 구간마다 25분. 장소 3곳이면 구간도 3개다 — 출발지에서 첫 장소로 가는 길이 첫 구간이다.
+		ItineraryDraft draft = serviceWithTravelMinutes(25)
+				.assemble(commandOf("trip_1", plannedPlaces(3)));
+
+		List<ItineraryDraft.DraftItem> items = draft.items();
+		assertThat(items).hasSize(3);
+
+		// 활동 시간대 09:00~17:00 = 480분. 이동 75분을 빼고 3으로 나누면 135분씩이다.
+		// 예전에는 480/3 = 160분이었다 — 이동할 시간이 어디에도 없었다.
+		assertThat(items).allSatisfy((item) ->
+				assertThat(item.stayMinutes())
+						.as("머무는 시간에서 이동 시간을 빼지 않으면 그만큼 매번 늦는다")
+						.isEqualTo(135));
+
+		// 🔴 첫 장소도 09:00 에 시작하지 않는다 — 출발지에서 거기까지 25분이 걸린다.
+		assertThat(items.get(0).startTime()).isEqualTo(LocalTime.of(9, 25));
+
+		// 항목과 항목 사이가 정확히 이동 시간만큼 벌어져 있다.
+		for (int i = 1; i < items.size(); i++) {
+			assertThat(Duration.between(items.get(i - 1).endTime(), items.get(i).startTime()).toMinutes())
+					.as("앞 장소가 끝난 뒤 다음 장소가 시작하기까지 이동할 시간이 있어야 한다")
+					.isEqualTo(25);
+		}
+
+		// 🔴 그러고도 활동 시간대를 넘지 않는다. 넘던 것이 이 티켓이다.
+		assertThat(items.get(items.size() - 1).endTime()).isEqualTo(LocalTime.of(17, 0));
+	}
+
+	@Test
+	@DisplayName("🔴 이동 시간을 모르면 예전과 똑같이 나눈다 — 모르는 값을 지어내지 않는다")
+	void withoutMeasuredTravelTheLayoutIsUnchanged() {
+		Trip trip = tripWithWindow(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 10));
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
+
+		// this.service 는 이동시간 포트가 없는 갈래다(setUp 주석 참고) — durationMin 이 null 이다.
+		ItineraryDraft draft = this.service.assemble(commandOf("trip_1", plannedPlaces(3)));
+
+		assertThat(draft.items()).allSatisfy((item) -> assertThat(item.stayMinutes()).isEqualTo(160));
+		assertThat(draft.items().get(0).startTime()).isEqualTo(LocalTime.of(9, 0));
+		assertThat(draft.items().get(2).endTime()).isEqualTo(LocalTime.of(17, 0));
+	}
+
+	@Test
+	@DisplayName("🔴 이동만으로 하루가 다 차면 시각을 아예 안 준다 — 되지도 않는 일정을 그리지 않는다")
+	void whenTravelEatsTheWholeDayTheTimesAreUnknown() {
+		Trip trip = tripWithWindow(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 10));
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
+
+		// 구간 3개 × 200분 = 600분 > 활동 시간대 480분.
+		ItineraryDraft draft = serviceWithTravelMinutes(200)
+				.assemble(commandOf("trip_1", plannedPlaces(3)));
+
+		assertThat(draft.items()).allSatisfy((item) -> {
+			assertThat(item.startTime()).isNull();
+			assertThat(item.endTime()).isNull();
+			assertThat(item.stayMinutes()).isNull();
+			assertThat(item.dataStatus()).isEqualTo("UNKNOWN");
+		});
+	}
+
+	/** 구간마다 같은 소요를 돌려주는 서비스를 만든다 — S15P21E201-1130 검사들이 쓴다. */
+	private ItineraryDraftService serviceWithTravelMinutes(int minutes) {
+		TravelTimePort port = (fromLat, fromLng, toLat, toLng, mode) ->
+				new TravelTime(1000, minutes, ItineraryItem.DataStatus.VERIFIED);
+		@SuppressWarnings("unchecked")
+		ObjectProvider<TravelTimePort> provider = mock(ObjectProvider.class);
+		when(provider.getIfAvailable()).thenReturn(port);
+		return new ItineraryDraftService(this.tripRepository, mock(ItineraryRepository.class), CLOCK,
+				4, 3, "FOOD", new ItineraryLegPlanner(this.placeRepository, provider),
+				ALWAYS_UNKNOWN, ALWAYS_UNKNOWN_TIME_FACT);
 	}
 
 	private List<ItineraryDraftCommand.PlannedPlace> plannedPlaces(int count) {

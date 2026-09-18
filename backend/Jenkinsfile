@@ -149,6 +149,111 @@ pipeline {
             }
         }
 
+        // ──────────────────────────────────────────────────────────────────────
+        // 🔴 컨테이너를 내리기 **전에** 마이그레이션이 적용 가능한지 본다 — S15P21E201-969.
+        //
+        //    Flyway 는 기본값(outOfOrder=false)에서 「이미 적용된 것보다 작은 번호가
+        //    뒤늦게 나타나면」 기동 자체를 거부한다. 그런데 이 파이프라인은 그것을
+        //    **컨테이너를 이미 내린 뒤에** 알게 된다 — 새 컨테이너를 띄우고, Health
+        //    Check 가 5분 동안 000 을 60번 받고, 그제서야 롤백한다.
+        //
+        //    즉 막을 수 있었던 실패가 매번 **5분 서비스 중단**으로 나온다.
+        //    2026-09-15(S15P21E201-966)과 2026-09-17(배포 #363·#364) 두 번 그랬다.
+        //
+        //    이 단계는 같은 판정을 **DB 에 물어서 30초 안에** 한다. 여기서 실패하면
+        //    돌고 있는 컨테이너는 손도 안 댄 상태다 — 중단이 0 이다.
+        //
+        //    🔴 왜 CI(backend:migration-order)로는 못 막나
+        //    그 잡은 **MR 파이프라인이 도는 시점**의 대상 브랜치와 비교한다. 통과한 뒤
+        //    머지 전에 다른 MR 이 더 큰 번호를 먼저 넣으면 그 판정이 낡는다. GitLab
+        //    무료판에는 머지 직전 재검증(merge train)이 없어서 그 레이스를 못 없앤다.
+        //    그래서 **마지막 문을 여기에 둔다** — 여기는 실제 DB 상태를 보므로 레이스가
+        //    아예 성립하지 않는다.
+        //
+        //    🔴 락을 잡은 뒤에 본다. 락 밖에서 보면 보고 난 뒤 다른 배포가 먼저
+        //    마이그레이션을 적용해 버릴 수 있다 — 그러면 방금 본 것이 또 낡는다.
+        // ──────────────────────────────────────────────────────────────────────
+        stage('Migration Preflight') {
+            steps {
+                withCredentials([
+                    string(credentialsId: 'gabolle-db-url', variable: 'GABOLLE_DB_URL'),
+                    string(credentialsId: 'gabolle-db-username', variable: 'GABOLLE_DB_USERNAME'),
+                    string(credentialsId: 'gabolle-db-password', variable: 'GABOLLE_DB_PASSWORD'),
+                ]) {
+                    sh '''
+                        set -eu
+
+                        MIGRATION_DIR=backend/src/main/resources/db/migration
+
+                        # 저장소가 들고 있는 버전들
+                        # 🔴 V20260902_1 은 Flyway 가 20260902.1 로 적는다 — 밑줄을 점으로 맞춰야 대조된다.
+                        #    안 맞추면 「적용됐는데 안 됐다」로 읽혀 멀쩡한 배포가 영영 막힌다.
+                        REPO_VERSIONS=$(ls "$MIGRATION_DIR"/V*.sql 2>/dev/null                           | sed "s#.*/V##; s#__.*##; s#_#.#g" | sort -n || true)
+                        if [ -z "$REPO_VERSIONS" ]; then
+                          echo "마이그레이션 파일이 없습니다 — 볼 것이 없어 통과합니다."
+                          exit 0
+                        fi
+
+                        # jdbc:postgresql://host:5432/db  ->  postgresql://host:5432/db
+                        PSQL_URL=$(printf "%s" "$GABOLLE_DB_URL" | sed "s#^jdbc:##")
+
+                        psql_q() {
+                          docker run --rm --network local-route-personalization_data_net                             -e PGPASSWORD="$GABOLLE_DB_PASSWORD" postgres:16-alpine                             psql "$PSQL_URL" -U "$GABOLLE_DB_USERNAME" -t -A -c "$1"
+                        }
+
+                        # 🔴 표가 없으면 「아직 한 번도 안 돌린 DB」다 — 막을 이유가 없다.
+                        #    없는 것과 못 읽은 것을 가르려고 to_regclass 로 먼저 묻는다.
+                        HAS_TABLE=$(psql_q "SELECT to_regclass('gabolle.flyway_schema_history') IS NOT NULL")
+                        if [ "$HAS_TABLE" != "t" ]; then
+                          echo "flyway_schema_history 가 아직 없습니다 — 첫 적용이라 통과합니다."
+                          exit 0
+                        fi
+
+                        APPLIED=$(psql_q "SELECT version FROM gabolle.flyway_schema_history WHERE success AND version IS NOT NULL")
+                        if [ -z "$APPLIED" ]; then
+                          echo "적용된 마이그레이션이 없습니다 — 통과합니다."
+                          exit 0
+                        fi
+
+                        MAX_APPLIED=$(printf "%s
+" "$APPLIED" | sort -n | tail -1)
+                        echo "DB 에 적용된 최대 버전: $MAX_APPLIED"
+
+                        # 아직 적용 안 됐는데 최대보다 작은 것 = Flyway 가 거부할 것
+                        OFFENDERS=$(printf "%s
+" "$REPO_VERSIONS" | awk -v max="$MAX_APPLIED"                           -v applied="$(printf "%s
+" "$APPLIED" | tr "
+" " ")" '
+                          BEGIN { n = split(applied, a, " "); for (i = 1; i <= n; i++) seen[a[i]] = 1 }
+                          { if (!($0 in seen) && $0 + 0 < max + 0) print $0 }
+                        ')
+
+                        if [ -n "$OFFENDERS" ]; then
+                          echo ""
+                          echo "🔴 이대로 배포하면 백엔드가 기동하지 못합니다 — 배포를 시작하지 않았습니다."
+                          echo ""
+                          echo "   Flyway 는 이미 적용된 것보다 작은 번호가 뒤늦게 나타나면 거부합니다."
+                          echo "   DB 에 적용된 최대 버전은 $MAX_APPLIED 입니다."
+                          echo ""
+                          echo "   걸린 마이그레이션:"
+                          for V in $OFFENDERS; do
+                            F=$(ls "$MIGRATION_DIR"/V"$V"__*.sql 2>/dev/null | head -1)
+                            echo "     - ${F:-V$V} (버전 $V)"
+                          done
+                          echo ""
+                          echo "   해결: 그 파일들의 번호를 $MAX_APPLIED 보다 크게 바꿔 다시 올리세요(git mv)."
+                          echo "         SQL 내용은 바꾸지 않습니다 — 이름만 옮기면 됩니다."
+                          echo ""
+                          echo "   🔴 돌고 있는 서비스는 손대지 않았습니다. 지금 중단은 없습니다."
+                          exit 1
+                        fi
+
+                        echo "마이그레이션 순서 이상 없음 — 배포를 계속합니다."
+                    '''
+                }
+            }
+        }
+
         stage('Build Image') {
             steps {
                 dir('backend') {
@@ -211,6 +316,23 @@ pipeline {
                     string(credentialsId: 'gabolle-menu-scan-api-key', variable: 'GABOLLE_MENU_SCAN_API_KEY'),
                     // S15P21E201-285 — 기상청 단기예보 조회서비스 인증키(data.go.kr 개발계정).
                     string(credentialsId: 'gabolle-kma-service-key', variable: 'GABOLLE_KMA_SERVICE_KEY'),
+                    // S15P21E201-1186 — 한국수출입은행 환율(AP01) 인증키. 안 넘기면 서버는 기동하고
+                    // 호출만 EXCHANGE_RATE_VENDOR_NOT_CONFIGURED(502)로 죽는다 — 화면에는 「제공처가
+                    // 잠시 응답하지 않아요」로 보여서, 고쳐지는 중인 것처럼 읽힌다.
+                    string(credentialsId: 'gabolle-exchange-rate-auth-key', variable: 'GABOLLE_EXCHANGE_RATE_AUTH_KEY'),
+                    // S15P21E201-1186 — TAGO(국토교통부 대중교통) serviceKey. 주변 정류소·실시간 버스
+                    // 도착이 쓴다. 🔴 공공데이터포털이 같은 키를 Encoding·Decoding 두 모양으로 주는데,
+                    // TagoTransitVendorAdapter 가 이 값을 주소에 그대로 붙이고 따로 인코딩하지 않으므로
+                    // **Encoding 쪽**이어야 한다. Decoding 을 넣으면 슬래시와 등호가 주소를 깨뜨린다.
+                    string(credentialsId: 'gabolle-transit-service-key', variable: 'GABOLLE_TRANSIT_SERVICE_KEY'),
+                    // 🔴 S15P21E201-1253 — 비서 키를 여기서 안 넘긴다. 일부러 뺀 것이다.
+                    //    비서는 메뉴판 읽기와 같은 GMS 키를 쓴다. application-dev.properties 의
+                    //    gabolle.assistant.api-key 가 GABOLLE_MENU_SCAN_API_KEY 로 물러서므로,
+                    //    여기서 GABOLLE_ASSISTANT_API_KEY 를 넘기면 그 물러서기를 덮어써서
+                    //    GMS 가 401(GMS key not found)로 거절한다.
+                    //    되돌리려면(구글 직접 호출) 이 줄을 살리고 base-url 을 비우고 모델을
+                    //    gemini-3.6-flash 로 되돌린다 — 셋이 같이 움직인다.
+                    //    자격증명 gabolle-assistant-api-key 는 그 탈출구로 Jenkins 에 남겨 둔다.
                     // 🔴 S15P21E201-942 — /internal/** 을 여는 기계 전용 토큰
                     // (InternalApiProperties 문서 참고). taste_vector_daily DAG
                     // (infra/personalization, common/dev)이 X-Internal-Token 으로
@@ -290,6 +412,7 @@ pipeline {
                             -e GABOLLE_DB_PASSWORD="$GABOLLE_DB_PASSWORD" \
                             -e GABOLLE_JWT_SECRET="$GABOLLE_JWT_SECRET" \
                             -e GABOLLE_MAIL_ENABLED=true \
+                            -e GABOLLE_PRIVACY_CLEANUP_ENABLED=true \
                             -e GABOLLE_MAIL_HOST="$GABOLLE_MAIL_HOST" \
                             -e GABOLLE_MAIL_PORT=587 \
                             -e GABOLLE_MAIL_FROM="$GABOLLE_MAIL_FROM" \
@@ -309,6 +432,8 @@ pipeline {
                             -e GABOLLE_APPLE_ALLOWED_CLIENT_IDS="com.gabolle.app" \
                             -e GABOLLE_KMA_SERVICE_KEY="$GABOLLE_KMA_SERVICE_KEY" \
                             -e GABOLLE_MENU_SCAN_API_KEY="$GABOLLE_MENU_SCAN_API_KEY" \
+                            -e GABOLLE_EXCHANGE_RATE_AUTH_KEY="$GABOLLE_EXCHANGE_RATE_AUTH_KEY" \
+                            -e GABOLLE_TRANSIT_SERVICE_KEY="$GABOLLE_TRANSIT_SERVICE_KEY" \
                             -e GABOLLE_INTERNAL_API_TOKEN="$GABOLLE_INTERNAL_API_TOKEN" \
                             -e GABOLLE_ADMIN_EMAILS="$GABOLLE_ADMIN_EMAILS" \
                             local-route-backend:candidate
@@ -415,6 +540,21 @@ pipeline {
                             string(credentialsId: 'gabolle-s3-secret-key', variable: 'GABOLLE_S3_SECRET_KEY'),
                             string(credentialsId: 'gabolle-menu-scan-api-key', variable: 'GABOLLE_MENU_SCAN_API_KEY'),
                             string(credentialsId: 'gabolle-kma-service-key', variable: 'GABOLLE_KMA_SERVICE_KEY'),
+                            // S15P21E201-1186 — 한국수출입은행 환율(AP01) 인증키. 안 넘기면 서버는 기동하고
+                            // 호출만 EXCHANGE_RATE_VENDOR_NOT_CONFIGURED(502)로 죽는다 — 화면에는 「제공처가
+                            // 잠시 응답하지 않아요」로 보여서, 고쳐지는 중인 것처럼 읽힌다.
+                            string(credentialsId: 'gabolle-exchange-rate-auth-key', variable: 'GABOLLE_EXCHANGE_RATE_AUTH_KEY'),
+                            // S15P21E201-1186 — TAGO(국토교통부 대중교통) serviceKey. 위와 같은 이유로
+                            // **Encoding 쪽**이어야 한다. 되돌리기 경로에서 빠지면 롤백한 순간 다시 죽는다.
+                            string(credentialsId: 'gabolle-transit-service-key', variable: 'GABOLLE_TRANSIT_SERVICE_KEY'),
+                            // 🔴 S15P21E201-1253 — 비서 키를 여기서 안 넘긴다. 일부러 뺀 것이다.
+                            //    비서는 메뉴판 읽기와 같은 GMS 키를 쓴다. application-dev.properties 의
+                            //    gabolle.assistant.api-key 가 GABOLLE_MENU_SCAN_API_KEY 로 물러서므로,
+                            //    여기서 GABOLLE_ASSISTANT_API_KEY 를 넘기면 그 물러서기를 덮어써서
+                            //    GMS 가 401(GMS key not found)로 거절한다.
+                            //    되돌리려면(구글 직접 호출) 이 줄을 살리고 base-url 을 비우고 모델을
+                            //    gemini-3.6-flash 로 되돌린다 — 셋이 같이 움직인다.
+                            //    자격증명 gabolle-assistant-api-key 는 그 탈출구로 Jenkins 에 남겨 둔다.
                             string(credentialsId: 'gabolle-internal-api-token', variable: 'GABOLLE_INTERNAL_API_TOKEN')
                         ]) {
                             sh 'docker stop backend || true'
@@ -443,6 +583,7 @@ pipeline {
                                     -e GABOLLE_DB_PASSWORD="$GABOLLE_DB_PASSWORD" \
                                     -e GABOLLE_JWT_SECRET="$GABOLLE_JWT_SECRET" \
                                     -e GABOLLE_MAIL_ENABLED=true \
+                                    -e GABOLLE_PRIVACY_CLEANUP_ENABLED=true \
                                     -e GABOLLE_MAIL_HOST="$GABOLLE_MAIL_HOST" \
                                     -e GABOLLE_MAIL_PORT=587 \
                                     -e GABOLLE_MAIL_FROM="$GABOLLE_MAIL_FROM" \
@@ -462,6 +603,8 @@ pipeline {
                                     -e GABOLLE_APPLE_ALLOWED_CLIENT_IDS="com.gabolle.app" \
                                     -e GABOLLE_KMA_SERVICE_KEY="$GABOLLE_KMA_SERVICE_KEY" \
                                     -e GABOLLE_MENU_SCAN_API_KEY="$GABOLLE_MENU_SCAN_API_KEY" \
+                                    -e GABOLLE_EXCHANGE_RATE_AUTH_KEY="$GABOLLE_EXCHANGE_RATE_AUTH_KEY" \
+                                    -e GABOLLE_TRANSIT_SERVICE_KEY="$GABOLLE_TRANSIT_SERVICE_KEY" \
                                     -e GABOLLE_INTERNAL_API_TOKEN="$GABOLLE_INTERNAL_API_TOKEN" \
                                     -e GABOLLE_ADMIN_EMAILS="$GABOLLE_ADMIN_EMAILS" \
                                     local-route-backend:latest

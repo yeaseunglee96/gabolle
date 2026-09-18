@@ -48,12 +48,31 @@ public record NearbyPlaceItem(
 		 * <b>출처 표기 없이 내보내면 라이선스 문제</b>가 된다. 사진만 주고 이 칸을 빼면 화면이
 		 * 표기할 방법이 없어진다.
 		 */
-		@JsonInclude(JsonInclude.Include.NON_NULL) String photoSource) {
+		@JsonInclude(JsonInclude.Include.NON_NULL) String photoSource,
+
+		/**
+		 * 🔴 S15P21E201-1194 — 맨 뒤에 더한 칸이다. 영문 주소. 값이 없으면 키 자체가 빠진다.
+		 *
+		 * <p>이 목록도 이름은 두 언어로 싣고 주소는 한글만 실었다. 왜 그것이 화면에서 문제가
+		 * 되는지는 {@code PlaceSummaryResponse} 의 같은 칸 주석에 있다 — 두 목록이 같은 결함을
+		 * 나눠 갖고 있었다.
+		 */
+		@JsonInclude(JsonInclude.Include.NON_NULL) String addressEn,
+
+		/**
+		 * 🔴 S15P21E201-1205 — 맨 뒤에 더한 칸이다. 그 사진이 무엇을 찍은 것인가
+		 * ({@code SELF} = 이 장소, {@code VENUE} = 이 장소가 들어 있는 곳). 값이 없으면 키가 빠진다.
+		 *
+		 * <p>왜 이 칸이 없으면 <b>주변 시설 사진을 이 장소 사진처럼</b> 그리게 되는지는
+		 * {@code PlaceSummaryResponse} 의 같은 칸 주석에 실측과 함께 있다 — 두 목록이 같은 결함을
+		 * 나눠 갖고 있었다.
+		 */
+		@JsonInclude(JsonInclude.Include.NON_NULL) Place.PhotoSubject photoSubject) {
 
 	public static NearbyPlaceItem from(Place place, long distanceM) {
 		return new NearbyPlaceItem(place.getPlaceId(), place.getNameKo(), place.getNameEn(),
 				place.getCategory(), place.getAddress(), place.getLat(), place.getLng(), distanceM,
 				place.getPhotoUrl() != null && !place.getPhotoUrl().isBlank(),
-				place.getPhotoUrl(), place.getPhotoSource());
+				place.getPhotoUrl(), place.getPhotoSource(), place.getAddressEn(), place.getPhotoSubject());
 	}
 }

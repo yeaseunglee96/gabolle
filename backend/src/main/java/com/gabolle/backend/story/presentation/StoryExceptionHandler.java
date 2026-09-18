@@ -17,10 +17,13 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 
 import com.gabolle.backend.common.api.ApiError;
 import com.gabolle.backend.common.api.ApiResponse;
+import com.gabolle.backend.story.application.BlockService;
 import com.gabolle.backend.story.application.FeedCursor;
 import com.gabolle.backend.story.application.FollowService;
+import com.gabolle.backend.story.application.RelationCursor;
 import com.gabolle.backend.story.application.StoryCoauthorService;
 import com.gabolle.backend.story.application.StoryFeedService;
+import com.gabolle.backend.story.application.StoryReactionService;
 import com.gabolle.backend.story.application.StoryService;
 import com.gabolle.backend.story.domain.UserBlock;
 import com.gabolle.backend.story.domain.UserFollow;
@@ -36,7 +39,8 @@ import com.gabolle.backend.story.domain.UserFollow;
  * 하나뿐이면 두 컨트롤러가 같은 예외에 다른 응답을 낼 일이 없다.
  */
 @RestControllerAdvice(
-		assignableTypes = { StoryController.class, UserSocialController.class, StoryCoauthorController.class })
+		assignableTypes = { StoryController.class, UserSocialController.class, StoryCoauthorController.class,
+				StoryReactionController.class })
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class StoryExceptionHandler {
 
@@ -108,6 +112,21 @@ public class StoryExceptionHandler {
 	}
 
 	/**
+	 * 🔴 내가 함께 쓰는 글에 반응하려 했다 — <b>409</b>.
+	 *
+	 * <p>403 {@code STORY_FORBIDDEN} 과 가르는 이유는 이 파일 맨 위의 규칙 그대로다 —
+	 * 403 은 「보이는 글을 남이 고치거나 지우려 할 때」다. 이것은 정반대로 <b>내 글이라서</b>
+	 * 막힌 것이라, 같은 코드로 답하면 화면이 「남의 글이라 안 된다」를 띄운다.
+	 *
+	 * <p>404 도 아니다. 글은 분명히 보이고 사용자도 그것을 보고 있다.
+	 */
+	@ExceptionHandler(StoryReactionService.OwnReactionNotAllowedException.class)
+	public ResponseEntity<ApiResponse<Void>> handleOwnReaction(StoryReactionService.OwnReactionNotAllowedException e) {
+		return ResponseEntity.status(HttpStatus.CONFLICT)
+				.body(ApiResponse.failure(new ApiError("STORY_REACTION_OWN", e.getMessage(), List.of()), requestId()));
+	}
+
+	/**
 	 * 🔴 S15P21E201-974 — 로그인하지 않은 사람의 팔로잉 피드. <b>401 이 아니라 400</b>인
 	 * 이유는 {@code StoryFeedService.AnonymousFollowingFeedException} 에 적어 뒀다 —
 	 * 앱이 401 을 출입증 만료로 보고 다시 발급받아 재시도하기 때문이다.
@@ -151,6 +170,20 @@ public class StoryExceptionHandler {
 	public ResponseEntity<ApiResponse<Void>> handleBlockedByUser(UserBlock.BlockedByUserException e) {
 		return ResponseEntity.status(HttpStatus.FORBIDDEN)
 				.body(ApiResponse.failure(new ApiError("BLOCKED_BY_USER", e.getMessage(), List.of()), requestId()));
+	}
+
+	@ExceptionHandler(RelationCursor.InvalidCursorException.class)
+	public ResponseEntity<ApiResponse<Void>> handleRelationCursor(RelationCursor.InvalidCursorException e) {
+		return ResponseEntity.badRequest()
+				.body(ApiResponse.failure(new ApiError("FEED_CURSOR_INVALID", e.getMessage(), List.of("cursor")),
+						requestId()));
+	}
+
+	/** 남의 차단 목록을 물었다 — S15P21E201-1179. */
+	@ExceptionHandler(BlockService.BlockListForbiddenException.class)
+	public ResponseEntity<ApiResponse<Void>> handleBlockListForbidden(BlockService.BlockListForbiddenException e) {
+		return ResponseEntity.status(HttpStatus.FORBIDDEN)
+				.body(ApiResponse.failure(new ApiError("BLOCK_LIST_FORBIDDEN", e.getMessage(), List.of()), requestId()));
 	}
 
 	@ExceptionHandler(FollowService.UserNotFoundException.class)

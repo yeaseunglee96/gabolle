@@ -151,4 +151,58 @@ class PlaceFacetIntegrationTest extends PlacePostgresIntegrationTest {
 		// 확인된 부재 행까지 세었다면 2가 나온다 — 1이어야 그 행이 안 세어졌다는 뜻이다.
 		assertThat(keyCount.placeCount()).isEqualTo(1);
 	}
+
+	@Test
+	@DisplayName("🔴 점수형 축은 featureKey 가 없어도 합계에 세어진다 (S15P21E201-1149)")
+	void scoreTypeFacetCountsPlacesThatHaveNoFeatureKey() {
+		// 🔴 이 시험이 막는 것. 점수형(SCORE_COMPARE) 표식은 featureKey 가 언제나 null 이라
+		//    묶음이 null 키 하나뿐인데, plainKeys 가 그것을 버리고 합계를 keys 로만 구했다.
+		//    그래서 경사가 몇 행이든 SLOPE_PREFERENCE 의 건수가 **언제나 0** 이었고, 팀이
+		//    "자료가 없다" 와 "세는 코드가 틀렸다" 를 가를 수 없었다.
+		String token = this.fixture.token();
+		UUID gentle = this.fixture.insertPlace("완만" + token, null, "ATTRACTION", 35.1, 129.0);
+		this.fixture.insertValueFeature(gentle, "SLOPE_PERCENT", "ESTIMATED",
+				"{\"score\": 3.1, \"radiusM\": 200.0}");
+		UUID steep = this.fixture.insertPlace("가파름" + token, null, "ATTRACTION", 35.1, 129.0);
+		this.fixture.insertValueFeature(steep, "SLOPE_PERCENT", "ESTIMATED",
+				"{\"score\": 16.4, \"radiusM\": 200.0}");
+
+		PlaceFacetResponse response = this.placeFacetService.facets();
+
+		FacetItem slope = response.facets().stream()
+				.filter(item -> "SLOPE_PREFERENCE".equals(item.userInputCode()))
+				.findFirst().orElseThrow();
+
+		// 고치기 전에는 0 이었다. 다른 시험이 남긴 행이 섞일 수 있어 정확한 값 대신 하한으로 잰다.
+		assertThat(slope.placeCount()).isGreaterThanOrEqualTo(2);
+		assertThat(slope.placeCount())
+				.as("두 곳을 넣었는데 0 이면 null 키 묶음이 또 버려진 것이다")
+				.isNotZero();
+
+		// 🔴 합계에만 더하고 keys 에는 넣지 않는다 — 응답에 featureKey 가 null 인 칸이 생기면
+		//    화면이 이름 없는 하위 갈래를 그리려 든다.
+		assertThat(slope.keys()).extracting(FacetKeyCount::featureKey).doesNotContainNull();
+	}
+
+	@Test
+	@DisplayName("🔴 태그형 축은 이 고침으로 값이 안 바뀐다 — 회귀가 없다 (S15P21E201-1149)")
+	void tagTypeFacetCountIsUnchangedByTheKeylessFix() {
+		// 태그형은 featureKey 가 차 있어서 null 묶음이 아예 안 생긴다. 합계에 더해지는 값이
+		// 0 이므로 고치기 전과 같아야 한다 — 이 시험이 그 "같음" 을 붙잡는다.
+		String token = this.fixture.token();
+		String key = "MOOD-" + token;
+		UUID place = this.fixture.insertPlace("분위기" + token, null, "ATTRACTION", 35.1, 129.0);
+		this.fixture.insertTagFeature(place, "ATMOSPHERE_TAG", key, "VERIFIED", "{\"present\": true}");
+
+		PlaceFacetResponse response = this.placeFacetService.facets();
+
+		FacetItem atmosphere = response.facets().stream()
+				.filter(item -> "ATMOSPHERE".equals(item.userInputCode()))
+				.findFirst().orElseThrow();
+
+		long sumOfKeys = atmosphere.keys().stream().mapToLong(FacetKeyCount::placeCount).sum();
+		assertThat(atmosphere.placeCount())
+				.as("태그형은 합계가 키별 건수의 합과 정확히 같아야 한다")
+				.isEqualTo(sumOfKeys);
+	}
 }

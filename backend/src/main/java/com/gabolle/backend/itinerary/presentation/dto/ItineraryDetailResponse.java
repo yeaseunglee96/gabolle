@@ -54,7 +54,26 @@ public record ItineraryDetailResponse(
 		 * <p>목록을 한 번 더 받아 맞추게 하지 않는다. 일정은 반드시 여행 하나에 속하므로 이 칸은
 		 * 비지 않고, 아는 쪽이 알려주는 것이 부르는 쪽이 뒤지는 것보다 싸다.
 		 */
-		String tripId) {
+		String tripId,
+
+		/**
+		 * 🔴 S15P21E201-1158 — 이 일정에서 <b>휠체어 접근을 안 재 본</b> 항목이 몇 곳인가.
+		 * 맨 뒤에 더한 칸이다.
+		 *
+		 * <p>「휠체어로 갈 수 있음」은 지킬 수 없는 약속이라(경사가 완만해도 입구에 계단 세 칸이면
+		 * 못 간다) 화면은 <b>잰 것을 그대로</b> 말한다. 이 값이 그 재료다 — 0 보다 크면 화면이
+		 * 「확인 안 된 곳이 있다」고 알린다.
+		 *
+		 * <p>🔴 <b>참거짓 칸을 따로 두지 않는다.</b> {@code accessibilityUnverifiedCount > 0} 이 곧
+		 * 「있나」다. 칸을 둘로 두면 한쪽만 고쳐지는 날이 오고, 그때 어느 쪽이 진짜인지 아무도
+		 * 모른다.
+		 *
+		 * <p>🔴 <b>추천 결과 응답에는 같은 칸을 더하지 않았다.</b> 거기는 이미 항목마다
+		 * {@code mobilityWarnings} 와 최상위 {@code conflicts} 로 같은 사실이 나가고 있어서, 셈을
+		 * 하나 더 두면 두 값이 어긋날 자리만 생긴다. 이 칸은 <b>일정 화면에서 다시 볼 때</b>를
+		 * 위한 것이다.
+		 */
+		int accessibilityUnverifiedCount) {
 
 	/** 여행 기간의 날짜 하나 — 항목이 0개인 날도 포함된다(빈 {@code items}). */
 	public record Day(String date, List<Item> items) {
@@ -128,6 +147,23 @@ public record ItineraryDetailResponse(
 			 * 저쪽은 "그 장소에 들어가는 데 드는 돈" 이다. 합치면 입장료 자료가 없는 지금
 			 * "교통비만 낸 합계" 가 "총비용" 으로 읽힌다.
 			 */
-			Integer travelFareKrw) {
+			Integer travelFareKrw,
+
+			/**
+			 * 🔴 S15P21E201-1158 — 이 항목에 붙은 경고. 맨 뒤에 더한 칸이다.
+			 *
+			 * <p>{@code itinerary_item.warning_codes} 를 그대로 옮긴다. <b>새로 만드는 값이 아니라
+			 * 이미 저장돼 있던 값을 공개하는 것</b>이다 — 채점 단계가 붙여 저장까지 해 두고도
+			 * 화면으로 나가는 길이 없었다.
+			 *
+			 * <p>경고가 없으면 <b>빈 배열이지 {@code null} 이 아니다</b> — 이 응답의 판(version)
+			 * 수준 {@code warningCodes} 와 같은 규칙이다.
+			 *
+			 * <p>🔴 <b>화면이 이 값을 낱말로 그리려면 사전에 짝이 있어야 한다.</b> 프런트는
+			 * {@code src/plan/warningLabels.ts} 에 짝이 없는 코드를 <b>아예 안 그린다</b>
+			 * (S15P21E201-1150 — 실기기에 {@code SIGHT_SLOT_UNFILLED} 가 영문 대문자 그대로
+			 * 떴던 사고 뒤에 생긴 규칙이다). 여기에 새 코드를 흘려보낼 때는 그 사전도 함께 본다.
+			 */
+			List<String> warningCodes) {
 	}
 }

@@ -124,6 +124,43 @@ class AssistantChatServiceTest {
 	}
 
 	@Test
+	@DisplayName("🔴 프론트가 보내는 5개 언어(ko/en/ja/zh-Hans/zh-Hant)가 각각 그대로 벤더에 전달된다 — S15P21E201-1109")
+	void fiveLanguagesAreNormalizedForVendor() {
+		this.service.chat(USER_ID, "hello", "en-US,en;q=0.9", List.of(), null, null);
+		assertThat(this.vendor.lastRequest.language()).isEqualTo("en");
+
+		this.service.chat(USER_ID, "こんにちは", "ja-JP", List.of(), null, null);
+		assertThat(this.vendor.lastRequest.language()).isEqualTo("ja");
+
+		this.service.chat(USER_ID, "你好", "zh-CN", List.of(), null, null);
+		assertThat(this.vendor.lastRequest.language()).isEqualTo("zh-Hans");
+
+		this.service.chat(USER_ID, "你好", "zh-TW", List.of(), null, null);
+		assertThat(this.vendor.lastRequest.language()).isEqualTo("zh-Hant");
+
+		this.service.chat(USER_ID, "안녕", "ko-KR", List.of(), null, null);
+		assertThat(this.vendor.lastRequest.language()).isEqualTo("ko");
+	}
+
+	@Test
+	@DisplayName("모르는 언어 값은 한국어로 떨어진다")
+	void unknownLanguageFallsBackToKorean() {
+		this.service.chat(USER_ID, "안녕", "fr-FR", List.of(), null, null);
+		assertThat(this.vendor.lastRequest.language()).isEqualTo("ko");
+	}
+
+	@Test
+	@DisplayName("🔴 q값이 섞인 헤더는 첫 태그만 본다 — MR !1066 AI 리뷰로 발견")
+	void multiTagAcceptLanguageHeaderUsesOnlyThePrimaryTag() {
+		this.service.chat(USER_ID, "你好", "zh-TW,zh;q=0.9,en-US;q=0.8", List.of(), null, null);
+		assertThat(this.vendor.lastRequest.language()).isEqualTo("zh-Hant");
+
+		// 뒤쪽 태그가 앞쪽 태그의 판정을 덮어쓰면 안 된다.
+		this.service.chat(USER_ID, "你好", "zh-Hans,zh-Hant;q=0.5", List.of(), null, null);
+		assertThat(this.vendor.lastRequest.language()).isEqualTo("zh-Hans");
+	}
+
+	@Test
 	@DisplayName("히스토리는 설정된 개수만큼만 벤더에 전달된다")
 	void historyIsTrimmedToConfiguredTurnLimit() {
 		this.properties.setMaxHistoryTurns(2);

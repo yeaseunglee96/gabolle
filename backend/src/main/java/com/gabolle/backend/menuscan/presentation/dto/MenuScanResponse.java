@@ -35,8 +35,11 @@ public record MenuScanResponse(List<Line> lines, int unreadLineCount, String evi
 
 	/**
 	 * @param text 그 줄에서 읽은 글자 그대로
+	 * @param translatedText 앱이 요청한 언어로 옮긴 값. 요청 언어가 한국어이거나 언어를
+	 *     안 보낸 요청이면(옛 앱 빌드) {@code text} 와 <b>같은 값</b>이 온다 — 그때는
+	 *     번역이 아니라 원문이라는 뜻이다
 	 * @param allergenWords 그 줄에서 <b>보인</b> 알레르기 관련 낱말. 비어 있으면 «못 찾았다»
 	 */
-	public record Line(String text, List<String> allergenWords) {
+	public record Line(String text, String translatedText, List<String> allergenWords) {
 	}
 }

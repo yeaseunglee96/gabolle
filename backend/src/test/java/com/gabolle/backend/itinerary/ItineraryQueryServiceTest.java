@@ -22,6 +22,7 @@ import com.gabolle.backend.itinerary.presentation.dto.ItineraryDetailResponse;
 import com.gabolle.backend.itinerary.support.FakeItineraryItemActualRepository;
 import com.gabolle.backend.place.domain.Place;
 import com.gabolle.backend.place.repository.PlaceRepository;
+import com.gabolle.backend.recommendation.application.RecommendationCodes;
 import com.gabolle.backend.recommendation.repository.RecommendationJobRepository;
 import com.gabolle.backend.trip.application.TripQueryService;
 import com.gabolle.backend.trip.domain.Trip;
@@ -170,6 +171,71 @@ class ItineraryQueryServiceTest {
 	}
 
 	@Test
+	@DisplayName("🔴 S15P21E201-1158 — 항목에 붙은 경고가 응답에 실린다. 저장만 되고 안 나가던 값이다")
+	void itemWarningCodesAreIncluded() {
+		stubTripMembership(threeDayTrip());
+		LocalDate day = LocalDate.parse("2026-10-01");
+		String itineraryId = seedItinerary(1, List.of(
+				itemOf("k1", 0, day, 1, LocalTime.of(10, 0), LocalTime.of(11, 0),
+						List.of(RecommendationCodes.WARNING_ACCESSIBILITY_UNVERIFIED))));
+
+		ItineraryDetailResponse response = this.service.getDetail(itineraryId, this.requesterId);
+
+		ItineraryDetailResponse.Item item = response.days().stream()
+				.flatMap(d -> d.items().stream()).findFirst().orElseThrow();
+		assertThat(item.warningCodes()).containsExactly("ACCESSIBILITY_UNVERIFIED");
+	}
+
+	@Test
+	@DisplayName("🔴 S15P21E201-1158 — 경고가 없는 항목의 warningCodes 는 null 이 아니라 빈 배열")
+	void itemWarningCodesEmptyNotNull() {
+		stubTripMembership(threeDayTrip());
+		LocalDate day = LocalDate.parse("2026-10-01");
+		String itineraryId = seedItinerary(1, List.of(
+				itemOf("k1", 0, day, 1, LocalTime.of(10, 0), LocalTime.of(11, 0))));
+
+		ItineraryDetailResponse response = this.service.getDetail(itineraryId, this.requesterId);
+
+		ItineraryDetailResponse.Item item = response.days().stream()
+				.flatMap(d -> d.items().stream()).findFirst().orElseThrow();
+		assertThat(item.warningCodes()).isNotNull().isEmpty();
+	}
+
+	@Test
+	@DisplayName("🔴 S15P21E201-1158 — accessibilityUnverifiedCount 는 확인 안 된 '곳' 수다")
+	void accessibilityUnverifiedCountCountsPlaces() {
+		stubTripMembership(threeDayTrip());
+		LocalDate day = LocalDate.parse("2026-10-01");
+		String unverified = RecommendationCodes.WARNING_ACCESSIBILITY_UNVERIFIED;
+		String itineraryId = seedItinerary(1, List.of(
+				itemOf("k1", 0, day, 1, LocalTime.of(10, 0), LocalTime.of(11, 0), List.of(unverified)),
+				// 🔴 경고가 둘 붙은 곳도 '한 곳'이다. 건수가 아니라 곳을 센다.
+				itemOf("k2", 0, day, 2, LocalTime.of(12, 0), LocalTime.of(13, 0),
+						List.of("WALKING_OVER_LIMIT", unverified)),
+				// 접근성과 무관한 경고만 붙은 곳은 안 센다.
+				itemOf("k3", 0, day, 3, LocalTime.of(14, 0), LocalTime.of(15, 0),
+						List.of("WALKING_OVER_LIMIT")),
+				itemOf("k4", 0, day, 4, LocalTime.of(16, 0), LocalTime.of(17, 0))));
+
+		ItineraryDetailResponse response = this.service.getDetail(itineraryId, this.requesterId);
+
+		assertThat(response.accessibilityUnverifiedCount()).isEqualTo(2);
+	}
+
+	@Test
+	@DisplayName("🔴 S15P21E201-1158 — 확인 안 된 곳이 없으면 0 이다. 모달이 안 뜨는 근거다")
+	void accessibilityUnverifiedCountIsZeroWhenAllVerified() {
+		stubTripMembership(threeDayTrip());
+		LocalDate day = LocalDate.parse("2026-10-01");
+		String itineraryId = seedItinerary(1, List.of(
+				itemOf("k1", 0, day, 1, LocalTime.of(10, 0), LocalTime.of(11, 0))));
+
+		ItineraryDetailResponse response = this.service.getDetail(itineraryId, this.requesterId);
+
+		assertThat(response.accessibilityUnverifiedCount()).isZero();
+	}
+
+	@Test
 	@DisplayName("🔴 경고가 없으면 warningCodes 는 null 이 아니라 빈 배열")
 	void warningCodesEmptyNotNull() {
 		stubTripMembership(threeDayTrip());
@@ -202,8 +268,14 @@ class ItineraryQueryServiceTest {
 
 	private ItineraryItem itemOf(String itemKey, int dayIndex, LocalDate visitDate, int sequence,
 			LocalTime startTime, LocalTime endTime) {
+		return itemOf(itemKey, dayIndex, visitDate, sequence, startTime, endTime, List.of());
+	}
+
+	/** 경고가 붙은 항목 — S15P21E201-1158. */
+	private ItineraryItem itemOf(String itemKey, int dayIndex, LocalDate visitDate, int sequence,
+			LocalTime startTime, LocalTime endTime, List<String> warningCodes) {
 		return new ItineraryItem(UUID.randomUUID().toString(), "version-placeholder", itemKey, dayIndex, visitDate,
 				sequence, this.placeId.toString(), startTime, endTime, null, false, null,
-				ItineraryItem.DataStatus.VERIFIED, List.of(), List.of(), null, Instant.now());
+				ItineraryItem.DataStatus.VERIFIED, List.of(), warningCodes, null, Instant.now());
 	}
 }

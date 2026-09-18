@@ -250,6 +250,180 @@ public final class PlaceFeatureNdjsonReader {
 		});
 	}
 
+	/**
+	 * 0~100 눈금의 점수형 산출물을 읽는다 — S15P21E201-1167.
+	 *
+	 * <p>조용함({@code place-quietness.ndjson} · {@code -sbiz})과 로컬성({@code place-locality.ndjson} ·
+	 * {@code -sbiz})이 같은 모양이라 한 함수가 둘을 다 읽는다. 값 칸 이름만 다르다.
+	 *
+	 * <pre>
+	 * {"contentid":"129156","featureType":"QUIETNESS_SCORE","quietnessScore":90,"noiseP90":0.1,"radiusM":200}
+	 * {"sourceType":"SBIZ","sourceId":"MA01…","featureType":"LOCALITY_SCORE","localityScore":66.2,"shops":160}
+	 * </pre>
+	 *
+	 * <h2>🔴 열쇠 모양 둘을 다 읽는다</h2>
+	 *
+	 * {@code contentid} 가 있으면 관광공사, {@code sourceType}+{@code sourceId} 가 있으면 그 출처다.
+	 * <b>경사({@link #readPlaceSlopes})는 관광공사만 읽어서 상가 절반(2,355곳)을 마이그레이션으로
+	 * 따로 넣어야 했다.</b> 같은 일을 반복하지 않는다.
+	 *
+	 * <h2>🔴 100 으로 나눠 저장한다 — 채점기 눈금이 0~1 이다</h2>
+	 *
+	 * 산출물은 사람이 읽기 좋게 0~100 인데, 채점기는 이 축들을 <b>0~1 로 안다</b>
+	 * ({@code BaselineCandidateScorer} 가 {@code SLOPE_PERCENT} 하나만 100 으로 나눈다).
+	 * 그대로 넣으면 {@code 1 - |장소값 - 선호값|} 이 음수가 되고 {@code clamp01} 이
+	 * <b>전부 0 으로 뭉갠다</b> — {@code PreferenceJson} 클래스 주석이 그 사고를 기록해 두었다.
+	 * 산출물을 고치지 않고 <b>여기서</b> 맞추는 이유는, 0~100 이 이미 머지돼 문서에 적혀 있고
+	 * 사람이 읽는 값이기 때문이다.
+	 *
+	 * <h2>🔴 나눈 값을 검산한다 — 두 번 나누는 사고를 막는다</h2>
+	 *
+	 * 조용함 산출물은 {@code quietnessScore = (1 - noiseP90) × 100} 이 성립한다. 그 관계를 여기서
+	 * 확인한다. 나중에 산출물이 0~1 로 바뀌면 이 함수가 <b>또 100 으로 나눠</b> 0.009 같은 값이
+	 * 되는데, 그 값은 범위 검사를 통과하고 축을 다시 전부 0 으로 만든다 — 조용히 지나가는 대신
+	 * 여기서 멈춘다. {@code noiseP90} 이 없는 산출물(로컬성)은 이 검산을 건너뛴다.
+	 *
+	 * @param valueField 값이 든 칸 이름 — {@code quietnessScore} · {@code localityScore}
+	 * @param featureType 저장할 표식 종류 — {@code QUIETNESS_SCORE} · {@code LOCALITY_SCORE}
+	 */
+	public static Counts readPlaceScores(Path file, String valueField, String featureType, int chunkSize,
+			Consumer<List<Fact>> chunkConsumer) {
+		requirePercentScale(file, valueField, featureType);
+		return read(file, chunkSize, chunkConsumer, (node, out) -> {
+			String contentId = text(node, "contentid");
+			String keySource;
+			String storeId;
+			if (contentId != null) {
+				storeId = contentId;
+				keySource = TourApiPlaceLoader.SOURCE_TYPE;
+			}
+			else {
+				storeId = text(node, "sourceId");
+				keySource = text(node, "sourceType");
+				if (storeId == null || keySource == null) {
+					return false;
+				}
+				// 🔴 오타를 조용히 두면 엉뚱한 장소 아이디를 계산해 "장소가 없어 못 넣음" 으로만
+				//    세어진다. readVisitorFacts 가 같은 이유로 같은 검사를 한다.
+				if (!NAMESPACES.contains(keySource)) {
+					throw new IllegalArgumentException(
+							"모르는 sourceType 이다: " + keySource + " (아는 것: " + NAMESPACES + ")");
+				}
+			}
+
+			JsonNode raw = node.path(valueField);
+			if (!raw.isNumber()) {
+				return false;
+			}
+			double percent = raw.asDouble();
+			if (percent < 0 || percent > 100) {
+				throw new IllegalArgumentException("%s 산출물에 범위를 벗어난 값이 있다: %s (열쇠 %s)"
+						.formatted(featureType, percent, storeId));
+			}
+			double score = percent / 100.0;
+
+			JsonNode noise = node.path("noiseP90");
+			if (noise.isNumber()) {
+				double expected = 1.0 - noise.asDouble();
+				if (Math.abs(score - expected) > SCORE_CROSS_CHECK_TOLERANCE) {
+					throw new IllegalArgumentException(
+							("%s 산출물의 눈금이 안 맞는다: %s/100 = %s 인데 1 - noiseP90 = %s 다 (열쇠 %s). "
+									+ "산출물이 이미 0~1 로 바뀐 것은 아닌지 확인하라 — 그렇다면 여기서 "
+									+ "또 나누면 안 된다")
+									.formatted(featureType, percent, score, expected, storeId));
+				}
+			}
+
+			ObjectNode payload = MAPPER.createObjectNode();
+			payload.put("score", score);
+			// 이 값이 어떻게 나왔는지를 행 안에 남긴다 — 나중에 반경을 바꿨을 때 어느 행이 옛
+			// 기준으로 만들어졌는지 알 수 있어야 한다. 채점기는 score 만 읽는다.
+			copyNumber(node, payload, "radiusM");
+			copyNumber(node, payload, "noiseP90");
+			copyNumber(node, payload, "roads");
+			copyNumber(node, payload, "roadLengthM");
+			copyNumber(node, payload, "shops");
+			// 그늘 — S15P21E201-1184. 🔴 treeDensity 는 검산용이 아니다(shadeScore 와 일정한
+			// 비율이 아니다). 어떻게 나온 값인지를 남기려고 옮길 뿐이다.
+			copyNumber(node, payload, "treeDensity");
+			copyNumber(node, payload, "sections");
+			copyNumber(node, payload, "plantedM");
+			out.add(new Fact(storeId, featureType, write(payload), keySource));
+			return true;
+		});
+	}
+
+	/**
+	 * 검산 허용 오차. 산출물이 정수로 반올림돼 있어({@code quietnessScore:35} · {@code noiseP90:0.65})
+	 * 0.01 보다 작은 차이는 반올림에서 온다.
+	 */
+	private static final double SCORE_CROSS_CHECK_TOLERANCE = 0.01;
+
+	/**
+	 * 이 줄 수를 넘는 파일에서만 눈금을 판정한다 — 아래 {@link #requirePercentScale} 참고.
+	 *
+	 * <p>줄이 몇 개뿐이면 0~100 눈금이어도 값이 우연히 전부 1 이하일 수 있다. 실제 산출물은
+	 * 363줄이 가장 작다.
+	 */
+	private static final int SCALE_CHECK_MIN_ROWS = 50;
+
+	/**
+	 * 🔴 <b>이미 0~1 로 바뀐 산출물을 또 나누려는 것</b>을 한 줄도 넣기 전에 잡는다 —
+	 * S15P21E201-1184.
+	 *
+	 * <h2>왜 한 줄로는 못 가리나</h2>
+	 *
+	 * {@code 0.5} 한 줄만 보면 0~100 눈금의 작은 값인지 0~1 눈금의 큰 값인지 <b>가를 수 없다.</b>
+	 * 그래서 범위 검사({@code 0 이상 100 이하})는 이 사고를 못 막는다 — 두 번 나눈 값
+	 * {@code 0.009} 는 그 검사를 통과하고, 채점기에서 축을 통째로 0 으로 만든다.
+	 *
+	 * <h2>파일 전체를 보면 갈린다</h2>
+	 *
+	 * 수백 줄짜리 0~100 산출물에서 <b>모든 값이 1 이하일 수는 사실상 없다.</b> 실측으로도 네
+	 * 산출물 전부 최댓값이 99 를 넘는다(그늘 99.8·99.9, 로컬 100·99.9).
+	 *
+	 * <h2>🔴 왜 읽기 <b>전</b>인가</h2>
+	 *
+	 * 다 읽고 나서 던지면 앞쪽 덩어리는 <b>이미 DB 에 들어간 뒤</b>다 — 저장이 덩어리마다
+	 * 일어나기 때문이다. 그러면 잘못된 눈금의 행이 남고, 그 상태는 「일부만 이상한 값」이라
+	 * 알아채기가 더 어렵다. 한 번 더 훑는 값이 그것보다 싸다(가장 큰 파일이 2,400줄이다).
+	 *
+	 * <h2>조용함은 이 검사가 없어도 된다 — 그래도 함께 건다</h2>
+	 *
+	 * 조용함에는 {@code noiseP90} 이라는 짝이 있어 줄마다 검산할 수 있다. 그늘과 로컬에는
+	 * <b>그런 짝이 없다</b>({@code treeDensity} 는 {@code shadeScore} 와 일정한 비율이 아니다 —
+	 * 실측 527·687·784배). 축마다 다르게 두지 않는 이유는, 나중에 짝이 있는 축이 하나 더
+	 * 생겼을 때 <b>어느 축에 무슨 검사가 걸려 있는지</b>를 다시 세지 않으려는 것이다.
+	 */
+	private static void requirePercentScale(Path file, String valueField, String featureType) {
+		double max = Double.NEGATIVE_INFINITY;
+		int seen = 0;
+		try (BufferedReader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
+			String line;
+			while ((line = reader.readLine()) != null) {
+				if (line.isBlank()) {
+					continue;
+				}
+				JsonNode value = MAPPER.readTree(line).path(valueField);
+				if (value.isNumber()) {
+					max = Math.max(max, value.asDouble());
+					seen++;
+				}
+			}
+		}
+		catch (IOException ex) {
+			throw new IllegalStateException("산출물을 읽을 수 없다: " + file.toAbsolutePath(), ex);
+		}
+
+		if (seen >= SCALE_CHECK_MIN_ROWS && max <= 1.0) {
+			throw new IllegalArgumentException(
+					("%s 산출물이 이미 0~1 눈금으로 보인다 — %d줄의 최댓값이 %s 다 (파일 %s). "
+							+ "이 적재기는 0~100 을 받아 100 으로 나눠 넣으므로, 이대로 넣으면 값이 "
+							+ "100배 작아져 채점기에서 이 축이 통째로 0 이 된다. 산출물 눈금을 확인하라")
+									.formatted(featureType, seen, max, file.getFileName()));
+		}
+	}
+
 	/** 있으면 그대로 옮긴다. 없으면 만들어 넣지 않는다. */
 	private static void copyNumber(JsonNode from, ObjectNode to, String field) {
 		JsonNode value = from.path(field);

@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withServerError;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 import org.junit.jupiter.api.DisplayName;
@@ -107,6 +108,47 @@ class TagoTransitVendorAdapterTest {
 					assertThat(vendorException.getCode()).isEqualTo("TRANSIT_VENDOR_UNAVAILABLE");
 					assertThat(vendorException.getStatus()).isEqualTo(HttpStatus.BAD_GATEWAY);
 				});
+		server.verify();
+	}
+
+	@Test
+	@DisplayName("🔴 업체가 우리 키를 거절하면(403) 「잠시 후 다시 시도」가 아니라 「설정 안 됨」이다")
+	void rejectedServiceKeyIsNotConfiguredNotUnavailable() {
+		RestClient.Builder builder = RestClient.builder();
+		MockRestServiceServer server = MockRestServiceServer.bindTo(builder).build();
+		TagoTransitVendorAdapter adapter = newAdapter(builder, "not-registered-key");
+
+		// 공공데이터포털이 실제로 주는 모양 (실측 2026-09-18)
+		String body = "{\"OpenAPI_ServiceResponse\":{\"cmmMsgHeader\":{"
+				+ "\"errMsg\":\"SERVICE_KEY_IS_NOT_REGISTERED_ERROR\",\"returnReasonCode\":\"30\"}}}";
+		server.expect(ExpectedCount.once(), MockRestRequestMatchers.anything())
+				.andRespond(withStatus(HttpStatus.FORBIDDEN).body(body).contentType(MediaType.APPLICATION_JSON));
+
+		assertThatThrownBy(() -> adapter.fetchNearbyStopsJson(35.1796, 129.0756))
+				.isInstanceOf(TransitVendorException.class)
+				.satisfies(exception -> {
+					TransitVendorException vendorException = (TransitVendorException) exception;
+					// 몇 번을 다시 눌러도 같은 답이 온다 — 「잠시」가 아니다.
+					assertThat(vendorException.getCode()).isEqualTo("TRANSIT_VENDOR_NOT_CONFIGURED");
+					assertThat(vendorException.getStatus()).isEqualTo(HttpStatus.BAD_GATEWAY);
+				});
+		server.verify();
+	}
+
+	@Test
+	@DisplayName("키 문제가 아닌 4xx(404)는 그대로 「잠시 응답하지 않음」이다")
+	void otherClientErrorStaysUnavailable() {
+		RestClient.Builder builder = RestClient.builder();
+		MockRestServiceServer server = MockRestServiceServer.bindTo(builder).build();
+		TagoTransitVendorAdapter adapter = newAdapter(builder, "test-service-key");
+
+		server.expect(ExpectedCount.once(), MockRestRequestMatchers.anything())
+				.andRespond(withStatus(HttpStatus.NOT_FOUND));
+
+		assertThatThrownBy(() -> adapter.fetchNearbyStopsJson(35.1796, 129.0756))
+				.isInstanceOf(TransitVendorException.class)
+				.satisfies(exception -> assertThat(((TransitVendorException) exception).getCode())
+						.isEqualTo("TRANSIT_VENDOR_UNAVAILABLE"));
 		server.verify();
 	}
 }

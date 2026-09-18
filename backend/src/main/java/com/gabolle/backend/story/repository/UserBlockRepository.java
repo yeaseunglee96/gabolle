@@ -1,8 +1,12 @@
 package com.gabolle.backend.story.repository;
 
+import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import com.gabolle.backend.story.domain.UserBlock;
 
@@ -32,4 +36,18 @@ public interface UserBlockRepository extends JpaRepository<UserBlock, UserBlock.
 
 	/** 내가 차단한 사람 수 — 설정의 「차단한 사용자」 목록이 쓸 자리다. */
 	long countByKeyBlockerUserId(UUID blockerUserId);
+
+	/**
+	 * 내가 차단한 사람 목록, 최근에 차단한 순 — 설정 화면의 「차단된 계정」이 쓴다.
+	 *
+	 * <p>탈퇴한 사람도 뺀다 — 차단 자체는 여전히 유효하지만(다시 가입해도 다른 계정이다), 이미
+	 * 나간 사람을 목록에 보여줄 이유가 없다.
+	 */
+	@Query(value = "SELECT u.user_id AS userId, u.display_name AS displayName, u.avatar_url AS avatarUrl, "
+			+ "b.created_at AS relatedAt FROM user_block b JOIN app_user u ON u.user_id = b.blocked_user_id "
+			+ "WHERE b.blocker_user_id = :userId AND u.deleted_at IS NULL"
+			+ " AND (b.created_at, b.blocked_user_id) < (CAST(:cursorAt AS timestamptz), CAST(:cursorId AS uuid)) "
+			+ "ORDER BY b.created_at DESC, b.blocked_user_id DESC LIMIT :limit", nativeQuery = true)
+	List<RelationRow> findBlocked(@Param("userId") UUID userId, @Param("cursorAt") Instant cursorAt,
+			@Param("cursorId") UUID cursorId, @Param("limit") int limit);
 }

@@ -95,7 +95,18 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 		// 🔴 로컬에서는 이 실패가 안 보인다. Docker 가 없는 PC 에서는 Postgres 검사가 통째로
 		// 건너뛰어지므로, 이 목록이 좁다는 사실은 CI 에 올려야 비로소 드러난다.
 		"com.gabolle.backend.feed.domain",
-		"com.gabolle.backend.preference.domain"
+		"com.gabolle.backend.preference.domain",
+		// 🔴 S15P21E201-1157 — 탈퇴가 ON DELETE CASCADE 에만 기대던 표들을 직접 지우게 되면서
+		// (AccountDeletionService.USER_OWNED_ROWS) 그 엔티티 매핑이 여기 필요해졌다.
+		//
+		// 위 story.domain 줄이 2026-09-07 에 적어 둔 것과 <b>똑같은 실패가 다시 났다</b> —
+		// 로컬에서는 도커가 없어 이 슬라이스 테스트가 건너뜀이 되고, CI 가
+		// UnknownEntityException("Could not resolve root entity 'Collection'") 으로 잡았다.
+		// 이번에는 AccountDeletionOwnedRowsTest 가 DB 없이 먼저 잡는다.
+		"com.gabolle.backend.collection.domain",
+		"com.gabolle.backend.menuscan.domain",
+		"com.gabolle.backend.review.domain",
+		"com.gabolle.backend.share.domain"
 })
 @EnableJpaRepositories(basePackages = {
 		"com.gabolle.backend.auth.repository",

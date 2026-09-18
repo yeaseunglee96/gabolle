@@ -16,10 +16,12 @@ import com.gabolle.backend.common.security.HtmlOutputEncoder;
 import com.gabolle.backend.place.domain.Place;
 import com.gabolle.backend.place.repository.PlaceRepository;
 import com.gabolle.backend.story.domain.Story;
+import com.gabolle.backend.story.domain.ReactionType;
 import com.gabolle.backend.story.domain.StoryImage;
 import com.gabolle.backend.story.domain.UploadedImage;
 import com.gabolle.backend.story.presentation.dto.StoryResponse;
 import com.gabolle.backend.story.repository.StoryImageRepository;
+import com.gabolle.backend.story.repository.StoryReactionRepository;
 import com.gabolle.backend.story.repository.UploadedImageRepository;
 import com.gabolle.backend.user.domain.AppUser;
 import com.gabolle.backend.user.repository.AppUserRepository;
@@ -42,13 +44,16 @@ public class StoryResponseAssembler {
 
 	private final PlaceRepository placeRepository;
 
+	private final StoryReactionRepository storyReactionRepository;
+
 	public StoryResponseAssembler(StoryImageRepository storyImageRepository,
 			UploadedImageRepository uploadedImageRepository, AppUserRepository appUserRepository,
-			PlaceRepository placeRepository) {
+			PlaceRepository placeRepository, StoryReactionRepository storyReactionRepository) {
 		this.storyImageRepository = storyImageRepository;
 		this.uploadedImageRepository = uploadedImageRepository;
 		this.appUserRepository = appUserRepository;
 		this.placeRepository = placeRepository;
+		this.storyReactionRepository = storyReactionRepository;
 	}
 
 	public StoryResponse one(Story story, UUID viewer, Instant now) {
@@ -93,6 +98,24 @@ public class StoryResponseAssembler {
 			}
 		}
 
+		// 🔴 S15P21E201-1174 — 반응 수와 「내가 눌러 둔 것」. 한 쪽당 질의 둘이고, 글마다가 아니다.
+		//    글마다 세면 50건 피드가 50번의 왕복이 된다 — 위의 사진·작성자·장소와 같은 이유다.
+		Map<UUID, int[]> reactionCounts = new HashMap<>();
+		for (StoryReactionRepository.StoryReactionCount row : this.storyReactionRepository
+				.countByStories(storyIds)) {
+			int[] slot = reactionCounts.computeIfAbsent(row.getStoryId(), (k) -> new int[2]);
+			slot[row.getReaction() == ReactionType.LIKE ? 0 : 1] = (int) row.getCount();
+		}
+		// 🔴 비회원(viewer == null)이면 질의 자체를 안 한다. 「내 반응」이 없는 것이 확실하고,
+		//    복합 키의 한 칸이 null 인 조회는 동작이 보장되지 않는다(StoryVisibilityPolicy 참고).
+		Map<UUID, ReactionType> myReactions = new HashMap<>();
+		if (viewer != null) {
+			for (StoryReactionRepository.StoryViewerReaction row : this.storyReactionRepository
+					.findMineByStories(storyIds, viewer)) {
+				myReactions.put(row.getStoryId(), row.getReaction());
+			}
+		}
+
 		List<StoryResponse> out = new ArrayList<>(stories.size());
 		for (Story story : stories) {
 			AppUser author = authors.get(story.getAuthorUserId());
@@ -103,6 +126,12 @@ public class StoryResponseAssembler {
 					(author == null || author.getDeletedAt() != null || author.getDisplayName() == null
 							|| author.getDisplayName().isBlank()) ? "탈퇴한 사용자" : author.getDisplayName());
 			Place place = story.getPlaceId() == null ? null : places.get(story.getPlaceId());
+			// 🔴 S15P21E201-1249 — 한 번만 꺼낸다. 예전에는 공유 static int[] 를
+			//    getOrDefault 의 기본값으로 건네줬는데, 그 결과에 쓰는 변경이 하나만
+			//    들어오면 JVM 안 모든 글의 수가 조용히 오염된다(예외 없이 숫자만 틀린다).
+			int[] counts = reactionCounts.get(story.getStoryId());
+			int likeCount = (counts == null) ? 0 : counts[0];
+			int dislikeCount = (counts == null) ? 0 : counts[1];
 			List<StoryResponse.Image> images = new ArrayList<>();
 			for (StoryImage image : imagesByStory.getOrDefault(story.getStoryId(), List.of())) {
 				UploadedImage upload = uploads.get(image.getUploadedImageId());
@@ -117,9 +146,11 @@ public class StoryResponseAssembler {
 					//    응답으로 나가는 여기서만 인코딩한다(클래스 상단 HtmlOutputEncoder 참고).
 					HtmlOutputEncoder.forHtml(story.getBody()),
 					story.getRegion(),
+					// S15P21E201-1189 — 주소도 영문도 이미 읽어 둔 place 행에 있다. 장소를 다시 조회하지 않는다.
 					place == null ? null
 							: new StoryResponse.PlaceRef(place.getPlaceId().toString(), place.getNameKo(),
-									place.getLat(), place.getLng()),
+									place.getLat(), place.getLng(), place.getAddress(), place.getNameEn(),
+									place.getAddressEn()),
 					story.getTripId() == null ? null : story.getTripId().toString(),
 					images,
 					story.getVisibility().name(),
@@ -127,7 +158,19 @@ public class StoryResponseAssembler {
 					story.getCreatedAt().toString(),
 					story.getUpdatedAt().toString(),
 					story.isAuthor(viewer),
-					story.isPublishedAt(now)));
+					story.isPublishedAt(now),
+					// S15P21E201-1183 — 이미 손에 있는 값이다. 부모를 다시 조회하지 않는다.
+					story.getParentStoryId() == null ? null : story.getParentStoryId().toString(),
+					story.getReplyCount(),
+					// S15P21E201-1204 — 누적 칸이라 이미 손에 있다. 낱개를 세지 않는다.
+					story.getViewCount(),
+					story.getLinkCopyCount(),
+					// S15P21E201-1174 — 위에서 한 번에 세 둔 값이다. 글마다 다시 세지 않는다.
+					likeCount,
+					dislikeCount,
+					myReactions.containsKey(story.getStoryId())
+							? myReactions.get(story.getStoryId()).name()
+							: null));
 		}
 		return out;
 	}

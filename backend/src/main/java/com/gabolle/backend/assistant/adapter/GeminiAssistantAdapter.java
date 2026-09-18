@@ -16,6 +16,7 @@ import com.google.genai.Client;
 import com.google.genai.types.Content;
 import com.google.genai.types.GenerateContentConfig;
 import com.google.genai.types.GenerateContentResponse;
+import com.google.genai.types.HttpOptions;
 import com.google.genai.types.Part;
 import com.google.genai.types.Schema;
 import com.google.genai.types.Type;
@@ -195,6 +196,33 @@ public class GeminiAssistantAdapter implements AssistantVendorPort {
 			'/plan/basic' 등)를 그대로 쓴다 — 번역하지 않는다.
 			""";
 
+	private static final String JAPANESE_DIRECTIVE = """
+
+
+			🔴 답변 언어 — 이번 요청은 일본어 사용자다. reply · label · korean(원문은 한국어 그대로
+			두되 설명은 일본어로) · pronunciation 등 사용자에게 보여줄 모든 텍스트를 일본어로 써라.
+			kind 값과 href 값 자체는 위에서 정한 그대로(navigate/phrase/help,
+			'/plan/basic' 등)를 그대로 쓴다 — 번역하지 않는다.
+			""";
+
+	private static final String CHINESE_SIMPLIFIED_DIRECTIVE = """
+
+
+			🔴 답변 언어 — 이번 요청은 중국어(간체) 사용자다. reply · label · korean(원문은 한국어
+			그대로 두되 설명은 간체자로) · pronunciation 등 사용자에게 보여줄 모든 텍스트를 간체자로
+			써라. kind 값과 href 값 자체는 위에서 정한 그대로(navigate/phrase/help,
+			'/plan/basic' 등)를 그대로 쓴다 — 번역하지 않는다.
+			""";
+
+	private static final String CHINESE_TRADITIONAL_DIRECTIVE = """
+
+
+			🔴 답변 언어 — 이번 요청은 중국어(번체) 사용자다. reply · label · korean(원문은 한국어
+			그대로 두되 설명은 번체자로) · pronunciation 등 사용자에게 보여줄 모든 텍스트를 번체자로
+			써라. kind 값과 href 값 자체는 위에서 정한 그대로(navigate/phrase/help,
+			'/plan/basic' 등)를 그대로 쓴다 — 번역하지 않는다.
+			""";
+
 	private final AssistantProperties properties;
 
 	private final ObjectMapper objectMapper;
@@ -202,6 +230,34 @@ public class GeminiAssistantAdapter implements AssistantVendorPort {
 	public GeminiAssistantAdapter(AssistantProperties properties, ObjectMapper objectMapper) {
 		this.properties = properties;
 		this.objectMapper = objectMapper;
+	}
+
+	/**
+	 * 🔴 <b>주소와 시간 제한을 여기서 정한다 — S15P21E201-1253.</b>
+	 *
+	 * <p>예전에는 {@code Client.builder().apiKey(...)} 뿐이었다. 그러면 두 가지가 기본값에
+	 * 맡겨진다.
+	 *
+	 * <ul>
+	 *   <li><b>주소</b> — 구글을 직접 부른다. 개인 키의 무료 한도가 좁아 같은 질문을 여섯 번
+	 *       연속으로 보내면 <b>첫 한 번만 성공하고 나머지가 429</b> 였다(2026-09-18 실측).
+	 *       사용자에게는 「제공처가 잠시 응답하지 않아요」로 보인다</li>
+	 *   <li><b>시간 제한</b> — 사실상 없다. 실제로 <b>35.96초</b>를 붙잡고 죽는 것을 봤다.
+	 *       앱은 12초에 이미 끊으므로 그 24초는 <b>아무도 안 기다리는 시간</b>인데, 요청
+	 *       스레드는 묶여 있고 사용자의 하루 한도는 이미 깎인 뒤다</li>
+	 * </ul>
+	 *
+	 * <p>{@code baseUrl} 이 비어 있으면 <b>안 건다</b> — 그때는 예전처럼 구글을 직접 부른다.
+	 * 시간 제한은 주소와 무관하게 언제나 건다.
+	 */
+	HttpOptions httpOptions() {
+		HttpOptions.Builder builder = HttpOptions.builder()
+				.timeout((int) this.properties.getTimeout().toMillis());
+		String baseUrl = this.properties.getBaseUrl();
+		if (baseUrl != null && !baseUrl.isBlank()) {
+			builder.baseUrl(baseUrl);
+		}
+		return builder.build();
 	}
 
 	@Override
@@ -217,9 +273,9 @@ public class GeminiAssistantAdapter implements AssistantVendorPort {
 					"AI 여행 도우미가 설정되지 않았습니다.", HttpStatus.BAD_GATEWAY);
 		}
 
-		Client client = Client.builder().apiKey(apiKey).build();
+		Client client = Client.builder().apiKey(apiKey).httpOptions(httpOptions()).build();
 
-		String systemPrompt = "en".equals(request.language()) ? SYSTEM_PROMPT + ENGLISH_DIRECTIVE : SYSTEM_PROMPT;
+		String systemPrompt = SYSTEM_PROMPT + languageDirective(request.language());
 		if (request.tripContext() != null && !request.tripContext().isBlank()) {
 			systemPrompt = systemPrompt + "\n\n[실제 일정]\n" + request.tripContext();
 		}
@@ -269,6 +325,20 @@ public class GeminiAssistantAdapter implements AssistantVendorPort {
 		}
 
 		return toDomain(parsed);
+	}
+
+	/** {@code AssistantChatService.normalizeLanguage} 가 만든 다섯 값 중 하나를 받는다. */
+	private String languageDirective(String language) {
+		if (language == null) {
+			return "";
+		}
+		return switch (language) {
+			case "en" -> ENGLISH_DIRECTIVE;
+			case "ja" -> JAPANESE_DIRECTIVE;
+			case "zh-Hans" -> CHINESE_SIMPLIFIED_DIRECTIVE;
+			case "zh-Hant" -> CHINESE_TRADITIONAL_DIRECTIVE;
+			default -> "";
+		};
 	}
 
 	/**

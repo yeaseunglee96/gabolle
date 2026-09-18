@@ -311,19 +311,74 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 	 * 이름까지 남긴다 — {@code "unknown"} 을 넣으면 재현할 수 없는 결과가 재현 가능한
 	 * 척하게 된다.
 	 */
-	private String resolveDatasetVersion(List<String> datasetVersions) {
+	// 🔴 package-private 이다 — 같은 꾸러미의 시험이 직접 부른다(S15P21E201-1165).
+	//    이 한 메서드가 "일정을 만들 수 있나" 를 통째로 좌우한 적이 있어서, 바깥 배선을
+	//    다 세우지 않고도 규칙만 따로 겨눌 수 있어야 한다.
+	String resolveDatasetVersion(List<String> datasetVersions) {
 		if (datasetVersions == null || datasetVersions.isEmpty()) {
 			return null;
 		}
 		// TreeSet 이 정렬과 중복 제거를 한 번에 한다.
 		String joined = String.join(",", new TreeSet<>(datasetVersions));
-		if (joined.length() > 100) {
-			// 🔴 VARCHAR(100) 을 넘는다고 조용히 자르지 않는다 — 잘린 값은 그 뒤로 다른
-			// 데이터셋 조합과 겹쳐 보일 수 있다.
-			throw new RecommendationEngineException("ENGINE_DATASET_VERSION_AMBIGUOUS",
-					"datasetVersion 을 이어 붙인 문자열이 100자를 넘는다(" + joined.length() + "자): " + joined);
+		if (joined.length() <= DATASET_VERSION_MAX) {
+			return joined;
 		}
-		return joined;
+		return digestOf(joined);
+	}
+
+	/** {@code dataset_version} 컬럼 폭. 마이그레이션 다섯 곳이 모두 VARCHAR(100) 이다. */
+	private static final int DATASET_VERSION_MAX = 100;
+
+	/** 지문임을 값만 보고도 알 수 있게 붙이는 머리말. */
+	private static final String DATASET_VERSION_DIGEST_PREFIX = "sha256:";
+
+	/**
+	 * 이어 붙인 값이 칸보다 길면 <b>지문</b>으로 줄여서 적는다 — S15P21E201-1165.
+	 *
+	 * <h2>왜 예외를 던지다가 지문으로 바꿨나</h2>
+	 * 예전에는 100자를 넘으면 {@code ENGINE_DATASET_VERSION_AMBIGUOUS} 로 요청을 실패시켰다.
+	 * 조용히 자르지 않겠다는 뜻이었고 <b>그 판단은 옳았다</b> — 잘린 값은 다른 수집분 조합과
+	 * 겹쳐 보인다.
+	 *
+	 * <p>그런데 2026-09-16 에 {@code tourapi-curated-*} 셋이 들어가면서 수집분이 여섯이 되어
+	 * 159자가 됐고, <b>그때부터 일정 생성이 100% 실패했다</b>(2026-09-17 실기기·운영 로그로
+	 * 확인). 자료를 더 넣을수록 확실해지는 실패라 되돌아갈 방향이 아니다.
+	 *
+	 * <p>지문은 자르는 것이 아니다. 길이가 영원히 묶이면서도 <b>조합이 다르면 값도 다르다</b> —
+	 * 원래 주석이 막으려던 "겹쳐 보이는 것" 을 그대로 막는다.
+	 *
+	 * <h2>🔴 잃는 것과, 그것이 괜찮은 이유</h2>
+	 * 값만 보고 어느 수집분들이었는지 읽을 수 없게 된다. 그래도 정보가 사라지지는 않는다 —
+	 * 그 일정에 들어간 장소들의 {@code place.dataset_version} 으로 언제든 되짚을 수 있다.
+	 * 이 칸이 실제로 해야 하는 일은 <b>"이 조합을 다른 조합과 구분하는 안정된 이름"</b> 하나다.
+	 *
+	 * <p>그리고 짧을 때는 예전 그대로 사람이 읽는 값이 들어간다. 지문은 <b>넘칠 때만</b> 쓴다 —
+	 * 이미 쌓인 값들의 뜻이 바뀌지 않는다.
+	 *
+	 * <p>넘쳤다는 사실과 원문은 로그에 남긴다. 조용히 바뀌면 나중에 "이 값은 왜 지문이지" 를
+	 * 아무도 못 되짚는다.
+	 */
+	private String digestOf(String joined) {
+		String hex;
+		try {
+			byte[] bytes = java.security.MessageDigest.getInstance("SHA-256")
+					.digest(joined.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+			StringBuilder sb = new StringBuilder(32);
+			// 16바이트(32자)면 충돌은 현실에서 일어나지 않는다. 머리말까지 39자라 칸에 넉넉히 든다.
+			for (int i = 0; i < 16; i++) {
+				sb.append(String.format("%02x", bytes[i]));
+			}
+			hex = sb.toString();
+		}
+		catch (java.security.NoSuchAlgorithmException e) {
+			// SHA-256 은 모든 JVM 이 갖고 있어야 하는 알고리즘이다. 없으면 환경이 깨진 것이고,
+			// 그것을 추천 실패로 덮지 않는다.
+			throw new IllegalStateException("SHA-256 을 쓸 수 없다 — JVM 설치가 온전하지 않다", e);
+		}
+		String digest = DATASET_VERSION_DIGEST_PREFIX + hex;
+		LOGGER.info("datasetVersion 이 {}자를 넘어 지문으로 적는다({}자). digest={} 원문={}",
+				DATASET_VERSION_MAX, joined.length(), digest, joined);
+		return digest;
 	}
 
 	private static long elapsedMs(long startNanos) {

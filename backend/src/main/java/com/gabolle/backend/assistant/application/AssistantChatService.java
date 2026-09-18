@@ -82,10 +82,7 @@ public class AssistantChatService {
 		// 🔴 벤더를 부르기 전에 막는다 — 한도를 넘긴 요청이 무료 티어 호출을 쓰면 안 된다.
 		this.rateLimiter.checkAndRecord(userId);
 
-		// 🔴 우리 클라이언트는 'ko'/'en' 만 보내지만, Accept-Language 는 표준적으로
-		// "en-US,en;q=0.9" 같은 모양도 올 수 있다 — 접두어만 본다.
-		String normalizedLanguage = language != null && language.toLowerCase(Locale.ROOT).startsWith("en")
-				? "en" : "ko";
+		String normalizedLanguage = normalizeLanguage(language);
 		List<AssistantTurn> trimmedHistory = trimHistory(history);
 
 		String tripContext = null;
@@ -97,6 +94,34 @@ public class AssistantChatService {
 		// 🔴 실패하면 여기서 던진 AssistantVendorException 이 그대로 위로 올라간다.
 		return this.vendor.reply(
 				new AssistantChatRequest(message, normalizedLanguage, trimmedHistory, tripContext));
+	}
+
+	/**
+	 * 프론트가 5개 언어(ko/en/ja/zh-Hans/zh-Hant)를 지원한다 — {@code frontend/src/i18n/languages.ts}
+	 * 의 {@code toBcp47()} 가 만드는 표기({@code ko-KR}·{@code en-US}·{@code ja-JP}·{@code zh-CN}·
+	 * {@code zh-TW})를 Accept-Language 헤더로 그대로 보낸다.
+	 *
+	 * <p>🔴 <b>첫 언어 태그만</b> 본다 — {@code RequestLanguage.prefersEnglish} 와 같은 단순화다.
+	 * 처음에는 헤더 전체 문자열에 {@code contains}를 써서, 우선순위가 낮은 뒤쪽 태그(예:
+	 * {@code "zh-Hans,zh-Hant;q=0.5"} 의 {@code zh-Hant})가 앞쪽 태그의 판정을 덮어쓰는 결함이
+	 * 있었다(MR !1066 AI 리뷰로 발견) — 그래서 콤마로 먼저 자른다.
+	 */
+	private String normalizeLanguage(String language) {
+		if (language == null || language.isBlank()) {
+			return "ko";
+		}
+		String primary = language.split(",")[0].split(";")[0].trim().toLowerCase(Locale.ROOT);
+		if (primary.startsWith("en")) {
+			return "en";
+		}
+		if (primary.startsWith("ja")) {
+			return "ja";
+		}
+		if (primary.startsWith("zh")) {
+			return (primary.contains("hant") || primary.contains("-tw") || primary.contains("-hk")
+					|| primary.contains("-mo")) ? "zh-Hant" : "zh-Hans";
+		}
+		return "ko";
 	}
 
 	private List<AssistantTurn> trimHistory(List<AssistantTurn> history) {

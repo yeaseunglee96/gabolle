@@ -64,7 +64,7 @@ class GmsMenuReaderFailureTest {
 		try {
 			GmsMenuReader reader = readerPointedAt("http://127.0.0.1:" + server.getAddress().getPort());
 
-			assertThatThrownBy(() -> reader.read(ANY_IMAGE))
+			assertThatThrownBy(() -> reader.read(ANY_IMAGE, null))
 					.isInstanceOf(GmsMenuReader.MenuReadFailedException.class)
 					.hasMessageContaining("401");
 		}
@@ -82,7 +82,7 @@ class GmsMenuReaderFailureTest {
 		}
 		GmsMenuReader reader = readerPointedAt("http://127.0.0.1:" + deadPort);
 
-		assertThatThrownBy(() -> reader.read(ANY_IMAGE))
+		assertThatThrownBy(() -> reader.read(ANY_IMAGE, null))
 				.isInstanceOf(GmsMenuReader.MenuReadFailedException.class)
 				.hasMessageContaining("닿지 못했다");
 	}
@@ -139,7 +139,7 @@ class GmsMenuReaderFailureTest {
 
 	private GmsMenuReader.MenuReadFailedException.Reason reasonOf(GmsMenuReader reader) {
 		try {
-			reader.read(ANY_IMAGE);
+			reader.read(ANY_IMAGE, null);
 			throw new AssertionError("실패하지 않았다");
 		}
 		catch (GmsMenuReader.MenuReadFailedException exception) {
@@ -181,7 +181,7 @@ class GmsMenuReaderFailureTest {
 
 	private String messageOf(GmsMenuReader reader) {
 		try {
-			reader.read(ANY_IMAGE);
+			reader.read(ANY_IMAGE, null);
 			throw new AssertionError("실패하지 않았다");
 		}
 		catch (GmsMenuReader.MenuReadFailedException exception) {

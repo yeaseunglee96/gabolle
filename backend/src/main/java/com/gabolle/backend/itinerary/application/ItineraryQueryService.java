@@ -32,6 +32,7 @@ import com.gabolle.backend.itinerary.presentation.dto.ItineraryVersionSummaryRes
 import com.gabolle.backend.itinerary.presentation.dto.ItineraryVersionsResponse;
 import com.gabolle.backend.place.domain.Place;
 import com.gabolle.backend.place.repository.PlaceRepository;
+import com.gabolle.backend.recommendation.application.RecommendationCodes;
 import com.gabolle.backend.recommendation.domain.FallbackMode;
 import com.gabolle.backend.recommendation.domain.RecommendationJob;
 import com.gabolle.backend.recommendation.repository.RecommendationJobRepository;
@@ -136,7 +137,25 @@ public class ItineraryQueryService {
 				access.role().canEdit(),
 				content.version().warningCodes(),
 				// S15P21E201-1113 — 이미 손에 있는 값이다. 여행을 다시 조회하지 않는다.
-				trip.tripId());
+				trip.tripId(),
+				// S15P21E201-1158 — 이미 읽어 둔 항목에서 센다. DB 를 다시 묻지 않는다.
+				accessibilityUnverifiedCount(content.items()));
+	}
+
+	/**
+	 * 휠체어 접근을 <b>안 재 본</b> 항목이 몇 곳인가 — S15P21E201-1158.
+	 *
+	 * <p>🔴 항목 수를 센다. 경고 <b>건수</b>가 아니다. 한 항목에 같은 경고가 두 번 붙는 일은
+	 * 지금 없지만, 화면이 사용자에게 말하는 것은 언제나 <b>"몇 곳"</b> 이라 세는 단위를 곳으로
+	 * 못박는다.
+	 *
+	 * <p>문자열을 여기서 다시 적지 않고 {@link RecommendationCodes} 를 본다 — 값을 만드는 곳이
+	 * 다른 갈래에 있어서, 두 벌이 되면 한쪽만 고쳐지는 날 <b>이 셈이 조용히 0 이 된다.</b>
+	 */
+	private int accessibilityUnverifiedCount(List<ItineraryItem> items) {
+		return (int) items.stream()
+				.filter(item -> item.warningCodes().contains(RecommendationCodes.WARNING_ACCESSIBILITY_UNVERIFIED))
+				.count();
 	}
 
 	/**
@@ -251,7 +270,10 @@ public class ItineraryQueryService {
 				item.placeId(),
 				travelDurationMin,
 				travelDataStatus,
-				travelFareKrw);
+				travelFareKrw,
+				// S15P21E201-1158 — 저장돼 있던 값을 그대로 공개한다. ItineraryItem 이 생성자에서
+				// 이미 빈 목록으로 정규화하므로(null 이 안 나온다) 여기서 다시 감싸지 않는다.
+				item.warningCodes());
 	}
 
 	/** {@code visit_date} + {@code start_time} 을 ISO-8601 로 합친다. 시간대는 항상 Asia/Seoul 이다(API-03). */

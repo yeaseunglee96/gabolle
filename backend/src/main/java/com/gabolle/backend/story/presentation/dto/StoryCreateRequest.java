@@ -28,7 +28,40 @@ public record StoryCreateRequest(
 		UUID tripId,
 		@Size(max = 100) String region,
 		StoryVisibility visibility,
-		Instant publishAt) {
+		Instant publishAt,
+
+		/**
+		 * 🔴 S15P21E201-1183 — 이 값이 있으면 <b>댓글</b>이다. 없으면 원글이다.
+		 *
+		 * <p>댓글을 만드는 경로를 따로 두지 않고 이 칸 하나로 가른다 — 시안이 요구한 대로
+		 * 댓글이 원글과 <b>같은 것</b>이기 때문이다.
+		 *
+		 * <p>🔴 <b>댓글일 때는 위의 칸 대부분을 안 읽는다.</b> {@code visibility}·{@code publishAt}
+		 * 은 댓글에 개념이 없어 서버가 정하고({@code PUBLIC} · 지금), {@code tripId}·
+		 * {@code placeId}·{@code region} 도 안 쓴다. 읽는 것은 {@code body} 와 {@code imageUrls}
+		 * 뿐이다.
+		 *
+		 * <p>무시한다고 400 을 내지는 않는다. 화면이 같은 요청 모양을 쓰는 것이 이 설계의
+		 * 목적이라, 원글용 칸이 딸려 오는 것은 정상이다.
+		 *
+		 * <p>부모가 댓글이어도 된다 — <b>댓글의 댓글</b>이고 깊이 제한은 없다.
+		 */
+		UUID parentStoryId) {
+
+	/**
+	 * 🔴 {@code parentStoryId} 를 안 적은 기존 호출자를 위한 것이다 — <b>원글</b>로 본다
+	 * (S15P21E201-1183).
+	 *
+	 * <p>{@code PlaceFeatureNdjsonReader.Fact} 가 같은 이유로 같은 모양을 쓴다. 칸을 하나 더
+	 * 붙이면서 부르는 자리를 전부 고치면, 그 diff 안에서 <b>정말 바뀐 곳</b>이 안 보인다.
+	 *
+	 * <p>JSON 역직렬화는 이 생성자를 안 쓴다 — Jackson 은 칸 이름으로 맞추므로 {@code parentStoryId}
+	 * 가 없는 본문이 오면 그 자리가 그냥 {@code null} 이다. 이것은 자바 호출자만을 위한 통로다.
+	 */
+	public StoryCreateRequest(String body, List<String> imageUrls, UUID placeId, UUID tripId, String region,
+			StoryVisibility visibility, Instant publishAt) {
+		this(body, imageUrls, placeId, tripId, region, visibility, publishAt, null);
+	}
 
 	public List<String> imageUrlsOrEmpty() {
 		return imageUrls == null ? List.of() : imageUrls;
