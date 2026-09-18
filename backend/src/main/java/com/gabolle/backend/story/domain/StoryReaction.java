@@ -30,13 +30,35 @@ public class StoryReaction {
 	@EmbeddedId
 	private StoryReactionId id;
 
+	/** 🔴 {@code null} 이면 <b>취소한 것</b>이다. 행은 남는다 — 아래 {@code likeRecorded} 를 지키기 위해서다. */
 	@Enumerated(EnumType.STRING)
-	@Column(name = "reaction", nullable = false, length = 16)
+	@Column(name = "reaction", length = 16)
 	private ReactionType reaction;
 
-	/** 🔴 처음 누른 시각이다. 종류를 바꿔도 안 바뀐다 — 인기순이 이 칸으로 24시간 창을 자른다. */
+	/** 🔴 이 사람이 이 글에 <b>처음 손댄</b> 때다. 인기순은 이 칸을 안 쓴다 — {@link #reactedAt} 을 쓴다. */
 	@Column(name = "created_at", nullable = false, updatable = false)
 	private OffsetDateTime createdAt;
+
+	/**
+	 * 🔴 <b>지금의 반응을 고른 때.</b> 인기순의 24시간 창이 자르는 칸이 이것이다.
+	 *
+	 * <p>한때 {@link #createdAt} 이 그 일을 겸했는데, 그러면 사흘 전에 싫어요를 눌렀던 사람이
+	 * 오늘 좋아요로 바꿔도 시각이 사흘 전이라 <b>오늘 눌린 좋아요가 집계에서 빠졌다.</b>
+	 */
+	@Column(name = "reacted_at", nullable = false)
+	private OffsetDateTime reactedAt;
+
+	/**
+	 * 🔴 이 사람이 이 글에 좋아요를 <b>한 번이라도</b> 남겼나. <b>취소해도 안 내려간다.</b>
+	 *
+	 * <p>이벤트를 (글, 사람, 종류)당 하나로 묶는 칸이다. 내려가면 하트를 껐다 켜는 것으로
+	 * 이벤트를 몇 번이든 다시 만들 수 있다 — 실제로 그랬다.
+	 */
+	@Column(name = "like_recorded", nullable = false)
+	private boolean likeRecorded;
+
+	@Column(name = "dislike_recorded", nullable = false)
+	private boolean dislikeRecorded;
 
 	@Column(name = "updated_at", nullable = false)
 	private OffsetDateTime updatedAt;
@@ -55,6 +77,18 @@ public class StoryReaction {
 
 	public OffsetDateTime getCreatedAt() {
 		return this.createdAt;
+	}
+
+	public OffsetDateTime getReactedAt() {
+		return this.reactedAt;
+	}
+
+	public boolean isLikeRecorded() {
+		return this.likeRecorded;
+	}
+
+	public boolean isDislikeRecorded() {
+		return this.dislikeRecorded;
 	}
 
 	public OffsetDateTime getUpdatedAt() {
