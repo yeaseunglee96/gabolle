@@ -238,9 +238,9 @@ export default function Place() {
             레이아웃일 뿐, 안쪽 Pressable 의 색과 부딪히지 않는다). */}
         <View style={styles.actions}>
           <Button label={isSaved ? tx('내 여행 후보에서 빼기', 'Remove from candidates') : tx('내 여행 후보에 저장', 'Save to candidates')} variant="ghost" onPress={() => void toggleSaved()} containerStyle={styles.actionHalf} />
-          <Button label={tx('한국어로 말하기', 'Speak Korean')} onPress={() => setPhraseModalOpen(true)} containerStyle={[styles.speakAction, styles.actionHalf]} />
+          <Button label={tx('한국어로 말하기', 'Speak Korean')} onPress={() => setPhraseModalOpen(true)} containerStyle={styles.actionHalf} />
           {taxiPlaceId ? <Button label={tx('리뷰 보기', 'See reviews')} variant="ghost" onPress={() => router.push(`/place-reviews/${taxiPlaceId}`)} containerStyle={styles.actionHalf} /> : null}
-          {taxiPlaceId ? <Button label={tx('택시 기사에게 보여주기', 'Show to a taxi driver')} onPress={() => router.push(`/taxi-card/${taxiPlaceId}`)} containerStyle={[styles.speakAction, styles.actionHalf]} /> : null}
+          {taxiPlaceId ? <Button label={tx('택시 기사에게 보여주기', 'Show to a taxi driver')} onPress={() => router.push(`/taxi-card/${taxiPlaceId}`)} containerStyle={styles.actionHalf} /> : null}
           {feedback ? <Text accessibilityLiveRegion="polite" color={color.text.body} style={styles.feedback}>{feedback}</Text> : null}
         </View>
         </View>
@@ -307,6 +307,5 @@ const styles = StyleSheet.create({
   //    없는 장소)일 때도 마지막 버튼이 어색하게 반쪽만 남지 않고 자연스럽게 늘어난다.
   actionHalf: { flexBasis: '46%', flexGrow: 1 },
   feedback: { textAlign: 'center', width: '100%' },
-  speakAction: { backgroundColor: color.brand.navy },
   recoveryButton: { marginTop: spacing[2] },
 });

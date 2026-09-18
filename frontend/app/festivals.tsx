@@ -76,7 +76,7 @@ export default function Festivals() {
     <View style={[styles.filterCard, isAtLeast(width, 'md') && styles.filterCardWide]}>
       <View style={styles.dateField}><Text variant="caption" weight="bold">{tx('시작일', 'Start date')}</Text><TextInput accessibilityLabel={tx('축제 조회 시작일', 'Festival search start date')} value={from} onChangeText={(value) => setFrom(maskDateInput(value))} keyboardType="number-pad" placeholder="YYYY-MM-DD" maxLength={10} style={[styles.input, !dateValid && styles.inputError]} /></View>
       <View style={styles.dateField}><Text variant="caption" weight="bold">{tx('종료일', 'End date')}</Text><TextInput accessibilityLabel={tx('축제 조회 종료일', 'Festival search end date')} value={to} onChangeText={(value) => setTo(maskDateInput(value))} keyboardType="number-pad" placeholder="YYYY-MM-DD" maxLength={10} style={[styles.input, !dateValid && styles.inputError]} /></View>
-      <Button label={tx('이 기간으로 조회', 'Search this period')} disabled={!dateValid || state === 'loading'} onPress={() => void load()} containerStyle={[styles.searchButton, styles.primaryAction]} />
+      <Button label={tx('이 기간으로 조회', 'Search this period')} disabled={!dateValid || state === 'loading'} onPress={() => void load()} containerStyle={styles.searchButton} />
       {!dateValid && <Text accessibilityRole="alert" variant="caption" color={color.state.danger}>{tx('숫자만 입력하면 되고, 시작일이 종료일보다 빨라야 해요.', 'Type digits only — the start date must come before the end date.')}</Text>}
     </View>
 
@@ -123,7 +123,6 @@ const styles = StyleSheet.create({
   heading: { gap: spacing[2], marginTop: spacing[4], marginBottom: spacing[6] },
   filterCard: { gap: spacing[3], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card }, filterCardWide: { flexDirection: 'row', alignItems: 'flex-end', flexWrap: 'wrap' },
   dateField: { flex: 1, minWidth: 180, gap: spacing[1] }, input: { minHeight: 48, paddingHorizontal: spacing[3], borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.md, color: color.text.heading, backgroundColor: color.brand.ivory }, inputError: { borderColor: color.state.danger }, searchButton: { minWidth: 180, width: undefined },
-  primaryAction: { backgroundColor: color.brand.navy },
   sortRow: { flexDirection: 'row', gap: spacing[2], marginVertical: spacing[4] }, sortButton: { minHeight: 40, justifyContent: 'center', paddingHorizontal: spacing[4], borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.full, backgroundColor: color.surface.card }, sortSelected: { borderColor: color.brand.orange, backgroundColor: color.brand.orange },
   stateCard: { gap: spacing[3], padding: spacing[6], borderRadius: radius.lg, backgroundColor: color.surface.card },
   sampleNotice: { marginBottom: spacing[3], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.state.warningBg },
