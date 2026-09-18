@@ -11,6 +11,7 @@ import { Eyebrow } from '@/components/Eyebrow';
 import { Text } from '@/components/Text';
 import { Button } from '@/components/Button';
 import { BrandLogoLink } from '@/components/BrandLogoLink';
+import { enterApp } from '@/auth/enterApp';
 import { useI18n } from '@/i18n';
 import { useLayout } from '@/layout/useLayout';
 
@@ -61,7 +62,10 @@ export default function Permissions() {
     if (requesting) return;
     setRequesting(true);
     await AsyncStorage.setItem(PERMISSION_PREFERENCES_KEY, JSON.stringify({ notification: false }));
-    router.replace('/home');
+    // 🔴 enterApp 이어야 한다 (S15P21E201-1242). router.replace 는 맨 위 한 칸만 바꾸므로
+    //    아래 쌓인 온보딩·로그인 화면이 그대로 남고, 홈에서 뒤로 가면 그것이 다시 보인다.
+    //    S15P21E201-1199 에서 로그인 경로만 고쳤고 이 비회원 경로가 남아 있었다.
+    enterApp(router, '/home');
   }
 
   return (

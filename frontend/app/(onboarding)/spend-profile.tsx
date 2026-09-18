@@ -10,6 +10,7 @@ import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
+import { enterApp } from '@/auth/enterApp';
 import { useI18n } from '@/i18n';
 import { getSpendProfile, MEAL_VARIES_CODE, putSpendProfile, SPEND_HEADER, SPEND_QUESTIONS, type SpendAnswers } from '@/onboarding/spendProfile';
 
@@ -29,13 +30,13 @@ export default function SpendProfileScreen() {
   // (로컬 플래그를 따로 두지 않는다, home.tsx 의 1회성 안내와 같은 원칙).
   useEffect(() => {
     if (!ready) return;
-    if (!accessToken) { router.replace('/home'); return; }
+    if (!accessToken) { enterApp(router, '/home'); return; }
     let active = true;
     setChecking(true);
     setCheckFailed(false);
     void getSpendProfile(accessToken).then((result) => {
       if (!active) return;
-      if (result.status !== 'UNKNOWN') { router.replace('/home'); return; }
+      if (result.status !== 'UNKNOWN') { enterApp(router, '/home'); return; }
       setChecking(false);
     }).catch(() => { if (active) { setChecking(false); setCheckFailed(true); } });
     return () => { active = false; };
@@ -71,7 +72,7 @@ export default function SpendProfileScreen() {
     return <Screen scroll style={styles.screen}><View style={styles.heading}>
       <Text accessibilityRole="alert">{tx('저장한 답변을 확인하지 못했어요. 이미 답한 설문을 다시 묻지 않도록 연결을 확인한 뒤 재시도해 주세요.', 'We could not check your saved answers. Please retry so we do not ask you to repeat a completed survey.')}</Text>
       <Button label={tx('다시 확인', 'Check again')} onPress={() => setCheckAttempt((value) => value + 1)} />
-      <Button variant="ghost" label={tx('홈으로', 'Go to home')} onPress={() => router.replace('/home')} />
+      <Button variant="ghost" label={tx('홈으로', 'Go to home')} onPress={() => enterApp(router, '/home')} />
     </View></Screen>;
   }
 
@@ -92,7 +93,7 @@ export default function SpendProfileScreen() {
     {saveFailed && <View style={styles.options}>
       <Text accessibilityRole="alert">{tx('답변을 저장하지 못했어요. 이 화면에서는 선택한 답이 유지돼요. 다시 저장하거나, 저장하지 않고 나중에 답할 수 있어요.', 'Your answers could not be saved. Your selections are kept on this screen. Retry saving, or leave without saving and answer later.')}</Text>
       <Button label={tx('다시 저장', 'Retry saving')} disabled={submitting} onPress={() => void finish(answers)} />
-      <Button variant="ghost" label={tx('저장하지 않고 나중에', 'Leave without saving')} disabled={submitting} onPress={() => router.replace('/home')} />
+      <Button variant="ghost" label={tx('저장하지 않고 나중에', 'Leave without saving')} disabled={submitting} onPress={() => enterApp(router, '/home')} />
     </View>}
 
     <Text variant="title" weight="bold" style={styles.question}>{tx(question.titleKo('USER'), question.titleEn('USER'))}</Text>
