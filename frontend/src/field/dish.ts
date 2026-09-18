@@ -8,7 +8,20 @@ import { apiRequest, ApiClientError, API_BASE_URL } from '@/api/client';
 import type { LanguageCode } from '@/i18n/languages';
 
 /** 서버가 그림이 어디까지 왔는지 말하는 값. */
-export type DishImageStatus = 'PENDING' | 'READY' | 'FAILED' | 'NONE';
+export type DishImageStatus =
+  | 'PENDING'
+  | 'READY'
+  | 'FAILED'
+  /** 그릴 근거가 없다 — 모델이 모르는 음식이다. */
+  | 'NONE'
+  /**
+   * 🔴 지금은 못 만든다 — 그 사람의 그림 한도가 찼다 (S15P21E201-1294).
+   *
+   * `FAILED` 와 가른 이유는 **다음에 할 일이 다르기 때문**이다. 실패는 그 음식이 원래
+   * 안 되는 것일 수 있지만 이것은 잠시 뒤 다시 누르면 된다. 한 문구로 뭉개면 사용자는
+   * 기다리면 될 것을 포기한다. **설명은 이 값과 함께 온다.**
+   */
+  | 'RATE_LIMITED';
 
 export type Dish = {
   name: string;
@@ -61,7 +74,8 @@ function normalizeDish(dto: Dish, askedName: string): Dish {
     descriptionSource: typeof dto?.descriptionSource === 'string' ? dto.descriptionSource : 'MODEL_KNOWLEDGE',
     // 🔴 모르는 값이 오면 「없다」로 떨어뜨린다 — 「만드는 중」으로 떨어뜨리면 화면이
     //    오지 않을 그림을 영원히 기다린다.
-    imageStatus: status === 'PENDING' || status === 'READY' || status === 'FAILED' ? status : 'NONE',
+    imageStatus: status === 'PENDING' || status === 'READY' || status === 'FAILED'
+      || status === 'RATE_LIMITED' ? status : 'NONE',
     imageId: typeof dto?.imageId === 'string' ? dto.imageId : null,
   };
 }
